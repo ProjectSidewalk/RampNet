@@ -10,7 +10,7 @@
     <br><br>
     University of Washington
   </p>
-  <h3 align="center"><a href="PUT_HERE">💻 Code</a> / <a href="PUT_HERE">📄 Paper</a> / <a href="https://colab.research.google.com/drive/1TOtScud5ac2McXJmg1n_YkOoZBchdn3w?usp=sharing">🛠️ Demo</a> / <a href="PUT_HERE">🗃️ Dataset</a> </h3>
+  <h3 align="center"><a href="https://github.com/ProjectSidewalk/RampNet">💻 Code</a> / <a href="PUT_HERE">📄 Paper</a> / <a href="https://colab.research.google.com/drive/1TOtScud5ac2McXJmg1n_YkOoZBchdn3w?usp=sharing">🛠️ Demo</a> / <a href="https://huggingface.co/datasets/projectsidewalk/rampnet-dataset">🗃️ Dataset</a> </h3>
   <div align="center"></div>
 </p>
 <p align="center">
@@ -85,11 +85,11 @@ conda activate sidewalkcv2
 
 Before reproducing our results, certain datasets will need to be downloaded.
 
-- City location data. We use NYC, Bend, and Portland.
+- City curb ramp location data. We use NYC, Bend, and Portland.
   - In `stage_one/dataset_generation/location_data`, there should be three files
-    - [`bend.geojson`](PUT_HERE)
-    - [`nyc.csv`](PUT_HERE) (using csv here as NYC uses different file format than geojson)
-    - [`portland.geojson`](PUT_HERE)
+    - [`bend.geojson`](https://bend-data-portal-bendoregon.hub.arcgis.com/datasets/bendoregon::curb-ramps/about)
+    - [`nyc.csv`](https://data.cityofnewyork.us/Transportation/Pedestrian-Ramp-Locations/ufzp-rrqu/about_data) (using csv here as NYC uses different file format than geojson)
+    - [`portland.geojson`](https://gis-pdx.opendata.arcgis.com/datasets/PDX::curb-ramps/about)
   - These files can either be downloaded from our paper's supplemental material, or from the government websites that have been hyperlinked.
 - City Street Data. We use this when generating null panos (picking a random street until we find one with no curb ramp nearby)
   - In `stage_one/dataset_generation/street_data`, there should be three files
@@ -97,10 +97,10 @@ Before reproducing our results, certain datasets will need to be downloaded.
     - [`New York - Streets.geojson`](https://nycmaps-nyc.hub.arcgis.com/maps/82854419a16044aaa75a038b3706235b/about)
     - [`Portland - Streets.geojson`](https://gis-pdx.opendata.arcgis.com/datasets/9248407180c94efb9ddc675b0cc53826_68/explore)
 - We also need `cityboundaries.geojson` file in `stage_one/dataset_generation` for negative pano generation. It included in this repo - no download needed.
-- The tiny set of manually labeled crops can be downloaded [here](PUT_HERE). The `test`, `train`, and `val` folders belong in `stage_one/crop_model/dataset_1`
+- The tiny set of manually labeled crops can be downloaded [here](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset). The `test`, `train`, and `val` folders belong in `stage_one/crop_model/ps_and_manual_model/dataset_1`
 - Manual annotations for evaluation of both stages (included in this repo, no download needed). Note that while we include the manual annotations in this repo, the images themselves are not included because they are assumed to be included in the dataset that will be generated.
 
-If you only wish to setup for Stage 2, then you can download our Stage 1-generated dataset [here](PUT_HERE) or using the `download_dataset.py` script in the project directory.
+If you only wish to setup for Stage 2, then you can download our Stage 1-generated dataset [here](https://huggingface.co/datasets/projectsidewalk/rampnet-dataset) or using the `download_dataset.py` script in the project directory.
 
 ## Stage 1: Dataset Generation
 We detail how to reproduce our Stage 1 results. Please ensure you have downloaded all the necessary files before proceeding with this step.
@@ -154,7 +154,7 @@ Recall    (TP / Total GT):  0.9245
 ## Stage 2: Curb Ramp Detection
 We detail how to reproduce our Stage 2 results.
 
-You can either start where you left off in Stage 1, with the dataset fully generated, or you can skip that process and download our full dataset [here](PUT_HERE) or using the `download_dataset.py` script in the project directory.
+You can either start where you left off in Stage 1, with the dataset fully generated, or you can skip that process and download our full dataset [here](https://huggingface.co/datasets/projectsidewalk/rampnet-dataset) or using the `download_dataset.py` script in the project directory.
 
 ### Training
 
