@@ -100,7 +100,7 @@ Before reproducing our results, certain datasets will need to be downloaded.
 - The tiny set of manually labeled crops can be downloaded [here](PUT_HERE). The `test`, `train`, and `val` folders belong in `stage_one/crop_model/dataset_1`
 - Manual annotations for evaluation of both stages (included in this repo, no download needed). Note that while we include the manual annotations in this repo, the images themselves are not included because they are assumed to be included in the dataset that will be generated.
 
-If you only wish to setup for Stage 2, then you can quickly download our Stage 1-generated dataset with the `download_dataset.py` script.
+If you only wish to setup for Stage 2, then you can download our Stage 1-generated dataset [here](PUT_HERE) or using the `download_dataset.py` script in the project directory.
 
 ## Stage 1: Dataset Generation
 We detail how to reproduce our Stage 1 results. Please ensure you have downloaded all the necessary files before proceeding with this step.
