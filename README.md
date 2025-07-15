@@ -100,6 +100,8 @@ Before reproducing our results, certain datasets will need to be downloaded.
 - The tiny set of manually labeled crops can be downloaded [here](PUT_HERE). The `test`, `train`, and `val` folders belong in `stage_one/crop_model/dataset_1`
 - Manual annotations for evaluation of both stages (included in this repo, no download needed). Note that while we include the manual annotations in this repo, the images themselves are not included because they are assumed to be included in the dataset that will be generated.
 
+If you only wish to setup for Stage 2, then you can quickly download our Stage 1-generated dataset with the `download_dataset.py` script.
+
 ## Stage 1: Dataset Generation
 We detail how to reproduce our Stage 1 results. Please ensure you have downloaded all the necessary files before proceeding with this step.
 
@@ -152,7 +154,7 @@ Recall    (TP / Total GT):  0.9245
 ## Stage 2: Curb Ramp Detection
 We detail how to reproduce our Stage 2 results.
 
-You can either start where you left off in Stage 1, with the dataset fully generated, or you can skip that process and download our full dataset [here](PUT_HERE).
+You can either start where you left off in Stage 1, with the dataset fully generated, or you can skip that process and download our full dataset [here](PUT_HERE) or using the `download_dataset.py` script in the project directory.
 
 ### Training
 
