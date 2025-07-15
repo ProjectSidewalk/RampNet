@@ -1,0 +1,4 @@
+**/__pycache__
+dataset
+*.out
+*.err

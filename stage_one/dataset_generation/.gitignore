@@ -1,0 +1,8 @@
+all_locations.csv
+location_data/*
+street_data/*
+dataset.jsonl
+finaldataset.jsonl
+negativepanos.jsonl
+negativepanosSHORTENED.jsonl
+progress.txt
