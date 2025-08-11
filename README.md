@@ -2,7 +2,7 @@
 
   <h1 align="center">RampNet: A Two-Stage Pipeline for Bootstrapping Curb Ramp Detection in Streetscape Images from Open Government Metadata</h1>
   <p align="center">
-    John O'Meara, 
+    John S. O'Meara, 
     Jared Hwang,
     Zeyu Wang,
     Michael Saugstad,
@@ -29,7 +29,7 @@ If you use our code, dataset, or build on ideas in our paper, please cite us as:
 
 ```bibtex
 @inproceedings{omeara2025rampnet,
-  author    = {John O'Meara and Jared Hwang and Zeyu Wang and Michael Saugstad and Jon Froehlich},
+  author    = {John S. O'Meara and Jared Hwang and Zeyu Wang and Michael Saugstad and Jon E. Froehlich},
   title     = {{RampNet: A Two-Stage Pipeline for Bootstrapping Curb Ramp Detection in Streetscape Images from Open Government Metadata}},
   booktitle = {{ICCV'25 Workshop on Vision Foundation Models and Generative AI for Accessibility: Challenges and Opportunities (ICCV 2025 Workshop)}},
   year      = {2025},
