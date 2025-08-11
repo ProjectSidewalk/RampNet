@@ -6,7 +6,7 @@
     Jared Hwang,
     Zeyu Wang,
     Michael Saugstad,
-    Jon Froehlich
+    Jon E. Froehlich
     <br><br>
     University of Washington
   </p>
