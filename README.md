@@ -23,6 +23,20 @@
 </p>
 <br>
 
+## Citation
+If you use our code, dataset, or build on ideas in our paper, please cite us as:
+
+```bibtex
+@inproceedings{omeara2025rampnet,
+  author    = {John O'Meara and Jared Hwang and Zeyu Wang and Michael Saugstad and Jon Froehlich},
+  title     = {{RampNet: A Two-Stage Pipeline for Bootstrapping Curb Ramp Detection in Streetscape Images from Open Government Metadata}},
+  booktitle = {{ICCV'25 Workshop on Vision Foundation Models and Generative AI for Accessibility: Challenges and Opportunities (ICCV 2025 Workshop)}},
+  year      = {2025},
+  url       = {https://cv4a11y.github.io/ICCV2025/index.html},
+  note      = {DOI: forthcoming}
+}
+```
+
 ## Curb Ramp Detection Example
 *For a step-by-step walkthrough, see our [Google Colab notebook](https://colab.research.google.com/drive/1TOtScud5ac2McXJmg1n_YkOoZBchdn3w?usp=sharing), which includes a visualization in addition to the code below.*
 
@@ -67,10 +81,6 @@ print(coordinates)
 
 ### [Google Colab Notebook](https://colab.research.google.com/drive/1TOtScud5ac2McXJmg1n_YkOoZBchdn3w?usp=sharing)
 
-## Citation
-```bibtex
-PUT_HERE
-```
 ---
 We now describe how to generate the dataset (Stage 1) and train the model (Stage 2). We also describe how to evaluate both of these stages.
 
