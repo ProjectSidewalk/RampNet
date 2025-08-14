@@ -181,3 +181,8 @@ After running `evaluate.py` (which will take some time), you should have results
 ![Precision vs. Recall Curve](/stage_two/evaluation_results/pr_curve_manual_r0.022_pt0.0.png "Precision vs. Recall Curve")
 
 Please make sure to delete `evaluate_cache` between subsequent runs of `evaluate.py` if you are changing something in the script (e.g. the `EVALUATE_ON_MANUAL_DATASET` variable).
+
+## Acknowledgments
+This work is supported by the NSF and is part of the [OSCUR initiative]([url](https://oscur.org/)).
+
+<img src="https://oscur.org/wp-content/uploads/2024/07/logo-white-1536x294.png">
