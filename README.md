@@ -10,7 +10,7 @@
     <br><br>
     University of Washington
   </p>
-  <h3 align="center"><a href="https://github.com/ProjectSidewalk/RampNet">💻 Code</a> / <a href="PUT_HERE">📄 Paper</a> / <a href="https://colab.research.google.com/drive/1TOtScud5ac2McXJmg1n_YkOoZBchdn3w?usp=sharing">🛠️ Demo</a> / <a href="https://huggingface.co/datasets/projectsidewalk/rampnet-dataset">🗃️ Dataset</a> 
+  <h3 align="center"><a href="https://github.com/ProjectSidewalk/RampNet">💻 Code</a> / <a href="https://arxiv.org/abs/2508.09415">📄 Paper</a> / <a href="https://colab.research.google.com/drive/1TOtScud5ac2McXJmg1n_YkOoZBchdn3w?usp=sharing">🛠️ Demo</a> / <a href="https://huggingface.co/datasets/projectsidewalk/rampnet-dataset">🗃️ Dataset</a> 
   / <a href="https://cv4a11y.github.io/ICCV2025/index.html">🏨 ICCV'25 Workshop</a></h3>
   <div align="center"></div>
 </p>
