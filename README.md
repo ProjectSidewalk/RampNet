@@ -96,7 +96,7 @@ conda activate sidewalkcv2
 
 ## Dataset Summary
 
-| Name | Description | # of Panoramas (if applicable) | # of Labels (if applicable) |
+| Name | Description | # of Panoramas | # of Labels |
 | :--- | :--- | :--- | :--- |
 | **Open Government Datasets** | The initial source of curb ramp locations (<lat, long> coordinates) from 3 US cities (NYC, Portland, Bend) with "Good" location precision. Used as input for Stage 1. | N/A (Geo-data) | 276,615¹ |
 | **Project Sidewalk Crop Pre-training Set** | A subset of Project Sidewalk data used to initially pre-train the crop-level model in Stage 1, which identifies curb ramps within a small, directional image crop. Can be downloaded with `stage_one/crop_model/ps_model/data/download_data.py` | 20,698 | 27,704 |
