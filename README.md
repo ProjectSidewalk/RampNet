@@ -33,6 +33,7 @@ If you use our code, dataset, or build on ideas in our paper, please cite us as:
   title     = {{RampNet: A Two-Stage Pipeline for Bootstrapping Curb Ramp Detection in Streetscape Images from Open Government Metadata}},
   booktitle = {{ICCV'25 Workshop on Vision Foundation Models and Generative AI for Accessibility: Challenges and Opportunities (ICCV 2025 Workshop)}},
   year      = {2025},
+  doi       = {https://doi.org/10.48550/arXiv.2508.09415},
   url       = {https://cv4a11y.github.io/ICCV2025/index.html},
   note      = {DOI: forthcoming}
 }
