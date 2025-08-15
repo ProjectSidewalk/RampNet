@@ -198,4 +198,4 @@ Please make sure to delete `evaluate_cache` between subsequent runs of `evaluate
 ## Acknowledgments
 This work is supported by the NSF and is part of the [OSCUR initiative]([url](https://oscur.org/)).
 
-<img src="https://oscur.org/wp-content/uploads/2024/07/logo-white-1536x294.png">
+<img src="assets/oscur_logo_black.png" width="300px">
