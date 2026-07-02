@@ -1,3 +1,4 @@
+import argparse
 import os
 import random
 import numpy as np
@@ -19,6 +20,41 @@ import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 
 from rampnet.model import KeypointModel
+from rampnet.loading import load_checkpoint
+
+# Learning-rate defaults per preset: training from ImageNet initialization
+# uses the paper's 1e-5; fine-tuning released/earlier RampNet weights wants a
+# much smaller step so it refines rather than forgets.
+PRESET_LR = {'scratch': 1e-5, 'finetune': 3e-6}
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Train the stage-2 panorama curb ramp detector.")
+    parser.add_argument('--data-root', default='../dataset',
+                        help="Dataset root containing train/ and val/ splits (default: ../dataset)")
+    parser.add_argument('--epochs', type=int, default=1,
+                        help="Number of training epochs (default: 1, as in the paper)")
+    parser.add_argument('--lr', type=float, default=None,
+                        help="Learning rate; overrides the --preset default")
+    parser.add_argument('--preset', choices=sorted(PRESET_LR), default='scratch',
+                        help="'scratch' trains from ImageNet weights (lr 1e-5); "
+                             "'finetune' warm-starts from --init-weights (lr 3e-6)")
+    parser.add_argument('--init-weights', default=None,
+                        help="Checkpoint to warm-start from (e.g. the released RampNet weights). "
+                             "Ignored when latest_checkpoint.pth exists: resuming an interrupted "
+                             "run always takes precedence, and warm-starting applies at step 0 only.")
+    parser.add_argument('--checkpoint-dir', default='checkpoints',
+                        help="Directory for per-epoch checkpoints (default: checkpoints)")
+    args = parser.parse_args()
+    if args.preset == 'finetune' and args.init_weights is None:
+        parser.error("--preset finetune requires --init-weights")
+    if args.lr is None:
+        args.lr = PRESET_LR[args.preset]
+    return args
+
+
+args = parse_args()
+
 
 def setup_distributed():
     rank = int(os.environ.get("RANK", 0))
@@ -39,7 +75,7 @@ torch.manual_seed(42)
 random.seed(42)
 np.random.seed(42)
 
-new_root_dir = '../dataset'
+new_root_dir = args.data_root
 
 def generate_heatmap_from_points(points_normalized, heatmap_shape=(512, 1024), sigma=10.0):
     heatmap_h, heatmap_w = heatmap_shape
@@ -230,23 +266,39 @@ if world_size > 1:
     model = DDP(model, device_ids=[local_rank], output_device=local_rank, find_unused_parameters=False)
 
 criterion = nn.MSELoss()
-optimizer = optim.Adam(model.parameters(), lr=1e-5)
+optimizer = optim.Adam(model.parameters(), lr=args.lr)
 scaler = torch.cuda.amp.GradScaler()
 
 if rank == 0:
     os.makedirs("peek_training", exist_ok=True)
-    os.makedirs("checkpoints", exist_ok=True)
+    os.makedirs(args.checkpoint_dir, exist_ok=True)
     writer = SummaryWriter(log_dir='runs/experiment_1')
+    print(f"Preset: {args.preset}, lr: {args.lr}, epochs: {args.epochs}, data root: {new_root_dir}")
+
 else:
     writer = None
 
-num_epochs = 1
+num_epochs = args.epochs
 checkpoint_interval_steps = 1000
 start_epoch = 0
 global_step = 0
 batch_idx_in_epoch = 0
 best_val_loss = float('inf')
 checkpoint_file = "latest_checkpoint.pth"
+
+if args.init_weights:
+    if os.path.exists(checkpoint_file):
+        # A resume file means this run was interrupted mid-training; restoring
+        # it (weights + optimizer + step) must win, otherwise a stale
+        # latest_checkpoint.pth would silently defeat the warm start.
+        if rank == 0:
+            print(f"Ignoring --init-weights {args.init_weights}: resume checkpoint "
+                  f"{checkpoint_file} exists and takes precedence.")
+    else:
+        model_to_init = model.module if isinstance(model, DDP) else model
+        load_checkpoint(model_to_init, args.init_weights, map_location='cpu')
+        if rank == 0:
+            print(f"Warm-started model weights from {args.init_weights}")
 
 if os.path.exists(checkpoint_file):
     checkpoint = torch.load(checkpoint_file, map_location='cpu')
@@ -380,7 +432,7 @@ for epoch in range(start_epoch, num_epochs):
             print(f"Epoch {epoch+1} Validation Loss: {avg_val_loss:.4f}")
             writer.add_scalar('Loss/val_epoch', avg_val_loss, global_step)
 
-            epoch_checkpoint_path = os.path.join("checkpoints", f"epoch_{epoch+1}_step_{global_step}.pth")
+            epoch_checkpoint_path = os.path.join(args.checkpoint_dir, f"epoch_{epoch+1}_step_{global_step}.pth")
             model_state_to_save = model.module.state_dict() if isinstance(model, DDP) else model.state_dict()
             torch.save({
                 'epoch': epoch + 1,
