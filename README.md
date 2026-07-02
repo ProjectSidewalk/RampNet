@@ -83,6 +83,18 @@ print(coordinates)
 
 ### [Google Colab Notebook](https://colab.research.google.com/drive/1TOtScud5ac2McXJmg1n_YkOoZBchdn3w?usp=sharing)
 
+## Choosing a Detection Threshold
+
+Different parts of this repo use different peak-extraction thresholds (`threshold_abs` passed to `peak_local_max`), which has caused confusion. Here is the provenance:
+
+- **`stage_two/evaluate.py` uses `PEAK_THRESHOLD_ABS = 0.0` by design.** It collects *all* heatmap peaks and sweeps the confidence axis to generate the full precision–recall and precision/recall-vs-confidence curves. It is not an operating point.
+- **The `0.5` in the example above and the `0.4` in `stage_two/demo.py` are illustrative visualization choices**, not tuned values.
+- **A principled default operating point is `0.55`**, which achieves **precision 0.938 / recall 0.935** on the 1,000-panorama manually labeled gold set. You can read this (or any other operating point) directly from the committed curve data in [`stage_two/evaluation_results/pr_rc_vs_c_data_manual_r0.022_pt0.0.csv`](stage_two/evaluation_results/pr_rc_vs_c_data_manual_r0.022_pt0.0.csv).
+
+**Important caveat — test-time augmentation.** All committed evaluation curves were computed *with horizontal-flip TTA*: the panorama is evaluated twice (original and mirrored) and the two heatmaps are combined with an elementwise max (see `stage_two/evaluate.py`). If you deploy the model with single-pass inference (as in the quick-start example above), expect performance somewhat below these curves, and derive your own threshold curve without TTA before choosing an operating point.
+
+**Picking a per-city / per-deployment operating point.** Curb ramp appearance and imagery vary by city, so a threshold tuned on our gold set (NYC, Portland, Bend) may not transfer. The recipe: manually label ~100 panoramas from your target area in the `manual_labels/` format, point `stage_two/evaluate.py` at them, and read the threshold that meets your precision or recall requirement from the resulting `pr_rc_vs_c_data_*.csv`.
+
 ---
 We now describe how to generate the dataset (Stage 1) and train the model (Stage 2). We also describe how to evaluate both of these stages.
 
