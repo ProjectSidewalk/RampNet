@@ -190,17 +190,29 @@ You can either start where you left off in Stage 1, with the dataset fully gener
 
 ### Training
 
-Run `train.py` in `stage_two`. This will take a very long time (> 24 hours). We trained on 16x NVIDIA L40s GPUs on a slurm cluster. We train for only one epoch but you may increase this if you desire. The model is saved at `best_model.pth`.
+Run `train.py` in `stage_two` (see `python train.py --help` for options). This will take a very long time (> 24 hours). We trained on 16x NVIDIA L40s GPUs on a slurm cluster. We train for only one epoch (`--epochs`) but you may increase this if you desire. The model is saved at `best_model.pth`.
+
+To **fine-tune from existing weights** (e.g. the released RampNet model, or a previous run's checkpoint) instead of training from ImageNet initialization:
+
+```bash
+python train.py --preset finetune --init-weights path/to/checkpoint.pth
+```
+
+The `finetune` preset lowers the learning rate to 3e-6 (override with `--lr`). Note that an existing `latest_checkpoint.pth` resume file always takes precedence over `--init-weights` — delete it if you intend to start a fresh fine-tuning run.
 
 ### Evaluating the Results
 
-There are two metrics that you can evaluate against. You can evaluate against (1) the test split of the generated dataset or (2) the manually annotated panoramas. We place more emphasis on the latter due to it being less prone to errors and it being directly from a human source instead of machine-derived. To switch between these benchmarks, modify the `EVALUATE_ON_MANUAL_DATASET` variable in `evaluate.py` in the `stage_two` folder.
+There are two benchmarks you can evaluate against: (1) the test split of the generated dataset or (2) the manually annotated panoramas. We place more emphasis on the latter due to it being less prone to errors and it being directly from a human source instead of machine-derived. Select with `--dataset manual` (default) or `--dataset test`:
 
-After running `evaluate.py` (which will take some time), you should have results printed in the console and in the `evaluation_results` directory. Note that the repo has the `evaluation_results` included from our past runs, so if `evaluation_results` is present, it doesn't necessarily mean evaluation was successful - it might just be the folder that was included in the github repo. This directory will contain the precision vs recall and precision & recall vs model confidence curves.
+```bash
+python evaluate.py --checkpoint checkpoints/your_checkpoint.pth --dataset manual
+```
+
+After running `evaluate.py` (which will take some time), you should have results printed in the console and in the `evaluation_results` directory: the precision vs recall and precision & recall vs model confidence curves (PNG + CSV), plus a machine-readable `metrics_*.json`. Note that the repo has the `evaluation_results` included from our past runs, so if `evaluation_results` is present, it doesn't necessarily mean evaluation was successful - it might just be the folder that was included in the github repo.
 
 ![Precision vs. Recall Curve](/stage_two/evaluation_results/pr_curve_manual_r0.022_pt0.0.png "Precision vs. Recall Curve")
 
-Please make sure to delete `evaluate_cache` between subsequent runs of `evaluate.py` if you are changing something in the script (e.g. the `EVALUATE_ON_MANUAL_DATASET` variable).
+Cached heatmaps are keyed by checkpoint hash and TTA setting, so switching checkpoints is safe without clearing anything; pass `--fresh` to force recomputation (e.g. after code changes to inference).
 
 ## Acknowledgments
 This work is supported by the NSF and is part of the [OSCUR initiative]([url](https://oscur.org/)).
