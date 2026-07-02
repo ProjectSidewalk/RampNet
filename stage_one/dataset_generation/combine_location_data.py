@@ -5,26 +5,33 @@ import re
 import random
 
 def convert_date(value):
+    """Normalize an install date to YYYY-MM-DD, or "" when unknown.
+
+    Unknown dates used to be silently replaced with 2000-01-01, which made
+    every dateless curb ramp trivially pass the downstream "installed before
+    the panorama was captured" check. An empty string keeps the missing-ness
+    explicit; generate_dataset_meta.py decides how to treat it.
+    """
     if value is None or value == "":
-        return "2000-01-01"
+        return ""
     if isinstance(value, str):
         if value.lower() == "none" or value.strip() == "":
-            return "2000-01-01"
+            return ""
     if isinstance(value, (int, float)):
         try:
-            
+
             dt = datetime.datetime.utcfromtimestamp(value / 1000)
             return dt.strftime("%Y-%m-%d")
         except Exception:
-            return "2000-01-01"
+            return ""
     elif isinstance(value, str):
         try:
             dt = datetime.datetime.strptime(value, "%m/%d/%Y")
             return dt.strftime("%Y-%m-%d")
         except ValueError:
-            return "2000-01-01"
+            return ""
     else:
-        return "2000-01-01"
+        return ""
 
 def parse_geojson(file_path, date_field):
     results = []
@@ -78,8 +85,9 @@ def main():
     
     
     all_data.extend(parse_csv("location_data/nyc.csv", "GeoCyclora"))
-    
-    
+
+
+    random.seed(42)
     random.shuffle(all_data)
     
     

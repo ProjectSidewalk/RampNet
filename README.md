@@ -106,6 +106,8 @@ conda activate sidewalkcv2
 
 ¹This number is the sum of curb ramp locations from the three cities with "Good" location precision listed in Table 1: New York City (217,680), Portland (45,324), and Bend (13,611).
 
+**Provenance note:** see [`docs/data_provenance.md`](docs/data_provenance.md) for the registry of which cities' data entered training (evaluations in those cities are optimistically biased), the undocumented Google endpoints the regeneration pipeline depends on, and why the HuggingFace dataset — not a re-run of `split_dataset.py` — is the split of record for the paper.
+
 ## Dataset Setup
 
 Before reproducing our results, certain datasets will need to be downloaded.

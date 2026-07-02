@@ -36,31 +36,49 @@ def search_request(lat: float, lon: float) -> Response:
     return requests.get(url)
 
 
-@lru_cache(maxsize=None)
-def get_date_of_panorama(pano_id: str) -> str:
-    headers = {
-        "accept": "*/*",
-        "accept-language": "en-US,en;q=0.9",
-        "content-type": "application/json+protobuf",
-    }
+class GoogleEndpointSchemaError(RuntimeError):
+    """The undocumented Google endpoint returned data in an unexpected shape.
 
-    data = [
-        ["apiv3", None, None, None, "US", None, None, None, None, None, [[0]]],
-        ["en", "US"],
-        [[[2, pano_id]]],
-        [[1, 2, 3, 4, 8, 6]]
-    ]
+    These endpoints are internal and unversioned (see docs/data_provenance.md);
+    when Google changes the response schema, the positional parses below must
+    fail loudly instead of silently feeding garbage into the dataset labels.
+    """
 
-    url = "https://maps.googleapis.com/$rpc/google.internal.maps.mapsjs.v1.MapsJsInternalService/GetMetadata"
-    response = requests.post(url, headers=headers, json=data)
 
-    year = response.json()[1][0][6][7][0]
-    month = response.json()[1][0][6][7][1]
+def _parse_pano_date(metadata_json) -> str:
+    """Extract "YYYY-M" capture date from a GetMetadata response.
 
+    Positional path [1][0][6][7] = [year, month, ...], observed 2025-07.
+    """
+    try:
+        year, month = metadata_json[1][0][6][7][0], metadata_json[1][0][6][7][1]
+    except (IndexError, KeyError, TypeError) as e:
+        raise GoogleEndpointSchemaError(
+            f"GetMetadata date path [1][0][6][7] not found — schema drift? ({e})")
+    if not (isinstance(year, int) and isinstance(month, int) and 1990 <= year <= 2100 and 1 <= month <= 12):
+        raise GoogleEndpointSchemaError(
+            f"GetMetadata date path returned implausible values year={year!r} month={month!r}")
     return f"{year}-{month}"
 
-@lru_cache(maxsize=None)
-def get_pano_heading(pano_id: str) -> str:
+
+def _parse_pano_heading(metadata_json) -> float:
+    """Extract the panorama heading in degrees from a GetMetadata response.
+
+    Positional path [1][0][5][0][1][2][0], observed 2025-07. The heading feeds
+    directly into keypoint placement, so an implausible value must raise.
+    """
+    try:
+        heading = float(metadata_json[1][0][5][0][1][2][0])
+    except (IndexError, KeyError, TypeError, ValueError) as e:
+        raise GoogleEndpointSchemaError(
+            f"GetMetadata heading path [1][0][5][0][1][2][0] not found — schema drift? ({e})")
+    if not (-360.0 <= heading <= 360.0):
+        raise GoogleEndpointSchemaError(
+            f"GetMetadata heading path returned implausible value {heading!r}")
+    return heading
+
+
+def _get_metadata(pano_id: str):
     headers = {
         "accept": "*/*",
         "accept-language": "en-US,en;q=0.9",
@@ -76,8 +94,20 @@ def get_pano_heading(pano_id: str) -> str:
 
     url = "https://maps.googleapis.com/$rpc/google.internal.maps.mapsjs.v1.MapsJsInternalService/GetMetadata"
     response = requests.post(url, headers=headers, json=data)
+    if response.status_code != 200:
+        raise GoogleEndpointSchemaError(
+            f"GetMetadata returned HTTP {response.status_code} for pano {pano_id}")
+    return response.json()
 
-    return float(response.json()[1][0][5][0][1][2][0])
+
+@lru_cache(maxsize=None)
+def get_date_of_panorama(pano_id: str) -> str:
+    return _parse_pano_date(_get_metadata(pano_id))
+
+
+@lru_cache(maxsize=None)
+def get_pano_heading(pano_id: str) -> float:
+    return _parse_pano_heading(_get_metadata(pano_id))
 
 def extract_panoramas(text: str) -> List[Panorama]:
     blob = re.findall(r"callbackfunc\( (.*) \)$", text)[0]

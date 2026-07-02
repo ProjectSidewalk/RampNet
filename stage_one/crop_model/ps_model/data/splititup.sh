@@ -24,8 +24,8 @@ VAL_SIZE=$((TOTAL_FILES * 15 / 100))
 # Remaining goes to test
 TEST_SIZE=$((TOTAL_FILES - TRAIN_SIZE - VAL_SIZE))
 
-# Shuffle files
-shuffled_files=( $(printf "%s\n" "${FILES[@]}" | shuf) )
+# Shuffle files (deterministically, so the split is reproducible)
+shuffled_files=( $(printf "%s\n" "${FILES[@]}" | shuf --random-source=<(yes 42)) )
 
 # Copy files to train, val, and test folders
 for i in "${!shuffled_files[@]}"; do

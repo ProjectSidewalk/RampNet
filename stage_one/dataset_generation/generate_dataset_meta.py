@@ -11,6 +11,12 @@ from concurrent.futures import ThreadPoolExecutor
 DISCOVERY_DISTANCE_THRESHOLD = 10
 INCLUSION_DISTANCE_THRESHOLD = 35
 
+# Curb ramps with no install date in the government data cannot be verified to
+# predate the panorama. True preserves the paper-era behavior of assuming they
+# do (they used to be given a silent 2000-01-01 sentinel); False conservatively
+# discards any panorama near an undated curb ramp.
+TREAT_UNDATED_AS_PREDATING = True
+
 curb_ramp_locations = pd.read_csv("all_locations.csv")
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
 
@@ -36,11 +42,18 @@ def process_pano(pano):
         distance = geopy.distance.geodesic((row["latitude"], row["longitude"]), (pano.lat, pano.lon)).m
         if distance <= INCLUSION_DISTANCE_THRESHOLD:
             curb_ramps_to_include.append(row)
-            curb_year, curb_month = int(row["date"].split("-")[0]), int(row["date"].split("-")[1])
-            pano_year, pano_month = int(pano.date.split("-")[0]), int(pano.date.split("-")[1])
-            if curb_year > pano_year:
+            curb_date = row["date"]
+            if not isinstance(curb_date, str) or curb_date == "":
+                if TREAT_UNDATED_AS_PREDATING:
+                    continue
                 return
-            if curb_month >= pano_month:
+            curb_year, curb_month = int(curb_date.split("-")[0]), int(curb_date.split("-")[1])
+            pano_year, pano_month = int(pano.date.split("-")[0]), int(pano.date.split("-")[1])
+            # Discard the pano unless the curb ramp was installed strictly
+            # before the month the panorama was captured. The old check
+            # compared months without the year (curb 2019-05 vs pano 2020-03
+            # was wrongly rejected because 5 >= 3).
+            if (curb_year, curb_month) >= (pano_year, pano_month):
                 return
     if curb_ramps_to_include:
         curb_coords = [[row["latitude"], row["longitude"]] for row in curb_ramps_to_include]
