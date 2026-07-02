@@ -91,7 +91,10 @@ Please install CUDA 11.8. Then run the following commands to create the conda en
 ```bash
 conda env create -f environment.yml
 conda activate sidewalkcv2
+pip install -e .
 ```
+
+The `pip install -e .` step installs the small shared `rampnet` package (model definition, checkpoint loading, evaluation metrics) that the stage 1 and stage 2 scripts import.
 
 
 ## Dataset Summary
