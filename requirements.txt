@@ -1,0 +1,24 @@
+# Pip alternative to environment.yml, e.g. for Colab or venv users.
+# On Linux, pip installs CUDA-enabled torch wheels by default.
+torch>=2.6,<3
+torchvision>=0.21
+timm
+transformers
+datasets
+numpy
+pillow
+matplotlib
+tqdm
+scikit-image
+scikit-learn
+scipy
+pandas
+geopy
+pyproj
+shapely
+opencv-python-headless
+requests
+pydantic
+tensorboard
+gradio
+pytest

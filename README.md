@@ -87,7 +87,7 @@ print(coordinates)
 We now describe how to generate the dataset (Stage 1) and train the model (Stage 2). We also describe how to evaluate both of these stages.
 
 ## Environment Setup
-Please install CUDA 11.8. Then run the following commands to create the conda environment:
+Create the conda environment (Linux with an NVIDIA GPU; CUDA 12.6 builds are selected automatically — for CPU-only or macOS, remove the `cuda-version` line from `environment.yml`):
 ```bash
 conda env create -f environment.yml
 conda activate sidewalkcv2
@@ -95,6 +95,10 @@ pip install -e .
 ```
 
 The `pip install -e .` step installs the small shared `rampnet` package (model definition, checkpoint loading, evaluation metrics) that the stage 1 and stage 2 scripts import.
+
+Alternatives:
+- `requirements.txt` — the same dependency set for pip/venv/Colab users.
+- `environment.lock.yml` — the exact full conda export used for the paper results (linux-64 only), kept for provenance. Note that despite the paper-era README saying "CUDA 11.8", the lock actually pins CUDA 12.6 pytorch builds.
 
 
 ## Dataset Summary
