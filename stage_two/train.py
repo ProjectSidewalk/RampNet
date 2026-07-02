@@ -15,9 +15,10 @@ from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms
 import torchvision.transforms.functional as F
 from tqdm import tqdm
-import timm
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
+
+from rampnet.model import KeypointModel
 
 def setup_distributed():
     rank = int(os.environ.get("RANK", 0))
@@ -224,29 +225,7 @@ val_sampler = DistributedSampler(val_dataset, num_replicas=world_size, rank=rank
 train_loader = DataLoader(train_dataset, batch_size=1, sampler=train_sampler, num_workers=4, pin_memory=True)
 val_loader = DataLoader(val_dataset, batch_size=1, sampler=val_sampler, num_workers=4, pin_memory=True) if val_sampler else None
 
-class KeypointModel(nn.Module):
-    def __init__(self, heatmap_size=(512, 1024)):
-        super(KeypointModel, self).__init__()
-        backbone = timm.create_model('convnextv2_base.fcmae_ft_in22k_in1k_384', pretrained=True)
-        for param in backbone.parameters():
-            param.requires_grad = True
-        
-        self.feature_extractor = nn.Sequential(*list(backbone.children())[:-2])
-        in_channels = backbone.num_features
-        
-        self.head = nn.Sequential(
-            nn.Conv2d(in_channels, 256, kernel_size=3, padding=1),
-            nn.ReLU(inplace=True),
-            nn.Upsample(size=heatmap_size, mode='bilinear', align_corners=False),
-            nn.Conv2d(256, 1, kernel_size=1)
-        )
-
-    def forward(self, image):
-        features = self.feature_extractor(image)
-        heatmap = self.head(features)
-        return heatmap
-
-model = KeypointModel(heatmap_size=heatmap_output_shape).cuda(local_rank)
+model = KeypointModel(heatmap_size=heatmap_output_shape, pretrained_backbone=True).cuda(local_rank)
 if world_size > 1:
     model = DDP(model, device_ids=[local_rank], output_device=local_rank, find_unused_parameters=False)
 

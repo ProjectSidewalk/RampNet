@@ -1,60 +1,25 @@
-import os
 import torch
 import gradio as gr
-from PIL import Image, ImageOps, ImageDraw 
+from PIL import Image, ImageOps, ImageDraw
 import numpy as np
 from torchvision import transforms
 
-import timm
-import torch.nn as nn
+from skimage.feature import peak_local_max
 
-from skimage.feature import peak_local_max 
-
-class KeypointModel(nn.Module):
-    def __init__(self, heatmap_size=(512, 1024)):
-        super(KeypointModel, self).__init__()
-        backbone = timm.create_model('convnextv2_base.fcmae_ft_in22k_in1k_384', pretrained=False)
-
-        self.feature_extractor = nn.Sequential(*list(backbone.children())[:-2])
-        in_channels = backbone.num_features
-        self.head = nn.Sequential(
-            nn.Conv2d(in_channels, 256, kernel_size=3, padding=1),
-            nn.ReLU(inplace=True),
-            nn.Upsample(size=heatmap_size, mode='bilinear', align_corners=False),
-            nn.Conv2d(256, 1, kernel_size=1)
-        )
-
-    def forward(self, image):
-        features = self.feature_extractor(image)
-        heatmap = self.head(features)
-        return heatmap
+from rampnet.model import KeypointModel
+from rampnet.loading import load_checkpoint
 
 MODEL_CHECKPOINT_PATH = "checkpoints/epoch_1_step_9378.pth"
-MODEL_INPUT_SIZE = (2048, 4096) 
-MODEL_HEATMAP_SIZE = (512, 1024) 
+MODEL_INPUT_SIZE = (2048, 4096)
+MODEL_HEATMAP_SIZE = (512, 1024)
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 GRADIO_PORT = 25566
 
 def load_trained_model(checkpoint_path, heatmap_size):
     """Loads the KeypointModel and weights from a checkpoint."""
     print(f"Loading model checkpoint from: {checkpoint_path}")
-    if not os.path.exists(checkpoint_path):
-        raise FileNotFoundError(f"Checkpoint file not found: {checkpoint_path}")
-
     model = KeypointModel(heatmap_size=heatmap_size)
-
-    checkpoint = torch.load(checkpoint_path, map_location=DEVICE)
-    state_dict = checkpoint
-
-    if isinstance(checkpoint, dict) and 'model_state_dict' in checkpoint:
-        state_dict = checkpoint['model_state_dict']
-    elif isinstance(checkpoint, dict) and 'state_dict' in checkpoint:
-        state_dict = checkpoint['state_dict']
-    if all(key.startswith('module.') for key in state_dict.keys()):
-        print("Removing 'module.' prefix from state_dict keys.")
-        state_dict = {k.replace('module.', '', 1): v for k, v in state_dict.items()}
-
-    model.load_state_dict(state_dict)
+    load_checkpoint(model, checkpoint_path, map_location=DEVICE)
     model.to(DEVICE)
     model.eval()
     print("Model loaded successfully.")
