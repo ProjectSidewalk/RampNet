@@ -11,6 +11,13 @@ from collections import deque
 CONSIDER_MANUAL = False
 MANUAL_LABELS_DIR = "../../manual_labels"
 
+# Fixed seed so the group shuffle (and therefore the split) is reproducible.
+# Note: the paper's split was generated before this seed existed and cannot be
+# recreated by re-running this script — the HuggingFace dataset
+# (projectsidewalk/rampnet-dataset) is the split of record for the paper.
+SPLIT_SEED = 42
+random.seed(SPLIT_SEED)
+
 DATASET_DIR = "../../dataset"
 BASE_OUTPUT_DIR = "../../dataset_split"
 

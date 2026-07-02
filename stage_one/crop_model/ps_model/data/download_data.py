@@ -242,7 +242,7 @@ all_cities = all_cities[
 
 total_images = len(all_cities)
 
-all_cities = [x for _, x in all_cities.sample(frac=1).reset_index(drop=True).groupby('Panorama ID')]
+all_cities = [x for _, x in all_cities.sample(frac=1, random_state=42).reset_index(drop=True).groupby('Panorama ID')]
 
 
 start_time = time.time()
