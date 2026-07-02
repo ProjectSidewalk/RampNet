@@ -1,3 +1,5 @@
+import argparse
+import os
 import torch
 import gradio as gr
 from PIL import Image, ImageOps, ImageDraw
@@ -9,17 +11,30 @@ from skimage.feature import peak_local_max
 from rampnet.model import KeypointModel
 from rampnet.loading import load_checkpoint
 
-MODEL_CHECKPOINT_PATH = "checkpoints/epoch_1_step_9378.pth"
 MODEL_INPUT_SIZE = (2048, 4096)
 MODEL_HEATMAP_SIZE = (512, 1024)
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-GRADIO_PORT = 25566
 
-def load_trained_model(checkpoint_path, heatmap_size):
-    """Loads the KeypointModel and weights from a checkpoint."""
-    print(f"Loading model checkpoint from: {checkpoint_path}")
-    model = KeypointModel(heatmap_size=heatmap_size)
-    load_checkpoint(model, checkpoint_path, map_location=DEVICE)
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Gradio demo for the RampNet curb ramp detector.")
+    parser.add_argument('--checkpoint', default="projectsidewalk/rampnet-model",
+                        help="Local .pth checkpoint path, or a HuggingFace repo id such as "
+                             "'projectsidewalk/rampnet-model' (the default: the released weights)")
+    parser.add_argument('--port', type=int, default=25566, help="Gradio server port")
+    return parser.parse_args()
+
+
+def load_trained_model(checkpoint):
+    """Loads the model from a local checkpoint file or a HuggingFace repo id."""
+    if os.path.exists(checkpoint):
+        print(f"Loading local model checkpoint from: {checkpoint}")
+        model = KeypointModel(heatmap_size=MODEL_HEATMAP_SIZE)
+        load_checkpoint(model, checkpoint, map_location=DEVICE)
+    else:
+        print(f"'{checkpoint}' is not a local file; loading it as a HuggingFace repo id.")
+        from transformers import AutoModel
+        model = AutoModel.from_pretrained(checkpoint, trust_remote_code=True)
     model.to(DEVICE)
     model.eval()
     print("Model loaded successfully.")
@@ -122,13 +137,8 @@ def predict_and_visualize(input_image_pil):
 
     return output_image_pil 
 
-try:
-    model = load_trained_model(MODEL_CHECKPOINT_PATH, MODEL_HEATMAP_SIZE)
-except Exception as e:
-    print(f"Error loading model: {e}")
-    print("Please ensure the model checkpoint exists and the model definition is correct.")
-    print("If using scikit-image, ensure it's installed (`pip install scikit-image`)")
-    exit()
+args = parse_args()
+model = load_trained_model(args.checkpoint)
 
 print("Setting up Gradio interface...")
 iface = gr.Interface(
@@ -139,5 +149,5 @@ iface = gr.Interface(
     description="Upload an equirectangular image."
 )
 
-print(f"Launching Gradio server on port {GRADIO_PORT}...")
-iface.launch(server_name="0.0.0.0", server_port=GRADIO_PORT)
+print(f"Launching Gradio server on port {args.port}...")
+iface.launch(server_name="0.0.0.0", server_port=args.port)
