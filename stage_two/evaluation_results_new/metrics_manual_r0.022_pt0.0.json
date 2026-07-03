@@ -1,0 +1,13 @@
+{
+  "dataset": "manual",
+  "ap": 0.9205113071826693,
+  "total_gt_points": 3919,
+  "total_predictions": 114473,
+  "peak_threshold_abs": 0.0,
+  "precision_at_threshold": 0.03220846837245464,
+  "recall_at_threshold": 0.9408012248022455,
+  "radius_threshold_normalized": 0.022,
+  "tta": true,
+  "checkpoint": "checkpoints/epoch_1_step_9378.pth",
+  "checkpoint_fingerprint": "b0c3ff7a10fc"
+}
