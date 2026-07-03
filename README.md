@@ -39,6 +39,29 @@ If you use our code, dataset, or build on ideas in our paper, please cite us as:
 }
 ```
 
+## Erratum: Evaluation Metrics (July 2026)
+
+After publication, we found that the evaluation protocol described in §3.3 of the paper — and implemented in the evaluators at tag [`v1.0-iccv2025`](https://github.com/ProjectSidewalk/RampNet/tree/v1.0-iccv2025) — differs from standard detection evaluation in two ways, both of which bias precision and recall upward:
+
+1. **One detection could count as multiple true positives.** A single predicted point within the matching radius of two ground-truth curb ramps (a common configuration — dual-ramp corners, pedestrian islands) was credited with both. 41% of gold-set ground-truth points sit within 2× the matching radius of a neighbor.
+2. **Redundant detections were ignored rather than counted as false positives.** A second detection of an already-matched ramp appeared in neither the TP nor the FP column; standard (VOC/COCO-style) protocols count it as a false positive.
+
+Additionally, the Stage 1 and Stage 2 evaluators implemented *different* matching rules, so the paper's direct Stage 1 vs. Stage 2 comparison mixed protocols.
+
+We re-evaluated the released model on the same 1,000-panorama gold set with greedy **one-to-one matching** (each detection claims at most one ground-truth point; duplicates are false positives), now implemented in [`rampnet/metrics.py`](rampnet/metrics.py) and used by `stage_two/evaluate.py`:
+
+| Metric (gold set, TTA, conf ≥ 0.55) | As published | Corrected |
+| --- | --- | --- |
+| Model precision | 0.938 | **0.949** |
+| Model recall | 0.935 | **0.873** |
+| Model AP | 0.9236¹ | **0.9205**² |
+
+¹ Uninterpolated AP under the paper's matching protocol. ² Interpolated AP under one-to-one matching — the conventions differ, so compare with care.
+
+Swapping only the matching rule on identical model outputs moves precision by −1.0 points and recall by −4.4 points; the remaining difference is reproduction drift (environment, JPEG re-encoding). The paper's Stage 1 dataset-agreement precision (94.0%) is also slightly optimistic because redundant points were ignored rather than counted as false positives; its recall is unaffected. The comparison with prior work is unaffected (both systems were scored under the same protocol, and the gap is far larger than the correction).
+
+Full analysis — including the exact published code, executable traces, and visual examples of double-counted detections — is in [`docs/eval_protocol_verification.html`](docs/eval_protocol_verification.html) (open in a browser) and [issue #9](https://github.com/ProjectSidewalk/RampNet/issues/9). Corrected result curves and metrics are committed in [`stage_two/evaluation_results_new/`](stage_two/evaluation_results_new/); the as-published results remain unchanged in [`stage_two/evaluation_results/`](stage_two/evaluation_results/).
+
 ## Curb Ramp Detection Example
 *For a step-by-step walkthrough, see our [Google Colab notebook](https://colab.research.google.com/drive/1TOtScud5ac2McXJmg1n_YkOoZBchdn3w?usp=sharing), which includes a visualization in addition to the code below.*
 
@@ -89,7 +112,7 @@ Different parts of this repo use different peak-extraction thresholds (`threshol
 
 - **`stage_two/evaluate.py` uses `PEAK_THRESHOLD_ABS = 0.0` by design.** It collects *all* heatmap peaks and sweeps the confidence axis to generate the full precision–recall and precision/recall-vs-confidence curves. It is not an operating point.
 - **The `0.5` in the example above and the `0.4` in `stage_two/demo.py` are illustrative visualization choices**, not tuned values.
-- **A principled default operating point is `0.55`**, which achieves **precision 0.938 / recall 0.935** on the 1,000-panorama manually labeled gold set. You can read this (or any other operating point) directly from the committed curve data in [`stage_two/evaluation_results/pr_rc_vs_c_data_manual_r0.022_pt0.0.csv`](stage_two/evaluation_results/pr_rc_vs_c_data_manual_r0.022_pt0.0.csv).
+- **A principled default operating point is `0.55`**, which achieves **precision 0.949 / recall 0.873** on the 1,000-panorama manually labeled gold set under corrected one-to-one matching (see the [Erratum](#erratum-evaluation-metrics-july-2026); the originally published figures at this operating point were P 0.938 / R 0.935). You can read this (or any other operating point) directly from the committed curve data in [`stage_two/evaluation_results_new/pr_rc_vs_c_data_manual_r0.022_pt0.0.csv`](stage_two/evaluation_results_new/pr_rc_vs_c_data_manual_r0.022_pt0.0.csv).
 
 **Important caveat — test-time augmentation.** All committed evaluation curves were computed *with horizontal-flip TTA*: the panorama is evaluated twice (original and mirrored) and the two heatmaps are combined with an elementwise max (see `stage_two/evaluate.py`). If you deploy the model with single-pass inference (as in the quick-start example above), expect performance somewhat below these curves, and derive your own threshold curve without TTA before choosing an operating point.
 
@@ -197,6 +220,8 @@ Precision (TP / (TP + FP)): 0.9403
 Recall    (TP / Total GT):  0.9245
 ```
 
+These are the as-published Stage 1 agreement numbers. Note that the precision figure is slightly optimistic — redundant generated points near an already-matched ground-truth ramp were ignored rather than counted as false positives (see the [Erratum](#erratum-evaluation-metrics-july-2026)); the recall figure is unaffected.
+
 ## Stage 2: Curb Ramp Detection
 We detail how to reproduce our Stage 2 results.
 
@@ -224,7 +249,9 @@ python evaluate.py --checkpoint checkpoints/your_checkpoint.pth --dataset manual
 
 After running `evaluate.py` (which will take some time), you should have results printed in the console and in the `evaluation_results` directory: the precision vs recall and precision & recall vs model confidence curves (PNG + CSV), plus a machine-readable `metrics_*.json`. Note that the repo has the `evaluation_results` included from our past runs, so if `evaluation_results` is present, it doesn't necessarily mean evaluation was successful - it might just be the folder that was included in the github repo.
 
-![Precision vs. Recall Curve](/stage_two/evaluation_results/pr_curve_manual_r0.022_pt0.0.png "Precision vs. Recall Curve")
+![Precision vs. Recall Curve](/stage_two/evaluation_results_new/pr_curve_manual_r0.022_pt0.0.png "Precision vs. Recall Curve (corrected one-to-one matching)")
+
+The curve above is from the corrected re-evaluation (`evaluation_results_new/`, one-to-one matching — what current `evaluate.py` reproduces). The as-published curves remain in `evaluation_results/` for reference; new runs will not match them because the matching rule changed (see the [Erratum](#erratum-evaluation-metrics-july-2026)).
 
 Cached heatmaps are keyed by checkpoint hash and TTA setting, so switching checkpoints is safe without clearing anything; pass `--fresh` to force recomputation (e.g. after code changes to inference).
 
