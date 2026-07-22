@@ -43,6 +43,9 @@ def main():
     ap.add_argument("bundle", help="Bundle dir with records.jsonl + verdicts.json (e.g. benchmark/richmond).")
     ap.add_argument("--assume-scanned", action="store_true",
                     help="Count every fully-judged pano toward recall (reviewer attestation).")
+    ap.add_argument("--lenient-duplicates", action="store_true",
+                    help="Score 'duplicate' detections as redundant (abstained) instead of "
+                         "the default false positive. The headline number uses the default.")
     args = ap.parse_args()
 
     for stream in (sys.stdout, sys.stderr):  # tolerate cp1252 consoles
@@ -50,18 +53,26 @@ def main():
             stream.reconfigure(errors="replace")
 
     confs_by_pid, panos = load_bundle(args.bundle)
+    lenient = args.lenient_duplicates
 
-    pools = collect(panos, confs_by_pid, assume_scanned=args.assume_scanned)
+    pools = collect(panos, confs_by_pid, assume_scanned=args.assume_scanned,
+                    lenient_duplicates=lenient)
     for w in pools.warnings:
         print(f"! {w}")
     print(format_report("All reviewed panos", pools))
     print()
 
-    unbiased = collect(panos, confs_by_pid, exclude_top=True, assume_scanned=args.assume_scanned)
+    unbiased = collect(panos, confs_by_pid, exclude_top=True,
+                       assume_scanned=args.assume_scanned, lenient_duplicates=lenient)
     if unbiased.n_seen != pools.n_seen:  # top panos existed
         print(format_report("Unbiased subset (random + empty samples only)", unbiased))
         print()
 
+    if pools.n_duplicate:
+        mode = ("lenient: duplicates abstain (redundant, excluded)" if lenient
+                else "default: duplicates scored as false positives")
+        print(f"Duplicate scoring — {mode}. "
+              f"Re-run with{'out' if lenient else ''} --lenient-duplicates for the other variant.")
     print("Recall = per-pano-comprehensive, as judged by the reviewer on the sampled panos.")
 
 
