@@ -100,6 +100,32 @@ def test_collect_unsure_abstains_from_both_metrics():
     assert (pools.n_unsure, pools.missed_total, pools.missed_unsure) == (1, 0, 1)
 
 
+def test_collect_duplicate_is_false_positive_by_default():
+    # Two dets on one physical ramp: the reviewer keeps the first 'correct' and
+    # marks the second 'duplicate'. By default the duplicate scores as a false
+    # positive (matching rampnet.metrics' one-to-one matching), but stays counted
+    # distinctly from a plain 'incorrect'.
+    panos = {"P_TWO_DETS": {"group": "random", "dets": [True, "duplicate"],
+                            "missed": [], "no_missed": True}}
+    pools = collect(panos, {"P_TWO_DETS": [0.91, 0.63]})
+    assert pools.n_judged == 1 and pools.n_duplicate == 1 and pools.n_unsure == 0
+    # Folded to False in the pools, so precision sees 1 correct of 2 (an FP).
+    assert sorted(pools.judged) == [(0.63, False), (0.91, True)]
+    assert sorted(pools.recall_judged) == [(0.63, False), (0.91, True)]
+    assert total_ramps(pools) == 1  # only the one correct det is a real ramp
+
+
+def test_collect_duplicate_lenient_abstains():
+    # The lenient variant drops duplicates from both metrics entirely (like unsure),
+    # so precision/recall are computed as if the redundant hit never fired.
+    panos = {"P_TWO_DETS": {"group": "random", "dets": [True, "duplicate"],
+                            "missed": [], "no_missed": True}}
+    pools = collect(panos, {"P_TWO_DETS": [0.91, 0.63]}, lenient_duplicates=True)
+    assert pools.n_duplicate == 1
+    assert pools.judged == [(0.91, True)] and pools.recall_judged == [(0.91, True)]
+    assert total_ramps(pools) == 1
+
+
 def test_collect_skips_partially_judged():
     panos = {"P_TWO_DETS": {"group": "random", "dets": [True, None],
                             "missed": [], "no_missed": True}}

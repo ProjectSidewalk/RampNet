@@ -16,8 +16,11 @@ loads its ``results.jsonl`` + verdicts and calls :func:`collect` / :func:`format
 Verdict schema (one entry per reviewed pano, keyed by pano id):
   - ``dets``:   per-detection verdict, aligned with the pano's detections —
                 ``True`` (correct), ``False`` (incorrect), ``"unsure"``
-                (abstains from both metrics), or ``None`` (not yet judged; the
-                pano is then partially judged and unusable for either metric).
+                (abstains from both metrics), ``"duplicate"`` (a redundant hit on
+                a ramp already counted — a second detection on one physical ramp;
+                scored as a false positive by default, see ``lenient_duplicates``),
+                or ``None`` (not yet judged; the pano is then partially judged and
+                unusable for either metric).
   - ``missed``: reviewer marks for ramps the model missed. Each is a point dict;
                 ``{"unsure": True}`` abstains (kept out of the recall denominator).
   - ``no_missed``: present on entries exported by a gallery with the missed-ramp
@@ -48,6 +51,7 @@ Pools = namedtuple('Pools', [
     'n_judged',       # of those, fully judged (no None verdicts)
     'n_unconfirmed',  # fully-judged panos held out of recall (missed-ramp check unconfirmed)
     'n_unsure',       # detections marked 'unsure' (abstained)
+    'n_duplicate',    # detections marked 'duplicate' (redundant hit on a counted ramp)
     'missed_unsure',  # missed marks flagged unsure (abstained)
     'warnings',       # human-readable notes (e.g. verdict/results mismatch) — presentation-free
 ])
@@ -64,7 +68,8 @@ def wilson_interval(successes, n, z=1.96):
     return (max(0.0, center - margin), min(1.0, center + margin))
 
 
-def collect(panos, confs_by_pid, exclude_top=False, assume_scanned=False):
+def collect(panos, confs_by_pid, exclude_top=False, assume_scanned=False,
+            lenient_duplicates=False):
     """Turn reviewer verdicts into precision/recall pools.
 
     panos:        {pano_id: verdict entry} (see the schema in the module docstring).
@@ -74,6 +79,15 @@ def collect(panos, confs_by_pid, exclude_top=False, assume_scanned=False):
     judged. Recall additionally requires the pano's missed-ramp check to be
     confirmed, so its numerator (correct detections) and denominator (those plus
     confident missed marks) cover the same panos.
+
+    'duplicate' detections (a second hit on a physical ramp already counted) are
+    scored as false positives **by default** — matching rampnet.metrics' one-to-one
+    matching, where the 2nd hit on a GT ramp is an FP, so human-validation and
+    gold-set numbers stay comparable. ``lenient_duplicates=True`` instead abstains
+    on them (the "redundant, excluded" variant, arguably fairer to a deployment
+    whose clustering absorbs duplicate labels). They are always recorded distinctly
+    from 'incorrect' (``n_duplicate``), so both scorings are computable from one
+    verdicts.json.
 
     ``assume_scanned=True`` treats every fully-judged pano as false-negative
     checked, regardless of the per-pano flag — reviewer attestation that they
@@ -94,7 +108,7 @@ def collect(panos, confs_by_pid, exclude_top=False, assume_scanned=False):
     two in sync. Returns a :class:`Pools`.
     """
     judged, recall_judged, missed_total, missed_unsure = [], [], 0, 0
-    n_seen = n_judged = n_unconfirmed = n_unsure = 0
+    n_seen = n_judged = n_unconfirmed = n_unsure = n_duplicate = 0
     warnings = []
     for pid, entry in panos.items():
         if exclude_top and entry.get('group') == 'top':
@@ -108,8 +122,19 @@ def collect(panos, confs_by_pid, exclude_top=False, assume_scanned=False):
             continue  # partially judged: unusable for either metric
         n_judged += 1
         n_unsure += sum(1 for d in entry['dets'] if d == 'unsure')
-        # Decided verdicts only (True/False); 'unsure' abstains from both metrics.
-        pano_judged = [(c, d) for c, d in zip(confs, entry['dets']) if d != 'unsure']
+        n_duplicate += sum(1 for d in entry['dets'] if d == 'duplicate')
+        # Decided verdicts only. 'unsure' abstains from both metrics. 'duplicate'
+        # folds to a false positive (or abstains, under lenient_duplicates); either
+        # way it stays counted separately in n_duplicate.
+        pano_judged = []
+        for c, d in zip(confs, entry['dets']):
+            if d == 'unsure':
+                continue
+            if d == 'duplicate':
+                if lenient_duplicates:
+                    continue
+                d = False
+            pano_judged.append((c, d))
         judged += pano_judged
         fn_checked = True if assume_scanned else (
             (entry['no_missed'] or entry['missed']) if 'no_missed' in entry else True)
@@ -120,7 +145,7 @@ def collect(panos, confs_by_pid, exclude_top=False, assume_scanned=False):
         else:
             n_unconfirmed += 1
     return Pools(judged, recall_judged, missed_total, n_seen, n_judged,
-                 n_unconfirmed, n_unsure, missed_unsure, warnings)
+                 n_unconfirmed, n_unsure, n_duplicate, missed_unsure, warnings)
 
 
 # --- Shared precision/recall primitives -----------------------------------
@@ -161,6 +186,10 @@ def format_report(title, pools, thresholds=THRESHOLDS):
     tp, n_judged_dets = _precision_at(pools.judged)
     fp = n_judged_dets - tp
     lines.append(f"Detections judged:    {n_judged_dets}  (correct {tp}, incorrect {fp})")
+    if pools.n_duplicate:
+        lines.append(f"Detections duplicate: {pools.n_duplicate}  "
+                     f"(redundant hits on an already-counted ramp; folded into the "
+                     f"numbers above per this run's duplicate scoring)")
     if pools.n_unsure:
         lines.append(f"Detections unsure:    {pools.n_unsure}  (abstained — not in precision or recall)")
     lines.append(f"Missed ramps marked:  {pools.missed_total}"
