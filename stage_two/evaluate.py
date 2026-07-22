@@ -44,7 +44,7 @@ def parse_args():
     parser.add_argument('--tta', action=argparse.BooleanOptionalAction, default=True,
                         help="Horizontal-flip test-time augmentation (default: on, as in the paper)")
     parser.add_argument('--cache-dir', default='evaluate_cache',
-                        help="Heatmap cache root (keyed by checkpoint hash + TTA setting)")
+                        help="Heatmap cache root (keyed by checkpoint hash + dataset + TTA setting)")
     parser.add_argument('--fresh', action='store_true',
                         help="Delete this checkpoint's cached heatmaps before evaluating")
     parser.add_argument('--results-dir', default='evaluation_results',
