@@ -29,14 +29,10 @@ are archived separately and published to HF (#21); they are intentionally not in
 | City | Source | Panos | Precision | Recall |
 |------|--------|-------|-----------|--------|
 | richmond | Mapillary 360 | 124 | 0.965 | 0.895 |
-| bend | GSV (Google Street View) | 110 | 0.958 | 0.831 † |
+| bend | GSV (Google Street View) | 110 | 0.958 | 0.831 |
 
-**Richmond** is self-contained: the reviewer's complete-scan attestation is baked into
-`no_missed`, so 0.895 reproduces with a plain `score_validation.py benchmark/richmond`.
-
-† **Bend recall requires `--assume-scanned`.** As exported, the missed-ramp check was left
-unconfirmed on 55/110 panos, so a plain score gives R **0.677** (biased low — the confirmed
-pool over-weights panos where a miss *was* found). The 0.831 on record assumes a complete
-false-negative scan. **TODO:** confirm the Bend reviewer's complete-scan attestation and bake
-it into `no_missed` (as Richmond already is) to make Bend self-contained — otherwise the two
-splits aren't scored the same way.
+Both splits are **self-contained**: the reviewer's complete-scan attestation is baked into
+`no_missed` (set on fully-judged panos with no missed marks), so the numbers reproduce with a
+plain `python scripts/score_validation.py benchmark/<city>` — no `--assume-scanned` needed.
+This matters because the recall gate otherwise excludes unconfirmed panos and biases recall
+low (it over-weights panos where a miss *was* found).
