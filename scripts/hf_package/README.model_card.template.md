@@ -44,6 +44,19 @@ choosing an operating point.
 - Per-city deployments should calibrate on ~100 locally labeled panoramas; see the repo README's
   "Choosing a Detection Threshold" section.
 
+## Requirements
+
+Loads via `trust_remote_code`, so a compatible `transformers` is required:
+
+- `transformers >= 5.13` — supported (the custom-model auto-class contract this
+  version introduced is satisfied; see issue #19).
+- `transformers 5.12.x` — supported.
+
+Both are covered by a round-trip load smoke test (`tests/test_hf_load.py` in the
+training repo). Earlier revisions of this model fail to load on
+`transformers >= 5.13` with `AttributeError: ... 'KeypointModel' has no attribute
+'register_for_auto_class'` — pull the current revision.
+
 ## Usage
 
 ```python

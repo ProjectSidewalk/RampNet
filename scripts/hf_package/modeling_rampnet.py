@@ -16,6 +16,10 @@ class RampNetModel(PreTrainedModel):
             heatmap_size=tuple(config.heatmap_size),
             pretrained_backbone=False,
         )
+        # Required under transformers >= 5.x: initializes loading-related state
+        # (e.g. all_tied_weights_keys) that from_pretrained expects on every
+        # PreTrainedModel. Harmless no-op extras under 4.x.
+        self.post_init()
 
     def forward(self, pixel_values):
         """Returns the predicted curb ramp keypoint heatmap (B, 1, H, W)."""
