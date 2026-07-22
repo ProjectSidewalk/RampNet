@@ -2,14 +2,28 @@
 
 Produces a local trust_remote_code package (config + modeling files + weights +
 model card) that reproduces projectsidewalk/rampnet-model from this repo, and
-optionally pushes it to the Hub. Run from the repo root:
+optionally pushes it to the Hub. Run from the repo root.
+
+Export a freshly trained checkpoint:
 
     python scripts/export_hf_model.py --checkpoint stage_two/checkpoints/epoch_1_step_9378.pth \
-        --metrics-json stage_two/evaluation_results/metrics_manual_r0.022_pt0.55.json \
+        --metrics-json stage_two/evaluation_results_new/metrics_manual_r0.022_pt0.55.json \
+        --ap-json      stage_two/evaluation_results_new/metrics_manual_r0.022_pt0.0.json \
         [--push --repo-id projectsidewalk/rampnet-model]
 
-Generate the metrics JSON first with stage_two/evaluate.py (at the recommended
-operating threshold, with TTA) so the model card carries real gold-set numbers.
+Re-package the weights already on the Hub (issue #29 — same weights, fixed
+wrapper + corrected card; no retrain). Tag the current Hub revision first so it
+stays addressable, then:
+
+    python scripts/export_hf_model.py --from-hub-revision <old-revision> \
+        --source-fingerprint b0c3ff7a10fc --source-name epoch_1_step_9378.pth \
+        --metrics-json stage_two/evaluation_results_new/metrics_manual_r0.022_pt0.55.json \
+        --ap-json      stage_two/evaluation_results_new/metrics_manual_r0.022_pt0.0.json
+
+Precision/recall come from the operating-threshold metrics JSON; Average
+Precision must come from a full-sweep run (--ap-json, evaluate.py with
+PEAK_THRESHOLD_ABS=0.0). Generate these with stage_two/evaluate.py (with TTA)
+so the model card carries real gold-set numbers.
 """
 import argparse
 import datetime
@@ -30,10 +44,27 @@ PACKAGE_DIR = os.path.join(REPO_ROOT, "scripts", "hf_package")
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Export a stage-2 checkpoint as a HuggingFace model package.")
-    parser.add_argument('--checkpoint', required=True, help="Trained stage-2 checkpoint (.pth)")
+    src = parser.add_mutually_exclusive_group(required=True)
+    src.add_argument('--checkpoint', help="Trained stage-2 checkpoint (.pth) to export")
+    src.add_argument('--from-hub-revision',
+                     help="Re-export the weights already on the Hub: download model.safetensors from "
+                          "--repo-id at this revision and load them (strict) into the canonical "
+                          "KeypointModel. Use for a re-packaging (e.g. issue #29) where the weights are "
+                          "unchanged and only the wrapper/card are being fixed. Requires --source-fingerprint.")
+    parser.add_argument('--source-fingerprint', default=None,
+                        help="Override the checkpoint sha256 prefix recorded in the card. Required with "
+                             "--from-hub-revision, where the local file hash is not the canonical "
+                             "training-checkpoint identity (pass the original checkpoint's fingerprint).")
+    parser.add_argument('--source-name', default=None,
+                        help="Override the 'Source checkpoint' name shown in the card (default: the "
+                             "checkpoint filename).")
     parser.add_argument('--output-dir', default='hf_export', help="Where to write the package (default: hf_export)")
     parser.add_argument('--metrics-json', default=None,
-                        help="metrics_*.json produced by stage_two/evaluate.py; embedded in the model card")
+                        help="metrics_*.json (at the operating threshold) produced by stage_two/evaluate.py; "
+                             "supplies the card's precision/recall")
+    parser.add_argument('--ap-json', default=None,
+                        help="Full-sweep metrics_*.json (evaluate.py with PEAK_THRESHOLD_ABS=0.0); supplies "
+                             "the card's Average Precision. AP from a threshold-truncated run is wrong.")
     parser.add_argument('--dataset-revision', default='main',
                         help="Revision of projectsidewalk/rampnet-dataset the checkpoint was trained on")
     parser.add_argument('--recommended-threshold', type=float, default=0.55,
@@ -46,6 +77,43 @@ def parse_args():
     return parser.parse_args()
 
 
+def load_reference_model(args):
+    """Build the canonical KeypointModel and load the weights to export into it.
+
+    Returns ``(model, fingerprint, source_name)``. Two sources:
+
+    * ``--checkpoint`` — a local ``.pth``, loaded strict; fingerprint is the file
+      sha256 prefix (unless overridden by ``--source-fingerprint``).
+    * ``--from-hub-revision`` — ``model.safetensors`` from ``--repo-id`` at that
+      revision, loaded strict (the published weights use bare KeypointModel keys).
+      The fingerprint is not derivable from the re-downloaded file, so
+      ``--source-fingerprint`` is required and names the canonical training
+      checkpoint the weights came from.
+    """
+    reference_model = KeypointModel(heatmap_size=PANO_HEATMAP_SIZE)
+
+    if args.from_hub_revision:
+        if not args.source_fingerprint:
+            raise SystemExit("--from-hub-revision requires --source-fingerprint "
+                             "(the canonical training-checkpoint sha256 prefix).")
+        from huggingface_hub import hf_hub_download
+        from safetensors.torch import load_file
+        print(f"Downloading weights from {args.repo_id}@{args.from_hub_revision} (model.safetensors)...")
+        weights_path = hf_hub_download(args.repo_id, "model.safetensors", revision=args.from_hub_revision)
+        state_dict = load_file(weights_path)
+        reference_model.load_state_dict(state_dict, strict=True)
+        fingerprint = args.source_fingerprint
+        source_name = args.source_name or f"weights from {args.repo_id}@{args.from_hub_revision}"
+    else:
+        print(f"Loading checkpoint {args.checkpoint} (strict)...")
+        load_checkpoint(reference_model, args.checkpoint, map_location='cpu')
+        fingerprint = args.source_fingerprint or checkpoint_fingerprint(args.checkpoint)
+        source_name = args.source_name or os.path.basename(args.checkpoint)
+
+    reference_model.eval()
+    return reference_model, fingerprint, source_name
+
+
 def git_commit():
     try:
         return subprocess.check_output(
@@ -54,16 +122,36 @@ def git_commit():
         return 'unknown'
 
 
-def render_eval_section(metrics_json_path):
+def render_eval_section(metrics_json_path, ap_json_path=None):
+    """Render the model-card metrics table.
+
+    Precision/recall are read at the operating threshold from ``metrics_json_path``
+    (a ``stage_two/evaluate.py`` run with ``PEAK_THRESHOLD_ABS`` set to that
+    threshold). Average Precision must come from a **full confidence sweep**
+    (``PEAK_THRESHOLD_ABS = 0.0``), so pass that run separately as
+    ``ap_json_path``; an AP taken from a threshold-truncated run integrates only
+    the tail of the curve and reads far too low. If ``ap_json_path`` is omitted,
+    AP falls back to ``metrics_json_path`` (correct only when it is itself a
+    full-sweep run).
+    """
     if metrics_json_path is None:
         return ("*No evaluation metrics were supplied at export time. Run `stage_two/evaluate.py "
                 "--threshold <t>` and re-export with `--metrics-json` to fill this in.*")
     with open(metrics_json_path) as f:
         m = json.load(f)
+    ap_source = m
+    if ap_json_path is not None:
+        with open(ap_json_path) as f:
+            ap_source = json.load(f)
+    if ap_source.get('peak_threshold_abs', 0.0) not in (0.0, 0):
+        raise ValueError(
+            f"AP must come from a full-sweep run (peak_threshold_abs=0.0); got "
+            f"{ap_source.get('peak_threshold_abs')} in {ap_json_path or metrics_json_path}. "
+            "Pass the pt0.0 metrics file via --ap-json.")
     lines = [
         "| Metric | Value |",
         "| :--- | :--- |",
-        f"| Average Precision (interpolated) | {m['ap']:.4f} |",
+        f"| Average Precision (interpolated, full sweep) | {ap_source['ap']:.4f} |",
         f"| Precision @ threshold {m['peak_threshold_abs']} | {m['precision_at_threshold']:.4f} |",
         f"| Recall @ threshold {m['peak_threshold_abs']} | {m['recall_at_threshold']:.4f} |",
         f"| Ground-truth points | {m['total_gt_points']} |",
@@ -128,11 +216,7 @@ def verify_roundtrip(output_dir, reference_model):
 def main():
     args = parse_args()
 
-    print(f"Loading checkpoint {args.checkpoint} (strict)...")
-    reference_model = KeypointModel(heatmap_size=PANO_HEATMAP_SIZE)
-    load_checkpoint(reference_model, args.checkpoint, map_location='cpu')
-    reference_model.eval()
-    fingerprint = checkpoint_fingerprint(args.checkpoint)
+    reference_model, fingerprint, source_name = load_reference_model(args)
 
     assemble_package(args.output_dir, reference_model,
                      recommended_threshold=args.recommended_threshold)
@@ -142,11 +226,11 @@ def main():
         template = f.read()
     card = template.format(
         git_commit=git_commit(),
-        checkpoint_name=os.path.basename(args.checkpoint),
+        checkpoint_name=source_name,
         checkpoint_fingerprint=fingerprint,
         dataset_revision=args.dataset_revision,
         export_date=datetime.date.today().isoformat(),
-        eval_section=render_eval_section(args.metrics_json),
+        eval_section=render_eval_section(args.metrics_json, args.ap_json),
         recommended_threshold=args.recommended_threshold,
         repo_id=args.repo_id,
     )
@@ -162,7 +246,7 @@ def main():
         api = HfApi()
         api.create_repo(args.repo_id, repo_type='model', exist_ok=True)
         api.upload_folder(folder_path=args.output_dir, repo_id=args.repo_id, repo_type='model',
-                          commit_message=f"Export {os.path.basename(args.checkpoint)} "
+                          commit_message=f"Export {source_name} "
                                          f"(sha256 {fingerprint}) from commit {git_commit()}")
         print(f"Pushed to https://huggingface.co/{args.repo_id}")
     else:
