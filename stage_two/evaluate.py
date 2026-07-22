@@ -273,10 +273,13 @@ def main():
 
     model = load_trained_model(args.checkpoint, MODEL_HEATMAP_SIZE)
 
-    # Cached heatmaps are only valid for the exact weights and TTA setting that
-    # produced them, so the cache directory is keyed by both.
+    # Cached heatmaps are only valid for the exact weights, dataset, and TTA setting
+    # that produced them, so the cache directory is keyed by all three. The dataset id
+    # matters because 'manual' and 'test' draw images from the same test split and so
+    # share pano ids; without it in the key they collide and silently serve each other's
+    # cached heatmaps.
     ckpt_fingerprint = checkpoint_fingerprint(args.checkpoint)
-    cache_key = f"{ckpt_fingerprint}_{'tta' if args.tta else 'notta'}"
+    cache_key = f"{ckpt_fingerprint}_{dataset_id_str}_{'tta' if args.tta else 'notta'}"
     heatmap_cache_dir = os.path.join(args.cache_dir, "heatmaps", cache_key)
     if args.fresh and os.path.isdir(heatmap_cache_dir):
         print(f"--fresh: clearing cached heatmaps in {heatmap_cache_dir}")
