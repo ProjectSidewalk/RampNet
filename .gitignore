@@ -2,3 +2,5 @@
 dataset
 *.out
 *.err
+.venv/
+*.egg-info/
