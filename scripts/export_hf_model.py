@@ -73,6 +73,46 @@ def render_eval_section(metrics_json_path):
     return "\n".join(lines)
 
 
+def assemble_package(output_dir, reference_model, recommended_threshold=0.55):
+    """Write a loadable trust_remote_code package (config + modeling files +
+    weights) to ``output_dir``, copying ``reference_model``'s weights into the
+    HF wrapper layout.
+
+    Shared by ``main()`` and ``tests/test_hf_load.py`` so the exporter and the
+    load smoke test exercise the identical package layout — the one that
+    ``AutoModel.from_pretrained(..., trust_remote_code=True)`` must accept on the
+    transformers versions we support (see issue #19).
+    """
+    sys.path.insert(0, os.path.join(REPO_ROOT, "scripts"))
+    # Imported as a package so the relative imports match how the Hub's
+    # dynamic-module loader will resolve them.
+    from hf_package.configuration_rampnet import RampNetConfig  # noqa: E402
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    # The modeling code shipped to the Hub imports the architecture from
+    # rampnet_model.py, copied verbatim from the canonical rampnet/model.py so
+    # the Hub package can never fork the architecture.
+    shutil.copy(os.path.join(REPO_ROOT, "rampnet", "model.py"),
+                os.path.join(output_dir, "rampnet_model.py"))
+    for fname in ("configuration_rampnet.py", "modeling_rampnet.py"):
+        shutil.copy(os.path.join(PACKAGE_DIR, fname), os.path.join(output_dir, fname))
+
+    config = RampNetConfig(recommended_threshold=recommended_threshold)
+    config.auto_map = {
+        "AutoConfig": "configuration_rampnet.RampNetConfig",
+        "AutoModel": "modeling_rampnet.RampNetModel",
+    }
+    config.save_pretrained(output_dir)
+
+    # Wrap the weights in the HF module layout (prefix 'model.') and save.
+    from transformers import AutoConfig, AutoModel
+    hf_config = AutoConfig.from_pretrained(output_dir, trust_remote_code=True)
+    hf_model = AutoModel.from_config(hf_config, trust_remote_code=True)
+    hf_model.model.load_state_dict(reference_model.state_dict())
+    hf_model.save_pretrained(output_dir)
+
+
 def verify_roundtrip(output_dir, reference_model):
     from transformers import AutoModel
     exported = AutoModel.from_pretrained(output_dir, trust_remote_code=True).eval()
@@ -94,34 +134,8 @@ def main():
     reference_model.eval()
     fingerprint = checkpoint_fingerprint(args.checkpoint)
 
-    sys.path.insert(0, os.path.join(REPO_ROOT, "scripts"))
-    # Imported as a package so the relative imports match how the Hub's
-    # dynamic-module loader will resolve them.
-    from hf_package.configuration_rampnet import RampNetConfig  # noqa: E402
-
-    os.makedirs(args.output_dir, exist_ok=True)
-
-    # The modeling code shipped to the Hub imports the architecture from
-    # rampnet_model.py, copied verbatim from the canonical rampnet/model.py so
-    # the Hub package can never fork the architecture.
-    shutil.copy(os.path.join(REPO_ROOT, "rampnet", "model.py"),
-                os.path.join(args.output_dir, "rampnet_model.py"))
-    for fname in ("configuration_rampnet.py", "modeling_rampnet.py"):
-        shutil.copy(os.path.join(PACKAGE_DIR, fname), os.path.join(args.output_dir, fname))
-
-    config = RampNetConfig(recommended_threshold=args.recommended_threshold)
-    config.auto_map = {
-        "AutoConfig": "configuration_rampnet.RampNetConfig",
-        "AutoModel": "modeling_rampnet.RampNetModel",
-    }
-    config.save_pretrained(args.output_dir)
-
-    # Wrap the weights in the HF module layout (prefix 'model.') and save.
-    from transformers import AutoConfig, AutoModel
-    hf_config = AutoConfig.from_pretrained(args.output_dir, trust_remote_code=True)
-    hf_model = AutoModel.from_config(hf_config, trust_remote_code=True)
-    hf_model.model.load_state_dict(reference_model.state_dict())
-    hf_model.save_pretrained(args.output_dir)
+    assemble_package(args.output_dir, reference_model,
+                     recommended_threshold=args.recommended_threshold)
     print(f"Saved weights and config to {args.output_dir}")
 
     with open(os.path.join(PACKAGE_DIR, "README.model_card.template.md"), encoding='utf-8') as f:

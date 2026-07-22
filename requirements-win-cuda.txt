@@ -1,0 +1,47 @@
+# Windows + NVIDIA CUDA dependencies for running RampNet's Python-side code
+# (rampnet package, HF export, stage-2 evaluate/demo) and the test suite on a
+# Windows dev box. This is NOT the paper's training environment — that is the
+# linux-64 conda env in environment.yml / environment.lock.yml (Slurm, 16x L40s).
+#
+# Why a separate file: on Linux pip installs CUDA torch wheels by default, but on
+# Windows the default PyPI torch is CPU-only. The +cu126 pins below pull the
+# CUDA 12.6 build from PyTorch's wheel index. A CUDA 13.x-capable driver runs the
+# 12.6 runtime fine (drivers are forward-compatible with older CUDA runtimes).
+#
+# Setup (from the repo root, Python 3.12):
+#   python -m venv .venv
+#   .venv\Scripts\Activate.ps1        # PowerShell   (or .venv\Scripts\activate.bat in cmd)
+#   python -m pip install -U pip
+#   pip install -r requirements-win-cuda.txt
+#   pip install -e .                  # the local `rampnet` package
+#   pytest tests/ -v
+#
+# CPU-only fallback (no GPU): drop the two +cu126 pins and the --extra-index-url
+# line, then `pip install torch==2.6.0 torchvision==0.21.0` for the CPU wheels.
+
+--extra-index-url https://download.pytorch.org/whl/cu126
+
+# torch 2.6 / torchvision 0.21 match environment.yml's pinned versions so
+# checkpoints and timm behavior line up with the paper environment.
+torch==2.6.0+cu126
+torchvision==0.21.0+cu126
+
+# transformers >= 5.13 is the range issue #19's HF-loading fix targets; the
+# default resolution (5.14.x) is exactly the version that reproduced the crash.
+# Pin transformers==5.12.1 in a throwaway venv to exercise the other supported arm.
+transformers>=5.13
+huggingface_hub
+timm
+datasets
+
+numpy
+pillow
+scikit-image
+scikit-learn
+scipy
+pandas
+matplotlib
+tqdm
+requests
+pydantic
+pytest
