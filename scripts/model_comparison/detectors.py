@@ -6,12 +6,12 @@ model-agnostic ground truth (see ``rampnet/detection_eval.py``).
 
 - ``BundleRampNetDetector`` reads RampNet's detections straight from the
   benchmark ``records.jsonl`` — free, no model load, no GPU. This is the baseline.
-- ``GeminiDetector`` / ``QwenDetector`` are **scaffolds** for this increment: the
-  image preparation (whole-pano downscale) and the box->center-point parsing are
-  real and unit-tested, but the raw model call (``_raw_detect``) raises
-  ``NotImplementedError`` with instructions. Wiring the live calls (and, later,
-  equirectangular tiling for a fair comparison) is the next increment. See
-  ``docs/model_comparison.md``.
+- ``GeminiDetector`` is **live** (google-genai; API key or Vertex+ADC): it
+  reprojects the pano into rectilinear views (``equirect_tiling``), runs the model
+  per view, and maps boxes back to pano coordinates.
+- ``QwenDetector`` is still a **scaffold** (Qwen3-VL on Hyak): image prep,
+  reprojection wiring, and box parsing are real, but the live ``_raw_detect``
+  raises ``NotImplementedError``. See ``docs/model_comparison.md``.
 """
 import json
 import os
@@ -169,7 +169,7 @@ class GeminiDetector(_VLMDetector):
     name = "gemini"
     max_edge = 1568  # Gemini tiles internally; a modest cap keeps token cost sane
 
-    def __init__(self, model_id="gemini-flash-latest", api_key=None, max_edge=None, tile=True,
+    def __init__(self, model_id="gemini-3.6-flash", api_key=None, max_edge=None, tile=True,
                  use_vertex=None, project=None, location=None):
         super().__init__(model_id, max_edge, tile=tile)
         self.api_key = api_key or os.environ.get("GOOGLE_API_KEY")

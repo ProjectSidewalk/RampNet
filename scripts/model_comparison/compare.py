@@ -104,7 +104,7 @@ def main():
     ap.add_argument("bundle", help="Bundle dir (e.g. benchmark/richmond) with records.jsonl + verdicts.json.")
     ap.add_argument("--models", default="rampnet",
                     help="Comma-separated: rampnet,gemini,qwen (default: rampnet).")
-    ap.add_argument("--gemini-model", default="gemini-flash-latest")
+    ap.add_argument("--gemini-model", default="gemini-3.6-flash")
     ap.add_argument("--qwen-model", default="Qwen/Qwen3-VL")
     ap.add_argument("--tiling", choices=["perspective", "none"], default="perspective",
                     help="VLM input: 'perspective' reprojects the pano into rectilinear "
