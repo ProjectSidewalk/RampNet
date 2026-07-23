@@ -1,8 +1,9 @@
 """Guards for the model-comparison harness (scripts/model_comparison/).
 
-Covers the pure box->point parsing and that the VLM detectors are safe scaffolds:
-they construct without their (absent) client libraries, and only fail — with a
-clear message — when a live detection is actually requested.
+Covers the pure box->point parsing (both providers' box conventions), that the VLM
+detectors construct without their client libraries and only fail — with a clear
+message — when a live detection is actually requested, and that the detection
+cache stays valid across changes (see ``test_gemini_cache_key_is_frozen``).
 """
 import os
 import sys
@@ -13,7 +14,8 @@ sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "model_comparison"))
 from detectors import (  # noqa: E402
     BundleRampNetDetector, GeminiDetector, QwenDetector, PanoSample, _VLMDetector,
     gemini_boxes_to_points, qwen_boxes_to_points, boxes_from_gemini_response,
-    parse_model_spec, build_detector,
+    boxes_from_qwen_text, infer_qwen_coord_space, parse_model_spec, build_detector,
+    DETECTION_PROMPT,
 )
 
 
@@ -23,7 +25,8 @@ from rampnet.detection_eval import radius_sq_for  # noqa: E402
 
 class _Args:
     gemini_model = "gemini-3.6-flash"
-    qwen_model = "Qwen/Qwen3-VL"
+    qwen_model = "Qwen/Qwen3-VL-8B-Instruct"
+    qwen_coord_space = "auto"
     tiling = "perspective"
 
 
@@ -65,10 +68,64 @@ def test_gemini_boxes_to_points_center_and_normalization():
     assert pts == [(0.3, 0.5, None)]   # cx=(200+400)/2/1000, cy=(400+600)/2/1000
 
 
-def test_qwen_boxes_to_points_normalizes_by_image_size():
-    # bbox_2d = [x1, y1, x2, y2] in pixels of the image shown to the model.
-    pts = qwen_boxes_to_points([{"bbox_2d": [100, 200, 300, 400]}], img_w=1000, img_h=2000)
+def test_qwen_boxes_to_points_pixels_normalizes_by_image_size():
+    # Qwen2/2.5-VL: bbox_2d = [x1, y1, x2, y2] in pixels of the image shown to the model.
+    pts = qwen_boxes_to_points([{"bbox_2d": [100, 200, 300, 400]}], img_w=1000, img_h=2000,
+                               coord_space="pixels")
     assert pts == [(0.2, 0.15, None)]  # cx=200/1000, cy=300/2000
+
+
+def test_qwen_boxes_to_points_norm1000_ignores_image_size():
+    # Qwen3-VL (the default): bbox_2d is already normalized 0-1000, so the center is
+    # /1000 regardless of the view size the processor was handed.
+    boxes = [{"bbox_2d": [100, 200, 300, 400]}]
+    pts = qwen_boxes_to_points(boxes, img_w=1024, img_h=1024, coord_space="norm1000")
+    assert pts == [(0.2, 0.3, None)]
+    assert qwen_boxes_to_points(boxes, 640, 480, coord_space="norm1000") == pts
+
+
+def test_qwen_boxes_to_points_rejects_unknown_coord_space():
+    try:
+        qwen_boxes_to_points([], 100, 100, coord_space="normalized")
+    except ValueError:
+        return
+    raise AssertionError("expected an unknown coord_space to raise")
+
+
+def test_infer_qwen_coord_space_by_model_id():
+    assert infer_qwen_coord_space("Qwen/Qwen3-VL-8B-Instruct") == "norm1000"
+    assert infer_qwen_coord_space("Qwen/Qwen3-VL-32B-Instruct-FP8") == "norm1000"
+    assert infer_qwen_coord_space("Qwen/Qwen2.5-VL-7B-Instruct") == "pixels"
+    assert infer_qwen_coord_space("some-future-qwen") == "norm1000"  # newest convention
+
+
+# --- Qwen completion parsing (an open model has no response_schema) ----------
+
+def test_boxes_from_qwen_text_plain_json():
+    assert boxes_from_qwen_text('[{"bbox_2d": [1, 2, 3, 4], "label": "curb ramp"}]') == [
+        {"bbox_2d": [1.0, 2.0, 3.0, 4.0], "label": "curb ramp"}]
+
+
+def test_boxes_from_qwen_text_strips_code_fence_and_prose():
+    text = 'Sure! Here are the ramps:\n```json\n[{"bbox_2d": [5, 6, 7, 8], "label": "x"}]\n```\nDone.'
+    assert boxes_from_qwen_text(text) == [{"bbox_2d": [5.0, 6.0, 7.0, 8.0], "label": "x"}]
+
+
+def test_boxes_from_qwen_text_accepts_bare_object_and_bbox_alias():
+    assert boxes_from_qwen_text('{"bbox": [1, 2, 3, 4]}') == [
+        {"bbox_2d": [1.0, 2.0, 3.0, 4.0], "label": ""}]
+
+
+def test_boxes_from_qwen_text_drops_malformed_items():
+    text = '[{"bbox_2d": [1, 2, 3]}, "junk", {"label": "no box"}, {"bbox_2d": [1, 2, 3, 4]}]'
+    assert boxes_from_qwen_text(text) == [{"bbox_2d": [1.0, 2.0, 3.0, 4.0], "label": ""}]
+
+
+def test_boxes_from_qwen_text_empty_and_unparseable():
+    assert boxes_from_qwen_text("") == []
+    assert boxes_from_qwen_text("No curb ramps are visible in this image.") == []
+    assert boxes_from_qwen_text("[{unclosed") == []
+    assert boxes_from_qwen_text("[]") == []
 
 
 def test_boxes_from_gemini_response_parsed_objects():
@@ -90,7 +147,8 @@ def test_parse_model_spec():
     assert parse_model_spec("rampnet") == ("rampnet", None)
     assert parse_model_spec("gemini") == ("gemini", None)
     assert parse_model_spec("gemini:gemini-2.5-flash") == ("gemini", "gemini-2.5-flash")
-    assert parse_model_spec(" qwen : Qwen/Qwen3-VL ") == ("qwen", "Qwen/Qwen3-VL")
+    assert parse_model_spec(" qwen : Qwen/Qwen3-VL-8B-Instruct ") == (
+        "qwen", "Qwen/Qwen3-VL-8B-Instruct")
 
 
 def test_build_detector_labels_variants_by_model_id():
@@ -125,6 +183,76 @@ def test_cache_key_sensitive_and_stable():
     assert cache_key("m", {"x": 1}, "c", "p") == cache_key("m", {"x": 1}, "c", "p")
 
 
+def test_gemini_cache_key_is_frozen():
+    """Regression guard on real spend.
+
+    The on-disk cache holds thousands of already-paid Gemini detections keyed by
+    hash(label, signature, city, pano). Any drift in GeminiDetector.signature() —
+    a reworded prompt, a new key, a changed default — silently misses every one of
+    them and re-bills the whole run. If this fails, the change was not free: either
+    revert it or accept re-paying deliberately.
+    """
+    det = GeminiDetector(model_id="gemini-3.6-flash")
+    assert det.prompt == DETECTION_PROMPT      # provider-specific suffixes must not leak in
+    assert cache_key("gemini-3.6-flash", det.signature(), "richmond", "pano1") == (
+        "b4401afce834fee6bba27f9d1fbec67e86e570dd")
+
+
+def test_qwen_signature_extends_without_disturbing_gemini():
+    qwen = QwenDetector(model_id="Qwen/Qwen3-VL-8B-Instruct")
+    gem = GeminiDetector(model_id="gemini-3.6-flash")
+    sig = qwen.signature()
+    assert sig["coord_space"] == "norm1000" and sig["max_new_tokens"] == 1024
+    assert sig["prompt"].startswith(DETECTION_PROMPT) and sig["prompt"] != DETECTION_PROMPT
+    # The extra keys live only on Qwen's signature.
+    assert set(sig) - set(gem.signature()) == {"coord_space", "max_new_tokens"}
+
+
+def test_build_detector_qwen_coord_space_override():
+    class _Pinned(_Args):
+        qwen_coord_space = "pixels"
+    _, det = build_detector("qwen", "Qwen/Qwen3-VL-8B-Instruct", {}, _Pinned())
+    assert det.coord_space == "pixels"          # explicit flag beats id inference
+    _, det = build_detector("qwen", None, {}, _Args())
+    assert det.model_id == "Qwen/Qwen3-VL-8B-Instruct" and det.coord_space == "norm1000"
+
+
+class _UnloadableDetector:
+    """Stands in for Qwen on a laptop: it can describe itself but cannot load."""
+    name = "unloadable"
+
+    def signature(self):
+        return {"provider": "unloadable"}
+
+    def prepare(self):
+        raise ImportError("no GPU / weights here")
+
+    def detect(self, sample):
+        raise AssertionError("detect() must not be reached when everything is cached")
+
+
+def test_score_model_skips_model_load_when_fully_cached(tmp_path):
+    # A .model_cache produced on the cluster must score on a machine that cannot
+    # load the model at all — otherwise the remote run is unusable locally.
+    records, verdicts = _aligned()
+    det = _UnloadableDetector()
+    cache = DetectionCache(str(tmp_path))
+    cache.put(cache_key("unloadable", det.signature(), "richmond", "p1"), [(0.1, 0.1, None)])
+    report, failures = score_model(det, records, verdicts, "", radius_sq_for(),
+                                   "unloadable", "richmond", cache)
+    assert report.n_panos == 1 and report.tp == 1 and not failures
+
+
+def test_score_model_loads_model_on_a_cache_miss(tmp_path):
+    records, verdicts = _aligned()
+    try:
+        score_model(_UnloadableDetector(), records, verdicts, "", radius_sq_for(),
+                    "unloadable", "richmond", DetectionCache(str(tmp_path)))
+    except ImportError:
+        return  # prepare() still fails fast when work actually has to be done
+    raise AssertionError("expected prepare() to run (and fail) when a pano is uncached")
+
+
 def test_score_model_isolates_pano_failures():
     records = {pid: {"detections": [], "pano": {"width": 1, "height": 1}}
                for pid in ("good", "bad")}
@@ -147,9 +275,11 @@ def test_bundle_rampnet_detector_reads_records():
 
 
 def test_vlm_detectors_construct_without_client_libs():
-    # Constructing must not import google-genai / qwen; that only happens on detect().
+    # Constructing must not import google-genai / transformers, nor download weights;
+    # that only happens on prepare()/detect().
     GeminiDetector(model_id="gemini-flash-latest")
-    QwenDetector(model_id="Qwen/Qwen3-VL")
+    det = QwenDetector(model_id="Qwen/Qwen3-VL-8B-Instruct")
+    assert det._model is None and det._processor is None
 
 
 def test_gemini_detect_fails_clearly_without_key_or_lib():
@@ -158,7 +288,7 @@ def test_gemini_detect_fails_clearly_without_key_or_lib():
     try:
         det.detect(sample)
     except (ImportError, RuntimeError, NotImplementedError):
-        return  # any of these is an acceptable, clear failure for a scaffold
+        return  # any of these is an acceptable, clear failure
     raise AssertionError("expected GeminiDetector.detect to fail loudly without lib/key")
 
 

@@ -135,20 +135,28 @@ def score_model(detector, records, verdicts, panos_dir, radius_sq, label, city, 
                 max_consecutive_failures=10):
     """Run one detector over every reviewed pano and aggregate the score.
 
-    Returns ``(report, failures)``. ``detector.prepare()`` runs first (outside the
-    per-pano guard) so credential / dependency / not-wired errors propagate to the
-    caller and skip the whole model. Each pano's detections are cached, so re-runs
-    don't re-pay the API. A transient per-pano failure is recorded and skipped
-    rather than crashing the run; ``max_consecutive_failures`` aborts the model
-    early during an outage instead of burning budget."""
-    detector.prepare()
+    Returns ``(report, failures)``. ``detector.prepare()`` runs before the pano loop
+    (outside the per-pano guard) so credential / dependency / not-wired errors
+    propagate to the caller and skip the whole model — but it is skipped entirely
+    when every pano is already cached, so a ``.model_cache`` copied back from a GPU
+    cluster scores on a machine that can't load the model at all. Each pano's
+    detections are cached, so re-runs don't re-pay the API. A transient per-pano
+    failure is recorded and skipped rather than crashing the run;
+    ``max_consecutive_failures`` aborts the model early during an outage instead of
+    burning budget."""
     sig = detector.signature() if hasattr(detector, "signature") else None
+    keys = {pid: (cache_key(label, sig, city, pid) if sig is not None else None)
+            for pid in verdicts}
+    cached = {pid: (cache.get(k) if k else None) for pid, k in keys.items()}
+    if not cached or any(p is None for p in cached.values()):
+        detector.prepare()
+    else:
+        print(f"[{label}] all {len(cached)} panos already cached; model load skipped")
     pano_scores, failures, consecutive = [], [], 0
     for pid, entry in verdicts.items():
         rec = records[pid]
         gt = build_ground_truth(rec["detections"], entry["dets"], entry["missed"], entry["no_missed"])
-        key = cache_key(label, sig, city, pid) if sig is not None else None
-        preds = cache.get(key) if key else None
+        key, preds = keys[pid], cached[pid]
         if preds is None:
             sample = PanoSample(
                 pano_id=pid,
@@ -204,7 +212,11 @@ def main():
                          "using its default model) or provider:model_id to pin a variant, e.g. "
                          "'rampnet,gemini:gemini-2.5-flash,gemini:gemini-3.6-flash'.")
     ap.add_argument("--gemini-model", default="gemini-3.6-flash")
-    ap.add_argument("--qwen-model", default="Qwen/Qwen3-VL")
+    ap.add_argument("--qwen-model", default="Qwen/Qwen3-VL-8B-Instruct")
+    ap.add_argument("--qwen-coord-space", choices=["auto", "norm1000", "pixels"], default="auto",
+                    help="Box convention the Qwen checkpoint emits: 'norm1000' (Qwen3-VL, "
+                         "0-1000) or 'pixels' (Qwen2/2.5-VL, absolute). 'auto' infers it "
+                         "from the model id.")
     ap.add_argument("--tiling", choices=["perspective", "none"], default="perspective",
                     help="VLM input: 'perspective' reprojects the pano into rectilinear "
                          "views (fair); 'none' uses one whole-pano call (lower bound). "
