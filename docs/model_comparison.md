@@ -59,21 +59,54 @@ radius of a real GT point, which the per-detection human verdict scored differen
 - **Box → point reduction.** VLM boxes are scored by their centers, at the same radius as
   RampNet's point detections. Localization differences finer than the radius aren't measured.
 - **Equirectangular projection disadvantages VLMs.** RampNet was trained on 2048×4096
-  equirect panos; Gemini/Qwen were not, and ramps are tiny in a warped 4k+ pano. The current
-  **whole-pano** input is therefore a **lower bound** for the VLMs — see tiling below.
+  equirect panos; Gemini/Qwen were not, and ramps are tiny in a warped 4k+ pano. The fair
+  input is **perspective reprojection** (default, below): the pano is reprojected into
+  overlapping rectilinear views. Whole-pano (`--tiling none`) remains available as a lower
+  bound.
 - **No AP for VLMs.** VLM box detection carries no calibrated per-box confidence, so we report
   **operating-point** P/R for all models; AP / PR-curve (via `rampnet.metrics`) applies only
   where confidences exist (RampNet).
 
+## VLM input: perspective reprojection (fair) vs whole-pano (lower bound)
+
+`--tiling perspective` (default) reprojects the pano into a ring of overlapping rectilinear
+views (`equirect_tiling.default_views`: 90° FOV, −30° pitch toward the ground, 6 yaws 60°
+apart → 30° overlap), runs the detector per view, maps each detection's center back to pano
+coordinates (`perspective_point_to_equirect`), and merges detections across the overlaps
+(`dedup_points`, with 0/1 seam wrap). This is what a VLM expects — undistorted photos —
+so it's the fair comparison. `--tiling none` sends one downscaled whole-pano call as a
+lower bound.
+
+**Seams.** Neighboring views overlap by 30°, so a ramp near a tile boundary is seen whole
+in at least one view; the duplicate detection from the adjacent view is merged by
+`dedup_points` (within the match radius). Residual nuance: a ramp truncated at a tile edge
+can yield a box whose center is offset enough to escape the dedup radius and double-count as
+a false positive — the mitigation is enough overlap that each ramp is near-centered in some
+view, which is a rig-tuning question (`fov_h_deg` / `n_yaw` / `pitch_deg`) to calibrate
+empirically once the live VLM runs.
+
+## Validating the reprojection
+
+- **Numerical** (`tests/test_equirect_tiling.py`): round-trip identity (view point → pano →
+  view recovers the original), the view center looks at its (yaw, pitch), and the
+  gnomonic-correctness invariants — the horizon renders as a straight horizontal and
+  meridians as straight verticals (a warped projection would bend them). Plus renderer/scalar
+  agreement.
+- **Visual** (`scripts/model_comparison/dump_views.py`): renders a real pano's views with a
+  graticule overlay. Great-circle meridians + the equator must render as **straight lines**;
+  buildings/poles should look like normal photos. `python scripts/model_comparison/dump_views.py
+  benchmark/richmond --out <dir>`.
+
 ## Status
 
 - **Shipped:** the model-agnostic scorer (`rampnet/detection_eval.py`), the comparison CLI
-  (`scripts/model_comparison/compare.py`), and the RampNet-from-bundle baseline
-  (`BundleRampNetDetector`). Tested (`tests/test_detection_eval.py`, `tests/test_model_comparison.py`).
+  (`scripts/model_comparison/compare.py`), the RampNet-from-bundle baseline
+  (`BundleRampNetDetector`), and the **perspective reprojection + dedup**
+  (`equirect_tiling.py`), validated numerically and visually. Tested
+  (`test_detection_eval.py`, `test_model_comparison.py`, `test_equirect_tiling.py`).
 - **Scaffolded (this increment does not run VLMs):** `GeminiDetector` / `QwenDetector`. Their
-  image prep (whole-pano downscale) and box→point parsing (`gemini_boxes_to_points`,
-  `qwen_boxes_to_points`) are real and unit-tested; the live model call (`_raw_detect`) raises
-  `NotImplementedError` with wiring instructions.
+  image prep, reprojection wiring, and box→point parsing are real and tested; only the live
+  model call (`_raw_detect`) raises `NotImplementedError` with wiring instructions.
 
 ## Running it
 
@@ -91,10 +124,11 @@ python scripts/model_comparison/compare.py benchmark/richmond --models rampnet,g
 1. **Wire the live VLM calls.** Implement `GeminiDetector._raw_detect` (against the current
    `google-genai` SDK; needs `GOOGLE_API_KEY`) and `QwenDetector._raw_detect` (load Qwen3-VL
    once in `_ensure_ready`, run on **Hyak** — the A40 OOMs at native res). Deps:
-   `pip install -r requirements-vlm.txt`. The parse functions already exist.
-2. **Equirectangular tiling** (`# TODO(tiling)` in `detectors.py`): slice each pano into
-   overlapping crops, detect per tile, remap boxes to pano-normalized coords, dedup at seams —
-   the fair-comparison input. Report whole-pano and tiled side by side.
+   `pip install -r requirements-vlm.txt`. Reprojection and the parse functions already exist.
+2. **Calibrate the reprojection rig** against the first live VLM run: tune `fov_h_deg`,
+   `n_yaw`, `pitch_deg` (and consider trimming the wasted nadir/hood region) so ramps land
+   near-centered in some view, minimizing seam-truncation false positives. Report perspective
+   vs `--tiling none` side by side.
 3. **Add the `clovis` split** once the auto-labeler hands back its bundle; the harness is
    city-generic (it just needs `records.jsonl` + `verdicts.json` + `panos/`).
 
@@ -102,6 +136,9 @@ python scripts/model_comparison/compare.py benchmark/richmond --models rampnet,g
 
 - `rampnet/detection_eval.py` — model-agnostic GT + scorer (pure, torch-free).
 - `scripts/model_comparison/detectors.py` — `Detector` protocol, RampNet baseline, VLM scaffolds.
-- `scripts/model_comparison/compare.py` — CLI.
+- `scripts/model_comparison/equirect_tiling.py` — perspective reprojection + point mapping + dedup.
+- `scripts/model_comparison/compare.py` — comparison CLI.
+- `scripts/model_comparison/dump_views.py` — visual de-distortion QA (graticule overlay).
 - `requirements-vlm.txt` — optional VLM deps.
-- `tests/test_detection_eval.py`, `tests/test_model_comparison.py` — guards.
+- `tests/test_detection_eval.py`, `tests/test_model_comparison.py`,
+  `tests/test_equirect_tiling.py` — guards.

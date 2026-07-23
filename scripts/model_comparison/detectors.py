@@ -85,22 +85,54 @@ DETECTION_PROMPT = (
 
 
 class _VLMDetector:
-    """Shared whole-pano scaffold. Subclasses implement ``_raw_detect`` (the live
-    model call) and ``_parse`` (provider box format -> center points)."""
+    """Shared scaffold. Subclasses implement ``_raw_detect`` (the live model call)
+    and ``_parse`` (provider box format -> center points, normalized within the
+    image shown to the model).
+
+    Two input modes:
+      - ``tile=True`` (default, the fair input): reproject the pano into a ring of
+        overlapping rectilinear views, detect in each, map centers back to pano
+        coordinates, and dedup across the overlaps.
+      - ``tile=False``: one downscaled whole-pano call (a lower bound; the pano is
+        warped and ramps are tiny)."""
 
     name = "vlm"
-    max_edge = 1536  # whole-pano downscale; TODO(tiling): replace with overlapping crops
+    max_edge = 1536       # whole-pano downscale cap
+    source_max_edge = 4096  # cap on the pano fed to reprojection (native can be 16k)
 
-    def __init__(self, model_id, max_edge=None):
+    def __init__(self, model_id, max_edge=None, tile=True, views=None):
         self.model_id = model_id
         if max_edge:
             self.max_edge = max_edge
+        self.tile = tile
+        self._views = views  # None -> equirect_tiling.default_views()
 
     def detect(self, sample):
         self._ensure_ready()
+        if self.tile:
+            return self._detect_tiled(sample)
         image = load_pano_image(sample.image_path, self.max_edge)  # whole-pano (lower bound)
-        raw = self._raw_detect(image)          # TODO(tiling) + per-provider live call
+        raw = self._raw_detect(image)
         return self._parse(raw, image.width, image.height)
+
+    def _detect_tiled(self, sample):
+        from equirect_tiling import (
+            default_views, equirect_to_perspective, perspective_point_to_equirect, dedup_points)
+        from rampnet.detection_eval import radius_sq_for, PANO_SCALE_X, PANO_SCALE_Y
+
+        pano = load_pano_image(sample.image_path, self.source_max_edge)
+        views = self._views or default_views()
+        points = []
+        for view in views:
+            view_img = equirect_to_perspective(pano, view)
+            raw = self._raw_detect(view_img)
+            # _parse returns points normalized WITHIN the view; map each back to the pano.
+            for (u, v, conf) in self._parse(raw, view.width, view.height):
+                x, y = perspective_point_to_equirect(u, v, view)
+                points.append((x, y, conf))
+        # Overlapping views see seam-straddling ramps in more than one tile; merge
+        # detections closer than the match radius (with 0/1 seam wrap).
+        return dedup_points(points, radius_sq_for(), PANO_SCALE_X, PANO_SCALE_Y)
 
     def _ensure_ready(self):
         raise NotImplementedError
@@ -116,8 +148,8 @@ class GeminiDetector(_VLMDetector):
     name = "gemini"
     max_edge = 1568  # Gemini tiles internally; a modest cap keeps token cost sane
 
-    def __init__(self, model_id="gemini-flash-latest", api_key=None, max_edge=None):
-        super().__init__(model_id, max_edge)
+    def __init__(self, model_id="gemini-flash-latest", api_key=None, max_edge=None, tile=True):
+        super().__init__(model_id, max_edge, tile=tile)
         self.api_key = api_key or os.environ.get("GOOGLE_API_KEY")
         self._client = None
 
@@ -149,8 +181,8 @@ class QwenDetector(_VLMDetector):
     name = "qwen"
     max_edge = 2048  # Qwen3-VL handles large inputs; run on Hyak (A40 OOMs at native)
 
-    def __init__(self, model_id="Qwen/Qwen3-VL", max_edge=None):
-        super().__init__(model_id, max_edge)
+    def __init__(self, model_id="Qwen/Qwen3-VL", max_edge=None, tile=True):
+        super().__init__(model_id, max_edge, tile=tile)
 
     def _ensure_ready(self):
         try:
@@ -176,11 +208,13 @@ class QwenDetector(_VLMDetector):
 
 def build_detector(name, records, args):
     """Instantiate a detector by name. RampNet reads from ``records``; the VLM
-    detectors take their model id from ``args``."""
+    detectors take their model id and input mode (perspective tiling vs whole-pano)
+    from ``args``."""
     if name == "rampnet":
         return BundleRampNetDetector(records)
+    tile = getattr(args, "tiling", "perspective") != "none"
     if name == "gemini":
-        return GeminiDetector(model_id=args.gemini_model)
+        return GeminiDetector(model_id=args.gemini_model, tile=tile)
     if name == "qwen":
-        return QwenDetector(model_id=args.qwen_model)
+        return QwenDetector(model_id=args.qwen_model, tile=tile)
     raise ValueError(f"unknown model '{name}' (choose from: rampnet, gemini, qwen)")

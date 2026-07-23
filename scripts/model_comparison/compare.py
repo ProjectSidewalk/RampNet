@@ -90,6 +90,10 @@ def main():
                     help="Comma-separated: rampnet,gemini,qwen (default: rampnet).")
     ap.add_argument("--gemini-model", default="gemini-flash-latest")
     ap.add_argument("--qwen-model", default="Qwen/Qwen3-VL")
+    ap.add_argument("--tiling", choices=["perspective", "none"], default="perspective",
+                    help="VLM input: 'perspective' reprojects the pano into rectilinear "
+                         "views (fair); 'none' uses one whole-pano call (lower bound). "
+                         "No effect on rampnet.")
     ap.add_argument("--radius", type=float, default=PANO_RADIUS_NORMALIZED,
                     help=f"Normalized match radius (default {PANO_RADIUS_NORMALIZED}).")
     args = ap.parse_args()
