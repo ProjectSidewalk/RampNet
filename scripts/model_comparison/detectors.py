@@ -9,10 +9,11 @@ model-agnostic ground truth (see ``rampnet/detection_eval.py``).
 - ``GeminiDetector`` is **live** (google-genai; API key or Vertex+ADC): it
   reprojects the pano into rectilinear views (``equirect_tiling``), runs the model
   per view, and maps boxes back to pano coordinates.
-- ``QwenDetector`` is still a **scaffold** (Qwen3-VL on Hyak): image prep,
-  reprojection wiring, and box parsing are real, but the live ``_raw_detect``
-  raises ``NotImplementedError``. See ``docs/model_comparison.md``.
+- ``QwenDetector`` is **live** (open weights via transformers; intended for a GPU
+  cluster — see the Hyak runbook in ``docs/model_comparison.md``). Same tiled path
+  as Gemini; the model is loaded once per run in ``_ensure_ready``.
 """
+import importlib.util
 import json
 import os
 from collections import namedtuple
@@ -84,20 +85,103 @@ def gemini_boxes_to_points(items):
     return points
 
 
-def qwen_boxes_to_points(items, img_w, img_h):
-    """Qwen grounding returns absolute-pixel boxes ``bbox_2d = [x1, y1, x2, y2]``
-    against the image it was shown. Normalize each box center by that image's
-    width/height (the size actually sent to the model, not the native pano)."""
+def _first_json_blob(text):
+    """Return the first balanced JSON array/object substring in ``text``.
+
+    Qwen wraps its grounding output in a ```json fence and sometimes adds a
+    sentence around it, so scan for the first ``[``/``{`` and walk to its match
+    (brackets inside string literals don't count)."""
+    s = text.strip()
+    if "```" in s:                      # keep the body of the first fenced block
+        parts = s.split("```")
+        if len(parts) >= 3:
+            body = parts[1].lstrip()
+            s = body[4:] if body[:4].lower() == "json" else body
+    start = next((i for i, ch in enumerate(s) if ch in "[{"), None)
+    if start is None:
+        return None
+    opener = s[start]
+    closer = "]" if opener == "[" else "}"
+    depth, in_str, esc = 0, False, False
+    for i in range(start, len(s)):
+        ch = s[i]
+        if in_str:
+            if esc:
+                esc = False
+            elif ch == "\\":
+                esc = True
+            elif ch == '"':
+                in_str = False
+            continue
+        if ch == '"':
+            in_str = True
+        elif ch == opener:
+            depth += 1
+        elif ch == closer:
+            depth -= 1
+            if depth == 0:
+                return s[start:i + 1]
+    return None
+
+
+def boxes_from_qwen_text(text):
+    """Pull ``[{bbox_2d, label}, ...]`` out of a Qwen grounding completion.
+
+    Deliberately tolerant — an open model has no response-schema equivalent, so it
+    may fence its JSON, wrap it in prose, return a bare object, or emit a
+    malformed item. Anything without a 4-number box is dropped rather than
+    crashing a 1,400-call run."""
+    if not text:
+        return []
+    blob = _first_json_blob(text)
+    if blob is None:
+        return []
+    try:
+        data = json.loads(blob)
+    except ValueError:
+        return []
+    if isinstance(data, dict):
+        data = data.get("boxes") or data.get("objects") or [data]
+    items = []
+    for it in data if isinstance(data, list) else []:
+        if not isinstance(it, dict):
+            continue
+        box = it.get("bbox_2d", it.get("bbox"))
+        if not isinstance(box, (list, tuple)) or len(box) != 4:
+            continue
+        try:
+            box = [float(v) for v in box]
+        except (TypeError, ValueError):
+            continue
+        items.append({"bbox_2d": box, "label": it.get("label", "")})
+    return items
+
+
+def qwen_boxes_to_points(items, img_w, img_h, coord_space="norm1000"):
+    """Reduce Qwen grounding boxes ``bbox_2d = [x1, y1, x2, y2]`` to normalized
+    [0,1] center points. Confidence is None (grounding carries no score).
+
+    Two conventions exist across the family, and at a ~1000px view size their
+    outputs look nearly identical, so the caller states which rather than guessing:
+
+    - ``norm1000`` (**Qwen3-VL**): coordinates are already normalized to 0-1000
+      (the cookbook rescales with ``bbox_2d[0] / 1000 * width``). Being
+      resolution-independent, the processor's smart-resize cannot shift them.
+    - ``pixels`` (Qwen2/2.5-VL): absolute pixels of the image the processor
+      actually fed the model, so normalize by that image's width/height."""
+    if coord_space not in ("norm1000", "pixels"):
+        raise ValueError(f"unknown coord_space {coord_space!r} (expected norm1000 | pixels)")
+    sx, sy = (1000.0, 1000.0) if coord_space == "norm1000" else (float(img_w), float(img_h))
     points = []
     for it in items:
         x1, y1, x2, y2 = it["bbox_2d"]
-        cx = (x1 + x2) / 2.0 / img_w
-        cy = (y1 + y2) / 2.0 / img_h
+        cx = (x1 + x2) / 2.0 / sx
+        cy = (y1 + y2) / 2.0 / sy
         points.append((cx, cy, None))
     return points
 
 
-# --- VLM detector scaffolds -------------------------------------------------
+# --- VLM detectors ----------------------------------------------------------
 
 DETECTION_PROMPT = (
     "Detect every curb ramp in this street-level image. A curb ramp (curb cut) is the "
@@ -107,9 +191,17 @@ DETECTION_PROMPT = (
     "ramps, return an empty list."
 )
 
+# Gemini gets its output shape from a response_schema; an open model has to be
+# told in the prompt. Same detection task, so the two stay word-for-word identical
+# up to this suffix.
+QWEN_JSON_INSTRUCTION = (
+    ' Respond with JSON only: a list of {"bbox_2d": [x1, y1, x2, y2], "label": "curb ramp"}.'
+)
+QWEN_PROMPT = DETECTION_PROMPT + QWEN_JSON_INSTRUCTION
+
 
 class _VLMDetector:
-    """Shared scaffold. Subclasses implement ``_raw_detect`` (the live model call)
+    """Shared base. Subclasses implement ``_raw_detect`` (the live model call)
     and ``_parse`` (provider box format -> center points, normalized within the
     image shown to the model).
 
@@ -121,6 +213,7 @@ class _VLMDetector:
         warped and ramps are tiny)."""
 
     name = "vlm"
+    prompt = DETECTION_PROMPT  # subclasses override when the provider needs more
     max_edge = 1536       # whole-pano downscale cap
     source_max_edge = 4096  # cap on the pano fed to reprojection (native can be 16k)
 
@@ -186,7 +279,7 @@ class _VLMDetector:
             "max_edge": self.max_edge,
             "source_max_edge": self.source_max_edge,
             "views": [list(v) for v in views] if views else None,
-            "prompt": DETECTION_PROMPT,
+            "prompt": self.prompt,
         }
 
 
@@ -252,7 +345,7 @@ class GeminiDetector(_VLMDetector):
 
         resp = self._client.models.generate_content(
             model=self.model_id,
-            contents=[image, DETECTION_PROMPT],
+            contents=[image, self.prompt],
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
                 response_schema=list[BoundingBox],
@@ -265,42 +358,91 @@ class GeminiDetector(_VLMDetector):
         return gemini_boxes_to_points(raw)
 
 
-class QwenDetector(_VLMDetector):
-    name = "qwen"
-    max_edge = 2048  # Qwen3-VL handles large inputs; run on Hyak (A40 OOMs at native)
+def infer_qwen_coord_space(model_id):
+    """Which box convention a Qwen checkpoint emits (see ``qwen_boxes_to_points``).
 
-    def __init__(self, model_id="Qwen/Qwen3-VL", max_edge=None, tile=True):
+    Qwen3-VL normalizes to 0-1000; Qwen2/2.5-VL emit absolute pixels. Unknown ids
+    get the Qwen3+ convention — overridable with ``--qwen-coord-space``."""
+    mid = (model_id or "").lower()
+    if "qwen2" in mid:
+        return "pixels"
+    return "norm1000"
+
+
+class QwenDetector(_VLMDetector):
+    """Qwen3-VL grounding via transformers (open weights, local GPU).
+
+    The checkpoint is loaded once per run in ``_ensure_ready`` — 8B is ~16GB in
+    bf16 and 32B ~64GB, so this belongs on a cluster GPU (see the Hyak runbook in
+    docs/model_comparison.md), not the dev box. Detections it produces are written
+    to the same ``.model_cache`` as every other model, and that cache key contains
+    nothing machine-specific, so a cache produced on the cluster scores locally."""
+
+    name = "qwen"
+    prompt = QWEN_PROMPT
+    max_edge = 2048  # whole-pano mode only; tiled views are rendered at 1024
+
+    def __init__(self, model_id="Qwen/Qwen3-VL-8B-Instruct", max_edge=None, tile=True,
+                 coord_space=None, max_new_tokens=1024):
         super().__init__(model_id, max_edge, tile=tile)
+        self.coord_space = coord_space or infer_qwen_coord_space(model_id)
+        self.max_new_tokens = max_new_tokens
+        self._model = None
+        self._processor = None
 
     def _ensure_ready(self):
+        if self._model is not None:
+            return
         try:
-            import transformers  # noqa: F401
+            import torch
+            from transformers import AutoProcessor
         except ImportError as e:
             raise ImportError(
-                "QwenDetector needs `transformers` (+ qwen-vl-utils, accelerate) "
+                "QwenDetector needs `torch` and `transformers>=4.57` "
                 "(pip install -r requirements-vlm.txt)") from e
-        # Not yet wired: fail fast at prepare() so the model is skipped cleanly
-        # rather than failing per pano. Wiring this is the Hyak increment.
-        raise NotImplementedError(
-            "QwenDetector is scaffolded, not wired. Load Qwen3-VL in _ensure_ready and "
-            "implement _raw_detect (run on Hyak). See docs/model_comparison.md.")
+        try:
+            from transformers import AutoModelForImageTextToText as model_cls
+        except ImportError:  # older transformers: reach for the Qwen3-VL class directly
+            from transformers import Qwen3VLForConditionalGeneration as model_cls
+
+        self._processor = AutoProcessor.from_pretrained(self.model_id)
+        # device_map="auto" shards a checkpoint too big for one GPU (32B needs two),
+        # but it needs accelerate; without it fall back to a single device.
+        if importlib.util.find_spec("accelerate") is not None:
+            model = model_cls.from_pretrained(self.model_id, dtype="auto", device_map="auto")
+        else:
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            model = model_cls.from_pretrained(self.model_id, dtype="auto").to(device)
+        self._model = model.eval()
 
     def _raw_detect(self, image):
-        # TODO(increment 2, Hyak): load Qwen3-VL once (transformers AutoModelForCausalLM /
-        #   Qwen3VL class + processor), run the grounding prompt, parse the JSON grounding
-        #   output to [{bbox_2d:[x1,y1,x2,y2]}]. Model load belongs in _ensure_ready so it
-        #   happens once per run, not per pano.
-        #   NOTE: Qwen's bbox pixels are relative to the image the processor *actually*
-        #   fed the model, which its smart-resize rounds to multiples of 28 — not the
-        #   (view.width, view.height) passed to _parse. Return that processed (w, h)
-        #   from _raw_detect and normalize qwen_boxes_to_points by it, else centers drift.
-        raise NotImplementedError(
-            "QwenDetector live call is scaffolded, not wired. Implement _raw_detect on Hyak "
-            "(load Qwen3-VL once in _ensure_ready), then feed items to qwen_boxes_to_points "
-            "via _parse. See docs/model_comparison.md.")
+        import torch
+        messages = [{"role": "user", "content": [
+            {"type": "image", "image": image},
+            {"type": "text", "text": self.prompt},
+        ]}]
+        # Qwen3-VL's chat template accepts PIL images directly, so qwen-vl-utils
+        # isn't needed. Greedy decoding mirrors Gemini's temperature=0.
+        inputs = self._processor.apply_chat_template(
+            messages, tokenize=True, add_generation_prompt=True,
+            return_dict=True, return_tensors="pt").to(self._model.device)
+        with torch.inference_mode():
+            out = self._model.generate(**inputs, max_new_tokens=self.max_new_tokens,
+                                       do_sample=False)
+        # generate() returns prompt + completion; keep only the completion.
+        completion = out[:, inputs["input_ids"].shape[1]:]
+        text = self._processor.batch_decode(completion, skip_special_tokens=True)[0]
+        return boxes_from_qwen_text(text)
 
     def _parse(self, raw, img_w, img_h):
-        return qwen_boxes_to_points(raw, img_w, img_h)
+        return qwen_boxes_to_points(raw, img_w, img_h, coord_space=self.coord_space)
+
+    def signature(self):
+        # Extends the base signature. Gemini's stays byte-identical, so the
+        # detections already paid for keep hitting the cache.
+        sig = super().signature()
+        sig.update({"coord_space": self.coord_space, "max_new_tokens": self.max_new_tokens})
+        return sig
 
 
 def parse_model_spec(token):
@@ -328,5 +470,7 @@ def build_detector(provider, model_id, records, args):
         return mid, GeminiDetector(model_id=mid, tile=tile)
     if provider == "qwen":
         mid = model_id or args.qwen_model
-        return mid, QwenDetector(model_id=mid, tile=tile)
+        coord_space = getattr(args, "qwen_coord_space", "auto")
+        return mid, QwenDetector(model_id=mid, tile=tile,
+                                 coord_space=None if coord_space == "auto" else coord_space)
     raise ValueError(f"unknown provider '{provider}' (choose from: rampnet, gemini, qwen)")

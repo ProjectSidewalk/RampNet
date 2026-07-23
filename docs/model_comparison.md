@@ -2,7 +2,8 @@
 
 Uses the standardized curb-ramp benchmark (`benchmark/{bend,richmond}/`) to compare
 RampNet against general-purpose vision-language models that now do bounding-box detection —
-**Gemini Flash** (default `gemini-3.6-flash`) via API and the latest open **Qwen3-VL** (intended to run on Hyak).
+**Gemini Flash** (default `gemini-3.6-flash`) via API and the open **Qwen3-VL** (default
+`Qwen/Qwen3-VL-8B-Instruct`, run on Hyak).
 The question: does a general VLM match or beat the purpose-trained RampNet on real
 deployment imagery (GSV + Mapillary 360)? The harness is model-agnostic, so future models
 (issue #20) plug in the same way.
@@ -97,15 +98,48 @@ empirically once the live VLM runs.
   buildings/poles should look like normal photos. `python scripts/model_comparison/dump_views.py
   benchmark/richmond --out <dir>`.
 
+## Validating the box mapping
+
+Reprojection is only half the pipeline; the other half is turning a provider's boxes back into
+pano points, and that half has a silent failure mode — **box coordinate conventions differ by
+provider and even between Qwen generations**. `scripts/model_comparison/dump_detections.py`
+overlays a detector's raw boxes (red) on each view together with the pano's ground-truth ramps
+(green) and ignore points (amber), so a mapping error shows up as boxes sitting consistently
+off the ramps:
+
+```bash
+python scripts/model_comparison/dump_detections.py benchmark/richmond \
+    --model qwen:Qwen/Qwen3-VL-8B-Instruct --out view_dump/qwen
+```
+
+### Qwen box coordinates are normalized 0–1000
+
+`gemini_boxes_to_points` divides by 1000; `qwen_boxes_to_points` takes an explicit
+`coord_space` because the family changed convention:
+
+- **Qwen3-VL** (`norm1000`, the default): `bbox_2d = [x1, y1, x2, y2]` normalized to **0–1000**,
+  as in the upstream 2D-grounding cookbook (`bbox_2d[0] / 1000 * width`). Being
+  resolution-independent, the processor's smart-resize (which rounds to multiples of 28)
+  **cannot** shift them — this retires the earlier "normalize by the processed size" caveat.
+- **Qwen2/2.5-VL** (`pixels`): absolute pixels of the image the processor actually fed the model.
+
+`infer_qwen_coord_space` picks by model id; `--qwen-coord-space` overrides. The two are *not*
+auto-detected, because at a 1024px view they differ by only 2.4% — a wrong choice does not
+crash, it introduces a small systematic localization bias. Verified empirically by rendering
+one view at 512 / 1024 / 1400 px: the returned coordinates stayed in the same ~0–1000 band
+instead of scaling with the image, and the overlay put boxes squarely on tactile ramps.
+
 ## Status
 
 - **Shipped:** the model-agnostic scorer (`rampnet/detection_eval.py`), the comparison CLI
   (`scripts/model_comparison/compare.py`), the RampNet-from-bundle baseline
   (`BundleRampNetDetector`), the **perspective reprojection + dedup** (`equirect_tiling.py`),
-  and the **live `GeminiDetector`** (google-genai; API key or Vertex+ADC). Tested
+  the **live `GeminiDetector`** (google-genai; API key or Vertex+ADC), and the **live
+  `QwenDetector`** (transformers; Qwen3-VL on a cluster GPU). Tested
   (`test_detection_eval.py`, `test_model_comparison.py`, `test_equirect_tiling.py`).
-- **Scaffolded:** `QwenDetector` (Qwen3-VL on Hyak) — image prep, reprojection wiring, and
-  box→point parsing are real and tested; only the live `_raw_detect` raises `NotImplementedError`.
+- **Smoke-tested locally** on `Qwen/Qwen3-VL-2B-Instruct` (the largest that fits an 8 GB dev
+  GPU) to validate wiring, JSON parsing, and box mapping before spending cluster time. 2B is
+  far too weak to benchmark — the real runs are 8B and 32B on Hyak.
 
 ## Gemini credentials
 
@@ -145,30 +179,72 @@ python scripts/model_comparison/compare.py benchmark/richmond \
 # Cost control / smoke: cap panos; whole-pano lower bound instead of tiling:
 python scripts/model_comparison/compare.py benchmark/richmond --models rampnet,gemini --limit 20
 python scripts/model_comparison/compare.py benchmark/richmond --models gemini --tiling none
+
+# Qwen3-VL (open weights, needs a GPU — see the Hyak runbook below):
+python scripts/model_comparison/compare.py benchmark/richmond \
+    --models rampnet,qwen:Qwen/Qwen3-VL-8B-Instruct
 ```
 
-Unwired models (Qwen) are skipped with a clear note rather than crashing the run.
+A model that can't run (missing credentials, missing client lib) is skipped with a clear note
+rather than crashing the run.
+
+## Running Qwen3-VL on Hyak
+
+Qwen3-VL-8B is ~16 GB in bf16 and 32B ~64 GB, so it runs on the cluster, not the dev box.
+`scripts/model_comparison/run_qwen.slurm` is the launcher.
+
+**The results come back through the detection cache.** `cache_key` hashes only
+`(label, detector signature, city, pano id)` — nothing machine-specific — so detections computed
+on Hyak drop straight into a local `.model_cache/`. And when every pano of a model is already
+cached, `score_model` skips `detector.prepare()` entirely, so the final table can be produced on
+a laptop that cannot load Qwen at all.
+
+```bash
+# 1. On Hyak: stage the repo plus the (git-ignored) bundle imagery.
+rsync -av --exclude .venv --exclude .model_cache RampNet/ klone:~/RampNet/
+rsync -av benchmark/richmond/panos/ klone:~/RampNet/benchmark/richmond/panos/
+
+# 2. On a login node: create/activate the env and pre-download the weights, so the
+#    GPU job isn't billed for the download.
+conda env create -f environment.yml && conda activate sidewalkcv2   # CONDA_OVERRIDE_CUDA=12.6
+pip install -r requirements-vlm.txt
+export HF_HOME=/gscratch/scrubbed/$USER/hf && hf download Qwen/Qwen3-VL-8B-Instruct
+
+# 3. Submit. 8B fits one L40S; 32B needs two (device_map="auto" shards it).
+mkdir -p logs
+sbatch scripts/model_comparison/run_qwen.slurm
+BUNDLE=benchmark/bend sbatch scripts/model_comparison/run_qwen.slurm
+QWEN_MODEL=Qwen/Qwen3-VL-32B-Instruct sbatch --gpus=2 scripts/model_comparison/run_qwen.slurm
+
+# 4. Bring the detections home and score every model side by side, no GPU needed.
+rsync -av klone:~/RampNet/.model_cache/ .model_cache/
+python scripts/model_comparison/compare.py benchmark/richmond \
+    --models rampnet,gemini:gemini-3.6-flash,qwen:Qwen/Qwen3-VL-8B-Instruct
+```
+
+Runs are resumable: a job that is preempted or times out has already cached everything it
+finished, so re-submitting picks up where it stopped.
 
 ## Next increments
 
-1. **Wire the live Qwen call.** Implement `QwenDetector._raw_detect` (load Qwen3-VL once in
-   `_ensure_ready`, run on **Hyak** — the A40 OOMs at native res). Deps:
-   `pip install -r requirements-vlm.txt`. Reprojection and the parse functions already exist.
-   (Gemini is wired — see above.)
-2. **Calibrate the reprojection rig** against the first live VLM run: tune `fov_h_deg`,
-   `n_yaw`, `pitch_deg` (and consider trimming the wasted nadir/hood region) so ramps land
-   near-centered in some view, minimizing seam-truncation false positives. Report perspective
-   vs `--tiling none` side by side.
-3. **Add the `clovis` split** once the auto-labeler hands back its bundle; the harness is
+1. **Calibrate the reprojection rig** against the live VLM runs: tune `fov_h_deg`, `n_yaw`,
+   `pitch_deg` so ramps land near-centered in some view, minimizing seam-truncation false
+   positives. The `dump_detections.py` overlays make one problem obvious — with `pitch_deg=-30`
+   the bottom ~40% of every view is the capture vehicle's hood and the black nadir cap, so
+   roughly a third of every paid call is spent on pixels that can't contain a curb ramp.
+   Report perspective vs `--tiling none` side by side.
+2. **Add the `clovis` split** once the auto-labeler hands back its bundle; the harness is
    city-generic (it just needs `records.jsonl` + `verdicts.json` + `panos/`).
 
 ## Files
 
 - `rampnet/detection_eval.py` — model-agnostic GT + scorer (pure, torch-free).
-- `scripts/model_comparison/detectors.py` — `Detector` protocol, RampNet baseline, VLM scaffolds.
+- `scripts/model_comparison/detectors.py` — `Detector` protocol, RampNet baseline, VLM detectors.
 - `scripts/model_comparison/equirect_tiling.py` — perspective reprojection + point mapping + dedup.
 - `scripts/model_comparison/compare.py` — comparison CLI.
 - `scripts/model_comparison/dump_views.py` — visual de-distortion QA (graticule overlay).
+- `scripts/model_comparison/dump_detections.py` — visual box-mapping QA (boxes vs ground truth).
+- `scripts/model_comparison/run_qwen.slurm` — Hyak launcher for the Qwen leg.
 - `requirements-vlm.txt` — optional VLM deps.
 - `tests/test_detection_eval.py`, `tests/test_model_comparison.py`,
   `tests/test_equirect_tiling.py` — guards.
