@@ -22,6 +22,10 @@ from collections import namedtuple
 PanoSample = namedtuple("PanoSample", ["pano_id", "image_path", "width", "height", "meta"])
 
 
+def _truthy(v):
+    return str(v).strip().lower() in ("1", "true", "yes", "on") if v is not None else False
+
+
 def load_pano_image(path, max_edge=None):
     """Open a benchmark pano as RGB, optionally downscaling so its longest edge
     is <= ``max_edge``. Lifts PIL's decompression-bomb cap (Bend GSV panos are
@@ -165,9 +169,17 @@ class GeminiDetector(_VLMDetector):
     name = "gemini"
     max_edge = 1568  # Gemini tiles internally; a modest cap keeps token cost sane
 
-    def __init__(self, model_id="gemini-flash-latest", api_key=None, max_edge=None, tile=True):
+    def __init__(self, model_id="gemini-flash-latest", api_key=None, max_edge=None, tile=True,
+                 use_vertex=None, project=None, location=None):
         super().__init__(model_id, max_edge, tile=tile)
         self.api_key = api_key or os.environ.get("GOOGLE_API_KEY")
+        # Vertex AI + Application Default Credentials is the path for orgs that
+        # disallow API keys. Driven by the standard google-genai env vars unless
+        # overridden explicitly.
+        self.use_vertex = (_truthy(os.environ.get("GOOGLE_GENAI_USE_VERTEXAI"))
+                           if use_vertex is None else use_vertex)
+        self.project = project or os.environ.get("GOOGLE_CLOUD_PROJECT")
+        self.location = location or os.environ.get("GOOGLE_CLOUD_LOCATION") or "us-central1"
         self._client = None
 
     def _ensure_ready(self):
@@ -177,12 +189,22 @@ class GeminiDetector(_VLMDetector):
             raise ImportError(
                 "GeminiDetector needs the `google-genai` package "
                 "(pip install -r requirements-vlm.txt)") from e
-        if not self.api_key:
-            raise RuntimeError(
-                "GeminiDetector needs GOOGLE_API_KEY (set it in the environment or a "
-                "git-ignored .env at the repo root).")
-        if self._client is None:
+        if self._client is not None:
+            return
+        if self.use_vertex:
+            if not self.project:
+                raise RuntimeError(
+                    "Vertex mode needs GOOGLE_CLOUD_PROJECT (and ADC via "
+                    "`gcloud auth application-default login`).")
+            self._client = genai.Client(vertexai=True, project=self.project, location=self.location)
+        elif self.api_key:
             self._client = genai.Client(api_key=self.api_key)
+        else:
+            raise RuntimeError(
+                "No Gemini credentials. For orgs that disallow API keys, use Vertex + ADC: "
+                "set GOOGLE_GENAI_USE_VERTEXAI=true and GOOGLE_CLOUD_PROJECT (plus optional "
+                "GOOGLE_CLOUD_LOCATION) in a git-ignored .env, and run "
+                "`gcloud auth application-default login`. Otherwise set GOOGLE_API_KEY.")
 
     def _raw_detect(self, image):
         from google.genai import types

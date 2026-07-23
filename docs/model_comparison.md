@@ -101,12 +101,29 @@ empirically once the live VLM runs.
 
 - **Shipped:** the model-agnostic scorer (`rampnet/detection_eval.py`), the comparison CLI
   (`scripts/model_comparison/compare.py`), the RampNet-from-bundle baseline
-  (`BundleRampNetDetector`), and the **perspective reprojection + dedup**
-  (`equirect_tiling.py`), validated numerically and visually. Tested
+  (`BundleRampNetDetector`), the **perspective reprojection + dedup** (`equirect_tiling.py`),
+  and the **live `GeminiDetector`** (google-genai; API key or Vertex+ADC). Tested
   (`test_detection_eval.py`, `test_model_comparison.py`, `test_equirect_tiling.py`).
-- **Scaffolded (this increment does not run VLMs):** `GeminiDetector` / `QwenDetector`. Their
-  image prep, reprojection wiring, and box→point parsing are real and tested; only the live
-  model call (`_raw_detect`) raises `NotImplementedError` with wiring instructions.
+- **Scaffolded:** `QwenDetector` (Qwen3-VL on Hyak) — image prep, reprojection wiring, and
+  box→point parsing are real and tested; only the live `_raw_detect` raises `NotImplementedError`.
+
+## Gemini credentials
+
+The `GeminiDetector` reads credentials from the environment; `compare.py` auto-loads a
+git-ignored repo-root `.env` (so nothing lands in the shell or transcript). Two options:
+
+- **Vertex AI + ADC** (for orgs that disallow API keys). In `.env`:
+  ```
+  GOOGLE_GENAI_USE_VERTEXAI=true
+  GOOGLE_CLOUD_PROJECT=your-project-id
+  GOOGLE_CLOUD_LOCATION=us-central1
+  ```
+  and once, in your own terminal: `gcloud auth application-default login` (the SDK finds the
+  ADC file automatically at runtime; gcloud itself isn't needed after login).
+- **API key** (if allowed): `GOOGLE_API_KEY=...` in `.env`.
+
+Vertex model ids can differ from the AI-Studio names; override with `--gemini-model` if
+`gemini-flash-latest` isn't recognized for your project.
 
 ## Running it
 
@@ -121,10 +138,10 @@ python scripts/model_comparison/compare.py benchmark/richmond --models rampnet,g
 
 ## Next increments
 
-1. **Wire the live VLM calls.** Implement `GeminiDetector._raw_detect` (against the current
-   `google-genai` SDK; needs `GOOGLE_API_KEY`) and `QwenDetector._raw_detect` (load Qwen3-VL
-   once in `_ensure_ready`, run on **Hyak** — the A40 OOMs at native res). Deps:
+1. **Wire the live Qwen call.** Implement `QwenDetector._raw_detect` (load Qwen3-VL once in
+   `_ensure_ready`, run on **Hyak** — the A40 OOMs at native res). Deps:
    `pip install -r requirements-vlm.txt`. Reprojection and the parse functions already exist.
+   (Gemini is wired — see above.)
 2. **Calibrate the reprojection rig** against the first live VLM run: tune `fov_h_deg`,
    `n_yaw`, `pitch_deg` (and consider trimming the wasted nadir/hood region) so ramps land
    near-centered in some view, minimizing seam-truncation false positives. Report perspective
