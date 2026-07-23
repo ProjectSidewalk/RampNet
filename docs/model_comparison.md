@@ -116,25 +116,38 @@ git-ignored repo-root `.env` (so nothing lands in the shell or transcript). Two 
   ```
   GOOGLE_GENAI_USE_VERTEXAI=true
   GOOGLE_CLOUD_PROJECT=your-project-id
-  GOOGLE_CLOUD_LOCATION=us-central1
+  GOOGLE_CLOUD_LOCATION=global
   ```
-  and once, in your own terminal: `gcloud auth application-default login` (the SDK finds the
-  ADC file automatically at runtime; gcloud itself isn't needed after login).
+  and once, in your own terminal:
+  `gcloud auth application-default login && gcloud auth application-default set-quota-project <project>`
+  (the SDK finds the ADC file automatically at runtime; gcloud itself isn't needed after login).
 - **API key** (if allowed): `GOOGLE_API_KEY=...` in `.env`.
 
-Vertex model ids can differ from the AI-Studio names; override with `--gemini-model` if
-`gemini-flash-latest` isn't recognized for your project.
+**Location matters for model availability.** The newest Gemini flash ids
+(`gemini-3.6-flash`, `gemini-3.5-flash`) are served only on the `global` Vertex location;
+regional endpoints (e.g. `us-west1`) lag — there they cap at `gemini-2.5-flash`. Use
+`global` unless an org data-residency policy requires a region (the benchmark imagery is
+public GSV/Mapillary, so residency is not a concern here). Vertex model ids differ from the
+AI-Studio aliases (`gemini-flash-latest` only resolves on `global`); pin them explicitly with
+`gemini:<model-id>` in `--models`.
 
 ## Running it
 
 ```bash
 # RampNet baseline (no GPU, no keys — reads detections from the bundle):
 python scripts/model_comparison/compare.py benchmark/richmond --models rampnet
-python scripts/model_comparison/compare.py benchmark/bend --models rampnet
 
-# Once a VLM is wired (below), add it; unwired models are skipped with a clear note:
-python scripts/model_comparison/compare.py benchmark/richmond --models rampnet,gemini,qwen
+# RampNet vs Gemini variants (needs credentials above). Each --models token is a
+# provider or provider:model_id; variants of one provider become separate rows:
+python scripts/model_comparison/compare.py benchmark/richmond \
+    --models rampnet,gemini:gemini-2.5-flash,gemini:gemini-3.6-flash
+
+# Cost control / smoke: cap panos; whole-pano lower bound instead of tiling:
+python scripts/model_comparison/compare.py benchmark/richmond --models rampnet,gemini --limit 20
+python scripts/model_comparison/compare.py benchmark/richmond --models gemini --tiling none
 ```
+
+Unwired models (Qwen) are skipped with a clear note rather than crashing the run.
 
 ## Next increments
 
