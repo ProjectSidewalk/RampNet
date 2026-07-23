@@ -12,8 +12,20 @@ sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "model_comparison"))
 
 from detectors import (  # noqa: E402
     BundleRampNetDetector, GeminiDetector, QwenDetector, PanoSample,
-    gemini_boxes_to_points, qwen_boxes_to_points,
+    gemini_boxes_to_points, qwen_boxes_to_points, boxes_from_gemini_response,
 )
+
+
+class _FakeBox:
+    def __init__(self, box_2d, label):
+        self.box_2d = box_2d
+        self.label = label
+
+
+class _FakeResp:
+    def __init__(self, parsed=None, text=None):
+        self.parsed = parsed
+        self.text = text
 
 
 def test_gemini_boxes_to_points_center_and_normalization():
@@ -26,6 +38,21 @@ def test_qwen_boxes_to_points_normalizes_by_image_size():
     # bbox_2d = [x1, y1, x2, y2] in pixels of the image shown to the model.
     pts = qwen_boxes_to_points([{"bbox_2d": [100, 200, 300, 400]}], img_w=1000, img_h=2000)
     assert pts == [(0.2, 0.15, None)]  # cx=200/1000, cy=300/2000
+
+
+def test_boxes_from_gemini_response_parsed_objects():
+    resp = _FakeResp(parsed=[_FakeBox([400, 200, 600, 400], "curb ramp")])
+    assert boxes_from_gemini_response(resp) == [{"box_2d": [400, 200, 600, 400], "label": "curb ramp"}]
+
+
+def test_boxes_from_gemini_response_json_text_fallback():
+    resp = _FakeResp(parsed=None, text='[{"box_2d": [1, 2, 3, 4], "label": "x"}]')
+    assert boxes_from_gemini_response(resp) == [{"box_2d": [1, 2, 3, 4], "label": "x"}]
+
+
+def test_boxes_from_gemini_response_empty():
+    assert boxes_from_gemini_response(_FakeResp(parsed=None, text=None)) == []
+    assert boxes_from_gemini_response(_FakeResp(parsed=[], text="[]")) == []
 
 
 def test_bundle_rampnet_detector_reads_records():

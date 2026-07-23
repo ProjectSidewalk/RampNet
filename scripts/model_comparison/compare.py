@@ -29,6 +29,22 @@ from rampnet.validation import collect, format_report  # noqa: E402
 from detectors import PanoSample, build_detector  # noqa: E402
 
 
+def load_dotenv(root):
+    """Load KEY=VALUE lines from a repo-root .env into os.environ (without
+    overriding already-set vars), so a Gemini key can live in a git-ignored file
+    instead of the shell/transcript. Minimal parser — no python-dotenv dependency."""
+    path = os.path.join(root, ".env")
+    if not os.path.exists(path):
+        return
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, val = line.split("=", 1)
+            os.environ.setdefault(key.strip(), val.strip().strip('"').strip("'"))
+
+
 def load_bundle(bundle_dir):
     """Return (records_by_pid, verdicts_panos, panos_dir) for a benchmark bundle."""
     records = {}
@@ -96,9 +112,14 @@ def main():
                          "No effect on rampnet.")
     ap.add_argument("--radius", type=float, default=PANO_RADIUS_NORMALIZED,
                     help=f"Normalized match radius (default {PANO_RADIUS_NORMALIZED}).")
+    ap.add_argument("--limit", type=int,
+                    help="Score at most N panos (smoke test / cost control for VLM runs).")
     args = ap.parse_args()
 
+    load_dotenv(str(REPO_ROOT))
     records, verdicts, panos_dir = load_bundle(args.bundle)
+    if args.limit:
+        verdicts = dict(list(verdicts.items())[:args.limit])
     radius_sq = radius_sq_for(args.radius)
     model_names = [m.strip() for m in args.models.split(",") if m.strip()]
 

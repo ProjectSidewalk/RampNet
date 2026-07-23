@@ -13,6 +13,7 @@ model-agnostic ground truth (see ``rampnet/detection_eval.py``).
   equirectangular tiling for a fair comparison) is the next increment. See
   ``docs/model_comparison.md``.
 """
+import json
 import os
 from collections import namedtuple
 
@@ -50,6 +51,19 @@ class BundleRampNetDetector:
 
 # --- VLM box parsing (pure, unit-tested) ------------------------------------
 
+def boxes_from_gemini_response(resp):
+    """Pull ``[{box_2d, label}, ...]`` out of a google-genai response, whether the
+    SDK returned parsed schema objects (``resp.parsed``) or raw JSON text."""
+    parsed = getattr(resp, "parsed", None)
+    if parsed:
+        return [{"box_2d": list(b.box_2d), "label": getattr(b, "label", "")} for b in parsed]
+    text = getattr(resp, "text", None)
+    if not text:
+        return []
+    data = json.loads(text)
+    return data if isinstance(data, list) else data.get("boxes", [])
+
+
 def gemini_boxes_to_points(items):
     """Gemini returns ``box_2d = [ymin, xmin, ymax, xmax]`` normalized to 0-1000.
     Reduce each box to its normalized [0,1] center point. Confidence is None
@@ -79,8 +93,11 @@ def qwen_boxes_to_points(items, img_w, img_h):
 # --- VLM detector scaffolds -------------------------------------------------
 
 DETECTION_PROMPT = (
-    "Detect every curb ramp (sidewalk wheelchair ramp at a street corner) visible "
-    "in this street-level image. Return one bounding box per curb ramp."
+    "Detect every curb ramp in this street-level image. A curb ramp (curb cut) is the "
+    "short sloped ramp cut into a sidewalk curb at a street corner or crossing that lets "
+    "a wheelchair or stroller roll from sidewalk to street. Return one tight bounding box "
+    "per curb ramp. Do not box driveways, stairs, or crosswalk paint. If there are no curb "
+    "ramps, return an empty list."
 )
 
 
@@ -155,23 +172,36 @@ class GeminiDetector(_VLMDetector):
 
     def _ensure_ready(self):
         try:
-            from google import genai  # noqa: F401
+            from google import genai
         except ImportError as e:
             raise ImportError(
                 "GeminiDetector needs the `google-genai` package "
                 "(pip install -r requirements-vlm.txt)") from e
         if not self.api_key:
-            raise RuntimeError("GeminiDetector needs GOOGLE_API_KEY in the environment.")
+            raise RuntimeError(
+                "GeminiDetector needs GOOGLE_API_KEY (set it in the environment or a "
+                "git-ignored .env at the repo root).")
+        if self._client is None:
+            self._client = genai.Client(api_key=self.api_key)
 
     def _raw_detect(self, image):
-        # TODO(increment 2): call genai.Client(api_key=...).models.generate_content(
-        #   model=self.model_id, contents=[image, DETECTION_PROMPT], config=<JSON schema
-        #   of {box_2d:[ymin,xmin,ymax,xmax], label}>) and return the parsed list.
-        raise NotImplementedError(
-            "GeminiDetector live call is scaffolded, not wired (this increment ships the "
-            "harness + RampNet baseline). Implement _raw_detect against the current genai "
-            "SDK, then feed its items to gemini_boxes_to_points via _parse. "
-            "See docs/model_comparison.md.")
+        from google.genai import types
+        from pydantic import BaseModel
+
+        class BoundingBox(BaseModel):
+            box_2d: list[int]   # [ymin, xmin, ymax, xmax], normalized 0-1000
+            label: str
+
+        resp = self._client.models.generate_content(
+            model=self.model_id,
+            contents=[image, DETECTION_PROMPT],
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema=list[BoundingBox],
+                temperature=0.0,
+            ),
+        )
+        return boxes_from_gemini_response(resp)
 
     def _parse(self, raw, img_w, img_h):
         return gemini_boxes_to_points(raw)
