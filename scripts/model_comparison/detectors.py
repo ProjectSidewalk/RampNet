@@ -258,15 +258,30 @@ class QwenDetector(_VLMDetector):
         return qwen_boxes_to_points(raw, img_w, img_h)
 
 
-def build_detector(name, records, args):
-    """Instantiate a detector by name. RampNet reads from ``records``; the VLM
-    detectors take their model id and input mode (perspective tiling vs whole-pano)
-    from ``args``."""
-    if name == "rampnet":
-        return BundleRampNetDetector(records)
+def parse_model_spec(token):
+    """Parse a ``--models`` token into ``(provider, model_id_or_None)``.
+
+    A token is either a bare provider (``rampnet`` / ``gemini`` / ``qwen``, which
+    uses that provider's default model) or ``provider:model_id`` to pin a specific
+    variant — e.g. ``gemini:gemini-2.5-flash`` vs ``gemini:gemini-3.6-flash`` — so
+    several variants of the same provider can be compared in one run."""
+    provider, _, model_id = token.partition(":")
+    return provider.strip(), (model_id.strip() or None)
+
+
+def build_detector(provider, model_id, records, args):
+    """Instantiate a detector for one ``(provider, model_id)`` spec, returning
+    ``(label, detector)``. The label is the concrete model id for VLMs (so
+    variants are distinguishable in the results table) and ``rampnet`` for the
+    baseline. RampNet reads from ``records``; the VLM input mode (perspective
+    tiling vs whole-pano) comes from ``args``."""
+    if provider == "rampnet":
+        return "rampnet", BundleRampNetDetector(records)
     tile = getattr(args, "tiling", "perspective") != "none"
-    if name == "gemini":
-        return GeminiDetector(model_id=args.gemini_model, tile=tile)
-    if name == "qwen":
-        return QwenDetector(model_id=args.qwen_model, tile=tile)
-    raise ValueError(f"unknown model '{name}' (choose from: rampnet, gemini, qwen)")
+    if provider == "gemini":
+        mid = model_id or args.gemini_model
+        return mid, GeminiDetector(model_id=mid, tile=tile)
+    if provider == "qwen":
+        mid = model_id or args.qwen_model
+        return mid, QwenDetector(model_id=mid, tile=tile)
+    raise ValueError(f"unknown provider '{provider}' (choose from: rampnet, gemini, qwen)")

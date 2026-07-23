@@ -6,11 +6,12 @@ are compared on equal footing. RampNet's verdict-based numbers are re-printed as
 a cross-check.
 
     python scripts/model_comparison/compare.py benchmark/richmond --models rampnet
-    python scripts/model_comparison/compare.py benchmark/bend --models rampnet,gemini
+    python scripts/model_comparison/compare.py benchmark/richmond \
+        --models rampnet,gemini:gemini-2.5-flash,gemini:gemini-3.6-flash
 
-This increment ships the harness + the RampNet baseline; the VLM detectors are
-scaffolded (a --models gemini/qwen run raises a clear NotImplementedError until
-their live calls are wired). See docs/model_comparison.md.
+Each --models token is a provider (rampnet/gemini/qwen) or provider:model_id to
+pin a variant, so several models from the same provider compare side by side.
+See docs/model_comparison.md.
 """
 import argparse
 import json
@@ -26,7 +27,7 @@ from rampnet.detection_eval import (  # noqa: E402
     build_ground_truth, score_pano, aggregate, radius_sq_for, PANO_RADIUS_NORMALIZED,
 )
 from rampnet.validation import collect, format_report  # noqa: E402
-from detectors import PanoSample, build_detector  # noqa: E402
+from detectors import PanoSample, build_detector, parse_model_spec  # noqa: E402
 
 
 def load_dotenv(root):
@@ -85,12 +86,12 @@ def _ci(lo_hi):
 
 
 def print_table(rows):
-    header = f"{'model':<10} {'P':>6} {'95% CI':>15} {'R':>6} {'95% CI':>15} {'F1':>6}   {'tp/fp/fn/ign':>16}"
+    header = f"{'model':<22} {'P':>6} {'95% CI':>15} {'R':>6} {'95% CI':>15} {'F1':>6}   {'tp/fp/fn/ign':>16}"
     print(header)
     print("-" * len(header))
     for name, r in rows:
         counts = f"{r.tp}/{r.fp}/{r.fn}/{r.ignored}"
-        print(f"{name:<10} {_pct(r.precision):>6} {_ci(r.precision_ci):>15} "
+        print(f"{name:<22} {_pct(r.precision):>6} {_ci(r.precision_ci):>15} "
               f"{_pct(r.recall):>6} {_ci(r.recall_ci):>15} {_pct(r.f1):>6}   {counts:>16}")
 
 
@@ -103,7 +104,9 @@ def main():
     ap = argparse.ArgumentParser(description="Compare curb-ramp detectors on a benchmark bundle.")
     ap.add_argument("bundle", help="Bundle dir (e.g. benchmark/richmond) with records.jsonl + verdicts.json.")
     ap.add_argument("--models", default="rampnet",
-                    help="Comma-separated: rampnet,gemini,qwen (default: rampnet).")
+                    help="Comma-separated detectors. Each is a provider (rampnet/gemini/qwen, "
+                         "using its default model) or provider:model_id to pin a variant, e.g. "
+                         "'rampnet,gemini:gemini-2.5-flash,gemini:gemini-3.6-flash'.")
     ap.add_argument("--gemini-model", default="gemini-3.6-flash")
     ap.add_argument("--qwen-model", default="Qwen/Qwen3-VL")
     ap.add_argument("--tiling", choices=["perspective", "none"], default="perspective",
@@ -121,22 +124,29 @@ def main():
     if args.limit:
         verdicts = dict(list(verdicts.items())[:args.limit])
     radius_sq = radius_sq_for(args.radius)
-    model_names = [m.strip() for m in args.models.split(",") if m.strip()]
+    specs = [parse_model_spec(t) for t in args.models.split(",") if t.strip()]
 
     print(f"Bundle: {args.bundle}  ({len(verdicts)} reviewed panos)  "
           f"match radius {args.radius}  ground truth: reviewer-confirmed ramps + missed marks\n")
 
     rows = []
-    for name in model_names:
-        detector = build_detector(name, records, args)
+    seen = {}
+    for provider, model_id in specs:
+        label, detector = build_detector(provider, model_id, records, args)
+        # Disambiguate if the same label appears twice (e.g. same model, two configs).
+        if label in seen:
+            seen[label] += 1
+            label = f"{label}#{seen[label]}"
+        else:
+            seen[label] = 1
         try:
             report = score_model(detector, records, verdicts, panos_dir, radius_sq)
         except (NotImplementedError, ImportError, RuntimeError) as e:
             # Scaffolded VLM detectors, a missing client lib, or a missing API key:
             # skip the model with a clear note rather than crashing the whole run.
-            print(f"[{name}] not runnable yet: {e}\n")
+            print(f"[{label}] not runnable yet: {e}\n")
             continue
-        rows.append((name, report))
+        rows.append((label, report))
 
     if rows:
         print_table(rows)

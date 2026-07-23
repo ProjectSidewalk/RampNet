@@ -13,7 +13,14 @@ sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "model_comparison"))
 from detectors import (  # noqa: E402
     BundleRampNetDetector, GeminiDetector, QwenDetector, PanoSample,
     gemini_boxes_to_points, qwen_boxes_to_points, boxes_from_gemini_response,
+    parse_model_spec, build_detector,
 )
+
+
+class _Args:
+    gemini_model = "gemini-3.6-flash"
+    qwen_model = "Qwen/Qwen3-VL"
+    tiling = "perspective"
 
 
 class _FakeBox:
@@ -53,6 +60,24 @@ def test_boxes_from_gemini_response_json_text_fallback():
 def test_boxes_from_gemini_response_empty():
     assert boxes_from_gemini_response(_FakeResp(parsed=None, text=None)) == []
     assert boxes_from_gemini_response(_FakeResp(parsed=[], text="[]")) == []
+
+
+def test_parse_model_spec():
+    assert parse_model_spec("rampnet") == ("rampnet", None)
+    assert parse_model_spec("gemini") == ("gemini", None)
+    assert parse_model_spec("gemini:gemini-2.5-flash") == ("gemini", "gemini-2.5-flash")
+    assert parse_model_spec(" qwen : Qwen/Qwen3-VL ") == ("qwen", "Qwen/Qwen3-VL")
+
+
+def test_build_detector_labels_variants_by_model_id():
+    label, det = build_detector("rampnet", None, {}, _Args())
+    assert label == "rampnet" and isinstance(det, BundleRampNetDetector)
+    # A pinned variant labels by its model id, so 2.5 and 3.6 are distinct rows.
+    label, det = build_detector("gemini", "gemini-2.5-flash", {}, _Args())
+    assert label == "gemini-2.5-flash" and det.model_id == "gemini-2.5-flash"
+    # Bare provider falls back to the args default.
+    label, det = build_detector("gemini", None, {}, _Args())
+    assert label == "gemini-3.6-flash"
 
 
 def test_bundle_rampnet_detector_reads_records():
