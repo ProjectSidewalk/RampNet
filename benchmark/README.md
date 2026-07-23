@@ -24,6 +24,33 @@ python scripts/score_validation.py benchmark/<city>
 The **native-resolution panos** (for the labeling UI and the resolution experiment, #25)
 are archived separately and published to HF (#21); they are intentionally not in git.
 
+## How a split is produced — the two-repo boundary
+
+RampNet and [`sidewalk-auto-labeler`](https://github.com/ProjectSidewalk/sidewalk-auto-labeler)
+split by **question, not by city**. A validation city (Richmond, Bend, Clovis, …) is simply
+where both questions land on the same panos — neither repo "owns" a city.
+
+- *"What are the curb ramps in this city?"* → **auto-labeler**. Enumerate → thin → fetch
+  imagery → detect → submit. It is the only thing that fetches pixels (RampNet has no
+  `sources/`), so it also hands RampNet the imagery bundle.
+- *"How good is the model, and is it improving?"* → **RampNet**. Ground truth, scoring, and
+  the benchmark itself.
+
+Per-step, for adding a city to this benchmark:
+
+| Step | Repo | Tool |
+|------|------|------|
+| Enumerate → thin → **detect** the city | auto-labeler | `main.py --source <mapillary\|gsv>` |
+| Export the native-res bundle (`panos/` + `records.jsonl`) | auto-labeler | `scripts/export_benchmark.py` |
+| GT-verify a sample → `verdicts.json` | **RampNet** | `scripts/gt_gallery.py benchmark/<city>` |
+| Score P/R + Wilson CIs + threshold sweep | **RampNet** | `scripts/score_validation.py` / `rampnet.validation` |
+| Add the split to the HF benchmark dataset | **RampNet** | `scripts/build_benchmark_dataset.py` |
+
+The GT gallery and scorer are **canonical in RampNet** (`scripts/gt_gallery.py`,
+`rampnet/validation.py` — decoupled from any imagery source, no network). The auto-labeler
+still carries transitional copies (`scripts/spot_check_gallery.py`, `scripts/score_validation.py`)
+marked for deletion; run the RampNet versions, not those.
+
 ## Current splits
 
 | City | Source | Panos | Precision | Recall |
