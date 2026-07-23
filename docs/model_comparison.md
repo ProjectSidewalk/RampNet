@@ -2,7 +2,7 @@
 
 Uses the standardized curb-ramp benchmark (`benchmark/{bend,richmond}/`) to compare
 RampNet against general-purpose vision-language models that now do bounding-box detection —
-**Gemini (Flash 3.5)** via API and the latest open **Qwen3-VL** (intended to run on Hyak).
+**Gemini Flash** (default `gemini-3.6-flash`) via API and the latest open **Qwen3-VL** (intended to run on Hyak).
 The question: does a general VLM match or beat the purpose-trained RampNet on real
 deployment imagery (GSV + Mapillary 360)? The harness is model-agnostic, so future models
 (issue #20) plug in the same way.

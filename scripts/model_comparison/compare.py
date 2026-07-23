@@ -93,8 +93,42 @@ def load_bundle(bundle_dir):
             if line.strip():
                 r = json.loads(line)
                 records[r["pano"]["panorama_id"]] = r
-    verdicts = json.load(open(os.path.join(bundle_dir, "verdicts.json"), encoding="utf-8"))["panos"]
+    with open(os.path.join(bundle_dir, "verdicts.json"), encoding="utf-8") as f:
+        verdicts = json.load(f)["panos"]
     return records, verdicts, os.path.join(bundle_dir, "panos")
+
+
+def validate_bundle(records, verdicts):
+    """Fail fast on a structurally broken bundle, *before* any (paid) detector call.
+
+    ``score_model`` builds each pano's ground truth from ``records[pid]`` + the
+    verdict entry outside its per-pano failure guard (that guard is for transient
+    detect() errors, not data integrity). Without this pre-flight a reviewed pano
+    missing from records.jsonl, a missing verdict field, or detections/verdicts
+    that don't line up would surface as a raw KeyError/ValueError partway through a
+    long VLM run — after spend, and aborting models already scored. Catch it here
+    with a clear message instead. Raises SystemExit listing every offending pano.
+
+    (Legacy verdicts.json without ``no_missed`` are intentionally rejected here
+    rather than silently defaulted — the current/planned bundles are new-schema;
+    see docs/model_comparison.md.)"""
+    problems = []
+    for pid, entry in verdicts.items():
+        rec = records.get(pid)
+        if rec is None:
+            problems.append(f"{pid}: reviewed in verdicts.json but absent from records.jsonl")
+            continue
+        missing = [k for k in ("dets", "missed", "no_missed") if k not in entry]
+        if missing:
+            problems.append(f"{pid}: verdict entry missing field(s) {missing}")
+            continue
+        n_det, n_ver = len(rec.get("detections", [])), len(entry["dets"])
+        if n_det != n_ver:
+            problems.append(f"{pid}: {n_det} detections vs {n_ver} verdicts (misaligned)")
+    if problems:
+        shown = "\n  ".join(problems[:10])
+        more = f"\n  ... and {len(problems) - 10} more" if len(problems) > 10 else ""
+        raise SystemExit(f"Bundle validation failed ({len(problems)} pano(s)):\n  {shown}{more}")
 
 
 def score_model(detector, records, verdicts, panos_dir, radius_sq, label, city, cache,
@@ -189,6 +223,7 @@ def main():
     records, verdicts, panos_dir = load_bundle(args.bundle)
     if args.limit:
         verdicts = dict(list(verdicts.items())[:args.limit])
+    validate_bundle(records, verdicts)  # fail fast before any (paid) detector call
     radius_sq = radius_sq_for(args.radius)
     specs = [parse_model_spec(t) for t in args.models.split(",") if t.strip()]
     city = os.path.basename(os.path.normpath(args.bundle))
@@ -233,6 +268,10 @@ def main():
     pools = collect(verdicts, confs_by_pid)
     print()
     print(format_report("RampNet verdict-based cross-check", pools))
+    # collect() records verdict/results mismatches as notes and leaves surfacing to
+    # the caller; print them so a silently-skipped pano is visible, not swallowed.
+    for w in pools.warnings:
+        print(f"  ! {w}")
 
 
 if __name__ == "__main__":

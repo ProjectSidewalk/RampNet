@@ -204,7 +204,11 @@ class GeminiDetector(_VLMDetector):
         self.use_vertex = (_truthy(os.environ.get("GOOGLE_GENAI_USE_VERTEXAI"))
                            if use_vertex is None else use_vertex)
         self.project = project or os.environ.get("GOOGLE_CLOUD_PROJECT")
-        self.location = location or os.environ.get("GOOGLE_CLOUD_LOCATION") or "us-central1"
+        # Default to `global`, not a region: the newest flash ids (the default
+        # gemini-3.6-flash) are served only there; regional endpoints lag and 404
+        # on them. Override with GOOGLE_CLOUD_LOCATION only for a data-residency
+        # policy (benchmark imagery is public GSV/Mapillary). See docs/model_comparison.md.
+        self.location = location or os.environ.get("GOOGLE_CLOUD_LOCATION") or "global"
         self._client = None
 
     def _ensure_ready(self):
@@ -286,6 +290,10 @@ class QwenDetector(_VLMDetector):
         #   Qwen3VL class + processor), run the grounding prompt, parse the JSON grounding
         #   output to [{bbox_2d:[x1,y1,x2,y2]}]. Model load belongs in _ensure_ready so it
         #   happens once per run, not per pano.
+        #   NOTE: Qwen's bbox pixels are relative to the image the processor *actually*
+        #   fed the model, which its smart-resize rounds to multiples of 28 — not the
+        #   (view.width, view.height) passed to _parse. Return that processed (w, h)
+        #   from _raw_detect and normalize qwen_boxes_to_points by it, else centers drift.
         raise NotImplementedError(
             "QwenDetector live call is scaffolded, not wired. Implement _raw_detect on Hyak "
             "(load Qwen3-VL once in _ensure_ready), then feed items to qwen_boxes_to_points "

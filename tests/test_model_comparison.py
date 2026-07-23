@@ -11,13 +11,13 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "model_comparison"))
 
 from detectors import (  # noqa: E402
-    BundleRampNetDetector, GeminiDetector, QwenDetector, PanoSample,
+    BundleRampNetDetector, GeminiDetector, QwenDetector, PanoSample, _VLMDetector,
     gemini_boxes_to_points, qwen_boxes_to_points, boxes_from_gemini_response,
     parse_model_spec, build_detector,
 )
 
 
-from compare import score_model, DetectionCache, cache_key  # noqa: E402
+from compare import score_model, validate_bundle, DetectionCache, cache_key  # noqa: E402
 from rampnet.detection_eval import radius_sq_for  # noqa: E402
 
 
@@ -160,3 +160,103 @@ def test_gemini_detect_fails_clearly_without_key_or_lib():
     except (ImportError, RuntimeError, NotImplementedError):
         return  # any of these is an acceptable, clear failure for a scaffold
     raise AssertionError("expected GeminiDetector.detect to fail loudly without lib/key")
+
+
+# --- tiled detect() end-to-end (no live model) ------------------------------
+
+class _FakeTiledVLM(_VLMDetector):
+    """A live-model-free _VLMDetector: _raw_detect echoes fixed per-view points and
+    _parse passes them through, so detect() exercises the real tiled path — the
+    view loop, per-view back-projection to pano coords, and cross-view dedup —
+    without any client library."""
+    name = "faketiled"
+
+    def __init__(self, points_per_view, **kw):
+        super().__init__("fake-model", **kw)
+        self._ppv = points_per_view
+
+    def _ensure_ready(self):
+        pass
+
+    def _raw_detect(self, image):
+        return self._ppv
+
+    def _parse(self, raw, img_w, img_h):
+        return list(raw)
+
+
+def _write_equirect(path):
+    import numpy as np
+    from PIL import Image
+    Image.fromarray(np.zeros((128, 256, 3), dtype="uint8")).save(path)
+
+
+def test_vlm_tiled_detect_maps_each_view_back_to_pano(tmp_path):
+    from equirect_tiling import default_views
+    pano = tmp_path / "p.jpg"
+    _write_equirect(pano)
+    sample = PanoSample("p", str(pano), 256, 128, {})
+
+    # One detection at each view's center -> one mapped pano point per view.
+    det = _FakeTiledVLM([(0.5, 0.5, None)], tile=True)
+    pts = det.detect(sample)
+    views = default_views()
+    assert len(pts) == len(views)                       # 6 well-separated views, none merged
+    # Every view is pitched to -30 deg, so each center maps to latitude -30 (Y=0.6667).
+    assert all(abs(y - (0.5 + 30.0 / 180.0)) < 1e-6 for (_, y, _) in pts)
+    assert any(abs(x - 0.5) < 1e-6 for (x, _, _) in pts)  # the yaw-0 view -> longitude 0
+    assert all(conf is None for (_, _, conf) in pts)      # confidence carried through
+
+
+def test_vlm_tiled_detect_dedups_overlapping_views(tmp_path):
+    from equirect_tiling import View
+    pano = tmp_path / "p.jpg"
+    _write_equirect(pano)
+    sample = PanoSample("p", str(pano), 256, 128, {})
+
+    # Two identical views + the same center detection -> both map to one pano point,
+    # which dedup must merge to a single detection (the seam-overlap contract).
+    v = View(0.0, -30.0, 90.0, 90.0, 256, 256)
+    det = _FakeTiledVLM([(0.5, 0.5, None)], tile=True, views=[v, v])
+    assert len(det.detect(sample)) == 1
+
+
+# --- pre-flight bundle validation -------------------------------------------
+
+def _aligned():
+    records = {"p1": {"detections": [{"x_normalized": 0.1, "y_normalized": 0.1,
+                                      "confidence": 0.9}], "pano": {}}}
+    verdicts = {"p1": {"dets": [True], "missed": [], "no_missed": True}}
+    return records, verdicts
+
+
+def test_validate_bundle_passes_on_aligned():
+    records, verdicts = _aligned()
+    validate_bundle(records, verdicts)  # must not raise
+
+
+def test_validate_bundle_flags_missing_record():
+    records, verdicts = _aligned()
+    verdicts["ghost"] = {"dets": [], "missed": [], "no_missed": True}
+    _assert_validation_mentions(records, verdicts, "ghost")
+
+
+def test_validate_bundle_flags_misaligned_lengths():
+    records, verdicts = _aligned()
+    verdicts["p1"]["dets"] = [True, False]  # 2 verdicts vs 1 detection
+    _assert_validation_mentions(records, verdicts, "misaligned")
+
+
+def test_validate_bundle_flags_missing_field():
+    records, verdicts = _aligned()
+    del verdicts["p1"]["no_missed"]  # legacy-style entry: rejected, not defaulted
+    _assert_validation_mentions(records, verdicts, "no_missed")
+
+
+def _assert_validation_mentions(records, verdicts, needle):
+    try:
+        validate_bundle(records, verdicts)
+    except SystemExit as e:
+        assert needle in str(e)
+        return
+    raise AssertionError(f"expected validate_bundle to reject the bundle mentioning {needle!r}")
