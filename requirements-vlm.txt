@@ -1,0 +1,13 @@
+# Optional dependencies for the VLM model-comparison harness
+# (scripts/model_comparison/). NOT needed for the core install or the test suite —
+# the detectors import these lazily and only when a live VLM run is requested.
+#
+#   pip install -r requirements-vlm.txt
+#
+# Gemini (API; needs GOOGLE_API_KEY):
+google-genai
+
+# Qwen3-VL (open weights; intended to run on Hyak, not the local box / makelab2 A40):
+#   transformers + torch are already core deps; these are the extras Qwen grounding needs.
+qwen-vl-utils
+accelerate

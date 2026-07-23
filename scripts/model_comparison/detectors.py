@@ -1,0 +1,186 @@
+"""Detectors for the model-comparison harness.
+
+A ``Detector`` turns one pano into a list of center-point detections
+``(x_norm, y_norm, confidence_or_None)`` that the harness scores against the
+model-agnostic ground truth (see ``rampnet/detection_eval.py``).
+
+- ``BundleRampNetDetector`` reads RampNet's detections straight from the
+  benchmark ``records.jsonl`` — free, no model load, no GPU. This is the baseline.
+- ``GeminiDetector`` / ``QwenDetector`` are **scaffolds** for this increment: the
+  image preparation (whole-pano downscale) and the box->center-point parsing are
+  real and unit-tested, but the raw model call (``_raw_detect``) raises
+  ``NotImplementedError`` with instructions. Wiring the live calls (and, later,
+  equirectangular tiling for a fair comparison) is the next increment. See
+  ``docs/model_comparison.md``.
+"""
+import os
+from collections import namedtuple
+
+# A pano to run a detector on. image_path points at the native-res JPEG in the
+# bundle's (git-ignored) panos/ dir; RampNet-from-bundle never opens it.
+PanoSample = namedtuple("PanoSample", ["pano_id", "image_path", "width", "height", "meta"])
+
+
+def load_pano_image(path, max_edge=None):
+    """Open a benchmark pano as RGB, optionally downscaling so its longest edge
+    is <= ``max_edge``. Lifts PIL's decompression-bomb cap (Bend GSV panos are
+    16384x8192, above the default limit)."""
+    from PIL import Image
+    Image.MAX_IMAGE_PIXELS = None
+    img = Image.open(path).convert("RGB")
+    if max_edge and max(img.size) > max_edge:
+        scale = max_edge / max(img.size)
+        img = img.resize((round(img.width * scale), round(img.height * scale)), Image.BILINEAR)
+    return img
+
+
+class BundleRampNetDetector:
+    """RampNet's baseline detections, read from the benchmark records.jsonl."""
+
+    name = "rampnet"
+
+    def __init__(self, records):
+        # records: {pano_id: record_dict} from the bundle's records.jsonl.
+        self.records = records
+
+    def detect(self, sample):
+        dets = self.records[sample.pano_id]["detections"]
+        return [(d["x_normalized"], d["y_normalized"], d["confidence"]) for d in dets]
+
+
+# --- VLM box parsing (pure, unit-tested) ------------------------------------
+
+def gemini_boxes_to_points(items):
+    """Gemini returns ``box_2d = [ymin, xmin, ymax, xmax]`` normalized to 0-1000.
+    Reduce each box to its normalized [0,1] center point. Confidence is None
+    (Gemini bbox detection carries no calibrated score)."""
+    points = []
+    for it in items:
+        ymin, xmin, ymax, xmax = it["box_2d"]
+        cx = (xmin + xmax) / 2.0 / 1000.0
+        cy = (ymin + ymax) / 2.0 / 1000.0
+        points.append((cx, cy, None))
+    return points
+
+
+def qwen_boxes_to_points(items, img_w, img_h):
+    """Qwen grounding returns absolute-pixel boxes ``bbox_2d = [x1, y1, x2, y2]``
+    against the image it was shown. Normalize each box center by that image's
+    width/height (the size actually sent to the model, not the native pano)."""
+    points = []
+    for it in items:
+        x1, y1, x2, y2 = it["bbox_2d"]
+        cx = (x1 + x2) / 2.0 / img_w
+        cy = (y1 + y2) / 2.0 / img_h
+        points.append((cx, cy, None))
+    return points
+
+
+# --- VLM detector scaffolds -------------------------------------------------
+
+DETECTION_PROMPT = (
+    "Detect every curb ramp (sidewalk wheelchair ramp at a street corner) visible "
+    "in this street-level image. Return one bounding box per curb ramp."
+)
+
+
+class _VLMDetector:
+    """Shared whole-pano scaffold. Subclasses implement ``_raw_detect`` (the live
+    model call) and ``_parse`` (provider box format -> center points)."""
+
+    name = "vlm"
+    max_edge = 1536  # whole-pano downscale; TODO(tiling): replace with overlapping crops
+
+    def __init__(self, model_id, max_edge=None):
+        self.model_id = model_id
+        if max_edge:
+            self.max_edge = max_edge
+
+    def detect(self, sample):
+        self._ensure_ready()
+        image = load_pano_image(sample.image_path, self.max_edge)  # whole-pano (lower bound)
+        raw = self._raw_detect(image)          # TODO(tiling) + per-provider live call
+        return self._parse(raw, image.width, image.height)
+
+    def _ensure_ready(self):
+        raise NotImplementedError
+
+    def _raw_detect(self, image):
+        raise NotImplementedError
+
+    def _parse(self, raw, img_w, img_h):
+        raise NotImplementedError
+
+
+class GeminiDetector(_VLMDetector):
+    name = "gemini"
+    max_edge = 1568  # Gemini tiles internally; a modest cap keeps token cost sane
+
+    def __init__(self, model_id="gemini-flash-latest", api_key=None, max_edge=None):
+        super().__init__(model_id, max_edge)
+        self.api_key = api_key or os.environ.get("GOOGLE_API_KEY")
+        self._client = None
+
+    def _ensure_ready(self):
+        try:
+            from google import genai  # noqa: F401
+        except ImportError as e:
+            raise ImportError(
+                "GeminiDetector needs the `google-genai` package "
+                "(pip install -r requirements-vlm.txt)") from e
+        if not self.api_key:
+            raise RuntimeError("GeminiDetector needs GOOGLE_API_KEY in the environment.")
+
+    def _raw_detect(self, image):
+        # TODO(increment 2): call genai.Client(api_key=...).models.generate_content(
+        #   model=self.model_id, contents=[image, DETECTION_PROMPT], config=<JSON schema
+        #   of {box_2d:[ymin,xmin,ymax,xmax], label}>) and return the parsed list.
+        raise NotImplementedError(
+            "GeminiDetector live call is scaffolded, not wired (this increment ships the "
+            "harness + RampNet baseline). Implement _raw_detect against the current genai "
+            "SDK, then feed its items to gemini_boxes_to_points via _parse. "
+            "See docs/model_comparison.md.")
+
+    def _parse(self, raw, img_w, img_h):
+        return gemini_boxes_to_points(raw)
+
+
+class QwenDetector(_VLMDetector):
+    name = "qwen"
+    max_edge = 2048  # Qwen3-VL handles large inputs; run on Hyak (A40 OOMs at native)
+
+    def __init__(self, model_id="Qwen/Qwen3-VL", max_edge=None):
+        super().__init__(model_id, max_edge)
+
+    def _ensure_ready(self):
+        try:
+            import transformers  # noqa: F401
+        except ImportError as e:
+            raise ImportError(
+                "QwenDetector needs `transformers` (+ qwen-vl-utils, accelerate) "
+                "(pip install -r requirements-vlm.txt)") from e
+
+    def _raw_detect(self, image):
+        # TODO(increment 2, Hyak): load Qwen3-VL once (transformers AutoModelForCausalLM /
+        #   Qwen3VL class + processor), run the grounding prompt, parse the JSON grounding
+        #   output to [{bbox_2d:[x1,y1,x2,y2]}]. Model load belongs in _ensure_ready so it
+        #   happens once per run, not per pano.
+        raise NotImplementedError(
+            "QwenDetector live call is scaffolded, not wired. Implement _raw_detect on Hyak "
+            "(load Qwen3-VL once in _ensure_ready), then feed items to qwen_boxes_to_points "
+            "via _parse. See docs/model_comparison.md.")
+
+    def _parse(self, raw, img_w, img_h):
+        return qwen_boxes_to_points(raw, img_w, img_h)
+
+
+def build_detector(name, records, args):
+    """Instantiate a detector by name. RampNet reads from ``records``; the VLM
+    detectors take their model id from ``args``."""
+    if name == "rampnet":
+        return BundleRampNetDetector(records)
+    if name == "gemini":
+        return GeminiDetector(model_id=args.gemini_model)
+    if name == "qwen":
+        return QwenDetector(model_id=args.qwen_model)
+    raise ValueError(f"unknown model '{name}' (choose from: rampnet, gemini, qwen)")
