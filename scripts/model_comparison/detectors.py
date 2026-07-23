@@ -48,6 +48,9 @@ class BundleRampNetDetector:
         # records: {pano_id: record_dict} from the bundle's records.jsonl.
         self.records = records
 
+    def prepare(self):
+        pass  # nothing to load; detections come from the bundle.
+
     def detect(self, sample):
         dets = self.records[sample.pano_id]["detections"]
         return [(d["x_normalized"], d["y_normalized"], d["confidence"]) for d in dets]
@@ -136,6 +139,12 @@ class _VLMDetector:
         raw = self._raw_detect(image)
         return self._parse(raw, image.width, image.height)
 
+    def prepare(self):
+        """Build the client / load the model up front so credential, dependency,
+        or not-yet-wired errors surface once (failing the model fast) instead of
+        once per pano."""
+        self._ensure_ready()
+
     def _detect_tiled(self, sample):
         from equirect_tiling import (
             default_views, equirect_to_perspective, perspective_point_to_equirect, dedup_points)
@@ -164,6 +173,22 @@ class _VLMDetector:
     def _parse(self, raw, img_w, img_h):
         raise NotImplementedError
 
+    def signature(self):
+        """A stable description of everything that affects this detector's output,
+        used as the detection cache key. Changing the model, tiling rig, or prompt
+        invalidates cached detections."""
+        from equirect_tiling import default_views
+        views = self._views or (default_views() if self.tile else None)
+        return {
+            "provider": self.name,
+            "model_id": self.model_id,
+            "tile": self.tile,
+            "max_edge": self.max_edge,
+            "source_max_edge": self.source_max_edge,
+            "views": [list(v) for v in views] if views else None,
+            "prompt": DETECTION_PROMPT,
+        }
+
 
 class GeminiDetector(_VLMDetector):
     name = "gemini"
@@ -185,20 +210,27 @@ class GeminiDetector(_VLMDetector):
     def _ensure_ready(self):
         try:
             from google import genai
+            from google.genai import types
         except ImportError as e:
             raise ImportError(
                 "GeminiDetector needs the `google-genai` package "
                 "(pip install -r requirements-vlm.txt)") from e
         if self._client is not None:
             return
+        # Explicit retry policy for the ~hundreds of calls a full-city run makes:
+        # exponential backoff + jitter on the transient/rate-limit status codes.
+        http_options = types.HttpOptions(retry_options=types.HttpRetryOptions(
+            attempts=5, initial_delay=1.0, max_delay=30.0, exp_base=2.0, jitter=1.0,
+            http_status_codes=[408, 429, 500, 502, 503, 504]))
         if self.use_vertex:
             if not self.project:
                 raise RuntimeError(
                     "Vertex mode needs GOOGLE_CLOUD_PROJECT (and ADC via "
                     "`gcloud auth application-default login`).")
-            self._client = genai.Client(vertexai=True, project=self.project, location=self.location)
+            self._client = genai.Client(vertexai=True, project=self.project,
+                                        location=self.location, http_options=http_options)
         elif self.api_key:
-            self._client = genai.Client(api_key=self.api_key)
+            self._client = genai.Client(api_key=self.api_key, http_options=http_options)
         else:
             raise RuntimeError(
                 "No Gemini credentials. For orgs that disallow API keys, use Vertex + ADC: "
@@ -243,6 +275,11 @@ class QwenDetector(_VLMDetector):
             raise ImportError(
                 "QwenDetector needs `transformers` (+ qwen-vl-utils, accelerate) "
                 "(pip install -r requirements-vlm.txt)") from e
+        # Not yet wired: fail fast at prepare() so the model is skipped cleanly
+        # rather than failing per pano. Wiring this is the Hyak increment.
+        raise NotImplementedError(
+            "QwenDetector is scaffolded, not wired. Load Qwen3-VL in _ensure_ready and "
+            "implement _raw_detect (run on Hyak). See docs/model_comparison.md.")
 
     def _raw_detect(self, image):
         # TODO(increment 2, Hyak): load Qwen3-VL once (transformers AutoModelForCausalLM /

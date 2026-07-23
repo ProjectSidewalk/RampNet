@@ -8,3 +8,4 @@ benchmark/*/panos/
 benchmark/*/gallery/
 .env
 view_dump/
+.model_cache/

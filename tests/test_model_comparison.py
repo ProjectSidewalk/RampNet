@@ -17,10 +17,34 @@ from detectors import (  # noqa: E402
 )
 
 
+from compare import score_model, DetectionCache, cache_key  # noqa: E402
+from rampnet.detection_eval import radius_sq_for  # noqa: E402
+
+
 class _Args:
     gemini_model = "gemini-3.6-flash"
     qwen_model = "Qwen/Qwen3-VL"
     tiling = "perspective"
+
+
+class _FlakyDetector:
+    """Succeeds on every pano except ones whose id starts with 'bad'."""
+    name = "flaky"
+
+    def __init__(self):
+        self.calls = 0
+
+    def prepare(self):
+        pass
+
+    def signature(self):
+        return None  # disables caching so detect() is always exercised
+
+    def detect(self, sample):
+        self.calls += 1
+        if sample.pano_id.startswith("bad"):
+            raise RuntimeError("simulated transient API failure")
+        return []
 
 
 class _FakeBox:
@@ -78,6 +102,40 @@ def test_build_detector_labels_variants_by_model_id():
     # Bare provider falls back to the args default.
     label, det = build_detector("gemini", None, {}, _Args())
     assert label == "gemini-3.6-flash"
+
+
+def test_detection_cache_roundtrip(tmp_path):
+    c = DetectionCache(str(tmp_path))
+    k = cache_key("gemini-3.6-flash", {"tile": True}, "richmond", "pano1")
+    assert c.get(k) is None
+    c.put(k, [(0.1, 0.2, None), (0.3, 0.4, 0.9)])
+    assert c.get(k) == [[0.1, 0.2, None], [0.3, 0.4, 0.9]]
+
+
+def test_detection_cache_disabled_is_noop(tmp_path):
+    c = DetectionCache(str(tmp_path), enabled=False)
+    k = cache_key("m", {}, "c", "p")
+    c.put(k, [(1, 2, 3)])
+    assert c.get(k) is None
+
+
+def test_cache_key_sensitive_and_stable():
+    assert cache_key("m1", {"x": 1}, "c", "p") != cache_key("m2", {"x": 1}, "c", "p")
+    assert cache_key("m", {"x": 1}, "c", "p1") != cache_key("m", {"x": 1}, "c", "p2")
+    assert cache_key("m", {"x": 1}, "c", "p") == cache_key("m", {"x": 1}, "c", "p")
+
+
+def test_score_model_isolates_pano_failures():
+    records = {pid: {"detections": [], "pano": {"width": 1, "height": 1}}
+               for pid in ("good", "bad")}
+    verdicts = {pid: {"dets": [], "missed": [{"x": 0.5, "y": 0.5}], "no_missed": True}
+                for pid in ("good", "bad")}
+    det = _FlakyDetector()
+    report, failures = score_model(det, records, verdicts, "", radius_sq_for(),
+                                   "flaky", "city", DetectionCache("x", enabled=False))
+    assert report.n_panos == 1                       # only 'good' scored
+    assert len(failures) == 1 and failures[0][0] == "bad"
+    assert det.calls == 2                            # both panos attempted
 
 
 def test_bundle_rampnet_detector_reads_records():

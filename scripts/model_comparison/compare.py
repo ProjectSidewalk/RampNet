@@ -14,6 +14,7 @@ pin a variant, so several models from the same provider compare side by side.
 See docs/model_comparison.md.
 """
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -46,6 +47,44 @@ def load_dotenv(root):
             os.environ.setdefault(key.strip(), val.strip().strip('"').strip("'"))
 
 
+def cache_key(label, signature, city, pano_id):
+    """Stable hash over everything that determines a detector's output for one
+    pano, so re-runs reuse cached detections and don't re-pay the API."""
+    blob = json.dumps({"label": label, "sig": signature, "city": city, "pid": pano_id},
+                      sort_keys=True, default=str)
+    return hashlib.sha1(blob.encode("utf-8")).hexdigest()
+
+
+class DetectionCache:
+    """On-disk cache of per-pano detection points (a paid VLM call is expensive;
+    scoring/radius changes are free, so we cache the detector output, not the
+    score). Sharded by key prefix. A no-op when disabled."""
+
+    def __init__(self, root, enabled=True):
+        self.root = root
+        self.enabled = enabled
+
+    def _path(self, key):
+        return os.path.join(self.root, key[:2], f"{key}.json")
+
+    def get(self, key):
+        if not self.enabled:
+            return None
+        path = self._path(key)
+        if os.path.exists(path):
+            with open(path, encoding="utf-8") as f:
+                return json.load(f)["points"]
+        return None
+
+    def put(self, key, points):
+        if not self.enabled:
+            return
+        path = self._path(key)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump({"points": [list(p) for p in points]}, f)
+
+
 def load_bundle(bundle_dir):
     """Return (records_by_pid, verdicts_panos, panos_dir) for a benchmark bundle."""
     records = {}
@@ -58,23 +97,46 @@ def load_bundle(bundle_dir):
     return records, verdicts, os.path.join(bundle_dir, "panos")
 
 
-def score_model(detector, records, verdicts, panos_dir, radius_sq):
-    """Run one detector over every reviewed pano and aggregate the score."""
-    pano_scores = []
+def score_model(detector, records, verdicts, panos_dir, radius_sq, label, city, cache,
+                max_consecutive_failures=10):
+    """Run one detector over every reviewed pano and aggregate the score.
+
+    Returns ``(report, failures)``. ``detector.prepare()`` runs first (outside the
+    per-pano guard) so credential / dependency / not-wired errors propagate to the
+    caller and skip the whole model. Each pano's detections are cached, so re-runs
+    don't re-pay the API. A transient per-pano failure is recorded and skipped
+    rather than crashing the run; ``max_consecutive_failures`` aborts the model
+    early during an outage instead of burning budget."""
+    detector.prepare()
+    sig = detector.signature() if hasattr(detector, "signature") else None
+    pano_scores, failures, consecutive = [], [], 0
     for pid, entry in verdicts.items():
         rec = records[pid]
-        dets = rec["detections"]
-        gt = build_ground_truth(dets, entry["dets"], entry["missed"], entry["no_missed"])
-        sample = PanoSample(
-            pano_id=pid,
-            image_path=os.path.join(panos_dir, f"{pid}.jpg"),
-            width=rec["pano"].get("width"),
-            height=rec["pano"].get("height"),
-            meta=rec["pano"],
-        )
-        preds = detector.detect(sample)
+        gt = build_ground_truth(rec["detections"], entry["dets"], entry["missed"], entry["no_missed"])
+        key = cache_key(label, sig, city, pid) if sig is not None else None
+        preds = cache.get(key) if key else None
+        if preds is None:
+            sample = PanoSample(
+                pano_id=pid,
+                image_path=os.path.join(panos_dir, f"{pid}.jpg"),
+                width=rec["pano"].get("width"),
+                height=rec["pano"].get("height"),
+                meta=rec["pano"],
+            )
+            try:
+                preds = detector.detect(sample)
+            except Exception as e:  # transient API/network failure: isolate this pano
+                failures.append((pid, f"{type(e).__name__}: {str(e)[:120]}"))
+                consecutive += 1
+                if consecutive >= max_consecutive_failures:
+                    failures.append(("<abort>", f"{consecutive} consecutive failures; stopped early"))
+                    break
+                continue
+            consecutive = 0
+            if key:
+                cache.put(key, preds)
         pano_scores.append(score_pano(preds, gt, radius_sq=radius_sq))
-    return aggregate(pano_scores)
+    return aggregate(pano_scores), failures
 
 
 def _pct(x):
@@ -117,6 +179,10 @@ def main():
                     help=f"Normalized match radius (default {PANO_RADIUS_NORMALIZED}).")
     ap.add_argument("--limit", type=int,
                     help="Score at most N panos (smoke test / cost control for VLM runs).")
+    ap.add_argument("--cache-dir", default=str(REPO_ROOT / ".model_cache"),
+                    help="Where to cache per-pano detections (keyed by model + rig + pano). "
+                         "Re-runs reuse hits and don't re-pay the API.")
+    ap.add_argument("--no-cache", action="store_true", help="Disable the detection cache.")
     args = ap.parse_args()
 
     load_dotenv(str(REPO_ROOT))
@@ -125,9 +191,12 @@ def main():
         verdicts = dict(list(verdicts.items())[:args.limit])
     radius_sq = radius_sq_for(args.radius)
     specs = [parse_model_spec(t) for t in args.models.split(",") if t.strip()]
+    city = os.path.basename(os.path.normpath(args.bundle))
+    cache = DetectionCache(args.cache_dir, enabled=not args.no_cache)
 
     print(f"Bundle: {args.bundle}  ({len(verdicts)} reviewed panos)  "
-          f"match radius {args.radius}  ground truth: reviewer-confirmed ramps + missed marks\n")
+          f"match radius {args.radius}  ground truth: reviewer-confirmed ramps + missed marks")
+    print(f"Detection cache: {'off' if args.no_cache else args.cache_dir}\n")
 
     rows = []
     seen = {}
@@ -140,13 +209,21 @@ def main():
         else:
             seen[label] = 1
         try:
-            report = score_model(detector, records, verdicts, panos_dir, radius_sq)
+            report, failures = score_model(
+                detector, records, verdicts, panos_dir, radius_sq, label, city, cache)
         except (NotImplementedError, ImportError, RuntimeError) as e:
-            # Scaffolded VLM detectors, a missing client lib, or a missing API key:
-            # skip the model with a clear note rather than crashing the whole run.
-            print(f"[{label}] not runnable yet: {e}\n")
+            # Not-wired detector, missing client lib, or missing credentials: skip
+            # the whole model with a clear note rather than crashing the run.
+            print(f"[{label}] not runnable: {e}\n")
             continue
         rows.append((label, report))
+        if failures:
+            print(f"[{label}] {len(failures)} pano failure(s) isolated (excluded from the score):")
+            for pid, msg in failures[:5]:
+                print(f"    {pid}: {msg}")
+            if len(failures) > 5:
+                print(f"    ... and {len(failures) - 5} more")
+            print()
 
     if rows:
         print_table(rows)
