@@ -25,6 +25,11 @@ greedily matched to the GT points within a normalized radius (the pano value
 over panos whose missed-ramp check is confirmed (so un-scanned panos can't bias
 it), exactly as `validation.collect` gates recall.
 
+When every prediction carries a confidence — RampNet, and the open-vocabulary
+detectors (OWLv2 / Grounding DINO), but not the chat VLMs — `aggregate` also
+returns **AP and a PR curve** (via `rampnet.metrics`), so those models can be
+compared across their whole operating range instead of at one arbitrary point.
+
 Caveat: the GT was assembled during a RampNet review, so it is "RampNet-anchored"
 — a reviewer scanning fresh for another model might catch a few more ramps. The
 complete-scan attestation (`no_missed`) mitigates this; it is documented in
@@ -32,6 +37,7 @@ complete-scan attestation (`no_missed`) mitigates this; it is documented in
 """
 from collections import namedtuple
 
+from rampnet.metrics import calculate_ap_and_pr_curve
 from rampnet.validation import wilson_interval
 
 # Pano coordinate space and matching radius — identical to rampnet/metrics.py and
@@ -41,13 +47,17 @@ PANO_SCALE_Y = 512
 PANO_RADIUS_NORMALIZED = 0.022
 
 GroundTruth = namedtuple("GroundTruth", ["gt_points", "ignore_points", "fn_confirmed"])
-PanoScore = namedtuple("PanoScore", ["tp", "fp", "ignored", "n_gt", "fn_confirmed"])
+# details: one (confidence, is_true_positive) per *scored* prediction, in match
+# order (ignored predictions are excluded — they are neither). Feeds AP.
+PanoScore = namedtuple("PanoScore", ["tp", "fp", "ignored", "n_gt", "fn_confirmed", "details"],
+                       defaults=((),))
 ScoreReport = namedtuple("ScoreReport", [
     "precision", "recall", "f1",
     "precision_ci", "recall_ci",
     "tp", "fp", "fn", "ignored",
     "n_gt_recall", "n_panos", "n_recall_panos",
-])
+    "ap", "pr_curve",
+], defaults=(None, None))
 
 
 def radius_sq_for(radius_normalized=PANO_RADIUS_NORMALIZED, scale_x=PANO_SCALE_X):
@@ -142,6 +152,7 @@ def score_pano(pred_points, gt, radius_sq=None, scale_x=PANO_SCALE_X, scale_y=PA
 
     claimed = [False] * len(gt_pts)
     tp = fp = ignored = 0
+    details = []
     for p in preds:
         px_n, py_n = _xy(p)
         px, py = px_n * scale_x, py_n * scale_y
@@ -155,17 +166,19 @@ def score_pano(pred_points, gt, radius_sq=None, scale_x=PANO_SCALE_X, scale_y=PA
         if best_k >= 0:
             claimed[best_k] = True
             tp += 1
+            details.append((_confidence(p), True))
             continue
         in_ignore = any(
             (px - ix * scale_x) ** 2 + (py - iy * scale_y) ** 2 < radius_sq
             for ix, iy in ignore_pts)
         if in_ignore:
-            ignored += 1
+            ignored += 1        # neither TP nor FP, so it stays out of the PR curve too
         else:
             fp += 1
+            details.append((_confidence(p), False))
 
     return PanoScore(tp=tp, fp=fp, ignored=ignored, n_gt=len(gt_pts),
-                     fn_confirmed=gt.fn_confirmed)
+                     fn_confirmed=gt.fn_confirmed, details=details)
 
 
 def aggregate(pano_scores):
@@ -174,6 +187,15 @@ def aggregate(pano_scores):
     Precision uses detections from every pano; recall uses only panos whose
     missed-ramp check is confirmed (``fn_confirmed``), so panos that weren't
     fully scanned don't deflate recall. Returns a ScoreReport.
+
+    **AP** is filled in only when every scored prediction carries a confidence —
+    RampNet always, and the open-vocabulary detectors (OWLv2, Grounding DINO); chat
+    VLMs emit no calibrated score, so they get ``ap=None`` and an operating point
+    only. It is computed over the **recall-confirmed subset** alone, because AP
+    needs one consistent denominator for recall (``n_gt_recall``) and predictions
+    from unscanned panos have no GT to be measured against. That makes AP a
+    slightly different slice than the operating-point precision above it, which
+    counts every pano — the tradeoff is noted in docs/model_comparison.md.
     """
     tp_all = sum(s.tp for s in pano_scores)
     fp_all = sum(s.fp for s in pano_scores)
@@ -188,6 +210,12 @@ def aggregate(pano_scores):
     recall = tp_recall / n_gt_recall if n_gt_recall else 0.0
     f1 = 2 * precision * recall / (precision + recall) if (precision + recall) else 0.0
 
+    ap, pr_curve = None, None
+    details = [d for s in recall_scores for d in s.details]
+    if details and n_gt_recall and all(c is not None for c, _ in details):
+        ap, plot_recalls, plot_precisions, _, _ = calculate_ap_and_pr_curve(details, n_gt_recall)
+        pr_curve = (plot_recalls, plot_precisions)
+
     return ScoreReport(
         precision=precision,
         recall=recall,
@@ -201,4 +229,6 @@ def aggregate(pano_scores):
         n_gt_recall=n_gt_recall,
         n_panos=len(pano_scores),
         n_recall_panos=len(recall_scores),
+        ap=ap,
+        pr_curve=pr_curve,
     )

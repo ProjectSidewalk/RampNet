@@ -12,6 +12,27 @@ google-genai
 #   - transformers 4.57 is the first release with Qwen3-VL.
 #   - accelerate enables device_map="auto", needed to shard Qwen3-VL-32B-Instruct
 #     (~64 GB in bf16) across two GPUs; 8B fits one 48 GB card.
+#   - torchvision is required even though we never touch video: AutoProcessor for
+#     Qwen3-VL constructs a Qwen3VLVideoProcessor, which hard-fails without it.
+#     environment.yml already pulls it in, so this only bites a lean pip install.
 #   - qwen-vl-utils is NOT needed: Qwen3-VL's chat template takes PIL images directly.
 transformers>=4.57
 accelerate
+torchvision
+
+# OWLv2 / Grounding DINO (open-vocabulary detectors) need nothing beyond the
+# transformers + torchvision above — they are ~1-2 GB and ship in-library
+# (AutoModelForZeroShotObjectDetection), no remote code.
+#
+# Ai2 Molmo runs its own modeling/processing code from the Hub
+# (trust_remote_code=True), which imports einops and requests:
+einops
+requests
+# WARNING for the Molmo leg: the `transformers==4.57.1` pin on the Molmo cards is
+# REAL, not cautionary. Confirmed 2026-07-23 on transformers 5.14.1:
+#   TypeError: Unexpected keyword argument image_use_col_tokens
+#   (processing_molmo2.py, from Molmo's own Hub code)
+# Build Molmo a SEPARATE env at that pin rather than downgrading the env the other
+# models use — the harness itself imports fine on 4.57.1, so only Molmo's
+# interpreter differs. See docs/model_comparison.md.
+# (`decord2` from the card is video-only; this harness only sends still views.)
