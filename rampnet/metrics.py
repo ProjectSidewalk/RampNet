@@ -8,11 +8,14 @@ were dropped entirely instead of counted as false positives.
 """
 
 
-def _greedy_match(pred_points, gt_points, radius_sq, scale_x, scale_y):
+def greedy_match(pred_points, gt_points, radius_sq, scale_x, scale_y):
     """Assign each prediction, in the order given, to the nearest unclaimed GT.
 
     The single matching core shared by every RampNet evaluator — keep it that
-    way. Returns one ``(gt_index, saw_in_range)`` pair per prediction:
+    way. Callers differ only in how they *order* predictions before calling
+    (by confidence, or in input order) and in how they report the result;
+    the geometry lives here and nowhere else. Returns one
+    ``(gt_index, saw_in_range)`` pair per prediction:
 
     - ``gt_index`` is the claimed ground-truth index, or ``-1`` when nothing
       unclaimed was within radius (i.e. the prediction is a false positive).
@@ -56,8 +59,8 @@ def match_predictions(pred_peaks, gt_points, radius_sq, scale_x, scale_y):
     Returns a list of (confidence, is_true_positive), one entry per prediction.
     """
     preds_sorted = sorted(pred_peaks, key=lambda p: p[2], reverse=True)
-    assignments = _greedy_match([(p[0], p[1]) for p in preds_sorted],
-                                gt_points, radius_sq, scale_x, scale_y)
+    assignments = greedy_match([(p[0], p[1]) for p in preds_sorted],
+                               gt_points, radius_sq, scale_x, scale_y)
     return [(p[2], gt_index >= 0) for p, (gt_index, _) in zip(preds_sorted, assignments)]
 
 
@@ -75,7 +78,7 @@ def match_points(pred_points, gt_points, radius_sq, scale_x, scale_y):
     ``match_predictions`` and ``rampnet.validation``'s duplicate handling
     (issue #18).
     """
-    assignments = _greedy_match(pred_points, gt_points, radius_sq, scale_x, scale_y)
+    assignments = greedy_match(pred_points, gt_points, radius_sq, scale_x, scale_y)
     tp = sum(1 for gt_index, _ in assignments if gt_index >= 0)
     n_redundant = sum(1 for gt_index, saw in assignments if gt_index < 0 and saw)
     return tp, len(assignments) - tp, n_redundant
