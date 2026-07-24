@@ -2,8 +2,9 @@
 # ============================================================================
 #  Qwen3-VL benchmark run on Hyak (klone) — self-contained runbook.
 #
-#  UNTRACKED: this file is a scratch operator script, like the earlier
-#  hyak_runbook.sh. Do not commit it.
+#  Tracked operator runbook — this repo commits its .slurm launchers, and a
+#  runbook is the same kind of artifact. Paths and identity are parameterized
+#  ($USER, $REPO, netid placeholders in `push`), so edit nothing to run it.
 #
 #  Claude cannot drive klone (gssapi/keyboard-interactive only — UW password +
 #  Duo on every connection), so you run these stages. Each is idempotent and
@@ -24,6 +25,9 @@ set -euo pipefail
 
 REPO="${REPO:-$HOME/RampNet}"
 USER="${USER:-$(whoami)}"          # set -u would trip on this off-cluster
+# HF cache lives on scratch (home quota is tiny). NOTE: /gscratch/scrubbed is
+# auto-purged after ~21 idle days, so a much-later run may need `weights` /
+# `weightsopen` again — both are idempotent, so re-fetching is cheap.
 export HF_HOME="${HF_HOME:-/gscratch/scrubbed/$USER/hf}"
 QWEN_8B="Qwen/Qwen3-VL-8B-Instruct"
 QWEN_32B="Qwen/Qwen3-VL-32B-Instruct"
@@ -215,6 +219,9 @@ collect)
 #  ~1-2 GB and finish in minutes; they emit calibrated scores, so their runs give
 #  AP / PR curves / a threshold sweep. Molmo-8B is a text generator and takes
 #  hours -- and its wiring has never met real weights, so eyeball it first.
+#
+#  These stages drive scripts/model_comparison/run_open_models.slurm, which ships
+#  with PR #40 — merge this runbook AFTER #40 or `runopen` aborts with a guard.
 # ---------------------------------------------------------------------------
 weightsopen)
   banner "Pre-download the open-detector checkpoints (~2 GB total)"
@@ -267,12 +274,14 @@ runopen)
   banner "Full OWLv2 + Grounding DINO runs (minutes, one card)"
   cd "$REPO"
   mkdir -p logs
-  sbatch scripts/model_comparison/run_open_models.slurm
+  SLURM_OPEN=scripts/model_comparison/run_open_models.slurm
+  [ -f "$SLURM_OPEN" ] || { echo "$SLURM_OPEN missing — it ships with PR #40; merge that first."; exit 2; }
+  sbatch "$SLURM_OPEN"
   if [ -d benchmark/bend/panos ] && [ "$(ls -A benchmark/bend/panos)" ]; then
-    BUNDLE=benchmark/bend sbatch scripts/model_comparison/run_open_models.slurm
+    BUNDLE=benchmark/bend sbatch "$SLURM_OPEN"
   else
     echo "benchmark/bend/panos is empty — submit it once the upload lands:"
-    echo "  BUNDLE=benchmark/bend sbatch scripts/model_comparison/run_open_models.slurm"
+    echo "  BUNDLE=benchmark/bend sbatch $SLURM_OPEN"
   fi
   squeue -u "$USER"
   ;;
