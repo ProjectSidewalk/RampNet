@@ -1,72 +1,52 @@
-"""Guards for the Stage 1 dataset evaluator's point matching
-(stage_one/dataset_evaluation/evaluate.py).
+"""Guards for the Stage 1 dataset evaluator (stage_one/dataset_evaluation/evaluate.py).
 
-The load-bearing case is #18: a redundant generated point that lands on an
-already-matched ground-truth ramp must be scored as a false positive, not
-silently ignored (which made the published Stage 1 agreement precision
-optimistic). These tests exercise ``match_points`` directly with unit scales so
-the geometry is trivial to reason about.
+The matching *semantics* — including the issue #18 fix where a redundant
+generated point on an already-matched ramp scores as a false positive — live in
+``rampnet.metrics`` and are tested in ``tests/test_metrics.py``. What this file
+guards is that the Stage 1 evaluator actually **uses** that shared definition
+rather than forking its own, which is the failure mode issue #22 exists to
+prevent.
+
+The module is loaded by explicit path rather than by putting its directory on
+``sys.path``: the repo has several modules named ``evaluate`` (``stage_two``,
+``stage_one/dataset_evaluation``), so a bare ``import evaluate`` would resolve to
+whichever landed in ``sys.modules`` first in a shared pytest session.
 """
+import importlib.util
 import os
-import sys
+
+import rampnet.detection_eval
+import rampnet.metrics
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(REPO_ROOT, "stage_one", "dataset_evaluation"))
-from evaluate import match_points  # noqa: E402
-
-# Unit scales + radius 0.5 (radius_sq 0.25): distance is plain Euclidean on the
-# raw coordinates, so "within 0.5" is easy to place points around.
-UNIT = dict(x_scale=1, y_scale=1)
-R2 = 0.25
+EVAL_PATH = os.path.join(REPO_ROOT, "stage_one", "dataset_evaluation", "evaluate.py")
 
 
-def test_perfect_one_to_one():
-    tp, fp, redundant = match_points([(0.0, 0.0), (10.0, 10.0)],
-                                     [(0.0, 0.0), (10.0, 10.0)], R2, **UNIT)
-    assert (tp, fp, redundant) == (2, 0, 0)
+def _load():
+    spec = importlib.util.spec_from_file_location("stage1_dataset_evaluate", EVAL_PATH)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
-def test_redundant_point_on_claimed_gt_is_false_positive():
-    # Two predictions on a single GT: the first claims it (TP), the second finds
-    # only the already-claimed GT in range -> false positive, flagged redundant.
-    tp, fp, redundant = match_points([(0.0, 0.0), (0.1, 0.0)],
-                                     [(0.0, 0.0)], R2, **UNIT)
-    assert (tp, fp, redundant) == (1, 1, 1)
+def test_module_imports_without_heavy_deps():
+    # Imports with no torch/matplotlib/PIL, so it stays unit-testable and cheap.
+    assert _load() is not None
 
 
-def test_far_prediction_is_plain_false_positive_not_redundant():
-    tp, fp, redundant = match_points([(5.0, 5.0)], [(0.0, 0.0)], R2, **UNIT)
-    assert (tp, fp, redundant) == (0, 1, 0)
+def test_uses_the_shared_matcher_not_a_fork():
+    assert _load().match_points is rampnet.metrics.match_points
 
 
-def test_prediction_skips_claimed_gt_for_an_unclaimed_one():
-    # Both GTs sit within radius of the second prediction. The first prediction
-    # claims gtA; the second must fall through to the unclaimed gtB (TP), not be
-    # marked redundant.
-    tp, fp, redundant = match_points([(0.0, 0.0), (0.1, 0.0)],
-                                     [(0.0, 0.0), (0.2, 0.0)], R2, **UNIT)
-    assert (tp, fp, redundant) == (2, 0, 0)
+def test_uses_the_shared_radius_and_scales():
+    module = _load()
+    assert module.RADIUS_THRESHOLD_NORMALIZED == rampnet.detection_eval.PANO_RADIUS_NORMALIZED
+    assert module.PANO_SCALE_X == rampnet.detection_eval.PANO_SCALE_X
+    assert module.PANO_SCALE_Y == rampnet.detection_eval.PANO_SCALE_Y
 
 
-def test_missed_gt_does_not_create_false_positive():
-    # A GT with no prediction nearby is a false negative (recall side), never a
-    # false positive; match_points only accounts for the prediction side.
-    tp, fp, redundant = match_points([], [(0.0, 0.0)], R2, **UNIT)
-    assert (tp, fp, redundant) == (0, 0, 0)
-
-
-def test_redundant_counts_lift_fp_denominator():
-    # Precision = TP / (TP + FP). Two predictions land on the one ramp; the fix
-    # makes the extra one a FP, so precision is 1/2. Pre-fix (redundant ignored)
-    # it would have been 1/1 -- the optimism issue #18 is about.
-    tp, fp, redundant = match_points([(0.0, 0.0), (0.1, 0.0)],
-                                     [(0.0, 0.0)], R2, **UNIT)
-    assert (tp, fp, redundant) == (1, 1, 1)
-    assert tp / (tp + fp) == 0.5
-
-
-def test_default_scales_are_anisotropic():
-    # With the real 1024x512 scales, a prediction exactly on a GT still matches.
-    tp, fp, redundant = match_points([(0.5, 0.5)], [(0.5, 0.5)],
-                                     (0.022 * 1024) ** 2)
-    assert (tp, fp, redundant) == (1, 0, 0)
+def test_label_loaders_are_forgiving_about_missing_files():
+    # A whole-dataset run must not die on one unreadable label file.
+    module = _load()
+    assert module.load_manual_label_points(os.path.join(REPO_ROOT, "nope.txt")) == []
+    assert module.load_test_split_label_points(os.path.join(REPO_ROOT, "nope.json")) == []

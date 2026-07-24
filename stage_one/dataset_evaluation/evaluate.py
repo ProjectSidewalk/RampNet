@@ -1,19 +1,25 @@
 import os
 import json
+import sys
 
+# Run as a script from this directory, so put the repo root on the path to reach
+# the canonical evaluation definitions rather than re-implementing them here.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from rampnet.detection_eval import (  # noqa: E402
+    PANO_RADIUS_NORMALIZED, PANO_SCALE_X, PANO_SCALE_Y, radius_sq_for,
+)
+from rampnet.metrics import match_points  # noqa: E402
 
 DATASET_ROOT_DIR = '../../dataset'
 TEST_SPLIT_NAME = 'test'
 MANUAL_DATASET_ROOT_DIR = '../../manual_labels'
 
-RADIUS_THRESHOLD_NORMALIZED = 0.022
+# Matching radius and the anisotropic scaling of normalized coords (the pano is
+# 2:1, so x and y scale differently) are shared with every other evaluator —
+# see rampnet/detection_eval.py. Do not fork them here.
+RADIUS_THRESHOLD_NORMALIZED = PANO_RADIUS_NORMALIZED
 IMG_EXTENSIONS = ('.jpg', '.jpeg', '.png')
-
-# Points are normalized to [0, 1]; the panorama is 2:1, so x and y are scaled by
-# different factors before distances are measured (this matches how the labels
-# were produced and how the model heatmap is laid out, 1024x512).
-X_SCALE = 1024
-Y_SCALE = 512
 
 
 def get_label_paths_by_basename(
@@ -86,50 +92,6 @@ def load_test_split_label_points(label_path):
     return points
 
 
-def match_points(pred_points, gt_points, radius_sq, x_scale=X_SCALE, y_scale=Y_SCALE):
-    """Greedy one-to-one spatial matching of predicted points to ground truth.
-
-    Each ground-truth point can be claimed by at most one prediction (the first
-    in-range, still-unclaimed GT wins; a prediction whose nearest in-range GT is
-    already claimed keeps looking for another unclaimed one before giving up).
-
-    A prediction that lands within ``radius`` of ground truth but finds only
-    already-claimed points is *redundant* — a second generated point on a ramp
-    that was already counted — and is scored as a **false positive**. This aligns
-    with ``rampnet/metrics.py``'s 1:1 matching semantics; the earlier version of
-    this evaluator routed such points to an "ignored" bucket, which made the
-    Stage 1 agreement precision slightly optimistic (issue #18).
-
-    Returns ``(tp, fp, n_redundant)`` where ``n_redundant`` is the subset of
-    ``fp`` that matched an already-claimed GT, reported for transparency.
-    """
-    gt_scaled = [(gx * x_scale, gy * y_scale) for gx, gy in gt_points]
-    claimed = [False] * len(gt_scaled)
-    tp = fp = n_redundant = 0
-
-    for px, py in pred_points:
-        px, py = px * x_scale, py * y_scale
-        matched_any_gt = False
-        is_tp = False
-
-        for i, (gx, gy) in enumerate(gt_scaled):
-            if (px - gx) ** 2 + (py - gy) ** 2 < radius_sq:
-                matched_any_gt = True
-                if not claimed[i]:
-                    claimed[i] = True
-                    is_tp = True
-                    break
-
-        if is_tp:
-            tp += 1
-        else:
-            fp += 1
-            if matched_any_gt:
-                n_redundant += 1
-
-    return tp, fp, n_redundant
-
-
 def main():
     manual_label_dir = MANUAL_DATASET_ROOT_DIR
     images_source_dir = os.path.join(DATASET_ROOT_DIR, TEST_SPLIT_NAME)
@@ -159,7 +121,7 @@ def main():
     total_redundant_fp = 0
     total_ground_truth_manual_points = 0
 
-    radius_threshold_sq = (RADIUS_THRESHOLD_NORMALIZED * X_SCALE) ** 2
+    radius_threshold_sq = radius_sq_for(RADIUS_THRESHOLD_NORMALIZED)
 
     for basename, manual_label_path, test_label_path, image_path in common_files_info:
         manual_points_gt = load_manual_label_points(manual_label_path)
@@ -168,7 +130,8 @@ def main():
         total_ground_truth_manual_points += len(manual_points_gt)
 
         tp, fp, n_redundant = match_points(
-            test_points_pred, manual_points_gt, radius_threshold_sq
+            test_points_pred, manual_points_gt, radius_threshold_sq,
+            PANO_SCALE_X, PANO_SCALE_Y,
         )
         total_true_positives += tp
         total_false_positives += fp
