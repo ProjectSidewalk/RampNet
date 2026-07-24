@@ -117,7 +117,11 @@ def build_ground_truth(detections, det_verdicts, missed, no_missed):
     return GroundTruth(gt_points, ignore_points, fn_confirmed)
 
 
-def _confidence(point):
+def prediction_confidence(point):
+    """The confidence a prediction carries, or None (chat VLMs emit none).
+
+    Shared with the comparison CLI's re-scoring/sweep helpers so "does this
+    prediction carry a score" is decided one way everywhere."""
     if isinstance(point, dict):
         return point.get("confidence")
     return point[2] if len(point) > 2 else None
@@ -141,7 +145,7 @@ def score_pano(pred_points, gt, radius_sq=None, scale_x=PANO_SCALE_X, scale_y=PA
     gt_pts = gt.gt_points
     ignore_pts = gt.ignore_points
 
-    confs = [_confidence(p) for p in pred_points]
+    confs = [prediction_confidence(p) for p in pred_points]
     if any(c is not None for c in confs):
         order = sorted(range(len(pred_points)),
                        key=lambda i: confs[i] if confs[i] is not None else float("-inf"),
@@ -166,7 +170,7 @@ def score_pano(pred_points, gt, radius_sq=None, scale_x=PANO_SCALE_X, scale_y=PA
         if best_k >= 0:
             claimed[best_k] = True
             tp += 1
-            details.append((_confidence(p), True))
+            details.append((prediction_confidence(p), True))
             continue
         in_ignore = any(
             (px - ix * scale_x) ** 2 + (py - iy * scale_y) ** 2 < radius_sq
@@ -175,7 +179,7 @@ def score_pano(pred_points, gt, radius_sq=None, scale_x=PANO_SCALE_X, scale_y=PA
             ignored += 1        # neither TP nor FP, so it stays out of the PR curve too
         else:
             fp += 1
-            details.append((_confidence(p), False))
+            details.append((prediction_confidence(p), False))
 
     return PanoScore(tp=tp, fp=fp, ignored=ignored, n_gt=len(gt_pts),
                      fn_confirmed=gt.fn_confirmed, details=details)

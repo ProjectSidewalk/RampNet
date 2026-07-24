@@ -292,17 +292,32 @@ _MOLMO_XY_RE = re.compile(r"^([xy])(\d*)$")
 def _molmo_coord_pairs(coords):
     """``"1 1 308 305 2 752 377"`` -> ``[("308", "305"), ("752", "377")]``.
 
-    Chunk into ``(id, x, y)`` triplets after dropping the leading image index.
-    Positional chunking rather than the model card's
+    Chunk into ``(id, x, y)`` triplets, dropping the leading image index when one
+    is present. Positional chunking rather than the model card's
     ``([0-9]+) ([0-9]{3,4}) ([0-9]{3,4})`` regex: that pattern happens to
     resynchronize past the leading index only because it demands 3-4 digits, so it
     silently drops any point in the leftmost/topmost 10% of a view (x or y < 100).
-    Counting tokens gets both right.
+
+    Whether the leading index is there is decided by the point-id column (the ids
+    run 1, 2, 3, ... — model card, confirmed on real output), not by token count
+    alone: a generation truncated mid-triplet by max_new_tokens shifts the count
+    by one or two, and misaligned pairs would divide small point ids by 1000 into
+    in-frame garbage pinned near x~0 — a quiet failure, exactly what this parser
+    must never produce. Trying the with-index alignment first is safe: for the
+    without-index alignment to be mistaken for it, a real x coordinate would have
+    to equal the next expected id (x of 0.001-0.009 of a view), which does not
+    occur. The token-count heuristic remains as the fallback for id sequences
+    that don't read 1..k.
 
     Single images only — a multi-frame video response interleaves several frame
     ids, which this harness never requests."""
     nums = re.split(r"[\s;,:\t]+", coords.strip())
     nums = [n for n in nums if n]
+    for lead in (1, 0):         # with the image index, then without
+        tail = nums[lead:]
+        n_full = len(tail) // 3
+        if n_full and tail[0::3][:n_full] == [str(i + 1) for i in range(n_full)]:
+            return [(tail[i + 1], tail[i + 2]) for i in range(0, 3 * n_full, 3)]
     if len(nums) % 3 == 1:      # leading image/frame index
         nums = nums[1:]
     return [(nums[i + 1], nums[i + 2]) for i in range(0, len(nums) - 2, 3)]

@@ -284,7 +284,9 @@ toward recall is worth more than a chat model pinned at one operating point.
 once down to a low score (default **0.05**) and cached; every higher operating point is then
 a free local re-score (`--op-threshold`, `--sweep`) with no second model run. The floor is
 part of the detector signature, so *lowering* it invalidates the cache and re-runs the model
-— raising the reported threshold never does.
+— raising the reported threshold never does. The sweep only prints rows at or above the
+floor: below it the cache holds no detections, so those rows would just repeat the floor row
+while reading as real measurements.
 
 **OWLv2's boxes are relative to a padded square.** Its image processor pads to
 `max(h, w)` (bottom/right) before resizing, so boxes live in that square's frame with the
@@ -360,8 +362,10 @@ nothing is detected the scale is wrong (try `--molmo-coord-scale`).
   the **live `GeminiDetector`** (google-genai; API key or Vertex+ADC), the **live
   `QwenDetector`** (transformers; Qwen3-VL on a cluster GPU), the **live `OwlV2Detector` /
   `GroundingDinoDetector`** (with AP, PR curves and a threshold sweep), and the
-  **`MolmoDetector`** (points; wired, unverified). Tested (`test_detection_eval.py`,
-  `test_model_comparison.py`, `test_equirect_tiling.py`).
+  **`MolmoDetector`** (points; `Molmo2-8B` verified by overlay and run on both cities —
+  see the Molmo section; `MolmoPoint-8B`'s special-token path is wired but has not met
+  real weights). Tested (`test_detection_eval.py`, `test_model_comparison.py`,
+  `test_equirect_tiling.py`).
 - **Smoke-tested locally** on `Qwen/Qwen3-VL-2B-Instruct` (the largest that fits an 8 GB dev
   GPU) to validate wiring, JSON parsing, and box mapping before spending cluster time. 2B is
   far too weak to benchmark — the real runs are 8B and 32B on Hyak.
@@ -489,8 +493,10 @@ QWEN_MODEL=Qwen/Qwen3-VL-32B-Instruct sbatch -A <account> --gpus=2 \
 sbatch -A <account> scripts/model_comparison/run_open_models.slurm
 BUNDLE=benchmark/bend sbatch -A <account> scripts/model_comparison/run_open_models.slurm
 
-# 4c. Molmo (hours — it generates text per view). Verify the box/point mapping on
-#     one pano FIRST; the Molmo path has never seen real weights:
+# 4c. Molmo (hours — it generates text per view). Verify the point mapping on one
+#     pano FIRST — this overlay is what caught the image-index parsing bug on the
+#     first real run (see the Molmo section), and any new checkpoint can pull the
+#     same kind of trick:
 $ENVPY scripts/model_comparison/dump_detections.py benchmark/richmond \
     --model molmo:allenai/Molmo2-8B --out view_dump/molmo
 MODELS=rampnet,molmo:allenai/Molmo2-8B \
@@ -520,8 +526,9 @@ finished, so re-submitting picks up where it stopped.
    `--tiling none` side by side.
 2. **Add the `clovis` split** once the auto-labeler hands back its bundle; the harness is
    city-generic (it just needs `records.jsonl` + `verdicts.json` + `panos/`).
-3. **Verify Molmo against real weights** (overlay first, then the run), and decide whether
-   `MolmoPoint-8B`'s special-token path or `Molmo2-8B`'s XML path is the one to report.
+3. **Run `MolmoPoint-8B`** (its special-token path is wired but has never met real
+   weights — overlay first) and decide whether it or `Molmo2-8B`'s XML path, already run
+   and scored above, is the one to report.
 4. **Prompt-sweep the open detectors before writing them off entirely.** `--owlv2-query` /
    `--gdino-query` are free hyperparameters and these models are cheap to run (43
    detections/min on one L40S; a full city is ~15 min). The current queries are a single

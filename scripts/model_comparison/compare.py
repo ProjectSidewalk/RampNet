@@ -29,7 +29,8 @@ sys.path.insert(0, str(REPO_ROOT))          # rampnet.* (editable install fallba
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # local detectors.py
 
 from rampnet.detection_eval import (  # noqa: E402
-    build_ground_truth, score_pano, aggregate, radius_sq_for, PANO_RADIUS_NORMALIZED,
+    build_ground_truth, score_pano, aggregate, prediction_confidence, radius_sq_for,
+    PANO_RADIUS_NORMALIZED,
 )
 from rampnet.validation import collect, format_report  # noqa: E402
 from detectors import (  # noqa: E402
@@ -202,30 +203,35 @@ def rescore(scored, radius_sq, min_confidence=0.0):
     prediction with no confidence (chat VLMs) is never dropped: there is nothing to
     threshold on."""
     return aggregate([
-        score_pano([p for p in preds if _conf_of(p) is None or _conf_of(p) >= min_confidence],
+        score_pano([p for p in preds
+                    if prediction_confidence(p) is None
+                    or prediction_confidence(p) >= min_confidence],
                    gt, radius_sq=radius_sq)
         for preds, gt in scored])
-
-
-def _conf_of(p):
-    return p[2] if len(p) > 2 else None
 
 
 def has_confidences(scored):
     """True when every prediction in the run carries a score (so AP / a sweep mean
     something). An empty run counts as no confidences."""
     preds = [p for ps, _ in scored for p in ps]
-    return bool(preds) and all(_conf_of(p) is not None for p in preds)
+    return bool(preds) and all(prediction_confidence(p) is not None for p in preds)
 
 
 SWEEP_THRESHOLDS = (0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
 
 
-def sweep_rows(scored, radius_sq, thresholds=SWEEP_THRESHOLDS):
-    """(threshold, ScoreReport) for each threshold that still keeps a prediction."""
-    top = max((_conf_of(p) for ps, _ in scored for p in ps if _conf_of(p) is not None),
+def sweep_rows(scored, radius_sq, thresholds=SWEEP_THRESHOLDS, floor=None):
+    """(threshold, ScoreReport) for each threshold that still keeps a prediction.
+
+    ``floor`` is the detector's cache floor (--score-threshold): the cache holds
+    no detections below it, so a sweep row under the floor would silently repeat
+    the floor row while reading as a real measurement. Those rows are dropped
+    (with the default floor, 0.05, nothing is — it equals the lowest threshold)."""
+    top = max((prediction_confidence(p) for ps, _ in scored for p in ps
+               if prediction_confidence(p) is not None),
               default=0.0)
-    return [(t, rescore(scored, radius_sq, t)) for t in thresholds if t <= top]
+    return [(t, rescore(scored, radius_sq, t)) for t in thresholds
+            if t <= top and (floor is None or t >= floor)]
 
 
 def _pct(x):
@@ -262,6 +268,10 @@ def print_sweep(label, rows):
     The best-F1 row is flagged; it is chosen *on the benchmark itself*, so it is an
     optimistic, tune-on-test number and must be quoted as such."""
     if not rows:
+        # has_confidences was True, so the model did detect — every score just
+        # sits below the sweepable range. Say so instead of printing nothing.
+        print(f"\n[{label}] threshold sweep: no detections at or above the lowest "
+              "sweepable threshold; nothing to sweep")
         return
     best = max(range(len(rows)), key=lambda i: rows[i][1].f1)
     print(f"\n[{label}] threshold sweep (re-scored from cached detections)")
@@ -404,7 +414,9 @@ def main():
         report = (rescore(run.scored, radius_sq, args.op_threshold)
                   if args.op_threshold > 0 else run.report)
         rows.append((label, report))
-        runs.append((label, run))
+        # The detector's cache floor travels with the run so the sweep can drop
+        # thresholds the cache has no detections for (phantom rows otherwise).
+        runs.append((label, run, getattr(detector, "score_threshold", None)))
         if run.failures:
             print(f"[{label}] {len(run.failures)} pano failure(s) isolated "
                   "(excluded from the score):")
@@ -426,9 +438,9 @@ def main():
                   "'-' = no calibrated per-box score.")
 
     if args.sweep:
-        for label, run in runs:
+        for label, run, floor in runs:
             if has_confidences(run.scored):
-                print_sweep(label, sweep_rows(run.scored, radius_sq))
+                print_sweep(label, sweep_rows(run.scored, radius_sq, floor=floor))
         print()
 
     if args.pr_out:

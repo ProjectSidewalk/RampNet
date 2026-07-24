@@ -278,6 +278,18 @@ def test_molmo_v2_keeps_points_near_the_left_and_top_edges():
         [0.042, 0.007], [0.5, 0.5]]
 
 
+def test_molmo_v2_survives_a_generation_truncated_mid_triplet():
+    # A completion cut off by max_new_tokens can end mid-triplet, shifting the
+    # token count so it mimics the other index convention. The id column
+    # (1, 2, 3, ...) decides the alignment, so the complete points still parse
+    # instead of every pair sliding into in-frame garbage pinned near x~0 —
+    # the same quiet failure the image-index fix was about.
+    with_index = '<points coords="1 1 308 305 2 752"/>'       # lost y2
+    assert [p["point"] for p in molmo_points_from_text(with_index)] == [[0.308, 0.305]]
+    without_index = '<points coords="1 354 612 2"/>'          # lost x2 y2
+    assert [p["point"] for p in molmo_points_from_text(without_index)] == [[0.354, 0.612]]
+
+
 def test_molmo_v2_accepts_separators_and_a_bare_triplet_list():
     assert [p["point"] for p in molmo_points_from_text(
         '<points coords="1 1 354 612; 2 700 480"/>')] == [[0.354, 0.612], [0.7, 0.48]]
@@ -478,6 +490,17 @@ def test_sweep_rows_stop_at_the_highest_score_present():
     rows = sweep_rows(_one_pano([(0.0, 0.0, 0.22)]), radius_sq_for())
     assert [t for t, _ in rows] == [0.05, 0.1, 0.15, 0.2]   # 0.25+ would be all-empty
     assert all(r.tp == 1 for _, r in rows)
+
+
+def test_sweep_rows_drop_thresholds_below_the_cache_floor():
+    # With a raised --score-threshold the cache holds nothing below the floor, so
+    # sweep rows down there would silently repeat the floor row while reading as
+    # real measurements. They must be dropped, not printed.
+    scored = _one_pano([(0.0, 0.0, 0.9)])
+    assert [t for t, _ in sweep_rows(scored, radius_sq_for(), floor=0.2)] == [
+        0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    # No floor (RampNet's bundle detections): the full range, as before.
+    assert sweep_rows(scored, radius_sq_for())[0][0] == 0.05
 
 
 class _UnloadableDetector:
