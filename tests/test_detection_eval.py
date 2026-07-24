@@ -83,6 +83,24 @@ def test_score_gt_takes_priority_over_ignore():
     assert (tp, fp, ignored) == (1, 0, 0)   # claims the GT, not ignored
 
 
+def test_score_redundant_hit_inside_ignore_zone_is_ignored():
+    # A second hit on an already-claimed ramp is normally an FP, but if it also
+    # lands in an ignore zone the abstention wins: the ignore fallback applies to
+    # every prediction the matcher left unassigned, redundant ones included.
+    gt = _gt([(0.0, 0.0)], ignore_points=[(0.2, 0.0)])
+    tp, fp, ignored = score_pano([(0.0, 0.0, 0.9), (0.2, 0.0, 0.5)], gt, **UNIT)[:3]
+    assert (tp, fp, ignored) == (1, 0, 1)
+
+
+def test_score_claims_nearest_gt_not_first_in_list():
+    # Shared-matcher semantics reaching score_pano: the first prediction is in
+    # range of both ramps and takes the *nearer* one, leaving the far ramp for
+    # the second prediction. First-in-list matching would score this (1 TP, 1 FP).
+    gt = _gt([(0.4, 0.0), (0.0, 0.0)])
+    tp, fp, ignored = score_pano([(0.05, 0.0), (0.4, 0.0)], gt, **UNIT)[:3]
+    assert (tp, fp, ignored) == (2, 0, 0)
+
+
 # --- aggregate --------------------------------------------------------------
 
 def test_aggregate_gates_recall_on_confirmed_panos():
