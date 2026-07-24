@@ -32,6 +32,7 @@ just open the file), review, click "Export verdicts", and save the download back
 ``benchmark/<city>/verdicts.json`` to re-score.
 """
 import argparse
+import hashlib
 import json
 import math
 import random
@@ -863,9 +864,14 @@ def main():
     if args.resample:
         chosen = choose_panos(records, args.sample, args.empty_sample, args.seed, args.min_spacing)
     else:
-        # The bundle's records.jsonl already *is* the validated sample; render all of it,
-        # taking each pano's stratum from the existing verdicts (or 'random' if unlabeled).
-        chosen = [(r, verdicts_panos.get(r['pano']['panorama_id'], {}).get('group', 'random'))
+        # The bundle's records.jsonl already *is* the validated sample; render all of it.
+        # Each pano's stratum comes from the record itself (`benchmark_group`, written by
+        # the auto-labeler's export_benchmark.py), falling back to an existing verdicts.json
+        # for the hand-built bend/richmond bundles that predate that field. Getting this
+        # right matters for scoring: 'top' panos are excluded from unbiased estimates, so a
+        # stratum lost here silently biases them back in.
+        chosen = [(r, r.get('benchmark_group')
+                   or verdicts_panos.get(r['pano']['panorama_id'], {}).get('group', 'random'))
                   for r in records]
     print(f"{len(records)} records; rendering {len(chosen)} panos "
           f"({sum(1 for r, _ in chosen if r['detections'])} with detections).")
@@ -894,7 +900,13 @@ def main():
                 if done % 25 == 0 or done == len(futures):
                     print(f"  rendered {done}/{len(futures)}")
 
-    entries.sort(key=lambda e: (-len(e['crops']), e['pid']))
+    # Deterministic *interleave*, not a density sort: ordering panos by detection count
+    # would pool every zero-detection pano at the tail, so a reviewer arrives at the
+    # missed-ramp pass already primed to rubber-stamp "no missed ramps" — biasing recall.
+    # Hashing the pid decorrelates screen position from detection count while staying
+    # stable across re-renders (localStorage verdicts keep matching). Empties, sparse, and
+    # dense panos are mixed throughout so the reviewer can't predict a pano from its slot.
+    entries.sort(key=lambda e: hashlib.sha1(e['pid'].encode()).hexdigest())
     initial = initial_verdicts(verdicts_panos)
     index_path = out_dir / "index.html"
     with open(index_path, 'w', encoding='utf-8') as f:
