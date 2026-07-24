@@ -97,6 +97,58 @@ def test_aggregate_gates_recall_on_confirmed_panos():
     assert r.n_recall_panos == 1 and r.n_panos == 2
 
 
+# --- per-prediction details -> AP / PR curve --------------------------------
+
+def test_score_pano_records_details_for_ap():
+    gt = _gt([(0.0, 0.0)])
+    s = score_pano([(0.0, 0.0, 0.9), (5.0, 5.0, 0.4)], gt, **UNIT)
+    assert s.details == [(0.9, True), (0.4, False)]   # one TP, one FP, in match order
+
+
+def test_score_pano_keeps_ignored_predictions_out_of_the_curve():
+    # An ignored prediction is neither TP nor FP, so it must not appear in the PR
+    # curve either — otherwise the reviewer's abstention would cost the model.
+    gt = _gt([], ignore_points=[(0.0, 0.0)])
+    s = score_pano([(0.1, 0.0, 0.8)], gt, **UNIT)
+    assert s.ignored == 1 and s.details == []
+
+
+def test_aggregate_reports_ap_when_every_prediction_is_scored():
+    # Perfect ranking on 2 GT points: both TPs above the FP -> AP 1.0.
+    scores = [PanoScore(tp=2, fp=1, ignored=0, n_gt=2, fn_confirmed=True,
+                        details=[(0.9, True), (0.8, True), (0.3, False)])]
+    r = aggregate(scores)
+    assert r.ap == 1.0
+    recalls, precisions = r.pr_curve
+    assert recalls[-1] == 1.0 and len(recalls) == len(precisions)
+
+
+def test_aggregate_ranking_matters_for_ap():
+    # Same counts as above, but the false positive outranks both hits.
+    worse = aggregate([PanoScore(tp=2, fp=1, ignored=0, n_gt=2, fn_confirmed=True,
+                                 details=[(0.9, False), (0.8, True), (0.3, True)])])
+    assert 0.0 < worse.ap < 1.0
+
+
+def test_aggregate_has_no_ap_without_confidences():
+    # Chat VLMs emit no calibrated score, so there is nothing to rank by.
+    r = aggregate([PanoScore(tp=1, fp=1, ignored=0, n_gt=1, fn_confirmed=True,
+                             details=[(None, True), (None, False)])])
+    assert r.ap is None and r.pr_curve is None
+
+
+def test_aggregate_ap_uses_only_recall_confirmed_panos():
+    # An unconfirmed pano has no trustworthy GT count, so its predictions can't be
+    # placed on a recall axis; including them would distort the curve.
+    confirmed = PanoScore(tp=1, fp=0, ignored=0, n_gt=1, fn_confirmed=True,
+                          details=[(0.9, True)])
+    unconfirmed = PanoScore(tp=0, fp=1, ignored=0, n_gt=0, fn_confirmed=False,
+                            details=[(0.99, False)])
+    r = aggregate([confirmed, unconfirmed])
+    assert r.ap == 1.0                    # the unconfirmed pano's FP is excluded
+    assert r.precision == 1 / 2           # but it still counts against precision
+
+
 # --- integration: RampNet reproduces its published numbers ------------------
 
 def _load_bundle(city):
