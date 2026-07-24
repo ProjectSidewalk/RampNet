@@ -9,3 +9,4 @@ benchmark/*/gallery/
 .env
 view_dump/
 .model_cache/
+analysis_out/
