@@ -8,6 +8,38 @@ were dropped entirely instead of counted as false positives.
 """
 
 
+def _greedy_match(pred_points, gt_points, radius_sq, scale_x, scale_y):
+    """Assign each prediction, in the order given, to the nearest unclaimed GT.
+
+    The single matching core shared by every RampNet evaluator — keep it that
+    way. Returns one ``(gt_index, saw_in_range)`` pair per prediction:
+
+    - ``gt_index`` is the claimed ground-truth index, or ``-1`` when nothing
+      unclaimed was within radius (i.e. the prediction is a false positive).
+    - ``saw_in_range`` says whether *any* ground truth, claimed or not, was
+      within radius. That distinguishes a **redundant** second hit on a ramp
+      already counted from a detection with no ramp anywhere near it — a
+      distinction some callers report separately, though both are false
+      positives.
+    """
+    gt_scaled = [(gx * scale_x, gy * scale_y) for gx, gy in gt_points]
+    claimed = [False] * len(gt_scaled)
+    assignments = []
+    for x_norm, y_norm in pred_points:
+        pred_x, pred_y = x_norm * scale_x, y_norm * scale_y
+        best_k, best_dist_sq, saw_in_range = -1, radius_sq, False
+        for k, (gt_x, gt_y) in enumerate(gt_scaled):
+            dist_sq = (pred_x - gt_x) ** 2 + (pred_y - gt_y) ** 2
+            if dist_sq < radius_sq:
+                saw_in_range = True
+                if not claimed[k] and dist_sq < best_dist_sq:
+                    best_dist_sq, best_k = dist_sq, k
+        if best_k >= 0:
+            claimed[best_k] = True
+        assignments.append((best_k, saw_in_range))
+    return assignments
+
+
 def match_predictions(pred_peaks, gt_points, radius_sq, scale_x, scale_y):
     """Greedy one-to-one matching of predicted peaks to ground-truth points.
 
@@ -24,26 +56,29 @@ def match_predictions(pred_peaks, gt_points, radius_sq, scale_x, scale_y):
     Returns a list of (confidence, is_true_positive), one entry per prediction.
     """
     preds_sorted = sorted(pred_peaks, key=lambda p: p[2], reverse=True)
-    claimed = [False] * len(gt_points)
-    details = []
-    for x_norm, y_norm, conf in preds_sorted:
-        pred_x = x_norm * scale_x
-        pred_y = y_norm * scale_y
-        best_k = -1
-        best_dist_sq = radius_sq
-        for k, (gt_x_norm, gt_y_norm) in enumerate(gt_points):
-            if claimed[k]:
-                continue
-            dist_sq = (pred_x - gt_x_norm * scale_x) ** 2 + (pred_y - gt_y_norm * scale_y) ** 2
-            if dist_sq < best_dist_sq:
-                best_dist_sq = dist_sq
-                best_k = k
-        if best_k >= 0:
-            claimed[best_k] = True
-            details.append((conf, True))
-        else:
-            details.append((conf, False))
-    return details
+    assignments = _greedy_match([(p[0], p[1]) for p in preds_sorted],
+                                gt_points, radius_sq, scale_x, scale_y)
+    return [(p[2], gt_index >= 0) for p, (gt_index, _) in zip(preds_sorted, assignments)]
+
+
+def match_points(pred_points, gt_points, radius_sq, scale_x, scale_y):
+    """Match unscored points (no confidence) and summarise as counts.
+
+    The Stage 1 dataset evaluator's entry point: generated label points carry no
+    confidence, so they are matched in input order rather than by score, but the
+    geometry is identical to :func:`match_predictions` — nearest unclaimed
+    ground truth within radius.
+
+    Returns ``(tp, fp, n_redundant)``. ``n_redundant`` is the subset of ``fp``
+    that landed on an already-claimed ramp; it is a reported diagnostic, **not**
+    a third outcome — redundant points are false positives, matching
+    ``match_predictions`` and ``rampnet.validation``'s duplicate handling
+    (issue #18).
+    """
+    assignments = _greedy_match(pred_points, gt_points, radius_sq, scale_x, scale_y)
+    tp = sum(1 for gt_index, _ in assignments if gt_index >= 0)
+    n_redundant = sum(1 for gt_index, saw in assignments if gt_index < 0 and saw)
+    return tp, len(assignments) - tp, n_redundant
 
 
 def calculate_ap_and_pr_curve(all_predictions_details, total_gt_points):
