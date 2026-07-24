@@ -86,6 +86,15 @@ radius of a real GT point, which the per-detection human verdict scored differen
   same set. Note also that `--op-threshold` truncates the curve it is computed from: the AP
   printed alongside a thresholded row is the AP *of that row's operating range*, so quote
   full-range AP from a run without `--op-threshold`.
+- **AP is not comparable across models at different floors — and RampNet's is truncated.**
+  Every model's curve stops where its detections stop. RampNet's bundle detections were
+  extracted at a **0.5** peak threshold, so its curve has no low-confidence tail at all
+  (visible in `--sweep`: every row below 0.5 is identical) and its AP — 0.763 richmond /
+  0.754 bend — is a **lower bound**, close to its recall ceiling of 0.768 / 0.761 times a
+  near-1.0 precision envelope. The open detectors are cached down to 0.05, so their curves
+  extend into a region RampNet's simply doesn't cover. Compare AP between OWLv2 and
+  Grounding DINO freely; against RampNet, compare operating points, or re-extract RampNet's
+  detections at a lower peak threshold first.
 - **A swept threshold is tuned on the test set.** The `--sweep` table's best-F1 row is
   chosen on the benchmark itself. There is no separate val split, so quote it as an
   optimistic upper bound on what threshold tuning buys, not as a held-out result.
