@@ -1,6 +1,6 @@
 # Model comparison: RampNet vs. general-purpose models
 
-Uses the standardized curb-ramp benchmark (`benchmark/{bend,richmond}/`) to compare
+Uses the standardized curb-ramp benchmark (`benchmark/{bend,richmond,clovis}/`) to compare
 RampNet against off-the-shelf models. The question: does a general model match or beat the
 purpose-trained RampNet on real deployment imagery (GSV + Mapillary 360)? The harness is
 model-agnostic, so new models (issues #20, #39) plug in the same way.
@@ -55,6 +55,28 @@ sweep below. Run on Hyak (L40S); RampNet and Gemini rows are cache-scored.
 | Qwen3-VL-8B-Instruct | 0.379 | 0.336 | 0.357 | – | 110/180/217 |
 | owlv2-large-patch14-ensemble | 0.037 | 0.951 | 0.070 | 0.093 | 311/8187/16 |
 | grounding-dino-base | 0.038 | 0.850 | 0.073 | 0.049 | 278/6969/49 |
+
+**clovis** (125 reviewed panos, 195 GT ramps) — Mapillary GoPro Fusion 360s, the hardest of the
+three deployment cities
+
+| model | P | R | F1 | AP | tp/fp/fn |
+|---|---|---|---|---|---|
+| **rampnet** | **0.914** | 0.713 | **0.801** | 0.688 | 139/13/56 |
+| gemini-3.1-pro-preview | 0.531 | 0.477 | 0.503 | – | 93/82/102 |
+| gemini-3.6-flash | 0.460 | 0.497 | 0.478 | – | 97/114/98 |
+| **molmo2-8B** (points) | 0.331 | 0.436 | **0.376** | – | 85/172/110 |
+| Qwen3-VL-32B-Instruct | 0.696 | 0.200 | 0.311 | – | 39/17/156 |
+| Qwen3-VL-8B-Instruct | 0.222 | 0.292 | 0.252 | – | 57/200/138 |
+| owlv2-large-patch14-ensemble | 0.025 | **0.908** | 0.049 | 0.067 | 177/6911/18 |
+| grounding-dino-base | 0.018 | 0.867 | 0.035 | 0.026 | 169/9433/26 |
+
+Clovis is 100% soft, 2018-era GoPro Fusion 360 imagery, so every model degrades relative to
+richmond/bend — RampNet's own P/R slips to 0.914/0.713 (from richmond's 0.960/0.765). But the
+**ranking is identical across all three cities**, and RampNet's lead *widens*: the gap to the best
+challenger grows from ~0.19 (richmond) to **~0.30** here. These are the all-125 numbers, so every
+model is scored on the same panos; clovis's ground-truth quality against the 120-pano *unbiased*
+subset (P 0.889 / R 0.650) is in `benchmark/README.md`. (`gemini-2.5-flash`, not run on richmond,
+scores F1 0.278 on clovis — between Qwen-32B and Qwen-8B, tracking its 0.252 on bend.)
 
 Molmo is the strongest **open-weight** model here — best F1 of the four, and the only
 challenger with a *balanced* profile (P≈R) rather than an FP flood or extreme caution. It
@@ -153,10 +175,12 @@ spend:
 |------|----------------------|---------------------------|
 | richmond | P 0.964 / R 0.768 | P 0.960 / R 0.765 |
 | bend | P 0.961 / R 0.761 | P 0.954 / R 0.758 |
+| clovis | P 0.914 / R 0.713 | P 0.914 / R 0.713 |
 
-The ~0.005 upward drift is expected: a RampNet `False` detection occasionally falls within
-radius of a real GT point, which the per-detection human verdict scored differently. The
-`compare.py` CLI prints both side by side.
+The ~0.005 upward drift on richmond/bend is expected: a RampNet `False` detection occasionally
+falls within radius of a real GT point, which the per-detection human verdict scored differently
+(on clovis no `False` detection does, so the two columns coincide exactly). The `compare.py` CLI
+prints both side by side.
 
 ## Caveats (read before quoting numbers)
 
@@ -347,7 +371,7 @@ PYTHON=$MOLMOPY MODELS=rampnet,molmo:allenai/Molmo2-8B \
     sbatch -A <account> scripts/model_comparison/run_open_models.slurm
 ```
 
-**Status: run and scored** (richmond/bend, above). Verifying the overlay first was not
+**Status: run and scored** (richmond/bend/clovis, above). Verifying the overlay first was not
 optional — the first run put every point on the left edge because Molmo's `coords` list
 opens with an **image index** the parser mistook for a point id (fixed; see the parser note
 below). After the fix the crosshairs sit on ramps and the numbers are the F1-0.45 rows above.
@@ -362,7 +386,7 @@ nothing is detected the scale is wrong (try `--molmo-coord-scale`).
   the **live `GeminiDetector`** (google-genai; API key or Vertex+ADC), the **live
   `QwenDetector`** (transformers; Qwen3-VL on a cluster GPU), the **live `OwlV2Detector` /
   `GroundingDinoDetector`** (with AP, PR curves and a threshold sweep), and the
-  **`MolmoDetector`** (points; `Molmo2-8B` verified by overlay and run on both cities —
+  **`MolmoDetector`** (points; `Molmo2-8B` verified by overlay and run on all three cities —
   see the Molmo section; `MolmoPoint-8B`'s special-token path is wired but has not met
   real weights). Tested (`test_detection_eval.py`, `test_model_comparison.py`,
   `test_equirect_tiling.py`).
@@ -524,18 +548,16 @@ finished, so re-submitting picks up where it stopped.
    trails OWLv2's (0.104) despite similar operating points. Masking the nadir/hood region is
    now a change whose benefit can be *measured* (ΔAP), not just argued. Report perspective vs
    `--tiling none` side by side.
-2. **Add the `clovis` split** once the auto-labeler hands back its bundle; the harness is
-   city-generic (it just needs `records.jsonl` + `verdicts.json` + `panos/`).
-3. **Run `MolmoPoint-8B`** (its special-token path is wired but has never met real
+2. **Run `MolmoPoint-8B`** (its special-token path is wired but has never met real
    weights — overlay first) and decide whether it or `Molmo2-8B`'s XML path, already run
    and scored above, is the one to report.
-4. **Prompt-sweep the open detectors before writing them off entirely.** `--owlv2-query` /
+3. **Prompt-sweep the open detectors before writing them off entirely.** `--owlv2-query` /
    `--gdino-query` are free hyperparameters and these models are cheap to run (43
    detections/min on one L40S; a full city is ~15 min). The current queries are a single
    untuned phrase each; "curb cut", "wheelchair ramp at a crosswalk", or a multi-query
    ensemble might move them. Given F1 0.184 vs RampNet's 0.855 this will not change the
    verdict, but it would tell us whether the ceiling is the *query* or the *model class*.
-5. **If a recall-first candidate generator is wanted, compare complements on FP-per-find,
+4. **If a recall-first candidate generator is wanted, compare complements on FP-per-find,
    not F1.** That metric ranks Gemini-3.6-flash (~6) far above OWLv2 (36–128) despite
    OWLv2's much higher recall ceiling — see the table above.
 

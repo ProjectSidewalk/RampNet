@@ -57,20 +57,30 @@ marked for deletion; run the RampNet versions, not those.
 |------|--------|-------|-----------|--------|
 | richmond | Mapillary 360 | 124 | 0.960 | 0.765 |
 | bend | GSV (Google Street View) | 110 | 0.954 | 0.758 |
+| clovis | Mapillary 360 (GoPro Fusion) | 125 | 0.914 | 0.713 |
 
-Both splits are **self-contained**: the reviewer's complete-scan attestation is baked into
+All three splits are **self-contained**: the reviewer's complete-scan attestation is baked into
 `no_missed` (set on fully-judged panos with no missed marks), so the numbers reproduce with a
 plain `python scripts/score_validation.py benchmark/<city>` — no `--assume-scanned` needed.
 This matters because the recall gate otherwise excludes unconfirmed panos and biases recall
 low (it over-weights panos where a miss *was* found).
 
-**Both splits were reviewed at model resolution** with the pan/zoom labeler (`scripts/gt_gallery.py`),
+**Clovis is stratified, and harder.** Its 125 panos are sampled 5 top-detection / 95 random /
+25 empty (`sample.json`; each pano's `benchmark_group` is in `records.jsonl`). The table shows
+the all-125 figure `score_validation.py` prints first, but the number comparable to richmond and
+bend is the **unbiased subset** — random + empty, 120 panos, dropping the 5 hand-picked
+high-density panos: **P 0.889 / R 0.650**. Both are below the other two cities because clovis is
+100% soft, 2018-era GoPro Fusion 360 imagery, where richmond mixes in the sharper NCTECH iSTAR
+Pulsar (camera provenance is in the records, added in #50).
+
+**All three splits were reviewed at model resolution** with the pan/zoom labeler (`scripts/gt_gallery.py`),
 which shows the full pano at the model's input resolution (4096×2048) with pan/zoom, rather than a
-downscaled overview. Reviewing at model resolution surfaced genuinely-missed ramps that the earlier
-1600 px overview hid — small/distant curb ramps a reviewer literally could not resolve — correcting
-recall down from earlier, optimistic numbers (richmond 0.895 → 0.765, bend 0.831 → 0.758). Precision
-was essentially unchanged (the zoom mostly resolved `unsure` detections, not misclassifications). The
-correction is consistent across both imagery sources (GSV and Mapillary), and these are the honest
-per-pano-comprehensive figures. Each split includes one `duplicate` verdict — a redundant second
-detection on one physical ramp — scored as a false positive by default (`--lenient-duplicates` scores
-the other way; see `scripts/score_validation.py`).
+downscaled overview. For richmond and bend this was a *re-review*: reviewing at model resolution
+surfaced genuinely-missed ramps that the earlier 1600 px overview hid — small/distant curb ramps a
+reviewer literally could not resolve — correcting recall down from earlier, optimistic numbers
+(richmond 0.895 → 0.765, bend 0.831 → 0.758). Precision was essentially unchanged (the zoom mostly
+resolved `unsure` detections, not misclassifications). The correction is consistent across both
+imagery sources (GSV and Mapillary), and these are the honest per-pano-comprehensive figures; clovis
+was reviewed at model resolution from the start. Richmond and bend each include one `duplicate`
+verdict — a redundant second detection on one physical ramp, scored as a false positive by default
+(`--lenient-duplicates` scores the other way; see `scripts/score_validation.py`); clovis has none.
