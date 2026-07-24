@@ -33,6 +33,7 @@ sweep below. Run on Hyak (L40S); RampNet and Gemini rows are cache-scored.
 | **rampnet** | **0.964** | 0.768 | **0.855** | 0.763 | 238/9/72 |
 | gemini-3.1-pro-preview | 0.631 | 0.700 | 0.664 | – | 217/127/93 |
 | gemini-3.6-flash | 0.626 | 0.642 | 0.634 | – | 199/119/111 |
+| **molmo2-8B** (points) | 0.410 | 0.516 | **0.457** | – | 160/230/150 |
 | Qwen3-VL-32B-Instruct | 0.760 | 0.297 | 0.427 | – | 92/29/218 |
 | Qwen3-VL-8B-Instruct | 0.323 | 0.452 | 0.377 | – | 140/293/170 |
 | owlv2-large-patch14-ensemble | 0.033 | **0.971** | 0.064 | 0.104 | 301/8799/9 |
@@ -45,14 +46,23 @@ sweep below. Run on Hyak (L40S); RampNet and Gemini rows are cache-scored.
 | **rampnet** | **0.961** | 0.761 | **0.850** | 0.754 | 249/10/78 |
 | gemini-3.1-pro-preview | 0.706 | 0.581 | 0.638 | – | 190/79/137 |
 | gemini-3.6-flash | 0.608 | 0.587 | 0.597 | – | 192/124/135 |
+| **molmo2-8B** (points) | 0.510 | 0.401 | **0.449** | – | 131/126/196 |
 | Qwen3-VL-32B-Instruct | 0.706 | 0.294 | 0.415 | – | 96/40/231 |
 | Qwen3-VL-8B-Instruct | 0.379 | 0.336 | 0.357 | – | 110/180/217 |
 | owlv2-large-patch14-ensemble | 0.037 | 0.951 | 0.070 | 0.093 | 311/8187/16 |
 | grounding-dino-base | 0.038 | 0.850 | 0.073 | 0.049 | 278/6969/49 |
 
+Molmo is the strongest **open-weight** model here — best F1 of the four, and the only
+challenger with a *balanced* profile (P≈R) rather than an FP flood or extreme caution. It
+also does it natively in points, no box→center reduction. But it is still ~0.4 F1 behind
+RampNet and clearly behind both Geminis, and it is *sparse*: on the verified overlay pano it
+proposed 2 points where 4 ramps were visible, which shows up as its 150/196 false negatives.
+
 ### What the numbers say
 
-1. **RampNet still wins by a wide margin**, and nothing tested comes close on F1.
+1. **RampNet still wins by a wide margin**, and nothing tested comes close on F1. The best
+   challenger (Gemini-3.1-pro, F1 0.664) trails it by ~0.19; the best open-weight model
+   (Molmo, F1 0.457) by ~0.40.
 2. **Purpose-built detectors did worse than chat models, not better.** OWLv2's best F1 over
    the whole threshold sweep is **0.184** (thr 0.25: P 0.130 / R 0.310); Grounding DINO's is
    **0.073**. Both are far below Gemini-3.6-flash's 0.634. The issue-#39 hypothesis — that
@@ -316,10 +326,12 @@ PYTHON=$MOLMOPY MODELS=rampnet,molmo:allenai/Molmo2-8B \
     sbatch -A <account> scripts/model_comparison/run_open_models.slurm
 ```
 
-**Status: verify the overlay before quoting any Molmo number.** The parser has unit tests
-over both syntaxes, but the coordinate scale has not been confirmed against real weights.
-Run `dump_detections.py` on one pano first and check the red crosshairs sit on ramps — as was
-done for Qwen. Nothing detected at all means the scale is wrong (try `--molmo-coord-scale`).
+**Status: run and scored** (richmond/bend, above). Verifying the overlay first was not
+optional — the first run put every point on the left edge because Molmo's `coords` list
+opens with an **image index** the parser mistook for a point id (fixed; see the parser note
+below). After the fix the crosshairs sit on ramps and the numbers are the F1-0.45 rows above.
+The lesson stands for the next pointing model: `dump_detections.py` on one pano first, and if
+nothing is detected the scale is wrong (try `--molmo-coord-scale`).
 
 ## Status
 
