@@ -252,12 +252,38 @@ def test_molmo_v1_multi_point_tag():
         {"point": [0.3, 0.4], "label": "curb ramps"}]
 
 
-def test_molmo_v2_coords_triplets_are_scaled_by_1000():
-    # Molmo 2's own model card: "<id> <x> <y>", coordinates scaled by 1000.
-    text = '<points coords="0 354 612; 1 700 480"/>'
+def test_molmo_v2_coords_are_image_index_then_id_x_y_triplets():
+    # VERBATIM output from allenai/Molmo2-8B on a richmond view (2026-07-23).
+    # The leading "1" is the IMAGE index, not a point id; consuming it as one
+    # shifts every coordinate a slot left and pins all points to x~0, which is the
+    # bug the dump_detections overlay caught on the first real run.
+    text = '<points coords="1 1 308 305 2 752 377">curb ramp</points>'
     assert molmo_points_from_text(text) == [
-        {"point": [0.354, 0.612], "label": ""},
-        {"point": [0.7, 0.48], "label": ""}]
+        {"point": [0.308, 0.305], "label": ""},
+        {"point": [0.752, 0.377], "label": ""}]
+
+
+def test_molmo_v2_four_points_from_a_real_response():
+    text = ('<points coords="1 1 299 338 2 532 381 3 662 446 4 932 429">'
+            'curb ramp</points>')
+    assert [p["point"] for p in molmo_points_from_text(text)] == [
+        [0.299, 0.338], [0.532, 0.381], [0.662, 0.446], [0.932, 0.429]]
+
+
+def test_molmo_v2_keeps_points_near_the_left_and_top_edges():
+    # The model card's own regex demands 3-4 digits for x/y, which silently drops
+    # anything in the leftmost/topmost 10% of a view. Positional chunking doesn't.
+    text = '<points coords="1 1 42 7 2 500 500">curb ramp</points>'
+    assert [p["point"] for p in molmo_points_from_text(text)] == [
+        [0.042, 0.007], [0.5, 0.5]]
+
+
+def test_molmo_v2_accepts_separators_and_a_bare_triplet_list():
+    assert [p["point"] for p in molmo_points_from_text(
+        '<points coords="1 1 354 612; 2 700 480"/>')] == [[0.354, 0.612], [0.7, 0.48]]
+    # No leading index (token count already a multiple of 3).
+    assert [p["point"] for p in molmo_points_from_text(
+        '<points coords="1 354 612"/>')] == [[0.354, 0.612]]
 
 
 def test_molmo_explicit_scale_overrides_the_syntax_inference():

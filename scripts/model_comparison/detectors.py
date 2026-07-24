@@ -273,15 +273,39 @@ def pixel_boxes_to_points(items, img_w, img_h):
 #   Molmo 1:  <point x="35.4" y="61.2" alt="...">...</point>
 #             <points x1="10.5" y1="20.0" x2="30.1" y2="40.2" ...>...</points>
 #             -> coordinates are PERCENTAGES of the image (0-100).
-#   Molmo 2:  <points coords="0 354 612; 1 700 480"/>  (triplets: object_id x y)
-#             -> coordinates are scaled by 1000, per the model card's own regex.
+#   Molmo 2:  <points coords="1 1 308 305 2 752 377">curb ramp</points>
+#             -> a leading IMAGE INDEX, then (point_id, x, y) triplets, scaled by 1000.
+#             The leading index is easy to miss and costly: consuming it as a point
+#             id shifts every coordinate one slot left, which pins every point to
+#             x~0. That is what the first real Molmo run did until the
+#             dump_detections overlay showed a column of crosshairs on the left
+#             edge. Verified against Molmo2-8B on 2026-07-23; the token count is
+#             1 mod 3 (7 tokens for 2 points, 13 for 4) and the ids run 1,2,3,...
 # The two are distinguishable by syntax (a `coords` attribute vs `x`/`y` attributes),
 # which is why the scale can be inferred here — unlike Qwen's two box conventions,
 # which were syntactically identical and had to be chosen by model id.
 _MOLMO_TAG_RE = re.compile(r"<(point|points)\b([^>]*)>", re.IGNORECASE)
 _MOLMO_ATTR_RE = re.compile(r'([A-Za-z_]\w*)\s*=\s*"([^"]*)"')
 _MOLMO_XY_RE = re.compile(r"^([xy])(\d*)$")
-_MOLMO_TRIPLE_RE = re.compile(r"([0-9]+) ([0-9.]+) ([0-9.]+)")
+
+
+def _molmo_coord_pairs(coords):
+    """``"1 1 308 305 2 752 377"`` -> ``[("308", "305"), ("752", "377")]``.
+
+    Chunk into ``(id, x, y)`` triplets after dropping the leading image index.
+    Positional chunking rather than the model card's
+    ``([0-9]+) ([0-9]{3,4}) ([0-9]{3,4})`` regex: that pattern happens to
+    resynchronize past the leading index only because it demands 3-4 digits, so it
+    silently drops any point in the leftmost/topmost 10% of a view (x or y < 100).
+    Counting tokens gets both right.
+
+    Single images only — a multi-frame video response interleaves several frame
+    ids, which this harness never requests."""
+    nums = re.split(r"[\s;,:\t]+", coords.strip())
+    nums = [n for n in nums if n]
+    if len(nums) % 3 == 1:      # leading image/frame index
+        nums = nums[1:]
+    return [(nums[i + 1], nums[i + 2]) for i in range(0, len(nums) - 2, 3)]
 
 MOLMO_ATTR_SCALE = 100.0    # Molmo 1: percent of the image
 MOLMO_COORDS_SCALE = 1000.0  # Molmo 2: the card's "coordinates are scaled by 1000"
@@ -302,9 +326,9 @@ def molmo_points_from_text(text, coord_scale=None):
     for tag, attr_text in _MOLMO_TAG_RE.findall(text):
         attrs = dict(_MOLMO_ATTR_RE.findall(attr_text))
         label = attrs.get("alt", "")
-        if "coords" in attrs:                       # Molmo 2: "<id> <x> <y>" triplets
+        if "coords" in attrs:                       # Molmo 2: index + (id, x, y) triplets
             scale = coord_scale or MOLMO_COORDS_SCALE
-            pairs = [(m.group(2), m.group(3)) for m in _MOLMO_TRIPLE_RE.finditer(attrs["coords"])]
+            pairs = _molmo_coord_pairs(attrs["coords"])
         else:                                       # Molmo 1: x/y (or x1/y1, x2/y2 ...)
             scale = coord_scale or MOLMO_ATTR_SCALE
             xs, ys = {}, {}

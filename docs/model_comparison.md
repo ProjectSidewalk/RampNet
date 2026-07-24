@@ -15,8 +15,75 @@ Three classes of challenger, which fail differently and are worth keeping distin
 
 The chat VLMs are all doing localization as a side skill, and they lose the same way: they
 are false-positive-heavy (119–293 FP against RampNet's 9). The other two classes exist in
-this harness to test whether that is a property of *general models* or of *chat models* —
-see "What each model class buys you" below.
+this harness to test whether that is a property of *general models* or of *chat models*.
+
+**It is not.** See the results below — the purpose-built open-vocabulary detectors do far
+*worse* than the chat VLMs on this task, not better.
+
+## Results
+
+Perspective tiling, match radius 0.022, all models scored against the same derived GT.
+Open detectors are shown at their 0.05 cache floor; their tuned operating points are in the
+sweep below. Run on Hyak (L40S); RampNet and Gemini rows are cache-scored.
+
+**richmond** (124 reviewed panos, 310 GT ramps)
+
+| model | P | R | F1 | AP | tp/fp/fn |
+|---|---|---|---|---|---|
+| **rampnet** | **0.964** | 0.768 | **0.855** | 0.763 | 238/9/72 |
+| gemini-3.1-pro-preview | 0.631 | 0.700 | 0.664 | – | 217/127/93 |
+| gemini-3.6-flash | 0.626 | 0.642 | 0.634 | – | 199/119/111 |
+| Qwen3-VL-32B-Instruct | 0.760 | 0.297 | 0.427 | – | 92/29/218 |
+| Qwen3-VL-8B-Instruct | 0.323 | 0.452 | 0.377 | – | 140/293/170 |
+| owlv2-large-patch14-ensemble | 0.033 | **0.971** | 0.064 | 0.104 | 301/8799/9 |
+| grounding-dino-base | 0.028 | 0.852 | 0.053 | 0.032 | 264/9321/46 |
+
+**bend** (110 reviewed panos, 327 GT ramps)
+
+| model | P | R | F1 | AP | tp/fp/fn |
+|---|---|---|---|---|---|
+| **rampnet** | **0.961** | 0.761 | **0.850** | 0.754 | 249/10/78 |
+| gemini-3.1-pro-preview | 0.706 | 0.581 | 0.638 | – | 190/79/137 |
+| gemini-3.6-flash | 0.608 | 0.587 | 0.597 | – | 192/124/135 |
+| Qwen3-VL-32B-Instruct | 0.706 | 0.294 | 0.415 | – | 96/40/231 |
+| Qwen3-VL-8B-Instruct | 0.379 | 0.336 | 0.357 | – | 110/180/217 |
+| owlv2-large-patch14-ensemble | 0.037 | 0.951 | 0.070 | 0.093 | 311/8187/16 |
+| grounding-dino-base | 0.038 | 0.850 | 0.073 | 0.049 | 278/6969/49 |
+
+### What the numbers say
+
+1. **RampNet still wins by a wide margin**, and nothing tested comes close on F1.
+2. **Purpose-built detectors did worse than chat models, not better.** OWLv2's best F1 over
+   the whole threshold sweep is **0.184** (thr 0.25: P 0.130 / R 0.310); Grounding DINO's is
+   **0.073**. Both are far below Gemini-3.6-flash's 0.634. The issue-#39 hypothesis — that
+   the chat VLMs' weakness was a *chat* problem — is refuted. Open-vocabulary detection with
+   a text query is simply not selective enough for an object that looks like a slightly
+   different patch of concrete.
+3. **Capacity isn't the chat VLMs' problem either.** Qwen-32B moved to the *precise* end
+   (P 0.760 / R 0.297) versus 8B's FP flood (P 0.323 / R 0.452) — the operating point moved,
+   F1 barely did (0.427 vs 0.377).
+4. **But OWLv2 has an extraordinary recall ceiling.** At its floor it finds **97.1%** of
+   richmond's ramps, against RampNet's 76.8%.
+
+### The recall-first angle: OWLv2 as a candidate generator
+
+Recall matters more than precision here (a false negative is a permanently missing ramp; a
+false positive is a cheap review). So the question is not OWLv2's F1 but whether it *sees*
+what RampNet misses. It does — nearly all of it:
+
+| OWLv2 thr | RampNet FN | recovered by OWLv2 | union recall | OWLv2 FP | FP per recovered ramp |
+|---|---|---|---|---|---|
+| 0.05 | 72 | **69** | **0.990** | 8799 | 128 |
+| 0.10 | 72 | 60 | 0.961 | 5167 | 86 |
+| 0.15 | 72 | 46 | 0.916 | 2923 | 64 |
+| 0.20 | 72 | 34 | 0.877 | 1507 | 44 |
+| 0.25 | 72 | 18 | 0.826 | 640 | 36 |
+
+A RampNet ∪ OWLv2 oracle would reach **0.990** recall on richmond. The cost is the story: at
+128 false positives per recovered ramp, versus **~6** for Gemini-3.6-flash (which recovered
+20 of the 72 at 119 FP total — see issue #35), OWLv2 is a **6–20× less efficient**
+complement. It is a recall oracle, not a usable candidate generator, unless a downstream
+verifier can reject ~128 proposals per find more cheaply than Gemini can propose 6.
 
 ## Why the benchmark verdicts can't be reused directly
 
@@ -228,11 +295,31 @@ constrained-decoding logits processor). `infer_molmo_mode` picks that path by mo
 `molmo_token_points_to_items` reads only the last two values of each returned row, because
 the model card documents the leading ids two different ways.
 
-**Status: wired, not yet verified.** The Molmo path has unit tests over both syntaxes but
-has never been run against real weights — 8B is a cluster model. Before quoting any Molmo
-number, run `dump_detections.py` on one pano and confirm the red crosshairs sit on ramps,
-exactly as was done for Qwen. Note also that the Molmo model cards pin
-`transformers==4.57.1`; their remote code may not load on 5.x (see `requirements-vlm.txt`).
+**The `transformers==4.57.1` pin on the Molmo cards is real, not cautionary.** Under 5.14.1
+Molmo's own Hub code fails at import:
+
+```
+TypeError: Unexpected keyword argument image_use_col_tokens.
+  ... transformers_modules/allenai/Molmo2_hyphen_8B/.../processing_molmo2.py line 93
+```
+
+It also needs `einops` **and `requests`**, which the lean cluster env lacked. The fix is a
+**dedicated env at the pin**, not a downgrade of the env the other models use — the harness
+itself imports fine on 4.57.1, so only Molmo's interpreter differs:
+
+```bash
+conda create -p /gscratch/scrubbed/$USER/envs/molmo python=3.11 -y
+MOLMOPY=/gscratch/scrubbed/$USER/envs/molmo/bin/python
+$MOLMOPY -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
+$MOLMOPY -m pip install "transformers==4.57.1" accelerate pillow numpy einops requests
+PYTHON=$MOLMOPY MODELS=rampnet,molmo:allenai/Molmo2-8B \
+    sbatch -A <account> scripts/model_comparison/run_open_models.slurm
+```
+
+**Status: verify the overlay before quoting any Molmo number.** The parser has unit tests
+over both syntaxes, but the coordinate scale has not been confirmed against real weights.
+Run `dump_detections.py` on one pano first and check the red crosshairs sit on ramps — as was
+done for Qwen. Nothing detected at all means the scale is wrong (try `--molmo-coord-scale`).
 
 ## Status
 
@@ -249,10 +336,12 @@ exactly as was done for Qwen. Note also that the Molmo model cards pin
   far too weak to benchmark — the real runs are 8B and 32B on Hyak.
 - **Where runs happen:** benchmark numbers come from **Hyak** (or makelab2), never the dev
   box. The desktop is for de-risking a cluster job — a 1–2 pano wiring probe and a
-  `dump_detections.py` overlay — and those results are smoke tests, not results. OWLv2 and
-  Grounding DINO were smoke-probed that way on 2 richmond panos (wiring, score
-  carry-through, box mapping, cache reuse, AP/sweep output all confirmed); their benchmark
-  rows are still pending the cluster run below.
+  `dump_detections.py` overlay — and those results are smoke tests, not results.
+- **Desktop and cluster agree exactly.** The 2-pano smoke on an RTX 3070 and on an L40S
+  produced *identical* numbers (OWLv2 18/156/1/5, AP 0.356; Grounding DINO 18/160/1/3, AP
+  0.247), and the overlay job reproduced the same 94 OWLv2 boxes across the same six views.
+  So a desktop probe is a faithful rehearsal of the cluster job — worth knowing before
+  spending an allocation on a wiring bug.
 
 ## Gemini credentials
 
@@ -388,20 +477,29 @@ finished, so re-submitting picks up where it stopped.
 
 ## Next increments
 
-1. **Calibrate the reprojection rig** against the live VLM runs: tune `fov_h_deg`, `n_yaw`,
-   `pitch_deg` so ramps land near-centered in some view, minimizing seam-truncation false
-   positives. The `dump_detections.py` overlays make one problem obvious — with `pitch_deg=-30`
-   the bottom ~40% of every view is the capture vehicle's hood and the black nadir cap, so
-   roughly a third of every paid call is spent on pixels that can't contain a curb ramp.
-   Report perspective vs `--tiling none` side by side.
+1. **Calibrate the reprojection rig — now measurable, and demonstrably costly.** With
+   `pitch_deg=-30` the bottom ~40% of every view is the capture vehicle's hood and the black
+   nadir cap, so roughly a third of every paid call is spent on pixels that cannot contain a
+   curb ramp. The open-detector overlays show this is not merely wasteful: Grounding DINO's
+   **highest-scoring box in a view (0.40) is the hood itself**, outranking its correct 0.22
+   box on a real tactile pad. Because AP ranks by score, hood detections at the top of the
+   ranking depress AP directly — which is a plausible part of why Grounding DINO's AP (0.032)
+   trails OWLv2's (0.104) despite similar operating points. Masking the nadir/hood region is
+   now a change whose benefit can be *measured* (ΔAP), not just argued. Report perspective vs
+   `--tiling none` side by side.
 2. **Add the `clovis` split** once the auto-labeler hands back its bundle; the harness is
    city-generic (it just needs `records.jsonl` + `verdicts.json` + `panos/`).
 3. **Verify Molmo against real weights** (overlay first, then the run), and decide whether
    `MolmoPoint-8B`'s special-token path or `Molmo2-8B`'s XML path is the one to report.
-4. **Tune the open detectors toward recall.** They are the only challengers with a knob;
-   `--sweep` on the full bundles will show whether a recall-first operating point exists
-   that keeps precision usable, and `--owlv2-query` / `--gdino-query` are worth a small
-   sweep of their own (the query is a free hyperparameter and these models are cheap).
+4. **Prompt-sweep the open detectors before writing them off entirely.** `--owlv2-query` /
+   `--gdino-query` are free hyperparameters and these models are cheap to run (43
+   detections/min on one L40S; a full city is ~15 min). The current queries are a single
+   untuned phrase each; "curb cut", "wheelchair ramp at a crosswalk", or a multi-query
+   ensemble might move them. Given F1 0.184 vs RampNet's 0.855 this will not change the
+   verdict, but it would tell us whether the ceiling is the *query* or the *model class*.
+5. **If a recall-first candidate generator is wanted, compare complements on FP-per-find,
+   not F1.** That metric ranks Gemini-3.6-flash (~6) far above OWLv2 (36–128) despite
+   OWLv2's much higher recall ceiling — see the table above.
 
 ## Files
 
