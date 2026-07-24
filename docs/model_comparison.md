@@ -17,8 +17,12 @@ The chat VLMs are all doing localization as a side skill, and they lose the same
 are false-positive-heavy (119–293 FP against RampNet's 9). The other two classes exist in
 this harness to test whether that is a property of *general models* or of *chat models*.
 
-**It is not.** See the results below — the purpose-built open-vocabulary detectors do far
-*worse* than the chat VLMs on this task, not better.
+**It looks like a general-model property, not a chat-specific one:** see the results below —
+the off-the-shelf open-vocabulary detectors do far *worse* than the chat VLMs on this task,
+not better. (Caveat up front: these are general open-vocab detectors given a short text
+query — *not* detectors trained for curb ramps. The only model here purpose-built for the
+class is RampNet itself, and every challenger is zero-shot with an untuned prompt. See
+"Scope of the claim" below.)
 
 ## Results
 
@@ -58,17 +62,32 @@ also does it natively in points, no box→center reduction. But it is still ~0.4
 RampNet and clearly behind both Geminis, and it is *sparse*: on the verified overlay pano it
 proposed 2 points where 4 ramps were visible, which shows up as its 150/196 false negatives.
 
+### Scope of the claim
+
+The headline — RampNet beats every off-the-shelf model tested — is real and wide, but it
+carries qualifiers that must travel with it: the challengers are **zero-shot**, run with a
+single **untuned prompt/query**, scored by **box-center** at a tight radius, against a
+**RampNet-anchored** ground truth (see Caveats). The honest one-liner is *"an in-domain model
+trained for curb ramps beats zero-shot general models — chat VLMs and open-vocab detectors
+alike — under a reasonable but untuned prompt,"* not *"purpose-built detection loses,"* which
+no experiment here tested (OWLv2 / Grounding DINO are general open-vocab models, not
+curb-ramp detectors). How much of the gap survives a tuned prompt (#45), a failure-artifact
+audit (#46), and a nadir/hood mask (#47) is exactly what those follow-ups measure.
+
 ### What the numbers say
 
 1. **RampNet still wins by a wide margin**, and nothing tested comes close on F1. The best
    challenger (Gemini-3.1-pro, F1 0.664) trails it by ~0.19; the best open-weight model
    (Molmo, F1 0.457) by ~0.40.
-2. **Purpose-built detectors did worse than chat models, not better.** OWLv2's best F1 over
-   the whole threshold sweep is **0.184** (thr 0.25: P 0.130 / R 0.310); Grounding DINO's is
-   **0.073**. Both are far below Gemini-3.6-flash's 0.634. The issue-#39 hypothesis — that
-   the chat VLMs' weakness was a *chat* problem — is refuted. Open-vocabulary detection with
-   a text query is simply not selective enough for an object that looks like a slightly
-   different patch of concrete.
+2. **Off-the-shelf open-vocab detectors did worse than chat models, not better.** OWLv2's
+   best F1 over the whole threshold sweep is **0.184** (thr 0.25: P 0.130 / R 0.310);
+   Grounding DINO's is **0.073**. Both are far below Gemini-3.6-flash's 0.634. So the
+   *chat-specific* version of the issue-#39 hypothesis — that the VLMs' weakness was a *chat*
+   problem an open-vocab *detector* would sidestep — does not hold: a text-queried open-vocab
+   detector is simply not selective enough for an object that looks like a slightly different
+   patch of concrete. Note the narrower scope, though: these are general open-vocab models
+   with an untuned query (#45), not detectors trained for curb ramps — the only purpose-built
+   model here is RampNet.
 3. **Capacity isn't the chat VLMs' problem either.** Qwen-32B moved to the *precise* end
    (P 0.760 / R 0.297) versus 8B's FP flood (P 0.323 / R 0.452) — the operating point moved,
    F1 barely did (0.427 vs 0.377).
