@@ -58,7 +58,7 @@ We re-evaluated the released model on the same 1,000-panorama gold set with gree
 
 ¹ Uninterpolated AP under the paper's matching protocol. ² Interpolated AP under one-to-one matching — the conventions differ, so compare with care.
 
-Swapping only the matching rule on identical model outputs moves precision by −1.0 points and recall by −4.4 points; the remaining difference is reproduction drift (environment, JPEG re-encoding). The paper's Stage 1 dataset-agreement precision (94.0%) is also slightly optimistic because redundant points were ignored rather than counted as false positives; its recall is unaffected. The comparison with prior work is unaffected (both systems were scored under the same protocol, and the gap is far larger than the correction).
+Swapping only the matching rule on identical model outputs moves precision by −1.0 points and recall by −4.4 points; the remaining difference is reproduction drift (environment, JPEG re-encoding). The paper's Stage 1 dataset-agreement precision (94.0%) is also slightly optimistic because redundant points were ignored rather than counted as false positives; its recall is unaffected. That number has **not** yet been re-measured, and when it is, two changes will move it, not one: `stage_one/dataset_evaluation/evaluate.py` now counts redundant points as false positives *and* matches through the same `rampnet/metrics.py` core as Stage 2 — nearest unclaimed ground truth rather than first-in-list-order — so the two evaluators no longer implement different rules (see [issue #18](https://github.com/ProjectSidewalk/RampNet/issues/18)). The comparison with prior work is unaffected (both systems were scored under the same protocol, and the gap is far larger than the correction).
 
 Full analysis — including the exact published code, executable traces, and visual examples of double-counted detections — is in [`docs/eval_protocol_verification.html`](docs/eval_protocol_verification.html) (open in a browser) and [issue #9](https://github.com/ProjectSidewalk/RampNet/issues/9). Corrected result curves and metrics are committed in [`stage_two/evaluation_results_new/`](stage_two/evaluation_results_new/); the as-published results remain unchanged in [`stage_two/evaluation_results/`](stage_two/evaluation_results/).
 
@@ -221,6 +221,8 @@ Recall    (TP / Total GT):  0.9245
 ```
 
 These are the as-published Stage 1 agreement numbers. Note that the precision figure is slightly optimistic — redundant generated points near an already-matched ground-truth ramp were ignored rather than counted as false positives (see the [Erratum](#erratum-evaluation-metrics-july-2026)); the recall figure is unaffected.
+
+**A re-run will not reproduce these numbers.** The current script differs from the published one in two ways: redundant points now count as false positives, and matching now goes through the shared `rampnet/metrics.py` core (nearest unclaimed ground truth, where the published script took the first ground-truth ramp in list order). Both changes are expected to be small, and they can pull in opposite directions — the first lowers precision, the second can raise it by assigning points to ramps more sensibly — so the corrected figures should be attributed to both, not to redundancy alone. Re-measuring them needs the generated Stage 1 dataset, which is not in git; see [issue #18](https://github.com/ProjectSidewalk/RampNet/issues/18).
 
 ## Stage 2: Curb Ramp Detection
 We detail how to reproduce our Stage 2 results.

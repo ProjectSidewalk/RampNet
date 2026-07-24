@@ -19,11 +19,12 @@ Per pano, the ground truth is:
     when a model's own points are matched greedily 1:1.
 
 Every detector's output is reduced to center points `(x, y[, confidence])` and
-greedily matched to the GT points within a normalized radius (the pano value
-0.022, as in `rampnet/metrics.py`), using the same anisotropic x/y scaling
-(1024/512) the rest of the pipeline uses. Precision is over all panos; recall is
-over panos whose missed-ramp check is confirmed (so un-scanned panos can't bias
-it), exactly as `validation.collect` gates recall.
+matched to the GT points by `rampnet.metrics.greedy_match` — the same matcher
+both other evaluators use — within a normalized radius (the pano value 0.022)
+and the same anisotropic x/y scaling (1024/512) the rest of the pipeline uses.
+Precision is over all panos; recall is over panos whose missed-ramp check is
+confirmed (so un-scanned panos can't bias it), exactly as `validation.collect`
+gates recall.
 
 Caveat: the GT was assembled during a RampNet review, so it is "RampNet-anchored"
 — a reviewer scanning fresh for another model might catch a few more ramps. The
@@ -32,6 +33,7 @@ complete-scan attestation (`no_missed`) mitigates this; it is documented in
 """
 from collections import namedtuple
 
+from rampnet.metrics import greedy_match
 from rampnet.validation import wilson_interval
 
 # Pano coordinate space and matching radius — identical to rampnet/metrics.py and
@@ -116,11 +118,13 @@ def _confidence(point):
 def score_pano(pred_points, gt, radius_sq=None, scale_x=PANO_SCALE_X, scale_y=PANO_SCALE_Y):
     """Score one pano's predictions against its GroundTruth.
 
-    Greedy one-to-one matching, highest-confidence first when confidences are
-    present (else input order): each prediction claims the nearest unclaimed GT
-    point strictly within ``radius``. A prediction with no GT in range that falls
-    within radius of an ignore point is *ignored* (neither TP nor FP); otherwise
-    it is a false positive. GT always takes priority over an ignore point.
+    Greedy one-to-one matching via :func:`rampnet.metrics.greedy_match`,
+    highest-confidence first when confidences are present (else input order):
+    each prediction claims the nearest unclaimed GT point strictly within
+    ``radius``. A prediction with no *unclaimed* GT in range that falls within
+    radius of an ignore point is *ignored* (neither TP nor FP); otherwise it is a
+    false positive — including a redundant second hit on an already-claimed ramp,
+    matching ``match_predictions``. GT always takes priority over an ignore point.
 
     Returns a PanoScore. False negatives are ``n_gt - tp`` (computed in aggregate,
     and only for panos whose recall is confirmed).
@@ -140,22 +144,19 @@ def score_pano(pred_points, gt, radius_sq=None, scale_x=PANO_SCALE_X, scale_y=PA
     else:
         preds = list(pred_points)
 
-    claimed = [False] * len(gt_pts)
+    # GT matching is the shared core (rampnet.metrics); only the ignore-point
+    # fallback is specific to this scorer, and it applies solely to predictions
+    # the matcher left unassigned — which is what gives GT priority over ignores.
+    assignments = greedy_match([_xy(p) for p in preds], gt_pts,
+                               radius_sq, scale_x, scale_y)
+
     tp = fp = ignored = 0
-    for p in preds:
-        px_n, py_n = _xy(p)
-        px, py = px_n * scale_x, py_n * scale_y
-        best_k, best_dist = -1, radius_sq
-        for k, (gx, gy) in enumerate(gt_pts):
-            if claimed[k]:
-                continue
-            dist = (px - gx * scale_x) ** 2 + (py - gy * scale_y) ** 2
-            if dist < best_dist:
-                best_dist, best_k = dist, k
-        if best_k >= 0:
-            claimed[best_k] = True
+    for p, (gt_index, _) in zip(preds, assignments):
+        if gt_index >= 0:
             tp += 1
             continue
+        px_n, py_n = _xy(p)
+        px, py = px_n * scale_x, py_n * scale_y
         in_ignore = any(
             (px - ix * scale_x) ** 2 + (py - iy * scale_y) ** 2 < radius_sq
             for ix, iy in ignore_pts)
