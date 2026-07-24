@@ -1,0 +1,17 @@
+# Optional dependencies for the VLM model-comparison harness
+# (scripts/model_comparison/). NOT needed for the core install or the test suite —
+# the detectors import these lazily and only when a live VLM run is requested.
+#
+#   pip install -r requirements-vlm.txt
+#
+# Gemini (API; needs GOOGLE_API_KEY, or Vertex + ADC):
+google-genai
+
+# Qwen3-VL (open weights; run on a cluster GPU — see the Hyak runbook in
+# docs/model_comparison.md). torch comes from the conda env; these are the extras:
+#   - transformers 4.57 is the first release with Qwen3-VL.
+#   - accelerate enables device_map="auto", needed to shard Qwen3-VL-32B-Instruct
+#     (~64 GB in bf16) across two GPUs; 8B fits one 48 GB card.
+#   - qwen-vl-utils is NOT needed: Qwen3-VL's chat template takes PIL images directly.
+transformers>=4.57
+accelerate
