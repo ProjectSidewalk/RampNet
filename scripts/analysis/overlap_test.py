@@ -12,12 +12,12 @@ _os.makedirs(OUT, exist_ok=True)
 DA3_SRC = _os.environ.get("DA3_SRC")  # path to Depth-Anything-3/src (see README)
 import json, math, os, sys, warnings
 warnings.filterwarnings("ignore")
-sys.path.insert(0, HERE)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, REPO); sys.path.insert(0, os.path.join(REPO, "scripts", "model_comparison"))
 import numpy as np, torch
 from threshold_sweep import load_model, load_bundle, heatmap_for, peaks_to_dets
 from rampnet.detection_eval import (build_ground_truth, radius_sq_for,
-                                    PANO_SCALE_X, PANO_SCALE_Y, _xy, _confidence)
+                                    PANO_SCALE_X, PANO_SCALE_Y, _xy, prediction_confidence)
 R = math.sqrt(radius_sq_for())
 THRS = [0.55, 0.35, 0.25, 0.15]
 
@@ -25,7 +25,7 @@ def d2(p, q):
     return math.hypot((p[0]-q[0])*PANO_SCALE_X, (p[1]-q[1])*PANO_SCALE_Y)
 
 def matched(preds, gts):
-    confs=[_confidence(p) for p in preds]
+    confs=[prediction_confidence(p) for p in preds]
     order=sorted(range(len(preds)), key=lambda i: confs[i] if confs[i] is not None else -1e9, reverse=True)
     claimed=[False]*len(gts); hit=set()
     for i in order:

@@ -14,7 +14,7 @@ sys.path.insert(0, REPO)
 sys.path.insert(0, os.path.join(REPO, "scripts", "model_comparison"))
 
 from rampnet.detection_eval import (
-    build_ground_truth, score_pano, radius_sq_for, PANO_SCALE_X, PANO_SCALE_Y, _xy, _confidence)
+    build_ground_truth, score_pano, radius_sq_for, PANO_SCALE_X, PANO_SCALE_Y, _xy, prediction_confidence)
 from compare import load_bundle, DetectionCache, cache_key
 from detectors import build_detector
 
@@ -27,7 +27,7 @@ RSQ = radius_sq_for()
 
 def matched_gt(preds, gt_points):
     """Greedy 1:1 match (mirrors score_pano); return the set of GT indices covered."""
-    confs = [_confidence(p) for p in preds]
+    confs = [prediction_confidence(p) for p in preds]
     order = (sorted(range(len(preds)), key=lambda i: confs[i] if confs[i] is not None else float("-inf"),
                     reverse=True) if any(c is not None for c in confs) else range(len(preds)))
     claimed, hit = [False] * len(gt_points), set()

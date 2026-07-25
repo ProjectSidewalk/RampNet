@@ -16,7 +16,7 @@ import math, os, sys, warnings
 warnings.filterwarnings("ignore")
 sys.path.insert(0, REPO); sys.path.insert(0, os.path.join(REPO, "scripts", "model_comparison"))
 from rampnet.detection_eval import (
-    build_ground_truth, radius_sq_for, PANO_SCALE_X, PANO_SCALE_Y, _xy, _confidence)
+    build_ground_truth, radius_sq_for, PANO_SCALE_X, PANO_SCALE_Y, _xy, prediction_confidence)
 from compare import load_bundle
 
 R = math.sqrt(radius_sq_for())
