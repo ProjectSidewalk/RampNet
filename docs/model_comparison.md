@@ -574,6 +574,10 @@ not be pooled with theirs:
 python scripts/fetch_manual_gold.py --audit    # id-only membership/overlap audit, no download
 python scripts/fetch_manual_gold.py            # HF test split (~44 GB) -> panos/ + records.jsonl
 python scripts/export_gold_records.py --checkpoint <stage2.pth>   # RampNet detections + gate
+
+# or, on Hyak, both steps as one resumable Slurm job (fetch on CPU, export on the GPU):
+CHECKPOINT=/path/to/stage2.pth sbatch -A <account> scripts/run_gold_bundle.slurm
+
 python scripts/model_comparison/compare.py benchmark/manual_gold \
     --models rampnet --op-threshold 0.55 --sweep
 ```
