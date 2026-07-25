@@ -1,0 +1,5 @@
+{
+  "format": "yolo_points",
+  "labels_dir": "../../manual_labels",
+  "description": "1,000-pano manually labeled gold set (3,919 curb ramps; 207 negative panos). Independent manual labeling - no RampNet review, so no anchoring bias. Box centers become GT points; no ignore points (the labels carry no 'unsure' class); every pano is recall-confirmed (fully manually scanned). Imagery: GSV from the projectsidewalk/rampnet-dataset test split, fetched by scripts/fetch_manual_gold.py. See benchmark/README.md and docs/model_comparison.md."
+}

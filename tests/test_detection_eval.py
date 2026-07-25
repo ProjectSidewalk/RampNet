@@ -10,7 +10,8 @@ import os
 
 from rampnet.detection_eval import (
     GroundTruth, PanoScore,
-    build_ground_truth, score_pano, aggregate,
+    build_ground_truth, load_yolo_ground_truths, score_pano, aggregate,
+    yolo_ground_truth,
 )
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -51,6 +52,59 @@ def test_ground_truth_rejects_misaligned_verdicts():
     except ValueError:
         return
     raise AssertionError("expected ValueError on misaligned detections/verdicts")
+
+
+# --- yolo_ground_truth (the manual gold set's labels, issue #58) -------------
+
+def _label_file(tmp_path, text):
+    p = tmp_path / "pano.txt"
+    p.write_text(text)
+    return str(p)
+
+
+def test_yolo_ground_truth_reduces_boxes_to_centers(tmp_path):
+    gt = yolo_ground_truth(_label_file(tmp_path, "0 0.5 0.25 0.1 0.2\n0 0.9 0.9 0.05 0.05\n"))
+    assert gt.gt_points == [(0.5, 0.25), (0.9, 0.9)]
+    assert gt.ignore_points == []            # manual labels carry no 'unsure' class
+    assert gt.fn_confirmed is True           # full manual labeling = complete scan
+
+
+def test_yolo_ground_truth_empty_file_is_a_confirmed_negative(tmp_path):
+    # 207 of the 1,000 gold panos have no ramps; they must join the recall pool
+    # (n_gt 0) and count false positives, not be dropped as unscanned.
+    gt = yolo_ground_truth(_label_file(tmp_path, "\n"))
+    assert gt.gt_points == [] and gt.fn_confirmed is True
+
+
+def test_yolo_ground_truth_is_strict(tmp_path):
+    # Benchmark GT: a bad line is an error, never a silently-skipped point.
+    for bad in ("0 0.5 0.25 0.1",            # 4 fields
+                "0 x 0.25 0.1 0.2",          # non-numeric
+                "0 1.5 0.25 0.1 0.2"):       # center out of [0, 1]
+        try:
+            yolo_ground_truth(_label_file(tmp_path, bad + "\n"))
+        except ValueError as e:
+            assert "pano.txt:1" in str(e)    # names the file and line
+            continue
+        raise AssertionError(f"expected {bad!r} to raise")
+
+
+def test_load_yolo_ground_truths_maps_by_stem(tmp_path):
+    (tmp_path / "a.txt").write_text("0 0.1 0.2 0.05 0.05\n")
+    (tmp_path / "b.txt").write_text("")
+    (tmp_path / "notes.json").write_text("{}")     # non-label files are ignored
+    gts = load_yolo_ground_truths(str(tmp_path))
+    assert set(gts) == {"a", "b"}
+    assert gts["a"].gt_points == [(0.1, 0.2)]
+
+
+def test_gold_labels_parse_and_match_the_documented_counts():
+    # The real benchmark artifact: 1,000 label files, 3,919 curb ramps (README's
+    # dataset table). If this drifts, either the labels changed or the parser did.
+    gts = load_yolo_ground_truths(os.path.join(REPO_ROOT, "manual_labels"))
+    assert len(gts) == 1000
+    assert sum(len(g.gt_points) for g in gts.values()) == 3919
+    assert all(g.fn_confirmed and not g.ignore_points for g in gts.values())
 
 
 # --- score_pano -------------------------------------------------------------

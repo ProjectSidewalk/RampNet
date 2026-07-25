@@ -73,6 +73,42 @@ high-density panos: **P 0.889 / R 0.650**. Both are below the other two cities b
 100% soft, 2018-era GoPro Fusion 360 imagery, where richmond mixes in the sharper NCTECH iSTAR
 Pulsar (camera provenance is in the records, added in #50).
 
+## The manual_gold split (in-distribution gold reference)
+
+`benchmark/manual_gold/` (issue #58) is a different kind of split: its ground truth is the
+repo's 1,000-pano manually labeled gold set (`manual_labels/*.txt` — 3,919 curb ramps, 207
+negative panos), labeled **independently of any model**. Unlike the city splits it is not
+derived from reviewing RampNet's detections, so it carries no RampNet anchoring — and at 4×
+the size of the largest city split it gives every model tighter confidence intervals. It is
+also **in-distribution**: GSV imagery from the training cities (NYC / Portland / Bend), held
+out of Stage-2 training as the HF dataset's test split. Treat it as the in-domain reference
+that complements the deployment cities above, never as their replacement. It shares zero
+panos with bend, richmond, or clovis (verified by `scripts/fetch_manual_gold.py --audit`).
+
+The layout differs accordingly — there is no verdict review:
+
+```
+benchmark/manual_gold/
+  gt_source.json    points at manual_labels/ (GT = YOLO box centers, no ignore points,
+                    every pano recall-confirmed)
+  records.jsonl     pano metadata + RampNet detections (built by the two scripts below)
+  panos/            imagery from the HF test split (git-ignored, like every split)
+```
+
+No verdicts means `scripts/score_validation.py` and `scripts/gt_gallery.py` do **not** apply
+here; the split is scored by the model-comparison harness only:
+
+```
+python scripts/fetch_manual_gold.py --audit      # id membership/overlap audit, no download
+python scripts/fetch_manual_gold.py              # imagery (HF test split, ~44 GB; run on Hyak)
+python scripts/export_gold_records.py --checkpoint <stage2.pth>   # RampNet detections + gate
+python scripts/model_comparison/compare.py benchmark/manual_gold --models rampnet --op-threshold 0.55
+```
+
+The exporter ends with a reproduction gate against the published gold-set numbers
+(P 0.949 / R 0.873 @ conf >= 0.55, TTA). Read the manual-gold section of
+`docs/model_comparison.md` before quoting numbers from this split.
+
 **All three splits were reviewed at model resolution** with the pan/zoom labeler (`scripts/gt_gallery.py`),
 which shows the full pano at the model's input resolution (4096×2048) with pan/zoom, rather than a
 downscaled overview. For richmond and bend this was a *re-review*: reviewing at model resolution

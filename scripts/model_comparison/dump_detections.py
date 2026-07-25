@@ -34,12 +34,12 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from rampnet.detection_eval import build_ground_truth  # noqa: E402
 from equirect_tiling import (  # noqa: E402
     default_views, equirect_to_perspective, equirect_point_to_perspective)
 from detectors import build_detector, load_pano_image, parse_model_spec  # noqa: E402
 from dump_views import _contact_sheet  # noqa: E402
-from compare import load_bundle, load_dotenv  # noqa: E402
+from compare import (  # noqa: E402
+    ground_truths_from_verdicts, load_bundle, load_dotenv, load_manual_ground_truths)
 
 GT_COLOR = (60, 220, 90)
 IGNORE_COLOR = (240, 190, 60)
@@ -122,13 +122,13 @@ def _project(points, view):
     return out
 
 
-def _pick_pano(verdicts, panos_dir, requested):
+def _pick_pano(gts, panos_dir, requested):
     if requested:
         return requested
-    for pid in verdicts:
+    for pid in gts:
         if os.path.exists(os.path.join(panos_dir, f"{pid}.jpg")):
             return pid
-    raise SystemExit(f"no reviewed pano image found under {panos_dir} "
+    raise SystemExit(f"no scored pano image found under {panos_dir} "
                      "(bundle panos/ are git-ignored; they must be present locally)")
 
 
@@ -163,7 +163,9 @@ def main():
 
     load_dotenv(str(REPO_ROOT))
     records, verdicts, panos_dir = load_bundle(args.bundle)
-    pano_id = _pick_pano(verdicts, panos_dir, args.pano)
+    gts = (ground_truths_from_verdicts(records, verdicts) if verdicts is not None
+           else load_manual_ground_truths(args.bundle))
+    pano_id = _pick_pano(gts, panos_dir, args.pano)
     pano_path = os.path.join(panos_dir, f"{pano_id}.jpg")
     if not os.path.exists(pano_path):
         raise SystemExit(f"pano image not found: {pano_path}")
@@ -174,9 +176,7 @@ def main():
         raise SystemExit(f"'{label}' has no boxes to draw (it reads points from the bundle)")
     detector.prepare()
 
-    entry = verdicts[pano_id]
-    gt = build_ground_truth(records[pano_id]["detections"], entry["dets"],
-                            entry["missed"], entry["no_missed"])
+    gt = gts[pano_id]
 
     os.makedirs(args.out, exist_ok=True)
     pano = load_pano_image(pano_path, args.source_max_edge)

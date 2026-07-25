@@ -1,6 +1,7 @@
 # Model comparison: RampNet vs. general-purpose models
 
-Uses the standardized curb-ramp benchmark (`benchmark/{bend,richmond,clovis}/`) to compare
+Uses the standardized curb-ramp benchmark (`benchmark/{bend,richmond,clovis}/`, plus the
+1k in-distribution `manual_gold` split — see its section below) to compare
 RampNet against off-the-shelf models. The question: does a general model match or beat the
 purpose-trained RampNet on real deployment imagery (GSV + Mapillary 360)? The harness is
 model-agnostic, so new models (issues #20, #39) plug in the same way.
@@ -536,6 +537,70 @@ python scripts/model_comparison/compare.py benchmark/richmond --sweep \
 Runs are resumable: a job that is preempted or times out has already cached everything it
 finished, so re-submitting picks up where it stopped.
 
+## The manual_gold split: bigger, un-anchored, in-distribution (issue #58)
+
+`benchmark/manual_gold` scores the same model roster against the repo's 1,000-pano manually
+labeled gold set (`manual_labels/*.txt` — 3,919 curb ramps, 207 negative panos; imagery =
+the GSV test split of `projectsidewalk/rampnet-dataset`). It exists to answer the question
+the city splits structurally cannot: **does the ranking hold when the ground truth was
+never anchored to a RampNet review?** The city GT was assembled while verifying RampNet's
+detections; the gold set was labeled from scratch, with no model in the loop. If challenger
+recall jumps here relative to the cities, that quantifies the anchoring-bias caveat that
+travels with every number above — and if it doesn't, that caveat can finally be retired
+with evidence. At 4× the size of the largest city split, it also tightens every Wilson CI.
+
+It **complements** the deployment cities; it does not replace them and its numbers must
+not be pooled with theirs:
+
+- **In-distribution, home-field.** GSV imagery from the training cities (NYC / Portland /
+  Bend), held out of Stage-2 training but squarely inside RampNet's training distribution.
+  Frame it exactly like the `bend` split: an in-domain reference, not a generalization test.
+  richmond/clovis remain the OOD deployment stories.
+- **No ignore points.** The labels carry no `unsure` class, so no model gets the abstention
+  the city splits grant — uniformly, but scores are slightly harsher here by construction.
+- **Same box→center reduction, both sides of the match.** GT is YOLO box centers; VLM boxes
+  reduce to centers as everywhere else. `fn_confirmed` is True on every pano (full manual
+  labeling is a complete scan), so all 1,000 panos — including the 207 negatives, where VLM
+  hallucination shows up as pure FPs — are in both the precision and recall pools.
+- **Zero pano overlap** with bend/richmond/clovis (`scripts/fetch_manual_gold.py --audit`
+  verifies this plus HF split membership).
+- **Lower-res source imagery than the city bundles.** Gold panos are stored at the HF
+  dataset's resolution, not the native 16k GSV the `bend` bundle carries; the perspective
+  views the VLMs see are rendered from that.
+
+### Building it
+
+```bash
+python scripts/fetch_manual_gold.py --audit    # id-only membership/overlap audit, no download
+python scripts/fetch_manual_gold.py            # HF test split (~44 GB) -> panos/ + records.jsonl
+python scripts/export_gold_records.py --checkpoint <stage2.pth>   # RampNet detections + gate
+python scripts/model_comparison/compare.py benchmark/manual_gold \
+    --models rampnet --op-threshold 0.55 --sweep
+```
+
+The fetch writes the parquet's **raw image bytes** (a past gold-set re-eval moved
+P +2.2 / R -1.8 on JPEG re-encoding alone — do not fetch through `download_dataset.py`,
+which re-saves at quality 95). The exporter reuses `stage_two/evaluate.py`'s exact
+inference path (TTA, peak extraction) and ends with a **reproduction gate**: scored through
+this harness at conf >= 0.55, the exported detections must land on the published gold-set
+numbers (P 0.949 / R 0.873). That single check validates the fetch, the inference config,
+the YOLO→point conversion, and the scorer — run it before spending anything on challengers.
+Unlike the city bundles (extracted at 0.5, truncating RampNet's PR curve — see the AP
+caveat above), gold detections are exported down to a 0.05 floor, so RampNet gets an
+untruncated AP on this split.
+
+There are no verdicts here, so the RampNet verdict-based cross-check is skipped
+(`score_validation.py` / `gt_gallery.py` don't apply); the reproduction gate is this
+split's equivalent.
+
+### Cost and runtime (plan before submitting)
+
+1,000 panos ≈ **8× clovis**: ~6,000 tiled views per VLM. OWLv2/GDINO stay cheap (~2 h for
+the pair on one L40S). Gemini runs are ~8× the clovis API spend per model — smoke with
+`--limit 20` first; the detection cache makes every re-run free. Molmo2-8B took hours for
+125 panos, so budget **1.5–3 days** GPU here; runs resume from cache across Slurm
+resubmissions. Results tables land in this doc once the Hyak runs complete.
+
 ## Next increments
 
 1. **Calibrate the reprojection rig — now measurable, and demonstrably costly.** With
@@ -563,7 +628,12 @@ finished, so re-submitting picks up where it stopped.
 
 ## Files
 
-- `rampnet/detection_eval.py` — model-agnostic GT + scorer, AP/PR curve (pure, torch-free).
+- `rampnet/detection_eval.py` — model-agnostic GT + scorer, AP/PR curve (pure, torch-free);
+  includes the YOLO manual-label loader for `manual_gold`.
+- `scripts/fetch_manual_gold.py` — `manual_gold` imagery + records from the HF test split
+  (plus the `--audit` id checks).
+- `scripts/export_gold_records.py` — RampNet detections for `manual_gold` + the
+  reproduction gate (GPU).
 - `scripts/model_comparison/detectors.py` — `Detector` protocol, RampNet baseline, VLM /
   open-vocabulary / pointing detectors.
 - `scripts/model_comparison/equirect_tiling.py` — perspective reprojection + point mapping + dedup.
