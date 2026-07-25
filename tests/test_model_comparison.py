@@ -27,7 +27,7 @@ from dump_detections import detections_to_view_shapes  # noqa: E402
 from compare import (  # noqa: E402
     score_model, validate_bundle, validate_manual_bundle, DetectionCache, cache_key,
     ground_truths_from_verdicts, has_confidences, load_bundle,
-    load_manual_ground_truths, rescore, sweep_rows,
+    load_manual_ground_truths, operating_report, rescore, sweep_rows,
 )
 from rampnet.detection_eval import GroundTruth, radius_sq_for  # noqa: E402
 
@@ -480,6 +480,20 @@ def test_rescore_never_drops_unscored_predictions():
     # A chat VLM has nothing to threshold on; filtering it would silently empty it.
     scored = _one_pano([(0.0, 0.0, None)])
     assert rescore(scored, radius_sq_for(), 0.9).tp == 1
+
+
+def test_operating_report_keeps_ap_and_pr_curve_untruncated():
+    # The table's P/R/F1/counts move to the operating point, but AP and the PR
+    # curve are integrals over the whole confidence range — an --op-threshold must
+    # not truncate them (the manual_gold bundle exports down to a 0.05 floor
+    # precisely so RampNet's AP is untruncated).
+    scored = _one_pano([(0.0, 0.0, 0.9), (0.5, 0.5, 0.1)])   # one TP, one low-conf FP
+    full = rescore(scored, radius_sq_for(), 0.0)
+    op = operating_report(full, scored, radius_sq_for(), 0.5)
+    assert (op.tp, op.fp) == (1, 0)            # operating point applied to the counts
+    assert op.ap == full.ap                    # ...but AP is the full-range AP
+    assert op.pr_curve == full.pr_curve
+    assert operating_report(full, scored, radius_sq_for(), 0.0) is full
 
 
 def test_has_confidences_requires_every_prediction_to_carry_one():

@@ -287,6 +287,18 @@ def rescore(scored, radius_sq, min_confidence=0.0):
         for preds, gt in scored])
 
 
+def operating_report(report, scored, radius_sq, op_threshold):
+    """The table row for one model: P/R/F1/counts at the operating threshold, but
+    AP and the PR curve kept from the full-range ``report``. Those two are
+    integrals over the whole confidence range — rescore()'s filtered aggregate
+    would silently truncate them at the operating point, exactly the caveat the
+    manual_gold bundle's 0.05 export floor exists to avoid."""
+    if op_threshold <= 0:
+        return report
+    return rescore(scored, radius_sq, op_threshold)._replace(
+        ap=report.ap, pr_curve=report.pr_curve)
+
+
 def has_confidences(scored):
     """True when every prediction in the run carries a score (so AP / a sweep mean
     something). An empty run counts as no confidences."""
@@ -500,8 +512,7 @@ def main():
             # bug here is still diagnosable rather than silently "not runnable".
             print(f"[{label}] not runnable: {type(e).__name__}: {e}\n")
             continue
-        report = (rescore(run.scored, radius_sq, args.op_threshold)
-                  if args.op_threshold > 0 else run.report)
+        report = operating_report(run.report, run.scored, radius_sq, args.op_threshold)
         rows.append((label, report))
         # The detector's cache floor travels with the run so the sweep can drop
         # thresholds the cache has no detections for (phantom rows otherwise).
@@ -523,7 +534,8 @@ def main():
         # AP is over the recall-confirmed panos only (one consistent GT denominator);
         # the P/R columns count every pano. See rampnet/detection_eval.aggregate.
         if any(r.ap is not None for _, r in rows):
-            print("AP: all-point interpolated, over the recall-confirmed panos; "
+            print("AP: all-point interpolated, over the recall-confirmed panos, from the "
+                  "full confidence range (--op-threshold does not truncate it); "
                   "'-' = no calibrated per-box score.")
 
     if args.sweep:
