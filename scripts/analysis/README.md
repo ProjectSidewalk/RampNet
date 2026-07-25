@@ -18,13 +18,22 @@ Outputs go to `$RAMPNET_ANALYSIS_OUT` (default `analysis_out/`, git-ignored).
 | `depth_analysis.py` | no | Recall vs true distance / apparent size + the resolution forecast. Needs `gt_depth_da3.json`. |
 | `size_analysis.py` | no | Geometry-only size stratification (no depth model) + the hard-miss montage figure. |
 | `overlap_test.py` | **yes** | Do the threshold and resolution levers target the same ramps? Needs `gt_depth_da3.json`. |
+| `operating_point_curve.py extract` | **yes** | Inference once → all peaks down to a low score floor → per-pano cache (issue #54). |
+| `operating_point_curve.py curve` | no | Continuous PR curve + honest AP + F1-vs-threshold from the cache (#54). |
+| `operating_point_curve.py gallery` | no | Incremental-FP crops for the GT-completeness spot-check → corrected precision with an error band (#54). |
 
 The GPU scripts reproduce the deployment inference path exactly (resize 2048×4096 bilinear,
 ImageNet norm, no TTA — see `sidewalk-auto-labeler/detectors/curb_ramp.py`), so
 `threshold_sweep.py` at `(0.55, 10)` reproduces the committed `records.jsonl` detections.
 
-Model weights load from the published HF artifact **by state_dict**, not `AutoModel`, because the
-live artifact still hits issue #19 (`register_for_auto_class`) on transformers ≥ 5.13.
+`operating_point_curve.py` is the issue #54 operating-point analysis: unlike `threshold_sweep.py`
+(which re-extracts peaks per discrete threshold), it extracts once at a low floor and carries each
+peak's height as its confidence, so a single inference pass yields the whole continuous curve + AP.
+Its `curve`/`gallery` steps are CPU-only and read the cache `extract` writes.
+
+Model weights load from the published HF artifact **by state_dict**, matching the deployment
+inference path (not `AutoModel`); the pure scoring logic lives in `rampnet/detection_eval.py` and
+`rampnet/metrics.py` and is unit-tested in `tests/test_operating_point_curve.py`.
 
 ## Depth Anything 3 setup
 

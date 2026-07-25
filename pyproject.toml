@@ -13,3 +13,9 @@ dependencies = []
 
 [tool.setuptools]
 packages = ["rampnet"]
+
+[tool.pytest.ini_options]
+# Only collect the real test suite. Without this, pytest walks the whole repo and
+# imports any `*_test.py` / `test_*.py` it finds — e.g. `scripts/analysis/overlap_test.py`,
+# an analysis script (not a test) whose import would otherwise break collection.
+testpaths = ["tests"]
