@@ -34,10 +34,16 @@ jobs:
 
       # Installed first, and from the CPU index, so pip does not pull the
       # multi-gigabyte CUDA wheels that are the default for torch on Linux.
-      # The requirements-dev.txt install below then finds torch already
-      # satisfied and leaves it alone.
+      # The requirements-dev.txt install below then finds both already
+      # satisfied and leaves them alone.
+      #
+      # torchvision must come from the same index, in the same command: timm
+      # imports it, and PyPI's Linux torchvision wheel is compiled against a
+      # CUDA torch. Pairing that with a +cpu torch imports cleanly right up
+      # until it doesn't -- "RuntimeError: operator torchvision::nms does not
+      # exist". Resolving both from the CPU index guarantees a matched pair.
       - name: Install CPU-only PyTorch
-        run: pip install "torch>=2.6,<3" --index-url https://download.pytorch.org/whl/cpu
+        run: pip install "torch>=2.6,<3" "torchvision>=0.21" --index-url https://download.pytorch.org/whl/cpu
 
       - name: Install test dependencies
         run: |

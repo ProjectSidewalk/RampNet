@@ -147,10 +147,12 @@ pytest -q
 If you created the conda environment above, you already have everything it needs. For a minimal install that skips the training, geo, and plotting stack:
 
 ```bash
-pip install "torch>=2.6,<3" --index-url https://download.pytorch.org/whl/cpu
+pip install "torch>=2.6,<3" "torchvision>=0.21" --index-url https://download.pytorch.org/whl/cpu
 pip install -r requirements-dev.txt
 pip install -e .
 ```
+
+Install torch and torchvision together from the CPU index as shown. On Linux, PyPI's torchvision wheel is built against a CUDA torch, and mixing it with a CPU-only torch fails at import with `operator torchvision::nms does not exist`.
 
 GitHub Actions runs the same suite on Python 3.10 and 3.12 for every pull request (`.github/workflows/tests.yml`). Because CI installs CPU-only pip wheels rather than the conda environment, a green run verifies the code — not that `environment.yml` still solves or that the CUDA builds are intact.
 
