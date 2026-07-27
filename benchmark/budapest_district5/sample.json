@@ -1,0 +1,14 @@
+{
+  "source_records": "C:\\Users\\jonf\\AppData\\Local\\Temp\\claude\\D--Git-sidewalk-auto-labeler\\fe0b1173-29ea-47f4-bfce-a722754dc7d5\\scratchpad\\budapest_full\\results.jsonl",
+  "source_record_count": 18183,
+  "sample": 100,
+  "empty_sample": 25,
+  "seed": 0,
+  "min_spacing_m": 30,
+  "selected": 125,
+  "groups": {
+    "top": 5,
+    "random": 95,
+    "empty": 25
+  }
+}
