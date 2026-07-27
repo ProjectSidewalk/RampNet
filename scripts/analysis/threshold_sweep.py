@@ -7,6 +7,11 @@ ground truth. Tests the two untested cheap recall levers:
   - min_distance below 10 (10 heatmap px = 40 pano px, vs a 90 px match radius, so
     adjacent ramps can collapse into one peak)
 
+min_distance must not be raised toward the match radius either: the committed
+records hold reviewer-confirmed REAL ramp pairs 15-19 heatmap px apart, in the
+same separation band as the rare duplicate — no suppression radius separates
+them (see scripts/analysis/peak_nms_check.py and the issue #62 discussion).
+
 Inference replicates sidewalk-auto-labeler/detectors/curb_ramp.py exactly
 (resize 2048x4096 bilinear, ImageNet norm, no TTA) so (0.55, 10) should reproduce
 the committed records.jsonl numbers.

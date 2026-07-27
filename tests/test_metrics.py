@@ -51,6 +51,21 @@ def test_nearest_unclaimed_gt_wins():
     assert details == [(0.9, True), (0.8, True)]
 
 
+def test_two_real_ramps_inside_one_match_radius_both_score():
+    # Issue #62: the committed benchmarks hold reviewer-confirmed pairs of real
+    # ramps only 0.67-0.83 R apart — inside one match radius. The matcher scores
+    # both as TPs because each claims its own GT point, which is exactly why
+    # peak extraction must NOT suppress peaks at the match radius: separation
+    # distance cannot tell these pairs from genuine duplicates
+    # (scripts/analysis/peak_nms_check.py quantifies the damage if it tried).
+    r2 = (0.022 * 1024) ** 2
+    sep = 15 / 1024  # 15 heatmap px = 0.67 R, the closest real pair on record
+    gts = [(0.5, 0.5), (0.5 + sep, 0.5)]
+    preds = [(0.5, 0.5, 0.9), (0.5 + sep, 0.5, 0.8)]
+    details = match_predictions(preds, gts, r2, 1024, 512)
+    assert details == [(0.9, True), (0.8, True)]
+
+
 def test_ap_perfect_detector():
     details = [(0.9, True), (0.8, True), (0.7, True)]
     ap, _, _, _, _ = calculate_ap_and_pr_curve(details, total_gt_points=3)
