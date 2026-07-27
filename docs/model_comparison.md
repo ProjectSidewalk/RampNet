@@ -194,7 +194,20 @@ P 0.975 / R 0.730 / F1 0.835 / AP 0.728 (195/5/72, 9 ignored), the AP truncated 
 
 - **RampNet-anchored GT.** The GT was assembled during a RampNet review. A reviewer scanning
   fresh for another model might catch a few more ramps; the complete-scan attestation
-  (`no_missed`) mitigates this, but it is a known asymmetry.
+  (`no_missed`) mitigates this, but it is a known asymmetry. **It has now been measured on
+  two cities, and it is not small.** Re-reviewing the detections RampNet only surfaces below
+  its deployed 0.55 threshold — a confidence band the GT never fully audited — found real,
+  unlabelled curb ramps at **17% (5/29, richmond)** and **29% (7/24, bend)** of those
+  detections (issue #55; tags in `benchmark/<city>/incremental_fp_tags.json`, reproduce with
+  `operating_point_curve.py gallery --tags`). Two consequences worth carrying:
+  - Precision below ~0.55 is **understated** for RampNet, and by an amount that varies by
+    city — so the anchoring asymmetry is not a constant that cancels in a ranking.
+  - The A-rate is measured *only* on RampNet's own low-confidence detections. It says the
+    GT is incomplete; it does **not** say by how much a challenger is penalised, since a
+    challenger's misses are a different population. Do not subtract it from anyone's score.
+
+  Only richmond and bend have been corrected — clovis, morgantown and manual_gold have not,
+  so no cross-city GT-completeness constant should be quoted yet.
 - **Box → point reduction.** Box models are scored by their box centers, at the same radius
   as RampNet's point detections. Localization differences finer than the radius aren't
   measured. Molmo is the exception — it emits points natively, so nothing is reduced.
