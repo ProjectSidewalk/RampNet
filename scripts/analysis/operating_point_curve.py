@@ -48,6 +48,7 @@ import argparse
 import csv
 import html
 import json
+import math
 import os
 import sys
 
@@ -65,6 +66,11 @@ DEPLOYED_THRESHOLD = 0.55
 DEFAULT_SCORE_FLOOR = 0.05
 DEFAULT_MIN_DISTANCE = 10
 CACHE_DIR = os.path.join(OUT, "op_cache")
+# 0.15 of pano width reaches +/-3.4 match radii, so a duplicate hit on an already
+# labelled ramp is inside the frame used to judge it. The old 0.08 reached +/-1.8 R
+# and cropped that evidence out. See visible_radii().
+DEFAULT_CROP_FRAC = 0.15
+DEFAULT_RENDER_PX = 1024
 
 
 # --------------------------------------------------------------------------- #
@@ -84,10 +90,17 @@ def classify_predictions(pred_points, gt, radius_sq, scale_x=PANO_SCALE_X, scale
     """Per-prediction outcome WITH coordinates — the location-preserving twin of
     :func:`rampnet.detection_eval.score_pano`.
 
-    Returns a list of ``(x, y, score, outcome)`` in the same confidence-desc order
-    ``score_pano`` matches in, where ``outcome`` is ``"tp"`` / ``"fp"`` / ``"ignore"``.
-    Counting outcomes reproduces ``score_pano``'s tp/fp/ignored exactly (asserted
-    in the tests), so the gallery selects the same FPs the curve counts.
+    Returns a list of ``(x, y, score, outcome, redundant)`` in the same
+    confidence-desc order ``score_pano`` matches in, where ``outcome`` is
+    ``"tp"`` / ``"fp"`` / ``"ignore"``. Counting outcomes reproduces
+    ``score_pano``'s tp/fp/ignored exactly (asserted in the tests), so the
+    gallery selects the same FPs the curve counts.
+
+    ``redundant`` is the fourth thing ``greedy_match`` already knows and every
+    caller used to throw away: True when this FP had a real GT ramp *inside* the
+    match radius that a higher-confidence prediction had already claimed. That is
+    a double-count of one ramp, not a detection of something the GT missed — the
+    distinction the A/B spot-check depends on (issue #55).
     """
     confs = [prediction_confidence(p) for p in pred_points]
     if any(c is not None for c in confs):
@@ -101,7 +114,7 @@ def classify_predictions(pred_points, gt, radius_sq, scale_x=PANO_SCALE_X, scale
     assignments = greedy_match([_xy(p) for p in preds], gt.gt_points,
                                radius_sq, scale_x, scale_y)
     out = []
-    for p, (gt_index, _) in zip(preds, assignments):
+    for p, (gt_index, saw_in_range) in zip(preds, assignments):
         x, y = _xy(p)
         score = prediction_confidence(p)
         if gt_index >= 0:
@@ -111,8 +124,40 @@ def classify_predictions(pred_points, gt, radius_sq, scale_x=PANO_SCALE_X, scale
             in_ignore = any((px - ix * scale_x) ** 2 + (py - iy * scale_y) ** 2 < radius_sq
                             for ix, iy in gt.ignore_points)
             outcome = "ignore" if in_ignore else "fp"
-        out.append((x, y, score, outcome))
+        out.append((x, y, score, outcome, outcome == "fp" and bool(saw_in_range)))
     return out
+
+
+def _dist(ax, ay, bx, by, scale_x=PANO_SCALE_X, scale_y=PANO_SCALE_Y):
+    """Distance in the same scaled space the matcher uses, so it is directly
+    comparable to the match radius."""
+    return ((ax - bx) * scale_x) ** 2 + ((ay - by) * scale_y) ** 2
+
+
+def proximity(x, y, gt_points, neighbours, radius_sq,
+              scale_x=PANO_SCALE_X, scale_y=PANO_SCALE_Y):
+    """How close this detection sits to an *already-accounted-for* ramp, in units
+    of the match radius R.
+
+    A crop centred on a detection cannot show this — at ``crop_frac`` c the frame
+    only reaches ``0.5 * c / radius_normalized`` radii (±1.8 R at the old c=0.08),
+    so a GT ramp 2.5 R away is off-frame and the reviewer tags a duplicate as a
+    discovery. Returned per item and rendered on the card instead.
+
+    ``neighbours`` is ``[(x, y, outcome)]`` for the other predictions kept at this
+    operating point. Returns distances as multiples of R (``None`` when there is
+    nothing to measure against).
+    """
+    r = radius_sq ** 0.5
+    d_gt = min((_dist(x, y, gx, gy, scale_x, scale_y) ** 0.5 for gx, gy in gt_points),
+               default=None)
+    near = sorted(((_dist(x, y, nx, ny, scale_x, scale_y) ** 0.5, outcome)
+                   for nx, ny, outcome in neighbours), key=lambda t: t[0])
+    return {
+        "d_gt_r": round(d_gt / r, 3) if d_gt is not None else None,
+        "d_pred_r": round(near[0][0] / r, 3) if near else None,
+        "neighbour_outcome": near[0][1] if near else None,
+    }
 
 
 def _score_at(panos, threshold, radius_sq):
@@ -144,40 +189,130 @@ def pr_curve_and_ap(panos, radius_sq):
     return _score_at(panos, 0.0, radius_sq)
 
 
+DUP_NEAR_R = 2.0   # within this many match radii of a GT ramp -> treat as a likely duplicate
+DUP_MID_R = 3.0    # beyond DUP_NEAR_R but under this -> ambiguous (corner pairs live here)
+
+
+def duplicate_risk(redundant, d_gt_r):
+    """Bucket an incremental FP by how likely it is to be a second hit on a ramp
+    that is *already* in the ground truth, rather than a missed one.
+
+    - ``redundant``  a GT ramp is inside the match radius, already claimed by a
+      higher-confidence prediction. Strictly a double-count; it can never be an A.
+    - ``near``       GT 1-2 R away: almost certainly the same ramp, localisation slop.
+    - ``mid``        GT 2-3 R away: ambiguous — a corner's *other* ramp sits here too.
+    - ``isolated``   GT >3 R away, or no GT on the pano: the only clean A candidates.
+    """
+    if redundant:
+        return "redundant"
+    if d_gt_r is None:
+        return "isolated"
+    if d_gt_r < DUP_NEAR_R:
+        return "near"
+    if d_gt_r < DUP_MID_R:
+        return "mid"
+    return "isolated"
+
+
 def incremental_fps(panos, op_threshold, upper, radius_sq):
     """The unmatched predictions a lower threshold newly adds: FP with score in
     ``[op_threshold, upper)``. These are what the GT-completeness spot-check audits.
 
-    Each item gets a stable id so tags survive a re-render.
+    Each item gets a stable id so tags survive a re-render, plus the duplicate-risk
+    geometry (:func:`proximity`, :func:`duplicate_risk`) the reviewer needs to tell
+    "the GT missed a ramp" from "the model fired twice on one ramp".
     """
     items = []
     for pd in panos:
-        for x, y, score, outcome in classify_predictions(pd["preds"], pd["gt"], radius_sq):
-            if outcome == "fp" and op_threshold <= score < upper:
-                items.append({
-                    "id": f'{pd["pano"]}_{round(x, 5)}_{round(y, 5)}',
-                    "pano": pd["pano"], "x": x, "y": y, "score": score,
-                })
+        classified = classify_predictions(pd["preds"], pd["gt"], radius_sq)
+        for x, y, score, outcome, redundant in classified:
+            if outcome != "fp" or not (op_threshold <= score < upper):
+                continue
+            neighbours = [(nx, ny, nout) for nx, ny, ns, nout, _ in classified
+                          if ns >= op_threshold and not (nx == x and ny == y)]
+            prox = proximity(x, y, pd["gt"].gt_points, neighbours, radius_sq)
+            items.append({
+                "id": f'{pd["pano"]}_{round(x, 5)}_{round(y, 5)}',
+                "pano": pd["pano"], "x": x, "y": y, "score": score,
+                "redundant": redundant,
+                "dup_risk": duplicate_risk(redundant, prox["d_gt_r"]),
+                # only recall-confirmed panos contribute to recall, so only an A on
+                # one of those can move the recall denominator (see corrected_recall)
+                "fn_confirmed": bool(pd["gt"].fn_confirmed),
+                **prox,
+            })
     items.sort(key=lambda it: it["score"])
     return items
 
 
+TAGS = ("A", "B", "U")
+
+
 def corrected_precision(tp, fp, items, tags):
-    """Corrected precision at the operating point given the incremental-FP A/B tags.
+    """Corrected precision at the operating point given the incremental-FP tags.
 
     ``tp``/``fp`` are the raw counts at the operating point; ``items`` are the
-    incremental FPs in ``[op, upper)``; ``tags`` maps item id -> "A"/"B". An A
-    (real ramp the GT missed) becomes a TP. The band spans no-correction (lower)
-    to every-incremental-FP-real (upper) so the untagged residual is explicit.
+    incremental FPs in ``[op, upper)``; ``tags`` maps item id -> ``"A"`` (a real
+    ramp the GT missed — becomes a TP), ``"B"`` (a genuine FP) or ``"U"`` (unsure).
+
+    The band is an honest uncertainty interval rather than a formality: the low end
+    credits only confirmed As, the high end additionally credits everything the
+    reviewer could not call (``U``) and everything not yet looked at. When every
+    item is tagged A or B it collapses to a point, which is the correct behaviour —
+    there is then nothing left to be uncertain about.
+
+    ``ceiling_all_real`` keeps the old "what if every incremental FP were real"
+    reference, and ``n_A_suspect`` counts As that the geometry says are probably a
+    second hit on an already-counted ramp (see :func:`duplicate_risk`) — those
+    inflate precision without finding anything, so they are surfaced, not hidden.
     """
     denom = tp + fp
-    n_a = sum(1 for it in items if tags.get(it["id"]) == "A")
-    n_tagged = sum(1 for it in items if tags.get(it["id"]) in ("A", "B"))
+    counts = {t: sum(1 for it in items if tags.get(it["id"]) == t) for t in TAGS}
+    n_a, n_u = counts["A"], counts["U"]
+    n_tagged = sum(counts.values())
+    n_untagged = len(items) - n_tagged
+    n_a_suspect = sum(1 for it in items if tags.get(it["id"]) == "A"
+                      and it.get("dup_risk") in ("redundant", "near"))
     return {
         "uncorrected": tp / denom if denom else 0.0,
         "corrected": (tp + n_a) / denom if denom else 0.0,
-        "upper_bound": (tp + len(items)) / denom if denom else 0.0,
-        "tp": tp, "fp": fp, "n_incremental": len(items), "n_A": n_a, "n_tagged": n_tagged,
+        "band_high": (tp + n_a + n_u + n_untagged) / denom if denom else 0.0,
+        "ceiling_all_real": (tp + len(items)) / denom if denom else 0.0,
+        "tp": tp, "fp": fp, "n_incremental": len(items),
+        "n_A": n_a, "n_B": counts["B"], "n_U": n_u,
+        "n_tagged": n_tagged, "n_untagged": n_untagged, "n_A_suspect": n_a_suspect,
+    }
+
+
+def corrected_recall(tp_recall, n_gt_recall, items, tags):
+    """Recall corrected for the same A tags — the other half of the correction.
+
+    An A is a ramp the GT did not have, so it adds one to the numerator *and* one
+    to the denominator: the model found it, and it should always have been counted
+    as findable. Correcting precision alone (as this module originally did) reports
+    a corrected P against an uncorrected R, which flatters nothing but is simply
+    inconsistent — the same relabelling has to be applied to both.
+
+    Only panos whose missed-ramp check is confirmed contribute to recall at all
+    (``aggregate`` restricts both sums to those), so an A on an unscanned pano must
+    move neither number. ``tp_recall``/``n_gt_recall`` are that confirmed subset;
+    from a ScoreReport they are ``rep.n_gt_recall - rep.fn`` and ``rep.n_gt_recall``.
+    """
+    eligible = [it for it in items if it.get("fn_confirmed", True)]
+    n_a = sum(1 for it in eligible if tags.get(it["id"]) == "A")
+    n_open = sum(1 for it in eligible
+                 if tags.get(it["id"]) == "U" or tags.get(it["id"]) not in TAGS)
+
+    def at(k):
+        return (tp_recall + k) / (n_gt_recall + k) if (n_gt_recall + k) else 0.0
+
+    return {
+        "uncorrected": at(0),
+        "corrected": at(n_a),
+        "band_high": at(n_a + n_open),
+        "tp_recall": tp_recall, "n_gt_recall": n_gt_recall,
+        "n_A_recall": n_a, "n_A_unscanned": sum(
+            1 for it in items if tags.get(it["id"]) == "A" and not it.get("fn_confirmed", True)),
     }
 
 
@@ -342,11 +477,24 @@ def cmd_curve(args):
 # --------------------------------------------------------------------------- #
 # gallery (CPU, needs native panos)
 # --------------------------------------------------------------------------- #
+def draft_width_for(crop_frac, render_px):
+    """The decode width a crop needs to be rendered from *real* pixels.
+
+    ``draft`` is a big win on a 16k-px pano, but it was previously pinned at 2048
+    regardless of the crop size, which quietly capped detail below what the review
+    needs: at crop_frac 0.08 a 16384-px bend pano drafted to 2048 leaves **163 px**
+    of source for a 512-px crop — a 3x upscale of mush, which is why so much of the
+    first tagging pass reads "blurry" / "distant" / "ambiguous". Sizing the decode to
+    the crop instead means the renderer never upscales."""
+    return int(math.ceil(render_px / max(crop_frac, 1e-6)))
+
+
 def _open_pano_drafted(pano_path, draft_max=2048):
     """Open a pano, decoding the JPEG at a reduced DCT scale (PIL ``draft``) so a
-    16k-px native pano doesn't cost a full-resolution decode — the crops are shown
-    at ~512 px, so full res is wasted work (and, over an NFS home, a way to thrash
-    the box). Returns ``(img, W, H)``; normalised coords map against the drafted size."""
+    16k-px native pano doesn't cost a full-resolution decode where the crop can't use
+    it (and, over an NFS home, a way to thrash the box). ``draft`` only steps in
+    powers of two and never upscales, so asking for more than the file holds is free.
+    Returns ``(img, W, H)``; normalised coords map against the drafted size."""
     from PIL import Image
     Image.MAX_IMAGE_PIXELS = None
     img = Image.open(pano_path)
@@ -355,18 +503,43 @@ def _open_pano_drafted(pano_path, draft_max=2048):
     return img, img.width, img.height
 
 
-def _crop_and_mark(img, W, H, item, gt, others, crop_frac):
-    """Crop of the (already-open) pano centred on the FP, with the FP (red +),
-    GT (green o) and other kept predictions (yellow o) drawn. Returns a PIL image."""
+def visible_radii(crop_frac, radius_normalized=None):
+    """How far, in match radii, a crop of this fraction can actually see.
+
+    Half the crop width over the match radius, both in pano pixels:
+    ``0.5 * crop_frac * W / (radius_normalized * W)``. The pano cancels, so it is a
+    property of the setting alone — at the original 0.08 the frame reached only
+    **±1.8 R**, which is *less* than the 2-3 R where duplicate hits on an already
+    labelled ramp live. That is a rendering bug with an epistemic cost: the evidence
+    that a detection is a duplicate was cropped out of the picture used to judge it."""
+    from rampnet.detection_eval import PANO_RADIUS_NORMALIZED
+    return 0.5 * crop_frac / (radius_normalized or PANO_RADIUS_NORMALIZED)
+
+
+def _crop_and_mark(img, W, H, item, gt, others, crop_frac, render_px=1024,
+                   radius_normalized=None):
+    """Crop of the (already-open) pano centred on the FP, with the FP (red +), the
+    match radius around it (dashed red), GT (green o) and other kept predictions
+    (yellow o) drawn. Returns a PIL image.
+
+    The match-radius ring is the point: it shows, in the image, the tolerance the
+    scorer actually used, so "would this have matched that ramp?" stops being a
+    guess. Markers scale with ``render_px`` so a bigger crop doesn't shrink them
+    into invisibility."""
     from PIL import ImageDraw
+    from rampnet.detection_eval import PANO_RADIUS_NORMALIZED
+    rn = radius_normalized or PANO_RADIUS_NORMALIZED
     cw = max(64, int(crop_frac * W))
+    cw = min(cw, W, H)
     cx, cy = item["x"] * W, item["y"] * H
     left, top = int(cx - cw / 2), int(cy - cw / 2)
     left = max(0, min(left, W - cw)); top = max(0, min(top, H - cw))
     crop = img.crop((left, top, left + cw, top + cw))
-    scale = min(4.0, 512 / cw)
+    scale = render_px / cw                      # no 4x upscale cap: draft sized the source
     crop = crop.resize((int(cw * scale), int(cw * scale)))
     draw = ImageDraw.Draw(crop)
+    k = max(1.0, render_px / 512.0)             # marker scale
+    w_thin, w_thick = int(2 * k), int(3 * k)
 
     def to_local(nx, ny):
         return (nx * W - left) * scale, (ny * H - top) * scale
@@ -374,63 +547,200 @@ def _crop_and_mark(img, W, H, item, gt, others, crop_frac):
     for gx, gy in gt.gt_points:
         lx, ly = to_local(gx, gy)
         if 0 <= lx < crop.width and 0 <= ly < crop.height:
-            draw.ellipse([lx - 9, ly - 9, lx + 9, ly + 9], outline=(0, 220, 0), width=3)
+            r = 9 * k
+            draw.ellipse([lx - r, ly - r, lx + r, ly + r], outline=(0, 220, 0), width=w_thick)
     for ox, oy, _s in others:
         lx, ly = to_local(ox, oy)
         if 0 <= lx < crop.width and 0 <= ly < crop.height:
-            draw.ellipse([lx - 7, ly - 7, lx + 7, ly + 7], outline=(255, 210, 0), width=2)
+            r = 7 * k
+            draw.ellipse([lx - r, ly - r, lx + r, ly + r], outline=(255, 210, 0), width=w_thin)
     lx, ly = to_local(item["x"], item["y"])
-    draw.line([lx - 13, ly, lx + 13, ly], fill=(255, 0, 0), width=3)
-    draw.line([lx, ly - 13, lx, ly + 13], fill=(255, 0, 0), width=3)
+    rr = rn * W * scale                          # match radius in local px
+    draw.ellipse([lx - rr, ly - rr, lx + rr, ly + rr], outline=(255, 90, 90), width=w_thin)
+    arm = 13 * k
+    draw.line([lx - arm, ly, lx + arm, ly], fill=(255, 0, 0), width=w_thick)
+    draw.line([lx, ly - arm, lx, ly + arm], fill=(255, 0, 0), width=w_thick)
     return crop
 
 
-_GALLERY_JS = """
-const tags = {};
-function tag(id, v){
-  tags[id] = v;
-  document.querySelectorAll('[data-id="'+id+'"] button').forEach(b=>b.classList.remove('sel'));
-  document.querySelector('[data-id="'+id+'"] button.'+v).classList.add('sel');
-  document.getElementById('count').textContent = Object.keys(tags).length + ' / ' + TOTAL + ' tagged';
+_GALLERY_JS = r"""
+let tags = {};
+let cur = 0;
+const cards = () => [...document.querySelectorAll('.card')];
+
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(tags)); }catch(e){} }
+
+function paint(id){
+  const card = document.querySelector('[data-id="'+CSS.escape(id)+'"]');
+  if(!card) return;
+  card.querySelectorAll('.btns button').forEach(b => b.classList.remove('sel'));
+  const v = tags[id];
+  if(v){ const b = card.querySelector('.btns button.'+v); if(b) b.classList.add('sel'); }
+  card.classList.toggle('done', !!v);
 }
+
+function counts(){
+  const c = {A:0,B:0,U:0};
+  Object.values(tags).forEach(v => { if(c[v]!==undefined) c[v]++; });
+  document.getElementById('count').textContent =
+    `${c.A} A · ${c.B} B · ${c.U} unsure · ${TOTAL-c.A-c.B-c.U} left`;
+}
+
+function tag(id, v){
+  if(tags[id] === v) delete tags[id]; else tags[id] = v;   // click again to clear
+  paint(id); counts(); save();
+}
+
+function focusCard(i){
+  const cs = cards(); if(!cs.length) return;
+  cur = Math.max(0, Math.min(i, cs.length-1));
+  cs.forEach(c => c.classList.remove('cur'));
+  const c = cs[cur]; c.classList.add('cur');
+  c.scrollIntoView({block:'center', behavior:'smooth'});
+}
+
+function zoom(src){
+  const o = document.getElementById('lb');
+  document.getElementById('lbimg').src = src;
+  o.style.display = 'flex';
+}
+function unzoom(){ document.getElementById('lb').style.display = 'none'; }
+
 function exportTags(){
   const blob = new Blob([JSON.stringify(tags, null, 2)], {type:'application/json'});
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob); a.download = 'tags.json'; a.click();
+  a.href = URL.createObjectURL(blob); a.download = CITY + '_tags.json'; a.click();
 }
+
+function importTags(input){
+  const f = input.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      tags = JSON.parse(r.result) || {};
+      cards().forEach(c => paint(c.dataset.id));
+      counts(); save();
+    }catch(e){ alert('could not parse that file: ' + e); }
+  };
+  r.readAsText(f);
+}
+
+function onlyUntagged(on){
+  cards().forEach(c => { c.style.display = (on && tags[c.dataset.id]) ? 'none' : ''; });
+}
+
+document.addEventListener('keydown', e => {
+  if(e.target.tagName === 'INPUT') return;
+  if(e.key === 'Escape'){ unzoom(); return; }
+  const cs = cards();
+  if(e.key === 'j' || e.key === 'ArrowDown' || e.key === 'ArrowRight'){ focusCard(cur+1); e.preventDefault(); return; }
+  if(e.key === 'k' || e.key === 'ArrowUp'   || e.key === 'ArrowLeft'){ focusCard(cur-1); e.preventDefault(); return; }
+  const c = cs[cur]; if(!c) return;
+  if(e.key === 'z' || e.key === 'Enter'){ zoom(c.querySelector('img').src); e.preventDefault(); return; }
+  const v = {a:'A', b:'B', u:'U'}[e.key.toLowerCase()];
+  if(v){ tag(c.dataset.id, v); focusCard(cur+1); e.preventDefault(); }
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  try{ tags = JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ tags = {}; }
+  cards().forEach(c => paint(c.dataset.id));
+  counts(); focusCard(0);
+});
 """
 
 
-def _write_gallery_html(out_dir, city, op_threshold, upper, items):
-    rows = []
-    for it in items:
-        rid = html.escape(it["id"])
-        rows.append(
-            f'<div class="card" data-id="{rid}">'
-            f'<img src="{html.escape(it["img"])}" loading="lazy">'
-            f'<div class="meta">score {it["score"]:.3f}<br><span class="pano">{html.escape(it["pano"])}</span></div>'
-            f'<div class="btns">'
-            f'<button class="A" onclick="tag(\'{rid}\',\'A\')">A · real (GT missed)</button>'
-            f'<button class="B" onclick="tag(\'{rid}\',\'B\')">B · genuine FP</button>'
-            f'</div></div>')
+_DUP_LABEL = {
+    "redundant": ("dup", "GT ramp INSIDE the match radius, already claimed — a double-count"),
+    "near": ("dup?", "a GT ramp is {d} R away and already detected — probably the same ramp"),
+    "mid": ("?", "nearest GT ramp {d} R away — could be the corner's other ramp, or slop"),
+    "isolated": ("", ""),
+}
+
+
+def _card_html(it, crop_frac):
+    rid = html.escape(it["id"])
+    risk = it.get("dup_risk", "isolated")
+    d = it.get("d_gt_r")
+    badge, tip = _DUP_LABEL.get(risk, ("", ""))
+    tip = tip.format(d=d)
+    warn = (f'<span class="warn {risk}" title="{html.escape(tip)}">{badge}</span>'
+            if badge else "")
+    dgt = f'{d:g} R' if d is not None else 'no GT on pano'
+    nb = it.get("neighbour_outcome")
+    nbtxt = (f' · nearest pred {it["d_pred_r"]:g} R ({nb})'
+             if it.get("d_pred_r") is not None and nb else '')
+    return (
+        f'<figure class="card {risk}" data-id="{rid}">'
+        f'<img src="{html.escape(it["img"])}" loading="lazy" '
+        f'onclick="zoom(this.src)" title="click to zoom">'
+        f'<figcaption>'
+        f'<div class="meta"><b>{it["score"]:.3f}</b> {warn}</div>'
+        f'<div class="geo">GT {dgt}{nbtxt}</div>'
+        f'<div class="pano">{html.escape(it["pano"])}</div>'
+        f'<div class="btns">'
+        f'<button class="A" onclick="tag(\'{rid}\',\'A\')" title="a">A · real</button>'
+        f'<button class="B" onclick="tag(\'{rid}\',\'B\')" title="b">B · FP</button>'
+        f'<button class="U" onclick="tag(\'{rid}\',\'U\')" title="u">? · unsure</button>'
+        f'</div></figcaption></figure>')
+
+
+def _write_gallery_html(out_dir, city, op_threshold, upper, items, crop_frac):
+    rows = [_card_html(it, crop_frac) for it in items]
+    n_dup = sum(1 for it in items if it.get("dup_risk") in ("redundant", "near"))
+    reach = visible_radii(crop_frac)
     doc = f"""<!doctype html><html><head><meta charset="utf-8"><title>{city} incremental FPs</title>
 <style>
 body{{font-family:system-ui,sans-serif;margin:16px;background:#111;color:#eee}}
-h1{{font-size:18px}} .bar{{position:sticky;top:0;background:#111;padding:8px 0;border-bottom:1px solid #333;z-index:9}}
-.grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:12px}}
-.card{{background:#1c1c1c;border:1px solid #333;border-radius:6px;padding:6px}}
-.card img{{width:100%;border-radius:4px;display:block}}
-.meta{{font-size:12px;color:#aaa;margin:4px 0}} .pano{{color:#666;font-size:10px}}
-.btns{{display:flex;gap:4px}} button{{flex:1;font-size:11px;padding:5px;border:1px solid #444;background:#222;color:#ccc;border-radius:4px;cursor:pointer}}
-button.A.sel{{background:#1a6;color:#fff;border-color:#1a6}} button.B.sel{{background:#a33;color:#fff;border-color:#a33}}
-#export{{background:#357;color:#fff;border-color:#357;padding:6px 12px}}
+h1{{font-size:18px;margin:0 0 6px}}
+.bar{{position:sticky;top:0;background:#111;padding:8px 0;border-bottom:1px solid #333;z-index:9}}
+.bar p{{margin:6px 0;font-size:13px;color:#bbb}}
+.grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-top:12px}}
+.card{{background:#1c1c1c;border:1px solid #333;border-radius:6px;padding:6px;margin:0}}
+.card.cur{{border-color:#6af;box-shadow:0 0 0 2px #6af4}}
+.card.done{{opacity:.55}}
+.card.redundant,.card.near{{border-color:#c85}}
+.card img{{width:100%;border-radius:4px;display:block;cursor:zoom-in}}
+.meta{{font-size:13px;color:#ddd;margin:6px 0 2px;display:flex;gap:8px;align-items:center}}
+.geo{{font-size:11px;color:#8a8}} .pano{{color:#666;font-size:10px;margin-bottom:5px;word-break:break-all}}
+.warn{{font-size:10px;padding:1px 6px;border-radius:3px;background:#c85;color:#111;font-weight:700;cursor:help}}
+.warn.mid{{background:#665;color:#ddd}}
+.btns{{display:flex;gap:4px}}
+button{{flex:1;font-size:11px;padding:6px 4px;border:1px solid #444;background:#222;color:#ccc;border-radius:4px;cursor:pointer}}
+button.A.sel{{background:#1a6;color:#fff;border-color:#1a6}}
+button.B.sel{{background:#a33;color:#fff;border-color:#a33}}
+button.U.sel{{background:#a83;color:#fff;border-color:#a83}}
+#export{{background:#357;color:#fff;border-color:#357;padding:6px 12px;flex:none}}
+label.imp{{font-size:12px;color:#8ad;cursor:pointer}} label.imp input{{display:none}}
+#lb{{display:none;position:fixed;inset:0;background:#000d;z-index:99;align-items:center;
+    justify-content:center;cursor:zoom-out}}
+#lb img{{max-width:96vw;max-height:96vh;image-rendering:auto}}
+kbd{{background:#333;border-radius:3px;padding:1px 5px;font-size:11px}}
 </style></head><body>
-<div class="bar"><h1>{city}: incremental FPs, score in [{op_threshold}, {upper}) &mdash; {len(items)} to review</h1>
-<p>A = a real curb ramp the GT missed (should be a TP) &nbsp;·&nbsp; B = a genuine false positive.
+<div class="bar">
+<h1>{city}: incremental FPs, score in [{op_threshold}, {upper}) &mdash; {len(items)} to review</h1>
+<p><b>A</b> = a real curb ramp the GT missed (should be a TP) ·
+<b>B</b> = a genuine false positive ·
+<b>?</b> = unsure (widens the reported error band instead of forcing a guess).</p>
+<p>Red ring = the match radius the scorer used. Green o = a GT ramp; yellow o = another kept
+prediction. <b>{n_dup} of {len(items)}</b> sit within {DUP_NEAR_R:g} R of an already-detected
+ramp and are flagged <span class="warn">dup?</span> — those are second hits on one ramp, not
+discoveries. This crop reaches &plusmn;{reach:.1f} R.</p>
+<p>Keys: <kbd>a</kbd> <kbd>b</kbd> <kbd>u</kbd> tag &amp; advance ·
+<kbd>j</kbd>/<kbd>k</kbd> move · <kbd>z</kbd> zoom · <kbd>Esc</kbd> close.
+Clicking the selected tag again clears it. Saved to this browser as you go.</p>
+<p style="display:flex;gap:10px;align-items:center">
 <span id="count">0 / {len(items)} tagged</span>
-<button id="export" onclick="exportTags()">Download tags.json</button></p></div>
+<button id="export" onclick="exportTags()">Download {city}_tags.json</button>
+<label class="imp">load tags.json<input type="file" accept="application/json"
+ onchange="importTags(this)"></label>
+<label class="imp"><input type="checkbox" style="display:inline"
+ onchange="onlyUntagged(this.checked)"> hide tagged</label>
+</p></div>
 <div class="grid">{''.join(rows)}</div>
-<script>const TOTAL={len(items)};{_GALLERY_JS}</script></body></html>"""
+<div id="lb" onclick="unzoom()"><img id="lbimg"></div>
+<script>const TOTAL={len(items)}, CITY={json.dumps(city)},
+ KEY={json.dumps(f"rampnet-tags-{city}-{op_threshold}-{upper}")};{_GALLERY_JS}</script>
+</body></html>"""
     path = os.path.join(out_dir, "index.html")
     with open(path, "w", encoding="utf-8") as f:
         f.write(doc)
@@ -452,12 +762,30 @@ def cmd_gallery(args):
         with open(args.tags, encoding="utf-8") as f:
             tags = json.load(f)
         res = corrected_precision(rep.tp, rep.fp, items, tags)
+        rec = corrected_recall(rep.n_gt_recall - rep.fn, rep.n_gt_recall, items, tags)
+        risk = {}
+        for it in items:
+            risk[it["dup_risk"]] = risk.get(it["dup_risk"], 0) + 1
         print(f"[{args.city}] operating point {args.op_threshold} (deployed {args.upper}):")
-        print(f"  raw            P {res['uncorrected']:.3f}  ({res['tp']} tp / {res['fp']} fp)")
+        print(f"  raw            P {res['uncorrected']:.3f}  R {rec['uncorrected']:.3f}  "
+              f"F1 {f1_of(res['uncorrected'], rec['uncorrected']):.3f}"
+              f"   ({res['tp']} tp / {res['fp']} fp)")
         print(f"  incremental FPs in band: {res['n_incremental']}  "
-              f"(tagged {res['n_tagged']}, A={res['n_A']})")
-        print(f"  corrected      P {res['corrected']:.3f}   "
-              f"(band {res['uncorrected']:.3f}..{res['upper_bound']:.3f})")
+              f"(A={res['n_A']}  B={res['n_B']}  unsure={res['n_U']}  "
+              f"untagged={res['n_untagged']})")
+        print(f"  duplicate risk: " + "  ".join(f"{k}={v}" for k, v in sorted(risk.items())))
+        print(f"  corrected      P {res['corrected']:.3f}  R {rec['corrected']:.3f}  "
+              f"F1 {f1_of(res['corrected'], rec['corrected']):.3f}")
+        print(f"  band           P {res['corrected']:.3f}..{res['band_high']:.3f}  "
+              f"R {rec['corrected']:.3f}..{rec['band_high']:.3f}   "
+              f"(all-real P ceiling {res['ceiling_all_real']:.3f})")
+        if rec["n_A_unscanned"]:
+            print(f"  note: {rec['n_A_unscanned']} A-tag(s) sit on panos whose missed-ramp "
+                  f"check is unconfirmed — they correct precision but cannot move recall.")
+        if res["n_A_suspect"]:
+            print(f"  WARNING: {res['n_A_suspect']} of {res['n_A']} A-tags sit within "
+                  f"{DUP_NEAR_R:g} R of an already-detected ramp — those are likely second "
+                  f"hits on one ramp, not ramps the GT missed. Re-check before publishing.")
         return
 
     out_dir = args.out or os.path.join(OUT, "op", f"{args.city}_incremental_fp")
@@ -469,14 +797,16 @@ def cmd_gallery(args):
     for it in items:
         by_pano[it["pano"]].append(it)
 
+    draft_max = args.draft_max or draft_width_for(args.crop_frac, args.render_px)
     kept = []
     for pano_id, pano_items in by_pano.items():
         pd = by_id[pano_id]
-        img, W, H = _open_pano_drafted(os.path.join(panos_dir, f"{pano_id}.jpg"), args.draft_max)
+        img, W, H = _open_pano_drafted(os.path.join(panos_dir, f"{pano_id}.jpg"), draft_max)
         for it in pano_items:
             others = [(x, y, s) for (x, y, s) in pd["preds"]
                       if s >= args.op_threshold and not (x == it["x"] and y == it["y"])]
-            crop = _crop_and_mark(img, W, H, it, pd["gt"], others, args.crop_frac)
+            crop = _crop_and_mark(img, W, H, it, pd["gt"], others, args.crop_frac,
+                                  args.render_px)
             img_name = f'{it["id"]}.png'
             crop.save(os.path.join(out_dir, img_name))
             kept.append({**it, "img": img_name})
@@ -485,10 +815,18 @@ def cmd_gallery(args):
 
     with open(os.path.join(out_dir, "incremental_fps.json"), "w", encoding="utf-8") as f:
         json.dump({"city": args.city, "op_threshold": args.op_threshold,
-                   "upper": args.upper, "items": kept}, f, indent=2)
-    html_path = _write_gallery_html(out_dir, args.city, args.op_threshold, args.upper, kept)
+                   "upper": args.upper, "crop_frac": args.crop_frac,
+                   "render_px": args.render_px, "items": kept}, f, indent=2)
+    html_path = _write_gallery_html(out_dir, args.city, args.op_threshold, args.upper, kept,
+                                    args.crop_frac)
+    n_dup = sum(1 for it in kept if it["dup_risk"] in ("redundant", "near"))
     print(f"[{args.city}] {len(kept)} incremental FPs in [{args.op_threshold}, {args.upper}) "
-          f"-> {html_path}\n  review, click A/B, Download tags.json, then re-run with --tags tags.json")
+          f"-> {html_path}")
+    print(f"  crop {args.crop_frac:g} of pano width = +/-{visible_radii(args.crop_frac):.1f} "
+          f"match radii, rendered at {args.render_px}px (decode width {draft_max})")
+    print(f"  {n_dup} flagged as likely duplicates of an already-detected ramp")
+    print(f"  review, tag A/B/unsure, Download {args.city}_tags.json, "
+          f"then re-run with --tags <that file>")
 
 
 # --------------------------------------------------------------------------- #
@@ -521,10 +859,17 @@ def main():
     g.add_argument("--cache", default=CACHE_DIR)
     g.add_argument("--panos", default=None)
     g.add_argument("--out", default=None)
-    g.add_argument("--crop-frac", type=float, default=0.08)
-    g.add_argument("--draft-max", type=int, default=2048,
-                   help="decode panos at a reduced DCT scale >= this width (PIL draft); "
-                        "keeps huge native panos cheap to render")
+    g.add_argument("--crop-frac", type=float, default=DEFAULT_CROP_FRAC,
+                   help=f"crop width as a fraction of pano width (default "
+                        f"{DEFAULT_CROP_FRAC}, reaching +/-"
+                        f"{0.5 * DEFAULT_CROP_FRAC / 0.022:.1f} match radii). Must exceed "
+                        f"{0.022 * 2 * DUP_MID_R:.2f} to show a duplicate at {DUP_MID_R:g} R")
+    g.add_argument("--render-px", type=int, default=DEFAULT_RENDER_PX,
+                   help=f"rendered crop edge in px (default {DEFAULT_RENDER_PX})")
+    g.add_argument("--draft-max", type=int, default=None,
+                   help="decode panos at a reduced DCT scale >= this width (PIL draft). "
+                        "Default: derived from --crop-frac/--render-px so crops are never "
+                        "upscaled; set explicitly only to trade detail for speed")
     g.add_argument("--tags", default=None, help="tags.json -> print corrected precision instead of rendering")
     g.set_defaults(func=cmd_gallery)
 
