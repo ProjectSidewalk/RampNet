@@ -29,10 +29,29 @@ Verdict schema (one entry per reviewed pano, keyed by pano id):
                 Entries without the key are legacy and trusted (see :func:`collect`).
   - ``group``:  sampling group; ``"top"`` are the always-included densest panos,
                 excludable from unbiased estimates via ``exclude_top``.
+  - ``note``:   optional free-text reviewer note about this pano — a judgment call
+                worth explaining ("counted the sweeping corner ramp as two"). Never
+                read by :func:`collect`; purely for the humans who read the split later.
+
+Alongside ``panos``, a verdicts file may carry a top-level ``review_notes`` block
+describing *the review itself* rather than any one pano — the caveats a future reader
+needs before quoting the numbers::
+
+    {"reviewer": "jonf", "reviewed_at": "2026-07-27", "confidence": "low",
+     "summary": "one paragraph on what made this split hard",
+     "caveats": ["rubric deviation", "..."], "see": "benchmark/README.md#..."}
+
+Scoring ignores it entirely — precision/recall are unchanged whether it is present or
+not — but :func:`format_review_notes` renders it and ``scripts/score_validation.py``
+prints it *above* the numbers, so a caveat cannot be missed by someone reading only
+the scorer's output. ``confidence`` is the reviewer's own rating of their pass
+(``"high"``/``"medium"``/``"low"``); ``"low"`` renders an explicit
+don't-compare-blindly warning. Every field is optional.
 
 Pure-Python (no torch); ``pytest tests/test_validation.py``.
 """
 import math
+import textwrap
 from collections import namedtuple
 
 # Confidence thresholds for the human-readable sweep. The lowest matches the
@@ -167,6 +186,52 @@ def _recall_tp_at(recall_judged, threshold=0.0):
 def total_ramps(pools):
     """Recall denominator: correct detections in the recall pool + confident missed marks."""
     return _recall_tp_at(pools.recall_judged) + pools.missed_total
+
+
+def format_review_notes(notes, width=78):
+    """Render a verdicts file's ``review_notes`` block as a banner, or ``''`` if empty.
+
+    The counterpart to :func:`format_report`: that one says what the numbers *are*,
+    this one says what the reviewer wants you to know *before* you read them. It is
+    deliberately loud and printed first, because a caveat that lives only in a README
+    is a caveat nobody reads at the moment they quote a precision figure.
+
+    ``notes`` is the top-level ``review_notes`` dict (see the module docstring); every
+    field is optional, so a partially filled block still renders. Returns a string —
+    callers own printing. ASCII-only framing, for cp1252 consoles.
+    """
+    if not notes:
+        return ""
+    rule = "=" * width
+    lines = [rule, "REVIEWER NOTES - read before quoting these numbers"]
+
+    who = []
+    if notes.get("reviewer"):
+        who.append(f"reviewer: {notes['reviewer']}")
+    if notes.get("reviewed_at"):
+        who.append(f"reviewed: {notes['reviewed_at']}")
+    conf = (notes.get("confidence") or "").lower()
+    if conf:
+        who.append(f"reviewer-rated confidence: {conf.upper()}")
+    if who:
+        lines.append("  " + "  |  ".join(who))
+    lines.append(rule)
+
+    if notes.get("summary"):
+        lines += textwrap.wrap(notes["summary"], width - 2,
+                               initial_indent="  ", subsequent_indent="  ")
+    for caveat in notes.get("caveats") or []:
+        lines.append("")
+        lines += textwrap.wrap(caveat, width - 4, initial_indent="  - ",
+                               subsequent_indent="    ")
+    if conf == "low":
+        lines += ["",
+                  "  ! The reviewer rated their own pass LOW confidence. Do not compare this",
+                  "    split's numbers against other splits without reading the caveats above."]
+    if notes.get("see"):
+        lines += ["", f"  Full write-up: {notes['see']}"]
+    lines.append(rule)
+    return "\n".join(lines)
 
 
 def format_report(title, pools, thresholds=THRESHOLDS):

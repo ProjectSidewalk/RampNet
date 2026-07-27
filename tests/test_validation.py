@@ -5,7 +5,8 @@ logic before it moved here. Pure-Python: no torch.
     pytest tests/test_validation.py -v
 """
 from rampnet.validation import (
-    collect, format_report, total_ramps, wilson_interval, THRESHOLDS,
+    collect, format_report, format_review_notes, total_ramps, wilson_interval,
+    THRESHOLDS,
 )
 
 
@@ -168,3 +169,47 @@ def test_format_report_nothing_judged():
     pools = collect({"P": {"group": "random", "dets": [None], "missed": [], "no_missed": True}},
                     {"P": [0.9]})
     assert "Nothing judged yet." in format_report("Empty", pools)
+
+
+# --- Reviewer notes (never scored, always surfaced) ---------------------------
+
+def test_per_pano_notes_do_not_affect_scoring():
+    # A free-text note is documentation, not data: adding one to every pano must
+    # leave every pool identical. If this breaks, a reviewer explaining a judgment
+    # call has silently moved the numbers.
+    plain = collect(_panos(), CONFS)
+    annotated_panos = _panos()
+    for entry in annotated_panos.values():
+        entry["note"] = "counted the sweeping corner ramp as two, one per direction"
+    annotated = collect(annotated_panos, CONFS)
+    assert annotated == plain
+
+
+NOTES = {
+    "reviewer": "jonf", "reviewed_at": "2026-07-27", "confidence": "low",
+    "summary": "The city's infrastructure did not fit the rubric.",
+    "caveats": ["Sweeping corner ramps were counted as two.", "Abstention was high."],
+    "see": "benchmark/README.md",
+}
+
+
+def test_format_review_notes_renders_every_field():
+    text = format_review_notes(NOTES)
+    assert "jonf" in text and "2026-07-27" in text and "LOW" in text
+    assert "did not fit the rubric" in text
+    for caveat in NOTES["caveats"]:
+        assert caveat.split(".")[0] in text
+    assert "benchmark/README.md" in text
+
+
+def test_format_review_notes_warns_only_on_low_confidence():
+    assert "LOW confidence" in format_review_notes(NOTES)
+    assert "LOW confidence" not in format_review_notes({**NOTES, "confidence": "high"})
+
+
+def test_format_review_notes_empty_and_partial():
+    # No notes at all renders nothing (no empty banner in the scorer's output)...
+    assert format_review_notes(None) == "" and format_review_notes({}) == ""
+    # ...and a half-filled block still renders, since every field is optional.
+    text = format_review_notes({"summary": "only a summary"})
+    assert "only a summary" in text and "confidence" not in text
