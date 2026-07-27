@@ -7,6 +7,11 @@ both overall and on the unbiased subset (excluding the always-included densest
 "top" panos). This is the CLI around the scorer; the gallery that produces
 ``verdicts.json`` is tracked in issue #26.
 
+If the verdicts file carries a ``review_notes`` block (the reviewer's caveats about
+the review itself — see :mod:`rampnet.validation`), it is printed **before** the
+numbers, and any per-pano ``note`` after them. Neither affects scoring; they are here
+so nobody reads a precision figure off this output without the caveat attached to it.
+
     python scripts/score_validation.py benchmark/richmond
     python scripts/score_validation.py benchmark/bend --assume-scanned
 """
@@ -17,10 +22,11 @@ from pathlib import Path
 
 # Repo root on the path so `rampnet` imports without an editable install.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from rampnet.validation import collect, format_report  # noqa: E402
+from rampnet.validation import collect, format_report, format_review_notes  # noqa: E402
 
 
 def load_bundle(bundle_dir):
+    """Returns (confs_by_pid, panos, review_notes) for a benchmark bundle dir."""
     d = Path(bundle_dir)
     records_path, verdicts_path = d / "records.jsonl", d / "verdicts.json"
     if not records_path.exists() or not verdicts_path.exists():
@@ -35,7 +41,7 @@ def load_bundle(bundle_dir):
             confs_by_pid[r["pano"]["panorama_id"]] = [d["confidence"] for d in r["detections"]]
 
     verdicts = json.load(open(verdicts_path, encoding="utf-8"))
-    return confs_by_pid, verdicts["panos"]
+    return confs_by_pid, verdicts["panos"], verdicts.get("review_notes")
 
 
 def main():
@@ -52,8 +58,15 @@ def main():
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(errors="replace")
 
-    confs_by_pid, panos = load_bundle(args.bundle)
+    confs_by_pid, panos, review_notes = load_bundle(args.bundle)
     lenient = args.lenient_duplicates
+
+    # Caveats first: whoever reads a precision number off this output has already read
+    # the reviewer's warning about it. Scoring itself never looks at these notes.
+    banner = format_review_notes(review_notes)
+    if banner:
+        print(banner)
+        print()
 
     pools = collect(panos, confs_by_pid, assume_scanned=args.assume_scanned,
                     lenient_duplicates=lenient)
@@ -74,6 +87,14 @@ def main():
         print(f"Duplicate scoring — {mode}. "
               f"Re-run with{'out' if lenient else ''} --lenient-duplicates for the other variant.")
     print("Recall = per-pano-comprehensive, as judged by the reviewer on the sampled panos.")
+
+    # Per-pano notes: the reviewer's record of individual judgment calls. Like
+    # review_notes they never touch the metrics, but they explain them.
+    noted = [(pid, e["note"]) for pid, e in panos.items() if e.get("note")]
+    if noted:
+        print(f"\n--- Reviewer notes on individual panos ({len(noted)}) ---")
+        for pid, note in noted:
+            print(f"  {pid}: {note}")
 
 
 if __name__ == "__main__":

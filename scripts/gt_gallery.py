@@ -22,6 +22,12 @@ The viewer's verdict schema and its "reviewed" gate mirror :func:`rampnet.valida
 (``dets`` values ``true``/``false``/``"unsure"``/``"duplicate"``, ``missed`` marks, the
 ``no_missed`` false-negative confirmation) — keep the two in sync.
 
+It also captures **reviewer notes**, which nothing scores: a split-level ``review_notes``
+block (what fought the rubric, how confident the reviewer is in the pass) and a per-pano
+``note``. Both round-trip — an existing verdicts.json prefills them and Export writes them
+back — so re-reviewing a city revises its caveats instead of silently deleting them.
+``scripts/score_validation.py`` prints ``review_notes`` above the numbers.
+
 Usage:
     python scripts/gt_gallery.py benchmark/bend
     python scripts/gt_gallery.py benchmark/richmond --out /tmp/richmond_gallery
@@ -183,8 +189,11 @@ def choose_panos(records, sample, empty_sample, seed, min_spacing=DEFAULT_MIN_SP
 def load_bundle(bundle_dir):
     """Read a benchmark bundle: records, the panos dir, and any existing verdicts.
 
-    Returns (records, panos_dir, verdicts_panos, run_key, run_name). verdicts_panos is
-    the ``panos`` map from an existing verdicts.json (for prefill/revision) or {}.
+    Returns (records, panos_dir, verdicts_panos, run_key, run_name, review_notes).
+    verdicts_panos is the ``panos`` map from an existing verdicts.json (for
+    prefill/revision) or {}; review_notes is its top-level ``review_notes`` block or
+    {}. Both are round-tripped through the viewer so a re-review revises the notes
+    rather than silently dropping them.
     """
     d = Path(bundle_dir)
     records_path, panos_dir = d / "records.jsonl", d / "panos"
@@ -196,14 +205,15 @@ def load_bundle(bundle_dir):
     with open(records_path, encoding="utf-8") as f:
         records = [json.loads(line) for line in f if line.strip()]
 
-    verdicts_panos, run_key, run_name = {}, d.name, d.name
+    verdicts_panos, run_key, run_name, review_notes = {}, d.name, d.name, {}
     verdicts_path = d / "verdicts.json"
     if verdicts_path.exists():
         vj = json.load(open(verdicts_path, encoding="utf-8"))
         verdicts_panos = vj.get("panos", {})
         run_key = vj.get("run_key", run_key)
         run_name = vj.get("run_name", run_name)
-    return records, panos_dir, verdicts_panos, run_key, run_name
+        review_notes = vj.get("review_notes") or {}
+    return records, panos_dir, verdicts_panos, run_key, run_name, review_notes
 
 
 def _find_pano_image(panos_dir, pid):
@@ -277,12 +287,14 @@ def initial_verdicts(verdicts_panos):
     """Convert a bundle verdicts.json ``panos`` map to the viewer's localStorage schema,
     so an existing bundle prefills for revision (e.g. to add the duplicate marks #26 #5
     calls out on Richmond). Bundle uses ``no_missed``; the viewer uses ``noMissed`` +
-    ``seen``. dets values (incl. ``"duplicate"``) carry over unchanged.
+    ``seen``. dets values (incl. ``"duplicate"``) carry over unchanged, as does any
+    per-pano ``note`` (free text, never scored).
     """
     out = {}
     for pid, e in verdicts_panos.items():
         out[pid] = {'dets': e.get('dets', []), 'missed': e.get('missed', []),
-                    'noMissed': bool(e.get('no_missed', False)), 'seen': True}
+                    'noMissed': bool(e.get('no_missed', False)), 'seen': True,
+                    'note': e.get('note', '')}
     return out
 
 
@@ -376,6 +388,25 @@ HTML_TEMPLATE = r"""<!doctype html>
   #missedempty{color:#888;font-size:13px}
   #help{font-size:13px;color:#666;margin-top:16px;line-height:1.5}
   kbd{background:#eee;border:1px solid #ccc;border-radius:3px;padding:0 4px;font-size:12px}
+  /* Reviewer notes: caveats about the review itself (split-level) and about one pano.
+     Never scored — they travel in verdicts.json so a future reader gets the context. */
+  #notes{background:#eef4ff;border:1px solid #9db8e8;border-radius:8px;padding:9px 14px;
+         margin:0 0 12px;font-size:13px}
+  #notes summary{cursor:pointer;font-weight:bold;color:#24457f}
+  #notes .hint{color:#5a6b85;font-size:12px;margin:6px 0 2px;line-height:1.45}
+  #notes > label{display:block;margin-top:10px;font-weight:600;color:#334c72}
+  #notes .row{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:8px 0 0}
+  #notes .row label{display:inline;font-weight:normal;color:#456}
+  #notes input,#notes textarea,#notes select{font:13px/1.45 sans-serif;padding:5px 7px;
+         border:1px solid #b8c6de;border-radius:5px;background:#fff;color:#222}
+  #notes textarea,#notes input.wide{width:100%;box-sizing:border-box;display:block;
+         margin-top:3px;font-weight:normal}
+  #notes textarea{resize:vertical}
+  #noterow{display:flex;gap:8px;align-items:center;margin:8px 0 0;font-size:13px}
+  #noterow input{flex:1;font:13px/1.45 sans-serif;padding:5px 8px;border:1px solid #ccc;
+         border-radius:5px}
+  #noterow label{color:#555;white-space:nowrap}
+  #notedot{color:var(--ok);font-size:12px;visibility:hidden}
 </style>
 
 <div id="intro">
@@ -387,6 +418,32 @@ HTML_TEMPLATE = r"""<!doctype html>
   <b>and</b> the missed-ramp pass is confirmed. Use pan/zoom to inspect at the model's
   full resolution.
 </div>
+
+<details id="notes">
+  <summary>Review notes for this split &mdash; <span id="notesbadge"></span></summary>
+  <p class="hint">Caveats about <b>the review itself</b>: a city whose infrastructure doesn't fit
+    the rubric, imagery you couldn't resolve, calls you made that another reviewer would make
+    differently. These export as <code>review_notes</code> in <code>verdicts.json</code>, and
+    <code>score_validation.py</code> prints them <b>above the numbers</b> &mdash; so whoever quotes
+    this split's precision reads your warning first. Scoring itself ignores them entirely.</p>
+  <div class="row">
+    <label>Reviewer <input type="text" id="n_reviewer" size="10" placeholder="e.g. jonf"></label>
+    <label>Date <input type="text" id="n_date" size="10" placeholder="YYYY-MM-DD"></label>
+    <label>Your confidence in this pass
+      <select id="n_conf">
+        <option value="">&mdash;</option>
+        <option value="high">high</option>
+        <option value="medium">medium</option>
+        <option value="low">low</option>
+      </select></label>
+  </div>
+  <label>Summary &mdash; what a future reader must know before quoting these numbers
+    <textarea id="n_summary" rows="4"></textarea></label>
+  <label>Caveats &mdash; one per line
+    <textarea id="n_caveats" rows="5"></textarea></label>
+  <label>Pointer to the full write-up (optional)
+    <input type="text" class="wide" id="n_see" placeholder="benchmark/README.md#..."></label>
+</details>
 
 <div id="legend">
   <span class="meta">Legend:</span>
@@ -429,6 +486,12 @@ HTML_TEMPLATE = r"""<!doctype html>
   <button id="nomiss">No missed ramps (m)</button>
   <span id="fnstate" class="meta"></span>
 </div>
+<div id="noterow">
+  <label for="panonote">Note on this pano (optional):</label>
+  <input type="text" id="panonote"
+         placeholder="a judgment call worth explaining, e.g. one sweeping corner ramp counted as two (one per direction of travel)">
+  <span id="notedot">saved</span>
+</div>
 
 <h3 class="section">Detection crops <span class="meta">&mdash; click or press 1&ndash;9 to cycle a verdict</span></h3>
 <div class="crops" id="crops"></div>
@@ -448,7 +511,9 @@ HTML_TEMPLATE = r"""<!doctype html>
   make it <span style="color:var(--unsure)">unsure</span>, again to remove), or press <kbd>m</kbd> if
   there are none &nbsp;&middot;&nbsp; <b>duplicate</b> = a redundant hit on a ramp already counted
   (scored as a false positive by default) &nbsp;&middot;&nbsp; <b>unsure</b> abstains (dropped from
-  precision &amp; recall) &nbsp;&middot;&nbsp; verdicts autosave locally; Export downloads
+  precision &amp; recall) &nbsp;&middot;&nbsp; write down anything that fought the rubric &mdash;
+  per pano in the note box, per split in <b>Review notes</b> at the top &nbsp;&middot;&nbsp;
+  verdicts autosave locally; Export downloads
   <span id="vname"></span> &mdash; save it back over <code>benchmark/&lt;city&gt;/verdicts.json</code>, then
   <code>python scripts/score_validation.py benchmark/&lt;city&gt;</code>
 </p>
@@ -460,12 +525,15 @@ const RUN_KEY = __RUN_KEY__;
 const RUN_NAME = __RUN_NAME__;
 const SOURCE = __SOURCE__;
 const INITIAL = __INITIAL__;   // prefill from the bundle's verdicts.json (schema below)
+const INITIAL_NOTES = __INITIAL_NOTES__;   // its review_notes block, for revision
 const STORE = 'verdicts:' + RUN_KEY;
+const NSTORE = 'reviewnotes:' + RUN_KEY;
 
 let verdicts = JSON.parse(localStorage.getItem(STORE) || '{}');
 // verdicts[pid] = {dets: [null|true|false|'unsure'|'duplicate', ...],
 //                  missed: [{x, y, unsure?: bool}, ...],
-//                  noMissed: bool (reviewer confirmed no missed ramps), seen: bool}
+//                  noMissed: bool (reviewer confirmed no missed ramps), seen: bool,
+//                  note: string (free text about this pano, never scored)}
 // 'unsure' (crop) and unsure:true (missed) mean "can't tell" — the scorer abstains on
 // them. 'duplicate' is a redundant hit on a ramp already counted (scored as an FP by
 // default). Kept in sync with rampnet.validation.collect().
@@ -474,13 +542,45 @@ for (const pid in INITIAL) if (!(pid in verdicts)) verdicts[pid] = INITIAL[pid];
 
 function save() { localStorage.setItem(STORE, JSON.stringify(verdicts)); }
 function v(pid, n) {
-  if (!verdicts[pid]) verdicts[pid] = {dets: Array(n).fill(null), missed: [], noMissed: false, seen: false};
+  if (!verdicts[pid]) verdicts[pid] = {dets: Array(n).fill(null), missed: [], noMissed: false,
+                                       seen: false, note: ''};
   const s = verdicts[pid];
   // A re-render with a different detection count (new model/threshold) invalidates the
   // stored crop verdicts; reset them (missed marks + no-missed are pano-level, kept).
   if (s.dets.length !== n) s.dets = Array(n).fill(null);
   return s;
 }
+
+// --- Split-level review notes ---------------------------------------------------------
+// Free-text caveats about the review itself, exported as verdicts.json's `review_notes`
+// and printed above the numbers by score_validation.py. Scoring never reads them; they
+// exist so a split whose rubric didn't quite fit (a non-US city, unresolvable imagery)
+// carries its own warning label instead of relying on someone's memory.
+let reviewNotes = Object.assign({}, INITIAL_NOTES, JSON.parse(localStorage.getItem(NSTORE) || '{}'));
+const NFIELDS = {reviewer: 'n_reviewer', reviewed_at: 'n_date', confidence: 'n_conf',
+                 summary: 'n_summary', see: 'n_see'};
+
+function notesBadge() {
+  const n = (reviewNotes.caveats || []).length;
+  const bits = [];
+  if (reviewNotes.summary) bits.push('summary written');
+  if (n) bits.push(n + ' caveat' + (n > 1 ? 's' : ''));
+  if (reviewNotes.confidence) bits.push('confidence: ' + reviewNotes.confidence);
+  document.getElementById('notesbadge').textContent =
+    bits.length ? bits.join(' · ') : 'none yet — open this if anything about this city fought the rubric';
+}
+function saveNotes() {
+  for (const k in NFIELDS) reviewNotes[k] = document.getElementById(NFIELDS[k]).value.trim();
+  reviewNotes.caveats = document.getElementById('n_caveats').value
+    .split('\n').map(s => s.trim()).filter(Boolean);
+  localStorage.setItem(NSTORE, JSON.stringify(reviewNotes));
+  notesBadge();
+}
+for (const k in NFIELDS) document.getElementById(NFIELDS[k]).value = reviewNotes[k] || '';
+document.getElementById('n_caveats').value = (reviewNotes.caveats || []).join('\n');
+document.querySelectorAll('#notes input, #notes textarea, #notes select')
+  .forEach(el => el.addEventListener('input', saveNotes));
+notesBadge();
 
 let filterMode = 'all', view = ENTRIES.slice(), idx = 0;
 
@@ -602,15 +702,21 @@ function render() {
     panoImg.removeAttribute('src');
     document.getElementById('crops').innerHTML = '';
     document.getElementById('fnbar').style.display = 'none';
+    document.getElementById('noterow').style.display = 'none';
     document.getElementById('pos').textContent = '';
     renderMissed();
     return;
   }
   document.getElementById('fnbar').style.display = '';
+  document.getElementById('noterow').style.display = '';
   const e = view[idx];
   const s = v(e.pid, e.crops.length);
   s.seen = true; save();
   resetZoom();
+
+  // Don't clobber the note field mid-keystroke (render() also fires on verdict clicks).
+  const noteEl = document.getElementById('panonote');
+  if (document.activeElement !== noteEl) noteEl.value = s.note || '';
 
   document.getElementById('pos').textContent = (idx + 1) + ' / ' + view.length;
   const viewerUrl = e.source === 'mapillary'
@@ -775,10 +881,23 @@ document.getElementById('nomiss').onclick = () => {
   s.noMissed = !s.noMissed;
   save(); render();
 };
+document.getElementById('panonote').addEventListener('input', ev => {
+  if (!view.length) return;
+  const e = view[idx];
+  v(e.pid, e.crops.length).note = ev.target.value;
+  save();
+  const dot = document.getElementById('notedot');   // brief "saved" tick, no re-render
+  dot.style.visibility = 'visible';
+  clearTimeout(dot._t);
+  dot._t = setTimeout(() => { dot.style.visibility = 'hidden'; }, 900);
+});
 document.addEventListener('keydown', ev => {
   // Never hijack browser chords (Ctrl+M mutes, Cmd+M minimizes, Ctrl+1..9 switch tabs).
   if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
-  if (ev.target.tagName === 'SELECT') return;
+  // ...nor the reviewer's own typing: 'm' and 1-9 are verdict keys everywhere EXCEPT
+  // inside a note field, where they are just letters.
+  const tag = ev.target.tagName;
+  if (tag === 'SELECT' || tag === 'INPUT' || tag === 'TEXTAREA' || ev.target.isContentEditable) return;
   if (ev.key === 'ArrowLeft') document.getElementById('prev').click();
   else if (ev.key === 'ArrowRight') document.getElementById('next').click();
   else if (ev.key === 'm' || ev.key === 'M') document.getElementById('nomiss').click();
@@ -804,11 +923,21 @@ document.getElementById('export').onclick = () => {
     if (!confirm(msg)) return;
   }
   const out = {run_key: RUN_KEY, run_name: RUN_NAME, source: SOURCE,
-               exported_at: new Date().toISOString(), panos: {}};
+               exported_at: new Date().toISOString()};
+  // review_notes goes before panos so it's the first thing visible in the file too.
+  saveNotes();
+  const notes = {};
+  for (const k of ['reviewer', 'reviewed_at', 'confidence', 'summary', 'see'])
+    if (reviewNotes[k]) notes[k] = reviewNotes[k];
+  if ((reviewNotes.caveats || []).length) notes.caveats = reviewNotes.caveats;
+  if (Object.keys(notes).length) out.review_notes = notes;
+  out.panos = {};
   for (const e of ENTRIES) {
     const s = verdicts[e.pid];
     if (!s || !s.seen) continue;
-    out.panos[e.pid] = {group: e.group, dets: s.dets, missed: s.missed, no_missed: !!s.noMissed};
+    const entry = {group: e.group, dets: s.dets, missed: s.missed, no_missed: !!s.noMissed};
+    if (s.note && s.note.trim()) entry.note = s.note.trim();
+    out.panos[e.pid] = entry;
   }
   const blob = new Blob([JSON.stringify(out, null, 2)], {type: 'application/json'});
   const a = document.createElement('a');
@@ -824,11 +953,12 @@ render();
 """
 
 
-def build_html(entries, initial, run_key, run_name, source):
+def build_html(entries, initial, run_key, run_name, source, review_notes=None):
     return (HTML_TEMPLATE
             .replace('__ENTRIES__', json.dumps(entries))
             .replace('__MODEL_W__', str(MODEL_WIDTH))
             .replace('__INITIAL__', json.dumps(initial))
+            .replace('__INITIAL_NOTES__', json.dumps(review_notes or {}))
             .replace('__RUN_KEY__', json.dumps(run_key))
             .replace('__RUN_NAME__', json.dumps(run_name))
             .replace('__SOURCE__', json.dumps(str(source))))
@@ -859,7 +989,7 @@ def main():
     args = parser.parse_args()
 
     bundle = Path(args.bundle)
-    records, panos_dir, verdicts_panos, run_key, run_name = load_bundle(bundle)
+    records, panos_dir, verdicts_panos, run_key, run_name, review_notes = load_bundle(bundle)
 
     if args.resample:
         chosen = choose_panos(records, args.sample, args.empty_sample, args.seed, args.min_spacing)
@@ -910,11 +1040,15 @@ def main():
     initial = initial_verdicts(verdicts_panos)
     index_path = out_dir / "index.html"
     with open(index_path, 'w', encoding='utf-8') as f:
-        f.write(build_html(entries, initial, run_key, run_name, bundle / "records.jsonl"))
+        f.write(build_html(entries, initial, run_key, run_name, bundle / "records.jsonl",
+                           review_notes))
 
     print(f"Gallery: {index_path}")
     if verdicts_panos:
         print(f"Prefilled {len(verdicts_panos)} panos from {bundle / 'verdicts.json'} for revision.")
+    if review_notes:
+        print(f"Prefilled the split's review_notes ({len(review_notes.get('caveats') or [])} caveats) "
+              f"— revise them in the gallery's 'Review notes' panel; Export writes them back.")
     print(f"Open it, review, Export, then save the download over {bundle / 'verdicts.json'}")
     print(f"and re-score with: python scripts/score_validation.py {bundle}")
 

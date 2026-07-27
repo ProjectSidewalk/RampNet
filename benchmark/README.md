@@ -14,6 +14,15 @@ benchmark/<city>/
   verdicts.json   human verdicts (crop judgments + missed-ramp marks), self-contained
 ```
 
+`verdicts.json` also carries the reviewer's **notes**, which nothing scores: a top-level
+`review_notes` block about the review itself (what fought the rubric, how confident the
+reviewer is in their own pass) and an optional per-pano `note`. Write them in the gallery's
+*Review notes* panel and the per-pano note box; `score_validation.py` prints `review_notes`
+**above** the numbers and the per-pano notes below them, so a caveat reaches whoever quotes
+a precision figure instead of sitting in a README they didn't open. They round-trip through
+re-reviews (`gt_gallery.py` prefills and re-exports them). Schema:
+`rampnet/validation.py`. **Budapest is the split this exists for — see below.**
+
 `records.jsonl` + `verdicts.json` are all the **scoring** needs — they're image-free, so
 precision/recall reproduce with no imagery. Score with:
 
@@ -46,6 +55,12 @@ Per-step, for adding a city to this benchmark:
 | Score P/R + Wilson CIs + threshold sweep | **RampNet** | `scripts/score_validation.py` / `rampnet.validation` |
 | Add the split to the HF benchmark dataset | **RampNet** | `scripts/build_benchmark_dataset.py` |
 
+⚠️ The last step lags: `build_benchmark_dataset.py` is still hardcoded to `bend` + `richmond`, so
+clovis, morgantown, and budapest are **not** in the published dataset — and it does not yet carry
+`review_notes` or per-pano `note` into the parquet rows or the dataset card. Whoever finishes #21
+should make the caveats travel with the data, since that is the audience most likely to read a
+number with no idea how it was labeled.
+
 The GT gallery and scorer are **canonical in RampNet** (`scripts/gt_gallery.py`,
 `rampnet/validation.py` — decoupled from any imagery source, no network). The auto-labeler
 still carries transitional copies (`scripts/spot_check_gallery.py`, `scripts/score_validation.py`)
@@ -59,8 +74,13 @@ marked for deletion; run the RampNet versions, not those.
 | bend | GSV (Google Street View) | 110 | 0.954 | 0.758 |
 | clovis | Mapillary 360 (GoPro Fusion) | 125 | 0.914 | 0.713 |
 | morgantown | Mapillary 360 (GoPro Max) | 125 | 0.975 | 0.730 |
+| budapest_district5 † | Mapillary 360 (GoPro Max) | 125 | 0.873 | 0.503 |
 
-All four city splits are **self-contained**: the reviewer's complete-scan attestation is baked into
+† **Budapest is not comparable to the four US splits without its caveats** — the reviewer rated
+their own pass low confidence and the rubric does not transfer cleanly. Read the section below
+(or just run the scorer, which prints the warning first). It is a real signal, not a clean number.
+
+All five city splits are **self-contained**: the reviewer's complete-scan attestation is baked into
 `no_missed` (set on fully-judged panos with no missed marks), so the numbers reproduce with a
 plain `python scripts/score_validation.py benchmark/<city>` — no `--assume-scanned` needed.
 This matters because the recall gate otherwise excludes unconfirmed panos and biases recall
@@ -79,18 +99,27 @@ hand-picked high-density panos — is the honest between-city comparison, and
 | bend | 105 | 0.972 | 0.738 |
 | clovis | 120 | 0.889 | 0.650 |
 | morgantown | 120 | 0.969 | 0.684 |
+| budapest_district5 † | 120 | 0.885 | 0.459 |
 
 Clovis is below the other cities on both metrics because it is 100% soft, 2018-era GoPro Fusion
 360 imagery, where richmond mixes in the sharper NCTECH iSTAR Pulsar (camera provenance is in the
 records, added in #50 and backfilled for morgantown/budapest in 2026-07-25). Note bend samples only
 10 empty panos where the others take 25.
 
-**Precision tracks the camera across the three Mapillary splits**, now that every split carries
+**Precision tracks the camera across the three US Mapillary splits**, now that every split carries
 `camera_make`/`camera_model`: clovis (100% GoPro Fusion, 2018) 0.914 → richmond (62% iSTAR Pulsar,
 27% GoPro Max) 0.960 → morgantown (100% GoPro Max, 2024) 0.975. **Recall does not** — richmond
 0.765 > morgantown 0.730 > clovis 0.713 — so sharper imagery buys fewer false positives more
 reliably than it buys fewer misses. Recall looks more sensitive to how far away and how dense the
 ramps are than to sensor sharpness.
+
+**Budapest breaks that camera story, which is the point of including it.** It is 99% GoPro Max —
+the same camera as morgantown, on fresher imagery (118 of 125 panos captured 2025-09 or later,
+median quality 0.869 vs morgantown's 0.882) — yet it scores 0.873/0.503 against morgantown's
+0.975/0.730. Sensor sharpness cannot explain a gap that large in the same direction on both
+metrics. What is left is the city itself (out-of-distribution infrastructure for a US-trained
+model) and the labeling rubric (a US-derived definition of "curb ramp" applied to a place it
+doesn't fit). Those two are **confounded in this split** and this review cannot separate them.
 
 **Morgantown is the precision high-water mark** — 0.975 over 200 judged detections, only 5 false
 positives (on the unbiased subset it is a tie with bend, 0.969 vs 0.972). Every one of those 5 FPs
@@ -103,6 +132,45 @@ the lowest abstention rate of any split. Recall is the middling part of the stor
 0.684 unbiased, between clovis and bend. Worth noting for the negative-sample check: all 25
 `empty`-group panos held **no detections and no missed ramps**, i.e. the model's "nothing here"
 was correct on every one.
+
+## Budapest District V — the split whose ground truth is itself uncertain
+
+**Read this before quoting 0.873 / 0.503 anywhere.** Budapest is the first non-US split and the
+first one where *the rubric*, not the imagery or the model, is the dominant source of doubt. The
+reviewer (jonf, 2026-07-27, single pass, no second rater) rated their own confidence **low** and
+asked for that to be on the record. The full first-person account lives in the split's
+`review_notes` — `python scripts/score_validation.py benchmark/budapest_district5` prints it above
+the numbers. The short version:
+
+- **Sweeping diagonal corner ramps.** Budapest corners frequently carry one broad ramped apron
+  spanning much of the corner, far larger than a US curb ramp and serving two crossing directions
+  at once. The reviewer generally marked these as **two** ramps, one per direction of travel — a
+  *rubric decision, not an observation*. RampNet often did the same thing unprompted, which is
+  interesting on its own. Where a second detection looked purely redundant it was marked
+  `duplicate` instead, so the same physical geometry did not always get scored the same way.
+- **That call is worth ~4 points of precision**: 0.873 (duplicates as false positives, the default)
+  vs 0.910 (`--lenient-duplicates`). Budapest carries **7 duplicate marks** where richmond and bend
+  have 1 each and clovis and morgantown have none — the quantitative fingerprint of the ambiguity.
+  6 of the 7 land in the 5 hand-picked `top` panos, so the unbiased subset barely moves
+  (0.885 → 0.891). Say which scoring you used.
+- **"Curb ramp" vs. "intended pedestrian path."** Many District V surfaces are genuinely ambiguous
+  between a curb ramp and a continuously graded pedestrian route that never presents a curb at all.
+  The US-derived rubric does not decide these, and the reviewer's line between them likely drifted
+  over the session.
+- **Highest abstention of any split** — the honest shadow of the two points above: 16 of 189
+  detections (8.5%) and 48 of 197 missed marks (24.4%) were marked unsure and abstain from both
+  metrics. Compare morgantown's 4.3% / 21.7%.
+- **Recall 0.503 rests on 149 confident missed marks**, roughly double any other split (bend 79,
+  richmond 73, morgantown 72, clovis 56). Some of that is a real domain gap; some is the reviewer
+  counting more things as ramps. This pass cannot separate them.
+
+What Budapest **is** good for: a genuine out-of-distribution stress test, and the clearest evidence
+in the benchmark that RampNet's US-trained performance does not transfer wholesale. What it is
+**not** good for: a precise number, or a row placed beside the US cities without this context. The
+two things that would fix it are a Budapest-specific rubric written from Hungarian street design
+rather than adapted from the US one, and a **second independent rater** on the same 125 panos to
+measure how much of the gap is the model and how much is the labeler. Of every split here, this is
+the one most in need of a second opinion.
 
 ## The manual_gold split (in-distribution gold reference)
 
@@ -140,15 +208,16 @@ The exporter ends with a reproduction gate against the published gold-set number
 (P 0.949 / R 0.873 @ conf >= 0.55, TTA). Read the manual-gold section of
 `docs/model_comparison.md` before quoting numbers from this split.
 
-**All four city splits were reviewed at model resolution** with the pan/zoom labeler (`scripts/gt_gallery.py`),
+**All five city splits were reviewed at model resolution** with the pan/zoom labeler (`scripts/gt_gallery.py`),
 which shows the full pano at the model's input resolution (4096×2048) with pan/zoom, rather than a
 downscaled overview. For richmond and bend this was a *re-review*: reviewing at model resolution
 surfaced genuinely-missed ramps that the earlier 1600 px overview hid — small/distant curb ramps a
 reviewer literally could not resolve — correcting recall down from earlier, optimistic numbers
 (richmond 0.895 → 0.765, bend 0.831 → 0.758). Precision was essentially unchanged (the zoom mostly
 resolved `unsure` detections, not misclassifications). The correction is consistent across both
-imagery sources (GSV and Mapillary), and these are the honest per-pano-comprehensive figures; clovis
-and morgantown were reviewed at model resolution from the start. Richmond and bend each include one
-`duplicate` verdict — a redundant second detection on one physical ramp, scored as a false positive
-by default (`--lenient-duplicates` scores the other way; see `scripts/score_validation.py`); clovis
-and morgantown have none.
+imagery sources (GSV and Mapillary), and these are the honest per-pano-comprehensive figures; clovis,
+morgantown, and budapest were reviewed at model resolution from the start. Richmond and bend each
+include one `duplicate` verdict — a redundant second detection on one physical ramp, scored as a
+false positive by default (`--lenient-duplicates` scores the other way; see
+`scripts/score_validation.py`); clovis and morgantown have none, and budapest has 7 (see its section
+above — there the duplicate call is a live rubric question, not a stray click).
