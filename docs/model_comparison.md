@@ -178,11 +178,17 @@ spend:
 | richmond | P 0.964 / R 0.768 | P 0.960 / R 0.765 |
 | bend | P 0.961 / R 0.761 | P 0.954 / R 0.758 |
 | clovis | P 0.914 / R 0.713 | P 0.914 / R 0.713 |
+| morgantown | P 0.975 / R 0.730 | P 0.975 / R 0.730 |
 
 The ~0.005 upward drift on richmond/bend is expected: a RampNet `False` detection occasionally
 falls within radius of a real GT point, which the per-detection human verdict scored differently
-(on clovis no `False` detection does, so the two columns coincide exactly). The `compare.py` CLI
-prints both side by side.
+(on clovis and morgantown no `False` detection does, so the two columns coincide exactly). The
+`compare.py` CLI prints both side by side.
+
+**morgantown** (split added 2026-07-25) is listed here as a harness check only — no challenger
+has been run on it yet, so it has no results table above. RampNet's own row is
+P 0.975 / R 0.730 / F1 0.835 / AP 0.728 (195/5/72, 9 ignored), the AP truncated at the bundle's
+0.55 peak floor exactly as the other cities' RampNet AP is.
 
 ## Caveats (read before quoting numbers)
 

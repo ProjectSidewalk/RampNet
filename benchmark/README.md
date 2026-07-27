@@ -55,23 +55,54 @@ marked for deletion; run the RampNet versions, not those.
 
 | City | Source | Panos | Precision | Recall |
 |------|--------|-------|-----------|--------|
-| richmond | Mapillary 360 | 124 | 0.960 | 0.765 |
+| richmond | Mapillary 360 (iSTAR Pulsar + GoPro Max) | 124 | 0.960 | 0.765 |
 | bend | GSV (Google Street View) | 110 | 0.954 | 0.758 |
 | clovis | Mapillary 360 (GoPro Fusion) | 125 | 0.914 | 0.713 |
+| morgantown | Mapillary 360 (GoPro Max) | 125 | 0.975 | 0.730 |
 
-All three splits are **self-contained**: the reviewer's complete-scan attestation is baked into
+All four city splits are **self-contained**: the reviewer's complete-scan attestation is baked into
 `no_missed` (set on fully-judged panos with no missed marks), so the numbers reproduce with a
 plain `python scripts/score_validation.py benchmark/<city>` — no `--assume-scanned` needed.
 This matters because the recall gate otherwise excludes unconfirmed panos and biases recall
 low (it over-weights panos where a miss *was* found).
 
-**Clovis is stratified, and harder.** Its 125 panos are sampled 5 top-detection / 95 random /
-25 empty (`sample.json`; each pano's `benchmark_group` is in `records.jsonl`). The table shows
-the all-125 figure `score_validation.py` prints first, but the number comparable to richmond and
-bend is the **unbiased subset** — random + empty, 120 panos, dropping the 5 hand-picked
-high-density panos: **P 0.889 / R 0.650**. Both are below the other two cities because clovis is
-100% soft, 2018-era GoPro Fusion 360 imagery, where richmond mixes in the sharper NCTECH iSTAR
-Pulsar (camera provenance is in the records, added in #50).
+**Every city split is stratified, so read the unbiased column too.** Each is sampled 5 top-detection /
+N random / M empty (`sample.json` where the sampler wrote one; each pano's `benchmark_group` is in
+`records.jsonl` and its `group` in `verdicts.json`). The table above is the all-panos figure
+`score_validation.py` prints first; the **unbiased subset** — random + empty, dropping the 5
+hand-picked high-density panos — is the honest between-city comparison, and
+`score_validation.py` prints it second:
+
+| City | Unbiased panos | Precision | Recall |
+|------|----------------|-----------|--------|
+| richmond | 119 | 0.961 | 0.740 |
+| bend | 105 | 0.972 | 0.738 |
+| clovis | 120 | 0.889 | 0.650 |
+| morgantown | 120 | 0.969 | 0.684 |
+
+Clovis is below the other cities on both metrics because it is 100% soft, 2018-era GoPro Fusion
+360 imagery, where richmond mixes in the sharper NCTECH iSTAR Pulsar (camera provenance is in the
+records, added in #50 and backfilled for morgantown/budapest in 2026-07-25). Note bend samples only
+10 empty panos where the others take 25.
+
+**Precision tracks the camera across the three Mapillary splits**, now that every split carries
+`camera_make`/`camera_model`: clovis (100% GoPro Fusion, 2018) 0.914 → richmond (62% iSTAR Pulsar,
+27% GoPro Max) 0.960 → morgantown (100% GoPro Max, 2024) 0.975. **Recall does not** — richmond
+0.765 > morgantown 0.730 > clovis 0.713 — so sharper imagery buys fewer false positives more
+reliably than it buys fewer misses. Recall looks more sensitive to how far away and how dense the
+ramps are than to sensor sharpness.
+
+**Morgantown is the precision high-water mark** — 0.975 over 200 judged detections, only 5 false
+positives (on the unbiased subset it is a tie with bend, 0.969 vs 0.972). Every one of those 5 FPs
+sits below confidence 0.75, so precision is a clean **1.000** at that threshold (at the cost of
+recall 0.730 → 0.524). Its imagery is the newest and most uniform in the benchmark: 2024-era
+Mapillary 360 shot entirely on a **GoPro Max** by a single contributor across 80 sequences,
+uniformly 4096×2048 (3 panos at 5760×2880), median Mapillary quality score 0.882 —
+legible enough that the reviewer abstained on only 4.3% of detections and 21.7% of missed marks,
+the lowest abstention rate of any split. Recall is the middling part of the story: 0.730 all-125 /
+0.684 unbiased, between clovis and bend. Worth noting for the negative-sample check: all 25
+`empty`-group panos held **no detections and no missed ramps**, i.e. the model's "nothing here"
+was correct on every one.
 
 ## The manual_gold split (in-distribution gold reference)
 
@@ -109,7 +140,7 @@ The exporter ends with a reproduction gate against the published gold-set number
 (P 0.949 / R 0.873 @ conf >= 0.55, TTA). Read the manual-gold section of
 `docs/model_comparison.md` before quoting numbers from this split.
 
-**All three splits were reviewed at model resolution** with the pan/zoom labeler (`scripts/gt_gallery.py`),
+**All four city splits were reviewed at model resolution** with the pan/zoom labeler (`scripts/gt_gallery.py`),
 which shows the full pano at the model's input resolution (4096×2048) with pan/zoom, rather than a
 downscaled overview. For richmond and bend this was a *re-review*: reviewing at model resolution
 surfaced genuinely-missed ramps that the earlier 1600 px overview hid — small/distant curb ramps a
@@ -117,6 +148,7 @@ reviewer literally could not resolve — correcting recall down from earlier, op
 (richmond 0.895 → 0.765, bend 0.831 → 0.758). Precision was essentially unchanged (the zoom mostly
 resolved `unsure` detections, not misclassifications). The correction is consistent across both
 imagery sources (GSV and Mapillary), and these are the honest per-pano-comprehensive figures; clovis
-was reviewed at model resolution from the start. Richmond and bend each include one `duplicate`
-verdict — a redundant second detection on one physical ramp, scored as a false positive by default
-(`--lenient-duplicates` scores the other way; see `scripts/score_validation.py`); clovis has none.
+and morgantown were reviewed at model resolution from the start. Richmond and bend each include one
+`duplicate` verdict — a redundant second detection on one physical ramp, scored as a false positive
+by default (`--lenient-duplicates` scores the other way; see `scripts/score_validation.py`); clovis
+and morgantown have none.
