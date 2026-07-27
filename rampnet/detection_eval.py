@@ -146,7 +146,7 @@ def yolo_ground_truth(label_path):
                     f"{label_path}:{lineno}: expected 'class cx cy w h', got {line.strip()!r}")
             try:
                 cx, cy = float(parts[1]), float(parts[2])
-                float(parts[3]), float(parts[4])
+                float(parts[3]), float(parts[4])   # w, h: numeric-checked, then dropped (box->center)
             except ValueError:
                 raise ValueError(
                     f"{label_path}:{lineno}: non-numeric field in {line.strip()!r}") from None

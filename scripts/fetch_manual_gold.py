@@ -85,7 +85,8 @@ def audit(ids):
     by_split = {"train": [], "validation": [], "test": []}
     unknown = []
     for f in files:
-        (by_split[split_of(f)] if split_of(f) in by_split else unknown).append(f)
+        split = split_of(f)
+        (by_split[split] if split in by_split else unknown).append(f)
     if unknown:
         print(f"warning: {len(unknown)} parquet file(s) with unrecognized split name, "
               f"e.g. {unknown[0]}")

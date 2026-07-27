@@ -161,9 +161,8 @@ def main():
         print("  MISMATCH > 0.005: check imagery source (re-encode drift — see "
               "fetch_manual_gold.py), checkpoint, and TTA before running challengers.")
     full = gate_report(records, gts, 0.0)
-    print(f"  full range  : P {full.precision:.3f} / R {full.recall:.3f} "
-          f"AP {full.ap:.3f} (floor {args.peak_floor})" if full.ap is not None else
-          f"  full range  : P {full.precision:.3f} / R {full.recall:.3f}")
+    ap_str = f" AP {full.ap:.3f} (floor {args.peak_floor})" if full.ap is not None else ""
+    print(f"  full range  : P {full.precision:.3f} / R {full.recall:.3f}{ap_str}")
 
 
 if __name__ == "__main__":

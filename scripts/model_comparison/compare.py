@@ -476,6 +476,11 @@ def main():
         gt_desc = "reviewer-confirmed ramps + missed marks"
     else:
         gts = load_manual_ground_truths(args.bundle)
+        # Validate the whole bundle (all labels <-> all records) before slicing to
+        # --limit: a manual bundle is only valid if every label has a record and
+        # vice versa, so a smoke run should still catch a partial/misbuilt bundle.
+        # (The city branch above validates post-slice because its verdicts and
+        # records are built together and can't drift independently.)
         validate_manual_bundle(records, gts,
                                need_detections=any(p == "rampnet" for p, _ in specs))
         if args.limit:
