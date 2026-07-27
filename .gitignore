@@ -11,3 +11,22 @@ benchmark/*/heatmap_cache/
 view_dump/
 .model_cache/
 analysis_out/
+
+# Claude Code local state. settings.local.json is per-machine (absolute paths,
+# session ids) and worktrees/ holds full repo checkouts -- gigabytes. Listed
+# individually rather than ignoring all of .claude/, so a shared
+# .claude/settings.json could still be committed if we ever want one.
+.claude/settings.local.json
+.claude/worktrees/
+
+# PR curves written by scripts/model_comparison/compare.py --pr-out (the
+# commands in docs/model_comparison.md write here). Regenerable output.
+# Anchored to the repo root on purpose: the committed curves under
+# stage_one/.../evaluation_results/ and stage_two/evaluation_results*/ must
+# stay tracked.
+/evaluation_results/
+
+# sha256 manifest of a split's panos/ bundle, exported next to the imagery by
+# the auto-labeler. Belongs with the imagery, which is intentionally not in git
+# (see benchmark/README.md) -- nothing in this repo reads it.
+benchmark/*/index.csv
