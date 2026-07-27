@@ -14,6 +14,7 @@ Outputs go to `$RAMPNET_ANALYSIS_OUT` (default `analysis_out/`, git-ignored).
 | `complementarity.py [model]` | no | Oracle-union recall + the RampNet-miss ∩ VLM-hit set (issue #35 gate). Reads cached VLM detections from `.model_cache`. |
 | `precision_by_distance.py` | no | Is precision worse at distance — i.e. is culling far detections worth it? (No.) |
 | `threshold_sweep.py` | **yes** | Re-runs inference on all benchmark panos and sweeps `threshold_abs` × `min_distance`. |
+| `peak_nms_check.py` | no | Would suppressing peaks closer than the match radius help? (No — 5 of the 8 within-R pairs in the reviewed records are real ramp pairs; issue #62.) Reads all six splits' committed records, no panos needed. |
 | `depth_extract_da3.py [n]` | **yes** | Metric depth for every GT ramp via Depth Anything 3 on the reprojected views → `gt_depth_da3.json`. |
 | `depth_analysis.py` | no | Recall vs true distance / apparent size + the resolution forecast. Needs `gt_depth_da3.json`. |
 | `size_analysis.py` | no | Geometry-only size stratification (no depth model) + the hard-miss montage figure. |
