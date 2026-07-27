@@ -36,3 +36,10 @@ requests
 # models use — the harness itself imports fine on 4.57.1, so only Molmo's
 # interpreter differs. See docs/model_comparison.md.
 # (`decord2` from the card is video-only; this harness only sends still views.)
+
+# YOLO supervised baseline (issue #51): Ultralytics for both training the detector
+# on the RampNet dataset (scripts/model_comparison/prepare_yolo_dataset.py) and the
+# 'yolo' provider's inference. Pulls its own torch/torchvision if absent, but the
+# conda env / cluster wheels already provide CUDA builds — install this last so it
+# doesn't override them. Weights (.pt) are passed via --yolo-model, not bundled.
+ultralytics
