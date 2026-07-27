@@ -1,0 +1,61 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.10 is what environment.yml pins (the cluster/paper environment);
+        # 3.12 is what local dev venvs tend to be. Both are in real use.
+        python-version: ["3.10", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      # Installed first, and from the CPU index, so pip does not pull the
+      # multi-gigabyte CUDA wheels that are the default for torch on Linux.
+      # The requirements-dev.txt install below then finds both already
+      # satisfied and leaves them alone.
+      #
+      # torchvision must come from the same index, in the same command: timm
+      # imports it, and PyPI's Linux torchvision wheel is compiled against a
+      # CUDA torch. Pairing that with a +cpu torch imports cleanly right up
+      # until it doesn't -- "RuntimeError: operator torchvision::nms does not
+      # exist". Resolving both from the CPU index guarantees a matched pair.
+      - name: Install CPU-only PyTorch
+        run: pip install "torch>=2.6,<3" "torchvision>=0.21" --index-url https://download.pytorch.org/whl/cpu
+
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements-dev.txt
+          pip install -e .
+
+      - name: Run tests
+        # The suite is self-contained: every fixture it reads (manual_labels/,
+        # benchmark/*/records.jsonl, benchmark/*/verdicts.json) is committed, and
+        # models are built with pretrained_backbone=False. Forcing the Hugging
+        # Face hub offline makes any accidental network dependency fail loudly
+        # here rather than turning into a slow, flaky job later.
+        env:
+          HF_HUB_OFFLINE: "1"
+        run: pytest -q

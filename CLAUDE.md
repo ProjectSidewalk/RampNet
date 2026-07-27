@@ -13,7 +13,8 @@ Research code for the RampNet paper (ICCV'25 workshop): a two-stage pipeline tha
   conda env create -f environment.yml
   conda activate sidewalkcv2
   ```
-- There is no test suite, build step, or lint config. Scripts are configured by editing constants at the top of each file (e.g. `MODEL_CHECKPOINT_PATH`, `EVALUATE_ON_MANUAL_DATASET`, `CONSIDER_MANUAL`), not CLI args.
+- There is a pytest suite in `tests/` — run it with `pytest -q` (about 30 seconds). It is CPU-only, needs no network, and reads only committed fixtures (`manual_labels/`, `benchmark/*/records.jsonl`, `benchmark/*/verdicts.json`), because models are built with `pretrained_backbone=False`. **Keep it that way**: a test that needs a GPU, a checkpoint, or a network call belongs behind a skip, not in the default run. `requirements-dev.txt` is the minimal dependency set for it, and `.github/workflows/tests.yml` runs it on Python 3.10 and 3.12 for every PR. CI installs CPU-only pip wheels, so a green run verifies the code, **not** that `environment.yml` still solves.
+- There is no lint or formatting config, and no build step beyond `pip install -e .` for the `rampnet` package. Older scripts are configured by editing constants at the top of the file (e.g. `MODEL_CHECKPOINT_PATH`, `CONSIDER_MANUAL`); newer ones (`stage_two/evaluate.py`, most of `scripts/`) take CLI args instead — check the file before assuming.
 - Every long-running script has a matching `.slurm` launcher (the paper's runs used a Slurm cluster; Stage 2 training used 16x L40s). Stage 2 training is DDP — locally it's launched via `torchrun` (see `stage_two/run_train.slurm`); single-process fallback works since `setup_distributed()` defaults to world_size 1.
 - `download_dataset.py` (repo root) downloads the pre-generated Stage 1 dataset from Hugging Face into `./dataset/{train,val,test}` — the shortcut that skips all of Stage 1.
 

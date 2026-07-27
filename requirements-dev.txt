@@ -1,0 +1,30 @@
+# Minimal dependency set for running the test suite.
+#
+# Deliberately much smaller than requirements.txt: the tests cover model
+# definitions, evaluation metrics, and parsing/serialization logic, so they need
+# neither a GPU nor the geo/plotting/training stack the pipeline scripts use.
+# The suite is CPU-only, needs no network, and runs in about 30 seconds.
+#
+# CPU-only install (what CI does — skips the ~2.5 GB CUDA wheels on Linux).
+# Install torch and torchvision together from the CPU index: on Linux, PyPI's
+# torchvision is built against a CUDA torch, and mixing it with a +cpu torch
+# fails at import with "operator torchvision::nms does not exist".
+#   pip install "torch>=2.6,<3" "torchvision>=0.21" --index-url https://download.pytorch.org/whl/cpu
+#   pip install -r requirements-dev.txt
+#   pip install -e .
+#
+# If you already have the full conda env (environment.yml), you have all of this
+# and can just run `pytest`.
+
+torch>=2.6,<3
+# Not imported by the tests directly, but timm imports it, so it has to be
+# declared to keep it pinned to the same build as torch (see the note above).
+torchvision>=0.21
+timm
+transformers
+numpy
+pillow
+pytest
+# Needed only because scripts/build_benchmark_dataset.py imports it at module
+# level, and tests/test_benchmark_dataset.py imports that module.
+datasets

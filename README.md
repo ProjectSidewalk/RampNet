@@ -136,6 +136,29 @@ Alternatives:
 - `environment.lock.yml` — the exact full conda export used for the paper results (linux-64 only), kept for provenance. Note that despite the paper-era README saying "CUDA 11.8", the lock actually pins CUDA 12.6 pytorch builds.
 
 
+## Running the Tests
+
+A pytest suite in `tests/` covers the shared `rampnet` package — the model definition and its checkpoint compatibility, the evaluation metrics and prediction/ground-truth matching — along with the benchmark bundles and the Hugging Face export tooling. It is CPU-only, needs no network, and reads only fixtures committed to this repo, so it takes about 30 seconds:
+
+```bash
+pytest -q
+```
+
+If you created the conda environment above, you already have everything it needs. For a minimal install that skips the training, geo, and plotting stack:
+
+```bash
+pip install "torch>=2.6,<3" "torchvision>=0.21" --index-url https://download.pytorch.org/whl/cpu
+pip install -r requirements-dev.txt
+pip install -e .
+```
+
+Install torch and torchvision together from the CPU index as shown. On Linux, PyPI's torchvision wheel is built against a CUDA torch, and mixing it with a CPU-only torch fails at import with `operator torchvision::nms does not exist`.
+
+GitHub Actions runs the same suite on Python 3.10 and 3.12 for every pull request (`.github/workflows/tests.yml`). Because CI installs CPU-only pip wheels rather than the conda environment, a green run verifies the code — not that `environment.yml` still solves or that the CUDA builds are intact.
+
+The suite does not train, evaluate a checkpoint, or touch the Google Street View endpoints; those runs are far too slow and network-dependent to gate a commit on, and are documented in the stage sections below.
+
+
 ## Dataset Summary
 
 | Name | Description | # of Panoramas | # of Labels |
