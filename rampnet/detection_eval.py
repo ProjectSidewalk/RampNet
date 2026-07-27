@@ -36,6 +36,7 @@ Caveat: the GT was assembled during a RampNet review, so it is "RampNet-anchored
 complete-scan attestation (`no_missed`) mitigates this; it is documented in
 `docs/model_comparison.md`.
 """
+import os
 from collections import namedtuple
 
 from rampnet.metrics import calculate_ap_and_pr_curve, greedy_match
@@ -116,6 +117,53 @@ def build_ground_truth(detections, det_verdicts, missed, no_missed):
 
     fn_confirmed = bool(no_missed) or len(missed) > 0
     return GroundTruth(gt_points, ignore_points, fn_confirmed)
+
+
+def yolo_ground_truth(label_path):
+    """Parse one YOLO-format manual label file into a GroundTruth.
+
+    The 1,000-pano manual gold set (``manual_labels/*.txt``, issue #58) is
+    labeled independently of any model, so unlike :func:`build_ground_truth`
+    there is no verdict structure to derive from: each ``class cx cy w h`` box
+    becomes its center point in ``gt_points`` (the same box->center reduction
+    the VLM challengers get), ``ignore_points`` is empty (the labels carry no
+    'unsure' class — no abstention for any model), and ``fn_confirmed`` is True
+    (full manual labeling is a complete scan, so an empty file is a genuine
+    negative pano that joins the recall pool).
+
+    Strict on purpose: these labels are a benchmark artifact, so a malformed or
+    out-of-range line raises instead of being skipped (stage_two/evaluate.py's
+    tolerant reader would silently shrink the GT).
+    """
+    points = []
+    with open(label_path, encoding="utf-8") as f:
+        for lineno, line in enumerate(f, start=1):
+            if not line.strip():
+                continue
+            parts = line.split()
+            if len(parts) != 5:
+                raise ValueError(
+                    f"{label_path}:{lineno}: expected 'class cx cy w h', got {line.strip()!r}")
+            try:
+                cx, cy = float(parts[1]), float(parts[2])
+                float(parts[3]), float(parts[4])   # w, h: numeric-checked, then dropped (box->center)
+            except ValueError:
+                raise ValueError(
+                    f"{label_path}:{lineno}: non-numeric field in {line.strip()!r}") from None
+            if not (0.0 <= cx <= 1.0 and 0.0 <= cy <= 1.0):
+                raise ValueError(
+                    f"{label_path}:{lineno}: center ({cx}, {cy}) outside [0, 1]")
+            points.append((cx, cy))
+    return GroundTruth(points, [], True)
+
+
+def load_yolo_ground_truths(labels_dir):
+    """{pano_id: GroundTruth} for every ``.txt`` label file in ``labels_dir``."""
+    gts = {}
+    for name in sorted(os.listdir(labels_dir)):
+        if name.endswith(".txt"):
+            gts[name[:-4]] = yolo_ground_truth(os.path.join(labels_dir, name))
+    return gts
 
 
 def prediction_confidence(point):

@@ -5,6 +5,7 @@ detectors construct without their client libraries and only fail — with a clea
 message — when a live detection is actually requested, and that the detection
 cache stays valid across changes (see ``test_gemini_cache_key_is_frozen``).
 """
+import json
 import os
 import sys
 
@@ -24,8 +25,9 @@ from dump_detections import detections_to_view_shapes  # noqa: E402
 
 
 from compare import (  # noqa: E402
-    score_model, validate_bundle, DetectionCache, cache_key, has_confidences, rescore,
-    sweep_rows,
+    score_model, validate_bundle, validate_manual_bundle, DetectionCache, cache_key,
+    ground_truths_from_verdicts, has_confidences, load_bundle,
+    load_manual_ground_truths, operating_report, rescore, sweep_rows,
 )
 from rampnet.detection_eval import GroundTruth, radius_sq_for  # noqa: E402
 
@@ -480,6 +482,20 @@ def test_rescore_never_drops_unscored_predictions():
     assert rescore(scored, radius_sq_for(), 0.9).tp == 1
 
 
+def test_operating_report_keeps_ap_and_pr_curve_untruncated():
+    # The table's P/R/F1/counts move to the operating point, but AP and the PR
+    # curve are integrals over the whole confidence range — an --op-threshold must
+    # not truncate them (the manual_gold bundle exports down to a 0.05 floor
+    # precisely so RampNet's AP is untruncated).
+    scored = _one_pano([(0.0, 0.0, 0.9), (0.5, 0.5, 0.1)])   # one TP, one low-conf FP
+    full = rescore(scored, radius_sq_for(), 0.0)
+    op = operating_report(full, scored, radius_sq_for(), 0.5)
+    assert (op.tp, op.fp) == (1, 0)            # operating point applied to the counts
+    assert op.ap == full.ap                    # ...but AP is the full-range AP
+    assert op.pr_curve == full.pr_curve
+    assert operating_report(full, scored, radius_sq_for(), 0.0) is full
+
+
 def test_has_confidences_requires_every_prediction_to_carry_one():
     assert has_confidences(_one_pano([(0.0, 0.0, 0.9)]))
     assert not has_confidences(_one_pano([(0.0, 0.0, 0.9), (0.5, 0.5, None)]))
@@ -521,18 +537,20 @@ def test_score_model_skips_model_load_when_fully_cached(tmp_path):
     # A .model_cache produced on the cluster must score on a machine that cannot
     # load the model at all — otherwise the remote run is unusable locally.
     records, verdicts = _aligned()
+    gts = ground_truths_from_verdicts(records, verdicts)
     det = _UnloadableDetector()
     cache = DetectionCache(str(tmp_path))
     cache.put(cache_key("unloadable", det.signature(), "richmond", "p1"), [(0.1, 0.1, None)])
-    run = score_model(det, records, verdicts, "", radius_sq_for(),
+    run = score_model(det, records, gts, "", radius_sq_for(),
                       "unloadable", "richmond", cache)
     assert run.report.n_panos == 1 and run.report.tp == 1 and not run.failures
 
 
 def test_score_model_loads_model_on_a_cache_miss(tmp_path):
     records, verdicts = _aligned()
+    gts = ground_truths_from_verdicts(records, verdicts)
     try:
-        score_model(_UnloadableDetector(), records, verdicts, "", radius_sq_for(),
+        score_model(_UnloadableDetector(), records, gts, "", radius_sq_for(),
                     "unloadable", "richmond", DetectionCache(str(tmp_path)))
     except ImportError:
         return  # prepare() still fails fast when work actually has to be done
@@ -542,10 +560,9 @@ def test_score_model_loads_model_on_a_cache_miss(tmp_path):
 def test_score_model_isolates_pano_failures():
     records = {pid: {"detections": [], "pano": {"width": 1, "height": 1}}
                for pid in ("good", "bad")}
-    verdicts = {pid: {"dets": [], "missed": [{"x": 0.5, "y": 0.5}], "no_missed": True}
-                for pid in ("good", "bad")}
+    gts = {pid: GroundTruth([(0.5, 0.5)], [], True) for pid in ("good", "bad")}
     det = _FlakyDetector()
-    run = score_model(det, records, verdicts, "", radius_sq_for(),
+    run = score_model(det, records, gts, "", radius_sq_for(),
                       "flaky", "city", DetectionCache("x", enabled=False))
     assert run.report.n_panos == 1                   # only 'good' scored
     assert len(run.failures) == 1 and run.failures[0][0] == "bad"
@@ -697,3 +714,119 @@ def _assert_validation_mentions(records, verdicts, needle):
         assert needle in str(e)
         return
     raise AssertionError(f"expected validate_bundle to reject the bundle mentioning {needle!r}")
+
+
+# --- manual-GT bundles (benchmark/manual_gold, issue #58) --------------------
+
+def _manual_bundle(tmp_path, with_detections=True):
+    """A tiny gt_source.json bundle: p1 has one labeled ramp, p2 is a negative."""
+    labels = tmp_path / "labels"
+    labels.mkdir()
+    (labels / "p1.txt").write_text("0 0.5 0.25 0.1 0.2\n")
+    (labels / "p2.txt").write_text("")
+    bundle = tmp_path / "bundle"
+    bundle.mkdir()
+    (bundle / "gt_source.json").write_text(json.dumps(
+        {"format": "yolo_points", "labels_dir": "../labels"}))
+    rows = []
+    for pid in ("p1", "p2"):
+        rec = {"pano": {"panorama_id": pid, "width": 4096, "height": 2048}}
+        if with_detections:
+            rec["detections"] = []
+        rows.append(json.dumps(rec))
+    (bundle / "records.jsonl").write_text("\n".join(rows) + "\n")
+    return str(bundle)
+
+
+def test_load_bundle_accepts_a_manual_gt_bundle(tmp_path):
+    records, verdicts, _ = load_bundle(_manual_bundle(tmp_path))
+    assert verdicts is None                      # no review — GT comes from the labels
+    assert set(records) == {"p1", "p2"}
+
+
+def test_load_bundle_rejects_a_dir_with_neither_gt_source(tmp_path):
+    (tmp_path / "records.jsonl").write_text("")
+    try:
+        load_bundle(str(tmp_path))
+    except SystemExit as e:
+        assert "neither" in str(e)
+        return
+    raise AssertionError("expected load_bundle to reject a bundle with no GT source")
+
+
+def test_load_manual_ground_truths_builds_points_and_negatives(tmp_path):
+    gts = load_manual_ground_truths(_manual_bundle(tmp_path))
+    assert gts["p1"].gt_points == [(0.5, 0.25)]         # box center, w/h dropped
+    assert gts["p1"].ignore_points == []                # no 'unsure' class exists
+    # The negative pano still joins the recall pool (full labeling = complete scan)
+    # and its false positives count — that's where VLM hallucination shows up.
+    assert gts["p2"].gt_points == [] and gts["p2"].fn_confirmed is True
+
+
+def test_load_manual_ground_truths_rejects_unknown_format(tmp_path):
+    bundle = _manual_bundle(tmp_path)
+    with open(os.path.join(bundle, "gt_source.json"), "w") as f:
+        json.dump({"format": "coco", "labels_dir": "../labels"}, f)
+    try:
+        load_manual_ground_truths(bundle)
+    except SystemExit as e:
+        assert "yolo_points" in str(e)
+        return
+    raise AssertionError("expected an unknown gt_source format to be rejected")
+
+
+def _assert_manual_validation_mentions(records, gts, needle, **kw):
+    try:
+        validate_manual_bundle(records, gts, **kw)
+    except SystemExit as e:
+        assert needle in str(e)
+        return
+    raise AssertionError(f"expected validate_manual_bundle to complain about {needle!r}")
+
+
+def test_validate_manual_bundle_flags_label_and_record_drift(tmp_path):
+    bundle = _manual_bundle(tmp_path)
+    records, _, _ = load_bundle(bundle)
+    gts = load_manual_ground_truths(bundle)
+    validate_manual_bundle(records, gts)                      # aligned: must not raise
+    _assert_manual_validation_mentions(
+        {"p1": records["p1"]}, gts, "absent from records")    # labeled, no record
+    _assert_manual_validation_mentions(
+        dict(records, p3={"pano": {}}), gts, "no label file")  # record, no label
+
+
+def test_validate_manual_bundle_requires_detections_only_for_rampnet(tmp_path):
+    bundle = _manual_bundle(tmp_path, with_detections=False)
+    records, _, _ = load_bundle(bundle)
+    gts = load_manual_ground_truths(bundle)
+    validate_manual_bundle(records, gts, need_detections=False)   # VLM-only run: fine
+    _assert_manual_validation_mentions(records, gts, "export_gold_records",
+                                       need_detections=True)
+
+
+class _FixedDetector:
+    """Returns the same point for every pano (uncached, so detect() always runs)."""
+    name = "fixed"
+
+    def prepare(self):
+        pass
+
+    def signature(self):
+        return None
+
+    def detect(self, sample):
+        return [(0.5, 0.25, None)]
+
+
+def test_score_model_scores_a_manual_bundle_end_to_end(tmp_path):
+    bundle = _manual_bundle(tmp_path)
+    records, _, _ = load_bundle(bundle)
+    gts = load_manual_ground_truths(bundle)
+    run = score_model(_FixedDetector(), records, gts, "", radius_sq_for(),
+                      "fixed", "manual_gold", DetectionCache("x", enabled=False))
+    # The fixed point hits p1's ramp (TP) and hallucinates on the negative p2 (FP);
+    # both panos are recall-confirmed, so n_gt_recall counts p1's single ramp.
+    r = run.report
+    assert (r.tp, r.fp, r.fn) == (1, 1, 0)
+    assert r.precision == 0.5 and r.recall == 1.0
+    assert r.n_recall_panos == 2

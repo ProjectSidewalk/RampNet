@@ -1,0 +1,9 @@
+{
+  "exported": "2026-07-25",
+  "checkpoint": "rampnet_stage2_hub606a1195.pth",
+  "checkpoint_fingerprint": "31cbca506185",
+  "tta": true,
+  "peak_floor": 0.05,
+  "peak_min_distance": 10,
+  "n_detections": 5072
+}

@@ -1,13 +1,17 @@
 """Compare curb-ramp detectors on a benchmark bundle.
 
-Scores each selected model against the same model-agnostic ground truth derived
-from the human review (see rampnet/detection_eval.py), so RampNet and the VLMs
-are compared on equal footing. RampNet's verdict-based numbers are re-printed as
-a cross-check.
+Scores each selected model against the same model-agnostic ground truth (see
+rampnet/detection_eval.py), so RampNet and the VLMs are compared on equal
+footing. City bundles derive that GT from the human review of RampNet's
+detections (verdicts.json; RampNet's verdict-based numbers are re-printed as a
+cross-check); a manual-GT bundle (benchmark/manual_gold, issue #58) loads it
+from independently-labeled YOLO points instead — bigger, and free of RampNet
+anchoring.
 
     python scripts/model_comparison/compare.py benchmark/richmond --models rampnet
     python scripts/model_comparison/compare.py benchmark/richmond \
         --models rampnet,gemini:gemini-2.5-flash,gemini:gemini-3.6-flash
+    python scripts/model_comparison/compare.py benchmark/manual_gold --models rampnet,gemini
 
 Each --models token is a provider (rampnet/gemini/qwen/owlv2/gdino/molmo) or
 provider:model_id to pin a variant, so several models from the same provider
@@ -29,8 +33,8 @@ sys.path.insert(0, str(REPO_ROOT))          # rampnet.* (editable install fallba
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # local detectors.py
 
 from rampnet.detection_eval import (  # noqa: E402
-    build_ground_truth, score_pano, aggregate, prediction_confidence, radius_sq_for,
-    PANO_RADIUS_NORMALIZED,
+    build_ground_truth, load_yolo_ground_truths, score_pano, aggregate,
+    prediction_confidence, radius_sq_for, PANO_RADIUS_NORMALIZED,
 )
 from rampnet.validation import collect, format_report  # noqa: E402
 from detectors import (  # noqa: E402
@@ -93,16 +97,56 @@ class DetectionCache:
 
 
 def load_bundle(bundle_dir):
-    """Return (records_by_pid, verdicts_panos, panos_dir) for a benchmark bundle."""
+    """Return (records_by_pid, verdicts_panos, panos_dir) for a benchmark bundle.
+
+    ``verdicts_panos`` is None for a manual-GT bundle (``gt_source.json`` instead
+    of ``verdicts.json`` — see ``load_manual_ground_truths``); the city bundles
+    always carry a verdict review. A directory with neither is rejected here so a
+    mistyped path fails with one clear message instead of a downstream KeyError.
+    """
     records = {}
     with open(os.path.join(bundle_dir, "records.jsonl"), encoding="utf-8") as f:
         for line in f:
             if line.strip():
                 r = json.loads(line)
                 records[r["pano"]["panorama_id"]] = r
-    with open(os.path.join(bundle_dir, "verdicts.json"), encoding="utf-8") as f:
-        verdicts = json.load(f)["panos"]
+    vpath = os.path.join(bundle_dir, "verdicts.json")
+    verdicts = None
+    if os.path.exists(vpath):
+        with open(vpath, encoding="utf-8") as f:
+            verdicts = json.load(f)["panos"]
+    elif not os.path.exists(os.path.join(bundle_dir, "gt_source.json")):
+        raise SystemExit(f"{bundle_dir}: neither verdicts.json nor gt_source.json — "
+                         "not a benchmark bundle")
     return records, verdicts, os.path.join(bundle_dir, "panos")
+
+
+def ground_truths_from_verdicts(records, verdicts):
+    """{pid: GroundTruth} derived from a bundle's human review (the city path)."""
+    return {pid: build_ground_truth(records[pid]["detections"], entry["dets"],
+                                    entry["missed"], entry["no_missed"])
+            for pid, entry in verdicts.items()}
+
+
+def load_manual_ground_truths(bundle_dir):
+    """{pid: GroundTruth} for a manual-GT bundle (``benchmark/manual_gold``).
+
+    The bundle's ``gt_source.json`` points at a directory of YOLO-format label
+    files that were produced by independent manual labeling — no RampNet review
+    to derive from, hence no verdicts and no RampNet anchoring. Box centers
+    become GT points, there are no ignore points, and every pano is
+    recall-confirmed (see ``rampnet.detection_eval.yolo_ground_truth``).
+    """
+    with open(os.path.join(bundle_dir, "gt_source.json"), encoding="utf-8") as f:
+        src = json.load(f)
+    if src.get("format") != "yolo_points":
+        raise SystemExit(f"{bundle_dir}/gt_source.json: unsupported format "
+                         f"{src.get('format')!r} (expected 'yolo_points')")
+    labels_dir = os.path.normpath(os.path.join(bundle_dir, src["labels_dir"]))
+    gts = load_yolo_ground_truths(labels_dir)
+    if not gts:
+        raise SystemExit(f"{labels_dir}: no .txt label files found")
+    return gts
 
 
 def validate_bundle(records, verdicts):
@@ -133,9 +177,39 @@ def validate_bundle(records, verdicts):
         if n_det != n_ver:
             problems.append(f"{pid}: {n_det} detections vs {n_ver} verdicts (misaligned)")
     if problems:
-        shown = "\n  ".join(problems[:10])
-        more = f"\n  ... and {len(problems) - 10} more" if len(problems) > 10 else ""
-        raise SystemExit(f"Bundle validation failed ({len(problems)} pano(s)):\n  {shown}{more}")
+        _fail_validation(problems)
+
+
+def validate_manual_bundle(records, gts, need_detections=False):
+    """Pre-flight for a manual-GT bundle, mirroring ``validate_bundle``'s job.
+
+    The label files and ``records.jsonl`` are built by different tools
+    (``manual_labels/`` is hand-curated; records come from ``fetch_manual_gold`` +
+    ``export_gold_records``), so catch any drift between them before a paid
+    detector call. ``need_detections`` is set when the rampnet baseline was
+    requested: its detections live in the records, and a bundle whose exporter
+    hasn't run yet must say so instead of scoring RampNet as all-misses.
+    """
+    problems = []
+    for pid in gts:
+        rec = records.get(pid)
+        if rec is None:
+            problems.append(f"{pid}: labeled but absent from records.jsonl "
+                            "(re-run scripts/fetch_manual_gold.py)")
+        elif need_detections and "detections" not in rec:
+            problems.append(f"{pid}: no RampNet detections in records.jsonl "
+                            "(run scripts/export_gold_records.py first)")
+    for pid in records:
+        if pid not in gts:
+            problems.append(f"{pid}: in records.jsonl but has no label file")
+    if problems:
+        _fail_validation(problems)
+
+
+def _fail_validation(problems):
+    shown = "\n  ".join(problems[:10])
+    more = f"\n  ... and {len(problems) - 10} more" if len(problems) > 10 else ""
+    raise SystemExit(f"Bundle validation failed ({len(problems)} pano(s)):\n  {shown}{more}")
 
 
 # scored: [(pred_points, GroundTruth)] for every pano that was successfully
@@ -144,9 +218,13 @@ def validate_bundle(records, verdicts):
 ModelRun = namedtuple("ModelRun", ["report", "failures", "scored"])
 
 
-def score_model(detector, records, verdicts, panos_dir, radius_sq, label, city, cache,
+def score_model(detector, records, gts, panos_dir, radius_sq, label, city, cache,
                 max_consecutive_failures=10):
-    """Run one detector over every reviewed pano and aggregate the score.
+    """Run one detector over every scored pano and aggregate the score.
+
+    ``gts`` maps pano id -> GroundTruth (verdict-derived for city bundles,
+    label-derived for a manual bundle — see ``ground_truths_from_verdicts`` /
+    ``load_manual_ground_truths``); it decides which panos are scored.
 
     Returns a ``ModelRun``. ``detector.prepare()`` runs before the pano loop
     (outside the per-pano guard) so credential / dependency / not-wired errors
@@ -159,16 +237,15 @@ def score_model(detector, records, verdicts, panos_dir, radius_sq, label, city, 
     burning budget."""
     sig = detector.signature() if hasattr(detector, "signature") else None
     keys = {pid: (cache_key(label, sig, city, pid) if sig is not None else None)
-            for pid in verdicts}
+            for pid in gts}
     cached = {pid: (cache.get(k) if k else None) for pid, k in keys.items()}
     if not cached or any(p is None for p in cached.values()):
         detector.prepare()
     else:
         print(f"[{label}] all {len(cached)} panos already cached; model load skipped")
     pano_scores, failures, consecutive, scored = [], [], 0, []
-    for pid, entry in verdicts.items():
+    for pid, gt in gts.items():
         rec = records[pid]
-        gt = build_ground_truth(rec["detections"], entry["dets"], entry["missed"], entry["no_missed"])
         key, preds = keys[pid], cached[pid]
         if preds is None:
             sample = PanoSample(
@@ -208,6 +285,18 @@ def rescore(scored, radius_sq, min_confidence=0.0):
                     or prediction_confidence(p) >= min_confidence],
                    gt, radius_sq=radius_sq)
         for preds, gt in scored])
+
+
+def operating_report(report, scored, radius_sq, op_threshold):
+    """The table row for one model: P/R/F1/counts at the operating threshold, but
+    AP and the PR curve kept from the full-range ``report``. Those two are
+    integrals over the whole confidence range — rescore()'s filtered aggregate
+    would silently truncate them at the operating point, exactly the caveat the
+    manual_gold bundle's 0.05 export floor exists to avoid."""
+    if op_threshold <= 0:
+        return report
+    return rescore(scored, radius_sq, op_threshold)._replace(
+        ap=report.ap, pr_curve=report.pr_curve)
 
 
 def has_confidences(scored):
@@ -375,17 +464,34 @@ def main():
     args = ap.parse_args()
 
     load_dotenv(str(REPO_ROOT))
-    records, verdicts, panos_dir = load_bundle(args.bundle)
-    if args.limit:
-        verdicts = dict(list(verdicts.items())[:args.limit])
-    validate_bundle(records, verdicts)  # fail fast before any (paid) detector call
-    radius_sq = radius_sq_for(args.radius)
     specs = [parse_model_spec(t) for t in args.models.split(",") if t.strip()]
+    records, verdicts, panos_dir = load_bundle(args.bundle)
+    # Fail fast on a broken bundle before any (paid) detector call, then reduce
+    # both GT sources to the same {pid: GroundTruth} shape.
+    if verdicts is not None:
+        if args.limit:
+            verdicts = dict(list(verdicts.items())[:args.limit])
+        validate_bundle(records, verdicts)
+        gts = ground_truths_from_verdicts(records, verdicts)
+        gt_desc = "reviewer-confirmed ramps + missed marks"
+    else:
+        gts = load_manual_ground_truths(args.bundle)
+        # Validate the whole bundle (all labels <-> all records) before slicing to
+        # --limit: a manual bundle is only valid if every label has a record and
+        # vice versa, so a smoke run should still catch a partial/misbuilt bundle.
+        # (The city branch above validates post-slice because its verdicts and
+        # records are built together and can't drift independently.)
+        validate_manual_bundle(records, gts,
+                               need_detections=any(p == "rampnet" for p, _ in specs))
+        if args.limit:
+            gts = dict(list(gts.items())[:args.limit])
+        gt_desc = "independent manual labels (YOLO box centers)"
+    radius_sq = radius_sq_for(args.radius)
     city = os.path.basename(os.path.normpath(args.bundle))
     cache = DetectionCache(args.cache_dir, enabled=not args.no_cache)
 
-    print(f"Bundle: {args.bundle}  ({len(verdicts)} reviewed panos)  "
-          f"match radius {args.radius}  ground truth: reviewer-confirmed ramps + missed marks")
+    print(f"Bundle: {args.bundle}  ({len(gts)} scored panos)  "
+          f"match radius {args.radius}  ground truth: {gt_desc}")
     print(f"Detection cache: {'off' if args.no_cache else args.cache_dir}\n")
 
     rows, runs = [], []
@@ -400,7 +506,7 @@ def main():
             seen[label] = 1
         try:
             run = score_model(
-                detector, records, verdicts, panos_dir, radius_sq, label, city, cache)
+                detector, records, gts, panos_dir, radius_sq, label, city, cache)
         except Exception as e:
             # Missing client lib, missing credentials, a checkpoint whose remote
             # code won't load on this transformers version: skip the whole model
@@ -411,8 +517,7 @@ def main():
             # bug here is still diagnosable rather than silently "not runnable".
             print(f"[{label}] not runnable: {type(e).__name__}: {e}\n")
             continue
-        report = (rescore(run.scored, radius_sq, args.op_threshold)
-                  if args.op_threshold > 0 else run.report)
+        report = operating_report(run.report, run.scored, radius_sq, args.op_threshold)
         rows.append((label, report))
         # The detector's cache floor travels with the run so the sweep can drop
         # thresholds the cache has no detections for (phantom rows otherwise).
@@ -434,7 +539,8 @@ def main():
         # AP is over the recall-confirmed panos only (one consistent GT denominator);
         # the P/R columns count every pano. See rampnet/detection_eval.aggregate.
         if any(r.ap is not None for _, r in rows):
-            print("AP: all-point interpolated, over the recall-confirmed panos; "
+            print("AP: all-point interpolated, over the recall-confirmed panos, from the "
+                  "full confidence range (--op-threshold does not truncate it); "
                   "'-' = no calibrated per-box score.")
 
     if args.sweep:
@@ -450,15 +556,23 @@ def main():
         else:
             print("No model produced a PR curve (needs per-detection confidences).")
 
-    # Cross-check: RampNet's own verdict-based P/R (the published definition).
-    confs_by_pid = {pid: [d["confidence"] for d in records[pid]["detections"]] for pid in verdicts}
-    pools = collect(verdicts, confs_by_pid)
-    print()
-    print(format_report("RampNet verdict-based cross-check", pools))
-    # collect() records verdict/results mismatches as notes and leaves surfacing to
-    # the caller; print them so a silently-skipped pano is visible, not swallowed.
-    for w in pools.warnings:
-        print(f"  ! {w}")
+    if verdicts is not None:
+        # Cross-check: RampNet's own verdict-based P/R (the published definition).
+        confs_by_pid = {pid: [d["confidence"] for d in records[pid]["detections"]]
+                        for pid in verdicts}
+        pools = collect(verdicts, confs_by_pid)
+        print()
+        print(format_report("RampNet verdict-based cross-check", pools))
+        # collect() records verdict/results mismatches as notes and leaves surfacing to
+        # the caller; print them so a silently-skipped pano is visible, not swallowed.
+        for w in pools.warnings:
+            print(f"  ! {w}")
+    else:
+        # No verdicts to cross-check against; the manual bundle's equivalent is
+        # reproducing the published gold-set numbers (printed by the exporter, and
+        # documented in docs/model_comparison.md).
+        print("\nManual-GT bundle: no verdict-based cross-check (validate the rampnet row "
+              "against the published gold-set numbers instead; see docs/model_comparison.md).")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,8 @@
+{
+  "built": "2026-07-25",
+  "source": "hf",
+  "hf_dataset": "projectsidewalk/rampnet-dataset",
+  "hf_split": "test",
+  "n_panos": 1000,
+  "imagery": "gsv"
+}
