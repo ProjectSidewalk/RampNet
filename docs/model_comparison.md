@@ -700,11 +700,21 @@ $ENVPY -c 'from huggingface_hub import snapshot_download as d; [d(m) for m in [
 
 # 4. Submit. -A is required (find yours: sacctmgr -nP show assoc user=$USER
 #    format=Account,QOS). 8B fits one L40S; 32B needs two (device_map shards it).
+#
+#    Partition: the launchers default to `-p gpu-l40s` (non-preemptible, lab-capped
+#    at 2 GPUs, so legs queue behind each other). The ckpt scavenger queue is faster
+#    when it's free and preemption only costs ~one pano of cache -- but CHECK
+#    `squeue -u $USER` FIRST. If a long run is already parked there (the issue #51
+#    YOLO baseline lives on ckpt-g2 for ~1-2 weeks), stay on gpu-l40s: these legs
+#    are 12-30 min each and are not worth any risk to a multi-day job.
 mkdir -p logs
 export PYTHON=$ENVPY
 sbatch -A <account> scripts/model_comparison/run_qwen.slurm
 BUNDLE=benchmark/bend sbatch -A <account> scripts/model_comparison/run_qwen.slurm
-QWEN_MODEL=Qwen/Qwen3-VL-32B-Instruct sbatch -A <account> --gpus=2 \
+# 32B needs two cards. Use --gpus-per-node, NOT --gpus: the launcher already
+# sets --nodes=1 --gpus-per-node=1, and `--gpus=2` against that is rejected
+# ("required nodes (2) doesn't fall between min_nodes (1) and max_nodes (1)").
+QWEN_MODEL=Qwen/Qwen3-VL-32B-Instruct sbatch -A <account> --gpus-per-node=2 \
     scripts/model_comparison/run_qwen.slurm
 
 # 4b. The open-vocabulary detectors: minutes, one card, both cities.
