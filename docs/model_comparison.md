@@ -33,12 +33,18 @@ keypoint architecture doing the work?) — is training on Hyak but is **not yet 
 tables**: benchmark eval is pending. Live status is in #51; the training record (per-epoch
 curves, configs, provenance) is committed under
 [`scripts/model_comparison/yolo_baseline/`](../scripts/model_comparison/yolo_baseline/).
-Known gaps so far: the `y11x_tiles` config was dropped (GPU-saturated — epoch time exceeded
-the ckpt scheduling slice, so it never checkpointed), and the two YOLO11 *pano* configs
-collapsed in training (validation mAP → 0 for 4+ epochs despite healthy, still-decreasing
-training loss and no NaN/AMP error — a small-batch BatchNorm/EMA instability; stabilized rerun
-tracked in #70). YOLO26 and the tiles configs trained cleanly. The reported baseline will be
-the best-val checkpoint of a stable run, selected on val, per the protocol in #71.
+Known gaps and caveats so far: the `y11x_tiles` config was dropped (GPU-saturated — epoch time
+exceeded the ckpt scheduling slice, so it never checkpointed), and **all five remaining configs
+hit the same training instability** — validation mAP peaks at epoch 1, collapses at epoch 3, and
+recovers as the learning rate decays, while training loss falls straight through with no NaN or
+AMP error. The collapse coincides exactly with the peak of the warmup LR ramp (`lr/pg0` 0.010 →
+0.029 over `warmup_epochs=3`), and **not** with batch size, input resolution, architecture, or the
+ckpt preemptions — `y11l_pano` and `y26_pano` share batch 4 / imgsz 1280 and both collapsed and
+recovered. Figures and the full ruling-out are in the training record; the stabilized rerun is
+tracked in #70 (whose original small-batch hypothesis this evidence refutes) and the caveat
+write-up in #72. The reported baseline will be the best-val checkpoint, selected on val, per the
+protocol in #71 — with the caveat that today's checkpoints are undertrained relative to a stable
+schedule and so give a **lower bound** on supervised-YOLO performance.
 
 Three classes of challenger, which fail differently and are worth keeping distinct:
 
