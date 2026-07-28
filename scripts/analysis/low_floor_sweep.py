@@ -684,6 +684,85 @@ def cmd_tagcheck(args):
 
 
 # --------------------------------------------------------------------------- #
+# corrected — apply the #55 A/B tags, per split and pooled
+# --------------------------------------------------------------------------- #
+def cmd_corrected(args):
+    from operating_point_curve import (corrected_precision, corrected_recall,
+                                       f1_of, incremental_fps, _score_at)
+    radius_sq = radius_sq_for()
+    rows = []
+    pooled_items, pooled_tags = [], {}
+    pooled = {"tp": 0, "fp": 0, "tp_recall": 0, "n_gt_recall": 0}
+
+    print(f"{'split':<22} {'raw P':>7} {'corr P':>7} {'band hi':>8} "
+          f"{'raw R':>7} {'corr R':>7} {'raw F1':>7} {'corr F1':>8}  A/B/U")
+    print("-" * 96)
+    for city in args.cities:
+        path = tags_path_for(city)
+        if not os.path.exists(path):
+            print(f"{city:<22} (no tags — not spot-checked)")
+            continue
+        with open(path, encoding="utf-8") as f:
+            tags = json.load(f)
+        panos, _ = load_split(city, args.cache)
+        items = incremental_fps(panos, args.op_threshold, args.upper, radius_sq)
+        rep = _score_at(panos, args.op_threshold, radius_sq)
+        p = corrected_precision(rep.tp, rep.fp, items, tags)
+        r = corrected_recall(rep.n_gt_recall - rep.fn, rep.n_gt_recall, items, tags)
+        counts = f"{p['n_A']}/{p['n_B']}/{p['n_U']}"
+        print(f"{city:<22} {p['uncorrected']:>7.3f} {p['corrected']:>7.3f} "
+              f"{p['band_high']:>8.3f} {r['uncorrected']:>7.3f} {r['corrected']:>7.3f} "
+              f"{f1_of(p['uncorrected'], r['uncorrected']):>7.3f} "
+              f"{f1_of(p['corrected'], r['corrected']):>8.3f}  {counts}")
+        rows.append({"split": city, "op_threshold": args.op_threshold,
+                     "precision_raw": p["uncorrected"], "precision_corrected": p["corrected"],
+                     "precision_band_high": p["band_high"],
+                     "recall_raw": r["uncorrected"], "recall_corrected": r["corrected"],
+                     "n_A": p["n_A"], "n_B": p["n_B"], "n_U": p["n_U"],
+                     "n_A_suspect": p["n_A_suspect"], "n_incremental": p["n_incremental"]})
+        if p["n_A_suspect"]:
+            print(f"{'':<22} note: {p['n_A_suspect']} of {p['n_A']} A-tags sit within "
+                  f"{2.0:g} R of an already-detected ramp (likely a second hit, not a "
+                  f"missed ramp)")
+        if city in pool_of(args.cities, args.include_budapest, args.include_gold):
+            pooled_items += items
+            pooled_tags.update(tags)
+            pooled["tp"] += rep.tp
+            pooled["fp"] += rep.fp
+            pooled["tp_recall"] += rep.n_gt_recall - rep.fn
+            pooled["n_gt_recall"] += rep.n_gt_recall
+
+    if pooled["tp"]:
+        p = corrected_precision(pooled["tp"], pooled["fp"], pooled_items, pooled_tags)
+        r = corrected_recall(pooled["tp_recall"], pooled["n_gt_recall"],
+                             pooled_items, pooled_tags)
+        print("-" * 96)
+        print(f"{'POOLED':<22} {p['uncorrected']:>7.3f} {p['corrected']:>7.3f} "
+              f"{p['band_high']:>8.3f} {r['uncorrected']:>7.3f} {r['corrected']:>7.3f} "
+              f"{f1_of(p['uncorrected'], r['uncorrected']):>7.3f} "
+              f"{f1_of(p['corrected'], r['corrected']):>8.3f}  "
+              f"{p['n_A']}/{p['n_B']}/{p['n_U']}")
+        rows.append({"split": "POOLED", "op_threshold": args.op_threshold,
+                     "precision_raw": p["uncorrected"], "precision_corrected": p["corrected"],
+                     "precision_band_high": p["band_high"],
+                     "recall_raw": r["uncorrected"], "recall_corrected": r["corrected"],
+                     "n_A": p["n_A"], "n_B": p["n_B"], "n_U": p["n_U"],
+                     "n_A_suspect": p["n_A_suspect"], "n_incremental": p["n_incremental"]})
+        print(f"\nA-rate pooled: {p['n_A']}/{p['n_incremental']} "
+              f"({p['n_A'] / p['n_incremental']:.1%}) of incremental FPs in "
+              f"[{args.op_threshold}, {args.upper}) were real ramps the GT missed.")
+
+    _write_csv(os.path.join(args.out, f"corrected_at_{args.op_threshold:g}.csv"), rows,
+               ["split", "op_threshold", "precision_raw", "precision_corrected",
+                "precision_band_high", "recall_raw", "recall_corrected",
+                "n_A", "n_B", "n_U", "n_A_suspect", "n_incremental"])
+    print("\nThe corrected column credits confirmed A tags only; 'band hi' additionally "
+          "credits\nunsure and untagged items, so it is the honest upper end rather than a "
+          "formality.")
+    return 0
+
+
+# --------------------------------------------------------------------------- #
 # gtbias — why sub-0.55 precision is a lower bound, measured rather than asserted
 # --------------------------------------------------------------------------- #
 def gt_origins(city, repo=REPO):
@@ -878,6 +957,13 @@ def main(argv=None):
                     help="fraction of committed tags that must still resolve (default 1.0 "
                          "— any orphan is reviewer effort silently dropped)")
     sp.set_defaults(func=cmd_tagcheck)
+
+    sp = sub.add_parser("corrected",
+                        help="apply the #55 A/B tags -> corrected P/R, per split and pooled")
+    common(sp)
+    sp.add_argument("--op-threshold", type=float, default=0.35)
+    sp.add_argument("--upper", type=float, default=DEPLOYED_THRESHOLD)
+    sp.set_defaults(func=cmd_corrected)
 
     sp = sub.add_parser("gtbias", help="measure the GT-anchoring bias below the review floor")
     common(sp)
