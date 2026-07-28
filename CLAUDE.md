@@ -6,6 +6,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Research code for the RampNet paper (ICCV'25 workshop): a two-stage pipeline that (1) auto-generates a large curb ramp detection dataset by translating open government curb-ramp GPS locations into pixel coordinates on Google Street View panoramas, and (2) trains a curb ramp detection model on that dataset. Published artifacts: `projectsidewalk/rampnet-dataset` and `projectsidewalk/rampnet-model` on Hugging Face.
 
+## Record scientific progress in GitHub, as it happens
+
+**This is a research repo, and the notes are part of the result.** Every experiment, negative result, caveat, and methodological decision gets written into GitHub — a committed doc, a PR body, or an issue comment — *at the time it is produced*, not batched up at the end. The paper is written from these notes; a finding nobody can find later did not happen.
+
+**Why this is a standing rule and not a preference:** results that live only in a working tree, a scratch worktree, or a chat session are one cleanup away from gone. This has already cost us — the Annapolis model-comparison write-up, including a null-recall analysis that *corrected an already-published claim*, existed only as an uncommitted diff in a temp worktree and was destroyed when that temp dir was cleaned up. It survived by luck, because the diff happened to still be in a chat transcript.
+
+In practice:
+
+- **Commit and push early.** A WIP commit on a branch is free. Never let hours of analysis sit uncommitted, and never leave the only copy in `%TEMP%` or a worktree you did not create yourself.
+- **Findings go in `docs/*.md`, committed**, with numbers reproducible from a committed script plus the committed bundles / `.model_cache`. If a number can't be re-derived from the repo, say where it came from (which split, which script, which run date).
+- **Run status and in-flight experiments go in issue comments** as they happen — what was submitted, where, and what it's expected to show. A run whose result you are waiting on should be discoverable by someone who isn't you.
+- **Negative results are results.** "We tried X and it didn't work" is the most commonly lost and among the most valuable — it's why nobody re-proposes it. See `scripts/analysis/peak_nms_check.py` (#62) for the shape: the answer was "no", and the script that proves it is committed.
+- **Gaps are content.** If a split, model, or analysis was *not* run, say so explicitly and say why. An omission is indistinguishable from a withheld result — that ambiguity is exactly what the coverage matrix in `docs/model_comparison.md` exists to remove.
+- **Caveats travel with the numbers**, in the same document, not in a separate "limitations" note nobody reads alongside the table.
+
 ## Environment & commands
 
 - Conda env (Linux + CUDA 11.8; env file pins linux-64 packages — this does not run natively on Windows):
