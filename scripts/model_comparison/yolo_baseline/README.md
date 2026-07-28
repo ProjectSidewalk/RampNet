@@ -127,9 +127,12 @@ be reported as such.
   defaults (its header records that `fixed:0.03` was rejected as too small and that
   `gps` fell back to pitch on ~85% of panos). Tiles rendered at 1024 (train imgsz
   1024); pano at 2048×1024 (train imgsz 1280).
-  **TODO(confirm):** an earlier draft of this record said `fixed:0.03`; the prep log
-  on klone (`head logs/yolo_prep_*.out` prints `box=... ramp=...`) settles it — check
-  before `/gscratch/scrubbed` purges.
+  **Confirmed** from the run notes (2026-07-25, prep job 37677130, ~2h48m): box-size
+  `pitch` + ramp 1.8 m was chosen after eyeballing the overlay QA — `fixed:0.03` was
+  too small and `gps` fell back to pitch on 169/200 smoke panos. Output verified on
+  scratch: tiles 557,413 train / 161,002 val images; pano 150,063 / 42,875. (An
+  earlier draft of this record said `fixed:0.03` — that was the runbook's old
+  default, not what ran.)
 - **Toolchain:** Ultralytics 8.4.105 · Python 3.11.15 · torch 2.13.0+cu126.
 - **Hardware:** NVIDIA L40 (45 GB), 1 GPU/job, Hyak `ckpt-g2` (preemptable/requeue).
 - **Hyperparameters (resolved):** `epochs=60`, `patience=20`, `optimizer=auto`,
@@ -139,10 +142,11 @@ be reported as such.
   overrides the passed `lr0`/`momentum` (the Slurm logs say so explicitly). The realized
   schedule peaks at `lr/pg0 = 0.029` at the end of warmup — recorded per-epoch in the
   `lr/pg*` columns of every `results.csv`, and the subject of the instability above.
-- **Slurm job IDs:** y11l_tiles 37745358 · y11x_tiles 37745359 (inferred — the one gap
-  in the otherwise-contiguous six-job block; its batch-12 resubmit ID went unrecorded,
-  recoverable via `sacct`) · y26_tiles 37745360 · y11l_pano 37745361 · y11x_pano
-  37745362 · y26_pano 37745363.
+- **Slurm job IDs:** y11l_tiles 37745358 · y11x_tiles 37745359 (batch-3 original;
+  batch-12 resubmit 37809205, scancel'd 2026-07-27) · y26_tiles 37745360 · y11l_pano
+  37745361 · y11x_pano 37745362 · y26_pano 37745363. The job↔config map was read off
+  the `yolo_train_<jobid>.out` log headers during the 2026-07-27 preemption check.
+  Dataset-download job 37649635; prep job 37677130.
 - **Run dates:** 2026-07-26 → in progress as of 2026-07-28.
 
 ## Where the weights live
