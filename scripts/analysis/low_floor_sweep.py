@@ -624,6 +624,117 @@ def cmd_hist(args):
 
 
 # --------------------------------------------------------------------------- #
+# gtbias — why sub-0.55 precision is a lower bound, measured rather than asserted
+# --------------------------------------------------------------------------- #
+def gt_origins(city, repo=REPO):
+    """``{pano_id: ["reviewed"|"missed", ...]}`` aligned with each pano's gt_points.
+
+    ``build_ground_truth`` appends the reviewer-confirmed *detections* first and the
+    reviewer's *missed-ramp marks* second, so the origin of each GT point is
+    recoverable from the same two files in that order. Recovering it is what turns
+    the GT-completeness caveat from an assertion into a measurement.
+
+    Verdict-reviewed splits only — ``manual_gold`` has no verdicts because its GT
+    was labelled independently of RampNet, which is precisely why it is the control
+    (see :func:`cmd_gtbias`).
+    """
+    with open(os.path.join(repo, "benchmark", city, "verdicts.json"),
+              encoding="utf-8") as f:
+        verdicts = json.load(f)["panos"]
+    out = {}
+    for pid, entry in verdicts.items():
+        origins = ["reviewed" for v in entry["dets"] if v is True or v == "true"]
+        origins += ["missed" for m in entry["missed"] if not m.get("unsure")]
+        out[pid] = origins
+    return out
+
+
+def _bin_lo(score, bin_width):
+    """Lower edge of ``score``'s bin, immune to binary-float floor errors.
+
+    ``0.9 // 0.1`` is 8.0, not 9.0, because 0.9/0.1 evaluates to 8.999...; nudging
+    the quotient by an epsilon before flooring fixes it. A score of exactly 1.0
+    belongs to the top bin, not to a phantom bin above it, so the index is clamped.
+    """
+    top_index = math.ceil(round(1.0 / bin_width, 6)) - 1
+    index = min(math.floor(score / bin_width + 1e-9), top_index)
+    return round(max(index, 0) * bin_width, 4)
+
+
+def tp_origin_by_bin(panos, origins, radius_sq, bin_width=0.1):
+    """True positives per confidence bin, split by where their GT point came from.
+
+    The load-bearing observation: the city splits' GT was assembled from detections
+    at or above the deployed 0.55 floor, so **below that floor a prediction can only
+    score as a TP if it lands on a ramp the reviewer independently marked as
+    missed**. Anything else it finds — including a real curb ramp — is counted as a
+    false positive because no human ever looked there.
+
+    That makes sub-0.55 precision a lower bound with a *known mechanism* rather than
+    an unquantified worry, and it is why issue #55's A/B spot-check is the only way
+    to get a real number in that band.
+    """
+    counts = {}
+    for pd in panos:
+        origin = origins.get(pd["pano"])
+        if origin is None or len(origin) != len(pd["gt"].gt_points):
+            continue     # re-review drift: skip rather than mis-attribute
+        preds = sorted(pd["preds"], key=lambda p: -p[2])
+        assignments = greedy_match([(p[0], p[1]) for p in preds], pd["gt"].gt_points,
+                                   radius_sq, PANO_SCALE_X, PANO_SCALE_Y)
+        for p, (gi, _) in zip(preds, assignments):
+            if gi < 0:
+                continue
+            counts[(_bin_lo(p[2], bin_width), origin[gi])] = counts.get(
+                (_bin_lo(p[2], bin_width), origin[gi]), 0) + 1
+    return counts
+
+
+def cmd_gtbias(args):
+    radius_sq = radius_sq_for()
+    rows = []
+    for city in args.cities:
+        if city in ("manual_gold",):
+            continue
+        panos, _ = load_split(city, args.cache)
+        counts = tp_origin_by_bin(panos, gt_origins(city), radius_sq, args.bin_width)
+        print(f"\n{'=' * 72}\n{city.upper()} — true positives by GT origin\n{'=' * 72}")
+        print(f"{'bin':>12} {'from reviewed det':>18} {'from missed mark':>17}")
+        print("-" * 72)
+        for b in sorted({k[0] for k in counts}):
+            rv = counts.get((b, "reviewed"), 0)
+            ms = counts.get((b, "missed"), 0)
+            rows.append({"split": city, "bin_lo": b, "from_reviewed": rv,
+                         "from_missed": ms})
+            flag = "  <- below the 0.55 review floor" if b < DEPLOYED_THRESHOLD else ""
+            print(f"{b:>7.1f}-{b + args.bin_width:<4.1f} {rv:>18} {ms:>17}{flag}")
+
+    _write_csv(os.path.join(args.out, "tp_origin_by_bin.csv"), rows,
+               ["split", "bin_lo", "from_reviewed", "from_missed"])
+    print(f"""
+{'=' * 72}
+Reading this table
+{'=' * 72}
+Every true positive below {DEPLOYED_THRESHOLD} comes from a *missed mark*, and none from a
+reviewed detection. That is structural, not a coincidence: the city splits' GT was
+built from detections at or above the deployed floor, so in the band this sweep
+opens up, a prediction can only be credited if a human independently flagged that
+ramp during the missed-ramp pass. A real curb ramp nobody marked is counted as a
+false positive.
+
+So sub-{DEPLOYED_THRESHOLD} precision on these splits is a **lower bound with a known
+mechanism**, and the measured F1-optimal threshold is biased *high* — the true
+optimum sits at or below it. Issue #55's A/B spot-check is what converts the bound
+into a number.
+
+benchmark/manual_gold is the control: its GT was labelled independently of RampNet
+(no verdict review, no anchoring), so its curve carries none of this bias at any
+threshold. Compare its precision-vs-threshold shape against the city splits to see
+the anchoring effect directly.""")
+    return 0
+
+
+# --------------------------------------------------------------------------- #
 # distance
 # --------------------------------------------------------------------------- #
 def cmd_distance(args):
@@ -697,6 +808,11 @@ def main(argv=None):
     sp.add_argument("--floor", type=float, default=0.05)
     sp.add_argument("--bin-width", type=float, default=0.05)
     sp.set_defaults(func=cmd_hist)
+
+    sp = sub.add_parser("gtbias", help="measure the GT-anchoring bias below the review floor")
+    common(sp)
+    sp.add_argument("--bin-width", type=float, default=0.1)
+    sp.set_defaults(func=cmd_gtbias)
 
     sp = sub.add_parser("distance", help="where the recall gain lands on the distance axis")
     common(sp)

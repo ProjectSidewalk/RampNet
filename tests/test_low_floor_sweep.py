@@ -270,3 +270,58 @@ def test_every_held_out_split_carries_a_stated_reason():
     """An omission with no reason is indistinguishable from a withheld result."""
     for split in set(lfs.ALL_SPLITS) - set(lfs.pool_of(lfs.ALL_SPLITS)):
         assert lfs.HELD_OUT.get(split), f"{split} is held out with no documented reason"
+
+
+# --------------------------------------------------------------------------- #
+# GT-anchoring bias
+# --------------------------------------------------------------------------- #
+def test_tp_origin_attributes_to_the_right_gt_point():
+    """A TP is credited to the origin of the GT point it actually matched."""
+    gt = GroundTruth([(0.2, 0.6), (0.8, 0.6)], [], fn_confirmed=True)
+    panos = [{"pano": "a", "preds": [(0.2, 0.6, 0.9), (0.8, 0.6, 0.3)], "gt": gt}]
+    counts = lfs.tp_origin_by_bin(panos, {"a": ["reviewed", "missed"]}, RSQ)
+    assert counts[(0.9, "reviewed")] == 1
+    assert counts[(0.3, "missed")] == 1
+
+
+def test_tp_origin_skips_panos_whose_origins_do_not_line_up():
+    """Verdict drift must skip the pano, never mis-attribute a TP to the wrong origin."""
+    gt = GroundTruth([(0.2, 0.6), (0.8, 0.6)], [], fn_confirmed=True)
+    panos = [{"pano": "a", "preds": [(0.2, 0.6, 0.9)], "gt": gt}]
+    assert lfs.tp_origin_by_bin(panos, {"a": ["reviewed"]}, RSQ) == {}
+    assert lfs.tp_origin_by_bin(panos, {}, RSQ) == {}
+
+
+def test_tp_origin_bins_a_perfect_score_below_one():
+    """A 1.0 detection must land in the top bin, not spill into a 1.0-1.1 bin."""
+    gt = GroundTruth([(0.2, 0.6)], [], fn_confirmed=True)
+    panos = [{"pano": "a", "preds": [(0.2, 0.6, 1.0)], "gt": gt}]
+    counts = lfs.tp_origin_by_bin(panos, {"a": ["reviewed"]}, RSQ)
+    assert list(counts) == [(0.9, "reviewed")]
+
+
+def test_gt_origins_orders_reviewed_before_missed():
+    """Must mirror build_ground_truth's append order, or every attribution is wrong."""
+    from rampnet.detection_eval import build_ground_truth
+    dets = [{"x_normalized": 0.1, "y_normalized": 0.6},
+            {"x_normalized": 0.2, "y_normalized": 0.6},
+            {"x_normalized": 0.3, "y_normalized": 0.6}]
+    verdicts = [True, False, "unsure"]
+    missed = [{"x": 0.7, "y": 0.6}, {"x": 0.8, "y": 0.6, "unsure": True}]
+    gt = build_ground_truth(dets, verdicts, missed, no_missed=False)
+    origins = ["reviewed" for v in verdicts if v is True or v == "true"]
+    origins += ["missed" for m in missed if not m.get("unsure")]
+    assert len(origins) == len(gt.gt_points)
+    assert origins == ["reviewed", "missed"]
+    assert gt.gt_points[0] == (0.1, 0.6)      # the reviewed True detection
+    assert gt.gt_points[1] == (0.7, 0.6)      # the confident missed mark
+
+
+def test_bin_lo_is_immune_to_float_floor_error():
+    """0.9 // 0.1 is 8.0 in binary floats; the bin helper must not inherit that."""
+    assert lfs._bin_lo(0.9, 0.1) == 0.9
+    assert lfs._bin_lo(0.3, 0.1) == 0.3
+    assert lfs._bin_lo(0.7, 0.1) == 0.7
+    assert lfs._bin_lo(0.89, 0.1) == 0.8
+    assert lfs._bin_lo(1.0, 0.1) == 0.9      # top bin, not a phantom 1.0 bin
+    assert lfs._bin_lo(0.0, 0.1) == 0.0
