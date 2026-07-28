@@ -325,3 +325,33 @@ def test_bin_lo_is_immune_to_float_floor_error():
     assert lfs._bin_lo(0.89, 0.1) == 0.8
     assert lfs._bin_lo(1.0, 0.1) == 0.9      # top bin, not a phantom 1.0 bin
     assert lfs._bin_lo(0.0, 0.1) == 0.0
+
+
+# --------------------------------------------------------------------------- #
+# tag resolution across a re-extraction
+# --------------------------------------------------------------------------- #
+def test_tag_resolution_all_resolve_when_ids_are_unchanged():
+    items = [{"id": "p1_0.10000_0.60000"}, {"id": "p1_0.20000_0.60000"}]
+    res = lfs.check_tag_resolution(items, {"p1_0.10000_0.60000": "A",
+                                           "p1_0.20000_0.60000": "B"})
+    assert res["resolved_frac"] == 1.0
+    assert res["orphaned"] == []
+
+
+def test_tag_resolution_reports_orphans_rather_than_dropping_them():
+    """A moved peak must surface as an orphan, not silently shrink the correction."""
+    items = [{"id": "p1_0.10000_0.60000"}]
+    res = lfs.check_tag_resolution(items, {"p1_0.10000_0.60000": "A",
+                                           "p1_0.99000_0.60000": "A"})
+    assert res["orphaned"] == ["p1_0.99000_0.60000"]
+    assert res["resolved_frac"] == 0.5
+
+
+def test_tag_resolution_flags_newly_untagged_items():
+    items = [{"id": "p1_0.10000_0.60000"}, {"id": "p1_0.50000_0.60000"}]
+    res = lfs.check_tag_resolution(items, {"p1_0.10000_0.60000": "A"})
+    assert res["untagged"] == ["p1_0.50000_0.60000"]
+
+
+def test_tag_resolution_with_no_tags_is_vacuously_fine():
+    assert lfs.check_tag_resolution([{"id": "x"}], {})["resolved_frac"] == 1.0

@@ -624,6 +624,66 @@ def cmd_hist(args):
 
 
 # --------------------------------------------------------------------------- #
+# tagcheck — do the committed #55 tags still resolve after a re-extraction?
+# --------------------------------------------------------------------------- #
+def tags_path_for(city, repo=REPO):
+    return os.path.join(repo, "benchmark", city, "incremental_fp_tags.json")
+
+
+def check_tag_resolution(items, tags):
+    """Which committed A/B tags still point at an incremental FP in this cache.
+
+    Tag ids are ``{pano}_{x:.5f}_{y:.5f}`` (see ``incremental_fps``), so they are
+    keyed to peak *coordinates*. Re-extracting on different hardware can move a
+    marginal peak by a heatmap cell and orphan its tag — silently, since an
+    unresolved tag just stops contributing to the correction and quietly shrinks it.
+
+    Returns the resolved/orphaned split plus the orphans themselves, so a
+    re-extraction can never quietly discard reviewer effort.
+    """
+    ids = {it["id"] for it in items}
+    resolved = sorted(t for t in tags if t in ids)
+    orphaned = sorted(t for t in tags if t not in ids)
+    return {
+        "n_tags": len(tags), "n_items": len(items),
+        "resolved": resolved, "orphaned": orphaned,
+        "resolved_frac": len(resolved) / len(tags) if tags else 1.0,
+        "untagged": sorted(ids - set(tags)),
+    }
+
+
+def cmd_tagcheck(args):
+    from operating_point_curve import incremental_fps
+    radius_sq = radius_sq_for()
+    all_ok = True
+    for city in args.cities:
+        path = tags_path_for(city)
+        if not os.path.exists(path):
+            continue
+        with open(path, encoding="utf-8") as f:
+            tags = json.load(f)
+        panos, _ = load_split(city, args.cache)
+        items = incremental_fps(panos, args.op_threshold, args.upper, radius_sq)
+        res = check_tag_resolution(items, tags)
+        ok = res["resolved_frac"] >= args.min_resolved
+        all_ok &= ok
+        print(f"\n{city}: {len(res['resolved'])}/{res['n_tags']} committed tags resolve "
+              f"({res['resolved_frac']:.1%})  — {res['n_items']} incremental FPs in "
+              f"[{args.op_threshold}, {args.upper})   {'OK' if ok else 'DEGRADED'}")
+        for t in res["orphaned"][:10]:
+            print(f"    orphaned: {t}")
+        if res["untagged"]:
+            print(f"    {len(res['untagged'])} incremental FP(s) in this cache carry no "
+                  f"tag — they widen the corrected band rather than being assumed real.")
+    print("\nTag resolution: " + ("PASS — re-extraction preserved the reviewer's work."
+                                  if all_ok else
+                                  "DEGRADED — some tags no longer match a detection; the "
+                                  "#55 correction would silently shrink. Re-tag the "
+                                  "orphans or keep the cache they were made against."))
+    return 0 if all_ok else 1
+
+
+# --------------------------------------------------------------------------- #
 # gtbias — why sub-0.55 precision is a lower bound, measured rather than asserted
 # --------------------------------------------------------------------------- #
 def gt_origins(city, repo=REPO):
@@ -808,6 +868,16 @@ def main(argv=None):
     sp.add_argument("--floor", type=float, default=0.05)
     sp.add_argument("--bin-width", type=float, default=0.05)
     sp.set_defaults(func=cmd_hist)
+
+    sp = sub.add_parser("tagcheck",
+                        help="do the committed #55 A/B tags still resolve in this cache?")
+    common(sp)
+    sp.add_argument("--op-threshold", type=float, default=0.25)
+    sp.add_argument("--upper", type=float, default=DEPLOYED_THRESHOLD)
+    sp.add_argument("--min-resolved", type=float, default=1.0,
+                    help="fraction of committed tags that must still resolve (default 1.0 "
+                         "— any orphan is reviewer effort silently dropped)")
+    sp.set_defaults(func=cmd_tagcheck)
 
     sp = sub.add_parser("gtbias", help="measure the GT-anchoring bias below the review floor")
     common(sp)
