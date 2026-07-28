@@ -416,8 +416,9 @@ def main():
     ap.add_argument("bundle", help="Bundle dir (e.g. benchmark/richmond) with records.jsonl + verdicts.json.")
     ap.add_argument("--models", default="rampnet",
                     help="Comma-separated detectors. Each is a provider (rampnet/gemini/qwen/"
-                         "owlv2/gdino/molmo, using its default model) or provider:model_id to "
-                         "pin a variant, e.g. 'rampnet,gemini:gemini-2.5-flash,owlv2'.")
+                         "owlv2/gdino/molmo/yolo, using its default model) or provider:model_id to "
+                         "pin a variant, e.g. 'rampnet,gemini:gemini-2.5-flash,owlv2'. yolo needs "
+                         "trained weights: 'yolo:<path.pt>' or --yolo-model.")
     ap.add_argument("--gemini-model", default="gemini-3.6-flash")
     ap.add_argument("--qwen-model", default="Qwen/Qwen3-VL-8B-Instruct")
     ap.add_argument("--qwen-coord-space", choices=["auto", "norm1000", "pixels"], default="auto",
@@ -440,6 +441,20 @@ def main():
     ap.add_argument("--molmo-coord-scale", choices=["auto", "100", "1000"], default="auto",
                     help="Divisor for Molmo point coordinates: Molmo 1 emits percentages "
                          "(100), Molmo 2 emits 0-1000. 'auto' infers it from the tag syntax.")
+    ap.add_argument("--yolo-model",
+                    help="Trained YOLO weights (.pt) for the 'yolo' provider — the supervised "
+                         "baseline (issue #51). Required for --models yolo; e.g. "
+                         "runs/detect/train/weights/best.pt. Also settable as 'yolo:<path>'.")
+    ap.add_argument("--yolo-conf", type=float, default=0.05,
+                    help="Score floor for YOLO boxes (default 0.05). Like --score-threshold for "
+                         "the open-vocab detectors, this is a CACHE floor in the signature, not "
+                         "the operating point; higher points are free re-scores (--op-threshold, "
+                         "--sweep).")
+    ap.add_argument("--yolo-iou", type=float, default=0.5,
+                    help="YOLO NMS IoU threshold (default 0.5).")
+    ap.add_argument("--yolo-imgsz", type=int, default=1024,
+                    help="YOLO inference image size (default 1024, matching the perspective view "
+                         "size). For --tiling none, set this to the pano-geometry training size.")
     ap.add_argument("--tiling", choices=["perspective", "none"], default="perspective",
                     help="VLM input: 'perspective' reprojects the pano into rectilinear "
                          "views (fair); 'none' uses one whole-pano call (lower bound). "
@@ -452,7 +467,7 @@ def main():
                          "the cache); models without confidences are unaffected.")
     ap.add_argument("--sweep", action="store_true",
                     help="Also print a threshold sweep for every model whose detections carry "
-                         "confidences (RampNet, owlv2, gdino) — the tunable operating range.")
+                         "confidences (RampNet, owlv2, gdino, yolo) — the tunable operating range.")
     ap.add_argument("--pr-out", help="Directory to write PR curves to (JSON per model, plus a "
                                      "combined PNG when matplotlib is installed).")
     ap.add_argument("--limit", type=int,

@@ -14,11 +14,12 @@ sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "model_comparison"))
 
 from detectors import (  # noqa: E402
     BundleRampNetDetector, GeminiDetector, GroundingDinoDetector, MolmoDetector,
-    OwlV2Detector, QwenDetector, PanoSample, _VLMDetector,
+    OwlV2Detector, QwenDetector, YoloDetector, PanoSample, _VLMDetector,
     gemini_boxes_to_points, qwen_boxes_to_points, boxes_from_gemini_response,
     boxes_from_qwen_text, infer_qwen_coord_space, parse_model_spec, build_detector,
     molmo_points_from_text, molmo_token_points_to_items, infer_molmo_mode,
     owlv2_target_size, pixel_boxes_to_points, zero_shot_results_to_boxes,
+    yolo_results_to_boxes,
     CURB_RAMP_DEFINITION, DETECTION_PROMPT, GDINO_QUERY, MOLMO_PROMPT, OWLV2_QUERY,
 )
 from dump_detections import detections_to_view_shapes  # noqa: E402
@@ -30,6 +31,18 @@ from compare import (  # noqa: E402
     load_manual_ground_truths, operating_report, rescore, sweep_rows,
 )
 from rampnet.detection_eval import GroundTruth, radius_sq_for  # noqa: E402
+from prepare_yolo_dataset import (  # noqa: E402
+    parse_box_size, _ground_distance_m, _box_wh, _resolve_distances, write_data_yaml,
+    Config as YoloPrepConfig,
+)
+
+
+def _prep_cfg(**over):
+    base = dict(geometry="tiles", strategy="fixed", fixed_frac=0.03, min_frac=0.008,
+                max_frac=0.12, ramp_size_m=1.5, camera_height_m=2.5, source_max_edge=4096,
+                pano_w=2048, pano_h=1024, views=(), out="", overlay_dir=None, bg_keep_frac=1.0)
+    base.update(over)
+    return YoloPrepConfig(**base)
 
 
 class _Args:
@@ -44,6 +57,10 @@ class _Args:
     gdino_text_threshold = None
     score_threshold = None
     molmo_coord_scale = "auto"
+    yolo_model = None
+    yolo_conf = 0.05
+    yolo_iou = 0.5
+    yolo_imgsz = 1024
     tiling = "perspective"
 
 
@@ -210,6 +227,44 @@ def test_pixel_boxes_to_points_drops_boxes_in_the_pad_region():
     items = [{"box": [0, 0, 100, 100], "score": 0.5},        # in frame
              {"box": [0, 1200, 100, 1400], "score": 0.5}]    # below a 1000x600 image
     assert pixel_boxes_to_points(items, 1000, 600) == [(0.05, 1 / 12, 0.5)]
+
+
+class _FakeYoloBoxes:
+    """Stands in for ultralytics ``Results.boxes``: .xyxy / .conf as tensors (here,
+    objects with .tolist()) so yolo_results_to_boxes exercises the tensor path."""
+    def __init__(self, xyxy, conf):
+        self.xyxy = _Tolistable(xyxy)
+        self.conf = _Tolistable(conf)
+
+
+class _Tolistable:
+    def __init__(self, data):
+        self._data = data
+
+    def tolist(self):
+        return self._data
+
+
+class _FakeYoloResult:
+    def __init__(self, xyxy, conf):
+        self.boxes = _FakeYoloBoxes(xyxy, conf) if xyxy is not None else None
+
+
+def test_yolo_results_to_boxes_carries_confidence_through_the_tensor_path():
+    # Like the open-vocab detectors, YOLO's per-box score must survive to the scorer
+    # (that is what earns it AP / a PR curve / a sweep). xyxy are absolute pixels.
+    res = _FakeYoloResult([[100.0, 200.0, 300.0, 400.0]], [0.42])
+    boxes = yolo_results_to_boxes(res)
+    assert boxes == [{"box": [100.0, 200.0, 300.0, 400.0], "score": 0.42}]
+    # And it reduces to the same normalized center the open detectors produce.
+    assert pixel_boxes_to_points(boxes, 1000, 2000) == [(0.2, 0.15, 0.42)]
+
+
+def test_yolo_results_to_boxes_filters_and_survives_no_detections():
+    res = _FakeYoloResult([[0, 0, 10, 10], [5, 5, 15, 15]], [0.1, 0.9])
+    assert yolo_results_to_boxes(res, threshold=0.5) == [{"box": [5.0, 5.0, 15.0, 15.0],
+                                                          "score": 0.9}]
+    assert yolo_results_to_boxes(_FakeYoloResult(None, None)) == []
 
 
 def test_open_vocab_queries_are_short_and_key_the_cache():
@@ -452,8 +507,135 @@ def test_build_detector_rejects_unknown_provider():
         build_detector("clip", None, {}, _Args())
     except ValueError as e:
         assert "owlv2" in str(e)      # the message lists what is available
+        assert "yolo" in str(e)       # ...including the supervised baseline
         return
     raise AssertionError("expected an unknown provider to raise")
+
+
+def test_build_detector_wires_yolo_and_labels_by_weights_stem(tmp_path):
+    weights = tmp_path / "yolo11l_tiles.pt"
+    weights.write_bytes(b"fake-weights")
+
+    class _Y(_Args):
+        yolo_model = str(weights)
+    # Bare provider uses --yolo-model; the table label is the file STEM (not the
+    # absolute path), so the cache is machine-independent.
+    label, det = build_detector("yolo", None, {}, _Y())
+    assert label == "yolo11l_tiles" and isinstance(det, YoloDetector)
+    assert det.weights == str(weights) and det.model_id == "yolo11l_tiles"
+    assert det.conf == 0.05 and det.score_threshold == 0.05 and det.tile is True
+    # A pinned path via yolo:<path> works too and labels the same way.
+    label2, det2 = build_detector("yolo", str(weights), {}, _Y())
+    assert label2 == "yolo11l_tiles"
+
+
+def test_build_detector_yolo_requires_weights():
+    class _NoWeights(_Args):
+        yolo_model = None
+    try:
+        build_detector("yolo", None, {}, _NoWeights())
+    except ValueError as e:
+        assert "weights" in str(e).lower()
+        return
+    raise AssertionError("expected yolo without weights to raise")
+
+
+def test_yolo_signature_hashes_weights_and_is_machine_independent(tmp_path):
+    w1 = tmp_path / "a.pt"
+    w1.write_bytes(b"weights-one")
+    w2 = tmp_path / "b.pt"
+    w2.write_bytes(b"weights-two")
+    # Same label, different weights CONTENT -> different cache identity, so a
+    # re-trained checkpoint can't silently reuse the old detections.
+    d1 = YoloDetector(weights=str(w1), label="m")
+    d2 = YoloDetector(weights=str(w2), label="m")
+    assert d1.signature()["weights_hash"] != d2.signature()["weights_hash"]
+    assert cache_key("m", d1.signature(), "c", "p") != cache_key("m", d2.signature(), "c", "p")
+    # Identity is the label, not a machine-specific path.
+    assert d1.signature()["model_id"] == "m"
+    assert d1.score_threshold == d1.conf == 0.05
+    # The extra keys live only on YOLO's signature (Gemini's is undisturbed).
+    extra = set(d1.signature()) - set(GeminiDetector(model_id="gemini-3.6-flash").signature())
+    assert extra == {"weights_hash", "conf", "iou", "imgsz"}
+    # Absent weights -> None hash (score a rsynced cache without the .pt present).
+    w1.unlink()
+    assert YoloDetector(weights=str(w1), label="m").signature()["weights_hash"] is None
+
+
+# --- prepare_yolo_dataset.py: box-size + gps-correspondence logic ------------
+
+def test_parse_box_size_variants():
+    assert parse_box_size("fixed") == ("fixed", 0.03)
+    assert parse_box_size("fixed:0.05") == ("fixed", 0.05)
+    assert parse_box_size("pitch") == ("pitch", 0.0)
+    assert parse_box_size("gps") == ("gps", 0.0)
+    try:
+        parse_box_size("bogus")
+    except Exception:
+        return
+    raise AssertionError("expected an invalid box-size to raise")
+
+
+def test_ground_distance_is_monotonic_and_diverges_at_the_horizon():
+    # Lower in the frame (larger y) -> steeper down-look -> closer ground point.
+    near = _ground_distance_m(0.95, 2.5)
+    far = _ground_distance_m(0.55, 2.5)
+    assert 0 < near < far
+    # At / above the horizon the flat-ground model diverges -> inf (the min box).
+    assert _ground_distance_m(0.5, 2.5) == float("inf")
+    assert _ground_distance_m(0.3, 2.5) == float("inf")
+
+
+def test_box_wh_fixed_ignores_distance():
+    cfg = _prep_cfg(strategy="fixed", fixed_frac=0.04)
+    assert _box_wh(cfg, 0.5, 0.9, 3.0, 90.0, 90.0) == (0.04, 0.04)
+    assert _box_wh(cfg, 0.5, 0.6, None, 90.0, 90.0) == (0.04, 0.04)
+
+
+def test_box_wh_distance_aware_shrinks_with_distance_and_clamps():
+    cfg = _prep_cfg(strategy="gps")
+    near_w, _ = _box_wh(cfg, 0.5, 0.8, 3.0, 90.0, 90.0)
+    far_w, _ = _box_wh(cfg, 0.5, 0.8, 30.0, 90.0, 90.0)
+    assert far_w < near_w                                  # farther ramp -> smaller box
+    assert cfg.min_frac <= far_w <= cfg.max_frac
+    assert cfg.min_frac <= near_w <= cfg.max_frac
+    # A non-finite distance collapses to the min box, never a crash.
+    assert _box_wh(cfg, 0.5, 0.8, float("inf"), 90.0, 90.0) == (cfg.min_frac, cfg.min_frac)
+
+
+def test_resolve_distances_gps_needs_matching_point_and_coord_counts():
+    cfg = _prep_cfg(strategy="gps")
+    pts = [(0.1, 0.7), (0.2, 0.8)]
+    dists, used = _resolve_distances(cfg, pts, [47.6, -122.3],
+                                     [[47.6001, -122.3001], [47.6002, -122.3002]])
+    assert used and all(d is not None and d > 0 for d in dists)
+    # Count mismatch -> fall back (None triggers the pitch model downstream).
+    dists2, used2 = _resolve_distances(cfg, pts, [47.6, -122.3], [[47.6001, -122.3001]])
+    assert used2 is False and dists2 == [None, None]
+
+
+def test_write_data_yaml_stamps_prep_provenance(tmp_path):
+    # Box size / bg-keep are train-only knobs that NO downstream record captures
+    # (ultralytics args.yaml never sees them) — data.yaml is where the dataset's
+    # provenance must live, as comments the YAML parser ignores.
+    class _P:
+        box_size = ("pitch", 0.0)
+        n_yaw = 6
+        view_fov = 90.0
+        view_pitch = -30.0
+        view_size = 1024
+        pano_width = 2048
+        subset = None
+        dataset_root = "dataset"
+    cfg = _prep_cfg(strategy="pitch", ramp_size_m=1.8, bg_keep_frac=0.15, out=str(tmp_path))
+    write_data_yaml(cfg, _P())
+    text = (tmp_path / "data.yaml").read_text()
+    assert "box-size=pitch" in text and "ramp-size-m=1.8" in text
+    assert "bg-keep-frac=0.15" in text and "view-size=1024" in text
+    # The stamp is comments only — the mapping ultralytics reads is untouched.
+    data_lines = [l for l in text.splitlines() if l and not l.startswith("#")]
+    assert data_lines[0] == f"path: {tmp_path}"
+    assert "train: images/train" in data_lines and "val: images/val" in data_lines
 
 
 def test_open_model_detectors_construct_without_weights():

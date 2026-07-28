@@ -18,7 +18,14 @@ model-agnostic ground truth (see ``rampnet/detection_eval.py``).
   AP / PR curves and threshold sweeps possible for a non-RampNet model.
 - ``MolmoDetector`` is **live** and emits **points**, not boxes — RampNet's native
   output format, so it avoids the box->center reduction every other VLM needs.
+- ``YoloDetector`` is the one **supervised** model here: an Ultralytics YOLO box
+  detector *trained on the RampNet dataset* (the architecture-vs-data baseline,
+  issue #51). ``--yolo-model`` points at trained weights, not an HF id, so its
+  signature also hashes the weights file. Boxes carry a calibrated score, so it
+  gets AP / PR / sweep like the open-vocab detectors; tiled by default, with
+  ``--tiling none`` as the whole-pano ablation.
 """
+import hashlib
 import importlib.util
 import json
 import os
@@ -264,6 +271,31 @@ def pixel_boxes_to_points(items, img_w, img_h):
         if 0.0 <= cx <= 1.0 and 0.0 <= cy <= 1.0:
             points.append((cx, cy, it.get("score")))
     return points
+
+
+def yolo_results_to_boxes(result, threshold=None):
+    """Normalize one Ultralytics ``Results`` into ``[{"box": [x1, y1, x2, y2]
+    (pixels), "score": float}]`` — the same shape ``pixel_boxes_to_points`` consumes.
+
+    ``result.boxes.xyxy`` are absolute pixels in the frame the model was shown and
+    ``result.boxes.conf`` are calibrated per-box confidences; both are torch tensors
+    in a live run and plain lists in tests, so they go through ``_as_list``. The
+    score is **carried through** — it is what lets YOLO get AP / PR / a sweep."""
+    boxes = getattr(result, "boxes", None)
+    if boxes is None:
+        return []
+    xyxy = _as_list(getattr(boxes, "xyxy", None))
+    conf = _as_list(getattr(boxes, "conf", None))
+    items = []
+    for i, box in enumerate(xyxy):
+        box = [float(v) for v in _as_list(box)]
+        if len(box) != 4:
+            continue
+        score = float(conf[i]) if i < len(conf) else None
+        if threshold is not None and score is not None and score < threshold:
+            continue
+        items.append({"box": box, "score": score})
+    return items
 
 
 # --- Molmo point parsing (pure, unit-tested) --------------------------------
@@ -904,14 +936,97 @@ class MolmoDetector(_VLMDetector):
         return sig
 
 
+def _weights_fingerprint(path):
+    """Content hash of a YOLO weights file, so retraining to the same path/label
+    invalidates the detection cache — the weights *are* the model here, unlike a
+    stable HF id. Machine-independent (hashes bytes, not the path). Returns ``None``
+    if the file is absent (e.g. scoring a rsynced cache without the weights present),
+    falling back to the label for identity."""
+    try:
+        h = hashlib.sha1()
+        with open(path, "rb") as f:
+            for chunk in iter(lambda: f.read(1 << 20), b""):
+                h.update(chunk)
+        return h.hexdigest()
+    except OSError:
+        return None
+
+
+class YoloDetector(_VLMDetector):
+    """Ultralytics YOLO — the one **supervised** detector here, trained on the
+    RampNet dataset (issue #51: is RampNet's keypoint architecture doing the work,
+    or would any detector trained on the auto-generated data also beat the zero-shot
+    field?). Boxes carry objectness x class confidence, so it gets AP / PR / a sweep
+    like the open-vocabulary detectors, via the same box->center->score path.
+
+    ``model_id`` here is a **weights path** (``.pt``), not an HF id. Its identity for
+    the results table and the cache is the file **stem** (machine-independent), and
+    ``signature`` additionally hashes the weights bytes so a re-trained checkpoint at
+    the same path invalidates cached detections. Tiled by default (perspective
+    views, matching how the VLMs are scored); ``--tiling none`` runs the whole-pano
+    ablation with pano-geometry weights.
+
+    Cache-gap caveat (shared with the other providers): the key does not include the
+    box->point parser version. If ``_parse`` / ``yolo_results_to_boxes`` changes,
+    bump something in ``signature()`` to bust ``.model_cache``."""
+
+    name = "yolo"
+    prompt = None            # not a prompted model; the base "prompt" cache key stays None
+    score_threshold = 0.05   # cache floor, like the zero-shot detectors
+
+    def __init__(self, weights, label=None, conf=None, iou=0.5, imgsz=1024,
+                 tile=True, views=None):
+        # Identity is the file stem, not the absolute path, so the cache is
+        # machine-independent (score a rsynced .model_cache without re-running).
+        stem = label or os.path.splitext(os.path.basename(str(weights)))[0]
+        super().__init__(stem, tile=tile, views=views)
+        self.weights = weights
+        self.conf = self.score_threshold if conf is None else float(conf)
+        self.score_threshold = self.conf   # attribute read to feed the --sweep floor
+        self.iou = float(iou)
+        self.imgsz = int(imgsz)
+        self._model = None
+        self._device = "cpu"
+
+    def _ensure_ready(self):
+        if self._model is not None:
+            return
+        try:
+            import torch
+            from ultralytics import YOLO
+        except ImportError as e:
+            raise ImportError(
+                "YoloDetector needs `ultralytics` "
+                "(pip install ultralytics; see requirements-vlm.txt)") from e
+        self._device = "cuda" if torch.cuda.is_available() else "cpu"
+        self._model = YOLO(self.weights)
+
+    def _raw_detect(self, image):
+        # conf is a low cache floor; higher operating points are free re-scores
+        # (--op-threshold / --sweep), exactly like the open-vocab detectors.
+        results = self._model.predict(image, conf=self.conf, iou=self.iou,
+                                      imgsz=self.imgsz, device=self._device, verbose=False)
+        return yolo_results_to_boxes(results[0])
+
+    def _parse(self, raw, img_w, img_h):
+        return pixel_boxes_to_points(raw, img_w, img_h)
+
+    def signature(self):
+        sig = super().signature()
+        sig.update({"weights_hash": _weights_fingerprint(self.weights),
+                    "conf": self.conf, "iou": self.iou, "imgsz": self.imgsz})
+        return sig
+
+
 def parse_model_spec(token):
     """Parse a ``--models`` token into ``(provider, model_id_or_None)``.
 
     A token is either a bare provider (``rampnet`` / ``gemini`` / ``qwen`` /
-    ``owlv2`` / ``gdino`` / ``molmo``, which uses that provider's default model) or
-    ``provider:model_id`` to pin a specific variant — e.g. ``gemini:gemini-2.5-flash``
-    vs ``gemini:gemini-3.6-flash`` — so several variants of the same provider can be
-    compared in one run."""
+    ``owlv2`` / ``gdino`` / ``molmo`` / ``yolo``, which uses that provider's default
+    model) or ``provider:model_id`` to pin a specific variant — e.g.
+    ``gemini:gemini-2.5-flash`` vs ``gemini:gemini-3.6-flash``, or
+    ``yolo:runs/detect/train/weights/best.pt`` for a trained checkpoint — so several
+    variants of the same provider can be compared in one run."""
     provider, _, model_id = token.partition(":")
     return provider.strip(), (model_id.strip() or None)
 
@@ -949,5 +1064,19 @@ def build_detector(provider, model_id, records, args):
         scale = getattr(args, "molmo_coord_scale", "auto")
         return mid, MolmoDetector(model_id=mid, tile=tile,
                                   coord_scale=None if scale in (None, "auto") else float(scale))
+    if provider == "yolo":
+        # model_id (from yolo:<path>) or --yolo-model is a trained weights path, not
+        # an HF id; the table label + cache identity is its machine-independent stem.
+        weights = model_id or getattr(args, "yolo_model", None)
+        if not weights:
+            raise ValueError("yolo needs a trained weights path: "
+                             "--models yolo:<path.pt> or --yolo-model <path.pt>")
+        iou = getattr(args, "yolo_iou", None)
+        imgsz = getattr(args, "yolo_imgsz", None)
+        label = os.path.splitext(os.path.basename(str(weights)))[0]
+        return label, YoloDetector(weights=weights, label=label, tile=tile,
+                                   conf=getattr(args, "yolo_conf", None),
+                                   iou=0.5 if iou is None else float(iou),
+                                   imgsz=1024 if imgsz is None else int(imgsz))
     raise ValueError(f"unknown provider '{provider}' (choose from: rampnet, gemini, qwen, "
-                     "owlv2, gdino, molmo)")
+                     "owlv2, gdino, molmo, yolo)")
