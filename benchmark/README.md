@@ -188,6 +188,26 @@ Smaller notes:
   across the two (1.86 vs 1.80 per pano), so vintage is not confounded with sampling.
 - **3 duplicate marks** (2 in the unbiased subset). Scored as false positives by default; with
   `--lenient-duplicates` precision is 0.977 all-panos / 0.972 unbiased.
+- **How the distances above were computed — no depth estimation is involved.** An equirectangular
+  pano maps the vertical axis linearly to elevation, so a point at `y` sits at depression
+  `(y - 0.5)·180°` below the horizon, and on flat ground a camera at height `H` sees it at
+  `H / tan(θ)`. The whole model is that one line, with `H` assumed to be 2.5 m.
+  - `H` **cancels out of every comparison here** — it scales all distances linearly, so the
+    hit/miss ratio is 1.79 whether the mount is 1.8 m or 3.5 m. Only the metre labels move.
+  - **The metre labels are soft near the horizon, which is exactly where the misses sit.**
+    `H/tan(θ)` is steep there: at `y = 0.51` a shift of 0.01 (≈20 px in the 2048-tall render)
+    takes the estimate from 79.6 m to 39.7 m. Read "20.4 m" as *far*, not as a measurement.
+  - **The conclusion does not depend on any of that**, because `H/tan((y-0.5)π)` is strictly
+    monotonic in `y` — so the claims are rank statements that survive any monotonic distance
+    model, including a correct one. Testing raw `y` with no distance model at all: Mann-Whitney
+    **z = -5.69** (p < 1e-7), and **P(a random missed ramp sits closer to the horizon than a
+    random detected one) = 0.716**. The 80% / 97% figures above are likewise rank statements.
+    Only the cutoff table depends on the metres, and only for where the cutoffs sit.
+  - **Unverified assumptions**: `camera_pitch` and `camera_roll` are `null` on all 125 panos, so
+    the horizon is assumed to be exactly at `y = 0.5` (plausible — Mapillary equirects are
+    gravity-aligned at stitch time and the MX7 is a fixed mount — but unchecked), and the ground
+    is assumed flat. Annapolis is coastal and fairly flat, which is why this is defensible here;
+    **do not reuse this method on morgantown's hillsides** without accounting for grade.
 - **This split carries no `review_notes`.** Unlike budapest, nothing about the rubric fought back
   here, but the reviewer's own confidence rating is not on the record — worth adding on a
   re-review.
