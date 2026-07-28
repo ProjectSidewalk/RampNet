@@ -269,18 +269,58 @@ verifier can reject ~128 proposals per find more cheaply than Gemini can propose
 
 ### How much of a detector's recall is real? (`scripts/analysis/null_recall.py`)
 
-A model that carpets the pano earns recall for free. At a fixed match radius, enough
-scattered boxes land within radius of most GT points whether or not the model saw anything —
-and the open detectors emit **~57–78 boxes per pano** against RampNet's ~2. So "recall" is
-not measuring the same thing down the column.
+**The problem.** A detection counts as a hit when it lands within the match radius (0.022
+normalized ≈ 22 px) of a ground-truth ramp. That rule is fine for a model that emits 2 boxes
+per pano. It is not fine for one that emits 74: scatter enough boxes and some will fall
+within 22 px of each real ramp *by coincidence*, with no detection involved at all. The open
+detectors emit **~57–88 boxes per pano** against RampNet's ~2, so "recall 0.971" and
+"recall 0.768" in the same column are not the same measurement.
 
-The null model: score each pano's ground truth against **another pano's** predictions. That
-keeps the detector's exact detection count and spatial distribution — including systematic
-clustering like the hood/nadir boxes — and destroys every true correspondence, so whatever
-recall survives is what the radius hands out for free at that density. Averaged over all
-non-identity cyclic shifts (deterministic, no seed); `null max` is the worst single shift,
-which is close to the mean, so the null is a property of the density and not of one
-pathological pairing.
+So: how much recall would this model get if it were **not detecting anything**, but still
+emitting boxes the way it actually does?
+
+**The null model.** Take pano A's ground truth and score it against **pano B's predictions**.
+
+That is the whole trick. Both sides are real outputs of the real model on real imagery, so
+the box count, the spatial distribution, and any systematic clustering (hood, nadir, the
+sidewalk band) are preserved *exactly* — this is not uniform-random noise, which would
+understate the effect. But pano B's boxes have nothing to do with pano A's ramps, so every
+match is coincidence. Whatever recall survives is what the match radius gives away for free
+at that model's density.
+
+Repeat over all non-identity cyclic shifts of the pano order and average — deterministic, no
+seed, and every pano's GT gets scored against every other pano's predictions. `null max` is
+the worst single shift; it sits close to the mean, which is how we know the null is a
+property of the model's density rather than one unlucky pairing.
+
+**Worked example — richmond, the two extremes:**
+
+| | boxes/pano | GT ramps | matched | matched by coincidence (null) | attributable to detection |
+|---|---|---|---|---|---|
+| rampnet | 2.2 | 310 | 238 (0.768) | ~17 (0.055) | **~221** |
+| owlv2-large | 74.3 | 310 | 301 (0.971) | **~227 (0.733)** | **~74** |
+
+OWLv2 matches 301 ramps to RampNet's 238 — but scoring richmond's ramps against *unrelated*
+OWLv2 boxes still matches ~227 of them. So OWLv2's apparent 63-ramp advantage is really a
+~147-ramp deficit once the free matches are removed from both sides.
+
+**"Above chance"** rescales the leftover. Once the null is 0.733, a model cannot possibly
+score above 1.0, so only 0.267 of headroom remains — and crediting a model out of 1.0 when
+0.733 was free is misleading in the other direction. So:
+
+```
+above chance = (recall − null) / (1 − null)     # of the headroom that was available, how much did it take?
+```
+
+For OWLv2 on richmond: (0.971 − 0.733) / (1 − 0.733) = 0.238 / 0.267 = **0.891**. It captured
+89% of what was left to capture. (Same shape as Cohen's kappa — observed minus expected, over
+perfect minus expected.)
+
+**Read both columns together, and neither alone.** The raw gap (`recall − null`) says how much
+detection is happening in absolute terms; `above chance` says how efficiently the model used
+the headroom it had. When the null is high, `above chance` flatters — OWLv2's 0.891 is 89% of
+a *small remaining slice*, while RampNet's 0.754 is 75% of nearly the whole range. That is why
+a high `above chance` next to a high `null` is not the endorsement it looks like.
 
 | split | model | boxes/pano | recall | **null** | null max | above chance |
 |---|---|---|---|---|---|---|

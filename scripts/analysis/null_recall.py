@@ -1,24 +1,52 @@
 """Is a model's recall real detection, or just density?
 
-A model that carpets the pano earns recall for free. At a fixed match radius,
-enough scattered boxes land within radius of most GT points whether or not the
-model saw anything -- and the open-vocabulary detectors emit ~70-80 boxes per
-pano against RampNet's ~2. So the recall column is not measuring the same thing
-down the table, and any "recall ceiling" or union-oracle claim built on it has
-to be discounted before it means anything.
+A detection counts as a hit when it lands within the match radius (0.022
+normalized, ~22 px) of a ground-truth ramp. That is a fair rule for a model
+emitting ~2 boxes per pano. It is not fair for one emitting ~74: scatter enough
+boxes and some fall within 22 px of each real ramp BY COINCIDENCE, with no
+detection involved. So "recall" is not the same measurement down the table, and
+any recall-ceiling or union-oracle claim built on it needs discounting first.
 
-The null model: score each pano's ground truth against ANOTHER pano's
-predictions. That preserves the detector's exact detection count and spatial
-distribution -- including systematic clustering like the hood/nadir boxes --
-and destroys every true correspondence, so whatever recall survives is what the
-radius hands out for free at that density. Averaged over all non-identity
-cyclic shifts of the pano order, which is deterministic (no seed) and gives
-every pano's GT a turn against every other pano's predictions.
+The question this answers: how much recall would this model get if it were not
+detecting anything, but still emitting boxes the way it actually does?
 
-"Above chance" is headroom-normalized: (recall - null) / (1 - null), i.e. of
-the recall a perfect detector could add over the null, how much this model
-captured. It is a *generous* framing when the null is high -- read it alongside
-the raw gap, not instead of it.
+THE NULL MODEL -- score pano A's ground truth against pano B's PREDICTIONS.
+
+Both sides are real outputs of the real model on real imagery, so the box count,
+the spatial distribution and any systematic clustering (hood, nadir, the
+sidewalk band) are preserved exactly. This matters: uniform-random boxes would
+understate the effect, because real detectors cluster where ramps also tend to
+be. But pano B's boxes have nothing to do with pano A's ramps, so every match is
+coincidence -- and whatever recall survives is what the radius gives away for
+free at that density.
+
+Averaged over all non-identity cyclic shifts of the pano order: deterministic
+(no seed), and every pano's GT gets a turn against every other pano's
+predictions. `null max` is the worst single shift; it sits close to the mean,
+which is how we know the null is a property of the density and not of one
+unlucky pairing.
+
+Worked example, richmond (310 GT ramps):
+
+    model    boxes/pano  matched      by coincidence   attributable
+    rampnet     2.2      238 (0.768)   ~17 (0.055)        ~221
+    owlv2      74.3      301 (0.971)  ~227 (0.733)         ~74
+
+OWLv2 matches 63 more ramps than RampNet -- and is ~147 ramps BEHIND once the
+free matches come off both sides.
+
+"Above chance" rescales what is left:
+
+    above chance = (recall - null) / (1 - null)
+
+Once the null is 0.733 a model cannot score above 1.0, so only 0.267 of headroom
+remains; this asks how much of that available headroom the model took. For OWLv2
+on richmond, 0.238 / 0.267 = 0.891. (Same shape as Cohen's kappa: observed minus
+expected, over perfect minus expected.)
+
+Read it WITH the raw gap, never instead of it. When the null is high "above
+chance" flatters -- OWLv2's 0.891 is 89% of a small remaining slice, while
+RampNet's 0.754 is 75% of nearly the whole range.
 
 Reads cached detections from .model_cache, so it needs no GPU, no API key and
 no model load. Models that aren't fully cached are reported and skipped rather
