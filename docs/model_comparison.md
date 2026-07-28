@@ -26,6 +26,20 @@ Grounding DINO. Every split now carries the full roster; the remaining ❌s are 
 GT-completeness correction (#55, done on two cities) and the null-recall pass on
 `manual_gold` (O(n²) in panos — see that section).
 
+**Supervised baseline in progress (issue #51).** The roster above is all zero-shot except
+RampNet. A supervised **YOLO** baseline — the architecture-vs-data ablation (does a generic
+detector trained on the RampNet dataset *also* beat the zero-shot field, or is RampNet's
+keypoint architecture doing the work?) — is training on Hyak but is **not yet in the results
+tables**: benchmark eval is pending. Live status is in #51; the training record (per-epoch
+curves, configs, provenance) is committed under
+[`scripts/model_comparison/yolo_baseline/`](../scripts/model_comparison/yolo_baseline/).
+Known gaps so far: the `y11x_tiles` config was dropped (GPU-saturated — epoch time exceeded
+the ckpt scheduling slice, so it never checkpointed), and the two YOLO11 *pano* configs
+collapsed in training (validation mAP → 0 for 4+ epochs despite healthy, still-decreasing
+training loss and no NaN/AMP error — a small-batch BatchNorm/EMA instability; stabilized rerun
+tracked in #70). YOLO26 and the tiles configs trained cleanly. The reported baseline will be
+the best-val checkpoint of a stable run, selected on val, per the protocol in #71.
+
 Three classes of challenger, which fail differently and are worth keeping distinct:
 
 | class | models | output | tunable? |

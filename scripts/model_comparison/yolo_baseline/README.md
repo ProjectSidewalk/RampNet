@@ -4,6 +4,12 @@ This directory is the **preserved record** of the supervised-YOLO baseline runs
 trained on the RampNet dataset on Hyak (klone). It exists so the experiment survives
 `/gscratch/scrubbed`'s ~21-day auto-purge and is reproducible/defensible for the paper.
 
+> **Status:** the runs are in-flight (issue #51); live status is tracked there and the
+> finding is summarized in `docs/model_comparison.md`. The `run_yolo_train.slurm` and
+> `hyak_yolo_runbook.sh` here are **as-run snapshots** — the canonical, evolving copies of
+> the Phase-0 harness land separately via #51, so expect to reconcile the duplication when
+> that merges.
+
 **What's here (small, text, committed):**
 
 - `run_yolo_train.slurm` — the per-config training launcher (one config per job).
