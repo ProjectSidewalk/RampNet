@@ -58,10 +58,11 @@ sys.path.insert(0, REPO)
 
 from rampnet.detection_eval import (  # noqa: E402
     PANO_SCALE_X, PANO_SCALE_Y, GroundTruth, _xy, aggregate, build_ground_truth,
-    prediction_confidence, radius_sq_for, score_pano)
+    load_yolo_ground_truths, prediction_confidence, radius_sq_for, score_pano)
 from rampnet.metrics import greedy_match  # noqa: E402
 
 DEFAULT_CITIES = ("richmond", "bend")
+HF_MODEL_REPO = "projectsidewalk/rampnet-model"
 DEPLOYED_THRESHOLD = 0.55
 DEFAULT_SCORE_FLOOR = 0.05
 DEFAULT_MIN_DISTANCE = 10
@@ -351,6 +352,58 @@ def read_cache(path):
 
 
 # --------------------------------------------------------------------------- #
+# bundle ground truth (both bundle kinds)
+# --------------------------------------------------------------------------- #
+def bundle_ground_truths(city, repo=REPO):
+    """``({pid: GroundTruth}, panos_dir)`` for either kind of benchmark bundle.
+
+    The city splits carry a human verdict review (``verdicts.json``) that
+    :func:`build_ground_truth` turns into GT. ``benchmark/manual_gold`` instead
+    carries ``gt_source.json`` pointing at independently-labelled YOLO files —
+    no RampNet review to derive from, and so no RampNet anchoring. Resolving both
+    here is what lets the sweep cover the in-distribution gold split alongside the
+    deployment cities; the layout logic mirrors
+    ``scripts/model_comparison/compare.py``, which reads the same two bundle kinds.
+    """
+    import json as _json
+    cdir = os.path.join(repo, "benchmark", city)
+    panos_dir = os.path.join(cdir, "panos")
+    vpath = os.path.join(cdir, "verdicts.json")
+    gpath = os.path.join(cdir, "gt_source.json")
+
+    if os.path.exists(vpath):
+        import threshold_sweep as ts
+        records, verdicts, panos_dir = ts.load_bundle(city)
+        return {pid: build_ground_truth(records[pid]["detections"], entry["dets"],
+                                        entry["missed"], entry["no_missed"])
+                for pid, entry in verdicts.items()}, panos_dir
+
+    if not os.path.exists(gpath):
+        raise SystemExit(f"{cdir}: neither verdicts.json nor gt_source.json — "
+                         "not a benchmark bundle")
+    with open(gpath, encoding="utf-8") as f:
+        src = _json.load(f)
+    if src.get("format") != "yolo_points":
+        raise SystemExit(f"{gpath}: unsupported format {src.get('format')!r} "
+                         "(expected 'yolo_points')")
+    labels_dir = os.path.normpath(os.path.join(cdir, src["labels_dir"]))
+    gts = load_yolo_ground_truths(labels_dir)
+    if not gts:
+        raise SystemExit(f"{labels_dir}: no .txt label files found")
+    # Only score panos whose imagery is actually in the bundle: manual_labels/ has
+    # a label file per gold pano, but the split is unusable for any pano whose jpg
+    # was not fetched, and silently scoring it as an all-miss pano would deflate
+    # recall rather than report a gap.
+    present = {pid for pid in gts
+               if os.path.exists(os.path.join(panos_dir, f"{pid}.jpg"))}
+    missing = len(gts) - len(present)
+    if missing:
+        print(f"  [{city}] {missing} of {len(gts)} labelled panos have no imagery "
+              f"in the bundle — excluded (not scored as misses)", flush=True)
+    return {pid: gts[pid] for pid in sorted(present)}, panos_dir
+
+
+# --------------------------------------------------------------------------- #
 # extract (GPU)
 # --------------------------------------------------------------------------- #
 def cmd_extract(args):
@@ -365,11 +418,15 @@ def cmd_extract(args):
     radius_sq = radius_sq_for()
 
     for city in args.cities:
-        records, verdicts, panos_dir = ts.load_bundle(city)
+        out_path = os.path.join(args.cache, f"{city}.json")
+        # Per-city skip, so a preempted or timed-out Slurm job resumes at the split
+        # it died in rather than re-running every split before it.
+        if os.path.exists(out_path) and not args.force:
+            print(f"{city}: cache exists -> skipping (--force to re-extract)", flush=True)
+            continue
+        gts, panos_dir = bundle_ground_truths(city)
         panos = []
-        for i, (pid, entry) in enumerate(verdicts.items(), 1):
-            gt = build_ground_truth(records[pid]["detections"], entry["dets"],
-                                    entry["missed"], entry["no_missed"])
+        for i, (pid, gt) in enumerate(gts.items(), 1):
             path = os.path.join(panos_dir, f"{pid}.jpg")
             try:
                 h = ts.heatmap_for(model, device, path, use_fp16)
@@ -380,13 +437,13 @@ def cmd_extract(args):
                 h = ts.heatmap_for(model, device, path, use_fp16)
             preds = ts.peaks_to_dets(h, args.score_floor, args.min_distance)
             panos.append({"pano": pid, "preds": preds, "gt": gt})
-            if i % 20 == 0:
-                print(f"  {city}: {i}/{len(verdicts)}", flush=True)
+            if i % 50 == 0:
+                print(f"  {city}: {i}/{len(gts)}", flush=True)
             del h
-        out_path = os.path.join(args.cache, f"{city}.json")
         meta = {"score_floor": args.score_floor, "min_distance": args.min_distance,
                 "radius_normalized": 0.022, "fp16": use_fp16,
-                "n_panos": len(panos), "deployed_threshold": DEPLOYED_THRESHOLD}
+                "n_panos": len(panos), "deployed_threshold": DEPLOYED_THRESHOLD,
+                "model": HF_MODEL_REPO, "device": device.type}
         write_cache(out_path, city, panos, meta)
         print(f"{city}: {len(panos)} panos -> {out_path}", flush=True)
 
@@ -843,6 +900,9 @@ def main():
     e.add_argument("--score-floor", type=float, default=DEFAULT_SCORE_FLOOR)
     e.add_argument("--min-distance", type=int, default=DEFAULT_MIN_DISTANCE)
     e.add_argument("--cache", default=CACHE_DIR)
+    e.add_argument("--force", action="store_true",
+                   help="re-extract splits that already have a cache (default: skip them, "
+                        "so a preempted job resumes where it stopped)")
     e.set_defaults(func=cmd_extract)
 
     c = sub.add_parser("curve", help="CPU: PR curve + AP + F1-vs-threshold from the cache")
