@@ -10,11 +10,11 @@ Research code for the RampNet paper (ICCV'25 workshop): a two-stage pipeline tha
 
 **This is a research repo, and the notes are part of the result.** Every experiment, negative result, caveat, and methodological decision gets written into GitHub — a committed doc, a PR body, or an issue comment — *at the time it is produced*, not batched up at the end. The paper is written from these notes; a finding nobody can find later did not happen.
 
-**Why this is a standing rule and not a preference:** results that live only in a working tree, a scratch worktree, or a chat session are one cleanup away from gone. This has already cost us — the Annapolis model-comparison write-up, including a null-recall analysis that *corrected an already-published claim*, existed only as an uncommitted diff in a temp worktree and was destroyed when that temp dir was cleaned up. It survived by luck, because the diff happened to still be in a chat transcript.
+**Why this is a standing rule and not a preference:** **uncommitted** results are one cleanup away from gone. Scratch worktrees under `%TEMP%` get removed when the session that owned them ends, and a removed worktree is also deregistered from `.git/worktrees` — so anything not committed at that moment is unrecoverable, and `git` cannot even tell you it existed. (Committed-and-pushed work in such a worktree is perfectly safe; the branch outlives the directory. Before concluding a branch is gone, check `git ls-remote --heads origin <branch>` — a missing local worktree proves nothing.)
 
 In practice:
 
-- **Commit and push early.** A WIP commit on a branch is free. Never let hours of analysis sit uncommitted, and never leave the only copy in `%TEMP%` or a worktree you did not create yourself.
+- **Commit and push early.** A WIP commit on a branch is free. Never let hours of analysis sit uncommitted, and never leave the *only* copy of uncommitted work in a directory something else controls.
 - **Findings go in `docs/*.md`, committed**, with numbers reproducible from a committed script plus the committed bundles / `.model_cache`. If a number can't be re-derived from the repo, say where it came from (which split, which script, which run date).
 - **Run status and in-flight experiments go in issue comments** as they happen — what was submitted, where, and what it's expected to show. A run whose result you are waiting on should be discoverable by someone who isn't you.
 - **Negative results are results.** "We tried X and it didn't work" is the most commonly lost and among the most valuable — it's why nobody re-proposes it. See `scripts/analysis/peak_nms_check.py` (#62) for the shape: the answer was "no", and the script that proves it is committed.
