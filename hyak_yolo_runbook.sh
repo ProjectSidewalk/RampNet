@@ -35,8 +35,13 @@ PYBIN="${PYBIN:-$ENVDIR/bin/python}"
 DATA="${DATA:-$SCRATCH/rampnet_dataset}"      # HF dataset lands here (via ./dataset symlink)
 YOLODATA="${YOLODATA:-$SCRATCH/yolo}"         # prepared tiles/ and pano/ datasets
 PROJECT="${PROJECT:-$SCRATCH/yolo_runs}"      # training outputs (weights)
-ACCOUNT="${ACCOUNT:-gpu-l40s-makelab}"        # -A for sbatch; override if yours differs
-BOX_SIZE="${BOX_SIZE:-fixed:0.03}"            # A/B pitch/gps later by re-running prep+train
+# -A for the `train` sbatch: run_yolo_train.slurm pins the ckpt (scavenger) partition,
+# which needs the ckpt account. The data/prep slurm wrappers use gpu-l40s-makelab.
+ACCOUNT="${ACCOUNT:-ckpt-makelab}"
+# As-run choice (see run_yolo_prep.slurm): fixed:0.03 was too small on the overlays,
+# and gps fell back to pitch on ~85% of panos — pitch is the consistent strategy.
+BOX_SIZE="${BOX_SIZE:-pitch}"
+RAMP_SIZE_M="${RAMP_SIZE_M:-1.8}"             # physical ramp size the pitch model assumes
 BG_KEEP="${BG_KEEP:-0.15}"                    # keep 15% of background tiles (tames the skew)
 # YOLO26's checkpoint name/availability depends on the ultralytics version — check
 # `python -c "from ultralytics import YOLO; YOLO('yolo26l.pt')"` and override YOLO26.
@@ -95,6 +100,9 @@ PY
 # ---------------------------------------------------------------------------
 data)
   banner "Download the RampNet dataset (~214k panos) from HF onto scratch"
+  # Login nodes reap heavy long-running processes (and the SSH master with them) —
+  # for the real multi-hour download, submit this stage as a compute-node job:
+  #   sbatch -A gpu-l40s-makelab scripts/model_comparison/run_yolo_data.slurm
   mkdir -p "$DATA"
   ln -sfn "$DATA" "$REPO/dataset"     # download_dataset.py writes ./dataset/{train,val,test}
   cd "$REPO"
@@ -114,7 +122,8 @@ prepsmoke)
   cd "$REPO"
   "$PYBIN" scripts/model_comparison/prepare_yolo_dataset.py \
       --dataset-root "$REPO/dataset" --out "$YOLODATA/tiles_smoke" \
-      --geometry tiles --box-size "$BOX_SIZE" --bg-keep-frac "$BG_KEEP" \
+      --geometry tiles --box-size "$BOX_SIZE" --ramp-size-m "$RAMP_SIZE_M" \
+      --bg-keep-frac "$BG_KEEP" \
       --subset 200 --overlay-dir "$YOLODATA/overlay_smoke"
   echo
   echo "scp $YOLODATA/overlay_smoke/*.jpg back and check red boxes sit ON ramps."
@@ -124,14 +133,18 @@ prepsmoke)
 
 # ---------------------------------------------------------------------------
 prep)
-  banner "Full tiles + pano datasets (box-size=$BOX_SIZE, bg-keep=$BG_KEEP)"
+  banner "Full tiles + pano datasets (box-size=$BOX_SIZE, ramp=${RAMP_SIZE_M}m, bg-keep=$BG_KEEP)"
+  # The 150k-pano tiling is multi-hour and CPU-heavy — on klone, submit it as a
+  # compute-node job instead of running here on a login node:
+  #   sbatch -A gpu-l40s-makelab scripts/model_comparison/run_yolo_prep.slurm
   cd "$REPO"
   "$PYBIN" scripts/model_comparison/prepare_yolo_dataset.py \
       --dataset-root "$REPO/dataset" --out "$YOLODATA/tiles" \
-      --geometry tiles --box-size "$BOX_SIZE" --bg-keep-frac "$BG_KEEP"
+      --geometry tiles --box-size "$BOX_SIZE" --ramp-size-m "$RAMP_SIZE_M" \
+      --bg-keep-frac "$BG_KEEP"
   "$PYBIN" scripts/model_comparison/prepare_yolo_dataset.py \
       --dataset-root "$REPO/dataset" --out "$YOLODATA/pano" \
-      --geometry pano --box-size "$BOX_SIZE"
+      --geometry pano --box-size "$BOX_SIZE" --ramp-size-m "$RAMP_SIZE_M"
   echo "OK. Next: bash hyak_yolo_runbook.sh train"
   ;;
 
@@ -144,16 +157,21 @@ train)
   # reach the job. PYTHON=the lean venv; the .slurm falls back to conda otherwise.
   export PYTHON="$PYBIN" HF_HOME YOLO_CONFIG_DIR PROJECT
   SLURM=scripts/model_comparison/run_yolo_train.slurm
-  sub() { # sub <ckpt> <data.yaml> <imgsz> <name>
-    YOLO_CKPT="$1" YOLO_DATA="$2" YOLO_IMGSZ="$3" NAME="$4" \
+  sub() { # sub <ckpt> <data.yaml> <imgsz> <batch> <name>
+    YOLO_CKPT="$1" YOLO_DATA="$2" YOLO_IMGSZ="$3" BATCH="$4" NAME="$5" \
       sbatch -A "$ACCOUNT" "$SLURM"
   }
-  sub yolo11l.pt "$YOLODATA/tiles/data.yaml" 1024 y11l_tiles
-  sub yolo11x.pt "$YOLODATA/tiles/data.yaml" 1024 y11x_tiles
-  sub "$YOLO26"  "$YOLODATA/tiles/data.yaml" 1024 y26_tiles
-  sub yolo11l.pt "$YOLODATA/pano/data.yaml"  1280 y11l_pano
-  sub yolo11x.pt "$YOLODATA/pano/data.yaml"  1280 y11x_pano
-  sub "$YOLO26"  "$YOLODATA/pano/data.yaml"  1280 y26_pano
+  # Batches PINNED to the as-run values (sized for >=45G GPUs) so the LR schedule is
+  # identical wherever a ckpt job lands or resumes — see run_yolo_train.slurm.
+  # Caveats from the 2026-07 runs: y11x_tiles never finished an epoch inside a ckpt
+  # scheduling slice (dropped 2026-07-27, even after a 3->12 batch bump) — run it only
+  # on a non-preemptable partition; YOLO11-pano collapsed at physical batch 2-4 (#70).
+  sub yolo11l.pt "$YOLODATA/tiles/data.yaml" 1024 6  y11l_tiles
+  sub yolo11x.pt "$YOLODATA/tiles/data.yaml" 1024 12 y11x_tiles
+  sub "$YOLO26"  "$YOLODATA/tiles/data.yaml" 1024 6  y26_tiles
+  sub yolo11l.pt "$YOLODATA/pano/data.yaml"  1280 4  y11l_pano
+  sub yolo11x.pt "$YOLODATA/pano/data.yaml"  1280 2  y11x_pano
+  sub "$YOLO26"  "$YOLODATA/pano/data.yaml"  1280 4  y26_pano
   squeue -u "$USER"
   echo "OK. Watch: bash hyak_yolo_runbook.sh status"
   ;;

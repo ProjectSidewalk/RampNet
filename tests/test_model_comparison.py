@@ -32,7 +32,8 @@ from compare import (  # noqa: E402
 )
 from rampnet.detection_eval import GroundTruth, radius_sq_for  # noqa: E402
 from prepare_yolo_dataset import (  # noqa: E402
-    parse_box_size, _ground_distance_m, _box_wh, _resolve_distances, Config as YoloPrepConfig,
+    parse_box_size, _ground_distance_m, _box_wh, _resolve_distances, write_data_yaml,
+    Config as YoloPrepConfig,
 )
 
 
@@ -611,6 +612,30 @@ def test_resolve_distances_gps_needs_matching_point_and_coord_counts():
     # Count mismatch -> fall back (None triggers the pitch model downstream).
     dists2, used2 = _resolve_distances(cfg, pts, [47.6, -122.3], [[47.6001, -122.3001]])
     assert used2 is False and dists2 == [None, None]
+
+
+def test_write_data_yaml_stamps_prep_provenance(tmp_path):
+    # Box size / bg-keep are train-only knobs that NO downstream record captures
+    # (ultralytics args.yaml never sees them) — data.yaml is where the dataset's
+    # provenance must live, as comments the YAML parser ignores.
+    class _P:
+        box_size = ("pitch", 0.0)
+        n_yaw = 6
+        view_fov = 90.0
+        view_pitch = -30.0
+        view_size = 1024
+        pano_width = 2048
+        subset = None
+        dataset_root = "dataset"
+    cfg = _prep_cfg(strategy="pitch", ramp_size_m=1.8, bg_keep_frac=0.15, out=str(tmp_path))
+    write_data_yaml(cfg, _P())
+    text = (tmp_path / "data.yaml").read_text()
+    assert "box-size=pitch" in text and "ramp-size-m=1.8" in text
+    assert "bg-keep-frac=0.15" in text and "view-size=1024" in text
+    # The stamp is comments only — the mapping ultralytics reads is untouched.
+    data_lines = [l for l in text.splitlines() if l and not l.startswith("#")]
+    assert data_lines[0] == f"path: {tmp_path}"
+    assert "train: images/train" in data_lines and "val: images/val" in data_lines
 
 
 def test_open_model_detectors_construct_without_weights():

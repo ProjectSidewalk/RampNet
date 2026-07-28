@@ -25,6 +25,7 @@ model-agnostic ground truth (see ``rampnet/detection_eval.py``).
   gets AP / PR / sweep like the open-vocab detectors; tiled by default, with
   ``--tiling none`` as the whole-pano ablation.
 """
+import hashlib
 import importlib.util
 import json
 import os
@@ -941,7 +942,6 @@ def _weights_fingerprint(path):
     stable HF id. Machine-independent (hashes bytes, not the path). Returns ``None``
     if the file is absent (e.g. scoring a rsynced cache without the weights present),
     falling back to the label for identity."""
-    import hashlib
     try:
         h = hashlib.sha1()
         with open(path, "rb") as f:
