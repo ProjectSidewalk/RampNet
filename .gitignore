@@ -30,3 +30,8 @@ analysis_out/
 # the auto-labeler. Belongs with the imagery, which is intentionally not in git
 # (see benchmark/README.md) -- nothing in this repo reads it.
 benchmark/*/index.csv
+
+# Model weights never go in git -- durable homes are HF / lab storage (see
+# scripts/model_comparison/yolo_baseline/README.md, "Where the weights live").
+*.pt
+*.pth

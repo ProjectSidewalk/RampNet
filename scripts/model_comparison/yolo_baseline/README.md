@@ -5,15 +5,15 @@ trained on the RampNet dataset on Hyak (klone). It exists so the experiment surv
 `/gscratch/scrubbed`'s ~21-day auto-purge and is reproducible/defensible for the paper.
 
 > **Status:** the runs are in-flight (issue #51); live status is tracked there and the
-> finding is summarized in `docs/model_comparison.md`. The `run_yolo_train.slurm` and
-> `hyak_yolo_runbook.sh` here are **as-run snapshots** — the canonical, evolving copies of
-> the Phase-0 harness land separately via #51, so expect to reconcile the duplication when
-> that merges.
+> finding is summarized in `docs/model_comparison.md`. The training code lives at its
+> canonical paths — `scripts/model_comparison/run_yolo_train.slurm` and the repo-root
+> `hyak_yolo_runbook.sh` — landing via PR #76. (This record briefly carried as-run
+> snapshots of both; the only drift from the canonical copies was a display-only
+> pano-count bug, documented in #76's description, and the snapshots remain in this
+> branch's history.)
 
 **What's here (small, text, committed):**
 
-- `run_yolo_train.slurm` — the per-config training launcher (one config per job).
-- `hyak_yolo_runbook.sh` — the operator runbook: env → data → prep → train → collect.
 - `runs/<config>/results.csv` — per-epoch training curves (the primary evidence).
 - `runs/<config>/args.yaml` — the exact resolved config for each run.
 
@@ -35,11 +35,15 @@ Six configs = {YOLO11l, YOLO11x, YOLO26l} × {tiles @1024, pano @1280}. One drop
 | Config       | Model    | Input        | Base ckpt     | Batch |
 |--------------|----------|--------------|---------------|-------|
 | `y11l_tiles` | YOLO11l  | tiles @1024  | `yolo11l.pt`  | 6     |
-| `y11x_tiles` | YOLO11x  | tiles @1024  | `yolo11x.pt`  | 3     |
-| `y26_tiles`  | YOLO26l  | tiles @1024  | `yolo26l.pt`  | —     |
+| `y11x_tiles` | YOLO11x  | tiles @1024  | `yolo11x.pt`  | 3→12  |
+| `y26_tiles`  | YOLO26l  | tiles @1024  | `yolo26l.pt`  | 6     |
 | `y11l_pano`  | YOLO11l  | pano @1280   | `yolo11l.pt`  | 4     |
 | `y11x_pano`  | YOLO11x  | pano @1280   | `yolo11x.pt`  | 2     |
 | `y26_pano`   | YOLO26l  | pano @1280   | `yolo26l.pt`  | 4     |
+
+Batches are the as-run values from each run's committed `args.yaml`. `y11x_tiles` was
+submitted at batch 3, then resubmitted at batch 12 trying to finish an epoch inside the
+ckpt scheduling slice (its `args.yaml` is the batch-12 attempt); neither completed one.
 
 ## Status & findings (snapshot: 2026-07-28, training in progress)
 
@@ -78,18 +82,27 @@ holds only the epoch-1 pretrained artifact.
 
 ## Provenance
 
-- **Training code:** `run_yolo_train.slurm` + `hyak_yolo_runbook.sh`, committed in this
-  directory. (The Hyak runs used an rsync of the working tree; this commit anchors it.)
+- **Training code:** `scripts/model_comparison/run_yolo_train.slurm` + the repo-root
+  `hyak_yolo_runbook.sh` (PR #76). (The Hyak runs used an rsync of the working tree;
+  the committed launcher is byte-identical to the as-run copy.)
 - **Dataset:** `projectsidewalk/rampnet-dataset` (HF), pulled onto the cluster via
-  `download_dataset.py`. Prep: `prepare_yolo_dataset.py --box-size fixed:0.03
-  --bg-keep-frac 0.15`, tiles `--geometry tiles` @1024, pano `--geometry pano` @1280.
+  `download_dataset.py`. Prep: `prepare_yolo_dataset.py` via `run_yolo_prep.slurm` —
+  `--box-size pitch --ramp-size-m 1.8 --bg-keep-frac 0.15` per that launcher's as-run
+  defaults (its header records that `fixed:0.03` was rejected as too small and that
+  `gps` fell back to pitch on ~85% of panos). Tiles rendered at 1024 (train imgsz
+  1024); pano at 2048×1024 (train imgsz 1280).
+  **TODO(confirm):** an earlier draft of this record said `fixed:0.03`; the prep log
+  on klone (`head logs/yolo_prep_*.out` prints `box=... ramp=...`) settles it — check
+  before `/gscratch/scrubbed` purges.
 - **Toolchain:** Ultralytics 8.4.105 · Python 3.11.15 · torch 2.13.0+cu126.
 - **Hardware:** NVIDIA L40 (45 GB), 1 GPU/job, Hyak `ckpt-g2` (preemptable/requeue).
 - **Hyperparameters (resolved):** `epochs=60`, `patience=20`, `optimizer=auto`,
   `lr0=0.01`, `lrf=0.01`, `momentum=0.937`, `weight_decay=0.0005`, `warmup_epochs=3.0`,
   `close_mosaic=10`, `amp=true`, `seed=0`. Per-run detail in each `runs/<config>/args.yaml`.
-- **Slurm job IDs:** y11l_tiles 37745358 · y26_tiles 37745360 · y11l_pano 37745361 ·
-  y11x_pano 37745362 · y26_pano 37745363.
+- **Slurm job IDs:** y11l_tiles 37745358 · y11x_tiles 37745359 (inferred — the one gap
+  in the otherwise-contiguous six-job block; its batch-12 resubmit ID went unrecorded,
+  recoverable via `sacct`) · y26_tiles 37745360 · y11l_pano 37745361 · y11x_pano
+  37745362 · y26_pano 37745363.
 - **Run dates:** 2026-07-26 → in progress as of 2026-07-28.
 
 ## Where the weights live
@@ -104,7 +117,9 @@ holds only the epoch-1 pretrained artifact.
 
 ## Reproducing
 
-On klone, via the runbook (each stage is idempotent):
+On klone, via the repo-root runbook (each stage is idempotent; the multi-hour `data` /
+`prep` stages have compute-node sbatch wrappers, `run_yolo_data.slurm` /
+`run_yolo_prep.slurm` — login nodes reap heavy processes):
 
 ```bash
 bash hyak_yolo_runbook.sh env      # lean venv on scratch (ultralytics + cu126 torch)
