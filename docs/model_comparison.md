@@ -15,16 +15,24 @@ a run that hasn't happened, not a result being withheld.
 |---|---|---|---|---|---|
 | richmond | ✅ | ✅ all 8 | ✅ | ✅ 17% (5/29) | OOD deployment, Mapillary 360 |
 | bend | ✅ | ✅ all 8 | ✅ | ✅ 29% (7/24) | in-domain GSV reference |
-| clovis | ✅ | ✅ all 8 | ✅ | ❌ | hardest split — 2018 GoPro Fusion |
-| annapolis | ✅ | ✅ all 8 | ✅ | ❌ | survey-grade Trimble MX7; far-field finding |
-| morgantown | ✅ | ✅ all 8 | ✅ | ❌ | cleanest imagery; the control split |
-| budapest_district5 | ✅ | ✅ all 8 | ✅ | ❌ | **GT itself is low-confidence**; the one ranking inversion |
-| manual_gold | ✅ | ✅ all 8 | ❌ too slow | ❌ | 1k panos, un-anchored GT |
+| clovis | ✅ | ✅ all 8 | ✅ | ✅ 30% (7/23) | hardest split — 2018 GoPro Fusion |
+| annapolis | ✅ | ✅ all 8 | ✅ | ✅ 22% (6/27) | survey-grade Trimble MX7; far-field finding |
+| morgantown | ✅ | ✅ all 8 | ✅ | ✅ 13% (4/30) | cleanest imagery; the control split |
+| budapest_district5 | ✅ | ✅ all 8 | ✅ | ✅ 26% (23/89) | **GT itself is low-confidence**; the one ranking inversion |
+| manual_gold | ✅ | ✅ all 8 | ❌ too slow | n/a — un-anchored GT | 1k panos, the anchoring control |
 
 "All 8" is the roster in the class table below: RampNet, 2 Geminis, 2 Qwens, Molmo, OWLv2,
-Grounding DINO. Every split now carries the full roster; the remaining ❌s are the
-GT-completeness correction (#55, done on two cities) and the null-recall pass on
-`manual_gold` (O(n²) in panos — see that section).
+Grounding DINO. Every split now carries the full roster, and as of 2026-07-28 the
+GT-completeness correction (#55) covers **all six city splits**. `manual_gold` needs no
+correction — its GT was labelled independently of RampNet, which is what makes it the control
+for the anchoring effect. The one remaining ❌ is the null-recall pass on `manual_gold`
+(O(n²) in panos — see that section).
+
+**The operating-point analysis those A-rates feed lives in
+[`docs/operating_point.md`](operating_point.md)** (issue #54): the full precision/recall/F1
+sweep from a 0.05 peak floor across all seven splits, per-imagery-tier curves, the
+confidence-calibration tables, and the recommendation to lower the deployment threshold from
+0.55 to 0.30.
 
 **Supervised baseline in progress (issue #51).** The roster above is all zero-shot except
 RampNet. A supervised **YOLO** baseline — the architecture-vs-data ablation (does a generic
@@ -487,21 +495,30 @@ two columns coincide exactly). The `compare.py` CLI prints both side by side.
 - **RampNet-anchored GT.** The GT was assembled during a RampNet review. A reviewer scanning
   fresh for another model might catch a few more ramps; the complete-scan attestation
   (`no_missed`) mitigates this, but it is a known asymmetry. **It has now been measured on
-  two cities, and it is not small.** Re-reviewing the detections RampNet only surfaces below
-  its deployed 0.55 threshold — a confidence band the GT never fully audited — found real,
-  unlabelled curb ramps at **17% (5/29, richmond)** and **29% (7/24, bend)** of those
-  detections (issue #55; tags in `benchmark/<city>/incremental_fp_tags.json`, reproduce with
-  `operating_point_curve.py gallery --tags`). Two consequences worth carrying:
+  all six city splits, and it is not small.** Re-reviewing the detections RampNet only
+  surfaces below its deployed 0.55 threshold — a confidence band the GT never fully audited —
+  found real, unlabelled curb ramps at **17% (richmond)**, **29% (bend)**, **30% (clovis)**,
+  **13% (morgantown)**, **22% (annapolis)** and **26% (budapest)** of those detections
+  (issue #55; tags in `benchmark/<city>/incremental_fp_tags.json`, reproduce with
+  `operating_point_curve.py gallery --tags` or `low_floor_sweep.py corrected`). Two
+  consequences worth carrying:
   - Precision below ~0.55 is **understated** for RampNet, and by an amount that varies by
     city — so the anchoring asymmetry is not a constant that cancels in a ranking.
   - The A-rate is measured *only* on RampNet's own low-confidence detections. It says the
     GT is incomplete; it does **not** say by how much a challenger is penalised, since a
     challenger's misses are a different population. Do not subtract it from anyone's score.
 
-  Only richmond and bend have been corrected — clovis, morgantown, annapolis,
-  budapest_district5 and manual_gold have not (see the coverage matrix at the top), so no
-  cross-city GT-completeness constant should be quoted yet. Two cities is also too few to
-  tell whether the 17%/29% spread is imagery, reviewer, or noise.
+  All six city splits are now corrected, and the spread — **13%–30%** — still does **not**
+  support a single cross-city GT-completeness constant. It does not order by imagery quality
+  either: morgantown, the cleanest split in the benchmark, has the *lowest* A-rate and clovis,
+  the softest, the highest. Apply the per-split correction; do not subtract an average.
+
+  `manual_gold` is the control rather than a gap: its GT was labelled independently of
+  RampNet, so it has no anchoring to correct. Comparing the two regimes shows the mechanism
+  clearly (the anchored splits have a precision discontinuity at the 0.55 review floor;
+  manual_gold's calibration curve is smooth) while aggregate sub-0.50 precision is
+  near-identical (0.195 anchored vs 0.208 un-anchored) — most likely because manual_gold's
+  in-distribution advantage offsets the anchoring. See `docs/operating_point.md`.
 - **Box → point reduction.** Box models are scored by their box centers, at the same radius
   as RampNet's point detections. Localization differences finer than the radius aren't
   measured. Molmo is the exception — it emits points natively, so nothing is reduced.
