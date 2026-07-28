@@ -7,7 +7,7 @@ trained on the RampNet dataset on Hyak (klone). It exists so the experiment surv
 > **Status:** the runs are in-flight (issue #51); live status is tracked there and the
 > finding is summarized in `docs/model_comparison.md`. The training code lives at its
 > canonical paths — `scripts/model_comparison/run_yolo_train.slurm` and the repo-root
-> `hyak_yolo_runbook.sh` — landing via PR #76. (This record briefly carried as-run
+> `hyak_yolo_runbook.sh` — merged in PR #76. (This record briefly carried as-run
 > snapshots of both; the only drift from the canonical copies was a display-only
 > pano-count bug, documented in #76's description, and the snapshots remain in this
 > branch's history.)
