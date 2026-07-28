@@ -74,13 +74,14 @@ marked for deletion; run the RampNet versions, not those.
 | bend | GSV (Google Street View) | 110 | 0.954 | 0.758 |
 | clovis | Mapillary 360 (GoPro Fusion) | 125 | 0.914 | 0.713 |
 | morgantown | Mapillary 360 (GoPro Max) | 125 | 0.975 | 0.730 |
+| annapolis | Mapillary 360 (Trimble MX7) | 125 | 0.964 | 0.728 |
 | budapest_district5 † | Mapillary 360 (GoPro Max) | 125 | 0.873 | 0.503 |
 
-† **Budapest is not comparable to the four US splits without its caveats** — the reviewer rated
+† **Budapest is not comparable to the five US splits without its caveats** — the reviewer rated
 their own pass low confidence and the rubric does not transfer cleanly. Read the section below
 (or just run the scorer, which prints the warning first). It is a real signal, not a clean number.
 
-All five city splits are **self-contained**: the reviewer's complete-scan attestation is baked into
+All six city splits are **self-contained**: the reviewer's complete-scan attestation is baked into
 `no_missed` (set on fully-judged panos with no missed marks), so the numbers reproduce with a
 plain `python scripts/score_validation.py benchmark/<city>` — no `--assume-scanned` needed.
 This matters because the recall gate otherwise excludes unconfirmed panos and biases recall
@@ -99,6 +100,7 @@ hand-picked high-density panos — is the honest between-city comparison, and
 | bend | 105 | 0.972 | 0.738 |
 | clovis | 120 | 0.889 | 0.650 |
 | morgantown | 120 | 0.969 | 0.684 |
+| annapolis | 120 | 0.961 | 0.692 |
 | budapest_district5 † | 120 | 0.885 | 0.459 |
 
 Clovis is below the other cities on both metrics because it is 100% soft, 2018-era GoPro Fusion
@@ -106,12 +108,14 @@ Clovis is below the other cities on both metrics because it is 100% soft, 2018-e
 records, added in #50 and backfilled for morgantown/budapest in 2026-07-25). Note bend samples only
 10 empty panos where the others take 25.
 
-**Precision tracks the camera across the three US Mapillary splits**, now that every split carries
+**Precision tracks the camera across the US Mapillary splits**, now that every split carries
 `camera_make`/`camera_model`: clovis (100% GoPro Fusion, 2018) 0.914 → richmond (62% iSTAR Pulsar,
-27% GoPro Max) 0.960 → morgantown (100% GoPro Max, 2024) 0.975. **Recall does not** — richmond
-0.765 > morgantown 0.730 > clovis 0.713 — so sharper imagery buys fewer false positives more
-reliably than it buys fewer misses. Recall looks more sensitive to how far away and how dense the
-ramps are than to sensor sharpness.
+27% GoPro Max) 0.960 → annapolis (100% Trimble MX7, 2020+2023) 0.964 → morgantown (100% GoPro Max,
+2024) 0.975. **Recall does not** — richmond 0.765 > morgantown 0.730 ≈ annapolis 0.728 > clovis
+0.713 — so sharper imagery buys fewer false positives more reliably than it buys fewer misses.
+Recall looks more sensitive to how far away and how dense the ramps are than to sensor sharpness,
+and **annapolis is where that stops being a guess** — see its section below, which measures the
+distance dependence directly.
 
 **Budapest breaks that camera story, which is the point of including it.** It is 99% GoPro Max —
 the same camera as morgantown, on fresher imagery (118 of 125 panos captured 2025-09 or later,
@@ -132,6 +136,61 @@ the lowest abstention rate of any split. Recall is the middling part of the stor
 0.684 unbiased, between clovis and bend. Worth noting for the negative-sample check: all 25
 `empty`-group panos held **no detections and no missed ramps**, i.e. the model's "nothing here"
 was correct on every one.
+
+## Annapolis — the split that shows misses are a distance problem
+
+Annapolis (125 panos, P 0.964 / R 0.728; unbiased 0.961 / 0.692) is the first split shot on a
+**survey-grade rig rather than a consumer action camera**: a vehicle-mounted **Trimble MX7**,
+uniformly 8000×4000, one contributor across 101 sequences, median Mapillary quality 0.857, split
+between two capture vintages (83 panos 2023-10, 42 panos 2020-05). It is also the densest city in
+the benchmark by detection rate — **27.96% of the city's 53,232 panos carry at least one
+detection**, against morgantown's 11.2%.
+
+**That density is real, not a false-positive artifact.** This split existed to settle exactly that
+question, and precision 0.964 settles it: only 8 of 222 judged detections were wrong. Annapolis is
+a compact colonial grid plus the Naval Academy; it genuinely has more curb ramps per pano.
+
+The imagery is the most legible in the benchmark. The reviewer abstained on just **2.2% of
+detections (5 of 227)** — the lowest rate of any split, beating morgantown's 4.3%.
+
+**The finding worth carrying elsewhere: the model's misses are overwhelmingly far away.** Treating
+the equirectangular elevation of each point as a ground distance (assuming a ~2.5 m camera mount):
+
+| | n | median est. distance |
+|---|---|---|
+| True detections | 214 | **11.5 m** |
+| Missed ramps (confident) | 80 | **20.4 m** |
+| Missed ramps (unsure) | 34 | 24.3 m |
+
+**80% of confidently-missed ramps lie beyond the median distance of a successful detection**, and
+97% of the unsure ones do. This ratio does not depend on the assumed camera height — changing it
+rescales every distance by the same factor, so only the metre labels move. Restricting to ramps
+within ~12.5 m, recall rises from **0.733 to 0.870 at essentially unchanged precision (0.958)**.
+
+This reframes the ~0.70 recall that every city split reports. It is substantially a *viewpoint*
+limitation rather than a detection-quality one: a ramp 20–40 m down the street is missed, and the
+same ramp is found once the vehicle drives closer. The practical consequence belongs to the
+deployment repo — **multi-view aggregation across the un-thinned pano stream should recover most of
+this**, since the city run has 53,232 panos and this benchmark deliberately thins to 30 m spacing
+so the same ramp never appears twice. The gain lives on the *distance* axis, not the confidence
+axis: in the near field, raising the threshold to 0.90 gives precision 1.000 but recall 0.282, so
+"seen close in some view" has headroom that "seen confidently in some view" does not. Measuring the
+real gain needs a split this benchmark does not yet have — a dense, un-thinned corridor with ground
+truth at the *ramp* level in world coordinates rather than per pano.
+
+Smaller notes:
+
+- **Negative check: 21 of 25 `empty`-group panos were clean.** The other 4 held 10 real ramps the
+  reviewer marked — but **zero false detections**. The model was never wrong when it fired on these
+  panos, only silent, which is the same far-field story.
+- **Vintage is a non-finding.** 2020-05 scores P 0.987 / R 0.704 and 2023-10 scores P 0.952 /
+  R 0.742, but the counts are small and the intervals overlap. Detection density is near-identical
+  across the two (1.86 vs 1.80 per pano), so vintage is not confounded with sampling.
+- **3 duplicate marks** (2 in the unbiased subset). Scored as false positives by default; with
+  `--lenient-duplicates` precision is 0.977 all-panos / 0.972 unbiased.
+- **This split carries no `review_notes`.** Unlike budapest, nothing about the rubric fought back
+  here, but the reviewer's own confidence rating is not on the record — worth adding on a
+  re-review.
 
 ## Budapest District V — the split whose ground truth is itself uncertain
 
@@ -208,7 +267,7 @@ The exporter ends with a reproduction gate against the published gold-set number
 (P 0.949 / R 0.873 @ conf >= 0.55, TTA). Read the manual-gold section of
 `docs/model_comparison.md` before quoting numbers from this split.
 
-**All five city splits were reviewed at model resolution** with the pan/zoom labeler (`scripts/gt_gallery.py`),
+**All six city splits were reviewed at model resolution** with the pan/zoom labeler (`scripts/gt_gallery.py`),
 which shows the full pano at the model's input resolution (4096×2048) with pan/zoom, rather than a
 downscaled overview. For richmond and bend this was a *re-review*: reviewing at model resolution
 surfaced genuinely-missed ramps that the earlier 1600 px overview hid — small/distant curb ramps a
@@ -216,8 +275,10 @@ reviewer literally could not resolve — correcting recall down from earlier, op
 (richmond 0.895 → 0.765, bend 0.831 → 0.758). Precision was essentially unchanged (the zoom mostly
 resolved `unsure` detections, not misclassifications). The correction is consistent across both
 imagery sources (GSV and Mapillary), and these are the honest per-pano-comprehensive figures; clovis,
-morgantown, and budapest were reviewed at model resolution from the start. Richmond and bend each
+morgantown, annapolis, and budapest were reviewed at model resolution from the start. (That
+correction — the ramps the overview hid were the *small and distant* ones — is the same effect the
+annapolis section later measures directly: misses are predominantly far-field.) Richmond and bend each
 include one `duplicate` verdict — a redundant second detection on one physical ramp, scored as a
 false positive by default (`--lenient-duplicates` scores the other way; see
-`scripts/score_validation.py`); clovis and morgantown have none, and budapest has 7 (see its section
-above — there the duplicate call is a live rubric question, not a stray click).
+`scripts/score_validation.py`); clovis and morgantown have none, annapolis has 3, and budapest has 7
+(see its section above — there the duplicate call is a live rubric question, not a stray click).
