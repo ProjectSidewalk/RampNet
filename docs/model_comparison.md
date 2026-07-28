@@ -1,10 +1,32 @@
 # Model comparison: RampNet vs. general-purpose models
 
-Uses the standardized curb-ramp benchmark (`benchmark/{bend,richmond,clovis}/`, plus the
-1k in-distribution `manual_gold` split — see its section below) to compare
+Uses the standardized curb-ramp benchmark (`benchmark/{bend,richmond,clovis,annapolis}/`, plus
+the 1k in-distribution `manual_gold` split — see its section below) to compare
 RampNet against off-the-shelf models. The question: does a general model match or beat the
 purpose-trained RampNet on real deployment imagery (GSV + Mapillary 360)? The harness is
 model-agnostic, so new models (issues #20, #39) plug in the same way.
+
+## What has been run where
+
+Every split in `benchmark/` appears here, including the ones with gaps — an omission below is
+a run that hasn't happened, not a result being withheld.
+
+| split | RampNet | challengers | null-recall | GT-completeness corrected (#55) | notes |
+|---|---|---|---|---|---|
+| richmond | ✅ | ✅ all 8 | ✅ | ✅ 17% (5/29) | OOD deployment, Mapillary 360 |
+| bend | ✅ | ✅ all 8 | ✅ | ✅ 29% (7/24) | in-domain GSV reference |
+| clovis | ✅ | ✅ all 8 | ✅ | ❌ | hardest split — 2018 GoPro Fusion |
+| annapolis | ✅ | ✅ all 8 | ✅ | ❌ | survey-grade Trimble MX7; far-field finding |
+| morgantown | ✅ | ❌ **not run** | RampNet only | ❌ | harness check only so far |
+| budapest_district5 | ✅ | ❌ **not run** | RampNet only | ❌ | **GT itself is low-confidence** — see its section |
+| manual_gold | ✅ | ✅ all 8 | ❌ too slow | ❌ | 1k panos, un-anchored GT |
+
+"All 8" is the roster in the class table below: RampNet, 2 Geminis, 2 Qwens, Molmo, OWLv2,
+Grounding DINO. The two ❌ challenger cells are a compute gap, not a judgment about the
+splits — `.model_cache` holds no detections for either, so putting them in the table means
+~1.5 h of GPU on Hyak plus a couple of desktop-hours of Vertex calls per city. The
+`null_recall.py` cells follow from that: it re-scores cached detections, so it can only
+cover models that have been run.
 
 Three classes of challenger, which fail differently and are worth keeping distinct:
 
@@ -85,6 +107,31 @@ also does it natively in points, no box→center reduction. But it is still ~0.4
 RampNet and clearly behind both Geminis, and it is *sparse*: on the verified overlay pano it
 proposed 2 points where 4 ramps were visible, which shows up as its 150/196 false negatives.
 
+**annapolis** (125 reviewed panos, 294 GT ramps) — Trimble MX7 vehicle survey rig, the first
+survey-grade camera in the benchmark
+
+| model | P | R | F1 | AP | tp/fp/fn |
+|---|---|---|---|---|---|
+| **rampnet** | **0.973** | 0.738 | **0.839** | 0.734 | 217/6/77 |
+| gemini-3.1-pro-preview | 0.613 | 0.527 | 0.567 | – | 155/98/139 |
+| gemini-3.6-flash | 0.637 | 0.490 | 0.554 | – | 144/82/150 |
+| **molmo2-8B** (points) | 0.434 | 0.415 | **0.424** | – | 122/159/172 |
+| Qwen3-VL-32B-Instruct | 0.608 | 0.296 | 0.398 | – | 87/56/207 |
+| Qwen3-VL-8B-Instruct | 0.304 | 0.354 | 0.327 | – | 104/238/190 |
+| owlv2-large-patch14-ensemble | 0.032 | **0.959** | 0.063 | 0.126 | 282/8444/12 |
+| grounding-dino-base | 0.029 | 0.898 | 0.055 | 0.042 | 264/8992/30 |
+
+Best sweep F1 for the open detectors: OWLv2 **0.208** (thr 0.25), Grounding DINO **0.091**
+(thr 0.15). The **ranking is identical for the fourth city running**, and every per-model
+signature recurs: Molmo best open-weight with the only balanced profile, Qwen-32B cautious
+(challenger-best precision 0.608 at the worst recall 0.296), Qwen-8B FP-leaky, open-vocab
+detectors trading a huge nominal recall for ~3% precision. RampNet's lead over the best
+challenger is 0.27 F1, between richmond's ~0.19 and clovis's ~0.30.
+
+Annapolis is also where the open detectors' recall column stops being believable — see
+"How much of a detector's recall is real?" below, which was measured here first and then
+reproduced on every split that has challenger detections.
+
 ### Scope of the claim
 
 The headline — RampNet beats every off-the-shelf model tested — is real and wide, but it
@@ -115,14 +162,20 @@ audit (#46), and a nadir/hood mask (#47) is exactly what those follow-ups measur
 3. **Capacity isn't the chat VLMs' problem either.** Qwen-32B moved to the *precise* end
    (P 0.760 / R 0.297) versus 8B's FP flood (P 0.323 / R 0.452) — the operating point moved,
    F1 barely did (0.427 vs 0.377).
-4. **But OWLv2 has an extraordinary recall ceiling.** At its floor it finds **97.1%** of
-   richmond's ramps, against RampNet's 76.8%.
+4. **But OWLv2 has an extraordinary recall ceiling** — with a large asterisk. At its floor it
+   finds **97.1%** of richmond's ramps, against RampNet's 76.8%. Most of that gap is **not
+   detection**: at ~74 boxes per pano a 0.022 match radius hands out most of the recall for
+   free. Quantified in "How much of a detector's recall is real?" below — read it before
+   quoting the 97.1%.
 
 ### The recall-first angle: OWLv2 as a candidate generator
 
 Recall matters more than precision here (a false negative is a permanently missing ramp; a
 false positive is a cheap review). So the question is not OWLv2's F1 but whether it *sees*
-what RampNet misses. It does — nearly all of it:
+what RampNet misses. By the table it appears to — nearly all of it. **The next section shows
+most of this is a density artifact, so read the two together**; "recovered by OWLv2" below
+means "a ramp fell within the match radius of some OWLv2 box," which at 74 boxes per pano is
+a much weaker statement than it looks:
 
 | OWLv2 thr | RampNet FN | recovered by OWLv2 | union recall | OWLv2 FP | FP per recovered ramp |
 |---|---|---|---|---|---|
@@ -137,6 +190,96 @@ A RampNet ∪ OWLv2 oracle would reach **0.990** recall on richmond. The cost is
 20 of the 72 at 119 FP total — see issue #35), OWLv2 is a **6–20× less efficient**
 complement. It is a recall oracle, not a usable candidate generator, unless a downstream
 verifier can reject ~128 proposals per find more cheaply than Gemini can propose 6.
+
+### How much of a detector's recall is real? (`scripts/analysis/null_recall.py`)
+
+A model that carpets the pano earns recall for free. At a fixed match radius, enough
+scattered boxes land within radius of most GT points whether or not the model saw anything —
+and the open detectors emit **~57–78 boxes per pano** against RampNet's ~2. So "recall" is
+not measuring the same thing down the column.
+
+The null model: score each pano's ground truth against **another pano's** predictions. That
+keeps the detector's exact detection count and spatial distribution — including systematic
+clustering like the hood/nadir boxes — and destroys every true correspondence, so whatever
+recall survives is what the radius hands out for free at that density. Averaged over all
+non-identity cyclic shifts (deterministic, no seed); `null max` is the worst single shift,
+which is close to the mean, so the null is a property of the density and not of one
+pathological pairing.
+
+| split | model | boxes/pano | recall | **null** | null max | above chance |
+|---|---|---|---|---|---|---|
+| richmond | rampnet | 2.2 | 0.768 | 0.055 | 0.132 | 0.754 |
+| richmond | gemini-3.1-pro-preview | 3.1 | 0.700 | 0.083 | 0.142 | 0.673 |
+| richmond | gemini-3.6-flash | 2.7 | 0.642 | 0.063 | 0.113 | 0.618 |
+| richmond | molmo2-8B | 3.3 | 0.516 | 0.076 | 0.110 | 0.476 |
+| richmond | Qwen3-VL-32B | 1.0 | 0.297 | 0.023 | 0.065 | 0.280 |
+| richmond | Qwen3-VL-8B | 3.6 | 0.452 | 0.080 | 0.116 | 0.404 |
+| richmond | **owlv2-large** | **74.3** | 0.971 | **0.733** | 0.829 | 0.891 |
+| richmond | **grounding-dino-base** | **78.0** | 0.852 | **0.619** | 0.690 | 0.610 |
+| bend | rampnet | 2.4 | 0.761 | 0.063 | 0.144 | 0.745 |
+| bend | gemini-3.1-pro-preview | 2.6 | 0.581 | 0.064 | 0.119 | 0.553 |
+| bend | gemini-3.6-flash | 3.0 | 0.587 | 0.070 | 0.122 | 0.556 |
+| bend | molmo2-8B | 2.4 | 0.401 | 0.060 | 0.116 | 0.362 |
+| bend | Qwen3-VL-32B | 1.2 | 0.294 | 0.024 | 0.070 | 0.276 |
+| bend | Qwen3-VL-8B | 2.7 | 0.336 | 0.048 | 0.086 | 0.303 |
+| bend | **owlv2-large** | **78.0** | 0.951 | **0.738** | 0.780 | 0.813 |
+| bend | **grounding-dino-base** | **66.4** | 0.850 | **0.648** | 0.706 | 0.574 |
+| clovis | rampnet | 1.3 | 0.713 | 0.044 | 0.118 | 0.700 |
+| clovis | gemini-3.1-pro-preview | 1.4 | 0.477 | 0.042 | 0.108 | 0.454 |
+| clovis | gemini-3.6-flash | 1.7 | 0.497 | 0.049 | 0.092 | 0.472 |
+| clovis | molmo2-8B | 2.1 | 0.436 | 0.055 | 0.108 | 0.403 |
+| clovis | Qwen3-VL-32B | 0.4 | 0.200 | 0.012 | 0.036 | 0.190 |
+| clovis | Qwen3-VL-8B | 2.1 | 0.292 | 0.043 | 0.087 | 0.261 |
+| clovis | **owlv2-large** | **57.0** | 0.908 | **0.646** | 0.738 | 0.739 |
+| clovis | **grounding-dino-base** | **77.1** | 0.867 | **0.627** | 0.718 | 0.642 |
+| annapolis | rampnet | 1.8 | 0.738 | 0.051 | 0.085 | 0.724 |
+| annapolis | gemini-3.1-pro-preview | 2.1 | 0.527 | 0.060 | 0.102 | 0.497 |
+| annapolis | gemini-3.6-flash | 1.9 | 0.490 | 0.049 | 0.082 | 0.463 |
+| annapolis | molmo2-8B | 2.3 | 0.415 | 0.064 | 0.116 | 0.375 |
+| annapolis | Qwen3-VL-32B | 1.2 | 0.296 | 0.029 | 0.054 | 0.275 |
+| annapolis | Qwen3-VL-8B | 2.8 | 0.354 | 0.068 | 0.109 | 0.306 |
+| annapolis | **owlv2-large** | **70.2** | 0.959 | **0.769** | 0.847 | 0.823 |
+| annapolis | **grounding-dino-base** | **74.3** | 0.898 | **0.641** | 0.738 | 0.715 |
+
+RampNet on the two splits without challenger runs, for completeness: morgantown 1.7
+boxes/pano, recall 0.730, null 0.037; budapest 1.5 boxes/pano, recall 0.510, null 0.029.
+Both sit in the same 0.03–0.07 band as every other sparse model.
+
+"Above chance" is headroom-normalized: of the recall a perfect detector could add over the
+null, how much this model captured. It is a *generous* framing when the null is high — read
+it alongside the raw gap, not instead of it.
+
+What this changes:
+
+1. **The open detectors' recall column is mostly density, not detection.** Scoring richmond's
+   GT against *unrelated* OWLv2 boxes still recovers **73.3%** of the ramps. Of its headline
+   0.971, only ~24 points are attributable to localization at all. The effect reproduces on
+   all four splits (nulls 0.62–0.77) and tracks box density, not city difficulty.
+2. **The recall-oracle table above is weaker than it reads.** "OWLv2 recovered 69 of
+   RampNet's 72 misses" is the raw count; chance alone would cover ~0.733 × 72 ≈ **53** of
+   them, so the above-chance recovery is closer to **16 ramps than 69**. (First-order: it
+   applies the split-wide null rate to the miss subset, which assumes the null rate doesn't
+   vary between the ramps RampNet misses and the ones it finds. Worth checking directly
+   before leaning on the number — the misses skew far-field, and box density is not uniform
+   in a reprojected view.)
+3. **Every model with a normal detection budget is unaffected.** RampNet, both Geminis, Molmo
+   and both Qwens sit on nulls of 0.01–0.08 across all four splits, so their recall is
+   essentially all signal, and the F1 ranking — which the FP flood already penalizes — does
+   not move.
+4. **It does not say the open detectors are noise.** Their above-chance figures are clearly
+   positive (0.57–0.89); it says the *headline recall number* is not comparable to a sparse
+   model's, and any "recall ceiling" or union-oracle claim built on it must be discounted
+   first.
+
+This also settles a tempting misreading of the annapolis far-field result: OWLv2 reaching
+R 0.959 where RampNet gets 0.738 is **not** evidence that the far-field ramps are resolvable
+in the imagery. At 70 boxes per pano most of that coverage is free, so it neither supports
+nor refutes the viewpoint-limit finding in `benchmark/README.md`, which rests on its own
+rank statistics. The test that *would* settle it is a distance-stratified version of this
+table — real vs null recall for near and far ramps separately.
+
+Not run on `manual_gold`: the null is O(n²) in panos, so 1,000 panos is ~64× a city split per
+model. A subsampled version would work and hasn't been done.
 
 ## Why the benchmark verdicts can't be reused directly
 
@@ -179,16 +322,40 @@ spend:
 | bend | P 0.961 / R 0.761 | P 0.954 / R 0.758 |
 | clovis | P 0.914 / R 0.713 | P 0.914 / R 0.713 |
 | morgantown | P 0.975 / R 0.730 | P 0.975 / R 0.730 |
+| annapolis | P 0.973 / R 0.738 | P 0.964 / R 0.728 |
+| budapest_district5 | P 0.874 / R 0.510 | P 0.873 / R 0.503 |
 
-The ~0.005 upward drift on richmond/bend is expected: a RampNet `False` detection occasionally
-falls within radius of a real GT point, which the per-detection human verdict scored differently
-(on clovis and morgantown no `False` detection does, so the two columns coincide exactly). The
-`compare.py` CLI prints both side by side.
+The ~0.005–0.010 upward drift on richmond/bend/annapolis/budapest is expected: a RampNet
+`False` detection occasionally falls within radius of a real GT point, which the per-detection
+human verdict scored differently (on clovis and morgantown no `False` detection does, so the
+two columns coincide exactly). The `compare.py` CLI prints both side by side.
 
-**morgantown** (split added 2026-07-25) is listed here as a harness check only — no challenger
-has been run on it yet, so it has no results table above. RampNet's own row is
+### The two splits with no challenger results yet
+
+Both are documented here rather than omitted; the gap is compute, not a finding.
+
+**morgantown** (split added 2026-07-25) is a harness check only so far. RampNet's own row is
 P 0.975 / R 0.730 / F1 0.835 / AP 0.728 (195/5/72, 9 ignored), the AP truncated at the bundle's
-0.55 peak floor exactly as the other cities' RampNet AP is.
+0.55 peak floor exactly as the other cities' RampNet AP is. It is the *best* precision in the
+benchmark and its imagery is 2024 GoPro Max, so it is the natural control for the "precision
+tracks the camera" story in `benchmark/README.md` — which is exactly why a challenger roster on
+it would be worth having.
+
+**budapest_district5** (split added 2026-07-24) is the first non-US split, and RampNet's row is
+P 0.874 / R 0.510 — a recall unlike anything else in the benchmark. **Read
+`benchmark/README.md`'s Budapest section before quoting it.** The short version: the reviewer
+rated their own pass *low confidence* and the curb-ramp rubric does not transfer cleanly to
+Hungarian street furniture (the diagonal-apron question alone is worth ~4 precision points),
+so the split's ground truth is itself uncertain in a way no other split's is. That makes it the
+most interesting split to run challengers on and the most dangerous one to quote:
+
+- A challenger table here would be a **rubric-robustness** test, not a difficulty test. If the
+  ranking holds on GT the reviewer distrusts, that is a stronger statement than any US split
+  can make. If it doesn't, the first suspect is the rubric, not the models.
+- Any number from it must travel with the low-confidence flag. Do **not** pool it with the US
+  splits or average it into a headline.
+- It needs a second rater more than it needs more models. That is the higher-value next step;
+  the model runs are cheap and can happen either way.
 
 ## Caveats (read before quoting numbers)
 
@@ -206,8 +373,10 @@ P 0.975 / R 0.730 / F1 0.835 / AP 0.728 (195/5/72, 9 ignored), the AP truncated 
     GT is incomplete; it does **not** say by how much a challenger is penalised, since a
     challenger's misses are a different population. Do not subtract it from anyone's score.
 
-  Only richmond and bend have been corrected — clovis, morgantown and manual_gold have not,
-  so no cross-city GT-completeness constant should be quoted yet.
+  Only richmond and bend have been corrected — clovis, morgantown, annapolis,
+  budapest_district5 and manual_gold have not (see the coverage matrix at the top), so no
+  cross-city GT-completeness constant should be quoted yet. Two cities is also too few to
+  tell whether the 17%/29% spread is imagery, reviewer, or noise.
 - **Box → point reduction.** Box models are scored by their box centers, at the same radius
   as RampNet's point detections. Localization differences finer than the radius aren't
   measured. Molmo is the exception — it emits points natively, so nothing is reduced.
@@ -392,7 +561,8 @@ PYTHON=$MOLMOPY MODELS=rampnet,molmo:allenai/Molmo2-8B \
     sbatch -A <account> scripts/model_comparison/run_open_models.slurm
 ```
 
-**Status: run and scored** (richmond/bend/clovis, above). Verifying the overlay first was not
+**Status: run and scored** (richmond/bend/clovis/annapolis/manual_gold, above). Verifying the
+overlay first was not
 optional — the first run put every point on the left edge because Molmo's `coords` list
 opens with an **image index** the parser mistook for a point id (fixed; see the parser note
 below). After the fix the crosshairs sit on ramps and the numbers are the F1-0.45 rows above.
@@ -407,10 +577,13 @@ nothing is detected the scale is wrong (try `--molmo-coord-scale`).
   the **live `GeminiDetector`** (google-genai; API key or Vertex+ADC), the **live
   `QwenDetector`** (transformers; Qwen3-VL on a cluster GPU), the **live `OwlV2Detector` /
   `GroundingDinoDetector`** (with AP, PR curves and a threshold sweep), and the
-  **`MolmoDetector`** (points; `Molmo2-8B` verified by overlay and run on all three cities —
-  see the Molmo section; `MolmoPoint-8B`'s special-token path is wired but has not met
-  real weights). Tested (`test_detection_eval.py`, `test_model_comparison.py`,
+  **`MolmoDetector`** (points; `Molmo2-8B` verified by overlay and run on all four scored
+  cities — see the Molmo section; `MolmoPoint-8B`'s special-token path is wired but has not
+  met real weights). Tested (`test_detection_eval.py`, `test_model_comparison.py`,
   `test_equirect_tiling.py`).
+- **Open, and tracked in the coverage matrix at the top:** morgantown and
+  budapest_district5 have RampNet rows but no challenger runs, and `manual_gold` has no
+  null-recall pass. Those are the only gaps between `benchmark/` and this document.
 - **Smoke-tested locally** on `Qwen/Qwen3-VL-2B-Instruct` (the largest that fits an 8 GB dev
   GPU) to validate wiring, JSON parsing, and box mapping before spending cluster time. 2B is
   far too weak to benchmark — the real runs are 8B and 32B on Hyak.
@@ -701,7 +874,23 @@ What this split adds to the story:
    verdict, but it would tell us whether the ceiling is the *query* or the *model class*.
 4. **If a recall-first candidate generator is wanted, compare complements on FP-per-find,
    not F1.** That metric ranks Gemini-3.6-flash (~6) far above OWLv2 (36–128) despite
-   OWLv2's much higher recall ceiling — see the table above.
+   OWLv2's much higher recall ceiling — see the table above. Discount both against the null
+   first: at OWLv2's density most "finds" are free.
+5. **Close the two coverage gaps.** morgantown and budapest_district5 have RampNet rows and
+   no challengers. Neither is expensive — 125 panos each is ~1.5 h of one L40S for the four
+   open-weight models plus a couple of desktop-hours of Vertex calls for the two Geminis, and
+   the imagery is already in `benchmark/*/panos/`. budapest is the higher-value of the two
+   (a rubric-robustness test no US split can run), with the standing caveat that its GT is
+   low-confidence; morgantown is the cleanest imagery in the benchmark and the natural
+   control. Neither should be started expecting the ranking to change.
+6. **Distance-stratify the null-recall table.** The open detectors' recall is mostly a density
+   artifact, and RampNet's misses are mostly far-field (`benchmark/README.md`, annapolis).
+   Whether the challengers see anything real in the far field is currently *unanswered* —
+   the headline recall can't settle it and neither can the null as computed. Real-vs-null
+   recall for near and far ramps separately would.
+7. **Subsample the null for `manual_gold`.** It is the one split with challenger runs and no
+   null-recall pass, because the shift-average is O(n²) in panos. A fixed random subset of
+   shifts would give the same estimate at a fraction of the cost.
 
 ## Files
 
@@ -719,6 +908,8 @@ What this split adds to the story:
 - `scripts/model_comparison/dump_detections.py` — visual mapping QA (boxes/points vs ground truth).
 - `scripts/model_comparison/run_qwen.slurm` — Hyak launcher for the Qwen leg.
 - `scripts/model_comparison/run_open_models.slurm` — Hyak launcher for OWLv2 / Grounding DINO / Molmo.
+- `scripts/analysis/null_recall.py` — real vs chance recall at a model's box density (the
+  "how much of a detector's recall is real?" table). Cache-only; no GPU, no keys.
 - `requirements-vlm.txt` — optional VLM deps.
 - `tests/test_detection_eval.py`, `tests/test_model_comparison.py`,
   `tests/test_equirect_tiling.py` — guards.
