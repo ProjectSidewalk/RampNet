@@ -64,7 +64,7 @@ from operating_point_curve import (  # noqa: E402
     DEPLOYED_THRESHOLD, classify_predictions, pr_curve_and_ap, read_cache)
 
 # The five US/VA city splits carry verdict-grade GT and are the recommendation's basis.
-US_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis")
+US_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson")
 CITY_SPLITS = US_SPLITS + ("budapest_district5",)
 ALL_SPLITS = CITY_SPLITS + ("manual_gold",)
 

@@ -56,6 +56,7 @@ SERIES = {
     "annapolis": "#e87ba4",
     "budapest_district5": "#008300",
     "manual_gold": "#4a3aa7",
+    "paterson": "#e34948",
 }
 POOLED_COLOR = "#0b0b0b"
 INK, INK_MUTED, GRID = "#0b0b0b", "#52514e", "#d9d8d4"
@@ -71,10 +72,14 @@ def collect(cities=ALL_SPLITS, cache_dir=CACHE_DIR):
     if len(poolable) > 1:
         out["POOLED"] = sweep_rows([pd for c in poolable for pd in loaded[c]],
                                    grid, radius_sq)
-    return out
+    # Counts for the legend/footer text, so adding a split can't strand a stale "5
+    # US"/"1,625 panos" in the figure.
+    meta = {"n_panos": sum(len(p) for p in loaded.values()),
+            "n_pooled": len(poolable)}
+    return out, meta
 
 
-def build(curves, path):
+def build(curves, path, meta):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -118,7 +123,8 @@ def build(curves, path):
                label=f"deployed {DEPLOYED_THRESHOLD:.2f}"),
         Line2D([], [], marker="o", ls="", ms=7.5, color=INK_MUTED, mec="white",
                label=f"recommended {RECOMMENDED:.2f}"),
-        Line2D([], [], color=POOLED_COLOR, lw=3, label="pooled (5 US splits)"),
+        Line2D([], [], color=POOLED_COLOR, lw=3,
+               label=f"pooled ({meta['n_pooled']} US splits)"),
         Line2D([], [], color=INK_MUTED, lw=1.6, ls=(0, (5, 2)),
                label="held out of the pooled recommendation"),
     ], fontsize=8.4, frameon=False, loc="lower left")
@@ -176,16 +182,17 @@ def build(curves, path):
                       ls="-" if c in US_SPLITS else (0, (5, 2)),
                       label=LABEL.get(c, c)) for c in order]
     if "POOLED" in curves:
-        handles.append(Line2D([], [], color=POOLED_COLOR, lw=3, label="POOLED (5 US)"))
+        handles.append(Line2D([], [], color=POOLED_COLOR, lw=3,
+                              label=f"POOLED ({meta['n_pooled']} US)"))
     fig.legend(handles=handles, fontsize=8.8, frameon=False,
                loc="center left", bbox_to_anchor=(0.878, 0.55),
                title="split", title_fontsize=9)
 
-    fig.suptitle("Lowering the peak threshold 0.55 → 0.30 buys ~7 recall points at a "
-                 "shallow precision cost, on every split",
+    fig.suptitle("Lowering the peak threshold 0.55 → 0.30 buys ~7 pooled recall points "
+                 "at a shallow precision cost — every split gains",
                  fontsize=13.5, color=INK, x=0.008, ha="left", y=0.982)
     fig.text(0.008, 0.012,
-             "RampNet peaks extracted at a 0.05 floor over 1,625 benchmark panos "
+             f"RampNet peaks extracted at a 0.05 floor over {meta['n_panos']:,} benchmark panos "
              "(min_distance 10, no TTA); threshold swept post-hoc. Precision below 0.55 is a "
              "LOWER BOUND on the city splits — their GT was\nassembled from detections at or "
              "above the deployed floor, so a real ramp nobody marked scores as a false "
@@ -202,8 +209,9 @@ def build(curves, path):
 
 
 def main():
-    curves = collect()
-    path = build(curves, os.path.join(REPO, "docs", "figures", "operating_point_pr.png"))
+    curves, meta = collect()
+    path = build(curves, os.path.join(REPO, "docs", "figures", "operating_point_pr.png"),
+                 meta)
     print(f"wrote {path}")
     for city, rows in curves.items():
         dep, rec, best = (row_at(rows, DEPLOYED_THRESHOLD), row_at(rows, RECOMMENDED),
