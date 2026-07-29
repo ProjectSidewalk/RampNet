@@ -174,6 +174,23 @@ Both directions favour lowering the threshold. The measured trade is a worst cas
 
 ## Results
 
+![Precision-recall response to the peak threshold, per split](figures/operating_point_pr.png)
+
+Reproduce with `python scripts/analysis/plot_operating_point.py`.
+
+The left panel is the artifact this issue asked for: the precision/recall trade traced out by
+sweeping the threshold, one line per split, with the deployed 0.55 point (hollow) and the
+recommended 0.30 point (filled) marked on each. The shape is the finding — the curves run
+almost flat across the operating region, so recall is bought at a shallow precision cost until
+the curve turns down hard somewhere past 0.85 recall.
+
+The right panel is the same sweep read as F1 against threshold, and it is there to make a
+negative point: **F1 barely discriminates**. The pooled curve varies by under 0.01 across
+0.25–0.55, so "F1-optimal" is not a sufficient reason to pick any particular number, and the
+recommendation below rests on the recall-first policy, the density budget and reversibility
+instead. Note also how the per-split optima (the dots) cluster in a narrow band while the
+*levels* differ a lot — that is the same pattern the per-tier table shows.
+
 ### Pooled across the five US/VA city splits (n = 609 panos)
 
 Wilson 95% intervals in brackets.
