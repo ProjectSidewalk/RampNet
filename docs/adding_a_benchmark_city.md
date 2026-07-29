@@ -136,6 +136,7 @@ the GT-completeness correction, and both figures. See `docs/operating_point.md`.
 
 ```bash
 # 1. GPU, once, on Hyak (~1.5 s/pano; the launcher skips splits already cached)
+mkdir -p logs   # the launcher's #SBATCH output paths live under logs/; the job dies without it
 CITIES=<city> sbatch -A <account> scripts/analysis/run_low_floor_extract.slurm
 
 # 2. THE GATE — run before trusting anything downstream
@@ -145,8 +146,10 @@ python scripts/analysis/low_floor_sweep.py parity --cities <city>
 **Parity must pass.** Peaks at ≥0.55 must reproduce the committed `records.jsonl`, measured in
 match radii. Expect **100% bit-exact for a Mapillary split**. A GSV split will not be exact —
 the GSV production path builds a 4096×2048 intermediate, so production saw a different resample
-than the native-res bundle — but must still land inside 0.5 R. Anything else means preprocessing
-diverged and every number downstream inherits it.
+than the native-res bundle — but should still land inside 0.5 R (bend's max is 0.439 R). The
+gate itself is slightly looser than that: **≥95% of detections within 0.5 R and a count delta
+≤5%** (`PARITY_MIN_MATCHED` / `PARITY_MAX_COUNT_DELTA` in `low_floor_sweep.py`). Anything worse
+means preprocessing diverged and every number downstream inherits it.
 
 ```bash
 # 3. CPU — the analyses
@@ -176,6 +179,11 @@ Use **op-threshold 0.25** so the band is `[0.25, 0.55)`, identical to every exis
 otherwise the A-rates are not comparable. Expect 23–30 items for a US city (budapest had 89).
 A-rates so far span 13%–30% and **do not order by imagery quality**, so do not extrapolate one
 from a neighbouring city; measure it.
+
+Two flags to not get wrong: `corrected`'s `--op-threshold` defaults to **0.35, not the
+recommended 0.30**, so the flag above is load-bearing. And each `corrected` run reports a single
+operating point — the multi-point corrected tables in `docs/operating_point.md` take one run
+per row, not one run total.
 
 `tagcheck` exists because tag ids are keyed to peak *coordinates*: re-extracting can move a
 marginal peak and orphan a tag silently, shrinking the correction with no error.
