@@ -166,7 +166,10 @@ WARNING ⚠️ train: Slow image access detected (ping: 0.6±0.2 ms, read: 2.1±
 …across 557,413 train tiles. So tiles epoch time is **node- and contention-dependent, not a
 fixed property of the config**: ~5.2 h on a good ckpt landing (epochs 1–3, 07-26/27), ~9.5 h
 on a contended one (measured 07-29: 54% of an epoch in 5.15 h), and **~4.1 h on a dedicated
-`gpu-l40s` L40S** with no allocation-mates competing for the filesystem. Note this also means
+`gpu-l40s` L40S** with no allocation-mates competing for the filesystem. That last figure is
+**projected, not yet measured** — extrapolated from 6.2 it/s at 12,123/92,903 iterations (13% of
+the fork's first epoch); replace it with the `time` column of `y26_tiles_l40s/results.csv` once an
+epoch completes. Note this also means
 a faster GPU alone would not help; and `gpu-l40s` nodes report `TMP_DISK=0`, so the dataset
 cannot be staged to node-local disk to fix it.
 
