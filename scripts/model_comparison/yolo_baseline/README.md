@@ -30,7 +30,8 @@ in git, bulk/binary/regenerable out):
   the few relevant lines are quoted below.
 - **Benchmark-city eval numbers** — these `results.csv` values are the **internal YOLO
   val-split proxy** used to judge *training health*, **not** the reported baseline. The
-  reported numbers come from local `compare.py` benchmark eval on each `best.pt`.
+  reported numbers come from local `compare.py` benchmark eval on each `best.pt`, under
+  the pre-registered protocol below.
 
 ## Config grid
 
@@ -115,6 +116,68 @@ and it is high because the LR was still in the low part of the warmup ramp. Each
 The honest caveat: these checkpoints are **undertrained** relative to a stable schedule, so
 any benchmark number from them is a **lower bound** on supervised-YOLO performance, and must
 be reported as such.
+
+## Pre-registered evaluation & checkpoint-selection protocol (issue #71)
+
+Fixed in writing 2026-07-28, **before any benchmark evaluation of any YOLO
+checkpoint**. As of the commit adding this section, no YOLO checkpoint has been scored
+on any benchmark bundle (city or `manual_gold`); the only numbers observed are the
+internal val-split curves above (`runs/*/results.csv`, mirrored in #51's status
+comments). The point is to make the baseline defensible against the standard
+"you sandbagged / cherry-picked the baseline" review: every selection decision is made
+on validation data, under rules written down first, applied identically to the
+stabilized rerun (#70) when it lands.
+
+1. **Checkpoint selection — best-val, never test.** Each config's reported checkpoint
+   is its `best.pt` exactly as Ultralytics saves it: highest **fitness** (default
+   weighting, 0.1·mAP50 + 0.9·mAP50-95) on that config's own YOLO val split, with
+   `patience=20`. This refines #71's draft wording ("best val mAP50"): `best.pt` is
+   the only per-epoch artifact the runs keep, so re-ranking `results.csv` by raw mAP50
+   would mean a second, hand-rolled selector — and on every curve committed so far the
+   two rules choose the same epoch anyway (all five configs: epoch 1, checked
+   2026-07-28). RampNet's published checkpoint was selected by the same principle:
+   best **validation loss** on the dataset's val split (`stage_two/train.py`), never a
+   benchmark number.
+2. **Config selection — on val, and it controls emphasis only.** Which config
+   headlines each family (YOLO11 vs YOLO26) in the main text is decided by the same
+   internal val fitness at `best.pt`. Stated caveat: tiles and pano configs have
+   different val sets (perspective crops vs whole equirects), so the cross-geometry
+   comparison is a judgment call on non-identical data — which is why this choice is
+   only about emphasis. **Every trained config's benchmark row goes in the appendix /
+   full table regardless; selection drops nothing.** Test is touched once, at the end,
+   after these choices are fixed.
+3. **Benchmark eval — the identical path as every roster model.** `compare.py`'s
+   `yolo` provider: boxes → box centers → the `rampnet/detection_eval.py` matcher at
+   radius 0.022, on the same bundles and the same GT as the rest of the roster,
+   detections cached at the 0.05 floor (`--yolo-conf 0.05`). Tiles configs are scored
+   through the same perspective rig as the VLMs (`--tiling perspective`,
+   `--yolo-imgsz 1024`); pano configs whole-pano (`--tiling none --yolo-imgsz 1280`) —
+   each model in its training geometry.
+4. **Operating point — fixed in advance, not tuned on test.** The headline metric is
+   **F1 at confidence 0.25**, Ultralytics' default predict confidence — the
+   "configure the baseline the way its authors recommend" choice, fixed here while no
+   test number exists. The full threshold sweep is still reported, with its best-F1
+   row flagged as tune-on-test, exactly as the harness already does for every
+   confidence-carrying model.
+5. **AP, with the truncation caveat.** AP/PR come from the full cached range (0.05
+   floor). They are **not** directly comparable to RampNet's committed AP, whose
+   detections were extracted at the 0.5 peak threshold (a truncated curve — see
+   `docs/model_comparison.md`); the low-floor RampNet extraction is the #54/#78 line
+   of work.
+6. **Reporting an unstable run.** A checkpoint from inside the collapse dip would
+   understate recall catastrophically (see the failure signature above); best-val
+   selection avoids the dip by construction. A `best.pt` from an instability-affected
+   run **is** reportable, but only with the standing caveat: it is a **lower bound**
+   on supervised-YOLO performance, superseded when the #70 stabilized rerun lands —
+   which will be selected, evaluated, and reported under this same protocol,
+   unchanged.
+7. **Seeds (aspirational).** All runs are `seed=0`. If ckpt capacity allows, ≥3 seeds
+   of the headline configs → mean ± std, which makes single-run instability commentary
+   moot. Not a blocker for reporting the lower-bound numbers.
+
+The paper's "Baseline protocol" appendix paragraph is this section, condensed.
+`docs/model_comparison.md` links here from its baseline-in-progress note, and the
+protocol governs the results that will replace that note.
 
 ## Provenance
 

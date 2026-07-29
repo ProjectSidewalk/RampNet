@@ -43,8 +43,13 @@ ckpt preemptions — `y11l_pano` and `y26_pano` share batch 4 / imgsz 1280 and b
 recovered. Figures and the full ruling-out are in the training record; the stabilized rerun is
 tracked in #70 (whose original small-batch hypothesis this evidence refutes) and the caveat
 write-up in #72. The reported baseline will be the best-val checkpoint, selected on val, per the
-protocol in #71 — with the caveat that today's checkpoints are undertrained relative to a stable
-schedule and so give a **lower bound** on supervised-YOLO performance.
+**pre-registered protocol** committed in the
+[training record](../scripts/model_comparison/yolo_baseline/README.md#pre-registered-evaluation--checkpoint-selection-protocol-issue-71)
+(#71) *before* any benchmark eval of any YOLO checkpoint: `best.pt` = Ultralytics best-val-fitness
+with `patience=20`, config choice on val only, headline F1 at the Ultralytics-default conf 0.25,
+same matcher/GT/radius as the whole roster, test bundles touched once — with the caveat that
+today's checkpoints are undertrained relative to a stable schedule and so give a **lower bound**
+on supervised-YOLO performance.
 
 Three classes of challenger, which fail differently and are worth keeping distinct:
 
