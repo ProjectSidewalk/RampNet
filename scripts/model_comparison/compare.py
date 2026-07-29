@@ -16,9 +16,14 @@ anchoring.
 Each --models token is a provider (rampnet/gemini/qwen/owlv2/gdino/molmo) or
 provider:model_id to pin a variant, so several models from the same provider
 compare side by side. Detectors that emit calibrated scores (RampNet, OWLv2,
-Grounding DINO) additionally get AP, a PR curve (--pr-out) and a threshold sweep
-(--sweep); chat VLMs have no score to rank by, so they get one operating point.
-See docs/model_comparison.md.
+Grounding DINO, YOLO) additionally get AP, a PR curve (--pr-out) and a threshold
+sweep (--sweep); chat VLMs have no score to rank by, so they get one operating
+point. See docs/model_comparison.md.
+
+The supervised YOLO baseline (--models yolo:<best.pt>) is evaluated under the
+pre-registered checkpoint-selection & eval protocol in
+scripts/model_comparison/yolo_baseline/README.md (issue #71): checkpoint and
+config chosen on val only, headline F1 at conf 0.25, test bundles touched once.
 """
 import argparse
 import hashlib
