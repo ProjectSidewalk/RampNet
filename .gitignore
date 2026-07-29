@@ -20,6 +20,11 @@ analysis_out/*
 !analysis_out/op_cache/
 analysis_out/op_cache/*
 !analysis_out/op_cache/*.json
+# The flip-TTA arm's caches (issue #78), same reasoning and size class. Kept in a
+# separate directory because extract refuses to mix arms in one cache dir.
+!analysis_out/op_cache_tta/
+analysis_out/op_cache_tta/*
+!analysis_out/op_cache_tta/*.json
 # The derived result tables too (~80 KB): these are the exact numbers quoted in
 # docs/operating_point.md, so committing them means a reader can check a figure in the
 # prose against the table it came from without re-running anything. The gallery crops

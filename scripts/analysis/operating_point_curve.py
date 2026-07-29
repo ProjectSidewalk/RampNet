@@ -36,6 +36,11 @@ Run order:
     # GPU, once — writes op_cache/<city>.json
     python scripts/analysis/operating_point_curve.py extract --cities richmond,bend
 
+    # GPU — the flip-TTA arm (issue #78): 2 passes/pano, mirrored+maxed exactly as
+    # stage_two/evaluate.py; MUST go in its own cache dir (mixing arms is refused)
+    python scripts/analysis/operating_point_curve.py extract --tta \
+        --cache analysis_out/op_cache_tta --cities richmond,bend
+
     # CPU — PR curve + AP + F1-vs-threshold (CSV + PNG)
     python scripts/analysis/operating_point_curve.py curve --cities richmond,bend
 
@@ -406,15 +411,53 @@ def bundle_ground_truths(city, repo=REPO):
 # --------------------------------------------------------------------------- #
 # extract (GPU)
 # --------------------------------------------------------------------------- #
+def compose_tta(h_orig, h_flip):
+    """stage_two/evaluate.py's flip-TTA composition (issue #78): the flipped arm's
+    heatmap is un-mirrored back into pano orientation, then the two passes combine
+    pixelwise by max — a detection either pass is confident about survives.
+
+    ``h_flip`` is the raw model output for the *mirrored* pano. Clipping commutes
+    with max, so composing raw outputs here and clipping at peak extraction
+    (``peaks_to_dets``) is numerically identical to stage_two/evaluate.py's
+    clip-each-arm-then-max order.
+    """
+    import numpy as np
+    return np.maximum(h_orig, np.fliplr(h_flip))
+
+
+def _assert_cache_arm(cache_dir, tta):
+    """Refuse to mix TTA and single-pass caches in one directory.
+
+    Every CPU consumer maps a split to ``<cache_dir>/<split>.json`` with no idea
+    which arm produced it, and extract's resume-skip would happily "resume" over
+    the other arm's finished caches — either way one arm's numbers get scored as
+    the other's, silently. Each arm gets its own directory via --cache.
+    """
+    import glob
+    for path in sorted(glob.glob(os.path.join(cache_dir, "*.json"))):
+        try:
+            with open(path, encoding="utf-8") as f:
+                have = bool(json.load(f).get("meta", {}).get("tta", False))
+        except (OSError, ValueError):
+            continue
+        if have != tta:
+            raise SystemExit(
+                f"{path}: existing cache is {'TTA' if have else 'single-pass'} but this run "
+                f"is {'TTA' if tta else 'single-pass'} — the two arms must not share a cache "
+                f"directory. Point --cache at a separate one (the TTA arm's default is "
+                f"analysis_out/op_cache_tta).")
+
+
 def cmd_extract(args):
     import torch  # lazy: only extract needs a GPU / torch
     import threshold_sweep as ts
 
+    _assert_cache_arm(args.cache, args.tta)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = ts.load_model().to(device)
     use_fp16 = False
-    print(f"device={device} score_floor={args.score_floor} min_distance={args.min_distance}",
-          flush=True)
+    print(f"device={device} score_floor={args.score_floor} "
+          f"min_distance={args.min_distance} tta={args.tta}", flush=True)
     radius_sq = radius_sq_for()
 
     for city in args.cities:
@@ -430,18 +473,24 @@ def cmd_extract(args):
             path = os.path.join(panos_dir, f"{pid}.jpg")
             try:
                 h = ts.heatmap_for(model, device, path, use_fp16)
+                if args.tta:
+                    h = compose_tta(h, ts.heatmap_for(model, device, path, use_fp16,
+                                                      flip=True))
             except torch.cuda.OutOfMemoryError:
                 torch.cuda.empty_cache()
                 use_fp16 = True
                 print("  OOM -> switching to fp16 autocast", flush=True)
                 h = ts.heatmap_for(model, device, path, use_fp16)
+                if args.tta:
+                    h = compose_tta(h, ts.heatmap_for(model, device, path, use_fp16,
+                                                      flip=True))
             preds = ts.peaks_to_dets(h, args.score_floor, args.min_distance)
             panos.append({"pano": pid, "preds": preds, "gt": gt})
             if i % 50 == 0:
                 print(f"  {city}: {i}/{len(gts)}", flush=True)
             del h
         meta = {"score_floor": args.score_floor, "min_distance": args.min_distance,
-                "radius_normalized": 0.022, "fp16": use_fp16,
+                "radius_normalized": 0.022, "fp16": use_fp16, "tta": args.tta,
                 "n_panos": len(panos), "deployed_threshold": DEPLOYED_THRESHOLD,
                 "model": HF_MODEL_REPO, "device": device.type}
         write_cache(out_path, city, panos, meta)
@@ -903,6 +952,12 @@ def main():
     e.add_argument("--force", action="store_true",
                    help="re-extract splits that already have a cache (default: skip them, "
                         "so a preempted job resumes where it stopped)")
+    e.add_argument("--tta", action="store_true",
+                   help="horizontal-flip TTA arm (issue #78): two passes per pano, "
+                        "mirrored heatmap un-flipped and maxed with the original — "
+                        "exactly stage_two/evaluate.py's composition. Use a dedicated "
+                        "--cache dir (e.g. analysis_out/op_cache_tta); mixing arms in "
+                        "one dir is refused.")
     e.set_defaults(func=cmd_extract)
 
     c = sub.add_parser("curve", help="CPU: PR curve + AP + F1-vs-threshold from the cache")

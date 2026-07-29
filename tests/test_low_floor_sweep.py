@@ -428,3 +428,69 @@ def test_cap_report_respects_the_floor():
     panos = [{"pano": "a", "preds": [(0.5, 0.5, 0.9), (0.5, 0.5, 0.06)], "gt": None}]
     assert lfs.cap_report(panos, floor=0.10, top_k=50)["max"] == 1
     assert lfs.cap_report(panos, floor=0.05, top_k=50)["max"] == 2
+
+
+# --------------------------------------------------------------------------- #
+# flip-TTA comparison layer (issue #78)
+# --------------------------------------------------------------------------- #
+def test_tta_levers_ledger_adds_up():
+    """'both' must equal 'threshold drop alone' + 'TTA after the drop' — the
+    overlap framing only means something if the ledger is consistent."""
+    panos_s = _panos(seed=7)
+    panos_t = [{**pd, "preds": [(x, y, min(1.0, s + 0.1)) for x, y, s in pd["preds"]]}
+               for pd in panos_s]   # flip-max can only raise a peak, never lower it
+    grid = lfs.threshold_grid(0.05, 0.90)
+    levers = lfs.tta_levers(lfs.sweep_rows(panos_s, grid, RSQ),
+                            lfs.sweep_rows(panos_t, grid, RSQ))
+    by_prefix = {l["lever"].split(" (")[0]: l for l in levers}
+    drop = by_prefix["threshold drop alone"]
+    both = by_prefix["both"]
+    marginal = by_prefix["TTA after the drop"]
+    for k in ("d_recall", "d_precision", "d_f1"):
+        assert math.isclose(both[k], drop[k] + marginal[k], abs_tol=1e-12)
+
+
+def test_tta_levers_boost_across_the_deployed_bar_is_tta_alone_gain():
+    """A detection at 0.50 crosses the 0.55 bar only in the TTA arm — recall
+    gained by TTA alone, with zero marginal value once the threshold drops."""
+    gt = GroundTruth([(0.5, 0.7)], [], fn_confirmed=True)
+    single = [{"pano": "a", "preds": [(0.5, 0.7, 0.50)], "gt": gt}]
+    tta = [{"pano": "a", "preds": [(0.5, 0.7, 0.60)], "gt": gt}]
+    grid = [0.30, 0.55]
+    levers = lfs.tta_levers(lfs.sweep_rows(single, grid, RSQ),
+                            lfs.sweep_rows(tta, grid, RSQ))
+    tta_alone = next(l for l in levers if l["lever"].startswith("TTA alone"))
+    marginal = next(l for l in levers if l["lever"].startswith("TTA after"))
+    assert tta_alone["d_recall"] == 1.0
+    assert marginal["d_recall"] == 0.0
+
+
+def test_tta_panos_from_records_reuses_gt_and_filters_floor():
+    panos = _panos(seed=11, n=3)
+    records = {pd["pano"]: {"detections": [
+        {"x_normalized": 0.1, "y_normalized": 0.6, "confidence": 0.90},
+        {"x_normalized": 0.2, "y_normalized": 0.7, "confidence": 0.04},
+    ]} for pd in panos}
+    out = lfs.tta_panos_from_records(panos, records, 0.05)
+    assert [o["pano"] for o in out] == [pd["pano"] for pd in panos]
+    for o, pd in zip(out, panos):
+        assert o["gt"] is pd["gt"]          # same GT object -> arms score identical GT
+        assert o["preds"] == [(0.1, 0.6, 0.90)]
+
+
+def test_load_tta_arm_falls_back_to_manual_gold_committed_records(tmp_path):
+    """manual_gold's committed detections ARE a TTA export (detections_meta.json),
+    so its arm exists with no GPU pass; the fallback must find and floor it."""
+    records = lfs.load_records("manual_gold")
+    pid = next(iter(records))
+    gt = GroundTruth([(0.5, 0.7)], [], fn_confirmed=True)
+    single = [{"pano": pid, "preds": [], "gt": gt}]
+    panos, source = lfs._load_tta_arm("manual_gold", single, str(tmp_path), 0.05)
+    assert "committed records" in source
+    assert panos[0]["gt"] is gt
+    assert all(s >= 0.05 for _x, _y, s in panos[0]["preds"])
+
+
+def test_load_tta_arm_reports_missing_cache_for_a_city_split(tmp_path):
+    panos, why = lfs._load_tta_arm("bend", [], str(tmp_path), 0.05)
+    assert panos is None and "extract --tta" in why

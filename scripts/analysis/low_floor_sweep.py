@@ -40,6 +40,8 @@ Run order (after ``operating_point_curve.py extract``):
     python scripts/analysis/low_floor_sweep.py sweep      # per-split + pooled + per-tier curves
     python scripts/analysis/low_floor_sweep.py hist       # confidence calibration for labeler#27
     python scripts/analysis/low_floor_sweep.py distance   # where the recall gain lands
+    python scripts/analysis/low_floor_sweep.py tta        # flip-TTA vs single-pass (#78);
+                                                          # needs extract --tta for the cities
 """
 import argparse
 import csv
@@ -59,7 +61,7 @@ from rampnet.metrics import greedy_match  # noqa: E402
 from rampnet.validation import wilson_interval  # noqa: E402
 
 from operating_point_curve import (  # noqa: E402
-    DEPLOYED_THRESHOLD, classify_predictions, read_cache)
+    DEPLOYED_THRESHOLD, classify_predictions, pr_curve_and_ap, read_cache)
 
 # The five US/VA city splits carry verdict-grade GT and are the recommendation's basis.
 US_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis")
@@ -86,6 +88,7 @@ SPLIT_IMAGERY_FALLBACK = {"bend": "gsv", "manual_gold": "gsv"}
 TTA_RECORD_SPLITS = {"manual_gold"}
 
 CACHE_DIR = os.path.join(OUT, "op_cache")
+TTA_CACHE_DIR = os.path.join(OUT, "op_cache_tta")   # the flip-TTA arm (issue #78)
 
 # Flat-ground distance estimate, identical to scripts/analysis/precision_by_distance.py
 # (validated there against Depth-Anything-3 depth). The camera height cancels out of
@@ -201,6 +204,33 @@ def best_f1_row(rows):
 def row_at(rows, threshold):
     """The swept row nearest a threshold (the grid may not contain it exactly)."""
     return min(rows, key=lambda r: abs(r["threshold"] - threshold))
+
+
+def tta_levers(rows_single, rows_tta, deployed=DEPLOYED_THRESHOLD, candidate=0.30):
+    """Issue #78's question in four rows: what each recall lever buys, alone and
+    together. Flip-TTA and threshold-lowering both promote under-confident
+    detections, so their gains overlap — the honest measure of TTA's production
+    value is therefore not "TTA at the deployed point" but the **marginal** row:
+    what TTA still adds *after* the threshold has already been dropped. That row
+    is what a 2x-GPU-per-pano decision should be priced against.
+    """
+    s_dep, s_cand = row_at(rows_single, deployed), row_at(rows_single, candidate)
+    t_dep, t_cand = row_at(rows_tta, deployed), row_at(rows_tta, candidate)
+
+    def lever(name, frm, to):
+        return {"lever": name,
+                "d_recall": to["recall"] - frm["recall"],
+                "d_precision": to["precision"] - frm["precision"],
+                "d_f1": to["f1"] - frm["f1"],
+                "dets_per_pano": to["dets_per_pano"]}
+
+    return [
+        lever(f"threshold drop alone (single {deployed:.2f}->{candidate:.2f})",
+              s_dep, s_cand),
+        lever(f"TTA alone (at {deployed:.2f})", s_dep, t_dep),
+        lever(f"both (single {deployed:.2f} -> TTA {candidate:.2f})", s_dep, t_cand),
+        lever(f"TTA after the drop (at {candidate:.2f})", s_cand, t_cand),
+    ]
 
 
 def highest_threshold_meeting(rows, min_precision):
@@ -346,6 +376,24 @@ def load_split(city, cache_dir=CACHE_DIR, repo=REPO):
     return panos, meta
 
 
+def tta_panos_from_records(single_panos, records, floor):
+    """The flip-TTA arm for a split whose *committed* detections were already
+    exported with TTA at a low floor (``manual_gold`` —
+    ``benchmark/manual_gold/detections_meta.json``): no GPU pass needed, the
+    records are the arm. Pano set and GT are taken from the single-pass cache
+    entry-for-entry, so both arms score identical panos against identical GT and
+    any delta is the TTA composition alone.
+    """
+    out = []
+    for pd in single_panos:
+        preds = [(d["x_normalized"], d["y_normalized"], d["confidence"])
+                 for d in records[pd["pano"]]["detections"]
+                 if d["confidence"] >= floor]
+        out.append({"pano": pd["pano"], "preds": preds, "gt": pd["gt"],
+                    "tier": pd.get("tier"), "city": pd.get("city")})
+    return out
+
+
 def _write_csv(path, rows, fields):
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     with open(path, "w", newline="", encoding="utf-8") as f:
@@ -447,15 +495,20 @@ def cmd_parity(args):
           f"{'med R':>7} {'max R':>7}  verdict")
     print("-" * 92)
     for city in args.cities:
-        panos, _meta = load_split(city, args.cache)
+        panos, meta = load_split(city, args.cache)
+        cache_tta = bool(meta.get("tta", False))
         res = parity_for(panos, load_records(city), args.threshold, args.tol_radii)
-        rows.append((city, res))
-        gated = city not in TTA_RECORD_SPLITS
+        rows.append((city, res, cache_tta))
+        # Gate only when the cache and the committed records are the same arm:
+        # city records are single-pass, manual_gold's are TTA (TTA_RECORD_SPLITS),
+        # and a --cache pointing at the TTA extraction (#78) inverts both. A
+        # cross-arm row is a TTA-vs-single delta, not preprocessing drift.
+        gated = cache_tta == (city in TTA_RECORD_SPLITS)
         if gated:
             all_ok &= res["ok"]
             verdict = "OK" if res["ok"] else "MISMATCH"
         else:
-            verdict = "n/a (TTA)"
+            verdict = "n/a (cross-arm)"
         print(f"{city:<22} {res['n_records']:>8} {res['n_cache']:>7} "
               f"{res['exact_frac']:>6.1%} {res['matched_frac']:>10.1%} "
               f"{res['median_displacement_r']:>7.3f} {res['max_displacement_r']:>7.3f}  "
@@ -466,12 +519,16 @@ def cmd_parity(args):
 
     print(f"\nDisplacements are in match radii (R); tolerance {args.tol_radii} R. "
           f"'exact' = peak landed in the identical heatmap cell.")
-    for city, res in rows:
-        if city in TTA_RECORD_SPLITS:
-            print(f"\n{city}: NOT GATED — its committed detections were exported WITH "
-                  f"horizontal-flip TTA\n  (benchmark/{city}/detections_meta.json) at a "
-                  f"0.05 floor, while this cache is the no-TTA\n  deployment path. Its "
-                  f"row is a TTA-vs-no-TTA delta, not preprocessing drift (issue #78).")
+    for city, res, cache_tta in rows:
+        if cache_tta != (city in TTA_RECORD_SPLITS):
+            side = ("its committed detections were exported WITH horizontal-flip TTA\n"
+                    f"  (benchmark/{city}/detections_meta.json) at a 0.05 floor, while "
+                    "this cache is the no-TTA\n  deployment path"
+                    if city in TTA_RECORD_SPLITS else
+                    "this cache is the flip-TTA arm, while its committed detections "
+                    "are the\n  single-pass deployment path")
+            print(f"\n{city}: NOT GATED — {side}. Its row is a TTA-vs-no-TTA delta, "
+                  f"not preprocessing drift (issue #78).")
         elif res["exact_frac"] < 0.99:
             print(f"\n{city}: reproduces within tolerance but not exactly "
                   f"({res['exact_frac']:.1%} identical cells).\n  Expected where the "
@@ -571,6 +628,119 @@ def cmd_sweep(args):
     for city in args.cities:
         if city not in poolable:
             print(f"held out of POOLED/tier rows: {city} — {HELD_OUT[city]}")
+    return 0
+
+
+# --------------------------------------------------------------------------- #
+# tta — flip-TTA vs single-pass at the operating points (issue #78)
+# --------------------------------------------------------------------------- #
+def _load_tta_arm(city, single, tta_cache, floor):
+    """``(panos, source)`` for a split's flip-TTA arm, or ``(None, why-missing)``.
+
+    Preference order: a real ``extract --tta`` cache; else, for a split whose
+    committed records ARE a TTA export at a low floor (``manual_gold``), the
+    records themselves via :func:`tta_panos_from_records`.
+    """
+    path = os.path.join(tta_cache, f"{city}.json")
+    if os.path.exists(path):
+        panos, meta = load_split(city, tta_cache)
+        if not meta.get("tta", False):
+            raise SystemExit(f"{path}: meta says single-pass — not a TTA cache; "
+                             "re-run extract --tta into its own --cache directory")
+        return panos, "extract --tta cache"
+    if city in TTA_RECORD_SPLITS:
+        mpath = os.path.join(REPO, "benchmark", city, "detections_meta.json")
+        with open(mpath, encoding="utf-8") as f:
+            dm = json.load(f)
+        if not dm.get("tta") or dm.get("peak_floor", 1.0) > floor:
+            raise SystemExit(f"{mpath}: expected a TTA export at floor <= {floor}; "
+                             f"got tta={dm.get('tta')} peak_floor={dm.get('peak_floor')}")
+        return (tta_panos_from_records(single, load_records(city), dm["peak_floor"]),
+                f"committed records (TTA export, floor {dm['peak_floor']})")
+    return None, f"no cache at {path} — run operating_point_curve.py extract --tta"
+
+
+def _print_tta(title, rows_s, rows_t, candidate, ap_s, ap_t):
+    print(f"\n{'=' * 96}\n{title}\n{'=' * 96}")
+    print(f"{'point':<12} {'thr':>5} | {'P':>6} {'R':>6} {'F1':>6} {'d/pano':>7} | "
+          f"{'P':>6} {'R':>6} {'F1':>6} {'d/pano':>7} | {'dR':>7} {'dP':>7}")
+    print(f"{'':<12} {'':>5} | {'single':^28} | {'flip-TTA':^28} |")
+    print("-" * 96)
+    marks = [("deployed", row_at(rows_s, DEPLOYED_THRESHOLD),
+              row_at(rows_t, DEPLOYED_THRESHOLD)),
+             ("candidate", row_at(rows_s, candidate), row_at(rows_t, candidate)),
+             ("F1-max*", best_f1_row(rows_s), best_f1_row(rows_t))]
+    for label, s, t in marks:
+        thr = (f"{s['threshold']:.2f}" if s["threshold"] == t["threshold"]
+               else f"{s['threshold']:.2f}/{t['threshold']:.2f}")
+        print(f"{label:<12} {thr:>5} | {s['precision']:>6.3f} {s['recall']:>6.3f} "
+              f"{s['f1']:>6.3f} {s['dets_per_pano']:>7.2f} | {t['precision']:>6.3f} "
+              f"{t['recall']:>6.3f} {t['f1']:>6.3f} {t['dets_per_pano']:>7.2f} | "
+              f"{t['recall'] - s['recall']:>+7.3f} {t['precision'] - s['precision']:>+7.3f}")
+    print(f"  (*each arm's own F1-max threshold — chosen on this benchmark, "
+          f"quote as tune-on-test)")
+    print(f"  AP: single {ap_s:.3f}  flip-TTA {ap_t:.3f}  ({ap_t - ap_s:+.3f})")
+    print("  recall levers, all measured from single@%.2f:" % DEPLOYED_THRESHOLD)
+    for lv in tta_levers(rows_s, rows_t, candidate=candidate):
+        marginal = lv["lever"].startswith("TTA after")
+        print(f"    {lv['lever']:<44} R {lv['d_recall']:+.3f}  P {lv['d_precision']:+.3f}  "
+              f"F1 {lv['d_f1']:+.3f}  -> {lv['dets_per_pano']:.2f} dets/pano"
+              + ("   <- the 2x-GPU decision" if marginal else ""))
+
+
+def cmd_tta(args):
+    radius_sq = radius_sq_for()
+    grid = threshold_grid(args.floor, args.top)
+    loaded = {}
+    for city in args.cities:
+        single, _smeta = load_split(city, args.cache)
+        tta, source = _load_tta_arm(city, single, args.tta_cache, args.floor)
+        if tta is None:
+            print(f"[{city}] TTA arm unavailable: {source}; skipped")
+            continue
+        if {pd["pano"] for pd in single} != {pd["pano"] for pd in tta}:
+            raise SystemExit(f"{city}: the two arms cover different pano sets — "
+                             "stale cache? re-extract so both score identical panos")
+        loaded[city] = (single, tta)
+        print(f"[{city}] TTA arm: {source}")
+    if not loaded:
+        raise SystemExit("no split has both arms; run extract --tta first "
+                         f"(expected caches under {args.tta_cache})")
+
+    all_rows = []
+
+    def compare(group, single, tta, title):
+        rows_s = sweep_rows(single, grid, radius_sq)
+        rows_t = sweep_rows(tta, grid, radius_sq)
+        for r in rows_s:
+            r.update(group=group, arm="single")
+        for r in rows_t:
+            r.update(group=group, arm="tta")
+        all_rows.extend(rows_s + rows_t)
+        _print_tta(title, rows_s, rows_t, args.candidate,
+                   pr_curve_and_ap(single, radius_sq).ap,
+                   pr_curve_and_ap(tta, radius_sq).ap)
+
+    for city, (single, tta) in loaded.items():
+        held = HELD_OUT.get(city)
+        suffix = f"   [held out of POOLED: {held}]" if held else ""
+        compare(city, single, tta,
+                f"{city.upper()}  (n={len(single)} panos){suffix} — flip-TTA vs single-pass")
+
+    poolable = pool_of(tuple(loaded), args.include_budapest, args.include_gold)
+    if len(poolable) > 1:
+        pooled_s = [pd for c in poolable for pd in loaded[c][0]]
+        pooled_t = [pd for c in poolable for pd in loaded[c][1]]
+        compare("POOLED", pooled_s, pooled_t,
+                f"POOLED  ({', '.join(poolable)}; n={len(pooled_s)} panos) — "
+                f"flip-TTA vs single-pass")
+
+    path = os.path.join(args.out, "tta_compare.csv")
+    _write_csv(path, all_rows, ["group", "arm"] + SWEEP_FIELDS[1:])
+    print(f"\nwrote {path}  ({len(all_rows)} rows, full grid, both arms)")
+    for city in loaded:
+        if city not in poolable:
+            print(f"held out of POOLED rows: {city} — {HELD_OUT[city]}")
     return 0
 
 
@@ -1086,6 +1256,19 @@ def main(argv=None):
     sp.add_argument("--mark", type=_floats, default=(0.25, 0.30, 0.35),
                     help="candidate operating points to flag in the printed table")
     sp.set_defaults(func=cmd_sweep)
+
+    sp = sub.add_parser("tta", help="flip-TTA vs single-pass at the operating points (#78)")
+    common(sp)
+    sp.add_argument("--tta-cache", default=TTA_CACHE_DIR,
+                    help="cache dir of the extract --tta arm (default "
+                         "analysis_out/op_cache_tta); manual_gold falls back to its "
+                         "committed TTA-export records when no cache is present")
+    sp.add_argument("--floor", type=float, default=0.05)
+    sp.add_argument("--top", type=float, default=0.90)
+    sp.add_argument("--candidate", type=float, default=0.30,
+                    help="the proposed operating point to compare at (default 0.30, "
+                         "per docs/operating_point.md)")
+    sp.set_defaults(func=cmd_tta)
 
     sp = sub.add_parser("hist", help="GT-true vs GT-false confidence calibration (labeler#27)")
     common(sp)
