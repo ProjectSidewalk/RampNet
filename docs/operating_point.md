@@ -504,6 +504,11 @@ here measures view agreement. That is stage 3's own GT to produce.
 
 ## Reproducing
 
+Adding a **new** city to the benchmark re-opens most of this document — pooled numbers, the
+per-tier table, the correction and both figures all move. The end-to-end protocol, including
+which of these commands to re-run and which documents to update, is
+[`docs/adding_a_benchmark_city.md`](adding_a_benchmark_city.md).
+
 ```bash
 # GPU, once (Hyak): writes analysis_out/op_cache/<split>.json
 sbatch -A <account> scripts/analysis/run_low_floor_extract.slurm

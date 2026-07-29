@@ -45,6 +45,11 @@ where both questions land on the same panos — neither repo "owns" a city.
 - *"How good is the model, and is it improving?"* → **RampNet**. Ground truth, scoring, and
   the benchmark itself.
 
+**To add a city, follow [`docs/adding_a_benchmark_city.md`](../docs/adding_a_benchmark_city.md)** —
+the full protocol with a checklist. The table below is the two-repo summary; the protocol covers
+what the table does not, which is everything a new split invalidates downstream (pooled numbers,
+per-tier curves, the #55 correction, both figures, four documents).
+
 Per-step, for adding a city to this benchmark:
 
 | Step | Repo | Tool |
