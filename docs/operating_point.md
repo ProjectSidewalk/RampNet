@@ -471,6 +471,10 @@ without a rubric written for it.
   consensus supplies the precision the threshold currently has to.
 - ~~**Flip-TTA at the deployment point** (#78)~~ — measured; see the next section. It does not
   change the recommendation.
+- **Training-time augmentation** (#82). The recipe's only augmentation is the horizontal flip
+  whose test-time twin #78 just found saturated; yaw-roll and photometric jitter are untried and
+  target the cross-city recall spread directly. A model with better transfer would move this
+  threshold, since 0.30 is partly compensating for out-of-domain under-confidence.
 
 ## Flip-TTA at the operating points (#78): measured, and not worth 2× GPU
 
@@ -527,6 +531,35 @@ Three findings:
    manual_gold)** than what the single-pass deployment actually delivers. Any comparison of
    committed evaluation numbers against deployed GT measurements should apply that delta;
    sidewalk-auto-labeler#3's open half is answered.
+
+### Why the mechanism produces exactly this result
+
+Two properties of the setup explain both halves of the finding, and neither is specific to this
+benchmark — so the same reasoning should be applied before anyone proposes flip-TTA again:
+
+- **Max-combine can only *add* detections.** The composition is elementwise `np.maximum`
+  (`stage_two/evaluate.py:191`, mirrored in `operating_point_curve.compose_tta`) — not an
+  average. The TTA heatmap is therefore **pointwise ≥** the single-pass heatmap everywhere, so
+  at a fixed threshold TTA can promote a detection but can never suppress one. That is the
+  mechanical reason it behaves as a threshold change rather than merely correlating with one:
+  the two levers are the same *kind* of operation, both trading precision for recall by
+  admitting weaker evidence. (An *averaging* TTA would instead be a variance reducer and could
+  remove false positives too. That is not what the paper used, and not what these numbers
+  measure — it is a separate, untested design.)
+- **The model was already trained to be flip-invariant.** `stage_two/train.py:202-207` applies
+  random horizontal flip at p = 0.5, relabelling `x → 1 − x`; the crop models do the same
+  (`stage_one/crop_model/*/train.py:71`). Test-time flipping can therefore only exploit the
+  asymmetry that training-time flipping failed to remove — a **small gain is the expected
+  outcome, not an anomaly**. Read the other way, the marginal TTA gain measures how much the
+  two views still disagree in a way that matters at the operating point, and at ≤1.3 recall
+  points per US split the answer is: barely. The training augmentation worked.
+
+The second point also bounds what the *rest* of the augmentation family is worth here, because
+that horizontal flip is the **only** augmentation in the recipe — the input transform is
+`Resize → ToTensor → Normalize` (`train.py:224-229`), with no photometric, scale, or other
+geometric variation. #78 says the one invariance that was trained for is saturated; it says
+nothing about the ones that were never trained for. #82 takes that up (yaw-roll and photometric
+jitter, the two augmentations that are both legal on an equirectangular projection and untried).
 
 **Decision: no production TTA knob is filed in sidewalk-auto-labeler — deliberately.** The #78
 plan was to file it only if TTA won meaningfully at the chosen operating point. It does not:
