@@ -27,7 +27,7 @@ sys.path.insert(0, REPO)
 
 import numpy as np
 import torch
-from PIL import Image
+from PIL import Image, ImageOps
 from skimage.feature import peak_local_max
 from torchvision import transforms
 
@@ -74,8 +74,13 @@ def load_bundle(city):
     return records, verdicts, os.path.join(cdir, "panos")
 
 
-def heatmap_for(model, device, path, use_fp16):
+def heatmap_for(model, device, path, use_fp16, flip=False):
+    """One forward pass -> heatmap. ``flip`` mirrors the pano at native res before
+    preprocessing (the flip-TTA arm, issue #78) — the same order as
+    stage_two/evaluate.py, whose composition the TTA extraction reproduces."""
     img = Image.open(path).convert("RGB")
+    if flip:
+        img = ImageOps.mirror(img)
     t = PRE(img).unsqueeze(0).to(device)
     with torch.no_grad():
         if use_fp16 and device.type == "cuda":

@@ -224,3 +224,62 @@ def test_cache_roundtrip(tmp_path):
     assert back[0]["gt"].fn_confirmed is True
     # round-tripped GT scores identically
     assert opc._score_at(panos, 0.0, RSQ).tp == opc._score_at(back, 0.0, RSQ).tp
+
+
+# --------------------------------------------------------------------------- #
+# flip-TTA extraction (issue #78)
+# --------------------------------------------------------------------------- #
+def test_compose_tta_unmirrors_the_flipped_arm():
+    """A peak the flipped pass sees at column c belongs at column W-1-c."""
+    import numpy as np
+    h_o, h_f = np.zeros((4, 10)), np.zeros((4, 10))
+    h_f[2, 3] = 0.9
+    out = opc.compose_tta(h_o, h_f)
+    assert out[2, 10 - 1 - 3] == 0.9 and out.sum() == 0.9
+
+
+def test_compose_tta_takes_the_max_not_the_mean():
+    """Either arm's confidence survives — that is what buys recall."""
+    import numpy as np
+    h_o, h_f = np.zeros((4, 10)), np.zeros((4, 10))
+    h_o[1, 5] = 0.4
+    h_f[1, 10 - 1 - 5] = 0.7      # same pano position once un-mirrored
+    assert opc.compose_tta(h_o, h_f)[1, 5] == 0.7
+
+
+def test_compose_tta_commutes_with_clip():
+    """Composing raw outputs and clipping at peak extraction must equal
+    stage_two/evaluate.py's clip-each-arm-then-max order."""
+    import numpy as np
+    rng = np.random.default_rng(1)
+    a = rng.uniform(-0.5, 1.5, (6, 12))
+    b = rng.uniform(-0.5, 1.5, (6, 12))
+    ours = np.clip(opc.compose_tta(a, b), 0, 1)
+    stage_two = np.maximum(np.clip(a, 0, 1), np.fliplr(np.clip(b, 0, 1)))
+    assert np.allclose(ours, stage_two)
+
+
+def _fake_cache(dirpath, name, meta):
+    os.makedirs(dirpath, exist_ok=True)
+    with open(os.path.join(dirpath, f"{name}.json"), "w", encoding="utf-8") as f:
+        json.dump({"city": name, "meta": meta, "panos": []}, f)
+
+
+def test_assert_cache_arm_refuses_mixed_directories(tmp_path):
+    import pytest
+    d = str(tmp_path)
+    opc._assert_cache_arm(d, True)                    # empty dir: fine
+    _fake_cache(d, "bend", {"tta": False})
+    opc._assert_cache_arm(d, False)                   # same arm: fine
+    with pytest.raises(SystemExit):
+        opc._assert_cache_arm(d, True)                # cross-arm: refused
+
+
+def test_assert_cache_arm_treats_legacy_meta_as_single_pass(tmp_path):
+    """Caches written before the tta field existed are the single-pass arm."""
+    import pytest
+    d = str(tmp_path)
+    _fake_cache(d, "bend", {"score_floor": 0.05})
+    opc._assert_cache_arm(d, False)
+    with pytest.raises(SystemExit):
+        opc._assert_cache_arm(d, True)
