@@ -35,7 +35,7 @@ checkout.
 | `depth_analysis.py` | no | Recall vs true distance / apparent size + the resolution forecast. Needs `gt_depth_da3.json`. |
 | `size_analysis.py` | no | Geometry-only size stratification (no depth model) + the hard-miss montage figure. |
 | `overlap_test.py` | **yes** | Do the threshold and resolution levers target the same ramps? Needs `gt_depth_da3.json`. |
-| `operating_point_curve.py extract` | **yes** | Inference once → all peaks down to a low score floor → per-pano cache (issue #54). Handles both bundle kinds, so `manual_gold` (independent YOLO GT, no verdict review) is covered too. |
+| `operating_point_curve.py extract` | **yes** | Inference once → all peaks down to a low score floor → per-pano cache (issue #54). Handles both bundle kinds, so `manual_gold` (independent YOLO GT, no verdict review) is covered too. `--tta` extracts the horizontal-flip-TTA arm instead (#78) — two passes per pano, mirrored heatmap un-flipped and maxed exactly as `stage_two/evaluate.py`; each arm must live in its own `--cache` dir (mixing is refused). |
 | `operating_point_curve.py curve` | no | Continuous PR curve + honest AP + F1-vs-threshold from the cache (#54). |
 | `operating_point_curve.py gallery` | no | Incremental-FP crops for the GT-completeness spot-check → corrected precision with an error band (#54). |
 | `low_floor_sweep.py parity` | no | **Gate — run first.** Do the cached peaks at 0.55 reproduce each split's committed `records.jsonl`? Measured in match radii, since bit-exactness is the wrong bar (#54). |
@@ -46,6 +46,7 @@ checkout.
 | `low_floor_sweep.py floor` | no | Does the labeler's `DETECTION_STORAGE_FLOOR = 0.1` discard recoverable ramps? (Yes — 2.7% of GT.) Plus the recall **ceiling** on multi-view consensus. |
 | `low_floor_sweep.py distance` | no | Where the recall gain from a lower threshold lands on the distance axis (uniform — so it stacks with multi-view rather than overlapping it). |
 | `low_floor_sweep.py tagcheck` | no | Do the committed #55 tags still resolve against this cache? Tag ids are keyed to peak *coordinates*, so a re-extraction can silently orphan reviewer work. |
+| `low_floor_sweep.py tta` | no | Flip-TTA vs single-pass at the operating points (#78): both arms on identical grid/GT per split + pooled US, AP per arm, and the four-lever decomposition — drop alone, TTA alone, both, and the **marginal TTA-after-the-drop** row the 2×-GPU decision prices against. `manual_gold` needs no TTA cache (its committed detections *are* a TTA export); the city splits read `extract --tta`'s `op_cache_tta/`. |
 | `plot_operating_point.py` | no | The headline figure: PR response per split + F1-vs-threshold → `docs/figures/operating_point_pr.png`. |
 | `plot_storage_floor.py` | no | Storage-floor cost + recall ceiling → `docs/figures/storage_floor_ceiling.png`. |
 

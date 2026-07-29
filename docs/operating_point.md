@@ -469,8 +469,76 @@ without a rubric written for it.
 - **Multi-view fusion** (labeler#27), which changes the question from "what threshold for a
   single view" to "what threshold for promotion given k agreeing views" — a lower number, since
   consensus supplies the precision the threshold currently has to.
-- **Flip-TTA at the deployment point** (#78), measurable from the same cache: TTA yields 3.5%
-  more detections at ≥0.55 on manual_gold.
+- ~~**Flip-TTA at the deployment point** (#78)~~ — measured; see the next section. It does not
+  change the recommendation.
+
+## Flip-TTA at the operating points (#78): measured, and not worth 2× GPU
+
+The paper's committed evaluation ran with horizontal-flip test-time augmentation
+(`stage_two/evaluate.py` maxes the original and mirrored heatmaps) while the deployed detector
+is single-pass — a configuration mismatch tracked since sidewalk-auto-labeler#3, with the
+evaluated-vs-deployed delta never measured. It is now measured, on this document's own
+extraction: a second `extract --tta` arm (two passes per pano, mirrored heatmap un-flipped and
+maxed with the original — numerically identical to `evaluate.py`'s composition) swept on the
+identical grid and GT as the single-pass arm. `manual_gold` needed no GPU pass at all: its
+committed detections *are* a TTA export at the 0.05 floor
+(`benchmark/manual_gold/detections_meta.json`), so its records supplied that arm directly.
+
+![flip-TTA vs single-pass](figures/tta_operating_point.png)
+
+**Pooled over the five US splits (n = 609 panos):**
+
+| | single 0.55 | TTA 0.55 | single 0.30 | TTA 0.30 |
+|---|---|---|---|---|
+| precision | 0.965 | 0.954 | 0.897 | 0.873 |
+| recall | 0.744 | 0.768 | 0.818 | 0.826 |
+| F1 | 0.840 | 0.851 | 0.855 | 0.849 |
+| detections/pano | 1.85 | 1.93 | 2.23 | 2.32 |
+
+AP: 0.870 single vs 0.874 TTA (+0.004 pooled; per split it spans **−0.012** on annapolis to
++0.014 on morgantown — TTA does not reliably improve even the full curve out of domain).
+
+The lever ledger, all measured from single-pass @ 0.55 (pooled):
+
+| lever | ΔR | ΔP | ΔF1 | dets/pano |
+|---|---|---|---|---|
+| threshold drop alone (0.55 → 0.30) | **+0.074** | −0.068 | +0.016 | 2.23 |
+| TTA alone (at 0.55) | +0.024 | −0.011 | +0.011 | 1.93 |
+| both | +0.083 | −0.092 | +0.009 | 2.32 |
+| **TTA after the drop (at 0.30)** | **+0.009** | **−0.024** | **−0.007** | 2.32 |
+
+Three findings:
+
+1. **TTA is a mild threshold-lowering in disguise.** Its recall curve is the single-pass curve
+   shifted left (right panel of the figure) — both levers promote under-confident detections,
+   so their gains overlap almost completely. At the deployed 0.55, TTA looks attractive
+   (+2.4 recall points for −1.1 precision); once the threshold drops to 0.30, the marginal
+   value collapses to **+0.9 recall points for −2.4 precision points, and F1 goes down** on
+   four of the five US splits (per-split marginal ΔR: richmond +0.013, bend +0.009, clovis
+   +0.010, morgantown +0.007, annapolis **+0.003**). The threshold change is free; TTA costs
+   2× GPU per pano and buys a strictly worse trade on top of it.
+2. **In-domain is the exception.** On `manual_gold` (in-distribution GSV), TTA keeps most of
+   its value after the drop: marginal +0.019 R at −0.015 P, and AP 0.904 → 0.917 — the one
+   split where the full curve clearly improves. So the paper's use of TTA for the gold-set
+   evaluation was a reasonable in-domain choice; it just doesn't transfer to deployment
+   imagery, where the flip mostly promotes noise at the margin.
+3. **The configuration mismatch is now quantified and closed.** At the deployed 0.55, the
+   TTA-evaluated configuration reads **+2.4 recall points higher (pooled US; +2.3 on
+   manual_gold)** than what the single-pass deployment actually delivers. Any comparison of
+   committed evaluation numbers against deployed GT measurements should apply that delta;
+   sidewalk-auto-labeler#3's open half is answered.
+
+**Decision: no production TTA knob is filed in sidewalk-auto-labeler — deliberately.** The #78
+plan was to file it only if TTA won meaningfully at the chosen operating point. It does not:
+at 0.30 the marginal recall is ≤1.3 points on every US split for double the GPU cost and a
+precision trade worse than what the free threshold change already made. This negative result is
+the record of why. The 0.30 single-pass recommendation above is unchanged.
+
+Caveat, same shape as everything sub-0.55 here: the #55 GT-completeness bias applies to *both*
+arms, so it mostly cancels in the deltas — but not exactly. The TTA arm's extra low-confidence
+detections are precisely the faint kind the GT never audited, so the measured marginal
+**precision** cost is, if anything, overstated. The marginal **recall** gain is exact (the GT
+denominator is fixed), and it alone is too small to price 2× GPU against.
 
 ## For labeler#27 stage 4: the promotion floor
 
@@ -513,6 +581,12 @@ which of these commands to re-run and which documents to update, is
 # GPU, once (Hyak): writes analysis_out/op_cache/<split>.json
 sbatch -A <account> scripts/analysis/run_low_floor_extract.slurm
 
+# GPU — the flip-TTA arm (#78); local RTX 3070 sufficed (~10 s/pano, fp32).
+# Its own cache dir is mandatory: mixing arms in one dir is refused.
+python scripts/analysis/operating_point_curve.py extract --tta \
+    --cache analysis_out/op_cache_tta \
+    --cities richmond,bend,clovis,morgantown,annapolis,budapest_district5
+
 # CPU, everything else
 python scripts/analysis/low_floor_sweep.py parity     # the gate — run this first
 python scripts/analysis/low_floor_sweep.py sweep      # per-split + pooled + per-tier
@@ -520,4 +594,6 @@ python scripts/analysis/low_floor_sweep.py hist       # calibration for labeler#
 python scripts/analysis/low_floor_sweep.py gtbias     # the anchoring measurement
 python scripts/analysis/low_floor_sweep.py distance   # where the recall gain lands
 python scripts/analysis/low_floor_sweep.py tagcheck   # #55 tags still resolve
+python scripts/analysis/low_floor_sweep.py tta        # flip-TTA vs single-pass (#78)
+python scripts/analysis/plot_tta.py                   # regenerates the #78 figure
 ```
