@@ -52,9 +52,10 @@ Also decide now, and record it in the PR:
 
 ```bash
 # in sidewalk-auto-labeler
-python main.py --source <mapillary|gsv> --area <city.geojson>      # enumerate → thin → detect
+python main.py <city.geojson> --source <mapillary|gsv>      # enumerate → thin → detect
+# results land in runs/<name>/ — <name> defaults to the geojson basename
 python scripts/export_benchmark.py runs/<city>/results.jsonl \
-    --bundle --out <RampNet>/benchmark/<city>
+    --bundle <RampNet>/benchmark/<city>
 ```
 
 `--bundle` samples the run and fetches native-res pixels. The sample is **stratified**, and the
@@ -66,8 +67,9 @@ strata matter downstream:
 | `random` | 95 | spatially de-clustered detection panos — the honest sample |
 | `empty` | 25 | zero-detection panos, so a silent model is measurable, not invisible |
 
-125 panos total (bend is the odd one out at 110 — only 10 `empty`). Keep 5/95/25 unless there
-is a reason not to; changing it makes the split non-comparable on the unbiased column.
+125 panos total in the four newest splits; richmond has 124 and bend 110 (only 10 `empty`).
+Keep 5/95/25 unless there is a reason not to; changing it makes the split non-comparable on
+the unbiased column.
 
 The exporter reconciles the archive against the records and writes `index.csv` (per-pano
 sha256) and `decayed.txt`. **It exits non-zero on anything that means the archive is not
@@ -101,7 +103,7 @@ Three things that are easy to get wrong:
   recorded low confidence in their own pass; without that the 0.873/0.503 would have been
   quoted as a clean number.
 - **Use `unsure` freely.** It abstains from both metrics rather than forcing a guess.
-  Abstention rates run 2.2% (annapolis) to 8.5% (budapest) of detections and are themselves a
+  Abstention rates run 1.9% (bend) to 8.5% (budapest) of detections and are themselves a
   reported signal about imagery legibility.
 
 Deliverable: `benchmark/<city>/verdicts.json` — committed, image-free, self-contained.
@@ -118,8 +120,10 @@ between-city comparison.
 
 Gates before going further:
 
-- Do the `empty`-group panos behave? All 25 clean means the model's "nothing here" is right;
-  detections there are real false positives worth reading.
+- Do the `empty`-group panos behave? All 25 clean means the model's "nothing here" is right.
+  The stratum is zero-detection by construction, so what can appear there is **missed marks** —
+  real ramps the model was silent on, worth reading (annapolis's negative check: 4 of its 25
+  held 10 of them).
 - Does the `duplicate` count look sane? 0–3 is normal; budapest's 7 flagged a genuine rubric
   ambiguity (diagonal corner aprons) worth ~4 precision points.
 - Does the recall gate include most panos? Panos with neither a `no_missed` attestation nor a
