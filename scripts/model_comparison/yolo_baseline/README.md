@@ -331,7 +331,10 @@ protocol governs the results that will replace that note.
   `MailType=END,FAIL,TIME_LIMIT`, which was passed on the 07-26 sbatch command line, not set by
   `run_yolo_train.slurm` (a fresh submission of the same script gets no mail config). On a
   preemptable partition that means one email per preemption — 115 of them on 2026-07-29 alone.
-  Worth omitting, or narrowing to `TIME_LIMIT`, for the #70 rerun.
+  **This volume is accepted deliberately** (Jon, 2026-07-29: "I'm fine with still getting the
+  mail"), so it is recorded here as context for reading the run history, not as a defect to fix.
+  A future rerun that wants quiet should omit the flags or narrow them to `TIME_LIMIT`; note they
+  must be set per-job with `scontrol update`, since the launcher never sets them.
 
 ## Where the weights live
 
