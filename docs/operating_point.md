@@ -312,6 +312,64 @@ radii of an already-detected ramp, so they are more likely a second hit on one r
 the GT missed. The tooling flags these rather than hiding them; removing all three from the US
 pool changes pooled corrected precision by under 0.002.
 
+### The storage floor and the recall ceiling (labeler#28, labeler#27 stage 4)
+
+The submission threshold this document recommends is a *policy* choice and reversible. The
+labeler's **storage floor** (`DETECTION_STORAGE_FLOOR = 0.1`, with a top-50 per-pano cap;
+labeler#28) is neither: a peak below it is never written, so no downstream consensus policy
+can ever promote it. That makes it worth checking directly rather than assuming.
+
+![Storage floor and recall ceiling](figures/storage_floor_ceiling.png)
+
+Reproduce with `python scripts/analysis/low_floor_sweep.py floor` and
+`python scripts/analysis/plot_storage_floor.py`.
+
+**What a 0.1 floor costs.** Counting ground-truth ramps whose *best* candidate falls in
+`[0.05, 0.10)` — i.e. ramps that a 0.1 floor makes permanently unrecoverable:
+
+| split | GT ramps | best candidate in [0.05, 0.10) | share |
+|---|---|---|---|
+| richmond | 310 | 8 | 2.58% |
+| bend | 327 | 8 | 2.45% |
+| clovis | 195 | 6 | 3.08% |
+| morgantown | 267 | 7 | 2.62% |
+| annapolis | 294 | 9 | 3.06% |
+| **POOLED (5 US)** | **1393** | **38** | **2.73%** |
+| budapest | 300 | 7 | 2.33% |
+| manual_gold | 3919 | 19 | 0.48% |
+
+**The recall ceiling.** The share of GT ramps with *any* candidate at or above a floor —
+the hard upper bound on what multi-view consensus can ever recover:
+
+| | pooled (5 US) |
+|---|---|
+| recall at the deployed 0.55 | 0.744 |
+| recall at the recommended 0.30 | 0.818 |
+| **ceiling at the 0.10 storage floor** | **0.872** |
+| ceiling at the 0.05 extraction floor | 0.899 |
+
+So labeler#27 stage 4 has **+12.8 recall points** of headroom above the deployed threshold to
+work with, and **+5.4 points** above the operating point recommended here — but it is capped
+at 0.872 by the storage floor, not by the 0.899 the model actually produces.
+
+**The verdict: lower the storage floor from 0.10 to 0.05.** The floor's own stated
+justification (labeler#28) is that storing too little is irreversible while storing too much
+only costs disk, bounded by the top-K cap. That argument survives contact with the data, and
+the data says 0.1 is not where the bound should sit:
+
+- **The cap never binds.** At the 0.1 floor the busiest pano in the entire benchmark holds
+  **14** candidates against a cap of 50; medians are 2–5. At a 0.05 floor the maximum is still
+  **14**. The top-50 cap is not the volume bound — the floor is, and it is doing work nobody
+  asked it to do.
+- **The cost is ~2.7% of findable ramps**, permanently, for a volume saving of roughly one
+  extra candidate per pano.
+- **The recovered ramps are exactly the population multi-view fusion is for.** They are
+  ramps too faint to clear any single-view threshold, which is the case stage 4 exists to
+  handle.
+
+This is a labeler-side change and belongs in that repo; it is recorded here because this is
+where the measurement lives.
+
 ## The deployment constraint is not what it was assumed to be
 
 It is widely assumed that Project Sidewalk gates AI label submissions on

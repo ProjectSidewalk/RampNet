@@ -20,6 +20,16 @@ analysis_out/*
 !analysis_out/op_cache/
 analysis_out/op_cache/*
 !analysis_out/op_cache/*.json
+# The derived result tables too (~80 KB): these are the exact numbers quoted in
+# docs/operating_point.md, so committing them means a reader can check a figure in the
+# prose against the table it came from without re-running anything. The gallery crops
+# under analysis_out/op/*_incremental_fp/ stay ignored -- 181 MB of PNGs that regenerate
+# from the caches plus the (also gitignored) panos, and whose irreplaceable part, the
+# human A/B tags, is committed under benchmark/<city>/incremental_fp_tags.json.
+!analysis_out/op/
+analysis_out/op/*
+!analysis_out/op/*.csv
+!analysis_out/op/*.json
 
 # Claude Code local state. settings.local.json is per-machine (absolute paths,
 # session ids) and worktrees/ holds full repo checkouts -- gigabytes. Listed

@@ -355,3 +355,76 @@ def test_tag_resolution_flags_newly_untagged_items():
 
 def test_tag_resolution_with_no_tags_is_vacuously_fine():
     assert lfs.check_tag_resolution([{"id": "x"}], {})["resolved_frac"] == 1.0
+
+
+# --------------------------------------------------------------------------- #
+# storage floor / recall ceiling (labeler#28, labeler#27 stage 4)
+# --------------------------------------------------------------------------- #
+def test_gt_best_candidate_reports_the_claiming_prediction():
+    gt = GroundTruth([(0.2, 0.6), (0.8, 0.6)], [], fn_confirmed=True)
+    panos = [{"pano": "a", "preds": [(0.2, 0.6, 0.91), (0.8, 0.6, 0.07)], "gt": gt}]
+    assert sorted(x for x in lfs.gt_best_candidate(panos, RSQ) if x) == [0.07, 0.91]
+
+
+def test_gt_best_candidate_is_none_for_an_unfound_ramp():
+    gt = GroundTruth([(0.2, 0.6)], [], fn_confirmed=True)
+    panos = [{"pano": "a", "preds": [(0.9, 0.9, 0.99)], "gt": gt}]
+    assert lfs.gt_best_candidate(panos, RSQ) == [None]
+
+
+def test_gt_best_candidate_skips_unconfirmed_panos():
+    """Must share the recall denominator with the sweep, or the bands don't add up."""
+    gt = GroundTruth([(0.2, 0.6)], [], fn_confirmed=False)
+    panos = [{"pano": "a", "preds": [(0.2, 0.6, 0.9)], "gt": gt}]
+    assert lfs.gt_best_candidate(panos, RSQ) == []
+
+
+def test_gt_best_candidate_takes_the_highest_when_several_are_in_range():
+    """Greedy matching is highest-first, which is what makes one pass serve all floors."""
+    gt = GroundTruth([(0.5, 0.6)], [], fn_confirmed=True)
+    panos = [{"pano": "a", "preds": [(0.5, 0.6, 0.4), (0.501, 0.6, 0.8)], "gt": gt}]
+    assert lfs.gt_best_candidate(panos, RSQ) == [0.8]
+
+
+def test_floor_report_bands_count_ramps_lost_by_raising_the_floor():
+    gt = GroundTruth([(0.1, 0.6), (0.4, 0.6), (0.7, 0.6)], [], fn_confirmed=True)
+    panos = [{"pano": "a", "gt": gt, "preds": [
+        (0.1, 0.6, 0.07),    # best candidate below 0.10 -> lost at a 0.10 floor
+        (0.4, 0.6, 0.15),    # survives 0.10, in the [0.10, 0.20) band
+        (0.7, 0.6, 0.80),    # well clear
+    ]}]
+    rep = lfs.floor_report(panos, RSQ)
+    assert rep["n_gt"] == 3
+    assert rep["bands"]["[0.05,0.10)"] == 1
+    assert rep["bands"]["[0.10,0.20)"] == 1
+    assert math.isclose(rep["recall_at"]["0.05"], 1.0)
+    assert math.isclose(rep["recall_at"]["0.10"], 2 / 3)
+    assert math.isclose(rep["recall_at"]["0.55"], 1 / 3)
+
+
+def test_floor_report_recall_at_matches_the_swept_recall():
+    """The ceiling must equal the sweep's recall at the same threshold, or one is wrong."""
+    panos = _panos(seed=13)
+    rep = lfs.floor_report(panos, RSQ, floors=(0.1, 0.3, 0.55))
+    for thr in (0.1, 0.3, 0.55):
+        swept = lfs.sweep_rows(panos, [thr], RSQ)[0]["recall"]
+        assert math.isclose(rep["recall_at"][f"{thr:.2f}"], swept, rel_tol=1e-9)
+
+
+def test_floor_report_recall_is_monotone_in_the_floor():
+    rep = lfs.floor_report(_panos(seed=17), RSQ)
+    vals = [rep["recall_at"][k] for k in sorted(rep["recall_at"])]
+    assert all(b <= a + 1e-12 for a, b in zip(vals, vals[1:]))
+
+
+def test_cap_report_counts_panos_exceeding_the_top_k():
+    panos = [{"pano": "a", "preds": [(0.5, 0.5, 0.9)] * 5, "gt": None},
+             {"pano": "b", "preds": [(0.5, 0.5, 0.9)] * 2, "gt": None}]
+    c = lfs.cap_report(panos, floor=0.1, top_k=3)
+    assert c["max"] == 5 and c["n_over_cap"] == 1 and c["n_panos"] == 2
+
+
+def test_cap_report_respects_the_floor():
+    panos = [{"pano": "a", "preds": [(0.5, 0.5, 0.9), (0.5, 0.5, 0.06)], "gt": None}]
+    assert lfs.cap_report(panos, floor=0.10, top_k=50)["max"] == 1
+    assert lfs.cap_report(panos, floor=0.05, top_k=50)["max"] == 2

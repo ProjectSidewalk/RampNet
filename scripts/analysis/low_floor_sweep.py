@@ -684,6 +684,151 @@ def cmd_tagcheck(args):
 
 
 # --------------------------------------------------------------------------- #
+# floor — does a 0.1 storage floor throw away recoverable ramps? (labeler#28/#27)
+# --------------------------------------------------------------------------- #
+def gt_best_candidate(panos, radius_sq, floor=0.0):
+    """Per GT ramp, the confidence of the detection that claims it — or None.
+
+    Greedy matching is highest-confidence-first, so dropping low-confidence
+    predictions never changes what a *higher*-confidence one matched. That makes
+    this one pass sufficient for every floor at once: the set of GT ramps still
+    recoverable at floor ``f`` is exactly those whose best candidate scores ``>= f``.
+
+    Restricted to recall-confirmed panos, the same gate ``aggregate`` applies, so
+    these counts share a denominator with the swept recall.
+    """
+    out = []
+    for pd in panos:
+        gt = pd["gt"]
+        if not gt.fn_confirmed:
+            continue
+        preds = sorted([p for p in pd["preds"] if p[2] >= floor],
+                       key=lambda p: p[2], reverse=True)
+        assignments = greedy_match([(p[0], p[1]) for p in preds], gt.gt_points,
+                                   radius_sq, PANO_SCALE_X, PANO_SCALE_Y)
+        best = {}
+        for p, (gi, _) in zip(preds, assignments):
+            if gi >= 0:
+                best[gi] = p[2]
+        for i in range(len(gt.gt_points)):
+            out.append(best.get(i))
+    return out
+
+
+STORAGE_FLOOR = 0.10        # sidewalk-auto-labeler DETECTION_STORAGE_FLOOR (PR #28)
+STORAGE_TOP_K = 50          # its per-pano cap
+
+
+def floor_report(panos, radius_sq, bands=((0.05, 0.10), (0.10, 0.20)),
+                 floors=(0.05, 0.10, 0.20, DEPLOYED_THRESHOLD)):
+    """Recall ceiling at each candidate floor, plus where the marginal ramps sit.
+
+    Two questions, one pass:
+
+    - **Is a 0.1 storage floor safe?** ``bands`` counts GT ramps whose *best*
+      candidate falls in each band. The count in ``[0.05, 0.10)`` is exactly the
+      number of real ramps a 0.1 floor makes permanently unrecoverable — no
+      downstream consensus policy can promote a candidate that was never stored.
+    - **What is the ceiling on multi-view promotion?** ``recall_at`` is the share of
+      GT ramps with any candidate at or above each floor. Stage 4 of labeler#27
+      cannot exceed this, whatever k it requires.
+    """
+    best = gt_best_candidate(panos, radius_sq)
+    n_gt = len(best)
+    matched = [b for b in best if b is not None]
+    return {
+        "n_gt": n_gt,
+        "n_unmatched": n_gt - len(matched),
+        "bands": {f"[{lo:.2f},{hi:.2f})": sum(1 for b in matched if lo <= b < hi)
+                  for lo, hi in bands},
+        "recall_at": {f"{f:.2f}": sum(1 for b in matched if b >= f) / n_gt if n_gt else 0.0
+                      for f in floors},
+        "n_at": {f"{f:.2f}": sum(1 for b in matched if b >= f) for f in floors},
+    }
+
+
+def cap_report(panos, floor=STORAGE_FLOOR, top_k=STORAGE_TOP_K):
+    """Does the labeler's per-pano top-K cap bind at this storage floor?
+
+    The cap is the real volume bound in labeler#28, so it is worth knowing whether
+    it ever actually truncates — a cap that never binds costs nothing, one that
+    binds often is silently a second, harsher floor.
+    """
+    counts = sorted(sum(1 for p in pd["preds"] if p[2] >= floor) for pd in panos)
+    n = len(counts) or 1
+    return {
+        "median": counts[n // 2] if counts else 0,
+        "p95": counts[min(n - 1, int(0.95 * n))] if counts else 0,
+        "max": counts[-1] if counts else 0,
+        "n_over_cap": sum(1 for c in counts if c > top_k),
+        "n_panos": len(counts),
+    }
+
+
+def cmd_floor(args):
+    radius_sq = radius_sq_for()
+    loaded = {city: load_split(city, args.cache)[0] for city in args.cities}
+    rows = []
+    band_keys = [f"[{lo:.2f},{hi:.2f})" for lo, hi in ((0.05, 0.10), (0.10, 0.20))]
+
+    print(f"{'split':<22} {'GT':>5} {band_keys[0]:>13} {band_keys[1]:>13} "
+          f"{'R@0.05':>7} {'R@0.10':>7} {'R@0.55':>7} {'lost@0.10':>10}")
+    print("-" * 96)
+
+    def emit(label, panos):
+        rep = floor_report(panos, radius_sq)
+        lost = rep["bands"][band_keys[0]]
+        print(f"{label:<22} {rep['n_gt']:>5} {rep['bands'][band_keys[0]]:>13} "
+              f"{rep['bands'][band_keys[1]]:>13} {rep['recall_at']['0.05']:>7.3f} "
+              f"{rep['recall_at']['0.10']:>7.3f} {rep['recall_at']['0.55']:>7.3f} "
+              f"{lost / rep['n_gt'] if rep['n_gt'] else 0:>9.2%}")
+        rows.append({"split": label, "n_gt": rep["n_gt"],
+                     "gt_best_in_005_010": rep["bands"][band_keys[0]],
+                     "gt_best_in_010_020": rep["bands"][band_keys[1]],
+                     **{f"recall_at_{k}": v for k, v in rep["recall_at"].items()},
+                     **{f"n_at_{k}": v for k, v in rep["n_at"].items()}})
+        return rep
+
+    for city, panos in loaded.items():
+        emit(city, panos)
+    poolable = pool_of(args.cities, args.include_budapest, args.include_gold)
+    pooled_panos = [pd for c in poolable for pd in loaded[c]]
+    print("-" * 96)
+    pooled = emit("POOLED", pooled_panos) if len(poolable) > 1 else None
+
+    print(f"\nPer-pano candidate counts at the {STORAGE_FLOOR} storage floor "
+          f"(cap = top {STORAGE_TOP_K}):")
+    print(f"{'split':<22} {'median':>7} {'p95':>6} {'max':>6} {'panos over cap':>16}")
+    print("-" * 62)
+    for city, panos in loaded.items():
+        c = cap_report(panos, args.floor, args.top_k)
+        print(f"{city:<22} {c['median']:>7} {c['p95']:>6} {c['max']:>6} "
+              f"{c['n_over_cap']:>16}")
+
+    _write_csv(os.path.join(args.out, "storage_floor.csv"), rows,
+               ["split", "n_gt", "gt_best_in_005_010", "gt_best_in_010_020",
+                "recall_at_0.05", "recall_at_0.10", "recall_at_0.20", "recall_at_0.55",
+                "n_at_0.05", "n_at_0.10", "n_at_0.20", "n_at_0.55"])
+    if pooled:
+        lost = pooled["bands"][band_keys[0]]
+        print(f"""
+{'=' * 88}
+Verdict on DETECTION_STORAGE_FLOOR = {STORAGE_FLOOR} (labeler#28)
+{'=' * 88}
+Across the pooled US splits, {lost} of {pooled['n_gt']} ground-truth ramps
+({lost / pooled['n_gt']:.2%}) have their best candidate in [0.05, 0.10) — those are the
+ramps a {STORAGE_FLOOR} storage floor discards at the only point they exist.
+
+Recall ceiling: {pooled['recall_at']['0.10']:.3f} at the {STORAGE_FLOOR} floor, against
+{pooled['recall_at']['0.05']:.3f} at the 0.05 extraction floor and {pooled['recall_at']['0.55']:.3f}
+at the deployed threshold. **No labeler#27 stage-4 consensus policy can exceed the
+first number**, whatever k it requires, because a candidate that was never stored
+cannot be promoted.""")
+    print(f"\nwrote {os.path.join(args.out, 'storage_floor.csv')}")
+    return 0
+
+
+# --------------------------------------------------------------------------- #
 # corrected — apply the #55 A/B tags, per split and pooled
 # --------------------------------------------------------------------------- #
 def cmd_corrected(args):
@@ -957,6 +1102,13 @@ def main(argv=None):
                     help="fraction of committed tags that must still resolve (default 1.0 "
                          "— any orphan is reviewer effort silently dropped)")
     sp.set_defaults(func=cmd_tagcheck)
+
+    sp = sub.add_parser("floor",
+                        help="storage-floor validation + recall ceiling (labeler#28/#27)")
+    common(sp)
+    sp.add_argument("--floor", type=float, default=STORAGE_FLOOR)
+    sp.add_argument("--top-k", type=int, default=STORAGE_TOP_K)
+    sp.set_defaults(func=cmd_floor)
 
     sp = sub.add_parser("corrected",
                         help="apply the #55 A/B tags -> corrected P/R, per split and pooled")
