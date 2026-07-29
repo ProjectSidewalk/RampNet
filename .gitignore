@@ -10,7 +10,26 @@ benchmark/*/heatmap_cache/
 .env
 view_dump/
 .model_cache/
-analysis_out/
+# Ignore analysis_out/ CONTENTS rather than the directory itself: git cannot re-include a
+# file whose parent directory is excluded, and one thing in here must be tracked.
+analysis_out/*
+# The low-floor detection caches (issue #54) are the exception. They are image-free and a
+# few hundred KB total, and they are what makes every number in docs/operating_point.md
+# re-derivable on CPU -- without a GPU and without the gitignored panos. Same reasoning as
+# committing benchmark/*/records.jsonl. Galleries, PNGs and regenerable CSVs stay ignored.
+!analysis_out/op_cache/
+analysis_out/op_cache/*
+!analysis_out/op_cache/*.json
+# The derived result tables too (~80 KB): these are the exact numbers quoted in
+# docs/operating_point.md, so committing them means a reader can check a figure in the
+# prose against the table it came from without re-running anything. The gallery crops
+# under analysis_out/op/*_incremental_fp/ stay ignored -- 181 MB of PNGs that regenerate
+# from the caches plus the (also gitignored) panos, and whose irreplaceable part, the
+# human A/B tags, is committed under benchmark/<city>/incremental_fp_tags.json.
+!analysis_out/op/
+analysis_out/op/*
+!analysis_out/op/*.csv
+!analysis_out/op/*.json
 
 # Claude Code local state. settings.local.json is per-machine (absolute paths,
 # session ids) and worktrees/ holds full repo checkouts -- gigabytes. Listed

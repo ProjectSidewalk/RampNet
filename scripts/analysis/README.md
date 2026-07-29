@@ -1,10 +1,25 @@
 # Recall error-analysis scripts
 
-The analysis behind [`docs/detection_recall_analysis.md`](../../docs/detection_recall_analysis.md).
-Everything here reads the committed benchmark bundles (`benchmark/{richmond,bend}/`) plus the
-native-res `panos/` (git-ignored — they must be present locally).
+The analysis behind [`docs/detection_recall_analysis.md`](../../docs/detection_recall_analysis.md)
+and [`docs/operating_point.md`](../../docs/operating_point.md). Scripts read the committed
+benchmark bundles in `benchmark/`; the ones that need pixels also need the native-res `panos/`
+(git-ignored — they must be present locally).
 
-Outputs go to `$RAMPNET_ANALYSIS_OUT` (default `analysis_out/`, git-ignored).
+Outputs go to `$RAMPNET_ANALYSIS_OUT` (default `analysis_out/`), which is git-ignored **except**
+for two things committed on purpose so results survive without a GPU:
+
+- `analysis_out/op_cache/*.json` — the low-floor detection caches (image-free, ~780 KB). Every
+  number in `docs/operating_point.md` re-derives from these on CPU.
+- `analysis_out/op/*.csv` and `*.json` — the derived result tables, so a figure quoted in prose
+  can be checked against the table it came from.
+
+The gallery crops under `analysis_out/op/*_incremental_fp/` stay ignored (181 MB of regenerable
+PNGs); their irreplaceable part, the human A/B tags, is committed at
+`benchmark/<city>/incremental_fp_tags.json`.
+
+**`low_floor_sweep.py` and the two `plot_*.py` scripts need no GPU and no imagery** — they read
+the committed caches only, so anyone can reproduce the operating-point numbers from a clean
+checkout.
 
 ## Run order
 
@@ -20,9 +35,22 @@ Outputs go to `$RAMPNET_ANALYSIS_OUT` (default `analysis_out/`, git-ignored).
 | `depth_analysis.py` | no | Recall vs true distance / apparent size + the resolution forecast. Needs `gt_depth_da3.json`. |
 | `size_analysis.py` | no | Geometry-only size stratification (no depth model) + the hard-miss montage figure. |
 | `overlap_test.py` | **yes** | Do the threshold and resolution levers target the same ramps? Needs `gt_depth_da3.json`. |
-| `operating_point_curve.py extract` | **yes** | Inference once → all peaks down to a low score floor → per-pano cache (issue #54). |
+| `operating_point_curve.py extract` | **yes** | Inference once → all peaks down to a low score floor → per-pano cache (issue #54). Handles both bundle kinds, so `manual_gold` (independent YOLO GT, no verdict review) is covered too. |
 | `operating_point_curve.py curve` | no | Continuous PR curve + honest AP + F1-vs-threshold from the cache (#54). |
 | `operating_point_curve.py gallery` | no | Incremental-FP crops for the GT-completeness spot-check → corrected precision with an error band (#54). |
+| `low_floor_sweep.py parity` | no | **Gate — run first.** Do the cached peaks at 0.55 reproduce each split's committed `records.jsonl`? Measured in match radii, since bit-exactness is the wrong bar (#54). |
+| `low_floor_sweep.py sweep` | no | P/R/F1 **and detections-per-pano** vs threshold, per split, pooled, and per **imagery tier** (tier assigned per pano from camera provenance, not per split). |
+| `low_floor_sweep.py hist` | no | GT-true vs GT-false confidence calibration with Wilson intervals — the promotion floor input for auto-labeler#27 stage 4. |
+| `low_floor_sweep.py gtbias` | no | Measures the GT-anchoring bias: below 0.55 every TP comes from a reviewer *missed mark*, never a reviewed detection, so sub-0.55 precision is a lower bound by construction (#54/#55). |
+| `low_floor_sweep.py corrected` | no | Applies the committed #55 A/B tags → corrected P/R per split and pooled, with an uncertainty band. |
+| `low_floor_sweep.py floor` | no | Does the labeler's `DETECTION_STORAGE_FLOOR = 0.1` discard recoverable ramps? (Yes — 2.7% of GT.) Plus the recall **ceiling** on multi-view consensus. |
+| `low_floor_sweep.py distance` | no | Where the recall gain from a lower threshold lands on the distance axis (uniform — so it stacks with multi-view rather than overlapping it). |
+| `low_floor_sweep.py tagcheck` | no | Do the committed #55 tags still resolve against this cache? Tag ids are keyed to peak *coordinates*, so a re-extraction can silently orphan reviewer work. |
+| `plot_operating_point.py` | no | The headline figure: PR response per split + F1-vs-threshold → `docs/figures/operating_point_pr.png`. |
+| `plot_storage_floor.py` | no | Storage-floor cost + recall ceiling → `docs/figures/storage_floor_ceiling.png`. |
+
+`run_low_floor_extract.slurm` is the Hyak launcher for the one GPU step (one L40S, ~41 min for
+1,625 panos across all seven splits); it is resumable, skipping splits that already have a cache.
 
 The GPU scripts reproduce the deployment inference path exactly (resize 2048×4096 bilinear,
 ImageNet norm, no TTA — see `sidewalk-auto-labeler/detectors/curb_ramp.py`), so
@@ -32,6 +60,15 @@ ImageNet norm, no TTA — see `sidewalk-auto-labeler/detectors/curb_ramp.py`), s
 (which re-extracts peaks per discrete threshold), it extracts once at a low floor and carries each
 peak's height as its confidence, so a single inference pass yields the whole continuous curve + AP.
 Its `curve`/`gallery` steps are CPU-only and read the cache `extract` writes.
+
+`low_floor_sweep.py` is the **cross-split** layer on that same cache — pooling, per-tier grouping,
+calibration, the GT-anchoring measurement, the #55 correction and the storage-floor check. Run
+`parity` before trusting anything else: it is the gate that catches a preprocessing divergence,
+which every downstream number would otherwise silently inherit. The five Mapillary splits
+reproduce their committed records bit-exactly; bend does not, and that is expected rather than a
+failure — it is the only GSV split, and the GSV production path fed the model a 4096×2048
+intermediate rather than the native-res bundle pano. `manual_gold` is exempt from the gate
+entirely (its committed detections used flip-TTA).
 
 Model weights load from the published HF artifact **by state_dict**, matching the deployment
 inference path (not `AutoModel`); the pure scoring logic lives in `rampnet/detection_eval.py` and

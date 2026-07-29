@@ -45,6 +45,11 @@ where both questions land on the same panos — neither repo "owns" a city.
 - *"How good is the model, and is it improving?"* → **RampNet**. Ground truth, scoring, and
   the benchmark itself.
 
+**To add a city, follow [`docs/adding_a_benchmark_city.md`](../docs/adding_a_benchmark_city.md)** —
+the full protocol with a checklist. The table below is the two-repo summary; the protocol covers
+what the table does not, which is everything a new split invalidates downstream (pooled numbers,
+per-tier curves, the #55 correction, both figures, four documents).
+
 Per-step, for adding a city to this benchmark:
 
 | Step | Repo | Tool |
@@ -131,8 +136,9 @@ sits below confidence 0.75, so precision is a clean **1.000** at that threshold 
 recall 0.730 → 0.524). Its imagery is the newest and most uniform in the benchmark: 2024-era
 Mapillary 360 shot entirely on a **GoPro Max** by a single contributor across 80 sequences,
 uniformly 4096×2048 (3 panos at 5760×2880), median Mapillary quality score 0.882 —
-legible enough that the reviewer abstained on only 4.3% of detections and 21.7% of missed marks,
-the lowest abstention rate of any split. Recall is the middling part of the story: 0.730 all-125 /
+legible enough that the reviewer abstained on only 4.3% of detections and 21.7% of missed marks —
+the lowest missed-mark abstention of any split (on detections, bend's 1.9% and annapolis's 2.2%
+are lower). Recall is the middling part of the story: 0.730 all-125 /
 0.684 unbiased, between clovis and bend. Worth noting for the negative-sample check: all 25
 `empty`-group panos held **no detections and no missed ramps**, i.e. the model's "nothing here"
 was correct on every one.
@@ -150,8 +156,8 @@ detection**, against morgantown's 11.2%.
 question, and precision 0.964 settles it: only 8 of 222 judged detections were wrong. Annapolis is
 a compact colonial grid plus the Naval Academy; it genuinely has more curb ramps per pano.
 
-The imagery is the most legible in the benchmark. The reviewer abstained on just **2.2% of
-detections (5 of 227)** — the lowest rate of any split, beating morgantown's 4.3%.
+The imagery is the most legible of the Mapillary splits. The reviewer abstained on just **2.2% of
+detections (5 of 227)** — beating morgantown's 4.3%; only bend, the GSV split, is lower at 1.9%.
 
 **The finding worth carrying elsewhere: the model's misses are overwhelmingly far away.** Treating
 the equirectangular elevation of each point as a ground distance (assuming a ~2.5 m camera mount):
