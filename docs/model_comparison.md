@@ -1,6 +1,6 @@
 # Model comparison: RampNet vs. general-purpose models
 
-Uses the standardized curb-ramp benchmark (all seven city splits in `benchmark/`, plus
+Uses the standardized curb-ramp benchmark (all eight city splits in `benchmark/`, plus
 the 1k in-distribution `manual_gold` split — see its section below) to compare
 RampNet against off-the-shelf models. The question: does a general model match or beat the
 purpose-trained RampNet on real deployment imagery (GSV + Mapillary 360)? The harness is
@@ -19,20 +19,24 @@ a run that hasn't happened, not a result being withheld.
 | annapolis | ✅ | ✅ all 8 | ✅ | ✅ 22% (6/27) | survey-grade Trimble MX7; far-field finding |
 | morgantown | ✅ | ✅ all 8 | ✅ | ✅ 13% (4/30) | cleanest imagery; the control split |
 | paterson | ✅ | ✅ all 8 | ✅ | ✅ 20% (2/10) | second GSV city; live PS deployment; narrowest RampNet lead (0.12); 2nd Qwen inversion |
+| gainesville | ✅ GT + op sweep; harness run ❌ | ❌ not yet run | ❌ not yet run | ⏳ tagging in flight (34 items) | third GSV city, first far-domain; same recall as paterson (0.647), opposite mechanism (ceiling 0.890) |
 | budapest_district5 | ✅ | ✅ all 8 | ✅ | ✅ 26% (23/89) | **GT itself is low-confidence**; the one ranking inversion |
 | manual_gold | ✅ | ✅ all 8 | ❌ too slow | n/a — un-anchored GT | 1k panos, the anchoring control |
 
 "All 8" is the roster in the class table below: RampNet, 2 Geminis, 2 Qwens, Molmo, OWLv2,
-Grounding DINO. Every split carries the full roster (paterson's challenger + null-recall
-runs landed 2026-07-29, hours after the split itself). The GT-completeness correction (#55)
-covers **all seven city splits** (six on 2026-07-28, paterson on 2026-07-29). `manual_gold`
-needs no correction — its GT was labelled independently of RampNet, which is what makes it
-the control for the anchoring effect. The one remaining ❌ is the null-recall pass on
-`manual_gold` (O(n²) in panos — see that section).
+Grounding DINO. Every split except gainesville carries the full roster (paterson's
+challenger + null-recall runs landed 2026-07-29, hours after the split itself;
+**gainesville's have not been run yet** — the split landed 2026-07-30 and only its GT and
+operating-point sweep exist so far, so every challenger cell for it is a run that hasn't
+happened). The GT-completeness correction (#55) covers **all seven prior city splits** (six
+on 2026-07-28, paterson on 2026-07-29); gainesville's 34-item tagging pass is in flight.
+`manual_gold` needs no correction — its GT was labelled independently of RampNet, which is
+what makes it the control for the anchoring effect. The other remaining ❌ is the
+null-recall pass on `manual_gold` (O(n²) in panos — see that section).
 
 **The operating-point analysis those A-rates feed lives in
 [`docs/operating_point.md`](operating_point.md)** (issue #54): the full precision/recall/F1
-sweep from a 0.05 peak floor across all eight splits, per-imagery-tier curves, the
+sweep from a 0.05 peak floor across all nine splits, per-imagery-tier curves, the
 confidence-calibration tables, and the recommendation to lower the deployment threshold from
 0.55 to 0.30.
 
@@ -566,11 +570,12 @@ two columns coincide exactly). The `compare.py` CLI prints both side by side.
 - **RampNet-anchored GT.** The GT was assembled during a RampNet review. A reviewer scanning
   fresh for another model might catch a few more ramps; the complete-scan attestation
   (`no_missed`) mitigates this, but it is a known asymmetry. **It has now been measured on
-  all seven city splits, and it is not small.** Re-reviewing the detections RampNet only
+  seven of the eight city splits, and it is not small.** Re-reviewing the detections RampNet only
   surfaces below its deployed 0.55 threshold — a confidence band the GT never fully audited —
   found real, unlabelled curb ramps at **17% (richmond)**, **29% (bend)**, **30% (clovis)**,
   **13% (morgantown)**, **22% (annapolis)**, **20% (paterson, on just 10 items)** and
-  **26% (budapest)** of those detections
+  **26% (budapest)** of those detections; gainesville's pass (34 items, the largest US
+  queue yet) is tagging in flight
   (issue #55; tags in `benchmark/<city>/incremental_fp_tags.json`, reproduce with
   `operating_point_curve.py gallery --tags` or `low_floor_sweep.py corrected`). Two
   consequences worth carrying:
