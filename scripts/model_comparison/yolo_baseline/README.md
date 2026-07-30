@@ -214,9 +214,28 @@ protocol governs the results that will replace that note.
 
 ## Where the weights live
 
-`best.pt` files are **not** in git. Durable homes:
+`best.pt` files are **not** in git. Durable home:
 
-_TODO — stage to Hugging Face (`projectsidewalk/…`) or lab storage and record the URL here._
+**`/gscratch/makelab/jonf/rampnet_yolo_baseline_51`** on Hyak (klone) — lab storage, *not*
+`/gscratch/scrubbed`, so it sits outside the ~21-day auto-purge that motivated this record.
+1.8 GB total; each arm directory holds `best.pt`, `last.pt`, `args.yaml`, `results.csv`.
+
+`MANIFEST.md` in that directory records the snapshot time, the Slurm job↔config map, the
+per-arm epoch/mAP state at snapshot, and a **sha256 for all 10 `.pt` files**, verified
+against source at copy time.
+
+Two caveats that matter before quoting anything off it:
+
+- **It is a point-in-time snapshot taken 2026-07-29T20:51Z, while all five arms were still
+  training** — not a live mirror. The arms have advanced since (`y11l_pano` 13 → 15 epochs,
+  `y26_pano` 18 → 20, checked 2026-07-30). Re-snapshot before treating it as final; until
+  then `/gscratch/scrubbed/jfroehli/yolo_runs/<arm>/results.csv` is the live source.
+- **The `y26_tiles_l40s` fork is not in it.** That arm was created after the snapshot
+  (Slurm 37889646, forked to a dedicated `gpu-l40s` node on 2026-07-29 to escape the ckpt
+  preemption ceiling) and needs adding on the next pass.
+
+Staging to Hugging Face is still worth doing for external reproducibility, but is no longer
+the only thing standing between these weights and the scratch purge.
 
 Keep **every** run's `best.pt`, including the ones that collapsed. An earlier version of
 this record called those non-reportable epoch-1 artifacts and proposed letting them expire;
