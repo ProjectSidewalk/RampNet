@@ -47,19 +47,30 @@ from low_floor_sweep import (  # noqa: E402
 
 RECOMMENDED = 0.30
 
-# Validated categorical slots, fixed order (never cycled).
+# Validated categorical slots, fixed order (never cycled). All 8 slots were taken at
+# paterson; gainesville (the 9th split) forces the documented fold — see
+# docs/adding_a_benchmark_city.md: the two held-out reference splits drop to neutral
+# ink (identity carried by dash pattern + legend, matching their held-out status),
+# vacating slots 6/7; gainesville takes slot 6. The remaining 7-hue set re-validates
+# in this order (validate_palette.js: ALL PASS; the new green↔red adjacency is ΔE 7.2
+# protan — inside the 6–8 band that is legal only with secondary encoding, provided
+# here by the legend, the operating-point dots, and the CSV table view, the same
+# relief that already covers the three sub-3:1-contrast slots).
 SERIES = {
     "richmond": "#2a78d6",
     "bend": "#eb6834",
     "clovis": "#1baf7a",
     "morgantown": "#eda100",
     "annapolis": "#e87ba4",
-    "budapest_district5": "#008300",
-    "manual_gold": "#4a3aa7",
+    "gainesville": "#008300",
     "paterson": "#e34948",
+    "budapest_district5": "#52514e",   # neutral ink — held out, not a categorical slot
+    "manual_gold": "#52514e",          # neutral ink — held out, not a categorical slot
 }
 POOLED_COLOR = "#0b0b0b"
 INK, INK_MUTED, GRID = "#0b0b0b", "#52514e", "#d9d8d4"
+# The two neutral-ink held-out splits share a hue, so each carries its own dash.
+HELD_DASH = {"budapest_district5": (0, (5, 2)), "manual_gold": (0, (1, 1.6))}
 LABEL = {"budapest_district5": "budapest*", "manual_gold": "manual_gold†"}
 
 
@@ -96,7 +107,7 @@ def build(curves, path, meta):
         solid = city in US_SPLITS
         ax1.plot([r["recall"] for r in rows], [r["precision"] for r in rows],
                  color=SERIES[city], lw=2 if solid else 1.6,
-                 ls="-" if solid else (0, (5, 2)), zorder=3, solid_capstyle="round")
+                 ls="-" if solid else HELD_DASH[city], zorder=3, solid_capstyle="round")
     if "POOLED" in curves:
         rows = curves["POOLED"]
         ax1.plot([r["recall"] for r in rows], [r["precision"] for r in rows],
@@ -136,7 +147,7 @@ def build(curves, path, meta):
         solid = city in US_SPLITS
         ax2.plot([r["threshold"] for r in rows], [r["f1"] for r in rows],
                  color=SERIES[city], lw=2 if solid else 1.6,
-                 ls="-" if solid else (0, (5, 2)), zorder=3)
+                 ls="-" if solid else HELD_DASH[city], zorder=3)
         best = best_f1_row(rows)
         ax2.plot([best["threshold"]], [best["f1"]], "o", ms=6, color=SERIES[city],
                  mec="white", mew=1.2, zorder=5)
@@ -179,7 +190,7 @@ def build(curves, path, meta):
     # land without collisions. The palette's relief rule is satisfied by the table
     # view — analysis_out/op/low_floor_sweep.csv holds every plotted number.
     handles = [Line2D([], [], color=SERIES[c], lw=2.4,
-                      ls="-" if c in US_SPLITS else (0, (5, 2)),
+                      ls="-" if c in US_SPLITS else HELD_DASH[c],
                       label=LABEL.get(c, c)) for c in order]
     if "POOLED" in curves:
         handles.append(Line2D([], [], color=POOLED_COLOR, lw=3,
