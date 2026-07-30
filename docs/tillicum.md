@@ -133,9 +133,35 @@ Keep the existing pattern: **train on Tillicum, `rsync` `best.pt` back to
 
 Undocumented and pending a reply from UW-IT: the quota-increase path, what defines
 "end of project," and guidance for **many-small-file** access patterns. That last one
-matters to us more than bandwidth — our tiles dataset is hundreds of thousands of small
-JPEGs, and `du -sh` over it on klone's `/gscratch/scrubbed` exceeds a 2-minute timeout,
-which is a metadata-throughput symptom rather than a size one.
+matters to us more than bandwidth.
+
+### What actually has to move (measured 2026-07-30 on klone)
+
+| dataset | size | train files | val files |
+|---|---|---|---|
+| `yolo/tiles` | **210 GB** | 557,413 | 161,002 |
+| `yolo/pano` | **76 GB** | 150,063 | 42,875 |
+| **total** | **286 GB** | **~911,000 files**, ~300 KB average | |
+
+Two conclusions:
+
+- **286 GB fits the 1 TB allocation** with room for checkpoints and run dirs. Storage
+  quota is not a blocker for the #70 rerun.
+- **~911,000 files is the blocker.** This is the many-small-file pathology in its pure
+  form, and it is not hypothetical: `du -sh` over the tiles tree exceeded a 2-minute
+  timeout three separate times before completing on a 550 s budget, and even
+  `ls -lU | head -201` on `tiles/images/train` timed out. That is metadata throughput,
+  not bandwidth.
+
+**So transfer an archive, never the tree.** `tar` per split on klone → move a handful of
+large files → untar on Tillicum. A per-file `rsync`/`scp` would pay ~911,000 round trips.
+Run the `tar` inside a Slurm job, **not on a klone login node** — that is exactly the
+heavy-login-process reap that kills the SSH master. Note the untar on `/gpfs` is itself
+metadata-heavy, so time it: it is our first real measurement of whether Tillicum's flash
+actually fixes this, which is the same question the tiles training arm is asking.
+
+Staging order: **`pano` first (76 GB, 193k files)** — it unblocks the smoke test and the
+pano epoch-time measurement while the much larger `tiles` archive moves behind it.
 
 > The docs describe demo accounts as receiving "100 GB of dedicated project storage,"
 > while our provisioning email says 1 TB. Assume 1 TB (the email is specific to us) but
