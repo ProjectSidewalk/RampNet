@@ -64,6 +64,22 @@ YOLO_IMGSZ="${YOLO_IMGSZ:-1024}"
 EPOCHS="${EPOCHS:-60}"
 BATCH="${BATCH:--1}"                          # pin per config to match the klone runs
 PATIENCE="${PATIENCE:-20}"
+
+# Keep a checkpoint every N epochs. Ultralytics defaults save_period=-1, keeping ONLY
+# last.pt and best.pt -- which forecloses, permanently and retroactively, any analysis
+# that needs a checkpoint from a specific epoch.
+#
+# The one we care about: RampNet's published model was trained for ~1 epoch / ~9.4k
+# steps at constant LR (#84), while this baseline gets 60 epochs with a schedule. If
+# RampNet wins anyway that is a STRONGER result -- but only if we can also report a
+# COMPUTE-MATCHED YOLO point, i.e. the checkpoint at the epoch where YOLO has consumed
+# comparable training, not just the converged one. That requires the checkpoint to
+# still exist. results.csv gives per-epoch val metrics but no weights, so it cannot be
+# reconstructed after the fact.
+#
+# Cost is disk (~150 MB per checkpoint per arm) against a 1 TB allocation. Cheap
+# insurance for an option that cannot be bought back later.
+SAVE_PERIOD="${SAVE_PERIOD:-5}"
 # On klone this defaulted to 0 because ultralytics `time=` restarts its clock on every
 # preemption. Tillicum never preempts, so `time=` is safe here -- but leave it 0 for
 # any run meant to be comparable to the #51 klone results, which are epoch-based.
@@ -98,14 +114,24 @@ echo "------------------------------------------------"
 
 run_train() {
     "$@" - "$YOLO_CKPT" "$YOLO_DATA" "$YOLO_IMGSZ" "$EPOCHS" "$BATCH" "$PATIENCE" \
-            "$PROJECT" "$NAME" "$TRAIN_HOURS" "$DEVICE" <<'PY'
+            "$PROJECT" "$NAME" "$TRAIN_HOURS" "$DEVICE" "$SAVE_PERIOD" <<'PY'
 import os, sys
 from ultralytics import YOLO
-ckpt, data, imgsz, epochs, batch, patience, project, name, hours, device = sys.argv[1:11]
+(ckpt, data, imgsz, epochs, batch, patience, project, name, hours, device,
+ save_period) = sys.argv[1:12]
 last = os.path.join(project, name, "weights", "last.pt")
 # Still needed on Tillicum, but for a different reason than on klone: not preemption,
 # but the 24 h normal-QoS ceiling. A 60-epoch tiles schedule does not fit in one job,
 # so chain jobs and resume. Unlike klone the boundary is predictable, not random.
+#
+# CAVEAT: resume=True reuses every training arg SAVED IN THE CHECKPOINT, so a run
+# resumed from a klone checkpoint keeps that run's save_period=-1 -- SAVE_PERIOD above
+# does NOT apply to it. Per-epoch checkpoints therefore exist only for runs STARTED
+# under this script. For the klone arms the early-epoch weights are already gone.
+#
+# That is less costly than it sounds: the compute-matched point we most want (YOLO at
+# roughly RampNet's ~1-epoch budget) is exactly the ep1 best.pt that four of the six
+# klone arms are still holding. The "one-epoch models" are the matched comparison.
 if os.path.exists(last):
     print(f"[resume] {last} exists -> resuming", flush=True)
     YOLO(last).train(resume=True)
@@ -116,6 +142,7 @@ else:
     kw = dict(
         data=data, imgsz=int(imgsz), epochs=int(epochs), batch=batch_arg,
         patience=int(patience), project=project, name=name, device=dev, exist_ok=True,
+        save_period=int(save_period),
     )
     if float(hours) > 0:
         kw["time"] = float(hours)
