@@ -137,7 +137,10 @@ the GT-completeness correction, and both figures. See `docs/operating_point.md`.
 ```bash
 # 1. GPU, once, on Hyak (~1.5 s/pano; the launcher skips splits already cached)
 mkdir -p logs   # the launcher's #SBATCH output paths live under logs/; the job dies without it
-CITIES=<city> sbatch -A <account> scripts/analysis/run_low_floor_extract.slurm
+# PYTHON= is required from a non-interactive shell — the launcher's `source activate
+# sidewalkcv2` fallback only works in a conda-initialized login shell (paterson's first
+# submission died in 1 s on this).
+CITIES=<city> PYTHON=<interpreter> sbatch -A <account> scripts/analysis/run_low_floor_extract.slurm
 
 # 2. THE GATE — run before trusting anything downstream
 python scripts/analysis/low_floor_sweep.py parity --cities <city>
@@ -176,9 +179,10 @@ python scripts/analysis/low_floor_sweep.py tagcheck --cities <city>
 ```
 
 Use **op-threshold 0.25** so the band is `[0.25, 0.55)`, identical to every existing split —
-otherwise the A-rates are not comparable. Expect 23–30 items for a US city (budapest had 89).
-A-rates so far span 13%–30% and **do not order by imagery quality**, so do not extrapolate one
-from a neighbouring city; measure it.
+otherwise the A-rates are not comparable. Expect 23–30 items for a US city (budapest had 89;
+paterson had only 10 — a split with a shallow threshold response produces few, and a low count
+is itself a finding, not a tooling error). A-rates so far span 13%–30% and **do not order by
+imagery quality**, so do not extrapolate one from a neighbouring city; measure it.
 
 Two flags to not get wrong: `corrected`'s `--op-threshold` defaults to **0.35, not the
 recommended 0.30**, so the flag above is load-bearing. And each `corrected` run reports a single

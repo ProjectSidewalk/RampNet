@@ -26,7 +26,7 @@ checkout.
 | script | GPU | what it answers |
 |---|---|---|
 | `miss_analysis.py` | no | Are misses localization near-misses or blind? Are they hard (a VLM also missed) or RampNet-specific? |
-| `complementarity.py [model]` | no | Oracle-union recall + the RampNet-miss ∩ VLM-hit set (issue #35 gate). Reads cached VLM detections from `.model_cache`. |
+| `complementarity.py [model] [split]` | no | Oracle-union recall + the RampNet-miss ∩ VLM-hit set (issue #35 gate). Reads cached VLM detections from `.model_cache`; split defaults to richmond. |
 | `precision_by_distance.py` | no | Is precision worse at distance — i.e. is culling far detections worth it? (No.) |
 | `threshold_sweep.py` | **yes** | Re-runs inference on all benchmark panos and sweeps `threshold_abs` × `min_distance`. |
 | `peak_nms_check.py` | no | Would suppressing peaks closer than the match radius help? (No — 6 of the 10 within-R pairs in the reviewed records are real ramp pairs; issue #62.) Reads all seven splits' committed records, no panos needed. |
@@ -50,8 +50,10 @@ checkout.
 | `plot_operating_point.py` | no | The headline figure: PR response per split + F1-vs-threshold → `docs/figures/operating_point_pr.png`. |
 | `plot_storage_floor.py` | no | Storage-floor cost + recall ceiling → `docs/figures/storage_floor_ceiling.png`. |
 
-`run_low_floor_extract.slurm` is the Hyak launcher for the one GPU step (one L40S, ~41 min for
-1,625 panos across all seven splits); it is resumable, skipping splits that already have a cache.
+`run_low_floor_extract.slurm` is the Hyak launcher for the one GPU step (one L40S, ~45 min for
+1,859 panos across all eight splits); it is resumable, skipping splits that already have a cache.
+Submitting from a non-interactive shell needs `PYTHON=<interpreter>` set explicitly — the
+`source activate sidewalkcv2` fallback only works from a conda-initialized login shell.
 
 The GPU scripts reproduce the deployment inference path exactly (resize 2048×4096 bilinear,
 ImageNet norm, no TTA — see `sidewalk-auto-labeler/detectors/curb_ramp.py`), so

@@ -1,6 +1,6 @@
 # Model comparison: RampNet vs. general-purpose models
 
-Uses the standardized curb-ramp benchmark (all six city splits in `benchmark/`, plus
+Uses the standardized curb-ramp benchmark (all seven city splits in `benchmark/`, plus
 the 1k in-distribution `manual_gold` split — see its section below) to compare
 RampNet against off-the-shelf models. The question: does a general model match or beat the
 purpose-trained RampNet on real deployment imagery (GSV + Mapillary 360)? The harness is
@@ -18,19 +18,21 @@ a run that hasn't happened, not a result being withheld.
 | clovis | ✅ | ✅ all 8 | ✅ | ✅ 30% (7/23) | hardest split — 2018 GoPro Fusion |
 | annapolis | ✅ | ✅ all 8 | ✅ | ✅ 22% (6/27) | survey-grade Trimble MX7; far-field finding |
 | morgantown | ✅ | ✅ all 8 | ✅ | ✅ 13% (4/30) | cleanest imagery; the control split |
+| paterson | ✅ | ✅ all 8 | ✅ | ✅ 20% (2/10) | second GSV city; live PS deployment; narrowest RampNet lead (0.12); 2nd Qwen inversion |
 | budapest_district5 | ✅ | ✅ all 8 | ✅ | ✅ 26% (23/89) | **GT itself is low-confidence**; the one ranking inversion |
 | manual_gold | ✅ | ✅ all 8 | ❌ too slow | n/a — un-anchored GT | 1k panos, the anchoring control |
 
 "All 8" is the roster in the class table below: RampNet, 2 Geminis, 2 Qwens, Molmo, OWLv2,
-Grounding DINO. Every split now carries the full roster, and as of 2026-07-28 the
-GT-completeness correction (#55) covers **all six city splits**. `manual_gold` needs no
-correction — its GT was labelled independently of RampNet, which is what makes it the control
-for the anchoring effect. The one remaining ❌ is the null-recall pass on `manual_gold`
-(O(n²) in panos — see that section).
+Grounding DINO. Every split carries the full roster (paterson's challenger + null-recall
+runs landed 2026-07-29, hours after the split itself). The GT-completeness correction (#55)
+covers **all seven city splits** (six on 2026-07-28, paterson on 2026-07-29). `manual_gold`
+needs no correction — its GT was labelled independently of RampNet, which is what makes it
+the control for the anchoring effect. The one remaining ❌ is the null-recall pass on
+`manual_gold` (O(n²) in panos — see that section).
 
 **The operating-point analysis those A-rates feed lives in
 [`docs/operating_point.md`](operating_point.md)** (issue #54): the full precision/recall/F1
-sweep from a 0.05 peak floor across all seven splits, per-imagery-tier curves, the
+sweep from a 0.05 peak floor across all eight splits, per-imagery-tier curves, the
 confidence-calibration tables, and the recommendation to lower the deployment threshold from
 0.55 to 0.30.
 
@@ -183,6 +185,51 @@ score of any city — Gemini-3.1-pro's 0.639 and Molmo's 0.460 are their highest
 is what you would expect from the sharpest imagery in the benchmark, and it is why morgantown
 is the right control to read budapest against.
 
+**paterson** (125 reviewed panos, 395 GT ramps) — the second GSV city (2026-07-29), reviewer
+confidence HIGH; the split whose misses are structural (`benchmark/README.md`)
+
+| model | P | R | F1 | AP | tp/fp/fn |
+|---|---|---|---|---|---|
+| **rampnet** | **0.975** | 0.686 | **0.805** | 0.681 | 271/7/124 |
+| gemini-3.1-pro-preview | 0.852 | 0.567 | 0.681 | – | 224/39/171 |
+| gemini-3.6-flash | 0.744 | 0.514 | 0.608 | – | 203/70/192 |
+| **molmo2-8B** (points) | 0.585 | 0.453 | **0.511** | – | 179/127/216 |
+| Qwen3-VL-8B-Instruct | 0.460 | 0.362 | 0.405 | – | 143/168/252 |
+| **Qwen3-VL-32B-Instruct** | 0.813 | **0.220** | **0.347** | – | 87/20/308 |
+| owlv2-large-patch14-ensemble | 0.040 | **0.891** | 0.077 | 0.116 | 352/8399/43 |
+| grounding-dino-base | 0.036 | 0.800 | 0.068 | 0.043 | 316/8552/79 |
+
+Best sweep F1: OWLv2 **0.216** (thr 0.25), Grounding DINO **0.100** (thr 0.15).
+
+Three things paterson adds to the comparison:
+
+1. **The narrowest RampNet lead measured anywhere: 0.124 F1** (prior range 0.19–0.34), and
+   the decomposition matters. It is *not* a challenger breakthrough — gemini-pro's recall
+   (0.567) is ordinary. Two things compress the gap: RampNet posts its lowest US F1 (its
+   structural recall ceiling — see `benchmark/README.md`), and the fresh GSV imagery hands
+   every model its precision best (gemini-pro 0.852 vs its 0.53–0.71 elsewhere; Qwen-32B
+   0.813; even Qwen-8B's 0.460 is its highest anywhere). Precision-friendly imagery plus a
+   recall-capped leader is exactly the condition that shrinks an F1 lead.
+2. **The Qwen inversion recurs — on a split whose GT the reviewer trusts.** Qwen-32B falls
+   below Qwen-8B (0.347 vs 0.405), the same swap budapest showed, in the same way: 32B goes
+   hyper-cautious (0.9 boxes/pano, recall 0.220, but challenger-second precision 0.813).
+   Budapest could not separate "32B can't read the streetscape" from "32B disagrees with a
+   distrusted rubric"; paterson's HIGH-confidence, US, GSV ground truth removes the rubric
+   explanation for *this* occurrence. The common factor across both inversions is
+   infrastructure that looks unusual (Hungarian corners there, paired tactile indicators and
+   degraded legacy ramps here) — evidence that 32B's conservatism, not the rubric, is the
+   mechanism. The budapest second-rater ask stands, but the inversion itself no longer
+   requires a rubric story.
+3. **The misses are model-agnostic.** The #35 complementarity check
+   (`scripts/analysis/complementarity.py gemini-3.1-pro-preview paterson`): gemini-pro
+   recovers 36 of RampNet's 124 misses (29%), but **88 ramps — 22% of the split's GT — are
+   found by no model tested**, and the oracle-union recall ceiling is 0.777, the lowest in
+   the benchmark. That is the challenger-side view of the same structural population
+   (paired-TSI partners, far-field ramps) the RampNet-side analysis found: they are not
+   under-thresholded, they are invisible to everything tested. One nuance worth carrying:
+   gemini's union lift here is comparatively cheap (39 FPs on the whole split, vs 127 on
+   richmond) — if a fusion experiment is ever run, paterson is where it would look best.
+
 **budapest_district5** (125 reviewed panos, 300 GT ramps) — the first non-US split. **Its
 ground truth is low-confidence by the reviewer's own rating; read `benchmark/README.md`'s
 Budapest section before quoting any of this.**
@@ -200,11 +247,13 @@ Budapest section before quoting any of this.**
 
 Best sweep F1: OWLv2 **0.157** (thr 0.25), Grounding DINO **0.058** (thr 0.25).
 
-**This is the one split where the ranking does not hold.** Every model degrades, RampNet
+**This was the first split where the ranking did not hold.** Every model degrades, RampNet
 included (F1 0.644, its lowest anywhere) — but the ordering survives everywhere except one
-swap: **Qwen-32B falls below Qwen-8B, 0.079 vs 0.169.** On all five other cities 32B leads 8B
-by 0.05–0.07 without exception. Nothing else moves: RampNet > pro > flash > Molmo > (the Qwens)
-> OWLv2 > Grounding DINO, exactly as everywhere else.
+swap: **Qwen-32B falls below Qwen-8B, 0.079 vs 0.169.** On the five US cities measured before
+paterson, 32B led 8B by 0.05–0.07 without exception; paterson has since reproduced the swap
+in milder form (0.347 vs 0.405 — see its section), which bears directly on the interpretation
+below. Nothing else moves: RampNet > pro > flash > Molmo > (the Qwens) > OWLv2 > Grounding
+DINO, exactly as everywhere else.
 
 Qwen-32B did not fail — it **stopped firing**. Thirty detections across 125 panos (0.24 per
 pano, against 1.0–1.2 on the US cities), no abstentions, both GPUs loaded, all 125 panos
@@ -212,14 +261,19 @@ scored, no errors in the job log. Its null recall of **0.002** (below) is the cl
 the same statement: at that density there is no chance recall available to explain the number
 away. This is a model declining to answer, not a broken run.
 
-**Two explanations fit, and this split cannot separate them.** Qwen-32B is the most
+**Two explanations fit, and this split alone cannot separate them.** Qwen-32B is the most
 conservative model in the roster everywhere — it always trades recall for precision — and
 budapest is the split whose *rubric* the reviewer distrusts. A ground truth that disagrees
 about where the class boundary sits will punish a model that only fires when confident far
 harder than one that sprays boxes and gets credit for the overlap. So "Qwen-32B cannot read
 Hungarian streetscapes" and "Qwen-32B and this reviewer disagree about what a curb ramp is"
-predict the same table. Distinguishing them needs the second rater that
-`benchmark/README.md` already asks for — not more models.
+predict the same table. Distinguishing them needed evidence from outside this split, and
+paterson (2026-07-29) supplied some: the same inversion, milder, on a HIGH-confidence US
+rubric — so a rubric dispute is **not required** to produce the swap, and 32B's caution on
+unusual-looking infrastructure is the mechanism with evidence on two splits. The second
+rater `benchmark/README.md` asks for is still worth having (budapest's *magnitude* — 0.24
+boxes/pano against paterson's 0.9 — remains unexplained), but the inversion itself no longer
+hangs on it.
 
 Read this split as a **rubric-robustness test, not a difficulty test**. What it establishes:
 the headline claim (RampNet beats every off-the-shelf model) survives ground truth the
@@ -241,17 +295,21 @@ no experiment here tested (OWLv2 / Grounding DINO are general open-vocab models,
 curb-ramp detectors). How much of the gap survives a tuned prompt (#45), a failure-artifact
 audit (#46), and a nadir/hood mask (#47) is exactly what those follow-ups measure.
 
-**What the claim now rests on:** six city splits across two countries, four camera rigs
+**What the claim now rests on:** seven city splits across two countries, four camera rigs
 (GSV, iSTAR Pulsar, GoPro Max/Fusion, Trimble MX7) and one 1,000-pano un-anchored gold set —
-RampNet wins on every one, by 0.19–0.34 F1. It survives the hardest imagery (clovis),
-un-anchored ground truth (`manual_gold`), and ground truth the reviewer distrusts
-(budapest). That is a wide claim, and the qualifiers above are what keep it honest.
+RampNet wins on every one, by **0.12–0.34 F1**. It survives the hardest imagery (clovis),
+un-anchored ground truth (`manual_gold`), ground truth the reviewer distrusts (budapest),
+and the split engineered to remove its in-domain GSV advantage (paterson). The low end of
+the range is paterson, and its decomposition is in that split's section: RampNet's
+structural recall ceiling meeting precision-friendly imagery, not a challenger closing the
+gap. That is a wide claim, and the qualifiers above are what keep it honest.
 
 ### What the numbers say
 
 1. **RampNet still wins by a wide margin**, and nothing tested comes close on F1. The best
    challenger (Gemini-3.1-pro, F1 0.664) trails it by ~0.19; the best open-weight model
-   (Molmo, F1 0.457) by ~0.40.
+   (Molmo, F1 0.457) by ~0.40. (The narrowest lead anywhere is paterson's 0.124 — see that
+   split's section for why it narrows there.)
 2. **Off-the-shelf open-vocab detectors did worse than chat models, not better.** OWLv2's
    best F1 over the whole threshold sweep is **0.184** (thr 0.25: P 0.130 / R 0.310);
    Grounding DINO's is **0.073**. Both are far below Gemini-3.6-flash's 0.634. So the
@@ -397,6 +455,14 @@ a high `above chance` next to a high `null` is not the endorsement it looks like
 | morgantown | Qwen3-VL-8B | 2.8 | 0.382 | 0.048 | 0.090 | 0.351 |
 | morgantown | **owlv2-large** | **55.2** | 0.948 | **0.597** | 0.674 | 0.870 |
 | morgantown | **grounding-dino-base** | **81.9** | 0.831 | **0.545** | 0.610 | 0.629 |
+| paterson | rampnet | 2.3 | 0.686 | 0.067 | 0.109 | 0.664 |
+| paterson | gemini-3.1-pro-preview | 2.2 | 0.567 | 0.065 | 0.111 | 0.537 |
+| paterson | gemini-3.6-flash | 2.2 | 0.514 | 0.062 | 0.104 | 0.482 |
+| paterson | molmo2-8B | 2.5 | 0.453 | 0.059 | 0.084 | 0.419 |
+| paterson | Qwen3-VL-32B | 0.9 | 0.220 | 0.017 | 0.035 | 0.206 |
+| paterson | Qwen3-VL-8B | 2.5 | 0.362 | 0.054 | 0.078 | 0.326 |
+| paterson | **owlv2-large** | **70.3** | 0.891 | **0.712** | 0.762 | 0.622 |
+| paterson | **grounding-dino-base** | **71.2** | 0.800 | **0.675** | 0.734 | 0.384 |
 | budapest | rampnet | 1.5 | 0.510 | 0.029 | 0.057 | 0.496 |
 | budapest | gemini-3.1-pro-preview | 2.0 | 0.340 | 0.036 | 0.060 | 0.315 |
 | budapest | gemini-3.6-flash | 2.2 | 0.320 | 0.030 | 0.057 | 0.299 |
@@ -500,10 +566,11 @@ two columns coincide exactly). The `compare.py` CLI prints both side by side.
 - **RampNet-anchored GT.** The GT was assembled during a RampNet review. A reviewer scanning
   fresh for another model might catch a few more ramps; the complete-scan attestation
   (`no_missed`) mitigates this, but it is a known asymmetry. **It has now been measured on
-  all six city splits, and it is not small.** Re-reviewing the detections RampNet only
+  all seven city splits, and it is not small.** Re-reviewing the detections RampNet only
   surfaces below its deployed 0.55 threshold — a confidence band the GT never fully audited —
   found real, unlabelled curb ramps at **17% (richmond)**, **29% (bend)**, **30% (clovis)**,
-  **13% (morgantown)**, **22% (annapolis)** and **26% (budapest)** of those detections
+  **13% (morgantown)**, **22% (annapolis)**, **20% (paterson, on just 10 items)** and
+  **26% (budapest)** of those detections
   (issue #55; tags in `benchmark/<city>/incremental_fp_tags.json`, reproduce with
   `operating_point_curve.py gallery --tags` or `low_floor_sweep.py corrected`). Two
   consequences worth carrying:
@@ -513,7 +580,7 @@ two columns coincide exactly). The `compare.py` CLI prints both side by side.
     GT is incomplete; it does **not** say by how much a challenger is penalised, since a
     challenger's misses are a different population. Do not subtract it from anyone's score.
 
-  All six city splits are now corrected, and the spread — **13%–30%** — still does **not**
+  All seven city splits are now corrected, and the spread — **13%–30%** — still does **not**
   support a single cross-city GT-completeness constant. It does not order by imagery quality
   either: morgantown, the cleanest split in the benchmark, has the *lowest* A-rate and clovis,
   the softest, the highest. Apply the per-split correction; do not subtract an average.
