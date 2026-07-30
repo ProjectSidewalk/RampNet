@@ -17,14 +17,12 @@ and the multi-view consumer is
 (+4 to +11 per split) at a shallow GT-completeness-corrected precision cost, while detection
 density rises only from 1.86 to 2.23 per pano. Recall is RampNet's weak metric everywhere,
 and this is the cheapest lever that exists — one constant, no retraining. (These are the
-seven-US-split pooled numbers after gainesville joined the benchmark, 2026-07-30; the
-six-split analysis read +6.9 / −4.2-corrected, the original five-split one +7.7 / −4.8, and
-every iteration reached the same recommendation. The corrected precision figure for the
-seven-split pool is **pending gainesville's #55 tagging pass** — its 34-item queue is in
-flight; until it lands, the corrected tables below quote the six-split pool and say so.
-paterson is the one split the lever barely helps; gainesville is its mirror — same deployed
-recall, but its misses fire sub-threshold, so 0.30 buys it +9.9 points — see the per-split
-rows and the recall-ceiling section.)
+seven-US-split pooled numbers after gainesville joined the benchmark, 2026-07-30, with its
+#55 tags applied: +7.4 corrected recall for −4.5 corrected precision. The six-split analysis
+read +6.9 / −4.2, the original five-split one +7.7 / −4.8, and every iteration reached the
+same recommendation. paterson is the one split the lever barely helps; gainesville is its
+mirror — same deployed recall, but its misses fire sub-threshold, so 0.30 buys it +9.9
+points — see the per-split rows and the recall-ceiling section.)
 
 ## How the numbers were produced
 
@@ -159,10 +157,10 @@ effect is genuinely small in aggregate, or it is real but offset by `manual_gold
 *in-distribution* GSV from the training cities (which should make RampNet look better there,
 pushing the un-anchored numbers up).
 
-**#55's A/B tagging settles it, and the effect is real.** Seven of the eight city splits have
-now been spot-checked (jonf, 2026-07-28; paterson 2026-07-29; gainesville's 34-item pass is
-tagging in flight): every unmatched prediction in the `[0.25, 0.55)` band was tagged **A** (a
-real ramp the GT missed), **B** (a genuine false positive) or **unsure**.
+**#55's A/B tagging settles it, and the effect is real.** All eight city splits have now been
+spot-checked (jonf; six on 2026-07-28, paterson 2026-07-29, gainesville 2026-07-30): every
+unmatched prediction in the `[0.25, 0.55)` band was tagged **A** (a real ramp the GT missed),
+**B** (a genuine false positive) or **unsure**.
 
 | split | incremental FPs | A | B | unsure | A-rate |
 |---|---|---|---|---|---|
@@ -172,23 +170,26 @@ real ramp the GT missed), **B** (a genuine false positive) or **unsure**.
 | morgantown | 30 | 4 | 25 | 1 | 13.3% |
 | annapolis | 27 | 6 | 15 | 6 | 22.2% |
 | paterson | 10 | 2 | 5 | 3 | 20.0% |
-| gainesville | 34 | — | — | — | tagging in flight |
+| gainesville | 34 | 12 | 21 | 1 | **35.3%** |
 | budapest_district5 | 89 | 23 | 59 | 7 | 25.8% |
 
-paterson produced by far the fewest incremental FPs (10, against 23–30 for the other US
+paterson produced by far the fewest incremental FPs (10, against 23–34 for the other US
 cities) — the same shallow threshold response its sweep row shows, measured a second way.
-gainesville is the opposite outlier: **34 items, the largest US queue yet**, the same dense
-sub-floor band its 0.890 recall ceiling and floor-hugging deployed FPs show from other angles.
+gainesville is the opposite outlier twice over: **34 items, the largest US queue**, and the
+**highest A-rate of any split (35.3%)** — the same dense sub-floor band its 0.890 recall
+ceiling and floor-hugging deployed FPs show from other angles, and over a third of it is
+real ramps the GT missed.
 
-**Pooled over the six US splits tagged so far, 27.0% of the incremental false positives in
-`[0.30, 0.55)` were real curb ramps the ground truth had missed.** So the raw curve's precision penalty for
+**Pooled over the seven US splits, 27.2% of the incremental false positives in `[0.30, 0.55)`
+were real curb ramps the ground truth had missed** (27.0% on the six splits before
+gainesville). So the raw curve's precision penalty for
 lowering the threshold is materially overstated — by roughly a quarter of the newly-added
 false positives — and the aggregate similarity to `manual_gold` above is better explained by
 that split's in-distribution advantage than by the bias being small.
 
-Spread is 13%–30% with no obvious ordering by imagery quality (morgantown, the cleanest split,
-is lowest; clovis, the softest, is highest), so **do not quote a single cross-split
-GT-completeness constant** — apply the per-split correction.
+Spread is 13%–35% with no obvious ordering by imagery quality (morgantown, the cleanest split,
+is lowest; gainesville, whose imagery is the freshest in the benchmark, is highest), so **do
+not quote a single cross-split GT-completeness constant** — apply the per-split correction.
 
 ### Why the recall gain, by contrast, is exact — and itself a lower bound
 
@@ -355,17 +356,14 @@ precision and recall denominators — correcting precision alone would report a 
 against an uncorrected R. `band hi` additionally credits the `unsure` items, so it is the
 honest upper end rather than a formality.
 
-Pooled over the six US splits tagged so far — **gainesville's 34-item tagging pass is in
-flight, and this whole section (pooled rows, per-split table, and the recommendation
-re-check) will be re-derived when it lands.** Its raw pooled row is in the seven-split table
-above; nothing below includes it yet:
+Pooled over the seven US splits (gainesville's tags applied 2026-07-30):
 
 | operating point | raw P | **corrected P** | band hi | raw R | corrected R | corrected F1 |
 |---|---|---|---|---|---|---|
-| 0.25 | 0.884 | 0.903 | 0.914 | 0.806 | 0.810 | 0.854 |
-| **0.30** | 0.907 | **0.924** | 0.934 | 0.796 | 0.799 | **0.857** |
-| 0.35 | 0.922 | 0.935 | 0.941 | 0.782 | 0.784 | 0.853 |
-| 0.55 (deployed) | 0.966 | — † | — | 0.730 | — | 0.831 |
+| 0.25 | 0.877 | 0.900 | 0.910 | 0.805 | 0.809 | 0.852 |
+| **0.30** | 0.900 | **0.919** | 0.928 | 0.793 | 0.796 | **0.853** |
+| 0.35 | 0.915 | 0.930 | 0.936 | 0.780 | 0.782 | 0.850 |
+| 0.55 (deployed) | 0.964 | — † | — | 0.722 | — | 0.826 |
 
 † No correction applies at 0.55: the incremental band is empty by construction. Its precision
 is not immune to GT incompleteness, but with only 46 pooled false positives there the effect is
@@ -381,21 +379,25 @@ Per split at 0.30:
 | morgantown | 0.888 | 0.905 | 0.909 | 0.808 | 0.854 |
 | annapolis | 0.902 | 0.920 | 0.939 | 0.813 | 0.863 |
 | paterson | 0.950 | 0.957 | 0.963 | 0.720 | 0.822 |
+| gainesville | 0.857 | 0.886 | 0.890 | 0.778 | 0.828 |
 | budapest ‡ | 0.707 | 0.762 | 0.777 | 0.660 | 0.707 |
 
 ‡ excluded from the pooled row and the recommendation.
 
 **The correction changed the answer.** On raw numbers the F1 optimum sat at 0.32 and the
 conservative choice was 0.35; with the GT completeness correction applied, corrected F1 peaks
-at **0.30** and corrected precision there is **0.924** pooled — higher than the *raw* precision
+at **0.30** and corrected precision there is **0.919** pooled — higher than the *raw* precision
 at 0.35. That is precisely what #55 existed to determine, and it moved the recommendation down.
-(This held unchanged when paterson joined the pool: corrected F1 0.857 at 0.30 against 0.854
-at 0.25 and 0.853 at 0.35.)
+(This has now held twice as the pool grew: corrected F1 0.857 at 0.30 on the six splits with
+paterson, and 0.853 at 0.30 against 0.852 at 0.25 and 0.850 at 0.35 on the seven with
+gainesville.)
 
-**Caveat on 3 of the A tags** (1 each in clovis, morgantown, budapest): they sit within 2 match
-radii of an already-detected ramp, so they are more likely a second hit on one ramp than a ramp
-the GT missed. The tooling flags these rather than hiding them; removing all three from the US
-pool changes pooled corrected precision by under 0.002.
+**Caveat on 4 of the A tags** (1 each in clovis, morgantown, budapest, gainesville, at the
+0.30 band): they sit within 2 match radii of an already-detected ramp, so they are more likely
+a second hit on one ramp than a ramp the GT missed. The tooling flags these rather than hiding
+them; removing all four from the US pool changes pooled corrected precision by under 0.003.
+(At the wider 0.25 band gainesville carries 3 such A tags of its 12 — its paired diagonal-ramp
+corners put more A candidates in the ambiguous 2–3 R zone than any prior US split.)
 
 ### The storage floor and the recall ceiling (labeler#28, labeler#27 stage 4)
 
@@ -488,42 +490,40 @@ Two consequences:
 
 | | at 0.55 (deployed) | at 0.30 |
 |---|---|---|
-| pooled precision | 0.966 | **0.924** corrected (0.907 raw, 0.934 band high) |
-| pooled recall | 0.730 | **0.799** corrected (0.796 raw) |
-| pooled F1 | 0.831 | **0.857** corrected |
-| detections/pano | 1.91 | 2.27 |
+| pooled precision | 0.964 | **0.919** corrected (0.900 raw, 0.928 band high) |
+| pooled recall | 0.722 | **0.796** corrected (0.793 raw) |
+| pooled F1 | 0.826 | **0.853** corrected |
+| detections/pano | 1.86 | 2.23 |
 
-**+6.9 recall points for −4.2 precision points, at 0.36 more detections per pano.**
-
-*Status note (2026-07-30): the corrected values in this section quote the **six-US-split**
-pool — gainesville joined the benchmark today and its #55 tagging pass (34 items, the input
-the correction needs) is in flight. On raw seven-split numbers the picture is unchanged
-(pooled F1-max 0.844 at 0.32, flat band 0.25–0.40; see the pooled table above). The
-corrected re-derivation, and this recommendation's re-check against it, land with the tags.*
+**+7.4 recall points for −4.5 precision points, at 0.37 more detections per pano.** (Seven
+US splits pooled, gainesville's #55 tags applied 2026-07-30; the re-check the split forced
+came out where every previous one did — corrected F1 still peaks at 0.30.)
 
 Why 0.30:
 
 - It is the **corrected** F1 optimum, computed after applying #55's per-split A/B tagging
   rather than from the raw curve that the anchoring bias distorts.
-- Corrected precision stays **≥0.88 on every US split** and 0.924 pooled — above the 0.92 bar
-  the project uses elsewhere for AI assertions once the `band high` (0.934) is taken into
+- Corrected precision stays **≥0.88 on every US split** and 0.919 pooled — above the 0.92 bar
+  the project uses elsewhere for AI assertions once the `band high` (0.928) is taken into
   account, and comfortably clear of anything that reads as a quality regression.
 - Recall is RampNet's weak metric on **every** split, precision is not. Under the recall-first
   policy — a false negative is a permanent hole in the inventory, a false positive is a cheap
   human review — this is the right side of a flat trade.
-- Density stays sparse (2.27/pano), so the recall is not bought by carpeting the image.
+- Density stays sparse (2.23/pano), so the recall is not bought by carpeting the image.
 - The change is **reversible**: per-label confidence is stored server-side, so anything
   submitted at 0.30 can be filtered later.
 
-**If a more conservative first move is wanted, 0.35** gives corrected P 0.935 / R 0.784 and
-gives up 1.5 recall points. Both are inside the flat region; 0.30 is the recall-first choice
+**If a more conservative first move is wanted, 0.35** gives corrected P 0.930 / R 0.782 and
+gives up 1.4 recall points. Both are inside the flat region; 0.30 is the recall-first choice
 and 0.35 the precision-first one. I recommend 0.30.
 
-**Clovis is the one split to watch**: corrected precision 0.883 at 0.30 (band high 0.899)
-against 0.914 deployed — the only US split that gives up meaningfully more than it does
-elsewhere. It is also the split with the largest recall gain (+10.3 points) and the highest
-A-rate (30%), so the trade is still favourable; but if per-city tuning is ever introduced,
-clovis-like imagery (2018-era GoPro Fusion) is where it would start.
+**Clovis still holds the lowest corrected precision**: 0.883 at 0.30 (band high 0.899)
+against 0.914 deployed. gainesville now gives up more precision *from its own deployed
+point* (0.948 → 0.886 corrected), but its floor is higher, so clovis remains the level
+that bounds the uniform threshold. Clovis is also the split with the largest recall gain
+(+10.3 points) and, until gainesville, had the highest A-rate (30%), so the trade is still
+favourable; but if per-city tuning is ever introduced, clovis-like imagery (2018-era GoPro
+Fusion) is where it would start.
 
 **Not per-tier**, and the case is stronger than it was: the one apparent exception (GSV at
 0.50 on bend alone) dissolved when the second GSV split landed — with paterson and now
@@ -537,14 +537,14 @@ mostly produce no candidate at any confidence (recall ceiling 0.757). No thresho
 addresses that; the candidate levers are the paterson-specific NMS check below and multi-view
 fusion.
 
-**gainesville is the newest watch item, and it pulls the other way.** It is the split the
-lever helps most among the far-domain cities (+9.6 points at 0.32) but also the one whose
-raw precision at 0.30 is the lowest of any US split (0.857), with the densest sub-floor FP
-band (34 #55 items). Its per-split F1 optimum (0.38) is the only US one *above* the
-recommended 0.30. Whether its corrected precision lands clear of the clovis line depends on
-its A-rate — pending the tagging pass. If it comes back low (most of the 34 are genuine
-FPs), gainesville replaces clovis as the binding constraint on how low the uniform
-threshold should sit.
+**gainesville looked like a candidate to replace clovis as the binding constraint, and the
+tags cleared it.** It is the split the lever helps most among the far-domain cities (+9.6
+points at 0.32) but also the one whose raw precision at 0.30 is the lowest of any US split
+(0.857), with the densest sub-floor FP band (34 #55 items) and the only US per-split F1
+optimum *above* the recommended 0.30 (0.38). The open question was its A-rate, and it came
+back the **highest in the benchmark: 35.3%** — over a third of those "false positives" are
+real ramps the GT missed. Corrected, gainesville's precision at 0.30 is **0.886**, landing
+just above clovis's 0.883, so clovis remains the binding split and the uniform 0.30 stands.
 
 **Budapest is excluded from this recommendation** and should get its own decision. It is the
 one split where lowering costs about as much precision as it buys recall, and its GT is
@@ -560,7 +560,7 @@ without a rubric written for it.
 - **The correction rests on one rater**, the same person who produced the GT. A second rater on
   the A/B tags would tighten it, and is the same ask already outstanding for budapest.
 - **`unsure` items are not credited** in the corrected column, only in `band high`. Pooled that
-  is 14 items — the gap between 0.917 and 0.928.
+  is 17 items — the gap between 0.919 and 0.928.
 
 ### What would change this
 

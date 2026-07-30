@@ -300,10 +300,13 @@ Precision is the more ordinary story, and the reviewer's impression that it slip
 correct but structured: 9 FPs + 2 duplicates (P 0.943 unbiased, lowest of any clean-imagery
 US split), yet the FPs hug the review floor — four of nine within 0.02 of the 0.55 cutoff,
 FP median confidence 0.623 vs 0.813 for TPs, and a clean 1.000 from 0.80 up. The flip side
-of that floor-hugging: the sub-0.55 band is dense. The #55 spot-check gallery holds **34**
-incremental FPs in `[0.25, 0.55)` — above the 23–30 US precedent and 3× paterson's 10 —
-so gainesville's A-rate materially informs the corrected operating point (tagging in
-flight; A-rate to be recorded here when done).
+of that floor-hugging: the sub-0.55 band is dense. The #55 spot-check gallery held **34**
+incremental FPs in `[0.25, 0.55)` — above the 23–30 US precedent and 3× paterson's 10 — and
+its A-rate came back the **highest of any split: 35.3%** (12 A / 21 B / 1 unsure, jonf
+2026-07-30). Over a third of the "false positives" a lower threshold adds here are real
+ramps the GT missed; corrected precision at the recommended 0.30 is 0.886 (from 0.857 raw),
+which lands just above clovis's 0.883 — so gainesville did not displace clovis as the
+benchmark's binding split (`docs/operating_point.md`).
 
 Smaller notes: ramp styles were **new to the benchmark** — many wide intersections, and
 large diagonal curb ramps spanning both crossing directions at new or renovated
