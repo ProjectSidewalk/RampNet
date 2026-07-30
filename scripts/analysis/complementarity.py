@@ -19,6 +19,7 @@ from compare import load_bundle, DetectionCache, cache_key
 from detectors import build_detector
 
 MODEL = sys.argv[1] if len(sys.argv) > 1 else "gemini-3.6-flash"
+BUNDLE = sys.argv[2] if len(sys.argv) > 2 else "richmond"   # benchmark/<split> name
 
 class Args:
     gemini_model = MODEL; qwen_model = "Qwen/Qwen3-VL"; tiling = "perspective"
@@ -44,7 +45,7 @@ def matched_gt(preds, gt_points):
             claimed[best_k] = True; hit.add(best_k)
     return hit
 
-records, verdicts, _ = load_bundle(os.path.join(REPO, "benchmark", "richmond"))
+records, verdicts, _ = load_bundle(os.path.join(REPO, "benchmark", BUNDLE))
 label, gem = build_detector("gemini", MODEL, records, Args())
 sig, cache = gem.signature(), DetectionCache(os.path.join(REPO, ".model_cache"))
 
@@ -55,7 +56,7 @@ for pid, entry in verdicts.items():
     gt = build_ground_truth(records[pid]["detections"], entry["dets"], entry["missed"], entry["no_missed"])
     if not gt.fn_confirmed:
         continue
-    gp = cache.get(cache_key(label, sig, "richmond", pid))
+    gp = cache.get(cache_key(label, sig, BUNDLE, pid))
     if gp is None:
         missing += 1; continue
     rp = [(d["x_normalized"], d["y_normalized"], d["confidence"]) for d in records[pid]["detections"]]
@@ -70,7 +71,7 @@ for pid, entry in verdicts.items():
 
 r_tp, g_tp, union = both + r_only, both + g_only, both + r_only + g_only
 rampnet_misses = g_only + neither
-print(f"richmond complementarity — RampNet vs {MODEL}  ({panos} recall-eligible panos, {N} GT ramps"
+print(f"{BUNDLE} complementarity — RampNet vs {MODEL}  ({panos} recall-eligible panos, {N} GT ramps"
       + (f"; {missing} panos missing from cache" if missing else "") + ")\n")
 print(f"  RampNet recall     {r_tp/N:.3f}   ({r_tp}/{N})")
 print(f"  Gemini recall      {g_tp/N:.3f}   ({g_tp}/{N})")
