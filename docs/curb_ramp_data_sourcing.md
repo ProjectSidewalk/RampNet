@@ -808,7 +808,27 @@ scale it is being asked to measure — not as a calibration certificate.
 
 **Sheet as built:** 59 chips (one dropped — outside the basemap footprint), record-weighted sample,
 seed 20260731, frame restricted to `UPDATE_STATUS=NC` because the 2,784 records added in 2023–24
-postdate 2018 imagery and are expected to be absent. Output in `analysis_out/review_denver-co/`.
+postdate the 2016 imagery and are expected to be absent. Output in `analysis_out/review_denver-co/`.
+
+**⚠️ The imagery is near-contemporaneous with the delineation, which makes this a lower bound.**
+`Aerial2016` was chosen for resolution — 0.057 m/px against the 2018 cache's 0.23 m/px, which would
+render a 40 m chip as 174 px and lose detectable-warning pads entirely — and a positional check does
+not normally care about capture year, because ramps do not move. But 74.4% of Denver's records carry
+a **2015** `CREATEDATE`, so for the bulk of the frame we are checking a delineation against imagery
+of nearly the same date, quite possibly the imagery it was digitised from.
+
+That measures **digitising precision**, which is the right quantity for "does the coordinate land on
+the physical ramp". It is *not* the whole error a Stage 1 label carries, because that label is
+projected into a GSV panorama captured ~2022, and everything that changed in between — ramps rebuilt,
+moved, or demolished — is invisible to this instrument. So both headline numbers from this review are
+lower bounds on their Stage 1 equivalents:
+
+- the **offset distribution** excludes any post-2016 drift, and
+- the **phantom rate** excludes any ramp that existed in 2016 and was gone by the panorama date,
+  which matters more than usual here because Denver's schema has no removal mechanism at all.
+
+The temporal gate (§5a) is the separate instrument for that component; this one should be read as
+*positional error at the time of delineation*, and the two composed rather than either quoted alone.
 
 ### The rubric is part of the instrument (2026-07-31)
 
