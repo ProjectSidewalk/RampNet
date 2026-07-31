@@ -491,6 +491,14 @@ confirm the intended reading rather than define it):
   (down to 10.5 model px) is where pointed-verification bias would show most strongly. Phase 3's
   decoy deck should therefore be **stratified by distance band**, oversampling 40–150 m.
 
+**The takeaway.** "Are far ramps harder?" — yes, threefold (recall 0.777 → 0.292 across the
+bands), but Phases 0–1 show distance acting as a **stressor on failure families this taxonomy
+already prices, not as a new category of failure**: 62% the σ/representation family, 30% the
+`sub_threshold` continuum, 8% genuine absence. The implied lever is therefore decoder- and
+representation-side — target σ, peak spacing, threshold calibration, and Phase 2's scale question
+for the residual — **not far-field training vocabulary**; and multi-view remains the one remedy
+that sidesteps all three mechanisms at once, by re-presenting the same ramp near-field.
+
 ## 1. The current training corpus is mostly one city
 
 Stage 1 is built from three cities' open-government inventories (`docs/data_provenance.md` §1).
