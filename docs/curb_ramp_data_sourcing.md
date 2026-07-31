@@ -50,7 +50,8 @@ a planning heuristic derived from three cities, not a law.
 
 ## 2. Verified candidate inventories
 
-Ordered by size. "Verified" means the count was returned by the agency's own API on 2026-07-30.
+Roughly ordered by size, with unverified and disqualified entries last. "Verified" means the count
+was returned by the agency's own API on 2026-07-30.
 
 | Jurisdiction | Ramp records | Endpoint / source | Notes |
 | :--- | ---: | :--- | :--- |
@@ -60,9 +61,25 @@ Ordered by size. "Verified" means the count was returned by the agency's own API
 | **Seattle, WA** | **46,386** total / **38,468 active** | `services.arcgis.com/ZOyb2t4B0UYuYNYH/…/Curb_Ramps_(Active)` | Weekly refresh. Carries **condition, width, install date** — see §5 |
 | **Charlotte, NC** | **40,601** | `gis.charlottenc.gov/…/CDOT_ADA/ADA_Curb_Ramps/MapServer/0` | From Charlotte's ADA self-evaluation |
 | **Washington, DC** | **34,859** | `maps2.dcgis.dc.gov/…/Transportation_ADA_WebMercator/MapServer/3` | ⚠️ **Captured 2016** — a 10-year-old snapshot; see §4 |
+| **NYSDOT** (New York, statewide) | **42,297** | Socrata `data.ny.gov/resource/hmbc-hni2` | *Curb Ramps on NYS-Owned Highways.* State ROW; NYC is already in training but NYS-owned mileage inside NYC is small |
+| **CDOT** (Colorado, statewide) | **24,549** | Socrata `data.colorado.gov/resource/sb9m-ecvv` | *State Highway On-System Curb Ramps.* State ROW only |
 | **Raleigh, NC** | ~14,550 | City sidewalk/pedestrian facility assessment (PDF) | *Reported in a study document, not queried* |
-| Spokane WA · Tacoma WA · Los Angeles CA · Dallas TX | exists, **count not pulled** | ArcGIS Hub / city portals | Confirmed to publish a curb-ramp layer |
+| Spokane WA · Tacoma WA · Dallas TX | exists, **count not pulled** | ArcGIS Hub / city portals | Confirmed to publish a curb-ramp layer |
+| **Los Angeles, CA** | exists, count not pulled | `services5.arcgis.com/7nsPwEMP38bSkCjy/…/Sidewalks_Mapped_Areas` | ⚠️ **corner-centroid, not ramp-located** — see §4a |
+| **Chicago, IL** | **none published** | — | See below |
+| **Oakland, CA** | **4** | Socrata `data.oaklandca.gov/resource/uq94-uqnq` | Dataset exists but is effectively a stub |
 | **Columbus, OH** | **none found** | — | See below |
+
+### Chicago: 137,000 ramps installed, none published as an inventory
+
+Chicago would have been the single highest-value candidate — CDOT states it has installed
+**over 137,000 ADA ramps citywide since 2006** (~7,000/year), and Chicago is **already
+contamination-burned** via the crop model, so it would have been free to train on.
+
+But that figure is a *program statistic on a department page, not a dataset*. A search of the
+Chicago Socrata portal (`data.cityofchicago.org`) for ramp-related datasets returns only traffic
+crash data. **Recorded as a negative result**: the ramps exist, the count is public, the
+geolocated inventory is not.
 
 ### Columbus: no public point inventory located
 
@@ -133,6 +150,27 @@ Per candidate city, before committing:
 Seattle is the strongest here and DC the weakest: Seattle refreshes weekly and publishes condition,
 width, and install date; DC is a single 2016 capture.
 
+### 4a. Two candidates already fail the gate on their published description
+
+Neither has been field-checked; both are disqualified (or heavily discounted) by what the
+publisher says about their own data:
+
+- **Los Angeles — corner-centroid, not ramp-located.** The Access Ramps layer is documented as
+  *"a point feature that shows the geographic center of corner polygon features, with attributes
+  indicating the presence or absence of a wheelchair access ramp."* That is the wrong quantity for
+  Stage 1: the point is the **corner's centre**, not the ramp, so every label would be
+  systematically displaced — and a corner with two ramps yields one point carrying a boolean.
+  It is also derived from **2014 LARIAC aerial imagery** (built 2017), not survey. This is the
+  per-ramp-vs-per-corner failure mode in its purest form.
+- **WisDOT — desktop-derived, not surveyed.** Built 2014/15 from the WisDOT photo log and Google
+  Earth satellite imagery, with field survey replacing desktop records only as ramps are rebuilt.
+  Positional accuracy is inherited from photo-log interpretation.
+
+**The pattern is the point: the largest available inventories are disproportionately the derived,
+stale, or wrong-geometry ones.** Surveyed, current, per-ramp city inventories (Seattle, Austin,
+Charlotte) are the smaller numbers. Any scaling plan should expect label quality to fall as it
+scales, which is exactly the direction that hurts under this issue's label-ceiling mechanism.
+
 ## 5. Beyond location: attributes we currently discard
 
 Per [#86](https://github.com/ProjectSidewalk/RampNet/issues/86), RampNet 2.0 expands scope from
@@ -185,7 +223,51 @@ nothing throttles or breaks. The estimate has wide error bars on the Stage 1 hal
 by `dataset_generation/inference_isolator.py`. Reusing it is also the better experiment: only the
 data changes, so any delta is attributable.
 
-## 7. Selection rule
+## 7. Routes to a 500,000-ramp corpus
+
+**Be explicit about which 500k is meant** — the two targets differ by more than a factor of two:
+
+- **500k ramp *records*** → need **+221,456** on today's 278,544.
+- **500k *panoramas*** → needs ~650k ramps at the 0.77 ratio. A much larger programme.
+
+For the ramp target, the four clean city inventories get most of the way but **do not close it**:
+
+| Route | Sources | Ramps |
+| :--- | :--- | ---: |
+| Clean city core | Austin + Charlotte + Seattle(active) + DC | 442,268 |
+| **A** — core + state DOTs | + NYSDOT 42,297 + CDOT 24,549 | **509,114** ✅ |
+| **B** — core + WisDOT + Raleigh | + 49,000 + ~14,550 | **505,818** ✅ |
+| **C** — core + VDOT | + 83,000 | 525,268 ⚠️ *see below* |
+
+**500k is reachable, and roughly six sources get there.** Discovery is no longer the constraint.
+
+**But note what closes the gap.** The clean surveyed core tops out at **442k — 88% of target**. Every
+route to the last ~58k draws on state-DOT right-of-way data (state highways only, derived rather
+than surveyed) or on stale city captures. Per §4a, **the marginal ramps are materially lower quality
+than the first 164k**, and under this issue's label-ceiling mechanism low-quality labels are not
+neutral — a missed or displaced ramp becomes a zero in the target heatmap.
+
+There is a genuine counter-argument worth testing rather than assuming: state-DOT data covers
+**arterials and connecting highways**, which is disproportionately the wide-arterial, far-field
+context where Gainesville's misses cluster. Lower positional fidelity, but possibly better coverage
+of the failure regime. That is an empirical question, not a settled one.
+
+### ⚠️ VDOT would burn the Richmond benchmark split
+
+VDOT is the single largest source (83,000) and the most tempting way to close the gap in one step.
+It is **statewide Virginia, which includes Richmond** — one of the nine benchmark splits, and the
+Mapillary out-of-distribution flagship. Training on it unclipped destroys that split's status as
+held-out.
+
+Mitigation: clip the VDOT layer to exclude the Richmond deployment footprint (the same dissolved
+PS-regions polygon the benchmark uses) before ingest. Feasible, but it must be a deliberate step —
+the failure mode here is silent.
+
+A related check applies to **NYSDOT**: NYC is already a training city, so NYS-owned mileage inside
+NYC would be duplicate rather than new geography. The overlap is small (most NYS-owned highway is
+outside the five boroughs) but it should be de-duplicated, not assumed away.
+
+## 8. Selection rule
 
 **Train on cities you would never want as a benchmark split.** Every city added to training is
 permanently disqualified as clean evaluation ground.
@@ -208,7 +290,7 @@ Sunbelt/Southeast ones — **Austin and Charlotte**.
 If only one city is added first, adding Seattle tests the *least* interesting axis. Pair it with
 Austin or Charlotte in the same run.
 
-## 8. Caveats
+## 9. Caveats
 
 - **Counts are a 2026-07-30 snapshot.** Several of these refresh weekly.
 - **Record count ≠ ramp count.** Inventories may hold multiple records per physical ramp, or one per
