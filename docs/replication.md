@@ -169,7 +169,10 @@ should keep following:
    `load_dataset('org/repo')` does not just work, spell out how to download and load it.
 
 He also offered: *"Let us know when you do public comms about this dataset so HF can help
-amplify!"* — worth taking up when the benchmark dataset lands.
+amplify!"* — **and HF did amplify it on their social channels in 2025.** So this is not a
+speculative offer: the precedent exists and was honoured once already, which is worth knowing when
+the benchmark dataset (#21) is ready to announce. *(The specific post has not been relocated; this
+is recorded from Jon's recollection, not a citation.)*
 
 ### What this changes about our plan
 
