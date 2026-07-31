@@ -147,12 +147,15 @@ _TEMPLATE = r"""<!doctype html>
   .tagged { color:#7fd1a0; }
   #done { padding:40px; text-align:center; font-size:16px; }
   .adv { color:#e0a33c; }
+  #warn { background:#4a2a12; color:#ffcf9a; padding:6px 12px;
+          border-bottom:1px solid #6a3d1a; }
 </style>
 <header>
   <b id="title">__TITLE__</b>
   <span id="meta"></span>
   <span id="prog"></span>
 </header>
+<div id="warn" hidden></div>
 <div id="wrap"><img id="img" alt=""><div id="done" hidden></div></div>
 <footer>
   <div id="bar">
@@ -166,11 +169,36 @@ _TEMPLATE = r"""<!doctype html>
 </footer>
 <script>
 const ITEMS = __ITEMS__, KEYS = __KEYS__, STORE = "__STORE__";
-let verdicts = {}, i = 0;
-try { verdicts = JSON.parse(localStorage.getItem(STORE) || "{}"); } catch (e) { verdicts = {}; }
+let verdicts = {}, i = 0, persist = true;
+
+// localStorage is not guaranteed on a file:// origin -- some Chrome configurations
+// throw SecurityError on both read and write. Unguarded, every keystroke would throw
+// and the page would stop recording while still looking like it worked. So probe it
+// once, and if it is unavailable fall back to memory and say so loudly: the work is
+// still fine, but it has to be exported before the tab closes.
+try {
+  localStorage.setItem(STORE + "-probe", "1");
+  localStorage.removeItem(STORE + "-probe");
+  verdicts = JSON.parse(localStorage.getItem(STORE) || "{}");
+} catch (e) {
+  persist = false;
+  verdicts = {};
+}
 if (window.__RESUME__) { Object.assign(verdicts, window.__RESUME__); }
 
-function save() { localStorage.setItem(STORE, JSON.stringify(verdicts)); }
+function save() {
+  if (!persist) return;
+  try { localStorage.setItem(STORE, JSON.stringify(verdicts)); }
+  catch (e) { persist = false; warnNoPersist(); }
+}
+
+function warnNoPersist() {
+  const el = document.getElementById("warn");
+  el.hidden = false;
+  el.textContent = "⚠ This browser blocks storage on file:// URLs, so progress is "
+    + "kept in memory only. It is NOT lost while this tab stays open — but export "
+    + "before closing or reloading.";
+}
 
 function firstUntagged() {
   for (let j = 0; j < ITEMS.length; j++) if (!verdicts[ITEMS[j].key]) return j;
@@ -226,6 +254,7 @@ function exportJSON() {
 }
 function reset() { verdicts = {}; save(); i = 0; show(); }
 
+if (!persist) warnNoPersist();
 i = firstUntagged(); show();
 </script>
 """
