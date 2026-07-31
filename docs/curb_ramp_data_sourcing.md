@@ -562,6 +562,147 @@ condition rating, plus a `Retired` flag. **Sioux Falls** carries `WIDTH`, `SLOPE
 This is measurement-and-condition supervision at a scale we do not currently collect, and it is
 uncorrelated with Stage 1 usability — Boston is disqualified for #59 and still interesting for #86.
 
+## 5d. Per-ramp vs per-corner no longer needs a reviewer (2026-07-31)
+
+Of §5's six checks, one is pure geometry and can be settled from the point set alone. It is also
+the check with the most at stake: **if a city records one point per corner rather than per ramp,
+paired ramps collapse to a single label** — the supervision gap behind Paterson's failure, where
+#46 found 72% of near-field misses were adjacent-pair merges. Script:
+`scripts/analysis/inventory_geometry.py` (30 tests in `tests/test_inventory_geometry.py`);
+results in `analysis_out/inventory_geometry_*.json`.
+
+A corner in a modern build carries **two** ramps, one per crossing direction, metres apart. So the
+two conventions separate on the **nearest-neighbour distance distribution**: a per-ramp inventory
+has a strong mode at the within-corner spacing, a per-corner inventory's nearest neighbour is the
+next corner across a crosswalk.
+
+**NYC calibrates it, so the number is not a judgment call.** NYC publishes `rampid` *and*
+`cornerid`, making it ground truth for this question. Single-link clustering at a 6 m link
+reproduces NYC's own corner grouping at **precision 0.976 / recall 0.973** (135,421 geometric vs
+134,127 published groups). That is what licenses running the same clustering on cities that
+publish no corner key.
+
+| | NYC (known per-ramp) | Denver |
+| :--- | ---: | ---: |
+| Records | 217,679 | 72,770 |
+| Nearest-neighbour median | **2.9 m** | **8.1 m** |
+| Share with a neighbour ≤6 m | **0.750** | **0.345** |
+| Records per corner group | **1.61** | **1.21** |
+| Singleton corner groups | 0.402 | **0.794** |
+| Published corners (NYC only) | 134,127 at 1.62/corner | — |
+
+NYC's nearest-neighbour mode sits at 2–3 m and holds 48.2% of records; Denver's is at 10–15 m and
+only 2.9% of its records fall below 3 m.
+
+### The confound this survives
+
+A single threshold calibrated on Manhattan is not obviously transferable — NYC's corner radii are
+tight, and a city built to suburban geometry would space *the same pair* further apart and score as
+per-corner purely for being wide. Sweeping the link distance separates the two readings.
+`groups_per_intersection` is the guard: it starts near 4 and collapses once the link bridges the
+crossing, past which records-per-group means nothing.
+
+| link | NYC rec/group | NYC groups/intersection | Denver rec/group | Denver groups/intersection |
+| ---: | ---: | ---: | ---: | ---: |
+| 3 m | 1.355 | 4.22 | 1.015 | 4.29 |
+| 4 m | 1.528 | 3.75 | 1.046 | 4.16 |
+| 5 m | 1.580 | 3.62 | 1.138 | 3.82 |
+| **6 m** | **1.607** | **3.56** | **1.213** | **3.59** |
+| 8 m | 1.638 | 3.49 | 1.344 | 3.24 |
+| 10 m | 1.721 | 3.33 | 1.582 | 2.75 |
+| 12 m | 2.462 | 2.32 | 1.819 | 2.39 |
+
+**NYC plateaus at 1.53 → 1.64 across 4–8 m while its groups stay resolved; Denver never plateaus.**
+Denver climbs monotonically and only reaches NYC's ratio at a 10 m link, by which point its
+groups-per-intersection has already fallen to 2.75 — the rise is the link bridging *different
+corners*, not resolving pairs. Compared at matched merge state (≈3.6 groups/intersection, i.e. 6 m
+for both), **Denver records 1.21 points per corner where NYC records 1.61**.
+
+So the wider-radii explanation does not hold, and Denver carries materially less pairing than the
+corpus's dominant city.
+
+### What this does *not* settle
+
+Two mechanisms produce the same signature, and geometry cannot separate them:
+
+1. **Denver records one point per corner** — a recording convention, and a supervision defect. Its
+   delineation is from aerial imagery, whose own metadata concedes *"imagery resolution is not high
+   enough to discern"* ADA compliance, so under-separating a close pair is plausible.
+2. **Denver's corners physically carry one ramp** — the single diagonal apron at the corner apex,
+   standard in pre-1990s residential build-out. That is not a defect at all; one ramp, one label is
+   correct, and it is exactly the non-NYC vocabulary §8 argues for.
+
+Distinguishing them needs eyes on imagery, which is why `ramps_visible` is a required field on the
+review sheet below. **The count is the evidence**, and it is the single most decision-relevant thing
+a reviewer of Denver can produce.
+
+## 5e. Denver: the rest of the automated gate (2026-07-31)
+
+Everything here comes from the frozen snapshot (§9) and needed no reviewer.
+
+**Footprint — passes.** 62,006 of 72,770 records (85.2%) fall strictly inside Denver County, tested
+against the city's own `County_Boundary__Area_` layer (main ring 404.5 km² against the county's
+400.7 km² reference, so the polygon is right). Of the 10,764 outside, **98.8% are within 1 km of the
+boundary** — shared-ROW spillover on arterials — and only **128 records (0.18%)** are more than 2 km
+out, at 7–20 km, i.e. Denver Mountain Parks. This is Denver's inventory, not a regional one.
+
+**Schema — thin, and poor for #86.** `OBJECTID`, `CREATEDATE`, `CREATEUSER`, `COMMENTS`,
+`UPDATE_STATUS`, `UNIQUE_ID`. No install date, no ramp type, no width, no condition, no
+detectable-warning field. Native CRS is **EPSG:2877** (NAD83 / Colorado Central, US survey feet),
+server-reprojected to 4326 on request. Against Minneapolis's per-ramp slopes and landing dimensions,
+Denver contributes nothing to #86.
+
+**⚠️ The "2022 imagery" claim does not survive contact with the data.** The service describes itself
+as *"sidewalk ramps delineated from 2022 aerial imagery"*, and §5c graded Denver ✅ near-contemporaneous
+on an existence bound of 2022. Crosstabbing `UPDATE_STATUS` against `CREATEDATE`:
+
+| status | meaning | records | share | CREATEDATE years |
+| :--- | :--- | ---: | ---: | :--- |
+| `NC` | No Change | 69,986 | **96.2%** | 2015 (54,120), 2017 (7,391), 2019 (5,527), 2021 (2,854), 2022 (**84**), 2016 (10) |
+| `A` | Add | 2,784 | 3.8% | 2023 (2,770), 2024 (14) |
+| `M` | Modify | **0** | 0% | — |
+
+**74.4% of the layer carries a 2015 creation date, only 84 records carry 2022, and the `Modify` code
+is used zero times across 72,770 records.** Two readings are consistent with `NC`: either every
+feature was re-verified against 2022 imagery and confirmed unchanged (the bound holds), or `NC`
+simply means "not touched in this pass" and a 2015 delineation is being carried forward (the bound
+is 2015, a ~7-year gap against median 2022 GSV capture — comparable to the ~6-year gap that
+disqualified DC in §5c).
+
+The zero `M` count is evidence for the second reading: a genuine re-examination of 70k features that
+produced *no* modifications and only 84 new records in 2022 is hard to credit. **§5c's ✅ for Denver
+should be treated as unconfirmed pending an answer from the publisher.** Note also that nothing in
+the schema records removals, so a demolished ramp has no mechanism to leave the layer — phantom
+labels have no upper bound from this data.
+
+**Coincident duplicates:** 72 records within 0.5 m of another (0.10%), against NYC's 22 (0.01%).
+Small, but each is two identical labels in one panorama.
+
+### The review sheet is built — and the obvious basemap was not good enough
+
+`scripts/analysis/inventory_review_sheet.py` renders the §5 positional instrument: an aerial chip
+per sampled record, centred on the published coordinate, with range rings at 1/2/5/10 m so the
+reviewer reads an **offset in metres** instead of forming an impression.
+
+**The first attempt was unusable, and the failure mode was silent.** Esri World Imagery — the
+default anywhere ArcGIS is involved — renders Denver leaf-on, hazy and visibly upsampled at an
+effective ~1 m, turning a ramp and its detectable-warning pad into a smudge; and at z=21 it serves
+*"Map data not yet available"* as a flat grey tile, which the fetcher pasted into the sheet as
+though it were imagery. Measuring a 1–2 m offset against that is not possible, and *appearing* to
+is worse than not trying.
+
+Denver's own **`Aerial2018_tilecache`** is leaf-off, sharp and 0.23 m/px at this latitude. The
+generalisable lesson: **every city needs its municipal basemap located before its sheet is worth a
+reviewer's time**, the global fallback will not do, and blank tiles must be detected rather than
+presented. Both are now enforced in the tool, along with a `--tile-source` registry that records
+which imagery produced which verdict.
+
+**Sheet as built:** 59 chips (one dropped — outside the basemap footprint), record-weighted sample,
+seed 20260731, frame restricted to `UPDATE_STATUS=NC` because the 2,784 records added in 2023–24
+postdate 2018 imagery and are expected to be absent. Output in `analysis_out/review_denver-co/`.
+**No verdict has been recorded** — `verdicts.json` is an unfilled template, and the Good/OK/Poor
+question for Denver is open.
+
 ## 6. Routes to a 500,000-ramp corpus
 
 **Be explicit about which 500k is meant:**
@@ -672,10 +813,34 @@ and query, the way `benchmark/*/records.jsonl` already pins benchmark inputs. Th
 reproducibility. That also makes the §5c numbers re-derivable later, since every count in this
 document is a snapshot of a moving target.
 
-Doing this for the RampNet 2.0 corpus is straightforward. Doing it retroactively for 1.0 means
-recovering the three files from the paper's supplemental material and committing them, which is
-worth doing while it is still easy: they are the only artifacts that make the published dataset
-reproducible from source, and they exist in exactly one place.
+### Done as of 2026-07-31 — `data/inventories/`
+
+`scripts/analysis/fetch_inventory.py` (24 tests) writes gzipped JSONL plus a sidecar manifest
+recording the endpoint, the exact query, the fetch date, the declared-vs-retained count and a
+sha256 of the payload. **Nothing in this programme is analysed from a live endpoint any more**;
+every number in §5d/§5e is derived from a committed file.
+
+| Snapshot | Records | Note |
+| :--- | ---: | :--- |
+| `nyc-ny-2026-07-31` | 217,679 | Paper Tab. 1: 217,680 — **−0.0005%, effectively frozen** |
+| `portland-or-2026-07-31` | 46,101 | Paper Tab. 1: 45,324 — **drifted +1.7%** |
+| `bend-or-2026-07-31` | 14,805 | Paper Tab. 1: 13,611 — **drifted +8.8%** |
+| `denver-co-2026-07-31` | 72,770 | First candidate assessed |
+
+Two gzip header fields are pinned (`mtime=0`, `filename=""`) so identical records hash identically;
+without that the digest tracks when and where the file was written rather than what is in it, and
+is useless as a drift signal. This was a real bug, caught by the test rather than by inspection.
+
+**Two things this does *not* fix, stated plainly:**
+
+1. **These are not the paper's files.** Portland and Bend have drifted +1.7% and +8.8%, so a Stage 1
+   re-run from `data/inventories/` reproduces *today's* dataset, not the ICCV one. The paper-exact
+   NYC/Portland/Bend files exist in exactly one place — the paper's supplemental material — and
+   recovering and committing them is still open. It gets harder, not easier, with time.
+2. **The basemap imagery behind any §5 verdict is not redistributable.** The review sheet embeds
+   Esri or municipal tiles under terms that do not permit re-hosting, so `verdicts.json` records the
+   tile-source URL template, zoom and per-chip tile keys instead. A replicator can re-fetch the
+   exact tiles; they cannot get them from this repo. That is a stated blocker, not a solved problem.
 
 ## 10. Caveats
 

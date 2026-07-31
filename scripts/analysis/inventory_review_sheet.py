@@ -1,0 +1,441 @@
+"""Build the aerial-overlay review sheet for an inventory's positional precision.
+
+The half of the location-precision gate that needs a human (issues #96, #59). See
+``docs/curb_ramp_data_sourcing.md`` §5.
+
+The paper's method (§3.1, Fig. 2) is to **overlay curb-ramp coordinates on aerial
+imagery and judge whether they land on the physical ramp**, bucketing a city
+Good / OK / Poor. No thresholds were published, and "OK" may mean 2 m or 8 m —
+a difference that plausibly decides whether a 90k-record city is usable at all.
+§5 asks for the same judgment made quantitative: *"sample ~50 points/city, measure
+metres from the true ramp on aerial imagery; report a **distribution**, not a
+bucket."*
+
+This builds the instrument for that. Each sampled record gets an aerial chip
+centred on the published coordinate, overlaid with range rings at known radii, so
+the reviewer reads an **offset in metres off the rings** rather than forming an
+overall impression.
+
+**The basemap is the instrument, and the obvious basemap is not good enough.**
+Esri World Imagery — the default anywhere ArcGIS is involved — renders Denver
+leaf-on, hazy, and visibly upsampled: its effective ground resolution is around a
+metre, so a curb ramp and its detectable-warning pad are a smudge, and z=21
+returns "Map data not yet available" as a blank grey tile that a naive fetcher
+will happily paste into a review sheet. Measuring a 1-2 m offset against that is
+not possible, and *appearing* to do so is worse than not trying. Denver's own
+``Aerial2018_tilecache`` is leaf-off, sharp, and 0.23 m/px at this latitude; every
+city needs its equivalent found before its sheet is worth a reviewer's time.
+``--tile-source`` picks one, blank tiles are detected rather than pasted, and the
+manifest records exactly which imagery produced which judgment.
+
+    python scripts/analysis/inventory_review_sheet.py \
+        --city denver-co --inventory data/inventories/denver-co-2026-07-31.jsonl.gz \
+        --tile-source denver-2018 --sample 60 --seed 20260731 \
+        --where-field UPDATE_STATUS --where-value NC
+
+**Sampling is record-weighted by default**, because every record becomes a Stage 1
+label and the question is how accurate the *labels* will be. ``--sampling
+stratified`` spreads the sample over an equal-area grid instead, which buys
+peripheral coverage at the cost of no longer estimating anything about the
+population — use it to diagnose, not to quote.
+
+Imagery fetching is the only part of this programme that needs network. Tile math
+and sampling are pure and unit-tested in ``tests/test_inventory_review_sheet.py``.
+"""
+import argparse
+import base64
+import gzip
+import io
+import json
+import math
+import os
+import random
+import sys
+import urllib.request
+from collections import defaultdict
+
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+OUT = os.environ.get("RAMPNET_ANALYSIS_OUT", os.path.join(REPO, "analysis_out"))
+
+# Named basemaps. ``max_zoom`` is the deepest level the service actually serves —
+# past it these return a placeholder rather than an HTTP error, which is why
+# ``looks_blank`` exists. ``note`` travels into the manifest so a verdict can
+# never be read without knowing what it was made against.
+TILE_SOURCES = {
+    "esri-world": {
+        "url": ("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery"
+                "/MapServer/tile/{z}/{y}/{x}"),
+        "max_zoom": 20,
+        "attribution": ("Esri World Imagery (Esri, Maxar, Earthstar Geographics, "
+                        "and the GIS User Community)"),
+        "note": "Global fallback. Leaf-on and visibly upsampled over Denver — "
+                "adequate to check gross placement, NOT to measure a 1-2 m offset.",
+    },
+    "denver-2018": {
+        "url": ("https://tiles.arcgis.com/tiles/zdB7qR0BtYrg0Xpl/arcgis/rest/services"
+                "/Aerial2018_tilecache/MapServer/tile/{z}/{y}/{x}"),
+        "max_zoom": 19,
+        "attribution": "City and County of Denver (geospatialDENVER), Aerial 2018",
+        "note": "Leaf-off, sharp, 0.23 m/px at Denver's latitude. Predates the "
+                "2,784 records added 2023-24, which are expected to be absent.",
+    },
+}
+
+USER_AGENT = "RampNet-sourcing/1.0 (+https://github.com/ProjectSidewalk/RampNet)"
+
+TILE_PX = 256
+DEFAULT_SPAN_M = 40.0
+
+# Ring radii in metres. 1 m is roughly "on the ramp", 2 m "on the right corner
+# quadrant", 5 m "right corner, wrong ramp of the pair", 10 m "wrong corner".
+# These are the read-off marks, so the reviewer never estimates a bare distance.
+RING_RADII_M = (1.0, 2.0, 5.0, 10.0)
+
+# A served-but-empty tile ("Map data not yet available") is near-uniform. Real
+# aerial imagery over a street scene never is. Both thresholds have to hold, so a
+# genuinely flat subject — fresh snow, a blank roof — is not discarded on
+# variance alone.
+BLANK_STDDEV_MAX = 6.0
+BLANK_MEAN_RANGE = (150, 235)
+
+
+def lonlat_to_pixel(lon, lat, zoom, tile_px=TILE_PX):
+    """Web Mercator (EPSG:3857) global pixel coordinates. Pure."""
+    n = tile_px * (2 ** zoom)
+    x = (lon + 180.0) / 360.0 * n
+    s = math.sin(math.radians(lat))
+    s = max(-0.9999, min(0.9999, s))
+    y = (0.5 - math.log((1 + s) / (1 - s)) / (4 * math.pi)) * n
+    return x, y
+
+
+def metres_per_pixel(lat, zoom, tile_px=TILE_PX):
+    """Ground resolution of a Web Mercator pixel at ``lat``. Pure."""
+    return (2 * math.pi * 6378137.0 * math.cos(math.radians(lat))) / (tile_px * 2 ** zoom)
+
+
+def tile_range(lon, lat, zoom, span_px, tile_px=TILE_PX):
+    """Tiles covering a ``span_px`` box centred on lon/lat, plus the crop origin.
+
+    Returns ``(x0, y0, x1, y1, origin_px_x, origin_px_y)``; the tile range is
+    inclusive and the origin is the box's top-left in global pixel space.
+    """
+    px, py = lonlat_to_pixel(lon, lat, zoom, tile_px)
+    half = span_px / 2.0
+    left, top = px - half, py - half
+    return (int(math.floor(left / tile_px)), int(math.floor(top / tile_px)),
+            int(math.floor((px + half) / tile_px)), int(math.floor((py + half) / tile_px)),
+            left, top)
+
+
+def looks_blank(stats):
+    """Is this a served placeholder rather than imagery?
+
+    Takes ``(mean, stddev)`` so the test stays pure and the caller owns PIL.
+    """
+    mean, stddev = stats
+    return stddev <= BLANK_STDDEV_MAX and BLANK_MEAN_RANGE[0] <= mean <= BLANK_MEAN_RANGE[1]
+
+
+def uniform_sample(n_records, n, seed):
+    """Record-weighted sample. Pure and deterministic given ``seed``.
+
+    The default, because every record becomes a Stage 1 label: the quantity being
+    estimated is the accuracy of the labels the pipeline would actually produce,
+    which is a per-record average, not a per-square-kilometre one.
+    """
+    rng = random.Random(seed)
+    idx = list(range(n_records))
+    rng.shuffle(idx)
+    return sorted(idx[:n])
+
+
+def stratified_sample(points, n, seed, grid=8):
+    """Pick ``n`` indices spread over an equal-area grid of the point set.
+
+    Cells are filled round-robin from a shuffled per-cell queue, so every occupied
+    cell contributes before any cell contributes twice. **Not** an estimator of
+    the population — it deliberately over-weights sparse periphery — so it is a
+    diagnostic option, never the default.
+    """
+    if not points or n <= 0:
+        return []
+    lons = [p[0] for p in points]
+    lats = [p[1] for p in points]
+    lo_x, hi_x = min(lons), max(lons)
+    lo_y, hi_y = min(lats), max(lats)
+    span_x = (hi_x - lo_x) or 1e-9
+    span_y = (hi_y - lo_y) or 1e-9
+    cells = defaultdict(list)
+    for i, (lon, lat) in enumerate(points):
+        cx = min(grid - 1, int((lon - lo_x) / span_x * grid))
+        cy = min(grid - 1, int((lat - lo_y) / span_y * grid))
+        cells[(cx, cy)].append(i)
+    rng = random.Random(seed)
+    keys = sorted(cells)
+    rng.shuffle(keys)
+    for k in keys:
+        rng.shuffle(cells[k])
+    picked, round_no = [], 0
+    while len(picked) < n:
+        added = False
+        for k in keys:
+            if len(cells[k]) > round_no:
+                picked.append(cells[k][round_no])
+                added = True
+                if len(picked) == n:
+                    break
+        if not added:
+            break
+        round_no += 1
+    return sorted(picked)
+
+
+class TileMissing(Exception):
+    """The basemap has no tile here.
+
+    A city basemap is clipped to that city, so a record outside the municipal
+    footprint — Denver publishes ~15% of its ramps within 1 km beyond the county
+    line, plus a handful in the mountain parks — has no imagery. That is a
+    property of the record, not a failure of the run, so it drops the chip and
+    is counted.
+    """
+
+
+def _fetch_tile(url, cache_dir, timeout=60):
+    from PIL import Image
+    key = url.split("/tile/")[-1].replace("/", "_") + ".jpg"
+    path = os.path.join(cache_dir, key)
+    if os.path.exists(path):
+        if os.path.getsize(path) == 0:
+            raise TileMissing(url)
+        return Image.open(path).convert("RGB")
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as fh:
+            blob = fh.read()
+    except urllib.error.HTTPError as exc:
+        if exc.code in (404, 400):
+            # Cache the absence too, so a re-run does not re-request it.
+            open(path, "wb").close()
+            raise TileMissing(url)
+        raise
+    with open(path, "wb") as out:
+        out.write(blob)
+    return Image.open(io.BytesIO(blob)).convert("RGB")
+
+
+def render_chip(lon, lat, zoom, span_m, cache_dir, tile_url, rings=RING_RADII_M):
+    """Aerial chip centred on lon/lat with range rings.
+
+    Returns ``(image, metres_per_pixel, tile_keys, blank)``. ``blank`` is True when
+    the fetched imagery is a placeholder — the caller drops the chip rather than
+    presenting grey pixels as evidence.
+    """
+    from PIL import Image, ImageDraw, ImageStat
+    mpp = metres_per_pixel(lat, zoom)
+    span_px = int(round(span_m / mpp))
+    x0, y0, x1, y1, ox, oy = tile_range(lon, lat, zoom, span_px)
+    canvas = Image.new("RGB", ((x1 - x0 + 1) * TILE_PX, (y1 - y0 + 1) * TILE_PX))
+    keys = []
+    for tx in range(x0, x1 + 1):
+        for ty in range(y0, y1 + 1):
+            url = tile_url.format(z=zoom, x=tx, y=ty)
+            keys.append("{}/{}/{}".format(zoom, ty, tx))
+            canvas.paste(_fetch_tile(url, cache_dir), ((tx - x0) * TILE_PX, (ty - y0) * TILE_PX))
+    crop_x = int(round(ox - x0 * TILE_PX))
+    crop_y = int(round(oy - y0 * TILE_PX))
+    chip = canvas.crop((crop_x, crop_y, crop_x + span_px, crop_y + span_px))
+
+    st = ImageStat.Stat(chip.convert("L"))
+    blank = looks_blank((st.mean[0], st.stddev[0]))
+
+    d = ImageDraw.Draw(chip, "RGBA")
+    cx = cy = span_px / 2.0
+    for k, r_m in enumerate(rings):
+        r = r_m / mpp
+        if r >= span_px / 2.0:
+            continue
+        d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=(255, 235, 59, 210), width=1)
+        # Alternate label sides: the 1 m and 2 m rings are only a few pixels
+        # apart, so same-side labels overlap into an unreadable smear.
+        sx, sy = (0.7071, -0.7071) if k % 2 else (-0.7071, 0.7071)
+        d.text((cx + r * sx - (14 if sx < 0 else -2), cy + r * sy - 6),
+               "{:g}m".format(r_m), fill=(255, 235, 59, 235))
+    for a, b in ((-14, -4), (4, 14)):
+        d.line([cx + a, cy, cx + b, cy], fill=(255, 64, 64, 255), width=2)
+        d.line([cx, cy + a, cx, cy + b], fill=(255, 64, 64, 255), width=2)
+    bar = 10.0 / mpp
+    d.rectangle([8, span_px - 18, 8 + bar, span_px - 14], fill=(255, 255, 255, 235))
+    d.text((8, span_px - 32), "10 m", fill=(255, 255, 255, 235))
+    return chip, mpp, keys, blank
+
+
+def to_data_uri(img, quality=85):
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=quality)
+    return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode("ascii")
+
+
+HTML = """<!doctype html>
+<meta charset="utf-8">
+<title>{city} — curb-ramp location precision review</title>
+<style>
+ body {{ font: 14px/1.55 system-ui, sans-serif; margin: 24px; background:#111; color:#eee; }}
+ h1 {{ font-size: 20px; margin: 0 0 4px; }}
+ .meta, .legend {{ max-width: 76ch; }}
+ .meta {{ color:#9a9a9a; margin-bottom: 16px; }}
+ .legend {{ background:#1c1c1c; padding:12px 16px; border-radius:6px; margin-bottom:22px; }}
+ .grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(250px,1fr)); gap: 16px; }}
+ figure {{ margin:0; background:#1c1c1c; border-radius:6px; padding:8px; }}
+ img {{ width:100%; border-radius:3px; display:block; }}
+ figcaption {{ font-size:11px; color:#aaa; margin-top:6px; font-family: ui-monospace, monospace; }}
+ code {{ background:#242424; padding:1px 4px; border-radius:3px; }}
+ .warn {{ color:#ffb74d; }}
+</style>
+<h1>{city} — curb-ramp location precision ({n} chips)</h1>
+<div class="meta">
+ Snapshot <code>{inventory}</code> &middot; sample <code>{sampling}</code>, seed <code>{seed}</code>
+ &middot; imagery <b>{source}</b> at z{zoom} ({mpp:.3f} m/px).<br>
+ {attribution}. <span class="warn">{note}</span>
+</div>
+<div class="legend">
+ <b>How to read a chip.</b> The red crosshair is the <b>published coordinate</b>. Rings are
+ {rings} m from it. Record, per chip, in <code>verdicts.json</code>:
+ <ul>
+  <li><code>offset_m</code> — crosshair to the nearest physical curb ramp, read off the rings.</li>
+  <li><code>on_corner</code> — is the crosshair on the correct corner at all?</li>
+  <li><code>ramps_visible</code> — how many ramps are on that corner. <b>This is the
+      per-ramp-vs-per-corner evidence</b>, and the count is what settles it.</li>
+  <li><code>unreadable</code> — shadow, occlusion or resolution makes it unjudgeable.
+      <b>Mark it rather than guessing</b>; the unreadable rate is itself a reportable number.</li>
+ </ul>
+ Imagery capture date is the basemap's — neither the inventory's nor Street View's.
+</div>
+<div class="grid">
+"""
+
+
+def build_sheet(header, chips):
+    parts = [header]
+    for c in chips:
+        parts.append(
+            '<figure><img src="{uri}" alt="{rid}">'
+            '<figcaption>{rid}<br>{lat:.6f}, {lon:.6f}</figcaption></figure>\n'.format(**c))
+    parts.append("</div>\n")
+    return "".join(parts)
+
+
+def load_inventory(path):
+    opener = gzip.open if path.endswith(".gz") else open
+    rows = []
+    with opener(path, "rt") as fh:
+        for line in fh:
+            line = line.strip()
+            if line:
+                rows.append(json.loads(line))
+    return rows
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--city", required=True)
+    ap.add_argument("--inventory", required=True)
+    ap.add_argument("--sample", type=int, default=60)
+    ap.add_argument("--seed", type=int, required=True,
+                    help="explicit, so the sample is reproducible and citable")
+    ap.add_argument("--sampling", choices=("uniform", "stratified"), default="uniform")
+    ap.add_argument("--tile-source", choices=sorted(TILE_SOURCES), default="esri-world")
+    ap.add_argument("--zoom", type=int, default=None, help="defaults to the source's max")
+    ap.add_argument("--span-m", type=float, default=DEFAULT_SPAN_M)
+    ap.add_argument("--grid", type=int, default=8, help="stratification grid per axis")
+    ap.add_argument("--id-field", default="OBJECTID")
+    ap.add_argument("--where-field", default=None,
+                    help="restrict the sample frame, e.g. UPDATE_STATUS")
+    ap.add_argument("--where-value", default=None)
+    ap.add_argument("--out-dir", default=OUT)
+    args = ap.parse_args(argv)
+
+    src = TILE_SOURCES[args.tile_source]
+    zoom = args.zoom if args.zoom is not None else src["max_zoom"]
+    if zoom > src["max_zoom"]:
+        ap.error("{} serves at most z{}; deeper levels return blank placeholders".format(
+            args.tile_source, src["max_zoom"]))
+
+    rows = load_inventory(args.inventory)
+    frame = list(range(len(rows)))
+    if args.where_field:
+        frame = [i for i in frame if str(rows[i].get(args.where_field)) == args.where_value]
+        print("sample frame: {} of {} records with {}={}".format(
+            len(frame), len(rows), args.where_field, args.where_value))
+    pts = [(rows[i]["lon"], rows[i]["lat"]) for i in frame]
+    if args.sampling == "uniform":
+        local = uniform_sample(len(frame), args.sample, args.seed)
+    else:
+        local = stratified_sample(pts, args.sample, args.seed, grid=args.grid)
+    picked = [frame[i] for i in local]
+    print("sampled {} records ({}, seed {})".format(len(picked), args.sampling, args.seed))
+
+    review_dir = os.path.join(args.out_dir, "review_{}".format(args.city))
+    cache_dir = os.path.join(review_dir, "tiles_{}".format(args.tile_source))
+    os.makedirs(cache_dir, exist_ok=True)
+
+    chips, verdicts, blanks, missing, mpp = [], [], 0, 0, None
+    for k, i in enumerate(picked):
+        lon, lat = rows[i]["lon"], rows[i]["lat"]
+        rid = str(rows[i].get(args.id_field, i))
+        try:
+            chip, mpp, keys, blank = render_chip(lon, lat, zoom, args.span_m, cache_dir, src["url"])
+        except TileMissing:
+            missing += 1
+            print("  [{:>3}/{}] {} NO IMAGERY — outside the basemap footprint".format(
+                k + 1, len(picked), rid))
+            continue
+        if blank:
+            blanks += 1
+            print("  [{:>3}/{}] {} BLANK — dropped".format(k + 1, len(picked), rid))
+            continue
+        chips.append({"uri": to_data_uri(chip), "rid": rid, "lon": lon, "lat": lat})
+        verdicts.append({
+            "id": rid, "lon": lon, "lat": lat, "tiles": keys,
+            "offset_m": None, "on_corner": None, "ramps_visible": None,
+            "unreadable": False, "note": "",
+        })
+        print("  [{:>3}/{}] {} {:.6f},{:.6f}".format(k + 1, len(picked), rid, lat, lon))
+
+    verdict_path = os.path.join(review_dir, "verdicts.json")
+    with open(verdict_path, "w") as fh:
+        json.dump({
+            "city": args.city, "inventory": os.path.basename(args.inventory),
+            "seed": args.seed, "sampling": args.sampling, "sample_requested": args.sample,
+            "sample_frame": {"field": args.where_field, "value": args.where_value,
+                             "size": len(frame), "of": len(rows)},
+            "grid": args.grid if args.sampling == "stratified" else None,
+            "tile_source": args.tile_source, "tile_url": src["url"],
+            "imagery": src["attribution"], "imagery_note": src["note"],
+            "zoom": zoom, "metres_per_pixel": mpp, "span_m": args.span_m,
+            "ring_radii_m": list(RING_RADII_M),
+            "blank_chips_dropped": blanks,
+            "no_imagery_dropped": missing,
+            "reviewer": None, "reviewed_on": None, "confidence": None,
+            "records": verdicts,
+        }, fh, indent=2)
+        fh.write("\n")
+
+    header = HTML.format(
+        city=args.city, n=len(chips), inventory=os.path.basename(args.inventory),
+        sampling=args.sampling, seed=args.seed, source=args.tile_source, zoom=zoom,
+        mpp=mpp or 0.0, attribution=src["attribution"], note=src["note"],
+        rings="/".join("{:g}".format(r) for r in RING_RADII_M))
+    sheet_path = os.path.join(review_dir, "review_sheet.html")
+    with open(sheet_path, "w", encoding="utf-8") as fh:
+        fh.write(build_sheet(header, chips))
+
+    print("\n{} chips, {} blank dropped".format(len(chips), blanks))
+    print("wrote {}".format(sheet_path))
+    print("wrote {}".format(verdict_path))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -41,6 +41,20 @@ analysis_out/op/*
 !analysis_out/e1_stage1_label_recall.json
 !analysis_out/miss_decomposition.json
 
+# Per-ramp/per-corner geometry reports (#96): a few KB each, and they hold the exact
+# numbers quoted in docs/curb_ramp_data_sourcing.md 5d, re-derivable on CPU from the
+# committed snapshots under data/inventories/.
+!analysis_out/inventory_geometry_*.json
+
+# Location-precision review sheets (#96). The verdicts -- and the tile keys recording
+# which imagery produced them -- are the irreplaceable part, so verdicts.json is tracked.
+# review_sheet.html is not: it embeds basemap tiles under terms that do not permit
+# re-hosting, and it regenerates from the committed script plus the recorded seed. The
+# tile caches beside it are likewise someone else's imagery.
+!analysis_out/review_*/
+analysis_out/review_*/*
+!analysis_out/review_*/verdicts.json
+
 # Claude Code local state. settings.local.json is per-machine (absolute paths,
 # session ids) and worktrees/ holds full repo checkouts -- gigabytes. Listed
 # individually rather than ignoring all of .claude/, so a shared
