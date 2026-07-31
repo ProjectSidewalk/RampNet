@@ -86,6 +86,13 @@ def test_both_schemes_separate_a_rubric_question_from_a_gt_error():
     assert "not-a-ramp" in miss and miss.index("not-a-ramp") != miss.index("definition")
 
 
+def test_the_guide_resolves_occlusion_against_context():
+    # A partly-hidden ramp a reviewer can still identify is ambiguous between
+    # 'occluded' and 'context-only'; they route to different programmes, so the
+    # precedence has to be stated rather than left to taste.
+    assert "Occlusion outranks context" in mk.MISS_GUIDE
+
+
 def test_the_guide_names_the_case_that_prompted_the_definition_verdict():
     # A verdict nobody understands is a verdict nobody uses correctly; the median
     # cut-through is the concrete case, so it is spelled out rather than implied.

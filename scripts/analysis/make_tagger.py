@@ -85,8 +85,8 @@ header turns <span class="adv">amber</span> on those.</p>
 <table>
   <tr><th>if, in panel 3</th><th>press</th></tr>
   <tr><td>the ramp itself is resolvable — you can point at the ramp, not just the place it should be</td><td><b>1</b> visible</td></tr>
-  <tr><td>you cannot resolve the ramp, but a <b>crosswalk, coloured apron, or curb cut</b> tells you one is there</td><td><b>2</b> context-only</td></tr>
-  <tr><td>a car, pole, vegetation or person is in the way</td><td><b>3</b> occluded</td></tr>
+  <tr><td>nothing is in the way, but you cannot resolve the ramp — a <b>crosswalk, coloured apron, or curb cut</b> tells you one is there</td><td><b>2</b> context-only</td></tr>
+  <tr><td>a car, pole, vegetation or person is in the way — <b>even if you can still identify it</b></td><td><b>3</b> occluded</td></tr>
   <tr><td>deep shadow or a blown-out highlight</td><td><b>4</b> lighting</td></tr>
   <tr><td>debris, snow, leaves or construction over it</td><td><b>5</b> surface</td></tr>
   <tr><td>panels 1&ndash;2 show <b>nothing ramp-like</b> — plain pavement, driveway apron</td><td><b>6</b> not-a-ramp</td></tr>
@@ -112,6 +112,16 @@ must be a ramp" — <b>that is <span class="key">2</span></b>, not <span class="
 distinction is load-bearing: <b>RampNet sees that same context</b>, at that same resolution, across
 the whole panorama. So context-only misses are still learnable — but from scene layout rather than
 from the ramp's own appearance, which is a different capability and a different fix.</p>
+<p><b>Regional convention counts as context.</b> "That shade of pink is what this city uses for
+tactile surfaces" is a legitimate cue, and a real one — it is also exactly the kind of appearance
+prior a model trained mostly elsewhere would lack.</p>
+<h3 class="hot">Occlusion outranks context</h3>
+<p><b>If something is physically in the way, press <span class="key">3</span> — even if you can
+still identify the ramp.</b> A truck leaving a thin sliver of tactile surface visible is
+<i>occluded</i>, not <i>context-only</i>: no amount of training data lets a detector see through a
+truck, so the programme assignment is the capture problem regardless of how good your inference was.
+<span class="key">2</span> is for ramps in <b>clear view but unresolvable</b> — too far, too few
+pixels — not for ramps that are hidden.</p>
 <p><span class="key">1</span> and <span class="key">2</span> together bound what more training data
 could reach; <span class="key">1</span> alone is the tight estimate. Everything else routes
 elsewhere: occlusion and lighting are capture problems, <code>not-a-ramp</code> is a ground-truth
