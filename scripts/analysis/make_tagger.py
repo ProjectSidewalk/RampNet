@@ -42,7 +42,11 @@ MISS_SCHEME = [
     ("occluded", "Blocked by vehicle / pole / vegetation / person", "capture problem"),
     ("lighting", "Deep shadow or blown highlight", "capture problem"),
     ("surface", "Debris, snow, leaves, construction over it", "environment"),
-    ("not-a-ramp", "No ramp here / flush or blended transition", "GT disagreement"),
+    ("not-a-ramp", "Nothing ramp-like here — plain pavement, driveway apron",
+     "GT error"),
+    ("definition", "Imagery is clear; whether this CLASS counts as a curb ramp is the "
+     "question (e.g. at-grade median cut-through with detectable warnings)",
+     "rubric question, not a model failure"),
     ("unclear", "Cannot tell even with context", "excluded from every rate"),
 ]
 
@@ -54,6 +58,8 @@ FP_SCHEME = [
     ("tactile-lookalike", "Manhole / grating / patterned surface", "truncated-dome lookalike"),
     ("stairs", "Steps", "ramp-adjacent furniture"),
     ("real-ramp", "Actually a ramp the GT missed", "NOT a model error — GT gap"),
+    ("definition", "Real pedestrian feature, but is this CLASS a curb ramp? "
+     "(e.g. at-grade median cut-through)", "rubric question, not a model failure"),
     ("other", "None of the above", ""),
     ("unclear", "Cannot tell from this imagery", "excluded from every rate"),
 ]
@@ -83,9 +89,23 @@ header turns <span class="adv">amber</span> on those.</p>
   <tr><td>a car, pole, vegetation or person is in the way</td><td><b>3</b> occluded</td></tr>
   <tr><td>deep shadow or a blown-out highlight</td><td><b>4</b> lighting</td></tr>
   <tr><td>debris, snow, leaves or construction over it</td><td><b>5</b> surface</td></tr>
-  <tr><td>panels 1&ndash;2 show <b>no real ramp</b> — flush pavement, driveway apron, nothing</td><td><b>6</b> not-a-ramp</td></tr>
-  <tr><td>nothing tells you either way, context included</td><td><b>7</b> unclear</td></tr>
+  <tr><td>panels 1&ndash;2 show <b>nothing ramp-like</b> — plain pavement, driveway apron</td><td><b>6</b> not-a-ramp</td></tr>
+  <tr><td>a real pedestrian feature is clearly there, but <b>whether it counts as a curb ramp is the question</b></td><td><b>7</b> definition</td></tr>
+  <tr><td>nothing tells you either way, context included</td><td><b>8</b> unclear</td></tr>
 </table>
+<h3><span class="key">7</span> definition — for "is this even a curb ramp?"</h3>
+<p>Distinct from <span class="key">6</span>: <code>not-a-ramp</code> means <i>nothing ramp-like is
+there</i> and the ground truth is simply wrong. <code>definition</code> means the feature is real
+and plainly visible, and the open question is whether <b>this class of thing</b> belongs in the
+label set at all.</p>
+<p>The case that prompted this: an <b>at-grade median cut-through</b> — a refuge island where the
+crosswalk runs flush all the way across and there are detectable warning surfaces on both faces of
+the median. There is <b>no running slope</b>; nothing ramps. It is an opening with truncated domes.
+We have been labelling these as curb ramps.</p>
+<p><b>Do not try to settle it while tagging — just press <span class="key">7</span>.</b> Tagged
+separately, the numbers can be computed <i>both ways</i>, with and without this class in the ground
+truth, and the rubric decided on real counts rather than in the abstract. A verdict here says
+nothing bad about the model: it is a question about our label set.</p>
 <h3><span class="key">2</span> context-only is a real answer, not a cop-out</h3>
 <p>If you find yourself reasoning "there's a crosswalk here and a bit of coloured apron, so there
 must be a ramp" — <b>that is <span class="key">2</span></b>, not <span class="key">1</span>. The

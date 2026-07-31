@@ -76,6 +76,23 @@ def test_the_guide_flags_that_near_field_is_the_load_bearing_population():
     assert "near-field" in mk.MISS_GUIDE.lower()
 
 
+def test_both_schemes_separate_a_rubric_question_from_a_gt_error():
+    # "there is nothing here" and "this is real but is it in our class?" are different
+    # findings with different fixes: one corrects the ground truth, the other decides
+    # the label set. Collapsing them would hide the rubric question entirely.
+    for scheme in (mk.MISS_SCHEME, mk.FP_SCHEME):
+        assert "definition" in [n for n, _, _ in scheme]
+    miss = [n for n, _, _ in mk.MISS_SCHEME]
+    assert "not-a-ramp" in miss and miss.index("not-a-ramp") != miss.index("definition")
+
+
+def test_the_guide_names_the_case_that_prompted_the_definition_verdict():
+    # A verdict nobody understands is a verdict nobody uses correctly; the median
+    # cut-through is the concrete case, so it is spelled out rather than implied.
+    assert "median cut-through" in mk.MISS_GUIDE
+    assert "running slope" in mk.MISS_GUIDE
+
+
 def test_every_scheme_offers_an_escape_hatch():
     # Without 'unclear' a reviewer is forced to invent a verdict on bad imagery.
     for scheme in (mk.MISS_SCHEME, mk.FP_SCHEME):
