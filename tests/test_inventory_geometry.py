@@ -129,6 +129,38 @@ def test_link_sweep_flags_when_groups_start_merging_across_the_intersection():
 
 
 # --------------------------------------------------------------------------- #
+# composite corner keys — Charlotte and Minneapolis split the key in two
+# --------------------------------------------------------------------------- #
+def test_composite_key_joins_intersection_and_quadrant():
+    rows = [{"intersection_id": "7", "quadrant": "NE"},
+            {"intersection_id": "7", "quadrant": "SW"},
+            {"intersection_id": "8", "quadrant": "NE"}]
+    got = ig.composite_key(rows, ["intersection_id", "quadrant"])
+    assert got[0] != got[1] != got[2] and got[0] != got[2]
+
+
+def test_composite_key_is_none_when_any_part_is_missing():
+    """Substituting an empty string would collapse every incomplete record into
+    one enormous pseudo-corner and read as catastrophic over-merging."""
+    rows = [{"a": "1", "b": None}, {"a": None, "b": "2"}, {"a": "1", "b": ""},
+            {"a": "1", "b": "2"}]
+    got = ig.composite_key(rows, ["a", "b"])
+    assert got[:3] == [None, None, None]
+    assert got[3] == "1|2"
+
+
+def test_composite_key_of_one_field_is_just_that_field():
+    assert ig.composite_key([{"cornerid": "abc"}], ["cornerid"]) == ["abc"]
+
+
+def test_composite_key_does_not_collide_across_field_boundaries():
+    """('ab', 'c') and ('a', 'bc') are different corners and must stay different."""
+    rows = [{"a": "ab", "b": "c"}, {"a": "a", "b": "bc"}]
+    got = ig.composite_key(rows, ["a", "b"])
+    assert got[0] != got[1]
+
+
+# --------------------------------------------------------------------------- #
 # summary statistics
 # --------------------------------------------------------------------------- #
 def test_histogram_buckets_are_half_open():

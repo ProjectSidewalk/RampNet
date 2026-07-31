@@ -178,6 +178,27 @@ def fetch_arcgis(layer_url, where="1=1", out_sr=4326, page_size=DEFAULT_PAGE_SIZ
     return records, len(queries), queries
 
 
+def find_oid_field(layer_meta, fallback="OBJECTID"):
+    """Read the layer's object-ID field name from its metadata. Pure.
+
+    **Do not assume ``OBJECTID``.** San Francisco's curb-ramp layer names it
+    something else, and since ID paging keys on that field, assuming the name
+    made ``max_oid`` return None, which stopped the fetch after one page —
+    2,000 of 50,096 records, written out as though complete. The count guard
+    caught it, but the fix belongs here: ask the layer what its key is.
+    """
+    uniq = (layer_meta.get("uniqueIdField") or {}).get("name")
+    if uniq:
+        return uniq
+    named = layer_meta.get("objectIdField")
+    if named:
+        return named
+    for f in layer_meta.get("fields") or []:
+        if f.get("type") == "esriFieldTypeOID":
+            return f["name"]
+    return fallback
+
+
 def sha256_bytes(blob):
     return hashlib.sha256(blob).hexdigest()
 
@@ -221,7 +242,11 @@ def main(argv=None):
     ap.add_argument("--lon-field", default="longitude")
     ap.add_argument("--lat-field", default="latitude")
     ap.add_argument("--where", default="1=1", help="ArcGIS where clause")
-    ap.add_argument("--oid-field", default="OBJECTID")
+    ap.add_argument("--oid-field", default=None,
+                    help="object-ID field to page on; read from the layer if omitted")
+    ap.add_argument("--allow-partial", action="store_true",
+                    help="write a snapshot even when it is short of the server's "
+                         "own count (only for a layer with genuinely null geometry)")
     ap.add_argument("--page-size", type=int, default=DEFAULT_PAGE_SIZE)
     ap.add_argument("--out-sr", type=int, default=4326,
                     help="output CRS; 4326 unless you are checking the round-trip")
@@ -238,10 +263,11 @@ def main(argv=None):
     if args.arcgis:
         count_url = arcgis_query_url(args.arcgis, where=args.where, count_only=True)
         declared = _get_json(count_url).get("count")
-        print("declared count: {}".format(declared))
+        oid_field = args.oid_field or find_oid_field(_get_json(args.arcgis + "?f=json"))
+        print("declared count: {} | paging on {}".format(declared, oid_field))
         records, pages, queries = fetch_arcgis(
             args.arcgis, where=args.where, out_sr=args.out_sr,
-            page_size=args.page_size, oid_field=args.oid_field)
+            page_size=args.page_size, oid_field=oid_field)
         manifest = {
             "city": args.city,
             "fetched": args.fetched,
@@ -253,6 +279,7 @@ def main(argv=None):
             "pages": pages,
             "count_query": count_url,
             "first_query": queries[0] if queries else None,
+            "oid_field": oid_field,
             "note": args.note,
         }
         if declared is not None and declared != len(records):
@@ -260,7 +287,14 @@ def main(argv=None):
                 "declared": declared, "fetched": len(records),
                 "note": "server count vs rows retained after dropping null geometry",
             }
+            # A short fetch that writes a normal-looking snapshot is the worst
+            # outcome here: every downstream count silently inherits the
+            # truncation. Refuse by default and make the operator say otherwise.
             print("! declared {} but retained {}".format(declared, len(records)))
+            if not args.allow_partial:
+                print("  refusing to write a truncated snapshot. If the shortfall is "
+                      "genuinely null geometry, re-run with --allow-partial.")
+                return 2
     else:
         rows, offset = [], 0
         while True:

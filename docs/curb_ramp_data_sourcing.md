@@ -582,17 +582,75 @@ reproduces NYC's own corner grouping at **precision 0.976 / recall 0.973** (135,
 134,127 published groups). That is what licenses running the same clustering on cities that
 publish no corner key.
 
-| | NYC (known per-ramp) | Denver |
-| :--- | ---: | ---: |
-| Records | 217,679 | 72,770 |
-| Nearest-neighbour median | **2.9 m** | **8.1 m** |
-| Share with a neighbour ≤6 m | **0.750** | **0.345** |
-| Records per corner group | **1.61** | **1.21** |
-| Singleton corner groups | 0.402 | **0.794** |
-| Published corners (NYC only) | 134,127 at 1.62/corner | — |
+### The cross-city result, which is not the one I expected
 
-NYC's nearest-neighbour mode sits at 2–3 m and holds 48.2% of records; Denver's is at 10–15 m and
-only 2.9% of its records fall below 3 m.
+Run over every frozen snapshot (§9). **Ordered by pairing density, and the ordering is the finding.**
+
+| City | Records | Rec/corner (6 m) | Singleton | Share ≤6 m | vs published corner key |
+| :--- | ---: | ---: | ---: | ---: | :--- |
+| **NYC** — Good, in training | 217,679 | **1.61** | 0.402 | 0.750 | **P .976 / R .973** |
+| **Portland** — Good, in training | 46,101 | **1.38** | 0.635 | 0.539 | — |
+| **Bend** — Good, in training | 14,805 | **1.31** | 0.726 | 0.444 | — |
+| Sioux Falls | 19,991 | 1.22 | 0.785 | 0.356 | — |
+| **Denver** | 72,770 | **1.21** | 0.794 | 0.345 | — |
+| Arlington | 10,342 | 1.12 | 0.887 | 0.209 | — |
+| Charlotte | 40,600 | 1.09 | 0.917 | 0.155 | P .621 / R .406 ⚠️ |
+| Minneapolis | 18,453 | 1.09 | 0.917 | 0.156 | P .924 / R .859 |
+| Boston | 24,022 | 1.08 | 0.924 | 0.145 | — |
+| San Francisco | 50,096 | **6.64** | 0.038 | 0.994 | — ⚠️ see below |
+
+**All three training cities sit above every candidate.** That is the result, and it is not a Denver
+finding — Denver is second-highest of the candidates. An earlier draft of this section compared
+Denver against NYC alone and called it weak on pairing; **that framing was wrong**, and it was wrong
+in the way single-baseline comparisons usually are. NYC at 1.61 is the outlier, and Minneapolis's
+own published corner key independently confirms 1.09 is real, not an artifact of the clustering.
+
+So the honest statement is about the corpus, not the city: **every candidate would dilute pairing
+density relative to what RampNet trains on today.** Whether that is a problem is genuinely open, and
+it cuts both ways — it is a *vocabulary* difference (which §8 argues we want, and which is exactly
+what Paterson and Gainesville punished us for lacking), but it also means fewer paired examples to
+learn the σ/`min_distance` separation that #46 found us failing.
+
+### The mechanism, from the two cities that publish ramp type
+
+Sioux Falls (`RAMPTYPE`) and Charlotte (`RP_Type`) let the ratio be decomposed rather than guessed:
+
+| Sioux Falls corner composition | Groups | Records/group |
+| :--- | ---: | ---: |
+| **Diagonal** only | 6,154 | **1.004** |
+| **Directional** only | 9,455 | **1.365** |
+| mixed / other | 800 | 1.134 |
+
+A diagonal corner really is one ramp, and it is recorded as one record. Charlotte agrees from the
+other direction using its own published corner key: corners containing a diagonal type average
+**1.059** records against **1.176** for those without. Sioux Falls is 31% `Diagonal`, and Charlotte
+is 30% `*Diag`.
+
+**So a low records-per-corner is substantially ramp-design vocabulary, not under-recording** — which
+is the benign reading of Denver's 1.21, and the one the evidence now favours. It does not settle
+Denver, because Denver publishes no type field at all; that is what `ramps_visible` on the review
+sheet is for.
+
+### The two anomalies, both caught without imagery
+
+**⚠️ San Francisco is disqualified for Stage 1 — its coordinates are intersection centroids.** The
+50,096 records carry only **7,553 distinct coordinates**, mapping 1:1 to `cnn` (SF's intersection
+node id). Every ramp at an intersection is stamped with *the intersection's* single point: a modal
+6–8 rows per coordinate, up to 29. `curbreturnloc` (N/NE/E/…) records which return each row
+describes, but the geometry does not follow it. Feeding this to Stage 1 would project ~4.7 identical
+labels onto one pixel, none of them on a ramp. Its 6.64 records/corner and 0.994 share-within-6 m
+are the signature, and no reviewer time was needed to find it.
+
+Also note **14,414 of its rows carry `crexist = 0`** — confirmed *absence*, the same polarity as
+Atlanta's layer (§3) and Charlotte's `NoRamp`. Useless for Stage 1, potentially valuable for #86.
+
+**⚠️ Charlotte's coordinates disagree with Charlotte's own corner key.** Geometric recovery is
+P .621 / R .406 against `RP_IntID`+`RP_LocInInt`, far below NYC's .976/.973 and Minneapolis's
+.924/.859. The cause is spread: of Charlotte's 3,839 multi-record published corners, **52.5% have
+members more than 6 m apart, 14.4% more than 20 m, and the 99th percentile is 308 m.** Large
+arterial corners explain the tail up to ~30 m; they do not explain 308 m. Either `RP_IntID` groups
+more loosely than it appears or the coordinates are poorly placed — and the second is a
+positional-precision red flag that Charlotte's review sheet must specifically test.
 
 ### The confound this survives
 
@@ -716,17 +774,39 @@ For the ramp target, tiering by Table 1 gives the decisive result:
 | :--- | ---: | ---: |
 | **Good** (NYC + Portland + Bend) — already used | 276,615 | 276,615 |
 | **+ all OK** (LA + Austin + DC + Nashville) | 193,898 | **470,513** ❌ |
-| **+ unassessed cities** (Denver, SF, Charlotte, Boston, Sioux Falls, Minneapolis, Arlington) | ~236,000 | ~706,500 |
-| **+ state DOTs** (VDOT, WisDOT, NYSDOT, CDOT) | ~198,800 | ~905,300 |
+| **+ unassessed cities** — corrected, see below | **180,673** | **651,186** |
+| **+ state DOTs** (VDOT, WisDOT, NYSDOT, CDOT) | ~198,800 | ~850,000 |
 
 > **500,000 is not reachable on assessed data alone.** Good + *every* OK city reaches **470,513** —
 > about 30k short — and that is already after accepting a quality tier the paper deliberately
 > rejected. **Every route to 500k depends on cities whose location precision nobody has checked.**
 
-That makes §5 the critical path, not discovery. Concretely: assessing the seven unassessed cities is
-a few days of visual work with no compute, and it determines whether 500k is a real target or an
-arithmetic one. If roughly 60% of that ~236k passes at Good, 500k clears comfortably on
-city-inventory data alone, with no state-DOT tail.
+### ⚠️ The unassessed pool is 23% smaller than first counted (2026-07-31)
+
+The original ~236,000 counted published *records*. Reading the frozen snapshots (§5d, §5e) shows
+two of those counts are not ramp locations:
+
+| City | Listed in §3 | Corrected | Why |
+| :--- | ---: | ---: | :--- |
+| Denver | 72,770 | 72,770 | — |
+| **San Francisco** | 50,096 | **0** | Coordinates are **intersection centroids** — 7,553 distinct points for 50,096 rows. Unusable for Stage 1 at any precision tier |
+| **Charlotte** | 40,601 | **35,095** | 5,505 records are `RP_Type = NoRamp` — confirmed *absence*, not ramps |
+| Boston | 24,022 | 24,022 | temporal gate already ❌ |
+| Sioux Falls | 19,977 | 19,991 | live drift |
+| Minneapolis | 18,447 | 18,453 | live drift; 4 rows carry null geometry |
+| Arlington | 10,342 | 10,342 | — |
+| **Total** | ~236,000 | **180,673** | **−55,327** |
+
+**The consequence is sharper than the headline number.** Good (276,615) + *every* unassessed city,
+even if all of them passed at Good, is **457,288 — still short of 500,000.** So the "no OK tier, no
+state DOT" route that looked available is closed: **500k now requires either accepting the OK tier
+the paper rejected, or the state-DOT tail with its Richmond/NYC clipping hazards.** That is a
+decision for the programme, not a detail.
+
+§5 remains the critical path — assessing what is left is a few days of visual work with no compute —
+but the arithmetic it is feeding is tighter than when this document was written. Note also that both
+corrections were found by *reading the data*, not by reviewing imagery: the cheap automated checks in
+§5d pay for themselves before any reviewer is booked.
 
 ### ⚠️ VDOT would burn the Richmond benchmark split
 

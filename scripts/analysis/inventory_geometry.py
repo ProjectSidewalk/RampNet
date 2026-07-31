@@ -399,6 +399,29 @@ def analyse(points, corner_ids=None, dates=None, corner_link_m=CORNER_LINK_M,
     return report
 
 
+def composite_key(rows, fields):
+    """Build a corner key from one or more columns. Pure.
+
+    Only NYC publishes a single ready-made corner id. Charlotte and Minneapolis
+    publish the same information split in two — an intersection id plus which
+    corner of it (`RP_LocInInt` = NE/SE/…, `quadrant`) — so the key has to be
+    composed.
+
+    A record missing *any* part yields ``None``. The alternative, substituting an
+    empty string, would collapse every incomplete record into one enormous
+    pseudo-corner and wreck the recovery score in a direction that looks like
+    over-merging.
+    """
+    out = []
+    for r in rows:
+        parts = [r.get(f) for f in fields]
+        if any(p is None or p == "" for p in parts):
+            out.append(None)
+        else:
+            out.append("|".join(str(p) for p in parts))
+    return out
+
+
 def load_inventory(path, lon_field="lon", lat_field="lat"):
     """Read a snapshot written by ``fetch_inventory.py``."""
     opener = gzip.open if path.endswith(".gz") else open
@@ -426,7 +449,12 @@ def main(argv=None):
     ap.add_argument("--city", required=True)
     ap.add_argument("--inventory", required=True, help="jsonl(.gz) from fetch_inventory.py")
     ap.add_argument("--corner-field", default=None,
-                    help="published corner key, if the city has one (NYC: cornerid)")
+                    help="published corner key, if the city has one. Comma-separate to "
+                         "compose one from several columns: NYC 'cornerid'; Charlotte "
+                         "'RP_IntID,RP_LocInInt' (intersection + which corner of it); "
+                         "Minneapolis 'intersection_id,quadrant'. A record missing any "
+                         "part is treated as having no corner key rather than being "
+                         "silently grouped with every other incomplete record.")
     ap.add_argument("--date-field", default=None,
                     help="epoch-ms date field to histogram by year (Denver: CREATEDATE)")
     ap.add_argument("--corner-link-m", type=float, default=CORNER_LINK_M)
@@ -434,7 +462,7 @@ def main(argv=None):
     args = ap.parse_args(argv)
 
     rows, points = load_inventory(args.inventory)
-    corner_ids = [r.get(args.corner_field) for r in rows] if args.corner_field else None
+    corner_ids = composite_key(rows, args.corner_field.split(",")) if args.corner_field else None
     dates = [r.get(args.date_field) for r in rows] if args.date_field else None
     report = analyse(points, corner_ids=corner_ids, dates=dates,
                      corner_link_m=args.corner_link_m)
