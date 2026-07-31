@@ -69,10 +69,16 @@ analysis_out/review_*/*
 # rings are true, and the two PNGs are what a reader looks at to agree. Small, and
 # the whole point is that a claim of correct registration is checkable rather than
 # asserted. The tile cache beside them is someone else's imagery.
-!analysis_out/georef_check/
-analysis_out/georef_check/*
-!analysis_out/georef_check/georef_check.json
-!analysis_out/georef_check/registration_*.png
+# One directory per city since §5i (georef_check_denver-co, georef_check_seattle-wa),
+# plus the _chips variant that measures under a specific review's own verdicts.
+!analysis_out/georef_check_*/
+analysis_out/georef_check_*/*
+!analysis_out/georef_check_*/georef_check.json
+!analysis_out/georef_check_*/registration_*.png
+
+# Ramps vs the city's own centrelines (§5i). Numbers only, no imagery — this is
+# the leg that exonerated Seattle's coordinates, so it has to be checkable.
+!analysis_out/centerline_offset_*.json
 
 # Claude Code local state. settings.local.json is per-machine (absolute paths,
 # session ids) and worktrees/ holds full repo checkouts -- gigabytes. Listed

@@ -31,6 +31,7 @@ Pure apart from file reading; the arithmetic is unit-tested in
 import argparse
 import json
 import math
+import random
 import sys
 
 
@@ -76,13 +77,32 @@ def systematic_shift(records, metres_per_pixel, span_px):
 
     Denver measures 0.10 m resultant against 0.44 m mean magnitude (24%) — no
     gross shift, consistent with §5e's independent centreline check. Seattle's
-    first 11 chips measure 2.06 m against 2.37 m (**87%**), with the ramp west of
-    the published point in 9 of 11: that is not imprecision, and quoting its
-    median as a precision figure would have been wrong.
+    first 11 chips measure 2.06 m against 2.37 m (**87%**).
 
-    A high share does NOT say which side is wrong — the inventory's coordinates
-    or the basemap's registration. Resolving that needs the city's own vector
-    data drawn on the imagery (`verify_chip_georeference.py`). Pure.
+    **⚠️ The ratio is NOT ~0 under the null, and reading it as though it were is
+    how this statistic misleads.** With ``n`` offsets of fixed magnitude and
+    uniformly random direction the mean vector does not vanish; it shrinks only
+    as ``1/sqrt(n)``, so the expected share is roughly ``0.9/sqrt(n)`` — **39% at
+    Seattle's n=11**, not 0%. A share has to be read against
+    ``systematic_shift_null``, which resamples the observed magnitudes with random
+    directions and returns the exceedance probability. Seattle's 87% is genuinely
+    improbable under that null (p≈0.001), so the direction is real *in this
+    sample*.
+
+    **But a significant share still does not establish a registration error.**
+    Seattle is the worked counter-example: its 87% survived the null, and both
+    candidate frames were then cleared at high n — the coordinates sit unbiased
+    against the city's own street network over 31,430 samples
+    (``inventory_centerline_offset.py``, 0.00 m) and the basemap agrees with that
+    network to ≤0.32 m *at the eleven reviewed chips themselves*
+    (``verify_chip_georeference.py --sites-from-verdicts``). A city-wide
+    displacement cannot hide from either. What produces a directional lean at
+    n=11 is a handful of large per-record errors that happen to share a heading,
+    which this ratio cannot distinguish from a true shift.
+
+    So the rule the tool enforces: a high share **raises** the registration
+    question, and only a high-n instrument can answer it. Never conclude "shift"
+    from the review sheet alone. Pure.
     """
     C = span_px / 2.0
     vecs = []
@@ -98,13 +118,59 @@ def systematic_shift(records, metres_per_pixel, span_px):
     mean_n = sum(v[1] for v in vecs) / n
     resultant = math.hypot(mean_e, mean_n)
     mean_mag = sum(math.hypot(*v) for v in vecs) / n
-    return {
+    out = {
         "n": n,
         "mean_east_m": mean_e, "mean_north_m": mean_n,
         "resultant_m": resultant, "mean_magnitude_m": mean_mag,
         "systematic_share": (resultant / mean_mag) if mean_mag else None,
         "east_positive": sum(1 for v in vecs if v[0] > 0),
         "north_positive": sum(1 for v in vecs if v[1] > 0),
+    }
+    if out["systematic_share"] is not None:
+        out["null"] = systematic_shift_null([math.hypot(*v) for v in vecs],
+                                            out["systematic_share"])
+    return out
+
+
+def systematic_shift_null(magnitudes, observed_share, draws=20000, seed=20260731):
+    """How large a ``systematic_share`` do these offsets give by chance alone?
+
+    Holds the observed **magnitudes** fixed and randomises only the directions.
+    Keeping the magnitudes matters: the ratio is dominated by the largest few
+    offsets, so a null built on equal-sized vectors would understate how easily a
+    heavy-tailed sample fakes a shift. Seattle's magnitudes run 0.21 m to 8.79 m
+    over eleven chips, and the single 8.79 m click moves the mean vector further
+    than the six smallest combined.
+
+    Returns the null median and the exceedance probability. Pure apart from a
+    seeded RNG, so the p-value is reproducible.
+    """
+    n = len(magnitudes)
+    if n == 0:
+        return None
+    mean_mag = sum(magnitudes) / n
+    if mean_mag <= 0:
+        return None
+    rng = random.Random(seed)
+    shares = []
+    for _ in range(draws):
+        e = nn = 0.0
+        for m in magnitudes:
+            th = rng.uniform(0.0, 2.0 * math.pi)
+            e += m * math.cos(th)
+            nn += m * math.sin(th)
+        shares.append(math.hypot(e, nn) / n / mean_mag)
+    shares.sort()
+    ge = sum(1 for s in shares if s >= observed_share)
+    return {
+        "draws": draws,
+        "median_share": shares[draws // 2],
+        "p95_share": shares[int(0.95 * draws)],
+        "p_value": ge / float(draws),
+        "note": "Expected share under random directions is ~0.9/sqrt(n), NOT 0. "
+                "A share below the null median is evidence of nothing; a share "
+                "above it says the direction is real in this sample, which is "
+                "still not the same as a city-wide registration error.",
     }
 
 
@@ -269,10 +335,25 @@ def render(s):
         w("  systematic share {:.0f}%  (east-positive {}/{}, north-positive {}/{})"
           .format(100 * sh["systematic_share"], sh["east_positive"], sh["n"],
                   sh["north_positive"], sh["n"]))
-        if sh["systematic_share"] > 0.5:
-            w("  !! MOSTLY SYSTEMATIC -- this is a registration error, not imprecision.")
-            w("     Do NOT quote the median as a precision figure. Establish which side")
-            w("     is wrong (inventory vs basemap) with verify_chip_georeference.py.")
+        nul = sh.get("null")
+        if nul:
+            w("  null (magnitudes kept, directions randomised): median {:.0f}%, "
+              "p95 {:.0f}%".format(100 * nul["median_share"], 100 * nul["p95_share"]))
+            w("  P(share this high by chance) = {:.4f}".format(nul["p_value"]))
+        if nul and nul["p_value"] >= 0.05:
+            w("  -> NOT distinguishable from random direction at n={}. The share is "
+              "~0.9/sqrt(n)".format(sh["n"]))
+            w("     under the null, not 0, so a large-looking share at small n means "
+              "nothing.")
+        elif sh["systematic_share"] > 0.5:
+            w("  !! DIRECTIONAL beyond chance -- but that is a QUESTION, not a verdict.")
+            w("     A registration error displaces every record, so it cannot hide from")
+            w("     a high-n instrument. Before calling this a shift, confirm it with")
+            w("     BOTH of:")
+            w("       inventory_centerline_offset.py   ramps vs the city's own streets")
+            w("       verify_chip_georeference.py --sites-from-verdicts   basemap vs those")
+            w("     Seattle is the counter-example: 87% at p=0.001, and both came back")
+            w("     clean -- the lean was per-record error sharing a heading, not a shift.")
 
     if s["excluded_clicks"]:
         w("")

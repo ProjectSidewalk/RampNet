@@ -146,3 +146,51 @@ def test_record_order_is_preserved_in_the_payload(tmp_path):
                                    out_dir=str(tmp_path))
     with gzip.open(payload, "rt") as fh:
         assert [json.loads(l)["OBJECTID"] for l in fh if l.strip()] == [5, 1, 3]
+
+
+# --------------------------------------------------------------------------- #
+# polyline geometry -- the centreline reference (§5i)
+# --------------------------------------------------------------------------- #
+def test_polyline_mode_keeps_paths_instead_of_a_point():
+    payload = {"features": [{"attributes": {"OBJECTID": 3, "SND_ID": 9},
+                             "geometry": {"paths": [[[-122.0, 47.6], [-122.0, 47.61]]]}}]}
+    recs, _ = fi.parse_arcgis_page(payload, geometry="polyline")
+    assert recs == [{"OBJECTID": 3, "SND_ID": 9,
+                     "paths": [[[-122.0, 47.6], [-122.0, 47.61]]]}]
+    assert "lon" not in recs[0]
+
+
+def test_polyline_mode_drops_a_single_vertex_path():
+    """One vertex carries no direction, so it can support no perpendicular."""
+    payload = {"features": [{"attributes": {"OBJECTID": 1},
+                             "geometry": {"paths": [[[-122.0, 47.6]]]}}]}
+    recs, _ = fi.parse_arcgis_page(payload, geometry="polyline")
+    assert recs == []
+
+
+def test_polyline_mode_drops_geometry_free_rows():
+    payload = {"features": [{"attributes": {"OBJECTID": 1}, "geometry": None}]}
+    assert fi.parse_arcgis_page(payload, geometry="polyline")[0] == []
+
+
+def test_polyline_mode_keeps_every_part_of_a_multipart_line():
+    payload = {"features": [{"attributes": {"OBJECTID": 4}, "geometry": {"paths": [
+        [[-122.0, 47.6], [-122.0, 47.61]], [[-122.1, 47.7], [-122.1, 47.71]]]}}]}
+    recs, _ = fi.parse_arcgis_page(payload, geometry="polyline")
+    assert len(recs[0]["paths"]) == 2
+
+
+def test_point_mode_is_unchanged_and_stays_the_default():
+    """The centreline work must not disturb how every existing inventory parses."""
+    payload = {"features": [{"attributes": {"OBJECTID": 1},
+                             "geometry": {"x": -105.0, "y": 39.7}}]}
+    assert fi.parse_arcgis_page(payload) == fi.parse_arcgis_page(payload,
+                                                                 geometry="point")
+    assert fi.parse_arcgis_page(payload)[0][0]["lon"] == -105.0
+
+
+def test_a_point_payload_read_as_polyline_yields_nothing_rather_than_zeros():
+    """Mismatching the mode must fail loudly-empty, not invent geometry."""
+    payload = {"features": [{"attributes": {"OBJECTID": 1},
+                             "geometry": {"x": -105.0, "y": 39.7}}]}
+    assert fi.parse_arcgis_page(payload, geometry="polyline")[0] == []

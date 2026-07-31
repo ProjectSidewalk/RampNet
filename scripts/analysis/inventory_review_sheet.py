@@ -265,9 +265,9 @@ RUBRIC = {
     "resolution_floor": (
         "Offsets below roughly 0.3 m are at the floor of this instrument, not "
         "measurements of real error: see the metres-per-pixel in this manifest for the "
-        "pixel size, and the registration check in analysis_out/georef_check/ for how "
-        "well the imagery agrees with the city's own vector data. Report the left tail "
-        "as floor-limited rather than claiming centimetres."
+        "pixel size, and the registration check in analysis_out/georef_check_<city>/ "
+        "for how well the imagery agrees with the city's own vector data. Report the "
+        "left tail as floor-limited rather than claiming centimetres."
     ),
     "published_nearby": (
         "The published records near each chip are HELD BACK until you have recorded "

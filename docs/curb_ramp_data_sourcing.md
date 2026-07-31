@@ -761,8 +761,8 @@ The sheet asks a reviewer to judge a **1-2 m** offset, so two claims have to hol
 verdict it produces is quietly wrong: the crosshair is on the published coordinate, and the rings
 really are 1/2/5/10 m. Neither is visible by looking at the sheet, because the error and the
 measurement would come from the same code. Both are now checked against something external —
-`scripts/analysis/verify_chip_georeference.py` (15 tests), evidence in
-`analysis_out/georef_check/`.
+`scripts/analysis/verify_chip_georeference.py` (21 tests), evidence in
+`analysis_out/georef_check_<city>/`.
 
 **Tile scheme.** Denver's `Aerial2016` cache is standard Web Mercator: 256 px tiles, EPSG:3857,
 origin −20037508.342787, and LOD resolutions matching 156543.03392800014 / 2^z to **3×10⁻¹⁰**
@@ -1156,6 +1156,139 @@ expect a **selection effect**, because the corners that stay readable are the on
 trees. Adequate to size a *large* error, which is what a Poor anchor needs; **not** adequate to
 grade a city expected to be Good.
 
+**The Poor anchor did not come out of this run** — see §5i. Seattle's partial pass produced a
+directional signal that turned out not to be a registration error of either kind, and eleven
+measurable chips on an inadequate basemap do not anchor the bottom of a scale. **NYC is now the
+only remaining route to placing our threshold on the paper's**, and it still needs the `/export`
+fetcher.
+
+## 5i. Seattle's offset is not a registration error — attributing it (2026-07-31)
+
+Nineteen of Seattle's 60 chips were attempted and eleven produced a measurable offset before the
+pass was stopped. Those eleven read **median 2.33 m**, and their mean offset *vector* was 2.06 m
+against a mean *magnitude* of 2.37 m — an **87% systematic share**, with the ramp west of the
+published point in 9 of 11. That was read at the time as a registration error rather than
+imprecision. **It is not one**, and the two instruments that can actually settle it both say so.
+
+### First: the share statistic needed a null, and never had one
+
+`systematic_share` = |mean vector| / mean magnitude was described as "~0 for noise, ~1 for a shift".
+The first half is **wrong**. Under random directions the mean vector shrinks only as `1/sqrt(n)`, so
+the expected share is roughly `0.9/sqrt(n)` — at n=11 that is **39%**, not 0%. `systematic_shift_null`
+now resamples the observed magnitudes with random headings and reports the exceedance probability:
+
+| city | n | share | null median | null p95 | p |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| **Seattle** | 11 | **87%** | 39% | 68% | **0.0013** |
+| Denver | 52 | 24% | 16% | 33% | 0.221 |
+
+So Seattle's lean **is** real in that sample — and **Denver's 24% never meant anything**, being
+inside its own null. Both readings changed. Keeping the magnitudes rather than using equal-size
+vectors matters: Seattle's run 0.21 m to 8.79 m, and the single 8.79 m click moves the mean vector
+further than the six smallest combined.
+
+### The triangle that locates the error
+
+A directional signal still does not say *which side is wrong*. Three pairwise measurements exist,
+and they must satisfy an identity, which makes it a check rather than an assumption:
+
+    (ramps vs imagery)  =  (ramps vs centrelines)  +  (centrelines vs imagery)
+     review sheet, n=11      §5i-a, n≈31,000            §5i-b, n≈2,500
+
+### 5i-a. Ramps vs the city's own streets — `inventory_centerline_offset.py`
+
+A ramp sits about half a roadway from the centreline, on one side or the other, so
+`median(east side) + median(west side) = 2 × shift` while the unknown half-width cancels and
+reappears as a sanity check. Only near-cardinal segments count, each assigned to the one axis its
+perpendicular measures, and the nearest segment is chosen **per axis** — choosing the overall
+nearest biases the estimate toward zero, because an eastward shift lengthens the distance to
+north-south streets only.
+
+| | east shift | north shift | resultant | half-width E / N | samples |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| **Seattle** | −0.001 m | +0.000 m | **0.00 m** | 6.24 / 6.26 m | 31,430 / 30,809 |
+| **Denver** (control) | −0.118 m | +0.005 m | **0.12 m** | 7.35 / 7.46 m | 49,594 / 49,404 |
+
+**Denver is the calibration and it lands**: 0.12 m here against **0.10 m** measured independently
+from 52 reviewer clicks (§5f). Half-widths come out at 6–7.5 m on both axes in both cities, so the
+two clusters really are the two sides of a street. Flat across a 10°–30° sweep of the cardinal
+cutoff.
+
+**Seattle's coordinates are unbiased against Seattle's own street network — tighter than Denver's.**
+The estimate is not floor-limited: with n≈15,000 per side the median's standard error is ~0.03 m.
+
+**Why the city's own centrelines are the right reference, and what it cannot see.** SDOT publishes
+`Curb_Ramps_(Active)` and the `Street_Network_Database_SND` from the same ArcGIS organisation
+(`ZOyb2t4B0UYuYNYH`) in the same native CRS (EPSG:2926), both reprojected to 4326 by that same
+server. A datum or reprojection fault therefore moves **both** layers together and reads as zero
+here — which is exactly why this leg alone proves nothing and the imagery leg is required.
+
+### 5i-b. Those centrelines vs the imagery — at the reviewed chips
+
+`verify_chip_georeference.py` walks perpendiculars off the centrelines and finds the roadway's
+optical centre. Run city-wide it is reassuring but not sufficient, because orthorectification error
+is **local** and a city-wide average cannot rule out a fault where the verdicts were actually
+produced. `--sites-from-verdicts` measures under the review itself:
+
+| run | sites | worst resultant | mean east | usable cross-sections |
+| :--- | ---: | ---: | ---: | ---: |
+| **Seattle, at the 11 reviewed chips** | 11 | **0.32 m** | **+0.02 m** | 2,471 of 6,441 |
+| Seattle, 5 neighbourhoods | 5 | 0.46 m | — | 1,190 |
+| Denver, 5 neighbourhoods | 5 | 0.46 m | — | 937 |
+
+**Every one of the eleven chips clears**, including chip `1951390` — the 8.79 m click — at 0.11 m.
+Seattle's imagery agrees with Seattle's vector data exactly where the reviewer was looking, and to
+the same tolerance Denver manages. The 38% usable share is the leaf-on canopy eating cross-sections,
+and it is the reason 2,471 of them are pooled rather than a handful.
+
+### The triangle does not close, and that is the result
+
+Predicted from the two high-n legs: **0.0–0.3 m**. Observed from the sheet: **2.06 m**. So the
+review's offsets are **not attributable to either candidate frame** — not to the coordinates, and
+not to the basemap. A city-wide displacement cannot hide from 31,430 samples or from a per-chip
+imagery check, so **there is no city-wide displacement.**
+
+The review's own numbers say the same thing once you stop averaging them. Its lower quartile is
+**0.47 m** while its median is **2.33 m**: several chips land essentially dead-on — better than
+Denver's 0.29 m median — and a uniform shift cannot produce a chip that is dead-on. What produced
+87% was a handful of large **per-record** errors that happened to share a heading.
+
+**Consequences, stated plainly:**
+
+- **The `SHIFT` framing of 2026-07-31 is withdrawn.** Seattle's median is a precision figure again,
+  not a registration artefact — subject to every caveat below.
+- **It cannot be corrected by subtracting a constant.** That was the optimistic branch, and it is
+  closed: there is no constant.
+- **Seattle's Poor rating is neither confirmed nor overturned here.** Eleven measurable chips, a
+  36.8% unjudgeable rate on attempted chips with a selection effect toward un-treed corners, and a
+  basemap explicitly declared inadequate for grading a city (§5h) do not settle a city. What is
+  now settled is *the kind of error it is not*.
+- **The 62.9%-installed-after-2019 confound survives untouched** and is now the leading candidate:
+  against 2019 imagery, a record for a ramp built later has no correct answer, and the reviewer
+  clicks whatever ramp was there instead.
+- Whether the residual is **along-street or across-street** was checked ad hoc against the frozen
+  centrelines and looked across-street, but n=11 with no committed script — it is not quoted here
+  and needs a real instrument first.
+
+### The methodological lesson, which generalises past Seattle
+
+**A directional signal at small n raises the registration question; it never answers it.** The rule
+is now enforced in the tool: `inventory_review_summary.py` prints the null and the p-value, refuses
+to call a shift on its own, and names the two high-n instruments that can. Both are cheap, need no
+reviewer and no imagery-grade basemap, and **both should run before any future city's sheet is
+scored** — the ramps-vs-centrelines leg costs one polyline snapshot per city.
+
+This is the third time on this issue that checking the instrument changed the answer (Esri's grey
+tiles in §5e, King County's leaf-on canopy in §5h, and the null here), and the second time a
+Seattle conclusion has been reversed within a day. Both reversals came from the same root: a
+statistic quoted without knowing what it reads under the null.
+
+**Frozen for replication** (§9): `seattle-wa-centerlines-2026-07-31` (SDOT SND, 34,484 of 34,484)
+and `denver-co-centerlines-2026-07-31` (7,866 of 7,866). `fetch_inventory.py --geometry polyline`
+writes them with the same digest and truncation discipline as the ramp inventories, because an
+analysis that exonerates a city's coordinates must not depend on a live endpoint for the reference
+it exonerated them against.
+
 ## 6. Routes to a 500,000-ramp corpus
 
 **Be explicit about which 500k is meant:**
@@ -1290,10 +1423,10 @@ document is a snapshot of a moving target.
 
 ### Done as of 2026-07-31 — `data/inventories/`
 
-`scripts/analysis/fetch_inventory.py` (24 tests) writes gzipped JSONL plus a sidecar manifest
+`scripts/analysis/fetch_inventory.py` (30 tests) writes gzipped JSONL plus a sidecar manifest
 recording the endpoint, the exact query, the fetch date, the declared-vs-retained count and a
 sha256 of the payload. **Nothing in this programme is analysed from a live endpoint any more**;
-every number in §5d/§5e is derived from a committed file.
+every number in §5d/§5e/§5i is derived from a committed file.
 
 | Snapshot | Records | Note |
 | :--- | ---: | :--- |
@@ -1301,6 +1434,15 @@ every number in §5d/§5e is derived from a committed file.
 | `portland-or-2026-07-31` | 46,101 | Paper Tab. 1: 45,324 — **drifted +1.7%** |
 | `bend-or-2026-07-31` | 14,805 | Paper Tab. 1: 13,611 — **drifted +8.8%** |
 | `denver-co-2026-07-31` | 72,770 | First candidate assessed |
+| `seattle-wa-centerlines-2026-07-31` | 34,484 | **Reference geometry**, not an inventory — SDOT SND |
+| `denver-co-centerlines-2026-07-31` | 7,866 | **Reference geometry** — Denver's control for §5i |
+
+**Street centrelines are frozen on the same terms**, via `--geometry polyline`. They are not curb
+ramps and are never counted as supply; they are the independent reference §5i measures the ramp
+coordinates against, and an analysis that exonerates a city's coordinates must not depend on a live
+endpoint for the thing it exonerated them against. Each city's centrelines must come from the **same
+publisher and CRS as its ramp layer**, which is what makes a shared datum fault cancel and a
+ramp-layer defect show.
 
 Two gzip header fields are pinned (`mtime=0`, `filename=""`) so identical records hash identically;
 without that the digest tracks when and where the file was written rather than what is in it, and

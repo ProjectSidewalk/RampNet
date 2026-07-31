@@ -1,0 +1,114 @@
+{
+  "centerline_paths": 34484,
+  "centerlines": "seattle-wa-centerlines-2026-07-31.jsonl.gz",
+  "city": "seattle-wa",
+  "interpretation": "Measures the ramp coordinates against the SAME publisher's street geometry, so it is blind to any error the two layers share. A shift near zero means the coordinates are consistent with their own city's road network: any offset the reviewer saw against imagery is then in the frame (datum, reprojection or basemap registration) and is a constant that can be subtracted. A shift matching the reviewer's means the defect is in the ramp layer itself and no constant fixes it.",
+  "inventory": "seattle-wa-2026-07-31.jsonl.gz",
+  "limits": "A centreline is a cartographic construct, not a survey of the pavement midline, and this estimator assumes only that it is unbiased BETWEEN the two sides of the street -- it never uses its absolute position, which is what makes it robust to that. It cannot see an error the ramp and centreline layers share, by construction; that is what verify_chip_georeference.py is for. Cluster overlap attenuates the estimate toward zero when the half-width is small relative to the spread, so a near-zero reading is weaker evidence than a large one.",
+  "max_dev_deg": 20.0,
+  "max_dist_m": 25.0,
+  "near_cardinal": {
+    "east_west": 56178,
+    "north_south": 80645
+  },
+  "ramps": 38364,
+  "result": {
+    "axes": {
+      "east": {
+        "half_width_m": 6.241083346307278,
+        "iqr_neg_m": [
+          -8.479622146114707,
+          -4.798670271411538
+        ],
+        "iqr_pos_m": [
+          4.738980691879988,
+          8.389321817085147
+        ],
+        "median_neg_m": -6.241670722141862,
+        "median_pos_m": 6.240495970472693,
+        "n": 31430,
+        "n_neg": 15746,
+        "n_pos": 15684,
+        "shift_ci95_m": [
+          -0.0011285701766610146,
+          0.00015931949019432068
+        ],
+        "shift_m": -0.0005873758345842361
+      },
+      "north": {
+        "half_width_m": 6.256053883582354,
+        "iqr_neg_m": [
+          -7.782055872492492,
+          -4.2723733792081475
+        ],
+        "iqr_pos_m": [
+          4.224941612221301,
+          7.776318969205022
+        ],
+        "median_neg_m": -6.256016336381435,
+        "median_pos_m": 6.256091430783272,
+        "n": 30809,
+        "n_neg": 15463,
+        "n_pos": 15346,
+        "shift_ci95_m": [
+          4.033325240015984e-06,
+          7.086689583957195e-05
+        ],
+        "shift_m": 3.754720091819763e-05
+      }
+    },
+    "bearing_deg": 273.65757824963987,
+    "half_width_band_m": [
+      3.0,
+      20.0
+    ],
+    "half_width_plausible": true,
+    "resultant_m": 0.0005885746879966207,
+    "shift_east_m": -0.0005873758345842361,
+    "shift_north_m": 3.754720091819763e-05,
+    "sign_convention": "Positive east means the PUBLISHED RAMP POINT lies east of where the centreline geometry puts the street, i.e. the coordinate is east of the true ramp. This is the same sense the review sheet reports, so the two are directly comparable and must not be negated."
+  },
+  "segments": 243912,
+  "sweep": [
+    {
+      "max_dev_deg": 10.0,
+      "n_east": 29547,
+      "n_north": 29555,
+      "resultant_m": 0.00035881514778370217,
+      "shift_east_m": -0.0003569074906408787,
+      "shift_north_m": 3.695068880915642e-05
+    },
+    {
+      "max_dev_deg": 15.0,
+      "n_east": 30709,
+      "n_north": 30292,
+      "resultant_m": 0.0004877114404616942,
+      "shift_east_m": -0.0004863874055445194,
+      "shift_north_m": 3.591296263039112e-05
+    },
+    {
+      "max_dev_deg": 20.0,
+      "n_east": 31430,
+      "n_north": 30809,
+      "resultant_m": 0.0005885746879966207,
+      "shift_east_m": -0.0005873758345842361,
+      "shift_north_m": 3.754720091819763e-05
+    },
+    {
+      "max_dev_deg": 25.0,
+      "n_east": 32136,
+      "n_north": 31331,
+      "resultant_m": 0.0006898383046268158,
+      "shift_east_m": -0.000688822939991951,
+      "shift_north_m": 3.7414487451314926e-05
+    },
+    {
+      "max_dev_deg": 30.0,
+      "n_east": 33009,
+      "n_north": 31854,
+      "resultant_m": 0.0007770327259020268,
+      "shift_east_m": -0.0007764431647956371,
+      "shift_north_m": 3.0263327062129974e-05
+    }
+  ]
+}

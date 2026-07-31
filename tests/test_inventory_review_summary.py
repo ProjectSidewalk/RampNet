@@ -199,3 +199,59 @@ def test_wilson_interval_tightens_as_the_sample_grows():
 def test_empty_review_does_not_divide_by_zero():
     s = irs.summarise({"records": []})
     assert s["offset"]["n"] == 0 and s["phantom"]["rate"] is None
+
+
+# --------------------------------------------------------------------------- #
+# the systematic-shift null (§5i)
+# --------------------------------------------------------------------------- #
+def test_null_share_is_not_zero_at_small_n():
+    """THE correction. Random directions do not give share ~0; they give
+    ~0.9/sqrt(n). Reading a raw share as though 0 were the null is what turned
+    eleven Seattle chips into a 'registration error' that did not exist."""
+    n = 11
+    nul = irs.systematic_shift_null([1.0] * n, observed_share=0.0, draws=3000)
+    assert 0.6 / math.sqrt(n) < nul["median_share"] < 1.2 / math.sqrt(n)
+
+
+def test_null_median_falls_as_the_sample_grows():
+    small = irs.systematic_shift_null([1.0] * 10, 0.0, draws=2000)["median_share"]
+    large = irs.systematic_shift_null([1.0] * 200, 0.0, draws=2000)["median_share"]
+    assert large < small / 2
+
+
+def test_a_genuinely_shifted_sample_is_improbable_under_the_null():
+    nul = irs.systematic_shift_null([2.0] * 20, observed_share=1.0, draws=2000)
+    assert nul["p_value"] < 0.01
+
+
+def test_a_share_at_the_null_median_is_unremarkable():
+    mags = [1.0] * 12
+    med = irs.systematic_shift_null(mags, 0.0, draws=3000)["median_share"]
+    assert irs.systematic_shift_null(mags, med, draws=3000)["p_value"] > 0.3
+
+
+def test_null_is_reproducible_under_its_seed():
+    a = irs.systematic_shift_null([1.0, 3.0, 0.5], 0.5, draws=500, seed=7)
+    b = irs.systematic_shift_null([1.0, 3.0, 0.5], 0.5, draws=500, seed=7)
+    assert a["p_value"] == b["p_value"] and a["median_share"] == b["median_share"]
+
+
+def test_one_huge_offset_makes_a_high_share_easy_to_reach_by_chance():
+    """Why the null keeps the observed magnitudes rather than equal ones: a
+    heavy tail fakes a shift far more readily, and Seattle's sample ran
+    0.21 m to 8.79 m."""
+    even = irs.systematic_shift_null([1.0] * 8, 0.0, draws=3000)["median_share"]
+    heavy = irs.systematic_shift_null([1.0] * 7 + [20.0], 0.0, draws=3000)["median_share"]
+    assert heavy > even
+
+
+def test_null_refuses_degenerate_input():
+    assert irs.systematic_shift_null([], 0.5) is None
+    assert irs.systematic_shift_null([0.0, 0.0], 0.5) is None
+
+
+def test_summary_attaches_a_null_to_every_shift_it_reports():
+    recs = [{"id": str(i), "click_px": [100 + i, 100], "offset_m": 1.0}
+            for i in range(6)]
+    sh = irs.systematic_shift(recs, metres_per_pixel=0.1, span_px=200)
+    assert sh["null"] is not None and 0.0 <= sh["null"]["p_value"] <= 1.0

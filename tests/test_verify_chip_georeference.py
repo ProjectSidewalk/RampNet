@@ -132,3 +132,51 @@ def test_segment_normal_is_unit_and_perpendicular():
 
 def test_degenerate_segment_has_no_normal():
     assert vg._segment_normal((1.0, 1.0), (1.0, 1.0)) is None
+
+
+# --------------------------------------------------------------------------- #
+# the per-city registry (§5i)
+# --------------------------------------------------------------------------- #
+def test_every_registered_city_is_complete():
+    for slug, city in vg.CITIES.items():
+        assert city["centerlines"].startswith("https://"), slug
+        assert city["sites"] and city["visual"], slug
+        for name, lon, lat in list(city["sites"]) + list(city["visual"]):
+            assert -180 <= lon <= 180 and -90 <= lat <= 90, (slug, name)
+
+
+def test_every_city_names_a_basemap_that_actually_exists():
+    """A typo here would silently fall back to nothing, or check a different
+    basemap than the one the review sheet was built on."""
+    for slug, city in vg.CITIES.items():
+        assert city["tile_source"] in irs.TILE_SOURCES, slug
+
+
+def test_registered_sites_sit_inside_their_own_city():
+    """Guards a copy-paste between city blocks — Denver coordinates measured
+    against King County imagery would produce blank tiles, not an error."""
+    boxes = {"denver-co": (-105.2, -104.6, 39.6, 39.9),
+             "seattle-wa": (-122.5, -122.2, 47.5, 47.75)}
+    for slug, city in vg.CITIES.items():
+        x0, x1, y0, y1 = boxes[slug]
+        for name, lon, lat in list(city["sites"]) + list(city["visual"]):
+            assert x0 <= lon <= x1 and y0 <= lat <= y1, (slug, name)
+
+
+def test_cities_use_more_than_one_sample_neighbourhood():
+    """A single site cannot tell a city-wide shift from a local one."""
+    for slug, city in vg.CITIES.items():
+        assert len(city["sites"]) >= 3, slug
+
+
+def test_seattle_is_checked_against_the_basemap_its_sheet_used():
+    """The verdicts being attributed were produced on KingCo 2019. Checking any
+    other year would measure a different instrument than the one under test."""
+    assert vg.CITIES["seattle-wa"]["tile_source"] == "seattle-2019"
+
+
+def test_seattle_centrelines_come_from_the_same_org_as_its_ramps():
+    """The discrimination depends on it: both layers must travel the identical
+    reprojection, so that a datum fault moves them together and only a defect in
+    the ramp layer moves them apart."""
+    assert "ZOyb2t4B0UYuYNYH" in vg.CITIES["seattle-wa"]["centerlines"]

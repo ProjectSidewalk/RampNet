@@ -27,19 +27,35 @@ external:
   visible roadway, the imagery and the vector data agree in the chip's pixel
   space to well under a metre.
 
-    python scripts/analysis/verify_chip_georeference.py --city denver-co \
-        --tile-source denver-2016 --out analysis_out/georef_check
+    python scripts/analysis/verify_chip_georeference.py --city denver-co
+    python scripts/analysis/verify_chip_georeference.py --city seattle-wa
+
+Each city in ``CITIES`` registers its own centreline layer, basemap and sample
+neighbourhoods; the basemap must be the one its review sheet was built on, or
+this is checking a different instrument than the one being attributed.
 
 The scale half is pure and unit-tested (``tests/test_verify_chip_georeference.py``);
 the registration half needs network and writes PNGs for a human to look at, which
 is the point — it produces evidence, not a boolean.
 
-**Known residual, not fixed here.** Denver publishes in EPSG:2877 (NAD83) and the
-server reprojects to 4326; the imagery is tiled from NAD83 state-plane sources.
-If either side applied a real NAD83->WGS84 datum shift while the other used the
-null transform, the two would disagree by roughly a metre in CONUS. The
-centreline overlay is exactly the test that would expose it, since the vectors
-travel the same reprojection path as the ramp coordinates.
+**This is one leg of a triangle.** With ``inventory_centerline_offset.py`` (ramps
+vs centrelines, no imagery) and a filled review sheet (ramps vs imagery), the
+three measurements must satisfy
+
+    (ramps vs imagery) = (ramps vs centrelines) + (centrelines vs imagery)
+
+which turns a systematic offset from an unattributed fact into a located one:
+whichever pair disagrees is where the error lives. Because each leg is measured
+independently, the identity is a check rather than an assumption.
+
+**The residual this exists to expose.** Denver publishes in EPSG:2877 and Seattle
+in EPSG:2926, both NAD83, and both servers reproject to 4326; the imagery is
+tiled from state-plane sources. If either side applied a real NAD83->WGS84 datum
+shift while the other used the null transform, the two would disagree by roughly
+a metre in CONUS — and by construction the ramp coordinates would inherit it,
+since they travel the same reprojection path as these centrelines. That is
+exactly the shape of an error the ramps-vs-centrelines leg is blind to, which is
+why both legs are needed.
 """
 import argparse
 import json
@@ -61,26 +77,54 @@ WGS84_A = 6378137.0
 WGS84_F = 1 / 298.257223563
 WGS84_E2 = WGS84_F * (2 - WGS84_F)
 
-CENTERLINES = ("https://services1.arcgis.com/zdB7qR0BtYrg0Xpl/ArcGIS/rest/services"
-               "/ODC_TRANS_STREETROUTE_U/FeatureServer/146")
-
-# Neighbourhoods spread across the city, deliberately including the north-east
-# post-war grid (montbello) and the diagonal downtown, so a shift cannot hide by
-# being parallel to one street orientation. Coordinates are neighbourhood
-# centroids, not features -- an earlier version used a made-up "arterial" point
-# that landed on a house, which proved nothing.
-DEFAULT_SITES = [
-    ("park-hill", -104.9280, 39.7500),
-    ("berkeley", -105.0400, 39.7770),
-    ("athmar", -105.0000, 39.6960),
-    ("hampden", -104.9200, 39.6700),
-    ("montbello", -104.8500, 39.7830),
-]
-# Chips for the human to look at: a residential corner and the downtown diagonal.
-VISUAL_SITES = [
-    ("residential", -104.947384, 39.732141),
-    ("downtown-diagonal", -104.9911615, 39.7461177),
-]
+# Per-city registry. ``centerlines`` must be the city's OWN street geometry from
+# the SAME publisher as its ramp inventory -- that is what makes the check
+# independent of the inventory while sharing its reprojection path.
+#
+# ``sites`` are neighbourhoods spread across the city, deliberately covering more
+# than one street orientation so a shift cannot hide by being parallel to one
+# grid. Coordinates are neighbourhood centroids, not features -- an earlier
+# version used a made-up "arterial" point that landed on a house, which proved
+# nothing. ``visual`` are the two chips a human looks at.
+CITIES = {
+    "denver-co": {
+        "centerlines": ("https://services1.arcgis.com/zdB7qR0BtYrg0Xpl/ArcGIS/rest"
+                        "/services/ODC_TRANS_STREETROUTE_U/FeatureServer/146"),
+        "tile_source": "denver-2016",
+        "sites": [
+            ("park-hill", -104.9280, 39.7500),
+            ("berkeley", -105.0400, 39.7770),
+            ("athmar", -105.0000, 39.6960),
+            ("hampden", -104.9200, 39.6700),
+            ("montbello", -104.8500, 39.7830),
+        ],
+        "visual": [
+            ("residential", -104.947384, 39.732141),
+            ("downtown-diagonal", -104.9911615, 39.7461177),
+        ],
+    },
+    "seattle-wa": {
+        # SDOT's Street Network Database -- same ArcGIS org (ZOyb2t4B0UYuYNYH)
+        # and same native CRS (EPSG:2926) as Curb_Ramps_(Active), so both travel
+        # the identical reprojection to 4326.
+        "centerlines": ("https://services.arcgis.com/ZOyb2t4B0UYuYNYH/arcgis/rest"
+                        "/services/Street_Network_Database_SND/FeatureServer/0"),
+        # Must match the sheet the verdicts came from, or the check is measuring
+        # a different instrument than the one being attributed.
+        "tile_source": "seattle-2019",
+        "sites": [
+            ("wallingford", -122.3340, 47.6600),
+            ("greenwood", -122.3550, 47.6900),
+            ("beacon-hill", -122.3110, 47.5750),
+            ("columbia-city", -122.2870, 47.5600),
+            ("west-seattle", -122.3870, 47.5610),
+        ],
+        "visual": [
+            ("residential", -122.334000, 47.660000),
+            ("arterial", -122.311000, 47.575000),
+        ],
+    },
+}
 
 
 def local_radii(lat_deg):
@@ -183,7 +227,7 @@ def _get_json(url, timeout=90):
         return json.load(fh)
 
 
-def fetch_centerlines(lon, lat, span_m):
+def fetch_centerlines(lon, lat, span_m, layer):
     """Street centrelines intersecting the chip, as lists of (lon, lat)."""
     m_rad, n_rad = local_radii(lat)
     dlat = math.degrees((span_m * 0.75) / m_rad)
@@ -196,7 +240,7 @@ def fetch_centerlines(lon, lat, span_m):
         "geometryType": "esriGeometryEnvelope", "inSR": "4326", "outSR": "4326",
         "spatialRel": "esriSpatialRelIntersects", "returnGeometry": "true",
         "outFields": "*"})
-    d = _get_json(CENTERLINES + "/query?" + q)
+    d = _get_json(layer + "/query?" + q)
     if "error" in d:
         raise RuntimeError(d["error"])
     return [path for f in d.get("features", [])
@@ -230,7 +274,7 @@ def draw_registration_chip(lon, lat, zoom, span_m, cache_dir, tile_url, paths):
     return chip, mpp
 
 
-def measure_registration(lon, lat, zoom, box_m, cache_dir, tile_url,
+def measure_registration(lon, lat, zoom, box_m, cache_dir, tile_url, layer,
                          step_m=4.0, half_m=12.0, min_step=18):
     """Measure centreline-to-roadway offset over a whole neighbourhood.
 
@@ -274,7 +318,7 @@ def measure_registration(lon, lat, zoom, box_m, cache_dir, tile_url,
         mx, my = irs.lonlat_to_pixel(p[0], p[1], zoom)
         return (mx - x0 * irs.TILE_PX, my - y0 * irs.TILE_PX)
 
-    paths = fetch_centerlines(lon, lat, box_m)
+    paths = fetch_centerlines(lon, lat, box_m, layer)
     east, north, attempted = [], [], 0
     for path in paths:
         pts = [to_mosaic(p) for p in path]
@@ -338,20 +382,41 @@ def measure_registration(lon, lat, zoom, box_m, cache_dir, tile_url,
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--city", default="denver-co")
-    ap.add_argument("--tile-source", choices=sorted(irs.TILE_SOURCES), default="denver-2016")
+    ap.add_argument("--city", choices=sorted(CITIES), default="denver-co")
+    ap.add_argument("--tile-source", choices=sorted(irs.TILE_SOURCES), default=None,
+                    help="defaults to the city's registered basemap")
     ap.add_argument("--zoom", type=int, default=None)
     ap.add_argument("--span-m", type=float, default=60.0)
     ap.add_argument("--box-m", type=float, default=220.0,
                     help="neighbourhood box for the measured registration check")
-    ap.add_argument("--out", default=os.path.join(OUT, "georef_check"))
+    ap.add_argument("--out", default=None,
+                    help="defaults to analysis_out/georef_check_<city>")
     ap.add_argument("--skip-imagery", action="store_true",
                     help="run only the scale check, which needs no network")
+    ap.add_argument("--sites-from-verdicts", default=None,
+                    help="measure at the REVIEWED CHIPS instead of the registered "
+                         "neighbourhoods. A city-wide average cannot rule out a "
+                         "misregistration confined to where the verdicts were "
+                         "actually produced, and orthorectification error is "
+                         "local — so when attributing a specific review's offsets, "
+                         "measure the imagery under that review.")
     args = ap.parse_args(argv)
 
-    src = irs.TILE_SOURCES[args.tile_source]
+    city = CITIES[args.city]
+    centerlines = city["centerlines"]
+    default_sites, visual_sites = city["sites"], city["visual"]
+    if args.sites_from_verdicts:
+        with open(args.sites_from_verdicts) as fh:
+            vd = json.load(fh)
+        default_sites = [(str(r["id"]), r["lon"], r["lat"]) for r in vd["records"]
+                         if not r.get("unreadable") and r.get("click_px") is not None
+                         and r.get("offset_m") is not None]
+        print("measuring at {} reviewed chips from {}".format(
+            len(default_sites), os.path.basename(args.sites_from_verdicts)))
+    out_dir = args.out or os.path.join(OUT, "georef_check_" + args.city)
+    src = irs.TILE_SOURCES[args.tile_source or city["tile_source"]]
     zoom = args.zoom if args.zoom is not None else src["max_zoom"]
-    lat = DEFAULT_SITES[0][2]
+    lat = default_sites[0][2]
 
     print("SCALE — rings against the WGS84 ellipsoid (z{}, lat {:.4f})".format(zoom, lat))
     rows = ring_scale_error(lat, zoom, [r for r in irs.RING_RADII_M])
@@ -364,23 +429,23 @@ def main(argv=None):
     print("  verdict: worst ring error {:.4f}% — {}".format(
         100 * worst, "negligible" if worst < 0.01 else "INVESTIGATE"))
 
-    result = {"city": args.city, "tile_source": args.tile_source, "zoom": zoom,
-              "latitude": lat, "scale_check": rows,
+    result = {"city": args.city, "tile_source": args.tile_source or city["tile_source"],
+              "zoom": zoom, "latitude": lat, "scale_check": rows,
               "tile_scheme": "verified standard Web Mercator: 256 px, EPSG:3857, "
                              "origin -20037508.342787, LOD resolutions match "
                              "156543.03392800014 / 2^z to 3e-10"}
 
     if not args.skip_imagery:
-        os.makedirs(args.out, exist_ok=True)
-        cache_dir = os.path.join(args.out, "tiles")
+        os.makedirs(out_dir, exist_ok=True)
+        cache_dir = os.path.join(out_dir, "tiles")
         os.makedirs(cache_dir, exist_ok=True)
         print("\nREGISTRATION (measured) — centreline vs the roadway's optical centre")
         print("  {:>12} {:>5} {:>14} {:>5} {:>14} {:>10}".format(
             "site", "nE", "east median", "nN", "north median", "resultant"))
         measured, worst_shift = [], 0.0
-        for name, lon, slat in DEFAULT_SITES:
+        for name, lon, slat in default_sites:
             m = measure_registration(lon, slat, min(zoom, 20), args.box_m,
-                                     cache_dir, src["url"])
+                                     cache_dir, src["url"], centerlines)
             m["site"] = name
             measured.append(m)
             if not m.get("usable"):
@@ -412,18 +477,18 @@ def main(argv=None):
 
         print("\nREGISTRATION (visual) — centrelines drawn into a chip")
         sites = []
-        for name, lon, slat in VISUAL_SITES:
-            paths = fetch_centerlines(lon, slat, args.span_m)
+        for name, lon, slat in visual_sites:
+            paths = fetch_centerlines(lon, slat, args.span_m, centerlines)
             chip, mpp = draw_registration_chip(lon, slat, zoom, args.span_m,
                                                cache_dir, src["url"], paths)
-            path = os.path.join(args.out, "registration_{}.png".format(name))
+            path = os.path.join(out_dir, "registration_{}.png".format(name))
             chip.save(path)
             print("  {:>18}: {} centreline paths, {:.4f} m/px -> {}".format(
                 name, len(paths), mpp, path))
             sites.append({"site": name, "lon": lon, "lat": slat,
                           "paths": len(paths), "png": os.path.basename(path)})
         result["registration_check"] = {
-            "layer": CENTERLINES, "span_m": args.span_m, "sites": sites,
+            "layer": centerlines, "span_m": args.span_m, "sites": sites,
             "how_to_read": "Cyan is the city's own street-centreline geometry, "
                            "projected with the same code that places the crosshair. "
                            "If it tracks the middle of the visible roadway, imagery "
@@ -431,11 +496,11 @@ def main(argv=None):
                            "are ground-level, so no roof-lean parallax is involved.",
         }
 
-    os.makedirs(args.out, exist_ok=True)
-    with open(os.path.join(args.out, "georef_check.json"), "w") as fh:
+    os.makedirs(out_dir, exist_ok=True)
+    with open(os.path.join(out_dir, "georef_check.json"), "w") as fh:
         json.dump(result, fh, indent=2, sort_keys=True)
         fh.write("\n")
-    print("\nwrote {}".format(os.path.join(args.out, "georef_check.json")))
+    print("\nwrote {}".format(os.path.join(out_dir, "georef_check.json")))
     return 0
 
 

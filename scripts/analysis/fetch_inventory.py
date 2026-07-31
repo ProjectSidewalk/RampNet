@@ -94,26 +94,44 @@ def arcgis_query_url(layer_url, where="1=1", out_sr=4326, page_size=DEFAULT_PAGE
     return layer_url.rstrip("/") + "/query?" + urllib.parse.urlencode(params)
 
 
-def parse_arcgis_page(payload):
+def parse_arcgis_page(payload, geometry="point"):
     """Extract ``(records, exceeded_limit)`` from one ArcGIS query response.
 
-    Records are flattened to ``{**attributes, "lon": x, "lat": y}`` so downstream
-    analysis never has to care which API served them. A feature with null
-    geometry is dropped and counted by the caller — ArcGIS happily returns
+    Point records are flattened to ``{**attributes, "lon": x, "lat": y}`` so
+    downstream analysis never has to care which API served them. A feature with
+    null geometry is dropped and counted by the caller — ArcGIS happily returns
     attribute-only rows, and a point inventory row without a point is not a ramp
     location.
+
+    ``geometry="polyline"`` keeps ``paths`` instead, which is what a **street
+    centreline** layer serves. Centrelines are not an inventory, but they are
+    fetched by this tool on purpose: they are the independent municipal geometry
+    the registration check in ``inventory_centerline_offset.py`` measures the ramp
+    coordinates against, so they need the same snapshot discipline — same digest,
+    same manifest, same refusal to write a truncated fetch. An analysis that
+    attributes a city's positional error to its coordinates must not depend on a
+    live endpoint for the reference it attributed against.
     """
     if "error" in payload:
         raise RuntimeError("ArcGIS error: {}".format(payload["error"]))
     out = []
     for feat in payload.get("features", []):
         geom = feat.get("geometry") or {}
-        x, y = geom.get("x"), geom.get("y")
-        if x is None or y is None:
-            continue
         rec = dict(feat.get("attributes") or {})
-        rec["lon"] = x
-        rec["lat"] = y
+        if geometry == "polyline":
+            paths = geom.get("paths")
+            # A path of one vertex has no direction, so it can carry no
+            # perpendicular and would be dropped downstream anyway.
+            paths = [p for p in (paths or []) if len(p) >= 2]
+            if not paths:
+                continue
+            rec["paths"] = paths
+        else:
+            x, y = geom.get("x"), geom.get("y")
+            if x is None or y is None:
+                continue
+            rec["lon"] = x
+            rec["lat"] = y
         out.append(rec)
     return out, bool(payload.get("exceededTransferLimit"))
 
@@ -154,7 +172,7 @@ def max_oid(records, oid_field="OBJECTID"):
 
 
 def fetch_arcgis(layer_url, where="1=1", out_sr=4326, page_size=DEFAULT_PAGE_SIZE,
-                 oid_field="OBJECTID", log=print):
+                 oid_field="OBJECTID", geometry="point", log=print):
     """Page an ArcGIS layer to exhaustion. Returns ``(records, pages, queries)``."""
     records, queries, min_oid = [], [], None
     for page in range(MAX_PAGES):
@@ -162,7 +180,7 @@ def fetch_arcgis(layer_url, where="1=1", out_sr=4326, page_size=DEFAULT_PAGE_SIZ
                                page_size=page_size, min_oid=min_oid,
                                oid_field=oid_field)
         queries.append(url)
-        batch, _exceeded = parse_arcgis_page(_get_json(url))
+        batch, _exceeded = parse_arcgis_page(_get_json(url), geometry=geometry)
         if not batch:
             break
         records.extend(batch)
@@ -247,6 +265,9 @@ def main(argv=None):
     ap.add_argument("--allow-partial", action="store_true",
                     help="write a snapshot even when it is short of the server's "
                          "own count (only for a layer with genuinely null geometry)")
+    ap.add_argument("--geometry", choices=("point", "polyline"), default="point",
+                    help="'polyline' freezes a street-centreline layer, the "
+                         "reference the registration check measures against")
     ap.add_argument("--page-size", type=int, default=DEFAULT_PAGE_SIZE)
     ap.add_argument("--out-sr", type=int, default=4326,
                     help="output CRS; 4326 unless you are checking the round-trip")
@@ -267,13 +288,14 @@ def main(argv=None):
         print("declared count: {} | paging on {}".format(declared, oid_field))
         records, pages, queries = fetch_arcgis(
             args.arcgis, where=args.where, out_sr=args.out_sr,
-            page_size=args.page_size, oid_field=oid_field)
+            page_size=args.page_size, oid_field=oid_field, geometry=args.geometry)
         manifest = {
             "city": args.city,
             "fetched": args.fetched,
             "api": "arcgis",
             "endpoint": args.arcgis,
             "where": args.where,
+            "geometry": args.geometry,
             "out_sr": args.out_sr,
             "declared_count": declared,
             "pages": pages,
