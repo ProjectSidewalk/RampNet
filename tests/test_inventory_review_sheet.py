@@ -343,13 +343,20 @@ def test_counts_and_markers_cannot_disagree():
     assert [sum(1 for n in found if n["d_m"] <= r) for r in (6.0, 10.0)] == counts
 
 
-def test_published_count_is_hidden_until_the_reviewer_has_counted():
+def test_published_data_is_held_until_the_chip_is_fully_recorded():
     """Anti-anchoring, and it is the whole value of the comparison: the imagery
-    count and the published count have to be reached independently or their
-    difference measures nothing."""
+    evidence and the published data have to be reached independently or their
+    difference measures nothing.
+
+    The gate needs BOTH of the chip's own numbers. Gating on the count alone left
+    ``offset_m`` — the headline number — exposed, because a click made with the
+    markers already on screen drifts toward one. Behaviour is exercised for real
+    in ``test_review_sheet_page_logic.py``; this pins the rule in one place so it
+    cannot be widened by accident.
+    """
     html = irs.build_sheet(_meta(), _chips(), {})
-    assert "if (v.ramps_visible == null || c.published == null)" in html
-    assert "row.hidden = true;" in html
+    assert "function revealed(v) { return done(v) && v.ramps_visible != null; }" in html
+    assert "if (!c.pub || !revealed(v)) return \"\";" in html
 
 
 # --------------------------------------------------------------------------- #

@@ -214,11 +214,15 @@ RUBRIC = {
         "as floor-limited rather than claiming centimetres."
     ),
     "published_nearby": (
-        "The count of published records near each chip is HIDDEN until you have "
-        "entered ramps_visible for that chip, and this is deliberate. ramps_visible is "
-        "meant to be independent evidence from the imagery; showing the published "
-        "count first would anchor it, and the whole value of the comparison is that "
-        "the two were arrived at separately. Once revealed, each nearby record is "
+        "The published records near each chip are HELD BACK until you have recorded "
+        "BOTH of this chip's own numbers — the offset (or a terminal state) and the "
+        "count — and this is deliberate. Both are meant to be independent evidence "
+        "from the imagery, and the whole value of the comparison is that the two "
+        "sources were arrived at separately. Gating on the count alone was not enough: "
+        "with the markers already on screen, a click drifts toward one and offset_m "
+        "silently becomes 'distance to the published record' rather than 'distance to "
+        "the ramp' — corrupting the headline number of the assessment. The published "
+        "data is a cross-check, never an input. Once revealed, each nearby record is "
         "drawn on the image as a magenta diamond, and THE DIAMONDS ARE THE EVIDENCE "
         "— the counts are only a summary. **A radius is not a corner**, and it fails "
         "in both directions on exactly the complex geometry where the comparison "
@@ -547,6 +551,7 @@ SHEET_TEMPLATE = """<!doctype html>
           border-left:2px solid #3a3a3a; padding-left:7px; }}
  .hint b {{ color:#ffd479; font-weight:600; }}
  .pub {{ font-family:ui-monospace,monospace; font-size:12.5px; }}
+ .pub.held {{ font-family:system-ui,sans-serif; color:#7d7d7d; }}
  .pub.agree {{ color:#7bc98a; }}
  .pub.under {{ color:#ff9d6b; }}
  .pub.over {{ color:#e07a7a; }}
@@ -598,7 +603,7 @@ match what the tool last printed, this page is stale -- hard-reload.">build __BU
     a ramp inside the 10 m ring but across a roadway is a different corner.</p>
   </div>
   <div class="row" id="pubrow" hidden>
-   <label>published records nearby <b>(revealed after you count)</b></label>
+   <label>published records nearby <b>(revealed after you record this chip)</b></label>
    <div class="pub" id="pub">—</div>
   </div>
   <div class="row">
@@ -698,8 +703,16 @@ function marker(v) {{
 // have to hunt for is a marker that gets reported as missing. The label also
 // makes a far one (12-16 m, out near the frame edge) legible as deliberate
 // rather than as a stray mark.
+// Revealed only once BOTH of this chip's own numbers are recorded — the offset
+// (or a terminal state) and the count. Gating on the count alone left the more
+// important number exposed: with diamonds already on screen, a click drifts
+// toward one and offset_m silently becomes "distance to the published record"
+// instead of "distance to the ramp". The published data is a cross-check, never
+// an input.
+function revealed(v) {{ return done(v) && v.ramps_visible != null; }}
+
 function pubMarkers(c, v) {{
-  if (!c.pub || v.ramps_visible == null) return "";
+  if (!c.pub || !revealed(v)) return "";
   const r = S / 60;
   return c.pub.map(p => {{
     const x = C + p[0], y = C + p[1];
@@ -790,11 +803,18 @@ function render() {{
   // Held back until the count is entered, so the published figure cannot anchor
   // it. The comparison is only worth anything if the two were reached
   // independently.
+  // The row itself always shows. Hiding it entirely made its absence look like a
+  // bug rather than like a rule, and "why is there nothing here" cost time.
   const row = document.getElementById("pubrow"), pub = document.getElementById("pub");
-  if (v.ramps_visible == null || c.published == null) {{
+  row.hidden = false;
+  if (c.published == null) {{
     row.hidden = true;
+  }} else if (!revealed(v)) {{
+    pub.className = "pub held";
+    pub.innerHTML = `<span style="font-size:11px">Held back until you have clicked the
+      offset <em>and</em> set the count — so the published data cannot anchor
+      either.</span>`;
   }} else {{
-    row.hidden = false;
     // NO automatic verdict. A radius is not a corner, and it fails in BOTH
     // directions on exactly the complex geometry where the comparison would
     // matter: 6 m misses the far ramp of a large corner (chip 66519's island

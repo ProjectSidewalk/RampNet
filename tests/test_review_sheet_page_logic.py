@@ -91,32 +91,43 @@ v.px = 349; v.py = 349; v.offset_m = 0; v.unreadable = false; v.no_ramp = false;
 ok(!v.unreadable && !v.no_ramp, "measuring clears both terminal states");
 ok(T.done(v), "a measured chip is done");
 
-const v2 = T.state("B");
-v2.ramps_visible = null; T.open_(1);
-ok(document.getElementById("pubrow").hidden === true, "published hidden before counting");
-v2.ramps_visible = 1; T.open_(1);
-ok(document.getElementById("pubrow").hidden === false, "published revealed after counting");
+// The anti-anchoring gate needs BOTH of the chip's own numbers. Gating on the
+// count alone left offset_m exposed: with markers already drawn, a click drifts
+// toward one and the headline number becomes distance-to-published-record.
+const pubHtml = () => document.getElementById("pub").innerHTML;
+const svg = () => document.getElementById("bigsvg").innerHTML;
+const nMarkers = () => (svg().match(/paint-order="stroke"/g) || []).length;
+
+const va = T.state("A");
+va.offset_m = null; va.px = va.py = null; va.ramps_visible = null;
+va.unreadable = false; va.no_ramp = false;
+T.open_(0);
+ok(nMarkers() === 0, "nothing revealed on a blank chip");
+
+va.ramps_visible = 3; T.open_(0);
+ok(nMarkers() === 0, "count alone does NOT reveal — offset would be anchored");
+ok(pubHtml().toLowerCase().includes("held back"), "panel says why it is holding");
+
+va.ramps_visible = null; va.offset_m = 1.2; va.px = 300; va.py = 300; T.open_(0);
+ok(nMarkers() === 0, "offset alone does not reveal either");
+
+va.ramps_visible = 3; T.open_(0);
+ok(nMarkers() === 2, "both recorded -> both neighbours drawn");
+ok(svg().includes(">1.7m</text>") && svg().includes(">2.6m</text>"),
+   "each marker is labelled with its distance");
+
+// A phantom chip auto-sets the count, so it reveals too -- that is the case
+// where checking against published records matters most.
+va.offset_m = null; va.px = va.py = null; va.no_ramp = true; va.ramps_visible = 0;
+T.open_(0);
+ok(nMarkers() === 2, "a no_ramp chip still reveals, for the phantom check");
 
 // No automatic verdict: a radius is not a corner and it misjudged in BOTH
 // directions on real chips. The panel reports, it does not accuse.
-const pubHtml = () => document.getElementById("pub").innerHTML;
-const va = T.state("A");
-va.ramps_visible = 3; T.open_(0);
 const words = pubHtml().toLowerCase();
 ok(!/under-recording\?|phantom or duplicate\?/.test(words),
    "panel issues no automatic verdict");
 ok(words.includes("a radius is not a corner"), "panel says why it cannot judge");
-
-// The markers ARE the evidence, and they obey the same anti-anchoring gate.
-// Counted by paint-order, which appears exactly once per marker.
-const svg = () => document.getElementById("bigsvg").innerHTML;
-const nMarkers = () => (svg().match(/paint-order="stroke"/g) || []).length;
-va.ramps_visible = 3; T.open_(0);
-ok(nMarkers() === 2, "both neighbours drawn once counted");
-ok(svg().includes(">1.7m</text>") && svg().includes(">2.6m</text>"),
-   "each marker is labelled with its distance");
-va.ramps_visible = null; T.open_(0);
-ok(nMarkers() === 0, "neighbour markers hidden before counting");
 
 ok(document.getElementById("rubric-body").innerHTML.includes("<h3>"), "rubric renders");
 
