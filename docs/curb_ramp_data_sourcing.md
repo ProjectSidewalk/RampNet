@@ -212,6 +212,41 @@ the presence or absence of a wheelchair access ramp"*, derived from 2014 aerial 
 corner-centroid, not ramp-located. Either they assessed a different layer or "OK" tolerates
 corner-level placement. Worth settling before counting LA's 91,759.
 
+## 5a. Temporal distance is a second, independent gate — and it is not the #11 check
+
+Positional precision asks *is the coordinate on the ramp?* Temporal distance asks *did the ramp and
+the pixels exist at the same time?* They are independent, and a city can pass one and fail the other.
+
+**This is not covered by the existing temporal-consistency filter.** [#11](https://github.com/ProjectSidewalk/RampNet/issues/11)
+(closed) fixed two real bugs in that filter — a `2000-01-01` sentinel that let undated records bypass
+the check, and a month comparison that ignored the year. What it now does correctly is an
+**ordering** test: discard a panorama unless the ramp was installed strictly before the month of
+capture (`generate_dataset_meta.py`, `(year, month)` tuple compare). Ordering is not distance, and
+three failure modes survive it:
+
+1. **Inventory older than the imagery → unlabeled positives.** Ramps built after the inventory
+   snapshot are visible in the panorama but absent from the government data, so no ordering check can
+   see them. The target heatmap is **zero** at a real ramp — the label-ceiling mechanism this issue
+   is built around. **DC is the worst case in hand:** its live count is *identical* to the paper's
+   Table 1 figure, corroborating a static 2016 capture, against GSV imagery a decade newer.
+2. **Undated records → phantom labels.** `TREAT_UNDATED_AS_PREDATING = True` is a deliberate,
+   documented choice, but it means every dateless record is *assumed* to predate the panorama. Where
+   a city's undated fraction is high the filter is effectively off for those records, and ramps not
+   yet built when the pano was captured become labels at empty pixels. **The undated fraction is
+   therefore a per-city measure of how much of the filter actually functions**, and it has never been
+   reported for any city.
+3. **Rebuilt or removed ramps** change appearance or vanish between the two dates, and carry no
+   signal either way.
+
+Note the two errors have **opposite signs**: (1) suppresses detections at real ramps, (2) trains
+detections at nothing. Both degrade the corpus, so a city's *net* temporal exposure is not captured
+by any single number — report both.
+
+**This is cheap to measure and needs no human and no imagery** — install-date distribution, undated
+fraction, inventory snapshot date, and the GSV/Mapillary capture-date distribution are all metadata.
+It should therefore run *before* the visual precision assessment (§5), because it can disqualify a
+city for a few minutes of compute rather than a few hours of review.
+
 ## 6. Routes to a 500,000-ramp corpus
 
 **Be explicit about which 500k is meant:**
