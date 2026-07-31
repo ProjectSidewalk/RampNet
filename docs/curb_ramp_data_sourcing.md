@@ -247,6 +247,46 @@ fraction, inventory snapshot date, and the GSV/Mapillary capture-date distributi
 It should therefore run *before* the visual precision assessment (§5), because it can disqualify a
 city for a few minutes of compute rather than a few hours of review.
 
+### The imagery half is already collected: Streetscape Tracker
+
+[Streetscape Tracker](https://github.com/jonfroehlich/streetscape-tracker) (`D:\Git\gsv-tracker`,
+dashboard at `makeabilitylab.cs.washington.edu/public/streetscape-tracker/`) samples a frozen
+geographic grid per city and records **`capture_date` per panorama** for both GSV and Mapillary, in
+immutable dated snapshots. Its catalogue holds **1,204 cities / 1,863 snapshots** on makelab1
+(`/projects/makeabilitylab/streetscape-tracker/data/`).
+
+Coverage of this document's candidates is good, and critically **includes all three training
+cities**, so the assessment can be calibrated against known-Good imagery:
+
+- **Tracked** — Austin, Bend, Boston, Denver, Los Angeles, Minneapolis, Nashville, New York,
+  Portland OR, Seattle, Sioux Falls, Washington DC. Also the Gainesville, Paterson and Richmond
+  benchmark splits.
+- **Not tracked — worth queueing**: **Charlotte NC, San Francisco CA, Arlington VA** (only Arlington
+  TN and Arlington WA are in the catalogue).
+- Several tracked cities have stale runs (DC 2024-04-11, Seattle 2024-12-19, Portland OR
+  2024-12-21) and would benefit from a re-run.
+
+**First measurement (2026-07-30), GSV capture-year distribution vs inventory date:**
+
+| City | Precision (Table 1) | Inventory vintage | Modal imagery years | Gap |
+| :--- | :--- | :--- | :--- | :--- |
+| Bend, OR | **Good** (training) | rolling / live | **2024** (83% of 189k) | ~0 yr |
+| Austin, TX | OK | live API | **2024–25** (73% of 2.0M) | ~0 yr |
+| Denver, CO | unassessed | 2022 aerial delineation | **2022–24** (70% of 2.3M) | ~0–2 yr |
+| **Washington, DC** | OK | **2016 static capture** | **2022–23** (63% of 159k) | **~6 yr** ⚠️ |
+
+**DC is confirmed as the worst temporal case in the pool** — its inventory predates the modal
+imagery by roughly six years, so every ramp DC built between 2016 and 2023 is in the pixels and
+absent from the labels. **Denver reads better than its "aerial-derived" flag suggested**: a 2022
+delineation against 2022–24 imagery is nearly contemporaneous, which is the best temporal alignment
+of any unassessed candidate.
+
+**Caveat on using the tracker this way.** Its GSV series is a *grid sample* (nearest pano per grid
+point) spread uniformly over the city, whereas Stage 1 selects panoramas within 10 m of curb-ramp
+locations — i.e. concentrated at intersections. The distribution above is therefore a **screening**
+signal, good for ranking cities, not a substitute for the per-ramp Δt the pipeline would actually
+see.
+
 ## 6. Routes to a 500,000-ramp corpus
 
 **Be explicit about which 500k is meant:**
