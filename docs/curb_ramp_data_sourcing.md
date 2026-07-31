@@ -755,6 +755,57 @@ reviewer's time**, the global fallback will not do, and blank tiles must be dete
 presented. Both are now enforced in the tool, along with a `--tile-source` registry that records
 which imagery produced which verdict.
 
+### The instrument is registered and scaled — checked, not asserted
+
+The sheet asks a reviewer to judge a **1-2 m** offset, so two claims have to hold or every
+verdict it produces is quietly wrong: the crosshair is on the published coordinate, and the rings
+really are 1/2/5/10 m. Neither is visible by looking at the sheet, because the error and the
+measurement would come from the same code. Both are now checked against something external —
+`scripts/analysis/verify_chip_georeference.py` (15 tests), evidence in
+`analysis_out/georef_check/`.
+
+**Tile scheme.** Denver's `Aerial2016` cache is standard Web Mercator: 256 px tiles, EPSG:3857,
+origin −20037508.342787, and LOD resolutions matching 156543.03392800014 / 2^z to **3×10⁻¹⁰**
+relative. So the projection assumption is not an assumption.
+
+**Scale, against the WGS84 ellipsoid.** Points are constructed an exact ground distance away using
+the local radii of curvature — maths that shares nothing with the Web Mercator `cos(lat)` factor
+it is validating, so an error there cannot cancel itself — then projected and measured, at eight
+bearings. Worst error **0.26% at every radius: 2.6 mm on the 1 m ring, 26 mm on the 10 m ring.**
+Constant in *relative* terms across radii, which identifies it as the expected sphere-vs-ellipsoid
+residual rather than a bug (an additive error would shrink proportionally as the ring grows). A
+regression test confirms the checker would report >20% if the latitude correction were ever
+dropped.
+
+**Registration, against the city's own centrelines.** Denver's LRS street geometry is drawn into
+the imagery with the same projection that places the crosshair, and the offset to the roadway's
+optical centre is measured on cross-sections every 4 m. Centrelines are ground-level, so unlike
+building footprints they carry no roof-lean parallax.
+
+| Neighbourhood | east median | north median | resultant |
+| :--- | ---: | ---: | ---: |
+| Park Hill | +0.11 m | −0.11 m | 0.16 m |
+| Berkeley | −0.06 m | +0.06 m | 0.08 m |
+| Athmar | −0.06 m | −0.06 m | 0.08 m |
+| Hampden | −0.06 m | −0.46 m | 0.46 m |
+| Montbello | −0.06 m | +0.11 m | 0.13 m |
+
+937 usable cross-sections. **No systematic shift**: a NAD83/WGS84 datum mismatch applied on one
+side and not the other — the plausible failure, since Denver publishes in EPSG:2877 and the server
+reprojects — would be **~1 m and consistent in direction** across every site. It is not there.
+
+Two methodological notes, because the first version of this measurement was wrong twice. Offsets
+must be resolved into a **geographic** frame: the segment normal's sign flips with the direction a
+segment happens to be digitised in, so a real eastward shift cancels in the median. And each
+cross-section must be credited **only to the axis it crosses** — a north-south street says nothing
+about the north component, and pooling both axes in a grid city fills each median with structural
+zeros and reports 0.00 m whatever the truth is.
+
+**What this does not certify.** A centreline is a cartographic construct, not a survey of the
+pavement midline; crowned roads, one-sided parking bays and kerb extensions move the optical
+centre without moving the true one. Read this as *no gross error* — the instrument is sound at the
+scale it is being asked to measure — not as a calibration certificate.
+
 **Sheet as built:** 59 chips (one dropped — outside the basemap footprint), record-weighted sample,
 seed 20260731, frame restricted to `UPDATE_STATUS=NC` because the 2,784 records added in 2023–24
 postdate 2018 imagery and are expected to be absent. Output in `analysis_out/review_denver-co/`.

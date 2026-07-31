@@ -55,6 +55,15 @@ analysis_out/op/*
 analysis_out/review_*/*
 !analysis_out/review_*/verdicts.json
 
+# Georeference check (#96): the JSON is the evidence that the sheet's crosshair and
+# rings are true, and the two PNGs are what a reader looks at to agree. Small, and
+# the whole point is that a claim of correct registration is checkable rather than
+# asserted. The tile cache beside them is someone else's imagery.
+!analysis_out/georef_check/
+analysis_out/georef_check/*
+!analysis_out/georef_check/georef_check.json
+!analysis_out/georef_check/registration_*.png
+
 # Claude Code local state. settings.local.json is per-machine (absolute paths,
 # session ids) and worktrees/ holds full repo checkouts -- gigabytes. Listed
 # individually rather than ignoring all of .claude/, so a shared
