@@ -283,6 +283,32 @@ def test_neighbour_count_excludes_beyond_the_largest_radius():
     assert irs.count_neighbours(pts, [(-105.0, 39.7)], (6.0, 10.0)) == [[0, 0]]
 
 
+def test_build_id_is_in_the_controls_row_not_the_fine_print():
+    """It answers "is this page stale?", which is useless if it is buried. The
+    first version sat at the end of five wrapped lines of grey text and was not
+    found. It must sit in the header's control row, alongside the buttons."""
+    html = irs.build_sheet(_meta(), _chips(), {})
+    header = re.search(r"<header>(.*?)</header>", html, re.S).group(1)
+    controls = header.split('<div class="sub">')[0]
+    assert 'class="build"' in controls
+    assert irs.sheet_build_id() in controls
+
+
+def test_build_id_changes_when_the_rubric_or_page_logic_changes(monkeypatch):
+    """A stamp that does not move when the instrument moves is worse than none —
+    it would certify a stale page as current."""
+    before = irs.sheet_build_id()
+    monkeypatch.setitem(irs.RUBRIC, "click_target", "something else entirely")
+    assert irs.sheet_build_id() != before
+
+
+def test_build_id_travels_into_the_manifest():
+    """So a verdict can be traced to the exact instrument that produced it."""
+    html = irs.build_sheet(_meta(), _chips(), {"sheet_build": irs.sheet_build_id()})
+    meta = json.loads(re.search(r"const META = (\{.*?\});\n", html, re.S).group(1))
+    assert meta["manifest"]["sheet_build"] == irs.sheet_build_id()
+
+
 def test_neighbour_pixel_offsets_land_where_the_record_is():
     """A marker drawn in the wrong place is worse than no marker — it would look
     like evidence. A record N metres east must sit N/mpp pixels right of centre

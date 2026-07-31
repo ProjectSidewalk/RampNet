@@ -498,6 +498,12 @@ SHEET_TEMPLATE = """<!doctype html>
  button:hover {{ background:#343434; }}
  button.primary {{ background:#2d5a3d; border-color:#3c7a52; }}
  .prog {{ font-variant-numeric:tabular-nums; color:var(--dim); }}
+ /* In the controls row, not the fine print. This is the answer to "is my page
+    stale?", and the first version of it was buried at the end of five wrapped
+    lines of grey text where nobody found it. */
+ .build {{ font-family:ui-monospace,monospace; font-size:11px; color:#8fb8d8;
+           background:#16222c; border:1px solid #24404f; border-radius:4px;
+           padding:3px 7px; cursor:help; }}
  main {{ padding:20px 24px 60px; }}
  .grid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; }}
  figure {{ margin:0; background:var(--panel); border-radius:7px; padding:7px;
@@ -555,6 +561,8 @@ SHEET_TEMPLATE = """<!doctype html>
  <h1>__CITY__ — location precision</h1>
  <label class="ctl"><input type="checkbox" id="ovl" checked> overlay <kbd>o</kbd></label>
  <span class="ctl prog" id="prog"></span>
+ <span class="build" title="Content hash of this sheet's logic and rubric. If it does not
+match what the tool last printed, this page is stale -- hard-reload.">build __BUILD__</span>
  <button id="next-todo">next unreviewed <kbd>n</kbd></button>
  <button id="show-rubric">rubric <kbd>?</kbd></button>
  <button class="primary" id="export">export verdicts.json</button>
@@ -563,7 +571,6 @@ SHEET_TEMPLATE = """<!doctype html>
   imagery <b>__SOURCE__</b> z__ZOOM__ (__MPP__ m/px) · __ATTRIB__.
   <span style="color:#ffb74d">__NOTE__</span>
   Progress is saved in this browser; <b>export before you finish</b> to write it to disk.
-  <span style="color:#777">· sheet build <code>__BUILD__</code></span>
  </div>
 </header>
 

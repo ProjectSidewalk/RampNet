@@ -41,7 +41,7 @@
     "resolution_floor": "Offsets below roughly 0.3 m are at the floor of this instrument, not measurements of real error: see the metres-per-pixel in this manifest for the pixel size, and the registration check in analysis_out/georef_check/ for how well the imagery agrees with the city's own vector data. Report the left tail as floor-limited rather than claiming centimetres.",
     "published_nearby": "The count of published records near each chip is HIDDEN until you have entered ramps_visible for that chip, and this is deliberate. ramps_visible is meant to be independent evidence from the imagery; showing the published count first would anchor it, and the whole value of the comparison is that the two were arrived at separately. Once revealed, each nearby record is drawn on the image as a magenta diamond, and THE DIAMONDS ARE THE EVIDENCE \u2014 the counts are only a summary. **A radius is not a corner**, and it fails in both directions on exactly the complex geometry where the comparison would matter: 6 m misses the far ramp of a large corner (chip 66519's channelising island spans 7.0 m) and reaches straight across a 4-5 m slip lane (chip 67585, where the record 5.2 m ESE is on the far side of a crossing). Both produced confident false alarms before the panel stopped issuing verdicts. So: look at where the diamonds fall, decide which are on your corner, and note a genuine disagreement rather than trusting a number. A count above the published figure suggests the city under-records (the pair-merge failure mode); below it suggests phantoms or duplicates."
   },
-  "sheet_build": "3c366f6b",
+  "sheet_build": "989d90e8",
   "reviewer": null,
   "reviewed_on": null,
   "confidence": null,
