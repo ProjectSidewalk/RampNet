@@ -71,12 +71,23 @@ def radius_max(heat, x, y, radius_sq=None):
     to [0, 1] exactly as ``peaks_to_dets`` clips before peak extraction, so an
     ``act`` here and a peak score there are on the same scale.
     """
+    return site_profile(heat, x, y, radius_sq)[0]
+
+
+def site_profile(heat, x, y, radius_sq=None):
+    """``(act, off_px, center)`` for the window around normalized ``(x, y)``.
+
+    ``off_px`` is how far from the site the in-window maximum sits, and ``center``
+    is the value at the site itself — together they separate a response *at* the
+    ramp from a neighbouring mode's tail reaching *into* the window, which ``act``
+    alone cannot do (and 62% of silent misses turn out to need the distinction).
+    """
     if radius_sq is None:
         radius_sq = radius_sq_for()
     H, W = len(heat), len(heat[0])
     r = radius_sq ** 0.5
     cx, cy = x * W, y * H
-    best = 0.0
+    best, off = 0.0, 0.0
     for row in range(max(0, int(cy - r)), min(H, int(cy + r) + 2)):
         dy2 = (row - cy) ** 2
         if dy2 >= radius_sq:
@@ -86,10 +97,33 @@ def radius_max(heat, x, y, radius_sq=None):
             dx = col - cx
             if dx * dx + dy2 >= radius_sq:
                 continue
-            v = heat[row][col % W]
+            v = min(float(heat[row][col % W]), 1.0)
             if v > best:
-                best = min(float(v), 1.0)
-    return best
+                best, off = v, (dx * dx + dy2) ** 0.5
+    center = min(float(heat[min(H - 1, max(0, round(cy)))]
+                       [round(cx) % W]), 1.0)
+    return best, off, max(center, 0.0)
+
+
+def nearest_peak(preds, x, y):
+    """``(dist_px, score)`` of the closest cached floor peak, in matcher units.
+
+    ``preds`` are the panorama's cached ``(x, y, score)`` floor peaks (>= 0.05).
+    For a silent miss any such peak is by definition OUTSIDE the match radius, so
+    this measures how far away the nearest thing the model actually said is —
+    the difference between "a neighbouring mode's tail reaches the site" (~1-2
+    radii) and "the nearest response is nowhere near" (many radii).
+    """
+    if not preds:
+        return float("inf"), None
+    best, score = float("inf"), None
+    for p in preds:
+        dx = abs(p[0] - x) * PANO_SCALE_X
+        dx = min(dx, PANO_SCALE_X - dx)
+        d = (dx * dx + ((p[1] - y) * PANO_SCALE_Y) ** 2) ** 0.5
+        if d < best:
+            best, score = d, p[2]
+    return best, score
 
 
 def null_percentile(heat, x, y, rng, trials=NULL_TRIALS, radius_sq=None):
@@ -160,8 +194,9 @@ def main(argv=None):
     rated_by_rowkey = {(v["city"], v["pano"], round(float(v["x"]), 6),
                         round(float(v["y"]), 6)): v for v in rated.values()}
 
+    from operating_point_curve import CACHE_DIR, read_cache
     cities = [c.strip() for c in args.cities.split(",") if c.strip()]
-    by_pano = {}
+    by_pano, preds_by = {}, {}
     for city in cities:
         loaded = mt.load_rows(city, args.threshold, rng=None)
         if loaded is None:
@@ -169,6 +204,9 @@ def main(argv=None):
         for r in loaded[0]:
             if not r["hit"] and r["bucket"] == "silent":
                 by_pano.setdefault((city, r["pano"]), []).append(r)
+        panos, _ = read_cache(os.path.join(CACHE_DIR, f"{city}.json"))
+        for pd in panos:
+            preds_by[(city, pd["pano"])] = pd["preds"]
     n_miss = sum(len(v) for v in by_pano.values())
     print(f"=== Silent-miss activation forensics (threshold {args.threshold}, "
           f"{n_miss} misses in {len(by_pano)} panos, #46 Phase 1) ===", flush=True)
@@ -190,6 +228,9 @@ def main(argv=None):
         for r in misses:
             act, pct, null_med, null_p95 = null_percentile(
                 heat, r["x"], r["y"], rng, radius_sq=radius_sq)
+            _, off_px, center = site_profile(heat, r["x"], r["y"], radius_sq)
+            npk_px, npk_score = nearest_peak(preds_by.get((city, pano), []),
+                                             r["x"], r["y"])
             key = row_key(r)
             v = rated_by_rowkey.get(key)
             results.append({
@@ -201,6 +242,12 @@ def main(argv=None):
                 "act": round(act, 5), "null_pct": round(pct, 3),
                 "null_med": round(null_med, 5), "null_p95": round(null_p95, 5),
                 "above_own_null_p95": act > null_p95,
+                "argmax_off_px": round(off_px, 1),
+                "act_at_site": round(center, 5),
+                "nearest_peak_px": (round(npk_px, 1)
+                                    if npk_px != float("inf") else None),
+                "nearest_peak_score": (round(npk_score, 3)
+                                       if npk_score is not None else None),
             })
         del heat
         if i % 10 == 0:
@@ -239,16 +286,45 @@ def main(argv=None):
         print(f"\n  rated `visible` only (n={len(vis)}): act q1/med/q3 "
               f"{q[0]:.4f}/{q[1]:.4f}/{q[2]:.4f}; {n_sig}/{len(vis)} above their "
               f"own pano's null p95")
-    shoulders = [r for r in results if r["act"] >= 0.05]
-    print(f"\n  `act` >= 0.05 without a peak (shoulder of a neighbouring mode): "
-          f"{len(shoulders)}")
 
-    print(f"\n  Reading: 'above own null p95' is the localized-signal test. A miss")
-    print(f"  passing it has a real, faint, spatially specific response — attenuation,")
-    print(f"  the sub_threshold continuum's tail. A miss failing it is indistinguishable")
-    print(f"  from the panorama's noise floor — absence. The two populations continue")
-    print(f"  to different phases: attenuation prices into threshold/calibration work,")
-    print(f"  absence goes to Phase 2's scale counterfactual.")
+    # What the in-window mass actually IS. A silent miss has no floor peak in
+    # radius by definition, so act >= 0.05 can only be an outside mode's tail;
+    # the argmax offset and the nearest cached peak make that checkable rather
+    # than asserted.
+    print(f"\n{'-'*78}\nDECOMPOSITION — what the in-window response is\n{'-'*78}")
+    r_px = radius_sq ** 0.5
+    cls = {"absent": [], "faint_local": [], "tail": []}
+    for r in results:
+        if r["act"] < 0.01:
+            cls["absent"].append(r)
+        elif r["act"] >= 0.05:
+            cls["tail"].append(r)
+        else:
+            cls["faint_local"].append(r)
+    for name, sel in cls.items():
+        if not sel:
+            continue
+        med_off = quartiles([r["argmax_off_px"] for r in sel])[1]
+        npks = [r["nearest_peak_px"] for r in sel if r["nearest_peak_px"]]
+        med_npk = quartiles(npks)[1] if npks else float("nan")
+        n_vis = sum(1 for r in sel if r["verdict"] == "visible")
+        print(f"  {name:>12}: {len(sel):>3}  (rated visible {n_vis:>2})  "
+              f"argmax off med {med_off:>4.1f} px  nearest floor peak med "
+              f"{med_npk:>5.1f} px ({med_npk/r_px:.1f}R)")
+    tail_near_edge = sum(1 for r in cls['tail']
+                         if r['argmax_off_px'] > 0.75 * r_px)
+    print(f"  tail cases with argmax in the window's outer quarter: "
+          f"{tail_near_edge}/{len(cls['tail'])} — the mass is entering from "
+          f"outside, not centred on the ramp")
+
+    print(f"\n  Reading: 'absent' = the heatmap is genuinely flat at the site.")
+    print(f"  'faint_local' = a real sub-floor response at the site itself.")
+    print(f"  'tail' = a neighbouring supra-floor mode's slope reaches the window —")
+    print(f"  the site contributed no mode of its own, but the model responded to")
+    print(f"  something adjacent (cf. the merged bucket's sigma story). The three")
+    print(f"  continue differently: absent -> Phase 2's scale counterfactual;")
+    print(f"  faint_local -> threshold/calibration (the sub_threshold continuum);")
+    print(f"  tail -> representation (sigma), not vocabulary.")
 
     if args.json_out:
         os.makedirs(os.path.dirname(os.path.abspath(args.json_out)), exist_ok=True)

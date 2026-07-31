@@ -53,6 +53,7 @@ analysis_out/op/*
 # unwitnessed list that is the gallery's actual work queue.
 !analysis_out/silent_witness.json
 !analysis_out/farfield_forensics.json
+!analysis_out/silent_activation.json
 
 # Generated tagging pages live next to their (committed) galleries; regenerate with
 # scripts/analysis/make_tagger.py rather than tracking a build artifact.

@@ -100,6 +100,39 @@ def test_a_site_no_better_than_the_horizon_band_fails_the_test():
 
 
 # --------------------------------------------------------------------------- #
+# site_profile / nearest_peak — separating a site response from a neighbour's tail
+# --------------------------------------------------------------------------- #
+def test_site_profile_centred_bump_has_zero_offset():
+    h = _heat()
+    h[256][512] = 0.4
+    act, off, center = sa.site_profile(h, 512 / 1024, 256 / 512)
+    assert act == pytest.approx(0.4)
+    assert off == pytest.approx(0.0)
+    assert center == pytest.approx(0.4)
+
+
+def test_site_profile_offset_bump_reports_its_distance():
+    h = _heat()
+    h[256][512 + 15] = 0.4
+    act, off, center = sa.site_profile(h, 512 / 1024, 256 / 512)
+    assert act == pytest.approx(0.4)
+    assert off == pytest.approx(15.0)
+    assert center == 0.0  # nothing at the ramp itself
+
+
+def test_nearest_peak_measures_in_matcher_units_and_wraps():
+    # A peak across the seam: x=0.999 vs site x=0.001 is ~2 px away, not ~1022.
+    d, score = sa.nearest_peak([(0.999, 0.5, 0.7)], 0.001, 0.5)
+    assert d == pytest.approx(0.002 * 1024, abs=0.01)
+    assert score == 0.7
+
+
+def test_nearest_peak_with_no_peaks_is_infinite():
+    d, score = sa.nearest_peak([], 0.5, 0.5)
+    assert d == float("inf") and score is None
+
+
+# --------------------------------------------------------------------------- #
 # group_of — Phase 0's partition, reused
 # --------------------------------------------------------------------------- #
 def _row(city="bend", pano="p1", x=0.25, y=0.6):

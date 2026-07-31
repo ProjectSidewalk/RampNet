@@ -425,15 +425,65 @@ finding and with the human verdicts, and inconsistent with reading "more example
 pixels" as a claim about *reachability*. (As a claim about pixels it remains true; the error was
 inferring unreachability from it.)
 
+### Phase 1: attenuated or absent? Almost never absent
+
+`silent` is a statement about **peaks** — no `peak_local_max` peak ≥ 0.05 within the match radius.
+Phase 1 makes the statement about the **heatmap**: `scripts/analysis/silent_activation.py`
+(14 tests) loads the published checkpoint (`projectsidewalk/rampnet-model` — the weights every
+committed cache came from), runs one pass per panorama holding a silent miss (single-pass fp32,
+matching `op_cache`), and reads the max heatmap value inside the match radius. The scaled matcher
+space *is* the 512×1024 heatmap grid, so the window is exactly the matcher's. Result JSON:
+`analysis_out/silent_activation.json`; run on the local RTX 3070, all 128 pooled silent misses.
+
+| population | n | act q1 / med / q3 | act ≥ 0.01 |
+| :--- | ---: | :---: | ---: |
+| near / rated | 13 | 0.009 / 0.099 / 0.197 | 9 |
+| near / witnessed | 32 | 0.033 / 0.211 / 0.592 | 30 |
+| far / rated | 37 | 0.022 / 0.076 / 0.409 | 34 |
+| far / below-floor | 9 | 0.042 / 0.194 / 0.381 | 8 |
+| far / witnessed | 37 | 0.045 / 0.188 / 0.615 | 37 |
+| **all silent misses** | **128** | 0.032 / 0.136 / 0.548 | **118** |
+
+What that in-window mass *is* (classes are act ranges; the offset and nearest-peak columns
+confirm the intended reading rather than define it):
+
+| class | definition | n | near / far | rated `visible` | argmax offset med | nearest floor peak med |
+| :--- | :--- | ---: | :---: | ---: | ---: | ---: |
+| **absent** | act < 0.01 | **10** | 6 / 4 | 5 | 22.0 px | 77.5 px (3.4 R) |
+| **faint local** | 0.01 ≤ act < 0.05 | 39 | 12 / 27 | 13 | **10.2 px** | 85.6 px (3.8 R) |
+| **tail** | act ≥ 0.05 | 79 | 27 / 52 | 23 | 22.3 px | **31.1 px (1.4 R)** |
+
+- **Only 10 of 128 silent misses (8%) have a genuinely flat heatmap.** "Silent = the model saw
+  nothing" is wrong for 92% of the bucket; `silent` was peak bookkeeping, not absence of response.
+- **62% are a neighbouring mode's tail.** The argmax sits in the window's outer quarter in 75 of
+  79, and the nearest cached floor peak is ~1.4 R away with **median score 0.685** — a *confident*
+  adjacent detection (70/79 within 2 R). That mode is a neighbour ramp's TP, an FP, or plausibly
+  this very ramp localized just outside the radius — the `localization` bucket only inspects
+  *kept* (≥ 0.30) annulus peaks, so a floor-level one leaves a miss "silent". Whichever it is,
+  this is the σ/representation family again (`merged`'s mechanism), not vocabulary.
+- **30% are a faint local response at the site itself** (mass on-site in 30 of 39, nothing else
+  within ~3.8 R) — the `sub_threshold` continuum extending below the floor. Attenuation, not
+  blindness.
+- For the far-field rated-`visible` population — the anomaly itself — the split is **3 absent /
+  12 faint-local / 19 tail**: the model is responding at or next to ~91% of the far ramps a human
+  called resolvable. Consistent with Phase 0's graded-sensitivity reading; squarely against a
+  vocabulary hole.
+- The strict per-pano null (azimuth-randomized at the site's elevation, self-excluding within 2 R)
+  passes 31/128 at its p95 — a deliberately hard bar, since the p95 is set by the pano's strongest
+  modes; the decomposition above is the sharper lens.
+
 ### What changes, what does not, and what is still open
 
 - **§0a's measured split stands** (247 far / 180 near at 18 m). What falls is the hard binary in
   its "fixable by" column: the far field is *harder*, not *unreachable*.
 - **The sourcing bracket (§0b) excluded all 83 far-field silent misses from the addressable
-  population because of that binary.** That exclusion is no longer safe. The 0.013 point estimate
-  is deliberately **not revised** here: whether these specific misses are recoverable is what
-  Phases 1–3 of the #46 study measure (heatmap activation forensics; the scale counterfactual;
-  the decoy control on the verdicts themselves). Quote 0.013 with this section attached.
+  population because of that binary.** That exclusion is no longer safe — but Phase 1 cuts the
+  other way too: of the 45 *near-field* silent misses the 0.013 estimate rests on, only **6 are
+  heatmap-absent**; the rest are faint-local (12) or an adjacent confident mode (27), i.e. the
+  calibration and σ families §0b already prices separately. The 0.013 point estimate is
+  deliberately **not revised** in either direction until Phase 2 (the scale counterfactual, whose
+  primary target is now the 10 absent sites plus whether scale lifts faint-local over the floor)
+  and Phase 3 (the decoy control on the verdicts) run. Quote 0.013 with this section attached.
 - **Multi-view's remedy logic is untouched** — a ramp invisible at 30 m is at 8 m two panoramas
   later whatever the failure mechanism — but §0a's "MV ceiling" column shares the binary
   assumption and will move with the same phases.
