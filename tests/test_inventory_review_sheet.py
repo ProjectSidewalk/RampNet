@@ -183,6 +183,116 @@ def test_sheet_does_not_bake_annotations_into_the_image():
 
 
 # --------------------------------------------------------------------------- #
+# the rubric
+#
+# These read like pedantry and are not. Every clause the rubric carries was
+# written after a real chip got called two ways in one sitting, and the failure
+# mode is silent: a sheet that quietly stops stating its rules still produces
+# confident-looking numbers that mean something different from the last city's.
+# --------------------------------------------------------------------------- #
+def test_rubric_travels_into_the_exported_manifest():
+    """An offset is uninterpretable without the rule saying what it is offset from.
+
+    The sheet reads the rubric out of ``META.manifest``, which is the same object
+    written to ``verdicts.json`` — so this also pins the two to one source.
+    """
+    html = irs.build_sheet(_meta(), _chips(), {"city": "denver-co", "rubric": irs.RUBRIC})
+    meta = json.loads(re.search(r"const META = (\{.*?\});\n", html, re.S).group(1))
+    assert meta["manifest"]["rubric"]["click_target"] == irs.RUBRIC["click_target"]
+    assert "META.manifest.rubric" in html
+
+
+def test_rubric_covers_every_field_a_reviewer_can_set():
+    for key in ("click_target", "always_click", "ramps_visible", "on_corner",
+                "no_ramp", "unjudgeable", "resolution_floor", "published_nearby"):
+        assert key in irs.RUBRIC, key
+        assert len(irs.RUBRIC[key]) > 80, key
+
+
+def test_click_target_rubric_warns_off_the_detectable_warning_pad():
+    """The pad is the most visible thing in the frame and sits 0.6-0.9 m down-slope
+    of the ramp centre, so clicking it biases every record in one direction."""
+    text = irs.RUBRIC["click_target"].lower()
+    assert "not the detectable-warning pad" in text
+    assert "parallel" in text and "landing" in text
+
+
+def test_ramps_visible_rubric_states_the_containment_rule_not_the_crossing_rule():
+    """'One ramp per crossing' is wrong for a median island: two cut-through ends
+    serve a single crossing. Containment is the rule that survives every case."""
+    text = irs.RUBRIC["ramps_visible"].lower()
+    assert "without crossing a roadway" in text
+    assert "per-corner, not per-chip" in text
+
+
+# --------------------------------------------------------------------------- #
+# terminal verdict states
+# --------------------------------------------------------------------------- #
+def test_a_readable_corner_with_no_ramp_can_be_completed():
+    """Before ``no_ramp`` this chip was uncompletable: nothing to click, so the
+    offset stayed null, so ``done()`` was never true and 'next unreviewed' walked
+    straight back to it. It is also the phantom rate, which is a reported number.
+    """
+    html = irs.build_sheet(_meta(), _chips(), {})
+    assert "v.unreadable || v.no_ramp || v.offset_m != null" in html
+    assert "no_ramp: !!v.no_ramp" in html
+
+
+def test_no_ramp_and_unjudgeable_are_mutually_exclusive():
+    """'I can see, and it is not there' and 'I cannot see' are different claims;
+    a chip asserting both would corrupt the phantom rate and the unreadable rate
+    at once."""
+    html = irs.build_sheet(_meta(), _chips(), {})
+    assert "if (x) v.no_ramp = false;" in html
+    assert "v.unreadable = false; v.offset_m = null;" in html
+
+
+# --------------------------------------------------------------------------- #
+# published-neighbour counts
+# --------------------------------------------------------------------------- #
+def test_neighbour_count_includes_the_record_itself():
+    """So the number is directly comparable to a reviewer's per-corner count
+    rather than off by one against it."""
+    pts = [(-105.0, 39.7)]
+    assert irs.count_neighbours(pts, [(-105.0, 39.7)], (6.0,)) == [[1]]
+
+
+def test_neighbour_count_separates_radii():
+    """A metre east is 1/(111320*cos(39.7)) degrees; place ramps at ~4 m and ~8 m."""
+    deg = 1.0 / (111320.0 * math.cos(math.radians(39.7)))
+    pts = [(-105.0, 39.7), (-105.0 + 4 * deg, 39.7), (-105.0 + 8 * deg, 39.7)]
+    assert irs.count_neighbours(pts, [(-105.0, 39.7)], (6.0, 10.0)) == [[2, 3]]
+
+
+def test_neighbour_count_finds_points_across_grid_cell_seams():
+    """The bucketing is an optimisation; a ramp must not vanish because it fell in
+    the next cell. Sweeps a full circle of bearings at just under the radius."""
+    lat, lon = 39.7, -105.0
+    mlon = 111320.0 * math.cos(math.radians(lat))
+    for bearing in range(0, 360, 15):
+        r = 5.5
+        dx = r * math.sin(math.radians(bearing)) / mlon
+        dy = r * math.cos(math.radians(bearing)) / 111132.0
+        got = irs.count_neighbours([(lon + dx, lat + dy)], [(lon, lat)], (6.0,))
+        assert got == [[1]], bearing
+
+
+def test_neighbour_count_excludes_beyond_the_largest_radius():
+    deg = 1.0 / (111320.0 * math.cos(math.radians(39.7)))
+    pts = [(-105.0 + 40 * deg, 39.7)]
+    assert irs.count_neighbours(pts, [(-105.0, 39.7)], (6.0, 10.0)) == [[0, 0]]
+
+
+def test_published_count_is_hidden_until_the_reviewer_has_counted():
+    """Anti-anchoring, and it is the whole value of the comparison: the imagery
+    count and the published count have to be reached independently or their
+    difference measures nothing."""
+    html = irs.build_sheet(_meta(), _chips(), {})
+    assert "if (v.ramps_visible == null || c.published == null)" in html
+    assert "row.hidden = true;" in html
+
+
+# --------------------------------------------------------------------------- #
 # basemap registry
 # --------------------------------------------------------------------------- #
 def test_every_source_declares_provenance_and_a_depth_limit():

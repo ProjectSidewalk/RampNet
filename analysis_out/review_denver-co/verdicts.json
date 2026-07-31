@@ -25,8 +25,22 @@
     5.0,
     10.0
   ],
+  "neighbour_radii_m": [
+    6.0,
+    10.0
+  ],
   "blank_chips_dropped": 0,
   "no_imagery_dropped": 1,
+  "rubric": {
+    "click_target": "Click the CENTRE of the ramp's concrete apron. NOT the detectable-warning pad: PROWAG R305 puts the pad at the back of curb on perpendicular, blended and diagonal ramps, and on the street-level landing of a parallel ramp, so pad centres sit roughly 0.6-0.9 m down-slope of ramp centres. The pad is the most visible thing in the frame, so clicking pads is the easy mistake, and it would add that 0.6-0.9 m to EVERY record as a systematic bias that looks exactly like real positional error. Parallel ramp (a level landing flanked by two sloped runs, where 'the centre' has three defensible answers metres apart): click the centre of the LANDING and note 'parallel'. Legacy ramps whose entire surface is domed are the one case where pad centre and ramp centre coincide.",
+    "always_click": "Click on EVERY chip, including when the crosshair already looks dead centre \u2014 click the crosshair itself for ~0. Two reasons. Mechanically, a chip with no click has a null offset and never counts as reviewed. Methodologically, if you only click when you think you see an error then near-zero cases are recorded by omission, and the low tail of the distribution becomes an artefact of reviewer confidence rather than a property of the data.",
+    "ramps_visible": "Count only ramps you could reach from the crosshair WITHOUT CROSSING A ROADWAY. This is per-corner, not per-chip: a 40 m chip on an arterial holds three or four corners and counting all of them conflates 'ramps in frame' with 'ramps on this corner'. Perpendicular pair = 2. One diagonal apron serving two crossings = 1. Median island with a cut-through = 2, one end per side. Triangular channelising island ('pork chop') = 3, one per leg it serves. Note that 'one ramp per crossing' is NOT the rule \u2014 a median has two ends serving a single crossing; containment is the rule.",
+    "on_corner": "The same containment test: YES if the crosshair and the ramp you clicked are on the same corner or island with no roadway between them. It is NOT 'is this the ramp the digitiser meant' \u2014 these inventories carry no corner key, so that is unknowable. Below ~2-3 m it is yes by construction, so the field only carries information in the tail, where it separates an imprecise point (benign for Stage 1: it still projects into roughly the right part of the panorama) from a misassigned one (wrong side of the street, plausibly a different panorama altogether). Mid-block ramps and refuge islands resolve under the same test; note the case.",
+    "no_ramp": "The corner is readable and there is definitively no ramp at it. This is a PHANTOM record, and it is a result rather than a failure \u2014 an inventory whose schema has no removal mechanism gives a demolished ramp no way to leave the layer, so the phantom rate has no upper bound from the data alone. Kept distinct from unjudgeable on purpose: 'I can see, and it is not there' is a different claim from 'I cannot see'.",
+    "unjudgeable": "Shadow, occlusion or resolution prevents a call. Mark it rather than guessing \u2014 the unreadable rate is itself a reported number.",
+    "resolution_floor": "Offsets below roughly 0.3 m are at the floor of this instrument, not measurements of real error: see the metres-per-pixel in this manifest for the pixel size, and the registration check in analysis_out/georef_check/ for how well the imagery agrees with the city's own vector data. Report the left tail as floor-limited rather than claiming centimetres.",
+    "published_nearby": "The count of published records near each chip is HIDDEN until you have entered ramps_visible for that chip, and this is deliberate. ramps_visible is meant to be independent evidence from the imagery; showing the published count first would anchor it, and the whole value of the comparison is that the two were arrived at separately. Once revealed: ramps_visible > published means the city under-records (the pair-merge failure mode), ramps_visible < published means phantoms or duplicates."
+  },
   "reviewer": null,
   "reviewed_on": null,
   "confidence": null,
@@ -57,7 +71,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2
     },
     {
       "id": "66114",
@@ -81,7 +98,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "66209",
@@ -102,7 +122,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3
     },
     {
       "id": "66519",
@@ -130,7 +153,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 4
     },
     {
       "id": "67585",
@@ -158,7 +184,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 4,
+      "published_within_10m": 4
     },
     {
       "id": "68791",
@@ -186,7 +215,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "69169",
@@ -210,7 +242,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "69410",
@@ -238,7 +273,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "71198",
@@ -259,7 +297,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "71275",
@@ -287,7 +328,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "72151",
@@ -311,7 +355,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "73218",
@@ -339,7 +386,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "74008",
@@ -363,7 +413,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "74811",
@@ -391,7 +444,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "75115",
@@ -419,7 +475,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "75414",
@@ -443,7 +502,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "78400",
@@ -467,7 +529,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "78579",
@@ -491,7 +556,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3
     },
     {
       "id": "78637",
@@ -512,7 +580,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2
     },
     {
       "id": "82036",
@@ -540,7 +611,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "82188",
@@ -568,7 +642,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "83611",
@@ -592,7 +669,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "83652",
@@ -616,7 +696,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2
     },
     {
       "id": "85306",
@@ -644,7 +727,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "86092",
@@ -668,7 +754,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2
     },
     {
       "id": "87014",
@@ -696,7 +785,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "89435",
@@ -724,7 +816,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "92078",
@@ -752,7 +847,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2
     },
     {
       "id": "94247",
@@ -776,7 +874,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2
     },
     {
       "id": "96782",
@@ -804,7 +905,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2
     },
     {
       "id": "97824",
@@ -828,7 +932,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2
     },
     {
       "id": "98816",
@@ -852,7 +959,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 2
     },
     {
       "id": "99845",
@@ -880,7 +990,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 2
     },
     {
       "id": "103513",
@@ -904,7 +1017,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2
     },
     {
       "id": "106696",
@@ -925,7 +1041,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "108325",
@@ -953,7 +1072,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3
     },
     {
       "id": "111985",
@@ -981,7 +1103,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "113061",
@@ -1009,7 +1134,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2
     },
     {
       "id": "114901",
@@ -1033,7 +1161,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "116124",
@@ -1061,7 +1192,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 3
     },
     {
       "id": "117445",
@@ -1089,7 +1223,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 3
     },
     {
       "id": "117688",
@@ -1113,7 +1250,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3
     },
     {
       "id": "118503",
@@ -1134,7 +1274,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "119609",
@@ -1155,7 +1298,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2
     },
     {
       "id": "120841",
@@ -1179,7 +1325,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "125041",
@@ -1207,7 +1356,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "130499",
@@ -1231,7 +1383,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3
     },
     {
       "id": "131853",
@@ -1255,7 +1410,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "131951",
@@ -1283,7 +1441,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2
     },
     {
       "id": "132031",
@@ -1311,7 +1472,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "132946",
@@ -1339,7 +1503,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3
     },
     {
       "id": "133175",
@@ -1367,7 +1534,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "133260",
@@ -1395,7 +1565,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "134079",
@@ -1419,7 +1592,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3
     },
     {
       "id": "134630",
@@ -1443,7 +1619,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3
     },
     {
       "id": "134963",
@@ -1471,7 +1650,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "135499",
@@ -1499,7 +1681,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2
     },
     {
       "id": "136713",
@@ -1527,7 +1712,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1
     },
     {
       "id": "138310",
@@ -1555,7 +1743,10 @@
       "on_corner": null,
       "ramps_visible": null,
       "unreadable": false,
-      "note": ""
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 2
     }
   ]
 }

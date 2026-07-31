@@ -27,6 +27,34 @@ away to see what is underneath; baked-in marks cannot be removed without
 re-rendering the whole sheet, which is not a workflow. The overlay toggles with a
 checkbox or ``o``.
 
+**The rubric is part of the instrument** (``RUBRIC``). It renders next to the
+field it governs, opens in full with ``?``, and is copied verbatim into the
+exported manifest — because ``0.9 m`` is uninterpretable without the rule saying
+what it is 0.9 m *from*, and a convention that lives only in someone's head gets
+applied two ways in one sitting. The load-bearing clauses, each written after a
+real chip raised the question: click the **centre of the concrete apron**, never
+the detectable-warning pad (PROWAG R305 puts the pad at the back of curb, ~0.6-0.9 m
+down-slope, so pad-clicking would bias every record in one direction); count ramps
+by **containment** — what you could reach without crossing a roadway — which is
+per-corner rather than per-chip and, unlike "one ramp per crossing", survives a
+median island; and click **every** chip including a dead-centre one, or the low
+tail of the distribution becomes an artefact of reviewer confidence.
+
+**A readable corner with no ramp is a verdict, not a gap.** ``no_ramp`` records a
+**phantom** and completes the chip. Without it such a chip was uncompletable —
+nothing to click, so the offset stayed null, so it was never "done" — and the
+only exits were to leave it stuck or to mislabel it unjudgeable, which asserts
+something different ("I cannot see" rather than "I can see, and it is not
+there"). The phantom rate matters on its own: an inventory whose schema has no
+removal mechanism gives a demolished ramp no way to leave the layer.
+
+**Each chip also carries how many records the city itself publishes nearby**
+(``count_neighbours``), which is the same per-corner quantity from the other
+side; differencing the two is what settles whether a low records-per-corner ratio
+is under-recording or ramp-design vocabulary (see §5d). **It stays hidden until
+the reviewer has entered their own count**, because a published figure shown
+first would anchor the judgment it is meant to be compared against.
+
 **The basemap is the instrument, and the obvious basemap is not good enough.**
 Esri World Imagery — the default anywhere ArcGIS is involved — renders Denver
 leaf-on, hazy, and visibly upsampled to an effective ~1 m, so a ramp and its
@@ -112,6 +140,138 @@ DEFAULT_SPAN_M = 40.0
 # quadrant", 5 m "right corner, wrong ramp of the pair", 10 m "wrong corner".
 # These are the read-off marks, so the reviewer never estimates a bare distance.
 RING_RADII_M = (1.0, 2.0, 5.0, 10.0)
+
+# The rubric. **One source of truth**: it is rendered into the sheet next to the
+# field it governs *and* copied verbatim into the exported manifest, because a
+# verdict is uninterpretable without the rule that produced it — "0.9 m" means
+# nothing unless you know what it is 0.9 m from. Every clause here was written
+# after a case that would otherwise have been called two different ways on two
+# different days; the examples are the actual chips that raised the question.
+RUBRIC = {
+    "click_target": (
+        "Click the CENTRE of the ramp's concrete apron. NOT the detectable-warning "
+        "pad: PROWAG R305 puts the pad at the back of curb on perpendicular, blended "
+        "and diagonal ramps, and on the street-level landing of a parallel ramp, so "
+        "pad centres sit roughly 0.6-0.9 m down-slope of ramp centres. The pad is the "
+        "most visible thing in the frame, so clicking pads is the easy mistake, and it "
+        "would add that 0.6-0.9 m to EVERY record as a systematic bias that looks "
+        "exactly like real positional error. Parallel ramp (a level landing flanked by "
+        "two sloped runs, where 'the centre' has three defensible answers metres "
+        "apart): click the centre of the LANDING and note 'parallel'. Legacy ramps "
+        "whose entire surface is domed are the one case where pad centre and ramp "
+        "centre coincide."
+    ),
+    "always_click": (
+        "Click on EVERY chip, including when the crosshair already looks dead centre "
+        "— click the crosshair itself for ~0. Two reasons. Mechanically, a chip with "
+        "no click has a null offset and never counts as reviewed. Methodologically, if "
+        "you only click when you think you see an error then near-zero cases are "
+        "recorded by omission, and the low tail of the distribution becomes an "
+        "artefact of reviewer confidence rather than a property of the data."
+    ),
+    "ramps_visible": (
+        "Count only ramps you could reach from the crosshair WITHOUT CROSSING A "
+        "ROADWAY. This is per-corner, not per-chip: a 40 m chip on an arterial holds "
+        "three or four corners and counting all of them conflates 'ramps in frame' "
+        "with 'ramps on this corner'. Perpendicular pair = 2. One diagonal apron "
+        "serving two crossings = 1. Median island with a cut-through = 2, one end per "
+        "side. Triangular channelising island ('pork chop') = 3, one per leg it "
+        "serves. Note that 'one ramp per crossing' is NOT the rule — a median has two "
+        "ends serving a single crossing; containment is the rule."
+    ),
+    "on_corner": (
+        "The same containment test: YES if the crosshair and the ramp you clicked are "
+        "on the same corner or island with no roadway between them. It is NOT 'is this "
+        "the ramp the digitiser meant' — these inventories carry no corner key, so "
+        "that is unknowable. Below ~2-3 m it is yes by construction, so the field only "
+        "carries information in the tail, where it separates an imprecise point "
+        "(benign for Stage 1: it still projects into roughly the right part of the "
+        "panorama) from a misassigned one (wrong side of the street, plausibly a "
+        "different panorama altogether). Mid-block ramps and refuge islands resolve "
+        "under the same test; note the case."
+    ),
+    "no_ramp": (
+        "The corner is readable and there is definitively no ramp at it. This is a "
+        "PHANTOM record, and it is a result rather than a failure — an inventory whose "
+        "schema has no removal mechanism gives a demolished ramp no way to leave the "
+        "layer, so the phantom rate has no upper bound from the data alone. Kept "
+        "distinct from unjudgeable on purpose: 'I can see, and it is not there' is a "
+        "different claim from 'I cannot see'."
+    ),
+    "unjudgeable": (
+        "Shadow, occlusion or resolution prevents a call. Mark it rather than "
+        "guessing — the unreadable rate is itself a reported number."
+    ),
+    "resolution_floor": (
+        "Offsets below roughly 0.3 m are at the floor of this instrument, not "
+        "measurements of real error: see the metres-per-pixel in this manifest for the "
+        "pixel size, and the registration check in analysis_out/georef_check/ for how "
+        "well the imagery agrees with the city's own vector data. Report the left tail "
+        "as floor-limited rather than claiming centimetres."
+    ),
+    "published_nearby": (
+        "The count of published records near each chip is HIDDEN until you have "
+        "entered ramps_visible for that chip, and this is deliberate. ramps_visible is "
+        "meant to be independent evidence from the imagery; showing the published "
+        "count first would anchor it, and the whole value of the comparison is that "
+        "the two were arrived at separately. Once revealed: ramps_visible > published "
+        "means the city under-records (the pair-merge failure mode), ramps_visible < "
+        "published means phantoms or duplicates."
+    ),
+}
+
+
+def count_neighbours(all_points, targets, radii_m):
+    """For each target, how many of ``all_points`` fall within each radius.
+
+    The target's own record is counted when it appears in ``all_points`` — which
+    is the point, because the result is then directly comparable to a reviewer's
+    per-corner ramp count rather than off by one against it.
+
+    Counts come from the WHOLE inventory, never the sample frame: a neighbouring
+    ramp excluded from the frame (Denver's 2023-24 `A` records, say) is still a
+    published ramp, and pretending otherwise would understate the city.
+
+    Points are bucketed into a lon/lat grid sized to the largest radius, so this
+    is O(n) rather than targets x records. Distances use an equirectangular
+    approximation, which is exact enough at the tens-of-metres scale asked for
+    here. Pure.
+    """
+    if not radii_m:
+        return [[] for _ in targets]
+    r_max = max(radii_m)
+    lat0 = sum(p[1] for p in targets) / len(targets) if targets else 0.0
+    m_per_deg_lat = 111132.0
+    m_per_deg_lon = 111320.0 * math.cos(math.radians(lat0)) or 1e-9
+    cell_lat = r_max / m_per_deg_lat
+    cell_lon = r_max / m_per_deg_lon
+
+    grid = defaultdict(list)
+    for lon, lat in all_points:
+        grid[(int(lon / cell_lon), int(lat / cell_lat))].append((lon, lat))
+
+    out = []
+    for lon0, lat0_t in targets:
+        mlon = 111320.0 * math.cos(math.radians(lat0_t)) or 1e-9
+        cx, cy = int(lon0 / cell_lon), int(lat0_t / cell_lat)
+        dists = []
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                for lon, lat in grid.get((cx + dx, cy + dy), ()):
+                    d = math.hypot((lon - lon0) * mlon, (lat - lat0_t) * m_per_deg_lat)
+                    if d <= r_max:
+                        dists.append(d)
+        out.append([sum(1 for d in dists if d <= r) for r in radii_m])
+    return out
+
+
+# Radii at which neighbouring published records are counted. 6 m is the threshold
+# `inventory_geometry.py` calibrated against NYC's published corner key (P .976 /
+# R .973). 10 m is carried alongside because 6 m demonstrably under-groups large
+# corners: Denver chip 66519 is a channelising island whose three ramps sit at
+# 0.0, 5.8 and 7.0 m, so single-link at 6 m splits it and scores one of the three
+# as a singleton. Reporting both makes that visible instead of silent.
+NEIGHBOUR_RADII_M = (6.0, 10.0)
 
 # A served-but-empty tile ("Map data not yet available") is near-uniform. Real
 # aerial imagery over a street scene never is. Both thresholds have to hold, so a
@@ -311,6 +471,7 @@ SHEET_TEMPLATE = """<!doctype html>
            border:1px solid transparent; }}
  figure.done {{ border-color:#3c7a52; }}
  figure.skip {{ border-color:#7a5a3c; opacity:.65; }}
+ figure.phantom {{ border-color:#8a3c3c; }}
  .wrap {{ position:relative; cursor:zoom-in; line-height:0; }}
  .wrap img {{ width:100%; border-radius:4px; display:block; }}
  .wrap svg {{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }}
@@ -341,6 +502,20 @@ SHEET_TEMPLATE = """<!doctype html>
  kbd {{ background:#000; border:1px solid var(--line); border-radius:3px; padding:0 4px;
         font-size:11px; font-family:ui-monospace,monospace; }}
  .help {{ color:var(--dim); font-size:11.5px; margin-top:14px; line-height:1.5; }}
+ /* The rule sits under the control it governs. A rubric that lives anywhere else
+    is a rubric nobody reads at the moment of judgment. */
+ .hint {{ color:#b9b9b9; font-size:11px; line-height:1.45; margin:5px 0 0;
+          border-left:2px solid #3a3a3a; padding-left:7px; }}
+ .hint b {{ color:#ffd479; font-weight:600; }}
+ .pub {{ font-family:ui-monospace,monospace; font-size:12.5px; }}
+ .pub.agree {{ color:#7bc98a; }}
+ .pub.under {{ color:#ff9d6b; }}
+ .pub.over {{ color:#e07a7a; }}
+ #rubric-dlg {{ max-width:760px; }}
+ #rubric-dlg .modal {{ display:block; padding:24px 26px; }}
+ #rubric-dlg h3 {{ font-size:13px; margin:16px 0 4px; color:#ffd479; }}
+ #rubric-dlg h3:first-of-type {{ margin-top:6px; }}
+ #rubric-dlg p {{ margin:0; color:#ddd; font-size:12.5px; line-height:1.6; }}
 </style>
 
 <header>
@@ -348,6 +523,7 @@ SHEET_TEMPLATE = """<!doctype html>
  <label class="ctl"><input type="checkbox" id="ovl" checked> overlay <kbd>o</kbd></label>
  <span class="ctl prog" id="prog"></span>
  <button id="next-todo">next unreviewed <kbd>n</kbd></button>
+ <button id="show-rubric">rubric <kbd>?</kbd></button>
  <button class="primary" id="export">export verdicts.json</button>
  <div class="sub">
   __N__ chips · <code>__INV__</code> · __SAMPLING__ sample, seed __SEED__ ·
@@ -367,14 +543,33 @@ SHEET_TEMPLATE = """<!doctype html>
    <label>offset — click the nearest ramp on the image</label>
    <div class="measure" id="offset">—</div>
    <em id="offhint">click to measure · click the crosshair for 0</em>
+   <p class="hint"><b>Centre of the concrete apron, not the warning pad</b> — pads sit
+    0.6–0.9 m down-slope, and clicking them biases every record. Parallel ramp: centre of
+    the level landing, note <code>parallel</code>. <b>Click every chip</b>, including a
+    dead-centre one.</p>
   </div>
   <div class="row">
    <label>ramps visible on this corner <b>(the per-corner evidence)</b></label>
    <div class="seg" id="vis"></div>
+   <p class="hint"><b>Only what you could reach without crossing a roadway</b> — this is
+    per-corner, not per-chip. Perpendicular pair 2 · diagonal apron 1 · median island 2 ·
+    pork-chop island 3.</p>
+  </div>
+  <div class="row" id="pubrow" hidden>
+   <label>published records nearby <b>(revealed after you count)</b></label>
+   <div class="pub" id="pub">—</div>
   </div>
   <div class="row">
    <label>crosshair on the correct corner?</label>
    <div class="seg" id="corner"></div>
+   <p class="hint">Same containment test: same corner or island, <b>no roadway between</b>
+    the crosshair and the ramp you clicked. Yes by construction below ~2–3 m.</p>
+  </div>
+  <div class="row">
+   <label>corner is readable and there is no ramp</label>
+   <div class="seg" id="noramp"></div>
+   <p class="hint"><b>A phantom record — this is a result, not a failure.</b> Distinct from
+    unjudgeable: “I can see, and it is not there”.</p>
   </div>
   <div class="row">
    <label>unjudgeable — shadow, occlusion, resolution</label>
@@ -392,9 +587,19 @@ SHEET_TEMPLATE = """<!doctype html>
   <div class="help">
    <b>Mark unjudgeable rather than guessing</b> — the unreadable rate is itself a reported number.
    <kbd>0</kbd>–<kbd>3</kbd> sets ramps visible · <kbd>u</kbd> unjudgeable ·
-   <kbd>←</kbd> <kbd>→</kbd> move · <kbd>o</kbd> overlay.
+   <kbd>p</kbd> no ramp · <kbd>←</kbd> <kbd>→</kbd> move · <kbd>o</kbd> overlay ·
+   <kbd>?</kbd> full rubric.
   </div>
  </div>
+</div></dialog>
+
+<dialog id="rubric-dlg"><div class="modal">
+ <h2 style="margin:0 0 4px">Review rubric — __CITY__</h2>
+ <p style="color:#9a9a9a;font-size:12px;margin:0 0 6px">
+  Exported verbatim into <code>verdicts.json</code>, because a verdict cannot be read later
+  without the rule that produced it.</p>
+ <div id="rubric-body"></div>
+ <div class="nav"><button id="rubric-close">close <kbd>esc</kbd></button></div>
 </div></dialog>
 
 <script>
@@ -443,17 +648,22 @@ function marker(v) {{
 
 function state(id) {{ return V[id] || (V[id] = {{}}); }}
 function save() {{ localStorage.setItem(KEY, JSON.stringify(V)); paint(); }}
-function done(v) {{ return v && (v.unreadable || v.offset_m != null); }}
+// A readable corner with no ramp is a finished verdict, not an unfinished one.
+// Before `no_ramp` existed such a chip could never be completed: there was
+// nothing to click, so the offset stayed null and `next unreviewed` walked
+// straight back to it.
+function done(v) {{ return v && (v.unreadable || v.no_ramp || v.offset_m != null); }}
 
 function paint() {{
   let n = 0;
   CHIPS.forEach(c => {{
     const v = V[c.id], f = document.getElementById("f" + c.id);
     if (!f) return;
-    f.className = v && v.unreadable ? "skip" : (done(v) ? "done" : "");
+    f.className = v && v.unreadable ? "skip" : (v && v.no_ramp ? "phantom"
+                  : (done(v) ? "done" : ""));
     if (done(v)) n++;
     const tag = f.querySelector(".tag");
-    tag.textContent = !v ? "" : v.unreadable ? "unjudgeable"
+    tag.textContent = !v ? "" : v.unreadable ? "unjudgeable" : v.no_ramp ? "no ramp"
       : (v.offset_m != null ? v.offset_m.toFixed(1) + " m"
          + (v.ramps_visible != null ? " · " + v.ramps_visible + "\\u00d7" : "") : "");
   }});
@@ -496,9 +706,38 @@ function render() {{
   seg(document.getElementById("corner"),
       [{{v: true, t: "yes"}}, {{v: false, t: "no"}}],
       () => v.on_corner, x => v.on_corner = x);
+  // The three terminal states are mutually exclusive: a chip cannot be both
+  // "no ramp here" and "cannot tell", and neither can carry an offset.
+  seg(document.getElementById("noramp"), [{{v: true, t: "no ramp here"}}],
+      () => v.no_ramp || null, x => {{
+        v.no_ramp = !!x;
+        if (x) {{ v.unreadable = false; v.offset_m = null; v.px = v.py = null;
+                 v.ramps_visible = 0; }}
+      }});
   seg(document.getElementById("unread"), [{{v: true, t: "unjudgeable"}}],
-      () => v.unreadable || null, x => v.unreadable = !!x);
+      () => v.unreadable || null, x => {{
+        v.unreadable = !!x;
+        if (x) v.no_ramp = false;
+      }});
   document.getElementById("note").value = v.note || "";
+
+  // Held back until the count is entered, so the published figure cannot anchor
+  // it. The comparison is only worth anything if the two were reached
+  // independently.
+  const row = document.getElementById("pubrow"), pub = document.getElementById("pub");
+  if (v.ramps_visible == null || c.published == null) {{
+    row.hidden = true;
+  }} else {{
+    row.hidden = false;
+    const p6 = c.published[0], p10 = c.published[1];
+    const cls = v.ramps_visible === p6 ? "agree" : (v.ramps_visible > p6 ? "under" : "over");
+    const verdict = v.ramps_visible === p6 ? "agrees at 6 m"
+      : (v.ramps_visible > p6 ? "you see MORE than are published — under-recording?"
+                              : "you see FEWER than are published — phantom or duplicate?");
+    pub.className = "pub " + cls;
+    pub.innerHTML = `${{p6}} within 6 m · ${{p10}} within 10 m<br>
+      <span style="font-size:11px">${{verdict}}</span>`;
+  }}
 }}
 
 function open_(i) {{ cur = (i + CHIPS.length) % CHIPS.length; render();
@@ -515,7 +754,7 @@ document.getElementById("stage").onclick = e => {{
   const v = state(CHIPS[cur].id);
   v.px = px; v.py = py;
   v.offset_m = Math.hypot(px - C, py - C) * META.mpp;
-  v.unreadable = false;
+  v.unreadable = false; v.no_ramp = false;
   save(); render();
 }};
 
@@ -535,8 +774,19 @@ function nextTodo() {{
 }}
 document.getElementById("next-todo").onclick = nextTodo;
 
+// The rubric is built from the same constant the manifest carries, so the rule
+// shown to the reviewer and the rule exported beside their verdicts cannot drift.
+const rubricDlg = document.getElementById("rubric-dlg");
+document.getElementById("rubric-body").innerHTML =
+  Object.entries(META.manifest.rubric || {{}}).map(([k, text]) =>
+    `<h3>${{k.replace(/_/g, " ")}}</h3><p>${{text}}</p>`).join("");
+document.getElementById("show-rubric").onclick = () => rubricDlg.showModal();
+document.getElementById("rubric-close").onclick = () => rubricDlg.close();
+
 addEventListener("keydown", e => {{
   if (e.target.tagName === "INPUT") return;
+  if (e.key === "?") {{ rubricDlg.open ? rubricDlg.close() : rubricDlg.showModal(); return; }}
+  if (rubricDlg.open) return;
   if (e.key === "o") {{ const b = document.getElementById("ovl");
     b.checked = !b.checked; b.onchange({{target: b}}); return; }}
   if (e.key === "n" && !dlg.open) return nextTodo();
@@ -545,7 +795,12 @@ addEventListener("keydown", e => {{
   if (e.key === "ArrowLeft") open_(cur - 1);
   else if (e.key === "ArrowRight") open_(cur + 1);
   else if ("01234".includes(e.key)) {{ v.ramps_visible = +e.key; save(); render(); }}
-  else if (e.key === "u") {{ v.unreadable = !v.unreadable; save(); render(); }}
+  else if (e.key === "u") {{ v.unreadable = !v.unreadable;
+    if (v.unreadable) v.no_ramp = false; save(); render(); }}
+  else if (e.key === "p") {{ v.no_ramp = !v.no_ramp;
+    if (v.no_ramp) {{ v.unreadable = false; v.offset_m = null; v.px = v.py = null;
+                     v.ramps_visible = 0; }}
+    save(); render(); }}
 }});
 
 document.getElementById("export").onclick = () => {{
@@ -557,7 +812,9 @@ document.getElementById("export").onclick = () => {{
         offset_m: v.offset_m == null ? null : +v.offset_m.toFixed(2),
         on_corner: v.on_corner == null ? null : v.on_corner,
         ramps_visible: v.ramps_visible == null ? null : v.ramps_visible,
-        unreadable: !!v.unreadable, note: v.note || "",
+        unreadable: !!v.unreadable, no_ramp: !!v.no_ramp, note: v.note || "",
+        published_within_6m: c.published ? c.published[0] : null,
+        published_within_10m: c.published ? c.published[1] : null,
         click_px: v.px == null ? null : [+v.px.toFixed(1), +v.py.toFixed(1)]
       }};
     }})
@@ -675,9 +932,23 @@ def main(argv=None):
         verdicts.append({
             "id": rid, "lon": lon, "lat": lat, "tiles": keys,
             "offset_m": None, "on_corner": None, "ramps_visible": None,
-            "unreadable": False, "note": "",
+            "unreadable": False, "no_ramp": False, "note": "",
         })
         print("  [{:>3}/{}] {} {:.6f},{:.6f}".format(k + 1, len(picked), rid, lat, lon))
+
+    # How many records the city itself publishes near each chip — the same
+    # per-corner quantity the reviewer reads off the imagery, taken from the
+    # other side. Differencing the two is what settles whether a low
+    # records-per-corner ratio is under-recording or ramp-design vocabulary
+    # (docs/curb_ramp_data_sourcing.md §5d). Counted against the WHOLE inventory,
+    # not the sample frame.
+    all_pts = [(r["lon"], r["lat"]) for r in rows if r.get("lon") is not None]
+    counts = count_neighbours(all_pts, [(c["lon"], c["lat"]) for c in chips],
+                              NEIGHBOUR_RADII_M)
+    for chip, verdict, n in zip(chips, verdicts, counts):
+        chip["published"] = n
+        verdict["published_within_6m"] = n[0]
+        verdict["published_within_10m"] = n[1]
 
     manifest = {
         "city": args.city, "inventory": os.path.basename(args.inventory),
@@ -689,8 +960,12 @@ def main(argv=None):
         "imagery": src["attribution"], "imagery_note": src["note"],
         "zoom": zoom, "metres_per_pixel": mpp, "span_m": args.span_m,
         "span_px": span_px, "ring_radii_m": list(RING_RADII_M),
+        "neighbour_radii_m": list(NEIGHBOUR_RADII_M),
         "blank_chips_dropped": blanks,
         "no_imagery_dropped": missing,
+        # Travels with the verdicts on purpose: an offset is uninterpretable
+        # without the rule that says what it is an offset *from*.
+        "rubric": RUBRIC,
         "reviewer": None, "reviewed_on": None, "confidence": None,
     }
     verdict_path = os.path.join(review_dir, "verdicts.json")

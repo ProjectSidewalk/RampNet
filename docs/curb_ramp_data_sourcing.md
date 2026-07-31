@@ -809,8 +809,70 @@ scale it is being asked to measure — not as a calibration certificate.
 **Sheet as built:** 59 chips (one dropped — outside the basemap footprint), record-weighted sample,
 seed 20260731, frame restricted to `UPDATE_STATUS=NC` because the 2,784 records added in 2023–24
 postdate 2018 imagery and are expected to be absent. Output in `analysis_out/review_denver-co/`.
-**No verdict has been recorded** — `verdicts.json` is an unfilled template, and the Good/OK/Poor
-question for Denver is open.
+
+### The rubric is part of the instrument (2026-07-31)
+
+The first ten minutes of the actual review produced four questions the sheet could not answer, and
+every one of them would have changed the number: *what is the "correct corner" when the schema has
+no corner key? where on the ramp is the reference point? how many ramps do I count on a chip
+containing four corners? do I click when it already looks perfect?* A convention that lives only in
+the reviewer's head gets applied two ways in one sitting, and **`0.9 m` is uninterpretable without
+the rule saying what it is 0.9 m from**. So the rules are now a `RUBRIC` constant that renders
+beside the field it governs, opens in full with `?`, and is **copied verbatim into the exported
+manifest**. `verdicts.json` cannot be read without them.
+
+The clauses that carry the most risk:
+
+- **Click the centre of the concrete apron — never the detectable-warning pad.** PROWAG R305 puts
+  the pad at the back of curb on perpendicular, blended and diagonal ramps and on the street-level
+  landing of a parallel ramp, so pad centres sit ~0.6–0.9 m down-slope of ramp centres. The pad is
+  the most visible thing in 0.057 m/px imagery, which makes pad-clicking the *easy* mistake, and it
+  would add that 0.6–0.9 m to every record as a systematic bias **indistinguishable from real
+  positional error**. That is most of the 1 m ring, i.e. enough to move the bucket on its own.
+  (Legacy ramps with fully-domed surfaces are the one case where the two coincide.)
+- **Count ramps by containment** — what is reachable from the crosshair without crossing a roadway
+  — which is per-corner, not per-chip. "One ramp per crossing" was tried and is wrong: a median
+  island has two cut-through ends serving a single crossing.
+- **Click every chip, including a dead-centre one.** Otherwise near-zero cases are recorded by
+  omission and the low tail becomes an artefact of reviewer confidence. Related: offsets below
+  ~0.3 m are at the instrument's floor (≈5 px; the registration check's per-site medians are
+  0.08–0.46 m), so the left tail is reported as floor-limited rather than as centimetres.
+
+**A readable corner with no ramp is now a verdict rather than a gap.** Such a chip was previously
+*uncompletable* — nothing to click, so the offset stayed null, so `done()` was never true and "next
+unreviewed" walked straight back to it — leaving only a wrong exit: `unjudgeable`, which asserts "I
+cannot see" rather than "I can see, and it is not there". The new `no_ramp` state records a
+**phantom**, and the phantom rate is a headline number for Denver specifically, since nothing in its
+schema records removals.
+
+### The per-corner comparison, and a threshold artefact it exposed
+
+Each chip now also carries **how many records Denver itself publishes within 6 m and 10 m**
+(`count_neighbours`) — the same per-corner quantity from the published side. Differencing it against
+the reviewer's `ramps_visible` is what §5d explicitly deferred to imagery. **The published count
+stays hidden until the reviewer has entered their own**, because showing it first would anchor the
+judgment it exists to be compared against.
+
+The sample is representative on this axis: **23 of 59 chips (39.0%) have a published neighbour
+within 6 m, against 34.5% for the full 72,770-record inventory** — inside one standard error at
+n=59, computed by code sharing nothing with `inventory_geometry.py`.
+
+**⚠️ The 6 m clustering threshold under-groups large corners.** Chip `66519` is a channelising
+"pork-chop" island whose three ramps sit at 0.0, 5.8 and 7.0 m from the sampled record; single-link
+at 6 m **splits that island in two and scores one of its three ramps as a singleton**. The reviewer
+independently counted three ramps there, and Denver publishes three records — so the inventory is
+per-ramp at that corner and the clustering is what loses it. Since 6 m was calibrated against NYC's
+tight urban corners (P .976 / R .973), this is exactly the failure NYC could not have revealed:
+**part of Denver's 1.21 records/corner may be large suburban corner radii and channelised islands
+rather than a vocabulary difference.** Re-running the clustering at 8 m and 10 m and watching Denver
+move *relative to* NYC would settle it. Not yet done.
+
+Chip `67585` is the sample's other outlier — **4 published records within 6 m** (at 5.2, 5.4, 6.0 m),
+where nothing else in the 59 exceeds 2. Flagged for a careful count: either four ramps genuinely
+cluster at that median end, or Denver has duplicates there.
+
+**The Good/OK/Poor question for Denver remains open** — the review is in progress against the
+rubric above.
 
 ## 6. Routes to a 500,000-ramp corpus
 
