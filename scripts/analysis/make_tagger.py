@@ -36,12 +36,14 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 # vocabulary failure and therefore the population more training data could reach; the
 # rest are capture, environment or ground-truth problems that sourcing cannot touch.
 MISS_SCHEME = [
-    ("visible", "Clear ramp, unobstructed", "the model simply failed — VOCABULARY"),
+    ("visible", "Ramp itself is resolvable", "the model simply failed — VOCABULARY"),
+    ("context-only", "Ramp not resolvable; crosswalk / apron / curb-cut cues imply one",
+     "learnable, but from scene context rather than the ramp"),
     ("occluded", "Blocked by vehicle / pole / vegetation / person", "capture problem"),
     ("lighting", "Deep shadow or blown highlight", "capture problem"),
     ("surface", "Debris, snow, leaves, construction over it", "environment"),
     ("not-a-ramp", "No ramp here / flush or blended transition", "GT disagreement"),
-    ("unclear", "Cannot tell from this imagery", "excluded from every rate"),
+    ("unclear", "Cannot tell even with context", "excluded from every rate"),
 ]
 
 # What the model latched onto for an isolated false positive. `real-ramp` is the one
@@ -55,6 +57,81 @@ FP_SCHEME = [
     ("other", "None of the above", ""),
     ("unclear", "Cannot tell from this imagery", "excluded from every rate"),
 ]
+
+
+# The on-page briefing. It lives here rather than in a chat message or a doc because
+# the reviewer reads it at the moment of judging, and because the ONE discipline that
+# matters -- check panel 3 before calling a ramp visible -- is exactly the mistake the
+# resolution-parity work exists to prevent. A guide that is not in front of the
+# reviewer is a guide that does not run.
+MISS_GUIDE = """
+<h3>Each crop is a ramp that RampNet did not see at all</h3>
+<p>A reviewer confirmed a real curb ramp at the <b class="gt">green circle</b>. RampNet produced
+<b>nothing</b> there — not a weak detection, nothing, even at the 0.05 score floor. No other model
+found it either. <b>Your keystroke records why.</b></p>
+<h3 class="hot">Ask panel 3 only: "could I call this a ramp from THIS?"</h3>
+<p>Panel 3 is the panorama at the model's own 4096&nbsp;px. It is the only panel that answers the
+question we are asking. Panels 1 and 2 are there to tell you <i>what is actually on the ground</i>
+so you can classify correctly — but on the 4&times; splits (bend, paterson, gainesville) panel 2
+carries four times the detail the model ever had, so a ramp you can see there proves nothing. The
+header turns <span class="adv">amber</span> on those.</p>
+<h3>How to decide</h3>
+<table>
+  <tr><th>if, in panel 3</th><th>press</th></tr>
+  <tr><td>the ramp itself is resolvable — you can point at the ramp, not just the place it should be</td><td><b>1</b> visible</td></tr>
+  <tr><td>you cannot resolve the ramp, but a <b>crosswalk, coloured apron, or curb cut</b> tells you one is there</td><td><b>2</b> context-only</td></tr>
+  <tr><td>a car, pole, vegetation or person is in the way</td><td><b>3</b> occluded</td></tr>
+  <tr><td>deep shadow or a blown-out highlight</td><td><b>4</b> lighting</td></tr>
+  <tr><td>debris, snow, leaves or construction over it</td><td><b>5</b> surface</td></tr>
+  <tr><td>panels 1&ndash;2 show <b>no real ramp</b> — flush pavement, driveway apron, nothing</td><td><b>6</b> not-a-ramp</td></tr>
+  <tr><td>nothing tells you either way, context included</td><td><b>7</b> unclear</td></tr>
+</table>
+<h3><span class="key">2</span> context-only is a real answer, not a cop-out</h3>
+<p>If you find yourself reasoning "there's a crosswalk here and a bit of coloured apron, so there
+must be a ramp" — <b>that is <span class="key">2</span></b>, not <span class="key">1</span>. The
+distinction is load-bearing: <b>RampNet sees that same context</b>, at that same resolution, across
+the whole panorama. So context-only misses are still learnable — but from scene layout rather than
+from the ramp's own appearance, which is a different capability and a different fix.</p>
+<p><span class="key">1</span> and <span class="key">2</span> together bound what more training data
+could reach; <span class="key">1</span> alone is the tight estimate. Everything else routes
+elsewhere: occlusion and lighting are capture problems, <code>not-a-ramp</code> is a ground-truth
+error, and none of them are helped by adding cities.</p>
+<h3>Near-field first — you can stop when they run out</h3>
+<p>The queue is <b>ordered near-field first</b>, and the header says <code>near</code> or
+<code>far</code> for each crop. <b>The near ones are the ones that close the bracket</b>
+(0.009&ndash;0.022 recall points). The far ones are a bonus question — they test whether the
+far-field population really is pixel-starved as #59 assumed — so they are worth doing but not what
+this pass is for.</p>
+"""
+
+FP_GUIDE = """
+<h3>Each crop is a detection with no ramp under it</h3>
+<p>The model fired at the <b class="gt">green circle</b>. There is no confirmed ramp within the
+match radius, and it is not on the ego vehicle. <b>Your keystroke records what it latched onto.</b></p>
+<h3>How to decide</h3>
+<table>
+  <tr><th>if you see</th><th>press</th></tr>
+  <tr><td>driveway apron</td><td><b>1</b> driveway</td></tr>
+  <tr><td>crosswalk paint or markings</td><td><b>2</b> crosswalk</td></tr>
+  <tr><td>manhole, grating, or patterned surface resembling truncated domes</td><td><b>3</b> tactile-lookalike</td></tr>
+  <tr><td>steps</td><td><b>4</b> stairs</td></tr>
+  <tr><td><b>an actual curb ramp</b> the ground truth missed</td><td><b>5</b> real-ramp</td></tr>
+  <tr><td>none of the above</td><td><b>6</b> other</td></tr>
+  <tr><td>genuinely cannot tell</td><td><b>7</b> unclear</td></tr>
+</table>
+<h3 class="hot">The discipline, which cuts the opposite way here</h3>
+<p>On an <span class="adv">advantaged</span> pano you may be calling a box "obviously not a ramp"
+using detail <b>the model never had</b>. <b>Check panel 3</b> before dismissing it — if the thing is
+ambiguous at the model's own resolution, that is a fair mistake, not a hallucination.</p>
+<h3>Why it is worth the time</h3>
+<p>These are the false positives geometry could not explain — 60–81% of every model's FP count.
+Whether they are obvious junk or ambiguous concrete <b>sets the ceiling on the cascade arbiter in
+#35</b>: an arbiter kills junk cheaply and struggles exactly where the detector did.
+<b><span class="key">5</span> real-ramp is not a model error at all</b> — it means the ground truth
+has a gap.</p>
+"""
+
+GUIDES = {"miss": MISS_GUIDE, "fp": FP_GUIDE}
 
 
 def scheme_for(items):
@@ -80,15 +157,19 @@ def build_html(manifest, scheme, kind, title):
         })
     payload = json.dumps(items)
     keys = json.dumps([s[0] for s in scheme])
+    # Every verdict is both a key and a button: the keyboard is faster once you know
+    # the scheme, the buttons mean you never have to learn it first.
     legend = "".join(
-        f'<div class="k"><b>{i+1}</b><span class="n">{name}</span>'
-        f'<span class="d">{desc}</span><span class="w">{why}</span></div>'
+        f'<button class="v" data-v="{name}" onclick="setVerdict(\'{name}\')" '
+        f'title="{why}"><b>{i+1}</b><span class="n">{name}</span>'
+        f'<span class="d">{desc}</span></button>'
         for i, (name, desc, why) in enumerate(scheme))
     return (_TEMPLATE
             .replace("__TITLE__", title)
             .replace("__ITEMS__", payload)
             .replace("__KEYS__", keys)
             .replace("__LEGEND__", legend)
+            .replace("__GUIDE__", GUIDES.get(kind, ""))
             .replace("__STORE__", store_key(kind, title)))
 
 
@@ -123,32 +204,56 @@ _TEMPLATE = r"""<!doctype html>
 <title>__TITLE__</title>
 <style>
   :root { color-scheme: dark; }
-  body { margin:0; background:#111; color:#ddd;
+  html, body { height:100%; }
+  body { margin:0; background:#111; color:#ddd; display:flex; flex-direction:column;
          font:13px/1.45 ui-sans-serif,system-ui,-apple-system,sans-serif; }
   header { display:flex; gap:16px; align-items:baseline; padding:8px 12px;
-           background:#181818; border-bottom:1px solid #2a2a2a; position:sticky; top:0; }
+           background:#181818; border-bottom:1px solid #2a2a2a; flex:0 0 auto; }
   header b { color:#fff; font-size:14px; }
   #meta { color:#9a9a9a; }
-  #prog { margin-left:auto; color:#9a9a9a; }
-  #img { display:block; width:100%; height:auto; background:#000; }
-  #wrap { padding:0 0 140px; }
-  footer { position:fixed; bottom:0; left:0; right:0; background:#181818;
-           border-top:1px solid #2a2a2a; padding:8px 12px; display:flex;
-           flex-wrap:wrap; gap:6px 18px; align-items:center; }
-  .k { display:flex; gap:6px; align-items:baseline; }
-  .k b { background:#2f2f2f; border-radius:3px; padding:1px 6px; color:#fff; }
-  .k .n { color:#7fd1a0; font-weight:600; }
-  .k .d { color:#bbb; }
-  .k .w { color:#777; font-style:italic; }
-  #bar { width:100%; display:flex; gap:12px; color:#888; }
+  #prog { margin-left:auto; color:#9a9a9a; white-space:nowrap; }
+  /* Verdict bar sits directly under the header: it is the thing you are choosing
+     from, so it should never be somewhere you have to go looking for. */
+  #verdicts { display:flex; flex-wrap:wrap; gap:6px; padding:8px 12px;
+              background:#141414; border-bottom:1px solid #2a2a2a; flex:0 0 auto; }
+  button.v { display:flex; gap:7px; align-items:baseline; background:#242424;
+             border:1px solid #363636; border-radius:5px; padding:5px 11px 5px 6px; }
+  button.v:hover { background:#303030; border-color:#4a4a4a; }
+  button.v b { background:#3a3a3a; border-radius:3px; padding:1px 7px; color:#fff; }
+  button.v .n { color:#7fd1a0; font-weight:600; }
+  button.v .d { color:#9d9d9d; }
+  button.v.on { background:#1f3a2a; border-color:#3f7a56; }
+  button.v.on b { background:#3f7a56; }
+  /* The image fills whatever is left, so a whole crop is on screen without scrolling
+     -- the panels only work as a comparison if all three are visible at once. */
+  #wrap { flex:1 1 auto; min-height:0; display:flex; align-items:center;
+          justify-content:center; background:#000; }
+  #img { max-width:100%; max-height:100%; object-fit:contain; }
+  footer { background:#181818; border-top:1px solid #2a2a2a; padding:6px 12px;
+           display:flex; gap:16px; align-items:center; flex:0 0 auto; color:#888; }
   button { background:#2a2a2a; color:#ddd; border:1px solid #3a3a3a; border-radius:4px;
            padding:4px 10px; cursor:pointer; font:inherit; }
   button:hover { background:#343434; }
   .tagged { color:#7fd1a0; }
-  #done { padding:40px; text-align:center; font-size:16px; }
+  #counts { margin-left:auto; }
+  #done { padding:40px; text-align:center; font-size:16px; color:#ddd; }
   .adv { color:#e0a33c; }
   #warn { background:#4a2a12; color:#ffcf9a; padding:6px 12px;
           border-bottom:1px solid #6a3d1a; }
+  #help { background:#171a19; border-bottom:1px solid #2a2a2a; padding:14px 18px 18px;
+          flex:0 0 auto; overflow:auto; max-height:60vh; }
+  #help h3 { margin:16px 0 6px; font-size:13px; color:#7fd1a0; letter-spacing:.02em; }
+  #help h3:first-child { margin-top:0; }
+  #help h3.hot { color:#e0a33c; }
+  #help p { margin:0 0 4px; color:#c4c4c4; }
+  #help table { border-collapse:collapse; margin:2px 0 4px; }
+  #help td, #help th { padding:3px 14px 3px 0; text-align:left; vertical-align:top;
+                       border-bottom:1px solid #232323; }
+  #help th { color:#888; font-weight:500; font-size:11px; text-transform:uppercase; }
+  #help td b { color:#fff; }
+  #help .gt { color:#7fd1a0; }
+  #help code, .key { background:#2f2f2f; border-radius:3px; padding:1px 5px; color:#fff; }
+  #helpbar { display:flex; gap:12px; align-items:center; margin-top:14px; }
 </style>
 <header>
   <b id="title">__TITLE__</b>
@@ -156,16 +261,24 @@ _TEMPLATE = r"""<!doctype html>
   <span id="prog"></span>
 </header>
 <div id="warn" hidden></div>
+<section id="help">
+  __GUIDE__
+  <div id="helpbar">
+    <button onclick="hideHelp()">Start tagging</button>
+    <span style="color:#777">press <span class="key">?</span> any time to bring this back</span>
+  </div>
+</section>
+<div id="verdicts">__LEGEND__</div>
 <div id="wrap"><img id="img" alt=""><div id="done" hidden></div></div>
 <footer>
-  <div id="bar">
-    <span>panels: <b>context</b> · <b>detail (source)</b> · <b>as the model saw it</b></span>
-    <span>[space] skip · [backspace] undo · [x] clear this one</span>
-    <button onclick="exportJSON()">Export JSON</button>
-    <button onclick="if(confirm('Discard all verdicts?'))reset()">Reset</button>
-    <span id="counts"></span>
-  </div>
-  __LEGEND__
+  <span>panels: <b>context</b> · <b>detail (source)</b> · <b>as the model saw it</b></span>
+  <button onclick="step(-1)">← back</button>
+  <button onclick="step(1)">skip →</button>
+  <button onclick="clearCurrent()">clear [x]</button>
+  <button onclick="toggleHelp()">help [?]</button>
+  <button onclick="exportJSON()">Export JSON</button>
+  <button onclick="if(confirm('Discard all verdicts?'))reset()">Reset</button>
+  <span id="counts"></span>
 </footer>
 <script>
 const ITEMS = __ITEMS__, KEYS = __KEYS__, STORE = "__STORE__";
@@ -214,35 +327,81 @@ function show() {
   for (const v of Object.values(verdicts)) c[v] = (c[v] || 0) + 1;
   document.getElementById("counts").innerHTML = KEYS
     .filter(k => c[k]).map(k => `<span class="tagged">${k} ${c[k]}</span>`).join(" · ");
+  const cur = i < ITEMS.length ? verdicts[ITEMS[i].key] : null;
+  document.querySelectorAll("button.v").forEach(b => {
+    b.classList.toggle("on", b.dataset.v === cur);
+    b.disabled = i >= ITEMS.length;
+  });
   if (i >= ITEMS.length) {
     img.hidden = true; done.hidden = false;
-    done.innerHTML = "All " + ITEMS.length + " tagged. Press <b>Export JSON</b>, " +
-      "then commit the file. Backspace still steps back.";
+    done.innerHTML = "All " + ITEMS.length + " tagged. Press <b>Export JSON</b>, then "
+      + "hand off the file. <b>← back</b> still steps back if you want to revise.";
     document.getElementById("meta").textContent = "";
     return;
   }
   img.hidden = false; done.hidden = true;
   const it = ITEMS[i];
   img.src = it.file;
-  const cur = verdicts[it.key] ? `  ·  [${verdicts[it.key]}]` : "";
   const par = it.parity === "advantaged"
-    ? ' <span class="adv">(advantaged — compare panel 3 before calling it visible)</span>' : "";
-  document.getElementById("meta").innerHTML = it.meta + par + cur;
+    ? ' <span class="adv">(advantaged — check panel 3 before calling it visible)</span>' : "";
+  document.getElementById("meta").innerHTML = it.meta + par
+    + (cur ? `  ·  <span class="tagged">[${cur}]</span>` : "");
 }
 
 function setVerdict(v) {
-  if (i >= ITEMS.length) return;
+  if (i >= ITEMS.length || helpOpen()) return;
   verdicts[ITEMS[i].key] = v; save(); i++; show();
 }
 
+function step(d) {
+  const j = i + d;
+  if (j >= 0 && j <= ITEMS.length) { i = j; show(); }
+}
+
+function clearCurrent() {
+  if (i >= ITEMS.length) return;
+  delete verdicts[ITEMS[i].key]; save(); show();
+}
+
+function helpOpen() { return !document.getElementById("help").hidden; }
+
+function hideHelp() {
+  document.getElementById("help").hidden = true;
+  try { localStorage.setItem(STORE + "-help", "seen"); } catch (e) {}
+  window.scrollTo(0, 0);
+}
+
+function toggleHelp() {
+  const el = document.getElementById("help");
+  el.hidden = !el.hidden;
+  if (el.hidden) window.scrollTo(0, 0);
+}
+
+// Collapsed once it has been read, so a resumed session goes straight to work. The
+// briefing still matters on the first pass, so it is open by default rather than
+// hidden behind a key nobody presses.
+try { if (localStorage.getItem(STORE + "-help") === "seen")
+        document.getElementById("help").hidden = true; } catch (e) {}
+
 document.addEventListener("keydown", e => {
-  if (e.key === "Backspace") { e.preventDefault(); if (i > 0) { i--; show(); } return; }
-  if (e.key === " ") { e.preventDefault(); if (i < ITEMS.length) { i++; show(); } return; }
-  if (e.key === "x" && i < ITEMS.length) { delete verdicts[ITEMS[i].key]; save(); show(); return; }
-  if (e.key === "ArrowLeft") { if (i > 0) { i--; show(); } return; }
-  if (e.key === "ArrowRight") { if (i < ITEMS.length) { i++; show(); } return; }
+  if (e.key === "?" || (e.key === "/" && e.shiftKey)) { e.preventDefault(); toggleHelp(); return; }
+  // While the briefing is up, swallow the verdict keys: a stray digit pressed while
+  // reading would tag whatever crop happens to be current.
+  if (helpOpen()) {
+    if (e.key === "Escape" || e.key === "Enter") { e.preventDefault(); hideHelp(); }
+    return;
+  }
+  if (e.key === "Backspace" || e.key === "ArrowLeft") { e.preventDefault(); step(-1); return; }
+  if (e.key === " " || e.key === "ArrowRight") { e.preventDefault(); step(1); return; }
+  if (e.key === "x") { clearCurrent(); return; }
   const d = parseInt(e.key, 10);
   if (d >= 1 && d <= KEYS.length) setVerdict(KEYS[d - 1]);
+});
+
+// A click lands focus on the button, after which the browser would fire it again on
+// the next space/enter -- silently re-tagging whatever crop came next.
+document.addEventListener("click", e => {
+  if (e.target.closest("button")) e.target.closest("button").blur();
 });
 
 function exportJSON() {

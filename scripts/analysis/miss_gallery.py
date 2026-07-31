@@ -361,6 +361,15 @@ def render(items, outdir, only_judgeable=True, panos_root=REPO, extra_fields=())
             manifest[key] = entry
         img.close()
 
+    # Rendering is grouped by panorama (opening a 16k-px JPEG is the expensive part),
+    # but the REVIEW order is near-field first: those are the crops that close the
+    # sourcing bracket, and a reviewer who runs out of time should have spent it on
+    # them rather than on far-field ones that #59 already attributes to pixel
+    # starvation. The manifest's order is the page's order, so it is sorted here.
+    manifest = dict(sorted(manifest.items(),
+                           key=lambda kv: (kv[1].get("field") != "near",
+                                           kv[1].get("city", ""), kv[0])))
+
     with open(os.path.join(outdir, "manifest.json"), "w", encoding="utf-8") as fh:
         json.dump({"n": len(manifest), "skipped_unjudgeable": skipped,
                    "context_fov_deg": CONTEXT_FOV_DEG, "detail_fov_deg": DETAIL_FOV_DEG,

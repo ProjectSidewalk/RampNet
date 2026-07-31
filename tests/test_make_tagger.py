@@ -48,11 +48,32 @@ def test_the_scheme_is_read_from_content_not_the_directory_name():
     assert mk.scheme_for(_fp("anything_at_all"))[1] == "fp"
 
 
-def test_each_scheme_has_exactly_one_sourcing_addressable_verdict():
-    # The whole point of the taxonomy is that one answer means "more data would fix
-    # this" and the others mean something else. Two would make the rate ambiguous.
+def test_each_scheme_has_exactly_one_tight_sourcing_verdict():
+    # One answer is the tight "more data would fix this" estimate; two would make the
+    # rate ambiguous. `context-only` is deliberately NOT a second one — it is the
+    # upper variant, reported as `visible + context-only`, and the guide says so.
     assert [n for n, _, _ in mk.MISS_SCHEME].count("visible") == 1
     assert [n for n, _, _ in mk.FP_SCHEME].count("real-ramp") == 1
+
+
+def test_the_miss_scheme_separates_resolving_a_ramp_from_inferring_one():
+    # A reviewer who reasons "there is a crosswalk and a coloured apron, so there must
+    # be a ramp" has NOT resolved the ramp. RampNet sees that same context at the same
+    # resolution, so the two are different capabilities and must not share a verdict.
+    names = [n for n, _, _ in mk.MISS_SCHEME]
+    assert "context-only" in names
+    assert names.index("visible") < names.index("context-only")
+
+
+def test_the_guide_tells_the_reviewer_to_judge_from_the_model_panel():
+    # The instrument work is worthless if the briefing does not say which panel
+    # answers the question.
+    assert "panel 3" in mk.MISS_GUIDE
+    assert "context-only" in mk.MISS_GUIDE
+
+
+def test_the_guide_flags_that_near_field_is_the_load_bearing_population():
+    assert "near-field" in mk.MISS_GUIDE.lower()
 
 
 def test_every_scheme_offers_an_escape_hatch():
