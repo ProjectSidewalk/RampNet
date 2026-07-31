@@ -44,6 +44,11 @@ analysis_out/op/*
 # size class, and it carries the per-bucket counts docs/curb_ramp_data_sourcing.md
 # quotes -- so the 3.8x correction is checkable without re-running anything.
 !analysis_out/miss_taxonomy.json
+# The FP-side taxonomy (#46). Larger than its siblings but still text, and it is the
+# only committed record of what the challengers' 60,000-strong FP floods are made of
+# -- .model_cache itself is gitignored, so without this the table is unreproducible
+# for anyone who doesn't have the cache.
+!analysis_out/fp_taxonomy.json
 
 # Claude Code local state. settings.local.json is per-machine (absolute paths,
 # session ids) and worktrees/ holds full repo checkouts -- gigabytes. Listed

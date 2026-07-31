@@ -1,0 +1,1159 @@
+{
+  "hood_y": 0.75,
+  "annulus_factor": 2.0,
+  "cities": [
+    "richmond",
+    "bend",
+    "clovis",
+    "morgantown",
+    "annapolis",
+    "paterson",
+    "gainesville"
+  ],
+  "per_model": {
+    "rampnet @0.30": {
+      "n_fp": 181,
+      "counts": {
+        "duplicate": 5,
+        "near_gt": 35,
+        "hood": 6,
+        "isolated": 135
+      },
+      "shares": {
+        "duplicate": 0.027624309392265192,
+        "near_gt": 0.19337016574585636,
+        "hood": 0.03314917127071823,
+        "isolated": 0.7458563535911602
+      },
+      "null_near_gt": 30.44444070614279,
+      "null_duplicate": 11.872450869194315,
+      "stats": {
+        "tp": 1633,
+        "uncached": 0,
+        "n_panos": 859
+      },
+      "per_city": {
+        "richmond": {
+          "n_fp": 28,
+          "counts": {
+            "duplicate": 0,
+            "near_gt": 6,
+            "hood": 0,
+            "isolated": 22
+          },
+          "shares": {
+            "duplicate": 0.0,
+            "near_gt": 0.21428571428571427,
+            "hood": 0.0,
+            "isolated": 0.7857142857142857
+          },
+          "null_near_gt": 6.643726600151089,
+          "null_duplicate": 2.648370860117949
+        },
+        "bend": {
+          "n_fp": 22,
+          "counts": {
+            "duplicate": 2,
+            "near_gt": 8,
+            "hood": 0,
+            "isolated": 12
+          },
+          "shares": {
+            "duplicate": 0.09090909090909091,
+            "near_gt": 0.36363636363636365,
+            "hood": 0.0,
+            "isolated": 0.5454545454545454
+          },
+          "null_near_gt": 5.221108956487939,
+          "null_duplicate": 2.2166738195619273
+        },
+        "clovis": {
+          "n_fp": 28,
+          "counts": {
+            "duplicate": 0,
+            "near_gt": 2,
+            "hood": 0,
+            "isolated": 26
+          },
+          "shares": {
+            "duplicate": 0.0,
+            "near_gt": 0.07142857142857142,
+            "hood": 0.0,
+            "isolated": 0.9285714285714286
+          },
+          "null_near_gt": 1.8825144028930922,
+          "null_duplicate": 0.5923481584624152
+        },
+        "morgantown": {
+          "n_fp": 27,
+          "counts": {
+            "duplicate": 0,
+            "near_gt": 2,
+            "hood": 6,
+            "isolated": 19
+          },
+          "shares": {
+            "duplicate": 0.0,
+            "near_gt": 0.07407407407407407,
+            "hood": 0.2222222222222222,
+            "isolated": 0.7037037037037037
+          },
+          "null_near_gt": 3.1960843714741762,
+          "null_duplicate": 1.2539880574532456
+        },
+        "annapolis": {
+          "n_fp": 26,
+          "counts": {
+            "duplicate": 2,
+            "near_gt": 4,
+            "hood": 0,
+            "isolated": 20
+          },
+          "shares": {
+            "duplicate": 0.07692307692307693,
+            "near_gt": 0.15384615384615385,
+            "hood": 0.0,
+            "isolated": 0.7692307692307693
+          },
+          "null_near_gt": 3.442934363928498,
+          "null_duplicate": 1.3174787355606314
+        },
+        "paterson": {
+          "n_fp": 15,
+          "counts": {
+            "duplicate": 0,
+            "near_gt": 5,
+            "hood": 0,
+            "isolated": 10
+          },
+          "shares": {
+            "duplicate": 0.0,
+            "near_gt": 0.3333333333333333,
+            "hood": 0.0,
+            "isolated": 0.6666666666666666
+          },
+          "null_near_gt": 3.3083980288791865,
+          "null_duplicate": 1.261753271659761
+        },
+        "gainesville": {
+          "n_fp": 35,
+          "counts": {
+            "duplicate": 1,
+            "near_gt": 8,
+            "hood": 0,
+            "isolated": 26
+          },
+          "shares": {
+            "duplicate": 0.02857142857142857,
+            "near_gt": 0.22857142857142856,
+            "hood": 0.0,
+            "isolated": 0.7428571428571429
+          },
+          "null_near_gt": 6.749673982328809,
+          "null_duplicate": 2.581837966378386
+        }
+      }
+    },
+    "gemini-3.6-flash": {
+      "n_fp": 798,
+      "counts": {
+        "duplicate": 12,
+        "near_gt": 193,
+        "hood": 13,
+        "isolated": 580
+      },
+      "shares": {
+        "duplicate": 0.015037593984962405,
+        "near_gt": 0.24185463659147868,
+        "hood": 0.016290726817042606,
+        "isolated": 0.7268170426065163
+      },
+      "null_near_gt": 112.62852094845893,
+      "null_duplicate": 39.85235656576183,
+      "stats": {
+        "tp": 1132,
+        "uncached": 0,
+        "n_panos": 859
+      },
+      "per_city": {
+        "richmond": {
+          "n_fp": 119,
+          "counts": {
+            "duplicate": 1,
+            "near_gt": 17,
+            "hood": 5,
+            "isolated": 96
+          },
+          "shares": {
+            "duplicate": 0.008403361344537815,
+            "near_gt": 0.14285714285714285,
+            "hood": 0.04201680672268908,
+            "isolated": 0.8067226890756303
+          },
+          "null_near_gt": 13.34137349137057,
+          "null_duplicate": 4.542553249880538
+        },
+        "bend": {
+          "n_fp": 124,
+          "counts": {
+            "duplicate": 4,
+            "near_gt": 32,
+            "hood": 4,
+            "isolated": 84
+          },
+          "shares": {
+            "duplicate": 0.03225806451612903,
+            "near_gt": 0.25806451612903225,
+            "hood": 0.03225806451612903,
+            "isolated": 0.6774193548387096
+          },
+          "null_near_gt": 18.888589742119052,
+          "null_duplicate": 6.942017755961213
+        },
+        "clovis": {
+          "n_fp": 114,
+          "counts": {
+            "duplicate": 2,
+            "near_gt": 22,
+            "hood": 2,
+            "isolated": 88
+          },
+          "shares": {
+            "duplicate": 0.017543859649122806,
+            "near_gt": 0.19298245614035087,
+            "hood": 0.017543859649122806,
+            "isolated": 0.7719298245614035
+          },
+          "null_near_gt": 11.083483560230956,
+          "null_duplicate": 3.8392285037752014
+        },
+        "morgantown": {
+          "n_fp": 97,
+          "counts": {
+            "duplicate": 1,
+            "near_gt": 25,
+            "hood": 0,
+            "isolated": 71
+          },
+          "shares": {
+            "duplicate": 0.010309278350515464,
+            "near_gt": 0.25773195876288657,
+            "hood": 0.0,
+            "isolated": 0.7319587628865979
+          },
+          "null_near_gt": 14.435674905504719,
+          "null_duplicate": 5.103350526447977
+        },
+        "annapolis": {
+          "n_fp": 82,
+          "counts": {
+            "duplicate": 0,
+            "near_gt": 28,
+            "hood": 1,
+            "isolated": 53
+          },
+          "shares": {
+            "duplicate": 0.0,
+            "near_gt": 0.34146341463414637,
+            "hood": 0.012195121951219513,
+            "isolated": 0.6463414634146342
+          },
+          "null_near_gt": 14.10138129719673,
+          "null_duplicate": 5.066876051213034
+        },
+        "paterson": {
+          "n_fp": 70,
+          "counts": {
+            "duplicate": 2,
+            "near_gt": 19,
+            "hood": 0,
+            "isolated": 49
+          },
+          "shares": {
+            "duplicate": 0.02857142857142857,
+            "near_gt": 0.2714285714285714,
+            "hood": 0.0,
+            "isolated": 0.7
+          },
+          "null_near_gt": 10.231963296489196,
+          "null_duplicate": 3.649001486937178
+        },
+        "gainesville": {
+          "n_fp": 192,
+          "counts": {
+            "duplicate": 2,
+            "near_gt": 50,
+            "hood": 1,
+            "isolated": 139
+          },
+          "shares": {
+            "duplicate": 0.010416666666666666,
+            "near_gt": 0.2604166666666667,
+            "hood": 0.005208333333333333,
+            "isolated": 0.7239583333333334
+          },
+          "null_near_gt": 30.546054655547707,
+          "null_duplicate": 10.70932899154669
+        }
+      }
+    },
+    "gemini-3.1-pro-preview": {
+      "n_fp": 615,
+      "counts": {
+        "duplicate": 16,
+        "near_gt": 190,
+        "hood": 4,
+        "isolated": 405
+      },
+      "shares": {
+        "duplicate": 0.026016260162601626,
+        "near_gt": 0.3089430894308943,
+        "hood": 0.0065040650406504065,
+        "isolated": 0.6585365853658537
+      },
+      "null_near_gt": 113.14131781515601,
+      "null_duplicate": 41.65682742516473,
+      "stats": {
+        "tp": 1186,
+        "uncached": 0,
+        "n_panos": 859
+      },
+      "per_city": {
+        "richmond": {
+          "n_fp": 127,
+          "counts": {
+            "duplicate": 4,
+            "near_gt": 32,
+            "hood": 0,
+            "isolated": 91
+          },
+          "shares": {
+            "duplicate": 0.031496062992125984,
+            "near_gt": 0.25196850393700787,
+            "hood": 0.0,
+            "isolated": 0.7165354330708661
+          },
+          "null_near_gt": 22.310555090252,
+          "null_duplicate": 8.147419130686432
+        },
+        "bend": {
+          "n_fp": 79,
+          "counts": {
+            "duplicate": 1,
+            "near_gt": 29,
+            "hood": 2,
+            "isolated": 47
+          },
+          "shares": {
+            "duplicate": 0.012658227848101266,
+            "near_gt": 0.3670886075949367,
+            "hood": 0.02531645569620253,
+            "isolated": 0.5949367088607594
+          },
+          "null_near_gt": 14.054266914996955,
+          "null_duplicate": 5.196514831864863
+        },
+        "clovis": {
+          "n_fp": 82,
+          "counts": {
+            "duplicate": 0,
+            "near_gt": 23,
+            "hood": 1,
+            "isolated": 58
+          },
+          "shares": {
+            "duplicate": 0.0,
+            "near_gt": 0.2804878048780488,
+            "hood": 0.012195121951219513,
+            "isolated": 0.7073170731707317
+          },
+          "null_near_gt": 12.344804658819763,
+          "null_duplicate": 4.960150701684957
+        },
+        "morgantown": {
+          "n_fp": 78,
+          "counts": {
+            "duplicate": 3,
+            "near_gt": 27,
+            "hood": 0,
+            "isolated": 48
+          },
+          "shares": {
+            "duplicate": 0.038461538461538464,
+            "near_gt": 0.34615384615384615,
+            "hood": 0.0,
+            "isolated": 0.6153846153846154
+          },
+          "null_near_gt": 15.507295854825369,
+          "null_duplicate": 5.446879107438527
+        },
+        "annapolis": {
+          "n_fp": 98,
+          "counts": {
+            "duplicate": 3,
+            "near_gt": 32,
+            "hood": 0,
+            "isolated": 63
+          },
+          "shares": {
+            "duplicate": 0.030612244897959183,
+            "near_gt": 0.32653061224489793,
+            "hood": 0.0,
+            "isolated": 0.6428571428571429
+          },
+          "null_near_gt": 17.5446179811498,
+          "null_duplicate": 6.500389335400408
+        },
+        "paterson": {
+          "n_fp": 39,
+          "counts": {
+            "duplicate": 1,
+            "near_gt": 12,
+            "hood": 0,
+            "isolated": 26
+          },
+          "shares": {
+            "duplicate": 0.02564102564102564,
+            "near_gt": 0.3076923076923077,
+            "hood": 0.0,
+            "isolated": 0.6666666666666666
+          },
+          "null_near_gt": 8.04593879165228,
+          "null_duplicate": 2.852954963221932
+        },
+        "gainesville": {
+          "n_fp": 112,
+          "counts": {
+            "duplicate": 4,
+            "near_gt": 35,
+            "hood": 1,
+            "isolated": 72
+          },
+          "shares": {
+            "duplicate": 0.03571428571428571,
+            "near_gt": 0.3125,
+            "hood": 0.008928571428571428,
+            "isolated": 0.6428571428571429
+          },
+          "null_near_gt": 23.33383852345985,
+          "null_duplicate": 8.55251935486761
+        }
+      }
+    },
+    "Qwen/Qwen3-VL-8B-Instruct": {
+      "n_fp": 1550,
+      "counts": {
+        "duplicate": 9,
+        "near_gt": 260,
+        "hood": 57,
+        "isolated": 1224
+      },
+      "shares": {
+        "duplicate": 0.005806451612903226,
+        "near_gt": 0.16774193548387098,
+        "hood": 0.036774193548387096,
+        "isolated": 0.7896774193548387
+      },
+      "null_near_gt": 184.91654989026364,
+      "null_duplicate": 59.73094249738941,
+      "stats": {
+        "tp": 746,
+        "uncached": 0,
+        "n_panos": 859
+      },
+      "per_city": {
+        "richmond": {
+          "n_fp": 293,
+          "counts": {
+            "duplicate": 2,
+            "near_gt": 39,
+            "hood": 16,
+            "isolated": 236
+          },
+          "shares": {
+            "duplicate": 0.006825938566552901,
+            "near_gt": 0.13310580204778158,
+            "hood": 0.05460750853242321,
+            "isolated": 0.8054607508532423
+          },
+          "null_near_gt": 32.63132069984019,
+          "null_duplicate": 11.044743126986914
+        },
+        "bend": {
+          "n_fp": 180,
+          "counts": {
+            "duplicate": 0,
+            "near_gt": 39,
+            "hood": 10,
+            "isolated": 131
+          },
+          "shares": {
+            "duplicate": 0.0,
+            "near_gt": 0.21666666666666667,
+            "hood": 0.05555555555555555,
+            "isolated": 0.7277777777777777
+          },
+          "null_near_gt": 21.99913179546858,
+          "null_duplicate": 6.206386750189111
+        },
+        "clovis": {
+          "n_fp": 200,
+          "counts": {
+            "duplicate": 1,
+            "near_gt": 31,
+            "hood": 8,
+            "isolated": 160
+          },
+          "shares": {
+            "duplicate": 0.005,
+            "near_gt": 0.155,
+            "hood": 0.04,
+            "isolated": 0.8
+          },
+          "null_near_gt": 18.934719572001672,
+          "null_duplicate": 6.3056995416032064
+        },
+        "morgantown": {
+          "n_fp": 237,
+          "counts": {
+            "duplicate": 3,
+            "near_gt": 38,
+            "hood": 7,
+            "isolated": 189
+          },
+          "shares": {
+            "duplicate": 0.012658227848101266,
+            "near_gt": 0.16033755274261605,
+            "hood": 0.029535864978902954,
+            "isolated": 0.7974683544303798
+          },
+          "null_near_gt": 30.452473782787955,
+          "null_duplicate": 9.644281591048507
+        },
+        "annapolis": {
+          "n_fp": 238,
+          "counts": {
+            "duplicate": 0,
+            "near_gt": 41,
+            "hood": 4,
+            "isolated": 193
+          },
+          "shares": {
+            "duplicate": 0.0,
+            "near_gt": 0.1722689075630252,
+            "hood": 0.01680672268907563,
+            "isolated": 0.8109243697478992
+          },
+          "null_near_gt": 28.71018739604578,
+          "null_duplicate": 9.59116870181489
+        },
+        "paterson": {
+          "n_fp": 168,
+          "counts": {
+            "duplicate": 0,
+            "near_gt": 28,
+            "hood": 5,
+            "isolated": 135
+          },
+          "shares": {
+            "duplicate": 0.0,
+            "near_gt": 0.16666666666666666,
+            "hood": 0.02976190476190476,
+            "isolated": 0.8035714285714286
+          },
+          "null_near_gt": 23.331494112464075,
+          "null_duplicate": 7.843907541801874
+        },
+        "gainesville": {
+          "n_fp": 234,
+          "counts": {
+            "duplicate": 3,
+            "near_gt": 44,
+            "hood": 7,
+            "isolated": 180
+          },
+          "shares": {
+            "duplicate": 0.01282051282051282,
+            "near_gt": 0.18803418803418803,
+            "hood": 0.029914529914529916,
+            "isolated": 0.7692307692307693
+          },
+          "null_near_gt": 28.85722253165538,
+          "null_duplicate": 9.094755243944906
+        }
+      }
+    },
+    "Qwen/Qwen3-VL-32B-Instruct": {
+      "n_fp": 248,
+      "counts": {
+        "duplicate": 7,
+        "near_gt": 89,
+        "hood": 4,
+        "isolated": 148
+      },
+      "shares": {
+        "duplicate": 0.028225806451612902,
+        "near_gt": 0.3588709677419355,
+        "hood": 0.016129032258064516,
+        "isolated": 0.5967741935483871
+      },
+      "null_near_gt": 48.655907805593834,
+      "null_duplicate": 16.55281948500885,
+      "stats": {
+        "tp": 512,
+        "uncached": 0,
+        "n_panos": 859
+      },
+      "per_city": {
+        "richmond": {
+          "n_fp": 29,
+          "counts": {
+            "duplicate": 0,
+            "near_gt": 10,
+            "hood": 1,
+            "isolated": 18
+          },
+          "shares": {
+            "duplicate": 0.0,
+            "near_gt": 0.3448275862068966,
+            "hood": 0.034482758620689655,
+            "isolated": 0.6206896551724138
+          },
+          "null_near_gt": 4.991224641700586,
+          "null_duplicate": 1.801236685578495
+        },
+        "bend": {
+          "n_fp": 40,
+          "counts": {
+            "duplicate": 0,
+            "near_gt": 17,
+            "hood": 1,
+            "isolated": 22
+          },
+          "shares": {
+            "duplicate": 0.0,
+            "near_gt": 0.425,
+            "hood": 0.025,
+            "isolated": 0.55
+          },
+          "null_near_gt": 8.186129695263261,
+          "null_duplicate": 2.5334606693826793
+        },
+        "clovis": {
+          "n_fp": 17,
+          "counts": {
+            "duplicate": 0,
+            "near_gt": 8,
+            "hood": 1,
+            "isolated": 8
+          },
+          "shares": {
+            "duplicate": 0.0,
+            "near_gt": 0.47058823529411764,
+            "hood": 0.058823529411764705,
+            "isolated": 0.47058823529411764
+          },
+          "null_near_gt": 2.185235741197007,
+          "null_duplicate": 0.7502937746334548
+        },
+        "morgantown": {
+          "n_fp": 41,
+          "counts": {
+            "duplicate": 1,
+            "near_gt": 8,
+            "hood": 1,
+            "isolated": 31
+          },
+          "shares": {
+            "duplicate": 0.024390243902439025,
+            "near_gt": 0.1951219512195122,
+            "hood": 0.024390243902439025,
+            "isolated": 0.7560975609756098
+          },
+          "null_near_gt": 6.591318926710137,
+          "null_duplicate": 2.1403817114226764
+        },
+        "annapolis": {
+          "n_fp": 56,
+          "counts": {
+            "duplicate": 2,
+            "near_gt": 21,
+            "hood": 0,
+            "isolated": 33
+          },
+          "shares": {
+            "duplicate": 0.03571428571428571,
+            "near_gt": 0.375,
+            "hood": 0.0,
+            "isolated": 0.5892857142857143
+          },
+          "null_near_gt": 13.201832368462435,
+          "null_duplicate": 4.481623117643301
+        },
+        "paterson": {
+          "n_fp": 20,
+          "counts": {
+            "duplicate": 4,
+            "near_gt": 8,
+            "hood": 0,
+            "isolated": 8
+          },
+          "shares": {
+            "duplicate": 0.2,
+            "near_gt": 0.4,
+            "hood": 0.0,
+            "isolated": 0.4
+          },
+          "null_near_gt": 3.5853763243498533,
+          "null_duplicate": 1.2035946844277052
+        },
+        "gainesville": {
+          "n_fp": 45,
+          "counts": {
+            "duplicate": 0,
+            "near_gt": 17,
+            "hood": 0,
+            "isolated": 28
+          },
+          "shares": {
+            "duplicate": 0.0,
+            "near_gt": 0.37777777777777777,
+            "hood": 0.0,
+            "isolated": 0.6222222222222222
+          },
+          "null_near_gt": 9.914790107910559,
+          "null_duplicate": 3.642228841920537
+        }
+      }
+    },
+    "allenai/Molmo2-8B": {
+      "n_fp": 1228,
+      "counts": {
+        "duplicate": 7,
+        "near_gt": 206,
+        "hood": 24,
+        "isolated": 991
+      },
+      "shares": {
+        "duplicate": 0.005700325732899023,
+        "near_gt": 0.16775244299674266,
+        "hood": 0.019543973941368076,
+        "isolated": 0.8070032573289903
+      },
+      "null_near_gt": 162.39402082514792,
+      "null_duplicate": 55.60475846070431,
+      "stats": {
+        "tp": 906,
+        "uncached": 0,
+        "n_panos": 859
+      },
+      "per_city": {
+        "richmond": {
+          "n_fp": 230,
+          "counts": {
+            "duplicate": 4,
+            "near_gt": 34,
+            "hood": 4,
+            "isolated": 188
+          },
+          "shares": {
+            "duplicate": 0.017391304347826087,
+            "near_gt": 0.14782608695652175,
+            "hood": 0.017391304347826087,
+            "isolated": 0.8173913043478261
+          },
+          "null_near_gt": 30.247535597674737,
+          "null_duplicate": 9.813373529030795
+        },
+        "bend": {
+          "n_fp": 126,
+          "counts": {
+            "duplicate": 0,
+            "near_gt": 39,
+            "hood": 3,
+            "isolated": 84
+          },
+          "shares": {
+            "duplicate": 0.0,
+            "near_gt": 0.30952380952380953,
+            "hood": 0.023809523809523808,
+            "isolated": 0.6666666666666666
+          },
+          "null_near_gt": 23.033553061038653,
+          "null_duplicate": 8.6349430689624
+        },
+        "clovis": {
+          "n_fp": 172,
+          "counts": {
+            "duplicate": 0,
+            "near_gt": 23,
+            "hood": 4,
+            "isolated": 145
+          },
+          "shares": {
+            "duplicate": 0.0,
+            "near_gt": 0.13372093023255813,
+            "hood": 0.023255813953488372,
+            "isolated": 0.8430232558139535
+          },
+          "null_near_gt": 18.033975251951567,
+          "null_duplicate": 5.699284706249907
+        },
+        "morgantown": {
+          "n_fp": 142,
+          "counts": {
+            "duplicate": 2,
+            "near_gt": 24,
+            "hood": 1,
+            "isolated": 115
+          },
+          "shares": {
+            "duplicate": 0.014084507042253521,
+            "near_gt": 0.16901408450704225,
+            "hood": 0.007042253521126761,
+            "isolated": 0.8098591549295775
+          },
+          "null_near_gt": 19.375921570551306,
+          "null_duplicate": 6.155560756607115
+        },
+        "annapolis": {
+          "n_fp": 159,
+          "counts": {
+            "duplicate": 1,
+            "near_gt": 27,
+            "hood": 1,
+            "isolated": 130
+          },
+          "shares": {
+            "duplicate": 0.006289308176100629,
+            "near_gt": 0.16981132075471697,
+            "hood": 0.006289308176100629,
+            "isolated": 0.8176100628930818
+          },
+          "null_near_gt": 20.15785422638322,
+          "null_duplicate": 7.30784826120006
+        },
+        "paterson": {
+          "n_fp": 127,
+          "counts": {
+            "duplicate": 0,
+            "near_gt": 14,
+            "hood": 4,
+            "isolated": 109
+          },
+          "shares": {
+            "duplicate": 0.0,
+            "near_gt": 0.11023622047244094,
+            "hood": 0.031496062992125984,
+            "isolated": 0.8582677165354331
+          },
+          "null_near_gt": 13.550094243350065,
+          "null_duplicate": 4.668500794651732
+        },
+        "gainesville": {
+          "n_fp": 272,
+          "counts": {
+            "duplicate": 0,
+            "near_gt": 45,
+            "hood": 7,
+            "isolated": 220
+          },
+          "shares": {
+            "duplicate": 0.0,
+            "near_gt": 0.16544117647058823,
+            "hood": 0.025735294117647058,
+            "isolated": 0.8088235294117647
+          },
+          "null_near_gt": 37.99508687419838,
+          "null_duplicate": 13.325247344002301
+        }
+      }
+    },
+    "google/owlv2-large-patch14-ensemble": {
+      "n_fp": 55538,
+      "counts": {
+        "duplicate": 788,
+        "near_gt": 4533,
+        "hood": 8549,
+        "isolated": 41668
+      },
+      "shares": {
+        "duplicate": 0.014188483560805215,
+        "near_gt": 0.08161979185422594,
+        "hood": 0.1539306420828982,
+        "isolated": 0.7502610825020707
+      },
+      "null_near_gt": 5410.000153374859,
+      "null_duplicate": 1698.4745251906204,
+      "stats": {
+        "tp": 1939,
+        "uncached": 0,
+        "n_panos": 859
+      },
+      "per_city": {
+        "richmond": {
+          "n_fp": 8799,
+          "counts": {
+            "duplicate": 122,
+            "near_gt": 768,
+            "hood": 1321,
+            "isolated": 6588
+          },
+          "shares": {
+            "duplicate": 0.01386521195590408,
+            "near_gt": 0.08728264575519945,
+            "hood": 0.15013069667007614,
+            "isolated": 0.7487214456188204
+          },
+          "null_near_gt": 919.8760857476256,
+          "null_duplicate": 289.8596302360829
+        },
+        "bend": {
+          "n_fp": 8187,
+          "counts": {
+            "duplicate": 126,
+            "near_gt": 699,
+            "hood": 2145,
+            "isolated": 5217
+          },
+          "shares": {
+            "duplicate": 0.015390252839868083,
+            "near_gt": 0.08537925980212532,
+            "hood": 0.26200073286918285,
+            "isolated": 0.6372297544888238
+          },
+          "null_near_gt": 825.6083109353281,
+          "null_duplicate": 263.80830609411265
+        },
+        "clovis": {
+          "n_fp": 6911,
+          "counts": {
+            "duplicate": 71,
+            "near_gt": 442,
+            "hood": 741,
+            "isolated": 5657
+          },
+          "shares": {
+            "duplicate": 0.010273477065547678,
+            "near_gt": 0.06395601215453625,
+            "hood": 0.107220373317899,
+            "isolated": 0.8185501374620171
+          },
+          "null_near_gt": 520.909180325305,
+          "null_duplicate": 153.6615515482996
+        },
+        "morgantown": {
+          "n_fp": 6613,
+          "counts": {
+            "duplicate": 94,
+            "near_gt": 601,
+            "hood": 332,
+            "isolated": 5586
+          },
+          "shares": {
+            "duplicate": 0.014214426130349312,
+            "near_gt": 0.09088159685468017,
+            "hood": 0.0502041433539997,
+            "isolated": 0.8446998336609708
+          },
+          "null_near_gt": 698.0326293485638,
+          "null_duplicate": 205.7526496434045
+        },
+        "annapolis": {
+          "n_fp": 8444,
+          "counts": {
+            "duplicate": 124,
+            "near_gt": 664,
+            "hood": 784,
+            "isolated": 6872
+          },
+          "shares": {
+            "duplicate": 0.01468498342018001,
+            "near_gt": 0.07863571766935101,
+            "hood": 0.09284699194694458,
+            "isolated": 0.8138323069635244
+          },
+          "null_near_gt": 800.3604484504159,
+          "null_duplicate": 247.16426818755514
+        },
+        "paterson": {
+          "n_fp": 8399,
+          "counts": {
+            "duplicate": 120,
+            "near_gt": 696,
+            "hood": 1874,
+            "isolated": 5709
+          },
+          "shares": {
+            "duplicate": 0.014287415168472437,
+            "near_gt": 0.08286700797714014,
+            "hood": 0.22312180021431122,
+            "isolated": 0.6797237766400762
+          },
+          "null_near_gt": 847.691132287629,
+          "null_duplicate": 283.58250320912924
+        },
+        "gainesville": {
+          "n_fp": 8185,
+          "counts": {
+            "duplicate": 131,
+            "near_gt": 663,
+            "hood": 1352,
+            "isolated": 6039
+          },
+          "shares": {
+            "duplicate": 0.0160048869883934,
+            "near_gt": 0.08100183262064753,
+            "hood": 0.16518020769700673,
+            "isolated": 0.7378130726939524
+          },
+          "null_near_gt": 797.5223662799923,
+          "null_duplicate": 254.6456162720363
+        }
+      }
+    },
+    "IDEA-Research/grounding-dino-base": {
+      "n_fp": 61586,
+      "counts": {
+        "duplicate": 516,
+        "near_gt": 3444,
+        "hood": 16076,
+        "isolated": 41550
+      },
+      "shares": {
+        "duplicate": 0.008378527587438704,
+        "near_gt": 0.0559218004091839,
+        "hood": 0.2610333517357841,
+        "isolated": 0.6746663202675933
+      },
+      "null_near_gt": 4405.4721486916915,
+      "null_duplicate": 1366.9670412613746,
+      "stats": {
+        "tp": 1756,
+        "uncached": 0,
+        "n_panos": 859
+      },
+      "per_city": {
+        "richmond": {
+          "n_fp": 9321,
+          "counts": {
+            "duplicate": 77,
+            "near_gt": 511,
+            "hood": 2862,
+            "isolated": 5871
+          },
+          "shares": {
+            "duplicate": 0.008260916210707006,
+            "near_gt": 0.054822443943782856,
+            "hood": 0.3070485999356292,
+            "isolated": 0.6298680399098809
+          },
+          "null_near_gt": 656.1102791280155,
+          "null_duplicate": 203.71510064835246
+        },
+        "bend": {
+          "n_fp": 6969,
+          "counts": {
+            "duplicate": 72,
+            "near_gt": 513,
+            "hood": 1293,
+            "isolated": 5091
+          },
+          "shares": {
+            "duplicate": 0.010331467929401636,
+            "near_gt": 0.07361170899698666,
+            "hood": 0.1855359448988377,
+            "isolated": 0.730520878174774
+          },
+          "null_near_gt": 670.4965133779947,
+          "null_duplicate": 215.12600707488744
+        },
+        "clovis": {
+          "n_fp": 9433,
+          "counts": {
+            "duplicate": 53,
+            "near_gt": 410,
+            "hood": 2385,
+            "isolated": 6585
+          },
+          "shares": {
+            "duplicate": 0.005618573094455634,
+            "near_gt": 0.043464433372203966,
+            "hood": 0.25283578925050354,
+            "isolated": 0.6980812042828368
+          },
+          "null_near_gt": 483.4036767160359,
+          "null_duplicate": 142.72938368890996
+        },
+        "morgantown": {
+          "n_fp": 9991,
+          "counts": {
+            "duplicate": 62,
+            "near_gt": 478,
+            "hood": 3390,
+            "isolated": 6061
+          },
+          "shares": {
+            "duplicate": 0.006205585026523871,
+            "near_gt": 0.04784305875287759,
+            "hood": 0.3393053748373536,
+            "isolated": 0.6066459813832449
+          },
+          "null_near_gt": 590.1957279900166,
+          "null_duplicate": 169.05384029343622
+        },
+        "annapolis": {
+          "n_fp": 8992,
+          "counts": {
+            "duplicate": 75,
+            "near_gt": 433,
+            "hood": 3038,
+            "isolated": 5446
+          },
+          "shares": {
+            "duplicate": 0.008340747330960853,
+            "near_gt": 0.04815391459074733,
+            "hood": 0.337855871886121,
+            "isolated": 0.6056494661921709
+          },
+          "null_near_gt": 559.1392718612157,
+          "null_duplicate": 170.96567773681474
+        },
+        "paterson": {
+          "n_fp": 8552,
+          "counts": {
+            "duplicate": 75,
+            "near_gt": 567,
+            "hood": 1635,
+            "isolated": 6275
+          },
+          "shares": {
+            "duplicate": 0.008769878391019644,
+            "near_gt": 0.06630028063610852,
+            "hood": 0.19118334892422825,
+            "isolated": 0.7337464920486436
+          },
+          "null_near_gt": 775.2087826692904,
+          "null_duplicate": 254.93600578851218
+        },
+        "gainesville": {
+          "n_fp": 8328,
+          "counts": {
+            "duplicate": 102,
+            "near_gt": 532,
+            "hood": 1473,
+            "isolated": 6221
+          },
+          "shares": {
+            "duplicate": 0.012247838616714697,
+            "near_gt": 0.06388088376560999,
+            "hood": 0.17687319884726224,
+            "isolated": 0.746998078770413
+          },
+          "null_near_gt": 670.9178969491228,
+          "null_duplicate": 210.44102603046164
+        }
+      }
+    }
+  }
+}

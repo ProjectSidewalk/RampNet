@@ -163,11 +163,101 @@ cost and the extra false positives more looks would generate. It is "what is on 
 forecast — but +7.5 points with **no new data collection** is a serious number next to a
 multi-month sourcing campaign.
 
-**Caveat on the near-field population.** Calling all 42.2% "vocabulary" is an inference, not a
-measurement. A near-field miss can equally be occlusion (a parked car), deep shadow, or surface
-debris — Gainesville's reviewer flagged debris explicitly — or a GT disagreement. **The near-field
-figure bounds the sourcing-addressable population from above**, and separating those causes needs
-the miss taxonomy in #46.
+**Caveat on the near-field population — now measured, see §0b.** Calling all 42.2% "vocabulary" was
+an inference, not a measurement. A near-field miss can equally be occlusion (a parked car), deep
+shadow, or surface debris — Gainesville's reviewer flagged debris explicitly — or a GT disagreement.
+The near-field figure bounds the sourcing-addressable population **from above**, and §0b tightens
+that bound by a factor of 3.8.
+
+## 0b. Bucketing the misses: most of the near-field population is not a data problem
+
+§0a's near-field figure was an upper bound with an explicit caveat attached. #46 measured what the
+"appearance/vocabulary" label was standing in for, and **two-thirds of it turns out to be something
+more data cannot fix.**
+
+Script: `scripts/analysis/miss_taxonomy.py` (29 tests). Same committed low-floor caches, same
+threshold, same boundary, same `geom()` and matcher as §0a — so the two partition an identical
+population and the bucket counts sum to §0a's totals. No GPU, no network, no imagery.
+
+The caches hold every peak down to a **0.05 score floor**, well below the 0.30 operating point, so
+for each missed ramp we can ask what the model actually did there.
+
+**Pooled, seven US splits — 427 misses:**
+
+| bucket | misses | share | recall points | what it actually is |
+| :--- | ---: | ---: | ---: | :--- |
+| **merged** | 124 | 29.0% | 0.060 | one peak emitted for a pair of adjacent ramps |
+| **sub_threshold** | 166 | 38.9% | 0.081 | localized, scored in [0.05, 0.30) |
+| **localization** | 9 | 2.1% | 0.004 | fired just outside the match radius |
+| **silent** | 128 | 30.0% | 0.062 | nothing there at all, even at the floor |
+
+**The near-field split is the number that moves.** Of §0a's 0.087 recall points:
+
+| bucket | misses | recall points | addressable by more cities? |
+| :--- | ---: | ---: | :--- |
+| merged | 48 | 0.023 | **No** — heatmap representation |
+| sub_threshold | 84 | 0.041 | **No** — confidence, already priced by #54/#55 |
+| localization | 3 | 0.001 | marginal |
+| **silent** | **45** | **0.022** | **Yes — this is the sourcing programme's target** |
+
+So the population a broader corpus can reach is about **0.023 recall points, not 0.087** — §0a's
+near-field figure **over-states it by 3.8×**. That does not kill the sourcing case, but it resizes
+it: the honest headline is "worth ~2 recall points", not ~9.
+
+### Two confounds checked, both negative
+
+**The matcher is not manufacturing misses.** #46 lists this as a suspect — a correct-but-loose
+detection scored as an FP *and* its ramp as an FN, one error counted twice. Rescoring every pano
+with maximum-cardinality bipartite matching instead of the deployed greedy matcher is a **wash**:
+10 ramps are hit only under optimal, 10 only under greedy, **net zero**. The difference is a
+permutation, not lost recall.
+
+**"A peak was there" is not density.** `docs/model_comparison.md`'s null-recall correction found
+open-detector recall was largely density (OWLv2 at 55–88 boxes/pano). RampNet emits **4.2**
+floor-level peaks per pano, and against a null that holds each ramp's elevation and randomizes its
+azimuth, near-field `sub_threshold` is **46.7% real vs 4.7% chance**. The bucket survives; the null
+rate is printed beside every bucket rather than argued away.
+
+### `merged` is a target problem, not an extractor one
+
+`peak_local_max` suppresses on a maximum filter, i.e. **Chebyshev** distance ≤ `min_distance=10`.
+**78 of 124 merged pairs (63%) sit above that** — the extractor was free to emit two peaks and did
+not, so the heatmap itself had one mode. And **87% sit within 2σ of the σ=10 training target**,
+which is what cannot represent an adjacent pair as two modes in the first place.
+
+That retires the untested "`min_distance=3`" idea for at least 63% of the bucket, on top of #62
+finding NMS at the match radius actively harmful. **If this bucket is worth attacking, the lever is
+the training target's σ, not the peak extractor.**
+
+### Paterson's anomaly now has a mechanism
+
+| split | misses | merged | share |
+| :--- | ---: | ---: | ---: |
+| **paterson** | 111 | **80** | **72%** |
+| bend | 58 | 14 | 24% |
+| richmond | 53 | 10 | 19% |
+| morgantown | 52 | 9 | 17% |
+| annapolis | 56 | 5 | 9% |
+| gainesville | 62 | 5 | 8% |
+| clovis | 35 | 1 | 3% |
+
+Paterson's paired tactile surfaces are **not** a vocabulary failure — they are two ramps the
+heatmap cannot separate. That is why it is the narrowest RampNet lead in the benchmark, and it is
+fixed by σ, not by Newark.
+
+### Caveats, travelling with the numbers
+
+- **`silent` is still an upper bound.** It means the cached detections witness nothing there.
+  Occlusion, deep shadow, debris and GT disagreement all still live inside it, and separating them
+  needs the imagery — that is #46's gallery half, **not done here**.
+- **Some of `merged` may be double-marked GT.** 24 of 124 pairs sit below 8 px (~25 cm at 10 m),
+  which is not a physical spacing for two ramps; on the verdict splits that is plausibly one ramp
+  marked twice. If so they are *spurious GT* and leave the population entirely rather than changing
+  bucket: merged 100, recall 0.802 (from 0.793), **silent unchanged**. `manual_gold` is the control
+  — its GT is independent manual labeling with no RampNet review in the loop, and it shows the same
+  mechanism at **44%** of misses.
+- **`sub_threshold` is not free recall.** Those ramps are recoverable by lowering the threshold,
+  which #54/#55 already evaluated and priced in precision; 0.30 was chosen knowing it.
 
 ## 1. The current training corpus is mostly one city
 

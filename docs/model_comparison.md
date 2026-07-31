@@ -574,6 +574,80 @@ table — real vs null recall for near and far ramps separately.
 Not run on `manual_gold`: the null is O(n²) in panos, so 1,000 panos is ~64× a city split per
 model. A subsampled version would work and hasn't been done.
 
+### What is the FP flood made of? (`scripts/analysis/fp_taxonomy.py`, issue #46)
+
+The null-recall correction above is about the *recall* column. #46 asked the same question of
+the other one: the challengers are FP-heavy — 119–293 against RampNet's 9 on richmond, ~8,800
+for OWLv2 — but **how much of that is hallucination and how much is measurement artifact?**
+
+Every false positive is bucketed against the derived GT:
+
+- **duplicate** — a second box on a ramp another prediction already claimed. Charged as an FP,
+  correctly, but not a hallucinated ramp.
+- **near_gt** — lands in `[R, 2R)` of a real ramp: right object, loose box. #46's "box→center +
+  tight radius double-penalizes" confound, where one error is counted twice.
+- **hood** — below `y = 0.75`, the ego-vehicle band. Set from the data, not assumed: across the
+  2,060 pooled GT ramps the 99.5th percentile of height is `y = 0.725` and the maximum is
+  `0.771`, while flat-ground geometry puts 0.75 at ~2.5 m, i.e. inside the car.
+- **isolated** — the residue, and an **upper bound** on hallucination.
+
+Runs entirely off `.model_cache` and the committed bundles — no GPU and no model load, since
+`compare.score_model` skips `prepare()` when every pano is cached. The TP/FP counts it
+reproduces match the tables above exactly (richmond gemini-3.6-flash: 199 TP / 119 FP).
+
+**Pooled across the seven US splits:**
+
+| model | FP | duplicate | near_gt | hood | isolated |
+|---|---:|---:|---:|---:|---:|
+| rampnet @0.30 | 181 | 2.8% | 19.3% | 3.3% | 74.6% |
+| gemini-3.6-flash | 798 | 1.5% | 24.2% | 1.6% | 72.7% |
+| gemini-3.1-pro-preview | 615 | 2.6% | 30.9% | 0.7% | 65.9% |
+| Qwen3-VL-8B-Instruct | 1,550 | 0.6% | 16.8% | 3.7% | 79.0% |
+| Qwen3-VL-32B-Instruct | 248 | 2.8% | 35.9% | 1.6% | 59.7% |
+| molmo2-8B | 1,228 | 0.6% | 16.8% | 2.0% | 80.7% |
+| **owlv2-large** | **55,538** | 1.4% | 8.2% | **15.4%** | 75.0% |
+| **grounding-dino-base** | **61,586** | 0.8% | 5.6% | **26.1%** | 67.5% |
+
+**Density contaminates this column too, and it is corrected the same way.** A box near a real
+ramp proves nothing if the model emits 74 boxes per pano. For a prediction at height `y`, the
+azimuths that land within a radius of *some* ramp form a union of arcs, measured in closed form
+(`arc_union_fraction`) rather than sampled:
+
+| model | artifact (dup + near_gt) | expected by chance | **excess** |
+|---|---:|---:|---:|
+| rampnet @0.30 | 22.1% | 16.8% | +5.3% |
+| gemini-3.6-flash | 25.7% | 14.1% | +11.6% |
+| gemini-3.1-pro-preview | 33.5% | 18.4% | +15.1% |
+| Qwen3-VL-8B-Instruct | 17.4% | 11.9% | +5.4% |
+| **Qwen3-VL-32B-Instruct** | 38.7% | 19.6% | **+19.1%** |
+| molmo2-8B | 17.3% | 13.2% | +4.1% |
+| **owlv2-large** | 9.6% | 9.7% | **−0.2%** |
+| **grounding-dino-base** | 6.4% | 7.2% | **−0.7%** |
+
+**The open detectors are the only two models whose near-ramp false positives are entirely
+chance.** Every sparse model shows a real excess (+4.1 to +19.1 points); OWLv2 and Grounding
+DINO show none. Their boxes are not "nearly right" — they are simply everywhere. This is the
+FP-side twin of the null-recall finding, arrived at by a different method (exact arc geometry
+rather than cross-pano shuffling), and it agrees.
+
+**Qwen-32B is the opposite extreme**: the fewest false positives of any VLM *and* the largest
+above-chance share near real ramps. When the cautious model does fire wrongly, it is usually
+looking at something. That is consistent with the caution mechanism behind its three ranking
+inversions, and it is a better profile for a cascade arbiter than the raw FP count suggests.
+
+**What this does for the #35 cascade.** #46 framed the decision: if OWLv2's FP flood is obvious
+junk an arbiter kills it trivially; if it is ambiguous concrete the arbiter struggles too. The
+answer is *partly* the easy case — **26.1% of Grounding DINO's 61,586 false positives are on
+the vehicle**, removable by a nadir mask for free, and OWLv2's 15.4% likewise. But **67–75%
+land in `isolated`**, and that bucket is exactly what this method cannot open: a driveway, a
+crosswalk and a flight of stairs all fall in it. **The cascade's real ceiling is set by the
+isolated residue, and sizing it needs the imagery — #46's gallery half, not done here.**
+
+Caveat: `hood` is a geometric band, not a detection of the vehicle. A ramp genuinely captured
+at ~2.5 m would sit inside it, which is why proximity to a real ramp outranks the hood test in
+the bucket cascade. **2 of the 2,060 pooled GT ramps (0.10%) sit below the line** — the script
+prints that check alongside the table so the boundary stays auditable rather than assumed.
+
 ## Why the benchmark verdicts can't be reused directly
 
 The bundle's `verdicts.json` holds a human judgment for **each RampNet detection** (aligned
@@ -1198,6 +1272,8 @@ What this split adds to the story:
 - `scripts/model_comparison/run_open_models.slurm` — Hyak launcher for OWLv2 / Grounding DINO / Molmo.
 - `scripts/analysis/null_recall.py` — real vs chance recall at a model's box density (the
   "how much of a detector's recall is real?" table). Cache-only; no GPU, no keys.
+- `scripts/analysis/fp_taxonomy.py` — what the FP flood is made of (duplicate / near_gt / hood /
+  isolated), with an exact chance baseline for the near-GT share. Cache-only; no GPU, no keys.
 - `requirements-vlm.txt` — optional VLM deps.
 - `tests/test_detection_eval.py`, `tests/test_model_comparison.py`,
   `tests/test_equirect_tiling.py` — guards.
