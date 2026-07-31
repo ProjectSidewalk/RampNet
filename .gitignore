@@ -36,6 +36,11 @@ analysis_out/op/*
 !analysis_out/op/*.csv
 !analysis_out/op/*.json
 
+# E1's result (#59): a few KB, and committing it makes the label-ceiling numbers
+# checkable without re-running the Hub fetch the script needs to regenerate them.
+!analysis_out/e1_stage1_label_recall.json
+!analysis_out/miss_decomposition.json
+
 # Claude Code local state. settings.local.json is per-machine (absolute paths,
 # session ids) and worktrees/ holds full repo checkouts -- gigabytes. Listed
 # individually rather than ignoring all of .claude/, so a shared

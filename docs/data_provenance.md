@@ -36,6 +36,12 @@ contaminated for the full pipeline too. The 1,000-panorama manual gold set (`man
 sampled from the NYC/Portland/Bend Stage 1 dataset — it is a *label-quality* gold standard, not a
 geographically held-out one.
 
+This registry also governs **city selection for any future training-corpus expansion**: a city
+already listed here is already disqualified as clean evaluation ground, so training on it costs
+nothing we still hold, while a registry-clean city is one we permanently give up as a benchmark
+split. Candidate cities, verified inventory sizes, and that selection rule are worked through in
+[`curb_ramp_data_sourcing.md`](curb_ramp_data_sourcing.md) (issue #59).
+
 Additionally, the Project Sidewalk label CSVs are fetched **live** at pipeline run time with no
 snapshot pinning: re-running `download_data.py` today produces a different crop-model training set
 than the paper's, because those databases keep growing.
