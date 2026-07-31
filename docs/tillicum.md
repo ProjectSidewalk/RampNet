@@ -153,15 +153,27 @@ Two conclusions:
   `ls -lU | head -201` on `tiles/images/train` timed out. That is metadata throughput,
   not bandwidth.
 
-**So transfer an archive, never the tree.** `tar` per split on klone → move a handful of
-large files → untar on Tillicum. A per-file `rsync`/`scp` would pay ~911,000 round trips.
-Run the `tar` inside a Slurm job, **not on a klone login node** — that is exactly the
-heavy-login-process reap that kills the SSH master. Note the untar on `/gpfs` is itself
-metadata-heavy, so time it: it is our first real measurement of whether Tillicum's flash
-actually fixes this, which is the same question the tiles training arm is asking.
+**So pack into SquashFS, never copy the tree** — see
+`scripts/model_comparison/pack_yolo_dataset.slurm`, and UW-IT's own recommendation in the
+answers below. A per-file `rsync`/`scp` pays ~911,000 round trips; `tar` fixes the
+transfer but not the destination, since untarring recreates all 911k files on `/gpfs` and
+pays the metadata cost permanently. A SquashFS image is mounted read-only, so the
+destination only ever holds **one file**.
+
+Run the pack inside a Slurm job, **not on a klone login node** — that is exactly the
+heavy-login-process reap that kills the SSH master.
+
+**The subtle part is the Ultralytics label cache.** Ultralytics writes
+`labels/<split>.cache` and validates it against a hash of the label+image **absolute
+paths**. So (a) the `.cache` files must be *inside* the image — they exist on klone
+already and a read-only mount cannot create them — and (b) mounting at a different path
+than they were built under silently invalidates them and forces a full ~911k-file
+rescan. Budget one slow first epoch on Tillicum to regenerate them, and do not mistake
+it for the steady-state cost. Getting this wrong is invisible: training still works, it
+is just permanently slow.
 
 Staging order: **`pano` first (76 GB, 193k files)** — it unblocks the smoke test and the
-pano epoch-time measurement while the much larger `tiles` archive moves behind it.
+pano epoch-time measurement while the much larger `tiles` image builds behind it.
 
 > The docs describe demo accounts as receiving "100 GB of dedicated project storage,"
 > while our provisioning email says 1 TB. Assume 1 TB (the email is specific to us) but
@@ -233,17 +245,51 @@ Record the measured epoch times back into this file and into #70.
 - **Budget changes:** contact UW-IT; enforcement semantics (blocks new submissions vs.
   cancels running jobs) are **UNVERIFIED** and were asked about on 2026-07-30.
 
-## Open questions
+## Answers from UW-IT (Sumaiya Sathar, 2026-07-30)
 
-Sent to UW-IT 2026-07-30, unanswered at time of writing:
+All six questions answered. Several change the plan, so they are recorded here rather
+than left in a mailbox.
 
-1. Does budget enforcement block *new submissions* or *cancel running jobs*?
-2. Is there any way to get more CPUs per job without the GPU billing multiplier?
-3. Guidance for many-small-file datasets on `/gpfs`; is packing into an archive or
-   container format recommended?
-4. Storage: quota-increase path, and what "purged at the end of the project" means.
-5. Do the 100 free demo hours expire?
-6. How to request `long` QoS access.
+1. **Budget enforcement is safe.** Set to **$1,500/month, enforcement active**. Enforced
+   budgets **do not cancel running jobs** — a job already running continues to
+   completion; enforcement only **blocks new submissions** until the cap is raised or
+   the period rolls over. So the cap cannot destroy an in-flight experiment, which was
+   the only reason to have preferred warn-only.
+2. **No CPUs without GPUs — confirmed, and it is a rate-model constraint, not a
+   scheduling one.** There is no QoS granting extra cores without the matching GPU
+   allocation; UW-IT is considering it, but the UW-approved rate model cannot charge for
+   CPUs independently, and unbalanced nodes are undesirable. **So the 2-GPU dataloader
+   trick is the only lever**, and its 2× billing is unavoidable — see the trap above.
+3. **Many small files → `/gpfs/scrubbed`, and pack into SquashFS.** This is the big one.
+   Active many-small-file datasets belong on **`/gpfs/scrubbed`** (larger capacity, has
+   an automatic cleanup policy) rather than the 1 TB project quota, and UW-IT explicitly
+   recommends **SquashFS** for this shape. Data Commons is an option if the dataset can
+   be public.
+4. **Storage grows in 1 TB increments** on request to `help@uw.edu` (subject "Tillicum")
+   with a workflow justification — it is shared active-compute storage, not archival.
+5. **No project end date.** "Purged at the end of the project" simply means that if we
+   stop using Tillicum we must copy data off so the space can be reclaimed. Nothing
+   expires on a timer.
+6. **1 TB is correct for us** — the 100 GB figure in the public docs applies to *demo*
+   accounts. Providing a worktag makes it a regular account, which is why we got 1 TB.
+7. **The 100 free GPU hours do not expire.** They remain until used.
+8. **`long` QoS requires the Special QoS Access Request Form** — still to be submitted,
+   then reviewed. Not a blocker for the measurement phase (everything fits in 24 h), but
+   it gates comfortable production runs.
+
+### What this changes
+
+- **Dataset goes to `/gpfs/scrubbed`, not `/gpfs/projects/makelab`.** The 1 TB project
+  quota is for artifacts we want backed up (checkpoints, results), not the 286 GB of
+  training data. This also removes storage pressure from the plan entirely.
+- **Pack with SquashFS, not tar.** See
+  `scripts/model_comparison/pack_yolo_dataset.slurm`. tar fixes the *transfer* but not
+  the *destination* — untarring recreates all ~911k files on `/gpfs` and pays the
+  metadata cost permanently. A SquashFS image is mounted read-only and the destination
+  only ever holds one file.
+- **Enforced budget is safe to leave on**, so the runaway-spend guard costs us nothing.
+- **The `DEVICE=0` / 2-GPU design in the Tillicum launcher is now confirmed necessary**
+  rather than a workaround pending a better answer.
 
 ## Related
 
