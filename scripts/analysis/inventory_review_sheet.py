@@ -84,6 +84,7 @@ and sampling are pure and unit-tested in ``tests/test_inventory_review_sheet.py`
 import argparse
 import base64
 import gzip
+import hashlib
 import io
 import json
 import math
@@ -562,6 +563,7 @@ SHEET_TEMPLATE = """<!doctype html>
   imagery <b>__SOURCE__</b> z__ZOOM__ (__MPP__ m/px) · __ATTRIB__.
   <span style="color:#ffb74d">__NOTE__</span>
   Progress is saved in this browser; <b>export before you finish</b> to write it to disk.
+  <span style="color:#777">· sheet build <code>__BUILD__</code></span>
  </div>
 </header>
 
@@ -684,13 +686,22 @@ function marker(v) {{
 // and one across the crossing is visible in a second and arguable in none.
 // Gated on the reviewer having counted first, for the same anti-anchoring reason
 // the numbers are.
+// Drawn with a dark halo under the magenta and labelled with its distance,
+// because these land on both bright concrete and dark asphalt and a marker you
+// have to hunt for is a marker that gets reported as missing. The label also
+// makes a far one (12-16 m, out near the frame edge) legible as deliberate
+// rather than as a stray mark.
 function pubMarkers(c, v) {{
   if (!c.pub || v.ramps_visible == null) return "";
-  const r = S / 90;
+  const r = S / 60;
   return c.pub.map(p => {{
     const x = C + p[0], y = C + p[1];
-    return `<path d="M ${{x}} ${{y - r}} L ${{x + r}} ${{y}} L ${{x}} ${{y + r}} L ${{x - r}} ${{y}} Z"
-      fill="none" stroke="#ff6fd8" stroke-width="${{S / 330}}"/>`;
+    const d = `M ${{x}} ${{y - r}} L ${{x + r}} ${{y}} L ${{x}} ${{y + r}} L ${{x - r}} ${{y}} Z`;
+    return `<g><path d="${{d}}" fill="none" stroke="#000" stroke-opacity=".7"
+      stroke-width="${{S / 120}}"/><path d="${{d}}" fill="none" stroke="#ff6fd8"
+      stroke-width="${{S / 300}}"/><text x="${{x + r * 1.3}}" y="${{y - r * 0.5}}"
+      fill="#ff6fd8" stroke="#000" stroke-width="${{S / 400}}" paint-order="stroke"
+      font-size="${{S / 46}}" font-family="system-ui">${{p[2]}}m</text></g>`;
   }}).join("");
 }}
 
@@ -788,9 +799,10 @@ function render() {{
     const p6 = c.published[0], p10 = c.published[1];
     pub.className = "pub";
     pub.innerHTML = `${{p6}} within 6 m · ${{p10}} within 10 m<br>
-      <span style="font-size:11px">◆ marks each one. <b>A radius is not a corner</b> —
-      6 m can cross a slip lane and can miss the far ramp of a big corner, so check
-      each diamond against what you counted.</span>`;
+      <span style="font-size:11px">◆ marks each one on the image, labelled with its
+      distance. <b>A radius is not a corner</b> — 6 m can cross a slip lane and can miss
+      the far ramp of a big corner, so check each diamond against what you counted.
+      Diamonds beyond 10 m are usually a different corner.</span>`;
   }}
 }}
 
@@ -883,9 +895,22 @@ paint();
 """
 
 
+def sheet_build_id():
+    """Short content hash of the page logic and the rubric.
+
+    Shown in the header and written to the manifest, so "am I looking at the
+    current sheet?" is answerable at a glance instead of by inspecting which
+    wording is present. A stale 6.7 MB ``file://`` page is easy to keep and
+    indistinguishable from a fresh one, and it wasted a reviewer's time twice.
+    """
+    blob = (SHEET_TEMPLATE + json.dumps(RUBRIC, sort_keys=True)).encode("utf-8")
+    return hashlib.sha256(blob).hexdigest()[:8]
+
+
 def build_sheet(meta, chips, manifest):
     """Assemble the interactive sheet. Pure — takes rendered chips, returns HTML."""
     subs = {
+        "__BUILD__": sheet_build_id(),
         "__CITY__": meta["city"],
         "__N__": str(len(chips)),
         "__INV__": meta["inventory"],
@@ -1006,7 +1031,8 @@ def main(argv=None):
         counts = [sum(1 for n in near if n["d_m"] <= r) for r in NEIGHBOUR_RADII_M]
         chip["published"] = counts
         # Only the OTHER records get a marker; the sampled one is the crosshair.
-        chip["pub"] = [[n["dx_px"], n["dy_px"]] for n in near if n["d_m"] > 0.05]
+        chip["pub"] = [[n["dx_px"], n["dy_px"], n["d_m"]]
+                       for n in near if n["d_m"] > 0.05]
         verdict["published_within_6m"] = counts[0]
         verdict["published_within_10m"] = counts[1]
         verdict["published_neighbours_m"] = [n["d_m"] for n in near if n["d_m"] > 0.05]
@@ -1027,6 +1053,7 @@ def main(argv=None):
         # Travels with the verdicts on purpose: an offset is uninterpretable
         # without the rule that says what it is an offset *from*.
         "rubric": RUBRIC,
+        "sheet_build": sheet_build_id(),
         "reviewer": None, "reviewed_on": None, "confidence": None,
     }
     verdict_path = os.path.join(review_dir, "verdicts.json")

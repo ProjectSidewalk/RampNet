@@ -108,11 +108,15 @@ ok(!/under-recording\?|phantom or duplicate\?/.test(words),
 ok(words.includes("a radius is not a corner"), "panel says why it cannot judge");
 
 // The markers ARE the evidence, and they obey the same anti-anchoring gate.
+// Counted by paint-order, which appears exactly once per marker.
 const svg = () => document.getElementById("bigsvg").innerHTML;
+const nMarkers = () => (svg().match(/paint-order="stroke"/g) || []).length;
 va.ramps_visible = 3; T.open_(0);
-ok((svg().match(/#ff6fd8/g) || []).length === 2, "both neighbours drawn once counted");
+ok(nMarkers() === 2, "both neighbours drawn once counted");
+ok(svg().includes(">1.7m</text>") && svg().includes(">2.6m</text>"),
+   "each marker is labelled with its distance");
 va.ramps_visible = null; T.open_(0);
-ok(!svg().includes("#ff6fd8"), "neighbour markers hidden before counting");
+ok(nMarkers() === 0, "neighbour markers hidden before counting");
 
 ok(document.getElementById("rubric-body").innerHTML.includes("<h3>"), "rubric renders");
 
@@ -127,7 +131,8 @@ def _page_logic(tmp_path):
             "mpp": 0.057, "span_px": 698, "attribution": "Denver", "note": "leaf-off"}
     chips = [{"uri": "", "id": cid, "lon": -105.0, "lat": 39.7, "tiles": [],
               "published": pub, "pub": marks}
-             for cid, pub, marks in (("A", [2, 4], [[30.0, -12.0], [-45.0, 8.0]]),
+             for cid, pub, marks in (("A", [2, 4], [[30.0, -12.0, 1.7],
+                                                    [-45.0, 8.0, 2.6]]),
                                      ("B", [1, 1], []))]
     html = irs.build_sheet(meta, chips, {"city": "denver-co", "rubric": irs.RUBRIC})
     src = re.search(r"<script>\n(.*)\n</script>", html, re.S).group(1)
