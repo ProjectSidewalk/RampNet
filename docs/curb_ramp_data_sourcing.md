@@ -292,6 +292,35 @@ what the gallery is for.
 - **The witness test is one-directional.** A witnessed ramp is confirmed recognizable; an
   unwitnessed one is not confirmed *un*recognizable, since every challenger is weaker than RampNet
   on this task and may simply have missed it too.
+
+### The work that closes the bracket, and its exact size
+
+The gap between 0.009 and 0.022 is the **59 unwitnessed** silent misses. Those, and only those,
+need a reviewer:
+
+```
+python scripts/analysis/silent_witness.py --json-out analysis_out/silent_witness.json
+python scripts/analysis/miss_gallery.py --bucket silent \
+    --queue analysis_out/silent_witness.json --render analysis_out/gallery46_silent
+python scripts/analysis/make_tagger.py analysis_out/gallery46_silent
+# open analysis_out/gallery46_silent/tagger.html
+```
+
+That yields **50 crops** — 59 unwitnessed, less 9 below the 30-source-pixel floor, which are
+excluded from any rate rather than labelled. The verdict scheme is built so exactly one answer is
+sourcing-addressable:
+
+| verdict | what it means | programme |
+| :--- | :--- | :--- |
+| `visible` | clear ramp, unobstructed | **vocabulary — this is the sourcing target** |
+| `occluded` | vehicle, pole, vegetation, person | capture |
+| `lighting` | deep shadow or blown highlight | capture |
+| `surface` | debris, snow, leaves, construction | environment |
+| `not-a-ramp` | no ramp / flush or blended transition | GT disagreement |
+| `unclear` | cannot tell from this imagery | excluded from every rate |
+
+**The `visible` rate over those 50, applied to the 59, is what converts the bracket into a point
+estimate.** Until it is run, quote the bracket.
 - **Some of `merged` may be double-marked GT.** 24 of 124 pairs sit below 8 px (~25 cm at 10 m),
   which is not a physical spacing for two ramps; on the verdict splits that is plausibly one ramp
   marked twice. If so they are *spurious GT* and leave the population entirely rather than changing

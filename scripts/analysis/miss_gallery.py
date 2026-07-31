@@ -231,8 +231,26 @@ def pano_width(city, pano, panos_root=REPO, cache={}):
     return cache[key]
 
 
-def collect(bucket, field, threshold, cities, panos_root=REPO):
-    """Every miss in ``bucket`` (and optionally ``field``), with its imagery facts."""
+def load_queue(path):
+    """``{(city, pano, x, y)}`` from ``silent_witness.py``'s unwitnessed list.
+
+    The witnessed misses are already explained — some other model detected a ramp
+    there, so the imagery demonstrably contains one — and putting them in front of a
+    reviewer costs time for an answer already in hand. Restricting the gallery to the
+    unwitnessed remainder is the difference between tagging 128 crops and 59.
+    """
+    with open(path, encoding="utf-8") as fh:
+        payload = json.load(fh)
+    return {(r["city"], r["pano"], round(float(r["x"]), 6), round(float(r["y"]), 6))
+            for r in payload.get("unwitnessed", [])}
+
+
+def collect(bucket, field, threshold, cities, panos_root=REPO, queue=None):
+    """Every miss in ``bucket`` (and optionally ``field``), with its imagery facts.
+
+    ``queue``, when given, restricts the population to those points — see
+    :func:`load_queue`.
+    """
     items = []
     for city in cities:
         loaded = mt.load_rows(city, threshold, rng=None)
@@ -243,6 +261,9 @@ def collect(bucket, field, threshold, cities, panos_root=REPO):
             if r["hit"] or r["bucket"] != bucket:
                 continue
             if field and r["field"] != field:
+                continue
+            if queue is not None and (city, r["pano"], round(r["x"], 6),
+                                      round(r["y"], 6)) not in queue:
                 continue
             w = pano_width(city, r["pano"], panos_root)
             if w is None:
@@ -355,6 +376,9 @@ def main(argv=None):
                    help="Restrict to one distance population (default: both).")
     p.add_argument("--threshold", type=float, default=mt.DEFAULT_THRESHOLD)
     p.add_argument("--cities", default=",".join(US_SPLITS))
+    p.add_argument("--queue", default=None, metavar="SILENT_WITNESS_JSON",
+                   help="Restrict to silent_witness.py's UNWITNESSED list — the misses "
+                        "no other model explained, i.e. the ones that actually need eyes.")
     p.add_argument("--panos-root", default=REPO,
                    help="Checkout holding benchmark/<city>/panos (git-ignored, so in "
                         "a worktree it lives in the main checkout instead).")
@@ -366,10 +390,15 @@ def main(argv=None):
     args = p.parse_args(argv)
 
     cities = [c.strip() for c in args.cities.split(",") if c.strip()]
-    items = collect(args.bucket, args.field, args.threshold, cities, args.panos_root)
+    queue = load_queue(args.queue) if args.queue else None
+    items = collect(args.bucket, args.field, args.threshold, cities, args.panos_root,
+                    queue)
     if not items:
         print(f"no '{args.bucket}' misses matched")
         return 0
+    if queue is not None:
+        print(f"[queue] restricted to the {len(queue)} UNWITNESSED misses from "
+              f"{os.path.basename(args.queue)}; {len(items)} of them have imagery.\n")
 
     print(f"=== Gallery feasibility: '{args.bucket}' misses"
           f"{', ' + args.field + '-field' if args.field else ''} (#46) ===\n")
