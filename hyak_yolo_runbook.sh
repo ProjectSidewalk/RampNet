@@ -166,6 +166,17 @@ train)
   # Caveats from the 2026-07 runs: y11x_tiles never finished an epoch inside a ckpt
   # scheduling slice (dropped 2026-07-27, even after a 3->12 batch bump) — run it only
   # on a non-preemptable partition; YOLO11-pano collapsed at physical batch 2-4 (#70).
+  #
+  # Doing that means overriding the PARTITION and QOS, not just the account —
+  # run_yolo_train.slurm hardcodes "#SBATCH -p ckpt-g2 / -q ckpt-gpu", so an
+  # account-only override leaves the job on ckpt and faithfully reproduces the very
+  # 8.24 h slice ceiling you are trying to escape (#51). Submit such an arm by hand:
+  #   PYTHON=$PYBIN YOLO_CKPT=yolo11x.pt YOLO_DATA=$YOLODATA/tiles/data.yaml \
+  #   YOLO_IMGSZ=1024 BATCH=6 NAME=y11x_tiles \
+  #     sbatch -p gpu-l40s -A gpu-l40s-makelab -q normal --time=72:00:00 $SLURM
+  # The launcher sets no MailType either, so a hand-submitted arm is silent — the
+  # 2026-07-26 arms' mail came from their sbatch CLI. Add it after submit with:
+  #   scontrol update JobId=<id> MailType=END,FAIL,TIME_LIMIT MailUser=<you>
   sub yolo11l.pt "$YOLODATA/tiles/data.yaml" 1024 6  y11l_tiles
   sub yolo11x.pt "$YOLODATA/tiles/data.yaml" 1024 12 y11x_tiles
   sub "$YOLO26"  "$YOLODATA/tiles/data.yaml" 1024 6  y26_tiles
