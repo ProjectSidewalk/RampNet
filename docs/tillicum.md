@@ -109,6 +109,33 @@ At that ceiling:
 
 Monitor with `hyakusage`.
 
+### `debug` is free — but the two cost tools disagree (measured 2026-07-31)
+
+The full QoS table, from `sacctmgr show qos`:
+
+| QoS | Priority | UsageFactor | MaxWall | per-user cap |
+|---|---:|---:|---|---|
+| `debug` | 50 | **0.000000** | 1 h | 1 GPU, 8 CPU, 200 G, 1 node |
+| `normal` | 25 | 1.000000 | 1 day | 48 GPU |
+| `interactive` | 35 | 1.000000 | 8 h | — |
+| `urgent` | 200 | 1.000000 | 3 days | 64 GPU |
+| `long` | 25 | 1.000000 | 7 days | — |
+| `wide` | 25 | 1.000000 | 1 day | 96 GPU |
+
+`debug` bills at **UsageFactor 0** and carries *higher* priority than `normal` (50 vs
+25), so every environment and throughput probe belongs there. That is the basis for the
+"costs nothing" claim in `scripts/tillicum_smoke.slurm`.
+
+**Caveat, unresolved:** `hyakusage` does not agree. The smoke job (`198638`, 2 min on
+`debug`) shows up in its QoS breakdown as **0.03 GPU-hours, $0.03** — i.e. raw
+wall-clock × $0.90 with the 0.0 UsageFactor apparently *not* applied, even though
+`hyakusage`'s own header says "billable GPU hours = raw GPU hours × QOS multiplier."
+Slurm's accounting config and the reporting tool are stating different things, and we do
+not know which one ITBill actually follows. Worth asking UW-IT, but not urgent: `debug`
+is capped at 1 h × 1 GPU, so the exposure is **at most $0.90 per job** even if
+`hyakusage` turns out to be the honest one. Do not quote a "free" figure from this
+without saying which tool it came from.
+
 ### The 2-GPU trap for I/O-bound arms
 
 This is the cost decision specific to our workload. Our tiles arm is **I/O-bound, not
@@ -249,8 +276,38 @@ are DockerHub and the NVIDIA NGC catalog.
 **Our `environment.yml` should not be assumed to transfer.** It pins linux-64 packages
 against **CUDA 11.8**, and Tillicum is H200 (sm_90) on Rocky 9. CUDA 11.8 nominally
 covers sm_90, but a stack built for klone's OS and driver is not a safe bet on a
-different distro and a newer card. **UNVERIFIED — do not plan around either outcome
-until someone tries it.** The low-risk path is an NGC PyTorch container.
+different distro and a newer card. **Still UNVERIFIED** — nobody has tried to solve
+`environment.yml` here, because the YOLO baseline does not need it. The low-risk path
+remains an NGC PyTorch container.
+
+### The YOLO stack, however, is VERIFIED (2026-07-31)
+
+`scripts/tillicum_setup_env.sh` builds it, and it reproduces the klone `#51` toolchain
+**exactly** — confirmed by running the interpreter, not by reading a lockfile:
+
+```
+3.11.15   torch 2.13.0+cu126   ultralytics 8.4.105
+```
+
+which is character-for-character what klone's training logs report
+(`Ultralytics 8.4.105 · Python-3.11.15 · torch-2.13.0+cu126`). It lives at
+`/gpfs/projects/makelab/$USER/envs/rampnet-yolo` — the backed-up 1 TB allocation rather
+than `scrubbed`, because the environment is small and annoying to rebuild while the
+dataset is huge and reproducible. It has since driven a full 4 h 40 m production job
+(`198910`) without incident.
+
+Two details in that script worth keeping if it is ever edited:
+
+- **Conda is not optional here.** Tillicum's *system* python is 3.9.25, and the cu126
+  wheel index tops out at torch 2.8.0 for 3.9 — so a naive `pip install torch
+  ultralytics` silently yields 2.8.0 + 8.4.113 and a baseline nobody can publish. The
+  conda module is the only way to get 3.11 on this cluster.
+- **The version check is a gate, not a report.** The script refuses to install a
+  substitute torch and exits non-zero on any mismatch. That matters because installing
+  `ultralytics` last can pull its own torch over the pinned one; the post-install assert
+  is what catches it. A mismatched toolchain produces plausible numbers and an
+  unpublishable comparison, which is the failure mode `#71`'s protocol exists to
+  prevent.
 
 ## Migrating our Slurm scripts
 
