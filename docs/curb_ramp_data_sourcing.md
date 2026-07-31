@@ -1,349 +1,304 @@
 # Curb-ramp data sourcing: candidate cities for a larger Stage 1 corpus
 
 Working notes for [#59](https://github.com/ProjectSidewalk/RampNet/issues/59) — "would more
-training data buy recall?" This document answers the narrower, prior question that #59 assumes
-away: **which cities could we even source from, how much would each buy, and what would it cost
-to retrain?**
+training data buy recall?" This document answers the narrower, prior question: **which cities could
+we source from, how much would each buy, and what would it cost to retrain?**
 
-Everything with a number attached was verified live on **2026-07-30** by querying the publishing
-agency's own API (method and endpoint recorded per row, so any number here is re-derivable).
-Counts drift — these datasets are updated weekly in some cities — so treat them as a snapshot,
-not a constant.
+Live counts were verified on **2026-07-30** by querying each publishing agency's own API; the
+endpoint is recorded per row so every number is re-derivable. Counts drift (several of these refresh
+weekly), so treat them as a snapshot.
 
-**Nothing here has been acted on.** No city has been sourced, no lat/lng quality gate has been
-run, and no retrain has been attempted. This is the pre-work.
+**Nothing here has been acted on.** No city has been sourced, no location-precision assessment has
+been run on any new city, and no retrain has been attempted. This is pre-work.
+
+> **Read §2 first.** The paper already assessed location precision for eight cities, and that
+> assessment — not inventory size — is the binding constraint on everything below.
 
 ## 1. The current training corpus is mostly one city
 
-The Stage 1 corpus is built from three cities' open-government curb-ramp inventories
-(`docs/data_provenance.md` §1). Counting the source inventories rather than the derived panos:
+Stage 1 is built from three cities' open-government inventories (`docs/data_provenance.md` §1).
+Counting source inventories rather than derived panos, at today's live counts:
 
-| Training city | Ramp records | Share of training ramps |
-| :--- | ---: | ---: |
-| New York City, NY | 217,679 | **78.2%** |
-| Portland, OR | 46,065 | 16.5% |
-| Bend, OR | 14,800 | 5.3% |
-| **Total** | **278,544** | |
+| Training city | Ramp records (live) | Paper Table 1 | Share |
+| :--- | ---: | ---: | ---: |
+| New York City, NY | 217,679 | 217,680 | **78.2%** |
+| Portland, OR | 46,065 | 45,324 | 16.5% |
+| Bend, OR | 14,800 | 13,611 | 5.3% |
+| **Total** | **278,544** | 276,615 | |
 
-Which yields the published corpus: **214,376 panoramas / 849,895 labels**, split 70/20/10 with a
-**150,063-panorama train split** (paper §4.2).
+Yielding **214,376 panoramas / 849,895 labels**, split 70/20/10 with a **150,063-panorama train
+split** (paper §4.2).
 
-**This is the most consequential number in this document.** In inventory terms RampNet is largely
-an NYC curb-ramp detector with some Portland and a little Bend. It bears directly on the failure
-modes the benchmark keeps surfacing — Paterson's paired tactile surface indicators, Gainesville's
-large diagonal ramps into wide arterials (`docs/model_comparison.md`) — neither of which is NYC
-design vocabulary.
+**NYC is 78.2% of the training ramps.** In inventory terms RampNet is largely an NYC curb-ramp
+detector with some Portland and a little Bend. That bears on the failure modes the benchmark keeps
+surfacing — Paterson's paired tactile surface indicators, Gainesville's large diagonal ramps into
+wide arterials (`docs/model_comparison.md`) — neither of which is NYC design vocabulary. The lever
+this corpus is missing is plausibly **composition, not volume**.
 
-The implication for #59 is that **composition, not volume, is the lever this corpus is missing**.
-Adding ~164k ramps across four cities is only +59% in count, but it moves NYC from 78% to ~49% of
-the corpus.
+The live counts validate cleanly against the paper's Table 1 (NYC differs by 1; DC below is
+*identical*), which is a useful cross-check on the query method used throughout this document.
 
 ### Ramps → panoramas calibration
 
-278,544 ramp records produced 214,376 panoramas, so:
+278,544 ramp records produced 214,376 panoramas:
 
 > **≈ 0.77 panoramas per government ramp record** (inclusive of the ~20% negative panoramas)
 
-Use this to size any candidate. Two caveats: the ratio will run **higher in sprawl cities** (Austin,
-Charlotte — ramps are sparser, so fewer share a panorama) and **lower in dense grids** (NYC). It is
-a planning heuristic derived from three cities, not a law.
+The ratio runs **higher in sprawl cities** (ramps sparser, fewer share a panorama) and **lower in
+dense grids**. A planning heuristic from three cities, not a law.
 
-## 2. Verified candidate inventories
+## 2. Location precision is the binding constraint, and the paper already measured it
 
-Roughly ordered by size, with unverified and disqualified entries last. "Verified" means the count
-was returned by the agency's own API on 2026-07-30.
+**Paper §3.1, Table 1.** Eight government datasets were assessed by **manually overlaying curb-ramp
+locations on an aerial imagery base map** and judging whether coordinates land on the physical ramp
+(Fig. 2). One city rated Poor, four OK, three Good.
 
-| Jurisdiction | Ramp records | Endpoint / source | Notes |
+> *"For our purposes, we use all data from the good category: New York City, NY; Portland, OR; and
+> Bend, OR — all which offer precise and diverse curb ramp styles."*
+
+**The selection rule was "Good only."** The current corpus is not three cities because three were
+available — it is three cities because **only three passed**.
+
+| City | Paper count | **Precision** | Status |
 | :--- | ---: | :--- | :--- |
-| **VDOT** (Virginia, statewide) | **83,000** | `services.arcgis.com/p5v98VHDX9Atv3l7/…/ADA_Curb_Ramp_Condition_FS_9_View` | State highway ROW **only** — arterials through many towns, not whole cities |
-| **Austin, TX** | **49,796** | `services.arcgis.com/0L95CJ0VTaxqcmED/…/TRANSPORTATION_curb_ramps` | City of Austin CTM |
-| **WisDOT** (statewide) | ~49,000 | `data-wisdot.opendata.arcgis.com` | *Documented estimate, not queried.* Desktop inventory built 2014/15 from photo log + satellite; annual updates |
-| **Seattle, WA** | **46,386** total / **38,468 active** | `services.arcgis.com/ZOyb2t4B0UYuYNYH/…/Curb_Ramps_(Active)` | Weekly refresh. Carries **condition, width, install date** — see §5 |
+| New York City, NY | 217,680 | **Good** | in training |
+| Portland, OR | 45,324 | **Good** | in training |
+| Bend, OR | 13,611 | **Good** | in training |
+| Los Angeles, CA | 91,759 | OK | assessed, unused |
+| Austin, TX | 48,995 | OK | assessed, unused |
+| Washington, DC | 34,859 | OK | assessed, unused |
+| Nashville, TN | 18,285 | OK | assessed, unused |
+| **Seattle, WA** | 45,653 | **Poor** | **assessed, rejected** |
+
+### ⚠️ Seattle is rated Poor — do not treat it as the obvious first add
+
+Seattle looks like the ideal candidate on every other axis: the highest scorer in Deitz's 178-city
+sample (13/14), a weekly refresh, ~46k records, rich attributes (condition, width, install date),
+and it is **already contamination-burned** via the crop model, so training on it would cost no
+evaluation ground. An earlier draft of this document recommended it first on exactly that reasoning.
+
+**Table 1 rates its location precision Poor**, which is the one criterion that disqualifies a
+dataset for Stage 1 — the pipeline projects the government coordinate onto the panorama, so a
+misplaced coordinate produces a misplaced label. Rich attributes do not compensate.
+
+Seattle may still matter for [#86](https://github.com/ProjectSidewalk/RampNet/issues/86) (condition
+and width supervision does not need the point to be pixel-accurate), and the rating predates several
+years of weekly updates so a re-assessment is defensible. But **it cannot be the default first add**,
+and any argument for it has to start by contesting Table 1.
+
+### What this reframes
+
+The candidate pool splits three ways, and only the third has real upside:
+
+- **Good (276,615)** — already fully used. There is no unexploited good data in Table 1.
+- **OK (193,898)** — LA, Austin, DC, Nashville. Available, assessed, deliberately not used. Taking
+  them is a **quality step-down the paper chose not to make**, and doing so should be an explicit,
+  recorded decision rather than a side effect of chasing a number.
+- **Unassessed** — every city in §3 that is not in Table 1. This is where the upside is, and none of
+  it is known-good yet.
+
+## 3. Candidate inventories not in Table 1 (unassessed)
+
+Live counts, 2026-07-30. **None has had its location precision assessed.** Ordered by size.
+
+| Jurisdiction | Ramp records | Endpoint | Notes |
+| :--- | ---: | :--- | :--- |
+| **VDOT** (Virginia, statewide) | **83,000** | `services.arcgis.com/p5v98VHDX9Atv3l7/…/ADA_Curb_Ramp_Condition_FS_9_View` | State highway ROW only. ⚠️ **includes Richmond** — see §6 |
+| **Denver, CO** | **72,770** | `services1.arcgis.com/zdB7qR0BtYrg0Xpl/…/ODC_TRANS_CURBRAMPS_P` (layer **228**) | Largest city inventory found. ⚠️ *"delineated from 2022 aerial imagery"* — derived; recent, but verify it is per-ramp |
+| **San Francisco, CA** | **50,096** | `services.arcgis.com/Zs2aNLFN00jrS4gG/…/Curb_Ramps_from_DataSF_pulled_weekly_` | Mirrors DataSF, **pulled weekly** |
+| **WisDOT** (statewide) | ~49,000 | `data-wisdot.opendata.arcgis.com` | *Not queried.* ⚠️ 2014/15 **desktop** inventory from photo log + satellite |
+| **NYSDOT** (statewide) | **42,297** | Socrata `data.ny.gov/resource/hmbc-hni2` | State ROW. NYC already in training — de-dup needed |
 | **Charlotte, NC** | **40,601** | `gis.charlottenc.gov/…/CDOT_ADA/ADA_Curb_Ramps/MapServer/0` | From Charlotte's ADA self-evaluation |
-| **Washington, DC** | **34,859** | `maps2.dcgis.dc.gov/…/Transportation_ADA_WebMercator/MapServer/3` | ⚠️ **Captured 2016** — a 10-year-old snapshot; see §4 |
-| **NYSDOT** (New York, statewide) | **42,297** | Socrata `data.ny.gov/resource/hmbc-hni2` | *Curb Ramps on NYS-Owned Highways.* State ROW; NYC is already in training but NYS-owned mileage inside NYC is small |
-| **CDOT** (Colorado, statewide) | **24,549** | Socrata `data.colorado.gov/resource/sb9m-ecvv` | *State Highway On-System Curb Ramps.* State ROW only |
-| **Minneapolis, MN** | **18,447** | `services.arcgis.com/afSMGVsC7QlRK1kZ/…/Minneapolis_ADA_Ped_Ramps_-_View_Layer_` | Official city account; consistent with the 17,800 in their 2020 ADA Transition Plan |
-| **Raleigh, NC** | ~14,550 | City sidewalk/pedestrian facility assessment (PDF) | *Reported in a study document, not queried* |
-| Spokane WA · Tacoma WA · Dallas TX | exists, **count not pulled** | ArcGIS Hub / city portals | Confirmed to publish a curb-ramp layer |
-| **Los Angeles, CA** | exists, count not pulled | `services5.arcgis.com/7nsPwEMP38bSkCjy/…/Sidewalks_Mapped_Areas` | ⚠️ **corner-centroid, not ramp-located** — see §4a |
-| **Chicago, IL** | **none published** | — | See below |
-| **Oakland, CA** | **4** | Socrata `data.oaklandca.gov/resource/uq94-uqnq` | Dataset exists but is effectively a stub |
-| **Columbus, OH** | **none found** | — | See below |
+| **CDOT** (Colorado, statewide) | **24,549** | Socrata `data.colorado.gov/resource/sb9m-ecvv` | State ROW only |
+| **Boston, MA** | **24,022** | `gisportal.boston.gov/…/Infrastructure/OpenData/MapServer/3` | *Pedestrian Ramp Inventory*, BostonGIS |
+| **Sioux Falls, SD** | **19,977** | `gis.siouxfalls.gov/…/Data/Transportation/MapServer/15` | Remarkable for a 200k city — matches Deitz's account of a post-FHWA-complaint data programme |
+| **Minneapolis, MN** | **18,447** | `services.arcgis.com/afSMGVsC7QlRK1kZ/…/Minneapolis_ADA_Ped_Ramps_-_View_Layer_` | Consistent with the 17,800 in their 2020 ADA Transition Plan |
+| **Arlington, VA** | **10,342** | `arlgis.arlingtonva.us/…/Open_Data/od_Sidewalk_ADA_Ramps` | |
+| **Raleigh, NC** | ~14,550 | City pedestrian facility assessment (PDF) | *Reported in a study document, not queried* |
+| Spokane WA · Tacoma WA · Dallas TX | exists, not pulled | ArcGIS Hub / city portals | Confirmed to publish a layer |
+| **Phoenix, AZ** | gated | CurbPHX | Comprehensive, rich attributes (width, curb height, surface condition) — **behind a city login**. Request-access candidate |
+| **Chicago, IL** | none published | — | See below |
+| **Atlanta, GA** | 4,517 (wrong polarity) | `services2.arcgis.com/zLeajbicrDRLQcny/…/MAF_Missing_ADA_Ramps_Draft` | See below |
+| Columbus OH · Houston TX · Des Moines IA · Pittsburgh PA · Oakland CA | none found | — | See below |
 
-### Chicago: 137,000 ramps installed, none published as an inventory
+**Unassessed city total: ~236,000 ramps** (Denver, SF, Charlotte, Boston, Sioux Falls, Minneapolis,
+Arlington). Plus ~199,000 across four state DOTs.
 
-Chicago would have been the single highest-value candidate — CDOT states it has installed
-**over 137,000 ADA ramps citywide since 2006** (~7,000/year), and Chicago is **already
-contamination-burned** via the crop model, so it would have been free to train on.
+### Negative results
 
-But that figure is a *program statistic on a department page, not a dataset*. A search of the
-Chicago Socrata portal (`data.cityofchicago.org`) for ramp-related datasets returns only traffic
-crash data. **Recorded as a negative result**: the ramps exist, the count is public, the
-geolocated inventory is not.
+- **Chicago** would have been the highest-value candidate — CDOT states **137,000+ ramps installed
+  since 2006**, and Chicago is **already contamination-burned**, so it would have been free. But that
+  is a program statistic on a department page; the Socrata portal returns only crash data. **The
+  ramps exist, the count is public, the geolocated inventory is not.**
+- **Pittsburgh** — also contamination-burned, also unavailable. WPRDC carries steps, signalized
+  intersections and centerlines but no ramps; the regional SPC layer's host refused connection; the
+  two ArcGIS hits are vendor consulting deliverables (913 features). Worth one email to WPRDC.
+- **Columbus** (score 9, contamination-burned) — only a *UIRF Planned Projects* layer.
+- **Houston** — sidewalk permits, a sidewalk asset layer, service areas. No ramp inventory.
+- **Des Moines** — sidewalk centerlines only. **Oakland** — Socrata dataset returns 4 records.
 
-### Columbus: no public point inventory located
-
-Columbus scored 9/14 in Deitz et al. and is **already contamination-burned** via the crop model
-(`docs/data_provenance.md` §1), which would have made it a free city to train on. A title search of
-ArcGIS Online returned only a *UIRF Planned Projects* layer (planned work, not an inventory).
-
-This is consistent with Deitz's Table 6: at score 9, only 1 of 2 cities carried curb-ramp data, and
-Columbus appears to be the one that does not. **Recorded as a negative result** — someone should
-check `opendata.columbus.gov` directly before concluding it, but do not assume Columbus is available.
-
-### Searching below the Deitz cutoff: 1 hit in 6
-
-Deitz's sample is stale and incomplete (§3), so six large cities that scored *below* their
-curb-ramp cutoff were checked directly: **Minneapolis, Des Moines, Houston, Phoenix, Atlanta,
-Pittsburgh.** Result — **one usable inventory**:
-
-| City | Outcome |
-| :--- | :--- |
-| **Minneapolis** | ✅ **18,447** ADA ped ramps, official city account. Deitz score 7 — *above* the cutoff |
-| **Phoenix** | ⚠️ Exists but **not open**. CurbPHX is a comprehensive sidewalk + curb-ramp inventory with width, curb height, construction date and surface condition — accessed "with their city login". A **request-access** candidate, not a dead end, and its attributes are unusually rich (§5) |
-| **Atlanta** | ⚠️ Inverted polarity — see below |
-| **Houston** | ❌ Sidewalk permits, a sidewalk asset layer, service areas. No ramp inventory |
-| **Des Moines** | ❌ Sidewalk centerlines only |
-| **Pittsburgh** | ❌ Not published as open data. WPRDC carries steps, signalized intersections, centerlines — no curb ramps. A regional SPC layer exists (`spcarcgis.org`) but the host refused connection; two vendor layers (Precision Safe Sidewalks 913 features, DeepWalk) are consulting deliverables, not city open data. **Costly, because Pittsburgh is contamination-burned and would have been free** |
-
-**The one city that had data is the one that scored above Deitz's cutoff.** That is weak evidence
-(n=6) but it points the same way as their finding: curb-ramp inventories cluster in top-quartile
-open-data cities, and hunting below that line has poor yield. The 1,469 ArcGIS items are mostly
-small towns, counties, vendor deliverables and app layers — not big-city inventories.
-
-**Practical consequence: prefer verifying the ~8 known-good inventories over discovering more.**
-
-### Atlanta publishes *missing* ramps — the wrong polarity for Stage 1, the right one for #86
+### Atlanta publishes *missing* ramps — wrong polarity for Stage 1, right one for #86
 
 Atlanta's *Moving Atlanta Forward Draft ADA Ramp Installation Locations* holds **4,517 features**,
-but they are locations where ramps are **planned because none exists**. Useless for Stage 1, which
-needs the positions of ramps that are actually in the imagery.
+but they are locations where a ramp is **planned because none exists**. Useless for Stage 1.
 
-It is, however, potentially valuable for a different problem. **Absence ≠ negative** is named in
-[#86](https://github.com/ProjectSidewalk/RampNet/issues/86) as one of RampNet 2.0's hard parts, and
-it is the mechanism behind this issue's label-ceiling argument: we cannot currently distinguish "no
-ramp here" from "a ramp we failed to record." A municipally-attested list of corners that **lack** a
-ramp is exactly **confirmed-absence supervision** — true negatives with provenance.
+Potentially valuable elsewhere: **absence ≠ negative** is named in #86 as one of RampNet 2.0's hard
+parts, and it is the mechanism behind this issue's label-ceiling argument — we cannot distinguish
+"no ramp here" from "a ramp we failed to record." A municipally-attested list of corners that
+**lack** a ramp is **confirmed-absence supervision**: true negatives with provenance. Opportunistic
+find; not part of any route below, and "Draft" should be taken seriously.
 
-Worth noting as an opportunistic find; it is not part of any scaling route above, and the "Draft"
-in the title should be taken seriously.
+### On search method: terminology is the trap
 
-### The supply is much larger than the literature suggests
+Naming is wildly inconsistent — *Curb Ramps* (Seattle, Portland), *Pedestrian Ramp Locations* (NYC),
+*ADA Ped Ramps* (Minneapolis), *Pedestrian Ramp Inventory* (Boston), *Access Ramps* (LA), *Sidewalk
+ADA Ramps* (Arlington), *sCurbRamps* (Bend).
 
-A title search for "curb ramp" on ArcGIS Online returns **1,469 items**. Two categories that the
-municipal-portal literature misses entirely:
+An earlier pass of this document searched titles for "curb ramp" only, concluded supply was thin,
+and recommended verifying rather than searching further. **That was wrong** — a title search for
+"curb ramp" does not match NYC's own dataset. Re-running across *pedestrian ramp*, *ADA ramp*, *ped
+ramp*, *access ramp* and *curb cut* surfaced Denver, San Francisco, Boston, Sioux Falls, Nashville
+and Arlington in a single pass, adding ~195k ramps. Anyone extending this list should search the
+synonym set, not the phrase.
 
-- **State DOT inventories** (VDOT 83k, WisDOT ~49k, MnDOT, DelDOT). These cover many cities at once
-  but only along state highway right-of-way — arterials and connecting highways. Partial per city,
-  and skewed toward exactly the wide-arterial context Gainesville's failures cluster in.
-- **County and small-city layers** (Leon County FL, Tacoma, Westfield IN, Fitchburg WI, …). Mostly
-  small — Leon County returns **191** features — so the tail is long but thin.
+## 4. Deitz et al. (2021) — already cited by the paper as [10]
 
-## 3. What Deitz et al. (2021) does and does not give us
+[Deitz, Lobben & Alferez 2021](https://doi.org/10.1177/20539517211047735) scored 178 US
+municipalities on 14 accessibility data features. **The RampNet paper already draws on it** (§3.1:
+"of the 178 US cities studied in [10], 90% published open street data but only 34% had sidewalk data
+and far fewer (10%) included curb ramps").
 
-[Deitz, Lobben & Alferez 2021](https://doi.org/10.1177/20539517211047735), *Squeaky wheels: Missing
-data, disability, and power in the smart city*, scored 178 US municipalities on 14 accessibility
-data features. It is the only systematic survey we know of, and it is **useful as a candidate
-generator**:
+Useful additional structure for candidate generation:
 
 - Curb-ramp data appears **only in municipalities scoring ≥7** of 14 — sole exception Los Angeles
-  (score 4, and the authors flag it as incomplete, 2014 installs only). So their Table 9
-  (all cities scoring ≥6) is effectively the candidate pool.
-- **Seattle is the highest scorer in the entire sample (13/14).** Portland and Washington DC tie at
-  12; NYC is at 10. RampNet's existing choice of Portland and NYC is corroborated independently.
-- Only **17%** of municipalities with any accessibility data had curb ramps — 18 cities of 178.
+  (score 4, flagged incomplete). Their Table 9 (cities ≥6) is effectively the candidate pool, and it
+  is how Denver, Boston, SF, Sioux Falls, Madison, Nashville and Arlington were located here.
+- **Seattle is the highest scorer in the sample (13/14)** — a reminder that open-data maturity and
+  *coordinate precision* are different things, since Table 1 rates it Poor.
 
-Three limits that matter for our purposes:
+Three limits: the portal review ran **June 2019 – March 2020**; the sample is large municipalities
+only, so **Bend is not in it at all**; and portal-based discovery misses the ~1,469 ArcGIS items,
+including state DOTs.
 
-1. **Six years stale.** Portal review ran June 2019 – March 2020. Charlotte, Austin, and Seattle
-   have all published or substantially grown inventories since.
-2. **It undercounts by construction.** The sample is municipalities >150k population, plus the ten
-   most populous per census subregion and the most populous per state. **Bend, OR is not in the
-   sample at all** — one of RampNet's own three training cities, with a perfectly good 14,800-ramp
-   inventory, is invisible to their method. Their 17% is a floor for large cities, not a ceiling for
-   all cities.
-3. **Portal-based discovery misses ArcGIS Online.** They searched municipal open data portals; the
-   1,469 ArcGIS items above include state DOTs and county layers their method would not surface.
+A **1-hit-in-6 test of cities below the cutoff** (Minneapolis, Des Moines, Houston, Phoenix, Atlanta,
+Pittsburgh) found only Minneapolis — which itself scores 7, i.e. above the line. Weak evidence
+(n=6), but it points the same way as the paper: hunting below the cutoff has poor yield, while the
+score-≥7 pool is productive.
 
-## 4. Prerequisite: the lat/lng quality gate
+## 5. The location-precision assessment (the critical path)
 
-**This gates everything downstream and should run before any city is sourced.** Stage 1 projects a
-government GPS point onto a panorama; the label is only as good as that coordinate. A city with a
-large but poor inventory is worse than a small good one, because of the mechanism in #59: an
-unlabeled ramp inside a positive panorama gets a **zero** in the target heatmap, so bad or missing
-records actively train the model to suppress detections.
+The paper's method is **qualitative**: overlay coordinates on aerial imagery, judge alignment
+visually, bucket Good / OK / Poor. No thresholds are published. Replicating it for a new city is
+cheap — no GPU, no pipeline run, no sourcing commitment — and it is the **gate every unassessed city
+in §3 must pass**.
 
-Per candidate city, before committing:
+Worth quantifying while extending it, so the tiers stop being a judgment call:
 
-| Check | Why it matters | Cheap test |
+| Check | Why it matters | Test |
 | :--- | :--- | :--- |
-| **Positional accuracy** | Stage 1 assumes the point is *at* the ramp. Systematic offset (e.g. recorded at the intersection centroid or the parcel) shifts every label in that city. | Sample ~50 points, compare against the ramp's visible position in GSV |
-| **Per-ramp vs per-corner** | If a city records one point per *corner*, paired ramps collapse to one label — **the exact supervision gap behind Paterson's failure**. NYC's 217,679 over ~120k intersections implies ~1.8/intersection, i.e. per-ramp. | Count records per intersection; inspect a paired corner |
-| **Staleness** | DC's data was **captured in 2016**. Ramps built since are missing (label-recall loss); ramps removed are phantom labels (label-precision loss). | Check the capture/update date; compare install-date distribution against the GSV capture date |
-| **Completeness** | This is the label-recall term that sets the ceiling. Stage 1 agreement is currently **P .9403 / R .9245** against the manual gold set; a patchier city lowers it. | Spot-check N intersections in GSV for ramps absent from the inventory |
-| **CRS / datum** | A wrong projection silently shifts an entire city. | Confirm the declared CRS and round-trip a few known points |
-| **Active vs retired** | Seattle publishes 46,386 total but **38,468 active** — the difference is retired records that may no longer exist on the ground. | Prefer the active filter where the publisher provides one |
+| **Positional offset** | The Stage 1 mechanism. Fig. 2b is the failure. | Sample ~50 points/city, measure metres from the true ramp on aerial imagery; report a distribution, not a bucket |
+| **Per-ramp vs per-corner** | If a city records one point per *corner*, paired ramps collapse to one label — **the supervision gap behind Paterson's failure** | Records per intersection; inspect a paired corner. NYC's ~1.8/intersection implies per-ramp |
+| **Staleness** | DC's live count is *identical* to the paper's, corroborating a static 2016 capture. Ramps built since are missing (recall loss); removed ramps are phantom labels (precision loss) | Compare capture date to GSV capture date |
+| **Completeness** | The label-recall term that sets the ceiling. Stage 1 agreement is **P .9403 / R .9245** | Spot-check N intersections in GSV for ramps absent from the inventory |
+| **CRS / datum** | A wrong projection silently shifts a whole city | Round-trip known points |
+| **Active vs retired** | Seattle publishes 46,386 total but 38,468 active | Prefer the publisher's active filter |
 
-Seattle is the strongest here and DC the weakest: Seattle refreshes weekly and publishes condition,
-width, and install date; DC is a single 2016 capture.
+A quantitative offset distribution would also let the OK tier be re-examined: "OK" may mean 2 m or
+8 m, and that difference plausibly decides whether LA's 91,759 records are usable.
 
-### 4a. Two candidates already fail the gate on their published description
+**One discrepancy to resolve.** Table 1 rates **LA "OK"** at 91,759, but LA's published Access Ramps
+layer is documented as *"the geographic center of corner polygon features, with attributes indicating
+the presence or absence of a wheelchair access ramp"*, derived from 2014 aerial imagery — i.e.
+corner-centroid, not ramp-located. Either they assessed a different layer or "OK" tolerates
+corner-level placement. Worth settling before counting LA's 91,759.
 
-Neither has been field-checked; both are disqualified (or heavily discounted) by what the
-publisher says about their own data:
+## 6. Routes to a 500,000-ramp corpus
 
-- **Los Angeles — corner-centroid, not ramp-located.** The Access Ramps layer is documented as
-  *"a point feature that shows the geographic center of corner polygon features, with attributes
-  indicating the presence or absence of a wheelchair access ramp."* That is the wrong quantity for
-  Stage 1: the point is the **corner's centre**, not the ramp, so every label would be
-  systematically displaced — and a corner with two ramps yields one point carrying a boolean.
-  It is also derived from **2014 LARIAC aerial imagery** (built 2017), not survey. This is the
-  per-ramp-vs-per-corner failure mode in its purest form.
-- **WisDOT — desktop-derived, not surveyed.** Built 2014/15 from the WisDOT photo log and Google
-  Earth satellite imagery, with field survey replacing desktop records only as ramps are rebuilt.
-  Positional accuracy is inherited from photo-log interpretation.
-
-**The pattern is the point: the largest available inventories are disproportionately the derived,
-stale, or wrong-geometry ones.** Surveyed, current, per-ramp city inventories (Seattle, Austin,
-Charlotte) are the smaller numbers. Any scaling plan should expect label quality to fall as it
-scales, which is exactly the direction that hurts under this issue's label-ceiling mechanism.
-
-## 5. Beyond location: attributes we currently discard
-
-Per [#86](https://github.com/ProjectSidewalk/RampNet/issues/86), RampNet 2.0 expands scope from
-*find* to *measure / condition / tag*, and we currently discard government attributes at ingest
-(keeping lat/lng/date only). Some candidate inventories carry exactly that supervision:
-
-- **Seattle** — condition, ramp width, install date, direction, assessment date.
-- **VDOT** — the layer is explicitly *ADA Curb Ramp **Conditions***.
-- **Charlotte** — built from an ADA self-evaluation, so compliance attributes.
-
-If #86 proceeds, city selection should weigh attribute richness, not just record count. Seattle is
-the standout on this axis.
-
-## 6. Cost of the five-city scenario
-
-Scenario: add **DC + Seattle + Austin + Charlotte + Columbus**. Columbus has no locatable inventory
-(§2), so the arithmetic below is the **four-city** version. Seattle uses the *active* count.
-
-| | Ramps | Panoramas (× 0.77) | Train split (70%) | Steps (÷16) |
-| :--- | ---: | ---: | ---: | ---: |
-| Current | 278,544 | 214,376 | 150,063 | 9,379 |
-| **+ DC, Seattle, Austin, Charlotte** | **442,268** | **~340,400** | **~238,300** | **~14,890** |
-| Growth | +59% | **1.59×** | | |
-
-NYC's share falls from **78.2% → 49.2%**.
-
-### Wall-clock
-
-**Stage 2 training** is the only stage with a published anchor: the paper trained **1 epoch on 16
-L40s** (4 nodes × 4 GPUs, `stage_two/run_train.slurm`), batch size 1 per GPU (VRAM-bound), and the
-README states it *"will take a very long time (> 24 hours)"*. Neither the paper nor the repo records
-an exact wall-clock, so **>24 h is a floor, not a measurement**.
-
-Scaling that floor by 1.59×:
-
-- **Stage 2, 1 epoch: ≳ 38 h on 16 L40s** (≳ 610 GPU-hours).
-- If #84's epoch curve runs first (2–4 epochs), multiply accordingly — 4 epochs is ≳ 150 h.
-
-**Stage 1 dataset generation is the long pole and it is entirely unmeasured.** Roughly 126k new
-panoramas must be fetched from Google's undocumented tile endpoints (32 tiles each at zoom 3 ≈ **4M
-tile requests**) and passed through the crop model. `run_download_dataset.slurm` allocates
-`--time=100:00:00`, which suggests the authors expected it to be long. The fetch runs 26 panoramas
-concurrently (`ThreadPoolExecutor(max_workers=26)`, 50 threads per pano for tiles). Rate limiting
-against unofficial endpoints is the dominant risk and cannot be estimated from the repo.
-
-**Order-of-magnitude total: about a week of wall-clock**, dominated by the Stage 1 fetch, assuming
-nothing throttles or breaks. The estimate has wide error bars on the Stage 1 half.
-
-**The crop model does not need retraining.** It is a keypoint placer, loaded from a hardcoded path
-by `dataset_generation/inference_isolator.py`. Reusing it is also the better experiment: only the
-data changes, so any delta is attributable.
-
-## 7. Routes to a 500,000-ramp corpus
-
-**Be explicit about which 500k is meant** — the two targets differ by more than a factor of two:
+**Be explicit about which 500k is meant:**
 
 - **500k ramp *records*** → need **+221,456** on today's 278,544.
 - **500k *panoramas*** → needs ~650k ramps at the 0.77 ratio. A much larger programme.
 
-For the ramp target, the four clean city inventories get most of the way but **do not close it**:
+For the ramp target, tiering by Table 1 gives the decisive result:
 
-| Route | Sources | Ramps |
-| :--- | :--- | ---: |
-| Clean city core | Austin + Charlotte + Seattle(active) + DC | 442,268 |
-| **+ Minneapolis** | + 18,447 | 460,715 |
-| **D** — core + Minneapolis + NYSDOT | + 42,297 | **503,012** ✅ *fewest sources* |
-| **A** — core + two state DOTs | + NYSDOT 42,297 + CDOT 24,549 | **509,114** ✅ |
-| **B** — core + WisDOT + Raleigh | + ~49,000 + ~14,550 | **505,818** ✅ |
-| **C** — core + VDOT | + 83,000 | 525,268 ⚠️ *see below* |
+| Pool | Ramps | Cumulative |
+| :--- | ---: | ---: |
+| **Good** (NYC + Portland + Bend) — already used | 276,615 | 276,615 |
+| **+ all OK** (LA + Austin + DC + Nashville) | 193,898 | **470,513** ❌ |
+| **+ unassessed cities** (Denver, SF, Charlotte, Boston, Sioux Falls, Minneapolis, Arlington) | ~236,000 | ~706,500 |
+| **+ state DOTs** (VDOT, WisDOT, NYSDOT, CDOT) | ~198,800 | ~905,300 |
 
-**500k is reachable, and five to six sources get there.** Discovery is no longer the constraint.
-Route **D** is the cheapest — five city inventories plus a single state layer.
+> **500,000 is not reachable on assessed data alone.** Good + *every* OK city reaches **470,513** —
+> about 30k short — and that is already after accepting a quality tier the paper deliberately
+> rejected. **Every route to 500k depends on cities whose location precision nobody has checked.**
 
-**But note what closes the gap.** The clean surveyed city core tops out at **442k (460k with
-Minneapolis) — 88–92% of target**. Every route to the remainder draws on state-DOT right-of-way data
-(state highways only, derived rather than surveyed) or on stale city captures. Per §4a, **the
-marginal ramps are materially lower quality than the first 164k**, and under this issue's
-label-ceiling mechanism low-quality labels are not neutral — a missed or displaced ramp becomes a
-zero in the target heatmap.
-
-No combination of *surveyed, current, per-ramp city* inventories that we have found reaches 500,000.
-That is the finding, and it should shape whether 500k is the right milestone.
-
-There is a genuine counter-argument worth testing rather than assuming: state-DOT data covers
-**arterials and connecting highways**, which is disproportionately the wide-arterial, far-field
-context where Gainesville's misses cluster. Lower positional fidelity, but possibly better coverage
-of the failure regime. That is an empirical question, not a settled one.
+That makes §5 the critical path, not discovery. Concretely: assessing the seven unassessed cities is
+a few days of visual work with no compute, and it determines whether 500k is a real target or an
+arithmetic one. If roughly 60% of that ~236k passes at Good, 500k clears comfortably on
+city-inventory data alone, with no state-DOT tail.
 
 ### ⚠️ VDOT would burn the Richmond benchmark split
 
-VDOT is the single largest source (83,000) and the most tempting way to close the gap in one step.
-It is **statewide Virginia, which includes Richmond** — one of the nine benchmark splits, and the
-Mapillary out-of-distribution flagship. Training on it unclipped destroys that split's status as
-held-out.
+VDOT is the largest single source (83,000) and the most tempting one-step fix. It is **statewide
+Virginia, which includes Richmond** — one of the nine benchmark splits and the Mapillary
+out-of-distribution flagship. Training on it unclipped destroys that split's held-out status.
 
-Mitigation: clip the VDOT layer to exclude the Richmond deployment footprint (the same dissolved
-PS-regions polygon the benchmark uses) before ingest. Feasible, but it must be a deliberate step —
-the failure mode here is silent.
+Mitigation: clip to exclude the Richmond deployment footprint (the same dissolved PS-regions polygon
+the benchmark uses) before ingest. Feasible, but the failure mode is silent. **NYSDOT** needs the
+same treatment for NYC overlap.
 
-A related check applies to **NYSDOT**: NYC is already a training city, so NYS-owned mileage inside
-NYC would be duplicate rather than new geography. The overlap is small (most NYS-owned highway is
-outside the five boroughs) but it should be de-duplicated, not assumed away.
+## 7. Retrain cost
+
+Scenario: **+ DC, Austin, Charlotte, Minneapolis** (a mix of OK-tier and unassessed, sized to be
+illustrative rather than recommended).
+
+| | Ramps | Panos (× 0.77) | Train split | Steps (÷16) |
+| :--- | ---: | ---: | ---: | ---: |
+| Current | 278,544 | 214,376 | 150,063 | 9,379 |
+| + four cities | ~422,000 | ~325,000 | ~227,500 | ~14,200 |
+| Growth | +52% | **1.52×** | | |
+
+- **Stage 2: ≳36 h on 16 L40s** for one epoch (≳580 GPU-h) — the paper trained 1 epoch on 16 L40s,
+  batch 1 per GPU (VRAM-bound), and the README says it *"will take a very long time (> 24 hours)"*.
+  **>24 h is a floor, not a measurement**; no exact wall-clock is recorded anywhere.
+- **Stage 1 generation is the long pole and is entirely unmeasured** — ~111k new panoramas at 32
+  tiles each ≈ **3.5M tile requests** against Google's undocumented endpoints, fetched 26 panoramas
+  at a time. `run_download_dataset.slurm` allocates 100 h. Rate limiting is the dominant risk.
+- **The crop model needs no retrain** — reusing it is also the cleaner experiment, since only the
+  data changes.
+
+Order of magnitude: **about a week of wall-clock**, wide error bars on the Stage 1 half. Add #84's
+epoch curve and multiply.
 
 ## 8. Selection rule
 
 **Train on cities you would never want as a benchmark split.** Every city added to training is
 permanently disqualified as clean evaluation ground.
 
-- **Seattle is already burned** — it is in the crop-model contamination registry via Project
-  Sidewalk (`docs/data_provenance.md` §1), so training on it costs nothing we still hold. Columbus
-  would have been too, but appears to have no inventory.
-- **Austin, Charlotte, and DC are registry-clean**, so training on them forecloses them as future
-  splits. Acceptable — none is among the current nine — but it should be deliberate.
-- **Do not add Paterson or Gainesville to training.** They are two of only three GSV benchmark
-  splits, i.e. nearly all of our in-domain-imagery evaluation.
+- **Already contamination-burned, so free** — Seattle, Columbus, Chicago, Pittsburgh, St. Louis,
+  Knoxville and the other crop-model cities (`docs/data_provenance.md` §1). Painfully, **Seattle is
+  rated Poor and the other three publish no inventory**, so this category currently yields nothing.
+- **Registry-clean, so costly** — Austin, Charlotte, DC, Denver, SF, Boston, Sioux Falls,
+  Minneapolis, Arlington. Training on them forecloses them as future splits. Acceptable, since none
+  is among the current nine, but it should be deliberate.
+- **Never add Paterson or Gainesville** — two of only three GSV benchmark splits, i.e. nearly all
+  in-domain-imagery evaluation.
 
-### The tension worth naming
+### Diversity, if precision permits
 
-**Seattle is the safest add and the weakest diversity add.** It is a third Pacific Northwest city
-alongside Portland and Bend, sharing regional design standards, climate, and street-grid era. The
-cities that actually attack the vocabulary gap behind the Paterson and Gainesville failures are the
-Sunbelt/Southeast ones — **Austin and Charlotte**.
-
-If only one city is added first, adding Seattle tests the *least* interesting axis. Pair it with
-Austin or Charlotte in the same run.
+The composition argument in §1 favours cities that are *not* NYC-like and not Pacific-Northwest-like:
+Austin, Charlotte and Nashville attack the Sunbelt/Southeast vocabulary gap behind the Paterson and
+Gainesville failures. But **precision gates diversity** — a Good-rated bland city beats a Poor-rated
+diverse one, because the Poor city's labels are wrong wherever they land.
 
 ## 9. Caveats
 
-- **Counts are a 2026-07-30 snapshot.** Several of these refresh weekly.
-- **Record count ≠ ramp count.** Inventories may hold multiple records per physical ramp, or one per
-  corner. §4 covers the test; it has not been run.
-- **No inventory here has passed a quality gate.** §4 is the checklist, not a result.
-- **Two counts are secondhand** (WisDOT ~49,000, Raleigh ~14,550) — from published documents, not
-  queried APIs. They are marked as such above and should be verified before use.
-- **The 0.77 panoramas-per-ramp ratio is derived from three cities**, two of which are dense grids.
-  It is the weakest link in the §6 arithmetic.
+- **Counts are a 2026-07-30 snapshot**; several refresh weekly.
+- **Only Table 1's eight cities have any precision assessment.** Everything in §3 is unassessed, and
+  size says nothing about usability.
+- **Record count ≠ ramp count.** Inventories may hold multiple records per ramp, or one per corner.
+- **Two counts are secondhand** — WisDOT ~49,000, Raleigh ~14,550 — from documents, not APIs.
+- **The 0.77 panoramas-per-ramp ratio comes from three cities**, two of them dense grids. It is the
+  weakest link in §7.
 - **Nothing here measures whether more data helps.** That is #59's E1–E3. This document only
-  establishes what sourcing would cost if the answer turns out to be yes.
+  establishes what sourcing would cost if the answer is yes.
