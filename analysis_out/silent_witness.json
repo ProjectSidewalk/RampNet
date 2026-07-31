@@ -1,0 +1,489 @@
+{
+  "bucket": "silent",
+  "threshold": 0.3,
+  "n": 128,
+  "per_model": {
+    "gemini-3.6-flash": {
+      "witnessed": 33,
+      "expected": 8.111226411307465,
+      "excess": 24.888773588692537
+    },
+    "gemini-3.1-pro-preview": {
+      "witnessed": 46,
+      "expected": 9.437716632983115,
+      "excess": 36.56228336701689
+    },
+    "Qwen/Qwen3-VL-8B-Instruct": {
+      "witnessed": 22,
+      "expected": 6.108781973042718,
+      "excess": 15.891218026957283
+    },
+    "Qwen/Qwen3-VL-32B-Instruct": {
+      "witnessed": 16,
+      "expected": 2.7023498758982925,
+      "excess": 13.297650124101708
+    },
+    "allenai/Molmo2-8B": {
+      "witnessed": 26,
+      "expected": 8.481395250590158,
+      "excess": 17.518604749409842
+    },
+    "google/owlv2-large-patch14-ensemble": {
+      "witnessed": 121,
+      "expected": 76.89228299164908,
+      "excess": 44.10771700835092
+    },
+    "IDEA-Research/grounding-dino-base": {
+      "witnessed": 105,
+      "expected": 65.90455960769725,
+      "excess": 39.09544039230275
+    },
+    "__union__": {
+      "witnessed": 128,
+      "expected": 107.5863281755658,
+      "excess": 20.413671824434203,
+      "n": 128
+    }
+  },
+  "sparse_union": {
+    "witnessed": 69,
+    "expected": 29.962695350323756,
+    "excess": 39.037304649676244,
+    "n": 128
+  },
+  "dense_union": {
+    "witnessed": 127,
+    "expected": 102.21860416025129,
+    "excess": 24.78139583974871,
+    "n": 128
+  },
+  "by_field": {
+    "near": {
+      "witnessed": 32,
+      "expected": 13.041259548293187,
+      "excess": 18.958740451706813,
+      "n": 45
+    },
+    "far": {
+      "witnessed": 37,
+      "expected": 16.921435802030572,
+      "excess": 20.078564197969428,
+      "n": 83
+    }
+  },
+  "unwitnessed": [
+    {
+      "city": "richmond",
+      "pano": "1263975528308076",
+      "x": 0.9712878880356297,
+      "y": 0.5335353504527698,
+      "field": "far"
+    },
+    {
+      "city": "richmond",
+      "pano": "1288163659019705",
+      "x": 0.2791919130267519,
+      "y": 0.6537373675722065,
+      "field": "near"
+    },
+    {
+      "city": "richmond",
+      "pano": "723487737079243",
+      "x": 0.006868693033854166,
+      "y": 0.5435353966915246,
+      "field": "far"
+    },
+    {
+      "city": "richmond",
+      "pano": "1759178911495771",
+      "x": 0.5197303339935238,
+      "y": 0.5219953845879944,
+      "field": "far"
+    },
+    {
+      "city": "richmond",
+      "pano": "386363531219281",
+      "x": 0.4905050936612216,
+      "y": 0.5144444876006156,
+      "field": "far"
+    },
+    {
+      "city": "richmond",
+      "pano": "1338631107629110",
+      "x": 0.5325252463600852,
+      "y": 0.4973737312085701,
+      "field": "far"
+    },
+    {
+      "city": "bend",
+      "pano": "62TiKmlmxt_xn_68w1lgAw",
+      "x": 0.6216161554509944,
+      "y": 0.56,
+      "field": "near"
+    },
+    {
+      "city": "bend",
+      "pano": "OedGesfk606bGhg4OQESiQ",
+      "x": 0.5339577798669883,
+      "y": 0.5185880969654076,
+      "field": "far"
+    },
+    {
+      "city": "bend",
+      "pano": "0SgaioiGd5Yi_5wc6m-nJg",
+      "x": 0.5369325345142446,
+      "y": 0.5218091707287849,
+      "field": "far"
+    },
+    {
+      "city": "bend",
+      "pano": "8KtYwvo9b34f3zm-afipNg",
+      "x": 0.6496969696969697,
+      "y": 0.5402020171194366,
+      "field": "far"
+    },
+    {
+      "city": "bend",
+      "pano": "A5AVKFhm7unr9Rs55aQ1Tw",
+      "x": 0.5327272727272727,
+      "y": 0.5305050474224668,
+      "field": "far"
+    },
+    {
+      "city": "bend",
+      "pano": "bVadNrPq_zXgbJjhhDSwDw",
+      "x": 0.007272727272727273,
+      "y": 0.525656562573982,
+      "field": "far"
+    },
+    {
+      "city": "bend",
+      "pano": "h_1bUHhTLKugR5XhzA1-nA",
+      "x": 0.03515151515151515,
+      "y": 0.5208080777254972,
+      "field": "far"
+    },
+    {
+      "city": "bend",
+      "pano": "qNYRurrxEhqZvO8GrwE9nA",
+      "x": 0.05818181818181818,
+      "y": 0.5353535322709517,
+      "field": "far"
+    },
+    {
+      "city": "bend",
+      "pano": "xKoseQiPNzFwaWfw9Rl6hg",
+      "x": 0.9183838815400095,
+      "y": 0.5435353966915246,
+      "field": "far"
+    },
+    {
+      "city": "bend",
+      "pano": "mdQY8aMSdYrnHfHNXqj6GQ",
+      "x": 0.47636365485913823,
+      "y": 0.5322222160570549,
+      "field": "far"
+    },
+    {
+      "city": "clovis",
+      "pano": "170392751596494",
+      "x": 0.5034343372691762,
+      "y": 0.6679798103101325,
+      "field": "near"
+    },
+    {
+      "city": "clovis",
+      "pano": "1197447770701938",
+      "x": 0.18847373570874265,
+      "y": 0.5232198555538492,
+      "field": "far"
+    },
+    {
+      "city": "clovis",
+      "pano": "2493443314123605",
+      "x": 0.26485329169322935,
+      "y": 0.52684806088005,
+      "field": "far"
+    },
+    {
+      "city": "clovis",
+      "pano": "490105898988611",
+      "x": 0.7212718231654784,
+      "y": 0.5165137807332276,
+      "field": "far"
+    },
+    {
+      "city": "clovis",
+      "pano": "506669223705998",
+      "x": 0.4197979736328125,
+      "y": 0.7164646587949811,
+      "field": "near"
+    },
+    {
+      "city": "clovis",
+      "pano": "744451279581577",
+      "x": 0.8218503168644709,
+      "y": 0.5419524444382605,
+      "field": "far"
+    },
+    {
+      "city": "morgantown",
+      "pano": "1159131791921689",
+      "x": 0.2137373721960819,
+      "y": 0.6720201896898674,
+      "field": "near"
+    },
+    {
+      "city": "morgantown",
+      "pano": "559825463037840",
+      "x": 0.469440809267355,
+      "y": 0.5187997158948636,
+      "field": "far"
+    },
+    {
+      "city": "morgantown",
+      "pano": "356422300574178",
+      "x": 0.09898990515506628,
+      "y": 0.5483838815400095,
+      "field": "near"
+    },
+    {
+      "city": "morgantown",
+      "pano": "307295108505220",
+      "x": 0.33939395788944127,
+      "y": 0.6679798103101325,
+      "field": "near"
+    },
+    {
+      "city": "morgantown",
+      "pano": "716002773841007",
+      "x": 0.7119106513357678,
+      "y": 0.5478255162205575,
+      "field": "near"
+    },
+    {
+      "city": "morgantown",
+      "pano": "390232193697883",
+      "x": 0.4667830239590223,
+      "y": 0.5324315816214311,
+      "field": "far"
+    },
+    {
+      "city": "morgantown",
+      "pano": "1314106923314560",
+      "x": 0.21137609272522312,
+      "y": 0.5872850842920392,
+      "field": "near"
+    },
+    {
+      "city": "morgantown",
+      "pano": "1560632374758055",
+      "x": 0.014141420306581439,
+      "y": 0.6687879157788825,
+      "field": "near"
+    },
+    {
+      "city": "annapolis",
+      "pano": "928118321383655",
+      "x": 0.9267534093454298,
+      "y": 0.5339254534343074,
+      "field": "far"
+    },
+    {
+      "city": "annapolis",
+      "pano": "263456786691932",
+      "x": 0.5268878662384862,
+      "y": 0.49995505498717574,
+      "field": "far"
+    },
+    {
+      "city": "annapolis",
+      "pano": "263456786691932",
+      "x": 0.4183953537314284,
+      "y": 0.4974932147254313,
+      "field": "far"
+    },
+    {
+      "city": "annapolis",
+      "pano": "967427853833872",
+      "x": 0.784888461045941,
+      "y": 0.5372327375413968,
+      "field": "far"
+    },
+    {
+      "city": "annapolis",
+      "pano": "297886629678677",
+      "x": 0.49330807772549706,
+      "y": 0.5068181818181818,
+      "field": "far"
+    },
+    {
+      "city": "annapolis",
+      "pano": "846876249550191",
+      "x": 0.6507399277472887,
+      "y": 0.5029791914869305,
+      "field": "far"
+    },
+    {
+      "city": "annapolis",
+      "pano": "900958664931957",
+      "x": 0.45630241240838754,
+      "y": 0.5082816065558751,
+      "field": "far"
+    },
+    {
+      "city": "annapolis",
+      "pano": "877430540067191",
+      "x": 0.543034271131033,
+      "y": 0.5143504507599699,
+      "field": "far"
+    },
+    {
+      "city": "paterson",
+      "pano": "Xs3lDDc1o50wJmW9eGx_WA",
+      "x": 0.2323375734540243,
+      "y": 0.5969844818988245,
+      "field": "near"
+    },
+    {
+      "city": "paterson",
+      "pano": "cuFkPrv4UsqzeJCdibl1FQ",
+      "x": 0.4699032749323206,
+      "y": 0.5301038638689053,
+      "field": "far"
+    },
+    {
+      "city": "paterson",
+      "pano": "hV6LwTvkCzyX_vQF3ZG5qQ",
+      "x": 0.21933867134549537,
+      "y": 0.5496919988638095,
+      "field": "near"
+    },
+    {
+      "city": "paterson",
+      "pano": "hV6LwTvkCzyX_vQF3ZG5qQ",
+      "x": 0.495205520930847,
+      "y": 0.519235968880955,
+      "field": "far"
+    },
+    {
+      "city": "paterson",
+      "pano": "WNiUHjkafGBEnMc0nc4wkQ",
+      "x": 0.04029821423614809,
+      "y": 0.5180162161163532,
+      "field": "far"
+    },
+    {
+      "city": "paterson",
+      "pano": "_FfdhRGlkbTABymQR3t1_A",
+      "x": 0.534812514379721,
+      "y": 0.5261813014280383,
+      "field": "far"
+    },
+    {
+      "city": "gainesville",
+      "pano": "ipoVm9spHhQGCMROwSdmmA",
+      "x": 0.8437018555235514,
+      "y": 0.5851702349969968,
+      "field": "near"
+    },
+    {
+      "city": "gainesville",
+      "pano": "dVrNCxUTFAfeyVNMXQ1LTw",
+      "x": 0.9172647622999139,
+      "y": 0.5348749208434239,
+      "field": "far"
+    },
+    {
+      "city": "gainesville",
+      "pano": "DXKg24FIKMrGUX6ilHn5Ew",
+      "x": 0.04402622544390468,
+      "y": 0.5304555636627928,
+      "field": "far"
+    },
+    {
+      "city": "gainesville",
+      "pano": "XuX3LCIaNmEI9FSBenjToA",
+      "x": 0.3716333464134779,
+      "y": 0.5417326217955608,
+      "field": "far"
+    },
+    {
+      "city": "gainesville",
+      "pano": "kozsgHrge4ofusqK2D_Hlw",
+      "x": 0.5380980504469067,
+      "y": 0.5128683014061106,
+      "field": "far"
+    },
+    {
+      "city": "gainesville",
+      "pano": "wwbkgmoKv4MS5sMy3PGhqA",
+      "x": 0.5989353478897853,
+      "y": 0.5208345420613185,
+      "field": "far"
+    },
+    {
+      "city": "gainesville",
+      "pano": "HoOapW5g53qbEFjLA7yv3Q",
+      "x": 0.5438323641216953,
+      "y": 0.5186555832260843,
+      "field": "far"
+    },
+    {
+      "city": "gainesville",
+      "pano": "HoOapW5g53qbEFjLA7yv3Q",
+      "x": 0.49645185038970213,
+      "y": 0.5153353168595021,
+      "field": "far"
+    },
+    {
+      "city": "gainesville",
+      "pano": "GRTC3zOCFSc8QMIrAtwtzw",
+      "x": 0.5538633036587365,
+      "y": 0.5287539011201986,
+      "field": "far"
+    },
+    {
+      "city": "gainesville",
+      "pano": "KbZFzQai9wfXijoQDscWFw",
+      "x": 0.5275994119413667,
+      "y": 0.5188418251833842,
+      "field": "far"
+    },
+    {
+      "city": "gainesville",
+      "pano": "Mm5gyUYqmJmjeGopC1IgKg",
+      "x": 0.51082045775724,
+      "y": 0.5301554461174719,
+      "field": "far"
+    },
+    {
+      "city": "gainesville",
+      "pano": "_2GSllZzac7Zfd02VoVgCA",
+      "x": 0.07699117603437579,
+      "y": 0.5336038037736293,
+      "field": "far"
+    },
+    {
+      "city": "gainesville",
+      "pano": "KEwb17BzIjKVur60MpItuA",
+      "x": 0.4149449639405539,
+      "y": 0.5201712934675728,
+      "field": "far"
+    },
+    {
+      "city": "gainesville",
+      "pano": "KEwb17BzIjKVur60MpItuA",
+      "x": 0.5282188547813629,
+      "y": 0.5106295616442303,
+      "field": "far"
+    },
+    {
+      "city": "gainesville",
+      "pano": "KEwb17BzIjKVur60MpItuA",
+      "x": 0.06060247094985196,
+      "y": 0.5317774160151664,
+      "field": "far"
+    }
+  ]
+}

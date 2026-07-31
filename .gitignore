@@ -49,6 +49,9 @@ analysis_out/op/*
 # -- .model_cache itself is gitignored, so without this the table is unreproducible
 # for anyone who doesn't have the cache.
 !analysis_out/fp_taxonomy.json
+# Which silent misses another model witnessed (#46). Small, and it carries the
+# unwitnessed list that is the gallery's actual work queue.
+!analysis_out/silent_witness.json
 
 # Claude Code local state. settings.local.json is per-machine (absolute paths,
 # session ids) and worktrees/ holds full repo checkouts -- gigabytes. Listed

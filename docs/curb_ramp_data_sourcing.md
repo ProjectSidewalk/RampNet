@@ -245,11 +245,53 @@ Paterson's paired tactile surfaces are **not** a vocabulary failure — they are
 heatmap cannot separate. That is why it is the narrowest RampNet lead in the benchmark, and it is
 fixed by σ, not by Newark.
 
+### Bracketing `silent`: did any other model see these ramps?
+
+`silent` means *RampNet* saw nothing. It does not mean nothing is there. Script:
+`scripts/analysis/silent_witness.py` (17 tests), reading `.model_cache` — no GPU, no imagery.
+
+For each silent miss, did any challenger put a detection within the match radius? If one did, the
+imagery demonstrably contains a recognizable ramp, so RampNet's failure is **specific to RampNet** —
+which is the strongest evidence for a genuine appearance/vocabulary failure obtainable without a
+human, and exactly what more training data targets.
+
+The density correction is mandatory here, for the third time in this analysis: OWLv2 witnesses
+121 of 128 silent misses, but chance alone accounts for 76.9 of them.
+
+| witness | raw | by chance | **excess** |
+| :--- | ---: | ---: | ---: |
+| gemini-3.1-pro-preview | 46 | 9.4 | +36.6 |
+| gemini-3.6-flash | 33 | 8.1 | +24.9 |
+| molmo2-8B | 26 | 8.5 | +17.5 |
+| Qwen3-VL-8B | 22 | 6.1 | +15.9 |
+| Qwen3-VL-32B | 16 | 2.7 | +13.3 |
+| **union, 5 sparse models** | **69** | 30.0 | **+39.0** |
+| *union, 2 dense detectors* | *127* | *102.2* | *+24.8* |
+
+**Near-field: 32 of 45 witnessed raw (71.1%), chance 13.0, so ~19 corrected (42%).**
+
+That brackets the sourcing-addressable population against the 2,060 pooled GT ramps:
+
+| | recall points | ramps | what it is |
+| :--- | ---: | ---: | :--- |
+| #59's original bound | 0.087 | 180 | the whole near-field population |
+| §0b's bound | 0.022 | 45 | near-field `silent` only |
+| **lower bound** | **0.009** | **~19** | **confirmed** visible to another model, and missed |
+| **upper bound** | **0.022** | **45** | all near-field `silent` |
+
+**So the sourcing programme's target is between ~1 and ~2 recall points.** The gap is the
+unwitnessed remainder — *not* shown to be unaddressable, only unproven either way. Closing it is
+what the gallery is for.
+
 ### Caveats, travelling with the numbers
 
-- **`silent` is still an upper bound.** It means the cached detections witness nothing there.
-  Occlusion, deep shadow, debris and GT disagreement all still live inside it, and separating them
-  needs the imagery — that is #46's gallery half, **not done here**.
+- **`silent` is still an upper bound**, now with a floor under it. It means the cached detections
+  witness nothing there. Occlusion, deep shadow, debris and GT disagreement all still live inside
+  the unwitnessed remainder, and separating them needs the imagery — that is #46's gallery half,
+  **the crops are built but the reviewer pass is not done**.
+- **The witness test is one-directional.** A witnessed ramp is confirmed recognizable; an
+  unwitnessed one is not confirmed *un*recognizable, since every challenger is weaker than RampNet
+  on this task and may simply have missed it too.
 - **Some of `merged` may be double-marked GT.** 24 of 124 pairs sit below 8 px (~25 cm at 10 m),
   which is not a physical spacing for two ramps; on the verdict splits that is plausibly one ramp
   marked twice. If so they are *spurious GT* and leave the population entirely rather than changing

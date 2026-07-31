@@ -280,7 +280,11 @@ def load_rows(city, threshold, cache_dir=CACHE_DIR, rng=None, trials=NULL_TRIALS
 
         for i, g in enumerate(gt.gt_points):
             dist, px = geom(g[1])
-            row = {"city": city, "x": g[0], "y": g[1], "dist": dist, "px": px,
+            # pano id travels with the row so a bucketed miss can be located in the
+            # imagery later — the gallery half of #46 needs it, and re-deriving it
+            # from coordinates alone is lossy.
+            row = {"city": city, "pano": pd["pano"], "x": g[0], "y": g[1],
+                   "dist": dist, "px": px,
                    "hit": i in hit, "bucket": None, "tier": TIER.get(city, "-"),
                    "field": "near" if dist < boundary else "far",
                    "sep_cheb": None, "sep_euc": None,
