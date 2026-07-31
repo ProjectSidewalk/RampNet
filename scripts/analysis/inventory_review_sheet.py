@@ -11,26 +11,37 @@ a difference that plausibly decides whether a 90k-record city is usable at all.
 metres from the true ramp on aerial imagery; report a **distribution**, not a
 bucket."*
 
-This builds the instrument for that. Each sampled record gets an aerial chip
-centred on the published coordinate, overlaid with range rings at known radii, so
-the reviewer reads an **offset in metres off the rings** rather than forming an
-overall impression.
+This builds the instrument for that: an aerial chip per sampled record, centred on
+the published coordinate, with range rings at known radii.
+
+**The reviewer points at the ramp; the page does the measuring.** Clicking the
+image in the enlarged view computes the offset from the crosshair exactly, so no
+one estimates a distance by eye — the rings are there for orientation, not
+arithmetic. Verdicts are entered in the page, kept in ``localStorage`` so a
+refresh costs nothing, and exported as a ``verdicts.json`` matching the template
+this script also writes.
+
+**Annotations are an SVG overlay, never burned into the image.** They sit exactly
+on top of the pixels being judged, so the reviewer has to be able to take them
+away to see what is underneath; baked-in marks cannot be removed without
+re-rendering the whole sheet, which is not a workflow. The overlay toggles with a
+checkbox or ``o``.
 
 **The basemap is the instrument, and the obvious basemap is not good enough.**
 Esri World Imagery — the default anywhere ArcGIS is involved — renders Denver
-leaf-on, hazy, and visibly upsampled: its effective ground resolution is around a
-metre, so a curb ramp and its detectable-warning pad are a smudge, and z=21
-returns "Map data not yet available" as a blank grey tile that a naive fetcher
-will happily paste into a review sheet. Measuring a 1-2 m offset against that is
-not possible, and *appearing* to do so is worse than not trying. Denver's own
-``Aerial2018_tilecache`` is leaf-off, sharp, and 0.23 m/px at this latitude; every
-city needs its equivalent found before its sheet is worth a reviewer's time.
-``--tile-source`` picks one, blank tiles are detected rather than pasted, and the
-manifest records exactly which imagery produced which judgment.
+leaf-on, hazy, and visibly upsampled to an effective ~1 m, so a ramp and its
+detectable-warning pad are a smudge; and past its deepest level it serves "Map
+data not yet available" as a blank grey tile that a naive fetcher will happily
+paste in as evidence. Denver's own ``Aerial2016`` cache is leaf-off 3-inch
+imagery at **0.057 m/px** — 4x the linear detail of its 2018 cache, and the
+warning pads are individually visible. **Every city needs its municipal basemap
+located before its sheet is worth a reviewer's time**, and the deepest available
+level matters more than the capture year: a positional check does not care that
+imagery is two years older, because ramps do not move.
 
     python scripts/analysis/inventory_review_sheet.py \
         --city denver-co --inventory data/inventories/denver-co-2026-07-31.jsonl.gz \
-        --tile-source denver-2018 --sample 60 --seed 20260731 \
+        --tile-source denver-2016 --sample 60 --seed 20260731 \
         --where-field UPDATE_STATUS --where-value NC
 
 **Sampling is record-weighted by default**, because every record becomes a Stage 1
@@ -76,8 +87,19 @@ TILE_SOURCES = {
                 "/Aerial2018_tilecache/MapServer/tile/{z}/{y}/{x}"),
         "max_zoom": 19,
         "attribution": "City and County of Denver (geospatialDENVER), Aerial 2018",
-        "note": "Leaf-off, sharp, 0.23 m/px at Denver's latitude. Predates the "
-                "2,784 records added 2023-24, which are expected to be absent.",
+        "note": "Leaf-off and sharp, but only 0.23 m/px — a 40 m chip is 174 px, "
+                "which is thin for reading a 1 m offset. Prefer denver-2016.",
+    },
+    "denver-2016": {
+        "url": ("https://tiles.arcgis.com/tiles/zdB7qR0BtYrg0Xpl/arcgis/rest/services"
+                "/Aerial2016/MapServer/tile/{z}/{y}/{x}"),
+        "max_zoom": 21,
+        "attribution": "City and County of Denver (geospatialDENVER), Aerial 2016",
+        "note": "Leaf-off 3-inch imagery — 0.057 m/px at Denver's latitude, 4x the "
+                "linear detail of the 2018 cache, and detectable-warning pads are "
+                "individually visible. Two years older, which does not matter for a "
+                "positional check (ramps do not move) and is in fact closer to the "
+                "2015 vintage 74% of Denver's records carry.",
     },
 }
 
@@ -225,14 +247,22 @@ def _fetch_tile(url, cache_dir, timeout=60):
     return Image.open(io.BytesIO(blob)).convert("RGB")
 
 
-def render_chip(lon, lat, zoom, span_m, cache_dir, tile_url, rings=RING_RADII_M):
-    """Aerial chip centred on lon/lat with range rings.
+def render_chip(lon, lat, zoom, span_m, cache_dir, tile_url):
+    """Aerial chip centred on lon/lat. **No annotation is drawn.**
 
     Returns ``(image, metres_per_pixel, tile_keys, blank)``. ``blank`` is True when
     the fetched imagery is a placeholder — the caller drops the chip rather than
     presenting grey pixels as evidence.
+
+    Rings and crosshair used to be burned into the JPEG here. They are now an SVG
+    overlay in the sheet instead, for a reason that only shows up in use: the
+    annotation sits exactly on top of the pixels being judged, so a reviewer needs
+    to take it away to see whether a ramp is under it. Baked-in marks cannot be
+    removed, and re-rendering the whole sheet to look underneath is not a
+    workflow. Keeping the image clean also means the overlay can be redrawn at any
+    display size without resampling the imagery.
     """
-    from PIL import Image, ImageDraw, ImageStat
+    from PIL import Image, ImageStat
     mpp = metres_per_pixel(lat, zoom)
     span_px = int(round(span_m / mpp))
     x0, y0, x1, y1, ox, oy = tile_range(lon, lat, zoom, span_px)
@@ -249,25 +279,6 @@ def render_chip(lon, lat, zoom, span_m, cache_dir, tile_url, rings=RING_RADII_M)
 
     st = ImageStat.Stat(chip.convert("L"))
     blank = looks_blank((st.mean[0], st.stddev[0]))
-
-    d = ImageDraw.Draw(chip, "RGBA")
-    cx = cy = span_px / 2.0
-    for k, r_m in enumerate(rings):
-        r = r_m / mpp
-        if r >= span_px / 2.0:
-            continue
-        d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=(255, 235, 59, 210), width=1)
-        # Alternate label sides: the 1 m and 2 m rings are only a few pixels
-        # apart, so same-side labels overlap into an unreadable smear.
-        sx, sy = (0.7071, -0.7071) if k % 2 else (-0.7071, 0.7071)
-        d.text((cx + r * sx - (14 if sx < 0 else -2), cy + r * sy - 6),
-               "{:g}m".format(r_m), fill=(255, 235, 59, 235))
-    for a, b in ((-14, -4), (4, 14)):
-        d.line([cx + a, cy, cx + b, cy], fill=(255, 64, 64, 255), width=2)
-        d.line([cx, cy + a, cx, cy + b], fill=(255, 64, 64, 255), width=2)
-    bar = 10.0 / mpp
-    d.rectangle([8, span_px - 18, 8 + bar, span_px - 14], fill=(255, 255, 255, 235))
-    d.text((8, span_px - 32), "10 m", fill=(255, 255, 255, 235))
     return chip, mpp, keys, blank
 
 
@@ -277,53 +288,316 @@ def to_data_uri(img, quality=85):
     return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode("ascii")
 
 
-HTML = """<!doctype html>
+SHEET_TEMPLATE = """<!doctype html>
 <meta charset="utf-8">
-<title>{city} — curb-ramp location precision review</title>
+<title>__CITY__ — curb-ramp location precision review</title>
 <style>
- body {{ font: 14px/1.55 system-ui, sans-serif; margin: 24px; background:#111; color:#eee; }}
- h1 {{ font-size: 20px; margin: 0 0 4px; }}
- .meta, .legend {{ max-width: 76ch; }}
- .meta {{ color:#9a9a9a; margin-bottom: 16px; }}
- .legend {{ background:#1c1c1c; padding:12px 16px; border-radius:6px; margin-bottom:22px; }}
- .grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(250px,1fr)); gap: 16px; }}
- figure {{ margin:0; background:#1c1c1c; border-radius:6px; padding:8px; }}
- img {{ width:100%; border-radius:3px; display:block; }}
- figcaption {{ font-size:11px; color:#aaa; margin-top:6px; font-family: ui-monospace, monospace; }}
- code {{ background:#242424; padding:1px 4px; border-radius:3px; }}
- .warn {{ color:#ffb74d; }}
+ :root {{ --bg:#111; --panel:#1c1c1c; --line:#2e2e2e; --dim:#9a9a9a; }}
+ * {{ box-sizing: border-box; }}
+ body {{ font:14px/1.55 system-ui,sans-serif; margin:0; background:var(--bg); color:#eee; }}
+ header {{ position:sticky; top:0; z-index:5; background:var(--bg); border-bottom:1px solid var(--line);
+           padding:14px 24px; display:flex; gap:20px; align-items:center; flex-wrap:wrap; }}
+ h1 {{ font-size:17px; margin:0; font-weight:600; }}
+ .sub {{ color:var(--dim); font-size:12px; width:100%; margin-top:2px; }}
+ .ctl {{ display:flex; gap:6px; align-items:center; font-size:13px; color:#ddd; }}
+ button {{ font:inherit; background:#2a2a2a; color:#eee; border:1px solid var(--line);
+           border-radius:5px; padding:5px 11px; cursor:pointer; }}
+ button:hover {{ background:#343434; }}
+ button.primary {{ background:#2d5a3d; border-color:#3c7a52; }}
+ .prog {{ font-variant-numeric:tabular-nums; color:var(--dim); }}
+ main {{ padding:20px 24px 60px; }}
+ .grid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; }}
+ figure {{ margin:0; background:var(--panel); border-radius:7px; padding:7px;
+           border:1px solid transparent; }}
+ figure.done {{ border-color:#3c7a52; }}
+ figure.skip {{ border-color:#7a5a3c; opacity:.65; }}
+ .wrap {{ position:relative; cursor:zoom-in; line-height:0; }}
+ .wrap img {{ width:100%; border-radius:4px; display:block; }}
+ .wrap svg {{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }}
+ body.nooverlay .wrap svg {{ display:none; }}
+ figcaption {{ font-size:11px; color:#999; margin-top:5px; font-family:ui-monospace,monospace;
+               display:flex; justify-content:space-between; }}
+ dialog {{ border:none; background:var(--panel); color:#eee; border-radius:10px; padding:0;
+           max-width:96vw; max-height:96vh; }}
+ dialog::backdrop {{ background:rgba(0,0,0,.82); }}
+ .modal {{ display:flex; gap:18px; padding:18px; align-items:flex-start; }}
+ .stage {{ position:relative; line-height:0; cursor:crosshair; }}
+ .stage img {{ display:block; border-radius:5px;
+               width:min(74vh,calc(96vw - 340px)); height:auto; image-rendering:auto; }}
+ .stage svg {{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }}
+ .side {{ width:280px; font-size:13px; }}
+ .side h2 {{ font-size:14px; margin:0 0 10px; }}
+ .row {{ margin-bottom:13px; }}
+ .row label {{ display:block; color:var(--dim); font-size:12px; margin-bottom:4px; }}
+ .seg {{ display:flex; gap:4px; flex-wrap:wrap; }}
+ .seg button {{ flex:1; min-width:38px; padding:5px 4px; }}
+ .seg button[aria-pressed="true"] {{ background:#2d5a3d; border-color:#3c7a52; }}
+ .measure {{ font-family:ui-monospace,monospace; font-size:19px; }}
+ .measure em {{ color:var(--dim); font-size:12px; font-style:normal; }}
+ input[type=text] {{ width:100%; background:#111; color:#eee; border:1px solid var(--line);
+                     border-radius:5px; padding:6px; font:inherit; }}
+ .nav {{ display:flex; gap:8px; margin-top:16px; }}
+ .nav button {{ flex:1; }}
+ kbd {{ background:#000; border:1px solid var(--line); border-radius:3px; padding:0 4px;
+        font-size:11px; font-family:ui-monospace,monospace; }}
+ .help {{ color:var(--dim); font-size:11.5px; margin-top:14px; line-height:1.5; }}
 </style>
-<h1>{city} — curb-ramp location precision ({n} chips)</h1>
-<div class="meta">
- Snapshot <code>{inventory}</code> &middot; sample <code>{sampling}</code>, seed <code>{seed}</code>
- &middot; imagery <b>{source}</b> at z{zoom} ({mpp:.3f} m/px).<br>
- {attribution}. <span class="warn">{note}</span>
-</div>
-<div class="legend">
- <b>How to read a chip.</b> The red crosshair is the <b>published coordinate</b>. Rings are
- {rings} m from it. Record, per chip, in <code>verdicts.json</code>:
- <ul>
-  <li><code>offset_m</code> — crosshair to the nearest physical curb ramp, read off the rings.</li>
-  <li><code>on_corner</code> — is the crosshair on the correct corner at all?</li>
-  <li><code>ramps_visible</code> — how many ramps are on that corner. <b>This is the
-      per-ramp-vs-per-corner evidence</b>, and the count is what settles it.</li>
-  <li><code>unreadable</code> — shadow, occlusion or resolution makes it unjudgeable.
-      <b>Mark it rather than guessing</b>; the unreadable rate is itself a reportable number.</li>
- </ul>
- Imagery capture date is the basemap's — neither the inventory's nor Street View's.
-</div>
-<div class="grid">
+
+<header>
+ <h1>__CITY__ — location precision</h1>
+ <label class="ctl"><input type="checkbox" id="ovl" checked> overlay <kbd>o</kbd></label>
+ <span class="ctl prog" id="prog"></span>
+ <button id="next-todo">next unreviewed <kbd>n</kbd></button>
+ <button class="primary" id="export">export verdicts.json</button>
+ <div class="sub">
+  __N__ chips · <code>__INV__</code> · __SAMPLING__ sample, seed __SEED__ ·
+  imagery <b>__SOURCE__</b> z__ZOOM__ (__MPP__ m/px) · __ATTRIB__.
+  <span style="color:#ffb74d">__NOTE__</span>
+  Progress is saved in this browser; <b>export before you finish</b> to write it to disk.
+ </div>
+</header>
+
+<main><div class="grid" id="grid"></div></main>
+
+<dialog id="dlg"><div class="modal">
+ <div class="stage" id="stage"><img id="big" alt=""><svg id="bigsvg"></svg></div>
+ <div class="side">
+  <h2 id="title"></h2>
+  <div class="row">
+   <label>offset — click the nearest ramp on the image</label>
+   <div class="measure" id="offset">—</div>
+   <em id="offhint">click to measure · click the crosshair for 0</em>
+  </div>
+  <div class="row">
+   <label>ramps visible on this corner <b>(the per-corner evidence)</b></label>
+   <div class="seg" id="vis"></div>
+  </div>
+  <div class="row">
+   <label>crosshair on the correct corner?</label>
+   <div class="seg" id="corner"></div>
+  </div>
+  <div class="row">
+   <label>unjudgeable — shadow, occlusion, resolution</label>
+   <div class="seg" id="unread"></div>
+  </div>
+  <div class="row">
+   <label>note</label>
+   <input type="text" id="note" placeholder="optional">
+  </div>
+  <div class="nav">
+   <button id="prev">← prev</button>
+   <button id="nxt">next →</button>
+   <button id="close">close <kbd>esc</kbd></button>
+  </div>
+  <div class="help">
+   <b>Mark unjudgeable rather than guessing</b> — the unreadable rate is itself a reported number.
+   <kbd>0</kbd>–<kbd>3</kbd> sets ramps visible · <kbd>u</kbd> unjudgeable ·
+   <kbd>←</kbd> <kbd>→</kbd> move · <kbd>o</kbd> overlay.
+  </div>
+ </div>
+</div></dialog>
+
+<script>
+const META = __META__;
+const CHIPS = __CHIPS__;
+const KEY = "rampnet-verdicts-" + META.city + "-" + META.seed;
+const V = JSON.parse(localStorage.getItem(KEY) || "{{}}");
+const S = META.span_px, C = S / 2;
+
+// Returns the overlay's *inner* markup only. The <svg> wrapper is created once
+// and kept: writing outerHTML would detach the element, so the cached reference
+// would go stale and the modal overlay would render exactly once.
+function overlayInner(withScale) {{
+  let p = "";
+  META.rings.forEach((m, i) => {{
+    const r = m / META.mpp;
+    if (r >= C) return;
+    p += `<circle cx="${{C}}" cy="${{C}}" r="${{r}}" fill="none" stroke="#ffeb3b"
+           stroke-opacity=".85" stroke-width="${{S / 500}}"/>`;
+    const s = i % 2 ? 1 : -1, d = r * 0.7071;
+    p += `<text x="${{C + s * d}}" y="${{C - s * d}}" fill="#ffeb3b" font-size="${{S / 42}}"
+           font-family="system-ui" text-anchor="${{s > 0 ? 'start' : 'end'}}"
+           dy="${{s > 0 ? -2 : 10}}">${{m}}m</text>`;
+  }});
+  const g = S / 46, a = S / 18, w = S / 220;
+  p += `<g stroke="#ff4040" stroke-width="${{w}}">
+     <line x1="${{C - a}}" y1="${{C}}" x2="${{C - g}}" y2="${{C}}"/>
+     <line x1="${{C + g}}" y1="${{C}}" x2="${{C + a}}" y2="${{C}}"/>
+     <line x1="${{C}}" y1="${{C - a}}" x2="${{C}}" y2="${{C - g}}"/>
+     <line x1="${{C}}" y1="${{C + g}}" x2="${{C}}" y2="${{C + a}}"/></g>`;
+  if (withScale) {{
+    const bar = 10 / META.mpp;
+    p += `<g><rect x="${{S * .03}}" y="${{S - S * .05}}" width="${{bar}}" height="${{S / 130}}"
+      fill="#fff" fill-opacity=".9"/><text x="${{S * .03}}" y="${{S - S * .065}}" fill="#fff"
+      font-size="${{S / 40}}" font-family="system-ui">10 m</text></g>`;
+  }}
+  return p;
+}}
+
+function marker(v) {{
+  if (!v || v.px == null) return "";
+  return `<g><circle cx="${{v.px}}" cy="${{v.py}}" r="${{S / 60}}" fill="none" stroke="#4fc3f7"
+    stroke-width="${{S / 200}}"/><line x1="${{C}}" y1="${{C}}" x2="${{v.px}}" y2="${{v.py}}"
+    stroke="#4fc3f7" stroke-width="${{S / 300}}" stroke-dasharray="${{S / 90}}"/></g>`;
+}}
+
+function state(id) {{ return V[id] || (V[id] = {{}}); }}
+function save() {{ localStorage.setItem(KEY, JSON.stringify(V)); paint(); }}
+function done(v) {{ return v && (v.unreadable || v.offset_m != null); }}
+
+function paint() {{
+  let n = 0;
+  CHIPS.forEach(c => {{
+    const v = V[c.id], f = document.getElementById("f" + c.id);
+    if (!f) return;
+    f.className = v && v.unreadable ? "skip" : (done(v) ? "done" : "");
+    if (done(v)) n++;
+    const tag = f.querySelector(".tag");
+    tag.textContent = !v ? "" : v.unreadable ? "unjudgeable"
+      : (v.offset_m != null ? v.offset_m.toFixed(1) + " m"
+         + (v.ramps_visible != null ? " · " + v.ramps_visible + "\\u00d7" : "") : "");
+  }});
+  document.getElementById("prog").textContent = n + " / " + CHIPS.length + " reviewed";
+}}
+
+const grid = document.getElementById("grid");
+grid.innerHTML = CHIPS.map(c => `<figure id="f${{c.id}}"><div class="wrap" data-id="${{c.id}}">
+  <img src="${{c.uri}}" alt="${{c.id}}" loading="lazy">
+  <svg viewBox="0 0 ${{S}} ${{S}}" xmlns="http://www.w3.org/2000/svg">${{overlayInner(false)}}</svg></div>
+  <figcaption><span>${{c.id}}</span><span class="tag"></span></figcaption></figure>`).join("");
+
+const dlg = document.getElementById("dlg"), big = document.getElementById("big"),
+      bigsvg = document.getElementById("bigsvg"), stage = document.getElementById("stage");
+let cur = 0;
+
+function seg(el, opts, get, set) {{
+  el.innerHTML = opts.map(o =>
+    `<button data-v="${{o.v}}" aria-pressed="${{String(get() === o.v)}}">${{o.t}}</button>`).join("");
+  el.querySelectorAll("button").forEach(b => b.onclick = () => {{
+    const raw = b.dataset.v;
+    const val = raw === "null" ? null : (raw === "true" ? true : raw === "false" ? false : +raw);
+    set(get() === val ? null : val);
+    save(); render();
+  }});
+}}
+
+function render() {{
+  const c = CHIPS[cur], v = state(c.id);
+  big.src = c.uri; big.alt = c.id;
+  bigsvg.setAttribute("viewBox", `0 0 ${{S}} ${{S}}`);
+  bigsvg.innerHTML = overlayInner(true) + marker(v);
+  document.getElementById("title").textContent =
+    `${{c.id}}  (${{cur + 1}}/${{CHIPS.length}})`;
+  document.getElementById("offset").textContent =
+    v.offset_m == null ? "—" : v.offset_m.toFixed(2) + " m";
+  seg(document.getElementById("vis"),
+      [0, 1, 2, 3, 4].map(n => ({{v: n, t: n === 4 ? "4+" : String(n)}})),
+      () => v.ramps_visible, x => v.ramps_visible = x);
+  seg(document.getElementById("corner"),
+      [{{v: true, t: "yes"}}, {{v: false, t: "no"}}],
+      () => v.on_corner, x => v.on_corner = x);
+  seg(document.getElementById("unread"), [{{v: true, t: "unjudgeable"}}],
+      () => v.unreadable || null, x => v.unreadable = !!x);
+  document.getElementById("note").value = v.note || "";
+}}
+
+function open_(i) {{ cur = (i + CHIPS.length) % CHIPS.length; render();
+  if (!dlg.open) dlg.showModal(); }}
+
+grid.querySelectorAll(".wrap").forEach(w => w.onclick = () =>
+  open_(CHIPS.findIndex(c => c.id === w.dataset.id)));
+
+// Click-to-measure. The reviewer's job is to point at the ramp, not to estimate a
+// distance: the geometry is exact and the rings are only there for orientation.
+document.getElementById("stage").onclick = e => {{
+  const r = big.getBoundingClientRect();
+  const px = (e.clientX - r.left) / r.width * S, py = (e.clientY - r.top) / r.height * S;
+  const v = state(CHIPS[cur].id);
+  v.px = px; v.py = py;
+  v.offset_m = Math.hypot(px - C, py - C) * META.mpp;
+  v.unreadable = false;
+  save(); render();
+}};
+
+document.getElementById("note").oninput = e => {{
+  state(CHIPS[cur].id).note = e.target.value; save();
+}};
+document.getElementById("prev").onclick = () => open_(cur - 1);
+document.getElementById("nxt").onclick = () => open_(cur + 1);
+document.getElementById("close").onclick = () => dlg.close();
+document.getElementById("ovl").onchange = e =>
+  document.body.classList.toggle("nooverlay", !e.target.checked);
+
+function nextTodo() {{
+  const i = CHIPS.findIndex(c => !done(V[c.id]));
+  if (i < 0) return alert("Every chip has been reviewed. Export when ready.");
+  open_(i);
+}}
+document.getElementById("next-todo").onclick = nextTodo;
+
+addEventListener("keydown", e => {{
+  if (e.target.tagName === "INPUT") return;
+  if (e.key === "o") {{ const b = document.getElementById("ovl");
+    b.checked = !b.checked; b.onchange({{target: b}}); return; }}
+  if (e.key === "n" && !dlg.open) return nextTodo();
+  if (!dlg.open) return;
+  const v = state(CHIPS[cur].id);
+  if (e.key === "ArrowLeft") open_(cur - 1);
+  else if (e.key === "ArrowRight") open_(cur + 1);
+  else if ("01234".includes(e.key)) {{ v.ramps_visible = +e.key; save(); render(); }}
+  else if (e.key === "u") {{ v.unreadable = !v.unreadable; save(); render(); }}
+}});
+
+document.getElementById("export").onclick = () => {{
+  const out = Object.assign({{}}, META.manifest, {{
+    reviewer: META.manifest.reviewer, records: CHIPS.map(c => {{
+      const v = V[c.id] || {{}};
+      return {{
+        id: c.id, lon: c.lon, lat: c.lat, tiles: c.tiles,
+        offset_m: v.offset_m == null ? null : +v.offset_m.toFixed(2),
+        on_corner: v.on_corner == null ? null : v.on_corner,
+        ramps_visible: v.ramps_visible == null ? null : v.ramps_visible,
+        unreadable: !!v.unreadable, note: v.note || "",
+        click_px: v.px == null ? null : [+v.px.toFixed(1), +v.py.toFixed(1)]
+      }};
+    }})
+  }});
+  const blob = new Blob([JSON.stringify(out, null, 2) + "\\n"], {{type: "application/json"}});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "verdicts.json"; a.click();
+}};
+
+paint();
+</script>
 """
 
 
-def build_sheet(header, chips):
-    parts = [header]
-    for c in chips:
-        parts.append(
-            '<figure><img src="{uri}" alt="{rid}">'
-            '<figcaption>{rid}<br>{lat:.6f}, {lon:.6f}</figcaption></figure>\n'.format(**c))
-    parts.append("</div>\n")
-    return "".join(parts)
+def build_sheet(meta, chips, manifest):
+    """Assemble the interactive sheet. Pure — takes rendered chips, returns HTML."""
+    subs = {
+        "__CITY__": meta["city"],
+        "__N__": str(len(chips)),
+        "__INV__": meta["inventory"],
+        "__SAMPLING__": meta["sampling"],
+        "__SEED__": str(meta["seed"]),
+        "__SOURCE__": meta["tile_source"],
+        "__ZOOM__": str(meta["zoom"]),
+        "__MPP__": "{:.3f}".format(meta["mpp"]),
+        "__ATTRIB__": meta["attribution"],
+        "__NOTE__": meta["note"],
+        "__META__": json.dumps({
+            "city": meta["city"], "seed": meta["seed"], "mpp": meta["mpp"],
+            "span_px": meta["span_px"], "rings": list(RING_RADII_M),
+            "manifest": manifest,
+        }),
+        "__CHIPS__": json.dumps(chips),
+    }
+    out = SHEET_TEMPLATE.replace("{{", "\x00").replace("}}", "\x01")
+    out = out.replace("{", "{").replace("}", "}")
+    out = out.replace("\x00", "{").replace("\x01", "}")
+    for k, v in subs.items():
+        out = out.replace(k, v)
+    return out
 
 
 def load_inventory(path):
@@ -380,7 +654,7 @@ def main(argv=None):
     cache_dir = os.path.join(review_dir, "tiles_{}".format(args.tile_source))
     os.makedirs(cache_dir, exist_ok=True)
 
-    chips, verdicts, blanks, missing, mpp = [], [], 0, 0, None
+    chips, verdicts, blanks, missing, mpp, span_px = [], [], 0, 0, None, 0
     for k, i in enumerate(picked):
         lon, lat = rows[i]["lon"], rows[i]["lat"]
         rid = str(rows[i].get(args.id_field, i))
@@ -395,7 +669,9 @@ def main(argv=None):
             blanks += 1
             print("  [{:>3}/{}] {} BLANK — dropped".format(k + 1, len(picked), rid))
             continue
-        chips.append({"uri": to_data_uri(chip), "rid": rid, "lon": lon, "lat": lat})
+        span_px = chip.size[0]
+        chips.append({"uri": to_data_uri(chip), "id": rid, "lon": lon, "lat": lat,
+                      "tiles": keys})
         verdicts.append({
             "id": rid, "lon": lon, "lat": lat, "tiles": keys,
             "offset_m": None, "on_corner": None, "ramps_visible": None,
@@ -403,35 +679,37 @@ def main(argv=None):
         })
         print("  [{:>3}/{}] {} {:.6f},{:.6f}".format(k + 1, len(picked), rid, lat, lon))
 
+    manifest = {
+        "city": args.city, "inventory": os.path.basename(args.inventory),
+        "seed": args.seed, "sampling": args.sampling, "sample_requested": args.sample,
+        "sample_frame": {"field": args.where_field, "value": args.where_value,
+                         "size": len(frame), "of": len(rows)},
+        "grid": args.grid if args.sampling == "stratified" else None,
+        "tile_source": args.tile_source, "tile_url": src["url"],
+        "imagery": src["attribution"], "imagery_note": src["note"],
+        "zoom": zoom, "metres_per_pixel": mpp, "span_m": args.span_m,
+        "span_px": span_px, "ring_radii_m": list(RING_RADII_M),
+        "blank_chips_dropped": blanks,
+        "no_imagery_dropped": missing,
+        "reviewer": None, "reviewed_on": None, "confidence": None,
+    }
     verdict_path = os.path.join(review_dir, "verdicts.json")
     with open(verdict_path, "w") as fh:
-        json.dump({
-            "city": args.city, "inventory": os.path.basename(args.inventory),
-            "seed": args.seed, "sampling": args.sampling, "sample_requested": args.sample,
-            "sample_frame": {"field": args.where_field, "value": args.where_value,
-                             "size": len(frame), "of": len(rows)},
-            "grid": args.grid if args.sampling == "stratified" else None,
-            "tile_source": args.tile_source, "tile_url": src["url"],
-            "imagery": src["attribution"], "imagery_note": src["note"],
-            "zoom": zoom, "metres_per_pixel": mpp, "span_m": args.span_m,
-            "ring_radii_m": list(RING_RADII_M),
-            "blank_chips_dropped": blanks,
-            "no_imagery_dropped": missing,
-            "reviewer": None, "reviewed_on": None, "confidence": None,
-            "records": verdicts,
-        }, fh, indent=2)
+        json.dump(dict(manifest, records=verdicts), fh, indent=2)
         fh.write("\n")
 
-    header = HTML.format(
-        city=args.city, n=len(chips), inventory=os.path.basename(args.inventory),
-        sampling=args.sampling, seed=args.seed, source=args.tile_source, zoom=zoom,
-        mpp=mpp or 0.0, attribution=src["attribution"], note=src["note"],
-        rings="/".join("{:g}".format(r) for r in RING_RADII_M))
+    sheet_meta = {
+        "city": args.city, "inventory": os.path.basename(args.inventory),
+        "sampling": args.sampling, "seed": args.seed, "tile_source": args.tile_source,
+        "zoom": zoom, "mpp": mpp or 0.0, "span_px": span_px,
+        "attribution": src["attribution"], "note": src["note"],
+    }
     sheet_path = os.path.join(review_dir, "review_sheet.html")
     with open(sheet_path, "w", encoding="utf-8") as fh:
-        fh.write(build_sheet(header, chips))
+        fh.write(build_sheet(sheet_meta, chips, manifest))
 
-    print("\n{} chips, {} blank dropped".format(len(chips), blanks))
+    print("\n{} chips, {} blank dropped, {} no imagery".format(
+        len(chips), blanks, missing))
     print("wrote {}".format(sheet_path))
     print("wrote {}".format(verdict_path))
     return 0

@@ -7,8 +7,10 @@ placeholder that services return past their deepest level is recognised rather
 than presented as evidence, and the default sample is record-weighted so the
 resulting distribution estimates label accuracy rather than area coverage.
 """
+import json
 import math
 import os
+import re
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -123,6 +125,61 @@ def test_stratified_sample_is_deterministic():
 def test_stratified_sample_of_nothing_is_empty():
     assert irs.stratified_sample([], 10, 1) == []
     assert irs.stratified_sample([(0.0, 0.0)], 0, 1) == []
+
+
+# --------------------------------------------------------------------------- #
+# sheet assembly
+# --------------------------------------------------------------------------- #
+def _meta():
+    return {"city": "denver-co", "inventory": "denver-co-2026-07-31.jsonl.gz",
+            "sampling": "uniform", "seed": 20260731, "tile_source": "denver-2016",
+            "zoom": 21, "mpp": 0.0573, "span_px": 698,
+            "attribution": "City and County of Denver", "note": "leaf-off 3-inch"}
+
+
+def _chips(n=2):
+    return [{"uri": "data:image/jpeg;base64,AAAA", "id": str(1000 + i),
+             "lon": -105.0, "lat": 39.7, "tiles": ["21/1/2"]} for i in range(n)]
+
+
+def test_sheet_leaves_no_unsubstituted_placeholders():
+    html = irs.build_sheet(_meta(), _chips(), {"city": "denver-co"})
+    assert "__" not in html.replace("__proto__", "")
+    assert "{{" not in html
+
+
+def test_sheet_embeds_parseable_meta_and_chips():
+    """The page is driven entirely by these two blobs; a malformed one is a blank
+    screen with no error the reviewer can act on."""
+    html = irs.build_sheet(_meta(), _chips(3), {"city": "denver-co", "seed": 1})
+    meta = json.loads(re.search(r"const META = (\{.*?\});\n", html, re.S).group(1))
+    chips = json.loads(re.search(r"const CHIPS = (\[.*?\]);\n", html, re.S).group(1))
+    assert meta["span_px"] == 698 and meta["rings"] == list(irs.RING_RADII_M)
+    assert meta["manifest"]["city"] == "denver-co"
+    assert len(chips) == 3 and chips[0]["id"] == "1000"
+
+
+def test_sheet_scales_the_overlay_to_the_chip_rather_than_hardcoding_pixels():
+    """The overlay must use the chip's own viewBox, or rings drawn for a 174 px
+    chip land in the wrong place on a 698 px one."""
+    html = irs.build_sheet(_meta(), _chips(4), {})
+    assert '<svg viewBox="0 0 ${S} ${S}"' in html
+    assert "const S = META.span_px" in html
+
+
+def test_sheet_carries_the_imagery_provenance_into_the_page():
+    """A verdict must never be readable without knowing what it was made against."""
+    html = irs.build_sheet(_meta(), _chips(), {})
+    assert "City and County of Denver" in html
+    assert "leaf-off 3-inch" in html
+    assert "denver-2016" in html
+
+
+def test_sheet_does_not_bake_annotations_into_the_image():
+    """Regression guard for the thing that made the first sheet unusable."""
+    html = irs.build_sheet(_meta(), _chips(), {})
+    assert "overlayInner" in html       # rings are markup, not pixels
+    assert "nooverlay" in html          # and they can be switched off
 
 
 # --------------------------------------------------------------------------- #
