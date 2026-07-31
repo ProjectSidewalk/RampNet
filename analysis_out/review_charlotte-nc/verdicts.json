@@ -1,0 +1,84 @@
+{
+  "city": "charlotte-nc",
+  "inventory": "charlotte-nc-2026-07-31.jsonl.gz",
+  "seed": 20260731,
+  "sampling": "uniform",
+  "sample_requested": 60,
+  "sample_frame": {
+    "field": "RP_Type",
+    "value": null,
+    "size": 35095,
+    "of": 40600
+  },
+  "grid": null,
+  "tile_source": "charlotte-2021",
+  "tile_url": "https://gis.charlottenc.gov/arcgis/rest/services/WEB/Aerial21/MapServer/tile/{z}/{y}/{x}",
+  "imagery": "City of Charlotte GIS, Aerial Imagery (2021)",
+  "imagery_note": "Leaf-off and 0.061 m/px at Charlotte's latitude \u2014 a 40 m chip is 656 px, against Denver's 698 and Seattle's 397. Vegetation cover 16.2% and mean excess-green 10.6, effectively matching Denver's leaf-off 7.2% / 10.7 and far clear of King County's 27-41%. This is a basemap that can grade a city expected to be Good.",
+  "zoom": 21,
+  "metres_per_pixel": 0.06111941306271879,
+  "span_m": 40.0,
+  "span_px": 654,
+  "ring_radii_m": [
+    1.0,
+    2.0,
+    5.0,
+    10.0
+  ],
+  "neighbour_radii_m": [
+    6.0,
+    10.0
+  ],
+  "blank_chips_dropped": 0,
+  "no_imagery_dropped": 59,
+  "rubric": {
+    "click_target": "Click the CENTRE of the ramp's concrete apron. NOT the detectable-warning pad: PROWAG R305 puts the pad at the back of curb on perpendicular, blended and diagonal ramps, and on the street-level landing of a parallel ramp, so pad centres sit roughly 0.6-0.9 m down-slope of ramp centres. The pad is the most visible thing in the frame, so clicking pads is the easy mistake, and it would add that 0.6-0.9 m to EVERY record as a systematic bias that looks exactly like real positional error. Parallel ramp (a level landing flanked by two sloped runs, where 'the centre' has three defensible answers metres apart): click the centre of the LANDING and note 'parallel'. Legacy ramps whose entire surface is domed are the one case where pad centre and ramp centre coincide.",
+    "always_click": "Click on EVERY chip, including when the crosshair already looks dead centre \u2014 click the crosshair itself for ~0. Two reasons. Mechanically, a chip with no click has a null offset and never counts as reviewed. Methodologically, if you only click when you think you see an error then near-zero cases are recorded by omission, and the low tail of the distribution becomes an artefact of reviewer confidence rather than a property of the data.",
+    "ramps_visible": "Count only ramps you could reach from the crosshair WITHOUT CROSSING A ROADWAY. This is per-corner, not per-chip: a 40 m chip on an arterial holds three or four corners and counting all of them conflates 'ramps in frame' with 'ramps on this corner'. Perpendicular pair = 2. One diagonal apron serving two crossings = 1. Median island with a cut-through = 2, one end per side. Triangular channelising island ('pork chop') = 3, one per leg it serves. Note that 'one ramp per crossing' is NOT the rule \u2014 a median has two ends serving a single crossing; containment is the rule. THE RINGS DO NOT BOUND THE COUNT either: they exist to measure the offset, and a ramp sitting inside the 10 m ring but across a roadway belongs to a different corner. On chip 66519 four ramps fall inside the 10 m ring and the answer is three.",
+    "on_corner": "The same containment test: YES if the crosshair and the ramp you clicked are on the same corner or island with no roadway between them. It is NOT 'is this the ramp the digitiser meant' \u2014 these inventories carry no corner key, so that is unknowable. Below ~2-3 m it is yes by construction, so the field only carries information in the tail, where it separates an imprecise point (benign for Stage 1: it still projects into roughly the right part of the panorama) from a misassigned one (wrong side of the street, plausibly a different panorama altogether). Mid-block ramps and refuge islands resolve under the same test; note the case.",
+    "no_ramp": "The corner is readable and there is definitively no ramp at it. This is a PHANTOM record, and it is a result rather than a failure \u2014 an inventory whose schema has no removal mechanism gives a demolished ramp no way to leave the layer, so the phantom rate has no upper bound from the data alone. Kept distinct from unjudgeable on purpose: 'I can see, and it is not there' is a different claim from 'I cannot see'.",
+    "unjudgeable": "Shadow, occlusion or resolution prevents a call. Mark it rather than guessing \u2014 the unreadable rate is itself a reported number.",
+    "resolution_floor": "Offsets below roughly 0.3 m are at the floor of this instrument, not measurements of real error: see the metres-per-pixel in this manifest for the pixel size, and the registration check in analysis_out/georef_check/ for how well the imagery agrees with the city's own vector data. Report the left tail as floor-limited rather than claiming centimetres.",
+    "published_nearby": "The published records near each chip are HELD BACK until you have recorded BOTH of this chip's own numbers \u2014 the offset (or a terminal state) and the count \u2014 and this is deliberate. Both are meant to be independent evidence from the imagery, and the whole value of the comparison is that the two sources were arrived at separately. Gating on the count alone was not enough: with the markers already on screen, a click drifts toward one and offset_m silently becomes 'distance to the published record' rather than 'distance to the ramp' \u2014 corrupting the headline number of the assessment. The published data is a cross-check, never an input. Once revealed, each nearby record is drawn on the image as a magenta diamond, and THE DIAMONDS ARE THE EVIDENCE \u2014 the counts are only a summary. **A radius is not a corner**, and it fails in both directions on exactly the complex geometry where the comparison would matter: 6 m misses the far ramp of a large corner (chip 66519's channelising island spans 7.0 m) and reaches straight across a 4-5 m slip lane (chip 67585, where the record 5.2 m ESE is on the far side of a crossing). Both produced confident false alarms before the panel stopped issuing verdicts. So: look at where the diamonds fall, decide which are on your corner, and note a genuine disagreement rather than trusting a number. A count above the published figure suggests the city under-records (the pair-merge failure mode); below it suggests phantoms or duplicates."
+  },
+  "sheet_build": "62351bd5",
+  "reviewer": null,
+  "reviewed_on": null,
+  "confidence": null,
+  "records": [
+    {
+      "id": "1718545",
+      "lon": -80.83464428832495,
+      "lat": 35.03562083253872,
+      "tiles": [
+        "21/830422/577678",
+        "21/830423/577678",
+        "21/830424/577678",
+        "21/830425/577678",
+        "21/830422/577679",
+        "21/830423/577679",
+        "21/830424/577679",
+        "21/830425/577679",
+        "21/830422/577680",
+        "21/830423/577680",
+        "21/830424/577680",
+        "21/830425/577680",
+        "21/830422/577681",
+        "21/830423/577681",
+        "21/830424/577681",
+        "21/830425/577681"
+      ],
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        5.06
+      ]
+    }
+  ]
+}

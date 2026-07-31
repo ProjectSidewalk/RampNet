@@ -61,6 +61,53 @@ def percentile(sorted_values, q):
     return sorted_values[lo] + (sorted_values[hi] - sorted_values[lo]) * (k - lo)
 
 
+def systematic_shift(records, metres_per_pixel, span_px):
+    """Is the offset a random error, or is the whole city displaced?
+
+    **The check that separates a bad inventory from a bad basemap**, and it costs
+    nothing extra because the reviewer's click already records a *direction*, not
+    just a distance.
+
+    Random positional error cancels: the mean offset VECTOR tends to zero while
+    the mean offset MAGNITUDE does not. A datum or projection error does not
+    cancel — every ramp is displaced the same way, so the two converge. The ratio
+    ``|mean vector| / mean magnitude`` is therefore ~0 for noise and ~1 for a
+    shift.
+
+    Denver measures 0.10 m resultant against 0.44 m mean magnitude (24%) — no
+    gross shift, consistent with §5e's independent centreline check. Seattle's
+    first 11 chips measure 2.06 m against 2.37 m (**87%**), with the ramp west of
+    the published point in 9 of 11: that is not imprecision, and quoting its
+    median as a precision figure would have been wrong.
+
+    A high share does NOT say which side is wrong — the inventory's coordinates
+    or the basemap's registration. Resolving that needs the city's own vector
+    data drawn on the imagery (`verify_chip_georeference.py`). Pure.
+    """
+    C = span_px / 2.0
+    vecs = []
+    for r in records:
+        if r.get("unreadable") or r.get("click_px") is None or r.get("offset_m") is None:
+            continue
+        px, py = r["click_px"]
+        vecs.append(((px - C) * metres_per_pixel, -(py - C) * metres_per_pixel))
+    if not vecs:
+        return None
+    n = len(vecs)
+    mean_e = sum(v[0] for v in vecs) / n
+    mean_n = sum(v[1] for v in vecs) / n
+    resultant = math.hypot(mean_e, mean_n)
+    mean_mag = sum(math.hypot(*v) for v in vecs) / n
+    return {
+        "n": n,
+        "mean_east_m": mean_e, "mean_north_m": mean_n,
+        "resultant_m": resultant, "mean_magnitude_m": mean_mag,
+        "systematic_share": (resultant / mean_mag) if mean_mag else None,
+        "east_positive": sum(1 for v in vecs if v[0] > 0),
+        "north_positive": sum(1 for v in vecs if v[1] > 0),
+    }
+
+
 def classify(record):
     """One of 'measured', 'phantom', 'unjudgeable', 'todo'. Pure.
 
@@ -140,9 +187,18 @@ def summarise(manifest):
                     "rate": (len(buckets["phantom"]) / n_judgeable) if n_judgeable else None,
                     "ci": wilson(len(buckets["phantom"]), n_judgeable),
                     "ids": [r["id"] for r in buckets["phantom"]]},
+        # Two denominators, because they answer different questions and the wrong
+        # one is badly misleading mid-review. Over ALL chips is the number to
+        # report once the pass is complete; over ATTEMPTED chips is the only
+        # honest reading while chips remain untouched, since the untouched ones
+        # are not evidence that the imagery was readable.
         "unjudgeable": {"n": len(buckets["unjudgeable"]), "of": n_all,
                         "rate": len(buckets["unjudgeable"]) / n_all if n_all else None,
                         "ci": wilson(len(buckets["unjudgeable"]), n_all),
+                        "of_attempted": n_all - len(buckets["todo"]),
+                        "rate_of_attempted": (
+                            len(buckets["unjudgeable"]) / (n_all - len(buckets["todo"]))
+                            if n_all - len(buckets["todo"]) else None),
                         "ids": [r["id"] for r in buckets["unjudgeable"]]},
         "per_corner": {
             "consistent": agree, "more_than_published": more,
@@ -151,6 +207,9 @@ def summarise(manifest):
             "counted": len(counted),
             "histogram": {str(v): counted.count(v) for v in sorted(set(counted))},
         },
+        "systematic_shift": systematic_shift(
+            records, manifest.get("metres_per_pixel") or 0.0,
+            manifest.get("span_px") or 0),
         "excluded_clicks": [
             {"id": r["id"], "offset_m": r["offset_m"], "note": r.get("note", "")}
             for r in buckets["unjudgeable"] if r.get("offset_m") is not None
@@ -184,9 +243,12 @@ def render(s):
     w("PHANTOM      {}/{} judgeable = {:.1f}%  [{:.1f}-{:.1f}]  {}".format(
         p["n"], p["of_judgeable"], 100 * p["rate"], 100 * p["ci"][0], 100 * p["ci"][1],
         ", ".join(p["ids"])))
-    w("UNJUDGEABLE  {}/{} chips     = {:.1f}%  [{:.1f}-{:.1f}]  {}".format(
-        u["n"], u["of"], 100 * u["rate"], 100 * u["ci"][0], 100 * u["ci"][1],
-        ", ".join(u["ids"])))
+    w("UNJUDGEABLE  {}/{} chips     = {:.1f}%  [{:.1f}-{:.1f}]".format(
+        u["n"], u["of"], 100 * u["rate"], 100 * u["ci"][0], 100 * u["ci"][1]))
+    if s["todo"]:
+        w("             {}/{} ATTEMPTED = {:.1f}%  <- the honest reading mid-review".format(
+            u["n"], u["of_attempted"], 100 * u["rate_of_attempted"]))
+    w("             {}".format(", ".join(u["ids"])))
     c = s["per_corner"]
     w("")
     w("PER-CORNER   consistent {} | saw more {} | saw fewer {}   (n={})".format(
@@ -197,6 +259,21 @@ def render(s):
         w("   {:<8} saw {} | published {}/{} | {}{}".format(
             d["id"], d["seen"], d["p6"], d["p10"], d["kind"],
             " (phantom)" if d.get("phantom") else ""))
+    sh = s.get("systematic_shift")
+    if sh:
+        w("")
+        w("SYSTEMATIC SHIFT  (does the whole city move, or is it random error?)")
+        w("  mean magnitude {:.2f} m | mean vector east {:+.2f} north {:+.2f} -> resultant {:.2f} m"
+          .format(sh["mean_magnitude_m"], sh["mean_east_m"], sh["mean_north_m"],
+                  sh["resultant_m"]))
+        w("  systematic share {:.0f}%  (east-positive {}/{}, north-positive {}/{})"
+          .format(100 * sh["systematic_share"], sh["east_positive"], sh["n"],
+                  sh["north_positive"], sh["n"]))
+        if sh["systematic_share"] > 0.5:
+            w("  !! MOSTLY SYSTEMATIC -- this is a registration error, not imprecision.")
+            w("     Do NOT quote the median as a precision figure. Establish which side")
+            w("     is wrong (inventory vs basemap) with verify_chip_georeference.py.")
+
     if s["excluded_clicks"]:
         w("")
         w("CLICKS EXCLUDED as unjudgeable (recorded, not counted):")

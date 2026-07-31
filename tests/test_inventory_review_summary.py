@@ -116,6 +116,61 @@ def test_counts_outside_the_bracket_are_flagged_with_direction():
 
 
 # --------------------------------------------------------------------------- #
+# systematic shift -- bad inventory vs bad basemap
+# --------------------------------------------------------------------------- #
+def _clicked(rid, dx_px, dy_px, span=698, mpp=0.0573, **kw):
+    C = span / 2.0
+    return _rec(rid, offset_m=math.hypot(dx_px, dy_px) * mpp,
+                click_px=[C + dx_px, C + dy_px], **kw)
+
+
+def test_random_directions_cancel():
+    """Genuine positional imprecision points every way, so the mean VECTOR goes
+    to zero while the mean MAGNITUDE does not. Denver measures 24%."""
+    recs = [_clicked("a", 20, 0), _clicked("b", -20, 0),
+            _clicked("c", 0, 20), _clicked("d", 0, -20)]
+    s = irs.systematic_shift(recs, 0.0573, 698)
+    assert s["n"] == 4
+    assert abs(s["resultant_m"]) < 1e-9
+    assert s["mean_magnitude_m"] > 1.0
+    assert s["systematic_share"] < 1e-9
+
+
+def test_a_uniform_displacement_does_not_cancel():
+    """A datum or projection error moves every ramp the same way, so resultant
+    and magnitude converge. Seattle's first 11 chips measure 87%."""
+    recs = [_clicked(str(i), -35, 0) for i in range(6)]
+    s = irs.systematic_shift(recs, 0.0573, 698)
+    assert s["systematic_share"] > 0.99
+    assert s["mean_east_m"] < 0          # ramp west of the published point
+    assert s["east_positive"] == 0
+
+
+def test_north_is_up_in_the_reported_vector():
+    """Screen y grows downward. Getting this backwards would report a shift in
+    exactly the wrong direction, which is worse than reporting none."""
+    s = irs.systematic_shift([_clicked("a", 0, -20)], 0.0573, 698)
+    assert s["mean_north_m"] > 0
+
+
+def test_disowned_and_unclicked_chips_are_excluded_from_the_shift():
+    recs = [_clicked("a", -35, 0),
+            _clicked("b", -35, 0, unreadable=True),   # disowned
+            _rec("c", offset_m=1.0)]                  # no click_px
+    assert irs.systematic_shift(recs, 0.0573, 698)["n"] == 1
+
+
+def test_shift_is_none_when_nothing_has_been_clicked():
+    assert irs.systematic_shift([_rec("a")], 0.0573, 698) is None
+
+
+def test_shift_reaches_the_summary_payload():
+    s = irs.summarise({"metres_per_pixel": 0.0573, "span_px": 698,
+                       "records": [_clicked("a", -35, 0), _clicked("b", -35, 0)]})
+    assert s["systematic_shift"]["systematic_share"] > 0.99
+
+
+# --------------------------------------------------------------------------- #
 # arithmetic
 # --------------------------------------------------------------------------- #
 def test_percentiles_interpolate_and_bracket_the_data():

@@ -91,6 +91,7 @@ import math
 import os
 import random
 import sys
+import time
 import urllib.request
 from collections import defaultdict
 
@@ -131,6 +132,19 @@ TILE_SOURCES = {
     # consequence travels into the manifest: expect a much higher unjudgeable
     # rate than Denver's 6.8%, and a selection effect, because the corners that
     # stay readable are the ones without street trees.
+    "charlotte-2021": {
+        "url": ("https://gis.charlottenc.gov/arcgis/rest/services/WEB/Aerial21"
+                "/MapServer/tile/{z}/{y}/{x}"),
+        # Declares maxLOD 23, serves 21. Third city in a row where the metadata
+        # overstates the built cache.
+        "max_zoom": 21,
+        "attribution": "City of Charlotte GIS, Aerial Imagery (2021)",
+        "note": "Leaf-off and 0.061 m/px at Charlotte's latitude — a 40 m chip is "
+                "656 px, against Denver's 698 and Seattle's 397. Vegetation cover "
+                "16.2% and mean excess-green 10.6, effectively matching Denver's "
+                "leaf-off 7.2% / 10.7 and far clear of King County's 27-41%. This "
+                "is a basemap that can grade a city expected to be Good.",
+    },
     "seattle-2019": {
         "url": ("https://gismaps.kingcounty.gov/arcgis/rest/services/BaseMaps"
                 "/KingCo_Aerial_2019/MapServer/tile/{z}/{y}/{x}"),
@@ -463,7 +477,22 @@ class TileMissing(Exception):
     """
 
 
-def _fetch_tile(url, cache_dir, timeout=60):
+def _fetch_tile(url, cache_dir, timeout=60, retries=4):
+    """Fetch one tile, caching both presence and absence.
+
+    **A 404 is retried before it is believed.** Charlotte's `WEB/Aerial21`
+    intermittently 404s on tiles that demonstrably exist — measured at 25-35% of
+    requests, varying run to run for the same tile. Caching the first 404 as
+    absence turned that into a catastrophe rather than a nuisance: a 40 m chip
+    needs ~16 tiles, so at a 30% transient failure rate only 0.3% of chips
+    survive, and the first Charlotte sheet came out with **1 of 60** — reported
+    as "outside the basemap footprint", which was wrong and would have been
+    believed.
+
+    A tile genuinely outside the municipal footprint 404s every time, so
+    absence is still cheap to establish; it just has to be established by
+    evidence rather than by one sample.
+    """
     from PIL import Image
     key = url.split("/tile/")[-1].replace("/", "_") + ".jpg"
     path = os.path.join(cache_dir, key)
@@ -472,15 +501,22 @@ def _fetch_tile(url, cache_dir, timeout=60):
             raise TileMissing(url)
         return Image.open(path).convert("RGB")
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as fh:
-            blob = fh.read()
-    except urllib.error.HTTPError as exc:
-        if exc.code in (404, 400):
-            # Cache the absence too, so a re-run does not re-request it.
-            open(path, "wb").close()
-            raise TileMissing(url)
-        raise
+    last = None
+    for attempt in range(retries):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as fh:
+                blob = fh.read()
+            break
+        except urllib.error.HTTPError as exc:
+            if exc.code not in (404, 400):
+                raise
+            last = exc
+            if attempt < retries - 1:
+                time.sleep(0.4 * (attempt + 1))
+    else:
+        # Every attempt said absent, so believe it and cache that.
+        open(path, "wb").close()
+        raise TileMissing(url)
     with open(path, "wb") as out:
         out.write(blob)
     return Image.open(io.BytesIO(blob)).convert("RGB")
@@ -1062,7 +1098,15 @@ def main(argv=None):
     ap.add_argument("--id-field", default="OBJECTID")
     ap.add_argument("--where-field", default=None,
                     help="restrict the sample frame, e.g. UPDATE_STATUS")
-    ap.add_argument("--where-value", default=None)
+    ap.add_argument("--where-value", default=None,
+                    help="keep only rows where the field equals this")
+    ap.add_argument("--where-not", default=None,
+                    help="drop rows where the field equals this. Needed because the "
+                         "interesting filters are often exclusions: Charlotte's 5,505 "
+                         "RP_Type=NoRamp rows assert a corner has NO ramp — right "
+                         "polarity for #86, wrong for a Stage 1 label — and there is "
+                         "no single positive value to select instead, since the "
+                         "remaining 16 types are all real ramps.")
     ap.add_argument("--out-dir", default=OUT)
     args = ap.parse_args(argv)
 
@@ -1072,12 +1116,26 @@ def main(argv=None):
         ap.error("{} serves at most z{}; deeper levels return blank placeholders".format(
             args.tile_source, src["max_zoom"]))
 
+    if args.where_value is not None and args.where_not is not None:
+        ap.error("--where-value and --where-not are mutually exclusive")
+    if args.where_field and args.where_value is None and args.where_not is None:
+        ap.error("--where-field needs either --where-value or --where-not")
+
     rows = load_inventory(args.inventory)
     frame = list(range(len(rows)))
     if args.where_field:
-        frame = [i for i in frame if str(rows[i].get(args.where_field)) == args.where_value]
-        print("sample frame: {} of {} records with {}={}".format(
-            len(frame), len(rows), args.where_field, args.where_value))
+        if args.where_not is not None:
+            frame = [i for i in frame
+                     if str(rows[i].get(args.where_field)) != args.where_not]
+            print("sample frame: {} of {} records with {}!={}".format(
+                len(frame), len(rows), args.where_field, args.where_not))
+        else:
+            frame = [i for i in frame
+                     if str(rows[i].get(args.where_field)) == args.where_value]
+            print("sample frame: {} of {} records with {}={}".format(
+                len(frame), len(rows), args.where_field, args.where_value))
+        if not frame:
+            ap.error("the sample frame is empty — check the field name and value")
     pts = [(rows[i]["lon"], rows[i]["lat"]) for i in frame]
     if args.sampling == "uniform":
         local = uniform_sample(len(frame), args.sample, args.seed)

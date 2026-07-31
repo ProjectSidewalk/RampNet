@@ -17,29 +17,29 @@
   "imagery_note": "LEAF-ON at 28.3% vegetation cover (Denver's leaf-off reference is 7.2%), and 0.101 m/px -- a ramp is ~15 px against Denver's ~26. The least leafy King County year, which is the best available: Seattle's own sharper caches are EPSG:2926 and the tile math does not apply. Adequate to size a LARGE error, which is what a Poor-anchor calibration needs; NOT adequate to grade a city expected to be Good, and the unjudgeable rate will be high with a selection effect toward un-treed corners.",
   "zoom": 20,
   "metres_per_pixel": 0.10068952500890259,
-  "span_m": 40.0,
+  "span_m": 40,
   "span_px": 397,
   "ring_radii_m": [
-    1.0,
-    2.0,
-    5.0,
-    10.0
+    1,
+    2,
+    5,
+    10
   ],
   "neighbour_radii_m": [
-    6.0,
-    10.0
+    6,
+    10
   ],
   "blank_chips_dropped": 0,
   "no_imagery_dropped": 0,
   "rubric": {
     "click_target": "Click the CENTRE of the ramp's concrete apron. NOT the detectable-warning pad: PROWAG R305 puts the pad at the back of curb on perpendicular, blended and diagonal ramps, and on the street-level landing of a parallel ramp, so pad centres sit roughly 0.6-0.9 m down-slope of ramp centres. The pad is the most visible thing in the frame, so clicking pads is the easy mistake, and it would add that 0.6-0.9 m to EVERY record as a systematic bias that looks exactly like real positional error. Parallel ramp (a level landing flanked by two sloped runs, where 'the centre' has three defensible answers metres apart): click the centre of the LANDING and note 'parallel'. Legacy ramps whose entire surface is domed are the one case where pad centre and ramp centre coincide.",
-    "always_click": "Click on EVERY chip, including when the crosshair already looks dead centre \u2014 click the crosshair itself for ~0. Two reasons. Mechanically, a chip with no click has a null offset and never counts as reviewed. Methodologically, if you only click when you think you see an error then near-zero cases are recorded by omission, and the low tail of the distribution becomes an artefact of reviewer confidence rather than a property of the data.",
-    "ramps_visible": "Count only ramps you could reach from the crosshair WITHOUT CROSSING A ROADWAY. This is per-corner, not per-chip: a 40 m chip on an arterial holds three or four corners and counting all of them conflates 'ramps in frame' with 'ramps on this corner'. Perpendicular pair = 2. One diagonal apron serving two crossings = 1. Median island with a cut-through = 2, one end per side. Triangular channelising island ('pork chop') = 3, one per leg it serves. Note that 'one ramp per crossing' is NOT the rule \u2014 a median has two ends serving a single crossing; containment is the rule. THE RINGS DO NOT BOUND THE COUNT either: they exist to measure the offset, and a ramp sitting inside the 10 m ring but across a roadway belongs to a different corner. On chip 66519 four ramps fall inside the 10 m ring and the answer is three.",
-    "on_corner": "The same containment test: YES if the crosshair and the ramp you clicked are on the same corner or island with no roadway between them. It is NOT 'is this the ramp the digitiser meant' \u2014 these inventories carry no corner key, so that is unknowable. Below ~2-3 m it is yes by construction, so the field only carries information in the tail, where it separates an imprecise point (benign for Stage 1: it still projects into roughly the right part of the panorama) from a misassigned one (wrong side of the street, plausibly a different panorama altogether). Mid-block ramps and refuge islands resolve under the same test; note the case.",
-    "no_ramp": "The corner is readable and there is definitively no ramp at it. This is a PHANTOM record, and it is a result rather than a failure \u2014 an inventory whose schema has no removal mechanism gives a demolished ramp no way to leave the layer, so the phantom rate has no upper bound from the data alone. Kept distinct from unjudgeable on purpose: 'I can see, and it is not there' is a different claim from 'I cannot see'.",
-    "unjudgeable": "Shadow, occlusion or resolution prevents a call. Mark it rather than guessing \u2014 the unreadable rate is itself a reported number.",
+    "always_click": "Click on EVERY chip, including when the crosshair already looks dead centre — click the crosshair itself for ~0. Two reasons. Mechanically, a chip with no click has a null offset and never counts as reviewed. Methodologically, if you only click when you think you see an error then near-zero cases are recorded by omission, and the low tail of the distribution becomes an artefact of reviewer confidence rather than a property of the data.",
+    "ramps_visible": "Count only ramps you could reach from the crosshair WITHOUT CROSSING A ROADWAY. This is per-corner, not per-chip: a 40 m chip on an arterial holds three or four corners and counting all of them conflates 'ramps in frame' with 'ramps on this corner'. Perpendicular pair = 2. One diagonal apron serving two crossings = 1. Median island with a cut-through = 2, one end per side. Triangular channelising island ('pork chop') = 3, one per leg it serves. Note that 'one ramp per crossing' is NOT the rule — a median has two ends serving a single crossing; containment is the rule. THE RINGS DO NOT BOUND THE COUNT either: they exist to measure the offset, and a ramp sitting inside the 10 m ring but across a roadway belongs to a different corner. On chip 66519 four ramps fall inside the 10 m ring and the answer is three.",
+    "on_corner": "The same containment test: YES if the crosshair and the ramp you clicked are on the same corner or island with no roadway between them. It is NOT 'is this the ramp the digitiser meant' — these inventories carry no corner key, so that is unknowable. Below ~2-3 m it is yes by construction, so the field only carries information in the tail, where it separates an imprecise point (benign for Stage 1: it still projects into roughly the right part of the panorama) from a misassigned one (wrong side of the street, plausibly a different panorama altogether). Mid-block ramps and refuge islands resolve under the same test; note the case.",
+    "no_ramp": "The corner is readable and there is definitively no ramp at it. This is a PHANTOM record, and it is a result rather than a failure — an inventory whose schema has no removal mechanism gives a demolished ramp no way to leave the layer, so the phantom rate has no upper bound from the data alone. Kept distinct from unjudgeable on purpose: 'I can see, and it is not there' is a different claim from 'I cannot see'.",
+    "unjudgeable": "Shadow, occlusion or resolution prevents a call. Mark it rather than guessing — the unreadable rate is itself a reported number.",
     "resolution_floor": "Offsets below roughly 0.3 m are at the floor of this instrument, not measurements of real error: see the metres-per-pixel in this manifest for the pixel size, and the registration check in analysis_out/georef_check/ for how well the imagery agrees with the city's own vector data. Report the left tail as floor-limited rather than claiming centimetres.",
-    "published_nearby": "The published records near each chip are HELD BACK until you have recorded BOTH of this chip's own numbers \u2014 the offset (or a terminal state) and the count \u2014 and this is deliberate. Both are meant to be independent evidence from the imagery, and the whole value of the comparison is that the two sources were arrived at separately. Gating on the count alone was not enough: with the markers already on screen, a click drifts toward one and offset_m silently becomes 'distance to the published record' rather than 'distance to the ramp' \u2014 corrupting the headline number of the assessment. The published data is a cross-check, never an input. Once revealed, each nearby record is drawn on the image as a magenta diamond, and THE DIAMONDS ARE THE EVIDENCE \u2014 the counts are only a summary. **A radius is not a corner**, and it fails in both directions on exactly the complex geometry where the comparison would matter: 6 m misses the far ramp of a large corner (chip 66519's channelising island spans 7.0 m) and reaches straight across a 4-5 m slip lane (chip 67585, where the record 5.2 m ESE is on the far side of a crossing). Both produced confident false alarms before the panel stopped issuing verdicts. So: look at where the diamonds fall, decide which are on your corner, and note a genuine disagreement rather than trusting a number. A count above the published figure suggests the city under-records (the pair-merge failure mode); below it suggests phantoms or duplicates."
+    "published_nearby": "The published records near each chip are HELD BACK until you have recorded BOTH of this chip's own numbers — the offset (or a terminal state) and the count — and this is deliberate. Both are meant to be independent evidence from the imagery, and the whole value of the comparison is that the two sources were arrived at separately. Gating on the count alone was not enough: with the markers already on screen, a click drifts toward one and offset_m silently becomes 'distance to the published record' rather than 'distance to the ramp' — corrupting the headline number of the assessment. The published data is a cross-check, never an input. Once revealed, each nearby record is drawn on the image as a magenta diamond, and THE DIAMONDS ARE THE EVIDENCE — the counts are only a summary. **A radius is not a corner**, and it fails in both directions on exactly the complex geometry where the comparison would matter: 6 m misses the far ramp of a large corner (chip 66519's channelising island spans 7.0 m) and reaches straight across a 4-5 m slip lane (chip 67585, where the record 5.2 m ESE is on the far side of a crossing). Both produced confident false alarms before the panel stopped issuing verdicts. So: look at where the diamonds fall, decide which are on your corner, and note a genuine disagreement rather than trusting a number. A count above the published figure suggests the city under-records (the pair-merge failure mode); below it suggests phantoms or duplicates."
   },
   "sheet_build": "62351bd5",
   "reviewer": null,
@@ -58,18 +58,17 @@
         "20/365827/167996",
         "20/365828/167996"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 3.16,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        8.2,
-        11.12,
-        16.19
+      "click_px": [
+        167.1,
+        199.3
       ]
     },
     {
@@ -85,17 +84,12 @@
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        16.35,
-        17.24,
-        18.51,
-        19.69
-      ]
+      "click_px": null
     },
     {
       "id": "1951390",
@@ -109,21 +103,17 @@
         "20/366435/167977",
         "20/366436/167977"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 8.79,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
-      "note": "",
+      "note": "The crosshairs and magenta ramps seem to be WAY off",
       "published_within_6m": 1,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        7.18,
-        8.2,
-        13.51,
-        14.32,
-        16.76,
-        17.23
+      "click_px": [
+        114.1,
+        176.2
       ]
     },
     {
@@ -138,15 +128,13 @@
       ],
       "offset_m": null,
       "on_corner": null,
-      "ramps_visible": null,
+      "ramps_visible": 0,
       "unreadable": false,
-      "no_ramp": false,
+      "no_ramp": true,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        7.96
-      ]
+      "click_px": null
     },
     {
       "id": "1951855",
@@ -166,14 +154,12 @@
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        8.2
-      ]
+      "click_px": null
     },
     {
       "id": "1953642",
@@ -188,22 +174,14 @@
         "20/365814/168083"
       ],
       "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
-      "unreadable": false,
+      "on_corner": true,
+      "ramps_visible": 1,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "Lots of tree cover",
       "published_within_6m": 2,
       "published_within_10m": 4,
-      "published_neighbours_m": [
-        2.31,
-        9.39,
-        9.87,
-        10.51,
-        10.66,
-        14.03,
-        16.51
-      ]
+      "click_px": null
     },
     {
       "id": "1953845",
@@ -223,12 +201,12 @@
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": []
+      "click_px": null
     },
     {
       "id": "1954972",
@@ -245,19 +223,12 @@
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "This is in the middle of the street",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        6.33,
-        15.0,
-        15.09,
-        18.2,
-        18.69,
-        18.73
-      ]
+      "click_px": null
     },
     {
       "id": "1955553",
@@ -270,19 +241,14 @@
         "20/366495/167829"
       ],
       "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
-      "unreadable": false,
+      "on_corner": true,
+      "ramps_visible": 1,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "Not clear",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        9.6,
-        12.47,
-        14.12,
-        14.85
-      ]
+      "click_px": null
     },
     {
       "id": "1955871",
@@ -294,19 +260,17 @@
         "20/365895/167990",
         "20/365896/167990"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.21,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        4.97,
-        14.36,
-        15.24,
-        17.64
+      "click_px": [
+        199.2,
+        200.5
       ]
     },
     {
@@ -319,18 +283,17 @@
         "20/365842/167946",
         "20/365843/167946"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.31,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        6.41,
-        10.91,
-        16.6
+      "click_px": [
+        195.5,
+        198
       ]
     },
     {
@@ -345,18 +308,17 @@
         "20/365909/167808",
         "20/365910/167808"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.21,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        7.89,
-        10.47,
-        18.44
+      "click_px": [
+        198,
+        200.5
       ]
     },
     {
@@ -371,20 +333,17 @@
         "20/366394/168087",
         "20/366395/168087"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 2.48,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        3.45,
-        12.48,
-        12.93,
-        15.93,
-        17.52
+      "click_px": [
+        174.1,
+        194.7
       ]
     },
     {
@@ -397,17 +356,17 @@
         "20/366190/167956",
         "20/366191/167956"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.9,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        7.15,
-        12.55
+      "click_px": [
+        189.7,
+        200.1
       ]
     },
     {
@@ -428,15 +387,12 @@
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        11.48,
-        15.57
-      ]
+      "click_px": null
     },
     {
       "id": "1959786",
@@ -450,19 +406,17 @@
         "20/366163/167919",
         "20/366164/167919"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 3.12,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        8.85,
-        10.94,
-        16.66,
-        18.06
+      "click_px": [
+        172.1,
+        182.4
       ]
     },
     {
@@ -477,18 +431,17 @@
         "20/366341/168111",
         "20/366342/168111"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 2.33,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        3.9,
-        8.2,
-        12.47
+      "click_px": [
+        187.3,
+        178.3
       ]
     },
     {
@@ -506,17 +459,17 @@
         "20/366301/168056",
         "20/366302/168056"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.64,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        3.45,
-        9.27
+      "click_px": [
+        200.4,
+        204.6
       ]
     },
     {
@@ -531,20 +484,17 @@
         "20/366183/168007",
         "20/366184/168007"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 3.97,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 4,
-      "published_neighbours_m": [
-        6.01,
-        7.41,
-        9.99,
-        17.08,
-        17.99
+      "click_px": [
+        163.4,
+        216.5
       ]
     },
     {
@@ -570,9 +520,7 @@
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        8.21
-      ]
+      "click_px": null
     },
     {
       "id": "1964602",
@@ -597,11 +545,7 @@
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        7.91,
-        10.46,
-        14.77
-      ]
+      "click_px": null
     },
     {
       "id": "1966441",
@@ -623,12 +567,7 @@
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        5.29,
-        12.61,
-        16.12,
-        19.89
-      ]
+      "click_px": null
     },
     {
       "id": "1968732",
@@ -653,7 +592,7 @@
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": []
+      "click_px": null
     },
     {
       "id": "1968734",
@@ -678,7 +617,7 @@
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": []
+      "click_px": null
     },
     {
       "id": "1968950",
@@ -700,7 +639,7 @@
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": []
+      "click_px": null
     },
     {
       "id": "1969564",
@@ -722,14 +661,7 @@
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        6.57,
-        8.22,
-        13.52,
-        17.34,
-        19.59,
-        19.95
-      ]
+      "click_px": null
     },
     {
       "id": "1969844",
@@ -754,12 +686,7 @@
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        4.58,
-        7.89,
-        12.25,
-        17.34
-      ]
+      "click_px": null
     },
     {
       "id": "1970840",
@@ -781,14 +708,7 @@
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        4.71,
-        12.36,
-        13.7,
-        14.28,
-        16.45,
-        18.09
-      ]
+      "click_px": null
     },
     {
       "id": "1971980",
@@ -813,12 +733,7 @@
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        5.72,
-        11.3,
-        12.83,
-        19.85
-      ]
+      "click_px": null
     },
     {
       "id": "1972331",
@@ -843,15 +758,7 @@
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        3.03,
-        7.89,
-        10.38,
-        10.41,
-        12.49,
-        14.42,
-        14.78
-      ]
+      "click_px": null
     },
     {
       "id": "1973345",
@@ -871,13 +778,7 @@
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        4.91,
-        14.86,
-        17.37,
-        18.48,
-        19.26
-      ]
+      "click_px": null
     },
     {
       "id": "1973646",
@@ -899,13 +800,7 @@
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        4.37,
-        15.29,
-        15.38,
-        16.8,
-        17.93
-      ]
+      "click_px": null
     },
     {
       "id": "1973868",
@@ -927,10 +822,7 @@
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        6.13,
-        19.37
-      ]
+      "click_px": null
     },
     {
       "id": "1974005",
@@ -952,14 +844,7 @@
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        9.39,
-        10.37,
-        14.26,
-        16.76,
-        16.79,
-        18.58
-      ]
+      "click_px": null
     },
     {
       "id": "1974261",
@@ -981,13 +866,7 @@
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        3.28,
-        10.47,
-        12.47,
-        16.23,
-        19.0
-      ]
+      "click_px": null
     },
     {
       "id": "1976148",
@@ -1009,13 +888,7 @@
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        5.63,
-        13.99,
-        14.54,
-        16.65,
-        18.69
-      ]
+      "click_px": null
     },
     {
       "id": "1978401",
@@ -1037,9 +910,7 @@
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        9.8
-      ]
+      "click_px": null
     },
     {
       "id": "1979589",
@@ -1064,11 +935,7 @@
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        6.41,
-        8.21,
-        17.74
-      ]
+      "click_px": null
     },
     {
       "id": "1979628",
@@ -1093,10 +960,7 @@
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        10.3,
-        15.98
-      ]
+      "click_px": null
     },
     {
       "id": "1979819",
@@ -1118,7 +982,7 @@
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": []
+      "click_px": null
     },
     {
       "id": "1980200",
@@ -1140,12 +1004,7 @@
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        6.01,
-        13.3,
-        14.35,
-        15.63
-      ]
+      "click_px": null
     },
     {
       "id": "1981037",
@@ -1167,11 +1026,7 @@
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        5.54,
-        12.36,
-        16.01
-      ]
+      "click_px": null
     },
     {
       "id": "1981863",
@@ -1196,12 +1051,7 @@
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        3.65,
-        12.58,
-        17.1,
-        17.86
-      ]
+      "click_px": null
     },
     {
       "id": "1982774",
@@ -1223,13 +1073,7 @@
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        3.04,
-        8.21,
-        10.38,
-        12.47,
-        14.93
-      ]
+      "click_px": null
     },
     {
       "id": "1983093",
@@ -1254,12 +1098,7 @@
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        9.29,
-        14.1,
-        18.22,
-        18.56
-      ]
+      "click_px": null
     },
     {
       "id": "1983630",
@@ -1281,11 +1120,7 @@
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        2.51,
-        16.04,
-        18.16
-      ]
+      "click_px": null
     },
     {
       "id": "1983726",
@@ -1305,12 +1140,7 @@
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        9.43,
-        15.06,
-        16.91,
-        18.98
-      ]
+      "click_px": null
     },
     {
       "id": "1985143",
@@ -1335,11 +1165,7 @@
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        7.92,
-        13.75,
-        19.17
-      ]
+      "click_px": null
     },
     {
       "id": "1986949",
@@ -1359,13 +1185,7 @@
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        3.49,
-        14.93,
-        17.47,
-        18.11,
-        18.24
-      ]
+      "click_px": null
     },
     {
       "id": "1987375",
@@ -1385,14 +1205,7 @@
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        1.31,
-        12.81,
-        13.78,
-        15.6,
-        18.14,
-        18.27
-      ]
+      "click_px": null
     },
     {
       "id": "1987993",
@@ -1414,13 +1227,7 @@
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        2.38,
-        9.71,
-        11.32,
-        13.15,
-        16.11
-      ]
+      "click_px": null
     },
     {
       "id": "1988055",
@@ -1445,11 +1252,7 @@
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        5.43,
-        11.11,
-        15.14
-      ]
+      "click_px": null
     },
     {
       "id": "1989221",
@@ -1474,11 +1277,7 @@
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        14.01,
-        19.07,
-        19.67
-      ]
+      "click_px": null
     },
     {
       "id": "1990360",
@@ -1498,14 +1297,7 @@
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        2.9,
-        12.47,
-        15.4,
-        16.03,
-        16.84,
-        19.01
-      ]
+      "click_px": null
     },
     {
       "id": "1990628",
@@ -1525,14 +1317,7 @@
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        1.31,
-        11.98,
-        14.73,
-        14.95,
-        19.43,
-        19.58
-      ]
+      "click_px": null
     },
     {
       "id": "1991499",
@@ -1557,12 +1342,7 @@
       "note": "",
       "published_within_6m": 3,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        4.13,
-        5.33,
-        10.52,
-        18.14
-      ]
+      "click_px": null
     },
     {
       "id": "1992182",
@@ -1584,13 +1364,7 @@
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        2.08,
-        13.19,
-        14.95,
-        17.6,
-        18.15
-      ]
+      "click_px": null
     },
     {
       "id": "1992259",
@@ -1612,11 +1386,7 @@
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        6.46,
-        19.19,
-        19.95
-      ]
+      "click_px": null
     },
     {
       "id": "1992309",
@@ -1636,13 +1406,7 @@
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        4.72,
-        12.75,
-        13.36,
-        17.37,
-        18.99
-      ]
+      "click_px": null
     },
     {
       "id": "1994059",
@@ -1667,13 +1431,7 @@
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        2.52,
-        8.21,
-        10.16,
-        12.47,
-        14.94
-      ]
+      "click_px": null
     }
   ]
 }

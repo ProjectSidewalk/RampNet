@@ -367,6 +367,44 @@ def test_published_data_is_held_until_the_chip_is_fully_recorded():
 
 
 # --------------------------------------------------------------------------- #
+# sample frame
+# --------------------------------------------------------------------------- #
+def _frame(rows, field, value=None, not_value=None):
+    """The frame selection as main() applies it, isolated so it can be tested."""
+    idx = list(range(len(rows)))
+    if not field:
+        return idx
+    if not_value is not None:
+        return [i for i in idx if str(rows[i].get(field)) != not_value]
+    return [i for i in idx if str(rows[i].get(field)) == value]
+
+
+def test_exclusion_keeps_every_other_value():
+    """Charlotte's frame is an EXCLUSION, not a selection: 5,505 RP_Type=NoRamp
+    rows assert a corner has no ramp, and the remaining 16 types are all real
+    ramps, so there is no single positive value to select instead."""
+    rows = [{"RP_Type": t} for t in
+            ("Perp", "NoRamp", "PerpDiag", "NoRamp", "BlendTrans1", "Para")]
+    assert _frame(rows, "RP_Type", not_value="NoRamp") == [0, 2, 4, 5]
+
+
+def test_exclusion_and_selection_are_complements():
+    rows = [{"k": v} for v in ("a", "b", "a", "c")]
+    keep = set(_frame(rows, "k", value="a"))
+    drop = set(_frame(rows, "k", not_value="a"))
+    assert keep == {0, 2} and drop == {1, 3}
+    assert keep | drop == set(range(len(rows))) and not (keep & drop)
+
+
+def test_a_missing_field_compares_as_the_string_None():
+    """Charlotte has 2,135 rows with a null RP_Type. They are not NoRamp, so an
+    exclusion keeps them -- which is right, and worth pinning so a later change
+    to None-handling cannot silently shrink the frame."""
+    rows = [{"RP_Type": None}, {}, {"RP_Type": "NoRamp"}]
+    assert _frame(rows, "RP_Type", not_value="NoRamp") == [0, 1]
+
+
+# --------------------------------------------------------------------------- #
 # basemap registry
 # --------------------------------------------------------------------------- #
 def test_every_source_declares_provenance_and_a_depth_limit():
