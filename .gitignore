@@ -40,6 +40,10 @@ analysis_out/op/*
 # checkable without re-running the Hub fetch the script needs to regenerate them.
 !analysis_out/e1_stage1_label_recall.json
 !analysis_out/miss_decomposition.json
+# The miss taxonomy (#46) that tightens the decomposition's near-field bound. Same
+# size class, and it carries the per-bucket counts docs/curb_ramp_data_sourcing.md
+# quotes -- so the 3.8x correction is checkable without re-running anything.
+!analysis_out/miss_taxonomy.json
 
 # Claude Code local state. settings.local.json is per-machine (absolute paths,
 # session ids) and worktrees/ holds full repo checkouts -- gigabytes. Listed
