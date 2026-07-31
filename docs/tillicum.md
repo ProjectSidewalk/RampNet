@@ -179,6 +179,65 @@ pano epoch-time measurement while the much larger `tiles` image builds behind it
 > while our provisioning email says 1 TB. Assume 1 TB (the email is specific to us) but
 > confirm.
 
+### How the data actually got there: regenerate, don't transfer (resolved 2026-07-31)
+
+The SquashFS plan above is sound and it **worked** — klone job `37940649` packed
+`pano` into a single 76 GB `pano.sqfs` in 2 h 38 m (sha256 `75be5150…aea1dd0a`, still on
+klone at `/gscratch/scrubbed/jfroehli/yolo_squashfs/`). It solved the destination
+problem exactly as designed: one file instead of 193k.
+
+**It did not solve the transfer, and the transfer is the real blocker.** There is no
+automated klone → Tillicum path: no shared filesystem (`/gscratch` and `/mmfs1` do not
+exist on Tillicum), and neither end can authenticate to the other non-interactively —
+both are Duo/keyboard-interactive with no `publickey`, so `BatchMode` fails in both
+directions. Globus CLI is installed on neither side. Verified 2026-07-30.
+
+So we **regenerated the dataset on Tillicum from Hugging Face** instead
+(`scripts/model_comparison/run_yolo_data_prep_tillicum.slurm`, job `198910`, 4 h 40 m).
+This is safe rather than merely convenient, because the prep is deterministic by
+construction: `prepare_yolo_dataset.py` thins background tiles with an md5 of the file
+stem specifically so the choice is stable across processes and runs (see
+`_keep_background` and its comment about salted `hash()`).
+
+**Verified equivalent to klone, 2026-07-31.** Counts match the #51 record in all eight
+directories — and, because klone's tree is still live, we could go further than counts.
+The md5 of the sorted filename list is **identical on both clusters for all eight**, so
+the two datasets contain the same files under the same train/val split, not merely the
+same number of them:
+
+| directory | files | md5 of sorted filename list (klone == Tillicum) |
+|---|---:|---|
+| `tiles/images/train` | 557,413 | `f5e664fbd64651be0ff89045d217ff50` |
+| `tiles/images/val`   | 161,002 | `f48f91878d34e72a7b0b2dfd48f6c90a` |
+| `pano/images/train`  | 150,063 | `a8f3af23a61952ef1209435ca0e295ea` |
+| `pano/images/val`    |  42,875 | `83f5371483f3dbfa5a6aece939b86901` |
+| `tiles/labels/train` | 557,413 | `19c5c38ae148a907042d213c84002cc6` |
+| `tiles/labels/val`   | 161,002 | `711d5a59a2d6019ac1857133b167266e` |
+| `pano/labels/train`  | 150,063 | `015fc700faee211e37af3f8edeca0dfc` |
+| `pano/labels/val`    |  42,875 | `2fc039583a9b0cc08ca57b11739f5a5a` |
+
+Reproduce on either cluster with, per directory:
+`ls -U <root>/yolo/<d> | sort | md5sum` — klone root `/gscratch/scrubbed/jfroehli`,
+Tillicum root `/gpfs/scrubbed/jfroehli`. The prep run itself reported 767,840 boxes over
+192,938 panos with **0 read errors**. Anything trained on Tillicum is therefore
+comparable to the #51 klone arms on the data axis.
+
+Two caveats that travel with this:
+
+- **It cost $4.20** — 4.67 GPU-hours at `normal` QoS. Tillicum rejects CPU-only jobs, so
+  a data-prep job must hold an H200 it never uses. That is structural, not an error, but
+  it is the argument for keeping prep on klone (free) whenever a dataset already exists
+  there and *can* be reached. Here it could not be.
+- **It landed on `/gpfs/scrubbed`, not the 1 TB project quota** — 1.61 TB across 2.28 M
+  files, counting the ~462 GB Hugging Face source cache. `scrubbed` is purged on an
+  inactivity timer, so this copy is not durable: it is fine while an arm is actively
+  reading it, and must not be assumed to survive a gap between arms. Durable artifacts
+  still belong on klone's `/gscratch/makelab`.
+
+Keep the SquashFS path documented anyway: it is the right answer the moment a transfer
+route exists (a Globus endpoint, or an intermediate host either end can reach), and the
+`pano.sqfs` image is already built.
+
 ## Software environment
 
 Tillicum's documented path is **Apptainer containers**, not conda modules —
