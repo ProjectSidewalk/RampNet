@@ -32,6 +32,23 @@ and scaling bakes that in harder.
 **The measurement.** Two recall curves over the same **3,919 gold ramps in 793 panoramas**, on the
 #25 bins with the identical `geom()` estimator `size_analysis.py` uses. Model detections at 0.55.
 
+Both columns are recall against the same human ground truth, but they measure different things, and
+the asymmetry is the point:
+
+- **"Stage-1"** = *was a training label present at this ramp?* Stage 1 is **not a detector** — it is
+  handed the ramp's location by the government inventory, projects that coordinate onto the
+  panorama, and uses the crop model only to refine where the point lands. So this column measures
+  **whether the supervision existed**, which is precisely the ceiling the hypothesis is about.
+- **"model"** = *did the trained detector fire there?* It gets no positional hint and must locate
+  ramps from pixels alone.
+
+Stage-1 should therefore be the higher curve everywhere; the question is only whether it *falls off
+with distance the same way the model does*.
+
+*Caveat:* these Stage-1 labels come from the **test** split, so the model never trained on these
+particular panoramas. Same pipeline and same cities, so they are a fair proxy for the label quality
+the train split received — but a proxy, not a direct measurement of it.
+
 | distance | n | Stage-1 labels | model | gap |
 | :--- | ---: | ---: | ---: | ---: |
 | 0–8 m | 1,374 | 0.959 | 0.943 | +0.016 |
@@ -45,8 +62,8 @@ Apparent size tells the same story: Stage-1 falls 0.951 → 0.797 across 80+ px 
 (−0.154); the model falls 0.938 → 0.541 (−0.397).
 
 **Verdict: FLAT.** Stage-1 label recall does decline with distance, but **the model's cliff is ~2.5×
-steeper**. At 25–40 m the labels find 78% of gold ramps while the model detects 49% — the far ramps
-*are* being labeled; the model is not reaching the ceiling the labels already set. The gap widens
+steeper**. At 25–40 m a training label was present at 78% of gold ramps while the model detected 49%
+— the far ramps *were* labeled; the model is not reaching the ceiling that supervision set. The gap widens
 monotonically with distance and with shrinking apparent size, which is the signature of a
 resolution/model limit, not an inherited label limit. Consistent with #25's forecast (+0.103 recall
 at 2× linear resolution).
