@@ -58,6 +58,41 @@ half of the benchmark is currently unobtainable by anyone else. That blocks `mis
 
 Nothing in this repo can fix that; it needs #21 to land.
 
+## Every manual-review task, and what it would take to redo it
+
+Three distinct human passes exist. All three produce committed judgments; they differ in whether
+someone else can **redo the pass**.
+
+| task | judgments | what the reviewer saw | redoable by someone else? |
+| :--- | :--- | :--- | :--- |
+| **GT verification** (9 splits) | `benchmark/<city>/verdicts.json` ✅ | whole panoramas at **model resolution** via `scripts/gt_gallery.py` | ❌ needs the panos |
+| **#55 incremental-FP A/B** (8 splits) | `benchmark/<city>/incremental_fp_tags.json` ✅ | crops from `low_floor_sweep.py gallery` (244 MB PNG, git-ignored) | ❌ needs the panos |
+| **#46 miss taxonomy** (1 split-set) | `benchmark/miss_taxonomy_46/silent__jonf.json` ✅ | **crops committed** (15 MB) | ✅ **yes, today** |
+
+### What makes #46 redoable, and what the other two need
+
+The insight is that **a rating task does not need the 9 GB of panoramas — it needs the crops the
+rater actually saw**, and those are small. #46's are committed at
+`benchmark/miss_taxonomy_46/silent_gallery/` (50 crops + manifest, 15 MB), so a second rater needs
+no imagery, no `.model_cache` and no GPU: open the committed crops, tag, commit a second file.
+
+Applying the same to the other two is a size question, and here are the measured numbers:
+
+- **#55 A/B galleries: 244 MB as PNG** across the six cities still on disk (two cities' galleries
+  have already been deleted, though their tags survive — which is the failure mode this section
+  exists to prevent). Re-encoded as JPEG they would be far smaller. **Decision needed:** commit
+  re-encoded crops, or publish the galleries to HF.
+- **GT verification is the hard one.** Reviewers scan *whole panoramas* for missed ramps, so crops
+  are not enough. But `gt_gallery.py` renders at the model's **4096×2048**, never native (the #26
+  fairness note), so what is actually required is a **model-resolution derivative — roughly
+  1–2 GB, not the 9 GB native archive.** That is a much easier thing to publish, and it is worth
+  scoping HF #21 to include it rather than native-res alone.
+
+Both rubrics also currently live in code rather than beside the data: `gt_gallery.py`'s docstring
+for the verdict schema, and `low_floor_sweep.py` for what `A` and `B` mean. A second rater should
+not have to read the source to learn the rubric — #46's scheme travels inside its verdict files,
+and the older two should be given the same treatment.
+
 ## Human-rated tasks
 
 A human judgment is the least reproducible thing we produce, so it gets the most structure:

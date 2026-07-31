@@ -53,6 +53,10 @@ analysis_out/op/*
 # unwitnessed list that is the gallery's actual work queue.
 !analysis_out/silent_witness.json
 
+# Generated tagging pages live next to their (committed) galleries; regenerate with
+# scripts/analysis/make_tagger.py rather than tracking a build artifact.
+benchmark/**/tagger.html
+
 # Claude Code local state. settings.local.json is per-machine (absolute paths,
 # session ids) and worktrees/ holds full repo checkouts -- gigabytes. Listed
 # individually rather than ignoring all of .claude/, so a shared

@@ -36,7 +36,11 @@ sys.path.insert(0, REPO)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 TAGS_DIR = os.path.join(REPO, "benchmark", "miss_taxonomy_46")
-DEFAULT_MANIFEST = os.path.join(TAGS_DIR, "silent__manifest.json")
+# The gallery is committed alongside the verdicts, crops and all (15 MB). That is what
+# makes this rating task replicable TODAY rather than after HF #21 lands: a second
+# rater needs no panoramas, no .model_cache and no GPU -- they open the committed
+# crops and tag. See docs/replication.md.
+DEFAULT_MANIFEST = os.path.join(TAGS_DIR, "silent_gallery", "manifest.json")
 DEFAULT_WITNESS = os.path.join(OUT, "silent_witness.json")
 
 # Verdicts that mean "a broader / more diverse training corpus could reach this ramp".
