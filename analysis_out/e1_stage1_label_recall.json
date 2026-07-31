@@ -1,0 +1,108 @@
+{
+  "threshold": 0.55,
+  "n_ramps": 3919,
+  "n_panos": 793,
+  "distance": [
+    {
+      "lo": 0,
+      "hi": 8,
+      "n": 1374,
+      "stage1_recall": 0.9592430858806404,
+      "model_recall": 0.9432314410480349,
+      "gap": 0.01601164483260553
+    },
+    {
+      "lo": 8,
+      "hi": 12,
+      "n": 1065,
+      "stage1_recall": 0.9183098591549296,
+      "model_recall": 0.8938967136150234,
+      "gap": 0.024413145539906103
+    },
+    {
+      "lo": 12,
+      "hi": 18,
+      "n": 865,
+      "stage1_recall": 0.923699421965318,
+      "model_recall": 0.8416184971098266,
+      "gap": 0.08208092485549133
+    },
+    {
+      "lo": 18,
+      "hi": 25,
+      "n": 498,
+      "stage1_recall": 0.8995983935742972,
+      "model_recall": 0.7791164658634538,
+      "gap": 0.12048192771084337
+    },
+    {
+      "lo": 25,
+      "hi": 40,
+      "n": 113,
+      "stage1_recall": 0.7787610619469026,
+      "model_recall": 0.48672566371681414,
+      "gap": 0.2920353982300885
+    },
+    {
+      "lo": 40,
+      "hi": 1000000000.0,
+      "n": 4,
+      "stage1_recall": 1.0,
+      "model_recall": 0.25,
+      "gap": 0.75
+    }
+  ],
+  "size": [
+    {
+      "lo": 0,
+      "hi": 12,
+      "n": 0,
+      "stage1_recall": NaN,
+      "model_recall": NaN,
+      "gap": NaN
+    },
+    {
+      "lo": 12,
+      "hi": 20,
+      "n": 4,
+      "stage1_recall": 1.0,
+      "model_recall": 0.25,
+      "gap": 0.75
+    },
+    {
+      "lo": 20,
+      "hi": 32,
+      "n": 133,
+      "stage1_recall": 0.7969924812030075,
+      "model_recall": 0.5413533834586466,
+      "gap": 0.2556390977443609
+    },
+    {
+      "lo": 32,
+      "hi": 50,
+      "n": 750,
+      "stage1_recall": 0.9066666666666666,
+      "model_recall": 0.7826666666666666,
+      "gap": 0.124
+    },
+    {
+      "lo": 50,
+      "hi": 80,
+      "n": 1118,
+      "stage1_recall": 0.9159212880143113,
+      "model_recall": 0.8622540250447227,
+      "gap": 0.05366726296958855
+    },
+    {
+      "lo": 80,
+      "hi": 1000000000.0,
+      "n": 1914,
+      "stage1_recall": 0.95141065830721,
+      "model_recall": 0.9383490073145245,
+      "gap": 0.013061650992685475
+    }
+  ],
+  "stage1_overall": 0.9275325338096453,
+  "model_overall": 0.8726715998979332,
+  "verdict": "FLAT \u2014 Stage-1 labels hold up with distance while the model's recall collapses. The ceiling is the MODEL/RESOLUTION, not the labels, so scaling is not contraindicated by this mechanism (but neither is it shown to help \u2014 that is E2/E3)."
+}
