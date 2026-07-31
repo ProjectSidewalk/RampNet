@@ -84,8 +84,14 @@ const v = T.state("A");
 v.no_ramp = true; v.unreadable = false; v.offset_m = null; v.ramps_visible = 0;
 ok(T.done(v), "no_ramp completes a chip");
 
-v.unreadable = true; if (v.unreadable) v.no_ramp = false;
+// Unjudgeable must clear BOTH the phantom flag and any click. Denver chip 98816
+// carried a 4.54 m click and "unjudgeable" together, and that disowned value sat
+// at the very top of the offset distribution.
+v.offset_m = 4.54; v.px = 500; v.py = 500;
+v.unreadable = true;
+if (v.unreadable) {{ v.no_ramp = false; v.offset_m = null; v.px = v.py = null; }}
 ok(!(v.unreadable && v.no_ramp), "unjudgeable clears no_ramp");
+ok(v.offset_m === null && v.px === null, "unjudgeable clears a disowned click");
 
 v.px = 349; v.py = 349; v.offset_m = 0; v.unreadable = false; v.no_ramp = false;
 ok(!v.unreadable && !v.no_ramp, "measuring clears both terminal states");

@@ -793,10 +793,14 @@ function render() {{
         if (x) {{ v.unreadable = false; v.offset_m = null; v.px = v.py = null;
                  v.ramps_visible = 0; }}
       }});
+  // Unjudgeable clears the offset, exactly as no_ramp does. "I cannot make a
+  // call" and "the call is 4.54 m" are contradictory claims, and leaving both
+  // on the record let a disowned click sit in the distribution as its largest
+  // value — the one place a stray number does the most damage.
   seg(document.getElementById("unread"), [{{v: true, t: "unjudgeable"}}],
       () => v.unreadable || null, x => {{
         v.unreadable = !!x;
-        if (x) v.no_ramp = false;
+        if (x) {{ v.no_ramp = false; v.offset_m = null; v.px = v.py = null; }}
       }});
   document.getElementById("note").value = v.note || "";
 
@@ -889,7 +893,8 @@ addEventListener("keydown", e => {{
   else if (e.key === "ArrowRight") open_(cur + 1);
   else if ("01234".includes(e.key)) {{ v.ramps_visible = +e.key; save(); render(); }}
   else if (e.key === "u") {{ v.unreadable = !v.unreadable;
-    if (v.unreadable) v.no_ramp = false; save(); render(); }}
+    if (v.unreadable) {{ v.no_ramp = false; v.offset_m = null; v.px = v.py = null; }}
+    save(); render(); }}
   else if (e.key === "p") {{ v.no_ramp = !v.no_ramp;
     if (v.no_ramp) {{ v.unreadable = false; v.offset_m = null; v.px = v.py = null;
                      v.ramps_visible = 0; }}

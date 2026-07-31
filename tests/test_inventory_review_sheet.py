@@ -238,13 +238,20 @@ def test_a_readable_corner_with_no_ramp_can_be_completed():
     assert "no_ramp: !!v.no_ramp" in html
 
 
-def test_no_ramp_and_unjudgeable_are_mutually_exclusive():
-    """'I can see, and it is not there' and 'I cannot see' are different claims;
-    a chip asserting both would corrupt the phantom rate and the unreadable rate
-    at once."""
+def test_the_three_terminal_states_are_mutually_exclusive():
+    """'I can see, and it is not there', 'I cannot see', and 'it is 4.54 m away'
+    are three incompatible claims. A chip asserting two corrupts two reported
+    numbers at once — and a click left behind by an unjudgeable verdict lands in
+    the tail of the offset distribution, which is exactly where one stray value
+    does the most damage. Behaviour is driven for real in
+    ``test_review_sheet_page_logic.py``.
+    """
     html = irs.build_sheet(_meta(), _chips(), {})
-    assert "if (x) v.no_ramp = false;" in html
-    assert "v.unreadable = false; v.offset_m = null;" in html
+    # unjudgeable clears no_ramp AND the measurement
+    assert "if (x) {{ v.no_ramp = false; v.offset_m = null; v.px = v.py = null; }}" \
+        .replace("{{", "{").replace("}}", "}") in html
+    # no_ramp clears unjudgeable AND the measurement
+    assert "if (x) { v.unreadable = false; v.offset_m = null; v.px = v.py = null;" in html
 
 
 # --------------------------------------------------------------------------- #
