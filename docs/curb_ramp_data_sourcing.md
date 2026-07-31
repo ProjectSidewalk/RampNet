@@ -1084,6 +1084,45 @@ error direction is taken as uniformly random (defensible for Denver, whose regis
 no systematic shift, but *not* for a city with a datum error), and ranges come from the benchmark
 bundles rather than from Denver panoramas.
 
+## 5h. Calibrating our scale against the paper's — basemaps probed (2026-07-31)
+
+§5f had to invent a threshold, so "Denver is Good" is currently **a scale of one** and cannot be
+compared to Table 1. Two runs would fix that permanently: **NYC** (rated Good, and 78% of current
+training data — the positive control) and **Seattle** (rated **Poor**, assessed and rejected — the
+only city the paper explicitly failed on this axis, so the only available anchor for the *bottom*
+of the scale). After those, every future city is placed on the paper's scale rather than ours.
+
+Basemaps probed with `scripts/analysis/probe_basemap.py` (14 tests), which exists because §5e's
+lesson keeps recurring in new forms.
+
+| city | source | status |
+| :--- | :--- | :--- |
+| **Seattle** | King County `KingCo_Aerial_2021` (also 2019/2023/2025) | EPSG:3857, 256 px, **0.1007 m/px** — usable |
+| **NYC** | NYS ITS `wms/Latest` — **dynamic only**, via `/export` | real imagery, needs a non-tile fetcher |
+| ~~NYC~~ | NYC DoITT `maps.nyc.gov/xyz` | **403 Forbidden** |
+| ~~Seattle~~ | City of Seattle `gisrevprxy.seattle.gov` | unreachable (timeout) |
+
+**⚠️ A declared LOD is not a built cache.** King County advertises `maxLOD 23` (0.0126 m/px) and
+returns **404 above z20**. Trusting the metadata would have produced a sheet of missing tiles.
+Denver's failure was a service returning grey placeholders past its depth; this one 404s. **Both
+mean the deepest level must be found by probing, never by reading**, which the probe now does.
+
+**Seattle at 0.1007 m/px is usable but coarser than Denver's 0.0573** — a ramp is ~15 px rather than
+~26, and its offset floor will be roughly twice Denver's. That is acceptable *for this particular
+job*: Seattle is the Poor anchor, and what we need from it is the size of a large error, which
+0.1 m/px resolves easily. It would not be adequate for grading a city expected to be Good.
+
+**NYC needs a different fetcher.** Its usable service is dynamic-only, so imagery comes from
+`/export` on an arbitrary bbox rather than `/tile/{z}/{y}/{x}`. Not built. Worth noting that a
+visual check of a Manhattan chip shows heavy building shadow and roof-lean — NYC should be expected
+to produce a materially higher unjudgeable rate than Denver's 6.8%, which is itself a finding about
+where this method works.
+
+**Seattle's inventory is located but not yet frozen** (§9): SDOT publishes
+`Curb_Ramps_(Active)/FeatureServer/0` at **38,498 records** and `Curb_Ramps_CDL/FeatureServer/0` at
+**46,431**. Both have drifted slightly from §5c's 38,468 / 46,386, which is the live-drift argument
+for snapshotting. **Prefer the active layer.**
+
 ## 6. Routes to a 500,000-ramp corpus
 
 **Be explicit about which 500k is meant:**
