@@ -287,6 +287,44 @@ locations — i.e. concentrated at intersections. The distribution above is ther
 signal, good for ranking cities, not a substitute for the per-ramp Δt the pipeline would actually
 see.
 
+### The gate is implemented: `scripts/analysis/temporal_gap.py`
+
+Reports the two exposures **separately** — they have opposite signs, so the script deliberately
+emits no net "gap" number. It also reproduces the pipeline's ordering check (including the #11
+regression) so the filter's data cost is measured rather than assumed, handles the format zoo
+(ArcGIS epoch-milliseconds, Socrata ISO strings, bare years) and treats the `2000-01-01` sentinel as
+undated while reporting it separately. Pure core, unit-tested in `tests/test_temporal_gap.py`
+(21 tests); no GPU, no network, no imagery.
+
+```
+python scripts/analysis/temporal_gap.py --city "Washington, DC" \
+    --inventory dc.json --inventory-date-field INSTALLDATE \
+    --tracker-snapshot washington--district-of-columbia--...2024-04-11.csv.gz \
+    --snapshot-date 2016-01
+```
+
+### First city assessed: DC is disqualified, and worse than "stale"
+
+Querying DC's layer schema and a `groupBy` over its inspection year settles it:
+
+- **There is no install-date field.** The layer carries `CONDITION`, `YEAR_INSPECTED`,
+  `ESTIMATED_YEAR_OF_IMPROVEMENT`, `CREATED_DATE` and `LAST_EDITED_DATE` — record-keeping timestamps
+  and a *future* improvement year, but nothing recording when a ramp was built. **DC's undated
+  fraction is 100%**, so `TREAT_UNDATED_AS_PREDATING = True` waves all 34,859 records through and
+  **the ordering filter is entirely inert for this city.**
+- **`YEAR_INSPECTED` is 2016 for all 34,859 records, with no other value.** A single one-shot survey,
+  never updated — which confirms the 2016 snapshot empirically rather than inferring it from the
+  record count matching the paper's Table 1.
+
+So DC maximises both exposures at once: a decade of unrecorded construction (unlabeled positives)
+against a filter that cannot reject anything (phantom labels). **Drop it from every route in §6.**
+It was carrying 34,859 ramps in the "+ all OK" tier, so that tier's 470,513 becomes **435,654** —
+pushing 500k further out of reach on assessed data.
+
+Worth noting for [#86](https://github.com/ProjectSidewalk/RampNet/issues/86) even so: DC publishes a
+`CONDITION` field, which is condition supervision we currently discard at ingest. Being unusable for
+Stage 1 localisation does not make a dataset unusable for everything.
+
 ## 6. Routes to a 500,000-ramp corpus
 
 **Be explicit about which 500k is meant:**
