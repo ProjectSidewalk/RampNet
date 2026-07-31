@@ -277,7 +277,7 @@ def model_rows(city, spec, cache, args, radius_sq, hood_y=HOOD_Y):
     indistinguishable from a model that made no mistakes.
     """
     import compare as C
-    from detectors import build_detector, parse_model_spec
+    from export_model_cache import load_detections, spec_label
 
     bundle = os.path.join(REPO, "benchmark", city)
     records, verdicts, _panos = C.load_bundle(bundle)
@@ -286,14 +286,24 @@ def model_rows(city, spec, cache, args, radius_sq, hood_y=HOOD_Y):
     else:
         gts = C.ground_truths_from_verdicts(records, verdicts)
 
-    provider, model_id = parse_model_spec(spec)
-    label, det = build_detector(provider, model_id, records, args)
-    sig = det.signature() if hasattr(det, "signature") else None
-    if sig is None:
-        return None
+    # Prefer the PUBLISHED detections (benchmark/model_detections/) over the local
+    # working cache: they are committed, so this path works from a clean clone with
+    # no .model_cache and without importing the detector stack at all. The cache is
+    # the fallback for runs that are still producing detections.
+    label = spec_label(spec, args)
+    published = load_detections(label, city)
+    if published is None:
+        from detectors import build_detector, parse_model_spec
+        provider, model_id = parse_model_spec(spec)
+        label, det = build_detector(provider, model_id, records, args)
+        sig = det.signature() if hasattr(det, "signature") else None
+        if sig is None:
+            return None
+        published = {pid: cache.get(C.cache_key(label, sig, city, pid)) for pid in gts}
+        published = {k: v for k, v in published.items() if v is not None}
     rows, tp, uncached = [], 0, 0
     for pid, gt in gts.items():
-        pts = cache.get(C.cache_key(label, sig, city, pid))
+        pts = published.get(pid)
         if pts is None:
             uncached += 1
             continue

@@ -19,24 +19,35 @@ lives on one machine.
 | `benchmark/miss_taxonomy_46/*.json` (human verdicts) | small | **committed** | ✅ |
 | RampNet model weights | — | HF `projectsidewalk/rampnet-model` | ✅ |
 | Stage 1 dataset | 44 GB | HF `projectsidewalk/rampnet-dataset` | ✅ |
-| **`.model_cache/` (challenger detections)** | **18.8 MB** | **git-ignored, unpublished** | ❌ **blocker** |
+| `benchmark/model_detections/` (challenger detections) | 18.0 MB | **committed** ✅ | ✅ |
 | **`benchmark/*/panos/` (native-res panoramas)** | **9.0 GB** | **git-ignored; HF #21 pending** | ❌ **blocker** |
 
-### Blocker 1 — `.model_cache` is 18.8 MB and blocks three scripts for no good reason
+### ✅ Resolved — the challenger detections are published
 
 `fp_taxonomy.py`, `silent_witness.py`, `complementarity.py` and `null_recall.py` all read the
-cached challenger detections (Gemini ×2, Qwen ×2, Molmo, OWLv2, Grounding DINO). Those detections
-cost real GPU-hours and API spend to produce, and **nobody outside this machine can obtain them.**
+challenger detections (Gemini ×2, Qwen ×2, Molmo, OWLv2, Grounding DINO). Those cost real GPU-hours
+on Hyak and paid API spend, and until 2026-07-31 they lived only in a git-ignored `.model_cache/`,
+so every number they produced was reproducible on exactly one machine.
 
-It is 12,951 files totalling **18.8 MB** — the same size class as the `op_cache` we already commit,
-and the same argument applies: it is image-free, it makes several documented numbers re-derivable
-on CPU, and re-creating it requires a GPU cluster and paid API calls.
+`.model_cache` is fine as a *working* cache and hostile as a published artifact: 12,951
+single-panorama shards keyed by an opaque SHA-1 of (label, signature, city, pano), unreadable
+without reconstructing detector signatures. `scripts/analysis/export_model_cache.py` consolidates
+it into **61 human-readable files, 18.0 MB**, one per (model, split), keyed by panorama id with the
+detector signature recorded inside.
 
-The file *count* is the only real objection (12,951 tiny shards make for slow checkouts).
-**Recommended fix: consolidate to one JSON per (model, split) — about 60 files — and commit.**
-Until that happens, every number in `docs/model_comparison.md`'s FP taxonomy and every witness
-figure in §0b of `docs/curb_ramp_data_sourcing.md` is reproducible **only on this machine.** That
-is stated here rather than left to be discovered.
+```bash
+python scripts/analysis/export_model_cache.py --out benchmark/model_detections
+python scripts/analysis/export_model_cache.py --verify     # exported == cached
+```
+
+`--verify` re-scores every split from both sources and asserts identical TP/FP counts — **61/61
+pairs verified identical** — because a published artifact that silently differs from what produced
+the paper's numbers is worse than none.
+
+Downstream scripts prefer the published files over `.model_cache`, and the label a `--models` spec
+resolves to is derived *without* building a detector, so **a clean clone reproduces these numbers
+with no cache, no GPU and no torch installed.** Verified by running against a nonexistent
+`--cache-dir`.
 
 ### Blocker 2 — the panoramas are 9.0 GB and only HF can carry them
 

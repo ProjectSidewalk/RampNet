@@ -135,12 +135,20 @@ def summarize(records, models):
 def model_predictions(city, spec, cache, cargs):
     """``{pano_id: [points]}`` for one model in one city, straight from the cache."""
     import compare as C
-    from detectors import build_detector, parse_model_spec
+    from export_model_cache import load_detections, spec_label
 
     bundle = os.path.join(REPO, "benchmark", city)
     records, verdicts, _ = C.load_bundle(bundle)
     gts = (C.load_manual_ground_truths(bundle) if verdicts is None
            else C.ground_truths_from_verdicts(records, verdicts))
+
+    # Published detections first — see fp_taxonomy.model_rows for why.
+    label = spec_label(spec, cargs)
+    published = load_detections(label, city)
+    if published is not None:
+        return label, {pid: published[pid] for pid in gts if pid in published}
+
+    from detectors import build_detector, parse_model_spec
     provider, model_id = parse_model_spec(spec)
     label, det = build_detector(provider, model_id, records, cargs)
     sig = det.signature() if hasattr(det, "signature") else None
