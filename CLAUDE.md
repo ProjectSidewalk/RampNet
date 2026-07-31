@@ -21,6 +21,38 @@ In practice:
 - **Gaps are content.** If a split, model, or analysis was *not* run, say so explicitly and say why. An omission is indistinguishable from a withheld result — that ambiguity is exactly what the coverage matrix in `docs/model_comparison.md` exists to remove.
 - **Caveats travel with the numbers**, in the same document, not in a separate "limitations" note nobody reads alongside the table.
 
+## Every experiment must be replicable by someone else, from a clean clone
+
+**This is not a nice-to-have and it is not "later".** The test for whether an experiment is
+finished: *could a new student clone this repo, follow written instructions, obtain every input,
+re-run it, and get our numbers?* If the answer is no, the experiment is not done — it is a result
+that happens to live on one machine.
+
+Before an experiment counts as complete:
+
+- **The script is committed and configured from CLI args or committed constants** — never from
+  edits made during a session. A number produced by a script that no longer exists in that form is
+  not reproducible, it is a memory.
+- **Every input is retrievable by someone else**: committed in the repo, or published to Hugging
+  Face with the exact identifier written down. `.model_cache/`, `benchmark/*/panos/`, `~/Downloads`
+  and "it's on the lab box" are **local conveniences, not inputs**. If an input cannot be published
+  (size, licence), say so **explicitly, in the doc, next to the number**, and name what would
+  unblock it.
+- **Human judgments are committed per-rater**, and the **rubric they were made under travels in the
+  same file**. A verdict whose scheme is unknown cannot be reused, compared, or trusted — and a
+  rubric that changed mid-pass silently averages two definitions into one rate.
+- **Derived artifacts carry a content hash**, so a regenerated copy can be *proven* identical
+  rather than assumed to be. Regeneration that silently drifts is worse than no regeneration.
+- **The run instructions live in the repo**, as exact commands in order, not in a chat log or a PR
+  comment. Someone who was not in the room is the audience.
+- **Deliberate omissions are content.** "Requires the native-res panos from HF #21, not yet
+  published" belongs beside the result, not in someone's head. An unstated gap is indistinguishable
+  from a hidden one.
+
+When a task involves human raters, assume from the start that **a second rater will repeat it and
+the two will be compared** — per-rater files, a stable item list, and an agreement script, not a
+single blob that has to be reverse-engineered later.
+
 ## Environment & commands
 
 - Conda env (Linux + CUDA 11.8; env file pins linux-64 packages — this does not run natively on Windows):

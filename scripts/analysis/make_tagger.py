@@ -191,7 +191,7 @@ def scheme_for(items):
     return MISS_SCHEME, "miss"
 
 
-def build_html(manifest, scheme, kind, title):
+def build_html(manifest, scheme, kind, title, digest=""):
     items = []
     for key, it in manifest.items():
         items.append({
@@ -215,6 +215,8 @@ def build_html(manifest, scheme, kind, title):
             .replace("__KEYS__", keys)
             .replace("__LEGEND__", legend)
             .replace("__GUIDE__", GUIDES.get(kind, ""))
+            .replace("__SCHEME__", json.dumps([[n, d] for n, d, _ in scheme]))
+            .replace("__DIGEST__", digest)
             .replace("__STORE__", store_key(kind, title, scheme)))
 
 
@@ -349,6 +351,7 @@ _TEMPLATE = r"""<!doctype html>
 </footer>
 <script>
 const ITEMS = __ITEMS__, KEYS = __KEYS__, STORE = "__STORE__";
+const SCHEME = __SCHEME__, DIGEST = "__DIGEST__", TASK = "__TITLE__";
 let verdicts = {}, i = 0, persist = true;
 
 // localStorage is not guaranteed on a file:// origin -- some Chrome configurations
@@ -472,7 +475,15 @@ document.addEventListener("click", e => {
 });
 
 function exportJSON() {
-  const blob = new Blob([JSON.stringify(verdicts, null, 2)], {type: "application/json"});
+  // Self-describing on purpose. A bare {key: verdict} map cannot be replicated or
+  // compared: you cannot tell which rubric produced it, nor whether a second rater
+  // saw the same crops. The rubric and the manifest digest travel WITH the answers.
+  const payload = {
+    task: TASK, scheme: SCHEME, manifest_digest: DIGEST,
+    n_items: ITEMS.length, n_tagged: Object.keys(verdicts).length,
+    verdicts: verdicts
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type: "application/json"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = "verdicts.json";
@@ -497,13 +508,14 @@ def main(argv=None):
     if not os.path.exists(mpath):
         raise SystemExit(f"{mpath}: no manifest — run a gallery script with --render first")
     with open(mpath, encoding="utf-8") as fh:
-        manifest = json.load(fh)["items"]
+        payload = json.load(fh)
+    manifest = payload["items"]
     if not manifest:
         raise SystemExit(f"{mpath}: manifest is empty")
 
     scheme, kind = scheme_for(manifest)
     title = args.title or f"RampNet #46 tagger — {os.path.basename(os.path.abspath(args.gallery))}"
-    html = build_html(manifest, scheme, kind, title)
+    html = build_html(manifest, scheme, kind, title, payload.get("digest", ""))
 
     if args.resume:
         with open(args.resume, encoding="utf-8") as fh:

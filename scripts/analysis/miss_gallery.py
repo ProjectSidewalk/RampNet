@@ -166,6 +166,28 @@ def views_for(x, y, source_width, context_fov=CONTEXT_FOV_DEG,
     return tuple(out)
 
 
+def _sha256(path):
+    import hashlib
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def manifest_digest(items):
+    """One hash over the whole item list — identity of *this exact task*.
+
+    A verdict file records this, so two raters' answers can never be compared across
+    different item sets or different renderings without it being obvious. Covers the
+    keys and each crop's content hash, in a fixed order, so it is independent of dict
+    ordering.
+    """
+    import hashlib
+    spec = ";".join(f"{k}|{v.get('sha256', '')}" for k, v in sorted(items.items()))
+    return hashlib.sha256(spec.encode("utf-8")).hexdigest()[:16]
+
+
 def tag_key(pano, x, y):
     """Match ``benchmark/<city>/incremental_fp_tags.json``'s key exactly.
 
@@ -345,8 +367,16 @@ def render(items, outdir, only_judgeable=True, panos_root=REPO, extra_fields=())
                 xo += p.width + 8
             key = tag_key(pano, it["x"], it["y"])
             name = f"{city}__{key}.jpg"
-            sheet.save(os.path.join(outdir, name), quality=92)
+            path = os.path.join(outdir, name)
+            sheet.save(path, quality=92)
             entry = {
+                # Content hash of the crop the reviewer actually saw. The crops are
+                # git-ignored derivatives of git-ignored panoramas, so replication
+                # means REGENERATING them -- and a regeneration that silently drifts
+                # (different pano fetch, different PIL, different quality) would be
+                # compared against verdicts made on different pixels. This lets a
+                # second rater PROVE they are looking at the same images.
+                "sha256": _sha256(path),
                 "city": city, "pano": pano, "x": it["x"], "y": it["y"],
                 "file": name,
                 "dist_m": round(it["dist"], 1),
@@ -374,6 +404,8 @@ def render(items, outdir, only_judgeable=True, panos_root=REPO, extra_fields=())
         json.dump({"n": len(manifest), "skipped_unjudgeable": skipped,
                    "context_fov_deg": CONTEXT_FOV_DEG, "detail_fov_deg": DETAIL_FOV_DEG,
                    "judgeable_source_px": JUDGEABLE_SOURCE_PX,
+                   "model_width": MODEL_WIDTH,
+                   "digest": manifest_digest(manifest),
                    "items": manifest}, fh, indent=2)
     return len(manifest), skipped
 
