@@ -283,6 +283,40 @@ def test_neighbour_count_excludes_beyond_the_largest_radius():
     assert irs.count_neighbours(pts, [(-105.0, 39.7)], (6.0, 10.0)) == [[0, 0]]
 
 
+def test_neighbour_pixel_offsets_land_where_the_record_is():
+    """A marker drawn in the wrong place is worse than no marker — it would look
+    like evidence. A record N metres east must sit N/mpp pixels right of centre
+    and level with it, in the chip's own projection."""
+    lat, lon, zoom = 39.7, -105.0, 21
+    mpp = irs.metres_per_pixel(lat, zoom)
+    east_m = 6.0
+    lon_e = lon + east_m / (111320.0 * math.cos(math.radians(lat)))
+    got = irs.find_neighbours([(lon_e, lat)], [(lon, lat)], 20.0, zoom=zoom)[0]
+    assert len(got) == 1
+    assert math.isclose(got[0]["dx_px"], east_m / mpp, rel_tol=2e-3)
+    assert abs(got[0]["dy_px"]) < 0.5
+
+
+def test_neighbour_pixel_offsets_point_north_up():
+    """Screen y grows downward, so a record to the NORTH must have a NEGATIVE
+    dy — getting this backwards would mirror every marker about the crosshair."""
+    lat, lon, zoom = 39.7, -105.0, 21
+    lat_n = lat + 6.0 / 111132.0
+    got = irs.find_neighbours([(lon, lat_n)], [(lon, lat)], 20.0, zoom=zoom)[0]
+    assert got[0]["dy_px"] < 0
+
+
+def test_counts_and_markers_cannot_disagree():
+    """Both are projections of one search, so a record can never be counted but
+    not drawn, or drawn but not counted."""
+    deg = 1.0 / (111320.0 * math.cos(math.radians(39.7)))
+    pts = [(-105.0, 39.7), (-105.0 + 4 * deg, 39.7), (-105.0 + 8 * deg, 39.7)]
+    counts = irs.count_neighbours(pts, [(-105.0, 39.7)], (6.0, 10.0))[0]
+    found = irs.find_neighbours(pts, [(-105.0, 39.7)], 10.0)[0]
+    assert counts == [2, 3]
+    assert [sum(1 for n in found if n["d_m"] <= r) for r in (6.0, 10.0)] == counts
+
+
 def test_published_count_is_hidden_until_the_reviewer_has_counted():
     """Anti-anchoring, and it is the whole value of the comparison: the imagery
     count and the published count have to be reached independently or their

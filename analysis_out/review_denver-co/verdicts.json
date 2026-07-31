@@ -39,7 +39,7 @@
     "no_ramp": "The corner is readable and there is definitively no ramp at it. This is a PHANTOM record, and it is a result rather than a failure \u2014 an inventory whose schema has no removal mechanism gives a demolished ramp no way to leave the layer, so the phantom rate has no upper bound from the data alone. Kept distinct from unjudgeable on purpose: 'I can see, and it is not there' is a different claim from 'I cannot see'.",
     "unjudgeable": "Shadow, occlusion or resolution prevents a call. Mark it rather than guessing \u2014 the unreadable rate is itself a reported number.",
     "resolution_floor": "Offsets below roughly 0.3 m are at the floor of this instrument, not measurements of real error: see the metres-per-pixel in this manifest for the pixel size, and the registration check in analysis_out/georef_check/ for how well the imagery agrees with the city's own vector data. Report the left tail as floor-limited rather than claiming centimetres.",
-    "published_nearby": "The count of published records near each chip is HIDDEN until you have entered ramps_visible for that chip, and this is deliberate. ramps_visible is meant to be independent evidence from the imagery; showing the published count first would anchor it, and the whole value of the comparison is that the two were arrived at separately. Once revealed, read the two radii as a BRACKET rather than a target: 6 m is the threshold calibrated against NYC's published corner key, and it demonstrably splits a large corner (chip 66519's channelising island spans 7.0 m), while 10 m can reach across a narrow street. So the true published per-corner count lies between them, and only a count OUTSIDE the bracket is evidence: above the 10 m figure suggests the city under-records (the pair-merge failure mode), below the 6 m figure suggests phantoms or duplicates."
+    "published_nearby": "The count of published records near each chip is HIDDEN until you have entered ramps_visible for that chip, and this is deliberate. ramps_visible is meant to be independent evidence from the imagery; showing the published count first would anchor it, and the whole value of the comparison is that the two were arrived at separately. Once revealed, each nearby record is drawn on the image as a magenta diamond, and THE DIAMONDS ARE THE EVIDENCE \u2014 the counts are only a summary. **A radius is not a corner**, and it fails in both directions on exactly the complex geometry where the comparison would matter: 6 m misses the far ramp of a large corner (chip 66519's channelising island spans 7.0 m) and reaches straight across a 4-5 m slip lane (chip 67585, where the record 5.2 m ESE is on the far side of a crossing). Both produced confident false alarms before the panel stopped issuing verdicts. So: look at where the diamonds fall, decide which are on your corner, and note a genuine disagreement rather than trusting a number. A count above the published figure suggests the city under-records (the pair-merge failure mode); below it suggests phantoms or duplicates."
   },
   "reviewer": null,
   "reviewed_on": null,
@@ -74,7 +74,12 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
-      "published_within_10m": 2
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        3.97,
+        12.45,
+        15.54
+      ]
     },
     {
       "id": "66114",
@@ -101,7 +106,10 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        15.21
+      ]
     },
     {
       "id": "66209",
@@ -125,7 +133,13 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
-      "published_within_10m": 3
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        3.65,
+        7.76,
+        12.45,
+        18.1
+      ]
     },
     {
       "id": "66519",
@@ -156,7 +170,12 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
-      "published_within_10m": 4
+      "published_within_10m": 4,
+      "published_neighbours_m": [
+        5.84,
+        6.97,
+        8.22
+      ]
     },
     {
       "id": "67585",
@@ -187,7 +206,12 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 4,
-      "published_within_10m": 4
+      "published_within_10m": 4,
+      "published_neighbours_m": [
+        5.24,
+        5.41,
+        5.97
+      ]
     },
     {
       "id": "68791",
@@ -218,7 +242,12 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        13.33,
+        14.18,
+        19.65
+      ]
     },
     {
       "id": "69169",
@@ -245,7 +274,11 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        12.89,
+        15.61
+      ]
     },
     {
       "id": "69410",
@@ -276,7 +309,10 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        13.62
+      ]
     },
     {
       "id": "71198",
@@ -300,7 +336,12 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        11.34,
+        13.0,
+        17.19
+      ]
     },
     {
       "id": "71275",
@@ -331,7 +372,11 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        14.76,
+        15.93
+      ]
     },
     {
       "id": "72151",
@@ -358,7 +403,10 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        12.28
+      ]
     },
     {
       "id": "73218",
@@ -389,7 +437,11 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        14.54,
+        16.67
+      ]
     },
     {
       "id": "74008",
@@ -416,7 +468,12 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        13.53,
+        14.03,
+        17.45
+      ]
     },
     {
       "id": "74811",
@@ -447,7 +504,12 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        13.75,
+        14.46,
+        19.67
+      ]
     },
     {
       "id": "75115",
@@ -478,7 +540,11 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        14.83,
+        15.64
+      ]
     },
     {
       "id": "75414",
@@ -505,7 +571,10 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        13.49
+      ]
     },
     {
       "id": "78400",
@@ -532,7 +601,10 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        16.25
+      ]
     },
     {
       "id": "78579",
@@ -559,7 +631,16 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
-      "published_within_10m": 3
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        4.56,
+        9.24,
+        12.47,
+        13.17,
+        15.6,
+        17.51,
+        19.15
+      ]
     },
     {
       "id": "78637",
@@ -583,7 +664,11 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
-      "published_within_10m": 2
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        5.98,
+        17.09
+      ]
     },
     {
       "id": "82036",
@@ -614,7 +699,11 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        14.37,
+        14.69
+      ]
     },
     {
       "id": "82188",
@@ -645,7 +734,10 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        16.34
+      ]
     },
     {
       "id": "83611",
@@ -672,7 +764,11 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        16.71,
+        17.22
+      ]
     },
     {
       "id": "83652",
@@ -699,7 +795,16 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
-      "published_within_10m": 2
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        2.25,
+        11.79,
+        13.5,
+        13.56,
+        15.15,
+        19.38,
+        19.57
+      ]
     },
     {
       "id": "85306",
@@ -730,7 +835,11 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        17.97,
+        19.44
+      ]
     },
     {
       "id": "86092",
@@ -757,7 +866,16 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
-      "published_within_10m": 2
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        5.81,
+        10.81,
+        13.16,
+        15.69,
+        15.89,
+        18.98,
+        19.7
+      ]
     },
     {
       "id": "87014",
@@ -788,7 +906,12 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        12.7,
+        12.83,
+        18.49
+      ]
     },
     {
       "id": "89435",
@@ -819,7 +942,10 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        16.6
+      ]
     },
     {
       "id": "92078",
@@ -850,7 +976,12 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
-      "published_within_10m": 2
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        3.72,
+        11.97,
+        14.79
+      ]
     },
     {
       "id": "94247",
@@ -877,7 +1008,14 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
-      "published_within_10m": 2
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        4.62,
+        12.66,
+        14.3,
+        16.52,
+        16.55
+      ]
     },
     {
       "id": "96782",
@@ -908,7 +1046,13 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
-      "published_within_10m": 2
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        5.89,
+        10.51,
+        15.09,
+        15.27
+      ]
     },
     {
       "id": "97824",
@@ -935,7 +1079,15 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
-      "published_within_10m": 2
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        5.62,
+        11.05,
+        13.2,
+        15.48,
+        16.18,
+        19.08
+      ]
     },
     {
       "id": "98816",
@@ -962,7 +1114,12 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 2
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        8.11,
+        12.91,
+        15.15
+      ]
     },
     {
       "id": "99845",
@@ -993,7 +1150,12 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 2
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        7.21,
+        15.16,
+        16.91
+      ]
     },
     {
       "id": "103513",
@@ -1020,7 +1182,16 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
-      "published_within_10m": 2
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        5.51,
+        10.09,
+        13.74,
+        14.66,
+        15.79,
+        18.7,
+        19.38
+      ]
     },
     {
       "id": "106696",
@@ -1044,7 +1215,10 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        13.45
+      ]
     },
     {
       "id": "108325",
@@ -1075,7 +1249,16 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
-      "published_within_10m": 3
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        4.1,
+        9.67,
+        12.76,
+        14.84,
+        17.1,
+        18.94,
+        19.85
+      ]
     },
     {
       "id": "111985",
@@ -1106,7 +1289,12 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        14.35,
+        15.84,
+        19.06
+      ]
     },
     {
       "id": "113061",
@@ -1137,7 +1325,14 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
-      "published_within_10m": 2
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        4.14,
+        12.37,
+        13.25,
+        15.87,
+        15.91
+      ]
     },
     {
       "id": "114901",
@@ -1164,7 +1359,11 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        14.6,
+        14.95
+      ]
     },
     {
       "id": "116124",
@@ -1195,7 +1394,20 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 3
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        6.22,
+        7.83,
+        11.25,
+        13.92,
+        15.79,
+        15.89,
+        16.44,
+        16.56,
+        16.76,
+        19.73,
+        19.98
+      ]
     },
     {
       "id": "117445",
@@ -1226,7 +1438,16 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 3
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        6.11,
+        8.88,
+        13.52,
+        13.77,
+        17.01,
+        18.52,
+        19.34
+      ]
     },
     {
       "id": "117688",
@@ -1253,7 +1474,16 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
-      "published_within_10m": 3
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        4.48,
+        9.82,
+        13.15,
+        13.45,
+        15.86,
+        18.26,
+        18.59
+      ]
     },
     {
       "id": "118503",
@@ -1277,7 +1507,10 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        11.85
+      ]
     },
     {
       "id": "119609",
@@ -1301,7 +1534,12 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
-      "published_within_10m": 2
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        4.56,
+        12.75,
+        15.43
+      ]
     },
     {
       "id": "120841",
@@ -1328,7 +1566,11 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        12.42,
+        15.26
+      ]
     },
     {
       "id": "125041",
@@ -1359,7 +1601,11 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        12.36,
+        14.65
+      ]
     },
     {
       "id": "130499",
@@ -1386,7 +1632,14 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
-      "published_within_10m": 3
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        4.56,
+        9.86,
+        12.51,
+        13.64,
+        17.9
+      ]
     },
     {
       "id": "131853",
@@ -1413,7 +1666,8 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": []
     },
     {
       "id": "131951",
@@ -1444,7 +1698,14 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
-      "published_within_10m": 2
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        4.77,
+        10.06,
+        13.44,
+        13.67,
+        18.57
+      ]
     },
     {
       "id": "132031",
@@ -1475,7 +1736,10 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        12.94
+      ]
     },
     {
       "id": "132946",
@@ -1506,7 +1770,14 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
-      "published_within_10m": 3
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        4.92,
+        9.98,
+        13.79,
+        16.17,
+        18.4
+      ]
     },
     {
       "id": "133175",
@@ -1537,7 +1808,11 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        14.86,
+        16.11
+      ]
     },
     {
       "id": "133260",
@@ -1568,7 +1843,10 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        14.67
+      ]
     },
     {
       "id": "134079",
@@ -1595,7 +1873,14 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
-      "published_within_10m": 3
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        4.84,
+        9.95,
+        11.11,
+        13.84,
+        16.99
+      ]
     },
     {
       "id": "134630",
@@ -1622,7 +1907,14 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
-      "published_within_10m": 3
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        4.46,
+        9.86,
+        13.24,
+        13.63,
+        18.52
+      ]
     },
     {
       "id": "134963",
@@ -1653,7 +1945,11 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        13.64,
+        13.69
+      ]
     },
     {
       "id": "135499",
@@ -1684,7 +1980,10 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
-      "published_within_10m": 2
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        5.41
+      ]
     },
     {
       "id": "136713",
@@ -1715,7 +2014,12 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 1
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        12.61,
+        13.42,
+        18.13
+      ]
     },
     {
       "id": "138310",
@@ -1746,7 +2050,10 @@
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
-      "published_within_10m": 2
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        9.38
+      ]
     }
   ]
 }

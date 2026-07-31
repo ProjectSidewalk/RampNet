@@ -887,9 +887,34 @@ tight urban corners (P .976 / R .973), this is exactly the failure NYC could not
 rather than a vocabulary difference.** Re-running the clustering at 8 m and 10 m and watching Denver
 move *relative to* NYC would settle it. Not yet done.
 
-Chip `67585` is the sample's other outlier — **4 published records within 6 m** (at 5.2, 5.4, 6.0 m),
-where nothing else in the 59 exceeds 2. Flagged for a careful count: either four ramps genuinely
-cluster at that median end, or Denver has duplicates there.
+**⚠️ And it over-groups next to channelised geometry — the same threshold, failing the other way.**
+Chip `67585` was the sample's other outlier: **4 published records within 6 m**, where nothing else
+in the 59 exceeds 2. Resolved at review. It is a triangular island, and resolving the neighbours by
+bearing rather than distance settles it:
+
+| distance | bearing | on the island? |
+| ---: | :--- | :--- |
+| 0.00 m | — (sampled record) | yes — east ramp |
+| 5.24 m | ESE | **no — across the slip-lane crossing** |
+| 5.41 m | NW | yes |
+| 5.97 m | W | yes |
+
+A slip lane is 4–5 m wide, so **6 m reaches straight across it**. Denver publishes three records on
+that island and the reviewer counted three ramps: agreement, misreported as a discrepancy.
+
+**So a radius is not a corner, and it fails in both directions on exactly the complex geometry where
+the comparison would matter.** The sheet's panel therefore issues **no automatic verdict**. It now
+draws each nearby published record on the chip as a magenta diamond — three on the island and one
+across the crossing is visible in a second and arguable in none — and the reviewer decides which
+belong to the corner. Marker positions are computed in the chip's own Web Mercator projection and
+regression-tested against ground distance and bearing, because a marker in the wrong place would
+look like evidence.
+
+The general lesson, which is not about Denver: **a threshold calibrated on one city's geometry
+carries an unmarked assumption about that geometry.** 6 m was validated against NYC's published
+corner key at P .976 / R .973 — genuinely good, and no NYC corner could have exposed either failure,
+because NYC has neither large suburban corner radii nor many channelised islands. The 8/10 m
+re-run above would quantify the first failure; nothing yet quantifies the second.
 
 **The Good/OK/Poor question for Denver remains open** — the review is in progress against the
 rubric above.

@@ -97,17 +97,22 @@ ok(document.getElementById("pubrow").hidden === true, "published hidden before c
 v2.ramps_visible = 1; T.open_(1);
 ok(document.getElementById("pubrow").hidden === false, "published revealed after counting");
 
-// Chip A publishes [2, 4] -- the pork-chop shape, where 6 m splits the island.
-// A count of 3 sits inside the bracket and must NOT raise an alarm; comparing
-// against the 6 m figure alone used to flag it as under-recording.
-const pub = () => document.getElementById("pub").className;
+// No automatic verdict: a radius is not a corner and it misjudged in BOTH
+// directions on real chips. The panel reports, it does not accuse.
+const pubHtml = () => document.getElementById("pub").innerHTML;
 const va = T.state("A");
 va.ramps_visible = 3; T.open_(0);
-ok(pub().includes("agree"), "count inside the [6 m, 10 m] bracket is consistent");
-va.ramps_visible = 5; T.open_(0);
-ok(pub().includes("under"), "count above the 10 m figure flags under-recording");
-va.ramps_visible = 1; T.open_(0);
-ok(pub().includes("over"), "count below the 6 m figure flags phantom/duplicate");
+const words = pubHtml().toLowerCase();
+ok(!/under-recording\?|phantom or duplicate\?/.test(words),
+   "panel issues no automatic verdict");
+ok(words.includes("a radius is not a corner"), "panel says why it cannot judge");
+
+// The markers ARE the evidence, and they obey the same anti-anchoring gate.
+const svg = () => document.getElementById("bigsvg").innerHTML;
+va.ramps_visible = 3; T.open_(0);
+ok((svg().match(/#ff6fd8/g) || []).length === 2, "both neighbours drawn once counted");
+va.ramps_visible = null; T.open_(0);
+ok(!svg().includes("#ff6fd8"), "neighbour markers hidden before counting");
 
 ok(document.getElementById("rubric-body").innerHTML.includes("<h3>"), "rubric renders");
 
@@ -121,8 +126,9 @@ def _page_logic(tmp_path):
             "seed": 20260731, "tile_source": "denver-2016", "zoom": 21,
             "mpp": 0.057, "span_px": 698, "attribution": "Denver", "note": "leaf-off"}
     chips = [{"uri": "", "id": cid, "lon": -105.0, "lat": 39.7, "tiles": [],
-              "published": pub}
-             for cid, pub in (("A", [2, 3]), ("B", [1, 1]))]
+              "published": pub, "pub": marks}
+             for cid, pub, marks in (("A", [2, 4], [[30.0, -12.0], [-45.0, 8.0]]),
+                                     ("B", [1, 1], []))]
     html = irs.build_sheet(meta, chips, {"city": "denver-co", "rubric": irs.RUBRIC})
     src = re.search(r"<script>\n(.*)\n</script>", html, re.S).group(1)
     path = tmp_path / "page.js"

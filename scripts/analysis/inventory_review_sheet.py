@@ -217,60 +217,84 @@ RUBRIC = {
         "entered ramps_visible for that chip, and this is deliberate. ramps_visible is "
         "meant to be independent evidence from the imagery; showing the published "
         "count first would anchor it, and the whole value of the comparison is that "
-        "the two were arrived at separately. Once revealed, read the two radii as a "
-        "BRACKET rather than a target: 6 m is the threshold calibrated against NYC's "
-        "published corner key, and it demonstrably splits a large corner (chip 66519's "
-        "channelising island spans 7.0 m), while 10 m can reach across a narrow "
-        "street. So the true published per-corner count lies between them, and only a "
-        "count OUTSIDE the bracket is evidence: above the 10 m figure suggests the "
-        "city under-records (the pair-merge failure mode), below the 6 m figure "
-        "suggests phantoms or duplicates."
+        "the two were arrived at separately. Once revealed, each nearby record is "
+        "drawn on the image as a magenta diamond, and THE DIAMONDS ARE THE EVIDENCE "
+        "— the counts are only a summary. **A radius is not a corner**, and it fails "
+        "in both directions on exactly the complex geometry where the comparison "
+        "would matter: 6 m misses the far ramp of a large corner (chip 66519's "
+        "channelising island spans 7.0 m) and reaches straight across a 4-5 m slip "
+        "lane (chip 67585, where the record 5.2 m ESE is on the far side of a "
+        "crossing). Both produced confident false alarms before the panel stopped "
+        "issuing verdicts. So: look at where the diamonds fall, decide which are on "
+        "your corner, and note a genuine disagreement rather than trusting a number. "
+        "A count above the published figure suggests the city under-records (the "
+        "pair-merge failure mode); below it suggests phantoms or duplicates."
     ),
 }
 
 
-def count_neighbours(all_points, targets, radii_m):
-    """For each target, how many of ``all_points`` fall within each radius.
+def find_neighbours(all_points, targets, radius_m, zoom=None):
+    """Published records within ``radius_m`` of each target.
 
-    The target's own record is counted when it appears in ``all_points`` — which
-    is the point, because the result is then directly comparable to a reviewer's
-    per-corner ramp count rather than off by one against it.
+    Returns, per target, a list of ``{"d_m", "dx_px", "dy_px"}`` sorted by
+    distance — the pixel offsets only when ``zoom`` is given, computed in the
+    chip's own Web Mercator projection so a marker drawn at that offset lands
+    exactly where the record is. **The target's own record is included** when it
+    appears in ``all_points``, so a count taken from this is directly comparable
+    to a reviewer's per-corner ramp count rather than off by one against it.
 
-    Counts come from the WHOLE inventory, never the sample frame: a neighbouring
-    ramp excluded from the frame (Denver's 2023-24 `A` records, say) is still a
-    published ramp, and pretending otherwise would understate the city.
+    Neighbours come from the WHOLE inventory, never the sample frame: a
+    neighbouring ramp excluded from the frame (Denver's 2023-24 `A` records, say)
+    is still a published ramp, and pretending otherwise would understate the city.
 
-    Points are bucketed into a lon/lat grid sized to the largest radius, so this
-    is O(n) rather than targets x records. Distances use an equirectangular
-    approximation, which is exact enough at the tens-of-metres scale asked for
-    here. Pure.
+    Points are bucketed into a lon/lat grid sized to the radius, so this is O(n)
+    rather than targets x records. Distances use an equirectangular
+    approximation, exact enough at the tens-of-metres scale asked for here. Pure.
     """
-    if not radii_m:
-        return [[] for _ in targets]
-    r_max = max(radii_m)
-    lat0 = sum(p[1] for p in targets) / len(targets) if targets else 0.0
+    if not targets:
+        return []
+    lat_mid = sum(p[1] for p in targets) / len(targets)
     m_per_deg_lat = 111132.0
-    m_per_deg_lon = 111320.0 * math.cos(math.radians(lat0)) or 1e-9
-    cell_lat = r_max / m_per_deg_lat
-    cell_lon = r_max / m_per_deg_lon
+    cell_lat = radius_m / m_per_deg_lat
+    cell_lon = radius_m / (111320.0 * math.cos(math.radians(lat_mid)) or 1e-9)
 
     grid = defaultdict(list)
     for lon, lat in all_points:
         grid[(int(lon / cell_lon), int(lat / cell_lat))].append((lon, lat))
 
     out = []
-    for lon0, lat0_t in targets:
-        mlon = 111320.0 * math.cos(math.radians(lat0_t)) or 1e-9
-        cx, cy = int(lon0 / cell_lon), int(lat0_t / cell_lat)
-        dists = []
-        for dx in (-1, 0, 1):
-            for dy in (-1, 0, 1):
-                for lon, lat in grid.get((cx + dx, cy + dy), ()):
-                    d = math.hypot((lon - lon0) * mlon, (lat - lat0_t) * m_per_deg_lat)
-                    if d <= r_max:
-                        dists.append(d)
-        out.append([sum(1 for d in dists if d <= r) for r in radii_m])
+    for lon0, lat0 in targets:
+        mlon = 111320.0 * math.cos(math.radians(lat0)) or 1e-9
+        cx, cy = int(lon0 / cell_lon), int(lat0 / cell_lat)
+        px0, py0 = lonlat_to_pixel(lon0, lat0, zoom) if zoom is not None else (0, 0)
+        found = []
+        for gx in (-1, 0, 1):
+            for gy in (-1, 0, 1):
+                for lon, lat in grid.get((cx + gx, cy + gy), ()):
+                    d = math.hypot((lon - lon0) * mlon, (lat - lat0) * m_per_deg_lat)
+                    if d > radius_m:
+                        continue
+                    rec = {"d_m": round(d, 2), "dx_px": None, "dy_px": None}
+                    if zoom is not None:
+                        px, py = lonlat_to_pixel(lon, lat, zoom)
+                        rec["dx_px"] = round(px - px0, 1)
+                        rec["dy_px"] = round(py - py0, 1)
+                    found.append(rec)
+        found.sort(key=lambda r: r["d_m"])
+        out.append(found)
     return out
+
+
+def count_neighbours(all_points, targets, radii_m):
+    """How many published records fall within each radius of each target.
+
+    A thin projection of :func:`find_neighbours`, so the counts and the markers
+    drawn on the chip can never disagree about what is nearby.
+    """
+    if not radii_m:
+        return [[] for _ in targets]
+    found = find_neighbours(all_points, targets, max(radii_m))
+    return [[sum(1 for n in fs if n["d_m"] <= r) for r in radii_m] for fs in found]
 
 
 # Radii at which neighbouring published records are counted. 6 m is the threshold
@@ -655,6 +679,21 @@ function marker(v) {{
     stroke="#4fc3f7" stroke-width="${{S / 300}}" stroke-dasharray="${{S / 90}}"/></g>`;
 }}
 
+// Every OTHER published record in the frame, drawn where it actually is. This is
+// what turns "3 or 4?" from a judgment into a look: three diamonds on the island
+// and one across the crossing is visible in a second and arguable in none.
+// Gated on the reviewer having counted first, for the same anti-anchoring reason
+// the numbers are.
+function pubMarkers(c, v) {{
+  if (!c.pub || v.ramps_visible == null) return "";
+  const r = S / 90;
+  return c.pub.map(p => {{
+    const x = C + p[0], y = C + p[1];
+    return `<path d="M ${{x}} ${{y - r}} L ${{x + r}} ${{y}} L ${{x}} ${{y + r}} L ${{x - r}} ${{y}} Z"
+      fill="none" stroke="#ff6fd8" stroke-width="${{S / 330}}"/>`;
+  }}).join("");
+}}
+
 function state(id) {{ return V[id] || (V[id] = {{}}); }}
 function save() {{ localStorage.setItem(KEY, JSON.stringify(V)); paint(); }}
 // A readable corner with no ramp is a finished verdict, not an unfinished one.
@@ -704,7 +743,7 @@ function render() {{
   const c = CHIPS[cur], v = state(c.id);
   big.src = c.uri; big.alt = c.id;
   bigsvg.setAttribute("viewBox", `0 0 ${{S}} ${{S}}`);
-  bigsvg.innerHTML = overlayInner(true) + marker(v);
+  bigsvg.innerHTML = overlayInner(true) + pubMarkers(c, v) + marker(v);
   document.getElementById("title").textContent =
     `${{c.id}}  (${{cur + 1}}/${{CHIPS.length}})`;
   document.getElementById("offset").textContent =
@@ -738,27 +777,20 @@ function render() {{
     row.hidden = true;
   }} else {{
     row.hidden = false;
-    // The published per-corner count is BRACKETED by the two radii, not equal to
-    // either. 6 m is calibrated on NYC's tight corners and demonstrably splits a
-    // large one (chip 66519's island spans 7.0 m); 10 m reaches across a narrow
-    // street. So only a count outside [p6, p10] is evidence of anything —
-    // comparing against p6 alone raised a false "under-recording" flag on exactly
-    // the corners the threshold is known to mis-group.
-    const p6 = c.published[0], p10 = c.published[1], n = v.ramps_visible;
-    let cls, verdict;
-    if (n > p10) {{
-      cls = "under";
-      verdict = "more than are published even at 10 m — under-recording?";
-    }} else if (n < p6) {{
-      cls = "over";
-      verdict = "fewer than are published within 6 m — phantom or duplicate?";
-    }} else {{
-      cls = "agree";
-      verdict = p6 === p10 ? "agrees" : "consistent — 6 m under-groups large corners";
-    }}
-    pub.className = "pub " + cls;
+    // NO automatic verdict. A radius is not a corner, and it fails in BOTH
+    // directions on exactly the complex geometry where the comparison would
+    // matter: 6 m misses the far ramp of a large corner (chip 66519's island
+    // spans 7.0 m) and reaches straight across a 4-5 m slip lane (chip 67585,
+    // where the record 5.2 m ESE is on the far side of a crossing). Two false
+    // alarms in two chips, in opposite directions. So the panel now shows the
+    // records rather than judging them — the diamonds on the image are the
+    // evidence, and the reviewer can see which ones are across a roadway.
+    const p6 = c.published[0], p10 = c.published[1];
+    pub.className = "pub";
     pub.innerHTML = `${{p6}} within 6 m · ${{p10}} within 10 m<br>
-      <span style="font-size:11px">${{verdict}}</span>`;
+      <span style="font-size:11px">◆ marks each one. <b>A radius is not a corner</b> —
+      6 m can cross a slip lane and can miss the far ramp of a big corner, so check
+      each diamond against what you counted.</span>`;
   }}
 }}
 
@@ -965,12 +997,19 @@ def main(argv=None):
     # (docs/curb_ramp_data_sourcing.md §5d). Counted against the WHOLE inventory,
     # not the sample frame.
     all_pts = [(r["lon"], r["lat"]) for r in rows if r.get("lon") is not None]
-    counts = count_neighbours(all_pts, [(c["lon"], c["lat"]) for c in chips],
-                              NEIGHBOUR_RADII_M)
-    for chip, verdict, n in zip(chips, verdicts, counts):
-        chip["published"] = n
-        verdict["published_within_6m"] = n[0]
-        verdict["published_within_10m"] = n[1]
+    targets = [(c["lon"], c["lat"]) for c in chips]
+    # Half the chip span, so every neighbour that could be drawn is found. Pixel
+    # offsets come back in the chip's own projection, so a marker lands exactly
+    # on the record.
+    found = find_neighbours(all_pts, targets, args.span_m / 2.0, zoom=zoom)
+    for chip, verdict, near in zip(chips, verdicts, found):
+        counts = [sum(1 for n in near if n["d_m"] <= r) for r in NEIGHBOUR_RADII_M]
+        chip["published"] = counts
+        # Only the OTHER records get a marker; the sampled one is the crosshair.
+        chip["pub"] = [[n["dx_px"], n["dy_px"]] for n in near if n["d_m"] > 0.05]
+        verdict["published_within_6m"] = counts[0]
+        verdict["published_within_10m"] = counts[1]
+        verdict["published_neighbours_m"] = [n["d_m"] for n in near if n["d_m"] > 0.05]
 
     manifest = {
         "city": args.city, "inventory": os.path.basename(args.inventory),
