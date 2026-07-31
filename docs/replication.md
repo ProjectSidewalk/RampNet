@@ -149,9 +149,27 @@ updates nearly free, and means waiting to publish buys very little.
 `galleries/<city>/`), then publish incrementally as splits land. The thing genuinely worth getting
 right up front is the *layout*, not the timing.
 
-⚠️ One caveat I have not verified: HF's free public storage is "best-effort" and the published
-tiers assume a paid plan for large volumes. **Check which plan the `projectsidewalk` org is on
-before pushing 9 GB** — that is a billing question, not a technical one.
+### Account tier — probably not a blocker, but worth asking
+
+`projectsidewalk` is a free/community org. It already hosts **12 models and 9 datasets**, including
+`rampnet-dataset` (~44 GB, 214k rows). **So a further ~9 GB is small next to what the org is
+already being carried for**, and the free tier's "best-effort" public storage has evidently been
+sufficient. This should not block publishing.
+
+Two routes exist if more headroom is wanted, per HF's own storage documentation:
+
+- **Academia Hub** — HF's storage docs recommend academic and research institutions upgrade to
+  "Team, Enterprise, or Academia Hub". *I could not verify Academia Hub's terms, cost or
+  eligibility* — it is not described on the public pricing page and `huggingface.co/academia` is an
+  unrelated user profile. Worth asking HF directly rather than assuming.
+- **A storage grant.** The docs state plainly that "storage grants may be available for
+  high-impact open-source work where a paid plan genuinely cannot cover the need", evaluated
+  case-by-case on demonstrated community impact (downloads, citations, adoption). Contact
+  **datasets@huggingface.co** (or models@) with a proposal.
+
+RampNet has a concrete case for the second: a published ICCV'25 workshop paper, a released model
+and dataset already on the Hub, an accessibility-research application, and a specific ask (the
+benchmark imagery that makes the ground truth reproducible).
 
 ## Human-rated tasks
 
@@ -168,6 +186,30 @@ A human judgment is the least reproducible thing we produce, so it gets the most
 - **Rendering is deterministic, and this was tested rather than assumed** — re-rendering the #46
   gallery reproduced all **50/50 crops byte-identically**, which is what lets committed verdicts
   re-pair with a regenerated gallery instead of merely being presumed to.
+- **The imagery every review was made against is pinned by hash.**
+  `benchmark/<city>/imagery_manifest.json` records a sha256 and pixel size per panorama plus one
+  digest per split — 206 KB describing 9 GB. This is what makes a verdict verifiable *after* the
+  panos go to HF and come back: same pano id and filename is **not** evidence that the bytes are
+  the ones the reviewer judged, because a re-fetch from Mapillary or GSV can return re-stitched or
+  re-compressed pixels.
+
+  ```bash
+  python scripts/analysis/imagery_manifest.py --verify   # run this after downloading the archive
+  ```
+
+  *(All 8 reviewed splits verified OK on 2026-07-31 — 984 panoramas unchanged since review.)*
+
+### Integrity coverage per pass
+
+| pass | detections pinned | imagery pinned | rubric in the file |
+| :--- | :--- | :--- | :--- |
+| GT verification | ✅ `records.jsonl` (committed) | ✅ `imagery_manifest.json` | ⚠️ in `benchmark/RUBRICS.md`, not the verdict file |
+| #55 A/B | ✅ `op_cache` + `tagcheck` re-resolves ids | ✅ `imagery_manifest.json` | ⚠️ in `benchmark/RUBRICS.md`, not the tag file |
+| #46 miss taxonomy | ✅ committed caches | ✅ per-crop sha256 + manifest digest | ✅ inside every verdict file |
+
+`tagcheck` and the imagery manifest answer different questions and both are needed: `tagcheck`
+confirms the *detection coordinates* a tag refers to still exist, the manifest confirms the
+*pixels* have not moved underneath them.
 
 ## Run-book: the #46 miss-taxonomy rating task
 
