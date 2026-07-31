@@ -97,6 +97,18 @@ ok(document.getElementById("pubrow").hidden === true, "published hidden before c
 v2.ramps_visible = 1; T.open_(1);
 ok(document.getElementById("pubrow").hidden === false, "published revealed after counting");
 
+// Chip A publishes [2, 4] -- the pork-chop shape, where 6 m splits the island.
+// A count of 3 sits inside the bracket and must NOT raise an alarm; comparing
+// against the 6 m figure alone used to flag it as under-recording.
+const pub = () => document.getElementById("pub").className;
+const va = T.state("A");
+va.ramps_visible = 3; T.open_(0);
+ok(pub().includes("agree"), "count inside the [6 m, 10 m] bracket is consistent");
+va.ramps_visible = 5; T.open_(0);
+ok(pub().includes("under"), "count above the 10 m figure flags under-recording");
+va.ramps_visible = 1; T.open_(0);
+ok(pub().includes("over"), "count below the 6 m figure flags phantom/duplicate");
+
 ok(document.getElementById("rubric-body").innerHTML.includes("<h3>"), "rubric renders");
 
 console.log(JSON.stringify(out));

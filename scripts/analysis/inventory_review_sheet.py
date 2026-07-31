@@ -177,7 +177,10 @@ RUBRIC = {
         "serving two crossings = 1. Median island with a cut-through = 2, one end per "
         "side. Triangular channelising island ('pork chop') = 3, one per leg it "
         "serves. Note that 'one ramp per crossing' is NOT the rule — a median has two "
-        "ends serving a single crossing; containment is the rule."
+        "ends serving a single crossing; containment is the rule. THE RINGS DO NOT "
+        "BOUND THE COUNT either: they exist to measure the offset, and a ramp sitting "
+        "inside the 10 m ring but across a roadway belongs to a different corner. On "
+        "chip 66519 four ramps fall inside the 10 m ring and the answer is three."
     ),
     "on_corner": (
         "The same containment test: YES if the crosshair and the ramp you clicked are "
@@ -214,9 +217,14 @@ RUBRIC = {
         "entered ramps_visible for that chip, and this is deliberate. ramps_visible is "
         "meant to be independent evidence from the imagery; showing the published "
         "count first would anchor it, and the whole value of the comparison is that "
-        "the two were arrived at separately. Once revealed: ramps_visible > published "
-        "means the city under-records (the pair-merge failure mode), ramps_visible < "
-        "published means phantoms or duplicates."
+        "the two were arrived at separately. Once revealed, read the two radii as a "
+        "BRACKET rather than a target: 6 m is the threshold calibrated against NYC's "
+        "published corner key, and it demonstrably splits a large corner (chip 66519's "
+        "channelising island spans 7.0 m), while 10 m can reach across a narrow "
+        "street. So the true published per-corner count lies between them, and only a "
+        "count OUTSIDE the bracket is evidence: above the 10 m figure suggests the "
+        "city under-records (the pair-merge failure mode), below the 6 m figure "
+        "suggests phantoms or duplicates."
     ),
 }
 
@@ -553,7 +561,8 @@ SHEET_TEMPLATE = """<!doctype html>
    <div class="seg" id="vis"></div>
    <p class="hint"><b>Only what you could reach without crossing a roadway</b> — this is
     per-corner, not per-chip. Perpendicular pair 2 · diagonal apron 1 · median island 2 ·
-    pork-chop island 3.</p>
+    pork-chop island 3.<br><b>The rings do not bound the count.</b> They measure distance;
+    a ramp inside the 10 m ring but across a roadway is a different corner.</p>
   </div>
   <div class="row" id="pubrow" hidden>
    <label>published records nearby <b>(revealed after you count)</b></label>
@@ -729,11 +738,24 @@ function render() {{
     row.hidden = true;
   }} else {{
     row.hidden = false;
-    const p6 = c.published[0], p10 = c.published[1];
-    const cls = v.ramps_visible === p6 ? "agree" : (v.ramps_visible > p6 ? "under" : "over");
-    const verdict = v.ramps_visible === p6 ? "agrees at 6 m"
-      : (v.ramps_visible > p6 ? "you see MORE than are published — under-recording?"
-                              : "you see FEWER than are published — phantom or duplicate?");
+    // The published per-corner count is BRACKETED by the two radii, not equal to
+    // either. 6 m is calibrated on NYC's tight corners and demonstrably splits a
+    // large one (chip 66519's island spans 7.0 m); 10 m reaches across a narrow
+    // street. So only a count outside [p6, p10] is evidence of anything —
+    // comparing against p6 alone raised a false "under-recording" flag on exactly
+    // the corners the threshold is known to mis-group.
+    const p6 = c.published[0], p10 = c.published[1], n = v.ramps_visible;
+    let cls, verdict;
+    if (n > p10) {{
+      cls = "under";
+      verdict = "more than are published even at 10 m — under-recording?";
+    }} else if (n < p6) {{
+      cls = "over";
+      verdict = "fewer than are published within 6 m — phantom or duplicate?";
+    }} else {{
+      cls = "agree";
+      verdict = p6 === p10 ? "agrees" : "consistent — 6 m under-groups large corners";
+    }}
     pub.className = "pub " + cls;
     pub.innerHTML = `${{p6}} within 6 m · ${{p10}} within 10 m<br>
       <span style="font-size:11px">${{verdict}}</span>`;
