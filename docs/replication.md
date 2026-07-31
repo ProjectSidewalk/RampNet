@@ -148,31 +148,22 @@ updates nearly free, and means waiting to publish buys very little.
 `galleries/<city>/`), then publish incrementally as splits land. The thing genuinely worth getting
 right up front is the *layout*, not the timing.
 
-### Account tier is a settled question — HF already agreed, in July 2025
+### Storage capacity is not a constraint
 
-**There is no quota problem, and no grant to request.** `projectsidewalk` already hosts
-**`rampnet-dataset` at 463 GB / 200,000+ panoramas** — the ~44 GB figure quoted elsewhere is the
-*test split*, not the whole thing. Another ~9 GB is under 2% of what is already up.
+`projectsidewalk` already hosts **`rampnet-dataset` at 463 GB / 200,000+ panoramas** — the ~44 GB
+figure quoted elsewhere in this repo is the *test split*, not the whole dataset. Another ~9 GB is
+under 2% of what is already published, and hosting at that scale was arranged with Hugging Face in
+July 2025.
 
-That was arranged deliberately. John O'Meara wrote to `datasets@huggingface.co` on **2025-07-11**
-flagging that the dataset exceeded default limits, and **Daniel van Strien (ML Librarian, Hugging
-Face)** replied on **2025-07-15**. The upload completed the same day. His reply set the terms we
-should keep following:
+The conditions agreed then still apply and should shape how #21 is packaged:
 
-1. **Use Parquet or WebDataset** for large datasets — "strongly recommend". `push_to_hub` on a
-   `datasets.Dataset` handles the conversion and partitioning.
-2. **Stay under the per-file / per-folder limits**, and tell them if you cannot. (Recall the hard
-   limit of **10k entries per folder** — a real constraint for loose image files, and a non-issue
-   for Parquet.)
-3. **Host under an organisation, not an individual account** — hence `projectsidewalk`.
-4. **Document it well in the dataset card**, especially for any non-standard format: if
+1. **Use Parquet or WebDataset** for large datasets. `push_to_hub` on a `datasets.Dataset` handles
+   the conversion and partitioning.
+2. **Stay under the per-file / per-folder limits** — notably the hard limit of **10k entries per
+   folder**, a real constraint for loose image files and a non-issue for Parquet.
+3. **Host under an organisation**, not an individual account — hence `projectsidewalk`.
+4. **Document it properly in the dataset card**, especially for a non-standard layout: if
    `load_dataset('org/repo')` does not just work, spell out how to download and load it.
-
-He also offered: *"Let us know when you do public comms about this dataset so HF can help
-amplify!"* — **and HF did amplify it on their social channels in 2025.** So this is not a
-speculative offer: the precedent exists and was honoured once already, which is worth knowing when
-the benchmark dataset (#21) is ready to announce. *(The specific post has not been relocated; this
-is recorded from Jon's recollection, not a citation.)*
 
 ### What this changes about our plan
 
