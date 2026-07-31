@@ -70,7 +70,8 @@ globalThis.URL = {createObjectURL: () => "blob:x"};
 globalThis.alert = () => {};
 
 let src = require("fs").readFileSync(process.argv[2], "utf8");
-src += "\nglobalThis.__t = {V, done, state, render, open_, CHIPS};\n";
+src += "\nglobalThis.__t = {V, done, complete, partial, state, render, open_, CHIPS,"
+    +  " paint, nextTodo};\n";
 (0, eval)(src);
 
 const T = globalThis.__t;
@@ -134,6 +135,31 @@ const words = pubHtml().toLowerCase();
 ok(!/under-recording\?|phantom or duplicate\?/.test(words),
    "panel issues no automatic verdict");
 ok(words.includes("a radius is not a corner"), "panel says why it cannot judge");
+
+// "Done" is not "fully recorded". A chip with an offset but no count used to
+// style as finished and be unreachable from `next unreviewed`, while its missing
+// count silently shrank the per-corner denominator. Denver chip 66096 was
+// exactly this -- the reviewer could not have found it.
+const only = (o) => Object.assign(
+  {offset_m: null, px: null, py: null, ramps_visible: null,
+   unreadable: false, no_ramp: false}, o);
+ok(T.complete(only({offset_m: 0.4, ramps_visible: 2})), "offset + count = complete");
+ok(!T.complete(only({offset_m: 0.4})), "offset without a count is NOT complete");
+ok(T.partial(only({offset_m: 0.4})), "offset without a count is partial");
+ok(!T.complete(only({ramps_visible: 2})), "count without an offset is not complete");
+ok(T.complete(only({unreadable: true})), "unjudgeable needs no count");
+ok(T.complete(only({no_ramp: true, ramps_visible: 0})), "phantom is complete");
+
+// ...and the partial has to be reachable.
+T.CHIPS.forEach(c => {{ delete T.V[c.id]; }});
+T.V["A"] = only({offset_m: 0.4});           // partial
+T.V["B"] = only({offset_m: 0.2, ramps_visible: 1});  // complete
+T.nextTodo();
+ok(document.getElementById("title").textContent.startsWith("A"),
+   "next-unreviewed routes to a partial chip");
+T.paint();
+ok(document.getElementById("prog").textContent.includes("partial"),
+   "progress counter surfaces partials");
 
 ok(document.getElementById("rubric-body").innerHTML.includes("<h3>"), "rubric renders");
 

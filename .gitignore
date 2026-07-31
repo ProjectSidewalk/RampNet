@@ -54,6 +54,11 @@ analysis_out/op/*
 !analysis_out/review_*/
 analysis_out/review_*/*
 !analysis_out/review_*/verdicts.json
+# summary.json too: it is the reduction quoted in 5f, a few KB, and committing it
+# means a reader can check a figure in the prose against the table it came from
+# without re-running anything. Regenerable from verdicts.json by
+# scripts/analysis/inventory_review_summary.py.
+!analysis_out/review_*/summary.json
 
 # Georeference check (#96): the JSON is the evidence that the sheet's crosshair and
 # rings are true, and the two PNGs are what a reader looks at to agree. Small, and

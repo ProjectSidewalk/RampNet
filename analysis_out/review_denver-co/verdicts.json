@@ -70,7 +70,7 @@
       ],
       "offset_m": 0.43,
       "on_corner": true,
-      "ramps_visible": null,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
@@ -326,7 +326,7 @@
         "21/796541/436801",
         "21/796542/436801"
       ],
-      "offset_m": null,
+      "offset_m": 0.03,
       "on_corner": true,
       "ramps_visible": 1,
       "unreadable": false,
@@ -334,7 +334,10 @@
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "click_px": null
+      "click_px": [
+        349,
+        348.5
+      ]
     },
     {
       "id": "71275",

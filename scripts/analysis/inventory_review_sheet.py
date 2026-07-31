@@ -515,6 +515,10 @@ SHEET_TEMPLATE = """<!doctype html>
  figure.done {{ border-color:#3c7a52; }}
  figure.skip {{ border-color:#7a5a3c; opacity:.65; }}
  figure.phantom {{ border-color:#8a3c3c; }}
+ /* Judged, but not fully recorded. Amber rather than green, because the
+    difference between these two is a silently shrunken denominator. */
+ figure.partial {{ border-color:#b08028; }}
+ figure.partial .tag {{ color:#d69f3a; }}
  .wrap {{ position:relative; cursor:zoom-in; line-height:0; }}
  .wrap img {{ width:100%; border-radius:4px; display:block; }}
  .wrap svg {{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }}
@@ -733,20 +737,39 @@ function save() {{ localStorage.setItem(KEY, JSON.stringify(V)); paint(); }}
 // straight back to it.
 function done(v) {{ return v && (v.unreadable || v.no_ramp || v.offset_m != null); }}
 
+// "Done" is not the same as "fully recorded", and conflating them loses data
+// silently. A chip with an offset but no count passes done() -- so it is styled
+// finished and `next unreviewed` will never route back to it -- while its
+// missing count quietly shrinks the per-corner denominator. That is exactly how
+// Denver lost the count on chip 66096: re-clicking an already-selected segment
+// clears it, and nothing said so. An unjudgeable chip needs no count, because
+// you cannot count what you cannot see.
+function complete(v) {{
+  if (!v) return false;
+  if (v.unreadable) return true;
+  return (v.no_ramp || v.offset_m != null) && v.ramps_visible != null;
+}}
+function partial(v) {{ return done(v) && !complete(v); }}
+
 function paint() {{
-  let n = 0;
+  let n = 0, part = 0;
   CHIPS.forEach(c => {{
     const v = V[c.id], f = document.getElementById("f" + c.id);
     if (!f) return;
-    f.className = v && v.unreadable ? "skip" : (v && v.no_ramp ? "phantom"
-                  : (done(v) ? "done" : ""));
-    if (done(v)) n++;
+    f.className = partial(v) ? "partial"
+      : (v && v.unreadable ? "skip" : (v && v.no_ramp ? "phantom"
+         : (complete(v) ? "done" : "")));
+    if (complete(v)) n++;
+    else if (partial(v)) part++;
     const tag = f.querySelector(".tag");
-    tag.textContent = !v ? "" : v.unreadable ? "unjudgeable" : v.no_ramp ? "no ramp"
+    tag.textContent = !v ? ""
+      : partial(v) ? (v.offset_m != null ? "no count" : "no offset")
+      : v.unreadable ? "unjudgeable" : v.no_ramp ? "no ramp"
       : (v.offset_m != null ? v.offset_m.toFixed(1) + " m"
          + (v.ramps_visible != null ? " · " + v.ramps_visible + "\\u00d7" : "") : "");
   }});
-  document.getElementById("prog").textContent = n + " / " + CHIPS.length + " reviewed";
+  document.getElementById("prog").textContent =
+    n + " / " + CHIPS.length + " complete" + (part ? "  ·  " + part + " partial" : "");
 }}
 
 const grid = document.getElementById("grid");
@@ -864,9 +887,12 @@ document.getElementById("close").onclick = () => dlg.close();
 document.getElementById("ovl").onchange = e =>
   document.body.classList.toggle("nooverlay", !e.target.checked);
 
+// Routes to anything not FULLY recorded -- untouched chips first, then partials.
+// Routing on done() alone made a chip with an offset but no count unreachable.
 function nextTodo() {{
-  const i = CHIPS.findIndex(c => !done(V[c.id]));
-  if (i < 0) return alert("Every chip has been reviewed. Export when ready.");
+  let i = CHIPS.findIndex(c => !done(V[c.id]));
+  if (i < 0) i = CHIPS.findIndex(c => partial(V[c.id]));
+  if (i < 0) return alert("Every chip is fully recorded. Export when ready.");
   open_(i);
 }}
 document.getElementById("next-todo").onclick = nextTodo;

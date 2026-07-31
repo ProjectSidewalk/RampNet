@@ -945,8 +945,73 @@ the offset number specifically, so the two instruments compose rather than repla
 not needed to make it. **Precision from this pass, recall from that one — do not read either as
 both.**
 
-**The Good/OK/Poor question for Denver remains open** — the review is in progress against the
-rubric above.
+## 5f. Denver's location precision, measured (2026-07-31)
+
+**All 59 chips reviewed by Jon Froehlich against the §5e rubric, in one sitting.** Verdicts in
+`analysis_out/review_denver-co/verdicts.json` (which carries the rubric and the tile keys it was
+judged against); reduction by `scripts/analysis/inventory_review_summary.py` into
+`analysis_out/review_denver-co/summary.json`. Wilson intervals throughout, because at n≈55 with a
+rate near 5% the normal approximation runs below zero.
+
+| | value | 95% CI |
+| :--- | ---: | :--- |
+| **Offset median** | **0.29 m** | — |
+| Offset p75 / p90 / max | 0.64 / 0.95 / 2.07 m | — |
+| **Within 1 m** ("on the ramp") | **92.3%** (48/52) | 81.8–97.0 |
+| Within 0.5 m | 63.5% (33/52) | 49.9–75.2 |
+| Within 2 m | 98.1% (51/52) | 89.9–99.7 |
+| **Phantom** (readable corner, no ramp) | **5.5%** (3/55 judgeable) | 1.9–14.9 |
+| Unjudgeable | 6.8% (4/59) | 2.7–16.2 |
+
+**Verdict: Denver is Good.** Stating the threshold rather than assuming one, since the paper
+published none: *Good = ≥90% of records within 1 m of the ramp, with a phantom rate under 10%.*
+The 1 m mark is not arbitrary — a ramp is 1.2–1.8 m deep, so half-depth is 0.6–0.9 m and "within
+1 m of the centre" is very nearly "on the concrete". **This is our threshold, not the paper's**, and
+Denver's Table 1 peers cannot be re-scored against it without repeating this exercise on them.
+
+### The per-corner result, which settles §5d for Denver
+
+**Zero chips where the reviewer saw more ramps than Denver publishes.** 51 of 57 counted chips fall
+inside the published [6 m, 10 m] bracket; all 6 outside are on the low side, and 3 of those are the
+phantoms themselves. **No evidence of under-recording** — the pair-merge failure that #46 traced to
+72% of Paterson's near-field misses.
+
+Observed composition: **32 of 57 corners carry exactly one ramp**, 20 carry two, 2 carry three.
+Mean **1.37 ramps seen per corner against 1.21 records per corner** from §5d's clustering. The two
+agree to within the clustering's known under-grouping, which means Denver's low ratio is **ramp
+design vocabulary, not missing records** — the benign reading §5d favoured on Sioux Falls and
+Charlotte evidence but could not confirm without imagery. It is now confirmed on imagery.
+
+Two chips remain genuinely unexplained and are the honest residue: `92078` and `135499`, both
+showing one ramp where Denver publishes two within 6 m. Candidates are the 72 known coincident
+duplicates (§5e) or a missed ramp; not chased. (`67585` also reads low but is resolved — its fourth
+record is across a slip-lane crossing.)
+
+### What these numbers are not
+
+- **A lower bound, not the Stage 1 error.** The 2016 imagery is near-contemporaneous with a
+  delineation that is 74% 2015-dated, so this measures *digitising precision* and is blind to
+  everything that changed before the ~2022 panorama. Compose with §5a, do not quote alone.
+- **Floor-limited on the left.** A 0.29 m median is 5 px, below the imagery's own registration
+  residual against Denver's centrelines (per-site medians 0.08–0.46 m). Denver's coordinates are as
+  good as this instrument can resolve; that is not the same as 29 cm.
+- **Imprecise on the phantom rate.** Three events. The interval reaches **14.9%**, which across
+  72,770 records is the difference between ~4,000 and ~10,800 false-positive labels. Narrowing it
+  needs a larger sample, not a better instrument.
+- **Silent on recall** — structurally, see the ⚠️ above.
+- **One rater, no second pass.** The benchmark's standing top follow-up is a second rater, and it
+  applies here too.
+- Two clicks were **recorded and excluded**: `98816` (4.54 m) and `133260` (0.24 m) were marked
+  unjudgeable after being clicked. Counting the first would have made it the distribution's maximum.
+
+### What it does to the 500k arithmetic
+
+Denver passing moves the usable pool from **276,615 to 349,385** — the single largest available
+addition, 40.3% of the unassessed pool. **It does not reach 500,000, and nothing available does
+without a further decision.** Good + Denver + *every remaining unassessed city, all passing* is
+**457,288**. So §6's conclusion stands and is now on firmer ground: **500k requires either the OK
+tier the paper rejected, or the state-DOT tail with its Richmond-benchmark hazard.** That choice is
+no longer blocked on Denver.
 
 ## 6. Routes to a 500,000-ramp corpus
 
