@@ -916,6 +916,35 @@ corner key at P .976 / R .973 — genuinely good, and no NYC corner could have e
 because NYC has neither large suburban corner radii nor many channelised islands. The 8/10 m
 re-run above would quantify the first failure; nothing yet quantifies the second.
 
+### ⚠️ What this instrument structurally cannot measure: recall
+
+Raised by the reviewer mid-pass, and it is a property of the design rather than a defect in it.
+The sample is drawn **from the record list**, so every chip is somewhere Denver already pointed.
+That yields offset, phantom rate, and per-corner completeness *at corners Denver knows about* —
+and it **cannot see a corner Denver never recorded at all**. An inventory that published half its
+ramps, accurately, would score perfectly here.
+
+That failure mode is not hypothetical for this project: §5d's concern was pair-merge, and #46
+traced **72% of Paterson's near-field misses to adjacent-pair merges**. Under-recording has
+already cost us a city.
+
+**The design is still right for the primary question.** Every published record becomes exactly one
+Stage 1 label, so "how accurate will the labels be" is a per-record average and needs a
+record-weighted sample. And the naive fix does not work: Denver is 182 ramps/km², so a random 40 m
+chip holds **0.29 ramps** — about 71% of random patches would be empty pavement.
+
+**The fix that does work is to anchor on intersections, not records.** Sample intersections from
+Denver's own centreline layer (`ODC_TRANS_STREETROUTE_U`, already used for the registration check),
+have the reviewer click *every* ramp in the chip, then overlay the published records and match.
+One pass then yields offset (matched pairs), phantom rate (published with no observed ramp),
+**recall** (observed with no published record), and the per-corner count. The cost is 3-5x the
+clicking per chip and a sampling frame that over-weights sparse intersections — which is worse for
+the offset number specifically, so the two instruments compose rather than replace.
+
+**Not built.** Deferred until the Denver Good/OK/Poor call is made, on the grounds that recall is
+not needed to make it. **Precision from this pass, recall from that one — do not read either as
+both.**
+
 **The Good/OK/Poor question for Denver remains open** — the review is in progress against the
 rubric above.
 
