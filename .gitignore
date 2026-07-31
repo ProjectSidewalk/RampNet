@@ -75,6 +75,9 @@ analysis_out/review_*/*
 analysis_out/georef_check_*/*
 !analysis_out/georef_check_*/georef_check.json
 !analysis_out/georef_check_*/registration_*.png
+# The _chips variant re-renders the SAME two visual sites as its city's run, so
+# its PNGs are duplicates; only its JSON says anything new (the per-chip medians).
+analysis_out/georef_check_*_chips/registration_*.png
 
 # Ramps vs the city's own centrelines (§5i). Numbers only, no imagery — this is
 # the leg that exonerated Seattle's coordinates, so it has to be checkable.
