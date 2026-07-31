@@ -1013,6 +1013,77 @@ without a further decision.** Good + Denver + *every remaining unassessed city, 
 tier the paper rejected, or the state-DOT tail with its Richmond-benchmark hazard.** That choice is
 no longer blocked on Denver.
 
+## 5g. What Stage 1 actually tolerates — and it is not what §5f measures (2026-07-31)
+
+§5f gives an offset distribution. A distribution is not a decision, and the missing half is the
+**tolerance** — which is a property of Stage 1, not of the aerial imagery. Script:
+`scripts/analysis/stage1_offset_tolerance.py` (16 tests), result in
+`analysis_out/stage1_offset_tolerance.json`. CPU, no network, no checkpoint.
+
+**The load-bearing fact, from `stage_one/dataset_generation/download_dataset.py`:**
+
+```python
+azimuth, _, _ = geod.inv(pano_lng, pano_lat, ramp_lng, ramp_lat)
+azimuth = azimuth - pano_angle
+persp = equirectangular_to_perspective(equi, 90, azimuth, -30, 1024, 1024)
+persp = persp[0:1024, 341:341+341]          # centre third only
+```
+
+**The published coordinate is consumed only for its BEARING from the panorama.** The range is
+computed and discarded. The crop model then localises the ramp inside a strip cut around that
+bearing, so the label's position comes from the *imagery*, not from the coordinate. Three
+consequences, none visible from an offset distribution:
+
+1. **Tolerance is angular, not metric** — the strip is ±**18.37°** of azimuth. (Not 90°·341/1024 =
+   30°: a pinhole projection is not linear in angle, and the naive figure overstates by 63%.)
+2. **Radial error is free.** An offset along the line of sight does not move the bearing at all.
+   Only the tangential component costs anything.
+3. **Metric tolerance scales with range**, at `0.332 × range`: **1.0 m at 3 m, 3.3 m at 10 m,
+   6.6 m at 20 m.** The same coordinate error is fatal beside the camera and irrelevant across the
+   intersection.
+
+Ramp ranges, measured over **6,238 ground-truth ramps in all nine benchmark bundles** with the
+flat-ground estimator (DA3-validated to 6.5–8.5%): p10 5.6 m, **median 11.1 m**, p90 22.2 m.
+
+### Denver's coordinate error costs Stage 1 essentially nothing
+
+Monte Carlo over the empirical offset distribution × the empirical range distribution × a uniformly
+random error direction, 200,000 trials:
+
+**P(the true ramp falls outside its own crop) = 0.21%.** By range: 2.30% for ramps inside 5 m,
+0.13% at 5–10 m, and **0.00% beyond 10 m** — where the median ramp is.
+
+### ⚠️ The tolerance curve, which says §5f's threshold was far too strict
+
+Scaling Denver's whole distribution up gives the reusable answer, so a future city needs no bespoke
+argument about whether its number is good enough:
+
+| median offset | labels lost |
+| ---: | ---: |
+| 0.29 m *(Denver)* | **0.25%** |
+| 0.58 m | 2.1% |
+| 0.87 m | 5.5% |
+| 1.16 m | 9.4% |
+| 1.74 m | 16.5% |
+| 2.32 m | 22.9% |
+| 3.48 m | 32.5% |
+| 4.64 m | 39.7% |
+
+**§5f proposed "Good = ≥90% within 1 m" and that bar is much too high.** A city with a median
+offset near 1 m loses under 10% of its labels — and Stage 1 already trains on auto-labels with
+known error. **This is directly relevant to §6's conclusion that 500k requires accepting the OK
+tier the paper rejected: "OK" may cost far less than the label implies.** It does not license
+skipping the assessment — a city could be Poor through phantoms or through a heavy tail rather than
+through its median — but it does mean a mid-range median is not disqualifying.
+
+**What this is not.** It is the *geometric* tolerance — whether the ramp is inside the strip at
+all. It does not model whether the crop model still localises a ramp sitting near the strip edge,
+which needs the round-2 checkpoint (not in the repo) and a GPU. **Read it as an upper bound: real
+degradation begins earlier than this says, never later.** Two further assumptions travel with it:
+error direction is taken as uniformly random (defensible for Denver, whose registration check found
+no systematic shift, but *not* for a city with a datum error), and ranges come from the benchmark
+bundles rather than from Denver panoramas.
+
 ## 6. Routes to a 500,000-ramp corpus
 
 **Be explicit about which 500k is meant:**
