@@ -14,6 +14,65 @@ been run on any new city, and no retrain has been attempted. This is pre-work.
 > **Read §2 first.** The paper already assessed location precision for eight cities, and that
 > assessment — not inventory size — is the binding constraint on everything below.
 
+## 0. E1 result: the harm hypothesis is NOT supported
+
+Everything below prices out *sourcing*. #59 raised a prior objection — that scaling the same
+pipeline could make the worst failure mode **worse** — and that had to be settled before any of it
+mattered. It is now measured. Script: `scripts/analysis/stage1_label_recall.py`
+(17 tests in `tests/test_stage1_label_recall.py`); result JSON in
+`analysis_out/e1_stage1_label_recall.json`.
+
+**The hypothesis.** Stage-1 agreement against the manual gold set is P .9403 / R .9245, so ~7.5% of
+gold-visible ramps are unlabeled inside training panoramas. In heatmap regression that is not
+neutral — the target is **zero** there, so the loss actively pushes activations down. If those
+misses cluster in the far/small regime (plausible: projection error and the crop model both degrade
+with distance), we have been training the model to suppress detections exactly where it is blind,
+and scaling bakes that in harder.
+
+**The measurement.** Two recall curves over the same **3,919 gold ramps in 793 panoramas**, on the
+#25 bins with the identical `geom()` estimator `size_analysis.py` uses. Model detections at 0.55.
+
+| distance | n | Stage-1 labels | model | gap |
+| :--- | ---: | ---: | ---: | ---: |
+| 0–8 m | 1,374 | 0.959 | 0.943 | +0.016 |
+| 8–12 m | 1,065 | 0.918 | 0.894 | +0.024 |
+| 12–18 m | 865 | 0.924 | 0.842 | +0.082 |
+| 18–25 m | 498 | 0.900 | 0.779 | +0.120 |
+| 25–40 m | 113 | **0.779** | **0.487** | **+0.292** |
+| **drop-off** | | **0.180** | **0.457** | |
+
+Apparent size tells the same story: Stage-1 falls 0.951 → 0.797 across 80+ px down to 20–32 px
+(−0.154); the model falls 0.938 → 0.541 (−0.397).
+
+**Verdict: FLAT.** Stage-1 label recall does decline with distance, but **the model's cliff is ~2.5×
+steeper**. At 25–40 m the labels find 78% of gold ramps while the model detects 49% — the far ramps
+*are* being labeled; the model is not reaching the ceiling the labels already set. The gap widens
+monotonically with distance and with shrinking apparent size, which is the signature of a
+resolution/model limit, not an inherited label limit. Consistent with #25's forecast (+0.103 recall
+at 2× linear resolution).
+
+**Instrument check.** Model overall recall comes out at **0.873**, reproducing the published
+gold-set figure at 0.55 exactly; Stage-1 overall lands at 0.928 against the documented .9245. Both
+curves reproduce known numbers, so the comparison is not an artifact of this script.
+
+**What this does and does not license:**
+
+- ✅ **Naive scaling is not contraindicated by this mechanism.** The #59 objection that motivated
+  caution does not hold up. Sourcing work below is worth doing.
+- ❌ **It does not show that scaling helps.** That is E2 (#84's epoch curve — are we even
+  data-limited at 1 epoch?) and E3. This closes an objection; it does not make a case.
+- ⚠️ **The implicit-hard-negative mechanism is real, just not binding.** 22% of ramps at 25–40 m
+  are still unlabeled and still train as zeros. It is a second-order effect here, not a
+  first-order one.
+- ⚠️ **This is an in-distribution result.** The gold set is drawn from the NYC/Portland/Bend test
+  split, so it says nothing about the out-of-distribution failures (Paterson's paired TSIs,
+  Gainesville's diagonal ramps) that motivate the diversity argument in §1.
+
+One analysis defect worth recording, since it nearly decided the experiment: the drop-off was
+initially computed between the nearest and farthest *populated* buckets, and the gold set has **4**
+ramps beyond 40 m. At n=4 a single ramp moves recall by 0.25, and that bucket inverted the sign of
+Stage-1's drop-off (to −0.041). Buckets now require n ≥ 30, and a regression test pins it.
+
 ## 1. The current training corpus is mostly one city
 
 Stage 1 is built from three cities' open-government inventories (`docs/data_provenance.md` §1).
