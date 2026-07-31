@@ -121,14 +121,49 @@ def test_schemes_fit_the_single_digit_shortcuts():
 # store_key — resume must survive regeneration AND a new process
 # --------------------------------------------------------------------------- #
 def test_store_key_is_deterministic_within_a_process():
-    assert mk.store_key("miss", "t") == mk.store_key("miss", "t")
+    assert mk.store_key("miss", "t", mk.MISS_SCHEME) == \
+        mk.store_key("miss", "t", mk.MISS_SCHEME)
+
+
+def test_changing_the_scheme_starts_a_clean_store():
+    # The hazard this prevents: `visible` once absorbed what is now `context-only`
+    # and `definition`. Resuming across that change would blend two definitions into
+    # one rate with nothing to show it happened.
+    narrowed = [s for s in mk.MISS_SCHEME if s[0] != "context-only"]
+    assert mk.store_key("miss", "t", mk.MISS_SCHEME) != \
+        mk.store_key("miss", "t", narrowed)
+
+
+def test_renaming_a_verdict_also_starts_a_clean_store():
+    renamed = [("plain-view",) + s[1:] if s[0] == "visible" else s
+               for s in mk.MISS_SCHEME]
+    assert mk.store_key("miss", "t", mk.MISS_SCHEME) != \
+        mk.store_key("miss", "t", renamed)
+
+
+def test_redefining_a_verdict_without_renaming_it_starts_a_clean_store():
+    # The description IS the definition: `lighting` once meant "bad light" and now
+    # means "the exposure destroyed it". A rename is not required for the meaning to
+    # move, so descriptions have to be in the key or the two rubrics silently blend.
+    redefined = [(n, "something else entirely", w) if n == "lighting" else (n, d, w)
+                 for n, d, w in mk.MISS_SCHEME]
+    assert mk.store_key("miss", "t", mk.MISS_SCHEME) != \
+        mk.store_key("miss", "t", redefined)
+
+
+def test_commentary_does_not_reset_a_session():
+    # The third column is rationale, not definition. Editing it must NOT throw away a
+    # reviewer's in-progress work.
+    recommented = [(n, d, "reworded rationale") for n, d, _ in mk.MISS_SCHEME]
+    assert mk.store_key("miss", "t", mk.MISS_SCHEME) == \
+        mk.store_key("miss", "t", recommented)
 
 
 def test_store_key_is_stable_across_processes():
     # The reason this is not hash(): PYTHONHASHSEED randomizes str hashing per
     # process, so regenerating the page would move the key and orphan the session.
     code = ("import sys; sys.path.insert(0, r'%s'); import make_tagger; "
-            "print(make_tagger.store_key('miss', 'the title'))"
+            "print(make_tagger.store_key('miss', 'the title', make_tagger.MISS_SCHEME))"
             % os.path.join(REPO, "scripts", "analysis"))
     seen = set()
     for seed in ("0", "1", "12345"):
@@ -140,8 +175,10 @@ def test_store_key_is_stable_across_processes():
 
 
 def test_different_galleries_get_different_stores():
-    assert mk.store_key("miss", "a") != mk.store_key("miss", "b")
-    assert mk.store_key("miss", "a") != mk.store_key("fp", "a")
+    assert mk.store_key("miss", "a", mk.MISS_SCHEME) != \
+        mk.store_key("miss", "b", mk.MISS_SCHEME)
+    assert mk.store_key("miss", "a", mk.MISS_SCHEME) != \
+        mk.store_key("fp", "a", mk.FP_SCHEME)
 
 
 # --------------------------------------------------------------------------- #

@@ -40,8 +40,9 @@ MISS_SCHEME = [
     ("context-only", "Ramp not resolvable; crosswalk / apron / curb-cut cues imply one",
      "learnable, but from scene context rather than the ramp"),
     ("occluded", "Blocked by vehicle / pole / vegetation / person", "capture problem"),
-    ("lighting", "Deep shadow or blown highlight", "capture problem"),
-    ("surface", "Debris, snow, leaves, construction over it", "environment"),
+    ("lighting", "Exposure DESTROYED it — clipped to white or black",
+     "capture problem; bad-but-legible lighting is `visible`"),
+    ("surface", "Debris, snow, leaves, construction covering it", "environment"),
     ("not-a-ramp", "Nothing ramp-like here — plain pavement, driveway apron",
      "GT error"),
     ("definition", "Imagery is clear; whether this CLASS counts as a curb ramp is the "
@@ -75,6 +76,20 @@ MISS_GUIDE = """
 <p>A reviewer confirmed a real curb ramp at the <b class="gt">green circle</b>. RampNet produced
 <b>nothing</b> there — not a weak detection, nothing, even at the 0.05 score floor. No other model
 found it either. <b>Your keystroke records why.</b></p>
+<h3 class="hot">The single question behind every verdict</h3>
+<p><b>Are the ramp's own pixels present, in panel 3, and carrying its appearance?</b></p>
+<ul>
+  <li><b>No — something replaced them</b> (a truck, a pole) &rarr; <span class="key">3</span>
+      occluded. <b>No — the exposure destroyed them</b> (clipped to white or crushed to black)
+      &rarr; <span class="key">4</span> lighting. Both are capture problems: the model never
+      received the signal, and no amount of training data conjures it back.</li>
+  <li><b>Yes, but you still cannot resolve the ramp</b> — too far, too few pixels — and only
+      the surrounding scene tells you &rarr; <span class="key">2</span> context-only.</li>
+  <li><b>Yes, and it reads as a ramp</b> &rarr; <span class="key">1</span> visible. <b>This
+      includes ugly lighting you can still see through.</b> If the pixels carry the ramp, the
+      model had the signal and failed — and robustness to bad-but-legible conditions is
+      precisely what more and more varied training data buys.</li>
+</ul>
 <h3 class="hot">Ask panel 3 only: "could I call this a ramp from THIS?"</h3>
 <p>Panel 3 is the panorama at the model's own 4096&nbsp;px. It is the only panel that answers the
 question we are asking. Panels 1 and 2 are there to tell you <i>what is actually on the ground</i>
@@ -87,7 +102,7 @@ header turns <span class="adv">amber</span> on those.</p>
   <tr><td>the ramp itself is resolvable — you can point at the ramp, not just the place it should be</td><td><b>1</b> visible</td></tr>
   <tr><td>nothing is in the way, but you cannot resolve the ramp — a <b>crosswalk, coloured apron, or curb cut</b> tells you one is there</td><td><b>2</b> context-only</td></tr>
   <tr><td>a car, pole, vegetation or person is in the way — <b>even if you can still identify it</b></td><td><b>3</b> occluded</td></tr>
-  <tr><td>deep shadow or a blown-out highlight</td><td><b>4</b> lighting</td></tr>
+  <tr><td>exposure <b>destroyed</b> it — clipped white or crushed black. <i>Bad-but-legible lighting is <b>1</b>, not this.</i></td><td><b>4</b> lighting</td></tr>
   <tr><td>debris, snow, leaves or construction over it</td><td><b>5</b> surface</td></tr>
   <tr><td>panels 1&ndash;2 show <b>nothing ramp-like</b> — plain pavement, driveway apron</td><td><b>6</b> not-a-ramp</td></tr>
   <tr><td>a real pedestrian feature is clearly there, but <b>whether it counts as a curb ramp is the question</b></td><td><b>7</b> definition</td></tr>
@@ -200,19 +215,33 @@ def build_html(manifest, scheme, kind, title):
             .replace("__KEYS__", keys)
             .replace("__LEGEND__", legend)
             .replace("__GUIDE__", GUIDES.get(kind, ""))
-            .replace("__STORE__", store_key(kind, title)))
+            .replace("__STORE__", store_key(kind, title, scheme)))
 
 
-def store_key(kind, title):
-    """Stable localStorage key for one gallery.
+def store_key(kind, title, scheme):
+    """Stable localStorage key for one gallery **under one verdict scheme**.
 
-    Deliberately not ``hash()``: Python randomizes string hashing per process, so
-    regenerating the page would silently move the key and abandon a half-finished
-    tagging session in the old one. Content-derived, so the same gallery always
-    resumes into the same store.
+    Two properties, both learned the hard way:
+
+    * Deliberately not ``hash()``: Python randomizes string hashing per process, so
+      regenerating the page would silently move the key and abandon a half-finished
+      session. Content-derived, so the same gallery always resumes into the same store.
+    * **The scheme is part of the key — names *and* descriptions.** When a verdict is
+      added or its meaning narrows, previously recorded verdicts mean something
+      different under the same name: ``visible`` once absorbed what is now
+      ``context-only`` and ``definition``, and ``lighting`` once meant "bad light"
+      rather than "the exposure destroyed it". Silently resuming across either change
+      would blend two definitions into one rate with nothing to show it happened.
+      Descriptions count because **the description is the definition** — a rename is
+      not required for the meaning to move.
+
+      The cost is that editing a description mid-pass orphans the session, so do it
+      deliberately; the alternative is a rate silently averaged over two rubrics,
+      which is worse and undetectable.
     """
     import hashlib
-    digest = hashlib.md5(f"{kind}:{title}".encode("utf-8")).hexdigest()[:10]
+    spec = ";".join(f"{n}|{d}" for n, d, _ in scheme)
+    digest = hashlib.md5(f"{kind}:{title}:{spec}".encode("utf-8")).hexdigest()[:10]
     return f"rampnet-tagger-{kind}-{digest}"
 
 
@@ -282,6 +311,8 @@ _TEMPLATE = r"""<!doctype html>
   #help h3 { margin:16px 0 6px; font-size:13px; color:#7fd1a0; letter-spacing:.02em; }
   #help h3.hot { color:#e0a33c; }
   #help p { margin:0 0 4px; color:#c4c4c4; }
+  #help ul { margin:2px 0 6px; padding-left:20px; color:#c4c4c4; }
+  #help li { margin:0 0 3px; }
   #help table { border-collapse:collapse; margin:2px 0 4px; }
   #help td, #help th { padding:3px 14px 3px 0; text-align:left; vertical-align:top;
                        border-bottom:1px solid #232323; }
