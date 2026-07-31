@@ -18,7 +18,7 @@ lives on one machine.
 | `analysis_out/*.json` (derived results) | ~100 KB | **committed** | ✅ |
 | `benchmark/miss_taxonomy_46/*.json` (human verdicts) | small | **committed** | ✅ |
 | RampNet model weights | — | HF `projectsidewalk/rampnet-model` | ✅ |
-| Stage 1 dataset | 44 GB | HF `projectsidewalk/rampnet-dataset` | ✅ |
+| Stage 1 dataset | **463 GB** (test split ~44 GB) | HF `projectsidewalk/rampnet-dataset` | ✅ |
 | `benchmark/model_detections/` (challenger detections) | 18.0 MB | **committed** ✅ | ✅ |
 | **`benchmark/*/panos/` (native-res panoramas)** | **9.0 GB** | **git-ignored; HF #21 pending** | ❌ **blocker** |
 
@@ -114,16 +114,15 @@ The irreplaceable half — the human tags — was committed all along. That is t
 
 Two artifacts are too large for git and belong on HF (issue #21).
 
-| artifact | size | format | why |
-| :--- | ---: | :--- | :--- |
-| **model-resolution panos** (4096×2048) | ~1–2 GB | JPEG | what GT verification actually needs — reviewers scan whole panoramas at the model's resolution, never native |
-| **native-res panos** | 9.0 GB | as captured | the resolution experiment (#25) and any future re-render at higher fidelity |
-| **#55 A/B galleries** | 244 MB | **PNG** | keep them lossless; on HF the size pressure that would have argued for JPEG does not apply |
+| artifact | size | why |
+| :--- | ---: | :--- |
+| **model-resolution panos** (4096×2048) | ~1–2 GB | what GT verification actually needs — reviewers scan whole panoramas at the model's resolution, never native |
+| **native-res panos** | 9.0 GB | the resolution experiment (#25) and any future re-render at higher fidelity |
+| **#55 A/B galleries** | 244 MB | the crops the A/B reviewers saw (also regenerable, so belt-and-braces) |
 
-**On PNG vs JPEG:** the only reason to re-encode was git size. On HF that constraint is gone, so
-**publish the galleries as the PNGs the reviewers actually saw** — no generation loss, and
-byte-identical to what was judged. (They are also regenerable, so this is belt-and-braces rather
-than the sole copy.)
+**Package all three as Parquet or WebDataset** — see the HF correspondence below. Embed the exact
+bytes the reviewers saw (PNG stays PNG); `imagery_manifest.json` is what proves the round trip
+preserved them.
 
 ### Is churn actually a problem? Mostly no — publish sooner
 
@@ -149,27 +148,41 @@ updates nearly free, and means waiting to publish buys very little.
 `galleries/<city>/`), then publish incrementally as splits land. The thing genuinely worth getting
 right up front is the *layout*, not the timing.
 
-### Account tier — probably not a blocker, but worth asking
+### Account tier is a settled question — HF already agreed, in July 2025
 
-`projectsidewalk` is a free/community org. It already hosts **12 models and 9 datasets**, including
-`rampnet-dataset` (~44 GB, 214k rows). **So a further ~9 GB is small next to what the org is
-already being carried for**, and the free tier's "best-effort" public storage has evidently been
-sufficient. This should not block publishing.
+**There is no quota problem, and no grant to request.** `projectsidewalk` already hosts
+**`rampnet-dataset` at 463 GB / 200,000+ panoramas** — the ~44 GB figure quoted elsewhere is the
+*test split*, not the whole thing. Another ~9 GB is under 2% of what is already up.
 
-Two routes exist if more headroom is wanted, per HF's own storage documentation:
+That was arranged deliberately. John O'Meara wrote to `datasets@huggingface.co` on **2025-07-11**
+flagging that the dataset exceeded default limits, and **Daniel van Strien (ML Librarian, Hugging
+Face)** replied on **2025-07-15**. The upload completed the same day. His reply set the terms we
+should keep following:
 
-- **Academia Hub** — HF's storage docs recommend academic and research institutions upgrade to
-  "Team, Enterprise, or Academia Hub". *I could not verify Academia Hub's terms, cost or
-  eligibility* — it is not described on the public pricing page and `huggingface.co/academia` is an
-  unrelated user profile. Worth asking HF directly rather than assuming.
-- **A storage grant.** The docs state plainly that "storage grants may be available for
-  high-impact open-source work where a paid plan genuinely cannot cover the need", evaluated
-  case-by-case on demonstrated community impact (downloads, citations, adoption). Contact
-  **datasets@huggingface.co** (or models@) with a proposal.
+1. **Use Parquet or WebDataset** for large datasets — "strongly recommend". `push_to_hub` on a
+   `datasets.Dataset` handles the conversion and partitioning.
+2. **Stay under the per-file / per-folder limits**, and tell them if you cannot. (Recall the hard
+   limit of **10k entries per folder** — a real constraint for loose image files, and a non-issue
+   for Parquet.)
+3. **Host under an organisation, not an individual account** — hence `projectsidewalk`.
+4. **Document it well in the dataset card**, especially for any non-standard format: if
+   `load_dataset('org/repo')` does not just work, spell out how to download and load it.
 
-RampNet has a concrete case for the second: a published ICCV'25 workshop paper, a released model
-and dataset already on the Hub, an accessibility-research application, and a specific ask (the
-benchmark imagery that makes the ground truth reproducible).
+He also offered: *"Let us know when you do public comms about this dataset so HF can help
+amplify!"* — worth taking up when the benchmark dataset lands.
+
+### What this changes about our plan
+
+**Publish the benchmark imagery as Parquet or WebDataset, not as loose JPEG/PNG folders.** That is
+what HF asked for, it is what `rampnet-dataset` already uses, and it sidesteps the
+10k-entries-per-folder limit entirely. A folder of 1,109 loose panos would work today but is the
+shape they explicitly steered us away from, and it would not survive many more cities.
+
+This supersedes the PNG-vs-JPEG framing above: inside Parquet or WebDataset the images are stored
+as bytes, so the question becomes **what encoding to embed**, and the answer is unchanged — embed
+the exact bytes the reviewers saw, whose hashes are pinned in
+`benchmark/<city>/imagery_manifest.json`. That manifest is what lets a downloader confirm the
+round trip through Parquet returned the same pixels.
 
 ## Human-rated tasks
 
