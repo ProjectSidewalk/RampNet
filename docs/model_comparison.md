@@ -643,6 +643,13 @@ land in `isolated`**, and that bucket is exactly what this method cannot open: a
 crosswalk and a flight of stairs all fall in it. **The cascade's real ceiling is set by the
 isolated residue, and sizing it needs the imagery — #46's gallery half, not done here.**
 
+**The gallery for that residue is built** (`scripts/analysis/fp_gallery.py`): worst-N isolated
+false positives per model, ranked by the model's own confidence where it has one, rendered through
+the same three-panel instrument as the miss gallery — context / detail / **as the model saw it** —
+so a reviewer calling a box "obviously not a ramp" is not doing so with detail the model never had.
+The sample size and the number left out are always printed; the isolated population is ~41,000
+boxes for OWLv2 alone, so any gallery is a sample and says so. **Nobody has tagged it yet.**
+
 Caveat: `hood` is a geometric band, not a detection of the vehicle. A ramp genuinely captured
 at ~2.5 m would sit inside it, which is why proximity to a real ramp outranks the hood test in
 the bucket cascade. **2 of the 2,060 pooled GT ramps (0.10%) sit below the line** — the script

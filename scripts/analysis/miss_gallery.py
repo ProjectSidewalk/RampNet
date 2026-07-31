@@ -255,8 +255,15 @@ def collect(bucket, field, threshold, cities, panos_root=REPO):
     return items
 
 
-def render(items, outdir, only_judgeable=True, panos_root=REPO):
-    """Write a two-panel crop per miss plus the tagging manifest."""
+def render(items, outdir, only_judgeable=True, panos_root=REPO, extra_fields=()):
+    """Write a three-panel crop per item plus the tagging manifest.
+
+    Generic over what the point *is*: each item needs ``city``, ``pano``, ``x``,
+    ``y``, ``source_width``, ``source_px``, ``parity`` and ``judgeable``. Misses
+    carry ``bucket``/``field``; ``fp_gallery.py`` feeds false positives through the
+    same path with ``model``/``confidence`` named in ``extra_fields``, so both
+    galleries share one instrument and one manifest format rather than drifting.
+    """
     from PIL import Image, ImageDraw
     Image.MAX_IMAGE_PIXELS = None
     from equirect_tiling import equirect_to_perspective
@@ -318,16 +325,19 @@ def render(items, outdir, only_judgeable=True, panos_root=REPO):
             key = tag_key(pano, it["x"], it["y"])
             name = f"{city}__{key}.jpg"
             sheet.save(os.path.join(outdir, name), quality=92)
-            manifest[key] = {
+            entry = {
                 "city": city, "pano": pano, "x": it["x"], "y": it["y"],
-                "file": name, "bucket": it["bucket"], "field": it["field"],
+                "file": name,
                 "dist_m": round(it["dist"], 1),
                 "model_px": round(it["px"], 1),
                 "source_px": round(it["source_px"], 1),
                 "source_width": it["source_width"],
                 "parity": it["parity"],
-                "appearance_verdict_licensed": it["parity"] == "parity",
             }
+            for f in ("bucket", "field") + tuple(extra_fields):
+                if f in it:
+                    entry[f] = it[f]
+            manifest[key] = entry
         img.close()
 
     with open(os.path.join(outdir, "manifest.json"), "w", encoding="utf-8") as fh:

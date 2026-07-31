@@ -231,6 +231,9 @@ def _bucket_pano(preds, gt, city, pid, radius_sq, hood_y):
             continue
         rows.append({
             "city": city, "pano": pid, "x": float(p[0]), "y": float(p[1]),
+            # Kept so a gallery can rank "worst cases" by the model's own confidence.
+            # None for the chat VLMs, which emit no calibrated score.
+            "confidence": prediction_confidence(p),
             "bucket": classify_fp(p, gt.gt_points, claimed, radius_sq, hood_y),
             "null_1r": arc_union_fraction(ps[1], gt.gt_points, radius_sq),
             "null_2r": arc_union_fraction(
