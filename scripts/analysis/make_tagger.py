@@ -240,10 +240,16 @@ _TEMPLATE = r"""<!doctype html>
   .adv { color:#e0a33c; }
   #warn { background:#4a2a12; color:#ffcf9a; padding:6px 12px;
           border-bottom:1px solid #6a3d1a; }
-  #help { background:#171a19; border-bottom:1px solid #2a2a2a; padding:14px 18px 18px;
+  #help { background:#171a19; border-bottom:1px solid #2a2a2a; padding:0 18px 18px;
           flex:0 0 auto; overflow:auto; max-height:60vh; }
+  /* The dismiss control is sticky at the top of the panel, not at the bottom of it:
+     the guide is taller than the panel, so a button at the end is a button you have
+     to scroll to find, and the page reads as if it cannot be closed. */
+  #helptop { position:sticky; top:0; background:#171a19; padding:12px 0 8px;
+             display:flex; gap:12px; align-items:center; z-index:1;
+             border-bottom:1px solid #232323; margin-bottom:10px; }
+  #helptop b { color:#fff; }
   #help h3 { margin:16px 0 6px; font-size:13px; color:#7fd1a0; letter-spacing:.02em; }
-  #help h3:first-child { margin-top:0; }
   #help h3.hot { color:#e0a33c; }
   #help p { margin:0 0 4px; color:#c4c4c4; }
   #help table { border-collapse:collapse; margin:2px 0 4px; }
@@ -253,7 +259,6 @@ _TEMPLATE = r"""<!doctype html>
   #help td b { color:#fff; }
   #help .gt { color:#7fd1a0; }
   #help code, .key { background:#2f2f2f; border-radius:3px; padding:1px 5px; color:#fff; }
-  #helpbar { display:flex; gap:12px; align-items:center; margin-top:14px; }
 </style>
 <header>
   <b id="title">__TITLE__</b>
@@ -262,11 +267,12 @@ _TEMPLATE = r"""<!doctype html>
 </header>
 <div id="warn" hidden></div>
 <section id="help">
-  __GUIDE__
-  <div id="helpbar">
-    <button onclick="hideHelp()">Start tagging</button>
-    <span style="color:#777">press <span class="key">?</span> any time to bring this back</span>
+  <div id="helptop">
+    <button onclick="hideHelp()">✕ &nbsp;Hide — start tagging</button>
+    <span style="color:#777"><span class="key">?</span> or <span class="key">esc</span>
+      toggles this any time</span>
   </div>
+  __GUIDE__
 </section>
 <div id="verdicts">__LEGEND__</div>
 <div id="wrap"><img id="img" alt=""><div id="done" hidden></div></div>
