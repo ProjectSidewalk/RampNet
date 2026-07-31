@@ -166,8 +166,12 @@ def stored_widths(city):
             if rec.get("width")}
 
 
-def load_rated(gallery_dir):
-    """The reviewer's far-field items: manifest entry + verdict, keyed like the tags."""
+def load_rated(gallery_dir, field="far"):
+    """The reviewer's rated items: manifest entry + verdict, keyed like the tags.
+
+    ``field`` restricts to one distance population; ``None`` returns all 50
+    (Phase 1's activation forensics wants the near-field verdicts too).
+    """
     with open(os.path.join(gallery_dir, "silent_gallery", "manifest.json"),
               encoding="utf-8") as fh:
         manifest = json.load(fh)
@@ -175,7 +179,7 @@ def load_rated(gallery_dir):
         verdicts = json.load(fh)["verdicts"]
     out = {}
     for key, item in manifest["items"].items():
-        if item.get("field") != "far":
+        if field is not None and item.get("field") != field:
             continue
         v = verdicts.get(key)
         out[key] = {**item, "verdict": v if isinstance(v, str)
