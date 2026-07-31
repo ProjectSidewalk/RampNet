@@ -90,6 +90,85 @@ initially computed between the nearest and farthest *populated* buckets, and the
 ramps beyond 40 m. At n=4 a single ramp moves recall by 0.25, and that bucket inverted the sign of
 Stage-1's drop-off (to −0.041). Buckets now require n ≥ 30, and a regression test pins it.
 
+## 0a. How much of the missing recall can more data even reach?
+
+E1 closed the objection to scaling but also implied something sharper: the far-field cliff is a
+**pixel-count** problem, so more cities cannot fix it — while the *vocabulary* failures the
+benchmark keeps surfacing (Paterson's paired tactile surfaces, Gainesville's diagonal arterial
+ramps) plausibly are fixable that way. Those are two different populations with two different
+programmes attached, and nobody had sized them.
+
+Script: `scripts/analysis/miss_decomposition.py` (15 tests). Reads the committed low-floor caches,
+so no GPU, no network, no imagery. Threshold 0.30 (the #79 recommendation); boundary 18 m, the last
+distance at which the model still has adequate signal.
+
+**Pooled across the seven US splits — 2,060 GT ramps, 427 misses, recall 0.793:**
+
+| population | misses | share | recall points | fixable by |
+| :--- | ---: | ---: | ---: | :--- |
+| **Far-field** (≥ 18 m) | 247 | **57.8%** | 0.120 | multi-view (#48/#38), resolution (#25) — **not** more cities |
+| **Near-field** (< 18 m) | 180 | **42.2%** | 0.087 | broader/more diverse training corpus |
+
+**Neither dominates.** Roughly three-fifths of the missing recall is pixel-starved and two-fifths is
+not. Both programmes have a real target, and the sourcing work below is aimed at a population worth
+about **8.7 recall points** pooled.
+
+| split | tier | GT | recall | miss | far | near | far % | MV ceiling |
+| :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| richmond | mapillary | 310 | 0.829 | 53 | 32 | 21 | 60.4% | 0.889 |
+| bend | gsv | 327 | 0.823 | 58 | 36 | 22 | 62.1% | 0.904 |
+| clovis | mapillary | 195 | 0.821 | 35 | 21 | 14 | 60.0% | 0.907 |
+| morgantown | mapillary | 267 | 0.805 | 52 | 15 | 37 | **28.8%** | 0.829 |
+| annapolis | mapillary | 294 | 0.810 | 56 | 37 | 19 | 66.1% | 0.902 |
+| paterson | gsv | 395 | 0.719 | 111 | 64 | 47 | 57.7% | 0.792 |
+| gainesville | gsv | 272 | 0.772 | 62 | 42 | 20 | 67.7% | 0.872 |
+| *budapest* † | – | 300 | 0.643 | 107 | 40 | 67 | 37.4% | 0.667 |
+| *manual_gold* † | – | 3,919 | 0.892 | 423 | 141 | 282 | **33.3%** | 0.915 |
+
+† swept, not pooled.
+
+**The geometry caveat was checked, and it does not drive the result.** Flat-ground distance is
+`camera_height / tan(depression)`, which fails on unleveled rigs and hills —
+`docs/detection_recall_analysis.md` reports it agreeing with DA3 metric depth at Spearman **0.95 on
+GSV but only 0.81 on Mapillary**, and four of the seven pooled splits are Mapillary. A tilted rig
+pushes a near ramp toward the horizon, so geometry would call it *far* and **overstate** the
+far-field share. Two checks say that is not what happened:
+
+- **Above-horizon GT ramps** — geometrically impossible for a ground ramp, hence a direct tell —
+  number **5 across 1,066 Mapillary ramps (0.5%) and 0 across 994 GSV ramps.**
+- The **GSV** tier shows a *higher* far share (61.5%) than **Mapillary** (53.6%) — the opposite
+  direction to the bias.
+
+(Budapest, held out, has **12 of 300 (4%)** above the horizon — eight times the US rate, consistent
+with its consumer rig and its low reviewer confidence. A useful independent corroboration of why it
+is held out.)
+
+**Apparent size is the starker cut**, and is what makes the pixel-limit reading concrete:
+
+| apparent size | n GT | recall |
+| :--- | ---: | ---: |
+| 12–20 px | 49 | **0.163** |
+| 20–32 px | 230 | 0.543 |
+| 32–50 px | 427 | 0.745 |
+| 50–80 px | 677 | 0.885 |
+| 80+ px | 643 | 0.885 |
+
+Below ~32 px the model is largely blind, and recall saturates around 0.885 above 50 px — so extra
+pixels stop helping well before perfect, which is itself a caution against expecting resolution
+alone to close the gap.
+
+**Optimistic multi-view ceiling: 0.868 (+0.075 recall).** That assumes a closer capture exists for
+every far ramp and that re-observation succeeds at the measured near-field rate; it ignores fusion
+cost and the extra false positives more looks would generate. It is "what is on the table", not a
+forecast — but +7.5 points with **no new data collection** is a serious number next to a
+multi-month sourcing campaign.
+
+**Caveat on the near-field population.** Calling all 42.2% "vocabulary" is an inference, not a
+measurement. A near-field miss can equally be occlusion (a parked car), deep shadow, or surface
+debris — Gainesville's reviewer flagged debris explicitly — or a GT disagreement. **The near-field
+figure bounds the sourcing-addressable population from above**, and separating those causes needs
+the miss taxonomy in #46.
+
 ## 1. The current training corpus is mostly one city
 
 Stage 1 is built from three cities' open-government inventories (`docs/data_provenance.md` §1).
