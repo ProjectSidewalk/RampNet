@@ -1,0 +1,15 @@
+{
+  "source_records": "runs\\sao_paulo\\results.jsonl",
+  "source_record_count": 22741,
+  "sample": 100,
+  "empty_sample": 25,
+  "seed": 0,
+  "min_spacing_m": 30,
+  "min_confidence": 0.55,
+  "selected": 125,
+  "groups": {
+    "top": 5,
+    "random": 95,
+    "empty": 25
+  }
+}
