@@ -1118,10 +1118,43 @@ visual check of a Manhattan chip shows heavy building shadow and roof-lean — N
 to produce a materially higher unjudgeable rate than Denver's 6.8%, which is itself a finding about
 where this method works.
 
-**Seattle's inventory is located but not yet frozen** (§9): SDOT publishes
-`Curb_Ramps_(Active)/FeatureServer/0` at **38,498 records** and `Curb_Ramps_CDL/FeatureServer/0` at
-**46,431**. Both have drifted slightly from §5c's 38,468 / 46,386, which is the live-drift argument
-for snapshotting. **Prefer the active layer.**
+**Seattle's inventory is frozen** (§9): SDOT `Curb_Ramps_(Active)/FeatureServer/0`,
+**38,364 records** written of 38,498 declared. The 134-record shortfall was **verified as null
+geometry**, not truncation, by querying every OBJECTID with `returnGeometry=true` — all 38,498
+checked, exactly 134 null. `Curb_Ramps_CDL` carries 46,431 including retired ramps; §5c's argument
+for the publisher's own active filter stands. Both counts have drifted from §5c's 38,468 / 46,386,
+which is the live-drift argument for snapshotting.
+
+**Seattle's pairing density is the surprise: 1.34 records/corner** at the 6 m link — **third of
+eleven, above every other candidate and above Bend (1.31), which is in the training set.** So the
+one city the paper explicitly rejected on *location precision* has better per-corner completeness
+than anything else available. Pairing density and positional precision are independent axes, and
+Seattle is the case that proves it. Only its coordinates stand between us and 38k well-paired ramps.
+
+### ⚠️ Seattle has no good basemap, and this nearly produced a bad sheet
+
+A first sheet was built on `KingCo_Aerial_2025` and **looked wrong on inspection**: chips under tree
+canopy, a landscaped traffic circle that could not be read, and a building leaning across a
+crosshair. Quantifying it with an excess-green index over the sampled chips:
+
+| source | vegetation cover |
+| :--- | ---: |
+| KingCo 2025 | **40.9%** |
+| KingCo 2023 | 28.7% |
+| KingCo 2021 | 27.1% |
+| KingCo 2019 | 28.3% |
+| **Denver 2016** (leaf-off reference) | **7.2%** |
+
+**Every King County year is leaf-on**, at roughly 4x Denver's vegetation cover. And Seattle's own
+sharper caches — `SP_Aerial_2019`, `SP_Aerial` — are **EPSG:2926, WA State Plane**, so the sheet's
+Web Mercator tile math does not apply to them at all. That is exactly the failure `probe_basemap.py`
+was written to catch, and it caught it before a reviewer was booked.
+
+**Built on `KingCo_Aerial_2019`** — the least leafy Web Mercator option, 0.101 m/px. Two limits
+travel with any verdict it produces: **expect an unjudgeable rate far above Denver's 6.8%**, and
+expect a **selection effect**, because the corners that stay readable are the ones without street
+trees. Adequate to size a *large* error, which is what a Poor anchor needs; **not** adequate to
+grade a city expected to be Good.
 
 ## 6. Routes to a 500,000-ramp corpus
 

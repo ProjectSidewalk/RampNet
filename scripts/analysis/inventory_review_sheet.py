@@ -119,6 +119,48 @@ TILE_SOURCES = {
         "note": "Leaf-off and sharp, but only 0.23 m/px — a 40 m chip is 174 px, "
                 "which is thin for reading a 1 m offset. Prefer denver-2016.",
     },
+    # ⚠️ SEATTLE HAS NO GOOD BASEMAP. Every option was probed
+    # (scripts/analysis/probe_basemap.py) and each fails differently:
+    #   * King County, all years  -- Web Mercator and usable, but LEAF-ON and only
+    #     0.101 m/px. Vegetation cover 27-41% against Denver's 7.2%.
+    #   * City of Seattle SP_Aerial (2019/2021) -- EPSG:2926, WA State Plane. The
+    #     sheet's tile math assumes 3857, so these are unusable without
+    #     generalising it to arbitrary LOD ladders and origins.
+    #   * maps.nyc.gov-style municipal XYZ -- none published.
+    # 2019 is the least leafy King County year, so it is the default. The
+    # consequence travels into the manifest: expect a much higher unjudgeable
+    # rate than Denver's 6.8%, and a selection effect, because the corners that
+    # stay readable are the ones without street trees.
+    "seattle-2019": {
+        "url": ("https://gismaps.kingcounty.gov/arcgis/rest/services/BaseMaps"
+                "/KingCo_Aerial_2019/MapServer/tile/{z}/{y}/{x}"),
+        "max_zoom": 20,
+        "attribution": "King County GIS, KingCo_Aerial_2019",
+        "note": "LEAF-ON at 28.3% vegetation cover (Denver's leaf-off reference "
+                "is 7.2%), and 0.101 m/px -- a ramp is ~15 px against Denver's "
+                "~26. The least leafy King County year, which is the best "
+                "available: Seattle's own sharper caches are EPSG:2926 and the "
+                "tile math does not apply. Adequate to size a LARGE error, which "
+                "is what a Poor-anchor calibration needs; NOT adequate to grade a "
+                "city expected to be Good, and the unjudgeable rate will be high "
+                "with a selection effect toward un-treed corners.",
+    },
+    "seattle-2025": {
+        "url": ("https://gismaps.kingcounty.gov/arcgis/rest/services/BaseMaps"
+                "/KingCo_Aerial_2025/MapServer/tile/{z}/{y}/{x}"),
+        # The service ADVERTISES maxLOD 23 and 404s above 20. Trusting its own
+        # metadata would build a sheet of missing tiles -- found by probing with
+        # scripts/analysis/probe_basemap.py, which is why that tool exists.
+        "max_zoom": 20,
+        "attribution": "King County GIS, KingCo_Aerial_2025",
+        "note": "0.101 m/px at Seattle's latitude -- USABLE but coarser than "
+                "Denver's 0.057, so a ramp is ~15 px rather than ~26 and the "
+                "measured offset floor is roughly twice Denver's. Adequate for "
+                "sizing a LARGE error, which is what the Poor anchor needs; it "
+                "would not be adequate for grading a city expected to be Good. "
+                "2025 is the most current year King County publishes, matching "
+                "an inventory filtered to actively-maintained ramps.",
+    },
     "denver-2016": {
         "url": ("https://tiles.arcgis.com/tiles/zdB7qR0BtYrg0Xpl/arcgis/rest/services"
                 "/Aerial2016/MapServer/tile/{z}/{y}/{x}"),
