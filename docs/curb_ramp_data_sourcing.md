@@ -63,6 +63,7 @@ was returned by the agency's own API on 2026-07-30.
 | **Washington, DC** | **34,859** | `maps2.dcgis.dc.gov/…/Transportation_ADA_WebMercator/MapServer/3` | ⚠️ **Captured 2016** — a 10-year-old snapshot; see §4 |
 | **NYSDOT** (New York, statewide) | **42,297** | Socrata `data.ny.gov/resource/hmbc-hni2` | *Curb Ramps on NYS-Owned Highways.* State ROW; NYC is already in training but NYS-owned mileage inside NYC is small |
 | **CDOT** (Colorado, statewide) | **24,549** | Socrata `data.colorado.gov/resource/sb9m-ecvv` | *State Highway On-System Curb Ramps.* State ROW only |
+| **Minneapolis, MN** | **18,447** | `services.arcgis.com/afSMGVsC7QlRK1kZ/…/Minneapolis_ADA_Ped_Ramps_-_View_Layer_` | Official city account; consistent with the 17,800 in their 2020 ADA Transition Plan |
 | **Raleigh, NC** | ~14,550 | City sidewalk/pedestrian facility assessment (PDF) | *Reported in a study document, not queried* |
 | Spokane WA · Tacoma WA · Dallas TX | exists, **count not pulled** | ArcGIS Hub / city portals | Confirmed to publish a curb-ramp layer |
 | **Los Angeles, CA** | exists, count not pulled | `services5.arcgis.com/7nsPwEMP38bSkCjy/…/Sidewalks_Mapped_Areas` | ⚠️ **corner-centroid, not ramp-located** — see §4a |
@@ -90,6 +91,43 @@ ArcGIS Online returned only a *UIRF Planned Projects* layer (planned work, not a
 This is consistent with Deitz's Table 6: at score 9, only 1 of 2 cities carried curb-ramp data, and
 Columbus appears to be the one that does not. **Recorded as a negative result** — someone should
 check `opendata.columbus.gov` directly before concluding it, but do not assume Columbus is available.
+
+### Searching below the Deitz cutoff: 1 hit in 6
+
+Deitz's sample is stale and incomplete (§3), so six large cities that scored *below* their
+curb-ramp cutoff were checked directly: **Minneapolis, Des Moines, Houston, Phoenix, Atlanta,
+Pittsburgh.** Result — **one usable inventory**:
+
+| City | Outcome |
+| :--- | :--- |
+| **Minneapolis** | ✅ **18,447** ADA ped ramps, official city account. Deitz score 7 — *above* the cutoff |
+| **Phoenix** | ⚠️ Exists but **not open**. CurbPHX is a comprehensive sidewalk + curb-ramp inventory with width, curb height, construction date and surface condition — accessed "with their city login". A **request-access** candidate, not a dead end, and its attributes are unusually rich (§5) |
+| **Atlanta** | ⚠️ Inverted polarity — see below |
+| **Houston** | ❌ Sidewalk permits, a sidewalk asset layer, service areas. No ramp inventory |
+| **Des Moines** | ❌ Sidewalk centerlines only |
+| **Pittsburgh** | ❌ Not published as open data. WPRDC carries steps, signalized intersections, centerlines — no curb ramps. A regional SPC layer exists (`spcarcgis.org`) but the host refused connection; two vendor layers (Precision Safe Sidewalks 913 features, DeepWalk) are consulting deliverables, not city open data. **Costly, because Pittsburgh is contamination-burned and would have been free** |
+
+**The one city that had data is the one that scored above Deitz's cutoff.** That is weak evidence
+(n=6) but it points the same way as their finding: curb-ramp inventories cluster in top-quartile
+open-data cities, and hunting below that line has poor yield. The 1,469 ArcGIS items are mostly
+small towns, counties, vendor deliverables and app layers — not big-city inventories.
+
+**Practical consequence: prefer verifying the ~8 known-good inventories over discovering more.**
+
+### Atlanta publishes *missing* ramps — the wrong polarity for Stage 1, the right one for #86
+
+Atlanta's *Moving Atlanta Forward Draft ADA Ramp Installation Locations* holds **4,517 features**,
+but they are locations where ramps are **planned because none exists**. Useless for Stage 1, which
+needs the positions of ramps that are actually in the imagery.
+
+It is, however, potentially valuable for a different problem. **Absence ≠ negative** is named in
+[#86](https://github.com/ProjectSidewalk/RampNet/issues/86) as one of RampNet 2.0's hard parts, and
+it is the mechanism behind this issue's label-ceiling argument: we cannot currently distinguish "no
+ramp here" from "a ramp we failed to record." A municipally-attested list of corners that **lack** a
+ramp is exactly **confirmed-absence supervision** — true negatives with provenance.
+
+Worth noting as an opportunistic find; it is not part of any scaling route above, and the "Draft"
+in the title should be taken seriously.
 
 ### The supply is much larger than the literature suggests
 
@@ -235,17 +273,24 @@ For the ramp target, the four clean city inventories get most of the way but **d
 | Route | Sources | Ramps |
 | :--- | :--- | ---: |
 | Clean city core | Austin + Charlotte + Seattle(active) + DC | 442,268 |
-| **A** — core + state DOTs | + NYSDOT 42,297 + CDOT 24,549 | **509,114** ✅ |
-| **B** — core + WisDOT + Raleigh | + 49,000 + ~14,550 | **505,818** ✅ |
+| **+ Minneapolis** | + 18,447 | 460,715 |
+| **D** — core + Minneapolis + NYSDOT | + 42,297 | **503,012** ✅ *fewest sources* |
+| **A** — core + two state DOTs | + NYSDOT 42,297 + CDOT 24,549 | **509,114** ✅ |
+| **B** — core + WisDOT + Raleigh | + ~49,000 + ~14,550 | **505,818** ✅ |
 | **C** — core + VDOT | + 83,000 | 525,268 ⚠️ *see below* |
 
-**500k is reachable, and roughly six sources get there.** Discovery is no longer the constraint.
+**500k is reachable, and five to six sources get there.** Discovery is no longer the constraint.
+Route **D** is the cheapest — five city inventories plus a single state layer.
 
-**But note what closes the gap.** The clean surveyed core tops out at **442k — 88% of target**. Every
-route to the last ~58k draws on state-DOT right-of-way data (state highways only, derived rather
-than surveyed) or on stale city captures. Per §4a, **the marginal ramps are materially lower quality
-than the first 164k**, and under this issue's label-ceiling mechanism low-quality labels are not
-neutral — a missed or displaced ramp becomes a zero in the target heatmap.
+**But note what closes the gap.** The clean surveyed city core tops out at **442k (460k with
+Minneapolis) — 88–92% of target**. Every route to the remainder draws on state-DOT right-of-way data
+(state highways only, derived rather than surveyed) or on stale city captures. Per §4a, **the
+marginal ramps are materially lower quality than the first 164k**, and under this issue's
+label-ceiling mechanism low-quality labels are not neutral — a missed or displaced ramp becomes a
+zero in the target heatmap.
+
+No combination of *surveyed, current, per-ramp city* inventories that we have found reaches 500,000.
+That is the finding, and it should shape whether 500k is the right milestone.
 
 There is a genuine counter-argument worth testing rather than assuming: state-DOT data covers
 **arterials and connecting highways**, which is disproportionately the wide-arterial, far-field
