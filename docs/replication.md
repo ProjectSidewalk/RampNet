@@ -88,10 +88,70 @@ Applying the same to the other two is a size question, and here are the measured
   1–2 GB, not the 9 GB native archive.** That is a much easier thing to publish, and it is worth
   scoping HF #21 to include it rather than native-res alone.
 
-Both rubrics also currently live in code rather than beside the data: `gt_gallery.py`'s docstring
-for the verdict schema, and `low_floor_sweep.py` for what `A` and `B` mean. A second rater should
-not have to read the source to learn the rubric — #46's scheme travels inside its verdict files,
-and the older two should be given the same treatment.
+✅ **Rubrics now live beside the data** — `benchmark/RUBRICS.md` documents all three passes
+(GT verdict schema, the A/B spot-check, the miss taxonomy), extracted from the tools that produced
+them. #46's rubric additionally travels *inside* each verdict file, which is the pattern the older
+two should adopt.
+
+### ✅ The "deleted" #55 galleries were never lost
+
+Two cities (`richmond`, `bend`) had no gallery on disk. They are **derived artifacts**, not
+originals: regenerating them from the committed `op_cache` plus the panoramas took one command
+each, and `low_floor_sweep.py tagcheck` then confirmed **8/8 cities, 100% of committed tags still
+resolve** against the regenerated crops.
+
+```bash
+python scripts/analysis/operating_point_curve.py gallery --city richmond \
+    --op-threshold 0.25 --upper 0.55 --panos benchmark/richmond/panos \
+    --out analysis_out/op/richmond_incremental_fp
+python scripts/analysis/low_floor_sweep.py tagcheck        # 8/8 PASS
+```
+
+The irreplaceable half — the human tags — was committed all along. That is the design working:
+**commit the judgments, regenerate the pixels.**
+
+## Publishing plan for Hugging Face
+
+Two artifacts are too large for git and belong on HF (issue #21).
+
+| artifact | size | format | why |
+| :--- | ---: | :--- | :--- |
+| **model-resolution panos** (4096×2048) | ~1–2 GB | JPEG | what GT verification actually needs — reviewers scan whole panoramas at the model's resolution, never native |
+| **native-res panos** | 9.0 GB | as captured | the resolution experiment (#25) and any future re-render at higher fidelity |
+| **#55 A/B galleries** | 244 MB | **PNG** | keep them lossless; on HF the size pressure that would have argued for JPEG does not apply |
+
+**On PNG vs JPEG:** the only reason to re-encode was git size. On HF that constraint is gone, so
+**publish the galleries as the PNGs the reviewers actually saw** — no generation loss, and
+byte-identical to what was judged. (They are also regenerable, so this is belt-and-braces rather
+than the sole copy.)
+
+### Is churn actually a problem? Mostly no — publish sooner
+
+The concern is reasonable but the mechanics are milder than they look. From HF's own repository
+guidance:
+
+- **Commits: no hard limit**, though the Hub's UX "starts to degrade after a few thousand commits."
+  This project would add tens, not thousands.
+- **Old LFS versions do keep consuming quota** after you replace a file — that is the one real
+  churn cost. It is reclaimable with `super_squash_history` (destructive: history is lost), and
+  note that deleting LFS *pointers* alone frees nothing.
+- **`upload_folder` / `hf upload` skip files whose hash already matches**, so re-running an upload
+  after adding one city re-transfers only that city.
+- **Hard limit: 10k entries per folder** (and <100k files per repo recommended) — so use
+  `panos/<city>/` subdirectories rather than one flat folder. With ~1,100 panos we are far under,
+  but the per-city shape is right anyway.
+
+**So the cost of churn is concentrated in one behaviour: repeatedly replacing the same large
+blobs.** Structuring additively — a new folder per city, never a rewrite of existing ones — makes
+updates nearly free, and means waiting to publish buys very little.
+
+**Recommendation:** settle the directory layout once (`panos/<city>/`, `panos_model_res/<city>/`,
+`galleries/<city>/`), then publish incrementally as splits land. The thing genuinely worth getting
+right up front is the *layout*, not the timing.
+
+⚠️ One caveat I have not verified: HF's free public storage is "best-effort" and the published
+tiers assume a paid plan for large volumes. **Check which plan the `projectsidewalk` org is on
+before pushing 9 GB** — that is a billing question, not a technical one.
 
 ## Human-rated tasks
 
