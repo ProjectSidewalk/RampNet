@@ -74,7 +74,7 @@ def test_sentinel_counts_as_undated_and_is_reported_separately():
 
 def test_capture_dates_do_not_apply_the_sentinel_rule():
     # A 2000-01 capture date is a real (ancient) panorama, not a lossy conversion.
-    hist, _, n_sentinel = tg.build_hist(["2000-01-15"], sentinel=None)
+    hist, _, n_sentinel = tg.build_hist(["2000-01-15"], sentinels=None)
     assert hist == Counter({(2000, 1): 1})
     assert n_sentinel == 0
 
@@ -109,6 +109,45 @@ def test_phantom_rate_rises_as_installs_shift_later_than_the_imagery():
     early = tg.phantom_rate(Counter({(2010, 1): 100}), chist, 100)
     late = tg.phantom_rate(Counter({(2030, 1): 100}), chist, 100)
     assert late > early
+
+
+# --------------------------------------------------------------------------- #
+# existence bound — what actually controls phantoms
+# --------------------------------------------------------------------------- #
+def test_existence_bound_makes_phantoms_impossible_for_later_imagery():
+    # A ramp audited in 2016 demonstrably existed in 2016, whatever its install
+    # field says. Every pano here is 2022, so no record can be un-built.
+    ihist = Counter({(2030, 1): 100})       # dated installs all "postdate" capture
+    chist = Counter({(2022, 1): 100})
+    assert tg.phantom_rate(ihist, chist, 100) == 0.5                       # unbounded
+    assert tg.phantom_rate(ihist, chist, 100, existence_bound_ym=(2016, 1)) == 0.0
+
+
+def test_existence_bound_only_protects_imagery_captured_after_it():
+    ihist = Counter({(2030, 1): 100})
+    # Half the imagery predates the bound, half postdates it.
+    chist = Counter({(2010, 1): 50, (2022, 1): 50})
+    rate = tg.phantom_rate(ihist, chist, 100, existence_bound_ym=(2016, 1))
+    assert abs(rate - 0.25) < 1e-9          # 0.5 undated share x 0.5 unprotected
+
+
+def test_dc_shaped_case_is_one_sided_not_both_sided():
+    # DC: no install-date field at all (100% undated), but every record was
+    # inspected in 2016 and the imagery is 2022-23. Unlabeled positives are
+    # maximal; phantoms are structurally impossible.
+    rep = tg.summarize(
+        install_values=[None] * 1000,
+        capture_values=["2022-06-01"] * 800 + ["2023-01-01"] * 200,
+        snapshot_ym=(2016, 1), existence_bound_ym=(2016, 1))
+    assert rep["undated_fraction"] == 1.0
+    assert rep["phantom_rate"] == 0.0                     # the correction
+    assert rep["missing"]["share_imagery_after_snapshot"] == 1.0
+    assert rep["missing"]["mean_gap_years"] > 6.0
+
+
+def test_existence_bound_defaults_to_the_snapshot_date():
+    rep = tg.summarize(["2013-01-01"], ["2020-01-01"], snapshot_ym=(2016, 1))
+    assert rep["existence_bound"] == (2016, 1)
 
 
 # --------------------------------------------------------------------------- #
@@ -194,8 +233,59 @@ def test_summarize_defaults_snapshot_to_the_newest_install():
     assert rep["missing"]["inventory_snapshot"] == (2019, 7)
 
 
+def test_default_snapshot_ignores_typo_years():
+    # Minneapolis carries a single "2926" among ~18k records. Using max() would
+    # let that one row define the city's snapshot date and zero out its exposure.
+    installs = ["2020-01-01"] * 999 + ["2926-01-01"]
+    rep = tg.summarize(installs, ["2024-01-01"])
+    assert rep["missing"]["inventory_snapshot"] == (2020, 1)
+    assert rep["missing"]["share_imagery_after_snapshot"] == 1.0
+
+
+def test_quantile_ym_is_count_weighted():
+    hist = Counter({(2010, 1): 99, (2050, 1): 1})
+    assert tg.quantile_ym(hist, 0.99) == (2010, 1)
+    assert tg.quantile_ym(Counter(), 0.99) is None
+
+
 def test_summarize_survives_an_empty_inventory():
     rep = tg.summarize([], ["2022-01-01"])
     assert rep["inventory_size"] == 0
     assert rep["undated_fraction"] == 0.0
     assert rep["phantom_rate"] == 0.0
+
+
+# --------------------------------------------------------------------------- #
+# sentinel handling — every source invents its own null date
+# --------------------------------------------------------------------------- #
+def test_boston_style_1899_sentinel_is_treated_as_undated():
+    # Boston's entire CONST_DATE column is the string "18991230" (the
+    # spreadsheet/OLE zero date): the field is present but carries no data.
+    hist, n_undated, n_sentinel = tg.build_hist(["18991230"] * 100)
+    assert hist == Counter()
+    assert n_sentinel == 100
+    assert n_undated == 100
+
+
+def test_suspected_sentinel_flags_an_unrecognised_placeholder():
+    # An allow-list always lags, so a dominant implausibly-old value is flagged.
+    hist = Counter({(1901, 1): 90, (2020, 5): 10})
+    assert tg.suspected_sentinel(hist) == (1901, 1)
+    # A dominant *plausible* date is a real programme, not a placeholder.
+    assert tg.suspected_sentinel(Counter({(2020, 1): 90, (2021, 1): 10})) is None
+    # Old but rare is genuine history, not a sentinel.
+    assert tg.suspected_sentinel(Counter({(1930, 1): 5, (2020, 1): 95})) is None
+
+
+def test_summarize_reports_a_suspected_sentinel():
+    rep = tg.summarize(["1905-01-01"] * 80 + ["2020-01-01"] * 20, ["2024-01-01"])
+    assert rep["suspected_sentinel"] == (1905, 1)
+
+
+def test_compact_numeric_dates_are_not_mistaken_for_epoch_ms():
+    # Boston's "18991230" read as milliseconds is 1970 — a null placeholder
+    # silently promoted to a plausible install date.
+    assert tg.parse_ym("18991230") == (1899, 12)
+    assert tg.parse_ym(20190514) == (2019, 5)      # YYYYMMDD
+    assert tg.parse_ym("201905") == (2019, 5)      # YYYYMM
+    assert tg.parse_ym(1557792000000) == (2019, 5)  # still epoch ms

@@ -53,11 +53,21 @@ from collections import Counter
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT = os.environ.get("RAMPNET_ANALYSIS_OUT", os.path.join(REPO, "analysis_out"))
 
-# combine_location_data.py used to substitute this for any missing/unparseable
-# install date, which silently defeated the ordering filter (#11). Treated as
-# undated here, and reported separately so a city carrying real 2000-01-01
-# installs is not silently rewritten.
-SENTINEL_YM = (2000, 1)
+# Null-date placeholders seen in the wild. Treated as undated, and reported
+# separately so a city carrying genuine installs at these dates is not silently
+# rewritten.
+#   (2000, 1)  — combine_location_data.py substituted 2000-01-01 for any missing
+#               install date, silently defeating the ordering filter (#11).
+#   (1899, 12) — the spreadsheet/OLE zero date. Boston's entire CONST_DATE column
+#               is "18991230", i.e. the field is present but carries no data.
+SENTINEL_YMS = frozenset({(2000, 1), (1899, 12)})
+SENTINEL_YM = (2000, 1)          # kept for the report header; see SENTINEL_YMS
+
+# A single (year, month) holding this share of an inventory, at an implausible
+# date, is a placeholder rather than a fact. Reported so unknown sentinels surface
+# instead of being scored as real installs.
+SENTINEL_SUSPECT_SHARE = 0.5
+SENTINEL_SUSPECT_BEFORE_YEAR = 1950
 
 # Mirrors TREAT_UNDATED_AS_PREDATING in generate_dataset_meta.py. Flipping it
 # here does not change the pipeline — it shows what the pipeline's choice costs.
@@ -105,14 +115,30 @@ def parse_ym(value):
 
 
 def _numeric_ym(n):
-    """Bare year or epoch milliseconds — the ambiguity every source creates.
+    """Bare year, compact date, or epoch milliseconds — disambiguated by width.
 
-    A 4-digit value is a year (1000-2999 spans every plausible install year);
-    anything larger is milliseconds. Applied to ints and numeric strings alike,
-    so ``2019`` and ``"2019"`` cannot disagree.
+    Every source picks a different encoding and they collide numerically, so the
+    order here matters. Boston's ``CONST_DATE`` is the string ``"18991230"``: read
+    as milliseconds that is 1970, which would silently turn a null placeholder
+    into a plausible-looking install date.
+
+    * 4 digits  ``2019``     -> year        (1000-2999 spans any install year)
+    * 6 digits  ``201905``   -> YYYYMM
+    * 8 digits  ``20190514`` -> YYYYMMDD
+    * otherwise              -> epoch milliseconds
+
+    Applied to ints and numeric strings alike, so ``2019`` and ``"2019"`` cannot
+    disagree.
     """
-    if 1000 <= n <= 2999:
-        return (int(n), 1)
+    n = int(n)
+    if 1000 <= n <= 2999:                                   # YYYY
+        return (n, 1)
+    if 100001 <= n <= 299912 and 1 <= n % 100 <= 12:        # YYYYMM
+        return (n // 100, n % 100)
+    if 10000101 <= n <= 29991231:                           # YYYYMMDD
+        month = (n // 100) % 100
+        if 1 <= month <= 12:
+            return (n // 10000, month)
     return _from_epoch_ms(n)
 
 
@@ -125,24 +151,45 @@ def _from_epoch_ms(n):
     return (dt.year, dt.month)
 
 
-def build_hist(values, sentinel=SENTINEL_YM):
+def build_hist(values, sentinels=SENTINEL_YMS):
     """``(Counter of (year, month), n_undated, n_sentinel)``.
 
     Sentinel values count as undated *and* are reported separately, because a
     high sentinel share means the source went through a lossy conversion rather
     than genuinely lacking dates — a different problem with a different fix.
+    Pass ``sentinels=None`` for capture dates, where an old date is a real
+    (ancient) panorama rather than a placeholder.
     """
     hist, n_undated, n_sentinel = Counter(), 0, 0
+    known = frozenset(sentinels or ())
     for v in values:
         ym = parse_ym(v)
         if ym is None:
             n_undated += 1
-        elif sentinel is not None and ym == sentinel:
+        elif ym in known:
             n_sentinel += 1
             n_undated += 1
         else:
             hist[ym] += 1
     return hist, n_undated, n_sentinel
+
+
+def suspected_sentinel(hist, share=SENTINEL_SUSPECT_SHARE,
+                       before=SENTINEL_SUSPECT_BEFORE_YEAR):
+    """An unrecognised placeholder masquerading as an install date, or ``None``.
+
+    Every source invents its own null date, so an allow-list will always lag.
+    A single implausibly-old value carrying most of an inventory is a placeholder,
+    and scoring it as a real install would make a city look temporally pristine
+    when it has no dates at all.
+    """
+    total = sum(hist.values())
+    if not total:
+        return None
+    for ym, c in hist.items():
+        if ym[0] < before and c / total >= share:
+            return ym
+    return None
 
 
 def ordering_passes(install_ym, capture_ym, undated_predates=DEFAULT_UNDATED_PREDATES):
@@ -192,7 +239,8 @@ def discard_rate(install_hist, capture_hist, n_undated=0,
 
 
 def phantom_rate(install_hist, capture_hist, n_undated,
-                 undated_predates=DEFAULT_UNDATED_PREDATES):
+                 undated_predates=DEFAULT_UNDATED_PREDATES,
+                 existence_bound_ym=None):
     """Expected share of records that become labels at pixels with no ramp.
 
     A phantom is an undated record whose true install date is *after* the
@@ -202,6 +250,20 @@ def phantom_rate(install_hist, capture_hist, n_undated,
     each capture date. That assumption is optimistic if dateless records skew
     recent (plausible: recent construction is likelier to be mid-record-entry),
     so read this as a lower bound.
+
+    ``existence_bound_ym`` is the crucial refinement. **What controls phantoms is
+    not the install date but the existence bound** — the date by which every
+    record is *known* to have existed. An audit date, an inspection year, or the
+    vintage of the aerial imagery a layer was delineated from all supply one: a
+    ramp audited in 2016 demonstrably existed in 2016, whatever its install field
+    says. For any panorama captured after that bound a phantom is **structurally
+    impossible**, so those captures contribute zero regardless of how many records
+    are undated.
+
+    This is why a 100%-undated inventory is not automatically disqualified, and
+    why the exposure is genuinely one-sided for old surveys: DC has no install
+    date at all, but every record was inspected in 2016 against 2022-23 imagery,
+    so it cannot produce phantoms — only unlabeled positives.
     """
     if not undated_predates:
         return 0.0                      # they are all discarded instead
@@ -212,6 +274,8 @@ def phantom_rate(install_hist, capture_hist, n_undated,
     undated_share = n_undated / total
     tail = 0.0
     for c_ym, c_w in _weights(capture_hist):
+        if existence_bound_ym is not None and c_ym > existence_bound_ym:
+            continue                    # every record provably predates this pano
         after = sum(n for ym, n in install_hist.items() if ym >= c_ym)
         tail += c_w * (after / n_dated)
     return undated_share * tail
@@ -261,6 +325,24 @@ def missing_exposure(install_hist, capture_hist, snapshot_ym,
     }
 
 
+def quantile_ym(hist, q):
+    """Count-weighted quantile ``(year, month)`` of a histogram (``None`` if empty).
+
+    Used instead of ``max()`` for the default snapshot date, because real
+    inventories carry typo years — Minneapolis has a single ``2926`` among 18k
+    records — and one bad row must not define a city's snapshot.
+    """
+    total = sum(hist.values())
+    if not total:
+        return None
+    seen, target = 0, total * q
+    for ym, c in sorted(hist.items()):
+        seen += c
+        if seen >= target:
+            return ym
+    return max(hist)
+
+
 def median_ym(hist):
     """Count-weighted median ``(year, month)`` of a histogram (``None`` if empty)."""
     total = sum(hist.values())
@@ -276,15 +358,27 @@ def median_ym(hist):
 
 def summarize(install_values, capture_values, snapshot_ym=None,
               undated_predates=DEFAULT_UNDATED_PREDATES,
-              lookback=DEFAULT_RATE_LOOKBACK_YEARS):
-    """Full report for one city. ``snapshot_ym`` defaults to the newest install."""
+              lookback=DEFAULT_RATE_LOOKBACK_YEARS,
+              existence_bound_ym=None):
+    """Full report for one city. ``snapshot_ym`` defaults to the newest install.
+
+    ``existence_bound_ym`` — the date by which every record is known to have
+    existed (audit/inspection date, or the vintage of the imagery a layer was
+    delineated from). Set it whenever the source provides one; it is what
+    actually bounds phantom labels. Defaults to ``snapshot_ym`` when omitted,
+    since a snapshot is itself weak evidence of existence at that date.
+    """
     ihist, n_undated, n_sentinel = build_hist(install_values)
-    chist, _, _ = build_hist(capture_values, sentinel=None)
+    chist, _, _ = build_hist(capture_values, sentinels=None)
     n_dated = sum(ihist.values())
     size = n_dated + n_undated
     if snapshot_ym is None and ihist:
-        snapshot_ym = max(ihist)
+        snapshot_ym = quantile_ym(ihist, 0.99)
+    if existence_bound_ym is None:
+        existence_bound_ym = snapshot_ym
     return {
+        "existence_bound": existence_bound_ym,
+        "suspected_sentinel": suspected_sentinel(ihist),
         "inventory_size": size,
         "n_dated": n_dated,
         "n_undated": n_undated,
@@ -294,7 +388,8 @@ def summarize(install_values, capture_values, snapshot_ym=None,
         "median_capture": median_ym(chist),
         "n_panos": sum(chist.values()),
         "ordering_discard_rate": discard_rate(ihist, chist, n_undated, undated_predates),
-        "phantom_rate": phantom_rate(ihist, chist, n_undated, undated_predates),
+        "phantom_rate": phantom_rate(ihist, chist, n_undated, undated_predates,
+                                     existence_bound_ym),
         "missing": missing_exposure(ihist, chist, snapshot_ym, size, lookback),
         "install_years": Counter({y: c for (y, _m), c in ihist.items()}),
         "capture_years": Counter({y: c for (y, _m), c in chist.items()}),
@@ -399,7 +494,11 @@ def format_report(city, rep):
             + (f" ({m['est_missing_pct_of_inventory']:.1f}% of inventory)"
                if m["est_missing_pct_of_inventory"] is not None else "")),
          f"  Phantom labels (undated records bypassing the ordering filter)",
-         f"    {rep['phantom_rate']:.2%} of records, lower bound",
+         f"    {rep['phantom_rate']:.2%} of records, lower bound"
+         + (f"   [existence bound {ym(rep['existence_bound'])}"
+            + ("; every pano postdates it, so phantoms are impossible]"
+               if rep["phantom_rate"] == 0.0 and rep["n_undated"] else "]")
+            if rep.get("existence_bound") else ""),
          "",
          f"Ordering filter discards {rep['ordering_discard_rate']:.1%} of "
          f"(ramp, pano) pairs."]
@@ -418,6 +517,12 @@ def main(argv=None):
     p.add_argument("--snapshot-date", default=None,
                    help="Inventory snapshot date YYYY-MM (default: newest install "
                         "date). Set this for a static capture such as DC's 2016.")
+    p.add_argument("--existence-bound", default=None,
+                   help="YYYY-MM by which every record is KNOWN to have existed — an "
+                        "audit/inspection date, or the vintage of the aerial imagery a "
+                        "layer was delineated from. This, not the install date, is what "
+                        "bounds phantom labels: panos captured after it cannot produce "
+                        "one. Defaults to --snapshot-date.")
     p.add_argument("--rate-lookback", type=int, default=DEFAULT_RATE_LOOKBACK_YEARS)
     p.add_argument("--no-undated-predates", action="store_true",
                    help="Score as if TREAT_UNDATED_AS_PREDATING were False.")
@@ -429,7 +534,8 @@ def main(argv=None):
         load_tracker_capture_dates(args.tracker_snapshot),
         snapshot_ym=parse_ym(args.snapshot_date) if args.snapshot_date else None,
         undated_predates=not args.no_undated_predates,
-        lookback=args.rate_lookback)
+        lookback=args.rate_lookback,
+        existence_bound_ym=parse_ym(args.existence_bound) if args.existence_bound else None)
     print(format_report(args.city, rep))
 
     if args.json_out:

@@ -325,6 +325,88 @@ Worth noting for [#86](https://github.com/ProjectSidewalk/RampNet/issues/86) eve
 `CONDITION` field, which is condition supervision we currently discard at ingest. Being unusable for
 Stage 1 localisation does not make a dataset unusable for everything.
 
+**Correction to an earlier commit on this branch.** That commit said DC "maximises both exposures at
+once". Only one of the two. DC's `YEAR_INSPECTED = 2016` is an **existence bound** — every record
+demonstrably existed in 2016, and the imagery is 2022-23, so no DC record can be un-built at capture
+time and **phantoms are structurally impossible**. DC's exposure is entirely one-sided: unlabeled
+positives. The generalisation is in §5b, and the tool now models it.
+
+### 5b. What bounds phantoms is the existence date, not the install date
+
+A ramp audited in 2016 demonstrably existed in 2016, whatever its install field says. So for any
+panorama captured after a record's **existence bound** — an audit date, an inspection year, or the
+vintage of the aerial imagery a layer was delineated from — a phantom label is *structurally
+impossible*, however many records are undated.
+
+This matters far more than it first appears, because **install-date coverage turns out to be poor
+almost everywhere** (§5c). Three of the seven cities assessed have no install-date field at all.
+Were the install date the operative mechanism, most of the candidate pool would be unusable. It is
+not: every one of these inventories carries *some* existence evidence, and that is the quantity the
+gate should be built on.
+
+It also reframes `TREAT_UNDATED_AS_PREDATING = True`. As a blanket assumption it is unjustified. As
+a *derived consequence* of "the whole inventory was surveyed before this imagery was captured", it
+is exactly right — and checkable per city.
+
+### 5c. Six cities assessed (2026-07-30)
+
+Schema and histogram queries against each publisher's API; GSV capture years from Streetscape
+Tracker. Nothing here required a GPU, a pipeline run, or a human reviewer.
+
+| City | Ramps | Install-date field | **Undated** | Existence bound | Median capture | Verdict |
+| :--- | ---: | :--- | ---: | :--- | :--- | :--- |
+| **Denver** | 72,770 | *none* | 100% | **2022** aerial delineation | 2022 | ✅ near-contemporaneous |
+| **Sioux Falls** | 19,977 | `INSTALLDATE` / `InstallYear` | **37.6%** | `INSPECTEDDATE` | 2024 | ✅ best date coverage found |
+| **Minneapolis** | 18,447 | `YearBuilt` | 67.9% | `stamp_date` | 2022 | ✅ usable |
+| **Austin** | 49,796 | `YEAR_BUILT` | **84.6%** | `ASSESSMENT_DATE` | 2024 | ⚠️ large but date-poor |
+| **Nashville** | 18,388 | *none* | 100% | `DateAudited`, spanning **1998–2025** | 2022 | ⚠️ bound spans 26 yr |
+| **Boston** | 24,022 | `CONST_DATE`, **all `18991230`** | **100%** | `INSP_DATE`, **2007–2010** | 2022 | ❌ ~12-year gap |
+| *Washington, DC* | 34,859 | *none* | 100% | `YEAR_INSPECTED` 2016 | 2022–23 | ❌ ~6-year gap |
+
+**Four findings, in order of how much they change the plan:**
+
+1. **Install-date coverage is poor across the entire pool — this is systemic, not a DC quirk.** The
+   *best* city found is 37.6% undated. Three of seven have no install-date field at all, and two
+   more exceed 67%. `TREAT_UNDATED_AS_PREDATING` is therefore load-bearing for every candidate we
+   would add, which makes §5b's existence bound the primary mechanism rather than a refinement.
+2. **Boston is the worst candidate, not DC.** Its `CONST_DATE` column is uniformly the string
+   `18991230` (the spreadsheet zero date) — the field exists and carries nothing — and its
+   inspection survey ran **2007–2010** against median 2022 imagery. That is a **~12-year**
+   one-directional gap, during which Boston has been actively building ramps.
+3. **Denver is the strongest large candidate, and for the reason I had flagged against it.** Being
+   *"delineated from 2022 aerial imagery"* is a positional-precision concern, but it is a temporal
+   **strength**: it fixes a hard existence bound for the entire layer at 2022, against median 2022
+   GSV capture. 72,770 ramps at near-zero temporal gap. The two gates genuinely pull in opposite
+   directions here, which is the clearest argument for keeping them separate.
+4. **Austin is the awkward one.** 49,796 ramps — the second-largest city inventory — but 84.6% of
+   `YEAR_BUILT` is empty, so it rests entirely on `ASSESSMENT_DATE` as its bound. Worth resolving,
+   because it is also the richest #86 source found (`RATING` A–F, `CURB_RAMP_TYPE`,
+   `DETECTABLE_WARNING`, `DATE_CONSTRUCTION_COMPLETED`).
+
+**Two parser defects that only real data exposed**, both of which would have silently corrupted
+results rather than failing loudly:
+
+- **Compact `YYYYMMDD` read as epoch milliseconds.** Boston's `"18991230"` parsed as 1970 — turning
+  a null placeholder into a plausible install date, and making the city look temporally fine.
+- **Typo years defining the snapshot.** Minneapolis carries a single `2926` among 18k records; the
+  default snapshot used `max()`, so one row would have set the city's snapshot to the 30th century
+  and zeroed its exposure. Now a 99th-percentile quantile.
+
+Both are fixed and regression-tested. Boston's sentinel also generalised the placeholder handling:
+the tool now knows `1899-12` alongside #11's `2000-01`, and flags any *unrecognised* implausibly-old
+value that dominates an inventory, since every source invents its own null date.
+
+### For #86: attribute richness is inversely related to nothing useful
+
+Assessed as a side effect, since these schemas had to be read anyway. **Minneapolis is the richest
+source found** — per-ramp running slope, cross slope, landing dimensions, ramp width, gutter
+condition rating, plus a `Retired` flag. **Sioux Falls** carries `WIDTH`, `SLOPE`, `CROSSSLOPE`,
+`COMPLIANCERATING`, `Condition` and a `PHOTO` reference. **Austin** carries an A–F `RATING`.
+**Nashville** and **Boston** both carry extensive slope measurements.
+
+This is measurement-and-condition supervision at a scale we do not currently collect, and it is
+uncorrelated with Stage 1 usability — Boston is disqualified for #59 and still interesting for #86.
+
 ## 6. Routes to a 500,000-ramp corpus
 
 **Be explicit about which 500k is meant:**
@@ -404,7 +486,43 @@ Austin, Charlotte and Nashville attack the Sunbelt/Southeast vocabulary gap behi
 Gainesville failures. But **precision gates diversity** — a Good-rated bland city beats a Poor-rated
 diverse one, because the Poor city's labels are wrong wherever they land.
 
-## 9. Caveats
+## 9. Archive the inventories, because they drift
+
+**The source inventories are not in this repo.** `stage_one/dataset_generation/location_data/` and
+`street_data/` are neither present nor tracked — the README tells you to download them from live
+portal links. `docs/data_provenance.md` §3 records that the exact NYC/Portland/Bend files used for
+the paper are archived in the **paper's supplemental material**, so RampNet 1.0 is replicable, but
+**not from this repository**, and not by following the README, which serves current data.
+
+The counts collected here quantify how much that matters. Comparing paper Table 1 against the same
+endpoints today:
+
+| City | Paper (Tab. 1) | 2026-07-30 | Drift |
+| :--- | ---: | ---: | ---: |
+| **Bend, OR** | 13,611 | **14,800** | **+8.7%** |
+| Portland, OR | 45,324 | 46,065 | +1.6% |
+| Seattle, WA | 45,653 | 46,386 | +1.6% |
+| Austin, TX | 48,995 | 49,796 | +1.6% |
+| Nashville, TN | 18,285 | 18,388 | +0.6% |
+| New York City, NY | 217,680 | 217,679 | −0.0005% |
+
+Bend has grown **8.7%** — it is the smallest training city, so it drifts fastest in relative terms,
+and it is 5.3% of the corpus. Anyone re-running Stage 1 from the README links today builds a
+measurably different dataset from the paper's and has no way to detect the difference. (NYC's
+one-record change is its own signal: that inventory is effectively frozen.)
+
+**Recommendation: commit a dated snapshot of every inventory at ingest**, alongside the fetch URL
+and query, the way `benchmark/*/records.jsonl` already pins benchmark inputs. These are point files
+— tens of thousands of rows, a few MB gzipped — so the cost is trivial next to losing
+reproducibility. That also makes the §5c numbers re-derivable later, since every count in this
+document is a snapshot of a moving target.
+
+Doing this for the RampNet 2.0 corpus is straightforward. Doing it retroactively for 1.0 means
+recovering the three files from the paper's supplemental material and committing them, which is
+worth doing while it is still easy: they are the only artifacts that make the published dataset
+reproducible from source, and they exist in exactly one place.
+
+## 10. Caveats
 
 - **Counts are a 2026-07-30 snapshot**; several refresh weekly.
 - **Only Table 1's eight cities have any precision assessment.** Everything in §3 is unassessed, and
