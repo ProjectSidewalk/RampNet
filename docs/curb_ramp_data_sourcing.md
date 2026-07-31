@@ -163,11 +163,172 @@ cost and the extra false positives more looks would generate. It is "what is on 
 forecast — but +7.5 points with **no new data collection** is a serious number next to a
 multi-month sourcing campaign.
 
-**Caveat on the near-field population.** Calling all 42.2% "vocabulary" is an inference, not a
-measurement. A near-field miss can equally be occlusion (a parked car), deep shadow, or surface
-debris — Gainesville's reviewer flagged debris explicitly — or a GT disagreement. **The near-field
-figure bounds the sourcing-addressable population from above**, and separating those causes needs
-the miss taxonomy in #46.
+**Caveat on the near-field population — now measured, see §0b.** Calling all 42.2% "vocabulary" was
+an inference, not a measurement. A near-field miss can equally be occlusion (a parked car), deep
+shadow, or surface debris — Gainesville's reviewer flagged debris explicitly — or a GT disagreement.
+The near-field figure bounds the sourcing-addressable population **from above**, and §0b tightens
+that bound by a factor of 3.8.
+
+## 0b. Bucketing the misses: most of the near-field population is not a data problem
+
+§0a's near-field figure was an upper bound with an explicit caveat attached. #46 measured what the
+"appearance/vocabulary" label was standing in for, and **two-thirds of it turns out to be something
+more data cannot fix.**
+
+Script: `scripts/analysis/miss_taxonomy.py` (29 tests). Same committed low-floor caches, same
+threshold, same boundary, same `geom()` and matcher as §0a — so the two partition an identical
+population and the bucket counts sum to §0a's totals. No GPU, no network, no imagery.
+
+The caches hold every peak down to a **0.05 score floor**, well below the 0.30 operating point, so
+for each missed ramp we can ask what the model actually did there.
+
+**Pooled, seven US splits — 427 misses:**
+
+| bucket | misses | share | recall points | what it actually is |
+| :--- | ---: | ---: | ---: | :--- |
+| **merged** | 124 | 29.0% | 0.060 | one peak emitted for a pair of adjacent ramps |
+| **sub_threshold** | 166 | 38.9% | 0.081 | localized, scored in [0.05, 0.30) |
+| **localization** | 9 | 2.1% | 0.004 | fired just outside the match radius |
+| **silent** | 128 | 30.0% | 0.062 | nothing there at all, even at the floor |
+
+**The near-field split is the number that moves.** Of §0a's 0.087 recall points:
+
+| bucket | misses | recall points | addressable by more cities? |
+| :--- | ---: | ---: | :--- |
+| merged | 48 | 0.023 | **No** — heatmap representation |
+| sub_threshold | 84 | 0.041 | **No** — confidence, already priced by #54/#55 |
+| localization | 3 | 0.001 | marginal |
+| **silent** | **45** | **0.022** | **Yes — this is the sourcing programme's target** |
+
+So the population a broader corpus can reach is about **0.023 recall points, not 0.087** — §0a's
+near-field figure **over-states it by 3.8×**. That does not kill the sourcing case, but it resizes
+it: the honest headline is "worth ~2 recall points", not ~9.
+
+### Two confounds checked, both negative
+
+**The matcher is not manufacturing misses.** #46 lists this as a suspect — a correct-but-loose
+detection scored as an FP *and* its ramp as an FN, one error counted twice. Rescoring every pano
+with maximum-cardinality bipartite matching instead of the deployed greedy matcher is a **wash**:
+10 ramps are hit only under optimal, 10 only under greedy, **net zero**. The difference is a
+permutation, not lost recall.
+
+**"A peak was there" is not density.** `docs/model_comparison.md`'s null-recall correction found
+open-detector recall was largely density (OWLv2 at 55–88 boxes/pano). RampNet emits **4.2**
+floor-level peaks per pano, and against a null that holds each ramp's elevation and randomizes its
+azimuth, near-field `sub_threshold` is **46.7% real vs 4.7% chance**. The bucket survives; the null
+rate is printed beside every bucket rather than argued away.
+
+### `merged` is a target problem, not an extractor one
+
+`peak_local_max` suppresses on a maximum filter, i.e. **Chebyshev** distance ≤ `min_distance=10`.
+**78 of 124 merged pairs (63%) sit above that** — the extractor was free to emit two peaks and did
+not, so the heatmap itself had one mode. And **87% sit within 2σ of the σ=10 training target**,
+which is what cannot represent an adjacent pair as two modes in the first place.
+
+That retires the untested "`min_distance=3`" idea for at least 63% of the bucket, on top of #62
+finding NMS at the match radius actively harmful. **If this bucket is worth attacking, the lever is
+the training target's σ, not the peak extractor.**
+
+### Paterson's anomaly now has a mechanism
+
+| split | misses | merged | share |
+| :--- | ---: | ---: | ---: |
+| **paterson** | 111 | **80** | **72%** |
+| bend | 58 | 14 | 24% |
+| richmond | 53 | 10 | 19% |
+| morgantown | 52 | 9 | 17% |
+| annapolis | 56 | 5 | 9% |
+| gainesville | 62 | 5 | 8% |
+| clovis | 35 | 1 | 3% |
+
+Paterson's paired tactile surfaces are **not** a vocabulary failure — they are two ramps the
+heatmap cannot separate. That is why it is the narrowest RampNet lead in the benchmark, and it is
+fixed by σ, not by Newark.
+
+### Bracketing `silent`: did any other model see these ramps?
+
+`silent` means *RampNet* saw nothing. It does not mean nothing is there. Script:
+`scripts/analysis/silent_witness.py` (17 tests), reading `.model_cache` — no GPU, no imagery.
+
+For each silent miss, did any challenger put a detection within the match radius? If one did, the
+imagery demonstrably contains a recognizable ramp, so RampNet's failure is **specific to RampNet** —
+which is the strongest evidence for a genuine appearance/vocabulary failure obtainable without a
+human, and exactly what more training data targets.
+
+The density correction is mandatory here, for the third time in this analysis: OWLv2 witnesses
+121 of 128 silent misses, but chance alone accounts for 76.9 of them.
+
+| witness | raw | by chance | **excess** |
+| :--- | ---: | ---: | ---: |
+| gemini-3.1-pro-preview | 46 | 9.4 | +36.6 |
+| gemini-3.6-flash | 33 | 8.1 | +24.9 |
+| molmo2-8B | 26 | 8.5 | +17.5 |
+| Qwen3-VL-8B | 22 | 6.1 | +15.9 |
+| Qwen3-VL-32B | 16 | 2.7 | +13.3 |
+| **union, 5 sparse models** | **69** | 30.0 | **+39.0** |
+| *union, 2 dense detectors* | *127* | *102.2* | *+24.8* |
+
+**Near-field: 32 of 45 witnessed raw (71.1%), chance 13.0, so ~19 corrected (42%).**
+
+That brackets the sourcing-addressable population against the 2,060 pooled GT ramps:
+
+| | recall points | ramps | what it is |
+| :--- | ---: | ---: | :--- |
+| #59's original bound | 0.087 | 180 | the whole near-field population |
+| §0b's bound | 0.022 | 45 | near-field `silent` only |
+| **lower bound** | **0.009** | **~19** | **confirmed** visible to another model, and missed |
+| **upper bound** | **0.022** | **45** | all near-field `silent` |
+
+**So the sourcing programme's target is between ~1 and ~2 recall points.** The gap is the
+unwitnessed remainder — *not* shown to be unaddressable, only unproven either way. Closing it is
+what the gallery is for.
+
+### Caveats, travelling with the numbers
+
+- **`silent` is still an upper bound**, now with a floor under it. It means the cached detections
+  witness nothing there. Occlusion, deep shadow, debris and GT disagreement all still live inside
+  the unwitnessed remainder, and separating them needs the imagery — that is #46's gallery half,
+  **the crops are built but the reviewer pass is not done**.
+- **The witness test is one-directional.** A witnessed ramp is confirmed recognizable; an
+  unwitnessed one is not confirmed *un*recognizable, since every challenger is weaker than RampNet
+  on this task and may simply have missed it too.
+
+### The work that closes the bracket, and its exact size
+
+The gap between 0.009 and 0.022 is the **59 unwitnessed** silent misses. Those, and only those,
+need a reviewer:
+
+```
+python scripts/analysis/silent_witness.py --json-out analysis_out/silent_witness.json
+python scripts/analysis/miss_gallery.py --bucket silent \
+    --queue analysis_out/silent_witness.json --render analysis_out/gallery46_silent
+python scripts/analysis/make_tagger.py analysis_out/gallery46_silent
+# open analysis_out/gallery46_silent/tagger.html
+```
+
+That yields **50 crops** — 59 unwitnessed, less 9 below the 30-source-pixel floor, which are
+excluded from any rate rather than labelled. The verdict scheme is built so exactly one answer is
+sourcing-addressable:
+
+| verdict | what it means | programme |
+| :--- | :--- | :--- |
+| `visible` | clear ramp, unobstructed | **vocabulary — this is the sourcing target** |
+| `occluded` | vehicle, pole, vegetation, person | capture |
+| `lighting` | deep shadow or blown highlight | capture |
+| `surface` | debris, snow, leaves, construction | environment |
+| `not-a-ramp` | no ramp / flush or blended transition | GT disagreement |
+| `unclear` | cannot tell from this imagery | excluded from every rate |
+
+**The `visible` rate over those 50, applied to the 59, is what converts the bracket into a point
+estimate.** Until it is run, quote the bracket.
+- **Some of `merged` may be double-marked GT.** 24 of 124 pairs sit below 8 px (~25 cm at 10 m),
+  which is not a physical spacing for two ramps; on the verdict splits that is plausibly one ramp
+  marked twice. If so they are *spurious GT* and leave the population entirely rather than changing
+  bucket: merged 100, recall 0.802 (from 0.793), **silent unchanged**. `manual_gold` is the control
+  — its GT is independent manual labeling with no RampNet review in the loop, and it shows the same
+  mechanism at **44%** of misses.
+- **`sub_threshold` is not free recall.** Those ramps are recoverable by lowering the threshold,
+  which #54/#55 already evaluated and priced in precision; 0.30 was chosen knowing it.
 
 ## 1. The current training corpus is mostly one city
 
