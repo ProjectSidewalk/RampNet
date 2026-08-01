@@ -61,7 +61,7 @@ Per-step, for adding a city to this benchmark:
 | Add the split to the HF benchmark dataset | **RampNet** | `scripts/build_benchmark_dataset.py` |
 
 ⚠️ The last step lags: `build_benchmark_dataset.py` is still hardcoded to `bend` + `richmond`, so
-clovis, morgantown, annapolis, paterson, gainesville, and budapest are **not** in the published dataset — and it does not yet carry
+clovis, morgantown, annapolis, paterson, gainesville, budapest, and sao_paulo are **not** in the published dataset — and it does not yet carry
 `review_notes` or per-pano `note` into the parquet rows or the dataset card. Whoever finishes #21
 should make the caveats travel with the data, since that is the audience most likely to read a
 number with no idea how it was labeled.
@@ -83,12 +83,17 @@ marked for deletion; run the RampNet versions, not those.
 | paterson | GSV (Google Street View) | 125 | 0.975 | 0.684 |
 | gainesville | GSV (Google Street View) | 125 | 0.945 | 0.695 |
 | budapest_district5 † | Mapillary 360 (GoPro Max) | 125 | 0.873 | 0.503 |
+| sao_paulo ‡ | GSV (Google Street View) | 125 | 0.888 | 0.676 |
 
 † **Budapest is not comparable to the seven US splits without its caveats** — the reviewer rated
 their own pass low confidence and the rubric does not transfer cleanly. Read the section below
 (or just run the scorer, which prints the warning first). It is a real signal, not a clean number.
 
-All eight city splits are **self-contained**: the reviewer's complete-scan attestation is baked into
+‡ **São Paulo is the second non-US split**, reviewed at **high** confidence — unlike Budapest it
+is comparable with context. It is held out of the pooled recommendation for geography, not GT
+quality. Read its section below.
+
+All nine city splits are **self-contained**: the reviewer's complete-scan attestation is baked into
 `no_missed` (set on fully-judged panos with no missed marks), so the numbers reproduce with a
 plain `python scripts/score_validation.py benchmark/<city>` — no `--assume-scanned` needed.
 This matters because the recall gate otherwise excludes unconfirmed panos and biases recall
@@ -111,6 +116,7 @@ hand-picked high-density panos — is the honest between-city comparison, and
 | paterson | 120 | 0.987 | 0.650 |
 | gainesville | 120 | 0.943 | 0.647 |
 | budapest_district5 † | 120 | 0.885 | 0.459 |
+| sao_paulo ‡ | 120 | 0.869 | 0.626 |
 
 Clovis is below the other cities on both metrics because it is 100% soft, 2018-era GoPro Fusion
 360 imagery, where richmond mixes in the sharper NCTECH iSTAR Pulsar (camera provenance is in the
@@ -356,6 +362,46 @@ two things that would fix it are a Budapest-specific rubric written from Hungari
 rather than adapted from the US one, and a **second independent rater** on the same 125 panos to
 measure how much of the gap is the model and how much is the labeler. Of every split here, this is
 the one most in need of a second opinion.
+
+## São Paulo — the second non-US split, and the one where the rubric fits
+
+`benchmark/sao_paulo/` (issue #98) exists to give the non-US axis a second point — and to
+de-confound the first. Budapest is non-US *and* Mapillary/GoPro Max; São Paulo is non-US on
+GSV, the same imagery path as bend/paterson/gainesville. The footprint is four central
+districts — Brás plus its Centro-side neighbours Sé, Cambuci and Bom Retiro (13.95 km², sampled
+from a 22,741-pano run) — not the whole municipality; Brazilian curb ramps and tactile paving
+follow the NBR 9050 standard, a design vocabulary the model never saw in training.
+
+**The headline is what did *not* happen: the Budapest recall collapse did not replicate.** São
+Paulo scores 0.888 / 0.676 all-panos (0.869 / 0.626 unbiased) at **high** reviewer confidence —
+"relatively easy to assess" (jonf, 2026-08-01, single pass). Its unbiased recall sits inside the
+US GSV band (paterson 0.650, gainesville 0.647), not near Budapest's 0.503. With this pair the
+non-US question splits cleanly: unfamiliar *infrastructure vocabulary* alone did not break the
+model or the rubric here; Budapest's uncertainty localizes to its named ambiguities — the
+full-corner diagonal aprons and the level path-street seams (reviewer retrospective, issue #74).
+Only 1 duplicate mark against Budapest's 7 is the quantitative echo: São Paulo's ramp geometry
+did not fight the one-point-per-ramp rubric.
+
+Two mechanisms did fight the review, both recorded in `review_notes`:
+
+- **Mid-block captures.** In more than 10 panos the camera sat mid-segment, so judging curb
+  ramps meant looking back at the nearest intersection — often too far away to see clearly.
+  This drives the benchmark's highest abstention: 14.7% of detections and 32.1% of missed
+  marks are `unsure` (Budapest: 8.5% / 24.4%). Given the high reviewer confidence these read
+  as honest distance-driven abstentions, not rubric failure — the far-field problem measured
+  in the annapolis section, arriving through sampling geometry rather than optics.
+- **White-painted curbs.** A set of intersections carry white paint along the curb but rarely
+  have actual curb ramps, even where crosswalks are present. The model fired on these
+  repeatedly (reviewer impression, not yet a measurement), and the reviewer was initially
+  confused too before reconciling on the pattern. A candidate split-specific false-positive
+  mechanism — likely a chunk of why precision (0.869 unbiased) is the lowest of any
+  confident-GT split — worth a pass in the FP taxonomy (#46).
+
+The negative check behaves: 20 of the 25 `empty`-stratum panos were attested clean, and the
+other 5 held 11 missed ramps — the annapolis-shaped result that the model's "nothing here" is
+mostly, not entirely, right. A live Project Sidewalk deployment
+(sidewalk-sao-paulo.cs.washington.edu) sits inside the footprint, so an agree-rate comparison
+is possible later; it covers Brás only and is 8.2% audited, so that comparison would be thin.
 
 ## The manual_gold split (in-distribution gold reference)
 

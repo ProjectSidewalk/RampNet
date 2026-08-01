@@ -64,6 +64,7 @@ could change a scoring outcome.
 | bend | 265 | 257 | 79.0% | 98.4% | 0.439 R |
 | paterson | 284 | 281 | 81.1% | 96.8% | 0.439 R |
 | gainesville | 205 | 197 | 76.6% | 95.4% | 0.439 R |
+| sao_paulo ‡ | 251 | 228 | 77.2% | 98.2% | 0.439 R |
 | manual_gold † | 3610 | 3487 | 80.9% | 99.9% | 0.472 R |
 
 **Every Mapillary split reproduces bit-exactly, including on different hardware** (these were
@@ -89,6 +90,33 @@ points derive from the *production* detections while their predictions here come
 *native-res* resample, so GT and predictions sit up to 0.44 R apart. That eats into the 1 R
 matching tolerance and makes both splits' numbers mildly pessimistic relative to the
 Mapillary splits.
+
+‡ **sao_paulo formally FAILS the gate's count arm — 23 of 251 record detections (9.2%)
+have no cache peak at ≥ 0.55, against the 5% allowance — and the failure is diagnosed, not
+mysterious** (2026-08-01, this section is the record). The displacement arm shows the exact
+GSV signature (max 0.439 R, the *fourth* split to land on that same number; 98.2% within
+tolerance, median 0.000), so preprocessing did not diverge in kind. What differs is degree:
+same-cell score jitter between the production run and this cache has the same two-sided
+shape as the other GSV splits but is ~40% wider (sd 0.068 vs 0.043–0.058) and shifted
+positive (mean +0.022 vs +0.007–0.011) — the production tile-pyramid input scores slightly
+higher than the bundle's one-step bilinear from 16384 px, and São Paulo's out-of-domain
+scores sit closer to the threshold, so the same jitter pushes more peaks under 0.55. The
+deficit decomposes exactly. Under strict positional matching (at-site = within 0.5 R), 39
+record detections fail to reproduce at ≥ 0.55 — the gate's 23 is the *net* per-pano count
+delta, which nets out panos where a lost peak and a moved neighbour cancel. The 39 split
+into **20 threshold-straddlers** (an at-site cache peak exists at 0.39–0.54) and **19 NMS
+pair-merges** (no at-site peak at any floor; the recurring 0.62 R offset to the nearest
+surviving peak is the (10,10) Chebyshev corner of `min_distance=10` — the adjacent-pair
+geometry from the #46 merged-bucket finding, appearing as instrument jitter). A direct probe
+confirmed the mechanism: rebuilding the model input from the same bundle pano via a
+box-pyramid or Lanczos moves each tested at-site score +0.03 to +0.07 toward the production
+confidence, re-crossing 0.55 in one of three cases. **Consequences for this split's sweep
+numbers:** rows at thresholds ≥ 0.55 understate production recall (the 0.55 row shows R
+0.651 where the verdict-based `score_validation.py` gives 0.676) and slightly overstate
+precision (11 production FPs also fell below the floor); every row at ≤ 0.38 — including
+the recommended 0.30 — is unaffected, because all 20 straddlers are present at 0.386+. The
+sweep values are used with this caveat attached; sao_paulo is held out of every pooled row
+regardless, so no recommendation number inherits any of it.
 
 ## The central bias: sub-0.55 precision is a lower bound, and we can prove it
 
@@ -172,6 +200,7 @@ unmatched prediction in the `[0.25, 0.55)` band was tagged **A** (a real ramp th
 | paterson | 10 | 2 | 5 | 3 | 20.0% |
 | gainesville | 34 | 12 | 21 | 1 | **35.3%** |
 | budapest_district5 | 89 | 23 | 59 | 7 | 25.8% |
+| sao_paulo | 48 | — | — | — | **not yet tagged** (gallery generated 2026-08-01) |
 
 paterson produced by far the fewest incremental FPs (10, against 23–34 for the other US
 cities) — the same shallow threshold response its sweep row shows, measured a second way.
@@ -258,10 +287,18 @@ uninformative. What *does* move decisively is recall: 0.722 → 0.789 at 0.32, w
 | paterson | 0.971 | 0.681 | 0.953 | 0.716 | +0.035 | −0.018 | 2.25 → 2.44 | 0.26 |
 | gainesville | 0.948 | 0.673 | 0.867 | 0.768 | +0.096 | −0.081 | 1.58 → 1.98 | 0.38 |
 | budapest † | 0.874 | 0.510 | 0.718 | 0.637 | +0.127 | −0.156 | 1.51 → 2.27 | 0.37 |
+| sao_paulo § | 0.906 | 0.651 | 0.809 | 0.783 | **+0.132** | −0.097 | 1.82 → 2.50 | 0.31 |
 | manual_gold ‡ | 0.955 | 0.849 | 0.926 | 0.884 | +0.035 | −0.028 | 3.49 → 3.74 | 0.36 |
 
 † Budapest is swept but **held out of the pooled recommendation** (single-rater GT at low
 reviewer confidence — see `benchmark/README.md`).
+§ sao_paulo (added 2026-08-01) is held out as the non-US deployment point — its GT is **high**
+confidence, unlike budapest's. It shows the **largest threshold response of any split with
+trusted GT**: +13.2 recall points at 0.32 (+14.6 at 0.30), with its F1 optimum (0.31)
+sitting on the recommendation. Its mid-block sampling geometry concentrates the gain in the
+mid and far distance bands (+0.194 / +0.217, vs +0.101 near). Precision cost is an
+uncorrected lower bound until its #55 gallery (48 items, the largest US-protocol queue) is
+tagged. Note its parity caveat above: the ≥ 0.55 rows understate the production run.
 ‡ `manual_gold` is likewise held out: in-distribution GSV from the training cities with
 independently-labelled GT. It is the control, not a deployment city.
 
@@ -332,7 +369,9 @@ levers would overlap. It does not:
 **The gain is essentially uniform across distance**, so the threshold lever and the
 multi-view lever are largely independent and **stack**. (paterson tilts the far band up
 slightly — its largest per-band gain is far, +0.091; gainesville gains +0.122 mid and
-+0.120 far.) Far-field recall stays poor even after the drop (bend 0.214, clovis 0.389,
++0.120 far. Held-out sao_paulo is the extreme case: +0.101 near / +0.194 mid / +0.217 far,
+0.55 → 0.30 — its reviewer-documented mid-block sampling geometry puts 47% of its GT beyond
+12.5 m, and that is exactly where its outsized threshold response lands.) Far-field recall stays poor even after the drop (bend 0.214, clovis 0.389,
 annapolis 0.490 at 0.32; paterson 0.523 and gainesville 0.420 at 0.30 — gainesville's
 far band is the worst in the benchmark at the deployed threshold, 0.300), so multi-view
 remains necessary — lowering the threshold does not substitute for it.
@@ -425,6 +464,7 @@ Reproduce with `python scripts/analysis/low_floor_sweep.py floor` and
 | gainesville | 272 | 6 | 2.21% |
 | **POOLED (7 US)** | **2060** | **45** | **2.18%** |
 | budapest | 300 | 7 | 2.33% |
+| sao_paulo | 281 | 2 | 0.71% |
 | manual_gold | 3919 | 19 | 0.48% |
 
 paterson is the outlier at 0.25%, and not in a comforting way: its missed ramps are not
@@ -432,6 +472,12 @@ sitting just under the floor waiting to be stored — they produce no candidate 
 confidence. Its ceiling at the 0.05 extraction floor is **0.757**, against 0.88–0.94 for
 every other US split, so for paterson the storage-floor question is nearly moot and the
 recall problem lives in detection itself (see its per-split note above).
+
+sao_paulo sits at the gainesville end of that axis, more sharply: only 2 ramps (0.71%) are
+floor-lost, but its ceiling at the 0.10 storage floor is **0.861 against a deployed 0.651 —
++0.210 recoverable, the most of any split with trusted GT** (budapest's +0.223 rests on
+low-confidence GT). Its out-of-domain misses overwhelmingly *fire* — under-confident, not
+silent — which is what its record threshold response (+14.6 R at 0.30) exploits.
 
 **The recall ceiling.** The share of GT ramps with *any* candidate at or above a floor —
 the hard upper bound on what multi-view consensus can ever recover:

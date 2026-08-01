@@ -1,6 +1,6 @@
 # Model comparison: RampNet vs. general-purpose models
 
-Uses the standardized curb-ramp benchmark (all eight city splits in `benchmark/`, plus
+Uses the standardized curb-ramp benchmark (all nine city splits in `benchmark/`, plus
 the 1k in-distribution `manual_gold` split — see its section below) to compare
 RampNet against off-the-shelf models. The question: does a general model match or beat the
 purpose-trained RampNet on real deployment imagery (GSV + Mapillary 360)? The harness is
@@ -21,13 +21,17 @@ a run that hasn't happened, not a result being withheld.
 | paterson | ✅ | ✅ all 8 | ✅ | ✅ 20% (2/10) | second GSV city; live PS deployment; narrowest RampNet lead (0.12); 2nd Qwen inversion |
 | gainesville | ✅ | ✅ all 8 | ✅ | ✅ **35% (12/34) — highest measured** | third GSV city, first far-domain; same recall as paterson (0.647), opposite mechanism (ceiling 0.890); 3rd Qwen inversion |
 | budapest_district5 | ✅ | ✅ all 8 | ✅ | ✅ 26% (23/89) | **GT itself is low-confidence**; the one ranking inversion |
+| sao_paulo | ✅ | ❌ not run | ❌ not run | ❌ not yet tagged | second non-US split (GSV, NBR 9050), GT **high** confidence — the budapest recall collapse did not replicate |
 | manual_gold | ✅ | ✅ all 8 | ❌ too slow | n/a — un-anchored GT | 1k panos, the anchoring control |
 
 "All 8" is the roster in the class table below: RampNet, 2 Geminis, 2 Qwens, Molmo, OWLv2,
-Grounding DINO. **Every split now carries the full roster** — paterson's challenger +
-null-recall runs landed 2026-07-29, hours after the split itself, and gainesville's landed
-2026-07-30, the same day as its split. The GT-completeness correction (#55) covers **all
-eight city splits** (six on 2026-07-28, paterson 2026-07-29, gainesville 2026-07-30).
+Grounding DINO. **Every split carries the full roster except sao_paulo** — paterson's
+challenger + null-recall runs landed 2026-07-29, hours after the split itself, and
+gainesville's landed 2026-07-30, the same day as its split; sao_paulo (GT reviewed
+2026-08-01) has had **no challenger or null-recall run yet** — those need the GPU harness
+and are the split's open work item (#98). The GT-completeness correction (#55) covers **all
+eight prior city splits** (six on 2026-07-28, paterson 2026-07-29, gainesville 2026-07-30);
+sao_paulo's #55 gallery is not yet tagged.
 `manual_gold` needs no correction — its GT was labelled independently of RampNet, which is
 what makes it the control for the anchoring effect. The one remaining ❌ is the
 null-recall pass on `manual_gold` (O(n²) in panos — see that section).

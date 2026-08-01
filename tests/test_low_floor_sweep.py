@@ -259,11 +259,13 @@ def test_pool_holds_out_budapest_and_gold_by_default():
     pool = lfs.pool_of(lfs.ALL_SPLITS)
     assert set(pool) == set(lfs.US_SPLITS)
     assert "budapest_district5" not in pool and "manual_gold" not in pool
+    assert "sao_paulo" not in pool
 
 
 def test_pool_flags_opt_the_held_out_splits_back_in():
     assert "budapest_district5" in lfs.pool_of(lfs.ALL_SPLITS, include_budapest=True)
     assert "manual_gold" in lfs.pool_of(lfs.ALL_SPLITS, include_gold=True)
+    assert "sao_paulo" in lfs.pool_of(lfs.ALL_SPLITS, include_sao_paulo=True)
 
 
 def test_every_held_out_split_carries_a_stated_reason():

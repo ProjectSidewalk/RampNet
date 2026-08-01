@@ -66,7 +66,7 @@ from operating_point_curve import (  # noqa: E402
 # The seven US city splits carry verdict-grade GT and are the recommendation's basis.
 US_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson",
              "gainesville")
-CITY_SPLITS = US_SPLITS + ("budapest_district5",)
+CITY_SPLITS = US_SPLITS + ("budapest_district5", "sao_paulo")
 ALL_SPLITS = CITY_SPLITS + ("manual_gold",)
 
 # Why a split is swept but not pooled. Printed with the results so an omission can
@@ -74,6 +74,9 @@ ALL_SPLITS = CITY_SPLITS + ("manual_gold",)
 HELD_OUT = {
     "budapest_district5": "single-rater GT at low reviewer confidence "
                           "(docs/model_comparison.md: do not pool)",
+    "sao_paulo": "non-US city — the pooled recommendation is a US-deployment "
+                 "basis (GT is HIGH reviewer confidence; held out for "
+                 "geography, not GT quality)",
     "manual_gold": "in-distribution GSV + independently-labelled GT "
                    "(in-domain reference, not a deployment city)",
 }
@@ -403,13 +406,16 @@ def _write_csv(path, rows, fields):
         w.writerows(rows)
 
 
-def pool_of(cities, include_budapest=False, include_gold=False):
+def pool_of(cities, include_budapest=False, include_gold=False,
+            include_sao_paulo=False):
     """Which of ``cities`` contribute to the POOLED and per-tier rows."""
     keep = []
     for c in cities:
         if c == "budapest_district5" and not include_budapest:
             continue
         if c == "manual_gold" and not include_gold:
+            continue
+        if c == "sao_paulo" and not include_sao_paulo:
             continue
         keep.append(c)
     return keep
@@ -601,7 +607,8 @@ def cmd_sweep(args):
         suffix = f"   [held out of POOLED: {held}]" if held else ""
         _print_rows(f"{city.upper()}  (n={len(panos)} panos){suffix}", rows, args.mark)
 
-    poolable = pool_of(args.cities, args.include_budapest, args.include_gold)
+    poolable = pool_of(args.cities, args.include_budapest, args.include_gold,
+                      args.include_sao_paulo)
     pooled = [pd for c in poolable for pd in loaded[c]]
     if len(poolable) > 1:
         rows = sweep_rows(pooled, grid, radius_sq)
@@ -728,7 +735,8 @@ def cmd_tta(args):
         compare(city, single, tta,
                 f"{city.upper()}  (n={len(single)} panos){suffix} — flip-TTA vs single-pass")
 
-    poolable = pool_of(tuple(loaded), args.include_budapest, args.include_gold)
+    poolable = pool_of(tuple(loaded), args.include_budapest, args.include_gold,
+                       args.include_sao_paulo)
     if len(poolable) > 1:
         pooled_s = [pd for c in poolable for pd in loaded[c][0]]
         pooled_t = [pd for c in poolable for pd in loaded[c][1]]
@@ -773,7 +781,8 @@ def cmd_hist(args):
         payload["splits"][city] = bins
         _print_bins(f"{city.upper()} — P(real | confidence bin)", bins)
 
-    poolable = pool_of(args.cities, args.include_budapest, args.include_gold)
+    poolable = pool_of(args.cities, args.include_budapest, args.include_gold,
+                      args.include_sao_paulo)
     pooled = [pd for c in poolable for pd in loaded[c]]
     pooled_bins = confidence_calibration(pooled, radius_sq, edges)
     payload["pooled"] = {"splits": poolable, "bins": pooled_bins}
@@ -962,7 +971,8 @@ def cmd_floor(args):
 
     for city, panos in loaded.items():
         emit(city, panos)
-    poolable = pool_of(args.cities, args.include_budapest, args.include_gold)
+    poolable = pool_of(args.cities, args.include_budapest, args.include_gold,
+                      args.include_sao_paulo)
     pooled_panos = [pd for c in poolable for pd in loaded[c]]
     print("-" * 96)
     pooled = emit("POOLED", pooled_panos) if len(poolable) > 1 else None
@@ -1040,7 +1050,8 @@ def cmd_corrected(args):
             print(f"{'':<22} note: {p['n_A_suspect']} of {p['n_A']} A-tags sit within "
                   f"{2.0:g} R of an already-detected ramp (likely a second hit, not a "
                   f"missed ramp)")
-        if city in pool_of(args.cities, args.include_budapest, args.include_gold):
+        if city in pool_of(args.cities, args.include_budapest, args.include_gold,
+                      args.include_sao_paulo):
             pooled_items += items
             pooled_tags.update(tags)
             pooled["tp"] += rep.tp
@@ -1240,6 +1251,9 @@ def main(argv=None):
         sp.add_argument("--include-gold", action="store_true",
                         help="pool manual_gold into POOLED/tier rows (default: held out — "
                              "in-distribution reference, not a deployment city)")
+        sp.add_argument("--include-sao-paulo", action="store_true",
+                        help="pool sao_paulo into POOLED/tier rows (default: held out — "
+                             "non-US city, outside the US-deployment pooled basis)")
 
     sp = sub.add_parser("parity", help="gate: cache at 0.55 must reproduce records.jsonl")
     common(sp)
