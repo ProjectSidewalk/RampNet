@@ -185,10 +185,10 @@ effect is genuinely small in aggregate, or it is real but offset by `manual_gold
 *in-distribution* GSV from the training cities (which should make RampNet look better there,
 pushing the un-anchored numbers up).
 
-**#55's A/B tagging settles it, and the effect is real.** All eight city splits have now been
-spot-checked (jonf; six on 2026-07-28, paterson 2026-07-29, gainesville 2026-07-30): every
-unmatched prediction in the `[0.25, 0.55)` band was tagged **A** (a real ramp the GT missed),
-**B** (a genuine false positive) or **unsure**.
+**#55's A/B tagging settles it, and the effect is real.** All nine city splits have now been
+spot-checked (jonf; six on 2026-07-28, paterson 2026-07-29, gainesville 2026-07-30,
+sao_paulo 2026-08-01): every unmatched prediction in the `[0.25, 0.55)` band was tagged
+**A** (a real ramp the GT missed), **B** (a genuine false positive) or **unsure**.
 
 | split | incremental FPs | A | B | unsure | A-rate |
 |---|---|---|---|---|---|
@@ -200,7 +200,7 @@ unmatched prediction in the `[0.25, 0.55)` band was tagged **A** (a real ramp th
 | paterson | 10 | 2 | 5 | 3 | 20.0% |
 | gainesville | 34 | 12 | 21 | 1 | **35.3%** |
 | budapest_district5 | 89 | 23 | 59 | 7 | 25.8% |
-| sao_paulo | 48 | — | — | — | **not yet tagged** (gallery generated 2026-08-01) |
+| sao_paulo | 48 | 6 | 38 | 4 | **12.5% — lowest of any split** |
 
 paterson produced by far the fewest incremental FPs (10, against 23–34 for the other US
 cities) — the same shallow threshold response its sweep row shows, measured a second way.
@@ -216,9 +216,17 @@ lowering the threshold is materially overstated — by roughly a quarter of the 
 false positives — and the aggregate similarity to `manual_gold` above is better explained by
 that split's in-distribution advantage than by the bias being small.
 
-Spread is 13%–35% with no obvious ordering by imagery quality (morgantown, the cleanest split,
-is lowest; gainesville, whose imagery is the freshest in the benchmark, is highest), so **do
-not quote a single cross-split GT-completeness constant** — apply the per-split correction.
+Spread is 12.5%–35% with no obvious ordering by imagery quality (gainesville, whose imagery
+is the freshest in the benchmark, is highest), so **do not quote a single cross-split
+GT-completeness constant** — apply the per-split correction.
+
+sao_paulo sets the new low end (12.5%), and the pairing with its record threshold response is
+the informative part: the split where lowering the threshold buys the *most* recall (+14.6
+points) is also the one where the incremental false positives are most often *genuine* (38 of
+48 tagged B). Its precision penalty at 0.30 is real, not a GT-completeness artifact —
+consistent with a true out-of-domain FP mechanism (the reviewer's white-painted-curb pattern,
+`review_notes`) rather than incomplete ground truth. gainesville is the mirror image: highest
+A-rate (35.3%), so most of its penalty was the GT's fault, not the model's.
 
 ### Why the recall gain, by contrast, is exact — and itself a lower bound
 
@@ -296,9 +304,10 @@ reviewer confidence — see `benchmark/README.md`).
 confidence, unlike budapest's. It shows the **largest threshold response of any split with
 trusted GT**: +13.2 recall points at 0.32 (+14.6 at 0.30), with its F1 optimum (0.31)
 sitting on the recommendation. Its mid-block sampling geometry concentrates the gain in the
-mid and far distance bands (+0.194 / +0.217, vs +0.101 near). Precision cost is an
-uncorrected lower bound until its #55 gallery (48 items, the largest US-protocol queue) is
-tagged. Note its parity caveat above: the ≥ 0.55 rows understate the production run.
+mid and far distance bands (+0.194 / +0.217, vs +0.101 near). The #55 pass (48 items, the
+largest US-protocol queue, tagged 2026-08-01) barely moves its precision — A-rate 12.5%, the
+lowest of any split, so the 0.30 precision cost here is real, not GT incompleteness (see the
+corrected table). Note its parity caveat above: the ≥ 0.55 rows understate the production run.
 ‡ `manual_gold` is likewise held out: in-distribution GSV from the training cities with
 independently-labelled GT. It is the control, not a deployment city.
 
@@ -420,8 +429,10 @@ Per split at 0.30:
 | paterson | 0.950 | 0.957 | 0.963 | 0.720 | 0.822 |
 | gainesville | 0.857 | 0.886 | 0.890 | 0.778 | 0.828 |
 | budapest ‡ | 0.707 | 0.762 | 0.777 | 0.660 | 0.707 |
+| sao_paulo ‡ | 0.803 | 0.821 | 0.828 | 0.801 | 0.811 |
 
-‡ excluded from the pooled row and the recommendation.
+‡ excluded from the pooled row and the recommendation (budapest: low-confidence GT;
+sao_paulo: non-US — tags applied 2026-08-01, `tagcheck` 48/48).
 
 **The correction changed the answer.** On raw numbers the F1 optimum sat at 0.32 and the
 conservative choice was 0.35; with the GT completeness correction applied, corrected F1 peaks

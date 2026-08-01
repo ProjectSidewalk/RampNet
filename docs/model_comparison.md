@@ -21,7 +21,7 @@ a run that hasn't happened, not a result being withheld.
 | paterson | ✅ | ✅ all 8 | ✅ | ✅ 20% (2/10) | second GSV city; live PS deployment; narrowest RampNet lead (0.12); 2nd Qwen inversion |
 | gainesville | ✅ | ✅ all 8 | ✅ | ✅ **35% (12/34) — highest measured** | third GSV city, first far-domain; same recall as paterson (0.647), opposite mechanism (ceiling 0.890); 3rd Qwen inversion |
 | budapest_district5 | ✅ | ✅ all 8 | ✅ | ✅ 26% (23/89) | **GT itself is low-confidence**; the one ranking inversion |
-| sao_paulo | ✅ | ❌ not run | ❌ not run | ❌ not yet tagged | second non-US split (GSV, NBR 9050), GT **high** confidence — the budapest recall collapse did not replicate |
+| sao_paulo | ✅ | ❌ not run | ❌ not run | ✅ **12.5% (6/48) — lowest measured** | second non-US split (GSV, NBR 9050), GT **high** confidence — the budapest recall collapse did not replicate |
 | manual_gold | ✅ | ✅ all 8 | ❌ too slow | n/a — un-anchored GT | 1k panos, the anchoring control |
 
 "All 8" is the roster in the class table below: RampNet, 2 Geminis, 2 Qwens, Molmo, OWLv2,
@@ -30,8 +30,8 @@ challenger + null-recall runs landed 2026-07-29, hours after the split itself, a
 gainesville's landed 2026-07-30, the same day as its split; sao_paulo (GT reviewed
 2026-08-01) has had **no challenger or null-recall run yet** — those need the GPU harness
 and are the split's open work item (#98). The GT-completeness correction (#55) covers **all
-eight prior city splits** (six on 2026-07-28, paterson 2026-07-29, gainesville 2026-07-30);
-sao_paulo's #55 gallery is not yet tagged.
+nine city splits** (six on 2026-07-28, paterson 2026-07-29, gainesville 2026-07-30,
+sao_paulo 2026-08-01).
 `manual_gold` needs no correction — its GT was labelled independently of RampNet, which is
 what makes it the control for the anchoring effect. The one remaining ❌ is the
 null-recall pass on `manual_gold` (O(n²) in panos — see that section).
@@ -713,12 +713,13 @@ two columns coincide exactly). The `compare.py` CLI prints both side by side.
 - **RampNet-anchored GT.** The GT was assembled during a RampNet review. A reviewer scanning
   fresh for another model might catch a few more ramps; the complete-scan attestation
   (`no_missed`) mitigates this, but it is a known asymmetry. **It has now been measured on
-  all eight city splits, and it is not small.** Re-reviewing the detections RampNet only
+  all nine city splits, and it is not small.** Re-reviewing the detections RampNet only
   surfaces below its deployed 0.55 threshold — a confidence band the GT never fully audited —
   found real, unlabelled curb ramps at **17% (richmond)**, **29% (bend)**, **30% (clovis)**,
   **13% (morgantown)**, **22% (annapolis)**, **20% (paterson, on just 10 items)**,
-  **35% (gainesville, the highest measured, on the largest US queue: 34 items)** and
-  **26% (budapest)** of those detections
+  **35% (gainesville, the highest measured, on the largest US queue: 34 items)**,
+  **26% (budapest)** and **12.5% (sao_paulo, the lowest, on the largest US-protocol queue:
+  48 items)** of those detections
   (issue #55; tags in `benchmark/<city>/incremental_fp_tags.json`, reproduce with
   `operating_point_curve.py gallery --tags` or `low_floor_sweep.py corrected`). Two
   consequences worth carrying:
@@ -728,11 +729,12 @@ two columns coincide exactly). The `compare.py` CLI prints both side by side.
     GT is incomplete; it does **not** say by how much a challenger is penalised, since a
     challenger's misses are a different population. Do not subtract it from anyone's score.
 
-  All eight city splits are now corrected, and the spread — **13%–35%** — still does **not**
+  All nine city splits are now corrected, and the spread — **12.5%–35%** — still does **not**
   support a single cross-city GT-completeness constant. It does not order by imagery quality
-  either: morgantown, the cleanest split in the benchmark, has the *lowest* A-rate while
-  gainesville, the freshest GSV imagery, has the *highest* (35%), with clovis, the softest,
-  close behind (30%). Apply the per-split correction; do not subtract an average.
+  either: morgantown, the cleanest split in the benchmark, has the lowest *US* A-rate (13%)
+  while gainesville, the freshest GSV imagery, has the *highest* (35%), with clovis, the
+  softest, close behind (30%); sao_paulo, on GSV as fresh as gainesville's, sets the overall
+  low (12.5%). Apply the per-split correction; do not subtract an average.
 
   `manual_gold` is the control rather than a gap: its GT was labelled independently of
   RampNet, so it has no anchoring to correct. Comparing the two regimes shows the mechanism

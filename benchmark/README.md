@@ -395,7 +395,10 @@ Two mechanisms did fight the review, both recorded in `review_notes`:
   repeatedly (reviewer impression, not yet a measurement), and the reviewer was initially
   confused too before reconciling on the pattern. A candidate split-specific false-positive
   mechanism — likely a chunk of why precision (0.869 unbiased) is the lowest of any
-  confident-GT split — worth a pass in the FP taxonomy (#46).
+  confident-GT split — worth a pass in the FP taxonomy (#46). The #55 A/B pass points the
+  same way: sao_paulo's incremental FPs in `[0.25, 0.55)` are overwhelmingly *genuine* (38 of
+  48 tagged B; A-rate 12.5%, the lowest of any split), so the low precision is the model
+  mis-firing on real distractors, not the ground truth missing ramps.
 
 The negative check behaves: 20 of the 25 `empty`-stratum panos were attested clean, and the
 other 5 held 11 missed ramps — the annapolis-shaped result that the model's "nothing here" is
