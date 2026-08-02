@@ -1,6 +1,6 @@
 # Model comparison: RampNet vs. general-purpose models
 
-Uses the standardized curb-ramp benchmark (all eight city splits in `benchmark/`, plus
+Uses the standardized curb-ramp benchmark (all nine city splits in `benchmark/`, plus
 the 1k in-distribution `manual_gold` split — see its section below) to compare
 RampNet against off-the-shelf models. The question: does a general model match or beat the
 purpose-trained RampNet on real deployment imagery (GSV + Mapillary 360)? The harness is
@@ -21,13 +21,16 @@ a run that hasn't happened, not a result being withheld.
 | paterson | ✅ | ✅ all 8 | ✅ | ✅ 20% (2/10) | second GSV city; live PS deployment; narrowest RampNet lead (0.12); 2nd Qwen inversion |
 | gainesville | ✅ | ✅ all 8 | ✅ | ✅ **35% (12/34) — highest measured** | third GSV city, first far-domain; same recall as paterson (0.647), opposite mechanism (ceiling 0.890); 3rd Qwen inversion |
 | budapest_district5 | ✅ | ✅ all 8 | ✅ | ✅ 26% (23/89) | **GT itself is low-confidence**; the one ranking inversion |
+| sao_paulo | ✅ | ✅ all 8 | ✅ | ✅ **12.5% (6/48) — lowest measured** | second non-US split (GSV, NBR 9050), GT **high** confidence — the budapest recall collapse did not replicate; 4th Qwen-32B caution occurrence, this time at parity not inversion |
 | manual_gold | ✅ | ✅ all 8 | ❌ too slow | n/a — un-anchored GT | 1k panos, the anchoring control |
 
 "All 8" is the roster in the class table below: RampNet, 2 Geminis, 2 Qwens, Molmo, OWLv2,
-Grounding DINO. **Every split now carries the full roster** — paterson's challenger +
-null-recall runs landed 2026-07-29, hours after the split itself, and gainesville's landed
-2026-07-30, the same day as its split. The GT-completeness correction (#55) covers **all
-eight city splits** (six on 2026-07-28, paterson 2026-07-29, gainesville 2026-07-30).
+Grounding DINO. **Every split again carries the full roster** — paterson's challenger +
+null-recall runs landed 2026-07-29, hours after the split itself; gainesville's landed
+2026-07-30, the same day as its split; and sao_paulo's landed 2026-08-01, also the same day
+as its GT review (GPU legs on klone, Geminis via Vertex, all reproducible from the committed
+detection cache). The GT-completeness correction (#55) covers **all nine city splits** (six
+on 2026-07-28, paterson 2026-07-29, gainesville 2026-07-30, sao_paulo 2026-08-01).
 `manual_gold` needs no correction — its GT was labelled independently of RampNet, which is
 what makes it the control for the anchoring effect. The one remaining ❌ is the
 null-recall pass on `manual_gold` (O(n²) in panos — see that section).
@@ -283,6 +286,56 @@ Three things gainesville adds:
    at all). OWLv2's 0.967 recall — its highest anywhere — is mostly density: 67.9 boxes/pano
    and a 0.722 null (see the null-recall section).
 
+**sao_paulo** (125 reviewed panos, 281 GT ramps) — the second non-US split (2026-08-01),
+reviewer confidence **HIGH**; NBR 9050 design vocabulary on GSV (the same imagery path as
+bend/paterson/gainesville — see `benchmark/README.md` for what the split de-confounds)
+
+| model | P | R | F1 | AP | tp/fp/fn |
+|---|---|---|---|---|---|
+| **rampnet** | **0.894** | 0.687 | **0.777** | 0.666 | 193/23/88 |
+| gemini-3.1-pro-preview | 0.463 | 0.445 | 0.454 | – | 125/145/156 |
+| gemini-3.6-flash | 0.333 | 0.359 | 0.346 | – | 101/202/180 |
+| **molmo2-8B** (points) | 0.319 | 0.335 | **0.326** | – | 94/201/187 |
+| Qwen3-VL-8B-Instruct | 0.229 | 0.210 | 0.219 | – | 59/199/222 |
+| **Qwen3-VL-32B-Instruct** | **0.506** | **0.139** | 0.218 | – | 39/38/242 |
+| owlv2-large-patch14-ensemble | 0.027 | 0.922 | 0.052 | 0.050 | 259/9433/22 |
+| grounding-dino-base | 0.025 | 0.797 | 0.049 | 0.034 | 224/8676/57 |
+
+Best sweep F1: OWLv2 **0.096** (thr 0.15), Grounding DINO **0.081** (thr 0.20). (The live
+gemini-pro run isolated 1 pano failure; the retried pano is in the cache, and the table
+above is the cache-reproduced scoring.)
+
+Three things sao_paulo adds:
+
+1. **The ranking survives the second non-US design vocabulary, at nearly full width — the
+   lead is 0.323.** The question this split existed to ask was whether budapest's
+   RampNet-vs-field compression (lead 0.263 on distrusted GT) was a non-US effect. It is
+   not: every challenger degrades OOD at least as much as RampNet does. RampNet gives up
+   recall against its US GSV line (0.687 vs ~0.70) and precision (0.894, its lowest
+   trusted-GT split — the white-painted-curb FP mechanism in `benchmark/README.md`), but
+   gemini-pro falls further (0.548 gainesville → 0.454 here), and the open detectors stay
+   at their floor. Zero-shot generality did not buy the challengers anything on unfamiliar
+   infrastructure.
+2. **The Qwen-32B caution mechanism fires a fourth time — but for the first time it is NOT
+   an inversion.** The signature is identical to budapest/paterson/gainesville: 32B nearly
+   stops firing (0.6 boxes/pano, same as gainesville; challenger-best FP economy at 38;
+   R 0.139) with challenger-best precision (0.506). But 8B lands at 0.219, so the pair ties
+   (0.218 vs 0.219) instead of swapping. The mechanism — conservatism on unusual-looking
+   infrastructure — replicates cleanly; whether it *shows up as an inversion* depends on how
+   well 8B holds, which is a property of the split, not of 32B. This sharpens the
+   three-inversion story: caution is the invariant, the ranking flip is its side effect.
+3. **The pairwise union ceiling ties paterson's for lowest — but by the gainesville
+   mechanism, not paterson's.** The #35 complementarity check (`complementarity.py
+   gemini-3.1-pro-preview sao_paulo`): gemini-pro recovers 25 of RampNet's 88 misses (28%),
+   **63 ramps — 22.4% of GT — are found by neither model**, and the pairwise oracle-union
+   ceiling is 0.776 (paterson: 0.777). But where paterson's misses produce no candidate at
+   any confidence (RampNet low-floor ceiling 0.757), sao_paulo's own 0.05-floor ceiling is
+   **0.861 — above the union** — its misses fire sub-threshold, and the 0.30 operating
+   point already buys +14.6 recall points with no fusion at all
+   (`docs/operating_point.md`). Fusion has less to offer here than the union number
+   suggests; the threshold lever has more. OWLv2's 0.922 recall is 78.3 boxes/pano with a
+   0.688 null — density, as everywhere (see the null-recall section).
+
 **budapest_district5** (125 reviewed panos, 300 GT ramps) — the first non-US split. **Its
 ground truth is low-confidence by the reviewer's own rating; read `benchmark/README.md`'s
 Budapest section before quoting any of this.**
@@ -348,11 +401,12 @@ no experiment here tested (OWLv2 / Grounding DINO are general open-vocab models,
 curb-ramp detectors). How much of the gap survives a tuned prompt (#45), a failure-artifact
 audit (#46), and a nadir/hood mask (#47) is exactly what those follow-ups measure.
 
-**What the claim now rests on:** eight city splits across two countries, four camera rigs
+**What the claim now rests on:** nine city splits across three countries, four camera rigs
 (GSV, iSTAR Pulsar, GoPro Max/Fusion, Trimble MX7) and one 1,000-pano un-anchored gold set —
 RampNet wins on every one, by **0.12–0.34 F1**. It survives the hardest imagery (clovis),
 un-anchored ground truth (`manual_gold`), ground truth the reviewer distrusts (budapest),
-and the split engineered to remove its in-domain GSV advantage (paterson). The low end of
+the split engineered to remove its in-domain GSV advantage (paterson), and a second non-US
+design vocabulary at high-confidence GT (sao_paulo, lead 0.323). The low end of
 the range is paterson, and its decomposition is in that split's section: RampNet's
 structural recall ceiling meeting precision-friendly imagery, not a challenger closing the
 gap. That is a wide claim, and the qualifiers above are what keep it honest.
@@ -524,6 +578,14 @@ a high `above chance` next to a high `null` is not the endorsement it looks like
 | gainesville | Qwen3-VL-8B | 2.6 | 0.331 | 0.052 | 0.085 | 0.294 |
 | gainesville | **owlv2-large** | **67.9** | 0.967 | **0.722** | 0.779 | 0.881 |
 | gainesville | **grounding-dino-base** | **68.8** | 0.893 | **0.655** | 0.724 | 0.691 |
+| sao_paulo | rampnet | 2.0 | 0.687 | 0.057 | 0.089 | 0.668 |
+| sao_paulo | gemini-3.1-pro-preview | 2.4 | 0.445 | 0.062 | 0.100 | 0.408 |
+| sao_paulo | gemini-3.6-flash | 2.6 | 0.359 | 0.060 | 0.085 | 0.318 |
+| sao_paulo | molmo2-8B | 2.4 | 0.335 | 0.058 | 0.093 | 0.293 |
+| sao_paulo | Qwen3-VL-32B | 0.6 | 0.139 | 0.013 | 0.036 | 0.128 |
+| sao_paulo | Qwen3-VL-8B | 2.1 | 0.210 | 0.038 | 0.068 | 0.179 |
+| sao_paulo | **owlv2-large** | **78.3** | 0.922 | **0.688** | 0.758 | 0.749 |
+| sao_paulo | **grounding-dino-base** | **71.7** | 0.797 | **0.639** | 0.701 | 0.438 |
 | budapest | rampnet | 1.5 | 0.510 | 0.029 | 0.057 | 0.496 |
 | budapest | gemini-3.1-pro-preview | 2.0 | 0.340 | 0.036 | 0.060 | 0.315 |
 | budapest | gemini-3.6-flash | 2.2 | 0.320 | 0.030 | 0.057 | 0.299 |
@@ -556,7 +618,7 @@ What this changes:
    before leaning on the number — the misses skew far-field, and box density is not uniform
    in a reprojected view.)
 3. **Every model with a normal detection budget is unaffected.** RampNet, both Geminis, Molmo
-   and both Qwens sit on nulls of 0.01–0.08 across all eight city splits, so their recall is
+   and both Qwens sit on nulls of 0.01–0.08 across all nine city splits, so their recall is
    essentially all signal, and the F1 ranking — which the FP flood already penalizes — does
    not move.
 4. **It does not say the open detectors are noise.** Their above-chance figures are clearly
@@ -709,12 +771,13 @@ two columns coincide exactly). The `compare.py` CLI prints both side by side.
 - **RampNet-anchored GT.** The GT was assembled during a RampNet review. A reviewer scanning
   fresh for another model might catch a few more ramps; the complete-scan attestation
   (`no_missed`) mitigates this, but it is a known asymmetry. **It has now been measured on
-  all eight city splits, and it is not small.** Re-reviewing the detections RampNet only
+  all nine city splits, and it is not small.** Re-reviewing the detections RampNet only
   surfaces below its deployed 0.55 threshold — a confidence band the GT never fully audited —
   found real, unlabelled curb ramps at **17% (richmond)**, **29% (bend)**, **30% (clovis)**,
   **13% (morgantown)**, **22% (annapolis)**, **20% (paterson, on just 10 items)**,
-  **35% (gainesville, the highest measured, on the largest US queue: 34 items)** and
-  **26% (budapest)** of those detections
+  **35% (gainesville, the highest measured, on the largest US queue: 34 items)**,
+  **26% (budapest, on the largest queue: 89 items)** and **12.5% (sao_paulo, the lowest
+  measured, on 48 items)** of those detections
   (issue #55; tags in `benchmark/<city>/incremental_fp_tags.json`, reproduce with
   `operating_point_curve.py gallery --tags` or `low_floor_sweep.py corrected`). Two
   consequences worth carrying:
@@ -724,11 +787,12 @@ two columns coincide exactly). The `compare.py` CLI prints both side by side.
     GT is incomplete; it does **not** say by how much a challenger is penalised, since a
     challenger's misses are a different population. Do not subtract it from anyone's score.
 
-  All eight city splits are now corrected, and the spread — **13%–35%** — still does **not**
+  All nine city splits are now corrected, and the spread — **12.5%–35%** — still does **not**
   support a single cross-city GT-completeness constant. It does not order by imagery quality
-  either: morgantown, the cleanest split in the benchmark, has the *lowest* A-rate while
-  gainesville, the freshest GSV imagery, has the *highest* (35%), with clovis, the softest,
-  close behind (30%). Apply the per-split correction; do not subtract an average.
+  either: morgantown, the cleanest split in the benchmark, has the lowest *US* A-rate (13%)
+  while gainesville, the freshest GSV imagery, has the *highest* (35%), with clovis, the
+  softest, close behind (30%); sao_paulo, on GSV as fresh as gainesville's, sets the overall
+  low (12.5%). Apply the per-split correction; do not subtract an average.
 
   `manual_gold` is the control rather than a gap: its GT was labelled independently of
   RampNet, so it has no anchoring to correct. Comparing the two regimes shows the mechanism
