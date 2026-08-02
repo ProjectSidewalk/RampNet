@@ -1167,6 +1167,35 @@ measurable chips on an inadequate basemap do not anchor the bottom of a scale. *
 only remaining route to placing our threshold on the paper's**, and it still needs the `/export`
 fetcher.
 
+### ⚠️ Charlotte passed the probe and still built a 1-chip sheet (2026-08-02)
+
+Charlotte's basemap is the best in the queue on every measured axis — `charlotte-2021`, leaf-off,
+0.061 m/px, vegetation 16.2% against Denver's 7.2% and King County's 27–41%. It passed
+`probe_basemap.py` cleanly. **The sheet it produced had 1 chip of 60**, with a manifest reporting
+`"no_imagery_dropped": 59` — i.e. claiming 59 records sit outside the municipal footprint, which is
+false and would have been believed.
+
+**The server 404s tiles that exist**, at ~20–35% of requests and varying run to run for the same
+tile. A 40 m chip needs ~16 tiles and is all-or-nothing, so `0.79^16 ≈ 2%` of chips survive — which
+is 1 of 60. Measured independently before rebuilding: **19 of 24 uniformly-sampled Charlotte ramp
+locations return real imagery at z21**, so the city is covered and the mosaic rule was the problem.
+
+`_fetch_tile` now retries a 404 four times before believing it. **That fix alone is not sufficient,
+and the reason generalises:** the failed run had cached each absence as a *zero-byte file*, and the
+cache is consulted before the retry path (`if os.path.getsize(path) == 0: raise TileMissing`). So on
+an existing cache the fix is **inert** — rebuilding reproduces 1 of 60 exactly, and now looks like a
+*confirmed* coverage hole rather than a stale artefact. Clearing the zero-byte markers and rebuilding
+at the same seed gives **60 chips, 0 blank, 0 no-imagery** (sheet build `5fec5d19`).
+
+**The generalisable lesson, and this is the fourth instance on this issue.** Esri's grey tiles
+(§5e), King County's leaf-on canopy (§5h), the missing null (§5i), and now this: each time the
+instrument rather than the city was the problem. The specific trap here is that
+**`probe_basemap.py` checks a single dense point by design** (`--at`, "probe where imagery should
+exist"), while the sheet samples uniformly across the city — the same mistake as measuring
+orthorectification at an arbitrary neighbourhood instead of `--sites-from-verdicts`. **Passing the
+probe does not mean the sheet will build**, and a drop count should be read as a claim about the
+*fetcher* until it has been checked against the sample.
+
 ## 5i. Seattle's offset is not a registration error — attributing it (2026-07-31)
 
 Nineteen of Seattle's 60 chips were attempted and eleven produced a measurable offset before the
