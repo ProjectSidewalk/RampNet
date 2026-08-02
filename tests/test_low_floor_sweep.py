@@ -275,6 +275,27 @@ def test_every_held_out_split_carries_a_stated_reason():
 
 
 # --------------------------------------------------------------------------- #
+# parity exceptions
+# --------------------------------------------------------------------------- #
+def test_every_parity_exception_is_a_real_split_with_a_stated_reason():
+    """Same contract as HELD_OUT: a waived gate must say what was waived and why.
+
+    The reason string is what a reproducer reads when the gate prints MISMATCH on
+    a clean clone; without it they cannot tell a ratified finding from their own
+    broken checkout.
+    """
+    for split, why in lfs.PARITY_EXCEPTIONS.items():
+        assert split in lfs.ALL_SPLITS, f"{split} is not a registered split"
+        assert why and "docs/" in why, f"{split} exception cites no document"
+
+
+def test_a_ratified_exception_does_not_waive_the_other_splits():
+    """The waiver is per-split — it must not become a blanket pass."""
+    assert set(lfs.PARITY_EXCEPTIONS) < set(lfs.ALL_SPLITS)
+    assert not set(lfs.PARITY_EXCEPTIONS) & set(lfs.US_SPLITS)
+
+
+# --------------------------------------------------------------------------- #
 # GT-anchoring bias
 # --------------------------------------------------------------------------- #
 def test_tp_origin_attributes_to_the_right_gt_point():

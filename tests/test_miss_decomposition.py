@@ -122,3 +122,18 @@ def test_every_pooled_split_has_a_declared_imagery_tier():
 def test_held_out_splits_are_not_in_the_pooled_basis():
     assert set(md.HELD_OUT) & set(md.US_SPLITS) == set()
     assert set(md.ALL_SPLITS) == set(md.US_SPLITS) | set(md.HELD_OUT)
+
+
+def test_registries_agree_with_low_floor_sweep():
+    """The two split registries must cover the same splits.
+
+    They are separate modules by history, not by design, and this family's CLI
+    defaults come off *this* one (export_model_cache, imagery_manifest, the
+    galleries, the taxonomies). A split registered in only one of them is not an
+    error anywhere — it is silently skipped, which reads as a result nobody ran.
+    sao_paulo was added to low_floor_sweep and missed here (PR #100 review).
+    """
+    import low_floor_sweep as lfs
+    assert set(md.US_SPLITS) == set(lfs.US_SPLITS)
+    assert set(md.ALL_SPLITS) == set(lfs.ALL_SPLITS)
+    assert set(md.HELD_OUT) == set(lfs.ALL_SPLITS) - set(lfs.US_SPLITS)

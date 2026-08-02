@@ -776,8 +776,8 @@ two columns coincide exactly). The `compare.py` CLI prints both side by side.
   found real, unlabelled curb ramps at **17% (richmond)**, **29% (bend)**, **30% (clovis)**,
   **13% (morgantown)**, **22% (annapolis)**, **20% (paterson, on just 10 items)**,
   **35% (gainesville, the highest measured, on the largest US queue: 34 items)**,
-  **26% (budapest)** and **12.5% (sao_paulo, the lowest, on the largest US-protocol queue:
-  48 items)** of those detections
+  **26% (budapest, on the largest queue: 89 items)** and **12.5% (sao_paulo, the lowest
+  measured, on 48 items)** of those detections
   (issue #55; tags in `benchmark/<city>/incremental_fp_tags.json`, reproduce with
   `operating_point_curve.py gallery --tags` or `low_floor_sweep.py corrected`). Two
   consequences worth carrying:

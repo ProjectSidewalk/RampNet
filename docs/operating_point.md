@@ -305,9 +305,10 @@ confidence, unlike budapest's. It shows the **largest threshold response of any 
 trusted GT**: +13.2 recall points at 0.32 (+14.6 at 0.30), with its F1 optimum (0.31)
 sitting on the recommendation. Its mid-block sampling geometry concentrates the gain in the
 mid and far distance bands (+0.194 / +0.217, vs +0.101 near). The #55 pass (48 items, the
-largest US-protocol queue, tagged 2026-08-01) barely moves its precision — A-rate 12.5%, the
-lowest of any split, so the 0.30 precision cost here is real, not GT incompleteness (see the
-corrected table). Note its parity caveat above: the ≥ 0.55 rows understate the production run.
+second-largest queue in the benchmark after budapest's 89, tagged 2026-08-01) barely moves its
+precision — A-rate 12.5%, the lowest of any split, so the 0.30 precision cost here is real,
+not GT incompleteness (see the corrected table). Note its parity caveat above: the ≥ 0.55 rows
+understate the production run.
 ‡ `manual_gold` is likewise held out: in-distribution GSV from the training cities with
 independently-labelled GT. It is the control, not a deployment city.
 
@@ -380,7 +381,8 @@ multi-view lever are largely independent and **stack**. (paterson tilts the far 
 slightly — its largest per-band gain is far, +0.091; gainesville gains +0.122 mid and
 +0.120 far. Held-out sao_paulo is the extreme case: +0.101 near / +0.194 mid / +0.217 far,
 0.55 → 0.30 — its reviewer-documented mid-block sampling geometry puts 47% of its GT beyond
-12.5 m, and that is exactly where its outsized threshold response lands.) Far-field recall stays poor even after the drop (bend 0.214, clovis 0.389,
+12.5 m, and that is exactly where its outsized threshold response lands.) Far-field recall
+stays poor even after the drop (bend 0.214, clovis 0.389,
 annapolis 0.490 at 0.32; paterson 0.523 and gainesville 0.420 at 0.30 — gainesville's
 far band is the worst in the benchmark at the deployed threshold, 0.300), so multi-view
 remains necessary — lowering the threshold does not substitute for it.

@@ -47,8 +47,12 @@ CACHE_DIR = os.path.join(OUT, "op_cache")
 
 # The seven US city splits carry verdict-grade GT and are the pooled basis, matching
 # low_floor_sweep.US_SPLITS. budapest is swept but not pooled (single-rater, low
-# reviewer confidence); manual_gold is in-distribution GSV, an in-domain reference
-# rather than a deployment city.
+# reviewer confidence); sao_paulo is high-confidence GT held out for geography;
+# manual_gold is in-distribution GSV, an in-domain reference rather than a deployment
+# city. This registry must stay in step with low_floor_sweep's — a split missing here
+# is silently skipped by every default in this family (export_model_cache,
+# imagery_manifest, miss_taxonomy, fp_taxonomy, the galleries), which looks exactly
+# like a result nobody ran. test_registries_agree_with_low_floor_sweep enforces it.
 US_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson",
              "gainesville")
 
@@ -57,10 +61,15 @@ US_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson"
 # agrees with DA3 depth at Spearman 0.95 on GSV and 0.81 on Mapillary, since
 # consumer rigs are not level and the terrain is not flat. Four of the seven
 # pooled splits are Mapillary, so the pooled far-field share carries that bias.
+# Held-out splits are deliberately absent and print "-": tiers exist to group the
+# POOLED rows, and a split that never pools has no business appearing in one.
 TIER = {"bend": "gsv", "paterson": "gsv", "gainesville": "gsv",
         "richmond": "mapillary", "clovis": "mapillary", "morgantown": "mapillary",
         "annapolis": "mapillary"}
 HELD_OUT = {"budapest_district5": "single-rater GT at low reviewer confidence",
+            "sao_paulo": "non-US city, and the pooled basis is US deployment "
+                         "(GT is high confidence; held out for geography, "
+                         "not GT quality)",
             "manual_gold": "in-distribution reference, not a deployment city"}
 ALL_SPLITS = US_SPLITS + tuple(HELD_OUT)
 
