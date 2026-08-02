@@ -41,6 +41,11 @@ analysis_out/op/*
 # benchmark bundles plus any verdicts file.
 !analysis_out/stage1_offset_tolerance.json
 
+# Stage 1's realised bearing residual (#96): a few KB, and it is the null that makes
+# any future city's registration number interpretable. Regenerating it needs a Hub
+# fetch, so committing it keeps the 5j table checkable from a clean checkout.
+!analysis_out/stage1_bearing_residual.json
+
 # E1's result (#59): a few KB, and committing it makes the label-ceiling numbers
 # checkable without re-running the Hub fetch the script needs to regenerate them.
 !analysis_out/e1_stage1_label_recall.json
@@ -106,3 +111,7 @@ benchmark/*/index.csv
 # scripts/model_comparison/yolo_baseline/README.md, "Where the weights live").
 *.pt
 *.pth
+
+# Cached parquet columns for scripts/analysis/stage1_bearing_residual.py.
+# Derived from the published HF dataset on demand; regenerable with --refresh.
+analysis_out/stage1_bearing_cache/

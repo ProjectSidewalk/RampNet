@@ -1079,7 +1079,12 @@ through its median — but it does mean a mid-range median is not disqualifying.
 **What this is not.** It is the *geometric* tolerance — whether the ramp is inside the strip at
 all. It does not model whether the crop model still localises a ramp sitting near the strip edge,
 which needs the round-2 checkpoint (not in the repo) and a GPU. **Read it as an upper bound: real
-degradation begins earlier than this says, never later.** Two further assumptions travel with it:
+degradation begins earlier than this says, never later.**
+
+> **Both halves of that caveat have since moved — see §5j.** The *realised* residual, with the crop
+> model in the loop, is measurable from the published dataset with no checkpoint at all; and the
+> round-2 checkpoint itself is not lost, only outside the repo (klone,
+> `/gscratch/makelab/jsomeara/RampNet/stage_one/crop_model/ps_and_manual_model/best_model.pth`). Two further assumptions travel with it:
 error direction is taken as uniformly random (defensible for Denver, whose registration check found
 no systematic shift, but *not* for a city with a datum error), and ranges come from the benchmark
 bundles rather than from Denver panoramas.
@@ -1288,6 +1293,103 @@ and `denver-co-centerlines-2026-07-31` (7,866 of 7,866). `fetch_inventory.py --g
 writes them with the same digest and truncation discipline as the ramp inventories, because an
 analysis that exonerates a city's coordinates must not depend on a live endpoint for the reference
 it exonerated them against.
+
+## 5j. The pipeline already measures its own registration error (2026-08-02)
+
+§5f–§5i assess a city's coordinates against *aerial imagery* — a basemap, a reviewer, a rubric, and
+three separate occasions on which the instrument turned out to be the problem. §5g converts an
+offset into a tolerance but explicitly cannot say whether the crop model still localises near the
+strip edge, "which needs the round-2 checkpoint and a GPU."
+
+**Both limits turn out to be softer than they look, because Stage 1 records its own answer.** Script:
+`scripts/analysis/stage1_bearing_residual.py` (19 tests), result in
+`analysis_out/stage1_bearing_residual.json`. CPU, four columns over HTTP range requests, then
+offline. **No government files, no imagery, no reviewer, no checkpoint.**
+
+Two facts make it work, both read out of `stage_one/dataset_generation/`:
+
+1. **The government coordinates survive into the published dataset verbatim.**
+   `generate_dataset_meta.py` builds `curb_ramps_coords` as a plain 35 m radius query against
+   `all_locations.csv`, and `download_dataset.py` copies it into each pano's JSON untouched. **No
+   model is in that loop**, so the denominator is not contaminated by the thing being measured. This
+   is what makes the analysis possible without the original portal files, which are in the paper's
+   supplemental and not in this repo (§9).
+2. **The output labels encode a bearing.** `perspective_to_equirectangular` maps equirectangular
+   column `u` to `lon = (u/(W-1))·2π − π`, and that `lon` *is* the azimuth relative to the pano
+   heading. So a published point at normalised `x` sits at azimuth `x·360 − 180`.
+
+Per record, then: `residual = wrap((x·360 − 180) − (bearing_gov − pano_azimuth))` — the registration
+error **in the angular units §5g proved Stage 1 actually cares about**. The mean catches a
+systematic *shift*, the spread catches *imprecision*, and the match rate is the label yield for free.
+
+### The three published cities, over the whole test split
+
+90,006 government records across 16,808 panoramas. The convention validates itself: median
+nearest-separation **3.45°** with **98.5% inside the ±18.37° strip**, where a wrong azimuth
+convention would give ~90° and ~10%.
+
+| City | panos | gov records | matched | mean | s.e. | \|median\| | p90 \|·\| | \|median\| at 11.1 m |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| **NYC** | 10,273 | 62,132 | 0.847 | **+0.055°** | 0.026 | 3.30° | 9.07° | 0.64 m |
+| **Portland** | 6,098 | 26,180 | 0.898 | **−0.250°** | 0.038 | 3.35° | 9.80° | 0.65 m |
+| **Bend** | 437 | 1,742 | 0.925 | **+0.036°** | 0.105 | 2.19° | 6.74° | 0.42 m |
+
+**This is the null §5i went looking for, and it is sharp.** All three Good-rated cities sit within
+|mean| ≤ 0.25°, and at n = 26k–62k the standard error is 0.03–0.04°, so a shift of ~0.1° (2 cm at
+the median range) is resolvable. Portland's −0.25° is statistically real at 6.5 s.e. and physically
+nil — **4.8 cm**. For scale, a genuine 2.06 m tangential shift at the 11.1 m median range would read
+as **≈10.5°, some 250 standard errors clear of this null.** An instrument that resolves 2 cm cannot
+miss 2 m, which is a much stronger form of the §5i conclusion than the centreline triangle gave.
+
+Robust to the matcher: sweeping the pairing cap over {18.37°, 40°, 90°} moves every city's |median|
+by ≤0.12° and every mean by ≤0.08°, and match rate for NYC only over 0.834–0.854.
+
+### What it does not measure — four limits, all structural
+
+- **Censored at the strip.** A ramp outside ±18.37° was never rendered into a crop, so it produces
+  no point and no residual. The distribution is truncated *by construction*; `matched_frac` must be
+  read beside it, because the unmatched 8–15% is exactly where a bad tail would hide.
+- **Greedy nearest-in-bearing matching biases the residual low.** Where adjacent corners sit a few
+  degrees apart (#46: 72% of near-field misses are adjacent-pair merges) assignments can swap.
+  **Read every number here as a lower bound.** `frac_cross_assigned` (1.6% / 0.9% / 0.4%) counts
+  pairs further apart than the crop half-angle, which cannot have come from that record's own strip
+  — a floor on matcher error, *not* §5g's "ramp outside its own crop".
+- **`peak_local_max(min_distance=40)` merges nearby peaks**, so match rate is partly ramp density.
+  NYC 0.847 vs Bend 0.925 is consistent with NYC simply being denser, and match rates should not be
+  compared across cities of different density without controlling for it.
+- **It cannot see records that never reached a panorama** — no pano within the 10 m
+  `DISCOVERY_DISTANCE_THRESHOLD`, or a pano dropped wholesale by the date filter, which `return`s if
+  *any* ramp within 35 m postdates the capture. **This is crop-model-stage yield, not end-to-end
+  pipeline yield**, and the original portal files would be needed for the latter.
+
+### What this changes
+
+**It is a null, not a threshold.** All three cities in the corpus are rated Good, so this calibrates
+the instrument and supplies the contrast case for nothing. Its value is that the null is now known
+to 0.03°, which makes a *candidate* city's number interpretable the moment it exists.
+
+Two consequences for the gate:
+
+- **It closes §5g's stated gap from the other side.** §5g bounds the geometry and says real
+  degradation "begins earlier than this says, never later." The residual is the realised error with
+  the crop model in the loop — NYC's |median| 3.30° ≈ **0.64 m** *includes* the model's own
+  localisation error, and Denver's aerial-measured 0.29 m coordinate offset (§5f) is comfortably
+  inside what the corpus already tolerates. Further evidence that §5f's "≥90% within 1 m" bar was
+  far too strict.
+- **The round-2 checkpoint is not missing.** §5g records it as "not in the repo", which is true but
+  was read as unavailable. It is on klone at
+  `/gscratch/makelab/jsomeara/RampNet/stage_one/crop_model/ps_and_manual_model/best_model.pth`
+  (360 MB, 2025-06-12, readable), alongside `ps_model.pth` and the Stage 2 checkpoint. **The
+  empirical arm §5g deferred is therefore runnable**, which matters for the one thing this analysis
+  structurally cannot do: measure a city that is not already in the corpus.
+
+**The honest limit on the whole idea.** Running Stage 1 on a candidate and judging the output cannot
+separate "the coordinates are wrong" from "there is no ramp there" — both yield an empty crop — and
+it cannot see a coordinate error large enough to land the strip on the *neighbouring* corner, where
+the crop model will happily label that ramp instead. That substitution is invisible here and is
+mostly benign for training (the label still lands on a real ramp; E1 in §0 found the
+implicit-hard-negative harm hypothesis unsupported), but it is an assumption being leaned on, not a
+result. **The visual gate remains the only instrument that catches phantoms.**
 
 ## 6. Routes to a 500,000-ramp corpus
 
