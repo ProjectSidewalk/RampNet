@@ -1,3 +1,4 @@
 # The rescued RampNet 1.0 training telemetry is binary: never let autocrlf touch it.
 docs/data/rampnet1_stage2_run/events.out.tfevents.* binary
 docs/data/rampnet1_stage2_run/SHA256SUMS text eol=lf
+docs/data/rampnet1_stage1_run/SHA256SUMS text eol=lf
