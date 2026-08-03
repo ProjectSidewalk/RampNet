@@ -1725,6 +1725,75 @@ struggled — if the unjudgeable rate collapses there, that is the proof it was 
 is the same discipline that caught every basemap problem in §5e–§5h, and the reason to spend the
 first sheet on a city whose answer we already know.
 
+## 5o. The street-level instrument is built — and its Denver criteria are pre-registered (2026-08-03)
+
+§5n's instrument exists: `scripts/analysis/street_review_sheet.py`, its dry-run probe
+`probe_panos_at_sites.py`, and the reduction `street_review_summary.py` (40 tests). The rendering
+path is the production path *by import*: `download_dataset.py`'s `fetch_panorama` and both
+projections were lifted verbatim into `rampnet/gsv.py` (they were unimportable in place —
+`inference_isolator` loads the round-2 checkpoint at module import) and Stage 1 now imports them
+from there, so the view a reviewer judges and the crop Stage 1 cuts cannot drift apart.
+
+Design facts a reader of the verdicts needs:
+
+- **The verdict is a signed angular offset** — a click at column *c* of the 90° render is
+  `atan((c−512)/512)` degrees from the projected government bearing, **positive = clockwise = right
+  of the crosshair**, §5j's convention exactly. The strip edges are drawn where the crop truly is:
+  **asymmetric**, −18.458°/+18.368° (`persp[:, 341:682]`), both derived from the one committed crop
+  definition. The gate rate is computed against those true edges; the symmetric ±18.368° rate is
+  reported alongside for §5g/§5j comparability.
+- **One panorama per record, by a recorded rule**: nearest within 4–30 m whose capture date is on
+  or after the record's date (per-record temporal matching — the §5i/§5l confound *eliminated*,
+  not mitigated), tie-break newest. **Every unjudgeable verdict carries a mandatory reason tag**
+  (van, pole, sun, quality, too-far, outside-view) because the street instrument's selection bias
+  replaces the aerial one's canopy and must be measured; the tags are also the target list for a
+  planned second-vantage pass.
+- **The pilot renders exactly the 59 records of the aerial Denver sheet** (`--sites-from-verdicts`),
+  so every verdict pairs with a trusted aerial one, including the 4 aerial unjudgeables (looking
+  under the canopy is the point). The aerial `click_px` recovers each offset *vector*, which the
+  summary projects through the chosen pano's geometry into a **predicted** residual — radial error
+  predicts ~0° (§5g: radial is free) — for per-record comparison.
+
+### Pre-registered Denver criteria — written before the review, on purpose
+
+Denver is the calibration city because its answer is known (§5f: median 0.29 m; §5g: 0.21% label
+loss; aerial phantom 5.5% [1.9–14.9], unjudgeable 6.8% [2.7–16.2] at n=59). The instrument passes
+if:
+
+1. **At most 1 of the measured records falls outside the strip.** §5g's Monte Carlo puts Denver's
+   loss at 0.21%, so the expectation over ~52 measured records is 0.1 — the predicted count is
+   **zero**, and one is allowed for the tail.
+2. **|median| lands at the instrument floor, ~1–3°.** Denver's true tangential median is ≈1° at the
+   11 m median range — *below* the click floor — so a floor-limited clean read **is** the pass;
+   a median of, say, 8° would be a fail. For scale, §5j's corpus null (crop model in the loop) has
+   |median| 2.2–3.4°.
+3. **No systematic shift**: the mean signed offset stays inside the sign-flip null (p ≥ 0.05).
+   The null is a distribution, not zero — §5i's twice-earned lesson travels here.
+4. **Phantom rate Wilson-compatible with the aerial 5.5%** — ideally the same three records
+   (75115, 132946, 138310) reproduce, which would be the sharpest possible per-record validation.
+5. **Unjudgeable rate reported with its reason breakdown** — a new number with no target, but the
+   reasons must be complete (the page refuses to count a reason-less unjudgeable as done).
+
+Per-record pairing is **diagnostic, not the gate**: most Denver predictions sit below the floor, so
+sign agreement is only scored above 2°, and any |predicted − observed| > 10° is investigated
+individually before the city-level read is believed.
+
+**If Denver fails any of these, the instrument is wrong, not Denver** — §5f's answer is trusted —
+and the failure gets attributed before the tool touches the queue, the same discipline that caught
+every basemap problem in §5e–§5h. If Denver passes, the second pilot is **Seattle**, where the
+roles reverse: Seattle's ~1.75 m at MEDIUM confidence should read as a visibly wide angular spread
+(tangential median ~5–9°, well above floor), and the question that decides whether the tool was
+worth building is whether the 41.7% unjudgeable rate collapses.
+
+### What this instrument still cannot do
+
+The §5e recall caveat applies unchanged (the sample is drawn from the record list); it yields **no
+metric number**, so the aerial sheet is not retired (§5n); the click floor (~1–2°) means left tails
+are floor-limited, never centimetre claims; and it inherits a dependency the aerial path never had
+— two undocumented Google endpoints that can break without notice, plus a per-sheet cost of roughly
+2,000 tile requests (mitigated by an on-disk pano/search cache whose absences are readable JSON
+markers with a `--refetch-absent` path, §5h's zero-byte lesson made structural).
+
 ## 6. Routes to a 500,000-ramp corpus
 
 **Be explicit about which 500k is meant:**
