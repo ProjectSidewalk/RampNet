@@ -181,16 +181,24 @@ train)
   # the twin was still at epoch 1. The one-epoch wall was the scheduling slice, not the
   # model. 14 days because the fork's 72 h limit truncated it mid-schedule at ep18.
   #
-  # WORKERS=28 (with 32 CPUs) is raised from the default 8 — possible ONLY because this
-  # is a fresh start; `resume=True` freezes workers into every other arm's checkpoint.
-  # See the 2026-08-02 I/O probe caveat in run_yolo_train.slurm before reusing it.
-  # --mem is raised from the script's 64G (sized for 8 workers) because 28 workers hold
-  # ~3.5x the prefetch and mosaic buffers. Both overrides stay under a 1-GPU fair share
-  # of an L40S node (128 CPU / 1.5 TB / 8 GPUs => 16 CPU + 193 GB per GPU).
-  WORKERS=28 YOLO_CKPT=yolo11x.pt YOLO_DATA="$YOLODATA/tiles/data.yaml" \
+  # Resources are the script's own #SBATCH defaults (12 CPU / 64G, workers 8) — the SAME
+  # footprint as the fork, and identical dataloader width to all five ckpt arms, so
+  # partition and wall limit are the only intentional differences in this arm.
+  #
+  # A 32-CPU / 28-worker version was submitted first (job 38063462) and cancelled before
+  # it started. gpu-l40s-makelab is capped at cpu=32, gres/gpu=2, mem=386952M for the
+  # WHOLE ACCOUNT — all 11 lab members, not per user — so 32 CPUs would have consumed
+  # the lab's entire CPU budget, and could not start at all while another student held
+  # 16. That cap, not grid parity, is why the 2026-08-02 I/O probe's "more workers are
+  # free on klone" conclusion does NOT hold on this partition. Verify before assuming:
+  #   sacctmgr -nP show assoc account=gpu-l40s-makelab format=Account,GrpTRES
+  #
+  # The 14-day limit is what actually rescues this arm; the worker count was never the
+  # binding constraint. At the fork's ~4.5 h/epoch it buys tens of epochs against the
+  # 18 the fork managed inside 72 h.
+  YOLO_CKPT=yolo11x.pt YOLO_DATA="$YOLODATA/tiles/data.yaml" \
     YOLO_IMGSZ=1024 BATCH=12 NAME=y11x_tiles \
-    sbatch -A gpu-l40s-makelab -p gpu-l40s -q normal \
-           --time=14-00:00:00 --cpus-per-task=32 --mem=128G "$SLURM"
+    sbatch -A gpu-l40s-makelab -p gpu-l40s -q normal --time=14-00:00:00 "$SLURM"
   squeue -u "$USER"
   echo "OK. Watch: bash hyak_yolo_runbook.sh status"
   ;;

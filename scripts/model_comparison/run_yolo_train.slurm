@@ -26,13 +26,14 @@
 # y26_tiles_l40s fork released its node on 2026-08-01. It is a FRESH start (no last.pt,
 # so no inherited args), which is also the only reason WORKERS can be raised here.
 #
-#   WORKERS=28 YOLO_CKPT=yolo11x.pt YOLO_DATA=$DATA/tiles/data.yaml BATCH=12 NAME=y11x_tiles \
-#       sbatch -A gpu-l40s-makelab -p gpu-l40s -q normal \
-#              --time=14-00:00:00 --cpus-per-task=32 --mem=128G \
+#   YOLO_CKPT=yolo11x.pt YOLO_DATA=$DATA/tiles/data.yaml BATCH=12 NAME=y11x_tiles \
+#       sbatch -A gpu-l40s-makelab -p gpu-l40s -q normal --time=14-00:00:00 \
 #              scripts/model_comparison/run_yolo_train.slurm
 #
-# The --cpus-per-task/--mem overrides above beat the #SBATCH defaults below, which are
-# sized for the 8-worker ckpt arms. Both stay under a 1-GPU fair share of an L40S node.
+# Note it overrides only partition/account/time — CPUs, memory and WORKERS stay at the
+# defaults below. gpu-l40s-makelab is capped at cpu=32/gpu=2/mem=386952M for the WHOLE
+# ACCOUNT (11 lab members, not per user), so asking for more CPUs here starves the lab
+# rather than costing nothing. See the runbook's y11x_tiles block for the full reason.
 #
 # BATCH is pinned per config (not auto -1) so the LR schedule is identical no matter
 # which ckpt GPU (l40/l40s/h200) the job lands or resumes on. Sizes are tuned for >=48G.
@@ -82,6 +83,11 @@ NAME="${NAME:-yolo_run}"
 # companion end-to-end CPU probe (38016766) produced no usable samples, so "the
 # dataloader is the wall" remains plausible-but-unproven. Requesting more workers than
 # --cpus-per-task oversubscribes the allocation, so raise both together.
+#
+# As of 2026-08-03 NO run sets this: every arm uses 8. On ckpt the in-flight arms cannot
+# take it (resume=True), and on gpu-l40s the account-wide 32-CPU cap makes extra workers
+# come straight out of other lab members' budget. The knob exists so the probe's finding
+# is actionable if that cap is ever raised — not because it is currently in use.
 WORKERS="${WORKERS:-8}"
 
 # Keep everything on scratch (home quota is tiny; runs + base-weight downloads are
