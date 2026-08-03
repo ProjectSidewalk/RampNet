@@ -769,17 +769,24 @@ illustrative rather than recommended).
 | + four cities | ~422,000 | ~325,000 | ~227,500 | ~14,200 |
 | Growth | +52% | **1.52×** | | |
 
-- **Stage 2: ≳36 h on 16 L40s** for one epoch (≳580 GPU-h) — the paper trained 1 epoch on 16 L40s,
-  batch 1 per GPU (VRAM-bound), and the README says it *"will take a very long time (> 24 hours)"*.
-  **>24 h is a floor, not a measurement**; no exact wall-clock is recorded anywhere.
+- **Stage 2: 3.49 h on 16 GPUs for one epoch (~56 GPU-h)** — **measured** 2026-08-03 from the paper
+  run's own TensorBoard events at 1.341 s/step, 9,378 steps/epoch. Scaled to this scenario
+  (~14,200 steps): **~5.3 h/epoch**. Full method, the 500k projection, and the caveats are in
+  [`stage2_training_cost.md`](stage2_training_cost.md).
+  > **Correction.** This bullet previously read *"≳36 h on 16 L40s for one epoch (≳580 GPU-h)"*,
+  > extrapolated from the README's *"> 24 hours"*. That was **~10× too high**: the ">24 h" covers
+  > the paper's *whole ~12-epoch, preemption-riddled run* (44.7 h active / 74.6 h calendar), not one
+  > epoch. Stage 2 is an overnight job; **the epoch count matters ~12× more than the corpus size**.
 - **Stage 1 generation is the long pole and is entirely unmeasured** — ~111k new panoramas at 32
   tiles each ≈ **3.5M tile requests** against Google's undocumented endpoints, fetched 26 panoramas
   at a time. `run_download_dataset.slurm` allocates 100 h. Rate limiting is the dominant risk.
 - **The crop model needs no retrain** — reusing it is also the cleaner experiment, since only the
   data changes.
 
-Order of magnitude: **about a week of wall-clock**, wide error bars on the Stage 1 half. Add #84's
-epoch curve and multiply.
+Order of magnitude: **about a week of wall-clock**, wide error bars on the Stage 1 half — and now
+that Stage 2 is measured, that week is **essentially all Stage 1**. #84's epoch curve is the one
+multiplier that still moves the Stage 2 half (×5 at 1.0's auto-val optimum, ×12 at what the paper
+run actually did).
 
 ## 8. Selection rule
 
