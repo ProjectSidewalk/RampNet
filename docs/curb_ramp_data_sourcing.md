@@ -1605,6 +1605,13 @@ which ramp to associate"*. That is **Budapest's unresolved diagonal-apron rubric
 notes it was worth ~4 precision points there) surfacing in a second city, and it is a rubric gap
 rather than an imagery one.
 
+**Reviewer confidence: MEDIUM** (Jon, 2026-08-03), stamped into `verdicts.json`. Between Charlotte's
+HIGH and Budapest's LOW: the chips that *could* be read were readable, but canopy, shadow and
+0.10 m/px pixelation leave real uncertainty in individual offsets. **Quote the ~1.75 m median; do
+not quote per-chip values without the hedge.** The two conclusions above are robust to this — a
+MEDIUM-confidence 1.75 m still cannot be reconciled with Denver's 0.29 m, and a null result at
+p = 0.387 is not made significant by better imagery.
+
 ### Method note: a field that existed but did not survive export
 
 The strata came back `null` on every exported record. The in-page export rebuilds each record from

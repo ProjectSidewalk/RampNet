@@ -51,9 +51,9 @@
     "published_nearby": "The published records near each chip are HELD BACK until you have recorded BOTH of this chip's own numbers \u00e2\u20ac\u201d the offset (or a terminal state) and the count \u00e2\u20ac\u201d and this is deliberate. Both are meant to be independent evidence from the imagery, and the whole value of the comparison is that the two sources were arrived at separately. Gating on the count alone was not enough: with the markers already on screen, a click drifts toward one and offset_m silently becomes 'distance to the published record' rather than 'distance to the ramp' \u00e2\u20ac\u201d corrupting the headline number of the assessment. The published data is a cross-check, never an input. Once revealed, each nearby record is drawn on the image as a magenta diamond, and THE DIAMONDS ARE THE EVIDENCE \u00e2\u20ac\u201d the counts are only a summary. **A radius is not a corner**, and it fails in both directions on exactly the complex geometry where the comparison would matter: 6 m misses the far ramp of a large corner (chip 66519's channelising island spans 7.0 m) and reaches straight across a 4-5 m slip lane (chip 67585, where the record 5.2 m ESE is on the far side of a crossing). Both produced confident false alarms before the panel stopped issuing verdicts. So: look at where the diamonds fall, decide which are on your corner, and note a genuine disagreement rather than trusting a number. A count above the published figure suggests the city under-records (the pair-merge failure mode); below it suggests phantoms or duplicates."
   },
   "sheet_build": "5fec5d19",
-  "reviewer": null,
-  "reviewed_on": null,
-  "confidence": null,
+  "reviewer": "Jon Froehlich",
+  "reviewed_on": "2026-08-03",
+  "confidence": "medium",
   "records": [
     {
       "id": "1948527",
