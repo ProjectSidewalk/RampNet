@@ -1692,6 +1692,39 @@ then discarded **41.7%** of its chips to tree canopy.
 **At that rate the queue above is decades of work.** So the next investment on this issue should be
 in the *instrument*, not in more cities — see §5n.
 
+## 5n. The instrument to build next: review against street-level imagery ([#103](https://github.com/ProjectSidewalk/RampNet/issues/103))
+
+§5m makes the throughput of §5's review the binding constraint on the whole 500k programme. The
+proposal on the table — Jon's — is to stop reviewing against an *aerial proxy* and review against
+**the street-level imagery Stage 1 actually consumes**: show the panorama, the crop Stage 1 would
+cut, and the government point's projected bearing, and ask the reviewer whether the ramp falls
+inside that crop.
+
+**Full design brief, risks and scope are in [#103](https://github.com/ProjectSidewalk/RampNet/issues/103).** The four
+arguments for it, in the order they matter here:
+
+1. **It measures the gate quantity directly.** §5g proved Stage 1 uses the coordinate *only* for its
+   bearing and cuts a ±18.37° strip. The aerial sheet measures a metric offset — a proxy that must
+   then be pushed through a Monte Carlo to become a decision. This asks the real question.
+2. **It removes the basemap entirely**, and with it all four failure modes §5e/§5h documented.
+3. **It looks under the canopy** — the mechanism behind Seattle's 41.7% unjudgeable (§5l).
+4. **Temporal matching becomes per-record**: GSV publishes many panos per location with capture
+   dates, so a pano captured after the ramp's install date can be *chosen*. The confound that
+   dominated §5i and §5l is eliminated rather than mitigated.
+
+**The measurement is angular**, which is deliberate: it lands in the same units as §5j's automatic
+bearing residual, whose null over 90,006 published records is |mean| ≤ 0.25°. §5j measures cities
+already in the corpus and this measures candidates, so the two cross-validate. The cost is that it
+produces **no metric number** — nothing comparable to Denver's 0.29 m or the paper's Table 1 — so
+the aerial sheet is not retired by it.
+
+**Calibrate before trusting it.** Pilot on **Denver**, the one city with a trusted aerial answer
+(§5f, §5g: 0.29 m median, 0.21% label loss). If the street-level tool independently returns "Denver
+is Good", the instrument is calibrated. Then **Seattle**, where the aerial instrument demonstrably
+struggled — if the unjudgeable rate collapses there, that is the proof it was worth building. This
+is the same discipline that caught every basemap problem in §5e–§5h, and the reason to spend the
+first sheet on a city whose answer we already know.
+
 ## 6. Routes to a 500,000-ramp corpus
 
 **Be explicit about which 500k is meant:**
