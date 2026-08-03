@@ -1506,9 +1506,15 @@ Charlotte adds **32,917** (dated) or 35,095 (all) to the usable pool, against De
 **276,615 → 349,385 → 382,302.** Still short of 500,000, and §6's conclusion is unchanged — every
 route still needs either the OK tier or the state-DOT tail.
 
-**Reviewer confidence is not yet recorded** for this sheet (Denver's and Seattle's manifests carry
-`confidence: null` too; the sheet does not collect it and the value has lived in prose). Charlotte's
-should be stated here before the number is cited.
+**Reviewer confidence: HIGH** (Jon, 2026-08-03) — the imagery was clear enough that the offsets are
+trustworthy and the unjudgeable/phantom calls are genuine rather than artefacts of what could be
+seen. That matters for how hard this result can be leaned on: it is the opposite end of the scale
+from **Budapest**, recorded LOW, where the diagonal-apron ambiguity was worth ~4 points of precision
+on its own. Charlotte's 2.45% label loss can be cited without the hedge Budapest's numbers need.
+
+Unlike prose, the value now travels with the data — `verdicts.json` carries `reviewer`,
+`reviewed_on` and `confidence`. **Denver's and Seattle's manifests are still `null`** and should be
+backfilled; the sheet does not collect the field, so it has to be set when the verdicts land.
 
 ## 6. Routes to a 500,000-ramp corpus
 
