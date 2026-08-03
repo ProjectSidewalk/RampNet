@@ -1,0 +1,225 @@
+{
+ "city": "charlotte-nc",
+ "seed": 20260731,
+ "sheet_build": "5fec5d19",
+ "imagery": "City of Charlotte GIS, Aerial Imagery (2021)",
+ "metres_per_pixel": 0.06097264392258655,
+ "chips": 60,
+ "reviewed": 60,
+ "todo": [],
+ "uncounted": [
+  "1711093",
+  "1728784",
+  "1730330",
+  "1739628",
+  "1739933"
+ ],
+ "offset": {
+  "n": 51,
+  "min": 0.05,
+  "p25": 0.3,
+  "median": 0.52,
+  "p75": 0.8300000000000001,
+  "p90": 1.58,
+  "max": 6.51,
+  "mean": 0.805686274509804,
+  "within_m": {
+   "0.5": {
+    "n": 24,
+    "of": 51,
+    "rate": 0.47058823529411764,
+    "ci": [
+     0.34052771426416406,
+     0.6047692865527341
+    ]
+   },
+   "1.0": {
+    "n": 41,
+    "of": 51,
+    "rate": 0.803921568627451,
+    "ci": [
+     0.6754165732550456,
+     0.8898477516370072
+    ]
+   },
+   "2.0": {
+    "n": 48,
+    "of": 51,
+    "rate": 0.9411764705882353,
+    "ci": [
+     0.8407512606105803,
+     0.9797937271359478
+    ]
+   },
+   "3.0": {
+    "n": 48,
+    "of": 51,
+    "rate": 0.9411764705882353,
+    "ci": [
+     0.8407512606105803,
+     0.9797937271359478
+    ]
+   },
+   "5.0": {
+    "n": 50,
+    "of": 51,
+    "rate": 0.9803921568627451,
+    "ci": [
+     0.8969519232441061,
+     0.9965303967465577
+    ]
+   }
+  }
+ },
+ "phantom": {
+  "n": 4,
+  "of_judgeable": 55,
+  "rate": 0.07272727272727272,
+  "ci": [
+   0.028643596503688543,
+   0.17260178091636796
+  ],
+  "ids": [
+   "1732949",
+   "1743646",
+   "1743689",
+   "1743940"
+  ]
+ },
+ "unjudgeable": {
+  "n": 5,
+  "of": 60,
+  "rate": 0.08333333333333333,
+  "ci": [
+   0.03611992405048589,
+   0.18069168468112481
+  ],
+  "of_attempted": 60,
+  "rate_of_attempted": 0.08333333333333333,
+  "ids": [
+   "1711093",
+   "1728784",
+   "1730330",
+   "1739628",
+   "1739933"
+  ]
+ },
+ "per_corner": {
+  "consistent": 44,
+  "more_than_published": 2,
+  "fewer_than_published": 9,
+  "disagreements": [
+   {
+    "id": "1712130",
+    "seen": 1,
+    "p6": 2,
+    "p10": 2,
+    "kind": "fewer_than_published",
+    "phantom": false
+   },
+   {
+    "id": "1718545",
+    "seen": 1,
+    "p6": 2,
+    "p10": 2,
+    "kind": "fewer_than_published",
+    "phantom": false
+   },
+   {
+    "id": "1719057",
+    "seen": 2,
+    "p6": 1,
+    "p10": 1,
+    "kind": "more_than_published"
+   },
+   {
+    "id": "1721684",
+    "seen": 1,
+    "p6": 2,
+    "p10": 2,
+    "kind": "fewer_than_published",
+    "phantom": false
+   },
+   {
+    "id": "1732949",
+    "seen": 0,
+    "p6": 1,
+    "p10": 1,
+    "kind": "fewer_than_published",
+    "phantom": true
+   },
+   {
+    "id": "1742534",
+    "seen": 1,
+    "p6": 2,
+    "p10": 2,
+    "kind": "fewer_than_published",
+    "phantom": false
+   },
+   {
+    "id": "1742960",
+    "seen": 2,
+    "p6": 1,
+    "p10": 1,
+    "kind": "more_than_published"
+   },
+   {
+    "id": "1743646",
+    "seen": 0,
+    "p6": 1,
+    "p10": 1,
+    "kind": "fewer_than_published",
+    "phantom": true
+   },
+   {
+    "id": "1743689",
+    "seen": 0,
+    "p6": 2,
+    "p10": 2,
+    "kind": "fewer_than_published",
+    "phantom": true
+   },
+   {
+    "id": "1743940",
+    "seen": 0,
+    "p6": 1,
+    "p10": 1,
+    "kind": "fewer_than_published",
+    "phantom": true
+   },
+   {
+    "id": "1744469",
+    "seen": 1,
+    "p6": 2,
+    "p10": 2,
+    "kind": "fewer_than_published",
+    "phantom": false
+   }
+  ],
+  "mean_ramps_seen": 1.0727272727272728,
+  "counted": 55,
+  "histogram": {
+   "0": 4,
+   "1": 43,
+   "2": 8
+  }
+ },
+ "systematic_shift": {
+  "n": 51,
+  "mean_east_m": 0.006336372799798393,
+  "mean_north_m": -0.05654913838310479,
+  "resultant_m": 0.05690302867273025,
+  "mean_magnitude_m": 0.8063672514908387,
+  "systematic_share": 0.07056713745198114,
+  "east_positive": 32,
+  "north_positive": 24,
+  "null": {
+   "draws": 20000,
+   "median_share": 0.20624744992659338,
+   "p95_share": 0.38798739642843,
+   "p_value": 0.92985,
+   "note": "Expected share under random directions is ~0.9/sqrt(n), NOT 0. A share below the null median is evidence of nothing; a share above it says the direction is real in this sample, which is still not the same as a city-wide registration error."
+  }
+ },
+ "excluded_clicks": []
+}

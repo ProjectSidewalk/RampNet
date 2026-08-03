@@ -1,0 +1,141 @@
+{
+  "bbox": {
+    "lat_max": 43.63845119138645,
+    "lat_min": 43.460763016040566,
+    "lon_max": -96.61176674920641,
+    "lon_min": -96.84865123057264
+  },
+  "city": "sioux-falls-sd",
+  "coincident": {
+    "records": 20,
+    "threshold_m": 0.5
+  },
+  "corner_clusters": {
+    "groups": 16409,
+    "link_m": 6.0,
+    "records_per_group": 1.2182948381985497,
+    "share_singleton": 0.7845694435980255,
+    "size_histogram": {
+      "1": 12874,
+      "2": 3501,
+      "3": 25,
+      "4": 6,
+      "5": 2,
+      "6": 1
+    }
+  },
+  "intersection_clusters": {
+    "groups": 5847,
+    "link_m": 30.0,
+    "records_per_group": 3.419018299982897
+  },
+  "inventory": "sioux-falls-sd-2026-07-31.jsonl.gz",
+  "link_sweep": [
+    {
+      "groups": 19531,
+      "groups_per_intersection": 3.340345476312639,
+      "link_m": 3.0,
+      "records_per_group": 1.0235523014694587,
+      "share_singleton": 0.9764988991859096
+    },
+    {
+      "groups": 18268,
+      "groups_per_intersection": 3.124337266974517,
+      "link_m": 4.0,
+      "records_per_group": 1.0943179329975914,
+      "share_singleton": 0.9064484344208452
+    },
+    {
+      "groups": 17111,
+      "groups_per_intersection": 2.926458012656063,
+      "link_m": 5.0,
+      "records_per_group": 1.1683127812518264,
+      "share_singleton": 0.833031383320671
+    },
+    {
+      "groups": 16409,
+      "groups_per_intersection": 2.806396442620147,
+      "link_m": 6.0,
+      "records_per_group": 1.2182948381985497,
+      "share_singleton": 0.7845694435980255
+    },
+    {
+      "groups": 15821,
+      "groups_per_intersection": 2.705832050624252,
+      "link_m": 8.0,
+      "records_per_group": 1.26357373111687,
+      "share_singleton": 0.7428733961190822
+    },
+    {
+      "groups": 14827,
+      "groups_per_intersection": 2.5358303403454765,
+      "link_m": 10.0,
+      "records_per_group": 1.3482835367909893,
+      "share_singleton": 0.7194982127200378
+    },
+    {
+      "groups": 12392,
+      "groups_per_intersection": 2.1193774585257397,
+      "link_m": 12.0,
+      "records_per_group": 1.6132182052937378,
+      "share_singleton": 0.677453195610071
+    },
+    {
+      "groups": 8978,
+      "groups_per_intersection": 1.5354882845903883,
+      "link_m": 14.0,
+      "records_per_group": 2.226665181554912,
+      "share_singleton": 0.4400757406994876
+    }
+  ],
+  "mean_latitude": 43.529500211209324,
+  "nearest_neighbour": {
+    "censored": 149,
+    "censored_note": "no neighbour within the 50 m grid block; counted in the denominator of every share below",
+    "histogram": [
+      20,
+      78,
+      821,
+      2513,
+      2305,
+      1380,
+      1121,
+      1085,
+      7841,
+      1857,
+      532,
+      195,
+      90,
+      4
+    ],
+    "histogram_edges_m": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      8,
+      10,
+      15,
+      20,
+      30,
+      50,
+      100,
+      "inf"
+    ],
+    "quantiles_m": {
+      "0.05": 3.0420974250504793,
+      "0.25": 4.654121529560493,
+      "0.5": 10.511409318905635,
+      "0.75": 13.273627229771941,
+      "0.95": 18.987611142133247
+    },
+    "share_within_0.5m": 0.001000450202591166,
+    "share_within_10m": 0.46635986193787204,
+    "share_within_2m": 0.004902205992696714,
+    "share_within_6m": 0.35601020459206645
+  },
+  "records": 19991
+}

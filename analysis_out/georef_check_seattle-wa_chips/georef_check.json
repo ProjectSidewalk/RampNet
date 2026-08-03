@@ -1,0 +1,297 @@
+{
+  "city": "seattle-wa",
+  "latitude": 47.69410201615011,
+  "registration_check": {
+    "how_to_read": "Cyan is the city's own street-centreline geometry, projected with the same code that places the crosshair. If it tracks the middle of the visible roadway, imagery and vector data agree in chip pixel space. Centrelines are ground-level, so no roof-lean parallax is involved.",
+    "layer": "https://services.arcgis.com/ZOyb2t4B0UYuYNYH/arcgis/rest/services/Street_Network_Database_SND/FeatureServer/0",
+    "sites": [
+      {
+        "lat": 47.66,
+        "lon": -122.334,
+        "paths": 4,
+        "png": "registration_residential.png",
+        "site": "residential"
+      },
+      {
+        "lat": 47.575,
+        "lon": -122.311,
+        "paths": 5,
+        "png": "registration_arterial.png",
+        "site": "arterial"
+      }
+    ],
+    "span_m": 60.0
+  },
+  "registration_measured": {
+    "box_m": 200.0,
+    "interpretation": "Median offset between the city's own street centrelines and the optical centre of the roadway in the imagery, resolved per axis. A NAD83/WGS84 datum mismatch applied on one side only would show as ~1 m, consistent in direction across sites.",
+    "limits": "A centreline is a cartographic construct, not a survey of the pavement midline: crowned roads, one-sided parking bays and kerb extensions move the optical centre without moving the true one. Read a small median as no gross error, not as a calibration certificate.",
+    "sites": [
+      {
+        "abs_median_m": 0.502430624507149,
+        "cross_sections_attempted": 379,
+        "east_m": {
+          "median": 0.05024306245071491,
+          "p25": -0.35170143715500435,
+          "p75": 0.4521875620564342
+        },
+        "east_n": 54,
+        "metres_per_pixel": 0.10048612490142982,
+        "north_m": {
+          "median": 0.05024306245071491,
+          "p25": -0.40194449960571926,
+          "p75": 0.552673686957864
+        },
+        "north_n": 118,
+        "resultant_shift_m": 0.07105442033295942,
+        "site": "1950817",
+        "usable": 172,
+        "usable_share": 0.45382585751978893
+      },
+      {
+        "abs_median_m": 0.6549193848790417,
+        "cross_sections_attempted": 498,
+        "east_m": {
+          "median": 0.05037841422146474,
+          "p25": -0.7556762133219711,
+          "p75": 0.8060546275434358
+        },
+        "east_n": 150,
+        "metres_per_pixel": 0.10075682844292948,
+        "north_m": {
+          "median": 0.10075682844292948,
+          "p25": -0.25189207110732365,
+          "p75": 0.9068114559863654
+        },
+        "north_n": 147,
+        "resultant_shift_m": 0.11264955879783731,
+        "site": "1951390",
+        "usable": 297,
+        "usable_share": 0.5963855421686747
+      },
+      {
+        "abs_median_m": 0.6533572195866999,
+        "cross_sections_attempted": 764,
+        "east_m": {
+          "median": 0.05025824766051538,
+          "p25": -0.5025824766051538,
+          "p75": 0.9046484578892768
+        },
+        "east_n": 187,
+        "metres_per_pixel": 0.10051649532103075,
+        "north_m": {
+          "median": -0.0,
+          "p25": -0.3518077336236076,
+          "p75": 0.7036154672472152
+        },
+        "north_n": 68,
+        "resultant_shift_m": 0.05025824766051538,
+        "site": "1955871",
+        "usable": 255,
+        "usable_share": 0.3337696335078534
+      },
+      {
+        "abs_median_m": 0.5527107028795731,
+        "cross_sections_attempted": 401,
+        "east_m": {
+          "median": 0.15073928260351996,
+          "p25": -0.30147856520703986,
+          "p75": 0.8039428405521064
+        },
+        "east_n": 122,
+        "metres_per_pixel": 0.1004928550690133,
+        "north_m": {
+          "median": -0.1004928550690133,
+          "p25": -0.9546821231556263,
+          "p75": 0.1004928550690133
+        },
+        "north_n": 43,
+        "resultant_shift_m": 0.18116607088454936,
+        "site": "1956676",
+        "usable": 165,
+        "usable_share": 0.4114713216957606
+      },
+      {
+        "abs_median_m": 0.5528734305007154,
+        "cross_sections_attempted": 514,
+        "east_m": {
+          "median": 0.1507836628638315,
+          "p25": -0.15078366286383146,
+          "p75": 0.4523509885914944
+        },
+        "east_n": 69,
+        "metres_per_pixel": 0.10052244190922098,
+        "north_m": {
+          "median": 0.10052244190922098,
+          "p25": -0.301567325727663,
+          "p75": 0.9047019771829888
+        },
+        "north_n": 158,
+        "resultant_shift_m": 0.18121940931927324,
+        "site": "1957754",
+        "usable": 227,
+        "usable_share": 0.44163424124513617
+      },
+      {
+        "abs_median_m": 0.4533239433593571,
+        "cross_sections_attempted": 539,
+        "east_m": {
+          "median": -0.2014773081597143,
+          "p25": -0.8059092326388572,
+          "p75": 0.10073865407985715
+        },
+        "east_n": 140,
+        "metres_per_pixel": 0.10073865407985715,
+        "north_m": {
+          "median": -0.25184663519964284,
+          "p25": -0.5540625974392143,
+          "p75": -0.05036932703992857
+        },
+        "north_n": 43,
+        "resultant_shift_m": 0.3225210587925484,
+        "site": "1958242",
+        "usable": 183,
+        "usable_share": 0.3395176252319109
+      },
+      {
+        "abs_median_m": 0.5032394594803187,
+        "cross_sections_attempted": 571,
+        "east_m": {
+          "median": -0.05032394594803187,
+          "p25": -0.5032394594803187,
+          "p75": 0.30194367568819125
+        },
+        "east_n": 115,
+        "metres_per_pixel": 0.10064789189606374,
+        "north_m": {
+          "median": 0.20129578379212748,
+          "p25": -0.25161972974015934,
+          "p75": 0.7045352432724463
+        },
+        "north_n": 75,
+        "resultant_shift_m": 0.20749094464160928,
+        "site": "1958495",
+        "usable": 190,
+        "usable_share": 0.3327495621716287
+      },
+      {
+        "abs_median_m": 0.6541329788692481,
+        "cross_sections_attempted": 762,
+        "east_m": {
+          "median": 0.050317921451480625,
+          "p25": -0.7044509003207289,
+          "p75": 0.6038150574177675
+        },
+        "east_n": 117,
+        "metres_per_pixel": 0.10063584290296125,
+        "north_m": {
+          "median": -0.050317921451480625,
+          "p25": -0.9057225861266512,
+          "p75": 0.402543371611845
+        },
+        "north_n": 107,
+        "resultant_shift_m": 0.07116028694710799,
+        "site": "1959786",
+        "usable": 224,
+        "usable_share": 0.29396325459317585
+      },
+      {
+        "abs_median_m": 0.2517871199562822,
+        "cross_sections_attempted": 598,
+        "east_m": {
+          "median": 0.05035742399125644,
+          "p25": -0.20142969596502577,
+          "p75": 0.15107227197376932
+        },
+        "east_n": 145,
+        "metres_per_pixel": 0.10071484798251289,
+        "north_m": {
+          "median": 0.10071484798251289,
+          "p25": -0.5035742399125644,
+          "p75": 0.6042890878950773
+        },
+        "north_n": 51,
+        "resultant_shift_m": 0.11260262321622819,
+        "site": "1959949",
+        "usable": 196,
+        "usable_share": 0.3277591973244147
+      },
+      {
+        "abs_median_m": 0.6041826782321357,
+        "cross_sections_attempted": 605,
+        "east_m": {
+          "median": -0.050348556519344646,
+          "p25": -0.6041826782321358,
+          "p75": 0.30209133911606784
+        },
+        "east_n": 165,
+        "metres_per_pixel": 0.10069711303868929,
+        "north_m": {
+          "median": -0.10069711303868929,
+          "p25": -1.158016799944927,
+          "p75": 0.6545312347514803
+        },
+        "north_n": 148,
+        "resultant_shift_m": 0.11258279494624483,
+        "site": "1962210",
+        "usable": 313,
+        "usable_share": 0.5173553719008265
+      },
+      {
+        "abs_median_m": 0.6038672329946383,
+        "cross_sections_attempted": 810,
+        "east_m": {
+          "median": -0.05032226941621985,
+          "p25": -0.5032226941621986,
+          "p75": 0.6038672329946383
+        },
+        "east_n": 137,
+        "metres_per_pixel": 0.1006445388324397,
+        "north_m": {
+          "median": -0.05032226941621985,
+          "p25": -0.9058008494919574,
+          "p75": 0.2012890776648794
+        },
+        "north_n": 112,
+        "resultant_shift_m": 0.07116643589781092,
+        "site": "1962952",
+        "usable": 249,
+        "usable_share": 0.3074074074074074
+      }
+    ],
+    "zoom": 20
+  },
+  "scale_check": [
+    {
+      "drawn_px": 9.95162268403656,
+      "max_abs_error_m": 0.0018324290945930146,
+      "max_rel_error": 0.0018324290945930146,
+      "radius_m": 1.0,
+      "worst_bearing_deg": 90
+    },
+    {
+      "drawn_px": 19.90324536807312,
+      "max_abs_error_m": 0.003664859686545974,
+      "max_rel_error": 0.001832429843272987,
+      "radius_m": 2.0,
+      "worst_bearing_deg": 270
+    },
+    {
+      "drawn_px": 49.7581134201828,
+      "max_abs_error_m": 0.009162151462405387,
+      "max_rel_error": 0.0018324302924810775,
+      "radius_m": 5.0,
+      "worst_bearing_deg": 90
+    },
+    {
+      "drawn_px": 99.5162268403656,
+      "max_abs_error_m": 0.018324299930090885,
+      "max_rel_error": 0.0018324299930090884,
+      "radius_m": 10.0,
+      "worst_bearing_deg": 90
+    }
+  ],
+  "tile_scheme": "verified standard Web Mercator: 256 px, EPSG:3857, origin -20037508.342787, LOD resolutions match 156543.03392800014 / 2^z to 3e-10",
+  "tile_source": "seattle-2019",
+  "zoom": 20
+}

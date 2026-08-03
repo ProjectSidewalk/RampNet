@@ -1,0 +1,16 @@
+{
+  "api": "arcgis",
+  "city": "portland-or",
+  "count_query": "https://www.portlandmaps.com/od/rest/services/COP_OpenData_Transportation/MapServer/61/query?f=json&where=1%3D1&returnCountOnly=true",
+  "declared_count": 46101,
+  "endpoint": "https://www.portlandmaps.com/od/rest/services/COP_OpenData_Transportation/MapServer/61",
+  "fetched": "2026-07-31",
+  "first_query": "https://www.portlandmaps.com/od/rest/services/COP_OpenData_Transportation/MapServer/61/query?f=json&where=1%3D1&outFields=%2A&returnGeometry=true&resultRecordCount=200&orderByFields=OBJECTID&outSR=4326",
+  "note": "PBOT Curb Ramps, the source used for the ICCV paper's Portland half. Paper Tab.1 count 45,324; this snapshot has DRIFTED +1.7% and is NOT the paper's data \u2014 the paper-exact file survives only in the supplemental material.",
+  "out_sr": 4326,
+  "pages": 232,
+  "payload": "portland-or-2026-07-31.jsonl.gz",
+  "records": 46101,
+  "sha256": "6f0f706c0df898432e5b61086f42f94d8aae76f4572f143147d9c95c83a71bef",
+  "where": "1=1"
+}

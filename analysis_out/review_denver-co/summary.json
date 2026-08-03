@@ -1,0 +1,175 @@
+{
+ "city": "denver-co",
+ "seed": 20260731,
+ "sheet_build": "989d90e8",
+ "imagery": "City and County of Denver (geospatialDENVER), Aerial 2016",
+ "metres_per_pixel": 0.05730905500909684,
+ "chips": 59,
+ "reviewed": 59,
+ "todo": [],
+ "uncounted": [
+  "83611",
+  "96782"
+ ],
+ "offset": {
+  "n": 52,
+  "min": 0.01,
+  "p25": 0.125,
+  "median": 0.29,
+  "p75": 0.635,
+  "p90": 0.949,
+  "max": 2.07,
+  "mean": 0.44096153846153846,
+  "within_m": {
+   "0.5": {
+    "n": 33,
+    "of": 52,
+    "rate": 0.6346153846153846,
+    "ci": [
+     0.4987142858480117,
+     0.7519948628869816
+    ]
+   },
+   "1.0": {
+    "n": 48,
+    "of": 52,
+    "rate": 0.9230769230769231,
+    "ci": [
+     0.8182618931787533,
+     0.9696811457026542
+    ]
+   },
+   "2.0": {
+    "n": 51,
+    "of": 52,
+    "rate": 0.9807692307692307,
+    "ci": [
+     0.8987925373197556,
+     0.9965972795909344
+    ]
+   },
+   "3.0": {
+    "n": 52,
+    "of": 52,
+    "rate": 1.0,
+    "ci": [
+     0.9312054095871178,
+     1.0
+    ]
+   },
+   "5.0": {
+    "n": 52,
+    "of": 52,
+    "rate": 1.0,
+    "ci": [
+     0.9312054095871178,
+     1.0
+    ]
+   }
+  }
+ },
+ "phantom": {
+  "n": 3,
+  "of_judgeable": 55,
+  "rate": 0.05454545454545454,
+  "ci": [
+   0.01872287596750008,
+   0.14853294304489928
+  ],
+  "ids": [
+   "75115",
+   "132946",
+   "138310"
+  ]
+ },
+ "unjudgeable": {
+  "n": 4,
+  "of": 59,
+  "rate": 0.06779661016949153,
+  "ci": [
+   0.026678187098391565,
+   0.16175749881667106
+  ],
+  "ids": [
+   "83611",
+   "96782",
+   "98816",
+   "133260"
+  ]
+ },
+ "per_corner": {
+  "consistent": 51,
+  "more_than_published": 0,
+  "fewer_than_published": 6,
+  "disagreements": [
+   {
+    "id": "67585",
+    "seen": 3,
+    "p6": 4,
+    "p10": 4,
+    "kind": "fewer_than_published",
+    "phantom": false
+   },
+   {
+    "id": "75115",
+    "seen": 0,
+    "p6": 1,
+    "p10": 1,
+    "kind": "fewer_than_published",
+    "phantom": true
+   },
+   {
+    "id": "92078",
+    "seen": 1,
+    "p6": 2,
+    "p10": 2,
+    "kind": "fewer_than_published",
+    "phantom": false
+   },
+   {
+    "id": "132946",
+    "seen": 0,
+    "p6": 2,
+    "p10": 3,
+    "kind": "fewer_than_published",
+    "phantom": true
+   },
+   {
+    "id": "135499",
+    "seen": 1,
+    "p6": 2,
+    "p10": 2,
+    "kind": "fewer_than_published",
+    "phantom": false
+   },
+   {
+    "id": "138310",
+    "seen": 0,
+    "p6": 1,
+    "p10": 2,
+    "kind": "fewer_than_published",
+    "phantom": true
+   }
+  ],
+  "mean_ramps_seen": 1.368421052631579,
+  "counted": 57,
+  "histogram": {
+   "0": 3,
+   "1": 32,
+   "2": 20,
+   "3": 2
+  }
+ },
+ "excluded_clicks": [
+  {
+   "id": "98816",
+   "offset_m": 4.54,
+   "note": "Very hard to tell where the curb ramp is. They look way off"
+  },
+  {
+   "id": "133260",
+   "offset_m": 0.24,
+   "note": "Hard to judge"
+  }
+ ]
+}
