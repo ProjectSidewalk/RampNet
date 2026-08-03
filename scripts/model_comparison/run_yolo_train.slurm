@@ -28,8 +28,11 @@
 #
 #   WORKERS=28 YOLO_CKPT=yolo11x.pt YOLO_DATA=$DATA/tiles/data.yaml BATCH=12 NAME=y11x_tiles \
 #       sbatch -A gpu-l40s-makelab -p gpu-l40s -q normal \
-#              --time=14-00:00:00 --cpus-per-task=32 \
+#              --time=14-00:00:00 --cpus-per-task=32 --mem=128G \
 #              scripts/model_comparison/run_yolo_train.slurm
+#
+# The --cpus-per-task/--mem overrides above beat the #SBATCH defaults below, which are
+# sized for the 8-worker ckpt arms. Both stay under a 1-GPU fair share of an L40S node.
 #
 # BATCH is pinned per config (not auto -1) so the LR schedule is identical no matter
 # which ckpt GPU (l40/l40s/h200) the job lands or resumes on. Sizes are tuned for >=48G.
