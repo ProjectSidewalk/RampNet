@@ -276,6 +276,39 @@ def test_search_cache_hit_miss_and_failure_semantics(tmp_path, monkeypatch):
     assert len(calls) == 4
 
 
+def test_search_retries_transient_http_but_not_schema_drift(tmp_path, monkeypatch):
+    """The first Denver probe failed 15/59 sites on GetMetadata HTTP 502 —
+    rate limiting mid-burst, all recoverable. A transient status is retried
+    with backoff before it is believed (§5h's rule); genuine schema drift
+    still raises immediately, because retrying THAT would hide a broken
+    parser behind four slow attempts."""
+    calls = {"n": 0}
+    fake = types.ModuleType("search_panos")
+
+    class _P:
+        pano_id, lat, lon, heading, date = "X", 1.0, 2.0, 90.0, "2020-1"
+
+    def search_panoramas(lat, lon):
+        calls["n"] += 1
+        if lat == 1.0 and calls["n"] < 3:
+            raise RuntimeError("GetMetadata returned HTTP 502 for pano X")
+        if lat == 2.0:
+            raise RuntimeError("date path [1][0][6][7] not found — schema drift?")
+        return [_P()]
+
+    fake.search_panoramas = search_panoramas
+    monkeypatch.setitem(sys.modules, "search_panos", fake)
+    monkeypatch.setattr(srs.time, "sleep", lambda s: None)
+
+    d = str(tmp_path)
+    assert srs.cached_search(1.0, -105.0, d)[0]["pano_id"] == "X"
+    assert calls["n"] == 3                       # two 502s, then success
+    calls["n"] = 0
+    with pytest.raises(RuntimeError, match="schema drift"):
+        srs.cached_search(2.0, -105.0, d)
+    assert calls["n"] == 1                       # drift is NOT retried
+
+
 def test_pano_cache_success_and_absence_marker(tmp_path, monkeypatch):
     np = pytest.importorskip("numpy")
     import rampnet.gsv as gsv

@@ -373,16 +373,27 @@ def _search_cache_path(cache_dir, lat, lon):
     return os.path.join(cache_dir, "search_{:.7f}_{:.7f}.json".format(lat, lon))
 
 
-def cached_search(lat, lon, cache_dir, sleep_s=0.0):
-    """``search_panoramas`` with an on-disk cache.
+#: Substrings of a search failure that mean "the endpoint said try later",
+#: not "the endpoint changed shape". Measured, not guessed: the first Denver
+#: probe run failed 15 of 59 sites, every one an HTTP 502 from GetMetadata
+#: mid-burst (a pano-dense corner fires one metadata POST per pano), and all
+#: recovered on retry.
+_TRANSIENT_MARKERS = ("HTTP 502", "HTTP 503", "HTTP 429", "HTTP 500")
+
+
+def cached_search(lat, lon, cache_dir, sleep_s=0.0, retries=4):
+    """``search_panoramas`` with an on-disk cache and §5h's retry discipline.
 
     A successful search — including one returning zero panoramas — is cached
     as its result; **a failed search is never cached**, so a transient cannot
     masquerade as "no coverage here" (the §5h zero-byte trap, avoided by
     construction: absence-of-panos and failure-to-ask are different records).
-    The probe warms this cache and the sheet build consumes it, halving the
-    load on the undocumented endpoint. Network import is lazy: search_panos
-    pulls pydantic/requests, which CI does not have.
+    A failure that names a transient HTTP status is retried with backoff
+    before it is believed — and the retry is cheap, because
+    ``get_date_of_panorama`` is lru-cached in-process, so each attempt only
+    re-POSTs the panos the previous one had not reached. The probe warms this
+    cache and the sheet build consumes it. Network import is lazy:
+    search_panos pulls pydantic/requests, which CI does not have.
     """
     path = _search_cache_path(cache_dir, lat, lon)
     if os.path.exists(path):
@@ -391,9 +402,18 @@ def cached_search(lat, lon, cache_dir, sleep_s=0.0):
 
     sys.path.insert(0, os.path.join(REPO, "stage_one", "dataset_generation"))
     from search_panos import search_panoramas
+    for attempt in range(retries):
+        try:
+            found = search_panoramas(lat, lon)
+            break
+        except Exception as exc:                                  # noqa: BLE001
+            transient = any(m in str(exc) for m in _TRANSIENT_MARKERS)
+            if not transient or attempt == retries - 1:
+                raise
+            time.sleep(2.0 * (attempt + 1))
     panos = [{"pano_id": p.pano_id, "lat": p.lat, "lon": p.lon,
               "heading": p.heading, "date": p.date}
-             for p in search_panoramas(lat, lon)]
+             for p in found]
     os.makedirs(cache_dir, exist_ok=True)
     with open(path, "w", encoding="utf-8") as fh:
         json.dump({"fetched_at": int(time.time()), "panos": panos}, fh)

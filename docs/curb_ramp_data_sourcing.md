@@ -1754,15 +1754,41 @@ Design facts a reader of the verdicts needs:
   summary projects through the chosen pano's geometry into a **predicted** residual — radial error
   predicts ~0° (§5g: radial is free) — for per-record comparison.
 
+### The probe ran first, and changed a number
+
+`probe_panos_at_sites.py` on the 59 aerial sites (`analysis_out/probe_panos_denver-co.json`):
+**58 of 59 pick a panorama** (the one failure, `68791`, is a genuine GSV coverage gap at a corner
+the aerial sheet measured cleanly at 0.28 m — recorded as its own status, not folded into a count).
+The first pass also *reproduced the §5h failure class on the new endpoint*: 15 of 59 sites failed
+with HTTP 502 from GetMetadata — rate limiting on pano-dense corners, every one recovered by retry
+— so `cached_search` now retries transient statuses with backoff before believing them, while
+schema drift still raises immediately.
+
+Two facts from the probe that shape the reading:
+
+- **The pick rule samples the near field**: chosen ranges are median **5.75 m** (19 sites < 5 m,
+  36 at 5–10 m, 3 beyond), not the corpus median 11.1 m — the nearest eligible pano is usually the
+  GSV car passing the corner. Closer range = a more sensitive instrument per metre, and a *tighter*
+  §5g tolerance (±0.332 × range ≈ ±1.8 m at 5.5 m).
+- **Captures are current**: chosen panos span 2016–2026, median ~2021. So the street sheet judges
+  the record against *recent* reality, where the aerial sheet's 2016 imagery measured digitising
+  precision at ~delineation time (§5e's lower-bound caveat). A ramp rebuilt or removed since 2016
+  can therefore legitimately disagree between the instruments — such cases are §5e's missing
+  component being measured at last, not instrument error, and the paired cross-tab is where they
+  will show.
+
 ### Pre-registered Denver criteria — written before the review, on purpose
 
 Denver is the calibration city because its answer is known (§5f: median 0.29 m; §5g: 0.21% label
 loss; aerial phantom 5.5% [1.9–14.9], unjudgeable 6.8% [2.7–16.2] at n=59). The instrument passes
 if:
 
-1. **At most 1 of the measured records falls outside the strip.** §5g's Monte Carlo puts Denver's
-   loss at 0.21%, so the expectation over ~52 measured records is 0.1 — the predicted count is
-   **zero**, and one is allowed for the tail.
+1. **At most 1 of the measured records falls outside the strip.** §5g's by-range Monte Carlo
+   (2.30% inside 5 m, 0.13% at 5–10 m, 0.00% beyond) evaluated at the probe's actual chosen
+   ranges gives an expectation of **≈0.5** of ~55 measured records — five times the naive pooled
+   0.21% figure, because the pick rule samples the near field where the angular tolerance is
+   tightest. Zero or one passes; two is investigated (Poisson P(≥2|0.5) ≈ 9%) before any
+   conclusion; three or more fails.
 2. **|median| lands at the instrument floor, ~1–3°.** Denver's true tangential median is ≈1° at the
    11 m median range — *below* the click floor — so a floor-limited clean read **is** the pass;
    a median of, say, 8° would be a fail. For scale, §5j's corpus null (crop model in the loop) has
