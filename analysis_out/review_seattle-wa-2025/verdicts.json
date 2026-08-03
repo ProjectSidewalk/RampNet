@@ -1,0 +1,1757 @@
+{
+  "city": "seattle-wa-2025",
+  "inventory": "seattle-wa-2026-07-31.jsonl.gz",
+  "seed": 20260803,
+  "sampling": "uniform",
+  "sample_requested": 60,
+  "sample_frame": {
+    "field": null,
+    "value": null,
+    "size": 38364,
+    "of": 38364
+  },
+  "grid": null,
+  "strata": {
+    "field": "INSTALL_DATE",
+    "cutoff": 2019,
+    "frame_sizes": {
+      "dated_before": 7400,
+      "dated_after": 9086,
+      "undated": 21878
+    }
+  },
+  "tile_source": "seattle-2025",
+  "tile_url": "https://gismaps.kingcounty.gov/arcgis/rest/services/BaseMaps/KingCo_Aerial_2025/MapServer/tile/{z}/{y}/{x}",
+  "imagery": "King County GIS, KingCo_Aerial_2025",
+  "imagery_note": "0.101 m/px at Seattle's latitude -- USABLE but coarser than Denver's 0.057, so a ramp is ~15 px rather than ~26 and the measured offset floor is roughly twice Denver's. Adequate for sizing a LARGE error, which is what the Poor anchor needs; it would not be adequate for grading a city expected to be Good. 2025 is the most current year King County publishes, matching an inventory filtered to actively-maintained ramps.",
+  "zoom": 20,
+  "metres_per_pixel": 0.10049992927771147,
+  "span_m": 40.0,
+  "span_px": 398,
+  "ring_radii_m": [
+    1.0,
+    2.0,
+    5.0,
+    10.0
+  ],
+  "neighbour_radii_m": [
+    6.0,
+    10.0
+  ],
+  "blank_chips_dropped": 0,
+  "no_imagery_dropped": 0,
+  "rubric": {
+    "click_target": "Click the CENTRE of the ramp's concrete apron. NOT the detectable-warning pad: PROWAG R305 puts the pad at the back of curb on perpendicular, blended and diagonal ramps, and on the street-level landing of a parallel ramp, so pad centres sit roughly 0.6-0.9 m down-slope of ramp centres. The pad is the most visible thing in the frame, so clicking pads is the easy mistake, and it would add that 0.6-0.9 m to EVERY record as a systematic bias that looks exactly like real positional error. Parallel ramp (a level landing flanked by two sloped runs, where 'the centre' has three defensible answers metres apart): click the centre of the LANDING and note 'parallel'. Legacy ramps whose entire surface is domed are the one case where pad centre and ramp centre coincide.",
+    "always_click": "Click on EVERY chip, including when the crosshair already looks dead centre \u2014 click the crosshair itself for ~0. Two reasons. Mechanically, a chip with no click has a null offset and never counts as reviewed. Methodologically, if you only click when you think you see an error then near-zero cases are recorded by omission, and the low tail of the distribution becomes an artefact of reviewer confidence rather than a property of the data.",
+    "ramps_visible": "Count only ramps you could reach from the crosshair WITHOUT CROSSING A ROADWAY. This is per-corner, not per-chip: a 40 m chip on an arterial holds three or four corners and counting all of them conflates 'ramps in frame' with 'ramps on this corner'. Perpendicular pair = 2. One diagonal apron serving two crossings = 1. Median island with a cut-through = 2, one end per side. Triangular channelising island ('pork chop') = 3, one per leg it serves. Note that 'one ramp per crossing' is NOT the rule \u2014 a median has two ends serving a single crossing; containment is the rule. THE RINGS DO NOT BOUND THE COUNT either: they exist to measure the offset, and a ramp sitting inside the 10 m ring but across a roadway belongs to a different corner. On chip 66519 four ramps fall inside the 10 m ring and the answer is three.",
+    "on_corner": "The same containment test: YES if the crosshair and the ramp you clicked are on the same corner or island with no roadway between them. It is NOT 'is this the ramp the digitiser meant' \u2014 these inventories carry no corner key, so that is unknowable. Below ~2-3 m it is yes by construction, so the field only carries information in the tail, where it separates an imprecise point (benign for Stage 1: it still projects into roughly the right part of the panorama) from a misassigned one (wrong side of the street, plausibly a different panorama altogether). Mid-block ramps and refuge islands resolve under the same test; note the case.",
+    "no_ramp": "The corner is readable and there is definitively no ramp at it. This is a PHANTOM record, and it is a result rather than a failure \u2014 an inventory whose schema has no removal mechanism gives a demolished ramp no way to leave the layer, so the phantom rate has no upper bound from the data alone. Kept distinct from unjudgeable on purpose: 'I can see, and it is not there' is a different claim from 'I cannot see'.",
+    "unjudgeable": "Shadow, occlusion or resolution prevents a call. Mark it rather than guessing \u2014 the unreadable rate is itself a reported number.",
+    "resolution_floor": "Offsets below roughly 0.3 m are at the floor of this instrument, not measurements of real error: see the metres-per-pixel in this manifest for the pixel size, and the registration check in analysis_out/georef_check_<city>/ for how well the imagery agrees with the city's own vector data. Report the left tail as floor-limited rather than claiming centimetres.",
+    "published_nearby": "The published records near each chip are HELD BACK until you have recorded BOTH of this chip's own numbers \u2014 the offset (or a terminal state) and the count \u2014 and this is deliberate. Both are meant to be independent evidence from the imagery, and the whole value of the comparison is that the two sources were arrived at separately. Gating on the count alone was not enough: with the markers already on screen, a click drifts toward one and offset_m silently becomes 'distance to the published record' rather than 'distance to the ramp' \u2014 corrupting the headline number of the assessment. The published data is a cross-check, never an input. Once revealed, each nearby record is drawn on the image as a magenta diamond, and THE DIAMONDS ARE THE EVIDENCE \u2014 the counts are only a summary. **A radius is not a corner**, and it fails in both directions on exactly the complex geometry where the comparison would matter: 6 m misses the far ramp of a large corner (chip 66519's channelising island spans 7.0 m) and reaches straight across a 4-5 m slip lane (chip 67585, where the record 5.2 m ESE is on the far side of a crossing). Both produced confident false alarms before the panel stopped issuing verdicts. So: look at where the diamonds fall, decide which are on your corner, and note a genuine disagreement rather than trusting a number. A count above the published figure suggests the city under-records (the pair-merge failure mode); below it suggests phantoms or duplicates."
+  },
+  "sheet_build": "5fec5d19",
+  "reviewer": null,
+  "reviewed_on": null,
+  "confidence": null,
+  "records": [
+    {
+      "id": "1948527",
+      "lon": -122.30373870098455,
+      "lat": 47.677690500146966,
+      "tiles": [
+        "20/365898/168051",
+        "20/365899/168051",
+        "20/365898/168052",
+        "20/365899/168052",
+        "20/365898/168053",
+        "20/365899/168053"
+      ],
+      "stratum": "dated_after",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        4.88,
+        9.72,
+        12.09,
+        17.79,
+        19.69
+      ]
+    },
+    {
+      "id": "1948643",
+      "lon": -122.4108788258014,
+      "lat": 47.57406623205208,
+      "tiles": [
+        "20/366345/167739",
+        "20/366346/167739",
+        "20/366347/167739",
+        "20/366345/167740",
+        "20/366346/167740",
+        "20/366347/167740",
+        "20/366345/167741",
+        "20/366346/167741",
+        "20/366347/167741"
+      ],
+      "stratum": "dated_before",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        7.92,
+        10.46,
+        14.75
+      ]
+    },
+    {
+      "id": "1949286",
+      "lon": -122.37009993513529,
+      "lat": 47.63952120549591,
+      "tiles": [
+        "20/366063/167858",
+        "20/366064/167858",
+        "20/366063/167859",
+        "20/366064/167859",
+        "20/366063/167860",
+        "20/366064/167860"
+      ],
+      "stratum": "undated",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        9.85,
+        12.13,
+        12.19,
+        19.27
+      ]
+    },
+    {
+      "id": "1949331",
+      "lon": -122.32382144869422,
+      "lat": 47.594260268043534,
+      "tiles": [
+        "20/366258/167993",
+        "20/366259/167993",
+        "20/366260/167993",
+        "20/366258/167994",
+        "20/366259/167994",
+        "20/366260/167994"
+      ],
+      "stratum": "undated",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        9.86,
+        16.53,
+        16.96
+      ]
+    },
+    {
+      "id": "1949421",
+      "lon": -122.358635953216,
+      "lat": 47.703586120795045,
+      "tiles": [
+        "20/365785/167891",
+        "20/365786/167891",
+        "20/365787/167891",
+        "20/365785/167892",
+        "20/365786/167892",
+        "20/365787/167892",
+        "20/365785/167893",
+        "20/365786/167893",
+        "20/365787/167893"
+      ],
+      "stratum": "dated_before",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1,
+      "published_neighbours_m": []
+    },
+    {
+      "id": "1949516",
+      "lon": -122.37154370692554,
+      "lat": 47.688696025345244,
+      "tiles": [
+        "20/365850/167854",
+        "20/365851/167854",
+        "20/365850/167855",
+        "20/365851/167855"
+      ],
+      "stratum": "dated_before",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        4.02,
+        9.74,
+        12.51,
+        12.92,
+        14.46,
+        17.32,
+        18.23
+      ]
+    },
+    {
+      "id": "1951096",
+      "lon": -122.32386811511924,
+      "lat": 47.540471345936325,
+      "tiles": [
+        "20/366490/167993",
+        "20/366491/167993",
+        "20/366492/167993",
+        "20/366490/167994",
+        "20/366491/167994",
+        "20/366492/167994"
+      ],
+      "stratum": "undated",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        12.13
+      ]
+    },
+    {
+      "id": "1951726",
+      "lon": -122.36058517232212,
+      "lat": 47.52653911414695,
+      "tiles": [
+        "20/366550/167886",
+        "20/366551/167886",
+        "20/366552/167886",
+        "20/366550/167887",
+        "20/366551/167887",
+        "20/366552/167887"
+      ],
+      "stratum": "dated_after",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        2.4,
+        11.25,
+        14.72,
+        15.02,
+        17.94
+      ]
+    },
+    {
+      "id": "1953050",
+      "lon": -122.39833623293426,
+      "lat": 47.64859820837381,
+      "tiles": [
+        "20/366023/167776",
+        "20/366024/167776",
+        "20/366025/167776",
+        "20/366023/167777",
+        "20/366024/167777",
+        "20/366025/167777"
+      ],
+      "stratum": "dated_before",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        3.26,
+        7.91,
+        10.45,
+        10.77,
+        12.47,
+        14.62,
+        14.77
+      ]
+    },
+    {
+      "id": "1953073",
+      "lon": -122.31032946377975,
+      "lat": 47.599287680302815,
+      "tiles": [
+        "20/366236/168032",
+        "20/366237/168032",
+        "20/366238/168032",
+        "20/366236/168033",
+        "20/366237/168033",
+        "20/366238/168033",
+        "20/366236/168034",
+        "20/366237/168034",
+        "20/366238/168034"
+      ],
+      "stratum": "dated_before",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        2.74,
+        8.2,
+        10.72,
+        17.57
+      ]
+    },
+    {
+      "id": "1954141",
+      "lon": -122.29631037506901,
+      "lat": 47.72786798280489,
+      "tiles": [
+        "20/365680/168073",
+        "20/365681/168073",
+        "20/365682/168073",
+        "20/365680/168074",
+        "20/365681/168074",
+        "20/365682/168074"
+      ],
+      "stratum": "dated_before",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        3.0,
+        9.07,
+        13.39
+      ]
+    },
+    {
+      "id": "1954455",
+      "lon": -122.27317004323217,
+      "lat": 47.56650115642225,
+      "tiles": [
+        "20/366378/168140",
+        "20/366379/168140",
+        "20/366380/168140",
+        "20/366378/168141",
+        "20/366379/168141",
+        "20/366380/168141",
+        "20/366378/168142",
+        "20/366379/168142",
+        "20/366380/168142"
+      ],
+      "stratum": "undated",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        8.22,
+        10.68
+      ]
+    },
+    {
+      "id": "1954485",
+      "lon": -122.27000003383996,
+      "lat": 47.551922580878056,
+      "tiles": [
+        "20/366441/168150",
+        "20/366442/168150",
+        "20/366441/168151",
+        "20/366442/168151"
+      ],
+      "stratum": "undated",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        3.12,
+        7.92,
+        10.32,
+        10.49,
+        12.47,
+        14.77
+      ]
+    },
+    {
+      "id": "1954980",
+      "lon": -122.37753168518819,
+      "lat": 47.564718171641196,
+      "tiles": [
+        "20/366386/167836",
+        "20/366387/167836",
+        "20/366386/167837",
+        "20/366387/167837",
+        "20/366386/167838",
+        "20/366387/167838"
+      ],
+      "stratum": "undated",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        8.2,
+        12.47
+      ]
+    },
+    {
+      "id": "1955594",
+      "lon": -122.32712811162916,
+      "lat": 47.60645810068925,
+      "tiles": [
+        "20/366205/167983",
+        "20/366206/167983",
+        "20/366207/167983",
+        "20/366205/167984",
+        "20/366206/167984",
+        "20/366207/167984",
+        "20/366205/167985",
+        "20/366206/167985",
+        "20/366207/167985"
+      ],
+      "stratum": "dated_after",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 4,
+      "published_neighbours_m": [
+        3.8,
+        7.46,
+        9.79,
+        12.71,
+        14.36,
+        15.72,
+        15.78
+      ]
+    },
+    {
+      "id": "1955741",
+      "lon": -122.32476115911412,
+      "lat": 47.68044126234754,
+      "tiles": [
+        "20/365886/167990",
+        "20/365887/167990",
+        "20/365886/167991",
+        "20/365887/167991",
+        "20/365886/167992",
+        "20/365887/167992"
+      ],
+      "stratum": "dated_before",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        11.74,
+        11.94,
+        14.39,
+        18.33
+      ]
+    },
+    {
+      "id": "1956591",
+      "lon": -122.31658832488385,
+      "lat": 47.65683315364174,
+      "tiles": [
+        "20/365988/168014",
+        "20/365989/168014",
+        "20/365988/168015",
+        "20/365989/168015"
+      ],
+      "stratum": "dated_after",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        6.17,
+        8.72,
+        11.45,
+        14.62,
+        15.7
+      ]
+    },
+    {
+      "id": "1956752",
+      "lon": -122.40881513803062,
+      "lat": 47.648572318914006,
+      "tiles": [
+        "20/366023/167745",
+        "20/366024/167745",
+        "20/366025/167745",
+        "20/366023/167746",
+        "20/366024/167746",
+        "20/366025/167746",
+        "20/366023/167747",
+        "20/366024/167747",
+        "20/366025/167747"
+      ],
+      "stratum": "undated",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        10.2,
+        16.6
+      ]
+    },
+    {
+      "id": "1956867",
+      "lon": -122.34803221942843,
+      "lat": 47.61650095965069,
+      "tiles": [
+        "20/366162/167922",
+        "20/366163/167922",
+        "20/366164/167922",
+        "20/366162/167923",
+        "20/366163/167923",
+        "20/366164/167923",
+        "20/366162/167924",
+        "20/366163/167924",
+        "20/366164/167924"
+      ],
+      "stratum": "dated_before",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        8.2,
+        11.25,
+        13.06
+      ]
+    },
+    {
+      "id": "1958006",
+      "lon": -122.38707223938391,
+      "lat": 47.54674005650978,
+      "tiles": [
+        "20/366463/167809",
+        "20/366464/167809",
+        "20/366465/167809",
+        "20/366463/167810",
+        "20/366464/167810",
+        "20/366465/167810"
+      ],
+      "stratum": "dated_before",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        2.59,
+        10.39,
+        12.19,
+        18.39,
+        18.61
+      ]
+    },
+    {
+      "id": "1960309",
+      "lon": -122.30265040151413,
+      "lat": 47.59199549323969,
+      "tiles": [
+        "20/366268/168054",
+        "20/366269/168054",
+        "20/366268/168055",
+        "20/366269/168055",
+        "20/366268/168056",
+        "20/366269/168056"
+      ],
+      "stratum": "dated_before",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        2.55,
+        16.05,
+        18.78
+      ]
+    },
+    {
+      "id": "1961558",
+      "lon": -122.26477648964986,
+      "lat": 47.52463023019411,
+      "tiles": [
+        "20/366559/168165",
+        "20/366560/168165",
+        "20/366559/168166",
+        "20/366560/168166"
+      ],
+      "stratum": "dated_after",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        2.91,
+        12.73,
+        14.42,
+        17.92
+      ]
+    },
+    {
+      "id": "1962256",
+      "lon": -122.33905479793007,
+      "lat": 47.61380433271367,
+      "tiles": [
+        "20/366174/167948",
+        "20/366175/167948",
+        "20/366174/167949",
+        "20/366175/167949",
+        "20/366174/167950",
+        "20/366175/167950"
+      ],
+      "stratum": "undated",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        7.26
+      ]
+    },
+    {
+      "id": "1962441",
+      "lon": -122.30061375761133,
+      "lat": 47.63787421670438,
+      "tiles": [
+        "20/366070/168060",
+        "20/366071/168060",
+        "20/366070/168061",
+        "20/366071/168061",
+        "20/366070/168062",
+        "20/366071/168062"
+      ],
+      "stratum": "dated_after",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        3.29,
+        7.91,
+        10.42,
+        10.48,
+        12.47,
+        14.4,
+        14.77
+      ]
+    },
+    {
+      "id": "1967597",
+      "lon": -122.36188289658216,
+      "lat": 47.632286037409436,
+      "tiles": [
+        "20/366094/167882",
+        "20/366095/167882",
+        "20/366094/167883",
+        "20/366095/167883"
+      ],
+      "stratum": "dated_before",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        4.46,
+        13.74
+      ]
+    },
+    {
+      "id": "1968717",
+      "lon": -122.33447331196228,
+      "lat": 47.61799074288003,
+      "tiles": [
+        "20/366156/167962",
+        "20/366157/167962",
+        "20/366156/167963",
+        "20/366157/167963"
+      ],
+      "stratum": "dated_before",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        2.66,
+        10.77,
+        12.14
+      ]
+    },
+    {
+      "id": "1969074",
+      "lon": -122.29669082165812,
+      "lat": 47.53904326212551,
+      "tiles": [
+        "20/366497/168072",
+        "20/366498/168072",
+        "20/366497/168073",
+        "20/366498/168073"
+      ],
+      "stratum": "dated_before",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 4,
+      "published_within_10m": 4,
+      "published_neighbours_m": [
+        2.28,
+        2.28,
+        4.29,
+        19.15
+      ]
+    },
+    {
+      "id": "1970444",
+      "lon": -122.3243613339314,
+      "lat": 47.61302308657585,
+      "tiles": [
+        "20/366177/167991",
+        "20/366178/167991",
+        "20/366179/167991",
+        "20/366177/167992",
+        "20/366178/167992",
+        "20/366179/167992",
+        "20/366177/167993",
+        "20/366178/167993",
+        "20/366179/167993"
+      ],
+      "stratum": "dated_after",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        12.47,
+        13.05,
+        13.39
+      ]
+    },
+    {
+      "id": "1970816",
+      "lon": -122.31451553719829,
+      "lat": 47.62847311810687,
+      "tiles": [
+        "20/366110/168020",
+        "20/366111/168020",
+        "20/366112/168020",
+        "20/366110/168021",
+        "20/366111/168021",
+        "20/366112/168021"
+      ],
+      "stratum": "dated_after",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        8.19,
+        10.75,
+        12.15,
+        14.63,
+        14.94
+      ]
+    },
+    {
+      "id": "1971730",
+      "lon": -122.30715638435387,
+      "lat": 47.641043707224775,
+      "tiles": [
+        "20/366056/168041",
+        "20/366057/168041",
+        "20/366058/168041",
+        "20/366056/168042",
+        "20/366057/168042",
+        "20/366058/168042",
+        "20/366056/168043",
+        "20/366057/168043",
+        "20/366058/168043"
+      ],
+      "stratum": "undated",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        3.94,
+        7.98,
+        13.08,
+        15.42
+      ]
+    },
+    {
+      "id": "1973054",
+      "lon": -122.31082881165146,
+      "lat": 47.6776687915373,
+      "tiles": [
+        "20/365898/168031",
+        "20/365899/168031",
+        "20/365898/168032",
+        "20/365899/168032"
+      ],
+      "stratum": "undated",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        3.43,
+        10.41,
+        12.51,
+        13.01,
+        17.62
+      ]
+    },
+    {
+      "id": "1973135",
+      "lon": -122.40273651668583,
+      "lat": 47.58224742539572,
+      "tiles": [
+        "20/366310/167763",
+        "20/366311/167763",
+        "20/366312/167763",
+        "20/366310/167764",
+        "20/366311/167764",
+        "20/366312/167764"
+      ],
+      "stratum": "dated_before",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        4.48,
+        15.62,
+        17.61,
+        19.08
+      ]
+    },
+    {
+      "id": "1973498",
+      "lon": -122.30059913158837,
+      "lat": 47.67584692644858,
+      "tiles": [
+        "20/365905/168060",
+        "20/365906/168060",
+        "20/365907/168060",
+        "20/365905/168061",
+        "20/365906/168061",
+        "20/365907/168061",
+        "20/365905/168062",
+        "20/365906/168062",
+        "20/365907/168062"
+      ],
+      "stratum": "undated",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        4.67,
+        7.89,
+        12.25,
+        15.54,
+        16.0,
+        19.54,
+        19.7
+      ]
+    },
+    {
+      "id": "1973665",
+      "lon": -122.3677570527352,
+      "lat": 47.662246546959956,
+      "tiles": [
+        "20/365964/167865",
+        "20/365965/167865",
+        "20/365966/167865",
+        "20/365964/167866",
+        "20/365965/167866",
+        "20/365966/167866"
+      ],
+      "stratum": "undated",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        3.88,
+        11.87
+      ]
+    },
+    {
+      "id": "1973693",
+      "lon": -122.3303566493948,
+      "lat": 47.619567707420856,
+      "tiles": [
+        "20/366149/167974",
+        "20/366150/167974",
+        "20/366149/167975",
+        "20/366150/167975"
+      ],
+      "stratum": "dated_before",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        11.13,
+        15.8
+      ]
+    },
+    {
+      "id": "1973904",
+      "lon": -122.33987702115829,
+      "lat": 47.66882029506757,
+      "tiles": [
+        "20/365936/167946",
+        "20/365937/167946",
+        "20/365936/167947",
+        "20/365937/167947",
+        "20/365936/167948",
+        "20/365937/167948"
+      ],
+      "stratum": "dated_after",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        8.25
+      ]
+    },
+    {
+      "id": "1977411",
+      "lon": -122.34992764748388,
+      "lat": 47.66142959570982,
+      "tiles": [
+        "20/365968/167917",
+        "20/365969/167917",
+        "20/365968/167918",
+        "20/365969/167918"
+      ],
+      "stratum": "dated_after",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        5.0,
+        8.09,
+        12.83,
+        16.73,
+        18.63
+      ]
+    },
+    {
+      "id": "1977745",
+      "lon": -122.30259766358857,
+      "lat": 47.61536635185335,
+      "tiles": [
+        "20/366167/168055",
+        "20/366168/168055",
+        "20/366169/168055",
+        "20/366167/168056",
+        "20/366168/168056",
+        "20/366169/168056"
+      ],
+      "stratum": "dated_before",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        5.45,
+        8.01,
+        10.49,
+        12.49,
+        13.18,
+        14.78,
+        15.82
+      ]
+    },
+    {
+      "id": "1978728",
+      "lon": -122.3202451690568,
+      "lat": 47.52566365452634,
+      "tiles": [
+        "20/366554/168003",
+        "20/366555/168003",
+        "20/366556/168003",
+        "20/366554/168004",
+        "20/366555/168004",
+        "20/366556/168004",
+        "20/366554/168005",
+        "20/366555/168005",
+        "20/366556/168005"
+      ],
+      "stratum": "dated_before",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        3.08,
+        8.21,
+        10.35,
+        10.48,
+        12.49,
+        14.41,
+        14.95
+      ]
+    },
+    {
+      "id": "1978859",
+      "lon": -122.30886900365425,
+      "lat": 47.60925066576888,
+      "tiles": [
+        "20/366193/168036",
+        "20/366194/168036",
+        "20/366195/168036",
+        "20/366193/168037",
+        "20/366194/168037",
+        "20/366195/168037",
+        "20/366193/168038",
+        "20/366194/168038",
+        "20/366195/168038"
+      ],
+      "stratum": "dated_after",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        3.08,
+        8.2,
+        10.45,
+        10.74,
+        12.49,
+        14.64,
+        14.94
+      ]
+    },
+    {
+      "id": "1979506",
+      "lon": -122.27085877739698,
+      "lat": 47.56290247689857,
+      "tiles": [
+        "20/366394/168147",
+        "20/366395/168147",
+        "20/366394/168148",
+        "20/366395/168148",
+        "20/366394/168149",
+        "20/366395/168149"
+      ],
+      "stratum": "dated_after",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        2.71,
+        8.22,
+        10.3,
+        17.95,
+        19.74
+      ]
+    },
+    {
+      "id": "1979659",
+      "lon": -122.39845008374715,
+      "lat": 47.68240833500499,
+      "tiles": [
+        "20/365877/167775",
+        "20/365878/167775",
+        "20/365879/167775",
+        "20/365877/167776",
+        "20/365878/167776",
+        "20/365879/167776",
+        "20/365877/167777",
+        "20/365878/167777",
+        "20/365879/167777"
+      ],
+      "stratum": "dated_after",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        4.11,
+        8.2,
+        11.7,
+        12.49,
+        14.78,
+        15.96,
+        16.12
+      ]
+    },
+    {
+      "id": "1980792",
+      "lon": -122.36771422713737,
+      "lat": 47.67769113046856,
+      "tiles": [
+        "20/365898/167865",
+        "20/365899/167865",
+        "20/365898/167866",
+        "20/365899/167866"
+      ],
+      "stratum": "dated_after",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        1.46,
+        11.39,
+        11.65,
+        12.61,
+        16.43
+      ]
+    },
+    {
+      "id": "1980801",
+      "lon": -122.31556522815069,
+      "lat": 47.67592044980493,
+      "tiles": [
+        "20/365905/168017",
+        "20/365906/168017",
+        "20/365907/168017",
+        "20/365905/168018",
+        "20/365906/168018",
+        "20/365907/168018"
+      ],
+      "stratum": "dated_before",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        3.33,
+        12.3,
+        15.76
+      ]
+    },
+    {
+      "id": "1981032",
+      "lon": -122.35386313214744,
+      "lat": 47.52280195731798,
+      "tiles": [
+        "20/366567/167905",
+        "20/366568/167905",
+        "20/366567/167906",
+        "20/366568/167906",
+        "20/366567/167907",
+        "20/366568/167907"
+      ],
+      "stratum": "dated_after",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        4.26,
+        13.21,
+        13.57,
+        15.38,
+        15.46,
+        19.17
+      ]
+    },
+    {
+      "id": "1981254",
+      "lon": -122.33910430454917,
+      "lat": 47.66147225169338,
+      "tiles": [
+        "20/365968/167948",
+        "20/365969/167948",
+        "20/365968/167949",
+        "20/365969/167949",
+        "20/365968/167950",
+        "20/365969/167950"
+      ],
+      "stratum": "undated",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        12.37,
+        19.37
+      ]
+    },
+    {
+      "id": "1981373",
+      "lon": -122.31317623395726,
+      "lat": 47.68493990354454,
+      "tiles": [
+        "20/365866/168024",
+        "20/365867/168024",
+        "20/365868/168024",
+        "20/365866/168025",
+        "20/365867/168025",
+        "20/365868/168025"
+      ],
+      "stratum": "undated",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1,
+      "published_neighbours_m": []
+    },
+    {
+      "id": "1981615",
+      "lon": -122.35526857577054,
+      "lat": 47.624475158183856,
+      "tiles": [
+        "20/366128/167901",
+        "20/366129/167901",
+        "20/366128/167902",
+        "20/366129/167902",
+        "20/366128/167903",
+        "20/366129/167903"
+      ],
+      "stratum": "dated_before",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        2.21,
+        19.2
+      ]
+    },
+    {
+      "id": "1982390",
+      "lon": -122.29471445346887,
+      "lat": 47.68312374796859,
+      "tiles": [
+        "20/365874/168078",
+        "20/365875/168078",
+        "20/365876/168078",
+        "20/365874/168079",
+        "20/365875/168079",
+        "20/365876/168079"
+      ],
+      "stratum": "undated",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        4.82,
+        7.9,
+        16.76
+      ]
+    },
+    {
+      "id": "1984667",
+      "lon": -122.27275764865854,
+      "lat": 47.52796393499803,
+      "tiles": [
+        "20/366544/168142",
+        "20/366545/168142",
+        "20/366546/168142",
+        "20/366544/168143",
+        "20/366545/168143",
+        "20/366546/168143"
+      ],
+      "stratum": "undated",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1,
+      "published_neighbours_m": []
+    },
+    {
+      "id": "1985436",
+      "lon": -122.30076121791583,
+      "lat": 47.686772495289055,
+      "tiles": [
+        "20/365858/168060",
+        "20/365859/168060",
+        "20/365860/168060",
+        "20/365858/168061",
+        "20/365859/168061",
+        "20/365860/168061"
+      ],
+      "stratum": "dated_after",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        6.24,
+        12.9,
+        17.32,
+        17.66
+      ]
+    },
+    {
+      "id": "1986212",
+      "lon": -122.37619588061797,
+      "lat": 47.666499872221486,
+      "tiles": [
+        "20/365946/167840",
+        "20/365947/167840",
+        "20/365946/167841",
+        "20/365947/167841",
+        "20/365946/167842",
+        "20/365947/167842"
+      ],
+      "stratum": "dated_after",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        4.81,
+        9.43,
+        12.45,
+        13.02,
+        14.44,
+        15.21,
+        15.42,
+        16.93,
+        17.41,
+        18.93,
+        19.44
+      ]
+    },
+    {
+      "id": "1987949",
+      "lon": -122.27066065611218,
+      "lat": 47.561819618360985,
+      "tiles": [
+        "20/366398/168148",
+        "20/366399/168148",
+        "20/366400/168148",
+        "20/366398/168149",
+        "20/366399/168149",
+        "20/366400/168149"
+      ],
+      "stratum": "dated_after",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        4.27,
+        7.83,
+        10.85,
+        14.56,
+        14.77,
+        17.64
+      ]
+    },
+    {
+      "id": "1988766",
+      "lon": -122.39256947664248,
+      "lat": 47.53151609934162,
+      "tiles": [
+        "20/366529/167793",
+        "20/366530/167793",
+        "20/366531/167793",
+        "20/366529/167794",
+        "20/366530/167794",
+        "20/366531/167794"
+      ],
+      "stratum": "dated_after",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 1,
+      "published_neighbours_m": [
+        10.12
+      ]
+    },
+    {
+      "id": "1989673",
+      "lon": -122.29249791627547,
+      "lat": 47.60793985589903,
+      "tiles": [
+        "20/366199/168084",
+        "20/366200/168084",
+        "20/366201/168084",
+        "20/366199/168085",
+        "20/366200/168085",
+        "20/366201/168085",
+        "20/366199/168086",
+        "20/366200/168086",
+        "20/366201/168086"
+      ],
+      "stratum": "undated",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        5.82,
+        12.47,
+        16.2
+      ]
+    },
+    {
+      "id": "1989880",
+      "lon": -122.36911262591107,
+      "lat": 47.62998303170307,
+      "tiles": [
+        "20/366104/167861",
+        "20/366105/167861",
+        "20/366104/167862",
+        "20/366105/167862"
+      ],
+      "stratum": "undated",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        0.99,
+        14.74,
+        16.75
+      ]
+    },
+    {
+      "id": "1992129",
+      "lon": -122.32564995750265,
+      "lat": 47.666370965071074,
+      "tiles": [
+        "20/365946/167987",
+        "20/365947/167987",
+        "20/365948/167987",
+        "20/365946/167988",
+        "20/365947/167988",
+        "20/365948/167988",
+        "20/365946/167989",
+        "20/365947/167989",
+        "20/365948/167989"
+      ],
+      "stratum": "dated_after",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        4.94,
+        10.25,
+        12.37,
+        13.71,
+        15.12,
+        17.92,
+        18.02
+      ]
+    },
+    {
+      "id": "1992667",
+      "lon": -122.394175569371,
+      "lat": 47.63306863948289,
+      "tiles": [
+        "20/366090/167788",
+        "20/366091/167788",
+        "20/366092/167788",
+        "20/366090/167789",
+        "20/366091/167789",
+        "20/366092/167789"
+      ],
+      "stratum": "undated",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 1,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        8.23,
+        12.47,
+        14.93
+      ]
+    },
+    {
+      "id": "1993626",
+      "lon": -122.37903961018675,
+      "lat": 47.69056397116753,
+      "tiles": [
+        "20/365842/167832",
+        "20/365843/167832",
+        "20/365842/167833",
+        "20/365843/167833"
+      ],
+      "stratum": "dated_before",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 3,
+      "published_neighbours_m": [
+        4.21,
+        8.24,
+        11.07,
+        12.24,
+        12.47,
+        15.95,
+        17.43
+      ]
+    },
+    {
+      "id": "1994004",
+      "lon": -122.31314935686193,
+      "lat": 47.686938012096824,
+      "tiles": [
+        "20/365857/168024",
+        "20/365858/168024",
+        "20/365859/168024",
+        "20/365857/168025",
+        "20/365858/168025",
+        "20/365859/168025"
+      ],
+      "stratum": "undated",
+      "offset_m": null,
+      "on_corner": null,
+      "ramps_visible": null,
+      "unreadable": false,
+      "no_ramp": false,
+      "note": "",
+      "published_within_6m": 2,
+      "published_within_10m": 2,
+      "published_neighbours_m": [
+        0.97,
+        16.12,
+        19.74
+      ]
+    }
+  ]
+}
