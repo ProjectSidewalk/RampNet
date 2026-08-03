@@ -1070,6 +1070,7 @@ document.getElementById("export").onclick = () => {{
       const v = V[c.id] || {{}};
       return {{
         id: c.id, lon: c.lon, lat: c.lat, tiles: c.tiles,
+        stratum: c.stratum === undefined ? null : c.stratum,
         offset_m: v.offset_m == null ? null : +v.offset_m.toFixed(2),
         on_corner: v.on_corner == null ? null : v.on_corner,
         ramps_visible: v.ramps_visible == null ? null : v.ramps_visible,
@@ -1251,8 +1252,12 @@ def main(argv=None):
             print("  [{:>3}/{}] {} BLANK — dropped".format(k + 1, len(picked), rid))
             continue
         span_px = chip.size[0]
+        # The stratum has to live on the CHIP, not only on the verdict template:
+        # the in-page export rebuilds each record from CHIPS, so a field present
+        # only in the template is silently dropped on export. That cost a
+        # re-join against the template to recover Seattle's strata (§5l).
         chips.append({"uri": to_data_uri(chip), "id": rid, "lon": lon, "lat": lat,
-                      "tiles": keys})
+                      "tiles": keys, "stratum": stratum_of.get(i)})
         verdicts.append({
             "id": rid, "lon": lon, "lat": lat, "tiles": keys,
             # Which date stratum this record came from, when the sheet was built

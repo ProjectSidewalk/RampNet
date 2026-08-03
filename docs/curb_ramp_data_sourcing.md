@@ -1516,6 +1516,104 @@ Unlike prose, the value now travels with the data — `verdicts.json` carries `r
 `reviewed_on` and `confidence`. **Denver's and Seattle's manifests are still `null`** and should be
 backfilled; the sheet does not collect the field, so it has to be set when the verdicts land.
 
+## 5l. Seattle, attributed at last — and Charlotte's null-date rule does NOT generalise (2026-08-03)
+
+§5i refuted the registration story for Seattle's 2.06 m and left one hypothesis standing: **23.7%
+of Seattle's records (9,086) were installed after the 2019 imagery**, so a later-built ramp has no
+correct answer. That was never tested, because the sheet that produced the 2.06 m *was* the 2019
+sheet. King County publishes a **2025** basemap, against which only **1.6%** postdate capture — so
+the confound is removable, and the test is a rebuild.
+
+Rebuilt on 2025 with **equal allocation across three date strata** (`--strata-year-field`,
+78f0279), because §5k's Charlotte finding — null-date records are the bad ones — deserved a real
+test rather than another accident. Frame: 7,400 dated ≤2019 / 9,086 dated >2019 / **21,878 undated
+(57.0%)**. Jon reviewed all 60. Verdicts: `analysis_out/review_seattle-wa-2025/`.
+
+| | 2019 sheet (§5i) | **2025 stratified** |
+| :--- | ---: | ---: |
+| offsets measured | 11 | **34** |
+| median | 2.06 m | **1.75 m** |
+| ≤ 1 m | — | 29.4% [16.8–46.2] |
+| p90 / max | — | 3.68 m / 4.95 m |
+| phantom | — | 2.9% [0.5–14.5] |
+| **unjudgeable** | 37% | **41.7%** [30.1–54.3] |
+| systematic shift | none | none (share 34%, **p = 0.060**, null p95 = 35%) |
+| **Stage 1 label loss** | — | **8.87%** |
+
+### Seattle's offset survives the imagery swap, so it is the coordinates
+
+**Removing the existence confound barely moved the number** — 2.06 m → 1.75 m, and the newest
+stratum (`dated_after`, invisible in 2019 imagery) has the *lowest* median of the three at 1.09 m.
+So the confound §5i nominated does not explain Seattle. Combined with §5i's refutation of a datum
+shift — ramps-vs-centrelines 0.00 m at n=31,430 — the elimination is now complete:
+
+> Seattle's published coordinates are **genuinely imprecise at ~1.75 m**. Not a registration error,
+> not a stale-imagery artefact. **The paper's Poor rating is correct, and now attributed.**
+
+The instrument cannot explain it either. Denver's 0.0573 m/px basemap yielded a 0.29 m median; a
+2× coarser basemap does not turn 0.29 m into 1.75 m. Jon's notes carry the qualitative version —
+three chips are annotated *"crosshair is in the middle of the street"*, which is not a measurement
+artefact.
+
+**At 8.87% label loss Seattle is ~4× Charlotte and ~40× Denver**, but it is not catastrophic: §5g's
+tolerance is angular, so most of Seattle's error is still absorbed. That is the number to weigh
+against 38,364 ramps, and it is a genuine judgement call rather than an automatic rejection.
+
+### ⚠️ The Charlotte null-date effect does not replicate
+
+| stratum | n | offsets | median | ≤ 1 m | phantom | unjudgeable |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: |
+| dated ≤ 2019 | 20 | 12 | 1.67 m | 25% | 0/12 | 40% |
+| dated > 2019 | 20 | 9 | **1.09 m** | 33% | 0/9 | 55% |
+| undated | 20 | 13 | 2.00 m | 31% | 1/14 | 30% |
+
+Undated 2.00 m vs dated 1.57 m — **permutation test on the difference of medians, p = 0.387**.
+Nothing. In Charlotte the same comparison was p = 3.9 × 10⁻⁶.
+
+**What the design could have detected**, by simulation at this n (α = 0.05):
+
+| true shift | power |
+| ---: | ---: |
+| 0.5 m | 0.14 |
+| 1.0 m | 0.31 |
+| **1.5 m** | **0.69** |
+| 2.0 m | 0.94 |
+
+So this rules out a **large** (≳1.5–2 m) undated penalty in Seattle, and is **underpowered for a
+moderate one**. The honest statement is not "there is no effect" but "**the effect is not the
+city-independent rule §5k's p-value made it look like**". §5k's caveat — *do not port "drop
+undated" to another city without re-testing* — was the right call, and this is the re-test that
+justifies it. **The filter is city-specific and must be earned per city.**
+
+That matters for §5c's pool, and not in the helpful direction: Austin (84.6% undated), Minneapolis
+(67.9%) and Sioux Falls (37.6%) cannot be cleaned by a rule that only works in Charlotte.
+
+### The instrument cost, paid as predicted
+
+The paired probe (§5h, 3c9dc33) said 2025 would be **+15.1 points leafier** than 2019 at identical
+sites, and warned the swap was not free. It was not: **41.7% unjudgeable**, against 37% on 2019, and
+of Jon's 25 notes, **13 name tree cover, shadow or pixelation**. Two consequences travel with every
+number above:
+
+- **The 34 measured offsets are a selected subset** — un-treed corners — so the median is a
+  best-case read on a city whose canopy hides the rest.
+- **`dated_after` is the worst-hit stratum at 55% unjudgeable**, leaving n=9. Its attractive 1.09 m
+  median is the least trustworthy number in the table, and should not be quoted alone.
+
+A third theme in the notes is neither: five chips are annotated *"diagonal ramp"* or *"not clear
+which ramp to associate"*. That is **Budapest's unresolved diagonal-apron rubric question** (§5c
+notes it was worth ~4 precision points there) surfacing in a second city, and it is a rubric gap
+rather than an imagery one.
+
+### Method note: a field that existed but did not survive export
+
+The strata came back `null` on every exported record. The in-page export rebuilds each record from
+its chip, so `stratum` — added to the verdicts *template* only — was silently dropped. Recovered by
+re-joining on id against the committed template, so nothing was lost, but **a reviewer's own export
+could not have been analysed on its own**. Fixed, with a regression test on both the chip dict and
+the export payload. The general shape is the same one that produced the zero-byte tile cache in
+§5h: **a fix applied to one of two paths that must agree.**
+
 ## 6. Routes to a 500,000-ramp corpus
 
 **Be explicit about which 500k is meant:**

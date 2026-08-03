@@ -26,29 +26,29 @@
   "imagery_note": "0.101 m/px at Seattle's latitude -- USABLE but coarser than Denver's 0.057, so a ramp is ~15 px rather than ~26 and the measured offset floor is roughly twice Denver's. Adequate for sizing a LARGE error, which is what the Poor anchor needs; it would not be adequate for grading a city expected to be Good. 2025 is the most current year King County publishes, matching an inventory filtered to actively-maintained ramps.",
   "zoom": 20,
   "metres_per_pixel": 0.10049992927771147,
-  "span_m": 40.0,
+  "span_m": 40,
   "span_px": 398,
   "ring_radii_m": [
-    1.0,
-    2.0,
-    5.0,
-    10.0
+    1,
+    2,
+    5,
+    10
   ],
   "neighbour_radii_m": [
-    6.0,
-    10.0
+    6,
+    10
   ],
   "blank_chips_dropped": 0,
   "no_imagery_dropped": 0,
   "rubric": {
     "click_target": "Click the CENTRE of the ramp's concrete apron. NOT the detectable-warning pad: PROWAG R305 puts the pad at the back of curb on perpendicular, blended and diagonal ramps, and on the street-level landing of a parallel ramp, so pad centres sit roughly 0.6-0.9 m down-slope of ramp centres. The pad is the most visible thing in the frame, so clicking pads is the easy mistake, and it would add that 0.6-0.9 m to EVERY record as a systematic bias that looks exactly like real positional error. Parallel ramp (a level landing flanked by two sloped runs, where 'the centre' has three defensible answers metres apart): click the centre of the LANDING and note 'parallel'. Legacy ramps whose entire surface is domed are the one case where pad centre and ramp centre coincide.",
-    "always_click": "Click on EVERY chip, including when the crosshair already looks dead centre \u2014 click the crosshair itself for ~0. Two reasons. Mechanically, a chip with no click has a null offset and never counts as reviewed. Methodologically, if you only click when you think you see an error then near-zero cases are recorded by omission, and the low tail of the distribution becomes an artefact of reviewer confidence rather than a property of the data.",
-    "ramps_visible": "Count only ramps you could reach from the crosshair WITHOUT CROSSING A ROADWAY. This is per-corner, not per-chip: a 40 m chip on an arterial holds three or four corners and counting all of them conflates 'ramps in frame' with 'ramps on this corner'. Perpendicular pair = 2. One diagonal apron serving two crossings = 1. Median island with a cut-through = 2, one end per side. Triangular channelising island ('pork chop') = 3, one per leg it serves. Note that 'one ramp per crossing' is NOT the rule \u2014 a median has two ends serving a single crossing; containment is the rule. THE RINGS DO NOT BOUND THE COUNT either: they exist to measure the offset, and a ramp sitting inside the 10 m ring but across a roadway belongs to a different corner. On chip 66519 four ramps fall inside the 10 m ring and the answer is three.",
-    "on_corner": "The same containment test: YES if the crosshair and the ramp you clicked are on the same corner or island with no roadway between them. It is NOT 'is this the ramp the digitiser meant' \u2014 these inventories carry no corner key, so that is unknowable. Below ~2-3 m it is yes by construction, so the field only carries information in the tail, where it separates an imprecise point (benign for Stage 1: it still projects into roughly the right part of the panorama) from a misassigned one (wrong side of the street, plausibly a different panorama altogether). Mid-block ramps and refuge islands resolve under the same test; note the case.",
-    "no_ramp": "The corner is readable and there is definitively no ramp at it. This is a PHANTOM record, and it is a result rather than a failure \u2014 an inventory whose schema has no removal mechanism gives a demolished ramp no way to leave the layer, so the phantom rate has no upper bound from the data alone. Kept distinct from unjudgeable on purpose: 'I can see, and it is not there' is a different claim from 'I cannot see'.",
-    "unjudgeable": "Shadow, occlusion or resolution prevents a call. Mark it rather than guessing \u2014 the unreadable rate is itself a reported number.",
+    "always_click": "Click on EVERY chip, including when the crosshair already looks dead centre \u00e2\u20ac\u201d click the crosshair itself for ~0. Two reasons. Mechanically, a chip with no click has a null offset and never counts as reviewed. Methodologically, if you only click when you think you see an error then near-zero cases are recorded by omission, and the low tail of the distribution becomes an artefact of reviewer confidence rather than a property of the data.",
+    "ramps_visible": "Count only ramps you could reach from the crosshair WITHOUT CROSSING A ROADWAY. This is per-corner, not per-chip: a 40 m chip on an arterial holds three or four corners and counting all of them conflates 'ramps in frame' with 'ramps on this corner'. Perpendicular pair = 2. One diagonal apron serving two crossings = 1. Median island with a cut-through = 2, one end per side. Triangular channelising island ('pork chop') = 3, one per leg it serves. Note that 'one ramp per crossing' is NOT the rule \u00e2\u20ac\u201d a median has two ends serving a single crossing; containment is the rule. THE RINGS DO NOT BOUND THE COUNT either: they exist to measure the offset, and a ramp sitting inside the 10 m ring but across a roadway belongs to a different corner. On chip 66519 four ramps fall inside the 10 m ring and the answer is three.",
+    "on_corner": "The same containment test: YES if the crosshair and the ramp you clicked are on the same corner or island with no roadway between them. It is NOT 'is this the ramp the digitiser meant' \u00e2\u20ac\u201d these inventories carry no corner key, so that is unknowable. Below ~2-3 m it is yes by construction, so the field only carries information in the tail, where it separates an imprecise point (benign for Stage 1: it still projects into roughly the right part of the panorama) from a misassigned one (wrong side of the street, plausibly a different panorama altogether). Mid-block ramps and refuge islands resolve under the same test; note the case.",
+    "no_ramp": "The corner is readable and there is definitively no ramp at it. This is a PHANTOM record, and it is a result rather than a failure \u00e2\u20ac\u201d an inventory whose schema has no removal mechanism gives a demolished ramp no way to leave the layer, so the phantom rate has no upper bound from the data alone. Kept distinct from unjudgeable on purpose: 'I can see, and it is not there' is a different claim from 'I cannot see'.",
+    "unjudgeable": "Shadow, occlusion or resolution prevents a call. Mark it rather than guessing \u00e2\u20ac\u201d the unreadable rate is itself a reported number.",
     "resolution_floor": "Offsets below roughly 0.3 m are at the floor of this instrument, not measurements of real error: see the metres-per-pixel in this manifest for the pixel size, and the registration check in analysis_out/georef_check_<city>/ for how well the imagery agrees with the city's own vector data. Report the left tail as floor-limited rather than claiming centimetres.",
-    "published_nearby": "The published records near each chip are HELD BACK until you have recorded BOTH of this chip's own numbers \u2014 the offset (or a terminal state) and the count \u2014 and this is deliberate. Both are meant to be independent evidence from the imagery, and the whole value of the comparison is that the two sources were arrived at separately. Gating on the count alone was not enough: with the markers already on screen, a click drifts toward one and offset_m silently becomes 'distance to the published record' rather than 'distance to the ramp' \u2014 corrupting the headline number of the assessment. The published data is a cross-check, never an input. Once revealed, each nearby record is drawn on the image as a magenta diamond, and THE DIAMONDS ARE THE EVIDENCE \u2014 the counts are only a summary. **A radius is not a corner**, and it fails in both directions on exactly the complex geometry where the comparison would matter: 6 m misses the far ramp of a large corner (chip 66519's channelising island spans 7.0 m) and reaches straight across a 4-5 m slip lane (chip 67585, where the record 5.2 m ESE is on the far side of a crossing). Both produced confident false alarms before the panel stopped issuing verdicts. So: look at where the diamonds fall, decide which are on your corner, and note a genuine disagreement rather than trusting a number. A count above the published figure suggests the city under-records (the pair-merge failure mode); below it suggests phantoms or duplicates."
+    "published_nearby": "The published records near each chip are HELD BACK until you have recorded BOTH of this chip's own numbers \u00e2\u20ac\u201d the offset (or a terminal state) and the count \u00e2\u20ac\u201d and this is deliberate. Both are meant to be independent evidence from the imagery, and the whole value of the comparison is that the two sources were arrived at separately. Gating on the count alone was not enough: with the markers already on screen, a click drifts toward one and offset_m silently becomes 'distance to the published record' rather than 'distance to the ramp' \u00e2\u20ac\u201d corrupting the headline number of the assessment. The published data is a cross-check, never an input. Once revealed, each nearby record is drawn on the image as a magenta diamond, and THE DIAMONDS ARE THE EVIDENCE \u00e2\u20ac\u201d the counts are only a summary. **A radius is not a corner**, and it fails in both directions on exactly the complex geometry where the comparison would matter: 6 m misses the far ramp of a large corner (chip 66519's channelising island spans 7.0 m) and reaches straight across a 4-5 m slip lane (chip 67585, where the record 5.2 m ESE is on the far side of a crossing). Both produced confident false alarms before the panel stopped issuing verdicts. So: look at where the diamonds fall, decide which are on your corner, and note a genuine disagreement rather than trusting a number. A count above the published figure suggests the city under-records (the pair-merge failure mode); below it suggests phantoms or duplicates."
   },
   "sheet_build": "5fec5d19",
   "reviewer": null,
@@ -67,22 +67,19 @@
         "20/365898/168053",
         "20/365899/168053"
       ],
-      "stratum": "dated_after",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 1.01,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
-      "note": "",
+      "note": "I think this is a large diagonal ramp?",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        4.88,
-        9.72,
-        12.09,
-        17.79,
-        19.69
-      ]
+      "click_px": [
+        189.4,
+        196.1
+      ],
+      "stratum": "dated_after"
     },
     {
       "id": "1948643",
@@ -99,20 +96,19 @@
         "20/366346/167741",
         "20/366347/167741"
       ],
-      "stratum": "dated_before",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 2.96,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        7.92,
-        10.46,
-        14.75
-      ]
+      "click_px": [
+        172.1,
+        210.9
+      ],
+      "stratum": "dated_before"
     },
     {
       "id": "1949286",
@@ -126,21 +122,16 @@
         "20/366063/167860",
         "20/366064/167860"
       ],
-      "stratum": "undated",
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "Tree in the way",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        9.85,
-        12.13,
-        12.19,
-        19.27
-      ]
+      "click_px": null,
+      "stratum": "undated"
     },
     {
       "id": "1949331",
@@ -154,20 +145,19 @@
         "20/366259/167994",
         "20/366260/167994"
       ],
-      "stratum": "undated",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.59,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        9.86,
-        16.53,
-        16.96
-      ]
+      "click_px": [
+        196.8,
+        193.6
+      ],
+      "stratum": "undated"
     },
     {
       "id": "1949421",
@@ -184,16 +174,19 @@
         "20/365786/167893",
         "20/365787/167893"
       ],
-      "stratum": "dated_before",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 1.96,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": []
+      "click_px": [
+        182.4,
+        209.2
+      ],
+      "stratum": "dated_before"
     },
     {
       "id": "1949516",
@@ -205,24 +198,19 @@
         "20/365850/167855",
         "20/365851/167855"
       ],
-      "stratum": "dated_before",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.37,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        4.02,
-        9.74,
-        12.51,
-        12.92,
-        14.46,
-        17.32,
-        18.23
-      ]
+      "click_px": [
+        198.5,
+        202.6
+      ],
+      "stratum": "dated_before"
     },
     {
       "id": "1951096",
@@ -236,18 +224,16 @@
         "20/366491/167994",
         "20/366492/167994"
       ],
-      "stratum": "undated",
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        12.13
-      ]
+      "click_px": null,
+      "stratum": "undated"
     },
     {
       "id": "1951726",
@@ -261,22 +247,19 @@
         "20/366551/167887",
         "20/366552/167887"
       ],
-      "stratum": "dated_after",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.09,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        2.4,
-        11.25,
-        14.72,
-        15.02,
-        17.94
-      ]
+      "click_px": [
+        198.5,
+        199.8
+      ],
+      "stratum": "dated_after"
     },
     {
       "id": "1953050",
@@ -290,24 +273,19 @@
         "20/366024/167777",
         "20/366025/167777"
       ],
-      "stratum": "dated_before",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 1.57,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        3.26,
-        7.91,
-        10.45,
-        10.77,
-        12.47,
-        14.62,
-        14.77
-      ]
+      "click_px": [
+        189.4,
+        211.3
+      ],
+      "stratum": "dated_before"
     },
     {
       "id": "1953073",
@@ -324,21 +302,19 @@
         "20/366237/168034",
         "20/366238/168034"
       ],
-      "stratum": "dated_before",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 4.95,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        2.74,
-        8.2,
-        10.72,
-        17.57
-      ]
+      "click_px": [
+        189.4,
+        150.7
+      ],
+      "stratum": "dated_before"
     },
     {
       "id": "1954141",
@@ -352,20 +328,16 @@
         "20/365681/168074",
         "20/365682/168074"
       ],
-      "stratum": "dated_before",
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        3.0,
-        9.07,
-        13.39
-      ]
+      "click_px": null,
+      "stratum": "dated_before"
     },
     {
       "id": "1954455",
@@ -382,19 +354,19 @@
         "20/366379/168142",
         "20/366380/168142"
       ],
-      "stratum": "undated",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 2.79,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        8.22,
-        10.68
-      ]
+      "click_px": [
+        197.2,
+        171.3
+      ],
+      "stratum": "undated"
     },
     {
       "id": "1954485",
@@ -406,23 +378,19 @@
         "20/366441/168151",
         "20/366442/168151"
       ],
-      "stratum": "undated",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 2.57,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        3.12,
-        7.92,
-        10.32,
-        10.49,
-        12.47,
-        14.77
-      ]
+      "click_px": [
+        178.7,
+        183.5
+      ],
+      "stratum": "undated"
     },
     {
       "id": "1954980",
@@ -436,19 +404,16 @@
         "20/366386/167838",
         "20/366387/167838"
       ],
-      "stratum": "undated",
       "offset_m": null,
       "on_corner": null,
-      "ramps_visible": null,
-      "unreadable": false,
+      "ramps_visible": 2,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "Not easy to see which ramp to associate this crosshair with",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        8.2,
-        12.47
-      ]
+      "click_px": null,
+      "stratum": "undated"
     },
     {
       "id": "1955594",
@@ -465,24 +430,16 @@
         "20/366206/167985",
         "20/366207/167985"
       ],
-      "stratum": "dated_after",
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "Trees in the way",
       "published_within_6m": 2,
       "published_within_10m": 4,
-      "published_neighbours_m": [
-        3.8,
-        7.46,
-        9.79,
-        12.71,
-        14.36,
-        15.72,
-        15.78
-      ]
+      "click_px": null,
+      "stratum": "dated_after"
     },
     {
       "id": "1955741",
@@ -496,21 +453,16 @@
         "20/365886/167992",
         "20/365887/167992"
       ],
-      "stratum": "dated_before",
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "Powerlines and shadows make this hard to judge",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        11.74,
-        11.94,
-        14.39,
-        18.33
-      ]
+      "click_px": null,
+      "stratum": "dated_before"
     },
     {
       "id": "1956591",
@@ -522,22 +474,16 @@
         "20/365988/168015",
         "20/365989/168015"
       ],
-      "stratum": "dated_after",
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "Shadows and trees make this hard to judge",
       "published_within_6m": 1,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        6.17,
-        8.72,
-        11.45,
-        14.62,
-        15.7
-      ]
+      "click_px": null,
+      "stratum": "dated_after"
     },
     {
       "id": "1956752",
@@ -554,19 +500,19 @@
         "20/366024/167747",
         "20/366025/167747"
       ],
-      "stratum": "undated",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 2.65,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        10.2,
-        16.6
-      ]
+      "click_px": [
+        174.6,
+        189.1
+      ],
+      "stratum": "undated"
     },
     {
       "id": "1956867",
@@ -583,20 +529,16 @@
         "20/366163/167924",
         "20/366164/167924"
       ],
-      "stratum": "dated_before",
       "offset_m": null,
       "on_corner": null,
-      "ramps_visible": null,
-      "unreadable": false,
+      "ramps_visible": 1,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "Maybe a diagonal ramp. Hard to tell from shadow",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        8.2,
-        11.25,
-        13.06
-      ]
+      "click_px": null,
+      "stratum": "dated_before"
     },
     {
       "id": "1958006",
@@ -610,22 +552,19 @@
         "20/366464/167810",
         "20/366465/167810"
       ],
-      "stratum": "dated_before",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 1.17,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        2.59,
-        10.39,
-        12.19,
-        18.39,
-        18.61
-      ]
+      "click_px": [
+        198.9,
+        187.4
+      ],
+      "stratum": "dated_before"
     },
     {
       "id": "1960309",
@@ -639,20 +578,19 @@
         "20/366268/168056",
         "20/366269/168056"
       ],
-      "stratum": "dated_before",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 1.4,
+      "on_corner": false,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        2.55,
-        16.05,
-        18.78
-      ]
+      "click_px": [
+        191,
+        210.5
+      ],
+      "stratum": "dated_before"
     },
     {
       "id": "1961558",
@@ -664,21 +602,16 @@
         "20/366559/168166",
         "20/366560/168166"
       ],
-      "stratum": "dated_after",
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "There is a ramp right next to this one, not sure which to choose",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        2.91,
-        12.73,
-        14.42,
-        17.92
-      ]
+      "click_px": null,
+      "stratum": "dated_after"
     },
     {
       "id": "1962256",
@@ -692,18 +625,16 @@
         "20/366174/167950",
         "20/366175/167950"
       ],
-      "stratum": "undated",
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "This is right in the middle of the street",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        7.26
-      ]
+      "click_px": null,
+      "stratum": "undated"
     },
     {
       "id": "1962441",
@@ -717,24 +648,16 @@
         "20/366070/168062",
         "20/366071/168062"
       ],
-      "stratum": "dated_after",
       "offset_m": null,
       "on_corner": null,
-      "ramps_visible": null,
-      "unreadable": false,
+      "ramps_visible": 1,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "Tree coverage makes this difficult",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        3.29,
-        7.91,
-        10.42,
-        10.48,
-        12.47,
-        14.4,
-        14.77
-      ]
+      "click_px": null,
+      "stratum": "dated_after"
     },
     {
       "id": "1967597",
@@ -746,19 +669,16 @@
         "20/366094/167883",
         "20/366095/167883"
       ],
-      "stratum": "dated_before",
       "offset_m": null,
       "on_corner": null,
-      "ramps_visible": null,
-      "unreadable": false,
+      "ramps_visible": 1,
+      "unreadable": true,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        4.46,
-        13.74
-      ]
+      "click_px": null,
+      "stratum": "dated_before"
     },
     {
       "id": "1968717",
@@ -770,20 +690,19 @@
         "20/366156/167963",
         "20/366157/167963"
       ],
-      "stratum": "dated_before",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.26,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        2.66,
-        10.77,
-        12.14
-      ]
+      "click_px": [
+        196.8,
+        197.7
+      ],
+      "stratum": "dated_before"
     },
     {
       "id": "1969074",
@@ -795,21 +714,16 @@
         "20/366497/168073",
         "20/366498/168073"
       ],
-      "stratum": "dated_before",
       "offset_m": null,
       "on_corner": null,
-      "ramps_visible": null,
-      "unreadable": false,
+      "ramps_visible": 3,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "Not clear which ramp to choose as correct",
       "published_within_6m": 4,
       "published_within_10m": 4,
-      "published_neighbours_m": [
-        2.28,
-        2.28,
-        4.29,
-        19.15
-      ]
+      "click_px": null,
+      "stratum": "dated_before"
     },
     {
       "id": "1970444",
@@ -826,20 +740,16 @@
         "20/366178/167993",
         "20/366179/167993"
       ],
-      "stratum": "dated_after",
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "Trees in the way",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        12.47,
-        13.05,
-        13.39
-      ]
+      "click_px": null,
+      "stratum": "dated_after"
     },
     {
       "id": "1970816",
@@ -853,22 +763,16 @@
         "20/366111/168021",
         "20/366112/168021"
       ],
-      "stratum": "dated_after",
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "Trees in the way",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        8.19,
-        10.75,
-        12.15,
-        14.63,
-        14.94
-      ]
+      "click_px": null,
+      "stratum": "dated_after"
     },
     {
       "id": "1971730",
@@ -885,21 +789,16 @@
         "20/366057/168043",
         "20/366058/168043"
       ],
-      "stratum": "undated",
       "offset_m": null,
       "on_corner": null,
-      "ramps_visible": null,
-      "unreadable": false,
+      "ramps_visible": 2,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "Too pixelated to tell",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        3.94,
-        7.98,
-        13.08,
-        15.42
-      ]
+      "click_px": null,
+      "stratum": "undated"
     },
     {
       "id": "1973054",
@@ -911,22 +810,19 @@
         "20/365898/168032",
         "20/365899/168032"
       ],
-      "stratum": "undated",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.65,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        3.43,
-        10.41,
-        12.51,
-        13.01,
-        17.62
-      ]
+      "click_px": [
+        200.5,
+        192.8
+      ],
+      "stratum": "undated"
     },
     {
       "id": "1973135",
@@ -940,21 +836,16 @@
         "20/366311/167764",
         "20/366312/167764"
       ],
-      "stratum": "dated_before",
       "offset_m": null,
       "on_corner": null,
-      "ramps_visible": null,
-      "unreadable": false,
+      "ramps_visible": 1,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "Not clear",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        4.48,
-        15.62,
-        17.61,
-        19.08
-      ]
+      "click_px": null,
+      "stratum": "dated_before"
     },
     {
       "id": "1973498",
@@ -971,24 +862,19 @@
         "20/365906/168062",
         "20/365907/168062"
       ],
-      "stratum": "undated",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 4.02,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        4.67,
-        7.89,
-        12.25,
-        15.54,
-        16.0,
-        19.54,
-        19.7
-      ]
+      "click_px": [
+        238,
+        190.3
+      ],
+      "stratum": "undated"
     },
     {
       "id": "1973665",
@@ -1002,19 +888,19 @@
         "20/365965/167866",
         "20/365966/167866"
       ],
-      "stratum": "undated",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 2,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        3.88,
-        11.87
-      ]
+      "click_px": [
+        214.5,
+        186.6
+      ],
+      "stratum": "undated"
     },
     {
       "id": "1973693",
@@ -1026,19 +912,19 @@
         "20/366149/167975",
         "20/366150/167975"
       ],
-      "stratum": "dated_before",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 4.02,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        11.13,
-        15.8
-      ]
+      "click_px": [
+        216.6,
+        163.1
+      ],
+      "stratum": "dated_before"
     },
     {
       "id": "1973904",
@@ -1052,18 +938,19 @@
         "20/365936/167948",
         "20/365937/167948"
       ],
-      "stratum": "dated_after",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 1.09,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        8.25
-      ]
+      "click_px": [
+        197.6,
+        188.2
+      ],
+      "stratum": "dated_after"
     },
     {
       "id": "1977411",
@@ -1075,22 +962,16 @@
         "20/365968/167918",
         "20/365969/167918"
       ],
-      "stratum": "dated_after",
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "Crosshair is in the middle of the street",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        5.0,
-        8.09,
-        12.83,
-        16.73,
-        18.63
-      ]
+      "click_px": null,
+      "stratum": "dated_after"
     },
     {
       "id": "1977745",
@@ -1104,24 +985,19 @@
         "20/366168/168056",
         "20/366169/168056"
       ],
-      "stratum": "dated_before",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 3.83,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        5.45,
-        8.01,
-        10.49,
-        12.49,
-        13.18,
-        14.78,
-        15.82
-      ]
+      "click_px": [
+        231.8,
+        179.6
+      ],
+      "stratum": "dated_before"
     },
     {
       "id": "1978728",
@@ -1138,24 +1014,16 @@
         "20/366555/168005",
         "20/366556/168005"
       ],
-      "stratum": "dated_before",
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "Crosshair is in the middle of the street",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        3.08,
-        8.21,
-        10.35,
-        10.48,
-        12.49,
-        14.41,
-        14.95
-      ]
+      "click_px": null,
+      "stratum": "dated_before"
     },
     {
       "id": "1978859",
@@ -1172,24 +1040,19 @@
         "20/366194/168038",
         "20/366195/168038"
       ],
-      "stratum": "dated_after",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 1.74,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        3.08,
-        8.2,
-        10.45,
-        10.74,
-        12.49,
-        14.64,
-        14.94
-      ]
+      "click_px": [
+        209.2,
+        184.9
+      ],
+      "stratum": "dated_after"
     },
     {
       "id": "1979506",
@@ -1203,22 +1066,19 @@
         "20/366394/168149",
         "20/366395/168149"
       ],
-      "stratum": "dated_after",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 2.66,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        2.71,
-        8.22,
-        10.3,
-        17.95,
-        19.74
-      ]
+      "click_px": [
+        173.7,
+        206.8
+      ],
+      "stratum": "dated_after"
     },
     {
       "id": "1979659",
@@ -1235,24 +1095,16 @@
         "20/365878/167777",
         "20/365879/167777"
       ],
-      "stratum": "dated_after",
       "offset_m": null,
       "on_corner": null,
-      "ramps_visible": null,
-      "unreadable": false,
+      "ramps_visible": 2,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "Not clear which ramp to associate this with given the magentas. They all seem off",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        4.11,
-        8.2,
-        11.7,
-        12.49,
-        14.78,
-        15.96,
-        16.12
-      ]
+      "click_px": null,
+      "stratum": "dated_after"
     },
     {
       "id": "1980792",
@@ -1264,22 +1116,16 @@
         "20/365898/167866",
         "20/365899/167866"
       ],
-      "stratum": "dated_after",
       "offset_m": null,
       "on_corner": null,
-      "ramps_visible": null,
-      "unreadable": false,
+      "ramps_visible": 1,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "I think this is a diagonal ramp",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        1.46,
-        11.39,
-        11.65,
-        12.61,
-        16.43
-      ]
+      "click_px": null,
+      "stratum": "dated_after"
     },
     {
       "id": "1980801",
@@ -1293,20 +1139,19 @@
         "20/365906/168018",
         "20/365907/168018"
       ],
-      "stratum": "dated_before",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.71,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        3.33,
-        12.3,
-        15.76
-      ]
+      "click_px": [
+        199.3,
+        191.9
+      ],
+      "stratum": "dated_before"
     },
     {
       "id": "1981032",
@@ -1320,23 +1165,19 @@
         "20/366567/167907",
         "20/366568/167907"
       ],
-      "stratum": "dated_after",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.88,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
-      "note": "",
+      "note": "This is a diagonal ramp I believe",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        4.26,
-        13.21,
-        13.57,
-        15.38,
-        15.46,
-        19.17
-      ]
+      "click_px": [
+        198.9,
+        207.8
+      ],
+      "stratum": "dated_after"
     },
     {
       "id": "1981254",
@@ -1350,19 +1191,19 @@
         "20/365968/167950",
         "20/365969/167950"
       ],
-      "stratum": "undated",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 2.16,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        12.37,
-        19.37
-      ]
+      "click_px": [
+        218.2,
+        189.5
+      ],
+      "stratum": "undated"
     },
     {
       "id": "1981373",
@@ -1376,16 +1217,19 @@
         "20/365867/168025",
         "20/365868/168025"
       ],
-      "stratum": "undated",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.32,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": []
+      "click_px": [
+        196.8,
+        196.6
+      ],
+      "stratum": "undated"
     },
     {
       "id": "1981615",
@@ -1399,19 +1243,16 @@
         "20/366128/167903",
         "20/366129/167903"
       ],
-      "stratum": "dated_before",
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "Tree coverage",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        2.21,
-        19.2
-      ]
+      "click_px": null,
+      "stratum": "dated_before"
     },
     {
       "id": "1982390",
@@ -1425,20 +1266,19 @@
         "20/365875/168079",
         "20/365876/168079"
       ],
-      "stratum": "undated",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 1.68,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
-      "note": "",
+      "note": "Tree coverage makes this hard but I can make out the yellow TSI",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        4.82,
-        7.9,
-        16.76
-      ]
+      "click_px": [
+        213.3,
+        190.3
+      ],
+      "stratum": "undated"
     },
     {
       "id": "1984667",
@@ -1452,16 +1292,16 @@
         "20/366545/168143",
         "20/366546/168143"
       ],
-      "stratum": "undated",
       "offset_m": null,
       "on_corner": null,
-      "ramps_visible": null,
+      "ramps_visible": 0,
       "unreadable": false,
-      "no_ramp": false,
+      "no_ramp": true,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": []
+      "click_px": null,
+      "stratum": "undated"
     },
     {
       "id": "1985436",
@@ -1475,21 +1315,16 @@
         "20/365859/168061",
         "20/365860/168061"
       ],
-      "stratum": "dated_after",
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "Tree coverage",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        6.24,
-        12.9,
-        17.32,
-        17.66
-      ]
+      "click_px": null,
+      "stratum": "dated_after"
     },
     {
       "id": "1986212",
@@ -1503,28 +1338,19 @@
         "20/365946/167842",
         "20/365947/167842"
       ],
-      "stratum": "dated_after",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 2.52,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        4.81,
-        9.43,
-        12.45,
-        13.02,
-        14.44,
-        15.21,
-        15.42,
-        16.93,
-        17.41,
-        18.93,
-        19.44
-      ]
+      "click_px": [
+        176.2,
+        188.6
+      ],
+      "stratum": "dated_after"
     },
     {
       "id": "1987949",
@@ -1538,23 +1364,19 @@
         "20/366399/168149",
         "20/366400/168149"
       ],
-      "stratum": "dated_after",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 3.32,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        4.27,
-        7.83,
-        10.85,
-        14.56,
-        14.77,
-        17.64
-      ]
+      "click_px": [
+        226.9,
+        181.2
+      ],
+      "stratum": "dated_after"
     },
     {
       "id": "1988766",
@@ -1568,18 +1390,16 @@
         "20/366530/167794",
         "20/366531/167794"
       ],
-      "stratum": "dated_after",
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        10.12
-      ]
+      "click_px": null,
+      "stratum": "dated_after"
     },
     {
       "id": "1989673",
@@ -1596,20 +1416,16 @@
         "20/366200/168086",
         "20/366201/168086"
       ],
-      "stratum": "undated",
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "Tree coverage",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        5.82,
-        12.47,
-        16.2
-      ]
+      "click_px": null,
+      "stratum": "undated"
     },
     {
       "id": "1989880",
@@ -1621,20 +1437,19 @@
         "20/366104/167862",
         "20/366105/167862"
       ],
-      "stratum": "undated",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 1.96,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        0.99,
-        14.74,
-        16.75
-      ]
+      "click_px": [
+        206.3,
+        217.1
+      ],
+      "stratum": "undated"
     },
     {
       "id": "1992129",
@@ -1651,24 +1466,19 @@
         "20/365947/167989",
         "20/365948/167989"
       ],
-      "stratum": "dated_after",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.93,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        4.94,
-        10.25,
-        12.37,
-        13.71,
-        15.12,
-        17.92,
-        18.02
-      ]
+      "click_px": [
+        189.8,
+        199.8
+      ],
+      "stratum": "dated_after"
     },
     {
       "id": "1992667",
@@ -1682,20 +1492,19 @@
         "20/366091/167789",
         "20/366092/167789"
       ],
-      "stratum": "undated",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 2.23,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
-      "note": "",
+      "note": "Diagonal ramp",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        8.23,
-        12.47,
-        14.93
-      ]
+      "click_px": [
+        191.4,
+        178.1
+      ],
+      "stratum": "undated"
     },
     {
       "id": "1993626",
@@ -1707,24 +1516,19 @@
         "20/365842/167833",
         "20/365843/167833"
       ],
-      "stratum": "dated_before",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 1.76,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        4.21,
-        8.24,
-        11.07,
-        12.24,
-        12.47,
-        15.95,
-        17.43
-      ]
+      "click_px": [
+        190.2,
+        214.2
+      ],
+      "stratum": "dated_before"
     },
     {
       "id": "1994004",
@@ -1738,20 +1542,19 @@
         "20/365858/168025",
         "20/365859/168025"
       ],
-      "stratum": "undated",
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.79,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        0.97,
-        16.12,
-        19.74
-      ]
+      "click_px": [
+        198.5,
+        191.1
+      ],
+      "stratum": "undated"
     }
   ]
 }

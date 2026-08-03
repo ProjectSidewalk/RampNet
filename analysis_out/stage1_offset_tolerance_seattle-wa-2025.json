@@ -1,0 +1,91 @@
+{
+ "crop_half_angle_deg": 18.367779123901286,
+ "tangential_tolerance_per_metre_of_range": 0.33203124999999994,
+ "city": "seattle-wa-2025",
+ "n_offsets": 34,
+ "n_benchmark_ramps": 6238,
+ "ramps_per_bundle": {
+  "richmond": 302,
+  "bend": 327,
+  "morgantown": 266,
+  "budapest_district5": 280,
+  "annapolis": 284,
+  "paterson": 393,
+  "gainesville": 272,
+  "clovis": 195,
+  "manual_gold": 3919
+ },
+ "result": {
+  "p_outside": 0.088725,
+  "trials": 200000,
+  "by_range": {
+   "0-5 m": {
+    "outside": 5347,
+    "n": 13944,
+    "rate": 0.38346242111302353
+   },
+   "5-10 m": {
+    "outside": 11094,
+    "n": 74387,
+    "rate": 0.1491389624531168
+   },
+   "10-15 m": {
+    "outside": 1285,
+    "n": 53975,
+    "rate": 0.0238073182028717
+   },
+   "15-25 m": {
+    "outside": 19,
+    "n": 43511,
+    "rate": 0.00043667118659649284
+   },
+   "25-inf m": {
+    "outside": 0,
+    "n": 14183,
+    "rate": 0.0
+   }
+  }
+ },
+ "sweep": [
+  {
+   "scale": 1,
+   "median_offset_m": 1.76,
+   "p_outside": 0.0887
+  },
+  {
+   "scale": 2,
+   "median_offset_m": 3.52,
+   "p_outside": 0.2661833333333333
+  },
+  {
+   "scale": 3,
+   "median_offset_m": 5.28,
+   "p_outside": 0.3943
+  },
+  {
+   "scale": 4,
+   "median_offset_m": 7.04,
+   "p_outside": 0.4857
+  },
+  {
+   "scale": 6,
+   "median_offset_m": 10.56,
+   "p_outside": 0.5929666666666666
+  },
+  {
+   "scale": 8,
+   "median_offset_m": 14.08,
+   "p_outside": 0.6599
+  },
+  {
+   "scale": 12,
+   "median_offset_m": 21.12,
+   "p_outside": 0.73195
+  },
+  {
+   "scale": 16,
+   "median_offset_m": 28.16,
+   "p_outside": 0.76985
+  }
+ ]
+}

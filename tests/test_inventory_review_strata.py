@@ -6,6 +6,7 @@ is only valid if the partition is honest — a record silently filed as "dated"
 because a null sentinel parsed as a year would bias the very comparison the
 strata were built to make. CPU only, no network.
 """
+import io
 import os
 import sys
 
@@ -125,3 +126,25 @@ def test_strata_draw_independently_rather_than_sharing_one_shuffle():
 
 def test_strata_names_are_stable():
     assert s.YEAR_STRATA == ("dated_before", "dated_after", "undated")
+
+
+# --------------------------------------------------------------------------- #
+# the export path
+# --------------------------------------------------------------------------- #
+def test_the_exported_record_carries_its_stratum():
+    """The in-page export rebuilds each record from CHIPS, so a field present
+    only in the verdicts template is DROPPED on export. That happened once: the
+    whole point of stratifying is lost if the reviewer's own file cannot say
+    which stratum a verdict came from, and recovering it needs a re-join against
+    a template the reviewer does not have."""
+    src = io.open(os.path.join(REPO, "scripts", "analysis",
+                            "inventory_review_sheet.py"), encoding="utf-8").read()
+    export = src.split('document.getElementById("export")')[1]
+    assert "stratum" in export.split("URL.createObjectURL")[0]
+
+
+def test_the_chip_dict_carries_the_stratum_not_just_the_verdict():
+    src = io.open(os.path.join(REPO, "scripts", "analysis",
+                            "inventory_review_sheet.py"), encoding="utf-8").read()
+    chip_append = src.split("chips.append({")[1].split("})")[0]
+    assert "stratum" in chip_append
