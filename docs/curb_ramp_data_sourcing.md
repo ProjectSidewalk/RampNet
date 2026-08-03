@@ -1621,6 +1621,77 @@ could not have been analysed on its own**. Fixed, with a regression test on both
 the export payload. The general shape is the same one that produced the zero-byte tile cache in
 §5h: **a fix applied to one of two paths that must agree.**
 
+## 5m. ⚠️ Supply is not the constraint. It never was. (2026-08-03)
+
+§6 concludes that **"500,000 is not reachable on assessed data alone"** and that every route depends
+on unassessed cities. The first half is still true. The second half was an artefact of how the
+candidate list was built — by hand, once, from a synonym search someone ran in a browser.
+
+`scripts/analysis/discover_inventories.py` (10 tests) automates §3's own lesson: sweep the **synonym
+set**, not one phrase, against the ArcGIS Hub search API, which returns `recordCount` per layer.
+Filtered to point layers whose names denote ramps, ≥5,000 records:
+
+**1,972,275 records across 65 distinct publishers** — and **every one of the eight queries hit the
+300-result page cap, so that is a floor, not a total.**
+
+| records | publisher | layer |
+| ---: | :--- | :--- |
+| **295,389** | DVRPC-GIS *(Philadelphia 9-county region)* | DVRPC Pedestrian Ramps |
+| **145,674** | City of Philadelphia | Eagleview Pedestrian Ramps |
+| 109,965 | *(unattributed)* | Curb Ramps |
+| 91,759 | *(unattributed)* | Access Ramps |
+| 83,002 | Virginia DOT | ADA Curb Ramp Conditions *(known, §3)* |
+| 72,598 | UT San Antonio | Curb Ramps 20201201 |
+| 50,372 | City of Madison | Curb Cut |
+| 49,724 | City of Austin | TRANSPORTATION curb ramps |
+| 41,460 | City of Albuquerque | ADA Ramps |
+| 40,999 | Ada County Highway District *(Boise)* | Ped Ramps |
+| 36,425 | City of Sacramento | ADA Curb Ramps |
+| 32,593 | MDOT SHA *(Maryland)* | Pedestrian Facility – Sidewalk Ramps |
+| 29,106 | Massachusetts geoDOT | Pedestrian Curb Cuts |
+| 28,606 | Minnesota DOT | Pedestrian Curb Ramps |
+| 28,584 | City of Spokane | Curb Ramp |
+| 23,686 | UDOT | ADA Pedestrian Access Ramp Records |
+| 23,650 | Hennepin County | Pedestrian Ramps |
+| 22,363 | City of Tacoma | Curb Ramp Inventory |
+
+**DVRPC alone is larger than the entire current training corpus.** The 500k target is not a supply
+problem and has not been one at any point in this document's history.
+
+### Two §3 negative results are overturned
+
+- **Houston** — recorded as *"sidewalk permits, a sidewalk asset layer, service areas. No ramp
+  inventory."* Harris County Online Repository publishes **Pedestrian Ramp, 16,341 points**.
+- **Atlanta** — recorded as *"4,517 (wrong polarity)"*, i.e. missing-ramp locations. ADOT&PW also
+  publishes **Ramp Inventory 2019, 19,642**, which is the right polarity.
+
+Both were found by a query the manual pass did not run. **A negative result about *supply* is only
+as good as the search that produced it**, which is the same failure §3 already documented once and
+is the reason this is now a committed script rather than a browser session.
+
+### What this does not mean
+
+`recordCount` is **rows, not ramps**, and every §6 caveat still applies — Charlotte's 40,601 held
+5,505 `NoRamp` assertions, San Francisco's 50,096 rows were 7,553 intersection centroids. The sweep
+also drops three false-positive classes by name, each produced by a real run: **boat ramps** (Florida
+FWC), **rail ramps** (CSX), and — most dangerous — **planned-work layers** (*Missing*, *Needs*,
+*Projects*, *Obstructions*), which carry Atlanta's wrong polarity and would inflate supply with
+records asserting a ramp does *not* exist. Maintenance layers (*Work Orders*, *Inspections*) are
+dropped too, since one ramp yields many rows.
+
+Nothing here is assessed for location precision, temporal gap, or per-corner semantics. **These are
+candidates to read, not numbers to add.**
+
+### The constraint is assessment throughput, and that reframes the whole issue
+
+With ~2M candidate records and a 500k target, the binding constraint is no longer *finding* ramps —
+it is deciding which are usable. That currently costs, per city: a basemap hunt (§5h, four distinct
+failure modes), a 60-chip build, and an hour of a reviewer who is the only reviewer. Seattle's pass
+then discarded **41.7%** of its chips to tree canopy.
+
+**At that rate the queue above is decades of work.** So the next investment on this issue should be
+in the *instrument*, not in more cities — see §5n.
+
 ## 6. Routes to a 500,000-ramp corpus
 
 **Be explicit about which 500k is meant:**

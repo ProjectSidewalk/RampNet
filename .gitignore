@@ -122,3 +122,7 @@ analysis_out/stage1_bearing_cache/
 # At-the-sites basemap probes (#96): a few KB each, and they carry the paired
 # vegetation/coverage numbers a tile-source choice is justified by.
 !analysis_out/probe_sites_*.json
+
+# Inventory discovery sweep (#96): the candidate list, with record counts. A few
+# tens of KB, and it is the evidence that supply is not the constraint.
+!analysis_out/inventory_discovery.json
