@@ -425,6 +425,65 @@ def uniform_sample(n_records, n, seed):
     return sorted(idx[:n])
 
 
+#: Names of the three date strata, in the order they are sampled and reported.
+YEAR_STRATA = ("dated_before", "dated_after", "undated")
+
+
+def year_strata(rows, frame, field, cutoff):
+    """Partition ``frame`` by an install-date field into three strata.
+
+    ``dated_before`` — parses, and the year is <= ``cutoff``.
+    ``dated_after``  — parses, and the year is > ``cutoff``.
+    ``undated``      — does not parse, **or is a known null sentinel**.
+
+    Dates are read with ``temporal_gap.parse_ym``, so the sentinel handling §5c
+    paid for travels with them: Boston's ``"18991230"`` and the old ``2000-01``
+    placeholder are undated, not 1899 and not 2000. Writing a second parser here
+    would have re-earned both of those bugs.
+
+    The strata exist because #96 §5k found in Charlotte that records postdating
+    their survey are measurably worse — three phantoms and the two largest
+    offsets, all with a null date, Fisher p = 3.9e-06 at n=5. Sampling equally
+    from each stratum tests that at a useful n instead of inheriting whatever
+    mixture the city happens to publish.
+    """
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from temporal_gap import SENTINEL_YMS, parse_ym
+
+    out = {k: [] for k in YEAR_STRATA}
+    for i in frame:
+        ym = parse_ym(rows[i].get(field))
+        if ym is None or ym in SENTINEL_YMS:
+            out["undated"].append(i)
+        elif ym[0] <= cutoff:
+            out["dated_before"].append(i)
+        else:
+            out["dated_after"].append(i)
+    return out
+
+
+def sample_year_strata(rows, frame, field, cutoff, n, seed):
+    """Equal-allocation sample across :func:`year_strata`.
+
+    Returns ``(picked, stratum_of, sizes)``. Each stratum draws with its own
+    derived seed so the draws are independent yet reproducible, and a stratum
+    smaller than its quota contributes everything it has rather than failing —
+    the shortfall is reported, never silently redistributed, because a stratum
+    that could not be filled is a finding about the city.
+    """
+    strata = year_strata(rows, frame, field, cutoff)
+    per = n // len(YEAR_STRATA)
+    picked, stratum_of = [], {}
+    for k, name in enumerate(YEAR_STRATA):
+        pool = strata[name]
+        take = min(per, len(pool))
+        local = uniform_sample(len(pool), take, seed + 1000 * (k + 1))
+        for j in local:
+            picked.append(pool[j])
+            stratum_of[pool[j]] = name
+    return sorted(picked), stratum_of, {k: len(v) for k, v in strata.items()}
+
+
 def stratified_sample(points, n, seed, grid=8):
     """Pick ``n`` indices spread over an equal-area grid of the point set.
 
@@ -1107,8 +1166,22 @@ def main(argv=None):
                          "polarity for #86, wrong for a Stage 1 label — and there is "
                          "no single positive value to select instead, since the "
                          "remaining 16 types are all real ramps.")
+    ap.add_argument("--strata-year-field", default=None,
+                    help="install-date field to stratify on, e.g. INSTALL_DATE. "
+                         "Splits the frame into dated<=cutoff / dated>cutoff / "
+                         "undated and samples EQUALLY from each, so a city whose "
+                         "records mostly postdate its imagery still yields a "
+                         "usable read on each group (#96 §5k). Overrides "
+                         "--sampling.")
+    ap.add_argument("--strata-year-cutoff", type=int, default=None,
+                    help="the imagery year: records installed after it may not "
+                         "be visible, so they are a separate stratum rather than "
+                         "a confound spread through the sample")
     ap.add_argument("--out-dir", default=OUT)
     args = ap.parse_args(argv)
+
+    if args.strata_year_field and args.strata_year_cutoff is None:
+        ap.error("--strata-year-field needs --strata-year-cutoff (the imagery year)")
 
     src = TILE_SOURCES[args.tile_source]
     zoom = args.zoom if args.zoom is not None else src["max_zoom"]
@@ -1136,13 +1209,27 @@ def main(argv=None):
                 len(frame), len(rows), args.where_field, args.where_value))
         if not frame:
             ap.error("the sample frame is empty — check the field name and value")
-    pts = [(rows[i]["lon"], rows[i]["lat"]) for i in frame]
-    if args.sampling == "uniform":
-        local = uniform_sample(len(frame), args.sample, args.seed)
+    stratum_of, strata_sizes = {}, None
+    if args.strata_year_field:
+        picked, stratum_of, strata_sizes = sample_year_strata(
+            rows, frame, args.strata_year_field, args.strata_year_cutoff,
+            args.sample, args.seed)
+        print("date strata on {} (cutoff {}): {}".format(
+            args.strata_year_field, args.strata_year_cutoff, strata_sizes))
+        got = {k: sum(1 for i in picked if stratum_of[i] == k) for k in YEAR_STRATA}
+        print("sampled {} records (equal allocation, seed {}): {}".format(
+            len(picked), args.seed, got))
+        short = {k: v for k, v in got.items() if v < args.sample // len(YEAR_STRATA)}
+        if short:
+            print("  !! stratum below quota, not redistributed: {}".format(short))
     else:
-        local = stratified_sample(pts, args.sample, args.seed, grid=args.grid)
-    picked = [frame[i] for i in local]
-    print("sampled {} records ({}, seed {})".format(len(picked), args.sampling, args.seed))
+        pts = [(rows[i]["lon"], rows[i]["lat"]) for i in frame]
+        if args.sampling == "uniform":
+            local = uniform_sample(len(frame), args.sample, args.seed)
+        else:
+            local = stratified_sample(pts, args.sample, args.seed, grid=args.grid)
+        picked = [frame[i] for i in local]
+        print("sampled {} records ({}, seed {})".format(len(picked), args.sampling, args.seed))
 
     review_dir = os.path.join(args.out_dir, "review_{}".format(args.city))
     cache_dir = os.path.join(review_dir, "tiles_{}".format(args.tile_source))
@@ -1168,6 +1255,11 @@ def main(argv=None):
                       "tiles": keys})
         verdicts.append({
             "id": rid, "lon": lon, "lat": lat, "tiles": keys,
+            # Which date stratum this record came from, when the sheet was built
+            # with --strata-year-field. Recorded per record rather than derived
+            # later, so the verdicts stay analysable without re-joining against
+            # a live inventory that may have drifted.
+            "stratum": stratum_of.get(i),
             "offset_m": None, "on_corner": None, "ramps_visible": None,
             "unreadable": False, "no_ramp": False, "note": "",
         })
@@ -1201,6 +1293,14 @@ def main(argv=None):
         "sample_frame": {"field": args.where_field, "value": args.where_value,
                          "size": len(frame), "of": len(rows)},
         "grid": args.grid if args.sampling == "stratified" else None,
+        # Date strata (#96 §5k). Sizes are of the whole frame, so a stratum's
+        # reviewed rate can be weighted back to the city rather than read as if
+        # equal allocation reflected equal prevalence.
+        "strata": None if strata_sizes is None else {
+            "field": args.strata_year_field,
+            "cutoff": args.strata_year_cutoff,
+            "frame_sizes": strata_sizes,
+        },
         "tile_source": args.tile_source, "tile_url": src["url"],
         "imagery": src["attribution"], "imagery_note": src["note"],
         "zoom": zoom, "metres_per_pixel": mpp, "span_m": args.span_m,
