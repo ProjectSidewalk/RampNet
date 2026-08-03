@@ -118,3 +118,7 @@ benchmark/*/index.csv
 # Cached parquet columns for scripts/analysis/stage1_bearing_residual.py.
 # Derived from the published HF dataset on demand; regenerable with --refresh.
 analysis_out/stage1_bearing_cache/
+
+# At-the-sites basemap probes (#96): a few KB each, and they carry the paired
+# vegetation/coverage numbers a tile-source choice is justified by.
+!analysis_out/probe_sites_*.json
