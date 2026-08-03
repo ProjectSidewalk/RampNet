@@ -27,8 +27,12 @@
 # so no inherited args), which is also the only reason WORKERS can be raised here.
 #
 #   YOLO_CKPT=yolo11x.pt YOLO_DATA=$DATA/tiles/data.yaml BATCH=12 NAME=y11x_tiles \
-#       sbatch -A gpu-l40s-makelab -p gpu-l40s -q normal --time=14-00:00:00 \
+#       sbatch -A gpu-l40s-makelab -p gpu-l40s -q normal --time=7-00:00:00 \
 #              scripts/model_comparison/run_yolo_train.slurm
+#
+# Size --time to fit before the next maintenance reservation, not to the size of the
+# job: a limit that overruns one is accepted and then silently parked until after the
+# window. Re-running the same line afterwards resumes from last.pt.
 #
 # Note it overrides only partition/account/time — CPUs, memory and WORKERS stay at the
 # defaults below. gpu-l40s-makelab is capped at cpu=32/gpu=2/mem=386952M for the WHOLE

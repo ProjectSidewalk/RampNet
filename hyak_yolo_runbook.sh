@@ -193,12 +193,24 @@ train)
   # free on klone" conclusion does NOT hold on this partition. Verify before assuming:
   #   sacctmgr -nP show assoc account=gpu-l40s-makelab format=Account,GrpTRES
   #
-  # The 14-day limit is what actually rescues this arm; the worker count was never the
+  # A LONG wall limit is what actually rescues this arm; the worker count was never the
   # binding constraint. At the fork's ~4.5 h/epoch it buys tens of epochs against the
   # 18 the fork managed inside 72 h.
+  #
+  # But size it to fit BEFORE the next cluster maintenance reservation. Asking for 14
+  # days on 2026-08-03 did not fail — worse, it silently parked the job at
+  # StartTime=2026-08-12T09:00 (Reason=ReqNodeNotAvail,_Reserved_for_maintenance),
+  # idling 9 days because it could not finish before the Aug 11 window. 7 days fit in
+  # the 8.09 days of runway and started immediately. Check the runway first:
+  #   scontrol show reservation | grep -A1 -i maint
+  # Losing the tail costs nothing: a resubmit with the same NAME resumes from last.pt,
+  # which is the same path the ckpt arms take on every requeue. So after maintenance,
+  # re-run this exact line to continue.
+  #
+  # As run 2026-08-03: job 38063498, --time=7-00:00:00, started immediately on g3103.
   YOLO_CKPT=yolo11x.pt YOLO_DATA="$YOLODATA/tiles/data.yaml" \
     YOLO_IMGSZ=1024 BATCH=12 NAME=y11x_tiles \
-    sbatch -A gpu-l40s-makelab -p gpu-l40s -q normal --time=14-00:00:00 "$SLURM"
+    sbatch -A gpu-l40s-makelab -p gpu-l40s -q normal --time=7-00:00:00 "$SLURM"
   squeue -u "$USER"
   echo "OK. Watch: bash hyak_yolo_runbook.sh status"
   ;;
