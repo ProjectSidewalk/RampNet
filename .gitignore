@@ -40,6 +40,9 @@ analysis_out/op/*
 # offset distribution into a decision. Re-derivable on CPU from the committed
 # benchmark bundles plus any verdicts file.
 !analysis_out/stage1_offset_tolerance.json
+# Per-city tolerance runs (--verdicts <city>), e.g. charlotte-nc. Same few KB, and
+# they are what turn a city's offset distribution into a labels-lost number.
+!analysis_out/stage1_offset_tolerance_*.json
 
 # Stage 1's realised bearing residual (#96): a few KB, and it is the null that makes
 # any future city's registration number interpretable. Regenerating it needs a Hub

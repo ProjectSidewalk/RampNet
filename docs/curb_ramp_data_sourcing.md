@@ -1420,6 +1420,96 @@ mostly benign for training (the label still lands on a real ramp; E1 in §0 foun
 implicit-hard-negative harm hypothesis unsupported), but it is an assumption being leaned on, not a
 result. **The visual gate remains the only instrument that catches phantoms.**
 
+## 5k. Charlotte assessed — and the bad records identify themselves (2026-08-03)
+
+Second city through the full gate. Jon reviewed all 60 chips in one sitting against the 2021
+leaf-off basemap at 0.0610 m/px. Verdicts and reduction:
+`analysis_out/review_charlotte-nc/{verdicts,summary}.json`.
+
+| | Charlotte | Denver (§5f) |
+| :--- | ---: | ---: |
+| chips reviewed | 60 / 60 | 59 |
+| median offset | **0.52 m** | 0.29 m |
+| ≤ 1 m | 80.4% [67.5–89.0] | 92.3% |
+| ≤ 2 m | 94.1% [84.1–98.0] | — |
+| p90 / max | 1.58 m / 6.51 m | — |
+| phantom | 7.3% [2.9–17.3] | 5.5% |
+| unjudgeable | 8.3% [3.6–18.1] | — |
+| systematic shift | **none** (share 7%, p = 0.93) | none (p = 0.221) |
+| **Stage 1 label loss (§5g)** | **2.45%** | 0.21% |
+
+**This is the first city where §5f's rule and §5g's tolerance disagree, and it is exactly the case
+§5g predicted.** The literal bar — "Good = ≥90% within 1 m" — *fails*: 80.4%, with the interval's
+upper end below 90. The tolerance curve says the same distribution costs Stage 1 **2.45% of its
+labels**. §5g already argued that bar was far too strict; Charlotte is where the argument becomes a
+decision rather than a hypothetical. **Assessed Good on the tolerance standard.**
+
+### The finding: records with no survey date are the bad ones
+
+Jon's qualitative note was that a few chips looked like the aerial predated the ramp — undeveloped
+land, trees. Charlotte publishes `RP_SurveyDate` (when a ramp was observed to exist), so this is
+checkable rather than a matter of impression.
+
+**Every survey date in the sample is 2017–2019** (12 / 31 / 12), i.e. every dated record predates
+the 2021 imagery by at least two years. So for the dated 94% of the frame, "the imagery is stale"
+cannot be the explanation — the imagery is *newer* than the survey. The two chips Jon annotated for
+occlusion (`1730330` "tree in the way", `1735203` building shadow) are both dated, and read as
+occlusion rather than development.
+
+**The remaining 5 records carry no survey date at all — and all five are bad:**
+
+| id | verdict | note |
+| :--- | :--- | :--- |
+| 1743646 | phantom | |
+| 1743689 | phantom | |
+| 1743940 | phantom | |
+| 1743895 | offset **6.51 m** — the sample maximum | |
+| 1744469 | offset **4.07 m** | *"Maybe sat photo out of date since I only see one diagonal ramp here"* |
+
+Against 55 dated records producing 2 problems. **Fisher exact two-sided p = 3.85 × 10⁻⁶.** All five
+also sit at the top of the `OBJECTID` range, consistent with being the most recently added rows.
+So Jon's instinct was right and the mechanism is sharper than "old imagery": it is not that the
+basemap is stale generally, it is that **a specific 6.2% of records postdate their own survey
+programme, and they announce themselves with a null date.**
+
+Filtering the frame to records that carry a survey date — 32,917 of 35,095, a **6.2% cost**:
+
+| | as published | dated only |
+| :--- | ---: | ---: |
+| median offset | 0.52 m | 0.51 m |
+| **max offset** | **6.51 m** | **3.10 m** |
+| ≤ 1 m | 80.4% | 83.7% |
+| ≤ 2 m | 94.1% | **98.0%** |
+| **phantom** | **7.3%** | **2.0%** |
+| **Stage 1 label loss** | **2.45%** | **0.77%** |
+
+**Label loss falls 3.2× and the phantom rate 3.6×, for 6.2% of the records.** That is the cheapest
+quality lever found on this issue.
+
+### What this does and does not license
+
+- **n = 5 undated.** The *direction* is solid (p = 3.9 × 10⁻⁶); the *magnitude* is not estimated —
+  five of five is consistent with anything from a strong effect to a total one. **Do not assume all
+  2,178 undated records citywide are unusable**, and do not port the "drop undated" rule to another
+  city without re-testing it there.
+- It **extends §5b in a direction that section did not anticipate.** §5b treats the date purely as
+  an *existence bound* — what stops a phantom. This says the same field also predicts *positional*
+  quality, which is a different failure mode and a different argument. §5c found install-date
+  coverage is poor across the entire candidate pool (best case 37.6% undated), so if this
+  generalises it is a large and cheap filter — and if it does not, §5c's pool is worse than it looks.
+- **Unjudgeable rises slightly under the filter** (8.3% → 9.1%), because all five unjudgeable chips
+  are dated. Occlusion is not what the date predicts.
+
+### Supply arithmetic
+
+Charlotte adds **32,917** (dated) or 35,095 (all) to the usable pool, against Denver's 72,770:
+**276,615 → 349,385 → 382,302.** Still short of 500,000, and §6's conclusion is unchanged — every
+route still needs either the OK tier or the state-DOT tail.
+
+**Reviewer confidence is not yet recorded** for this sheet (Denver's and Seattle's manifests carry
+`confidence: null` too; the sheet does not collect it and the value has lived in prose). Charlotte's
+should be stated here before the number is cited.
+
 ## 6. Routes to a 500,000-ramp corpus
 
 **Be explicit about which 500k is meant:**

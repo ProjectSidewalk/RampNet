@@ -14,32 +14,32 @@
   "tile_source": "charlotte-2021",
   "tile_url": "https://gis.charlottenc.gov/arcgis/rest/services/WEB/Aerial21/MapServer/tile/{z}/{y}/{x}",
   "imagery": "City of Charlotte GIS, Aerial Imagery (2021)",
-  "imagery_note": "Leaf-off and 0.061 m/px at Charlotte's latitude \u2014 a 40 m chip is 656 px, against Denver's 698 and Seattle's 397. Vegetation cover 16.2% and mean excess-green 10.6, effectively matching Denver's leaf-off 7.2% / 10.7 and far clear of King County's 27-41%. This is a basemap that can grade a city expected to be Good.",
+  "imagery_note": "Leaf-off and 0.061 m/px at Charlotte's latitude — a 40 m chip is 656 px, against Denver's 698 and Seattle's 397. Vegetation cover 16.2% and mean excess-green 10.6, effectively matching Denver's leaf-off 7.2% / 10.7 and far clear of King County's 27-41%. This is a basemap that can grade a city expected to be Good.",
   "zoom": 21,
   "metres_per_pixel": 0.06097264392258655,
-  "span_m": 40.0,
+  "span_m": 40,
   "span_px": 656,
   "ring_radii_m": [
-    1.0,
-    2.0,
-    5.0,
-    10.0
+    1,
+    2,
+    5,
+    10
   ],
   "neighbour_radii_m": [
-    6.0,
-    10.0
+    6,
+    10
   ],
   "blank_chips_dropped": 0,
   "no_imagery_dropped": 0,
   "rubric": {
     "click_target": "Click the CENTRE of the ramp's concrete apron. NOT the detectable-warning pad: PROWAG R305 puts the pad at the back of curb on perpendicular, blended and diagonal ramps, and on the street-level landing of a parallel ramp, so pad centres sit roughly 0.6-0.9 m down-slope of ramp centres. The pad is the most visible thing in the frame, so clicking pads is the easy mistake, and it would add that 0.6-0.9 m to EVERY record as a systematic bias that looks exactly like real positional error. Parallel ramp (a level landing flanked by two sloped runs, where 'the centre' has three defensible answers metres apart): click the centre of the LANDING and note 'parallel'. Legacy ramps whose entire surface is domed are the one case where pad centre and ramp centre coincide.",
-    "always_click": "Click on EVERY chip, including when the crosshair already looks dead centre \u2014 click the crosshair itself for ~0. Two reasons. Mechanically, a chip with no click has a null offset and never counts as reviewed. Methodologically, if you only click when you think you see an error then near-zero cases are recorded by omission, and the low tail of the distribution becomes an artefact of reviewer confidence rather than a property of the data.",
-    "ramps_visible": "Count only ramps you could reach from the crosshair WITHOUT CROSSING A ROADWAY. This is per-corner, not per-chip: a 40 m chip on an arterial holds three or four corners and counting all of them conflates 'ramps in frame' with 'ramps on this corner'. Perpendicular pair = 2. One diagonal apron serving two crossings = 1. Median island with a cut-through = 2, one end per side. Triangular channelising island ('pork chop') = 3, one per leg it serves. Note that 'one ramp per crossing' is NOT the rule \u2014 a median has two ends serving a single crossing; containment is the rule. THE RINGS DO NOT BOUND THE COUNT either: they exist to measure the offset, and a ramp sitting inside the 10 m ring but across a roadway belongs to a different corner. On chip 66519 four ramps fall inside the 10 m ring and the answer is three.",
-    "on_corner": "The same containment test: YES if the crosshair and the ramp you clicked are on the same corner or island with no roadway between them. It is NOT 'is this the ramp the digitiser meant' \u2014 these inventories carry no corner key, so that is unknowable. Below ~2-3 m it is yes by construction, so the field only carries information in the tail, where it separates an imprecise point (benign for Stage 1: it still projects into roughly the right part of the panorama) from a misassigned one (wrong side of the street, plausibly a different panorama altogether). Mid-block ramps and refuge islands resolve under the same test; note the case.",
-    "no_ramp": "The corner is readable and there is definitively no ramp at it. This is a PHANTOM record, and it is a result rather than a failure \u2014 an inventory whose schema has no removal mechanism gives a demolished ramp no way to leave the layer, so the phantom rate has no upper bound from the data alone. Kept distinct from unjudgeable on purpose: 'I can see, and it is not there' is a different claim from 'I cannot see'.",
-    "unjudgeable": "Shadow, occlusion or resolution prevents a call. Mark it rather than guessing \u2014 the unreadable rate is itself a reported number.",
+    "always_click": "Click on EVERY chip, including when the crosshair already looks dead centre — click the crosshair itself for ~0. Two reasons. Mechanically, a chip with no click has a null offset and never counts as reviewed. Methodologically, if you only click when you think you see an error then near-zero cases are recorded by omission, and the low tail of the distribution becomes an artefact of reviewer confidence rather than a property of the data.",
+    "ramps_visible": "Count only ramps you could reach from the crosshair WITHOUT CROSSING A ROADWAY. This is per-corner, not per-chip: a 40 m chip on an arterial holds three or four corners and counting all of them conflates 'ramps in frame' with 'ramps on this corner'. Perpendicular pair = 2. One diagonal apron serving two crossings = 1. Median island with a cut-through = 2, one end per side. Triangular channelising island ('pork chop') = 3, one per leg it serves. Note that 'one ramp per crossing' is NOT the rule — a median has two ends serving a single crossing; containment is the rule. THE RINGS DO NOT BOUND THE COUNT either: they exist to measure the offset, and a ramp sitting inside the 10 m ring but across a roadway belongs to a different corner. On chip 66519 four ramps fall inside the 10 m ring and the answer is three.",
+    "on_corner": "The same containment test: YES if the crosshair and the ramp you clicked are on the same corner or island with no roadway between them. It is NOT 'is this the ramp the digitiser meant' — these inventories carry no corner key, so that is unknowable. Below ~2-3 m it is yes by construction, so the field only carries information in the tail, where it separates an imprecise point (benign for Stage 1: it still projects into roughly the right part of the panorama) from a misassigned one (wrong side of the street, plausibly a different panorama altogether). Mid-block ramps and refuge islands resolve under the same test; note the case.",
+    "no_ramp": "The corner is readable and there is definitively no ramp at it. This is a PHANTOM record, and it is a result rather than a failure — an inventory whose schema has no removal mechanism gives a demolished ramp no way to leave the layer, so the phantom rate has no upper bound from the data alone. Kept distinct from unjudgeable on purpose: 'I can see, and it is not there' is a different claim from 'I cannot see'.",
+    "unjudgeable": "Shadow, occlusion or resolution prevents a call. Mark it rather than guessing — the unreadable rate is itself a reported number.",
     "resolution_floor": "Offsets below roughly 0.3 m are at the floor of this instrument, not measurements of real error: see the metres-per-pixel in this manifest for the pixel size, and the registration check in analysis_out/georef_check_<city>/ for how well the imagery agrees with the city's own vector data. Report the left tail as floor-limited rather than claiming centimetres.",
-    "published_nearby": "The published records near each chip are HELD BACK until you have recorded BOTH of this chip's own numbers \u2014 the offset (or a terminal state) and the count \u2014 and this is deliberate. Both are meant to be independent evidence from the imagery, and the whole value of the comparison is that the two sources were arrived at separately. Gating on the count alone was not enough: with the markers already on screen, a click drifts toward one and offset_m silently becomes 'distance to the published record' rather than 'distance to the ramp' \u2014 corrupting the headline number of the assessment. The published data is a cross-check, never an input. Once revealed, each nearby record is drawn on the image as a magenta diamond, and THE DIAMONDS ARE THE EVIDENCE \u2014 the counts are only a summary. **A radius is not a corner**, and it fails in both directions on exactly the complex geometry where the comparison would matter: 6 m misses the far ramp of a large corner (chip 66519's channelising island spans 7.0 m) and reaches straight across a 4-5 m slip lane (chip 67585, where the record 5.2 m ESE is on the far side of a crossing). Both produced confident false alarms before the panel stopped issuing verdicts. So: look at where the diamonds fall, decide which are on your corner, and note a genuine disagreement rather than trusting a number. A count above the published figure suggests the city under-records (the pair-merge failure mode); below it suggests phantoms or duplicates."
+    "published_nearby": "The published records near each chip are HELD BACK until you have recorded BOTH of this chip's own numbers — the offset (or a terminal state) and the count — and this is deliberate. Both are meant to be independent evidence from the imagery, and the whole value of the comparison is that the two sources were arrived at separately. Gating on the count alone was not enough: with the markers already on screen, a click drifts toward one and offset_m silently becomes 'distance to the published record' rather than 'distance to the ramp' — corrupting the headline number of the assessment. The published data is a cross-check, never an input. Once revealed, each nearby record is drawn on the image as a magenta diamond, and THE DIAMONDS ARE THE EVIDENCE — the counts are only a summary. **A radius is not a corner**, and it fails in both directions on exactly the complex geometry where the comparison would matter: 6 m misses the far ramp of a large corner (chip 66519's channelising island spans 7.0 m) and reaches straight across a 4-5 m slip lane (chip 67585, where the record 5.2 m ESE is on the far side of a crossing). Both produced confident false alarms before the panel stopped issuing verdicts. So: look at where the diamonds fall, decide which are on your corner, and note a genuine disagreement rather than trusting a number. A count above the published figure suggests the city under-records (the pair-merge failure mode); below it suggests phantoms or duplicates."
   },
   "sheet_build": "5fec5d19",
   "reviewer": null,
@@ -61,18 +61,17 @@
         "21/829687/577457",
         "21/829688/577457"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.06,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        9.72,
-        14.46,
-        19.84
+      "click_px": [
+        328.5,
+        328.9
       ]
     },
     {
@@ -97,18 +96,17 @@
         "21/830532/577710",
         "21/830533/577710"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.3,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        10.96,
-        14.68,
-        19.09
+      "click_px": [
+        325.1,
+        332
       ]
     },
     {
@@ -129,16 +127,17 @@
         "21/829687/578006",
         "21/829688/578006"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.07,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        15.7
+      "click_px": [
+        327.1,
+        327.2
       ]
     },
     {
@@ -159,19 +158,17 @@
         "21/829051/578576",
         "21/829052/578576"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.66,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        8.19,
-        10.93,
-        13.35,
-        16.71
+      "click_px": [
+        324.4,
+        317.7
       ]
     },
     {
@@ -192,18 +189,17 @@
         "21/828831/577670",
         "21/828832/577670"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.23,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        8.77,
-        14.84,
-        16.37
+      "click_px": [
+        329.8,
+        331.3
       ]
     },
     {
@@ -228,20 +224,17 @@
         "21/828999/577582",
         "21/829000/577582"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.51,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        3.51,
-        10.82,
-        13.0,
-        17.59,
-        19.02
+      "click_px": [
+        321,
+        332.7
       ]
     },
     {
@@ -262,18 +255,17 @@
         "21/829199/577580",
         "21/829200/577580"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.3,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        4.33,
-        8.75,
-        13.06
+      "click_px": [
+        329.1,
+        323.1
       ]
     },
     {
@@ -301,12 +293,12 @@
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": []
+      "click_px": null
     },
     {
       "id": "1712052",
@@ -326,19 +318,17 @@
         "21/829102/577673",
         "21/829103/577673"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.24,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        5.23,
-        15.1,
-        15.52,
-        18.81
+      "click_px": [
+        331.8,
+        328.6
       ]
     },
     {
@@ -363,19 +353,17 @@
         "21/829867/576820",
         "21/829868/576820"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.88,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        1.87,
-        12.02,
-        12.78,
-        18.85
+      "click_px": [
+        328.5,
+        313.6
       ]
     },
     {
@@ -400,16 +388,17 @@
         "21/828889/577479",
         "21/828890/577479"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.63,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        11.56
+      "click_px": [
+        318.3,
+        331.3
       ]
     },
     {
@@ -427,16 +416,17 @@
         "21/828395/577527",
         "21/828396/577527"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.31,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        10.33
+      "click_px": [
+        332.5,
+        325.9
       ]
     },
     {
@@ -454,16 +444,17 @@
         "21/829344/577813",
         "21/829345/577813"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.69,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        11.37
+      "click_px": [
+        332.5,
+        317.7
       ]
     },
     {
@@ -484,16 +475,17 @@
         "21/828222/577460",
         "21/828223/577460"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 1.58,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        11.25
+      "click_px": [
+        318.9,
+        352.3
       ]
     },
     {
@@ -518,16 +510,17 @@
         "21/830424/577681",
         "21/830425/577681"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.4,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        5.06
+      "click_px": [
+        333.2,
+        332
       ]
     },
     {
@@ -548,17 +541,17 @@
         "21/829513/577176",
         "21/829514/577176"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 1.43,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        19.06,
-        19.49
+      "click_px": [
+        338.6,
+        349
       ]
     },
     {
@@ -583,18 +576,17 @@
         "21/830524/577733",
         "21/830525/577733"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.8,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        10.26,
-        11.7,
-        12.82
+      "click_px": [
+        329.8,
+        315
       ]
     },
     {
@@ -619,17 +611,17 @@
         "21/829518/577617",
         "21/829519/577617"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.52,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        11.65,
-        18.26
+      "click_px": [
+        319.6,
+        326.5
       ]
     },
     {
@@ -650,16 +642,17 @@
         "21/829212/577801",
         "21/829213/577801"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.11,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        10.99
+      "click_px": [
+        329.1,
+        326.5
       ]
     },
     {
@@ -677,20 +670,17 @@
         "21/829568/576818",
         "21/829569/576818"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.34,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        3.35,
-        10.77,
-        12.8,
-        15.23,
-        18.35
+      "click_px": [
+        331.2,
+        332.7
       ]
     },
     {
@@ -715,17 +705,17 @@
         "21/828732/576872",
         "21/828733/576872"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.11,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        10.99,
-        15.07
+      "click_px": [
+        329.8,
+        327.9
       ]
     },
     {
@@ -746,15 +736,18 @@
         "21/828431/578228",
         "21/828432/578228"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.36,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": []
+      "click_px": [
+        325.7,
+        322.5
+      ]
     },
     {
       "id": "1727897",
@@ -778,16 +771,17 @@
         "21/828574/577881",
         "21/828575/577881"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.11,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        13.34
+      "click_px": [
+        326.4,
+        327.2
       ]
     },
     {
@@ -812,17 +806,17 @@
         "21/829497/576806",
         "21/829498/576806"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.63,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        15.78,
-        16.62
+      "click_px": [
+        317.6,
+        327.9
       ]
     },
     {
@@ -843,22 +837,17 @@
         "21/829181/577573",
         "21/829182/577573"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.05,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 3,
-      "published_neighbours_m": [
-        3.24,
-        9.65,
-        12.73,
-        14.54,
-        16.76,
-        18.19,
-        19.14
+      "click_px": [
+        328.5,
+        327.2
       ]
     },
     {
@@ -882,14 +871,12 @@
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        19.24
-      ]
+      "click_px": null
     },
     {
       "id": "1728899",
@@ -909,16 +896,17 @@
         "21/828816/577891",
         "21/828817/577891"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 1.16,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        14.4
+      "click_px": [
+        332.5,
+        309.6
       ]
     },
     {
@@ -943,18 +931,17 @@
         "21/829119/577812",
         "21/829120/577812"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 1.98,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        13.3,
-        13.64,
-        19.1
+      "click_px": [
+        306,
+        304.1
       ]
     },
     {
@@ -979,16 +966,17 @@
         "21/829021/577478",
         "21/829022/577478"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.35,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        10.78
+      "click_px": [
+        322.3,
+        328.6
       ]
     },
     {
@@ -1009,18 +997,17 @@
         "21/829720/576740",
         "21/829721/576740"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.56,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        10.58,
-        12.41,
-        16.96
+      "click_px": [
+        336.6,
+        331.3
       ]
     },
     {
@@ -1041,18 +1028,17 @@
         "21/828014/578093",
         "21/828015/578093"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.39,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        4.37,
-        10.52,
-        13.35
+      "click_px": [
+        326.4,
+        321.8
       ]
     },
     {
@@ -1073,17 +1059,17 @@
         "21/828459/578187",
         "21/828460/578187"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.61,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        9.55,
-        15.59
+      "click_px": [
+        338,
+        329.3
       ]
     },
     {
@@ -1107,14 +1093,12 @@
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
-      "note": "",
+      "note": "Tree in the way",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        14.24
-      ]
+      "click_px": null
     },
     {
       "id": "1732294",
@@ -1134,20 +1118,17 @@
         "21/829465/576815",
         "21/829466/576815"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 1.65,
+      "on_corner": true,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        4.4,
-        10.93,
-        14.52,
-        15.92,
-        19.21
+      "click_px": [
+        320.3,
+        302.1
       ]
     },
     {
@@ -1172,17 +1153,17 @@
         "21/829773/577392",
         "21/829774/577392"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.86,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        16.81,
-        16.89
+      "click_px": [
+        342,
+        326.5
       ]
     },
     {
@@ -1202,15 +1183,13 @@
       ],
       "offset_m": null,
       "on_corner": null,
-      "ramps_visible": null,
+      "ramps_visible": 0,
       "unreadable": false,
-      "no_ramp": false,
+      "no_ramp": true,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        14.06
-      ]
+      "click_px": null
     },
     {
       "id": "1733087",
@@ -1234,16 +1213,17 @@
         "21/829378/577580",
         "21/829379/577580"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.74,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        12.91
+      "click_px": [
+        333.2,
+        317
       ]
     },
     {
@@ -1264,17 +1244,17 @@
         "21/829509/577330",
         "21/829510/577330"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.68,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        14.67,
-        18.76
+      "click_px": [
+        338.6,
+        331.3
       ]
     },
     {
@@ -1299,17 +1279,17 @@
         "21/828023/578082",
         "21/828024/578082"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.37,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        14.52,
-        19.62
+      "click_px": [
+        328.5,
+        334
       ]
     },
     {
@@ -1334,16 +1314,17 @@
         "21/829332/578368",
         "21/829333/578368"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.2,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        11.45
+      "click_px": [
+        328.5,
+        331.3
       ]
     },
     {
@@ -1364,18 +1345,17 @@
         "21/828902/577893",
         "21/828903/577893"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.08,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
-      "note": "",
+      "note": "Hard to see due to building shadow",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        10.94,
-        11.02,
-        14.42
+      "click_px": [
+        327.8,
+        329.3
       ]
     },
     {
@@ -1396,17 +1376,17 @@
         "21/829512/578020",
         "21/829513/578020"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.89,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        14.28,
-        18.07
+      "click_px": [
+        325.7,
+        313.6
       ]
     },
     {
@@ -1431,16 +1411,17 @@
         "21/829320/577650",
         "21/829321/577650"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.49,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        12.69
+      "click_px": [
+        331.2,
+        335.4
       ]
     },
     {
@@ -1465,16 +1446,17 @@
         "21/829215/577519",
         "21/829216/577519"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.64,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        9.68
+      "click_px": [
+        332.5,
+        337.4
       ]
     },
     {
@@ -1499,18 +1481,17 @@
         "21/830137/578308",
         "21/830138/578308"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.49,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        10.46,
-        13.83,
-        16.59
+      "click_px": [
+        327.1,
+        336.1
       ]
     },
     {
@@ -1531,18 +1512,17 @@
         "21/828201/578441",
         "21/828202/578441"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.16,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        10.8,
-        14.11,
-        18.09
+      "click_px": [
+        330.5,
+        328.6
       ]
     },
     {
@@ -1560,15 +1540,18 @@
         "21/830053/577620",
         "21/830054/577620"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.62,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": []
+      "click_px": [
+        318.9,
+        332.7
+      ]
     },
     {
       "id": "1739065",
@@ -1592,16 +1575,17 @@
         "21/829934/576777",
         "21/829935/576777"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 1.2,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        15.23
+      "click_px": [
+        338,
+        344.9
       ]
     },
     {
@@ -1622,15 +1606,18 @@
         "21/830069/577743",
         "21/830070/577743"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.05,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": []
+      "click_px": [
+        328.5,
+        327.2
+      ]
     },
     {
       "id": "1739628",
@@ -1653,14 +1640,12 @@
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        4.68
-      ]
+      "click_px": null
     },
     {
       "id": "1739933",
@@ -1683,14 +1668,12 @@
       "offset_m": null,
       "on_corner": null,
       "ramps_visible": null,
-      "unreadable": false,
+      "unreadable": true,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        18.86
-      ]
+      "click_px": null
     },
     {
       "id": "1739937",
@@ -1710,18 +1693,17 @@
         "21/829059/577599",
         "21/829060/577599"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 1.03,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        9.8,
-        14.29,
-        18.02
+      "click_px": [
+        332.5,
+        344.2
       ]
     },
     {
@@ -1742,16 +1724,17 @@
         "21/828795/576963",
         "21/828796/576963"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.31,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        13.65
+      "click_px": [
+        332.5,
+        325.9
       ]
     },
     {
@@ -1772,19 +1755,17 @@
         "21/828638/577715",
         "21/828639/577715"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 0.58,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        4.74,
-        15.87,
-        17.99,
-        19.34
+      "click_px": [
+        331.8,
+        336.7
       ]
     },
     {
@@ -1809,16 +1790,17 @@
         "21/829253/577512",
         "21/829254/577512"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 3.1,
+      "on_corner": false,
+      "ramps_visible": 2,
       "unreadable": false,
       "no_ramp": false,
-      "note": "",
+      "note": "Not totally clear which ramp is supposed to be associated with this croasshair",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        15.68
+      "click_px": [
+        363.1,
+        364.9
       ]
     },
     {
@@ -1841,15 +1823,13 @@
       ],
       "offset_m": null,
       "on_corner": null,
-      "ramps_visible": null,
+      "ramps_visible": 0,
       "unreadable": false,
-      "no_ramp": false,
+      "no_ramp": true,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        12.92
-      ]
+      "click_px": null
     },
     {
       "id": "1743689",
@@ -1871,16 +1851,13 @@
       ],
       "offset_m": null,
       "on_corner": null,
-      "ramps_visible": null,
+      "ramps_visible": 0,
       "unreadable": false,
-      "no_ramp": false,
+      "no_ramp": true,
       "note": "",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        3.38,
-        18.72
-      ]
+      "click_px": null
     },
     {
       "id": "1743895",
@@ -1897,17 +1874,17 @@
         "21/829255/577807",
         "21/829256/577807"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 6.51,
+      "on_corner": false,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        6.63,
-        15.84
+      "click_px": [
+        223.9,
+        304.1
       ]
     },
     {
@@ -1934,15 +1911,13 @@
       ],
       "offset_m": null,
       "on_corner": null,
-      "ramps_visible": null,
+      "ramps_visible": 0,
       "unreadable": false,
-      "no_ramp": false,
+      "no_ramp": true,
       "note": "",
       "published_within_6m": 1,
       "published_within_10m": 1,
-      "published_neighbours_m": [
-        11.84
-      ]
+      "click_px": null
     },
     {
       "id": "1744469",
@@ -1962,19 +1937,17 @@
         "21/829029/577730",
         "21/829030/577730"
       ],
-      "offset_m": null,
-      "on_corner": null,
-      "ramps_visible": null,
+      "offset_m": 4.07,
+      "on_corner": true,
+      "ramps_visible": 1,
       "unreadable": false,
       "no_ramp": false,
-      "note": "",
+      "note": "Maybe sat photo out of date since I only see one diagonal ramp here",
       "published_within_6m": 2,
       "published_within_10m": 2,
-      "published_neighbours_m": [
-        5.13,
-        12.36,
-        15.51,
-        16.29
+      "click_px": [
+        379.4,
+        370.7
       ]
     }
   ]
