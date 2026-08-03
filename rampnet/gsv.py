@@ -9,12 +9,15 @@ only resolves with ``cwd == stage_one/dataset_generation`` and a checkpoint
 that is not in the repo. ``download_dataset.py`` now imports these functions
 from here, so there is still exactly one definition of each.
 
-The only edits in the move are import wiring: ``cv2``, ``requests``, and
+The edits in the move are import wiring — ``cv2``, ``requests``, and
 ``torch`` are imported lazily inside the functions that need them, because
 ``requirements-dev.txt`` deliberately excludes ``cv2``/``requests`` and the
-test suite imports this module for its pure geometry helpers. Everything else
-— tile endpoint, dimension probing, the 4096x2048 resize, **the BGR return**,
-the grid_sample projection — is byte-for-byte the production behaviour.
+test suite imports this module for its pure geometry helpers — plus ONE
+behavioural fix: the tile request now sends ``USER_AGENT`` (see its comment;
+the endpoint began refusing the python-requests default, so the verbatim code
+had stopped working at all). Everything else — tile endpoint, dimension
+probing, the 4096x2048 resize, **the BGR return**, the grid_sample projection
+— is byte-for-byte the production behaviour.
 
 Conventions callers must know (they have bitten before):
 
@@ -38,6 +41,15 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import numpy as np
 from PIL import Image
 
+# The tile endpoint started refusing python-requests' default User-Agent at
+# some point between the paper's Stage 1 runs and 2026-08-03: a bare
+# requests.get returns HTTP 403 PERMISSION_DENIED for every tile, while ANY
+# explicit User-Agent — including this honest one — returns the JPEG
+# (measured on pano ub4e_S1ZyOOGU_4tvLyoAw; see #103). This header is the one
+# deliberate behavioural addition to the otherwise-verbatim production code,
+# and without it fetch_panorama returns None for every panorama in existence.
+USER_AGENT = "RampNet-sourcing/1.0 (+https://github.com/ProjectSidewalk/RampNet)"
+
 
 def heading_to_azimuth(heading_degrees):
     heading_degrees %= 360
@@ -55,7 +67,8 @@ def fetch_panorama(pano_id):
         try:
             s = requests.Session()
             s.mount("https://", HTTPAdapter(max_retries=1))
-            response = s.get(url, timeout=20)
+            response = s.get(url, timeout=20,
+                             headers={"User-Agent": USER_AGENT})
             if response.status_code == 200:
                 return x, y, Image.open(io.BytesIO(response.content))
             return x, y, None
