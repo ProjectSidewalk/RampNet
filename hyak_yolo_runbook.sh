@@ -163,15 +163,31 @@ train)
   }
   # Batches PINNED to the as-run values (sized for >=45G GPUs) so the LR schedule is
   # identical wherever a ckpt job lands or resumes — see run_yolo_train.slurm.
-  # Caveats from the 2026-07 runs: y11x_tiles never finished an epoch inside a ckpt
-  # scheduling slice (dropped 2026-07-27, even after a 3->12 batch bump) — run it only
-  # on a non-preemptable partition; YOLO11-pano collapsed at physical batch 2-4 (#70).
+  # Caveat from the 2026-07 runs: YOLO11-pano collapsed at physical batch 2-4 (#70).
   sub yolo11l.pt "$YOLODATA/tiles/data.yaml" 1024 6  y11l_tiles
-  sub yolo11x.pt "$YOLODATA/tiles/data.yaml" 1024 12 y11x_tiles
   sub "$YOLO26"  "$YOLODATA/tiles/data.yaml" 1024 6  y26_tiles
   sub yolo11l.pt "$YOLODATA/pano/data.yaml"  1280 4  y11l_pano
   sub yolo11x.pt "$YOLODATA/pano/data.yaml"  1280 2  y11x_pano
   sub "$YOLO26"  "$YOLODATA/pano/data.yaml"  1280 4  y26_pano
+
+  # y11x_tiles is the one arm that does NOT go to ckpt. At batch 3 and again at batch
+  # 12 it never finished a single epoch inside a ckpt scheduling slice, so it was
+  # dropped 2026-07-27 with zero epochs. Restarted 2026-08-03 on the lab's dedicated
+  # gpu-l40s — ONE node, a bounded exception to the "students keep gpu-l40s" rule,
+  # taken only after the y26_tiles_l40s fork released its node on 2026-08-01.
+  #
+  # The evidence that this is worth a dedicated node: that fork ran the SAME config as
+  # its ckpt twin y26_tiles, un-preempted, and reached epoch 18 / mAP50-95 0.425 while
+  # the twin was still at epoch 1. The one-epoch wall was the scheduling slice, not the
+  # model. 14 days because the fork's 72 h limit truncated it mid-schedule at ep18.
+  #
+  # WORKERS=28 (with 32 CPUs) is raised from the default 8 — possible ONLY because this
+  # is a fresh start; `resume=True` freezes workers into every other arm's checkpoint.
+  # See the 2026-08-02 I/O probe caveat in run_yolo_train.slurm before reusing it.
+  WORKERS=28 YOLO_CKPT=yolo11x.pt YOLO_DATA="$YOLODATA/tiles/data.yaml" \
+    YOLO_IMGSZ=1024 BATCH=12 NAME=y11x_tiles \
+    sbatch -A gpu-l40s-makelab -p gpu-l40s -q normal \
+           --time=14-00:00:00 --cpus-per-task=32 "$SLURM"
   squeue -u "$USER"
   echo "OK. Watch: bash hyak_yolo_runbook.sh status"
   ;;
