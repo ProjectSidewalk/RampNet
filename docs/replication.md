@@ -163,8 +163,8 @@ findable together.
 | [`rampnet-model`](https://huggingface.co/projectsidewalk/rampnet-model) | model | — | ✅ published |
 | [`rampnet-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-dataset) | dataset | 463 GB | ✅ published — the Stage 1 *output*, 214k panoramas |
 | [`rampnet-crop-model-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset) | dataset | 507 MB → 15.5 GB | ✅ published (1,212 round-2 crops); ⬜ round-1 crop set to add |
-| **`rampnet-crop-model`** | model | 720.7 MB | ⬜ **planned — highest priority** |
-| **`rampnet-stage1-inputs`** | dataset | 1.06 GB | ⬜ planned |
+| [`rampnet-crop-model`](https://huggingface.co/projectsidewalk/rampnet-crop-model) | model | 720.7 MB | ✅ **published 2026-08-04** |
+| [`rampnet-stage1-inputs`](https://huggingface.co/datasets/projectsidewalk/rampnet-stage1-inputs) | dataset | 1.06 GB | ✅ **published 2026-08-04** |
 | **`rampnet-benchmark`** | dataset | 12.1 GB | ⬜ planned (#21) |
 
 Total new upload is under 29 GB against the 463 GB already hosted — about +6%.
@@ -194,7 +194,7 @@ and HF's own guidance points academic groups at Academia Hub or a Team plan for 
 limits. Worth a courtesy note to `datasets@huggingface.co` on the existing thread when we publish —
 they also asked to be told about public comms.
 
-### 1. `rampnet-crop-model` — 720.7 MB, and it blocks everything else
+### 1. ✅ `rampnet-crop-model` — 720.7 MB, published
 
 **Stage 1 cannot run at all without this, published inputs or not.**
 `dataset_generation/inference_isolator.py` hardcodes a path to the round-2 crop checkpoint; it is
@@ -228,7 +228,7 @@ python scripts/export_crop_model.py \
 
 The card it renders is `scripts/hf_package/README.crop_model_card.template.md`.
 
-### 2. `rampnet-stage1-inputs` — 1.06 GB
+### 2. ✅ `rampnet-stage1-inputs` — 1.06 GB, published
 
 The inputs half. Order within it matters, because the manifests are the reproduction path and the
 source files are the archive:

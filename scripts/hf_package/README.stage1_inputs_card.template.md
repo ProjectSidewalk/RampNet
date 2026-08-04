@@ -1,0 +1,127 @@
+---
+license: mit
+task_categories:
+- object-detection
+tags:
+- curb-ramp
+- accessibility
+- streetscape
+- open-government-data
+- reproducibility
+---
+
+# RampNet Stage 1 Inputs
+
+The **inputs** to the RampNet Stage 1 pipeline, from **RampNet: A Two-Stage Pipeline for
+Bootstrapping Curb Ramp Detection in Streetscape Images from Open Government Metadata**
+(O'Meara et al., ICCV'25 CV4A11y workshop, [arXiv:2508.09415](https://arxiv.org/abs/2508.09415)).
+
+[`projectsidewalk/rampnet-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-dataset)
+is what Stage 1 *produced* — 214k annotated panoramas. **This is what went in.**
+
+`v1.0-iccv2025` shipped the Stage 1 code without these files. That is not a gap a re-download can
+close: the city open-data portals serve *current* inventories and they drift, so a file fetched
+today is a different experiment rather than a copy of this one.
+
+## Contents
+
+{contents_table}
+
+Every file above is byte-identical to the artifacts recovered from the cluster storage that held
+the paper's run. The sha256 values are also recorded in
+[`docs/data_provenance.md`](https://github.com/ProjectSidewalk/RampNet/blob/main/docs/data_provenance.md).
+
+### `manifests/` — the reproduction path, and the most important part here
+
+| file | what it is |
+| :--- | :--- |
+| `finaldataset.jsonl` | the exact **219,170-panorama** manifest `download_dataset.py` consumed |
+| `dataset.jsonl` | the 175,336 positive panoramas, with the ramp coordinates that landed in each |
+| `negativepanosSHORTENED.jsonl` | the **43,834 negatives actually used** (exactly 20.0% of the final set) |
+| `negativepanos.jsonl` | the full 88,125-candidate negative pool it was drawn from |
+| `all_locations.csv` | the three inventories merged to `(latitude, longitude, date)` |
+
+`finaldataset.jsonl` = `dataset.jsonl` + `negativepanosSHORTENED.jsonl`, which is worth stating
+because the repo describes that merge as a manual step.
+
+### `location_data/` and `street_data/` — the sources
+
+`location_data/` holds the three government curb ramp inventories. `street_data/` holds the street
+centrelines used to sample negative panorama locations; these are the **full downloads**, whereas
+the training repo commits an 18.7 MB derivative carrying only the geometry and name field the
+pipeline reads (proven to yield an identical sampling network by
+`scripts/build_street_derivative.py verify`).
+
+## Three things these files cannot give you
+
+Published beside the data rather than discovered later:
+
+1. **The paper's row order is unreproducible.** `combine_location_data.py` shuffled
+   `all_locations.csv` with **no seed** — `random.seed(42)` was added afterwards. The row
+   *contents* are intact, which is why provenance can still be recovered by coordinate join
+   (`scripts/analysis/gov_provenance.py`), but the ordering is gone.
+2. **The negatives cannot be regenerated, only downloaded.** `generate_negative_panos.py` samples
+   street locations with an unseeded RNG. `negativepanosSHORTENED.jsonl` is the *only* record of
+   which negatives the paper used — that is why it is here.
+3. **Date semantics changed after the paper.** The paper-era `convert_date` mapped an unknown
+   install date to `"2000-01-01"`, so every undated ramp trivially passed the
+   "installed before the panorama was captured" check; the current code returns `""`. Measured,
+   **23,088 records (8.36%)** have no install date, which bounds how differently a re-run from
+   current `main` would select.
+
+## Which government records became training labels
+
+`scripts/analysis/gov_provenance.py` in the training repo rebuilds the mapping from each
+`all_locations.csv` row back to its source file and government ID, and verifies it —
+**276,071 / 276,071 rows resolved, 0 unmatched**.
+
+| | Bend | Portland | NYC | total |
+| :--- | ---: | ---: | ---: | ---: |
+| government records | 13,357 | 45,035 | 217,679 | 276,071 |
+| consumed by a generated panorama | 5,110 | 21,075 | 130,527 | **156,712** |
+| consumption rate | 38.26% | 46.80% | 59.96% | **56.77%** |
+
+So **43.23% never became a training label**, mostly because no panorama resolved for the location
+or the install date failed the predates-capture check.
+
+## Usage
+
+This is a set of source documents, not a row-iterable dataset — `load_dataset()` will not work.
+Download it directly:
+
+```bash
+hf download {repo_id} --repo-type dataset --local-dir rampnet-stage1-inputs
+```
+
+Then place the pieces where the pipeline expects them, under
+`stage_one/dataset_generation/` in [the training repo](https://github.com/ProjectSidewalk/RampNet):
+
+```
+location_data/          -> stage_one/dataset_generation/location_data/     (also already in git)
+street_data/            -> stage_one/dataset_generation/street_data/
+manifests/*.jsonl,csv   -> stage_one/dataset_generation/
+```
+
+You will also need the crop model,
+[`projectsidewalk/rampnet-crop-model`](https://huggingface.co/projectsidewalk/rampnet-crop-model) —
+Stage 1 does not run without it.
+
+## Provenance
+
+| Field | Value |
+| :--- | :--- |
+| Pipeline code | https://github.com/ProjectSidewalk/RampNet @ `{git_commit}` |
+| Exported | {export_date} by `scripts/export_stage1_inputs.py` |
+| Replication ledger | [`docs/replication.md`](https://github.com/ProjectSidewalk/RampNet/blob/main/docs/replication.md) |
+
+## Citation
+
+```bibtex
+@inproceedings{{omeara2025rampnet,
+  author    = {{John S. O'Meara and Jared Hwang and Zeyu Wang and Michael Saugstad and Jon E. Froehlich}},
+  title     = {{{{RampNet: A Two-Stage Pipeline for Bootstrapping Curb Ramp Detection in Streetscape Images from Open Government Metadata}}}},
+  booktitle = {{{{ICCV'25 Workshop on Vision Foundation Models and Generative AI for Accessibility: Challenges and Opportunities (ICCV 2025 Workshop)}}}},
+  year      = {{2025}},
+  doi       = {{https://doi.org/10.48550/arXiv.2508.09415}},
+}}
+```

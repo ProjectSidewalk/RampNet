@@ -187,8 +187,8 @@ Everything RampNet publishes lives under the [`projectsidewalk`](https://hugging
 | City boundaries | **this repo**, `stage_one/dataset_generation/cityboundaries.geojson` | |
 | Gold-set labels | **this repo**, `manual_labels/` | 1,000 panoramas, YOLO-format points |
 | Benchmark detections + verdicts | **this repo**, `benchmark/` | per-split records, human verdicts, and the rubrics they were made under |
-| Crop-model checkpoints | *not yet published* | **blocks Stage 1** — see [`docs/replication.md`](docs/replication.md#publishing-plan-for-hugging-face) |
-| Stage 1 manifests, raw street data | *not yet published* | planned as `rampnet-stage1-inputs` |
+| **Crop-model checkpoints** (Stage 1) | [`rampnet-crop-model`](https://huggingface.co/projectsidewalk/rampnet-crop-model) | rounds 1 and 2; **Stage 1 does not run without round 2** |
+| **Stage 1 manifests, raw street data** | [`rampnet-stage1-inputs`](https://huggingface.co/datasets/projectsidewalk/rampnet-stage1-inputs) | `finaldataset.jsonl` is the exact manifest the paper consumed |
 | Benchmark panoramas | *not yet published* | planned as `rampnet-benchmark` ([#21](https://github.com/ProjectSidewalk/RampNet/issues/21)) |
 
 **What is not yet published is stated as plainly as what is.** [`docs/replication.md`](docs/replication.md) is the ledger — for every input, whether someone outside the lab can obtain it, and where they are blocked if they cannot. [`docs/data_provenance.md`](docs/data_provenance.md) records where each input came from, its hash, and the caveats that limit re-running Stage 1.
