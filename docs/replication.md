@@ -165,7 +165,7 @@ findable together.
 | [`rampnet-crop-model-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset) | dataset | 507 MB → 15.5 GB | ✅ published (1,212 round-2 crops); ⬜ round-1 crop set to add |
 | **`rampnet-crop-model`** | model | 720.7 MB | ⬜ **planned — highest priority** |
 | **`rampnet-stage1-inputs`** | dataset | 1.06 GB | ⬜ planned |
-| **`rampnet-benchmark`** | dataset | ~12 GB | ⬜ planned (#21) |
+| **`rampnet-benchmark`** | dataset | 12.1 GB | ⬜ planned (#21) |
 
 Total new upload is under 29 GB against the 463 GB already hosted, so capacity is not a
 consideration (see below).
@@ -189,6 +189,21 @@ second stage of crop training cannot be reproduced either. Note that
 (`00dba394…` both) — that is the "copy it here, renamed" step in the README, now verified by hash
 rather than assumed, and it means only two distinct files need uploading.
 
+`scripts/export_crop_model.py` builds and pushes the package, mirroring the Stage 2 exporter.
+Nothing uploads without `--push`, the expected hashes are asserted before anything is copied, and
+the copies are re-hashed afterwards so a push cannot ship bytes that were never verified:
+
+```bash
+python scripts/export_crop_model.py \
+    --round1 <...>/ps_model/model/best_model.pth \
+    --round2 <...>/ps_and_manual_model/best_model.pth \
+    --out dist/rampnet-crop-model \
+    --expect-round1-sha256 00dba3948298a313435b7c1955a2d4fccde43bc98c199e384ef197bf8b8cff49 \
+    --expect-round2-sha256 3fc00ad6b9ac2768787b0262588b9bfa71ddd01d9f51109974e6ae377b9b520a
+```
+
+The card it renders is `scripts/hf_package/README.crop_model_card.template.md`.
+
 ### 2. `rampnet-stage1-inputs` — 1.06 GB
 
 The inputs half. Order within it matters, because the manifests are the reproduction path and the
@@ -205,9 +220,30 @@ source files are the archive:
 
 | folder | size | why |
 | :--- | ---: | :--- |
-| `panos_4096x2048/<city>/` | ~1–2 GB *(estimated, not yet measured)* | **what GT reviewers actually saw.** `gt_gallery.py` renders at the model's 4096×2048 and never native, so this — not the native archive — is what lets a second rater redo the pass |
-| `panos_native/<city>/` | 10.1 GB *(measured, 9 splits)* | the resolution experiment (#25) and any future re-render |
+| `panos_4096x2048/<city>/` | **1.02 GB** | **what GT reviewers actually saw.** `gt_gallery.py` renders at the model's 4096×2048 and never native, so this — not the native archive — is what lets a second rater redo the pass |
+| `panos_native/<city>/` | **10.89 GB** | the resolution experiment (#25) and any future re-render |
 | `galleries/<city>/` | 244 MB | the #55 A/B crops reviewers saw (also regenerable, so belt-and-braces) |
+
+Both pano figures are **measured**, by rendering all 1,109 panoramas across the 9 splits at
+4096×2048 / JPEG q82 / BILINEAR — byte-for-byte the transform `gt_gallery.py` applies, deliberately
+*not* using PIL's faster `draft()` DCT downscale, which would produce different pixels and defeat
+the point.
+
+**The derivative is a review-fidelity artifact, not a compression trick, and the per-split spread
+shows it:**
+
+| split | native | 4096×2048 | ratio | native size |
+| :--- | ---: | ---: | ---: | :--- |
+| gainesville, paterson, sao_paulo, bend, clovis | 1.5–2.3 GB each | 85–136 MB | 16–18× | 13312–16384 px |
+| annapolis, richmond | 365, 381 MB | 103, 100 MB | 3.6–3.8× | 8000–12288 px |
+| budapest_district5 | 217 MB | 136 MB | 1.6× | 4096–5760 px |
+| **morgantown** | **96 MB** | **102 MB** | **0.9×** | 4096–5760 px |
+
+Morgantown's derivative is *larger* than its native archive: those panoramas are already at model
+resolution and heavily compressed, so re-encoding costs a JPEG generation and buys nothing. That is
+not an argument to skip it — `gt_gallery.py` re-encodes at q82 regardless, so this **is** what the
+reviewer saw — but it does mean the folder should not be described as "the small one". Publish
+both; they answer different questions.
 
 **Publish incrementally, don't wait for more cities.** Benchmark imagery is immutable once
 fetched — `imagery_manifest.py --verify` confirmed all 984 reviewed panoramas unchanged since
