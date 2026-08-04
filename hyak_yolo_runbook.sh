@@ -174,6 +174,9 @@ train)
   #   PYTHON=$PYBIN YOLO_CKPT=yolo11x.pt YOLO_DATA=$YOLODATA/tiles/data.yaml \
   #   YOLO_IMGSZ=1024 BATCH=6 NAME=y11x_tiles \
   #     sbatch -p gpu-l40s -A gpu-l40s-makelab -q normal --time=72:00:00 $SLURM
+  # (BATCH=6, not this grid's 12, is deliberate — decided 2026-07-31 in #51: 6 matches the
+  # sibling tiles arms, and 3->12 had measured throughput-identical ~15.6 img/s — the x
+  # model is GPU-saturated at 1024 px — so 12 was only ever a slice-ceiling workaround.)
   # The launcher sets no MailType either, so a hand-submitted arm is silent — the
   # 2026-07-26 arms' mail came from their sbatch CLI. Add it after submit with:
   #   scontrol update JobId=<id> MailType=END,FAIL,TIME_LIMIT MailUser=<you>

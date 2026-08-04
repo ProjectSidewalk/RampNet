@@ -8,8 +8,14 @@ trained on the RampNet dataset on Hyak (klone). It exists so the experiment surv
 > finding is summarized in `docs/model_comparison.md` — though that summary predates the
 > 2026-07-29 findings below (the ckpt slice ceiling, the per-arm `best.pt` split, the fork)
 > and is deliberately left to be updated together with the final curves. **This file is the
-> current record; `docs/model_comparison.md` is behind it by design, not by oversight.** The
-> training code lives at its
+> current record; `docs/model_comparison.md` is behind it by design, not by oversight.**
+> Post-snapshot developments (status 2026-08-04) live in #51 rather than being re-snapshotted
+> here: the `y26_tiles_l40s` fork ran to its wall (TIMEOUT 2026-08-01 at ep18 — the 72 h cap
+> was self-imposed; `gpu-l40s` itself has `MaxTime=UNLIMITED`), and `y11x_pano` moved to
+> Tillicum on 2026-08-04 (job `207774`) to finish its schedule; both fold in with the
+> final-curves refresh. The one exception, folded in below because the 2026-07-31 decision in
+> #51 earmarked it for this file's grid: **`y11x_tiles` has been restarted** (see "Config
+> grid"). The training code lives at its
 > canonical paths — `scripts/model_comparison/run_yolo_train.slurm` and the repo-root
 > `hyak_yolo_runbook.sh` — merged in PR #76. (This record briefly carried as-run
 > snapshots of both; the only drift from the canonical copies was a display-only
@@ -39,7 +45,8 @@ in git, bulk/binary/regenerable out):
 
 ## Config grid
 
-Six configs = {YOLO11l, YOLO11x, YOLO26l} × {tiles @1024, pano @1280}. One dropped.
+Six configs = {YOLO11l, YOLO11x, YOLO26l} × {tiles @1024, pano @1280}. One dropped, since
+restarted (see below).
 
 | Config       | Model    | Input        | Base ckpt     | Batch |
 |--------------|----------|--------------|---------------|-------|
@@ -54,6 +61,15 @@ Batches are the as-run values from each run's committed `args.yaml`. `y11x_tiles
 submitted at batch 3, then resubmitted at batch 12 trying to finish an epoch inside the
 ckpt scheduling slice (its `args.yaml` is the batch-12 attempt); neither completed one.
 
+**Update 2026-08-04: `y11x_tiles` is training after all** — restarted **fresh** on the
+non-preemptable `gpu-l40s` partition (job `38063498`, running as of 2026-08-04), per the
+decision recorded 2026-07-31 in #51. Batch is **6**, matching the sibling tiles arms: the
+3→12 history had measured throughput batch-independent (~15.6 img/s — the x model is
+GPU-saturated at 1024 px), so 12 was only ever a slice-ceiling workaround with no reason to
+survive off ckpt. `optimizer=auto` is kept, so the arm fills the grid hole rather than
+creating a seventh config. Its run directory held no `last.pt` (verified empty before
+submission), so unlike the fork below it is a clean lineage with no shared-epochs caveat.
+
 There is a seventh **run directory** on scratch, `y26_tiles_l40s`, but it is **not a seventh
 config**: it is `y26_tiles` itself, resumed from its own epoch-3 checkpoint on a different
 partition with every hyperparameter unchanged. See "The `y26_tiles_l40s` fork" below.
@@ -66,7 +82,7 @@ per-config — see the figures.
 
 > **The numbers in this table are ahead of the committed `runs/*/results.csv` and
 > `figures/*.png`**, which are still the 2026-07-28 snapshot (e.g. `y26_pano` has 14 rows
-> there vs 18 epochs below). The CSVs and figures will be re-pulled and regenerated once
+> there vs 20 epochs below). The CSVs and figures will be re-pulled and regenerated once
 > the arms stop, so the record ends up internally consistent against *final* curves rather
 > than a moving target. Until then, prefer this table for status and the CSVs for the
 > per-epoch shape of the collapse.
@@ -79,7 +95,7 @@ per-config — see the figures.
 | `y26_tiles`      | 3      | 0.647 (1)     | 0.280 ↓      | ep1             | ⏸ **blocked** — no completed epoch since 2026-07-28; forked to `gpu-l40s` (below) |
 | `y11l_tiles`     | 3      | 0.655 (1)     | 0.042 ↓      | ep1             | ⏸ **blocked** — no completed epoch since 2026-07-28 |
 | `y26_tiles_l40s` | 4      | 0.647 (1)     | 0.268 ↓      | inherited ep1   | 🆕 fork; **first new epoch landed** (ep4, 4.94 h) — still in the dip, as the LR schedule predicts |
-| `y11x_tiles`     | 0      | —             | —            | —               | ⏹ dropped 2026-07-27 (GPU-saturated: epoch ~10 h > ckpt slice) |
+| `y11x_tiles`     | 0      | —             | —            | —               | ⏹ dropped 2026-07-27 (GPU-saturated: epoch ~10 h > ckpt slice); **restarted fresh on `gpu-l40s` 2026-08 — see "Config grid"** |
 
 **Two arms have now cleared epoch 1, so the grid is genuinely split.** For `y26_pano` the
 evidence is direct rather than an mtime inference: its `best.pt` and `last.pt` were
@@ -211,13 +227,18 @@ Provenance, because a fork is easy to get silently wrong:
   `save_dir`, `model`, `resume`. **This rewrite is mandatory.** Ultralytics' `resume=True`
   restores *every* arg from the checkpoint — including `save_dir` — so an un-rewritten fork
   resumes into the **original** run directory and corrupts a live training arm.
-- Asserted unchanged on read-back: `epoch=2`, `best_fitness=0.35579`, `epochs=60`, `lr0`,
-  `lrf`, `warmup_epochs=3.0`, `batch=6`, `imgsz=1024`, `seed=0`, `patience=20`, `data`. So the
-  fork is a faithful continuation of the same LR schedule, with optimizer and EMA state
-  intact — Ultralytics confirms `Resuming training … from epoch 4 to 60 total epochs`.
+- Asserted unchanged on read-back: `epoch=2` (0-based last-*completed* epoch, i.e. the
+  epoch-3 checkpoint, which resumes as the 1-based "epoch 4" below), `best_fitness=0.35579`,
+  `epochs=60`, `lr0`, `lrf`, `warmup_epochs=3.0`, `batch=6`, `imgsz=1024`, `seed=0`,
+  `patience=20`, `data`. So the fork is a faithful continuation of the same LR schedule, with
+  optimizer and EMA state intact — Ultralytics confirms `Resuming training … from epoch 4 to
+  60 total epochs`.
 - **Two lineages now share epochs 1–3.** Any reported tiles number must say which lineage it
   came from. In practice they may never diverge, since the ckpt original has completed no
-  epoch since 07-28.
+  epoch since 07-28. *(Update 2026-08-04: they **have** diverged — the ckpt original resumed
+  completing epochs, reaching ep7 on 08-02, while the fork ran to ep18, so each lineage now
+  has its own post-ep3 epochs and the which-lineage rule is binding, not theoretical. See
+  #51.)*
 - **What this does and does not buy.** Per-epoch time is unchanged by the move (same shared
   filesystem); what changes is the uninterrupted window. At the measured ~4–5 h/epoch, 72 h yields
   roughly **14 epochs**, reaching ~ep18 — enough to show whether tiles turns the corner
@@ -382,6 +403,14 @@ are recorded in `MANIFEST.md` so a later copy can be checked against them.
 This was done because the weights existed **only** on `/gscratch/scrubbed`, which auto-purges
 after ~21 idle days — and the run directories date from 07-26, so the clock starts the moment
 the jobs stop writing. `/gscratch/makelab` is not scrubbed.
+
+**It is a point-in-time copy, not a mirror.** As of #51's 2026-08-02 check the snapshot still
+holds the 07-29 state — it predates every checkpoint now worth keeping, and the completed
+`y26_tiles_l40s` fork is absent from it entirely. The fork stopped writing on 2026-08-01
+(TIMEOUT at ep18), so its weights sit on `/gscratch/scrubbed` with the ~21-day idle clock
+running (≈2026-08-22) and no durable copy. Re-staging has begun per-arm where an arm needed
+it (`y11x_pano`, re-staged 2026-08-03 for its Tillicum migration); the full re-stage belongs
+with the final-curves refresh, but the fork's weights should not wait that long.
 
 `last.pt` is kept alongside `best.pt` deliberately: `best.pt` is what the #71/#80 protocol
 reports, but only `last.pt` carries the optimizer/EMA state needed to *resume* an arm (which is
