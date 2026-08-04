@@ -167,8 +167,32 @@ findable together.
 | **`rampnet-stage1-inputs`** | dataset | 1.06 GB | ⬜ planned |
 | **`rampnet-benchmark`** | dataset | 12.1 GB | ⬜ planned (#21) |
 
-Total new upload is under 29 GB against the 463 GB already hosted, so capacity is not a
-consideration (see below).
+Total new upload is under 29 GB against the 463 GB already hosted — about +6%.
+
+### Do we hit any HF limit? No, and it is not close
+
+Checked against the [current limits](https://huggingface.co/docs/hub/repositories-recommendations)
+rather than assumed:
+
+| characteristic | HF limit | our maximum | headroom |
+| :--- | :--- | :--- | ---: |
+| single file size | 500 GB hard, <200 GB recommended | 669 MB (`New York - Streets.geojson`) | ~300× |
+| entries per folder | **10,000 hard** | 125 (a per-city pano folder) | 80× |
+| files per repo | <100k recommended | ~2,550 (`rampnet-benchmark`) | 39× |
+| commit size | <100 files recommended | auto-split by `upload_folder` / `hf upload` | n/a |
+
+Nothing in the plan is within an order of magnitude of a limit. The per-city subdirectory layout is
+what keeps the folder count trivial, which is the one decision that could have gone wrong.
+
+**The consideration that is real is the storage quota, not file sizes.** `projectsidewalk` is a
+*free* organisation, and free organisations get **"best-effort"** public storage — HF's page notes
+they run "mitigations in place to prevent abuse of free public storage" and ask that anything
+beyond the first few gigabytes be of genuine community value. The existing 463 GB sits on a
+human approval from July 2025 rather than an entitlement. +6% on top of that is noise and these
+artifacts are squarely the kind of thing that approval was for, but the arrangement is informal,
+and HF's own guidance points academic groups at Academia Hub or a Team plan for *guaranteed*
+limits. Worth a courtesy note to `datasets@huggingface.co` on the existing thread when we publish —
+they also asked to be told about public comms.
 
 ### 1. `rampnet-crop-model` — 720.7 MB, and it blocks everything else
 
@@ -267,9 +291,12 @@ Layout is the one thing worth settling before the first upload, because restruct
 The Project Sidewalk crop set behind round 1 of the crop model — **15 GB, 27,710 files** — joins
 the round-2 manual crops in
 [`rampnet-crop-model-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset),
-as **Parquet** under `round1_ps/`. Parquet is not a stylistic choice here: 27,710 entries is past
-the **10,000-per-folder hard limit**, so loose files cannot work at this count whatever the general
-guidance says.
+as **Parquet** under `round1_ps/`. Three reasons, none of which is "it would be illegal otherwise":
+HF requires well-integrated formats for large datasets, Parquet is what makes the dataset viewer
+work, and 27,710 loose files would consume a quarter of the `<100k files per repo` recommendation
+for no benefit. The 10,000 limit is **per folder, not per repo**, so the existing
+train/val/test × class subdirectory structure would in fact keep loose files legal — that is worth
+stating plainly, because the constraint is a strong recommendation here rather than a wall.
 
 The 1,212 round-2 crops stay exactly as they are — loose JPEGs under `test/`, which is fine at that
 count. Converting them would orphan LFS versions and break existing paths on an already-published
