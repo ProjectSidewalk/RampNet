@@ -5,9 +5,14 @@ all_locations.csv
 # live portals serve current, drifting versions, so a later download is a *different* file.
 # They are committed, hash-pinned in docs/data_provenance.md section 3, and marked binary in
 # .gitattributes so no line-ending normalisation can alter those hashes.
-# street_data/ stays ignored -- 801 MB, and "New York - Streets.geojson" alone is 669 MB,
-# over GitHub's 100 MB hard limit. It belongs on Hugging Face (issue #21).
+# street_data/: the raw downloads stay ignored -- 801.6 MB, and "New York - Streets.geojson"
+# alone is 669 MB, over GitHub's 100 MB hard limit. The *derivative* is committed instead.
+# generate_negative_panos.py reads only the geometry plus one name field from these, so
+# scripts/build_street_derivative.py strips the rest: 801.6 MB -> 18.7 MB, a 42.9x cut, with
+# `verify` proving the sampled street network is bit-for-bit the same. The full downloads
+# still take precedence if present, and go to Hugging Face (issue #21).
 street_data/*
+!street_data/*.min.geojson.gz
 dataset.jsonl
 finaldataset.jsonl
 negativepanos.jsonl

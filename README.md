@@ -182,9 +182,10 @@ Before reproducing our results, certain datasets will need to be downloaded.
     - [`bend.geojson`](https://bend-data-portal-bendoregon.hub.arcgis.com/datasets/bendoregon::curb-ramps/about)
     - [`nyc.csv`](https://data.cityofnewyork.us/Transportation/Pedestrian-Ramp-Locations/ufzp-rrqu/about_data) (using csv here as NYC uses different file format than geojson)
     - [`portland.geojson`](https://gis-pdx.opendata.arcgis.com/datasets/PDX::curb-ramps/about)
-  - These files can either be downloaded from our paper's supplemental material, or from the government websites that have been hyperlinked.
+  - **These three files are now committed to this repo — no download needed.** They are the exact files the paper ran on, hash-pinned in [`docs/data_provenance.md`](docs/data_provenance.md#3-open-government-source-data). Prefer them over the hyperlinks above: the portals serve *current* data and it drifts, so a fresh download reproduces a different experiment.
 - City Street Data. We use this when generating null panos (picking a random street until we find one with no curb ramp nearby)
-  - In `stage_one/dataset_generation/street_data`, there should be three files
+  - **Also committed — no download needed**, as `stage_one/dataset_generation/street_data/<city> - Streets.min.geojson.gz`. The raw downloads total 801 MB, so what is committed is an 18.7 MB derivative holding only the geometry and name field the pipeline reads; `scripts/build_street_derivative.py verify` proves it yields an identical street network. `generate_negative_panos.py` uses a full download instead if you have one.
+  - The originals, should you want them:
     - [`Bend - Streets.geojson`](https://data.bendoregon.gov/datasets/c303eb99c9a242149b95d5055589e251_0/explore?location=43.954066%2C-121.026242%2C8.03)
     - [`New York - Streets.geojson`](https://nycmaps-nyc.hub.arcgis.com/maps/82854419a16044aaa75a038b3706235b/about)
     - [`Portland - Streets.geojson`](https://gis-pdx.opendata.arcgis.com/datasets/9248407180c94efb9ddc675b0cc53826_68/explore)

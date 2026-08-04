@@ -91,8 +91,40 @@ download made today is a different file, not a copy of this one.
 | `location_data/nyc.csv` | 42,057,860 | 217,679 | `GeoCyclora` | `beea2b323d00d82192dd18ace3f257cef30ce3b579544d4e607fe7abe5e57f8c` |
 
 They are marked `binary` in `.gitattributes` so line-ending normalisation cannot alter those
-hashes. **`street_data/` (801 MB) is still not committed** — `New York - Streets.geojson` alone is
-669 MB, past GitHub's 100 MB hard limit. It belongs on Hugging Face; tracked in issue #21.
+hashes.
+
+**Street centrelines (`street_data/`) are committed as a derivative.** The raw downloads are
+801.6 MB — `New York - Streets.geojson` alone is 669 MB, past GitHub's 100 MB hard limit — but
+their only consumer, `generate_negative_panos.py`, reads just the LineString geometry plus **one**
+name field, used solely as an emptiness test (`FULLNAME` Bend, `FULL_NAME` Portland, `Street` NY).
+Route numbers, ZIP, MSAG, ESN, one-way direction, road class and county are never read.
+`scripts/build_street_derivative.py` strips them:
+
+| file | as downloaded | committed derivative | ratio | sha256 |
+| :--- | ---: | ---: | ---: | :--- |
+| `Bend - Streets` | 8,934,761 | 553,314 | 16.1× | `2d72baada118d1e2…` |
+| `Portland - Streets` | 123,616,787 | 8,238,233 | 15.0× | `ba5cd74eb6b11509…` |
+| `New York - Streets` | 669,049,016 | 9,908,856 | **67.5×** | `a6864eb57b1d5913…` |
+| **total** | **801,600,564** | **18,700,403** | **42.9×** | |
+
+The name field is *kept*, not dropped: Portland has 4,192 features whose `FULL_NAME` is empty and
+which `load_city_streets` skips, so a pure-geometry file would silently re-admit them.
+
+Equivalence is proved rather than asserted. `build_street_derivative.py verify` computes a
+**consumer fingerprint** — sha256 over the ordered (name, geometry) pairs of every feature
+surviving the filter, which is exactly what the length-weighted sampling index is built from:
+
+```bash
+python scripts/build_street_derivative.py verify --src <raw street_data/> --out stage_one/dataset_generation/street_data
+#   Bend       MATCH 7e93bb99a3ff7a00     7,179 features kept
+#   New York   MATCH 81de37602a47b4be   241,206 features kept
+#   Portland   MATCH c93982e64cfa7b8d   107,233 features kept
+```
+
+`generate_negative_panos.py` prefers a full download when present and falls back to the
+derivative, so existing checkouts are unaffected. The pristine originals still belong on Hugging
+Face (issue #21) — the derivative is lossy with respect to them, just not in any way this pipeline
+can observe.
 
 Install-date semantics differ per city, and many records have **no install date**; see
 `TREAT_UNDATED_AS_PREDATING` in `generate_dataset_meta.py` for how those are handled.

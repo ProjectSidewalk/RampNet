@@ -6,3 +6,7 @@
 # it stops a future contributor's git config from quietly invalidating the pin.)
 stage_one/dataset_generation/location_data/*.csv      binary
 stage_one/dataset_generation/location_data/*.geojson  binary
+
+# Same reasoning for the street-centreline derivative, whose sha256 values are asserted by
+# scripts/build_street_derivative.py verify.
+stage_one/dataset_generation/street_data/*.gz         binary

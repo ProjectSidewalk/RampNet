@@ -21,7 +21,8 @@ lives on one machine.
 | Stage 1 dataset | **463 GB** (test split ~44 GB) | HF `projectsidewalk/rampnet-dataset` | ✅ |
 | `benchmark/model_detections/` (challenger detections) | 18.0 MB | **committed** ✅ | ✅ |
 | **`location_data/` (the paper's government inventories)** | 71.8 MB | **committed** ✅ | ✅ |
-| `street_data/` (street geometry, NY file alone is 669 MB) | 801 MB | **git-ignored; HF #21 pending** | ❌ **blocker** |
+| **`street_data/` derivative (what the pipeline actually reads)** | 18.7 MB | **committed** ✅ | ✅ |
+| `street_data/` raw downloads (NY file alone is 669 MB) | 801 MB | git-ignored; HF #21 pending | ⚠️ superseded by the derivative |
 | Stage 1 manifests (`all_locations.csv`, `dataset.jsonl`, `finaldataset.jsonl`, `negativepanos*.jsonl`) | 151 MB | **git-ignored; HF #21 pending** | ❌ **blocker** |
 | Crop-model checkpoints (round 1 + round 2) | 720 MB | lab storage only | ❌ **blocker** |
 | **`benchmark/*/panos/` (native-res panoramas)** | **9.0 GB** | **git-ignored; HF #21 pending** | ❌ **blocker** |
@@ -76,6 +77,17 @@ generated panorama**.
 Two things it cannot recover, both documented beside the numbers rather than papered over: the
 paper-era shuffle was **unseeded**, so the published row *order* is gone for good; and 8 coordinates
 are shared by two records, making 16 rows ambiguous.
+
+The street centrelines came along too, by a different route. At 801.6 MB they could never live in
+git, but `generate_negative_panos.py` reads only the geometry and one name field, so
+`scripts/build_street_derivative.py` cuts them **42.9× to 18.7 MB** and proves the sampled network
+is unchanged with a consumer fingerprint. See [`data_provenance.md` §3](data_provenance.md).
+
+**Priority note for #21.** Street data is *not* on the critical path for reproducing the paper:
+`generate_negative_panos.py` is unseeded, so the negatives cannot be regenerated from any street
+file. What reproduces them is the manifest — `negativepanosSHORTENED.jsonl` (5.2 MB, the 43,834
+negatives actually used) and `finaldataset.jsonl` (64 MB, the 219,170-panorama manifest consumed by
+`download_dataset.py`). Those are the higher-value, smaller publish and should go first.
 
 ### Blocker 2 — the panoramas are 9.0 GB and only HF can carry them
 
