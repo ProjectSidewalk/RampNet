@@ -286,6 +286,29 @@ sibling folder instead of invalidating this one.
 Layout is the one thing worth settling before the first upload, because restructuring means
 *replacing* large blobs, which is the single expensive operation on HF (see churn, below).
 
+**Packaged as Parquet, not loose image folders**, which is what HF asked for in July 2025 and what
+makes the dataset viewer work. `scripts/export_benchmark.py` streams each split into one Parquet
+per (config, city), embedding the **exact source bytes** — rows carry `image` as `{bytes, path}`,
+so nothing is re-encoded on write, and each row also carries the `sha256` of its own bytes.
+
+```bash
+python scripts/export_benchmark.py build  --benchmark benchmark \
+    --panos-4096 <rendered dir> --galleries analysis_out/op --out dist/rampnet-benchmark
+python scripts/export_benchmark.py verify --out dist/rampnet-benchmark
+python scripts/export_benchmark.py push   --out dist/rampnet-benchmark \
+    --repo-id projectsidewalk/rampnet-benchmark
+```
+
+`verify` re-hashes every embedded image straight out of the Parquet, so "the round trip preserved
+the pixels" is checked rather than assumed — the point of the whole artifact is that it is what a
+reviewer's eyes were on. That is a *different* check from
+`benchmark/<city>/imagery_manifest.json`, which pins the bytes as they were at review time; both
+are needed, and the card says so.
+
+**Labels stay in git.** `records.jsonl` and `verdicts.json` are revisable and belong under version
+control; imagery is immutable once fetched. Keeping them apart is what makes this repo purely
+additive.
+
 ### 4. Round-1 crop training data — 15 GB, into `rampnet-crop-model-dataset`
 
 The Project Sidewalk crop set behind round 1 of the crop model — **15 GB, 27,710 files** — joins
