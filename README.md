@@ -24,10 +24,14 @@
 </p>
 
 > [!NOTE]
-> **Using RampNet exactly as the ICCV'25 paper describes it?** Use the tagged release
-> [`v1.0-iccv2025`](https://github.com/ProjectSidewalk/RampNet/releases/tag/v1.0-iccv2025) — the
-> repository frozen at paper state. The `main` branch keeps evolving (post-paper analyses,
-> benchmarks, and groundwork for what comes next), while the published
+> **Looking for a fixed version of this repository?** There are two tagged releases:
+> [`v1.0-iccv2025`](https://github.com/ProjectSidewalk/RampNet/releases/tag/v1.0-iccv2025) is the
+> repository frozen at paper state — use it to reproduce the ICCV'25 paper exactly as written.
+> [`v1.1-corrected-eval`](https://github.com/ProjectSidewalk/RampNet/releases/tag/v1.1-corrected-eval)
+> is the same code and the same model weights with the **corrected evaluation protocol** (see the
+> [Erratum](#erratum-evaluation-metrics-july-2026) below) — use it to score RampNet's model under
+> standard one-to-one matching. The `main` branch keeps evolving (post-paper analyses, benchmarks,
+> and groundwork for what comes next), while the published
 > [model](https://huggingface.co/projectsidewalk/rampnet-model) and
 > [dataset](https://huggingface.co/datasets/projectsidewalk/rampnet-dataset) on Hugging Face are
 > versioned independently and match the paper.
