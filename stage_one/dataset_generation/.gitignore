@@ -1,5 +1,12 @@
 all_locations.csv
-location_data/*
+# location_data/ is NOT ignored any more. The three open-government inventories the paper
+# actually ran on (bend.geojson, portland.geojson, nyc.csv -- 71.8 MB) were excluded here,
+# which is why v1.0-iccv2025 shipped without the one input nobody else can reconstruct: the
+# live portals serve current, drifting versions, so a later download is a *different* file.
+# They are committed, hash-pinned in docs/data_provenance.md section 3, and marked binary in
+# .gitattributes so no line-ending normalisation can alter those hashes.
+# street_data/ stays ignored -- 801 MB, and "New York - Streets.geojson" alone is 669 MB,
+# over GitHub's 100 MB hard limit. It belongs on Hugging Face (issue #21).
 street_data/*
 dataset.jsonl
 finaldataset.jsonl

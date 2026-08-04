@@ -78,11 +78,93 @@ drift instead of silently producing garbage.
 
 ## 3. Open-government source data
 
-The exact NYC/Portland/Bend curb ramp files used for the paper are archived in the paper's
-supplemental material; the live portal links in the README serve current (drifting) versions.
+**These files are now committed.** `v1.0-iccv2025` shipped without them — they were excluded by a
+`location_data/*` line in `stage_one/dataset_generation/.gitignore` — which left the one Stage 1
+input nobody else could reconstruct sitting only on a cluster scratch directory. The live portal
+links in the README serve *current* versions, and those drift (§9 measures Bend at +8.7%), so a
+download made today is a different file, not a copy of this one.
+
+| file | bytes | records | date field | sha256 |
+| :--- | ---: | ---: | :--- | :--- |
+| `location_data/bend.geojson` | 14,434,722 | 13,357 | `InstallDate` | `a0da4e016474c2c8fddcc6f77a7dd4a3aa5caaea455c839fad762d66a7af948e` |
+| `location_data/portland.geojson` | 15,326,478 | 45,035 | `InstallDate` | `d5366a7e0d18f09f9ba49f1cbf7a26b99ee90633689dbe94cbde2a21bd395dbe` |
+| `location_data/nyc.csv` | 42,057,860 | 217,679 | `GeoCyclora` | `beea2b323d00d82192dd18ace3f257cef30ce3b579544d4e607fe7abe5e57f8c` |
+
+They are marked `binary` in `.gitattributes` so line-ending normalisation cannot alter those
+hashes. **`street_data/` (801 MB) is still not committed** — `New York - Streets.geojson` alone is
+669 MB, past GitHub's 100 MB hard limit. It belongs on Hugging Face; tracked in issue #21.
+
 Install-date semantics differ per city, and many records have **no install date**; see
-`TREAT_UNDATED_AS_PREDATING` in `stage_one/dataset_generation/generate_dataset_meta.py` for how
-those are handled during regeneration.
+`TREAT_UNDATED_AS_PREDATING` in `generate_dataset_meta.py` for how those are handled.
+
+### 3.1 Which government records are in the paper's training set
+
+`combine_location_data.py` writes `all_locations.csv`
+(sha256 `06fec4e9a8077582deac12c3c303b89c8a2396ce3d78e7e923b0960a2c091a3b`) with three columns —
+`latitude`, `longitude`, `date` — then shuffles. That destroys NYC's `RampID`/`CornerID`, the
+geojson `OBJECTID`/`FacilityID`/`NonAssetID`, the 24 NYC attribute columns, and **any column
+saying which city a row came from**. The published file cannot, on its own, answer "is this
+government ramp in the training set?"
+
+`scripts/analysis/gov_provenance.py` rebuilds that mapping and **verifies it**:
+
+```bash
+python scripts/analysis/gov_provenance.py \
+    --location-data stage_one/dataset_generation/location_data \
+    --all-locations <all_locations.csv> \
+    --dataset-jsonl <dataset.jsonl> \
+    --out analysis_out/gov_provenance.csv
+```
+
+Output: 276,071 rows keyed by `all_locations_row`, carrying `source_file`, `source_row`, every
+government ID, and `in_dataset` / `pano_id`
+(sha256 `26e44cb13b5ef32ce435bf07bea057b2804bb8a99075a78cc69fd5c10a771437`; 29,438,458 bytes — not
+committed, it regenerates in about a minute, and that hash is what proves a regenerated copy is
+the same one). **All 276,071 rows resolved to a source record; none were unmatched.**
+
+| | Bend | Portland | NYC | total |
+| :--- | ---: | ---: | ---: | ---: |
+| government records | 13,357 | 45,035 | 217,679 | 276,071 |
+| dropped by the combine step | 0 | 0 | 0 | **0** |
+| consumed by a generated panorama | 5,110 | 21,075 | 130,527 | **156,712** |
+| consumption rate | 38.26% | 46.80% | 59.96% | **56.77%** |
+
+So **43.23% of the government records — 119,359 of them — never became a training label**, mostly
+because no panorama resolved for them or the install date failed the predates-capture check. That
+number belongs next to any claim about how much open-government data the pipeline converts.
+`dataset.jsonl` holds 175,336 panoramas and 959,442 ramp instances, i.e. **6.12 panorama-instances
+per consumed record** — a ramp is normally visible from several panoramas.
+
+### 3.2 Two caveats that limit this reconstruction
+
+**The paper's row order is unreproducible.** The paper-era `combine_location_data.py` called
+`random.shuffle(all_data)` with **no seed**; `random.seed(42)` was added afterwards. So the
+permutation that produced the published `all_locations.csv` cannot be replayed — this is the
+Stage 1 counterpart of the split-seeding caveat in §4. `gov_provenance.py` therefore joins on the
+(latitude, longitude) pair instead of replaying the shuffle, which is why it works at all.
+
+**8 coordinates are shared by two government records** (16 of the 276,071 rows). For those, the
+join cannot tell the twins apart and takes the first; the script reports the count rather than
+hiding it. This is also the whole of the residual date disagreement — 276,066 of 276,071 dates
+reproduce exactly, and the 5 that do not are necessarily among those 16, since every unambiguous
+row is derived by the same function from the same source value.
+
+**Date semantics changed after the paper, and the affected share is measurable.** The paper-era
+`convert_date` mapped an unknown date to `"2000-01-01"`, which made every undated ramp trivially
+pass the "installed before the panorama was captured" check; today's returns `""` and lets
+`generate_dataset_meta.py` decide. Running `gov_provenance.py` under each gives the size of the
+difference directly:
+
+| `convert_date` from | dates reproduced |
+| :--- | ---: |
+| paper-era checkout | 276,066 / 276,071 (100.00%) |
+| current `main` | 252,983 / 276,071 (**91.64%**) |
+
+The 23,088-row gap is exactly the set of government records **with no install date** — 8.36% of the
+corpus, every one of which the paper's run silently dated to 2000-01-01 and admitted. Re-running
+Stage 1 from current `main` therefore selects a **different** set of records than the paper did, and
+that 8.36% is the upper bound on how much. Pass `--repo-root` to point `gov_provenance.py` at
+whichever checkout's logic you mean to reproduce.
 
 ## 4. Split of record
 

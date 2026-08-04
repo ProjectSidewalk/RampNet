@@ -20,6 +20,10 @@ lives on one machine.
 | RampNet model weights | — | HF `projectsidewalk/rampnet-model` | ✅ |
 | Stage 1 dataset | **463 GB** (test split ~44 GB) | HF `projectsidewalk/rampnet-dataset` | ✅ |
 | `benchmark/model_detections/` (challenger detections) | 18.0 MB | **committed** ✅ | ✅ |
+| **`location_data/` (the paper's government inventories)** | 71.8 MB | **committed** ✅ | ✅ |
+| `street_data/` (street geometry, NY file alone is 669 MB) | 801 MB | **git-ignored; HF #21 pending** | ❌ **blocker** |
+| Stage 1 manifests (`all_locations.csv`, `dataset.jsonl`, `finaldataset.jsonl`, `negativepanos*.jsonl`) | 151 MB | **git-ignored; HF #21 pending** | ❌ **blocker** |
+| Crop-model checkpoints (round 1 + round 2) | 720 MB | lab storage only | ❌ **blocker** |
 | **`benchmark/*/panos/` (native-res panoramas)** | **9.0 GB** | **git-ignored; HF #21 pending** | ❌ **blocker** |
 
 ### ✅ Resolved — the challenger detections are published
@@ -48,6 +52,30 @@ Downstream scripts prefer the published files over `.model_cache`, and the label
 resolves to is derived *without* building a detector, so **a clean clone reproduces these numbers
 with no cache, no GPU and no torch installed.** Verified by running against a nonexistent
 `--cache-dir`.
+
+### ✅ Resolved — the paper's government inventories are published
+
+Stage 1 begins with three open-government curb ramp inventories. Until now none of them were in
+git: `stage_one/dataset_generation/.gitignore` carried a `location_data/*` line, so `v1.0-iccv2025`
+shipped the code that consumes them and not the files themselves. That is the worst class of
+replication gap, because **it is not fixable later by re-downloading** — the city portals serve
+current data and it drifts (§9 measures Bend at +8.7%), so a fresh download is a different
+experiment, not a reproduction.
+
+All three are now committed (71.8 MB), hash-pinned in
+[`data_provenance.md` §3](data_provenance.md), and marked `binary` in `.gitattributes` so no
+contributor's `core.autocrlf` can silently invalidate those hashes.
+
+`scripts/analysis/gov_provenance.py` closes the second half of the gap — *which* government records
+ended up in training. `combine_location_data.py` reduces the inventories to three columns and
+shuffles, discarding every government primary key and even the city label, so `all_locations.csv`
+alone cannot answer that. The script rebuilds the mapping by coordinate join and verifies it:
+**276,071 / 276,071 rows resolved, 0 unmatched**, of which **156,712 (56.77%) were consumed by a
+generated panorama**.
+
+Two things it cannot recover, both documented beside the numbers rather than papered over: the
+paper-era shuffle was **unseeded**, so the published row *order* is gone for good; and 8 coordinates
+are shared by two records, making 16 rows ambiguous.
 
 ### Blocker 2 — the panoramas are 9.0 GB and only HF can carry them
 
