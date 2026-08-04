@@ -35,19 +35,46 @@ The panoramas behind that benchmark — {n_cities} city splits, {total_gb} GB. U
 gold set, the splits deliberately include **non-US cities and a second imagery source** (Mapillary
 as well as Google Street View), which is the whole point: the paper's own evaluation was in-domain.
 
-This is the **imagery only**. The labels — per-split detections, human ground-truth verdicts, and
-the rubrics they were made under — live in git at
-[`benchmark/`](https://github.com/ProjectSidewalk/RampNet/tree/main/benchmark), along with
-per-split ground-truth precision/recall and reviewer confidence. That split is deliberate: verdicts
-get revised, imagery does not, so this repo only ever grows.
+It is self-contained: the `records` config carries the ground truth, so you can score a model
+against this benchmark without cloning anything. The **rubrics** those verdicts were made under,
+the per-split reviewer confidence, and the review notes stay in git at
+[`benchmark/`](https://github.com/ProjectSidewalk/RampNet/tree/main/benchmark) — read
+[`benchmark/RUBRICS.md`](https://github.com/ProjectSidewalk/RampNet/blob/main/benchmark/RUBRICS.md)
+before treating a verdict as self-explanatory, and `benchmark/README.md` before quoting a
+precision figure, because several splits carry caveats the numbers alone do not show.
 
 ## Configs
 
 | config | what it is | when you want it |
 | :--- | :--- | :--- |
+| **`records`** | **the ground truth** — per-panorama metadata, model detections with their human verdict, and reviewer-marked missed ramps | scoring any model against this benchmark |
 | `native` | the panoramas exactly as fetched — 4096 to 16384 px wide, depending on city and imagery source | the resolution experiment; any re-render at higher fidelity |
 | `4096x2048` | the same panoramas at the model's input size | **what ground-truth reviewers actually saw** — `gt_gallery.py` renders at 4096×2048 and never native, so this is the config a second rater needs |
 | `galleries` | the incremental false-positive crops shown in the operating-point A/B pass | redoing that A/B |
+
+### The `records` config
+
+One row per reviewed panorama, joinable to any imagery config on `pano_id`:
+
+| column | meaning |
+| :--- | :--- |
+| `source` | `gsv` or `mapillary` |
+| `capture_date`, `lat`, `lng`, `camera_heading`, `width`, `height` | panorama metadata as fetched |
+| **`copyright`** | per-record source attribution, e.g. `© <contributor> / Mapillary (CC BY-SA 4.0)` |
+| `detections` | model detections: `x_normalized`, `y_normalized`, `confidence`, and **`verdict`** |
+| `missed` | ramps the reviewer marked that the model did not find, each with an `unsure` flag |
+| `no_missed` | reviewer confirmed they checked the whole panorama and found nothing missed |
+| `model_id`, `model_training_date`, `label_type` | which model produced the detections |
+
+`verdict` is one of **`correct`**, **`incorrect`**, **`unsure`**, **`duplicate`**. `unsure` is an
+abstention and `duplicate` marks a second detection of an already-matched ramp — both carry the
+meaning the scorer gives them, so the labels mean exactly what the published precision/recall were
+computed against. Panoramas that were never reviewed are not included.
+
+**Labels are derived, not original.** `benchmark/<city>/records.jsonl` and `verdicts.json` in git
+are the source of truth; this config is regenerated from them by `scripts/export_benchmark.py`.
+Verdicts get revised, imagery does not — keeping them in separate configs means a label correction
+never rewrites an image blob.
 
 Configs are named by **resolution, not by consumer**. "Model resolution" is a relative label that
 becomes wrong the moment the model's input size changes, and a published path cannot be corrected
@@ -62,15 +89,19 @@ fidelity artifact — it reproduces what a reviewer's eyes were on — not a com
 ```python
 from datasets import load_dataset
 
-# every city at review resolution
-ds = load_dataset("{repo_id}", "4096x2048")
+# the ground truth for one split
+gt = load_dataset("{repo_id}", "records", split="gainesville")
+print(gt[0]["source"], gt[0]["capture_date"], gt[0]["copyright"])
+print(gt[0]["detections"])      # each with x_normalized, y_normalized, confidence, verdict
+print(gt[0]["missed"])          # ramps the model did not find
 
-# one split, native pixels
-gainesville = load_dataset("{repo_id}", "native", split="gainesville")
-print(gainesville[0]["pano_id"], gainesville[0]["image"].size)
+# the matching pixels, at the resolution reviewers saw
+px = load_dataset("{repo_id}", "4096x2048", split="gainesville")
+by_id = {{r["pano_id"]: r["image"] for r in px}}
+image = by_id[gt[0]["pano_id"]]
 ```
 
-Each row carries:
+Each row of an **imagery** config carries:
 
 | column | meaning |
 | :--- | :--- |

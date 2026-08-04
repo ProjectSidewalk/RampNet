@@ -55,8 +55,55 @@ Image.MAX_IMAGE_PIXELS = None          # benchmark natives reach 16384x8192; not
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = REPO_ROOT / "scripts" / "hf_package" / "README.benchmark_card.template.md"
 
-NATIVE, MODEL_RES, GALLERIES = "native", "4096x2048", "galleries"
+NATIVE, MODEL_RES, GALLERIES, RECORDS = "native", "4096x2048", "galleries", "records"
 ROWS_PER_BATCH = 4                     # large images: keep the writer's working set small
+
+# verdicts.json stores per-detection judgments as a mix of bool and string. Normalise to readable
+# strings; the mapping is documented in the card so nothing is lost.
+VERDICT_LABELS = {True: "correct", False: "incorrect"}
+
+RECORDS_SCHEMA = pa.schema([
+    pa.field("pano_id", pa.string()),
+    pa.field("city", pa.string()),
+    pa.field("source", pa.string()),
+    pa.field("capture_date", pa.string()),
+    pa.field("width", pa.int32()),
+    pa.field("height", pa.int32()),
+    pa.field("lat", pa.float64()),
+    pa.field("lng", pa.float64()),
+    pa.field("camera_heading", pa.float64()),
+    pa.field("copyright", pa.string()),
+    pa.field("label_type", pa.string()),
+    pa.field("model_id", pa.string()),
+    pa.field("model_training_date", pa.string()),
+    pa.field("detections", pa.list_(pa.struct([
+        pa.field("x_normalized", pa.float64()),
+        pa.field("y_normalized", pa.float64()),
+        pa.field("confidence", pa.float64()),
+        pa.field("verdict", pa.string()),
+    ]))),
+    pa.field("missed", pa.list_(pa.struct([
+        pa.field("x_normalized", pa.float64()),
+        pa.field("y_normalized", pa.float64()),
+        pa.field("unsure", pa.bool_()),
+    ]))),
+    pa.field("no_missed", pa.bool_()),
+    pa.field("review_group", pa.string()),
+])
+
+_V = lambda dtype: {"dtype": dtype, "_type": "Value"}          # noqa: E731 - terse on purpose
+RECORDS_FEATURES = {
+    "pano_id": _V("string"), "city": _V("string"), "source": _V("string"),
+    "capture_date": _V("string"), "width": _V("int32"), "height": _V("int32"),
+    "lat": _V("float64"), "lng": _V("float64"), "camera_heading": _V("float64"),
+    "copyright": _V("string"), "label_type": _V("string"), "model_id": _V("string"),
+    "model_training_date": _V("string"),
+    "detections": [{"x_normalized": _V("float64"), "y_normalized": _V("float64"),
+                    "confidence": _V("float64"), "verdict": _V("string")}],
+    "missed": [{"x_normalized": _V("float64"), "y_normalized": _V("float64"),
+                "unsure": _V("bool")}],
+    "no_missed": _V("bool"), "review_group": _V("string"),
+}
 
 SCHEMA = pa.schema([
     pa.field("pano_id", pa.string()),
@@ -123,6 +170,80 @@ def write_parquet(dst, records):
     return n, dst.stat().st_size
 
 
+def build_records(benchmark, out):
+    """Join records.jsonl + verdicts.json into one Parquet per city -- the ground truth itself.
+
+    Issue #21 asks for the *ground truth* as a dataset, with per-pano `source`, capture date,
+    camera heading and source attribution, not just pixels. All of it already exists in the two
+    committed files; this only reshapes them, so git stays the source of truth and the config is
+    regenerable rather than a second original.
+
+    Kept as its own config on purpose: it is a few MB against 11.41 GB of imagery, so labels can be
+    corrected -- and verdicts do get revised -- without replacing a single image blob.
+    """
+    written = []
+    schema = RECORDS_SCHEMA.with_metadata(
+        {b"huggingface": json.dumps({"info": {"features": RECORDS_FEATURES}}).encode()})
+    for records_path in sorted(Path(benchmark).glob("*/records.jsonl")):
+        city = records_path.parent.name
+        verdicts_path = records_path.parent / "verdicts.json"
+        if not verdicts_path.is_file():
+            continue
+        judged = json.loads(verdicts_path.read_text(encoding="utf-8")).get("panos", {})
+
+        rows = []
+        for line in records_path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            record = json.loads(line)
+            pano = record.get("pano", {})
+            pano_id = pano.get("panorama_id")
+            verdict = judged.get(pano_id)
+            if verdict is None:            # only panoramas that were actually reviewed
+                continue
+            dets = record.get("detections", [])
+            marks = verdict.get("dets", [])
+            rows.append({
+                "pano_id": pano_id,
+                "city": city,
+                "source": pano.get("source"),
+                "capture_date": pano.get("capture_date"),
+                "width": pano.get("width"),
+                "height": pano.get("height"),
+                "lat": pano.get("lat"),
+                "lng": pano.get("lng"),
+                "camera_heading": pano.get("camera_heading"),
+                "copyright": pano.get("copyright"),
+                "label_type": record.get("label_type"),
+                "model_id": record.get("model_id"),
+                "model_training_date": record.get("model_training_date"),
+                "detections": [{
+                    "x_normalized": d.get("x_normalized"),
+                    "y_normalized": d.get("y_normalized"),
+                    "confidence": d.get("confidence"),
+                    # marks is index-aligned with detections; anything unjudged stays None
+                    "verdict": VERDICT_LABELS.get(marks[i], marks[i]) if i < len(marks) else None,
+                } for i, d in enumerate(dets)],
+                "missed": [{
+                    "x_normalized": m.get("x"),
+                    "y_normalized": m.get("y"),
+                    "unsure": bool(m.get("unsure", False)),
+                } for m in verdict.get("missed", [])],
+                "no_missed": bool(verdict.get("no_missed", False)),
+                "review_group": verdict.get("group"),
+            })
+
+        if not rows:
+            continue
+        dst = out / "data" / RECORDS / "{}.parquet".format(city)
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        pq.write_table(pa.Table.from_pylist(rows, schema=schema), str(dst), compression="zstd")
+        n_det = sum(len(r["detections"]) for r in rows)
+        n_missed = sum(len(r["missed"]) for r in rows)
+        written.append((city, len(rows), n_det, n_missed, dst.stat().st_size))
+    return written
+
+
 def collect(benchmark, panos_4096, galleries):
     """Yield (config, city, [(id, city, path), ...]) for everything that exists on disk."""
     for panos_dir in sorted(Path(benchmark).glob("*/panos")):
@@ -159,11 +280,16 @@ def build(args):
         index.setdefault(config, []).append(city)
         print("{:<12} {:<20} {:>6,} {:>14,} {:>14,}".format(config, city, rows, src_bytes, size))
 
+    for city, n_panos, n_det, n_missed, size in build_records(args.benchmark, out):
+        index.setdefault(RECORDS, []).append(city)
+        print("{:<12} {:<20} {:>6,} {:>14} {:>14,}".format(
+            RECORDS, city, n_panos, "{} det/{} miss".format(n_det, n_missed), size))
+
     if not index:
         sys.exit("error: nothing found to package -- check --benchmark / --panos-4096 paths")
 
     configs_yaml = []
-    for config in (NATIVE, MODEL_RES, GALLERIES):
+    for config in (NATIVE, MODEL_RES, GALLERIES, RECORDS):
         if config not in index:
             continue
         configs_yaml.append("- config_name: {}".format(config))
@@ -190,9 +316,10 @@ def build(args):
 def verify(args):
     """Re-hash every embedded image straight out of the Parquet."""
     out = Path(args.out)
-    files = sorted(out.rglob("*.parquet"))
+    # The `records` config carries labels, not pixels -- nothing to re-hash there.
+    files = [p for p in sorted(out.rglob("*.parquet")) if p.parent.name != RECORDS]
     if not files:
-        sys.exit("error: no parquet files under {}".format(out))
+        sys.exit("error: no image parquet files under {}".format(out))
     bad = rows = 0
     for path in files:
         # Stream in small batches: a native split is >2 GB, and reading it whole would hold the
@@ -278,7 +405,7 @@ def card(args):
         sys.exit("error: no built package under {} -- run build first".format(out))
 
     configs_yaml = []
-    for config in (NATIVE, MODEL_RES, GALLERIES):
+    for config in (NATIVE, MODEL_RES, GALLERIES, RECORDS):
         if config not in index:
             continue
         configs_yaml.append("- config_name: {}".format(config))
@@ -308,6 +435,40 @@ def card(args):
     print("Card updated: https://huggingface.co/datasets/{}".format(args.repo_id))
 
 
+def records(args):
+    """Build (or rebuild) just the `records` config, and refresh the card to match.
+
+    Verdicts get corrected; imagery does not. This exists so a label fix costs a few MB of upload
+    instead of replacing 11.41 GB of image blobs.
+    """
+    out = Path(args.out)
+    written = build_records(args.benchmark, out)
+    if not written:
+        sys.exit("error: no records.jsonl + verdicts.json pairs under {}".format(args.benchmark))
+    print("{:<20} {:>7} {:>7} {:>7} {:>12}".format("city", "panos", "dets", "missed", "parquet"))
+    print("-" * 58)
+    tot = [0, 0, 0, 0]
+    for city, n_panos, n_det, n_missed, size in written:
+        print("{:<20} {:>7,} {:>7,} {:>7,} {:>12,}".format(city, n_panos, n_det, n_missed, size))
+        tot = [a + b for a, b in zip(tot, (n_panos, n_det, n_missed, size))]
+    print("-" * 58)
+    print("{:<20} {:>7,} {:>7,} {:>7,} {:>12,}".format("TOTAL", *tot))
+
+    wanted_push, args.push = args.push, False
+    card(args)                                   # re-render so the config lands in the YAML
+    args.push = wanted_push
+    if not args.push:
+        print("\nNot pushed. Add --push to upload the records config and the card.")
+        return
+
+    from huggingface_hub import HfApi
+    api = HfApi()
+    api.upload_folder(repo_id=args.repo_id, repo_type="dataset", folder_path=str(out),
+                      allow_patterns=["data/{}/*".format(RECORDS), "README.md"],
+                      commit_message="Add the `records` config: ground truth, per-pano metadata and attribution (#21)")
+    print("Pushed: https://huggingface.co/datasets/{}".format(args.repo_id))
+
+
 def push(args):
     from huggingface_hub import HfApi                # imported late: not needed to build or verify
     out = Path(args.out)
@@ -325,7 +486,7 @@ def push(args):
 def main():
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("mode", choices=["build", "verify", "card", "push"])
+    parser.add_argument("mode", choices=["build", "verify", "records", "card", "push"])
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--benchmark", type=Path, default=REPO_ROOT / "benchmark",
                         help="repo benchmark/ dir; reads <city>/panos/")
@@ -338,7 +499,8 @@ def main():
     parser.add_argument("--push", action="store_true",
                         help="with `card`: upload only README.md")
     args = parser.parse_args()
-    {"build": build, "verify": verify, "card": card, "push": push}[args.mode](args)
+    {"build": build, "verify": verify, "records": records,
+     "card": card, "push": push}[args.mode](args)
 
 
 if __name__ == "__main__":
