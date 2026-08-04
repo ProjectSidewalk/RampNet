@@ -13,7 +13,15 @@ What comes out, each with its denominator stated:
   1 would cut — against the strip's true asymmetric edges (−18.458°/+18.368°),
   with the symmetric ``crop_half_angle_deg()`` rate alongside for §5g/§5j
   comparability. This is the number the aerial sheet could only reach through
-  a Monte Carlo.
+  a Monte Carlo. It is reported **twice**: over measured records, and as a
+  **bound** that also counts every ``ramp_outside_view`` record as outside.
+  A ramp visible beyond the ±45° render is a coordinate error too large for
+  this instrument to *measure*, but it is certainly outside a ±18.4° strip —
+  dropping those records would censor the sample in exactly the direction that
+  makes the instrument look good, so §5o pre-registers the **bound** as the
+  gate. Occlusion unjudgeables (van, pole, sun, quality, too-far) stay out of
+  both: they are missing at an unknown offset, which is what the planned
+  second-vantage pass exists to recover.
 * **The angular distribution** over measured records (a record marked
   unjudgeable is excluded even if a click survived somewhere — "I cannot make
   a call" and "the call is +4.5°" are contradictory claims).
@@ -56,7 +64,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from inventory_review_summary import percentile, wilson  # noqa: E402
 from stage1_bearing_residual import fwd_azimuth_deg, summarize, wrap_deg  # noqa: E402
-from street_review_sheet import STRIP_LEFT_DEG, STRIP_RIGHT_DEG  # noqa: E402
+from street_review_sheet import (  # noqa: E402
+    OUTSIDE_VIEW_REASON, STRIP_LEFT_DEG, STRIP_RIGHT_DEG)
 from stage1_offset_tolerance import crop_half_angle_deg  # noqa: E402
 
 
@@ -73,12 +82,31 @@ def classify(record):
     return "todo"
 
 
-def inside_strip(offset_deg):
+def strip_edges(manifest=None):
+    """The crop strip's edges, preferring the ones THE SHEET RECORDED.
+
+    A verdict is only interpretable against the rule that produced it, and the
+    sheet already writes its own edges into ``manifest['projection']``. Reading
+    them back means re-reducing an old ``verdicts.json`` with newer code cannot
+    silently change the gate quantity — the same reason ``paired_calibration``
+    takes ``metres_per_pixel``/``span_px`` from the aerial manifest instead of
+    a constant. The imported constants are the fallback for manifests written
+    before those fields existed.
+    """
+    proj = (manifest or {}).get("projection") or {}
+    lo, hi = proj.get("strip_left_deg"), proj.get("strip_right_deg")
+    if lo is None or hi is None:
+        return STRIP_LEFT_DEG, STRIP_RIGHT_DEG
+    return lo, hi
+
+
+def inside_strip(offset_deg, edges=None):
     """The gate quantity's membership test: the TRUE asymmetric edges of the
     crop ``persp[:, 341:682]``. Not ±crop_half_angle_deg(), which is the
     conservative symmetric bound §5g/§5j quote — that rate is reported
     alongside, not silently substituted."""
-    return STRIP_LEFT_DEG <= offset_deg <= STRIP_RIGHT_DEG
+    lo, hi = edges if edges is not None else (STRIP_LEFT_DEG, STRIP_RIGHT_DEG)
+    return lo <= offset_deg <= hi
 
 
 def sign_flip_null(offsets, draws=20000, seed=20260731):
@@ -124,27 +152,57 @@ def reason_breakdown(records):
     return dict(sorted(out.items(), key=lambda kv: -kv[1]))
 
 
-def angular_block(records, n_all_records):
+def n_outside_view(records):
+    """Records the reviewer marked unjudgeable *because the ramp sits beyond
+    the ±45° render* — i.e. certainly outside the ±18.4° strip.
+
+    These are the largest coordinate errors the sample can contain, and they
+    are the one unjudgeable reason that carries information about the gate.
+    Kept as its own function so the gate bound and the reason breakdown cannot
+    disagree about which tag means this."""
+    return sum(1 for r in records
+               if classify(r) == "unjudgeable"
+               and r.get("unreadable_reason") == OUTSIDE_VIEW_REASON)
+
+
+def angular_block(records, n_all_records, edges=None):
     """The §5j-comparable distribution plus the gate rates, over measured
     records. ``matched_frac`` in the summarize() output reads here as
-    "measured / all rendered records" — the human-instrument yield."""
+    "measured / all rendered records" — the human-instrument yield.
+
+    ``frac_inside_strip`` is conditional on judgeability;
+    ``frac_inside_strip_bound`` adds every ``ramp_outside_view`` record to the
+    denominator as a failure. §5o gates on the bound — see the module
+    docstring for why the conditional rate alone would be self-serving.
+    """
     measured = [r for r in records if classify(r) == "measured"]
     offsets = [r["offset_deg"] for r in measured]
     panos = {r.get("pano_id") for r in measured}
     s = summarize(offsets, n_gov=n_all_records, n_matched=len(measured),
                   n_panos=len(panos))
     n = len(offsets)
+    n_out = n_outside_view(records)
+    # Always reported, even when nothing was measurable: "0 measured, 3 ramps
+    # outside the view" is the loudest possible instrument result and must not
+    # vanish into the insufficient-n branch.
+    s["n_outside_view"] = n_out
     if n:
-        k_in = sum(1 for o in offsets if inside_strip(o))
+        k_in = sum(1 for o in offsets if inside_strip(o, edges))
         k_half = sum(1 for o in offsets if abs(o) <= crop_half_angle_deg())
         s["n_inside_strip"] = k_in
         s["frac_inside_strip"] = round(k_in / n, 4)
         s["frac_inside_strip_ci"] = [round(v, 4) for v in wilson(k_in, n)]
         s["frac_within_half_angle"] = round(k_half / n, 4)
+        s["n_gate_denominator"] = n + n_out
+        s["frac_inside_strip_bound"] = round(k_in / (n + n_out), 4)
+        s["frac_inside_strip_bound_ci"] = [round(v, 4)
+                                           for v in wilson(k_in, n + n_out)]
+        s["gate_note"] = ("bound counts every ramp_outside_view record as "
+                          "outside the strip; §5o gates on the bound")
     return s, offsets
 
 
-def strata_block(records):
+def strata_block(records, edges=None):
     """Per-stratum rows when the sheet carried them — done in the summariser
     this time, instead of §5l's after-the-fact reconstruction."""
     strata = sorted({r.get("stratum") for r in records} - {None})
@@ -155,14 +213,20 @@ def strata_block(records):
         rs = [r for r in records if r.get("stratum") == name]
         measured = [r["offset_deg"] for r in rs if classify(r) == "measured"]
         judgeable = [r for r in rs if classify(r) in ("measured", "phantom")]
+        n_out = n_outside_view(rs)
         out[name] = {
             "n": len(rs),
             "measured": len(measured),
             "abs_median_deg": (None if not measured else
                                round(percentile(sorted(abs(v) for v in measured), 0.5), 2)),
             "frac_inside_strip": (None if not measured else
-                                  round(sum(1 for o in measured if inside_strip(o))
+                                  round(sum(1 for o in measured if inside_strip(o, edges))
                                         / len(measured), 3)),
+            "frac_inside_strip_bound": (
+                None if not measured else
+                round(sum(1 for o in measured if inside_strip(o, edges))
+                      / (len(measured) + n_out), 3)),
+            "outside_view": n_out,
             "phantom": sum(1 for r in rs if classify(r) == "phantom"),
             "unjudgeable": sum(1 for r in rs if classify(r) == "unjudgeable"),
             "judgeable": len(judgeable),
@@ -225,8 +289,15 @@ def paired_calibration(street_records, aerial, floor_deg=2.0):
             cross["aerial_only_unjudgeable"].append(s["id"])
         elif not a_unj and s_cls == "unjudgeable":
             cross["street_only_unjudgeable"].append(s["id"])
-        if bool(a.get("no_ramp")) != (s_cls == "phantom") and \
-                (a.get("no_ramp") or s_cls == "phantom"):
+        # Only records BOTH instruments judged can disagree about a phantom.
+        # An aerial-unjudgeable record has no `no_ramp` to compare against, so
+        # comparing anyway reads "the aerial sheet saw a ramp" from what is
+        # really "the aerial sheet could not look" — and the Denver pilot
+        # deliberately includes all 4 aerial unjudgeables, so that would have
+        # inflated the count by up to 4 of 58 at exactly the point §5o's
+        # criterion 4 gets read.
+        if not a_unj and s_cls != "unjudgeable" and \
+                bool(a.get("no_ramp")) != (s_cls == "phantom"):
             cross["phantom_disagreements"].append(s["id"])
 
         vec = aerial_offset_vector(a, mpp, span_px)
@@ -270,7 +341,8 @@ def summarise(manifest, aerial=None):
         by_class[c] = by_class.get(c, 0) + 1
     judgeable = by_class.get("measured", 0) + by_class.get("phantom", 0)
 
-    angular, offsets = angular_block(records, n)
+    edges = strip_edges(manifest)
+    angular, offsets = angular_block(records, n, edges)
     out = {
         "city": manifest.get("city"),
         "seed": manifest.get("seed"),
@@ -278,6 +350,16 @@ def summarise(manifest, aerial=None):
         "instrument": manifest.get("instrument"),
         "n_records": n,
         "classes": by_class,
+        # Which edges this reduction actually used, and whether they came from
+        # the sheet or from this code's constants — so a number can be read
+        # without knowing which version of the script produced it.
+        "strip_edges_deg": [round(edges[0], 4), round(edges[1], 4)],
+        "strip_edges_source": (
+            "manifest" if (manifest.get("projection") or {}).get("strip_left_deg")
+            is not None else "street_review_sheet constants (manifest had none)"),
+        # A partially reviewed sheet still reduces, so say so loudly: every
+        # rate below has a denominator that includes unreviewed records.
+        "incomplete_review": by_class.get("todo", 0) > 0,
         # The build's own drop accounting, restated so the yield reads next to
         # the verdict rates rather than in a different file.
         "site_status_counts": manifest.get("status_counts"),
@@ -295,7 +377,7 @@ def summarise(manifest, aerial=None):
             "ci": [round(v, 4) for v in wilson(by_class.get("unjudgeable", 0), n)]
                   if n else None,
             "reasons": reason_breakdown(records)},
-        "strata": strata_block(records),
+        "strata": strata_block(records, edges),
     }
     if aerial is not None:
         out["paired_calibration"] = paired_calibration(records, aerial)
@@ -317,8 +399,14 @@ def render(s):
     a("street-level review — {} (seed {}, build {})".format(
         s["city"], s["seed"], s["sheet_build"]))
     a("records {}  classes {}".format(s["n_records"], s["classes"]))
+    if s.get("incomplete_review"):
+        a("!! REVIEW INCOMPLETE: {} record(s) still 'todo' — every rate below "
+          "has a denominator that includes them".format(s["classes"]["todo"]))
     if s.get("site_status_counts"):
         a("build statuses {}".format(s["site_status_counts"]))
+    if s.get("strip_edges_deg"):
+        a("strip edges {} from {}".format(s["strip_edges_deg"],
+                                          s["strip_edges_source"]))
     ang = s["angular"]
     if ang.get("insufficient"):
         a("angular: insufficient measured records ({})".format(ang["n_residuals"]))
@@ -334,6 +422,12 @@ def render(s):
               ang["n_inside_strip"], ang["n_residuals"], ang["frac_inside_strip"],
               ang["frac_inside_strip_ci"][0], ang["frac_inside_strip_ci"][1],
               crop_half_angle_deg(), ang["frac_within_half_angle"]))
+        a("  GATE (§5o, counts {} ramp_outside_view as outside): {}/{} = "
+          "{:.1%}  (CI {:.1%}-{:.1%})".format(
+              ang["n_outside_view"], ang["n_inside_strip"],
+              ang["n_gate_denominator"], ang["frac_inside_strip_bound"],
+              ang["frac_inside_strip_bound_ci"][0],
+              ang["frac_inside_strip_bound_ci"][1]))
     sy = s["systematic"]
     if sy["p_value"] is not None:
         a("systematic shift: mean {:+.2f}°, sign-flip p = {}  "
@@ -349,9 +443,10 @@ def render(s):
         a("strata:")
         for name, row in s["strata"].items():
             a("  {:>12s}: n {}  measured {}  |median| {}°  inside {}  "
-              "phantom {}  unjudgeable {}".format(
+              "gate {}  phantom {}  unjudgeable {} (outside-view {})".format(
                   name, row["n"], row["measured"], row["abs_median_deg"],
-                  row["frac_inside_strip"], row["phantom"], row["unjudgeable"]))
+                  row["frac_inside_strip"], row["frac_inside_strip_bound"],
+                  row["phantom"], row["unjudgeable"], row["outside_view"]))
     pc = s.get("paired_calibration")
     if pc:
         a("paired vs aerial: {} pairs, {} above the {}° floor, sign agreement "

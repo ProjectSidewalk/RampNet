@@ -1728,7 +1728,7 @@ first sheet on a city whose answer we already know.
 ## 5o. The street-level instrument is built — and its Denver criteria are pre-registered (2026-08-03)
 
 §5n's instrument exists: `scripts/analysis/street_review_sheet.py`, its dry-run probe
-`probe_panos_at_sites.py`, and the reduction `street_review_summary.py` (40 tests). The rendering
+`probe_panos_at_sites.py`, and the reduction `street_review_summary.py` (74 tests across five files). The rendering
 path is the production path *by import*: `download_dataset.py`'s `fetch_panorama` and both
 projections were lifted verbatim into `rampnet/gsv.py` (they were unimportable in place —
 `inference_isolator` loads the round-2 checkpoint at module import) and Stage 1 now imports them
@@ -1779,16 +1779,32 @@ Two facts from the probe that shape the reading:
 
 ### Pre-registered Denver criteria — written before the review, on purpose
 
+*Amendment log, because a pre-registration is only worth anything if its edits are visible.
+Amended twice, both times **before any verdict was recorded**: once to substitute the probe's
+measured ranges into criterion 1's expectation, and once (in code review of PR #105) to fix
+criterion 1's denominator so `ramp_outside_view` records count as failures rather than being
+dropped. No further amendment after the review begins.*
+
 Denver is the calibration city because its answer is known (§5f: median 0.29 m; §5g: 0.21% label
 loss; aerial phantom 5.5% [1.9–14.9], unjudgeable 6.8% [2.7–16.2] at n=59). The instrument passes
 if:
 
-1. **At most 1 of the measured records falls outside the strip.** §5g's by-range Monte Carlo
-   (2.30% inside 5 m, 0.13% at 5–10 m, 0.00% beyond) evaluated at the probe's actual chosen
-   ranges gives an expectation of **≈0.5** of ~55 measured records — five times the naive pooled
-   0.21% figure, because the pick rule samples the near field where the angular tolerance is
-   tightest. Zero or one passes; two is investigated (Poisson P(≥2|0.5) ≈ 9%) before any
-   conclusion; three or more fails.
+1. **At most 1 record fails the strip — counting `ramp_outside_view` as a failure.** §5g's
+   by-range Monte Carlo (2.30% inside 5 m, 0.13% at 5–10 m, 0.00% beyond) evaluated at the
+   probe's actual chosen ranges gives an expectation of **≈0.5** of ~55 measured records — five
+   times the naive pooled 0.21% figure, because the pick rule samples the near field where the
+   angular tolerance is tightest. Zero or one passes; two is investigated (Poisson
+   P(≥2|0.5) ≈ 9%) before any conclusion; three or more fails.
+
+   **The denominator is fixed here rather than after the fact.** A record whose ramp is visible
+   but beyond the ±45° render is tagged `ramp_outside_view` and is *unmeasurable* — yet it is
+   certainly outside a ±18.4° strip, and it is precisely the largest coordinate error the sample
+   can contain. Scoring only over measured records would therefore censor the sample in exactly
+   the direction that makes the instrument pass. The summary reports both, and **the criterion is
+   evaluated on `frac_inside_strip_bound`**, which counts every `ramp_outside_view` record as a
+   failure. Occlusion unjudgeables (van, pole, sun, quality, too-far) stay out of *both*
+   denominators: they are missing at an **unknown** offset, which is what the second-vantage pass
+   exists to recover — assuming the worst of them would be as wrong as assuming the best.
 2. **|median| lands at the instrument floor, ~1–3°.** Denver's true tangential median is ≈1° at the
    11 m median range — *below* the click floor — so a floor-limited clean read **is** the pass;
    a median of, say, 8° would be a fail. For scale, §5j's corpus null (crop model in the loop) has

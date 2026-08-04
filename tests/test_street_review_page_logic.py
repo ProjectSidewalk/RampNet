@@ -46,11 +46,25 @@ globalThis.localStorage = {
 };
 const els = {};
 function mk(id) {
+  // querySelectorAll("button") must return the SAME stub objects across calls
+  // for a given innerHTML, or seg()'s `b.onclick = ...` lands on throwaways
+  // and the harness can never press the button the page actually wired up.
+  let btnCache = {html: null, list: []};
   const e = {
     id, innerHTML: "", textContent: "", value: "", className: "", hidden: false,
     checked: false, style: {}, dataset: {}, open: false, src: "", alt: "",
     setAttribute() {}, getAttribute() {}, querySelector: () => mk("q"),
-    querySelectorAll: () => [], addEventListener() {}, click() {},
+    querySelectorAll(sel) {
+      if (sel !== "button") return [];
+      const html = String(e.innerHTML);
+      if (btnCache.html !== html) {
+        btnCache = {html, list: [...html.matchAll(/data-v="([^"]*)"/g)].map(m => {
+          const b = mk("btn"); b.dataset = {v: m[1]}; return b;
+        })};
+      }
+      return btnCache.list;
+    },
+    addEventListener() {}, click() {},
     showModal() { e.open = true; }, close() { e.open = false; },
     getBoundingClientRect: () => ({left: 0, top: 0, width: 1024, height: 1024}),
   };
@@ -61,7 +75,11 @@ globalThis.document = {
   createElement: () => mk("tmp"),
   body: {classList: {toggle() {}}},
 };
-globalThis.addEventListener = () => {};
+// Capture the page's keydown listener instead of discarding it, so the
+// keyboard verdict paths can be driven rather than re-implemented.
+let keyHandler = null;
+globalThis.addEventListener = (type, fn) => { if (type === "keydown") keyHandler = fn; };
+const press = key => keyHandler({key, target: {tagName: "DIV"}});
 let lastBlob = null;
 globalThis.Blob = class { constructor(p) { this.parts = p; } };
 globalThis.URL = {createObjectURL: b => { lastBlob = b; return "blob:x"; }};
@@ -88,40 +106,69 @@ ok(!T.insideStrip(L - 1e-6) && !T.insideStrip(R + 1e-6), "just outside both edge
 ok(Math.abs(L) > Math.abs(R), "asymmetry survives into the page");
 ok(T.degOf(1024/2 + 100) > 0, "right of centre is POSITIVE (the §5j sign)");
 
-// ---- state machine --------------------------------------------------------
+// ---- state machine, driven through the REAL handlers ----------------------
+// Nothing below re-implements the page's clearing rules: every transition goes
+// through the click handler, the keydown listener, or a seg() button the page
+// itself wired up. Re-implementing them here would pass even if the page
+// dropped a clearing line -- the same two-path hazard the export test avoids.
 ok(!T.done(T.V["A"]), "untouched chip is not done");
 T.open_(0);
 const v = T.state("A");
 
-// A click measures. Simulate the stage handler's effect directly.
-v.click_x = 682; v.click_y = 500; v.offset_deg = T.degOf(682);
-v.unreadable = false; v.no_ramp = false;
+// A click measures -- through document.getElementById("stage").onclick.
+ok(typeof keyHandler === "function", "the page registered a keydown listener");
+document.getElementById("stage").onclick({clientX: 682, clientY: 500});
 ok(T.done(v) && T.complete(v), "a measured chip is done and complete");
 ok(Math.abs(v.offset_deg - R) < 1e-6, "a click on the right strip edge reads +18.3678");
+ok(v.click_x === 682 && v.click_y === 500, "the click marker is recorded");
 
-// Unjudgeable clears the click AND needs its reason to be complete.
-v.unreadable = true;
-if (v.unreadable) { v.no_ramp = false; v.offset_deg = null; v.click_x = v.click_y = null; }
+// A click must also clear any terminal state it contradicts.
+v.no_ramp = true; v.unreadable = true; v.unreadable_reason = "sun_or_shadow";
+document.getElementById("stage").onclick({clientX: 600, clientY: 400});
+ok(v.no_ramp === false && v.unreadable === false && v.unreadable_reason === null,
+   "a click clears a contradicting terminal state and its reason");
+
+// Unjudgeable via the keyboard: clears the click, and needs its reason.
+press("u");
 ok(v.offset_deg === null && v.click_x === null, "unjudgeable clears a disowned click");
 ok(T.done(v) && !T.complete(v) && T.partial(v),
    "unjudgeable WITHOUT a reason is partial — the reason is a reported number");
-v.unreadable_reason = "van_or_vehicle";
+press("1");
+ok(v.unreadable_reason === T.META.reasons[0][0], "digit key sets the first reason");
 ok(T.complete(v), "unjudgeable + reason is complete");
 
-// no_ramp is exclusive with unreadable and clears the reason.
-v.no_ramp = true;
-if (v.no_ramp) { v.unreadable = false; v.unreadable_reason = null;
-                 v.offset_deg = null; v.click_x = v.click_y = null; }
-ok(!(v.no_ramp && v.unreadable), "terminal states are mutually exclusive");
+// no_ramp via the keyboard is exclusive with unreadable and clears the reason.
+press("p");
+ok(v.no_ramp === true && v.unreadable === false,
+   "terminal states are mutually exclusive");
 ok(v.unreadable_reason === null, "no_ramp clears a stale reason");
+ok(v.offset_deg === null && v.click_x === null, "no_ramp clears a disowned click");
 ok(T.complete(v), "phantom is complete");
 
 // Un-setting unreadable must drop the reason too, or a later unreadable
-// verdict silently inherits a stale tag.
-v.no_ramp = false; v.unreadable = true; v.unreadable_reason = "sun_or_shadow";
-v.unreadable = false;
-if (!v.unreadable) { v.unreadable_reason = null; }
-ok(v.unreadable_reason === null, "clearing unjudgeable clears its reason");
+// verdict silently inherits a stale tag. Driven through the seg() button the
+// page built, not through a hand-written toggle.
+press("p");                                   // back off phantom
+press("u"); press("3");
+ok(v.unreadable && v.unreadable_reason === T.META.reasons[2][0], "reason 3 set");
+const unreadBtn = document.getElementById("unread").querySelectorAll("button")[0];
+ok(unreadBtn && typeof unreadBtn.onclick === "function",
+   "the unjudgeable seg button is wired up by the page");
+unreadBtn.onclick();                          // toggles unjudgeable back off
+ok(v.unreadable === false && v.unreadable_reason === null,
+   "clearing unjudgeable clears its reason");
+
+// The phantom seg button is likewise real, and exclusive.
+press("u");
+document.getElementById("noramp").querySelectorAll("button")[0].onclick();
+ok(v.no_ramp === true && v.unreadable === false && v.unreadable_reason === null,
+   "the no-ramp button clears unjudgeable and its reason");
+document.getElementById("noramp").querySelectorAll("button")[0].onclick();
+ok(v.no_ramp === false, "the no-ramp button toggles back off");
+
+// Typing in the note field must not be read as a verdict shortcut.
+keyHandler({key: "p", target: {tagName: "INPUT"}});
+ok(v.no_ramp === false, "keyboard shortcuts are ignored while typing a note");
 
 // nextTodo routes untouched first, then partials.
 T.CHIPS.forEach(c => { delete T.V[c.id]; });

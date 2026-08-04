@@ -17,6 +17,7 @@ What is pinned, and why it matters:
 No network, no GPU: GSV calls are stubbed by injecting a fake ``search_panos``
 module / monkeypatching ``rampnet.gsv.fetch_panorama``.
 """
+import gzip
 import json
 import math
 import os
@@ -194,6 +195,132 @@ def test_main_source_writes_every_verdict_field():
     block = tail[:tail.index("))") + 2]
     for field in srs.VERDICT_FIELDS:
         assert field in block, "verdict template misses {!r}".format(field)
+
+
+# --------------------------------------------------------------------------- #
+# a rebuild must not eat a review hour
+# --------------------------------------------------------------------------- #
+def _write_json(path, obj):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(obj, fh)
+    return path
+
+
+def _verdict_file(tmp_path, name, records):
+    return _write_json(str(tmp_path / name),
+                       {"city": "denver-co", "seed": 20260731,
+                        "sheet_build": "abc", "records": records})
+
+
+def test_reviewed_verdict_count_counts_only_human_calls(tmp_path):
+    blank = _verdict_file(tmp_path, "blank.json", [
+        {"id": "1", "offset_deg": None, "unreadable": False, "no_ramp": False,
+         "note": ""},
+        {"id": "2", "offset_deg": None, "unreadable": False, "no_ramp": False,
+         "note": ""}])
+    assert srs.reviewed_verdict_count(blank) == 0
+    assert srs.reviewed_verdict_count(str(tmp_path / "nope.json")) == 0
+
+    # every shape of human call counts, including a bare note
+    reviewed = _verdict_file(tmp_path, "done.json", [
+        {"id": "1", "offset_deg": 4.5, "unreadable": False, "no_ramp": False, "note": ""},
+        {"id": "2", "offset_deg": None, "unreadable": True, "no_ramp": False, "note": ""},
+        {"id": "3", "offset_deg": None, "unreadable": False, "no_ramp": True, "note": ""},
+        {"id": "4", "offset_deg": None, "unreadable": False, "no_ramp": False,
+         "note": "ambiguous"},
+        {"id": "5", "offset_deg": None, "unreadable": False, "no_ramp": False, "note": ""},
+    ])
+    assert srs.reviewed_verdict_count(reviewed) == 4
+
+    # 0.0 degrees is a verdict, not an absence -- the "click the crosshair for
+    # ~0" rubric case would otherwise be silently overwritable.
+    zero = _verdict_file(tmp_path, "zero.json", [
+        {"id": "1", "offset_deg": 0.0, "unreadable": False, "no_ramp": False, "note": ""}])
+    assert srs.reviewed_verdict_count(zero) == 1
+
+    # a corrupt file counts as 0: refusing to build over a broken JSON blob
+    # would be a worse failure mode than overwriting it
+    bad = tmp_path / "bad.json"
+    bad.write_text("{not json", encoding="utf-8")
+    assert srs.reviewed_verdict_count(str(bad)) == 0
+
+
+def test_build_refuses_to_clobber_a_reviewed_sheet_before_touching_the_network(tmp_path):
+    """--refetch-absent and the planned second-vantage pass both rebuild into
+    the reviewed file. The refusal must land BEFORE the ~2,000 tile requests,
+    so this test needs no network stub at all: if the guard were late, the
+    search would fire and the test would hang or fail differently."""
+    inv = tmp_path / "inv.jsonl.gz"
+    with gzip.open(str(inv), "wt") as fh:
+        for i in (1, 2):
+            fh.write(json.dumps({"OBJECTID": i, "lon": LON, "lat": LAT}) + "\n")
+    src = _verdict_file(tmp_path, "aerial.json",
+                        [{"id": "1", "lon": LON, "lat": LAT, "stratum": None}])
+
+    out = tmp_path / "out"
+    reviewed = os.path.join(str(out), "review_denver-co-gsv", "verdicts.json")
+    _write_json(reviewed, {"records": [
+        {"id": "1", "offset_deg": 3.2, "unreadable": False, "no_ramp": False,
+         "note": ""}]})
+
+    argv = ["--city", "denver-co", "--inventory", str(inv),
+            "--sites-from-verdicts", src, "--out-dir", str(out)]
+    with pytest.raises(SystemExit) as exc:
+        srs.main(argv)
+    assert exc.value.code == 2
+    # and the reviewed file is still there, untouched
+    with open(reviewed, encoding="utf-8") as fh:
+        assert json.load(fh)["records"][0]["offset_deg"] == 3.2
+
+
+def _inventory(tmp_path, rows, name="inv.jsonl.gz"):
+    path = tmp_path / name
+    with gzip.open(str(path), "wt") as fh:
+        for r in rows:
+            fh.write(json.dumps(r) + "\n")
+    return str(path)
+
+
+def test_id_field_must_be_present_and_unique(tmp_path):
+    """Everything keys on --id-field: sites, the manifest, the aerial join. A
+    duplicate silently hands a record ANOTHER row's date; an absent one used
+    to fall back to the row index and KeyError deep in the build."""
+    dupes = _inventory(tmp_path, [{"OBJECTID": 1, "lon": LON, "lat": LAT},
+                                  {"OBJECTID": 1, "lon": LON, "lat": LAT}])
+    with pytest.raises(SystemExit):
+        srs.main(["--city", "x", "--inventory", dupes, "--seed", "1",
+                  "--out-dir", str(tmp_path / "o1")])
+
+    absent = _inventory(tmp_path, [{"lon": LON, "lat": LAT}], name="inv2.jsonl.gz")
+    with pytest.raises(SystemExit):
+        srs.main(["--city", "x", "--inventory", absent, "--seed", "1",
+                  "--out-dir", str(tmp_path / "o2")])
+
+
+def test_limit_truncates_before_the_provenance_is_written(tmp_path, monkeypatch):
+    """A --limit smoke run must not write a manifest claiming the full sample:
+    those strings are what a reader checks a build against. Every site fails
+    its search here, which is fine — the accounting under test is the sample
+    size, and a per-site failure is itself recorded."""
+    fake = types.ModuleType("search_panos")
+    fake.search_panoramas = lambda lat, lon: (_ for _ in ()).throw(
+        RuntimeError("no network in tests"))
+    monkeypatch.setitem(sys.modules, "search_panos", fake)
+
+    inv = _inventory(tmp_path, [{"OBJECTID": i, "lon": LON + i * 1e-4, "lat": LAT}
+                                for i in range(10)])
+    out = tmp_path / "out"
+    srs.main(["--city", "x", "--inventory", inv, "--seed", "1", "--sample", "8",
+              "--limit", "3", "--sleep", "0", "--out-dir", str(out)])
+
+    with open(os.path.join(str(out), "review_x-gsv", "verdicts.json"),
+              encoding="utf-8") as fh:
+        manifest = json.load(fh)
+    assert manifest["sites_source"]["n_records"] == 3     # not 8
+    assert manifest["sites_source"]["limit"] == 3
+    assert len(manifest["site_status"]) == 3
+    assert manifest["status_counts"] == {"search_failed": 3}
 
 
 # --------------------------------------------------------------------------- #

@@ -92,6 +92,75 @@ def test_inside_strip_is_the_asymmetric_crop_not_the_symmetric_bound():
     assert ang["frac_within_half_angle"] == pytest.approx(1 / 3, abs=1e-4)
 
 
+def test_outside_view_records_count_against_the_gate_bound():
+    """§5o gates on the BOUND, not the conditional rate.
+
+    A `ramp_outside_view` record is unmeasurable but *certainly* outside a
+    ±18.4° strip — it is the largest coordinate error the sample can hold.
+    Scoring only over measured records would censor the sample in exactly the
+    direction that makes the instrument pass, so the bound counts it as a
+    failure. Occlusion unjudgeables must NOT be counted either way: they are
+    missing at an unknown offset.
+    """
+    records = [_rec("1", offset=0.0), _rec("2", offset=2.0),
+               _rec("3", unreadable=True, reason=srsum.OUTSIDE_VIEW_REASON),
+               _rec("4", unreadable=True, reason="van_or_vehicle")]
+    ang, _ = srsum.angular_block(records, len(records))
+
+    assert srsum.n_outside_view(records) == 1          # the van does not count
+    assert ang["n_inside_strip"] == 2
+    assert ang["frac_inside_strip"] == pytest.approx(1.0)      # conditional
+    assert ang["n_gate_denominator"] == 3                      # 2 measured + 1
+    assert ang["frac_inside_strip_bound"] == pytest.approx(2 / 3, abs=1e-4)
+    # The bound is never more optimistic than the conditional rate.
+    assert ang["frac_inside_strip_bound"] <= ang["frac_inside_strip"]
+    lo_b, hi_b = ang["frac_inside_strip_bound_ci"]
+    assert lo_b <= ang["frac_inside_strip_bound"] <= hi_b
+
+
+def test_gate_bound_equals_the_plain_rate_when_nothing_is_out_of_view():
+    records = [_rec("1", offset=0.0), _rec("2", offset=25.0),
+               _rec("3", unreadable=True, reason="sun_or_shadow")]
+    ang, _ = srsum.angular_block(records, len(records))
+    assert ang["n_outside_view"] == 0
+    assert ang["frac_inside_strip_bound"] == ang["frac_inside_strip"]
+
+
+def test_strip_edges_come_from_the_manifest_not_this_codes_constants():
+    """A verdict is only interpretable against the rule that produced it, so
+    re-reducing an old verdicts.json must use ITS edges, not today's."""
+    manifest = {"city": "x", "seed": 1, "sheet_build": "b",
+                "projection": {"strip_left_deg": -5.0, "strip_right_deg": 5.0},
+                "records": [_rec("1", offset=4.0), _rec("2", offset=10.0)]}
+    s = srsum.summarise(manifest)
+    assert s["strip_edges_deg"] == [-5.0, 5.0]
+    assert s["strip_edges_source"] == "manifest"
+    # 10.0 is inside the real crop strip but outside the manifest's edges.
+    assert srsum.inside_strip(10.0)
+    assert s["angular"]["n_inside_strip"] == 1
+
+    bare = {"city": "x", "seed": 1, "sheet_build": "b",
+            "records": [_rec("1", offset=4.0), _rec("2", offset=10.0)]}
+    s2 = srsum.summarise(bare)
+    assert s2["strip_edges_deg"] == [round(STRIP_LEFT_DEG, 4),
+                                     round(STRIP_RIGHT_DEG, 4)]
+    assert "constants" in s2["strip_edges_source"]
+    assert s2["angular"]["n_inside_strip"] == 2
+
+
+def test_a_partially_reviewed_sheet_says_so_loudly():
+    manifest = {"city": "x", "seed": 1, "sheet_build": "b", "records": [
+        _rec("1", offset=1.0), _rec("2"), _rec("3")]}
+    s = srsum.summarise(manifest)
+    assert s["incomplete_review"] is True
+    assert "REVIEW INCOMPLETE" in srsum.render(s)
+
+    done = {"city": "x", "seed": 1, "sheet_build": "b", "records": [
+        _rec("1", offset=1.0), _rec("2", offset=-1.0)]}
+    assert srsum.summarise(done)["incomplete_review"] is False
+    assert "REVIEW INCOMPLETE" not in srsum.render(srsum.summarise(done))
+
+
 def test_angular_block_uses_summarize_columns():
     records = [_rec(str(i), offset=float(i)) for i in range(-3, 4)]
     ang, _ = srsum.angular_block(records, 10)
@@ -193,6 +262,31 @@ def test_paired_calibration_pairs_gates_and_cross_tabs():
     assert ct["aerial_only_unjudgeable"]["ids"] == ["2"]
     assert ct["street_only_unjudgeable"]["ids"] == ["3"]
     assert ct["phantom_disagreements"]["ids"] == ["4"]
+
+
+def test_phantom_disagreement_needs_BOTH_instruments_to_have_judged():
+    """An aerial-unjudgeable record has no `no_ramp` to disagree with.
+
+    Comparing anyway reads "the aerial sheet saw a ramp" from what is really
+    "the aerial sheet could not look" — and the Denver pilot deliberately
+    renders all 4 aerial unjudgeables, so this would have inflated the count at
+    exactly the point §5o's criterion 4 gets read.
+    """
+    street = [_rec("1", no_ramp=True),                       # aerial unjudgeable
+              _rec("2", unreadable=True, reason="van_or_vehicle"),  # street can't
+              _rec("3", no_ramp=True)]                       # a REAL disagreement
+    aerial = _aerial([
+        _aerial_rec("1", unreadable=True),
+        _aerial_rec("2", click_px=[200.0, 200.0], offset_m=0.0),
+        _aerial_rec("3", click_px=[200.0, 200.0], offset_m=0.0),
+    ])
+    ct = srsum.paired_calibration(street, aerial)["cross_tab"]
+
+    assert ct["aerial_only_unjudgeable"]["ids"] == ["1"]
+    assert ct["street_only_unjudgeable"]["ids"] == ["2"]
+    # id 1 is NOT a phantom disagreement (aerial never judged it), and id 2 is
+    # not one either (street never judged it). Only id 3 is.
+    assert ct["phantom_disagreements"]["ids"] == ["3"]
 
 
 def test_paired_calibration_sign_agreement_only_above_floor():

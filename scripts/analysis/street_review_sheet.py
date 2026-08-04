@@ -132,13 +132,19 @@ DEGREE_TICKS = (-45, -30, -20, -10, -5, 5, 10, 20, 30, 45)
 #: render, i.e. a coordinate error too large for this instrument to measure —
 #: at the 11 m median range that is >11 m tangential, far past anything §5f/§5l
 #: measured, so it is recorded as its own category rather than given a fake 45°.
+#: Named because it is the ONE unjudgeable reason that carries information
+#: about the gate: such a record is unmeasurable but *certainly* outside the
+#: ±18.4° strip, so ``street_review_summary`` counts it against the gate bound
+#: rather than dropping it. One definition, imported there.
+OUTSIDE_VIEW_REASON = "ramp_outside_view"
+
 UNREADABLE_REASONS = (
     ("van_or_vehicle", "van/vehicle"),
     ("pole_or_signage", "pole/signage"),
     ("sun_or_shadow", "sun/shadow"),
     ("too_far", "too far"),
     ("image_quality", "image quality"),
-    ("ramp_outside_view", "outside view"),
+    (OUTSIDE_VIEW_REASON, "outside view"),
     ("other", "other"),
 )
 
@@ -348,6 +354,29 @@ def choose_pano(cands, rec_lat, rec_lon, record_ym, band_m=RANGE_BAND_M):
 # --------------------------------------------------------------------------- #
 # sites
 # --------------------------------------------------------------------------- #
+def reviewed_verdict_count(path):
+    """How many records in an existing ``verdicts.json`` carry a human call.
+
+    0 for a missing, unreadable or unreviewed file. Anything above 0 is review
+    hours that a rebuild into the same path would silently destroy — and that
+    is not hypothetical here: ``--refetch-absent`` and the planned
+    second-vantage pass over the unjudgeable subset both rebuild into this
+    exact file *after* the review. An unreadable file counts as 0 on purpose:
+    refusing to build because of a corrupt JSON blob would be a worse failure
+    than overwriting it.
+    """
+    if not os.path.exists(path):
+        return 0
+    try:
+        with open(path, encoding="utf-8") as fh:
+            records = json.load(fh).get("records") or []
+    except (ValueError, OSError):
+        return 0
+    return sum(1 for r in records
+               if r.get("offset_deg") is not None or r.get("unreadable")
+               or r.get("no_ramp") or r.get("note"))
+
+
 def load_sites_from_verdicts(path):
     """The records of a built aerial sheet, plus its provenance.
 
@@ -457,6 +486,13 @@ def fetch_panorama_cached(pano_id, cache_dir, refetch_absent=False, attempts=2,
     Note: every chosen pano came from a search result, so its id exists as
     metadata and an absence here is *suspicious by construction* — the caller
     prints it loudly rather than folding it into a count.
+
+    Also note the cache is lossy by one JPEG generation: a COLD fetch renders
+    from the raw assembled array, a WARM one from the q95 round trip written
+    here. Immaterial at review resolution (the click floor is ~1-2°, and a
+    verdict is a column, not a pixel value), but ``sheet_build`` hashes only
+    the template and the rubric, so it does not capture the difference — two
+    builds of "the same" sheet are byte-identical in logic and not in pixels.
     """
     import numpy as np
     from PIL import Image
@@ -1072,6 +1108,11 @@ def main(argv=None):
                          "cache entries")
     ap.add_argument("--limit", type=int, default=None,
                     help="build only the first N sites (smoke runs)")
+    ap.add_argument("--force", action="store_true",
+                    help="overwrite a verdicts.json that already carries human "
+                         "verdicts. Without this the build refuses, because a "
+                         "rebuild into a reviewed sheet destroys review hours "
+                         "that nothing else can regenerate")
     ap.add_argument("--out-dir", default=OUT)
     args = ap.parse_args(argv)
 
@@ -1086,6 +1127,21 @@ def main(argv=None):
     by_id = {str(r.get(args.id_field)): r for r in rows}
     band = (args.band_min, args.band_max)
 
+    # The whole sheet keys records by --id-field: sites carry it, the manifest
+    # records it, the aerial pairing joins on it. If it is absent or not
+    # unique, the failure downstream is a KeyError deep in the build or — far
+    # worse — a record silently taking a *different* row's date. Say so here,
+    # where the message can name the field. (--sites-from-verdicts already
+    # hard-errors on id mismatch; this gives the sampling path the same floor.)
+    n_missing = sum(1 for r in rows if r.get(args.id_field) is None)
+    if n_missing or len(by_id) != len(rows):
+        ap.error(
+            "--id-field {!r} does not uniquely identify rows of {}: {} row(s) "
+            "lack it and {} distinct value(s) cover {} rows. Pick a field that "
+            "is present and unique.".format(
+                args.id_field, os.path.basename(args.inventory), n_missing,
+                len(by_id), len(rows)))
+
     # ---- resolve sites ---------------------------------------------------- #
     strata_sizes = None
     if args.sites_from_verdicts:
@@ -1098,8 +1154,6 @@ def main(argv=None):
         if seed is None:
             ap.error("the source verdicts carry no seed; pass --seed explicitly "
                      "(it namespaces the page's localStorage)")
-        sites_desc = "{} records of {} (aerial sheet build {})".format(
-            len(sites), sites_source["path"], sites_source["sheet_build"])
         sampling_desc = "sites-from-verdicts"
     else:
         if args.seed is None:
@@ -1130,17 +1184,41 @@ def main(argv=None):
                      if args.sampling == "uniform"
                      else stratified_sample(pts, args.sample, seed, grid=args.grid))
             picked = [frame[i] for i in local]
-        sites = [{"id": str(rows[i].get(args.id_field, i)),
+        sites = [{"id": str(rows[i][args.id_field]),
                   "lon": rows[i]["lon"], "lat": rows[i]["lat"],
                   "stratum": stratum_of.get(i)} for i in picked]
-        sites_source = {"mode": "sample", "seed": seed, "sampling": args.sampling,
-                        "n_records": len(sites)}
-        sites_desc = "{} sampled ({}, seed {})".format(len(sites), args.sampling, seed)
+        sites_source = {"mode": "sample", "seed": seed, "sampling": args.sampling}
         sampling_desc = args.sampling
+
+    # Truncate BEFORE the provenance is built. The other way round, a --limit
+    # smoke run writes a manifest and a page header claiming the full sample —
+    # and those strings are exactly what a reader checks a build against.
     if args.limit:
         sites = sites[:args.limit]
+    sites_source["n_records"] = len(sites)
+    if args.sites_from_verdicts:
+        sites_desc = "{} records of {} (aerial sheet build {})".format(
+            len(sites), sites_source["path"], sites_source["sheet_build"])
+    else:
+        sites_desc = "{} sampled ({}, seed {})".format(len(sites), args.sampling, seed)
+    if args.limit:
+        sites_desc += " [--limit {}, NOT the full sample]".format(args.limit)
+        sites_source["limit"] = args.limit
 
     review_dir = os.path.join(args.out_dir, "review_{}-gsv".format(args.city))
+    verdict_path = os.path.join(review_dir, "verdicts.json")
+
+    # Checked BEFORE the ~2,000 tile requests, not after: refusing at the end
+    # would still have spent the network budget, and the reviewer's hour is
+    # the scarcer resource of the two.
+    n_reviewed = reviewed_verdict_count(verdict_path)
+    if n_reviewed and not args.force:
+        ap.error(
+            "{} already carries {} human verdict(s); rebuilding would "
+            "overwrite them with a blank template. Move or commit that file "
+            "first, or pass --force if you really mean to discard it.".format(
+                verdict_path, n_reviewed))
+
     search_dir = os.path.join(review_dir, "gsv_cache", "search")
     meta_dir = os.path.join(review_dir, "gsv_cache", "meta")
     pano_dir = os.path.join(review_dir, "gsv_cache", "panos")
@@ -1265,7 +1343,6 @@ def main(argv=None):
         "reviewer": None, "reviewed_on": None, "confidence": None,
     }
 
-    verdict_path = os.path.join(review_dir, "verdicts.json")
     with open(verdict_path, "w", encoding="utf-8") as fh:
         json.dump(dict(manifest, records=verdicts), fh, indent=2)
         fh.write("\n")
