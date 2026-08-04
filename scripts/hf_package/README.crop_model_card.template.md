@@ -70,26 +70,35 @@ detector, differing only in `heatmap_size`.
 
 ## Usage
 
-These are raw PyTorch state dicts, not a `transformers` package — the consumer is the Stage 1
-pipeline, which builds the model directly. To reproduce Stage 1, put round 2 where
-`inference_isolator.py` expects it:
+Each round ships in **two formats, same weights**:
+
+| file | use it for |
+| :--- | :--- |
+| `*.safetensors` | **prefer this.** Loading it cannot execute code |
+| `*.pth` | the original `torch.save` artifact, kept because its sha256 above is what ties this to the paper's run — and it is what `inference_isolator.py` loads unmodified |
+
+The `.pth` files are pickle archives, so `torch.load` on them is only as safe as your trust in the
+source; that is exactly why the safetensors copies exist. They were produced by
+`scripts/export_crop_model.py`, which compares **every tensor** after the round trip and refuses to
+write on any mismatch.
+
+Preferred load:
+
+```python
+from safetensors.torch import load_file
+from rampnet.model import KeypointModel, CROP_HEATMAP_SIZE
+
+model = KeypointModel(heatmap_size=CROP_HEATMAP_SIZE)      # (256, 88)
+model.load_state_dict(load_file("round2_ps_and_manual_best_model.safetensors"))
+model.eval()
+```
+
+To reproduce Stage 1 unmodified, put the `.pth` where `inference_isolator.py` expects it:
 
 ```bash
 hf download {repo_id} round2_ps_and_manual_best_model.pth --local-dir .
 mv round2_ps_and_manual_best_model.pth \
    RampNet/stage_one/crop_model/ps_and_manual_model/best_model.pth
-```
-
-To load it directly:
-
-```python
-import torch
-from rampnet.model import KeypointModel, CROP_HEATMAP_SIZE
-
-model = KeypointModel(heatmap_size=CROP_HEATMAP_SIZE)   # (256, 88)
-state = torch.load("round2_ps_and_manual_best_model.pth", map_location="cpu")
-model.load_state_dict(state.get("model_state_dict", state))
-model.eval()
 ```
 
 ## Limitations

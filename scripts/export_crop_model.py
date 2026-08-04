@@ -44,6 +44,36 @@ ROUND1_NAME = "round1_ps_best_model.pth"
 ROUND2_NAME = "round2_ps_and_manual_best_model.pth"
 
 
+def to_safetensors(src, dst):
+    """Convert a torch checkpoint to safetensors, verifying every tensor round-trips exactly.
+
+    The `.pth` files are `torch.save` pickle archives (they start `PK\\x03\\x04`), so loading one
+    executes whatever is inside it. `projectsidewalk/rampnet-model` already ships safetensors for
+    that reason; these should match. The `.pth` is kept alongside rather than replaced, because its
+    sha256 is the provenance anchor tying this artifact to the paper's run -- converting is
+    additive, not a migration.
+    """
+    import torch                                    # imported late: not needed for a hash-only run
+    from safetensors.torch import load_file, save_file
+
+    state = torch.load(str(src), map_location="cpu", weights_only=True)
+    if not isinstance(state, dict):
+        sys.exit("error: {} is not a state dict ({})".format(src.name, type(state).__name__))
+    if any(not torch.is_tensor(v) for v in state.values()):
+        sys.exit("error: {} holds non-tensor entries; safetensors cannot carry them".format(src.name))
+
+    # safetensors refuses shared storage, and .contiguous() is a no-op when already contiguous.
+    save_file({k: v.contiguous().clone() for k, v in state.items()}, str(dst))
+
+    restored = load_file(str(dst))
+    if set(restored) != set(state):
+        sys.exit("error: {} key set changed during conversion".format(src.name))
+    for key, original in state.items():
+        if original.dtype != restored[key].dtype or not torch.equal(original, restored[key]):
+            sys.exit("error: tensor {!r} differs after conversion of {}".format(key, src.name))
+    return len(state)
+
+
 def sha256(path):
     digest = hashlib.sha256()
     with open(str(path), "rb") as fh:
@@ -72,6 +102,8 @@ def main():
     parser.add_argument("--private", action="store_true", help="create the repo private")
     parser.add_argument("--expect-round1-sha256", default=None)
     parser.add_argument("--expect-round2-sha256", default=None)
+    parser.add_argument("--no-safetensors", action="store_true",
+                        help="skip the safetensors conversion (the .pth files are pickle archives)")
     args = parser.parse_args()
 
     for path in (args.round1, args.round2):
@@ -113,6 +145,14 @@ def main():
         if sha256(args.out / name) != expected:
             sys.exit("error: {} changed during copy".format(name))
     print("  (copies re-hashed, both identical to source)")
+
+    if not args.no_safetensors:
+        print("\nConverting to safetensors (every tensor compared after the round trip)")
+        for name in (ROUND1_NAME, ROUND2_NAME):
+            dst = (args.out / name).with_suffix(".safetensors")
+            n = to_safetensors(args.out / name, dst)
+            print("  {:<44} {:>13,}  {} tensors verified".format(
+                dst.name, dst.stat().st_size, n))
 
     if not args.push:
         print("\nNot pushed. Re-run with --push --repo-id <org/name> to upload.")
