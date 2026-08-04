@@ -62,13 +62,16 @@ submitted at batch 3, then resubmitted at batch 12 trying to finish an epoch ins
 ckpt scheduling slice (its `args.yaml` is the batch-12 attempt); neither completed one.
 
 **Update 2026-08-04: `y11x_tiles` is training after all** — restarted **fresh** on the
-non-preemptable `gpu-l40s` partition (job `38063498`, running as of 2026-08-04), per the
-decision recorded 2026-07-31 in #51. Batch is **6**, matching the sibling tiles arms: the
-3→12 history had measured throughput batch-independent (~15.6 img/s — the x model is
-GPU-saturated at 1024 px), so 12 was only ever a slice-ceiling workaround with no reason to
-survive off ckpt. `optimizer=auto` is kept, so the arm fills the grid hole rather than
-creating a seventh config. Its run directory held no `last.pt` (verified empty before
-submission), so unlike the fork below it is a clean lineage with no shared-epochs caveat.
+non-preemptable `gpu-l40s` partition on 2026-08-03 (job `38063498`, node `g3103`,
+`--time=7-00:00:00`, started immediately), taking the venue decided 2026-07-31 in #51 once
+the `y26_tiles_l40s` fork released the lab node. As-run config: **batch 12**, with
+`optimizer=auto` kept per the decision so the arm fills the grid hole rather than creating a
+differently-scheduled config; the as-run submit line is committed on
+`exp/y11x-tiles-restart-51`. The batch **deviates from the 2026-07-31 decision comment**,
+which specified 6 to match the sibling tiles arms; the submission followed this grid's
+committed batch-12 pin instead — at eval time its `args.yaml` is the authority, not either
+note. It is a fresh start (no `last.pt` existed), so unlike the fork below it is a clean
+lineage with no shared-epochs caveat.
 
 There is a seventh **run directory** on scratch, `y26_tiles_l40s`, but it is **not a seventh
 config**: it is `y26_tiles` itself, resumed from its own epoch-3 checkpoint on a different
@@ -95,7 +98,7 @@ per-config — see the figures.
 | `y26_tiles`      | 3      | 0.647 (1)     | 0.280 ↓      | ep1             | ⏸ **blocked** — no completed epoch since 2026-07-28; forked to `gpu-l40s` (below) |
 | `y11l_tiles`     | 3      | 0.655 (1)     | 0.042 ↓      | ep1             | ⏸ **blocked** — no completed epoch since 2026-07-28 |
 | `y26_tiles_l40s` | 4      | 0.647 (1)     | 0.268 ↓      | inherited ep1   | 🆕 fork; **first new epoch landed** (ep4, 4.94 h) — still in the dip, as the LR schedule predicts |
-| `y11x_tiles`     | 0      | —             | —            | —               | ⏹ dropped 2026-07-27 (GPU-saturated: epoch ~10 h > ckpt slice); **restarted fresh on `gpu-l40s` 2026-08 — see "Config grid"** |
+| `y11x_tiles`     | 0      | —             | —            | —               | ⏹ dropped 2026-07-27 (GPU-saturated: epoch ~10 h > ckpt slice); **restarted fresh on `gpu-l40s` 2026-08-03 — see "Config grid"** |
 
 **Two arms have now cleared epoch 1, so the grid is genuinely split.** For `y26_pano` the
 evidence is direct rather than an mtime inference: its `best.pt` and `last.pt` were
