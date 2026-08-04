@@ -189,7 +189,9 @@ Everything RampNet publishes lives under the [`projectsidewalk`](https://hugging
 | Benchmark detections + verdicts | **this repo**, `benchmark/` | per-split records, human verdicts, and the rubrics they were made under |
 | **Crop-model checkpoints** (Stage 1) | [`rampnet-crop-model`](https://huggingface.co/projectsidewalk/rampnet-crop-model) | rounds 1 and 2; **Stage 1 does not run without round 2** |
 | **Stage 1 manifests, raw street data** | [`rampnet-stage1-inputs`](https://huggingface.co/datasets/projectsidewalk/rampnet-stage1-inputs) | `finaldataset.jsonl` is the exact manifest the paper consumed |
-| **Benchmark panoramas** | [`rampnet-benchmark`](https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark) | 11.41 GB Parquet; configs `native`, `4096x2048`, `galleries` ([#21](https://github.com/ProjectSidewalk/RampNet/issues/21)) |
+| **Benchmark panoramas** ‡ | [`rampnet-benchmark`](https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark) | 11.41 GB Parquet; configs `native`, `4096x2048`, `galleries` ([#21](https://github.com/ProjectSidewalk/RampNet/issues/21)) |
+
+‡ **Post-publication, not part of the paper.** Every other row above is a paper-era artifact. The 9-city benchmark was built from 2026-07 onward to evaluate the published model out of domain; the paper's own evaluation was the 1,000-panorama gold set in `manual_labels/`. See [`benchmark/README.md`](benchmark/README.md).
 
 **What is not yet published is stated as plainly as what is.** [`docs/replication.md`](docs/replication.md) is the ledger — for every input, whether someone outside the lab can obtain it, and where they are blocked if they cannot. [`docs/data_provenance.md`](docs/data_provenance.md) records where each input came from, its hash, and the caveats that limit re-running Stage 1.
 

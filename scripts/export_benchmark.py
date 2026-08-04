@@ -263,6 +263,51 @@ def verify_against_manifests(out, benchmark):
         matched, total, " ({} not in any manifest)".format(absent) if absent else ""))
 
 
+def card(args):
+    """Re-render README.md from the template against an already-built package.
+
+    Cards get revised far more often than 11 GB of Parquet does, and rebuilding the whole package
+    to fix a sentence would rewrite every blob. This recomputes the template values by scanning the
+    existing data/ tree and rewrites only the card; --push uploads only that file.
+    """
+    out = Path(args.out)
+    index = {}
+    for path in sorted((out / "data").glob("*/*.parquet")):
+        index.setdefault(path.parent.name, []).append(path.stem)
+    if not index:
+        sys.exit("error: no built package under {} -- run build first".format(out))
+
+    configs_yaml = []
+    for config in (NATIVE, MODEL_RES, GALLERIES):
+        if config not in index:
+            continue
+        configs_yaml.append("- config_name: {}".format(config))
+        configs_yaml.append("  data_files:")
+        for city in sorted(index[config]):
+            configs_yaml.append("  - split: {}".format(city))
+            configs_yaml.append("    path: data/{}/{}.parquet".format(config, city))
+
+    total = sum(f.stat().st_size for f in out.rglob("*.parquet"))
+    (out / "README.md").write_text(TEMPLATE.read_text(encoding="utf-8").format(
+        configs_yaml="\n".join(configs_yaml),
+        git_commit=git_commit(),
+        export_date=datetime.date.today().isoformat(),
+        repo_id=args.repo_id,
+        n_cities=len(set(sum(index.values(), []))),
+        total_gb="{:.2f}".format(total / 1e9),
+    ), encoding="utf-8")
+    print("Re-rendered {}".format(out / "README.md"))
+
+    if not args.push:
+        print("Not pushed. Add --push to upload just the card.")
+        return
+    from huggingface_hub import HfApi
+    HfApi().upload_file(path_or_fileobj=str(out / "README.md"), path_in_repo="README.md",
+                        repo_id=args.repo_id, repo_type="dataset",
+                        commit_message="Clarify that this benchmark is post-publication, not the paper's evaluation")
+    print("Card updated: https://huggingface.co/datasets/{}".format(args.repo_id))
+
+
 def push(args):
     from huggingface_hub import HfApi                # imported late: not needed to build or verify
     out = Path(args.out)
@@ -280,7 +325,7 @@ def push(args):
 def main():
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("mode", choices=["build", "verify", "push"])
+    parser.add_argument("mode", choices=["build", "verify", "card", "push"])
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--benchmark", type=Path, default=REPO_ROOT / "benchmark",
                         help="repo benchmark/ dir; reads <city>/panos/")
@@ -290,8 +335,10 @@ def main():
                         help="directory holding <city>_incremental_fp/ PNG crops")
     parser.add_argument("--repo-id", default="projectsidewalk/rampnet-benchmark")
     parser.add_argument("--private", action="store_true")
+    parser.add_argument("--push", action="store_true",
+                        help="with `card`: upload only README.md")
     args = parser.parse_args()
-    {"build": build, "verify": verify, "push": push}[args.mode](args)
+    {"build": build, "verify": verify, "card": card, "push": push}[args.mode](args)
 
 
 if __name__ == "__main__":

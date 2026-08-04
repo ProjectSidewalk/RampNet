@@ -14,15 +14,32 @@ configs:
 
 # RampNet Benchmark Imagery
 
-The panoramas behind the RampNet detection benchmark — {n_cities} city splits, {total_gb} GB — from
-**RampNet: A Two-Stage Pipeline for Bootstrapping Curb Ramp Detection in Streetscape Images from
-Open Government Metadata** (O'Meara et al., ICCV'25 CV4A11y workshop,
-[arXiv:2508.09415](https://arxiv.org/abs/2508.09415)).
+> ### ⚠️ This benchmark is **not** part of the RampNet paper
+>
+> It did not exist when RampNet was published. The paper's tag,
+> [`v1.0-iccv2025`](https://github.com/ProjectSidewalk/RampNet/tree/v1.0-iccv2025) (August 2025),
+> contains **no `benchmark/` directory at all** — its evaluation was a **1,000-panorama manually
+> labeled gold set** (`manual_labels/`, imagery in
+> [`rampnet-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-dataset)), drawn from
+> the same three training cities.
+>
+> These {n_cities} city splits were built **eleven months later**, between 2026-07-22 and
+> 2026-07-31, as post-publication work: to test the published model on cities and imagery sources
+> it was never trained on, and to compare it against VLM detectors.
+>
+> **Use this to evaluate RampNet. Do not cite it as the paper's evaluation** — the ground truth,
+> the cities, and the matching protocol all differ, so numbers measured here are not comparable
+> with the ones in the paper.
+
+The panoramas behind that benchmark — {n_cities} city splits, {total_gb} GB. Unlike the paper's
+gold set, the splits deliberately include **non-US cities and a second imagery source** (Mapillary
+as well as Google Street View), which is the whole point: the paper's own evaluation was in-domain.
 
 This is the **imagery only**. The labels — per-split detections, human ground-truth verdicts, and
 the rubrics they were made under — live in git at
-[`benchmark/`](https://github.com/ProjectSidewalk/RampNet/tree/main/benchmark). That split is
-deliberate: verdicts get revised, imagery does not, so this repo only ever grows.
+[`benchmark/`](https://github.com/ProjectSidewalk/RampNet/tree/main/benchmark), along with
+per-split ground-truth precision/recall and reviewer confidence. That split is deliberate: verdicts
+get revised, imagery does not, so this repo only ever grows.
 
 ## Configs
 
@@ -94,6 +111,10 @@ truth precision/recall, and reviewer confidence are documented in
 [`benchmark/README.md`](https://github.com/ProjectSidewalk/RampNet/blob/main/benchmark/README.md).
 
 ## Citation
+
+There is no separate publication for this benchmark. Cite the paper for **the pipeline and model
+being evaluated**, and please make clear that the evaluation set is post-publication rather than
+the paper's own:
 
 ```bibtex
 @inproceedings{{omeara2025rampnet,
