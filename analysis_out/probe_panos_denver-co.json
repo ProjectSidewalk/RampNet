@@ -1,0 +1,987 @@
+{
+  "sites_source": {
+    "mode": "verdicts",
+    "path": "verdicts.json",
+    "seed": 20260731,
+    "sheet_build": "989d90e8",
+    "city": "denver-co",
+    "n_records": 59
+  },
+  "inventory": "denver-co-2026-07-31.jsonl.gz",
+  "date_field": "CREATEDATE",
+  "band_m": [
+    4.0,
+    30.0
+  ],
+  "summary": {
+    "n_sites": 59,
+    "status_counts": {
+      "ok": 58,
+      "no_panos": 1
+    },
+    "coverage": 0.9831,
+    "pick_rate": 0.9831,
+    "date_coverage": 0.9831,
+    "chosen_range_m": {
+      "min": 4.02,
+      "median": 5.75,
+      "max": 28.67
+    },
+    "chosen_year_hist": {
+      "2016": 2,
+      "2017": 2,
+      "2018": 1,
+      "2019": 15,
+      "2020": 4,
+      "2021": 9,
+      "2022": 4,
+      "2023": 5,
+      "2024": 7,
+      "2025": 6,
+      "2026": 3
+    }
+  },
+  "sites": [
+    {
+      "id": "66096",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        11
+      ],
+      "status": "ok",
+      "n_panos": 53,
+      "n_in_band": 12,
+      "n_eligible": 10,
+      "n_dated_after_record": 50,
+      "chosen_pano": "ub4e_S1ZyOOGU_4tvLyoAw",
+      "chosen_date": "2023-11",
+      "chosen_range_m": 5.21
+    },
+    {
+      "id": "66114",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        11
+      ],
+      "status": "ok",
+      "n_panos": 42,
+      "n_in_band": 12,
+      "n_eligible": 10,
+      "n_dated_after_record": 39,
+      "chosen_pano": "yW4whuHt1ad1kEVRN8-kxA",
+      "chosen_date": "2025-6",
+      "chosen_range_m": 5.8
+    },
+    {
+      "id": "66209",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        11
+      ],
+      "status": "ok",
+      "n_panos": 65,
+      "n_in_band": 18,
+      "n_eligible": 18,
+      "n_dated_after_record": 63,
+      "chosen_pano": "1sf6XaEDpoktwGgWBrBQEg",
+      "chosen_date": "2024-9",
+      "chosen_range_m": 5.02
+    },
+    {
+      "id": "66519",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        11
+      ],
+      "status": "ok",
+      "n_panos": 96,
+      "n_in_band": 25,
+      "n_eligible": 20,
+      "n_dated_after_record": 89,
+      "chosen_pano": "TWjQ3Udk4NH1JM2wVSAmQQ",
+      "chosen_date": "2021-7",
+      "chosen_range_m": 4.22
+    },
+    {
+      "id": "67585",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        8
+      ],
+      "status": "ok",
+      "n_panos": 86,
+      "n_in_band": 15,
+      "n_eligible": 13,
+      "n_dated_after_record": 83,
+      "chosen_pano": "WVX1gW-uTwDRDCOxUjqYig",
+      "chosen_date": "2018-12",
+      "chosen_range_m": 6.35
+    },
+    {
+      "id": "68791",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        8
+      ],
+      "status": "no_panos",
+      "n_panos": 0,
+      "n_in_band": 0,
+      "n_eligible": 0,
+      "n_dated_after_record": 0
+    },
+    {
+      "id": "69169",
+      "stratum": null,
+      "record_ym": [
+        2017,
+        5
+      ],
+      "status": "ok",
+      "n_panos": 33,
+      "n_in_band": 8,
+      "n_eligible": 7,
+      "n_dated_after_record": 30,
+      "chosen_pano": "t3ZnIzyrQQN0C53AX6NXCA",
+      "chosen_date": "2019-5",
+      "chosen_range_m": 6.71
+    },
+    {
+      "id": "69410",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        11
+      ],
+      "status": "ok",
+      "n_panos": 37,
+      "n_in_band": 10,
+      "n_eligible": 9,
+      "n_dated_after_record": 33,
+      "chosen_pano": "DO8bStlMoRWEB4WzhaqZXQ",
+      "chosen_date": "2025-6",
+      "chosen_range_m": 5.45
+    },
+    {
+      "id": "71198",
+      "stratum": null,
+      "record_ym": [
+        2019,
+        5
+      ],
+      "status": "ok",
+      "n_panos": 43,
+      "n_in_band": 18,
+      "n_eligible": 14,
+      "n_dated_after_record": 39,
+      "chosen_pano": "31HEnbgQ7odPDQIVk_wV-Q",
+      "chosen_date": "2021-6",
+      "chosen_range_m": 5.87
+    },
+    {
+      "id": "71275",
+      "stratum": null,
+      "record_ym": [
+        2017,
+        5
+      ],
+      "status": "ok",
+      "n_panos": 53,
+      "n_in_band": 15,
+      "n_eligible": 11,
+      "n_dated_after_record": 48,
+      "chosen_pano": "dc3ucGlTEjKyQ8pj4dSTUg",
+      "chosen_date": "2019-6",
+      "chosen_range_m": 7.51
+    },
+    {
+      "id": "72151",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        8
+      ],
+      "status": "ok",
+      "n_panos": 49,
+      "n_in_band": 11,
+      "n_eligible": 8,
+      "n_dated_after_record": 46,
+      "chosen_pano": "aM6nVCQCTCG9uNUZMqO4Zg",
+      "chosen_date": "2022-7",
+      "chosen_range_m": 7.7
+    },
+    {
+      "id": "73218",
+      "stratum": null,
+      "record_ym": [
+        2019,
+        5
+      ],
+      "status": "ok",
+      "n_panos": 49,
+      "n_in_band": 15,
+      "n_eligible": 12,
+      "n_dated_after_record": 46,
+      "chosen_pano": "rsok_s1UuAkK81obxR4c7A",
+      "chosen_date": "2023-11",
+      "chosen_range_m": 6.65
+    },
+    {
+      "id": "74008",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        8
+      ],
+      "status": "ok",
+      "n_panos": 47,
+      "n_in_band": 14,
+      "n_eligible": 11,
+      "n_dated_after_record": 44,
+      "chosen_pano": "3gfIDLZgmBIeCWX65Ih3GA",
+      "chosen_date": "2024-10",
+      "chosen_range_m": 4.14
+    },
+    {
+      "id": "74811",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        8
+      ],
+      "status": "ok",
+      "n_panos": 54,
+      "n_in_band": 14,
+      "n_eligible": 12,
+      "n_dated_after_record": 51,
+      "chosen_pano": "UoyGpZIoH9KkqVda-3eSow",
+      "chosen_date": "2016-8",
+      "chosen_range_m": 4.28
+    },
+    {
+      "id": "75115",
+      "stratum": null,
+      "record_ym": [
+        2019,
+        5
+      ],
+      "status": "ok",
+      "n_panos": 41,
+      "n_in_band": 7,
+      "n_eligible": 4,
+      "n_dated_after_record": 38,
+      "chosen_pano": "P5l6fQpOoBuZ-sANGRO1MQ",
+      "chosen_date": "2024-10",
+      "chosen_range_m": 22.14
+    },
+    {
+      "id": "75414",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        11
+      ],
+      "status": "ok",
+      "n_panos": 49,
+      "n_in_band": 12,
+      "n_eligible": 9,
+      "n_dated_after_record": 46,
+      "chosen_pano": "4nvdPwUwwPXhzq4Ejjz47w",
+      "chosen_date": "2025-6",
+      "chosen_range_m": 4.28
+    },
+    {
+      "id": "78400",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        8
+      ],
+      "status": "ok",
+      "n_panos": 48,
+      "n_in_band": 17,
+      "n_eligible": 15,
+      "n_dated_after_record": 46,
+      "chosen_pano": "eN4KNmMNQQulhjNvw41ZWQ",
+      "chosen_date": "2022-11",
+      "chosen_range_m": 5.33
+    },
+    {
+      "id": "78579",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        8
+      ],
+      "status": "ok",
+      "n_panos": 45,
+      "n_in_band": 15,
+      "n_eligible": 13,
+      "n_dated_after_record": 42,
+      "chosen_pano": "fIlLLjNzhG-RsmHczTEMSQ",
+      "chosen_date": "2019-6",
+      "chosen_range_m": 6.78
+    },
+    {
+      "id": "78637",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        8
+      ],
+      "status": "ok",
+      "n_panos": 88,
+      "n_in_band": 21,
+      "n_eligible": 16,
+      "n_dated_after_record": 81,
+      "chosen_pano": "W9LTRuBHFya8ejbPZAiacQ",
+      "chosen_date": "2020-11",
+      "chosen_range_m": 4.49
+    },
+    {
+      "id": "82036",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        8
+      ],
+      "status": "ok",
+      "n_panos": 48,
+      "n_in_band": 14,
+      "n_eligible": 11,
+      "n_dated_after_record": 45,
+      "chosen_pano": "Jq8JUmDVPK64M-zqJkZkFA",
+      "chosen_date": "2025-7",
+      "chosen_range_m": 6.74
+    },
+    {
+      "id": "82188",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        8
+      ],
+      "status": "ok",
+      "n_panos": 49,
+      "n_in_band": 18,
+      "n_eligible": 14,
+      "n_dated_after_record": 44,
+      "chosen_pano": "b7joa-xFuARorRry-tTsAg",
+      "chosen_date": "2023-10",
+      "chosen_range_m": 6.73
+    },
+    {
+      "id": "83611",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        8
+      ],
+      "status": "ok",
+      "n_panos": 67,
+      "n_in_band": 22,
+      "n_eligible": 18,
+      "n_dated_after_record": 63,
+      "chosen_pano": "t0PaaWnFImjT1RJQWr3Xew",
+      "chosen_date": "2022-11",
+      "chosen_range_m": 7.27
+    },
+    {
+      "id": "83652",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        8
+      ],
+      "status": "ok",
+      "n_panos": 51,
+      "n_in_band": 18,
+      "n_eligible": 14,
+      "n_dated_after_record": 47,
+      "chosen_pano": "U-588rBjy3MvN4JguDnwUA",
+      "chosen_date": "2024-8",
+      "chosen_range_m": 4.24
+    },
+    {
+      "id": "85306",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        8
+      ],
+      "status": "ok",
+      "n_panos": 56,
+      "n_in_band": 10,
+      "n_eligible": 10,
+      "n_dated_after_record": 56,
+      "chosen_pano": "WrAgzBTooszHH9SF74pdTA",
+      "chosen_date": "2019-9",
+      "chosen_range_m": 8.15
+    },
+    {
+      "id": "86092",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        8
+      ],
+      "status": "ok",
+      "n_panos": 58,
+      "n_in_band": 15,
+      "n_eligible": 12,
+      "n_dated_after_record": 55,
+      "chosen_pano": "F77C76NwOEFdY1RNXp8mNg",
+      "chosen_date": "2019-9",
+      "chosen_range_m": 4.4
+    },
+    {
+      "id": "87014",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        8
+      ],
+      "status": "ok",
+      "n_panos": 49,
+      "n_in_band": 15,
+      "n_eligible": 12,
+      "n_dated_after_record": 46,
+      "chosen_pano": "8YcmvNG0KzCBRW5ViA-y2Q",
+      "chosen_date": "2019-11",
+      "chosen_range_m": 4.84
+    },
+    {
+      "id": "89435",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        7
+      ],
+      "status": "ok",
+      "n_panos": 68,
+      "n_in_band": 16,
+      "n_eligible": 16,
+      "n_dated_after_record": 68,
+      "chosen_pano": "eOE0EYuI1rfmpDcDyZOE3Q",
+      "chosen_date": "2026-5",
+      "chosen_range_m": 6.8
+    },
+    {
+      "id": "92078",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        8
+      ],
+      "status": "ok",
+      "n_panos": 70,
+      "n_in_band": 18,
+      "n_eligible": 15,
+      "n_dated_after_record": 66,
+      "chosen_pano": "vOZgnnxVAipFJ8srN4XStg",
+      "chosen_date": "2020-11",
+      "chosen_range_m": 4.36
+    },
+    {
+      "id": "94247",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        7
+      ],
+      "status": "ok",
+      "n_panos": 41,
+      "n_in_band": 13,
+      "n_eligible": 13,
+      "n_dated_after_record": 40,
+      "chosen_pano": "kLHvf0VPiAU30ncq6GmMNQ",
+      "chosen_date": "2019-9",
+      "chosen_range_m": 7.03
+    },
+    {
+      "id": "96782",
+      "stratum": null,
+      "record_ym": [
+        2021,
+        6
+      ],
+      "status": "ok",
+      "n_panos": 64,
+      "n_in_band": 14,
+      "n_eligible": 10,
+      "n_dated_after_record": 55,
+      "chosen_pano": "pCSSiB7-WVeNCsnJtJlrtA",
+      "chosen_date": "2025-6",
+      "chosen_range_m": 6.03
+    },
+    {
+      "id": "97824",
+      "stratum": null,
+      "record_ym": [
+        2017,
+        5
+      ],
+      "status": "ok",
+      "n_panos": 36,
+      "n_in_band": 8,
+      "n_eligible": 8,
+      "n_dated_after_record": 33,
+      "chosen_pano": "Sm2BQB4vkzNvbhEXvu8W2g",
+      "chosen_date": "2019-8",
+      "chosen_range_m": 6.32
+    },
+    {
+      "id": "98816",
+      "stratum": null,
+      "record_ym": [
+        2021,
+        6
+      ],
+      "status": "ok",
+      "n_panos": 74,
+      "n_in_band": 18,
+      "n_eligible": 13,
+      "n_dated_after_record": 56,
+      "chosen_pano": "wSOexFSo2M-r3-nL9nxsWA",
+      "chosen_date": "2022-12",
+      "chosen_range_m": 4.02
+    },
+    {
+      "id": "99845",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        10
+      ],
+      "status": "ok",
+      "n_panos": 54,
+      "n_in_band": 19,
+      "n_eligible": 14,
+      "n_dated_after_record": 49,
+      "chosen_pano": "dKXX4nWFENT2hS0nv51GoQ",
+      "chosen_date": "2020-11",
+      "chosen_range_m": 5.53
+    },
+    {
+      "id": "103513",
+      "stratum": null,
+      "record_ym": [
+        2021,
+        6
+      ],
+      "status": "ok",
+      "n_panos": 57,
+      "n_in_band": 16,
+      "n_eligible": 11,
+      "n_dated_after_record": 49,
+      "chosen_pano": "q7Nwf2XzilwL-y5w1IBd8A",
+      "chosen_date": "2024-8",
+      "chosen_range_m": 6.34
+    },
+    {
+      "id": "106696",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        7
+      ],
+      "status": "ok",
+      "n_panos": 40,
+      "n_in_band": 13,
+      "n_eligible": 10,
+      "n_dated_after_record": 37,
+      "chosen_pano": "2l1QW8Rt4dBZNmjVe-DxYg",
+      "chosen_date": "2023-11",
+      "chosen_range_m": 4.09
+    },
+    {
+      "id": "108325",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        7
+      ],
+      "status": "ok",
+      "n_panos": 45,
+      "n_in_band": 16,
+      "n_eligible": 13,
+      "n_dated_after_record": 37,
+      "chosen_pano": "FYtJNo345fzSSQWLCqlCkg",
+      "chosen_date": "2023-11",
+      "chosen_range_m": 5.43
+    },
+    {
+      "id": "111985",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        10
+      ],
+      "status": "ok",
+      "n_panos": 78,
+      "n_in_band": 18,
+      "n_eligible": 15,
+      "n_dated_after_record": 73,
+      "chosen_pano": "7DYE6HVq0C1mvzpVDJ1Ytw",
+      "chosen_date": "2021-8",
+      "chosen_range_m": 6.99
+    },
+    {
+      "id": "113061",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        10
+      ],
+      "status": "ok",
+      "n_panos": 76,
+      "n_in_band": 27,
+      "n_eligible": 23,
+      "n_dated_after_record": 72,
+      "chosen_pano": "TQocVD_xD14kKda4iGWukQ",
+      "chosen_date": "2021-12",
+      "chosen_range_m": 4.15
+    },
+    {
+      "id": "114901",
+      "stratum": null,
+      "record_ym": [
+        2017,
+        5
+      ],
+      "status": "ok",
+      "n_panos": 56,
+      "n_in_band": 15,
+      "n_eligible": 11,
+      "n_dated_after_record": 41,
+      "chosen_pano": "FoiFIxH4g70B44Da-5wDzA",
+      "chosen_date": "2024-6",
+      "chosen_range_m": 5.7
+    },
+    {
+      "id": "116124",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        7
+      ],
+      "status": "ok",
+      "n_panos": 57,
+      "n_in_band": 15,
+      "n_eligible": 15,
+      "n_dated_after_record": 56,
+      "chosen_pano": "kvzCxEYsmz_e0WMgybSelw",
+      "chosen_date": "2019-8",
+      "chosen_range_m": 4.42
+    },
+    {
+      "id": "117445",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        10
+      ],
+      "status": "ok",
+      "n_panos": 45,
+      "n_in_band": 17,
+      "n_eligible": 13,
+      "n_dated_after_record": 41,
+      "chosen_pano": "i4depcKn6m8Js7mWwV23xA",
+      "chosen_date": "2025-7",
+      "chosen_range_m": 5.1
+    },
+    {
+      "id": "117688",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        7
+      ],
+      "status": "ok",
+      "n_panos": 45,
+      "n_in_band": 13,
+      "n_eligible": 13,
+      "n_dated_after_record": 42,
+      "chosen_pano": "eKxMlCVpQ5AebNtWgYbRBw",
+      "chosen_date": "2024-6",
+      "chosen_range_m": 6.0
+    },
+    {
+      "id": "118503",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        12
+      ],
+      "status": "ok",
+      "n_panos": 22,
+      "n_in_band": 9,
+      "n_eligible": 6,
+      "n_dated_after_record": 19,
+      "chosen_pano": "N_v_6UPvx07M73-FdjF5BQ",
+      "chosen_date": "2019-8",
+      "chosen_range_m": 10.38
+    },
+    {
+      "id": "119609",
+      "stratum": null,
+      "record_ym": [
+        2017,
+        5
+      ],
+      "status": "ok",
+      "n_panos": 50,
+      "n_in_band": 13,
+      "n_eligible": 10,
+      "n_dated_after_record": 46,
+      "chosen_pano": "NDsG5T_7LjagaTXjeo6Q6g",
+      "chosen_date": "2021-12",
+      "chosen_range_m": 4.94
+    },
+    {
+      "id": "120841",
+      "stratum": null,
+      "record_ym": [
+        2017,
+        5
+      ],
+      "status": "ok",
+      "n_panos": 42,
+      "n_in_band": 10,
+      "n_eligible": 7,
+      "n_dated_after_record": 23,
+      "chosen_pano": "OdCRbpNCQ8r7lUK6gM9r2Q",
+      "chosen_date": "2017-5",
+      "chosen_range_m": 7.32
+    },
+    {
+      "id": "125041",
+      "stratum": null,
+      "record_ym": [
+        2017,
+        5
+      ],
+      "status": "ok",
+      "n_panos": 34,
+      "n_in_band": 9,
+      "n_eligible": 9,
+      "n_dated_after_record": 34,
+      "chosen_pano": "QiVFJtRj7pvld68EEq_76g",
+      "chosen_date": "2019-7",
+      "chosen_range_m": 4.96
+    },
+    {
+      "id": "130499",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        11
+      ],
+      "status": "ok",
+      "n_panos": 47,
+      "n_in_band": 8,
+      "n_eligible": 8,
+      "n_dated_after_record": 47,
+      "chosen_pano": "_yfsaflWdvylH4bqqjOg2w",
+      "chosen_date": "2019-8",
+      "chosen_range_m": 5.44
+    },
+    {
+      "id": "131853",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        10
+      ],
+      "status": "ok",
+      "n_panos": 55,
+      "n_in_band": 16,
+      "n_eligible": 13,
+      "n_dated_after_record": 52,
+      "chosen_pano": "PInDdHEnhyWDw4ZPE4Gj0g",
+      "chosen_date": "2017-10",
+      "chosen_range_m": 6.65
+    },
+    {
+      "id": "131951",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        11
+      ],
+      "status": "ok",
+      "n_panos": 35,
+      "n_in_band": 8,
+      "n_eligible": 1,
+      "n_dated_after_record": 12,
+      "chosen_pano": "YRcFKvlnGvb1mfMYzA7weg",
+      "chosen_date": "2021-8",
+      "chosen_range_m": 28.67
+    },
+    {
+      "id": "132031",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        10
+      ],
+      "status": "ok",
+      "n_panos": 53,
+      "n_in_band": 21,
+      "n_eligible": 16,
+      "n_dated_after_record": 48,
+      "chosen_pano": "lV9z1DvxMN5BdpTMzgA3oA",
+      "chosen_date": "2021-5",
+      "chosen_range_m": 4.75
+    },
+    {
+      "id": "132946",
+      "stratum": null,
+      "record_ym": [
+        2021,
+        6
+      ],
+      "status": "ok",
+      "n_panos": 50,
+      "n_in_band": 9,
+      "n_eligible": 9,
+      "n_dated_after_record": 41,
+      "chosen_pano": "icXEbRUIIETzQYSH39KH-g",
+      "chosen_date": "2021-8",
+      "chosen_range_m": 5.4
+    },
+    {
+      "id": "133175",
+      "stratum": null,
+      "record_ym": [
+        2017,
+        5
+      ],
+      "status": "ok",
+      "n_panos": 41,
+      "n_in_band": 11,
+      "n_eligible": 9,
+      "n_dated_after_record": 34,
+      "chosen_pano": "viUf2DIVjm7V_SOL-dJ3GA",
+      "chosen_date": "2026-6",
+      "chosen_range_m": 6.56
+    },
+    {
+      "id": "133260",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        10
+      ],
+      "status": "ok",
+      "n_panos": 49,
+      "n_in_band": 15,
+      "n_eligible": 12,
+      "n_dated_after_record": 46,
+      "chosen_pano": "hgK5ULHCArODdWSCpn7MOQ",
+      "chosen_date": "2016-8",
+      "chosen_range_m": 5.93
+    },
+    {
+      "id": "134079",
+      "stratum": null,
+      "record_ym": [
+        2017,
+        5
+      ],
+      "status": "ok",
+      "n_panos": 65,
+      "n_in_band": 13,
+      "n_eligible": 11,
+      "n_dated_after_record": 54,
+      "chosen_pano": "wrgduMCiX_SsvItxxMcLMA",
+      "chosen_date": "2019-8",
+      "chosen_range_m": 6.03
+    },
+    {
+      "id": "134630",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        11
+      ],
+      "status": "ok",
+      "n_panos": 40,
+      "n_in_band": 11,
+      "n_eligible": 9,
+      "n_dated_after_record": 32,
+      "chosen_pano": "surW5J8IpO2RgbKxZPQz3w",
+      "chosen_date": "2019-8",
+      "chosen_range_m": 4.07
+    },
+    {
+      "id": "134963",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        11
+      ],
+      "status": "ok",
+      "n_panos": 36,
+      "n_in_band": 11,
+      "n_eligible": 9,
+      "n_dated_after_record": 34,
+      "chosen_pano": "aSUOY0ZM45pFp2vI-x_tCA",
+      "chosen_date": "2026-6",
+      "chosen_range_m": 8.11
+    },
+    {
+      "id": "135499",
+      "stratum": null,
+      "record_ym": [
+        2019,
+        5
+      ],
+      "status": "ok",
+      "n_panos": 84,
+      "n_in_band": 17,
+      "n_eligible": 15,
+      "n_dated_after_record": 80,
+      "chosen_pano": "B8C5thh3Vstu0uHB2l3cKw",
+      "chosen_date": "2020-11",
+      "chosen_range_m": 4.08
+    },
+    {
+      "id": "136713",
+      "stratum": null,
+      "record_ym": [
+        2015,
+        11
+      ],
+      "status": "ok",
+      "n_panos": 56,
+      "n_in_band": 12,
+      "n_eligible": 11,
+      "n_dated_after_record": 55,
+      "chosen_pano": "TVUFHELkQbUNHIeUxcR6oA",
+      "chosen_date": "2019-8",
+      "chosen_range_m": 6.93
+    },
+    {
+      "id": "138310",
+      "stratum": null,
+      "record_ym": [
+        2021,
+        6
+      ],
+      "status": "ok",
+      "n_panos": 43,
+      "n_in_band": 9,
+      "n_eligible": 9,
+      "n_dated_after_record": 43,
+      "chosen_pano": "UQzFEffxSwMyxG0n-WXlYg",
+      "chosen_date": "2021-8",
+      "chosen_range_m": 4.08
+    }
+  ]
+}
