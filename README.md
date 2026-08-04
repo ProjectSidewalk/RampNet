@@ -173,6 +173,26 @@ The suite does not train, evaluate a checkpoint, or touch the Google Street View
 
 **Provenance note:** see [`docs/data_provenance.md`](docs/data_provenance.md) for the registry of which cities' data entered training (evaluations in those cities are optimistically biased), the undocumented Google endpoints the regeneration pipeline depends on, and why the HuggingFace dataset — not a re-run of `split_dataset.py` — is the split of record for the paper.
 
+## Published Artifacts
+
+Everything RampNet publishes lives under the [`projectsidewalk`](https://huggingface.co/projectsidewalk) organisation on Hugging Face, indexed by the [**RampNet collection**](https://huggingface.co/collections/projectsidewalk/rampnet). This table is the map from "what an experiment needs" to "where it is", so that no input is discoverable only by asking us.
+
+| artifact | where | notes |
+| :--- | :--- | :--- |
+| Stage 2 model weights | [`rampnet-model`](https://huggingface.co/projectsidewalk/rampnet-model) | the curb ramp detector |
+| Stage 1 generated dataset | [`rampnet-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-dataset) | 214k annotated panoramas, 463 GB; the **split of record** for the paper |
+| Round-2 manual crops | [`rampnet-crop-model-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset) | 1,212 crops for the second crop-model round |
+| **Government curb ramp inventories** | **this repo**, `stage_one/dataset_generation/location_data/` | the exact NYC/Portland/Bend files the paper ran on, sha256-pinned |
+| **Street centrelines** | **this repo**, `stage_one/dataset_generation/street_data/*.min.geojson.gz` | 18.7 MB derivative of the 801 MB downloads, proven equivalent |
+| City boundaries | **this repo**, `stage_one/dataset_generation/cityboundaries.geojson` | |
+| Gold-set labels | **this repo**, `manual_labels/` | 1,000 panoramas, YOLO-format points |
+| Benchmark detections + verdicts | **this repo**, `benchmark/` | per-split records, human verdicts, and the rubrics they were made under |
+| Crop-model checkpoints | *not yet published* | **blocks Stage 1** — see [`docs/replication.md`](docs/replication.md#publishing-plan-for-hugging-face) |
+| Stage 1 manifests, raw street data | *not yet published* | planned as `rampnet-stage1-inputs` |
+| Benchmark panoramas | *not yet published* | planned as `rampnet-benchmark` ([#21](https://github.com/ProjectSidewalk/RampNet/issues/21)) |
+
+**What is not yet published is stated as plainly as what is.** [`docs/replication.md`](docs/replication.md) is the ledger — for every input, whether someone outside the lab can obtain it, and where they are blocked if they cannot. [`docs/data_provenance.md`](docs/data_provenance.md) records where each input came from, its hash, and the caveats that limit re-running Stage 1.
+
 ## Dataset Setup
 
 Before reproducing our results, certain datasets will need to be downloaded.

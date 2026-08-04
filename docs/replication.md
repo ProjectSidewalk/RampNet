@@ -152,17 +152,104 @@ The irreplaceable half — the human tags — was committed all along. That is t
 
 ## Publishing plan for Hugging Face
 
-Two artifacts are too large for git and belong on HF (issue #21).
+Everything RampNet publishes lives under the [`projectsidewalk`
+organisation](https://huggingface.co/projectsidewalk) and is collected at
+[huggingface.co/collections/projectsidewalk/rampnet](https://huggingface.co/collections/projectsidewalk/rampnet).
+Three repos exist today; three more are planned, and the collection is the index that makes them
+findable together.
 
-| artifact | size | why |
+| repo | type | size | status |
+| :--- | :--- | ---: | :--- |
+| [`rampnet-model`](https://huggingface.co/projectsidewalk/rampnet-model) | model | — | ✅ published |
+| [`rampnet-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-dataset) | dataset | 463 GB | ✅ published — the Stage 1 *output*, 214k panoramas |
+| [`rampnet-crop-model-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset) | dataset | 507 MB → 15.5 GB | ✅ published (1,212 round-2 crops); ⬜ round-1 crop set to add |
+| **`rampnet-crop-model`** | model | 720.7 MB | ⬜ **planned — highest priority** |
+| **`rampnet-stage1-inputs`** | dataset | 1.06 GB | ⬜ planned |
+| **`rampnet-benchmark`** | dataset | ~12 GB | ⬜ planned (#21) |
+
+Total new upload is under 29 GB against the 463 GB already hosted, so capacity is not a
+consideration (see below).
+
+### 1. `rampnet-crop-model` — 720.7 MB, and it blocks everything else
+
+**Stage 1 cannot run at all without this, published inputs or not.**
+`dataset_generation/inference_isolator.py` hardcodes a path to the round-2 crop checkpoint; it is
+the model that converts every government GPS coordinate into a pixel keypoint. It exists only on
+lab storage. Publishing `location_data/` without it hands someone the inputs to a pipeline they
+still cannot execute.
+
+| file | bytes | sha256 |
 | :--- | ---: | :--- |
-| **model-resolution panos** (4096×2048) | ~1–2 GB | what GT verification actually needs — reviewers scan whole panoramas at the model's resolution, never native |
-| **native-res panos** | 9.0 GB | the resolution experiment (#25) and any future re-render at higher fidelity |
-| **#55 A/B galleries** | 244 MB | the crops the A/B reviewers saw (also regenerable, so belt-and-braces) |
+| round 1, `ps_model/model/best_model.pth` | 360,358,458 | `00dba3948298a313…` |
+| round 2, `ps_and_manual_model/best_model.pth` | 360,358,458 | `3fc00ad6b9ac2768…` |
 
-**Package all three as Parquet or WebDataset** — see the HF correspondence below. Embed the exact
+Both rounds go up, not just round 2: round 1 is the initialisation for round 2, so without it the
+second stage of crop training cannot be reproduced either. Note that
+`ps_and_manual_model/ps_model.pth` is **byte-identical** to the round-1 checkpoint
+(`00dba394…` both) — that is the "copy it here, renamed" step in the README, now verified by hash
+rather than assumed, and it means only two distinct files need uploading.
+
+### 2. `rampnet-stage1-inputs` — 1.06 GB
+
+The inputs half. Order within it matters, because the manifests are the reproduction path and the
+source files are the archive:
+
+| contents | size | why HF rather than git |
+| :--- | ---: | :--- |
+| **manifests** — `finaldataset.jsonl` (64.3 MB), `dataset.jsonl` (59.1 MB), `all_locations.csv` (13.5 MB), `negativepanos.jsonl` (10.5 MB), `negativepanosSHORTENED.jsonl` (5.2 MB) | 152.5 MB | **upload first.** `finaldataset.jsonl` is the exact 219,170-panorama manifest `download_dataset.py` consumed, and `negativepanosSHORTENED.jsonl` the 43,834 negatives actually used — which is the *only* way to reproduce them, since the sampler is unseeded |
+| `street_data/` raw downloads | 801.6 MB | the pristine originals behind the committed 18.7 MB derivative |
+| `location_data/` originals | 71.8 MB | mirror of the committed copy, same sha256 — belt and braces against a git accident |
+| `gov_provenance.csv` | 29.4 MB | optional; regenerates from the committed script, hash in §3 |
+
+### 3. `rampnet-benchmark` — ~12 GB (#21)
+
+| folder | size | why |
+| :--- | ---: | :--- |
+| `panos_4096x2048/<city>/` | ~1–2 GB *(estimated, not yet measured)* | **what GT reviewers actually saw.** `gt_gallery.py` renders at the model's 4096×2048 and never native, so this — not the native archive — is what lets a second rater redo the pass |
+| `panos_native/<city>/` | 10.1 GB *(measured, 9 splits)* | the resolution experiment (#25) and any future re-render |
+| `galleries/<city>/` | 244 MB | the #55 A/B crops reviewers saw (also regenerable, so belt-and-braces) |
+
+**Publish incrementally, don't wait for more cities.** Benchmark imagery is immutable once
+fetched — `imagery_manifest.py --verify` confirmed all 984 reviewed panoramas unchanged since
+review — and the things that *do* get revised, `records.jsonl` and `verdicts.json`, live in git.
+So the set only ever grows, a new city is a new folder, and `hf upload` skips files whose hash
+already matches. An 11th city costs one folder. What waiting *does* cost is real: the panoramas are
+what block GT re-verification and the second-rater pass that Budapest's LOW-confidence ground truth
+needs.
+
+**Name the folders by resolution, not by consumer.** `panos_model_res/` was the earlier proposal
+and it is a poor public name twice over: "res" is unexplained, and "model resolution" is a
+*relative* label that silently becomes wrong when the model's input size changes — live risk given
+#25 and #20. `panos_4096x2048/` states the fact, cannot rot, and a future input size just adds a
+sibling folder instead of invalidating this one.
+
+Layout is the one thing worth settling before the first upload, because restructuring means
+*replacing* large blobs, which is the single expensive operation on HF (see churn, below).
+
+### 4. Round-1 crop training data — 15 GB, into `rampnet-crop-model-dataset`
+
+The Project Sidewalk crop set behind round 1 of the crop model — **15 GB, 27,710 files** — joins
+the round-2 manual crops in
+[`rampnet-crop-model-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset),
+as **Parquet** under `round1_ps/`. Parquet is not a stylistic choice here: 27,710 entries is past
+the **10,000-per-folder hard limit**, so loose files cannot work at this count whatever the general
+guidance says.
+
+The 1,212 round-2 crops stay exactly as they are — loose JPEGs under `test/`, which is fine at that
+count. Converting them would orphan LFS versions and break existing paths on an already-published
+repo for a cosmetic gain, so the repo will hold two shapes and the card should say why in a line.
+
+Publishing this makes the paper's crop-model training set **available** but not **reproducible**:
+`download_data.py` reads live from Project Sidewalk servers whose databases keep growing, so a
+re-run builds a different set (§1). It can be downloaded, never regenerated — which is the reason
+it needs publishing, not an argument against.
+
+**Package the imagery as Parquet or WebDataset** — see the HF correspondence below. Embed the exact
 bytes the reviewers saw (PNG stays PNG); `imagery_manifest.json` is what proves the round trip
-preserved them.
+preserved them. The handful of loose source files in `rampnet-stage1-inputs` are a different case:
+they are documents to download and use as-is, not rows to iterate, so loose files are right there —
+but the card must say plainly that `load_dataset()` will not work and give the `hf download`
+command instead.
 
 ### Is churn actually a problem? Mostly no — publish sooner
 
@@ -184,9 +271,9 @@ guidance:
 blobs.** Structuring additively — a new folder per city, never a rewrite of existing ones — makes
 updates nearly free, and means waiting to publish buys very little.
 
-**Recommendation:** settle the directory layout once (`panos/<city>/`, `panos_model_res/<city>/`,
-`galleries/<city>/`), then publish incrementally as splits land. The thing genuinely worth getting
-right up front is the *layout*, not the timing.
+**Recommendation:** settle the directory layout once (`panos_native/<city>/`,
+`panos_4096x2048/<city>/`, `galleries/<city>/`), then publish incrementally as splits land. The
+thing genuinely worth getting right up front is the *layout*, not the timing.
 
 ### Storage capacity is not a constraint
 
