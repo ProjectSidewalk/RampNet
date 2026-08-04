@@ -23,9 +23,10 @@ lives on one machine.
 | **`location_data/` (the paper's government inventories)** | 71.8 MB | **committed** ✅ | ✅ |
 | **`street_data/` derivative (what the pipeline actually reads)** | 18.7 MB | **committed** ✅ | ✅ |
 | `street_data/` raw downloads (NY file alone is 669 MB) | 801 MB | git-ignored; HF #21 pending | ⚠️ superseded by the derivative |
-| Stage 1 manifests (`all_locations.csv`, `dataset.jsonl`, `finaldataset.jsonl`, `negativepanos*.jsonl`) | 151 MB | **git-ignored; HF #21 pending** | ❌ **blocker** |
-| Crop-model checkpoints (round 1 + round 2) | 720 MB | lab storage only | ❌ **blocker** |
-| **`benchmark/*/panos/` (native-res panoramas)** | **9.0 GB** | **git-ignored; HF #21 pending** | ❌ **blocker** |
+| Stage 1 manifests (`all_locations.csv`, `dataset.jsonl`, `finaldataset.jsonl`, `negativepanos*.jsonl`) | 152 MB | HF [`rampnet-stage1-inputs`](https://huggingface.co/datasets/projectsidewalk/rampnet-stage1-inputs) | ✅ |
+| **Crop-model checkpoints** (rounds 1 + 2) | 720.7 MB | HF [`rampnet-crop-model`](https://huggingface.co/projectsidewalk/rampnet-crop-model) | ✅ |
+| Round-1 crop training set (Project Sidewalk crops) | 15 GB | lab storage only | ⬜ planned — `rampnet-crop-model-dataset/round1_ps/` |
+| **`benchmark/*/panos/` (benchmark panoramas)** | 11.41 GB | HF [`rampnet-benchmark`](https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark) | ✅ |
 
 ### ✅ Resolved — the challenger detections are published
 
@@ -89,14 +90,22 @@ file. What reproduces them is the manifest — `negativepanosSHORTENED.jsonl` (5
 negatives actually used) and `finaldataset.jsonl` (64 MB, the 219,170-panorama manifest consumed by
 `download_dataset.py`). Those are the higher-value, smaller publish and should go first.
 
-### Blocker 2 — the panoramas are 9.0 GB and only HF can carry them
+### ✅ Resolved — the benchmark panoramas are published (#21)
 
-`benchmark/README.md` already says the native-resolution panos "are archived separately and
-published to HF (#21); they are intentionally not in git". **#21 is still open**, so the imagery
-half of the benchmark is currently unobtainable by anyone else. That blocks `miss_gallery.py`,
-`fp_gallery.py`, `gt_gallery.py` and any re-rating of the #46 tagging task.
+This was the last blocker: the imagery half of the benchmark existed only on lab machines, so
+`gt_gallery.py`, `miss_gallery.py`, `fp_gallery.py` and any re-rating were unobtainable by anyone
+else. It is now
+[`rampnet-benchmark`](https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark) — 11.41 GB,
+Parquet, three configs (`native`, `4096x2048`, `galleries`), 9 splits each.
 
-Nothing in this repo can fix that; it needs #21 to land.
+```python
+from datasets import load_dataset
+ds = load_dataset("projectsidewalk/rampnet-benchmark", "4096x2048", split="budapest_district5")
+```
+
+**The second-rater pass on Budapest is therefore unblocked.** Its ground truth was reviewed at LOW
+confidence, and the imagery a reviewer needs is the `4096x2048` config — `gt_gallery.py` renders at
+that size and never native. What remains blocking a second rater is a *person*, not an artifact.
 
 ## Every manual-review task, and what it would take to redo it
 
@@ -105,9 +114,13 @@ someone else can **redo the pass**.
 
 | task | judgments | what the reviewer saw | redoable by someone else? |
 | :--- | :--- | :--- | :--- |
-| **GT verification** (9 splits) | `benchmark/<city>/verdicts.json` ✅ | whole panoramas at **model resolution** via `scripts/gt_gallery.py` | ❌ needs the panos |
-| **#55 incremental-FP A/B** (8 splits) | `benchmark/<city>/incremental_fp_tags.json` ✅ | crops from `low_floor_sweep.py gallery` (244 MB PNG, git-ignored) | ❌ needs the panos |
-| **#46 miss taxonomy** (1 split-set) | `benchmark/miss_taxonomy_46/silent__jonf.json` ✅ | **crops committed** (15 MB) | ✅ **yes, today** |
+| **GT verification** (9 splits) | `benchmark/<city>/verdicts.json` ✅ | whole panoramas at 4096×2048 via `scripts/gt_gallery.py` | ✅ **yes** — `rampnet-benchmark`, config `4096x2048` |
+| **#55 incremental-FP A/B** (8 splits) | `benchmark/<city>/incremental_fp_tags.json` ✅ | crops from `low_floor_sweep.py gallery` | ✅ **yes** — `rampnet-benchmark`, config `galleries` (the exact 314 crops) |
+| **#46 miss taxonomy** (1 split-set) | `benchmark/miss_taxonomy_46/silent__jonf.json` ✅ | **crops committed** (15 MB) | ✅ **yes, from git alone** |
+
+**All three human passes are now redoable by someone else.** That was not true this morning: two of
+the three needed imagery that existed only on lab machines. The judgments and rubrics were already
+committed; publishing the pixels is what closed the loop.
 
 ### What makes #46 redoable, and what the other two need
 
@@ -165,7 +178,7 @@ findable together.
 | [`rampnet-crop-model-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset) | dataset | 507 MB → 15.5 GB | ✅ published (1,212 round-2 crops); ⬜ round-1 crop set to add |
 | [`rampnet-crop-model`](https://huggingface.co/projectsidewalk/rampnet-crop-model) | model | 720.7 MB | ✅ **published 2026-08-04** |
 | [`rampnet-stage1-inputs`](https://huggingface.co/datasets/projectsidewalk/rampnet-stage1-inputs) | dataset | 1.06 GB | ✅ **published 2026-08-04** |
-| **`rampnet-benchmark`** | dataset | 12.1 GB | ⬜ planned (#21) |
+| [`rampnet-benchmark`](https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark) | dataset | 11.41 GB | ✅ **published 2026-08-04** (#21) |
 
 Total new upload is under 29 GB against the 463 GB already hosted — about +6%.
 
@@ -240,7 +253,7 @@ source files are the archive:
 | `location_data/` originals | 71.8 MB | mirror of the committed copy, same sha256 — belt and braces against a git accident |
 | `gov_provenance.csv` | 29.4 MB | optional; regenerates from the committed script, hash in §3 |
 
-### 3. `rampnet-benchmark` — ~12 GB (#21)
+### 3. ✅ `rampnet-benchmark` — 11.41 GB, published (#21)
 
 | folder | size | why |
 | :--- | ---: | :--- |
@@ -433,8 +446,11 @@ confirms the *detection coordinates* a tag refers to still exist, the manifest c
 
 ## Run-book: the #46 miss-taxonomy rating task
 
-Reproduces the tagging task exactly. **Requires the panos (blocker 2) and `.model_cache`
-(blocker 1).** Everything else is committed.
+Reproduces the tagging task exactly. **Everything it needs is now obtainable**: the challenger
+detections are committed under `benchmark/model_detections/`, and the panoramas are on HF at
+[`rampnet-benchmark`](https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark) (use the
+`4096x2048` config — `miss_gallery.py` crops at model resolution). The #46 crops themselves are
+committed, so steps 3–5 need no imagery at all.
 
 ```bash
 # 1. Which silent misses did another model already explain? (needs .model_cache)
