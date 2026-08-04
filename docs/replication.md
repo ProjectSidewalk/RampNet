@@ -166,10 +166,25 @@ The irreplaceable half — the human tags — was committed all along. That is t
 ## Publishing plan for Hugging Face
 
 Everything RampNet publishes lives under the [`projectsidewalk`
-organisation](https://huggingface.co/projectsidewalk) and is collected at
-[huggingface.co/collections/projectsidewalk/rampnet](https://huggingface.co/collections/projectsidewalk/rampnet).
-Three repos exist today; three more are planned, and the collection is the index that makes them
-findable together.
+organisation](https://huggingface.co/projectsidewalk) and is indexed by the
+[RampNet collection](https://huggingface.co/collections/projectsidewalk/rampnet), which is what
+makes the six artifacts findable together.
+
+> **Creating a repo does not add it to the collection.** Collection membership is a separate API
+> call and none of the exporters do it — a repo published without this step is reachable only by
+> direct URL or org listing, which is exactly the discoverability gap publishing was meant to
+> close. After any `--push`, run:
+>
+> ```python
+> from huggingface_hub import HfApi
+> HfApi().add_collection_item(
+>     collection_slug="projectsidewalk/rampnet-6871b77b1add07bdfecfcd5c",
+>     item_id="projectsidewalk/<new-repo>", item_type="dataset",   # or "model"
+>     note="<one line on what it is>", exists_ok=True)
+> ```
+>
+> The slug carries an id suffix; the bare `projectsidewalk/rampnet` URL will not resolve in the
+> API. Find it with `HfApi().list_collections(owner="projectsidewalk")`.
 
 | repo | type | size | status |
 | :--- | :--- | ---: | :--- |
