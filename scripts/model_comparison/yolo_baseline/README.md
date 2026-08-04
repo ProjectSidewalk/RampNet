@@ -407,13 +407,16 @@ This was done because the weights existed **only** on `/gscratch/scrubbed`, whic
 after ~21 idle days — and the run directories date from 07-26, so the clock starts the moment
 the jobs stop writing. `/gscratch/makelab` is not scrubbed.
 
-**It is a point-in-time copy, not a mirror.** As of #51's 2026-08-02 check the snapshot still
-holds the 07-29 state — it predates every checkpoint now worth keeping, and the completed
-`y26_tiles_l40s` fork is absent from it entirely. The fork stopped writing on 2026-08-01
-(TIMEOUT at ep18), so its weights sit on `/gscratch/scrubbed` with the ~21-day idle clock
-running (≈2026-08-22) and no durable copy. Re-staging has begun per-arm where an arm needed
-it (`y11x_pano`, re-staged 2026-08-03 for its Tillicum migration); the full re-stage belongs
-with the final-curves refresh, but the fork's weights should not wait that long.
+**It is a point-in-time copy that gets refreshed, not a mirror.** #51's 2026-08-02 check
+found exactly the failure mode to expect: the pack still held the 07-29 state, predating
+every checkpoint then worth keeping, with the completed `y26_tiles_l40s` fork — the only
+converged run — absent entirely. It was refreshed on **2026-08-03** to all six arms, 24/24
+files sha256-verified, with the superseded manifest preserved as `MANIFEST-2026-07-29.md`
+rather than overwritten (that one had captured `y11x_pano` mid-collapse at 9 ep / 0.024,
+which reads as a result if taken at face value). The 08-04 Tillicum migration resumed
+`y11x_pano` from this snapshot's `last.pt`, sha256-matched end to end (#51). So: **trust a
+copy only after checking `MANIFEST.md`'s date against the live run state** — the runs keep
+moving, and a stale snapshot does not announce itself.
 
 `last.pt` is kept alongside `best.pt` deliberately: `best.pt` is what the #71/#80 protocol
 reports, but only `last.pt` carries the optimizer/EMA state needed to *resume* an arm (which is
