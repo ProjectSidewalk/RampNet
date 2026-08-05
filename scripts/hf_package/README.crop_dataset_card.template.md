@@ -47,9 +47,11 @@ here is not reproducible either. Both are reasons to ship the artifact rather th
 | `pano_id` | Project Sidewalk panorama id the crop came from |
 | `image` | the crop, stored as the **exact source bytes** — 683×2048 JPEG, not re-encoded |
 | `keypoints` | list of `{{x, y}}` curb ramp locations |
-| `n_keypoints` | how many (0 is possible — negative crops) |
+| `n_keypoints` | how many |
 | `width`, `height` | pixel dimensions as stored |
 | `sha256` | hash of the exact bytes |
+
+{n_crops} crops carry {n_keypoints} keypoints between them. {keypoint_summary}
 
 ### The keypoints were hiding in the filenames
 

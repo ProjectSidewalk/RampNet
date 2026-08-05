@@ -28,3 +28,7 @@ pytest
 # Needed only because scripts/build_benchmark_dataset.py imports it at module
 # level, and tests/test_benchmark_dataset.py imports that module.
 datasets
+# Arrives transitively with datasets, but scripts/export_crop_dataset.py builds
+# Parquet with it directly and tests/test_export_crop_dataset.py imports it by
+# name — so declare it rather than rely on someone else's dependency.
+pyarrow

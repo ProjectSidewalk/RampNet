@@ -2,7 +2,7 @@
 
 This is the training data behind **round 1** of the Stage 1 crop model. The round-2 manual crops
 are already published at `projectsidewalk/rampnet-crop-model-dataset`; this is its larger,
-Project-Sidewalk-sourced counterpart -- 27,704 crops, ~15 GB -- and it is **not reproducible**:
+Project-Sidewalk-sourced counterpart -- 27,704 crops, 13.4 GB -- and it is **not reproducible**:
 `stage_one/crop_model/ps_model/data/download_data.py` reads live from Project Sidewalk servers
 whose databases keep growing, so a re-run builds a different set.
 
@@ -27,6 +27,7 @@ Usage
 -----
     python scripts/export_crop_dataset.py build  --src <dataset_1/> --out dist/round1
     python scripts/export_crop_dataset.py verify --out dist/round1
+    python scripts/export_crop_dataset.py card   --out dist/round1   # card only, no rebuild
     python scripts/export_crop_dataset.py push   --out dist/round1 \
         --repo-id projectsidewalk/rampnet-crop-model-dataset-round1
 """
@@ -155,6 +156,53 @@ def write_split(src_dir, out_dir, split):
     return shards
 
 
+def keypoint_summary(out):
+    """Describe the label distribution *from the built shards*, so the card cannot drift from it.
+
+    Round 1 happens to contain no zero-keypoint crops, but that is a fact about this data rather
+    than a guarantee of the schema -- so it is measured here, not asserted in the template.
+    """
+    histogram = {}
+    for path in sorted(out.rglob("*.parquet")):
+        for batch in pq.ParquetFile(str(path)).iter_batches(
+                batch_size=4096, columns=["n_keypoints"]):
+            for n in batch.column("n_keypoints").to_pylist():
+                histogram[n] = histogram.get(n, 0) + 1
+    if not histogram:
+        return "", 0
+    total = sum(n * c for n, c in histogram.items())
+    lines = ["| keypoints in a crop | crops |", "| ---: | ---: |"]
+    lines += ["| {} | {:,} |".format(n, histogram[n]) for n in sorted(histogram)]
+    if 0 in histogram:
+        note = ("{:,} crops carry no keypoint at all -- those are the negatives."
+                .format(histogram[0]))
+    else:
+        note = ("**There are no negative crops in this round**: every crop carries at least one "
+                "keypoint, so a model trained on this set alone never sees an empty example.")
+    return "{}\n\n{}".format(note, "\n".join(lines)), total
+
+
+def write_card(out, repo_id):
+    """Render the dataset card from what is actually on disk. Split out of `build` so a card fix
+    does not require rebuilding 13 GB of Parquet."""
+    configs = ["- config_name: default", "  data_files:"]
+    for split in SPLITS:
+        if (out / "data" / split).is_dir():
+            configs.append("  - split: {}".format(split))
+            configs.append("    path: data/{}/{}-*.parquet".format(split, split))
+
+    total = sum(f.stat().st_size for f in out.rglob("*.parquet"))
+    n_rows = sum(pq.ParquetFile(str(f)).metadata.num_rows for f in out.rglob("*.parquet"))
+    summary, n_kps = keypoint_summary(out)
+    (out / "README.md").write_text(TEMPLATE.read_text(encoding="utf-8").format(
+        configs_yaml="\n".join(configs), git_commit=git_commit(),
+        export_date=datetime.date.today().isoformat(), repo_id=repo_id,
+        n_crops="{:,}".format(n_rows), total_gb="{:.2f}".format(total / 1e9),
+        n_keypoints="{:,}".format(n_kps), keypoint_summary=summary,
+    ), encoding="utf-8")
+    return n_rows, total
+
+
 def build(args):
     out = Path(args.out)
     index = {}
@@ -177,21 +225,14 @@ def build(args):
     if not index:
         sys.exit("error: no train/val/test directories under {}".format(args.src))
 
-    configs = ["- config_name: default", "  data_files:"]
-    for split in SPLITS:
-        if split in index:
-            configs.append("  - split: {}".format(split))
-            configs.append("    path: data/{}/{}-*.parquet".format(split, split))
-
-    total = sum(f.stat().st_size for f in out.rglob("*.parquet"))
-    n_rows = sum(pq.ParquetFile(str(f)).metadata.num_rows for f in out.rglob("*.parquet"))
-    (out / "README.md").write_text(TEMPLATE.read_text(encoding="utf-8").format(
-        configs_yaml="\n".join(configs), git_commit=git_commit(),
-        export_date=datetime.date.today().isoformat(), repo_id=args.repo_id,
-        n_crops="{:,}".format(n_rows), total_gb="{:.2f}".format(total / 1e9),
-    ), encoding="utf-8")
+    n_rows, total = write_card(out, args.repo_id)
     print("-" * 60)
     print("{:,} crops, {:,} bytes ({:.2f} GB) -> {}".format(n_rows, total, total / 1e9, out))
+
+
+def card(args):
+    n_rows, total = write_card(Path(args.out), args.repo_id)
+    print("card rewritten for {:,} crops ({:.2f} GB)".format(n_rows, total / 1e9))
 
 
 def verify(args):
@@ -233,7 +274,7 @@ def push(args):
 def main():
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("mode", choices=["build", "verify", "push"])
+    parser.add_argument("mode", choices=["build", "verify", "card", "push"])
     parser.add_argument("--src", type=Path, help="dataset_1/ directory holding train/val/test")
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--repo-id", default="projectsidewalk/rampnet-crop-model-dataset-round1")
@@ -241,7 +282,7 @@ def main():
     args = parser.parse_args()
     if args.mode == "build" and not args.src:
         sys.exit("error: build needs --src")
-    {"build": build, "verify": verify, "push": push}[args.mode](args)
+    {"build": build, "verify": verify, "card": card, "push": push}[args.mode](args)
 
 
 if __name__ == "__main__":
