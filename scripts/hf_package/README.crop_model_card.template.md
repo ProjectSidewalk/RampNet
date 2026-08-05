@@ -7,7 +7,7 @@ tags:
   - keypoint-heatmap
   - dataset-generation
 datasets:
-  - projectsidewalk/rampnet-crop-model-dataset
+  - projectsidewalk/rampnet-crop-model-dataset-round2
 base_model:
   - timm/convnextv2_base.fcmae_ft_in22k_in1k_384
 ---
@@ -38,7 +38,7 @@ round 2 — without it, the second round cannot be reproduced either.
 | round | file | trained on | role |
 | :--- | :--- | :--- | :--- |
 | 1 | `round1_ps_best_model.pth` | Project Sidewalk crops | pre-training |
-| 2 | `round2_ps_and_manual_best_model.pth` | + manually labeled crops ([`rampnet-crop-model-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset)) | **the one Stage 1 loads** |
+| 2 | `round2_ps_and_manual_best_model.pth` | + manually labeled crops ([`rampnet-crop-model-dataset-round2`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset-round2)) | **the one Stage 1 loads** |
 
 ## Provenance
 

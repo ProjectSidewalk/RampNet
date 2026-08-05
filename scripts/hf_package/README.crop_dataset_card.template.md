@@ -1,5 +1,8 @@
 ---
 license: mit
+pretty_name: "RampNet Crop-Model Dataset — Round 1 (Project Sidewalk crops)"
+size_categories:
+- 10K<n<100K
 task_categories:
 - keypoint-detection
 tags:
@@ -26,7 +29,7 @@ it. It is trained in two rounds:
 | round | data | where |
 | :--- | :--- | :--- |
 | **1** | Project Sidewalk crops | **this repo** |
-| 2 | manually labeled crops | [`rampnet-crop-model-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset) |
+| 2 | manually labeled crops | [`rampnet-crop-model-dataset-round2`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset-round2) |
 
 The resulting checkpoints are at
 [`rampnet-crop-model`](https://huggingface.co/projectsidewalk/rampnet-crop-model).

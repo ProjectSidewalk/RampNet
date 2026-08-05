@@ -1,7 +1,8 @@
 """Can one HF dataset repo serve a loose-JPEG config AND a Parquet config? Measured answer: no.
 
 This exists because the plan in `docs/replication.md` §4 used to be "put the round-1 crop set into
-`rampnet-crop-model-dataset` as Parquet under `round1_ps/`, leaving the 1,212 round-2 JPEGs loose".
+`rampnet-crop-model-dataset` (since renamed `-round2`) as Parquet under `round1_ps/`, leaving the
+1,212 round-2 JPEGs loose".
 That plan is impossible, and it fails **silently** -- the Parquet config's files resolve correctly
 and then yield zero rows, with no error until you ask for a split.
 

@@ -190,7 +190,7 @@ makes the six artifacts findable together.
 | :--- | :--- | ---: | :--- |
 | [`rampnet-model`](https://huggingface.co/projectsidewalk/rampnet-model) | model | — | ✅ published |
 | [`rampnet-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-dataset) | dataset | 463 GB | ✅ published — the Stage 1 *output*, 214k panoramas |
-| [`rampnet-crop-model-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset) | dataset | 507 MB | ✅ published (1,212 round-2 crops) — stays as-is; round 1 cannot join it (§4) |
+| [`rampnet-crop-model-dataset-round2`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset-round2) | dataset | 507 MB | ✅ published (1,212 round-2 crops) — renamed from `rampnet-crop-model-dataset` 2026-08-05, old id redirects; round 1 cannot join it (§4) |
 | `rampnet-crop-model-dataset-round1` | dataset | 13.37 GB | ⬜ built and verified, upload pending (§4) |
 | [`rampnet-crop-model`](https://huggingface.co/projectsidewalk/rampnet-crop-model) | model | 720.7 MB | ✅ **published 2026-08-04** |
 | [`rampnet-stage1-inputs`](https://huggingface.co/datasets/projectsidewalk/rampnet-stage1-inputs) | dataset | 1.06 GB | ✅ **published 2026-08-04** |
@@ -348,8 +348,8 @@ loose JPEGs legal — a strong recommendation here, not a wall).
 
 **This section used to say the opposite**, and the correction is the useful part.
 
-The plan was to put round 1 into the existing
-[`rampnet-crop-model-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset)
+The plan was to put round 1 into the existing round-2 repo (then named
+`rampnet-crop-model-dataset`; see the rename below)
 under `round1_ps/`, leaving the 1,212 round-2 JPEGs loose, so both training rounds lived at one
 address. **That is impossible, and it fails silently.** `datasets` infers **one builder module per
 repository**, from the default config, and applies it to every config in the repo:
@@ -371,10 +371,20 @@ already drawn that line, in the safetensors commit: *the "already up there, live
 applies to replacing blobs, not to adding a file.* Adding a repo is additive; rewriting the
 round-2 repo is not.
 
-The cost of separate repos is a genuine naming wart: `rampnet-crop-model-dataset` is round **2**,
-and the round-marked repo is round **1**. Mitigation is additive and costs nothing — both cards
-carry the same two-row table naming which repo is which round, so either landing page tells you
-the other exists.
+Separate repos initially left a genuine naming wart — the unmarked `rampnet-crop-model-dataset`
+was round **2**, while the *marked* repo was round 1. **Resolved 2026-08-05 by renaming the
+round-2 repo to
+[`rampnet-crop-model-dataset-round2`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset-round2).**
+A rename was worth doing only if it breaks nobody, so that was measured first:
+`scripts/analysis/hf_move_redirect_check.py` proves `HfApi.move_repo` leaves a redirect that keeps
+the old id working at every layer a user touches — `dataset_info`, `/resolve/` file URLs, and
+`load_dataset(OLD_ID)` — and the real rename was then verified content-identical (same git sha,
+all 1,214 files, downloads/likes carried). Both cards additionally carry the same two-row table
+naming which repo is which round.
+
+One obligation the redirect leaves behind: **the org must never create a new repo named
+`rampnet-crop-model-dataset`** — a new repo at the freed name would shadow the redirect, and every
+stale link would silently point at the wrong dataset.
 
 **Two things the export found that the card now states, because both would mislead a user:**
 

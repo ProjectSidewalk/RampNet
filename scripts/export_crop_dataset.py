@@ -1,7 +1,8 @@
 """Package the round-1 Project Sidewalk crop set as a HuggingFace dataset, in Parquet.
 
 This is the training data behind **round 1** of the Stage 1 crop model. The round-2 manual crops
-are already published at `projectsidewalk/rampnet-crop-model-dataset`; this is its larger,
+are already published at `projectsidewalk/rampnet-crop-model-dataset-round2` (named
+`rampnet-crop-model-dataset` until the 2026-08-05 rename; the old id redirects); this is its larger,
 Project-Sidewalk-sourced counterpart -- 27,704 crops, 13.4 GB -- and it is **not reproducible**:
 `stage_one/crop_model/ps_model/data/download_data.py` reads live from Project Sidewalk servers
 whose databases keep growing, so a re-run builds a different set.
