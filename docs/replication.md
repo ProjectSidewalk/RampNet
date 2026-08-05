@@ -25,7 +25,7 @@ lives on one machine.
 | `street_data/` raw downloads (NY file alone is 669 MB) | 801 MB | git-ignored; HF #21 pending | ⚠️ superseded by the derivative |
 | Stage 1 manifests (`all_locations.csv`, `dataset.jsonl`, `finaldataset.jsonl`, `negativepanos*.jsonl`) | 152 MB | HF [`rampnet-stage1-inputs`](https://huggingface.co/datasets/projectsidewalk/rampnet-stage1-inputs) | ✅ |
 | **Crop-model checkpoints** (rounds 1 + 2) | 720.7 MB | HF [`rampnet-crop-model`](https://huggingface.co/projectsidewalk/rampnet-crop-model) | ✅ |
-| Round-1 crop training set (Project Sidewalk crops) | 15 GB | lab storage only | ⬜ planned — `rampnet-crop-model-dataset/round1_ps/` |
+| Round-1 crop training set (Project Sidewalk crops) | 13.4 GB | lab storage only | ⬜ planned — own repo, `rampnet-crop-model-dataset-round1` (§4) |
 | **`benchmark/*/panos/` (benchmark panoramas)** | 11.41 GB | HF [`rampnet-benchmark`](https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark) | ✅ |
 
 ### ✅ Resolved — the challenger detections are published
@@ -190,7 +190,8 @@ makes the six artifacts findable together.
 | :--- | :--- | ---: | :--- |
 | [`rampnet-model`](https://huggingface.co/projectsidewalk/rampnet-model) | model | — | ✅ published |
 | [`rampnet-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-dataset) | dataset | 463 GB | ✅ published — the Stage 1 *output*, 214k panoramas |
-| [`rampnet-crop-model-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset) | dataset | 507 MB → 15.5 GB | ✅ published (1,212 round-2 crops); ⬜ round-1 crop set to add |
+| [`rampnet-crop-model-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset) | dataset | 507 MB | ✅ published (1,212 round-2 crops) — stays as-is; round 1 cannot join it (§4) |
+| `rampnet-crop-model-dataset-round1` | dataset | 13.37 GB | ⬜ built and verified, upload pending (§4) |
 | [`rampnet-crop-model`](https://huggingface.co/projectsidewalk/rampnet-crop-model) | model | 720.7 MB | ✅ **published 2026-08-04** |
 | [`rampnet-stage1-inputs`](https://huggingface.co/datasets/projectsidewalk/rampnet-stage1-inputs) | dataset | 1.06 GB | ✅ **published 2026-08-04** |
 | [`rampnet-benchmark`](https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark) | dataset | 11.41 GB | ✅ **published 2026-08-04** (#21) |
@@ -337,21 +338,55 @@ are needed, and the card says so.
 control; imagery is immutable once fetched. Keeping them apart is what makes this repo purely
 additive.
 
-### 4. Round-1 crop training data — 15 GB, into `rampnet-crop-model-dataset`
+### 4. Round-1 crop training data — 13.4 GB, as its own repo
 
-The Project Sidewalk crop set behind round 1 of the crop model — **15 GB, 27,710 files** — joins
-the round-2 manual crops in
-[`rampnet-crop-model-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset),
-as **Parquet** under `round1_ps/`. Three reasons, none of which is "it would be illegal otherwise":
-HF requires well-integrated formats for large datasets, Parquet is what makes the dataset viewer
-work, and 27,710 loose files would consume a quarter of the `<100k files per repo` recommendation
-for no benefit. The 10,000 limit is **per folder, not per repo**, so the existing
-train/val/test × class subdirectory structure would in fact keep loose files legal — that is worth
-stating plainly, because the constraint is a strong recommendation here rather than a wall.
+The Project Sidewalk crop set behind round 1 of the crop model — **27,704 crops, 13.37 GB as
+Parquet** — ships as its own dataset repo, `rampnet-crop-model-dataset-round1`. Parquet because HF
+asks for it on large datasets and it is what makes the viewer work; not because loose files would
+be illegal (the 10,000 limit is **per folder**, so train/val/test subdirectories would have kept
+loose JPEGs legal — a strong recommendation here, not a wall).
 
-The 1,212 round-2 crops stay exactly as they are — loose JPEGs under `test/`, which is fine at that
-count. Converting them would orphan LFS versions and break existing paths on an already-published
-repo for a cosmetic gain, so the repo will hold two shapes and the card should say why in a line.
+**This section used to say the opposite**, and the correction is the useful part.
+
+The plan was to put round 1 into the existing
+[`rampnet-crop-model-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset)
+under `round1_ps/`, leaving the 1,212 round-2 JPEGs loose, so both training rounds lived at one
+address. **That is impossible, and it fails silently.** `datasets` infers **one builder module per
+repository**, from the default config, and applies it to every config in the repo:
+
+| default config | round-2 (JPEGs) | round-1 (Parquet) |
+| :--- | :--- | :--- |
+| round 2 | `Imagefolder`, works | `Imagefolder` — **0 rows**, no error until you request a split |
+| round 1 | `Parquet` | `Parquet` — the JPEG config breaks instead |
+
+There is no arrangement that works. The Parquet config's `data_files` patterns resolve perfectly —
+the shards are found — and then the imagefolder builder looks inside them for images, finds none,
+and reports an empty split. `scripts/analysis/hf_config_mixing_check.py` demonstrates both
+directions plus a parquet-only control that works, against throwaway repos it deletes afterwards
+(verified 2026-08-05, `datasets` 5.0.0 / `huggingface_hub` 1.24.0).
+
+Unifying would therefore mean converting the 1,212 round-2 JPEGs to Parquet and deleting them —
+replacing a published layout and breaking every existing direct file path. This project has
+already drawn that line, in the safetensors commit: *the "already up there, live with it" argument
+applies to replacing blobs, not to adding a file.* Adding a repo is additive; rewriting the
+round-2 repo is not.
+
+The cost of separate repos is a genuine naming wart: `rampnet-crop-model-dataset` is round **2**,
+and the round-marked repo is round **1**. Mitigation is additive and costs nothing — both cards
+carry the same two-row table naming which repo is which round, so either landing page tells you
+the other exists.
+
+**Two things the export found that the card now states, because both would mislead a user:**
+
+- The token each filename starts with is **not a panorama id**. `download_data.py:277` builds it
+  with `random.choices(alphabet, k=8)`, so the source panorama is not recoverable from this
+  artifact at all. Published as `crop_uid`; naming it `pano_id` would have invited a join against
+  `rampnet-dataset` that silently returns nothing.
+- The labels carry a **3.1% x-axis mismatch**. `train.py` scales both keypoint axes by `0.5`, but
+  `transforms.Resize((1024, 352))` scales the image by 0.5 on y and 352/683 = 0.5154 on x — so a
+  label drifts left of its ramp in proportion to x, up to ~10.5 px at the right edge. Coordinates
+  are published verbatim rather than normalised precisely so this stays visible and the reader
+  chooses what to do about it.
 
 Publishing this makes the paper's crop-model training set **available** but not **reproducible**:
 `download_data.py` reads live from Project Sidewalk servers whose databases keep growing, so a

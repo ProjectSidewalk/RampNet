@@ -44,7 +44,7 @@ here is not reproducible either. Both are reasons to ship the artifact rather th
 | column | meaning |
 | :--- | :--- |
 | `crop_id` | the original filename stem |
-| `pano_id` | Project Sidewalk panorama id the crop came from |
+| `crop_uid` | the opaque 8-character token the filename starts with — **not a panorama id** |
 | `image` | the crop, stored as the **exact source bytes** — 683×2048 JPEG, not re-encoded |
 | `keypoints` | list of `{{x, y}}` curb ramp locations |
 | `n_keypoints` | how many |
@@ -56,16 +56,37 @@ here is not reproducible either. Both are reasons to ship the artifact rather th
 ### The keypoints were hiding in the filenames
 
 In the original dataset the labels are encoded in the filename and parsed at load time:
-`007mz25c_-_118_596_-_478_611.jpg` is panorama `007mz25c` with keypoints (118, 596) and
-(478, 611). Here they are a real column.
+`007mz25c_-_118_596_-_478_611.jpg` carries keypoints (118, 596) and (478, 611). Here they are a
+real column.
+
+### `crop_uid` is not a panorama id, and the panorama is not recoverable
+
+The leading token looks like an id you could join on. It is not one.
+[`download_data.py:277`](https://github.com/ProjectSidewalk/RampNet/blob/main/stage_one/crop_model/ps_model/data/download_data.py)
+builds each filename with `random.choices(alphabet, k=8)`, so the token is freshly random per crop
+and the Project Sidewalk panorama it was cut from is **not stored anywhere in this artifact**.
+Every one of the {n_crops} crops has a distinct token, so nothing collided — but that is a property
+of this draw, not a guarantee. If you need crop → panorama provenance, it is not here.
+
+### The x axis carries a 3.1% label/image mismatch
 
 **Coordinates are stored verbatim, in the pixel space of the stored crop (683×2048), and are
-deliberately not normalised.** The training loader multiplies them by exactly `0.5`, while the
-image itself is resized 683 → 352 on the x axis (a factor of 0.515). That ~2% discrepancy lives in
-the original code; normalising here would silently commit to one reading of it. If you are
-reproducing the paper, mirror
+deliberately not normalised** — because normalising would force a choice about the following, and
+that choice belongs to you.
+
+`train.py` resizes every crop with `transforms.Resize((1024, 352))` and scales **both** keypoint
+axes by `0.5`:
+
+| axis | image scale | keypoint scale | agree? |
+| :--- | :--- | :--- | :--- |
+| y | 2048 → 1024 = **0.5** | 0.5 | yes |
+| x | 683 → 352 = **0.5154** | 0.5 | **no — off by 3.1%** |
+
+So y is consistent and x is under-scaled: in the resized 352-px-wide crop a label drifts left of
+its ramp in proportion to x, by up to ~10.5 px at the right edge. This is in the original code and
+the paper's model was trained through it. If you are reproducing the paper, mirror
 [`train.py`](https://github.com/ProjectSidewalk/RampNet/blob/main/stage_one/crop_model/ps_model/model/train.py);
-if you are training something new, decide for yourself.
+if you are training something new, scale x by 352/683 instead.
 
 ## Usage
 

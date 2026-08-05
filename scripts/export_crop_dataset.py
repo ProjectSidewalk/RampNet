@@ -12,11 +12,18 @@ guidance for no benefit. (The 10k limit is per *folder*, so loose files inside t
 have been legal -- this is a recommendation, not a wall.)
 
 **Labels are in the filenames**, and this export makes them a real column. A crop named
-`007mz25c_-_118_596_-_478_611.jpg` is panorama `007mz25c` with keypoints (118, 596) and (478, 611).
-Coordinates are stored **verbatim**, in the pixel space of the stored crop (683x2048). They are not
-normalised here on purpose: the training loader multiplies them by exactly 0.5 while the image is
-resized 683 -> 352 on the x axis (a factor of 0.515), so any "helpful" normalisation would bake in
-one reading of a discrepancy that lives in the original code. See
+`007mz25c_-_118_596_-_478_611.jpg` carries keypoints (118, 596) and (478, 611).
+
+The leading token is **not a panorama id** -- `download_data.py:277` builds it with
+`random.choices(alphabet, k=8)`, so it is an opaque per-crop token and the source panorama is not
+recoverable from this artifact. The column is named `crop_uid` accordingly. (Measured: 27,704
+distinct tokens for 27,704 crops, so no collision happened to occur.)
+
+Coordinates are stored **verbatim**, in the pixel space of the stored crop (683x2048), and are not
+normalised here on purpose. The loader scales BOTH axes by 0.5, but `transforms.Resize((1024, 352))`
+scales the image by 0.5 on y and 352/683 = 0.5154 on x -- so y is consistent and x is under-scaled
+by 3.1%, drifting a label up to ~10.5 px left at the right edge. That is in the original code;
+normalising here would silently bake in one reading of it. See
 `stage_one/crop_model/ps_model/model/train.py`.
 
 Splits are the committed train/val/test directories -- a 70/15/15 split made by `splititup.sh`,
@@ -57,7 +64,7 @@ KEYPOINT_RE = re.compile(r"^(-?\d+)_(-?\d+)$")
 
 SCHEMA = pa.schema([
     pa.field("crop_id", pa.string()),
-    pa.field("pano_id", pa.string()),
+    pa.field("crop_uid", pa.string()),
     pa.field("image", pa.struct([pa.field("bytes", pa.binary()), pa.field("path", pa.string())])),
     pa.field("keypoints", pa.list_(pa.struct([
         pa.field("x", pa.int32()), pa.field("y", pa.int32())]))),
@@ -69,7 +76,7 @@ SCHEMA = pa.schema([
 
 _V = lambda dtype: {"dtype": dtype, "_type": "Value"}          # noqa: E731 - terse on purpose
 FEATURES = {
-    "crop_id": _V("string"), "pano_id": _V("string"), "image": {"_type": "Image"},
+    "crop_id": _V("string"), "crop_uid": _V("string"), "image": {"_type": "Image"},
     "keypoints": [{"x": _V("int32"), "y": _V("int32")}],
     "n_keypoints": _V("int32"), "width": _V("int32"), "height": _V("int32"),
     "sha256": _V("string"),
@@ -82,7 +89,10 @@ def schema_with_metadata():
 
 
 def parse_name(stem):
-    """`007mz25c_-_118_596_-_478_611` -> ("007mz25c", [(118, 596), (478, 611)])."""
+    """`007mz25c_-_118_596_-_478_611` -> ("007mz25c", [(118, 596), (478, 611)]).
+
+    The first element is the opaque 8-char token, NOT a panorama id -- see the module docstring.
+    """
     parts = stem.split("_-_")
     keypoints = []
     for part in parts[1:]:
@@ -125,14 +135,14 @@ def write_split(src_dir, out_dir, split):
         data = path.read_bytes()
         with Image.open(path) as im:
             width, height = im.size
-        pano_id, keypoints = parse_name(path.stem)
+        crop_uid, keypoints = parse_name(path.stem)
         if not keypoints:
             unlabelled += 1
         if writer is None:
             shard_path, writer = open_shard(len(shards))
             written_in_shard = 0
         batch.append({
-            "crop_id": path.stem, "pano_id": pano_id,
+            "crop_id": path.stem, "crop_uid": crop_uid,
             "image": {"bytes": data, "path": path.name},
             "keypoints": keypoints, "n_keypoints": len(keypoints),
             "width": width, "height": height,
