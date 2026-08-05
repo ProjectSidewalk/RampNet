@@ -25,7 +25,7 @@ lives on one machine.
 | `street_data/` raw downloads (NY file alone is 669 MB) | 801 MB | git-ignored; HF #21 pending | ⚠️ superseded by the derivative |
 | Stage 1 manifests (`all_locations.csv`, `dataset.jsonl`, `finaldataset.jsonl`, `negativepanos*.jsonl`) | 152 MB | HF [`rampnet-stage1-inputs`](https://huggingface.co/datasets/projectsidewalk/rampnet-stage1-inputs) | ✅ |
 | **Crop-model checkpoints** (rounds 1 + 2) | 720.7 MB | HF [`rampnet-crop-model`](https://huggingface.co/projectsidewalk/rampnet-crop-model) | ✅ |
-| Round-1 crop training set (Project Sidewalk crops) | 13.4 GB | lab storage only | ⬜ planned — own repo, `rampnet-crop-model-dataset-round1` (§4) |
+| Round-1 crop training set (Project Sidewalk crops) | 13.4 GB | [`rampnet-crop-model-dataset-round1`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset-round1) | ✅ published 2026-08-05 (§4) |
 | **`benchmark/*/panos/` (benchmark panoramas)** | 11.41 GB | HF [`rampnet-benchmark`](https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark) | ✅ |
 
 ### ✅ Resolved — the challenger detections are published
@@ -191,7 +191,7 @@ makes the six artifacts findable together.
 | [`rampnet-model`](https://huggingface.co/projectsidewalk/rampnet-model) | model | — | ✅ published |
 | [`rampnet-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-dataset) | dataset | 463 GB | ✅ published — the Stage 1 *output*, 214k panoramas |
 | [`rampnet-crop-model-dataset-round2`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset-round2) | dataset | 507 MB | ✅ published (1,212 round-2 crops) — renamed from `rampnet-crop-model-dataset` 2026-08-05, old id redirects; round 1 cannot join it (§4) |
-| `rampnet-crop-model-dataset-round1` | dataset | 13.37 GB | ⬜ built and verified, upload pending (§4) |
+| [`rampnet-crop-model-dataset-round1`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset-round1) | dataset | 13.37 GB | ✅ **published 2026-08-05** (§4) |
 | [`rampnet-crop-model`](https://huggingface.co/projectsidewalk/rampnet-crop-model) | model | 720.7 MB | ✅ **published 2026-08-04** |
 | [`rampnet-stage1-inputs`](https://huggingface.co/datasets/projectsidewalk/rampnet-stage1-inputs) | dataset | 1.06 GB | ✅ **published 2026-08-04** |
 | [`rampnet-benchmark`](https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark) | dataset | 11.41 GB | ✅ **published 2026-08-04** (#21) |
@@ -397,6 +397,22 @@ stale link would silently point at the wrong dataset.
   label drifts left of its ramp in proportion to x, up to ~10.5 px at the right edge. Coordinates
   are published verbatim rather than normalised precisely so this stays visible and the reader
   chooses what to do about it.
+
+**Published 2026-08-05** at
+[`rampnet-crop-model-dataset-round1`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset-round1),
+from the artifact built by `scripts/export_crop_dataset.py` at `6a5b554`, and verified at every
+hop rather than assumed:
+
+- the source tar's sha256 (`7fd446c1…8ec9`) matches on klone
+  (`/gscratch/makelab/jonf/round1_ps_crops.tar`, job 38137571) and after transfer;
+- pre-upload, `verify` re-hashed all 27,704 crops out of the shards against their recorded
+  sha256 — byte-identical, 35,757 keypoints cross-checked by an independent filename re-parse;
+- post-upload, each of the 11 shards matches its **Hub LFS sha256** against the local file (no
+  re-download needed — HF stores every LFS object under its content hash), the README round-trips
+  byte-identical, the remote parquet footers count 19,392 / 4,155 / 4,157 = 27,704 rows, and a
+  live-streamed row's image bytes re-hash to its stored `sha256`.
+
+The repo is in the RampNet collection (7 items), and the dataset viewer is live.
 
 Publishing this makes the paper's crop-model training set **available** but not **reproducible**:
 `download_data.py` reads live from Project Sidewalk servers whose databases keep growing, so a
