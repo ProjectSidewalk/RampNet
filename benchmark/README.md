@@ -6,6 +6,19 @@ Each city is one split; per pano every model detection is judged correct / incor
 unsure and the reviewer marks ramps the model missed, so both precision and recall are
 measurable.
 
+> **This benchmark is not part of the RampNet paper.** The paper's tag
+> [`v1.0-iccv2025`](https://github.com/ProjectSidewalk/RampNet/tree/v1.0-iccv2025) (2025-08-15)
+> contains no `benchmark/` directory at all; the paper evaluated on the 1,000-panorama gold set in
+> `manual_labels/`, sampled from its own three training cities. These splits were built from
+> 2026-07 onward to measure the published model **out of domain** — non-US cities and a second
+> imagery source (Mapillary as well as GSV) — and against VLM detectors.
+>
+> Numbers here are therefore **not comparable with the published ones**: different ground truth,
+> different cities, different matching protocol. Quote them as post-publication evaluation, never
+> as the paper's. The imagery is on HF at
+> [`rampnet-benchmark`](https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark), whose
+> card carries the same warning.
+
 ## Layout
 
 ```

@@ -1,0 +1,12 @@
+# The paper's Stage 1 government inventories are hash-pinned replication artifacts: their
+# sha256 values are quoted in docs/data_provenance.md and asserted by
+# scripts/analysis/gov_provenance.py. Git's line-ending normalisation would silently change
+# those bytes for anyone whose core.autocrlf differs from ours, so pin them as binary and let
+# the hashes mean what they say. (All three are LF-only today, so this changes nothing now --
+# it stops a future contributor's git config from quietly invalidating the pin.)
+stage_one/dataset_generation/location_data/*.csv      binary
+stage_one/dataset_generation/location_data/*.geojson  binary
+
+# Same reasoning for the street-centreline derivative, whose sha256 values are asserted by
+# scripts/build_street_derivative.py verify.
+stage_one/dataset_generation/street_data/*.gz         binary
