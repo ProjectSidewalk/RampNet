@@ -46,6 +46,19 @@ Additionally, the Project Sidewalk label CSVs are fetched **live** at pipeline r
 snapshot pinning: re-running `download_data.py` today produces a different crop-model training set
 than the paper's, because those databases keep growing.
 
+**How `download_data.py` turns a label into a crop** (the constants live in the script, and the
+published round-1 set — `rampnet-crop-model-dataset-round1` — carries the same summary on its
+card): keep `CurbRamp` labels with crowd validation **Agree − Disagree ≥ 2**; fetch the label's
+panorama as zoom-4 GSV tiles and resize the assembled equirectangular to 8192×4096; turn the
+label's panorama x into a yaw **snapped to the nearest 30°** (12 possible headings per pano) and
+render a perspective view at **FOV 90°, pitch −30°**, 2048×2048; keep the **central horizontal
+third** → 683×2048 (≈37° effective hFOV). The anchor label plus every other validated label on the
+same panorama is projected into the view with the matching point transform; those inside the strip
+are encoded into the filename. Keypoints are projections of the **stored** Project Sidewalk
+panorama coordinates — no re-annotation happened at crop time. The 30° snap keeps the anchor
+within ~±15° of the view axis, guaranteeing it lands in-frame, which is why the round-1 set
+contains no empty crops.
+
 ## 2. Undocumented Google endpoints (regeneration brittleness)
 
 Stage 1 regeneration depends entirely on internal, unversioned Google Street View endpoints.

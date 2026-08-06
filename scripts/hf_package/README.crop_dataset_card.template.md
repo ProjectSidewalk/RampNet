@@ -42,6 +42,33 @@ re-running it today builds a *different* training set, not this one. The same is
 train/val/test partition: `splititup.sh` shuffles with `shuf` and **no seed**, so the 70/15/15 split
 here is not reproducible either. Both are reasons to ship the artifact rather than instructions.
 
+## How these crops were made
+
+Every step below is
+[`download_data.py`](https://github.com/ProjectSidewalk/RampNet/blob/main/stage_one/crop_model/ps_model/data/download_data.py);
+the constants live in that script, not in a config.
+
+1. **Source labels.** Crowdsourced curb ramp labels fetched live from 12
+   [Project Sidewalk](https://projectsidewalk.org) deployments (Seattle, Chicago, Pittsburgh,
+   St. Louis, Columbus, Knoxville, Newberg, Oradell, Teaneck, Cliffside Park, Mendota, Blackhawk
+   Hills), keeping only `CurbRamp` labels whose crowd validation satisfies
+   **Agree − Disagree ≥ 2**.
+2. **Panorama fetch.** Each label's GSV panorama is downloaded as zoom-4 tiles, assembled,
+   trimmed, and resized to an **8192×4096 equirectangular**.
+3. **Projection.** The label's panorama x becomes a yaw angle, **snapped to the nearest 30°**
+   (so there are 12 possible camera headings per panorama). A perspective view is rendered at
+   **FOV 90°, pitch −30°** (looking down at the street corner), 2048×2048 — and only the
+   **central horizontal third** is kept: columns `int(2048/3)` to `int(2048·2/3)`, which is where
+   the 683×2048 shape comes from (≈37° effective horizontal field of view).
+4. **Keypoints.** The anchor label **plus every other validated label on the same panorama** is
+   projected into that view with the matching point transform; neighbours landing inside the strip
+   are appended to the filename. Each keypoint is the projection of the label's *stored* Project
+   Sidewalk panorama coordinate — no re-annotation happened at crop time. The 30° yaw snap keeps
+   the anchor within ~±15° of the view axis, which guarantees it lands inside the strip: that is
+   why **no crop in this set is empty**.
+5. **Naming and split.** Filenames get a fresh random 8-character uid (see `crop_uid` below) plus
+   the point list; `splititup.sh` then makes the unseeded 70/15/15 partition.
+
 ## Contents
 
 | column | meaning |
