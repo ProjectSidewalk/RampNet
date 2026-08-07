@@ -1,0 +1,186 @@
+{
+  "threshold": 0.3,
+  "boundary_m": 18.0,
+  "judgeable_source_px": 30.0,
+  "match_tolerance": 0.2,
+  "counts": {
+    "far_gt": 700,
+    "far_hits": 453,
+    "far_silent": 83,
+    "unwitnessed_far": 46,
+    "rated": 37,
+    "below_floor": 9
+  },
+  "verdicts": {
+    "visible": 34,
+    "context-only": 2,
+    "unclear": 1
+  },
+  "per_split": {
+    "richmond": {
+      "far_silent": 13,
+      "unwitnessed": 5,
+      "rated": 4,
+      "stored_width_min": 4096,
+      "stored_width_max": 12288
+    },
+    "bend": {
+      "far_silent": 14,
+      "unwitnessed": 9,
+      "rated": 9,
+      "stored_width_min": 13312,
+      "stored_width_max": 16384
+    },
+    "clovis": {
+      "far_silent": 9,
+      "unwitnessed": 4,
+      "rated": 3,
+      "stored_width_min": 5760,
+      "stored_width_max": 5760
+    },
+    "morgantown": {
+      "far_silent": 6,
+      "unwitnessed": 2,
+      "rated": 1,
+      "stored_width_min": 4096,
+      "stored_width_max": 4096
+    },
+    "annapolis": {
+      "far_silent": 14,
+      "unwitnessed": 8,
+      "rated": 2,
+      "stored_width_min": 8000,
+      "stored_width_max": 8000
+    },
+    "paterson": {
+      "far_silent": 7,
+      "unwitnessed": 4,
+      "rated": 4,
+      "stored_width_min": 16384,
+      "stored_width_max": 16384
+    },
+    "gainesville": {
+      "far_silent": 20,
+      "unwitnessed": 14,
+      "rated": 14,
+      "stored_width_min": 16384,
+      "stored_width_max": 16384
+    }
+  },
+  "populations": {
+    "rated (reached the deck)": {
+      "n": 37,
+      "dist_q1_med_q3": [
+        23.593050428658366,
+        27.600046715707496,
+        39.39802964423609
+      ],
+      "px_q1_med_q3": [
+        19.855774091985104,
+        28.34337145668962,
+        33.157152723882376
+      ]
+    },
+    "below the floor (excluded)": {
+      "n": 9,
+      "dist_q1_med_q3": [
+        55.415367641067064,
+        116.69577442978571,
+        150.0
+      ],
+      "px_q1_med_q3": [
+        5.215189175235227,
+        6.703570717172544,
+        14.116632435829143
+      ]
+    },
+    "witnessed (never queued)": {
+      "n": 37,
+      "dist_q1_med_q3": [
+        23.35001330569262,
+        29.546807172079987,
+        36.30290837799241
+      ],
+      "px_q1_med_q3": [
+        21.548642002455033,
+        26.47590217546387,
+        33.50226683145265
+      ]
+    },
+    "ALL far-field silent misses": {
+      "n": 83,
+      "dist_q1_med_q3": [
+        23.641568560526633,
+        31.24504274559346,
+        42.60726425142641
+      ],
+      "px_q1_med_q3": [
+        18.360211340231608,
+        25.03687969495929,
+        33.08910634599019
+      ]
+    },
+    "far-field hits (for contrast)": {
+      "n": 453,
+      "dist_q1_med_q3": [
+        20.269464509192268,
+        21.346794177516905,
+        33.89167310588107
+      ],
+      "px_q1_med_q3": [
+        23.081727887595456,
+        36.646175991578325,
+        38.59393403957555
+      ]
+    }
+  },
+  "auc_rated_vs_unrated_px": 0.600470035252644,
+  "rated_median_px_percentile": 0.6204819277108434,
+  "auc_hit_vs_silent_px": 0.7181706960291497,
+  "bands": {
+    "18-25 m": {
+      "n_gt": 395,
+      "recall": 0.7772151898734178,
+      "silent": 25,
+      "rated": 14,
+      "visible": 12
+    },
+    "25-40 m": {
+      "n_gt": 226,
+      "recall": 0.5486725663716814,
+      "silent": 32,
+      "rated": 14,
+      "visible": 13
+    },
+    "40-150 m": {
+      "n_gt": 72,
+      "recall": 0.2916666666666667,
+      "silent": 22,
+      "rated": 9,
+      "visible": 9
+    },
+    "clamp>=150": {
+      "n_gt": 5,
+      "recall": 0.2,
+      "silent": 3,
+      "rated": 0,
+      "visible": 0
+    }
+  },
+  "matched_size_detection_rate_q1_med_q3": [
+    0.3076923076923077,
+    0.5700934579439252,
+    0.7402912621359223
+  ],
+  "above_horizon": {
+    "rated (reached the deck)": 0,
+    "below the floor (excluded)": 3,
+    "witnessed (never queued)": 0,
+    "ALL far-field silent misses": 3,
+    "far-field hits (for contrast)": 1
+  },
+  "rated_by_tier": {
+    "mapillary": 10,
+    "gsv": 27
+  }
+}

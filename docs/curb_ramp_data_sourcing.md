@@ -98,6 +98,11 @@ benchmark keeps surfacing (Paterson's paired tactile surfaces, Gainesville's dia
 ramps) plausibly are fixable that way. Those are two different populations with two different
 programmes attached, and nobody had sized them.
 
+> **Since qualified by §0c.** The split below stands as a measurement, but its "fixable by"
+> column's hard binary does not: the model detects other far-field ramps of the *same apparent
+> size* as its silent misses at a median 57% rate, so far-field failure is graded sensitivity,
+> not a floor. Read the far/near boundary as a difficulty gradient, not a reachability partition.
+
 Script: `scripts/analysis/miss_decomposition.py` (15 tests). Reads the committed low-floor caches,
 so no GPU, no network, no imagery. Threshold 0.30 (the #79 recommendation); boundary 18 m, the last
 distance at which the model still has adequate signal.
@@ -287,8 +292,9 @@ what the gallery is for.
 
 - **`silent` is still an upper bound**, now with a floor under it. It means the cached detections
   witness nothing there. Occlusion, deep shadow, debris and GT disagreement all still live inside
-  the unwitnessed remainder, and separating them needs the imagery — that is #46's gallery half,
-  **the crops are built but the reviewer pass is not done**.
+  the unwitnessed remainder, and separating them needs the imagery — that is #46's gallery half.
+  **The reviewer pass is now done** (one rater, no second — `docs/replication.md` §"What the first
+  pass produced"), and its far-field verdicts raised their own question: **§0c**.
 - **The witness test is one-directional.** A witnessed ramp is confirmed recognizable; an
   unwitnessed one is not confirmed *un*recognizable, since every challenger is weaker than RampNet
   on this task and may simply have missed it too.
@@ -320,7 +326,10 @@ sourcing-addressable:
 | `unclear` | cannot tell from this imagery | excluded from every rate |
 
 **The `visible` rate over those 50, applied to the 59, is what converts the bracket into a point
-estimate.** Until it is run, quote the bracket.
+estimate.** It has been run (2026-07-31, one rater): near-field `visible` 7 of 13, which puts the
+sourcing-addressable population at **~0.013 recall points** (~19 chance-corrected witnessed + 7
+visible, against 2,060 pooled GT — `docs/replication.md`). Single-rater caveat applies, and the
+**far-field** verdicts from the same pass raised the question §0c takes up.
 - **Some of `merged` may be double-marked GT.** 24 of 124 pairs sit below 8 px (~25 cm at 10 m),
   which is not a physical spacing for two ramps; on the verdict splits that is plausibly one ramp
   marked twice. If so they are *spurious GT* and leave the population entirely rather than changing
@@ -329,6 +338,166 @@ estimate.** Until it is run, quote the bracket.
   mechanism at **44%** of misses.
 - **`sub_threshold` is not free recall.** Those ramps are recoverable by lowering the threshold,
   which #54/#55 already evaluated and priced in precision; 0.30 was chosen knowing it.
+
+## 0c. The far-field `visible` anomaly: the pixel floor does not survive its own hits
+
+The reviewer pass produced a result §0a's framing did not predict. Of the **37 far-field**
+silent-miss crops: **34 `visible`, 2 `context-only`, 1 `unclear`** — a 94% visible rate over
+rateable crops, with **zero** `occluded` and **zero** `lighting` verdicts. Three facts sharpen it:
+
+- the rubric licenses `visible` only on the **model-resolution panel** (`benchmark/RUBRICS.md`),
+  so this is not the reviewer spending the 4× stored pixels the model never received;
+- every rated crop is **unwitnessed** — none of the 8 challenger models put anything in radius
+  either;
+- the deepest crops (40–150 m, down to **10.5 model px**) were rated visible **9 of 9**.
+
+At face value: ramps resolvable at the model's own pixel budget, invisible to all eight models —
+against the reading that far-field misses are pixel-starved and unreachable by any training-side
+fix. The four-hypothesis study design is on #46 (2026-07-31); this section is **Phase 0**: check
+the *sample* (the rated 37 passed two selection filters) and check the framing against the model's
+own far-field behaviour, before the verdicts are allowed to mean anything.
+
+Script: `scripts/analysis/farfield_forensics.py` (21 tests); result JSON
+`analysis_out/farfield_forensics.json`. Committed inputs only — the low-floor caches, the witness
+list, the gallery manifest and verdicts, and the imagery manifests' `width` fields. No GPU, no
+network, no imagery.
+
+### The sample: survivorship is real, mild, and now quantified
+
+The 83 far-field silent misses reduce to 37 rated through two filters — **witnessed** (37,
+already explained by another model's detection) and the **30-source-pixel judgeability floor**
+(9). The floor is not one floor: stored panoramas run 4096–16384 px wide while `geom()` sizes
+ramps at the model's 4096-px input, so 30 source px is a different model-pixel cut per split:
+
+| split | tier | stored px | floor (model px) | far-silent | unwitnessed | rated |
+| :--- | :--- | ---: | ---: | ---: | ---: | ---: |
+| richmond | mapillary | 4096–12288 | 10.0–30.0 | 13 | 5 | 4 |
+| bend | gsv | 13312–16384 | 7.5–9.2 | 14 | 9 | 9 |
+| clovis | mapillary | 5760 | 21.3 | 9 | 4 | 3 |
+| morgantown | mapillary | 4096 | 30.0 | 6 | 2 | 1 |
+| annapolis | mapillary | 8000 | 15.4 | 14 | 8 | 2 |
+| paterson | gsv | 16384 | 7.5 | 7 | 4 | 4 |
+| gainesville | gsv | 16384 | 7.5 | 20 | 14 | 14 |
+
+Which split a miss happened in decides whether a reviewer ever saw it — the 16384-px GSV splits
+admit far misses down to 7.5 model px while morgantown stops at 30, and the deck comes out
+**27 GSV / 10 Mapillary**.
+
+| population | n | dist q1/med/q3 (m) | px q1/med/q3 |
+| :--- | ---: | :---: | :---: |
+| rated (reached the deck) | 37 | 23.6 / 27.6 / 39.4 | 19.9 / 28.3 / 33.2 |
+| below the floor (excluded) | 9 | 55.4 / 116.7 / 150.0 | 5.2 / 6.7 / 14.1 |
+| witnessed (never queued) | 37 | 23.4 / 29.5 / 36.3 | 21.5 / 26.5 / 33.5 |
+| **all far-field silent misses** | **83** | 23.6 / 31.2 / 42.6 | 18.4 / 25.0 / 33.1 |
+| far-field hits, for contrast | 453 | 20.3 / 21.3 / 33.9 | 23.1 / 36.6 / 38.6 |
+
+- **AUC(rated px vs unrated far-silent px) = 0.600**; the rated median sits at the **62nd
+  percentile** of the far-silent size distribution. A bias toward bigger/closer exists and is mild.
+- The 9 excluded items are the **extreme tail** — median 117 m, three of them above-horizon clamps
+  (i.e. not distances at all). So the 94% generalizes to the far-silent *core* (~18–50 m); it says
+  nothing about the deep tail, which is exactly where pixel starvation is most plausible.
+- Mis-binning guards: **zero** above-horizon clamps among the rated 37, and the deck is majority
+  GSV — the tier where flat-ground distance is trustworthy (Spearman 0.95 vs 0.81).
+
+### The framing: the model's own hits refute a hard pixel floor
+
+The decisive check needs no reviewer at all. If far-field silence were pixel-starvation, the model
+should not be detecting *other* ramps at the same apparent size. It is:
+
+| band | GT | recall | silent misses | rated | rated `visible` |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| 18–25 m | 395 | 0.777 | 25 | 14 | 12 |
+| 25–40 m | 226 | 0.549 | 32 | 14 | 13 |
+| 40–150 m | 72 | 0.292 | 22 | 9 | 9 |
+| clamp ≥ 150 m | 5 | 0.200 | 3 | 0 | 0 |
+
+- **Matched-size detection rate**: for each `visible` miss, the model's recall over all far-field
+  GT within ±20% of that miss's apparent size is **median 0.57** (q1 0.31, q3 0.74). A hard pixel
+  floor would put these near zero.
+- **AUC(far-hit px vs far-silent px) = 0.718** — size matters, but it is far from deciding.
+- Recall declines **0.777 → 0.549 → 0.292** across the bands. Even at 40–150 m the model finds
+  roughly 3 in 10 (and the pooled 25–40 m rate agrees with E1's gold-set 0.49 at the same range).
+
+**Far-field failure is graded sensitivity, not a cliff.** A silent far-field miss is not a ramp
+below a physical detection floor — it is the unlucky tail of a process that succeeds on most
+same-sized ramps. That is consistent with `docs/detection_recall_analysis.md`'s sensitivity
+finding and with the human verdicts, and inconsistent with reading "more examples do not add
+pixels" as a claim about *reachability*. (As a claim about pixels it remains true; the error was
+inferring unreachability from it.)
+
+### Phase 1: attenuated or absent? Almost never absent
+
+`silent` is a statement about **peaks** — no `peak_local_max` peak ≥ 0.05 within the match radius.
+Phase 1 makes the statement about the **heatmap**: `scripts/analysis/silent_activation.py`
+(14 tests) loads the published checkpoint (`projectsidewalk/rampnet-model` — the weights every
+committed cache came from), runs one pass per panorama holding a silent miss (single-pass fp32,
+matching `op_cache`), and reads the max heatmap value inside the match radius. The scaled matcher
+space *is* the 512×1024 heatmap grid, so the window is exactly the matcher's. Result JSON:
+`analysis_out/silent_activation.json`; run on the local RTX 3070, all 128 pooled silent misses.
+
+| population | n | act q1 / med / q3 | act ≥ 0.01 |
+| :--- | ---: | :---: | ---: |
+| near / rated | 13 | 0.009 / 0.099 / 0.197 | 9 |
+| near / witnessed | 32 | 0.033 / 0.211 / 0.592 | 30 |
+| far / rated | 37 | 0.022 / 0.076 / 0.409 | 34 |
+| far / below-floor | 9 | 0.042 / 0.194 / 0.381 | 8 |
+| far / witnessed | 37 | 0.045 / 0.188 / 0.615 | 37 |
+| **all silent misses** | **128** | 0.032 / 0.136 / 0.548 | **118** |
+
+What that in-window mass *is* (classes are act ranges; the offset and nearest-peak columns
+confirm the intended reading rather than define it):
+
+| class | definition | n | near / far | rated `visible` | argmax offset med | nearest floor peak med |
+| :--- | :--- | ---: | :---: | ---: | ---: | ---: |
+| **absent** | act < 0.01 | **10** | 6 / 4 | 5 | 22.0 px | 77.5 px (3.4 R) |
+| **faint local** | 0.01 ≤ act < 0.05 | 39 | 12 / 27 | 13 | **10.2 px** | 85.6 px (3.8 R) |
+| **tail** | act ≥ 0.05 | 79 | 27 / 52 | 23 | 22.3 px | **31.1 px (1.4 R)** |
+
+- **Only 10 of 128 silent misses (8%) have a genuinely flat heatmap.** "Silent = the model saw
+  nothing" is wrong for 92% of the bucket; `silent` was peak bookkeeping, not absence of response.
+- **62% are a neighbouring mode's tail.** The argmax sits in the window's outer quarter in 75 of
+  79, and the nearest cached floor peak is ~1.4 R away with **median score 0.685** — a *confident*
+  adjacent detection (70/79 within 2 R). That mode is a neighbour ramp's TP, an FP, or plausibly
+  this very ramp localized just outside the radius — the `localization` bucket only inspects
+  *kept* (≥ 0.30) annulus peaks, so a floor-level one leaves a miss "silent". Whichever it is,
+  this is the σ/representation family again (`merged`'s mechanism), not vocabulary.
+- **30% are a faint local response at the site itself** (mass on-site in 30 of 39, nothing else
+  within ~3.8 R) — the `sub_threshold` continuum extending below the floor. Attenuation, not
+  blindness.
+- For the far-field rated-`visible` population — the anomaly itself — the split is **3 absent /
+  12 faint-local / 19 tail**: the model is responding at or next to ~91% of the far ramps a human
+  called resolvable. Consistent with Phase 0's graded-sensitivity reading; squarely against a
+  vocabulary hole.
+- The strict per-pano null (azimuth-randomized at the site's elevation, self-excluding within 2 R)
+  passes 31/128 at its p95 — a deliberately hard bar, since the p95 is set by the pano's strongest
+  modes; the decomposition above is the sharper lens.
+
+### What changes, what does not, and what is still open
+
+- **§0a's measured split stands** (247 far / 180 near at 18 m). What falls is the hard binary in
+  its "fixable by" column: the far field is *harder*, not *unreachable*.
+- **The sourcing bracket (§0b) excluded all 83 far-field silent misses from the addressable
+  population because of that binary.** That exclusion is no longer safe — but Phase 1 cuts the
+  other way too: of the 45 *near-field* silent misses the 0.013 estimate rests on, only **6 are
+  heatmap-absent**; the rest are faint-local (12) or an adjacent confident mode (27), i.e. the
+  calibration and σ families §0b already prices separately. The 0.013 point estimate is
+  deliberately **not revised** in either direction until Phase 2 (the scale counterfactual, whose
+  primary target is now the 10 absent sites plus whether scale lifts faint-local over the floor)
+  and Phase 3 (the decoy control on the verdicts) run. Quote 0.013 with this section attached.
+- **Multi-view's remedy logic is untouched** — a ramp invisible at 30 m is at 8 m two panoramas
+  later whatever the failure mechanism — but §0a's "MV ceiling" column shares the binary
+  assumption and will move with the same phases.
+- **The human-side caveat is live.** One rater; and the 9-of-9 `visible` rate in the deepest band
+  (down to 10.5 model px) is where pointed-verification bias would show most strongly. Phase 3's
+  decoy deck should therefore be **stratified by distance band**, oversampling 40–150 m.
+
+**The takeaway.** "Are far ramps harder?" — yes, threefold (recall 0.777 → 0.292 across the
+bands), but Phases 0–1 show distance acting as a **stressor on failure families this taxonomy
+already prices, not as a new category of failure**: 62% the σ/representation family, 30% the
+`sub_threshold` continuum, 8% genuine absence. The implied lever is therefore decoder- and
+representation-side — target σ, peak spacing, threshold calibration, and Phase 2's scale question
+for the residual — **not far-field training vocabulary**; and multi-view remains the one remedy
+that sidesteps all three mechanisms at once, by re-presenting the same ramp near-field.
 
 ## 1. The current training corpus is mostly one city
 
