@@ -77,18 +77,71 @@ There is a seventh **run directory** on scratch, `y26_tiles_l40s`, but it is **n
 config**: it is `y26_tiles` itself, resumed from its own epoch-3 checkpoint on a different
 partition with every hyperparameter unchanged. See "The `y26_tiles_l40s` fork" below.
 
-## Status & findings (live check: 2026-07-29 ~20:45 PT, training in progress)
+## Status 2026-08-09 — two arms have finished the full 60-epoch schedule
+
+Read live from `results.csv` on both clusters at **2026-08-09 ~16:00 PDT** and mirrored into
+`runs/*/results.csv` in this commit, so every number below is re-derivable from the repo
+rather than from a login session. Metrics are Ultralytics **validation** metrics on the
+auto-labelled val split at each arm's best epoch. They are the *selection* metric only —
+**not** the issue #51 headline, which is F1@conf0.25 against the benchmark and has still not
+been run for any arm.
+
+| arm | epochs | best ep | mAP50 | mAP50-95 | state |
+|---|---:|---:|---:|---:|---|
+| `y11x_pano_h200` | **60/60** | 60 | 0.8351 | **0.53982** | complete (Tillicum) — grid leader |
+| `y11l_pano`      | **60/60** | 59 | 0.8283 | 0.52597 | complete (klone ckpt), finished 2026-08-09 12:07 PDT |
+| `y11x_pano`      | 30 | 30 | 0.8142 | 0.51609 | running on ckpt, still climbing |
+| `y26_pano`       | 55 | 54 | 0.7764 | 0.51518 | running on ckpt; recovered past the 08-07 quota kill |
+| `y11x_tiles`     | 21 | 21 | 0.7762 | 0.47072 | running on `gpu-l40s` — best tiles arm |
+| `y11l_tiles`     |  9 |  9 | 0.7655 | 0.46099 | running on ckpt (resumed advancing 08-09) |
+| `y26_tiles_l40s` | 18 | 16 | 0.6711 | 0.42544 | finished — patience stop (fork of `y26_tiles`) |
+| `y26_tiles`      |  9 |  9 | 0.6739 | 0.42171 | running on ckpt (resumed advancing 08-09) |
+
+**The pano comparison is settled at equal budget.** Two arms have now run the whole
+pre-registered 60-epoch schedule, so the yolo11x-over-yolo11l result no longer rests on
+extrapolating partial curves: **0.53982 vs 0.52597, a 0.0139 margin**. The two were level at
+ep30 (0.52012 vs 0.51996) and the gap opens entirely across the LR anneal. On tiles the same
+ordering holds at unequal epochs (`y11x_tiles` 0.47072 @ep21 over `y11l_tiles` 0.46099 @ep9),
+which is suggestive rather than settled.
+
+**Correction to the 2026-08-08 status comment: `y11l_pano` did not roll over.** That comment
+recorded it as "best ep41 0.5247, declining since ep41", which was true of the curve at the
+time. It went on to set a new best at **ep59 (0.52597)** and finished with its patience
+counter at 1/20 — so neither pano arm ever early-stopped, and both were still improving into
+the epoch wall. This is the outcome the 08-04 decision note argued for when it declined to
+call the ep31→42 plateau convergence: at ep41 the LR was still a third of peak and mosaic was
+still on. A run stopped there would have been reported in its weakest phase.
+
+**Neither completed arm can be extended.** Ultralytics strips the optimizer from `best.pt` and
+`last.pt` when a run reaches its final epoch, so both completed arms are now inference-only
+(`y11l_pano` 49 MB, `y11x_pano_h200` 114 MB, down from 152/342 MB). That is correct for a
+finished schedule, but it does mean ep60 is terminal for them: a longer schedule would be a
+new run, not a resumption.
+
+**Cluster maintenance, 2026-08-11.** Both klone and Tillicum carry the same reservation,
+`August11_Maintenance`, **2026-08-11 09:00 → 2026-08-12 09:00 PDT**, `ALL_NODES`. Slurm will
+not start anything that cannot finish before it. The consequence for this grid is specific:
+`y11x_tiles` hits its 7-day wall on **08-10 06:49**, and its already-queued continuation
+(`38304087`) is a 7-day request, so it will *not* pick up in the ~26 h gap — that arm stops at
+ep21 until after the window. The ckpt arms stop being scheduled as their 9 h slices stop
+fitting, roughly from 08-11 00:00.
+
+## Status & findings — first-week record (live check: 2026-07-29 ~20:45 PT)
+
+> **Superseded as a status report by the 2026-08-09 section above**, and kept because the
+> structural findings under it — the warmup-LR collapse, the failure signature, the ckpt slice
+> ceiling, the fork — are what that week established and are still what the record rests on.
+> The table immediately below is a 2026-07-29 point-in-time reading, not current.
 
 Val-split proxy mAP50 from `results.csv`. **Every config peaks at epoch 1, collapses at
 epoch 3, and recovers as the learning rate decays.** The instability is universal, not
 per-config — see the figures.
 
-> **The numbers in this table are ahead of the committed `runs/*/results.csv` and
-> `figures/*.png`**, which are still the 2026-07-28 snapshot (e.g. `y26_pano` has 14 rows
-> there vs 20 epochs below). The CSVs and figures will be re-pulled and regenerated once
-> the arms stop, so the record ends up internally consistent against *final* curves rather
-> than a moving target. Until then, prefer this table for status and the CSVs for the
-> per-epoch shape of the collapse.
+> **The numbers in this table are *behind* the committed `runs/*/results.csv`**, which were
+> re-pulled from both clusters on 2026-08-09 and now cover all eight run directories. This
+> table is the 2026-07-29 reading; the CSVs are current. `figures/*.png` are still the
+> 2026-07-28 render and have **not** been regenerated — they show the collapse and early
+> recovery, not the completed schedules.
 
 | Config           | Epochs | best-val (ep) | Latest mAP50 | `best.pt` holds | Assessment |
 |------------------|--------|---------------|--------------|-----------------|------------|
@@ -300,6 +353,20 @@ stabilized rerun (#70) when it lands.
    2026-07-28). RampNet's published checkpoint was selected by the same principle:
    best **validation loss** on the dataset's val split (`stage_two/train.py`), never a
    benchmark number.
+
+   > **Correction, 2026-08-08 — the formula named above is not the one that ran.** The
+   > parenthetical "default weighting, 0.1·mAP50 + 0.9·mAP50-95" is wrong for the
+   > Ultralytics build these runs use: it computes fitness as **mAP50-95 alone**. This was
+   > established from the artifact rather than the docs — `y26_pano/best.pt` stores
+   > `best_fitness` 0.50966, which equals its epoch-44 `metrics/mAP50-95(B)` exactly, while
+   > the blend would have picked epoch 50. The pre-registered *rule* is unaffected, because
+   > it delegates to "`best.pt` exactly as Ultralytics saves it" and that is what every arm
+   > reports, and the **arm ranking is identical under either formula**. What changes is
+   > that any analysis recomputing "best epoch" from `results.csv` must rank on mAP50-95,
+   > not on the blend — several #51 status comments before 2026-08-08 quote blended values,
+   > which run about +0.030 above the mAP50-95 for the same epoch. Corrected here as a
+   > dated note rather than by editing the original wording, since this section is a
+   > pre-registration.
 2. **Config selection — on val, and it controls emphasis only.** Which config
    headlines each family (YOLO11 vs YOLO26) in the main text is decided by the same
    internal val fitness at `best.pt`. Stated caveat: tiles and pano configs have
@@ -391,21 +458,50 @@ protocol governs the results that will replace that note.
 
 `best.pt` files are **not** in git. Durable homes:
 
-**Staged to durable lab storage on 2026-07-29, while the runs were still going:**
+**Durable lab storage** — first staged 2026-07-29 while the runs were still going, refreshed
+2026-08-03, 08-08 and 08-09:
 
 ```
 /gscratch/makelab/jonf/rampnet_yolo_baseline_51/
-  <arm>/{best.pt,last.pt,results.csv,args.yaml}   # 5 arms, 1.8 GB total
-  MANIFEST.md                                     # Slurm job IDs, per-arm epochs/metrics, sha256 of every weight file
+  <arm>/{results.csv,args.yaml,weights/{best.pt,last.pt}}   # 8 arms, ~3.2 GB total
+  MANIFEST.md                    # per-arm epochs/metrics, Slurm job IDs, provenance prose
+  MANIFEST-<date>.md             # every superseded manifest, kept rather than overwritten
+  .sha256.verified               # 50 entries; `sha256sum -c` re-checks the whole snapshot
 ```
 
-Arms: `y11l_pano`, `y11x_pano`, `y26_pano`, `y11l_tiles`, `y26_tiles`. All **10 weight files
-were sha256-verified against the source** at copy time (10 ok, 0 mismatched), and the hashes
-are recorded in `MANIFEST.md` so a later copy can be checked against them.
+Arms, as of the 2026-08-09 refresh: `y11l_pano`, `y11x_pano`, `y11x_pano_h200`, `y26_pano`,
+`y11l_tiles`, `y11x_tiles`, `y26_tiles`, `y26_tiles_l40s` — i.e. every run directory that
+exists, including the Tillicum arm and the fork. Their `results.csv` and `args.yaml` are also
+committed to this repo under `runs/`, so the curves are re-derivable from a clean clone even
+if the weights are not.
 
 This was done because the weights existed **only** on `/gscratch/scrubbed`, which auto-purges
 after ~21 idle days — and the run directories date from 07-26, so the clock starts the moment
 the jobs stop writing. `/gscratch/makelab` is not scrubbed.
+
+**Refreshed 2026-08-09, and the refresh is now a committed script.** `snapshot_runs.sh` in
+this directory mirrors the live run directories to that path with end-to-end sha256
+verification, and replaces the hand-assembled procedure that produced the earlier manifests —
+a backup nobody else can re-run is not a backup this repo can rely on. Run it with no
+arguments for every arm, or name arms to do a subset:
+
+```bash
+scripts/model_comparison/yolo_baseline/snapshot_runs.sh              # all arms
+scripts/model_comparison/yolo_baseline/snapshot_runs.sh y11l_pano    # one arm
+cd /gscratch/makelab/jonf/rampnet_yolo_baseline_51 && sha256sum -c .sha256.verified
+```
+
+Two properties matter for this particular failure history. Each file lands as `<name>.tmp`
+and is renamed only once its hash matches the source, so a quota failure mid-write leaves the
+previous verified copy **intact** — that is exactly the failure that truncated
+`y26_pano/weights/last.pt` to 144 MiB on 08-07. And because running arms rewrite `last.pt` at
+every epoch boundary, the source is hashed before *and* after each copy and retried if it
+moved, so a torn read cannot be silently recorded as verified.
+
+The 2026-08-09 run copied 18 files and left 10 unchanged, 0 failed, across all **8** run
+directories, and the full `.sha256.verified` list (50 entries) then re-verified clean. This
+is the first snapshot to contain `y11l_pano` at its completed ep60 — which until that copy
+existed only on `/gscratch/scrubbed`.
 
 **It is a point-in-time copy that gets refreshed, not a mirror.** #51's 2026-08-02 check
 found exactly the failure mode to expect: the pack still held the 07-29 state, predating
