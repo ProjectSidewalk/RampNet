@@ -419,6 +419,57 @@ stopwatch. This probe prices that run; it does not substitute for it.
 - **The probe's mAP is not a reportable result.** It is a third lineage of this arm, run to
   measure time. Report its throughput; report accuracy only from the klone arm.
 
+#### As run — job `217298`, 2026-08-09
+
+Submitted 16:5x PDT, node **`g016`** (H200, 143,771 MiB). Exact commands, in order, from a
+clean starting point. They assume the tiles dataset is already on Tillicum, which it is —
+`/gpfs/scrubbed/jfroehli/yolo/tiles`, regenerated from HF and md5-verified against klone per
+the table above.
+
+```bash
+# 1. Stage the checkpoint from the DURABLE SNAPSHOT, not the live run dir.
+#    sha256 52cf5013e696885b6c30cb0bf783256bf06d4b756c123277e6482e9f453fc064
+#    verified identical at all three hops: klone -> workstation -> Tillicum.
+RUN=/gpfs/projects/makelab/jfroehli/yolo_runs/y11x_tiles_h200_probe
+mkdir -p $RUN/weights
+# scp klone:/gscratch/makelab/jonf/rampnet_yolo_baseline_51/y11x_tiles/weights/last.pt $RUN/weights/
+# scp klone:/gscratch/makelab/jonf/rampnet_yolo_baseline_51/y11x_tiles/results.csv      $RUN/
+sha256sum $RUN/weights/last.pt $RUN/results.csv
+
+# 2. Rewrite the six cluster-absolute paths. Without this, resume=True restores the
+#    checkpoint's save_dir and writes back into the klone run directory.
+/gpfs/projects/makelab/jfroehli/envs/rampnet-yolo/bin/python \
+  ~/RampNet/scripts/model_comparison/retarget_yolo_checkpoint.py \
+  $RUN/weights/last.pt \
+  --data /gpfs/scrubbed/jfroehli/yolo/tiles/data.yaml \
+  --project /gpfs/projects/makelab/jfroehli/yolo_runs \
+  --name y11x_tiles_h200_probe --apply
+# -> backup at weights/last.pt.preretarget; out sha256 b2c6210c0b5f...762b;
+#    "verified: all six path keys persisted on reload"
+
+# 3. Submit, bounded at 7 h.
+cd ~/RampNet && mkdir -p logs
+PYTHON=/gpfs/projects/makelab/jfroehli/envs/rampnet-yolo/bin/python \
+YOLO_DATA=/gpfs/scrubbed/jfroehli/yolo/tiles/data.yaml \
+YOLO_IMGSZ=1024 BATCH=12 EPOCHS=60 NAME=y11x_tiles_h200_probe \
+  sbatch --time=07:00:00 --job-name=y11x_tiles_h200_probe \
+         scripts/model_comparison/run_yolo_train_tillicum.slurm
+```
+
+Confirmed at startup, from the job's own echoed args: `batch=12, imgsz=1024, workers=8,
+epochs=60, patience=20, seed=0, lr0=0.01, close_mosaic=10, optimizer=auto`, and
+`save_dir=…/y11x_tiles_h200_probe` — identical training math to the klone arm, writing to its
+own directory. The retarget dry run also reported `epochs done: 21 of 60,
+best_fitness: 0.47072`, which equals the klone arm's ep21 `mAP50-95` to five decimals —
+an independent confirmation that this Ultralytics build selects on **mAP50-95 alone**, not the
+0.1/0.9 blend (see `scripts/model_comparison/yolo_baseline/README.md`).
+
+**Cosmetic wart, same one klone had.** The launcher's header echoes `base: yolo11l.pt` on a
+resume, because `YOLO_CKPT` is unset and `resume=True` ignores it anyway. The klone script was
+fixed to print `MODE: RESUME` / `MODE: FRESH`; this one has not been. The `[resume]` line
+below it is the trustworthy signal. Do not read the `base:` line as the architecture — confirm
+from the `YOLO11x summary: … parameters` line instead.
+
 ## Admin
 
 - **Group:** `u_hyak_tillicum_makelab` (UW Groups Service). Jon is a member manager and
