@@ -470,6 +470,56 @@ fixed to print `MODE: RESUME` / `MODE: FRESH`; this one has not been. The `[resu
 below it is the trustworthy signal. Do not read the `base:` line as the architecture — confirm
 from the `YOLO11x summary: … parameters` line instead.
 
+#### Result: 2.38×, and the reason is storage, not the GPU
+
+Read at iteration ~880 of 46,452, i.e. early in the epoch and well clear of warmup. **The
+confirmed full-epoch time is still pending** and will be differenced from two consecutive
+`results.csv` rows once the job reaches the 7 h wall.
+
+| | klone L40S (`38063498`) | Tillicum H200 (`217298`) | ratio |
+|---|---:|---:|---:|
+| sustained | 2.1 it/s | **5.0 it/s** | **2.38×** |
+| images/s at batch 12 | 25.2 | 60.0 | 2.38× |
+| Ultralytics storage verdict | `Slow image access detected` | **`Fast image access ✅`** | |
+| measured read | 8.3 ± 3.3 / 11.8 ± 4.8 MB/s | **542.9 ± 78.3 MB/s** | **~46–65×** |
+| ping | 0.7 ± 0.1 / 1.3 ± 1.6 ms | 0.5 ± 0.1 ms | |
+| file size probed | 252–338 KB | 338.1 KB | identical |
+
+`S = 2.38 ≥ 1.7`, so by the pre-registered table the migration is **worth putting to Jon as a
+funded decision**. Revised cost, using ~3.0 h/epoch (2.58 h of training at 5.0 it/s plus
+validation over 161,002 tiles): **39 epochs ≈ 117 GPU-h ≈ $105**, about 4.9 days of compute
+against klone's 11.5 days. That is *cheaper* than the $121–138 the pre-registration projected,
+because the speedup beat the pano arm's 1.74–2.05×.
+
+**The pre-registered rationale for choosing this arm was wrong, and the data says so plainly.**
+The section above argued `y11x_tiles` was worth moving because it is *compute*-bound on klone,
+inferring that from `y26_tiles_l40s` sustaining 34.0 img/s against `y11x_tiles`' 25.2 on the
+same storage. Multiply those through by the file size and the inference collapses:
+
+- `y11x_tiles` consumed 25.2 img/s × 338 KB = **8.5 MB/s**
+- `y26_tiles_l40s` consumed 34.0 img/s × 338 KB = **11.5 MB/s**
+- klone's own probe measured that filesystem at **8.3–11.8 MB/s**
+
+Both arms were sitting *on* the storage ceiling, and the img/s gap I read as an architecture
+difference is inside the measured variance of a contended shared filesystem. On Tillicum the
+same arm consumes 20.3 MB/s against 542.9 MB/s available — **4% of capacity** — so there it is
+genuinely GPU-bound, and 2.38× is the H200-vs-L40S compute ratio showing through once storage
+stops being the wall.
+
+The pre-registration anticipated this reading being falsified only by a result *below* 1.2×.
+It was falsified by a result well above it, via a channel the threshold table did not
+contemplate — the storage probe line, which was listed only as a secondary metric. Worth
+remembering that the secondary metric carried the finding.
+
+**What this implies beyond the arm we probed, and did not pay to learn.** If klone's tiles
+throughput is a storage ceiling rather than a per-model property, it applies to `y11l_tiles`
+and `y26_tiles` too — the two arms currently at ep9 after ~23 and ~35 days of projected
+runway. They are smaller models than `y11x`, so unbinding storage should help them at least as
+much. That reframes the whole tiles column of #51 from "these arms are slow" to "these arms
+are on the wrong filesystem", and it is a much better explanation of the ckpt slice-ceiling
+history recorded above than anything model-specific. **It is an inference, not a measurement**
+— no tiles arm other than `y11x` has been timed on Tillicum.
+
 ## Admin
 
 - **Group:** `u_hyak_tillicum_makelab` (UW Groups Service). Jon is a member manager and
