@@ -350,6 +350,75 @@ GPU-hours total, answering the questions the #70 budget depends on:
 
 Record the measured epoch times back into this file and into #70.
 
+### Measurement 3, pre-registered in full (2026-08-09)
+
+Written **before the job was submitted**, so the reading cannot be chosen after seeing the
+number. Same discipline as the #71 checkpoint-selection protocol.
+
+**What runs.** One epoch of `y11x_tiles` on **1 H200 / 8 CPU**, resumed from a *copy* of its
+epoch-21 checkpoint, with `batch=12`, `imgsz=1024`, `workers=8` — i.e. training math
+identical to the klone arm, so throughput is the only variable. `--time=07:00:00` bounds the
+cost at **7 GPU-h = $6.30**, inside the remaining $29.65 credit.
+
+**Why 7 h is the wall.** It is deliberately the falsification threshold, not a round number:
+klone's dedicated L40S does this epoch in **7.06–7.38 h**. A job that cannot complete one
+epoch inside a 7 h wall has ruled out the migration by itself, at a cost of $6.30.
+
+**Why this arm and not another.** `docs/tillicum.md` says above that our tiles arm is
+I/O-bound, which would make a faster GPU worthless. That is true of `y26_tiles` and
+`y11l_tiles`; it is **not** true of `y11x_tiles`, and the distinction is what makes this
+measurement worth paying for. On the same dedicated node and the same storage,
+`y26_tiles_l40s` sustains **34.0 img/s** while `y11x_tiles` sustains **25.2 img/s** — the
+larger model is slower against storage that demonstrably serves the smaller one faster. The
+July batch probe agrees: batch 3 and batch 12 both sustained ~15.6 img/s, so throughput is
+not batch- or queue-limited. `y11x_tiles` is the one tiles arm where H200 silicon should
+convert into wall-clock.
+
+**Baseline to beat** (measured on klone `gpu-l40s`, job `38063498`, 21 epochs):
+
+| quantity | klone L40S |
+|---|---|
+| epoch wall-clock | 7.06–7.38 h (dead flat) |
+| sustained rate | **2.1 it/s** at batch 12 (46,452 iters/epoch) = 25.2 img/s |
+| Ultralytics storage probe | `read: 8.3–11.8 MB/s, size: 252–338 KB` |
+
+**Primary metric: sustained it/s**, because it is readable within ~30 minutes of the job
+reaching steady state and is directly comparable at identical batch and imgsz. Secondary:
+the full epoch wall from `results.csv`, and the `Slow image access` probe line, which is what
+tells us whether Tillicum's `/gpfs/scrubbed` is better or worse than klone's for ~300 KB
+files.
+
+**Pre-registered readings.** Speedup `S` = (measured it/s) / 2.1:
+
+| S | reading | consequence |
+|---|---|---|
+| **≥ 1.7×** | the pano arm's 1.74–2.05× transfers to tiles | finishing the arm costs **~$121–138** and lands ~5 days earlier than klone. Worth putting to Jon as a funded decision. |
+| **1.2–1.7×** | real but modest | not worth ~$100+ on an arm whose curve is flat at +0.00037/epoch. Stay on klone, free. |
+| **< 1.2×** | the H200 buys nothing here | migration is dead, **and** the compute-bound reading of the klone evidence above is wrong — the arm is storage-bound on both clusters and the img/s gap between `y11x` and `y26` needs another explanation. |
+
+**What this does NOT answer, correcting item 3 above.** That item claims this measurement
+"tells us whether tiles-vs-pano in the #51 results is an architecture finding or a storage
+artifact." It does not, and the overstatement is worth fixing before it is quoted. Timing one
+epoch establishes whether *tiles training throughput* is storage-limited on a given
+filesystem. Whether the tiles arms' **accuracy** trails pano because they were starved of
+epochs is a different question, and it is answered by running a tiles arm to ep60 — not by a
+stopwatch. This probe prices that run; it does not substitute for it.
+
+**Contamination controls.**
+
+- The source is the **durable snapshot** `/gscratch/makelab/jonf/rampnet_yolo_baseline_51/y11x_tiles/weights/last.pt`,
+  not the live file, which the running klone job rewrites at every epoch boundary. sha256
+  `52cf5013e696…c064`, verified at each hop.
+- It writes to its **own run directory**, `y11x_tiles_h200_probe`. The klone arm keeps
+  running, untouched. Paths are rewritten with the committed
+  `retarget_yolo_checkpoint.py` — without it, `resume=True` restores the checkpoint's
+  `save_dir` and writes back into the original run directory.
+- `epochs=60` is **left alone**. Shortening it would change the LR-decay denominator, and
+  leaving it means the probe run is a legitimate continuation that can simply keep going if
+  the answer is favourable.
+- **The probe's mAP is not a reportable result.** It is a third lineage of this arm, run to
+  measure time. Report its throughput; report accuracy only from the klone arm.
+
 ## Admin
 
 - **Group:** `u_hyak_tillicum_makelab` (UW Groups Service). Jon is a member manager and
