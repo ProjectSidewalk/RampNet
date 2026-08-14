@@ -51,7 +51,10 @@ Image.MAX_IMAGE_PIXELS = None  # our own vetted native panos exceed PIL's bomb g
 # The box convention, one short rule per line (the viewer renders them as bullets; the
 # export joins them into box_rule.text). Version bumps on ANY wording change that could
 # alter what an annotator draws; the scorer stratifies by it, and every export embeds it.
-BOX_RULE_VERSION = 1
+# v2 = v1 + the last two bullets (ruler-not-a-crop; oblique ramps), added 2026-08-14
+# after the first annotation session. They clarify the same convention rather than
+# changing it, so boxes drawn under v1 remain valid under v2.
+BOX_RULE_VERSION = 2
 BOX_RULE_LINES = [
     "One box per ramp: the whole constructed ramp surface — sloped apron + "
     "detectable-warning pad + side flares.",
@@ -63,6 +66,10 @@ BOX_RULE_LINES = [
     "Occluded is not absent: box the inferred full extent behind cars/pedestrians; "
     "truly undeterminable -> \"Can't determine extent\".",
     "Tight beats symmetric: every edge should touch the ramp's boundary at native zoom.",
+    "The box is a measuring instrument, not the crop: road and surrounding context are "
+    "what a crop rule adds AROUND your box and gets scored on — never include them.",
+    "Oblique ramps (running toward the horizon): keep the box axis-aligned and touch "
+    "the ramp's extremities — empty corners are correct, don't rotate-fit by eye.",
 ]
 BOX_RULE = "\n".join(BOX_RULE_LINES)
 
@@ -346,7 +353,8 @@ HTML_TEMPLATE = r"""<!doctype html>
 </style>
 
 <div id="rulebar"><b>Rule v__RULE_V__:</b> whole constructed ramp — apron + warning pad +
-  flares; not road, gutter, or level sidewalk; occluded ≠ absent; tight at native zoom.</div>
+  flares; not road, gutter, or level sidewalk; occluded ≠ absent; tight at native zoom;
+  the box is a ruler, not a crop — context is the crop rule's job.</div>
 
 <details id="rule">
   <summary>Box rule v__RULE_V__, in full — ships inside every export</summary>
