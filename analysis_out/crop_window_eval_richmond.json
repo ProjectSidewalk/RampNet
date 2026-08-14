@@ -22,374 +22,374 @@
     }
   },
   "coverage": {
-    "boxes_total": 110,
-    "det_prompted": 88,
-    "missed_only": 22,
+    "boxes_total": 246,
+    "det_prompted": 194,
+    "missed_only": 52,
     "pano_heights": {
-      "2048": 4,
-      "2880": 5,
-      "5500": 18,
-      "6144": 4
+      "2048": 6,
+      "2880": 7,
+      "5500": 46,
+      "6144": 9
     },
     "panos_missing_record": 0
   },
   "inputs": {
     "box_rule_version": 1,
     "boxes": "benchmark/richmond/boxes.json",
-    "n_boxed": 110,
-    "n_cant": 2,
+    "n_boxed": 246,
+    "n_cant": 4,
     "n_edge_flag": 1,
     "records": "benchmark/richmond/records.jsonl"
   },
   "issue": 114,
-  "per_box_csv_sha256": "6db9391e172217deb687693652e85130f624a5e71ec7828a2cfc115f1dd5ca3b",
+  "per_box_csv_sha256": "166c339d04cd2091591e29c62a693d0f91d5564f619d958a1ce08548a4f9c505",
   "summary": {
     "detection": {
       "geo-v1.5": {
-        "containment": 1.0,
+        "containment": 0.9948453608247423,
         "containment_ci": [
-          0.9581714604275188,
-          1.0
+          0.9713838255873412,
+          0.9990895227883295
         ],
-        "context_in_band_05_20": 0.36363636363636365,
-        "context_in_band_10_15": 0.11363636363636363,
-        "context_ratio_p10": 0.1356545396560814,
-        "context_ratio_p50": 0.23555665744090493,
-        "context_ratio_p90": 0.39750466829668823,
-        "margin_norm_p50": 0.3569559249651889,
-        "n": 88,
-        "predicted_side_p50": 1182.5,
+        "context_in_band_05_20": 0.32989690721649484,
+        "context_in_band_10_15": 0.10824742268041238,
+        "context_ratio_p10": 0.13941206691272728,
+        "context_ratio_p50": 0.2293091601558545,
+        "context_ratio_p90": 0.4111655820505695,
+        "margin_norm_p50": 0.36024791687484803,
+        "n": 194,
+        "predicted_side_p50": 1441.0,
         "road_edge_cut": 0.0,
-        "road_margin_p10": 3.97673969010084,
-        "road_margin_p50": 6.727912548883092,
-        "road_margin_p90": 11.716951689806868,
+        "road_margin_p10": 4.012051672960333,
+        "road_margin_p50": 6.727925602492106,
+        "road_margin_p90": 11.164150997418101,
         "strata": {
           "18-36 m": {
-            "containment": 1.0,
+            "containment": 0.9818181818181818,
             "containment_ci": [
-              0.8568788745827374,
-              1.0
+              0.9039399953951678,
+              0.9967833024077472
             ],
-            "context_in_band_05_20": 0.17391304347826086,
-            "context_in_band_10_15": 0.08695652173913043,
-            "context_ratio_p10": 0.14685605989264516,
-            "context_ratio_p50": 0.25655487804878074,
-            "context_ratio_p90": 0.4309614157653806,
-            "margin_norm_p50": 0.3289812154696137,
-            "n": 23,
-            "predicted_side_p50": 620.0,
+            "context_in_band_05_20": 0.2727272727272727,
+            "context_in_band_10_15": 0.12727272727272726,
+            "context_ratio_p10": 0.13954102708980723,
+            "context_ratio_p50": 0.24884146341463334,
+            "context_ratio_p90": 0.43473994700423746,
+            "margin_norm_p50": 0.3467258064516126,
+            "n": 55,
+            "predicted_side_p50": 984.0,
             "road_edge_cut": 0.0,
-            "road_margin_p10": 3.7758782652477514,
-            "road_margin_p50": 5.992356833219251,
-            "road_margin_p90": 11.5768891408863
+            "road_margin_p10": 3.9263631996738355,
+            "road_margin_p50": 6.167105523007009,
+            "road_margin_p90": 11.823782989090532
           },
           "5-9 m": {
             "containment": 1.0,
             "containment_ci": [
-              0.8156763396284354,
+              0.9059390425448564,
               1.0
             ],
-            "context_in_band_05_20": 0.6470588235294118,
-            "context_in_band_10_15": 0.17647058823529413,
-            "context_ratio_p10": 0.1104562899098877,
-            "context_ratio_p50": 0.17072453107760233,
-            "context_ratio_p90": 0.2428753531197625,
-            "margin_norm_p50": 0.40438396469290194,
-            "n": 17,
+            "context_in_band_05_20": 0.4594594594594595,
+            "context_in_band_10_15": 0.16216216216216217,
+            "context_ratio_p10": 0.11948122170201567,
+            "context_ratio_p50": 0.20371375694016083,
+            "context_ratio_p90": 0.27107171754321463,
+            "margin_norm_p50": 0.3733123821495912,
+            "n": 37,
             "predicted_side_p50": 2719.0,
             "road_edge_cut": 0.0,
-            "road_margin_p10": 4.773899538507681,
+            "road_margin_p10": 3.9638462029906094,
             "road_margin_p50": 6.4250006353724345,
-            "road_margin_p90": 11.559656271365354
+            "road_margin_p90": 10.945394667078348
           },
           "9-18 m": {
             "containment": 1.0,
             "containment_ci": [
-              0.9123754607496077,
-              1.0
+              0.9590629315783191,
+              0.9999999999999999
             ],
-            "context_in_band_05_20": 0.425,
-            "context_in_band_10_15": 0.125,
-            "context_ratio_p10": 0.1380524229074889,
-            "context_ratio_p50": 0.2308064701508327,
-            "context_ratio_p90": 0.3388019999999992,
-            "margin_norm_p50": 0.3676303155006859,
-            "n": 40,
+            "context_in_band_05_20": 0.35555555555555557,
+            "context_in_band_10_15": 0.08888888888888889,
+            "context_ratio_p10": 0.13943535986956695,
+            "context_ratio_p50": 0.22383849862058378,
+            "context_ratio_p90": 0.3405358473767885,
+            "margin_norm_p50": 0.36152427150301547,
+            "n": 90,
             "predicted_side_p50": 1458.0,
             "road_edge_cut": 0.0,
-            "road_margin_p10": 5.076041996859408,
-            "road_margin_p50": 7.769087117952778,
-            "road_margin_p90": 11.887474959282846
+            "road_margin_p10": 4.809182595880136,
+            "road_margin_p50": 7.059226449831927,
+            "road_margin_p90": 10.858120679337718
           },
           "<5 m": {
             "containment": 1.0,
             "containment_ci": [
-              0.43849391955098227,
-              1.0
+              0.6096569663469354,
+              0.9999999999999999
             ],
             "context_in_band_05_20": 0.0,
             "context_in_band_10_15": 0.0,
-            "context_ratio_p10": 0.24411399448808022,
-            "context_ratio_p50": 0.2776592543496272,
-            "context_ratio_p90": 0.4371958508699254,
-            "margin_norm_p50": 0.2738046025996165,
-            "n": 3,
-            "predicted_side_p50": 4693.0,
+            "context_ratio_p10": 0.2215335841337236,
+            "context_ratio_p50": 0.2823744885545686,
+            "context_ratio_p90": 0.4478199999999999,
+            "margin_norm_p50": 0.2819380889636811,
+            "n": 6,
+            "predicted_side_p50": 4967.5,
             "road_edge_cut": 0.0,
-            "road_margin_p10": 1.4710171397665306,
-            "road_margin_p50": 1.5635636363636356,
-            "road_margin_p90": 2.0476838820590753
+            "road_margin_p10": 1.505722075990445,
+            "road_margin_p50": 2.1755914019329516,
+            "road_margin_p90": 3.6263725031081173
           },
           ">36 m / horizon": {
             "containment": 1.0,
             "containment_ci": [
-              0.5655085052479191,
-              1.0
+              0.6096569663469354,
+              0.9999999999999999
             ],
             "context_in_band_05_20": 0.0,
             "context_in_band_10_15": 0.0,
-            "context_ratio_p10": 0.22412253866053614,
-            "context_ratio_p50": 0.30739381703470003,
-            "context_ratio_p90": 0.4596027285053719,
-            "margin_norm_p50": 0.3373632807570978,
-            "n": 5,
-            "predicted_side_p50": 568.0,
+            "context_ratio_p10": 0.22853521414199612,
+            "context_ratio_p50": 0.3087445275649684,
+            "context_ratio_p90": 0.4480707575704904,
+            "margin_norm_p50": 0.3112623558811043,
+            "n": 6,
+            "predicted_side_p50": 546.5,
             "road_edge_cut": 0.0,
-            "road_margin_p10": 3.5208328118292473,
-            "road_margin_p50": 6.278251689189227,
-            "road_margin_p90": 8.537836778673238
+            "road_margin_p10": 3.822387803260483,
+            "road_margin_p50": 6.4694313465967195,
+            "road_margin_p90": 8.532807834510198
           }
         }
       },
       "v1-norm": {
-        "containment": 0.29545454545454547,
+        "containment": 0.26288659793814434,
         "containment_ci": [
-          0.2103072371931576,
-          0.3977135289955849
+          0.20597752370486383,
+          0.32900399686512766
         ],
         "context_in_band_05_20": 0.0,
         "context_in_band_10_15": 0.0,
-        "context_ratio_p10": 0.6262390000000011,
-        "context_ratio_p50": 0.9573848684210522,
-        "context_ratio_p90": 1.6427115385449416,
-        "margin_norm_p50": -0.09157134550598878,
-        "n": 88,
-        "predicted_side_p50": 268.0,
-        "road_edge_cut": 0.011363636363636364,
-        "road_margin_p10": 0.5035209258473322,
+        "context_ratio_p10": 0.6203510000000007,
+        "context_ratio_p50": 1.0231085526315762,
+        "context_ratio_p90": 1.7683473170731694,
+        "margin_norm_p50": -0.13627873730988693,
+        "n": 194,
+        "predicted_side_p50": 301.5,
+        "road_edge_cut": 0.010309278350515464,
+        "road_margin_p10": 0.49506489624172684,
         "road_margin_p50": 1.0843475703975591,
-        "road_margin_p90": 2.427017026949152,
+        "road_margin_p90": 2.3587254549141123,
         "strata": {
           "18-36 m": {
-            "containment": 0.30434782608695654,
+            "containment": 0.38181818181818183,
             "containment_ci": [
-              0.15603828020972454,
-              0.5086612906057261
+              0.26515766317415235,
+              0.513910207176076
             ],
             "context_in_band_05_20": 0.0,
             "context_in_band_10_15": 0.0,
-            "context_ratio_p10": 0.5516194029850743,
-            "context_ratio_p50": 0.9263805970149245,
-            "context_ratio_p90": 1.5654092800000017,
-            "margin_norm_p50": -0.06587686567164085,
-            "n": 23,
-            "predicted_side_p50": 239.0,
+            "context_ratio_p10": 0.5280671641791036,
+            "context_ratio_p50": 0.874664179104477,
+            "context_ratio_p90": 1.5616090250847479,
+            "margin_norm_p50": -0.034564393939393936,
+            "n": 55,
+            "predicted_side_p50": 264.0,
             "road_edge_cut": 0.0,
-            "road_margin_p10": 0.6330338241192048,
-            "road_margin_p50": 1.1254909413404355,
-            "road_margin_p90": 2.572920314576548
+            "road_margin_p10": 0.6905118274106351,
+            "road_margin_p50": 1.448349163274544,
+            "road_margin_p90": 3.0561581650938203
           },
           "5-9 m": {
-            "containment": 0.29411764705882354,
+            "containment": 0.24324324324324326,
             "containment_ci": [
-              0.13279793865556402,
-              0.5313353332621391
+              0.13361203432663304,
+              0.4011760249070895
             ],
             "context_in_band_05_20": 0.0,
             "context_in_band_10_15": 0.0,
-            "context_ratio_p10": 0.6254310476190486,
-            "context_ratio_p50": 0.9625,
-            "context_ratio_p90": 1.365115016393443,
-            "margin_norm_p50": -0.042666666666665756,
-            "n": 17,
+            "context_ratio_p10": 0.6275393809523817,
+            "context_ratio_p50": 1.1337142857142857,
+            "context_ratio_p90": 1.5088638888888901,
+            "margin_norm_p50": -0.18245915032679733,
+            "n": 37,
             "predicted_side_p50": 480.0,
-            "road_edge_cut": 0.0,
-            "road_margin_p10": 0.44416164711506434,
-            "road_margin_p50": 0.7622408413848668,
-            "road_margin_p90": 1.6568403422296083
+            "road_edge_cut": 0.02702702702702703,
+            "road_margin_p10": 0.24332943336986468,
+            "road_margin_p50": 0.8525404327597683,
+            "road_margin_p90": 1.6568403422296079
           },
           "9-18 m": {
-            "containment": 0.275,
+            "containment": 0.2,
             "containment_ci": [
-              0.1610785343314309,
-              0.4283525083312457
+              0.130422969625965,
+              0.29413927142704344
             ],
             "context_in_band_05_20": 0.0,
             "context_in_band_10_15": 0.0,
-            "context_ratio_p10": 0.7089580163876008,
-            "context_ratio_p50": 1.1395829849498338,
-            "context_ratio_p90": 1.8074245848563928,
-            "margin_norm_p50": -0.1403379382768145,
-            "n": 40,
+            "context_ratio_p10": 0.6956659573560774,
+            "context_ratio_p50": 1.10727023353703,
+            "context_ratio_p90": 1.8446055604661533,
+            "margin_norm_p50": -0.17264885500340443,
+            "n": 90,
             "predicted_side_p50": 304.0,
             "road_edge_cut": 0.0,
-            "road_margin_p10": 0.6182670492431297,
-            "road_margin_p50": 1.1437284878585012,
-            "road_margin_p90": 2.0801315215949434
+            "road_margin_p10": 0.5542348140684159,
+            "road_margin_p50": 1.0570593814371023,
+            "road_margin_p90": 1.9278595421681173
           },
           "<5 m": {
             "containment": 0.0,
             "containment_ci": [
               0.0,
-              0.5615060804490177
+              0.3903430336530645
             ],
             "context_in_band_05_20": 0.0,
             "context_in_band_10_15": 0.0,
-            "context_ratio_p10": 1.0082764524871504,
-            "context_ratio_p50": 1.4698891228070177,
-            "context_ratio_p90": 1.987077908315916,
-            "margin_norm_p50": -0.590447719298246,
-            "n": 3,
+            "context_ratio_p10": 0.8388097832478152,
+            "context_ratio_p50": 1.2924689687490847,
+            "context_ratio_p90": 1.987194816269088,
+            "margin_norm_p50": -0.42641624709463266,
+            "n": 6,
             "predicted_side_p50": 1239.0,
-            "road_edge_cut": 0.3333333333333333,
-            "road_margin_p10": -0.12624798843861854,
-            "road_margin_p50": 0.05179271645558229,
-            "road_margin_p90": 0.41745945238202514
+            "road_edge_cut": 0.16666666666666666,
+            "road_margin_p10": -0.059482724103293236,
+            "road_margin_p50": 0.5200586744905389,
+            "road_margin_p90": 0.9028249552601553
           },
           ">36 m / horizon": {
-            "containment": 0.6,
+            "containment": 0.5,
             "containment_ci": [
-              0.23071993220883708,
-              0.8823817688407467
+              0.18761280689940868,
+              0.8123871931005913
             ],
             "context_in_band_05_20": 0.0,
             "context_in_band_10_15": 0.0,
-            "context_ratio_p10": 0.5738718811237561,
-            "context_ratio_p50": 0.7410177946768054,
-            "context_ratio_p90": 1.1332015673092086,
-            "margin_norm_p50": 0.1098415209125476,
-            "n": 5,
-            "predicted_side_p50": 236.0,
+            "context_ratio_p10": 0.5787491664731866,
+            "context_ratio_p50": 0.7491135485011917,
+            "context_ratio_p90": 1.1028209464782828,
+            "margin_norm_p50": 0.04328125838158505,
+            "n": 6,
+            "predicted_side_p50": 225.5,
             "road_edge_cut": 0.0,
-            "road_margin_p10": 1.0188027607855727,
-            "road_margin_p50": 2.253230574324341,
-            "road_margin_p90": 3.5973321619341148
+            "road_margin_p10": 1.1507470923213097,
+            "road_margin_p50": 2.1582406764547795,
+            "road_margin_p90": 3.543138474381479
           }
         }
       },
       "v1-raw": {
-        "containment": 0.5340909090909091,
+        "containment": 0.4536082474226804,
         "containment_ci": [
-          0.43063280602477044,
-          0.6346970662771058
+          0.38513032102789724,
+          0.5238878025618838
         ],
-        "context_in_band_05_20": 0.011363636363636364,
+        "context_in_band_05_20": 0.005154639175257732,
         "context_in_band_10_15": 0.0,
-        "context_ratio_p10": 0.45699818813432347,
-        "context_ratio_p50": 0.8039285714285707,
-        "context_ratio_p90": 1.3452831137358912,
-        "margin_norm_p50": 0.013361290598291317,
-        "n": 88,
-        "predicted_side_p50": 317.0,
-        "road_edge_cut": 0.011363636363636364,
-        "road_margin_p10": 0.5667925376488899,
-        "road_margin_p50": 1.8005110800330124,
-        "road_margin_p90": 3.610151635999545,
+        "context_ratio_p10": 0.48958328128404355,
+        "context_ratio_p50": 0.8577914354421012,
+        "context_ratio_p90": 1.4729152623515878,
+        "margin_norm_p50": -0.02534816902457246,
+        "n": 194,
+        "predicted_side_p50": 338.0,
+        "road_edge_cut": 0.010309278350515464,
+        "road_margin_p10": 0.5857397748926337,
+        "road_margin_p50": 1.3977122538422715,
+        "road_margin_p90": 3.1526862647149345,
         "strata": {
           "18-36 m": {
-            "containment": 0.782608695652174,
+            "containment": 0.6909090909090909,
             "containment_ci": [
-              0.5809611981726508,
-              0.9033616439828094
+              0.5597116084861727,
+              0.7971787547942276
             ],
             "context_in_band_05_20": 0.0,
             "context_in_band_10_15": 0.0,
-            "context_ratio_p10": 0.4307629110512123,
-            "context_ratio_p50": 0.5711387900355873,
-            "context_ratio_p90": 0.835996351490615,
-            "margin_norm_p50": 0.12708537313432852,
-            "n": 23,
-            "predicted_side_p50": 281.0,
+            "context_ratio_p10": 0.4312142857142853,
+            "context_ratio_p50": 0.6575094339622668,
+            "context_ratio_p90": 1.0142704626334533,
+            "margin_norm_p50": 0.06707356643356606,
+            "n": 55,
+            "predicted_side_p50": 304.0,
             "road_edge_cut": 0.0,
-            "road_margin_p10": 1.059675023755111,
-            "road_margin_p50": 2.3766339869281166,
-            "road_margin_p90": 3.8009841724361757
+            "road_margin_p10": 1.0356304164256223,
+            "road_margin_p50": 2.23277972027973,
+            "road_margin_p90": 3.8518969836134485
           },
           "5-9 m": {
-            "containment": 0.29411764705882354,
+            "containment": 0.21621621621621623,
             "containment_ci": [
-              0.13279793865556402,
-              0.5313353332621391
+              0.11386376851955585,
+              0.37195461273876906
             ],
             "context_in_band_05_20": 0.0,
             "context_in_band_10_15": 0.0,
-            "context_ratio_p10": 0.5728899512251309,
-            "context_ratio_p50": 0.9685534591194969,
-            "context_ratio_p90": 1.394103449047651,
-            "margin_norm_p50": -0.04503144654087959,
-            "n": 17,
+            "context_ratio_p10": 0.6276687631027253,
+            "context_ratio_p50": 1.1247887323943668,
+            "context_ratio_p90": 1.5451656184486384,
+            "margin_norm_p50": -0.20143033962264076,
+            "n": 37,
             "predicted_side_p50": 477.0,
-            "road_edge_cut": 0.0,
-            "road_margin_p10": 0.36664181600756146,
-            "road_margin_p50": 1.0394352148041208,
-            "road_margin_p90": 1.7850852909099868
+            "road_edge_cut": 0.02702702702702703,
+            "road_margin_p10": 0.2457433957681491,
+            "road_margin_p50": 1.005561324279189,
+            "road_margin_p90": 1.6897901837130092
           },
           "9-18 m": {
-            "containment": 0.475,
+            "containment": 0.4,
             "containment_ci": [
-              0.32935229550181694,
-              0.6250289314607027
+              0.30488859176782823,
+              0.5032988219165079
             ],
             "context_in_band_05_20": 0.0,
             "context_in_band_10_15": 0.0,
-            "context_ratio_p10": 0.5218520922051975,
-            "context_ratio_p50": 0.8394559986832352,
-            "context_ratio_p90": 1.4525601868970384,
-            "margin_norm_p50": -0.029887249052366734,
-            "n": 40,
+            "context_ratio_p10": 0.5219873065015486,
+            "context_ratio_p50": 0.9228021708683464,
+            "context_ratio_p90": 1.6297005365526507,
+            "margin_norm_p50": -0.07431602609586763,
+            "n": 90,
             "predicted_side_p50": 340.0,
             "road_edge_cut": 0.0,
-            "road_margin_p10": 0.8014403065922375,
-            "road_margin_p50": 1.667322241698657,
-            "road_margin_p90": 3.312776744227034
+            "road_margin_p10": 0.7518024542079423,
+            "road_margin_p50": 1.3109568174880173,
+            "road_margin_p90": 2.685708651253007
           },
           "<5 m": {
             "containment": 0.0,
             "containment_ci": [
               0.0,
-              0.5615060804490177
+              0.3903430336530645
             ],
             "context_in_band_05_20": 0.0,
             "context_in_band_10_15": 0.0,
-            "context_ratio_p10": 1.0697071504361488,
-            "context_ratio_p50": 1.1197064777327939,
-            "context_ratio_p90": 1.7872370395465587,
-            "margin_norm_p50": -0.4963714574898785,
-            "n": 3,
-            "predicted_side_p50": 988.0,
-            "road_edge_cut": 0.3333333333333333,
-            "road_margin_p10": -0.06242615947806307,
-            "road_margin_p50": 0.0440913146572796,
-            "road_margin_p90": 0.4698964447496374
+            "context_ratio_p10": 0.9153914173131108,
+            "context_ratio_p50": 1.2191960226768608,
+            "context_ratio_p90": 1.7444198399999995,
+            "margin_norm_p50": -0.4109474465284628,
+            "n": 6,
+            "predicted_side_p50": 1209.0,
+            "road_edge_cut": 0.16666666666666666,
+            "road_margin_p10": -0.02248210667730957,
+            "road_margin_p50": 0.4786817329958981,
+            "road_margin_p90": 1.0237549287215626
           },
           ">36 m / horizon": {
             "containment": 1.0,
             "containment_ci": [
-              0.5655085052479191,
-              1.0
+              0.6096569663469354,
+              0.9999999999999999
             ],
-            "context_in_band_05_20": 0.2,
+            "context_in_band_05_20": 0.16666666666666666,
             "context_in_band_10_15": 0.0,
-            "context_ratio_p10": 0.2570717405967976,
-            "context_ratio_p50": 0.5120143884892091,
-            "context_ratio_p90": 0.8052930409165315,
-            "margin_norm_p50": 0.20582733812949733,
-            "n": 5,
-            "predicted_side_p50": 260.0,
+            "context_ratio_p10": 0.2800453083990577,
+            "context_ratio_p50": 0.5715110702135954,
+            "context_ratio_p90": 0.7862593780687408,
+            "margin_norm_p50": 0.17009154140517424,
+            "n": 6,
+            "predicted_side_p50": 259.0,
             "road_edge_cut": 0.0,
-            "road_margin_p10": 2.486337718327424,
-            "road_margin_p50": 3.940853367298113,
-            "road_margin_p90": 6.383289761418404
+            "road_margin_p10": 2.364849298771267,
+            "road_margin_p50": 3.5679093784333396,
+            "road_margin_p90": 5.997149575083805
           }
         }
       }
@@ -398,348 +398,348 @@
       "geo-v1.5": {
         "containment": 1.0,
         "containment_ci": [
-          0.9662548664108728,
+          0.9846238576762238,
           1.0
         ],
-        "context_in_band_05_20": 0.4090909090909091,
-        "context_in_band_10_15": 0.11818181818181818,
-        "context_ratio_p10": 0.13304044491741737,
-        "context_ratio_p50": 0.22355836173420396,
-        "context_ratio_p90": 0.3926192552377653,
-        "margin_norm_p50": 0.3865251907696826,
-        "n": 110,
-        "predicted_side_p50": 1048.0,
+        "context_in_band_05_20": 0.4065040650406504,
+        "context_in_band_10_15": 0.15040650406504066,
+        "context_ratio_p10": 0.12821837996684168,
+        "context_ratio_p50": 0.21939293690675601,
+        "context_ratio_p90": 0.3890616158316036,
+        "margin_norm_p50": 0.3890502222491862,
+        "n": 246,
+        "predicted_side_p50": 1248.0,
         "road_edge_cut": 0.0,
-        "road_margin_p10": 3.957898475867343,
-        "road_margin_p50": 7.298954631695082,
-        "road_margin_p90": 12.93654314819604,
+        "road_margin_p10": 4.142653906717025,
+        "road_margin_p50": 7.342574000279139,
+        "road_margin_p90": 12.59284933323784,
         "strata": {
           "18-36 m": {
             "containment": 1.0,
             "containment_ci": [
-              0.8864829086095221,
-              1.0
+              0.9518847317689024,
+              0.9999999999999999
             ],
-            "context_in_band_05_20": 0.26666666666666666,
-            "context_in_band_10_15": 0.1,
-            "context_ratio_p10": 0.13277793448000244,
-            "context_ratio_p50": 0.22921583040243168,
-            "context_ratio_p90": 0.43835017613011307,
-            "margin_norm_p50": 0.3851750967639317,
-            "n": 30,
-            "predicted_side_p50": 831.0,
+            "context_in_band_05_20": 0.34210526315789475,
+            "context_in_band_10_15": 0.13157894736842105,
+            "context_ratio_p10": 0.13784957948853843,
+            "context_ratio_p50": 0.22004814219364058,
+            "context_ratio_p90": 0.40548394216134004,
+            "margin_norm_p50": 0.3895339853519114,
+            "n": 76,
+            "predicted_side_p50": 897.5,
             "road_edge_cut": 0.0,
-            "road_margin_p10": 3.953057553431002,
-            "road_margin_p50": 7.594698393094078,
-            "road_margin_p90": 13.15777446060901
+            "road_margin_p10": 4.134589837146233,
+            "road_margin_p50": 8.409152670577832,
+            "road_margin_p90": 13.599874358548643
           },
           "5-9 m": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.9179874299767729,
+              1.0
+            ],
+            "context_in_band_05_20": 0.5813953488372093,
+            "context_in_band_10_15": 0.11627906976744186,
+            "context_ratio_p10": 0.09717979141316427,
+            "context_ratio_p50": 0.19029787234042556,
+            "context_ratio_p90": 0.27686263303213454,
+            "margin_norm_p50": 0.4047388781431335,
+            "n": 43,
+            "predicted_side_p50": 2754.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 4.3303708649480726,
+            "road_margin_p50": 6.0759155008081756,
+            "road_margin_p90": 11.52652088559109
+          },
+          "9-18 m": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.9637042523922542,
+              1.0
+            ],
+            "context_in_band_05_20": 0.47058823529411764,
+            "context_in_band_10_15": 0.21568627450980393,
+            "context_ratio_p10": 0.12705112243659775,
+            "context_ratio_p50": 0.2060255398889536,
+            "context_ratio_p90": 0.3638611070754971,
+            "margin_norm_p50": 0.396756774181765,
+            "n": 102,
+            "predicted_side_p50": 1537.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 4.537970648726068,
+            "road_margin_p50": 7.531850420368487,
+            "road_margin_p90": 11.789551149979044
+          },
+          "<5 m": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.6456611570247934,
+              1.0
+            ],
+            "context_in_band_05_20": 0.0,
+            "context_in_band_10_15": 0.0,
+            "context_ratio_p10": 0.21059452724007174,
+            "context_ratio_p50": 0.24618168744007662,
+            "context_ratio_p90": 0.4419679999999999,
+            "margin_norm_p50": 0.3488015927601812,
+            "n": 7,
+            "predicted_side_p50": 5011.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 1.517290388065083,
+            "road_margin_p50": 2.99469083064437,
+            "road_margin_p90": 6.697424338223602
+          },
+          ">36 m / horizon": {
             "containment": 1.0,
             "containment_ci": [
               0.8241154494176252,
               1.0
             ],
-            "context_in_band_05_20": 0.7777777777777778,
-            "context_in_band_10_15": 0.1111111111111111,
-            "context_ratio_p10": 0.11267087450104098,
-            "context_ratio_p50": 0.18322159890796808,
-            "context_ratio_p90": 0.24872632636311057,
-            "margin_norm_p50": 0.4083165479109349,
+            "context_in_band_05_20": 0.05555555555555555,
+            "context_in_band_10_15": 0.0,
+            "context_ratio_p10": 0.23829199349828517,
+            "context_ratio_p50": 0.308838095238095,
+            "context_ratio_p90": 0.4200698775510212,
+            "margin_norm_p50": 0.34532380952381053,
             "n": 18,
-            "predicted_side_p50": 2627.5,
-            "road_edge_cut": 0.0,
-            "road_margin_p10": 4.234631908414929,
-            "road_margin_p50": 6.155090355545069,
-            "road_margin_p90": 12.459595020089656
-          },
-          "9-18 m": {
-            "containment": 1.0,
-            "containment_ci": [
-              0.9213457380593594,
-              1.0
-            ],
-            "context_in_band_05_20": 0.4888888888888889,
-            "context_in_band_10_15": 0.17777777777777778,
-            "context_ratio_p10": 0.12854285712176614,
-            "context_ratio_p50": 0.20294620689655177,
-            "context_ratio_p90": 0.3416586234405287,
-            "margin_norm_p50": 0.39819310344827596,
-            "n": 45,
-            "predicted_side_p50": 1476.0,
-            "road_edge_cut": 0.0,
-            "road_margin_p10": 4.584968733326537,
-            "road_margin_p50": 7.522860856787592,
-            "road_margin_p90": 13.827772550607643
-          },
-          "<5 m": {
-            "containment": 1.0,
-            "containment_ci": [
-              0.43849391955098227,
-              1.0
-            ],
-            "context_in_band_05_20": 0.0,
-            "context_in_band_10_15": 0.0,
-            "context_ratio_p10": 0.20672672590567334,
-            "context_ratio_p50": 0.22907362952836638,
-            "context_ratio_p90": 0.42747872590567326,
-            "margin_norm_p50": 0.23363000000000003,
-            "n": 3,
-            "predicted_side_p50": 5500.0,
-            "road_edge_cut": 0.0,
-            "road_margin_p10": 1.4710171397665306,
-            "road_margin_p50": 1.5635636363636356,
-            "road_margin_p90": 2.708465391788223
-          },
-          ">36 m / horizon": {
-            "containment": 1.0,
-            "containment_ci": [
-              0.7846829880728186,
-              1.0
-            ],
-            "context_in_band_05_20": 0.07142857142857142,
-            "context_in_band_10_15": 0.0,
-            "context_ratio_p10": 0.22010904677623433,
-            "context_ratio_p50": 0.3061142857142858,
-            "context_ratio_p90": 0.45492767346938867,
-            "margin_norm_p50": 0.346352380952381,
-            "n": 14,
             "predicted_side_p50": 525.0,
             "road_edge_cut": 0.0,
-            "road_margin_p10": 2.1248058785652066,
-            "road_margin_p50": 7.39043098802129,
-            "road_margin_p90": 9.993443450878853
+            "road_margin_p10": 2.3769980303776324,
+            "road_margin_p50": 6.9988540932581165,
+            "road_margin_p90": 9.89509301321461
           }
         }
       },
       "v1-norm": {
-        "containment": 0.6090909090909091,
+        "containment": 0.5813008130081301,
         "containment_ci": [
-          0.5156976365529584,
-          0.6951216070275956
+          0.5188627740495275,
+          0.6412386662230292
         ],
         "context_in_band_05_20": 0.0,
         "context_in_band_10_15": 0.0,
-        "context_ratio_p10": 0.5960364109014683,
-        "context_ratio_p50": 0.9074166708385497,
-        "context_ratio_p90": 1.595493923469388,
-        "margin_norm_p50": 0.04252435544430281,
-        "n": 110,
-        "predicted_side_p50": 268.0,
+        "context_ratio_p10": 0.540332622625331,
+        "context_ratio_p50": 0.916706639217708,
+        "context_ratio_p90": 1.6921541449379618,
+        "margin_norm_p50": 0.04026232629953514,
+        "n": 246,
+        "predicted_side_p50": 286.0,
         "road_edge_cut": 0.0,
-        "road_margin_p10": 0.4771359306360332,
-        "road_margin_p50": 1.1843709353378402,
-        "road_margin_p90": 2.9650786952879775,
+        "road_margin_p10": 0.47038776268719146,
+        "road_margin_p50": 1.2277057161248357,
+        "road_margin_p90": 2.9083958095743645,
         "strata": {
           "18-36 m": {
-            "containment": 0.7666666666666667,
+            "containment": 0.7763157894736842,
             "containment_ci": [
-              0.5907132766967574,
-              0.8820776078949878
+              0.6706522065000313,
+              0.8553893557933094
             ],
             "context_in_band_05_20": 0.0,
             "context_in_band_10_15": 0.0,
-            "context_ratio_p10": 0.4714472764705024,
-            "context_ratio_p50": 0.864762289273058,
-            "context_ratio_p90": 1.4161057705567663,
-            "margin_norm_p50": 0.06600103081713643,
-            "n": 30,
-            "predicted_side_p50": 252.5,
+            "context_ratio_p10": 0.45735040160642565,
+            "context_ratio_p50": 0.7960570342205348,
+            "context_ratio_p90": 1.534754283570894,
+            "margin_norm_p50": 0.10145620064346182,
+            "n": 76,
+            "predicted_side_p50": 258.0,
             "road_edge_cut": 0.0,
-            "road_margin_p10": 0.7986054475132215,
-            "road_margin_p50": 1.9085428635196755,
-            "road_margin_p90": 2.9166292856248632
+            "road_margin_p10": 0.8463671756389763,
+            "road_margin_p50": 2.0536407572548274,
+            "road_margin_p90": 3.9509375863411194
           },
           "5-9 m": {
-            "containment": 0.4444444444444444,
+            "containment": 0.3953488372093023,
             "containment_ci": [
-              0.24559231101389126,
-              0.6628393057174837
+              0.263651061984564,
+              0.5442120340668091
             ],
             "context_in_band_05_20": 0.0,
             "context_in_band_10_15": 0.0,
-            "context_ratio_p10": 0.6414306893375357,
-            "context_ratio_p50": 1.0033067649136331,
-            "context_ratio_p90": 1.3640965887142305,
-            "margin_norm_p50": -0.0019815746805383664,
-            "n": 18,
-            "predicted_side_p50": 462.5,
+            "context_ratio_p10": 0.5384578013002482,
+            "context_ratio_p50": 1.0523917995444192,
+            "context_ratio_p90": 1.5509474868177933,
+            "margin_norm_p50": -0.026947608200455414,
+            "n": 43,
+            "predicted_side_p50": 488.0,
             "road_edge_cut": 0.0,
-            "road_margin_p10": 0.37676484278956157,
-            "road_margin_p50": 0.6781484690799899,
-            "road_margin_p90": 1.7907394577736582
+            "road_margin_p10": 0.37595911070396976,
+            "road_margin_p50": 0.6581572933504206,
+            "road_margin_p90": 1.7358163074006425
           },
           "9-18 m": {
-            "containment": 0.4888888888888889,
+            "containment": 0.46078431372549017,
             "containment_ci": [
-              0.3495678935302451,
-              0.6299577567351026
+              0.3672332339199432,
+              0.5571821188336056
             ],
             "context_in_band_05_20": 0.0,
             "context_in_band_10_15": 0.0,
-            "context_ratio_p10": 0.6799578248847927,
-            "context_ratio_p50": 1.022941176470588,
-            "context_ratio_p90": 1.8627764274863727,
-            "margin_norm_p50": -0.011791443850266991,
-            "n": 45,
-            "predicted_side_p50": 305.0,
+            "context_ratio_p10": 0.6636343285302597,
+            "context_ratio_p50": 1.05090476506357,
+            "context_ratio_p90": 1.961945888738123,
+            "margin_norm_p50": -0.02716470777426032,
+            "n": 102,
+            "predicted_side_p50": 315.0,
             "road_edge_cut": 0.0,
-            "road_margin_p10": 0.5640263459676826,
-            "road_margin_p50": 1.0643080420574054,
-            "road_margin_p90": 2.3274235152104863
+            "road_margin_p10": 0.5570968657395321,
+            "road_margin_p50": 1.0567223298148938,
+            "road_margin_p90": 2.0844073947732698
           },
           "<5 m": {
-            "containment": 0.6666666666666666,
+            "containment": 0.5714285714285714,
             "containment_ci": [
-              0.2076549551264879,
-              0.9385096847238394
+              0.2504542304090258,
+              0.8417830777373732
             ],
             "context_in_band_05_20": 0.0,
             "context_in_band_10_15": 0.0,
-            "context_ratio_p10": 0.9126031959730841,
+            "context_ratio_p10": 0.849622483579689,
             "context_ratio_p50": 0.9915228402366865,
-            "context_ratio_p90": 1.8914046518018497,
+            "context_ratio_p90": 1.9613587585842776,
             "margin_norm_p50": 0.00407668639053226,
-            "n": 3,
+            "n": 7,
             "predicted_side_p50": 1239.0,
             "road_edge_cut": 0.0,
-            "road_margin_p10": 0.21995693710428665,
-            "road_margin_p50": 0.30668512271438314,
-            "road_margin_p90": 0.31692278211863384
+            "road_margin_p10": 0.2633210299093349,
+            "road_margin_p50": 0.33578656378192506,
+            "road_margin_p90": 1.6355412271518486
           },
           ">36 m / horizon": {
-            "containment": 0.8571428571428571,
+            "containment": 0.8888888888888888,
             "containment_ci": [
-              0.600580922361363,
-              0.9599069262620787
+              0.6719975513339578,
+              0.9689811315464172
             ],
             "context_in_band_05_20": 0.0,
             "context_in_band_10_15": 0.0,
-            "context_ratio_p10": 0.5743842335216619,
-            "context_ratio_p50": 0.6987391304347828,
-            "context_ratio_p90": 1.0989476894194494,
-            "margin_norm_p50": 0.14980434782608665,
-            "n": 14,
-            "predicted_side_p50": 225.0,
+            "context_ratio_p10": 0.5908135819209063,
+            "context_ratio_p50": 0.7550076966171064,
+            "context_ratio_p90": 1.012113826752375,
+            "margin_norm_p50": 0.12181447963801176,
+            "n": 18,
+            "predicted_side_p50": 223.5,
             "road_edge_cut": 0.0,
-            "road_margin_p10": 0.5906186853923518,
-            "road_margin_p50": 2.9233853161563736,
-            "road_margin_p90": 4.005918304051952
+            "road_margin_p10": 0.6954056623349224,
+            "road_margin_p50": 2.726834612629191,
+            "road_margin_p90": 3.9655344187554227
           }
         }
       },
       "v1-raw": {
-        "containment": 0.7636363636363637,
+        "containment": 0.6910569105691057,
         "containment_ci": [
-          0.6761905470088633,
-          0.8332892916441424
+          0.6307485169128157,
+          0.7454898677276924
         ],
-        "context_in_band_05_20": 0.03636363636363636,
-        "context_in_band_10_15": 0.01818181818181818,
-        "context_ratio_p10": 0.3723529048898931,
-        "context_ratio_p50": 0.729021039819161,
-        "context_ratio_p90": 1.3210973662448315,
-        "margin_norm_p50": 0.13467819509650492,
-        "n": 110,
-        "predicted_side_p50": 307.0,
-        "road_edge_cut": 0.0,
-        "road_margin_p10": 0.596160603558097,
-        "road_margin_p50": 2.14624124107218,
-        "road_margin_p90": 4.1543998272995815,
+        "context_in_band_05_20": 0.016260162601626018,
+        "context_in_band_10_15": 0.008130081300813009,
+        "context_ratio_p10": 0.4370363958292342,
+        "context_ratio_p50": 0.7792144489840609,
+        "context_ratio_p90": 1.4951986840325513,
+        "margin_norm_p50": 0.10964738735219336,
+        "n": 246,
+        "predicted_side_p50": 323.0,
+        "road_edge_cut": 0.0040650406504065045,
+        "road_margin_p10": 0.5656193827017928,
+        "road_margin_p50": 1.8118893448383209,
+        "road_margin_p90": 4.008394101442307,
         "strata": {
           "18-36 m": {
-            "containment": 0.9666666666666667,
+            "containment": 0.9210526315789473,
             "containment_ci": [
-              0.8332924860304112,
-              0.9940915620051425
+              0.8382706480636879,
+              0.9633164944785457
             ],
-            "context_in_band_05_20": 0.03333333333333333,
+            "context_in_band_05_20": 0.013157894736842105,
             "context_in_band_10_15": 0.0,
-            "context_ratio_p10": 0.41115378277884324,
-            "context_ratio_p50": 0.5620337104594788,
-            "context_ratio_p90": 0.829762586229509,
-            "margin_norm_p50": 0.21814350034633884,
-            "n": 30,
-            "predicted_side_p50": 294.5,
+            "context_ratio_p10": 0.37838621073520223,
+            "context_ratio_p50": 0.6232395154280747,
+            "context_ratio_p90": 0.9345617895122849,
+            "margin_norm_p50": 0.18752566818774458,
+            "n": 76,
+            "predicted_side_p50": 298.5,
             "road_edge_cut": 0.0,
-            "road_margin_p10": 1.7926636754529093,
-            "road_margin_p50": 2.7435667671676467,
-            "road_margin_p90": 3.8703771022642255
+            "road_margin_p10": 1.632032953829631,
+            "road_margin_p50": 2.6110698946110786,
+            "road_margin_p90": 5.013162847845926
           },
           "5-9 m": {
-            "containment": 0.5,
+            "containment": 0.3953488372093023,
             "containment_ci": [
-              0.2903070395897999,
-              0.7096929604102
+              0.263651061984564,
+              0.5442120340668091
             ],
             "context_in_band_05_20": 0.0,
             "context_in_band_10_15": 0.0,
-            "context_ratio_p10": 0.5224865479837224,
-            "context_ratio_p50": 1.0147647849462373,
-            "context_ratio_p90": 1.4275562724156379,
-            "margin_norm_p50": -0.007819436443932414,
-            "n": 18,
-            "predicted_side_p50": 464.0,
-            "road_edge_cut": 0.0,
-            "road_margin_p10": 0.3721449824350471,
-            "road_margin_p50": 0.7500863931726444,
-            "road_margin_p90": 1.897227062381611
+            "context_ratio_p10": 0.5337487803832328,
+            "context_ratio_p50": 1.057919463087249,
+            "context_ratio_p90": 1.5886975069861478,
+            "margin_norm_p50": -0.02949664429530291,
+            "n": 43,
+            "predicted_side_p50": 482.0,
+            "road_edge_cut": 0.023255813953488372,
+            "road_margin_p10": 0.38191768701685186,
+            "road_margin_p50": 0.6971740705646225,
+            "road_margin_p90": 1.6996373412613373
           },
           "9-18 m": {
-            "containment": 0.6888888888888889,
+            "containment": 0.6176470588235294,
             "containment_ci": [
-              0.5433492001245104,
-              0.8047147453645809
+              0.5206957577551434,
+              0.7060581839842106
             ],
-            "context_in_band_05_20": 0.022222222222222223,
-            "context_in_band_10_15": 0.022222222222222223,
-            "context_ratio_p10": 0.4655214606271776,
-            "context_ratio_p50": 0.7933678756476702,
-            "context_ratio_p90": 1.4586921182266008,
-            "margin_norm_p50": 0.10282383419689016,
-            "n": 45,
-            "predicted_side_p50": 341.0,
+            "context_in_band_05_20": 0.00980392156862745,
+            "context_in_band_10_15": 0.00980392156862745,
+            "context_ratio_p10": 0.4951695780821917,
+            "context_ratio_p50": 0.8784483707974351,
+            "context_ratio_p90": 1.6911564039408882,
+            "margin_norm_p50": 0.0597711261903207,
+            "n": 102,
+            "predicted_side_p50": 347.0,
             "road_edge_cut": 0.0,
-            "road_margin_p10": 0.7128538819734032,
-            "road_margin_p50": 1.5608343797962956,
-            "road_margin_p90": 3.5119713827838797
+            "road_margin_p10": 0.6881595546610118,
+            "road_margin_p50": 1.3899656961642872,
+            "road_margin_p90": 2.7348212078649383
           },
           "<5 m": {
-            "containment": 0.3333333333333333,
+            "containment": 0.2857142857142857,
             "containment_ci": [
-              0.0614903152761605,
-              0.7923450448735121
+              0.0822171657090155,
+              0.6410709098517873
             ],
             "context_in_band_05_20": 0.0,
             "context_in_band_10_15": 0.0,
-            "context_ratio_p10": 0.7906901397205591,
-            "context_ratio_p50": 1.0033973652694612,
-            "context_ratio_p90": 1.763975217053892,
-            "margin_norm_p50": -0.0018625149700601687,
-            "n": 3,
-            "predicted_side_p50": 1500.0,
+            "context_ratio_p10": 0.8273515863945574,
+            "context_ratio_p50": 1.301736375158428,
+            "context_ratio_p90": 1.7024798719999996,
+            "margin_norm_p50": -0.15114702154626009,
+            "n": 7,
+            "predicted_side_p50": 1225.0,
             "road_edge_cut": 0.0,
-            "road_margin_p10": 0.30666041856307025,
-            "road_margin_p50": 0.34475706494794284,
-            "road_margin_p90": 0.37946141298958813
+            "road_margin_p10": 0.27059786010839004,
+            "road_margin_p50": 0.38813749999999947,
+            "road_margin_p90": 1.203979801724894
           },
           ">36 m / horizon": {
             "containment": 1.0,
             "containment_ci": [
-              0.7846829880728186,
+              0.8241154494176252,
               1.0
             ],
-            "context_in_band_05_20": 0.14285714285714285,
-            "context_in_band_10_15": 0.07142857142857142,
-            "context_ratio_p10": 0.2051203551699951,
-            "context_ratio_p50": 0.5318101139526327,
-            "context_ratio_p90": 0.7132554669946684,
-            "margin_norm_p50": 0.23279131439374043,
-            "n": 14,
-            "predicted_side_p50": 263.0,
+            "context_in_band_05_20": 0.1111111111111111,
+            "context_in_band_10_15": 0.05555555555555555,
+            "context_ratio_p10": 0.2140128702417341,
+            "context_ratio_p50": 0.5545387687646328,
+            "context_ratio_p90": 0.7361133929205941,
+            "margin_norm_p50": 0.222109557912134,
+            "n": 18,
+            "predicted_side_p50": 262.5,
             "road_edge_cut": 0.0,
-            "road_margin_p10": 2.3310032841387107,
-            "road_margin_p50": 3.833789224722413,
-            "road_margin_p90": 8.823736600321512
+            "road_margin_p10": 2.179913745096188,
+            "road_margin_p50": 3.6023304660572526,
+            "road_margin_p90": 8.08557099473241
           }
         }
       }
