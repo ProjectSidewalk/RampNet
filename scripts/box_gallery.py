@@ -48,22 +48,23 @@ from gt_gallery import _find_pano_image, load_bundle  # noqa: E402
 
 Image.MAX_IMAGE_PIXELS = None  # our own vetted native panos exceed PIL's bomb guard
 
-# The box convention. Version bumps on ANY wording change that could alter what an
-# annotator draws; the scorer stratifies by it, and every export embeds it.
+# The box convention, one short rule per line (the viewer renders them as bullets; the
+# export joins them into box_rule.text). Version bumps on ANY wording change that could
+# alter what an annotator draws; the scorer stratifies by it, and every export embeds it.
 BOX_RULE_VERSION = 1
-BOX_RULE = (
-    "Draw ONE tight axis-aligned box per ramp covering the ENTIRE constructed ramp "
-    "surface: from the bottom edge where the ramp meets the gutter or street, to the "
-    "top edge where the slope levels into the sidewalk, INCLUDING the detectable-"
-    "warning pad and any side flares. EXCLUDE road/gutter pavement, level sidewalk, "
-    "and neighboring ramps: a shared corner apron that point review counted as two "
-    "ramps gets two boxes, one per direction of travel, overlapping where the surfaces "
-    "genuinely overlap. Box what the built ramp IS, not what happens to be visible: if "
-    "a car or pedestrian partially occludes it, box the inferred full extent; if the "
-    "extent truly cannot be inferred, use 'Can't determine extent' instead of "
-    "guessing. Tightness beats symmetry: every edge should touch the ramp's actual "
-    "boundary at native zoom."
-)
+BOX_RULE_LINES = [
+    "One box per ramp: the whole constructed ramp surface — sloped apron + "
+    "detectable-warning pad + side flares.",
+    "Bottom edge: where the ramp meets the gutter or street. Top edge: where the "
+    "slope levels into the sidewalk.",
+    "Exclude road/gutter pavement, level sidewalk, and neighboring ramps.",
+    "A corner apron that point review counted as two ramps gets two boxes, one per "
+    "direction of travel — overlap is fine.",
+    "Occluded is not absent: box the inferred full extent behind cars/pedestrians; "
+    "truly undeterminable -> \"Can't determine extent\".",
+    "Tight beats symmetric: every edge should touch the ramp's boundary at native zoom.",
+]
+BOX_RULE = "\n".join(BOX_RULE_LINES)
 
 # Crop field of view in degrees of pano longitude; side = width * fov/360, capped at the
 # pano height. 90° comfortably contains the widest near-field apron (~62° at 2.5 m for a
@@ -269,12 +270,25 @@ HTML_TEMPLATE = r"""<!doctype html>
   .bar button,.bar select{font-size:15px;padding:6px 13px;cursor:pointer}
   .meta{color:#666;font-size:13px}
   .badge{font-size:12px;padding:2px 8px;border-radius:10px;background:#eee;color:#555}
-  #rule{background:#fff6e6;border:1px solid #e0a33a;border-radius:8px;padding:10px 14px;
-        margin:0 0 12px;font-size:14px;line-height:1.5}
-  #rule b{color:#a35a00}
+  #rule{background:#fff6e6;border:1px solid #e0a33a;border-radius:8px;padding:7px 14px;
+        margin:0 0 10px;font-size:13px;line-height:1.45}
+  #rule summary{cursor:pointer;font-weight:bold;color:#a35a00;font-size:14px}
+  #rule ul{margin:6px 0 2px;padding-left:22px}
+  #rule li{margin:3px 0}
   #rulebar{position:sticky;top:0;z-index:5;background:#fff;border:1px solid #e2e2e2;
-           border-radius:8px;padding:6px 12px;margin:0 0 12px;font-size:13px;color:#555}
+           border-radius:8px;padding:6px 12px;margin:0 0 10px;font-size:13px;color:#555}
   #rulebar b{color:#a35a00}
+  #viewhint{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin:6px 0 0;
+            font-size:12.5px;color:#555}
+  #viewhint .k{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+  #viewhint .swx{position:relative;width:14px;height:14px;display:inline-block}
+  #viewhint .swx:before{content:'';position:absolute;left:50%;top:0;width:2px;height:100%;
+            background:var(--target);transform:translateX(-50%)}
+  #viewhint .swx:after{content:'';position:absolute;top:50%;left:0;height:2px;width:100%;
+            background:var(--target);transform:translateY(-50%)}
+  #viewhint .swd{width:9px;height:9px;border-radius:50%;background:var(--sib);
+            display:inline-block;box-shadow:0 0 2px #000}
+  #viewhint .swb{width:16px;height:11px;border:2px dashed var(--sib);display:inline-block}
   #status{font-weight:bold;padding:3px 10px;border-radius:12px}
   #status.boxed{background:var(--boxed);color:#fff}
   #status.cant{background:var(--cant);color:#fff}
@@ -327,19 +341,17 @@ HTML_TEMPLATE = r"""<!doctype html>
              border:1px solid #b8c6de;border-radius:5px;background:#fff;color:#222}
   #annotator textarea{width:100%;box-sizing:border-box;display:block;margin-top:3px;
              resize:vertical}
-  #help{font-size:13px;color:#666;margin-top:16px;line-height:1.5}
+  .help{font-size:13px;color:#666;margin-top:16px;line-height:1.5}
   kbd{background:#eee;border:1px solid #ccc;border-radius:3px;padding:0 4px;font-size:12px}
 </style>
 
-<div id="rule">
-  <b>Box rule v__RULE_V__ — read once, apply everywhere:</b> <span id="ruletext"></span>
-  <br><span class="meta">This exact text ships inside your exported boxes.json, so the
-  gold documents its own convention. The cyan crosshair is the adjudicated point you are
-  boxing; grey dots are this pano's other ramps (each gets its own turn).</span>
-</div>
-
 <div id="rulebar"><b>Rule v__RULE_V__:</b> whole constructed ramp — apron + warning pad +
   flares; not road, gutter, or level sidewalk; occluded ≠ absent; tight at native zoom.</div>
+
+<details id="rule">
+  <summary>Box rule v__RULE_V__, in full — ships inside every export</summary>
+  <ul id="rulelist"></ul>
+</details>
 
 <details id="annotator">
   <summary>Annotator — exports as <code>annotator</code> in boxes.json</summary>
@@ -373,6 +385,14 @@ HTML_TEMPLATE = r"""<!doctype html>
   <div id="croplayer"><img id="cropimg" alt=""><div id="overlay"></div></div>
   <div id="zoompill"></div>
 </div>
+<div id="viewhint">
+  <span class="k"><span class="swx"></span> this ramp — draw ONE box around it</span>
+  <span class="k"><span class="swd"></span> another ramp here (gets its own turn)</span>
+  <span class="k"><span class="swb"></span> its box</span>
+  <span class="k"><b>drag</b>&nbsp;draw &middot; <b>handles</b>&nbsp;adjust &middot;
+    <kbd>Space</kbd>/<kbd>Shift</kbd>+drag or middle/right-drag&nbsp;pan &middot;
+    scroll&nbsp;zoom</span>
+</div>
 
 <div id="itembar">
   <span id="status"></span>
@@ -384,15 +404,24 @@ HTML_TEMPLATE = r"""<!doctype html>
     <input type="text" id="itemnote" placeholder="optional — e.g. flare buried under snow"></span>
 </div>
 
-<p id="help">
-  <b>Draw</b> by dragging on the image; adjust edges with the handles; drag inside the box
-  to move it. <b>Pan</b> with <kbd>Space</kbd>+drag, middle- or right-drag; scroll to zoom
-  (the pill shows how close to native pixels you are — box edges are only trustworthy near
-  native 1:1). &nbsp;&middot;&nbsp; <kbd>&#8592;</kbd>/<kbd>&#8594;</kbd> ramp &nbsp;&middot;&nbsp;
+<p class="help">
+  <kbd>&#8592;</kbd>/<kbd>&#8594;</kbd> ramp &nbsp;&middot;&nbsp;
   <kbd>n</kbd> next unboxed &nbsp;&middot;&nbsp; <kbd>c</kbd> can't determine &nbsp;&middot;&nbsp;
   <kbd>x</kbd> clear &nbsp;&middot;&nbsp; <kbd>r</kbd> reset zoom &nbsp;&middot;&nbsp;
-  Annotations autosave locally and survive a re-render at a different --fov; Export downloads
-  <span id="bname"></span> &mdash; save it over <code id="savehint"></code>.
+  the zoom pill shows how close you are to native pixels — box edges are only trustworthy
+  near native 1:1. Annotations autosave locally and survive a re-render at a different
+  --fov; Export downloads <span id="bname"></span> &mdash; save it over
+  <code id="savehint"></code>.
+</p>
+<p class="help">
+  <b>Why one ramp-centered crop instead of the full pano:</b> each judgment stays scoped to
+  the prompted point (the crosshair), the view is native-resolution without decoding a 75 MP
+  equirect per pano, and the crop stitches across the 360&deg; seam so an edge-split ramp is
+  drawable as one box. The grey dots/boxes supply the neighbor context that actually matters
+  &mdash; not double-boxing a shared apron.
+  <b>Why no predicted crop window is shown:</b> the window's size is the quantity this gold
+  will judge, so showing it would anchor your drawing on the very thing under test; the
+  algorithm-vs-gold comparison lives in the scorer's overlay gallery instead.
 </p>
 
 <script>
@@ -408,7 +437,17 @@ const STORE = 'boxes:' + RUN_KEY;
 const ASTORE = 'boxannotator:' + RUN_KEY;
 const MIN_PX = 6;                  // smallest drawable box side, native px
 
-document.getElementById('ruletext').textContent = BOX_RULE.text;
+// One bullet per rule line; the export carries the same lines joined by \n. The block
+// starts open, and staying collapsed is remembered per bundle once the rule is absorbed.
+BOX_RULE.text.split('\n').forEach(t => {
+  const li = document.createElement('li');
+  li.textContent = t;
+  document.getElementById('rulelist').appendChild(li);
+});
+const ruleEl = document.getElementById('rule');
+const RSTORE = 'boxrulecollapsed:' + RUN_KEY;
+ruleEl.open = localStorage.getItem(RSTORE) !== '1';
+ruleEl.addEventListener('toggle', () => localStorage.setItem(RSTORE, ruleEl.open ? '' : '1'));
 document.getElementById('savehint').textContent = SAVE_HINT;
 document.getElementById('bname').textContent = RUN_NAME + '_boxes.json';
 
@@ -551,9 +590,11 @@ function typing(ev) {
 }
 document.addEventListener('keydown', ev => {
   if (ev.code === 'Space' && !typing(ev)) { spaceHeld = true; view.classList.add('panmode'); ev.preventDefault(); }
+  if (ev.key === 'Shift') view.classList.add('panmode');
 });
 document.addEventListener('keyup', ev => {
   if (ev.code === 'Space') { spaceHeld = false; view.classList.remove('panmode'); }
+  if (ev.key === 'Shift') view.classList.remove('panmode');
 });
 
 function cropPt(ev) {
@@ -568,7 +609,7 @@ function normRect(a, b) {
 }
 view.addEventListener('pointerdown', ev => {
   const e = curE(); if (!e) return;
-  if (spaceHeld || ev.button === 1 || ev.button === 2) {
+  if (spaceHeld || ev.shiftKey || ev.button === 1 || ev.button === 2) {
     drag = {kind: 'pan', x: ev.clientX, y: ev.clientY, panX, panY};
     view.setPointerCapture(ev.pointerId); ev.preventDefault(); return;
   }
