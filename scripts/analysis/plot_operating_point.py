@@ -47,19 +47,36 @@ from low_floor_sweep import (  # noqa: E402
 
 RECOMMENDED = 0.30
 
-# Validated categorical slots, fixed order (never cycled).
+# Validated categorical slots, fixed order (never cycled). All 8 slots were taken at
+# paterson; gainesville (the 9th split) forces the documented fold — see
+# docs/adding_a_benchmark_city.md: the two held-out reference splits drop to neutral
+# ink (identity carried by dash pattern + legend, matching their held-out status),
+# vacating slots 6/7; gainesville takes slot 6. The remaining 7-hue set re-validates
+# in this order (validate_palette.js: ALL PASS; the new green↔red adjacency is ΔE 7.2
+# protan — inside the 6–8 band that is legal only with secondary encoding, provided
+# here by the legend, the operating-point dots, and the CSV table view, the same
+# relief that already covers the three sub-3:1-contrast slots). sao_paulo (the 10th
+# split, held out like budapest/manual_gold) joins the neutral-ink group with its
+# own dash — no categorical slot consumed.
 SERIES = {
     "richmond": "#2a78d6",
     "bend": "#eb6834",
     "clovis": "#1baf7a",
     "morgantown": "#eda100",
     "annapolis": "#e87ba4",
-    "budapest_district5": "#008300",
-    "manual_gold": "#4a3aa7",
+    "gainesville": "#008300",
+    "paterson": "#e34948",
+    "budapest_district5": "#52514e",   # neutral ink — held out, not a categorical slot
+    "sao_paulo": "#52514e",            # neutral ink — held out, not a categorical slot
+    "manual_gold": "#52514e",          # neutral ink — held out, not a categorical slot
 }
 POOLED_COLOR = "#0b0b0b"
 INK, INK_MUTED, GRID = "#0b0b0b", "#52514e", "#d9d8d4"
-LABEL = {"budapest_district5": "budapest*", "manual_gold": "manual_gold†"}
+# The neutral-ink held-out splits share a hue, so each carries its own dash.
+HELD_DASH = {"budapest_district5": (0, (5, 2)), "manual_gold": (0, (1, 1.6)),
+             "sao_paulo": (0, (4, 1.4, 1, 1.4))}
+LABEL = {"budapest_district5": "budapest*", "manual_gold": "manual_gold†",
+         "sao_paulo": "sao_paulo‡"}
 
 
 def collect(cities=ALL_SPLITS, cache_dir=CACHE_DIR):
@@ -71,10 +88,14 @@ def collect(cities=ALL_SPLITS, cache_dir=CACHE_DIR):
     if len(poolable) > 1:
         out["POOLED"] = sweep_rows([pd for c in poolable for pd in loaded[c]],
                                    grid, radius_sq)
-    return out
+    # Counts for the legend/footer text, so adding a split can't strand a stale "5
+    # US"/"1,625 panos" in the figure.
+    meta = {"n_panos": sum(len(p) for p in loaded.values()),
+            "n_pooled": len(poolable)}
+    return out, meta
 
 
-def build(curves, path):
+def build(curves, path, meta):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -91,7 +112,7 @@ def build(curves, path):
         solid = city in US_SPLITS
         ax1.plot([r["recall"] for r in rows], [r["precision"] for r in rows],
                  color=SERIES[city], lw=2 if solid else 1.6,
-                 ls="-" if solid else (0, (5, 2)), zorder=3, solid_capstyle="round")
+                 ls="-" if solid else HELD_DASH[city], zorder=3, solid_capstyle="round")
     if "POOLED" in curves:
         rows = curves["POOLED"]
         ax1.plot([r["recall"] for r in rows], [r["precision"] for r in rows],
@@ -118,7 +139,8 @@ def build(curves, path):
                label=f"deployed {DEPLOYED_THRESHOLD:.2f}"),
         Line2D([], [], marker="o", ls="", ms=7.5, color=INK_MUTED, mec="white",
                label=f"recommended {RECOMMENDED:.2f}"),
-        Line2D([], [], color=POOLED_COLOR, lw=3, label="pooled (5 US splits)"),
+        Line2D([], [], color=POOLED_COLOR, lw=3,
+               label=f"pooled ({meta['n_pooled']} US splits)"),
         Line2D([], [], color=INK_MUTED, lw=1.6, ls=(0, (5, 2)),
                label="held out of the pooled recommendation"),
     ], fontsize=8.4, frameon=False, loc="lower left")
@@ -130,7 +152,7 @@ def build(curves, path):
         solid = city in US_SPLITS
         ax2.plot([r["threshold"] for r in rows], [r["f1"] for r in rows],
                  color=SERIES[city], lw=2 if solid else 1.6,
-                 ls="-" if solid else (0, (5, 2)), zorder=3)
+                 ls="-" if solid else HELD_DASH[city], zorder=3)
         best = best_f1_row(rows)
         ax2.plot([best["threshold"]], [best["f1"]], "o", ms=6, color=SERIES[city],
                  mec="white", mew=1.2, zorder=5)
@@ -173,25 +195,27 @@ def build(curves, path):
     # land without collisions. The palette's relief rule is satisfied by the table
     # view — analysis_out/op/low_floor_sweep.csv holds every plotted number.
     handles = [Line2D([], [], color=SERIES[c], lw=2.4,
-                      ls="-" if c in US_SPLITS else (0, (5, 2)),
+                      ls="-" if c in US_SPLITS else HELD_DASH[c],
                       label=LABEL.get(c, c)) for c in order]
     if "POOLED" in curves:
-        handles.append(Line2D([], [], color=POOLED_COLOR, lw=3, label="POOLED (5 US)"))
+        handles.append(Line2D([], [], color=POOLED_COLOR, lw=3,
+                              label=f"POOLED ({meta['n_pooled']} US)"))
     fig.legend(handles=handles, fontsize=8.8, frameon=False,
                loc="center left", bbox_to_anchor=(0.878, 0.55),
                title="split", title_fontsize=9)
 
-    fig.suptitle("Lowering the peak threshold 0.55 → 0.30 buys ~7 recall points at a "
-                 "shallow precision cost, on every split",
+    fig.suptitle("Lowering the peak threshold 0.55 → 0.30 buys ~7 pooled recall points "
+                 "at a shallow precision cost — every split gains",
                  fontsize=13.5, color=INK, x=0.008, ha="left", y=0.982)
     fig.text(0.008, 0.012,
-             "RampNet peaks extracted at a 0.05 floor over 1,625 benchmark panos "
+             f"RampNet peaks extracted at a 0.05 floor over {meta['n_panos']:,} benchmark panos "
              "(min_distance 10, no TTA); threshold swept post-hoc. Precision below 0.55 is a "
              "LOWER BOUND on the city splits — their GT was\nassembled from detections at or "
              "above the deployed floor, so a real ramp nobody marked scores as a false "
              "positive (see docs/operating_point.md; the #55 correction is applied "
              "separately).\n*budapest GT is single-rater, low confidence.   †manual_gold is "
-             "in-distribution GSV with independent, un-anchored GT.",
+             "in-distribution GSV with independent, un-anchored GT.   ‡sao_paulo is non-US "
+             "(held out of the pooled recommendation; GT is high confidence).",
              fontsize=7.6, color=INK_MUTED, ha="left", va="bottom")
 
     fig.subplots_adjust(left=0.050, right=0.872, top=0.885, bottom=0.165, wspace=0.185)
@@ -202,8 +226,9 @@ def build(curves, path):
 
 
 def main():
-    curves = collect()
-    path = build(curves, os.path.join(REPO, "docs", "figures", "operating_point_pr.png"))
+    curves, meta = collect()
+    path = build(curves, os.path.join(REPO, "docs", "figures", "operating_point_pr.png"),
+                 meta)
     print(f"wrote {path}")
     for city, rows in curves.items():
         dep, rec, best = (row_at(rows, DEPLOYED_THRESHOLD), row_at(rows, RECOMMENDED),

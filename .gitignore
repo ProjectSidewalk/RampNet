@@ -36,6 +36,27 @@ analysis_out/op/*
 !analysis_out/op/*.csv
 !analysis_out/op/*.json
 
+# E1's result (#59): a few KB, and committing it makes the label-ceiling numbers
+# checkable without re-running the Hub fetch the script needs to regenerate them.
+!analysis_out/e1_stage1_label_recall.json
+!analysis_out/miss_decomposition.json
+# The miss taxonomy (#46) that tightens the decomposition's near-field bound. Same
+# size class, and it carries the per-bucket counts docs/curb_ramp_data_sourcing.md
+# quotes -- so the 3.8x correction is checkable without re-running anything.
+!analysis_out/miss_taxonomy.json
+# The FP-side taxonomy (#46). Larger than its siblings but still text, and it is the
+# only committed record of what the challengers' 60,000-strong FP floods are made of
+# -- .model_cache itself is gitignored, so without this the table is unreproducible
+# for anyone who doesn't have the cache.
+!analysis_out/fp_taxonomy.json
+# Which silent misses another model witnessed (#46). Small, and it carries the
+# unwitnessed list that is the gallery's actual work queue.
+!analysis_out/silent_witness.json
+
+# Generated tagging pages live next to their (committed) galleries; regenerate with
+# scripts/analysis/make_tagger.py rather than tracking a build artifact.
+benchmark/**/tagger.html
+
 # Claude Code local state. settings.local.json is per-machine (absolute paths,
 # session ids) and worktrees/ holds full repo checkouts -- gigabytes. Listed
 # individually rather than ignoring all of .claude/, so a shared

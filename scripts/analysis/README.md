@@ -26,7 +26,7 @@ checkout.
 | script | GPU | what it answers |
 |---|---|---|
 | `miss_analysis.py` | no | Are misses localization near-misses or blind? Are they hard (a VLM also missed) or RampNet-specific? |
-| `complementarity.py [model]` | no | Oracle-union recall + the RampNet-miss ∩ VLM-hit set (issue #35 gate). Reads cached VLM detections from `.model_cache`. |
+| `complementarity.py [model] [split]` | no | Oracle-union recall + the RampNet-miss ∩ VLM-hit set (issue #35 gate). Reads cached VLM detections from `.model_cache`; split defaults to richmond. |
 | `precision_by_distance.py` | no | Is precision worse at distance — i.e. is culling far detections worth it? (No.) |
 | `threshold_sweep.py` | **yes** | Re-runs inference on all benchmark panos and sweeps `threshold_abs` × `min_distance`. |
 | `peak_nms_check.py` | no | Would suppressing peaks closer than the match radius help? (No — 6 of the 10 within-R pairs in the reviewed records are real ramp pairs; issue #62.) Reads all seven splits' committed records, no panos needed. |
@@ -47,11 +47,21 @@ checkout.
 | `low_floor_sweep.py distance` | no | Where the recall gain from a lower threshold lands on the distance axis (uniform — so it stacks with multi-view rather than overlapping it). |
 | `low_floor_sweep.py tagcheck` | no | Do the committed #55 tags still resolve against this cache? Tag ids are keyed to peak *coordinates*, so a re-extraction can silently orphan reviewer work. |
 | `low_floor_sweep.py tta` | no | Flip-TTA vs single-pass at the operating points (#78): both arms on identical grid/GT per split + pooled US, AP per arm, and the four-lever decomposition — drop alone, TTA alone, both, and the **marginal TTA-after-the-drop** row the 2×-GPU decision prices against. `manual_gold` needs no TTA cache (its committed detections *are* a TTA export); the city splits read `extract --tta`'s `op_cache_tta/`. |
+| `stage1_label_recall.py` | no | **E1 (#59)** — is the far-field cliff inherited from the Stage-1 *labels*, or is it the model? Stage-1 label recall vs model recall on the same 1,000 gold panos. Fetches two columns of the Hub test split over HTTP range requests on first run, then caches. |
+| `miss_decomposition.py` | no | Of the recall we're missing, how much can more data even reach? Splits misses into far-field (pixel-starved, 57.8%) and near-field (42.2%) with a multi-view ceiling (#59, #38, #48). Committed caches only. |
+| `miss_taxonomy.py` | no | **What actually caused each miss (#46).** Buckets every miss into merged / sub_threshold / localization / silent, so the near-field population above resolves into causes: only **0.023 of the 0.087 recall points is sourcing-addressable**. Includes a greedy-vs-optimal matcher check (a wash) and an azimuth-randomized null per bucket. Committed caches only. |
+| `fp_taxonomy.py` | no | **What the FP flood is made of (#46).** Buckets every model's false positives into duplicate / near_gt / hood / isolated, with an *exact* arc-geometry chance baseline for the near-GT share — which shows OWLv2's and Grounding DINO's near-ramp FPs are entirely density (excess −0.2% and −0.7%). Reads `.model_cache`; no GPU and no model load. |
+| `silent_witness.py` | no | Did any *other* model detect a ramp where RampNet was silent? Witnessed ⇒ the imagery contains a recognizable ramp, so the failure is RampNet-specific (confirmed vocabulary). Brackets the sourcing-addressable population at **0.009–0.022 recall pts**. Chance-corrected, because OWLv2 witnesses 121/128 by density alone. Reads `.model_cache`; no GPU. |
+| `miss_gallery.py` | no | Crops for the misses geometry cannot explain (#46 gallery half). **Checks the instrument before rendering**: `geom()` sizes ramps at the model's 4096-px input, but stored panos run 4096–16384 px wide, so it classifies each crop `parity` vs `advantaged` and renders a third "as the model saw it" panel so a reviewer compares pixel budgets instead of inferring. Needs `benchmark/<city>/panos` (`--panos-root` if run from a worktree). |
+| `fp_gallery.py` | no | The FP half of the gallery: worst-N `isolated` false positives per model, through the same instrument and manifest as `miss_gallery.py`. Ranked by the model's own confidence where it has one; the sample size and what was left out are always printed, never silent. Reads `.model_cache` + `panos/`. |
+| `make_tagger.py <gallery>` | no | Turns a rendered gallery into a keyboard-driven `tagger.html` beside it — one keystroke per crop, auto-advance, `localStorage` autosave, and an export keyed exactly like `benchmark/<city>/incremental_fp_tags.json`. Picks the verdict scheme from the manifest's own contents (miss vs FP). Local page by design: the crops are git-ignored files on disk. |
 | `plot_operating_point.py` | no | The headline figure: PR response per split + F1-vs-threshold → `docs/figures/operating_point_pr.png`. |
 | `plot_storage_floor.py` | no | Storage-floor cost + recall ceiling → `docs/figures/storage_floor_ceiling.png`. |
 
-`run_low_floor_extract.slurm` is the Hyak launcher for the one GPU step (one L40S, ~41 min for
-1,625 panos across all seven splits); it is resumable, skipping splits that already have a cache.
+`run_low_floor_extract.slurm` is the Hyak launcher for the one GPU step (one L40S, ~45 min for
+1,859 panos across all eight splits); it is resumable, skipping splits that already have a cache.
+Submitting from a non-interactive shell needs `PYTHON=<interpreter>` set explicitly — the
+`source activate sidewalkcv2` fallback only works from a conda-initialized login shell.
 
 The GPU scripts reproduce the deployment inference path exactly (resize 2048×4096 bilinear,
 ImageNet norm, no TTA — see `sidewalk-auto-labeler/detectors/curb_ramp.py`), so

@@ -45,7 +45,8 @@ C_KEPT = "#2a78d6"
 RAMP = ("#86b6ef", "#2a78d6", "#104281")
 INK, INK_MUTED, GRID = "#0b0b0b", "#52514e", "#d9d8d4"
 
-LABEL = {"budapest_district5": "budapest*", "manual_gold": "manual_gold†"}
+LABEL = {"budapest_district5": "budapest*", "manual_gold": "manual_gold†",
+         "sao_paulo": "sao_paulo‡"}
 
 
 def collect(cities, cache_dir=CACHE_DIR):
@@ -57,11 +58,12 @@ def collect(cities, cache_dir=CACHE_DIR):
     poolable = pool_of(cities)
     if len(poolable) > 1:
         pooled = [pd for c in poolable for pd in loaded[c]]
-        rows.append(("POOLED (5 US)", floor_report(pooled, radius_sq)))
-    return rows
+        rows.append((f"POOLED ({len(poolable)} US)", floor_report(pooled, radius_sq)))
+    # Pano count for the footer text, so adding a split can't strand a stale total.
+    return rows, sum(len(p) for p in loaded.values())
 
 
-def build(rows, path):
+def build(rows, path, n_panos):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -134,8 +136,8 @@ def build(rows, path):
                fontsize=8.5, frameon=False, loc="upper center",
                bbox_to_anchor=(0.5, -0.13), ncol=3)
 
-    pooled_y = y[[n for n, _ in rows].index("POOLED (5 US)")] if any(
-        n == "POOLED (5 US)" for n, _ in rows) else None
+    pooled_y = next((y[i] for i, (n, _) in enumerate(rows)
+                     if n.startswith("POOLED")), None)
     for ax in (ax1, ax2):
         ax.set_yticks(y)
         ax.set_yticklabels(names, fontsize=9.5, color=INK)
@@ -151,19 +153,24 @@ def build(rows, path):
         if pooled_y is not None:
             ax.axhline(pooled_y + 0.62, color=GRID, lw=1.0, zorder=1)
     for lab in ax1.get_yticklabels():
-        if lab.get_text() == "POOLED (5 US)":
+        if lab.get_text().startswith("POOLED"):
             lab.set_fontweight("bold")
 
-    fig.suptitle("A 0.1 detection storage floor discards ~2.7% of findable curb ramps, "
-                 "permanently",
+    pooled_rep = next((rep for name, rep in rows if name.startswith("POOLED")), None)
+    lost_pct = (100 * pooled_rep["bands"]["[0.05,0.10)"] / pooled_rep["n_gt"]
+                if pooled_rep else None)
+    lost_txt = f"~{lost_pct:.1f}%" if lost_pct is not None else "a share"
+    fig.suptitle(f"A 0.1 detection storage floor discards {lost_txt} of findable curb "
+                 "ramps, permanently",
                  fontsize=13.5, color=INK, x=0.008, ha="left", y=0.985)
     fig.text(0.008, 0.012,
-             "RampNet peaks extracted at a 0.05 floor over 1,625 benchmark panos "
+             f"RampNet peaks extracted at a 0.05 floor over {n_panos:,} benchmark panos "
              "(min_distance 10, no TTA). A candidate below the storage floor is never "
              "written, so no downstream\nmulti-view consensus can recover it — the 0.10 "
              "marker is a hard ceiling on labeler#27 stage 4.   "
              "*budapest GT is single-rater, low confidence.   †manual_gold is "
-             "in-distribution GSV with independent GT.",
+             "in-distribution GSV with independent GT.   ‡sao_paulo is non-US "
+             "(held out of the pooled rows; GT is high confidence).",
              fontsize=7.6, color=INK_MUTED, ha="left", va="bottom")
 
     fig.subplots_adjust(left=0.105, right=0.995, top=0.885, bottom=0.20, wspace=0.08)
@@ -174,8 +181,9 @@ def build(rows, path):
 
 
 def main():
-    rows = collect(ALL_SPLITS)
-    path = build(rows, os.path.join(REPO, "docs", "figures", "storage_floor_ceiling.png"))
+    rows, n_panos = collect(ALL_SPLITS)
+    path = build(rows, os.path.join(REPO, "docs", "figures", "storage_floor_ceiling.png"),
+                 n_panos)
     print(f"wrote {path}")
     for name, rep in rows:
         print(f"  {name:<16} lost@0.10 {rep['bands']['[0.05,0.10)']:>3}  "

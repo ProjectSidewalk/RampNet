@@ -1,0 +1,297 @@
+{
+  "threshold": 0.3,
+  "boundary_m": 18.0,
+  "null_trials": 200,
+  "null_seed": 20260730,
+  "peak_min_distance": 10,
+  "target_sigma": 10,
+  "per_city": {
+    "richmond": {
+      "n_gt": 310,
+      "n_miss": 53,
+      "recall": 0.8290322580645161,
+      "counts": {
+        "merged": 10,
+        "sub_threshold": 24,
+        "localization": 2,
+        "silent": 17
+      },
+      "shares": {
+        "merged": 0.18867924528301888,
+        "sub_threshold": 0.4528301886792453,
+        "localization": 0.03773584905660377,
+        "silent": 0.32075471698113206
+      },
+      "recall_pts": {
+        "merged": 0.03225806451612903,
+        "sub_threshold": 0.07741935483870968,
+        "localization": 0.0064516129032258064,
+        "silent": 0.054838709677419356
+      }
+    },
+    "bend": {
+      "n_gt": 327,
+      "n_miss": 58,
+      "recall": 0.8226299694189603,
+      "counts": {
+        "merged": 14,
+        "sub_threshold": 22,
+        "localization": 1,
+        "silent": 21
+      },
+      "shares": {
+        "merged": 0.2413793103448276,
+        "sub_threshold": 0.3793103448275862,
+        "localization": 0.017241379310344827,
+        "silent": 0.3620689655172414
+      },
+      "recall_pts": {
+        "merged": 0.04281345565749235,
+        "sub_threshold": 0.0672782874617737,
+        "localization": 0.0030581039755351682,
+        "silent": 0.06422018348623854
+      }
+    },
+    "clovis": {
+      "n_gt": 195,
+      "n_miss": 35,
+      "recall": 0.8205128205128205,
+      "counts": {
+        "merged": 1,
+        "sub_threshold": 23,
+        "localization": 0,
+        "silent": 11
+      },
+      "shares": {
+        "merged": 0.02857142857142857,
+        "sub_threshold": 0.6571428571428571,
+        "localization": 0.0,
+        "silent": 0.3142857142857143
+      },
+      "recall_pts": {
+        "merged": 0.005128205128205128,
+        "sub_threshold": 0.11794871794871795,
+        "localization": 0.0,
+        "silent": 0.05641025641025641
+      }
+    },
+    "morgantown": {
+      "n_gt": 267,
+      "n_miss": 52,
+      "recall": 0.8052434456928839,
+      "counts": {
+        "merged": 9,
+        "sub_threshold": 22,
+        "localization": 1,
+        "silent": 20
+      },
+      "shares": {
+        "merged": 0.17307692307692307,
+        "sub_threshold": 0.4230769230769231,
+        "localization": 0.019230769230769232,
+        "silent": 0.38461538461538464
+      },
+      "recall_pts": {
+        "merged": 0.033707865168539325,
+        "sub_threshold": 0.08239700374531835,
+        "localization": 0.003745318352059925,
+        "silent": 0.0749063670411985
+      }
+    },
+    "annapolis": {
+      "n_gt": 294,
+      "n_miss": 56,
+      "recall": 0.8095238095238095,
+      "counts": {
+        "merged": 5,
+        "sub_threshold": 27,
+        "localization": 3,
+        "silent": 21
+      },
+      "shares": {
+        "merged": 0.08928571428571429,
+        "sub_threshold": 0.48214285714285715,
+        "localization": 0.05357142857142857,
+        "silent": 0.375
+      },
+      "recall_pts": {
+        "merged": 0.017006802721088437,
+        "sub_threshold": 0.09183673469387756,
+        "localization": 0.01020408163265306,
+        "silent": 0.07142857142857142
+      }
+    },
+    "paterson": {
+      "n_gt": 395,
+      "n_miss": 111,
+      "recall": 0.7189873417721518,
+      "counts": {
+        "merged": 80,
+        "sub_threshold": 16,
+        "localization": 1,
+        "silent": 14
+      },
+      "shares": {
+        "merged": 0.7207207207207207,
+        "sub_threshold": 0.14414414414414414,
+        "localization": 0.009009009009009009,
+        "silent": 0.12612612612612611
+      },
+      "recall_pts": {
+        "merged": 0.20253164556962025,
+        "sub_threshold": 0.04050632911392405,
+        "localization": 0.002531645569620253,
+        "silent": 0.035443037974683546
+      }
+    },
+    "gainesville": {
+      "n_gt": 272,
+      "n_miss": 62,
+      "recall": 0.7720588235294118,
+      "counts": {
+        "merged": 5,
+        "sub_threshold": 32,
+        "localization": 1,
+        "silent": 24
+      },
+      "shares": {
+        "merged": 0.08064516129032258,
+        "sub_threshold": 0.5161290322580645,
+        "localization": 0.016129032258064516,
+        "silent": 0.3870967741935484
+      },
+      "recall_pts": {
+        "merged": 0.01838235294117647,
+        "sub_threshold": 0.11764705882352941,
+        "localization": 0.003676470588235294,
+        "silent": 0.08823529411764706
+      }
+    },
+    "budapest_district5": {
+      "n_gt": 300,
+      "n_miss": 107,
+      "recall": 0.6433333333333333,
+      "counts": {
+        "merged": 14,
+        "sub_threshold": 35,
+        "localization": 11,
+        "silent": 47
+      },
+      "shares": {
+        "merged": 0.1308411214953271,
+        "sub_threshold": 0.32710280373831774,
+        "localization": 0.102803738317757,
+        "silent": 0.4392523364485981
+      },
+      "recall_pts": {
+        "merged": 0.04666666666666667,
+        "sub_threshold": 0.11666666666666667,
+        "localization": 0.03666666666666667,
+        "silent": 0.15666666666666668
+      }
+    },
+    "manual_gold": {
+      "n_gt": 3919,
+      "n_miss": 423,
+      "recall": 0.8920643021178872,
+      "counts": {
+        "merged": 185,
+        "sub_threshold": 113,
+        "localization": 14,
+        "silent": 111
+      },
+      "shares": {
+        "merged": 0.4373522458628842,
+        "sub_threshold": 0.26713947990543735,
+        "localization": 0.03309692671394799,
+        "silent": 0.2624113475177305
+      },
+      "recall_pts": {
+        "merged": 0.04720591987751978,
+        "sub_threshold": 0.028833886195458024,
+        "localization": 0.003572339882623118,
+        "silent": 0.028323551926511866
+      }
+    }
+  },
+  "pooled": {
+    "n_gt": 2060,
+    "n_miss": 427,
+    "recall": 0.7927184466019418,
+    "counts": {
+      "merged": 124,
+      "sub_threshold": 166,
+      "localization": 9,
+      "silent": 128
+    },
+    "shares": {
+      "merged": 0.2903981264637002,
+      "sub_threshold": 0.38875878220140514,
+      "localization": 0.02107728337236534,
+      "silent": 0.2997658079625293
+    },
+    "recall_pts": {
+      "merged": 0.06019417475728155,
+      "sub_threshold": 0.08058252427184466,
+      "localization": 0.004368932038834952,
+      "silent": 0.062135922330097085
+    }
+  },
+  "near_field": {
+    "n_gt": 1360,
+    "n_miss": 180,
+    "recall": 0.8676470588235294,
+    "counts": {
+      "merged": 48,
+      "sub_threshold": 84,
+      "localization": 3,
+      "silent": 45
+    },
+    "shares": {
+      "merged": 0.26666666666666666,
+      "sub_threshold": 0.4666666666666667,
+      "localization": 0.016666666666666666,
+      "silent": 0.25
+    },
+    "recall_pts": {
+      "merged": 0.03529411764705882,
+      "sub_threshold": 0.061764705882352944,
+      "localization": 0.0022058823529411764,
+      "silent": 0.03308823529411765
+    }
+  },
+  "far_field": {
+    "n_gt": 700,
+    "n_miss": 247,
+    "recall": 0.6471428571428571,
+    "counts": {
+      "merged": 76,
+      "sub_threshold": 82,
+      "localization": 6,
+      "silent": 83
+    },
+    "shares": {
+      "merged": 0.3076923076923077,
+      "sub_threshold": 0.3319838056680162,
+      "localization": 0.024291497975708502,
+      "silent": 0.3360323886639676
+    },
+    "recall_pts": {
+      "merged": 0.10857142857142857,
+      "sub_threshold": 0.11714285714285715,
+      "localization": 0.008571428571428572,
+      "silent": 0.11857142857142858
+    }
+  },
+  "matcher_check": {
+    "greedy_only": 10,
+    "optimal_only": 10
+  },
+  "merged_separation_px": {
+    "n": 124,
+    "chebyshev_median": 11.445210970810876,
+    "euclidean_median": 12.189758594756155,
+    "above_min_distance": 78
+  },
+  "sourcing_addressable_recall_pts": 0.02330097087378641
+}
