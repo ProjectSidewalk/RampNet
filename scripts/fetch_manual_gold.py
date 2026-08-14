@@ -11,11 +11,24 @@ RampNet's detections are added by ``scripts/export_gold_records.py``).
     # split and none leaked into train/validation, and re-checks city-bundle overlap.
     python scripts/fetch_manual_gold.py --audit
 
-    # full fetch (downloads the HF test split, ~44 GB -> run it on Hyak/makelab2):
+    # imagery for THIS machine, committed bundle untouched — the usual re-fetch.
+    # records.jsonl (with its exported detections) and bundle_meta.json are left
+    # exactly as committed; refuses a --source that contradicts bundle_meta.json.
+    python scripts/fetch_manual_gold.py --images-only
+
+    # full bundle build (first time, or rebuild with --force — DISCARDS exported
+    # detections in records.jsonl):
     python scripts/fetch_manual_gold.py
 
     # or copy from an existing download_dataset.py output instead of the Hub:
     python scripts/fetch_manual_gold.py --source local --local-dataset ./dataset/test
+
+Cost note, measured 2026-08-14 on makelab2: the ``--source hf`` path goes through
+``load_dataset``, which downloaded and arrow-materialized **all three splits** (~2.5 h
+end to end) despite ``split="test"`` — not the ~44 GB test-split-only fetch this
+docstring used to promise. A shard-scoped fetch via ``HfFileSystem`` + pyarrow (the
+``--audit`` path already works that way) would cut that substantially; deliberately
+not done yet, to keep this change from touching the byte-fidelity-sensitive read path.
 
 Byte fidelity matters: a past gold-set re-eval moved P +2.2 / R -1.8 on JPEG
 re-encoding alone (see docs/model_comparison.md). ``--source hf`` therefore
@@ -176,7 +189,13 @@ def fetch_local(ids, panos_dir, local_dataset):
         yield pid, make_record(pid, w, h, meta)
 
 
-def main():
+def record_ids(records_path):
+    """Panorama ids in an existing records.jsonl."""
+    with open(records_path, encoding="utf-8") as f:
+        return {json.loads(line)["pano"]["panorama_id"] for line in f if line.strip()}
+
+
+def main(argv=None):
     ap = argparse.ArgumentParser(description="Fetch the manual gold set's imagery (issue #58).")
     ap.add_argument("--audit", action="store_true",
                     help="Id-only split-membership + overlap audit; downloads no images.")
@@ -186,10 +205,19 @@ def main():
                          "(download_dataset.py output, which re-encoded at quality 95).")
     ap.add_argument("--local-dataset", default=os.path.join(REPO_ROOT, "dataset", "test"),
                     help="Source directory for --source local.")
+    ap.add_argument("--images-only", action="store_true",
+                    help="Fetch the imagery into benchmark/manual_gold/panos/ and touch "
+                         "nothing committed: records.jsonl and bundle_meta.json stay exactly "
+                         "as they are. This is the per-machine re-fetch path — imagery is "
+                         "git-ignored while the records (and the detections exported into "
+                         "them) are committed, so a fresh clone wants exactly this.")
     ap.add_argument("--force", action="store_true",
-                    help="Overwrite an existing records.jsonl (this DISCARDS any detections "
+                    help="Rebuild an existing records.jsonl (this DISCARDS any detections "
                          "an earlier export_gold_records.py run wrote into it).")
-    args = ap.parse_args()
+    args = ap.parse_args(argv)
+    if args.images_only and args.force:
+        raise SystemExit("--images-only and --force contradict each other: one promises to "
+                         "leave records.jsonl alone, the other rebuilds it. Pick one.")
 
     ids = gold_ids()
     print(f"{len(ids)} gold label files in {LABELS_DIR}")
@@ -197,9 +225,34 @@ def main():
         sys.exit(audit(ids))
 
     records_path = os.path.join(BUNDLE_DIR, "records.jsonl")
-    if os.path.exists(records_path) and not args.force:
-        raise SystemExit(f"{records_path} already exists; re-fetching would discard any "
-                         "exported detections in it. Pass --force to overwrite.")
+    if os.path.exists(records_path) and not (args.force or args.images_only):
+        raise SystemExit(f"{records_path} already exists. Use --images-only to fetch the "
+                         "imagery for this machine without touching the committed records "
+                         "(the usual case), or --force to rebuild records.jsonl — which "
+                         "DISCARDS any detections exported into it.")
+
+    if args.images_only:
+        # Fail fast, before any download. The bundle records which source built it, and
+        # the two sources are NOT byte-identical (a JPEG re-encode alone moved the gold
+        # numbers by P +2.2 / R -1.8 — see the module docstring), so imagery from the
+        # other source under the committed records would silently change what is scored.
+        if not os.path.exists(records_path):
+            raise SystemExit("--images-only needs an existing records.jsonl to be "
+                             "consistent with; run the full fetch (no flags) instead.")
+        meta_path = os.path.join(BUNDLE_DIR, "bundle_meta.json")
+        if os.path.exists(meta_path):
+            with open(meta_path, encoding="utf-8") as f:
+                built_source = json.load(f).get("source")
+            if built_source and built_source != args.source:
+                raise SystemExit(
+                    f"bundle_meta.json records source={built_source!r} but this fetch would "
+                    f"use --source {args.source}; the two are not byte-identical. Fetch with "
+                    f"--source {built_source}, or rebuild the whole bundle with --force.")
+        drift = sorted(record_ids(records_path) ^ set(ids))
+        if drift:
+            raise SystemExit(f"records.jsonl and manual_labels/ disagree on {len(drift)} "
+                             f"id(s) (e.g. {drift[:5]}); the bundle needs a full rebuild "
+                             "(--force), not an image fetch.")
 
     panos_dir = os.path.join(BUNDLE_DIR, "panos")
     os.makedirs(panos_dir, exist_ok=True)
@@ -208,6 +261,16 @@ def main():
 
     records = dict(rows)
     missing = sorted(set(ids) - set(records))
+
+    if args.images_only:
+        print(f"Fetched {len(records)} panos into {panos_dir}; records.jsonl and "
+              "bundle_meta.json left untouched.")
+        if missing:
+            raise SystemExit(f"{len(missing)} gold pano(s) NOT found in the {args.source} "
+                             f"source (imagery is incomplete): {missing[:10]}"
+                             + (" ..." if len(missing) > 10 else ""))
+        print("All gold panos fetched.")
+        return
 
     with open(records_path + ".tmp", "w", encoding="utf-8") as f:
         for pid in sorted(records):
