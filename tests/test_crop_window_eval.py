@@ -7,6 +7,7 @@ seam-wrap containment (a window crossing the equirectangular seam must still
 contain a box on the far side of x=0), and clamp-by-shift (a window near a pole
 shifts instead of zero-padding, and the margins must reflect the shift).
 """
+import math
 import os
 import sys
 
@@ -179,3 +180,78 @@ def test_run_eval_skips_panos_without_records():
     rows, coverage = cwe.run_eval(gold, {}, min_confidence=0.55)
     assert rows == []
     assert coverage["panos_missing_record"] == 1
+
+
+# ---------------------------------------------------------------------------
+# Bundle extent-gold mode (box_gallery boxes.json, #116)
+
+BOXES_JSON = {
+    "run_name": "testville",
+    "box_rule": {"version": 2, "text": "rule text"},
+    "crop_fov_deg": 90,
+    "panos": {
+        "P1": {
+            "det:0": {"point": {"x": 0.501, "y": 0.601}, "status": "boxed",
+                      "cx": 0.5, "cy": 0.6, "w": 0.02, "h": 0.02},
+            "missed:0": {"point": {"x": 0.2, "y": 0.7}, "status": "boxed",
+                         "cx": 0.2, "cy": 0.7, "w": 0.03, "h": 0.03,
+                         "edge_flag": True},
+            "missed:1": {"point": {"x": 0.9, "y": 0.6}, "status": "cant"},
+            # A box wrapping the equirectangular seam (cx near 0).
+            "det:1": {"point": {"x": 0.004, "y": 0.62}, "status": "boxed",
+                      "cx": 0.004, "cy": 0.62, "w": 0.03, "h": 0.02},
+        },
+    },
+}
+
+
+def _write_bundle(tmp_path):
+    import json
+    d = tmp_path / "testville"
+    d.mkdir()
+    (d / "boxes.json").write_text(json.dumps(BOXES_JSON), encoding="utf-8")
+    return str(d)
+
+
+def test_load_bundle_boxes_skips_cant_and_keeps_order(tmp_path):
+    gold, prompts, meta = cwe.load_bundle_boxes(_write_bundle(tmp_path))
+    assert [k for k in gold] == ["P1"]
+    # det items first (by index), then missed — cant excluded.
+    assert [prompts[("P1", i)]["key"] for i in range(3)] == ["det:0", "det:1", "missed:0"]
+    assert meta["n_boxed"] == 3 and meta["n_cant"] == 1 and meta["n_edge_flag"] == 1
+    assert meta["box_rule"]["version"] == 2
+
+
+def test_box_pixels_wrap_keeps_seam_boxes_unclamped():
+    clamped = cwe.box_pixels((0.004, 0.62, 0.03, 0.02), 4096, 2048)
+    wrapped = cwe.box_pixels((0.004, 0.62, 0.03, 0.02), 4096, 2048, wrap_x=True)
+    assert clamped[0] == 0.0                      # default truncates at the seam
+    assert wrapped[0] == pytest.approx(-45.056)   # wrap keeps the true left edge
+    assert wrapped[2] - wrapped[0] == pytest.approx(0.03 * 4096)
+
+
+def test_score_box_road_margin_ratio():
+    # Window centered on the box: bottom margin = (size - box_h) / 2.
+    box = (0.5, 0.6, 0.02, 0.02)
+    row = cwe.score_box(box, (0.5 * 4096, 0.6 * 2048), "geo-v1.5", 4096, 2048)
+    box_h = 0.02 * 2048
+    expected = (row["predicted_side"] - box_h) / 2 / box_h
+    assert row["road_margin_ratio"] == pytest.approx(expected, abs=0.02)
+
+
+def test_run_bundle_eval_modes_and_wrap_containment(tmp_path):
+    gold, prompts, meta = cwe.load_bundle_boxes(_write_bundle(tmp_path))
+    records = {"P1": {"width": 4096, "height": 2048, "detections": []}}
+    rows, coverage = cwe.run_bundle_eval(gold, prompts, records)
+    assert coverage["boxes_total"] == 3
+    assert coverage["det_prompted"] == 2 and coverage["missed_only"] == 1
+    # det items score in both modes, missed only in gold-center.
+    assert len([r for r in rows if r["mode"] == "detection"]) == 2 * len(cwe.RULES)
+    assert len([r for r in rows if r["mode"] == "gold-center"]) == 3 * len(cwe.RULES)
+    # The seam-wrapping box is contained when its window wraps with it.
+    seam = [r for r in rows if r["key"] == "det:1" and r["mode"] == "gold-center"]
+    assert seam and all(r["contained"] for r in seam)
+    summary = cwe.summarize(rows)
+    for rule in cwe.RULES:
+        assert summary["gold-center"][rule]["n"] == 3
+        assert not math.isnan(summary["gold-center"][rule]["road_margin_p50"])

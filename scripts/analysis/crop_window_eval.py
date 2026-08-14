@@ -61,17 +61,30 @@ small sample of panos fresh from GSV via streetlevel (optional dependency) into
 the gallery's own directory — view-only bytes, never written into the bundle,
 not benchmark-fidelity (the bundle's canonical imagery is the HF test split).
 
+**Real extent gold (--bundle mode, issue #116):** ``scripts/box_gallery.py`` produces
+``benchmark/<city>/boxes.json`` — whole-apron boxes drawn under an explicit versioned
+rule, keyed ``(pano_id, det:<i>|missed:<i>)``, pano-normalized and possibly wrapping the
+equirectangular seam. ``--bundle benchmark/richmond`` scores the same rules against that
+gold instead of manual_labels. Differences from the manual flow: boxes may wrap in x
+(handled, never clamped); the detection prompt comes from the recorded ``point`` of each
+``det:<i>`` item (adjudicated linkage — no re-matching); ``missed:<i>`` items score in
+gold-center mode only (production cuts no crop where there is no detection); and the
+report adds the **directional road-context margin** — how far the window extends below
+the box's bottom edge (the ramp-street junction, approximate for oblique ramps), in
+box-heights. Against real extent gold, containment finally means "the whole ramp fits."
+
 Run (from the repo root):
 
-    python scripts/analysis/crop_window_eval.py                # numbers + JSON + CSV
+    python scripts/analysis/crop_window_eval.py                # manual_gold: JSON + CSV
     python scripts/analysis/crop_window_eval.py --gallery 60   # + overlay gallery
     python scripts/analysis/crop_window_eval.py --fetch-sample 60 --gallery 60
+    python scripts/analysis/crop_window_eval.py --bundle benchmark/richmond --gallery 60
 
-Outputs:
+Outputs (``<name>`` = ``crop_window_eval`` or ``crop_window_eval_<bundle>``):
 
-- ``analysis_out/crop_window_eval.json``       — summary (committed; see .gitignore)
-- ``analysis_out/crop_window_eval_per_box.csv``— one row per (box, rule, mode) (ignored)
-- ``analysis_out/crop_window_eval_gallery/``   — overlay crops + index.html (ignored)
+- ``analysis_out/<name>.json``        — summary (committed; see .gitignore)
+- ``analysis_out/<name>_per_box.csv`` — one row per (box, rule, mode) (ignored)
+- ``analysis_out/<name>_gallery/``    — overlay crops + index.html (ignored)
 """
 import argparse
 import csv
@@ -190,6 +203,48 @@ def load_records(records_path=os.path.join(BUNDLE_DIR, "records.jsonl")):
     return recs
 
 
+def _box_key_order(key):
+    """Sort ``det:<i>``/``missed:<i>``/``gold:<i>`` keys by kind then index."""
+    kind, _, idx = key.partition(":")
+    return ({"det": 0, "missed": 1, "gold": 2}.get(kind, 3), int(idx) if idx.isdigit() else 0)
+
+
+def load_bundle_boxes(bundle_dir):
+    """Extent gold from a box_gallery export (``<bundle>/boxes.json``, #116).
+
+    Returns ``(gold, prompts, meta)``: ``gold`` has load_gold's shape
+    ({pano_id: [(cx, cy, w, h), ...]}) so the summary and gallery paths are shared;
+    ``prompts[(pano_id, idx)]`` carries the item key and its recorded prompt point
+    (for ``det:<i>`` the adjudicated detection position — used verbatim, no
+    re-matching); ``meta`` records the embedded box_rule and status counts.
+    Only ``status == "boxed"`` items score; "can't determine extent" is counted.
+    """
+    with open(os.path.join(bundle_dir, "boxes.json"), encoding="utf-8") as f:
+        bj = json.load(f)
+    gold, prompts = {}, {}
+    n_cant = n_edge = 0
+    for pano_id in sorted(bj.get("panos", {})):
+        for key in sorted(bj["panos"][pano_id], key=_box_key_order):
+            item = bj["panos"][pano_id][key]
+            if item.get("status") != "boxed":
+                n_cant += 1
+                continue
+            n_edge += 1 if item.get("edge_flag") else 0
+            boxes = gold.setdefault(pano_id, [])
+            prompts[(pano_id, len(boxes))] = {
+                "key": key, "point": item.get("point"),
+                "is_detection": key.startswith("det:"),
+            }
+            boxes.append((item["cx"], item["cy"], item["w"], item["h"]))
+    meta = {
+        "run_name": bj.get("run_name", os.path.basename(os.path.normpath(bundle_dir))),
+        "box_rule": bj.get("box_rule"),
+        "crop_fov_deg": bj.get("crop_fov_deg"),
+        "n_boxed": len(prompts), "n_cant": n_cant, "n_edge_flag": n_edge,
+    }
+    return gold, prompts, meta
+
+
 # ---------------------------------------------------------------------------
 # Sizing rules (side in native pixels; y_px is the prompt row in native pixels)
 
@@ -244,11 +299,20 @@ def crop_window(x_px, y_px, side, pano_w, pano_h):
     return left, top, size, top != ideal_top
 
 
-def box_pixels(box, pano_w, pano_h):
-    """Gold box in native pixels, clamped to the frame: (x0, y0, x1, y1)."""
+def box_pixels(box, pano_w, pano_h, wrap_x=False):
+    """Gold box in native pixels: (x0, y0, x1, y1).
+
+    x is clamped to the frame by default (manual_labels never wrap). With
+    ``wrap_x`` (bundle extent gold, #116) x0/x1 are left unclamped — x0 may be
+    negative or x1 > pano_w for a box wrapping the equirectangular seam; the
+    circular margin math in :func:`box_margins` handles either form. y always
+    clamps (the poles don't wrap).
+    """
     cx, cy, w, h = box
-    x0 = max(0.0, (cx - w / 2) * pano_w)
-    x1 = min(float(pano_w), (cx + w / 2) * pano_w)
+    x0 = (cx - w / 2) * pano_w
+    x1 = (cx + w / 2) * pano_w
+    if not wrap_x:
+        x0, x1 = max(0.0, x0), min(float(pano_w), x1)
     y0 = max(0.0, (cy - h / 2) * pano_h)
     y1 = min(float(pano_h), (cy + h / 2) * pano_h)
     return x0, y0, x1, y1
@@ -284,14 +348,23 @@ def stratum_label(dep_deg):
     return STRATA[0][2] if dep_deg < STRATA[0][0] else STRATA[-1][2]
 
 
-def score_box(box, prompt_xy_px, rule, pano_w, pano_h):
-    """One row of the per-box table (dict)."""
+def score_box(box, prompt_xy_px, rule, pano_w, pano_h, wrap_x=False):
+    """One row of the per-box table (dict).
+
+    ``road_margin_ratio`` is the directional road-context metric: how far the
+    window extends below the box's bottom edge — the ramp-street junction under
+    the box rule (approximate for oblique ramps, whose lowest extremity is only
+    near the junction) — in units of box height. Negative = the window cuts the
+    ramp's street edge off. Only meaningful against real extent gold; against
+    manual_labels' near-point marks it is reported but uninterpretable (#114).
+    """
     side = SIDE_FNS[rule](prompt_xy_px[1], pano_w, pano_h)
     window = crop_window(prompt_xy_px[0], prompt_xy_px[1], side, pano_w, pano_h)
-    bpx = box_pixels(box, pano_w, pano_h)
+    bpx = box_pixels(box, pano_w, pano_h, wrap_x=wrap_x)
     margins = box_margins(bpx, window, pano_w)
     size = window[2]
-    box_side = max(bpx[2] - bpx[0], bpx[3] - bpx[1])
+    box_h = bpx[3] - bpx[1]
+    box_side = max(bpx[2] - bpx[0], box_h)
     margin_norm = min(margins) / size
     return {
         "predicted_side": size,
@@ -299,6 +372,7 @@ def score_box(box, prompt_xy_px, rule, pano_w, pano_h):
         "margin_norm": margin_norm,
         "context_ratio": box_side / size,
         "box_side_px": box_side,
+        "road_margin_ratio": margins[3] / box_h if box_h > 0 else float("nan"),
         "shifted": window[3],
         "window": window,
     }
@@ -363,6 +437,49 @@ def run_eval(gold, records, min_confidence=OPERATIONAL_CONFIDENCE):
     return rows, coverage
 
 
+def run_bundle_eval(gold, prompts, records):
+    """Score every rule against box_gallery extent gold (#116).
+
+    ``detection`` mode uses each ``det:<i>`` item's recorded prompt point — the
+    adjudicated detection position, so there is no re-matching step and no
+    matching noise. ``missed:<i>`` items score in gold-center mode only:
+    production cuts no crop where the model made no detection.
+    """
+    rows = []
+    coverage = {"boxes_total": 0, "det_prompted": 0, "missed_only": 0,
+                "panos_missing_record": 0, "pano_heights": {}}
+    for pano_id, boxes in gold.items():
+        rec = records.get(pano_id)
+        if rec is None:
+            coverage["panos_missing_record"] += 1
+            continue
+        pano_w, pano_h = rec["width"], rec["height"]
+        h_key = str(pano_h)
+        coverage["pano_heights"][h_key] = coverage["pano_heights"].get(h_key, 0) + 1
+        for box_idx, box in enumerate(boxes):
+            coverage["boxes_total"] += 1
+            info = prompts[(pano_id, box_idx)]
+            dep = depression_deg(box[1])
+            base = {
+                "pano_id": pano_id, "box_index": box_idx, "key": info["key"],
+                "pano_width": pano_w, "pano_height": pano_h,
+                "depression_deg": dep, "stratum": stratum_label(dep),
+            }
+            modes = {"gold-center": (box[0] * pano_w, box[1] * pano_h)}
+            if info["is_detection"] and info.get("point"):
+                modes["detection"] = (info["point"]["x"] * pano_w,
+                                      info["point"]["y"] * pano_h)
+                coverage["det_prompted"] += 1
+            else:
+                coverage["missed_only"] += 1
+            for mode, prompt in modes.items():
+                for rule in RULES:
+                    rows.append(dict(base, mode=mode, rule=rule,
+                                     **score_box(box, prompt, rule, pano_w, pano_h,
+                                                 wrap_x=True)))
+    return rows, coverage
+
+
 # ---------------------------------------------------------------------------
 # Aggregation / report
 
@@ -403,6 +520,9 @@ def _stats(sel):
     ctx = [r["context_ratio"] for r in sel]
     ctx_q = _quantiles(ctx)
     lo, hi = wilson_interval(contained, n)
+    road = [r["road_margin_ratio"] for r in sel
+            if not math.isnan(r.get("road_margin_ratio", float("nan")))]
+    road_q = _quantiles(road)
     return {
         "n": n,
         "containment": contained / n,
@@ -414,48 +534,54 @@ def _stats(sel):
         "context_in_band_05_20": sum(1 for c in ctx if 0.05 <= c <= 0.20) / n,
         "margin_norm_p50": _quantiles([r["margin_norm"] for r in sel])[0.5],
         "predicted_side_p50": _quantiles([float(r["predicted_side"]) for r in sel])[0.5],
+        # Directional road context (window extension below the box bottom, in
+        # box heights). "cut" = the window clips the ramp's street edge.
+        "road_margin_p10": road_q[0.1],
+        "road_margin_p50": road_q[0.5],
+        "road_margin_p90": road_q[0.9],
+        "road_edge_cut": (sum(1 for v in road if v < 0) / len(road)) if road else float("nan"),
     }
 
 
-def format_report(summary, coverage, min_confidence):
-    lines = []
+def format_report(summary, header_lines):
+    lines = list(header_lines)
     add = lines.append
-    add("crop_window_eval — manual_gold boxes vs crop-window sizing rules (issue #114)")
-    add(f"boxes: {coverage['boxes_total']}   "
-        f"covered by a >= {min_confidence:.2f} detection: {coverage['boxes_covered']}   "
-        f"unmatched detections (would crop non-ramps): {coverage['detections_unmatched']}")
     for mode, rules in summary.items():
         add("")
         add(f"== prompt mode: {mode} ==")
         add(f"{'rule':<10} {'n':>5} {'contain':>8} {'95% CI':>15} "
-            f"{'ctx p50':>8} {'ctx p10-p90':>13} {'in 10-15%':>9} {'in 5-20%':>9} {'side p50':>9}")
+            f"{'ctx p50':>8} {'ctx p10-p90':>13} {'in 10-15%':>9} {'in 5-20%':>9} "
+            f"{'road p50':>8} {'edgecut':>7} {'side p50':>9}")
         for rule, s in rules.items():
             ci = f"[{s['containment_ci'][0]:.3f},{s['containment_ci'][1]:.3f}]"
             add(f"{rule:<10} {s['n']:>5} {s['containment']:>8.3f} {ci:>15} "
                 f"{s['context_ratio_p50']:>8.3f} "
                 f"{s['context_ratio_p10']:>6.3f}-{s['context_ratio_p90']:.3f} "
                 f"{s['context_in_band_10_15']:>9.3f} {s['context_in_band_05_20']:>9.3f} "
+                f"{s['road_margin_p50']:>8.2f} {s['road_edge_cut']:>7.3f} "
                 f"{s['predicted_side_p50']:>9.0f}")
         add("")
         add("   by depression (flat-ground distance at 2.5 m camera height):")
         for rule, s in rules.items():
             for label, ss in s["strata"].items():
                 add(f"   {rule:<10} {label:<16} n={ss['n']:>5}  "
-                    f"contain={ss['containment']:.3f}  ctx p50={ss['context_ratio_p50']:.3f}")
+                    f"contain={ss['containment']:.3f}  ctx p50={ss['context_ratio_p50']:.3f}  "
+                    f"road p50={ss['road_margin_p50']:.2f}")
     return "\n".join(lines)
 
 
 # ---------------------------------------------------------------------------
 # Outputs
 
-CSV_FIELDS = ["pano_id", "box_index", "mode", "rule", "pano_width", "pano_height",
+CSV_FIELDS = ["pano_id", "box_index", "key", "mode", "rule", "pano_width", "pano_height",
               "depression_deg", "stratum", "predicted_side", "contained",
-              "margin_norm", "context_ratio", "box_side_px", "shifted"]
+              "margin_norm", "context_ratio", "box_side_px", "road_margin_ratio",
+              "shifted"]
 
 
-def write_outputs(rows, summary, coverage, min_confidence):
+def write_outputs(rows, summary, coverage, inputs, basename="crop_window_eval"):
     os.makedirs(OUT_DIR, exist_ok=True)
-    csv_path = os.path.join(OUT_DIR, "crop_window_eval_per_box.csv")
+    csv_path = os.path.join(OUT_DIR, f"{basename}_per_box.csv")
     with open(csv_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=CSV_FIELDS, extrasaction="ignore")
         writer.writeheader()
@@ -465,15 +591,10 @@ def write_outputs(rows, summary, coverage, min_confidence):
     with open(csv_path, "rb") as f:
         csv_sha = hashlib.sha256(f.read()).hexdigest()
 
-    json_path = os.path.join(OUT_DIR, "crop_window_eval.json")
+    json_path = os.path.join(OUT_DIR, f"{basename}.json")
     payload = {
         "issue": 114,
-        "inputs": {
-            "labels_dir": "manual_labels",
-            "records": "benchmark/manual_gold/records.jsonl",
-            "min_confidence": min_confidence,
-            "n_boxes": coverage["boxes_total"],
-        },
+        "inputs": inputs,
         "coverage": coverage,
         "per_box_csv_sha256": csv_sha,
         "constants": {
@@ -501,9 +622,11 @@ RULE_COLORS = {"v1-raw": (255, 96, 96), "v1-norm": (255, 200, 64),
 GOLD_COLOR = (64, 255, 96)
 
 
-def _find_pano_image(pano_id):
-    for directory in (os.path.join(BUNDLE_DIR, "panos"),
-                      os.path.join(GALLERY_DIR, "panos_fresh")):
+def _find_pano_image(pano_id, dirs=None):
+    if dirs is None:
+        dirs = (os.path.join(BUNDLE_DIR, "panos"),
+                os.path.join(GALLERY_DIR, "panos_fresh"))
+    for directory in dirs:
         for ext in (".jpg", ".jpeg", ".png"):
             path = os.path.join(directory, pano_id + ext)
             if os.path.exists(path):
@@ -556,12 +679,14 @@ def fetch_sample(gold, records, n, seed=114):
     print(f"fetch-sample: {fetched} panos available, {skipped} skipped/decayed")
 
 
-def render_gallery(rows, gold, records, limit):
+def render_gallery(rows, gold, records, limit, gallery_dir=None, panos_dirs=None,
+                   wrap_x=False):
     """Overlay crops: gold box (green) + each rule's window, centered on the
     gold-center prompt, for boxes whose pano image is available locally."""
     from PIL import Image, ImageDraw
 
-    os.makedirs(GALLERY_DIR, exist_ok=True)
+    gallery_dir = gallery_dir or GALLERY_DIR
+    os.makedirs(gallery_dir, exist_ok=True)
     by_box = {}
     for r in rows:
         if r["mode"] != "gold-center":
@@ -572,7 +697,7 @@ def render_gallery(rows, gold, records, limit):
     for (pano_id, box_index), per_rule in sorted(by_box.items()):
         if len(entries) >= limit:
             break
-        path = _find_pano_image(pano_id)
+        path = _find_pano_image(pano_id, panos_dirs)
         if path is None:
             continue
         pano = Image.open(path).convert("RGB")
@@ -610,7 +735,7 @@ def render_gallery(rows, gold, records, limit):
             x0 = to_view_x(left)
             draw.rectangle([x0, top - vtop, x0 + size, top - vtop + size],
                            outline=RULE_COLORS[rule], width=3)
-        b = box_pixels(gold[pano_id][box_index], pano_w, pano_h)
+        b = box_pixels(gold[pano_id][box_index], pano_w, pano_h, wrap_x=wrap_x)
         gx0 = to_view_x(b[0])
         draw.rectangle([gx0, b[1] - vtop, gx0 + (b[2] - b[0]), b[3] - vtop],
                        outline=GOLD_COLOR, width=3)
@@ -618,10 +743,10 @@ def render_gallery(rows, gold, records, limit):
         if view > 900:
             tile = tile.resize((900, 900), Image.LANCZOS)
         name = f"{pano_id}_{box_index}.jpg"
-        tile.save(os.path.join(GALLERY_DIR, name), quality=88)
+        tile.save(os.path.join(gallery_dir, name), quality=88)
         entries.append((name, pano_id, box_index, per_rule))
 
-    index = os.path.join(GALLERY_DIR, "index.html")
+    index = os.path.join(gallery_dir, "index.html")
     with open(index, "w", encoding="utf-8") as f:
         f.write("<!doctype html><meta charset='utf-8'><title>crop_window_eval gallery</title>"
                 "<style>body{font-family:sans-serif;background:#111;color:#eee}"
@@ -651,22 +776,70 @@ def render_gallery(rows, gold, records, limit):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
+    parser.add_argument("--bundle", metavar="DIR",
+                        help="score against a box_gallery extent-gold export "
+                             "(<DIR>/boxes.json + <DIR>/records.jsonl, #116) instead "
+                             "of manual_labels")
     parser.add_argument("--min-confidence", type=float, default=OPERATIONAL_CONFIDENCE,
-                        help="detection-mode confidence floor (production operational "
-                             "threshold; default %(default)s)")
+                        help="manual mode: detection-match confidence floor (production "
+                             "operational threshold; default %(default)s)")
     parser.add_argument("--gallery", type=int, default=0, metavar="N",
                         help="render up to N overlay crops (needs local pano imagery)")
     parser.add_argument("--fetch-sample", type=int, default=0, metavar="N",
-                        help="fetch up to N gold panos fresh from GSV for the gallery "
-                             "(view-only bytes; optional streetlevel dependency)")
+                        help="manual mode: fetch up to N gold panos fresh from GSV for "
+                             "the gallery (view-only bytes; optional streetlevel dep)")
     args = parser.parse_args(argv)
+
+    if args.bundle:
+        bundle = args.bundle.rstrip("/\\")
+        gold, prompts, meta = load_bundle_boxes(bundle)
+        records = load_records(os.path.join(bundle, "records.jsonl"))
+        rows, coverage = run_bundle_eval(gold, prompts, records)
+        summary = summarize(rows)
+        rule = meta.get("box_rule") or {}
+        basename = f"crop_window_eval_{meta['run_name']}"
+        inputs = {
+            "boxes": f"benchmark/{meta['run_name']}/boxes.json",
+            "records": f"benchmark/{meta['run_name']}/records.jsonl",
+            "box_rule_version": rule.get("version"),
+            "n_boxed": meta["n_boxed"], "n_cant": meta["n_cant"],
+            "n_edge_flag": meta["n_edge_flag"],
+        }
+        header = [
+            f"crop_window_eval --bundle {meta['run_name']} — whole-apron extent gold "
+            f"(box rule v{rule.get('version')}) vs sizing rules (#114/#116)",
+            f"boxes: {coverage['boxes_total']} boxed ({meta['n_cant']} can't-determine, "
+            f"{meta['n_edge_flag']} edge-flagged)   det-prompted: {coverage['det_prompted']}   "
+            f"missed (gold-center only): {coverage['missed_only']}   "
+            f"pano heights: {coverage['pano_heights']}",
+        ]
+        csv_path, json_path = write_outputs(rows, summary, coverage, inputs, basename)
+        print(format_report(summary, header))
+        print(f"\nper-box CSV: {csv_path}\nsummary JSON: {json_path}")
+        if args.gallery:
+            render_gallery(rows, gold, records, args.gallery,
+                           gallery_dir=os.path.join(OUT_DIR, f"{basename}_gallery"),
+                           panos_dirs=(os.path.join(bundle, "panos"),), wrap_x=True)
+        return
 
     gold = load_gold()
     records = load_records()
     rows, coverage = run_eval(gold, records, args.min_confidence)
     summary = summarize(rows)
-    csv_path, json_path = write_outputs(rows, summary, coverage, args.min_confidence)
-    print(format_report(summary, coverage, args.min_confidence))
+    inputs = {
+        "labels_dir": "manual_labels",
+        "records": "benchmark/manual_gold/records.jsonl",
+        "min_confidence": args.min_confidence,
+        "n_boxes": coverage["boxes_total"],
+    }
+    header = [
+        "crop_window_eval — manual_gold boxes vs crop-window sizing rules (issue #114)",
+        f"boxes: {coverage['boxes_total']}   "
+        f"covered by a >= {args.min_confidence:.2f} detection: {coverage['boxes_covered']}   "
+        f"unmatched detections (would crop non-ramps): {coverage['detections_unmatched']}",
+    ]
+    csv_path, json_path = write_outputs(rows, summary, coverage, inputs)
+    print(format_report(summary, header))
     print(f"\nper-box CSV: {csv_path}\nsummary JSON: {json_path}")
 
     if args.fetch_sample:

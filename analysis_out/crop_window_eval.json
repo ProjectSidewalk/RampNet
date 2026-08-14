@@ -35,7 +35,7 @@
     "records": "benchmark/manual_gold/records.jsonl"
   },
   "issue": 114,
-  "per_box_csv_sha256": "4fd3be108a715f6452609cf77911c168e2549e22c903a17d52d8682e9989819d",
+  "per_box_csv_sha256": "71a2af1388b67ef2e147c54954c87aab88b81b739ff458f1138aa7ce7a54b948",
   "summary": {
     "detection": {
       "geo-v1.5": {
@@ -52,6 +52,10 @@
         "margin_norm_p50": 0.4663991607933509,
         "n": 3420,
         "predicted_side_p50": 845.0,
+        "road_edge_cut": 0.0,
+        "road_margin_p10": 12.32250059239368,
+        "road_margin_p50": 37.85076630623011,
+        "road_margin_p90": 88.73000589588725,
         "strata": {
           "18-36 m": {
             "containment": 1.0,
@@ -66,7 +70,11 @@
             "context_ratio_p90": 0.07357713292190153,
             "margin_norm_p50": 0.45265432723274435,
             "n": 454,
-            "predicted_side_p50": 386.0
+            "predicted_side_p50": 386.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 8.87127599404498,
+            "road_margin_p50": 25.49685296787996,
+            "road_margin_p90": 63.40106982963295
           },
           "5-9 m": {
             "containment": 1.0,
@@ -81,7 +89,11 @@
             "context_ratio_p90": 0.047207929863899704,
             "margin_norm_p50": 0.4756689373434097,
             "n": 1327,
-            "predicted_side_p50": 1034.0
+            "predicted_side_p50": 1034.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 14.927864144755581,
+            "road_margin_p50": 45.62009043369685,
+            "road_margin_p90": 101.32643707909853
           },
           "9-18 m": {
             "containment": 1.0,
@@ -96,7 +108,11 @@
             "context_ratio_p90": 0.05920357714382731,
             "margin_norm_p50": 0.46171476802904654,
             "n": 1267,
-            "predicted_side_p50": 543.0
+            "predicted_side_p50": 543.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 11.548517220554864,
+            "road_margin_p50": 32.91596544002088,
+            "road_margin_p90": 73.50054549561209
           },
           "<5 m": {
             "containment": 1.0,
@@ -111,7 +127,11 @@
             "context_ratio_p90": 0.028198604987292986,
             "margin_norm_p50": 0.3925076942024495,
             "n": 367,
-            "predicted_side_p50": 1747.0
+            "predicted_side_p50": 1747.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 18.984180751164743,
+            "road_margin_p50": 43.46293808304496,
+            "road_margin_p90": 98.98648934208728
           },
           ">36 m / horizon": {
             "containment": 1.0,
@@ -126,7 +146,11 @@
             "context_ratio_p90": 0.056982216776320836,
             "margin_norm_p50": 0.447371517598168,
             "n": 5,
-            "predicted_side_p50": 231.0
+            "predicted_side_p50": 231.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 11.795406348051507,
+            "road_margin_p50": 13.860690805485625,
+            "road_margin_p90": 27.08494475072785
           }
         }
       },
@@ -144,6 +168,10 @@
         "margin_norm_p50": 0.35308826962627937,
         "n": 3420,
         "predicted_side_p50": 149.0,
+        "road_edge_cut": 0.00029239766081871346,
+        "road_margin_p10": 1.951259556791823,
+        "road_margin_p50": 7.094453908236405,
+        "road_margin_p90": 19.01166253326484,
         "strata": {
           "18-36 m": {
             "containment": 0.947136563876652,
@@ -158,7 +186,11 @@
             "context_ratio_p90": 0.2394608204220774,
             "margin_norm_p50": 0.32893885306301995,
             "n": 454,
-            "predicted_side_p50": 100.0
+            "predicted_side_p50": 100.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 1.9225685180210181,
+            "road_margin_p50": 6.177173544342665,
+            "road_margin_p90": 16.457157940604766
           },
           "5-9 m": {
             "containment": 0.9886963074604371,
@@ -173,7 +205,11 @@
             "context_ratio_p90": 0.2628396721548693,
             "margin_norm_p50": 0.3686612381941249,
             "n": 1327,
-            "predicted_side_p50": 183.0
+            "predicted_side_p50": 183.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 2.065185461335791,
+            "road_margin_p50": 7.82879557885482,
+            "road_margin_p90": 20.08144207728102
           },
           "9-18 m": {
             "containment": 0.9636937647987371,
@@ -188,7 +224,11 @@
             "context_ratio_p90": 0.2965914256798953,
             "margin_norm_p50": 0.316657472785639,
             "n": 1267,
-            "predicted_side_p50": 113.0
+            "predicted_side_p50": 113.0,
+            "road_edge_cut": 0.0007892659826361484,
+            "road_margin_p10": 1.5590311231928013,
+            "road_margin_p50": 5.522795379394374,
+            "road_margin_p90": 13.720495553504271
           },
           "<5 m": {
             "containment": 1.0,
@@ -203,7 +243,11 @@
             "context_ratio_p90": 0.11966364139683314,
             "margin_norm_p50": 0.41907359307370745,
             "n": 367,
-            "predicted_side_p50": 462.0
+            "predicted_side_p50": 462.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 5.334527567296403,
+            "road_margin_p50": 12.903730047515038,
+            "road_margin_p90": 31.610568298404832
           },
           ">36 m / horizon": {
             "containment": 1.0,
@@ -218,7 +262,11 @@
             "context_ratio_p90": 0.14053066379590112,
             "margin_norm_p50": 0.36174383223834317,
             "n": 5,
-            "predicted_side_p50": 89.0
+            "predicted_side_p50": 89.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 4.7236757106331195,
+            "road_margin_p50": 5.463789891551542,
+            "road_margin_p90": 10.912328989921566
           }
         }
       },
@@ -236,6 +284,10 @@
         "margin_norm_p50": 0.4203605054470154,
         "n": 3420,
         "predicted_side_p50": 294.0,
+        "road_edge_cut": 0.0,
+        "road_margin_p10": 4.919470117031222,
+        "road_margin_p50": 14.258417572595178,
+        "road_margin_p90": 33.66842717201557,
         "strata": {
           "18-36 m": {
             "containment": 1.0,
@@ -250,7 +302,11 @@
             "context_ratio_p90": 0.08678477288975692,
             "margin_norm_p50": 0.4365442792654972,
             "n": 454,
-            "predicted_side_p50": 268.0
+            "predicted_side_p50": 268.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 7.343097016557562,
+            "road_margin_p50": 19.393428109851442,
+            "road_margin_p90": 45.67750046785846
           },
           "5-9 m": {
             "containment": 1.0,
@@ -265,7 +321,11 @@
             "context_ratio_p90": 0.15852595497007577,
             "margin_norm_p50": 0.41585043888257334,
             "n": 1327,
-            "predicted_side_p50": 306.0
+            "predicted_side_p50": 306.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 4.142001898352551,
+            "road_margin_p50": 13.053084503207184,
+            "road_margin_p90": 28.44086161755439
           },
           "9-18 m": {
             "containment": 0.9992107340173638,
@@ -280,7 +340,11 @@
             "context_ratio_p90": 0.12845020011188238,
             "margin_norm_p50": 0.4231349858836982,
             "n": 1267,
-            "predicted_side_p50": 276.0
+            "predicted_side_p50": 276.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 5.43197582299022,
+            "road_margin_p50": 15.194135154518206,
+            "road_margin_p90": 34.240332819265326
           },
           "<5 m": {
             "containment": 1.0,
@@ -295,7 +359,11 @@
             "context_ratio_p90": 0.13639083702074328,
             "margin_norm_p50": 0.4042398238990469,
             "n": 367,
-            "predicted_side_p50": 353.0
+            "predicted_side_p50": 353.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 4.550067033366073,
+            "road_margin_p50": 10.87424883208695,
+            "road_margin_p90": 27.102686060475772
           },
           ">36 m / horizon": {
             "containment": 1.0,
@@ -310,7 +378,11 @@
             "context_ratio_p90": 0.04786296598031882,
             "margin_norm_p50": 0.454596927189279,
             "n": 5,
-            "predicted_side_p50": 260.0
+            "predicted_side_p50": 260.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 13.765974790383984,
+            "road_margin_p50": 15.660434581842772,
+            "road_margin_p90": 31.26607214481964
           }
         }
       }
@@ -330,6 +402,10 @@
         "margin_norm_p50": 0.4899057453326242,
         "n": 3919,
         "predicted_side_p50": 789.0,
+        "road_edge_cut": 0.0,
+        "road_margin_p10": 14.114349033604082,
+        "road_margin_p50": 39.29585508635153,
+        "road_margin_p90": 88.76389166506108,
         "strata": {
           "18-36 m": {
             "containment": 1.0,
@@ -344,7 +420,11 @@
             "context_ratio_p90": 0.06706877405120876,
             "margin_norm_p50": 0.4873885189112154,
             "n": 630,
-            "predicted_side_p50": 378.0
+            "predicted_side_p50": 378.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 11.400184421072183,
+            "road_margin_p50": 28.905127620483757,
+            "road_margin_p90": 66.36251343083161
           },
           "5-9 m": {
             "containment": 1.0,
@@ -359,7 +439,11 @@
             "context_ratio_p90": 0.044130589724395194,
             "margin_norm_p50": 0.49272486059292614,
             "n": 1403,
-            "predicted_side_p50": 1064.0
+            "predicted_side_p50": 1064.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 15.999148317066131,
+            "road_margin_p50": 46.775532086098615,
+            "road_margin_p90": 100.08875774536236
           },
           "9-18 m": {
             "containment": 1.0,
@@ -374,7 +458,11 @@
             "context_ratio_p90": 0.049491739825899356,
             "margin_norm_p50": 0.49026706193624675,
             "n": 1475,
-            "predicted_side_p50": 624.0
+            "predicted_side_p50": 624.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 14.289351888706062,
+            "road_margin_p50": 37.06394551102887,
+            "road_margin_p90": 82.96839001899552
           },
           "<5 m": {
             "containment": 1.0,
@@ -389,7 +477,11 @@
             "context_ratio_p90": 0.028185508830745273,
             "margin_norm_p50": 0.3888401545669513,
             "n": 400,
-            "predicted_side_p50": 1745.5
+            "predicted_side_p50": 1745.5,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 18.2742747064102,
+            "road_margin_p50": 43.467143532801146,
+            "road_margin_p90": 99.14178891367638
           },
           ">36 m / horizon": {
             "containment": 1.0,
@@ -404,7 +496,11 @@
             "context_ratio_p90": 0.060365934471398736,
             "margin_norm_p50": 0.47847211966193015,
             "n": 11,
-            "predicted_side_p50": 208.0
+            "predicted_side_p50": 208.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 10.971645876295948,
+            "road_margin_p50": 19.38559103212273,
+            "road_margin_p90": 36.230748427914584
           }
         }
       },
@@ -422,6 +518,10 @@
         "margin_norm_p50": 0.45710907276519913,
         "n": 3919,
         "predicted_side_p50": 141.0,
+        "road_edge_cut": 0.00025516713447307985,
+        "road_margin_p10": 2.698948335157235,
+        "road_margin_p50": 7.959566014846958,
+        "road_margin_p90": 18.855232155439708,
         "strata": {
           "18-36 m": {
             "containment": 0.9904761904761905,
@@ -436,7 +536,11 @@
             "context_ratio_p90": 0.2404831961327132,
             "margin_norm_p50": 0.452980194397065,
             "n": 630,
-            "predicted_side_p50": 99.0
+            "predicted_side_p50": 99.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 2.62742434002394,
+            "road_margin_p50": 7.517964539340905,
+            "road_margin_p90": 17.29348943548573
           },
           "5-9 m": {
             "containment": 0.9978617248752673,
@@ -451,7 +555,11 @@
             "context_ratio_p90": 0.24200078516216925,
             "margin_norm_p50": 0.46073050475481486,
             "n": 1403,
-            "predicted_side_p50": 190.0
+            "predicted_side_p50": 190.0,
+            "road_edge_cut": 0.0007127583749109052,
+            "road_margin_p10": 2.502742096723979,
+            "road_margin_p50": 8.24782119873518,
+            "road_margin_p90": 18.387432765376982
           },
           "9-18 m": {
             "containment": 0.9966101694915255,
@@ -466,7 +574,11 @@
             "context_ratio_p90": 0.2543943582153234,
             "margin_norm_p50": 0.4506816205738911,
             "n": 1475,
-            "predicted_side_p50": 121.0
+            "predicted_side_p50": 121.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 2.423049309277736,
+            "road_margin_p50": 6.884844646362678,
+            "road_margin_p90": 15.815751591990304
           },
           "<5 m": {
             "containment": 1.0,
@@ -481,7 +593,11 @@
             "context_ratio_p90": 0.11401470518516459,
             "margin_norm_p50": 0.47523578676341216,
             "n": 400,
-            "predicted_side_p50": 462.0
+            "predicted_side_p50": 462.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 6.1240200496715875,
+            "road_margin_p50": 13.468525822615655,
+            "road_margin_p90": 31.709358972540976
           },
           ">36 m / horizon": {
             "containment": 1.0,
@@ -496,7 +612,11 @@
             "context_ratio_p90": 0.1495428831223287,
             "margin_norm_p50": 0.44911595705656676,
             "n": 11,
-            "predicted_side_p50": 88.0
+            "predicted_side_p50": 88.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 4.526282489892919,
+            "road_margin_p50": 7.6018102599447115,
+            "road_margin_p90": 14.278327729010456
           }
         }
       },
@@ -514,6 +634,10 @@
         "margin_norm_p50": 0.47741598312109174,
         "n": 3919,
         "predicted_side_p50": 291.0,
+        "road_edge_cut": 0.0,
+        "road_margin_p10": 5.443330842171522,
+        "road_margin_p50": 15.161372384533202,
+        "road_margin_p90": 36.04957988349958,
         "strata": {
           "18-36 m": {
             "containment": 1.0,
@@ -528,7 +652,11 @@
             "context_ratio_p90": 0.08818664049014122,
             "margin_norm_p50": 0.4826860345452477,
             "n": 630,
-            "predicted_side_p50": 267.0
+            "predicted_side_p50": 267.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 7.901107342525873,
+            "road_margin_p50": 21.17946516770908,
+            "road_margin_p90": 47.25902485969928
           },
           "5-9 m": {
             "containment": 1.0,
@@ -543,7 +671,11 @@
             "context_ratio_p90": 0.1531435592136074,
             "margin_norm_p50": 0.4744900088852177,
             "n": 1403,
-            "predicted_side_p50": 308.0
+            "predicted_side_p50": 308.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 4.339656456586482,
+            "road_margin_p50": 13.10887458267794,
+            "road_margin_p90": 28.120665308642987
           },
           "9-18 m": {
             "containment": 1.0,
@@ -558,7 +690,11 @@
             "context_ratio_p90": 0.11279118410972598,
             "margin_norm_p50": 0.4788117365504129,
             "n": 1475,
-            "predicted_side_p50": 281.0
+            "predicted_side_p50": 281.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 6.344661237941297,
+            "road_margin_p50": 16.62704768015822,
+            "road_margin_p90": 37.640271494366516
           },
           "<5 m": {
             "containment": 1.0,
@@ -573,7 +709,11 @@
             "context_ratio_p90": 0.13756783473470494,
             "margin_norm_p50": 0.46976836603518884,
             "n": 400,
-            "predicted_side_p50": 353.0
+            "predicted_side_p50": 353.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 4.984405422034374,
+            "road_margin_p50": 11.374981072228266,
+            "road_margin_p90": 26.432829073130197
           },
           ">36 m / horizon": {
             "containment": 1.0,
@@ -588,7 +728,11 @@
             "context_ratio_p90": 0.05080993712264449,
             "margin_norm_p50": 0.4831786848939694,
             "n": 11,
-            "predicted_side_p50": 259.0
+            "predicted_side_p50": 259.0,
+            "road_edge_cut": 0.0,
+            "road_margin_p10": 14.60448705772311,
+            "road_margin_p50": 23.522772774212733,
+            "road_margin_p90": 43.32306896140669
           }
         }
       }
