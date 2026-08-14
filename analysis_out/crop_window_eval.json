@@ -1,0 +1,597 @@
+{
+  "constants": {
+    "geo": {
+      "cam_h_m": 2.5,
+      "d_clamp_m": [
+        2.0,
+        40.0
+      ],
+      "ramp_w_m": 1.5,
+      "target_ratio": 0.125
+    },
+    "v1": {
+      "clamp": [
+        50.0,
+        1500.0
+      ],
+      "coef": 8725.6,
+      "exp": -1.192,
+      "intercept": 19.8054639,
+      "ref_height": 6656.0,
+      "slope": 0.01523952
+    }
+  },
+  "coverage": {
+    "boxes_covered": 3420,
+    "boxes_total": 3919,
+    "detections_kept": 3610,
+    "detections_unmatched": 190,
+    "panos_missing_record": 0
+  },
+  "inputs": {
+    "labels_dir": "manual_labels",
+    "min_confidence": 0.55,
+    "n_boxes": 3919,
+    "records": "benchmark/manual_gold/records.jsonl"
+  },
+  "issue": 114,
+  "per_box_csv_sha256": "4fd3be108a715f6452609cf77911c168e2549e22c903a17d52d8682e9989819d",
+  "summary": {
+    "detection": {
+      "geo-v1.5": {
+        "containment": 1.0,
+        "containment_ci": [
+          0.9988779854768982,
+          0.9999999999999999
+        ],
+        "context_in_band_05_20": 0.10409356725146199,
+        "context_in_band_10_15": 0.034210526315789476,
+        "context_ratio_p10": 0.007597364824647783,
+        "context_ratio_p50": 0.017557115994978206,
+        "context_ratio_p90": 0.05521267555030452,
+        "margin_norm_p50": 0.4663991607933509,
+        "n": 3420,
+        "predicted_side_p50": 845.0,
+        "strata": {
+          "18-36 m": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.9916093251465135,
+              1.0
+            ],
+            "context_in_band_05_20": 0.14096916299559473,
+            "context_in_band_10_15": 0.02643171806167401,
+            "context_ratio_p10": 0.012478772471363747,
+            "context_ratio_p50": 0.026023985784738822,
+            "context_ratio_p90": 0.07357713292190153,
+            "margin_norm_p50": 0.45265432723274435,
+            "n": 454,
+            "predicted_side_p50": 386.0
+          },
+          "5-9 m": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.9971134055322586,
+              1.0
+            ],
+            "context_in_band_05_20": 0.0934438583270535,
+            "context_in_band_10_15": 0.04069329314242653,
+            "context_ratio_p10": 0.006717942682468233,
+            "context_ratio_p50": 0.01427960979226836,
+            "context_ratio_p90": 0.047207929863899704,
+            "margin_norm_p50": 0.4756689373434097,
+            "n": 1327,
+            "predicted_side_p50": 1034.0
+          },
+          "9-18 m": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.9969771213029223,
+              0.9999999999999999
+            ],
+            "context_in_band_05_20": 0.11681136543014996,
+            "context_in_band_10_15": 0.037884767166535126,
+            "context_ratio_p10": 0.009301763482045146,
+            "context_ratio_p50": 0.020480241770338404,
+            "context_ratio_p90": 0.05920357714382731,
+            "margin_norm_p50": 0.46171476802904654,
+            "n": 1267,
+            "predicted_side_p50": 543.0
+          },
+          "<5 m": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.9896408601408255,
+              1.0
+            ],
+            "context_in_band_05_20": 0.051771117166212535,
+            "context_in_band_10_15": 0.008174386920980926,
+            "context_ratio_p10": 0.00598237129593339,
+            "context_ratio_p50": 0.01231978815850344,
+            "context_ratio_p90": 0.028198604987292986,
+            "margin_norm_p50": 0.3925076942024495,
+            "n": 367,
+            "predicted_side_p50": 1747.0
+          },
+          ">36 m / horizon": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.5655085052479191,
+              1.0
+            ],
+            "context_in_band_05_20": 0.2,
+            "context_in_band_10_15": 0.0,
+            "context_ratio_p10": 0.03774860499175808,
+            "context_ratio_p50": 0.042726538034952036,
+            "context_ratio_p90": 0.056982216776320836,
+            "margin_norm_p50": 0.447371517598168,
+            "n": 5,
+            "predicted_side_p50": 231.0
+          }
+        }
+      },
+      "v1-norm": {
+        "containment": 0.9751461988304093,
+        "containment_ci": [
+          0.9693711829510818,
+          0.9798549728383681
+        ],
+        "context_in_band_05_20": 0.6687134502923977,
+        "context_in_band_10_15": 0.1912280701754386,
+        "context_ratio_p10": 0.03685379017751247,
+        "context_ratio_p50": 0.08491110501781776,
+        "context_ratio_p90": 0.2448009619263659,
+        "margin_norm_p50": 0.35308826962627937,
+        "n": 3420,
+        "predicted_side_p50": 149.0,
+        "strata": {
+          "18-36 m": {
+            "containment": 0.947136563876652,
+            "containment_ci": [
+              0.922547616726965,
+              0.9642219559811508
+            ],
+            "context_in_band_05_20": 0.748898678414097,
+            "context_in_band_10_15": 0.20704845814977973,
+            "context_ratio_p10": 0.047853722599147656,
+            "context_ratio_p50": 0.09222497095393456,
+            "context_ratio_p90": 0.2394608204220774,
+            "margin_norm_p50": 0.32893885306301995,
+            "n": 454,
+            "predicted_side_p50": 100.0
+          },
+          "5-9 m": {
+            "containment": 0.9886963074604371,
+            "containment_ci": [
+              0.9814332612076023,
+              0.99313801759823
+            ],
+            "context_in_band_05_20": 0.6435568952524491,
+            "context_in_band_10_15": 0.16201959306706856,
+            "context_ratio_p10": 0.035341183097288995,
+            "context_ratio_p50": 0.07800852581098114,
+            "context_ratio_p90": 0.2628396721548693,
+            "margin_norm_p50": 0.3686612381941249,
+            "n": 1327,
+            "predicted_side_p50": 183.0
+          },
+          "9-18 m": {
+            "containment": 0.9636937647987371,
+            "containment_ci": [
+              0.9519127928211605,
+              0.9726713567691582
+            ],
+            "context_in_band_05_20": 0.7269139700078927,
+            "context_in_band_10_15": 0.2509865824782952,
+            "context_ratio_p10": 0.04815012207954061,
+            "context_ratio_p50": 0.09999921049598015,
+            "context_ratio_p90": 0.2965914256798953,
+            "margin_norm_p50": 0.316657472785639,
+            "n": 1267,
+            "predicted_side_p50": 113.0
+          },
+          "<5 m": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.9896408601408255,
+              1.0
+            ],
+            "context_in_band_05_20": 0.4550408719346049,
+            "context_in_band_10_15": 0.0681198910081744,
+            "context_ratio_p10": 0.023817959671554513,
+            "context_ratio_p50": 0.05056914995772542,
+            "context_ratio_p90": 0.11966364139683314,
+            "margin_norm_p50": 0.41907359307370745,
+            "n": 367,
+            "predicted_side_p50": 462.0
+          },
+          ">36 m / horizon": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.5655085052479191,
+              1.0
+            ],
+            "context_in_band_05_20": 1.0,
+            "context_in_band_10_15": 0.4,
+            "context_ratio_p10": 0.09497534596801951,
+            "context_ratio_p50": 0.11089696950644855,
+            "context_ratio_p90": 0.14053066379590112,
+            "margin_norm_p50": 0.36174383223834317,
+            "n": 5,
+            "predicted_side_p50": 89.0
+          }
+        }
+      },
+      "v1-raw": {
+        "containment": 0.9997076023391813,
+        "containment_ci": [
+          0.9983454622081221,
+          0.9999483840959825
+        ],
+        "context_in_band_05_20": 0.35964912280701755,
+        "context_in_band_10_15": 0.05760233918128655,
+        "context_ratio_p10": 0.021583184845580722,
+        "context_ratio_p50": 0.0450626132463669,
+        "context_ratio_p90": 0.13643095086222273,
+        "margin_norm_p50": 0.4203605054470154,
+        "n": 3420,
+        "predicted_side_p50": 294.0,
+        "strata": {
+          "18-36 m": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.9916093251465135,
+              1.0
+            ],
+            "context_in_band_05_20": 0.21145374449339208,
+            "context_in_band_10_15": 0.024229074889867842,
+            "context_ratio_p10": 0.01749313543103837,
+            "context_ratio_p50": 0.03378010087064637,
+            "context_ratio_p90": 0.08678477288975692,
+            "margin_norm_p50": 0.4365442792654972,
+            "n": 454,
+            "predicted_side_p50": 268.0
+          },
+          "5-9 m": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.9971134055322586,
+              1.0
+            ],
+            "context_in_band_05_20": 0.4129615674453655,
+            "context_in_band_10_15": 0.07309721175584025,
+            "context_ratio_p10": 0.024255439337881733,
+            "context_ratio_p50": 0.04995716117550656,
+            "context_ratio_p90": 0.15852595497007577,
+            "margin_norm_p50": 0.41585043888257334,
+            "n": 1327,
+            "predicted_side_p50": 306.0
+          },
+          "9-18 m": {
+            "containment": 0.9992107340173638,
+            "containment_ci": [
+              0.9955426958794222,
+              0.9998606651688782
+            ],
+            "context_in_band_05_20": 0.2991318074191002,
+            "context_in_band_10_15": 0.037884767166535126,
+            "context_ratio_p10": 0.020603254368241557,
+            "context_ratio_p50": 0.042160404952193094,
+            "context_ratio_p90": 0.12845020011188238,
+            "margin_norm_p50": 0.4231349858836982,
+            "n": 1267,
+            "predicted_side_p50": 276.0
+          },
+          "<5 m": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.9896408601408255,
+              1.0
+            ],
+            "context_in_band_05_20": 0.5613079019073569,
+            "context_in_band_10_15": 0.11171662125340599,
+            "context_ratio_p10": 0.028507085158289796,
+            "context_ratio_p50": 0.059448175226737676,
+            "context_ratio_p90": 0.13639083702074328,
+            "margin_norm_p50": 0.4042398238990469,
+            "n": 367,
+            "predicted_side_p50": 353.0
+          },
+          ">36 m / horizon": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.5655085052479191,
+              1.0
+            ],
+            "context_in_band_05_20": 0.2,
+            "context_in_band_10_15": 0.0,
+            "context_ratio_p10": 0.03241229618357201,
+            "context_ratio_p50": 0.03796088571566893,
+            "context_ratio_p90": 0.04786296598031882,
+            "margin_norm_p50": 0.454596927189279,
+            "n": 5,
+            "predicted_side_p50": 260.0
+          }
+        }
+      }
+    },
+    "gold-center": {
+      "geo-v1.5": {
+        "containment": 1.0,
+        "containment_ci": [
+          0.9990207098854054,
+          0.9999999999999998
+        ],
+        "context_in_band_05_20": 0.09109466700688951,
+        "context_in_band_10_15": 0.033682061750446544,
+        "context_ratio_p10": 0.00763790565039307,
+        "context_ratio_p50": 0.01700567179840443,
+        "context_ratio_p90": 0.04921030925440047,
+        "margin_norm_p50": 0.4899057453326242,
+        "n": 3919,
+        "predicted_side_p50": 789.0,
+        "strata": {
+          "18-36 m": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.9939391797572138,
+              1.0
+            ],
+            "context_in_band_05_20": 0.11428571428571428,
+            "context_in_band_10_15": 0.022222222222222223,
+            "context_ratio_p10": 0.011415361799090237,
+            "context_ratio_p50": 0.023768704873924604,
+            "context_ratio_p90": 0.06706877405120876,
+            "margin_norm_p50": 0.4873885189112154,
+            "n": 630,
+            "predicted_side_p50": 378.0
+          },
+          "5-9 m": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.997269344324194,
+              1.0
+            ],
+            "context_in_band_05_20": 0.08766928011404133,
+            "context_in_band_10_15": 0.041339985744832504,
+            "context_ratio_p10": 0.006660785244018041,
+            "context_ratio_p50": 0.013980093235176601,
+            "context_ratio_p90": 0.044130589724395194,
+            "margin_norm_p50": 0.49272486059292614,
+            "n": 1403,
+            "predicted_side_p50": 1064.0
+          },
+          "9-18 m": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.9974022910905399,
+              0.9999999999999999
+            ],
+            "context_in_band_05_20": 0.09491525423728814,
+            "context_in_band_10_15": 0.03728813559322034,
+            "context_ratio_p10": 0.008881481485011012,
+            "context_ratio_p50": 0.01850265228722477,
+            "context_ratio_p90": 0.049491739825899356,
+            "margin_norm_p50": 0.49026706193624675,
+            "n": 1475,
+            "predicted_side_p50": 624.0
+          },
+          "<5 m": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.9904873594003194,
+              1.0
+            ],
+            "context_in_band_05_20": 0.05,
+            "context_in_band_10_15": 0.0125,
+            "context_ratio_p10": 0.0058525738412918485,
+            "context_ratio_p50": 0.012212476490725634,
+            "context_ratio_p90": 0.028185508830745273,
+            "margin_norm_p50": 0.3888401545669513,
+            "n": 400,
+            "predicted_side_p50": 1745.5
+          },
+          ">36 m / horizon": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.7411599827511859,
+              1.0
+            ],
+            "context_in_band_05_20": 0.18181818181818182,
+            "context_in_band_10_15": 0.0,
+            "context_ratio_p10": 0.02517813848488013,
+            "context_ratio_p50": 0.04006980635952136,
+            "context_ratio_p90": 0.060365934471398736,
+            "margin_norm_p50": 0.47847211966193015,
+            "n": 11,
+            "predicted_side_p50": 208.0
+          }
+        }
+      },
+      "v1-norm": {
+        "containment": 0.9964276601173769,
+        "containment_ci": [
+          0.9940122134336967,
+          0.9978708134007287
+        ],
+        "context_in_band_05_20": 0.6754274049502424,
+        "context_in_band_10_15": 0.17861699413115592,
+        "context_ratio_p10": 0.03676450939935683,
+        "context_ratio_p50": 0.08181254227388564,
+        "context_ratio_p90": 0.22970134701041015,
+        "margin_norm_p50": 0.45710907276519913,
+        "n": 3919,
+        "predicted_side_p50": 141.0,
+        "strata": {
+          "18-36 m": {
+            "containment": 0.9904761904761905,
+            "containment_ci": [
+              0.9793788955464686,
+              0.9956281093582269
+            ],
+            "context_in_band_05_20": 0.7380952380952381,
+            "context_in_band_10_15": 0.19047619047619047,
+            "context_ratio_p10": 0.04348860015988408,
+            "context_ratio_p50": 0.08856193869623305,
+            "context_ratio_p90": 0.2404831961327132,
+            "margin_norm_p50": 0.452980194397065,
+            "n": 630,
+            "predicted_side_p50": 99.0
+          },
+          "5-9 m": {
+            "containment": 0.9978617248752673,
+            "containment_ci": [
+              0.9937319258148101,
+              0.99927254604613
+            ],
+            "context_in_band_05_20": 0.654312188168211,
+            "context_in_band_10_15": 0.15609408410548825,
+            "context_ratio_p10": 0.036020456908896395,
+            "context_ratio_p50": 0.07614738170506011,
+            "context_ratio_p90": 0.24200078516216925,
+            "margin_norm_p50": 0.46073050475481486,
+            "n": 1403,
+            "predicted_side_p50": 190.0
+          },
+          "9-18 m": {
+            "containment": 0.9966101694915255,
+            "containment_ci": [
+              0.9920889958990061,
+              0.9985512457604117
+            ],
+            "context_in_band_05_20": 0.7342372881355932,
+            "context_in_band_10_15": 0.22847457627118645,
+            "context_ratio_p10": 0.04578128996623287,
+            "context_ratio_p50": 0.09440707230157742,
+            "context_ratio_p90": 0.2543943582153234,
+            "margin_norm_p50": 0.4506816205738911,
+            "n": 1475,
+            "predicted_side_p50": 121.0
+          },
+          "<5 m": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.9904873594003194,
+              1.0
+            ],
+            "context_in_band_05_20": 0.425,
+            "context_in_band_10_15": 0.0525,
+            "context_ratio_p10": 0.023931498674226108,
+            "context_ratio_p50": 0.04835159194087851,
+            "context_ratio_p90": 0.11401470518516459,
+            "margin_norm_p50": 0.47523578676341216,
+            "n": 400,
+            "predicted_side_p50": 462.0
+          },
+          ">36 m / horizon": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.7411599827511859,
+              1.0
+            ],
+            "context_in_band_05_20": 1.0,
+            "context_in_band_10_15": 0.2727272727272727,
+            "context_ratio_p10": 0.05945680895224705,
+            "context_ratio_p50": 0.09471045139523229,
+            "context_ratio_p90": 0.1495428831223287,
+            "margin_norm_p50": 0.44911595705656676,
+            "n": 11,
+            "predicted_side_p50": 88.0
+          }
+        }
+      },
+      "v1-raw": {
+        "containment": 1.0,
+        "containment_ci": [
+          0.9990207098854054,
+          0.9999999999999998
+        ],
+        "context_in_band_05_20": 0.3401377902526155,
+        "context_in_band_10_15": 0.05256442970145445,
+        "context_ratio_p10": 0.02031908167617422,
+        "context_ratio_p50": 0.04347840432263492,
+        "context_ratio_p90": 0.12971957994887007,
+        "margin_norm_p50": 0.47741598312109174,
+        "n": 3919,
+        "predicted_side_p50": 291.0,
+        "strata": {
+          "18-36 m": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.9939391797572138,
+              1.0
+            ],
+            "context_in_band_05_20": 0.19523809523809524,
+            "context_in_band_10_15": 0.023809523809523808,
+            "context_ratio_p10": 0.01591248044635373,
+            "context_ratio_p50": 0.03254327527605376,
+            "context_ratio_p90": 0.08818664049014122,
+            "margin_norm_p50": 0.4826860345452477,
+            "n": 630,
+            "predicted_side_p50": 267.0
+          },
+          "5-9 m": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.997269344324194,
+              1.0
+            ],
+            "context_in_band_05_20": 0.4105488239486814,
+            "context_in_band_10_15": 0.07056307911617961,
+            "context_ratio_p10": 0.024060218944694293,
+            "context_ratio_p50": 0.04956616532570887,
+            "context_ratio_p90": 0.1531435592136074,
+            "margin_norm_p50": 0.4744900088852177,
+            "n": 1403,
+            "predicted_side_p50": 308.0
+          },
+          "9-18 m": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.9974022910905399,
+              0.9999999999999999
+            ],
+            "context_in_band_05_20": 0.28135593220338984,
+            "context_in_band_10_15": 0.03389830508474576,
+            "context_ratio_p10": 0.01979541448393644,
+            "context_ratio_p50": 0.040970652910227605,
+            "context_ratio_p90": 0.11279118410972598,
+            "margin_norm_p50": 0.4788117365504129,
+            "n": 1475,
+            "predicted_side_p50": 281.0
+          },
+          "<5 m": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.9904873594003194,
+              1.0
+            ],
+            "context_in_band_05_20": 0.5425,
+            "context_in_band_10_15": 0.105,
+            "context_ratio_p10": 0.02859087932057104,
+            "context_ratio_p50": 0.058804685066362994,
+            "context_ratio_p90": 0.13756783473470494,
+            "margin_norm_p50": 0.46976836603518884,
+            "n": 400,
+            "predicted_side_p50": 353.0
+          },
+          ">36 m / horizon": {
+            "containment": 1.0,
+            "containment_ci": [
+              0.7411599827511859,
+              1.0
+            ],
+            "context_in_band_05_20": 0.18181818181818182,
+            "context_in_band_10_15": 0.0,
+            "context_ratio_p10": 0.019428799775734272,
+            "context_ratio_p50": 0.032179612829268116,
+            "context_ratio_p90": 0.05080993712264449,
+            "margin_norm_p50": 0.4831786848939694,
+            "n": 11,
+            "predicted_side_p50": 259.0
+          }
+        }
+      }
+    }
+  }
+}
