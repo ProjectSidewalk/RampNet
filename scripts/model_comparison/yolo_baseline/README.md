@@ -83,8 +83,9 @@ Read live from `results.csv` on both clusters at **2026-08-09 ~16:00 PDT** and m
 `runs/*/results.csv` in this commit, so every number below is re-derivable from the repo
 rather than from a login session. Metrics are Ultralytics **validation** metrics on the
 auto-labelled val split at each arm's best epoch. They are the *selection* metric only —
-**not** the issue #51 headline, which is F1@conf0.25 against the benchmark and has still not
-been run for any arm.
+**not** the issue #51 headline, which is F1@conf0.25 against the benchmark. (As of
+2026-08-14 that benchmark eval **has now run for the three pano arms** — see "Benchmark
+eval — the pano trio" below; the tiles arms remain unevaluated.)
 
 | arm | epochs | best ep | mAP50 | mAP50-95 | state |
 |---|---:|---:|---:|---:|---|
@@ -125,6 +126,121 @@ not start anything that cannot finish before it. The consequence for this grid i
 (`38304087`) is a 7-day request, so it will *not* pick up in the ~26 h gap — that arm stops at
 ep21 until after the window. The ckpt arms stop being scheduled as their 9 h slices stop
 fitting, roughly from 08-11 00:00.
+
+## Benchmark eval — the pano trio (2026-08-14)
+
+The three pano-geometry arms are the first checkpoints of this grid to be scored against
+the benchmark, under the pre-registered protocol below with nothing changed: `best.pt` as
+saved, one `compare.py` run per bundle, `--tiling none --yolo-imgsz 1280`, headline **F1 at
+conf 0.25**, match radius 0.022, all ten splits (nine cities + `manual_gold`). This was
+each test bundle's first and only contact with any YOLO checkpoint. The tiles arms are
+still training and remain unevaluated.
+
+**Provenance.** Run on makelab2 (A40), torch 2.13.0+cu130, **ultralytics 8.4.120 at
+inference vs 8.4.105 at training** (recorded, not assumed equivalent). Checkpoints are the
+durable-snapshot copies, sha256-verified against `.sha256.verified` before scoring:
+`y11l_pano` ep59 (`3893e5ec…`), `y26_pano` ep56 (`9aefb728…`), `y11x_pano_h200` ep60
+(`8ee4f7bf…`). The full per-bundle outputs, PR curves, and the as-run driver script are
+committed under [`benchmark_eval/`](benchmark_eval/); the per-pano detections are exported
+to `benchmark/model_detections/` (30 files, `--verify` confirmed identical scoring to the
+producing cache), so every number here re-scores from a clean clone with no checkpoint or
+GPU. Since both completed klone arms ran the full 60-epoch budget with patience (20) never
+firing, these are **budget-exhausted** models, not converged ones — the earlier
+"lower bound / undertrained" caveat is retired in its old form and survives only in that
+milder sense.
+
+### Headline: F1 at the pre-registered conf 0.25
+
+| split | y11l_pano | y26_pano | y11x_pano_h200 | RampNet | best zero-shot |
+|---|---:|---:|---:|---:|---:|
+| manual_gold | 0.839 | 0.739 | **0.851** | 0.908 | 0.568 (gemini-pro) |
+| bend | **0.713** | 0.637 | 0.710 | 0.850 | 0.638 (gemini-pro) |
+| morgantown | 0.675 | 0.681 | **0.686** | 0.835 | 0.639 (gemini-pro) |
+| sao_paulo | **0.662** | 0.605 | 0.659 | 0.777 | 0.454 (gemini-pro) |
+| paterson | **0.647** | 0.591 | 0.635 | 0.805 | 0.681 (gemini-pro) |
+| clovis | **0.600** | 0.552 | 0.551 | 0.801 | 0.503 (gemini-pro) |
+| richmond | **0.595** | 0.491 | 0.547 | 0.855 | 0.664 (gemini-pro) |
+| gainesville | **0.516** | 0.451 | 0.499 | 0.803 | 0.548 (gemini-pro) |
+| annapolis | **0.481** | 0.450 | 0.397 | 0.839 | 0.567 (gemini-pro) |
+| budapest_district5 | 0.247 | **0.277** | 0.221 | 0.644 | 0.381 (gemini-pro) |
+
+RampNet and zero-shot columns are the committed `docs/model_comparison.md` numbers, quoted
+for context; full P/R/AP and tp/fp/fn for every YOLO row are in `benchmark_eval/<split>.txt`.
+
+What the headline says:
+
+- **The dataset alone is a strong in-distribution detector but does not reproduce RampNet.**
+  On `manual_gold` — in-distribution GSV, independent GT, the anchoring control —
+  `y11x_pano_h200` reaches **0.851 vs RampNet's 0.908** (P 0.956 / R 0.767, AP 0.931 across
+  1,000 panos, zero failures), far above every zero-shot challenger. On the nine deployment
+  cities the gap to RampNet widens to 0.12–0.37: the supervised baseline degrades
+  out-of-domain much faster than RampNet does, worst on the far-field-heavy and non-US
+  splits (annapolis, gainesville, budapest).
+- **Against the zero-shot field it splits 5–5 at the headline threshold** — above the best
+  challenger on manual_gold, bend, clovis, morgantown, and sao_paulo; below it on richmond,
+  annapolis, budapest, gainesville, and paterson.
+- **budapest is the failure case worth quoting**: recall 0.13–0.18. The supervised model
+  nearly stops firing on non-US design vocabulary, landing *below* gemini-pro — training
+  data with a US-centric distribution bought in-domain strength at the price of the worst
+  OOD collapse in the comparison (with budapest's GT-confidence caveat attached as always).
+- **The val-split model ordering (x > l > 26) does not transfer to the headline.** y11l
+  leads y11x on 7 of 10 splits at conf 0.25 — but see the calibration finding: at the
+  sweep's best threshold the val ordering reappears, so the headline inversion is an
+  operating-point artifact, not a generalization result. y26 is last nearly everywhere in
+  both views.
+
+### The operating point is doing a lot of work — the profile is miscalibration, not blindness
+
+At conf 0.25 every arm is precision-heavy and recall-starved (P 0.90–0.99 while missing
+44–87% of GT ramps). The sweeps show much of that recall exists below the threshold —
+per-split best-F1 sits at conf 0.10–0.15, never at 0.25:
+
+| split | y11x best sweep F1 (thr) | vs its 0.25 headline | y11l best sweep F1 (thr) |
+|---|---:|---:|---:|
+| manual_gold | **0.893** (0.15) | +0.042 | 0.868 (0.15) |
+| morgantown | **0.813** (0.10) | +0.127 | 0.793 (0.15) |
+| bend | **0.802** (0.15) | +0.092 | 0.779 (0.15) |
+| richmond | **0.777** (0.10) | +0.230 | 0.736 (0.10) |
+| paterson | **0.776** (0.10) | +0.141 | 0.762 (0.10) |
+| sao_paulo | **0.754** (0.10) | +0.095 | 0.740 (0.15) |
+| clovis | **0.734** (0.10) | +0.183 | 0.687 (0.15) |
+| annapolis | **0.690** (0.05) | +0.293 | 0.663 (0.10) |
+| gainesville | **0.668** (0.10) | +0.169 | 0.672 (0.10) |
+| budapest_district5 | **0.510** (0.10) | +0.289 | 0.541 (0.10) |
+
+**These are tuned on test and are not headline numbers** — the sweep was always going to be
+printed under exactly that flag (protocol below). But the pattern is structural: the
+model's confidence distribution shifts down out-of-domain, so a fixed conf 0.25 amputates
+recall hardest exactly where the domain shift is largest (annapolis +0.293, budapest
++0.289). At best-sweep thresholds the gap to RampNet shrinks to 0.02–0.15 and y11x beats
+the best zero-shot challenger on all ten splits. This mirrors the RampNet-side finding of
+#54/#55 (deployment threshold 0.55 → 0.30): both detectors under-fire at their library
+default. A legitimate correction exists — select the operating point on the *val split*,
+per arm, and pre-register it as a protocol amendment — but it must be recorded that the
+idea is motivated by having seen these test sweeps, so any amended number stays clearly
+labelled as post-hoc-motivated even if val-selected. No such amendment is adopted in this
+commit; the headline remains F1@0.25.
+
+**AP is deliberately not compared against RampNet** in the tables above: the protocol's
+truncation caveat applies (RampNet's benchmark detections exist only above its 0.5 peak
+floor, so its committed AP is curve-truncated; the YOLO APs integrate from a 0.05 floor).
+YOLO AP is in each `benchmark_eval/<split>.txt` for YOLO-to-YOLO comparison.
+
+### What this answers, and what it leaves open (#51)
+
+The architecture-vs-data question now has its first half of an answer: **on pano geometry
+at equal (in fact 60× larger) training budget, the RampNet dataset gets a generic detector
+to within 0.06 of RampNet in-distribution, but nowhere near its out-of-domain robustness —
+so the keypoint architecture + full-resolution input are doing real, measurable work, and
+that work is concentrated in generalization, not in-domain fit.** Two mechanisms are the
+leading candidates for the residual gap, both testable: input resolution (1280 vs
+RampNet's 2048×4096 — a far-field ramp is ~3× smaller in pixels for YOLO; the still-training
+**tiles arms are exactly the resolution-controlled test**, since perspective views restore
+pixels-per-ramp on the same rig the VLMs are scored with), and point-labels-as-boxes
+supervision (the pitch-heuristic boxes are synthesized targets in precisely the dimensions
+YOLO's IoU/DFL losses optimize and the point-radius eval never scores). The 1-epoch
+RampNet release outperforming all three 60-epoch arms rules out training budget as the
+explanation.
 
 ## Status & findings — first-week record (live check: 2026-07-29 ~20:45 PT)
 
