@@ -116,57 +116,65 @@ not inherit the ML number.
 
 ---
 
-## Round 2 — first REAL extent gold (richmond, INTERIM at 112/310 boxes, 2026-08-14)
+## Round 2 — REAL extent gold (richmond, COMPLETE: all 310 adjudicated ramps, 2026-08-14)
 
-`scripts/box_gallery.py` (#116) produced the first whole-apron extent gold: 110 boxed +
-2 can't-determine ramps on 32 Mapillary panos (jonf, box rule v1; the sample is
-hash-ordered, i.e. effectively random over the 310 adjudicated Richmond ramps). Scored
-with `--bundle benchmark/richmond`; summary committed as
+`scripts/box_gallery.py` (#116) produced the first whole-apron extent gold, now
+complete: **299 boxed + 11 can't-determine = all 310 adjudicated Richmond ramps on all
+92 benchmark panos** (jonf, one day, box rule v1→v2 — v2 added two clarifying bullets
+mid-annotation, no convention change). Committed as `benchmark/richmond/boxes.json`;
+scored with `--bundle benchmark/richmond`; summary committed as
 `analysis_out/crop_window_eval_richmond.json`. Two new elements vs Round 1: containment
 is finally *whole-apron* containment, and the **directional road-context margin** — how
 far the window extends below the box bottom (≈ the ramp–street junction), in box
 heights — is reported per rule ("road p50"; "edgecut" = share of windows that clip the
-street edge off).
+street edge off). Sanity check on the gold itself: per-band box-size medians run
+~1.2–1.3× the 1.5 m flat-ground nominal, uniformly across distance — true full-apron
+extents (manual_labels sat at ~0.13×).
 
-**Detection-prompted (production-realistic), n=88:**
+**Detection-prompted (production-realistic), n=227:**
 
 | rule | containment (95% CI) | ctx p50 | road p50 | side p50 |
 |---|---|---:|---:|---:|
-| v1-raw | 0.534 [0.43, 0.64] | 0.80 | 1.8 | 317 px |
-| v1-norm | **0.295** [0.21, 0.40] | 0.96 | 1.1 | 268 px |
-| geo-v1.5 | **1.000** [0.96, 1.00] | 0.24 | 6.7 | 1182 px |
+| v1-raw | 0.449 [0.39, 0.51] | 0.87 | 1.4 | 340 px |
+| v1-norm | **0.260** [0.21, 0.32] | 1.02 | 1.1 | 304 px |
+| geo-v1.5 | **0.996** [0.98, 1.00] | 0.23 | 6.6 | 1458 px |
 
 **Finding 4 — the v1 formula is object-sized, not window-sized, against real extents.**
-Both v1 variants produce windows about the size of the ramp itself (ctx p50 0.8–0.96),
-so containment collapses, monotonically with proximity: v1-raw goes 1.00 → 0.78 → 0.48
-→ 0.29 → 0.00 across the distance strata (far → <5 m); v1-norm sits at 0.28–0.60
-everywhere. The Round-1 framing inverts: **the resolution normalization is correct and
+Both v1 variants produce windows about the size of the ramp itself (ctx p50 0.87–1.02),
+so containment collapses, monotonically with proximity: v1-raw goes 0.86 → 0.70 → 0.39
+→ 0.22 → 0.00 across the distance strata (far → <5 m); v1-norm never exceeds 0.43 in
+any band. The Round-1 framing inverts: **the resolution normalization is correct and
 still loses** — richmond's panos are mostly *below* the 6656 calibration height (5500,
 2880, 2048), so normalizing shrinks windows relative to raw, and raw's calibration
 defect was accidentally *hiding* the deeper problem: the 2013-era formula's output is
 simply too small to contain a full apron at close/mid range. Fixing only the resolution
 bug (SW#4865's port as planned) would ship the *worst* of the three rules for Richmond.
 
-**geo-v1.5 contains everything by construction** (windows sized from geometry, padded to
-a 12.5 % target), at the price of ~2× more context than the ML band (measured ctx p50
-0.22, because real aprons measure ~1.2–1.3× the 1.5 m nominal) and very large windows
-(p50 ~1.0–1.2 kpx). Whether that context level is "too much" is per consumer class
-(Finding 3): for a human-facing Gallery card it may be about right; for a training-crop
-consumer it halves effective object resolution vs a tighter window. Its ctx p10–p90
-spread (0.13–0.40) at a fixed target is the flat-ground proxy error + ramp-size/
-orientation variation — the gap an extent-aware rule (SAM2 box) would close.
+**geo-v1.5 contains 0.996** (windows sized from geometry, padded to a 12.5 % target), at
+the price of ~2× more context than the ML band (measured ctx p50 0.23, because real
+aprons measure ~1.2–1.3× the 1.5 m nominal) and very large windows (p50 ~1.5 kpx).
+Whether that context level is "too much" is per consumer class (Finding 3): for a
+human-facing Gallery card it may be about right; for a training-crop consumer it halves
+effective object resolution vs a tighter window. Its ctx p10–p90 spread (0.14–0.40) at a
+fixed target is the flat-ground proxy error + ramp-size/orientation variation — the gap
+an extent-aware rule (SAM2 box) would close. Its **single containment miss** (of 227) is
+diagnostic: a ~28 m ramp whose 231 px window is only slightly larger than the 187 px
+box, contained at gold-center but clipped at the detection prompt — far-field windows
+leave too little *placement slack* for detection offset. A padding floor (or explicit
+placement-error allowance) in the far field is the obvious tuning if geo ships.
 
-**Sample-size answer:** at n=110 the ranking is already outside the CIs — more richmond
-boxes refine strata, they won't flip the verdict. The load-bearing open question moves
-to the **GSV arm** (manual_gold re-annotation): richmond's heights are ≤ 6656, where
-normalization *shrinks*; GSV native panos (8192/16384) sit above it, where the raw
-formula *over*-sizes instead. If full aprons bust v1 there too, the v1 baseline is dead
-on both providers and the contest is geo-v1.5 (with per-consumer target ratios) vs SAM2.
+**The verdict is stable, not sample-limited:** it was already outside the CIs at the
+112-box interim cut and did not move from 246 → 299 (v1-norm 0.295 → 0.263 → 0.260).
+The load-bearing open question moves to the **GSV arm** (manual_gold re-annotation via
+`--from-manual-labels`): richmond's heights are ≤ 6656, where normalization *shrinks*;
+GSV native panos (8192/16384) sit above it, where the raw formula *over*-sizes instead.
+If full aprons bust v1 there too, the v1 baseline is dead on both providers and the
+contest is geo-v1.5 (with per-consumer target ratios) vs SAM2.
 
-Interim caveats: single annotator; box rule v1 (v2 added two clarifying bullets, no
-convention change); 4 pano-height groups {5500: 18, 6144: 4, 2880: 5, 2048: 4 panos} so
-richmond alone cannot separate height effects; `missed:*` items (22) score only in
-gold-center mode (production cuts no crop without a detection).
+Caveats: single annotator (jonf); 4 pano-height groups {5500: 59, 6144: 10, 2880: 8,
+2048: 9 panos} so richmond alone cannot separate height effects; `missed:*` items (72)
+score only in gold-center mode (production cuts no crop without a detection); 11 ramps
+are "can't determine extent" and excluded.
 
 ## Caveats
 
