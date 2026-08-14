@@ -164,7 +164,10 @@ leave too little *placement slack* for detection offset. A padding floor (or exp
 placement-error allowance) in the far field is the obvious tuning if geo ships.
 
 **The verdict is stable, not sample-limited:** it was already outside the CIs at the
-112-box interim cut and did not move from 246 → 299 (v1-norm 0.295 → 0.263 → 0.260).
+112-box interim cut and did not move from 246 → 299 (v1-norm 0.295 → 0.263 → 0.260;
+the interim exports behind those checkpoints are archived with provenance notes in
+`benchmark/richmond/box_annotation_log/` on the #116 branch, so the trajectory is
+regenerable).
 The load-bearing open question moves to the **GSV arm** (manual_gold re-annotation via
 `--from-manual-labels`): richmond's heights are ≤ 6656, where normalization *shrinks*;
 GSV native panos (8192/16384) sit above it, where the raw formula *over*-sizes instead.
