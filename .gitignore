@@ -2,6 +2,12 @@
 dataset
 *.out
 *.err
+# ...except the rescued Stage 1 run log. `*.out` is there to keep Slurm stdout out of
+# the repo, but this particular Slurm stdout IS the evidence: it is the only surviving
+# record of which panoramas Google refused, docs/data/rampnet1_stage1_run/SHA256SUMS
+# checksums it, and scripts/analysis/stage1_yield.py reads it by default -- so without
+# it that script cannot run from a clean clone.
+!docs/data/rampnet1_stage1_run/*.out
 .venv/
 *.egg-info/
 benchmark/*/panos/
@@ -57,6 +63,12 @@ analysis_out/op/*
 # responses (#120 review). A few hundred bytes, and it is the evidence behind
 # reading gemini-3.7-flash as conservative rather than broken.
 !analysis_out/empty_response_check.json
+# What every paid-model run spent, appended at the time it ran (compare.py
+# --usage-log). A few hundred bytes per leg, and it is the only durable record of
+# API spend -- the billing console's retention is ~6 weeks, so an uncommitted copy
+# becomes unrecoverable rather than merely inconvenient. Append-only; never rewrite
+# a past line, since each one is a measurement.
+!analysis_out/usage_log.jsonl
 # Crop-window sizing eval summaries (#114): per-rule containment/context stats plus
 # the sha256 of the per-box CSV each summarizes (the CSVs themselves regenerate).
 # The glob also covers per-bundle runs against box_gallery extent gold (#116),
