@@ -1,0 +1,91 @@
+{
+ "crop_half_angle_deg": 18.367779123901286,
+ "tangential_tolerance_per_metre_of_range": 0.33203124999999994,
+ "city": "denver-co",
+ "n_offsets": 52,
+ "n_benchmark_ramps": 6238,
+ "ramps_per_bundle": {
+  "richmond": 302,
+  "bend": 327,
+  "morgantown": 266,
+  "budapest_district5": 280,
+  "annapolis": 284,
+  "paterson": 393,
+  "gainesville": 272,
+  "clovis": 195,
+  "manual_gold": 3919
+ },
+ "result": {
+  "p_outside": 0.002095,
+  "trials": 200000,
+  "by_range": {
+   "0-5 m": {
+    "outside": 322,
+    "n": 14020,
+    "rate": 0.022967189728958632
+   },
+   "5-10 m": {
+    "outside": 97,
+    "n": 74145,
+    "rate": 0.0013082473531593499
+   },
+   "10-15 m": {
+    "outside": 0,
+    "n": 53837,
+    "rate": 0.0
+   },
+   "15-25 m": {
+    "outside": 0,
+    "n": 43919,
+    "rate": 0.0
+   },
+   "25-inf m": {
+    "outside": 0,
+    "n": 14079,
+    "rate": 0.0
+   }
+  }
+ },
+ "sweep": [
+  {
+   "scale": 1,
+   "median_offset_m": 0.29,
+   "p_outside": 0.0024833333333333335
+  },
+  {
+   "scale": 2,
+   "median_offset_m": 0.58,
+   "p_outside": 0.02115
+  },
+  {
+   "scale": 3,
+   "median_offset_m": 0.8699999999999999,
+   "p_outside": 0.05483333333333333
+  },
+  {
+   "scale": 4,
+   "median_offset_m": 1.16,
+   "p_outside": 0.09356666666666667
+  },
+  {
+   "scale": 6,
+   "median_offset_m": 1.7399999999999998,
+   "p_outside": 0.16521666666666668
+  },
+  {
+   "scale": 8,
+   "median_offset_m": 2.32,
+   "p_outside": 0.22908333333333333
+  },
+  {
+   "scale": 12,
+   "median_offset_m": 3.4799999999999995,
+   "p_outside": 0.3248666666666667
+  },
+  {
+   "scale": 16,
+   "median_offset_m": 4.64,
+   "p_outside": 0.39663333333333334
+  }
+ ]
+}

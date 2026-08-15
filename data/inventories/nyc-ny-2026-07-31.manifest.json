@@ -1,0 +1,12 @@
+{
+  "api": "socrata",
+  "city": "nyc-ny",
+  "endpoint": "https://data.cityofnewyork.us/resource/ufzp-rrqu.json",
+  "fetched": "2026-07-31",
+  "note": "Pedestrian Ramp Locations (ufzp-rrqu), the source used for the ICCV paper's NYC half. Paper Tab.1 count 217,680; this snapshot 217,679 (-0.0005%), i.e. effectively frozen. Carries rampid AND cornerid, which makes it the per-ramp/per-corner reference for every other city.",
+  "out_sr": 4326,
+  "payload": "nyc-ny-2026-07-31.jsonl.gz",
+  "point_field": "the_geom",
+  "records": 217679,
+  "sha256": "7050822b7055b4a5b4b3b99a8408d3b45c8347596023f509514bc79565cd1ac9"
+}

@@ -1,0 +1,141 @@
+{
+  "bbox": {
+    "lat_max": 44.11920566093155,
+    "lat_min": 44.00123393246988,
+    "lon_max": -121.2442330370015,
+    "lon_min": -121.37566906582026
+  },
+  "city": "bend-or",
+  "coincident": {
+    "records": 38,
+    "threshold_m": 0.5
+  },
+  "corner_clusters": {
+    "groups": 11322,
+    "link_m": 6.0,
+    "records_per_group": 1.307631160572337,
+    "share_singleton": 0.7264617558735206,
+    "size_histogram": {
+      "1": 8225,
+      "2": 2793,
+      "3": 228,
+      "4": 72,
+      "5": 2,
+      "6": 2
+    }
+  },
+  "intersection_clusters": {
+    "groups": 3100,
+    "link_m": 30.0,
+    "records_per_group": 4.775806451612903
+  },
+  "inventory": "bend-or-2026-07-31.jsonl.gz",
+  "link_sweep": [
+    {
+      "groups": 13786,
+      "groups_per_intersection": 4.4470967741935485,
+      "link_m": 3.0,
+      "records_per_group": 1.0739155665167561,
+      "share_singleton": 0.9299289133903961
+    },
+    {
+      "groups": 12824,
+      "groups_per_intersection": 4.136774193548387,
+      "link_m": 4.0,
+      "records_per_group": 1.154475982532751,
+      "share_singleton": 0.8566749844042421
+    },
+    {
+      "groups": 12134,
+      "groups_per_intersection": 3.9141935483870967,
+      "link_m": 5.0,
+      "records_per_group": 1.2201252678424261,
+      "share_singleton": 0.7975935388165485
+    },
+    {
+      "groups": 11322,
+      "groups_per_intersection": 3.652258064516129,
+      "link_m": 6.0,
+      "records_per_group": 1.307631160572337,
+      "share_singleton": 0.7264617558735206
+    },
+    {
+      "groups": 9360,
+      "groups_per_intersection": 3.0193548387096776,
+      "link_m": 8.0,
+      "records_per_group": 1.5817307692307692,
+      "share_singleton": 0.5867521367521368
+    },
+    {
+      "groups": 8095,
+      "groups_per_intersection": 2.611290322580645,
+      "link_m": 10.0,
+      "records_per_group": 1.8289067325509574,
+      "share_singleton": 0.5255095738109944
+    },
+    {
+      "groups": 6149,
+      "groups_per_intersection": 1.9835483870967743,
+      "link_m": 12.0,
+      "records_per_group": 2.4077085704992682,
+      "share_singleton": 0.44299886160351276
+    },
+    {
+      "groups": 4691,
+      "groups_per_intersection": 1.5132258064516129,
+      "link_m": 14.0,
+      "records_per_group": 3.1560434875293115,
+      "share_singleton": 0.30462587934342356
+    }
+  ],
+  "mean_latitude": 44.05744711889048,
+  "nearest_neighbour": {
+    "censored": 56,
+    "censored_note": "no neighbour within the 50 m grid block; counted in the denominator of every share below",
+    "histogram": [
+      80,
+      576,
+      1329,
+      1834,
+      1308,
+      1453,
+      2733,
+      1238,
+      3273,
+      640,
+      173,
+      63,
+      48,
+      1
+    ],
+    "histogram_edges_m": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      8,
+      10,
+      15,
+      20,
+      30,
+      50,
+      100,
+      "inf"
+    ],
+    "quantiles_m": {
+      "0.05": 2.1003327476704783,
+      "0.25": 3.8988175539021,
+      "0.5": 6.48771151427893,
+      "0.75": 10.900484537671215,
+      "0.95": 15.543620330877841
+    },
+    "share_within_0.5m": 0.0025667004390408647,
+    "share_within_10m": 0.7126646403242148,
+    "share_within_2m": 0.04430935494765282,
+    "share_within_6m": 0.4444444444444444
+  },
+  "records": 14805
+}

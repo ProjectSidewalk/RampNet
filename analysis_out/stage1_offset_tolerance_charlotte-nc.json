@@ -1,0 +1,91 @@
+{
+ "crop_half_angle_deg": 18.367779123901286,
+ "tangential_tolerance_per_metre_of_range": 0.33203124999999994,
+ "city": "charlotte-nc",
+ "n_offsets": 51,
+ "n_benchmark_ramps": 6238,
+ "ramps_per_bundle": {
+  "richmond": 302,
+  "bend": 327,
+  "morgantown": 266,
+  "budapest_district5": 280,
+  "annapolis": 284,
+  "paterson": 393,
+  "gainesville": 272,
+  "clovis": 195,
+  "manual_gold": 3919
+ },
+ "result": {
+  "p_outside": 0.024545,
+  "trials": 200000,
+  "by_range": {
+   "0-5 m": {
+    "outside": 1205,
+    "n": 14094,
+    "rate": 0.08549737476940542
+   },
+   "5-10 m": {
+    "outside": 2748,
+    "n": 74146,
+    "rate": 0.0370620127855852
+   },
+   "10-15 m": {
+    "outside": 792,
+    "n": 53791,
+    "rate": 0.014723652655648714
+   },
+   "15-25 m": {
+    "outside": 164,
+    "n": 43881,
+    "rate": 0.0037373806431029374
+   },
+   "25-inf m": {
+    "outside": 0,
+    "n": 14088,
+    "rate": 0.0
+   }
+  }
+ },
+ "sweep": [
+  {
+   "scale": 1,
+   "median_offset_m": 0.52,
+   "p_outside": 0.02475
+  },
+  {
+   "scale": 2,
+   "median_offset_m": 1.04,
+   "p_outside": 0.06841666666666667
+  },
+  {
+   "scale": 3,
+   "median_offset_m": 1.56,
+   "p_outside": 0.11773333333333333
+  },
+  {
+   "scale": 4,
+   "median_offset_m": 2.08,
+   "p_outside": 0.1704
+  },
+  {
+   "scale": 6,
+   "median_offset_m": 3.12,
+   "p_outside": 0.26835
+  },
+  {
+   "scale": 8,
+   "median_offset_m": 4.16,
+   "p_outside": 0.34723333333333334
+  },
+  {
+   "scale": 12,
+   "median_offset_m": 6.24,
+   "p_outside": 0.46221666666666666
+  },
+  {
+   "scale": 16,
+   "median_offset_m": 8.32,
+   "p_outside": 0.5390166666666667
+  }
+ ]
+}
