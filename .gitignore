@@ -59,6 +59,12 @@ analysis_out/op/*
 # Which silent misses another model witnessed (#46). Small, and it carries the
 # unwitnessed list that is the gallery's actual work queue.
 !analysis_out/silent_witness.json
+# What every paid-model run spent, appended at the time it ran (compare.py
+# --usage-log). A few hundred bytes per leg, and it is the only durable record of
+# API spend -- the billing console's retention is ~6 weeks, so an uncommitted copy
+# becomes unrecoverable rather than merely inconvenient. Append-only; never rewrite
+# a past line, since each one is a measurement.
+!analysis_out/usage_log.jsonl
 # Crop-window sizing eval summaries (#114): per-rule containment/context stats plus
 # the sha256 of the per-box CSV each summarizes (the CSVs themselves regenerate).
 # The glob also covers per-bundle runs against box_gallery extent gold (#116),
