@@ -30,7 +30,7 @@ import importlib.util
 import json
 import os
 import re
-from collections import namedtuple
+from collections import Counter, namedtuple
 
 # A pano to run a detector on. image_path points at the native-res JPEG in the
 # bundle's (git-ignored) panos/ dir; RampNet-from-bundle never opens it.
@@ -489,6 +489,13 @@ class _VLMDetector:
         # cost is recorded (compare.py --usage-log); None = provider doesn't
         # report usage (local GPU models are free in API terms).
         self.usage = None
+        # {resolved build -> calls}. `model_id` is what we ASKED for, and for a
+        # hosted model that is an alias the provider is free to move; this is what
+        # actually answered. Deliberately NOT in signature() -- that feeds
+        # cache_key, so adding it would miss every already-paid cached detection
+        # and re-bill the run (test_gemini_cache_key_is_frozen guards exactly
+        # that). None = provider reports no build. See #121.
+        self.model_versions = None
 
     # The key contract for `usage`, in one place. Every paid provider reports
     # input and output; almost none report thinking separately, so a reader must
@@ -499,6 +506,24 @@ class _VLMDetector:
 
     def init_usage(self):
         self.usage = dict.fromkeys(self.USAGE_KEYS, 0)
+
+    def record_model_version(self, version):
+        """Note which build answered this call, and say so if it changes mid-run.
+
+        A rotation partway through a leg is the case nobody would otherwise
+        notice: the alias, the signature and the cache key are all unchanged, so
+        two models' detections land in one published file indistinguishably."""
+        if not version:
+            return
+        if self.model_versions is None:
+            self.model_versions = Counter()
+        seen = set(self.model_versions)
+        self.model_versions[version] += 1
+        if seen and version not in seen:
+            print(f"[{self.model_id}] WARNING: the resolved model build changed "
+                  f"mid-run ({', '.join(sorted(seen))} -> {version}). This leg's "
+                  f"detections come from more than one model, and nothing in the "
+                  f"cache key or the published signature distinguishes them.")
 
     def accumulate_usage(self, input_tokens, output_tokens, thoughts_tokens=0):
         """Add one paid call to the running total. ``output_tokens`` must ALREADY
@@ -649,6 +674,9 @@ class GeminiDetector(_VLMDetector):
         output_tokens already includes them; thoughts_tokens is kept separately
         because it is invisible in the response text and dominates output cost.
         Cached panos make no call, so this reflects what THIS run actually paid."""
+        # Before the usage_metadata guard: a response can carry the resolved build
+        # without carrying usage, and the build is the half we cannot back-fill.
+        self.record_model_version(getattr(resp, "model_version", None))
         um = getattr(resp, "usage_metadata", None)
         if um is None:
             return

@@ -840,6 +840,72 @@ def test_gemini_usage_warns_when_the_sdk_stops_adding_up(capsys):
     assert "WARNING" not in capsys.readouterr().out
 
 
+def _gemini_resp(model_version=None, prompt=1000, candidates=50, thoughts=200):
+    usage = type("U", (), {"prompt_token_count": prompt,
+                           "candidates_token_count": candidates,
+                           "thoughts_token_count": thoughts,
+                           "total_token_count": prompt + candidates + thoughts})()
+    return type("R", (), {"usage_metadata": usage, "model_version": model_version})()
+
+
+def test_the_resolved_build_is_recorded_against_the_alias_we_asked_for(capsys):
+    # model_id is an alias the provider is free to move; this is what answered.
+    det = GeminiDetector(model_id="gemini-3.7-flash")
+    assert det.model_versions is None
+    for _ in range(3):
+        det._record_usage(_gemini_resp("gemini-3.7-flash-001"))
+    capsys.readouterr()
+    assert dict(det.model_versions) == {"gemini-3.7-flash-001": 3}
+    # And it stays OUT of the cache key: adding it there would miss every
+    # already-paid cached detection. test_gemini_cache_key_is_frozen guards the
+    # hash itself; this guards the reason.
+    assert "model_version" not in det.signature()
+    assert det.signature()["model_id"] == "gemini-3.7-flash"
+
+
+def test_a_build_rotation_mid_run_is_loud():
+    # The case nobody would otherwise notice: alias, signature and cache key are
+    # all unchanged, so two models' detections land in one file indistinguishably.
+    import io, contextlib
+    det = GeminiDetector(model_id="gemini-3.7-flash")
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        det._record_usage(_gemini_resp("gemini-3.7-flash-001"))
+        det._record_usage(_gemini_resp("gemini-3.7-flash-002"))
+    out = buf.getvalue()
+    assert "WARNING" in out and "changed mid-run" in out
+    assert dict(det.model_versions) == {"gemini-3.7-flash-001": 1,
+                                        "gemini-3.7-flash-002": 1}
+
+
+def test_a_provider_that_reports_no_build_stays_none(capsys):
+    # None must mean "not reported", never an empty dict that reads as "asked and
+    # got nothing" -- the published files predating #121 are in exactly that state.
+    det = GeminiDetector(model_id="gemini-3.7-flash")
+    det._record_usage(_gemini_resp(None))
+    capsys.readouterr()
+    assert det.model_versions is None
+    assert det.usage["calls"] == 1     # the call still counted
+
+
+def test_the_usage_record_carries_the_build(tmp_path):
+    log = tmp_path / "usage_log.jsonl"
+    det = GeminiDetector(model_id="gemini-2.5-flash")
+    det._record_usage(_gemini_resp("gemini-2.5-flash-002"))
+    report_usage(det, "gemini-2.5-flash", "bend", 110, str(log))
+    rec = json.loads(log.read_text().splitlines()[0])
+    assert rec["model_id"] == "gemini-2.5-flash"          # what we asked for
+    assert rec["model_versions"] == {"gemini-2.5-flash-002": 1}   # what answered
+
+    # A local model reports neither, and must log null rather than {}.
+    class _Local:
+        name = "qwen"
+        model_id = "Qwen/Qwen3-VL-8B-Instruct"
+        usage = {"calls": 4, "input_tokens": 1, "output_tokens": 1}
+    report_usage(_Local(), "qwen", "bend", 110, str(log))
+    assert json.loads(log.read_text().splitlines()[1])["model_versions"] is None
+
+
 def test_gemini_usage_is_quiet_when_the_totals_agree(capsys):
     class _Usage:
         prompt_token_count = 1000

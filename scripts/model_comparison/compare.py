@@ -317,6 +317,11 @@ def report_usage(detector, label, city, panos_scored, usage_log_path):
     print(f"[{label}] API usage this run: {usage['calls']} calls, "
           f"{usage['input_tokens']:,} in / {usage['output_tokens']:,} out tokens "
           f"({usage.get('thoughts_tokens', 0):,} thinking){cost_txt}")
+    # Which BUILD answered, as distinct from the alias we asked for (#121).
+    versions = getattr(detector, "model_versions", None)
+    if versions:
+        served = ", ".join(f"{v} ({n:,} calls)" for v, n in sorted(versions.items()))
+        print(f"[{label}] served by: {served}")
     if not usage_log_path:
         return
     rec = {
@@ -325,6 +330,10 @@ def report_usage(detector, label, city, panos_scored, usage_log_path):
         "label": label,
         "provider": getattr(detector, "name", None),
         "model_id": model_id,
+        # The build(s) that actually served this run, against the alias above.
+        # Cannot be reconstructed later -- .model_cache stores points only -- so
+        # a run that didn't record it never can (#121).
+        "model_versions": dict(versions) if versions else None,
         # Panos this run actually scored, NOT the size of the bundle: on a
         # resumed run most panos come from the cache and cost nothing, so
         # len(gts) would understate cost-per-pano several-fold.

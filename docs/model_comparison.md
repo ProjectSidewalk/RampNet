@@ -1059,6 +1059,16 @@ at run time has to be reconstructed later (or lost). Three layers:
    that dies or is interrupted after paying still records its spend — that is the case the
    rule exists for — and a failure to write the file degrades to printing the record rather
    than aborting the comparison.
+   Each record also carries **`model_versions`** — the build(s) that actually served the run.
+   **A pinned model id is an alias, not a build**: `gemini:gemini-3.7-flash` in `--models`
+   resolves to whatever the provider currently serves under that name, and the alias moves.
+   Since `signature()` feeds the detection cache key, the build deliberately does *not* go in
+   it — adding it would miss every already-paid cached detection and re-bill the run — so the
+   run record is where provenance lives, and a rotation mid-leg prints a warning. **This
+   cannot be reconstructed after the fact** (`.model_cache` stores detection points only), so
+   anything produced before this instrumentation, including every file currently in
+   `benchmark/model_detections/`, carries no build id and never can. See #121.
+
 2. **Prices** — `scripts/model_comparison/pricing.py` is a verified-only table: each entry
    carries the date it was checked. Prices change (the Gemini 3.x flash rates are
    introductory through 2026-12-31 and double after); the token counts are the durable
