@@ -230,6 +230,29 @@ Four things bit during launch and are written down so the next person does not r
    alongside `sorted(os.listdir(...))` — roughly 2.4M GPFS stat calls across 16 ranks before the
    first step. This is the committed code and the paper run paid it too; it is not a hang.
 
+### Confirmed at launch: the step rate reproduces the paper run
+
+Two minutes into epoch 1, on A40s:
+
+```
+Epoch 1/8:  1%| | 72/9378 [01:52<3:27:07, 1.34s/it, loss=0.00376, step=72]
+```
+
+**1.34 s/it against the paper run's measured 1.341 s median** (p25 1.339 / p75 1.345, n = 119,902),
+**9,378 steps/epoch**, and a 3:27 epoch ETA against the measured 3.49 h. The cost model in this
+issue holds, and the run is behaving as a replicate of the released recipe rather than merely a
+re-run of the same script.
+
+**One risk left open deliberately.** The job uses **40,883 MiB of an A40's 46,068 MiB — 89% of the
+card.** The committed constraint is `l40s|l40|a40|a100`; the first three are all 48 GB, but Slurm on
+klone does not distinguish 40 GB from 80 GB A100s (`Gres=gpu:a100:8`, no memory in the feature
+list), so a requeue onto 40 GB hardware would OOM. This is left as-is rather than narrowed, because
+the paper run itself allocated A100s in exactly this 4×4 shape (`gres/gpu:a100=4` and `=12` in
+`sacct`) without OOM, and the A100 nodes carry 1 TB of host RAM with `hugemem`/`ultramem` features,
+consistent with 80 GB cards. **If the run ever crash-loops with CUDA OOM after a preemption, the fix
+is to narrow the constraint to `l40s|l40|a40` and resubmit** — the resume file makes that cost
+nothing but the requeue.
+
 ## Results
 
 *Not yet available — the run was launched 2026-08-15.*
