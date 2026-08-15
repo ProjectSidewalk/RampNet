@@ -53,6 +53,10 @@ analysis_out/op/*
 # Which silent misses another model witnessed (#46). Small, and it carries the
 # unwitnessed list that is the gallery's actual work queue.
 !analysis_out/silent_witness.json
+# Whether a Gemini leg's zero-detection panoramas are real "no ramps here" or lost
+# responses (#120 review). A few hundred bytes, and it is the evidence behind
+# reading gemini-3.7-flash as conservative rather than broken.
+!analysis_out/empty_response_check.json
 # Crop-window sizing eval summaries (#114): per-rule containment/context stats plus
 # the sha256 of the per-box CSV each summarizes (the CSVs themselves regenerate).
 # The glob also covers per-bundle runs against box_gallery extent gold (#116),

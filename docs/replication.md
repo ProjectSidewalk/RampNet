@@ -33,8 +33,8 @@ so every number they produced was reproducible on exactly one machine.
 single-panorama shards keyed by an opaque SHA-1 of (label, signature, city, pano), unreadable
 without reconstructing detector signatures. `scripts/analysis/export_model_cache.py` consolidates
 it into human-readable files, one per (model, split), keyed by panorama id with the detector
-signature recorded inside. As of 2026-08-15 that is **77 files, 20.2 MB** — the seven-model
-roster across ten splits, plus the nine-split gemini-3.7-flash leg described below.
+signature recorded inside. As of 2026-08-15 that is **78 files, 20.3 MB** — the seven-model
+roster across ten splits, plus the ten-split gemini-3.7-flash leg described below.
 
 ```bash
 python scripts/analysis/export_model_cache.py --out benchmark/model_detections
@@ -47,19 +47,21 @@ that silently differs from what produced the paper's numbers is worse than none.
 non-zero when it had nothing to compare, so a green run cannot mean "found no cache".
 
 **Keep this count current when a leg is added.** It drifted twice (61 → 68 at the São Paulo
-split, 68 → 77 at gemini-3.7-flash) before anyone noticed, and a ledger that exists to keep
+split, 68 → 78 at gemini-3.7-flash) before anyone noticed, and a ledger that exists to keep
 the repo honest is the wrong document to let rot.
 
 #### The gemini-3.7-flash leg is published but off the default roster
 
-`benchmark/model_detections/gemini-3.7-flash__*.json` (nine city splits, no `manual_gold` —
-that leg was still running at export time, as with the other two Geminis) was produced and
-verified with the model named explicitly:
+`benchmark/model_detections/gemini-3.7-flash__*.json` covers **all ten splits**, including
+`manual_gold` (1,000 panoramas, 0 uncached — that leg finished 2026-08-15 08:04 UTC, after the
+first nine were exported). It is currently the only Gemini with a `manual_gold` file: the other
+two are absent for a different reason, their `manual_gold` detections not being in the cache
+under current keys (#20). Produced and verified with the model named explicitly:
 
 ```bash
 python scripts/analysis/export_model_cache.py --models gemini:gemini-3.7-flash
 python scripts/analysis/export_model_cache.py --verify --models gemini:gemini-3.7-flash
-# -> compared 9 (model, split) pair(s); published detections score IDENTICALLY
+# -> compared 10 (model, split) pair(s); published detections score IDENTICALLY
 ```
 
 `gemini:gemini-3.7-flash` is **not** in `CHALLENGERS` (`scripts/analysis/fp_taxonomy.py`),

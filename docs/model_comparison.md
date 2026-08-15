@@ -27,24 +27,46 @@ a run that hasn't happened, not a result being withheld.
 "All 8" is the roster in the class table below: RampNet, 2 Geminis, 2 Qwens, Molmo, OWLv2,
 Grounding DINO.
 
-**A ninth model, `gemini-3.7-flash`, has been run on the nine city splits but is not in that
-roster and is not scored in the tables below.** Its detections are published and verified
-(`benchmark/model_detections/gemini-3.7-flash__*.json`, 9/9 pairs identical to the cache; see
-`docs/replication.md` for the exact commands, which need `--models gemini:gemini-3.7-flash`
+**A ninth model, `gemini-3.7-flash`, has been run on all ten splits but is not in that roster
+and is not scored in the tables below.** Its detections are published and verified
+(`benchmark/model_detections/gemini-3.7-flash__*.json`, 10/10 pairs identical to the cache;
+see `docs/replication.md` for the exact commands, which need `--models gemini:gemini-3.7-flash`
 because it is off the default roster). Interim F1 numbers are on #20. It is held out of the
-roster tables until the `manual_gold` leg finishes and the write-up lands here, so that every
-row of every table below is one consistent 8-model set. **This is an omission of a
-write-up, not of a run** — the distinction the matrix above exists to make, stated here
-because the artifact is already in the repo and would otherwise read as a withheld result.
+roster tables until its write-up lands here, so that every row of every table below is one
+consistent 8-model set. **This is an omission of a write-up, not of a run** — the distinction
+the matrix above exists to make, stated here because the artifact is already in the repo and
+would otherwise read as a withheld result.
 
-One open question travels with it: gemini-3.7-flash returns zero detections on **345 of 1,109
-panos**, against 163 for gemini-3.6-flash and 255 for gemini-3.1-pro. `boxes_from_gemini_response`
-yields `[]` both for a genuine "no curb ramps here" and for a response that arrived without
-parseable content, and nothing in the published artifact distinguishes them. Two facts argue
-against a systematic dropped-response bug — the rig makes **six** independent view calls per
-pano and merges them, so an empty pano needs all six to come back empty, and 3.1-pro sits
-between the two flashes rather than with 3.6 — but it is unresolved, and it bears directly on
-reading the leg as "high precision". Resolve before quoting its precision.
+### Are gemini-3.7-flash's silent panoramas real, or lost responses? (#120 review)
+
+The leg returns **nothing at all** on 345 of the 1,109 city-split panoramas (31.1%), against
+163 for gemini-3.6-flash and 255 for gemini-3.1-pro. That is worth resolving rather than
+noting, because it inverts the reading of the leg: `boxes_from_gemini_response` yields `[]`
+both for a model that looked and saw no curb ramp and for a response that arrived with nothing
+parseable in it, and the published files record merged per-panorama points — no per-view
+counts, no finish reasons. "Fires on 69% of panoramas and is right when it does" is a
+high-precision detector; "drops a third of its responses" is a broken harness whose precision
+is an artifact.
+
+`scripts/analysis/empty_response_check.py` settles it from committed data alone (no cache, no
+GPU, no credentials; result in `analysis_out/empty_response_check.json`). **The silence is the
+model being conservative, not the harness losing responses.** Three independent lines agree:
+
+| test | result | reading |
+| :--- | :--- | :--- |
+| **Where it fires, does it find as much?** | On the 755 panoramas where both fire, 3.7-flash averages **2.38** detections against 3.6-flash's **3.03** — a ratio of **0.79** (0.80 against 3.1-pro, n=727) | A dropped response removes a whole view and leaves the survivors untouched. Finding ~21% fewer ramps *on the panoramas where it does fire* is uniform strictness, not concentrated loss. |
+| **Does silence track the ground truth?** | On `manual_gold`'s 1,000 gold-labelled panoramas: silent panoramas carry **0.80** gold ramps on average against **4.96** where it fires (ratio 0.16), and **186 of 251** silent panoramas (74.1%) are genuinely empty in the gold set | It falls silent almost exactly where there is nothing to find. This is also what rules out a *correlated* failure — a whole-panorama refusal would hit ramp-dense panoramas at the same rate, and it does not. |
+| **Six-view arithmetic** | Explaining the silence by independent per-call loss needs p = **82.3%** per call | Absurd for a leg that completed with exit 0 at token counts in line with its siblings — and the same arithmetic indicts 3.6-flash at 72.6%, a leg nobody suspects. Rules out independent loss, and nothing more. |
+
+So the "conservative, high-precision" reading on #20 is supported rather than undermined, and
+its precision can be quoted. **The caution is not free, though:** 201 of `manual_gold`'s 3,919
+gold ramps (5.1%) sit on panoramas the model never spoke about, so roughly five points of
+recall are unreachable at any threshold. That is a ceiling on the leg, not a bug in it.
+
+Caveat worth keeping: none of this inspects a response that actually failed, because the
+harness does not record finish reasons — it infers from the shape of what was returned. A leg
+run with `finish_reason` captured would settle it directly, and would be worth doing if a
+future model shows a *higher* silent rate on ramp-dense panoramas specifically.
 
 **Every split again carries the full 8-model roster** — paterson's challenger +
 null-recall runs landed 2026-07-29, hours after the split itself; gainesville's landed
@@ -1366,6 +1388,8 @@ What this split adds to the story:
   "how much of a detector's recall is real?" table). Cache-only; no GPU, no keys.
 - `scripts/analysis/fp_taxonomy.py` — what the FP flood is made of (duplicate / near_gt / hood /
   isolated), with an exact chance baseline for the near-GT share. Cache-only; no GPU, no keys.
+- `scripts/analysis/empty_response_check.py` — whether a Gemini leg's zero-detection panoramas
+  are real or lost responses (#120 review). Published detections only; no cache, no GPU, no keys.
 - `requirements-vlm.txt` — optional VLM deps.
 - `tests/test_detection_eval.py`, `tests/test_model_comparison.py`,
   `tests/test_equirect_tiling.py` — guards.
