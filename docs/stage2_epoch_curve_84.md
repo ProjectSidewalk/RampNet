@@ -54,6 +54,17 @@ run-time values are unrecoverable. Run A replicates the *committed* recipe, and 
 checkpoint is comparable to the released model modulo seed and dataloader order — the released
 `best_model.pth` is byte-identical to that run's `epoch_1_step_9378.pth`.
 
+The *environment*, at least, is close to exact. The env is built from the committed
+`environment.yml`, which asks for python 3.10 / pytorch 2.6 / torchvision 0.21 / cuda-version 12.6 —
+and `environment.lock.yml`, the linux-64 lock from the paper machine, pins
+`pytorch=2.6.0=cuda126_mkl_py310_...`, `torchvision=0.21.0=cuda126_py310_...`,
+`python=3.10.13`, `timm=1.0.15`. They agree on every version that could plausibly move a number, so
+the delta is patch-level and transitive at most. The build records `conda list --explicit` into its
+job log precisely so that delta can be diffed rather than assumed.
+
+(In passing: `CLAUDE.md` describes this env as "Linux + CUDA 11.8". That is stale — the lock file
+says `cuda-version=12.9` with cuda126 builds of torch. Worth fixing there separately.)
+
 ## Where it runs, and why
 
 **Training on klone `ckpt-all`, 16 GPUs, free.** The 8.24 h preemption slice ceiling that gave the
@@ -101,6 +112,16 @@ export RAMPNET_CONDA_PKGS=/gscratch/scrubbed/jfroehli/conda_pkgs   # NOT ~/.cond
                                                                    # pytorch+CUDA alone is ~5 GB
 sbatch --export=ALL,RAMPNET_REPO,RAMPNET_ENV,RAMPNET_CONDA_PKGS \
        stage_two/run_build_env.slurm
+
+# 1b. Pre-warm the timm backbone cache. --preset scratch builds the model with
+#     pretrained_backbone=True, so without this all 16 ranks race to download
+#     convnextv2_base.fcmae_ft_in22k_in1k_384 into a cold shared cache at once.
+#     Compute nodes do have outbound network, so it works either way -- this just
+#     removes the race. Takes about a minute.
+"$RAMPNET_ENV/bin/python" -c "
+import timm
+timm.create_model('convnextv2_base.fcmae_ft_in22k_in1k_384', pretrained=True, num_classes=0)
+print('backbone cached')"
 
 # 2. Launch Run A. --chdir puts every working-directory artefact train.py writes
 #    (latest_checkpoint.pth, best_model.pth, runs/, peek_training/, logs/) on the
