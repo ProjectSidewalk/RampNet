@@ -1,0 +1,33 @@
+{
+  "all_or_nothing": [
+    {
+      "both_fire": 755,
+      "other": "gemini-3.6-flash",
+      "other_found_there": 306,
+      "other_per_pano": 3.0251655629139074,
+      "ratio": 0.7876532399299475,
+      "subject_per_pano": 2.3827814569536425,
+      "subject_silent_other_fired": 191
+    },
+    {
+      "both_fire": 727,
+      "other": "gemini-3.1-pro-preview",
+      "other_found_there": 228,
+      "other_per_pano": 3.015130674002751,
+      "ratio": 0.8047445255474452,
+      "subject_per_pano": 2.4264099037138926,
+      "subject_silent_other_fired": 127
+    }
+  ],
+  "ground_truth": {
+    "gemini-3.7-flash": {
+      "gt_stranded": 201,
+      "gt_total": 3919,
+      "mean_gt_firing": 4.963951935914553,
+      "mean_gt_silent": 0.8007968127490039,
+      "panos": 1000,
+      "silent": 251,
+      "silent_truly_empty": 186
+    }
+  }
+}

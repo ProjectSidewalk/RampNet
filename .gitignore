@@ -72,6 +72,10 @@ analysis_out/op/*
 # Which silent misses another model witnessed (#46). Small, and it carries the
 # unwitnessed list that is the gallery's actual work queue.
 !analysis_out/silent_witness.json
+# Whether a Gemini leg's zero-detection panoramas are real "no ramps here" or lost
+# responses (#120 review). A few hundred bytes, and it is the evidence behind
+# reading gemini-3.7-flash as conservative rather than broken.
+!analysis_out/empty_response_check.json
 # What every paid-model run spent, appended at the time it ran (compare.py
 # --usage-log). A few hundred bytes per leg, and it is the only durable record of
 # API spend -- the billing console's retention is ~6 weeks, so an uncommitted copy
