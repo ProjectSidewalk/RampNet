@@ -158,6 +158,11 @@ analysis_out/stage1_bearing_cache/
 # vegetation/coverage numbers a tile-source choice is justified by.
 !analysis_out/probe_sites_*.json
 
+# At-the-sites GSV pano probes (#103): the street sheet's dry run at exactly
+# its sites — pick rate, date coverage, per-site failures with reasons. The
+# evidence that the sample was checked before the build.
+!analysis_out/probe_panos_*.json
+
 # Inventory discovery sweep (#96): the candidate list, with record counts. A few
 # tens of KB, and it is the evidence that supply is not the constraint.
 !analysis_out/inventory_discovery.json
