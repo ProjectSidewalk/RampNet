@@ -137,6 +137,34 @@ Budget note: ~10 GB total. `/gscratch/makelab` was at 88% (905 GB / 1 TB, 119 GB
 That is fine for Run A but **Run B at 30–60 epochs would want 32–64 GB**, which needs checking
 against the quota before it is submitted, not after.
 
+## Scoring the curve
+
+Evaluation runs on makelab2, not on the cluster: it has no batch-regime constraint, the A40 handles
+it, and it keeps the sweep off the queue-contended partition.
+
+`stage_two/evaluate.py` already does everything the pre-registration asks for, with **no code
+change**. One run per checkpoint produces both required numbers:
+
+```bash
+python evaluate.py --checkpoint <run_dir>/checkpoints/epoch_N_step_S.pth \
+                   --dataset manual --threshold 0.0 --no-tta \
+                   --results-dir evaluation_results/run_a_84/epoch_N
+```
+
+- `--threshold 0.0` keeps every peak, so the full curve is swept.
+  `pr_rc_vs_c_data_manual_r0.022_pt0.0.csv` gives precision and recall at every unique confidence —
+  **F1@0.30 and max-F1 both fall out of that one file**, which is exactly the pairing the amendment
+  requires.
+- `--no-tta` is deliberate and is **not** the script default. The default is flip-TTA "as in the
+  paper", but #78 measured it as not worth 2× GPU (+0.9 R / −2.4 P after the operating-point drop,
+  F1 down on 4 of 5 US splits) and the #54 protocol headline is single-pass. Leaving the default on
+  would silently score a different protocol than every number it will be compared against.
+
+**Gotcha to respect: use a separate `--results-dir` per epoch.** The heatmap cache is keyed by
+checkpoint fingerprint (the #24 fix), so caching is safe — but the *output* filenames are keyed by
+dataset and params only, not by checkpoint. Eight epochs into one results dir silently overwrite
+each other and leave one epoch's numbers wearing the whole run's name.
+
 ## Results
 
 *Not yet available — the run was launched 2026-08-15.*
