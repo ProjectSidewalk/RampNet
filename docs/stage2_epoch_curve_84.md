@@ -54,13 +54,35 @@ run-time values are unrecoverable. Run A replicates the *committed* recipe, and 
 checkpoint is comparable to the released model modulo seed and dataloader order — the released
 `best_model.pth` is byte-identical to that run's `epoch_1_step_9378.pth`.
 
-The *environment*, at least, is close to exact. The env is built from the committed
-`environment.yml`, which asks for python 3.10 / pytorch 2.6 / torchvision 0.21 / cuda-version 12.6 —
-and `environment.lock.yml`, the linux-64 lock from the paper machine, pins
-`pytorch=2.6.0=cuda126_mkl_py310_...`, `torchvision=0.21.0=cuda126_py310_...`,
-`python=3.10.13`, `timm=1.0.15`. They agree on every version that could plausibly move a number, so
-the delta is patch-level and transitive at most. The build records `conda list --explicit` into its
-job log precisely so that delta can be diffed rather than assumed.
+The *environment* is closer to exact than that, and this was **measured, not assumed**. The env was
+built from the committed `environment.yml` and its `conda list --explicit` diffed against
+`environment.lock.yml`, the linux-64 lock from the paper machine (407 vs 529 packages — the lock
+carries build-time extras):
+
+| package | built 2026-08-15 | paper lock | |
+| :--- | :--- | :--- | :--- |
+| `pytorch` | `2.6.0=cuda126_mkl_py310_h5ee0071_304` | *identical* | ✅ |
+| `libtorch` | `2.6.0=cuda126_mkl_h99b69db_304` | *identical* | ✅ |
+| `torchvision` | `0.21.0=cuda126_py310_h4459643_1` | *identical* | ✅ |
+| `numpy` | `2.2.6=py310hefbff90_0` | *identical* | ✅ |
+| `scipy` | `1.15.2=py310h1d65ade_0` | *identical* | ✅ |
+| `timm` | 1.0.28 | 1.0.15 | ⚠️ |
+| `pillow` | 12.0.0 | 11.2.1 | ⚠️ |
+| `python` | 3.10.20 | 3.10.13 | patch |
+| `scikit-image` | 0.25.2 (build `_2`) | 0.25.2 (build `_1`) | build only |
+| `cuda-version` | 12.6 | 12.9 | metapackage only — torch is a cuda126 build either way |
+
+The four packages that actually do the arithmetic — torch, libtorch, torchvision, numpy — resolved
+to **byte-identical build strings**. That is a much stronger statement than "same version".
+
+**`timm` is the one that mattered, and it was checked rather than waved through:** timm defines the
+backbone, so a definition change between 1.0.15 and 1.0.28 would silently invalidate the replicate.
+Test: strict-load the paper's own released weights (rescued at
+`/gscratch/makelab/jonf/rescue_jsomeara_rampnet/RampNet/stage_two/best_model.pth`) into a
+`KeypointModel` built under timm 1.0.28. It loads strict, all 90,050,561 parameters, no missing or
+unexpected keys — so the architecture is identical and the drift is confined to timm's library
+plumbing. `pillow` 12 vs 11 remains a theoretical JPEG-decode difference; decoding goes through
+libjpeg-turbo and is not expected to move pixels, but it is unverified and recorded here as such.
 
 (In passing: `CLAUDE.md` describes this env as "Linux + CUDA 11.8". That is stale — the lock file
 says `cuda-version=12.9` with cuda126 builds of torch. Worth fixing there separately.)
@@ -185,6 +207,28 @@ python evaluate.py --checkpoint <run_dir>/checkpoints/epoch_N_step_S.pth \
 checkpoint fingerprint (the #24 fix), so caching is safe — but the *output* filenames are keyed by
 dataset and params only, not by checkpoint. Eight epochs into one results dir silently overwrite
 each other and leave one epoch's numbers wearing the whole run's name.
+
+## Launch record
+
+| | job | outcome |
+| :--- | :--- | :--- |
+| env build | `38541302` | **failed in 2 s** — `set -u` vs klone's lmod init (see below) |
+| env build | `38541308` | **COMPLETED**, 50:52. 18 GB env at `/gscratch/scrubbed/jfroehli/envs/sidewalkcv2` |
+| **Run A** | **`38541865`** | **RUNNING** from 2026-08-15, `ckpt-all`, 4 nodes `g[3054,3071-3072,3075]`, world size 16, fresh start |
+
+Four things bit during launch and are written down so the next person does not rediscover them:
+
+1. **`set -u` breaks `module load` on klone.** lmod's init dereferences an unbound
+   `LD_LIBRARY_PATH`, so a `set -euo pipefail` script dies before conda exists. Both committed
+   launchers use `set -eo pipefail` with explicit `${VAR:-default}` instead.
+2. **The conda package cache must be moved off `$HOME`.** klone homes are capped at 10 GB (6 GB
+   already used, 4 GB free) and the pytorch/CUDA download alone is ~5 GB. The default
+   `~/.conda/pkgs` blows the quota mid-solve.
+3. **Pre-warm the timm backbone.** `convnextv2_base.fcmae_ft_in22k_in1k_384` was not cached, so all
+   16 ranks would have raced to download it at step 0.
+4. **Expect a slow first step.** `EquiHeatmapDataset.__init__` does an `os.path.exists` per JSON
+   alongside `sorted(os.listdir(...))` — roughly 2.4M GPFS stat calls across 16 ranks before the
+   first step. This is the committed code and the paper run paid it too; it is not a hang.
 
 ## Results
 
