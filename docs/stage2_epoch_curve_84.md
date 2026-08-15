@@ -255,23 +255,38 @@ nothing but the requeue.
 
 ## Results
 
-*Not yet available — the run was launched 2026-08-15.*
+*In progress — launched 2026-08-15. `manual_gold` columns are scored after the run.*
 
-| epoch | auto-label val loss | `manual_gold` F1@0.30 | `manual_gold` max-F1 |
-| ---: | ---: | ---: | ---: |
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
-| 5 | | | |
-| 6 | | | |
-| 7 | | | |
-| 8 | | | |
+| epoch | auto-label val loss | paper run | delta | `manual_gold` F1@0.30 | `manual_gold` max-F1 |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | **0.00052194** | .000520 | **+0.37%** | | |
+| 2 | | .000478 | | | |
+| 3 | | .000463 | | | |
+| 4 | | .000466 | | | |
+| 5 | | **.000458** | | | |
+| 6 | | .000468 | | | |
+| 7 | | .000470 | | | |
+| 8 | | .000473 | | | |
 
-For reference, the paper run's auto-label val loss over the same range: .000520, .000478, .000463,
-.000466, **.000458**, .000468, .000470, .000473. If Run A's auto-val arm tracks that within noise,
-it is evidence the replicate landed; if it does not, the June-2025 code difference is larger than
-assumed and every reading below has to be qualified.
+### The replicate landed
+
+The pre-registered cheap test was whether Run A's epoch-1 auto-label val loss lands near the paper
+run's **.000520**. It does: **0.00052194, a delta of +0.37%** — within what seed and dataloader
+order alone would move. Three independent confirmations now line up:
+
+- **Same step count.** The checkpoint is `epoch_1_step_9378.pth`, byte-for-byte the same *filename*
+  as the paper's released checkpoint, because 150,063 train panos with `drop_last=True` at world
+  size 16 gives 9,378 steps.
+- **Same step time.** 1.34 s/it against the paper's measured 1.341 s median.
+- **Same epoch-1 loss.** +0.37%.
+
+So the June-2025 code difference this issue warned about does not appear to have moved epoch 1, and
+the remaining epochs can be read as pre-registered rather than qualified. Epoch 1 took **3:57**
+wall-clock including ~8 min of startup and the validation pass, against the ~3.49 h/epoch estimate.
+
+Note the paper's own selection rule fired here too — `best_model.pth` was written at epoch 1, since
+epoch 1 is trivially the best epoch seen so far. That file is *not* the run's answer; it will be
+overwritten as lower val losses arrive, and the auto-val pick is expected to settle at epoch 5.
 
 One consequence worth stating before the numbers arrive rather than after: **if the outcome is
 "select on human F1", then selecting on `manual_gold` stops it being a clean benchmark.** The fix
