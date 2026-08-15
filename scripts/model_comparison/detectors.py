@@ -762,10 +762,24 @@ def claude_boxes_to_points(items, img_w, img_h):
     returned coordinates 1:1 onto actual image pixels, so asking for pixels is
     asking for what the model natively produces rather than making it rescale.
     Confidence is None -- like the other chat VLMs, Claude carries no calibrated
-    per-box score."""
+    per-box score.
+
+    Malformed items are SKIPPED, not fatal. Without ``strict: True`` on the tool --
+    which the org policy blocks -- the schema is a strong hint rather than an
+    enforced contract, and the model does occasionally return something else.
+    Measured over a full annapolis split: 1 malformed item in 745 calls (0.13%),
+    a list of strings where a list of objects was asked for, which raised
+    "string indices must be integers" and cost the whole panorama. One bad box
+    should cost one box, not six views' work."""
     points = []
     for it in items:
-        x1, y1, x2, y2 = it["x1"], it["y1"], it["x2"], it["y2"]
+        if not isinstance(it, dict):
+            continue
+        try:
+            x1, y1, x2, y2 = (float(it["x1"]), float(it["y1"]),
+                              float(it["x2"]), float(it["y2"]))
+        except (KeyError, TypeError, ValueError):
+            continue
         cx = (x1 + x2) / 2.0 / float(img_w)
         cy = (y1 + y2) / 2.0 / float(img_h)
         points.append((cx, cy, None))

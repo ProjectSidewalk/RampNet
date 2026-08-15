@@ -863,6 +863,19 @@ def test_claude_box_tool_forbids_a_transposable_array():
     assert item["additionalProperties"] is False
 
 
+def test_claude_skips_malformed_boxes_instead_of_losing_the_panorama():
+    # Without `strict: True` (org-policy blocked) the schema is a hint, not a
+    # contract. Observed once in 745 calls: a list of strings where objects were
+    # asked for, which raised TypeError and cost all 6 views of that panorama.
+    pts = claude_boxes_to_points(
+        ["curb ramp at 100,200",                       # the real failure shape
+         {"x1": 0, "y1": 0, "x2": 512, "y2": 512},     # good
+         {"x1": 1, "y1": 2},                           # missing keys
+         {"x1": "a", "y1": "b", "x2": "c", "y2": "d"}],  # unparseable
+        1024, 1024)
+    assert pts == [(0.25, 0.25, None)]
+
+
 def test_claude_box_tool_is_not_strict():
     # `strict: True` is implemented as structured outputs, which this project's
     # GCP org policy blocks for Anthropic partner models (measured 2026-08-15:
