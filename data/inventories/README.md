@@ -32,6 +32,32 @@ The payload digest is stable: gzip's `mtime` and embedded `filename` are pinned,
 records hash identically regardless of when or where the file was written. A changed digest means
 changed data, which is the only thing it should mean.
 
+## Verifying a checkout
+
+Every manifest carries `sha256` of the payload it was written beside, so a checkout can be checked
+without the network:
+
+```bash
+# bash / WSL — compare each payload against its own manifest
+for f in data/inventories/*.jsonl.gz; do
+    want=$(python -c "import json,sys; print(json.load(open(sys.argv[1]))['sha256'])" "${f%.jsonl.gz}.manifest.json")
+    got=$(sha256sum "$f" | cut -d' ' -f1)
+    [ "$want" = "$got" ] && echo "OK   $(basename "$f")" || echo "FAIL $(basename "$f")"
+done
+```
+
+```powershell
+# PowerShell — same check, since this repo is Windows-primary
+Get-ChildItem data/inventories/*.jsonl.gz | ForEach-Object {
+    $want = (Get-Content ($_.FullName -replace '\.jsonl\.gz$','.manifest.json') | ConvertFrom-Json).sha256
+    $got  = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower()
+    "{0} {1}" -f $(if ($want -eq $got) {"OK  "} else {"FAIL"}), $_.Name
+}
+```
+
+A `FAIL` means the bytes differ from the ones every §5 number was computed on — re-fetching is not
+the fix, because a re-fetch returns *today's* inventory. Restore the file from git.
+
 ## What is here
 
 ### Curb-ramp inventories
@@ -92,3 +118,38 @@ python scripts/analysis/fetch_inventory.py \
 `--fetched` is required and explicit rather than read from the clock, so the snapshot's name is not
 a function of the machine that made it. Commit the pair, then analyse from the file — never from
 the live endpoint.
+
+**A new city also needs a basemap before it can be reviewed**, and that is a source-code step, not
+a CLI flag: `TILE_SOURCES` in `scripts/analysis/inventory_review_sheet.py` is a registry of named
+services. It stays in the source deliberately — each entry carries the vegetation cover, m/px and
+"what this basemap can and cannot grade" note that the verdicts have to be read against, and those
+belong next to the URL they qualify, not in a config file that can drift away from it.
+
+```bash
+# 1. Find out what the service actually serves. Never read its metadata and believe it:
+#    three cities in a row advertised a deeper cache than they had, and probing is
+#    what caught it. --at takes a dense point where imagery must exist.
+python scripts/analysis/probe_basemap.py \
+    --url 'https://<host>/arcgis/rest/services/<service>/MapServer' \
+    --at <lat> <lon>
+
+# 2. Add the entry to TILE_SOURCES with the measured max_zoom, an attribution, and a
+#    note stating the resolution and what it is adequate to judge.
+# 3. Then build the sheet, which now offers the new source by name:
+python scripts/analysis/inventory_review_sheet.py \
+    --city <slug> --inventory data/inventories/<slug>-YYYY-MM-DD.jsonl.gz \
+    --seed 96 --tile-source <your-new-source>
+```
+
+## Re-fetching a snapshot
+
+Each manifest records the endpoint and the exact query that produced its payload, so the command
+that made any committed snapshot is recoverable from the snapshot itself:
+
+```bash
+python -c "import json;m=json.load(open('data/inventories/denver-co-2026-07-31.manifest.json'));print(m['endpoint']);print(m['first_query'])"
+```
+
+Re-running it reproduces the *fetch*, not the *file*: these inventories drift (Bend by +8.8% since
+the paper), so a re-fetch today is a new snapshot under a new `--fetched` date, and the committed
+one stays the input every published number was computed on.

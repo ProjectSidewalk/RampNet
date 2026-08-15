@@ -7,11 +7,14 @@ placeholder that services return past their deepest level is recognised rather
 than presented as evidence, and the default sample is record-weighted so the
 resulting distribution estimates label accuracy rather than area coverage.
 """
+import io
 import json
 import math
 import os
 import re
 import sys
+
+import pytest
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "scripts", "analysis"))
@@ -412,3 +415,94 @@ def test_every_source_declares_provenance_and_a_depth_limit():
         assert src["attribution"] and src["note"], name
         assert src["max_zoom"] >= 1, name
         assert "{z}" in src["url"] and "{x}" in src["url"] and "{y}" in src["url"], name
+
+
+# --------------------------------------------------------------------------- #
+# tile fetch — absence vs. a misbehaving service
+# --------------------------------------------------------------------------- #
+# These do touch PIL (they have to: the bug is in the decode path), but never the
+# network — urlopen is replaced by a scripted sequence of responses.
+def _jpeg_bytes(colour=(120, 130, 110)):
+    from PIL import Image
+    buf = io.BytesIO()
+    Image.new("RGB", (irs.TILE_PX, irs.TILE_PX), colour).save(buf, format="JPEG")
+    return buf.getvalue()
+
+
+class _Response(io.BytesIO):
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+        return False
+
+
+def _scripted_urlopen(monkeypatch, responses):
+    """Serve `responses` in order; each is bytes, or an HTTPError to raise."""
+    calls = []
+
+    def fake(req, timeout=None):
+        calls.append(getattr(req, "full_url", req))
+        item = responses[min(len(calls) - 1, len(responses) - 1)]
+        if isinstance(item, Exception):
+            raise item
+        return _Response(item)
+
+    monkeypatch.setattr(irs.urllib.request, "urlopen", fake)
+    monkeypatch.setattr(irs.time, "sleep", lambda *_: None)
+    return calls
+
+
+def _http_error(code):
+    return irs.urllib.error.HTTPError("http://t", code, "no", None, None)
+
+
+def test_a_tile_that_decodes_is_cached_and_returned(tmp_path, monkeypatch):
+    calls = _scripted_urlopen(monkeypatch, [_jpeg_bytes()])
+    img = irs._fetch_tile("http://h/tile/19/1/2", str(tmp_path))
+    assert img.size == (irs.TILE_PX, irs.TILE_PX)
+    assert len(calls) == 1
+    # Second call is served from disk, not the network.
+    irs._fetch_tile("http://h/tile/19/1/2", str(tmp_path))
+    assert len(calls) == 1
+
+
+def test_a_persistent_404_is_absence_and_is_cached_as_absence(tmp_path, monkeypatch):
+    _scripted_urlopen(monkeypatch, [_http_error(404)])
+    with pytest.raises(irs.TileMissing):
+        irs._fetch_tile("http://h/tile/19/1/2", str(tmp_path), retries=2)
+    # An empty file: absence established by evidence, so it is not re-fetched.
+    cached = list(tmp_path.iterdir())
+    assert len(cached) == 1 and cached[0].stat().st_size == 0
+
+
+def test_a_transient_404_is_retried_before_it_is_believed(tmp_path, monkeypatch):
+    """Charlotte's basemap 404s 25-35% of the time on tiles that exist."""
+    calls = _scripted_urlopen(monkeypatch, [_http_error(404), _jpeg_bytes()])
+    img = irs._fetch_tile("http://h/tile/19/1/2", str(tmp_path), retries=3)
+    assert img is not None and len(calls) == 2
+
+
+def test_a_200_that_is_not_an_image_is_not_absence_and_is_not_cached(tmp_path, monkeypatch):
+    """Some services answer an out-of-range tile with an HTML page at status 200."""
+    _scripted_urlopen(monkeypatch, [b"<html>out of bounds</html>"])
+    with pytest.raises(irs.TileUnreadable):
+        irs._fetch_tile("http://h/tile/19/1/2", str(tmp_path), retries=2)
+    # Nothing on disk: caching the bad bytes would make every later run fail on
+    # the cache instead of the network, and caching absence would understate
+    # coverage for a fault that is the service's, not the city's.
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_unreadable_is_still_caught_by_callers_that_only_want_tile_missing():
+    assert issubclass(irs.TileUnreadable, irs.TileMissing)
+
+
+def test_a_poisoned_cache_entry_from_an_older_run_is_dropped(tmp_path, monkeypatch):
+    calls = _scripted_urlopen(monkeypatch, [_jpeg_bytes()])
+    poisoned = tmp_path / "19_1_2.jpg"
+    poisoned.write_bytes(b"<html>error</html>")
+    img = irs._fetch_tile("http://h/tile/19/1/2", str(tmp_path))
+    assert img is not None and len(calls) == 1
+    assert poisoned.read_bytes()[:2] == b"\xff\xd8"      # a real JPEG now

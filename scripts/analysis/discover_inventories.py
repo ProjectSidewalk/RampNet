@@ -75,7 +75,14 @@ def fetch(url, timeout=45, retries=3):
 
 
 def search(query, pages=3, page_size=100):
-    """All Hub datasets matching ``query``. Pages until exhausted or ``pages``."""
+    """All Hub datasets matching ``query``. Pages until exhausted or ``pages``.
+
+    Stops on an **empty** page rather than a short one. A short page is not proof
+    of the end: the API applies its own filtering after paging, so a page that
+    comes back with 80 of 100 rows can still be followed by a full one, and
+    treating it as terminal silently truncates the sweep. The `pages` cap bounds
+    the cost either way, and every total this feeds is reported as a floor.
+    """
     out = []
     for page in range(1, pages + 1):
         url = (f"{HUB_API}?q={urllib.parse.quote(query)}"
@@ -84,8 +91,6 @@ def search(query, pages=3, page_size=100):
         if not d or not d.get("data"):
             break
         out.extend(d["data"])
-        if len(d["data"]) < page_size:
-            break
     return out
 
 

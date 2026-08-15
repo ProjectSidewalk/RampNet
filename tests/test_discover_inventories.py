@@ -94,3 +94,43 @@ def test_known_check_reads_both_org_and_name():
 def test_point_geometry_is_what_stage_1_can_use():
     assert "esriGeometryPoint" in d.POINT_TYPES
     assert "esriGeometryPolyline" not in d.POINT_TYPES
+
+
+# --------------------------------------------------------------------------- #
+# pagination — a short page is not the end
+# --------------------------------------------------------------------------- #
+def _paged(monkeypatch, pages):
+    """Serve `pages` (a list of row-count ints) to search(), and record the URLs."""
+    seen = []
+
+    def fake_fetch(url, **kw):
+        seen.append(url)
+        i = len(seen) - 1
+        if i >= len(pages):
+            return {"data": []}
+        return {"data": [{"id": f"{i}-{k}"} for k in range(pages[i])]}
+
+    monkeypatch.setattr(d, "fetch", fake_fetch)
+    return seen
+
+
+def test_a_short_page_does_not_terminate_the_sweep(monkeypatch):
+    """The Hub filters after paging, so page 2 can be short and page 3 full.
+    Stopping on the short one silently truncates a supply count."""
+    seen = _paged(monkeypatch, [100, 80, 100])
+    rows = d.search("curb ramp", pages=3, page_size=100)
+    assert len(rows) == 280
+    assert len(seen) == 3
+
+
+def test_an_empty_page_does_terminate_it(monkeypatch):
+    seen = _paged(monkeypatch, [100, 0, 100])
+    rows = d.search("curb ramp", pages=3, page_size=100)
+    assert len(rows) == 100
+    assert len(seen) == 2
+
+
+def test_the_page_cap_still_bounds_the_cost(monkeypatch):
+    seen = _paged(monkeypatch, [100, 100, 100, 100])
+    d.search("curb ramp", pages=2, page_size=100)
+    assert len(seen) == 2

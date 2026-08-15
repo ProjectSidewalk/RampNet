@@ -536,6 +536,21 @@ class TileMissing(Exception):
     """
 
 
+class TileUnreadable(TileMissing):
+    """HTTP 200, but the body is not an image.
+
+    A different thing from absence, and it must not be reported as absence:
+    absence is a fact about the record, this is a fact about the run. Some tile
+    services answer an out-of-range request with an HTML page or an error
+    document at status 200 instead of a 404, and one of those decoded as
+    "outside the municipal footprint" would understate coverage the same way the
+    cached-404 bug understated Charlotte's.
+
+    Subclasses ``TileMissing`` so a caller that only cares about "no chip here"
+    still catches it; callers that report counts should catch this first.
+    """
+
+
 def _fetch_tile(url, cache_dir, timeout=60, retries=4):
     """Fetch one tile, caching both presence and absence.
 
@@ -551,6 +566,13 @@ def _fetch_tile(url, cache_dir, timeout=60, retries=4):
     A tile genuinely outside the municipal footprint 404s every time, so
     absence is still cheap to establish; it just has to be established by
     evidence rather than by one sample.
+
+    **Nothing is cached until it has decoded.** A body that is not an image —
+    an HTML error page served at status 200, a truncated response — used to be
+    written to the cache and only then handed to ``Image.open``, so the
+    exception escaped the sheet build *and* the bad bytes stayed on disk, which
+    made every later run fail on the cached file instead of on the network. It
+    is retried like a 404 and, if it persists, raised as ``TileUnreadable``.
     """
     from PIL import Image
     key = url.split("/tile/")[-1].replace("/", "_") + ".jpg"
@@ -558,27 +580,44 @@ def _fetch_tile(url, cache_dir, timeout=60, retries=4):
     if os.path.exists(path):
         if os.path.getsize(path) == 0:
             raise TileMissing(url)
-        return Image.open(path).convert("RGB")
+        try:
+            return Image.open(path).convert("RGB")
+        except OSError:
+            # A cache entry written by an older run, before the decode check.
+            # Drop it and re-fetch rather than failing forever on a bad file.
+            os.remove(path)
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-    last = None
+    absent = undecodable = None
     for attempt in range(retries):
         try:
             with urllib.request.urlopen(req, timeout=timeout) as fh:
                 blob = fh.read()
-            break
         except urllib.error.HTTPError as exc:
             if exc.code not in (404, 400):
                 raise
-            last = exc
-            if attempt < retries - 1:
-                time.sleep(0.4 * (attempt + 1))
-    else:
-        # Every attempt said absent, so believe it and cache that.
-        open(path, "wb").close()
-        raise TileMissing(url)
-    with open(path, "wb") as out:
-        out.write(blob)
-    return Image.open(io.BytesIO(blob)).convert("RGB")
+            absent = exc
+        else:
+            try:
+                img = Image.open(io.BytesIO(blob)).convert("RGB")
+            except OSError as exc:      # PIL raises UnidentifiedImageError, an OSError
+                undecodable = (exc, len(blob))
+            else:
+                with open(path, "wb") as out:
+                    out.write(blob)
+                return img
+        if attempt < retries - 1:
+            time.sleep(0.4 * (attempt + 1))
+    if undecodable is not None:
+        # Deliberately NOT cached as absence, and deliberately reported ahead of a
+        # 404 seen on another attempt: a service answering 200 with a non-image is
+        # misbehaving, not telling us the tile does not exist, and the expensive
+        # mistake in this script's history was believing a transient failure.
+        exc, size = undecodable
+        raise TileUnreadable(
+            "{} served {} bytes that are not an image ({})".format(url, size, exc))
+    # Every attempt said absent, so believe it and cache that.
+    open(path, "wb").close()
+    raise TileMissing("{} ({})".format(url, absent))
 
 
 def render_chip(lon, lat, zoom, span_m, cache_dir, tile_url):
@@ -1236,12 +1275,20 @@ def main(argv=None):
     cache_dir = os.path.join(review_dir, "tiles_{}".format(args.tile_source))
     os.makedirs(cache_dir, exist_ok=True)
 
-    chips, verdicts, blanks, missing, mpp, span_px = [], [], 0, 0, None, 0
+    chips, verdicts, blanks, missing, unreadable, mpp, span_px = [], [], 0, 0, 0, None, 0
     for k, i in enumerate(picked):
         lon, lat = rows[i]["lon"], rows[i]["lat"]
         rid = str(rows[i].get(args.id_field, i))
         try:
             chip, mpp, keys, blank = render_chip(lon, lat, zoom, args.span_m, cache_dir, src["url"])
+        except TileUnreadable as exc:
+            # Counted apart from `missing` on purpose. "Outside the footprint" is a
+            # statement about the city's records; this is a statement about the tile
+            # service, and folding it into the first would quietly shrink coverage.
+            unreadable += 1
+            print("  [{:>3}/{}] {} TILE NOT AN IMAGE — {}".format(
+                k + 1, len(picked), rid, exc))
+            continue
         except TileMissing:
             missing += 1
             print("  [{:>3}/{}] {} NO IMAGERY — outside the basemap footprint".format(
@@ -1313,6 +1360,10 @@ def main(argv=None):
         "neighbour_radii_m": list(NEIGHBOUR_RADII_M),
         "blank_chips_dropped": blanks,
         "no_imagery_dropped": missing,
+        # Kept separate from no_imagery_dropped in the manifest as well as on the
+        # console: a reader has to be able to tell a city whose records fall outside
+        # its own basemap from a run the tile service misbehaved during.
+        "unreadable_tiles_dropped": unreadable,
         # Travels with the verdicts on purpose: an offset is uninterpretable
         # without the rule that says what it is an offset *from*.
         "rubric": RUBRIC,
@@ -1334,8 +1385,10 @@ def main(argv=None):
     with open(sheet_path, "w", encoding="utf-8") as fh:
         fh.write(build_sheet(sheet_meta, chips, manifest))
 
-    print("\n{} chips, {} blank dropped, {} no imagery".format(
-        len(chips), blanks, missing))
+    print("\n{} chips, {} blank dropped, {} no imagery{}".format(
+        len(chips), blanks, missing,
+        ", {} UNREADABLE TILES (tile service problem, not the city's)".format(unreadable)
+        if unreadable else ""))
     print("wrote {}".format(sheet_path))
     print("wrote {}".format(verdict_path))
     return 0

@@ -1890,10 +1890,10 @@ is useless as a drift signal. This was a real bug, caught by the test rather tha
    re-run from `data/inventories/` reproduces *today's* dataset, not the ICCV one. The paper-exact
    NYC/Portland/Bend files exist in exactly one place — the paper's supplemental material — and
    recovering and committing them is still open. It gets harder, not easier, with time.
-2. **The basemap imagery behind any §5 verdict is not redistributable.** The review sheet embeds
-   Esri or municipal tiles under terms that do not permit re-hosting, so `verdicts.json` records the
-   tile-source URL template, zoom and per-chip tile keys instead. A replicator can re-fetch the
-   exact tiles; they cannot get them from this repo. That is a stated blocker, not a solved problem.
+2. **The basemap imagery behind any §5 verdict is not in this repo.** The review sheet embeds Esri
+   or municipal tiles, which we do not re-host, so `verdicts.json` records the tile-source URL
+   template, zoom and per-chip tile keys instead. A replicator re-fetches the exact tiles from the
+   same service; they cannot get them from here. That is a stated blocker, not a solved problem.
 
 ## 10. Caveats
 
