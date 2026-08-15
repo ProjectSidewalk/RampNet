@@ -517,6 +517,11 @@ def main():
                          "dominant cost term, so this is the main cost lever; it is "
                          "part of the detection cache key. Default 'low' — reading a "
                          "view and emitting a box list is not intelligence-sensitive.")
+    ap.add_argument("--claude-tool-choice", default="auto", choices=["auto", "forced"],
+                    help="'forced' guarantees the answer arrives as a tool call, but "
+                         "SUPPRESSES THINKING, which makes --claude-effort inert. "
+                         "'auto' (default) lets effort actually do something. Also "
+                         "part of the cache key.")
     ap.add_argument("--qwen-model", default="Qwen/Qwen3-VL-8B-Instruct")
     ap.add_argument("--qwen-coord-space", choices=["auto", "norm1000", "pixels"], default="auto",
                     help="Box convention the Qwen checkpoint emits: 'norm1000' (Qwen3-VL, "

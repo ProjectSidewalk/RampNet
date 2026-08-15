@@ -808,7 +808,8 @@ class ClaudeDetector(_VLMDetector):
     max_edge = 1568
 
     def __init__(self, model_id="claude-sonnet-5", max_edge=None, tile=True,
-                 project=None, location=None, effort="low", views=None):
+                 project=None, location=None, effort="low", tool_choice="auto",
+                 views=None):
         super().__init__(model_id, max_edge, tile=tile, views=views)
         self.project = project or os.environ.get("GOOGLE_CLOUD_PROJECT")
         # `global` for the same reason as Gemini, plus a second one: Vertex prices
@@ -820,6 +821,14 @@ class ClaudeDetector(_VLMDetector):
         # a 1024x1024 view and emitting a short box list is not intelligence-
         # sensitive work, and the default `high` costs several times more for it.
         self.effort = effort
+        # FORCING the tool call suppresses thinking entirely, which makes `effort`
+        # inert. Measured 2026-08-15 on one view: forced gives 60 output tokens
+        # and 0 thinking at BOTH low and high, while auto gives 0 / 42 / 237
+        # thinking at low / high / max. So `auto` is the default -- otherwise the
+        # effort knob silently does nothing. `forced` guarantees the answer comes
+        # back as a tool call (no text fallback needed) and is the better choice
+        # at effort=low, where there is no thinking to lose.
+        self.tool_choice = tool_choice
         self._client = None
         self.init_usage()
         self._usage_warned = False
@@ -834,6 +843,7 @@ class ClaudeDetector(_VLMDetector):
         is what constrains the answer's shape."""
         sig = super().signature()
         sig["effort"] = self.effort
+        sig["tool_choice"] = self.tool_choice
         sig["box_tool"] = json.dumps(CLAUDE_BOX_TOOL, sort_keys=True)
         return sig
 
@@ -903,7 +913,8 @@ class ClaudeDetector(_VLMDetector):
             # effort is allowed by the org policy; structured_outputs is not.
             output_config={"effort": self.effort},
             tools=[CLAUDE_BOX_TOOL],
-            tool_choice={"type": "tool", "name": CLAUDE_BOX_TOOL["name"]},
+            tool_choice=({"type": "tool", "name": CLAUDE_BOX_TOOL["name"]}
+                         if self.tool_choice == "forced" else {"type": "auto"}),
             messages=[{"role": "user", "content": [
                 {"type": "image", "source": {"type": "base64",
                                              "media_type": "image/jpeg", "data": b64}},
@@ -1367,7 +1378,8 @@ def build_detector(provider, model_id, records, args):
     if provider == "claude":
         mid = model_id or args.claude_model
         return mid, ClaudeDetector(model_id=mid, tile=tile,
-                                   effort=getattr(args, "claude_effort", None) or "low")
+                                   effort=getattr(args, "claude_effort", None) or "low",
+                                   tool_choice=getattr(args, "claude_tool_choice", None) or "auto")
     if provider == "qwen":
         mid = model_id or args.qwen_model
         coord_space = getattr(args, "qwen_coord_space", "auto")
