@@ -33,6 +33,14 @@ experiment, it changes what every remaining epoch does.
 keeps only ``last.pt``/``best.pt``, and resume honours the saved value, so per-epoch
 weights cannot be recovered for an arm that did not start with it.
 
+Where to run it
+---------------
+On the TARGET cluster, after the checkpoint has been copied there. That is the assumed
+workflow, and it is why ``--data`` is checked for existence: on the target host a
+missing data.yaml is a typo caught in a second rather than a job that dies at dataset
+load minutes later. To prepare a checkpoint somewhere the target paths do not exist
+yet -- staging on a laptop before an rsync, say -- pass ``--no-check-data``.
+
 Usage
 -----
     python retarget_yolo_checkpoint.py CKPT.pt \
@@ -50,20 +58,56 @@ import argparse
 import hashlib
 import shutil
 import sys
-from pathlib import Path
+from datetime import datetime, timezone
+from pathlib import Path, PurePosixPath, PureWindowsPath
 
 # The six keys that carry a cluster-absolute path. `resume` and `model` both point at
 # the checkpoint itself; ultralytics rewrites `model` internally on load, but we set
 # both so the file is self-consistent if inspected.
 PATH_KEYS = ("data", "project", "name", "save_dir", "model", "resume")
 
+_CHUNK = 1 << 20  # 1 MiB
+
 
 def sha256(path: Path) -> str:
     h = hashlib.sha256()
     with path.open("rb") as fh:
-        for chunk in iter(lambda: fh.read(1 << 20), b""):
+        for chunk in iter(lambda: fh.read(_CHUNK), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def _flavour(p: str):
+    """Which path flavour the TARGET cluster speaks, inferred from the path itself.
+
+    Not the host's: staging a Tillicum checkpoint from a Windows laptop
+    (``--no-check-data``) would otherwise write ``\\gpfs\\projects\\...`` via
+    ``pathlib.Path``, and the resumed run would look for a directory that cannot
+    exist on Linux. Judged on the string given, so the same command produces the
+    same checkpoint wherever it is run.
+    """
+    return PureWindowsPath if ("\\" in p or PureWindowsPath(p).drive) else PurePosixPath
+
+
+def retarget_paths(data: str, project: str, name: str) -> dict[str, str]:
+    """The six path values a checkpoint needs to resume under ``project/name``.
+
+    Coupled to ultralytics' run layout: the trainer derives its output directory as
+    ``project/name`` and writes weights to ``<save_dir>/weights/last.pt``. If that
+    layout ever changes upstream, this function is the one place to fix -- writing
+    these keys by any other rule would produce a self-inconsistent checkpoint.
+    """
+    pure = _flavour(project)
+    save_dir = str(pure(project) / name)
+    weights = str(pure(save_dir) / "weights" / "last.pt")
+    return {
+        "data": str(data),
+        "project": str(project),
+        "name": name,
+        "save_dir": save_dir,
+        "model": weights,
+        "resume": weights,
+    }
 
 
 def main() -> int:
@@ -77,6 +121,9 @@ def main() -> int:
                     help="write here instead of in place")
     ap.add_argument("--apply", action="store_true",
                     help="actually write; without this the script only reports")
+    ap.add_argument("--no-check-data", action="store_true",
+                    help="skip the --data existence check, for staging a checkpoint "
+                         "on a host where the target cluster's paths do not exist")
     args = ap.parse_args()
 
     import torch  # imported late so --help works without a torch install
@@ -87,22 +134,23 @@ def main() -> int:
 
     data_yaml = Path(args.data)
     if not data_yaml.is_file():
-        # Catching this here turns a confusing mid-epoch failure into an obvious one.
-        print(f"ERROR: --data does not exist on this host: {data_yaml}", file=sys.stderr)
-        return 2
+        # Catching this here turns a confusing mid-epoch failure into an obvious one --
+        # but only when the script runs where the path is supposed to resolve.
+        if not args.no_check_data:
+            print(f"ERROR: --data does not exist on this host: {data_yaml}", file=sys.stderr)
+            print("       Run this on the target cluster, or pass --no-check-data if "
+                  "you are staging elsewhere.", file=sys.stderr)
+            return 2
+        print(f"NOTE: --data not found on this host ({data_yaml}); writing it anyway "
+              "(--no-check-data).", file=sys.stderr)
 
-    save_dir = str(Path(args.project) / args.name)
-    weights = str(Path(save_dir) / "weights" / "last.pt")
-    new = {
-        "data": str(data_yaml),
-        "project": str(args.project),
-        "name": args.name,
-        "save_dir": save_dir,
-        "model": weights,
-        "resume": weights,
-    }
+    # args.data verbatim, not str(data_yaml): Path() would rewrite a POSIX cluster
+    # path into host separators when staging from Windows.
+    new = retarget_paths(args.data, args.project, args.name)
 
     print(f"checkpoint : {args.ckpt}")
+    # Identifies the bytes going in, so this can be matched against the snapshot
+    # MANIFEST before anything is rewritten.
     print(f"sha256 (in): {sha256(args.ckpt)}")
     ckpt = torch.load(args.ckpt, map_location="cpu", weights_only=False)
     ta = ckpt.get("train_args")
@@ -116,9 +164,12 @@ def main() -> int:
     print(f"epochs done: {done} of {ta.get('epochs')}   "
           f"best_fitness: {float(ckpt.get('best_fitness') or -1):.5f}")
     print()
-    print(f"{'key':<10} {'from':<58} -> to")
+    # Width from the data, not a constant: cluster paths are long and a fixed column
+    # silently misaligns the table exactly when it matters most.
+    w = max([len("from")] + [len(str(ta.get(k))) for k in PATH_KEYS])
+    print(f"{'key':<10} {'from':<{w}} -> to")
     for k in PATH_KEYS:
-        print(f"{k:<10} {str(ta.get(k)):<58} -> {new[k]}")
+        print(f"{k:<10} {str(ta.get(k)):<{w}} -> {new[k]}")
     print()
 
     unchanged = [k for k in PATH_KEYS if ta.get(k) == new[k]]
@@ -130,6 +181,18 @@ def main() -> int:
         print("DRY RUN -- rerun with --apply to write.")
         return 0
 
+    # Breadcrumb, so `train_args` paths that do not match the cluster in the run's
+    # logs have an explanation inside the file itself. Top-level, not inside
+    # `train_args`, so ultralytics never sees a key it does not recognise. Note it
+    # survives only until ultralytics writes its own next checkpoint over last.pt --
+    # it identifies the file handed to the job, and `.preretarget` keeps the original.
+    ckpt["retarget_info"] = {
+        "script": Path(__file__).name,
+        "utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "from": {k: str(ta.get(k)) for k in PATH_KEYS},
+        "to": dict(new),
+    }
+
     ta.update(new)
     out = args.out or args.ckpt
     if out == args.ckpt:
@@ -139,6 +202,10 @@ def main() -> int:
             print(f"backup     : {backup}")
     torch.save(ckpt, out)
     print(f"wrote      : {out}")
+    # Identifies THIS file only. It cannot match the input hash (the contents changed)
+    # and torch.save is not bit-reproducible across torch/python versions, so do not
+    # use it to compare the same retarget performed on two hosts -- compare the
+    # `.preretarget` backup against the MANIFEST instead.
     print(f"sha256(out): {sha256(out)}")
 
     # Reload and assert, so a silent torch.save/pickle problem cannot pass as success.
