@@ -19,7 +19,7 @@ lives on one machine.
 | `benchmark/miss_taxonomy_46/*.json` (human verdicts) | small | **committed** | ✅ |
 | RampNet model weights | — | HF `projectsidewalk/rampnet-model` | ✅ |
 | Stage 1 dataset | **463 GB** (test split ~44 GB) | HF `projectsidewalk/rampnet-dataset` | ✅ |
-| `benchmark/model_detections/` (challenger detections) | 18.0 MB | **committed** ✅ | ✅ |
+| `benchmark/model_detections/` (challenger detections) | 20.2 MB | **committed** ✅ | ✅ |
 | **`benchmark/*/panos/` (native-res panoramas)** | **9.0 GB** | **git-ignored; HF #21 pending** | ❌ **blocker** |
 
 ### ✅ Resolved — the challenger detections are published
@@ -32,17 +32,43 @@ so every number they produced was reproducible on exactly one machine.
 `.model_cache` is fine as a *working* cache and hostile as a published artifact: 12,951
 single-panorama shards keyed by an opaque SHA-1 of (label, signature, city, pano), unreadable
 without reconstructing detector signatures. `scripts/analysis/export_model_cache.py` consolidates
-it into **61 human-readable files, 18.0 MB**, one per (model, split), keyed by panorama id with the
-detector signature recorded inside.
+it into human-readable files, one per (model, split), keyed by panorama id with the detector
+signature recorded inside. As of 2026-08-15 that is **77 files, 20.2 MB** — the seven-model
+roster across ten splits, plus the nine-split gemini-3.7-flash leg described below.
 
 ```bash
 python scripts/analysis/export_model_cache.py --out benchmark/model_detections
 python scripts/analysis/export_model_cache.py --verify     # exported == cached
 ```
 
-`--verify` re-scores every split from both sources and asserts identical TP/FP counts — **61/61
-pairs verified identical** — because a published artifact that silently differs from what produced
-the paper's numbers is worse than none.
+`--verify` re-scores every split from both sources and asserts identical per-pano (TP, FP)
+— **68/68 pairs on the default roster verified identical** — because a published artifact
+that silently differs from what produced the paper's numbers is worse than none. It exits
+non-zero when it had nothing to compare, so a green run cannot mean "found no cache".
+
+**Keep this count current when a leg is added.** It drifted twice (61 → 68 at the São Paulo
+split, 68 → 77 at gemini-3.7-flash) before anyone noticed, and a ledger that exists to keep
+the repo honest is the wrong document to let rot.
+
+#### The gemini-3.7-flash leg is published but off the default roster
+
+`benchmark/model_detections/gemini-3.7-flash__*.json` (nine city splits, no `manual_gold` —
+that leg was still running at export time, as with the other two Geminis) was produced and
+verified with the model named explicitly:
+
+```bash
+python scripts/analysis/export_model_cache.py --models gemini:gemini-3.7-flash
+python scripts/analysis/export_model_cache.py --verify --models gemini:gemini-3.7-flash
+# -> compared 9 (model, split) pair(s); published detections score IDENTICALLY
+```
+
+`gemini:gemini-3.7-flash` is **not** in `CHALLENGERS` (`scripts/analysis/fp_taxonomy.py`),
+which is what `--models` defaults to. So the two commands above are not optional detail: the
+default `--verify` skips these nine files entirely and reports a clean pass without opening
+them, `fp_taxonomy.py` needs the same `--models` flag, and `silent_witness.py` cannot reach
+them at all without adding the spec to `CHALLENGERS`. Adding it there would change the
+committed `fp_taxonomy.json` / `silent_witness.json`, so it is a re-run, not an edit — open
+until the leg's write-up lands in `docs/model_comparison.md`.
 
 Downstream scripts prefer the published files over `.model_cache`, and the label a `--models` spec
 resolves to is derived *without* building a detector, so **a clean clone reproduces these numbers

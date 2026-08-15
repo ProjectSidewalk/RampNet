@@ -25,7 +25,28 @@ a run that hasn't happened, not a result being withheld.
 | manual_gold | ✅ | ✅ all 8 | ❌ too slow | n/a — un-anchored GT | 1k panos, the anchoring control |
 
 "All 8" is the roster in the class table below: RampNet, 2 Geminis, 2 Qwens, Molmo, OWLv2,
-Grounding DINO. **Every split again carries the full roster** — paterson's challenger +
+Grounding DINO.
+
+**A ninth model, `gemini-3.7-flash`, has been run on the nine city splits but is not in that
+roster and is not scored in the tables below.** Its detections are published and verified
+(`benchmark/model_detections/gemini-3.7-flash__*.json`, 9/9 pairs identical to the cache; see
+`docs/replication.md` for the exact commands, which need `--models gemini:gemini-3.7-flash`
+because it is off the default roster). Interim F1 numbers are on #20. It is held out of the
+roster tables until the `manual_gold` leg finishes and the write-up lands here, so that every
+row of every table below is one consistent 8-model set. **This is an omission of a
+write-up, not of a run** — the distinction the matrix above exists to make, stated here
+because the artifact is already in the repo and would otherwise read as a withheld result.
+
+One open question travels with it: gemini-3.7-flash returns zero detections on **345 of 1,109
+panos**, against 163 for gemini-3.6-flash and 255 for gemini-3.1-pro. `boxes_from_gemini_response`
+yields `[]` both for a genuine "no curb ramps here" and for a response that arrived without
+parseable content, and nothing in the published artifact distinguishes them. Two facts argue
+against a systematic dropped-response bug — the rig makes **six** independent view calls per
+pano and merges them, so an empty pano needs all six to come back empty, and 3.1-pro sits
+between the two flashes rather than with 3.6 — but it is unresolved, and it bears directly on
+reading the leg as "high precision". Resolve before quoting its precision.
+
+**Every split again carries the full 8-model roster** — paterson's challenger +
 null-recall runs landed 2026-07-29, hours after the split itself; gainesville's landed
 2026-07-30, the same day as its split; and sao_paulo's landed 2026-08-01, also the same day
 as its GT review (GPU legs on klone, Geminis via Vertex, all reproducible from the committed
