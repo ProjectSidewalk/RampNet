@@ -1,0 +1,71 @@
+Bundle: benchmark/budapest_district5  (125 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: /homes/gws/jonf/RampNet/.model_cache
+
+Operating point: predictions with confidence < 0.25 dropped (models without confidences are unaffected).
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+y11l_pano                             0.786   (0.662-0.873)  0.147   (0.111-0.191)  0.247  0.443        44/12/256/2
+y26_pano                              0.639   (0.531-0.734)  0.177   (0.138-0.224)  0.277  0.350        53/30/247/6
+y11x_pano_h200                        0.864   (0.733-0.936)  0.127   (0.094-0.169)  0.221  0.427         38/6/262/2
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+[y11l_pano] threshold sweep (re-scored from cached detections)
+    thr      P      R     F1         tp/fp/fn
+   0.05  0.411  0.640  0.501      192/275/108
+   0.10  0.638  0.470  0.541       141/80/159 <- best F1
+   0.15  0.686  0.313  0.430        94/43/206
+   0.20  0.700  0.187  0.295        56/24/244
+   0.25  0.786  0.147  0.247        44/12/256
+   0.30  0.811  0.100  0.178         30/7/270
+   0.40  0.778  0.047  0.088         14/4/286
+   0.50  0.889  0.027  0.052          8/1/292
+   0.60  0.833  0.017  0.033          5/1/295
+   0.70  0.667  0.007  0.013          2/1/298
+
+[y26_pano] threshold sweep (re-scored from cached detections)
+    thr      P      R     F1         tp/fp/fn
+   0.05  0.217  0.630  0.323      189/683/111
+   0.10  0.356  0.487  0.411      146/264/154 <- best F1
+   0.15  0.498  0.347  0.409      104/105/196
+   0.20  0.573  0.250  0.348        75/56/225
+   0.25  0.639  0.177  0.277        53/30/247
+   0.30  0.730  0.153  0.253        46/17/254
+   0.40  0.861  0.103  0.185         31/5/269
+   0.50  0.778  0.047  0.088         14/4/286
+   0.60  0.846  0.037  0.070         11/2/289
+   0.70  0.857  0.020  0.039          6/1/294
+   0.80  1.000  0.003  0.007          1/0/299
+
+[y11x_pano_h200] threshold sweep (re-scored from cached detections)
+    thr      P      R     F1         tp/fp/fn
+   0.05  0.444  0.570  0.499      171/214/129
+   0.10  0.702  0.400  0.510       120/51/180 <- best F1
+   0.15  0.786  0.270  0.402        81/22/219
+   0.20  0.810  0.170  0.281        51/12/249
+   0.25  0.864  0.127  0.221         38/6/262
+   0.30  0.828  0.080  0.146         24/5/276
+   0.40  0.727  0.027  0.051          8/3/292
+   0.50  0.833  0.017  0.033          5/1/295
+   0.60  1.000  0.010  0.020          3/0/297
+
+PR curves written to yolo_eval_results/pr_budapest_district5 (JSON + pr_curves.png)
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   125 (of 125 seen)
+Detections judged:    173  (correct 151, incorrect 22)
+Detections duplicate: 7  (redundant hits on an already-counted ramp; folded into the numbers above per this run's duplicate scoring)
+Detections unsure:    16  (abstained — not in precision or recall)
+Missed ramps marked:  149  (+48 unsure, abstained)
+Precision: 0.873  (95% CI 0.815-0.915)
+Recall:    0.503  (95% CI 0.447-0.560)  [vs ramps visible in the 125 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    173      0.873    0.503
+     0.60    139      0.914    0.423
+     0.65    119      0.924    0.367
+     0.70     99      0.919    0.303
+     0.75     73      0.904    0.220
+     0.80     50      0.920    0.153
+     0.85     23      1.000    0.077
+     0.90      9      1.000    0.030
+     0.95      2      1.000    0.007

@@ -1,6 +1,6 @@
 task: detect
 mode: train
-model: /mmfs1/home/jfroehli/RampNet/yolo11x.pt
+model: yolo11x.pt
 data: /gscratch/scrubbed/jfroehli/yolo/tiles/data.yaml
 epochs: 60
 time: null

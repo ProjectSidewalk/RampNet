@@ -1,0 +1,57 @@
+Bundle: /homes/gws/jonf/RampNet/benchmark/manual_gold  (1000 scored panos)  match radius 0.022  ground truth: independent manual labels (YOLO box centers)
+Detection cache: /homes/gws/jonf/RampNet/.model_cache
+
+Operating point: predictions with confidence < 0.25 dropped (models without confidences are unaffected).
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+y11l_pano                             0.931   (0.922-0.939)  0.763   (0.750-0.777)  0.839  0.914     2992/222/927/0
+y26_pano                              0.739   (0.725-0.753)  0.739   (0.725-0.752)  0.739  0.843   2895/1021/1024/0
+y11x_pano_h200                        0.956   (0.948-0.962)  0.767   (0.753-0.780)  0.851  0.931     3005/139/914/0
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+[y11l_pano] threshold sweep (re-scored from cached detections)
+    thr      P      R     F1         tp/fp/fn
+   0.05  0.633  0.956  0.761    3746/2174/173
+   0.10  0.773  0.922  0.841    3613/1059/306
+   0.15  0.853  0.882  0.868     3458/594/461 <- best F1
+   0.20  0.902  0.831  0.865     3255/355/664
+   0.25  0.931  0.763  0.839     2992/222/927
+   0.30  0.955  0.700  0.808    2744/129/1175
+   0.40  0.977  0.557  0.709     2181/52/1738
+   0.50  0.987  0.410  0.580     1608/21/2311
+   0.60  0.988  0.294  0.454     1154/14/2765
+   0.70  0.991  0.225  0.367       883/8/3036
+   0.80  0.995  0.106  0.191       414/2/3505
+
+[y26_pano] threshold sweep (re-scored from cached detections)
+    thr      P      R     F1         tp/fp/fn
+   0.05  0.322  0.971  0.484    3807/8007/112
+   0.10  0.444  0.938  0.602    3676/4609/243
+   0.15  0.556  0.896  0.686    3510/2804/409
+   0.20  0.654  0.823  0.729    3225/1706/694
+   0.25  0.739  0.739  0.739   2895/1021/1024
+   0.30  0.831  0.671  0.743    2630/533/1289 <- best F1
+   0.40  0.952  0.536  0.686    2100/107/1819
+   0.50  0.988  0.418  0.588     1640/20/2279
+   0.60  0.988  0.344  0.510     1348/16/2571
+   0.70  0.993  0.289  0.447      1131/8/2788
+   0.80  0.997  0.220  0.361       864/3/3055
+   0.90  0.977  0.011  0.021        42/1/3877
+
+[y11x_pano_h200] threshold sweep (re-scored from cached detections)
+    thr      P      R     F1         tp/fp/fn
+   0.05  0.664  0.961  0.786    3765/1902/154
+   0.10  0.823  0.928  0.872     3637/782/282
+   0.15  0.896  0.891  0.893     3491/407/428 <- best F1
+   0.20  0.937  0.833  0.882     3263/219/656
+   0.25  0.956  0.767  0.851     3005/139/914
+   0.30  0.971  0.691  0.808     2709/81/1210
+   0.40  0.986  0.536  0.695     2101/30/1818
+   0.50  0.991  0.384  0.554     1506/13/2413
+   0.60  0.994  0.281  0.438      1102/7/2817
+   0.70  0.998  0.214  0.353       840/2/3079
+   0.80  0.997  0.093  0.170       364/1/3555
+
+PR curves written to /homes/gws/jonf/RampNet/yolo_eval_results/pr_manual_gold (JSON + pr_curves.png)
+
+Manual-GT bundle: no verdict-based cross-check (validate the rampnet row against the published gold-set numbers instead; see docs/model_comparison.md).

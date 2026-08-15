@@ -84,30 +84,47 @@ sweep from a 0.05 peak floor across all nine splits, per-imagery-tier curves, th
 confidence-calibration tables, and the recommendation to lower the deployment threshold from
 0.55 to 0.30.
 
-**Supervised baseline in progress (issue #51).** The roster above is all zero-shot except
-RampNet. A supervised **YOLO** baseline — the architecture-vs-data ablation (does a generic
-detector trained on the RampNet dataset *also* beat the zero-shot field, or is RampNet's
-keypoint architecture doing the work?) — is training on Hyak but is **not yet in the results
-tables**: benchmark eval is pending. Live status is in #51; the training record (per-epoch
-curves, configs, provenance) is committed under
-[`scripts/model_comparison/yolo_baseline/`](../scripts/model_comparison/yolo_baseline/).
-Known gaps and caveats so far: the `y11x_tiles` config was dropped (GPU-saturated — epoch time
-exceeded the ckpt scheduling slice, so it never checkpointed), and **all five remaining configs
-hit the same training instability** — validation mAP peaks at epoch 1, collapses at epoch 3, and
-recovers as the learning rate decays, while training loss falls straight through with no NaN or
-AMP error. The collapse coincides exactly with the peak of the warmup LR ramp (`lr/pg0` 0.010 →
-0.029 over `warmup_epochs=3`), and **not** with batch size, input resolution, architecture, or the
-ckpt preemptions — `y11l_pano` and `y26_pano` share batch 4 / imgsz 1280 and both collapsed and
-recovered. Figures and the full ruling-out are in the training record; the stabilized rerun is
-tracked in #70 (whose original small-batch hypothesis this evidence refutes) and the caveat
-write-up in #72. The reported baseline will be the best-val checkpoint, selected on val, per the
-**pre-registered protocol** committed in the
-[training record](../scripts/model_comparison/yolo_baseline/README.md#pre-registered-evaluation--checkpoint-selection-protocol-issue-71)
-(#71) *before* any benchmark eval of any YOLO checkpoint: `best.pt` = Ultralytics best-val-fitness
-with `patience=20`, config choice on val only, headline F1 at the Ultralytics-default conf 0.25,
-same matcher/GT/radius as the whole roster, test bundles touched once — with the caveat that
-today's checkpoints are undertrained relative to a stable schedule and so give a **lower bound**
-on supervised-YOLO performance.
+**Supervised baseline (issue #51): the pano trio is benchmarked; tiles still training.**
+The roster above is all zero-shot except RampNet. The supervised **YOLO** baseline — the
+architecture-vs-data ablation (does a generic detector trained on the RampNet dataset *also*
+beat the zero-shot field, or is RampNet's keypoint architecture doing the work?) — completed
+its three pano-geometry arms (60-epoch budget, patience never fired) and they were scored on
+**all ten splits on 2026-08-14**, under the
+[pre-registered protocol](../scripts/model_comparison/yolo_baseline/README.md#pre-registered-evaluation--checkpoint-selection-protocol-issue-71)
+(#71) committed before any benchmark contact: `best.pt` as saved, selection on val only,
+headline **F1 at conf 0.25**, same matcher/GT/radius as the whole roster. Best pano arm per
+split, against this doc's committed numbers:
+
+| split | best YOLO pano arm (F1@0.25) | RampNet | best zero-shot |
+|---|---:|---:|---:|
+| manual_gold | **0.851** (y11x) | 0.908 | 0.568 |
+| bend | **0.713** (y11l) | 0.850 | 0.638 |
+| morgantown | **0.686** (y11x) | 0.835 | 0.639 |
+| sao_paulo | **0.662** (y11l) | 0.777 | 0.454 |
+| paterson | 0.647 (y11l) | 0.805 | 0.681 |
+| clovis | **0.600** (y11l) | 0.801 | 0.503 |
+| richmond | 0.595 (y11l) | 0.855 | 0.664 |
+| gainesville | 0.516 (y11l) | 0.803 | 0.548 |
+| annapolis | 0.481 (y11l) | 0.839 | 0.567 |
+| budapest_district5 | 0.277 (y26) | 0.644 | 0.381 |
+
+The one-table read: **in-distribution the dataset nearly reproduces RampNet (0.851 vs 0.908
+on manual_gold, far above every zero-shot model), but out-of-domain it degrades much faster
+than RampNet does** — the architecture's measured contribution is generalization, not
+in-domain fit. Against the zero-shot field it splits 5–5 at the headline threshold (bold =
+above the best challenger), with budapest the honest worst case: the US-trained detector
+nearly stops firing on non-US design vocabulary and lands below gemini-pro. The sweeps show
+much of the missing recall sits *below* conf 0.25 (per-split best-F1 lives at 0.10–0.15 —
+tuned-on-test, reported under that flag only), the same under-firing-at-the-library-default
+pattern as RampNet's own #54/#55 threshold correction. Full tables, calibration analysis,
+provenance, and the exported per-pano detections (`benchmark/model_detections/`,
+verify-identical) are in the
+[training record](../scripts/model_comparison/yolo_baseline/README.md) and its
+`benchmark_eval/` directory. Training-side history (the warmup-LR collapse at epoch 3 across
+all arms, the ckpt slice ceiling, the `y26_tiles` fork) stays in that record; the stabilized
+rerun remains tracked in #70 and the caveat write-up in #72. The tiles arms — the
+resolution-controlled half of the ablation, and the geometry the VLM rows are scored with —
+are still training and are deliberately absent from every table above.
 
 Three classes of challenger, which fail differently and are worth keeping distinct:
 

@@ -90,7 +90,7 @@ def load_detections(label, city, published_dir=PUBLISHED_DIR):
         return json.load(fh)["detections"]
 
 
-def export(cache_dir, out_dir, splits, specs, allow_partial=False):
+def export(cache_dir, out_dir, splits, specs, allow_partial=False, overrides=None):
     """Consolidate ``.model_cache`` into one file per (model, split).
 
     A split whose cache is incomplete is REFUSED unless ``allow_partial``. A
@@ -100,6 +100,12 @@ def export(cache_dir, out_dir, splits, specs, allow_partial=False):
     reporting a count), and ``--verify`` cannot catch it either, because a pano
     uncached at export time is absent from both sides and never compared. So the
     decision to publish a partial leg has to be made deliberately, not by default.
+
+    ``overrides`` patches fields of the ``compare.py``-defaults namespace. Every
+    field feeds the detector's cache signature, so an export must be run with the
+    same settings as the run that produced the detections — e.g. the supervised
+    YOLO pano arms (#51) ran ``--tiling none --yolo-imgsz 1280``, and an export at
+    the defaults would rebuild a different signature and silently find no cache.
     """
     import compare as C
     from detectors import build_detector, parse_model_spec
@@ -107,6 +113,8 @@ def export(cache_dir, out_dir, splits, specs, allow_partial=False):
     os.makedirs(out_dir, exist_ok=True)
     cache = C.DetectionCache(cache_dir, enabled=True)
     cargs = _compare_args(cache_dir)
+    for k, v in (overrides or {}).items():
+        setattr(cargs, k, v)
     written, skipped, partial = [], [], []
     for spec in specs:
         for city in splits:
@@ -143,18 +151,22 @@ def export(cache_dir, out_dir, splits, specs, allow_partial=False):
     return written, skipped, partial
 
 
-def verify(cache_dir, out_dir, splits, specs):
+def verify(cache_dir, out_dir, splits, specs, overrides=None):
     """Do the exported detections score identically to the cached ones?
 
-    Returns ``(compared, problems)`` where ``compared`` counts (model, split) pairs
-    that actually had panos on both sides. A pair with nothing to compare is NOT a
-    pass — see the ``vacuous`` bookkeeping below."""
+    Returns ``(compared, problems, vacuous, unpublished)`` where ``compared``
+    counts (model, split) pairs that actually had panos on both sides. A pair with
+    nothing to compare is NOT a pass — see the ``vacuous`` bookkeeping below.
+    ``overrides`` carries the producing run's signature knobs, exactly as in
+    ``export``: verifying at the wrong ones finds no cache and compares nothing."""
     import compare as C
     from detectors import build_detector, parse_model_spec
     from rampnet.detection_eval import radius_sq_for, score_pano
 
     cache = C.DetectionCache(cache_dir, enabled=True)
     cargs = _compare_args(cache_dir)
+    for k, v in (overrides or {}).items():
+        setattr(cargs, k, v)
     rsq = radius_sq_for()
     problems, compared, vacuous, unpublished = [], 0, [], []
     for spec in specs:
@@ -214,14 +226,22 @@ def main(argv=None):
     p.add_argument("--allow-partial", action="store_true",
                    help="Publish a split whose cache is incomplete. Off by default: a "
                         "partial export looks complete to every downstream reader.")
+    p.add_argument("--tiling", default="perspective", choices=["perspective", "none"],
+                   help="Tiling mode of the run that produced the detections. It is part "
+                        "of every detector's cache signature, so it must match the "
+                        "producing run (the #51 YOLO pano arms ran --tiling none).")
+    p.add_argument("--yolo-imgsz", type=int, default=1024,
+                   help="YOLO inference imgsz of the producing run (signature field; "
+                        "the #51 pano arms ran 1280).")
     args = p.parse_args(argv)
 
     splits = [s.strip() for s in args.splits.split(",") if s.strip()]
     specs = [s.strip() for s in args.models.split(",") if s.strip()]
+    overrides = {"tiling": args.tiling, "yolo_imgsz": args.yolo_imgsz}
 
     if args.verify:
         compared, problems, vacuous, unpublished = verify(
-            args.cache_dir, args.out, splits, specs)
+            args.cache_dir, args.out, splits, specs, overrides)
         print(f"compared {compared} (model, split) pair(s) against {args.cache_dir}")
         for msg in problems:
             print(f"  ✗ {msg}")
@@ -247,7 +267,8 @@ def main(argv=None):
         return 1 if vacuous else 0
 
     written, skipped, partial = export(args.cache_dir, args.out, splits, specs,
-                                       allow_partial=args.allow_partial)
+                                       allow_partial=args.allow_partial,
+                                       overrides=overrides)
     total = sum(w[4] for w in written)
     print(f"wrote {len(written)} file(s), {total/1e6:.1f} MB total -> {args.out}\n")
     print(f"{'model':>42} {'split':>20} {'panos':>6} {'uncached':>9} {'KB':>7}")
