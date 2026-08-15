@@ -244,7 +244,7 @@ def test_run_bundle_eval_modes_and_wrap_containment(tmp_path):
     records = {"P1": {"width": 4096, "height": 2048, "detections": []}}
     rows, coverage = cwe.run_bundle_eval(gold, prompts, records)
     assert coverage["boxes_total"] == 3
-    assert coverage["det_prompted"] == 2 and coverage["missed_only"] == 1
+    assert coverage["det_prompted"] == 2 and coverage["missed_no_detection"] == 1
     # det items score in both modes, missed only in gold-center.
     assert len([r for r in rows if r["mode"] == "detection"]) == 2 * len(cwe.RULES)
     assert len([r for r in rows if r["mode"] == "gold-center"]) == 3 * len(cwe.RULES)
@@ -255,3 +255,165 @@ def test_run_bundle_eval_modes_and_wrap_containment(tmp_path):
     for rule in cwe.RULES:
         assert summary["gold-center"][rule]["n"] == 3
         assert not math.isnan(summary["gold-center"][rule]["road_margin_p50"])
+
+
+# ---------------------------------------------------------------------------
+# Scale vs shape: the decomposition the rule comparison turns on
+
+def test_required_side_is_rule_independent_and_exact():
+    # required_side is a property of (box, prompt) alone. A window at exactly that
+    # side contains the box; a hair under it does not.
+    box, pano_w, pano_h = (0.5, 0.6, 0.04, 0.02), 4096, 2048
+    prompt = (0.505 * pano_w, 0.6 * pano_h)
+    req = cwe.required_side(box, prompt, pano_w, pano_h)
+    bpx = cwe.box_pixels(box, pano_w, pano_h)
+    at = cwe.crop_window(prompt[0], prompt[1], req + 2, pano_w, pano_h)
+    under = cwe.crop_window(prompt[0], prompt[1], req - 4, pano_w, pano_h)
+    assert min(cwe.box_margins(bpx, at, pano_w)) >= 0
+    assert min(cwe.box_margins(bpx, under, pano_w)) < 0
+
+
+def test_required_side_handles_a_seam_wrapping_box():
+    box, pano_w, pano_h = (0.004, 0.62, 0.03, 0.02), 4096, 2048
+    prompt = (0.004 * pano_w, 0.62 * pano_h)
+    req = cwe.required_side(box, prompt, pano_w, pano_h, wrap_x=True)
+    # The box is 0.03 * 4096 wide and centred on the prompt: the circular distance
+    # must not read the far-side wrap as a near-full-pano requirement.
+    assert req == pytest.approx(0.03 * pano_w, rel=1e-6)
+
+
+def test_size_ratio_spread_is_blind_to_a_constant_rescale():
+    # The whole point: two rules differing ONLY by a scale constant must score the
+    # same accuracy. Containment and context ratio cannot say that; this can.
+    boxes = [(0.5, 0.55 + 0.03 * i, 0.02 + 0.004 * i, 0.01) for i in range(8)]
+    pano_w, pano_h = 4096, 2048
+    base, scaled = [], []
+    for box in boxes:
+        prompt = (box[0] * pano_w, box[1] * pano_h)
+        row = cwe.score_box(box, prompt, "v1-norm", pano_w, pano_h)
+        base.append(row["size_ratio"])
+        scaled.append(row["predicted_side"] * 4 / row["required_side"])
+    spread = cwe._quantiles(base)
+    spread_scaled = cwe._quantiles(scaled)
+    assert (spread_scaled[0.9] / spread_scaled[0.1]) == pytest.approx(
+        spread[0.9] / spread[0.1], rel=1e-6)
+
+
+def test_rescale_sweep_reproduces_the_unscaled_scoring_at_k1():
+    gold = {"pano_a": [(0.5, 0.62, 0.03, 0.012), (0.2, 0.7, 0.05, 0.02)]}
+    records = {"pano_a": {"width": 4096, "height": 2048, "detections": [
+        {"x_normalized": 0.501, "y_normalized": 0.621, "confidence": 0.9},
+        {"x_normalized": 0.201, "y_normalized": 0.701, "confidence": 0.8}]}}
+    rows, _ = cwe.run_eval(gold, records, min_confidence=0.55)
+    sweep = cwe.rescale_sweep(rows, mode="detection", ks=(1.0, 4.0))
+    for rule in cwe.RULES:
+        sel = [r for r in rows if r["mode"] == "detection" and r["rule"] == rule]
+        direct = sum(1 for r in sel if r["contained"]) / len(sel)
+        assert sweep[rule][0]["k"] == 1.0
+        assert sweep[rule][0]["containment"] == pytest.approx(direct)
+        # Scaling up can only help containment, and never shrinks the window.
+        assert sweep[rule][1]["containment"] >= sweep[rule][0]["containment"]
+        assert sweep[rule][1]["side_p50"] >= sweep[rule][0]["side_p50"]
+
+
+def test_rescale_sweep_respects_the_pano_dimension_cap():
+    # A rule cannot be scaled past the image it cuts from; the sweep must not
+    # pretend otherwise, or "just multiply by k" would look free at any k.
+    gold = {"pano_a": [(0.5, 0.75, 0.02, 0.01)]}
+    records = {"pano_a": {"width": 4096, "height": 2048, "detections": [
+        {"x_normalized": 0.5, "y_normalized": 0.75, "confidence": 0.9}]}}
+    rows, _ = cwe.run_eval(gold, records, min_confidence=0.55)
+    sweep = cwe.rescale_sweep(rows, mode="detection", ks=(20.0,))
+    for rule in cwe.RULES:
+        assert sweep[rule][0]["side_p50"] <= 2048
+        assert sweep[rule][0]["capped"] == 1
+
+
+def test_context_ratio_splits_per_axis():
+    box = (0.5, 0.6, 0.04, 0.005)          # 164 x 10 px: a wide, flat apron
+    row = cwe.score_box(box, (0.5 * 4096, 0.6 * 2048), "geo-v1.5", 4096, 2048)
+    assert row["context_ratio"] == pytest.approx(row["context_ratio_h"])
+    assert row["context_ratio_v"] < row["context_ratio_h"]
+    assert row["box_aspect"] == pytest.approx((0.04 * 4096) / (0.005 * 2048))
+
+
+# ---------------------------------------------------------------------------
+# Bundle mode: gold: items, completeness
+
+GOLD_BOXES_JSON = {
+    "run_name": "goldville",
+    "box_rule": {"version": 2, "text": "rule text"},
+    "crop_fov_deg": 90,
+    "panos": {"P1": {
+        "gold:0": {"point": {"x": 0.5, "y": 0.6}, "status": "boxed",
+                   "cx": 0.5, "cy": 0.6, "w": 0.02, "h": 0.01},
+        "gold:1": {"point": {"x": 0.2, "y": 0.7}, "status": "boxed",
+                   "cx": 0.2, "cy": 0.7, "w": 0.02, "h": 0.01},
+    }},
+}
+
+
+def test_bundle_gold_items_get_a_detection_prompt(tmp_path):
+    # --from-manual-labels emits gold:<i> keys, which carry no adjudicated detection
+    # linkage. Without matching them here the GSV arm would silently produce
+    # gold-center-only numbers, not comparable to a det:-keyed bundle's headline.
+    import json as _json
+    d = tmp_path / "goldville"
+    d.mkdir()
+    (d / "boxes.json").write_text(_json.dumps(GOLD_BOXES_JSON), encoding="utf-8")
+    gold, prompts, _ = cwe.load_bundle_boxes(str(d))
+    records = {"P1": {"width": 4096, "height": 2048, "detections": [
+        {"x_normalized": 0.501, "y_normalized": 0.601, "confidence": 0.9},   # matches gold:0
+        {"x_normalized": 0.9, "y_normalized": 0.5, "confidence": 0.8},       # matches nothing
+    ]}}
+    rows, coverage = cwe.run_bundle_eval(gold, prompts, records, min_confidence=0.55)
+    assert coverage["gold_matched"] == 1 and coverage["gold_unmatched"] == 1
+    det = [r for r in rows if r["mode"] == "detection"]
+    assert {r["key"] for r in det} == {"gold:0"}
+    assert len(det) == len(cwe.RULES)
+
+
+def test_check_gold_complete_warns_when_boxes_cover_a_subset(tmp_path):
+    import json as _json
+    d = tmp_path / "partial"
+    d.mkdir()
+    (d / "boxes.json").write_text(_json.dumps(BOXES_JSON), encoding="utf-8")
+    (d / "verdicts.json").write_text(_json.dumps({"panos": {"P1": {
+        "dets": [True, True], "missed": [{"x": 0.2, "y": 0.7}, {"x": 0.3, "y": 0.7}],
+    }}}), encoding="utf-8")
+    _, _, meta = cwe.load_bundle_boxes(str(d))
+    assert meta["n_adjudicated"] == 4                 # 2 True dets + 2 sure missed
+    assert meta["n_boxed"] + meta["n_cant"] == 4      # this one happens to line up
+    assert meta["completeness_warning"] is None
+    # Drop an item from the gold and the shortfall must be reported, not absorbed.
+    thin = {**BOXES_JSON, "panos": {"P1": {k: v for k, v in
+                                           BOXES_JSON["panos"]["P1"].items()
+                                           if k != "missed:1"}}}
+    (d / "boxes.json").write_text(_json.dumps(thin), encoding="utf-8")
+    _, _, meta = cwe.load_bundle_boxes(str(d))
+    assert "covers 3 of 4 adjudicated ramps" in meta["completeness_warning"]
+
+
+def test_count_adjudicated_ramps_skips_partially_judged_panos(tmp_path):
+    import json as _json
+    p = tmp_path / "verdicts.json"
+    p.write_text(_json.dumps({"panos": {
+        "P1": {"dets": [True, False], "missed": [{"x": 0.1, "y": 0.5}]},
+        "P2": {"dets": [True, None], "missed": [{"x": 0.1, "y": 0.5}]},   # unusable
+        "P3": {"dets": [True], "missed": [{"x": 0.1, "y": 0.5, "unsure": True}]},
+    }}), encoding="utf-8")
+    assert cwe.count_adjudicated_ramps(str(p)) == 3   # P1: 1+1, P2: 0, P3: 1+0
+
+
+def test_cam_height_scales_geo_windows():
+    # geo-v1.5's one free parameter: a lower camera means a nearer ramp for the same
+    # depression, so a bigger window. Reading the module global at call time is what
+    # makes --cam-height work at all.
+    h, w = 2048, 4096
+    tall = cwe.geo_v15_side(0.6 * h, w, h)
+    try:
+        cwe.GEO_CAM_H_M = 1.7
+        short = cwe.geo_v15_side(0.6 * h, w, h)
+    finally:
+        cwe.GEO_CAM_H_M = 2.5
+    assert short == pytest.approx(tall * 2.5 / 1.7, rel=1e-9)

@@ -9,6 +9,8 @@ per-box table is `analysis_out/crop_window_eval.json`.
 ```
 python scripts/analysis/crop_window_eval.py                 # numbers + JSON + per-box CSV
 python scripts/analysis/crop_window_eval.py --fetch-sample 40 --gallery 80   # + overlay gallery
+python scripts/analysis/crop_window_eval.py --bundle benchmark/richmond      # real extent gold
+python scripts/analysis/crop_window_eval.py --bundle benchmark/richmond --cam-height 1.7
 ```
 
 This was set up to score three crop-window sizing rules (below) against "3,919 human-drawn
@@ -123,69 +125,129 @@ complete: **299 boxed + 11 can't-determine = all 310 adjudicated Richmond ramps 
 92 benchmark panos** (jonf, one day, box rule v1→v2 — v2 added two clarifying bullets
 mid-annotation, no convention change). Committed as `benchmark/richmond/boxes.json`;
 scored with `--bundle benchmark/richmond`; summary committed as
-`analysis_out/crop_window_eval_richmond.json`. Two new elements vs Round 1: containment
-is finally *whole-apron* containment, and the **directional road-context margin** — how
-far the window extends below the box bottom (≈ the ramp–street junction), in box
-heights — is reported per rule ("road p50"; "edgecut" = share of windows that clip the
-street edge off). Sanity check on the gold itself: per-band box-size medians run
-~1.2–1.3× the 1.5 m flat-ground nominal, uniformly across distance — true full-apron
-extents (manual_labels sat at ~0.13×).
+`analysis_out/crop_window_eval_richmond.json`. New elements vs Round 1: containment is
+finally *whole-apron* containment; the **directional road-context margin** — how far the
+window extends below the box bottom (≈ the ramp–street junction), in box heights — is
+reported per rule ("road p50"; "edgecut" = share of windows that clip the street edge
+off); and the **size ratio + constant-rescale sweep**, which is what separates a rule's
+accuracy from its scale constant (see Finding 4 — the first pass at this section drew the
+wrong conclusion for want of it). Sanity check on the gold itself: per-band box-size
+medians run ~1.2–1.3× the 1.5 m flat-ground nominal, uniformly across distance — true
+full-apron extents (manual_labels sat at ~0.13×).
 
 **Detection-prompted (production-realistic), n=227:**
 
-| rule | containment (95% CI) | ctx p50 | road p50 | side p50 |
-|---|---|---:|---:|---:|
-| v1-raw | 0.449 [0.39, 0.51] | 0.87 | 1.4 | 340 px |
-| v1-norm | **0.260** [0.21, 0.32] | 1.02 | 1.1 | 304 px |
-| geo-v1.5 | **0.996** [0.98, 1.00] | 0.23 | 6.6 | 1458 px |
+| rule | containment (95% CI) | ctx p50 | road p50 | side p50 | **size ratio p10 / p50 / p90** | **p90/p10** |
+|---|---|---:|---:|---:|---:|---:|
+| v1-raw | 0.449 [0.39, 0.51] | 0.87 | 1.4 | 340 px | 0.55 / 0.95 / 1.79 | **3.24** |
+| v1-norm | 0.260 [0.21, 0.32] | 1.02 | 1.1 | 304 px | 0.46 / 0.80 / 1.40 | **3.02** |
+| geo-v1.5 | 0.996 [0.98, 1.00] | 0.23 | 6.6 | 1458 px | 2.03 / 3.59 / 6.26 | **3.08** |
 
-**Finding 4 — the v1 formula is object-sized, not window-sized, against real extents.**
-Both v1 variants produce windows about the size of the ramp itself (ctx p50 0.87–1.02),
-so containment collapses, monotonically with proximity: v1-raw goes 0.86 → 0.70 → 0.39
-→ 0.22 → 0.00 across the distance strata (far → <5 m); v1-norm never exceeds 0.43 in
-any band. The Round-1 framing inverts: **the resolution normalization is correct and
-still loses** — richmond's panos are mostly *below* the 6656 calibration height (5500,
-2880, 2048), so normalizing shrinks windows relative to raw, and raw's calibration
-defect was accidentally *hiding* the deeper problem: the 2013-era formula's output is
-simply too small to contain a full apron at close/mid range. Fixing only the resolution
-bug (SW#4865's port as planned) would ship the *worst* of the three rules for Richmond.
+**Finding 4 — the v1 formula is object-sized, not window-sized; but the *ranking* those
+containment numbers imply is a scale artifact.** Both halves matter and only the first
+survived the first pass at this.
 
-**geo-v1.5 contains 0.996** (windows sized from geometry, padded to a 12.5 % target), at
-the price of ~2× more context than the ML band (measured ctx p50 0.23, because real
-aprons measure ~1.2–1.3× the 1.5 m nominal) and very large windows (p50 ~1.5 kpx).
-Whether that context level is "too much" is per consumer class (Finding 3): for a
-human-facing Gallery card it may be about right; for a training-crop consumer it halves
-effective object resolution vs a tighter window. Its ctx p10–p90 spread (0.14–0.40) at a
-fixed target is the flat-ground proxy error + ramp-size/orientation variation — the gap
-an extent-aware rule (SAM2 box) would close. Its **single containment miss** (of 227) is
-diagnostic: a ~28 m ramp whose 231 px window is only slightly larger than the 187 px
-box, contained at gold-center but clipped at the detection prompt — far-field windows
-leave too little *placement slack* for detection offset. A padding floor (or explicit
-placement-error allowance) in the far field is the obvious tuning if geo ships.
+The v1 half is real. Both variants produce windows about the size of the ramp itself
+(ctx p50 0.87–1.02), so containment collapses monotonically with proximity: v1-raw goes
+0.86 → 0.70 → 0.39 → 0.22 → 0.00 across the distance strata (far → <5 m); v1-norm never
+exceeds 0.43 in any band. A 2013 formula fitted to a near-point labelling convention is
+simply too small to hold a full apron at close/mid range.
+
+The ranking half does not. **Containment and context ratio are both monotone in window
+size**, so a rule can win either one by being uniformly bigger — and geo-v1.5 is
+uniformly bigger, by 4.5×. The scale-free comparison is the *size ratio*, predicted side
+over the side that box and prompt actually require (`required_side`, a property of the
+gold, not of any rule). Its **p90/p10 spread is 3.0–3.2 for all three rules**. They are
+equally accurate; they differ in one constant. Sweeping that constant (`--rescale-sweep`,
+re-scored with the real window geometry including the pano-dimension cap):
+
+| rule | k for ≥99.5 % containment | ctx p50 there | side p50 there |
+|---|---:|---:|---:|
+| v1-raw | ×3.0 | 0.291 | 1020 px |
+| v1-norm | ×3.5 | 0.291 | 1063 px |
+| geo-v1.5 | ×1.0 | 0.229 | 1458 px |
+
+At matched containment the v1 rules cut a **~30 % smaller median window** for the same
+guarantee; geo-v1.5's extra size buys extra context, which is a per-consumer preference
+(Finding 3), not accuracy. So the conclusion for
+[SW#4865](https://github.com/ProjectSidewalk/SidewalkWebpage/issues/4865) is **not** "ship
+geometry instead" — it is:
+
+- **The resolution normalization is correct and should ship.** Upstream's own docstring
+  says `old_pano_y` "converts pano_y and pano_height to the OLD version of pano_y that we
+  had when this alg was written", and that conversion is exactly what is missing; v1-norm
+  is the faithful port, not a variant. It is also the *best-calibrated* of the three here
+  (spread 3.02).
+- **Its constant is ~3.5× too small for whole-apron containment.** One multiplier, chosen
+  per consumer class from the sweep table — a one-line change to the planned port.
+- **The number that no rule beats is the spread.** Nothing is within ~1.75× of the right
+  size at either tail, at any scale. *That* residual — not the constant — is the case for
+  an extent-aware rule (SAM2 box, #83), and it is invisible in a containment column.
+
+**geo-v1.5's target ratio is not calibrated at 2.5 m.** It measures ctx p50 0.229 against
+its own 0.125 target — 1.83×, uniformly across bands, and not a clamp artifact (2 of 227
+windows hit the pano cap). The gold's own apron-size check says extents run ~1.2–1.3× the
+1.5 m nominal, which predicts 0.156, not 0.229. The gap is the camera height: richmond is
+Mapillary, and `--cam-height 1.7` puts the measured ratio at **0.156**, reconciling the
+two exactly. 2.5 m over-estimates distance, so the apparent ramp is under-estimated and
+the window comes out small — geo's one free parameter was absorbing the rig height. Per-pano
+heights are now measurable on GSV ([sidewalk-auto-labeler#40](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/40),
+median 2.21 m; #101), which is the way to remove the parameter rather than retune it.
+
+**Aprons are 3.3:1, and every candidate cuts a square.** Median box aspect (width/height
+in equirect pixels) is 3.29, p10–p90 2.0–5.9. Containment is therefore decided by
+horizontal extent alone: at geo's ctx p50 of 0.229 the *vertical* context ratio is 0.068,
+about 15 box-heights of sky and sidewalk. Most of the "enormous windows" complaint in
+Finding 3 is the square-window assumption, not any sizing rule — the report now splits
+`ctx_h`/`ctx_v` so a non-square candidate can be scored against the same gold.
+
+Its **single containment miss** (of 227) is still diagnostic: a ~28 m ramp whose 231 px
+window is only slightly larger than the 187 px box, contained at gold-center but clipped
+at the detection prompt — far-field windows leave too little *placement slack* for
+detection offset. A padding floor (or explicit placement-error allowance) in the far field
+is the obvious tuning for whichever rule ships.
 
 **The verdict is stable, not sample-limited:** it was already outside the CIs at the
 112-box interim cut and did not move from 246 → 299 (v1-norm 0.295 → 0.263 → 0.260;
 the interim exports behind those checkpoints are archived with provenance notes in
-`benchmark/richmond/box_annotation_log/` on the #116 branch, so the trajectory is
-regenerable).
-The load-bearing open question moves to the **GSV arm** (manual_gold re-annotation via
-`--from-manual-labels`): richmond's heights are ≤ 6656, where normalization *shrinks*;
-GSV native panos (8192/16384) sit above it, where the raw formula *over*-sizes instead.
-If full aprons bust v1 there too, the v1 baseline is dead on both providers and the
-contest is geo-v1.5 (with per-consumer target ratios) vs SAM2.
+`benchmark/richmond/box_annotation_log/`, so the trajectory is regenerable).
+
+**What the GSV arm can and cannot settle.** Re-annotating manual_gold via
+`box_gallery.py --from-manual-labels` is still the right next step — a second provider,
+a second labelling population, and the only check on whether the ~3.5× constant
+transfers. But two things it will *not* do, both worth knowing before the session:
+
+- **It will not probe the >6656 regime.** All 1,000 `benchmark/manual_gold` records are
+  4096×2048, so the arm scores at pano_h = 2048 — below the calibration height, the same
+  regime as richmond. Testing where the raw formula *over*-sizes needs records carrying
+  native GSV dimensions (8192/16384).
+- **It annotates at model resolution.** Those same records mean 1024 px crops, versus
+  richmond's 2750–3072 px, so "tight at native zoom" is a coarser instrument there.
+  (9 of richmond's own 92 panos are 4096×2048 too — `crop_px_by_pano_dims` in both the
+  gold and the summary now records this rather than leaving it to be assumed.)
 
 Caveats: single annotator (jonf); 4 pano-height groups {5500: 59, 6144: 10, 2880: 8,
 2048: 9 panos} so richmond alone cannot separate height effects; `missed:*` items (72)
 score only in gold-center mode (production cuts no crop without a detection); 11 ramps
-are "can't determine extent" and excluded.
+are "can't determine extent" and excluded — `boxes.json` is cross-checked against
+`verdicts.json` (299 + 11 = 310 adjudicated ✅) so a partial pass cannot silently shrink
+the denominator. `required_side` ignores the near-pole clamp-by-shift, which can only
+help containment, so the size ratio is a mild lower bound (6 of 227 geo rows shift, 0 of
+227 for either v1 rule). The size-ratio spread on manual_labels (4.3–5.4) is *not*
+comparable — those are near-point marks, so the denominator is not an extent.
 
 ## Caveats
 
 - Flat-ground distance from depression (2.5 m camera height) is a proxy; per-pano heights
   vary (sidewalk-auto-labeler#40 measured median 2.21 m on GSV) and terrain is not flat.
   None of Finding 1 depends on the proxy's precision — a 2× distance error cannot explain a
-  7× size gap that is uniform across deployments.
-- 1.5 m nominal ramp width is a convention; real aprons vary ~1–3 m.
+  7× size gap that is uniform across deployments. Finding 4's *geo-v1.5 context ratio*
+  does depend on it, and measurably so: see the `--cam-height` result there. The depression
+  strata labels are printed at the 2.5 m convention regardless of `--cam-height`, so they
+  stay comparable across runs — read them as bands, not distances.
+- 1.5 m nominal ramp width is a convention; real aprons vary ~1–3 m. It enters geo-v1.5
+  multiplicatively alongside camera height, so richmond alone cannot separate "aprons are
+  1.25× nominal" from "the rig sits at 2.0 m" — only their product is identified.
 - The visual checks use fresh GSV fetches of gold pano ids (some ids have decayed); the
   bundle's canonical imagery remains the HF test split via `scripts/fetch_manual_gold.py`.
 - Depression strata use the *box center's* y; detection-prompted rows use the detection's
