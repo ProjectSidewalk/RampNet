@@ -13,9 +13,21 @@ which pulls the project's real token counts from Cloud Monitoring.
 """
 
 # USD per 1M tokens. Output prices include thinking tokens (billed as output).
+#
 # Source: https://ai.google.dev/gemini-api/docs/pricing (standard paid tier);
 # gemini-3.1-pro-preview is the <=200k-token-prompt tier (every harness call is
 # a single ~1.3k-token view, nowhere near the 200k boundary).
+#
+# CAVEAT ON THE SOURCE, and it matters: the measured spend these prices are applied
+# to was billed through **Vertex AI**, not the Gemini Developer API. GeminiDetector
+# takes the `vertexai=True` + ADC path whenever GOOGLE_GENAI_USE_VERTEXAI is set
+# (which is how every leg on this project ran), and vertex_usage.py reconciles
+# against Cloud Monitoring for a GCP project. The two rate cards agreed for these
+# models at `as_of`, but they are separate pages that can diverge, and the
+# introductory-expiry note below is an ai.google.dev fact that need not track
+# Vertex. Before quoting these dollars in a paper, re-check against
+# https://cloud.google.com/vertex-ai/generative-ai/pricing and stamp a new
+# `as_of` — the token counts are the durable measurement, not the dollars.
 PRICING = {
     "gemini-3.7-flash": {
         "input_per_m": 0.75, "output_per_m": 3.75, "as_of": "2026-08-15",

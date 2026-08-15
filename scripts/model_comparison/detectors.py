@@ -490,6 +490,26 @@ class _VLMDetector:
         # report usage (local GPU models are free in API terms).
         self.usage = None
 
+    # The key contract for `usage`, in one place. Every paid provider reports
+    # input and output; almost none report thinking separately, so a reader must
+    # never assume that key exists (compare.py uses .get). Subclasses start the
+    # dict with init_usage() and add to it with accumulate_usage() rather than
+    # inventing their own shape.
+    USAGE_KEYS = ("calls", "input_tokens", "output_tokens", "thoughts_tokens")
+
+    def init_usage(self):
+        self.usage = dict.fromkeys(self.USAGE_KEYS, 0)
+
+    def accumulate_usage(self, input_tokens, output_tokens, thoughts_tokens=0):
+        """Add one paid call to the running total. ``output_tokens`` must ALREADY
+        include thinking, because that is how it bills; ``thoughts_tokens`` is
+        carried alongside only because it is invisible in the response text and
+        dominates output cost."""
+        self.usage["calls"] += 1
+        self.usage["input_tokens"] += input_tokens
+        self.usage["output_tokens"] += output_tokens
+        self.usage["thoughts_tokens"] += thoughts_tokens
+
     def detect(self, sample):
         self._ensure_ready()
         if self.tile:
@@ -569,8 +589,8 @@ class GeminiDetector(_VLMDetector):
         # policy (benchmark imagery is public GSV/Mapillary). See docs/model_comparison.md.
         self.location = location or os.environ.get("GOOGLE_CLOUD_LOCATION") or "global"
         self._client = None
-        self.usage = {"calls": 0, "input_tokens": 0, "output_tokens": 0,
-                      "thoughts_tokens": 0}
+        self.init_usage()
+        self._usage_warned = False   # warn once per run, not once per call
 
     def _ensure_ready(self):
         try:
@@ -633,10 +653,25 @@ class GeminiDetector(_VLMDetector):
         if um is None:
             return
         thoughts = getattr(um, "thoughts_token_count", None) or 0
-        self.usage["calls"] += 1
-        self.usage["input_tokens"] += um.prompt_token_count or 0
-        self.usage["output_tokens"] += (um.candidates_token_count or 0) + thoughts
-        self.usage["thoughts_tokens"] += thoughts
+        prompt = um.prompt_token_count or 0
+        candidates = um.candidates_token_count or 0
+        # The whole cost figure turns on candidates_token_count EXCLUDING thinking,
+        # which is what google-genai reports today and what makes
+        # total = prompt + candidates + thoughts hold. If a future SDK folds
+        # thinking into candidates instead, every thinking model's output silently
+        # doubles (~$20 on the 3.6-flash leg alone) with no other symptom -- and a
+        # unit test against a hand-built fake cannot catch that. So check it
+        # against the provider's own total, once, and say so loudly if it breaks.
+        total = getattr(um, "total_token_count", None)
+        if total and not self._usage_warned:
+            expected = prompt + candidates + thoughts
+            if abs(total - expected) > max(4, 0.02 * total):
+                self._usage_warned = True
+                print(f"[{self.model_id}] WARNING: usage_metadata does not add up "
+                      f"(total {total} vs prompt {prompt} + candidates {candidates} "
+                      f"+ thoughts {thoughts} = {expected}). The cost estimate may "
+                      f"double-count thinking; check the SDK's field semantics.")
+        self.accumulate_usage(prompt, candidates + thoughts, thoughts)
 
     def _parse(self, raw, img_w, img_h):
         return gemini_boxes_to_points(raw)

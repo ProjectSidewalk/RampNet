@@ -1052,18 +1052,26 @@ at run time has to be reconstructed later (or lost). Three layers:
 
 1. **At run time** — `compare.py` accumulates each paid provider's own usage metadata
    (currently Gemini; local GPU models are free in API terms) and appends one JSONL record
-   per model run — token counts, panos scored, estimated cost — to `--usage-log`
-   (default `<cache-dir>/usage_log.jsonl`; `--usage-log none` disables). Cached panos make
-   no call, so the record is what *that run* actually paid, not what a full run would cost.
+   per model run — token counts, panos actually scored, detector signature, estimated cost —
+   to `--usage-log` (default **`analysis_out/usage_log.jsonl`**, which is committed;
+   `--usage-log none` disables). Cached panos make no call, so the record is what *that run*
+   actually paid, not what a full run would cost. The append happens in a `finally`, so a leg
+   that dies or is interrupted after paying still records its spend — that is the case the
+   rule exists for — and a failure to write the file degrades to printing the record rather
+   than aborting the comparison.
 2. **Prices** — `scripts/model_comparison/pricing.py` is a verified-only table: each entry
    carries the date it was checked. Prices change (the Gemini 3.x flash rates are
    introductory through 2026-12-31 and double after); the token counts are the durable
    fact, the dollar figure is an estimate, and the billing console is authoritative.
 3. **Reconciliation** — `scripts/analysis/vertex_usage.py` pulls the project's *actual*
    billed token counts per model from Cloud Monitoring (daily granularity, ~6 weeks
-   retention), which also recovers runs that predate this instrumentation. Caveat: its
+   retention), which also recovers runs that predate this instrumentation. Two caveats: its
    daily rows are 24 h windows ending at the query's time-of-day (UTC), not calendar days —
-   attribute rows to legs from the run record, not by eye.
+   attribute rows to legs from the run record, not by eye — and **it reads one cloud
+   project's billing telemetry, so only someone with access to that project can re-derive
+   its numbers.** That is why layer 1 is committed: the table below is transcribed from a
+   source others cannot query, while `analysis_out/usage_log.jsonl` is checkable from a
+   clean clone.
 
 **Measured: the complete Gemini history of this benchmark** (Cloud Monitoring,
 2026-08-15; every Gemini leg ever run on the project — richmond/bend 07-23/24 onward —
@@ -1079,13 +1087,24 @@ falls inside the retention window):
 
 Anatomy of a leg: tokenization is deterministic — a 125-pano city leg is exactly
 **957,000 input tokens** (125 panos × 6 views × 1,276 tokens/view at the 1024×1024 view
-size), so input cost is fixed per bundle and only output varies. That puts a 125-pano
-city leg at roughly **$1.60–$2.20** depending on model, and the 1,000-pano manual_gold
-leg at ~8× that. Two output-side facts worth knowing when budgeting: **thinking tokens
-bill as output** and dominate it (the visible JSON is ~50 tokens/call; observed output is
-~250–350), and models differ enormously in how much they think — on identical input,
-gemini-3.6-flash emitted 6.1M output tokens where gemini-3.1-pro emitted 0.59M, which is
-why flash legs are not as cheap relative to pro as the rate card suggests.
+size), so input cost is fixed per bundle and only output varies. That makes the rest of
+the budget derivable from the table above: dividing each model's input tokens by 1,276
+gives its call count, and hence its output per call and the cost of one 125-pano leg.
+
+| model | output tokens/call | cost, 125-pano leg | cost, 1,000-pano manual_gold |
+|---|---:|---:|---:|
+| gemini-2.5-flash | 392 | $1.02 | ~$8.20 |
+| gemini-3.7-flash | 313 | $1.60 | ~$12.80 |
+| gemini-3.6-flash | 447 | $1.98 | ~$15.80 |
+| gemini-3.1-pro-preview | 43 | $2.31 | ~$18.50 |
+
+The output column is where the interesting variation lives, and it is entirely thinking:
+**thinking tokens bill as output** and dominate it — the visible JSON is ~50 tokens/call,
+so a model emitting 447 is spending ~90% of its output budget on reasoning nobody reads.
+Models differ by an order of magnitude in how much they do that (gemini-3.6-flash emitted
+6.1M output tokens where gemini-3.1-pro emitted 0.59M on comparable input), which is why
+flash legs are not as cheap relative to pro as the rate card suggests — the 3.6-flash /
+3.1-pro gap is $1.98 vs $2.31 per leg, not the 2.7× the input rates alone imply.
 
 ## Running it
 
@@ -1388,6 +1407,12 @@ What this split adds to the story:
   "how much of a detector's recall is real?" table). Cache-only; no GPU, no keys.
 - `scripts/analysis/fp_taxonomy.py` — what the FP flood is made of (duplicate / near_gt / hood /
   isolated), with an exact chance baseline for the near-GT share. Cache-only; no GPU, no keys.
+- `scripts/model_comparison/pricing.py` — verified-only per-token price table (each entry
+  carries the date it was checked); prices what `--usage-log` records.
+- `scripts/analysis/vertex_usage.py` — server-side reconciliation: actual billed tokens per
+  model from Cloud Monitoring. Needs ADC on the billing project, so only its output is
+  replicable from this repo.
+- `analysis_out/usage_log.jsonl` — committed, append-only record of what each paid run spent.
 - `requirements-vlm.txt` — optional VLM deps.
 - `tests/test_detection_eval.py`, `tests/test_model_comparison.py`,
   `tests/test_equirect_tiling.py` — guards.

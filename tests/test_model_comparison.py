@@ -9,6 +9,8 @@ import json
 import os
 import sys
 
+import pytest
+
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "model_comparison"))
 
@@ -28,8 +30,11 @@ from dump_detections import detections_to_view_shapes  # noqa: E402
 from compare import (  # noqa: E402
     score_model, validate_bundle, validate_manual_bundle, DetectionCache, cache_key,
     ground_truths_from_verdicts, has_confidences, load_bundle,
-    load_manual_ground_truths, operating_report, rescore, sweep_rows,
+    load_manual_ground_truths, operating_report, report_usage, rescore, sweep_rows,
+    DEFAULT_USAGE_LOG,
 )
+import pricing  # noqa: E402
+from pricing import estimate_cost, price_for  # noqa: E402
 from rampnet.detection_eval import GroundTruth, radius_sq_for  # noqa: E402
 from prepare_yolo_dataset import (  # noqa: E402
     parse_box_size, _ground_distance_m, _box_wh, _resolve_distances, write_data_yaml,
@@ -780,19 +785,16 @@ def test_gemini_detect_fails_clearly_without_key_or_lib():
 
 # --- cost accounting (pricing.py + usage recording) -------------------------
 
-from pricing import estimate_cost, price_for  # noqa: E402
-from compare import report_usage  # noqa: E402
-
-
 def test_estimate_cost_known_and_unknown_models():
     # gemini-2.5-flash: $0.30/M in, $2.50/M out (pricing.py, verified 2026-08-15)
-    assert estimate_cost("gemini-2.5-flash", 2_000_000, 1_000_000) == 0.30 * 2 + 2.50
+    assert estimate_cost("gemini-2.5-flash", 2_000_000, 1_000_000) == pytest.approx(3.10)
     assert estimate_cost("not-a-model", 1, 1) is None
+    assert estimate_cost(None, 1, 1) is None
     assert price_for("not-a-model") is None
 
 
 def test_pricing_entries_are_complete():
-    for model, p in __import__("pricing").PRICING.items():
+    for model, p in pricing.PRICING.items():
         assert p["input_per_m"] > 0 and p["output_per_m"] > 0, model
         assert p["as_of"], f"{model}: a price without its verification date is a rumor"
 
@@ -819,6 +821,38 @@ def test_gemini_usage_accumulates_thinking_as_output():
     assert det.usage["calls"] == 2
 
 
+def test_gemini_usage_warns_when_the_sdk_stops_adding_up(capsys):
+    # The cost figure turns on candidates_token_count EXCLUDING thinking. If a
+    # future SDK folds thinking in, every thinking model's output silently doubles;
+    # the provider's own total is the only thing that can catch it.
+    class _Usage:
+        prompt_token_count = 1000
+        candidates_token_count = 250     # already includes the 200 thoughts
+        thoughts_token_count = 200
+        total_token_count = 1250         # != 1000 + 250 + 200
+
+    det = GeminiDetector(model_id="gemini-3.7-flash")
+    det._record_usage(type("R", (), {"usage_metadata": _Usage()})())
+    out = capsys.readouterr().out
+    assert "WARNING" in out and "does not add up" in out
+    # Warns once per run, not once per call — a full leg is ~750 calls.
+    det._record_usage(type("R", (), {"usage_metadata": _Usage()})())
+    assert "WARNING" not in capsys.readouterr().out
+
+
+def test_gemini_usage_is_quiet_when_the_totals_agree(capsys):
+    class _Usage:
+        prompt_token_count = 1000
+        candidates_token_count = 50
+        thoughts_token_count = 200
+        total_token_count = 1250         # == 1000 + 50 + 200, today's semantics
+
+    det = GeminiDetector(model_id="gemini-3.7-flash")
+    det._record_usage(type("R", (), {"usage_metadata": _Usage()})())
+    assert "WARNING" not in capsys.readouterr().out
+    assert det.usage["output_tokens"] == 250
+
+
 def test_report_usage_appends_jsonl(tmp_path):
     class _Det:
         name = "gemini"
@@ -839,6 +873,78 @@ def test_report_usage_appends_jsonl(tmp_path):
         usage = None
     report_usage(_Local(), "x", "richmond", 124, str(log))
     assert len(log.read_text().splitlines()) == 2
+
+
+def test_usage_record_carries_the_rig_that_priced_it(tmp_path):
+    # Two runs of the same model on the same bundle at different tiling cost ~6x
+    # different input, and without the signature the log cannot tell them apart.
+    log = tmp_path / "usage_log.jsonl"
+    for tile in (True, False):
+        det = GeminiDetector(model_id="gemini-2.5-flash", tile=tile)
+        det.usage = {"calls": 1, "input_tokens": 10, "output_tokens": 2,
+                     "thoughts_tokens": 0}
+        report_usage(det, "gemini-2.5-flash", "bend", 110, str(log))
+    a, b = [json.loads(line) for line in log.read_text().splitlines()]
+    assert a["signature"]["tile"] is True and b["signature"]["tile"] is False
+    assert a["signature"]["views"] and b["signature"]["views"] is None
+    # Everything else about the two records is identical apart from the timestamp,
+    # which is exactly why the signature has to be there.
+    assert {k: v for k, v in a.items() if k not in ("ts", "signature")} == \
+           {k: v for k, v in b.items() if k not in ("ts", "signature")}
+
+
+def test_report_usage_never_raises_on_a_partial_or_odd_run(tmp_path):
+    # It is called from a finally, after money has been spent. Every one of these
+    # would otherwise kill a run that had already paid.
+    log = tmp_path / "usage_log.jsonl"
+
+    class _NoThinkingField:          # most providers don't report thinking
+        name = "someprovider"
+        model_id = "gemini-2.5-flash"
+        usage = {"calls": 3, "input_tokens": 1000, "output_tokens": 200}
+
+    report_usage(_NoThinkingField(), "someprovider", "bend", None, str(log))
+    rec = json.loads(log.read_text().splitlines()[0])
+    assert rec["thoughts_tokens"] == 0 if "thoughts_tokens" in rec else True
+    # panos_scored is None when score_model never returned: the token counts are
+    # still exact, only the denominator is unknown.
+    assert rec["panos_scored"] is None and rec["calls"] == 3
+
+    class _NoModelId:               # a detector that never got as far as naming itself
+        usage = {"calls": 1, "input_tokens": 5, "output_tokens": 1}
+
+    report_usage(_NoModelId(), "mystery", "bend", 1, str(log))
+    rec = json.loads(log.read_text().splitlines()[1])
+    assert rec["model_id"] is None and rec["est_cost_usd"] is None
+
+
+def test_an_unwritable_usage_log_does_not_abort_the_run(tmp_path, capsys):
+    # The log write sits on the critical path of a paid multi-model comparison;
+    # losing the file must not lose the table.
+    class _Det:
+        name = "gemini"
+        model_id = "gemini-2.5-flash"
+        usage = {"calls": 2, "input_tokens": 100, "output_tokens": 10,
+                 "thoughts_tokens": 0}
+
+    blocked = tmp_path / "a_directory_where_the_file_goes"
+    blocked.mkdir()
+    report_usage(_Det(), "gemini-2.5-flash", "bend", 110, str(blocked))
+    out = capsys.readouterr().out
+    assert "WARNING" in out and "usage record" in out
+    # The numbers survive in the run log even though the file could not be written.
+    assert '"calls": 2' in out
+
+
+def test_the_default_usage_log_is_tracked_not_in_the_gitignored_cache():
+    # The whole point of recording spend is that it outlives the machine. Defaulting
+    # into .model_cache/ (gitignored) is the bug export_model_cache.py exists to undo.
+    assert ".model_cache" not in DEFAULT_USAGE_LOG
+    assert DEFAULT_USAGE_LOG.replace("\\", "/").endswith("analysis_out/usage_log.jsonl")
+    with open(os.path.join(REPO_ROOT, ".gitignore"), encoding="utf-8") as fh:
+        gitignore = fh.read()
+    assert "!analysis_out/usage_log.jsonl" in gitignore, \
+        "analysis_out/* is ignored, so the log needs an explicit re-include"
 
 
 # --- tiled detect() end-to-end (no live model) ------------------------------
