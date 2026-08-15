@@ -6,6 +6,7 @@ dataset
 *.egg-info/
 benchmark/*/panos/
 benchmark/*/gallery/
+benchmark/*/box_gallery/
 benchmark/*/heatmap_cache/
 .env
 view_dump/
