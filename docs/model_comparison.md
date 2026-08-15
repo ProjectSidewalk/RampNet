@@ -1076,6 +1076,47 @@ permanent — so `ClaudeDetector` retries it explicitly with backoff. Without th
 silently loses panos to a transient lie. A genuinely un-enabled model still fails, just
 after four tries.
 
+### First results: annapolis, both models × both effort levels (2026-08-15)
+
+Full 125-pano annapolis split, the **shared** `DETECTION_PROMPT` (deliberately not
+Claude-tuned, so these numbers stay comparable to the other legs), `auto` tool choice,
+identical rig. Box mapping verified by `dump_detections.py` for both models before
+reading anything into the numbers — predictions sit tight on the ramps, no offset.
+
+| model | effort | P | R | F1 | tp/fp/fn | thinking tok | cost |
+| :--- | :--- | ---: | ---: | ---: | :--- | ---: | ---: |
+| claude-sonnet-5 | low | 0.587 | 0.372 | 0.456 | 108/76/182 | 57 | $3.60 |
+| claude-sonnet-5 | high | 0.506 | 0.415 | 0.456 | 122/119/172 | 17,820 | $3.82 |
+| **claude-opus-5** | **low** | 0.572 | 0.605 | **0.588** | 178/133/116 | 523 | $8.94 |
+| claude-opus-5 | high | 0.430 | 0.656 | 0.520 | 193/256/101 | 127,227 | $12.46 |
+
+**Effort is an operating-point dial, never a quality lever.** Both models move the same
+direction — thinking makes them fire more, so recall rises and precision falls — and in
+neither case does F1 improve. Sonnet nets exactly flat (0.456 → 0.456); Opus nets
+*negative* (0.588 → 0.520) because its precision falls harder than its recall rises.
+Two models, same direction, so this is a property of the task rather than of one model:
+**spend effort to move along the P/R curve, not to get a better detector.** Same shape as
+this benchmark's Qwen 8B→32B finding, where scaling flipped the failure mode instead of
+fixing it.
+
+**`claude-opus-5` at `low` is the strongest general model measured on annapolis**, at
+0.588 — the first to displace `gemini-3.1-pro-preview` (0.567) from that slot. Against
+`claude-sonnet-5` at the same effort it gains **+0.233 recall at essentially unchanged
+precision** (0.587 → 0.572), which is a capability difference rather than a threshold
+shift. RampNet still leads it by **0.251** (0.839 vs 0.588).
+
+Two caveats that travel with these numbers:
+
+- **`claude-opus-5` at `high` has the highest recall of any challenger on this split
+  (0.656 vs RampNet's 0.738)** — closer to RampNet than any general model has come here,
+  and worth remembering given this project's recall-first framing, where a false negative
+  is a permanent loss and a false positive is cheap. F1 ranks it below `low`; a
+  recall-weighted objective would not.
+- The prompt is **fixed and Gemini-derived**. Claude is documented to underperform on
+  prompts carried over from another model, so these numbers bound Claude-on-our-prompt,
+  not Claude. Holding it fixed is the right call for comparability; a prompt-variant run
+  would be a separate, separately-labelled experiment.
+
 **Measured cost, `claude-sonnet-5` at `--claude-effort low`** (5 annapolis panos, 2026-08-15):
 **2,229 input and 39 output tokens per call, 0 thinking.** The tool definition is
 re-sent on every call and accounts for ~700 of that input — about a third of the bill,
