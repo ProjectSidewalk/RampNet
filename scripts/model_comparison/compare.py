@@ -31,6 +31,7 @@ import json
 import os
 import sys
 from collections import namedtuple
+from datetime import datetime, timezone
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -45,6 +46,7 @@ from rampnet.validation import collect, format_report  # noqa: E402
 from detectors import (  # noqa: E402
     GDINO_QUERY, OWLV2_QUERY, PanoSample, build_detector, parse_model_spec,
 )
+from pricing import estimate_cost, price_for  # noqa: E402
 
 
 def load_dotenv(root):
@@ -277,6 +279,45 @@ def score_model(detector, records, gts, panos_dir, radius_sq, label, city, cache
     return ModelRun(aggregate(pano_scores), failures, scored)
 
 
+def report_usage(detector, label, city, n_panos, usage_log_path):
+    """Print and (append-)log a paid model's token usage + estimated cost.
+
+    Standing rule: every experiment that spends API money records what it spent,
+    at the time it runs, so a paper can report cost alongside accuracy. Token
+    counts come from the provider's own usage metadata accumulated by the
+    detector during THIS run (cached panos made no call and cost nothing here);
+    the dollar figure is an estimate from the verified table in pricing.py, and
+    the billing console stays authoritative. Reconcile against actual project
+    token counts with scripts/analysis/vertex_usage.py."""
+    usage = getattr(detector, "usage", None)
+    if not usage or not usage.get("calls"):
+        return
+    cost = estimate_cost(detector.model_id, usage["input_tokens"], usage["output_tokens"])
+    pricing = price_for(detector.model_id)
+    cost_txt = (f"  ~=${cost:.2f} (pricing as of {pricing['as_of']})" if cost is not None
+                else "  (no verified price in pricing.py — record one)")
+    print(f"[{label}] API usage this run: {usage['calls']} calls, "
+          f"{usage['input_tokens']:,} in / {usage['output_tokens']:,} out tokens "
+          f"({usage['thoughts_tokens']:,} thinking){cost_txt}")
+    if not usage_log_path:
+        return
+    rec = {
+        "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "bundle": city,
+        "label": label,
+        "provider": getattr(detector, "name", None),
+        "model_id": detector.model_id,
+        "panos_scored": n_panos,
+        **usage,
+        "est_cost_usd": round(cost, 4) if cost is not None else None,
+        "pricing": pricing,
+    }
+    os.makedirs(os.path.dirname(usage_log_path) or ".", exist_ok=True)
+    with open(usage_log_path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(rec) + "\n")
+    print(f"[{label}] usage logged to {usage_log_path}")
+
+
 def rescore(scored, radius_sq, min_confidence=0.0):
     """Re-aggregate a finished run with predictions below ``min_confidence`` dropped.
 
@@ -481,6 +522,10 @@ def main():
                     help="Where to cache per-pano detections (keyed by model + rig + pano). "
                          "Re-runs reuse hits and don't re-pay the API.")
     ap.add_argument("--no-cache", action="store_true", help="Disable the detection cache.")
+    ap.add_argument("--usage-log",
+                    help="Append one JSONL record per paid-model run (token counts + "
+                         "estimated cost; see pricing.py). Default: usage_log.jsonl "
+                         "inside --cache-dir. Pass 'none' to disable.")
     args = ap.parse_args()
 
     load_dotenv(str(REPO_ROOT))
@@ -509,6 +554,8 @@ def main():
     radius_sq = radius_sq_for(args.radius)
     city = os.path.basename(os.path.normpath(args.bundle))
     cache = DetectionCache(args.cache_dir, enabled=not args.no_cache)
+    usage_log = (None if args.usage_log == "none"
+                 else args.usage_log or os.path.join(args.cache_dir, "usage_log.jsonl"))
 
     print(f"Bundle: {args.bundle}  ({len(gts)} scored panos)  "
           f"match radius {args.radius}  ground truth: {gt_desc}")
@@ -537,6 +584,7 @@ def main():
             # bug here is still diagnosable rather than silently "not runnable".
             print(f"[{label}] not runnable: {type(e).__name__}: {e}\n")
             continue
+        report_usage(detector, label, city, len(gts), usage_log)
         report = operating_report(run.report, run.scored, radius_sq, args.op_threshold)
         rows.append((label, report))
         # The detector's cache floor travels with the run so the sweep can drop

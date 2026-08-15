@@ -485,6 +485,10 @@ class _VLMDetector:
             self.max_edge = max_edge
         self.tile = tile
         self._views = views  # None -> equirect_tiling.default_views()
+        # Paid providers accumulate per-call token usage here so every run's
+        # cost is recorded (compare.py --usage-log); None = provider doesn't
+        # report usage (local GPU models are free in API terms).
+        self.usage = None
 
     def detect(self, sample):
         self._ensure_ready()
@@ -565,6 +569,8 @@ class GeminiDetector(_VLMDetector):
         # policy (benchmark imagery is public GSV/Mapillary). See docs/model_comparison.md.
         self.location = location or os.environ.get("GOOGLE_CLOUD_LOCATION") or "global"
         self._client = None
+        self.usage = {"calls": 0, "input_tokens": 0, "output_tokens": 0,
+                      "thoughts_tokens": 0}
 
     def _ensure_ready(self):
         try:
@@ -614,7 +620,23 @@ class GeminiDetector(_VLMDetector):
                 temperature=0.0,
             ),
         )
+        self._record_usage(resp)
         return boxes_from_gemini_response(resp)
+
+    def _record_usage(self, resp):
+        """Accumulate this call's token counts so the run's cost is a recorded
+        fact, not a reconstruction. Thinking tokens are billed as output, so
+        output_tokens already includes them; thoughts_tokens is kept separately
+        because it is invisible in the response text and dominates output cost.
+        Cached panos make no call, so this reflects what THIS run actually paid."""
+        um = getattr(resp, "usage_metadata", None)
+        if um is None:
+            return
+        thoughts = getattr(um, "thoughts_token_count", None) or 0
+        self.usage["calls"] += 1
+        self.usage["input_tokens"] += um.prompt_token_count or 0
+        self.usage["output_tokens"] += (um.candidates_token_count or 0) + thoughts
+        self.usage["thoughts_tokens"] += thoughts
 
     def _parse(self, raw, img_w, img_h):
         return gemini_boxes_to_points(raw)

@@ -778,6 +778,69 @@ def test_gemini_detect_fails_clearly_without_key_or_lib():
     raise AssertionError("expected GeminiDetector.detect to fail loudly without lib/key")
 
 
+# --- cost accounting (pricing.py + usage recording) -------------------------
+
+from pricing import estimate_cost, price_for  # noqa: E402
+from compare import report_usage  # noqa: E402
+
+
+def test_estimate_cost_known_and_unknown_models():
+    # gemini-2.5-flash: $0.30/M in, $2.50/M out (pricing.py, verified 2026-08-15)
+    assert estimate_cost("gemini-2.5-flash", 2_000_000, 1_000_000) == 0.30 * 2 + 2.50
+    assert estimate_cost("not-a-model", 1, 1) is None
+    assert price_for("not-a-model") is None
+
+
+def test_pricing_entries_are_complete():
+    for model, p in __import__("pricing").PRICING.items():
+        assert p["input_per_m"] > 0 and p["output_per_m"] > 0, model
+        assert p["as_of"], f"{model}: a price without its verification date is a rumor"
+
+
+def test_gemini_usage_accumulates_thinking_as_output():
+    class _Usage:
+        prompt_token_count = 1000
+        candidates_token_count = 50
+        thoughts_token_count = 200
+
+    class _Resp:
+        usage_metadata = _Usage()
+
+    det = GeminiDetector(model_id="gemini-3.7-flash")
+    assert det.usage == {"calls": 0, "input_tokens": 0, "output_tokens": 0,
+                         "thoughts_tokens": 0}
+    det._record_usage(_Resp())
+    det._record_usage(_Resp())
+    assert det.usage == {"calls": 2, "input_tokens": 2000,
+                         "output_tokens": 500,   # (50 visible + 200 thinking) x 2
+                         "thoughts_tokens": 400}
+    # A response with no usage metadata (e.g. a mocked/older client) is a no-op.
+    det._record_usage(type("R", (), {"usage_metadata": None})())
+    assert det.usage["calls"] == 2
+
+
+def test_report_usage_appends_jsonl(tmp_path):
+    class _Det:
+        name = "gemini"
+        model_id = "gemini-2.5-flash"
+        usage = {"calls": 6, "input_tokens": 2_000_000, "output_tokens": 1_000_000,
+                 "thoughts_tokens": 300}
+
+    log = tmp_path / "usage_log.jsonl"
+    report_usage(_Det(), "gemini-2.5-flash", "richmond", 124, str(log))
+    report_usage(_Det(), "gemini-2.5-flash", "bend", 110, str(log))
+    recs = [json.loads(line) for line in log.read_text().splitlines()]
+    assert [r["bundle"] for r in recs] == ["richmond", "bend"]
+    assert recs[0]["est_cost_usd"] == 3.10 and recs[0]["calls"] == 6
+    assert recs[0]["pricing"]["as_of"]
+    # A detector with no usage (local model) writes nothing.
+    class _Local:
+        model_id = "x"
+        usage = None
+    report_usage(_Local(), "x", "richmond", 124, str(log))
+    assert len(log.read_text().splitlines()) == 2
+
+
 # --- tiled detect() end-to-end (no live model) ------------------------------
 
 class _FakeTiledVLM(_VLMDetector):
