@@ -1044,6 +1044,46 @@ public GSV/Mapillary, so residency is not a concern here). Vertex model ids diff
 AI-Studio aliases (`gemini-flash-latest` only resolves on `global`); pin them explicitly with
 `gemini:<model-id>` in `--models`.
 
+## Claude on Vertex (#122): two constraints worth knowing before you wire it up
+
+The Claude leg runs through **Vertex AI on the same credentials as the Gemini legs** —
+same ADC, same project, same `global` location, no Anthropic API key and no new secret.
+`--models claude:claude-sonnet-5`. Two things are not obvious and cost an afternoon to
+discover:
+
+**1. Structured outputs are blocked by org policy; forced tool-calling is the way in.**
+This project's GCP organization sets `constraints/vertexai.allowedPartnerModelFeatures`,
+which allow-lists *features* of partner models rather than the models themselves.
+`structured_outputs` is not on the list, so `output_config.format` returns **400
+FAILED_PRECONDITION** — and so does a tool marked `strict: True`, because that is
+implemented as structured outputs underneath. A plain tool plus
+`tool_choice={"type": "tool", ...}` passes and returns the same schema-shaped
+`{"boxes": [...]}` in a `tool_use` block, which is what `ClaudeDetector` uses. Measured
+2026-08-15. `output_config.effort` is **allowed**, so the cost lever survives.
+
+Unblocking `strict: True` would need an org admin to add
+`publishers/anthropic/models/<model>:structured_outputs` to that constraint. It would buy
+hard schema validation on top of the current shape guarantee — worth having, not worth
+blocking on.
+
+**2. Enablement is per model, and it propagates unevenly.** Each Claude model is enabled
+separately in Vertex Model Garden (Sonnet 5 and Opus 5 are different Marketplace
+services), and for some hours afterwards Vertex intermittently answers a valid request
+with `404 Publisher model ... was not found or your project does not have access to it`.
+Measured the same day: 12/12 identical calls succeeded in one burst, then 3 of 5 panos
+404'd minutes later. The Anthropic SDK does not retry 404 — it is a 4xx and normally
+permanent — so `ClaudeDetector` retries it explicitly with backoff. Without that a leg
+silently loses panos to a transient lie. A genuinely un-enabled model still fails, just
+after four tries.
+
+**Measured cost, `claude-sonnet-5` at `--claude-effort low`** (5 annapolis panos, 2026-08-15):
+**2,229 input and 39 output tokens per call, 0 thinking.** The tool definition is
+re-sent on every call and accounts for ~700 of that input — about a third of the bill,
+and not worth caching, since tools render below Sonnet 5's 1,024-token minimum cacheable
+prefix. That puts a 125-pano leg at **≈$3.60** and all ten splits at **≈$61** (halved by
+batch). Effort is the dominant lever: thinking bills as output at $10/MTok, and `low`
+spends none of it.
+
 ## Cost accounting for paid models
 
 **Standing rule: every experiment that spends API money records what it spent, at the time

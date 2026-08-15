@@ -45,6 +45,24 @@ PRICING = {
         "input_per_m": 0.30, "output_per_m": 2.50, "as_of": "2026-08-15",
         "note": None,
     },
+    # Claude via Vertex (#122). Source: the Google Cloud rate card for Anthropic
+    # partner models, `global` endpoint, read 2026-08-15 -- i.e. the page that
+    # actually governs this billing path, unlike the Gemini rows above. Both
+    # models match Anthropic's own published first-party rates exactly, and the
+    # derived rates are the standard multipliers (cache hit 0.1x input, 5m cache
+    # write 1.25x, 1h 2x, batch 50%). REGIONAL endpoints cost 10% more than
+    # `global` -- these numbers are wrong if the rig is ever pointed off `global`.
+    # No long-context premium: the <=200K and >200K SKUs are priced identically.
+    "claude-sonnet-5": {
+        "input_per_m": 2.00, "output_per_m": 10.00, "as_of": "2026-08-15",
+        "note": ("Vertex `global`; promotional launch pricing through 2026-08-31, "
+                 "$3.00/$15.00 after. Regional +10%."),
+    },
+    "claude-opus-5": {
+        "input_per_m": 5.00, "output_per_m": 25.00, "as_of": "2026-08-15",
+        "note": ("Vertex `global`; regional +10%. NOT enabled on the project as of "
+                 "this date -- price recorded, model unavailable until enabled."),
+    },
 }
 
 

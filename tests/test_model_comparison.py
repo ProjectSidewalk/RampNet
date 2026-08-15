@@ -14,9 +14,11 @@ import pytest
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "model_comparison"))
 
+import detectors  # noqa: E402
 from detectors import (  # noqa: E402
-    BundleRampNetDetector, GeminiDetector, GroundingDinoDetector, MolmoDetector,
-    OwlV2Detector, QwenDetector, YoloDetector, PanoSample, _VLMDetector,
+    BundleRampNetDetector, ClaudeDetector, GeminiDetector, GroundingDinoDetector,
+    MolmoDetector, OwlV2Detector, QwenDetector, YoloDetector, PanoSample, _VLMDetector,
+    claude_boxes_to_points, boxes_from_claude_response,
     gemini_boxes_to_points, qwen_boxes_to_points, boxes_from_gemini_response,
     boxes_from_qwen_text, infer_qwen_coord_space, parse_model_spec, build_detector,
     molmo_points_from_text, molmo_token_points_to_items, infer_molmo_mode,
@@ -838,6 +840,105 @@ def test_gemini_usage_warns_when_the_sdk_stops_adding_up(capsys):
     # Warns once per run, not once per call — a full leg is ~750 calls.
     det._record_usage(type("R", (), {"usage_metadata": _Usage()})())
     assert "WARNING" not in capsys.readouterr().out
+
+
+# --- Claude on Vertex (#122) ------------------------------------------------
+
+def test_claude_boxes_are_pixels_in_the_views_own_space():
+    # Deliberately NOT Gemini's 0-1000 convention: Claude maps coordinates 1:1
+    # onto image pixels, so we ask for pixels and divide by the view size.
+    pts = claude_boxes_to_points([{"x1": 0, "y1": 0, "x2": 512, "y2": 256}], 1024, 1024)
+    assert pts == [(0.25, 0.125, None)]
+    # A different view size must move the normalized point — the guard against
+    # someone "simplifying" this to a fixed 1000 divisor.
+    assert claude_boxes_to_points([{"x1": 0, "y1": 0, "x2": 512, "y2": 512}],
+                                  512, 512) == [(0.5, 0.5, None)]
+
+
+def test_claude_box_tool_forbids_a_transposable_array():
+    # The whole point of named fields: a [ymin, xmin, ymax, xmax] array can be
+    # silently transposed, and this repo has shipped that bug before (Molmo).
+    item = detectors.CLAUDE_BOX_TOOL["input_schema"]["properties"]["boxes"]["items"]
+    assert set(item["required"]) == {"x1", "y1", "x2", "y2"}
+    assert item["additionalProperties"] is False
+
+
+def test_claude_box_tool_is_not_strict():
+    # `strict: True` is implemented as structured outputs, which this project's
+    # GCP org policy blocks for Anthropic partner models (measured 2026-08-15:
+    # 400, disallowed feature `structured_outputs`). Forced tool_choice without
+    # it passes. If someone adds strict back, every Claude call 400s.
+    assert "strict" not in detectors.CLAUDE_BOX_TOOL
+
+
+def test_claude_reads_boxes_from_the_tool_call():
+    blk = type("B", (), {"type": "tool_use", "input": {"boxes": [
+        {"x1": 1, "y1": 2, "x2": 3, "y2": 4}]}})()
+    assert boxes_from_claude_response(type("R", (), {"content": [blk]})()) == [
+        {"x1": 1, "y1": 2, "x2": 3, "y2": 4}]
+    # Text fallback for a turn that ended without a tool call.
+    txt = type("B", (), {"type": "text", "text": '{"boxes": [{"x1":0,"y1":0,"x2":2,"y2":2}]}'})()
+    assert boxes_from_claude_response(type("R", (), {"content": [txt]})()) == [
+        {"x1": 0, "y1": 0, "x2": 2, "y2": 2}]
+
+
+def test_claude_effort_is_in_the_cache_key():
+    # Effort changes how much the model thinks, which changes the detections.
+    # If it were not in the signature, a cheap `low` run and an expensive `high`
+    # run would collide in one cache entry and silently mix.
+    low = ClaudeDetector(model_id="claude-sonnet-5", effort="low")
+    high = ClaudeDetector(model_id="claude-sonnet-5", effort="high")
+    assert low.signature()["effort"] == "low"
+    assert cache_key("claude-sonnet-5", low.signature(), "bend", "p1") != \
+           cache_key("claude-sonnet-5", high.signature(), "bend", "p1")
+
+
+def test_claude_usage_does_not_double_count_thinking():
+    # Anthropic's output_tokens ALREADY includes thinking (unlike google-genai's
+    # candidates_token_count, which excludes it). Adding them again would double
+    # the dominant cost term.
+    class _Usage:
+        input_tokens = 1512
+        output_tokens = 800          # inclusive of the 600 thinking tokens
+        output_tokens_details = type("D", (), {"thinking_tokens": 600})()
+
+    det = ClaudeDetector(model_id="claude-sonnet-5")
+    det._record_usage(type("R", (), {"usage": _Usage(), "model": "claude-sonnet-5"})())
+    assert det.usage["input_tokens"] == 1512
+    assert det.usage["output_tokens"] == 800      # NOT 1400
+    assert det.usage["thoughts_tokens"] == 600
+    assert dict(det.model_versions) == {"claude-sonnet-5": 1}
+
+
+def test_claude_warns_if_output_tokens_stops_including_thinking(capsys):
+    class _Usage:
+        input_tokens = 10
+        output_tokens = 50           # < thinking: the assumption has inverted
+        output_tokens_details = type("D", (), {"thinking_tokens": 600})()
+
+    det = ClaudeDetector(model_id="claude-sonnet-5")
+    det._record_usage(type("R", (), {"usage": _Usage(), "model": "x"})())
+    out = capsys.readouterr().out
+    assert "WARNING" in out and "UNDER-counting" in out
+
+
+def test_claude_detect_fails_clearly_without_credentials(monkeypatch):
+    monkeypatch.delenv("GOOGLE_CLOUD_PROJECT", raising=False)
+    det = ClaudeDetector(model_id="claude-sonnet-5", project=None)
+    try:
+        det.prepare()
+    except (RuntimeError, ImportError) as e:
+        assert "GOOGLE_CLOUD_PROJECT" in str(e) or "anthropic" in str(e)
+        return
+    raise AssertionError("expected ClaudeDetector.prepare to fail without credentials")
+
+
+def test_claude_empty_response_yields_no_boxes():
+    # A refusal or a max_tokens truncation before any text must read as "no
+    # detections here", not raise.
+    assert boxes_from_claude_response(type("R", (), {"content": []})()) == []
+    blk = type("B", (), {"type": "text", "text": '{"boxes": []}'})()
+    assert boxes_from_claude_response(type("R", (), {"content": [blk]})()) == []
 
 
 def _gemini_resp(model_version=None, prompt=1000, candidates=50, thoughts=200):

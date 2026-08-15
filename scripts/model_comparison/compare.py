@@ -507,6 +507,16 @@ def main():
                          "pin a variant, e.g. 'rampnet,gemini:gemini-2.5-flash,owlv2'. yolo needs "
                          "trained weights: 'yolo:<path.pt>' or --yolo-model.")
     ap.add_argument("--gemini-model", default="gemini-3.6-flash")
+    ap.add_argument("--claude-model", default="claude-sonnet-5",
+                    help="Claude model id, served via Vertex + ADC (same credentials "
+                         "as the Gemini legs). Each model must be enabled separately "
+                         "in Vertex Model Garden.")
+    ap.add_argument("--claude-effort", default="low",
+                    choices=["low", "medium", "high", "xhigh", "max"],
+                    help="How much Claude thinks. Thinking bills as OUTPUT and is the "
+                         "dominant cost term, so this is the main cost lever; it is "
+                         "part of the detection cache key. Default 'low' — reading a "
+                         "view and emitting a box list is not intelligence-sensitive.")
     ap.add_argument("--qwen-model", default="Qwen/Qwen3-VL-8B-Instruct")
     ap.add_argument("--qwen-coord-space", choices=["auto", "norm1000", "pixels"], default="auto",
                     help="Box convention the Qwen checkpoint emits: 'norm1000' (Qwen3-VL, "

@@ -6,6 +6,10 @@
 #
 # Gemini (API; needs GOOGLE_API_KEY, or Vertex + ADC):
 google-genai
+# Claude via Vertex (#122) — same ADC/project/location as the Gemini legs, no
+# Anthropic API key. The [vertex] extra pulls the google-auth pieces AnthropicVertex
+# needs. Each Claude model must also be enabled separately in Vertex Model Garden.
+anthropic[vertex]
 # scripts/analysis/vertex_usage.py imports these two directly (Cloud Monitoring is
 # a plain REST call, no client library). google-genai already pulls both in, but a
 # script's own imports belong in the file it tells you to install.

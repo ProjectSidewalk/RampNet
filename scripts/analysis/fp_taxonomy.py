@@ -195,7 +195,9 @@ def _compare_args(cache_dir):
     import argparse as _a
     ns = _a.Namespace()
     for k, v in dict(
-            gemini_model="gemini-3.6-flash", qwen_model="Qwen/Qwen3-VL-8B-Instruct",
+            gemini_model="gemini-3.6-flash",
+            claude_model="claude-sonnet-5", claude_effort="low",
+            qwen_model="Qwen/Qwen3-VL-8B-Instruct",
             qwen_coord_space="auto",
             owlv2_model="google/owlv2-large-patch14-ensemble",
             gdino_model="IDEA-Research/grounding-dino-base",
