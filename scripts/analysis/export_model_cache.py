@@ -78,14 +78,23 @@ def load_detections(label, city, published_dir=PUBLISHED_DIR):
         return json.load(fh)["detections"]
 
 
-def export(cache_dir, out_dir, splits, specs):
-    """Consolidate ``.model_cache`` into one file per (model, split)."""
+def export(cache_dir, out_dir, splits, specs, overrides=None):
+    """Consolidate ``.model_cache`` into one file per (model, split).
+
+    ``overrides`` patches fields of the ``compare.py``-defaults namespace. Every
+    field feeds the detector's cache signature, so an export must be run with the
+    same settings as the run that produced the detections — e.g. the supervised
+    YOLO pano arms (#51) ran ``--tiling none --yolo-imgsz 1280``, and an export at
+    the defaults would rebuild a different signature and silently find no cache.
+    """
     import compare as C
     from detectors import build_detector, parse_model_spec
 
     os.makedirs(out_dir, exist_ok=True)
     cache = C.DetectionCache(cache_dir, enabled=True)
     cargs = _compare_args(cache_dir)
+    for k, v in (overrides or {}).items():
+        setattr(cargs, k, v)
     written, skipped = [], []
     for spec in specs:
         for city in splits:
@@ -119,7 +128,7 @@ def export(cache_dir, out_dir, splits, specs):
     return written, skipped
 
 
-def verify(cache_dir, out_dir, splits, specs):
+def verify(cache_dir, out_dir, splits, specs, overrides=None):
     """Do the exported detections score identically to the cached ones?"""
     import compare as C
     from detectors import build_detector, parse_model_spec
@@ -127,6 +136,8 @@ def verify(cache_dir, out_dir, splits, specs):
 
     cache = C.DetectionCache(cache_dir, enabled=True)
     cargs = _compare_args(cache_dir)
+    for k, v in (overrides or {}).items():
+        setattr(cargs, k, v)
     rsq = radius_sq_for()
     problems, checked = [], 0
     for spec in specs:
@@ -168,13 +179,21 @@ def main(argv=None):
     p.add_argument("--models", default=",".join(CHALLENGERS))
     p.add_argument("--verify", action="store_true",
                    help="Only check that the export scores identically to the cache.")
+    p.add_argument("--tiling", default="perspective", choices=["perspective", "none"],
+                   help="Tiling mode of the run that produced the detections. It is part "
+                        "of every detector's cache signature, so it must match the "
+                        "producing run (the #51 YOLO pano arms ran --tiling none).")
+    p.add_argument("--yolo-imgsz", type=int, default=1024,
+                   help="YOLO inference imgsz of the producing run (signature field; "
+                        "the #51 pano arms ran 1280).")
     args = p.parse_args(argv)
 
     splits = [s.strip() for s in args.splits.split(",") if s.strip()]
     specs = [s.strip() for s in args.models.split(",") if s.strip()]
+    overrides = {"tiling": args.tiling, "yolo_imgsz": args.yolo_imgsz}
 
     if args.verify:
-        checked, problems = verify(args.cache_dir, args.out, splits, specs)
+        checked, problems = verify(args.cache_dir, args.out, splits, specs, overrides)
         print(f"verified {checked} (model, split) pair(s)")
         for msg in problems:
             print(f"  ✗ {msg}")
@@ -182,7 +201,7 @@ def main(argv=None):
               if not problems else f"{len(problems)} MISMATCH(ES)")
         return 1 if problems else 0
 
-    written, skipped = export(args.cache_dir, args.out, splits, specs)
+    written, skipped = export(args.cache_dir, args.out, splits, specs, overrides)
     total = sum(w[4] for w in written)
     print(f"wrote {len(written)} file(s), {total/1e6:.1f} MB total -> {args.out}\n")
     print(f"{'model':>42} {'split':>20} {'panos':>6} {'uncached':>9} {'KB':>7}")
