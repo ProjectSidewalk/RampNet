@@ -9,6 +9,8 @@ verdicts.json from silently re-attaching a box to a different ramp.
 """
 import json
 import os
+import shutil
+import subprocess
 import sys
 
 import pytest
@@ -19,7 +21,7 @@ sys.path.insert(0, os.path.join(REPO_ROOT, "scripts"))
 from box_gallery import (  # noqa: E402
     BOX_RULE, BOX_RULE_VERSION, build_html, crop_rect, crop_side, cut_crop,
     entry_meta, enumerate_items, items_from_manual_labels, reconcile_initial,
-    render_pano_items)
+    render_pano_items, resolution_note, STATE_BOOTSTRAP_JS)
 
 
 def _record(pid, dets, width=4096, height=2048):
@@ -53,6 +55,18 @@ def test_enumerate_items_skips_mismatched_pano_with_warning():
     items, warnings = enumerate_items(verdicts, records)
     assert items == []
     assert len(warnings) == 1 and "P1" in warnings[0]
+
+
+def test_enumerate_items_skips_partially_judged_pano():
+    # collect() drops a pano with any None verdict ("unusable for either metric"), so
+    # this must too: its missed marks in particular come from a pano nobody finished
+    # scanning, and boxing ramps collect() never counts splits the two populations.
+    records = {"P1": _record("P1", [(0.1, 0.5, 0.9), (0.2, 0.5, 0.8)])}
+    verdicts = {"P1": {"dets": [True, None], "missed": [{"x": 0.6, "y": 0.5}],
+                       "no_missed": False}}
+    items, warnings = enumerate_items(verdicts, records)
+    assert items == []
+    assert len(warnings) == 1 and "partially judged" in warnings[0]
 
 
 def test_items_from_manual_labels_uses_centers_as_prompts(tmp_path):
@@ -95,6 +109,20 @@ def test_cut_crop_stitches_across_the_seam():
     # The non-wrapping path is a plain crop.
     crop = cut_crop(img, 2, 0, 4)
     assert [crop.getpixel((i, 0))[0] for i in range(4)] == [60, 90, 120, 150]
+
+
+def test_resolution_note_flags_a_model_resolution_bundle():
+    # benchmark/manual_gold is 4096x2048 for all 1000 panos: 1024 px crops, and "tight
+    # at native zoom" is a weaker instrument there than on a 12288-wide native archive.
+    recs = {"P1": _record("P1", [], width=4096, height=2048)}
+    crop_px, msg = resolution_note(recs, ["P1"], 90)
+    assert crop_px == {"4096x2048": 1024}
+    assert "MODEL-RESOLUTION" in msg
+
+    recs = {"P1": _record("P1", [], width=12288, height=6144)}
+    crop_px, msg = resolution_note(recs, ["P1"], 90)
+    assert crop_px == {"12288x6144": 3072}
+    assert "MODEL-RESOLUTION" not in msg
 
 
 def test_entry_meta_carries_the_geometry_the_viewer_needs():
@@ -166,6 +194,62 @@ def test_reconcile_keeps_matching_and_unrendered_entries():
     assert clean["P2"]["det:0"] == other  # not in this session: round-trips verbatim
 
 
+# --- Viewer state bootstrap (run under node: the one JS path that can destroy work) ---
+
+def _run_bootstrap(tmp_path, initial, local, entries):
+    """Call the viewer's bootstrapState under node and return its result."""
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("node not available")
+    script = tmp_path / "boot.js"
+    script.write_text(
+        STATE_BOOTSTRAP_JS
+        + "\nconst out = bootstrapState(%s, %s, %s);\n"
+          "console.log(JSON.stringify(out));\n"
+          % (json.dumps(initial), json.dumps(local), json.dumps(entries)),
+        encoding="utf-8")
+    proc = subprocess.run([node, str(script)], capture_output=True, text=True)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_state_bootstrap_merges_prefill_per_key_not_per_pano(tmp_path):
+    # The regression: local state holding ONE key for a pano used to suppress the whole
+    # pano's prefill, and Export then wrote boxes.json without the suppressed boxes.
+    initial = {"P1": {"det:0": {"point": {"x": 0.1, "y": 0.5}, "status": "boxed",
+                                "cx": 0.1, "cy": 0.5, "w": 0.02, "h": 0.02},
+                      "det:1": {"point": {"x": 0.3, "y": 0.5}, "status": "cant"}}}
+    local = {"P1": {"det:0": {"status": "boxed", "px": 0.1, "py": 0.5,
+                              "cx": 0.11, "cy": 0.5, "w": 0.03, "h": 0.03}}}
+    entries = [{"pid": "P1", "key": "det:0", "x": 0.1, "y": 0.5},
+               {"pid": "P1", "key": "det:1", "x": 0.3, "y": 0.5}]
+    out = _run_bootstrap(tmp_path, initial, local, entries)
+    assert set(out["state"]["P1"]) == {"det:0", "det:1"}   # prefill survives
+    assert out["state"]["P1"]["det:0"]["w"] == 0.03        # local edit wins on its key
+    assert out["state"]["P1"]["det:1"]["status"] == "cant"
+    assert out["state"]["P1"]["det:1"]["px"] == 0.3        # point -> px/py on merge
+    assert "point" not in out["state"]["P1"]["det:1"]
+
+
+def test_state_bootstrap_drops_stale_local_annotations(tmp_path):
+    # A re-reviewed verdicts.json renumbered missed:0 onto a different ramp. The old
+    # guard only filtered the prefill, so a box already in localStorage re-attached.
+    local = {"P1": {"missed:0": {"status": "boxed", "px": 0.6, "py": 0.5,
+                                 "cx": 0.6, "cy": 0.5, "w": 0.02, "h": 0.02}}}
+    entries = [{"pid": "P1", "key": "missed:0", "x": 0.2, "y": 0.5}]
+    out = _run_bootstrap(tmp_path, {}, local, entries)
+    assert out["state"]["P1"] == {} and out["staleDropped"] == 1
+
+
+def test_state_bootstrap_adopts_annotations_predating_the_guard(tmp_path):
+    local = {"P1": {"det:0": {"status": "boxed", "cx": 0.5, "cy": 0.5,
+                              "w": 0.02, "h": 0.02}}}
+    entries = [{"pid": "P1", "key": "det:0", "x": 0.5, "y": 0.5}]
+    out = _run_bootstrap(tmp_path, {}, local, entries)
+    assert out["adopted"] == 1 and out["staleDropped"] == 0
+    assert out["state"]["P1"]["det:0"]["px"] == 0.5
+
+
 # --- Viewer HTML ---------------------------------------------------------------------
 
 def test_build_html_embeds_rule_entries_and_prefill():
@@ -174,9 +258,13 @@ def test_build_html_embeds_rule_entries_and_prefill():
     initial = {"P1": {"det:0": {"point": {"x": 0.5, "y": 0.5}, "status": "boxed",
                                 "cx": 0.5, "cy": 0.51, "w": 0.02, "h": 0.03}}}
     html = build_html(entries, initial, {"name": "jonf"}, "richmond", "richmond",
-                      90, "benchmark/richmond/boxes.json")
+                      90, "benchmark/richmond/boxes.json", {"4096x2048": 1024})
     assert json.dumps({"version": BOX_RULE_VERSION, "text": BOX_RULE}) in html
     assert json.dumps(entries) in html
     assert json.dumps(initial) in html
+    assert '{"4096x2048": 1024}' in html   # the resolution the gold was drawn at
+    assert "function bootstrapState" in html
     assert "boxannotator:" in html  # annotator block persists per bundle
-    assert "__ENTRIES__" not in html and "__BOX_RULE__" not in html
+    for placeholder in ("__ENTRIES__", "__BOX_RULE__", "__CROP_PX__",
+                        "__STATE_BOOTSTRAP__"):
+        assert placeholder not in html

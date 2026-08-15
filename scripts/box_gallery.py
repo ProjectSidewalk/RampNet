@@ -10,12 +10,20 @@ model-resolution fairness rule (#26) stay untouched; and ``verdicts.json`` — s
 to :func:`rampnet.validation.collect` — is never written, only read. Boxes live in a
 separate ``boxes.json`` sidecar keyed by ``(pano_id, det:<idx> | missed:<idx>)``.
 
-Unlike the point tool, crops here are cut at **native resolution**: extent annotation is
-not a recall judgment, and tight edges need real pixels. The viewer is **blind by
-construction** — it never renders a predicted crop window, because the annotator already
-sees the point, so a window would leak exactly one thing: a size prior, and size is the
-quantity the gold exists to measure. The algorithm-vs-gold eyeball lives in #114's
-overlay gallery instead.
+Unlike the point tool, crops here are cut at **the bundle's stored resolution**: extent
+annotation is not a recall judgment, and tight edges need real pixels, so a bundle whose
+``panos/`` holds a verified 1:1 native archive (richmond: 12288x6144 -> 3072 px crops) is
+annotated at native scale. That is a property of the bundle, not of this tool — and it is
+NOT true everywhere: ``benchmark/manual_gold`` records 4096x2048 for all 1,000 panos (the
+model's input size), so its crops are 1024 px and the gold drawn there is model-resolution
+gold. :func:`resolution_note` prints that distinction loudly at render time and it is
+embedded in every export as ``crop_px_by_pano_dims``, because "tight at native zoom"
+means something different at 1024 px than at 3072.
+
+The viewer is **blind by construction** — it never renders a predicted crop window,
+because the annotator already sees the point, so a window would leak exactly one thing: a
+size prior, and size is the quantity the gold exists to measure. The algorithm-vs-gold
+eyeball lives in #114's overlay gallery instead.
 
 The box convention is explicit and versioned (``BOX_RULE`` below), shown in the viewer
 and embedded in every export — so the new gold cannot reproduce the convention drift
@@ -92,7 +100,11 @@ def enumerate_items(verdicts_panos, records_by_pid):
     ``False`` isn't a ramp; ``'unsure'`` (det or missed) abstains; ``'duplicate'`` is a
     second hit on a ramp another item already covers, so boxing it would double-annotate
     one physical ramp. Panos whose det verdicts don't line up with the records are
-    skipped with a warning — the same guard collect() applies.
+    skipped with a warning — the same guard collect() applies, and so is the
+    partially-judged skip: a pano with any ``None`` verdict is "unusable for either
+    metric" there, and its missed marks in particular are untrustworthy because nobody
+    finished scanning it. Boxing ramps collect() never counts would put extent gold and
+    point metrics on different populations.
 
     Items carry ``seq`` (position within the pano) so display order inside a pano is
     stable regardless of the global shuffle.
@@ -103,6 +115,9 @@ def enumerate_items(verdicts_panos, records_by_pid):
         rec = records_by_pid.get(pid)
         if rec is None or len(rec['detections']) != len(entry.get('dets', [])):
             warnings.append(f"skipping {pid}: verdicts don't match records detections")
+            continue
+        if any(d is None for d in entry.get('dets', [])):
+            warnings.append(f"skipping {pid}: partially judged (collect() drops it too)")
             continue
         seq = 0
         for i, (d, det) in enumerate(zip(entry.get('dets', []), rec['detections'])):
@@ -150,6 +165,40 @@ def items_from_manual_labels(labels_dir, pids):
 def crop_side(width, height, fov_deg):
     """Square crop side in native pixels for a pano of the given dimensions."""
     return min(int(round(width * fov_deg / 360.0)), height, width)
+
+
+# A bundle whose panos are at (or below) the model's own input size is NOT a native
+# archive — its crops carry no more detail than the point-review gallery, and the box
+# rule's "tight at native zoom" is a weaker instrument there.
+MODEL_INPUT_WIDTH = 4096
+
+
+def resolution_note(records_by_pid, pids, fov_deg):
+    """({"WxH": crop_px}, message) — the resolution this bundle actually annotates at.
+
+    The tool cuts from whatever the bundle stores, so "native resolution" is a property
+    of the archive behind ``panos/``, not of this script. Report it rather than assume
+    it: richmond's verified 1:1 archive gives 3072 px crops, ``benchmark/manual_gold``'s
+    model-resolution bundle gives 1024 px ones, and extent drawn at those two scales is
+    not the same measurement.
+    """
+    dims, counts = {}, {}
+    for pid in pids:
+        pano = records_by_pid[pid]['pano']
+        width, height = pano.get('width'), pano.get('height')
+        if not width or not height:
+            continue
+        key = f"{width}x{height}"
+        dims[key] = crop_side(width, height, fov_deg)
+        counts[key] = counts.get(key, 0) + 1
+    parts = ", ".join(f"{k} -> {dims[k]} px ({counts[k]} panos)" for k in sorted(dims))
+    message = f"Crop resolution: {parts}" if parts else "Crop resolution: unknown"
+    if dims and all(int(k.split("x")[0]) <= MODEL_INPUT_WIDTH for k in dims):
+        message += (f"\n  WARNING: every pano is at or below the model's own input width "
+                    f"({MODEL_INPUT_WIDTH}), so this is MODEL-RESOLUTION extent gold, not "
+                    f"native. Boxes drawn here are not comparable in edge precision to a "
+                    f"native-archive bundle; say so wherever the numbers are reported.")
+    return dims, message
 
 
 def crop_rect(x, y, width, height, side):
@@ -248,6 +297,11 @@ def reconcile_initial(initial, items):
     does NOT survive the next export unless redrawn. Entries for (pano, key) pairs not
     rendered this session (e.g. a --sample-panos subset) are kept verbatim so a partial
     session round-trips the rest of the file.
+
+    This is only the FILE half of the guard, and it is the half that catches nothing on
+    the common path: the annotator revising in the browser they annotated in reads the
+    box from localStorage, which this function never sees. ``bootstrapState`` in the
+    viewer applies the same check to local state, which is what actually closes it.
     """
     by = {(it['pid'], it['key']): it for it in items}
     clean, stale = {}, []
@@ -265,6 +319,43 @@ def reconcile_initial(initial, items):
 
 
 # --- Viewer --------------------------------------------------------------------------
+
+# Kept out of the template as a standalone pure function so tests can run it under node
+# (tests/test_box_gallery.py::test_state_bootstrap_*). It is the one piece of viewer JS
+# that can destroy annotations, and both of its failure modes were silent:
+#   * merging the prefill per PANO meant one locally-touched ramp suppressed every other
+#     ramp boxes.json carried for that pano — and Export then wrote the file without them;
+#   * reconciling only the prefill left the revise-in-the-same-browser path (the normal
+#     one) unchecked, so a renumbered `missed:<i>` silently re-attached its box.
+# `px`/`py` are the prompt point an annotation was made against; they are the whole guard,
+# and the export writes them back as `point` rather than the entry's current point.
+STATE_BOOTSTRAP_JS = r"""
+function bootstrapState(INITIAL, local, ENTRIES) {
+  const state = local || {};
+  // Merge the prefill per KEY, not per pano.
+  for (const pid in INITIAL) {
+    for (const key in INITIAL[pid]) {
+      if ((state[pid] || {})[key]) continue;
+      const rec = Object.assign({}, INITIAL[pid][key]);
+      if (rec.point) { rec.px = rec.point.x; rec.py = rec.point.y; delete rec.point; }
+      (state[pid] = state[pid] || {})[key] = rec;
+    }
+  }
+  // Reconcile EVERY rendered item against its current prompt point, local state included.
+  // Annotations predating px/py carry no recorded point: adopt the current one rather
+  // than destroying work, and report how many so they can be spot-checked.
+  let staleDropped = 0, adopted = 0;
+  for (const e of ENTRIES) {
+    const s = (state[e.pid] || {})[e.key];
+    if (!s) continue;
+    if (s.px === undefined || s.py === undefined) { s.px = e.x; s.py = e.y; adopted++; }
+    else if (Math.abs(s.px - e.x) > 1e-4 || Math.abs(s.py - e.y) > 1e-4) {
+      delete state[e.pid][e.key]; staleDropped++;
+    }
+  }
+  return {state: state, staleDropped: staleDropped, adopted: adopted};
+}
+"""
 
 HTML_TEMPLATE = r"""<!doctype html>
 <meta charset="utf-8">
@@ -302,9 +393,16 @@ HTML_TEMPLATE = r"""<!doctype html>
   #status.todo{background:#fff3bf;color:#7a6000;border:1px solid var(--todo)}
   #edgechip{display:none;background:#fff2df;color:#a35a00;border:1px solid var(--edge);
             border-radius:12px;padding:3px 10px;font-size:13px;font-weight:bold}
-  #cropview{position:relative;height:min(76vh,880px);max-width:100%;aspect-ratio:1/1;
+  /* Square is load-bearing, not cosmetic: #croplayer img is stretched to fill, so a
+     non-square viewport distorts the crop anisotropically while the zoom pill (which
+     reports the horizontal ratio) still says "native 1:1" — and edges drawn under a
+     "tight at native zoom" rule would be quietly biased. Sizing from WIDTH with
+     aspect-ratio deriving the height keeps it square at every window size. */
+  #cropview{position:relative;width:min(76vh,880px,100%);aspect-ratio:1/1;
             margin:0 auto;overflow:hidden;background:#111;border-radius:6px;
             cursor:crosshair;touch-action:none}
+  #notice{display:none;background:#fff2df;border:1px solid var(--edge);color:#7a4a00;
+          border-radius:8px;padding:8px 14px;margin:0 0 10px;font-size:13px}
   #cropview.panmode{cursor:grab}
   #zoompill{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.72);color:#fff;
             font:600 12px/1 sans-serif;padding:4px 9px;border-radius:12px;pointer-events:none;
@@ -351,6 +449,8 @@ HTML_TEMPLATE = r"""<!doctype html>
   .help{font-size:13px;color:#666;margin-top:16px;line-height:1.5}
   kbd{background:#eee;border:1px solid #ccc;border-radius:3px;padding:0 4px;font-size:12px}
 </style>
+
+<div id="notice"></div>
 
 <div id="rulebar"><b>Rule v__RULE_V__:</b> whole constructed ramp — apron + warning pad +
   flares; not road, gutter, or level sidewalk; occluded ≠ absent; tight at native zoom;
@@ -438,6 +538,7 @@ const RUN_KEY = __RUN_KEY__;
 const RUN_NAME = __RUN_NAME__;
 const BOX_RULE = __BOX_RULE__;     // {version, text} — embedded verbatim in every export
 const FOV_DEG = __FOV_DEG__;
+const CROP_PX = __CROP_PX__;       // {"WxH": crop side px} — the resolution this gold was drawn at
 const INITIAL = __INITIAL__;       // boxes.json panos map, already reconciled in Python
 const INITIAL_ANNOTATOR = __INITIAL_ANNOTATOR__;
 const SAVE_HINT = __SAVE_HINT__;
@@ -459,16 +560,31 @@ ruleEl.addEventListener('toggle', () => localStorage.setItem(RSTORE, ruleEl.open
 document.getElementById('savehint').textContent = SAVE_HINT;
 document.getElementById('bname').textContent = RUN_NAME + '_boxes.json';
 
-// state[pid][key] = {status:'boxed', cx,cy,w,h, note?} | {status:'cant', note?}
+__STATE_BOOTSTRAP__
+
+// state[pid][key] = {status:'boxed'|'cant'|'note', px, py, cx,cy,w,h, note?}
 // cx/cy/w/h are PANO-normalized (resolution- and fov-independent); a box may wrap the
 // equirect seam, in which case cx sits near 0/1 and the x-interval is [cx-w/2, cx+w/2] mod 1.
-let state = JSON.parse(localStorage.getItem(STORE) || '{}');
-for (const pid in INITIAL) if (!(pid in state)) state[pid] = INITIAL[pid];
+const boot = bootstrapState(INITIAL, JSON.parse(localStorage.getItem(STORE) || '{}'), ENTRIES);
+let state = boot.state;
+const staleDropped = boot.staleDropped, adopted = boot.adopted;
+
+if (staleDropped || adopted) {
+  const n = document.getElementById('notice');
+  n.style.display = '';
+  n.innerHTML =
+    (staleDropped ? '<b>' + staleDropped + ' stale annotation(s) dropped</b> — their ' +
+      'recorded prompt point no longer matches the ramp behind that key (a re-reviewed ' +
+      'verdicts.json renumbers them). Those ramps are back in "To do"; redraw them.<br>' : '') +
+    (adopted ? adopted + ' annotation(s) predate the point-stamping guard and were ' +
+      'adopted at their current point — spot-check them if verdicts.json changed since.' : '');
+}
+
 function save() { localStorage.setItem(STORE, JSON.stringify(state)); }
 function itemState(e) { return (state[e.pid] || {})[e.key]; }
 function setItem(e, obj) {
   if (!state[e.pid]) state[e.pid] = {};
-  state[e.pid][e.key] = obj; save();
+  state[e.pid][e.key] = Object.assign(obj, {px: e.x, py: e.y}); save();
 }
 function clearItem(e) { const s = state[e.pid]; if (s) { delete s[e.key]; save(); } }
 function isDone(e) { const s = itemState(e); return !!s && (s.status === 'boxed' || s.status === 'cant'); }
@@ -690,12 +806,18 @@ function syncBox() {
   if (!boxEl.parentNode) overlay.appendChild(boxEl);
 }
 
-function render() {
-  const e = curE();
+// One definition, used by both render paths — renderLight used to rebuild this without
+// the can't-determine suffix, so the count blinked away on every state change.
+function updateProgress() {
   const done = ENTRIES.filter(isDone).length;
   const cant = ENTRIES.filter(x => { const s = itemState(x); return s && s.status === 'cant'; }).length;
   document.getElementById('progress').textContent =
     done + '/' + ENTRIES.length + ' ramps annotated' + (cant ? ' (' + cant + " can't)" : '');
+}
+
+function render() {
+  const e = curE();
+  updateProgress();
   overlay.innerHTML = '';
   if (!e) {
     document.getElementById('title').textContent = 'No ramps match this filter';
@@ -759,8 +881,7 @@ function render() {
 function renderLight() {
   const e = curE(); if (!e) return;
   const s = itemState(e);
-  const done = ENTRIES.filter(isDone).length;
-  document.getElementById('progress').textContent = done + '/' + ENTRIES.length + ' ramps annotated';
+  updateProgress();
   const st = document.getElementById('status');
   if (s && s.status === 'boxed') { st.className = 'boxed'; st.textContent = '✓ BOXED'; }
   else if (s && s.status === 'cant') { st.className = 'cant'; st.textContent = "CAN'T DETERMINE"; }
@@ -799,9 +920,17 @@ document.getElementById('clear').onclick = () => {
 document.getElementById('itemnote').addEventListener('input', ev => {
   const e = curE(); if (!e) return;
   const s = itemState(e) || {};
-  if (ev.target.value.trim()) s.note = ev.target.value;
-  else delete s.note;
-  if (Object.keys(s).length) setItem(e, s); else clearItem(e);
+  if (ev.target.value.trim()) {
+    s.note = ev.target.value;
+    // A note on a not-yet-annotated ramp needs a status or the export drops it — and a
+    // note explaining why an item is hard is exactly the one you don't want to lose.
+    if (!s.status) s.status = 'note';
+  } else {
+    delete s.note;
+    if (s.status === 'note') delete s.status;
+  }
+  if (s.status) setItem(e, s); else clearItem(e);
+  renderLight();
 });
 document.addEventListener('keydown', ev => {
   if (ev.ctrlKey || ev.metaKey || ev.altKey || typing(ev)) return;
@@ -826,6 +955,7 @@ document.getElementById('export').onclick = () => {
   }
   const out = {run_key: RUN_KEY, run_name: RUN_NAME,
                box_rule: BOX_RULE, crop_fov_deg: FOV_DEG,
+               crop_px_by_pano_dims: CROP_PX,
                exported_at: new Date().toISOString()};
   const a = {};
   for (const k in AFIELDS) if (annotator[k]) a[k] = annotator[k];
@@ -835,7 +965,10 @@ document.getElementById('export').onclick = () => {
   for (const e of ENTRIES) {
     const s = itemState(e);
     if (!s || !s.status) continue;
-    const rec = {point: {x: e.x, y: e.y}, status: s.status};
+    // The point is the one the annotation was MADE against (s.px/s.py), not the entry's
+    // current point: re-stamping would launder a stale box past every future check.
+    const rec = {point: {x: s.px !== undefined ? s.px : e.x,
+                         y: s.py !== undefined ? s.py : e.y}, status: s.status};
     if (s.status === 'boxed') {
       rec.cx = s.cx; rec.cy = s.cy; rec.w = s.w; rec.h = s.h;
       if (edgeFlag(e, s)) rec.edge_flag = true;
@@ -844,11 +977,16 @@ document.getElementById('export').onclick = () => {
     (out.panos[e.pid] = out.panos[e.pid] || {})[e.key] = rec;
   }
   // Round-trip items this session didn't render (a --sample-panos subset must not
-  // truncate the rest of the file on export).
+  // truncate the rest of the file on export). Converted back to the on-disk shape:
+  // px/py is internal, `point` is the schema.
   for (const pid in state) for (const key in state[pid]) {
     if (known.has(pid + ' ' + key)) continue;
     const s = state[pid][key];
-    if (s && s.status) (out.panos[pid] = out.panos[pid] || {})[key] = s;
+    if (!s || !s.status) continue;
+    const rec = Object.assign({}, s);
+    delete rec.px; delete rec.py;
+    if (s.px !== undefined) rec.point = {x: s.px, y: s.py};
+    (out.panos[pid] = out.panos[pid] || {})[key] = rec;
   }
   const blob = new Blob([JSON.stringify(out, null, 2)], {type: 'application/json'});
   const el = document.createElement('a');
@@ -863,7 +1001,8 @@ render();
 """
 
 
-def build_html(entries, initial, annotator, run_key, run_name, fov_deg, save_hint):
+def build_html(entries, initial, annotator, run_key, run_name, fov_deg, save_hint,
+               crop_px=None):
     return (HTML_TEMPLATE
             .replace('__RULE_V__', str(BOX_RULE_VERSION))
             .replace('__ENTRIES__', json.dumps(entries))
@@ -873,6 +1012,8 @@ def build_html(entries, initial, annotator, run_key, run_name, fov_deg, save_hin
             .replace('__RUN_NAME__', json.dumps(run_name))
             .replace('__BOX_RULE__', json.dumps({'version': BOX_RULE_VERSION, 'text': BOX_RULE}))
             .replace('__FOV_DEG__', str(fov_deg))
+            .replace('__CROP_PX__', json.dumps(crop_px or {}))
+            .replace('__STATE_BOOTSTRAP__', STATE_BOOTSTRAP_JS)
             .replace('__SAVE_HINT__', json.dumps(str(save_hint))))
 
 
@@ -909,14 +1050,16 @@ def main():
     if args.from_manual_labels is not None:
         labels_dir = Path(args.from_manual_labels) if args.from_manual_labels else \
             Path(__file__).resolve().parent.parent / "manual_labels"
-        items = items_from_manual_labels(
-            labels_dir, [p.stem for p in sorted(labels_dir.glob("*.txt"))])
-        items = [it for it in items if it['pid'] in records_by_pid]
-        if args.sample_panos:
-            pids = sorted({it['pid'] for it in items})
+        if not labels_dir.is_dir():
+            sys.exit(f"--from-manual-labels: no such directory {labels_dir}")
+        pids = [p.stem for p in sorted(labels_dir.glob("*.txt")) if p.stem in records_by_pid]
+        if not pids:
+            sys.exit(f"--from-manual-labels: no label file in {labels_dir} matches a pano "
+                     f"in {bundle}/records.jsonl")
+        if args.sample_panos:            # sample before parsing, not after
             random.Random(args.seed).shuffle(pids)
-            keep = set(pids[:args.sample_panos])
-            items = [it for it in items if it['pid'] in keep]
+            pids = sorted(pids[:args.sample_panos])
+        items = items_from_manual_labels(labels_dir, pids)
         warnings = []
     else:
         if not verdicts_panos:
@@ -939,6 +1082,8 @@ def main():
     for it in items:
         by_pid.setdefault(it['pid'], []).append(it)
     print(f"{len(items)} adjudicated ramps on {len(by_pid)} panos.")
+    crop_px, res_message = resolution_note(records_by_pid, sorted(by_pid), args.fov)
+    print(res_message)
 
     out_dir = args.out or bundle / "box_gallery"
     images_dir = out_dir / "images"
@@ -980,7 +1125,7 @@ def main():
     index_path = out_dir / "index.html"
     with open(index_path, 'w', encoding='utf-8') as f:
         f.write(build_html(entries, initial, annotator, run_key, run_name, args.fov,
-                           bundle / "boxes.json"))
+                           bundle / "boxes.json", crop_px))
 
     n_prefilled = sum(1 for keys in initial.values() for _ in keys)
     print(f"Box annotator: {index_path}")

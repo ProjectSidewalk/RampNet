@@ -6,6 +6,12 @@
     "text": "One box per ramp: the whole constructed ramp surface — sloped apron + detectable-warning pad + side flares.\nBottom edge: where the ramp meets the gutter or street. Top edge: where the slope levels into the sidewalk.\nExclude road/gutter pavement, level sidewalk, and neighboring ramps.\nA corner apron that point review counted as two ramps gets two boxes, one per direction of travel — overlap is fine.\nOccluded is not absent: box the inferred full extent behind cars/pedestrians; truly undeterminable -> \"Can't determine extent\".\nTight beats symmetric: every edge should touch the ramp's boundary at native zoom.\nThe box is a measuring instrument, not the crop: road and surrounding context are what a crop rule adds AROUND your box and gets scored on — never include them.\nOblique ramps (running toward the horizon): keep the box axis-aligned and touch the ramp's extremities — empty corners are correct, don't rotate-fit by eye."
   },
   "crop_fov_deg": 90,
+  "crop_px_by_pano_dims": {
+    "12288x6144": 3072,
+    "5760x2880": 1440,
+    "11000x5500": 2750,
+    "4096x2048": 1024
+  },
   "exported_at": "2026-08-14T23:19:27.331Z",
   "panos": {
     "1110314244387816": {
