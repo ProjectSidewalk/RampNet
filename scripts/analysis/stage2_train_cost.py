@@ -176,21 +176,37 @@ def main():
 
     segments.sort()
     val_points.sort()
+    if not step_gaps:
+        # Every number below is derived from the step time, so there is nothing to
+        # report -- say which tag was expected rather than dying in statistics.median.
+        raise SystemExit(
+            f"no usable step gaps in {args.events_dir}: found {len(paths)} event file(s) "
+            f"but no 'Loss/train_step' scalars two or more steps apart.\n"
+            "  These are the paper run's own tfevents files; the committed set is under "
+            "docs/data/rampnet1_stage2_run/ (verify with --verify against its SHA256SUMS)."
+        )
     s_per_step = statistics.median(step_gaps)
     active_h = sum(end - start for start, end, _, _, _ in segments) / 3600
     calendar_h = (max(s[1] for s in segments) - min(s[0] for s in segments)) / 3600
     max_step = max(s[3] for s in segments)
     steps_per_epoch = args.train_panos // args.world_size
+    if steps_per_epoch < 1:
+        raise SystemExit(f"--train-panos {args.train_panos:,} over --world-size "
+                         f"{args.world_size} is less than one step per epoch")
 
     print(f"== measured run ({len(paths)} event files, {len(segments)} training segments) ==")
-    print(f"  median s/step (rank 0) : {s_per_step:.3f}  "
-          f"[p25 {statistics.quantiles(step_gaps, n=4)[0]:.3f} / "
-          f"p75 {statistics.quantiles(step_gaps, n=4)[2]:.3f}, n={len(step_gaps)}]")
+    # Quartiles need at least two gaps; a single-segment directory still reports a median.
+    spread = (f"[p25 {statistics.quantiles(step_gaps, n=4)[0]:.3f} / "
+              f"p75 {statistics.quantiles(step_gaps, n=4)[2]:.3f}, n={len(step_gaps)}]"
+              if len(step_gaps) > 1 else f"[n={len(step_gaps)}]")
+    print(f"  median s/step (rank 0) : {s_per_step:.3f}  {spread}")
     print(f"  panos/s (x{args.world_size:<2d} GPUs)     : {args.world_size / s_per_step:.2f}")
     print(f"  max global_step        : {max_step:,} = {max_step / steps_per_epoch:.2f} epochs")
     print(f"  active compute         : {hms(active_h)}")
-    print(f"  calendar span          : {hms(calendar_h)}  "
-          f"(preemption overhead x{calendar_h / active_h:.2f})")
+    # A single uninterrupted segment has no preemption overhead to report, and
+    # active_h is 0 only in a degenerate directory -- do not divide by it.
+    overhead = f"  (preemption overhead x{calendar_h / active_h:.2f})" if active_h else ""
+    print(f"  calendar span          : {hms(calendar_h)}{overhead}")
 
     if val_points:
         print(f"\n== epoch boundaries ({len(val_points)} validations) ==")
@@ -220,10 +236,11 @@ def main():
         print(f"  labels       : {args.records * RAMPNET1_LABELS / RAMPNET1_RECORDS:>12,.0f}   "
               f"(1.0 has {RAMPNET1_LABELS:,} -- 'records' and 'labels' differ ~3x)")
         print(f"  {'epochs':>8} {'compute':>12} {'GPU-h':>8} {'calendar on ckpt':>18}")
+        preempt = calendar_h / active_h if active_h else 1.0
         for n in args.epochs:
             total = per_epoch_h * n
             print(f"  {n:>8} {hms(total):>12} {total * args.world_size:>8.0f} "
-                  f"{hms(total * calendar_h / active_h):>18}")
+                  f"{hms(total * preempt):>18}")
 
 
 if __name__ == "__main__":

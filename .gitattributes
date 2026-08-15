@@ -1,4 +1,13 @@
 # The rescued RampNet 1.0 training telemetry is binary: never let autocrlf touch it.
 docs/data/rampnet1_stage2_run/events.out.tfevents.* binary
+
+# The rescued Stage 1 logs are text, but they are checksummed text: a clone with
+# core.autocrlf=true would check them out with CRLF and every entry in SHA256SUMS
+# would fail for files that are in fact byte-correct. -text keeps them exactly as
+# the cluster wrote them, on every platform.
+docs/data/rampnet1_stage1_run/* -text
+
+# The manifests themselves are ours, and stay LF. Listed after the rule above
+# because the last matching pattern wins.
 docs/data/rampnet1_stage2_run/SHA256SUMS text eol=lf
 docs/data/rampnet1_stage1_run/SHA256SUMS text eol=lf

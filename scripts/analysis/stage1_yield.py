@@ -45,6 +45,20 @@ import os
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DEFAULT_DIR = os.path.join(REPO, "docs", "data", "rampnet1_stage1_run")
+EVIDENCE = ("progress.txt", "download_dataset.out", "missing_panos.csv")
+
+
+def check_evidence(directory, names=EVIDENCE):
+    """Fail with the file list and how to check it, not with a bare FileNotFoundError."""
+    missing = [n for n in names if not os.path.isfile(os.path.join(directory, n))]
+    if missing:
+        raise SystemExit(
+            f"missing Stage 1 evidence in {directory}: {', '.join(missing)}\n"
+            "  These are committed under docs/data/rampnet1_stage1_run/ and are the\n"
+            "  only surviving record of the paper's generation run. Verify a checkout\n"
+            "  with:  cd docs/data/rampnet1_stage1_run && sha256sum -c SHA256SUMS\n"
+            "  (PowerShell: Get-FileHash *). Pass --evidence-dir to read them elsewhere."
+        )
 
 
 def load_progress(path):
@@ -85,6 +99,7 @@ def main():
                          "from it and verify it matches the committed copy")
     args = ap.parse_args()
 
+    check_evidence(args.evidence_dir)
     done, dupes = load_progress(os.path.join(args.evidence_dir, "progress.txt"))
     failed, quota = load_log(os.path.join(args.evidence_dir, "download_dataset.out"))
 
@@ -93,6 +108,9 @@ def main():
     missing_ids = {pid for _, pid in missing if pid}
 
     intended = len(done) + len(missing)
+    if not intended:
+        raise SystemExit(f"no progress lines and no missing panos in {args.evidence_dir}: "
+                         "the evidence files are present but empty")
     print("== yield ==")
     print(f"  intended (finaldataset.jsonl lines) : {intended:,}")
     print(f"  written  (progress.txt, unique)     : {len(done):,}   "
@@ -103,9 +121,9 @@ def main():
 
     print("\n== why they are missing ==")
     hit = len(missing_ids & failed)
+    share = f"({hit / len(missing):.2%})" if missing else "(nothing missing)"
     print(f"  unique 'Failed to fetch' in last log: {len(failed):,}")
-    print(f"  never-written that Google refused   : {hit:,} / {len(missing):,} "
-          f"({hit / len(missing):.2%})")
+    print(f"  never-written that Google refused   : {hit:,} / {len(missing):,} {share}")
     print(f"  unexplained                         : {len(missing) - hit:,}")
 
     print("\n== the disk-quota scare ==")

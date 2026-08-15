@@ -2,6 +2,12 @@
 dataset
 *.out
 *.err
+# ...except the rescued Stage 1 run log. `*.out` is there to keep Slurm stdout out of
+# the repo, but this particular Slurm stdout IS the evidence: it is the only surviving
+# record of which panoramas Google refused, docs/data/rampnet1_stage1_run/SHA256SUMS
+# checksums it, and scripts/analysis/stage1_yield.py reads it by default -- so without
+# it that script cannot run from a clean clone.
+!docs/data/rampnet1_stage1_run/*.out
 .venv/
 *.egg-info/
 benchmark/*/panos/
