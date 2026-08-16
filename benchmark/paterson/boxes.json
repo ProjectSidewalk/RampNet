@@ -1,0 +1,704 @@
+{
+  "run_key": "paterson",
+  "run_name": "paterson",
+  "box_rule": {
+    "version": 2,
+    "text": "One box per ramp: the whole constructed ramp surface — sloped apron + detectable-warning pad + side flares.\nBottom edge: where the ramp meets the gutter or street. Top edge: where the slope levels into the sidewalk.\nExclude road/gutter pavement, level sidewalk, and neighboring ramps.\nA corner apron that point review counted as two ramps gets two boxes, one per direction of travel — overlap is fine.\nOccluded is not absent: box the inferred full extent behind cars/pedestrians; truly undeterminable -> \"Can't determine extent\".\nTight beats symmetric: every edge should touch the ramp's boundary at native zoom.\nThe box is a measuring instrument, not the crop: road and surrounding context are what a crop rule adds AROUND your box and gets scored on — never include them.\nOblique ramps (running toward the horizon): keep the box axis-aligned and touch the ramp's extremities — empty corners are correct, don't rotate-fit by eye."
+  },
+  "crop_fov_deg": 90,
+  "crop_px_by_pano_dims": {
+    "16384x8192": 4096,
+    "13312x6656": 3328,
+    "3328x1664": 832
+  },
+  "exported_at": "2026-08-15T23:24:49.442Z",
+  "panos": {
+    "Q5D74UJFt5D2PVhGxRh1sw": {
+      "det:0": {
+        "point": {
+          "x": 0.34668,
+          "y": 0.56836
+        },
+        "status": "boxed",
+        "cx": 0.33331,
+        "cy": 0.56442,
+        "w": 0.03571,
+        "h": 0.02356
+      },
+      "det:1": {
+        "point": {
+          "x": 0.55859,
+          "y": 0.53906
+        },
+        "status": "boxed",
+        "cx": 0.56226,
+        "cy": 0.53754,
+        "w": 0.02423,
+        "h": 0.01586
+      },
+      "det:2": {
+        "point": {
+          "x": 0.62891,
+          "y": 0.58398
+        },
+        "status": "boxed",
+        "cx": 0.63652,
+        "cy": 0.58126,
+        "w": 0.03383,
+        "h": 0.03224
+      },
+      "det:3": {
+        "point": {
+          "x": 0.41016,
+          "y": 0.53711
+        },
+        "status": "boxed",
+        "cx": 0.41572,
+        "cy": 0.53572,
+        "w": 0.02431,
+        "h": 0.00934
+      }
+    },
+    "21Gw_VuYrSK42PCF32UGUw": {
+      "det:0": {
+        "point": {
+          "x": 0.53516,
+          "y": 0.53906
+        },
+        "status": "boxed",
+        "cx": 0.52437,
+        "cy": 0.54054,
+        "w": 0.01477,
+        "h": 0.00574
+      },
+      "det:1": {
+        "point": {
+          "x": 0.69043,
+          "y": 0.59961
+        },
+        "status": "boxed",
+        "cx": 0.69412,
+        "cy": 0.5966,
+        "w": 0.03068,
+        "h": 0.03561
+      },
+      "det:2": {
+        "point": {
+          "x": 0.71387,
+          "y": 0.61523
+        },
+        "status": "boxed",
+        "cx": 0.72163,
+        "cy": 0.60692,
+        "w": 0.03958,
+        "h": 0.04318
+      },
+      "det:3": {
+        "point": {
+          "x": 0.37891,
+          "y": 0.52344
+        },
+        "status": "boxed",
+        "cx": 0.37315,
+        "cy": 0.53147,
+        "w": 0.01696,
+        "h": 0.00678
+      },
+      "det:4": {
+        "point": {
+          "x": 0.25391,
+          "y": 0.56836
+        },
+        "status": "boxed",
+        "cx": 0.25571,
+        "cy": 0.56024,
+        "w": 0.02424,
+        "h": 0.01401
+      },
+      "det:5": {
+        "point": {
+          "x": 0.23828,
+          "y": 0.56836
+        },
+        "status": "boxed",
+        "cx": 0.24103,
+        "cy": 0.56554,
+        "w": 0.03106,
+        "h": 0.01856
+      },
+      "missed:0": {
+        "point": {
+          "x": 0.38771,
+          "y": 0.53294
+        },
+        "status": "boxed",
+        "cx": 0.38619,
+        "cy": 0.53211,
+        "w": 0.01468,
+        "h": 0.00462
+      },
+      "missed:1": {
+        "point": {
+          "x": 0.54441,
+          "y": 0.54039
+        },
+        "status": "boxed",
+        "cx": 0.54063,
+        "cy": 0.54029,
+        "w": 0.01674,
+        "h": 0.00596
+      }
+    },
+    "Yg0X7I5adOM5rem7YVbwAg": {
+      "det:0": {
+        "point": {
+          "x": 0.95605,
+          "y": 0.53711
+        },
+        "status": "boxed",
+        "cx": 0.95735,
+        "cy": 0.5286,
+        "w": 0.01311,
+        "h": 0.00381
+      }
+    },
+    "hMx_5PxQtlixa9LRSNnKFQ": {
+      "det:0": {
+        "point": {
+          "x": 0.2373,
+          "y": 0.58398
+        },
+        "status": "boxed",
+        "cx": 0.24108,
+        "cy": 0.58062,
+        "w": 0.04314,
+        "h": 0.04077
+      },
+      "det:1": {
+        "point": {
+          "x": 0.08203,
+          "y": 0.52344
+        },
+        "status": "boxed",
+        "cx": 0.0862,
+        "cy": 0.52465,
+        "w": 0.01966,
+        "h": 0.01028,
+        "note": "Truck in the way"
+      },
+      "det:2": {
+        "point": {
+          "x": 0.83203,
+          "y": 0.66211
+        },
+        "status": "boxed",
+        "cx": 0.8255,
+        "cy": 0.64622,
+        "w": 0.09432,
+        "h": 0.06591
+      }
+    },
+    "y8Q6XDfEoPt5K6ONqi406w": {
+      "det:0": {
+        "point": {
+          "x": 0.75293,
+          "y": 0.59961
+        },
+        "status": "boxed",
+        "cx": 0.74194,
+        "cy": 0.58922,
+        "w": 0.05511,
+        "h": 0.04659
+      },
+      "det:1": {
+        "point": {
+          "x": 0.88672,
+          "y": 0.58398
+        },
+        "status": "boxed",
+        "cx": 0.89486,
+        "cy": 0.58268,
+        "w": 0.0517,
+        "h": 0.02765
+      }
+    },
+    "zzWJ9LWjpfDZLBT7W8o8zw": {
+      "det:0": {
+        "point": {
+          "x": 0.93262,
+          "y": 0.55469
+        },
+        "status": "boxed",
+        "cx": 0.92986,
+        "cy": 0.55727,
+        "w": 0.03222,
+        "h": 0.01995
+      },
+      "det:1": {
+        "point": {
+          "x": 0.95605,
+          "y": 0.55469
+        },
+        "status": "boxed",
+        "cx": 0.95447,
+        "cy": 0.55415,
+        "w": 0.0257,
+        "h": 0.019
+      },
+      "det:2": {
+        "point": {
+          "x": 0.31641,
+          "y": 0.61523
+        },
+        "status": "boxed",
+        "cx": 0.32379,
+        "cy": 0.60541,
+        "w": 0.0392,
+        "h": 0.02348
+      },
+      "det:3": {
+        "point": {
+          "x": 0.66699,
+          "y": 0.66406
+        },
+        "status": "boxed",
+        "cx": 0.66017,
+        "cy": 0.65064,
+        "w": 0.07178,
+        "h": 0.07235
+      },
+      "det:4": {
+        "point": {
+          "x": 0.71387,
+          "y": 0.64844
+        },
+        "status": "boxed",
+        "cx": 0.7132,
+        "cy": 0.6407,
+        "w": 0.07045,
+        "h": 0.07689
+      },
+      "det:5": {
+        "point": {
+          "x": 0.10547,
+          "y": 0.56836
+        },
+        "status": "boxed",
+        "cx": 0.11285,
+        "cy": 0.56592,
+        "w": 0.02141,
+        "h": 0.01546
+      },
+      "det:6": {
+        "point": {
+          "x": 0.29297,
+          "y": 0.60156
+        },
+        "status": "boxed",
+        "cx": 0.29003,
+        "cy": 0.60083,
+        "w": 0.03068,
+        "h": 0.02955
+      },
+      "missed:0": {
+        "point": {
+          "x": 0.09076,
+          "y": 0.56505
+        },
+        "status": "boxed",
+        "cx": 0.09493,
+        "cy": 0.56301,
+        "w": 0.0161,
+        "h": 0.0148
+      }
+    },
+    "3Tw1W-lv133l2efDeoEAYQ": {
+      "det:0": {
+        "point": {
+          "x": 0.41699,
+          "y": 0.52344
+        },
+        "status": "boxed",
+        "cx": 0.41289,
+        "cy": 0.52964,
+        "w": 0.01138,
+        "h": 0.00416
+      },
+      "det:1": {
+        "point": {
+          "x": 0.53516,
+          "y": 0.52344
+        },
+        "status": "boxed",
+        "cx": 0.53796,
+        "cy": 0.52998,
+        "w": 0.0127,
+        "h": 0.00895
+      },
+      "missed:0": {
+        "point": {
+          "x": 0.44866,
+          "y": 0.51479
+        },
+        "status": "boxed",
+        "cx": 0.45073,
+        "cy": 0.51417,
+        "w": 0.00979,
+        "h": 0.00373
+      },
+      "missed:3": {
+        "point": {
+          "x": 0.52219,
+          "y": 0.51039
+        },
+        "status": "boxed",
+        "cx": 0.52086,
+        "cy": 0.51073,
+        "w": 0.00693,
+        "h": 0.00301
+      }
+    },
+    "fGd6JE4qvoG1uOVvOjBBmg": {
+      "det:0": {
+        "point": {
+          "x": 0.23047,
+          "y": 0.56836
+        },
+        "status": "boxed",
+        "cx": 0.22763,
+        "cy": 0.56725,
+        "w": 0.02898,
+        "h": 0.02045
+      },
+      "det:1": {
+        "point": {
+          "x": 0.20605,
+          "y": 0.58398
+        },
+        "status": "boxed",
+        "cx": 0.20066,
+        "cy": 0.57435,
+        "w": 0.04167,
+        "h": 0.02538
+      },
+      "det:2": {
+        "point": {
+          "x": 0.68359,
+          "y": 0.63281
+        },
+        "status": "boxed",
+        "cx": 0.69363,
+        "cy": 0.63018,
+        "w": 0.06648,
+        "h": 0.05909
+      },
+      "det:3": {
+        "point": {
+          "x": 0.38574,
+          "y": 0.52344
+        },
+        "status": "boxed",
+        "cx": 0.39041,
+        "cy": 0.52514,
+        "w": 0.01818,
+        "h": 0.01023
+      },
+      "det:4": {
+        "point": {
+          "x": 0.51074,
+          "y": 0.53711
+        },
+        "status": "boxed",
+        "cx": 0.51672,
+        "cy": 0.53047,
+        "w": 0.01743,
+        "h": 0.01228
+      },
+      "missed:0": {
+        "point": {
+          "x": 0.37202,
+          "y": 0.53049
+        },
+        "status": "boxed",
+        "cx": 0.374,
+        "cy": 0.52536,
+        "w": 0.01773,
+        "h": 0.01126
+      },
+      "missed:1": {
+        "point": {
+          "x": 0.50052,
+          "y": 0.52822
+        },
+        "status": "boxed",
+        "cx": 0.50044,
+        "cy": 0.52798,
+        "w": 0.01598,
+        "h": 0.01114
+      },
+      "missed:2": {
+        "point": {
+          "x": 0.72242,
+          "y": 0.66071
+        },
+        "status": "cant"
+      }
+    },
+    "kpvi-7jlODMmozIBUAUD_A": {
+      "det:0": {
+        "point": {
+          "x": 0.68359,
+          "y": 0.63086
+        },
+        "status": "boxed",
+        "cx": 0.67734,
+        "cy": 0.62141,
+        "w": 0.05511,
+        "h": 0.05606
+      },
+      "det:1": {
+        "point": {
+          "x": 0.94141,
+          "y": 0.57031
+        },
+        "status": "boxed",
+        "cx": 0.93732,
+        "cy": 0.5723,
+        "w": 0.02641,
+        "h": 0.02207
+      },
+      "det:2": {
+        "point": {
+          "x": 0.19043,
+          "y": 0.58398
+        },
+        "status": "boxed",
+        "cx": 0.1912,
+        "cy": 0.58254,
+        "w": 0.03102,
+        "h": 0.02214
+      },
+      "det:3": {
+        "point": {
+          "x": 0.90918,
+          "y": 0.57031
+        },
+        "status": "boxed",
+        "cx": 0.91568,
+        "cy": 0.57579,
+        "w": 0.02996,
+        "h": 0.02265,
+        "note": "Construction sign occlusion"
+      }
+    },
+    "BvnpSlTjHxKyBiX5tQ02Mg": {
+      "det:0": {
+        "point": {
+          "x": 0.94824,
+          "y": 0.56836
+        },
+        "status": "boxed",
+        "cx": 0.94614,
+        "cy": 0.56823,
+        "w": 0.02017,
+        "h": 0.0138
+      },
+      "det:1": {
+        "point": {
+          "x": 0.89355,
+          "y": 0.57031
+        },
+        "status": "boxed",
+        "cx": 0.89242,
+        "cy": 0.5709,
+        "w": 0.03087,
+        "h": 0.02614
+      },
+      "det:2": {
+        "point": {
+          "x": 0.29199,
+          "y": 0.56836
+        },
+        "status": "boxed",
+        "cx": 0.29082,
+        "cy": 0.56292,
+        "w": 0.03417,
+        "h": 0.02344
+      },
+      "det:3": {
+        "point": {
+          "x": 0.69824,
+          "y": 0.61523
+        },
+        "status": "boxed",
+        "cx": 0.7098,
+        "cy": 0.60219,
+        "w": 0.05246,
+        "h": 0.04659
+      },
+      "det:4": {
+        "point": {
+          "x": 0.66699,
+          "y": 0.61719
+        },
+        "status": "boxed",
+        "cx": 0.65913,
+        "cy": 0.60717,
+        "w": 0.06326,
+        "h": 0.05265
+      }
+    },
+    "L8lyOJwUI8j3Mk_cV-R80Q": {
+      "det:0": {
+        "point": {
+          "x": 0.07324,
+          "y": 0.53906
+        },
+        "status": "boxed",
+        "cx": 0.07498,
+        "cy": 0.54697,
+        "w": 0.02461,
+        "h": 0.00888
+      },
+      "det:1": {
+        "point": {
+          "x": 0.14355,
+          "y": 0.58398
+        },
+        "status": "boxed",
+        "cx": 0.14476,
+        "cy": 0.57675,
+        "w": 0.02733,
+        "h": 0.02231
+      },
+      "det:2": {
+        "point": {
+          "x": 0.94141,
+          "y": 0.53906
+        },
+        "status": "boxed",
+        "cx": 0.94006,
+        "cy": 0.54444,
+        "w": 0.03005,
+        "h": 0.01114
+      }
+    },
+    "Xs3lDDc1o50wJmW9eGx_WA": {
+      "det:0": {
+        "point": {
+          "x": 0.26074,
+          "y": 0.61523
+        },
+        "status": "boxed",
+        "cx": 0.26472,
+        "cy": 0.6109,
+        "w": 0.05322,
+        "h": 0.0178
+      },
+      "det:1": {
+        "point": {
+          "x": 0.09766,
+          "y": 0.55469
+        },
+        "status": "boxed",
+        "cx": 0.09974,
+        "cy": 0.55428,
+        "w": 0.01839,
+        "h": 0.00698
+      },
+      "det:2": {
+        "point": {
+          "x": 0.79199,
+          "y": 0.63086
+        },
+        "status": "boxed",
+        "cx": 0.78792,
+        "cy": 0.62596,
+        "w": 0.04962,
+        "h": 0.07576
+      },
+      "det:3": {
+        "point": {
+          "x": 0.7373,
+          "y": 0.66406
+        },
+        "status": "boxed",
+        "cx": 0.74772,
+        "cy": 0.66087,
+        "w": 0.09564,
+        "h": 0.06098
+      },
+      "det:4": {
+        "point": {
+          "x": 0.94043,
+          "y": 0.55273
+        },
+        "status": "boxed",
+        "cx": 0.94003,
+        "cy": 0.54895,
+        "w": 0.02402,
+        "h": 0.01224
+      },
+      "det:5": {
+        "point": {
+          "x": 0.08105,
+          "y": 0.55273
+        },
+        "status": "boxed",
+        "cx": 0.07968,
+        "cy": 0.55108,
+        "w": 0.01621,
+        "h": 0.01172
+      },
+      "missed:0": {
+        "point": {
+          "x": 0.23234,
+          "y": 0.59698
+        },
+        "status": "cant"
+      },
+      "missed:1": {
+        "point": {
+          "x": 0.96227,
+          "y": 0.54959
+        },
+        "status": "boxed",
+        "cx": 0.9608,
+        "cy": 0.54823,
+        "w": 0.01461,
+        "h": 0.01324
+      }
+    },
+    "4cXVf74zyKLTQLiQtBObww": {
+      "det:0": {
+        "point": {
+          "x": 0.05078,
+          "y": 0.53711
+        },
+        "status": "boxed",
+        "cx": 0.04568,
+        "cy": 0.5342,
+        "w": 0.01681,
+        "h": 0.00986
+      },
+      "det:1": {
+        "point": {
+          "x": 0.1748,
+          "y": 0.52344
+        },
+        "status": "boxed",
+        "cx": 0.16885,
+        "cy": 0.52382,
+        "w": 0.01956,
+        "h": 0.00802
+      },
+      "det:2": {
+        "point": {
+          "x": 0.83105,
+          "y": 0.61719
+        },
+        "status": "cant"
+      }
+    }
+  }
+}
