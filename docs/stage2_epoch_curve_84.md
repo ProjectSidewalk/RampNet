@@ -396,6 +396,14 @@ The table reports the second value, from the incarnation that actually continued
 and reports any epoch it finds computed more than once — so this floor is re-derived from the events
 on every run rather than transcribed, and a future run with no requeue simply reports no floor.
 
+![manual_gold F1 across the 8 epochs with the pre-registered tie bar, and the two signals indexed to their own optima](figures/stage2_manual_gold_curve_84.png)
+
+```bash
+python scripts/analysis/stage2_manual_gold_curve.py \
+    --results-root docs/data/run_a_84_manual_gold --downsampled
+python scripts/analysis/plot_manual_gold_curve.py   # -> docs/figures/stage2_manual_gold_curve_84.png
+```
+
 ### The answer: there is no resolvable human peak, and none of the three branches fires
 
 The pre-registration asked whether `manual_gold` F1 peaks **before, at, or after** epoch 5. Applying
