@@ -96,7 +96,10 @@ This was the last blocker: the imagery half of the benchmark existed only on lab
 `gt_gallery.py`, `miss_gallery.py`, `fp_gallery.py` and any re-rating were unobtainable by anyone
 else. It is now
 [`rampnet-benchmark`](https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark) — 11.41 GB,
-Parquet, three configs (`native`, `4096x2048`, `galleries`), 9 splits each.
+Parquet, **four** configs: `records` (the ground truth, 9 splits), `native` (9), `4096x2048` (9)
+and `galleries` (**8** — Budapest was not part of the #55 A/B). Each config is one Parquet per
+split at `data/<config>/<city>.parquet`; `load_dataset` reads them by config name, so the paths are
+an implementation detail rather than something to navigate.
 
 ```python
 from datasets import load_dataset
@@ -106,6 +109,14 @@ ds = load_dataset("projectsidewalk/rampnet-benchmark", "4096x2048", split="budap
 **The second-rater pass on Budapest is therefore unblocked.** Its ground truth was reviewed at LOW
 confidence, and the imagery a reviewer needs is the `4096x2048` config — `gt_gallery.py` renders at
 that size and never native. What remains blocking a second rater is a *person*, not an artifact.
+
+> **Outstanding: `galleries` needs one re-push.** As first published, a gallery row's `pano_id`
+> column held the *crop tag* — `low_floor_sweep.py` names each crop `{pano}_{x:.5f}_{y:.5f}` — so
+> the join to `records` documented on the card silently returned zero rows. The exporter now
+> writes `crop_id` (the tag), `pano_id` (parsed back out of it) and the detection's
+> `x_normalized` / `y_normalized`, which makes that join work. **The fix is in the code but not yet
+> on the Hub**: re-running `export_benchmark.py build --galleries ...` and pushing the 244 MB
+> `galleries` config is what lands it. `records`, `native` and `4096x2048` are unaffected.
 
 ## Every manual-review task, and what it would take to redo it
 
@@ -271,11 +282,17 @@ source files are the archive:
 
 ### 3. ✅ `rampnet-benchmark` — 11.41 GB, published (#21)
 
-| folder | size | why |
+| config | size | why |
 | :--- | ---: | :--- |
-| `panos_4096x2048/<city>/` | **1.02 GB** | **what GT reviewers actually saw.** `gt_gallery.py` renders at the model's 4096×2048 and never native, so this — not the native archive — is what lets a second rater redo the pass |
-| `panos_native/<city>/` | **10.89 GB** | the resolution experiment (#25) and any future re-render |
-| `galleries/<city>/` | 244 MB | the #55 A/B crops reviewers saw (also regenerable, so belt-and-braces) |
+| `records` | a few MB | **the ground truth** — per-pano metadata, detections with their human verdict, reviewer-marked misses. Its own config so a verdict correction never rewrites an image blob |
+| `4096x2048` | **1.02 GB** | **what GT reviewers actually saw.** `gt_gallery.py` renders at the model's 4096×2048 and never native, so this — not the native archive — is what lets a second rater redo the pass |
+| `native` | **10.89 GB** | the resolution experiment (#25) and any future re-render |
+| `galleries` | 244 MB | the #55 A/B crops reviewers saw, 8 splits (also regenerable, so belt-and-braces) |
+
+(The plan below was written as loose `panos_native/<city>/` folders; it shipped as Parquet, one
+file per split at `data/<config>/<city>.parquet`, for the reasons in "Packaged as Parquet" further
+down. The naming argument survived the change intact — it is now the *config* names that are
+resolutions rather than consumers.)
 
 Both pano figures are **measured**, by rendering all 1,109 panoramas across the 9 splits at
 4096×2048 / JPEG q82 / BILINEAR — byte-for-byte the transform `gt_gallery.py` applies, deliberately
@@ -306,11 +323,11 @@ already matches. An 11th city costs one folder. What waiting *does* cost is real
 what block GT re-verification and the second-rater pass that Budapest's LOW-confidence ground truth
 needs.
 
-**Name the folders by resolution, not by consumer.** `panos_model_res/` was the earlier proposal
-and it is a poor public name twice over: "res" is unexplained, and "model resolution" is a
-*relative* label that silently becomes wrong when the model's input size changes — live risk given
-#25 and #20. `panos_4096x2048/` states the fact, cannot rot, and a future input size just adds a
-sibling folder instead of invalidating this one.
+**Name them by resolution, not by consumer.** `panos_model_res/` was the earlier proposal and it is
+a poor public name twice over: "res" is unexplained, and "model resolution" is a *relative* label
+that silently becomes wrong when the model's input size changes — live risk given #25 and #20.
+`4096x2048` states the fact, cannot rot, and a future input size just adds a sibling config instead
+of invalidating this one. This is the one design decision here that shipped exactly as written.
 
 Layout is the one thing worth settling before the first upload, because restructuring means
 *replacing* large blobs, which is the single expensive operation on HF (see churn, below).
@@ -446,9 +463,10 @@ guidance:
 blobs.** Structuring additively — a new folder per city, never a rewrite of existing ones — makes
 updates nearly free, and means waiting to publish buys very little.
 
-**Recommendation:** settle the directory layout once (`panos_native/<city>/`,
-`panos_4096x2048/<city>/`, `galleries/<city>/`), then publish incrementally as splits land. The
-thing genuinely worth getting right up front is the *layout*, not the timing.
+**Recommendation, as shipped:** settle the layout once — one Parquet per split at
+`data/<config>/<city>.parquet`, configs `records` / `native` / `4096x2048` / `galleries` — then
+publish incrementally as splits land. The thing genuinely worth getting right up front is the
+*layout*, not the timing. An 11th city adds four files and rewrites none.
 
 ### Storage capacity is not a constraint
 

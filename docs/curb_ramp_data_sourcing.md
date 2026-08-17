@@ -804,13 +804,24 @@ diverse one, because the Poor city's labels are wrong wherever they land.
 
 ## 9. Archive the inventories, because they drift
 
-**The source inventories are not in this repo.** `stage_one/dataset_generation/location_data/` and
-`street_data/` are neither present nor tracked — the README tells you to download them from live
-portal links. `docs/data_provenance.md` §3 records that the exact NYC/Portland/Bend files used for
-the paper are archived in the **paper's supplemental material**, so RampNet 1.0 is replicable, but
-**not from this repository**, and not by following the README, which serves current data.
+**Done for RampNet 1.0 — the inventories are now committed.** This section originally recorded the
+opposite, and the recommendation at the end of it is what got acted on:
+`stage_one/dataset_generation/location_data/` holds the three NYC/Portland/Bend files the paper's
+run consumed (71.8 MB, hash-pinned in `docs/data_provenance.md` §3), and `street_data/` holds a
+42.9× derivative of the centrelines with an equivalence proof, because the raw 801.6 MB download
+cannot go in git. The README's portal links still serve *current* data, so they remain a way to
+build a different dataset, not a way to rebuild this one.
 
-The counts collected here quantify how much that matters. Comparing paper Table 1 against the same
+Two caveats travel with that:
+
+- **The committed files hold 276,071 records against Table 1's 276,615.** The 544-record gap is
+  between Table 1 and the files rather than anywhere in the pipeline; `data_provenance.md` §3.3
+  reconciles it and says plainly what is still unexplained.
+- **Publishing the inputs did not make the paper's Stage 1 replayable**, only re-runnable. The
+  negative-panorama sampler is unseeded, so the paper's negatives come from
+  `negativepanosSHORTENED.jsonl` and cannot be regenerated from any street file.
+
+The counts collected here are what quantified the need. Comparing paper Table 1 against the same
 endpoints today:
 
 | City | Paper (Tab. 1) | 2026-07-30 | Drift |
@@ -827,16 +838,16 @@ and it is 5.3% of the corpus. Anyone re-running Stage 1 from the README links to
 measurably different dataset from the paper's and has no way to detect the difference. (NYC's
 one-record change is its own signal: that inventory is effectively frozen.)
 
-**Recommendation: commit a dated snapshot of every inventory at ingest**, alongside the fetch URL
-and query, the way `benchmark/*/records.jsonl` already pins benchmark inputs. These are point files
-— tens of thousands of rows, a few MB gzipped — so the cost is trivial next to losing
-reproducibility. That also makes the §5c numbers re-derivable later, since every count in this
-document is a snapshot of a moving target.
+**Recommendation, now standing policy: commit a dated snapshot of every inventory at ingest**,
+alongside the fetch URL and query, the way `benchmark/*/records.jsonl` already pins benchmark
+inputs. These are point files — tens of thousands of rows, a few MB gzipped — so the cost is
+trivial next to losing reproducibility. That also makes the §5c numbers re-derivable later, since
+every count in this document is a snapshot of a moving target.
 
-Doing this for the RampNet 2.0 corpus is straightforward. Doing it retroactively for 1.0 means
-recovering the three files from the paper's supplemental material and committing them, which is
-worth doing while it is still easy: they are the only artifacts that make the published dataset
-reproducible from source, and they exist in exactly one place.
+**This is done for 1.0 and applies to every city added to the RampNet 2.0 corpus.** The 1.0 files
+were recovered from the paper run's scratch directory rather than the supplemental material, and
+they existed in exactly one place when they were found — which is the argument for pinning a
+city's inventory at the moment it is ingested rather than hoping to reconstruct it later.
 
 ## 10. Caveats
 

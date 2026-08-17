@@ -106,6 +106,10 @@ download made today is a different file, not a copy of this one.
 They are marked `binary` in `.gitattributes` so line-ending normalisation cannot alter those
 hashes.
 
+**These three files hold 276,071 records; the paper's Table 1 says 276,615. Read §3.3 before
+quoting either number** — the 544-record gap is real, it is between the *files* and *Table 1*
+rather than anywhere in the pipeline, and it is not fully explained.
+
 **Street centrelines (`street_data/`) are committed as a derivative.** The raw downloads are
 801.6 MB — `New York - Streets.geojson` alone is 669 MB, past GitHub's 100 MB hard limit — but
 their only consumer, `generate_negative_panos.py`, reads just the LineString geometry plus **one**
@@ -210,6 +214,50 @@ corpus, every one of which the paper's run silently dated to 2000-01-01 and admi
 Stage 1 from current `main` therefore selects a **different** set of records than the paper did, and
 that 8.36% is the upper bound on how much. Pass `--repo-root` to point `gov_provenance.py` at
 whichever checkout's logic you mean to reproduce.
+
+### 3.3 These files hold 276,071 records; the paper's Table 1 says 276,615
+
+Both numbers are now published in this repo, so the 544-record gap between them has to be stated
+rather than left for a reader to trip over. `README.md` footnote ¹ gives the paper's Table 1 total
+as 276,615 — NYC 217,680 + Portland 45,324 + Bend 13,611. The committed inventories do not sum to
+that:
+
+| | Bend | Portland | NYC | total |
+| :--- | ---: | ---: | ---: | ---: |
+| paper Table 1 | 13,611 | 45,324 | 217,680 | **276,615** |
+| committed file | 13,357 | 45,035 | 217,679 | **276,071** |
+| difference | −254 | −289 | −1 | **−544** |
+
+**It is not a pipeline drop.** Counted straight from the committed blobs, every geojson feature
+carries ≥2 coordinates and every NYC row parses as a `POINT`, so the combine step discards
+nothing — which is what the "dropped by the combine step: 0" row in §3.1 is reporting, and it is
+correct as far as it goes. The gap is between the files and Table 1, not between the files and
+`all_locations.csv`.
+
+**What ties the files to the paper's run** is `all_locations.csv`, the paper's own combine output,
+recovered from the run's scratch directory rather than regenerated (§3.2 explains why regenerating
+it is impossible — the shuffle was unseeded). It has **276,071 rows, and `gov_provenance.py`
+resolves all 276,071 of them against these three files with none unmatched**. A later, larger
+snapshot would still match as a superset; what a later snapshot could not do is have exactly the
+same row count. So these are the files that produced the paper's `all_locations.csv`.
+
+**What is still unexplained is where Table 1's 276,615 came from.** The most likely reading is that
+Table 1 quotes the counts the portals *advertised* when the survey was compiled, which is a
+different measurement on a different date from the counts of the files that were downloaded and
+consumed — but that is a hypothesis, not something recovered from the paper's artifacts, and the
+person who compiled Table 1 is the one who can settle it.
+
+One inference to **not** draw: the committed `nyc.csv` count (217,679) equals the 2026-07-30
+re-download count in `curb_ramp_data_sourcing.md` §9, which looks at first like evidence the file
+is a present-day download. It is not evidence either way — that same section measures NYC's drift
+over eleven months at **one record** (−0.0005%), so matching today's portal costs NYC nothing.
+The informative cities point the other way: Bend and Portland have *grown* since the paper
+(+8.7% and +1.6%), so a file downloaded today would be **larger** than Table 1, and the committed
+ones are smaller.
+
+**Until that is settled, quote 276,071 for anything derived from the committed inputs** — the
+consumption rates in §3.1, the provenance CSV, and any re-run of Stage 1 — and quote 276,615 only
+when citing the paper's Table 1 as published.
 
 ## 4. Split of record
 
