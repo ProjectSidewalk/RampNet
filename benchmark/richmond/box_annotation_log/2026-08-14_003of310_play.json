@@ -1,0 +1,47 @@
+{
+  "run_key": "f96787285f24fb6f44d34a127d9347248778f1dcd38b082a85169b9853936fb1",
+  "run_name": "richmond",
+  "box_rule": {
+    "version": 1,
+    "text": "Draw ONE tight axis-aligned box per ramp covering the ENTIRE constructed ramp surface: from the bottom edge where the ramp meets the gutter or street, to the top edge where the slope levels into the sidewalk, INCLUDING the detectable-warning pad and any side flares. EXCLUDE road/gutter pavement, level sidewalk, and neighboring ramps: a shared corner apron that point review counted as two ramps gets two boxes, one per direction of travel, overlapping where the surfaces genuinely overlap. Box what the built ramp IS, not what happens to be visible: if a car or pedestrian partially occludes it, box the inferred full extent; if the extent truly cannot be inferred, use 'Can't determine extent' instead of guessing. Tightness beats symmetry: every edge should touch the ramp's actual boundary at native zoom."
+  },
+  "crop_fov_deg": 90,
+  "exported_at": "2026-08-14T21:36:55.584Z",
+  "panos": {
+    "1110314244387816": {
+      "det:0": {
+        "point": {
+          "x": 0.79297,
+          "y": 0.49219
+        },
+        "status": "boxed",
+        "cx": 0.7937,
+        "cy": 0.48988,
+        "w": 0.00988,
+        "h": 0.0074
+      },
+      "missed:1": {
+        "point": {
+          "x": 0.48197,
+          "y": 0.57692
+        },
+        "status": "boxed",
+        "cx": 0.47985,
+        "cy": 0.57748,
+        "w": 0.03249,
+        "h": 0.04104
+      },
+      "missed:2": {
+        "point": {
+          "x": 0.69614,
+          "y": 0.50196
+        },
+        "status": "boxed",
+        "cx": 0.69598,
+        "cy": 0.50188,
+        "w": 0.00734,
+        "h": 0.00543
+      }
+    }
+  }
+}

@@ -30,7 +30,7 @@ import importlib.util
 import json
 import os
 import re
-from collections import namedtuple
+from collections import Counter, namedtuple
 
 # A pano to run a detector on. image_path points at the native-res JPEG in the
 # bundle's (git-ignored) panos/ dir; RampNet-from-bundle never opens it.
@@ -485,6 +485,55 @@ class _VLMDetector:
             self.max_edge = max_edge
         self.tile = tile
         self._views = views  # None -> equirect_tiling.default_views()
+        # Paid providers accumulate per-call token usage here so every run's
+        # cost is recorded (compare.py --usage-log); None = provider doesn't
+        # report usage (local GPU models are free in API terms).
+        self.usage = None
+        # {resolved build -> calls}. `model_id` is what we ASKED for, and for a
+        # hosted model that is an alias the provider is free to move; this is what
+        # actually answered. Deliberately NOT in signature() -- that feeds
+        # cache_key, so adding it would miss every already-paid cached detection
+        # and re-bill the run (test_gemini_cache_key_is_frozen guards exactly
+        # that). None = provider reports no build. See #121.
+        self.model_versions = None
+
+    # The key contract for `usage`, in one place. Every paid provider reports
+    # input and output; almost none report thinking separately, so a reader must
+    # never assume that key exists (compare.py uses .get). Subclasses start the
+    # dict with init_usage() and add to it with accumulate_usage() rather than
+    # inventing their own shape.
+    USAGE_KEYS = ("calls", "input_tokens", "output_tokens", "thoughts_tokens")
+
+    def init_usage(self):
+        self.usage = dict.fromkeys(self.USAGE_KEYS, 0)
+
+    def record_model_version(self, version):
+        """Note which build answered this call, and say so if it changes mid-run.
+
+        A rotation partway through a leg is the case nobody would otherwise
+        notice: the alias, the signature and the cache key are all unchanged, so
+        two models' detections land in one published file indistinguishably."""
+        if not version:
+            return
+        if self.model_versions is None:
+            self.model_versions = Counter()
+        seen = set(self.model_versions)
+        self.model_versions[version] += 1
+        if seen and version not in seen:
+            print(f"[{self.model_id}] WARNING: the resolved model build changed "
+                  f"mid-run ({', '.join(sorted(seen))} -> {version}). This leg's "
+                  f"detections come from more than one model, and nothing in the "
+                  f"cache key or the published signature distinguishes them.")
+
+    def accumulate_usage(self, input_tokens, output_tokens, thoughts_tokens=0):
+        """Add one paid call to the running total. ``output_tokens`` must ALREADY
+        include thinking, because that is how it bills; ``thoughts_tokens`` is
+        carried alongside only because it is invisible in the response text and
+        dominates output cost."""
+        self.usage["calls"] += 1
+        self.usage["input_tokens"] += input_tokens
+        self.usage["output_tokens"] += output_tokens
+        self.usage["thoughts_tokens"] += thoughts_tokens
 
     def detect(self, sample):
         self._ensure_ready()
@@ -565,6 +614,8 @@ class GeminiDetector(_VLMDetector):
         # policy (benchmark imagery is public GSV/Mapillary). See docs/model_comparison.md.
         self.location = location or os.environ.get("GOOGLE_CLOUD_LOCATION") or "global"
         self._client = None
+        self.init_usage()
+        self._usage_warned = False   # warn once per run, not once per call
 
     def _ensure_ready(self):
         try:
@@ -614,7 +665,41 @@ class GeminiDetector(_VLMDetector):
                 temperature=0.0,
             ),
         )
+        self._record_usage(resp)
         return boxes_from_gemini_response(resp)
+
+    def _record_usage(self, resp):
+        """Accumulate this call's token counts so the run's cost is a recorded
+        fact, not a reconstruction. Thinking tokens are billed as output, so
+        output_tokens already includes them; thoughts_tokens is kept separately
+        because it is invisible in the response text and dominates output cost.
+        Cached panos make no call, so this reflects what THIS run actually paid."""
+        # Before the usage_metadata guard: a response can carry the resolved build
+        # without carrying usage, and the build is the half we cannot back-fill.
+        self.record_model_version(getattr(resp, "model_version", None))
+        um = getattr(resp, "usage_metadata", None)
+        if um is None:
+            return
+        thoughts = getattr(um, "thoughts_token_count", None) or 0
+        prompt = um.prompt_token_count or 0
+        candidates = um.candidates_token_count or 0
+        # The whole cost figure turns on candidates_token_count EXCLUDING thinking,
+        # which is what google-genai reports today and what makes
+        # total = prompt + candidates + thoughts hold. If a future SDK folds
+        # thinking into candidates instead, every thinking model's output silently
+        # doubles (~$20 on the 3.6-flash leg alone) with no other symptom -- and a
+        # unit test against a hand-built fake cannot catch that. So check it
+        # against the provider's own total, once, and say so loudly if it breaks.
+        total = getattr(um, "total_token_count", None)
+        if total and not self._usage_warned:
+            expected = prompt + candidates + thoughts
+            if abs(total - expected) > max(4, 0.02 * total):
+                self._usage_warned = True
+                print(f"[{self.model_id}] WARNING: usage_metadata does not add up "
+                      f"(total {total} vs prompt {prompt} + candidates {candidates} "
+                      f"+ thoughts {thoughts} = {expected}). The cost estimate may "
+                      f"double-count thinking; check the SDK's field semantics.")
+        self.accumulate_usage(prompt, candidates + thoughts, thoughts)
 
     def _parse(self, raw, img_w, img_h):
         return gemini_boxes_to_points(raw)

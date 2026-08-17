@@ -1,0 +1,21 @@
+{
+  "api": "arcgis",
+  "city": "charlotte-nc",
+  "count_mismatch": {
+    "declared": 40601,
+    "fetched": 40600,
+    "note": "server count vs rows retained after dropping null geometry"
+  },
+  "count_query": "https://gis.charlottenc.gov/arcgis/rest/services/CDOT_ADA/ADA_Curb_Ramps/MapServer/0/query?f=json&where=1%3D1&returnCountOnly=true",
+  "declared_count": 40601,
+  "endpoint": "https://gis.charlottenc.gov/arcgis/rest/services/CDOT_ADA/ADA_Curb_Ramps/MapServer/0",
+  "fetched": "2026-07-31",
+  "first_query": "https://gis.charlottenc.gov/arcgis/rest/services/CDOT_ADA/ADA_Curb_Ramps/MapServer/0/query?f=json&where=1%3D1&outFields=%2A&returnGeometry=true&resultRecordCount=4000&orderByFields=OBJECTID&outSR=4326",
+  "note": "Charlotte ADA self-evaluation. Publishes RP_IntID (intersection) and RP_LocInInt (location within intersection) - a published grouping key, second only to NYC's cornerid.",
+  "out_sr": 4326,
+  "pages": 12,
+  "payload": "charlotte-nc-2026-07-31.jsonl.gz",
+  "records": 40600,
+  "sha256": "3b6ff97b79f7d3fee4110d028e79a5f89dd5708df5535e1c0a290dfc31a71559",
+  "where": "1=1"
+}

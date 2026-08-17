@@ -30,13 +30,15 @@ import datetime
 import json
 import os
 import shutil
-import subprocess
 import sys
 
 import torch
 
 from rampnet.model import KeypointModel, PANO_HEATMAP_SIZE
 from rampnet.loading import load_checkpoint, checkpoint_fingerprint
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from hf_export_common import git_commit  # noqa: E402,F401 - re-exported; tests import it here
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PACKAGE_DIR = os.path.join(REPO_ROOT, "scripts", "hf_package")
@@ -112,14 +114,6 @@ def load_reference_model(args):
 
     reference_model.eval()
     return reference_model, fingerprint, source_name
-
-
-def git_commit():
-    try:
-        return subprocess.check_output(
-            ['git', 'rev-parse', '--short', 'HEAD'], cwd=REPO_ROOT, text=True).strip()
-    except Exception:
-        return 'unknown'
 
 
 def render_eval_section(metrics_json_path, ap_json_path=None):

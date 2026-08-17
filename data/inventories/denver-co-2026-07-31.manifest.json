@@ -1,0 +1,16 @@
+{
+  "api": "arcgis",
+  "city": "denver-co",
+  "count_query": "https://services1.arcgis.com/zdB7qR0BtYrg0Xpl/ArcGIS/rest/services/ODC_TRANS_CURBRAMPS_P/FeatureServer/228/query?f=json&where=1%3D1&returnCountOnly=true",
+  "declared_count": 72770,
+  "endpoint": "https://services1.arcgis.com/zdB7qR0BtYrg0Xpl/ArcGIS/rest/services/ODC_TRANS_CURBRAMPS_P/FeatureServer/228",
+  "fetched": "2026-07-31",
+  "first_query": "https://services1.arcgis.com/zdB7qR0BtYrg0Xpl/ArcGIS/rest/services/ODC_TRANS_CURBRAMPS_P/FeatureServer/228/query?f=json&where=1%3D1&outFields=%2A&returnGeometry=true&resultRecordCount=2000&orderByFields=OBJECTID&outSR=4326",
+  "note": "Sidewalk ramps delineated from 2022 aerial imagery; native CRS EPSG:2877 (NAD83 / Colorado Central ftUS), server-reprojected to 4326. Layer 228 of the ODC_TRANS_CURBRAMPS_P FeatureServer.",
+  "out_sr": 4326,
+  "pages": 38,
+  "payload": "denver-co-2026-07-31.jsonl.gz",
+  "records": 72770,
+  "sha256": "98e8c1f22ee0980a00452b7fdf09dae127b1eb6f1a416b4b336b2808148b8add",
+  "where": "1=1"
+}

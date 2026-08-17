@@ -1,3 +1,4 @@
+import gzip
 import json
 import random
 import pandas as pd
@@ -27,11 +28,34 @@ def load_city_boundaries(geojson_path="cityboundaries.geojson"):
         city_geometries[city_name] = geom
     return city_geometries
 
+def open_street_file(city):
+    """Open a city's centrelines, preferring the committed derivative.
+
+    The full downloads are 801 MB across the three cities ("New York - Streets.geojson" alone is
+    669 MB, past GitHub's 100 MB limit) and are not in git. This function reads only the geometry
+    and one name field, so scripts/build_street_derivative.py strips everything else down to
+    18.7 MB gzipped -- proven to yield an identical sampling network -- and *that* is committed.
+    The full file still wins if you have it, so nothing changes for an existing checkout.
+
+    The encoding is pinned rather than left to the platform: GeoJSON is UTF-8 by spec (RFC 7946),
+    but bare `open()` decodes with the locale codec, so a non-ASCII street name would parse
+    differently on Windows than on the cluster -- and street names are read here as an emptiness
+    test, and hashed by build_street_derivative.py's equivalence proof.
+    """
+    for name in (f"{city} - Streets.geojson", f"{city} - Streets.min.geojson.gz"):
+        path = os.path.join("street_data", name)
+        if os.path.exists(path):
+            return (gzip.open(path, "rt", encoding="utf-8") if path.endswith(".gz")
+                    else open(path, "r", encoding="utf-8"))
+    raise FileNotFoundError(
+        f"No street data for {city!r}: expected street_data/{city} - Streets.geojson (see the "
+        f"portal links in README.md) or the committed {city} - Streets.min.geojson.gz derivative."
+    )
+
 def load_city_streets(city_boundaries):
     city_street_data = {}
     for city in cities:
-        file_path = f"street_data/{city} - Streets.geojson"
-        with open(file_path, "r") as f:
+        with open_street_file(city) as f:
             data = json.load(f)
         lines = []
         boundary = city_boundaries.get(city)

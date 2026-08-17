@@ -1,0 +1,17 @@
+{
+  "api": "arcgis",
+  "city": "boston-ma",
+  "count_query": "https://gisportal.boston.gov/arcgis/rest/services/Infrastructure/OpenData/MapServer/3/query?f=json&where=1%3D1&returnCountOnly=true",
+  "declared_count": 24022,
+  "endpoint": "https://gisportal.boston.gov/arcgis/rest/services/Infrastructure/OpenData/MapServer/3",
+  "fetched": "2026-07-31",
+  "first_query": "https://gisportal.boston.gov/arcgis/rest/services/Infrastructure/OpenData/MapServer/3/query?f=json&where=1%3D1&outFields=%2A&returnGeometry=true&resultRecordCount=2000&orderByFields=OBJECTID&outSR=4326",
+  "note": "Boston Pedestrian Ramp Inventory. Temporal gate FAILED it (~12-yr gap); fetched for the geometry check only.",
+  "oid_field": "OBJECTID",
+  "out_sr": 4326,
+  "pages": 14,
+  "payload": "boston-ma-2026-07-31.jsonl.gz",
+  "records": 24022,
+  "sha256": "c87a873e57d70b63330a56f382eacfacd8281817df5ab07783bf1b60fb6e6fed",
+  "where": "1=1"
+}

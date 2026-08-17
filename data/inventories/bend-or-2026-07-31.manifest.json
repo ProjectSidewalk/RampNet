@@ -1,0 +1,16 @@
+{
+  "api": "arcgis",
+  "city": "bend-or",
+  "count_query": "https://services5.arcgis.com/JisFYcK2mIVg9ueP/arcgis/rest/services/sCurbRamps/FeatureServer/0/query?f=json&where=1%3D1&returnCountOnly=true",
+  "declared_count": 14805,
+  "endpoint": "https://services5.arcgis.com/JisFYcK2mIVg9ueP/arcgis/rest/services/sCurbRamps/FeatureServer/0",
+  "fetched": "2026-07-31",
+  "first_query": "https://services5.arcgis.com/JisFYcK2mIVg9ueP/arcgis/rest/services/sCurbRamps/FeatureServer/0/query?f=json&where=1%3D1&outFields=%2A&returnGeometry=true&resultRecordCount=2000&orderByFields=OBJECTID&outSR=4326",
+  "note": "Bend sCurbRamps, the source used for the ICCV paper's Bend half. Paper Tab.1 count 13,611; this snapshot has DRIFTED +8.7% and is NOT the paper's data \u2014 the paper-exact file survives only in the supplemental material.",
+  "out_sr": 4326,
+  "pages": 9,
+  "payload": "bend-or-2026-07-31.jsonl.gz",
+  "records": 14805,
+  "sha256": "bbc78f4c2181bae6aa7b90857438ec58563c0f3e37e89df145261dc37f0d3367",
+  "where": "1=1"
+}

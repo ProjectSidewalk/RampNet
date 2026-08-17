@@ -1,0 +1,248 @@
+{
+ "city": "seattle-wa-2025",
+ "seed": 20260803,
+ "sheet_build": "5fec5d19",
+ "imagery": "King County GIS, KingCo_Aerial_2025",
+ "metres_per_pixel": 0.10049992927771147,
+ "chips": 60,
+ "reviewed": 60,
+ "todo": [],
+ "uncounted": [
+  "1949286",
+  "1951096",
+  "1954141",
+  "1955594",
+  "1955741",
+  "1956591",
+  "1961558",
+  "1962256",
+  "1970444",
+  "1970816",
+  "1977411",
+  "1978728",
+  "1981615",
+  "1985436",
+  "1988766",
+  "1989673"
+ ],
+ "offset": {
+  "n": 34,
+  "min": 0.09,
+  "p25": 0.8925000000000001,
+  "median": 1.75,
+  "p75": 2.63,
+  "p90": 3.6769999999999996,
+  "max": 4.95,
+  "mean": 1.8708823529411764,
+  "within_m": {
+   "0.5": {
+    "n": 4,
+    "of": 34,
+    "rate": 0.11764705882352941,
+    "ci": [
+     0.04671370973436122,
+     0.26621174796298774
+    ]
+   },
+   "1.0": {
+    "n": 10,
+    "of": 34,
+    "rate": 0.29411764705882354,
+    "ci": [
+     0.16834452609931952,
+     0.4616922588146376
+    ]
+   },
+   "2.0": {
+    "n": 21,
+    "of": 34,
+    "rate": 0.6176470588235294,
+    "ci": [
+     0.4504071999938267,
+     0.7610003514839122
+    ]
+   },
+   "3.0": {
+    "n": 29,
+    "of": 34,
+    "rate": 0.8529411764705882,
+    "ci": [
+     0.6987161182594804,
+     0.9355065361737359
+    ]
+   },
+   "5.0": {
+    "n": 34,
+    "of": 34,
+    "rate": 1.0,
+    "ci": [
+     0.8984820937803899,
+     1.0
+    ]
+   }
+  }
+ },
+ "phantom": {
+  "n": 1,
+  "of_judgeable": 35,
+  "rate": 0.02857142857142857,
+  "ci": [
+   0.005061361365853362,
+   0.1453340909327131
+  ],
+  "ids": [
+   "1984667"
+  ]
+ },
+ "unjudgeable": {
+  "n": 25,
+  "of": 60,
+  "rate": 0.4166666666666667,
+  "ci": [
+   0.30064086487871833,
+   0.5427214568676039
+  ],
+  "of_attempted": 60,
+  "rate_of_attempted": 0.4166666666666667,
+  "ids": [
+   "1949286",
+   "1951096",
+   "1954141",
+   "1954980",
+   "1955594",
+   "1955741",
+   "1956591",
+   "1956867",
+   "1961558",
+   "1962256",
+   "1962441",
+   "1967597",
+   "1969074",
+   "1970444",
+   "1970816",
+   "1971730",
+   "1973135",
+   "1977411",
+   "1978728",
+   "1979659",
+   "1980792",
+   "1981615",
+   "1985436",
+   "1988766",
+   "1989673"
+  ]
+ },
+ "per_corner": {
+  "consistent": 34,
+  "more_than_published": 0,
+  "fewer_than_published": 10,
+  "disagreements": [
+   {
+    "id": "1953073",
+    "seen": 1,
+    "p6": 2,
+    "p10": 3,
+    "kind": "fewer_than_published",
+    "phantom": false
+   },
+   {
+    "id": "1962441",
+    "seen": 1,
+    "p6": 2,
+    "p10": 3,
+    "kind": "fewer_than_published",
+    "phantom": false
+   },
+   {
+    "id": "1967597",
+    "seen": 1,
+    "p6": 2,
+    "p10": 2,
+    "kind": "fewer_than_published",
+    "phantom": false
+   },
+   {
+    "id": "1969074",
+    "seen": 3,
+    "p6": 4,
+    "p10": 4,
+    "kind": "fewer_than_published",
+    "phantom": false
+   },
+   {
+    "id": "1973135",
+    "seen": 1,
+    "p6": 2,
+    "p10": 2,
+    "kind": "fewer_than_published",
+    "phantom": false
+   },
+   {
+    "id": "1980792",
+    "seen": 1,
+    "p6": 2,
+    "p10": 2,
+    "kind": "fewer_than_published",
+    "phantom": false
+   },
+   {
+    "id": "1981032",
+    "seen": 1,
+    "p6": 2,
+    "p10": 2,
+    "kind": "fewer_than_published",
+    "phantom": false
+   },
+   {
+    "id": "1984667",
+    "seen": 0,
+    "p6": 1,
+    "p10": 1,
+    "kind": "fewer_than_published",
+    "phantom": true
+   },
+   {
+    "id": "1989880",
+    "seen": 1,
+    "p6": 2,
+    "p10": 2,
+    "kind": "fewer_than_published",
+    "phantom": false
+   },
+   {
+    "id": "1994004",
+    "seen": 1,
+    "p6": 2,
+    "p10": 2,
+    "kind": "fewer_than_published",
+    "phantom": false
+   }
+  ],
+  "mean_ramps_seen": 1.5454545454545454,
+  "counted": 44,
+  "histogram": {
+   "0": 1,
+   "1": 19,
+   "2": 23,
+   "3": 1
+  }
+ },
+ "systematic_shift": {
+  "n": 34,
+  "mean_east_m": -0.07271465471269702,
+  "mean_north_m": 0.6319672023404328,
+  "resultant_m": 0.6361367508987201,
+  "mean_magnitude_m": 1.8709872249895227,
+  "systematic_share": 0.3400005849330598,
+  "east_positive": 11,
+  "north_positive": 23,
+  "null": {
+   "draws": 20000,
+   "median_share": 0.17100631040473305,
+   "p95_share": 0.349955807637806,
+   "p_value": 0.06005,
+   "note": "Expected share under random directions is ~0.9/sqrt(n), NOT 0. A share below the null median is evidence of nothing; a share above it says the direction is real in this sample, which is still not the same as a city-wide registration error."
+  }
+ },
+ "excluded_clicks": []
+}

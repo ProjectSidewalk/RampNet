@@ -6,6 +6,11 @@
 #
 # Gemini (API; needs GOOGLE_API_KEY, or Vertex + ADC):
 google-genai
+# scripts/analysis/vertex_usage.py imports these two directly (Cloud Monitoring is
+# a plain REST call, no client library). google-genai already pulls both in, but a
+# script's own imports belong in the file it tells you to install.
+google-auth
+requests
 
 # Qwen3-VL (open weights; run on a cluster GPU — see the Hyak runbook in
 # docs/model_comparison.md). torch comes from the conda env; these are the extras:
