@@ -43,6 +43,7 @@ regenerate by pointing the scorer at a bundle whose `boxes.json` is the snapshot
 | file | items | box rule | notes |
 |---|---|---|---|
 | `2026-08-15_061of395.json` | 58 boxed + 3 can't | v2 | First checkpoint. All 13 panos at 16384×8192 (4096 px crops); 50 of the 58 det-prompted. Source of the "the ~3.5× constant does not transfer — GSV wants ~2.5×" reading on #114. |
+| `2026-08-17_119of395.json` | 109 boxed + 10 can't | v2 | Session close — the ~100-box GSV target is met, so annotation moves to annapolis. 30 panos: 28 at 16384×8192, one 13312×6656, one 3328×1664; 86 of the 109 det-prompted. Superset of the first checkpoint with no edits to it (verified box-by-box). |
 
 ## Annotation note
 
