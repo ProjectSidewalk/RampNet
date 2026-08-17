@@ -50,8 +50,21 @@ set -eo pipefail
 ENV_PREFIX="${YOLO_ENV:-/gscratch/makelab/jonf/envs/yolo}"
 # The conda package cache must live off $HOME: klone homes are capped at 10 GB and the
 # torch/CUDA download alone is ~5 GB, so the default ~/.conda/pkgs blows the quota
-# mid-solve. Scratch is fine for this -- it is a cache, and it is regenerable.
+# mid-solve. Scratch is the right home for it -- it is regenerable, and /gscratch/makelab
+# was at 92% when this was written, so ~8 GB of cache does not belong there.
 export CONDA_PKGS_DIRS="${YOLO_CONDA_PKGS:-/gscratch/scrubbed/$USER/conda_pkgs}"
+
+# ...but a scratch cache is exposed to the same purge that destroyed the env, and a
+# PARTIALLY purged cache is worse than no cache: conda trusts what it finds, then fails
+# the transaction late with
+#
+#   CondaVerificationError: The package for readline ... appears to be corrupted.
+#   The path 'share/man/man3/readline.3' specified in the package manifest cannot be found
+#
+# because the purge reaped the rarely-read man pages out of an otherwise-present package.
+# That is a real 2026-08-17 failure of this very script, not a hypothetical. Clearing the
+# cache costs a re-download and nothing else, since the versions below are pinned.
+CLEAN_PKGS="${YOLO_CLEAN_PKGS:-1}"
 
 # The versions that actually trained the #51 grid. Do not bump these to resume a run.
 PIN_TORCH="${PIN_TORCH:-2.13.0}"
@@ -71,9 +84,26 @@ mkdir -p "$CONDA_PKGS_DIRS" "$(dirname "$ENV_PREFIX")"
 
 module load conda/Miniforge3-25.9.1-0
 
-if [ -x "$ENV_PREFIX/bin/python" ]; then
-    echo "Env already exists at $ENV_PREFIX -- verifying rather than recreating."
+if [ "$CLEAN_PKGS" != "0" ]; then
+    echo "Clearing the package cache first (YOLO_CLEAN_PKGS=$CLEAN_PKGS) -- see the note above."
+    conda clean --all -y || echo "conda clean returned non-zero; continuing"
+    # conda clean leaves extracted dirs it considers in use by an env on the same
+    # filesystem. Nothing here is, and a half-reaped extracted dir is exactly what fails
+    # verification, so remove them outright.
+    rm -rf "${CONDA_PKGS_DIRS:?}"/*
+fi
+
+# Do NOT treat "bin/python exists" as "env is fine". The whole reason this script exists
+# is that a purged env keeps its directory tree and its executable while having lost the
+# stdlib underneath -- and a failed conda transaction leaves the same shape. Ask the
+# interpreter to prove it runs; recreate from scratch if it cannot.
+if [ -x "$ENV_PREFIX/bin/python" ] && "$ENV_PREFIX/bin/python" -c "import encodings, ssl, sys" 2>/dev/null; then
+    echo "Env at $ENV_PREFIX is present and its interpreter runs -- reusing."
 else
+    if [ -e "$ENV_PREFIX" ]; then
+        echo "Env at $ENV_PREFIX is absent, hollow or half-built -- removing and recreating."
+        rm -rf "${ENV_PREFIX:?}"
+    fi
     conda create -p "$ENV_PREFIX" python=3.11 -y
 fi
 
