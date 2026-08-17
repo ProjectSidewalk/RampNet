@@ -62,8 +62,15 @@ if [ -f "$IMG" ] && [ -f "$SUM" ]; then
         echo "[skip] verified, nothing to do"; exit 0
     fi
     echo "[warn] checksum FAILED -- rebuilding"
-    rm -f "$IMG" "$SUM"
 fi
+
+# Unconditional, and OUTSIDE the guard above. A ckpt preemption mid-mksquashfs leaves
+# the image present but the checksum absent, so the guard does not fire and the rm
+# inside it never runs -- and mksquashfs APPENDS to an existing image by default. That
+# path ends with a duplicated image carrying a freshly-written, perfectly valid
+# checksum, which is worse than no checksum at all. -noappend below is the belt to this
+# rm's braces.
+rm -f "$IMG" "$SUM"
 
 # ---------------------------------------------------------------------------------
 # THE ULTRALYTICS LABEL CACHE IS THE SUBTLE PART -- READ BEFORE CHANGING THIS.
@@ -83,6 +90,15 @@ fi
 #
 # This is called out in docs/tillicum.md too, because getting it wrong is invisible --
 # training still works, it is just silently slow forever.
+#
+# THE CACHE IS NOT THE ONLY ABSOLUTE PATH IN HERE. prepare_yolo_dataset.py writes
+# `path: <out>` into data.yaml, so the packed copy carries the klone path it was built
+# under (e.g. /gscratch/scrubbed/$USER/yolo/tiles). Ultralytics resolves
+# `train: images/train` against that absolute `path:`, and /gscratch does not exist on
+# Tillicum -- so the dataset load fails outright no matter where the image is mounted,
+# and a read-only mount cannot rewrite the file to fix it. Unlike the cache, this one
+# fails loudly rather than silently. Handle it at mount time by bind-mounting a
+# rewritten data.yaml over the packed one (see the next-steps block at the end).
 # ---------------------------------------------------------------------------------
 echo "[check] label caches that will be packed:"
 ls -la "$SRC/$DS/labels/"*.cache 2>/dev/null || echo "  NONE -- expect a full rescan on first use"
@@ -92,7 +108,10 @@ ls -la "$SRC/$DS/labels/"*.cache 2>/dev/null || echo "  NONE -- expect a full re
 # still compressed, which is where the win actually is.
 # -no-xattrs: nothing here uses them, and they bloat the index.
 echo "[mksquashfs] starting $(date)"
+# -noappend: mksquashfs's default is to APPEND to an existing image. With --requeue on
+# a preemptable partition that default is a live hazard, not a theoretical one.
 mksquashfs "$SRC/$DS" "$IMG" \
+    -noappend \
     -noD \
     -no-xattrs \
     -processors "${SLURM_CPUS_PER_TASK:-8}" \
@@ -113,9 +132,20 @@ cat <<EOF
 Next, on Tillicum -- note /gpfs/scrubbed, not the 1 TB /gpfs/projects/makelab quota
 (UW-IT recommends scrubbed for active many-small-file datasets):
 
-  # mount read-only, no untar, no 911k files ever created on /gpfs
+  # 1. the packed data.yaml still says path: $SRC/${DS} -- a klone path that does not
+  #    exist on Tillicum, and the image is read-only, so write a corrected copy OUTSIDE
+  #    the image and bind it over the packed one.
+  mkdir -p /gpfs/scrubbed/\$USER/yolo_cfg/${DS}
+  sed 's|^path: .*|path: /data/${DS}|' \\
+      /gpfs/scrubbed/\$USER/yolo_cfg/${DS}/data.yaml.orig \\
+      > /gpfs/scrubbed/\$USER/yolo_cfg/${DS}/data.yaml
+  # (data.yaml.orig is one unsquashfs -f of just that file, or copy it from klone --
+  #  it is a few hundred bytes, so this is the one file worth moving by hand.)
+
+  # 2. mount read-only, no untar, no 911k files ever created on /gpfs
   apptainer exec --nv \\
       --bind /gpfs/scrubbed/\$USER/${DS}.sqfs:/data/${DS}:image-src=/ \\
+      --bind /gpfs/scrubbed/\$USER/yolo_cfg/${DS}/data.yaml:/data/${DS}/data.yaml \\
       <image.sif> <command>
 
 Verify the checksum on arrival BEFORE trusting it:

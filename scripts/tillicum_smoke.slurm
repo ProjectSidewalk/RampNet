@@ -58,6 +58,12 @@ command -v conda && conda --version
 
 # Build somewhere durable and shared, not node-local /tmp. Keep it out of the 286 GB
 # dataset's way: envs are small but numerous-filed, so scrubbed is the better home.
+#
+# This env is DISPOSABLE and deliberately separate from the training env that
+# tillicum_setup_env.sh builds at /gpfs/projects/makelab/$USER/envs/rampnet-yolo. This
+# one exists to answer "does a cu126 wheel drive an H200"; that one is the gated,
+# klone-matched env everything reportable runs in. Do not train from this one, and do
+# not point PYTHON at it.
 ENVROOT="${ENVROOT:-/gpfs/scrubbed/$USER/envs}"
 if ! mkdir -p "$ENVROOT" 2>/dev/null; then
     echo "  (could not write $ENVROOT -- falling back to the project dir)"
@@ -74,10 +80,15 @@ if [ ! -x "$VENV/bin/python" ]; then
     python3 -m venv "$VENV" 2>&1 | tail -2
 fi
 "$VENV/bin/python" -m pip install -q --upgrade pip 2>&1 | tail -2
-# cu126 wheels: Tillicum is sm_90, and our klone stack is torch 2.13.0+cu126 (see the
-# yolo_baseline record), so matching it keeps the comparison honest.
-"$VENV/bin/python" -m pip install -q torch --index-url https://download.pytorch.org/whl/cu126 2>&1 | tail -3
-"$VENV/bin/python" -m pip install -q ultralytics 2>&1 | tail -3
+# cu126 wheels: Tillicum is sm_90, and our klone stack is torch 2.13.0+cu126 with
+# ultralytics 8.4.105 (see the yolo_baseline record), so matching it keeps the
+# comparison honest -- which means PINNING it, not hoping the resolver agrees. Unpinned,
+# a python3 that is Tillicum's system 3.9.25 (i.e. `module load conda` above failed
+# quietly) tops out at torch 2.8.0 on the cu126 index and pulls ultralytics 8.4.113,
+# and this probe would report that stack as a green "environment works".
+"$VENV/bin/python" -m pip install -q "torch==2.13.0+cu126" torchvision \
+    --index-url https://download.pytorch.org/whl/cu126 2>&1 | tail -3
+"$VENV/bin/python" -m pip install -q "ultralytics==8.4.105" 2>&1 | tail -3
 
 say "DOES IT SEE THE GPU?"
 "$VENV/bin/python" - <<'PY'

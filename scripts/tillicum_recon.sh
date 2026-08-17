@@ -43,8 +43,13 @@ sinfo -o "%.14P %.6a %.10l %.6D %.6t %N" 2>&1 | head -10 | sed 's/^/  /'
 echo "-- QoS available to us --"
 sacctmgr -nP show assoc user="$USER" format=Account,QOS 2>&1 | sed 's/^/  /'
 echo "-- do we already have long/wide/urgent? --"
-sacctmgr -nP show assoc user="$USER" format=QOS 2>/dev/null | tr ',' '\n' \
-    | grep -iE "long|wide|urgent" | sed 's/^/  /' || echo "  (none -- long QoS needs the request form)"
+# The || has to sit INSIDE the subshell, before the sed: sed exits 0 on empty input, so
+# attaching the fallback to the whole pipeline makes it unreachable and a no-QoS result
+# prints as a blank section indistinguishable from sacctmgr having failed. Same shape as
+# the quota and hyakusage checks above and below.
+( sacctmgr -nP show assoc user="$USER" format=QOS 2>/dev/null | tr ',' '\n' \
+    | grep -iE "long|wide|urgent" || echo "(none -- long QoS needs the request form)" ) \
+    | sed 's/^/  /'
 
 echo
 echo "## 4. BILLING"

@@ -39,14 +39,22 @@ cancel or preempt jobs that are already running." That is the entire reason to p
 ssh <UWNetID>@tillicum.hyak.uw.edu
 ```
 
-Duo 2FA, same as klone — **Claude cannot authenticate this.** The `wsl-ssh.ps1` helper
-in `dotfiles` has no `tillicum` target yet; adding one (with a `ControlPersist` master,
-mirroring the `klone` block in `ssh_config.wsl`) is a prerequisite for driving Tillicum
-from an agent session. Until then, Tillicum is Jon-only.
+Duo 2FA, same as klone — **Claude cannot authenticate this.** `dotfiles` now has a
+`tillicum` target for `wsl-ssh.ps1` with a `ControlPersist` master, mirroring the
+`klone` block in `ssh_config.wsl`, so an agent session can drive Tillicum over a master
+Jon has already opened. Opening it is still Jon-only, because of Duo.
 
-> The get-started page writes the hostname two ways — `tillicum.hyak.uw.edu` in the
-> hostname field and `tillicum.hyak.edu` in the `ssh` example. The former is almost
-> certainly correct; **UNVERIFIED** until someone logs in.
+**Settled on first login (2026-07-31).** `tillicum.hyak.uw.edu` is the correct hostname
+— the get-started page also writes `tillicum.hyak.edu` in its own `ssh` example, and
+that form is wrong. Jobs `198638`, `198910` and `217298` have since run, so everything
+in this section is now from experience rather than from the docs.
+
+> **Still open: the per-user home path.** It is undocumented, and the recon pass never
+> wrote its answer back here. The as-run commands below use `~/RampNet` and work;
+> `scripts/model_comparison/run_yolo_data_prep_tillicum.slurm` hardcodes
+> `/gpfs/home/$USER/RampNet` as a guess, and whether those are the same path is
+> **UNVERIFIED**. `scripts/tillicum_recon.sh` prints it as item 1 — run it and record
+> the result here. Do not assume it mirrors klone's `/mmfs1/...` layout.
 
 ## The scheduler model: QoS, not partitions
 
@@ -68,9 +76,21 @@ billing handles the rest.
 
 1. **Request `long` QoS** (7 days) via the Tillicum Special QoS Access Request Form.
    This is the clean answer and should be requested now — it gates the #70 rerun.
-2. **Chain 24 h `normal` jobs**, resuming from `weights/last.pt`. Our
-   `run_yolo_train.slurm` already has the resume block for this, and without
-   preemption a resume boundary is predictable rather than random.
+2. **Chain 24 h `normal` jobs**, resuming from `weights/last.pt`. Without preemption a
+   resume boundary is predictable rather than random. `run_yolo_train_tillicum.slurm`
+   implements this as `CHAIN=<n>`: it queues `n` follow-on jobs with
+   `--dependency=afterany`, each decrementing the counter, so the chain is finite and
+   its worst-case cost is fixed at submit time.
+
+   ```bash
+   CHAIN=5 NAME=y11x_tiles_till YOLO_DATA=$DATA/tiles/data.yaml \
+       sbatch scripts/model_comparison/run_yolo_train_tillicum.slurm
+   ```
+
+   `afterany`, not `afterok`: hitting the 24 h wall is the *expected* exit and reports
+   as `TIMEOUT`, so `afterok` would break the chain at the first link. The next job is
+   queued before training starts, so the chain also survives a node failure. It is
+   **off by default** (`CHAIN=0`) because every link bills.
 
 Option 2 works today and needs no approval; option 1 is less operationally fiddly.
 Do 1, fall back to 2.
@@ -87,6 +107,14 @@ GPUs*. **CPU-only jobs are prohibited**; every job must request ≥1 GPU.
 > Operational consequence: our CPU-side data prep (`run_yolo_data.slurm`,
 > `run_yolo_prep.slurm`) has no business on Tillicum. Keep prep on klone, train on
 > Tillicum.
+>
+> **Superseded 2026-07-31 — see "How the data actually got there" below.** The
+> reasoning here is still right (a prep job must hold an H200 it never uses, and it
+> cost us $4.20 to do exactly that), but it assumed a klone → Tillicum transfer path
+> exists. None does, so prep had to run on Tillicum after all, via
+> `scripts/model_comparison/run_yolo_data_prep_tillicum.slurm`. Read "keep prep on
+> klone" as the preference, not the rule: it holds whenever the dataset is already on
+> klone *and can be reached from here*.
 
 ## Cost model
 
@@ -150,6 +178,17 @@ So 2 GPUs is only cheaper *per epoch* if 16 CPUs makes the tiles epoch **more th
 twice** as fast. That is an empirical question, and it is the single best use of the
 free demo hours. See [First runs](#first-runs-what-to-measure).
 
+> **The trick needs `WORKERS` set, or it measures nothing.** Ultralytics defaults to
+> `workers: 8` and then caps at `min(os.cpu_count() // nd, workers)`, so the loader pool
+> does **not** grow with the allocation — it has to be passed explicitly. Until
+> 2026-08-17 `run_yolo_train_tillicum.slurm` never passed it, so a
+> `--gres=gpu:2 --cpus-per-task=16` run would have paid 2× for 8 workers and come back
+> "no faster", answering the question above for the wrong reason. Job `217298` running
+> at `workers=8` on a 1-GPU/8-CPU allocation is the correct value by coincidence, not
+> evidence the knob worked. The script now binds `WORKERS` to `SLURM_CPUS_PER_TASK`;
+> **set it on the first job of a chain**, because a `resume=True` link inherits the
+> loader count baked into `last.pt` and ignores the environment.
+
 ## Storage
 
 `/gpfs/projects/makelab` — **1 TB**, backed up daily, "purged at the end of the
@@ -198,6 +237,14 @@ than they were built under silently invalidates them and forces a full ~911k-fil
 rescan. Budget one slow first epoch on Tillicum to regenerate them, and do not mistake
 it for the steady-state cost. Getting this wrong is invisible: training still works, it
 is just permanently slow.
+
+**And the cache is not the only absolute path in the image.** `prepare_yolo_dataset.py`
+writes `path: <out>` into `data.yaml`, so the packed copy carries the klone path it was
+built under. Ultralytics resolves `train: images/train` against that absolute `path:`,
+and `/gscratch` does not exist here, so the dataset fails to load no matter where the
+image is mounted — and a read-only mount cannot rewrite the file. Bind-mount a
+corrected `data.yaml` over the packed one; the exact commands are in the next-steps
+block `pack_yolo_dataset.slurm` prints. Unlike the cache, this one fails loudly.
 
 Staging order: **`pano` first (76 GB, 193k files)** — it unblocks the smoke test and the
 pano epoch-time measurement while the much larger `tiles` image builds behind it.

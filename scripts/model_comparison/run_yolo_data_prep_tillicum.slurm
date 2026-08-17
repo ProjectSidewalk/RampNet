@@ -66,27 +66,74 @@ bash hyak_yolo_runbook.sh data
 echo
 echo "=== STAGE: prep (tiles + pano) ==="
 date
+# The runbook's prep stage reads SLURM_CPUS_PER_TASK and passes --workers plus
+# OPENBLAS_NUM_THREADS=1 when it is set, matching what run_yolo_prep.slurm does on
+# klone. Without that, prepare_yolo_dataset.py sizes its pool from os.cpu_count(),
+# which reports the whole node and ignores our 8-CPU cgroup.
 bash hyak_yolo_runbook.sh prep
 
 echo
 echo "=== VERIFICATION — counts must match the klone record ==="
 date
+
+# This is a GATE, not a report. The header promises "stop and diff" on a mismatch, so a
+# mismatch has to exit non-zero: a job that prints 557,398 next to 557,413 and still
+# exits 0 reads as green to anyone skimming the tail of the log, and the next person
+# trains an arm that is not comparable to #51 without ever knowing.
+#
+# Expected counts come from scripts/model_comparison/yolo_baseline/README.md provenance.
+# Both images/ and labels/ are checked — they are written as a pair by _write_pair, so a
+# divergence between them is exactly the kind of partial-run damage worth catching.
+declare -A EXPECTED=(
+    [tiles/train]=557413
+    [tiles/val]=161002
+    [pano/train]=150063
+    [pano/val]=42875
+)
+
+fail=0
 for ds in tiles pano; do
     for split in train val; do
-        d="$SCRATCH/yolo/$ds/images/$split"
-        printf "  %-6s %-6s %s\n" "$ds" "$split" "$(ls -U "$d" 2>/dev/null | grep -c '\.jpg$')"
+        want="${EXPECTED[$ds/$split]}"
+        for kind in images labels; do
+            d="$SCRATCH/yolo/$ds/$kind/$split"
+            if [ "$kind" = images ]; then
+                got="$(ls -U "$d" 2>/dev/null | grep -c '\.jpg$' || true)"
+            else
+                got="$(ls -U "$d" 2>/dev/null | grep -c '\.txt$' || true)"
+            fi
+            if [ "$got" -eq "$want" ]; then
+                printf "  ok   %-5s %-6s %-5s %8s\n" "$ds" "$kind" "$split" "$got"
+            else
+                printf "  FAIL %-5s %-6s %-5s %8s  (expected %s)\n" \
+                    "$ds" "$kind" "$split" "$got" "$want"
+                fail=1
+            fi
+        done
     done
 done
-cat <<'EOF'
 
-  Expected, from scripts/model_comparison/yolo_baseline/README.md provenance:
-    tiles  train  557413
-    tiles  val    161002
-    pano   train  150063
-    pano   val    42875
+if [ "$fail" -ne 0 ]; then
+    cat <<'EOF'
 
-  A mismatch means the regenerated dataset is NOT the one the #51 arms trained on.
-  Do not train against it until the difference is understood.
+!! MISMATCH. The regenerated dataset is NOT the one the #51 arms trained on.
+!! Do not train against it until the difference is understood.
+
+Next step is the filename-level check, which is stronger than counts and is what the
+doc's equivalence table reports. Per directory, on BOTH clusters:
+
+    ls -U <root>/yolo/<dir> | sort | md5sum
+
+  klone root    /gscratch/scrubbed/jfroehli
+  Tillicum root /gpfs/scrubbed/jfroehli
 EOF
+    date
+    exit 1
+fi
+
+echo
+echo "  All eight directories match the klone record."
+echo "  Counts are necessary, not sufficient — for the filename-level check see"
+echo "  docs/tillicum.md, 'Verified equivalent to klone'."
 date
-echo "Cost so far: run `hyakusage`"
+echo 'Cost so far: run `hyakusage`'

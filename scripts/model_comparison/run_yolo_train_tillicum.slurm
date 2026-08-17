@@ -8,7 +8,11 @@
 #
 # WHAT CHANGED FROM THE KLONE VERSION, AND WHY
 #   -p ckpt-g2 / -q ckpt-gpu  ->  --qos=normal   Tillicum has NO partitions; QoS only.
-#   --requeue                 ->  dropped        Nothing preempts on Tillicum.
+#   --requeue                 ->  CHAIN=<n>      Nothing preempts on Tillicum, so the
+#                                                requeue is unnecessary -- but the 24 h
+#                                                ceiling is not, so the unattended
+#                                                continuation it also bought is replaced
+#                                                by a bounded afterany chain, not lost.
 #   --time=72:00:00           ->  24:00:00       normal QoS caps at 24 h. 7-day jobs
 #                                                need `long` QoS (pre-approval).
 #   --gpus-per-node=1         ->  --gres=gpu:N   Tillicum's documented spelling.
@@ -18,8 +22,12 @@
 #                                                inherited END,FAIL,TIME_LIMIT produced
 #                                                ~1 email per minute under preemption).
 #
-#   YOLO_DATA=$DATA/pano/data.yaml YOLO_IMGSZ=1280 BATCH=4 NAME=y26_pano_till \
-#       sbatch scripts/model_comparison/run_yolo_train_tillicum.slurm
+#   YOLO_CKPT=yolo26l.pt YOLO_DATA=$DATA/pano/data.yaml YOLO_IMGSZ=1280 BATCH=4 \
+#       NAME=y26_pano_till sbatch scripts/model_comparison/run_yolo_train_tillicum.slurm
+#
+#   ALWAYS set YOLO_CKPT explicitly. It defaults to yolo11l.pt, so omitting it under a
+#   y26_* NAME trains the wrong architecture under a right-looking name, and the only
+#   signal is one `base:` line in the log header.
 #
 # COST. Tillicum BILLS: $0.90/GPU-hour where GPU-hour = elapsed x N GPUs. A 24 h
 # 2-GPU job is 48 GPU-hours (~$43). Do not leave allocations idle. Check `hyakusage`.
@@ -31,8 +39,14 @@
 #SBATCH --mail-type=NONE
 #SBATCH --output=logs/yolo_train_till_%j.out
 #SBATCH --error=logs/yolo_train_till_%j.err
-# gres/cpus/mem are NOT hardcoded -- see the GPUS block below, which must be kept in
-# step with them. Override at submit time with: sbatch --gres=gpu:2 --cpus-per-task=16
+# The 1-GPU defaults below are deliberate, and all THREE move together: Tillicum binds
+# 8 CPUs *and* 200 GB per GPU, so overriding one alone gets you a starved job rather
+# than a bigger one. For the 2-GPU dataloader arm (see the DEVICE block) override all
+# three, and raise WORKERS to match -- ultralytics will not use the extra CPUs on its
+# own:
+#
+#   WORKERS=16 ... sbatch --gres=gpu:2 --cpus-per-task=16 --mem=400G <this script>
+#
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=200G
@@ -55,8 +69,15 @@ set -euo pipefail
 # point -- it isolates dataloader throughput as the only changed variable, and it
 # answers whether the 2x bill buys more than a 2x speedup. Set DEVICE=0,1 only if you
 # deliberately want a DDP run, and label it as a different arm.
+#
+# NONE OF WHICH WORKS WITHOUT WORKERS. Ultralytics defaults to `workers: 8` and then
+# caps at min(os.cpu_count() // nd, workers), so the loader pool does NOT grow with the
+# allocation -- it has to be passed explicitly. Until this was wired up, the whole
+# trick bought an idle second GPU and nothing else: job 217298 echoed `workers=8` while
+# holding CPUs it never used. Bind it to the allocation and it follows --cpus-per-task.
 # ---------------------------------------------------------------------------------
 DEVICE="${DEVICE:-0}"
+WORKERS="${WORKERS:-${SLURM_CPUS_PER_TASK:-8}}"
 
 YOLO_CKPT="${YOLO_CKPT:-yolo11l.pt}"
 YOLO_DATA="${YOLO_DATA:?set YOLO_DATA to a prepared data.yaml}"
@@ -86,6 +107,24 @@ SAVE_PERIOD="${SAVE_PERIOD:-5}"
 TRAIN_HOURS="${TRAIN_HOURS:-0}"
 NAME="${NAME:-yolo_run_till}"
 
+# CHAIN: how many follow-on jobs to queue behind this one, each resuming from
+# weights/last.pt. Default 0 -- this BILLS, so it is opt-in and bounded rather than an
+# open-ended requeue loop.
+#
+# klone's --requeue gave unattended continuation for free. Tillicum never preempts, but
+# --time=24:00:00 is a hard ceiling, so a 60-epoch tiles schedule at ~3.0 h/epoch still
+# needs about five slices. Without this, each slice is a resubmit somebody has to
+# remember -- the same silent-stall failure mode that stranded the #51 ckpt arms.
+#
+#   CHAIN=5 NAME=y11x_tiles_till YOLO_DATA=... sbatch <this script>
+#
+# afterany, not afterok: hitting the walltime is the EXPECTED exit here and it reports
+# as TIMEOUT, so afterok would break the chain at the first link.
+CHAIN="${CHAIN:-0}"
+# $0 inside a batch job is Slurm's spool copy, not this file, so the chain needs an
+# explicit path back to the repo checkout.
+SELF="${SELF:-$HOME/RampNet/scripts/model_comparison/run_yolo_train_tillicum.slurm}"
+
 # Tillicum storage. /gpfs/projects/makelab is 1 TB, backed up daily, and PURGED AT END
 # OF PROJECT -- it is NOT archival. Only best.pt matters downstream: rsync it back to
 # klone /gscratch/makelab, which stays the system of record.
@@ -107,18 +146,38 @@ echo "base:   ${YOLO_CKPT}"
 echo "data:   ${YOLO_DATA}"
 echo "imgsz:  ${YOLO_IMGSZ}   epochs: ${EPOCHS}   batch: ${BATCH}   patience: ${PATIENCE}"
 echo "alloc:  ${SLURM_GPUS_ON_NODE:-?} GPU(s), ${SLURM_CPUS_PER_TASK:-?} CPUs on ${SLURMD_NODENAME:-?}"
-echo "device: ${DEVICE}   (allocation and device differ on purpose -- see header)"
+echo "device: ${DEVICE}   workers: ${WORKERS}   (allocation and device differ on purpose -- see header)"
+echo "chain:  ${CHAIN} follow-on job(s) queued after this one"
 echo "out:    ${PROJECT}/${NAME}/weights/best.pt"
 nvidia-smi --query-gpu=name,memory.total --format=csv || true
 echo "------------------------------------------------"
 
+# Queue the next link BEFORE training starts, so the chain survives this job dying for
+# any reason -- walltime, node failure, OOM. Each link decrements CHAIN, so the total
+# cost is bounded at submit time and the chain terminates on its own.
+if [ "${CHAIN}" -gt 0 ] 2>/dev/null; then
+    if [ ! -f "$SELF" ]; then
+        echo "[chain] SKIPPED -- \$SELF ($SELF) is not a file. Set SELF to this script's"
+        echo "[chain] path in the repo checkout, or resubmit by hand."
+    else
+        echo "[chain] queueing 1 follow-on job (it will carry CHAIN=$((CHAIN - 1)))"
+        CHAIN="$((CHAIN - 1))" sbatch \
+            --dependency=afterany:"${SLURM_JOB_ID}" \
+            --gres="gpu:${SLURM_GPUS_ON_NODE:-1}" \
+            --cpus-per-task="${SLURM_CPUS_PER_TASK:-8}" \
+            --mem="${SLURM_MEM_PER_NODE:-200G}" \
+            "$SELF" \
+            || echo "[chain] sbatch FAILED -- this job continues, but nothing follows it"
+    fi
+fi
+
 run_train() {
     "$@" - "$YOLO_CKPT" "$YOLO_DATA" "$YOLO_IMGSZ" "$EPOCHS" "$BATCH" "$PATIENCE" \
-            "$PROJECT" "$NAME" "$TRAIN_HOURS" "$DEVICE" "$SAVE_PERIOD" <<'PY'
+            "$PROJECT" "$NAME" "$TRAIN_HOURS" "$DEVICE" "$SAVE_PERIOD" "$WORKERS" <<'PY'
 import os, sys
 from ultralytics import YOLO
 (ckpt, data, imgsz, epochs, batch, patience, project, name, hours, device,
- save_period) = sys.argv[1:12]
+ save_period, workers) = sys.argv[1:13]
 last = os.path.join(project, name, "weights", "last.pt")
 # Still needed on Tillicum, but for a different reason than on klone: not preemption,
 # but the 24 h normal-QoS ceiling. A 60-epoch tiles schedule does not fit in one job,
@@ -128,6 +187,11 @@ last = os.path.join(project, name, "weights", "last.pt")
 # resumed from a klone checkpoint keeps that run's save_period=-1 -- SAVE_PERIOD above
 # does NOT apply to it. Per-epoch checkpoints therefore exist only for runs STARTED
 # under this script. For the klone arms the early-epoch weights are already gone.
+#
+# The same applies to WORKERS: a resumed run keeps the loader count baked into the
+# checkpoint, so raising it here has no effect on a resume. To change workers you have
+# to START a run under this script. That matters for the CHAIN path above -- set
+# WORKERS on the FIRST link, because links 2..n inherit it from last.pt regardless.
 #
 # That is less costly than it sounds: the compute-matched point we most want (YOLO at
 # roughly RampNet's ~1-epoch budget) is exactly the ep1 best.pt that four of the six
@@ -142,7 +206,7 @@ else:
     kw = dict(
         data=data, imgsz=int(imgsz), epochs=int(epochs), batch=batch_arg,
         patience=int(patience), project=project, name=name, device=dev, exist_ok=True,
-        save_period=int(save_period),
+        save_period=int(save_period), workers=int(workers),
     )
     if float(hours) > 0:
         kw["time"] = float(hours)
