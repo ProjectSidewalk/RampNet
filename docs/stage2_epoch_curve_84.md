@@ -127,37 +127,41 @@ rsync -av --exclude .venv --exclude .model_cache --exclude 'benchmark/*/panos' \
 
 # 1. One-time: build the sidewalkcv2 conda env from the committed environment.yml.
 #    As a batch job, not on a login node -- klone reaps heavy login processes and
-#    that reap also kills the SSH control master.
+#    that reap also kills the SSH control master. The job also pre-warms the timm
+#    backbone (--preset scratch builds with pretrained_backbone=True, so without a
+#    warm cache all 16 ranks race to download convnextv2_base.fcmae_ft_in22k_in1k_384
+#    at step 0). That download is inside the job for the same reason the build is:
+#    it does not belong on a login node.
 cd ~/RampNet && mkdir -p logs
 export RAMPNET_REPO=$HOME/RampNet
 export RAMPNET_ENV=/gscratch/scrubbed/jfroehli/envs/sidewalkcv2
 export RAMPNET_CONDA_PKGS=/gscratch/scrubbed/jfroehli/conda_pkgs   # NOT ~/.conda/pkgs: klone
                                                                    # homes are capped at 10 GB and
                                                                    # pytorch+CUDA alone is ~5 GB
-sbatch --export=ALL,RAMPNET_REPO,RAMPNET_ENV,RAMPNET_CONDA_PKGS \
-       stage_two/run_build_env.slurm
+ENV_JOB=$(sbatch --parsable \
+                 --export=ALL,RAMPNET_REPO,RAMPNET_ENV,RAMPNET_CONDA_PKGS \
+                 stage_two/run_build_env.slurm)
+echo "env build job: $ENV_JOB"
 
-# 1b. Pre-warm the timm backbone cache. --preset scratch builds the model with
-#     pretrained_backbone=True, so without this all 16 ranks race to download
-#     convnextv2_base.fcmae_ft_in22k_in1k_384 into a cold shared cache at once.
-#     Compute nodes do have outbound network, so it works either way -- this just
-#     removes the race. Takes about a minute.
-"$RAMPNET_ENV/bin/python" -c "
-import timm
-timm.create_model('convnextv2_base.fcmae_ft_in22k_in1k_384', pretrained=True, num_classes=0)
-print('backbone cached')"
-
-# 2. Launch Run A. --chdir puts every working-directory artefact train.py writes
+# 2. Launch Run A, gated on the env build. The build takes 15-50 min, so this MUST
+#    NOT be submitted unconditionally -- --dependency=afterok makes Slurm hold it
+#    until the env exists and verified clean, rather than starting against a prefix
+#    that is not there yet.
+#    --chdir puts every working-directory artefact train.py writes
 #    (latest_checkpoint.pth, best_model.pth, runs/, peek_training/, logs/) on the
 #    durable volume alongside the checkpoints.
 export RUN_DIR=/gscratch/makelab/jonf/rampnet_run_a_84
 mkdir -p "$RUN_DIR"/{checkpoints,logs}
 export RAMPNET_DATA=/gscratch/scrubbed/jfroehli/rampnet_dataset
 export RAMPNET_EPOCHS=8
-sbatch --chdir="$RUN_DIR" \
+sbatch --dependency=afterok:$ENV_JOB \
+       --chdir="$RUN_DIR" \
        --export=ALL,RAMPNET_REPO,RAMPNET_ENV,RAMPNET_DATA,RAMPNET_EPOCHS \
        $HOME/RampNet/stage_two/run_train_epoch_curve.slurm
 ```
+
+If the env is already built from an earlier session, drop the `--dependency` and submit
+step 2 on its own; the build job is idempotent and re-running it just re-stamps.
 
 Both launchers are committed: `stage_two/run_build_env.slurm` and
 `stage_two/run_train_epoch_curve.slurm`. Neither hardcodes a path — repo, env, data root and epoch
@@ -178,10 +182,12 @@ count all come from the environment, with defaults documented in the file header
 Each checkpoint carries `model_state_dict` + Adam state + `current_val_loss`, so the auto-label arm
 of the curve is readable from the checkpoints themselves as well as from TensorBoard.
 
-**`runs/experiment_1/` is now committed** at `stage_two/run_a_84_events/` — six files, 4.0 MB. It is
-the only part of this run small enough to live in the repo, and it carries the entire auto-label
-result, so committing it is what makes the curve below reproducible by someone without cluster
-access. The checkpoints themselves (8.6 GB) stay on `/gscratch/makelab`.
+**`runs/experiment_1/` is now committed** at `stage_two/run_a_84_events/` — six files, 4.0 MB, with
+a `SHA256SUMS` beside them and a `.gitattributes` rule pinning them binary so no clone's
+`core.autocrlf` can quietly rewrite the bytes the hashes describe. It is the only part of this run
+small enough to live in the repo, and it carries the entire auto-label result, so committing it is
+what makes the curve below reproducible by someone without cluster access. The checkpoints
+themselves (8.6 GB) stay on `/gscratch/makelab`.
 
 Budget note: ~10 GB total. `/gscratch/makelab` was at 88% (905 GB / 1 TB, 119 GB free) at launch.
 That is fine for Run A but **Run B at 30–60 epochs would want 32–64 GB**, which needs checking
@@ -196,10 +202,22 @@ it, and it keeps the sweep off the queue-contended partition.
 change**. One run per checkpoint produces both required numbers:
 
 ```bash
+# Run from stage_two/. --data-root and --manual-labels default to ../dataset and
+# ../manual_labels, which are the repo-relative paths -- spell them out, because
+# `--dataset manual` needs BOTH (it pairs manual_labels/ with the panoramas under
+# <data-root>/test) and on makelab2 the panoramas are not where the defaults point.
 python evaluate.py --checkpoint <run_dir>/checkpoints/epoch_N_step_S.pth \
                    --dataset manual --threshold 0.0 --no-tta \
+                   --data-root <where the dataset is staged on the eval host> \
+                   --manual-labels ../manual_labels \
                    --results-dir evaluation_results/run_a_84/epoch_N
 ```
+
+The panoramas the manual labels index are the **test split** of the generated dataset, so
+`--data-root` must point at a directory containing `test/`. The 465 GB copy used for training is
+staged on klone's `/gscratch/scrubbed`; scoring runs on makelab2, so that host needs its own copy
+of the test split (21,438 panorama+JSON pairs) or the command fails with
+`FileNotFoundError("No image/label pairs found.")`.
 
 - `--threshold 0.0` keeps every peak, so the full curve is swept.
   `pr_rc_vs_c_data_manual_r0.022_pt0.0.csv` gives precision and recall at every unique confidence —
@@ -245,7 +263,9 @@ Four things bit during launch and are written down so the next person does not r
    already used, 4 GB free) and the pytorch/CUDA download alone is ~5 GB. The default
    `~/.conda/pkgs` blows the quota mid-solve.
 3. **Pre-warm the timm backbone.** `convnextv2_base.fcmae_ft_in22k_in1k_384` was not cached, so all
-   16 ranks would have raced to download it at step 0.
+   16 ranks would have raced to download it at step 0. This was done by hand at the time; it is
+   now a step inside `run_build_env.slurm`, so the next person gets it for free and does not run
+   a 350 MB download on a login node to get it.
 4. **Expect a slow first step.** `EquiHeatmapDataset.__init__` does an `os.path.exists` per JSON
    alongside `sorted(os.listdir(...))` — roughly 2.4M GPFS stat calls across 16 ranks before the
    first step. This is the committed code and the paper run paid it too; it is not a hang.
@@ -280,19 +300,23 @@ and have not been run. That gap is the remaining work, not an omission.
 
 | epoch | auto-label val loss | paper run | delta | vs. Run A min | `manual_gold` F1@0.30 | `manual_gold` max-F1 |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 1 | 0.00052194 | .000520 | +0.37% | +13.5% | | |
-| 2 | 0.00048067 | .000478 | +0.56% | +4.5% | | |
-| 3 | 0.00046341 | .000463 | +0.09% | +0.8% | | |
-| 4 | 0.00046485 | .000466 | −0.25% | +1.1% | | |
-| **5** | **0.00045976** | **.000458** | **+0.38%** | **min** | | |
-| 6 | 0.00046855 | .000468 | +0.12% | +1.9% | | |
-| 7 | 0.00047676 | .000470 | +1.44% | +3.7% | | |
-| 8 | 0.00048100 | .000473 | +1.69% | +4.6% | | |
+| 1 | 0.00052194 | 0.00052044 | +0.288% | +13.5% | | |
+| 2 | 0.00048067 | 0.00047826 | +0.503% | +4.5% | | |
+| 3 | 0.00046341 | 0.00046331 | +0.023% | +0.8% | | |
+| 4 | 0.00046485 | 0.00046562 | −0.166% | +1.1% | | |
+| **5** | **0.00045976** | **0.00045825** | **+0.331%** | **min** | | |
+| 6 | 0.00046855 | 0.00046813 | +0.090% | +1.9% | | |
+| 7 | 0.00047676 | 0.00046985 | +1.471% | +3.7% | | |
+| 8 | 0.00048100 | 0.00047271 | +1.755% | +4.6% | | |
+
+Both columns are read from committed TensorBoard events at full float32 precision — the paper
+run's included. The paper run continued to epoch 11 (0.00048359 / 0.00048679 / 0.00048711); those
+rows are omitted here because Run A stopped at 8 and the comparison is like-for-like.
 
 ![Stage 2 epoch curve: Run A vs the paper run, and each epoch's excess over Run A's own minimum](figures/stage2_epoch_curve_84.png)
 
-Reproduce from a clean clone — the event files are committed, so this needs no cluster access and no
-tensorboard install:
+Reproduce from a clean clone — **both** runs' event files are committed, so this needs no cluster
+access and no tensorboard install:
 
 ```bash
 python scripts/analysis/stage2_epoch_curve.py \
@@ -300,6 +324,11 @@ python scripts/analysis/stage2_epoch_curve.py \
     --out-csv docs/data/stage2_epoch_curve_84.csv
 python scripts/analysis/plot_epoch_curve.py      # -> docs/figures/stage2_epoch_curve_84.png
 ```
+
+Both directories carry a `SHA256SUMS`, and the script checks every event file against it on each
+read, so a corrupted or regenerated copy fails loudly instead of quietly producing a different
+curve. `--events-dir docs/data/rampnet1_stage2_run` reads the paper run's own curve directly, all
+11 epochs of it.
 
 The right-hand panel is the one to read for the decision. It plots each epoch's excess over Run A's
 *own* minimum, so it does not depend on the paper run at all: epochs 3–6 are a shallow basin, and
@@ -311,17 +340,23 @@ is invisible is the finding.
 
 **Run A's auto-label validation loss bottoms at epoch 5, exactly as the paper run does.** That was
 the pre-registered expectation and it held. The whole curve replicates, not just the minimum: the
-largest per-epoch delta is **1.69%**, the mean absolute delta is **0.61%**, and the *shape* matches
-turn for turn — down steeply through epoch 3, a small bump up at epoch 4, the minimum at 5, then
-monotone up through 8.
+largest per-epoch delta is **1.755%** (epoch 8), the mean absolute delta is **0.579%**, and the
+*shape* matches turn for turn — down steeply through epoch 3, a small bump up at epoch 4, the
+minimum at 5, then monotone up through 8.
 
 **Do not read the eight deltas as eight independent confirmations.** Both runs use seed 42 on the
 same data, so if the code is unchanged the dataloader order is the same and the curves are near-
 identical draws rather than independent samples. The correct reading is the one the issue asked for:
-whatever differs in the unrecoverable June-2025 code did not move this curve by more than ~1.7% at
-any epoch, so the *rest* of Run A can be read as a replicate rather than as a qualified re-run. The
-epoch-4 bump reproducing is evidence about the code, not evidence that the bump is a robust feature
-of the optimisation.
+whatever differs in the unrecoverable June-2025 code did not move this curve by more than **1.76%**
+at any epoch, so the *rest* of Run A can be read as a replicate rather than as a qualified re-run.
+The epoch-4 bump reproducing is evidence about the code, not evidence that the bump is a robust
+feature of the optimisation.
+
+The deltas are also not uniform across the curve, and the pattern is worth stating: epochs 1–6 agree
+to within 0.51%, while epochs 7 and 8 diverge to 1.47% and 1.76%. The two runs drift apart as
+training goes on, which is what one would expect from accumulated floating-point nondeterminism
+rather than from a recipe difference — but it does mean the tail of the curve is the least trustworthy
+part of the replication claim.
 
 ### The basin is shallow, and that is a caveat on "epoch 5"
 
@@ -344,14 +379,17 @@ requeue landed mid-epoch and the resumed job re-ran the tail of it from `latest_
 | `38541865` (died in rendezvous) | `g3047` | 0.00045980 |
 | `38566413` (carried on to epochs 6–8) | `g3045` | **0.00045976** |
 
-They agree to **0.009%**. This is not pure evaluation determinism — the two reconstructions of the
+They agree to **0.0090%**. This is not pure evaluation determinism — the two reconstructions of the
 end-of-epoch-5 state ran different numbers of steps from different resume points, so the figure
-bounds resume-path nondeterminism *and* evaluation together. Either way it is roughly **100× smaller
-than the 0.8–1.9% spread across the epoch 3–6 basin**, which says the ordering inside the basin is
-real structure rather than measurement jitter, even though it is too tight to select on confidently.
+bounds resume-path nondeterminism *and* evaluation together. Either way it is **88× smaller than the
+tightest gap in the epoch 3–6 basin** (epoch 3, at +0.79% over the minimum), which says the ordering
+inside the basin is real structure rather than measurement jitter, even though it is too tight to
+select on confidently.
 
 The table reports the second value, from the incarnation that actually continued into epochs 6–8.
-`scripts/analysis/stage2_epoch_curve.py` resolves duplicate steps last-writer-wins for that reason.
+`scripts/analysis/stage2_epoch_curve.py` resolves duplicate steps last-writer-wins for that reason,
+and reports any epoch it finds computed more than once — so this floor is re-derived from the events
+on every run rather than transcribed, and a future run with no requeue simply reports no floor.
 
 ### What is not answered yet
 
@@ -373,19 +411,28 @@ downstream.
 ## Provenance of the numbers in this doc
 
 - **Run A's curve** is re-derivable from this repo alone. The six TensorBoard event files the run
-  wrote are committed at `stage_two/run_a_84_events/` (4.0 MB total), and
-  `scripts/analysis/stage2_epoch_curve.py` extracts the curve from them with the standard library
-  only — it parses the TFRecord framing and the two protobuf messages directly rather than importing
-  tensorboard. Its output was cross-checked against
-  `tensorboard.backend.event_processing.EventAccumulator` on klone on 2026-08-17; both readers give
-  the same eight values to full float32 precision. The derived table is committed as
-  `docs/data/stage2_epoch_curve_84.csv`, and the script prints a sha256 for each event file it reads
-  so a regenerated copy can be proven identical.
-- **The paper run's column is not re-derivable from this repo**, and that is a real gap rather than
-  an oversight. Those values were transcribed in #104 from the surviving events of the June-2025 run
-  (the epoch-N weights were deleted in a 2025-07-11 cleanup); the raw events are not committed here,
-  so the column carries only the 3 significant figures at which it was transcribed. What would
-  unblock it: committing those rescued event files the same way Run A's are committed above.
+  wrote are committed at `stage_two/run_a_84_events/` (4.0 MB total) with a `SHA256SUMS` beside
+  them, and `scripts/analysis/stage2_epoch_curve.py` extracts the curve from them with the standard
+  library only — the TFRecord framing and the two protobuf messages are read directly rather than
+  by importing tensorboard, via `stage2_train_cost.read_scalars` (one reader, covered by
+  `tests/test_stage2_train_cost.py`, rather than a second copy that could drift). Its output was
+  cross-checked against `tensorboard.backend.event_processing.EventAccumulator` on klone on
+  2026-08-17; both readers give the same eight values to full float32 precision. The derived table
+  is committed as `docs/data/stage2_epoch_curve_84.csv`. Every event file is checked against
+  `SHA256SUMS` on every read, so a regenerated copy is *proven* identical rather than assumed to be.
+- **The paper run's column is re-derivable too.** Its surviving events were rescued in #104 and are
+  committed at `docs/data/rampnet1_stage2_run/` (18 files, `SHA256SUMS` alongside), so the column
+  here is read at full float32 precision by the same script — `--events-dir
+  docs/data/rampnet1_stage2_run` prints the paper run's own curve, all 11 epochs.
+
+  *An earlier draft of this doc claimed the opposite — that the raw events were not committed and
+  that the column could only carry 3 significant figures. That was wrong: the events landed in #104
+  before this branch was cut. The 3-s.f. transcription it described also understated the largest
+  per-epoch delta as 1.69% when the true value is 1.755%, which is why the numbers above are now
+  read from the events rather than typed in.*
+- **What is genuinely gone is the paper run's per-epoch weights**, deleted in a 2025-07-11 cleanup.
+  That is the gap Run A exists to close: the scalars survived, so the *loss* curve was never lost,
+  but `manual_gold` cannot be scored without checkpoints, and scoring it is the entire question.
 - **The `manual_gold` columns do not exist yet.** No eval has been run against any Run A checkpoint.
 
 One consequence worth stating before the numbers arrive rather than after: **if the outcome is
