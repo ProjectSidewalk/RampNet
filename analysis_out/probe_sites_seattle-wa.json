@@ -1,0 +1,38 @@
+{
+  "inventory": "seattle-wa-2026-07-31.jsonl.gz",
+  "seed": 20260731,
+  "sample": 40,
+  "exg_threshold": 20.0,
+  "sources": [
+    {
+      "source": "seattle-2019",
+      "zoom": 20,
+      "attribution": "King County GIS, KingCo_Aerial_2019",
+      "n_sites": 40,
+      "n_imagery": 40,
+      "n_blank": 0,
+      "coverage": 1.0,
+      "blank_rate": 0.0,
+      "vegetation_frac": 0.2488,
+      "mean_exg": 16.1,
+      "http": {
+        "200": 40
+      }
+    },
+    {
+      "source": "seattle-2025",
+      "zoom": 20,
+      "attribution": "King County GIS, KingCo_Aerial_2025",
+      "n_sites": 40,
+      "n_imagery": 40,
+      "n_blank": 0,
+      "coverage": 1.0,
+      "blank_rate": 0.0,
+      "vegetation_frac": 0.3995,
+      "mean_exg": 21.46,
+      "http": {
+        "200": 40
+      }
+    }
+  ]
+}

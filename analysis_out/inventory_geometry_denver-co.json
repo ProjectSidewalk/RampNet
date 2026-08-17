@@ -1,0 +1,156 @@
+{
+  "bbox": {
+    "lat_max": 39.85176418260755,
+    "lat_min": 39.542937170081125,
+    "lon_max": -104.66831603253196,
+    "lon_min": -105.36646740322584
+  },
+  "city": "denver-co",
+  "coincident": {
+    "records": 72,
+    "threshold_m": 0.5
+  },
+  "corner_clusters": {
+    "groups": 59984,
+    "link_m": 6.0,
+    "records_per_group": 1.2131568418244865,
+    "share_singleton": 0.7940950920245399,
+    "size_histogram": {
+      "1": 47633,
+      "2": 12020,
+      "3": 246,
+      "4": 76,
+      "5": 2,
+      "6": 5,
+      "7": 1,
+      "8": 1
+    }
+  },
+  "dates": {
+    "by_year": {
+      "2015": 54120,
+      "2016": 10,
+      "2017": 7391,
+      "2019": 5527,
+      "2021": 2854,
+      "2022": 84,
+      "2023": 2770,
+      "2024": 14
+    },
+    "undated": 0
+  },
+  "intersection_clusters": {
+    "groups": 16717,
+    "link_m": 30.0,
+    "records_per_group": 4.353053777591673
+  },
+  "inventory": "denver-co-2026-07-31.jsonl.gz",
+  "link_sweep": [
+    {
+      "groups": 71717,
+      "groups_per_intersection": 4.290064006699767,
+      "link_m": 3.0,
+      "records_per_group": 1.0146827112121255,
+      "share_singleton": 0.9857913744300515
+    },
+    {
+      "groups": 69543,
+      "groups_per_intersection": 4.160016749416761,
+      "link_m": 4.0,
+      "records_per_group": 1.0464029449405403,
+      "share_singleton": 0.954934357160318
+    },
+    {
+      "groups": 63925,
+      "groups_per_intersection": 3.8239516659687744,
+      "link_m": 5.0,
+      "records_per_group": 1.138365271802894,
+      "share_singleton": 0.864841611263199
+    },
+    {
+      "groups": 59984,
+      "groups_per_intersection": 3.588203625052342,
+      "link_m": 6.0,
+      "records_per_group": 1.2131568418244865,
+      "share_singleton": 0.7940950920245399
+    },
+    {
+      "groups": 54162,
+      "groups_per_intersection": 3.2399353951067775,
+      "link_m": 8.0,
+      "records_per_group": 1.3435619068719766,
+      "share_singleton": 0.6810679073889443
+    },
+    {
+      "groups": 45986,
+      "groups_per_intersection": 2.7508524256744633,
+      "link_m": 10.0,
+      "records_per_group": 1.582438133344931,
+      "share_singleton": 0.6989301091636585
+    },
+    {
+      "groups": 40000,
+      "groups_per_intersection": 2.392773823054376,
+      "link_m": 12.0,
+      "records_per_group": 1.81925,
+      "share_singleton": 0.69095
+    },
+    {
+      "groups": 31904,
+      "groups_per_intersection": 1.90847640126817,
+      "link_m": 14.0,
+      "records_per_group": 2.280905215646941,
+      "share_singleton": 0.53125
+    }
+  ],
+  "mean_latitude": 39.73118041145719,
+  "nearest_neighbour": {
+    "censored": 218,
+    "censored_note": "no neighbour within the 50 m grid block; counted in the denominator of every share below",
+    "histogram": [
+      132,
+      484,
+      1456,
+      4289,
+      11124,
+      7652,
+      10745,
+      4747,
+      21945,
+      7503,
+      1914,
+      390,
+      168,
+      3
+    ],
+    "histogram_edges_m": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      8,
+      10,
+      15,
+      20,
+      30,
+      50,
+      100,
+      "inf"
+    ],
+    "quantiles_m": {
+      "0.05": 3.4916877543749423,
+      "0.25": 5.081191317032292,
+      "0.5": 8.109332197422635,
+      "0.75": 13.829036626802939,
+      "0.95": 18.225549062417524
+    },
+    "share_within_0.5m": 0.000989418716504054,
+    "share_within_10m": 0.5583207365672668,
+    "share_within_2m": 0.008465026796756906,
+    "share_within_6m": 0.3454308093994778
+  },
+  "records": 72770
+}

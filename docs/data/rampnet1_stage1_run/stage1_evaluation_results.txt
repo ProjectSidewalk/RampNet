@@ -1,0 +1,21 @@
+Found 1000 common images.
+
+
+--- Dataset Label Accuracy Evaluation ---
+Source of 'Ground Truth' labels: ../../manual_labels
+Source of 'Predicted' labels: ../../dataset/test
+Matching radius threshold (normalized): 0.022
+-------------------------------------------------------------
+Number of common images processed: 1000
+Total Ground Truth points (from manual labels in common images): 3919
+Total 'Predicted' points from test split labels (in common images): 3972
+  -> 'Predicted' points considered (TP+FP): 3853
+  -> 'Predicted' points ignored (matched already-claimed GT): 119
+-------------------------------------------------------------
+True Positives (TP): 3623
+False Positives (FP): 230
+False Negatives (FN): 296
+-------------------------------------------------------------
+Precision (TP / (TP + FP)): 0.9403
+Recall    (TP / Total GT):  0.9245
+-------------------------------------------------------------

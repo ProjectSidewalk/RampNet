@@ -1,0 +1,18 @@
+{
+  "api": "arcgis",
+  "city": "denver-co-centerlines",
+  "count_query": "https://services1.arcgis.com/zdB7qR0BtYrg0Xpl/ArcGIS/rest/services/ODC_TRANS_STREETROUTE_U/FeatureServer/146/query?f=json&where=1%3D1&returnCountOnly=true",
+  "declared_count": 7866,
+  "endpoint": "https://services1.arcgis.com/zdB7qR0BtYrg0Xpl/ArcGIS/rest/services/ODC_TRANS_STREETROUTE_U/FeatureServer/146",
+  "fetched": "2026-07-31",
+  "first_query": "https://services1.arcgis.com/zdB7qR0BtYrg0Xpl/ArcGIS/rest/services/ODC_TRANS_STREETROUTE_U/FeatureServer/146/query?f=json&where=1%3D1&outFields=%2A&returnGeometry=true&resultRecordCount=2000&orderByFields=OBJECTID&outSR=4326",
+  "geometry": "polyline",
+  "note": "Denver street centrelines (geospatialDENVER ODC_TRANS_STREETROUTE_U), the same layer verify_chip_georeference.py already draws over the 2016 aerial. Control city: its reviewer-measured offset is 0.10 m resultant, i.e. random, so this test must read ~0 on it.",
+  "oid_field": "OBJECTID",
+  "out_sr": 4326,
+  "pages": 5,
+  "payload": "denver-co-centerlines-2026-07-31.jsonl.gz",
+  "records": 7866,
+  "sha256": "18fee0284839c04ea0598ee0785e262b50969facdea9bcfc5588d0fb1fa14c7e",
+  "where": "1=1"
+}

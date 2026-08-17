@@ -1,0 +1,17 @@
+{
+  "api": "arcgis",
+  "city": "sioux-falls-sd",
+  "count_query": "https://gis.siouxfalls.gov/arcgis/rest/services/Data/Transportation/MapServer/15/query?f=json&where=1%3D1&returnCountOnly=true",
+  "declared_count": 19991,
+  "endpoint": "https://gis.siouxfalls.gov/arcgis/rest/services/Data/Transportation/MapServer/15",
+  "fetched": "2026-07-31",
+  "first_query": "https://gis.siouxfalls.gov/arcgis/rest/services/Data/Transportation/MapServer/15/query?f=json&where=1%3D1&outFields=%2A&returnGeometry=true&resultRecordCount=5000&orderByFields=OBJECTID&outSR=4326",
+  "note": "Sioux Falls. Best install-date coverage found (37.6% undated).",
+  "oid_field": "OBJECTID",
+  "out_sr": 4326,
+  "pages": 5,
+  "payload": "sioux-falls-sd-2026-07-31.jsonl.gz",
+  "records": 19991,
+  "sha256": "68dc6f614949ffe254e542cc42ad2625035634bec8580031dc858e57f792dd46",
+  "where": "1=1"
+}

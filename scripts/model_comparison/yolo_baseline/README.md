@@ -5,7 +5,17 @@ trained on the RampNet dataset on Hyak (klone). It exists so the experiment surv
 `/gscratch/scrubbed`'s ~21-day auto-purge and is reproducible/defensible for the paper.
 
 > **Status:** the runs are in-flight (issue #51); live status is tracked there and the
-> finding is summarized in `docs/model_comparison.md`. The training code lives at its
+> finding is summarized in `docs/model_comparison.md` — though that summary predates the
+> 2026-07-29 findings below (the ckpt slice ceiling, the per-arm `best.pt` split, the fork)
+> and is deliberately left to be updated together with the final curves. **This file is the
+> current record; `docs/model_comparison.md` is behind it by design, not by oversight.**
+> Post-snapshot developments (status 2026-08-04) live in #51 rather than being re-snapshotted
+> here: the `y26_tiles_l40s` fork ran to its wall (TIMEOUT 2026-08-01 at ep18 — the 72 h cap
+> was self-imposed; `gpu-l40s` itself has `MaxTime=UNLIMITED`), and `y11x_pano` moved to
+> Tillicum on 2026-08-04 (job `207774`) to finish its schedule; both fold in with the
+> final-curves refresh. The one exception, folded in below because the 2026-07-31 decision in
+> #51 earmarked it for this file's grid: **`y11x_tiles` has been restarted** (see "Config
+> grid"). The training code lives at its
 > canonical paths — `scripts/model_comparison/run_yolo_train.slurm` and the repo-root
 > `hyak_yolo_runbook.sh` — merged in PR #76. (This record briefly carried as-run
 > snapshots of both; the only drift from the canonical copies was a display-only
@@ -35,7 +45,8 @@ in git, bulk/binary/regenerable out):
 
 ## Config grid
 
-Six configs = {YOLO11l, YOLO11x, YOLO26l} × {tiles @1024, pano @1280}. One dropped.
+Six configs = {YOLO11l, YOLO11x, YOLO26l} × {tiles @1024, pano @1280}. One dropped, since
+restarted (see below).
 
 | Config       | Model    | Input        | Base ckpt     | Batch |
 |--------------|----------|--------------|---------------|-------|
@@ -50,20 +61,228 @@ Batches are the as-run values from each run's committed `args.yaml`. `y11x_tiles
 submitted at batch 3, then resubmitted at batch 12 trying to finish an epoch inside the
 ckpt scheduling slice (its `args.yaml` is the batch-12 attempt); neither completed one.
 
-## Status & findings (snapshot: 2026-07-28, training in progress)
+**Update 2026-08-04: `y11x_tiles` is training after all** — restarted **fresh** on the
+non-preemptable `gpu-l40s` partition on 2026-08-03 (job `38063498`, node `g3103`,
+`--time=7-00:00:00`, started immediately), taking the venue decided 2026-07-31 in #51 once
+the `y26_tiles_l40s` fork released the lab node. As-run config: **batch 12**, with
+`optimizer=auto` kept per the decision so the arm fills the grid hole rather than creating a
+differently-scheduled config; the as-run submit line is committed on
+`exp/y11x-tiles-restart-51`. The batch **deviates from the 2026-07-31 decision comment**,
+which specified 6 to match the sibling tiles arms; the submission followed this grid's
+committed batch-12 pin instead — at eval time its `args.yaml` is the authority, not either
+note. It is a fresh start (no `last.pt` existed), so unlike the fork below it is a clean
+lineage with no shared-epochs caveat.
+
+There is a seventh **run directory** on scratch, `y26_tiles_l40s`, but it is **not a seventh
+config**: it is `y26_tiles` itself, resumed from its own epoch-3 checkpoint on a different
+partition with every hyperparameter unchanged. See "The `y26_tiles_l40s` fork" below.
+
+## Status 2026-08-09 — two arms have finished the full 60-epoch schedule
+
+Read live from `results.csv` on both clusters at **2026-08-09 ~16:00 PDT** and mirrored into
+`runs/*/results.csv` in this commit, so every number below is re-derivable from the repo
+rather than from a login session. Metrics are Ultralytics **validation** metrics on the
+auto-labelled val split at each arm's best epoch. They are the *selection* metric only —
+**not** the issue #51 headline, which is F1@conf0.25 against the benchmark. (As of
+2026-08-14 that benchmark eval **has now run for the three pano arms** — see "Benchmark
+eval — the pano trio" below; the tiles arms remain unevaluated.)
+
+| arm | epochs | best ep | mAP50 | mAP50-95 | state |
+|---|---:|---:|---:|---:|---|
+| `y11x_pano_h200` | **60/60** | 60 | 0.8351 | **0.53982** | complete (Tillicum) — grid leader |
+| `y11l_pano`      | **60/60** | 59 | 0.8283 | 0.52597 | complete (klone ckpt), finished 2026-08-09 12:07 PDT |
+| `y11x_pano`      | 30 | 30 | 0.8142 | 0.51609 | running on ckpt, still climbing |
+| `y26_pano`       | 55 | 54 | 0.7764 | 0.51518 | running on ckpt; recovered past the 08-07 quota kill |
+| `y11x_tiles`     | 21 | 21 | 0.7762 | 0.47072 | running on `gpu-l40s` — best tiles arm |
+| `y11l_tiles`     |  9 |  9 | 0.7655 | 0.46099 | running on ckpt (resumed advancing 08-09) |
+| `y26_tiles_l40s` | 18 | 16 | 0.6711 | 0.42544 | finished — patience stop (fork of `y26_tiles`) |
+| `y26_tiles`      |  9 |  9 | 0.6739 | 0.42171 | running on ckpt (resumed advancing 08-09) |
+
+**The pano comparison is settled at equal budget.** Two arms have now run the whole
+pre-registered 60-epoch schedule, so the yolo11x-over-yolo11l result no longer rests on
+extrapolating partial curves: **0.53982 vs 0.52597, a 0.0139 margin**. The two were level at
+ep30 (0.52012 vs 0.51996) and the gap opens entirely across the LR anneal. On tiles the same
+ordering holds at unequal epochs (`y11x_tiles` 0.47072 @ep21 over `y11l_tiles` 0.46099 @ep9),
+which is suggestive rather than settled.
+
+**Correction to the 2026-08-08 status comment: `y11l_pano` did not roll over.** That comment
+recorded it as "best ep41 0.5247, declining since ep41", which was true of the curve at the
+time. It went on to set a new best at **ep59 (0.52597)** and finished with its patience
+counter at 1/20 — so neither pano arm ever early-stopped, and both were still improving into
+the epoch wall. This is the outcome the 08-04 decision note argued for when it declined to
+call the ep31→42 plateau convergence: at ep41 the LR was still a third of peak and mosaic was
+still on. A run stopped there would have been reported in its weakest phase.
+
+**Neither completed arm can be extended.** Ultralytics strips the optimizer from `best.pt` and
+`last.pt` when a run reaches its final epoch, so both completed arms are now inference-only
+(`y11l_pano` 49 MB, `y11x_pano_h200` 114 MB, down from 152/342 MB). That is correct for a
+finished schedule, but it does mean ep60 is terminal for them: a longer schedule would be a
+new run, not a resumption.
+
+**Cluster maintenance, 2026-08-11.** Both klone and Tillicum carry the same reservation,
+`August11_Maintenance`, **2026-08-11 09:00 → 2026-08-12 09:00 PDT**, `ALL_NODES`. Slurm will
+not start anything that cannot finish before it. The consequence for this grid is specific:
+`y11x_tiles` hits its 7-day wall on **08-10 06:49**, and its already-queued continuation
+(`38304087`) is a 7-day request, so it will *not* pick up in the ~26 h gap — that arm stops at
+ep21 until after the window. The ckpt arms stop being scheduled as their 9 h slices stop
+fitting, roughly from 08-11 00:00.
+
+## Benchmark eval — the pano trio (2026-08-14)
+
+The three pano-geometry arms are the first checkpoints of this grid to be scored against
+the benchmark, under the pre-registered protocol below with nothing changed: `best.pt` as
+saved, one `compare.py` run per bundle, `--tiling none --yolo-imgsz 1280`, headline **F1 at
+conf 0.25**, match radius 0.022, all ten splits (nine cities + `manual_gold`). This was
+each test bundle's first and only contact with any YOLO checkpoint. The tiles arms are
+still training and remain unevaluated.
+
+**Provenance.** Run on makelab2 (A40), torch 2.13.0+cu130, **ultralytics 8.4.120 at
+inference vs 8.4.105 at training** (recorded, not assumed equivalent). Checkpoints are the
+durable-snapshot copies, sha256-verified against `.sha256.verified` before scoring:
+`y11l_pano` ep59 (`3893e5ec…`), `y26_pano` ep56 (`9aefb728…`), `y11x_pano_h200` ep60
+(`8ee4f7bf…`). The full per-bundle outputs, PR curves, and the as-run driver script are
+committed under [`benchmark_eval/`](benchmark_eval/); the per-pano detections are exported
+to `benchmark/model_detections/` (30 files, `--verify` confirmed identical scoring to the
+producing cache), so every number here re-scores from a clean clone with no checkpoint or
+GPU. Since both completed klone arms ran the full 60-epoch budget with patience (20) never
+firing, these are **budget-exhausted** models, not converged ones — the earlier
+"lower bound / undertrained" caveat is retired in its old form and survives only in that
+milder sense.
+
+### Headline: F1 at the pre-registered conf 0.25
+
+| split | y11l_pano | y26_pano | y11x_pano_h200 | RampNet | best zero-shot |
+|---|---:|---:|---:|---:|---:|
+| manual_gold | 0.839 | 0.739 | **0.851** | 0.908 | 0.568 (gemini-pro) |
+| bend | **0.713** | 0.637 | 0.710 | 0.850 | 0.638 (gemini-pro) |
+| morgantown | 0.675 | 0.681 | **0.686** | 0.835 | 0.639 (gemini-pro) |
+| sao_paulo | **0.662** | 0.605 | 0.659 | 0.777 | 0.454 (gemini-pro) |
+| paterson | **0.647** | 0.591 | 0.635 | 0.805 | 0.681 (gemini-pro) |
+| clovis | **0.600** | 0.552 | 0.551 | 0.801 | 0.503 (gemini-pro) |
+| richmond | **0.595** | 0.491 | 0.547 | 0.855 | 0.664 (gemini-pro) |
+| gainesville | **0.516** | 0.451 | 0.499 | 0.803 | 0.548 (gemini-pro) |
+| annapolis | **0.481** | 0.450 | 0.397 | 0.839 | 0.567 (gemini-pro) |
+| budapest_district5 | 0.247 | **0.277** | 0.221 | 0.644 | 0.381 (gemini-pro) |
+
+RampNet and zero-shot columns are the committed `docs/model_comparison.md` numbers, quoted
+for context; full P/R/AP and tp/fp/fn for every YOLO row are in `benchmark_eval/<split>.txt`.
+
+What the headline says:
+
+- **The dataset alone is a strong in-distribution detector but does not reproduce RampNet.**
+  On `manual_gold` — in-distribution GSV, independent GT, the anchoring control —
+  `y11x_pano_h200` reaches **0.851 vs RampNet's 0.908** (P 0.956 / R 0.767, AP 0.931 across
+  1,000 panos, zero failures), far above every zero-shot challenger. On the nine deployment
+  cities the gap to RampNet widens to 0.12–0.37: the supervised baseline degrades
+  out-of-domain much faster than RampNet does, worst on the far-field-heavy and non-US
+  splits (annapolis, gainesville, budapest).
+- **Against the zero-shot field it splits 5–5 at the headline threshold** — above the best
+  challenger on manual_gold, bend, clovis, morgantown, and sao_paulo; below it on richmond,
+  annapolis, budapest, gainesville, and paterson.
+- **budapest is the failure case worth quoting**: recall 0.13–0.18. The supervised model
+  nearly stops firing on non-US design vocabulary, landing *below* gemini-pro — training
+  data with a US-centric distribution bought in-domain strength at the price of the worst
+  OOD collapse in the comparison (with budapest's GT-confidence caveat attached as always).
+- **The val-split model ordering (x > l > 26) does not transfer to the headline.** y11l
+  leads y11x on 7 of 10 splits at conf 0.25 — but see the calibration finding: at the
+  sweep's best threshold the val ordering reappears, so the headline inversion is an
+  operating-point artifact, not a generalization result. y26 is last nearly everywhere in
+  both views.
+
+### The operating point is doing a lot of work — the profile is miscalibration, not blindness
+
+At conf 0.25 every arm is precision-heavy and recall-starved (P 0.90–0.99 while missing
+44–87% of GT ramps). The sweeps show much of that recall exists below the threshold —
+per-split best-F1 sits at conf 0.10–0.15, never at 0.25:
+
+| split | y11x best sweep F1 (thr) | vs its 0.25 headline | y11l best sweep F1 (thr) |
+|---|---:|---:|---:|
+| manual_gold | **0.893** (0.15) | +0.042 | 0.868 (0.15) |
+| morgantown | **0.813** (0.10) | +0.127 | 0.793 (0.15) |
+| bend | **0.802** (0.15) | +0.092 | 0.779 (0.15) |
+| richmond | **0.777** (0.10) | +0.230 | 0.736 (0.10) |
+| paterson | **0.776** (0.10) | +0.141 | 0.762 (0.10) |
+| sao_paulo | **0.754** (0.10) | +0.095 | 0.740 (0.15) |
+| clovis | **0.734** (0.10) | +0.183 | 0.687 (0.15) |
+| annapolis | **0.690** (0.05) | +0.293 | 0.663 (0.10) |
+| gainesville | **0.668** (0.10) | +0.169 | 0.672 (0.10) |
+| budapest_district5 | **0.510** (0.10) | +0.289 | 0.541 (0.10) |
+
+**These are tuned on test and are not headline numbers** — the sweep was always going to be
+printed under exactly that flag (protocol below). But the pattern is structural: the
+model's confidence distribution shifts down out-of-domain, so a fixed conf 0.25 amputates
+recall hardest exactly where the domain shift is largest (annapolis +0.293, budapest
++0.289). At best-sweep thresholds the gap to RampNet shrinks to 0.02–0.15 and y11x beats
+the best zero-shot challenger on all ten splits. This mirrors the RampNet-side finding of
+#54/#55 (deployment threshold 0.55 → 0.30): both detectors under-fire at their library
+default. A legitimate correction exists — select the operating point on the *val split*,
+per arm, and pre-register it as a protocol amendment — but it must be recorded that the
+idea is motivated by having seen these test sweeps, so any amended number stays clearly
+labelled as post-hoc-motivated even if val-selected. No such amendment is adopted in this
+commit; the headline remains F1@0.25.
+
+**AP is deliberately not compared against RampNet** in the tables above: the protocol's
+truncation caveat applies (RampNet's benchmark detections exist only above its 0.5 peak
+floor, so its committed AP is curve-truncated; the YOLO APs integrate from a 0.05 floor).
+YOLO AP is in each `benchmark_eval/<split>.txt` for YOLO-to-YOLO comparison.
+
+### What this answers, and what it leaves open (#51)
+
+The architecture-vs-data question now has its first half of an answer: **on pano geometry
+at equal (in fact 60× larger) training budget, the RampNet dataset gets a generic detector
+to within 0.06 of RampNet in-distribution, but nowhere near its out-of-domain robustness —
+so the keypoint architecture + full-resolution input are doing real, measurable work, and
+that work is concentrated in generalization, not in-domain fit.** Two mechanisms are the
+leading candidates for the residual gap, both testable: input resolution (1280 vs
+RampNet's 2048×4096 — a far-field ramp is ~3× smaller in pixels for YOLO; the still-training
+**tiles arms are exactly the resolution-controlled test**, since perspective views restore
+pixels-per-ramp on the same rig the VLMs are scored with), and point-labels-as-boxes
+supervision (the pitch-heuristic boxes are synthesized targets in precisely the dimensions
+YOLO's IoU/DFL losses optimize and the point-radius eval never scores). The 1-epoch
+RampNet release outperforming all three 60-epoch arms rules out training budget as the
+explanation.
+
+## Status & findings — first-week record (live check: 2026-07-29 ~20:45 PT)
+
+> **Superseded as a status report by the 2026-08-09 section above**, and kept because the
+> structural findings under it — the warmup-LR collapse, the failure signature, the ckpt slice
+> ceiling, the fork — are what that week established and are still what the record rests on.
+> The table immediately below is a 2026-07-29 point-in-time reading, not current.
 
 Val-split proxy mAP50 from `results.csv`. **Every config peaks at epoch 1, collapses at
 epoch 3, and recovers as the learning rate decays.** The instability is universal, not
 per-config — see the figures.
 
-| Config       | Epochs | best (ep) | Current mAP50 | Assessment |
-|--------------|--------|-----------|---------------|------------|
-| `y26_pano`   | 14     | 0.738 (1) | **0.659 ↑**   | ✅ fully round-tripped: 0.738 → 0.125 @ep6 → 0.659 @ep14, climbing |
-| `y11l_pano`  | 10     | 0.779 (1) | **0.183 ↑**   | 🟡 recovering — 7 epochs near 0, then 0.005 → 0.183 @ep10 |
-| `y26_tiles`  | 3      | 0.647 (1) | 0.280 ↓       | 🟡 in the dip, too early to call |
-| `y11l_tiles` | 3      | 0.655 (1) | 0.042 ↓       | 🟡 in the dip, too early to call |
-| `y11x_pano`  | 7      | 0.777 (1) | **0.000**     | ❌ five straight epochs at literal 0; no recovery yet |
-| `y11x_tiles` | 0      | —         | —             | ⏹ dropped 2026-07-27 (GPU-saturated: epoch ~10 h > ckpt slice) |
+> **The numbers in this table are *behind* the committed `runs/*/results.csv`**, which were
+> re-pulled from both clusters on 2026-08-09 and now cover all eight run directories. This
+> table is the 2026-07-29 reading; the CSVs are current. `figures/*.png` are still the
+> 2026-07-28 render and have **not** been regenerated — they show the collapse and early
+> recovery, not the completed schedules.
+
+| Config           | Epochs | best-val (ep) | Latest mAP50 | `best.pt` holds | Assessment |
+|------------------|--------|---------------|--------------|-----------------|------------|
+| `y26_pano`       | 20     | 0.738 (1)     | **0.730 ↑**  | **ep20 — current** | ✅ round-tripped 0.738 → 0.125 @ep6 → 0.730 @ep20; mAP50-95 0.475 ≫ ep1's 0.413 |
+| `y11l_pano`      | 14     | 0.779 (1)     | **0.767 ↑**  | **ep14 — current** | ✅ **unfroze at ep14** — 0.000 @ep4–5 → 0.183 @ep10 → 0.767 @ep14; mAP50-95 0.437 > ep1's 0.423 |
+| `y11x_pano`      | 9      | 0.777 (1)     | 0.061 ↑      | ep1             | ❌ five epochs at literal 0, **and now starved** — no completed epoch in ~15 h (see below) |
+| `y26_tiles`      | 3      | 0.647 (1)     | 0.280 ↓      | ep1             | ⏸ **blocked** — no completed epoch since 2026-07-28; forked to `gpu-l40s` (below) |
+| `y11l_tiles`     | 3      | 0.655 (1)     | 0.042 ↓      | ep1             | ⏸ **blocked** — no completed epoch since 2026-07-28 |
+| `y26_tiles_l40s` | 4      | 0.647 (1)     | 0.268 ↓      | inherited ep1   | 🆕 fork; **first new epoch landed** (ep4, 4.94 h) — still in the dip, as the LR schedule predicts |
+| `y11x_tiles`     | 0      | —             | —            | —               | ⏹ dropped 2026-07-27 (GPU-saturated: epoch ~10 h > ckpt slice); **restarted fresh on `gpu-l40s` 2026-08-03 — see "Config grid"** |
+
+**Two arms have now cleared epoch 1, so the grid is genuinely split.** For `y26_pano` the
+evidence is direct rather than an mtime inference: its `best.pt` and `last.pt` were
+byte-identical at ep18 (both sha256 `aac93e74…50bf`), and it has since advanced to ep20
+(mAP50-95 0.475 vs 0.413 @ep1). **`y11l_pano` unfroze at ep14** on 2026-07-30 02:29Z —
+`best.pt` mtime now equals `results.csv` mtime, and mAP50-95 0.437 finally beat ep1's 0.423
+after 12 epochs unbeaten. This was predicted one check earlier and is worth noting as
+confirmation that the recovery is real, not noise.
+
+The remaining **three** arms' `best.pt` files are still frozen at **epoch 1** — `y11x_pano`,
+`y11l_tiles`, `y26_tiles`, mtimes 2026-07-26 21:42 / 23:35 / 23:58, each roughly one epoch
+after the 18:10 job start, while their `last.pt` files are current. For `y26_tiles` this is
+confirmed exactly: the checkpoint's `best_fitness` is 0.35579, which is its epoch-1 mAP50-95
+to five decimals. **This split moves — re-check mtimes at eval time rather than trusting this
+table.**
 
 ### The instability: collapse tracks the warmup LR peak
 
@@ -106,6 +325,102 @@ precision reads 0 by the 0/0 convention, not from false positives). This matters
 interpretation — the instability suppresses detections, so a checkpoint caught inside the
 dip understates recall catastrophically and would badly misrepresent the baseline.
 
+### The ckpt slice ceiling: why the tiles arms stopped advancing (2026-07-29)
+
+This is a **second, independent limitation** and must not be folded into the LR instability
+above. The instability says an arm's scores got worse; this says an arm could not advance at
+all. From `sacct -X -D` over **158 scheduling segments** across the five jobs and 3.5 days:
+
+- **Longest contiguous segment ever granted: 8.24 h.** That is the ckpt slice limit — every
+  clean `REQUEUED` record ends at ~08:0x elapsed.
+- **Segments ≥ 9.5 h: zero.** For any arm, ever.
+- The partition also got far choppier from 2026-07-28T17:00: each arm then received ~19.4 h
+  of compute across 20–26 segments, **16–23 of them under one hour**. On 2026-07-29 alone the
+  five jobs accumulated **115 segments**.
+
+Against that ceiling, epoch time decides whether an arm can progress at all:
+
+| arm | epoch time | vs the 8.2 h ceiling | epochs completed in the ~28 h to 07-29 14:45 PT |
+|---|---|---|---|
+| `y26_pano`, `y11l_pano` | ~2.6–2.8 h | fits 2–3× per slice | +4, +3 |
+| `y11x_pano` | ~3.5–4 h | fits | +2 |
+| `y11l_tiles`, `y26_tiles` | 5.2 h → **~9.5 h** | **exceeds** | **0, 0** |
+
+**Ultralytics checkpoints only at epoch boundaries.** Once an epoch takes longer than the
+slice, every preemption discards the entire partial epoch and the arm can never advance — it
+burns GPU-hours and logs nothing. `y11x_tiles` was dropped on 07-27 for exactly this (~10 h
+epoch); the other two tiles arms are the same failure one notch slower, and it only became
+visible when cluster I/O slowed down.
+
+**The cause is I/O, not compute**, and it is in the training logs verbatim:
+
+```
+WARNING ⚠️ train: Slow image access detected (ping: 0.6±0.2 ms, read: 2.1±1.3 MB/s, size: 338.1 KB).
+```
+
+…across 557,413 train tiles. So tiles epoch time is **node- and contention-dependent, not a
+fixed property of the config**: ~5.2 h on a good ckpt landing (epochs 1–3, 07-26/27), ~9.5 h
+on a contended one (measured 07-29: 54% of an epoch in 5.15 h), and **4.94 h on a dedicated
+`gpu-l40s` L40S** with no allocation-mates competing for the filesystem — now **measured**, from
+the `time` column of the fork's completed epoch 4 (17,774.6 s). Its epoch 5 is tracking a little
+faster (~4.0 h at 6.4 it/s), so treat **~4–5 h** as the dedicated-node range rather than a single
+figure. An earlier draft of this file projected 4.1 h from 13% of an in-flight epoch; the real
+value came in ~20% higher, which is the usual direction for an early-epoch extrapolation. Note this also means
+a faster GPU alone would not help; and `gpu-l40s` nodes report `TMP_DISK=0`, so the dataset
+cannot be staged to node-local disk to fix it.
+
+**Refinement (2026-07-29 20:45 PT): the binding constraint is the *effective* preemption
+interval, not the 8.24 h nominal cap.** `y11x_pano` has now also stopped advancing — no completed
+epoch in ~15 h — despite an epoch of only ~3.4 h, which fits the nominal ceiling with room to
+spare. Its segments that evening ran 0:58, 2:30, 0:09, 0:18, 0:02, 0:27. So the rule is not
+"epoch < 8.24 h is safe"; it is **epoch < whatever contiguous run the partition currently
+hands out**, and that collapsed to minutes. The arm is *not* wedged — its progress counter is
+live (ep10, 12%, 7.2 it/s) — it simply keeps losing partial epochs. Any future capacity plan on
+`ckpt` should budget against the *observed* segment distribution, not the slice cap.
+
+**Consequence for the record.** Left on ckpt, `y26_pano` and `y11l_pano` (epochs ~2.6–2.8 h)
+plausibly reach the 60-epoch budget or their `patience` stop, while the two tiles arms — and now
+`y11x_pano` — stay frozen at their current `best.pt`. That is a **structural gap, not a slow
+one**, and reporting it as "undertrained" would misdescribe it.
+
+#### The `y26_tiles_l40s` fork (job `37889646`)
+
+To answer *"does the tiles representation recover like pano did?"* without cancelling
+anything, `y26_tiles` was forked onto **one** of makelab's two `gpu-l40s` GPUs
+(`--time=72:00:00`, node `g3100`), leaving the other free for students. `y26_tiles` was chosen
+over `y11l_tiles` because YOLO26 is the architecture that demonstrably recovers (`y26_pano`
+round-tripped) and it sat at 0.280 vs 0.042 — the likelier of the two to yield a usable
+number. **The original `y26_tiles` (job `37745360`) was not cancelled and still runs on ckpt.**
+
+Provenance, because a fork is easy to get silently wrong:
+
+- Resumed from the sha256-verified durable snapshot's `last.pt` (see "Where the weights live").
+- **Only these keys were rewritten** inside the checkpoint's `train_args`: `project`, `name`,
+  `save_dir`, `model`, `resume`. **This rewrite is mandatory.** Ultralytics' `resume=True`
+  restores *every* arg from the checkpoint — including `save_dir` — so an un-rewritten fork
+  resumes into the **original** run directory and corrupts a live training arm.
+- Asserted unchanged on read-back: `epoch=2` (0-based last-*completed* epoch, i.e. the
+  epoch-3 checkpoint, which resumes as the 1-based "epoch 4" below), `best_fitness=0.35579`,
+  `epochs=60`, `lr0`, `lrf`, `warmup_epochs=3.0`, `batch=6`, `imgsz=1024`, `seed=0`,
+  `patience=20`, `data`. So the fork is a faithful continuation of the same LR schedule, with
+  optimizer and EMA state intact — Ultralytics confirms `Resuming training … from epoch 4 to
+  60 total epochs`.
+- **Two lineages now share epochs 1–3.** Any reported tiles number must say which lineage it
+  came from. In practice they may never diverge, since the ckpt original has completed no
+  epoch since 07-28. *(Update 2026-08-04: they **have** diverged — the ckpt original resumed
+  completing epochs, reaching ep7 on 08-02, while the fork ran to ep18, so each lineage now
+  has its own post-ep3 epochs and the which-lineage rule is binding, not theoretical. See
+  #51.)*
+- **What this does and does not buy.** Per-epoch time is unchanged by the move (same shared
+  filesystem); what changes is the uninterrupted window. At the measured ~4–5 h/epoch, 72 h yields
+  roughly **14 epochs**, reaching ~ep18 — enough to show whether tiles turns the corner
+  (`y26_pano` turned by ep9), but **not** a converged 60-epoch tiles run.
+- **First fork epoch is in: ep4 = mAP50 0.268 / mAP50-95 0.111**, marginally *below* ep3's
+  0.280 / 0.119, with precision 0.497 and recall 0.201. This is the expected place in the
+  schedule, not a bad sign: ep3 is the warmup LR peak and the pano arms bottomed at ep4–ep6
+  before turning. The same "stops firing" signature (recall collapses, precision holds) is
+  present. **The recovery question stays open until ~ep9–10**, i.e. ~20–25 h of fork time.
+
 ### What is reportable today
 
 Epoch 1–2 are **not** a "pretrained artifact" — an earlier version of this record said so
@@ -116,6 +431,22 @@ and it is high because the LR was still in the low part of the warmup ramp. Each
 The honest caveat: these checkpoints are **undertrained** relative to a stable schedule, so
 any benchmark number from them is a **lower bound** on supervised-YOLO performance, and must
 be reported as such.
+
+**As of 2026-07-29 that caveat is per-arm, not uniform** — an earlier version of this record
+applied it to the whole grid, which now understates one arm and *overstates* the others:
+
+| arm | what `best.pt` actually is | how to report it |
+|---|---|---|
+| `y26_pano` (ep20), `y11l_pano` (ep14) | genuinely trained, still improving | undertrained relative to a 60-epoch stable schedule, but real models. A normal "lower bound" caveat. |
+| `y11x_pano`, `y11l_tiles`, `y26_tiles` | **epoch 1 of 60** | "lower bound" is too soft. These are *one-epoch models*, and the write-up must say so in those words — a reader will otherwise assume `best.pt` came from a converged run. |
+
+The distinction matters in both directions. Discounting `y26_pano` or `y11l_pano` as "1-epoch
+models" would understate the supervised baseline; reporting the three frozen arms as merely
+"undertrained" would overstate it.
+
+**This table has already moved once** — `y11l_pano` was in the bottom row at the 14:45 PT check
+and moved up by 20:45 PT, six hours later. So **re-check each `best.pt`'s mtime against its
+`results.csv` at eval time** and place the arms then; do not inherit this split.
 
 ## Pre-registered evaluation & checkpoint-selection protocol (issue #71)
 
@@ -138,6 +469,20 @@ stabilized rerun (#70) when it lands.
    2026-07-28). RampNet's published checkpoint was selected by the same principle:
    best **validation loss** on the dataset's val split (`stage_two/train.py`), never a
    benchmark number.
+
+   > **Correction, 2026-08-08 — the formula named above is not the one that ran.** The
+   > parenthetical "default weighting, 0.1·mAP50 + 0.9·mAP50-95" is wrong for the
+   > Ultralytics build these runs use: it computes fitness as **mAP50-95 alone**. This was
+   > established from the artifact rather than the docs — `y26_pano/best.pt` stores
+   > `best_fitness` 0.50966, which equals its epoch-44 `metrics/mAP50-95(B)` exactly, while
+   > the blend would have picked epoch 50. The pre-registered *rule* is unaffected, because
+   > it delegates to "`best.pt` exactly as Ultralytics saves it" and that is what every arm
+   > reports, and the **arm ranking is identical under either formula**. What changes is
+   > that any analysis recomputing "best epoch" from `results.csv` must rank on mAP50-95,
+   > not on the blend — several #51 status comments before 2026-08-08 quote blended values,
+   > which run about +0.030 above the mAP50-95 for the same epoch. Corrected here as a
+   > dated note rather than by editing the original wording, since this section is a
+   > pre-registration.
 2. **Config selection — on val, and it controls emphasis only.** Which config
    headlines each family (YOLO11 vs YOLO26) in the main text is decided by the same
    internal val fitness at `best.pt`. Stated caveat: tiles and pano configs have
@@ -197,7 +542,11 @@ protocol governs the results that will replace that note.
   earlier draft of this record said `fixed:0.03` — that was the runbook's old
   default, not what ran.)
 - **Toolchain:** Ultralytics 8.4.105 · Python 3.11.15 · torch 2.13.0+cu126.
-- **Hardware:** NVIDIA L40 (45 GB), 1 GPU/job, Hyak `ckpt-g2` (preemptable/requeue).
+- **Hardware:** NVIDIA L40 (45 GB), 1 GPU/job, Hyak `ckpt-g2` (preemptable/requeue). The
+  `y26_tiles_l40s` fork instead runs on Hyak `gpu-l40s` (makelab's own allocation,
+  non-preemptable, `MaxTime=UNLIMITED`), 1 GPU, NVIDIA L40S (45 GB), node `g3100`. Because
+  ckpt schedules onto whatever GPU is idle (l40/l40s/h200), per-epoch wall time varies across
+  requeues even within one arm — see "The ckpt slice ceiling".
 - **Hyperparameters (resolved):** `epochs=60`, `patience=20`, `optimizer=auto`,
   `lr0=0.01`, `lrf=0.01`, `momentum=0.937`, `weight_decay=0.0005`, `warmup_epochs=3.0`,
   `close_mosaic=10`, `amp=true`, `seed=0`. Per-run detail in each `runs/<config>/args.yaml`.
@@ -209,14 +558,84 @@ protocol governs the results that will replace that note.
   batch-12 resubmit 37809205, scancel'd 2026-07-27) · y26_tiles 37745360 · y11l_pano
   37745361 · y11x_pano 37745362 · y26_pano 37745363. The job↔config map was read off
   the `yolo_train_<jobid>.out` log headers during the 2026-07-27 preemption check.
-  Dataset-download job 37649635; prep job 37677130.
-- **Run dates:** 2026-07-26 → in progress as of 2026-07-28.
+  Dataset-download job 37649635; prep job 37677130. The `y26_tiles_l40s` fork is job
+  **37889646** (`gpu-l40s`, submitted 2026-07-29 ~13:55 PT).
+- **Run dates:** 2026-07-26 → in progress as of 2026-07-29.
+- **Mail flags are not in the launcher.** The five original jobs carry
+  `MailType=END,FAIL,TIME_LIMIT`, which was passed on the 07-26 sbatch command line, not set by
+  `run_yolo_train.slurm` (a fresh submission of the same script gets no mail config). On a
+  preemptable partition that means one email per preemption — 115 of them on 2026-07-29 alone.
+  **This volume is accepted deliberately** (Jon, 2026-07-29: "I'm fine with still getting the
+  mail"), so it is recorded here as context for reading the run history, not as a defect to fix.
+  A future rerun that wants quiet should omit the flags or narrow them to `TIME_LIMIT`; note they
+  must be set per-job with `scontrol update`, since the launcher never sets them.
 
 ## Where the weights live
 
 `best.pt` files are **not** in git. Durable homes:
 
-_TODO — stage to Hugging Face (`projectsidewalk/…`) or lab storage and record the URL here._
+**Durable lab storage** — first staged 2026-07-29 while the runs were still going, refreshed
+2026-08-03, 08-08 and 08-09:
+
+```
+/gscratch/makelab/jonf/rampnet_yolo_baseline_51/
+  <arm>/{results.csv,args.yaml,weights/{best.pt,last.pt}}   # 8 arms, ~3.2 GB total
+  MANIFEST.md                    # per-arm epochs/metrics, Slurm job IDs, provenance prose
+  MANIFEST-<date>.md             # every superseded manifest, kept rather than overwritten
+  .sha256.verified               # 50 entries; `sha256sum -c` re-checks the whole snapshot
+```
+
+Arms, as of the 2026-08-09 refresh: `y11l_pano`, `y11x_pano`, `y11x_pano_h200`, `y26_pano`,
+`y11l_tiles`, `y11x_tiles`, `y26_tiles`, `y26_tiles_l40s` — i.e. every run directory that
+exists, including the Tillicum arm and the fork. Their `results.csv` and `args.yaml` are also
+committed to this repo under `runs/`, so the curves are re-derivable from a clean clone even
+if the weights are not.
+
+This was done because the weights existed **only** on `/gscratch/scrubbed`, which auto-purges
+after ~21 idle days — and the run directories date from 07-26, so the clock starts the moment
+the jobs stop writing. `/gscratch/makelab` is not scrubbed.
+
+**Refreshed 2026-08-09, and the refresh is now a committed script.** `snapshot_runs.sh` in
+this directory mirrors the live run directories to that path with end-to-end sha256
+verification, and replaces the hand-assembled procedure that produced the earlier manifests —
+a backup nobody else can re-run is not a backup this repo can rely on. Run it with no
+arguments for every arm, or name arms to do a subset:
+
+```bash
+scripts/model_comparison/yolo_baseline/snapshot_runs.sh              # all arms
+scripts/model_comparison/yolo_baseline/snapshot_runs.sh y11l_pano    # one arm
+cd /gscratch/makelab/jonf/rampnet_yolo_baseline_51 && sha256sum -c .sha256.verified
+```
+
+Two properties matter for this particular failure history. Each file lands as `<name>.tmp`
+and is renamed only once its hash matches the source, so a quota failure mid-write leaves the
+previous verified copy **intact** — that is exactly the failure that truncated
+`y26_pano/weights/last.pt` to 144 MiB on 08-07. And because running arms rewrite `last.pt` at
+every epoch boundary, the source is hashed before *and* after each copy and retried if it
+moved, so a torn read cannot be silently recorded as verified.
+
+The 2026-08-09 run copied 18 files and left 10 unchanged, 0 failed, across all **8** run
+directories, and the full `.sha256.verified` list (50 entries) then re-verified clean. This
+is the first snapshot to contain `y11l_pano` at its completed ep60 — which until that copy
+existed only on `/gscratch/scrubbed`.
+
+**It is a point-in-time copy that gets refreshed, not a mirror.** #51's 2026-08-02 check
+found exactly the failure mode to expect: the pack still held the 07-29 state, predating
+every checkpoint then worth keeping, with the completed `y26_tiles_l40s` fork — the only
+converged run — absent entirely. It was refreshed on **2026-08-03** to all six arms, 24/24
+files sha256-verified, with the superseded manifest preserved as `MANIFEST-2026-07-29.md`
+rather than overwritten (that one had captured `y11x_pano` mid-collapse at 9 ep / 0.024,
+which reads as a result if taken at face value). The 08-04 Tillicum migration resumed
+`y11x_pano` from this snapshot's `last.pt`, sha256-matched end to end (#51). So: **trust a
+copy only after checking `MANIFEST.md`'s date against the live run state** — the runs keep
+moving, and a stale snapshot does not announce itself.
+
+`last.pt` is kept alongside `best.pt` deliberately: `best.pt` is what the #71/#80 protocol
+reports, but only `last.pt` carries the optimizer/EMA state needed to *resume* an arm (which is
+exactly what the `y26_tiles_l40s` fork above needed).
+
+Still open: publishing to Hugging Face (`projectsidewalk/…`) if these become a released
+artifact rather than an internal baseline. Lab storage is durable but not public.
 
 Keep **every** run's `best.pt`, including the ones that collapsed. An earlier version of
 this record called those non-reportable epoch-1 artifacts and proposed letting them expire;

@@ -22,6 +22,20 @@
 <p>
 <strong>RampNet</strong> is a two-stage pipeline that addresses the scarcity of curb ramp detection datasets by using government location data to automatically generate over 210,000 annotated Google Street View panoramas. This new dataset is then used to train a state-of-the-art curb ramp detection model that significantly outperforms previous efforts. In this repo, we provide code for training and testing our system.
 </p>
+
+> [!NOTE]
+> **Looking for a fixed version of this repository?** There are two tagged releases:
+> [`v1.0-iccv2025`](https://github.com/ProjectSidewalk/RampNet/releases/tag/v1.0-iccv2025) is the
+> repository frozen at paper state — use it to reproduce the ICCV'25 paper exactly as written.
+> [`v1.1-corrected-eval`](https://github.com/ProjectSidewalk/RampNet/releases/tag/v1.1-corrected-eval)
+> is the same code and the same model weights with the **corrected evaluation protocol** (see the
+> [Erratum](#erratum-evaluation-metrics-july-2026) below) — use it to score RampNet's model under
+> standard one-to-one matching. The `main` branch keeps evolving (post-paper analyses, benchmarks,
+> and groundwork for what comes next), while the published
+> [model](https://huggingface.co/projectsidewalk/rampnet-model) and
+> [dataset](https://huggingface.co/datasets/projectsidewalk/rampnet-dataset) on Hugging Face are
+> versioned independently and match the paper.
+
 <br>
 
 ## Citation

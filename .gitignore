@@ -2,10 +2,17 @@
 dataset
 *.out
 *.err
+# ...except the rescued Stage 1 run log. `*.out` is there to keep Slurm stdout out of
+# the repo, but this particular Slurm stdout IS the evidence: it is the only surviving
+# record of which panoramas Google refused, docs/data/rampnet1_stage1_run/SHA256SUMS
+# checksums it, and scripts/analysis/stage1_yield.py reads it by default -- so without
+# it that script cannot run from a clean clone.
+!docs/data/rampnet1_stage1_run/*.out
 .venv/
 *.egg-info/
 benchmark/*/panos/
 benchmark/*/gallery/
+benchmark/*/box_gallery/
 benchmark/*/heatmap_cache/
 .env
 view_dump/
@@ -36,6 +43,19 @@ analysis_out/op/*
 !analysis_out/op/*.csv
 !analysis_out/op/*.json
 
+# Stage 1's coordinate-tolerance result (#96): a few KB, and it is what converts an
+# offset distribution into a decision. Re-derivable on CPU from the committed
+# benchmark bundles plus any verdicts file.
+!analysis_out/stage1_offset_tolerance.json
+# Per-city tolerance runs (--verdicts <city>), e.g. charlotte-nc. Same few KB, and
+# they are what turn a city's offset distribution into a labels-lost number.
+!analysis_out/stage1_offset_tolerance_*.json
+
+# Stage 1's realised bearing residual (#96): a few KB, and it is the null that makes
+# any future city's registration number interpretable. Regenerating it needs a Hub
+# fetch, so committing it keeps the 5j table checkable from a clean checkout.
+!analysis_out/stage1_bearing_residual.json
+
 # E1's result (#59): a few KB, and committing it makes the label-ceiling numbers
 # checkable without re-running the Hub fetch the script needs to regenerate them.
 !analysis_out/e1_stage1_label_recall.json
@@ -52,10 +72,63 @@ analysis_out/op/*
 # Which silent misses another model witnessed (#46). Small, and it carries the
 # unwitnessed list that is the gallery's actual work queue.
 !analysis_out/silent_witness.json
+# Whether a Gemini leg's zero-detection panoramas are real "no ramps here" or lost
+# responses (#120 review). A few hundred bytes, and it is the evidence behind
+# reading gemini-3.7-flash as conservative rather than broken.
+!analysis_out/empty_response_check.json
+# What every paid-model run spent, appended at the time it ran (compare.py
+# --usage-log). A few hundred bytes per leg, and it is the only durable record of
+# API spend -- the billing console's retention is ~6 weeks, so an uncommitted copy
+# becomes unrecoverable rather than merely inconvenient. Append-only; never rewrite
+# a past line, since each one is a measurement.
+!analysis_out/usage_log.jsonl
+# Crop-window sizing eval summaries (#114): per-rule containment/context stats plus
+# the sha256 of the per-box CSV each summarizes (the CSVs themselves regenerate).
+# The glob also covers per-bundle runs against box_gallery extent gold (#116),
+# e.g. crop_window_eval_richmond.json.
+!analysis_out/crop_window_eval.json
+!analysis_out/crop_window_eval_*.json
 
 # Generated tagging pages live next to their (committed) galleries; regenerate with
 # scripts/analysis/make_tagger.py rather than tracking a build artifact.
 benchmark/**/tagger.html
+
+# Per-ramp/per-corner geometry reports (#96): a few KB each, and they hold the exact
+# numbers quoted in docs/curb_ramp_data_sourcing.md 5d, re-derivable on CPU from the
+# committed snapshots under data/inventories/.
+!analysis_out/inventory_geometry_*.json
+
+# Location-precision review sheets (#96). The verdicts -- and the tile keys recording
+# which imagery produced them -- are the irreplaceable part, so verdicts.json is tracked.
+# review_sheet.html is not: it embeds basemap tiles under terms that do not permit
+# re-hosting, and it regenerates from the committed script plus the recorded seed. The
+# tile caches beside it are likewise someone else's imagery.
+!analysis_out/review_*/
+analysis_out/review_*/*
+!analysis_out/review_*/verdicts.json
+# summary.json too: it is the reduction quoted in 5f, a few KB, and committing it
+# means a reader can check a figure in the prose against the table it came from
+# without re-running anything. Regenerable from verdicts.json by
+# scripts/analysis/inventory_review_summary.py.
+!analysis_out/review_*/summary.json
+
+# Georeference check (#96): the JSON is the evidence that the sheet's crosshair and
+# rings are true, and the two PNGs are what a reader looks at to agree. Small, and
+# the whole point is that a claim of correct registration is checkable rather than
+# asserted. The tile cache beside them is someone else's imagery.
+# One directory per city since §5i (georef_check_denver-co, georef_check_seattle-wa),
+# plus the _chips variant that measures under a specific review's own verdicts.
+!analysis_out/georef_check_*/
+analysis_out/georef_check_*/*
+!analysis_out/georef_check_*/georef_check.json
+!analysis_out/georef_check_*/registration_*.png
+# The _chips variant re-renders the SAME two visual sites as its city's run, so
+# its PNGs are duplicates; only its JSON says anything new (the per-chip medians).
+analysis_out/georef_check_*_chips/registration_*.png
+
+# Ramps vs the city's own centrelines (§5i). Numbers only, no imagery — this is
+# the leg that exonerated Seattle's coordinates, so it has to be checkable.
+!analysis_out/centerline_offset_*.json
 
 # Claude Code local state. settings.local.json is per-machine (absolute paths,
 # session ids) and worktrees/ holds full repo checkouts -- gigabytes. Listed
@@ -80,3 +153,20 @@ benchmark/*/index.csv
 # scripts/model_comparison/yolo_baseline/README.md, "Where the weights live").
 *.pt
 *.pth
+
+# Cached parquet columns for scripts/analysis/stage1_bearing_residual.py.
+# Derived from the published HF dataset on demand; regenerable with --refresh.
+analysis_out/stage1_bearing_cache/
+
+# At-the-sites basemap probes (#96): a few KB each, and they carry the paired
+# vegetation/coverage numbers a tile-source choice is justified by.
+!analysis_out/probe_sites_*.json
+
+# At-the-sites GSV pano probes (#103): the street sheet's dry run at exactly
+# its sites — pick rate, date coverage, per-site failures with reasons. The
+# evidence that the sample was checked before the build.
+!analysis_out/probe_panos_*.json
+
+# Inventory discovery sweep (#96): the candidate list, with record counts. A few
+# tens of KB, and it is the evidence that supply is not the constraint.
+!analysis_out/inventory_discovery.json
