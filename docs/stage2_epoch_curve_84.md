@@ -295,19 +295,24 @@ nothing but the requeue.
 
 ## Results
 
-**Auto-label half: complete.** `manual_gold` columns are still empty — those are scored separately
-and have not been run. That gap is the remaining work, not an omission.
+**Both halves complete**, scored 2026-08-17. The single-pass `manual_gold` arm below answers the
+pre-registered question. A protocol-matched TTA arm for the cross-comparison to the paper is
+reported separately further down.
 
-| epoch | auto-label val loss | paper run | delta | vs. Run A min | `manual_gold` F1@0.30 | `manual_gold` max-F1 |
-| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 1 | 0.00052194 | 0.00052044 | +0.288% | +13.5% | | |
-| 2 | 0.00048067 | 0.00047826 | +0.503% | +4.5% | | |
-| 3 | 0.00046341 | 0.00046331 | +0.023% | +0.8% | | |
-| 4 | 0.00046485 | 0.00046562 | −0.166% | +1.1% | | |
-| **5** | **0.00045976** | **0.00045825** | **+0.331%** | **min** | | |
-| 6 | 0.00046855 | 0.00046813 | +0.090% | +1.9% | | |
-| 7 | 0.00047676 | 0.00046985 | +1.471% | +3.7% | | |
-| 8 | 0.00048100 | 0.00047271 | +1.755% | +4.6% | | |
+| epoch | auto-label val loss | paper run | delta | vs. Run A min | `manual_gold` F1@0.30 | `manual_gold` max-F1 | AP |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | 0.00052194 | 0.00052044 | +0.288% | +13.5% | 0.9052 | 0.9064 | 0.9138 |
+| 2 | 0.00048067 | 0.00047826 | +0.503% | +4.5% | 0.9120 | 0.9165 | 0.9218 |
+| 3 | 0.00046341 | 0.00046331 | +0.023% | +0.8% | 0.9128 | **0.9191** | **0.9252** |
+| 4 | 0.00046485 | 0.00046562 | −0.166% | +1.1% | 0.9131 | 0.9171 | 0.9198 |
+| **5** | **0.00045976** | **0.00045825** | **+0.331%** | **min** | 0.9143 | 0.9179 | 0.9178 |
+| 6 | 0.00046855 | 0.00046813 | +0.090% | +1.9% | **0.9161** | 0.9165 | 0.9144 |
+| 7 | 0.00047676 | 0.00046985 | +1.471% | +3.7% | 0.9103 | 0.9110 | 0.9066 |
+| 8 | 0.00048100 | 0.00047271 | +1.755% | +4.6% | 0.9088 | 0.9124 | 0.9085 |
+
+Per-epoch precision and recall at 0.30, which the F1 column hides and which matter to the reading
+below: 0.914/0.896, 0.910/0.914, 0.910/0.916, 0.920/0.907, 0.923/0.906, 0.934/0.899, 0.944/0.879,
+0.917/0.901.
 
 Both columns are read from committed TensorBoard events at full float32 precision — the paper
 run's included. The paper run continued to epoch 11 (0.00048359 / 0.00048679 / 0.00048711); those
@@ -391,22 +396,84 @@ The table reports the second value, from the incarnation that actually continued
 and reports any epoch it finds computed more than once — so this floor is re-derived from the events
 on every run rather than transcribed, and a future run with no requeue simply reports no floor.
 
-### What is not answered yet
+### The answer: there is no resolvable human peak, and none of the three branches fires
 
-The pre-registered question — **does `manual_gold` F1 peak before, at, or after epoch 5?** — is
-untouched. Nothing in this section bears on it: the auto-label curve is the machine-label half, and
-the entire point of the run is that the human half can disagree with it. The 8 checkpoints exist at
-`/gscratch/makelab/jonf/rampnet_run_a_84/checkpoints/` (~1.07 GB each) and the scoring commands are
-in **Scoring the curve** above; no eval has been run.
+The pre-registration asked whether `manual_gold` F1 peaks **before, at, or after** epoch 5. Applying
+its own **0.01 tie bar**, the honest answer is *none of those*:
 
-**The Run B gate is therefore also unevaluated.** It reads on the calibration-free `manual_gold`
-curve, not on validation loss — "Run B runs unless every epoch ≥ 2 is below epoch 1 by more than the
-tie bar". Nothing in the auto-label curve can trip or clear it, and Run B has not been submitted.
+**Only epoch 1 clears the tie bar below the maximum — on both columns.** Epochs 2–8 are all
+statistically tied with one another. F1@0.30's nominal peak is epoch 6 (0.9161), and every other
+epoch from 2 on sits within 0.0073 of it. max-F1's nominal peak is epoch 3 (0.9191), and epochs 2–6
+sit within 0.0026 of *that*. The curve steps up once, from epoch 1 to epoch 2, and is then flat.
 
-One consequence worth stating before the numbers arrive rather than after: **if the outcome is
-"select on human F1", then selecting on `manual_gold` stops it being a clean benchmark.** The fix
-needs a held-out human split for selection. Noting the constraint here so it is not discovered
-downstream.
+So "earlier than 5" is not supported — nothing peaks and then declines. "At ~5" is true only in the
+weak sense that 5 lies inside the plateau, and so do 2, 3, 4 and 6. This is a fourth outcome the
+pre-registration did not enumerate, and it is recorded as such rather than forced into the nearest
+listed branch.
+
+### What *does* land: auto-val reports a decline that human quality cannot see
+
+Between epoch 5 and epoch 8 the auto-label validation loss **rises 4.6%**, which is exactly the
+signal `train.py` selects on and exactly what "overfitting" looks like to it. Over the same range
+`manual_gold` F1@0.30 moves 0.9143 → 0.9088 — a drop of **0.0055, inside the tie bar**, and max-F1
+moves 0.9179 → 0.9124, likewise inside it.
+
+**The selection signal reports a degradation that is not there.** That is the pre-registration's
+third branch — "auto-val is the wrong selection signal" — arriving by a different route than
+anticipated: not because the human peak is *later*, but because auto-val's post-epoch-5 rise does
+not correspond to any measurable loss of detection quality. Which is what one would expect if part
+of that loss is agreement with **Stage 1's own errors** rather than with curb ramps.
+
+Note this is a weaker claim than "auto-val is useless". It gets epoch 1 right — the one epoch the
+human curve also separates — and it is free. What it cannot do is discriminate inside the plateau,
+which is precisely where the released-model decision sat.
+
+### Two of three metrics point at epoch 3, and recall is why it matters
+
+F1@0.30 nominates epoch 6; **max-F1 and AP both nominate epoch 3**, and AP falls monotonically after
+it (0.9252 → 0.9085 by epoch 8). AP integrates the whole confidence range instead of reading one
+point on it, so it is the least threshold-sensitive of the three and the most worth weighting.
+
+The reason the two columns disagree is visible in the precision/recall split, and it is not noise —
+**the operating point drifts steadily across the plateau**:
+
+| | epoch 3 | epoch 6 | epoch 7 |
+| :--- | ---: | ---: | ---: |
+| precision @0.30 | 0.910 | 0.934 | 0.944 |
+| recall @0.30 | 0.916 | 0.899 | 0.879 |
+| conf at max-F1 | 0.440 | 0.283 | 0.268 |
+
+Later epochs buy F1 with precision and pay for it in recall. Under this project's recall-first
+stance — a false negative is a permanent loss, a false positive is cheap to filter — **epoch 3 is
+the better checkpoint than epoch 6 despite the lower F1@0.30**, on +1.7 recall points at
+indistinguishable F1 and a higher AP. F1 alone would have picked the wrong one, which is the
+concrete case for why the amendment demanded the calibration-free column alongside the fixed one.
+
+### Was the released model undertrained? Yes — by about one epoch
+
+Epoch 1 is the only clearly inferior checkpoint on the human curve, and the gap to the plateau is
+**+0.007 to +0.011 F1**. One further epoch costs 3.75 h on 16 GPUs (~60 GPU-h) and recovers
+essentially all of it.
+
+That is a smaller prize than the auto-label curve implied. Val loss says epoch 1 is **13.5%** worse
+than epoch 5; human F1 says it is about **1 point** worse. Both are true, and the difference between
+them is the whole finding.
+
+### The Run B gate: PASSES, so Run B is not cancelled
+
+The gate is "Run B runs **unless** the curve degrades — every epoch ≥ 2 below epoch 1 by more than
+the tie bar", read on the calibration-free column. Every epoch from 2 to 8 is *above* epoch 1 on
+max-F1, so nothing resembling degradation occurred and **the gate does not cancel Run B**.
+
+Worth flagging honestly against that: the plateau is also evidence that a *longer* Run B may buy
+little on this benchmark. The gate as written is a degradation check, not a value check, and it
+passes on its own terms; whether Run B is still the best use of the GPU-hours is a separate call
+that this curve informs but does not make.
+
+One consequence, stated before it is discovered downstream: **if the outcome is "select on human
+F1", then selecting on `manual_gold` stops it being a clean benchmark.** Nothing above requires that
+yet — the honest reading is that no epoch in 2–8 is distinguishable, so any of them can be chosen on
+other grounds (recall, AP, cost) without the benchmark being used as a selection set.
 
 ## Provenance of the numbers in this doc
 
@@ -433,7 +500,28 @@ downstream.
 - **What is genuinely gone is the paper run's per-epoch weights**, deleted in a 2025-07-11 cleanup.
   That is the gap Run A exists to close: the scalars survived, so the *loss* curve was never lost,
   but `manual_gold` cannot be scored without checkpoints, and scoring it is the entire question.
-- **The `manual_gold` columns do not exist yet.** No eval has been run against any Run A checkpoint.
+- **The `manual_gold` columns** were scored on makelab2 (A40) on 2026-08-17, one `evaluate.py` run
+  per checkpoint, ~12.5 min each. All 8 checkpoints were sha256-verified against the klone originals
+  before scoring, and `evaluate.py` stamps each checkpoint's fingerprint into its own metrics file,
+  so every row ties back to specific weights rather than to a directory name. The derived table and
+  a **downsampled** copy of each PR-vs-confidence curve (fixed 0.005 grid, a few KB each) are
+  committed at `docs/data/run_a_84_manual_gold/`; `scripts/analysis/stage2_manual_gold_curve.py`
+  re-derives every number in the columns from those.
+
+  **The full curves and the checkpoints are not committable** — 4 MB × 8 for the raw curves, and
+  8.6 GB for the weights. The downsampled curves re-derive F1 at any threshold to ~3 decimals, well
+  inside the 0.01 tie bar, so the committed table is checkable without them; the weights remain on
+  `/gscratch/makelab/jonf/rampnet_run_a_84/checkpoints/`. What would close that gap properly is
+  publishing the 8 checkpoints, which is a decision about HF storage, not a technical blocker.
+
+- **A parity gate was run before trusting any of it.** Run A's epoch-1 checkpoint scores **0.9052**
+  F1@0.30 on `manual_gold` against the erratum's re-evaluation of the released weights at
+  ~**0.908–0.909**. The two are within 0.003 — inside the tie bar — which is the expected result,
+  since Run A's epoch 1 is a replicate of the epoch the released model was taken at. That agreement
+  covers the eval setup *and* the replicate jointly, and it is what licenses reading the other seven
+  rows. It also disposes of a real worry: these panoramas come from `benchmark/manual_gold/panos`
+  at native resolution (4096–16384 px), not from the 4096×2048 intermediate the paper-era path fed
+  the model, and `evaluate.py` resizes to 2048×4096 either way. The gate says that washes out here.
 
 One consequence worth stating before the numbers arrive rather than after: **if the outcome is
 "select on human F1", then selecting on `manual_gold` stops it being a clean benchmark.** The fix
