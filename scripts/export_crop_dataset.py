@@ -42,16 +42,17 @@ Usage
 
 import argparse
 import datetime
-import hashlib
-import json
 import re
-import subprocess
 import sys
 from pathlib import Path
 
 import pyarrow as pa
 import pyarrow.parquet as pq
 from PIL import Image
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from hf_export_common import (  # noqa: E402
+    clear_build_dir, git_commit, hf_features_metadata, hf_value, sha256_bytes)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = REPO_ROOT / "scripts" / "hf_package" / "README.crop_dataset_card.template.md"
@@ -75,18 +76,16 @@ SCHEMA = pa.schema([
     pa.field("sha256", pa.string()),
 ])
 
-_V = lambda dtype: {"dtype": dtype, "_type": "Value"}          # noqa: E731 - terse on purpose
 FEATURES = {
-    "crop_id": _V("string"), "crop_uid": _V("string"), "image": {"_type": "Image"},
-    "keypoints": [{"x": _V("int32"), "y": _V("int32")}],
-    "n_keypoints": _V("int32"), "width": _V("int32"), "height": _V("int32"),
-    "sha256": _V("string"),
+    "crop_id": hf_value("string"), "crop_uid": hf_value("string"), "image": {"_type": "Image"},
+    "keypoints": [{"x": hf_value("int32"), "y": hf_value("int32")}],
+    "n_keypoints": hf_value("int32"), "width": hf_value("int32"), "height": hf_value("int32"),
+    "sha256": hf_value("string"),
 }
 
 
 def schema_with_metadata():
-    return SCHEMA.with_metadata(
-        {b"huggingface": json.dumps({"info": {"features": FEATURES}}).encode()})
+    return SCHEMA.with_metadata(hf_features_metadata(FEATURES))
 
 
 def parse_name(stem):
@@ -101,15 +100,6 @@ def parse_name(stem):
         if match:
             keypoints.append({"x": int(match.group(1)), "y": int(match.group(2))})
     return parts[0], keypoints
-
-
-def git_commit():
-    try:
-        out = subprocess.run(["git", "-C", str(REPO_ROOT), "rev-parse", "--short", "HEAD"],
-                             capture_output=True, text=True, check=True)
-        return out.stdout.strip()
-    except Exception:                                # noqa: BLE001 - provenance is best-effort
-        return "unknown"
 
 
 def write_split(src_dir, out_dir, split):
@@ -147,7 +137,7 @@ def write_split(src_dir, out_dir, split):
             "image": {"bytes": data, "path": path.name},
             "keypoints": keypoints, "n_keypoints": len(keypoints),
             "width": width, "height": height,
-            "sha256": hashlib.sha256(data).hexdigest(),
+            "sha256": sha256_bytes(data),
         })
         written_in_shard += len(data)
         if len(batch) >= ROWS_PER_BATCH:
@@ -225,7 +215,11 @@ def build(args):
             print("{:<8} (missing, skipped)".format(split))
             continue
         src_bytes = sum(p.stat().st_size for p in src_dir.iterdir() if p.suffix.lower() == ".jpg")
-        target = out / "data" / split
+        # Shards are named by position, so a rebuild yielding fewer of them than last time leaves
+        # orphans that write_card counts into the totals and upload_folder then publishes --
+        # duplicating crops in the released split, with every orphan row still matching its own
+        # recorded sha256, so `verify` cannot see it. Clear the split before rewriting it.
+        target = clear_build_dir(out, "data/{}".format(split))
         target.mkdir(parents=True, exist_ok=True)
         shards = write_split(src_dir, target, split)
         n = sum(pq.ParquetFile(str(s)).metadata.num_rows for s in shards)
@@ -260,7 +254,7 @@ def verify(args):
                 rows += 1
                 n += 1
                 kps += len(row["keypoints"])
-                if hashlib.sha256(row["image"]["bytes"]).hexdigest() != row["sha256"]:
+                if sha256_bytes(row["image"]["bytes"]) != row["sha256"]:
                     bad += 1
                     print("  MISMATCH {} in {}".format(row["crop_id"], path.name))
         print("  {:<34} {:>7,} rows OK".format(str(path.relative_to(out)), n))

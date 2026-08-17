@@ -43,6 +43,9 @@ import json
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from hf_export_common import sha256_file  # noqa: E402
+
 CITIES = ["Bend", "New York", "Portland"]
 
 # The name properties load_city_streets tests, in the order it tests them.
@@ -53,11 +56,20 @@ OUT_NAME = "{city} - Streets.min.geojson.gz"
 
 
 def open_maybe_gzip(path):
-    """Open .gz transparently -- the same helper generate_negative_panos.py uses."""
+    """Open .gz transparently, mirroring generate_negative_panos.open_street_file.
+
+    `encoding="utf-8"` is not cosmetic here. GeoJSON is UTF-8 by spec (RFC 7946), but bare
+    `open()` and `gzip.open(..., "rt")` decode with the *platform's* locale codec -- cp1252 on a
+    default Windows box, UTF-8 on the Linux cluster. The fingerprint this whole equivalence proof
+    rests on hashes decoded street *names*, so an unpinned codec makes it machine-dependent: the
+    same correct derivative would read MATCH on one box and `*** DIFFERS ***` on another, or
+    `build` would bake mojibake names into a committed artifact. The three current cities are
+    ASCII-only, which is why the cross-platform check passed; a fourth city need not be.
+    """
     path = str(path)
     if path.endswith(".gz"):
-        return gzip.open(path, "rt")
-    return open(path, "r")
+        return gzip.open(path, "rt", encoding="utf-8")
+    return open(path, "r", encoding="utf-8")
 
 
 def kept_features(features):
@@ -129,8 +141,7 @@ def build(src_dir, out_dir):
     print("Derivative sha256 (the committed artifacts):")
     for city in CITIES:
         out = out_dir / OUT_NAME.format(city=city)
-        digest = hashlib.sha256(out.read_bytes()).hexdigest()
-        print("  {:<34} {}".format(out.name, digest))
+        print("  {:<34} {}".format(out.name, sha256_file(out)))
 
 
 def verify(src_dir, out_dir):

@@ -31,6 +31,15 @@ Every file above is byte-identical to the artifacts recovered from the cluster s
 the paper's run. The sha256 values are also recorded in
 [`docs/data_provenance.md`](https://github.com/ProjectSidewalk/RampNet/blob/main/docs/data_provenance.md).
 
+**How much of that is enforced, and how much is provenance.** `scripts/export_stage1_inputs.py`
+refuses to publish unless the three `location_data/` inventories and `all_locations.csv` hash to
+the values pinned in `data_provenance.md` §3 and §3.1. Those four are the ones a present-day
+checkout will silently *re-create differently* — `combine_location_data.py` now seeds its shuffle
+and changed its unknown-date handling, and the portals have drifted — so an unverified copy would
+look identical and not be. The remaining manifests and the raw `street_data/` downloads have no
+published hash to check against yet; they rest on the recovery provenance above, and their sha256
+is recorded in the table so a future copy can be *proved* identical to this one.
+
 ### `manifests/` — the reproduction path, and the most important part here
 
 | file | what it is |

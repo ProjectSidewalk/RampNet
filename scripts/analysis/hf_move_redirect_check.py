@@ -23,6 +23,7 @@ rename: content sha identical before and after, all 1,214 files intact.
 import argparse
 import io
 import os
+import shutil
 import sys
 import tempfile
 
@@ -97,7 +98,9 @@ def main():
                             allow_redirects=True, timeout=60)
         print("2. resolve URL under OLD id: HTTP {}, {} bytes".format(
             resp.status_code, len(resp.content)))
-        if resp.status_code != 200 or resp.content != open(parquet, "rb").read():
+        with open(parquet, "rb") as fh:
+            uploaded = fh.read()
+        if resp.status_code != 200 or resp.content != uploaded:
             failures.append("resolve URL under the old id did not return the original bytes")
 
         from datasets import load_dataset
@@ -117,6 +120,9 @@ def main():
                 api.delete_repo(repo, repo_type="dataset")
             except Exception:                       # noqa: BLE001 - cleanup is best-effort
                 print("  note: could not delete {}".format(repo))
+        # The remote repo was cleaned up but the local workdir -- fixture plus a full datasets
+        # cache -- was left behind on every run. Same leak as hf_config_mixing_check.py had.
+        shutil.rmtree(workdir, ignore_errors=True)
 
     print("-" * 70)
     if failures:

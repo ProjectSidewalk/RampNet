@@ -31,11 +31,12 @@ checkpoints you meant to publish. The paper-era values are:
 
 import argparse
 import datetime
-import hashlib
 import shutil
-import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from hf_export_common import git_commit, sha256_file as sha256  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = REPO_ROOT / "scripts" / "hf_package" / "README.crop_model_card.template.md"
@@ -72,23 +73,6 @@ def to_safetensors(src, dst):
         if original.dtype != restored[key].dtype or not torch.equal(original, restored[key]):
             sys.exit("error: tensor {!r} differs after conversion of {}".format(key, src.name))
     return len(state)
-
-
-def sha256(path):
-    digest = hashlib.sha256()
-    with open(str(path), "rb") as fh:
-        for chunk in iter(lambda: fh.read(1 << 20), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
-
-
-def git_commit():
-    try:
-        out = subprocess.run(["git", "-C", str(REPO_ROOT), "rev-parse", "--short", "HEAD"],
-                             capture_output=True, text=True, check=True)
-        return out.stdout.strip()
-    except Exception:                                # noqa: BLE001 - provenance is best-effort
-        return "unknown"
 
 
 def main():

@@ -25,6 +25,7 @@ per-config module inference this check is how you would find out.
 import argparse
 import io
 import os
+import shutil
 import sys
 import tempfile
 
@@ -151,6 +152,12 @@ def main():
                     api.delete_repo(repo, repo_type="dataset")
                 except Exception:                   # noqa: BLE001 - cleanup is best-effort
                     print("  note: could not delete {}".format(repo))
+            # The remote repos were always cleaned up; the local tree was not. It holds the
+            # uploaded fixtures plus a full datasets cache, and the docstring invites people to
+            # re-run this, so it accumulated silently -- badly on a login node with a small /tmp.
+            shutil.rmtree(workdir, ignore_errors=True)
+        else:
+            print("\nKept: {} (repos and workdir)".format(workdir))
 
     print("\n" + "-" * 70)
     if failures:

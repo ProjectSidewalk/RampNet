@@ -12,6 +12,18 @@ negatives the paper used -- they cannot be regenerated, only downloaded.
 **asserted against the pinned values in docs/data_provenance.md** so this exporter cannot publish
 inventories that drifted from the ones the paper ran on.
 
+`all_locations.csv` gets the same treatment, and it needs it more. Current `main` produces a
+*different* file from the paper's: `combine_location_data.py` now seeds its shuffle
+(`random.seed(42)`, added after publication) and `convert_date` now returns `""` where the
+paper-era version returned `"2000-01-01"`, which changes 23,088 of 276,071 rows -- 8.36% of the
+corpus (docs/data_provenance.md §3.2). So a `--manifests` directory holding a present-day
+regeneration looks exactly like the paper's, and this exporter would publish it under a card that
+calls it "the exact manifest the paper consumed". The pinned hash is what makes that impossible.
+
+The other four manifests have no published hash to pin -- they are large and were rescued rather
+than regenerated -- so `--expect-sha256` / `MANIFEST_SHA256` is the hook for adding one as it
+becomes known, and every staged file's hash is printed and written into the card either way.
+
 Build locally:
 
     python scripts/export_stage1_inputs.py \
@@ -27,11 +39,12 @@ Push:
 
 import argparse
 import datetime
-import hashlib
 import shutil
-import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from hf_export_common import git_commit, sha256_file  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = REPO_ROOT / "scripts" / "hf_package" / "README.stage1_inputs_card.template.md"
@@ -53,6 +66,14 @@ MANIFESTS = [
     "all_locations.csv",
 ]
 
+# Pinned in docs/data_provenance.md section 3.1. `all_locations.csv` is the one manifest that a
+# present-day `combine_location_data.py` will happily regenerate into a different file (seeded
+# shuffle, changed date semantics), so publishing an unverified copy under a paper-era claim is a
+# live failure mode rather than a hypothetical one. Add entries here as other hashes are recorded.
+MANIFEST_SHA256 = {
+    "all_locations.csv": "06fec4e9a8077582deac12c3c303b89c8a2396ce3d78e7e923b0960a2c091a3b",
+}
+
 STREET_FILES = [
     "Bend - Streets.geojson",
     "New York - Streets.geojson",
@@ -60,29 +81,15 @@ STREET_FILES = [
 ]
 
 
-def sha256(path):
-    digest = hashlib.sha256()
-    with open(str(path), "rb") as fh:
-        for chunk in iter(lambda: fh.read(1 << 20), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
-
-
-def git_commit():
-    try:
-        out = subprocess.run(["git", "-C", str(REPO_ROOT), "rev-parse", "--short", "HEAD"],
-                             capture_output=True, text=True, check=True)
-        return out.stdout.strip()
-    except Exception:                                # noqa: BLE001 - provenance is best-effort
-        return "unknown"
-
-
-def stage(src, dst, rows, folder):
+def stage(src, dst, rows, folder, expected=None):
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(str(src), str(dst))
-    digest = sha256(dst)
-    if digest != sha256(src):
+    digest = sha256_file(dst)
+    if digest != sha256_file(src):
         sys.exit("error: {} changed during copy".format(src.name))
+    if expected and digest != expected:
+        sys.exit("error: {} sha256 {}\n       expected {}\n"
+                 "       this is NOT the file the paper ran on".format(src.name, digest, expected))
     rows.append((folder + "/" + src.name, src.stat().st_size, digest))
     return digest
 
@@ -95,6 +102,9 @@ def main():
     parser.add_argument("--location-data", type=Path, default=COMMITTED_LOCATION_DATA,
                         help="defaults to the copy committed in this repo")
     parser.add_argument("--out", required=True, type=Path)
+    parser.add_argument("--expect-sha256", action="append", metavar="FILE=SHA256",
+                        help="fail unless FILE hashes to SHA256; repeatable. Adds to the pins "
+                             "already in MANIFEST_SHA256/LOCATION_DATA_SHA256")
     parser.add_argument("--repo-id", default="projectsidewalk/rampnet-stage1-inputs")
     parser.add_argument("--push", action="store_true")
     parser.add_argument("--private", action="store_true")
@@ -102,32 +112,30 @@ def main():
 
     rows = []
 
-    print("location_data/  (verifying against docs/data_provenance.md)")
-    for name, expected in sorted(LOCATION_DATA_SHA256.items()):
-        src = args.location_data / name
-        if not src.is_file():
-            sys.exit("error: missing {}".format(src))
-        digest = stage(src, args.out / "location_data" / name, rows, "location_data")
-        if digest != expected:
-            sys.exit("error: {} sha256 {}\n       expected {}\n"
-                     "       this is NOT the inventory the paper ran on".format(name, digest, expected))
-        print("  {:<24} {:>13,}  verified".format(name, src.stat().st_size))
+    # One table of expected hashes for every staged file, so --expect-sha256 works uniformly and
+    # a pin can be added for any of them without a second code path.
+    expected_sha256 = dict(LOCATION_DATA_SHA256)
+    expected_sha256.update(MANIFEST_SHA256)
+    for pair in args.expect_sha256 or []:
+        name, _, digest = pair.partition("=")
+        if not digest:
+            sys.exit("error: --expect-sha256 takes <filename>=<sha256>, got {!r}".format(pair))
+        expected_sha256[name] = digest
 
-    print("manifests/")
-    for name in MANIFESTS:
-        src = args.manifests / name
-        if not src.is_file():
-            sys.exit("error: missing {}".format(src))
-        stage(src, args.out / "manifests" / name, rows, "manifests")
-        print("  {:<32} {:>13,}".format(name, src.stat().st_size))
+    def stage_group(label, names, source_dir, folder):
+        print("{}/".format(label))
+        for name in names:
+            src = source_dir / name
+            if not src.is_file():
+                sys.exit("error: missing {}".format(src))
+            expected = expected_sha256.get(name)
+            stage(src, args.out / folder / name, rows, folder, expected)
+            print("  {:<32} {:>13,}{}".format(
+                name, src.stat().st_size, "  verified" if expected else "  (no pinned hash)"))
 
-    print("street_data/")
-    for name in STREET_FILES:
-        src = args.street_data / name
-        if not src.is_file():
-            sys.exit("error: missing {}".format(src))
-        stage(src, args.out / "street_data" / name, rows, "street_data")
-        print("  {:<32} {:>13,}".format(name, src.stat().st_size))
+    stage_group("location_data", sorted(LOCATION_DATA_SHA256), args.location_data, "location_data")
+    stage_group("manifests", MANIFESTS, args.manifests, "manifests")
+    stage_group("street_data", STREET_FILES, args.street_data, "street_data")
 
     table = ["| file | bytes | sha256 |", "| :--- | ---: | :--- |"]
     for path, size, digest in rows:

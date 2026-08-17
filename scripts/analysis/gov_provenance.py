@@ -45,13 +45,15 @@ Usage
 
 import argparse
 import csv
-import hashlib
 import importlib.util
 import json
 import re
 import sys
 from collections import defaultdict
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from hf_export_common import sha256_file as sha256  # noqa: E402
 
 # combine_location_data.py hardcodes these three files, in this order, with these date fields.
 SOURCES = [
@@ -150,14 +152,6 @@ def load_consumed_coords(dataset_jsonl):
                 ramp_instances += 1
                 consumed.setdefault(coord_key(lat, lng), pano_id)
     return consumed, {"panos": len(panos), "ramp_instances": ramp_instances}
-
-
-def sha256(path):
-    digest = hashlib.sha256()
-    with open(str(path), "rb") as fh:
-        for chunk in iter(lambda: fh.read(1 << 20), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
 
 
 def main():

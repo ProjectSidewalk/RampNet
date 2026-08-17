@@ -36,11 +36,17 @@ def open_street_file(city):
     and one name field, so scripts/build_street_derivative.py strips everything else down to
     18.7 MB gzipped -- proven to yield an identical sampling network -- and *that* is committed.
     The full file still wins if you have it, so nothing changes for an existing checkout.
+
+    The encoding is pinned rather than left to the platform: GeoJSON is UTF-8 by spec (RFC 7946),
+    but bare `open()` decodes with the locale codec, so a non-ASCII street name would parse
+    differently on Windows than on the cluster -- and street names are read here as an emptiness
+    test, and hashed by build_street_derivative.py's equivalence proof.
     """
     for name in (f"{city} - Streets.geojson", f"{city} - Streets.min.geojson.gz"):
         path = os.path.join("street_data", name)
         if os.path.exists(path):
-            return gzip.open(path, "rt") if path.endswith(".gz") else open(path, "r")
+            return (gzip.open(path, "rt", encoding="utf-8") if path.endswith(".gz")
+                    else open(path, "r", encoding="utf-8"))
     raise FileNotFoundError(
         f"No street data for {city!r}: expected street_data/{city} - Streets.geojson (see the "
         f"portal links in README.md) or the committed {city} - Streets.min.geojson.gz derivative."
