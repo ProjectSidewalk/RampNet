@@ -184,3 +184,41 @@ def test_peaks_to_dets_keeps_peaks_next_to_the_seam():
     heat[278, 519] = 1.0        # comfortably interior, as a control
     xs = sorted(round(d[0] * 1024) for d in peaks_to_dets(heat, 0.30, 10))
     assert xs == [7, 519], "a peak beside the seam was dropped by exclude_border"
+
+
+# --- gallery marker placement --------------------------------------------------------
+
+def test_crop_local_xy_puts_a_mark_at_the_centre_of_its_own_crop():
+    """Regression: the seam gallery drew every marker ~190 px too low (#132).
+
+    ``annotate`` assumed the crop began a fixed quarter of the way down the panorama
+    instead of using the crop's real ``top``. Rings landed in the roadway below the ramp.
+    Nothing asserted on it — it was caught by a human looking at the output — so the
+    mapping is a pure function now and this pins it.
+    """
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "analysis"))
+    from seam_gallery import crop_local_xy
+
+    pano_w, pano_h, side = 4096, 2048, 682
+    top = pano_h // 2 - side // 2               # what cut_wrapped uses
+    left = 1000
+    # a point at the exact centre of the crop must render at the crop's centre
+    x_norm = (left + side / 2) / pano_w
+    y_norm = (top + side / 2) / pano_h
+    cx, cy = crop_local_xy(x_norm, y_norm, left, top, side, pano_w, pano_h, 1.0)
+    assert cx == pytest.approx(side / 2)
+    assert cy == pytest.approx(side / 2)
+
+
+def test_crop_local_xy_wraps_x_across_the_seam():
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'scripts' / 'analysis'))
+    from seam_gallery import crop_local_xy
+    pano_w, pano_h, side = 4096, 2048, 682
+    top = pano_h // 2 - side // 2
+    left = pano_w - 100                          # window starts before the seam
+    cx, _ = crop_local_xy(0.001, 0.5, left, top, side, pano_w, pano_h, 1.0)
+    assert cx == pytest.approx(100 + 0.001 * pano_w)   # lands just past the seam

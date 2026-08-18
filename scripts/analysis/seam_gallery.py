@@ -110,15 +110,33 @@ def heat_overlay(crop, heat, left, top, side, height_px):
     return Image.fromarray((base * (1 - alpha) + tint * alpha).astype(np.uint8))
 
 
-def annotate(img, marks, left, side, pano_w):
-    """Draw the seam line, GT rings at the match radius, and detections."""
+def crop_local_xy(x_norm, y_norm, left, top, side, pano_w, pano_h, scale):
+    """Where a pano-normalized point lands in a rendered crop, in rendered pixels.
+
+    Pure so it can be tested: the marker offset was wrong in the first version of this
+    gallery (a hardcoded 0.25 stood in for the crop's real ``top``) and the only symptom
+    was rings sitting in the roadway below the ramp, which no assertion would have caught.
+
+    x wraps -- the crop may straddle the seam, which is the whole point of this page.
+    y does not: the window is clamped vertically by :func:`cut_wrapped`.
+    """
+    dx = ((x_norm * pano_w) - left) % pano_w
+    return dx * scale, (y_norm * pano_h - top) * scale
+
+
+def annotate(img, marks, left, top, side, pano_w):
+    """Draw the seam line, GT rings at the match radius, and detections.
+
+    ``top`` is the crop's own first row and MUST come from the same cut that produced
+    ``img``. An earlier version assumed the crop started a fixed quarter of the way down
+    the panorama; the real top is ``MODEL_H/2 - side/2``, so every marker landed ~190
+    rendered pixels low -- far enough to sit in the roadway instead of on the ramp.
+    """
     d = ImageDraw.Draw(img)
     scale = img.size[0] / side                      # crop px -> rendered px
 
     def to_local(x_norm):
-        px = x_norm * pano_w
-        dx = (px - left) % pano_w
-        return dx * scale
+        return crop_local_xy(x_norm, 0.0, left, top, side, pano_w, MODEL_H, scale)[0]
 
     # the seam itself — where the panorama's own edge falls inside this crop
     sx = to_local(0.0)
@@ -128,7 +146,7 @@ def annotate(img, marks, left, side, pano_w):
         d.text((sx + 6, 6), "360 seam", fill=(0, 229, 255))
 
     for kind, x_norm, y_norm in marks:
-        cx, cy = to_local(x_norm), (y_norm - 0.25) * MODEL_H * scale
+        cx, cy = crop_local_xy(x_norm, y_norm, left, top, side, pano_w, MODEL_H, scale)
         if kind == "gt":
             r = R / PANO_SCALE_X * pano_w * scale
             d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=(255, 212, 0), width=4)
@@ -229,9 +247,9 @@ def main():
             "seam_px": round(dist_to_seam(g[0], PANO_SCALE_X), 1),
             "x": round(g[0], 5), "heat": round(peak_here, 3),
             "in_cache": in_cache, "in_prod": in_prod,
-            "img": b64(annotate(crop.copy(), marks, left, side, MODEL_W)),
+            "img": b64(annotate(crop.copy(), marks, left, top, side, MODEL_W)),
             "heat_img": b64(annotate(heat_overlay(crop, h, left, top, side, height),
-                                     [("gt", g[0], g[1])], left, side, MODEL_W)),
+                                     [("gt", g[0], g[1])], left, top, side, MODEL_W)),
         })
         print(f"  {i}/{len(items)} {city}:{pid} seam={cards[-1]['seam_px']}px "
               f"heat={peak_here:.2f} cache={'HIT' if in_cache else 'DROPPED'} "
@@ -251,7 +269,7 @@ def main():
             "city": city, "pano": pid,
             "marks": [[round(p[0], 5), round(p[1], 5)] for p in near],
             "img": b64(annotate(crop.copy(), [("gt", p[0], p[1]) for p in near],
-                                left, side, MODEL_W)),
+                                left, top, side, MODEL_W)),
         })
 
     os.makedirs(args.out, exist_ok=True)
