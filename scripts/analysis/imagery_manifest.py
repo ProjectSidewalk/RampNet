@@ -135,7 +135,13 @@ def main(argv=None):
             payload = {"city": city, "n": len(entries),
                        "digest": digest_of(entries), "panos": entries}
             os.makedirs(os.path.dirname(manifest_path(city)), exist_ok=True)
-            with open(manifest_path(city), "w", encoding="utf-8") as fh:
+            # newline="\n" so a Windows run writes the same bytes as a Linux one.
+            # git (autocrlf=input) normalises on commit either way, but the file on
+            # disk is copied to klone and makelab2 to travel with the imagery it
+            # describes -- without this those copies are CRLF and no longer hash
+            # equal to the committed manifest, which is the one comparison this
+            # whole artifact exists to support.
+            with open(manifest_path(city), "w", encoding="utf-8", newline="\n") as fh:
                 json.dump(payload, fh, indent=1, sort_keys=True)
             print(f"{city:>20} {len(entries):>6} {payload['digest']:>18}  written")
             continue
