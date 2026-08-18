@@ -1,0 +1,158 @@
+{
+  "bbox": {
+    "lat_max": 37.80896586883079,
+    "lat_min": 37.70736072244421,
+    "lon_max": -122.37035235113,
+    "lon_min": -122.51295566591399
+  },
+  "city": "sf-ca",
+  "coincident": {
+    "records": 49806,
+    "threshold_m": 0.5
+  },
+  "corner_clusters": {
+    "groups": 7542,
+    "link_m": 6.0,
+    "records_per_group": 6.6422699549191195,
+    "share_singleton": 0.03805356669318483,
+    "size_histogram": {
+      "1": 287,
+      "10": 165,
+      "11": 34,
+      "12": 119,
+      "13": 17,
+      "14": 14,
+      "15": 3,
+      "16": 9,
+      "17": 1,
+      "18": 1,
+      "19": 1,
+      "2": 333,
+      "20": 2,
+      "21": 2,
+      "25": 1,
+      "29": 2,
+      "3": 64,
+      "4": 477,
+      "5": 210,
+      "6": 2327,
+      "7": 198,
+      "8": 3107,
+      "9": 168
+    }
+  },
+  "intersection_clusters": {
+    "groups": 7135,
+    "link_m": 30.0,
+    "records_per_group": 7.021163279607569
+  },
+  "inventory": "sf-ca-2026-07-31.jsonl.gz",
+  "link_sweep": [
+    {
+      "groups": 7549,
+      "groups_per_intersection": 1.0580238262088297,
+      "link_m": 3.0,
+      "records_per_group": 6.636110743144787,
+      "share_singleton": 0.038415684196582325
+    },
+    {
+      "groups": 7546,
+      "groups_per_intersection": 1.0576033637000701,
+      "link_m": 4.0,
+      "records_per_group": 6.638749006095945,
+      "share_singleton": 0.038033395176252316
+    },
+    {
+      "groups": 7545,
+      "groups_per_intersection": 1.0574632095304835,
+      "link_m": 5.0,
+      "records_per_group": 6.639628893306826,
+      "share_singleton": 0.03803843605036448
+    },
+    {
+      "groups": 7542,
+      "groups_per_intersection": 1.0570427470217238,
+      "link_m": 6.0,
+      "records_per_group": 6.6422699549191195,
+      "share_singleton": 0.03805356669318483
+    },
+    {
+      "groups": 7537,
+      "groups_per_intersection": 1.056341976173791,
+      "link_m": 8.0,
+      "records_per_group": 6.646676396444208,
+      "share_singleton": 0.03768077484410243
+    },
+    {
+      "groups": 7518,
+      "groups_per_intersection": 1.0536790469516468,
+      "link_m": 10.0,
+      "records_per_group": 6.663474328278798,
+      "share_singleton": 0.037376961957967546
+    },
+    {
+      "groups": 7502,
+      "groups_per_intersection": 1.0514365802382621,
+      "link_m": 12.0,
+      "records_per_group": 6.677685950413223,
+      "share_singleton": 0.036923487070114634
+    },
+    {
+      "groups": 7476,
+      "groups_per_intersection": 1.047792571829012,
+      "link_m": 14.0,
+      "records_per_group": 6.700909577314071,
+      "share_singleton": 0.036650615302300696
+    }
+  ],
+  "mean_latitude": 37.75686667790222,
+  "nearest_neighbour": {
+    "censored": 51,
+    "censored_note": "no neighbour within the 50 m grid block; counted in the denominator of every share below",
+    "histogram": [
+      49806,
+      0,
+      0,
+      3,
+      0,
+      0,
+      3,
+      3,
+      9,
+      11,
+      24,
+      88,
+      94,
+      4
+    ],
+    "histogram_edges_m": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      8,
+      10,
+      15,
+      20,
+      30,
+      50,
+      100,
+      "inf"
+    ],
+    "quantiles_m": {
+      "0.05": 0.0,
+      "0.25": 0.0,
+      "0.5": 0.0,
+      "0.75": 0.0,
+      "0.95": 0.0
+    },
+    "share_within_0.5m": 0.9942111146598531,
+    "share_within_10m": 0.9943907697221335,
+    "share_within_2m": 0.9942111146598531,
+    "share_within_6m": 0.9942709996806133
+  },
+  "records": 50096
+}

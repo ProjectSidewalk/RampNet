@@ -1,0 +1,163 @@
+{
+  "bbox": {
+    "lat_max": 45.05129980000002,
+    "lat_min": 44.89069793512264,
+    "lon_max": -93.19992098659566,
+    "lon_min": -93.32905248915606
+  },
+  "city": "minneapolis-mn",
+  "coincident": {
+    "records": 309,
+    "threshold_m": 0.5
+  },
+  "corner_clusters": {
+    "groups": 16991,
+    "link_m": 6.0,
+    "records_per_group": 1.0860455535283384,
+    "share_singleton": 0.9167206167971279,
+    "size_histogram": {
+      "1": 15576,
+      "2": 1381,
+      "3": 26,
+      "4": 6,
+      "5": 1,
+      "8": 1
+    }
+  },
+  "corner_recovery": {
+    "cluster_pairs": 1533,
+    "corner_pairs": 1650,
+    "geometric_groups": 16991,
+    "link_m": 6.0,
+    "precision": 0.9243313763861709,
+    "published_groups": 16803,
+    "recall": 0.8587878787878788,
+    "shared_pairs": 1417
+  },
+  "intersection_clusters": {
+    "groups": 4899,
+    "link_m": 30.0,
+    "records_per_group": 3.766687078995713
+  },
+  "inventory": "minneapolis-mn-2026-07-31.jsonl.gz",
+  "link_sweep": [
+    {
+      "groups": 18165,
+      "groups_per_intersection": 3.70789957134109,
+      "link_m": 3.0,
+      "records_per_group": 1.0158546655656482,
+      "share_singleton": 0.984916047343793
+    },
+    {
+      "groups": 18110,
+      "groups_per_intersection": 3.6966727903653807,
+      "link_m": 4.0,
+      "records_per_group": 1.0189398122584208,
+      "share_singleton": 0.982164549972391
+    },
+    {
+      "groups": 17045,
+      "groups_per_intersection": 3.4792814860175545,
+      "link_m": 5.0,
+      "records_per_group": 1.0826048694631858,
+      "share_singleton": 0.9194485186271634
+    },
+    {
+      "groups": 16991,
+      "groups_per_intersection": 3.4682588283323126,
+      "link_m": 6.0,
+      "records_per_group": 1.0860455535283384,
+      "share_singleton": 0.9167206167971279
+    },
+    {
+      "groups": 16866,
+      "groups_per_intersection": 3.4427434170238826,
+      "link_m": 8.0,
+      "records_per_group": 1.0940946282461756,
+      "share_singleton": 0.9107672240009487
+    },
+    {
+      "groups": 16742,
+      "groups_per_intersection": 3.4174321290059195,
+      "link_m": 10.0,
+      "records_per_group": 1.102198064747342,
+      "share_singleton": 0.9060446780551905
+    },
+    {
+      "groups": 16470,
+      "groups_per_intersection": 3.3619105939987755,
+      "link_m": 12.0,
+      "records_per_group": 1.12040072859745,
+      "share_singleton": 0.8962355798421372
+    },
+    {
+      "groups": 14277,
+      "groups_per_intersection": 2.914268218003674,
+      "link_m": 14.0,
+      "records_per_group": 1.2924984240386637,
+      "share_singleton": 0.7692092176227499
+    }
+  ],
+  "mean_latitude": 44.96204023824735,
+  "nearest_neighbour": {
+    "censored": 106,
+    "censored_note": "no neighbour within the 50 m grid block; counted in the denominator of every share below",
+    "histogram": [
+      319,
+      52,
+      191,
+      104,
+      2115,
+      96,
+      215,
+      192,
+      5794,
+      8720,
+      445,
+      47,
+      54,
+      3
+    ],
+    "histogram_edges_m": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      8,
+      10,
+      15,
+      20,
+      30,
+      50,
+      100,
+      "inf"
+    ],
+    "quantiles_m": {
+      "0.05": 4.479618398011518,
+      "0.25": 12.602744301854425,
+      "0.5": 15.122897947708815,
+      "0.75": 18.274781716079964,
+      "0.95": 18.37506330444766
+    },
+    "share_within_0.5m": 0.016745244675662494,
+    "share_within_10m": 0.1779656424429632,
+    "share_within_2m": 0.020105131956863382,
+    "share_within_6m": 0.15590960819378963
+  },
+  "published_corners": {
+    "groups": 16803,
+    "missing_corner_id": 60,
+    "records_per_group": 1.0946259596500625,
+    "size_histogram": {
+      "1": 15268,
+      "2": 1484,
+      "3": 48,
+      "4": 2,
+      "5": 1
+    }
+  },
+  "records": 18453
+}

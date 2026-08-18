@@ -25,6 +25,16 @@ transformers
 numpy
 pillow
 pytest
+# Headless build (no GUI libs) purely so tests/test_gsv.py can render through the
+# REAL equirectangular_to_perspective and check that a feature at a known clockwise
+# azimuth lands right of centre. Without it those cases importorskip, and the §5j
+# sign convention -- the thing the whole #103 overlay stack rests on -- is pinned
+# only on developer machines, which is not the same as pinned.
+opencv-python-headless
 # Needed only because scripts/build_benchmark_dataset.py imports it at module
 # level, and tests/test_benchmark_dataset.py imports that module.
 datasets
+# Arrives transitively with datasets, but scripts/export_crop_dataset.py builds
+# Parquet with it directly and tests/test_export_crop_dataset.py imports it by
+# name — so declare it rather than rely on someone else's dependency.
+pyarrow

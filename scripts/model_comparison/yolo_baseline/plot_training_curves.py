@@ -38,13 +38,23 @@ HERE = Path(__file__).resolve().parent
 # so "is this a pano or a tiles run?" and "is this v11 or v26?" are both readable
 # without consulting the legend.
 CONFIGS = [
-    # name,          label,                   colour,    linestyle
-    ("y26_pano",   "YOLO26  pano  (b4, 1280)",  "#1b6ca8", "-"),
-    ("y11l_pano",  "YOLO11l pano  (b4, 1280)",  "#c1121f", "-"),
-    ("y11x_pano",  "YOLO11x pano  (b2, 1280)",  "#e07a5f", "-"),
-    ("y26_tiles",  "YOLO26  tiles (b6, 1024)",  "#457b9d", "--"),
-    ("y11l_tiles", "YOLO11l tiles (b6, 1024)",  "#8b1e3f", "--"),
+    # name,               label,                        colour,    linestyle
+    ("y26_pano",        "YOLO26  pano  (b4, 1280)",       "#1b6ca8", "-"),
+    ("y11l_pano",       "YOLO11l pano  (b4, 1280)",       "#c1121f", "-"),
+    ("y11x_pano",       "YOLO11x pano  (b2, 1280)",       "#e07a5f", "-"),
+    ("y11x_pano_h200",  "YOLO11x pano  (b2, 1280) H200",  "#f2a541", "-"),
+    ("y26_tiles",       "YOLO26  tiles (b6, 1024)",       "#457b9d", "--"),
+    ("y11l_tiles",      "YOLO11l tiles (b6, 1024)",       "#8b1e3f", "--"),
+    ("y11x_tiles",      "YOLO11x tiles (b12, 1024)",      "#6a4c93", "--"),
+    ("y26_tiles_l40s",  "YOLO26  tiles (b6, 1024) L40S",  "#7fb069", "--"),
 ]
+
+# Two of the eight are continuations of another arm rather than independent configs, and
+# a reader comparing curves needs to know which: y11x_pano_h200 is y11x_pano resumed on
+# Tillicum at ep21, and y26_tiles_l40s is y26_tiles resumed on a dedicated L40S at ep4.
+# Both are plotted because each is the furthest-advanced member of its lineage -- the
+# h200 arm is the only completed 60-epoch pano run -- but they share early epochs with
+# their parents and are not replicates. See README, "The y26_tiles_l40s fork".
 
 MAP50 = "metrics/mAP50(B)"
 MAP5095 = "metrics/mAP50-95(B)"
@@ -265,17 +275,17 @@ def fig_per_config(runs, out: Path) -> None:
 
 def print_summary(runs) -> None:
     print("\nPer-config summary (internal YOLO val-split proxy, NOT benchmark eval)\n")
-    hdr = f"{'config':<12} {'eps':>4} {'best ep':>8} {'best mAP50':>11} {'last mAP50':>11} {'last P':>7} {'last R':>7} {'resumes':>8}"
+    hdr = f"{'config':<15} {'eps':>4} {'best ep':>8} {'best mAP50':>11} {'last mAP50':>11} {'last P':>7} {'last R':>7} {'resumes':>8}"
     print(hdr)
     print("-" * len(hdr))
     for name, *_ in CONFIGS:
         if name not in runs:
-            print(f"{name:<12} {'--':>4}   (dropped before epoch 1 -- args.yaml only)")
+            print(f"{name:<15} {'--':>4}   (dropped before epoch 1 -- args.yaml only)")
             continue
         df = runs[name]
         best = df.loc[df[MAP50].idxmax()]
         last = df.iloc[-1]
-        print(f"{name:<12} {len(df):>4} {int(best['epoch']):>8} {best[MAP50]:>11.3f} "
+        print(f"{name:<15} {len(df):>4} {int(best['epoch']):>8} {best[MAP50]:>11.3f} "
               f"{last[MAP50]:>11.3f} {last[PRECISION]:>7.3f} {last[RECALL]:>7.3f} "
               f"{len(resume_epochs(df)):>8}")
     print()

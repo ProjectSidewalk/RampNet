@@ -1,3 +1,5 @@
+<!doctype html>
+<meta charset="utf-8">
 <title>RampNet eval protocol — verification report</title>
 <style>
   :root{
@@ -65,9 +67,12 @@
 
 <header class="col">
   <div class="eyebrow">RampNet · internal verification · 2026-07-02</div>
-  <h1>Did we really over-count? A re-verification of the published evaluation protocol</h1>
-  <p class="sub">Requested by Jon: “Are you absolutely certain there was an error in the original paper and our
-  experimental approach? Double- and triple-check, produce visual examples of what we double-counted, and explain in greater detail.”</p>
+  <h1>Re-verification of the published evaluation protocol</h1>
+  <p class="sub">A re-examination of the matching rule used to score RampNet's detections, prompted by a
+  discrepancy identified after publication. Its scope: to establish whether predictions were genuinely
+  over-counted, to confirm that finding by independent means rather than rest on a single line of
+  evidence, to document the over-count with worked examples drawn from the released model's own
+  output, and to quantify its effect on the published metrics.</p>
 </header>
 
 <section class="col">
@@ -277,8 +282,8 @@ pred#3 (conf 0.62) duplicate of an
 </section>
 
 <section class="col">
-  <h2><span class="no">7</span>Corrections to my own earlier claims</h2>
-  <p>You asked me to triple-check; the check cut both ways. Three things in the drafted issue #9 / README erratum
+  <h2><span class="no">7</span>Corrections to earlier claims in this investigation</h2>
+  <p>The re-check cut both ways. Three things in the drafted issue #9 / README erratum
   need fixing before anything is posted:</p>
   <div class="tblwrap"><table>
     <tr><th>Earlier claim</th><th>Verdict on re-check</th></tr>
