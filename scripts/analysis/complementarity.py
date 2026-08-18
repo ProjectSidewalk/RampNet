@@ -1,40 +1,61 @@
-"""RampNet vs Gemini-3.6-flash complementarity on richmond (read-only, from cache).
+"""Do RampNet and a challenger miss *different* ramps? (issue #35 gate)
 
-Answers issue #35's decision gate: do the two models miss *different* ramps?
-For each GT ramp on recall-eligible panos, record whether RampNet found it, Gemini
-found it, both, or neither -> oracle-union recall + the RampNet-miss n Gemini-hit set.
+For each GT ramp on a recall-eligible pano, record whether RampNet found it, the
+challenger found it, both, or neither -> oracle-union recall, and the set that
+matters: **RampNet-miss n challenger-hit**.
+
+Read-only: RampNet's side comes from the bundle's committed detections and the
+challenger's from ``.model_cache``, so this never runs a model or spends anything.
+
+**The oracle-union recall is a ceiling, not a proposal.** It assumes you could
+keep every right call and discard every wrong one, which no combiner can do. The
+FP arithmetic printed at the end is the counterweight, and for a low-precision
+challenger it is usually decisive -- see the union precision line. Pair this with
+``null_recall.py`` before believing any union number from a model that emits many
+boxes per pano: at high density a share of "hits" are what the match radius hands
+out for free, and that share inflates the complementary set too.
+
+Usage -- the positional form is the one three call sites in
+``docs/model_comparison.md`` use, and it still means what it did:
+
+    python scripts/analysis/complementarity.py                       # gemini-3.6-flash, richmond
+    python scripts/analysis/complementarity.py gemini-3.1-pro-preview paterson
+    python scripts/analysis/complementarity.py vistas:curb-cut richmond \
+        --vistas-input-size 1024 1024
+
+The first positional is a **model spec** (``provider`` or ``provider:model_id``,
+as ``compare.py --models`` takes them). A bare token that is not a known provider
+is read as a Gemini model id, which is how the #35 gate was invoked before this
+script grew past one provider.
 """
-import os as _os, sys as _sys
-REPO = _os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
-OUT = _os.environ.get("RAMPNET_ANALYSIS_OUT", _os.path.join(REPO, "analysis_out"))
-_os.makedirs(OUT, exist_ok=True)
-DA3_SRC = _os.environ.get("DA3_SRC")  # path to Depth-Anything-3/src (see README)
-import os, sys
+import argparse
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, REPO)
 sys.path.insert(0, os.path.join(REPO, "scripts", "model_comparison"))
 
-from rampnet.detection_eval import (
-    build_ground_truth, score_pano, radius_sq_for, PANO_SCALE_X, PANO_SCALE_Y, _xy, prediction_confidence)
-from compare import load_bundle, DetectionCache, cache_key
-from detectors import build_detector
+from rampnet import roster                                                # noqa: E402
+from rampnet.detection_eval import (                                      # noqa: E402
+    build_ground_truth, score_pano, radius_sq_for, PANO_SCALE_X, PANO_SCALE_Y,
+    _xy, prediction_confidence)
+from compare import load_bundle, DetectionCache, cache_key                # noqa: E402
+from detectors import build_detector, parse_model_spec, PROVIDERS         # noqa: E402
 
-MODEL = sys.argv[1] if len(sys.argv) > 1 else "gemini-3.6-flash"
-BUNDLE = sys.argv[2] if len(sys.argv) > 2 else "richmond"   # benchmark/<split> name
 
-class Args:
-    gemini_model = MODEL; qwen_model = "Qwen/Qwen3-VL"; tiling = "perspective"
-
-RSQ = radius_sq_for()
-
-def matched_gt(preds, gt_points):
+def matched_gt(preds, gt_points, radius_sq):
     """Greedy 1:1 match (mirrors score_pano); return the set of GT indices covered."""
     confs = [prediction_confidence(p) for p in preds]
-    order = (sorted(range(len(preds)), key=lambda i: confs[i] if confs[i] is not None else float("-inf"),
-                    reverse=True) if any(c is not None for c in confs) else range(len(preds)))
+    order = (sorted(range(len(preds)),
+                    key=lambda i: confs[i] if confs[i] is not None else float("-inf"),
+                    reverse=True)
+             if any(c is not None for c in confs) else range(len(preds)))
     claimed, hit = [False] * len(gt_points), set()
     for i in order:
-        pxn, pyn = _xy(preds[i]); px, py = pxn * PANO_SCALE_X, pyn * PANO_SCALE_Y
-        best_k, best = -1, RSQ
+        pxn, pyn = _xy(preds[i])
+        px, py = pxn * PANO_SCALE_X, pyn * PANO_SCALE_Y
+        best_k, best = -1, radius_sq
         for k, (gx, gy) in enumerate(gt_points):
             if claimed[k]:
                 continue
@@ -42,46 +63,148 @@ def matched_gt(preds, gt_points):
             if d < best:
                 best, best_k = d, k
         if best_k >= 0:
-            claimed[best_k] = True; hit.add(best_k)
+            claimed[best_k] = True
+            hit.add(best_k)
     return hit
 
-records, verdicts, _ = load_bundle(os.path.join(REPO, "benchmark", BUNDLE))
-label, gem = build_detector("gemini", MODEL, records, Args())
-sig, cache = gem.signature(), DetectionCache(os.path.join(REPO, ".model_cache"))
 
-N = both = r_only = g_only = neither = 0
-r_fp = g_fp = 0
-panos = missing = 0
-for pid, entry in verdicts.items():
-    gt = build_ground_truth(records[pid]["detections"], entry["dets"], entry["missed"], entry["no_missed"])
-    if not gt.fn_confirmed:
-        continue
-    gp = cache.get(cache_key(label, sig, BUNDLE, pid))
-    if gp is None:
-        missing += 1; continue
-    rp = [(d["x_normalized"], d["y_normalized"], d["confidence"]) for d in records[pid]["detections"]]
-    mr, mg = matched_gt(rp, gt.gt_points), matched_gt(gp, gt.gt_points)
-    for i in range(len(gt.gt_points)):
-        r, g = i in mr, i in mg
-        both += r and g; r_only += r and not g; g_only += g and not r; neither += not r and not g
-    N += len(gt.gt_points)
-    r_fp += score_pano(rp, gt).fp
-    g_fp += score_pano(gp, gt).fp
-    panos += 1
+def model_spec(token):
+    """``provider``/``provider:model_id``, or a legacy bare Gemini model id."""
+    provider, model_id = parse_model_spec(token)
+    if provider in PROVIDERS:
+        return provider, model_id
+    # Legacy positional form: a bare model id meant gemini. Keep it working --
+    # reading it as a provider would raise on strings that used to be valid.
+    return "gemini", token
 
-r_tp, g_tp, union = both + r_only, both + g_only, both + r_only + g_only
-rampnet_misses = g_only + neither
-print(f"{BUNDLE} complementarity — RampNet vs {MODEL}  ({panos} recall-eligible panos, {N} GT ramps"
-      + (f"; {missing} panos missing from cache" if missing else "") + ")\n")
-print(f"  RampNet recall     {r_tp/N:.3f}   ({r_tp}/{N})")
-print(f"  Gemini recall      {g_tp/N:.3f}   ({g_tp}/{N})")
-print(f"  ORACLE-UNION recall{union/N:.3f}   ({union}/{N})   <- ceiling if you could keep every right call")
-print()
-print(f"  found by BOTH        {both:4d}  ({both/N:.1%})")
-print(f"  RampNet ONLY         {r_only:4d}  ({r_only/N:.1%})")
-print(f"  Gemini  ONLY         {g_only:4d}  ({g_only/N:.1%})   <- complementary gain (RampNet-miss n Gemini-hit)")
-print(f"  found by NEITHER     {neither:4d}  ({neither/N:.1%})   <- hard misses, no model helps")
-print()
-print(f"  Union recall lift over RampNet:  +{(union - r_tp)/N:.3f}  ({g_only} ramps)")
-print(f"  Of RampNet's {rampnet_misses} misses, Gemini recovers {g_only} ({g_only/rampnet_misses:.0%}); {neither} nobody finds")
-print(f"  FP cost on these panos:  RampNet {r_fp}  |  Gemini {g_fp}   (a naive union pays ~both)")
+
+def compare_args(args):
+    """A namespace matching ``compare.py``'s parser defaults, so the cache key this
+    script reconstructs is the one ``compare.py`` wrote under.
+
+    Provider defaults come from ``rampnet.roster.PROVIDER_DEFAULTS`` -- one
+    definition, the same source ``fp_taxonomy``'s shim and ``null_recall`` read --
+    because a wrong default here does not crash, it silently misses every cache
+    entry and reports zero detections. The deviation-only knobs
+    (``vistas_input_size``, ``vistas_revision``) are threaded through from the CLI:
+    they enter the signature ONLY when set, so leaving them off reproduces the
+    published arm and setting one addresses a distinct cache entry.
+    """
+    import argparse as _a
+    ns = _a.Namespace()
+    for k, v in dict(
+            roster.PROVIDER_DEFAULTS,
+            owlv2_query=None, gdino_query=None,
+            gdino_text_threshold=None, score_threshold=None,
+            yolo_model=None, tiling=args.tiling,
+            radius=args.radius, op_threshold=0.0, limit=None,
+            cache_dir=args.cache_dir, no_cache=False,
+            vistas_input_size=args.vistas_input_size,
+            vistas_revision=args.vistas_revision).items():
+        setattr(ns, k, v)
+    return ns
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("model", nargs="?", default=roster.PROVIDER_DEFAULTS["gemini_model"],
+                    help="Model spec (provider or provider:model_id). A bare "
+                         "non-provider token is read as a Gemini model id.")
+    ap.add_argument("split", nargs="?", default="richmond",
+                    help="Benchmark split name (default richmond).")
+    ap.add_argument("--cache-dir", default=os.path.join(REPO, ".model_cache"))
+    ap.add_argument("--radius", type=float, default=0.022)
+    ap.add_argument("--tiling", choices=["perspective", "none"], default="perspective")
+    ap.add_argument("--vistas-input-size", type=int, nargs=2, metavar=("H", "W"),
+                    default=None,
+                    help="Override what the Vistas checkpoint actually sees. In the "
+                         "signature only when set, so this addresses a DIFFERENT "
+                         "cache entry than the published 384x384 arm (#126).")
+    ap.add_argument("--vistas-revision", default=None)
+    args = ap.parse_args()
+
+    provider, model_id = model_spec(args.model)
+    bundle = os.path.join(REPO, "benchmark", args.split)
+    records, verdicts, _ = load_bundle(bundle)
+    if verdicts is None:
+        sys.exit(f"{bundle}: no verdicts.json -- this gate needs a reviewed split.")
+    label, detector = build_detector(provider, model_id, records, compare_args(args))
+    sig = detector.signature()
+    cache = DetectionCache(args.cache_dir)
+    radius_sq = radius_sq_for(args.radius)
+
+    n = both = r_only = c_only = neither = 0
+    r_fp = c_fp = 0
+    panos = missing = 0
+    for pid, entry in verdicts.items():
+        gt = build_ground_truth(records[pid]["detections"], entry["dets"],
+                                entry["missed"], entry["no_missed"])
+        if not gt.fn_confirmed:
+            continue
+        cp = cache.get(cache_key(label, sig, args.split, pid))
+        if cp is None:
+            missing += 1
+            continue
+        rp = [(d["x_normalized"], d["y_normalized"], d["confidence"])
+              for d in records[pid]["detections"]]
+        mr, mc = matched_gt(rp, gt.gt_points, radius_sq), matched_gt(cp, gt.gt_points, radius_sq)
+        for i in range(len(gt.gt_points)):
+            r, c = i in mr, i in mc
+            both += r and c
+            r_only += r and not c
+            c_only += c and not r
+            neither += not r and not c
+        n += len(gt.gt_points)
+        r_fp += score_pano(rp, gt).fp
+        c_fp += score_pano(cp, gt).fp
+        panos += 1
+
+    if not n:
+        sys.exit("No recall-eligible panos with cached detections -- nothing to compare. "
+                 "Run compare.py for this model/split first (and pass the SAME "
+                 "--vistas-input-size, which is part of the cache key).")
+
+    r_tp, c_tp, union = both + r_only, both + c_only, both + r_only + c_only
+    r_miss = c_only + neither
+    print(f"{args.split} complementarity — rampnet vs {label}  "
+          f"({panos} recall-eligible panos, {n} GT ramps"
+          + (f"; {missing} panos missing from cache" if missing else "") + ")\n")
+    print(f"  rampnet recall      {r_tp / n:.3f}   ({r_tp}/{n})")
+    print(f"  {label[:18]:18s} recall {c_tp / n:.3f}   ({c_tp}/{n})")
+    print(f"  ORACLE-UNION recall {union / n:.3f}   ({union}/{n})   "
+          f"<- ceiling if you could keep every right call")
+    print()
+    print(f"  found by BOTH        {both:4d}  ({both / n:.1%})")
+    print(f"  rampnet ONLY         {r_only:4d}  ({r_only / n:.1%})")
+    print(f"  {label[:14]:14s} ONLY   {c_only:4d}  ({c_only / n:.1%})   "
+          f"<- complementary gain (rampnet-miss n challenger-hit)")
+    print(f"  found by NEITHER     {neither:4d}  ({neither / n:.1%})   "
+          f"<- hard misses, no model helps")
+    print()
+    print(f"  Union recall lift over rampnet:  +{(union - r_tp) / n:.3f}  ({c_only} ramps)")
+    if r_miss:
+        print(f"  Of rampnet's {r_miss} misses, {label} recovers {c_only} "
+              f"({c_only / r_miss:.0%}); {neither} nobody finds")
+
+    # The counterweight to the oracle number. A naive union keeps every box from
+    # both models, so it pays both FP bills; co-located FPs would dedup, which is
+    # why this is an upper bound on the cost and therefore a LOWER bound on the
+    # union's precision.
+    u_p = union / (union + r_fp + c_fp) if union + r_fp + c_fp else 0.0
+    u_r = union / n
+    u_f1 = 2 * u_p * u_r / (u_p + u_r) if u_p + u_r else 0.0
+    r_p = r_tp / (r_tp + r_fp) if r_tp + r_fp else 0.0
+    r_f1 = 2 * r_p * (r_tp / n) / (r_p + r_tp / n) if r_p + r_tp / n else 0.0
+    print()
+    print(f"  FP cost on these panos:  rampnet {r_fp}  |  {label} {c_fp}"
+          f"   (a naive union pays ~both)")
+    print(f"  rampnet alone:  P {r_p:.3f}  R {r_tp / n:.3f}  F1 {r_f1:.3f}")
+    print(f"  NAIVE UNION:    P {u_p:.3f}  R {u_r:.3f}  F1 {u_f1:.3f}"
+          f"   <- precision is a lower bound (no FP dedup)")
+    print(f"  => a naive union {'BEATS' if u_f1 > r_f1 else 'LOSES TO'} rampnet alone "
+          f"on F1 ({u_f1:.3f} vs {r_f1:.3f})")
+
+
+if __name__ == "__main__":
+    main()
