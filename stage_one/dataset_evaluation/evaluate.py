@@ -132,6 +132,7 @@ def main():
         tp, fp, n_redundant = match_points(
             test_points_pred, manual_points_gt, radius_threshold_sq,
             PANO_SCALE_X, PANO_SCALE_Y,
+            wrap_x=True,       # equirectangular pano: x is cyclic (#132)
         )
         total_true_positives += tp
         total_false_positives += fp
