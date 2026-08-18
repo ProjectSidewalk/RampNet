@@ -1,31 +1,32 @@
-"""See the seam defect: the same ramp, the same pixels, found only when rolled (#132).
+"""See the two real seam defects (#132).
 
-Everything in #132 is a number. This renders the mechanism.
+Everything in #132 is a number. This renders the two findings that survived scrutiny.
 
-For each ground-truth ramp sitting within ~4 deg of the 360 seam, three panels of the
-*same world region*, cut with a wrapping window so the ramp appears whole rather than
-split across the panorama's two edges:
+**Section 1 - the ground truth double-marks the same ramp (#130).** One physical ramp
+straddling the 360 seam was labelled once per edge, because the labelling viewer
+(``gt_gallery.py``) clamped its crop window instead of wrapping it: the two halves landed
+in separate crops most of a panorama apart, so no reviewer could see them as one object.
+Both rings in these panels are the same ramp.
 
-  1. **image**   the crop, with the seam drawn as a line, the ramp ringed at the match
-                 radius the scorer actually uses, and every detection the model emitted
-  2. **original** the model's heatmap over that same crop, from an ordinary forward pass
-  3. **rolled**   the model's heatmap over that same crop, from a pass on a panorama
-                 rolled by half its width — so the ramp sat at the centre of the frame
-                 instead of on its border, with every other pixel unchanged
+**Section 2 - our cached detections drop peaks beside the seam.** ``peaks_to_dets``
+omitted ``exclude_border``, and skimage defaults it to True, so every peak within
+``min_distance``=10 of the array edge was discarded when the committed op_caches were
+built. ``stage_two/evaluate.py`` passes ``exclude_border=False``, so production was never
+affected. These panels show the model responding clearly at a ramp whose detection the
+cache threw away.
 
-The comparison is controlled by construction: panels 2 and 3 differ only in where the
-image border fell. Same model, same weights, same ramp, same pixels.
-
-A second section renders the #130 ground-truth duplicates — one physical ramp carrying
-two marks, one per edge — which is the annotation half of the same defect.
+RETRACTED, and deliberately not rendered here: an earlier version of this gallery showed
+an "original vs rolled" comparison as evidence that the model cannot see across the seam.
+That result was the ``exclude_border`` bug above, not a model property - the model detects
+24 of 25 seam-band ramps. Rolling moved a ramp off the array edge so the extractor stopped
+discarding it, which is why the comparison looked so convincing.
 
 Rendering is at the model's own 4096x2048 input resolution, never the native panorama
 (#26 fairness rule), which also makes the heatmap overlay exact: the heatmap is 1024 wide,
-so four image columns per heatmap column, with no resampling guesswork.
+so four image columns per heatmap column.
 
 Usage:
     python scripts/analysis/seam_gallery.py --panos-root benchmark --out analysis_out/seam_gallery
-    python scripts/analysis/seam_gallery.py --limit 4        # smoke test
 """
 import argparse
 import base64
@@ -50,6 +51,20 @@ from rampnet.geometry import crop_left, dist_to_seam, merge_seam_duplicates  # n
 from seam_roll_diagnostic import (  # noqa: E402
     SEAM_BAND, dedup_seam_only, find_pano_image, heatmap, peaks, wrapped_match)
 from threshold_sweep import PRE  # noqa: E402
+from skimage.feature import peak_local_max  # noqa: E402
+
+
+def peaks_nb(h, threshold, md=10):
+    """Peaks with exclude_border=False -- what stage_two/evaluate.py actually does.
+
+    ``peaks`` (via threshold_sweep) used skimage's default until #132, dropping every
+    peak within ``md`` of the array edge. Both are kept here so the gallery can show the
+    difference rather than assert it.
+    """
+    pk = peak_local_max(np.clip(h, 0, 1), min_distance=md, threshold_abs=threshold,
+                        exclude_border=False)
+    H, W = h.shape
+    return [(float(c / W), float(r / H), float(h[r][c])) for r, c in pk]
 
 Image.MAX_IMAGE_PIXELS = None
 
@@ -117,6 +132,10 @@ def annotate(img, marks, left, side, pano_w):
         if kind == "gt":
             r = R / PANO_SCALE_X * pano_w * scale
             d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=(255, 212, 0), width=4)
+        elif kind == "drop":
+            s = 16
+            d.line([(cx - s, cy - s), (cx + s, cy + s)], fill=(255, 61, 61), width=6)
+            d.line([(cx - s, cy + s), (cx + s, cy - s)], fill=(255, 61, 61), width=6)
         elif kind == "det":
             s = 14
             d.line([(cx - s, cy), (cx + s, cy)], fill=(26, 156, 62), width=5)
@@ -187,36 +206,36 @@ def main():
             continue
         if pid not in cache:
             img = Image.open(path).convert("RGB").resize((MODEL_W, MODEL_H), Image.BILINEAR)
-            h_o = heatmap(model, device, img)
-            # Un-roll the HEATMAP back into original coordinates so the overlay lines up
-            # with the crop. Peaks are then already in original coordinates -- do NOT also
-            # shift them, which would be a second correction of the same half-width and
-            # put every rolled detection half a panorama away. (seam_roll_diagnostic.py
-            # shifts the peaks instead, because it never needs the heatmap itself.)
-            h_r = np.roll(heatmap(model, device, roll_image(img)), HEAT_W // 2, axis=1)
-            det_o = peaks(h_o, args.threshold)
-            det_r = peaks(h_r, args.threshold)
-            cache[pid] = (img, h_o, h_r, det_o, det_r)
-        img, h_o, h_r, det_o, det_r = cache[pid]
+            h = heatmap(model, device, img)
+            # The two extractors, differing ONLY in exclude_border. Everything else --
+            # model, weights, heatmap, min_distance, threshold -- is identical.
+            kept = peaks_nb(h, args.threshold)
+            cached = peaks(h, args.threshold)
+            cache[pid] = (img, h, kept, cached)
+        img, h, kept, cached = cache[pid]
 
         cx = g[0] * MODEL_W
         crop, left, top = cut_wrapped(img, cx, side, height)
-        marks = [("gt", g[0], g[1])] + [("det", d[0], d[1]) for d in det_o]
-        found_o = bool(wrapped_match([(d[0], d[1]) for d in det_o], [g]))
-        found_r = bool(wrapped_match([(d[0], d[1]) for d in det_r], [g]))
+        in_cache = bool(wrapped_match([(d[0], d[1]) for d in cached], [g]))
+        in_prod = bool(wrapped_match([(d[0], d[1]) for d in kept], [g]))
+        dropped = [d for d in kept if d not in cached]
+        marks = ([("gt", g[0], g[1])] + [("det", d[0], d[1]) for d in cached]
+                 + [("drop", d[0], d[1]) for d in dropped])
+        cy = int(g[1] * HEAT_H)
+        cols = [(int(g[0] * HEAT_W) + k) % HEAT_W for k in range(-10, 11)]
+        peak_here = float(np.max(h[max(0, cy - 10):cy + 11][:, cols]))
         cards.append({
             "city": city, "pano": pid,
             "seam_px": round(dist_to_seam(g[0], PANO_SCALE_X), 1),
-            "x": round(g[0], 5), "found_original": found_o, "found_rolled": found_r,
+            "x": round(g[0], 5), "heat": round(peak_here, 3),
+            "in_cache": in_cache, "in_prod": in_prod,
             "img": b64(annotate(crop.copy(), marks, left, side, MODEL_W)),
-            "heat_o": b64(annotate(heat_overlay(crop, h_o, left, top, side, height),
-                                   [("gt", g[0], g[1])], left, side, MODEL_W)),
-            "heat_r": b64(annotate(heat_overlay(crop, h_r, left, top, side, height),
-                                   [("gt", g[0], g[1])], left, side, MODEL_W)),
+            "heat_img": b64(annotate(heat_overlay(crop, h, left, top, side, height),
+                                     [("gt", g[0], g[1])], left, side, MODEL_W)),
         })
         print(f"  {i}/{len(items)} {city}:{pid} seam={cards[-1]['seam_px']}px "
-              f"orig={'HIT' if found_o else 'MISS'} rolled={'HIT' if found_r else 'MISS'}",
-              flush=True)
+              f"heat={peak_here:.2f} cache={'HIT' if in_cache else 'DROPPED'} "
+              f"prod={'HIT' if in_prod else 'miss'}", flush=True)
 
     dupe_cards = []
     for city, pid, raw in dupes:
@@ -247,69 +266,56 @@ def main():
 
 
 def render(cards, dupe_cards, threshold):
-    rec = sum(1 for c in cards if not c["found_original"] and c["found_rolled"])
+    dropped = sum(1 for c in cards if c["in_prod"] and not c["in_cache"])
+    seen = sum(1 for c in cards if c["heat"] >= threshold)
     head = f"""<!-- generated by scripts/analysis/seam_gallery.py (#132) -->
 <meta charset="utf-8"><title>The 360 seam, seen</title>
 <style>
  body{{font:15px/1.55 -apple-system,Segoe UI,Roboto,sans-serif;margin:0;background:#14161a;color:#e8e8ea}}
  .wrap{{max-width:1180px;margin:0 auto;padding:28px 20px 80px}}
- h1{{font-size:26px;margin:0 0 6px}} h2{{font-size:19px;margin:38px 0 10px}}
- .sub{{color:#9aa0a8;margin:0 0 22px}}
+ h1{{font-size:26px;margin:0 0 6px}} h2{{font-size:20px;margin:40px 0 8px}}
+ .sub{{color:#9aa0a8;margin:0 0 20px}}
  .key{{display:flex;gap:20px;flex-wrap:wrap;background:#1c1f25;border:1px solid #2c313a;
-   border-radius:10px;padding:12px 16px;margin:0 0 26px}}
- .key span{{display:inline-flex;align-items:center;gap:7px}}
+   border-radius:10px;padding:12px 16px;margin:0 0 24px}}
+ .key span{{display:inline-flex;align-items:center;gap:7px;font-size:14px}}
  .sw{{width:15px;height:15px;border-radius:3px;display:inline-block}}
- .card{{background:#1c1f25;border:1px solid #2c313a;border-radius:12px;padding:16px;margin:0 0 22px}}
+ .card{{background:#1c1f25;border:1px solid #2c313a;border-radius:12px;padding:16px;margin:0 0 20px}}
  .card h3{{margin:0 0 4px;font-size:15px;font-weight:600}}
  .meta{{color:#9aa0a8;font-size:13px;margin:0 0 12px}}
- .panels{{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}}
+ .panels{{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}}
  figure{{margin:0}} figcaption{{font-size:13px;color:#9aa0a8;margin-top:6px}}
  img{{width:100%;border-radius:8px;display:block}}
  .tag{{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:700}}
- .miss{{background:#5b1a1a;color:#ffb4b4}} .hit{{background:#14401f;color:#9ff0b6}}
- code{{background:#2a2f38;padding:1px 5px;border-radius:4px;font-size:13px}}
+ .bad{{background:#5b1a1a;color:#ffb4b4}} .ok{{background:#14401f;color:#9ff0b6}}
+ .note{{background:#241d10;border:1px solid #5c4415;border-radius:10px;padding:14px 16px;margin:0 0 24px}}
 </style>
 <div class="wrap">
 <h1>The 360&deg; seam, seen</h1>
-<p class="sub">Issue #132. Every panel below is the model's own input resolution
-(4096&times;2048) and the crop is cut with a <b>wrapping</b> window, so a ramp sitting on
-the panorama's edge appears whole instead of split in two. Detections at threshold
-{threshold}.</p>
+<p class="sub">Issue #132. Every panel is at the model's own input resolution
+(4096&times;2048), and each crop is cut with a <b>wrapping</b> window, so a ramp sitting on
+the panorama's edge appears whole instead of split in two.</p>
+<div class="note"><b>What this does not show.</b> An earlier version of this page compared
+an ordinary pass against a 180&deg;-rolled pass, as evidence that the model cannot see
+across the seam. <b>That result was retracted</b> &mdash; it was our own extractor bug
+(section 2), not a model property. The model responds at <b>{seen} of {len(cards)}</b> of
+the ramps below. Those panels are deliberately gone rather than quietly corrected.</div>
 <div class="key">
   <span><i class="sw" style="background:#ffd400"></i> ground truth, ringed at the match radius</span>
-  <span><i class="sw" style="background:#1a9c3e"></i> model detection</span>
+  <span><i class="sw" style="background:#1a9c3e"></i> detection kept by the cache</span>
+  <span><i class="sw" style="background:#ff3d3d"></i> detection the cache dropped</span>
   <span><i class="sw" style="background:#00e5ff"></i> the 360&deg; seam</span>
   <span><i class="sw" style="background:#ff2d2d"></i> heatmap response</span>
 </div>
-<h2>1. Ramps on the seam &mdash; the same pixels, twice</h2>
-<p class="sub">The two heatmap panels differ in <b>one thing only</b>: whether the
-panorama's border fell on the ramp. Same model, same weights, same ramp. Where the
-&ldquo;rolled&rdquo; panel lights up and the &ldquo;original&rdquo; does not, the model
-could see the ramp perfectly well &mdash; it just could not see <i>across the border</i>.
-<b>{rec} of {len(cards)}</b> shown here are recovered by the roll.</p>
 """
     body = []
-    for c in cards:
-        o = ('<span class="tag hit">found</span>' if c["found_original"]
-             else '<span class="tag miss">missed</span>')
-        r = ('<span class="tag hit">found</span>' if c["found_rolled"]
-             else '<span class="tag miss">missed</span>')
-        body.append(f"""<div class="card">
- <h3>{c['city']} &middot; {c['pano']}</h3>
- <p class="meta">{c['seam_px']} px from the seam &middot; x={c['x']} &middot;
-   original {o} &nbsp; rolled {r}</p>
- <div class="panels">
-  <figure><img src="{c['img']}"><figcaption>image &mdash; ramp, seam, and what the model emitted</figcaption></figure>
-  <figure><img src="{c['heat_o']}"><figcaption><b>original</b> &mdash; ramp on the border</figcaption></figure>
-  <figure><img src="{c['heat_r']}"><figcaption><b>rolled 180&deg;</b> &mdash; same ramp, mid-frame</figcaption></figure>
- </div></div>""")
-
     if dupe_cards:
-        body.append("""<h2>2. The ground truth double-marks the same ramp</h2>
-<p class="sub">Issue #130. One physical ramp straddling the seam was labelled once per
-edge, because the labelling viewer clamped its crop window instead of wrapping it &mdash;
-the two halves landed in separate crops most of a panorama apart, so no reviewer could
-see them as one object. Both rings below are the same ramp.</p>""")
+        body.append("""<h2>1. The ground truth double-marks one ramp &mdash; issue #130</h2>
+<p class="sub">One physical ramp straddling the seam, labelled once per edge. The
+labelling viewer clamped its crop window instead of wrapping it, so the two halves landed
+in separate crops most of a panorama apart and no reviewer could see them as one object.
+Both rings below are the same ramp. Note this is <b>not</b> settled for every pair: about
+three of the eleven may be genuinely adjacent far-field ramps, which is why they need
+human adjudication rather than an automatic merge.</p>""")
         for c in dupe_cards:
             xs = ", ".join(f"x={m[0]}" for m in c["marks"])
             body.append(f"""<div class="card">
@@ -317,6 +323,29 @@ see them as one object. Both rings below are the same ramp.</p>""")
  <p class="meta">{len(c['marks'])} marks: {xs}</p>
  <div class="panels"><figure><img src="{c['img']}">
  <figcaption>two ground-truth marks, one ramp</figcaption></figure></div></div>""")
+
+    body.append(f"""<h2>2. Our cached detections drop peaks beside the seam</h2>
+<p class="sub"><code>peaks_to_dets</code> omitted <code>exclude_border</code>, and skimage
+defaults it to <b>True</b>, discarding every peak within <code>min_distance</code>=10 of
+the array edge &mdash; a 3.5&deg; strip either side of the seam. That is how every
+committed <code>op_cache</code> was built. <code>stage_two/evaluate.py</code> passes
+<code>exclude_border=False</code>, so <b>production was never affected</b>. Below, the
+model's heatmap is plainly lit at the ramp and the detection still went missing from the
+cache: <b>{dropped} of {len(cards)}</b> shown here.</p>""")
+    for c in cards:
+        a = ('<span class="tag ok">kept</span>' if c["in_cache"]
+             else '<span class="tag bad">dropped</span>')
+        b = ('<span class="tag ok">found</span>' if c["in_prod"]
+             else '<span class="tag bad">missed</span>')
+        body.append(f"""<div class="card">
+ <h3>{c['city']} &middot; {c['pano']}</h3>
+ <p class="meta">{c['seam_px']} px from the seam &middot; x={c['x']} &middot;
+   peak heatmap response at the ramp <b>{c['heat']}</b> &middot;
+   cache {a} &nbsp; production setting {b}</p>
+ <div class="panels">
+  <figure><img src="{c['img']}"><figcaption>image &mdash; ramp, seam, and both extractors' detections</figcaption></figure>
+  <figure><img src="{c['heat_img']}"><figcaption>the model's heatmap &mdash; it sees the ramp</figcaption></figure>
+ </div></div>""")
     return head + "\n".join(body) + "\n</div>\n"
 
 
