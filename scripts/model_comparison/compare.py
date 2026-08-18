@@ -38,6 +38,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))          # rampnet.* (editable install fallback)
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # local detectors.py
 
+from rampnet import roster  # noqa: E402
 from rampnet.detection_eval import (  # noqa: E402
     build_ground_truth, load_yolo_ground_truths, score_pano, aggregate,
     prediction_confidence, radius_sq_for, PANO_RADIUS_NORMALIZED,
@@ -536,42 +537,49 @@ def main():
     ap.add_argument("bundle", help="Bundle dir (e.g. benchmark/richmond) with records.jsonl + verdicts.json.")
     ap.add_argument("--models", default="rampnet",
                     help=MODELS_HELP)
-    ap.add_argument("--gemini-model", default="gemini-3.6-flash")
-    ap.add_argument("--claude-model", default="claude-sonnet-5",
+    # Every provider default below comes from rampnet.roster.PROVIDER_DEFAULTS. They
+    # feed build_detector and so the detection signature and cache key, and used to
+    # be copied into four separate parsers; a copy that drifts does not crash, it
+    # changes the cache key and silently misses every already-paid detection.
+    _D = roster.PROVIDER_DEFAULTS
+    ap.add_argument("--gemini-model", default=_D["gemini_model"])
+    ap.add_argument("--claude-model", default=_D["claude_model"],
                     help="Claude model id, served via Vertex + ADC (same credentials "
                          "as the Gemini legs). Each model must be enabled separately "
                          "in Vertex Model Garden.")
-    ap.add_argument("--claude-effort", default="low",
+    ap.add_argument("--claude-effort", default=_D["claude_effort"],
                     choices=["low", "medium", "high", "xhigh", "max"],
                     help="How much Claude thinks. Thinking bills as OUTPUT and is the "
                          "dominant cost term, so this is the main cost lever; it is "
                          "part of the detection cache key. Default 'low' — reading a "
                          "view and emitting a box list is not intelligence-sensitive.")
-    ap.add_argument("--claude-tool-choice", default="auto", choices=["auto", "forced"],
+    ap.add_argument("--claude-tool-choice", default=_D["claude_tool_choice"],
+                    choices=["auto", "forced"],
                     help="'forced' guarantees the answer arrives as a tool call, but "
                          "SUPPRESSES THINKING, which makes --claude-effort inert. "
                          "'auto' (default) lets effort actually do something. Also "
                          "part of the cache key.")
-    ap.add_argument("--claude-image-format", default=None, choices=["jpeg", "png"],
+    ap.add_argument("--claude-image-format", default=_D["claude_image_format"], choices=["jpeg", "png"],
                     help="How each view is encoded before it is sent. Default 'jpeg' "
                          "(q90) is what the published annapolis legs ran; 'png' is "
                          "lossless and matches what the Gemini leg receives, so it "
                          "removes an input asymmetry between the two paid legs. "
                          "Costs no extra tokens, but it IS a cache-key change: "
                          "switching means re-paying for the detections.")
-    ap.add_argument("--claude-temperature", type=float, default=None,
+    ap.add_argument("--claude-temperature", type=float, default=_D["claude_temperature"],
                     help="Sampling temperature. Default: send none and take the "
                          "provider default, which is what the published legs did. "
                          "Pass 0.0 to match GeminiDetector's greedy decoding. Also "
                          "a cache-key change.")
-    ap.add_argument("--qwen-model", default="Qwen/Qwen3-VL-8B-Instruct")
-    ap.add_argument("--qwen-coord-space", choices=["auto", "norm1000", "pixels"], default="auto",
+    ap.add_argument("--qwen-model", default=_D["qwen_model"])
+    ap.add_argument("--qwen-coord-space", choices=["auto", "norm1000", "pixels"],
+                    default=_D["qwen_coord_space"],
                     help="Box convention the Qwen checkpoint emits: 'norm1000' (Qwen3-VL, "
                          "0-1000) or 'pixels' (Qwen2/2.5-VL, absolute). 'auto' infers it "
                          "from the model id.")
-    ap.add_argument("--owlv2-model", default="google/owlv2-large-patch14-ensemble")
-    ap.add_argument("--gdino-model", default="IDEA-Research/grounding-dino-base")
-    ap.add_argument("--molmo-model", default="allenai/Molmo2-8B")
+    ap.add_argument("--owlv2-model", default=_D["owlv2_model"])
+    ap.add_argument("--gdino-model", default=_D["gdino_model"])
+    ap.add_argument("--molmo-model", default=_D["molmo_model"])
     ap.add_argument("--owlv2-query", help=f"OWLv2 text query (default {OWLV2_QUERY!r}).")
     ap.add_argument("--gdino-query", help=f"Grounding DINO category text (default {GDINO_QUERY!r}); "
                                           "lowercase, period-terminated.")
@@ -582,21 +590,22 @@ def main():
                          "0.05. This is a CACHE floor, not the operating point: it is part of "
                          "the detector signature, so lowering it re-runs the model, while every "
                          "higher operating point is a free re-score (--op-threshold, --sweep).")
-    ap.add_argument("--molmo-coord-scale", choices=["auto", "100", "1000"], default="auto",
+    ap.add_argument("--molmo-coord-scale", choices=["auto", "100", "1000"],
+                    default=_D["molmo_coord_scale"],
                     help="Divisor for Molmo point coordinates: Molmo 1 emits percentages "
                          "(100), Molmo 2 emits 0-1000. 'auto' infers it from the tag syntax.")
     ap.add_argument("--yolo-model",
                     help="Trained YOLO weights (.pt) for the 'yolo' provider — the supervised "
                          "baseline (issue #51). Required for --models yolo; e.g. "
                          "runs/detect/train/weights/best.pt. Also settable as 'yolo:<path>'.")
-    ap.add_argument("--yolo-conf", type=float, default=0.05,
+    ap.add_argument("--yolo-conf", type=float, default=_D["yolo_conf"],
                     help="Score floor for YOLO boxes (default 0.05). Like --score-threshold for "
                          "the open-vocab detectors, this is a CACHE floor in the signature, not "
                          "the operating point; higher points are free re-scores (--op-threshold, "
                          "--sweep).")
-    ap.add_argument("--yolo-iou", type=float, default=0.5,
+    ap.add_argument("--yolo-iou", type=float, default=_D["yolo_iou"],
                     help="YOLO NMS IoU threshold (default 0.5).")
-    ap.add_argument("--yolo-imgsz", type=int, default=1024,
+    ap.add_argument("--yolo-imgsz", type=int, default=_D["yolo_imgsz"],
                     help="YOLO inference image size (default 1024, matching the perspective view "
                          "size). For --tiling none, set this to the pano-geometry training size.")
     ap.add_argument("--tiling", choices=["perspective", "none"], default="perspective",

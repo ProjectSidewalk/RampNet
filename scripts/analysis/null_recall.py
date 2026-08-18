@@ -69,16 +69,16 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "model_comparison"))
 
+from rampnet import roster  # noqa: E402
 from rampnet.detection_eval import (  # noqa: E402
     aggregate, radius_sq_for, score_pano, PANO_RADIUS_NORMALIZED,
 )
 import compare  # noqa: E402
 from detectors import build_detector, parse_model_spec  # noqa: E402
 
-# The full roster the city splits are scored on, in the results-table order.
-DEFAULT_MODELS = ("rampnet,gemini:gemini-3.1-pro-preview,gemini:gemini-3.6-flash,"
-                  "molmo:allenai/Molmo2-8B,qwen:Qwen/Qwen3-VL-32B-Instruct,"
-                  "qwen:Qwen/Qwen3-VL-8B-Instruct,owlv2,gdino")
+# The full roster the city splits are scored on, from rampnet/roster.py rather than
+# a fourth private copy of it.
+DEFAULT_MODELS = ",".join(roster.SCORED_SPECS)
 
 
 def null_recall(scored, radius_sq):
@@ -122,14 +122,23 @@ def main():
                          "and a stray GPU/API call here is never what you wanted.")
     # build_detector reads these off the namespace; the defaults must match
     # compare.py's or the detector signature -- and so the cache key -- changes.
+    # rampnet.roster.PROVIDER_DEFAULTS is where they are defined, once.
+    _D = roster.PROVIDER_DEFAULTS
     ap.add_argument("--tiling", choices=["perspective", "none"], default="perspective")
-    ap.add_argument("--gemini-model", default="gemini-3.6-flash")
-    ap.add_argument("--qwen-model", default="Qwen/Qwen3-VL-8B-Instruct")
-    ap.add_argument("--qwen-coord-space", choices=["auto", "norm1000", "pixels"], default="auto")
-    ap.add_argument("--owlv2-model", default="google/owlv2-large-patch14-ensemble")
-    ap.add_argument("--gdino-model", default="IDEA-Research/grounding-dino-base")
-    ap.add_argument("--molmo-model", default="allenai/Molmo2-8B")
-    ap.add_argument("--molmo-coord-scale", choices=["auto", "100", "1000"], default="auto")
+    ap.add_argument("--gemini-model", default=_D["gemini_model"])
+    ap.add_argument("--claude-model", default=_D["claude_model"])
+    ap.add_argument("--claude-effort", default=_D["claude_effort"],
+                    choices=["low", "medium", "high", "xhigh", "max"])
+    ap.add_argument("--claude-tool-choice", default=_D["claude_tool_choice"],
+                    choices=["auto", "forced"])
+    ap.add_argument("--qwen-model", default=_D["qwen_model"])
+    ap.add_argument("--qwen-coord-space", choices=["auto", "norm1000", "pixels"],
+                    default=_D["qwen_coord_space"])
+    ap.add_argument("--owlv2-model", default=_D["owlv2_model"])
+    ap.add_argument("--gdino-model", default=_D["gdino_model"])
+    ap.add_argument("--molmo-model", default=_D["molmo_model"])
+    ap.add_argument("--molmo-coord-scale", choices=["auto", "100", "1000"],
+                    default=_D["molmo_coord_scale"])
     args = ap.parse_args()
 
     records, verdicts, panos_dir = compare.load_bundle(args.bundle)

@@ -50,6 +50,8 @@ sys.path.insert(0, REPO)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "scripts", "model_comparison"))
 
+from rampnet import roster  # noqa: E402
+
 from fp_taxonomy import CHALLENGERS, _compare_args  # noqa: E402
 from miss_decomposition import ALL_SPLITS  # noqa: E402
 
@@ -67,13 +69,11 @@ def spec_label(spec, cargs):
     ``build_detector`` would give the same answer, but it imports the detector stack
     (torch, transformers). The whole point of publishing the detections is that a
     fresh clone can score them with neither, so the published path must not drag that
-    import in. Provider defaults come from ``_compare_args``, which a test already
-    cross-checks against ``compare.py``'s parser, so this cannot drift on its own.
+    import in. ``roster.label_for`` is that torch-free resolution, shared with every
+    other caller; ``cargs`` is still consulted so a run with an overridden provider
+    model labels itself with the model actually used.
     """
-    provider, _, model_id = spec.partition(":")
-    if model_id.strip():
-        return model_id.strip()
-    return getattr(cargs, f"{provider.strip()}_model", provider.strip())
+    return roster.label_for(spec, cargs)
 
 
 def load_detections(label, city, published_dir=PUBLISHED_DIR, publish_as=None):

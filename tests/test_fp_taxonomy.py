@@ -24,6 +24,7 @@ sys.path.insert(0, REPO)
 sys.path.insert(0, os.path.join(REPO, "scripts", "analysis"))
 
 import fp_taxonomy as fx  # noqa: E402
+from rampnet import roster  # noqa: E402
 from rampnet.detection_eval import PANO_SCALE_X, PANO_SCALE_Y, radius_sq_for  # noqa: E402
 
 RSQ = radius_sq_for()
@@ -193,10 +194,16 @@ def test_empty_model_does_not_divide_by_zero():
 # drift guard — the silent failure mode
 # --------------------------------------------------------------------------- #
 def _compare_parser_defaults():
-    """``{dest: default}`` for every literal-defaulted flag in compare.py.
+    """``{dest: default}`` for every statically-resolvable flag default in compare.py.
 
     Parsed from the source with ``ast`` rather than by importing: compare.py builds
     its parser inside ``main`` and pulls in the detector stack, which needs torch.
+
+    Two default shapes resolve. A plain literal, and ``_D["key"]`` — the per-provider
+    defaults, which since #122 come from ``rampnet.roster.PROVIDER_DEFAULTS`` instead
+    of being spelled out here. Resolving the subscript rather than skipping it is the
+    point: it keeps this drift check covering the provider flags, and it fails if
+    compare.py ever stops reading the registry.
     """
     path = os.path.join(REPO, "scripts", "model_comparison", "compare.py")
     with open(path, encoding="utf-8") as fh:
@@ -214,8 +221,15 @@ def _compare_parser_defaults():
             continue
         dest = long[2:].replace("-", "_")
         for kw in node.keywords:
-            if kw.arg == "default" and isinstance(kw.value, ast.Constant):
+            if kw.arg != "default":
+                continue
+            if isinstance(kw.value, ast.Constant):
                 out[dest] = kw.value.value
+            elif (isinstance(kw.value, ast.Subscript)
+                    and isinstance(kw.value.value, ast.Name)
+                    and kw.value.value.id == "_D"
+                    and isinstance(kw.value.slice, ast.Constant)):
+                out[dest] = roster.PROVIDER_DEFAULTS[kw.value.slice.value]
     return out
 
 
