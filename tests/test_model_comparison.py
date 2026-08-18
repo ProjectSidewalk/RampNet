@@ -1899,7 +1899,10 @@ def test_build_detector_wires_both_vistas_arms_and_labels_them_apart():
         label, det = build_detector(*parse_model_spec(spec), None, _Args())
         assert label == expect_label, spec
         assert det.signature()["class_ids"] == expect_ids, spec
-        assert det.model_id == VISTAS_CHECKPOINT
+        # model_id is the LABEL (the published-artifact contract); the checkpoint has
+        # its own field, exactly as YoloDetector does with a weights path.
+        assert det.model_id == expect_label
+        assert det.signature()["checkpoint"] == VISTAS_CHECKPOINT
 
 
 def test_vistas_rejects_an_unknown_class_set():

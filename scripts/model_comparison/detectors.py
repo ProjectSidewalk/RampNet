@@ -1639,10 +1639,18 @@ class VistasDetector(_VLMDetector):
 
     name = "vistas"
 
-    def __init__(self, class_set="curb-cut", model_id=None, min_area_px=16,
-                 max_edge=None, tile=True, views=None, dtype="float16"):
-        super().__init__(model_id or VISTAS_CHECKPOINT, max_edge, tile=tile,
-                         views=views)
+    def __init__(self, class_set="curb-cut", label=None, checkpoint=None,
+                 min_area_px=16, max_edge=None, tile=True, views=None,
+                 dtype="float16"):
+        # ``model_id`` is the LABEL, not the checkpoint -- the same trick YoloDetector
+        # uses for a weights path. Two arms share one checkpoint and differ only by
+        # which classes they read, so the checkpoint cannot identify a row; and the
+        # published-artifact contract is that signature["model_id"] equals the file's
+        # model name (tests/test_export_model_cache.py). The checkpoint keeps its own
+        # signature field below.
+        super().__init__(label or f"mask2former-vistas-{class_set}", max_edge,
+                         tile=tile, views=views)
+        self.checkpoint = checkpoint or VISTAS_CHECKPOINT
         if class_set not in VISTAS_CLASS_SETS:
             raise ValueError(
                 f"unknown vistas class set {class_set!r} "
@@ -1666,7 +1674,8 @@ class VistasDetector(_VLMDetector):
 
     def signature(self):
         sig = super().signature()
-        sig.update({"class_set": self.class_set,
+        sig.update({"checkpoint": self.checkpoint,
+                    "class_set": self.class_set,
                     "class_ids": list(self.class_ids),
                     "class_names": list(self.class_names),
                     "min_area_px": self.min_area_px,
@@ -1683,8 +1692,8 @@ class VistasDetector(_VLMDetector):
             raise ImportError(
                 "VistasDetector needs `torch` and `transformers` "
                 "(pip install -r requirements-vlm.txt)") from e
-        self._processor = AutoImageProcessor.from_pretrained(self.model_id)
-        model = Mask2FormerForUniversalSegmentation.from_pretrained(self.model_id)
+        self._processor = AutoImageProcessor.from_pretrained(self.checkpoint)
+        model = Mask2FormerForUniversalSegmentation.from_pretrained(self.checkpoint)
         self._device = "cuda" if torch.cuda.is_available() else "cpu"
         if self._device == "cuda" and self.dtype == "float16":
             model = model.half()
@@ -1703,7 +1712,7 @@ class VistasDetector(_VLMDetector):
             expected = name.replace("-", " ").title()          # curb-cut -> Curb Cut
             if actual is None or actual.strip().lower() != expected.lower():
                 raise RuntimeError(
-                    f"{self.model_id} class {cid} is {actual!r}, expected "
+                    f"{self.checkpoint} class {cid} is {actual!r}, expected "
                     f"{expected!r}. VISTAS_CLASS_IDS is pinned to the 65-class "
                     f"Vistas v1.2 head; this checkpoint has a different label set, "
                     f"so the ids must be re-derived before it can be scored.")
@@ -1840,12 +1849,13 @@ def build_detector(provider, model_id, records, args):
         class_set = (model_id or getattr(args, "vistas_class_set", None)
                      or _D("vistas_class_set"))
         min_area = getattr(args, "vistas_min_area_px", None)
+        label = roster.label_for(f"vistas:{class_set}")
         det = VistasDetector(
-            class_set=class_set,
-            model_id=getattr(args, "vistas_model", None) or _D("vistas_model"),
+            class_set=class_set, label=label,
+            checkpoint=getattr(args, "vistas_model", None) or _D("vistas_model"),
             min_area_px=_D("vistas_min_area_px") if min_area is None else int(min_area),
             tile=tile,
             dtype=getattr(args, "vistas_dtype", None) or _D("vistas_dtype"))
-        return roster.label_for(f"vistas:{class_set}"), det
+        return label, det
     raise ValueError(f"unknown provider '{provider}' "
                      f"(choose from: {', '.join(PROVIDERS)})")

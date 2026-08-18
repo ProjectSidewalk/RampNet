@@ -1,52 +1,0 @@
-Bundle: D:/Git/RampNet/benchmark/richmond  (124 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
-Detection cache: D:/Git/RampNet/.model_cache
-
-Loading weights:   0%|          | 0/758 [00:00<?, ?it/s]Loading weights:  46%|####6     | 351/758 [00:00<00:00, 3287.48it/s]Loading weights: 100%|##########| 758/758 [00:00<00:00, 5173.32it/s]
-[transformers] [1mMask2FormerForUniversalSegmentation LOAD REPORT[0m from: facebook/mask2former-swin-large-mapillary-vistas-semantic
-Key                                                                                                                      | Status     | 
--------------------------------------------------------------------------------------------------------------------------+------------+-
-model.pixel_level_module.encoder.swin.encoder.layers.{0, 1, 2, 3}.blocks.{0...17}.attention.self.relative_position_index | UNEXPECTED | 
-model.pixel_level_module.encoder.swin.layernorm.bias                                                                     | MISSING    | 
-model.pixel_level_module.encoder.swin.layernorm.weight                                                                   | MISSING    | 
-
-Notes:
-- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
-- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
-Loading weights:   0%|          | 0/758 [00:00<?, ?it/s]Loading weights:  58%|#####7    | 436/758 [00:00<00:00, 4340.98it/s]Loading weights: 100%|##########| 758/758 [00:00<00:00, 5503.31it/s]
-[transformers] [1mMask2FormerForUniversalSegmentation LOAD REPORT[0m from: facebook/mask2former-swin-large-mapillary-vistas-semantic
-Key                                                                                                                      | Status     | 
--------------------------------------------------------------------------------------------------------------------------+------------+-
-model.pixel_level_module.encoder.swin.encoder.layers.{0, 1, 2, 3}.blocks.{0...17}.attention.self.relative_position_index | UNEXPECTED | 
-model.pixel_level_module.encoder.swin.layernorm.bias                                                                     | MISSING    | 
-model.pixel_level_module.encoder.swin.layernorm.weight                                                                   | MISSING    | 
-
-Notes:
-- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
-- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
-Operating point: predictions with confidence < 0.3 dropped (models without confidences are unaffected).
-model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
--------------------------------------------------------------------------------------------------------------------
-rampnet                               0.964   (0.932-0.981)  0.768   (0.718-0.811)  0.855  0.763        238/9/72/20
-mask2former-vistas-curb-cut           0.419   (0.378-0.462)  0.697   (0.643-0.745)  0.524  0.513      216/299/94/30
-mask2former-vistas-curb-cut+curb      0.127   (0.112-0.145)  0.648   (0.594-0.699)  0.213  0.089    201/1377/109/49
-AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
-
---- RampNet verdict-based cross-check ---
-Panos fully judged:   124 (of 124 seen)
-Detections judged:    247  (correct 237, incorrect 10)
-Detections duplicate: 1  (redundant hits on an already-counted ramp; folded into the numbers above per this run's duplicate scoring)
-Detections unsure:    20  (abstained — not in precision or recall)
-Missed ramps marked:  73  (+78 unsure, abstained)
-Precision: 0.960  (95% CI 0.927-0.978)
-Recall:    0.765  (95% CI 0.714-0.808)  [vs ramps visible in the 124 recall-pool panos]
-
-threshold   kept  precision   recall
-     0.55    247      0.960    0.765
-     0.60    240      0.963    0.745
-     0.65    226      0.982    0.716
-     0.70    210      0.986    0.668
-     0.75    195      0.990    0.623
-     0.80    178      0.989    0.568
-     0.85    151      0.993    0.484
-     0.90     90      1.000    0.290
-     0.95     31      1.000    0.100
