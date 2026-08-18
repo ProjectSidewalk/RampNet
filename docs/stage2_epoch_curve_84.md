@@ -1,8 +1,11 @@
 # Run A: the Stage 2 epoch curve (#84)
 
-**Status: training COMPLETE 2026-08-16. The auto-label half of the curve is below and replicates the
-paper run, minimum included. The `manual_gold` half — the question this run exists to answer — is
-not scored yet.**
+**Status: COMPLETE — training 2026-08-16, scoring 2026-08-17. The auto-label half of the curve is
+below and replicates the paper run, minimum included. The `manual_gold` half — the question this run
+exists to answer — is scored below too, along with a protocol-matched TTA arm. The answer is a
+fourth outcome the pre-registration did not enumerate: under its own 0.01 tie bar there is no
+resolvable human peak. Only epoch 1 sits clear of the maximum; epochs 2–8 are tied with one another,
+so the curve steps up once and is then flat.**
 
 ## What this run is
 
