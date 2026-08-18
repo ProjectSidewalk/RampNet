@@ -27,6 +27,38 @@ from rampnet.loading import load_checkpoint
 # much smaller step so it refines rather than forgets.
 PRESET_LR = {'scratch': 1e-5, 'finetune': 3e-6}
 
+#: Learning-rate schedules. 'constant' is the paper recipe and the default, so every
+#: existing invocation is byte-for-byte unaffected; 'cosine' is the #135 rung.
+LR_SCHEDULES = ('constant', 'cosine')
+
+
+def lr_at_step(step, total_steps, peak_lr, schedule='constant', final_frac=0.0):
+    """The learning rate for training step ``step``, from the step index alone.
+
+    **Deliberately stateless, and that is the whole point.** Stage 2 runs on klone's
+    preemptible ``ckpt-all`` partition -- Run A was requeued twice -- and resumes from
+    ``latest_checkpoint.pth``. A stateful scheduler (``CosineAnnealingLR`` and friends
+    keep ``last_epoch`` internally) would restart its decay from the peak on every
+    requeue unless its state were also saved and restored, turning a smooth cosine
+    into a sawtooth. That failure is silent: the run completes, the loss curve looks
+    plausible, and the schedule under test was never actually applied.
+
+    Computing the rate from ``global_step`` -- which is already checkpointed, already
+    broadcast to every rank, and already correct across resume -- makes that
+    impossible by construction rather than by remembering to serialize one more field.
+
+    ``final_frac`` is the fraction of ``peak_lr`` the cosine lands on at the end
+    (0.0 = decay to zero). There is **no warmup**: adding one would be a second
+    change, and the rung exists to isolate the decay.
+    """
+    if schedule == 'constant':
+        return peak_lr
+    if schedule != 'cosine':
+        raise ValueError(f"unknown lr schedule {schedule!r}")
+    progress = min(max(step / max(1, total_steps), 0.0), 1.0)
+    floor = peak_lr * final_frac
+    return floor + (peak_lr - floor) * 0.5 * (1.0 + math.cos(math.pi * progress))
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Train the stage-2 panorama curb ramp detector.")
@@ -45,7 +77,16 @@ def parse_args():
                              "run always takes precedence, and warm-starting applies at step 0 only.")
     parser.add_argument('--checkpoint-dir', default='checkpoints',
                         help="Directory for per-epoch checkpoints (default: checkpoints)")
+    parser.add_argument('--lr-schedule', choices=LR_SCHEDULES, default='constant',
+                        help="'constant' is the paper recipe and the default -- every "
+                             "existing invocation is unaffected. 'cosine' decays --lr to "
+                             "--lr-final-frac of itself over the whole run, with no "
+                             "warmup (#135 rung).")
+    parser.add_argument('--lr-final-frac', type=float, default=0.0,
+                        help="Fraction of --lr the cosine ends at (default 0.0).")
     args = parser.parse_args()
+    if not 0.0 <= args.lr_final_frac < 1.0:
+        parser.error("--lr-final-frac must be in [0, 1)")
     if args.preset == 'finetune' and args.init_weights is None:
         parser.error("--preset finetune requires --init-weights")
     if args.lr is None:
@@ -269,16 +310,24 @@ criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=args.lr)
 scaler = torch.cuda.amp.GradScaler()
 
+num_epochs = args.epochs
+# The cosine's horizon. len(train_loader) is per-rank and drop_last=True, so this is
+# the same 9,378 steps per epoch the paper run and Run A took at world size 16 -- the
+# decay is defined over the whole run, not per epoch.
+total_train_steps = num_epochs * len(train_loader)
+
 if rank == 0:
     os.makedirs("peek_training", exist_ok=True)
     os.makedirs(args.checkpoint_dir, exist_ok=True)
     writer = SummaryWriter(log_dir='runs/experiment_1')
     print(f"Preset: {args.preset}, lr: {args.lr}, epochs: {args.epochs}, data root: {new_root_dir}")
+    print(f"LR schedule: {args.lr_schedule}"
+          + (f" -> {args.lr * args.lr_final_frac:.3g} over {total_train_steps} steps"
+             if args.lr_schedule != 'constant' else " (no decay, as in the paper)"))
 
 else:
     writer = None
 
-num_epochs = args.epochs
 checkpoint_interval_steps = 1000
 start_epoch = 0
 global_step = 0
@@ -347,11 +396,23 @@ for epoch in range(start_epoch, num_epochs):
     
     for i, (images, target_heatmaps) in enumerate(train_loader):
         if epoch == start_epoch and i < batch_idx_in_epoch:
-            continue 
+            continue
+
+        # Absolute, 0-based index of the step about to be taken. Reconstructed from
+        # the checkpointed global_step, so it is correct on the first launch and after
+        # any number of requeues -- see lr_at_step for why the schedule reads this
+        # rather than keeping state of its own.
+        iter_in_epoch = i - (batch_idx_in_epoch if epoch == start_epoch else 0)
+        step_index = global_step + iter_in_epoch
+        current_lr = lr_at_step(step_index, total_train_steps, args.lr,
+                                args.lr_schedule, args.lr_final_frac)
+        if args.lr_schedule != 'constant':
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = current_lr
 
         images = images.cuda(local_rank, non_blocking=True)
         target_heatmaps = target_heatmaps.cuda(local_rank, non_blocking=True)
-        
+
         optimizer.zero_grad(set_to_none=True)
         
         with torch.cuda.amp.autocast():
@@ -367,11 +428,14 @@ for epoch in range(start_epoch, num_epochs):
         
         
         
-        current_iter_in_epoch = i - (batch_idx_in_epoch if epoch == start_epoch else 0)
-        current_total_step = global_step + current_iter_in_epoch + 1 
+        current_total_step = step_index + 1
 
         if rank == 0:
             writer.add_scalar('Loss/train_step', loss.item(), current_total_step)
+            # Logged every step so the schedule that was ACTUALLY applied is
+            # recoverable from the committed events afterwards. A sawtooth from a
+            # mis-resumed scheduler is invisible in the loss curve and obvious here.
+            writer.add_scalar('LR', current_lr, current_total_step)
             progress_bar.set_postfix(loss=loss.item(), step=current_total_step)
             progress_bar.update(1) 
 
