@@ -54,10 +54,29 @@ them belongs to a registered leg:
 `rampnet` is a row in every results table and has no file here: it is read from each bundle's
 committed `records.jsonl` and carries no detector signature.
 
-Two tests hold that table up rather than trust it.
+Every one of those files is in **canonical form** — byte-identical to what
+`export_model_cache.py` would write today — which is the difference between a corpus that
+*is* reproducible and one that merely scores the same. It was not, until 2026-08-18: the
+`published_as` field arrived with the Claude legs, so the 108 files exported before it lacked
+it and re-exporting any of them produced a diff with identical detections inside. Bringing
+them up to date needed no cache, because the serialization is deterministic and each file's
+published name was recoverable from the file itself:
+
+```bash
+python scripts/analysis/export_model_cache.py --canonicalize          # report
+python scripts/analysis/export_model_cache.py --canonicalize --write  # apply
+```
+
+That is worth knowing for the next envelope change: **it is not a reason to go find the
+machine that produced each leg.** Only a file whose published name cannot be derived from its
+own contents needs a real re-export, and `--canonicalize` names those rather than guessing.
+`test_every_published_file_is_in_canonical_form` now fails if the corpus drifts again.
+
+Three tests hold that table up rather than trust it.
 `test_the_ledger_count_matches_the_directory` asserts the count, and
 `test_every_published_detections_file_belongs_to_a_registered_leg` asserts the stronger
-property that nothing in the directory is unaccounted for. The second one is why this table
+property that nothing in the directory is unaccounted for; the third is the canonical-form
+check above. The second one is why this table
 exists: **the registry covered 78 of the 112 files.** The YOLO arms and the Claude legs had
 been run, scored, verified and written up, and the one place that is supposed to enumerate
 every model said nothing about them — which is also what the unremarked 78 → 108 jump in the

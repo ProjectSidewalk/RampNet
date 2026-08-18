@@ -40,6 +40,7 @@ Downstream code reads the export through :func:`load_detections`, preferring it 
 ``.model_cache`` when present, so a fresh clone works with no cache at all.
 """
 import argparse
+import glob
 import json
 import os
 import sys
@@ -199,9 +200,59 @@ def export(cache_dir, out_dir, splits, specs, allow_partial=False, overrides=Non
                 json.dump({"model": label, "published_as": name,
                            "city": city, "signature": sig,
                            "n_panos": len(dets), "n_uncached": missing,
-                           "detections": dets}, fh, separators=(",", ":"), sort_keys=True)
+                           "detections": dets}, fh, **DUMP_KW)
             written.append((label, city, len(dets), missing, os.path.getsize(path)))
     return written, skipped, partial, collisions
+
+
+#: Exactly how a published file is serialized. Any writer must use these, or two
+#: runs that agree on every value still produce different bytes.
+DUMP_KW = {"separators": (",", ":"), "sort_keys": True}
+
+
+def canonical_bytes(payload):
+    """The published form of one export's payload."""
+    return json.dumps(payload, **DUMP_KW).encode("utf-8")
+
+
+def canonicalize(out_dir=PUBLISHED_DIR, write=False):
+    """Bring published files up to the current envelope, without a cache.
+
+    The detections are never touched -- only the metadata header around them. This
+    exists because the header gains fields over time: ``published_as`` arrived with
+    the Claude legs (#122), so the 110 files exported before it did not have it, and
+    re-running the exporter on any of them would have produced a file that differed
+    from the committed one. That is the thing docs/replication.md promises does not
+    happen.
+
+    The alternative was re-exporting from ``.model_cache``, which would mean finding
+    the machine that produced each leg -- Hyak for the open detectors, makelab2 for
+    the YOLO trio. Unnecessary: the serialization is deterministic (``DUMP_KW``), and
+    for every one of those files the published name is recoverable from the file
+    itself, so the result is byte-identical to what a real re-export would write.
+
+    Returns ``(changed, unfixable)``. ``unfixable`` lists files whose published name
+    cannot be derived -- ``slug(model)`` disagreeing with the filename means the file
+    was published under a name only the run that made it knew, and guessing it is
+    exactly the silent rename this whole mechanism exists to prevent.
+    """
+    changed, unfixable = [], []
+    for path in sorted(glob.glob(os.path.join(out_dir, "*__*.json"))):
+        raw = open(path, "rb").read()
+        payload = json.loads(raw.decode("utf-8"))
+        stem = os.path.basename(path).rpartition("__")[0]
+        if "published_as" not in payload:
+            if slug(payload["model"]) != stem:
+                unfixable.append((os.path.basename(path), payload["model"]))
+                continue
+            payload["published_as"] = payload["model"]
+        out = canonical_bytes(payload)
+        if out != raw:
+            changed.append(os.path.basename(path))
+            if write:
+                with open(path, "wb") as fh:
+                    fh.write(out)
+    return changed, unfixable
 
 
 def verify(cache_dir, out_dir, splits, specs, overrides=None, publish_as=None):
@@ -300,7 +351,22 @@ def main(argv=None):
                         "legs that would otherwise both write claude-sonnet-5__<split>.json. "
                         "Names ONE leg, so it takes a single --models spec. The SAME value "
                         "must be passed to --verify.")
+    p.add_argument("--canonicalize", action="store_true",
+                   help="Bring the published files up to the current metadata "
+                        "envelope and exit. Touches no detections and needs no "
+                        "cache. Reports what would change; add --write to apply.")
+    p.add_argument("--write", action="store_true",
+                   help="With --canonicalize, actually rewrite the files.")
     args = p.parse_args(argv)
+
+    if args.canonicalize:
+        changed, unfixable = canonicalize(args.out, write=args.write)
+        for name, model in unfixable:
+            print(f"  ✗ {name}: published under a name not derivable from "
+                  f"model {model!r} — re-export it from the cache that made it")
+        verb = "rewrote" if args.write else "would rewrite"
+        print(f"{verb} {len(changed)} file(s); {len(unfixable)} need a real re-export")
+        return 1 if unfixable else 0
 
     splits = [s.strip() for s in args.splits.split(",") if s.strip()]
     specs = [s.strip() for s in args.models.split(",") if s.strip()]
