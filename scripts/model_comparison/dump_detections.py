@@ -55,6 +55,11 @@ def detections_to_view_shapes(detector, raw, width, height):
     wrong place rather than as a slightly-off center."""
     shapes = []
     for it in raw:
+        # This is the gate that catches a transposed coordinate convention, so it
+        # must not be the thing that crashes on the malformed item the detectors
+        # now tolerate (a bare string is the shape actually observed from Claude).
+        if not isinstance(it, dict):
+            continue
         if "box_2d" in it:                      # Gemini: [ymin, xmin, ymax, xmax], 0-1000
             ymin, xmin, ymax, xmax = it["box_2d"]
             shapes.append(("rect", xmin / 1000.0 * width, ymin / 1000.0 * height,

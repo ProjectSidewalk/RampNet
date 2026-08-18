@@ -243,6 +243,8 @@ def test_the_flags_that_feed_the_signature_are_all_present():
     for k in ("gemini_model", "qwen_model", "qwen_coord_space", "owlv2_model",
               "gdino_model", "molmo_model", "owlv2_query", "gdino_query",
               "gdino_text_threshold", "score_threshold", "molmo_coord_scale",
+              "claude_model", "claude_effort", "claude_tool_choice",
+              "claude_image_format", "claude_temperature",
               "tiling", "radius"):
         assert k in ours, k
 

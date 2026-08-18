@@ -50,18 +50,25 @@ PRICING = {
     # actually governs this billing path, unlike the Gemini rows above. Both
     # models match Anthropic's own published first-party rates exactly, and the
     # derived rates are the standard multipliers (cache hit 0.1x input, 5m cache
-    # write 1.25x, 1h 2x, batch 50%). REGIONAL endpoints cost 10% more than
+    # write 1.25x, 1h 2x, batch 50%) -- `cache_read_per_m` / `cache_write_per_m`
+    # below are the 5-minute-TTL pair, recorded because Anthropic bills them as
+    # separate SKUs that are EXCLUDED from input_tokens, so a run that ever sets
+    # cache_control would otherwise be costed with the cached half missing. They
+    # are zero on every run so far: the tool definition renders below Sonnet 5's
+    # 1,024-token minimum cacheable prefix, so nothing is cacheable yet.
+    # REGIONAL endpoints cost 10% more than
     # `global` -- these numbers are wrong if the rig is ever pointed off `global`.
     # No long-context premium: the <=200K and >200K SKUs are priced identically.
     "claude-sonnet-5": {
-        "input_per_m": 2.00, "output_per_m": 10.00, "as_of": "2026-08-15",
+        "input_per_m": 2.00, "output_per_m": 10.00,
+        "cache_read_per_m": 0.20, "cache_write_per_m": 2.50, "as_of": "2026-08-15",
         "note": ("Vertex `global`; promotional launch pricing through 2026-08-31, "
                  "$3.00/$15.00 after. Regional +10%."),
     },
     "claude-opus-5": {
-        "input_per_m": 5.00, "output_per_m": 25.00, "as_of": "2026-08-15",
-        "note": ("Vertex `global`; regional +10%. NOT enabled on the project as of "
-                 "this date -- price recorded, model unavailable until enabled."),
+        "input_per_m": 5.00, "output_per_m": 25.00,
+        "cache_read_per_m": 0.50, "cache_write_per_m": 6.25, "as_of": "2026-08-15",
+        "note": "Vertex `global`; regional +10%.",
     },
 }
 
@@ -73,11 +80,24 @@ def price_for(model_id):
     return PRICING.get(model_id)
 
 
-def estimate_cost(model_id, input_tokens, output_tokens):
-    """Estimated USD for a (input, output) token count, or None if the model
-    has no verified price. Output counts must already include thinking tokens
-    (the SDK reports them separately; billing does not)."""
+def estimate_cost(model_id, input_tokens, output_tokens,
+                  cache_read_tokens=0, cache_write_tokens=0):
+    """Estimated USD for a token count, or None if the model has no verified price.
+
+    Output counts must already include thinking tokens (the SDK reports them
+    separately; billing does not).
+
+    ``cache_*`` are separate SKUs rather than a subset of ``input_tokens``, and
+    they are priced ONLY for models whose cache rates were read off the rate card
+    -- never derived here. A model without them prices its plain tokens and stays
+    silent about the rest, which is the same discipline as a model with no entry
+    at all returning None instead of $0."""
     p = price_for(model_id)
     if p is None:
         return None
-    return (input_tokens * p["input_per_m"] + output_tokens * p["output_per_m"]) / 1e6
+    usd = input_tokens * p["input_per_m"] + output_tokens * p["output_per_m"]
+    if cache_read_tokens and "cache_read_per_m" in p:
+        usd += cache_read_tokens * p["cache_read_per_m"]
+    if cache_write_tokens and "cache_write_per_m" in p:
+        usd += cache_write_tokens * p["cache_write_per_m"]
+    return usd / 1e6
