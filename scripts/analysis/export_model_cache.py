@@ -42,7 +42,6 @@ Downstream code reads the export through :func:`load_detections`, preferring it 
 import argparse
 import json
 import os
-import re
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -58,9 +57,11 @@ from miss_decomposition import ALL_SPLITS  # noqa: E402
 PUBLISHED_DIR = os.path.join(REPO, "benchmark", "model_detections")
 
 
-def slug(label):
-    """Filesystem-safe model id. ``IDEA-Research/grounding-dino-base`` -> ``IDEA-Research__grounding-dino-base``."""
-    return re.sub(r"[^A-Za-z0-9._-]+", "__", label)
+#: Filesystem-safe model id, e.g. ``IDEA-Research/grounding-dino-base`` ->
+#: ``IDEA-Research__grounding-dino-base``. Defined in the roster so the test that
+#: checks this directory against the registry can spell a filename without importing
+#: the exporter; re-exported here because that is where callers look for it.
+slug = roster.slug
 
 
 def spec_label(spec, cargs):

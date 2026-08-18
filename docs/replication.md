@@ -32,21 +32,36 @@ lives on one machine.
 ### ✅ Resolved — the challenger detections are published
 
 `fp_taxonomy.py`, `silent_witness.py`, `complementarity.py` and `null_recall.py` all read the
-challenger detections (Gemini ×2, Qwen ×2, Molmo, OWLv2, Grounding DINO). Those cost real GPU-hours
-on Hyak and paid API spend, and until 2026-07-31 they lived only in a git-ignored `.model_cache/`,
-so every number they produced was reproducible on exactly one machine.
+challenger detections. Those cost real GPU-hours on Hyak and paid API spend, and until
+2026-07-31 they lived only in a git-ignored `.model_cache/`, so every number they produced was
+reproducible on exactly one machine. Which models those are is `rampnet/roster.py`, not a list
+in this sentence — the list here was one of the things that drifted.
 
 `.model_cache` is fine as a *working* cache and hostile as a published artifact: 12,951
 single-panorama shards keyed by an opaque SHA-1 of (label, signature, city, pano), unreadable
 without reconstructing detector signatures. `scripts/analysis/export_model_cache.py` consolidates
 it into human-readable files, one per (model, split), keyed by panorama id with the detector
-signature recorded inside. As of 2026-08-18 that is **112 files, 22.9 MB** — the seven-model
-roster across ten splits, plus the ten-split gemini-3.7-flash leg and the four annapolis
-Claude legs, both described below. `test_the_ledger_count_matches_the_directory` asserts
-this number against the directory, so it can no longer drift unnoticed. Who is on the
-roster is `rampnet/roster.py`, not a count in this sentence; `rampnet` itself is a row in
-every results table but has no file here — it is read from each bundle's committed
-`records.jsonl` and carries no detector signature.
+signature recorded inside. As of 2026-08-18 that is **112 files, 22.9 MB**, and every one of
+them belongs to a registered leg:
+
+| what | files | where it is written up |
+|---|---:|---|
+| the standing zero-shot roster, ten splits each (two Gemini legs are absent on `manual_gold`) | 68 | the roster tables in [`model_comparison.md`](model_comparison.md) |
+| `gemini-3.7-flash`, ten splits, published ahead of its write-up (#120) | 10 | §below |
+| the supervised YOLO pano trio, ten splits each (#51) | 30 | [`model_comparison.md` §supervised baseline](model_comparison.md), and the [training record](../scripts/model_comparison/yolo_baseline/README.md) |
+| the four annapolis Claude legs (#122) | 4 | [`model_comparison.md` §Claude](model_comparison.md) |
+
+`rampnet` is a row in every results table and has no file here: it is read from each bundle's
+committed `records.jsonl` and carries no detector signature.
+
+Two tests hold that table up rather than trust it.
+`test_the_ledger_count_matches_the_directory` asserts the count, and
+`test_every_published_detections_file_belongs_to_a_registered_leg` asserts the stronger
+property that nothing in the directory is unaccounted for. The second one is why this table
+exists: **the registry covered 78 of the 112 files.** The YOLO arms and the Claude legs had
+been run, scored, verified and written up, and the one place that is supposed to enumerate
+every model said nothing about them — which is also what the unremarked 78 → 108 jump in the
+drift list below actually was.
 
 ```bash
 python scripts/analysis/export_model_cache.py --out benchmark/model_detections
@@ -57,6 +72,16 @@ python scripts/analysis/export_model_cache.py --verify     # exported == cached
 — **68/68 pairs on the default roster verified identical** — because a published artifact
 that silently differs from what produced the paper's numbers is worse than none. It exits
 non-zero when it had nothing to compare, so a green run cannot mean "found no cache".
+
+The other 44 files were each verified the same way when they were published, but by their own
+invocation against their own cache rather than by the default-roster one above — the YOLO
+trio on makelab2 (30 files, identical to the producing cache; see the
+[training record](../scripts/model_comparison/yolo_baseline/README.md)) and the four Claude
+legs one at a time under `--publish-as` (see
+[`model_comparison.md`](model_comparison.md)). Re-running `--verify` on any of them needs the
+cache that produced it, which is machine-local by construction. What a clean clone can check
+without any cache is that each file's recorded signature still matches the leg the registry
+says it is: `test_each_published_file_names_the_leg_it_says_it_is`.
 
 **Keep this count current when a leg is added.** It drifted three times (61 → 68 at the São
 Paulo split, 68 → 78 at gemini-3.7-flash, 78 → 108 unremarked) before anyone noticed, and a

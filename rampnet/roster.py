@@ -15,7 +15,7 @@ CPU-only test suite has to cover it. It follows the splits registry in
 literally rather than derived from ``ROSTER`` precisely so that adding a challenger
 cannot touch it. See the comment on it.
 
-Three properties of an entry are worth stating because they are easy to get wrong:
+Five properties of an entry are worth stating because they are easy to get wrong:
 
 * ``density`` is **evidence, not configuration** — it comes from the measured
   boxes-per-panorama in ``docs/model_comparison.md`` (sparse models emit 1-4, the
@@ -26,15 +26,43 @@ Three properties of an entry are worth stating because they are easy to get wron
   A leg can be run, verified and committed long before its write-up lands
   (``gemini-3.7-flash``, #120); that is an omission of a write-up, not of a run, and
   the distinction is data here rather than prose in a doc.
-* ``label`` is the resolved model id used for result-table rows and for
-  ``benchmark/model_detections/<label>__<city>.json``. For nearly every provider it is
-  derivable from the spec; ``LABEL_OVERRIDES`` covers the ones where it is not.
+* ``label`` is the resolved model id: the result-table row, and the key the detection
+  cache is already written under. For nearly every provider it is derivable from the
+  spec; ``LABEL_OVERRIDES`` covers the ones where it is not.
+* ``pins`` is what makes a registered thing a **leg** rather than a model. A knob that
+  enters the detection signature splits one model id into several sets of detections:
+  ``claude-sonnet-5`` at effort ``low`` and at effort ``high`` are different runs with
+  different cache keys and different results. Each is its own entry, and ``pins``
+  names the knob it holds, as ``(("claude_effort", "high"),)``.
+* ``published_as`` is the filename stem under ``benchmark/model_detections/``, and it
+  defaults to ``label``. It exists because ``label`` cannot carry a pin: the label is
+  baked into cache keys that were already paid for, so renaming it orphans the
+  detections. The two came apart the first time a provider had a pin, and both legs
+  wanted ``claude-sonnet-5__annapolis.json``, the second silently overwriting the
+  first. **Once any leg of a model needs disambiguating, give every leg of that model
+  the same treatment** — a directory where one file is bare and its sibling is
+  qualified reads as though the bare one is the whole model.
 """
 from collections import namedtuple
+import os
+import re
 
-#: One registered model. ``spec`` is the ``compare.py --models`` token.
+
+def slug(label):
+    """Filesystem-safe model id.
+
+    ``IDEA-Research/grounding-dino-base`` -> ``IDEA-Research__grounding-dino-base``.
+    Defined here rather than in the exporter because the roster is what knows the set
+    of published names, and the test that checks the directory against the registry
+    must not import the exporter's dependencies to spell one filename.
+    """
+    return re.sub(r"[^A-Za-z0-9._-]+", "__", label)
+
+#: One registered leg. ``spec`` is the ``compare.py --models`` token; ``pins`` are the
+#: extra signature-entering settings it was run with, if any.
 Challenger = namedtuple(
-    "Challenger", "spec label provider density standing added note")
+    "Challenger", "spec label provider density standing added note pins published_as",
+    defaults=((), None))
 
 # --------------------------------------------------------------------------- #
 # The registry
@@ -95,6 +123,73 @@ ROSTER = (
              "Density measured 2026-08-18 off the published detections: 1.90 "
              "boxes/pano over 2,109 panos, against gemini-3.6-flash's 2.34 and "
              "OWLv2's 72.77."),
+
+    # The supervised YOLO baseline (#51). Ten splits each, scored under the
+    # pre-registered #71 protocol and written up in their own table in
+    # docs/model_comparison.md -- so they are published and scored, but not in the
+    # roster tables, which are the zero-shot comparison. Keeping them out of
+    # SCORED_SPECS is not bookkeeping: that tuple is the default --models of
+    # fp_taxonomy, null_recall and silent_witness, and a yolo spec carries a local
+    # .pt path, so promoting them would make three analysis scripts fail on any
+    # clone without the checkpoints.
+    Challenger(
+        spec="yolo:yolo_ckpts/y11l_pano.pt", label="y11l_pano", provider="yolo",
+        density="sparse", standing=False, added="2026-08-14",
+        note="YOLO11-L, pano geometry, 60 epochs. Best pano arm on seven of ten "
+             "splits. 2.11 boxes/pano at the headline conf 0.25, 4.79 at the 0.05 "
+             "floor the detections are published down to. The spec's path is the "
+             "convention its committed driver uses "
+             "(yolo_baseline/benchmark_eval/run_yolo_pano_eval.sh): fetch the "
+             "sha256-verified snapshot into yolo_ckpts/. Identity is the file stem "
+             "plus a weights content hash, not the path, so the cache key survives "
+             "being run from a different directory."),
+    Challenger(
+        spec="yolo:yolo_ckpts/y11x_pano_h200.pt", label="y11x_pano_h200",
+        provider="yolo", density="sparse", standing=False, added="2026-08-14",
+        note="YOLO11-X, the Tillicum-trained arm. 2.02 boxes/pano at 0.25, 4.42 at "
+             "0.05. Best arm in-distribution (manual_gold 0.851) and the highest AP "
+             "of the trio, at the lowest recall."),
+    Challenger(
+        spec="yolo:yolo_ckpts/y26_pano.pt", label="y26_pano", provider="yolo",
+        density="sparse", standing=False, added="2026-08-14",
+        note="YOLO26-L. The loosest of the trio -- 2.60 boxes/pano at 0.25 and 9.39 "
+             "at 0.05, roughly double the YOLO11 arms -- which is why it leads only "
+             "on budapest, where firing at all is the binding constraint."),
+
+    # The four annapolis Claude legs (#122). One split, so they cannot join tables
+    # the other rows report over ten; the write-up is annapolis-only for the same
+    # reason. Two model ids x two efforts: the first provider whose knob splits one
+    # id into several legs, hence `pins` and `published_as`.
+    Challenger(
+        spec="claude:claude-opus-5", label="claude-opus-5", provider="claude",
+        density="sparse", standing=False, added="2026-08-15",
+        pins=(("claude_effort", "low"),),
+        published_as="claude-opus-5-effort-low",
+        note="Top challenger on annapolis (F1 0.588), the first model to displace "
+             "gemini-3.1-pro. 2.56 boxes/pano. Effort low is the provider default, "
+             "so this is what a bare `claude:claude-opus-5` reproduces."),
+    Challenger(
+        spec="claude:claude-opus-5", label="claude-opus-5", provider="claude",
+        density="sparse", standing=False, added="2026-08-15",
+        pins=(("claude_effort", "high"),),
+        published_as="claude-opus-5-effort-high",
+        note="Same model, more thinking, worse F1 (127k thinking tokens to lose "
+             "0.068). 3.73 boxes/pano against low's 2.56: effort moves the "
+             "operating point, it does not raise the ceiling."),
+    Challenger(
+        spec="claude:claude-sonnet-5", label="claude-sonnet-5", provider="claude",
+        density="sparse", standing=False, added="2026-08-15",
+        pins=(("claude_effort", "low"),),
+        published_as="claude-sonnet-5-effort-low",
+        note="1.56 boxes/pano, the sparsest leg in the registry. Re-run after the "
+             "max_tokens truncation fix, so it covers all 125 panos."),
+    Challenger(
+        spec="claude:claude-sonnet-5", label="claude-sonnet-5", provider="claude",
+        density="sparse", standing=False, added="2026-08-15",
+        pins=(("claude_effort", "high"),),
+        published_as="claude-sonnet-5-effort-high",
+        note="1.98 boxes/pano. Loses F1 to effort in the same direction as Opus, "
+             "which is what makes that a pattern rather than one model's quirk."),
 )
 
 #: Specs whose label cannot be derived from the spec, because the ``model_id`` slot
@@ -161,7 +256,38 @@ PROVIDER_DEFAULTS = {
 # --------------------------------------------------------------------------- #
 # Derived views — nothing below is hand-maintained
 # --------------------------------------------------------------------------- #
-BY_SPEC = {c.spec: c for c in ROSTER}
+def is_default_leg(c):
+    """True when this leg is what a bare ``--models <spec>`` reproduces.
+
+    A leg whose pins all match ``PROVIDER_DEFAULTS`` needs no extra flags; anything
+    else does. Only default legs go in ``BY_SPEC``, which is what keeps that mapping
+    single-valued now that one spec can name several legs.
+    """
+    return all(PROVIDER_DEFAULTS.get(k) == v for k, v in c.pins)
+
+
+def published_name(c):
+    """The filename stem a leg's detections are published under."""
+    return c.published_as or c.label
+
+
+def published_filename(c, city):
+    """``benchmark/model_detections/`` basename for one (leg, split)."""
+    return slug(published_name(c)) + "__" + city + ".json"
+
+
+#: The leg a bare spec resolves to. Legs with non-default pins are reachable through
+#: ``ROSTER`` and ``BY_PUBLISHED``, not here: a spec alone does not identify them.
+BY_SPEC = {c.spec: c for c in ROSTER if is_default_leg(c)}
+
+#: Every leg by the name its detections are published under -- the key that is unique
+#: by construction, because it is a filename.
+BY_PUBLISHED = {published_name(c): c for c in ROSTER}
+
+#: Legs with detections in ``benchmark/model_detections/``. ``rampnet`` is the one
+#: member of the roster with none: it is read from each bundle's committed
+#: ``records.jsonl`` and carries no detector signature.
+PUBLISHED = tuple(c for c in ROSTER if c.provider != "rampnet")
 
 #: Standing entries, RampNet included — the set every results table scores.
 SCORED = tuple(c for c in ROSTER if c.standing)
@@ -195,6 +321,11 @@ def label_for(spec, cargs=None):
     provider, _, model_id = spec.partition(":")
     provider, model_id = provider.strip(), model_id.strip()
     if model_id:
+        if provider == "yolo":
+            # A yolo spec carries a weights PATH, and the detector's identity is the
+            # file stem, not the path (detectors.YoloDetector), so that running the
+            # same checkpoint from a different directory hits the same cache.
+            return os.path.splitext(os.path.basename(model_id.replace(chr(92), "/")))[0]
         return model_id
     key = f"{provider}_model"
     if cargs is not None and getattr(cargs, key, None):
@@ -238,13 +369,22 @@ TABLE_MARKER = "<!-- roster-table: generated by `python -m rampnet.roster` -->"
 
 
 def markdown_table():
-    """The roster as a markdown table, for pasting under ``TABLE_MARKER`` in a doc."""
-    rows = ["| model | provider | density | joined | scored below |",
+    """The roster as a markdown table, for pasting under ``TABLE_MARKER`` in a doc.
+
+    The first column is the leg's published name, not its ``label``: two legs of one
+    model share a label, and a table with the same row twice is worse than no table.
+    The last column is deliberately narrow -- "is this row in the tables below" --
+    because off-roster covers two different situations (a write-up that has not landed
+    yet, and a leg whose write-up is elsewhere in this doc), and which one applies is
+    in the entry's note, not in a check mark.
+    """
+    rows = ["| leg | provider | density | joined | in the roster tables |",
             "| :--- | :--- | :--- | :--- | :--- |"]
     for c in ROSTER:
-        scored = "✅" if c.standing else "— published, not scored"
+        scored = "✅" if c.standing else "— published, not in these tables"
         density = c.density or "not yet measured"
-        rows.append(f"| `{c.label}` | {c.provider} | {density} | {c.added} | {scored} |")
+        rows.append(f"| `{published_name(c)}` | {c.provider} | {density} | "
+                    f"{c.added} | {scored} |")
     return "\n".join(rows)
 
 

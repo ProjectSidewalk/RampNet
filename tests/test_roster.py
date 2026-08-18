@@ -104,13 +104,41 @@ def test_no_doc_still_hardcodes_the_old_roster_count():
 # --------------------------------------------------------------------------- #
 # Registry consistency
 # --------------------------------------------------------------------------- #
-def test_specs_and_labels_are_unique():
-    specs = [c.spec for c in roster.ROSTER]
-    labels = [c.label for c in roster.ROSTER]
-    assert len(specs) == len(set(specs))
-    # Labels are filenames in benchmark/model_detections; a collision would have two
-    # models overwriting each other's published detections.
-    assert len(labels) == len(set(labels))
+def test_a_bare_spec_names_exactly_one_leg():
+    """One spec can name several legs once a pin is involved, but only one of them is
+    what running that spec with no extra flags reproduces."""
+    default = [c.spec for c in roster.ROSTER if roster.is_default_leg(c)]
+    assert len(default) == len(set(default))
+    assert set(roster.BY_SPEC) == set(default)
+
+
+def test_published_names_are_unique():
+    """These are filenames. A collision does not raise -- the second leg overwrites
+    the first, leaving a file that still looks complete and still passes --verify.
+    That is exactly how the two claude-sonnet-5 legs collided (#122)."""
+    names = [roster.published_name(c) for c in roster.ROSTER]
+    assert len(names) == len(set(names))
+
+
+def test_a_pinned_leg_is_published_under_a_name_that_says_so():
+    """If a pin changes the detections, the filename has to change with it, or the
+    directory claims one set of detections is the whole model."""
+    for c in roster.ROSTER:
+        if not c.pins:
+            continue
+        assert c.published_as, c.spec
+        for _, value in c.pins:
+            assert str(value) in c.published_as, (c.published_as, c.pins)
+
+
+def test_every_leg_of_a_pinned_model_is_qualified():
+    """Half-qualified is worse than unqualified: a bare `claude-sonnet-5__annapolis`
+    sitting next to `claude-sonnet-5-effort-high__annapolis` reads as the model
+    rather than as one of its legs."""
+    pinned = {c.label for c in roster.ROSTER if c.pins}
+    for c in roster.ROSTER:
+        if c.label in pinned:
+            assert c.published_as, (c.label, "sibling leg is pinned")
 
 
 def test_every_entry_label_is_what_label_for_resolves():
@@ -148,6 +176,63 @@ def test_every_entry_records_when_it_joined():
     for c in roster.ROSTER:
         assert c.added and len(c.added) == 10, c.spec
         assert c.note, c.spec
+
+
+# --------------------------------------------------------------------------- #
+# The registry and the published detections are the same statement
+# --------------------------------------------------------------------------- #
+DETECTIONS = REPO / "benchmark" / "model_detections"
+
+
+def _published_files():
+    return sorted(p.name for p in DETECTIONS.glob("*__*.json"))
+
+
+def test_every_published_detections_file_belongs_to_a_registered_leg():
+    """The registry claims to be every model the benchmark knows about. This is that
+    claim, checked against the directory rather than against prose.
+
+    It caught the gap it was written for: the registry covered 78 of 112 files. The
+    three supervised YOLO arms (30 files, #51) and the four annapolis Claude legs (4
+    files, #122) were published, scored and written up while the one place that is
+    supposed to list them said nothing about them.
+    """
+    known = {roster.slug(roster.published_name(c)) for c in roster.ROSTER}
+    orphans = sorted({f.rsplit("__", 1)[0] for f in _published_files()} - known)
+    assert not orphans, (
+        "published detections with no roster entry: " + ", ".join(orphans) +
+        " -- add them to rampnet/roster.py")
+
+
+def test_every_registered_leg_has_published_detections():
+    """The other direction. An entry with no files is a model someone meant to run,
+    or a name that drifted from the filename it is supposed to predict."""
+    missing = [roster.published_name(c) for c in roster.PUBLISHED
+               if not list(DETECTIONS.glob(roster.slug(roster.published_name(c)) + "__*.json"))]
+    assert not missing, "registered but nothing published: " + ", ".join(missing)
+
+
+def test_rampnet_is_the_only_roster_member_without_detections():
+    """It is read from each bundle's committed records.jsonl and carries no detector
+    signature, which is why it is the one row with no file here."""
+    assert {c.spec for c in roster.ROSTER} - {c.spec for c in roster.PUBLISHED} == {"rampnet"}
+
+
+def test_each_published_file_names_the_leg_it_says_it_is():
+    """The filename, the `published_as` recorded inside, and the registry all have to
+    agree, or a file can be renamed into a different leg's identity."""
+    for name in _published_files():
+        stem, _, _ = name.rpartition("__")
+        entry = next((c for c in roster.ROSTER
+                      if roster.slug(roster.published_name(c)) == stem), None)
+        assert entry is not None, name
+        payload = json.loads((DETECTIONS / name).read_text("utf-8"))
+        assert payload["model"] == entry.label, name
+        assert payload.get("published_as", entry.label) == roster.published_name(entry), name
+        assert payload["signature"]["model_id"] == entry.label, name
+        for key, value in entry.pins:
+            sig_key = key.split("_", 1)[1]          # claude_effort -> effort
+            assert payload["signature"][sig_key] == value, (name, key)
 
 
 # --------------------------------------------------------------------------- #
