@@ -1332,9 +1332,14 @@ done; done
 per-leg costs in the table above come from the runs' console output, not from a committed
 record. A re-run cannot back-fill them either — the detections are cached, so a repeat run
 makes zero API calls and has no usage to report. Only the 2026-08-18 single-panorama
-re-run ($0.03) is in the log. `report_usage` now warns loudly when a leg that spent money
-finishes with no log destination, which is the check that would have caught this while the
-money was being spent.
+re-run ($0.03) is in the log.
+
+Two guards now stand where that went wrong, and the order matters. `compare.py` **refuses to
+start** a paid leg under `--usage-log none` (override: `--allow-unrecorded-spend`), which is
+the check that fires while the money is still unspent; `report_usage` still warns loudly at
+the end of a leg that logged nothing, for the case where the log path existed but could not
+be written. A warning after the fact could not have saved these four legs — by the time it
+prints, the tokens are bought and the counts are already unrecoverable.
 
 ## Cost accounting for paid models
 

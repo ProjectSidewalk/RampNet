@@ -253,6 +253,15 @@ PROVIDER_DEFAULTS = {
     "yolo_imgsz": 1024,
 }
 
+#: Providers whose calls cost money. The list is here rather than in a script
+#: because it is registry knowledge, and because two separate checks need it: the
+#: cost estimate in pricing.py, and compare.py's refusal to start a paid leg with
+#: usage logging switched off. Token counts are the one artifact that cannot be
+#: back-filled -- a re-run reads the detection cache, makes zero calls, and so can
+#: never reproduce them -- which is how the four Claude legs' $28.82 ended up with
+#: no committed record.
+PAID_PROVIDERS = frozenset({"gemini", "claude"})
+
 # --------------------------------------------------------------------------- #
 # Derived views — nothing below is hand-maintained
 # --------------------------------------------------------------------------- #

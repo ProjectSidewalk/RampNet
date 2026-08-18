@@ -633,7 +633,13 @@ def main():
                     help="Append one JSONL record per paid-model run (token counts + "
                          f"estimated cost; see pricing.py). Default: {DEFAULT_USAGE_LOG_REL} "
                          "(tracked in git — the spend record is a durable research fact, "
-                         "not scratch). Pass 'none' to disable.")
+                         "not scratch). Pass 'none' to disable, which a paid model "
+                         "refuses to run under unless --allow-unrecorded-spend is given "
+                         "too.")
+    ap.add_argument("--allow-unrecorded-spend", action="store_true",
+                    help="Permit a paid model to run with --usage-log none. Needed only "
+                         "to spend money without recording what it cost, which is not "
+                         "recoverable afterwards; say why in the PR if you use it.")
     args = ap.parse_args()
 
     load_dotenv(str(REPO_ROOT))
@@ -663,6 +669,19 @@ def main():
     city = os.path.basename(os.path.normpath(args.bundle))
     cache = DetectionCache(args.cache_dir, enabled=not args.no_cache)
     usage_log = None if args.usage_log == "none" else args.usage_log
+    # Fail BEFORE the money is spent, not after. report_usage warns at the end of a
+    # leg that logged nothing, but by then the tokens are bought and the counts are
+    # already unrecoverable: a re-run reads the detection cache, makes zero API
+    # calls, and can never reproduce them. That is exactly how the four Claude legs
+    # (#122) ended up costing $28.82 with no committed record.
+    if usage_log is None and not args.allow_unrecorded_spend:
+        paid = sorted({p for p, _ in specs if p in roster.PAID_PROVIDERS})
+        if paid:
+            ap.error(
+                f"--usage-log none with paid provider(s) {', '.join(paid)}. Token "
+                f"counts cannot be back-filled — a cached re-run makes no API calls — "
+                f"so this would spend money that no committed artifact records. Drop "
+                f"--usage-log none, or pass --allow-unrecorded-spend deliberately.")
 
     print(f"Bundle: {args.bundle}  ({len(gts)} scored panos)  "
           f"match radius {args.radius}  ground truth: {gt_desc}")

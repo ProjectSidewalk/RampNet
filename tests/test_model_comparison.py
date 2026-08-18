@@ -1256,6 +1256,64 @@ def test_a_paid_leg_with_the_usage_log_disabled_says_so_loudly(capsys):
     assert "WARNING" in out and "not recorded" in out.lower()
 
 
+# --- ... and the run refuses to start in the first place --------------------
+
+def _run_compare(argv, monkeypatch):
+    """Invoke compare.main() as the CLI would, returning (SystemExit code, stderr)."""
+    import compare
+    monkeypatch.setattr(sys, "argv", ["compare.py"] + argv)
+    with pytest.raises(SystemExit) as exc:
+        compare.main()
+    return exc.value.code
+
+
+@pytest.mark.parametrize("spec", ["claude:claude-opus-5", "gemini:gemini-3.6-flash",
+                                  "rampnet,claude:claude-sonnet-5"])
+def test_a_paid_run_refuses_to_start_with_the_usage_log_disabled(spec, monkeypatch,
+                                                                 capsys):
+    """The warning in report_usage fires AFTER the tokens are bought, which is too
+    late for the one artifact that cannot be back-filled. This fires before."""
+    code = _run_compare([os.path.join(REPO_ROOT, "benchmark", "annapolis"), "--models", spec,
+                         "--usage-log", "none"], monkeypatch)
+    assert code != 0
+    err = capsys.readouterr().err
+    assert "--usage-log none" in err and "back-filled" in err
+
+
+def test_a_free_model_may_run_without_a_usage_log(monkeypatch):
+    """The check is about spend, not about logging for its own sake. A local model
+    costs nothing, so requiring a spend record from it would be noise."""
+    import compare
+    monkeypatch.setattr(sys, "argv", ["compare.py", os.path.join(REPO_ROOT, "benchmark", "annapolis"),
+                                      "--models", "rampnet", "--usage-log", "none",
+                                      "--limit", "1"])
+    compare.main()          # must not raise SystemExit
+
+
+def test_unrecorded_spend_stays_possible_but_deliberate(monkeypatch):
+    """A guard with no override gets worked around by editing it out, which is
+    worse. The override is a named flag, so using it is visible in the command."""
+    import compare
+    monkeypatch.setattr(sys, "argv", ["compare.py", os.path.join(REPO_ROOT, "benchmark", "annapolis"),
+                                      "--models", "claude:claude-opus-5",
+                                      "--usage-log", "none", "--allow-unrecorded-spend",
+                                      "--limit", "1"])
+    compare.main()          # reaches the run; the leg itself is "not runnable" here
+
+
+def test_the_paid_provider_list_covers_every_priced_model():
+    """pricing.py knows what a model costs; the roster knows which providers cost
+    anything. If a priced model's provider is not in PAID_PROVIDERS, the guard has
+    a hole exactly where money is being spent."""
+    from rampnet import roster
+    import pricing
+    for model_id in pricing.PRICING:
+        provider = next((c.provider for c in roster.ROSTER if c.label == model_id), None)
+        if provider is None:
+            continue                     # priced but not registered (e.g. retired alias)
+        assert provider in roster.PAID_PROVIDERS, model_id
+
+
 # --- the provider roster has ONE source of truth ----------------------------
 
 def test_every_provider_is_listed_everywhere_a_user_looks():
