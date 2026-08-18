@@ -14,7 +14,7 @@ anchoring.
     python scripts/model_comparison/compare.py benchmark/manual_gold --models rampnet,gemini
 
 Each --models token is a provider (rampnet/gemini/claude/qwen/owlv2/gdino/molmo/
-yolo — the roster is detectors.PROVIDERS) or provider:model_id to pin a variant,
+vistas/yolo — the roster is detectors.PROVIDERS) or provider:model_id to pin a variant,
 so several models from the same provider compare side by side. Detectors that emit calibrated scores (RampNet, OWLv2,
 Grounding DINO, YOLO) additionally get AP, a PR curve (--pr-out) and a threshold
 sweep (--sweep); chat VLMs have no score to rank by, so they get one operating

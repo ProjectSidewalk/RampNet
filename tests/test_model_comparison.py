@@ -1352,7 +1352,7 @@ def test_every_provider_is_listed_everywhere_a_user_looks():
     the prose that cannot be generated is checked here."""
     import compare
     assert detectors.PROVIDERS == ("rampnet", "gemini", "claude", "qwen", "owlv2",
-                                   "gdino", "molmo", "yolo")
+                                   "gdino", "molmo", "vistas", "yolo")
     for provider in detectors.PROVIDERS:
         assert provider in compare.MODELS_HELP, f"{provider} missing from --models help"
         assert provider in compare.__doc__, f"{provider} missing from compare.py docstring"

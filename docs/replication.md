@@ -20,7 +20,7 @@ lives on one machine.
 | `benchmark/miss_taxonomy_46/*.json` (human verdicts) | small | **committed** | ✅ |
 | RampNet model weights | — | HF `projectsidewalk/rampnet-model` | ✅ |
 | Stage 1 dataset | **463 GB** (test split ~44 GB) | HF `projectsidewalk/rampnet-dataset` | ✅ |
-| `benchmark/model_detections/` (challenger detections) | 22.9 MB (112 files) | **committed** ✅ | ✅ |
+| `benchmark/model_detections/` (challenger detections) | 23.1 MB (114 files) | **committed** ✅ | ✅ |
 | **`location_data/` (the paper's government inventories)** | 71.8 MB | **committed** ✅ | ✅ |
 | **`street_data/` derivative (what the pipeline actually reads)** | 18.7 MB | **committed** ✅ | ✅ |
 | `street_data/` raw downloads (NY file alone is 669 MB) | 801 MB | git-ignored; HF #21 pending | ⚠️ superseded by the derivative |
@@ -41,7 +41,7 @@ in this sentence — the list here was one of the things that drifted.
 single-panorama shards keyed by an opaque SHA-1 of (label, signature, city, pano), unreadable
 without reconstructing detector signatures. `scripts/analysis/export_model_cache.py` consolidates
 it into human-readable files, one per (model, split), keyed by panorama id with the detector
-signature recorded inside. As of 2026-08-18 that is **112 files, 22.9 MB**, and every one of
+signature recorded inside. As of 2026-08-18 that is **114 files, 23.1 MB**, and every one of
 them belongs to a registered leg:
 
 | what | files | where it is written up |
@@ -50,6 +50,7 @@ them belongs to a registered leg:
 | `gemini-3.7-flash`, ten splits, published ahead of its write-up (#120) | 10 | §below |
 | the supervised YOLO pano trio, ten splits each (#51) | 30 | [`model_comparison.md` §supervised baseline](model_comparison.md), and the [training record](../scripts/model_comparison/yolo_baseline/README.md) |
 | the four annapolis Claude legs (#122) | 4 | [`model_comparison.md` §Claude](model_comparison.md) |
+| the two Mapillary Vistas class-set arms, richmond only (#126) | 2 | [`model_comparison.md` §Vistas](model_comparison.md) |
 
 `rampnet` is a row in every results table and has no file here: it is read from each bundle's
 committed `records.jsonl` and carries no detector signature.
@@ -77,7 +78,7 @@ Three tests hold that table up rather than trust it.
 `test_every_published_detections_file_belongs_to_a_registered_leg` asserts the stronger
 property that nothing in the directory is unaccounted for; the third is the canonical-form
 check above. The second one is why this table
-exists: **the registry covered 78 of the 112 files.** The YOLO arms and the Claude legs had
+exists: **the registry covered 78 of the then 112 files.** The YOLO arms and the Claude legs had
 been run, scored, verified and written up, and the one place that is supposed to enumerate
 every model said nothing about them — which is also what the unremarked 78 → 108 jump in the
 drift list below actually was.
