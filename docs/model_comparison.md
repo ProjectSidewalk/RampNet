@@ -6,10 +6,10 @@ RampNet against off-the-shelf models. The question: does a general model match o
 purpose-trained RampNet on real deployment imagery (GSV + Mapillary 360)? The harness is
 model-agnostic, so new models (issues #20, #39) plug in the same way.
 
-> **Looking for one table with every model on it?** → **[`scoreboard.md`](scoreboard.md)**.
+> **Looking for one table with every model on it?** → **[`model_scoreboard.md`](model_scoreboard.md)**.
 > This document is the comprehensive log — per-split tables in the order the splits were
 > run, the mechanism behind each number, the caveats, the negative results — so "who wins,
-> and by how much" is spread across a dozen tables in chronological order. `scoreboard.md`
+> and by how much" is spread across a dozen tables in chronological order. `model_scoreboard.md`
 > is the same data pivoted the other way (rows are models, columns are metrics, aggregated
 > across splits) plus four summary figures, and it covers every leg in `rampnet/roster.py`
 > rather than the standing eight. It is generated from the committed detections by

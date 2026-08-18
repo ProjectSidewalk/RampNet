@@ -1,4 +1,4 @@
-"""Markdown tables for docs/scoreboard.md, and the splice that keeps them current.
+"""Markdown tables for docs/model_scoreboard.md, and the splice that keeps them current.
 
 Split out of ``scoreboard.py`` so the scoring is testable without a doc on disk and the
 rendering is testable without re-scoring ten splits.

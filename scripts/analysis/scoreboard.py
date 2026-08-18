@@ -1,4 +1,4 @@
-"""One table with every model on it: the aggregated scoreboard behind docs/scoreboard.md.
+"""One table with every model on it: the aggregated scoreboard behind docs/model_scoreboard.md.
 
 ``docs/model_comparison.md`` is the comprehensive log — per-split tables, the mechanism
 behind each number, the caveats, the negative results. It is the right document for "why
@@ -184,7 +184,7 @@ DISPLAY = {
 }
 
 DEFAULT_JSON = os.path.join(REPO, "analysis_out", "scoreboard.json")
-DEFAULT_DOC = os.path.join(REPO, "docs", "scoreboard.md")
+DEFAULT_DOC = os.path.join(REPO, "docs", "model_scoreboard.md")
 FIGURE_DIR = os.path.join(REPO, "docs", "figures")
 
 

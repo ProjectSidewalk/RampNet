@@ -1,4 +1,4 @@
-"""The four figures for docs/scoreboard.md — the findings that read faster as a picture.
+"""The four figures for docs/model_scoreboard.md — the findings that read faster as a picture.
 
 Called by ``scoreboard.py``; importable on its own for iterating on a figure without
 re-scoring. Matplotlib is imported inside ``render_all`` so ``--no-figures`` needs no
@@ -17,7 +17,7 @@ shape** — channels with no CVD failure mode — and colour is freed to carry e
 
 The palette's contrast WARN (slot 1 sits above 3:1, but the light neutrals do not) is
 discharged the way ``plot_operating_point.py`` discharges it: every plotted number is
-also in a table, in ``docs/scoreboard.md`` and ``analysis_out/scoreboard.json``.
+also in a table, in ``docs/model_scoreboard.md`` and ``analysis_out/scoreboard.json``.
 """
 import os
 
@@ -165,7 +165,7 @@ def fig_headline(result, path, plt):
              fontsize=7.4, color=INK_MUTED, ha="left", va="bottom")
     fig.text(0.008, 0.008,
              (f"{n_partial} single-split legs are reported per split instead — "
-              if n_partial else "") + "see docs/scoreboard.md.",
+              if n_partial else "") + "see docs/model_scoreboard.md.",
              fontsize=7.4, color=INK_MUTED, ha="left", va="bottom")
     fig.tight_layout(rect=(0, 0.052, 1, 1))
     fig.savefig(path, dpi=170, facecolor=fig.get_facecolor())
@@ -386,7 +386,7 @@ def fig_generalization(result, path, plt):
 
     fig.text(0.008, 0.012,
              "Both Gemini legs with city numbers are absent: their manual_gold detections "
-             "were never published (docs/scoreboard.md, 'What is missing').",
+             "were never published (docs/model_scoreboard.md, 'What is missing').",
              fontsize=7.4, color=INK_MUTED, ha="left", va="bottom")
     fig.tight_layout(rect=(0, 0.028, 1, 0.96))
     fig.savefig(path, dpi=170, facecolor=fig.get_facecolor())

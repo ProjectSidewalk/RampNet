@@ -1,4 +1,4 @@
-"""Guards on the aggregated scoreboard (docs/scoreboard.md).
+"""Guards on the aggregated scoreboard (docs/model_scoreboard.md).
 
 A summary table is a special kind of liability: it is the page people quote, and it is
 the page furthest from the data that produced it. So the assertions here are about the
@@ -326,4 +326,4 @@ def test_committed_doc_is_current(board):
     with open(sb.DEFAULT_DOC, encoding="utf-8", newline="") as fh:
         current = fh.read()
     assert sr.splice(current, sr.render_tables(board)) == current, \
-        "docs/scoreboard.md is stale — re-run scripts/analysis/scoreboard.py"
+        "docs/model_scoreboard.md is stale — re-run scripts/analysis/scoreboard.py"
