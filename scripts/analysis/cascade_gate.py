@@ -148,6 +148,12 @@ def main(argv=None):
     p.add_argument("--panos-root", default=REPO,
                    help="Checkout holding benchmark/<split>/panos/ (a worktree will not).")
     p.add_argument("--cache-dir", default=os.path.join(REPO, ".model_cache"))
+    p.add_argument("--rampnet-op-threshold", type=float, default=None,
+                   help="Define RampNet's hits from op_cache floor peaks at this "
+                        "threshold instead of the bundle's shipped detections "
+                        "(>=0.5519 on richmond). This document recommends 0.30, and "
+                        "the cells move: 19 of the shipped point's misses are ramps "
+                        "RampNet already has. Default: the bundle, as published.")
     p.add_argument("--radius", type=float, default=0.022)
     p.add_argument("--tiling", choices=["perspective", "none"], default="perspective")
     p.add_argument("--vistas-input-size", type=int, nargs=2, metavar=("H", "W"), default=None,
@@ -174,6 +180,20 @@ def main(argv=None):
     cache = DetectionCache(args.cache_dir)
     radius_sq = radius_sq_for(args.radius)
 
+    # Floor peaks (>= 0.05). Used for the sub-threshold probe always, and to
+    # DEFINE rampnet's hits when --rampnet-op-threshold is given.
+    floor_peaks, floor_src = {}, "op_cache"
+    try:
+        cached, _ = read_cache(os.path.join(CACHE_DIR, f"{args.split}.json"))
+        for pd in cached:
+            floor_peaks[pd["pano"]] = pd["preds"]
+    except (OSError, ValueError, KeyError):
+        floor_src = ("MISSING (fell back to bundle records -- distances are to the "
+                     "shipped operating point, not the 0.05 floor)")
+        if args.rampnet_op_threshold is not None:
+            sys.exit("--rampnet-op-threshold needs analysis_out/op_cache/"
+                     f"{args.split}.json, which could not be read.")
+
     # ---- partition every GT ramp into a complementarity cell ------------------
     sites, missing = [], 0
     for pid, entry in verdicts.items():
@@ -185,8 +205,12 @@ def main(argv=None):
         if cp is None:
             missing += 1
             continue
-        rp = [(d["x_normalized"], d["y_normalized"], d["confidence"])
-              for d in records[pid]["detections"]]
+        if args.rampnet_op_threshold is not None:
+            rp = [q for q in floor_peaks.get(pid, [])
+                  if q[2] >= args.rampnet_op_threshold]
+        else:
+            rp = [(d["x_normalized"], d["y_normalized"], d["confidence"])
+                  for d in records[pid]["detections"]]
         mr = matched_gt(rp, gt.gt_points, radius_sq)
         mc = matched_gt(cp, gt.gt_points, radius_sq)
         for i, (gx, gy) in enumerate(gt.gt_points):
@@ -198,18 +222,6 @@ def main(argv=None):
     if not sites:
         sys.exit("No sites -- is the challenger cached for this split/input size?")
 
-    # Floor peaks (>= 0.05) for the "did the model say anything sub-threshold here?"
-    # question. See the docstring: the bundle records are the SHIPPED operating point
-    # and would answer a different question.
-    floor_peaks, floor_src = {}, "op_cache"
-    try:
-        cached, _ = read_cache(os.path.join(CACHE_DIR, f"{args.split}.json"))
-        for pd in cached:
-            floor_peaks[pd["pano"]] = pd["preds"]
-    except (OSError, ValueError, KeyError):
-        floor_src = "MISSING (fell back to bundle records -- distances are to the "\
-                    "shipped operating point, not the 0.05 floor)"
-
     by_pano = {}
     for s in sites:
         by_pano.setdefault(s["pano"], []).append(s)
@@ -218,7 +230,9 @@ def main(argv=None):
         panos = panos[:args.limit]
 
     counts = {c: sum(1 for s in sites if s["cell"] == c) for c in CELLS}
-    print(f"=== Cascade gate: rampnet heatmap at {label}'s recoveries "
+    rn = ("rampnet" if args.rampnet_op_threshold is None
+          else f"rampnet@{args.rampnet_op_threshold:g}")
+    print(f"=== Cascade gate: {rn} heatmap at {label}'s recoveries "
           f"({args.split}, {len(sites)} GT ramps in {len(by_pano)} panos) ===")
     print("    cells: " + "  ".join(f"{c}={counts[c]}" for c in CELLS), flush=True)
 
@@ -227,6 +241,9 @@ def main(argv=None):
     print(f"    device={device} model=projectsidewalk/rampnet-model "
           f"(single-pass fp32, as op_cache)", flush=True)
     print(f"    floor peaks (>=0.05) from: {floor_src}", flush=True)
+    print(f"    rampnet hits defined by: "
+          + ("bundle records (shipped point)" if args.rampnet_op_threshold is None
+             else f"op_cache >= {args.rampnet_op_threshold:g}"), flush=True)
 
     rng = random.Random(NULL_SEED)
     rows, skipped = [], 0
@@ -300,6 +317,7 @@ def main(argv=None):
 
     if args.json_out:
         payload = {"split": args.split, "challenger": label,
+                   "rampnet_op_threshold": args.rampnet_op_threshold,
                    "vistas_input_size": args.vistas_input_size,
                    "radius": args.radius, "null_trials": NULL_TRIALS,
                    "null_seed": NULL_SEED, "n_sites": len(rows),
