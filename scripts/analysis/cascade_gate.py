@@ -28,17 +28,35 @@ cutoffs (``ABSENT_MAX`` 0.01, ``PEAK_FLOOR`` 0.05) all come from
 comparable to that phase's 8% absent / 62% adjacent-tail / 30% faint decomposition,
 and it means a fix to the probe fixes both analyses.
 
-**Three outcomes, and the middle one is not the interesting one.** ``faint_local`` with
-the in-window argmax *at* the site is signal a prior could raise. ``absent`` is nothing
-to raise. ``tail`` — the in-window maximum at or above the peak floor — is an adjacent
-mode reaching in, and for a *missed* ramp it means relaxing a threshold there would fire
-on the neighbour, not on the ramp. ``tail`` therefore argues for sigma/NMS work (#46's
-adjacent-pair merge), **not** for a threshold prior, even though it looks like "signal
-is present" if you only read ``act``.
+**``class_of`` is imported for comparability, but the load-bearing column here is
+``peak_in_radius``, not the class.** #46 Phase 1 applied those cutoffs to *silent*
+misses — defined as no floor peak within the radius — so there ``tail`` (act >= 0.05)
+could only mean an outside mode reaching in. This population is every RampNet miss, not
+just the silent ones, so ``act >= 0.05`` here has two very different causes and the
+class alone cannot separate them:
+
+* **a floor peak inside the radius** — the model localized the ramp and the detection
+  was lost *downstream*, either to the shipped threshold or to the greedy matcher giving
+  that peak to an adjacent GT. Recoverable, and recoverable **without a second model**.
+* **no floor peak inside the radius** — ``act`` is unpeaked heatmap mass that
+  ``peak_local_max`` never called a local maximum. A threshold prior has nothing to
+  promote, because promotion operates on peaks.
+
+``peak_in_radius`` is therefore reported per cell and is what the read below turns on.
 
 **Sub-threshold signal is necessary, not sufficient.** A positive here says the cascade
 is not ruled out and is worth costing; it does not demonstrate one works. Any realisable
 gain is bounded above by the ~44 attributable ramps, not the raw 54.
+
+**The floor peaks come from ``analysis_out/op_cache/<split>.json``, NOT from the
+bundle records.** The bundle's committed detections are the published operating point
+— on richmond every one of them scores >= 0.5519 — so asking "is there a peak near this
+missed ramp?" of *those* answers a different question and makes every miss look
+peakless. The op_cache holds ``peak_local_max`` output down to the 0.05 floor, which is
+what "did the model say anything here, below the threshold we ship?" actually needs.
+The greedy match that DEFINED the miss still uses the bundle records, because that is
+what produced the published 238/9/72 — the two are deliberately different inputs to
+two different questions.
 
 Inputs: the native-resolution panoramas at ``benchmark/<split>/panos/`` (git-ignored,
 published as ``projectsidewalk/rampnet-benchmark``) — ``--panos-root`` points at
@@ -70,6 +88,7 @@ from silent_activation import (                                        # noqa: E
     NULL_SEED, NULL_TRIALS, class_of, nearest_peak, null_percentile, seam_of,
     site_profile)
 from farfield_forensics import quartiles                               # noqa: E402
+from operating_point_curve import CACHE_DIR, read_cache                # noqa: E402
 
 CELLS = ("both", "rampnet_only", "challenger_only", "neither")
 #: Cells where RampNet did NOT find the ramp -- the only ones a null is meaningful for.
@@ -104,6 +123,12 @@ def summarize(rows, cell):
         "class_share": {c: round(v / len(sel), 3) for c, v in classes.items()},
         "seam": sum(1 for r in sel if r["seam"]),
     }
+    inr = [r for r in sel if r["peak_in_radius"]]
+    out["peak_in_radius"] = len(inr)
+    out["peak_in_radius_share"] = round(len(inr) / len(sel), 3)
+    if inr:
+        out["peak_in_radius_score_median"] = round(
+            quartiles([r["nearest_peak_score"] for r in inr])[1], 4)
     nulls = [r["null_pct"] for r in sel if r["null_pct"] is not None]
     if nulls:
         out["null_pct_median"] = round(quartiles(nulls)[1], 3)
@@ -173,6 +198,18 @@ def main(argv=None):
     if not sites:
         sys.exit("No sites -- is the challenger cached for this split/input size?")
 
+    # Floor peaks (>= 0.05) for the "did the model say anything sub-threshold here?"
+    # question. See the docstring: the bundle records are the SHIPPED operating point
+    # and would answer a different question.
+    floor_peaks, floor_src = {}, "op_cache"
+    try:
+        cached, _ = read_cache(os.path.join(CACHE_DIR, f"{args.split}.json"))
+        for pd in cached:
+            floor_peaks[pd["pano"]] = pd["preds"]
+    except (OSError, ValueError, KeyError):
+        floor_src = "MISSING (fell back to bundle records -- distances are to the "\
+                    "shipped operating point, not the 0.05 floor)"
+
     by_pano = {}
     for s in sites:
         by_pano.setdefault(s["pano"], []).append(s)
@@ -189,6 +226,7 @@ def main(argv=None):
     model = ts.load_model().to(device)
     print(f"    device={device} model=projectsidewalk/rampnet-model "
           f"(single-pass fp32, as op_cache)", flush=True)
+    print(f"    floor peaks (>=0.05) from: {floor_src}", flush=True)
 
     rng = random.Random(NULL_SEED)
     rows, skipped = [], 0
@@ -198,15 +236,23 @@ def main(argv=None):
             skipped += len(by_pano[pid])
             continue
         heat = ts.heatmap_for(model, device, path, use_fp16=False)
-        preds = [(d["x_normalized"], d["y_normalized"], d["confidence"])
-                 for d in records[pid]["detections"]]
+        preds = floor_peaks.get(pid) or [
+            (d["x_normalized"], d["y_normalized"], d["confidence"])
+            for d in records[pid]["detections"]]
         for s in by_pano[pid]:
             act, off_px, center = site_profile(heat, s["x"], s["y"], radius_sq)
             npx, nscore = nearest_peak(preds, s["x"], s["y"])
+            r_px = radius_sq ** 0.5
             row = {**s, "act": round(act, 6), "center": round(center, 6),
                    "argmax_off_px": round(off_px, 1),
                    "nearest_peak_px": None if npx == float("inf") else round(npx, 1),
                    "nearest_peak_score": nscore,
+                   # A floor peak inside the match radius on a MISSED ramp means the
+                   # model did localize it and the detection was lost downstream --
+                   # either to the shipped threshold, or to the greedy matcher giving
+                   # the peak to an adjacent GT. That is recoverable without a second
+                   # model; a peak outside the radius is not.
+                   "peak_in_radius": bool(npx < r_px),
                    "class": class_of(act), "seam": seam_of(s["x"], radius_sq),
                    "null_pct": None, "null_med": None, "null_p95": None}
             # The null is only meaningful where rampnet did NOT find the ramp; the
@@ -226,23 +272,31 @@ def main(argv=None):
     summaries = [summarize(rows, c) for c in CELLS]
     print()
     hdr = (f"{'cell':17s} {'n':>4s} {'act med':>8s} {'centre':>8s} {'argmax off':>11s} "
-           f"{'absent':>7s} {'faint':>6s} {'tail':>5s} {'null pct':>9s}")
+           f"{'floor peak in R':>16s} {'its score':>10s} {'null pct':>9s}")
     print(hdr)
     print("-" * len(hdr))
     for s in summaries:
         if not s["n"]:
             continue
-        sh = s["class_share"]
+        miss = s["cell"] in MISS_CELLS
         print(f"{s['cell']:17s} {s['n']:4d} {s['act_median']:8.4f} "
               f"{s['center_median']:8.4f} {s['argmax_off_px_median']:10.1f}p "
-              f"{sh['absent']:7.0%} {sh['faint_local']:6.0%} {sh['tail']:5.0%} "
-              + (f"{s['null_pct_median']:9.3f}" if "null_pct_median" in s else f"{'—':>9s}"))
+              f"{s['peak_in_radius']:9d} ({s['peak_in_radius_share']:3.0%}) "
+              + (f"{s.get('peak_in_radius_score_median', float('nan')):10.3f}"
+                 if s.get("peak_in_radius") else f"{'—':>10s}")
+              + (f"{s['null_pct_median']:9.3f}" if miss else f"{'—':>9s}"))
     print()
-    print("  faint_local = a real sub-threshold response AT the site -> a prior could raise it.")
-    print("  tail        = in-window max at/above the 0.05 peak floor, i.e. an ADJACENT mode")
-    print("                reaching in; relaxing a threshold there fires on the neighbour,")
-    print("                not the ramp. Argues for sigma/NMS (#46), not for a prior.")
-    print("  absent      = flat heatmap; nothing to raise.")
+    print("  The hit cells are the positive control: a matched detection is inside the")
+    print("  radius by definition, so their act/centre ~0.85+ and 100% peak-in-R are what")
+    print("  a working probe MUST show, not a finding.")
+    print()
+    print("  For the two MISS cells, 'floor peak in R' is the whole question:")
+    print("   - peak inside R  -> the model DID localize the ramp and the detection was")
+    print("     lost downstream, to the shipped threshold or to the greedy matcher handing")
+    print("     the peak to an adjacent GT. Recoverable WITHOUT a second model.")
+    print("   - peak outside R -> nothing was extracted there even at the 0.05 floor, so a")
+    print("     threshold prior has no peak to promote. 'act' can still be non-zero: that is")
+    print("     unpeaked heatmap mass, which peak_local_max did not call a local maximum.")
 
     if args.json_out:
         payload = {"split": args.split, "challenger": label,
