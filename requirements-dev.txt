@@ -31,6 +31,14 @@ pytest
 # sign convention -- the thing the whole #103 overlay stack rests on -- is pinned
 # only on developer machines, which is not the same as pinned.
 opencv-python-headless
+# The Vistas arm's mask->point reduction (#126) uses skimage.measure.label /
+# regionprops to turn a segmentation map into one point per connected component.
+# Declared here for the same reason opencv-headless is: that reduction is
+# load-bearing logic with a silent failure mode (the wrong connectivity merges
+# adjacent ramps into one detection or splits one into several), and importorskip
+# would leave it pinned only on machines that happen to have the full
+# requirements.txt stack -- which is where it passed while CI was failing.
+scikit-image
 # Needed only because scripts/build_benchmark_dataset.py imports it at module
 # level, and tests/test_benchmark_dataset.py imports that module.
 datasets

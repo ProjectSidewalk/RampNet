@@ -114,6 +114,29 @@ ROSTER = (
 
     # --- published, but not scored in the roster tables ---------------------- #
     Challenger(
+        spec="vistas:curb-cut", label="mask2former-vistas-curb-cut", provider="vistas",
+        density="sparse", standing=False, added="2026-08-18",
+        note="Supervised-transfer baseline (#126): the one class of challenger the "
+             "roster lacked, since every other member is zero-shot. Mapillary Vistas "
+             "v1.2 'Curb Cut' read off facebook/mask2former-swin-large-mapillary-"
+             "vistas-semantic, no training. A BASELINE, never a supervision source — "
+             "the paper (arXiv 2508.09415) already rejected these labels as too "
+             "broad, driveways included. Density measured 2026-08-18 on richmond: "
+             "4.48 boxes/pano, the same class as RampNet's 4.2 and an order of "
+             "magnitude under the open detectors. Scored on richmond only so far."),
+    Challenger(
+        spec="vistas:curb-cut+curb", label="mask2former-vistas-curb-cut+curb",
+        provider="vistas", density=None, standing=False, added="2026-08-18",
+        note="Second #126 arm: 'Curb Cut' unioned with 'Curb'. Vistas draws that "
+             "boundary somewhere we do not, so this measured whether recall hides on "
+             "the other side of it. It does not: on richmond the union LOSES recall "
+             "(0.697 -> 0.648) while precision collapses (0.419 -> 0.127), because "
+             "'Curb' fuses adjacent ramps into one component and fires along every "
+             "kerb line. Density is left unclassified on purpose: 13.31 boxes/pano "
+             "sits between the sparse group (1-4) and the open detectors (55-88), so "
+             "the binary does not apply and density_of should refuse rather than "
+             "round. Kept as a recorded negative result, not a live arm."),
+    Challenger(
         spec="gemini:gemini-3.7-flash", label="gemini-3.7-flash", provider="gemini",
         density="sparse", standing=False, added="2026-08-14",
         note="Run on all ten splits and published (#120); held out of the scored "
@@ -195,8 +218,15 @@ ROSTER = (
 )
 
 #: Specs whose label cannot be derived from the spec, because the ``model_id`` slot
-#: carries something other than a model id. Empty until an arm needs it.
-LABEL_OVERRIDES = {}
+#: carries something other than a model id.
+#:
+#: The Vistas arms (#126) vary by which Vistas classes are read out, not by which
+#: checkpoint reads them, so their spec is ``vistas:<class-set>`` and the checkpoint
+#: comes from ``--vistas-model``. Without an override, ``label_for`` would resolve
+#: them to ``curb-cut``, which is not a model name and would collide across
+#: checkpoints in ``benchmark/model_detections/``.
+LABEL_OVERRIDES = {
+}
 
 # --------------------------------------------------------------------------- #
 # The frozen pool — read the comment before touching it
@@ -253,6 +283,12 @@ PROVIDER_DEFAULTS = {
     "yolo_conf": 0.05,
     "yolo_iou": 0.5,
     "yolo_imgsz": 1024,
+    # #126. The checkpoint is the 65-class Vistas v1.2 head; the arm varies by class
+    # set, which is the --models spec, not a default.
+    "vistas_class_set": "curb-cut",
+    "vistas_model": "facebook/mask2former-swin-large-mapillary-vistas-semantic",
+    "vistas_min_area_px": 16,
+    "vistas_dtype": "float16",
 }
 
 #: Providers whose calls cost money -- registry knowledge, so it lives here rather
@@ -365,6 +401,17 @@ def label_for(spec, cargs=None):
         return LABEL_OVERRIDES[spec]
     provider, _, model_id = spec.partition(":")
     provider, model_id = provider.strip(), model_id.strip()
+    if provider == "vistas":
+        # The model_id slot carries the CLASS SET, not a model id: two arms share one
+        # checkpoint and differ only by which classes they read out. So the label is
+        # derived from the class set the same way VistasDetector derives its own
+        # default -- not looked up in a table that has to be kept in step with
+        # detectors.VISTAS_CLASS_SETS by hand. Forgetting that entry used to return
+        # the bare class set, which is not a model name and slugs into a filename
+        # with the "+" mangled.
+        class_set = (model_id or getattr(cargs, "vistas_class_set", None)
+                     or PROVIDER_DEFAULTS["vistas_class_set"])
+        return "mask2former-vistas-" + class_set
     if model_id:
         return weights_stem(model_id) if provider == "yolo" else model_id
     key = f"{provider}_model"

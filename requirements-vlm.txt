@@ -46,6 +46,14 @@ requests
 # interpreter differs. See docs/model_comparison.md.
 # (`decord2` from the card is video-only; this harness only sends still views.)
 
+# Mapillary Vistas supervised-transfer baseline (issue #126) needs NOTHING beyond
+# the transformers + torchvision above: Mask2Former is in-library
+# (Mask2FormerForUniversalSegmentation), so no remote code and no pin of its own, and
+# the mask->point reduction uses scikit-image, which is already in requirements.txt.
+# The checkpoint is ~850 MB:
+#   $ENVPY -c 'from huggingface_hub import snapshot_download as d; d(
+#       "facebook/mask2former-swin-large-mapillary-vistas-semantic")'
+
 # YOLO supervised baseline (issue #51): Ultralytics for both training the detector
 # on the RampNet dataset (scripts/model_comparison/prepare_yolo_dataset.py) and the
 # 'yolo' provider's inference. Pulls its own torch/torchvision if absent, but the

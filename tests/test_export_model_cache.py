@@ -399,9 +399,13 @@ def test_every_published_leg_is_named_in_the_ledger():
     brace = "claude-{sonnet,opus}-5-effort-{low,high}"
 
     def documented(stem):
-        # Docs name models by their real id ("IDEA-Research/grounding-dino-base"),
-        # while the filename carries the slug, so check both spellings.
-        if stem in text or stem.replace("__", "/") in text:
+        # Docs name models by their real id, while the filename carries the slug,
+        # so check every spelling slug() can produce. It maps any run of unsafe
+        # characters to "__", so the same stem can stand for a "/" (a HF repo id,
+        # IDEA-Research/grounding-dino-base) or a "+" (a class set,
+        # mask2former-vistas-curb-cut+curb).
+        if any(spelling in text for spelling in
+               (stem, stem.replace("__", "/"), stem.replace("__", "+"))):
             return True
         return stem.startswith("claude-") and brace in text
 

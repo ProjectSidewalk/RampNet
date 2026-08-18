@@ -159,6 +159,23 @@ def test_every_leg_of_a_pinned_model_is_qualified():
             assert c.published_as, (c.label, "sibling leg is pinned")
 
 
+def test_every_published_filename_round_trips_to_its_model_and_city():
+    """Published detections are ``{slug(label)}__{city}.json``, read back by splitting
+    on the LAST ``__``. Most labels are HF ids whose ``/`` already slugs to ``__``
+    (``Qwen__Qwen3-VL-8B-Instruct__richmond.json``), so containing the separator is
+    the convention, not a bug — what must hold is that the split still recovers the
+    right city, which fails the moment a *city* name gains a ``__``."""
+    import re
+    cities = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson",
+              "gainesville", "budapest_district5", "sao_paulo", "manual_gold")
+    for c in roster.ROSTER:
+        slug = re.sub(r"[^A-Za-z0-9._-]+", "__", c.label)
+        for city in cities:
+            model_part, _, city_part = f"{slug}__{city}".rpartition("__")
+            assert city_part == city, (c.label, city)
+            assert model_part == slug, (c.label, city)
+
+
 def test_every_entry_label_is_what_label_for_resolves():
     """`label` is data used to render the docs table; `label_for` is what the export
     path actually calls. They must not be two answers to one question."""
