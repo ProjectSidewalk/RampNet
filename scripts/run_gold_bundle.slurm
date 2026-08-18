@@ -11,9 +11,11 @@
 #   mkdir -p logs
 #   CHECKPOINT=/path/to/stage2.pth sbatch -A <account> scripts/run_gold_bundle.slurm
 #
-# The fetch is CPU/network-bound (~44 GB of test-split parquet through HF_HOME);
-# the GPU is used only by the export. Both halves are idempotent: a complete
-# bundle skips the fetch, HF caches shards, and heatmaps are cached per
+# The fetch is CPU/network-bound. Measured 2026-08-14 on makelab2: load_dataset
+# downloaded and arrow-materialized ALL THREE splits (~2.5 h) despite split="test",
+# so budget for that, not for a ~44 GB test-only pull;
+# the GPU is used only by the export. Both halves are idempotent: the fetch skips
+# panos already on disk, HF caches shards, and heatmaps are cached per
 # checkpoint+TTA, so a preempted or timed-out job resumes where it stopped.
 #
 # Home quota on klone is small (10 GB) and the bundle + heatmap cache are a few
@@ -56,14 +58,18 @@ echo "Python:     $($PYTHON -c 'import sys,torch;print(sys.version.split()[0],"t
 nvidia-smi --query-gpu=name,memory.total --format=csv || true
 echo "--------------------------------"
 
-# 1. Imagery fetch. A complete bundle is skipped; a partial one is rebuilt.
-#    --force on the partial path is safe: detections only exist after step 2,
-#    and a bundle that got that far is complete and never reaches this branch.
-n_panos=$(find "$BUNDLE_DIR/panos" -name '*.jpg' 2>/dev/null | wc -l)
-if [ -f "$BUNDLE_DIR/records.jsonl" ] && [ "$n_panos" -ge 1000 ]; then
-    echo "fetch: records.jsonl + ${n_panos} panos already present -- skipping"
-elif [ -f "$BUNDLE_DIR/records.jsonl" ]; then
-    "$PYTHON" -u scripts/fetch_manual_gold.py --force
+# 1. Imagery fetch. records.jsonl is COMMITTED and carries the detections step 2
+#    exports into it, so on a fresh clone it is already present and only the
+#    git-ignored panos/ are missing — that is exactly --images-only, which never
+#    writes a committed file and skips panos already on disk (so a preempted job
+#    resumes). This branch used --force until 2026-08-18; on a fresh clone that
+#    silently discarded the committed detections and rewrote bundle_meta.json,
+#    which is what happened on makelab2 on 2026-08-14 (#118). The old
+#    "n_panos >= 1000" skip is gone with it: --images-only does the same job
+#    correctly, checking each present pano against records.jsonl instead of
+#    trusting a file count that a 999-pano directory silently fails.
+if [ -f "$BUNDLE_DIR/records.jsonl" ]; then
+    "$PYTHON" -u scripts/fetch_manual_gold.py --images-only
 else
     "$PYTHON" -u scripts/fetch_manual_gold.py
 fi

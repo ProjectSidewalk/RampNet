@@ -14,13 +14,19 @@ RampNet's detections are added by ``scripts/export_gold_records.py``).
     # imagery for THIS machine, committed bundle untouched — the usual re-fetch.
     # records.jsonl (with its exported detections) and bundle_meta.json are left
     # exactly as committed; refuses a --source that contradicts bundle_meta.json.
+    # Panos already on disk that match records.jsonl are skipped, so a preempted
+    # run resumes rather than starting the whole fetch over.
     python scripts/fetch_manual_gold.py --images-only
 
     # full bundle build (first time, or rebuild with --force — DISCARDS exported
     # detections in records.jsonl):
     python scripts/fetch_manual_gold.py
 
-    # or copy from an existing download_dataset.py output instead of the Hub:
+    # or copy from an existing download_dataset.py output instead of the Hub. This
+    # is a FULL BUILD option only: the committed bundle records source="hf", and
+    # --images-only refuses a source that contradicts it (below), so there is no
+    # --source local re-fetch for the committed bundle — by design, since the two
+    # sources are not byte-identical.
     python scripts/fetch_manual_gold.py --source local --local-dataset ./dataset/test
 
 Cost note, measured 2026-08-14 on makelab2: the ``--source hf`` path goes through
@@ -38,6 +44,16 @@ byte-identical to each other — ``download_dataset.py`` re-encodes at quality 9
 so the bundle records which one built it (``bundle_meta.json``), and the
 exporter's reproduction gate against the published gold-set numbers is the
 arbiter of whether the difference matters.
+
+After any fetch the imagery is checked against
+``benchmark/manual_gold/imagery_manifest.json`` — a sha256 per pano, the same content
+hash the nine city splits carry, written and verified by
+``scripts/analysis/imagery_manifest.py``. **That file does not exist yet**: nobody has run
+the writer on a machine holding all 1,000 panos, so today the check prints the command
+that would create it instead of verifying anything, and manual_gold is the one split whose
+imagery has no committed hash. Until it exists, ``bundle_meta.json``'s recorded source and
+the per-pano pixel size in ``records.jsonl`` are the only evidence that the imagery under
+the committed records is the imagery those records describe.
 
 Stage-1's auto-generated labels (``curb_ramp_points_normalized`` etc.) are
 deliberately NOT copied into the records: the bundle's ground truth is the
@@ -143,10 +159,24 @@ def audit(ids):
     return 0 if ok else 1
 
 
-def image_dims(jpeg_bytes):
+def _dims(src):
     from PIL import Image
-    with Image.open(io.BytesIO(jpeg_bytes)) as img:  # header read only, no full decode
+    with Image.open(src) as img:  # header read only, no full decode
         return img.width, img.height
+
+
+def image_dims(jpeg_bytes):
+    """(width, height) from JPEG bytes already in memory (the Hub path has them)."""
+    return _dims(io.BytesIO(jpeg_bytes))
+
+
+def image_dims_path(path):
+    """(width, height) straight off a file's header — never reads the pixels.
+
+    The gold panos are 4096x2048 and up, so slurping a whole one to read twenty
+    bytes of header is GBs of pointless I/O across the 1,000-pano set.
+    """
+    return _dims(path)
 
 
 def make_record(pano_id, width, height, meta):
@@ -174,25 +204,150 @@ def fetch_hf(ids, panos_dir):
         yield pid, make_record(pid, w, h, row)
 
 
-def fetch_local(ids, panos_dir, local_dataset):
+def fetch_local(ids, panos_dir, local_dataset, need_meta=True):
     """Yield (pano_id, record) copying byte-for-byte from a download_dataset.py
-    output directory (``dataset/test``: <pid>.jpg + <pid>.json)."""
+    output directory (``dataset/test``: <pid>.jpg + <pid>.json).
+
+    ``need_meta`` is False on the --images-only path, which throws the records away:
+    the sidecars are then not read at all, so imagery rsync'd to a machine without
+    them still fetches. When they ARE needed, a missing or unparseable sidecar exits
+    with guidance rather than a traceback partway through the copy.
+    """
     for pid in ids:
         src = os.path.join(local_dataset, f"{pid}.jpg")
         if not os.path.exists(src):
             continue
-        shutil.copyfile(src, os.path.join(panos_dir, f"{pid}.jpg"))
-        with open(os.path.join(local_dataset, f"{pid}.json"), encoding="utf-8") as f:
-            meta = json.load(f)
-        with open(src, "rb") as f:
-            w, h = image_dims(f.read())
+        meta = {}
+        if need_meta:
+            meta_path = os.path.join(local_dataset, f"{pid}.json")
+            if not os.path.exists(meta_path):
+                raise SystemExit(
+                    f"{meta_path} is missing; a full build needs every pano's sidecar "
+                    "metadata. Point --local-dataset at a complete download_dataset.py "
+                    "output, or use --images-only, which never reads the sidecars.")
+            try:
+                with open(meta_path, encoding="utf-8") as f:
+                    meta = json.load(f)
+            except ValueError as e:
+                raise SystemExit(f"{meta_path} is not valid JSON ({e}); a full build "
+                                 "cannot read this pano's metadata.")
+        dst = os.path.join(panos_dir, f"{pid}.jpg")
+        shutil.copyfile(src, dst)
+        w, h = image_dims_path(dst)
         yield pid, make_record(pid, w, h, meta)
 
 
-def record_ids(records_path):
-    """Panorama ids in an existing records.jsonl."""
+def record_panos(records_path):
+    """``{panorama_id: pano dict}`` from an existing records.jsonl.
+
+    Every failure here means the file is not a gold bundle's records.jsonl, so each
+    one exits with the same "rebuild it" guidance the surrounding guards give, rather
+    than a bare KeyError out of dict indexing. Duplicate ids are an error rather than
+    a silent set-collapse: they would let the drift check below pass on a bundle that
+    is internally inconsistent.
+    """
+    panos = {}
     with open(records_path, encoding="utf-8") as f:
-        return {json.loads(line)["pano"]["panorama_id"] for line in f if line.strip()}
+        for n, line in enumerate(f, 1):
+            if not line.strip():
+                continue
+            try:
+                pano = json.loads(line)["pano"]
+                pid = pano["panorama_id"]
+            except (ValueError, KeyError, TypeError) as e:
+                raise SystemExit(
+                    f"{records_path}:{n} is not a gold record ({type(e).__name__}: {e}); "
+                    "the bundle needs a full rebuild (--force), not an image fetch.")
+            if pid in panos:
+                raise SystemExit(
+                    f"{records_path}:{n} repeats panorama_id {pid!r}; the bundle needs a "
+                    "full rebuild (--force), not an image fetch.")
+            panos[pid] = pano
+    return panos
+
+
+def committed_dims(pano):
+    """(width, height) a record claims for its pano, or None if it does not say."""
+    w, h = pano.get("width"), pano.get("height")
+    return (w, h) if isinstance(w, int) and isinstance(h, int) else None
+
+
+def usable_on_disk(panos_dir, ids, expected):
+    """Ids already fetched AND consistent with the size records.jsonl claims.
+
+    Skipping these is what makes a preempted fetch resumable — the hf path measures in
+    hours (see the module docstring), so restarting from zero is expensive. A file that
+    is absent, unreadable (a truncated write from a killed job) or the wrong size is
+    deliberately left out, so the fetch overwrites it instead of trusting it.
+    """
+    ok = []
+    for pid in ids:
+        path = os.path.join(panos_dir, f"{pid}.jpg")
+        if not os.path.exists(path):
+            continue
+        try:
+            dims = image_dims_path(path)
+        except Exception:
+            continue
+        if pid in expected and dims != expected[pid]:
+            continue
+        ok.append(pid)
+    return ok
+
+
+def manifest_hint(manifest_path):
+    return (f"note: {manifest_path} does not exist, so this fetch was checked against "
+            "records.jsonl's pixel sizes and bundle_meta.json's source, NOT against a "
+            "content hash. The nine city splits all carry an imagery_manifest.json; "
+            "write this split's from a machine holding all 1,000 panos with:\n"
+            "  python scripts/analysis/imagery_manifest.py --write --cities manual_gold")
+
+
+def check_manifest(panos_dir, manifest_path):
+    """``(ok, message)`` for the committed sha256 imagery manifest.
+
+    Reuses scripts/analysis/imagery_manifest.py — the tool that already writes and
+    verifies this file for the nine city splits — so "the right bytes" keeps one
+    definition across every split instead of gaining a second, special-cased one here.
+    ``ok`` is False only on a real mismatch; an absent manifest is reported rather than
+    failed, because manual_gold has none committed yet.
+    """
+    if not os.path.exists(manifest_path):
+        return True, manifest_hint(manifest_path)
+    analysis_dir = os.path.join(REPO_ROOT, "scripts", "analysis")
+    if analysis_dir not in sys.path:
+        sys.path.insert(0, analysis_dir)
+    from imagery_manifest import compare, digest_of, scan
+
+    with open(manifest_path, encoding="utf-8") as f:
+        recorded = json.load(f)
+    if not isinstance(recorded, dict) or "panos" not in recorded:
+        return False, f"{manifest_path} has no 'panos' section; it is not an imagery manifest."
+    entries = scan(panos_dir)
+    ok, missing, extra, changed = compare(entries, recorded["panos"])
+    if ok:
+        return True, (f"imagery_manifest.json: {len(entries)} pano(s) match the committed "
+                      f"hashes (digest {digest_of(entries)}).")
+    lines = [f"fetched imagery does NOT match {manifest_path} — do not score this bundle:"]
+    if changed:
+        lines.append(f"  {len(changed)} pano(s) present with different bytes, "
+                     f"e.g. {changed[:5]}")
+    if missing:
+        lines.append(f"  {len(missing)} pano(s) in the manifest but not on disk, "
+                     f"e.g. {missing[:5]}")
+    if extra:
+        lines.append(f"  {len(extra)} pano(s) on disk but not in the manifest, "
+                     f"e.g. {extra[:5]}")
+    return False, "\n".join(lines)
+
+
+def report_manifest(panos_dir, manifest_path, enabled):
+    if not enabled:
+        return
+    ok, message = check_manifest(panos_dir, manifest_path)
+    if not ok:
+        raise SystemExit(message)
+    print(message)
 
 
 def main(argv=None):
@@ -210,14 +365,28 @@ def main(argv=None):
                          "nothing committed: records.jsonl and bundle_meta.json stay exactly "
                          "as they are. This is the per-machine re-fetch path — imagery is "
                          "git-ignored while the records (and the detections exported into "
-                         "them) are committed, so a fresh clone wants exactly this.")
+                         "them) are committed, so a fresh clone wants exactly this. Panos "
+                         "already on disk that match records.jsonl are skipped.")
+    ap.add_argument("--refetch", action="store_true",
+                    help="With --images-only, re-fetch panos that are already on disk "
+                         "instead of skipping them.")
     ap.add_argument("--force", action="store_true",
                     help="Rebuild an existing records.jsonl (this DISCARDS any detections "
                          "an earlier export_gold_records.py run wrote into it).")
+    ap.add_argument("--no-manifest-check", action="store_true",
+                    help="Skip the post-fetch check against imagery_manifest.json (that "
+                         "check re-reads every fetched file to hash it).")
     args = ap.parse_args(argv)
     if args.images_only and args.force:
         raise SystemExit("--images-only and --force contradict each other: one promises to "
                          "leave records.jsonl alone, the other rebuilds it. Pick one.")
+    if args.audit and (args.images_only or args.force):
+        raise SystemExit("--audit downloads nothing, so it cannot also fetch: it would "
+                         "silently ignore --images-only/--force. Run the audit, then the "
+                         "fetch.")
+    if args.refetch and not args.images_only:
+        raise SystemExit("--refetch only means anything with --images-only; a full build "
+                         "fetches every pano regardless.")
 
     ids = gold_ids()
     print(f"{len(ids)} gold label files in {LABELS_DIR}")
@@ -225,12 +394,14 @@ def main(argv=None):
         sys.exit(audit(ids))
 
     records_path = os.path.join(BUNDLE_DIR, "records.jsonl")
+    manifest_path = os.path.join(BUNDLE_DIR, "imagery_manifest.json")
     if os.path.exists(records_path) and not (args.force or args.images_only):
         raise SystemExit(f"{records_path} already exists. Use --images-only to fetch the "
                          "imagery for this machine without touching the committed records "
                          "(the usual case), or --force to rebuild records.jsonl — which "
                          "DISCARDS any detections exported into it.")
 
+    expected = {}
     if args.images_only:
         # Fail fast, before any download. The bundle records which source built it, and
         # the two sources are NOT byte-identical (a JPEG re-encode alone moved the gold
@@ -240,35 +411,91 @@ def main(argv=None):
             raise SystemExit("--images-only needs an existing records.jsonl to be "
                              "consistent with; run the full fetch (no flags) instead.")
         meta_path = os.path.join(BUNDLE_DIR, "bundle_meta.json")
+        built_source = None
         if os.path.exists(meta_path):
-            with open(meta_path, encoding="utf-8") as f:
-                built_source = json.load(f).get("source")
-            if built_source and built_source != args.source:
-                raise SystemExit(
-                    f"bundle_meta.json records source={built_source!r} but this fetch would "
-                    f"use --source {args.source}; the two are not byte-identical. Fetch with "
-                    f"--source {built_source}, or rebuild the whole bundle with --force.")
-        drift = sorted(record_ids(records_path) ^ set(ids))
+            try:
+                with open(meta_path, encoding="utf-8") as f:
+                    built_source = json.load(f).get("source")
+            except ValueError as e:
+                raise SystemExit(f"{meta_path} is not valid JSON ({e}); restore it with "
+                                 "git checkout, or rebuild the bundle with --force.")
+        # An unknown source is not a pass. Waving the check through exactly when the
+        # built source cannot be established is how the wrong pixels get in underneath
+        # committed records — the case this guard exists for.
+        if not built_source:
+            raise SystemExit(
+                f"{meta_path} does not record which source built this bundle, so imagery "
+                "fetched now cannot be shown to belong under the committed records — and "
+                "the two sources are not byte-identical. Restore the committed file "
+                "(git checkout benchmark/manual_gold/bundle_meta.json), or rebuild the "
+                "whole bundle with --force.")
+        if built_source != args.source:
+            raise SystemExit(
+                f"bundle_meta.json records source={built_source!r} but this fetch would "
+                f"use --source {args.source}; the two are not byte-identical. Fetch with "
+                f"--source {built_source}, or rebuild the whole bundle with --force.")
+
+        committed = record_panos(records_path)
+        drift = sorted(set(committed) ^ set(ids))
         if drift:
             raise SystemExit(f"records.jsonl and manual_labels/ disagree on {len(drift)} "
                              f"id(s) (e.g. {drift[:5]}); the bundle needs a full rebuild "
                              "(--force), not an image fetch.")
+        for pid, pano in committed.items():
+            dims = committed_dims(pano)
+            if dims:
+                expected[pid] = dims
+        if not expected:
+            print("note: records.jsonl carries no width/height, so the fetched imagery "
+                  "cannot be cross-checked against it.")
 
     panos_dir = os.path.join(BUNDLE_DIR, "panos")
     os.makedirs(panos_dir, exist_ok=True)
-    rows = (fetch_hf(ids, panos_dir) if args.source == "hf"
-            else fetch_local(ids, panos_dir, args.local_dataset))
 
-    records = dict(rows)
-    missing = sorted(set(ids) - set(records))
+    already = set()
+    if args.images_only and not args.refetch:
+        already = set(usable_on_disk(panos_dir, ids, expected))
+        if already:
+            print(f"{len(already)} pano(s) already on disk and consistent with "
+                  "records.jsonl — skipping them (--refetch fetches them anyway).")
+    todo = [pid for pid in ids if pid not in already]
+
+    records = {}
+    if todo:
+        rows = (fetch_hf(todo, panos_dir) if args.source == "hf"
+                else fetch_local(todo, panos_dir, args.local_dataset,
+                                 need_meta=not args.images_only))
+        records = dict(rows)
+    else:
+        print("nothing to fetch — every gold pano is already on disk.")
+    missing = sorted(set(ids) - already - set(records))
+    # The one free integrity check --images-only has: the committed records already
+    # state each pano's pixel size, so imagery that disagrees is different imagery under
+    # the same ids. Only meaningful here — a full build writes the records FROM these
+    # dimensions, so there is nothing independent to compare them against.
+    wrong = sorted(pid for pid, rec in records.items()
+                   if pid in expected
+                   and (rec["pano"]["width"], rec["pano"]["height"]) != expected[pid])
 
     if args.images_only:
-        print(f"Fetched {len(records)} panos into {panos_dir}; records.jsonl and "
-              "bundle_meta.json left untouched.")
+        print(f"Fetched {len(records)} pano(s) into {panos_dir}"
+              + (f" ({len(already)} already present)" if already else "")
+              + "; records.jsonl and bundle_meta.json left untouched.")
+        if wrong:
+            detail = "; ".join(
+                f"{pid}: records say {expected[pid][0]}x{expected[pid][1]}, fetched "
+                f"{records[pid]['pano']['width']}x{records[pid]['pano']['height']}"
+                for pid in wrong[:3])
+            raise SystemExit(
+                f"{len(wrong)} fetched pano(s) are not the size the committed records "
+                f"claim ({detail}). That is different imagery under the same ids, and "
+                "scoring it would silently move the gold numbers. Check --source, or "
+                "rebuild the whole bundle with --force.")
         if missing:
             raise SystemExit(f"{len(missing)} gold pano(s) NOT found in the {args.source} "
                              f"source (imagery is incomplete): {missing[:10]}"
                              + (" ..." if len(missing) > 10 else ""))
+        report_manifest(panos_dir, manifest_path, not args.no_manifest_check)
         print("All gold panos fetched.")
         return
 
@@ -293,6 +520,7 @@ def main(argv=None):
         raise SystemExit(f"{len(missing)} gold pano(s) NOT found in the {args.source} source "
                          f"(bundle is incomplete): {missing[:10]}"
                          + (" ..." if len(missing) > 10 else ""))
+    report_manifest(panos_dir, manifest_path, not args.no_manifest_check)
     print("All gold panos fetched. Next: scripts/export_gold_records.py (GPU).")
 
 

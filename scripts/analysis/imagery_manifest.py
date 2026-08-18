@@ -39,8 +39,6 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 sys.path.insert(0, REPO)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from miss_decomposition import ALL_SPLITS  # noqa: E402
-
 MANIFEST_NAME = "imagery_manifest.json"
 
 
@@ -108,6 +106,12 @@ def compare(entries, recorded):
 
 
 def main(argv=None):
+    # Imported here, not at module scope: it pulls in rampnet's eval stack, and
+    # the only thing needing it is the --cities default. Keeping the top of this
+    # module to the standard library lets fetch_manual_gold.py import scan/compare
+    # to verify a fetch without dragging that stack into a download script.
+    from miss_decomposition import ALL_SPLITS
+
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--cities", default=",".join(ALL_SPLITS))
     p.add_argument("--panos-root", default=REPO,
