@@ -20,11 +20,15 @@ stage_one/dataset_generation/download_dataset.py:
 Doubling shows as seam-crossing label pairs above the uniform-azimuth null.
 Dropout shows as a deficit of labels in the columns nearest x=0/x=1.
 """
-import json, math, sys
+import argparse
+import json, math, os, sys
 from collections import Counter
 import pyarrow.parquet as pq
 from huggingface_hub import HfApi
 
+# The repo checkout, for default output paths -- NOT to be confused with REPO,
+# which is the Hugging Face dataset id.
+REPO_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 REPO = "projectsidewalk/rampnet-dataset"
 SX, SY = 1024, 512                 # matcher units, as in rampnet.detection_eval
 R = 0.022 * SX
@@ -32,7 +36,15 @@ COLS = ["pano_id", "curb_ramp_points_normalized", "pano_azimuth"]
 NBINS = 64                         # azimuth histogram, 5.625 deg per bin
 
 def main():
-    limit = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--limit", type=int, default=0,
+                    help="Scan only the first N parquet files (smoke test).")
+    ap.add_argument("--json-out", default=os.path.join(REPO_DIR, "analysis_out",
+                                                       "stage1_seam_scan.json"),
+                    help="Where to write the result (default: analysis_out/).")
+    args = ap.parse_args()
+    limit = args.limit
     files = [f for f in HfApi().list_repo_files(REPO, repo_type="dataset")
              if f.endswith(".parquet")]
     files.sort()
@@ -110,8 +122,10 @@ def main():
            "panos_with_seam_pair": panos_with_seam_pair,
            "seam_dupes_by_split": dict(seam_by_split),
            "examples": seam_examples}
-    with open("stage1_seam_scan.json", "w", newline="") as f:
+    os.makedirs(os.path.dirname(args.json_out) or ".", exist_ok=True)
+    with open(args.json_out, "w", newline="") as f:
         json.dump(out, f, indent=2)
+    print(f"wrote {args.json_out}")
 
     mean = n_labels / NBINS
     print(f"\nlabels={n_labels} over {n_panos} panos")
