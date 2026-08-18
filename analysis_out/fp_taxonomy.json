@@ -10,6 +10,41 @@
     "paterson",
     "gainesville"
   ],
+  "models": {
+    "pool": null,
+    "specs": [
+      "rampnet",
+      "gemini:gemini-3.6-flash",
+      "gemini:gemini-3.1-pro-preview",
+      "qwen:Qwen/Qwen3-VL-8B-Instruct",
+      "qwen:Qwen/Qwen3-VL-32B-Instruct",
+      "molmo:allenai/Molmo2-8B",
+      "owlv2",
+      "gdino"
+    ],
+    "labels": [
+      "rampnet",
+      "gemini-3.6-flash",
+      "gemini-3.1-pro-preview",
+      "Qwen/Qwen3-VL-8B-Instruct",
+      "Qwen/Qwen3-VL-32B-Instruct",
+      "allenai/Molmo2-8B",
+      "google/owlv2-large-patch14-ensemble",
+      "IDEA-Research/grounding-dino-base"
+    ],
+    "sparse": [
+      "rampnet",
+      "gemini:gemini-3.6-flash",
+      "gemini:gemini-3.1-pro-preview",
+      "qwen:Qwen/Qwen3-VL-8B-Instruct",
+      "qwen:Qwen/Qwen3-VL-32B-Instruct",
+      "molmo:allenai/Molmo2-8B"
+    ],
+    "dense": [
+      "owlv2",
+      "gdino"
+    ]
+  },
   "per_model": {
     "rampnet @0.30": {
       "n_fp": 181,

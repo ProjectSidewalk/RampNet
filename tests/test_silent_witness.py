@@ -152,13 +152,19 @@ def test_summarize_reports_the_population_size():
 # --------------------------------------------------------------------------- #
 # bookkeeping — the sparse/dense split is load-bearing
 # --------------------------------------------------------------------------- #
-def test_sparse_and_dense_partition_the_roster():
-    from fp_taxonomy import CHALLENGERS
-    assert set(sw.SPARSE) | set(sw.DENSE) == set(CHALLENGERS)
-    assert set(sw.SPARSE) & set(sw.DENSE) == set()
+def test_the_frozen_pool_partitions_into_sparse_and_dense():
+    """The partition that matters is the one over the pool the script actually runs,
+    not over the standing roster: those two can differ, which is the whole point of
+    the freeze. (The roster-wide partition is covered in tests/test_roster.py.)"""
+    from rampnet import roster
+    sparse, dense = roster.partition_by_density(roster.WITNESS_POOL_46)
+    assert set(sparse) | set(dense) == set(roster.WITNESS_POOL_46)
+    assert not set(sparse) & set(dense)
 
 
 def test_the_open_vocabulary_detectors_are_the_dense_ones():
     # They are the models docs/model_comparison.md measures at 55-88 boxes/pano, and
     # the headline deliberately excludes them: at that density a witness is free.
-    assert set(sw.DENSE) == {"owlv2", "gdino"}
+    from rampnet import roster
+    _, dense = roster.partition_by_density(roster.WITNESS_POOL_46)
+    assert set(dense) == {"owlv2", "gdino"}

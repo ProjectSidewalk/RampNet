@@ -2,6 +2,38 @@
   "bucket": "silent",
   "threshold": 0.3,
   "n": 128,
+  "models": {
+    "pool": "WITNESS_POOL_46",
+    "specs": [
+      "gemini:gemini-3.6-flash",
+      "gemini:gemini-3.1-pro-preview",
+      "qwen:Qwen/Qwen3-VL-8B-Instruct",
+      "qwen:Qwen/Qwen3-VL-32B-Instruct",
+      "molmo:allenai/Molmo2-8B",
+      "owlv2",
+      "gdino"
+    ],
+    "labels": [
+      "gemini-3.6-flash",
+      "gemini-3.1-pro-preview",
+      "Qwen/Qwen3-VL-8B-Instruct",
+      "Qwen/Qwen3-VL-32B-Instruct",
+      "allenai/Molmo2-8B",
+      "google/owlv2-large-patch14-ensemble",
+      "IDEA-Research/grounding-dino-base"
+    ],
+    "sparse": [
+      "gemini:gemini-3.6-flash",
+      "gemini:gemini-3.1-pro-preview",
+      "qwen:Qwen/Qwen3-VL-8B-Instruct",
+      "qwen:Qwen/Qwen3-VL-32B-Instruct",
+      "molmo:allenai/Molmo2-8B"
+    ],
+    "dense": [
+      "owlv2",
+      "gdino"
+    ]
+  },
   "per_model": {
     "gemini-3.6-flash": {
       "witnessed": 33,

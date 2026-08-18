@@ -40,9 +40,9 @@ Downstream code reads the export through :func:`load_detections`, preferring it 
 ``.model_cache`` when present, so a fresh clone works with no cache at all.
 """
 import argparse
+import glob
 import json
 import os
-import re
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -50,15 +50,19 @@ sys.path.insert(0, REPO)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "scripts", "model_comparison"))
 
+from rampnet import roster  # noqa: E402
+
 from fp_taxonomy import CHALLENGERS, _compare_args  # noqa: E402
 from miss_decomposition import ALL_SPLITS  # noqa: E402
 
 PUBLISHED_DIR = os.path.join(REPO, "benchmark", "model_detections")
 
 
-def slug(label):
-    """Filesystem-safe model id. ``IDEA-Research/grounding-dino-base`` -> ``IDEA-Research__grounding-dino-base``."""
-    return re.sub(r"[^A-Za-z0-9._-]+", "__", label)
+#: Filesystem-safe model id, e.g. ``IDEA-Research/grounding-dino-base`` ->
+#: ``IDEA-Research__grounding-dino-base``. Defined in the roster so the test that
+#: checks this directory against the registry can spell a filename without importing
+#: the exporter; re-exported here because that is where callers look for it.
+slug = roster.slug
 
 
 def spec_label(spec, cargs):
@@ -67,13 +71,11 @@ def spec_label(spec, cargs):
     ``build_detector`` would give the same answer, but it imports the detector stack
     (torch, transformers). The whole point of publishing the detections is that a
     fresh clone can score them with neither, so the published path must not drag that
-    import in. Provider defaults come from ``_compare_args``, which a test already
-    cross-checks against ``compare.py``'s parser, so this cannot drift on its own.
+    import in. ``roster.label_for`` is that torch-free resolution, shared with every
+    other caller; ``cargs`` is still consulted so a run with an overridden provider
+    model labels itself with the model actually used.
     """
-    provider, _, model_id = spec.partition(":")
-    if model_id.strip():
-        return model_id.strip()
-    return getattr(cargs, f"{provider.strip()}_model", provider.strip())
+    return roster.label_for(spec, cargs)
 
 
 def load_detections(label, city, published_dir=PUBLISHED_DIR, publish_as=None):
@@ -100,8 +102,28 @@ def published_path(label, city, out_dir=PUBLISHED_DIR, publish_as=None):
     ``claude-sonnet-5__annapolis.json``, the second silently overwriting the
     first. The cache LABEL must stay the bare model id (it is baked into the
     already-paid cache keys), so the distinguishing name belongs here, at
-    publication time, and nowhere else."""
+    publication time, and nowhere else.
+
+    Callers should prefer ``publication_name`` to fill ``publish_as``: the registry
+    already records every leg's published name, and a flag that has to be typed
+    from memory is a flag that will one day not be."""
     return os.path.join(out_dir, f"{slug(publish_as or label)}__{city}.json")
+
+
+def publication_name(spec, cargs, publish_as=None):
+    """What this leg publishes under: the explicit flag, else the registry, else
+    the plain label.
+
+    Without this, re-exporting a pinned leg and forgetting ``--publish-as`` writes
+    the bare model id — `claude-opus-5__annapolis.json` — which collides with
+    nothing, so the overwrite guard stays quiet, and surfaces only later as a file
+    that belongs to no registered leg. The registry knows the answer; this is the
+    one place that writes the filename, so this is where it should ask.
+    """
+    if publish_as:
+        return publish_as
+    leg = roster.leg_for(spec, cargs)
+    return roster.published_name(leg) if leg is not None else spec_label(spec, cargs)
 
 
 def export(cache_dir, out_dir, splits, specs, allow_partial=False, overrides=None,
@@ -136,6 +158,7 @@ def export(cache_dir, out_dir, splits, specs, allow_partial=False, overrides=Non
                          f"several --models specs (got {len(specs)}): every spec "
                          "would write to the same file.")
     for spec in specs:
+        name = publication_name(spec, cargs, publish_as)
         for city in splits:
             bundle = os.path.join(REPO, "benchmark", city)
             if not os.path.exists(os.path.join(bundle, "records.jsonl")):
@@ -161,7 +184,7 @@ def export(cache_dir, out_dir, splits, specs, allow_partial=False, overrides=Non
             if missing and not allow_partial:
                 partial.append((label, city, len(dets), missing))
                 continue
-            path = published_path(label, city, out_dir, publish_as)
+            path = published_path(label, city, out_dir, name)
             # Refuse to overwrite a DIFFERENT leg that happens to share this name.
             # Two legs of one model id (Claude at two effort levels) resolve to the
             # same filename, and a silent overwrite is the worst outcome available:
@@ -174,12 +197,62 @@ def export(cache_dir, out_dir, splits, specs, allow_partial=False, overrides=Non
                     collisions.append((label, city, path))
                     continue
             with open(path, "w", encoding="utf-8") as fh:
-                json.dump({"model": label, "published_as": publish_as or label,
+                json.dump({"model": label, "published_as": name,
                            "city": city, "signature": sig,
                            "n_panos": len(dets), "n_uncached": missing,
-                           "detections": dets}, fh, separators=(",", ":"), sort_keys=True)
+                           "detections": dets}, fh, **DUMP_KW)
             written.append((label, city, len(dets), missing, os.path.getsize(path)))
     return written, skipped, partial, collisions
+
+
+#: Exactly how a published file is serialized. Any writer must use these, or two
+#: runs that agree on every value still produce different bytes.
+DUMP_KW = {"separators": (",", ":"), "sort_keys": True}
+
+
+def canonical_bytes(payload):
+    """The published form of one export's payload."""
+    return json.dumps(payload, **DUMP_KW).encode("utf-8")
+
+
+def canonicalize(out_dir=PUBLISHED_DIR, write=False):
+    """Bring published files up to the current envelope, without a cache.
+
+    The detections are never touched -- only the metadata header around them. This
+    exists because the header gains fields over time: ``published_as`` arrived with
+    the Claude legs (#122), so the 110 files exported before it did not have it, and
+    re-running the exporter on any of them would have produced a file that differed
+    from the committed one. That is the thing docs/replication.md promises does not
+    happen.
+
+    The alternative was re-exporting from ``.model_cache``, which would mean finding
+    the machine that produced each leg -- Hyak for the open detectors, makelab2 for
+    the YOLO trio. Unnecessary: the serialization is deterministic (``DUMP_KW``), and
+    for every one of those files the published name is recoverable from the file
+    itself, so the result is byte-identical to what a real re-export would write.
+
+    Returns ``(changed, unfixable)``. ``unfixable`` lists files whose published name
+    cannot be derived -- ``slug(model)`` disagreeing with the filename means the file
+    was published under a name only the run that made it knew, and guessing it is
+    exactly the silent rename this whole mechanism exists to prevent.
+    """
+    changed, unfixable = [], []
+    for path in sorted(glob.glob(os.path.join(out_dir, "*__*.json"))):
+        raw = open(path, "rb").read()
+        payload = json.loads(raw.decode("utf-8"))
+        stem = os.path.basename(path).rpartition("__")[0]
+        if "published_as" not in payload:
+            if slug(payload["model"]) != stem:
+                unfixable.append((os.path.basename(path), payload["model"]))
+                continue
+            payload["published_as"] = payload["model"]
+        out = canonical_bytes(payload)
+        if out != raw:
+            changed.append(os.path.basename(path))
+            if write:
+                with open(path, "wb") as fh:
+                    fh.write(out)
+    return changed, unfixable
 
 
 def verify(cache_dir, out_dir, splits, specs, overrides=None, publish_as=None):
@@ -201,6 +274,7 @@ def verify(cache_dir, out_dir, splits, specs, overrides=None, publish_as=None):
     rsq = radius_sq_for()
     problems, compared, vacuous, unpublished = [], 0, [], []
     for spec in specs:
+        name = publication_name(spec, cargs, publish_as)
         for city in splits:
             bundle = os.path.join(REPO, "benchmark", city)
             if not os.path.exists(os.path.join(bundle, "records.jsonl")):
@@ -213,7 +287,7 @@ def verify(cache_dir, out_dir, splits, specs, overrides=None, publish_as=None):
             sig = det.signature() if hasattr(det, "signature") else None
             if sig is None:
                 continue
-            pub = load_detections(label, city, out_dir, publish_as)
+            pub = load_detections(label, city, out_dir, name)
             if pub is None:
                 unpublished.append((label, city))
                 continue
@@ -277,7 +351,22 @@ def main(argv=None):
                         "legs that would otherwise both write claude-sonnet-5__<split>.json. "
                         "Names ONE leg, so it takes a single --models spec. The SAME value "
                         "must be passed to --verify.")
+    p.add_argument("--canonicalize", action="store_true",
+                   help="Bring the published files up to the current metadata "
+                        "envelope and exit. Touches no detections and needs no "
+                        "cache. Reports what would change; add --write to apply.")
+    p.add_argument("--write", action="store_true",
+                   help="With --canonicalize, actually rewrite the files.")
     args = p.parse_args(argv)
+
+    if args.canonicalize:
+        changed, unfixable = canonicalize(args.out, write=args.write)
+        for name, model in unfixable:
+            print(f"  ✗ {name}: published under a name not derivable from "
+                  f"model {model!r} — re-export it from the cache that made it")
+        verb = "rewrote" if args.write else "would rewrite"
+        print(f"{verb} {len(changed)} file(s); {len(unfixable)} need a real re-export")
+        return 1 if unfixable else 0
 
     splits = [s.strip() for s in args.splits.split(",") if s.strip()]
     specs = [s.strip() for s in args.models.split(",") if s.strip()]

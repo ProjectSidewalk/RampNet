@@ -263,6 +263,14 @@ human, and exactly what more training data targets.
 The density correction is mandatory here, for the third time in this analysis: OWLv2 witnesses
 121 of 128 silent misses, but chance alone accounts for 76.9 of them.
 
+**Every number in this section is against one fixed witness pool** —
+`rampnet.roster.WITNESS_POOL_46`, the roster as it stood on 2026-07-31, which is the pool the
+#46 tagging pass below was rated under. The pool is frozen and `silent_witness.json` records
+it, because a further witness can only shrink the unwitnessed set and that set is the pass's
+item list. This is not hypothetical: adding the already-published `gemini-3.7-flash` leg takes
+the unwitnessed count from 59 to 58 and the lower bound from 0.0092 to 0.0088, and the item it
+removes is one of the 50 already rated. See #122.
+
 | witness | raw | by chance | **excess** |
 | :--- | ---: | ---: | ---: |
 | gemini-3.1-pro-preview | 46 | 9.4 | +36.6 |
@@ -270,8 +278,8 @@ The density correction is mandatory here, for the third time in this analysis: O
 | molmo2-8B | 26 | 8.5 | +17.5 |
 | Qwen3-VL-8B | 22 | 6.1 | +15.9 |
 | Qwen3-VL-32B | 16 | 2.7 | +13.3 |
-| **union, 5 sparse models** | **69** | 30.0 | **+39.0** |
-| *union, 2 dense detectors* | *127* | *102.2* | *+24.8* |
+| **union, the pool's sparse models** | **69** | 30.0 | **+39.0** |
+| *union, the pool's dense detectors* | *127* | *102.2* | *+24.8* |
 
 **Near-field: 32 of 45 witnessed raw (71.1%), chance 13.0, so ~19 corrected (42%).**
 
@@ -314,16 +322,19 @@ python scripts/analysis/make_tagger.py analysis_out/gallery46_silent
 
 That yields **50 crops** — 59 unwitnessed, less 9 below the 30-source-pixel floor, which are
 excluded from any rate rather than labelled. The verdict scheme is built so exactly one answer is
-sourcing-addressable:
+sourcing-addressable. It has eight verdicts, and the authoritative copy — the one that travels
+inside every per-rater file — is `benchmark/RUBRICS.md` §3:
 
 | verdict | what it means | programme |
 | :--- | :--- | :--- |
-| `visible` | clear ramp, unobstructed | **vocabulary — this is the sourcing target** |
-| `occluded` | vehicle, pole, vegetation, person | capture |
-| `lighting` | deep shadow or blown highlight | capture |
-| `surface` | debris, snow, leaves, construction | environment |
-| `not-a-ramp` | no ramp / flush or blended transition | GT disagreement |
-| `unclear` | cannot tell from this imagery | excluded from every rate |
+| `visible` | the ramp itself is resolvable | **vocabulary — this is the sourcing target** |
+| `context-only` | ramp not resolvable; crosswalk / apron / curb-cut cues imply one | learnable, from scene layout |
+| `occluded` | something physically in the way (even if still identifiable) | capture |
+| `lighting` | exposure **destroyed** it — clipped white or crushed black | capture |
+| `surface` | debris, snow, leaves, construction covering it | environment |
+| `not-a-ramp` | nothing ramp-like here | GT error |
+| `definition` | imagery clear; whether this **class** counts is the question | rubric question |
+| `unclear` | cannot tell even with context | excluded from every rate |
 
 **The `visible` rate over those 50, applied to the 59, is what converts the bracket into a point
 estimate.** It has been run (2026-07-31, one rater): near-field `visible` 7 of 13, which puts the

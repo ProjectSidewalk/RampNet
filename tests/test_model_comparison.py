@@ -29,6 +29,7 @@ from detectors import (  # noqa: E402
 from dump_detections import detections_to_view_shapes  # noqa: E402
 
 
+import compare  # noqa: E402
 from compare import (  # noqa: E402
     score_model, validate_bundle, validate_manual_bundle, DetectionCache, cache_key,
     ground_truths_from_verdicts, has_confidences, load_bundle,
@@ -1254,6 +1255,92 @@ def test_a_paid_leg_with_the_usage_log_disabled_says_so_loudly(capsys):
     report_usage(det, "claude-sonnet-5", "annapolis", 125, None)
     out = capsys.readouterr().out
     assert "WARNING" in out and "not recorded" in out.lower()
+
+
+# --- ... and the run stops before the first uncached call -------------------
+
+class _PaidDetector(_UnloadableDetector):
+    """A paid provider that cannot load — so any test that reaches prepare() fails
+    loudly instead of quietly reaching for the network."""
+    name = "claude"
+
+
+def _aligned_gts():
+    records, verdicts = _aligned()
+    return records, ground_truths_from_verdicts(records, verdicts)
+
+
+def test_a_paid_leg_stops_before_its_first_uncached_call(tmp_path):
+    """The end-of-run warning fires after the tokens are bought. This fires before
+    the first one, and before prepare() — _PaidDetector raises from prepare(), so a
+    guard that let the run through would surface as ImportError, not as this."""
+    records, gts = _aligned_gts()
+    with pytest.raises(compare.UnrecordedSpend) as exc:
+        score_model(_PaidDetector(), records, gts, "", radius_sq_for(),
+                    "claude-opus-5", "richmond", DetectionCache(str(tmp_path)),
+                    spend_needs_recording=True)
+    assert "uncached pano" in str(exc.value) and "--usage-log none" in str(exc.value)
+
+
+def test_a_fully_cached_paid_leg_still_runs(tmp_path):
+    """It provably cannot spend: every pano is cached, so the model is never loaded
+    and no call is made. Refusing it would block re-scoring the published detections
+    from a clean clone, which is the path the roster exists to keep open."""
+    records, gts = _aligned_gts()
+    det = _PaidDetector()
+    cache = DetectionCache(str(tmp_path))
+    cache.put(cache_key("claude-opus-5", det.signature(), "richmond", "p1"),
+              [(0.1, 0.1, None)])
+    run = score_model(det, records, gts, "", radius_sq_for(), "claude-opus-5",
+                      "richmond", cache, spend_needs_recording=True)
+    assert run.report.n_panos == 1 and not run.failures
+
+
+def test_a_free_model_may_run_unrecorded(tmp_path):
+    """The rule is about spend, not about logging for its own sake."""
+    records, gts = _aligned_gts()
+    with pytest.raises(ImportError):        # reached prepare(), i.e. was not refused
+        score_model(_UnloadableDetector(), records, gts, "", radius_sq_for(),
+                    "unloadable", "richmond", DetectionCache(str(tmp_path)),
+                    spend_needs_recording=True)
+
+
+def test_unrecorded_spend_stays_possible_but_deliberate(tmp_path):
+    """A guard with no override gets edited out instead, which is worse. With
+    --allow-unrecorded-spend the run proceeds — here, as far as prepare()."""
+    records, gts = _aligned_gts()
+    with pytest.raises(ImportError):
+        score_model(_PaidDetector(), records, gts, "", radius_sq_for(),
+                    "claude-opus-5", "richmond", DetectionCache(str(tmp_path)),
+                    spend_needs_recording=False)
+
+
+def test_the_refusal_is_not_swallowed_as_an_unrunnable_model(monkeypatch, capsys):
+    """main() skips a model that cannot run here, with a printed note. The refusal
+    must NOT take that path — swallowing it would let the next paid leg in the same
+    --models list spend unrecorded too."""
+    def _refuse(*a, **kw):
+        raise compare.UnrecordedSpend("would spend")
+    monkeypatch.setattr(compare, "score_model", _refuse)
+    monkeypatch.setattr(sys, "argv", ["compare.py",
+                                      os.path.join(REPO_ROOT, "benchmark", "richmond"),
+                                      "--models", "rampnet", "--usage-log", "none"])
+    with pytest.raises(compare.UnrecordedSpend):
+        compare.main()
+    assert "not runnable" not in capsys.readouterr().out
+
+
+def test_the_paid_provider_list_covers_every_priced_model():
+    """pricing.py knows what a model costs; the roster knows which providers cost
+    anything. If a priced model's provider is not in PAID_PROVIDERS, the guard has
+    a hole exactly where money is being spent."""
+    from rampnet import roster
+    import pricing
+    for model_id in pricing.PRICING:
+        provider = next((c.provider for c in roster.ROSTER if c.label == model_id), None)
+        if provider is None:
+            continue                     # priced but not registered (e.g. retired alias)
+        assert provider in roster.PAID_PROVIDERS, model_id
 
 
 # --- the provider roster has ONE source of truth ----------------------------

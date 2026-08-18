@@ -32,18 +32,55 @@ lives on one machine.
 ### ✅ Resolved — the challenger detections are published
 
 `fp_taxonomy.py`, `silent_witness.py`, `complementarity.py` and `null_recall.py` all read the
-challenger detections (Gemini ×2, Qwen ×2, Molmo, OWLv2, Grounding DINO). Those cost real GPU-hours
-on Hyak and paid API spend, and until 2026-07-31 they lived only in a git-ignored `.model_cache/`,
-so every number they produced was reproducible on exactly one machine.
+challenger detections. Those cost real GPU-hours on Hyak and paid API spend, and until
+2026-07-31 they lived only in a git-ignored `.model_cache/`, so every number they produced was
+reproducible on exactly one machine. Which models those are is `rampnet/roster.py`, not a list
+in this sentence — the list here was one of the things that drifted.
 
 `.model_cache` is fine as a *working* cache and hostile as a published artifact: 12,951
 single-panorama shards keyed by an opaque SHA-1 of (label, signature, city, pano), unreadable
 without reconstructing detector signatures. `scripts/analysis/export_model_cache.py` consolidates
 it into human-readable files, one per (model, split), keyed by panorama id with the detector
-signature recorded inside. As of 2026-08-18 that is **112 files, 22.9 MB** — the seven-model
-roster across ten splits, plus the ten-split gemini-3.7-flash leg and the four annapolis
-Claude legs, both described below. `test_the_ledger_count_matches_the_directory` asserts
-this number against the directory, so it can no longer drift unnoticed.
+signature recorded inside. As of 2026-08-18 that is **112 files, 22.9 MB**, and every one of
+them belongs to a registered leg:
+
+| what | files | where it is written up |
+|---|---:|---|
+| the standing zero-shot roster, ten splits each (two Gemini legs are absent on `manual_gold`) | 68 | the roster tables in [`model_comparison.md`](model_comparison.md) |
+| `gemini-3.7-flash`, ten splits, published ahead of its write-up (#120) | 10 | §below |
+| the supervised YOLO pano trio, ten splits each (#51) | 30 | [`model_comparison.md` §supervised baseline](model_comparison.md), and the [training record](../scripts/model_comparison/yolo_baseline/README.md) |
+| the four annapolis Claude legs (#122) | 4 | [`model_comparison.md` §Claude](model_comparison.md) |
+
+`rampnet` is a row in every results table and has no file here: it is read from each bundle's
+committed `records.jsonl` and carries no detector signature.
+
+Every one of those files is in **canonical form** — byte-identical to what
+`export_model_cache.py` would write today — which is the difference between a corpus that
+*is* reproducible and one that merely scores the same. It was not, until 2026-08-18: the
+`published_as` field arrived with the Claude legs, so the 108 files exported before it lacked
+it and re-exporting any of them produced a diff with identical detections inside. Bringing
+them up to date needed no cache, because the serialization is deterministic and each file's
+published name was recoverable from the file itself:
+
+```bash
+python scripts/analysis/export_model_cache.py --canonicalize          # report
+python scripts/analysis/export_model_cache.py --canonicalize --write  # apply
+```
+
+That is worth knowing for the next envelope change: **it is not a reason to go find the
+machine that produced each leg.** Only a file whose published name cannot be derived from its
+own contents needs a real re-export, and `--canonicalize` names those rather than guessing.
+`test_every_published_file_is_in_canonical_form` now fails if the corpus drifts again.
+
+Three tests hold that table up rather than trust it.
+`test_the_ledger_count_matches_the_directory` asserts the count, and
+`test_every_published_detections_file_belongs_to_a_registered_leg` asserts the stronger
+property that nothing in the directory is unaccounted for; the third is the canonical-form
+check above. The second one is why this table
+exists: **the registry covered 78 of the 112 files.** The YOLO arms and the Claude legs had
+been run, scored, verified and written up, and the one place that is supposed to enumerate
+every model said nothing about them — which is also what the unremarked 78 → 108 jump in the
+drift list below actually was.
 
 ```bash
 python scripts/analysis/export_model_cache.py --out benchmark/model_detections
@@ -55,8 +92,18 @@ python scripts/analysis/export_model_cache.py --verify     # exported == cached
 that silently differs from what produced the paper's numbers is worse than none. It exits
 non-zero when it had nothing to compare, so a green run cannot mean "found no cache".
 
+The other 44 files were each verified the same way when they were published, but by their own
+invocation against their own cache rather than by the default-roster one above — the YOLO
+trio on makelab2 (30 files, identical to the producing cache; see the
+[training record](../scripts/model_comparison/yolo_baseline/README.md)) and the four Claude
+legs one at a time under `--publish-as` (see
+[`model_comparison.md`](model_comparison.md)). Re-running `--verify` on any of them needs the
+cache that produced it, which is machine-local by construction. What a clean clone can check
+without any cache is that each file's recorded signature still matches the leg the registry
+says it is: `test_each_published_file_names_the_leg_it_says_it_is`.
+
 **Keep this count current when a leg is added.** It drifted three times (61 → 68 at the São
-Paulo split, 68 → 78 at gemini-3.7-flash, 78 → 108 unremarked) before anyone noticed, and a
+Paulo split, 68 → 78 at gemini-3.7-flash, 78 → 108 unremarked — that one was the YOLO trio, see the table above — and 108 → 112 at the Claude legs) before anyone noticed, and a
 ledger that exists to keep the repo honest is the wrong document to let rot. It is now a
 test rather than a promise.
 
@@ -74,13 +121,19 @@ python scripts/analysis/export_model_cache.py --verify --models gemini:gemini-3.
 # -> compared 10 (model, split) pair(s); published detections score IDENTICALLY
 ```
 
-`gemini:gemini-3.7-flash` is **not** in `CHALLENGERS` (`scripts/analysis/fp_taxonomy.py`),
-which is what `--models` defaults to. So the two commands above are not optional detail: the
-default `--verify` skips these nine files entirely and reports a clean pass without opening
-them, `fp_taxonomy.py` needs the same `--models` flag, and `silent_witness.py` cannot reach
-them at all without adding the spec to `CHALLENGERS`. Adding it there would change the
-committed `fp_taxonomy.json` / `silent_witness.json`, so it is a re-run, not an edit — open
-until the leg's write-up lands in `docs/model_comparison.md`.
+`gemini:gemini-3.7-flash` is registered in `rampnet/roster.py` as published-but-off-roster,
+so it is not in `CHALLENGERS` and not what `--models` defaults to. The two commands above are
+therefore not optional detail: the default `--verify` skips these ten files entirely and
+reports a clean pass without opening them, and `fp_taxonomy.py` needs the same `--models`
+flag. Since #122, `silent_witness.py` takes `--models` as well, so it can be pointed at any
+pool without editing a tuple.
+
+Promoting the leg to the standing roster is one field in the registry (`standing=True`) plus a
+re-run of `fp_taxonomy.py` and `null_recall.py`, whose committed JSON would change — a re-run,
+not an edit, open until the write-up lands in `docs/model_comparison.md`. **What promotion no
+longer touches is the #46 human pass.** `silent_witness.py` defaults to
+`roster.WITNESS_POOL_46`, the pool frozen at the state the pass was rated under, and both
+committed artifacts record the pool they ran over.
 
 #### The four Claude legs are published, annapolis only, one file per effort level
 
@@ -661,7 +714,8 @@ python scripts/analysis/miss_gallery.py --bucket silent \
     --queue analysis_out/silent_witness.json --render analysis_out/gallery46_silent
 
 # 3. Confirm you are looking at the same images the first rater saw.
-#    The digest must equal the one in benchmark/miss_taxonomy_46/silent__manifest.json.
+#    It must equal the digest in benchmark/miss_taxonomy_46/silent_gallery/manifest.json,
+#    which is also recorded as `manifest_digest` inside every per-rater verdict file.
 python -c "import json;print(json.load(open('analysis_out/gallery46_silent/manifest.json'))['digest'])"
 #    -> 360b5ddf8751dcd0
 

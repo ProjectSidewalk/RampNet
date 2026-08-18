@@ -226,7 +226,9 @@ def test_export_refuses_to_overwrite_a_different_leg(tmp_path, monkeypatch):
     the other leg's numbers are simply gone."""
     out = tmp_path / "out"
     out.mkdir()
-    existing = out / "claude-sonnet-5__annapolis.json"
+    # The name the low-effort leg publishes under, per the registry -- not the bare
+    # model id, which no longer collides because publication_name resolves it.
+    existing = out / "claude-sonnet-5-effort-low__annapolis.json"
     existing.write_text(json.dumps({
         "model": "claude-sonnet-5", "city": "annapolis",
         "signature": {"provider": "claude", "effort": "high"},
@@ -247,13 +249,30 @@ def test_export_overwrites_the_same_leg_happily(tmp_path, monkeypatch):
     out = tmp_path / "out"
     out.mkdir()
     sig = {"provider": "claude", "effort": "low"}
-    (out / "claude-sonnet-5__annapolis.json").write_text(json.dumps({
+    (out / "claude-sonnet-5-effort-low__annapolis.json").write_text(json.dumps({
         "model": "claude-sonnet-5", "city": "annapolis", "signature": sig,
         "detections": {"p1": []}}), encoding="utf-8")
 
     written, skipped, partial, collisions = _fake_export(
         monkeypatch, out, sig=sig, detections={"p1": [[0.1, 0.2, None]]})
     assert collisions == [] and len(written) == 1
+
+
+def test_a_pinned_leg_publishes_under_its_registry_name_without_being_told():
+    """--publish-as used to be the only thing standing between a pinned leg and the
+    bare model id. Forgetting it wrote claude-opus-5__annapolis.json, which collides
+    with no existing file, so the overwrite guard stayed quiet and it surfaced only
+    later as a file belonging to no registered leg. The registry knows the name."""
+    cargs = em._compare_args(".model_cache")
+    cargs.claude_effort = "high"
+    assert em.publication_name("claude:claude-opus-5", cargs) == "claude-opus-5-effort-high"
+    cargs.claude_effort = "low"
+    assert em.publication_name("claude:claude-opus-5", cargs) == "claude-opus-5-effort-low"
+    # An explicit flag still wins -- it is how an unregistered leg gets a name.
+    assert em.publication_name("claude:claude-opus-5", cargs, "other") == "other"
+    # And an unregistered spec falls back to its plain label rather than raising:
+    # naming a file is not the place to enforce registration.
+    assert em.publication_name("gemini:gemini-9-turbo", cargs) == "gemini-9-turbo"
 
 
 def test_publish_as_refuses_more_than_one_spec(tmp_path):
@@ -316,6 +335,50 @@ def test_the_ledger_count_matches_the_directory():
     row = re.search(r"model_detections/`[^|]*\|[^|]*\((\d+) files\)", text)
     assert row and int(row.group(1)) == len(published), (
         "the 'Status by input' table's file count disagrees with the directory")
+
+
+def test_every_published_file_is_in_canonical_form():
+    """A regenerated copy must be provably identical, not merely equivalent.
+
+    This is the strong version of that promise and it costs nothing to check: every
+    committed file must equal its own canonical re-dump, so the corpus cannot drift
+    from what the exporter writes. It caught the drift it was written for -- 108 of
+    114 files predated the `published_as` field, so re-exporting any of them would
+    have produced a diff with identical detections inside.
+    """
+    stale = em.canonicalize(em.PUBLISHED_DIR, write=False)[0]
+    assert not stale, (
+        f"{len(stale)} published file(s) are not what the exporter would write, "
+        f"e.g. {stale[:3]} — run `python scripts/analysis/export_model_cache.py "
+        f"--canonicalize --write`")
+
+
+def test_canonicalize_never_touches_detections():
+    """It exists to edit the metadata envelope. If it could rewrite a detection it
+    would be a way to silently alter published results without a cache."""
+    before = {}
+    for name in os.listdir(em.PUBLISHED_DIR):
+        if name.endswith(".json"):
+            with open(os.path.join(em.PUBLISHED_DIR, name), encoding="utf-8") as fh:
+                before[name] = json.load(fh)["detections"]
+    changed, unfixable = em.canonicalize(em.PUBLISHED_DIR, write=False)
+    assert not changed and not unfixable          # already canonical, so a no-op
+    for name, dets in before.items():
+        with open(os.path.join(em.PUBLISHED_DIR, name), encoding="utf-8") as fh:
+            assert json.load(fh)["detections"] == dets, name
+
+
+def test_every_published_file_declares_the_name_it_is_published_under():
+    """`model` is the cache label and `published_as` is the filename. They differ
+    exactly when a pin is involved, so a file that omits the second is a file whose
+    identity has to be inferred from its own filename."""
+    for name in os.listdir(em.PUBLISHED_DIR):
+        if not name.endswith(".json"):
+            continue
+        with open(os.path.join(em.PUBLISHED_DIR, name), encoding="utf-8") as fh:
+            payload = json.load(fh)
+        assert "published_as" in payload, name
+        assert em.slug(payload["published_as"]) == name.rpartition("__")[0], name
 
 
 def test_every_published_leg_is_named_in_the_ledger():

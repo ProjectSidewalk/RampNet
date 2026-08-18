@@ -34,6 +34,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from rampnet import roster  # noqa: E402
 from equirect_tiling import (  # noqa: E402
     default_views, equirect_to_perspective, equirect_point_to_perspective)
 from detectors import build_detector, load_pano_image, parse_model_spec  # noqa: E402
@@ -150,17 +151,21 @@ def main():
     ap.add_argument("--pano", help="Pano id (default: first reviewed pano with an image).")
     ap.add_argument("--out", default="view_dump/detections", help="Output directory.")
     ap.add_argument("--source-max-edge", type=int, default=4096)
-    # Consumed by build_detector.
-    ap.add_argument("--gemini-model", default="gemini-3.6-flash")
-    ap.add_argument("--claude-model", default="claude-sonnet-5")
-    ap.add_argument("--claude-effort", default="low",
+    # Consumed by build_detector. Defaults from rampnet.roster.PROVIDER_DEFAULTS, so
+    # this overlay reproduces exactly what compare.py cached rather than a near-miss.
+    _D = roster.PROVIDER_DEFAULTS
+    ap.add_argument("--gemini-model", default=_D["gemini_model"])
+    ap.add_argument("--claude-model", default=_D["claude_model"])
+    ap.add_argument("--claude-effort", default=_D["claude_effort"],
                     choices=["low", "medium", "high", "xhigh", "max"])
-    ap.add_argument("--claude-tool-choice", default="auto", choices=["auto", "forced"])
-    ap.add_argument("--qwen-model", default="Qwen/Qwen3-VL-8B-Instruct")
-    ap.add_argument("--qwen-coord-space", choices=["auto", "norm1000", "pixels"], default="auto")
-    ap.add_argument("--owlv2-model", default="google/owlv2-large-patch14-ensemble")
-    ap.add_argument("--gdino-model", default="IDEA-Research/grounding-dino-base")
-    ap.add_argument("--molmo-model", default="allenai/Molmo2-8B")
+    ap.add_argument("--claude-tool-choice", default=_D["claude_tool_choice"],
+                    choices=["auto", "forced"])
+    ap.add_argument("--qwen-model", default=_D["qwen_model"])
+    ap.add_argument("--qwen-coord-space", choices=["auto", "norm1000", "pixels"],
+                    default=_D["qwen_coord_space"])
+    ap.add_argument("--owlv2-model", default=_D["owlv2_model"])
+    ap.add_argument("--gdino-model", default=_D["gdino_model"])
+    ap.add_argument("--molmo-model", default=_D["molmo_model"])
     ap.add_argument("--owlv2-query")
     ap.add_argument("--gdino-query")
     ap.add_argument("--gdino-text-threshold", type=float)
