@@ -1429,6 +1429,77 @@ is the instrument. **Not run, not costed here.**
 framing — at 3.6 FP/pano against RampNet's 0.07 they are a ~50× review burden, so "FPs are cheap"
 is a claim about the labeling workflow that would need its own justification at this ratio.
 
+#### The operating-point correction: a third of that gain is RampNet's own
+
+**Everything above scores RampNet from the committed bundle detections, which are the *shipped*
+operating point — on richmond every one of them is ≥ 0.5519. This document has recommended
+**0.30** since #54/#55 (PR #79).** For a complementarity read those are different models, and the
+difference decides who gets credit for a recovery.
+
+Checked before relying on it: `analysis_out/op_cache/richmond.json` filtered at ≥ 0.5519
+reproduces the published row **exactly** (P 0.9636 / R 0.7677 / F1 0.8546, 238/9/72), so it is the
+same source. At 0.30 those same peaks give **P 0.9018 / R 0.8290 / F1 0.8639, 257/28/53** —
+matching the committed `analysis_out/op/corrected_at_0.3.csv`. `complementarity.py
+--rampnet-op-threshold 0.30` re-bases the gate on it:
+
+| | rampnet @0.55 (published) | **rampnet @0.30 (recommended)** |
+|---|---:|---:|
+| rampnet recall | 0.768 (238) | **0.829 (257)** |
+| rampnet F1 | 0.855 | **0.864** |
+| rampnet misses | 72 | **53** |
+| challenger recovers | 54 (75%) | **38 (72%)** |
+| **attributable after the null** | ~44 | **~30** |
+| found by NEITHER | 18 | **15** |
+| oracle-union recall | 0.942 | 0.952 |
+| naive union F1 | 0.555 | 0.549 |
+
+**So ~14 of the ramps the challenger got credit for recovering are ramps RampNet already has at
+the operating point we recommend — the shipped threshold was discarding them.** The deployable
+complementary gain is **~30, not ~44**. The recovery *rate* barely moves (75% → 72%), which is the
+honest way to read it: the challenger is not preferentially finding the easy sub-threshold ones,
+there are simply fewer misses to find. And a naive union stays dead against the stronger baseline
+(0.549 vs 0.864).
+
+#### The cascade gate: live, but the ceiling is ~19 ramps, not 54
+
+`scripts/analysis/cascade_gate.py` (new) asks the one question that decides whether a gated
+cascade is possible at all: **at the ramps the challenger recovers, does RampNet already produce
+something a prior could promote?** It partitions all 310 GT ramps into the four cells and reads
+RampNet's heatmap at each, reusing #46 Phase 1's instrument verbatim (`site_profile`,
+`null_percentile`, `nearest_peak`, `class_of`) so the numbers are comparable to that phase.
+Read pre-registered on #126 before running. Artifacts: `analysis_out/cascade_gate.json` (shipped
+point) and `analysis_out/cascade_gate_op030.json` (recommended point).
+
+At **rampnet@0.30**, of the 38 genuinely-complementary ramps:
+
+| what RampNet has there | n | what it means |
+|---|---:|---|
+| floor peak in radius, **0.05–0.30** | **19** | **promotable** — a peak exists, below threshold. This is the cascade's real target. |
+| floor peak in radius, ≥0.30 but unmatched | 4 | the greedy matcher gave that peak to an **adjacent GT**. A matcher/σ problem (#130), not a threshold one. |
+| no floor peak in radius | 15 | nothing to promote. `act` is 0.215 median — unpeaked heatmap mass `peak_local_max` never called a maximum. |
+
+**So the cascade is live and its ceiling is ~19 ramps on richmond — +6.1 recall points (0.829 →
+0.890) before any false-positive cost, which is unmeasured.** That is a real number and it is a
+long way below the 54 the raw complementarity suggested. Two-fifths of the recoverable set has no
+peak to raise, and a further tenth is a matching bug wearing a threshold costume.
+
+**A negative worth recording: RampNet's own activation does not tell you which misses are
+recoverable.** `challenger_only` sits at null percentile **0.88** and the hard-core `neither` at
+**0.925** — the ramps *nobody* finds look, if anything, *stronger* on raw heatmap mass than the
+ones the challenger recovers (they contain 6 of 15 matcher-claimed peaks ≥0.30, which inflates
+it). Median argmax offset is 19.0 px inside a 22.5 px radius, i.e. near the window edge rather
+than on the ramp. So there is no cheap self-gating shortcut: you cannot skip the second model and
+find these by looking harder at RampNet's confidence. Against the pre-registered rule this is the
+**PARTIAL** branch — signal present, but not at the site — and the peak-level column, not the
+activation, is what supplies the bounded answer.
+
+**What would have to be true for the cascade to pay.** Promoting sub-0.30 peaks gated on
+challenger candidates also promotes them wherever the challenger fires on a driveway and RampNet
+has a faint bump — and 442 of the challenger's 716 boxes are false positives. That cost is **not
+measured here**, so "+6.1 recall points" is a ceiling on the benefit with the cost still blank.
+The next step, if this is ever picked up, is to build the gate and score it, not to reason further
+about it.
+
 ##### Reproducing it
 
 ```bash

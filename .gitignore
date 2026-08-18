@@ -92,6 +92,7 @@ analysis_out/op/*
 !analysis_out/silent_activation.json
 # The #126 cascade go/no-go: rampnet's heatmap at the ramps a challenger recovers.
 !analysis_out/cascade_gate.json
+!analysis_out/cascade_gate_op030.json
 
 # Generated tagging pages live next to their (committed) galleries; regenerate with
 # scripts/analysis/make_tagger.py rather than tracking a build artifact.
