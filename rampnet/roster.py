@@ -226,8 +226,6 @@ ROSTER = (
 #: them to ``curb-cut``, which is not a model name and would collide across
 #: checkpoints in ``benchmark/model_detections/``.
 LABEL_OVERRIDES = {
-    "vistas:curb-cut": "mask2former-vistas-curb-cut",
-    "vistas:curb-cut+curb": "mask2former-vistas-curb-cut+curb",
 }
 
 # --------------------------------------------------------------------------- #
@@ -403,6 +401,17 @@ def label_for(spec, cargs=None):
         return LABEL_OVERRIDES[spec]
     provider, _, model_id = spec.partition(":")
     provider, model_id = provider.strip(), model_id.strip()
+    if provider == "vistas":
+        # The model_id slot carries the CLASS SET, not a model id: two arms share one
+        # checkpoint and differ only by which classes they read out. So the label is
+        # derived from the class set the same way VistasDetector derives its own
+        # default -- not looked up in a table that has to be kept in step with
+        # detectors.VISTAS_CLASS_SETS by hand. Forgetting that entry used to return
+        # the bare class set, which is not a model name and slugs into a filename
+        # with the "+" mangled.
+        class_set = (model_id or getattr(cargs, "vistas_class_set", None)
+                     or PROVIDER_DEFAULTS["vistas_class_set"])
+        return "mask2former-vistas-" + class_set
     if model_id:
         return weights_stem(model_id) if provider == "yolo" else model_id
     key = f"{provider}_model"

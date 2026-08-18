@@ -16,9 +16,9 @@ anchoring.
 Each --models token is a provider (rampnet/gemini/claude/qwen/owlv2/gdino/molmo/
 vistas/yolo — the roster is detectors.PROVIDERS) or provider:model_id to pin a variant,
 so several models from the same provider compare side by side. Detectors that emit calibrated scores (RampNet, OWLv2,
-Grounding DINO, YOLO) additionally get AP, a PR curve (--pr-out) and a threshold
-sweep (--sweep); chat VLMs have no score to rank by, so they get one operating
-point. See docs/model_comparison.md.
+Grounding DINO, Vistas, YOLO) additionally get AP, a PR curve (--pr-out) and a
+threshold sweep (--sweep); chat VLMs have no score to rank by, so they get one
+operating point. See docs/model_comparison.md.
 
 The supervised YOLO baseline (--models yolo:<best.pt>) is evaluated under the
 pre-registered checkpoint-selection & eval protocol in
@@ -633,6 +633,19 @@ def build_parser():
                          "--models spec does not say ('vistas' rather than "
                          "'vistas:curb-cut'). Part of the detection signature: the "
                          "arm IS its class set.")
+    ap.add_argument("--vistas-input-size", type=int, nargs=2, metavar=("H", "W"),
+                    default=None,
+                    help="Override what the model actually sees. The checkpoint's own "
+                         "processor resizes every view to 384x384 — about 1/7 the "
+                         "pixel area of the 1024x1024 views every other tiled leg "
+                         "gets — so the published richmond numbers carry an "
+                         "uncontrolled resolution handicap. Default: leave the "
+                         "processor alone, which is what was published. Setting this "
+                         "IS a cache-key change.")
+    ap.add_argument("--vistas-revision", default=None,
+                    help="Pin the checkpoint revision. Default: unpinned, which is "
+                         "what the published run used — recorded in the signature "
+                         "only when set, so pinning does not orphan those detections.")
     ap.add_argument("--vistas-model", default=_D["vistas_model"],
                     help="Vistas-supervised segmentation checkpoint (#126). The arm "
                          "itself is chosen by the --models spec — 'vistas:curb-cut' "
@@ -659,7 +672,7 @@ def build_parser():
                          "the cache); models without confidences are unaffected.")
     ap.add_argument("--sweep", action="store_true",
                     help="Also print a threshold sweep for every model whose detections carry "
-                         "confidences (RampNet, owlv2, gdino, yolo) — the tunable operating range.")
+                         "confidences (RampNet, owlv2, gdino, vistas, yolo) — the tunable operating range.")
     ap.add_argument("--pr-out", help="Directory to write PR curves to (JSON per model, plus a "
                                      "combined PNG when matplotlib is installed).")
     ap.add_argument("--limit", type=int,

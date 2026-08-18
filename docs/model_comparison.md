@@ -1155,7 +1155,7 @@ driveway aprons should appear as a characteristic false-positive mode — which
 recall hides on the other side of it is measurable:
 
 ```bash
-python scripts/model_comparison/compare.py benchmark/richmond     --models rampnet,vistas:curb-cut,vistas:curb-cut+curb --op-threshold 0.30
+python scripts/model_comparison/compare.py benchmark/richmond     --models rampnet,vistas:curb-cut,vistas:curb-cut+curb
 ```
 
 The spec's `model_id` slot carries the **class set**, not a model id — the checkpoint comes
@@ -1169,11 +1169,33 @@ of instances, so the components supply them. The score is carried through, which
 in the OWLv2/Grounding DINO/YOLO tier that gets AP and a PR curve rather than the chat-VLM tier
 pinned at one operating point — and the precision side is the entire question. `min_area_px` is
 a **cache floor**, not the operating point, exactly as `--score-threshold` is for the
-open-vocabulary detectors.
+open-vocabulary detectors. In practice, at the input resolution described below, it is
+**inert**: masks arrive at 96×96 and are upsampled 10.67×, so the smallest component that
+upsample can produce is on the order of 114 px and the 16 px floor drops nothing. It is left
+at 16 rather than recalibrated because it sits in the cache signature — changing it would
+orphan both arms' published detections to no effect.
 
-Input is the **identical six-view rig** every other tiled leg uses
+The **rig** is the identical six-view one every other tiled leg uses
 (`equirect_tiling.default_views()`: 6 yaws, 90°×90°, pitch −30°, 1024×1024, source capped at
-4096). Note for anyone reading #126: that issue says `scripts/box_gallery.py` already cuts
+4096) — but **the rig is not what the model sees, and that is a real caveat on the headline
+below.** The checkpoint's own `preprocessor_config.json` is
+`{"height": 384, "width": 384}` with `do_resize`, so each 1024×1024 view is downsized to
+**about 1/7 the pixel area** before inference; the mask logits come back at 96×96 and are
+bilinearly upsampled 10.67× to the view. **So "supervised transfer does not compete" is
+measured under a resolution handicap no other leg carries, and it is not a like-for-like
+comparison on input.** It was also entirely unrecorded until the review of this PR: nothing
+pinned it, nothing overrode it, and it was not in the detection signature, so a `transformers`
+upgrade could have changed every mask under an unchanged cache key.
+
+What changed here: `--vistas-input-size H W` now overrides the processor, and
+`--vistas-revision` pins the checkpoint. Both are recorded in the signature **only when set**,
+so the published richmond detections keep their key and nothing already paid for is orphaned —
+and a future run at parity is a distinct, self-describing cache entry. **The parity run has not
+been done**, so every number in this section is at 384×384 and the gap to RampNet is an upper
+bound on this arm, not a measurement of it at equal input. That is the first thing to try if
+this arm is ever revisited.
+
+Note for anyone reading #126: that issue says `scripts/box_gallery.py` already cuts
 perspective views. **It does not** — its `--fov` sizes an axis-aligned crop of the
 equirectangular image, so the distortion is preserved, which is the wrong input for a
 perspective-trained checkpoint.
@@ -1214,35 +1236,57 @@ detections; both runs agree to every digit printed here.
 | **rampnet** | **0.964** | 0.768 | **0.855** | **0.763** | 238/9/72 |
 | gemini-3.1-pro-preview | 0.631 | 0.700 | 0.664 | – | 217/127/93 |
 | gemini-3.6-flash | 0.626 | 0.642 | 0.634 | – | 199/119/111 |
-| **mask2former-vistas-curb-cut** | **0.419** | **0.697** | **0.524** | **0.513** | 216/299/94 |
+| **mask2former-vistas-curb-cut** | **0.411** | **0.697** | **0.517** | **0.513** | 216/309/94 |
 | molmo2-8B (points) | 0.410 | 0.516 | 0.457 | – | 160/230/150 |
 | Qwen3-VL-32B-Instruct | 0.760 | 0.297 | 0.427 | – | 92/29/218 |
 | Qwen3-VL-8B-Instruct | 0.323 | 0.452 | 0.377 | – | 140/293/170 |
-| *mask2former-vistas-curb-cut+curb* | *0.127* | *0.648* | *0.213* | *0.089* | 201/1377/109 |
+| *mask2former-vistas-curb-cut+curb* | *0.126* | *0.648* | *0.210* | *0.089* | 201/1399/109 |
 | owlv2-large-patch14-ensemble | 0.033 | **0.971** | 0.064 | 0.104 | 301/8799/9 |
 | grounding-dino-base | 0.028 | 0.852 | 0.053 | 0.032 | 264/9321/46 |
+
+**Every row above is at one operating point — no confidence floor — which is what the rest of
+this document's roster tables use.** An earlier version of this table scored the two Vistas rows
+at `--op-threshold 0.30` and carried the OWLv2 and Grounding DINO rows over at 0, then compared
+them; the comparison below is at a common point. For the three rows that carry confidences, here
+is what the deployment threshold does:
+
+| model @ conf ≥ 0.30 | P | R | F1 |
+|---|---:|---:|---:|
+| mask2former-vistas-curb-cut | 0.419 | 0.697 | 0.524 |
+| owlv2-large-patch14-ensemble | 0.146 | 0.110 | 0.125 |
+| grounding-dino-base | 0.030 | 0.090 | 0.045 |
 
 **The question this arm was built to answer gets a clear answer: supervised transfer fixes most
 of the precision problem, and does not close the gap.** Against the open-vocabulary detectors,
 which is the comparison #126 set up — *the concept is findable, the discrimination is not* —
-somebody else's real labels buy **12.7× the precision of OWLv2** (0.419 vs 0.033) for 0.274 of
-its recall. So the discrimination failure of the open detectors is about *supervision*, not about
-the concept being intrinsically hard to localize.
+somebody else's real labels buy **12.4× the precision of OWLv2 at a common floor of none**
+(0.411 vs 0.033), and at conf 0.30 **2.9× the precision with six times the recall** (0.419/0.697
+against 0.146/0.110). Either way the discrimination failure of the open detectors is about
+*supervision*, not about the concept being intrinsically hard to localize — and at the
+deployment threshold the supervised arm dominates them on both axes rather than trading one for
+the other.
 
-But it is still fourth of nine challengers on F1, and RampNet leads it by **0.331** — the wide
+But it is still third of nine challengers on F1, and RampNet leads it by **0.338** — the wide
 end of this benchmark's 0.12–0.34 range. Vistas' curb-cut labels transfer; they do not compete.
 
-**On AP it is the best non-RampNet model on this split — 0.513, five times OWLv2's 0.104.** AP is
-the operating-point-free number, and the chat VLMs above it on F1 have none at all: they emit
-boxes without scores, so they are pinned at one point and cannot be tuned. A tunable model at
-AP 0.513 is a more useful starting point than an untunable one at F1 0.664, and that is the
-result worth carrying forward.
+**On AP it is the best *zero-training* model on this split — 0.513, five times OWLv2's 0.104 —
+but it is not the best non-RampNet model, and the thing that beats it is in this same
+document.** The supervised YOLO baseline (#51), trained on the RampNet dataset and scored on
+this same split, reports richmond AP **0.748** (`y11x_pano_h200`), **0.724** (`y11l_pano`) and
+**0.536** (`y26_pano`) — all above 0.513 — and `y11l_pano` also beats it on F1 (0.595 at conf
+0.25 against 0.517). That comparison belongs here rather than being left out, because it is the
+sharpest version of what this arm was built to test: **somebody else's labels for a neighbouring
+class transfer usefully, and our own labels for the actual class do substantially better.**
+Against the *untrained* field the AP point still stands — the chat VLMs above it on F1 have no
+AP at all, emitting boxes without scores, so they are pinned at one operating point and cannot
+be tuned, and a tunable model at AP 0.513 is a more useful starting point than an untunable one
+at F1 0.664.
 
 Two mechanisms, both measured rather than assumed:
 
 - **The `curb-cut+curb` union is a clean negative result.** It was run to test whether recall
   hides on the other side of Vistas' ramp/curb boundary. It does not — the union *loses* recall
-  (0.697 → 0.648) while precision collapses (0.419 → 0.127, 1,377 FPs). `Curb` fires along every
+  (0.697 → 0.648) while precision collapses (0.411 → 0.126, 1,399 FPs). `Curb` fires along every
   kerb line in the scene, and because points come from connected components, it also **fuses
   adjacent ramps into one component**, which is where the recall goes. Same adjacent-pair merge
   mechanism the σ analysis in #46 identified from the other direction.

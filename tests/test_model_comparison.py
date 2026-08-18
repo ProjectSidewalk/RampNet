@@ -1353,6 +1353,19 @@ def test_every_provider_is_listed_everywhere_a_user_looks():
     import compare
     assert detectors.PROVIDERS == ("rampnet", "gemini", "claude", "qwen", "owlv2",
                                    "gdino", "molmo", "vistas", "yolo")
+    # The scored-detector list is prose that cannot be generated, and "vistas appears
+    # somewhere in the docstring" is not coverage of it -- it appeared on the --models
+    # line while both enumerations of who gets an AP / PR curve / sweep still omitted
+    # it, in the PR whose headline result is that arm's AP.
+    scored = {"rampnet", "owlv2", "gdino", "vistas", "yolo"}
+    import re
+    lists = re.findall(r"calibrated scores \(([^)]*)\)", compare.__doc__)
+    lists += re.findall(r"carry confidences \(([^)]*)\)",
+                        " ".join(a.help or "" for a in compare.build_parser()._actions))
+    assert lists, "neither enumeration of the scored detectors was found"
+    for text in lists:
+        named = {w.strip().lower().rstrip(",") for w in text.replace("Grounding DINO", "gdino").split(",")}
+        assert scored <= {n.replace(" ", "") for n in named}, text
     for provider in detectors.PROVIDERS:
         assert provider in compare.MODELS_HELP, f"{provider} missing from --models help"
         assert provider in compare.__doc__, f"{provider} missing from compare.py docstring"

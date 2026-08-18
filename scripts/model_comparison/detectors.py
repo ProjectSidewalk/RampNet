@@ -1641,7 +1641,7 @@ class VistasDetector(_VLMDetector):
 
     def __init__(self, class_set="curb-cut", label=None, checkpoint=None,
                  min_area_px=16, max_edge=None, tile=True, views=None,
-                 dtype="float16"):
+                 dtype="float16", input_size=None, revision=None):
         # ``model_id`` is the LABEL, not the checkpoint -- the same trick YoloDetector
         # uses for a weights path. Two arms share one checkpoint and differ only by
         # which classes they read, so the checkpoint cannot identify a row; and the
@@ -1668,11 +1668,32 @@ class VistasDetector(_VLMDetector):
         # "prompt" slot keys the cache on the arm, exactly as the text query does for
         # the open-vocabulary detectors.
         self.prompt = "vistas:" + "+".join(self.class_names)
+        # What the model ACTUALLY sees. The checkpoint's own preprocessor_config
+        # says {"height": 384, "width": 384} with do_resize, so a 1024x1024 view is
+        # downsized to about 1/7 the pixel area and the masks come back at 96x96 to
+        # be upsampled 10.67x. That is a real handicap against every other tiled leg
+        # and it was invisible: not pinned, not overridable, not in the signature.
+        # None keeps the processor's default -- i.e. exactly what was published.
+        self.input_size = tuple(input_size) if input_size else None
+        # Nor was the checkpoint pinned, so a re-download could silently change every
+        # mask. Same treatment: recorded when set, absent when it is whatever HF
+        # served, which is the honest description of the published run.
+        self.revision = revision
         self._model = None
         self._processor = None
         self._device = "cpu"
 
     def signature(self):
+        """The cache key for this arm.
+
+        `class_set`, `class_ids`, `class_names` and the base `prompt` are four
+        spellings of one datum, all derivable from `class_set` plus the pinned
+        VISTAS_CLASS_IDS. That is redundant and it is deliberately left alone:
+        cache_key hashes the WHOLE signature, so dropping a key to tidy up would
+        orphan both arms' published detections and force a re-run for no gain.
+        Anything ADDED here has the same cost, which is why the two knobs below
+        appear only when they deviate from what the published run used.
+        """
         sig = super().signature()
         sig.update({"checkpoint": self.checkpoint,
                     "class_set": self.class_set,
@@ -1680,6 +1701,12 @@ class VistasDetector(_VLMDetector):
                     "class_names": list(self.class_names),
                     "min_area_px": self.min_area_px,
                     "dtype": self.dtype})
+        # Deviation-only, so the published richmond detections keep their key: the
+        # arm as published took the processor's own 384x384 and an unpinned revision.
+        if self.input_size is not None:
+            sig["input_size"] = list(self.input_size)
+        if self.revision is not None:
+            sig["revision"] = self.revision
         return sig
 
     def _ensure_ready(self):
@@ -1692,13 +1719,33 @@ class VistasDetector(_VLMDetector):
             raise ImportError(
                 "VistasDetector needs `torch` and `transformers` "
                 "(pip install -r requirements-vlm.txt)") from e
-        self._processor = AutoImageProcessor.from_pretrained(self.checkpoint)
-        model = Mask2FormerForUniversalSegmentation.from_pretrained(self.checkpoint)
+        kw = {"revision": self.revision} if self.revision else {}
+        self._processor = AutoImageProcessor.from_pretrained(self.checkpoint, **kw)
+        if self.input_size is not None:
+            h, w = self.input_size
+            self._processor.size = {"height": int(h), "width": int(w)}
+        model = Mask2FormerForUniversalSegmentation.from_pretrained(self.checkpoint, **kw)
         self._device = "cuda" if torch.cuda.is_available() else "cpu"
-        if self._device == "cuda" and self.dtype == "float16":
+        if self.dtype == "float16" and self._device != "cuda":
+            # dtype is in the signature; the device is not. Silently running fp32
+            # here would put CPU-derived and GPU-derived masks under ONE cache key,
+            # which is the collision the signature field exists to prevent. Refuse
+            # instead: --vistas-dtype float32 is a different key, correctly.
+            raise RuntimeError(
+                "vistas dtype float16 needs CUDA, and this machine has none. Running "
+                "fp32 under the fp16 cache key would mix two different sets of masks "
+                "in one cache entry. Pass --vistas-dtype float32 (a distinct key).")
+        if self.dtype == "float16":
             model = model.half()
-        self._model = model.to(self._device).eval()
+        model = model.to(self._device).eval()
+        # Validate BEFORE publishing self._model. The other order left a half-ready
+        # detector behind on failure: _ensure_ready returns early when self._model is
+        # set, so one caught RuntimeError turned the check into a no-op for the rest
+        # of the run -- and this check exists precisely because segmenting class 9 of
+        # a different label set would not raise, it would quietly score the wrong
+        # object.
         self._check_class_ids(model)
+        self._model = model
 
     def _check_class_ids(self, model):
         """Fail loudly if the checkpoint's label set is not the one we pinned.
@@ -1731,11 +1778,20 @@ class VistasDetector(_VLMDetector):
         import torch
         inputs = self._processor(images=image, return_tensors="pt")
         inputs = {k: v.to(self._device) for k, v in inputs.items()}
-        if self._device == "cuda" and self.dtype == "float16":
+        if self.dtype == "float16":
             inputs = {k: (v.half() if v.is_floating_point() else v)
                       for k, v in inputs.items()}
         with torch.inference_mode():
             outputs = self._model(**inputs)
+        # NOTE, deliberately not changed: this upsamples all ~100 query masks to the
+        # full view before reducing over classes, which for a 1024x1024 view is about
+        # 1.1 GB of transient tensors (419 MB interpolated + 419 MB sigmoid + 272 MB
+        # einsum output) to carry information that only exists at 96x96. Reducing
+        # first -- einsum and max at 96x96, then interpolate the two resulting maps --
+        # is ~1/50th the memory and agrees everywhere except boundary pixels. It is
+        # left alone because "except boundary pixels" means different points, which
+        # means re-scoring the arm and republishing both files; the win is memory, not
+        # a number. Worth doing the next time this arm runs anyway.
         masks = torch.nn.functional.interpolate(
             outputs.masks_queries_logits.float(),
             size=(image.height, image.width), mode="bilinear", align_corners=False)
@@ -1855,7 +1911,9 @@ def build_detector(provider, model_id, records, args):
             checkpoint=getattr(args, "vistas_model", None) or _D("vistas_model"),
             min_area_px=_D("vistas_min_area_px") if min_area is None else int(min_area),
             tile=tile,
-            dtype=getattr(args, "vistas_dtype", None) or _D("vistas_dtype"))
+            dtype=getattr(args, "vistas_dtype", None) or _D("vistas_dtype"),
+            input_size=getattr(args, "vistas_input_size", None),
+            revision=getattr(args, "vistas_revision", None))
         return label, det
     raise ValueError(f"unknown provider '{provider}' "
                      f"(choose from: {', '.join(PROVIDERS)})")
