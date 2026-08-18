@@ -45,22 +45,22 @@ sys.path.insert(0, REPO)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "scripts", "model_comparison"))
 
+from rampnet import roster  # noqa: E402
 from rampnet.detection_eval import PANO_SCALE_X, PANO_SCALE_Y, radius_sq_for  # noqa: E402
 
 import miss_taxonomy as mt  # noqa: E402
 from miss_decomposition import US_SPLITS  # noqa: E402
 from fp_taxonomy import CHALLENGERS, _compare_args, scaled  # noqa: E402
 
-# Models sparse enough that a hit is evidence rather than coverage. Assigned from the
-# measured densities in docs/model_comparison.md (1-4 boxes/pano, nulls 0.01-0.08)
-# versus the open detectors' 55-88. The split is not a judgement call at the boundary:
-# there is an order of magnitude between the two groups. Both are reported; only the
-# sparse group is used for the headline, and the dense group's excess is printed so
-# that choice is checkable rather than asserted.
-SPARSE = ("gemini:gemini-3.6-flash", "gemini:gemini-3.1-pro-preview",
-          "qwen:Qwen/Qwen3-VL-8B-Instruct", "qwen:Qwen/Qwen3-VL-32B-Instruct",
-          "molmo:allenai/Molmo2-8B")
-DENSE = ("owlv2", "gdino")
+# Sparse = a hit is evidence; dense = a hit is mostly coverage. Both come from the
+# measured densities in docs/model_comparison.md (1-4 boxes/pano at nulls 0.01-0.08,
+# versus the open detectors' 55-88), and the classification lives with the model in
+# rampnet/roster.py rather than in a second tuple here that had to be hand-synced.
+# The split is not a judgement call at the boundary: there is an order of magnitude
+# between the groups. Both are reported; only the sparse group feeds the headline, and
+# the dense group's excess is printed so that choice is checkable rather than asserted.
+SPARSE = roster.SPARSE
+DENSE = roster.DENSE
 
 
 # --------------------------------------------------------------------------- #
@@ -167,9 +167,21 @@ def main(argv=None):
     p.add_argument("--bucket", default="silent", choices=list(mt.BUCKETS))
     p.add_argument("--threshold", type=float, default=mt.DEFAULT_THRESHOLD)
     p.add_argument("--cities", default=",".join(US_SPLITS))
+    p.add_argument("--models", default=",".join(roster.WITNESS_POOL_46),
+                   help="Comma-separated compare.py model specs to use as witnesses. "
+                        "Defaults to roster.WITNESS_POOL_46, the pool the #46 human "
+                        "tagging pass was made under, which is frozen: a new "
+                        "challenger can only shrink the unwitnessed set, and that set "
+                        "is the item list the committed verdicts were made against. "
+                        "Pass a pool here to vary it; do not edit the frozen tuple.")
     p.add_argument("--cache-dir", default=os.path.join(REPO, ".model_cache"))
     p.add_argument("--json-out", default=None)
     args = p.parse_args(argv)
+
+    pool = tuple(m.strip() for m in args.models.split(",") if m.strip())
+    # Raises on an unregistered or unmeasured model rather than silently filing it as
+    # dense, which is what the old `spec in SPARSE else "DENSE"` did.
+    pool_sparse, pool_dense = roster.partition_by_density(pool)
 
     import compare as C
     cache = C.DetectionCache(args.cache_dir, enabled=True)
@@ -193,7 +205,7 @@ def main(argv=None):
     # Every model's predictions, once per city.
     preds = {}
     labels = {}
-    for spec in CHALLENGERS:
+    for spec in pool:
         for city in cities:
             label, got = model_predictions(city, spec, cache, cargs)
             labels[spec] = label
@@ -203,7 +215,7 @@ def main(argv=None):
     records = []
     for t in targets:
         by_model = {}
-        for spec in CHALLENGERS:
+        for spec in pool:
             pano_preds = preds.get((spec, t["city"]), {}).get(t["pano"])
             if pano_preds is None:
                 continue
@@ -217,19 +229,19 @@ def main(argv=None):
     print(f"=== Who else saw the '{args.bucket}' misses? "
           f"({n} misses, threshold {args.threshold}) ===\n")
     print(f"{'model':>42} {'witnessed':>10} {'by chance':>10} {'excess':>9} {'':>6}")
-    all_s = summarize(records, CHALLENGERS)
-    for spec in CHALLENGERS:
+    all_s = summarize(records, pool)
+    for spec in pool:
         s = all_s[spec]
-        tag = "sparse" if spec in SPARSE else "DENSE"
+        tag = "sparse" if spec in pool_sparse else "DENSE"
         print(f"{labels.get(spec, spec):>42} {s['witnessed']:>10} "
               f"{s['expected']:>10.1f} {s['excess']:>+9.1f} {tag:>6}")
 
-    sparse_s = summarize(records, SPARSE)["__union__"]
-    dense_s = summarize(records, DENSE)["__union__"]
+    sparse_s = summarize(records, pool_sparse)["__union__"]
+    dense_s = summarize(records, pool_dense)["__union__"]
     print(f"\n{'-'*82}")
-    print(f"{'union of the 5 sparse models':>42} {sparse_s['witnessed']:>10} "
+    print(f"{f'union of the {len(pool_sparse)} sparse models':>42} {sparse_s['witnessed']:>10} "
           f"{sparse_s['expected']:>10.1f} {sparse_s['excess']:>+9.1f}")
-    print(f"{'union of the 2 dense detectors':>42} {dense_s['witnessed']:>10} "
+    print(f"{f'union of the {len(pool_dense)} dense detectors':>42} {dense_s['witnessed']:>10} "
           f"{dense_s['expected']:>10.1f} {dense_s['excess']:>+9.1f}")
     print(f"{'-'*82}")
 
@@ -252,7 +264,7 @@ def main(argv=None):
         sel = [r for r in records if r["field"] == f]
         if not sel:
             continue
-        s = summarize(sel, SPARSE)["__union__"]
+        s = summarize(sel, pool_sparse)["__union__"]
         by_field[f] = s
         print(f"\n  {f}-field: {s['witnessed']}/{len(sel)} raw "
               f"({s['witnessed']/len(sel):.1%}), chance {s['expected']:.1f}, "
@@ -283,8 +295,15 @@ def main(argv=None):
         os.makedirs(os.path.dirname(os.path.abspath(args.json_out)), exist_ok=True)
         with open(args.json_out, "w", encoding="utf-8") as fh:
             json.dump({"bucket": args.bucket, "threshold": args.threshold,
-                       "n": n, "per_model": {labels.get(k, k): v
-                                             for k, v in all_s.items()},
+                       "n": n,
+                       # Which models produced this, so any verdict file can be
+                       # matched to the pool that generated its item list. Same
+                       # reasoning as the detector signature inside each published
+                       # detections file: an artifact that does not say what made
+                       # it cannot be checked, only trusted.
+                       "models": roster.pool_record(pool, cargs),
+                       "per_model": {labels.get(k, k): v
+                                     for k, v in all_s.items()},
                        "sparse_union": sparse_s, "dense_union": dense_s,
                        "by_field": by_field,
                        "unwitnessed": [
@@ -292,7 +311,7 @@ def main(argv=None):
                             "y": r["y"], "field": r["field"]}
                            for r in records
                            if not any(r["by_model"].get(m, (False, 0))[0]
-                                      for m in SPARSE)]}, fh, indent=2)
+                                      for m in pool_sparse)]}, fh, indent=2)
         print(f"\nWrote {args.json_out}")
     return 0
 

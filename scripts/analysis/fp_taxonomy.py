@@ -56,25 +56,19 @@ sys.path.insert(0, REPO)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "scripts", "model_comparison"))
 
+from rampnet import roster  # noqa: E402
 from rampnet.detection_eval import (  # noqa: E402
     PANO_SCALE_X, PANO_SCALE_Y, prediction_confidence, radius_sq_for)
 from rampnet.metrics import greedy_match  # noqa: E402
 
 from miss_decomposition import HELD_OUT, TIER, US_SPLITS  # noqa: E402
 
-# The roster from docs/model_comparison.md's class table. RampNet is read from the
-# committed records.jsonl (it has no cache signature); the rest come from
-# .model_cache. Defaults here must match compare.py's, or the signature — and so the
-# cache key — changes and every lookup misses.
-CHALLENGERS = (
-    "gemini:gemini-3.6-flash",
-    "gemini:gemini-3.1-pro-preview",
-    "qwen:Qwen/Qwen3-VL-8B-Instruct",
-    "qwen:Qwen/Qwen3-VL-32B-Instruct",
-    "molmo:allenai/Molmo2-8B",
-    "owlv2",
-    "gdino",
-)
+# The roster now lives in rampnet/roster.py — one table that also carries each
+# model's density class, the date it joined, and whether it is scored in the roster
+# tables. Re-exported here because three analysis scripts already import it from this
+# module. RampNet is read from the committed records.jsonl (it has no cache
+# signature); the challengers come from .model_cache.
+CHALLENGERS = roster.CHALLENGERS
 
 # Where the ego vehicle starts. Set from the data, not assumed: across the seven
 # pooled splits the 99.5th percentile of ground-truth ramp height is y=0.725 and the
@@ -186,29 +180,21 @@ def summarize_fp(rows):
 def _compare_args(cache_dir):
     """A namespace matching ``compare.py``'s parser defaults.
 
-    Every field here feeds ``build_detector`` and therefore the cache signature. It
-    is spelled out rather than imported because ``compare.main`` builds its parser
-    inline; ``test_fp_taxonomy.py`` asserts these still match the parser's defaults
-    so a drift in compare.py fails a test instead of silently missing every cache
-    entry and reporting zero detections.
+    Every field here feeds ``build_detector`` and therefore the cache signature. The
+    per-provider model ids come from ``rampnet.roster.PROVIDER_DEFAULTS`` so there is
+    one definition rather than a copy per parser; the rest are compare.py's own
+    non-provider defaults, which still have to be restated because ``compare.main``
+    builds its parser inline. ``test_fp_taxonomy.py`` asserts the whole namespace
+    still matches that parser, so a drift in compare.py fails a test instead of
+    silently missing every cache entry and reporting zero detections.
     """
     import argparse as _a
     ns = _a.Namespace()
     for k, v in dict(
-            gemini_model="gemini-3.6-flash",
-            claude_model="claude-sonnet-5", claude_effort="low", claude_tool_choice="auto",
-            # As-run encoding/decoding for the published Claude legs. None/"jpeg"
-            # keep them OUT of the cache signature, so these defaults must match
-            # compare.py's or an export rebuilds a different key and finds no cache.
-            claude_image_format=None, claude_temperature=None,
-            qwen_model="Qwen/Qwen3-VL-8B-Instruct",
-            qwen_coord_space="auto",
-            owlv2_model="google/owlv2-large-patch14-ensemble",
-            gdino_model="IDEA-Research/grounding-dino-base",
-            molmo_model="allenai/Molmo2-8B", owlv2_query=None, gdino_query=None,
+            roster.PROVIDER_DEFAULTS,
+            owlv2_query=None, gdino_query=None,
             gdino_text_threshold=None, score_threshold=None,
-            molmo_coord_scale="auto", yolo_model=None, yolo_conf=0.05,
-            yolo_iou=0.5, yolo_imgsz=1024, tiling="perspective",
+            yolo_model=None, tiling="perspective",
             radius=0.022, op_threshold=0.0, limit=None,
             cache_dir=cache_dir, no_cache=False).items():
         setattr(ns, k, v)
@@ -343,7 +329,7 @@ def gt_height_stats(cities):
 
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    p.add_argument("--models", default=",".join(("rampnet",) + CHALLENGERS),
+    p.add_argument("--models", default=",".join(roster.SCORED_SPECS),
                    help="Comma-separated compare.py model specs. 'rampnet' is read "
                         "from analysis_out/op_cache at the deployed threshold, not "
                         "from .model_cache (it carries no detector signature).")
@@ -443,7 +429,12 @@ def main(argv=None):
         os.makedirs(os.path.dirname(os.path.abspath(args.json_out)), exist_ok=True)
         with open(args.json_out, "w", encoding="utf-8") as fh:
             json.dump({"hood_y": args.hood_y, "annulus_factor": ANNULUS_FACTOR,
-                       "cities": cities, "per_model": per_model}, fh, indent=2)
+                       "cities": cities,
+                       # Which models this ran over, so a reader can tell a roster
+                       # change from a numbers change -- the same reasoning as the
+                       # detector signature inside each published detections file.
+                       "models": roster.pool_record(specs, cargs),
+                       "per_model": per_model}, fh, indent=2)
         print(f"\nWrote {args.json_out}")
     return 0
 

@@ -1,0 +1,246 @@
+"""The challenger roster: who is in the model comparison, since when, and how dense.
+
+One table, ``ROSTER``, replaces three tuples that used to be kept in step by hand —
+``CHALLENGERS``, ``SPARSE`` and ``DENSE`` — plus the per-provider default model ids
+that were copied into four argument parsers. Adding a model to the benchmark is now
+one entry here.
+
+**Why this lives in the package rather than in an analysis script.** Both
+``scripts/analysis/*`` and ``scripts/model_comparison/*`` need it, it must import
+without torch so a fresh clone can score published detections on a laptop, and the
+CPU-only test suite has to cover it. It follows the splits registry in
+``scripts/analysis/miss_decomposition.py``, which eight scripts already import.
+
+**The one thing in here that must not move: ``WITNESS_POOL_46``.** It is written out
+literally rather than derived from ``ROSTER`` precisely so that adding a challenger
+cannot touch it. See the comment on it.
+
+Three properties of an entry are worth stating because they are easy to get wrong:
+
+* ``density`` is **evidence, not configuration** — it comes from the measured
+  boxes-per-panorama in ``docs/model_comparison.md`` (sparse models emit 1-4, the
+  open-vocabulary detectors 55-88). A new arm's density is unknown until it has been
+  run, so it is ``None``, and ``density_of`` raises rather than guessing. The old code
+  silently treated an unclassified model as dense.
+* ``standing`` separates *scored in the roster tables* from *published but not scored*.
+  A leg can be run, verified and committed long before its write-up lands
+  (``gemini-3.7-flash``, #120); that is an omission of a write-up, not of a run, and
+  the distinction is data here rather than prose in a doc.
+* ``label`` is the resolved model id used for result-table rows and for
+  ``benchmark/model_detections/<label>__<city>.json``. For nearly every provider it is
+  derivable from the spec; ``LABEL_OVERRIDES`` covers the ones where it is not.
+"""
+from collections import namedtuple
+
+#: One registered model. ``spec`` is the ``compare.py --models`` token.
+Challenger = namedtuple(
+    "Challenger", "spec label provider density standing added note")
+
+# --------------------------------------------------------------------------- #
+# The registry
+# --------------------------------------------------------------------------- #
+#: Every model the benchmark knows about, scored or not, in results-table order.
+#:
+#: ``rampnet`` is a member: it is the row every other row is read against, and having
+#: it here is what makes "8 models" and "7 challengers" the same statement rather than
+#: the contradiction that sat in docs/model_comparison.md and docs/replication.md.
+ROSTER = (
+    Challenger(
+        spec="rampnet", label="rampnet", provider="rampnet",
+        density="sparse", standing=True, added="2026-07-22",
+        note="The subject, not a challenger. Read from the bundle's records.jsonl at "
+             "the deployed threshold, not from .model_cache — it carries no detector "
+             "signature. 4.2 boxes/pano."),
+    Challenger(
+        spec="gemini:gemini-3.6-flash", label="gemini-3.6-flash", provider="gemini",
+        density="sparse", standing=True, added="2026-07-22",
+        note="Hosted chat VLM, boxes without scores, so one operating point."),
+    Challenger(
+        spec="gemini:gemini-3.1-pro-preview", label="gemini-3.1-pro-preview",
+        provider="gemini", density="sparse", standing=True, added="2026-07-22",
+        note="Strongest general model on most splits until claude-opus-5 (#122)."),
+    Challenger(
+        spec="qwen:Qwen/Qwen3-VL-8B-Instruct", label="Qwen/Qwen3-VL-8B-Instruct",
+        provider="qwen", density="sparse", standing=True, added="2026-07-22",
+        note="Open-weight chat VLM. Outranks its own 32B on four splits — the "
+             "benchmark's only ranking inversion; see the 32B-caution mechanism."),
+    Challenger(
+        spec="qwen:Qwen/Qwen3-VL-32B-Instruct", label="Qwen/Qwen3-VL-32B-Instruct",
+        provider="qwen", density="sparse", standing=True, added="2026-07-22",
+        note="Scaling flipped the failure mode instead of fixing it: it stops firing."),
+    Challenger(
+        spec="molmo:allenai/Molmo2-8B", label="allenai/Molmo2-8B", provider="molmo",
+        density="sparse", standing=True, added="2026-07-23",
+        note="Points rather than boxes — RampNet's native output format, so no "
+             "box-to-point reduction. Needs its own env at transformers==4.57.1."),
+    Challenger(
+        spec="owlv2", label="google/owlv2-large-patch14-ensemble", provider="owlv2",
+        density="dense", standing=True, added="2026-07-22",
+        note="Open-vocabulary detector with calibrated scores, so a real PR curve. "
+             "55-88 boxes/pano: most of its recall is what the match radius hands out "
+             "for free, hence the chance corrections everywhere."),
+    Challenger(
+        spec="gdino", label="IDEA-Research/grounding-dino-base", provider="gdino",
+        density="dense", standing=True, added="2026-07-22",
+        note="Open-vocabulary detector, scored boxes. Dense for the same reason."),
+
+    # --- published, but not scored in the roster tables ---------------------- #
+    Challenger(
+        spec="gemini:gemini-3.7-flash", label="gemini-3.7-flash", provider="gemini",
+        density="sparse", standing=False, added="2026-08-14",
+        note="Run on all ten splits and published (#120); held out of the scored "
+             "tables until its write-up lands, so every table is one consistent set. "
+             "Promoting it is this entry's `standing` field plus a re-run of "
+             "fp_taxonomy/null_recall — the #46 human pass is no longer affected. "
+             "Density measured 2026-08-18 off the published detections: 1.90 "
+             "boxes/pano over 2,109 panos, against gemini-3.6-flash's 2.34 and "
+             "OWLv2's 72.77."),
+)
+
+#: Specs whose label cannot be derived from the spec, because the ``model_id`` slot
+#: carries something other than a model id. Empty until an arm needs it.
+LABEL_OVERRIDES = {}
+
+# --------------------------------------------------------------------------- #
+# The frozen pool — read the comment before touching it
+# --------------------------------------------------------------------------- #
+#: The witness pool the #46 human tagging pass was made under, as it stood on
+#: 2026-07-31. This is ``silent_witness.py``'s default.
+#:
+#: **Frozen deliberately, and written out literally rather than derived from
+#: ``ROSTER``.** ``silent_witness`` computes the RampNet misses that no other model
+#: witnessed; a further witness can only shrink that set. The set is the item list for
+#: the #46 tagging pass, which is finished, with committed per-rater verdicts at
+#: ``benchmark/miss_taxonomy_46/silent__jonf.json`` (50 items, manifest digest
+#: ``360b5ddf8751dcd0``). Verdicts are meaningless against a list other than the one
+#: they were made on, and the breakage would be silent — the numbers would simply
+#: change. So a new challenger moves the comparison tables and leaves the human pass
+#: alone, by construction rather than by anyone remembering.
+#:
+#: To run a different pool, pass ``--models``. Do not edit this to add a model.
+WITNESS_POOL_46 = (
+    "gemini:gemini-3.6-flash",
+    "gemini:gemini-3.1-pro-preview",
+    "qwen:Qwen/Qwen3-VL-8B-Instruct",
+    "qwen:Qwen/Qwen3-VL-32B-Instruct",
+    "molmo:allenai/Molmo2-8B",
+    "owlv2",
+    "gdino",
+)
+
+# --------------------------------------------------------------------------- #
+# Per-provider defaults — one definition, consumed by every parser
+# --------------------------------------------------------------------------- #
+#: Defaults for every ``compare.py`` argument that feeds ``build_detector`` and so
+#: the detection signature and cache key. ``compare.py``'s parser, ``fp_taxonomy``'s
+#: ``_compare_args`` shim, ``null_recall.py`` and ``dump_detections.py`` all read
+#: these, so they cannot drift apart: a wrong default here does not crash, it changes
+#: the cache key and every lookup silently misses.
+PROVIDER_DEFAULTS = {
+    "gemini_model": "gemini-3.6-flash",
+    "claude_model": "claude-sonnet-5",
+    "claude_effort": "low",
+    "claude_tool_choice": "auto",
+    # As-run encoding/decoding for the published Claude legs. ``None`` is what keeps
+    # them OUT of the detection signature (a setting enters it only when it deviates
+    # from as-run), so changing either default here silently rebuilds a different
+    # cache key and every lookup misses.
+    "claude_image_format": None,
+    "claude_temperature": None,
+    "qwen_model": "Qwen/Qwen3-VL-8B-Instruct",
+    "qwen_coord_space": "auto",
+    "owlv2_model": "google/owlv2-large-patch14-ensemble",
+    "gdino_model": "IDEA-Research/grounding-dino-base",
+    "molmo_model": "allenai/Molmo2-8B",
+    "molmo_coord_scale": "auto",
+    "yolo_conf": 0.05,
+    "yolo_iou": 0.5,
+    "yolo_imgsz": 1024,
+}
+
+# --------------------------------------------------------------------------- #
+# Derived views — nothing below is hand-maintained
+# --------------------------------------------------------------------------- #
+BY_SPEC = {c.spec: c for c in ROSTER}
+
+#: Standing entries, RampNet included — the set every results table scores.
+SCORED = tuple(c for c in ROSTER if c.standing)
+
+#: Standing challengers, i.e. everything scored except RampNet itself.
+CHALLENGERS = tuple(c.spec for c in SCORED if c.provider != "rampnet")
+
+#: What ``fp_taxonomy.py --models`` defaults to: RampNet plus the challengers.
+SCORED_SPECS = tuple(c.spec for c in SCORED)
+
+#: Published and verified, but not scored in the roster tables.
+OFF_ROSTER = tuple(c for c in ROSTER if not c.standing)
+
+#: Sparse enough that a hit is evidence rather than coverage.
+SPARSE = tuple(s for s in CHALLENGERS if BY_SPEC[s].density == "sparse")
+
+#: So dense that a hit is mostly coverage; reported, never used for a headline.
+DENSE = tuple(s for s in CHALLENGERS if BY_SPEC[s].density == "dense")
+
+
+def label_for(spec, cargs=None):
+    """The table row / filename label a ``--models`` spec resolves to.
+
+    ``cargs`` is an optional namespace of provider defaults (``compare.py``'s parsed
+    args, or ``fp_taxonomy._compare_args``). It is consulted so that a run with
+    ``--gemini-model`` overridden labels itself with the model actually used rather
+    than with the registry's default.
+    """
+    if spec in LABEL_OVERRIDES:
+        return LABEL_OVERRIDES[spec]
+    provider, _, model_id = spec.partition(":")
+    provider, model_id = provider.strip(), model_id.strip()
+    if model_id:
+        return model_id
+    key = f"{provider}_model"
+    if cargs is not None and getattr(cargs, key, None):
+        return getattr(cargs, key)
+    return PROVIDER_DEFAULTS.get(key, provider)
+
+
+def density_of(spec):
+    """``"sparse"`` or ``"dense"`` for a registered spec.
+
+    Raises for anything unregistered or unmeasured. That is the point: density is
+    measured boxes-per-panorama, not a setting, and the previous code silently
+    treated an unknown model as dense — which would quietly move a headline, since
+    only the sparse union feeds one.
+    """
+    entry = BY_SPEC.get(spec)
+    if entry is None:
+        raise KeyError(
+            f"{spec!r} is not in the roster (rampnet/roster.py). Add an entry, or "
+            f"pass a pool that excludes it.")
+    if entry.density is None:
+        raise ValueError(
+            f"{spec!r} has no measured density yet, so it cannot join a witness pool: "
+            f"a witness count is only meaningful against that model's own box rate. "
+            f"Run it, read boxes/pano off null_recall.py, then set `density`.")
+    return entry.density
+
+
+def partition_by_density(specs):
+    """``(sparse, dense)`` for an arbitrary pool, in the pool's own order."""
+    sparse = tuple(s for s in specs if density_of(s) == "sparse")
+    dense = tuple(s for s in specs if density_of(s) == "dense")
+    return sparse, dense
+
+
+def pool_record(specs, cargs=None):
+    """A JSON-able description of a model pool, to embed in an analysis artifact.
+
+    Every published detections file already carries the detector ``signature`` that
+    produced it; an analysis whose *item list* depends on which models ran needs the
+    same treatment, or a verdict file can no longer be matched to the pool that
+    generated its items.
+    """
+    specs = tuple(specs)
+    sparse, dense = partition_by_density(specs)
+    named = "WITNESS_POOL_46" if specs == WITNESS_POOL_46 else None
+    return {"pool": named, "specs": list(specs),
+            "labels": [label_for(s, cargs) for s in specs],
+            "sparse": list(sparse), "dense": list(dense)}
