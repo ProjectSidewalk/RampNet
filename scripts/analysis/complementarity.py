@@ -7,6 +7,17 @@ matters: **RampNet-miss n challenger-hit**.
 Read-only: RampNet's side comes from the bundle's committed detections and the
 challenger's from ``.model_cache``, so this never runs a model or spends anything.
 
+**Which RampNet, though?** The committed bundle detections are the *shipped* operating
+point — on richmond every one scores >= 0.5519 — while this document's own
+recommendation since #54/#55 (PR #79) is **0.30**. Those are different models for this
+purpose: at 0.30 RampNet finds 257 of richmond's 310 ramps instead of 238, so 19 of the
+"misses" a challenger gets credit for recovering are ramps RampNet already has and the
+shipped threshold is discarding. ``--rampnet-op-threshold`` re-sources RampNet's side
+from the committed ``analysis_out/op_cache/<split>.json`` floor peaks at a given
+threshold, which is how you ask "what is the complementary gain at the operating point
+we would actually deploy?". Default is the bundle records, so the published roster
+numbers and the #35 gate's committed results are unchanged.
+
 **The oracle-union recall is a ceiling, not a proposal.** It assumes you could
 keep every right call and discard every wrong one, which no combiner can do. The
 FP arithmetic printed at the end is the counterweight, and for a low-precision
@@ -42,6 +53,7 @@ from rampnet.detection_eval import (                                      # noqa
     _xy, prediction_confidence)
 from compare import load_bundle, DetectionCache, cache_key                # noqa: E402
 from detectors import build_detector, parse_model_spec, PROVIDERS         # noqa: E402
+from operating_point_curve import CACHE_DIR, read_cache                   # noqa: E402
 
 
 def matched_gt(preds, gt_points, radius_sq):
@@ -145,6 +157,13 @@ def main():
     ap.add_argument("split", nargs="?", default="richmond",
                     help="Benchmark split name (default richmond).")
     ap.add_argument("--cache-dir", default=os.path.join(REPO, ".model_cache"))
+    ap.add_argument("--rampnet-op-threshold", type=float, default=None,
+                    help="Score RampNet from analysis_out/op_cache/<split>.json floor "
+                         "peaks at this threshold instead of the bundle's committed "
+                         "detections. The bundle is the SHIPPED point (>=0.5519 on "
+                         "richmond); this document recommends 0.30, and the gap "
+                         "changes who gets credit for a recovery. Default: the bundle, "
+                         "so published numbers are unchanged.")
     ap.add_argument("--radius", type=float, default=0.022)
     ap.add_argument("--tiling", choices=["perspective", "none"], default="perspective")
     ap.add_argument("--vistas-input-size", type=int, nargs=2, metavar=("H", "W"),
@@ -165,6 +184,13 @@ def main():
     cache = DetectionCache(args.cache_dir)
     radius_sq = radius_sq_for(args.radius)
 
+    floor_peaks = None
+    if args.rampnet_op_threshold is not None:
+        cached, _ = read_cache(os.path.join(CACHE_DIR, f"{args.split}.json"))
+        floor_peaks = {pd["pano"]: pd["preds"] for pd in cached}
+        print(f"rampnet re-sourced from op_cache at >= {args.rampnet_op_threshold} "
+              f"(bundle records are the shipped point and are NOT used)\n")
+
     n = both = r_only = c_only = neither = 0
     r_fp = c_fp = 0
     panos = missing = 0
@@ -179,8 +205,12 @@ def main():
         if cp is None:
             missing += 1
             continue
-        rp = [(d["x_normalized"], d["y_normalized"], d["confidence"])
-              for d in records[pid]["detections"]]
+        if floor_peaks is not None:
+            rp = [p for p in floor_peaks.get(pid, [])
+                  if p[2] >= args.rampnet_op_threshold]
+        else:
+            rp = [(d["x_normalized"], d["y_normalized"], d["confidence"])
+                  for d in records[pid]["detections"]]
         mr, mc = matched_gt(rp, gt.gt_points, radius_sq), matched_gt(cp, gt.gt_points, radius_sq)
         for i in range(len(gt.gt_points)):
             r, c = i in mr, i in mc
@@ -201,24 +231,26 @@ def main():
 
     r_tp, c_tp, union = both + r_only, both + c_only, both + r_only + c_only
     r_miss = c_only + neither
-    print(f"{args.split} complementarity — rampnet vs {label}  "
+    rn = ("rampnet" if floor_peaks is None
+          else f"rampnet@{args.rampnet_op_threshold:g}")
+    print(f"{args.split} complementarity — {rn} vs {label}  "
           f"({panos} recall-eligible panos, {n} GT ramps"
           + (f"; {missing} panos missing from cache" if missing else "") + ")\n")
-    print(f"  rampnet recall      {r_tp / n:.3f}   ({r_tp}/{n})")
+    print(f"  {rn:18s} recall {r_tp / n:.3f}   ({r_tp}/{n})")
     print(f"  {label[:18]:18s} recall {c_tp / n:.3f}   ({c_tp}/{n})")
     print(f"  ORACLE-UNION recall {union / n:.3f}   ({union}/{n})   "
           f"<- ceiling if you could keep every right call")
     print()
     print(f"  found by BOTH        {both:4d}  ({both / n:.1%})")
-    print(f"  rampnet ONLY         {r_only:4d}  ({r_only / n:.1%})")
+    print(f"  {rn[:14]:14s} ONLY   {r_only:4d}  ({r_only / n:.1%})")
     print(f"  {label[:14]:14s} ONLY   {c_only:4d}  ({c_only / n:.1%})   "
           f"<- complementary gain (rampnet-miss n challenger-hit)")
     print(f"  found by NEITHER     {neither:4d}  ({neither / n:.1%})   "
           f"<- hard misses, no model helps")
     print()
-    print(f"  Union recall lift over rampnet:  +{(union - r_tp) / n:.3f}  ({c_only} ramps)")
+    print(f"  Union recall lift over {rn}:  +{(union - r_tp) / n:.3f}  ({c_only} ramps)")
     if r_miss:
-        print(f"  Of rampnet's {r_miss} misses, {label} recovers {c_only} "
+        print(f"  Of {rn}'s {r_miss} misses, {label} recovers {c_only} "
               f"({c_only / r_miss:.0%}); {neither} nobody finds")
         mean_null, max_null = complementary_null(shift_rows, radius_sq)
         exp = mean_null * r_miss
@@ -236,12 +268,12 @@ def main():
     r_p = r_tp / (r_tp + r_fp) if r_tp + r_fp else 0.0
     r_f1 = 2 * r_p * (r_tp / n) / (r_p + r_tp / n) if r_p + r_tp / n else 0.0
     print()
-    print(f"  FP cost on these panos:  rampnet {r_fp}  |  {label} {c_fp}"
+    print(f"  FP cost on these panos:  {rn} {r_fp}  |  {label} {c_fp}"
           f"   (a naive union pays ~both)")
-    print(f"  rampnet alone:  P {r_p:.3f}  R {r_tp / n:.3f}  F1 {r_f1:.3f}")
+    print(f"  {rn} alone:  P {r_p:.3f}  R {r_tp / n:.3f}  F1 {r_f1:.3f}")
     print(f"  NAIVE UNION:    P {u_p:.3f}  R {u_r:.3f}  F1 {u_f1:.3f}"
           f"   <- precision is a lower bound (no FP dedup)")
-    print(f"  => a naive union {'BEATS' if u_f1 > r_f1 else 'LOSES TO'} rampnet alone "
+    print(f"  => a naive union {'BEATS' if u_f1 > r_f1 else 'LOSES TO'} {rn} alone "
           f"on F1 ({u_f1:.3f} vs {r_f1:.3f})")
 
 
