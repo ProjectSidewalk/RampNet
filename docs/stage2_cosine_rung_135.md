@@ -183,8 +183,26 @@ Storage: ~10 GB, the same as Run A. `/gscratch/makelab` had ~348 GB free and 823
 
 | | job | outcome |
 | :--- | :--- | :--- |
-| cosine rung | *(pending)* | |
+| cosine rung | **`38640313`** | submitted 2026-08-18 16:51 PDT, `ckpt-all`, 4 nodes × 4 GPUs, world size 16, fresh start (no resume file present at submit). PENDING on `(Resources)` at submission. |
+
+Pre-flight, verified rather than assumed:
+
+- klone's `~/RampNet/stage_two/train.py` was **byte-identical to `main`** before the upload
+  (sha256 `ccce228b…`), so the copy that runs is `main` plus the scheduler and nothing else. Its
+  hash on klone after upload is `051e3256…`, matching this branch exactly.
+- The launcher transferred as `Bourne-Again shell script, ASCII text executable` — no CRLF, which
+  would have failed with a bad-interpreter error at launch.
+- Dataset intact at `/gscratch/scrubbed/jfroehli/rampnet_dataset`: 300,126 entries under `train/`
+  = 150,063 panorama+JSON pairs, matching Run A's 9,378 steps/epoch at world size 16. Counted,
+  not stat'ed — the directory is older than `scrubbed`'s purge window.
+- `/gscratch/makelab` had 270 GB free; this run needs ~10 GB.
+- Env reused from Run A at `/gscratch/makelab/jonf/envs/sidewalkcv2` (the durable copy, job
+  `38566410`), so the environment is identical to the arm being compared against.
+
+**First check once it starts, before it is left to run:** read the `LR` scalar in
+`runs/experiment_1`. It must start at 1e-5 and fall smoothly. A sawtooth means a requeue reset
+the schedule, which would invalidate the run and is invisible in the loss curve.
 
 ## Results
 
-*Not yet run. This section will be appended to, and the pre-registration above left as written.*
+*Not yet run. This section will be appended to; the pre-registration above stays as written.*
