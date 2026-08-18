@@ -1500,6 +1500,25 @@ measured here**, so "+6.1 recall points" is a ceiling on the benefit with the co
 The next step, if this is ever picked up, is to build the gate and score it, not to reason further
 about it.
 
+**Seam exposure, stated because these numbers predate the #132 seam fixes.** This work branched at
+`5e20d11`, before `eccadda` (wrap the 360° seam in the matcher) and `f4c71c8` (`peaks_to_dets`
+dropped peaks beside the seam) landed. Two consequences, both bounded by measurement rather than
+argued away:
+
+* The greedy match used here does not wrap. `score_pano`'s own docstring records that wrapping
+  *"moves no metric on any committed split"* while #130's duplicate ground truth masks it, so the
+  aggregate P/R/F1 are unaffected — but a cell assignment is finer-grained than an aggregate.
+* `analysis_out/op_cache/richmond.json` is **unchanged by those commits**, i.e. it was not
+  regenerated after the `peaks_to_dets` fix, so it can still be missing peaks that sit beside the
+  seam. That would make a site read "no floor peak in radius" when one exists — it can only
+  *understate* the promotable count, never inflate it.
+
+**Measured exposure: 6 of richmond's 310 GT ramps straddle the seam, and only 1 of them is in
+`challenger_only`** (the other 5 are in `both`, where neither fix can move the partition in a
+direction that matters). So the worst case for the headline is one ramp in 38, and no conclusion
+here turns on it. Re-running on a post-#140 main is the clean way to retire the caveat rather than
+bound it.
+
 ##### Reproducing it
 
 ```bash
