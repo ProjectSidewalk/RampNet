@@ -101,8 +101,28 @@ def published_path(label, city, out_dir=PUBLISHED_DIR, publish_as=None):
     ``claude-sonnet-5__annapolis.json``, the second silently overwriting the
     first. The cache LABEL must stay the bare model id (it is baked into the
     already-paid cache keys), so the distinguishing name belongs here, at
-    publication time, and nowhere else."""
+    publication time, and nowhere else.
+
+    Callers should prefer ``publication_name`` to fill ``publish_as``: the registry
+    already records every leg's published name, and a flag that has to be typed
+    from memory is a flag that will one day not be."""
     return os.path.join(out_dir, f"{slug(publish_as or label)}__{city}.json")
+
+
+def publication_name(spec, cargs, publish_as=None):
+    """What this leg publishes under: the explicit flag, else the registry, else
+    the plain label.
+
+    Without this, re-exporting a pinned leg and forgetting ``--publish-as`` writes
+    the bare model id — `claude-opus-5__annapolis.json` — which collides with
+    nothing, so the overwrite guard stays quiet, and surfaces only later as a file
+    that belongs to no registered leg. The registry knows the answer; this is the
+    one place that writes the filename, so this is where it should ask.
+    """
+    if publish_as:
+        return publish_as
+    leg = roster.leg_for(spec, cargs)
+    return roster.published_name(leg) if leg is not None else spec_label(spec, cargs)
 
 
 def export(cache_dir, out_dir, splits, specs, allow_partial=False, overrides=None,
@@ -137,6 +157,7 @@ def export(cache_dir, out_dir, splits, specs, allow_partial=False, overrides=Non
                          f"several --models specs (got {len(specs)}): every spec "
                          "would write to the same file.")
     for spec in specs:
+        name = publication_name(spec, cargs, publish_as)
         for city in splits:
             bundle = os.path.join(REPO, "benchmark", city)
             if not os.path.exists(os.path.join(bundle, "records.jsonl")):
@@ -162,7 +183,7 @@ def export(cache_dir, out_dir, splits, specs, allow_partial=False, overrides=Non
             if missing and not allow_partial:
                 partial.append((label, city, len(dets), missing))
                 continue
-            path = published_path(label, city, out_dir, publish_as)
+            path = published_path(label, city, out_dir, name)
             # Refuse to overwrite a DIFFERENT leg that happens to share this name.
             # Two legs of one model id (Claude at two effort levels) resolve to the
             # same filename, and a silent overwrite is the worst outcome available:
@@ -175,7 +196,7 @@ def export(cache_dir, out_dir, splits, specs, allow_partial=False, overrides=Non
                     collisions.append((label, city, path))
                     continue
             with open(path, "w", encoding="utf-8") as fh:
-                json.dump({"model": label, "published_as": publish_as or label,
+                json.dump({"model": label, "published_as": name,
                            "city": city, "signature": sig,
                            "n_panos": len(dets), "n_uncached": missing,
                            "detections": dets}, fh, separators=(",", ":"), sort_keys=True)
@@ -202,6 +223,7 @@ def verify(cache_dir, out_dir, splits, specs, overrides=None, publish_as=None):
     rsq = radius_sq_for()
     problems, compared, vacuous, unpublished = [], 0, [], []
     for spec in specs:
+        name = publication_name(spec, cargs, publish_as)
         for city in splits:
             bundle = os.path.join(REPO, "benchmark", city)
             if not os.path.exists(os.path.join(bundle, "records.jsonl")):
@@ -214,7 +236,7 @@ def verify(cache_dir, out_dir, splits, specs, overrides=None, publish_as=None):
             sig = det.signature() if hasattr(det, "signature") else None
             if sig is None:
                 continue
-            pub = load_detections(label, city, out_dir, publish_as)
+            pub = load_detections(label, city, out_dir, name)
             if pub is None:
                 unpublished.append((label, city))
                 continue

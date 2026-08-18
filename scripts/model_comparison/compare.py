@@ -245,8 +245,12 @@ def _fail_validation(problems):
 ModelRun = namedtuple("ModelRun", ["report", "failures", "scored"])
 
 
+class UnrecordedSpend(Exception):
+    """A paid leg was about to make its first real call with no usage log."""
+
+
 def score_model(detector, records, gts, panos_dir, radius_sq, label, city, cache,
-                max_consecutive_failures=10):
+                max_consecutive_failures=10, spend_needs_recording=False):
     """Run one detector over every scored pano and aggregate the score.
 
     ``gts`` maps pano id -> GroundTruth (verdict-derived for city bundles,
@@ -267,6 +271,19 @@ def score_model(detector, records, gts, panos_dir, radius_sq, label, city, cache
             for pid in gts}
     cached = {pid: (cache.get(k) if k else None) for pid, k in keys.items()}
     if not cached or any(p is None for p in cached.values()):
+        # This leg WILL call the API. If it is a paid one and nothing is recording
+        # the spend, stop here: token counts are the one artifact that cannot be
+        # back-filled -- a later re-run reads the cache, makes zero calls, and can
+        # never reproduce them, which is how the four Claude legs (#122) cost
+        # $28.82 with no committed record. Checked here rather than at parse time
+        # so a fully cached re-score, which cannot spend anything, still runs.
+        if spend_needs_recording and getattr(detector, "name", None) in roster.PAID_PROVIDERS:
+            raise UnrecordedSpend(
+                f"{label} would call a paid API for "
+                f"{sum(1 for p in cached.values() if p is None)} uncached pano(s) with "
+                f"--usage-log none. Token counts cannot be back-filled, so this spend "
+                f"would go unrecorded. Drop --usage-log none, or pass "
+                f"--allow-unrecorded-spend deliberately.")
         detector.prepare()
     else:
         print(f"[{label}] all {len(cached)} panos already cached; model load skipped")
@@ -527,12 +544,15 @@ def write_pr_curves(out_dir, curves):
     print(f"PR curves written to {out_dir} (JSON + {os.path.basename(path)})")
 
 
-def main():
-    # Windows consoles are cp1252; avoid UnicodeEncodeError on stray bytes.
-    for stream in (sys.stdout, sys.stderr):
-        if hasattr(stream, "reconfigure"):
-            stream.reconfigure(errors="replace")
+def build_parser():
+    """The CLI, as one object a test can inspect.
 
+    Extracted from main() so that the coupling between PROVIDER_DEFAULTS and the
+    flags that feed build_detector is checkable rather than asserted in prose:
+    a drift there does not crash, it changes the detection cache key and silently
+    misses every already-paid detection. test_roster.py reads the defaults off
+    this parser.
+    """
     ap = argparse.ArgumentParser(description="Compare curb-ramp detectors on a benchmark bundle.")
     ap.add_argument("bundle", help="Bundle dir (e.g. benchmark/richmond) with records.jsonl + verdicts.json.")
     ap.add_argument("--models", default="rampnet",
@@ -640,6 +660,16 @@ def main():
                     help="Permit a paid model to run with --usage-log none. Needed only "
                          "to spend money without recording what it cost, which is not "
                          "recoverable afterwards; say why in the PR if you use it.")
+    return ap
+
+
+def main():
+    # Windows consoles are cp1252; avoid UnicodeEncodeError on stray bytes.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(errors="replace")
+
+    ap = build_parser()
     args = ap.parse_args()
 
     load_dotenv(str(REPO_ROOT))
@@ -669,19 +699,11 @@ def main():
     city = os.path.basename(os.path.normpath(args.bundle))
     cache = DetectionCache(args.cache_dir, enabled=not args.no_cache)
     usage_log = None if args.usage_log == "none" else args.usage_log
-    # Fail BEFORE the money is spent, not after. report_usage warns at the end of a
-    # leg that logged nothing, but by then the tokens are bought and the counts are
-    # already unrecoverable: a re-run reads the detection cache, makes zero API
-    # calls, and can never reproduce them. That is exactly how the four Claude legs
-    # (#122) ended up costing $28.82 with no committed record.
-    if usage_log is None and not args.allow_unrecorded_spend:
-        paid = sorted({p for p, _ in specs if p in roster.PAID_PROVIDERS})
-        if paid:
-            ap.error(
-                f"--usage-log none with paid provider(s) {', '.join(paid)}. Token "
-                f"counts cannot be back-filled — a cached re-run makes no API calls — "
-                f"so this would spend money that no committed artifact records. Drop "
-                f"--usage-log none, or pass --allow-unrecorded-spend deliberately.")
+    # Whether a paid leg may run without recording what it spends. The check itself
+    # happens in score_model, at the first pano that is NOT already cached -- still
+    # before any money moves, but without refusing a re-score that provably cannot
+    # spend anything (a fully cached leg skips the model load and makes no calls).
+    spend_needs_recording = usage_log is None and not args.allow_unrecorded_spend
 
     print(f"Bundle: {args.bundle}  ({len(gts)} scored panos)  "
           f"match radius {args.radius}  ground truth: {gt_desc}")
@@ -700,7 +722,13 @@ def main():
         run = None
         try:
             run = score_model(
-                detector, records, gts, panos_dir, radius_sq, label, city, cache)
+                detector, records, gts, panos_dir, radius_sq, label, city, cache,
+                spend_needs_recording=spend_needs_recording)
+        except UnrecordedSpend:
+            # Not a "this model is not runnable here" condition: it is a deliberate
+            # refusal, and swallowing it would let the next paid leg in the list
+            # spend unrecorded too.
+            raise
         except Exception as e:
             # Missing client lib, missing credentials, a checkpoint whose remote
             # code won't load on this transformers version: skip the whole model

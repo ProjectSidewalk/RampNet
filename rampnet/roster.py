@@ -129,9 +129,11 @@ ROSTER = (
     # docs/model_comparison.md -- so they are published and scored, but not in the
     # roster tables, which are the zero-shot comparison. Keeping them out of
     # SCORED_SPECS is not bookkeeping: that tuple is the default --models of
-    # fp_taxonomy, null_recall and silent_witness, and a yolo spec carries a local
-    # .pt path, so promoting them would make three analysis scripts fail on any
-    # clone without the checkpoints.
+    # fp_taxonomy and null_recall, and a yolo spec carries a local .pt path, so
+    # promoting them would make both fail on any clone without the checkpoints.
+    # (silent_witness defaults to WITNESS_POOL_46, not to SCORED_SPECS, so the
+    # frozen human pass is unaffected either way -- that is the point of the
+    # freeze.)
     Challenger(
         spec="yolo:yolo_ckpts/y11l_pano.pt", label="y11l_pano", provider="yolo",
         density="sparse", standing=False, added="2026-08-14",
@@ -253,11 +255,12 @@ PROVIDER_DEFAULTS = {
     "yolo_imgsz": 1024,
 }
 
-#: Providers whose calls cost money. The list is here rather than in a script
-#: because it is registry knowledge, and because two separate checks need it: the
-#: cost estimate in pricing.py, and compare.py's refusal to start a paid leg with
-#: usage logging switched off. Token counts are the one artifact that cannot be
-#: back-filled -- a re-run reads the detection cache, makes zero calls, and so can
+#: Providers whose calls cost money -- registry knowledge, so it lives here rather
+#: than in the one script that currently reads it (compare.py's refusal to spend
+#: without recording it). Note this is per PROVIDER, while pricing.py prices per
+#: MODEL ID and does not consult it; `test_the_paid_provider_list_covers_every_priced_model`
+#: is what keeps the two from disagreeing. Token counts are the one artifact that
+#: cannot be back-filled -- a re-run reads the detection cache, makes zero calls, and so can
 #: never reproduce them -- which is how the four Claude legs' $28.82 ended up with
 #: no committed record.
 PAID_PROVIDERS = frozenset({"gemini", "claude"})
@@ -298,6 +301,21 @@ BY_PUBLISHED = {published_name(c): c for c in ROSTER}
 #: ``records.jsonl`` and carries no detector signature.
 PUBLISHED = tuple(c for c in ROSTER if c.provider != "rampnet")
 
+# A standing leg must be reproducible from its spec alone, because that is all the
+# scored tuples below carry. A pinned leg is not: `--models claude:claude-opus-5`
+# gives you the LOW-effort leg whatever the roster row says, so promoting the high
+# one would have the tables claim one leg while fp_taxonomy and null_recall scored
+# the other's detections, and read its density off the other's measurement. Caught
+# here, at import, rather than as a wrong number in a table.
+for _c in ROSTER:
+    if _c.standing and _c.pins:
+        raise ValueError(
+            f"{_c.spec!r} is standing but pinned {dict(_c.pins)!r}. A scored entry has "
+            f"to be what a bare --models spec reproduces, and the pinned legs of one "
+            f"spec are indistinguishable there. Give the leg its own spec first, or "
+            f"score it in its own table with standing=False.")
+del _c
+
 #: Standing entries, RampNet included — the set every results table scores.
 SCORED = tuple(c for c in ROSTER if c.standing)
 
@@ -310,11 +328,29 @@ SCORED_SPECS = tuple(c.spec for c in SCORED)
 #: Published and verified, but not scored in the roster tables.
 OFF_ROSTER = tuple(c for c in ROSTER if not c.standing)
 
+# Read off the entries, not by looking each spec back up in BY_SPEC: that mapping
+# holds default legs only, so a spec-keyed lookup here would resolve to the wrong
+# leg (or raise at import) the moment anything pinned reached this far. The check
+# above makes that unreachable; deriving straight from the entry makes it moot.
 #: Sparse enough that a hit is evidence rather than coverage.
-SPARSE = tuple(s for s in CHALLENGERS if BY_SPEC[s].density == "sparse")
+SPARSE = tuple(c.spec for c in SCORED
+               if c.provider != "rampnet" and c.density == "sparse")
 
 #: So dense that a hit is mostly coverage; reported, never used for a headline.
-DENSE = tuple(s for s in CHALLENGERS if BY_SPEC[s].density == "dense")
+DENSE = tuple(c.spec for c in SCORED
+              if c.provider != "rampnet" and c.density == "dense")
+
+
+def weights_stem(path):
+    """A yolo checkpoint's identity: the file stem, not the path.
+
+    ``detectors.YoloDetector`` keys its cache on this so the same checkpoint hits
+    the same entries from a different working directory. Both spellings of a yolo
+    run reach it -- ``--models yolo:<path>`` and ``--models yolo --yolo-model
+    <path>`` -- because a label that agreed with the detector on one and not the
+    other is the cache-key drift this registry exists to remove.
+    """
+    return os.path.splitext(os.path.basename(str(path).replace(chr(92), "/")))[0]
 
 
 def label_for(spec, cargs=None):
@@ -330,16 +366,33 @@ def label_for(spec, cargs=None):
     provider, _, model_id = spec.partition(":")
     provider, model_id = provider.strip(), model_id.strip()
     if model_id:
-        if provider == "yolo":
-            # A yolo spec carries a weights PATH, and the detector's identity is the
-            # file stem, not the path (detectors.YoloDetector), so that running the
-            # same checkpoint from a different directory hits the same cache.
-            return os.path.splitext(os.path.basename(model_id.replace(chr(92), "/")))[0]
-        return model_id
+        return weights_stem(model_id) if provider == "yolo" else model_id
     key = f"{provider}_model"
-    if cargs is not None and getattr(cargs, key, None):
-        return getattr(cargs, key)
+    value = getattr(cargs, key, None) if cargs is not None else None
+    if value:
+        # ...including when the path arrives as --yolo-model rather than in the spec.
+        return weights_stem(value) if provider == "yolo" else value
     return PROVIDER_DEFAULTS.get(key, provider)
+
+
+def leg_for(spec, cargs=None):
+    """The registered leg a run resolves to, or ``None`` if it is not registered.
+
+    A spec alone is not enough once pins exist, so the pinned settings are read off
+    ``cargs`` and matched: ``claude:claude-opus-5`` with ``claude_effort='high'``
+    is a different leg from the same spec at ``low``. This is what lets the exporter
+    name a file without being told (see ``published_name``) instead of relying on
+    whoever ran it to remember ``--publish-as``.
+    """
+    label = label_for(spec, cargs)
+    candidates = [c for c in ROSTER if c.spec == spec or c.label == label]
+    for c in candidates:                      # a pinned leg wins when its pins match
+        if c.pins and all(getattr(cargs, k, None) == v for k, v in c.pins):
+            return c
+    for c in candidates:                      # otherwise the leg the bare spec names
+        if not c.pins:
+            return c
+    return None
 
 
 def density_of(spec):

@@ -1545,6 +1545,21 @@ def parse_model_spec(token):
     return provider.strip(), (model_id.strip() or None)
 
 
+def _D(key):
+    """One provider default, from the registry.
+
+    build_detector is reached from namespaces that are not compare.py's parser --
+    null_recall and dump_detections build their own, and two analysis scripts hand
+    it a private Args -- so every `getattr(args, k, None) or <literal>` here was a
+    fifth copy of a value that feeds the cache signature. A copy that drifts does
+    not crash; it changes the key and silently misses every already-paid detection.
+    Imported lazily so detectors.py keeps importing without the rampnet package on
+    sys.path.
+    """
+    from rampnet.roster import PROVIDER_DEFAULTS
+    return PROVIDER_DEFAULTS[key]
+
+
 def build_detector(provider, model_id, records, args):
     """Instantiate a detector for one ``(provider, model_id)`` spec, returning
     ``(label, detector)``. The label is the concrete model id for VLMs (so
@@ -1561,8 +1576,8 @@ def build_detector(provider, model_id, records, args):
         mid = model_id or args.claude_model
         return mid, ClaudeDetector(
             model_id=mid, tile=tile,
-            effort=getattr(args, "claude_effort", None) or "low",
-            tool_choice=getattr(args, "claude_tool_choice", None) or "auto",
+            effort=getattr(args, "claude_effort", None) or _D("claude_effort"),
+            tool_choice=getattr(args, "claude_tool_choice", None) or _D("claude_tool_choice"),
             image_format=(getattr(args, "claude_image_format", None)
                           or CLAUDE_AS_RUN_IMAGE_FORMAT),
             temperature=getattr(args, "claude_temperature", CLAUDE_AS_RUN_TEMPERATURE))
@@ -1572,18 +1587,18 @@ def build_detector(provider, model_id, records, args):
         return mid, QwenDetector(model_id=mid, tile=tile,
                                  coord_space=None if coord_space == "auto" else coord_space)
     if provider == "owlv2":
-        mid = model_id or getattr(args, "owlv2_model", None) or "google/owlv2-large-patch14-ensemble"
+        mid = model_id or getattr(args, "owlv2_model", None) or _D("owlv2_model")
         return mid, OwlV2Detector(model_id=mid, tile=tile,
                                   query=getattr(args, "owlv2_query", None),
                                   score_threshold=getattr(args, "score_threshold", None))
     if provider == "gdino":
-        mid = model_id or getattr(args, "gdino_model", None) or "IDEA-Research/grounding-dino-base"
+        mid = model_id or getattr(args, "gdino_model", None) or _D("gdino_model")
         return mid, GroundingDinoDetector(model_id=mid, tile=tile,
                                           query=getattr(args, "gdino_query", None),
                                           score_threshold=getattr(args, "score_threshold", None),
                                           text_threshold=getattr(args, "gdino_text_threshold", None))
     if provider == "molmo":
-        mid = model_id or getattr(args, "molmo_model", None) or "allenai/Molmo2-8B"
+        mid = model_id or getattr(args, "molmo_model", None) or _D("molmo_model")
         scale = getattr(args, "molmo_coord_scale", "auto")
         return mid, MolmoDetector(model_id=mid, tile=tile,
                                   coord_scale=None if scale in (None, "auto") else float(scale))
@@ -1596,10 +1611,11 @@ def build_detector(provider, model_id, records, args):
                              "--models yolo:<path.pt> or --yolo-model <path.pt>")
         iou = getattr(args, "yolo_iou", None)
         imgsz = getattr(args, "yolo_imgsz", None)
+        iou = _D("yolo_iou") if iou is None else float(iou)
+        imgsz = _D("yolo_imgsz") if imgsz is None else int(imgsz)
         label = os.path.splitext(os.path.basename(str(weights)))[0]
         return label, YoloDetector(weights=weights, label=label, tile=tile,
                                    conf=getattr(args, "yolo_conf", None),
-                                   iou=0.5 if iou is None else float(iou),
-                                   imgsz=1024 if imgsz is None else int(imgsz))
+                                   iou=iou, imgsz=imgsz)
     raise ValueError(f"unknown provider '{provider}' "
                      f"(choose from: {', '.join(PROVIDERS)})")

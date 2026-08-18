@@ -347,6 +347,12 @@ def main(argv=None):
     radius_sq = radius_sq_for()
     cities = [c.strip() for c in args.cities.split(",") if c.strip()]
     specs = [s.strip() for s in args.models.split(",") if s.strip()]
+    # Build the pool record BEFORE any scoring, not at write time. It raises on an
+    # unregistered or unmeasured model, and raising after every model is scored and
+    # every table is printed throws the whole run away -- and, because it happens
+    # inside the --json-out branch, throws it away only for the runs that were going
+    # to leave an artifact. silent_witness.py validates up front for the same reason.
+    pool = roster.pool_record(specs, cargs)
 
     print(f"=== False-positive taxonomy (#46) — {len(specs)} models x "
           f"{len(cities)} splits ===")
@@ -433,7 +439,7 @@ def main(argv=None):
                        # Which models this ran over, so a reader can tell a roster
                        # change from a numbers change -- the same reasoning as the
                        # detector signature inside each published detections file.
-                       "models": roster.pool_record(specs, cargs),
+                       "models": pool,
                        "per_model": per_model}, fh, indent=2)
         print(f"\nWrote {args.json_out}")
     return 0

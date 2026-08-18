@@ -226,7 +226,9 @@ def test_export_refuses_to_overwrite_a_different_leg(tmp_path, monkeypatch):
     the other leg's numbers are simply gone."""
     out = tmp_path / "out"
     out.mkdir()
-    existing = out / "claude-sonnet-5__annapolis.json"
+    # The name the low-effort leg publishes under, per the registry -- not the bare
+    # model id, which no longer collides because publication_name resolves it.
+    existing = out / "claude-sonnet-5-effort-low__annapolis.json"
     existing.write_text(json.dumps({
         "model": "claude-sonnet-5", "city": "annapolis",
         "signature": {"provider": "claude", "effort": "high"},
@@ -247,13 +249,30 @@ def test_export_overwrites_the_same_leg_happily(tmp_path, monkeypatch):
     out = tmp_path / "out"
     out.mkdir()
     sig = {"provider": "claude", "effort": "low"}
-    (out / "claude-sonnet-5__annapolis.json").write_text(json.dumps({
+    (out / "claude-sonnet-5-effort-low__annapolis.json").write_text(json.dumps({
         "model": "claude-sonnet-5", "city": "annapolis", "signature": sig,
         "detections": {"p1": []}}), encoding="utf-8")
 
     written, skipped, partial, collisions = _fake_export(
         monkeypatch, out, sig=sig, detections={"p1": [[0.1, 0.2, None]]})
     assert collisions == [] and len(written) == 1
+
+
+def test_a_pinned_leg_publishes_under_its_registry_name_without_being_told():
+    """--publish-as used to be the only thing standing between a pinned leg and the
+    bare model id. Forgetting it wrote claude-opus-5__annapolis.json, which collides
+    with no existing file, so the overwrite guard stayed quiet and it surfaced only
+    later as a file belonging to no registered leg. The registry knows the name."""
+    cargs = em._compare_args(".model_cache")
+    cargs.claude_effort = "high"
+    assert em.publication_name("claude:claude-opus-5", cargs) == "claude-opus-5-effort-high"
+    cargs.claude_effort = "low"
+    assert em.publication_name("claude:claude-opus-5", cargs) == "claude-opus-5-effort-low"
+    # An explicit flag still wins -- it is how an unregistered leg gets a name.
+    assert em.publication_name("claude:claude-opus-5", cargs, "other") == "other"
+    # And an unregistered spec falls back to its plain label rather than raising:
+    # naming a file is not the place to enforce registration.
+    assert em.publication_name("gemini:gemini-9-turbo", cargs) == "gemini-9-turbo"
 
 
 def test_publish_as_refuses_more_than_one_spec(tmp_path):

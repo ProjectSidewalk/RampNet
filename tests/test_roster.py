@@ -93,12 +93,30 @@ def test_no_doc_still_hardcodes_the_old_roster_count():
     and passes while the docs are still wrong.
     """
     import re
-    stale = ("all 8", "8-model roster", "seven-model roster", "all 8 model groups",
-             "8 model groups")
-    for name in ("model_comparison.md", "replication.md", "curb_ramp_data_sourcing.md"):
+    # Each entry is a phrase that was actually in the docs and wrong. Two properties
+    # matter and neither is obvious:
+    #  * No entry may be a prefix of another -- "all 8" and "all 8 model groups"
+    #    both shipped, and the shorter can never fail independently, so the longer
+    #    reads as coverage it does not add.
+    #  * The count has to be bound to the roster, or the guard fires on perfectly
+    #    good prose. "all 8" alone would reject a future "all 8 splits"; the splits
+    #    are a different axis and there are ten of them.
+    stale = (r"all 8 (?:model|challenger|zero-shot)", r"all 8(?! splits| cities)",
+             r"8-model roster", r"seven-model roster", r"8 model groups")
+    docs = ("model_comparison.md", "replication.md", "curb_ramp_data_sourcing.md")
+    for name in docs:
         text = re.sub(r"\s+", " ", (REPO / "docs" / name).read_text("utf-8"))
         for phrase in stale:
-            assert phrase not in text, f"docs/{name} still says {phrase!r}"
+            hit = re.search(phrase, text)
+            assert hit is None, f"docs/{name} still says {hit.group(0)!r}"
+    # The analysis README carries per-model prose and this PR edits it, so it is in
+    # scope for the same rot even though it is not under docs/.
+    readme = REPO / "scripts" / "analysis" / "README.md"
+    if readme.exists():
+        text = re.sub(r"\s+", " ", readme.read_text("utf-8"))
+        for phrase in stale:
+            hit = re.search(phrase, text)
+            assert hit is None, f"scripts/analysis/README.md still says {hit.group(0)!r}"
 
 
 # --------------------------------------------------------------------------- #
@@ -208,7 +226,7 @@ def test_every_registered_leg_has_published_detections():
     """The other direction. An entry with no files is a model someone meant to run,
     or a name that drifted from the filename it is supposed to predict."""
     missing = [roster.published_name(c) for c in roster.PUBLISHED
-               if not list(DETECTIONS.glob(roster.slug(roster.published_name(c)) + "__*.json"))]
+               if not list(DETECTIONS.glob(roster.published_filename(c, "*")))]
     assert not missing, "registered but nothing published: " + ", ".join(missing)
 
 
@@ -222,9 +240,9 @@ def test_each_published_file_names_the_leg_it_says_it_is():
     """The filename, the `published_as` recorded inside, and the registry all have to
     agree, or a file can be renamed into a different leg's identity."""
     for name in _published_files():
-        stem, _, _ = name.rpartition("__")
+        city = name.rpartition("__")[2][:-len(".json")]
         entry = next((c for c in roster.ROSTER
-                      if roster.slug(roster.published_name(c)) == stem), None)
+                      if roster.published_filename(c, city) == name), None)
         assert entry is not None, name
         payload = json.loads((DETECTIONS / name).read_text("utf-8"))
         assert payload["model"] == entry.label, name
@@ -319,9 +337,10 @@ def test_provider_defaults_match_compare_pys_parser():
     sys.path.insert(0, str(REPO / "scripts" / "model_comparison"))
     import compare  # noqa: E402
 
-    parser = compare.build_parser() if hasattr(compare, "build_parser") else None
-    if parser is None:
-        pytest.skip("compare.py builds its parser inline inside main()")
-    defaults = {a.dest: a.default for a in parser._actions}
+    # Deliberately not guarded by hasattr(): this test spent its whole life skipping
+    # because compare.py built its parser inline, so it read as coverage of the most
+    # load-bearing invariant here while asserting nothing. If build_parser goes away,
+    # this must fail, not skip.
+    defaults = {a.dest: a.default for a in compare.build_parser()._actions}
     for key, value in roster.PROVIDER_DEFAULTS.items():
         assert defaults[key] == value, key

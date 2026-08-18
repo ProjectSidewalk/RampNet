@@ -80,9 +80,11 @@ registry that is not zero-shot. They have run on all ten splits and are scored, 
 pre-registered #71 protocol in their own section further down — mixing a trained detector into
 the zero-shot tables would make "best challenger" mean two different things in one column.
 They also stay out of `SCORED_SPECS` for a mechanical reason worth knowing before promoting
-anything: that tuple is the default `--models` of `fp_taxonomy`, `null_recall` and
-`silent_witness`, and a `yolo:` spec carries a local checkpoint path, so promoting them would
-break those three scripts on any clone without the weights.
+anything: that tuple is the default `--models` of `fp_taxonomy` and `null_recall`, and a
+`yolo:` spec carries a local checkpoint path, so promoting them would break both on any clone
+without the weights. `silent_witness` is not in that list — it defaults to the frozen
+`WITNESS_POOL_46`, so the #46 human pass is unaffected by any promotion, which is what the
+freeze is for.
 
 ### Are gemini-3.7-flash's silent panoramas real, or lost responses? (#120 review)
 

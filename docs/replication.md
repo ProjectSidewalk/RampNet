@@ -84,7 +84,7 @@ without any cache is that each file's recorded signature still matches the leg t
 says it is: `test_each_published_file_names_the_leg_it_says_it_is`.
 
 **Keep this count current when a leg is added.** It drifted three times (61 → 68 at the São
-Paulo split, 68 → 78 at gemini-3.7-flash, 78 → 108 unremarked) before anyone noticed, and a
+Paulo split, 68 → 78 at gemini-3.7-flash, 78 → 108 unremarked — that one was the YOLO trio, see the table above — and 108 → 112 at the Claude legs) before anyone noticed, and a
 ledger that exists to keep the repo honest is the wrong document to let rot. It is now a
 test rather than a promise.
 

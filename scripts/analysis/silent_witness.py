@@ -50,17 +50,21 @@ from rampnet.detection_eval import PANO_SCALE_X, PANO_SCALE_Y, radius_sq_for  # 
 
 import miss_taxonomy as mt  # noqa: E402
 from miss_decomposition import US_SPLITS  # noqa: E402
-from fp_taxonomy import CHALLENGERS, _compare_args, scaled  # noqa: E402
+from fp_taxonomy import _compare_args, scaled  # noqa: E402
 
 # Sparse = a hit is evidence; dense = a hit is mostly coverage. Both come from the
 # measured densities in docs/model_comparison.md (1-4 boxes/pano at nulls 0.01-0.08,
 # versus the open detectors' 55-88), and the classification lives with the model in
-# rampnet/roster.py rather than in a second tuple here that had to be hand-synced.
-# The split is not a judgement call at the boundary: there is an order of magnitude
-# between the groups. Both are reported; only the sparse group feeds the headline, and
-# the dense group's excess is printed so that choice is checkable rather than asserted.
-SPARSE = roster.SPARSE
-DENSE = roster.DENSE
+# rampnet/roster.py rather than in a second tuple here. The split is not a judgement
+# call at the boundary: there is an order of magnitude between the groups. Both are
+# reported; only the sparse group feeds the headline, and the dense group's excess is
+# printed so that choice is checkable rather than asserted.
+#
+# There is deliberately no module-level SPARSE/DENSE here. This script's pool is
+# WITNESS_POOL_46 by default and whatever --models says otherwise, so a pair of
+# constants bound to the STANDING roster would grow every time a challenger was
+# added while the pool that actually feeds the headline stayed frozen -- naming, at
+# module scope, a set the script does not use. main() partitions its own pool.
 
 
 # --------------------------------------------------------------------------- #

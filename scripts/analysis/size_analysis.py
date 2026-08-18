@@ -22,6 +22,7 @@ warnings.filterwarnings("ignore")
 sys.path.insert(0, REPO)
 sys.path.insert(0, os.path.join(REPO, "scripts", "model_comparison"))
 
+from rampnet import roster  # noqa: E402
 from rampnet.detection_eval import (
     build_ground_truth, radius_sq_for, PANO_SCALE_X, PANO_SCALE_Y, _xy, prediction_confidence)
 from compare import load_bundle, DetectionCache, cache_key
@@ -33,8 +34,18 @@ R = math.sqrt(radius_sq_for())
 PRO = "gemini-3.1-pro-preview"
 BUCKETS = [(0, 12), (12, 20), (20, 32), (32, 50), (50, 80), (80, 1e9)]
 class Args:
-    gemini_model = PRO; qwen_model = "Qwen/Qwen3-VL-8B-Instruct"
-    qwen_coord_space = "auto"; tiling = "perspective"
+    """The build_detector namespace this script hands in.
+
+    Provider model ids come from the registry rather than being retyped: they feed
+    the detection cache signature, so a literal here that drifts from
+    PROVIDER_DEFAULTS does not crash, it silently misses every cached detection.
+    `gemini_model` is deliberately NOT the registry default -- this analysis is
+    pinned to the pro leg -- which is exactly why it is the one line worth stating.
+    """
+    gemini_model = PRO
+    qwen_model = roster.PROVIDER_DEFAULTS["qwen_model"]
+    qwen_coord_space = roster.PROVIDER_DEFAULTS["qwen_coord_space"]
+    tiling = "perspective"
 
 
 def geom(y):
