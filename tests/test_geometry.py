@@ -156,3 +156,31 @@ def test_crop_left_wraps_instead_of_clamping():
     """``gt_gallery.py`` clamped here, which is why the #130 duplicates survived review."""
     assert crop_left(10, 4096, 512) == 4096 - 246       # window starts before column 0
     assert crop_left(2048, 4096, 512) == 1792           # interior window is untouched
+
+
+# --- peak extraction at the seam -----------------------------------------------------
+
+def test_peaks_to_dets_keeps_peaks_next_to_the_seam():
+    """skimage's ``exclude_border`` defaults to True and must be turned OFF (#132).
+
+    Left at its default it drops every peak within ``min_distance`` of the array edge —
+    on a 1024-wide panorama heatmap that is a 3.5 deg blind strip either side of the
+    360 seam. This is an *extractor* setting, not a model property, and confusing the
+    two produced a spurious "the model cannot see the seam" result in #132 that survived
+    a full double-dissociation experiment before anyone checked the extractor.
+
+    ``stage_two/evaluate.py`` passes ``exclude_border=False``; this pins that
+    ``peaks_to_dets`` — which built every committed op_cache — agrees with it.
+    """
+    np = pytest.importorskip("numpy")
+    pytest.importorskip("skimage")
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "analysis"))
+    from threshold_sweep import peaks_to_dets
+
+    heat = np.zeros((512, 1024), dtype=np.float32)
+    heat[278, 7] = 1.0          # 7 columns from the seam — inside min_distance=10
+    heat[278, 519] = 1.0        # comfortably interior, as a control
+    xs = sorted(round(d[0] * 1024) for d in peaks_to_dets(heat, 0.30, 10))
+    assert xs == [7, 519], "a peak beside the seam was dropped by exclude_border"
