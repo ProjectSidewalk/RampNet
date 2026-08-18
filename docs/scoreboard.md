@@ -8,7 +8,7 @@ It is the companion to [`model_comparison.md`](model_comparison.md), not a repla
 That document is the comprehensive log: per-split tables in the order the splits were run,
 the mechanism behind every number, the negative results, the caveats, the harness
 self-validation. It is where you go to find out *why* Qwen-32B inverts on budapest. It is a
-bad place to find out *who wins*, because that answer is spread across ten tables in
+bad place to find out *who wins*, because that answer is spread across a dozen tables in
 chronological order rather than model order. Hence this page.
 
 Every number here is regenerated from committed data by
