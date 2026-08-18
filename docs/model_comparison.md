@@ -1175,6 +1175,14 @@ upsample can produce is on the order of 114 px and the 16 px floor drops nothing
 at 16 rather than recalibrated because it sits in the cache signature — changing it would
 orphan both arms' published detections to no effect.
 
+**That inertness is a property of 384×384, not of the floor, and it does not carry to the
+parity run below.** At 1024×1024 input the mask logits arrive at 256×256 and are upsampled
+only 4×, so the smallest component the upsample can produce is about **16 px — exactly the
+floor**. `min_area_px=16` is therefore marginally *binding* at parity where it was provably
+inert at 384, and it is the one setting shared by both that does not mean the same thing in
+each. It was still left untouched, because changing it would confound the single variable the
+parity run exists to isolate.
+
 The **rig** is the identical six-view one every other tiled leg uses
 (`equirect_tiling.default_views()`: 6 yaws, 90°×90°, pitch −30°, 1024×1024, source capped at
 4096) — but **the rig is not what the model sees, and that is a real caveat on the headline
@@ -1190,10 +1198,10 @@ upgrade could have changed every mask under an unchanged cache key.
 What changed here: `--vistas-input-size H W` now overrides the processor, and
 `--vistas-revision` pins the checkpoint. Both are recorded in the signature **only when set**,
 so the published richmond detections keep their key and nothing already paid for is orphaned —
-and a future run at parity is a distinct, self-describing cache entry. **The parity run has not
-been done**, so every number in this section is at 384×384 and the gap to RampNet is an upper
-bound on this arm, not a measurement of it at equal input. That is the first thing to try if
-this arm is ever revisited.
+and a future run at parity is a distinct, self-describing cache entry. **The parity run has now
+been done** — see *Resolution parity* below. Every number in the table that follows is still at
+384×384, and the parity numbers are reported separately rather than replacing them, because the
+384 run is the one whose detections are published.
 
 Note for anyone reading #126: that issue says `scripts/box_gallery.py` already cuts
 perspective views. **It does not** — its `--fov` sizes an axis-aligned crop of the
@@ -1281,6 +1289,114 @@ Against the *untrained* field the AP point still stands — the chat VLMs above 
 AP at all, emitting boxes without scores, so they are pinned at one operating point and cannot
 be tuned, and a tunable model at AP 0.513 is a more useful starting point than an untunable one
 at F1 0.664.
+
+#### Resolution parity: the handicap was real, and it was not the problem (2026-08-18)
+
+Everything above is measured at 384×384. This section removes that handicap and changes one
+variable. Read fixed in advance and posted to #126 **before** the scored output was read: the
+gap closes by **< 0.05 F1** ⇒ *"transfers but does not compete"* stands and this stays a
+one-split arm; more than that ⇒ the write-up is revised and 3–4 further splits get costed.
+
+Run on **makelab2 (A40, fp16, transformers 5.15.0 / torch 2.13.0+cu130)**, in a scratch worktree
+with a private `--cache-dir`, so nothing here shares a cache directory with the published
+detections. RampNet is re-run alongside as the comparability check and **reproduces its committed
+richmond row to every digit** (0.964 / 0.768 / 0.855, AP 0.763, 238/9/72).
+
+| arm | model input | P | R | F1 | AP | tp/fp/fn |
+|---|---|---:|---:|---:|---:|---|
+| rampnet (committed, reproduced) | — | 0.964 | 0.768 | **0.855** | 0.763 | 238/9/72 |
+| vistas curb-cut — **published** (RTX 3070) | 384×384 | 0.411 | 0.697 | 0.517 | 0.513 | 216/309/94 |
+| vistas curb-cut — **same-env control** (A40) | 384×384 | 0.411 | 0.694 | 0.516 | 0.510 | 215/308/95 |
+| vistas curb-cut — **parity** (A40) | **1024×1024** | 0.383 | **0.884** | **0.534** | **0.649** | 274/442/36 |
+
+At conf ≥ 0.30: control **0.419 / 0.694 / 0.522** (published: 0.419 / 0.697 / 0.524), parity
+**0.384 / 0.884 / 0.536**. Note the threshold barely bites at parity — it removes 3 false
+positives against 10 at 384 — because the higher-resolution masks are more confident.
+
+**The env control was not in the original plan and it earns its place.** The published run was on
+Jon's RTX 3070 on an older `transformers`; makelab2 is a major version on. Since the
+`transformers` version is *not* in the detection signature — a hazard this document already flags
+— parity-vs-published would have differed in **two** things. Re-running 384 in the parity env
+separates them: it lands within **one detection out of 523** of the published run (215/308/95 vs
+216/309/94, F1 0.516 vs 0.517). So the 4.x→5.15 jump is benign for this checkpoint, the residual
+is fp16 kernel nondeterminism rather than a version break, and **the whole parity delta is
+attributable to input size.** That also retires the "an upgrade could have changed every mask
+under an unchanged cache key" worry for this arm, as a measurement rather than an assurance.
+
+**The decision rule returns "stands", and it is not close.** Against the same-env control, parity
+moves F1 **0.516 → 0.534, +0.018** — about a third of the 0.05 bar. RampNet's lead goes 0.339 →
+**0.321**. One split, and no case for costing more.
+
+**But the mechanism underneath that flat F1 is the actual finding, and it is not the one the
+caveat predicted.** The handicap was real and it was large — it was just almost entirely a
+*recall* handicap:
+
+- **Recall 0.694 → 0.884 (+0.190).** Misses fall from 95 to **36**, a 62% reduction. At parity
+  this arm **out-recalls RampNet** (0.884 vs 0.768) while remaining a model that has never seen a
+  curb ramp label of ours.
+- **AP 0.510 → 0.649 (+0.139)**, a 27% relative gain — the ranking, not just the operating point,
+  is substantially better.
+- **Precision 0.411 → 0.383 (−0.028)**: slightly *worse*. False positives rise 308 → 442, faster
+  than true positives rise 215 → 274.
+
+So resolution was buying recall the whole time, and F1 stayed flat only because precision is the
+binding constraint and resolution does nothing for it. **That sharpens rather than softens the
+conclusion #126 was built to test.** The original framing — *the concept is findable, the
+discrimination is not* — was stated against OWLv2 and Grounding DINO; it now holds against the
+supervised arm at equal input too, and it is no longer confounded with how many pixels the model
+was given. Vistas' curb-cut labels **find** curb ramps on deployment panoramas better than our own
+model does; what they cannot do is tell a curb ramp from the things that look like one, which is
+exactly the failure the RampNet paper predicted when it rejected this class as a supervision
+source for being *"overly broad"*.
+
+**What this changes above.** Two claims in this section were stated at 384 and do not survive
+parity unqualified:
+
+- The AP comparison against the YOLO baseline said richmond AP **0.748** (`y11x_pano_h200`),
+  **0.724** (`y11l_pano`) and **0.536** (`y26_pano`) are *"all above 0.513"*. At parity the arm is
+  at **0.649**, so **`y26_pano` no longer clears it** — somebody else's labels for a neighbouring
+  class, at equal input, beat one of our own three YOLO arms on AP. The two stronger YOLO arms
+  still lead, so the sentence's conclusion holds; its arithmetic does not.
+- "Best *zero-training* model on AP" is unchanged and strengthened: 0.649 against OWLv2's 0.104.
+
+**Caveats that travel with these numbers.** `min_area_px=16` is inert at 384 but sits exactly at
+the smallest achievable blob at 1024 (see above), so the two rows do not share that setting's
+meaning even though they share its value. The parity detections are **deliberately not
+published**: `--vistas-input-size` does not change the arm's label, so exporting them would
+overwrite `mask2former-vistas-curb-cut__richmond.json` — publishing them needs a distinct
+published name (the `--publish-as` pattern from #123), which was out of scope here. And this is
+still **richmond only**.
+
+**The follow-up this result argues for is not more splits.** It is complementarity: at parity
+this arm misses **36** ramps where RampNet misses **72**, so the question worth asking is how much
+of RampNet's miss set a free, zero-training model already covers. That is a recall-first question
+and it bears directly on the north star; it is scoring-side work on detections that are already
+cached, and it is not costed here.
+
+##### Reproducing it
+
+```bash
+# parity (the measurement)
+python scripts/model_comparison/compare.py benchmark/richmond \
+    --models rampnet,vistas:curb-cut --vistas-input-size 1024 1024
+
+# same-env control (the attribution) -- default 384, no override
+python scripts/model_comparison/compare.py benchmark/richmond --models vistas:curb-cut
+
+# either, re-scored at the deployment threshold (free, reads the cache)
+python scripts/model_comparison/compare.py benchmark/richmond \
+    --models vistas:curb-cut --vistas-input-size 1024 1024 --op-threshold 0.30
+```
+
+Cost, measured rather than guessed, because the estimate going in was 3–4× and it was wrong in
+the cheap direction: **the full 124-pano parity run takes 3m38s** on one A40, and the GPU forward
+goes 0.078 s → 0.092 s per view, only **1.17×**. Swin's windowed attention scales far better than
+pixel count, and the documented "2.3 s/view" is dominated by reprojection and CPU work, not the
+encoder. Peak GPU memory is 1.64 GB. Verified before the run rather than assumed: the override
+reaches the model — `pixel_values` (1, 3, 384, 384) → (1, 3, 1024, 1024) and mask logits
+(1, 100, 96, 96) → (1, 100, 256, 256) — which a silently no-opping `processor.size` assignment on
+a new major version would not have done, and which would have made "parity" a second 384 run
+wearing a different cache key.
 
 Two mechanisms, both measured rather than assumed:
 
