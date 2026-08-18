@@ -1463,7 +1463,7 @@ degradation begins earlier than this says, never later.**
 > **Both halves of that caveat have since moved — see §5j.** The *realised* residual, with the crop
 > model in the loop, is measurable from the published dataset with no checkpoint at all; and the
 > round-2 checkpoint itself is not lost, only outside the repo (klone,
-> `/gscratch/makelab/jsomeara/RampNet/stage_one/crop_model/ps_and_manual_model/best_model.pth`). Two further assumptions travel with it:
+> `/gscratch/makelab/jonf/rescue_jsomeara_rampnet/RampNet/stage_one/crop_model/ps_and_manual_model/best_model.pth`). Two further assumptions travel with it:
 error direction is taken as uniformly random (defensible for Denver, whose registration check found
 no systematic shift, but *not* for a city with a datum error), and ranges come from the benchmark
 bundles rather than from Denver panoramas.
@@ -1786,10 +1786,19 @@ Two consequences for the gate:
   far too strict.
 - **The round-2 checkpoint is not missing.** §5g records it as "not in the repo", which is true but
   was read as unavailable. It is on klone at
-  `/gscratch/makelab/jsomeara/RampNet/stage_one/crop_model/ps_and_manual_model/best_model.pth`
-  (360 MB, 2025-06-12, readable), alongside `ps_model.pth` and the Stage 2 checkpoint. **The
-  empirical arm §5g deferred is therefore runnable**, which matters for the one thing this analysis
-  structurally cannot do: measure a city that is not already in the corpus.
+  `/gscratch/makelab/jonf/rescue_jsomeara_rampnet/RampNet/stage_one/crop_model/ps_and_manual_model/best_model.pth`
+  (360 MB, 2025-06-12, sha256 `3fc00ad6b9ac2768787b0262588b9bfa71ddd01d9f51109974e6ae377b9b520a`),
+  alongside `ps_model.pth` and the Stage 2 checkpoint. **The empirical arm §5g deferred is therefore
+  runnable**, which matters for the one thing this analysis structurally cannot do: measure a city
+  that is not already in the corpus.
+
+  **Path updated 2026-08-18.** This previously cited the original under
+  `/gscratch/makelab/jsomeara/`, which is a departed user's directory being retired as part of the
+  `/gscratch/makelab` cleanup (that volume hit 96% of its 1,000,000-inode cap). The rescue mirror
+  above is in Jon's own directory, is a complete copy of `jsomeara/RampNet` (19 GB, 31,158 files),
+  and the checkpoint is byte-identical to the original — the sha256 above was verified against both.
+  A compressed, separately verified copy of the whole original directory also lives on makelab2 at
+  `/m-make2/make2/archive_klone_makelab/jsomeara/`; see the README there.
 
 **The honest limit on the whole idea.** Running Stage 1 on a candidate and judging the output cannot
 separate "the coordinates are wrong" from "there is no ramp there" — both yield an empty crop — and
