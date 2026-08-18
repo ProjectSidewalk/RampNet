@@ -71,13 +71,21 @@ Per-step, for adding a city to this benchmark:
 | Export the native-res bundle (`panos/` + `records.jsonl`) | auto-labeler | `scripts/export_benchmark.py` |
 | GT-verify a sample → `verdicts.json` | **RampNet** | `scripts/gt_gallery.py benchmark/<city>` |
 | Score P/R + Wilson CIs + threshold sweep | **RampNet** | `scripts/score_validation.py` / `rampnet.validation` |
-| Add the split to the HF benchmark dataset | **RampNet** | `scripts/build_benchmark_dataset.py` |
+| Add the split to the HF benchmark dataset | **RampNet** | `scripts/export_benchmark.py` — `build` → `verify` → `push` |
 
-⚠️ The last step lags: `build_benchmark_dataset.py` is still hardcoded to `bend` + `richmond`, so
-clovis, morgantown, annapolis, paterson, gainesville, budapest, and sao_paulo are **not** in the published dataset — and it does not yet carry
-`review_notes` or per-pano `note` into the parquet rows or the dataset card. Whoever finishes #21
-should make the caveats travel with the data, since that is the audience most likely to read a
-number with no idea how it was labeled.
+⚠️ **Two different tools share the name `export_benchmark.py`.** The bundle step above is the
+*auto-labeler's* (a run's results out to `benchmark/<city>/`); the publish step is *RampNet's*
+(the whole benchmark up to the Hub as Parquet). Adding a city means adding it to that script's
+`BENCHMARK_SPLITS` allowlist, or the package silently omits it.
+
+All nine splits are published, four configs each — `records`, `native`, `4096x2048`, `galleries`
+(#21, verified against the live repo 2026-08-17). `scripts/build_benchmark_dataset.py` is the
+two-city predecessor and publishes nothing; don't run it.
+
+What the published copy still does not carry is the reviewer's own commentary: `review_notes` and
+per-pano `note` stay in git here rather than travelling into the parquet rows or the dataset card,
+and Bend's four training-overlap panoramas (below) are unflagged there. Both are tracked in #127 —
+the caveats should reach the audience that runs `load_dataset` and never opens this repo.
 
 The GT gallery and scorer are **canonical in RampNet** (`scripts/gt_gallery.py`,
 `rampnet/validation.py` — decoupled from any imagery source, no network). The auto-labeler
@@ -135,6 +143,16 @@ Clovis is below the other cities on both metrics because it is 100% soft, 2018-e
 360 imagery, where richmond mixes in the sharper NCTECH iSTAR Pulsar (camera provenance is in the
 records, added in #50 and backfilled for morgantown/budapest in 2026-07-25). Note bend samples only
 10 empty panos where the others take 25.
+
+**Bend overlaps the training set by four panoramas**, which is the price of it being one of the
+paper's three training cities. An exact-id check on 2026-07-22 found `6WC0hdAYRsSAcluKSs5iRg`,
+`9kW9cxpuj7q8DMzf-ClrQQ`, `DJ8Zp111zu6KnMZz-0PHgQ` and `VgWpqFkTwCIROvM0z-DkOw` — 4 of bend's 110
+reviewed panos — in `rampnet-dataset`'s train/val splits. Dropping them (measured 2026-08-18 with
+`score_validation.py`) moves the headline **0.954 / 0.758 → 0.956 / 0.753** and the unbiased subset
+**0.972 / 0.738 → 0.976 / 0.731**: inside the Wilson intervals both ways, so nothing here rests on
+it. Bend is the only split where this can happen — the other three GSV splits are not training
+cities and Mapillary ids are a different id space — but that is a prediction, not a measurement,
+and the published dataset carries no `train_overlap` column to filter on yet (#127).
 
 **Precision tracks the camera across the US Mapillary splits**, now that every split carries
 `camera_make`/`camera_model`: clovis (100% GoPro Fusion, 2018) 0.914 → richmond (62% iSTAR Pulsar,
@@ -438,6 +456,7 @@ benchmark/manual_gold/
   gt_source.json    points at manual_labels/ (GT = YOLO box centers, no ignore points,
                     every pano recall-confirmed)
   records.jsonl     pano metadata + RampNet detections (built by the two scripts below)
+  bundle_meta.json  which source built the imagery, and when (committed)
   panos/            imagery from the HF test split (git-ignored, like every split)
 ```
 
@@ -445,11 +464,36 @@ No verdicts means `scripts/score_validation.py` and `scripts/gt_gallery.py` do *
 here; the split is scored by the model-comparison harness only:
 
 ```
-python scripts/fetch_manual_gold.py --audit      # id membership/overlap audit, no download
-python scripts/fetch_manual_gold.py              # imagery (HF test split, ~44 GB; run on Hyak)
+python scripts/fetch_manual_gold.py --audit       # id membership/overlap audit, no download
+python scripts/fetch_manual_gold.py --images-only # imagery for THIS machine (run on Hyak)
 python scripts/export_gold_records.py --checkpoint <stage2.pth>   # RampNet detections + gate
 python scripts/model_comparison/compare.py benchmark/manual_gold --models rampnet --op-threshold 0.55
 ```
+
+`--images-only` is the fetch to run on a fresh clone, and `scripts/run_gold_bundle.slurm`
+runs it for you. The bundle mixes two lifecycles: `records.jsonl` and `bundle_meta.json` are
+**committed** (the records carry the exported detections), while `panos/` is git-ignored, so
+the imagery is normally the only missing piece. `--images-only` fetches it and writes nothing
+committed; it skips panos already on disk that match `records.jsonl`, so a preempted run
+resumes rather than starting over. A bare `python scripts/fetch_manual_gold.py` is the
+*first* build only — with `records.jsonl` present it refuses, and `--force` would rebuild the
+records and **discard the detections**.
+
+Two caveats travel with that fetch:
+
+- **Cost, measured 2026-08-14 on makelab2:** the `hf` path goes through `load_dataset`, which
+  downloaded and arrow-materialized **all three splits, ~2.5 h end to end**, despite
+  `split="test"` — not the "~44 GB test split only" this section previously stated. A
+  shard-scoped fetch via `HfFileSystem` + pyarrow (what `--audit` already does) would cut
+  that; it has not been done, deliberately, to keep the change away from the
+  byte-fidelity-sensitive read path.
+- **No content hash yet.** Every city split carries `benchmark/<city>/imagery_manifest.json`
+  (sha256 per pano, from `scripts/analysis/imagery_manifest.py`); `manual_gold` does **not**,
+  because nobody has run the writer on a machine holding all 1,000 panos. The fetch checks
+  the manifest when it exists and otherwise prints the command that writes it, so until then
+  this split's imagery is verified by `bundle_meta.json`'s recorded source and each pano's
+  pixel size in `records.jsonl` — weaker than the other nine. Writing that manifest is the
+  open item.
 
 The exporter ends with a reproduction gate against the published gold-set numbers
 (P 0.949 / R 0.873 @ conf >= 0.55, TTA). Read the manual-gold section of

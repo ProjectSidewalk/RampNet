@@ -93,6 +93,30 @@ Published beside the data rather than discovered later:
 So **43.23% never became a training label**, mostly because no panorama resolved for the location
 or the install date failed the predates-capture check.
 
+### Why this says 276,071 and the paper says 276,615
+
+Table 1 of the paper totals **276,615** across these three cities (NYC 217,680, Portland 45,324,
+Bend 13,611) — **544 more than the files published here**, as Bend −254, Portland −289, NYC −1.
+If you are comparing the paper against this download, that is the difference you will find, and it
+is between Table 1 and the files rather than a loss anywhere in the pipeline. Three things are
+checkable from this repository:
+
+- **Nothing is dropped on read.** Every Bend and Portland feature is a `Point`, and every NYC row
+  parses as `POINT(...)`; all 276,071 records survive parsing.
+- **These are the files the paper's run consumed.** Every row of `manifests/all_locations.csv` —
+  the run's own output, recovered rather than regenerated — resolves to one of them: 276,071 /
+  276,071, none unmatched, with per-city attribution equal to the per-file counts exactly.
+- **They are an earlier state of the same inventories, not a re-download.** Both drifting cities
+  have *grown* since the paper (measured 2026-07-31: Bend 14,805, Portland 46,101), so a fresh
+  download today is **larger** than Table 1 while these are smaller. NYC is effectively frozen and
+  differs by a single record.
+
+What is **not** established is where Table 1's exact figures came from. The likeliest reading is
+counts read from each city's portal at survey time rather than from the downloaded files, but that
+is a hypothesis: the two deltas correspond to roughly three and five months of each city's own
+measured growth, which is the right order of magnitude but not one consistent date. We state it as
+unresolved rather than quietly reconciled. **Quote 276,071 for anything derived from these files.**
+
 ## Usage
 
 This is a set of source documents, not a row-iterable dataset — `load_dataset()` will not work.

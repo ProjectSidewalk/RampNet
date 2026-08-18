@@ -374,24 +374,64 @@ def scan_index(out):
     return index
 
 
-def save_index(out, index):
-    """Record what this package contains, so a later partial rebuild cannot forget the rest."""
-    out.mkdir(parents=True, exist_ok=True)
-    merged = load_manifest(out)
-    merged.update(dict((config, sorted(set(cities))) for config, cities in index.items()))
-    (out / MANIFEST_NAME).write_text(json.dumps(
-        {"configs": merged, "git_commit": git_commit(),
+def config_bytes(out):
+    """{config: total parquet bytes} for what is on this disk right now."""
+    sizes = {}
+    for path in (Path(out) / "data").glob("*/*.parquet"):
+        sizes[path.parent.name] = sizes.get(path.parent.name, 0) + path.stat().st_size
+    return sizes
+
+
+def write_manifest(out, configs, sizes):
+    Path(out).mkdir(parents=True, exist_ok=True)
+    (Path(out) / MANIFEST_NAME).write_text(json.dumps(
+        {"configs": configs, "sizes": sizes, "git_commit": git_commit(),
          "written_at": datetime.date.today().isoformat()}, indent=2), encoding="utf-8")
 
 
-def load_manifest(out):
+def save_index(out, index):
+    """Record what this package contains, so a later partial rebuild cannot forget the rest."""
+    merged = load_manifest(out)
+    merged.update(dict((config, sorted(set(cities))) for config, cities in index.items()))
+    # Sizes travel with the config list for the same reason: the card advertises a total, and a
+    # partial rebuild only holds its own configs on disk. Record each rebuilt config's byte total
+    # so the next card can add back the ones it did not touch. See package_bytes().
+    sizes = load_sizes(out)
+    on_disk = config_bytes(out)
+    sizes.update(dict((config, on_disk[config]) for config in index if config in on_disk))
+    write_manifest(out, merged, sizes)
+
+
+def _manifest_field(out, field):
     path = Path(out) / MANIFEST_NAME
     if not path.is_file():
         return {}
     try:
-        return json.loads(path.read_text(encoding="utf-8")).get("configs", {})
+        return json.loads(path.read_text(encoding="utf-8")).get(field, {})
     except ValueError:
         return {}
+
+
+def load_manifest(out):
+    return _manifest_field(out, "configs")
+
+
+def load_sizes(out):
+    return _manifest_field(out, "sizes")
+
+
+def package_bytes(out, index):
+    """Total parquet bytes of the *published* package, not merely of what this run rebuilt.
+
+    render_card summed out.rglob("*.parquet"), which is right for a full build and wrong for every
+    partial one: re-pushing one config advertised that config as the whole dataset -- `galleries`
+    alone would have published "0.40 GB" over the 11.41 GB actually on the Hub. That is the same
+    hole as the config list, one field over, so it closes the same way. Configs present on this
+    disk are authoritative for their own size; the rest come from the manifest.
+    """
+    sizes = load_sizes(out)
+    sizes.update(config_bytes(out))
+    return sum(size for config, size in sizes.items() if config in index)
 
 
 def load_index(out, allow_partial=False):
@@ -446,7 +486,7 @@ def split_date_range(benchmark, cities):
 
 def render_card(out, benchmark, repo_id, index):
     cities = sorted(set(sum(index.values(), [])))
-    total = sum(f.stat().st_size for f in out.rglob("*.parquet"))
+    total = package_bytes(out, index)
     card_text = TEMPLATE.read_text(encoding="utf-8").format(
         configs_yaml=configs_yaml(index),
         git_commit=git_commit(),
@@ -664,15 +704,53 @@ def push(args):
     print("Pushing {} to {}".format(out, args.repo_id))
     api.create_repo(repo_id=args.repo_id, repo_type="dataset",
                     private=args.private, exist_ok=True)
+    # upload_folder adds and overwrites; it never deletes, so a partial --out re-pushes only the
+    # configs it holds and leaves the rest of the repo alone. The message must then say what this
+    # push actually carried, rather than the first publication's fixed wording.
     api.upload_folder(repo_id=args.repo_id, repo_type="dataset", folder_path=str(out),
-                      commit_message="Add benchmark panoramas (native + 4096x2048) and A/B galleries")
+                      commit_message=args.message)
     print("Done: https://huggingface.co/datasets/{}".format(args.repo_id))
+
+
+def adopt_index(siblings):
+    """(configs, sizes) from a published repo's file listing. Split out so it is testable."""
+    configs, sizes = {}, {}
+    for name, size in siblings:
+        parts = name.split("/")
+        if len(parts) != 3 or parts[0] != "data" or not parts[2].endswith(".parquet"):
+            continue
+        config = parts[1]
+        configs.setdefault(config, []).append(parts[2][: -len(".parquet")])
+        sizes[config] = sizes.get(config, 0) + (size or 0)
+    return dict((c, sorted(set(s))) for c, s in configs.items()), sizes
+
+
+def adopt(args):
+    """Write a manifest for a package that is already on the Hub.
+
+    build_manifest.json postdates the first publication of rampnet-benchmark, so the earliest
+    partial rebuild has nothing to union against and `card` refuses -- correctly, but with no way
+    forward short of rebuilding 11.41 GB to change one config. This reads the published repo's own
+    listing, which is the only authority on what is actually up there, and writes the manifest a
+    later `build` merges into. Run it once against an --out you are about to rebuild into.
+    """
+    from huggingface_hub import HfApi                # imported late: not needed to build or verify
+    out = Path(args.out)
+    info = HfApi().repo_info(args.repo_id, repo_type="dataset", files_metadata=True)
+    configs, sizes = adopt_index([(s.rfilename, s.size) for s in info.siblings])
+    if not configs:
+        sys.exit("error: {} publishes no data/<config>/<split>.parquet".format(args.repo_id))
+    write_manifest(out, configs, sizes)
+    for config in sorted(configs):
+        print("{:<12} {:>2} splits {:>15,} bytes".format(
+            config, len(configs[config]), sizes[config]))
+    print("{:,} bytes total -> {}".format(sum(sizes.values()), out / MANIFEST_NAME))
 
 
 def main():
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("mode", choices=["build", "verify", "records", "card", "push"])
+    parser.add_argument("mode", choices=["build", "verify", "records", "card", "push", "adopt"])
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--benchmark", type=Path, default=REPO_ROOT / "benchmark",
                         help="repo benchmark/ dir; reads <city>/panos/")
@@ -682,6 +760,8 @@ def main():
                         help="directory holding <city>_incremental_fp/ PNG crops")
     parser.add_argument("--repo-id", default="projectsidewalk/rampnet-benchmark")
     parser.add_argument("--private", action="store_true")
+    parser.add_argument("--message", default="Add benchmark panoramas (native + 4096x2048) and A/B galleries",
+                        help="push: the Hub commit message; say what this push carried")
     parser.add_argument("--push", action="store_true",
                         help="with `card`: upload only README.md")
     parser.add_argument("--allow-partial", action="store_true",
@@ -690,7 +770,7 @@ def main():
                         help="verify: pass panoramas that no imagery_manifest.json pins")
     args = parser.parse_args()
     {"build": build, "verify": verify, "records": records,
-     "card": card, "push": push}[args.mode](args)
+     "card": card, "push": push, "adopt": adopt}[args.mode](args)
 
 
 if __name__ == "__main__":
