@@ -155,6 +155,23 @@ def percentile_rank(population, x):
     return (below + 0.5 * ties) / len(population)
 
 
+def partition_check(band_rows, n_far, n_far_silent):
+    """Raise unless the band table decomposes the whole far field.
+
+    A band table is a *decomposition*, so its rows must sum to the population the
+    section around it quotes. Enforced rather than eyeballed because the failure is
+    invisible in the output: a dropped row just makes a column smaller, and the
+    only tell is that a total two paragraphs away disagrees. That is exactly how
+    the [40, 150) half-open top band shipped, taking 2 GT and 1 silent miss with it.
+    """
+    gt = sum(b["n_gt"] for b in band_rows.values())
+    sil = sum(b["silent"] for b in band_rows.values())
+    if (gt, sil) != (n_far, n_far_silent):
+        raise ValueError(f"bands do not partition the far field: {gt}/{n_far} GT, "
+                         f"{sil}/{n_far_silent} silent — see band_of()")
+    return gt, sil
+
+
 def row_key(row):
     """The identity a row shares with the witness list and the gallery manifest."""
     return (row["city"], row["pano"], round(float(row["x"]), 6),
@@ -357,12 +374,10 @@ def main(argv=None):
     # The bands must partition the far field, or the table above quietly reports a
     # smaller population than the section it sits in. They did not, until the top
     # band was closed at 150 m — see band_of().
-    banded = sum(b["n_gt"] for b in band_rows.values())
-    banded_sil = sum(b["silent"] for b in band_rows.values())
-    if (banded, banded_sil) != (len(far), len(far_silent)):
-        raise SystemExit(
-            f"bands do not partition the far field: {banded}/{len(far)} GT, "
-            f"{banded_sil}/{len(far_silent)} silent — see band_of()")
+    try:
+        banded, banded_sil = partition_check(band_rows, len(far), len(far_silent))
+    except ValueError as exc:
+        raise SystemExit(str(exc))
     print(f"{'':>12} {banded:>6} {'':>8} {banded_sil:>8}   <- sums to the "
           f"{len(far)} far GT / {len(far_silent)} silent above")
 

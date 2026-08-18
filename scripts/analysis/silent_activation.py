@@ -85,6 +85,10 @@ NULL_SEED = 20260731
 ABSENT_MAX = 0.01
 PEAK_FLOOR = 0.05
 
+# How wide a zone around the site the null refuses to draw from, in match radii.
+# 2 R is the first distance at which a draw's window cannot touch the site's.
+NULL_EXCLUDE_RADII = 2.0
+
 # The heatmap grid IS the matcher's scaled space (PANO_SCALE_X x PANO_SCALE_Y =
 # 1024 x 512), asserted at runtime so a future resolution change cannot silently
 # desynchronize the two.
@@ -157,6 +161,26 @@ def nearest_peak(preds, x, y):
     return best, score
 
 
+def null_azimuths(x, rng, trials, exclude):
+    """``trials`` random azimuths, none within ``exclude`` of ``x`` on the wrapped axis.
+
+    Split out because the rejection is the whole point of the null and was
+    otherwise untestable: a draw whose window overlaps the site's own would read
+    the site's bump back as "chance", which would flatten exactly the sparse-heatmap
+    case this analysis exists to detect. Rejection resampling, so the RNG is
+    consumed one draw at a time and the stream is unchanged by this extraction —
+    the committed artifact stays reproducible.
+    """
+    xs = []
+    while len(xs) < trials:
+        nx = rng.random()
+        dx = abs(nx - x)
+        if min(dx, 1.0 - dx) < exclude:
+            continue
+        xs.append(nx)
+    return xs
+
+
 def null_percentile(heat, x, y, rng, trials=NULL_TRIALS, radius_sq=None):
     """``(act, percentile, null_med, null_p95)`` of the site's radius-max vs its pano.
 
@@ -172,15 +196,9 @@ def null_percentile(heat, x, y, rng, trials=NULL_TRIALS, radius_sq=None):
         radius_sq = radius_sq_for()
     act = radius_max(heat, x, y, radius_sq)
     W = len(heat[0])
-    exclude = 2.0 * (radius_sq ** 0.5) / W  # normalized column distance
-    draws = []
-    while len(draws) < trials:
-        nx = rng.random()
-        dx = abs(nx - x)
-        if min(dx, 1.0 - dx) < exclude:
-            continue
-        draws.append(radius_max(heat, nx, y, radius_sq))
-    draws.sort()
+    exclude = NULL_EXCLUDE_RADII * (radius_sq ** 0.5) / W  # normalized column dist
+    draws = sorted(radius_max(heat, nx, y, radius_sq)
+                   for nx in null_azimuths(x, rng, trials, exclude))
     below = sum(1 for d in draws if d < act)
     ties = sum(1 for d in draws if d == act)
     pct = (below + 0.5 * ties) / trials

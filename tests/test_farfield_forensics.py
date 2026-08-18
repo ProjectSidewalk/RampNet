@@ -137,6 +137,80 @@ def test_quartiles_are_ordered():
 
 
 # --------------------------------------------------------------------------- #
+# partition_check — the guard that would have caught the dropped rows
+# --------------------------------------------------------------------------- #
+def _bands(*pairs):
+    return {f"b{i}": {"n_gt": g, "silent": s} for i, (g, s) in enumerate(pairs)}
+
+
+def test_partition_check_passes_when_the_bands_sum():
+    assert ff.partition_check(_bands((10, 3), (5, 1)), 15, 4) == (15, 4)
+
+
+def test_partition_check_rejects_a_dropped_gt_row():
+    with pytest.raises(ValueError, match="do not partition"):
+        ff.partition_check(_bands((10, 3), (5, 1)), 16, 4)
+
+
+def test_partition_check_rejects_a_dropped_silent_miss():
+    # The real failure lost one silent miss and two GT, so either column alone must
+    # fail: a table can drop a miss while its GT total still looks right.
+    with pytest.raises(ValueError, match="do not partition"):
+        ff.partition_check(_bands((10, 3), (5, 1)), 15, 5)
+
+
+def test_partition_check_names_the_function_to_look_at():
+    with pytest.raises(ValueError, match="band_of"):
+        ff.partition_check(_bands((1, 0)), 2, 0)
+
+
+# --------------------------------------------------------------------------- #
+# row_key — the identity shared with the witness list and the gallery manifest
+# --------------------------------------------------------------------------- #
+def test_row_key_rounds_to_six_places_so_the_three_sources_agree():
+    a = ff.row_key({"city": "bend", "pano": "p", "x": 0.1234567, "y": 0.7654321})
+    b = ff.row_key({"city": "bend", "pano": "p", "x": 0.1234569, "y": 0.7654323})
+    assert a == b == ("bend", "p", 0.123457, 0.765432)
+
+
+def test_row_key_separates_cities_with_the_same_pano_and_point():
+    # label ids and pano-local coordinates are not unique across splits; the city
+    # is part of the identity, not decoration.
+    r = {"pano": "p", "x": 0.5, "y": 0.5}
+    assert ff.row_key({**r, "city": "bend"}) != ff.row_key({**r, "city": "clovis"})
+
+
+# --------------------------------------------------------------------------- #
+# stored_widths — the floor table's only input
+# --------------------------------------------------------------------------- #
+def test_stored_widths_is_empty_when_a_manifest_is_absent():
+    # The floor column degrades to "?" rather than crashing or inventing a width.
+    assert ff.stored_widths("no_such_city") == {}
+
+
+def test_stored_widths_returns_positive_ints_for_a_real_split():
+    widths = ff.stored_widths("bend")
+    assert widths and all(isinstance(w, int) and w > 0 for w in widths.values())
+
+
+# --------------------------------------------------------------------------- #
+# load_rated — the field filter that separates the two phases' populations
+# --------------------------------------------------------------------------- #
+@pytest.mark.skipif(
+    not os.path.exists(os.path.join(REPO, "benchmark", "miss_taxonomy_46",
+                                    "silent_gallery", "manifest.json")),
+    reason="committed gallery manifest not present")
+def test_load_rated_field_filter_partitions_the_fifty():
+    gallery = os.path.join(REPO, "benchmark", "miss_taxonomy_46")
+    far = ff.load_rated(gallery, field="far")
+    near = ff.load_rated(gallery, field="near")
+    every = ff.load_rated(gallery, field=None)
+    assert len(far) == 37 and len(near) == 13 and len(every) == 50
+    assert set(far) | set(near) == set(every)
+    assert not set(far) & set(near)
+
+
+# --------------------------------------------------------------------------- #
 # Integration — the committed populations the write-up quotes
 # --------------------------------------------------------------------------- #
 WITNESS = os.path.join(REPO, "analysis_out", "silent_witness.json")
@@ -240,3 +314,105 @@ def test_imagery_manifests_cover_every_rated_pano():
         widths = ff.stored_widths(v["city"])
         assert v["pano"] in widths, (v["city"], v["pano"])
         assert widths[v["pano"]] == v["source_width"]
+
+
+# --------------------------------------------------------------------------- #
+# The committed result JSON, and the numbers §0c quotes out of it
+#
+# Phase 0 reads only committed inputs, so it reproduces on CPU with no network —
+# which means the write-up's numbers can be pinned to a live re-run rather than to
+# a file somebody remembered to regenerate. If a cache, a manifest or a verdict
+# changes, these fail and the doc has to be re-derived. That is the point of them.
+# --------------------------------------------------------------------------- #
+RESULT_JSON = os.path.join(REPO, "analysis_out", "farfield_forensics.json")
+
+needs_result = pytest.mark.skipif(not os.path.exists(RESULT_JSON),
+                                  reason="committed result JSON not present")
+
+
+@pytest.fixture(scope="module")
+def committed_result():
+    with open(RESULT_JSON, encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+@needs_committed
+@needs_result
+def test_main_reproduces_the_committed_result_json_byte_for_byte(tmp_path):
+    # The strongest available statement about Phase 0: the artifact in the repo is
+    # what this code produces today, not what it produced once. Byte-for-byte
+    # rather than value-by-value, because the JSON writer pins LF explicitly and a
+    # platform that quietly wrote CRLF would still pass a value comparison.
+    out = tmp_path / "farfield_forensics.json"
+    assert ff.main(["--json-out", str(out)]) == 0
+    with open(RESULT_JSON, "rb") as fh:
+        assert out.read_bytes() == fh.read()
+
+
+@needs_result
+def test_the_band_table_0c_quotes(committed_result):
+    assert committed_result["bands"] == {
+        "18-25 m": {"n_gt": 395, "recall": pytest.approx(0.777, abs=5e-4),
+                    "silent": 25, "rated": 14, "visible": 12},
+        "25-40 m": {"n_gt": 226, "recall": pytest.approx(0.549, abs=5e-4),
+                    "silent": 32, "rated": 14, "visible": 13},
+        # 74 GT / 23 silent, not 72 / 22: the two rows clamped to exactly 150 m
+        # while below the horizon belong here, and a half-open top band dropped
+        # them out of every row of this table.
+        "40-150 m": {"n_gt": 74, "recall": pytest.approx(0.284, abs=5e-4),
+                     "silent": 23, "rated": 9, "visible": 9},
+        "clamp>=150": {"n_gt": 5, "recall": pytest.approx(0.200, abs=5e-4),
+                       "silent": 3, "rated": 0, "visible": 0},
+    }
+
+
+@needs_result
+def test_the_bands_sum_to_the_counts_printed_above_them(committed_result):
+    bands, counts = committed_result["bands"], committed_result["counts"]
+    assert sum(b["n_gt"] for b in bands.values()) == counts["far_gt"] == 700
+    assert sum(b["silent"] for b in bands.values()) == counts["far_silent"] == 83
+    assert sum(b["rated"] for b in bands.values()) == counts["rated"] == 37
+    assert sum(b["visible"] for b in bands.values()) == 34
+
+
+@needs_result
+def test_the_survivorship_and_discrimination_statistics_0c_quotes(committed_result):
+    r = committed_result
+    assert r["auc_rated_vs_unrated_px"] == pytest.approx(0.600, abs=5e-4)
+    assert r["rated_median_px_percentile"] == pytest.approx(0.620, abs=5e-4)
+    assert r["auc_hit_vs_silent_px"] == pytest.approx(0.718, abs=5e-4)
+    q1, med, q3 = r["matched_size_detection_rate_q1_med_q3"]
+    assert q1 == pytest.approx(0.31, abs=5e-3)
+    assert med == pytest.approx(0.57, abs=5e-3)
+    assert q3 == pytest.approx(0.74, abs=5e-3)
+
+
+@needs_result
+def test_the_guards_0c_leans_on(committed_result):
+    # "zero above-horizon clamps among the rated 37" and "the deck is majority GSV"
+    # are load-bearing: they are what licenses reading the distances at all.
+    assert committed_result["above_horizon"]["rated (reached the deck)"] == 0
+    assert committed_result["rated_by_tier"] == {"gsv": 27, "mapillary": 10}
+    assert committed_result["counts"] == {"far_gt": 700, "far_hits": 453,
+                                          "far_silent": 83, "unwitnessed_far": 46,
+                                          "rated": 37, "below_floor": 9}
+
+
+@needs_result
+def test_the_result_records_which_rater_it_read(committed_result):
+    # A verdict-derived number whose rater is unknown cannot be compared against a
+    # second pass, which is the whole point of the per-rater layout.
+    assert committed_result["rater"] == ff.DEFAULT_RATER == "jonf"
+
+
+@needs_result
+def test_the_per_split_floor_table_0c_quotes(committed_result):
+    per = committed_result["per_split"]
+    # The floor is not one floor: 30 source px is 7.5 model px on a 16384-px split
+    # and 30.0 on morgantown, which is what shapes the deck's composition.
+    gv = ff.effective_floor_model_px(per["gainesville"]["stored_width_max"])
+    mg = ff.effective_floor_model_px(per["morgantown"]["stored_width_max"])
+    assert gv == pytest.approx(7.5) and mg == pytest.approx(30.0)
+    assert sum(v["far_silent"] for v in per.values()) == 83
+    assert sum(v["rated"] for v in per.values()) == 37
+    assert sum(v["unwitnessed"] for v in per.values()) == 46

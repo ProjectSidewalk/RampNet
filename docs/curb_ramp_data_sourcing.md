@@ -357,7 +357,7 @@ fix. The four-hypothesis study design is on #46 (2026-07-31); this section is **
 the *sample* (the rated 37 passed two selection filters) and check the framing against the model's
 own far-field behaviour, before the verdicts are allowed to mean anything.
 
-Script: `scripts/analysis/farfield_forensics.py` (25 tests); result JSON
+Script: `scripts/analysis/farfield_forensics.py` (41 tests); result JSON
 `analysis_out/farfield_forensics.json`. Committed inputs only — the low-floor caches, the witness
 list, the gallery manifest and verdicts, and the imagery manifests' `width` fields. No GPU, no
 network, no imagery. Both phases read one named rater's pass (`--rater`, default `jonf`,
@@ -447,7 +447,7 @@ inferring unreachability from it.)
 
 `silent` is a statement about **peaks** — no `peak_local_max` peak ≥ 0.05 within the match radius.
 Phase 1 makes the statement about the **heatmap**: `scripts/analysis/silent_activation.py`
-(21 tests) loads the published checkpoint (`projectsidewalk/rampnet-model` — the weights every
+(41 tests) loads the published checkpoint (`projectsidewalk/rampnet-model` — the weights every
 committed cache came from), runs one pass per panorama holding a silent miss (single-pass fp32,
 matching `op_cache`), and reads the max heatmap value inside the match radius. The scaled matcher
 space *is* the 512×1024 heatmap grid, so the grid and the radius are the matcher's — **with one
