@@ -166,6 +166,27 @@ def by_split_table(result):
     return _table(header, rows, align)
 
 
+def threshold_table(result):
+    """RampNet at the two thresholds the project has argued about, pooled over the US splits.
+
+    The headline table reports one operating point per model because most of the roster
+    has only one. RampNet does not, and the difference is the whole of #54, so it gets the
+    two rows rather than a sentence.
+    """
+    marks = ((result.get("curves") or {}).get("rampnet") or {}).get("marks") or {}
+    if not marks:
+        return "*No low-floor cache available — run `operating_point_curve.py extract`.*"
+    note = {"0.55": "deployed today (`OPERATIONAL_CONFIDENCE`, auto-labeler)",
+            "0.30": "recommended by #54; **not yet adopted** (labeler#20 open)"}
+    rows = []
+    for thr in sorted(marks, reverse=True):
+        m = marks[thr]
+        rows.append([f"**{thr}**", num(m["precision"]), num(m["recall"]), num(m["f1"]),
+                     note.get(thr, "")])
+    return _table(["peak threshold", "P", "R", "F1", ""], rows,
+                  ["---", "--:", "--:", "--:", "---"])
+
+
 def coverage_note(result):
     """What each split is, how big it is, and why a held-out one is held out."""
     rows = []
@@ -186,6 +207,7 @@ def render_tables(result):
     """{block name: markdown} for every generated block in the doc."""
     return {
         "headline": headline_table(result),
+        "thresholds": threshold_table(result),
         "partial": partial_table(result),
         "by-split": by_split_table(result),
         "coverage": coverage_note(result),

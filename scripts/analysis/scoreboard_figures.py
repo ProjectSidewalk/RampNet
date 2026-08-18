@@ -394,7 +394,124 @@ def fig_generalization(result, path, plt):
     return path
 
 
+# Four validated categorical hues for the curve families (validate_palette.js, adjacent
+# pairlist -- the documented one for lines: ALL PASS, worst adjacent CVD dE 9.1). The three
+# YOLO arms share one hue and separate by dash: they are one family, and spending three
+# slots on them would push the set past what the all-pairs floors allow.
+CURVE_COLOR = {
+    "rampnet": "#2a78d6",
+    "y11l_pano": "#eb6834",
+    "y11x_pano_h200": "#eb6834",
+    "y26_pano": "#eb6834",
+    "google/owlv2-large-patch14-ensemble": "#1baf7a",
+    "IDEA-Research/grounding-dino-base": "#eda100",
+}
+CURVE_DASH = {
+    "y11l_pano": (0, (5, 2)),
+    "y11x_pano_h200": (0, (1, 1.6)),
+    "y26_pano": (0, (4, 1.4, 1, 1.4)),
+}
+
+
+def _decimate(xs, ys, keep=1500):
+    """Thin a PR curve for plotting; the open detectors carry ~60k points each."""
+    if len(xs) <= keep:
+        return xs, ys
+    step = len(xs) / keep
+    idx = sorted({int(i * step) for i in range(keep)} | {0, len(xs) - 1})
+    return [xs[i] for i in idx], [ys[i] for i in idx]
+
+
+def fig_pr_curves(result, path, plt):
+    """The trade-off curve, pooled over the seven US splits — how to choose a threshold.
+
+    The headline table reports one point per model. This is the surface that point sits on,
+    which is what a threshold decision actually needs: a model with a calibrated score can
+    be moved along its curve for free, and a chat VLM cannot be moved at all. Both facts
+    are visible here and neither is visible in a table of F1.
+
+    Pooling here is MICRO (concatenate every panorama, then integrate once), unlike the
+    macro-mean headline: a PR curve is an integral over ranked predictions and has no
+    natural macro form. Said on the figure so the two cannot be silently compared.
+    """
+    from matplotlib.lines import Line2D
+
+    curves = result.get("curves") or {}
+    by_name = {m["model"]: m for m in result["models"]}
+
+    fig, ax = plt.subplots(figsize=(9.2, 7.6))
+    fig.patch.set_facecolor(SURFACE)
+    _style(ax)
+    ax.grid(True, color=GRID, lw=0.8, zorder=0)
+    ax.set_axisbelow(True)
+
+    # Scoreless models first, so the curves draw over them.
+    for m in result["models"]:
+        if m["model"] in curves or not m["complete"]:
+            continue
+        if m["precision"] is None:
+            continue
+        ax.plot(m["recall"], m["precision"], "o", ms=7, color=INK_MUTED,
+                mec=SURFACE, mew=1.6, zorder=4)
+        ax.annotate(m["display"], (m["recall"], m["precision"]),
+                    textcoords="offset points", xytext=(9, -3.5), fontsize=8,
+                    color=INK_MUTED, zorder=5)
+
+    handles = []
+    for name, curve in sorted(curves.items(),
+                              key=lambda kv: -(kv[1]["ap"] or 0)):
+        colour = CURVE_COLOR.get(name, INK_MUTED)
+        dash = CURVE_DASH.get(name, "solid")
+        ref = name == "rampnet"
+        xs, ys = _decimate(curve["recalls"], curve["precisions"])
+        ax.plot(xs, ys, color=colour, lw=2.6 if ref else 1.7, ls=dash,
+                zorder=6 if ref else 5, solid_capstyle="round")
+        label = by_name.get(name, {}).get("display", name)
+        handles.append(Line2D([], [], color=colour, lw=2.6 if ref else 1.7, ls=dash,
+                              label=f"{label}  AP {curve['ap']:.3f}"))
+
+    # The two thresholds the project has argued about, on RampNet's curve.
+    marks = (curves.get("rampnet") or {}).get("marks") or {}
+    for thr, mk in sorted(marks.items()):
+        deployed = abs(float(thr) - 0.55) < 1e-9
+        ax.plot(mk["recall"], mk["precision"], "o", ms=9,
+                mfc=CURVE_COLOR["rampnet"] if not deployed else SURFACE,
+                mec=CURVE_COLOR["rampnet"], mew=2.2, zorder=8)
+        ax.annotate(f"{float(thr):.2f}" + ("  deployed" if deployed else "  recommended (#54)"),
+                    (mk["recall"], mk["precision"]), textcoords="offset points",
+                    xytext=(-10, 11 if deployed else -16), ha="right", fontsize=8.2,
+                    color=INK, zorder=9)
+
+    ax.set_xlim(0, 1.02)
+    ax.set_ylim(0, 1.02)
+    ax.set_xlabel("recall", fontsize=9.5, color=INK_SECONDARY)
+    ax.set_ylabel("precision", fontsize=9.5, color=INK_SECONDARY)
+    _titles(ax, "A calibrated score is a dial; a chat VLM is a dot",
+            "Pooled over the seven US splits (micro — every panorama counts once). "
+            "Grey dots emit no confidence and cannot be moved.")
+    # Mid-left: the lower-left corner is where the two open-detector curves live, and a
+    # legend there sits on top of them.
+    leg = ax.legend(handles=handles, loc="lower left", frameon=False, fontsize=8.2,
+                    labelcolor=INK_SECONDARY, handlelength=2.6,
+                    bbox_to_anchor=(0.01, 0.30))
+    leg.set_zorder(10)
+    fig.text(0.008, 0.030,
+             "RampNet's curve is read from analysis_out/op_cache — the #54 low-floor "
+             "re-extraction of the same run, no TTA.",
+             fontsize=7.4, color=INK_MUTED, ha="left", va="bottom")
+    fig.text(0.008, 0.008,
+             "Below 0.55 it is a LOWER bound: the ground truth was assembled from "
+             "detections at or above that floor, so a real ramp nobody marked scores as a "
+             "false positive.",
+             fontsize=7.4, color=INK_MUTED, ha="left", va="bottom")
+    fig.tight_layout(rect=(0, 0.052, 1, 0.96))
+    fig.savefig(path, dpi=170, facecolor=fig.get_facecolor())
+    plt.close(fig)
+    return path
+
+
 FIGURES = {
+    "scoreboard_pr_curves.png": fig_pr_curves,
     "scoreboard_f1.png": fig_headline,
     "scoreboard_pr.png": fig_precision_recall,
     "scoreboard_by_split.png": fig_by_split,

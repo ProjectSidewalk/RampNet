@@ -126,10 +126,68 @@ def test_yolo_rows_are_at_the_preregistered_threshold(board):
 def test_ap_is_read_full_range_not_truncated_at_the_operating_point(board):
     """AP integrates the whole sweep, so it must come from the unthresholded run.
 
-    RampNet's manual_gold AP is the one untruncated AP in the comparison (0.917); if the
-    operating point leaked into the AP column it would fall to the 0.55-and-above slice.
+    RampNet's manual_gold bundle is exported at 0.05, so its AP is already untruncated
+    (0.917); if the operating point leaked into the AP column it would fall to the
+    0.55-and-above slice.
     """
     assert _cell(board, "rampnet", "manual_gold")["ap"] == pytest.approx(0.917, abs=0.0006)
+
+
+def test_rampnet_city_ap_comes_from_the_low_floor_cache(board):
+    """The city bundles stop at 0.55, so an AP computed from them is a truncated curve.
+
+    Read that way richmond is 0.763 and the pooled figure is 0.720 — which puts RampNet
+    BELOW the YOLO arms on AP, an artifact of the floor rather than a result. The #54
+    re-extraction carries the same run down to 0.05, which is where every other scored
+    model is exported.
+    """
+    cell = _cell(board, "rampnet", "richmond")
+    assert cell["ap_source"] == "op_cache (0.05 floor)"
+    assert cell["ap"] == pytest.approx(0.876, abs=0.002)
+    assert cell["ap_truncated_at_operating_point"] == pytest.approx(0.763, abs=0.0006)
+
+
+def test_the_substitution_is_scoped_to_actual_truncation(board):
+    """manual_gold's bundle is already at 0.05, so it must keep its own AP.
+
+    Swapping the cache in there would trade a flip-TTA export for a no-TTA one (0.917 ->
+    0.904) — a different change from un-truncating a curve, and it would leave one row's
+    AP and its P/R/F1 describing two different inference configurations.
+    """
+    assert _cell(board, "rampnet", "manual_gold")["ap_source"] == "bundle"
+
+
+def test_ap_ordering_is_not_an_artifact_of_the_floor(board):
+    """With both read at a 0.05 floor, RampNet's AP leads the supervised arms clearly."""
+    rampnet = _summary(board, "rampnet")["ap"]
+    best_yolo = max(_summary(board, m)["ap"]
+                    for m in ("y11l_pano", "y11x_pano_h200", "y26_pano"))
+    assert rampnet > best_yolo + 0.1, f"RampNet AP {rampnet:.3f} vs best YOLO {best_yolo:.3f}"
+
+
+def test_threshold_marks_reproduce_the_published_operating_point_table(board):
+    """The PR figure's marked points must agree with docs/operating_point.md.
+
+    That document's pooled row is P 0.964 / R 0.722 / F1 0.826 at the deployed 0.55 and
+    0.900 raw precision at 0.30. Computed here from the same committed cache by a
+    different code path, so a drift in either is a real disagreement.
+    """
+    marks = board["curves"]["rampnet"]["marks"]
+    assert marks["0.55"]["precision"] == pytest.approx(0.964, abs=0.0006)
+    assert marks["0.55"]["recall"] == pytest.approx(0.722, abs=0.0006)
+    assert marks["0.55"]["f1"] == pytest.approx(0.826, abs=0.0006)
+    assert marks["0.30"]["precision"] == pytest.approx(0.900, abs=0.0006)
+
+
+def test_only_score_carrying_models_get_a_curve(board):
+    """A chat VLM has one operating point, not a curve — it must not get a fake one."""
+    curves = board["curves"]
+    assert "rampnet" in curves and "google/owlv2-large-patch14-ensemble" in curves
+    for scoreless in ("gemini-3.1-pro-preview", "Qwen/Qwen3-VL-32B-Instruct",
+                      "allenai/Molmo2-8B"):
+        assert scoreless not in curves
+    # ...and a leg that has not run every pooled split cannot be pooled into one.
+    assert "mask2former-vistas-curb-cut" not in curves
 
 
 # --------------------------------------------------------------------------- #

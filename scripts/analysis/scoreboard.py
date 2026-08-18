@@ -39,9 +39,33 @@ one model on the roster.
 rather than new choices (see ``OPERATING_POINT``): RampNet at its deployed 0.55, the
 supervised YOLO arms at the pre-registered conf 0.25 (#71), the open-vocabulary detectors
 at their 0.05 export floor, and the chat VLMs wherever they are — they emit no confidence,
-so there is nothing to threshold and the setting is a no-op for them. AP is always
-full-range: it integrates the whole confidence sweep, so it is read from the unthresholded
-run even when P/R/F1 are not.
+so there is nothing to threshold and the setting is a no-op for them.
+
+**AP comes from a different file than P/R/F1, and only for RampNet.** The city bundles hold
+RampNet's detections only down to its deployed 0.55, because they *are* a production run
+and that is where production stops — so an AP computed from them integrates a curve that
+has been cut off at the operating point. Read that way RampNet's pooled AP is 0.720 and
+sits *below* the YOLO arms' 0.730, which is an artifact of the floor and not a result.
+``analysis_out/op_cache/`` (committed, 928 KB, all ten splits) holds the same panoramas
+re-extracted down to 0.05, which is the floor every other scored model is exported at, and
+scoring RampNet's curve from it gives a pooled AP of **0.849**. So on the city splits:
+P/R/F1 stay on the committed ``records.jsonl`` — the published, deployment-faithful
+operating point — and AP and the PR curve come from the low-floor cache. Both are stated
+wherever the number appears, because two sources for one row is exactly the kind of thing
+that reads as an error later if it is not said out loud.
+
+The substitution is gated on *measured* truncation (bundle floor more than 0.1 above the
+cache floor), not on a list of split names. ``manual_gold``'s bundle is already exported at
+0.05, so it keeps its own AP: there is no truncation to undo there, and swapping in the
+cache would quietly trade that split's flip-TTA export for a no-TTA one — a different
+change, and one that would leave a single row's AP and P/R/F1 describing two different
+inference configurations.
+
+One consequence worth carrying: the sub-0.55 half of that curve is scored against ground
+truth assembled from detections at or above 0.55, so a real ramp nobody marked counts as a
+false positive. #55 measured that 27.2% of the incremental false positives in [0.30, 0.55)
+are ground-truth-completeness artifacts. RampNet's untruncated AP is therefore itself a
+lower bound.
 """
 import argparse
 import json
@@ -55,19 +79,26 @@ sys.path.insert(0, os.path.join(REPO, "scripts", "model_comparison"))
 
 import compare as C  # noqa: E402  (torch-free: detectors.py imports torch lazily)
 from rampnet import roster  # noqa: E402
-from rampnet.detection_eval import score_pano, aggregate, radius_sq_for  # noqa: E402
+from rampnet.detection_eval import (  # noqa: E402
+    aggregate, prediction_confidence, radius_sq_for, score_pano)
 from export_model_cache import PUBLISHED_DIR, load_detections  # noqa: E402
 # The split registry, imported not restated. test_registries_agree_with_low_floor_sweep
 # already keeps low_floor_sweep and miss_decomposition in step; a third private copy here
 # is exactly how a split ends up pooled in one headline and held out of another.
 from low_floor_sweep import (  # noqa: E402
-    ALL_SPLITS, CITY_SPLITS, DEPLOYED_THRESHOLD, HELD_OUT, US_SPLITS)
+    ALL_SPLITS, CACHE_DIR, CITY_SPLITS, DEPLOYED_THRESHOLD, HELD_OUT, US_SPLITS,
+    load_split as load_low_floor)
+from operating_point_curve import pr_curve_and_ap  # noqa: E402
 
 IN_DISTRIBUTION = "manual_gold"
 # Held-out splits in a stable reading order: the two cities, then the reference split.
 HELD_OUT_ORDER = tuple(s for s in ALL_SPLITS if s in HELD_OUT)
 
 RAMPNET = "rampnet"
+# #54's recommendation, not yet adopted by the deployment consumer
+# (sidewalk-auto-labeler#20 is open). Marked on the PR figure beside the deployed point so
+# the choice is visible rather than asserted.
+RECOMMENDED_THRESHOLD = 0.30
 
 # Confidence floor each model class is reported at. These are not new choices -- each is
 # the operating point its own write-up committed to, restated here so one table decides it
@@ -193,6 +224,28 @@ def unregistered_exports():
                   if name.endswith(".json") and name not in known)
 
 
+def low_floor_floor(split):
+    """The lowest confidence the low-floor cache stored for a split, or None."""
+    if not os.path.exists(os.path.join(CACHE_DIR, f"{split}.json")):
+        return None
+    panos, _ = load_low_floor(split)
+    return min((c for pd in panos for *_xy, c in pd["preds"]), default=None)
+
+
+def low_floor_report(split, radius_sq):
+    """RampNet's untruncated PR curve + AP for one split, or None if uncached.
+
+    ``op_cache`` is the #54 extraction: the same panoramas, same preprocessing, same
+    no-TTA deployment path, every heatmap peak down to 0.05. Its >=0.55 slice is gated to
+    reproduce the committed records (``low_floor_sweep.py parity``), so it is the same run
+    seen further down rather than a different one.
+    """
+    if not os.path.exists(os.path.join(CACHE_DIR, f"{split}.json")):
+        return None
+    panos, _ = load_low_floor(split)
+    return pr_curve_and_ap(panos, radius_sq)
+
+
 def load_split(split):
     """(records, {pano_id: GroundTruth}) for one benchmark bundle."""
     bundle = os.path.join(REPO, "benchmark", split)
@@ -224,9 +277,31 @@ def score(leg, split, records, gts, radius_sq, op):
     scored = [(preds.get(pid, []), gt) for pid, gt in gts.items()]
     full = aggregate([score_pano(p, g, radius_sq=radius_sq) for p, g in scored])
     rep = C.operating_report(full, scored, radius_sq, op)
+
+    # RampNet's bundle curve is truncated at its deployed threshold; the committed
+    # low-floor cache carries the same run down to 0.05. See the module docstring.
+    #
+    # Substituted only where truncation actually exists, decided by measuring the two
+    # floors rather than by naming splits. manual_gold's bundle is ALREADY at 0.05, so
+    # there is nothing to fix there -- and swapping in the cache would silently trade a
+    # flip-TTA export for a no-TTA one, which is a different change from un-truncating a
+    # curve and would leave that row's AP and its P/R/F1 describing two different
+    # inference configs.
+    ap, ap_source = rep.ap, "bundle"
+    if leg.provider == "rampnet":
+        bundle_floor = min((c for p_ in preds.values() for c in
+                            (prediction_confidence(d) for d in p_) if c is not None),
+                           default=None)
+        low = low_floor_report(split, radius_sq)
+        if low is not None and low.ap is not None and bundle_floor is not None:
+            cache_floor = low_floor_floor(split)
+            if cache_floor is not None and bundle_floor - cache_floor > 0.1:
+                ap, ap_source = low.ap, "op_cache (0.05 floor)"
     return {
         "split": split,
-        "precision": rep.precision, "recall": rep.recall, "f1": rep.f1, "ap": rep.ap,
+        "precision": rep.precision, "recall": rep.recall, "f1": rep.f1, "ap": ap,
+        "ap_source": ap_source,
+        "ap_truncated_at_operating_point": rep.ap if ap_source != "bundle" else None,
         "tp": rep.tp, "fp": rep.fp, "fn": rep.fn,
         "n_panos": rep.n_panos, "n_gt_recall": rep.n_gt_recall,
         "fp_per_pano": rep.fp / rep.n_panos if rep.n_panos else None,
@@ -282,6 +357,61 @@ def summarize(leg, cells):
     return out
 
 
+# Curves are pooled over the seven US splits so the figure has one line per model rather
+# than seven. Unlike the headline table this pooling is MICRO (every panorama counts once,
+# so a bigger split pulls harder) -- a PR curve is an integral over predictions and has no
+# natural macro form. Stated on the figure.
+def pooled_curve(leg, splits, radius_sq):
+    """(ScoreReport, marked operating points) pooled across US_SPLITS, or None.
+
+    None when the leg carries no confidences (a chat VLM has one operating point, not a
+    curve) or has not run every pooled split.
+    """
+    pano_scores, has_conf, n_seen = [], True, 0
+    for split in US_SPLITS:
+        records, gts = splits[split]
+        if leg.provider == "rampnet":
+            path = os.path.join(CACHE_DIR, f"{split}.json")
+            if not os.path.exists(path):
+                return None
+            for pd in load_low_floor(split)[0]:
+                pano_scores.append(score_pano(pd["preds"], pd["gt"], radius_sq=radius_sq))
+            n_seen += 1
+            continue
+        preds = load_detections(leg.label, split, publish_as=roster.published_name(leg))
+        if preds is None:
+            return None
+        n_seen += 1
+        for pid, gt in gts.items():
+            pts = preds.get(pid, [])
+            if any(prediction_confidence(q) is None for q in pts):
+                has_conf = False
+            pano_scores.append(score_pano(pts, gt, radius_sq=radius_sq))
+    if n_seen != len(US_SPLITS) or not has_conf:
+        return None
+    report = aggregate(pano_scores)
+    return report if report.pr_curve else None
+
+
+def rampnet_marks(splits, radius_sq, thresholds=(DEPLOYED_THRESHOLD, RECOMMENDED_THRESHOLD)):
+    """(recall, precision) on the pooled curve at each named threshold.
+
+    The point of drawing the curve is to choose a point on it, so the two the project has
+    actually argued about are marked: the deployed 0.55 and #54's recommended 0.30.
+    """
+    panos = []
+    for split in US_SPLITS:
+        if not os.path.exists(os.path.join(CACHE_DIR, f"{split}.json")):
+            return {}
+        panos.extend(load_low_floor(split)[0])
+    out = {}
+    for t in thresholds:
+        rep = aggregate([score_pano([q for q in pd["preds"] if q[2] >= t], pd["gt"],
+                                    radius_sq=radius_sq) for pd in panos])
+        out[f"{t:.2f}"] = {"recall": rep.recall, "precision": rep.precision, "f1": rep.f1}
+    return out
+
+
 def build(models=None):
     """Score every (leg, split) pair from committed data. Returns the result dict.
 
@@ -315,6 +445,20 @@ def build(models=None):
                 -(s["f1"] if s["f1"] is not None else -1))
 
     order = sorted(summaries, key=key)
+
+    # Pooled PR curves for the models that carry confidences. Kept out of the JSON's
+    # per-split block because a curve is thousands of points; the figure consumes it in
+    # memory and the JSON records only that it exists.
+    curves = {}
+    for leg in chosen:
+        rep = pooled_curve(leg, splits, radius_sq)
+        if rep is not None:
+            curves[roster.published_name(leg)] = {
+                "recalls": list(rep.pr_curve[0]), "precisions": list(rep.pr_curve[1]),
+                "ap": rep.ap,
+                "marks": (rampnet_marks(splits, radius_sq)
+                          if leg.provider == "rampnet" else {}),
+            }
     return {
         "pooled_splits": list(US_SPLITS),
         "city_splits": list(CITY_SPLITS),
@@ -322,6 +466,7 @@ def build(models=None):
         "held_out": dict(HELD_OUT),
         "in_distribution_split": IN_DISTRIBUTION,
         "unregistered_exports": unregistered_exports(),
+        "curves": curves,
         "splits": {s: {"n_panos": len(gts),
                        "n_gt": sum(len(g.gt_points) for g in gts.values()),
                        "pooled": s in US_SPLITS}

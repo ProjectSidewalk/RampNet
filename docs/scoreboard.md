@@ -29,7 +29,7 @@ model, and the reasons are in "How to read this" below.
 
 | model | class | op | P | R | F1 | ΔF1 vs RampNet | AP | FP/pano | F1 range |
 |---|---|--:|--:|--:|--:|--:|--:|--:|:-:|
-| **RampNet** | purpose-trained | 0.55 | 0.958 | 0.728 | **0.827** | — | 0.720&nbsp;† | 0.1 | 0.80–0.85 |
+| **RampNet** | purpose-trained | 0.55 | 0.958 | 0.728 | **0.827** | — | 0.849&nbsp;† | 0.1 | 0.80–0.85 |
 | YOLO11l (pano) | supervised baseline | 0.25 | 0.939 | 0.449 | 0.604 | -0.223 | 0.722 | 0.1 | 0.48–0.71 |
 | YOLO11x (pano) | supervised baseline | 0.25 | **0.969** | 0.416 | 0.575 | -0.252 | 0.730 | 0.0 | 0.40–0.71 |
 | YOLO26 (pano) | supervised baseline | 0.25 | 0.736 | 0.446 | 0.550 | -0.277 | 0.602 | 0.4 | 0.45–0.68 |
@@ -44,7 +44,7 @@ model, and the reasons are in "How to read this" below.
 
 <!-- END GENERATED: headline -->
 
-† RampNet's AP is **truncated and not comparable** to the others — see the AP caveat below.
+† RampNet's AP is read from `analysis_out/op_cache/`, not from its bundle — see "Choosing an operating point" below for why, and what it fixes.
 
 ![Pooled F1 by model](figures/scoreboard_f1.png)
 
@@ -183,7 +183,59 @@ behind.** Its `manual_gold` AP is **0.931** against RampNet's **0.917**, at the 
 export floor — and RampNet's export used horizontal-flip TTA while YOLO's did not, so that
 comparison is if anything generous to RampNet. On home turf a generic detector trained on this
 dataset matches the purpose-built one. It is the 0.20 F1 it gives back on unfamiliar cities
-that RampNet does not.
+that RampNet does not — and out of domain the AP ordering is not close either, 0.849 to 0.734.
+
+---
+
+## Choosing an operating point
+
+Every row above is one point. For the models that emit a calibrated score, that point is a
+choice, and the choice is RampNet's to make — it is the subject of
+[#54](https://github.com/ProjectSidewalk/RampNet/issues/54) and
+[#55](https://github.com/ProjectSidewalk/RampNet/issues/55), written up in
+[`operating_point.md`](operating_point.md). This is the surface those points sit on:
+
+![PR curves, pooled over the seven US splits](figures/scoreboard_pr_curves.png)
+
+The figure says three things a table of F1 cannot:
+
+1. **A calibrated score is a dial; a chat VLM is a dot.** RampNet, the three YOLO arms and
+   the two open detectors can be moved anywhere along their curves for free — no retraining,
+   no second inference pass. The Gemini/Qwen/Molmo rows are single points because those
+   models emit no confidence to threshold on. Comparing a tuned model against an untunable
+   one at one threshold flatters whichever happened to land well.
+2. **RampNet's curve dominates over the whole range**, not just at 0.55. At every recall the
+   YOLO arms reach, RampNet is above them, and the AP ordering (0.844 pooled vs 0.734) is the
+   integral of that.
+3. **The deployed point is not the F1 optimum.** RampNet sits at 0.55 (hollow marker) where
+   the curve is nearly flat; #54's recommended 0.30 (filled) buys recall at a shallow
+   precision cost.
+
+<!-- BEGIN GENERATED: thresholds (scripts/analysis/scoreboard.py) -->
+
+| peak threshold | P | R | F1 |  |
+|---|--:|--:|--:|---|
+| **0.55** | 0.964 | 0.722 | 0.826 | deployed today (`OPERATIONAL_CONFIDENCE`, auto-labeler) |
+| **0.30** | 0.900 | 0.793 | 0.843 | recommended by #54; **not yet adopted** (labeler#20 open) |
+
+<!-- END GENERATED: thresholds -->
+
+Those are the **raw** numbers. Applying #55's per-split GT-completeness correction —
+27.2% of the incremental false positives in `[0.30, 0.55)` are real ramps the GT missed —
+`operating_point.md` reports corrected **P 0.919 / R 0.796 / F1 0.853** at 0.30, against
+0.964 / 0.722 / 0.826 deployed. Corrected precision stays ≥0.88 on every US split, and
+detection density rises only 1.86 → 2.23 per panorama.
+
+**Why the scoreboard still reports 0.55.** Because that is what is deployed:
+`OPERATIONAL_CONFIDENCE = 0.55` in the auto-labeler's `detectors/__init__.py`, and the
+benchmark bundles are a sample of a real run at that setting. #54's recommendation has not
+been adopted — [ProjectSidewalk/sidewalk-auto-labeler#20](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/20)
+is open, and its 2026-08-04 status update raises a genuine complication: in *world* space,
+after multi-view fusion across a whole city, the drop buys only +0.4 to +3.2 recall points
+rather than the per-panorama +7.4, because other views were already covering for each other.
+That is a deployment question about a different repo's product metric. The per-panorama
+choice — which is what this benchmark measures and what this page reports — is settled, and
+the table above is what settled it.
 
 ---
 
@@ -205,18 +257,30 @@ worse — its 3,919 GT points outnumber all nine cities combined, so a pooled he
 
 | class | reported at | why |
 |---|---|---|
-| RampNet | peak threshold **0.55** | its deployed threshold; the city bundles are extracted at it, so this is RampNet as shipped ([`operating_point.md`](operating_point.md) recommends moving to 0.30, which is a separate change) |
+| RampNet | peak threshold **0.55** | its deployed threshold; the city bundles are extracted at it, so this is RampNet as shipped. Its AP alone comes from the 0.05 low-floor cache — see "Choosing an operating point" |
 | YOLO arms | conf **0.25** | pre-registered in the #71 protocol before any benchmark contact; per-split best-F1 sits at 0.10–0.15, which would be tuning on test |
 | open-vocab detectors | **0.05 export floor** | as the log reports them; their tuned sweep points are in `model_comparison.md` and roughly triple their F1, to ~0.2 |
 | chat VLMs, Molmo | **no score to threshold** | they emit boxes/points with no confidence, so their single row *is* the model — not a low threshold someone picked for them |
 
-**AP is the one column that is not cross-comparable, and RampNet's is the reason.** AP
-integrates the whole confidence sweep, but the city bundles only contain RampNet detections
-above 0.55 — so its curve is cut off at the operating point and its pooled AP (0.720) is a
-**lower bound**, not a score. Do not read YOLO11x's 0.730 as beating it. The AP column is
-meaningful *between* the models exported at the 0.05 floor (the YOLO arms and the two open
-detectors), and on `manual_gold`, where RampNet is also exported at 0.05 and its 0.917 is a
-real number.
+**AP is cross-comparable, but RampNet's comes from a second file.** The city bundles hold
+RampNet's detections only down to its deployed 0.55, because they *are* a production run and
+that is where production stops — so an AP computed from them integrates a curve cut off at
+the operating point. Read that way RampNet's pooled AP is **0.720**, which sits *below* the
+YOLO arms' 0.730 and is an artifact of the floor, not a result. `analysis_out/op_cache/` is
+the #54 re-extraction of the same panoramas down to 0.05 — the floor every other scored model
+is exported at — and RampNet's AP read from it is **0.849**. That is the number in the table,
+marked †.
+
+The substitution is gated on *measured* truncation, not a list of split names: it applies
+only where the bundle floor sits more than 0.1 above the cache floor. `manual_gold`'s bundle
+is already at 0.05, so it keeps its own AP (0.917) — there is nothing to un-truncate there,
+and swapping in the cache would quietly trade that split's flip-TTA export for a no-TTA one.
+
+Two things travel with that number. **P/R/F1 still come from `records.jsonl`**, the published
+deployment-faithful operating point, so a single row has two sources; and **the sub-0.55 half
+of the curve is a lower bound**, because the GT was assembled from detections at or above 0.55
+and #55 measured that 27.2% of the incremental FPs in [0.30, 0.55) are GT-completeness
+artifacts. RampNet's 0.849 is therefore itself conservative.
 
 **Two known asymmetries in the `manual_gold` column.** RampNet's detections there were
 exported with horizontal-flip TTA and at a 0.05 floor (`benchmark/manual_gold/detections_meta.json`);
