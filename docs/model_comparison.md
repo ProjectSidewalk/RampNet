@@ -16,7 +16,7 @@ a run that hasn't happened, not a result being withheld.
 | richmond | ✅ | ✅ all 8 | ✅ | ✅ 17% (5/29) | OOD deployment, Mapillary 360 |
 | bend | ✅ | ✅ all 8 | ✅ | ✅ 29% (7/24) | in-domain GSV reference |
 | clovis | ✅ | ✅ all 8 | ✅ | ✅ 30% (7/23) | hardest split — 2018 GoPro Fusion |
-| annapolis | ✅ | ✅ all 8 | ✅ | ✅ 22% (6/27) | survey-grade Trimble MX7; far-field finding |
+| annapolis | ✅ | ✅ all 8 **+ Claude ×4** | ✅ | ✅ 22% (6/27) | survey-grade Trimble MX7; far-field finding; **only split with a Claude leg** (#122) |
 | morgantown | ✅ | ✅ all 8 | ✅ | ✅ 13% (4/30) | cleanest imagery; the control split |
 | paterson | ✅ | ✅ all 8 | ✅ | ✅ 20% (2/10) | second GSV city; live PS deployment; narrowest RampNet lead (0.12); 2nd Qwen inversion |
 | gainesville | ✅ | ✅ all 8 | ✅ | ✅ **35% (12/34) — highest measured** | third GSV city, first far-domain; same recall as paterson (0.647), opposite mechanism (ceiling 0.890); 3rd Qwen inversion |
@@ -36,6 +36,15 @@ roster tables until its write-up lands here, so that every row of every table be
 consistent 8-model set. **This is an omission of a write-up, not of a run** — the distinction
 the matrix above exists to make, stated here because the artifact is already in the repo and
 would otherwise read as a withheld result.
+
+**Two more off-roster models, `claude-sonnet-5` and `claude-opus-5`, have been run on
+annapolis only** — four legs, both models × effort `low`/`high` (#122). They are likewise
+absent from the roster tables, so no number below moves. Detections are published and
+verified (`benchmark/model_detections/claude-*-effort-*__annapolis.json`, 4/4 pairs
+identical to the cache) and the write-up is the "Claude on Vertex" section further down,
+where the whole result table is re-derived from those files by
+`tests/test_claude_annapolis_leg.py`. **The other nine splits have not been run** — that is
+a gap in coverage, not a withheld result, and closing it costs about $57 at `low` effort.
 
 ### Are gemini-3.7-flash's silent panoramas real, or lost responses? (#120 review)
 
@@ -953,7 +962,28 @@ crash, it introduces a small systematic localization bias. Verified empirically 
 one view at 512 / 1024 / 1400 px: the returned coordinates stayed in the same ~0–1000 band
 instead of scaling with the image, and the overlay put boxes squarely on tactile ramps.
 
-`dump_detections.py` draws all three prediction shapes: plain boxes (Gemini, Qwen), **scored**
+### Claude boxes are pixels in the view's own space
+
+`claude_boxes_to_points` divides by the **view size**, not by 1000. Claude maps returned
+coordinates 1:1 onto actual image pixels, so the tool schema asks for pixels — what the
+model natively produces — rather than making it rescale into a normalized band.
+
+The schema also uses **named fields (`x1`, `y1`, `x2`, `y2`), never a 4-element array**.
+That is deliberate and it is the cheapest guard available: Gemini's `[ymin, xmin, ymax,
+xmax]` is an *ordering convention*, which a model can silently transpose, and this repo has
+already shipped that exact bug once (the Molmo triplet-alignment fix, `61c52d0`). Named
+fields cannot be mis-ordered without being obviously wrong. The convention is exercised by
+`test_claude_boxes_are_pixels_in_the_views_own_space`, which asserts that two different view
+sizes give different normalized points — the guard against someone "simplifying" it to a
+fixed 1000 divisor.
+
+Because the tool cannot be marked `strict: True` (org policy, above), the schema is a hint
+rather than a contract, so the parser is total: a non-object item, a missing key, an
+unparseable number, `{"boxes": null}`, a bare array, or a prose refusal each yield no boxes
+instead of raising. `dump_detections.py` applies the same tolerance, so the mapping gate
+never becomes the thing that crashes on input the detector survives.
+
+`dump_detections.py` draws all three prediction shapes: plain boxes (Gemini, Qwen, Claude), **scored**
 boxes (OWLv2, Grounding DINO — the score is printed next to each box, since that is the
 number the threshold sweep tunes), and **points** (Molmo, drawn as a red crosshair-in-circle
 with the same visual weight as a box, so a scale error is equally obvious).
@@ -1111,20 +1141,37 @@ same ADC, same project, same `global` location, no Anthropic API key and no new 
 `--models claude:claude-sonnet-5`. Two things are not obvious and cost an afternoon to
 discover:
 
-**1. Structured outputs are blocked by org policy; forced tool-calling is the way in.**
+**1. Structured outputs are blocked by org policy; a plain tool is the way in.**
 This project's GCP organization sets `constraints/vertexai.allowedPartnerModelFeatures`,
 which allow-lists *features* of partner models rather than the models themselves.
 `structured_outputs` is not on the list, so `output_config.format` returns **400
 FAILED_PRECONDITION** — and so does a tool marked `strict: True`, because that is
-implemented as structured outputs underneath. A plain tool plus
-`tool_choice={"type": "tool", ...}` passes and returns the same schema-shaped
-`{"boxes": [...]}` in a `tool_use` block, which is what `ClaudeDetector` uses. Measured
-2026-08-15. `output_config.effort` is **allowed**, so the cost lever survives.
+implemented as structured outputs underneath. A plain, un-`strict` tool passes and
+returns the same schema-shaped `{"boxes": [...]}` in a `tool_use` block, which is what
+`ClaudeDetector` uses. Measured 2026-08-15. `output_config.effort` is **allowed**, so the
+cost lever survives.
+
+**The tool is offered, not forced** (`--claude-tool-choice auto`, the default). Forcing it
+with `tool_choice={"type": "tool", ...}` guarantees the answer arrives as a tool call, but
+it **suppresses thinking entirely**, which makes `--claude-effort` inert — measured on one
+view, forced gives 60 output tokens and 0 thinking at *both* `low` and `high`, while `auto`
+gives 0 / 42 / 237 thinking at `low` / `high` / `max`. `forced` remains available and is the
+better choice at `effort=low`, where there is no thinking to lose. Both settings are in the
+cache signature, because both change what comes back.
+
+The cost of *not* forcing is that a turn can end in prose instead of a tool call — a refusal,
+a preamble, a fenced JSON block — so `boxes_from_claude_response` must treat the text path as
+a first-class case rather than an afterthought. It scans for the first balanced JSON value
+(the same `_first_json_blob` the Qwen path uses) and yields no boxes when there is none.
+Getting this wrong is expensive in a specific way: a parse exception propagates out of
+`_raw_detect` and costs **all six views of the panorama**, not one box. That is not
+hypothetical — it is how the sonnet/low leg originally lost a pano (see the table below).
 
 Unblocking `strict: True` would need an org admin to add
 `publishers/anthropic/models/<model>:structured_outputs` to that constraint. It would buy
 hard schema validation on top of the current shape guarantee — worth having, not worth
-blocking on.
+blocking on. Until then the parser treats the schema as a hint: a malformed *item* costs
+one box, a malformed *response* costs no boxes, and neither costs a panorama.
 
 **2. Enablement is per model, and it propagates unevenly.** Each Claude model is enabled
 separately in Vertex Model Garden (Sonnet 5 and Opus 5 are different Marketplace
@@ -1138,34 +1185,53 @@ after four tries.
 
 ### First results: annapolis, both models × both effort levels (2026-08-15)
 
-Full 125-pano annapolis split, the **shared** `DETECTION_PROMPT` (deliberately not
+Full 125-pano annapolis split (294 GT ramps, **all four legs on the same denominator** —
+see the correction note below), the **shared** `DETECTION_PROMPT` (deliberately not
 Claude-tuned, so these numbers stay comparable to the other legs), `auto` tool choice,
 identical rig. Box mapping verified by `dump_detections.py` for both models before
 reading anything into the numbers — predictions sit tight on the ramps, no offset.
 
 | model | effort | P | R | F1 | tp/fp/fn | thinking tok | cost |
 | :--- | :--- | ---: | ---: | ---: | :--- | ---: | ---: |
-| claude-sonnet-5 | low | 0.587 | 0.372 | 0.456 | 108/76/182 | 57 | $3.60 |
+| claude-sonnet-5 | low | 0.589 | 0.381 | 0.463 | 112/78/182 | 57 | $3.60 |
 | claude-sonnet-5 | high | 0.506 | 0.415 | 0.456 | 122/119/172 | 17,820 | $3.82 |
 | **claude-opus-5** | **low** | 0.572 | 0.605 | **0.588** | 178/133/116 | 523 | $8.94 |
 | claude-opus-5 | high | 0.430 | 0.656 | 0.520 | 193/256/101 | 127,227 | $12.46 |
 
+**Every number in this table is re-derivable from committed files**, with no
+`.model_cache`, no API key and no GPU: the per-panorama detections are published under
+`benchmark/model_detections/claude-*-effort-*__annapolis.json`, and
+`tests/test_claude_annapolis_leg.py` recomputes the whole table from them on every CI run.
+A number edited here without re-running anything fails the suite.
+
 **Effort is an operating-point dial, never a quality lever.** Both models move the same
 direction — thinking makes them fire more, so recall rises and precision falls — and in
-neither case does F1 improve. Sonnet nets exactly flat (0.456 → 0.456); Opus nets
-*negative* (0.588 → 0.520) because its precision falls harder than its recall rises.
-Two models, same direction, so this is a property of the task rather than of one model:
-**spend effort to move along the P/R curve, not to get a better detector.** Same shape as
-this benchmark's Qwen 8B→32B finding, where scaling flipped the failure mode instead of
-fixing it.
+neither case does F1 improve. Sonnet nets slightly *negative* (0.463 → 0.456); Opus nets
+clearly *negative* (0.588 → 0.520), in both cases because precision falls harder than
+recall rises. Two models, same direction, so this is a property of the task rather than of
+one model: **spend effort to move along the P/R curve, not to get a better detector.**
+Same shape as this benchmark's Qwen 8B→32B finding, where scaling flipped the failure mode
+instead of fixing it. Note that the expensive setting is the worse one — 127k thinking
+tokens to lose 0.068 F1.
 
 **`claude-opus-5` at `low` is the strongest general model measured on annapolis**, at
 0.588 — the first to displace `gemini-3.1-pro-preview` (0.567) from that slot. Against
-`claude-sonnet-5` at the same effort it gains **+0.233 recall at essentially unchanged
-precision** (0.587 → 0.572), which is a capability difference rather than a threshold
+`claude-sonnet-5` at the same effort it gains **+0.224 recall at essentially unchanged
+precision** (0.589 → 0.572), which is a capability difference rather than a threshold
 shift. RampNet still leads it by **0.251** (0.839 vs 0.588).
 
-Two caveats that travel with these numbers:
+**Correction, 2026-08-18 — the sonnet/low row originally used a different denominator.**
+As first published it read 0.587 / 0.372 / 0.456 on `108/76/182`, which is **290** GT
+ramps, not 294: one panorama (`annapolis:1528518111324684`) was lost when a malformed tool
+result raised out of the parser and took all six of its views with it — the 1-in-745 case
+described above. So that row was scored on 124 panos while the other three used 125, and
+the original "Sonnet nets *exactly* flat, 0.456 → 0.456" compared two different pano sets.
+The parser was hardened, the panorama was re-run under the fix (6 calls, $0.03, recorded in
+`analysis_out/usage_log.jsonl`), and the row above is the whole split. The finding survives
+the correction and is slightly strengthened: Sonnet now moves in the same direction as Opus
+rather than being a flat tie, so *both* models lose F1 to effort.
+
+Four caveats that travel with these numbers:
 
 - **`claude-opus-5` at `high` has the highest recall of any challenger on this split
   (0.656 vs RampNet's 0.738)** — closer to RampNet than any general model has come here,
@@ -1176,6 +1242,21 @@ Two caveats that travel with these numbers:
   prompts carried over from another model, so these numbers bound Claude-on-our-prompt,
   not Claude. Holding it fixed is the right call for comparability; a prompt-variant run
   would be a separate, separately-labelled experiment.
+- **The two paid legs are not fed identical pixels.** `ClaudeDetector` JPEG-encodes each
+  reprojected view at quality 90; the Gemini leg is handed a PIL image and `google-genai`'s
+  `pil_to_blob` encodes it as **lossless PNG** (its JPEG branch requires
+  `image.format == "JPEG"` *and* a filename, and a reprojected view is an in-memory
+  `Image.fromarray` with neither). So a Claude/Gemini comparison on this split carries one
+  extra JPEG round-trip on the Claude side. It costs no tokens to remove —
+  `--claude-image-format png` — but it *is* a cache-key change, so switching means re-paying
+  for the detections; the published numbers are the JPEG ones and were left as run. The
+  direction of any bias is unmeasured, which is the honest statement: on a split whose miss
+  story is faint far-field ramps, q90 quantization is not obviously harmless.
+- **Decoding is not pinned.** `GeminiDetector` sets `temperature=0.0`; the Claude legs sent
+  no temperature and took the provider default, so one paid leg is greedy and the other is
+  sampled. `--claude-temperature 0.0` matches them, at the same re-run cost as above. Both
+  settings are recorded in `ClaudeDetector.signature()` only when they deviate from what
+  these legs ran, precisely so that documenting the gap did not orphan the paid cache.
 
 **Measured cost, `claude-sonnet-5` at `--claude-effort low`** (5 annapolis panos, 2026-08-15):
 **2,229 input and 39 output tokens per call, 0 thinking.** The tool definition is
@@ -1184,6 +1265,38 @@ and not worth caching, since tools render below Sonnet 5's 1,024-token minimum c
 prefix. That puts a 125-pano leg at **≈$3.60** and all ten splits at **≈$61** (halved by
 batch). Effort is the dominant lever: thinking bills as output at $10/MTok, and `low`
 spends none of it.
+
+### Reproducing these four legs, and one gap in the record
+
+The detections are committed, so the table above can be re-derived by anyone with a clone
+and nothing else:
+
+```bash
+pytest -q tests/test_claude_annapolis_leg.py     # recompute the table from committed files
+```
+
+Re-exporting them from a `.model_cache` that produced them needs the leg's settings, because
+**one model id is several legs here** — effort is part of the cache signature, and both
+effort levels of `claude-sonnet-5` would otherwise write the same filename. Hence
+`--publish-as`, which names the published file without touching the cache label:
+
+```bash
+for m in claude-sonnet-5 claude-opus-5; do for e in low high; do
+  python scripts/analysis/export_model_cache.py --splits annapolis \
+      --models claude:$m --claude-effort $e --publish-as $m-effort-$e
+  python scripts/analysis/export_model_cache.py --verify --splits annapolis \
+      --models claude:$m --claude-effort $e --publish-as $m-effort-$e
+done; done
+```
+
+**The gap, stated plainly: the four original legs' token counts were never written to
+`analysis_out/usage_log.jsonl`, and they cannot be recovered.** The $28.82 total and the
+per-leg costs in the table above come from the runs' console output, not from a committed
+record. A re-run cannot back-fill them either — the detections are cached, so a repeat run
+makes zero API calls and has no usage to report. Only the 2026-08-18 single-panorama
+re-run ($0.03) is in the log. `report_usage` now warns loudly when a leg that spent money
+finishes with no log destination, which is the check that would have caught this while the
+money was being spent.
 
 ## Cost accounting for paid models
 

@@ -16,10 +16,11 @@ lives on one machine.
 | `manual_labels/*.txt` (gold set) | small | **committed** | ✅ |
 | `analysis_out/op_cache/*.json` (RampNet low-floor detections) | ~KB | **committed** | ✅ |
 | `analysis_out/*.json` (derived results) | ~100 KB | **committed** | ✅ |
+| `analysis_out/usage_log.jsonl` (paid-run spend) | ~KB | **committed** ✅ | ⚠️ starts 2026-08-18; see the Claude section |
 | `benchmark/miss_taxonomy_46/*.json` (human verdicts) | small | **committed** | ✅ |
 | RampNet model weights | — | HF `projectsidewalk/rampnet-model` | ✅ |
 | Stage 1 dataset | **463 GB** (test split ~44 GB) | HF `projectsidewalk/rampnet-dataset` | ✅ |
-| `benchmark/model_detections/` (challenger detections) | 22.9 MB (108 files) | **committed** ✅ | ✅ |
+| `benchmark/model_detections/` (challenger detections) | 22.9 MB (112 files) | **committed** ✅ | ✅ |
 | **`location_data/` (the paper's government inventories)** | 71.8 MB | **committed** ✅ | ✅ |
 | **`street_data/` derivative (what the pipeline actually reads)** | 18.7 MB | **committed** ✅ | ✅ |
 | `street_data/` raw downloads (NY file alone is 669 MB) | 801 MB | git-ignored; HF #21 pending | ⚠️ superseded by the derivative |
@@ -39,8 +40,10 @@ so every number they produced was reproducible on exactly one machine.
 single-panorama shards keyed by an opaque SHA-1 of (label, signature, city, pano), unreadable
 without reconstructing detector signatures. `scripts/analysis/export_model_cache.py` consolidates
 it into human-readable files, one per (model, split), keyed by panorama id with the detector
-signature recorded inside. As of 2026-08-15 that is **78 files, 20.3 MB** — the seven-model
-roster across ten splits, plus the ten-split gemini-3.7-flash leg described below.
+signature recorded inside. As of 2026-08-18 that is **112 files, 22.9 MB** — the seven-model
+roster across ten splits, plus the ten-split gemini-3.7-flash leg and the four annapolis
+Claude legs, both described below. `test_the_ledger_count_matches_the_directory` asserts
+this number against the directory, so it can no longer drift unnoticed.
 
 ```bash
 python scripts/analysis/export_model_cache.py --out benchmark/model_detections
@@ -52,9 +55,10 @@ python scripts/analysis/export_model_cache.py --verify     # exported == cached
 that silently differs from what produced the paper's numbers is worse than none. It exits
 non-zero when it had nothing to compare, so a green run cannot mean "found no cache".
 
-**Keep this count current when a leg is added.** It drifted twice (61 → 68 at the São Paulo
-split, 68 → 78 at gemini-3.7-flash) before anyone noticed, and a ledger that exists to keep
-the repo honest is the wrong document to let rot.
+**Keep this count current when a leg is added.** It drifted three times (61 → 68 at the São
+Paulo split, 68 → 78 at gemini-3.7-flash, 78 → 108 unremarked) before anyone noticed, and a
+ledger that exists to keep the repo honest is the wrong document to let rot. It is now a
+test rather than a promise.
 
 #### The gemini-3.7-flash leg is published but off the default roster
 
@@ -77,6 +81,48 @@ them, `fp_taxonomy.py` needs the same `--models` flag, and `silent_witness.py` c
 them at all without adding the spec to `CHALLENGERS`. Adding it there would change the
 committed `fp_taxonomy.json` / `silent_witness.json`, so it is a re-run, not an edit — open
 until the leg's write-up lands in `docs/model_comparison.md`.
+
+#### The four Claude legs are published, annapolis only, one file per effort level
+
+`benchmark/model_detections/claude-{sonnet,opus}-5-effort-{low,high}__annapolis.json` — four
+files, 125 panoramas each, 0 uncached (#122). Only annapolis was run; the other nine splits
+are a stated gap.
+
+These need one flag the other legs do not. **Effort is part of the cache signature, so one
+model id is two different legs**, and both would export to `claude-sonnet-5__annapolis.json`
+— the second silently overwriting the first, leaving a file that still looks complete and
+still passes `--verify` against whichever leg was written last. `--publish-as` names the
+published file without touching the cache label (which has to stay the bare model id,
+because it is baked into keys that have already been paid for), and `export_model_cache.py`
+now refuses outright to overwrite a file whose recorded signature differs from the run's:
+
+```bash
+for m in claude-sonnet-5 claude-opus-5; do for e in low high; do
+  python scripts/analysis/export_model_cache.py --splits annapolis \
+      --models claude:$m --claude-effort $e --publish-as $m-effort-$e
+  python scripts/analysis/export_model_cache.py --verify --splits annapolis \
+      --models claude:$m --claude-effort $e --publish-as $m-effort-$e
+done; done
+# -> 4 x "compared 1 (model, split) pair(s); published detections score IDENTICALLY"
+```
+
+Neither Claude spec is in `CHALLENGERS`, so the same caveat as `gemini-3.7-flash` applies:
+the default `--verify` never opens these files, and `fp_taxonomy.py` / `silent_witness.py`
+cannot reach them without the explicit `--models`.
+
+Unlike every other published leg, these four can also be checked with **no cache and no
+credentials at all** — `tests/test_claude_annapolis_leg.py` recomputes the entire published
+result table from the committed detections plus the committed annapolis bundle, and runs in
+CI. That is the strongest form this ledger's promise can take, and it is the pattern worth
+copying to the other legs.
+
+**Known gap, unrecoverable: the four legs' token counts were never written to
+`analysis_out/usage_log.jsonl`.** The $28.82 figure and the per-leg costs quoted in
+`docs/model_comparison.md` come from the runs' console output. They cannot be back-filled,
+because a re-run reads the detection cache, makes zero API calls and therefore has no usage
+to record — the cost record is the one artifact here that is write-once. Only the
+2026-08-18 single-panorama re-run ($0.03) is in the log. `compare.report_usage` now prints
+a loud warning when a leg that spent money finishes with no log destination.
 
 Downstream scripts prefer the published files over `.model_cache`, and the label a `--models` spec
 resolves to is derived *without* building a detector, so **a clean clone reproduces these numbers

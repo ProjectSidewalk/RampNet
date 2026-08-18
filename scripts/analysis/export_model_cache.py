@@ -76,21 +76,36 @@ def spec_label(spec, cargs):
     return getattr(cargs, f"{provider.strip()}_model", provider.strip())
 
 
-def load_detections(label, city, published_dir=PUBLISHED_DIR):
+def load_detections(label, city, published_dir=PUBLISHED_DIR, publish_as=None):
     """``{pano_id: [points]}`` from the published export, or ``None`` if absent.
 
     The published files are the replication path; ``.model_cache`` remains the working
     cache for runs that are still producing detections. Callers try this first so a
     clean clone needs no cache.
     """
-    path = os.path.join(published_dir, f"{slug(label)}__{city}.json")
+    path = published_path(label, city, published_dir, publish_as)
     if not os.path.exists(path):
         return None
     with open(path, encoding="utf-8") as fh:
         return json.load(fh)["detections"]
 
 
-def export(cache_dir, out_dir, splits, specs, allow_partial=False, overrides=None):
+def published_path(label, city, out_dir=PUBLISHED_DIR, publish_as=None):
+    """Where one (model, split) export lives.
+
+    ``publish_as`` exists because a model id is NOT always enough to name a leg.
+    Claude (#122) was the first provider where one id yields several distinct
+    legs — `claude-sonnet-5` at effort `low` and at effort `high` are different
+    detections with different cache signatures — and both would land on
+    ``claude-sonnet-5__annapolis.json``, the second silently overwriting the
+    first. The cache LABEL must stay the bare model id (it is baked into the
+    already-paid cache keys), so the distinguishing name belongs here, at
+    publication time, and nowhere else."""
+    return os.path.join(out_dir, f"{slug(publish_as or label)}__{city}.json")
+
+
+def export(cache_dir, out_dir, splits, specs, allow_partial=False, overrides=None,
+           publish_as=None):
     """Consolidate ``.model_cache`` into one file per (model, split).
 
     A split whose cache is incomplete is REFUSED unless ``allow_partial``. A
@@ -115,7 +130,11 @@ def export(cache_dir, out_dir, splits, specs, allow_partial=False, overrides=Non
     cargs = _compare_args(cache_dir)
     for k, v in (overrides or {}).items():
         setattr(cargs, k, v)
-    written, skipped, partial = [], [], []
+    written, skipped, partial, collisions = [], [], [], []
+    if publish_as and len(specs) > 1:
+        raise ValueError("--publish-as names ONE leg, so it cannot be combined with "
+                         f"several --models specs (got {len(specs)}): every spec "
+                         "would write to the same file.")
     for spec in specs:
         for city in splits:
             bundle = os.path.join(REPO, "benchmark", city)
@@ -142,16 +161,28 @@ def export(cache_dir, out_dir, splits, specs, allow_partial=False, overrides=Non
             if missing and not allow_partial:
                 partial.append((label, city, len(dets), missing))
                 continue
-            path = os.path.join(out_dir, f"{slug(label)}__{city}.json")
+            path = published_path(label, city, out_dir, publish_as)
+            # Refuse to overwrite a DIFFERENT leg that happens to share this name.
+            # Two legs of one model id (Claude at two effort levels) resolve to the
+            # same filename, and a silent overwrite is the worst outcome available:
+            # the file still looks complete, --verify still passes against whichever
+            # leg was written last, and the other leg's numbers are simply gone.
+            if os.path.exists(path):
+                with open(path, encoding="utf-8") as fh:
+                    existing = json.load(fh).get("signature")
+                if existing is not None and existing != sig:
+                    collisions.append((label, city, path))
+                    continue
             with open(path, "w", encoding="utf-8") as fh:
-                json.dump({"model": label, "city": city, "signature": sig,
+                json.dump({"model": label, "published_as": publish_as or label,
+                           "city": city, "signature": sig,
                            "n_panos": len(dets), "n_uncached": missing,
                            "detections": dets}, fh, separators=(",", ":"), sort_keys=True)
             written.append((label, city, len(dets), missing, os.path.getsize(path)))
-    return written, skipped, partial
+    return written, skipped, partial, collisions
 
 
-def verify(cache_dir, out_dir, splits, specs, overrides=None):
+def verify(cache_dir, out_dir, splits, specs, overrides=None, publish_as=None):
     """Do the exported detections score identically to the cached ones?
 
     Returns ``(compared, problems, vacuous, unpublished)`` where ``compared``
@@ -182,7 +213,7 @@ def verify(cache_dir, out_dir, splits, specs, overrides=None):
             sig = det.signature() if hasattr(det, "signature") else None
             if sig is None:
                 continue
-            pub = load_detections(label, city, out_dir)
+            pub = load_detections(label, city, out_dir, publish_as)
             if pub is None:
                 unpublished.append((label, city))
                 continue
@@ -233,15 +264,30 @@ def main(argv=None):
     p.add_argument("--yolo-imgsz", type=int, default=1024,
                    help="YOLO inference imgsz of the producing run (signature field; "
                         "the #51 pano arms ran 1280).")
+    p.add_argument("--claude-effort", default="low",
+                   choices=["low", "medium", "high", "xhigh", "max"],
+                   help="Claude reasoning effort of the producing run (signature field). "
+                        "One model id yields a DIFFERENT leg per effort level, so this "
+                        "must match the run or the export finds no cache.")
+    p.add_argument("--claude-tool-choice", default="auto", choices=["auto", "forced"],
+                   help="Claude tool choice of the producing run (signature field).")
+    p.add_argument("--publish-as",
+                   help="Filename stem for this leg, when the model id alone does not "
+                        "identify it — e.g. claude-sonnet-5 at two effort levels are two "
+                        "legs that would otherwise both write claude-sonnet-5__<split>.json. "
+                        "Names ONE leg, so it takes a single --models spec. The SAME value "
+                        "must be passed to --verify.")
     args = p.parse_args(argv)
 
     splits = [s.strip() for s in args.splits.split(",") if s.strip()]
     specs = [s.strip() for s in args.models.split(",") if s.strip()]
-    overrides = {"tiling": args.tiling, "yolo_imgsz": args.yolo_imgsz}
+    overrides = {"tiling": args.tiling, "yolo_imgsz": args.yolo_imgsz,
+                 "claude_effort": args.claude_effort,
+                 "claude_tool_choice": args.claude_tool_choice}
 
     if args.verify:
         compared, problems, vacuous, unpublished = verify(
-            args.cache_dir, args.out, splits, specs, overrides)
+            args.cache_dir, args.out, splits, specs, overrides, args.publish_as)
         print(f"compared {compared} (model, split) pair(s) against {args.cache_dir}")
         for msg in problems:
             print(f"  ✗ {msg}")
@@ -266,9 +312,9 @@ def main(argv=None):
         print(f"{compared} pair(s): published detections score IDENTICALLY to the cache")
         return 1 if vacuous else 0
 
-    written, skipped, partial = export(args.cache_dir, args.out, splits, specs,
-                                       allow_partial=args.allow_partial,
-                                       overrides=overrides)
+    written, skipped, partial, collisions = export(
+        args.cache_dir, args.out, splits, specs, allow_partial=args.allow_partial,
+        overrides=overrides, publish_as=args.publish_as)
     total = sum(w[4] for w in written)
     print(f"wrote {len(written)} file(s), {total/1e6:.1f} MB total -> {args.out}\n")
     print(f"{'model':>42} {'split':>20} {'panos':>6} {'uncached':>9} {'KB':>7}")
@@ -281,6 +327,13 @@ def main(argv=None):
         print(f"  REFUSED (incomplete): {label} / {city} — {n} cached, {missing} "
               f"uncached. Finish the leg, or pass --allow-partial to publish it "
               f"anyway and say so where the numbers are quoted.")
+    for label, city, path in collisions:
+        print(f"  REFUSED (name collision): {label} / {city} — {path} already holds a "
+              f"DIFFERENT leg's detections (its recorded signature does not match this "
+              f"run's). One model id can be several legs; give this one a distinct "
+              f"--publish-as instead of overwriting the other.")
+    if collisions:
+        return 1
     if any(w[3] for w in written):
         print("\nNOTE: a partial export is indistinguishable from a complete one "
               "downstream (load_detections drops n_uncached, and --verify never "
