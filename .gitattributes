@@ -14,6 +14,11 @@ stage_one/dataset_generation/street_data/*.gz         binary
 # The rescued RampNet 1.0 training telemetry is binary: never let autocrlf touch it.
 docs/data/rampnet1_stage2_run/events.out.tfevents.* binary
 
+# Run A's own telemetry (#84), same reasoning: its sha256 values are committed in
+# stage_two/run_a_84_events/SHA256SUMS and checked on every read by
+# scripts/analysis/stage2_epoch_curve.py.
+stage_two/run_a_84_events/events.out.tfevents.* binary
+
 # The rescued Stage 1 logs are text, but they are checksummed text: a clone with
 # core.autocrlf=true would check them out with CRLF and every entry in SHA256SUMS
 # would fail for files that are in fact byte-correct. -text keeps them exactly as
@@ -24,3 +29,4 @@ docs/data/rampnet1_stage1_run/* -text
 # because the last matching pattern wins.
 docs/data/rampnet1_stage2_run/SHA256SUMS text eol=lf
 docs/data/rampnet1_stage1_run/SHA256SUMS text eol=lf
+stage_two/run_a_84_events/SHA256SUMS text eol=lf
