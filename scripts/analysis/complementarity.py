@@ -68,6 +68,37 @@ def matched_gt(preds, gt_points, radius_sq):
     return hit
 
 
+def complementary_null(rows, radius_sq):
+    """How many of rampnet's misses would the challenger "recover" by coincidence?
+
+    Same null as ``null_recall.py`` -- score pano A's ground truth against pano
+    B's predictions, averaged over every non-identity cyclic shift -- but
+    restricted to the GT rampnet MISSED, because that is the subset the
+    complementary-gain headline is about. Both sides stay real model output on
+    real imagery, so box count and spatial clustering are preserved; only the
+    pairing is wrong, so every match is chance.
+
+    Applying the whole-split null from ``null_recall.py`` to this subset instead
+    would assume the coincidence rate is uniform across GT. It need not be:
+    rampnet's misses are a biased sample (far-field, adjacent pairs), and those
+    are exactly the places box density differs. Hence measuring it here.
+
+    Returns (mean, max) as a fraction of the missed GT.
+    """
+    preds = [p for p, _ in rows]
+    missed = [m for _, m in rows]
+    n = len(rows)
+    total = sum(len(m) for m in missed)
+    if not total or n < 2:
+        return 0.0, 0.0
+    shifted = []
+    for k in range(1, n):
+        hit = sum(len(matched_gt(preds[(i + k) % n], missed[i], radius_sq))
+                  for i in range(n))
+        shifted.append(hit / total)
+    return sum(shifted) / len(shifted), max(shifted)
+
+
 def model_spec(token):
     """``provider``/``provider:model_id``, or a legacy bare Gemini model id."""
     provider, model_id = parse_model_spec(token)
@@ -137,6 +168,8 @@ def main():
     n = both = r_only = c_only = neither = 0
     r_fp = c_fp = 0
     panos = missing = 0
+    # (challenger preds, GT points rampnet MISSED) per pano, for the null below
+    shift_rows = []
     for pid, entry in verdicts.items():
         gt = build_ground_truth(records[pid]["detections"], entry["dets"],
                                 entry["missed"], entry["no_missed"])
@@ -158,6 +191,7 @@ def main():
         n += len(gt.gt_points)
         r_fp += score_pano(rp, gt).fp
         c_fp += score_pano(cp, gt).fp
+        shift_rows.append((cp, [g for i, g in enumerate(gt.gt_points) if i not in mr]))
         panos += 1
 
     if not n:
@@ -186,6 +220,11 @@ def main():
     if r_miss:
         print(f"  Of rampnet's {r_miss} misses, {label} recovers {c_only} "
               f"({c_only / r_miss:.0%}); {neither} nobody finds")
+        mean_null, max_null = complementary_null(shift_rows, radius_sq)
+        exp = mean_null * r_miss
+        print(f"    null (same boxes, wrong pano): {mean_null:.3f} "
+              f"=> ~{exp:.0f} of those {c_only} are coincidence, "
+              f"~{c_only - exp:.0f} attributable  (worst shift {max_null:.3f})")
 
     # The counterweight to the oracle number. A naive union keeps every box from
     # both models, so it pays both FP bills; co-located FPs would dedup, which is
