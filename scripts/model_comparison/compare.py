@@ -13,9 +13,9 @@ anchoring.
         --models rampnet,gemini:gemini-2.5-flash,gemini:gemini-3.6-flash
     python scripts/model_comparison/compare.py benchmark/manual_gold --models rampnet,gemini
 
-Each --models token is a provider (rampnet/gemini/qwen/owlv2/gdino/molmo) or
-provider:model_id to pin a variant, so several models from the same provider
-compare side by side. Detectors that emit calibrated scores (RampNet, OWLv2,
+Each --models token is a provider (rampnet/gemini/claude/qwen/owlv2/gdino/molmo/
+yolo — the roster is detectors.PROVIDERS) or provider:model_id to pin a variant,
+so several models from the same provider compare side by side. Detectors that emit calibrated scores (RampNet, OWLv2,
 Grounding DINO, YOLO) additionally get AP, a PR curve (--pr-out) and a threshold
 sweep (--sweep); chat VLMs have no score to rank by, so they get one operating
 point. See docs/model_comparison.md.
@@ -44,7 +44,7 @@ from rampnet.detection_eval import (  # noqa: E402
 )
 from rampnet.validation import collect, format_report  # noqa: E402
 from detectors import (  # noqa: E402
-    GDINO_QUERY, OWLV2_QUERY, PanoSample, build_detector, parse_model_spec,
+    GDINO_QUERY, OWLV2_QUERY, PROVIDERS, PanoSample, build_detector, parse_model_spec,
 )
 from pricing import estimate_cost, price_for  # noqa: E402
 
@@ -56,6 +56,16 @@ from pricing import estimate_cost, price_for  # noqa: E402
 # this file by name.
 DEFAULT_USAGE_LOG_REL = os.path.join("analysis_out", "usage_log.jsonl")
 DEFAULT_USAGE_LOG = str(REPO_ROOT / DEFAULT_USAGE_LOG_REL)
+
+# Generated from detectors.PROVIDERS so the roster cannot drift out of the help
+# text again (`claude` shipped working but undocumented in three places).
+MODELS_HELP = (
+    "Comma-separated detectors. Each is a provider ("
+    + "/".join(PROVIDERS) +
+    ", using its default model) or provider:model_id to pin a variant, e.g. "
+    "'rampnet,gemini:gemini-2.5-flash,owlv2'. yolo needs trained weights: "
+    "'yolo:<path.pt>' or --yolo-model."
+)
 
 
 def load_dotenv(root):
@@ -308,7 +318,9 @@ def report_usage(detector, label, city, panos_scored, usage_log_path):
     if not usage or not usage.get("calls"):
         return
     model_id = getattr(detector, "model_id", None)
-    cost = estimate_cost(model_id, usage["input_tokens"], usage["output_tokens"])
+    cost = estimate_cost(model_id, usage["input_tokens"], usage["output_tokens"],
+                         cache_read_tokens=usage.get("cache_read_input_tokens", 0),
+                         cache_write_tokens=usage.get("cache_write_input_tokens", 0))
     pricing = price_for(model_id)
     cost_txt = (f"  ~=${cost:.2f} (pricing as of {pricing['as_of']})" if cost is not None
                 else "  (no verified price in pricing.py — record one)")
@@ -322,7 +334,26 @@ def report_usage(detector, label, city, panos_scored, usage_log_path):
     if versions:
         served = ", ".join(f"{v} ({n:,} calls)" for v, n in sorted(versions.items()))
         print(f"[{label}] served by: {served}")
+    # How the calls ENDED, when the provider reports it. A leg with refusals or
+    # truncations is a different measurement from one without, and this is the
+    # one place a reader checking the numbers will see it.
+    stop_reasons = dict(getattr(detector, "stop_reasons", None) or {})
+    abnormal = {k: v for k, v in stop_reasons.items()
+                if k not in ("end_turn", "tool_use", "stop_sequence")}
+    if abnormal:
+        print(f"[{label}] ABNORMAL stop reasons: "
+              + ", ".join(f"{k}={v:,}" for k, v in sorted(abnormal.items())))
     if not usage_log_path:
+        # The token counts are the one artifact that cannot be back-filled: a
+        # re-run reads the detection cache, makes zero calls, and so can never
+        # reproduce them. Losing them means the spend is gone for good, which is
+        # exactly what happened to #123's four Claude legs ($28.82, no record).
+        print(f"[{label}] WARNING: this leg spent money and its usage was NOT "
+              f"recorded — --usage-log is disabled. Token counts cannot be "
+              f"back-filled from a later run (a cached re-run makes no calls), so "
+              f"this spend is unrecoverable. The standing rule is that every paid "
+              f"experiment records what it spent, at the time it runs.\n"
+              f"[{label}] usage record: {json.dumps({'model_id': model_id, **usage})}")
         return
     rec = {
         "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -342,6 +373,8 @@ def report_usage(detector, label, city, panos_scored, usage_log_path):
         # ~6x more tiled than whole-pano, and without this two such runs log
         # identically. Same reasoning as the detections export (9e87290).
         "signature": detector.signature() if hasattr(detector, "signature") else None,
+        # How each call terminated. Empty for providers that report nothing.
+        "stop_reasons": stop_reasons or None,
         **usage,
         "est_cost_usd": round(cost, 4) if cost is not None else None,
         "pricing": pricing,
@@ -502,11 +535,35 @@ def main():
     ap = argparse.ArgumentParser(description="Compare curb-ramp detectors on a benchmark bundle.")
     ap.add_argument("bundle", help="Bundle dir (e.g. benchmark/richmond) with records.jsonl + verdicts.json.")
     ap.add_argument("--models", default="rampnet",
-                    help="Comma-separated detectors. Each is a provider (rampnet/gemini/qwen/"
-                         "owlv2/gdino/molmo/yolo, using its default model) or provider:model_id to "
-                         "pin a variant, e.g. 'rampnet,gemini:gemini-2.5-flash,owlv2'. yolo needs "
-                         "trained weights: 'yolo:<path.pt>' or --yolo-model.")
+                    help=MODELS_HELP)
     ap.add_argument("--gemini-model", default="gemini-3.6-flash")
+    ap.add_argument("--claude-model", default="claude-sonnet-5",
+                    help="Claude model id, served via Vertex + ADC (same credentials "
+                         "as the Gemini legs). Each model must be enabled separately "
+                         "in Vertex Model Garden.")
+    ap.add_argument("--claude-effort", default="low",
+                    choices=["low", "medium", "high", "xhigh", "max"],
+                    help="How much Claude thinks. Thinking bills as OUTPUT and is the "
+                         "dominant cost term, so this is the main cost lever; it is "
+                         "part of the detection cache key. Default 'low' — reading a "
+                         "view and emitting a box list is not intelligence-sensitive.")
+    ap.add_argument("--claude-tool-choice", default="auto", choices=["auto", "forced"],
+                    help="'forced' guarantees the answer arrives as a tool call, but "
+                         "SUPPRESSES THINKING, which makes --claude-effort inert. "
+                         "'auto' (default) lets effort actually do something. Also "
+                         "part of the cache key.")
+    ap.add_argument("--claude-image-format", default=None, choices=["jpeg", "png"],
+                    help="How each view is encoded before it is sent. Default 'jpeg' "
+                         "(q90) is what the published annapolis legs ran; 'png' is "
+                         "lossless and matches what the Gemini leg receives, so it "
+                         "removes an input asymmetry between the two paid legs. "
+                         "Costs no extra tokens, but it IS a cache-key change: "
+                         "switching means re-paying for the detections.")
+    ap.add_argument("--claude-temperature", type=float, default=None,
+                    help="Sampling temperature. Default: send none and take the "
+                         "provider default, which is what the published legs did. "
+                         "Pass 0.0 to match GeminiDetector's greedy decoding. Also "
+                         "a cache-key change.")
     ap.add_argument("--qwen-model", default="Qwen/Qwen3-VL-8B-Instruct")
     ap.add_argument("--qwen-coord-space", choices=["auto", "norm1000", "pixels"], default="auto",
                     help="Box convention the Qwen checkpoint emits: 'norm1000' (Qwen3-VL, "

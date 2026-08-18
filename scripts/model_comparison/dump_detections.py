@@ -55,6 +55,11 @@ def detections_to_view_shapes(detector, raw, width, height):
     wrong place rather than as a slightly-off center."""
     shapes = []
     for it in raw:
+        # This is the gate that catches a transposed coordinate convention, so it
+        # must not be the thing that crashes on the malformed item the detectors
+        # now tolerate (a bare string is the shape actually observed from Claude).
+        if not isinstance(it, dict):
+            continue
         if "box_2d" in it:                      # Gemini: [ymin, xmin, ymax, xmax], 0-1000
             ymin, xmin, ymax, xmax = it["box_2d"]
             shapes.append(("rect", xmin / 1000.0 * width, ymin / 1000.0 * height,
@@ -67,6 +72,8 @@ def detections_to_view_shapes(detector, raw, width, height):
                 sx, sy = width, height
             shapes.append(("rect", x1 / sx * width, y1 / sy * height,
                            x2 / sx * width, y2 / sy * height, None))
+        elif "x1" in it:                        # Claude: pixels in the view's own space
+            shapes.append(("rect", it["x1"], it["y1"], it["x2"], it["y2"], None))
         elif "box" in it:                       # OWLv2 / Grounding DINO: pixels + score
             x1, y1, x2, y2 = it["box"]
             shapes.append(("rect", x1, y1, x2, y2, it.get("score")))
@@ -145,6 +152,10 @@ def main():
     ap.add_argument("--source-max-edge", type=int, default=4096)
     # Consumed by build_detector.
     ap.add_argument("--gemini-model", default="gemini-3.6-flash")
+    ap.add_argument("--claude-model", default="claude-sonnet-5")
+    ap.add_argument("--claude-effort", default="low",
+                    choices=["low", "medium", "high", "xhigh", "max"])
+    ap.add_argument("--claude-tool-choice", default="auto", choices=["auto", "forced"])
     ap.add_argument("--qwen-model", default="Qwen/Qwen3-VL-8B-Instruct")
     ap.add_argument("--qwen-coord-space", choices=["auto", "norm1000", "pixels"], default="auto")
     ap.add_argument("--owlv2-model", default="google/owlv2-large-patch14-ensemble")

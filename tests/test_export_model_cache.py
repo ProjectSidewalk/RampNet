@@ -12,6 +12,8 @@ import json
 import os
 import sys
 
+import pytest
+
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, REPO)
 sys.path.insert(0, os.path.join(REPO, "scripts", "analysis"))
@@ -111,12 +113,20 @@ def test_every_published_file_records_its_provenance():
         for k in ("model", "city", "signature", "detections"):
             assert k in p, (f, k)
         # Filename and contents must agree — a mislabelled export would attribute
-        # one model's detections to another with nothing to catch it.
+        # one model's detections to another with nothing to catch it. The stem is
+        # the PUBLICATION name, which is the model id unless the leg needed a
+        # distinguishing one (Claude: one model id, two effort levels, two legs —
+        # see published_path), so compare against that and require it to be
+        # recorded in the file rather than inferred from the name.
         base = os.path.basename(f)[:-len(".json")]
-        model, _, city = base.rpartition("__")
-        assert em.slug(p["model"]) == model, (f, p["model"])
+        stem, _, city = base.rpartition("__")
+        published_as = p.get("published_as", p["model"])
+        assert em.slug(published_as) == stem, (f, published_as)
         assert p["city"] == city, (f, p["city"])
         assert p["signature"].get("model_id", p["model"]) == p["model"], f
+        # A distinct publication name must still say which model produced it.
+        if published_as != p["model"]:
+            assert p["model"] in published_as, (f, p["model"], published_as)
 
 
 def test_published_detections_are_structurally_sound():
@@ -167,3 +177,171 @@ def test_published_panos_match_the_committed_bundles():
                                  for line in fh if line.strip()}
         assert set(p["detections"]) == bundles[city], (
             f, len(p["detections"]), len(bundles[city]))
+
+
+# --------------------------------------------------------------------------- #
+# publish_as / collisions — one model id can be several legs
+# --------------------------------------------------------------------------- #
+def test_the_filename_defaults_to_the_model_id(tmp_path):
+    assert em.published_path("gemini-3.7-flash", "annapolis", str(tmp_path)) == \
+        os.path.join(str(tmp_path), "gemini-3.7-flash__annapolis.json")
+
+
+def test_publish_as_renames_only_the_file_not_the_leg(tmp_path):
+    """The cache LABEL has to stay the bare model id — it is baked into keys that
+    have already been paid for — so the distinguishing name lives at publication
+    time and nowhere else."""
+    low = em.published_path("claude-sonnet-5", "annapolis", str(tmp_path),
+                            publish_as="claude-sonnet-5-effort-low")
+    high = em.published_path("claude-sonnet-5", "annapolis", str(tmp_path),
+                             publish_as="claude-sonnet-5-effort-high")
+    assert low != high
+    assert os.path.basename(low) == "claude-sonnet-5-effort-low__annapolis.json"
+
+
+def test_two_legs_of_one_model_id_collide_without_publish_as():
+    """The bug this guards: claude-sonnet-5 at effort low and at effort high are
+    different detections with different cache signatures, and both resolve to
+    claude-sonnet-5__annapolis.json."""
+    assert em.published_path("claude-sonnet-5", "annapolis") == \
+        em.published_path("claude-sonnet-5", "annapolis")
+
+
+def test_load_detections_reads_back_what_publish_as_wrote(tmp_path):
+    path = em.published_path("claude-sonnet-5", "bend", str(tmp_path),
+                             publish_as="claude-sonnet-5-effort-high")
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump({"detections": {"p1": [[0.5, 0.5, None]]}}, fh)
+    # Found under the publication name...
+    assert em.load_detections("claude-sonnet-5", "bend", str(tmp_path),
+                              publish_as="claude-sonnet-5-effort-high") is not None
+    # ...and correctly ABSENT under the bare id, rather than silently reading the
+    # other leg's file.
+    assert em.load_detections("claude-sonnet-5", "bend", str(tmp_path)) is None
+
+
+def test_export_refuses_to_overwrite_a_different_leg(tmp_path, monkeypatch):
+    """A silent overwrite is the worst available outcome: the file still looks
+    complete, --verify still passes against whichever leg was written last, and
+    the other leg's numbers are simply gone."""
+    out = tmp_path / "out"
+    out.mkdir()
+    existing = out / "claude-sonnet-5__annapolis.json"
+    existing.write_text(json.dumps({
+        "model": "claude-sonnet-5", "city": "annapolis",
+        "signature": {"provider": "claude", "effort": "high"},
+        "detections": {"p1": []}}), encoding="utf-8")
+    before = existing.read_text(encoding="utf-8")
+
+    written, skipped, partial, collisions = _fake_export(
+        monkeypatch, out, sig={"provider": "claude", "effort": "low"},
+        detections={"p1": [[0.1, 0.2, None]]})
+
+    assert written == [] and collisions and collisions[0][1] == "annapolis"
+    assert existing.read_text(encoding="utf-8") == before   # untouched
+
+
+def test_export_overwrites_the_same_leg_happily(tmp_path, monkeypatch):
+    """Re-exporting an unchanged leg must stay a no-op-shaped success, or every
+    routine re-run would look like a collision."""
+    out = tmp_path / "out"
+    out.mkdir()
+    sig = {"provider": "claude", "effort": "low"}
+    (out / "claude-sonnet-5__annapolis.json").write_text(json.dumps({
+        "model": "claude-sonnet-5", "city": "annapolis", "signature": sig,
+        "detections": {"p1": []}}), encoding="utf-8")
+
+    written, skipped, partial, collisions = _fake_export(
+        monkeypatch, out, sig=sig, detections={"p1": [[0.1, 0.2, None]]})
+    assert collisions == [] and len(written) == 1
+
+
+def test_publish_as_refuses_more_than_one_spec(tmp_path):
+    with pytest.raises(ValueError, match="ONE leg"):
+        em.export("/nope", str(tmp_path), ["annapolis"],
+                  ["claude:claude-sonnet-5", "gemini:gemini-3.6-flash"],
+                  publish_as="both")
+
+
+def _fake_export(monkeypatch, out, sig, detections):
+    """Drive export() over the real annapolis bundle path without torch or a cache.
+
+    export() imports compare/detectors lazily inside the function, so the stubs go
+    into sys.modules; ``benchmark/annapolis/records.jsonl`` genuinely exists, so
+    the only thing faked is the detector stack and the cache lookup. The point is
+    to exercise the collision branch, not to re-test scoring."""
+    import types
+
+    gts = dict.fromkeys(detections)
+    fake_compare = types.SimpleNamespace(
+        DetectionCache=lambda root, enabled: types.SimpleNamespace(
+            get=lambda key: detections["p1"]),
+        load_bundle=lambda bundle: ({}, {}, None),
+        load_manual_ground_truths=lambda bundle: gts,
+        ground_truths_from_verdicts=lambda records, verdicts: gts,
+        cache_key=lambda label, s, city, pid: "k",
+    )
+    fake_detectors = types.SimpleNamespace(
+        build_detector=lambda provider, mid, records, cargs: (
+            "claude-sonnet-5", types.SimpleNamespace(signature=lambda: sig)),
+        parse_model_spec=lambda spec: ("claude", "claude-sonnet-5"),
+    )
+    monkeypatch.setitem(sys.modules, "compare", fake_compare)
+    monkeypatch.setitem(sys.modules, "detectors", fake_detectors)
+    return em.export("/nope", str(out), ["annapolis"], ["claude:claude-sonnet-5"])
+
+
+# --------------------------------------------------------------------------- #
+# the ledger count is a test, not a promise
+# --------------------------------------------------------------------------- #
+def test_the_ledger_count_matches_the_directory():
+    """docs/replication.md quotes the size of the published detection corpus.
+
+    That number drifted three times (61 -> 68 -> 78 -> 108) before anyone noticed,
+    in the one document whose entire job is keeping the repo honest about what a
+    stranger can actually obtain. Prose cannot hold a count; this can."""
+    import re
+
+    published = [f for f in os.listdir(em.PUBLISHED_DIR) if f.endswith(".json")]
+    doc = os.path.join(REPO, "docs", "replication.md")
+    with open(doc, encoding="utf-8") as fh:
+        text = fh.read()
+
+    claimed = re.search(r"\*\*(\d+) files, [\d.]+ MB\*\*", text)
+    assert claimed, "docs/replication.md no longer states a '**N files, X MB**' count"
+    assert int(claimed.group(1)) == len(published), (
+        f"docs/replication.md claims {claimed.group(1)} published detection files, "
+        f"{em.PUBLISHED_DIR} holds {len(published)}. Re-measure and update the ledger.")
+
+    row = re.search(r"model_detections/`[^|]*\|[^|]*\((\d+) files\)", text)
+    assert row and int(row.group(1)) == len(published), (
+        "the 'Status by input' table's file count disagrees with the directory")
+
+
+def test_every_published_leg_is_named_in_the_ledger():
+    """A published artifact nobody documented is indistinguishable from a stray
+    file. Each distinct model stem under model_detections/ must appear by name in
+    docs/replication.md."""
+    stems = {f.rsplit("__", 1)[0] for f in os.listdir(em.PUBLISHED_DIR)
+             if f.endswith(".json")}
+    text = ""
+    for rel in ("docs/replication.md", "docs/model_comparison.md",
+                "scripts/model_comparison/yolo_baseline/README.md"):
+        path = os.path.join(REPO, *rel.split("/"))
+        if os.path.exists(path):
+            with open(path, encoding="utf-8") as fh:
+                text += fh.read()
+    # The Claude legs are written as one brace expansion rather than four literal
+    # stems, which is how a person would write it; accept that form too.
+    brace = "claude-{sonnet,opus}-5-effort-{low,high}"
+
+    def documented(stem):
+        # Docs name models by their real id ("IDEA-Research/grounding-dino-base"),
+        # while the filename carries the slug, so check both spellings.
+        if stem in text or stem.replace("__", "/") in text:
+            return True
+        return stem.startswith("claude-") and brace in text
+
+    undocumented = sorted(s for s in stems if not documented(s))
+    assert not undocumented, (
+        f"published but named in no doc a reader would find: {undocumented}")

@@ -502,7 +502,12 @@ class _VLMDetector:
     # never assume that key exists (compare.py uses .get). Subclasses start the
     # dict with init_usage() and add to it with accumulate_usage() rather than
     # inventing their own shape.
-    USAGE_KEYS = ("calls", "input_tokens", "output_tokens", "thoughts_tokens")
+    # cache_* are their own billed SKUs and are EXCLUDED from input_tokens on at
+    # least the Anthropic path, so a run that enables prompt caching would report
+    # a cost with the cached half missing. Zero for every provider that does not
+    # report them, which is all of them today.
+    USAGE_KEYS = ("calls", "input_tokens", "output_tokens", "thoughts_tokens",
+                  "cache_read_input_tokens", "cache_write_input_tokens")
 
     def init_usage(self):
         self.usage = dict.fromkeys(self.USAGE_KEYS, 0)
@@ -525,15 +530,19 @@ class _VLMDetector:
                   f"detections come from more than one model, and nothing in the "
                   f"cache key or the published signature distinguishes them.")
 
-    def accumulate_usage(self, input_tokens, output_tokens, thoughts_tokens=0):
+    def accumulate_usage(self, input_tokens, output_tokens, thoughts_tokens=0,
+                         cache_read_tokens=0, cache_write_tokens=0):
         """Add one paid call to the running total. ``output_tokens`` must ALREADY
         include thinking, because that is how it bills; ``thoughts_tokens`` is
         carried alongside only because it is invisible in the response text and
-        dominates output cost."""
+        dominates output cost. ``cache_*`` are separate SKUs, not a subset of
+        ``input_tokens`` -- pass them only if the provider reports them that way."""
         self.usage["calls"] += 1
         self.usage["input_tokens"] += input_tokens
         self.usage["output_tokens"] += output_tokens
         self.usage["thoughts_tokens"] += thoughts_tokens
+        self.usage["cache_read_input_tokens"] += cache_read_tokens
+        self.usage["cache_write_input_tokens"] += cache_write_tokens
 
     def detect(self, sample):
         self._ensure_ready()
@@ -703,6 +712,418 @@ class GeminiDetector(_VLMDetector):
 
     def _parse(self, raw, img_w, img_h):
         return gemini_boxes_to_points(raw)
+
+
+# --- Claude box parsing (pure, unit-tested) ---------------------------------
+
+# What we ask Claude for, constrained by the API rather than by prompting.
+#
+# Delivered as a FORCED TOOL CALL, not via output_config.format. Both give a
+# schema-shaped answer, but this project's GCP org policy
+# (constraints/vertexai.allowedPartnerModelFeatures) does not allow the
+# `structured_outputs` feature for Anthropic partner models -- measured
+# 2026-08-15: output_config.format returns 400, and so does a tool marked
+# `strict: True` (which is implemented as structured outputs underneath). A
+# plain tool + tool_choice passes and returns `{"boxes": [...]}` in the
+# tool_use block. If the org ever allow-lists
+# `publishers/anthropic/models/<model>:structured_outputs`, `strict: True`
+# becomes available and would add hard schema validation on top of this.
+#
+# Named fields, NOT a 4-element array: Gemini's [ymin, xmin, ymax, xmax]
+# ordering is a convention the model can silently transpose, and this repo has
+# already been bitten by exactly that class of bug (see the Molmo
+# triplet-alignment fix, 61c52d0). x1/y1/x2/y2 cannot be mis-ordered without
+# being obviously wrong.
+CLAUDE_BOX_TOOL = {
+    "name": "report_curb_ramps",
+    "description": ("Report every curb ramp visible in the image, as tight pixel "
+                    "bounding boxes in the image's own coordinate space. Report an "
+                    "empty list if there are none."),
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "boxes": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "x1": {"type": "integer"},
+                        "y1": {"type": "integer"},
+                        "x2": {"type": "integer"},
+                        "y2": {"type": "integer"},
+                    },
+                    "required": ["x1", "y1", "x2", "y2"],
+                    "additionalProperties": False,
+                },
+            },
+        },
+        "required": ["boxes"],
+        "additionalProperties": False,
+    },
+}
+
+
+def claude_boxes_to_points(items, img_w, img_h):
+    """Claude returns boxes in the view's OWN PIXEL space; reduce each to its
+    normalized [0,1] center point.
+
+    Deliberately different from Gemini's 0-1000 convention: Claude 4.7+ maps
+    returned coordinates 1:1 onto actual image pixels, so asking for pixels is
+    asking for what the model natively produces rather than making it rescale.
+    Confidence is None -- like the other chat VLMs, Claude carries no calibrated
+    per-box score.
+
+    Malformed items are SKIPPED, not fatal. Without ``strict: True`` on the tool --
+    which the org policy blocks -- the schema is a strong hint rather than an
+    enforced contract, and the model does occasionally return something else.
+    Measured over a full annapolis split: 1 malformed item in 745 calls (0.13%),
+    a list of strings where a list of objects was asked for, which raised
+    "string indices must be integers" and cost the whole panorama. One bad box
+    should cost one box, not six views' work."""
+    points = []
+    for it in items:
+        if not isinstance(it, dict):
+            continue
+        try:
+            x1, y1, x2, y2 = (float(it["x1"]), float(it["y1"]),
+                              float(it["x2"]), float(it["y2"]))
+        except (KeyError, TypeError, ValueError):
+            continue
+        cx = (x1 + x2) / 2.0 / float(img_w)
+        cy = (y1 + y2) / 2.0 / float(img_h)
+        points.append((cx, cy, None))
+    return points
+
+
+def _claude_box_list(data):
+    """The ``boxes`` array out of a tool input (or a parsed text object), or [].
+
+    Without ``strict: True`` -- which the org policy blocks -- the schema is a
+    strong hint, not a contract, so every one of ``{"boxes": null}``,
+    ``{"boxes": 3}``, a bare array and a missing key is reachable. Each returns
+    an empty list rather than raising, because the alternative costs all six
+    views of the panorama (see ``claude_boxes_to_points``)."""
+    if isinstance(data, list):        # the model emitted the bare array
+        return data
+    if not isinstance(data, dict):
+        return []
+    boxes = data.get("boxes")
+    return boxes if isinstance(boxes, list) else []
+
+
+def boxes_from_claude_response(resp):
+    """Pull the box list out of a tool-call response, tolerating anything else.
+
+    The tool_use block's ``input`` is already a parsed object, so the happy path
+    needs no JSON handling at all.
+
+    The TEXT FALLBACK carries the weight now that ``tool_choice`` defaults to
+    ``auto``: forcing the call made a text-only turn impossible, and allowing
+    thinking made it ordinary. So a turn can end in prose -- a refusal, a
+    preamble, a fenced JSON block -- and none of those may raise. This reuses
+    ``_first_json_blob`` (the Qwen path's scanner) to lift the first balanced
+    JSON value out of the text instead of assuming the whole block parses; a
+    refusal in words simply yields no boxes, which is the honest reading for
+    scoring. Truncation is NOT handled here: an empty result from a cut-off turn
+    is indistinguishable from "no ramps" at this layer, so
+    ``ClaudeDetector._check_stop_reason`` rejects it one level up, before it can
+    be cached."""
+    blocks = getattr(resp, "content", None) or []
+    for block in blocks:
+        if getattr(block, "type", None) == "tool_use":
+            return _claude_box_list(getattr(block, "input", None))
+    for block in blocks:
+        if getattr(block, "type", None) != "text" or not getattr(block, "text", None):
+            continue
+        blob = _first_json_blob(block.text)
+        if blob is None:
+            continue
+        try:
+            return _claude_box_list(json.loads(blob))
+        except ValueError:            # a truncated or malformed blob, not an answer
+            continue
+    return []
+
+
+# What the published annapolis legs actually ran with (2026-08-15). These are
+# INPUTS -- they change the detections -- so they belong in the cache key, but
+# only once a run DEVIATES from them: writing them into every signature would
+# change the hash for runs whose settings did not change, orphaning $28.82 of
+# already-paid detections to record a no-op. See ClaudeDetector.signature and
+# test_claude_cache_key_is_frozen.
+#
+# `jpeg` is the as-run value rather than the preferred one. GeminiDetector hands
+# google-genai a PIL image, and its `pil_to_blob` encodes that as lossless PNG
+# (its JPEG branch needs `image.format == "JPEG"` AND a filename, and a
+# reprojected view is an in-memory Image.fromarray with neither) -- so the two
+# paid legs are NOT seeing identical pixels today. `--claude-image-format png`
+# closes that gap at the price of re-running the legs; see docs/model_comparison.md.
+CLAUDE_AS_RUN_IMAGE_FORMAT = "jpeg"
+CLAUDE_AS_RUN_TEMPERATURE = None      # i.e. the provider default, NOT greedy
+CLAUDE_IMAGE_FORMATS = {"jpeg": ("JPEG", "image/jpeg"), "png": ("PNG", "image/png")}
+
+
+class ClaudeDetector(_VLMDetector):
+    """Claude via Google Cloud Vertex AI (#122).
+
+    Runs on the SAME credential path as the Gemini legs -- Vertex + ADC, same
+    project, same ``global`` location -- so it needs no new secret. Vertex's
+    Claude rates match Anthropic's first-party rates on ``global`` (regional
+    endpoints cost 10% more), verified 2026-08-15; see pricing.py.
+    """
+
+    name = "claude"
+    # Claude's own vision cap is 2576px on the long edge, but the rig feeds it
+    # 1024x1024 perspective views, so this only bounds the untiled whole-pano
+    # path. Matched to Gemini's so the two legs see the same pixels there.
+    max_edge = 1568
+
+    def __init__(self, model_id="claude-sonnet-5", max_edge=None, tile=True,
+                 project=None, location=None, effort="low", tool_choice="auto",
+                 views=None, image_format=CLAUDE_AS_RUN_IMAGE_FORMAT,
+                 temperature=CLAUDE_AS_RUN_TEMPERATURE):
+        super().__init__(model_id, max_edge, tile=tile, views=views)
+        if image_format not in CLAUDE_IMAGE_FORMATS:
+            raise ValueError(f"unknown image_format {image_format!r} "
+                             f"(choose from: {', '.join(sorted(CLAUDE_IMAGE_FORMATS))})")
+        self.image_format = image_format
+        # None = send no temperature at all and take the provider default, which
+        # is what the published legs did. GeminiDetector pins temperature=0.0, so
+        # the two paid legs currently differ in decoding as well as encoding;
+        # both are caveated in docs/model_comparison.md.
+        self.temperature = temperature
+        self.project = project or os.environ.get("GOOGLE_CLOUD_PROJECT")
+        # `global` for the same reason as Gemini, plus a second one: Vertex prices
+        # regional endpoints 10% above global for Claude.
+        self.location = location or os.environ.get("GOOGLE_CLOUD_LOCATION") or "global"
+        # Effort drives how much the model thinks, thinking bills as OUTPUT, and
+        # output is the entire cost variance on this leg -- so it belongs in the
+        # signature (below) as much as the prompt does. `low` by default: reading
+        # a 1024x1024 view and emitting a short box list is not intelligence-
+        # sensitive work, and the default `high` costs several times more for it.
+        self.effort = effort
+        # FORCING the tool call suppresses thinking entirely, which makes `effort`
+        # inert. Measured 2026-08-15 on one view: forced gives 60 output tokens
+        # and 0 thinking at BOTH low and high, while auto gives 0 / 42 / 237
+        # thinking at low / high / max. So `auto` is the default -- otherwise the
+        # effort knob silently does nothing. `forced` guarantees the answer comes
+        # back as a tool call (no text fallback needed) and is the better choice
+        # at effort=low, where there is no thinking to lose.
+        self.tool_choice = tool_choice
+        self._client = None
+        self.init_usage()
+        self._usage_warned = False
+        self._not_found_warned = False   # warn once per run, not once per retry
+        self._refusal_warned = False
+        # How each call ended, tallied. A leg where 12% of calls refused is not
+        # the same measurement as one where none did, and without this nothing
+        # would ever say so -- a refusal scores as "found nothing", which is
+        # indistinguishable from a confident empty answer. Rides along in the
+        # usage-log record (compare.report_usage).
+        self.stop_reasons = Counter()
+
+    def signature(self):
+        """Effort and the tool schema change the detections, so they change the key.
+
+        Everything else is inherited. Omitting effort would let a cheap `low` run
+        and an expensive `high` run collide in one cache entry and silently mix;
+        the tool definition is this provider's equivalent of the prompt, since it
+        is what constrains the answer's shape.
+
+        Image encoding and temperature are inputs too, but they appear ONLY when
+        they deviate from what the published legs ran (see
+        CLAUDE_AS_RUN_IMAGE_FORMAT). Recording an unchanged default would change
+        the hash without changing the run and orphan the paid annapolis cache."""
+        sig = super().signature()
+        sig["effort"] = self.effort
+        sig["tool_choice"] = self.tool_choice
+        sig["box_tool"] = json.dumps(CLAUDE_BOX_TOOL, sort_keys=True)
+        if self.image_format != CLAUDE_AS_RUN_IMAGE_FORMAT:
+            sig["image_format"] = self.image_format
+        if self.temperature != CLAUDE_AS_RUN_TEMPERATURE:
+            sig["temperature"] = self.temperature
+        return sig
+
+    def location_warning(self):
+        """The message to print when this run's endpoint is not priced by the table.
+
+        pricing.py's Claude rates are the ``global`` ones; Vertex bills regional
+        endpoints 10% above them. GOOGLE_CLOUD_LOCATION is shared with the Gemini
+        legs, so a region set for Gemini's sake silently makes every Claude cost
+        figure ~9% low. Returns None when there is nothing to say."""
+        if self.location == "global":
+            return None
+        return (f"[{self.model_id}] WARNING: {self.location!r} is a REGIONAL Vertex "
+                f"endpoint. Claude bills 10% ABOVE the `global` rates recorded in "
+                f"pricing.py there, so every cost figure from this run is ~9% low. "
+                f"Unset GOOGLE_CLOUD_LOCATION (or set it to 'global') to match the "
+                f"table.")
+
+    def _ensure_ready(self):
+        try:
+            from anthropic import AnthropicVertex
+        except ImportError as e:
+            raise ImportError(
+                "ClaudeDetector needs the `anthropic[vertex]` package "
+                "(pip install -r requirements-vlm.txt)") from e
+        if self._client is not None:
+            return
+        if not self.project:
+            raise RuntimeError(
+                "Claude on Vertex needs GOOGLE_CLOUD_PROJECT (and ADC via "
+                "`gcloud auth application-default login`) -- the same credentials "
+                "the Gemini legs use. Each Claude model must also be enabled "
+                "separately in Vertex Model Garden; an un-enabled model 404s with "
+                "'was not found or your project does not have access to it'.")
+        # max_retries above the SDK default of 2: a full-city run is ~750 calls and
+        # a transient 429/5xx mid-leg is expensive to redo. Matches the Gemini rig's
+        # 5 attempts.
+        warning = self.location_warning()
+        if warning:
+            print(warning)
+        self._client = AnthropicVertex(project_id=self.project, region=self.location,
+                                       max_retries=5)
+
+    # Vertex intermittently answers a perfectly good request with 404 "Publisher
+    # model ... was not found or your project does not have access to it", most
+    # visibly in the hours after a model is enabled -- the entitlement appears to
+    # propagate unevenly across serving backends. Measured 2026-08-15: 12/12
+    # identical calls succeeded in one burst while 3 of 5 panos 404'd minutes
+    # later. The SDK does not retry 404 (it is a 4xx, normally permanent), so
+    # without this a leg silently loses panos to a transient lie. A genuinely
+    # un-enabled model still fails, just after this many tries.
+    _NOT_FOUND_RETRIES = 4
+    _NOT_FOUND_BACKOFF = 2.0   # seconds, doubled each attempt
+
+    def _encode_image(self, image):
+        """``(base64 payload, media type)`` for one view, in the configured format.
+
+        Explicit rather than hardcoded because it decides what the model actually
+        sees: `jpeg` (q90, what the published legs sent) re-quantizes every view,
+        while `png` is lossless and is what the Gemini leg receives. Neither
+        changes the token bill -- image tokens are a function of dimensions -- so
+        the only cost of matching Gemini is re-running the legs."""
+        import base64
+        import io
+
+        pil_format, media_type = CLAUDE_IMAGE_FORMATS[self.image_format]
+        buf = io.BytesIO()
+        if pil_format == "JPEG":
+            image.save(buf, format=pil_format, quality=90)
+        else:
+            image.save(buf, format=pil_format)
+        return base64.standard_b64encode(buf.getvalue()).decode(), media_type
+
+    def _raw_detect(self, image):
+        import time
+
+        from anthropic import NotFoundError
+
+        b64, media_type = self._encode_image(image)
+
+        delay = self._NOT_FOUND_BACKOFF
+        for attempt in range(self._NOT_FOUND_RETRIES):
+            try:
+                return self._call(b64, media_type)
+            except NotFoundError:
+                if attempt == self._NOT_FOUND_RETRIES - 1:
+                    raise
+                if not self._not_found_warned:
+                    self._not_found_warned = True
+                    print(f"[{self.model_id}] transient 404 from Vertex; retrying. "
+                          f"If every call 404s, the model is not enabled for this "
+                          f"project in Model Garden.")
+                time.sleep(delay)
+                delay *= 2
+
+    # Thinking bills against max_tokens, so a high-effort turn can be cut off
+    # mid-thought. That is the one failure with NO symptom: the response carries
+    # no tool_use and no text, the parser reads it as "no boxes", every ground
+    # truth ramp on the pano becomes a false negative, and compare.score_model
+    # writes it to the detection cache -- making a silent recall loss permanent.
+    # So it is raised, not returned: score_model records a visible failure and
+    # caches nothing.
+    _TRUNCATED_STOP_REASON = "max_tokens"
+
+    def _call(self, b64, media_type):
+        kwargs = {}
+        if self.temperature is not None:
+            kwargs["temperature"] = self.temperature
+        resp = self._client.messages.create(
+            model=self.model_id,
+            max_tokens=4096,
+            # effort is allowed by the org policy; structured_outputs is not.
+            output_config={"effort": self.effort},
+            tools=[CLAUDE_BOX_TOOL],
+            tool_choice=({"type": "tool", "name": CLAUDE_BOX_TOOL["name"]}
+                         if self.tool_choice == "forced" else {"type": "auto"}),
+            messages=[{"role": "user", "content": [
+                {"type": "image", "source": {"type": "base64",
+                                             "media_type": media_type, "data": b64}},
+                {"type": "text", "text": self.prompt},
+            ]}],
+            **kwargs,
+        )
+        self._record_usage(resp)
+        self._check_stop_reason(resp)
+        return boxes_from_claude_response(resp)
+
+    def _check_stop_reason(self, resp):
+        """Tally how this call ended, and refuse to let a truncation score as zero.
+
+        ``max_tokens`` raises (see above). ``refusal`` does not -- a model that
+        declined genuinely found nothing, as far as scoring is concerned -- but
+        it is counted and announced once, because a leg with a refusal rate is a
+        different measurement from one without and nothing else would reveal it."""
+        reason = getattr(resp, "stop_reason", None)
+        if reason:
+            self.stop_reasons[reason] += 1
+        if reason == self._TRUNCATED_STOP_REASON:
+            raise RuntimeError(
+                f"[{self.model_id}] response hit max_tokens before answering "
+                f"(effort={self.effort}). Thinking bills against max_tokens, so a "
+                f"high-effort call can be cut off mid-thought; scoring that as "
+                f"'no curb ramps' would be a silent recall loss AND would be "
+                f"cached. Raise max_tokens or lower --claude-effort.")
+        if reason == "refusal" and not self._refusal_warned:
+            self._refusal_warned = True
+            print(f"[{self.model_id}] WARNING: a call ended in `refusal`, which "
+                  f"scores as 'found nothing'. The per-run tally is reported with "
+                  f"this leg's usage; a non-trivial refusal rate makes the leg's "
+                  f"recall incomparable with the others.")
+
+    def _record_usage(self, resp):
+        """Accumulate this call's token counts.
+
+        NOTE the difference from Gemini: Anthropic's ``output_tokens`` ALREADY
+        includes thinking, whereas google-genai's ``candidates_token_count``
+        excludes it. So thinking is passed through for reporting but must NOT be
+        added again -- doing so would double-count the dominant cost term. The
+        cross-check below is what catches that assumption inverting."""
+        self.record_model_version(getattr(resp, "model", None))
+        u = getattr(resp, "usage", None)
+        if u is None:
+            return
+        inp = getattr(u, "input_tokens", 0) or 0
+        out = getattr(u, "output_tokens", 0) or 0
+        details = getattr(u, "output_tokens_details", None)
+        thinking = (getattr(details, "thinking_tokens", None) or 0) if details else 0
+        if thinking > out and not self._usage_warned:
+            self._usage_warned = True
+            print(f"[{self.model_id}] WARNING: thinking_tokens ({thinking}) exceeds "
+                  f"output_tokens ({out}), so output_tokens is evidently NOT "
+                  f"inclusive of thinking on this SDK. The cost estimate is now "
+                  f"UNDER-counting output; check the field semantics.")
+        # Separate SKUs, and NOT part of input_tokens. Zero unless a run turns on
+        # cache_control (nothing does today -- the tool definition renders below
+        # Sonnet 5's 1,024-token minimum cacheable prefix), but recorded so the
+        # first run that does is priced whole rather than silently low.
+        cache_read = getattr(u, "cache_read_input_tokens", 0) or 0
+        cache_write = getattr(u, "cache_creation_input_tokens", 0) or 0
+        self.accumulate_usage(inp, out, thinking, cache_read, cache_write)
+
+    def _parse(self, raw, img_w, img_h):
+        return claude_boxes_to_points(raw, img_w, img_h)
 
 
 def infer_qwen_coord_space(model_id):
@@ -1103,12 +1524,20 @@ class YoloDetector(_VLMDetector):
         return sig
 
 
+# Every provider ``build_detector`` knows, in the order they are documented. The
+# ONE source of truth: this list previously lived re-typed in four places, and
+# `claude` shipped in build_detector while three of them still said it did not
+# exist. compare.py builds its --models help from this; the tests check the
+# prose that cannot be generated (test_every_provider_is_listed_everywhere).
+PROVIDERS = ("rampnet", "gemini", "claude", "qwen", "owlv2", "gdino", "molmo", "yolo")
+
+
 def parse_model_spec(token):
     """Parse a ``--models`` token into ``(provider, model_id_or_None)``.
 
-    A token is either a bare provider (``rampnet`` / ``gemini`` / ``qwen`` /
-    ``owlv2`` / ``gdino`` / ``molmo`` / ``yolo``, which uses that provider's default
-    model) or ``provider:model_id`` to pin a specific variant — e.g.
+    A token is either a bare provider (``rampnet`` / ``gemini`` / ``claude`` /
+    ``qwen`` / ``owlv2`` / ``gdino`` / ``molmo`` / ``yolo``, which uses that
+    provider's default model) or ``provider:model_id`` to pin a variant — e.g.
     ``gemini:gemini-2.5-flash`` vs ``gemini:gemini-3.6-flash``, or
     ``yolo:runs/detect/train/weights/best.pt`` for a trained checkpoint — so several
     variants of the same provider can be compared in one run."""
@@ -1128,6 +1557,15 @@ def build_detector(provider, model_id, records, args):
     if provider == "gemini":
         mid = model_id or args.gemini_model
         return mid, GeminiDetector(model_id=mid, tile=tile)
+    if provider == "claude":
+        mid = model_id or args.claude_model
+        return mid, ClaudeDetector(
+            model_id=mid, tile=tile,
+            effort=getattr(args, "claude_effort", None) or "low",
+            tool_choice=getattr(args, "claude_tool_choice", None) or "auto",
+            image_format=(getattr(args, "claude_image_format", None)
+                          or CLAUDE_AS_RUN_IMAGE_FORMAT),
+            temperature=getattr(args, "claude_temperature", CLAUDE_AS_RUN_TEMPERATURE))
     if provider == "qwen":
         mid = model_id or args.qwen_model
         coord_space = getattr(args, "qwen_coord_space", "auto")
@@ -1163,5 +1601,5 @@ def build_detector(provider, model_id, records, args):
                                    conf=getattr(args, "yolo_conf", None),
                                    iou=0.5 if iou is None else float(iou),
                                    imgsz=1024 if imgsz is None else int(imgsz))
-    raise ValueError(f"unknown provider '{provider}' (choose from: rampnet, gemini, qwen, "
-                     "owlv2, gdino, molmo, yolo)")
+    raise ValueError(f"unknown provider '{provider}' "
+                     f"(choose from: {', '.join(PROVIDERS)})")

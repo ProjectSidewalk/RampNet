@@ -195,7 +195,13 @@ def _compare_args(cache_dir):
     import argparse as _a
     ns = _a.Namespace()
     for k, v in dict(
-            gemini_model="gemini-3.6-flash", qwen_model="Qwen/Qwen3-VL-8B-Instruct",
+            gemini_model="gemini-3.6-flash",
+            claude_model="claude-sonnet-5", claude_effort="low", claude_tool_choice="auto",
+            # As-run encoding/decoding for the published Claude legs. None/"jpeg"
+            # keep them OUT of the cache signature, so these defaults must match
+            # compare.py's or an export rebuilds a different key and finds no cache.
+            claude_image_format=None, claude_temperature=None,
+            qwen_model="Qwen/Qwen3-VL-8B-Instruct",
             qwen_coord_space="auto",
             owlv2_model="google/owlv2-large-patch14-ensemble",
             gdino_model="IDEA-Research/grounding-dino-base",

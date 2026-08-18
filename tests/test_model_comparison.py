@@ -14,9 +14,11 @@ import pytest
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "model_comparison"))
 
+import detectors  # noqa: E402
 from detectors import (  # noqa: E402
-    BundleRampNetDetector, GeminiDetector, GroundingDinoDetector, MolmoDetector,
-    OwlV2Detector, QwenDetector, YoloDetector, PanoSample, _VLMDetector,
+    BundleRampNetDetector, ClaudeDetector, GeminiDetector, GroundingDinoDetector,
+    MolmoDetector, OwlV2Detector, QwenDetector, YoloDetector, PanoSample, _VLMDetector,
+    claude_boxes_to_points, boxes_from_claude_response,
     gemini_boxes_to_points, qwen_boxes_to_points, boxes_from_gemini_response,
     boxes_from_qwen_text, infer_qwen_coord_space, parse_model_spec, build_detector,
     molmo_points_from_text, molmo_token_points_to_items, infer_molmo_mode,
@@ -57,6 +59,9 @@ class _Args:
     owlv2_model = "google/owlv2-large-patch14-ensemble"
     gdino_model = "IDEA-Research/grounding-dino-base"
     molmo_model = "allenai/Molmo2-8B"
+    claude_model = "claude-sonnet-5"
+    claude_effort = "low"
+    claude_tool_choice = "auto"
     owlv2_query = None
     gdino_query = None
     gdino_text_threshold = None
@@ -809,13 +814,18 @@ def test_gemini_usage_accumulates_thinking_as_output():
         usage_metadata = _Usage()
 
     det = GeminiDetector(model_id="gemini-3.7-flash")
-    assert det.usage == {"calls": 0, "input_tokens": 0, "output_tokens": 0,
-                         "thoughts_tokens": 0}
+    # Keyed off USAGE_KEYS rather than a re-typed literal: the shape is the base
+    # class's contract, and a test that hardcodes it has to be edited every time
+    # a provider reports one more thing (which is the drift PROVIDERS fixed too).
+    assert det.usage == dict.fromkeys(_VLMDetector.USAGE_KEYS, 0)
     det._record_usage(_Resp())
     det._record_usage(_Resp())
-    assert det.usage == {"calls": 2, "input_tokens": 2000,
-                         "output_tokens": 500,   # (50 visible + 200 thinking) x 2
-                         "thoughts_tokens": 400}
+    assert det.usage == dict(dict.fromkeys(_VLMDetector.USAGE_KEYS, 0),
+                             calls=2, input_tokens=2000,
+                             output_tokens=500,   # (50 visible + 200 thinking) x 2
+                             thoughts_tokens=400)
+    # Gemini reports no separate cache SKUs, so those stay at zero for it.
+    assert det.usage["cache_read_input_tokens"] == 0
     # A response with no usage metadata (e.g. a mocked/older client) is a no-op.
     det._record_usage(type("R", (), {"usage_metadata": None})())
     assert det.usage["calls"] == 2
@@ -838,6 +848,467 @@ def test_gemini_usage_warns_when_the_sdk_stops_adding_up(capsys):
     # Warns once per run, not once per call — a full leg is ~750 calls.
     det._record_usage(type("R", (), {"usage_metadata": _Usage()})())
     assert "WARNING" not in capsys.readouterr().out
+
+
+# --- Claude on Vertex (#122) ------------------------------------------------
+
+def test_claude_boxes_are_pixels_in_the_views_own_space():
+    # Deliberately NOT Gemini's 0-1000 convention: Claude maps coordinates 1:1
+    # onto image pixels, so we ask for pixels and divide by the view size.
+    pts = claude_boxes_to_points([{"x1": 0, "y1": 0, "x2": 512, "y2": 256}], 1024, 1024)
+    assert pts == [(0.25, 0.125, None)]
+    # A different view size must move the normalized point — the guard against
+    # someone "simplifying" this to a fixed 1000 divisor.
+    assert claude_boxes_to_points([{"x1": 0, "y1": 0, "x2": 512, "y2": 512}],
+                                  512, 512) == [(0.5, 0.5, None)]
+
+
+def test_claude_box_tool_forbids_a_transposable_array():
+    # The whole point of named fields: a [ymin, xmin, ymax, xmax] array can be
+    # silently transposed, and this repo has shipped that bug before (Molmo).
+    item = detectors.CLAUDE_BOX_TOOL["input_schema"]["properties"]["boxes"]["items"]
+    assert set(item["required"]) == {"x1", "y1", "x2", "y2"}
+    assert item["additionalProperties"] is False
+
+
+def test_claude_skips_malformed_boxes_instead_of_losing_the_panorama():
+    # Without `strict: True` (org-policy blocked) the schema is a hint, not a
+    # contract. Observed once in 745 calls: a list of strings where objects were
+    # asked for, which raised TypeError and cost all 6 views of that panorama.
+    pts = claude_boxes_to_points(
+        ["curb ramp at 100,200",                       # the real failure shape
+         {"x1": 0, "y1": 0, "x2": 512, "y2": 512},     # good
+         {"x1": 1, "y1": 2},                           # missing keys
+         {"x1": "a", "y1": "b", "x2": "c", "y2": "d"}],  # unparseable
+        1024, 1024)
+    assert pts == [(0.25, 0.25, None)]
+
+
+def test_claude_box_tool_is_not_strict():
+    # `strict: True` is implemented as structured outputs, which this project's
+    # GCP org policy blocks for Anthropic partner models (measured 2026-08-15:
+    # 400, disallowed feature `structured_outputs`). Forced tool_choice without
+    # it passes. If someone adds strict back, every Claude call 400s.
+    assert "strict" not in detectors.CLAUDE_BOX_TOOL
+
+
+def test_claude_reads_boxes_from_the_tool_call():
+    blk = type("B", (), {"type": "tool_use", "input": {"boxes": [
+        {"x1": 1, "y1": 2, "x2": 3, "y2": 4}]}})()
+    assert boxes_from_claude_response(type("R", (), {"content": [blk]})()) == [
+        {"x1": 1, "y1": 2, "x2": 3, "y2": 4}]
+    # Text fallback for a turn that ended without a tool call.
+    txt = type("B", (), {"type": "text", "text": '{"boxes": [{"x1":0,"y1":0,"x2":2,"y2":2}]}'})()
+    assert boxes_from_claude_response(type("R", (), {"content": [txt]})()) == [
+        {"x1": 0, "y1": 0, "x2": 2, "y2": 2}]
+
+
+def test_claude_effort_is_in_the_cache_key():
+    # Effort changes how much the model thinks, which changes the detections.
+    # If it were not in the signature, a cheap `low` run and an expensive `high`
+    # run would collide in one cache entry and silently mix.
+    low = ClaudeDetector(model_id="claude-sonnet-5", effort="low")
+    high = ClaudeDetector(model_id="claude-sonnet-5", effort="high")
+    assert low.signature()["effort"] == "low"
+    assert cache_key("claude-sonnet-5", low.signature(), "bend", "p1") != \
+           cache_key("claude-sonnet-5", high.signature(), "bend", "p1")
+
+
+def test_claude_usage_does_not_double_count_thinking():
+    # Anthropic's output_tokens ALREADY includes thinking (unlike google-genai's
+    # candidates_token_count, which excludes it). Adding them again would double
+    # the dominant cost term.
+    class _Usage:
+        input_tokens = 1512
+        output_tokens = 800          # inclusive of the 600 thinking tokens
+        output_tokens_details = type("D", (), {"thinking_tokens": 600})()
+
+    det = ClaudeDetector(model_id="claude-sonnet-5")
+    det._record_usage(type("R", (), {"usage": _Usage(), "model": "claude-sonnet-5"})())
+    assert det.usage["input_tokens"] == 1512
+    assert det.usage["output_tokens"] == 800      # NOT 1400
+    assert det.usage["thoughts_tokens"] == 600
+    assert dict(det.model_versions) == {"claude-sonnet-5": 1}
+
+
+def test_claude_warns_if_output_tokens_stops_including_thinking(capsys):
+    class _Usage:
+        input_tokens = 10
+        output_tokens = 50           # < thinking: the assumption has inverted
+        output_tokens_details = type("D", (), {"thinking_tokens": 600})()
+
+    det = ClaudeDetector(model_id="claude-sonnet-5")
+    det._record_usage(type("R", (), {"usage": _Usage(), "model": "x"})())
+    out = capsys.readouterr().out
+    assert "WARNING" in out and "UNDER-counting" in out
+
+
+def test_claude_detect_fails_clearly_without_credentials(monkeypatch):
+    monkeypatch.delenv("GOOGLE_CLOUD_PROJECT", raising=False)
+    det = ClaudeDetector(model_id="claude-sonnet-5", project=None)
+    try:
+        det.prepare()
+    except (RuntimeError, ImportError) as e:
+        assert "GOOGLE_CLOUD_PROJECT" in str(e) or "anthropic" in str(e)
+        return
+    raise AssertionError("expected ClaudeDetector.prepare to fail without credentials")
+
+
+def test_claude_empty_response_yields_no_boxes():
+    # A refusal or a max_tokens truncation before any text must read as "no
+    # detections here", not raise.
+    assert boxes_from_claude_response(type("R", (), {"content": []})()) == []
+    blk = type("B", (), {"type": "text", "text": '{"boxes": []}'})()
+    assert boxes_from_claude_response(type("R", (), {"content": [blk]})()) == []
+
+
+# --- Claude: the parse layer must never cost more than the box it choked on ---
+#
+# Every case below was a real crash before #123's review: each one raised out of
+# ``boxes_from_claude_response`` / ``claude_boxes_to_points``, propagated through
+# ``_raw_detect``, and cost all six views of a panorama (which is how the
+# sonnet/low leg ended up scored on 290 GT ramps instead of annapolis's 294).
+# The contract is now: a malformed ANYTHING costs exactly what it is worth and
+# nothing more.
+
+# (label, response content blocks, expected boxes) for the text-fallback path.
+_CLAUDE_HOSTILE_RESPONSES = [
+    # A refusal in words. This is the shape `auto` tool choice invites and the
+    # shape `forced` made impossible, so it arrived WITH the default change.
+    ("prose refusal", "I can't identify curb ramps in this image.", []),
+    ("empty text", "", []),
+    ("prose then object", 'Sure! {"boxes": [{"x1": 0, "y1": 0, "x2": 2, "y2": 2}]}',
+     [{"x1": 0, "y1": 0, "x2": 2, "y2": 2}]),
+    ("fenced object", '```json\n{"boxes": [{"x1": 0, "y1": 0, "x2": 2, "y2": 2}]}\n```',
+     [{"x1": 0, "y1": 0, "x2": 2, "y2": 2}]),
+    # The model answered with the bare array instead of the wrapper object.
+    # boxes_from_gemini_response has always handled this; Claude's did not.
+    ("bare array", '[{"x1": 0, "y1": 0, "x2": 2, "y2": 2}]',
+     [{"x1": 0, "y1": 0, "x2": 2, "y2": 2}]),
+    ("truncated json", '{"boxes": [{"x1": 0, "y1"', []),
+    ("json scalar", '42', []),
+]
+
+
+@pytest.mark.parametrize("label,text,expected", _CLAUDE_HOSTILE_RESPONSES,
+                         ids=[c[0] for c in _CLAUDE_HOSTILE_RESPONSES])
+def test_claude_text_fallback_never_raises(label, text, expected):
+    blk = type("B", (), {"type": "text", "text": text})()
+    assert boxes_from_claude_response(type("R", (), {"content": [blk]})()) == expected
+
+
+# Tool-call inputs that satisfy "there is a tool_use block" but not "boxes is a
+# list of objects". Without `strict: True` — which the org policy blocks — the
+# schema is a hint, so every one of these is reachable.
+_CLAUDE_HOSTILE_TOOL_INPUTS = [
+    ("boxes null", {"boxes": None}),
+    ("boxes int", {"boxes": 3}),
+    ("boxes dict", {"boxes": {"x1": 0}}),
+    ("boxes string", {"boxes": "none found"}),
+    ("no boxes key", {"detections": []}),
+    ("input is None", None),
+    ("input is a list", [{"x1": 0}]),
+]
+
+
+@pytest.mark.parametrize("label,payload", _CLAUDE_HOSTILE_TOOL_INPUTS,
+                         ids=[c[0] for c in _CLAUDE_HOSTILE_TOOL_INPUTS])
+def test_claude_tool_use_with_a_malformed_input_yields_no_boxes(label, payload):
+    blk = type("B", (), {"type": "tool_use", "input": payload})()
+    boxes = boxes_from_claude_response(type("R", (), {"content": [blk]})())
+    # Must be list-shaped so the parse step downstream cannot trip either.
+    assert isinstance(boxes, list)
+    assert claude_boxes_to_points(boxes, 1024, 1024) == []
+
+
+def test_claude_parse_is_total_over_the_whole_hostile_corpus():
+    """End to end: response -> boxes -> points, for every bad shape at once.
+
+    The guarantee this pins is not "the right answer" but "an answer": the
+    pipeline returns well-formed points for anything a model can emit, so one
+    bad response can never again cost a whole panorama."""
+    responses = [type("R", (), {"content": []})()]
+    for _, text, _ in _CLAUDE_HOSTILE_RESPONSES:
+        responses.append(type("R", (), {"content": [
+            type("B", (), {"type": "text", "text": text})()]})())
+    for _, payload in _CLAUDE_HOSTILE_TOOL_INPUTS:
+        responses.append(type("R", (), {"content": [
+            type("B", (), {"type": "tool_use", "input": payload})()]})())
+    # A thinking-only turn, which is what a mid-thought max_tokens cut leaves.
+    responses.append(type("R", (), {"content": [
+        type("B", (), {"type": "thinking", "thinking": "hmm"})()]})())
+    for resp in responses:
+        pts = claude_boxes_to_points(boxes_from_claude_response(resp), 1024, 1024)
+        assert isinstance(pts, list)
+        assert all(len(p) == 3 and isinstance(p[0], float) for p in pts)
+
+
+def test_claude_prefers_the_tool_call_over_a_preamble():
+    # With thinking on, a turn is often [thinking, text preamble, tool_use].
+    blocks = [type("B", (), {"type": "thinking", "thinking": "looking..."})(),
+              type("B", (), {"type": "text", "text": "I'll report what I see."})(),
+              type("B", (), {"type": "tool_use", "input": {"boxes": [
+                  {"x1": 1, "y1": 2, "x2": 3, "y2": 4}]}})()]
+    assert boxes_from_claude_response(type("R", (), {"content": blocks})()) == [
+        {"x1": 1, "y1": 2, "x2": 3, "y2": 4}]
+
+
+# --- Claude: a truncated call is an ERROR, never an empty detection ----------
+
+def _claude_resp(stop_reason="end_turn", content=None, usage=None, model="claude-sonnet-5"):
+    return type("R", (), {"stop_reason": stop_reason, "content": content or [],
+                          "usage": usage, "model": model})()
+
+
+def test_claude_max_tokens_truncation_raises_instead_of_scoring_zero():
+    """The failure mode that has no symptom otherwise.
+
+    A response cut off mid-thinking carries no tool_use and no text, so the
+    parser correctly reads it as "no boxes". If that reached the scorer it would
+    become a false negative for every GT ramp on the pano AND be written to the
+    detection cache, making a silent recall loss permanent. So the detector
+    rejects it before it can be cached: score_model records a visible failure."""
+    det = ClaudeDetector(model_id="claude-sonnet-5")
+    with pytest.raises(RuntimeError, match="max_tokens"):
+        det._check_stop_reason(_claude_resp(stop_reason="max_tokens"))
+
+
+def test_claude_normal_stop_reasons_pass_through():
+    det = ClaudeDetector(model_id="claude-sonnet-5")
+    for reason in ("end_turn", "tool_use", "stop_sequence", None):
+        det._check_stop_reason(_claude_resp(stop_reason=reason))   # must not raise
+
+
+def test_claude_refusal_is_counted_and_announced_not_silent(capsys):
+    """A refusal still scores as "found nothing" — that is the honest reading —
+    but it must be COUNTED, because a leg where 20% of calls refused is not the
+    same measurement as one where none did, and nothing else would show it."""
+    det = ClaudeDetector(model_id="claude-sonnet-5")
+    det._check_stop_reason(_claude_resp(stop_reason="refusal"))
+    det._check_stop_reason(_claude_resp(stop_reason="refusal"))
+    out = capsys.readouterr().out
+    assert "refusal" in out and "WARNING" in out
+    assert out.count("WARNING") == 1          # warn once per run, not per call
+    assert det.stop_reasons["refusal"] == 2
+
+
+def test_claude_stop_reasons_are_tallied_for_every_call():
+    det = ClaudeDetector(model_id="claude-sonnet-5")
+    for reason in ("end_turn", "tool_use", "tool_use"):
+        det._check_stop_reason(_claude_resp(stop_reason=reason))
+    assert dict(det.stop_reasons) == {"end_turn": 1, "tool_use": 2}
+
+
+# --- Claude: the cache key is real money ------------------------------------
+
+def test_claude_cache_key_is_frozen():
+    """Regression guard on $28.82 of already-paid annapolis detections.
+
+    Four legs (two models x two effort levels, 125 panos x 6 views each) are
+    cached under hash(label, signature, city, pano). Any drift in
+    ClaudeDetector.signature() misses every one of them and re-bills the run.
+    Same contract as test_gemini_cache_key_is_frozen: if this fails, the change
+    was not free — revert it, or re-pay deliberately and say so in the PR."""
+    expected = {
+        ("claude-sonnet-5", "low"): "18605fcb5c957a8181c37affe1715afe5b030e88",
+        ("claude-sonnet-5", "high"): "16a9d2d5d0bdcca687145e74d4e03ff46f5bf549",
+        ("claude-opus-5", "low"): "0963255957b989a32bffbcaf9de1f0bd1701b319",
+        ("claude-opus-5", "high"): "3cf3ad4e5e4c95ac22116a81e708d133463c1ff0",
+    }
+    for (mid, effort), want in expected.items():
+        det = ClaudeDetector(model_id=mid, effort=effort, tool_choice="auto")
+        assert det.prompt == DETECTION_PROMPT   # provider suffixes must not leak in
+        assert cache_key(mid, det.signature(), "richmond", "pano1") == want, (
+            f"{mid}/{effort} signature drifted; the annapolis cache is orphaned")
+
+
+def test_claude_as_run_defaults_stay_out_of_the_signature():
+    """Encoding and temperature are inputs, so they belong in the key — but only
+    once they DEVIATE from what the published legs ran.
+
+    Writing them in unconditionally would change the hash for runs whose settings
+    did not change, orphaning the paid cache to record a no-op. So the signature
+    carries a deviation, not a description."""
+    det = ClaudeDetector(model_id="claude-sonnet-5")
+    assert det.image_format == detectors.CLAUDE_AS_RUN_IMAGE_FORMAT == "jpeg"
+    assert det.temperature is detectors.CLAUDE_AS_RUN_TEMPERATURE is None
+    sig = det.signature()
+    assert "image_format" not in sig and "temperature" not in sig
+
+
+@pytest.mark.parametrize("kwargs", [{"image_format": "png"}, {"temperature": 0.0}])
+def test_claude_deviating_from_the_as_run_settings_invalidates_the_cache(kwargs):
+    base = ClaudeDetector(model_id="claude-sonnet-5")
+    other = ClaudeDetector(model_id="claude-sonnet-5", **kwargs)
+    assert cache_key("claude-sonnet-5", base.signature(), "annapolis", "p1") != \
+           cache_key("claude-sonnet-5", other.signature(), "annapolis", "p1")
+
+
+def test_claude_tool_choice_is_in_the_cache_key():
+    auto = ClaudeDetector(model_id="claude-sonnet-5", tool_choice="auto")
+    forced = ClaudeDetector(model_id="claude-sonnet-5", tool_choice="forced")
+    assert cache_key("claude-sonnet-5", auto.signature(), "bend", "p1") != \
+           cache_key("claude-sonnet-5", forced.signature(), "bend", "p1")
+
+
+# --- Claude: what pixels the model actually sees ----------------------------
+
+def test_claude_image_encoding_is_explicit_and_round_trips():
+    """The published legs sent JPEG q90 while the Gemini leg sends lossless PNG
+    (google-genai's pil_to_blob only picks JPEG for an image loaded FROM a jpeg
+    file, and reprojected views come from Image.fromarray). That asymmetry is
+    now a named, switchable setting instead of a buried default."""
+    from PIL import Image
+    img = Image.new("RGB", (8, 8), (10, 200, 30))
+    img.putpixel((0, 0), (255, 0, 0))
+
+    b64, media_type = ClaudeDetector(model_id="claude-sonnet-5")._encode_image(img)
+    assert media_type == "image/jpeg"
+
+    b64, media_type = ClaudeDetector(model_id="claude-sonnet-5",
+                                     image_format="png")._encode_image(img)
+    assert media_type == "image/png"
+    import base64 as _b64
+    import io as _io
+    back = Image.open(_io.BytesIO(_b64.b64decode(b64)))
+    assert back.size == (8, 8)
+    assert back.getpixel((0, 0)) == (255, 0, 0)      # lossless, unlike q90 JPEG
+
+
+def test_claude_rejects_an_unknown_image_format():
+    with pytest.raises(ValueError, match="image_format"):
+        ClaudeDetector(model_id="claude-sonnet-5", image_format="webp")
+
+
+# --- Claude: cost bookkeeping that cannot be reconstructed later -------------
+
+def test_claude_regional_endpoint_warns_that_every_cost_is_low():
+    """pricing.py's Claude rates are the `global` ones and regional endpoints
+    bill 10% more, so a run pointed off `global` reports costs that are ~9% low
+    with nothing else to show for it. GOOGLE_CLOUD_LOCATION is shared with the
+    Gemini leg, so this is set by accident, not on purpose."""
+    assert ClaudeDetector(model_id="claude-sonnet-5", location="global").location_warning() is None
+    msg = ClaudeDetector(model_id="claude-sonnet-5", location="us-east5").location_warning()
+    assert msg and "us-east5" in msg and "10%" in msg
+
+
+def test_claude_records_cache_tokens_separately():
+    """Anthropic bills cache reads/writes as their own SKUs and EXCLUDES them
+    from input_tokens, so a run that ever enables cache_control would otherwise
+    report a cost with the cached half missing."""
+    class _Usage:
+        input_tokens = 100
+        output_tokens = 20
+        cache_read_input_tokens = 900
+        cache_creation_input_tokens = 50
+        output_tokens_details = None
+
+    det = ClaudeDetector(model_id="claude-sonnet-5")
+    det._record_usage(_claude_resp(usage=_Usage()))
+    assert det.usage["input_tokens"] == 100
+    assert det.usage["cache_read_input_tokens"] == 900
+    assert det.usage["cache_write_input_tokens"] == 50
+
+
+def test_estimate_cost_prices_cache_tokens_when_the_model_has_rates():
+    from pricing import estimate_cost, price_for
+    p = price_for("claude-sonnet-5")
+    assert p["cache_read_per_m"] == 0.20 and p["cache_write_per_m"] == 2.50
+    # 1M plain input + 1M cached read + 1M cache write + 1M output.
+    got = estimate_cost("claude-sonnet-5", 1_000_000, 1_000_000,
+                        cache_read_tokens=1_000_000, cache_write_tokens=1_000_000)
+    assert got == pytest.approx(2.00 + 10.00 + 0.20 + 2.50)
+    # Back-compat: the three-arg call every other caller uses is unchanged.
+    assert estimate_cost("claude-sonnet-5", 1_000_000, 0) == pytest.approx(2.00)
+
+
+def test_estimate_cost_ignores_cache_tokens_for_models_without_verified_rates():
+    """Never invent a rate. A model whose cache SKUs were not read off the rate
+    card prices its plain tokens and says nothing about the rest."""
+    from pricing import estimate_cost, price_for
+    assert "cache_read_per_m" not in price_for("gemini-3.6-flash")
+    assert estimate_cost("gemini-3.6-flash", 1_000_000, 0,
+                         cache_read_tokens=5_000_000) == pytest.approx(0.75)
+
+
+def test_usage_record_carries_stop_reasons(tmp_path):
+    """A leg's abnormal terminations belong beside its cost, because that is the
+    one place someone re-reading the numbers will look."""
+    det = ClaudeDetector(model_id="claude-sonnet-5")
+    det.accumulate_usage(10, 5, 0)
+    det.stop_reasons.update(["end_turn", "refusal"])
+    log = tmp_path / "usage_log.jsonl"
+    report_usage(det, "claude-sonnet-5", "annapolis", 125, str(log))
+    rec = json.loads(log.read_text(encoding="utf-8").splitlines()[-1])
+    assert rec["stop_reasons"] == {"end_turn": 1, "refusal": 1}
+
+
+def test_a_paid_leg_with_the_usage_log_disabled_says_so_loudly(capsys):
+    """The standing rule is that spend is recorded at run time, and the token
+    counts are the ONE artifact that cannot be back-filled: a re-run reads the
+    detection cache, makes zero calls, and so can never reproduce them. The
+    four Claude legs on #123 spent $28.82 and left no record — this is the guard
+    that would have caught it while the money was being spent."""
+    det = ClaudeDetector(model_id="claude-sonnet-5")
+    det.accumulate_usage(1000, 50, 0)
+    report_usage(det, "claude-sonnet-5", "annapolis", 125, None)
+    out = capsys.readouterr().out
+    assert "WARNING" in out and "not recorded" in out.lower()
+
+
+# --- the provider roster has ONE source of truth ----------------------------
+
+def test_every_provider_is_listed_everywhere_a_user_looks():
+    """`claude` shipped in build_detector but was missing from the --models help,
+    compare.py's docstring and parse_model_spec's docstring. Rosters drift the
+    moment they are duplicated, so they are now generated from PROVIDERS — and
+    the prose that cannot be generated is checked here."""
+    import compare
+    assert detectors.PROVIDERS == ("rampnet", "gemini", "claude", "qwen", "owlv2",
+                                   "gdino", "molmo", "yolo")
+    for provider in detectors.PROVIDERS:
+        assert provider in compare.MODELS_HELP, f"{provider} missing from --models help"
+        assert provider in compare.__doc__, f"{provider} missing from compare.py docstring"
+        assert provider in detectors.parse_model_spec.__doc__, \
+            f"{provider} missing from parse_model_spec docstring"
+
+
+def test_unknown_provider_names_every_valid_one():
+    with pytest.raises(ValueError) as e:
+        build_detector("clyde", None, {}, _Args())
+    for provider in detectors.PROVIDERS:
+        assert provider in str(e.value)
+
+
+def test_build_detector_wires_claude_from_the_cli_args():
+    """There was no build_detector test for claude at all, which is why _Args
+    was never given the flags the branch reads."""
+    label, det = build_detector("claude", None, {}, _Args())
+    assert label == "claude-sonnet-5" and isinstance(det, ClaudeDetector)
+    assert (det.effort, det.tool_choice) == ("low", "auto")
+
+    class _Pinned(_Args):
+        claude_model = "claude-opus-5"
+        claude_effort = "high"
+        claude_tool_choice = "forced"
+    label, det = build_detector("claude", None, {}, _Pinned())
+    assert label == "claude-opus-5"
+    assert (det.effort, det.tool_choice) == ("high", "forced")
+    # A pinned id on the --models token beats the flag.
+    label, det = build_detector("claude", "claude-sonnet-5", {}, _Pinned())
+    assert label == "claude-sonnet-5"
+
+
+# --- the box-mapping gate must survive what the detector survives -----------
+
+def test_dump_detections_skips_items_that_are_not_boxes():
+    """dump_detections.py is the gate that catches a transposed coordinate
+    convention, so it must not be the thing that crashes on the malformed item
+    the detector now tolerates."""
+    shapes = detections_to_view_shapes(
+        None, ["curb ramp at x1=100", None, 7,
+               {"x1": 10, "y1": 20, "x2": 30, "y2": 40}], 1024, 1024)
+    assert shapes == [("rect", 10, 20, 30, 40, None)]
 
 
 def _gemini_resp(model_version=None, prompt=1000, candidates=50, thoughts=200):
