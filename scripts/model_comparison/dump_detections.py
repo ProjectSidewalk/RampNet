@@ -201,9 +201,11 @@ def main():
                     help="Score floor for owlv2/gdino (default 0.05). Raise it to declutter "
                          "the overlay; the harness's own floor is unaffected.")
     ap.add_argument("--molmo-coord-scale", choices=["auto", "100", "1000"], default="auto")
-    ap.add_argument("--vistas-model", default=None)
-    ap.add_argument("--vistas-min-area-px", type=int, default=None)
-    ap.add_argument("--vistas-dtype", choices=["float16", "float32"], default=None)
+    ap.add_argument("--vistas-class-set", default=_D["vistas_class_set"])
+    ap.add_argument("--vistas-model", default=_D["vistas_model"])
+    ap.add_argument("--vistas-min-area-px", type=int, default=_D["vistas_min_area_px"])
+    ap.add_argument("--vistas-dtype", choices=["float16", "float32"],
+                    default=_D["vistas_dtype"])
     ap.add_argument("--masks", action="store_true",
                     help="For the vistas arm, also save the class mask per view. The "
                          "points alone cannot show that the RIGHT class was read: a "

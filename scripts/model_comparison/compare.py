@@ -628,6 +628,11 @@ def build_parser():
     ap.add_argument("--yolo-imgsz", type=int, default=_D["yolo_imgsz"],
                     help="YOLO inference image size (default 1024, matching the perspective view "
                          "size). For --tiling none, set this to the pano-geometry training size.")
+    ap.add_argument("--vistas-class-set", default=_D["vistas_class_set"],
+                    help="Which Vistas classes are read out as curb ramps, when the "
+                         "--models spec does not say ('vistas' rather than "
+                         "'vistas:curb-cut'). Part of the detection signature: the "
+                         "arm IS its class set.")
     ap.add_argument("--vistas-model", default=_D["vistas_model"],
                     help="Vistas-supervised segmentation checkpoint (#126). The arm "
                          "itself is chosen by the --models spec — 'vistas:curb-cut' "
