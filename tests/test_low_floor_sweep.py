@@ -259,17 +259,40 @@ def test_pool_holds_out_budapest_and_gold_by_default():
     pool = lfs.pool_of(lfs.ALL_SPLITS)
     assert set(pool) == set(lfs.US_SPLITS)
     assert "budapest_district5" not in pool and "manual_gold" not in pool
+    assert "sao_paulo" not in pool
 
 
 def test_pool_flags_opt_the_held_out_splits_back_in():
     assert "budapest_district5" in lfs.pool_of(lfs.ALL_SPLITS, include_budapest=True)
     assert "manual_gold" in lfs.pool_of(lfs.ALL_SPLITS, include_gold=True)
+    assert "sao_paulo" in lfs.pool_of(lfs.ALL_SPLITS, include_sao_paulo=True)
 
 
 def test_every_held_out_split_carries_a_stated_reason():
     """An omission with no reason is indistinguishable from a withheld result."""
     for split in set(lfs.ALL_SPLITS) - set(lfs.pool_of(lfs.ALL_SPLITS)):
         assert lfs.HELD_OUT.get(split), f"{split} is held out with no documented reason"
+
+
+# --------------------------------------------------------------------------- #
+# parity exceptions
+# --------------------------------------------------------------------------- #
+def test_every_parity_exception_is_a_real_split_with_a_stated_reason():
+    """Same contract as HELD_OUT: a waived gate must say what was waived and why.
+
+    The reason string is what a reproducer reads when the gate prints MISMATCH on
+    a clean clone; without it they cannot tell a ratified finding from their own
+    broken checkout.
+    """
+    for split, why in lfs.PARITY_EXCEPTIONS.items():
+        assert split in lfs.ALL_SPLITS, f"{split} is not a registered split"
+        assert why and "docs/" in why, f"{split} exception cites no document"
+
+
+def test_a_ratified_exception_does_not_waive_the_other_splits():
+    """The waiver is per-split — it must not become a blanket pass."""
+    assert set(lfs.PARITY_EXCEPTIONS) < set(lfs.ALL_SPLITS)
+    assert not set(lfs.PARITY_EXCEPTIONS) & set(lfs.US_SPLITS)
 
 
 # --------------------------------------------------------------------------- #

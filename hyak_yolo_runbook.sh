@@ -138,13 +138,27 @@ prep)
   # compute-node job instead of running here on a login node:
   #   sbatch -A gpu-l40s-makelab scripts/model_comparison/run_yolo_prep.slurm
   cd "$REPO"
+  # Bind the worker pool to the allocation whenever we are inside one. Left to itself
+  # prepare_yolo_dataset.py defaults to os.cpu_count()-1, and os.cpu_count() reports the
+  # whole NODE while ignoring the Slurm cgroup — so an 8-CPU allocation forks ~63 PIL
+  # workers, each spawning its own BLAS threads and each holding a decoded pano.
+  # run_yolo_prep.slurm has always passed --workers for this reason; callers coming in
+  # through the runbook instead (run_yolo_data_prep_tillicum.slurm) were silently
+  # missing it. Unset and outside Slurm, behaviour is unchanged from the #51 runs.
+  WORKERS="${WORKERS:-${SLURM_CPUS_PER_TASK:-}}"
+  W_ARG=()
+  if [ -n "$WORKERS" ]; then
+      W_ARG=(--workers "$WORKERS")
+      export OPENBLAS_NUM_THREADS=1   # one BLAS thread per worker (no RLIMIT_NPROC storm)
+      echo "workers=$WORKERS  OPENBLAS_NUM_THREADS=1"
+  fi
   "$PYBIN" scripts/model_comparison/prepare_yolo_dataset.py \
       --dataset-root "$REPO/dataset" --out "$YOLODATA/tiles" \
       --geometry tiles --box-size "$BOX_SIZE" --ramp-size-m "$RAMP_SIZE_M" \
-      --bg-keep-frac "$BG_KEEP"
+      --bg-keep-frac "$BG_KEEP" "${W_ARG[@]}"
   "$PYBIN" scripts/model_comparison/prepare_yolo_dataset.py \
       --dataset-root "$REPO/dataset" --out "$YOLODATA/pano" \
-      --geometry pano --box-size "$BOX_SIZE" --ramp-size-m "$RAMP_SIZE_M"
+      --geometry pano --box-size "$BOX_SIZE" --ramp-size-m "$RAMP_SIZE_M" "${W_ARG[@]}"
   echo "OK. Next: bash hyak_yolo_runbook.sh train"
   ;;
 

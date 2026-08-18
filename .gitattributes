@@ -1,0 +1,32 @@
+# The paper's Stage 1 government inventories are hash-pinned replication artifacts: their
+# sha256 values are quoted in docs/data_provenance.md and asserted by
+# scripts/analysis/gov_provenance.py. Git's line-ending normalisation would silently change
+# those bytes for anyone whose core.autocrlf differs from ours, so pin them as binary and let
+# the hashes mean what they say. (All three are LF-only today, so this changes nothing now --
+# it stops a future contributor's git config from quietly invalidating the pin.)
+stage_one/dataset_generation/location_data/*.csv      binary
+stage_one/dataset_generation/location_data/*.geojson  binary
+
+# Same reasoning for the street-centreline derivative, whose sha256 values are asserted by
+# scripts/build_street_derivative.py verify.
+stage_one/dataset_generation/street_data/*.gz         binary
+
+# The rescued RampNet 1.0 training telemetry is binary: never let autocrlf touch it.
+docs/data/rampnet1_stage2_run/events.out.tfevents.* binary
+
+# Run A's own telemetry (#84), same reasoning: its sha256 values are committed in
+# stage_two/run_a_84_events/SHA256SUMS and checked on every read by
+# scripts/analysis/stage2_epoch_curve.py.
+stage_two/run_a_84_events/events.out.tfevents.* binary
+
+# The rescued Stage 1 logs are text, but they are checksummed text: a clone with
+# core.autocrlf=true would check them out with CRLF and every entry in SHA256SUMS
+# would fail for files that are in fact byte-correct. -text keeps them exactly as
+# the cluster wrote them, on every platform.
+docs/data/rampnet1_stage1_run/* -text
+
+# The manifests themselves are ours, and stay LF. Listed after the rule above
+# because the last matching pattern wins.
+docs/data/rampnet1_stage2_run/SHA256SUMS text eol=lf
+docs/data/rampnet1_stage1_run/SHA256SUMS text eol=lf
+stage_two/run_a_84_events/SHA256SUMS text eol=lf

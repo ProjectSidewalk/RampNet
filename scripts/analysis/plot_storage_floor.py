@@ -45,7 +45,8 @@ C_KEPT = "#2a78d6"
 RAMP = ("#86b6ef", "#2a78d6", "#104281")
 INK, INK_MUTED, GRID = "#0b0b0b", "#52514e", "#d9d8d4"
 
-LABEL = {"budapest_district5": "budapest*", "manual_gold": "manual_gold†"}
+LABEL = {"budapest_district5": "budapest*", "manual_gold": "manual_gold†",
+         "sao_paulo": "sao_paulo‡"}
 
 
 def collect(cities, cache_dir=CACHE_DIR):
@@ -168,7 +169,8 @@ def build(rows, path, n_panos):
              "written, so no downstream\nmulti-view consensus can recover it — the 0.10 "
              "marker is a hard ceiling on labeler#27 stage 4.   "
              "*budapest GT is single-rater, low confidence.   †manual_gold is "
-             "in-distribution GSV with independent GT.",
+             "in-distribution GSV with independent GT.   ‡sao_paulo is non-US "
+             "(held out of the pooled rows; GT is high confidence).",
              fontsize=7.6, color=INK_MUTED, ha="left", va="bottom")
 
     fig.subplots_adjust(left=0.105, right=0.995, top=0.885, bottom=0.20, wspace=0.08)

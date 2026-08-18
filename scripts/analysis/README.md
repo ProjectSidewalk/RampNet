@@ -108,3 +108,12 @@ intrinsics supplied, `prediction.depth` is **already in metres** — do *not* ap
 `× focal / 300` formula from the DA3 README, which is for the no-intrinsics path and over-corrects
 by ~1.65×. Intrinsics-naive models (e.g. Depth-Anything-V2 metric) come out ~3× long on these
 wide-FOV views.
+
+## Not part of the recall analysis
+
+Two scripts in this directory belong to a different question and read none of the caches above:
+
+| script | GPU | what it answers |
+|---|---|---|
+| `stage2_epoch_curve.py` | no | **The Stage 2 epoch curve (#84).** Extracts per-epoch auto-label validation loss from the committed TensorBoard events of Run A (`stage_two/run_a_84_events/`) and compares it against the paper run's own rescued events (`docs/data/rampnet1_stage2_run/`, #104) at full float32 precision. Reads them with `stage2_train_cost.read_scalars` — standard library only, no tensorboard install, and one parser rather than two. Checks every file against the `SHA256SUMS` committed beside it. See [`docs/stage2_epoch_curve_84.md`](../../docs/stage2_epoch_curve_84.md). |
+| `plot_epoch_curve.py` | no | The figure for the above: both runs' curves on one absolute axis, and each epoch's excess over Run A's own minimum → `docs/figures/stage2_epoch_curve_84.png`. |

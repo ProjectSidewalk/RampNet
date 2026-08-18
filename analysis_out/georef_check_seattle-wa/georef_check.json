@@ -1,0 +1,171 @@
+{
+  "city": "seattle-wa",
+  "latitude": 47.66,
+  "registration_check": {
+    "how_to_read": "Cyan is the city's own street-centreline geometry, projected with the same code that places the crosshair. If it tracks the middle of the visible roadway, imagery and vector data agree in chip pixel space. Centrelines are ground-level, so no roof-lean parallax is involved.",
+    "layer": "https://services.arcgis.com/ZOyb2t4B0UYuYNYH/arcgis/rest/services/Street_Network_Database_SND/FeatureServer/0",
+    "sites": [
+      {
+        "lat": 47.66,
+        "lon": -122.334,
+        "paths": 4,
+        "png": "registration_residential.png",
+        "site": "residential"
+      },
+      {
+        "lat": 47.575,
+        "lon": -122.311,
+        "paths": 5,
+        "png": "registration_arterial.png",
+        "site": "arterial"
+      }
+    ],
+    "span_m": 60.0
+  },
+  "registration_measured": {
+    "box_m": 220.0,
+    "interpretation": "Median offset between the city's own street centrelines and the optical centre of the roadway in the imagery, resolved per axis. A NAD83/WGS84 datum mismatch applied on one side only would show as ~1 m, consistent in direction across sites.",
+    "limits": "A centreline is a cartographic construct, not a survey of the pavement midline: crowned roads, one-sided parking bays and kerb extensions move the optical centre without moving the true one. Read a small median as no gross error, not as a calibration certificate.",
+    "sites": [
+      {
+        "abs_median_m": 0.5027591114182365,
+        "cross_sections_attempted": 723,
+        "east_m": {
+          "median": -0.05027591114182364,
+          "p25": -0.7541386671273546,
+          "p75": 0.40220728913458914
+        },
+        "east_n": 165,
+        "metres_per_pixel": 0.10055182228364729,
+        "north_m": {
+          "median": 0.20110364456729457,
+          "p25": -0.20110364456729457,
+          "p75": 0.9552423116946492
+        },
+        "north_n": 108,
+        "resultant_shift_m": 0.20729289206190668,
+        "site": "wallingford",
+        "usable": 273,
+        "usable_share": 0.3775933609958506
+      },
+      {
+        "abs_median_m": 0.4019761172046471,
+        "cross_sections_attempted": 516,
+        "east_m": {
+          "median": 0.10049402930116177,
+          "p25": 0.0,
+          "p75": 0.45222313185522794
+        },
+        "east_n": 78,
+        "metres_per_pixel": 0.10049402930116177,
+        "north_m": {
+          "median": 0.10049402930116177,
+          "p25": -0.25123507325290445,
+          "p75": 0.9546932783610368
+        },
+        "north_n": 182,
+        "resultant_shift_m": 0.14212001917522218,
+        "site": "greenwood",
+        "usable": 260,
+        "usable_share": 0.5038759689922481
+      },
+      {
+        "abs_median_m": 0.5035770965574067,
+        "cross_sections_attempted": 562,
+        "east_m": {
+          "median": 0.151073128967222,
+          "p25": -0.20143083862296265,
+          "p75": 0.75536564483611
+        },
+        "east_n": 122,
+        "metres_per_pixel": 0.10071541931148133,
+        "north_m": {
+          "median": 0.050357709655740664,
+          "p25": -0.35250396759018465,
+          "p75": 0.9064387738033319
+        },
+        "north_n": 128,
+        "resultant_shift_m": 0.15924506026159418,
+        "site": "beacon-hill",
+        "usable": 250,
+        "usable_share": 0.44483985765124556
+      },
+      {
+        "abs_median_m": 0.3526049323150202,
+        "cross_sections_attempted": 692,
+        "east_m": {
+          "median": 0.05037213318786003,
+          "p25": -0.15111639956358008,
+          "p75": 0.2518606659393002
+        },
+        "east_n": 95,
+        "metres_per_pixel": 0.10074426637572007,
+        "north_m": {
+          "median": -0.45334919869074036,
+          "p25": -1.1585590633207807,
+          "p75": 0.35260493231502027
+        },
+        "north_n": 57,
+        "resultant_shift_m": 0.45613906624562633,
+        "site": "columbia-city",
+        "usable": 152,
+        "usable_share": 0.21965317919075145
+      },
+      {
+        "abs_median_m": 0.7051964041703105,
+        "cross_sections_attempted": 409,
+        "east_m": {
+          "median": 0.1007423434529015,
+          "p25": -0.604454060717409,
+          "p75": 0.9066810910761135
+        },
+        "east_n": 196,
+        "metres_per_pixel": 0.1007423434529015,
+        "north_m": {
+          "median": -0.2518558586322538,
+          "p25": -1.3096504648877196,
+          "p75": 0.1007423434529015
+        },
+        "north_n": 59,
+        "resultant_shift_m": 0.27125706127541116,
+        "site": "west-seattle",
+        "usable": 255,
+        "usable_share": 0.6234718826405868
+      }
+    ],
+    "zoom": 20
+  },
+  "scale_check": [
+    {
+      "drawn_px": 9.94512060834754,
+      "max_abs_error_m": 0.0018304432885667367,
+      "max_rel_error": 0.0018304432885667367,
+      "radius_m": 1.0,
+      "worst_bearing_deg": 90
+    },
+    {
+      "drawn_px": 19.89024121669508,
+      "max_abs_error_m": 0.0036608865771334733,
+      "max_rel_error": 0.0018304432885667367,
+      "radius_m": 2.0,
+      "worst_bearing_deg": 90
+    },
+    {
+      "drawn_px": 49.7256030417377,
+      "max_abs_error_m": 0.009152216442833327,
+      "max_rel_error": 0.0018304432885666653,
+      "radius_m": 5.0,
+      "worst_bearing_deg": 90
+    },
+    {
+      "drawn_px": 99.4512060834754,
+      "max_abs_error_m": 0.01830442988898883,
+      "max_rel_error": 0.001830442988898883,
+      "radius_m": 10.0,
+      "worst_bearing_deg": 90
+    }
+  ],
+  "tile_scheme": "verified standard Web Mercator: 256 px, EPSG:3857, origin -20037508.342787, LOD resolutions match 156543.03392800014 / 2^z to 3e-10",
+  "tile_source": "seattle-2019",
+  "zoom": 20
+}

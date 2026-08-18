@@ -1,0 +1,69 @@
+{
+  "split": "test",
+  "shards": null,
+  "max_sep_deg": 40.0,
+  "crop_half_angle_deg": 18.3678,
+  "convention_check": {
+    "n": 90006,
+    "median_deg": 3.447,
+    "p90_deg": 10.132,
+    "frac_inside_crop": 0.9854,
+    "note": "A wrong azimuth convention gives median ~90 deg and frac_inside_crop ~0.10 (uniform). Anything near that invalidates every residual below."
+  },
+  "cities": {
+    "nyc": {
+      "n_panos": 10273,
+      "n_gov": 62132,
+      "n_matched": 52648,
+      "matched_frac": 0.8474,
+      "n_residuals": 52648,
+      "mean_deg": 0.0549,
+      "sd_deg": 6.0802,
+      "se_mean_deg": 0.0265,
+      "mean_over_se": 2.07,
+      "median_deg": -0.1796,
+      "abs_median_deg": 3.2957,
+      "abs_p90_deg": 9.0747,
+      "abs_p99_deg": 21.4741,
+      "frac_cross_assigned": 0.01596,
+      "mean_shift_m_at_median_range": 0.0106,
+      "abs_median_m_at_median_range": 0.6392
+    },
+    "portland": {
+      "n_panos": 6098,
+      "n_gov": 26180,
+      "n_matched": 23515,
+      "matched_frac": 0.8982,
+      "n_residuals": 23515,
+      "mean_deg": -0.2498,
+      "sd_deg": 5.89,
+      "se_mean_deg": 0.0384,
+      "mean_over_se": -6.5,
+      "median_deg": -0.1951,
+      "abs_median_deg": 3.3541,
+      "abs_p90_deg": 9.8003,
+      "abs_p99_deg": 17.9103,
+      "frac_cross_assigned": 0.00931,
+      "mean_shift_m_at_median_range": -0.0484,
+      "abs_median_m_at_median_range": 0.6505
+    },
+    "bend": {
+      "n_panos": 437,
+      "n_gov": 1742,
+      "n_matched": 1612,
+      "matched_frac": 0.9254,
+      "n_residuals": 1612,
+      "mean_deg": 0.0355,
+      "sd_deg": 4.2351,
+      "se_mean_deg": 0.1055,
+      "mean_over_se": 0.34,
+      "median_deg": -0.1279,
+      "abs_median_deg": 2.1906,
+      "abs_p90_deg": 6.7396,
+      "abs_p99_deg": 14.063,
+      "frac_cross_assigned": 0.00372,
+      "mean_shift_m_at_median_range": 0.0069,
+      "abs_median_m_at_median_range": 0.4246
+    }
+  }
+}

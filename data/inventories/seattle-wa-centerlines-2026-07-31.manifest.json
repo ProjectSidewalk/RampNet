@@ -1,0 +1,18 @@
+{
+  "api": "arcgis",
+  "city": "seattle-wa-centerlines",
+  "count_query": "https://services.arcgis.com/ZOyb2t4B0UYuYNYH/arcgis/rest/services/Street_Network_Database_SND/FeatureServer/0/query?f=json&where=1%3D1&returnCountOnly=true",
+  "declared_count": 34484,
+  "endpoint": "https://services.arcgis.com/ZOyb2t4B0UYuYNYH/arcgis/rest/services/Street_Network_Database_SND/FeatureServer/0",
+  "fetched": "2026-07-31",
+  "first_query": "https://services.arcgis.com/ZOyb2t4B0UYuYNYH/arcgis/rest/services/Street_Network_Database_SND/FeatureServer/0/query?f=json&where=1%3D1&outFields=%2A&returnGeometry=true&resultRecordCount=2000&orderByFields=OBJECTID&outSR=4326",
+  "geometry": "polyline",
+  "note": "SDOT Street Network Database (SND) centrelines, native EPSG:2926, served as 4326 by the SAME server and org (ZOyb2t4B0UYuYNYH) as Curb_Ramps_(Active) -- which is the point: a datum/reprojection error would move both layers together, a bad ramp layer moves only one.",
+  "oid_field": "OBJECTID",
+  "out_sr": 4326,
+  "pages": 19,
+  "payload": "seattle-wa-centerlines-2026-07-31.jsonl.gz",
+  "records": 34484,
+  "sha256": "f386b657094f71fefbdd21a33352485567c869bd90364a101540094b84232b7d",
+  "where": "1=1"
+}

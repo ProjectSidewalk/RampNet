@@ -98,12 +98,72 @@ def test_every_published_file_records_its_provenance():
         import pytest
         pytest.skip("published detections not present in this checkout")
     import glob
-    files = glob.glob(os.path.join(em.PUBLISHED_DIR, "*.json"))
+    files = sorted(glob.glob(os.path.join(em.PUBLISHED_DIR, "*.json")))
     assert files
-    for f in files[:5]:
+    # EVERY file, not a slice. This used to check files[:5], which the directory
+    # outgrew: at 77 files the slice was five Molmo entries, so a newly published
+    # leg was never opened by any test and the suite passed without looking at it.
+    for f in files:
         with open(f, encoding="utf-8") as fh:
             p = json.load(fh)
         # The signature is what makes a published file traceable back to the exact
         # detector configuration that produced it.
         for k in ("model", "city", "signature", "detections"):
             assert k in p, (f, k)
+        # Filename and contents must agree — a mislabelled export would attribute
+        # one model's detections to another with nothing to catch it.
+        base = os.path.basename(f)[:-len(".json")]
+        model, _, city = base.rpartition("__")
+        assert em.slug(p["model"]) == model, (f, p["model"])
+        assert p["city"] == city, (f, p["city"])
+        assert p["signature"].get("model_id", p["model"]) == p["model"], f
+
+
+def test_published_detections_are_structurally_sound():
+    """The invariants a downstream reader relies on, asserted on the real files.
+
+    These held for every file when checked by hand during the #120 review; nothing
+    kept them holding. A published point outside [0,1], or an n_panos that disagrees
+    with the payload, would corrupt recall silently rather than raise."""
+    if not os.path.isdir(em.PUBLISHED_DIR):
+        import pytest
+        pytest.skip("published detections not present in this checkout")
+    import glob
+    for f in sorted(glob.glob(os.path.join(em.PUBLISHED_DIR, "*.json"))):
+        with open(f, encoding="utf-8") as fh:
+            p = json.load(fh)
+        dets = p["detections"]
+        assert p["n_panos"] == len(dets), (f, p["n_panos"], len(dets))
+        # A partial export looks exactly like a complete one downstream, so the
+        # committed artifacts must not be partial.
+        assert p.get("n_uncached", 0) == 0, (f, p.get("n_uncached"))
+        for pid, pts in dets.items():
+            for pt in pts:
+                assert len(pt) == 3, (f, pid, pt)
+                x, y, conf = pt
+                assert 0.0 <= x <= 1.0 and 0.0 <= y <= 1.0, (f, pid, pt)
+                assert conf is None or 0.0 <= conf <= 1.0, (f, pid, pt)
+
+
+def test_published_panos_match_the_committed_bundles():
+    """Every published split covers exactly the panos in its bundle — no more, no
+    fewer. A missing pano scores as "the model found nothing there" rather than as
+    missing data, which understates recall with no error anywhere."""
+    if not os.path.isdir(em.PUBLISHED_DIR):
+        import pytest
+        pytest.skip("published detections not present in this checkout")
+    import glob
+    bundles = {}
+    for f in sorted(glob.glob(os.path.join(em.PUBLISHED_DIR, "*.json"))):
+        with open(f, encoding="utf-8") as fh:
+            p = json.load(fh)
+        city = p["city"]
+        recs = os.path.join(REPO, "benchmark", city, "records.jsonl")
+        if not os.path.exists(recs):      # manual_gold has no records.jsonl
+            continue
+        if city not in bundles:
+            with open(recs, encoding="utf-8") as fh:
+                bundles[city] = {json.loads(line)["pano"]["panorama_id"]
+                                 for line in fh if line.strip()}
+        assert set(p["detections"]) == bundles[city], (
+            f, len(p["detections"]), len(bundles[city]))

@@ -21,8 +21,20 @@ signature recorded inside so the provenance survives.
     python scripts/analysis/export_model_cache.py --verify   # exported == cached
 
 ``--verify`` re-scores every split from the exported files and from ``.model_cache``
-and asserts identical TP/FP counts, because a published artifact that silently differs
-from what produced the paper's numbers is worse than none.
+and asserts identical per-pano (TP, FP), because a published artifact that silently
+differs from what produced the paper's numbers is worse than none. It fails rather
+than passes when it had nothing to compare — a green run must mean "checked and
+matched", never "found no cache and said nothing".
+
+**``--models`` defaults to ``CHALLENGERS``, so a model outside that roster is neither
+exported nor verified by the commands above.** Publishing an off-roster leg means
+naming it explicitly, e.g.::
+
+    python scripts/analysis/export_model_cache.py --models gemini:gemini-3.7-flash
+    python scripts/analysis/export_model_cache.py --verify --models gemini:gemini-3.7-flash
+
+and the exact command belongs in ``docs/replication.md`` beside the result, because
+the default command will silently skip those files forever otherwise.
 
 Downstream code reads the export through :func:`load_detections`, preferring it over
 ``.model_cache`` when present, so a fresh clone works with no cache at all.
@@ -78,15 +90,32 @@ def load_detections(label, city, published_dir=PUBLISHED_DIR):
         return json.load(fh)["detections"]
 
 
-def export(cache_dir, out_dir, splits, specs):
-    """Consolidate ``.model_cache`` into one file per (model, split)."""
+def export(cache_dir, out_dir, splits, specs, allow_partial=False, overrides=None):
+    """Consolidate ``.model_cache`` into one file per (model, split).
+
+    A split whose cache is incomplete is REFUSED unless ``allow_partial``. A
+    partial export is the dangerous artifact here: it looks like a finished split
+    everywhere downstream (``load_detections`` returns only ``detections`` and
+    drops ``n_uncached``; ``silent_witness`` narrows to the panos present without
+    reporting a count), and ``--verify`` cannot catch it either, because a pano
+    uncached at export time is absent from both sides and never compared. So the
+    decision to publish a partial leg has to be made deliberately, not by default.
+
+    ``overrides`` patches fields of the ``compare.py``-defaults namespace. Every
+    field feeds the detector's cache signature, so an export must be run with the
+    same settings as the run that produced the detections — e.g. the supervised
+    YOLO pano arms (#51) ran ``--tiling none --yolo-imgsz 1280``, and an export at
+    the defaults would rebuild a different signature and silently find no cache.
+    """
     import compare as C
     from detectors import build_detector, parse_model_spec
 
     os.makedirs(out_dir, exist_ok=True)
     cache = C.DetectionCache(cache_dir, enabled=True)
     cargs = _compare_args(cache_dir)
-    written, skipped = [], []
+    for k, v in (overrides or {}).items():
+        setattr(cargs, k, v)
+    written, skipped, partial = [], [], []
     for spec in specs:
         for city in splits:
             bundle = os.path.join(REPO, "benchmark", city)
@@ -110,25 +139,36 @@ def export(cache_dir, out_dir, splits, specs):
             if not dets:
                 skipped.append((label, city))
                 continue
+            if missing and not allow_partial:
+                partial.append((label, city, len(dets), missing))
+                continue
             path = os.path.join(out_dir, f"{slug(label)}__{city}.json")
             with open(path, "w", encoding="utf-8") as fh:
                 json.dump({"model": label, "city": city, "signature": sig,
                            "n_panos": len(dets), "n_uncached": missing,
                            "detections": dets}, fh, separators=(",", ":"), sort_keys=True)
             written.append((label, city, len(dets), missing, os.path.getsize(path)))
-    return written, skipped
+    return written, skipped, partial
 
 
-def verify(cache_dir, out_dir, splits, specs):
-    """Do the exported detections score identically to the cached ones?"""
+def verify(cache_dir, out_dir, splits, specs, overrides=None):
+    """Do the exported detections score identically to the cached ones?
+
+    Returns ``(compared, problems, vacuous, unpublished)`` where ``compared``
+    counts (model, split) pairs that actually had panos on both sides. A pair with
+    nothing to compare is NOT a pass — see the ``vacuous`` bookkeeping below.
+    ``overrides`` carries the producing run's signature knobs, exactly as in
+    ``export``: verifying at the wrong ones finds no cache and compares nothing."""
     import compare as C
     from detectors import build_detector, parse_model_spec
     from rampnet.detection_eval import radius_sq_for, score_pano
 
     cache = C.DetectionCache(cache_dir, enabled=True)
     cargs = _compare_args(cache_dir)
+    for k, v in (overrides or {}).items():
+        setattr(cargs, k, v)
     rsq = radius_sq_for()
-    problems, checked = [], 0
+    problems, compared, vacuous, unpublished = [], 0, [], []
     for spec in specs:
         for city in splits:
             bundle = os.path.join(REPO, "benchmark", city)
@@ -144,20 +184,35 @@ def verify(cache_dir, out_dir, splits, specs):
                 continue
             pub = load_detections(label, city, out_dir)
             if pub is None:
+                unpublished.append((label, city))
                 continue
-            a = b = 0
+            # (tp, fp) per pano, compared as tuples. The old tp*1000+fp encoding
+            # aliases once a split's FP count reaches 1000, and OWLv2 / Grounding
+            # DINO run 7,300-9,700 detections per split -- an order of magnitude
+            # past the modulus, so a compensating difference would have verified
+            # as identical on exactly the legs with the most to hide.
+            a, b, n = [], [], 0
             for pid, gt in gts.items():
                 cached = cache.get(C.cache_key(label, sig, city, pid))
                 if cached is None:
                     continue
                 sa = score_pano(cached, gt, radius_sq=rsq)
                 sb = score_pano(pub.get(pid, []), gt, radius_sq=rsq)
-                a += sa.tp * 1000 + sa.fp
-                b += sb.tp * 1000 + sb.fp
-            checked += 1
+                a.append((pid, sa.tp, sa.fp))
+                b.append((pid, sb.tp, sb.fp))
+                n += 1
+            if n == 0:
+                # Nothing on the cache side: the old code counted this as a pass,
+                # so a missing .model_cache printed a clean bill of health having
+                # compared nothing at all.
+                vacuous.append((label, city))
+                continue
+            compared += 1
             if a != b:
-                problems.append(f"{label} / {city}: cached != published")
-    return checked, problems
+                diffs = sum(1 for x, y in zip(a, b) if x != y)
+                problems.append(f"{label} / {city}: cached != published "
+                                f"({diffs} of {n} panos differ)")
+    return compared, problems, vacuous, unpublished
 
 
 def main(argv=None):
@@ -168,28 +223,68 @@ def main(argv=None):
     p.add_argument("--models", default=",".join(CHALLENGERS))
     p.add_argument("--verify", action="store_true",
                    help="Only check that the export scores identically to the cache.")
+    p.add_argument("--allow-partial", action="store_true",
+                   help="Publish a split whose cache is incomplete. Off by default: a "
+                        "partial export looks complete to every downstream reader.")
+    p.add_argument("--tiling", default="perspective", choices=["perspective", "none"],
+                   help="Tiling mode of the run that produced the detections. It is part "
+                        "of every detector's cache signature, so it must match the "
+                        "producing run (the #51 YOLO pano arms ran --tiling none).")
+    p.add_argument("--yolo-imgsz", type=int, default=1024,
+                   help="YOLO inference imgsz of the producing run (signature field; "
+                        "the #51 pano arms ran 1280).")
     args = p.parse_args(argv)
 
     splits = [s.strip() for s in args.splits.split(",") if s.strip()]
     specs = [s.strip() for s in args.models.split(",") if s.strip()]
+    overrides = {"tiling": args.tiling, "yolo_imgsz": args.yolo_imgsz}
 
     if args.verify:
-        checked, problems = verify(args.cache_dir, args.out, splits, specs)
-        print(f"verified {checked} (model, split) pair(s)")
+        compared, problems, vacuous, unpublished = verify(
+            args.cache_dir, args.out, splits, specs, overrides)
+        print(f"compared {compared} (model, split) pair(s) against {args.cache_dir}")
         for msg in problems:
             print(f"  ✗ {msg}")
-        print("published detections score IDENTICALLY to the cache"
-              if not problems else f"{len(problems)} MISMATCH(ES)")
-        return 1 if problems else 0
+        for label, city in vacuous:
+            print(f"  ! {label} / {city}: published, but the cache has none of its "
+                  f"panos — NOTHING was compared")
+        for label, city in unpublished:
+            print(f"  - {label} / {city}: no published export to check")
+        if problems:
+            print(f"{len(problems)} MISMATCH(ES)")
+            return 1
+        if compared == 0:
+            # The whole point of --verify is proving the published files match what
+            # produced the numbers. With nothing compared it proves nothing, and
+            # printing a pass here is worse than printing nothing.
+            print("NOTHING VERIFIED: no (model, split) pair had panos on both sides. "
+                  "Point --cache-dir at the cache that produced the export.")
+            return 1
+        if vacuous:
+            print(f"{len(vacuous)} published pair(s) had NO cached panos to check "
+                  f"against — they are unverified, not verified.")
+        print(f"{compared} pair(s): published detections score IDENTICALLY to the cache")
+        return 1 if vacuous else 0
 
-    written, skipped = export(args.cache_dir, args.out, splits, specs)
+    written, skipped, partial = export(args.cache_dir, args.out, splits, specs,
+                                       allow_partial=args.allow_partial,
+                                       overrides=overrides)
     total = sum(w[4] for w in written)
     print(f"wrote {len(written)} file(s), {total/1e6:.1f} MB total -> {args.out}\n")
     print(f"{'model':>42} {'split':>20} {'panos':>6} {'uncached':>9} {'KB':>7}")
     for label, city, n, missing, size in written:
-        print(f"{label:>42} {city:>20} {n:>6} {missing:>9} {size/1024:>7.0f}")
+        flag = "  <-- PARTIAL" if missing else ""
+        print(f"{label:>42} {city:>20} {n:>6} {missing:>9} {size/1024:>7.0f}{flag}")
     for label, city in skipped:
         print(f"  (no cache: {label} / {city})")
+    for label, city, n, missing in partial:
+        print(f"  REFUSED (incomplete): {label} / {city} — {n} cached, {missing} "
+              f"uncached. Finish the leg, or pass --allow-partial to publish it "
+              f"anyway and say so where the numbers are quoted.")
+    if any(w[3] for w in written):
+        print("\nNOTE: a partial export is indistinguishable from a complete one "
+              "downstream (load_detections drops n_uncached, and --verify never "
+              "compares a pano the cache lacks). Record the gap next to the result.")
     print(f"\nNow run --verify before committing.")
     return 0
 

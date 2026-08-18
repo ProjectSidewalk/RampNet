@@ -49,6 +49,7 @@ import json
 import math
 import os
 import sys
+import textwrap
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT = os.environ.get("RAMPNET_ANALYSIS_OUT", os.path.join(REPO, "analysis_out"))
@@ -66,7 +67,7 @@ from operating_point_curve import (  # noqa: E402
 # The seven US city splits carry verdict-grade GT and are the recommendation's basis.
 US_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson",
              "gainesville")
-CITY_SPLITS = US_SPLITS + ("budapest_district5",)
+CITY_SPLITS = US_SPLITS + ("budapest_district5", "sao_paulo")
 ALL_SPLITS = CITY_SPLITS + ("manual_gold",)
 
 # Why a split is swept but not pooled. Printed with the results so an omission can
@@ -74,6 +75,9 @@ ALL_SPLITS = CITY_SPLITS + ("manual_gold",)
 HELD_OUT = {
     "budapest_district5": "single-rater GT at low reviewer confidence "
                           "(docs/model_comparison.md: do not pool)",
+    "sao_paulo": "non-US city — the pooled recommendation is a US-deployment "
+                 "basis (GT is HIGH reviewer confidence; held out for "
+                 "geography, not GT quality)",
     "manual_gold": "in-distribution GSV + independently-labelled GT "
                    "(in-domain reference, not a deployment city)",
 }
@@ -403,13 +407,16 @@ def _write_csv(path, rows, fields):
         w.writerows(rows)
 
 
-def pool_of(cities, include_budapest=False, include_gold=False):
+def pool_of(cities, include_budapest=False, include_gold=False,
+            include_sao_paulo=False):
     """Which of ``cities`` contribute to the POOLED and per-tier rows."""
     keep = []
     for c in cities:
         if c == "budapest_district5" and not include_budapest:
             continue
         if c == "manual_gold" and not include_gold:
+            continue
+        if c == "sao_paulo" and not include_sao_paulo:
             continue
         keep.append(c)
     return keep
@@ -425,6 +432,24 @@ def pool_of(cities, include_budapest=False, include_gold=False):
 PARITY_TOL_RADII = 0.5
 PARITY_MIN_MATCHED = 0.95   # fraction of cache detections that must land within tol
 PARITY_MAX_COUNT_DELTA = 0.05
+
+# Splits whose parity failure has been diagnosed and ratified by the reviewer. Keyed
+# like HELD_OUT, and for the same reason: a gate that fails forever on a clean clone
+# teaches people to ignore it, and an exception that lives only in prose leaves a
+# reproducer unable to tell a known finding from their own broken checkout. A split
+# listed here still prints MISMATCH and still prints why — it just does not count as
+# a NEW divergence, so the exit status keeps meaning "nothing regressed since this
+# was ratified". Removing an entry is how you re-open the question.
+PARITY_EXCEPTIONS = {
+    "sao_paulo":
+        "count arm 9.2% (23 of 251) > the 5% allowance; displacement arm passes "
+        "(max 0.439 R, the GSV signature). Diagnosed and ratified by the reviewer "
+        "2026-08-01: same GSV resample mechanism as every GSV split, amplified by "
+        "out-of-domain scores hugging the threshold — 20 threshold-straddlers + 19 "
+        "NMS pair-merges. Rows at <= 0.38 (including the recommended 0.30) are "
+        "unaffected; rows at >= 0.55 understate production recall. Full decomposition "
+        "in docs/operating_point.md.",
+}
 
 
 def parity_for(panos, records, threshold=DEPLOYED_THRESHOLD,
@@ -506,8 +531,10 @@ def cmd_parity(args):
         # cross-arm row is a TTA-vs-single delta, not preprocessing drift.
         gated = cache_tta == (city in TTA_RECORD_SPLITS)
         if gated:
-            all_ok &= res["ok"]
-            verdict = "OK" if res["ok"] else "MISMATCH"
+            all_ok &= res["ok"] or city in PARITY_EXCEPTIONS
+            verdict = ("OK" if res["ok"] else
+                       "MISMATCH (ratified)" if city in PARITY_EXCEPTIONS else
+                       "MISMATCH")
         else:
             verdict = "n/a (cross-arm)"
         print(f"{city:<22} {res['n_records']:>8} {res['n_cache']:>7} "
@@ -530,6 +557,13 @@ def cmd_parity(args):
                     "are the\n  single-pass deployment path")
             print(f"\n{city}: NOT GATED — {side}. Its row is a TTA-vs-no-TTA delta, "
                   f"not preprocessing drift (issue #78).")
+        elif not res["ok"] and city in PARITY_EXCEPTIONS:
+            # Deliberately ahead of the "within tolerance" branch below: that text
+            # reads off the displacement arm alone and would tell you no scoring
+            # outcome changes, which for a ratified count-arm failure is false.
+            print(f"\n{city}: MISMATCH — RATIFIED EXCEPTION, not a new divergence.\n"
+                  + textwrap.fill(PARITY_EXCEPTIONS[city], width=90,
+                                  initial_indent="  ", subsequent_indent="  "))
         elif res["exact_frac"] < 0.99:
             print(f"\n{city}: reproduces within tolerance but not exactly "
                   f"({res['exact_frac']:.1%} identical cells).\n  Expected where the "
@@ -537,10 +571,18 @@ def cmd_parity(args):
                   f"—\n  the GSV path built a 4096x2048 intermediate, so bundle "
                   f"native-res != production input.\n  Every displacement is under "
                   f"{res['max_displacement_r']:.2f} R, so no scoring outcome changes.")
-    print("\nParity gate: " + ("PASS — the cache reproduces the committed detections."
-                               if all_ok else
-                               "FAIL — preprocessing diverged; downstream numbers "
-                               "inherit it."))
+    ratified = [c for c, res, cache_tta in rows
+                if not res["ok"] and cache_tta == (c in TTA_RECORD_SPLITS)
+                and c in PARITY_EXCEPTIONS]
+    if not all_ok:
+        gate = "FAIL — preprocessing diverged; downstream numbers inherit it."
+    elif ratified:
+        gate = ("PASS with ratified exception(s) — " + ", ".join(ratified) +
+                ". Nothing regressed, but those splits' numbers carry the caveat "
+                "printed above; read it before quoting them.")
+    else:
+        gate = "PASS — the cache reproduces the committed detections."
+    print("\nParity gate: " + gate)
     return 0 if all_ok else 1
 
 
@@ -601,7 +643,8 @@ def cmd_sweep(args):
         suffix = f"   [held out of POOLED: {held}]" if held else ""
         _print_rows(f"{city.upper()}  (n={len(panos)} panos){suffix}", rows, args.mark)
 
-    poolable = pool_of(args.cities, args.include_budapest, args.include_gold)
+    poolable = pool_of(args.cities, args.include_budapest, args.include_gold,
+                       args.include_sao_paulo)
     pooled = [pd for c in poolable for pd in loaded[c]]
     if len(poolable) > 1:
         rows = sweep_rows(pooled, grid, radius_sq)
@@ -728,7 +771,8 @@ def cmd_tta(args):
         compare(city, single, tta,
                 f"{city.upper()}  (n={len(single)} panos){suffix} — flip-TTA vs single-pass")
 
-    poolable = pool_of(tuple(loaded), args.include_budapest, args.include_gold)
+    poolable = pool_of(tuple(loaded), args.include_budapest, args.include_gold,
+                       args.include_sao_paulo)
     if len(poolable) > 1:
         pooled_s = [pd for c in poolable for pd in loaded[c][0]]
         pooled_t = [pd for c in poolable for pd in loaded[c][1]]
@@ -773,7 +817,8 @@ def cmd_hist(args):
         payload["splits"][city] = bins
         _print_bins(f"{city.upper()} — P(real | confidence bin)", bins)
 
-    poolable = pool_of(args.cities, args.include_budapest, args.include_gold)
+    poolable = pool_of(args.cities, args.include_budapest, args.include_gold,
+                       args.include_sao_paulo)
     pooled = [pd for c in poolable for pd in loaded[c]]
     pooled_bins = confidence_calibration(pooled, radius_sq, edges)
     payload["pooled"] = {"splits": poolable, "bins": pooled_bins}
@@ -962,7 +1007,8 @@ def cmd_floor(args):
 
     for city, panos in loaded.items():
         emit(city, panos)
-    poolable = pool_of(args.cities, args.include_budapest, args.include_gold)
+    poolable = pool_of(args.cities, args.include_budapest, args.include_gold,
+                       args.include_sao_paulo)
     pooled_panos = [pd for c in poolable for pd in loaded[c]]
     print("-" * 96)
     pooled = emit("POOLED", pooled_panos) if len(poolable) > 1 else None
@@ -1040,7 +1086,8 @@ def cmd_corrected(args):
             print(f"{'':<22} note: {p['n_A_suspect']} of {p['n_A']} A-tags sit within "
                   f"{2.0:g} R of an already-detected ramp (likely a second hit, not a "
                   f"missed ramp)")
-        if city in pool_of(args.cities, args.include_budapest, args.include_gold):
+        if city in pool_of(args.cities, args.include_budapest, args.include_gold,
+                           args.include_sao_paulo):
             pooled_items += items
             pooled_tags.update(tags)
             pooled["tp"] += rep.tp
@@ -1240,6 +1287,9 @@ def main(argv=None):
         sp.add_argument("--include-gold", action="store_true",
                         help="pool manual_gold into POOLED/tier rows (default: held out — "
                              "in-distribution reference, not a deployment city)")
+        sp.add_argument("--include-sao-paulo", action="store_true",
+                        help="pool sao_paulo into POOLED/tier rows (default: held out — "
+                             "non-US city, outside the US-deployment pooled basis)")
 
     sp = sub.add_parser("parity", help="gate: cache at 0.55 must reproduce records.jsonl")
     common(sp)

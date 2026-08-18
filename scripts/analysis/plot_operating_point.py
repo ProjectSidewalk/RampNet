@@ -55,7 +55,9 @@ RECOMMENDED = 0.30
 # in this order (validate_palette.js: ALL PASS; the new green↔red adjacency is ΔE 7.2
 # protan — inside the 6–8 band that is legal only with secondary encoding, provided
 # here by the legend, the operating-point dots, and the CSV table view, the same
-# relief that already covers the three sub-3:1-contrast slots).
+# relief that already covers the three sub-3:1-contrast slots). sao_paulo (the 10th
+# split, held out like budapest/manual_gold) joins the neutral-ink group with its
+# own dash — no categorical slot consumed.
 SERIES = {
     "richmond": "#2a78d6",
     "bend": "#eb6834",
@@ -65,13 +67,16 @@ SERIES = {
     "gainesville": "#008300",
     "paterson": "#e34948",
     "budapest_district5": "#52514e",   # neutral ink — held out, not a categorical slot
+    "sao_paulo": "#52514e",            # neutral ink — held out, not a categorical slot
     "manual_gold": "#52514e",          # neutral ink — held out, not a categorical slot
 }
 POOLED_COLOR = "#0b0b0b"
 INK, INK_MUTED, GRID = "#0b0b0b", "#52514e", "#d9d8d4"
-# The two neutral-ink held-out splits share a hue, so each carries its own dash.
-HELD_DASH = {"budapest_district5": (0, (5, 2)), "manual_gold": (0, (1, 1.6))}
-LABEL = {"budapest_district5": "budapest*", "manual_gold": "manual_gold†"}
+# The neutral-ink held-out splits share a hue, so each carries its own dash.
+HELD_DASH = {"budapest_district5": (0, (5, 2)), "manual_gold": (0, (1, 1.6)),
+             "sao_paulo": (0, (4, 1.4, 1, 1.4))}
+LABEL = {"budapest_district5": "budapest*", "manual_gold": "manual_gold†",
+         "sao_paulo": "sao_paulo‡"}
 
 
 def collect(cities=ALL_SPLITS, cache_dir=CACHE_DIR):
@@ -209,7 +214,8 @@ def build(curves, path, meta):
              "above the deployed floor, so a real ramp nobody marked scores as a false "
              "positive (see docs/operating_point.md; the #55 correction is applied "
              "separately).\n*budapest GT is single-rater, low confidence.   †manual_gold is "
-             "in-distribution GSV with independent, un-anchored GT.",
+             "in-distribution GSV with independent, un-anchored GT.   ‡sao_paulo is non-US "
+             "(held out of the pooled recommendation; GT is high confidence).",
              fontsize=7.6, color=INK_MUTED, ha="left", va="bottom")
 
     fig.subplots_adjust(left=0.050, right=0.872, top=0.885, bottom=0.165, wspace=0.185)
