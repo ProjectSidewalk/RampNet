@@ -138,13 +138,39 @@ ds = load_dataset("projectsidewalk/rampnet-benchmark", "4096x2048", split="budap
 confidence, and the imagery a reviewer needs is the `4096x2048` config — `gt_gallery.py` renders at
 that size and never native. What remains blocking a second rater is a *person*, not an artifact.
 
-> **Outstanding: `galleries` needs one re-push.** As first published, a gallery row's `pano_id`
-> column held the *crop tag* — `low_floor_sweep.py` names each crop `{pano}_{x:.5f}_{y:.5f}` — so
-> the join to `records` documented on the card silently returned zero rows. The exporter now
-> writes `crop_id` (the tag), `pano_id` (parsed back out of it) and the detection's
-> `x_normalized` / `y_normalized`, which makes that join work. **The fix is in the code but not yet
-> on the Hub**: re-running `export_benchmark.py build --galleries ...` and pushing the 244 MB
-> `galleries` config is what lands it. `records`, `native` and `4096x2048` are unaffected.
+> **✅ Done 2026-08-17: the `galleries` join key is fixed on the Hub.** As first published, a
+> gallery row's `pano_id` column held the *crop tag* — `low_floor_sweep.py` names each crop
+> `{pano}_{x:.5f}_{y:.5f}` — so the join to `records` documented on the card silently returned zero
+> rows. Rows now carry `crop_id` (the tag), `pano_id` (parsed back out of it) and the detection's
+> `x_normalized` / `y_normalized`. Re-pushed as 9 splits / 314 crops / **399.5 MB**; `native`,
+> `4096x2048` and `records` were left as they were, since `upload_folder` adds and overwrites but
+> never deletes. Verified after the fact against the live repo: the join is 9-for-9 on paterson,
+> and `0uNeulmg68uHO_WKDIuqZw_0.85449_0.59961` parses back to a panorama id that contains its own
+> underscore — the case the right-anchored parse exists for.
+>
+> Two things had to be fixed before the re-push was safe to run, both found by attempting it:
+>
+> - **The card advertised the size of whatever was on local disk.** A galleries-only rebuild would
+>   have published "0.24 GB" — later measured as 0.40 GB — as the size of an 11.41 GB dataset. That
+>   is the same hole as the config list, one field over, so `build_manifest.json` now records each
+>   config's byte total and the card sums the union.
+> - **The published package predated the manifest**, so the first partial rebuild had nothing to
+>   union against and `card` refused — correctly, but with no way forward short of rebuilding
+>   11.41 GB to change one config. `export_benchmark.py adopt` writes the manifest from the
+>   published repo's own file listing, which is the only authority on what is up there.
+>
+> The exact sequence, which is what a replicator runs:
+>
+> ```bash
+> python scripts/export_benchmark.py adopt  --out dist/rampnet-benchmark   # only needed once
+> python scripts/export_benchmark.py build  --galleries analysis_out/op --out dist/rampnet-benchmark
+> python scripts/export_benchmark.py verify --out dist/rampnet-benchmark
+> python scripts/export_benchmark.py push   --out dist/rampnet-benchmark --message "..."
+> ```
+>
+> `build` also regenerates `records` from the committed `records.jsonl` / `verdicts.json`; it came
+> back byte-for-byte the same size as the published copy (179,356 bytes), which is the cheapest
+> available check that the rebuild path is stable.
 
 ## Every manual-review task, and what it would take to redo it
 
@@ -170,10 +196,11 @@ no imagery, no `.model_cache` and no GPU: open the committed crops, tag, commit 
 
 Applying the same to the other two is a size question, and here are the measured numbers:
 
-- **#55 A/B galleries: 244 MB as PNG** across the six cities still on disk (two cities' galleries
-  have already been deleted, though their tags survive — which is the failure mode this section
-  exists to prevent). Re-encoded as JPEG they would be far smaller. **Decision needed:** commit
-  re-encoded crops, or publish the galleries to HF.
+- **#55 A/B galleries: ✅ resolved by publishing them.** This once read "244 MB as PNG across the
+  six cities still on disk (two cities' galleries have already been deleted)". Re-measured
+  2026-08-17 while doing the re-push above, that is wrong on both counts: **all 9 splits are
+  present, 314 crops, 380.8 MB of PNG**, and they are on the Hub as the `galleries` config
+  (399.5 MB as Parquet). Nothing was deleted and no re-encode decision is needed.
 - **GT verification is the hard one.** Reviewers scan *whole panoramas* for missed ramps, so crops
   are not enough. But `gt_gallery.py` renders at the model's **4096×2048**, never native (the #26
   fairness note), so what is actually required is a **model-resolution derivative — roughly
@@ -315,7 +342,12 @@ source files are the archive:
 | `records` | a few MB | **the ground truth** — per-pano metadata, detections with their human verdict, reviewer-marked misses. Its own config so a verdict correction never rewrites an image blob |
 | `4096x2048` | **1.02 GB** | **what GT reviewers actually saw.** `gt_gallery.py` renders at the model's 4096×2048 and never native, so this — not the native archive — is what lets a second rater redo the pass |
 | `native` | **10.89 GB** | the resolution experiment (#25) and any future re-render |
-| `galleries` | 244 MB | the #55 A/B crops reviewers saw, 8 splits (also regenerable, so belt-and-braces) |
+| `galleries` | 244 MB | the #55 A/B crops reviewers saw (also regenerable, so belt-and-braces) |
+
+**As shipped, measured from the published repo 2026-08-17** — the sizes above were the plan's
+estimates, and every config carries the same 9 splits: `native` 10.01 GB, `4096x2048` 1.00 GB,
+`galleries` 399.5 MB, `records` 179 KB, **11.41 GB total**. `export_benchmark.py adopt` prints
+this table from the Hub, so it can be re-checked rather than trusted.
 
 (The plan below was written as loose `panos_native/<city>/` folders; it shipped as Parquet, one
 file per split at `data/<config>/<city>.parquet`, for the reasons in "Packaged as Parquet" further

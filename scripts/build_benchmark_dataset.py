@@ -1,5 +1,11 @@
 """Build the RampNet deployment-validation benchmark as a HuggingFace dataset (issue #21).
 
+SUPERSEDED -- do not run this to publish. ``scripts/export_benchmark.py`` is what
+built and pushed ``projectsidewalk/rampnet-benchmark`` (all nine splits, four
+configs). This two-city predecessor is kept for one thing only: ``LEAKED_BEND_IDS``
+below is the sole record of the 2026-07-22 training-overlap check, which the real
+exporter does not yet carry as a column. Retire this file once it does (#127).
+
 Packs the committed benchmark bundles (``benchmark/{bend,richmond}/`` — native-res
 panoramas + model detections + human verdicts) into a ``DatasetDict`` with one
 split per city, writes a domain-labeled dataset card, and verifies that scoring

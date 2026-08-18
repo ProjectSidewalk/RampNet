@@ -108,6 +108,8 @@ def main():
     parser.add_argument("--repo-id", default="projectsidewalk/rampnet-stage1-inputs")
     parser.add_argument("--push", action="store_true")
     parser.add_argument("--private", action="store_true")
+    parser.add_argument("--message", default="Add the paper's Stage 1 inputs: inventories, street data, manifests",
+                        help="the Hub commit message; say what this push actually carried")
     args = parser.parse_args()
 
     rows = []
@@ -163,8 +165,10 @@ def main():
     print("\nPushing to {}".format(args.repo_id))
     api.create_repo(repo_id=args.repo_id, repo_type="dataset",
                     private=args.private, exist_ok=True)
+    # Unchanged files are skipped by the preupload check, so re-running this to correct the card
+    # uploads only README.md -- at which point the first publication's fixed message is wrong.
     api.upload_folder(repo_id=args.repo_id, repo_type="dataset", folder_path=str(args.out),
-                      commit_message="Add the paper's Stage 1 inputs: inventories, street data, manifests")
+                      commit_message=args.message)
     print("Done: https://huggingface.co/datasets/{}".format(args.repo_id))
 
 

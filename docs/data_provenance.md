@@ -255,9 +255,27 @@ The informative cities point the other way: Bend and Portland have *grown* since
 (+8.7% and +1.6%), so a file downloaded today would be **larger** than Table 1, and the committed
 ones are smaller.
 
+**How big the gaps are, in each city's own units.** The drift argument above is directional; this
+is the magnitude. Measured against each city's growth between Table 1 and the 2026-07-31 snapshot
+in `data/inventories/` — Bend +1,194 (13,611 → 14,805), Portland +777 (45,324 → 46,101) — the
+committed files sit **21% of Bend's subsequent growth** below Table 1 and **37% of Portland's**.
+Both are therefore consistent with a download that predates whatever was counted for Table 1, but
+by *different* fractions of the interval, so they do not resolve to one download date. That is
+weak positive evidence for the survey-time reading and not more; a survey compiled city-by-city
+over some weeks would produce exactly this, and so would several other stories.
+
+**Re-verified independently, 2026-08-17.** The resolution check above was reproduced without
+`gov_provenance.py`, by matching each `all_locations.csv` row to the three committed files on
+rounded coordinates: **276,071 / 276,071 matched, 0 unmatched**, attributing 217,679 to NYC,
+45,035 to Portland and 13,357 to Bend — equal to the per-file counts, city by city. The record
+counts were also recounted straight from the blobs (13,357 Point features, 45,035 Point features,
+217,679 parsed `POINT` rows). Both agree with this section exactly.
+
 **Until that is settled, quote 276,071 for anything derived from the committed inputs** — the
 consumption rates in §3.1, the provenance CSV, and any re-run of Stage 1 — and quote 276,615 only
-when citing the paper's Table 1 as published.
+when citing the paper's Table 1 as published. **The published dataset card for
+`rampnet-stage1-inputs` carries this same reconciliation**, because that is where a replicator
+downloads the files and first notices the mismatch; the two must be kept in step.
 
 ## 4. Split of record
 
