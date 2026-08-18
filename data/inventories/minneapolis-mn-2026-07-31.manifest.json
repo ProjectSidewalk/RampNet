@@ -1,0 +1,22 @@
+{
+  "api": "arcgis",
+  "city": "minneapolis-mn",
+  "count_mismatch": {
+    "declared": 18457,
+    "fetched": 18453,
+    "note": "server count vs rows retained after dropping null geometry"
+  },
+  "count_query": "https://services.arcgis.com/afSMGVsC7QlRK1kZ/arcgis/rest/services/Minneapolis_ADA_Ped_Ramps_-_View_Layer_/FeatureServer/0/query?f=json&where=1%3D1&returnCountOnly=true",
+  "declared_count": 18457,
+  "endpoint": "https://services.arcgis.com/afSMGVsC7QlRK1kZ/arcgis/rest/services/Minneapolis_ADA_Ped_Ramps_-_View_Layer_/FeatureServer/0",
+  "fetched": "2026-07-31",
+  "first_query": "https://services.arcgis.com/afSMGVsC7QlRK1kZ/arcgis/rest/services/Minneapolis_ADA_Ped_Ramps_-_View_Layer_/FeatureServer/0/query?f=json&where=1%3D1&outFields=%2A&returnGeometry=true&resultRecordCount=2000&orderByFields=OBJECTID&outSR=4326",
+  "note": "Minneapolis ADA Ped Ramps. Publishes intersection_id + quadrant + ramp_number - the most explicit per-corner structure found; also the richest #86 source. --allow-partial: 18,453 of 18,457 declared. The 4 missing (OBJECTID 15379, 15380, 15479, 26040) were checked individually and genuinely carry geometry:None - not a paging gap.",
+  "oid_field": "OBJECTID",
+  "out_sr": 4326,
+  "pages": 11,
+  "payload": "minneapolis-mn-2026-07-31.jsonl.gz",
+  "records": 18453,
+  "sha256": "3eab969d1f2f61f6b47227dd0f2863d10fe99ecd88372535eb183381e92ceb30",
+  "where": "1=1"
+}

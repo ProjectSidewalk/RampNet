@@ -1,0 +1,171 @@
+{
+  "city": "denver-co",
+  "latitude": 39.75,
+  "registration_check": {
+    "how_to_read": "Cyan is the city's own street-centreline geometry, projected with the same code that places the crosshair. If it tracks the middle of the visible roadway, imagery and vector data agree in chip pixel space. Centrelines are ground-level, so no roof-lean parallax is involved.",
+    "layer": "https://services1.arcgis.com/zdB7qR0BtYrg0Xpl/ArcGIS/rest/services/ODC_TRANS_STREETROUTE_U/FeatureServer/146",
+    "sites": [
+      {
+        "lat": 39.732141,
+        "lon": -104.947384,
+        "paths": 2,
+        "png": "registration_residential.png",
+        "site": "residential"
+      },
+      {
+        "lat": 39.7461177,
+        "lon": -104.9911615,
+        "paths": 2,
+        "png": "registration_downtown-diagonal.png",
+        "site": "downtown-diagonal"
+      }
+    ],
+    "span_m": 60.0
+  },
+  "registration_measured": {
+    "box_m": 220.0,
+    "interpretation": "Median offset between the city's own street centrelines and the optical centre of the roadway in the imagery, resolved per axis. A NAD83/WGS84 datum mismatch applied on one side only would show as ~1 m, consistent in direction across sites.",
+    "limits": "A centreline is a cartographic construct, not a survey of the pavement midline: crowned roads, one-sided parking bays and kerb extensions move the optical centre without moving the true one. Read a small median as no gross error, not as a calibration certificate.",
+    "sites": [
+      {
+        "abs_median_m": 0.34434366131851024,
+        "cross_sections_attempted": 3588,
+        "east_m": {
+          "median": 0.11478122043950342,
+          "p25": -0.17217183065925512,
+          "p75": 0.4591248817580137
+        },
+        "east_n": 168,
+        "metres_per_pixel": 0.11478122043950342,
+        "north_m": {
+          "median": -0.11478122043950342,
+          "p25": -0.4591248817580137,
+          "p75": 0.22956244087900685
+        },
+        "north_n": 52,
+        "resultant_shift_m": 0.16232515865128164,
+        "site": "park-hill",
+        "usable": 220,
+        "usable_share": 0.06131549609810479
+      },
+      {
+        "abs_median_m": 0.458944888150538,
+        "cross_sections_attempted": 4784,
+        "east_m": {
+          "median": -0.05736811101881725,
+          "p25": -0.5736811101881726,
+          "p75": 0.458944888150538
+        },
+        "east_n": 128,
+        "metres_per_pixel": 0.1147362220376345,
+        "north_m": {
+          "median": 0.05736811101881725,
+          "p25": -0.458944888150538,
+          "p75": 0.4015767771317208
+        },
+        "north_n": 50,
+        "resultant_shift_m": 0.08113076065053676,
+        "site": "berkeley",
+        "usable": 178,
+        "usable_share": 0.037207357859531776
+      },
+      {
+        "abs_median_m": 0.5743557038310106,
+        "cross_sections_attempted": 2677,
+        "east_m": {
+          "median": -0.05743557038310106,
+          "p25": -0.7466624149803138,
+          "p75": 0.861533555746516
+        },
+        "east_n": 110,
+        "metres_per_pixel": 0.11487114076620213,
+        "north_m": {
+          "median": -0.05743557038310106,
+          "p25": -0.34461342229860636,
+          "p75": 0.2871778519155053
+        },
+        "north_n": 95,
+        "resultant_shift_m": 0.08122616259841599,
+        "site": "athmar",
+        "usable": 205,
+        "usable_share": 0.07657825924542398
+      },
+      {
+        "abs_median_m": 0.4596575974072747,
+        "cross_sections_attempted": 1760,
+        "east_m": {
+          "median": -0.05745719967590934,
+          "p25": -0.4022003977313654,
+          "p75": 0.34474319805545606
+        },
+        "east_n": 136,
+        "metres_per_pixel": 0.11491439935181869,
+        "north_m": {
+          "median": -0.4596575974072747,
+          "p25": -0.5745719967590934,
+          "p75": -0.22982879870363734
+        },
+        "north_n": 44,
+        "resultant_shift_m": 0.46323475328263697,
+        "site": "hampden",
+        "usable": 180,
+        "usable_share": 0.10227272727272728
+      },
+      {
+        "abs_median_m": 0.6883573135938501,
+        "cross_sections_attempted": 1124,
+        "east_m": {
+          "median": -0.05736310946615417,
+          "p25": -0.6883573135938501,
+          "p75": 0.6883573135938501
+        },
+        "east_n": 101,
+        "metres_per_pixel": 0.11472621893230835,
+        "north_m": {
+          "median": 0.11472621893230835,
+          "p25": -0.2294524378646167,
+          "p75": 0.5162679851953875
+        },
+        "north_n": 53,
+        "resultant_shift_m": 0.1282678121670824,
+        "site": "montbello",
+        "usable": 154,
+        "usable_share": 0.13701067615658363
+      }
+    ],
+    "zoom": 20
+  },
+  "scale_check": [
+    {
+      "drawn_px": 17.424453167006703,
+      "max_abs_error_m": 0.0026089011859297385,
+      "max_rel_error": 0.0026089011859297385,
+      "radius_m": 1.0,
+      "worst_bearing_deg": 0
+    },
+    {
+      "drawn_px": 34.84890633401341,
+      "max_abs_error_m": 0.0052179340706164975,
+      "max_rel_error": 0.0026089670353082487,
+      "radius_m": 2.0,
+      "worst_bearing_deg": 0
+    },
+    {
+      "drawn_px": 87.12226583503352,
+      "max_abs_error_m": 0.013045817786098493,
+      "max_rel_error": 0.0026091635572196986,
+      "radius_m": 5.0,
+      "worst_bearing_deg": 0
+    },
+    {
+      "drawn_px": 174.24453167006703,
+      "max_abs_error_m": 0.026094910937387812,
+      "max_rel_error": 0.0026094910937387813,
+      "radius_m": 10.0,
+      "worst_bearing_deg": 0
+    }
+  ],
+  "tile_scheme": "verified standard Web Mercator: 256 px, EPSG:3857, origin -20037508.342787, LOD resolutions match 156543.03392800014 / 2^z to 3e-10",
+  "tile_source": "denver-2016",
+  "zoom": 21
+}

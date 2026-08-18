@@ -31,6 +31,7 @@ import json
 import os
 import sys
 from collections import namedtuple
+from datetime import datetime, timezone
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -45,6 +46,16 @@ from rampnet.validation import collect, format_report  # noqa: E402
 from detectors import (  # noqa: E402
     GDINO_QUERY, OWLV2_QUERY, PanoSample, build_detector, parse_model_spec,
 )
+from pricing import estimate_cost, price_for  # noqa: E402
+
+# Where the spend record goes by default. NOT inside --cache-dir: .model_cache/ is
+# gitignored, and a cost ledger that lands there is lost to every other clone —
+# the exact problem export_model_cache.py exists to undo for the detections.
+# analysis_out/ is the established home for committed derived artifacts
+# (op_cache/, fp_taxonomy.json, silent_witness.json), and .gitignore re-includes
+# this file by name.
+DEFAULT_USAGE_LOG_REL = os.path.join("analysis_out", "usage_log.jsonl")
+DEFAULT_USAGE_LOG = str(REPO_ROOT / DEFAULT_USAGE_LOG_REL)
 
 
 def load_dotenv(root):
@@ -277,6 +288,77 @@ def score_model(detector, records, gts, panos_dir, radius_sq, label, city, cache
     return ModelRun(aggregate(pano_scores), failures, scored)
 
 
+def report_usage(detector, label, city, panos_scored, usage_log_path):
+    """Print and (append-)log a paid model's token usage + estimated cost.
+
+    Standing rule: every experiment that spends API money records what it spent,
+    at the time it runs, so a paper can report cost alongside accuracy. Token
+    counts come from the provider's own usage metadata accumulated by the
+    detector during THIS run (cached panos made no call and cost nothing here);
+    the dollar figure is an estimate from the verified table in pricing.py, and
+    the billing console stays authoritative. Reconcile against actual project
+    token counts with scripts/analysis/vertex_usage.py.
+
+    Called from a ``finally``, so it must survive being handed a half-finished
+    run: a leg that dies or is interrupted after paying for 400 calls is exactly
+    the one whose spend must not vanish. It never raises for that reason —
+    bookkeeping that can kill the run it is bookkeeping is worse than no
+    bookkeeping — and it is a no-op when the model made no calls."""
+    usage = getattr(detector, "usage", None)
+    if not usage or not usage.get("calls"):
+        return
+    model_id = getattr(detector, "model_id", None)
+    cost = estimate_cost(model_id, usage["input_tokens"], usage["output_tokens"])
+    pricing = price_for(model_id)
+    cost_txt = (f"  ~=${cost:.2f} (pricing as of {pricing['as_of']})" if cost is not None
+                else "  (no verified price in pricing.py — record one)")
+    # .get() on thinking: most providers don't report it, and a KeyError here
+    # would take down a run that has already been paid for.
+    print(f"[{label}] API usage this run: {usage['calls']} calls, "
+          f"{usage['input_tokens']:,} in / {usage['output_tokens']:,} out tokens "
+          f"({usage.get('thoughts_tokens', 0):,} thinking){cost_txt}")
+    # Which BUILD answered, as distinct from the alias we asked for (#121).
+    versions = getattr(detector, "model_versions", None)
+    if versions:
+        served = ", ".join(f"{v} ({n:,} calls)" for v, n in sorted(versions.items()))
+        print(f"[{label}] served by: {served}")
+    if not usage_log_path:
+        return
+    rec = {
+        "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "bundle": city,
+        "label": label,
+        "provider": getattr(detector, "name", None),
+        "model_id": model_id,
+        # The build(s) that actually served this run, against the alias above.
+        # Cannot be reconstructed later -- .model_cache stores points only -- so
+        # a run that didn't record it never can (#121).
+        "model_versions": dict(versions) if versions else None,
+        # Panos this run actually scored, NOT the size of the bundle: on a
+        # resumed run most panos come from the cache and cost nothing, so
+        # len(gts) would understate cost-per-pano several-fold.
+        "panos_scored": panos_scored,
+        # The rig is part of the price: the same model on the same bundle costs
+        # ~6x more tiled than whole-pano, and without this two such runs log
+        # identically. Same reasoning as the detections export (9e87290).
+        "signature": detector.signature() if hasattr(detector, "signature") else None,
+        **usage,
+        "est_cost_usd": round(cost, 4) if cost is not None else None,
+        "pricing": pricing,
+    }
+    try:
+        os.makedirs(os.path.dirname(usage_log_path) or ".", exist_ok=True)
+        with open(usage_log_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(rec) + "\n")
+    except OSError as e:
+        # Print the record so the numbers survive in the run log even when the
+        # file can't be written; never let this abort the comparison.
+        print(f"[{label}] WARNING: could not write {usage_log_path}: "
+              f"{type(e).__name__}: {e}\n[{label}] usage record: {json.dumps(rec)}")
+        return
+    print(f"[{label}] usage logged to {usage_log_path}")
+
+
 def rescore(scored, radius_sq, min_confidence=0.0):
     """Re-aggregate a finished run with predictions below ``min_confidence`` dropped.
 
@@ -481,6 +563,11 @@ def main():
                     help="Where to cache per-pano detections (keyed by model + rig + pano). "
                          "Re-runs reuse hits and don't re-pay the API.")
     ap.add_argument("--no-cache", action="store_true", help="Disable the detection cache.")
+    ap.add_argument("--usage-log", default=DEFAULT_USAGE_LOG,
+                    help="Append one JSONL record per paid-model run (token counts + "
+                         f"estimated cost; see pricing.py). Default: {DEFAULT_USAGE_LOG_REL} "
+                         "(tracked in git — the spend record is a durable research fact, "
+                         "not scratch). Pass 'none' to disable.")
     args = ap.parse_args()
 
     load_dotenv(str(REPO_ROOT))
@@ -509,6 +596,7 @@ def main():
     radius_sq = radius_sq_for(args.radius)
     city = os.path.basename(os.path.normpath(args.bundle))
     cache = DetectionCache(args.cache_dir, enabled=not args.no_cache)
+    usage_log = None if args.usage_log == "none" else args.usage_log
 
     print(f"Bundle: {args.bundle}  ({len(gts)} scored panos)  "
           f"match radius {args.radius}  ground truth: {gt_desc}")
@@ -524,6 +612,7 @@ def main():
             label = f"{label}#{seen[label]}"
         else:
             seen[label] = 1
+        run = None
         try:
             run = score_model(
                 detector, records, gts, panos_dir, radius_sq, label, city, cache)
@@ -536,6 +625,16 @@ def main():
             # validate_bundle before any of this. The type is printed so a genuine
             # bug here is still diagnosable rather than silently "not runnable".
             print(f"[{label}] not runnable: {type(e).__name__}: {e}\n")
+        finally:
+            # In a finally, not after the try: the run that dies or is Ctrl-C'd
+            # partway through has ALREADY paid for the calls it made, and that is
+            # precisely the spend worth recording. KeyboardInterrupt isn't an
+            # Exception, so on the success path alone it would unwind past this.
+            # panos_scored is None when score_model didn't return — the token
+            # counts are still exact, only the denominator is unknown.
+            report_usage(detector, label, city,
+                         len(run.scored) if run is not None else None, usage_log)
+        if run is None:
             continue
         report = operating_report(run.report, run.scored, radius_sq, args.op_threshold)
         rows.append((label, report))

@@ -1,0 +1,17 @@
+{
+  "api": "arcgis",
+  "city": "sf-ca",
+  "count_query": "https://services.arcgis.com/Zs2aNLFN00jrS4gG/arcgis/rest/services/Curb_Ramps_from_DataSF_pulled_weekly_/FeatureServer/0/query?f=json&where=1%3D1&returnCountOnly=true",
+  "declared_count": 50096,
+  "endpoint": "https://services.arcgis.com/Zs2aNLFN00jrS4gG/arcgis/rest/services/Curb_Ramps_from_DataSF_pulled_weekly_/FeatureServer/0",
+  "fetched": "2026-07-31",
+  "first_query": "https://services.arcgis.com/Zs2aNLFN00jrS4gG/arcgis/rest/services/Curb_Ramps_from_DataSF_pulled_weekly_/FeatureServer/0/query?f=json&where=1%3D1&outFields=%2A&returnGeometry=true&resultRecordCount=2000&orderByFields=ObjectId&outSR=4326",
+  "note": "DataSF curb ramps, pulled weekly. Native SR 3857. Layer's object-ID field is not named OBJECTID - see find_oid_field.",
+  "oid_field": "ObjectId",
+  "out_sr": 4326,
+  "pages": 27,
+  "payload": "sf-ca-2026-07-31.jsonl.gz",
+  "records": 50096,
+  "sha256": "abe8d1f6cc3eccc0e5aedacc49201b3914958960e1098f5ed1f428d1d0f64f53",
+  "where": "1=1"
+}

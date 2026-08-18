@@ -1,0 +1,22 @@
+{
+  "api": "arcgis",
+  "city": "seattle-wa",
+  "count_mismatch": {
+    "declared": 38498,
+    "fetched": 38364,
+    "note": "server count vs rows retained after dropping null geometry"
+  },
+  "count_query": "https://services.arcgis.com/ZOyb2t4B0UYuYNYH/arcgis/rest/services/Curb_Ramps_(Active)/FeatureServer/0/query?f=json&where=1%3D1&returnCountOnly=true",
+  "declared_count": 38498,
+  "endpoint": "https://services.arcgis.com/ZOyb2t4B0UYuYNYH/arcgis/rest/services/Curb_Ramps_(Active)/FeatureServer/0",
+  "fetched": "2026-07-31",
+  "first_query": "https://services.arcgis.com/ZOyb2t4B0UYuYNYH/arcgis/rest/services/Curb_Ramps_(Active)/FeatureServer/0/query?f=json&where=1%3D1&outFields=%2A&returnGeometry=true&resultRecordCount=2000&orderByFields=OBJECTID&outSR=4326",
+  "note": "SDOT active curb ramps -- the publisher's own active filter, per 5c; Curb_Ramps_CDL carries 46,431 including retired. Shortfall of 134 against the declared 38,498 was VERIFIED as null geometry by querying every OBJECTID with returnGeometry=true (38,498 checked, exactly 134 null), not truncation.",
+  "oid_field": "OBJECTID",
+  "out_sr": 4326,
+  "pages": 21,
+  "payload": "seattle-wa-2026-07-31.jsonl.gz",
+  "records": 38364,
+  "sha256": "404c07d38c897763e03391387d1e52adbb47c179f58a469e8fa376d573f955c7",
+  "where": "1=1"
+}

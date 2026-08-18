@@ -25,7 +25,50 @@ a run that hasn't happened, not a result being withheld.
 | manual_gold | ✅ | ✅ all 8 | ❌ too slow | n/a — un-anchored GT | 1k panos, the anchoring control |
 
 "All 8" is the roster in the class table below: RampNet, 2 Geminis, 2 Qwens, Molmo, OWLv2,
-Grounding DINO. **Every split again carries the full roster** — paterson's challenger +
+Grounding DINO.
+
+**A ninth model, `gemini-3.7-flash`, has been run on all ten splits but is not in that roster
+and is not scored in the tables below.** Its detections are published and verified
+(`benchmark/model_detections/gemini-3.7-flash__*.json`, 10/10 pairs identical to the cache;
+see `docs/replication.md` for the exact commands, which need `--models gemini:gemini-3.7-flash`
+because it is off the default roster). Interim F1 numbers are on #20. It is held out of the
+roster tables until its write-up lands here, so that every row of every table below is one
+consistent 8-model set. **This is an omission of a write-up, not of a run** — the distinction
+the matrix above exists to make, stated here because the artifact is already in the repo and
+would otherwise read as a withheld result.
+
+### Are gemini-3.7-flash's silent panoramas real, or lost responses? (#120 review)
+
+The leg returns **nothing at all** on 345 of the 1,109 city-split panoramas (31.1%), against
+163 for gemini-3.6-flash and 255 for gemini-3.1-pro. That is worth resolving rather than
+noting, because it inverts the reading of the leg: `boxes_from_gemini_response` yields `[]`
+both for a model that looked and saw no curb ramp and for a response that arrived with nothing
+parseable in it, and the published files record merged per-panorama points — no per-view
+counts, no finish reasons. "Fires on 69% of panoramas and is right when it does" is a
+high-precision detector; "drops a third of its responses" is a broken harness whose precision
+is an artifact.
+
+`scripts/analysis/empty_response_check.py` settles it from committed data alone (no cache, no
+GPU, no credentials; result in `analysis_out/empty_response_check.json`). **The silence is the
+model being conservative, not the harness losing responses.** Three independent lines agree:
+
+| test | result | reading |
+| :--- | :--- | :--- |
+| **Where it fires, does it find as much?** | On the 755 panoramas where both fire, 3.7-flash averages **2.38** detections against 3.6-flash's **3.03** — a ratio of **0.79** (0.80 against 3.1-pro, n=727) | A dropped response removes a whole view and leaves the survivors untouched. Finding ~21% fewer ramps *on the panoramas where it does fire* is uniform strictness, not concentrated loss. |
+| **Does silence track the ground truth?** | On `manual_gold`'s 1,000 gold-labelled panoramas: silent panoramas carry **0.80** gold ramps on average against **4.96** where it fires (ratio 0.16), and **186 of 251** silent panoramas (74.1%) are genuinely empty in the gold set | It falls silent almost exactly where there is nothing to find. This is also what rules out a *correlated* failure — a whole-panorama refusal would hit ramp-dense panoramas at the same rate, and it does not. |
+| **Six-view arithmetic** | Explaining the silence by independent per-call loss needs p = **82.3%** per call | Absurd for a leg that completed with exit 0 at token counts in line with its siblings — and the same arithmetic indicts 3.6-flash at 72.6%, a leg nobody suspects. Rules out independent loss, and nothing more. |
+
+So the "conservative, high-precision" reading on #20 is supported rather than undermined, and
+its precision can be quoted. **The caution is not free, though:** 201 of `manual_gold`'s 3,919
+gold ramps (5.1%) sit on panoramas the model never spoke about, so roughly five points of
+recall are unreachable at any threshold. That is a ceiling on the leg, not a bug in it.
+
+Caveat worth keeping: none of this inspects a response that actually failed, because the
+harness does not record finish reasons — it infers from the shape of what was returned. A leg
+run with `finish_reason` captured would settle it directly, and would be worth doing if a
+future model shows a *higher* silent rate on ramp-dense panoramas specifically.
+
+**Every split again carries the full 8-model roster** — paterson's challenger +
 null-recall runs landed 2026-07-29, hours after the split itself; gainesville's landed
 2026-07-30, the same day as its split; and sao_paulo's landed 2026-08-01, also the same day
 as its GT review (GPU legs on klone, Geminis via Vertex, all reproducible from the committed
@@ -41,30 +84,47 @@ sweep from a 0.05 peak floor across all nine splits, per-imagery-tier curves, th
 confidence-calibration tables, and the recommendation to lower the deployment threshold from
 0.55 to 0.30.
 
-**Supervised baseline in progress (issue #51).** The roster above is all zero-shot except
-RampNet. A supervised **YOLO** baseline — the architecture-vs-data ablation (does a generic
-detector trained on the RampNet dataset *also* beat the zero-shot field, or is RampNet's
-keypoint architecture doing the work?) — is training on Hyak but is **not yet in the results
-tables**: benchmark eval is pending. Live status is in #51; the training record (per-epoch
-curves, configs, provenance) is committed under
-[`scripts/model_comparison/yolo_baseline/`](../scripts/model_comparison/yolo_baseline/).
-Known gaps and caveats so far: the `y11x_tiles` config was dropped (GPU-saturated — epoch time
-exceeded the ckpt scheduling slice, so it never checkpointed), and **all five remaining configs
-hit the same training instability** — validation mAP peaks at epoch 1, collapses at epoch 3, and
-recovers as the learning rate decays, while training loss falls straight through with no NaN or
-AMP error. The collapse coincides exactly with the peak of the warmup LR ramp (`lr/pg0` 0.010 →
-0.029 over `warmup_epochs=3`), and **not** with batch size, input resolution, architecture, or the
-ckpt preemptions — `y11l_pano` and `y26_pano` share batch 4 / imgsz 1280 and both collapsed and
-recovered. Figures and the full ruling-out are in the training record; the stabilized rerun is
-tracked in #70 (whose original small-batch hypothesis this evidence refutes) and the caveat
-write-up in #72. The reported baseline will be the best-val checkpoint, selected on val, per the
-**pre-registered protocol** committed in the
-[training record](../scripts/model_comparison/yolo_baseline/README.md#pre-registered-evaluation--checkpoint-selection-protocol-issue-71)
-(#71) *before* any benchmark eval of any YOLO checkpoint: `best.pt` = Ultralytics best-val-fitness
-with `patience=20`, config choice on val only, headline F1 at the Ultralytics-default conf 0.25,
-same matcher/GT/radius as the whole roster, test bundles touched once — with the caveat that
-today's checkpoints are undertrained relative to a stable schedule and so give a **lower bound**
-on supervised-YOLO performance.
+**Supervised baseline (issue #51): the pano trio is benchmarked; tiles still training.**
+The roster above is all zero-shot except RampNet. The supervised **YOLO** baseline — the
+architecture-vs-data ablation (does a generic detector trained on the RampNet dataset *also*
+beat the zero-shot field, or is RampNet's keypoint architecture doing the work?) — completed
+its three pano-geometry arms (60-epoch budget, patience never fired) and they were scored on
+**all ten splits on 2026-08-14**, under the
+[pre-registered protocol](../scripts/model_comparison/yolo_baseline/README.md#pre-registered-evaluation--checkpoint-selection-protocol-issue-71)
+(#71) committed before any benchmark contact: `best.pt` as saved, selection on val only,
+headline **F1 at conf 0.25**, same matcher/GT/radius as the whole roster. Best pano arm per
+split, against this doc's committed numbers:
+
+| split | best YOLO pano arm (F1@0.25) | RampNet | best zero-shot |
+|---|---:|---:|---:|
+| manual_gold | **0.851** (y11x) | 0.908 | 0.568 |
+| bend | **0.713** (y11l) | 0.850 | 0.638 |
+| morgantown | **0.686** (y11x) | 0.835 | 0.639 |
+| sao_paulo | **0.662** (y11l) | 0.777 | 0.454 |
+| paterson | 0.647 (y11l) | 0.805 | 0.681 |
+| clovis | **0.600** (y11l) | 0.801 | 0.503 |
+| richmond | 0.595 (y11l) | 0.855 | 0.664 |
+| gainesville | 0.516 (y11l) | 0.803 | 0.548 |
+| annapolis | 0.481 (y11l) | 0.839 | 0.567 |
+| budapest_district5 | 0.277 (y26) | 0.644 | 0.381 |
+
+The one-table read: **in-distribution the dataset nearly reproduces RampNet (0.851 vs 0.908
+on manual_gold, far above every zero-shot model), but out-of-domain it degrades much faster
+than RampNet does** — the architecture's measured contribution is generalization, not
+in-domain fit. Against the zero-shot field it splits 5–5 at the headline threshold (bold =
+above the best challenger), with budapest the honest worst case: the US-trained detector
+nearly stops firing on non-US design vocabulary and lands below gemini-pro. The sweeps show
+much of the missing recall sits *below* conf 0.25 (per-split best-F1 lives at 0.10–0.15 —
+tuned-on-test, reported under that flag only), the same under-firing-at-the-library-default
+pattern as RampNet's own #54/#55 threshold correction. Full tables, calibration analysis,
+provenance, and the exported per-pano detections (`benchmark/model_detections/`,
+verify-identical) are in the
+[training record](../scripts/model_comparison/yolo_baseline/README.md) and its
+`benchmark_eval/` directory. Training-side history (the warmup-LR collapse at epoch 3 across
+all arms, the ckpt slice ceiling, the `y26_tiles` fork) stays in that record; the stabilized
+rerun remains tracked in #70 and the caveat write-up in #72. The tiles arms — the
+resolution-controlled half of the ablation, and the geometry the VLM rows are scored with —
+are still training and are deliberately absent from every table above.
 
 Three classes of challenger, which fail differently and are worth keeping distinct:
 
@@ -1044,6 +1104,78 @@ public GSV/Mapillary, so residency is not a concern here). Vertex model ids diff
 AI-Studio aliases (`gemini-flash-latest` only resolves on `global`); pin them explicitly with
 `gemini:<model-id>` in `--models`.
 
+## Cost accounting for paid models
+
+**Standing rule: every experiment that spends API money records what it spent, at the time
+it runs.** A paper reports cost alongside accuracy, and a token count that wasn't captured
+at run time has to be reconstructed later (or lost). Three layers:
+
+1. **At run time** — `compare.py` accumulates each paid provider's own usage metadata
+   (currently Gemini; local GPU models are free in API terms) and appends one JSONL record
+   per model run — token counts, panos actually scored, detector signature, estimated cost —
+   to `--usage-log` (default **`analysis_out/usage_log.jsonl`**, which is committed;
+   `--usage-log none` disables). Cached panos make no call, so the record is what *that run*
+   actually paid, not what a full run would cost. The append happens in a `finally`, so a leg
+   that dies or is interrupted after paying still records its spend — that is the case the
+   rule exists for — and a failure to write the file degrades to printing the record rather
+   than aborting the comparison.
+   Each record also carries **`model_versions`** — the build(s) that actually served the run.
+   **A pinned model id is an alias, not a build**: `gemini:gemini-3.7-flash` in `--models`
+   resolves to whatever the provider currently serves under that name, and the alias moves.
+   Since `signature()` feeds the detection cache key, the build deliberately does *not* go in
+   it — adding it would miss every already-paid cached detection and re-bill the run — so the
+   run record is where provenance lives, and a rotation mid-leg prints a warning. **This
+   cannot be reconstructed after the fact** (`.model_cache` stores detection points only), so
+   anything produced before this instrumentation, including every file currently in
+   `benchmark/model_detections/`, carries no build id and never can. See #121.
+
+2. **Prices** — `scripts/model_comparison/pricing.py` is a verified-only table: each entry
+   carries the date it was checked. Prices change (the Gemini 3.x flash rates are
+   introductory through 2026-12-31 and double after); the token counts are the durable
+   fact, the dollar figure is an estimate, and the billing console is authoritative.
+3. **Reconciliation** — `scripts/analysis/vertex_usage.py` pulls the project's *actual*
+   billed token counts per model from Cloud Monitoring (daily granularity, ~6 weeks
+   retention), which also recovers runs that predate this instrumentation. Two caveats: its
+   daily rows are 24 h windows ending at the query's time-of-day (UTC), not calendar days —
+   attribute rows to legs from the run record, not by eye — and **it reads one cloud
+   project's billing telemetry, so only someone with access to that project can re-derive
+   its numbers.** That is why layer 1 is committed: the table below is transcribed from a
+   source others cannot query, while `analysis_out/usage_log.jsonl` is checkable from a
+   clean clone.
+
+**Measured: the complete Gemini history of this benchmark** (Cloud Monitoring,
+2026-08-15; every Gemini leg ever run on the project — richmond/bend 07-23/24 onward —
+falls inside the retention window):
+
+| model | input tokens | output tokens | est. cost |
+|---|---:|---:|---:|
+| gemini-2.5-flash | 4,811,091 | 1,479,263 | $5.14 |
+| gemini-3.6-flash | 17,449,987 | 6,119,688 | $36.04 |
+| gemini-3.1-pro-preview | 17,405,320 | 593,380 | $41.93 |
+| gemini-3.7-flash (leg in flight, through 08-15 06:15 UTC) | 14,471,066 | 3,550,843 | $24.17 |
+| **total** | | | **≈ $107** |
+
+Anatomy of a leg: tokenization is deterministic — a 125-pano city leg is exactly
+**957,000 input tokens** (125 panos × 6 views × 1,276 tokens/view at the 1024×1024 view
+size), so input cost is fixed per bundle and only output varies. That makes the rest of
+the budget derivable from the table above: dividing each model's input tokens by 1,276
+gives its call count, and hence its output per call and the cost of one 125-pano leg.
+
+| model | output tokens/call | cost, 125-pano leg | cost, 1,000-pano manual_gold |
+|---|---:|---:|---:|
+| gemini-2.5-flash | 392 | $1.02 | ~$8.20 |
+| gemini-3.7-flash | 313 | $1.60 | ~$12.80 |
+| gemini-3.6-flash | 447 | $1.98 | ~$15.80 |
+| gemini-3.1-pro-preview | 43 | $2.31 | ~$18.50 |
+
+The output column is where the interesting variation lives, and it is entirely thinking:
+**thinking tokens bill as output** and dominate it — the visible JSON is ~50 tokens/call,
+so a model emitting 447 is spending ~90% of its output budget on reasoning nobody reads.
+Models differ by an order of magnitude in how much they do that (gemini-3.6-flash emitted
+6.1M output tokens where gemini-3.1-pro emitted 0.59M on comparable input), which is why
+flash legs are not as cheap relative to pro as the rate card suggests — the 3.6-flash /
+3.1-pro gap is $1.98 vs $2.31 per leg, not the 2.7× the input rates alone imply.
+
 ## Running it
 
 ```bash
@@ -1369,6 +1501,14 @@ What this split adds to the story:
   "how much of a detector's recall is real?" table). Cache-only; no GPU, no keys.
 - `scripts/analysis/fp_taxonomy.py` — what the FP flood is made of (duplicate / near_gt / hood /
   isolated), with an exact chance baseline for the near-GT share. Cache-only; no GPU, no keys.
+- `scripts/analysis/empty_response_check.py` — whether a Gemini leg's zero-detection panoramas
+  are real or lost responses (#120 review). Published detections only; no cache, no GPU, no keys.
+- `scripts/model_comparison/pricing.py` — verified-only per-token price table (each entry
+  carries the date it was checked); prices what `--usage-log` records.
+- `scripts/analysis/vertex_usage.py` — server-side reconciliation: actual billed tokens per
+  model from Cloud Monitoring. Needs ADC on the billing project, so only its output is
+  replicable from this repo.
+- `analysis_out/usage_log.jsonl` — committed, append-only record of what each paid run spent.
 - `requirements-vlm.txt` — optional VLM deps.
 - `tests/test_detection_eval.py`, `tests/test_model_comparison.py`,
   `tests/test_equirect_tiling.py` — guards.

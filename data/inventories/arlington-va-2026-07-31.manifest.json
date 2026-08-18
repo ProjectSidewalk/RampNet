@@ -1,0 +1,17 @@
+{
+  "api": "arcgis",
+  "city": "arlington-va",
+  "count_query": "https://arlgis.arlingtonva.us/arcgis/rest/services/Open_Data/od_Sidewalk_ADA_Ramps/MapServer/0/query?f=json&where=1%3D1&returnCountOnly=true",
+  "declared_count": 10342,
+  "endpoint": "https://arlgis.arlingtonva.us/arcgis/rest/services/Open_Data/od_Sidewalk_ADA_Ramps/MapServer/0",
+  "fetched": "2026-07-31",
+  "first_query": "https://arlgis.arlingtonva.us/arcgis/rest/services/Open_Data/od_Sidewalk_ADA_Ramps/MapServer/0/query?f=json&where=1%3D1&outFields=%2A&returnGeometry=true&resultRecordCount=2000&orderByFields=OBJECTID&outSR=4326",
+  "note": "Arlington VA Sidewalk ADA Ramps.",
+  "oid_field": "OBJECTID",
+  "out_sr": 4326,
+  "pages": 7,
+  "payload": "arlington-va-2026-07-31.jsonl.gz",
+  "records": 10342,
+  "sha256": "0e2faa97871a40323f3dbb543250b404226efd763bb34ed23ffd72ceb992d3d8",
+  "where": "1=1"
+}
