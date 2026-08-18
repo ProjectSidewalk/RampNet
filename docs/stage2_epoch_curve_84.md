@@ -467,6 +467,49 @@ That is a smaller prize than the auto-label curve implied. Val loss says epoch 1
 than epoch 5; human F1 says it is about **1 point** worse. Both are true, and the difference between
 them is the whole finding.
 
+### Protocol-matched: does Run A beat the released model?
+
+Everything above is **single-pass**, which is the #54 protocol headline and the right instrument for
+comparing epochs to each other. It is the **wrong** instrument for comparing to the paper or to the
+July-2026 erratum, both of which scored the released weights **with flip-TTA at conf ≥ 0.55**, and
+`manual_gold` is the one split where TTA genuinely helps (#78). So three epochs were re-scored under
+the erratum's exact protocol — epoch 1 as the anchor, epoch 3 (peak max-F1 and AP) and epoch 6 (peak
+F1@0.30):
+
+| | P | R | F1 | AP |
+| :--- | ---: | ---: | ---: | ---: |
+| **released weights** — erratum, one-to-one matching | 0.949 | 0.873 | **0.9094** | 0.9205 |
+| Run A **epoch 1**, TTA @0.55 | 0.9491 | 0.8704 | 0.9080 | **0.9206** |
+| Run A **epoch 3**, TTA @0.55 | 0.9418 | 0.8961 | **0.9184** | **0.9260** |
+| Run A **epoch 6**, TTA @0.55 | 0.9425 | 0.8956 | **0.9185** | 0.9215 |
+
+**The anchor is about as good as a replication gets.** Epoch 1 lands at precision **0.9491** against
+the erratum's **0.949**, and AP **0.9206** against **0.9205** — one ten-thousandth apart, on numbers
+produced fifteen months and one rewritten evaluator apart. Recall differs by 0.0026 and F1 by
+0.0014. Whatever was unrecoverable about the June-2025 code, it is not visible at this resolution.
+
+**Epochs 3 and 6 beat the released model by +0.0090 and +0.0091 F1** — which sits *just under* the
+pre-registered 0.01 tie bar. On F1 alone, by the rule as written, that is **not** a claim.
+
+**But the F1 tie hides where the gain actually is.** Recall goes 0.873 → **0.8961**, **+2.3 points**,
+against a recall standard error of ~0.008 at this sample size — roughly 3σ, and resolvable in a way
+the F1 delta is not. Precision pays 0.7 points for it. Under this project's recall-first stance that
+is a real improvement being reported as a tie, because F1 averages away the asymmetry between a
+false negative (permanent) and a false positive (cheap).
+
+The honest summary: **on the pre-registered F1 rule, Run A ties the released model; on recall and on
+AP it beats it.** AP moves 0.9205 → 0.9260 at epoch 3, which is the reading least dependent on where
+the threshold sits.
+
+Two smaller things this arm settles:
+
+- **TTA's value is concentrated at 0.55 and at epoch 1.** At the 0.30 operating point TTA adds
+  essentially nothing (epoch 6: 0.9161 single-pass, 0.9161 with TTA — identical to four decimals),
+  which is #78's finding reproduced on a different set of weights.
+- **The single-pass and TTA arms nominate the same epochs.** F1@0.30 peaks at 6 and max-F1 at 3
+  under both, so the calibration drift described above is a property of the checkpoints rather than
+  an artifact of the inference protocol.
+
 ### The Run B gate: PASSES, so Run B is not cancelled
 
 The gate is "Run B runs **unless** the curve degrades — every epoch ≥ 2 below epoch 1 by more than
