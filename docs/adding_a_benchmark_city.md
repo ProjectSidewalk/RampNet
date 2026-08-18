@@ -215,7 +215,7 @@ city or mislabelling it.
 | `low_floor_sweep.py` → `SPLIT_IMAGERY_FALLBACK` | only if `records.jsonl` lacks camera provenance |
 | `low_floor_sweep.py` → `TTA_RECORD_SPLITS` | only if the committed detections used TTA |
 | `scripts/analysis/plot_operating_point.py` → `SERIES` | add a colour **from the validated palette, in slot order** — never a made-up hue. Past 8 slots, fold to "Other" or facet |
-| `scripts/build_benchmark_dataset.py` | ⚠️ still hardcoded to bend + richmond — the HF dataset lags the repo (issue #21) |
+| `scripts/export_benchmark.py` → `BENCHMARK_SPLITS` | **required** — the HF package is built from this allowlist, not from a glob, so a split missing here is silently absent from all four configs. A test keeps it in step with `scripts/analysis/miss_decomposition.py`. Republish with `build` → `verify` → `push` |
 
 ## Phase 6 — documentation (where a split actually becomes real)
 
@@ -252,8 +252,9 @@ run, say so explicitly and say why, rather than leaving a blank.
   GPU. The gallery crops are not — but the **A/B tags are**, under
   `benchmark/<city>/incremental_fp_tags.json`. Losing those means redoing the human pass.
 - **`panos/` is git-ignored and irreplaceable if the source decays.** Mapillary images can
-  disappear. `index.csv` records sha256 per pano; archive the bundle somewhere durable (the HF
-  dataset, issue #21) rather than relying on a laptop.
+  disappear. `index.csv` records sha256 per pano; archive the bundle somewhere durable — the HF
+  dataset [`rampnet-benchmark`](https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark),
+  published in #21 — rather than relying on a laptop.
 - **Never review at native resolution.** It is the one methodological error the benchmark has
   already made once, and it cost a re-review of two cities.
 

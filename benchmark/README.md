@@ -71,13 +71,21 @@ Per-step, for adding a city to this benchmark:
 | Export the native-res bundle (`panos/` + `records.jsonl`) | auto-labeler | `scripts/export_benchmark.py` |
 | GT-verify a sample → `verdicts.json` | **RampNet** | `scripts/gt_gallery.py benchmark/<city>` |
 | Score P/R + Wilson CIs + threshold sweep | **RampNet** | `scripts/score_validation.py` / `rampnet.validation` |
-| Add the split to the HF benchmark dataset | **RampNet** | `scripts/build_benchmark_dataset.py` |
+| Add the split to the HF benchmark dataset | **RampNet** | `scripts/export_benchmark.py` — `build` → `verify` → `push` |
 
-⚠️ The last step lags: `build_benchmark_dataset.py` is still hardcoded to `bend` + `richmond`, so
-clovis, morgantown, annapolis, paterson, gainesville, budapest, and sao_paulo are **not** in the published dataset — and it does not yet carry
-`review_notes` or per-pano `note` into the parquet rows or the dataset card. Whoever finishes #21
-should make the caveats travel with the data, since that is the audience most likely to read a
-number with no idea how it was labeled.
+⚠️ **Two different tools share the name `export_benchmark.py`.** The bundle step above is the
+*auto-labeler's* (a run's results out to `benchmark/<city>/`); the publish step is *RampNet's*
+(the whole benchmark up to the Hub as Parquet). Adding a city means adding it to that script's
+`BENCHMARK_SPLITS` allowlist, or the package silently omits it.
+
+All nine splits are published, four configs each — `records`, `native`, `4096x2048`, `galleries`
+(#21, verified against the live repo 2026-08-17). `scripts/build_benchmark_dataset.py` is the
+two-city predecessor and publishes nothing; don't run it.
+
+What the published copy still does not carry is the reviewer's own commentary: `review_notes` and
+per-pano `note` stay in git here rather than travelling into the parquet rows or the dataset card,
+and Bend's four training-overlap panoramas (below) are unflagged there. Both are tracked in #127 —
+the caveats should reach the audience that runs `load_dataset` and never opens this repo.
 
 The GT gallery and scorer are **canonical in RampNet** (`scripts/gt_gallery.py`,
 `rampnet/validation.py` — decoupled from any imagery source, no network). The auto-labeler
@@ -135,6 +143,16 @@ Clovis is below the other cities on both metrics because it is 100% soft, 2018-e
 360 imagery, where richmond mixes in the sharper NCTECH iSTAR Pulsar (camera provenance is in the
 records, added in #50 and backfilled for morgantown/budapest in 2026-07-25). Note bend samples only
 10 empty panos where the others take 25.
+
+**Bend overlaps the training set by four panoramas**, which is the price of it being one of the
+paper's three training cities. An exact-id check on 2026-07-22 found `6WC0hdAYRsSAcluKSs5iRg`,
+`9kW9cxpuj7q8DMzf-ClrQQ`, `DJ8Zp111zu6KnMZz-0PHgQ` and `VgWpqFkTwCIROvM0z-DkOw` — 4 of bend's 110
+reviewed panos — in `rampnet-dataset`'s train/val splits. Dropping them (measured 2026-08-18 with
+`score_validation.py`) moves the headline **0.954 / 0.758 → 0.956 / 0.753** and the unbiased subset
+**0.972 / 0.738 → 0.976 / 0.731**: inside the Wilson intervals both ways, so nothing here rests on
+it. Bend is the only split where this can happen — the other three GSV splits are not training
+cities and Mapillary ids are a different id space — but that is a prediction, not a measurement,
+and the published dataset carries no `train_overlap` column to filter on yet (#127).
 
 **Precision tracks the camera across the US Mapillary splits**, now that every split carries
 `camera_make`/`camera_model`: clovis (100% GoPro Fusion, 2018) 0.914 → richmond (62% iSTAR Pulsar,
