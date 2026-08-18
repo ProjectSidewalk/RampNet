@@ -1205,7 +1205,9 @@ quietly score the wrong object.
 #### Result: richmond (124 panos, 310 GT ramps), 2026-08-18
 
 RampNet's row reproduces its committed numbers exactly (0.964 / 0.768 / 0.855, 238/9/72), which
-is the check that this run is comparable to the ones above.
+is the check that this run is comparable to the ones above. The leg was also run twice, either
+side of a change to the detector signature that altered the cache key without touching the
+detections; both runs agree to every digit printed here.
 
 | model | P | R | F1 | AP | tp/fp/fn |
 |---|---|---|---|---|---|
