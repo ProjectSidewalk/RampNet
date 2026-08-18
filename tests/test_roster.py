@@ -60,6 +60,48 @@ def test_the_committed_verdicts_still_match_the_gallery_they_were_made_on():
 
 
 # --------------------------------------------------------------------------- #
+# The docs say what the registry says
+# --------------------------------------------------------------------------- #
+def test_the_roster_table_in_the_docs_matches_the_registry():
+    """The anti-drift mechanism for the docs is this test, not anyone's discipline.
+    Before #122 the roster count was hand-written in four files and two of them
+    disagreed — "all 8" in model_comparison.md against "seven-model roster" in
+    replication.md — while a ninth leg sat published in the repo."""
+    doc = (REPO / "docs" / "model_comparison.md").read_text("utf-8")
+    assert roster.TABLE_MARKER in doc, (
+        "the generated roster table is gone from docs/model_comparison.md; "
+        "regenerate it with `python -m rampnet.roster`")
+    after = doc.split(roster.TABLE_MARKER, 1)[1].lstrip("\n")
+    table = "\n".join(_table_lines(after))
+    assert table == roster.markdown_table(), (
+        "docs/model_comparison.md's roster table is stale; regenerate with "
+        "`python -m rampnet.roster`")
+
+
+def _table_lines(text):
+    for line in text.splitlines():
+        if not line.startswith("|"):
+            return
+        yield line
+
+
+def test_no_doc_still_hardcodes_the_old_roster_count():
+    """These exact phrases were the drift. Catch them coming back.
+
+    Whitespace is collapsed first, deliberately: every one of these was wrapped
+    across a line break in the prose, so a naive substring check finds none of them
+    and passes while the docs are still wrong.
+    """
+    import re
+    stale = ("all 8", "8-model roster", "seven-model roster", "all 8 model groups",
+             "8 model groups")
+    for name in ("model_comparison.md", "replication.md", "curb_ramp_data_sourcing.md"):
+        text = re.sub(r"\s+", " ", (REPO / "docs" / name).read_text("utf-8"))
+        for phrase in stale:
+            assert phrase not in text, f"docs/{name} still says {phrase!r}"
+
+
+# --------------------------------------------------------------------------- #
 # Registry consistency
 # --------------------------------------------------------------------------- #
 def test_specs_and_labels_are_unique():

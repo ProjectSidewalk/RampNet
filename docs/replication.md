@@ -43,7 +43,10 @@ it into human-readable files, one per (model, split), keyed by panorama id with 
 signature recorded inside. As of 2026-08-18 that is **112 files, 22.9 MB** — the seven-model
 roster across ten splits, plus the ten-split gemini-3.7-flash leg and the four annapolis
 Claude legs, both described below. `test_the_ledger_count_matches_the_directory` asserts
-this number against the directory, so it can no longer drift unnoticed.
+this number against the directory, so it can no longer drift unnoticed. Who is on the
+roster is `rampnet/roster.py`, not a count in this sentence; `rampnet` itself is a row in
+every results table but has no file here — it is read from each bundle's committed
+`records.jsonl` and carries no detector signature.
 
 ```bash
 python scripts/analysis/export_model_cache.py --out benchmark/model_detections
@@ -74,13 +77,19 @@ python scripts/analysis/export_model_cache.py --verify --models gemini:gemini-3.
 # -> compared 10 (model, split) pair(s); published detections score IDENTICALLY
 ```
 
-`gemini:gemini-3.7-flash` is **not** in `CHALLENGERS` (`scripts/analysis/fp_taxonomy.py`),
-which is what `--models` defaults to. So the two commands above are not optional detail: the
-default `--verify` skips these nine files entirely and reports a clean pass without opening
-them, `fp_taxonomy.py` needs the same `--models` flag, and `silent_witness.py` cannot reach
-them at all without adding the spec to `CHALLENGERS`. Adding it there would change the
-committed `fp_taxonomy.json` / `silent_witness.json`, so it is a re-run, not an edit — open
-until the leg's write-up lands in `docs/model_comparison.md`.
+`gemini:gemini-3.7-flash` is registered in `rampnet/roster.py` as published-but-off-roster,
+so it is not in `CHALLENGERS` and not what `--models` defaults to. The two commands above are
+therefore not optional detail: the default `--verify` skips these ten files entirely and
+reports a clean pass without opening them, and `fp_taxonomy.py` needs the same `--models`
+flag. Since #122, `silent_witness.py` takes `--models` as well, so it can be pointed at any
+pool without editing a tuple.
+
+Promoting the leg to the standing roster is one field in the registry (`standing=True`) plus a
+re-run of `fp_taxonomy.py` and `null_recall.py`, whose committed JSON would change — a re-run,
+not an edit, open until the write-up lands in `docs/model_comparison.md`. **What promotion no
+longer touches is the #46 human pass.** `silent_witness.py` defaults to
+`roster.WITNESS_POOL_46`, the pool frozen at the state the pass was rated under, and both
+committed artifacts record the pool they ran over.
 
 #### The four Claude legs are published, annapolis only, one file per effort level
 
@@ -629,7 +638,8 @@ python scripts/analysis/miss_gallery.py --bucket silent \
     --queue analysis_out/silent_witness.json --render analysis_out/gallery46_silent
 
 # 3. Confirm you are looking at the same images the first rater saw.
-#    The digest must equal the one in benchmark/miss_taxonomy_46/silent__manifest.json.
+#    It must equal the digest in benchmark/miss_taxonomy_46/silent_gallery/manifest.json,
+#    which is also recorded as `manifest_digest` inside every per-rater verdict file.
 python -c "import json;print(json.load(open('analysis_out/gallery46_silent/manifest.json'))['digest'])"
 #    -> 360b5ddf8751dcd0
 

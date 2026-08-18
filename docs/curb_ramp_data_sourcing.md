@@ -258,6 +258,14 @@ human, and exactly what more training data targets.
 The density correction is mandatory here, for the third time in this analysis: OWLv2 witnesses
 121 of 128 silent misses, but chance alone accounts for 76.9 of them.
 
+**Every number in this section is against one fixed witness pool** —
+`rampnet.roster.WITNESS_POOL_46`, the roster as it stood on 2026-07-31, which is the pool the
+#46 tagging pass below was rated under. The pool is frozen and `silent_witness.json` records
+it, because a further witness can only shrink the unwitnessed set and that set is the pass's
+item list. This is not hypothetical: adding the already-published `gemini-3.7-flash` leg takes
+the unwitnessed count from 59 to 58 and the lower bound from 0.0092 to 0.0088, and the item it
+removes is one of the 50 already rated. See #122.
+
 | witness | raw | by chance | **excess** |
 | :--- | ---: | ---: | ---: |
 | gemini-3.1-pro-preview | 46 | 9.4 | +36.6 |
@@ -265,8 +273,8 @@ The density correction is mandatory here, for the third time in this analysis: O
 | molmo2-8B | 26 | 8.5 | +17.5 |
 | Qwen3-VL-8B | 22 | 6.1 | +15.9 |
 | Qwen3-VL-32B | 16 | 2.7 | +13.3 |
-| **union, 5 sparse models** | **69** | 30.0 | **+39.0** |
-| *union, 2 dense detectors* | *127* | *102.2* | *+24.8* |
+| **union, the pool's sparse models** | **69** | 30.0 | **+39.0** |
+| *union, the pool's dense detectors* | *127* | *102.2* | *+24.8* |
 
 **Near-field: 32 of 45 witnessed raw (71.1%), chance 13.0, so ~19 corrected (42%).**
 
@@ -287,8 +295,9 @@ what the gallery is for.
 
 - **`silent` is still an upper bound**, now with a floor under it. It means the cached detections
   witness nothing there. Occlusion, deep shadow, debris and GT disagreement all still live inside
-  the unwitnessed remainder, and separating them needs the imagery — that is #46's gallery half,
-  **the crops are built but the reviewer pass is not done**.
+  the unwitnessed remainder, and separating them needs the imagery — that is #46's gallery half.
+  **One rater has now done that pass** (`benchmark/miss_taxonomy_46/silent__jonf.json`, 50/50
+  tagged, committed 2026-07-31); no second rater has, so there is no agreement statistic.
 - **The witness test is one-directional.** A witnessed ramp is confirmed recognizable; an
   unwitnessed one is not confirmed *un*recognizable, since every challenger is weaker than RampNet
   on this task and may simply have missed it too.
@@ -308,19 +317,28 @@ python scripts/analysis/make_tagger.py analysis_out/gallery46_silent
 
 That yields **50 crops** — 59 unwitnessed, less 9 below the 30-source-pixel floor, which are
 excluded from any rate rather than labelled. The verdict scheme is built so exactly one answer is
-sourcing-addressable:
+sourcing-addressable. It has eight verdicts, and the authoritative copy — the one that travels
+inside every per-rater file — is `benchmark/RUBRICS.md` §3:
 
 | verdict | what it means | programme |
 | :--- | :--- | :--- |
-| `visible` | clear ramp, unobstructed | **vocabulary — this is the sourcing target** |
-| `occluded` | vehicle, pole, vegetation, person | capture |
-| `lighting` | deep shadow or blown highlight | capture |
-| `surface` | debris, snow, leaves, construction | environment |
-| `not-a-ramp` | no ramp / flush or blended transition | GT disagreement |
-| `unclear` | cannot tell from this imagery | excluded from every rate |
+| `visible` | the ramp itself is resolvable | **vocabulary — this is the sourcing target** |
+| `context-only` | ramp not resolvable; crosswalk / apron / curb-cut cues imply one | learnable, from scene layout |
+| `occluded` | something physically in the way (even if still identifiable) | capture |
+| `lighting` | exposure **destroyed** it — clipped white or crushed black | capture |
+| `surface` | debris, snow, leaves, construction covering it | environment |
+| `not-a-ramp` | nothing ramp-like here | GT error |
+| `definition` | imagery clear; whether this **class** counts is the question | rubric question |
+| `unclear` | cannot tell even with context | excluded from every rate |
 
-**The `visible` rate over those 50, applied to the 59, is what converts the bracket into a point
-estimate.** Until it is run, quote the bracket.
+**One rater has completed this pass** — `benchmark/miss_taxonomy_46/silent__jonf.json`, 50/50
+tagged against manifest digest `360b5ddf8751dcd0`, committed 2026-07-31: `visible` 41,
+`unclear` 4, `context-only` 3, `definition` 2.
+
+**The bracket is still what to quote.** Converting those verdicts into a point estimate needs a
+decision this document does not get to make on its own — whether `context-only` and `definition`
+count toward the sourcing target — and it rests on a single rater with no agreement statistic
+(#74, #46). Both are open.
 - **Some of `merged` may be double-marked GT.** 24 of 124 pairs sit below 8 px (~25 cm at 10 m),
   which is not a physical spacing for two ramps; on the verdict splits that is plausibly one ramp
   marked twice. If so they are *spurious GT* and leave the population entirely rather than changing
