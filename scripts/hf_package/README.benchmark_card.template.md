@@ -50,7 +50,7 @@ precision figure, because several splits carry caveats the numbers alone do not 
 | **`records`** | **the ground truth** — per-panorama metadata, model detections with their human verdict, and reviewer-marked missed ramps | scoring any model against this benchmark |
 | `native` | the panoramas exactly as fetched — 4096 to 16384 px wide, depending on city and imagery source | the resolution experiment; any re-render at higher fidelity |
 | `4096x2048` | the same panoramas at the model's input size | **what ground-truth reviewers actually saw** — `gt_gallery.py` renders at 4096×2048 and never native, so this is the config a second rater needs |
-| `galleries` | the incremental false-positive crops shown in the operating-point A/B pass — 8 splits, not 9 | redoing that A/B |
+| `galleries` | the incremental false-positive crops shown in the operating-point A/B pass — 314 crops over the same 9 splits | redoing that A/B |
 
 ### The `records` config
 

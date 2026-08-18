@@ -1569,8 +1569,8 @@ not be pooled with theirs:
 ### Building it
 
 ```bash
-python scripts/fetch_manual_gold.py --audit    # id-only membership/overlap audit, no download
-python scripts/fetch_manual_gold.py            # HF test split (~44 GB) -> panos/ + records.jsonl
+python scripts/fetch_manual_gold.py --audit        # id-only membership/overlap audit, no download
+python scripts/fetch_manual_gold.py --images-only  # HF test split -> panos/ only (see below)
 python scripts/export_gold_records.py --checkpoint <stage2.pth>   # RampNet detections + gate
 
 # or, on Hyak, both steps as one resumable Slurm job (fetch on CPU, export on the GPU):
@@ -1580,9 +1580,29 @@ python scripts/model_comparison/compare.py benchmark/manual_gold \
     --models rampnet --op-threshold 0.55 --sweep
 ```
 
+`--images-only` is the fetch to run on a clone that already has the repo: `records.jsonl`
+and `bundle_meta.json` are committed (the records carry the exported detections) while
+`panos/` is git-ignored, so it fetches the imagery and writes nothing committed, skipping
+panos already on disk. A bare `python scripts/fetch_manual_gold.py` is the *first* build
+only; with `records.jsonl` present it refuses, and `--force` rebuilds the records and
+**discards the detections**. Two things measured while staging this on makelab2
+(2026-08-14), both of which the earlier instructions got wrong:
+
+- **The `hf` fetch is ~2.5 h, not a ~44 GB test-only pull.** `load_dataset` downloaded and
+  arrow-materialized **all three splits** despite `split="test"`. A shard-scoped fetch via
+  `HfFileSystem` + pyarrow — what `--audit` already does — would cut it, and is deliberately
+  not done yet so the change stays clear of the byte-fidelity-sensitive read path.
+- **`manual_gold` has no `imagery_manifest.json`.** All nine city splits carry one (sha256
+  per pano, `scripts/analysis/imagery_manifest.py`); this split does not, because nobody has
+  run the writer on a machine holding all 1,000 panos. The fetch verifies against it when it
+  exists and otherwise names the command that writes it, so for now this split's imagery is
+  pinned only by `bundle_meta.json`'s recorded source and the per-pano pixel size in
+  `records.jsonl`.
+
 The fetch writes the parquet's **raw image bytes** (a past gold-set re-eval moved
 P +2.2 / R -1.8 on JPEG re-encoding alone — do not fetch through `download_dataset.py`,
-which re-saves at quality 95). The exporter reuses `stage_two/evaluate.py`'s exact
+which re-saves at quality 95; `--images-only` refuses a `--source` that contradicts the
+source `bundle_meta.json` records, for exactly that reason). The exporter reuses `stage_two/evaluate.py`'s exact
 inference path (TTA, peak extraction) and ends with a **reproduction gate**: scored through
 this harness at conf >= 0.55, the exported detections must land on the published gold-set
 numbers (P 0.949 / R 0.873). That single check validates the fetch, the inference config,
@@ -1692,7 +1712,11 @@ What this split adds to the story:
    Whether the challengers see anything real in the far field is currently *unanswered* —
    the headline recall can't settle it and neither can the null as computed. Real-vs-null
    recall for near and far ramps separately would.
-7. **Subsample the null for `manual_gold`.** It is the one split with challenger runs and no
+7. **Write `benchmark/manual_gold/imagery_manifest.json`,** and make the gold fetch a
+   shard-scoped pyarrow read rather than `load_dataset`. Both need one run on a machine
+   holding the 1,000 panos: the first closes the only split with no committed content hash,
+   the second turns a ~2.5 h all-three-splits materialization into a test-split-only fetch.
+8. **Subsample the null for `manual_gold`.** It is the one split with challenger runs and no
    null-recall pass, because the shift-average is O(n²) in panos. A fixed random subset of
    shifts would give the same estimate at a fraction of the cost.
 
@@ -1701,7 +1725,7 @@ What this split adds to the story:
 - `rampnet/detection_eval.py` — model-agnostic GT + scorer, AP/PR curve (pure, torch-free);
   includes the YOLO manual-label loader for `manual_gold`.
 - `scripts/fetch_manual_gold.py` — `manual_gold` imagery + records from the HF test split
-  (plus the `--audit` id checks).
+  (`--images-only` for the per-machine imagery re-fetch, plus the `--audit` id checks).
 - `scripts/export_gold_records.py` — RampNet detections for `manual_gold` + the
   reproduction gate (GPU).
 - `scripts/model_comparison/detectors.py` — `Detector` protocol, RampNet baseline, VLM /

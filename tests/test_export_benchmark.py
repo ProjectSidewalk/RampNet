@@ -30,8 +30,8 @@ sys.path.insert(0, os.path.join(REPO_ROOT, "scripts"))
 sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "analysis"))
 from export_benchmark import (  # noqa: E402
     BENCHMARK_SPLITS, GALLERIES, IMAGE_SUFFIXES, MANIFEST_NAME, MODEL_RES, NATIVE, RECORDS,
-    GALLERY_FEATURES, GALLERY_SCHEMA, collect, configs_yaml, load_index, parse_gallery_id,
-    split_date_range)
+    GALLERY_FEATURES, GALLERY_SCHEMA, adopt_index, collect, configs_yaml, load_index, load_sizes,
+    package_bytes, parse_gallery_id, save_index, split_date_range)
 
 
 # --------------------------------------------------------------------------- the split allowlist
@@ -162,6 +162,73 @@ def test_a_city_new_on_disk_is_added_to_what_the_manifest_knew(tmp_path):
                               GALLERIES: ["bend"]},
                    manifest={NATIVE: ["bend"], MODEL_RES: ["bend"], GALLERIES: ["bend"]})
     assert load_index(out)[NATIVE] == ["bend", "clovis"]
+
+
+# ------------------------------------------------------------- the size the card advertises
+
+def _sized(tmp_path, on_disk, sizes=None, manifest=None):
+    """A package whose parquet have real byte lengths, plus an optional manifest of sizes."""
+    for config, cities in on_disk.items():
+        d = tmp_path / "data" / config
+        d.mkdir(parents=True, exist_ok=True)
+        for city, nbytes in cities.items():
+            (d / "{}.parquet".format(city)).write_bytes(b"x" * nbytes)
+    if manifest is not None or sizes is not None:
+        (tmp_path / MANIFEST_NAME).write_text(
+            json.dumps({"configs": manifest or {}, "sizes": sizes or {}}), encoding="utf-8")
+    return tmp_path
+
+
+def test_a_partial_rebuild_advertises_the_whole_package_not_just_what_it_rebuilt(tmp_path):
+    """The galleries re-push: one config on disk, three only on the Hub.
+
+    Summing the local parquet would have published `galleries`' own 0.40 GB as the size of an
+    11.41 GB dataset -- the config-list hole, one field over.
+    """
+    out = _sized(tmp_path, {GALLERIES: {"bend": 40}},
+                 manifest={NATIVE: ["bend"], MODEL_RES: ["bend"], GALLERIES: ["bend"],
+                           RECORDS: ["bend"]},
+                 sizes={NATIVE: 1000, MODEL_RES: 100, GALLERIES: 25, RECORDS: 5})
+    assert package_bytes(out, load_index(out)) == 1000 + 100 + 40 + 5
+
+
+def test_the_rebuilt_config_reports_its_new_size_not_the_one_on_record(tmp_path):
+    """Disk wins for a config this run rebuilt -- that is the whole point of re-pushing it."""
+    out = _sized(tmp_path, {GALLERIES: {"bend": 40}},
+                 manifest={GALLERIES: ["bend"]}, sizes={GALLERIES: 25})
+    assert package_bytes(out, {GALLERIES: ["bend"]}) == 40
+
+
+def test_a_config_the_card_does_not_declare_is_not_counted_in_its_total(tmp_path):
+    out = _sized(tmp_path, {}, manifest={NATIVE: ["bend"]}, sizes={NATIVE: 1000, "dropped": 7})
+    assert package_bytes(out, {NATIVE: ["bend"]}) == 1000
+
+
+def test_save_index_records_what_it_rebuilt_and_preserves_the_rest(tmp_path):
+    out = _sized(tmp_path, {GALLERIES: {"bend": 40}},
+                 manifest={NATIVE: ["bend"], GALLERIES: ["bend"]},
+                 sizes={NATIVE: 1000, GALLERIES: 25})
+    save_index(out, {GALLERIES: ["bend"]})
+    assert load_sizes(out) == {NATIVE: 1000, GALLERIES: 40}
+
+
+# --------------------------------------------------------- adopting an already-published package
+
+def test_adopt_reads_configs_splits_and_sizes_from_a_published_listing():
+    configs, sizes = adopt_index([
+        ("data/native/bend.parquet", 10), ("data/native/clovis.parquet", 20),
+        ("data/galleries/bend.parquet", 5),
+    ])
+    assert configs == {NATIVE: ["bend", "clovis"], GALLERIES: ["bend"]}
+    assert sizes == {NATIVE: 30, GALLERIES: 5}
+
+
+def test_adopt_ignores_everything_that_is_not_a_config_parquet():
+    configs, sizes = adopt_index([
+        ("README.md", 1), (".gitattributes", 1), ("data/native/bend.parquet", 10),
+        ("data/native/extra/nested.parquet", 99), ("data/native/notes.txt", 3),
+    ])
+    assert configs == {NATIVE: ["bend"]} and sizes == {NATIVE: 10}
 
 
 # ------------------------------------------------------------------------------ the card's dates
