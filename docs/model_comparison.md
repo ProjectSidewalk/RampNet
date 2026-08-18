@@ -1367,11 +1367,67 @@ overwrite `mask2former-vistas-curb-cut__richmond.json` — publishing them needs
 published name (the `--publish-as` pattern from #123), which was out of scope here. And this is
 still **richmond only**.
 
-**The follow-up this result argues for is not more splits.** It is complementarity: at parity
-this arm misses **36** ramps where RampNet misses **72**, so the question worth asking is how much
-of RampNet's miss set a free, zero-training model already covers. That is a recall-first question
-and it bears directly on the north star; it is scoring-side work on detections that are already
-cached, and it is not costed here.
+#### Complementarity: 61% of RampNet's misses are recoverable, and a union still loses
+
+Parity raised the obvious recall-first question — this arm misses 36 ramps where RampNet misses
+72, so how much of *RampNet's* miss set does a free, zero-training model already cover? Run
+through the #35 gate (`scripts/analysis/complementarity.py`, generalized past its Gemini-only
+form for this), on the same cached detections, scoring-side only:
+
+| | vistas @384 | **vistas @1024 (parity)** |
+|---|---:|---:|
+| found by BOTH | 194 | 220 |
+| rampnet ONLY | 44 | 18 |
+| **challenger ONLY** (rampnet-miss ∩ hit) | 21 | **54** |
+| found by NEITHER | 51 | **18** |
+| of rampnet's 72 misses, recovered | 21 (29%) | **54 (75%)** |
+| null on that subset (same boxes, wrong pano) | 0.090 | 0.143 |
+| **attributable after the null** | **~15** | **~44** |
+| oracle-union recall | 0.835 | **0.942** |
+| boxes/pano · above chance (`null_recall.py`) | 4.5 · 0.657 | 6.2 · **0.864** |
+
+**Discounted for chance, a free zero-training model finds ~44 of the 72 ramps RampNet misses —
+61%.** The null here is measured on the miss subset rather than extrapolated from the split-wide
+one, because RampNet's misses are a biased sample (far-field, adjacent pairs) and that is exactly
+where density differs; it lands at 0.143 against the split-wide 0.145, so in this case the
+extrapolation would have been fair. And the recall is real detection, not density: at 6.2
+boxes/pano the arm's **above-chance is 0.864, higher than RampNet's own 0.754** — nothing like
+OWLv2's 0.733 null at 74 boxes/pano.
+
+**The resolution fix mattered far more here than the headline suggested.** Parity moved F1 by
++0.018 and was correctly judged not to change the ranking — but it nearly **tripled** the
+attributable complementary gain (~15 → ~44 ramps) and shrank the found-by-nobody core from 51 to
+**18**, 5.8% of GT. That core is much smaller than paterson's 88 (22%) or gainesville's 55 (20%),
+though those are different splits against a different challenger, so read it as suggestive rather
+than a like-for-like. The general lesson is worth keeping: **a flat headline metric hid a large
+change in the structure underneath it**, and only the complementarity read surfaced it.
+
+**A naive union is nonetheless dead, and it is not close.** The oracle-union recall of 0.942 is a
+*ceiling* — it assumes a combiner that keeps every right call and discards every wrong one, which
+does not exist. What a real union pays is both FP bills:
+
+| | P | R | F1 |
+|---|---:|---:|---:|
+| rampnet alone | 0.964 | 0.768 | **0.855** |
+| naive union with vistas @1024 | 0.393 | 0.942 | 0.555 |
+| naive union with vistas @384 | 0.450 | 0.835 | 0.585 |
+
+The economics are the whole story: those 54 ramps arrive with 442 false positives, about **8.2 FPs
+per recovered ramp**, against the 9 FPs RampNet currently pays for 238 true positives. So
+ensembling by union is not a close call at any operating point on this arm's PR curve.
+
+**What that leaves is a gated cascade, and it is a real open question rather than a plan.** The
+useful form is not "take both models' boxes" but "use this arm's candidates as a *spatial prior*
+to locally relax RampNet's threshold", which would keep RampNet's precision and buy back some of
+the 54. Whether it can work is empirical and decidable: #131 measured RampNet's silent misses as
+8% absent / 62% adjacent-tail / 30% faint, so most misses *do* have sub-threshold heatmap signal —
+but nobody has checked whether that holds at these 54 locations specifically. If the signal is
+absent there, the miss is genuine and the cascade has nothing to work with. `silent_activation.py`
+is the instrument. **Not run, not costed here.**
+
+**Caveats.** richmond only, one imagery tier. The 442 FPs are not free even in a recall-first
+framing — at 3.6 FP/pano against RampNet's 0.07 they are a ~50× review burden, so "FPs are cheap"
+is a claim about the labeling workflow that would need its own justification at this ratio.
 
 ##### Reproducing it
 
