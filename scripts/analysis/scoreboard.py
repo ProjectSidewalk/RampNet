@@ -1,0 +1,395 @@
+"""One table with every model on it: the aggregated scoreboard behind docs/scoreboard.md.
+
+``docs/model_comparison.md`` is the comprehensive log — per-split tables, the mechanism
+behind each number, the caveats, the negative results. It is the right document for "why
+does Qwen-32B invert on budapest". It is the wrong document for "which model is best, and
+by how much", because that answer is spread across ten per-split tables in reading order
+rather than model order.
+
+This script produces the other view: **rows are models, columns are metrics**, aggregated
+across splits, plus figures for the findings that are easier to see than to read. It is
+generated rather than hand-maintained so the summary cannot drift from the log it
+summarizes — ``--check`` fails when the committed doc no longer matches the committed
+data, which is a failure mode a hand-copied summary table has and a generated one does not.
+
+Reads **only committed artifacts** — the benchmark bundles, the published detections in
+``benchmark/model_detections/``, and ``manual_labels/``. No ``.model_cache``, no GPU, no
+credentials, no network, so a fresh clone reproduces every number here::
+
+    python scripts/analysis/scoreboard.py                 # JSON + doc tables + figures
+    python scripts/analysis/scoreboard.py --check         # is the committed doc current?
+    python scripts/analysis/scoreboard.py --no-figures    # tables only (no matplotlib)
+
+**Aggregation.** The headline is the **macro-mean over the seven US city splits** — the
+pool is ``low_floor_sweep.US_SPLITS``, imported rather than restated, because a third copy
+of that registry is how a split ends up silently in one headline and out of another. The
+three held-out splits keep their own columns and their documented reasons travel with
+them: ``docs/model_comparison.md`` states outright that budapest's numbers "must not be
+pooled with the US splits or averaged into a headline", ``sao_paulo`` is held out for
+geography rather than GT quality, and ``manual_gold`` is the in-distribution reference,
+not a deployment city.
+
+Macro rather than micro even within the pool: pooling counts would weight paterson (395 GT
+ramps) twice as heavily as clovis (195) for no reason anyone would defend, and pooling
+``manual_gold`` in would be worse still — its 3,919 GT points outnumber all nine cities
+combined, so a pooled headline would be 59% one split that is in-distribution for exactly
+one model on the roster.
+
+**Operating points** are per model class, and are the ones the log already committed to
+rather than new choices (see ``OPERATING_POINT``): RampNet at its deployed 0.55, the
+supervised YOLO arms at the pre-registered conf 0.25 (#71), the open-vocabulary detectors
+at their 0.05 export floor, and the chat VLMs wherever they are — they emit no confidence,
+so there is nothing to threshold and the setting is a no-op for them. AP is always
+full-range: it integrates the whole confidence sweep, so it is read from the unthresholded
+run even when P/R/F1 are not.
+"""
+import argparse
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, REPO)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "scripts", "model_comparison"))
+
+import compare as C  # noqa: E402  (torch-free: detectors.py imports torch lazily)
+from rampnet import roster  # noqa: E402
+from rampnet.detection_eval import score_pano, aggregate, radius_sq_for  # noqa: E402
+from export_model_cache import PUBLISHED_DIR, load_detections  # noqa: E402
+# The split registry, imported not restated. test_registries_agree_with_low_floor_sweep
+# already keeps low_floor_sweep and miss_decomposition in step; a third private copy here
+# is exactly how a split ends up pooled in one headline and held out of another.
+from low_floor_sweep import (  # noqa: E402
+    ALL_SPLITS, CITY_SPLITS, DEPLOYED_THRESHOLD, HELD_OUT, US_SPLITS)
+
+IN_DISTRIBUTION = "manual_gold"
+# Held-out splits in a stable reading order: the two cities, then the reference split.
+HELD_OUT_ORDER = tuple(s for s in ALL_SPLITS if s in HELD_OUT)
+
+RAMPNET = "rampnet"
+
+# Confidence floor each model class is reported at. These are not new choices -- each is
+# the operating point its own write-up committed to, restated here so one table decides it
+# for every row and figure instead of each caller deciding again. A model whose
+# predictions carry no confidence (the chat VLMs) is unaffected either way: rescore()
+# never drops an unscored prediction.
+OPERATING_POINT = {
+    "purpose-trained": DEPLOYED_THRESHOLD,   # RampNet as deployed (docs/operating_point.md)
+    "supervised": 0.25,          # pre-registered YOLO headline (#71)
+    "supervised-transfer": 0.0,  # Vistas mask components, at the floor #126 exported
+    "open-vocab": 0.0,           # the 0.05 export floor, as the log reports them
+    "chat-vlm": 0.0,             # no confidences -- no-op
+    "pointing": 0.0,             # no confidences -- no-op
+    "unclassified": 0.0,         # discovered leg: report it where it sits, and say so
+}
+
+# How to say that operating point in a table cell. "0.05 floor" and "no score" are not
+# the same thing and the distinction is load-bearing: a floored detector could be tuned
+# to a better point and is not being, whereas a chat VLM has no confidence to tune on, so
+# its single row IS the model. Collapsing both to "0.00" invites the reading that the
+# chat VLMs were handed an unfairly low threshold.
+OPERATING_POINT_NOTE = {
+    "purpose-trained": "0.55",
+    "supervised": "0.25",
+    "supervised-transfer": "export floor",
+    "open-vocab": "0.05 floor",
+    "chat-vlm": "no score",
+    "pointing": "no score",
+    "unclassified": "export floor",
+}
+
+# Model class per roster provider. The registry knows WHO has been run; this only says
+# what kind of thing each provider is, which is the one fact a results table needs and
+# the roster does not carry. An unknown provider falls through to "unclassified" and is
+# still scored -- silently dropping a leg someone paid for is the failure this file
+# exists to prevent.
+PROVIDER_CLASS = {
+    "rampnet": "purpose-trained",
+    "yolo": "supervised",
+    "vistas": "supervised-transfer",
+    "gemini": "chat-vlm",
+    "claude": "chat-vlm",
+    "qwen": "chat-vlm",
+    "molmo": "pointing",
+    "owlv2": "open-vocab",
+    "gdino": "open-vocab",
+}
+
+CLASS_ORDER = ("purpose-trained", "supervised", "supervised-transfer", "chat-vlm",
+               "pointing", "open-vocab", "unclassified")
+CLASS_LABEL = {
+    "purpose-trained": "purpose-trained",
+    "supervised": "supervised baseline",
+    "supervised-transfer": "supervised transfer",
+    "chat-vlm": "chat VLM",
+    "pointing": "pointing model",
+    "open-vocab": "open-vocab detector",
+    "unclassified": "unclassified",
+}
+
+# Short, readable stand-ins for the long published ids, keyed by published name (unique
+# by construction -- it is a filename stem). Anything absent falls back to the id itself,
+# so a new leg is readable-but-verbose rather than missing.
+DISPLAY = {
+    "rampnet": "RampNet",
+    "y11x_pano_h200": "YOLO11x (pano)",
+    "y11l_pano": "YOLO11l (pano)",
+    "y26_pano": "YOLO26 (pano)",
+    "gemini-3.1-pro-preview": "Gemini 3.1 Pro",
+    "gemini-3.7-flash": "Gemini 3.7 Flash",
+    "gemini-3.6-flash": "Gemini 3.6 Flash",
+    "Qwen/Qwen3-VL-32B-Instruct": "Qwen3-VL-32B",
+    "Qwen/Qwen3-VL-8B-Instruct": "Qwen3-VL-8B",
+    "allenai/Molmo2-8B": "Molmo2-8B",
+    "google/owlv2-large-patch14-ensemble": "OWLv2-large",
+    "IDEA-Research/grounding-dino-base": "Grounding DINO",
+    "claude-opus-5-effort-low": "Claude Opus 5 (low)",
+    "claude-opus-5-effort-high": "Claude Opus 5 (high)",
+    "claude-sonnet-5-effort-low": "Claude Sonnet 5 (low)",
+    "claude-sonnet-5-effort-high": "Claude Sonnet 5 (high)",
+    "mask2former-vistas-curb-cut": "Mask2Former Vistas (curb cut)",
+    "mask2former-vistas-curb-cut+curb": "Mask2Former Vistas (+curb)",
+}
+
+DEFAULT_JSON = os.path.join(REPO, "analysis_out", "scoreboard.json")
+DEFAULT_DOC = os.path.join(REPO, "docs", "scoreboard.md")
+FIGURE_DIR = os.path.join(REPO, "docs", "figures")
+
+
+def class_of(leg):
+    """Model class for a roster leg; an unregistered provider is named, never dropped."""
+    return PROVIDER_CLASS.get(leg.provider, "unclassified")
+
+
+def display_of(leg):
+    """Short readable name, falling back to the published id."""
+    name = roster.published_name(leg)
+    return DISPLAY.get(name, name)
+
+
+def legs():
+    """Every registered leg, in roster order (which is results-table order).
+
+    Driven by ``rampnet.roster`` rather than by scanning ``benchmark/model_detections/``:
+    filenames are ambiguous now that one model id can be several legs
+    (``claude-opus-5`` at two efforts publishes as two stems) and that a published name
+    can itself contain the ``__`` separator (``mask2former-vistas-curb-cut__curb``).
+    ``test_roster.py`` already asserts the directory and the registry agree, so the
+    registry is the safe side of that pair to read from.
+    """
+    return list(roster.ROSTER)
+
+
+def unregistered_exports():
+    """Published detection files no roster entry claims — reported, never scored silently.
+
+    ``test_roster.py`` should make this empty. It is computed anyway so that if the two
+    ever drift, the scoreboard says so instead of quietly omitting a paid-for run.
+    """
+    known = {roster.published_filename(leg, split)
+             for leg in roster.ROSTER for split in ALL_SPLITS}
+    return sorted(name for name in os.listdir(PUBLISHED_DIR)
+                  if name.endswith(".json") and name not in known)
+
+
+def load_split(split):
+    """(records, {pano_id: GroundTruth}) for one benchmark bundle."""
+    bundle = os.path.join(REPO, "benchmark", split)
+    records, verdicts, _ = C.load_bundle(bundle)
+    if verdicts is not None:
+        C.validate_bundle(records, verdicts)
+        return records, C.ground_truths_from_verdicts(records, verdicts)
+    gts = C.load_manual_ground_truths(bundle)
+    return records, {pid: gts[pid] for pid in records if pid in gts}
+
+
+def score(leg, split, records, gts, radius_sq, op):
+    """One (leg, split) cell, or None when the leg was never run on that split.
+
+    P/R/F1 are read at the operating point ``op``; AP is read from the full-range run,
+    because ``--op-threshold`` truncates the curve it integrates. That split is
+    ``compare.operating_report``'s, reused here so the scoreboard and the log cannot
+    disagree about what a row means.
+    """
+    if leg.provider == "rampnet":
+        preds = {pid: records[pid]["detections"] for pid in gts}
+    else:
+        # publish_as, not label: a pinned leg's detections live under its own stem, and
+        # loading by label alone silently returns the sibling leg's file.
+        preds = load_detections(leg.label, split,
+                                publish_as=roster.published_name(leg))
+        if preds is None:
+            return None
+    scored = [(preds.get(pid, []), gt) for pid, gt in gts.items()]
+    full = aggregate([score_pano(p, g, radius_sq=radius_sq) for p, g in scored])
+    rep = C.operating_report(full, scored, radius_sq, op)
+    return {
+        "split": split,
+        "precision": rep.precision, "recall": rep.recall, "f1": rep.f1, "ap": rep.ap,
+        "tp": rep.tp, "fp": rep.fp, "fn": rep.fn,
+        "n_panos": rep.n_panos, "n_gt_recall": rep.n_gt_recall,
+        "fp_per_pano": rep.fp / rep.n_panos if rep.n_panos else None,
+    }
+
+
+def mean(values):
+    vals = [v for v in values if v is not None]
+    return sum(vals) / len(vals) if vals else None
+
+
+def summarize(leg, cells):
+    """Macro-mean over the pooled US splits the leg actually ran on, + the held-out ones.
+
+    ``coverage`` travels with every aggregate so a model averaged over one city can never
+    be read as one averaged over seven — and ``complete`` decides which table it lands
+    in, because a one-city mean has no business sitting in the same column as a
+    seven-city one. The held-out splits are carried individually, never folded in, for
+    the reasons in ``HELD_OUT``.
+    """
+    klass = class_of(leg)
+    pooled = [cells[s] for s in US_SPLITS if cells.get(s)]
+    f1s = [c["f1"] for c in pooled]
+    have_ap = bool(pooled) and all(c["ap"] is not None for c in pooled)
+    out = {
+        "model": roster.published_name(leg),
+        "label": leg.label,
+        "spec": leg.spec,
+        "provider": leg.provider,
+        "standing": leg.standing,
+        "display": display_of(leg),
+        "class": klass,
+        "operating_point": OPERATING_POINT[klass],
+        "operating_point_note": OPERATING_POINT_NOTE[klass],
+        "coverage": f"{len(pooled)}/{len(US_SPLITS)}",
+        "complete": len(pooled) == len(US_SPLITS),
+        "pooled_splits": [s for s in US_SPLITS if cells.get(s)],
+        "precision": mean(c["precision"] for c in pooled),
+        "recall": mean(c["recall"] for c in pooled),
+        "f1": mean(f1s),
+        "ap": mean(c["ap"] for c in pooled) if have_ap else None,
+        "fp_per_pano": mean(c["fp_per_pano"] for c in pooled),
+        "f1_min": min(f1s) if f1s else None,
+        "f1_max": max(f1s) if f1s else None,
+        "f1_min_split": min(pooled, key=lambda c: c["f1"])["split"] if pooled else None,
+        "f1_max_split": max(pooled, key=lambda c: c["f1"])["split"] if pooled else None,
+        "n_splits_run": len([s for s in ALL_SPLITS if cells.get(s)]),
+    }
+    for split in HELD_OUT_ORDER:
+        cell = cells.get(split)
+        for metric in ("f1", "precision", "recall", "ap"):
+            out[f"{split}_{metric}"] = cell[metric] if cell else None
+    return out
+
+
+def build(models=None):
+    """Score every (leg, split) pair from committed data. Returns the result dict.
+
+    ``models`` filters by published name, so ``--models claude-opus-5-effort-low`` names
+    one leg rather than one model id.
+    """
+    radius_sq = radius_sq_for()
+    wanted = set(models) if models else None
+    chosen = [leg for leg in legs()
+              if wanted is None or roster.published_name(leg) in wanted]
+    splits = {s: load_split(s) for s in ALL_SPLITS}
+
+    per_model, summaries = {}, {}
+    for leg in chosen:
+        op = OPERATING_POINT[class_of(leg)]
+        cells = {}
+        for split, (records, gts) in splits.items():
+            cell = score(leg, split, records, gts, radius_sq, op)
+            if cell is not None:
+                cells[split] = cell
+        name = roster.published_name(leg)
+        per_model[name] = cells
+        summaries[name] = summarize(leg, cells)
+
+    # Complete rows first, then class (so the table reads as a taxonomy), then F1.
+    # A leg with no pooled coverage at all sorts last within its class rather than
+    # ranking as if it scored zero.
+    def key(name):
+        s = summaries[name]
+        return (not s["complete"], CLASS_ORDER.index(s["class"]),
+                -(s["f1"] if s["f1"] is not None else -1))
+
+    order = sorted(summaries, key=key)
+    return {
+        "pooled_splits": list(US_SPLITS),
+        "city_splits": list(CITY_SPLITS),
+        "all_splits": list(ALL_SPLITS),
+        "held_out": dict(HELD_OUT),
+        "in_distribution_split": IN_DISTRIBUTION,
+        "unregistered_exports": unregistered_exports(),
+        "splits": {s: {"n_panos": len(gts),
+                       "n_gt": sum(len(g.gt_points) for g in gts.values()),
+                       "pooled": s in US_SPLITS}
+                   for s, (_, gts) in splits.items()},
+        "models": [summaries[n] for n in order],
+        "per_split": {n: per_model[n] for n in order},
+    }
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0],
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--json-out", default=DEFAULT_JSON)
+    ap.add_argument("--doc", default=DEFAULT_DOC)
+    ap.add_argument("--figure-dir", default=FIGURE_DIR)
+    ap.add_argument("--models",
+                    help="Comma-separated PUBLISHED names (roster.published_name), e.g. "
+                         "claude-opus-5-effort-low. Default: every registered leg.")
+    ap.add_argument("--no-figures", action="store_true", help="Skip matplotlib entirely.")
+    ap.add_argument("--check", action="store_true",
+                    help="Verify the committed doc and JSON match the committed data; "
+                         "write nothing and exit non-zero on drift.")
+    args = ap.parse_args()
+
+    models = [m.strip() for m in args.models.split(",")] if args.models else None
+    result = build(models)
+
+    from scoreboard_render import render_tables, splice, write_json  # noqa: E402
+    tables = render_tables(result)
+
+    if args.check:
+        problems = []
+        if not os.path.exists(args.doc):
+            problems.append(f"{args.doc}: missing")
+        else:
+            with open(args.doc, encoding="utf-8", newline="") as fh:
+                current = fh.read()
+            if splice(current, tables) != current:
+                problems.append(f"{args.doc}: generated tables are stale "
+                                "(re-run scripts/analysis/scoreboard.py)")
+        if problems:
+            print("\n".join(problems))
+            raise SystemExit(1)
+        print(f"{args.doc}: current")
+        return
+
+    write_json(args.json_out, result)
+    print(f"wrote {args.json_out}")
+
+    if os.path.exists(args.doc):
+        with open(args.doc, encoding="utf-8", newline="") as fh:
+            current = fh.read()
+        updated = splice(current, tables)
+        if updated != current:
+            with open(args.doc, "w", encoding="utf-8", newline="") as fh:
+                fh.write(updated)
+            print(f"updated {args.doc}")
+        else:
+            print(f"{args.doc}: already current")
+    else:
+        print(f"{args.doc}: not found -- write the prose first, then re-run to fill "
+              "the generated blocks")
+
+    if not args.no_figures:
+        import scoreboard_figures
+        for path in scoreboard_figures.render_all(result, args.figure_dir):
+            print(f"wrote {path}")
+
+
+if __name__ == "__main__":
+    main()
