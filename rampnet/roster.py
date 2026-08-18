@@ -114,6 +114,21 @@ ROSTER = (
 
     # --- published, but not scored in the roster tables ---------------------- #
     Challenger(
+        spec="vistas:curb-cut", label="mask2former-vistas-curb-cut", provider="vistas",
+        density=None, standing=False, added="2026-08-18",
+        note="Supervised-transfer baseline (#126): the one class of challenger the "
+             "roster lacked, since every other member is zero-shot. Mapillary Vistas "
+             "v1.2 'Curb Cut' read off facebook/mask2former-swin-large-mapillary-"
+             "vistas-semantic, no training. A BASELINE, never a supervision source — "
+             "the paper (arXiv 2508.09415) already rejected these labels as too "
+             "broad, driveways included. No leg run yet, so density is unmeasured."),
+    Challenger(
+        spec="vistas:curb-cut+curb", label="mask2former-vistas-curb-cut+curb",
+        provider="vistas", density=None, standing=False, added="2026-08-18",
+        note="Second #126 arm: 'Curb Cut' unioned with 'Curb'. Vistas draws that "
+             "boundary somewhere we do not, so this measures whether recall is "
+             "hiding on the other side of it. No leg run yet."),
+    Challenger(
         spec="gemini:gemini-3.7-flash", label="gemini-3.7-flash", provider="gemini",
         density="sparse", standing=False, added="2026-08-14",
         note="Run on all ten splits and published (#120); held out of the scored "
@@ -195,8 +210,17 @@ ROSTER = (
 )
 
 #: Specs whose label cannot be derived from the spec, because the ``model_id`` slot
-#: carries something other than a model id. Empty until an arm needs it.
-LABEL_OVERRIDES = {}
+#: carries something other than a model id.
+#:
+#: The Vistas arms (#126) vary by which Vistas classes are read out, not by which
+#: checkpoint reads them, so their spec is ``vistas:<class-set>`` and the checkpoint
+#: comes from ``--vistas-model``. Without an override, ``label_for`` would resolve
+#: them to ``curb-cut``, which is not a model name and would collide across
+#: checkpoints in ``benchmark/model_detections/``.
+LABEL_OVERRIDES = {
+    "vistas:curb-cut": "mask2former-vistas-curb-cut",
+    "vistas:curb-cut+curb": "mask2former-vistas-curb-cut+curb",
+}
 
 # --------------------------------------------------------------------------- #
 # The frozen pool — read the comment before touching it
@@ -253,6 +277,12 @@ PROVIDER_DEFAULTS = {
     "yolo_conf": 0.05,
     "yolo_iou": 0.5,
     "yolo_imgsz": 1024,
+    # #126. The checkpoint is the 65-class Vistas v1.2 head; the arm varies by class
+    # set, which is the --models spec, not a default.
+    "vistas_class_set": "curb-cut",
+    "vistas_model": "facebook/mask2former-swin-large-mapillary-vistas-semantic",
+    "vistas_min_area_px": 16,
+    "vistas_dtype": "float16",
 }
 
 #: Providers whose calls cost money -- registry knowledge, so it lives here rather

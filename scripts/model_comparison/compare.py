@@ -628,6 +628,20 @@ def build_parser():
     ap.add_argument("--yolo-imgsz", type=int, default=_D["yolo_imgsz"],
                     help="YOLO inference image size (default 1024, matching the perspective view "
                          "size). For --tiling none, set this to the pano-geometry training size.")
+    ap.add_argument("--vistas-model", default=_D["vistas_model"],
+                    help="Vistas-supervised segmentation checkpoint (#126). The arm "
+                         "itself is chosen by the --models spec — 'vistas:curb-cut' "
+                         "or 'vistas:curb-cut+curb' — because it varies by which "
+                         "Vistas classes are read out, not by checkpoint.")
+    ap.add_argument("--vistas-min-area-px", type=int, default=_D["vistas_min_area_px"],
+                    help="Drop mask components smaller than this (default 16 px). "
+                         "Like --score-threshold, a CACHE floor in the signature, not "
+                         "the operating point; higher points are free re-scores.")
+    ap.add_argument("--vistas-dtype", choices=["float16", "float32"],
+                    default=_D["vistas_dtype"],
+                    help="Inference precision. In the signature, because fp16 and "
+                         "fp32 do not produce identical masks — a desktop run and a "
+                         "cluster run must not silently share a cache entry.")
     ap.add_argument("--tiling", choices=["perspective", "none"], default="perspective",
                     help="VLM input: 'perspective' reprojects the pano into rectilinear "
                          "views (fair); 'none' uses one whole-pano call (lower bound). "

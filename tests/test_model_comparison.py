@@ -1805,3 +1805,135 @@ def test_score_model_scores_a_manual_bundle_end_to_end(tmp_path):
     assert (r.tp, r.fp, r.fn) == (1, 1, 0)
     assert r.precision == 0.5 and r.recall == 1.0
     assert r.n_recall_panos == 2
+
+
+# --------------------------------------------------------------------------- #
+# Mapillary Vistas supervised-transfer arm (#126)
+# --------------------------------------------------------------------------- #
+def _seg(rows):
+    """Build a class-id map from a picture, e.g. ["..99..", "..99.."] -> ids."""
+    import numpy as np
+    return np.array([[int(c) if c.isdigit() else 0 for c in r] for r in rows])
+
+
+def test_masks_to_points_puts_one_point_at_each_components_centroid():
+    import numpy as np
+    from detectors import masks_to_points
+    seg = _seg(["0000000000",
+                "0990000990",
+                "0990000990",
+                "0000000000"])
+    pts = masks_to_points(seg, np.ones_like(seg, dtype=float), (9,), min_area_px=1)
+    assert len(pts) == 2
+    xs = sorted(round(p[0], 4) for p in pts)
+    # Left blob spans cols 1-2, right blob cols 7-8; centroids at 1.5 and 7.5 of 10.
+    assert xs == [0.15, 0.75]
+    assert all(round(p[1], 4) == round(1.5 / 4, 4) for p in pts)
+
+
+def test_masks_to_points_returns_nothing_when_the_class_is_absent():
+    import numpy as np
+    from detectors import masks_to_points
+    seg = _seg(["0220", "0220"])
+    assert masks_to_points(seg, np.ones_like(seg, dtype=float), (9,)) == []
+
+
+def test_masks_to_points_drops_components_below_the_area_floor():
+    import numpy as np
+    from detectors import masks_to_points
+    seg = _seg(["9000009900",
+                "0000009900"])
+    probs = np.ones_like(seg, dtype=float)
+    # The 1-px speck goes, the 4-px blob stays. This floor is a CACHE floor, which
+    # is why it lives in the signature.
+    pts = masks_to_points(seg, probs, (9,), min_area_px=4)
+    assert len(pts) == 1
+    assert round(pts[0][0], 4) == 0.65
+
+
+def test_masks_to_points_scores_each_component_by_its_mean_confidence():
+    """Every prediction must carry a score, or detection_eval.aggregate refuses to
+    compute AP and a PR curve — and the precision side is the whole question here."""
+    import numpy as np
+    from detectors import masks_to_points
+    seg = _seg(["9900", "9900"])
+    probs = np.array([[0.2, 0.4, 0.0, 0.0],
+                      [0.6, 0.8, 0.0, 0.0]])
+    pts = masks_to_points(seg, probs, (9,), min_area_px=1)
+    assert len(pts) == 1
+    assert abs(pts[0][2] - 0.5) < 1e-9
+    assert all(p[2] is not None for p in pts)
+
+
+def test_masks_to_points_joins_diagonally_touching_pixels():
+    """A ramp at a shallow angle can be a diagonal chain; 4-connectivity would split
+    it into a row of separate detections."""
+    import numpy as np
+    from detectors import masks_to_points
+    seg = _seg(["9000", "0900", "0090"])
+    pts = masks_to_points(seg, np.ones_like(seg, dtype=float), (9,), min_area_px=1)
+    assert len(pts) == 1
+
+
+def test_masks_to_points_unions_the_classes_it_is_given():
+    """The curb-cut+curb arm: a ramp the model splits across the two adjacent classes
+    is one detection, not two."""
+    import numpy as np
+    from detectors import masks_to_points
+    seg = _seg(["9922", "9922"])
+    probs = np.ones_like(seg, dtype=float)
+    assert len(masks_to_points(seg, probs, (9,), min_area_px=1)) == 1
+    assert len(masks_to_points(seg, probs, (9, 2), min_area_px=1)) == 1
+    # ... and the union's centroid sits between them, not on either alone.
+    joined = masks_to_points(seg, probs, (9, 2), min_area_px=1)[0]
+    assert round(joined[0], 4) == 0.375
+
+
+def test_build_detector_wires_both_vistas_arms_and_labels_them_apart():
+    from detectors import build_detector, parse_model_spec, VISTAS_CHECKPOINT
+    for spec, expect_ids, expect_label in [
+            ("vistas", [9], "mask2former-vistas-curb-cut"),
+            ("vistas:curb-cut", [9], "mask2former-vistas-curb-cut"),
+            ("vistas:curb-cut+curb", [9, 2], "mask2former-vistas-curb-cut+curb"),
+    ]:
+        label, det = build_detector(*parse_model_spec(spec), None, _Args())
+        assert label == expect_label, spec
+        assert det.signature()["class_ids"] == expect_ids, spec
+        assert det.model_id == VISTAS_CHECKPOINT
+
+
+def test_vistas_rejects_an_unknown_class_set():
+    from detectors import build_detector, parse_model_spec
+    with pytest.raises(ValueError):
+        build_detector(*parse_model_spec("vistas:sidewalk"), None, _Args())
+
+
+def test_vistas_signature_pins_everything_that_changes_the_masks():
+    """dtype is in here because fp16 and fp32 do not agree, so a desktop run and a
+    cluster run must not collide in one cache entry."""
+    from detectors import build_detector, parse_model_spec
+    _, det = build_detector(*parse_model_spec("vistas:curb-cut"), None, _Args())
+    sig = det.signature()
+    for key in ("class_set", "class_ids", "class_names", "min_area_px", "dtype",
+                "model_id", "views", "tile"):
+        assert key in sig, key
+    assert sig["prompt"] == "vistas:curb-cut"
+
+
+def test_vistas_arms_have_distinct_cache_keys():
+    from detectors import build_detector, parse_model_spec
+    from compare import cache_key
+    keys = set()
+    for spec in ("vistas:curb-cut", "vistas:curb-cut+curb"):
+        label, det = build_detector(*parse_model_spec(spec), None, _Args())
+        keys.add(cache_key(label, det.signature(), "richmond", "p1"))
+    assert len(keys) == 2
+
+
+def test_vistas_constructs_without_weights_or_network():
+    """Same contract as every other open model: importing torch/transformers and
+    downloading a checkpoint happens in _ensure_ready, never in __init__."""
+    from detectors import VistasDetector
+    det = VistasDetector(class_set="curb-cut")
+    assert det.class_ids == (9,)
+    assert det._model is None

@@ -40,6 +40,7 @@ and `tests/test_roster.py` fails if the two stop agreeing. Regenerate it with
 | `allenai/Molmo2-8B` | molmo | sparse | 2026-07-23 | ✅ |
 | `google/owlv2-large-patch14-ensemble` | owlv2 | dense | 2026-07-22 | ✅ |
 | `IDEA-Research/grounding-dino-base` | gdino | dense | 2026-07-22 | ✅ |
+<<<<<<< HEAD
 | `gemini-3.7-flash` | gemini | sparse | 2026-08-14 | — published, not in these tables |
 | `y11l_pano` | yolo | sparse | 2026-08-14 | — published, not in these tables |
 | `y11x_pano_h200` | yolo | sparse | 2026-08-14 | — published, not in these tables |
@@ -48,6 +49,11 @@ and `tests/test_roster.py` fails if the two stop agreeing. Regenerate it with
 | `claude-opus-5-effort-high` | claude | sparse | 2026-08-15 | — published, not in these tables |
 | `claude-sonnet-5-effort-low` | claude | sparse | 2026-08-15 | — published, not in these tables |
 | `claude-sonnet-5-effort-high` | claude | sparse | 2026-08-15 | — published, not in these tables |
+=======
+| `mask2former-vistas-curb-cut` | vistas | not yet measured | 2026-08-18 | — published, not scored |
+| `mask2former-vistas-curb-cut+curb` | vistas | not yet measured | 2026-08-18 | — published, not scored |
+| `gemini-3.7-flash` | gemini | sparse | 2026-08-14 | — published, not scored |
+>>>>>>> 71d4ebd (Add the Vistas supervised-transfer arm, and verify the instrument before trusting it (#126))
 
 **"Not in these tables" covers three different situations, and the difference matters.**
 The tables below are the zero-shot comparison; a leg can sit outside them because its

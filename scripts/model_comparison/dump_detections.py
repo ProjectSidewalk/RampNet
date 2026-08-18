@@ -54,6 +54,13 @@ def detections_to_view_shapes(detector, raw, width, height):
     Mirrors what ``detector._parse`` does to get centers, but keeps the full box (or
     the bare point) so a coordinate-space mistake is visible as a whole shape in the
     wrong place rather than as a slightly-off center."""
+    # Vistas emits a segmentation map, not a list of items, and its points come from
+    # connected components -- so the drawable is the reduction itself. The mask that
+    # produced them is dumped separately (--masks), which is where a wrong class id
+    # actually shows up.
+    if getattr(detector, "name", None) == "vistas":
+        return [("point", x * width, y * height, score)
+                for x, y, score in detector._parse(raw, width, height)]
     shapes = []
     for it in raw:
         # This is the gate that catches a transposed coordinate convention, so it
@@ -82,6 +89,27 @@ def detections_to_view_shapes(detector, raw, width, height):
             x, y = it["point"]
             shapes.append(("point", x * width, y * height, it.get("score")))
     return shapes
+
+
+
+def _save_mask(raw, detector, path):
+    """Selected classes in colour over a greyed-out map of everything else.
+
+    Grey rather than black for the rest: an empty frame is ambiguous between "the
+    model segmented nothing" and "it segmented other things and none were ours",
+    and those are very different failures.
+    """
+    import numpy as np
+    from PIL import Image
+
+    seg, prob = raw
+    seg = np.asarray(seg)
+    out = np.zeros(seg.shape + (3,), dtype=np.uint8)
+    out[seg > 0] = (60, 60, 60)
+    colors = [(255, 60, 60), (60, 160, 255), (255, 200, 40)]
+    for n, cid in enumerate(detector.class_ids):
+        out[seg == cid] = colors[n % len(colors)]
+    Image.fromarray(out).save(path)
 
 
 def _marker(draw, x, y, color, r=14):
@@ -173,6 +201,14 @@ def main():
                     help="Score floor for owlv2/gdino (default 0.05). Raise it to declutter "
                          "the overlay; the harness's own floor is unaffected.")
     ap.add_argument("--molmo-coord-scale", choices=["auto", "100", "1000"], default="auto")
+    ap.add_argument("--vistas-model", default=None)
+    ap.add_argument("--vistas-min-area-px", type=int, default=None)
+    ap.add_argument("--vistas-dtype", choices=["float16", "float32"], default=None)
+    ap.add_argument("--masks", action="store_true",
+                    help="For the vistas arm, also save the class mask per view. The "
+                         "points alone cannot show that the RIGHT class was read: a "
+                         "wrong class id produces confident points on the wrong "
+                         "object and looks like an ordinary bad model.")
     ap.add_argument("--tiling", choices=["perspective"], default="perspective",
                     help="Only the tiled path is worth eyeballing.")
     args = ap.parse_args()
@@ -208,6 +244,9 @@ def main():
         overlay(view_img, shapes, gt_uv, ignore_uv)
         name = f"view_{i}_yaw{int(view.yaw_deg)}_preds{len(shapes)}.png"
         view_img.save(os.path.join(args.out, name))
+        if args.masks and getattr(detector, "name", None) == "vistas":
+            _save_mask(raw, detector, os.path.join(
+                args.out, f"view_{i}_yaw{int(view.yaw_deg)}_mask.png"))
         rendered.append(view_img)
         print(f"  view {i} (yaw {int(view.yaw_deg)}): {len(shapes)} prediction(s), "
               f"{len(gt_uv)} GT / {len(ignore_uv)} ignore point(s) in frame")
