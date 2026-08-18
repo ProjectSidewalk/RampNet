@@ -235,6 +235,12 @@ def main():
     ap.add_argument("--rater", required=True,
                     help="Rater id; the export is named for it so passes never collide.")
     ap.add_argument("--out", default=os.path.join(REPO, "analysis_out", "seam_review"))
+    ap.add_argument("--blind", action="store_true",
+                    help="Hide each pair's separation from the rater. The first pass "
+                         "(rater jon) showed it, and the verdicts came out perfectly "
+                         "rank-ordered by separation -- which is either the real signal "
+                         "or anchoring, and that pass cannot tell you which. Any "
+                         "SECOND rater should use this.")
     args = ap.parse_args()
 
     items = seam_pairs(args.labels_dir)
@@ -249,15 +255,18 @@ def main():
     os.makedirs(args.out, exist_ok=True)
     path = os.path.join(args.out, f"index_{args.rater}.html")
     with open(path, "w", encoding="utf-8", newline="") as f:
-        f.write(render(cards, args.rater, dg))
+        f.write(render(cards, args.rater, dg, args.blind))
     print(f"items rendered: {len(cards)}   manifest digest: {dg}")
     print(f"\nwrote {path}")
 
 
-def render(cards, rater, dg):
+def render(cards, rater, dg, blind=False):
     rubric_html = "".join(
         f"<li><b>{t}</b><br><span class='rq'>{d}</span></li>" for t, d in RUBRIC)
-    payload = json.dumps({"cards": cards, "rater": rater, "digest": dg,
+    if blind:
+        # strip the numbers the card header prints; the geometry the overlay needs stays
+        cards = [{**c, "sep_px": None, "dx_px": None, "dy_px": None} for c in cards]
+    payload = json.dumps({"cards": cards, "rater": rater, "digest": dg, "blind": blind,
                           "rubric_version": RUBRIC_VERSION,
                           "rubric": [{"rule": t, "detail": d} for t, d in RUBRIC]})
     return TEMPLATE.replace("__PAYLOAD__", payload).replace("__RUBRIC__", rubric_html) \
@@ -341,9 +350,10 @@ function draw() {
       ? `<div class="seam" style="left:${c.seam_pct}%"></div>` : '';
     el.innerHTML = `
       <div class="head"><b>${i+1}. ${c.pano}</b>
-        <span class="tag">${c.sep_px} px apart &middot; ${(c.sep_px/1024*360).toFixed(2)}&deg;
-        &middot; ${c.inside_match_radius ? 'inside' : 'outside'} the match radius</span></div>
-      <p class="meta">dx ${c.dx_px} px &middot; dy ${c.dy_px} px &middot;
+        ${c.sep_px === null ? '' : `<span class="tag">${c.sep_px} px apart &middot; ${(c.sep_px/1024*360).toFixed(2)}&deg;
+        &middot; ${c.inside_match_radius ? 'inside' : 'outside'} the match radius</span>`}</div>
+      <p class="meta">${c.sep_px === null ? 'separation hidden (blind pass)' :
+        `dx ${c.dx_px} px &middot; dy ${c.dy_px} px`} &middot;
         rings show the scorer's match radius, not the ramp's extent</p>
       <div class="stage ${marks?'':'hidem'} ${seam?'':'hides'}">
         <img class="${view==='A'?'show':''}" src="${c.viewA}">
