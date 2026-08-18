@@ -40,7 +40,8 @@ and `tests/test_roster.py` fails if the two stop agreeing. Regenerate it with
 | `allenai/Molmo2-8B` | molmo | sparse | 2026-07-23 | ✅ |
 | `google/owlv2-large-patch14-ensemble` | owlv2 | dense | 2026-07-22 | ✅ |
 | `IDEA-Research/grounding-dino-base` | gdino | dense | 2026-07-22 | ✅ |
-<<<<<<< HEAD
+| `mask2former-vistas-curb-cut` | vistas | sparse | 2026-08-18 | — published, not in these tables |
+| `mask2former-vistas-curb-cut+curb` | vistas | not yet measured | 2026-08-18 | — published, not in these tables |
 | `gemini-3.7-flash` | gemini | sparse | 2026-08-14 | — published, not in these tables |
 | `y11l_pano` | yolo | sparse | 2026-08-14 | — published, not in these tables |
 | `y11x_pano_h200` | yolo | sparse | 2026-08-14 | — published, not in these tables |
@@ -49,11 +50,6 @@ and `tests/test_roster.py` fails if the two stop agreeing. Regenerate it with
 | `claude-opus-5-effort-high` | claude | sparse | 2026-08-15 | — published, not in these tables |
 | `claude-sonnet-5-effort-low` | claude | sparse | 2026-08-15 | — published, not in these tables |
 | `claude-sonnet-5-effort-high` | claude | sparse | 2026-08-15 | — published, not in these tables |
-=======
-| `mask2former-vistas-curb-cut` | vistas | not yet measured | 2026-08-18 | — published, not scored |
-| `mask2former-vistas-curb-cut+curb` | vistas | not yet measured | 2026-08-18 | — published, not scored |
-| `gemini-3.7-flash` | gemini | sparse | 2026-08-14 | — published, not scored |
->>>>>>> 71d4ebd (Add the Vistas supervised-transfer arm, and verify the instrument before trusting it (#126))
 
 **"Not in these tables" covers three different situations, and the difference matters.**
 The tables below are the zero-shot comparison; a leg can sit outside them because its
@@ -1205,6 +1201,64 @@ Class ids are pinned constants so `signature()` works without weights (a fresh c
 able to reconstruct signatures with no GPU), and `_ensure_ready` cross-checks them against the
 loaded `id2label` — segmenting class 9 of a *different* label set would not raise, it would
 quietly score the wrong object.
+
+#### Result: richmond (124 panos, 310 GT ramps), 2026-08-18
+
+RampNet's row reproduces its committed numbers exactly (0.964 / 0.768 / 0.855, 238/9/72), which
+is the check that this run is comparable to the ones above.
+
+| model | P | R | F1 | AP | tp/fp/fn |
+|---|---|---|---|---|---|
+| **rampnet** | **0.964** | 0.768 | **0.855** | **0.763** | 238/9/72 |
+| gemini-3.1-pro-preview | 0.631 | 0.700 | 0.664 | – | 217/127/93 |
+| gemini-3.6-flash | 0.626 | 0.642 | 0.634 | – | 199/119/111 |
+| **mask2former-vistas-curb-cut** | **0.419** | **0.697** | **0.524** | **0.513** | 216/299/94 |
+| molmo2-8B (points) | 0.410 | 0.516 | 0.457 | – | 160/230/150 |
+| Qwen3-VL-32B-Instruct | 0.760 | 0.297 | 0.427 | – | 92/29/218 |
+| Qwen3-VL-8B-Instruct | 0.323 | 0.452 | 0.377 | – | 140/293/170 |
+| *mask2former-vistas-curb-cut+curb* | *0.127* | *0.648* | *0.213* | *0.089* | 201/1377/109 |
+| owlv2-large-patch14-ensemble | 0.033 | **0.971** | 0.064 | 0.104 | 301/8799/9 |
+| grounding-dino-base | 0.028 | 0.852 | 0.053 | 0.032 | 264/9321/46 |
+
+**The question this arm was built to answer gets a clear answer: supervised transfer fixes most
+of the precision problem, and does not close the gap.** Against the open-vocabulary detectors,
+which is the comparison #126 set up — *the concept is findable, the discrimination is not* —
+somebody else's real labels buy **12.7× the precision of OWLv2** (0.419 vs 0.033) for 0.274 of
+its recall. So the discrimination failure of the open detectors is about *supervision*, not about
+the concept being intrinsically hard to localize.
+
+But it is still fourth of nine challengers on F1, and RampNet leads it by **0.331** — the wide
+end of this benchmark's 0.12–0.34 range. Vistas' curb-cut labels transfer; they do not compete.
+
+**On AP it is the best non-RampNet model on this split — 0.513, five times OWLv2's 0.104.** AP is
+the operating-point-free number, and the chat VLMs above it on F1 have none at all: they emit
+boxes without scores, so they are pinned at one point and cannot be tuned. A tunable model at
+AP 0.513 is a more useful starting point than an untunable one at F1 0.664, and that is the
+result worth carrying forward.
+
+Two mechanisms, both measured rather than assumed:
+
+- **The `curb-cut+curb` union is a clean negative result.** It was run to test whether recall
+  hides on the other side of Vistas' ramp/curb boundary. It does not — the union *loses* recall
+  (0.697 → 0.648) while precision collapses (0.419 → 0.127, 1,377 FPs). `Curb` fires along every
+  kerb line in the scene, and because points come from connected components, it also **fuses
+  adjacent ramps into one component**, which is where the recall goes. Same adjacent-pair merge
+  mechanism the σ analysis in #46 identified from the other direction.
+- **The hood worry did not materialise; the opposite did.** `fp_taxonomy.py` puts only **1.9%**
+  of this arm's false positives in the ego-vehicle band, against **15.0%** for OWLv2 — eight
+  times *better*, not worse, despite masks being the output most likely to bleed into the hood.
+  Whatever #47 costs, it does not cost this arm. Densities: 4.48 boxes/pano, the same class as
+  RampNet's 4.2 and an order of magnitude below the open detectors' 55–88; the union arm is 13.31.
+
+**What this does not show.** 79.6% of the arm's false positives are `isolated`, which is an upper
+bound on hallucination, not a measurement of it — a driveway, a crosswalk and a flight of stairs
+all land there and only imagery separates them. So the paper's specific prediction, that these
+labels confuse driveway aprons with curb ramps, is **consistent with** this FP profile but is not
+confirmed by it; confirming it needs #46's gallery half pointed at this arm.
+
+**Coverage: richmond only.** One split, one imagery tier (Mapillary 360, OOD). Nothing here says
+how it behaves on GSV or in-domain, and the roster's own history is that rankings are robust but
+not invariant across splits. Both arms are therefore registered as published-but-off-roster.
 
 #### On a cluster
 

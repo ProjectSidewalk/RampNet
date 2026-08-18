@@ -115,19 +115,27 @@ ROSTER = (
     # --- published, but not scored in the roster tables ---------------------- #
     Challenger(
         spec="vistas:curb-cut", label="mask2former-vistas-curb-cut", provider="vistas",
-        density=None, standing=False, added="2026-08-18",
+        density="sparse", standing=False, added="2026-08-18",
         note="Supervised-transfer baseline (#126): the one class of challenger the "
              "roster lacked, since every other member is zero-shot. Mapillary Vistas "
              "v1.2 'Curb Cut' read off facebook/mask2former-swin-large-mapillary-"
              "vistas-semantic, no training. A BASELINE, never a supervision source — "
              "the paper (arXiv 2508.09415) already rejected these labels as too "
-             "broad, driveways included. No leg run yet, so density is unmeasured."),
+             "broad, driveways included. Density measured 2026-08-18 on richmond: "
+             "4.48 boxes/pano, the same class as RampNet's 4.2 and an order of "
+             "magnitude under the open detectors. Scored on richmond only so far."),
     Challenger(
         spec="vistas:curb-cut+curb", label="mask2former-vistas-curb-cut+curb",
         provider="vistas", density=None, standing=False, added="2026-08-18",
         note="Second #126 arm: 'Curb Cut' unioned with 'Curb'. Vistas draws that "
-             "boundary somewhere we do not, so this measures whether recall is "
-             "hiding on the other side of it. No leg run yet."),
+             "boundary somewhere we do not, so this measured whether recall hides on "
+             "the other side of it. It does not: on richmond the union LOSES recall "
+             "(0.697 -> 0.648) while precision collapses (0.419 -> 0.127), because "
+             "'Curb' fuses adjacent ramps into one component and fires along every "
+             "kerb line. Density is left unclassified on purpose: 13.31 boxes/pano "
+             "sits between the sparse group (1-4) and the open detectors (55-88), so "
+             "the binary does not apply and density_of should refuse rather than "
+             "round. Kept as a recorded negative result, not a live arm."),
     Challenger(
         spec="gemini:gemini-3.7-flash", label="gemini-3.7-flash", provider="gemini",
         density="sparse", standing=False, added="2026-08-14",
