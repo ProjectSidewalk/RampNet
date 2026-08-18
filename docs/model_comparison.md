@@ -1128,6 +1128,93 @@ below). After the fix the crosshairs sit on ramps and the numbers are the F1-0.4
 The lesson stands for the next pointing model: `dump_detections.py` on one pano first, and if
 nothing is detected the scale is wrong (try `--molmo-coord-scale`).
 
+### Supervised transfer: Mapillary Vistas (#126)
+
+Every model above is **zero-shot** — a general VLM told what a curb ramp is, or an
+open-vocabulary detector given the phrase. None of them has ever been trained on a curb ramp.
+So the roster answers *"can a general model be prompted to do this?"*, and the YOLO baseline
+(#51) answers *"architecture versus data, within our dataset"*. Neither answers the third
+question: **do somebody else's supervised curb-cut labels transfer to deployment panoramas?**
+
+That question is sharpened by the existing results rather than academic. OWLv2 and Grounding
+DINO reach recall 0.85–0.97 at precision 0.03 on richmond: the concept is findable, the
+discrimination is not. A supervised-transfer arm tests directly whether real labels — just not
+*our* labels — fix the precision side.
+
+`facebook/mask2former-swin-large-mapillary-vistas-semantic` is a public checkpoint requiring
+**no training and no dataset download**. Verified against its published `config.json` on
+2026-08-18: it has a **65-class head** — the Vistas v1.2 label set — carrying **`Curb Cut`
+(id 9)** and **`Curb` (id 2)**. The 124-class v2.0 set is not needed. (For contrast,
+Cityscapes has no curb-related class at all, which is why Vistas specifically is the dataset
+worth the effort here, not scene-parsing datasets in general.)
+
+**This is a baseline. It is not, and must not become, a supervision source.** The RampNet
+paper (arXiv 2508.09415) already reviewed this exact class and rejected it as a data source:
+*"their categorization was overly broad and included driveways labeled as curb cuts."* That
+assessment stands and is cited rather than rediscovered. It also makes a testable prediction —
+driveway aprons should appear as a characteristic false-positive mode — which
+`scripts/analysis/fp_taxonomy.py` can name directly.
+
+**Two arms**, because Vistas draws the ramp/curb boundary somewhere we do not, and whether
+recall hides on the other side of it is measurable:
+
+```bash
+python scripts/model_comparison/compare.py benchmark/richmond     --models rampnet,vistas:curb-cut,vistas:curb-cut+curb --op-threshold 0.30
+```
+
+The spec's `model_id` slot carries the **class set**, not a model id — the checkpoint comes
+from `--vistas-model` — so these are the one provider whose label cannot be derived from its
+spec, and it is declared in `rampnet/roster.py`'s `LABEL_OVERRIDES` instead.
+
+**Masks become points by connected component**, one point at each component's centroid, scored
+by the mean class confidence over it. One point *per class per view* would cap recall at 1 and
+place that point in the empty space between two real ramps; a semantic segmenter has no notion
+of instances, so the components supply them. The score is carried through, which puts this arm
+in the OWLv2/Grounding DINO/YOLO tier that gets AP and a PR curve rather than the chat-VLM tier
+pinned at one operating point — and the precision side is the entire question. `min_area_px` is
+a **cache floor**, not the operating point, exactly as `--score-threshold` is for the
+open-vocabulary detectors.
+
+Input is the **identical six-view rig** every other tiled leg uses
+(`equirect_tiling.default_views()`: 6 yaws, 90°×90°, pitch −30°, 1024×1024, source capped at
+4096). Note for anyone reading #126: that issue says `scripts/box_gallery.py` already cuts
+perspective views. **It does not** — its `--fov` sizes an axis-aligned crop of the
+equirectangular image, so the distortion is preserved, which is the wrong input for a
+perspective-trained checkpoint.
+
+#### Instrument checks, before any number
+
+Run on richmond, RTX 3070, fp16, **2.3 s/view**:
+
+- **The semantic map is assembled here, not taken from `post_process_semantic_segmentation`**,
+  because that helper returns the argmax only and this arm needs a per-pixel confidence. The
+  two agree on **99.73%** of pixels; the residual is at class boundaries.
+- **The scary load warning on this checkpoint is noise.** transformers reports
+  `pixel_level_module.encoder.swin.layernorm.{weight,bias}` as MISSING and newly initialized.
+  Measured: scrambling them to (7.5, −3.25) changes **0 of 1,048,576 pixels**, because the
+  Mask2Former path consumes per-stage hidden states, not the final normed output. Recorded so
+  nobody else has to re-derive it.
+- **Overlay first, always.** `dump_detections.py --masks` also dumps the class mask per view,
+  which the points cannot substitute for: a wrong class id yields confident points on the wrong
+  object and reads as an ordinary bad model. On richmond pano `1273933840289887`, all four
+  predictions in the yaw-240 view land on the yellow detectable-warning pads, scores 0.49–0.79,
+  no coordinate offset — and **nothing on the vehicle hood**, so the #47 concern did not
+  materialise there.
+
+Class ids are pinned constants so `signature()` works without weights (a fresh clone must be
+able to reconstruct signatures with no GPU), and `_ensure_ready` cross-checks them against the
+loaded `id2label` — segmenting class 9 of a *different* label set would not raise, it would
+quietly score the wrong object.
+
+#### On a cluster
+
+No new launcher; the arm needs nothing beyond the `transformers` + `torchvision` the other open
+models already use, and Mask2Former is in-library (no `trust_remote_code`).
+
+```bash
+PYTHON=$ENVPY MODELS=rampnet,vistas:curb-cut BUNDLE=benchmark/richmond     sbatch -A <account> scripts/model_comparison/run_open_models.slurm
+```
+
 ## Status
 
 - **Shipped:** the model-agnostic scorer (`rampnet/detection_eval.py`), the comparison CLI

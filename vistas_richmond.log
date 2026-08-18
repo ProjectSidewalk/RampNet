@@ -1,0 +1,14 @@
+Bundle: D:/Git/RampNet/benchmark/richmond  (124 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: D:/Git/RampNet/.model_cache
+
+Loading weights:   0%|          | 0/758 [00:00<?, ?it/s]Loading weights:  46%|####6     | 351/758 [00:00<00:00, 3287.48it/s]Loading weights: 100%|##########| 758/758 [00:00<00:00, 5173.32it/s]
+[transformers] [1mMask2FormerForUniversalSegmentation LOAD REPORT[0m from: facebook/mask2former-swin-large-mapillary-vistas-semantic
+Key                                                                                                                      | Status     | 
+-------------------------------------------------------------------------------------------------------------------------+------------+-
+model.pixel_level_module.encoder.swin.encoder.layers.{0, 1, 2, 3}.blocks.{0...17}.attention.self.relative_position_index | UNEXPECTED | 
+model.pixel_level_module.encoder.swin.layernorm.bias                                                                     | MISSING    | 
+model.pixel_level_module.encoder.swin.layernorm.weight                                                                   | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
