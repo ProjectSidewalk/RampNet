@@ -438,6 +438,7 @@ benchmark/manual_gold/
   gt_source.json    points at manual_labels/ (GT = YOLO box centers, no ignore points,
                     every pano recall-confirmed)
   records.jsonl     pano metadata + RampNet detections (built by the two scripts below)
+  bundle_meta.json  which source built the imagery, and when (committed)
   panos/            imagery from the HF test split (git-ignored, like every split)
 ```
 
@@ -445,11 +446,36 @@ No verdicts means `scripts/score_validation.py` and `scripts/gt_gallery.py` do *
 here; the split is scored by the model-comparison harness only:
 
 ```
-python scripts/fetch_manual_gold.py --audit      # id membership/overlap audit, no download
-python scripts/fetch_manual_gold.py              # imagery (HF test split, ~44 GB; run on Hyak)
+python scripts/fetch_manual_gold.py --audit       # id membership/overlap audit, no download
+python scripts/fetch_manual_gold.py --images-only # imagery for THIS machine (run on Hyak)
 python scripts/export_gold_records.py --checkpoint <stage2.pth>   # RampNet detections + gate
 python scripts/model_comparison/compare.py benchmark/manual_gold --models rampnet --op-threshold 0.55
 ```
+
+`--images-only` is the fetch to run on a fresh clone, and `scripts/run_gold_bundle.slurm`
+runs it for you. The bundle mixes two lifecycles: `records.jsonl` and `bundle_meta.json` are
+**committed** (the records carry the exported detections), while `panos/` is git-ignored, so
+the imagery is normally the only missing piece. `--images-only` fetches it and writes nothing
+committed; it skips panos already on disk that match `records.jsonl`, so a preempted run
+resumes rather than starting over. A bare `python scripts/fetch_manual_gold.py` is the
+*first* build only — with `records.jsonl` present it refuses, and `--force` would rebuild the
+records and **discard the detections**.
+
+Two caveats travel with that fetch:
+
+- **Cost, measured 2026-08-14 on makelab2:** the `hf` path goes through `load_dataset`, which
+  downloaded and arrow-materialized **all three splits, ~2.5 h end to end**, despite
+  `split="test"` — not the "~44 GB test split only" this section previously stated. A
+  shard-scoped fetch via `HfFileSystem` + pyarrow (what `--audit` already does) would cut
+  that; it has not been done, deliberately, to keep the change away from the
+  byte-fidelity-sensitive read path.
+- **No content hash yet.** Every city split carries `benchmark/<city>/imagery_manifest.json`
+  (sha256 per pano, from `scripts/analysis/imagery_manifest.py`); `manual_gold` does **not**,
+  because nobody has run the writer on a machine holding all 1,000 panos. The fetch checks
+  the manifest when it exists and otherwise prints the command that writes it, so until then
+  this split's imagery is verified by `bundle_meta.json`'s recorded source and each pano's
+  pixel size in `records.jsonl` — weaker than the other nine. Writing that manifest is the
+  open item.
 
 The exporter ends with a reproduction gate against the published gold-set numbers
 (P 0.949 / R 0.873 @ conf >= 0.55, TTA). Read the manual-gold section of
