@@ -49,12 +49,12 @@ Jon has already opened. Opening it is still Jon-only, because of Duo.
 that form is wrong. Jobs `198638`, `198910` and `217298` have since run, so everything
 in this section is now from experience rather than from the docs.
 
-> **Still open: the per-user home path.** It is undocumented, and the recon pass never
-> wrote its answer back here. The as-run commands below use `~/RampNet` and work;
-> `scripts/model_comparison/run_yolo_data_prep_tillicum.slurm` hardcodes
-> `/gpfs/home/$USER/RampNet` as a guess, and whether those are the same path is
-> **UNVERIFIED**. `scripts/tillicum_recon.sh` prints it as item 1 — run it and record
-> the result here. Do not assume it mirrors klone's `/mmfs1/...` layout.
+> **The per-user home path is `/gpfs/home/<netid>`** — measured 2026-08-18 with
+> `cd ~ && pwd` on a login node, which returned `/gpfs/home/jfroehli`. So the guess in
+> `scripts/model_comparison/run_yolo_data_prep_tillicum.slurm`
+> (`/gpfs/home/$USER/RampNet`) and the as-run `~/RampNet` are the **same directory**;
+> `/gpfs/home/jfroehli/RampNet` exists. Note it does **not** mirror klone's `/mmfs1/...`
+> layout, so nothing that hardcodes a klone home transfers.
 
 ## The scheduler model: QoS, not partitions
 
