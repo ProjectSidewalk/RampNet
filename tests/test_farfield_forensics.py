@@ -85,6 +85,14 @@ def test_above_horizon_is_the_clamp_band_regardless_of_distance():
     assert ff.band_of(_row(150.0, y=0.4)) == "clamp"
 
 
+def test_the_top_band_is_closed_at_its_upper_edge():
+    # geom() reaches 150 m by a SECOND route: min(d, 150.0) on a row that is below
+    # the horizon (y = 0.502 is ~406 m before the clamp). A half-open [40, 150)
+    # dropped those from every band while y > 0.5 kept them out of `clamp`, so two
+    # pooled far-field GT rows -- one of them a silent miss -- were reported nowhere.
+    assert ff.band_of(_row(150.0, y=0.502)) == (40.0, 150.0)
+
+
 def test_near_field_rows_fall_in_no_band():
     assert ff.band_of(_row(10.0)) is None
 
@@ -135,9 +143,24 @@ WITNESS = os.path.join(REPO, "analysis_out", "silent_witness.json")
 GALLERY = os.path.join(REPO, "benchmark", "miss_taxonomy_46")
 
 needs_committed = pytest.mark.skipif(
-    not (os.path.exists(WITNESS)
-         and os.path.exists(os.path.join(GALLERY, "silent__jonf.json"))),
+    not (os.path.exists(WITNESS) and os.path.exists(ff.verdicts_path(GALLERY))),
     reason="committed witness/gallery files not present")
+
+
+def test_verdicts_path_is_per_rater():
+    # A second rater is the top open follow-up on #46; the file name is the knob,
+    # so neither script nor test may hardcode one pass.
+    assert ff.verdicts_path("g", "jonf").endswith("silent__jonf.json")
+    assert ff.verdicts_path("g", "rater2").endswith("silent__rater2.json")
+
+
+@needs_committed
+def test_every_returned_item_carries_a_verdict():
+    # An item queued into the gallery but not yet rated must NOT count as rated:
+    # mid-pass with a second rater it would inflate rated_rows, the per-split table
+    # and the survivorship AUC, all silently.
+    for v in ff.load_rated(GALLERY, field=None).values():
+        assert isinstance(v["verdict"], str) and v["verdict"]
 
 
 @pytest.fixture(scope="module")
@@ -184,6 +207,28 @@ def test_the_far_verdict_tally_matches_the_committed_pass(far_populations):
     for v in rated.values():
         tally[v["verdict"]] = tally.get(v["verdict"], 0) + 1
     assert tally == {"visible": 34, "context-only": 2, "unclear": 1}
+
+
+@needs_committed
+def test_the_bands_partition_the_far_field(far_populations):
+    # The write-up's decisive table is a decomposition of the far field, so its
+    # rows must sum to the far field. They did not: rows clamped to exactly 150 m
+    # below the horizon fell through every band, taking 2 GT and 1 silent miss out
+    # of a table printed directly beneath the population totals they contradict.
+    import miss_taxonomy as mt
+    from miss_decomposition import DEFAULT_THRESHOLD, US_SPLITS
+    pooled = []
+    for city in US_SPLITS:
+        loaded = mt.load_rows(city, DEFAULT_THRESHOLD, rng=None)
+        if loaded is not None:
+            pooled.extend(loaded[0])
+    far = [r for r in pooled if r["field"] == "far"]
+    far_silent, _, _, _ = far_populations
+    bands = list(ff.FAR_BANDS) + ["clamp"]
+    assert sum(1 for r in far if ff.band_of(r) is None) == 0
+    assert sum(len([r for r in far if ff.band_of(r) == b]) for b in bands) == len(far)
+    assert sum(len([r for r in far_silent if ff.band_of(r) == b])
+               for b in bands) == len(far_silent) == 83
 
 
 @needs_committed

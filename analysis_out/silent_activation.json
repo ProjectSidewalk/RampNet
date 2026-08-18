@@ -3,6 +3,16 @@
   "null_trials": 200,
   "null_seed": 20260731,
   "n": 128,
+  "cities": [
+    "annapolis",
+    "bend",
+    "clovis",
+    "gainesville",
+    "morgantown",
+    "paterson",
+    "richmond"
+  ],
+  "panos": 108,
   "skipped_no_imagery": 0,
   "model": "projectsidewalk/rampnet-model",
   "tta": false,
@@ -25,7 +35,8 @@
       "argmax_off_px": 22.0,
       "act_at_site": 0.16377,
       "nearest_peak_px": 30.0,
-      "nearest_peak_score": 0.518
+      "nearest_peak_score": 0.518,
+      "seam": false
     },
     {
       "city": "annapolis",
@@ -45,7 +56,8 @@
       "argmax_off_px": 21.7,
       "act_at_site": 0.18835,
       "nearest_peak_px": 22.5,
-      "nearest_peak_score": 0.518
+      "nearest_peak_score": 0.518,
+      "seam": false
     },
     {
       "city": "annapolis",
@@ -65,7 +77,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.01009,
       "nearest_peak_px": 41.6,
-      "nearest_peak_score": 0.097
+      "nearest_peak_score": 0.097,
+      "seam": false
     },
     {
       "city": "annapolis",
@@ -85,7 +98,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.00146,
       "nearest_peak_px": 37.6,
-      "nearest_peak_score": 0.065
+      "nearest_peak_score": 0.065,
+      "seam": false
     },
     {
       "city": "annapolis",
@@ -105,7 +119,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.00262,
       "nearest_peak_px": 50.3,
-      "nearest_peak_score": 0.065
+      "nearest_peak_score": 0.065,
+      "seam": false
     },
     {
       "city": "annapolis",
@@ -125,7 +140,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.00209,
       "nearest_peak_px": 77.6,
-      "nearest_peak_score": 0.065
+      "nearest_peak_score": 0.065,
+      "seam": false
     },
     {
       "city": "annapolis",
@@ -145,7 +161,8 @@
       "argmax_off_px": 22.3,
       "act_at_site": 0.04899,
       "nearest_peak_px": 31.5,
-      "nearest_peak_score": 0.166
+      "nearest_peak_score": 0.166,
+      "seam": false
     },
     {
       "city": "annapolis",
@@ -165,7 +182,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.00845,
       "nearest_peak_px": 42.2,
-      "nearest_peak_score": 0.826
+      "nearest_peak_score": 0.826,
+      "seam": false
     },
     {
       "city": "annapolis",
@@ -185,7 +203,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.02107,
       "nearest_peak_px": 33.2,
-      "nearest_peak_score": 0.719
+      "nearest_peak_score": 0.719,
+      "seam": false
     },
     {
       "city": "annapolis",
@@ -205,7 +224,8 @@
       "argmax_off_px": 22.2,
       "act_at_site": 0.01469,
       "nearest_peak_px": 61.8,
-      "nearest_peak_score": 0.575
+      "nearest_peak_score": 0.575,
+      "seam": false
     },
     {
       "city": "annapolis",
@@ -225,7 +245,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.13056,
       "nearest_peak_px": 31.1,
-      "nearest_peak_score": 0.55
+      "nearest_peak_score": 0.55,
+      "seam": false
     },
     {
       "city": "annapolis",
@@ -245,7 +266,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.0,
       "nearest_peak_px": 118.7,
-      "nearest_peak_score": 0.086
+      "nearest_peak_score": 0.086,
+      "seam": false
     },
     {
       "city": "annapolis",
@@ -265,7 +287,8 @@
       "argmax_off_px": 22.1,
       "act_at_site": 0.02945,
       "nearest_peak_px": 32.0,
-      "nearest_peak_score": 0.073
+      "nearest_peak_score": 0.073,
+      "seam": false
     },
     {
       "city": "annapolis",
@@ -285,7 +308,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.11586,
       "nearest_peak_px": 31.4,
-      "nearest_peak_score": 0.64
+      "nearest_peak_score": 0.64,
+      "seam": false
     },
     {
       "city": "annapolis",
@@ -305,7 +329,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.19303,
       "nearest_peak_px": 25.1,
-      "nearest_peak_score": 0.64
+      "nearest_peak_score": 0.64,
+      "seam": false
     },
     {
       "city": "annapolis",
@@ -325,7 +350,8 @@
       "argmax_off_px": 22.1,
       "act_at_site": 0.13544,
       "nearest_peak_px": 33.4,
-      "nearest_peak_score": 0.685
+      "nearest_peak_score": 0.685,
+      "seam": false
     },
     {
       "city": "annapolis",
@@ -345,7 +371,8 @@
       "argmax_off_px": 22.0,
       "act_at_site": 0.03081,
       "nearest_peak_px": 40.1,
-      "nearest_peak_score": 0.907
+      "nearest_peak_score": 0.907,
+      "seam": false
     },
     {
       "city": "annapolis",
@@ -365,7 +392,8 @@
       "argmax_off_px": 22.2,
       "act_at_site": 0.01318,
       "nearest_peak_px": 42.1,
-      "nearest_peak_score": 0.636
+      "nearest_peak_score": 0.636,
+      "seam": false
     },
     {
       "city": "annapolis",
@@ -385,7 +413,8 @@
       "argmax_off_px": 21.9,
       "act_at_site": 0.00894,
       "nearest_peak_px": 32.9,
-      "nearest_peak_score": 0.184
+      "nearest_peak_score": 0.184,
+      "seam": false
     },
     {
       "city": "annapolis",
@@ -405,7 +434,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.07891,
       "nearest_peak_px": 25.0,
-      "nearest_peak_score": 0.65
+      "nearest_peak_score": 0.65,
+      "seam": false
     },
     {
       "city": "annapolis",
@@ -425,7 +455,8 @@
       "argmax_off_px": 22.1,
       "act_at_site": 0.24718,
       "nearest_peak_px": 24.9,
-      "nearest_peak_score": 0.816
+      "nearest_peak_score": 0.816,
+      "seam": false
     },
     {
       "city": "bend",
@@ -445,7 +476,8 @@
       "argmax_off_px": 22.3,
       "act_at_site": 0.06793,
       "nearest_peak_px": 23.5,
-      "nearest_peak_score": 0.673
+      "nearest_peak_score": 0.673,
+      "seam": false
     },
     {
       "city": "bend",
@@ -465,7 +497,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.0,
       "nearest_peak_px": 38.5,
-      "nearest_peak_score": 0.943
+      "nearest_peak_score": 0.943,
+      "seam": false
     },
     {
       "city": "bend",
@@ -485,7 +518,8 @@
       "argmax_off_px": 17.7,
       "act_at_site": 0.011,
       "nearest_peak_px": 114.0,
-      "nearest_peak_score": 0.583
+      "nearest_peak_score": 0.583,
+      "seam": false
     },
     {
       "city": "bend",
@@ -505,7 +539,8 @@
       "argmax_off_px": 10.2,
       "act_at_site": 0.02331,
       "nearest_peak_px": 85.6,
-      "nearest_peak_score": 0.654
+      "nearest_peak_score": 0.654,
+      "seam": false
     },
     {
       "city": "bend",
@@ -525,7 +560,8 @@
       "argmax_off_px": 22.2,
       "act_at_site": 0.07158,
       "nearest_peak_px": 24.2,
-      "nearest_peak_score": 0.812
+      "nearest_peak_score": 0.812,
+      "seam": false
     },
     {
       "city": "bend",
@@ -545,7 +581,8 @@
       "argmax_off_px": 2.6,
       "act_at_site": 0.03581,
       "nearest_peak_px": 76.1,
-      "nearest_peak_score": 0.171
+      "nearest_peak_score": 0.171,
+      "seam": false
     },
     {
       "city": "bend",
@@ -565,7 +602,8 @@
       "argmax_off_px": 22.0,
       "act_at_site": 0.01167,
       "nearest_peak_px": 31.9,
-      "nearest_peak_score": 0.065
+      "nearest_peak_score": 0.065,
+      "seam": false
     },
     {
       "city": "bend",
@@ -585,7 +623,8 @@
       "argmax_off_px": 22.3,
       "act_at_site": 0.05392,
       "nearest_peak_px": 29.1,
-      "nearest_peak_score": 0.349
+      "nearest_peak_score": 0.349,
+      "seam": false
     },
     {
       "city": "bend",
@@ -605,7 +644,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.03405,
       "nearest_peak_px": 23.8,
-      "nearest_peak_score": 0.101
+      "nearest_peak_score": 0.101,
+      "seam": false
     },
     {
       "city": "bend",
@@ -625,7 +665,8 @@
       "argmax_off_px": 2.6,
       "act_at_site": 0.0447,
       "nearest_peak_px": 91.4,
-      "nearest_peak_score": 0.099
+      "nearest_peak_score": 0.099,
+      "seam": false
     },
     {
       "city": "bend",
@@ -645,7 +686,8 @@
       "argmax_off_px": 22.2,
       "act_at_site": 0.04501,
       "nearest_peak_px": 26.3,
-      "nearest_peak_score": 0.885
+      "nearest_peak_score": 0.885,
+      "seam": false
     },
     {
       "city": "bend",
@@ -665,7 +707,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.01045,
       "nearest_peak_px": 34.4,
-      "nearest_peak_score": 0.619
+      "nearest_peak_score": 0.619,
+      "seam": false
     },
     {
       "city": "bend",
@@ -685,7 +728,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.00916,
       "nearest_peak_px": 40.4,
-      "nearest_peak_score": 0.189
+      "nearest_peak_score": 0.189,
+      "seam": false
     },
     {
       "city": "bend",
@@ -705,7 +749,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.02012,
       "nearest_peak_px": 33.2,
-      "nearest_peak_score": 0.978
+      "nearest_peak_score": 0.978,
+      "seam": false
     },
     {
       "city": "bend",
@@ -725,7 +770,8 @@
       "argmax_off_px": 7.5,
       "act_at_site": 0.66475,
       "nearest_peak_px": 101.8,
-      "nearest_peak_score": 0.951
+      "nearest_peak_score": 0.951,
+      "seam": true
     },
     {
       "city": "bend",
@@ -745,7 +791,8 @@
       "argmax_off_px": 7.1,
       "act_at_site": 0.01241,
       "nearest_peak_px": 66.3,
-      "nearest_peak_score": 0.931
+      "nearest_peak_score": 0.931,
+      "seam": false
     },
     {
       "city": "bend",
@@ -765,7 +812,8 @@
       "argmax_off_px": 5.5,
       "act_at_site": 0.01557,
       "nearest_peak_px": null,
-      "nearest_peak_score": null
+      "nearest_peak_score": null,
+      "seam": false
     },
     {
       "city": "bend",
@@ -785,7 +833,8 @@
       "argmax_off_px": 22.3,
       "act_at_site": 0.10248,
       "nearest_peak_px": 26.0,
-      "nearest_peak_score": 1.009
+      "nearest_peak_score": 1.009,
+      "seam": false
     },
     {
       "city": "bend",
@@ -805,7 +854,8 @@
       "argmax_off_px": 12.8,
       "act_at_site": 0.65267,
       "nearest_peak_px": 127.7,
-      "nearest_peak_score": 0.395
+      "nearest_peak_score": 0.395,
+      "seam": true
     },
     {
       "city": "bend",
@@ -825,7 +875,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.02106,
       "nearest_peak_px": 24.8,
-      "nearest_peak_score": 0.626
+      "nearest_peak_score": 0.626,
+      "seam": false
     },
     {
       "city": "bend",
@@ -845,7 +896,8 @@
       "argmax_off_px": 22.3,
       "act_at_site": 0.00749,
       "nearest_peak_px": 31.1,
-      "nearest_peak_score": 0.718
+      "nearest_peak_score": 0.718,
+      "seam": false
     },
     {
       "city": "clovis",
@@ -865,7 +917,8 @@
       "argmax_off_px": 13.5,
       "act_at_site": 0.01128,
       "nearest_peak_px": 119.5,
-      "nearest_peak_score": 0.865
+      "nearest_peak_score": 0.865,
+      "seam": false
     },
     {
       "city": "clovis",
@@ -885,7 +938,8 @@
       "argmax_off_px": 16.6,
       "act_at_site": 0.0,
       "nearest_peak_px": 98.4,
-      "nearest_peak_score": 0.598
+      "nearest_peak_score": 0.598,
+      "seam": false
     },
     {
       "city": "clovis",
@@ -905,7 +959,8 @@
       "argmax_off_px": 2.5,
       "act_at_site": 0.04081,
       "nearest_peak_px": 170.1,
-      "nearest_peak_score": 0.821
+      "nearest_peak_score": 0.821,
+      "seam": false
     },
     {
       "city": "clovis",
@@ -925,7 +980,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.00061,
       "nearest_peak_px": 36.4,
-      "nearest_peak_score": 0.704
+      "nearest_peak_score": 0.704,
+      "seam": false
     },
     {
       "city": "clovis",
@@ -945,7 +1001,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.06502,
       "nearest_peak_px": 27.2,
-      "nearest_peak_score": 0.571
+      "nearest_peak_score": 0.571,
+      "seam": false
     },
     {
       "city": "clovis",
@@ -965,7 +1022,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.08307,
       "nearest_peak_px": 36.9,
-      "nearest_peak_score": 0.412
+      "nearest_peak_score": 0.412,
+      "seam": false
     },
     {
       "city": "clovis",
@@ -985,7 +1043,8 @@
       "argmax_off_px": 8.8,
       "act_at_site": 0.02599,
       "nearest_peak_px": 119.4,
-      "nearest_peak_score": 0.332
+      "nearest_peak_score": 0.332,
+      "seam": false
     },
     {
       "city": "clovis",
@@ -1005,7 +1064,8 @@
       "argmax_off_px": 7.3,
       "act_at_site": 0.00234,
       "nearest_peak_px": 67.9,
-      "nearest_peak_score": 0.067
+      "nearest_peak_score": 0.067,
+      "seam": false
     },
     {
       "city": "clovis",
@@ -1025,7 +1085,8 @@
       "argmax_off_px": 7.4,
       "act_at_site": 0.02923,
       "nearest_peak_px": 98.5,
-      "nearest_peak_score": 0.388
+      "nearest_peak_score": 0.388,
+      "seam": false
     },
     {
       "city": "clovis",
@@ -1045,7 +1106,8 @@
       "argmax_off_px": 2.1,
       "act_at_site": 0.02074,
       "nearest_peak_px": 82.7,
-      "nearest_peak_score": 0.201
+      "nearest_peak_score": 0.201,
+      "seam": false
     },
     {
       "city": "clovis",
@@ -1065,7 +1127,8 @@
       "argmax_off_px": 21.8,
       "act_at_site": 0.04023,
       "nearest_peak_px": 27.8,
-      "nearest_peak_score": 0.193
+      "nearest_peak_score": 0.193,
+      "seam": false
     },
     {
       "city": "gainesville",
@@ -1085,7 +1148,8 @@
       "argmax_off_px": 22.0,
       "act_at_site": 0.14758,
       "nearest_peak_px": 23.4,
-      "nearest_peak_score": 0.761
+      "nearest_peak_score": 0.761,
+      "seam": true
     },
     {
       "city": "gainesville",
@@ -1105,7 +1169,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.06909,
       "nearest_peak_px": 23.8,
-      "nearest_peak_score": 0.688
+      "nearest_peak_score": 0.688,
+      "seam": false
     },
     {
       "city": "gainesville",
@@ -1125,7 +1190,8 @@
       "argmax_off_px": 6.8,
       "act_at_site": 0.02565,
       "nearest_peak_px": 91.1,
-      "nearest_peak_score": 0.28
+      "nearest_peak_score": 0.28,
+      "seam": false
     },
     {
       "city": "gainesville",
@@ -1145,7 +1211,8 @@
       "argmax_off_px": 22.1,
       "act_at_site": 0.11245,
       "nearest_peak_px": 24.9,
-      "nearest_peak_score": 0.814
+      "nearest_peak_score": 0.814,
+      "seam": false
     },
     {
       "city": "gainesville",
@@ -1165,7 +1232,8 @@
       "argmax_off_px": 22.2,
       "act_at_site": 0.00919,
       "nearest_peak_px": 98.4,
-      "nearest_peak_score": 0.94
+      "nearest_peak_score": 0.94,
+      "seam": false
     },
     {
       "city": "gainesville",
@@ -1185,7 +1253,8 @@
       "argmax_off_px": 22.3,
       "act_at_site": 4e-05,
       "nearest_peak_px": 52.0,
-      "nearest_peak_score": 0.94
+      "nearest_peak_score": 0.94,
+      "seam": false
     },
     {
       "city": "gainesville",
@@ -1205,7 +1274,8 @@
       "argmax_off_px": 22.0,
       "act_at_site": 0.00286,
       "nearest_peak_px": 77.5,
-      "nearest_peak_score": 0.975
+      "nearest_peak_score": 0.975,
+      "seam": false
     },
     {
       "city": "gainesville",
@@ -1225,7 +1295,8 @@
       "argmax_off_px": 22.3,
       "act_at_site": 0.02027,
       "nearest_peak_px": 37.6,
-      "nearest_peak_score": 0.881
+      "nearest_peak_score": 0.881,
+      "seam": false
     },
     {
       "city": "gainesville",
@@ -1245,7 +1316,8 @@
       "argmax_off_px": 14.4,
       "act_at_site": 0.0,
       "nearest_peak_px": 93.7,
-      "nearest_peak_score": 0.387
+      "nearest_peak_score": 0.387,
+      "seam": false
     },
     {
       "city": "gainesville",
@@ -1265,7 +1337,8 @@
       "argmax_off_px": 21.9,
       "act_at_site": 0.04844,
       "nearest_peak_px": 30.8,
-      "nearest_peak_score": 0.467
+      "nearest_peak_score": 0.467,
+      "seam": false
     },
     {
       "city": "gainesville",
@@ -1285,7 +1358,8 @@
       "argmax_off_px": 22.2,
       "act_at_site": 0.01692,
       "nearest_peak_px": 27.9,
-      "nearest_peak_score": 0.235
+      "nearest_peak_score": 0.235,
+      "seam": false
     },
     {
       "city": "gainesville",
@@ -1305,7 +1379,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.10707,
       "nearest_peak_px": 23.5,
-      "nearest_peak_score": 0.26
+      "nearest_peak_score": 0.26,
+      "seam": false
     },
     {
       "city": "gainesville",
@@ -1325,7 +1400,8 @@
       "argmax_off_px": 8.9,
       "act_at_site": 0.0314,
       "nearest_peak_px": 170.1,
-      "nearest_peak_score": 0.465
+      "nearest_peak_score": 0.465,
+      "seam": false
     },
     {
       "city": "gainesville",
@@ -1345,7 +1421,8 @@
       "argmax_off_px": 13.2,
       "act_at_site": 0.0384,
       "nearest_peak_px": 43.9,
-      "nearest_peak_score": 0.118
+      "nearest_peak_score": 0.118,
+      "seam": false
     },
     {
       "city": "gainesville",
@@ -1365,7 +1442,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.00097,
       "nearest_peak_px": 43.2,
-      "nearest_peak_score": 0.232
+      "nearest_peak_score": 0.232,
+      "seam": false
     },
     {
       "city": "gainesville",
@@ -1385,7 +1463,8 @@
       "argmax_off_px": 8.8,
       "act_at_site": 0.02392,
       "nearest_peak_px": 168.3,
-      "nearest_peak_score": 0.446
+      "nearest_peak_score": 0.446,
+      "seam": false
     },
     {
       "city": "gainesville",
@@ -1405,7 +1484,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.0,
       "nearest_peak_px": 62.0,
-      "nearest_peak_score": 0.874
+      "nearest_peak_score": 0.874,
+      "seam": false
     },
     {
       "city": "gainesville",
@@ -1425,7 +1505,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.05639,
       "nearest_peak_px": 27.5,
-      "nearest_peak_score": 0.254
+      "nearest_peak_score": 0.254,
+      "seam": false
     },
     {
       "city": "gainesville",
@@ -1445,7 +1526,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.0059,
       "nearest_peak_px": 45.7,
-      "nearest_peak_score": 0.737
+      "nearest_peak_score": 0.737,
+      "seam": false
     },
     {
       "city": "gainesville",
@@ -1465,7 +1547,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.03981,
       "nearest_peak_px": 48.7,
-      "nearest_peak_score": 0.754
+      "nearest_peak_score": 0.754,
+      "seam": true
     },
     {
       "city": "gainesville",
@@ -1485,7 +1568,8 @@
       "argmax_off_px": 16.5,
       "act_at_site": 0.00856,
       "nearest_peak_px": 201.8,
-      "nearest_peak_score": 0.812
+      "nearest_peak_score": 0.812,
+      "seam": false
     },
     {
       "city": "gainesville",
@@ -1505,7 +1589,8 @@
       "argmax_off_px": 17.7,
       "act_at_site": 0.0129,
       "nearest_peak_px": 203.8,
-      "nearest_peak_score": 0.148
+      "nearest_peak_score": 0.148,
+      "seam": false
     },
     {
       "city": "gainesville",
@@ -1525,7 +1610,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.0,
       "nearest_peak_px": 59.0,
-      "nearest_peak_score": 0.092
+      "nearest_peak_score": 0.092,
+      "seam": false
     },
     {
       "city": "gainesville",
@@ -1545,7 +1631,8 @@
       "argmax_off_px": 1.4,
       "act_at_site": 0.01075,
       "nearest_peak_px": 62.3,
-      "nearest_peak_score": 0.616
+      "nearest_peak_score": 0.616,
+      "seam": false
     },
     {
       "city": "morgantown",
@@ -1565,7 +1652,8 @@
       "argmax_off_px": 15.6,
       "act_at_site": 0.01231,
       "nearest_peak_px": 101.4,
-      "nearest_peak_score": 0.062
+      "nearest_peak_score": 0.062,
+      "seam": false
     },
     {
       "city": "morgantown",
@@ -1585,7 +1673,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.02479,
       "nearest_peak_px": 32.3,
-      "nearest_peak_score": 0.148
+      "nearest_peak_score": 0.148,
+      "seam": false
     },
     {
       "city": "morgantown",
@@ -1605,7 +1694,8 @@
       "argmax_off_px": 21.9,
       "act_at_site": 0.31872,
       "nearest_peak_px": 31.9,
-      "nearest_peak_score": 0.61
+      "nearest_peak_score": 0.61,
+      "seam": true
     },
     {
       "city": "morgantown",
@@ -1625,7 +1715,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.00911,
       "nearest_peak_px": 33.9,
-      "nearest_peak_score": 0.117
+      "nearest_peak_score": 0.117,
+      "seam": false
     },
     {
       "city": "morgantown",
@@ -1645,7 +1736,8 @@
       "argmax_off_px": 9.1,
       "act_at_site": 0.00268,
       "nearest_peak_px": 107.9,
-      "nearest_peak_score": 0.177
+      "nearest_peak_score": 0.177,
+      "seam": false
     },
     {
       "city": "morgantown",
@@ -1665,7 +1757,8 @@
       "argmax_off_px": 6.6,
       "act_at_site": 0.01795,
       "nearest_peak_px": 238.9,
-      "nearest_peak_score": 0.87
+      "nearest_peak_score": 0.87,
+      "seam": false
     },
     {
       "city": "morgantown",
@@ -1685,7 +1778,8 @@
       "argmax_off_px": 18.0,
       "act_at_site": 0.022,
       "nearest_peak_px": 46.8,
-      "nearest_peak_score": 0.871
+      "nearest_peak_score": 0.871,
+      "seam": true
     },
     {
       "city": "morgantown",
@@ -1705,7 +1799,8 @@
       "argmax_off_px": 18.6,
       "act_at_site": 0.19581,
       "nearest_peak_px": 163.1,
-      "nearest_peak_score": 0.938
+      "nearest_peak_score": 0.938,
+      "seam": true
     },
     {
       "city": "morgantown",
@@ -1725,7 +1820,8 @@
       "argmax_off_px": 19.0,
       "act_at_site": 0.01583,
       "nearest_peak_px": 149.6,
-      "nearest_peak_score": 0.674
+      "nearest_peak_score": 0.674,
+      "seam": false
     },
     {
       "city": "morgantown",
@@ -1745,7 +1841,8 @@
       "argmax_off_px": 22.1,
       "act_at_site": 0.06337,
       "nearest_peak_px": 32.1,
-      "nearest_peak_score": 0.16
+      "nearest_peak_score": 0.16,
+      "seam": false
     },
     {
       "city": "morgantown",
@@ -1765,7 +1862,8 @@
       "argmax_off_px": 17.1,
       "act_at_site": 0.02551,
       "nearest_peak_px": 143.3,
-      "nearest_peak_score": 0.107
+      "nearest_peak_score": 0.107,
+      "seam": false
     },
     {
       "city": "morgantown",
@@ -1785,7 +1883,8 @@
       "argmax_off_px": 10.2,
       "act_at_site": 0.02426,
       "nearest_peak_px": 79.5,
-      "nearest_peak_score": 0.338
+      "nearest_peak_score": 0.338,
+      "seam": false
     },
     {
       "city": "morgantown",
@@ -1805,7 +1904,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.01305,
       "nearest_peak_px": 25.5,
-      "nearest_peak_score": 0.338
+      "nearest_peak_score": 0.338,
+      "seam": false
     },
     {
       "city": "morgantown",
@@ -1825,7 +1925,8 @@
       "argmax_off_px": 10.3,
       "act_at_site": 0.00366,
       "nearest_peak_px": 53.2,
-      "nearest_peak_score": 0.195
+      "nearest_peak_score": 0.195,
+      "seam": false
     },
     {
       "city": "morgantown",
@@ -1845,7 +1946,8 @@
       "argmax_off_px": 13.0,
       "act_at_site": 0.00425,
       "nearest_peak_px": 109.3,
-      "nearest_peak_score": 0.854
+      "nearest_peak_score": 0.854,
+      "seam": false
     },
     {
       "city": "morgantown",
@@ -1865,7 +1967,8 @@
       "argmax_off_px": 21.8,
       "act_at_site": 0.0929,
       "nearest_peak_px": 23.6,
-      "nearest_peak_score": 0.619
+      "nearest_peak_score": 0.619,
+      "seam": false
     },
     {
       "city": "morgantown",
@@ -1885,7 +1988,8 @@
       "argmax_off_px": 5.4,
       "act_at_site": 0.04533,
       "nearest_peak_px": 65.0,
-      "nearest_peak_score": 0.202
+      "nearest_peak_score": 0.202,
+      "seam": false
     },
     {
       "city": "morgantown",
@@ -1905,7 +2009,8 @@
       "argmax_off_px": 0.9,
       "act_at_site": 0.04639,
       "nearest_peak_px": 147.7,
-      "nearest_peak_score": 0.961
+      "nearest_peak_score": 0.961,
+      "seam": false
     },
     {
       "city": "morgantown",
@@ -1925,7 +2030,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.01909,
       "nearest_peak_px": 37.2,
-      "nearest_peak_score": 0.794
+      "nearest_peak_score": 0.794,
+      "seam": false
     },
     {
       "city": "morgantown",
@@ -1945,7 +2051,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.06538,
       "nearest_peak_px": 27.6,
-      "nearest_peak_score": 0.221
+      "nearest_peak_score": 0.221,
+      "seam": false
     },
     {
       "city": "paterson",
@@ -1965,7 +2072,8 @@
       "argmax_off_px": 22.1,
       "act_at_site": 0.64725,
       "nearest_peak_px": 24.0,
-      "nearest_peak_score": 0.855
+      "nearest_peak_score": 0.855,
+      "seam": false
     },
     {
       "city": "paterson",
@@ -1985,7 +2093,8 @@
       "argmax_off_px": 21.9,
       "act_at_site": 0.51615,
       "nearest_peak_px": 22.9,
-      "nearest_peak_score": 0.799
+      "nearest_peak_score": 0.799,
+      "seam": false
     },
     {
       "city": "paterson",
@@ -2005,7 +2114,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.00382,
       "nearest_peak_px": 54.0,
-      "nearest_peak_score": 0.833
+      "nearest_peak_score": 0.833,
+      "seam": false
     },
     {
       "city": "paterson",
@@ -2025,7 +2135,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.0505,
       "nearest_peak_px": 36.4,
-      "nearest_peak_score": 0.965
+      "nearest_peak_score": 0.965,
+      "seam": false
     },
     {
       "city": "paterson",
@@ -2045,7 +2156,8 @@
       "argmax_off_px": 22.3,
       "act_at_site": 0.02851,
       "nearest_peak_px": 30.6,
-      "nearest_peak_score": 0.904
+      "nearest_peak_score": 0.904,
+      "seam": false
     },
     {
       "city": "paterson",
@@ -2065,7 +2177,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.4664,
       "nearest_peak_px": 27.2,
-      "nearest_peak_score": 0.957
+      "nearest_peak_score": 0.957,
+      "seam": false
     },
     {
       "city": "paterson",
@@ -2085,7 +2198,8 @@
       "argmax_off_px": 22.2,
       "act_at_site": 0.38388,
       "nearest_peak_px": 25.3,
-      "nearest_peak_score": 0.927
+      "nearest_peak_score": 0.927,
+      "seam": false
     },
     {
       "city": "paterson",
@@ -2105,7 +2219,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.1239,
       "nearest_peak_px": 23.4,
-      "nearest_peak_score": 0.459
+      "nearest_peak_score": 0.459,
+      "seam": false
     },
     {
       "city": "paterson",
@@ -2125,7 +2240,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.09947,
       "nearest_peak_px": 37.4,
-      "nearest_peak_score": 0.212
+      "nearest_peak_score": 0.212,
+      "seam": false
     },
     {
       "city": "paterson",
@@ -2145,7 +2261,8 @@
       "argmax_off_px": 5.7,
       "act_at_site": 0.71407,
       "nearest_peak_px": 104.0,
-      "nearest_peak_score": 0.902
+      "nearest_peak_score": 0.902,
+      "seam": true
     },
     {
       "city": "paterson",
@@ -2165,7 +2282,8 @@
       "argmax_off_px": 4.9,
       "act_at_site": 0.03762,
       "nearest_peak_px": 51.5,
-      "nearest_peak_score": 0.879
+      "nearest_peak_score": 0.879,
+      "seam": false
     },
     {
       "city": "paterson",
@@ -2185,7 +2303,8 @@
       "argmax_off_px": 21.9,
       "act_at_site": 0.02798,
       "nearest_peak_px": 31.8,
-      "nearest_peak_score": 0.054
+      "nearest_peak_score": 0.054,
+      "seam": false
     },
     {
       "city": "paterson",
@@ -2205,7 +2324,8 @@
       "argmax_off_px": 22.3,
       "act_at_site": 0.23676,
       "nearest_peak_px": 25.5,
-      "nearest_peak_score": 0.906
+      "nearest_peak_score": 0.906,
+      "seam": false
     },
     {
       "city": "paterson",
@@ -2225,7 +2345,8 @@
       "argmax_off_px": 21.9,
       "act_at_site": 0.31219,
       "nearest_peak_px": 28.9,
-      "nearest_peak_score": 0.86
+      "nearest_peak_score": 0.86,
+      "seam": false
     },
     {
       "city": "richmond",
@@ -2245,7 +2366,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.01796,
       "nearest_peak_px": 24.3,
-      "nearest_peak_score": 0.242
+      "nearest_peak_score": 0.242,
+      "seam": false
     },
     {
       "city": "richmond",
@@ -2265,7 +2387,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.01453,
       "nearest_peak_px": 35.0,
-      "nearest_peak_score": 0.363
+      "nearest_peak_score": 0.363,
+      "seam": false
     },
     {
       "city": "richmond",
@@ -2285,7 +2408,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.07301,
       "nearest_peak_px": 33.1,
-      "nearest_peak_score": 0.894
+      "nearest_peak_score": 0.894,
+      "seam": false
     },
     {
       "city": "richmond",
@@ -2305,7 +2429,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.01046,
       "nearest_peak_px": 42.9,
-      "nearest_peak_score": 0.512
+      "nearest_peak_score": 0.512,
+      "seam": false
     },
     {
       "city": "richmond",
@@ -2325,7 +2450,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.2072,
       "nearest_peak_px": 29.0,
-      "nearest_peak_score": 0.875
+      "nearest_peak_score": 0.875,
+      "seam": false
     },
     {
       "city": "richmond",
@@ -2345,7 +2471,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.03628,
       "nearest_peak_px": 39.5,
-      "nearest_peak_score": 0.693
+      "nearest_peak_score": 0.693,
+      "seam": false
     },
     {
       "city": "richmond",
@@ -2365,7 +2492,8 @@
       "argmax_off_px": 22.2,
       "act_at_site": 0.08643,
       "nearest_peak_px": 26.8,
-      "nearest_peak_score": 0.648
+      "nearest_peak_score": 0.648,
+      "seam": false
     },
     {
       "city": "richmond",
@@ -2385,7 +2513,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.04411,
       "nearest_peak_px": 51.3,
-      "nearest_peak_score": 0.847
+      "nearest_peak_score": 0.847,
+      "seam": false
     },
     {
       "city": "richmond",
@@ -2405,7 +2534,8 @@
       "argmax_off_px": 21.7,
       "act_at_site": 0.33381,
       "nearest_peak_px": 26.2,
-      "nearest_peak_score": 0.891
+      "nearest_peak_score": 0.891,
+      "seam": false
     },
     {
       "city": "richmond",
@@ -2425,7 +2555,8 @@
       "argmax_off_px": 2.1,
       "act_at_site": 0.03594,
       "nearest_peak_px": 57.4,
-      "nearest_peak_score": 0.858
+      "nearest_peak_score": 0.858,
+      "seam": false
     },
     {
       "city": "richmond",
@@ -2445,7 +2576,8 @@
       "argmax_off_px": 22.5,
       "act_at_site": 0.11268,
       "nearest_peak_px": 30.9,
-      "nearest_peak_score": 0.861
+      "nearest_peak_score": 0.861,
+      "seam": false
     },
     {
       "city": "richmond",
@@ -2465,7 +2597,8 @@
       "argmax_off_px": 21.7,
       "act_at_site": 0.29615,
       "nearest_peak_px": 22.7,
-      "nearest_peak_score": 0.861
+      "nearest_peak_score": 0.861,
+      "seam": false
     },
     {
       "city": "richmond",
@@ -2485,7 +2618,8 @@
       "argmax_off_px": 10.2,
       "act_at_site": 0.00951,
       "nearest_peak_px": 70.4,
-      "nearest_peak_score": 0.339
+      "nearest_peak_score": 0.339,
+      "seam": false
     },
     {
       "city": "richmond",
@@ -2505,7 +2639,8 @@
       "argmax_off_px": 10.7,
       "act_at_site": 0.02378,
       "nearest_peak_px": 42.5,
-      "nearest_peak_score": 0.143
+      "nearest_peak_score": 0.143,
+      "seam": false
     },
     {
       "city": "richmond",
@@ -2525,7 +2660,8 @@
       "argmax_off_px": 22.3,
       "act_at_site": 0.00867,
       "nearest_peak_px": 44.1,
-      "nearest_peak_score": 0.835
+      "nearest_peak_score": 0.835,
+      "seam": false
     },
     {
       "city": "richmond",
@@ -2545,7 +2681,8 @@
       "argmax_off_px": 22.4,
       "act_at_site": 0.21966,
       "nearest_peak_px": 36.0,
-      "nearest_peak_score": 0.605
+      "nearest_peak_score": 0.605,
+      "seam": false
     },
     {
       "city": "richmond",
@@ -2565,7 +2702,8 @@
       "argmax_off_px": 7.4,
       "act_at_site": 0.77932,
       "nearest_peak_px": 117.4,
-      "nearest_peak_score": 0.945
+      "nearest_peak_score": 0.945,
+      "seam": true
     }
   ]
 }

@@ -64,6 +64,10 @@ FAR_BANDS = ((18.0, 25.0), (25.0, 40.0), (40.0, 150.0))
 # distance (px is 1/d), comfortably inside one of E1's bins.
 MATCH_TOL = 0.20
 
+# The verdict pass the write-up quotes. A file per rater (``silent__<rater>.json``)
+# is the committed shape, so a second pass is a flag, not a patch.
+DEFAULT_RATER = "jonf"
+
 
 # --------------------------------------------------------------------------- #
 # Pure core (no I/O) — unit-tested in tests/test_farfield_forensics.py
@@ -113,11 +117,21 @@ def band_of(row, bands=FAR_BANDS):
     The clamp test is on ``y``, mirroring ``miss_decomposition.above_horizon`` —
     a ground ramp cannot sit at or above the horizon, so its 150 m is an artifact
     of an unleveled rig or a hill, not a distance.
+
+    **The top band is closed at its upper edge**, unlike the others, because
+    ``geom()`` reaches 150 m by two different routes and only one of them is a
+    ``y`` tell: the above-horizon branch, and ``min(d, 150.0)`` for a row that is
+    below the horizon but saturates anyway (y = 0.502 puts a ramp 406 m out). A
+    half-open [40, 150) drops that second kind from every band while ``y > 0.5``
+    keeps it out of ``clamp`` — two pooled far-field GT rows, one of them a silent
+    miss, which is exactly the arithmetic the write-up quotes. Pinned by
+    ``tests/test_farfield_forensics.py::test_the_bands_partition_the_far_field``.
     """
     if row["y"] <= 0.5:
         return "clamp"
+    top = bands[-1][1] if bands else None
     for lo, hi in bands:
-        if lo <= row["dist"] < hi:
+        if lo <= row["dist"] < hi or (hi == top and row["dist"] == hi):
             return (lo, hi)
     return None
 
@@ -166,24 +180,44 @@ def stored_widths(city):
             if rec.get("width")}
 
 
-def load_rated(gallery_dir, field="far"):
+def verdicts_path(gallery_dir, rater=DEFAULT_RATER):
+    """Where one rater's silent-miss verdicts live.
+
+    Per-rater by construction, because a second rater is the top open follow-up
+    on #46 and the two passes have to be comparable **without editing source**
+    (CLAUDE.md: human judgments are committed per rater, and the rubric travels
+    with them). ``--rater`` is the knob; the default is the pass that exists.
+    """
+    return os.path.join(gallery_dir, f"silent__{rater}.json")
+
+
+def load_rated(gallery_dir, field="far", rater=DEFAULT_RATER):
     """The reviewer's rated items: manifest entry + verdict, keyed like the tags.
 
     ``field`` restricts to one distance population; ``None`` returns all 50
     (Phase 1's activation forensics wants the near-field verdicts too).
+
+    **A manifest item with no verdict is not returned.** All 50 are rated today,
+    so this changes nothing now — but mid-pass with a second rater an unrated
+    item would otherwise carry ``verdict: None`` into ``rated_rows``, the
+    per-split table and the survivorship AUC, inflating every one of them
+    silently. Queued-but-unrated is a different population from rated, and the
+    write-up quotes the latter.
     """
     with open(os.path.join(gallery_dir, "silent_gallery", "manifest.json"),
               encoding="utf-8") as fh:
         manifest = json.load(fh)
-    with open(os.path.join(gallery_dir, "silent__jonf.json"), encoding="utf-8") as fh:
-        verdicts = json.load(fh)["verdicts"]
+    with open(verdicts_path(gallery_dir, rater), encoding="utf-8") as fh:
+        raw = json.load(fh)["verdicts"]
     out = {}
     for key, item in manifest["items"].items():
         if field is not None and item.get("field") != field:
             continue
-        v = verdicts.get(key)
-        out[key] = {**item, "verdict": v if isinstance(v, str)
-                    else (v or {}).get("verdict")}
+        v = raw.get(key)
+        v = v if isinstance(v, str) else (v or {}).get("verdict")
+        if v is None:
+            continue
+        out[key] = {**item, "verdict": v}
     return out
 
 
@@ -193,6 +227,9 @@ def main(argv=None):
     p.add_argument("--witness", default=os.path.join(OUT, "silent_witness.json"))
     p.add_argument("--gallery", default=os.path.join(REPO, "benchmark",
                                                      "miss_taxonomy_46"))
+    p.add_argument("--rater", default=DEFAULT_RATER,
+                   help="Which reviewer pass to read (benchmark/miss_taxonomy_46/"
+                        "silent__<rater>.json). A second rater is a flag, not an edit.")
     p.add_argument("--json-out", default=None)
     args = p.parse_args(argv)
 
@@ -209,7 +246,7 @@ def main(argv=None):
     queue = load_queue(args.witness)
     unw_far = [r for r in far_silent if row_key(r) in queue]
 
-    rated = load_rated(args.gallery)
+    rated = load_rated(args.gallery, rater=args.rater)
     rated_keys = {(v["city"], v["pano"], round(float(v["x"]), 6),
                    round(float(v["y"]), 6)) for v in rated.values()}
     rated_rows = [r for r in unw_far if row_key(r) in rated_keys]
@@ -317,6 +354,18 @@ def main(argv=None):
         band_rows[label] = {"n_gt": len(sel), "recall": n_hit / len(sel),
                             "silent": n_sil, "rated": n_rated, "visible": n_vis}
 
+    # The bands must partition the far field, or the table above quietly reports a
+    # smaller population than the section it sits in. They did not, until the top
+    # band was closed at 150 m — see band_of().
+    banded = sum(b["n_gt"] for b in band_rows.values())
+    banded_sil = sum(b["silent"] for b in band_rows.values())
+    if (banded, banded_sil) != (len(far), len(far_silent)):
+        raise SystemExit(
+            f"bands do not partition the far field: {banded}/{len(far)} GT, "
+            f"{banded_sil}/{len(far_silent)} silent — see band_of()")
+    print(f"{'':>12} {banded:>6} {'':>8} {banded_sil:>8}   <- sums to the "
+          f"{len(far)} far GT / {len(far_silent)} silent above")
+
     rates = []
     for v in visible:
         h, n = matched_rate(far, v["model_px"])
@@ -352,6 +401,7 @@ def main(argv=None):
         os.makedirs(os.path.dirname(os.path.abspath(args.json_out)), exist_ok=True)
         payload = {
             "threshold": args.threshold, "boundary_m": FAR_BOUNDARY_M,
+            "rater": args.rater,
             "judgeable_source_px": JUDGEABLE_SOURCE_PX,
             "match_tolerance": MATCH_TOL,
             "counts": {"far_gt": len(far), "far_hits": len(far_hits),
@@ -372,7 +422,12 @@ def main(argv=None):
             "above_horizon": n_clamp,
             "rated_by_tier": tiers,
         }
-        with open(args.json_out, "w", encoding="utf-8") as fh:
+        # newline="" so the artifact is LF on every platform. Python's text
+        # mode would write CRLF here on Windows, which makes a regenerated
+        # copy fail a byte comparison against the committed one even when
+        # every number is identical — and a content hash that only holds on
+        # one OS is not a content hash.
+        with open(args.json_out, "w", encoding="utf-8", newline="") as fh:
             json.dump(payload, fh, indent=2)
         print(f"\nWrote {args.json_out}")
     return 0

@@ -14,22 +14,45 @@ For every pooled silent miss (near and far — the near-field verdicts feed the 
 sourcing estimate just as directly), this loads the published model, runs one forward
 pass per panorama, and reads:
 
-* ``act`` — the max heatmap value within the match radius of the missed ramp (the
-  radius and grid are exactly the matcher's: the scaled space *is* the 512x1024
-  heatmap). Note ``act`` can exceed the 0.05 floor without contradicting ``silent``
+* ``act`` — the max heatmap value within the match radius of the missed ramp. The
+  grid *is* the matcher's scaled space (512x1024), and the radius is the matcher's,
+  **with one deliberate divergence: this window wraps at the 360-degree seam and
+  the matcher's does not** (``greedy_match`` takes a plain x difference). Wrapping
+  is the physically right geometry for an equirectangular panorama — the matcher is
+  the approximation here — so the divergence is flagged per row (``seam``) rather
+  than removed. 9 of the 128 pooled misses are seam rows; none of them changes
+  bucket, but that is a property of this population, not a guarantee.
+  Note ``act`` can exceed the 0.05 floor without contradicting ``silent``
   — a shoulder of a neighbouring peak is not a local maximum; those cases are
   counted separately rather than silently pooled.
 * a per-miss **null**: the same radius-max at ``NULL_TRIALS`` random azimuths in the
   same panorama at the same elevation — the same null shape every #46 analysis uses,
   because both ramps and heatmap mass crowd the horizon band. ``act`` is reported as
   a percentile of its own panorama's null, so "there is signal here" is a claim
-  against that pano's actual noise floor, not against zero.
+  against that pano's own distribution, not against zero.
+
+  **Read the percentile, not the p95 flag.** With a 22.5 px radius on a 1024-wide
+  grid there are only ~23 non-overlapping windows per elevation band, so the p95 of
+  200 draws is effectively the band *maximum* — pooled, the median ``null_p95`` is
+  0.595 against a median ``null_med`` of 0.003. ``above_own_null_p95`` therefore
+  asks "is this site the strongest thing on its horizon row", which almost nothing
+  sub-floor can pass (2 of 39 faint-local sites do). It is conservative twice over,
+  because a draw may also land on *another GT ramp* in the same band — only the
+  site's own 2 R zone is excluded. ``null_pct`` is the usable statistic and is what
+  the decomposition below reports.
 
 Model: the published ``projectsidewalk/rampnet-model`` weights — the same checkpoint
 every committed cache came from (``operating_point_curve.py`` extract). Single-pass,
-no TTA, fp32, matching ``analysis_out/op_cache``. Needs the panorama imagery
-(``benchmark/<city>/panos``, git-ignored — ``--panos-root`` from a worktree) and a
-GPU-ish machine; the RTX 3070 does ~10 s/pano.
+no TTA, fp32, matching ``analysis_out/op_cache``.
+
+**Inputs, for someone who is not on this machine.** Unlike Phase 0 this one needs
+pixels: the native-resolution panoramas at ``benchmark/<city>/panos/<pano>.jpg``,
+which are git-ignored and published as the Hugging Face dataset
+``projectsidewalk/rampnet-benchmark`` (the same bundle #94's imagery manifests pin by
+content hash). ``--panos-root`` points at whichever checkout holds them, since a
+worktree will not. Everything else — the caches, the witness list, the gallery
+manifest and verdicts — is committed. A GPU-ish machine; the RTX 3070 does ~10 s/pano,
+about 20 minutes for the 128 pooled misses.
 
     python scripts/analysis/silent_activation.py --panos-root D:/Git/RampNet
     python scripts/analysis/silent_activation.py --json-out analysis_out/silent_activation.json
@@ -47,12 +70,20 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import miss_taxonomy as mt  # noqa: E402
 from miss_decomposition import DEFAULT_THRESHOLD, US_SPLITS  # noqa: E402
-from farfield_forensics import load_rated, quartiles, row_key  # noqa: E402
+from farfield_forensics import (  # noqa: E402
+    DEFAULT_RATER, load_rated, quartiles, row_key)
 from rampnet.detection_eval import (  # noqa: E402
     PANO_SCALE_X, PANO_SCALE_Y, radius_sq_for)
 
 NULL_TRIALS = 200
 NULL_SEED = 20260731
+
+# The decomposition's two cutoffs, named because the write-up quotes them.
+# PEAK_FLOOR is the extractor's own score floor (the caches hold peaks >= 0.05), so
+# "act >= PEAK_FLOOR on a silent miss" is definitionally an outside mode's reach.
+# ABSENT_MAX is the flat-heatmap bar: below it there is no response to attenuate.
+ABSENT_MAX = 0.01
+PEAK_FLOOR = 0.05
 
 # The heatmap grid IS the matcher's scaled space (PANO_SCALE_X x PANO_SCALE_Y =
 # 1024 x 512), asserted at runtime so a future resolution change cannot silently
@@ -166,6 +197,52 @@ def group_of(row, queue_keys, rated_by_rowkey):
     return "below_floor"
 
 
+def seam_of(x, radius_sq=None):
+    """Does this site's match window straddle the 360-degree seam?
+
+    ``site_profile`` and ``nearest_peak`` wrap columns; ``greedy_match``, which
+    produced the ``silent`` label, does not. For a seam row the two therefore read
+    different windows, and roughly half of what this script scans is imagery the
+    matcher never considered. Wrapping is the correct geometry for an
+    equirectangular panorama, so the flag records the divergence instead of
+    removing it — and makes "did any of these change bucket?" a query rather than
+    a re-derivation.
+    """
+    if radius_sq is None:
+        radius_sq = radius_sq_for()
+    return min(x, 1.0 - x) * PANO_SCALE_X < radius_sq ** 0.5
+
+
+def class_of(act, absent_max=ABSENT_MAX, floor=PEAK_FLOOR):
+    """Which activation class a miss falls in — the decomposition's only cutoffs.
+
+    ``absent`` the heatmap is flat at the site; ``tail`` the in-window mass is at or
+    above the peak floor, which for a *silent* miss can only be an outside mode
+    reaching in; ``faint_local`` everything between. Split out so the classes are
+    testable and so the printed table, the JSON and the write-up cannot drift apart.
+    """
+    if act < absent_max:
+        return "absent"
+    if act >= floor:
+        return "tail"
+    return "faint_local"
+
+
+def build_payload(results, threshold, cities, n_panos, skipped):
+    """The result JSON, built in one place so a re-run is byte-comparable.
+
+    Everything that scopes the run travels with it — ``cities`` and ``panos``
+    because a subset run is not the pooled population the write-up quotes, and a
+    file that does not say so is indistinguishable from one that is complete.
+    """
+    return {"threshold": threshold, "null_trials": NULL_TRIALS,
+            "null_seed": NULL_SEED, "n": len(results),
+            "cities": list(cities), "panos": n_panos,
+            "skipped_no_imagery": skipped,
+            "model": "projectsidewalk/rampnet-model",
+            "tta": False, "results": results}
+
+
 # --------------------------------------------------------------------------- #
 # I/O
 # --------------------------------------------------------------------------- #
@@ -180,9 +257,27 @@ def main(argv=None):
                         "in a worktree it lives in the main checkout instead).")
     p.add_argument("--cities", default=",".join(US_SPLITS))
     p.add_argument("--limit", type=int, default=None,
-                   help="Stop after this many panos (smoke test).")
+                   help="Stop after this many panos (smoke test). Refused with "
+                        "--json-out: a truncated run must not be written as a result.")
+    p.add_argument("--rater", default=DEFAULT_RATER,
+                   help="Which reviewer pass to read (silent__<rater>.json).")
     p.add_argument("--json-out", default=None)
+    p.add_argument("--allow-partial", action="store_true",
+                   help="Permit --json-out on a city subset. The scope is recorded "
+                        "in the payload either way; this only silences the refusal.")
     args = p.parse_args(argv)
+
+    # A result file that looks complete and is not is worse than no result file.
+    # analysis_out/silent_activation.json is a committed artifact and every number
+    # in the write-up's 0c derives from it, so the smoke-test flags are refused
+    # here rather than trusted to be remembered.
+    cities = [c.strip() for c in args.cities.split(",") if c.strip()]
+    if args.json_out and args.limit:
+        p.error("--limit truncates the run; refusing to write it to --json-out")
+    if args.json_out and sorted(cities) != sorted(US_SPLITS) and not args.allow_partial:
+        p.error(f"--cities is a subset ({len(cities)} of {len(US_SPLITS)}); the "
+                f"pooled population is what 0c quotes. Pass --allow-partial if a "
+                f"scoped result file is really what you want.")
 
     import torch
     import threshold_sweep as ts
@@ -190,12 +285,11 @@ def main(argv=None):
 
     from miss_gallery import load_queue, pano_path
     queue_keys = load_queue(args.witness)
-    rated = load_rated(args.gallery, field=None)
+    rated = load_rated(args.gallery, field=None, rater=args.rater)
     rated_by_rowkey = {(v["city"], v["pano"], round(float(v["x"]), 6),
                         round(float(v["y"]), 6)): v for v in rated.values()}
 
     from operating_point_curve import CACHE_DIR, read_cache
-    cities = [c.strip() for c in args.cities.split(",") if c.strip()]
     by_pano, preds_by = {}, {}
     for city in cities:
         loaded = mt.load_rows(city, args.threshold, rng=None)
@@ -248,6 +342,7 @@ def main(argv=None):
                                     if npk_px != float("inf") else None),
                 "nearest_peak_score": (round(npk_score, 3)
                                        if npk_score is not None else None),
+                "seam": seam_of(r["x"], radius_sq),
             })
         del heat
         if i % 10 == 0:
@@ -295,12 +390,9 @@ def main(argv=None):
     r_px = radius_sq ** 0.5
     cls = {"absent": [], "faint_local": [], "tail": []}
     for r in results:
-        if r["act"] < 0.01:
-            cls["absent"].append(r)
-        elif r["act"] >= 0.05:
-            cls["tail"].append(r)
-        else:
-            cls["faint_local"].append(r)
+        cls[class_of(r["act"])].append(r)
+    print(f"  {'class':>12} {'n':>4} {'vis':>4} {'argmax off':>12} "
+          f"{'nearest peak':>17} {'null pct q1/med/q3':>21} {'>p95':>8}")
     for name, sel in cls.items():
         if not sel:
             continue
@@ -308,14 +400,28 @@ def main(argv=None):
         npks = [r["nearest_peak_px"] for r in sel if r["nearest_peak_px"]]
         med_npk = quartiles(npks)[1] if npks else float("nan")
         n_vis = sum(1 for r in sel if r["verdict"] == "visible")
-        print(f"  {name:>12}: {len(sel):>3}  (rated visible {n_vis:>2})  "
-              f"argmax off med {med_off:>4.1f} px  nearest floor peak med "
-              f"{med_npk:>5.1f} px ({med_npk/r_px:.1f}R)")
+        nq = quartiles([r["null_pct"] for r in sel])
+        n_p95 = sum(1 for r in sel if r["above_own_null_p95"])
+        print(f"  {name:>12} {len(sel):>4} {n_vis:>4} "
+              f"{med_off:>9.1f} px {med_npk:>8.1f} px ({med_npk/r_px:>3.1f}R) "
+              f"{nq[0]:>7.3f}/{nq[1]:.3f}/{nq[2]:.3f} {n_p95:>4}/{len(sel):<3}")
     tail_near_edge = sum(1 for r in cls['tail']
                          if r['argmax_off_px'] > 0.75 * r_px)
     print(f"  tail cases with argmax in the window's outer quarter: "
           f"{tail_near_edge}/{len(cls['tail'])} — the mass is entering from "
           f"outside, not centred on the ramp")
+    # The seam divergence, surfaced rather than assumed away: this window wraps at
+    # x=0/1 and the matcher's does not, so a seam row's `silent` label and its `act`
+    # were read from different windows. The second count is the one that would
+    # matter — a floor peak inside the radius means a wrapping matcher would have
+    # called the miss `merged`, not `silent`.
+    n_seam = sum(1 for r in results if r["seam"])
+    seam_flip = [r for r in results if r["seam"] and r["nearest_peak_px"]
+                 and r["nearest_peak_px"] < r_px]
+    print(f"  seam rows (window straddles x=0/1, where this window wraps and the "
+          f"matcher's\n  does not): {n_seam}/{len(results)}; of those "
+          f"{len(seam_flip)} hold a floor peak inside the\n  radius, i.e. would "
+          f"not be `silent` under a wrapping matcher")
 
     print(f"\n  Reading: 'absent' = the heatmap is genuinely flat at the site.")
     print(f"  'faint_local' = a real sub-floor response at the site itself.")
@@ -325,15 +431,22 @@ def main(argv=None):
     print(f"  continue differently: absent -> Phase 2's scale counterfactual;")
     print(f"  faint_local -> threshold/calibration (the sub_threshold continuum);")
     print(f"  tail -> representation (sigma), not vocabulary.")
+    print(f"\n  The null column is the check on that reading, and it separates the")
+    print(f"  three cleanly: 'absent' sits at chance by construction, 'faint_local'")
+    print(f"  well above it, 'tail' higher again. Read null_pct, NOT the >p95 count:")
+    print(f"  p95 over ~23 non-overlapping windows per band is the band maximum, so")
+    print(f"  it asks whether the site is the strongest thing on its horizon row.")
 
     if args.json_out:
         os.makedirs(os.path.dirname(os.path.abspath(args.json_out)), exist_ok=True)
-        with open(args.json_out, "w", encoding="utf-8") as fh:
-            json.dump({"threshold": args.threshold, "null_trials": NULL_TRIALS,
-                       "null_seed": NULL_SEED, "n": len(results),
-                       "skipped_no_imagery": skipped,
-                       "model": "projectsidewalk/rampnet-model",
-                       "tta": False, "results": results}, fh, indent=2)
+        # newline="" so the artifact is LF on every platform. Python's text
+        # mode would write CRLF here on Windows, which makes a regenerated
+        # copy fail a byte comparison against the committed one even when
+        # every number is identical — and a content hash that only holds on
+        # one OS is not a content hash.
+        with open(args.json_out, "w", encoding="utf-8", newline="") as fh:
+            json.dump(build_payload(results, args.threshold, cities,
+                                    len(by_pano), skipped), fh, indent=2)
         print(f"\nWrote {args.json_out}")
     return 0
 

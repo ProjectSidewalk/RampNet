@@ -145,3 +145,64 @@ def test_group_partition():
     assert sa.group_of(r, set(), {}) == "witnessed"
     assert sa.group_of(r, {key}, {}) == "below_floor"
     assert sa.group_of(r, {key}, {key: {}}) == "rated"
+
+
+# --------------------------------------------------------------------------- #
+# seam_of — where this window and the matcher's disagree
+# --------------------------------------------------------------------------- #
+def test_seam_flag_is_true_within_a_radius_of_either_edge():
+    # radius_max wraps columns; rampnet.metrics.greedy_match, which produced the
+    # `silent` label, takes a plain x difference. Inside R of x=0 or x=1 the two
+    # therefore read different windows, and that has to be visible in the output
+    # rather than inferred later from the coordinates.
+    assert sa.seam_of(0.001) and sa.seam_of(0.999)
+    assert sa.seam_of(R / 1024 - 1e-6)
+
+
+def test_seam_flag_is_false_away_from_the_edges():
+    assert not sa.seam_of(0.5)
+    assert not sa.seam_of(R / 1024 + 1e-6)
+    assert not sa.seam_of(1.0 - (R / 1024 + 1e-6))
+
+
+# --------------------------------------------------------------------------- #
+# class_of — the decomposition's only two cutoffs
+# --------------------------------------------------------------------------- #
+def test_class_cutoffs():
+    assert sa.class_of(0.0) == "absent"
+    assert sa.class_of(sa.ABSENT_MAX - 1e-9) == "absent"
+    assert sa.class_of(sa.ABSENT_MAX) == "faint_local"
+    assert sa.class_of(sa.PEAK_FLOOR - 1e-9) == "faint_local"
+    assert sa.class_of(sa.PEAK_FLOOR) == "tail"
+    assert sa.class_of(1.0) == "tail"
+
+
+def test_the_class_floor_is_the_extractors_own_floor():
+    # `tail` means "at or above the score floor the caches were extracted at", which
+    # is what licenses reading it as an outside mode: a silent miss has no floor peak
+    # inside the radius by definition. Drifting these apart would break the reading
+    # without breaking anything visible.
+    assert sa.PEAK_FLOOR == 0.05
+
+
+# --------------------------------------------------------------------------- #
+# build_payload — the result file records what it is a result OF
+# --------------------------------------------------------------------------- #
+def test_payload_records_the_run_scope():
+    pay = sa.build_payload([{"act": 0.1}], 0.30, ["bend", "clovis"], 7, 2)
+    assert pay["cities"] == ["bend", "clovis"] and pay["panos"] == 7
+    assert pay["n"] == 1 and pay["skipped_no_imagery"] == 2
+    assert pay["null_seed"] == sa.NULL_SEED and pay["tta"] is False
+
+
+def test_json_out_refuses_a_truncated_run():
+    # analysis_out/silent_activation.json is a committed artifact and every number
+    # in 0c derives from it, so a smoke-test run must not be able to overwrite it
+    # with something that looks complete.
+    with pytest.raises(SystemExit):
+        sa.main(["--limit", "3", "--json-out", "x.json"])
+
+
+def test_json_out_refuses_a_city_subset_without_allow_partial():
+    with pytest.raises(SystemExit):
+        sa.main(["--cities", "bend", "--json-out", "x.json"])

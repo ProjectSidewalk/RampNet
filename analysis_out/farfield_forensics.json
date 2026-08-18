@@ -1,6 +1,7 @@
 {
   "threshold": 0.3,
   "boundary_m": 18.0,
+  "rater": "jonf",
   "judgeable_source_px": 30.0,
   "match_tolerance": 0.2,
   "counts": {
@@ -153,9 +154,9 @@
       "visible": 13
     },
     "40-150 m": {
-      "n_gt": 72,
-      "recall": 0.2916666666666667,
-      "silent": 22,
+      "n_gt": 74,
+      "recall": 0.28378378378378377,
+      "silent": 23,
       "rated": 9,
       "visible": 9
     },

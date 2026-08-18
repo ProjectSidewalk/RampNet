@@ -357,10 +357,12 @@ fix. The four-hypothesis study design is on #46 (2026-07-31); this section is **
 the *sample* (the rated 37 passed two selection filters) and check the framing against the model's
 own far-field behaviour, before the verdicts are allowed to mean anything.
 
-Script: `scripts/analysis/farfield_forensics.py` (21 tests); result JSON
+Script: `scripts/analysis/farfield_forensics.py` (25 tests); result JSON
 `analysis_out/farfield_forensics.json`. Committed inputs only — the low-floor caches, the witness
 list, the gallery manifest and verdicts, and the imagery manifests' `width` fields. No GPU, no
-network, no imagery.
+network, no imagery. Both phases read one named rater's pass (`--rater`, default `jonf`,
+resolving to `benchmark/miss_taxonomy_46/silent__<rater>.json`) and the rater is recorded in the
+result JSON, so the second pass this section keeps asking for is a flag rather than a patch.
 
 ### The sample: survivorship is real, mild, and now quantified
 
@@ -408,15 +410,31 @@ should not be detecting *other* ramps at the same apparent size. It is:
 | :--- | ---: | ---: | ---: | ---: | ---: |
 | 18–25 m | 395 | 0.777 | 25 | 14 | 12 |
 | 25–40 m | 226 | 0.549 | 32 | 14 | 13 |
-| 40–150 m | 72 | 0.292 | 22 | 9 | 9 |
+| 40–150 m | 74 | 0.284 | 23 | 9 | 9 |
 | clamp ≥ 150 m | 5 | 0.200 | 3 | 0 | 0 |
+| **total** | **700** | | **83** | **37** | **34** |
+
+The totals row is not decoration: the bands have to sum to the far field or the table is
+describing a smaller population than the section around it. An earlier version did not.
+`geom()` reaches 150 m by two routes — the above-horizon branch, and `min(d, 150.0)` on a row
+that is *below* the horizon and saturates anyway — and only the first is a `y` tell, so a
+half-open top band dropped the second kind out of every row of this table while `y > 0.5` also
+kept it out of `clamp`. Two far-field GT rows, one of them a silent miss. The top band is now
+closed at its upper edge and the partition is asserted at runtime and in
+`tests/test_farfield_forensics.py::test_the_bands_partition_the_far_field`.
 
 - **Matched-size detection rate**: for each `visible` miss, the model's recall over all far-field
   GT within ±20% of that miss's apparent size is **median 0.57** (q1 0.31, q3 0.74). A hard pixel
   floor would put these near zero.
 - **AUC(far-hit px vs far-silent px) = 0.718** — size matters, but it is far from deciding.
-- Recall declines **0.777 → 0.549 → 0.292** across the bands. Even at 40–150 m the model finds
-  roughly 3 in 10 (and the pooled 25–40 m rate agrees with E1's gold-set 0.49 at the same range).
+- Recall declines **0.777 → 0.549 → 0.284** across the bands. Even at 40–150 m the model finds
+  roughly 3 in 10.
+- **Against E1's gold-set bins, one band agrees and one does not, and both belong here.** The
+  pooled 25–40 m rate (0.549) sits close to E1's 0.49; the pooled 18–25 m rate (0.777) is
+  12 points *below* E1's 0.90. That is the expected direction and not a contradiction — the gold
+  set is `manual_gold`, which is in-distribution, while these seven are deployment cities where
+  RampNet's F1 runs 0.12–0.37 lower. Quoting only the band that agrees would misrepresent the
+  comparison; the shape (a steep decline with distance) is what replicates, not the levels.
 
 **Far-field failure is graded sensitivity, not a cliff.** A silent far-field miss is not a ramp
 below a physical detection floor — it is the unlucky tail of a process that succeeds on most
@@ -429,11 +447,23 @@ inferring unreachability from it.)
 
 `silent` is a statement about **peaks** — no `peak_local_max` peak ≥ 0.05 within the match radius.
 Phase 1 makes the statement about the **heatmap**: `scripts/analysis/silent_activation.py`
-(14 tests) loads the published checkpoint (`projectsidewalk/rampnet-model` — the weights every
+(21 tests) loads the published checkpoint (`projectsidewalk/rampnet-model` — the weights every
 committed cache came from), runs one pass per panorama holding a silent miss (single-pass fp32,
 matching `op_cache`), and reads the max heatmap value inside the match radius. The scaled matcher
-space *is* the 512×1024 heatmap grid, so the window is exactly the matcher's. Result JSON:
-`analysis_out/silent_activation.json`; run on the local RTX 3070, all 128 pooled silent misses.
+space *is* the 512×1024 heatmap grid, so the grid and the radius are the matcher's — **with one
+deliberate divergence: this window wraps at the 360° seam and the matcher's does not**
+(`greedy_match` takes a plain x difference). Wrapping is the right geometry for an equirectangular
+panorama, so the divergence is flagged per row (`seam`) rather than removed. **9 of the 128 misses
+are seam rows**; in every one the nearest floor peak is ≥ 23.4 px against a 22.5 px radius, so
+none would change bucket under a wrapping matcher and no number below moves — but that is a
+property of this population, not a guarantee, which is why the flag ships in the JSON.
+
+Result JSON: `analysis_out/silent_activation.json`; run on the local RTX 3070, all 128 pooled
+silent misses across 108 panoramas. **Unlike Phase 0 this needs pixels** — the native-resolution
+panoramas at `benchmark/<city>/panos/`, which are git-ignored and published as the Hugging Face
+dataset `projectsidewalk/rampnet-benchmark` (the bundle #94's imagery manifests pin by content
+hash). `--panos-root` points at whichever checkout holds them. Everything else it reads is
+committed.
 
 | population | n | act q1 / med / q3 | act ≥ 0.01 |
 | :--- | ---: | :---: | ---: |
@@ -447,11 +477,11 @@ space *is* the 512×1024 heatmap grid, so the window is exactly the matcher's. R
 What that in-window mass *is* (classes are act ranges; the offset and nearest-peak columns
 confirm the intended reading rather than define it):
 
-| class | definition | n | near / far | rated `visible` | argmax offset med | nearest floor peak med |
-| :--- | :--- | ---: | :---: | ---: | ---: | ---: |
-| **absent** | act < 0.01 | **10** | 6 / 4 | 5 | 22.0 px | 77.5 px (3.4 R) |
-| **faint local** | 0.01 ≤ act < 0.05 | 39 | 12 / 27 | 13 | **10.2 px** | 85.6 px (3.8 R) |
-| **tail** | act ≥ 0.05 | 79 | 27 / 52 | 23 | 22.3 px | **31.1 px (1.4 R)** |
+| class | definition | n | near / far | `visible` (all fields) | argmax offset med | nearest floor peak med | null pct q1/med/q3 |
+| :--- | :--- | ---: | :---: | ---: | ---: | ---: | :---: |
+| **absent** | act < 0.01 | **10** | 6 / 4 | 5 | 22.0 px | 77.5 px (3.4 R) | 0.445 / **0.495** / 0.650 |
+| **faint local** | 0.01 ≤ act < 0.05 | 39 | 12 / 27 | 13 | **10.2 px** | 85.6 px (3.8 R) | 0.600 / **0.780** / 0.855 |
+| **tail** | act ≥ 0.05 | 79 | 27 / 52 | 23 | 22.3 px | **31.1 px (1.4 R)** | 0.860 / **0.915** / 0.990 |
 
 - **Only 10 of 128 silent misses (8%) have a genuinely flat heatmap.** "Silent = the model saw
   nothing" is wrong for 92% of the bucket; `silent` was peak bookkeeping, not absence of response.
@@ -468,9 +498,28 @@ confirm the intended reading rather than define it):
   12 faint-local / 19 tail**: the model is responding at or next to ~91% of the far ramps a human
   called resolvable. Consistent with Phase 0's graded-sensitivity reading; squarely against a
   vocabulary hole.
-- The strict per-pano null (azimuth-randomized at the site's elevation, self-excluding within 2 R)
-  passes 31/128 at its p95 — a deliberately hard bar, since the p95 is set by the pano's strongest
-  modes; the decomposition above is the sharper lens.
+- **The null separates the three classes cleanly, and it is the check the classes needed.** The
+  cutoffs are raw activation, so on their own they assert rather than demonstrate that
+  `faint local` is a *response*. Against each site's own panorama (azimuth-randomized at the
+  site's elevation, self-excluding within 2 R), `absent` sits at chance — **median percentile
+  0.495**, which is what a flat heatmap should read — while `faint local` is at **0.780** and
+  `tail` at **0.915**. A sub-floor bump that a human would dismiss as nothing does not land two
+  thirds of the way up its own band's distribution.
+- **Read the percentile, not the p95 count.** Only 31/128 clear their own p95, and just 2 of 39
+  faint-local sites do, which at a glance looks like it undercuts the paragraph above. It does
+  not, because the p95 is not a noise floor: with a 22.5 px radius on a 1024-wide grid there are
+  only ~23 non-overlapping windows per elevation band, so the 95th percentile of 200 draws is
+  effectively the band *maximum* — pooled, median `null_p95` is 0.595 against a median `null_med`
+  of 0.003. The flag therefore asks "is this site the strongest thing on its horizon row", which
+  nothing sub-floor can pass by construction. It is conservative twice over, since a draw may also
+  land on *another GT ramp* in the same band; only the site's own 2 R zone is excluded. Both
+  statistics are in the JSON (`null_pct`, `above_own_null_p95`) — the percentile is the one to
+  quote, and the p95 count is recorded so nobody has to rediscover why it is low.
+- **Half the `absent` sites were rated `visible` by the reviewer** (5 of 10 — 3 far, 2 near).
+  That is the sharpest cell in the table: a human calling the ramp resolvable at the model's own
+  pixel budget while the heatmap is flat. Ten cases is too few to carry a claim, but they are the
+  cleanest targets Phase 2's scale counterfactual has, and they should be run individually rather
+  than only in aggregate.
 
 ### What changes, what does not, and what is still open
 
