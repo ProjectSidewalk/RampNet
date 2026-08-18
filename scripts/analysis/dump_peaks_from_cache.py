@@ -143,7 +143,11 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--cache-dir", required=True,
                     help="An evaluate.py --cache-dir (the parent of heatmaps/).")
-    ap.add_argument("--out-dir", default=str(REPO / "benchmark" / "model_detections"))
+    # NOT benchmark/model_detections/: rampnet/roster.py asserts every file there
+    # belongs to a registered challenger leg (#122), and Run A's epochs are internal
+    # checkpoints of one experiment rather than entries in the RampNet-vs-VLM
+    # comparison. They belong beside the rest of the #84 data.
+    ap.add_argument("--out-dir", default=str(REPO / "docs" / "data" / "run_a_84_detections"))
     ap.add_argument("--city", default="manual_gold",
                     help="Split name the detections belong to, for the filename.")
     ap.add_argument("--threshold", type=float, default=0.05,

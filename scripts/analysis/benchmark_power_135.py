@@ -87,10 +87,21 @@ Z_CI = 1.959964
 #: for the same reason: a fixed threshold confounds calibration with capability.
 PROTOCOL_THRESHOLD = {"rampnet": 0.30, "rampnet_1pass": 0.30}
 YOLO_THRESHOLD = 0.25
+#: Every RampNet-family arm reads at the #54 point, including the Run A epoch dumps
+#: (``run_a_epoch_3`` and friends, written by dump_peaks_from_cache.py). A prefix rule
+#: rather than eight enumerated names, so a ninth epoch cannot silently pick up 0.25 --
+#: which would surface as a large fake capability gap rather than as an error.
+RAMPNET_PREFIXES = ("rampnet", "run_a_epoch_")
+#: Label of the Run A epoch-N dump, for the measured epoch-pair matrix.
+RUN_A_EPOCH = "run_a_epoch_{}"
 
 
 def protocol_threshold(model):
-    return PROTOCOL_THRESHOLD.get(model, YOLO_THRESHOLD)
+    if model in PROTOCOL_THRESHOLD:
+        return PROTOCOL_THRESHOLD[model]
+    if model.startswith(RAMPNET_PREFIXES):
+        return PROTOCOL_THRESHOLD["rampnet"]
+    return YOLO_THRESHOLD
 
 
 def discover_splits(repo):
@@ -125,6 +136,18 @@ def detections_for(repo, split, model, records):
     """
     if model == "rampnet":
         return {pid: rec["detections"] for pid, rec in records.items()}
+    if model.startswith("run_a_epoch_"):
+        # NOT benchmark/model_detections/: that directory is the challenger roster's,
+        # and rampnet/roster.py asserts every file in it belongs to a registered leg
+        # (#122). Run A's epochs are internal checkpoints of one experiment, not
+        # entries in the RampNet-vs-VLM comparison, so they live beside the rest of
+        # the #84 data instead of being registered as challengers they are not.
+        path = os.path.join(repo, "docs", "data", "run_a_84_detections",
+                            f"{model}__{split}.json")
+        if not os.path.exists(path):
+            return None
+        with open(path, encoding="utf-8") as fh:
+            return json.load(fh)["detections"]
     if model == "rampnet_1pass":
         path = os.path.join(repo, "analysis_out", "op_cache", f"{split}.json")
         if not os.path.exists(path):
@@ -484,6 +507,11 @@ def main(argv=None):
                     help="Confidence offsets used to build the maximally-correlated "
                          "lower-bound pair from the reference detector alone.")
     ap.add_argument("--bootstrap", type=int, default=20000)
+    ap.add_argument("--matrix-bootstrap", type=int, default=5000,
+                    help="Bootstrap size for the 28-pair Run A epoch matrix. Smaller "
+                         "than --bootstrap on purpose: 5,000 pins a standard error to "
+                         "about 1% relative, which is far finer than any conclusion "
+                         "drawn from it, and it keeps 28 paired resamples affordable.")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--out-json", default=None)
     args = ap.parse_args(argv)
@@ -676,6 +704,71 @@ def main(argv=None):
                   f"{fmt(Z_MDE * float(np.std(d[2], ddof=1))):>9} "
                   f"{bc:>5} {cc:>5} {100 * (bc + cc) / max(n_inst, 1):>8.1f}%")
 
+    # ---- MEASURED epoch-to-epoch discordance: the bracket, closed ---------------
+    # Everything above brackets the paired s.e. for two Stage 2 checkpoints between
+    # two proxies, because Run A's committed artifacts are aggregate curves. Once
+    # dump_peaks_from_cache.py has recovered the per-panorama detections from the
+    # surviving heatmap cache, the real thing is measurable and the proxies are only
+    # a sanity check on it.
+    epochs = [n for n in range(1, 9)
+              if get("manual_gold", RUN_A_EPOCH.format(n)) is not None]
+    measured = {}
+    if len(epochs) >= 2:
+        s0 = get("manual_gold", RUN_A_EPOCH.format(epochs[0]))
+        sizes = [len(s0.pids)]
+        thr = protocol_threshold(RUN_A_EPOCH.format(epochs[0]))
+        n_inst = int(s0.n_gt.sum())
+        print()
+        print("=" * 96)
+        print(f"MEASURED epoch-to-epoch discordance, Run A on manual_gold "
+              f"(B={args.matrix_bootstrap})")
+        print("=" * 96)
+        print("  The real quantity the bracket above was standing in for. Every pair of")
+        print("  Run A checkpoints, scored on the same 1,000 panoramas.")
+        print(f"\n  {'pair':>8} {'gap':>4} {'d maxF1':>9} {'se':>8} {'MDE 80%':>9} "
+              f"{'d F1@.30':>9} {'se':>8} | {'b':>5} {'c':>5} {'discord%':>9}")
+        for i, ea in enumerate(epochs):
+            for eb in epochs[i + 1:]:
+                sa = get("manual_gold", RUN_A_EPOCH.format(ea))
+                sb = get("manual_gold", RUN_A_EPOCH.format(eb))
+                d = observed_and_se(sb, sizes, thr, rng, args.matrix_bootstrap, paired=sa)
+                bc, cc, _ = mcnemar(sa, sb, thr, thr)
+                n_disc, n_seam, seam_base = seam_enrichment(sa, sb, thr, thr)
+                measured[f"{ea}v{eb}"] = {
+                    "epoch_a": ea, "epoch_b": eb, "gap": eb - ea, "delta": d,
+                    "mcnemar_b": bc, "mcnemar_c": cc, "n_gt_instances": n_inst,
+                    "discordance_rate": (bc + cc) / n_inst,
+                    "n_discordant": n_disc, "n_discordant_at_seam": n_seam,
+                    "seam_baseline_rate": seam_base,
+                }
+                print(f"  {f'{ea} vs {eb}':>8} {eb - ea:>4} "
+                      f"{fmt(d['max_f1']['observed']):>9} {fmt(d['max_f1']['se']):>8} "
+                      f"{fmt(Z_MDE * d['max_f1']['se']):>9} "
+                      f"{fmt(d['f1']['observed']):>9} {fmt(d['f1']['se']):>8} | "
+                      f"{bc:>5} {cc:>5} {100 * (bc + cc) / max(n_inst, 1):>8.1f}%")
+
+        ses = sorted(v["delta"]["max_f1"]["se"] for v in measured.values())
+        far = sorted(v["delta"]["max_f1"]["se"] for v in measured.values()
+                     if v["gap"] >= 3)
+        rates = sorted(v["discordance_rate"] for v in measured.values())
+        out["measured_epoch_pairs"] = {
+            "threshold": thr, "n_gt_instances": n_inst, "bootstrap": args.matrix_bootstrap,
+            "se_max_f1_min": ses[0], "se_max_f1_median": ses[len(ses) // 2],
+            "se_max_f1_max": ses[-1],
+            "se_max_f1_median_gap_ge_3": (far[len(far) // 2] if far else None),
+            "discordance_min": rates[0], "discordance_max": rates[-1],
+            "pairs": measured,
+        }
+        head = far or ses
+        headline = head[len(head) // 2]
+        print(f"\n  se(d max-F1) across {len(ses)} pairs: {ses[0]:.4f} to {ses[-1]:.4f}, "
+              f"median {ses[len(ses) // 2]:.4f}")
+        print(f"  Discordance: {100 * rates[0]:.1f}% to {100 * rates[-1]:.1f}%.")
+        print(f"  **Checkpoints >= 3 epochs apart -- the closest analogue to a Run B "
+              f"checkpoint vs a Run A one --")
+        print(f"    have median se(d max-F1) {headline:.4f}, i.e. MDE "
+              f"{Z_MDE * headline:.4f} at 80% power.**")
+
     # ---- what Run A's own plateau looks like under a paired read ---------------
     summary = read_run_a_summary(repo)
     if summary and "manual_gold" in out["unpaired"]:
@@ -704,7 +797,10 @@ def main(argv=None):
         print(f"\n  {'epochs':>10} {'recall A':>9} {'recall B':>9} {'d recall':>9} "
               f"{'need b+c':>9} {'need rate':>10} {'verdict':>14}")
         by_ep = {int(r["epoch"]): r for r in summary}
-        interesting = [(1, 2), (1, 3), (2, 6), (3, 6), (3, 7), (3, 8), (5, 8)]
+        # Chosen to show the SHAPE: epoch 1 against the plateau, the plateau against
+        # itself, and the plateau against the tail.
+        interesting = [(1, 2), (1, 3), (2, 6), (3, 6), (3, 7), (3, 8), (5, 8),
+                       (6, 7), (1, 8)]
         out["run_a_paired"] = {"design_effect": deff, "n_gt_instances": n_inst,
                                "observed_discordance_pct": obs_rates, "pairs": {}}
         for ea, eb in interesting:
@@ -733,25 +829,51 @@ def main(argv=None):
         ses = sorted(v["manual_gold"]["delta"]["max_f1"]["se"]
                      for v in out["paired"].values() if "manual_gold" in v)
         se_lo, se_hi = ses[0], ses[-1]
-        print(f"\n  Gate column (max-F1). Paired s.e. bracket from the same real pairs:")
-        print(f"  {se_lo:.4f} (most similar) to {se_hi:.4f} (least similar); "
-              f"MDE {Z_MDE * se_lo:.4f} to {Z_MDE * se_hi:.4f}.")
+        source = "proxy bracket (Run A epoch dumps absent)"
+        if measured:
+            # The real epoch-to-epoch s.e., now that it exists: the smallest and
+            # largest MEASURED values replace a bracket built from stand-ins. Every
+            # verdict below therefore rests on the comparison actually being made
+            # rather than on two pairs chosen to straddle it.
+            m = sorted(v["delta"]["max_f1"]["se"] for v in measured.values())
+            se_lo, se_hi = m[0], m[-1]
+            source = f"MEASURED across {len(m)} Run A epoch pairs"
+        print(f"\n  Gate column (max-F1). Paired s.e. -- {source}:")
+        print(f"  {se_lo:.4f} to {se_hi:.4f}; MDE {Z_MDE * se_lo:.4f} to "
+              f"{Z_MDE * se_hi:.4f}.")
+        out["run_a_paired"] = out.get("run_a_paired", {})
+        out["run_a_paired"]["max_f1_se_source"] = source
+        # With the epoch dumps present each pair has its OWN measured s.e., which is
+        # strictly better than reading every pair against one global bracket: the
+        # s.e. grows with epoch separation (discordance does), so a bracket is loose
+        # at one end and tight at the other. Fall back to the bracket only for pairs
+        # with no dump.
         print(f"\n  {'epochs':>10} {'max-F1 A':>9} {'max-F1 B':>9} {'delta':>9} "
-              f"{'z (best)':>9} {'z (worst)':>10} {'verdict':>14}")
+              f"{'se':>8} {'z':>6} {'verdict':>16}")
         out["run_a_paired"]["max_f1_se_bracket"] = [se_lo, se_hi]
         out["run_a_paired"]["max_f1_pairs"] = {}
         for ea, eb in interesting:
             if ea not in by_ep or eb not in by_ep:
                 continue
             ma, mb = float(by_ep[ea]["max_f1"]), float(by_ep[eb]["max_f1"])
-            z_lo, z_hi = abs(mb - ma) / se_hi, abs(mb - ma) / se_lo
-            verdict = ("resolvable" if z_lo >= Z_CI
-                       else "not resolvable" if z_hi < Z_CI else "borderline")
+            pair = measured.get(f"{ea}v{eb}")
+            if pair is not None:
+                se = pair["delta"]["max_f1"]["se"]
+                z = abs(mb - ma) / se if se else 0.0
+                verdict = "resolvable" if z >= Z_CI else "not resolvable"
+                note = ""
+            else:
+                se = None
+                z_lo, z_hi = abs(mb - ma) / se_hi, abs(mb - ma) / se_lo
+                z = z_lo
+                verdict = ("resolvable" if z_lo >= Z_CI
+                           else "not resolvable" if z_hi < Z_CI else "borderline")
+                note = " (bracketed)"
             out["run_a_paired"]["max_f1_pairs"][f"{ea}v{eb}"] = {
                 "max_f1_a": ma, "max_f1_b": mb, "delta": mb - ma,
-                "z_best_case": z_hi, "z_worst_case": z_lo, "verdict": verdict}
+                "se": se, "z": z, "verdict": verdict, "measured": pair is not None}
             print(f"  {f'{ea} vs {eb}':>10} {ma:>9.4f} {mb:>9.4f} {mb - ma:>+9.4f} "
-                  f"{z_hi:>9.1f} {z_lo:>10.1f} {verdict:>14}")
+                  f"{fmt(se) if se else 'n/a':>8} {z:>6.1f} {verdict + note:>16}")
 
     if args.out_json:
         path = args.out_json if os.path.isabs(args.out_json) else os.path.join(repo, args.out_json)

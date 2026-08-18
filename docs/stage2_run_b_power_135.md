@@ -1,9 +1,10 @@
 # Can the benchmark resolve Run B? (#135)
 
-**Status: complete 2026-08-18. No cluster time was spent — every number below comes from
-committed data.** The recommendation is at the bottom; the short version is that
-`manual_gold` can resolve the effect Run B would plausibly produce, but only if the
-comparison is read **paired**, and that **pooling the benchmark splits does not help**.
+**Status: complete 2026-08-18. No GPU time was spent.** The short version: `manual_gold` can
+resolve the effect Run B would plausibly produce, but only if the comparison is read **paired**;
+**pooling the benchmark splits does not help**; and Run A's curve, re-read paired, turns out to
+**decline measurably after epoch 6** rather than staying flat to epoch 8. The recommendation is
+at the bottom.
 
 ## The question
 
@@ -20,20 +21,30 @@ does pooling the ten splits raise it?** Both are answerable from what is already
 | | s.e. on `manual_gold` max-F1 | detectable at 80% power |
 | :--- | ---: | ---: |
 | **Unpaired**, as the 0.01 tie bar assumes | 0.0042 | **0.0117** |
-| **Paired**, two near-identical checkpoints | 0.0015 | **0.0043** |
-| **Paired**, two quite different detectors | 0.0048 | **0.0135** |
+| **Paired, MEASURED** — Run A epochs, median | 0.0021 | **0.0059** |
+| **Paired, MEASURED** — Run A epochs, range over 28 pairs | 0.0016–0.0029 | **0.0045–0.0081** |
 | Pooling all ten splits, unpaired | 0.0039 | 0.0109 |
 
 Three things follow.
 
 1. **Pairing is worth 2–3×, and it is free.** Both checkpoints are scored on the same 1,000
    panoramas against the same ground truth, so the panorama-to-panorama difficulty that
-   dominates the unpaired noise is common to both and cancels. The measured gain is 1.8× to
-   3.6× on the standard error, depending on the pair.
+   dominates the unpaired noise is common to both and cancels. Measured across all 28 pairs of
+   Run A checkpoints, the gain is **2.0× on the median pair**.
 2. **Pooling is worth 7%.** Ten splits together hold 6,560 instances against `manual_gold`'s
    3,919, and the MDE moves 0.0117 → 0.0109. That is not a lever.
 3. **The tie bar is the wrong instrument for an epoch-vs-epoch comparison**, and using it cost
-   Run A a result — see "Run A's plateau, re-read" below.
+   Run A a result. Read paired, Run A's curve is not "a step then a plateau" — it is a
+   plateau with a **measurable decline in its tail**. See "Run A's plateau, re-read" below.
+
+An earlier draft of this document could only *bracket* the paired standard error between two
+stand-in pairs, at [0.0043, 0.0135], because Run A's committed artifacts are aggregate PR
+curves and carry nothing per-panorama. That bracket is now closed: the 2026-08-17 scoring's
+heatmap cache survived on makelab2, so the per-panorama detections were recovered for all
+eight epochs with **no GPU, no panorama images and no network**, and the standard error is
+measured rather than bounded. The stand-in pairs are kept below as the sanity check they
+turned out to be — they bracketed the answer correctly, and the upper one was conservative by
+about 1.7×.
 
 ## What the benchmark actually holds
 
@@ -115,20 +126,36 @@ On `manual_gold`, for the three real detector pairs the repo can build from comm
 | y11x_pano_h200 − y11l_pano | +0.0120 | 0.0034 | 0.0086 | 2.6× | +0.0244 | 0.0029 | 165 | 152 | 8.1% |
 | y11x_pano_h200 − y26_pano | +0.1119 | 0.0043 | 0.0079 | 1.8× | +0.1492 | 0.0048 | 233 | 123 | 9.1% |
 
-Read the first row as the near-identical end of the range and the third as the far end. **The
-comparison Run B would actually make — two Stage 2 checkpoints of one lineage — has no committed
-per-pano data**, because Run A's committed artifacts are downsampled PR curves and are aggregate
-only. So the paired s.e. is bracketed rather than point-estimated, and the bracket is built so it
-holds by construction: one checkpoint under two inference protocols is *more* correlated than two
-checkpoints, and two different YOLO architectures trained to different budgets are *less*.
+Read the first row as the near-identical end of the range and the third as the far end. These
+three pairs were originally the whole answer: the comparison Run B would actually make — two
+Stage 2 checkpoints of one lineage — had no per-panorama data, so the paired s.e. could only be
+bracketed by pairs chosen to straddle it. That is no longer necessary, and the measurement is
+below. The brackets are kept because they turned out to be correct, which is worth knowing the
+next time only a bracket is available.
 
-**s.e.(Δ max-F1) for two Stage 2 checkpoints lies between 0.0015 and 0.0048, so the MDE lies
-between 0.0043 and 0.0135.** The standard error tracks the discordance, and the discordance
-tracks how different the two detectors are, so a Run B checkpoint compared against a Run A
-checkpoint — same recipe, same data, same seed, differing in schedule — sits nearer the low end.
-Taking 4–6% discordance as the working assumption puts the MDE at roughly **0.006–0.009 max-F1**.
+### The real thing: every pair of Run A checkpoints
 
-The middle row is the one worth dwelling on. `y11x_pano_h200` versus `y11l_pano` is #51's
+`dump_peaks_from_cache.py` recovers per-panorama detections from `evaluate.py`'s heatmap cache,
+so all 28 pairs of Run A checkpoints can be compared on the same 1,000 panoramas directly.
+
+| | s.e.(Δ max-F1) | MDE 80% | discordance |
+| :--- | ---: | ---: | ---: |
+| adjacent epochs (gap 1) | 0.0016–0.0023 | 0.0045–0.0064 | 2.5–4.2% |
+| **gap ≥ 3 — the Run B analogue** | **median 0.0022** | **0.0063** | 3.3–6.6% |
+| across all 28 pairs | 0.0016–0.0029 | 0.0045–0.0081 | 2.5–6.6% |
+
+**s.e.(Δ max-F1) for two Stage 2 checkpoints is 0.0016 to 0.0029 — measured, not assumed — so
+the MDE is 0.0045 to 0.0081.** The earlier bracket [0.0043, 0.0135] contained it; the working
+assumption of "4–6% discordance ⇒ 0.006–0.009" was almost exactly right.
+
+**The standard error grows with epoch separation, and that matters for planning.** Discordance
+runs 2.5–4.2% for adjacent epochs and 6.5–6.6% for the widest pair available (1 vs 7, 1 vs 8),
+with s.e. tracking it from 0.0016 to 0.0029. A Run B checkpoint at epoch 30 under cosine decay
+is further from any Run A checkpoint than any pair measured here, so **plan the Run B comparison
+at s.e. ≈ 0.003 and an MDE of ≈ 0.008**, not at the median. That is an extrapolation of a
+measured trend rather than a measurement, and it is flagged as such.
+
+The middle proxy row is the one worth dwelling on. `y11x_pano_h200` versus `y11l_pano` is #51's
 annealed-tail result — the measurement cited in #135 as the argument *for* running Run B. On
 `manual_gold` that difference is **+0.0244 max-F1 at s.e. 0.0029, an 8σ effect**. Whatever else
 is uncertain, an effect of *that* class is comfortably readable here. (Two caveats travel with
@@ -178,24 +205,41 @@ plausible pair. Design effect 1.15, measured.
 | 3 vs 7 | 0.9158 | 0.8788 | −0.0370 | 4774 | >100% | resolvable |
 | 5 vs 8 | 0.9061 | 0.9005 | −0.0056 | 110 | 2.8% | borderline |
 
-**max-F1, the calibration-free gate column**, against the paired s.e. bracket (0.0015–0.0048):
+**max-F1, the calibration-free gate column.** Each pair is read against **its own measured paired
+standard error**, not a global bracket — which matters, because the s.e. grows with epoch
+separation:
 
-| epochs | max-F1 A | max-F1 B | Δ | z (best case) | z (worst case) | verdict |
+| epochs | max-F1 A | max-F1 B | Δ | s.e. | z | verdict |
 | :--- | ---: | ---: | ---: | ---: | ---: | :--- |
-| 1 vs 2 | 0.9064 | 0.9165 | +0.0101 | 6.5 | 2.1 | resolvable |
-| 1 vs 3 | 0.9064 | 0.9191 | +0.0126 | 8.1 | 2.6 | resolvable |
-| 2 vs 6 | 0.9165 | 0.9165 | +0.0000 | 0.0 | 0.0 | not resolvable |
-| 3 vs 6 | 0.9191 | 0.9165 | −0.0025 | 1.6 | 0.5 | not resolvable |
-| 3 vs 7 | 0.9191 | 0.9110 | −0.0080 | 5.2 | 1.7 | borderline |
-| 5 vs 8 | 0.9179 | 0.9124 | −0.0055 | 3.5 | 1.1 | borderline |
+| 1 vs 2 | 0.9064 | 0.9165 | +0.0101 | 0.0023 | 4.4 | resolvable |
+| 1 vs 3 | 0.9064 | 0.9191 | +0.0126 | 0.0025 | 5.1 | resolvable |
+| 2 vs 6 | 0.9165 | 0.9165 | +0.0000 | 0.0022 | 0.0 | **not resolvable** |
+| 3 vs 6 | 0.9191 | 0.9165 | −0.0025 | 0.0018 | 1.4 | **not resolvable** |
+| 6 vs 7 | 0.9165 | 0.9110 | −0.0055 | 0.0019 | 2.8 | resolvable |
+| 3 vs 7 | 0.9191 | 0.9110 | −0.0080 | 0.0021 | 3.9 | resolvable |
+| 3 vs 8 | 0.9191 | 0.9124 | −0.0066 | 0.0022 | 3.0 | resolvable |
+| 5 vs 8 | 0.9179 | 0.9124 | −0.0055 | 0.0020 | 2.8 | resolvable |
+| 1 vs 8 | 0.9064 | 0.9124 | +0.0060 | 0.0028 | 2.1 | resolvable |
 
-The two tables say different things, and together they sharpen Run A's conclusion rather than
-overturn it.
+The two tables say different things, and together they sharpen Run A's conclusion — and in one
+respect correct it.
 
-**On capability, the plateau is real.** Epochs 2 and 6 are identical on max-F1 to four decimals,
-and 3 vs 6 is unreadable even at the most favourable end of the bracket. Run A's finding that
-nothing in 2–8 separates is not an artifact of a blunt instrument — a sharper instrument still
-cannot separate them.
+**The plateau is real, but narrower than "epochs 2–8".** Epochs 2 and 6 are identical on max-F1
+to four decimals and 3 vs 6 is unreadable, so the *core* of Run A's finding survives a sharper
+instrument intact. But **epochs 7 and 8 are measurably below the plateau** — 3 vs 7 at z = 3.9,
+3 vs 8 at 3.0, 6 vs 7 at 2.8 — and the unpaired 0.01 bar could not see it.
+
+So the curve is not "steps up once from epoch 1 to 2 and is then flat", which is what #84
+recorded. Measured paired, it is:
+
+> **epoch 1 clearly low → epochs 2–6 a genuine plateau → epochs 7–8 measurably declining, though
+> still above epoch 1.**
+
+A shallow inverted U with a flat top. This corrects the *shape*, not the headline: the
+pre-registered question was where `manual_gold` F1 peaks, and there is still no resolvable peak —
+2, 3, 4, 5 and 6 remain mutually indistinguishable. What changes is that the tail is no longer
+part of the plateau, and **at constant learning rate the model begins to lose capability after
+about epoch 6.** That is a measured fact with a direct bearing on Run B, taken up below.
 
 **On the operating point, the "plateau" contains differences the tie bar hid.** The recall gaps
 at fixed 0.30 need 20–34% discordance to be unreadable, against 2.1–9.1% observed. These are real
@@ -211,22 +255,42 @@ refused.
 
 ## What this means for Run B
 
-**The benchmark is not a reason to cancel.** At a working paired MDE of 0.006–0.009 max-F1,
-`manual_gold` resolves an effect of the size #51's annealed tail produced (+0.024 on this
-benchmark, 8σ) with room to spare, and resolves anything down to about half a point of F1. The
-"returns another unreadable plateau" risk is real only if Run B's anneal buys less than
-~0.005 max-F1 — which is possible, but it is a claim about the anneal, not about the instrument.
+**The benchmark is not a reason to cancel.** At a measured paired MDE of **0.0063** for the
+epoch separations available, and ≈0.008 extrapolated to Run B's larger separation, `manual_gold`
+resolves an effect of the size #51's annealed tail produced (+0.024 here, 8σ) with room to spare,
+and resolves anything down to about **0.8 points of F1**. The "returns another unreadable
+plateau" risk is real only if Run B's anneal buys less than ~0.008 max-F1 — a claim about the
+anneal, not about the instrument.
 
-**Recommendation: run the 30-epoch arm. Do not run 60 on spec.** Run A showed the constant-LR
-curve is flat from epoch 2, so the extra 30 epochs buy a longer anneal ramp rather than more
-useful steps, and 30 epochs is the half of the decision that tests the hypothesis. If a tail
-shows up at 30, going to 60 becomes an informed follow-up instead of a speculative doubling.
+**What the measurement changed about the question.** Run A's curve does not merely flatten after
+epoch 2; it flattens and then **measurably declines by epochs 7–8**. So Run B is not testing
+"does a longer budget add anything to a flat curve" — it is testing whether **cosine decay
+arrests and reverses a decline that is now measured rather than hypothesised.** That is a
+sharper hypothesis than the one #135 was filed under, and it cuts both ways: the decline is the
+classic signature of a learning rate left too high late in training, which is exactly what an
+anneal fixes and is the mechanism #51's arms displayed — but it also means a 30-epoch run whose
+decay does *not* bite could plausibly land **below** Run A's epoch 3.
+
+**Recommendation: run the 30-epoch arm. Do not run 60 on spec.** The plateau ends at epoch 6, so
+the extra 30 epochs buy schedule shape rather than useful steps, and a 60-epoch cosine spends
+proportionally longer at the high learning rates that the epoch 7–8 decline is evidence against.
+If a tail shows at 30, going to 60 becomes an informed follow-up instead of a speculative
+doubling.
+
+**One cheaper rung is now more attractive than it was.** The #84 amendment recorded an
+**8-epoch cosine** arm as "recorded, not scheduled" — ~28 h and ~450 GPU-h, budget-matched to
+Run A. Since constant-LR is now known to peak around epoch 3 and decline by 7, that rung tests
+"does decay beat constant at the *same* budget" cleanly, isolating schedule from length, for
+about a quarter of the 30-epoch arm's cost. It is not a substitute for Run B — it cannot show an
+annealed tail that needs length — but it would make Run B's result attributable in a way that
+B − A on its own is not, which is the confound the amendment already flagged. Raising it because
+the measurement moved it, not to relitigate the spec.
 
 **Three amendments to the read, which cost nothing and are worth pre-registering now:**
 
-1. **Read Run B against Run A paired, on max-F1**, with the tie bar replaced by the measured
-   paired MDE. Reading a 1,675-GPU-hour result with an instrument 2.6× blunter than necessary
-   is the cheapest mistake available here.
+1. **Read Run B against Run A paired, on max-F1**, with the 0.01 tie bar replaced by the measured
+   paired MDE — **0.008** at Run B's expected separation. Reading a 1,675-GPU-hour result with an
+   instrument 2× blunter than necessary is the cheapest mistake available here.
 2. **Report per-split, not pooled.** Pooling buys 7% and costs GT homogeneity.
 3. **Attribute cautiously below ~0.01.** See the limit below.
 
@@ -247,39 +311,78 @@ The practical form: **a Run B gain below ~0.01 max-F1 should be reported as meas
 unattributed** unless a seed control is run. A gain at the #51 scale (~0.02+) is large enough
 that seed variance is an implausible explanation and can be attributed to the schedule directly.
 
-### One measurement that would close the bracket first, for about a GPU-hour
+### How the bracket was closed, for no GPU at all
 
-The bracket [0.0043, 0.0135] is wide because the epoch-to-epoch discordance of two RampNet
-checkpoints has never been measured — only bounded. It is measurable now: **the eight Run A
-checkpoints already exist** at `/gscratch/makelab/jonf/rampnet_run_a_84/checkpoints/`, and
-scoring two of them (epoch 3 and epoch 6, the two ends of the plateau) with per-panorama output
-gives the discordance directly, pinning the MDE to a number before 1,675 hours are committed.
+The first draft of this document costed this at "about a GPU-hour" for two checkpoints, on the
+assumption that the per-panorama detections would have to be regenerated by running the model.
+They did not. **`evaluate.py`'s heatmap cache from the 2026-08-17 scoring survived on makelab2**
+— 13 GB at `run_a_84/evaluate_cache/heatmaps/`, all eight epochs single-pass, 1,000 panoramas
+each — and extracting peaks from a cached heatmap is CPU-only numpy. So the measurement needed
+**no model, no panorama images, no GPU and no network**, took 4 minutes, and covered the whole
+curve instead of the two checkpoints originally proposed.
 
-It needs a small addition, because neither existing path emits per-panorama detections:
-`stage_two/evaluate.py` writes aggregate PR curves only, and `compare.py --models rampnet` reads
-detections from the bundle rather than running a checkpoint (`BundleRampNetDetector`). A
-`--dump-detections` flag on `evaluate.py`, writing the same
-`{pano_id: [[x, y, conf], …]}` shape as `benchmark/model_detections/`, is enough;
-`benchmark_power_135.py` reads that shape already.
+The panorama images are in fact *not* on that host, which is what makes the cache load-bearing
+rather than merely convenient.
 
-Cost: ~12.5 min per checkpoint on makelab2's A40, per the #84 scoring record — and possibly less,
-since the heatmap cache from the 2026-08-17 scoring run may still be on that host, in which case
-no inference is needed at all. That has not been checked from here and should not be assumed.
+`scripts/analysis/dump_peaks_from_cache.py` does the recovery. It is a separate script rather
+than a flag on `evaluate.py` deliberately: that evaluator produced every committed Stage 2
+number and its heatmap cache key is `<fingerprint>_<dataset>_<tta>` and nothing else, so the
+cheapest way to guarantee this analysis could not perturb either was not to touch it. What it
+*does* share is the part that must not diverge — `extract_peaks_from_heatmap`,
+`PEAK_MIN_DISTANCE` and `MODEL_HEATMAP_SIZE` are imported from `evaluate.py`, not copied.
+
+**Verified against the committed curve, which is the load-bearing check.** Re-scoring each dump
+against `manual_labels/` reproduces `docs/data/run_a_84_manual_gold/summary.csv`:
+
+| | agreement, all 8 epochs |
+| :--- | :--- |
+| max-F1 | **5×10⁻⁹ to 4×10⁻⁷** |
+| F1@0.30 | 1.2×10⁻⁴ to 1.4×10⁻⁴ |
+
+max-F1 is a property of the entire PR curve, so agreement at 10⁻⁷ says the peak extraction is
+the same operation, not a similar one. The uniform 10⁻⁴ offset on F1@0.30 is the committed
+table's own 0.005-confidence-grid downsampling, which its provenance note already states
+re-derives F1 "to ~3 decimals".
+
+One deliberate truncation travels with these files: they carry a **0.05 peak floor**, matching
+`analysis_out/op_cache`, where Run A's scoring used `--threshold 0.0`. That keeps them ~200 KB
+each instead of ~40 MB (threshold 0.0 retains ~511,000 predictions over 1,000 panoramas, nearly
+all noise floor) and sits far below everything they are used for — the protocol point is 0.30
+and Run A's max-F1 lands between 0.268 and 0.582. **AP is therefore not recoverable from them**
+and must be read from `docs/data/run_a_84_manual_gold/`.
 
 ## Reproduce, from a clean clone
 
-No cluster access, no `.model_cache`, no GPU, no network — every input is committed.
+No cluster access, no `.model_cache`, no GPU, no network — every input is committed, including
+the eight Run A epoch dumps at `docs/data/run_a_84_detections/`.
 
 ```bash
 python scripts/analysis/benchmark_power_135.py \
-    --bootstrap 20000 --out-json docs/data/benchmark_power_135.json
+    --bootstrap 20000 --matrix-bootstrap 5000 \
+    --out-json docs/data/benchmark_power_135.json
 ```
 
-Roughly 8 minutes on a laptop. Inputs: `manual_labels/` and `benchmark/*/records.jsonl` +
+Roughly 20 minutes on a laptop. Inputs: `manual_labels/` and `benchmark/*/records.jsonl` +
 `verdicts.json` for ground truth, `benchmark/model_detections/*.json` for the YOLO arms,
+`docs/data/run_a_84_detections/*.json` for the Run A epoch dumps,
 `analysis_out/op_cache/*.json` for the single-pass RampNet arm, and
 `docs/data/run_a_84_manual_gold/summary.csv` for Run A's own curve. Every derived number in this
 document is in `docs/data/benchmark_power_135.json`.
+
+Regenerating the epoch dumps themselves needs the heatmap cache, which is 13 GB and lives on
+makelab2 rather than in the repo — **that is the one input here a clean clone cannot obtain**,
+and it is why the dumps are committed rather than left to be rebuilt. With the cache in hand:
+
+```bash
+python scripts/analysis/dump_peaks_from_cache.py \
+    --cache-dir <...>/run_a_84/evaluate_cache --verify
+```
+
+They land in `docs/data/run_a_84_detections/`, beside the rest of the #84 data, and **not** in
+`benchmark/model_detections/` — `rampnet/roster.py` asserts every file in that directory belongs
+to a registered challenger leg (#122), and Run A's epochs are internal checkpoints of one
+experiment rather than entries in the RampNet-vs-VLM comparison. The test suite caught the first
+attempt to put them there, which is the registry working as intended.
 
 The bootstrap is seeded (`--seed 42`), so the run is deterministic; changing `--bootstrap` moves
 the third decimal of the standard errors and none of the conclusions.

@@ -88,6 +88,21 @@ def test_match_detail_agrees_with_score_pano_on_duplicates_and_ignores():
     assert [k for _, tp, k in detail if tp] == [0]
 
 
+def test_rampnet_family_reads_at_the_protocol_point():
+    """Every RampNet arm must get 0.30, including epoch dumps that do not exist yet.
+
+    The hazard this guards is silent: a `run_a_epoch_9` falling through to the YOLO
+    0.25 would not error, it would report a large capability gap that is really an
+    operating-point gap — exactly the confound the #84 amendment added the
+    calibration-free column to avoid.
+    """
+    for model in ("rampnet", "rampnet_1pass", "run_a_epoch_1", "run_a_epoch_8",
+                  "run_a_epoch_99"):
+        assert bp.protocol_threshold(model) == 0.30, model
+    for model in ("y11l_pano", "y11x_pano_h200", "y26_pano"):
+        assert bp.protocol_threshold(model) == 0.25, model
+
+
 def test_bootstrap_weights_preserve_split_sizes():
     """Stratified resampling: each split contributes exactly its own panorama count."""
     rng = np.random.default_rng(0)
@@ -159,3 +174,43 @@ def test_committed_json_matches_the_doc():
     mg = out["unpaired"]["manual_gold"]["f1"]["se"]
     pooled = out["unpaired"]["POOLED all"]["f1"]["se"]
     assert pooled > 0.85 * mg
+
+    # The measured epoch-pair matrix: 28 pairs from 8 checkpoints, and a paired s.e.
+    # comfortably below the 0.01 unpaired tie bar. Pinned because the whole
+    # recommendation rests on it.
+    m = out["measured_epoch_pairs"]
+    assert len(m["pairs"]) == 28
+    assert m["se_max_f1_max"] < 0.005
+    assert 0.02 < m["discordance_min"] < m["discordance_max"] < 0.10
+    # s.e. must grow with epoch separation -- the trend the Run B planning number
+    # (~0.003 at larger separation) is extrapolated from.
+    gap1 = [v["delta"]["max_f1"]["se"] for v in m["pairs"].values() if v["gap"] == 1]
+    far = [v["delta"]["max_f1"]["se"] for v in m["pairs"].values() if v["gap"] >= 5]
+    assert sum(far) / len(far) > sum(gap1) / len(gap1)
+
+
+def test_run_a_epoch_dumps_are_the_committed_curve():
+    """Every epoch dump must reproduce summary.csv's max-F1.
+
+    dump_peaks_from_cache.py checks this at write time, but the check has to survive
+    into the repo: these files are committed precisely because the 13 GB heatmap cache
+    they came from cannot be, so nothing else can re-derive them.
+    """
+    import csv
+
+    summary_path = os.path.join(REPO, "docs", "data", "run_a_84_manual_gold", "summary.csv")
+    with open(summary_path, encoding="utf-8") as fh:
+        rows = {int(r["epoch"]): r for r in csv.DictReader(fh)}
+
+    records, gts = bp.load_split(REPO, "manual_gold")
+    checked = 0
+    for epoch, row in rows.items():
+        label = bp.RUN_A_EPOCH.format(epoch)
+        if bp.detections_for(REPO, "manual_gold", label, records) is None:
+            continue
+        s = bp.score_model(REPO, "manual_gold", label, records, gts, RSQ)
+        _, _, _, max_f1 = (float(v) for v in np.array(
+            bp.metrics(s, np.ones((1, len(s.pids))), 0.30)).ravel())
+        assert max_f1 == pytest.approx(float(row["max_f1"]), abs=1e-5), epoch
+        checked += 1
+    assert checked == 8, f"expected 8 committed epoch dumps, found {checked}"
