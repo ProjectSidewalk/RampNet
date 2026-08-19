@@ -94,6 +94,11 @@ analysis_out/op/*
 # reviewer diff two runs instead of re-deriving both, and the doc points at it by name.
 # Written with LF on every platform (scoreboard_render.write_json), so a Windows re-run
 # is a no-op diff rather than whole-file churn.
+#
+# The PR-curve POINT ARRAYS are deliberately not in it -- see scoreboard_render.
+# json_payload. They are ~120k points, which is 7.7 MB of committed artifact nobody
+# diffs; the AP and the marked thresholds, which the page does cite, are kept. If this
+# file is ever megabytes again, that stripping regressed.
 !analysis_out/scoreboard.json
 !analysis_out/farfield_forensics.json
 !analysis_out/silent_activation.json

@@ -17,8 +17,18 @@ Reads **only committed artifacts** — the benchmark bundles, the published dete
 credentials, no network, so a fresh clone reproduces every number here::
 
     python scripts/analysis/scoreboard.py                 # JSON + doc tables + figures
-    python scripts/analysis/scoreboard.py --check         # is the committed doc current?
+    python scripts/analysis/scoreboard.py --check         # doc AND JSON current?
     python scripts/analysis/scoreboard.py --no-figures    # tables only (no matplotlib)
+
+The scoring path needs **numpy and pillow only** -- not ``requirements-dev.txt``, which
+pulls the whole training stack for the rest of the suite.
+
+**Nothing here may disagree with ``docs/model_comparison.md``.** Both documents score the
+same committed detections, so a difference is a bug in one of them, not a choice.
+``tests/test_scoreboard.py::test_every_number_matches_model_comparison`` parses every
+per-split table out of the log and asserts that every (model, split) row in it agrees on
+P, R, F1 and AP. The single deliberate exception is RampNet's AP -- see below -- and that
+is asserted too, against ``ap_bundle``, so the exception cannot silently widen.
 
 **Aggregation.** The headline is the **macro-mean over the seven US city splits** — the
 pool is ``low_floor_sweep.US_SPLITS``, imported rather than restated, because a third copy
@@ -54,6 +64,11 @@ operating point — and AP and the PR curve come from the low-floor cache. Both 
 wherever the number appears, because two sources for one row is exactly the kind of thing
 that reads as an error later if it is not said out loud.
 
+**This is the one place the scoreboard and the log print different numbers under the same
+column heading**, so the truncated value is carried on every row as ``ap_bundle``, printed
+in the page's AP-provenance table beside the substituted one, and asserted against the log
+in the tests. A reader who finds 0.876 here and 0.763 there can see in one table why.
+
 The substitution is gated on *measured* truncation (bundle floor more than 0.1 above the
 cache floor), not on a list of split names. ``manual_gold``'s bundle is already exported at
 0.05, so it keeps its own AP: there is no truncation to undo there, and swapping in the
@@ -68,6 +83,7 @@ are ground-truth-completeness artifacts. RampNet's untruncated AP is therefore i
 lower bound.
 """
 import argparse
+import functools
 import json
 import os
 import sys
@@ -224,11 +240,23 @@ def unregistered_exports():
                   if name.endswith(".json") and name not in known)
 
 
-def low_floor_floor(split):
-    """The lowest confidence the low-floor cache stored for a split, or None."""
+@functools.lru_cache(maxsize=None)
+def low_floor_panos(split):
+    """The low-floor cache for one split, or None. Memoized: read up to 4x per build.
+
+    ``score`` needs it twice per split (floor + AP) and ``pooled_curve`` /
+    ``rampnet_marks`` need it again, and it is the same file every time.
+    """
     if not os.path.exists(os.path.join(CACHE_DIR, f"{split}.json")):
         return None
-    panos, _ = load_low_floor(split)
+    return load_low_floor(split)[0]
+
+
+def low_floor_floor(split):
+    """The lowest confidence the low-floor cache stored for a split, or None."""
+    panos = low_floor_panos(split)
+    if panos is None:
+        return None
     return min((c for pd in panos for *_xy, c in pd["preds"]), default=None)
 
 
@@ -240,10 +268,28 @@ def low_floor_report(split, radius_sq):
     reproduce the committed records (``low_floor_sweep.py parity``), so it is the same run
     seen further down rather than a different one.
     """
-    if not os.path.exists(os.path.join(CACHE_DIR, f"{split}.json")):
-        return None
-    panos, _ = load_low_floor(split)
-    return pr_curve_and_ap(panos, radius_sq)
+    panos = low_floor_panos(split)
+    return None if panos is None else pr_curve_and_ap(panos, radius_sq)
+
+
+def bundle_floor(preds):
+    """The lowest confidence present in a bundle's detections, or None if unscored."""
+    return min((c for pts in preds.values() for c in
+                (prediction_confidence(d) for d in pts) if c is not None), default=None)
+
+
+def uses_low_floor_cache(split, preds):
+    """Is RampNet's bundle for ``split`` truncated far enough above the cache to swap?
+
+    Decided by *measuring* both floors rather than by naming splits. One function so the
+    AP column (``score``) and the PR curve (``pooled_curve``) can never disagree about
+    which source a split is read from -- a divergence that would put a curve and the AP
+    printed beside it on two different runs.
+    """
+    if low_floor_panos(split) is None:
+        return False
+    bf, cf = bundle_floor(preds), low_floor_floor(split)
+    return bf is not None and cf is not None and bf - cf > 0.1
 
 
 def load_split(split):
@@ -288,20 +334,19 @@ def score(leg, split, records, gts, radius_sq, op):
     # curve and would leave that row's AP and its P/R/F1 describing two different
     # inference configs.
     ap, ap_source = rep.ap, "bundle"
-    if leg.provider == "rampnet":
-        bundle_floor = min((c for p_ in preds.values() for c in
-                            (prediction_confidence(d) for d in p_) if c is not None),
-                           default=None)
+    if leg.provider == "rampnet" and uses_low_floor_cache(split, preds):
         low = low_floor_report(split, radius_sq)
-        if low is not None and low.ap is not None and bundle_floor is not None:
-            cache_floor = low_floor_floor(split)
-            if cache_floor is not None and bundle_floor - cache_floor > 0.1:
-                ap, ap_source = low.ap, "op_cache (0.05 floor)"
+        if low is not None and low.ap is not None:
+            ap, ap_source = low.ap, "op_cache (0.05 floor)"
     return {
         "split": split,
         "precision": rep.precision, "recall": rep.recall, "f1": rep.f1, "ap": ap,
         "ap_source": ap_source,
-        "ap_truncated_at_operating_point": rep.ap if ap_source != "bundle" else None,
+        # The AP as computed from the bundle alone -- i.e. exactly the number
+        # docs/model_comparison.md's per-split tables print. Carried on every row, not
+        # just the substituted ones, so the two documents can be diffed mechanically
+        # (test_every_number_matches_model_comparison) instead of by eye.
+        "ap_bundle": rep.ap,
         "tp": rep.tp, "fp": rep.fp, "fn": rep.fn,
         "n_panos": rep.n_panos, "n_gt_recall": rep.n_gt_recall,
         "fp_per_pano": rep.fp / rep.n_panos if rep.n_panos else None,
@@ -326,6 +371,14 @@ def summarize(leg, cells):
     pooled = [cells[s] for s in US_SPLITS if cells.get(s)]
     f1s = [c["f1"] for c in pooled]
     have_ap = bool(pooled) and all(c["ap"] is not None for c in pooled)
+    have_bundle_ap = bool(pooled) and all(c["ap_bundle"] is not None for c in pooled)
+    # Micro (count-pooled) P/R alongside the macro-mean. The PR-curve figure integrates
+    # over concatenated panoramas, so a point drawn on those axes has to be micro too --
+    # plotting the macro-mean there would put the dots and the lines in two different
+    # aggregations under one subtitle. The headline table stays macro.
+    tp = sum(c["tp"] for c in pooled)
+    fp = sum(c["fp"] for c in pooled)
+    fn = sum(c["fn"] for c in pooled)
     out = {
         "model": roster.published_name(leg),
         "label": leg.label,
@@ -343,7 +396,15 @@ def summarize(leg, cells):
         "recall": mean(c["recall"] for c in pooled),
         "f1": mean(f1s),
         "ap": mean(c["ap"] for c in pooled) if have_ap else None,
+        # Macro-mean of the per-split BUNDLE AP -- the aggregate of exactly the numbers
+        # docs/model_comparison.md prints. For every model but RampNet it equals "ap";
+        # for RampNet it is the 0.55-truncated figure the substitution exists to replace,
+        # kept so the page can show what it replaced rather than assert it.
+        "ap_bundle": mean(c["ap_bundle"] for c in pooled) if have_bundle_ap else None,
+        "ap_is_substituted": any(c["ap_source"] != "bundle" for c in pooled),
         "fp_per_pano": mean(c["fp_per_pano"] for c in pooled),
+        "micro_precision": tp / (tp + fp) if tp + fp else None,
+        "micro_recall": tp / (tp + fn) if tp + fn else None,
         "f1_min": min(f1s) if f1s else None,
         "f1_max": max(f1s) if f1s else None,
         "f1_min_split": min(pooled, key=lambda c: c["f1"])["split"] if pooled else None,
@@ -371,11 +432,16 @@ def pooled_curve(leg, splits, radius_sq):
     for split in US_SPLITS:
         records, gts = splits[split]
         if leg.provider == "rampnet":
-            path = os.path.join(CACHE_DIR, f"{split}.json")
-            if not os.path.exists(path):
-                return None
-            for pd in load_low_floor(split)[0]:
-                pano_scores.append(score_pano(pd["preds"], pd["gt"], radius_sq=radius_sq))
+            bundle = {pid: records[pid]["detections"] for pid in gts}
+            # Same gate the AP column uses, so the curve and the AP printed in its legend
+            # are always read from the same source.
+            if uses_low_floor_cache(split, bundle):
+                for pd in low_floor_panos(split):
+                    pano_scores.append(score_pano(pd["preds"], pd["gt"],
+                                                  radius_sq=radius_sq))
+            else:
+                for pid, gt in gts.items():
+                    pano_scores.append(score_pano(bundle[pid], gt, radius_sq=radius_sq))
             n_seen += 1
             continue
         preds = load_detections(leg.label, split, publish_as=roster.published_name(leg))
@@ -401,9 +467,10 @@ def rampnet_marks(splits, radius_sq, thresholds=(DEPLOYED_THRESHOLD, RECOMMENDED
     """
     panos = []
     for split in US_SPLITS:
-        if not os.path.exists(os.path.join(CACHE_DIR, f"{split}.json")):
+        cached = low_floor_panos(split)
+        if cached is None:
             return {}
-        panos.extend(load_low_floor(split)[0])
+        panos.extend(cached)
     out = {}
     for t in thresholds:
         rep = aggregate([score_pano([q for q in pd["preds"] if q[2] >= t], pd["gt"],
@@ -446,9 +513,11 @@ def build(models=None):
 
     order = sorted(summaries, key=key)
 
-    # Pooled PR curves for the models that carry confidences. Kept out of the JSON's
-    # per-split block because a curve is thousands of points; the figure consumes it in
-    # memory and the JSON records only that it exists.
+    # Pooled PR curves for the models that carry confidences. The point arrays are
+    # PLOT-ONLY and are dropped before the JSON is written (scoreboard_render.
+    # json_payload): the two open detectors alone carry ~120k points, which is 7.7 MB of
+    # committed artifact for something no reader diffs and the figure rebuilds in 3 s.
+    # The AP, the marks and the point count survive, which is what the page cites.
     curves = {}
     for leg in chosen:
         rep = pooled_curve(leg, splits, radius_sq)
@@ -456,6 +525,7 @@ def build(models=None):
             curves[roster.published_name(leg)] = {
                 "recalls": list(rep.pr_curve[0]), "precisions": list(rep.pr_curve[1]),
                 "ap": rep.ap,
+                "n_points": len(rep.pr_curve[0]),
                 "marks": (rampnet_marks(splits, radius_sq)
                           if leg.provider == "rampnet" else {}),
             }
@@ -484,17 +554,39 @@ def main():
     ap.add_argument("--figure-dir", default=FIGURE_DIR)
     ap.add_argument("--models",
                     help="Comma-separated PUBLISHED names (roster.published_name), e.g. "
-                         "claude-opus-5-effort-low. Default: every registered leg.")
+                         "claude-opus-5-effort-low. Scores a SUBSET, so it will not "
+                         "write the committed doc, JSON or figures unless you also pass "
+                         "--doc/--json-out/--figure-dir explicitly. Default: every leg.")
     ap.add_argument("--no-figures", action="store_true", help="Skip matplotlib entirely.")
     ap.add_argument("--check", action="store_true",
-                    help="Verify the committed doc and JSON match the committed data; "
-                         "write nothing and exit non-zero on drift.")
+                    help="Verify the committed doc AND analysis_out/scoreboard.json match "
+                         "the committed data; write nothing and exit non-zero on drift.")
     args = ap.parse_args()
 
     models = [m.strip() for m in args.models.split(",")] if args.models else None
+
+    # Refused before scoring, not after: --check on a subset would compare a partial
+    # board against the full committed page and report the page as stale, which is a
+    # false alarm and an expensive one to sit through.
+    if args.check and models:
+        print("--check scores every leg; drop --models")
+        raise SystemExit(2)
+
+    # A subset run produces a partial board. Splicing that into the committed page leaves
+    # a one-row headline table sitting above prose about a twelve-model field, and the
+    # next --check then reports the REAL page as stale -- the signal inverted. So a
+    # subset run is read-only against the committed artifacts unless the caller names
+    # different destinations.
+    explicit = {a.split("=")[0] for a in sys.argv[1:]}
+    subset_guard = bool(models) and not args.check
+    write_doc = not subset_guard or "--doc" in explicit
+    write_json_out = not subset_guard or "--json-out" in explicit
+    write_figs = not args.no_figures and (not subset_guard or "--figure-dir" in explicit)
+
     result = build(models)
 
-    from scoreboard_render import render_tables, splice, write_json  # noqa: E402
+    from scoreboard_render import (  # noqa: E402
+        json_payload, render_tables, splice, write_json)
     tables = render_tables(result)
 
     if args.check:
@@ -507,16 +599,33 @@ def main():
             if splice(current, tables) != current:
                 problems.append(f"{args.doc}: generated tables are stale "
                                 "(re-run scripts/analysis/scoreboard.py)")
+        # The JSON is a committed artifact too, and nothing else checks it. Compared as
+        # bytes, which also catches a CRLF flip that a value-level compare would miss.
+        if not os.path.exists(args.json_out):
+            problems.append(f"{args.json_out}: missing")
+        else:
+            with open(args.json_out, "rb") as fh:
+                on_disk = fh.read()
+            if on_disk != json_payload(result).encode("utf-8"):
+                problems.append(f"{args.json_out}: stale or reformatted "
+                                "(re-run scripts/analysis/scoreboard.py)")
         if problems:
             print("\n".join(problems))
             raise SystemExit(1)
         print(f"{args.doc}: current")
+        print(f"{args.json_out}: current")
         return
 
-    write_json(args.json_out, result)
-    print(f"wrote {args.json_out}")
+    if subset_guard:
+        print(f"--models given ({', '.join(models)}): scoring a subset, so the committed "
+              "doc, JSON and figures are left alone.\nPass --doc/--json-out/--figure-dir "
+              "to write a partial board somewhere else.")
 
-    if os.path.exists(args.doc):
+    if write_json_out:
+        write_json(args.json_out, result)
+        print(f"wrote {args.json_out}")
+
+    if write_doc and os.path.exists(args.doc):
         with open(args.doc, encoding="utf-8", newline="") as fh:
             current = fh.read()
         updated = splice(current, tables)
@@ -526,11 +635,11 @@ def main():
             print(f"updated {args.doc}")
         else:
             print(f"{args.doc}: already current")
-    else:
+    elif write_doc:
         print(f"{args.doc}: not found -- write the prose first, then re-run to fill "
               "the generated blocks")
 
-    if not args.no_figures:
+    if write_figs:
         import scoreboard_figures
         for path in scoreboard_figures.render_all(result, args.figure_dir):
             print(f"wrote {path}")

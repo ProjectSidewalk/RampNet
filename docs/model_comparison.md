@@ -11,7 +11,7 @@ model-agnostic, so new models (issues #20, #39) plug in the same way.
 > run, the mechanism behind each number, the caveats, the negative results — so "who wins,
 > and by how much" is spread across a dozen tables in chronological order. `model_scoreboard.md`
 > is the same data pivoted the other way (rows are models, columns are metrics, aggregated
-> across splits) plus four summary figures, and it covers every leg in `rampnet/roster.py`
+> across splits) plus five summary figures, and it covers every leg in `rampnet/roster.py`
 > rather than the standing eight. It is generated from the committed detections by
 > `scripts/analysis/scoreboard.py`, and a test fails if it drifts from this log.
 
@@ -211,6 +211,16 @@ Perspective tiling, match radius 0.022, all models scored against the same deriv
 Open detectors are shown at their 0.05 cache floor; their tuned operating points are in the
 sweep below. Run on Hyak (L40S); RampNet and Gemini rows are cache-scored.
 
+**The AP column is computed from each split's bundle**, which for RampNet means a curve
+truncated at its deployed 0.55 — the bundles *are* a production run, and that is where
+production stops. So RampNet's AP below is not comparable to the arms exported at 0.05, and
+pooled it reads 0.720, *below* the YOLO arms. [`model_scoreboard.md`](model_scoreboard.md)
+re-reads it from `analysis_out/op_cache/` (the #54 low-floor extraction of the same
+panoramas) and reports 0.849; that page carries a per-split table mapping each number here
+to the one there. Every other model's AP is identical in both documents, as are all P/R/F1.
+`manual_gold` is the exception on this side too: its bundle is already at 0.05, so its 0.917
+is the one untruncated RampNet AP here.
+
 **richmond** (124 reviewed panos, 310 GT ramps)
 
 | model | P | R | F1 | AP | tp/fp/fn |
@@ -252,7 +262,7 @@ three deployment cities
 | grounding-dino-base | 0.018 | 0.867 | 0.035 | 0.026 | 169/9433/26 |
 
 Clovis is 100% soft, 2018-era GoPro Fusion 360 imagery, so every model degrades relative to
-richmond/bend — RampNet's own P/R slips to 0.914/0.713 (from richmond's 0.960/0.765). But the
+richmond/bend — RampNet's own P/R slips to 0.914/0.713 (from richmond's 0.964/0.768). But the
 **ranking is identical across all three cities**, and RampNet's lead *widens*: the gap to the best
 challenger grows from ~0.19 (richmond) to **~0.30** here. These are the all-125 numbers, so every
 model is scored on the same panos; clovis's ground-truth quality against the 120-pano *unbiased*

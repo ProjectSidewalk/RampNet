@@ -79,11 +79,15 @@ def headline_table(result):
             bold(num(m["recall"]), m["recall"] == best["recall"]),
             bold(num(m["f1"]), m["f1"] == best["f1"]),
             delta,
-            num(m["ap"]) + ("&nbsp;†" if m["model"] == RAMPNET and m["ap"] else ""),
+            num(m["ap"]) + ("&nbsp;†" if m.get("ap_is_substituted") and m["ap"] else ""),
             num(m["fp_per_pano"], 1),
             span,
         ])
-    header = ["model", "class", "op", "P", "R", "F1", "ΔF1 vs RampNet", "AP",
+    # Every metric here is the macro-mean over the seven pooled splits, AP included. The
+    # PR-curve figure's legend is the MICRO-pooled AP of the same data and reads a few
+    # thousandths different; the two are labelled wherever both appear so a reader never
+    # has to guess which family a number belongs to.
+    header = ["model", "class", "op", "P", "R", "F1", "ΔF1 vs RampNet", "AP (macro)",
               "FP/pano", "F1 range"]
     align = ["---", "---", "--:", "--:", "--:", "--:", "--:", "--:", "--:", ":-:"]
     return _table(header, rows, align)
@@ -187,6 +191,35 @@ def threshold_table(result):
                   ["---", "--:", "--:", "--:", "---"])
 
 
+def ap_provenance_table(result):
+    """Where RampNet's AP on each split comes from, and what the log prints for it.
+
+    This is the one column where the two documents disagree by design, so the mapping is
+    generated rather than described: ``model_comparison.md`` prints the bundle AP, this
+    page prints the low-floor one, and both are here side by side with the reason. The
+    test asserts the middle column against the log, so the correspondence is a gate.
+    """
+    from scoreboard import RAMPNET
+
+    cells = result["per_split"].get(RAMPNET) or {}
+    rows = []
+    for split in result["all_splits"]:
+        cell = cells.get(split)
+        if not cell:
+            continue
+        substituted = cell["ap_source"] != "bundle"
+        rows.append([
+            f"`{split}`",
+            num(cell["ap_bundle"]),
+            bold(num(cell["ap"]), substituted),
+            "`op_cache` (0.05 floor)" if substituted else "bundle — already at 0.05",
+            "truncated at the deployed 0.55" if substituted
+            else "no truncation to undo; flip-TTA export",
+        ])
+    return _table(["split", "AP in `model_comparison.md`", "AP here", "read from", "why"],
+                  rows, ["---", "--:", "--:", "---", "---"])
+
+
 def coverage_note(result):
     """What each split is, how big it is, and why a held-out one is held out."""
     rows = []
@@ -210,6 +243,7 @@ def render_tables(result):
         "thresholds": threshold_table(result),
         "partial": partial_table(result),
         "by-split": by_split_table(result),
+        "ap-provenance": ap_provenance_table(result),
         "coverage": coverage_note(result),
     }
 
@@ -231,14 +265,29 @@ def splice(text, tables):
     return text
 
 
-def write_json(path, result):
-    """Write the machine-readable scoreboard with LF endings on every platform.
+def json_payload(result):
+    """The committed JSON, as a string — the result minus the plot-only curve arrays.
 
-    Committed result JSON is byte-compared in review and by ``--check``; the default
+    A PR curve is one point per ranked prediction, and the two open detectors carry
+    ~120k between them: serialized they are 7.7 MB, 98% of the file, for something no
+    reader diffs and ``scoreboard.py`` rebuilds from the same committed detections in
+    about three seconds. What the page actually cites — the AP, RampNet's marked
+    thresholds, and how many points the curve had — is kept.
+
+    LF on every platform: this is byte-compared by ``--check``, and Python's default
     newline translation on Windows would emit CRLF and make a re-run look like a change
-    (docs/replication.md, the imagery_manifest fix).
+    (the imagery_manifest fix, 22dd536).
     """
+    slim = dict(result)
+    slim["curves"] = {
+        name: {k: v for k, v in curve.items() if k not in ("recalls", "precisions")}
+        for name, curve in (result.get("curves") or {}).items()
+    }
+    return json.dumps(slim, indent=2, sort_keys=False) + "\n"
+
+
+def write_json(path, result):
+    """Write the machine-readable scoreboard (see ``json_payload``)."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="") as fh:
-        json.dump(result, fh, indent=2, sort_keys=False)
-        fh.write("\n")
+        fh.write(json_payload(result))

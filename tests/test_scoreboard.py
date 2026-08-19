@@ -14,7 +14,10 @@ ways a summary goes wrong rather than about arithmetic —
 Pure: reads only committed bundles, committed published detections, and manual_labels.
 No cache, no GPU, no credentials, no network.
 """
+import json
 import os
+import re
+import subprocess
 import sys
 
 import pytest
@@ -144,7 +147,9 @@ def test_rampnet_city_ap_comes_from_the_low_floor_cache(board):
     cell = _cell(board, "rampnet", "richmond")
     assert cell["ap_source"] == "op_cache (0.05 floor)"
     assert cell["ap"] == pytest.approx(0.876, abs=0.002)
-    assert cell["ap_truncated_at_operating_point"] == pytest.approx(0.763, abs=0.0006)
+    assert cell["ap_bundle"] == pytest.approx(0.763, abs=0.0006)
+    # ...and the pooled truncated figure is the one that inverts the ordering.
+    assert _summary(board, "rampnet")["ap_bundle"] == pytest.approx(0.720, abs=0.0006)
 
 
 def test_the_substitution_is_scoped_to_actual_truncation(board):
@@ -188,6 +193,152 @@ def test_only_score_carrying_models_get_a_curve(board):
         assert scoreless not in curves
     # ...and a leg that has not run every pooled split cannot be pooled into one.
     assert "mask2former-vistas-curb-cut" not in curves
+
+
+# --------------------------------------------------------------------------- #
+# the whole log, not a spot-check
+# --------------------------------------------------------------------------- #
+# model_comparison.md's row labels -> roster published names. Both documents score the
+# same committed detections, so a disagreement is a bug in one of them, never a choice.
+_LOG_ROW_NAMES = {
+    "rampnet": "rampnet",
+    "rampnet @0.55": "rampnet",
+    "gemini-3.1-pro-preview": "gemini-3.1-pro-preview",
+    "gemini-3.6-flash": "gemini-3.6-flash",
+    "gemini-3.7-flash": "gemini-3.7-flash",
+    "molmo2-8B (points)": "allenai/Molmo2-8B",
+    "Qwen3-VL-32B-Instruct": "Qwen/Qwen3-VL-32B-Instruct",
+    "Qwen3-VL-8B-Instruct": "Qwen/Qwen3-VL-8B-Instruct",
+    "owlv2-large-patch14-ensemble": "google/owlv2-large-patch14-ensemble",
+    "grounding-dino-base": "IDEA-Research/grounding-dino-base",
+    "mask2former-vistas-curb-cut": "mask2former-vistas-curb-cut",
+    "mask2former-vistas-curb-cut+curb": "mask2former-vistas-curb-cut+curb",
+}
+# (model, split) pairs the log prints and this page deliberately does not carry, each with
+# the reason. Anything else missing is a failure, not an exemption.
+_LOG_ROWS_NOT_ON_THE_BOARD = {
+    ("gemini-3.1-pro-preview", "manual_gold"):
+        "manual_gold detections never published (docs/model_scoreboard.md, 'What is missing')",
+    ("gemini-3.6-flash", "manual_gold"):
+        "manual_gold detections never published (docs/model_scoreboard.md, 'What is missing')",
+}
+_LOG_TABLE_HEADER = "| model | P | R | F1 | AP | tp/fp/fn |"
+_LOG_SPLIT_HEADING = re.compile(
+    r"^(?:\*\*(\w+)\*\*|#+ Result: (\w+)) \(\d[\d,]* (?:reviewed )?panos")
+
+
+def _parse_model_comparison():
+    """Every (split, model, P, R, F1, AP) row in docs/model_comparison.md's result tables.
+
+    Reads the log rather than a transcription of it, so this test cannot pass by agreeing
+    with a stale copy of the numbers it is supposed to be checking.
+    """
+    path = os.path.join(REPO, "docs", "model_comparison.md")
+    with open(path, encoding="utf-8") as fh:
+        lines = fh.read().split("\n")
+
+    def value(cell):
+        cell = cell.replace("**", "").replace("*", "").strip()
+        return None if cell in ("–", "-", "—", "") else float(cell)
+
+    rows, split, in_table = [], None, False
+    for lineno, line in enumerate(lines, 1):
+        heading = _LOG_SPLIT_HEADING.match(line.strip())
+        if heading:
+            split = heading.group(1) or heading.group(2)
+            continue
+        if line.strip() == _LOG_TABLE_HEADER:
+            in_table = True
+            continue
+        if not in_table:
+            continue
+        cells = line.split("|")[1:-1]
+        if not line.startswith("|") or len(cells) != 6:
+            in_table = False
+            continue
+        label = cells[0].replace("**", "").replace("*", "").strip()
+        if set(label) <= set("-: "):
+            continue
+        assert label in _LOG_ROW_NAMES, (
+            f"docs/model_comparison.md:{lineno}: unrecognized model row {label!r}. Add it "
+            f"to _LOG_ROW_NAMES so this row is checked rather than skipped.")
+        rows.append((split, _LOG_ROW_NAMES[label], value(cells[1]), value(cells[2]),
+                     value(cells[3]), value(cells[4]), lineno))
+    return rows
+
+
+def test_the_log_parser_actually_finds_the_tables():
+    """A parser that silently matches nothing would make the check below vacuous.
+
+    docs/model_comparison.md gets restructured often; if a heading or column layout
+    changes, this fails loudly instead of the real test passing on an empty list.
+    """
+    rows = _parse_model_comparison()
+    assert len(rows) >= 85, f"only parsed {len(rows)} rows out of model_comparison.md"
+    assert {s for s, *_ in rows} == set(lfs.ALL_SPLITS)
+
+
+def test_every_number_matches_model_comparison(board):
+    """Every P/R/F1/AP in the log's per-split tables, against this page's scorer.
+
+    The spot-check above pins nine hand-picked cells. This pins all of them, in both
+    directions: a number edited in either document without re-running fails here.
+
+    RampNet's AP is the one deliberate difference — the log prints the bundle AP, which is
+    truncated at the deployed 0.55, and this page substitutes the low-floor cache. That is
+    checked too, against ``ap_bundle``, so the exception cannot quietly widen into
+    "RampNet's AP does not have to agree with anything".
+    """
+    mismatches = []
+    for split, model, P, R, F1, AP, lineno in _parse_model_comparison():
+        cell = board["per_split"].get(model, {}).get(split)
+        if cell is None:
+            if (model, split) in _LOG_ROWS_NOT_ON_THE_BOARD:
+                continue
+            mismatches.append(f"model_comparison.md:{lineno} {model}/{split}: in the log, "
+                              "absent from the scoreboard")
+            continue
+        for metric, want, have in (("P", P, cell["precision"]), ("R", R, cell["recall"]),
+                                   ("F1", F1, cell["f1"])):
+            if want is not None and abs(want - have) > 0.0006:
+                mismatches.append(f"model_comparison.md:{lineno} {model}/{split} {metric}: "
+                                  f"log {want} vs scoreboard {have:.4f}")
+        if AP is not None:
+            # The log always prints the bundle AP. So must ap_bundle -- including on the
+            # rows where the page then substitutes the low-floor cache.
+            if cell["ap_bundle"] is None or abs(AP - cell["ap_bundle"]) > 0.0011:
+                mismatches.append(f"model_comparison.md:{lineno} {model}/{split} AP: "
+                                  f"log {AP} vs bundle {cell['ap_bundle']}")
+    assert not mismatches, "\n".join(mismatches)
+
+
+def test_only_rampnets_ap_is_allowed_to_differ_from_the_log(board):
+    """Scope the exception: every other model's AP must be the bundle AP unchanged.
+
+    Without this, a future substitution applied to some other arm would sail through the
+    test above, because that test compares the log to ``ap_bundle`` rather than to what
+    the page actually prints.
+    """
+    for model, cells in board["per_split"].items():
+        for split, cell in cells.items():
+            if model == "rampnet":
+                continue
+            assert cell["ap_source"] == "bundle", \
+                f"{model}/{split} AP was substituted; only RampNet's may be"
+            assert cell["ap"] == cell["ap_bundle"]
+
+
+def test_the_ap_provenance_table_shows_the_logs_number(board):
+    """The page's reconciliation table has to quote the log, not a rounded memory of it."""
+    table = sr.ap_provenance_table(board)
+    assert "AP in `model_comparison.md`" in table
+    for split, log_ap in (("richmond", "0.763"), ("paterson", "0.681"),
+                          ("manual_gold", "0.917")):
+        row = next(l for l in table.splitlines() if l.startswith(f"| `{split}` |"))
+        assert log_ap in row, f"{split} row does not carry the log's AP {log_ap}: {row}"
+    # manual_gold is the row that must NOT be substituted, and must say so.
+    gold = next(l for l in table.splitlines() if l.startswith("| `manual_gold` |"))
+    assert "bundle" in gold and "0.05" in gold
 
 
 # --------------------------------------------------------------------------- #
@@ -327,3 +478,133 @@ def test_committed_doc_is_current(board):
         current = fh.read()
     assert sr.splice(current, sr.render_tables(board)) == current, \
         "docs/model_scoreboard.md is stale — re-run scripts/analysis/scoreboard.py"
+
+
+# --------------------------------------------------------------------------- #
+# the committed JSON — the artifact nothing used to check
+# --------------------------------------------------------------------------- #
+def test_committed_json_is_current(board):
+    """analysis_out/scoreboard.json is committed, so it can go stale like the doc can.
+
+    Compared as bytes, which also pins the LF endings: a value-level compare passes
+    happily on a Windows-written CRLF file, which is the trap json_artifacts keep hitting
+    (imagery_manifest, the usage ledger).
+    """
+    with open(sb.DEFAULT_JSON, "rb") as fh:
+        on_disk = fh.read()
+    assert on_disk == sr.json_payload(board).encode("utf-8"), \
+        "analysis_out/scoreboard.json is stale — re-run scripts/analysis/scoreboard.py"
+
+
+def test_the_committed_json_has_no_crlf():
+    """Stated separately from the byte-compare so a failure says which defect it is."""
+    with open(sb.DEFAULT_JSON, "rb") as fh:
+        assert b"\r\n" not in fh.read()
+
+
+def test_write_json_pins_lf_on_the_writer_not_on_git(tmp_path, board):
+    """Round-trip through the actual writer, checked on bytes.
+
+    Reading the file back and comparing values would pass on a CRLF write — that is how
+    this class of defect keeps surviving (imagery_manifest, the usage ledger). The
+    committed artifact has to be right regardless of the contributor's autocrlf setting.
+    """
+    out = tmp_path / "nested" / "scoreboard.json"
+    sr.write_json(str(out), board)
+    raw = out.read_bytes()
+    assert b"\r\n" not in raw
+    assert raw.endswith(b"\n")
+    assert json.loads(raw)["pooled_splits"] == list(lfs.US_SPLITS)
+
+
+def test_the_json_does_not_carry_the_curve_point_arrays(board):
+    """The plot-only arrays are ~120k points; serialized they were 7.7 MB of committed
+    artifact, 98% of the file, that no reader diffs and the figures rebuild in seconds.
+
+    What the page cites — AP, RampNet's marked thresholds, the point count — stays.
+    """
+    payload = json.loads(sr.json_payload(board))
+    assert payload["curves"], "the curves block itself must survive"
+    for name, curve in payload["curves"].items():
+        assert "recalls" not in curve and "precisions" not in curve, \
+            f"{name}: point arrays leaked back into the committed JSON"
+        assert curve["ap"] is not None and curve["n_points"] > 0
+    assert payload["curves"]["rampnet"]["marks"]["0.55"]["f1"] == pytest.approx(0.826,
+                                                                               abs=0.0006)
+    # In-memory, the figures still get the full curves.
+    assert len(board["curves"]["rampnet"]["recalls"]) == \
+        payload["curves"]["rampnet"]["n_points"]
+    assert len(sr.json_payload(board)) < 200_000, "committed JSON is bloated again"
+
+
+# --------------------------------------------------------------------------- #
+# the CLI — --check has to cover what it claims, --models must not clobber
+# --------------------------------------------------------------------------- #
+def _run_scoreboard(*args):
+    return subprocess.run(
+        [sys.executable, os.path.join(REPO, "scripts", "analysis", "scoreboard.py"), *args],
+        capture_output=True, text=True, cwd=REPO)
+
+
+def test_check_fails_on_a_stale_json(tmp_path):
+    """--check used to verify only the doc while its help said 'doc and JSON'.
+
+    A falsified headline F1 in the committed JSON passed with exit 0, which made the one
+    artifact the .gitignore re-include exists for the one artifact nothing validated.
+    """
+    payload = json.loads(open(sb.DEFAULT_JSON, encoding="utf-8").read())
+    payload["models"][0]["f1"] = 0.111
+    stale = tmp_path / "scoreboard.json"
+    stale.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8", newline="")
+    done = _run_scoreboard("--check", "--json-out", str(stale))
+    assert done.returncode != 0, "a falsified JSON passed --check"
+    assert "stale" in done.stdout
+
+
+def test_a_models_subset_does_not_touch_the_committed_page(tmp_path):
+    """`--models y11x_pano_h200` used to splice a ONE-ROW headline into the committed doc.
+
+    That left YOLO11x bolded as the winner in every column, directly above prose reading
+    "RampNet wins by 0.221 F1" — and then --check reported the real page as stale, so the
+    signal inverted. It also crashed in the figures afterwards, half-written.
+    """
+    doc_before = open(sb.DEFAULT_DOC, "rb").read()
+    json_before = open(sb.DEFAULT_JSON, "rb").read()
+    done = _run_scoreboard("--models", "y11x_pano_h200", "--no-figures")
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "left alone" in done.stdout
+    assert open(sb.DEFAULT_DOC, "rb").read() == doc_before
+    assert open(sb.DEFAULT_JSON, "rb").read() == json_before
+    # ...but naming a destination explicitly still writes a partial board there.
+    out = tmp_path / "subset.json"
+    done = _run_scoreboard("--models", "y11x_pano_h200", "--no-figures",
+                           "--json-out", str(out))
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert [m["model"] for m in json.loads(out.read_text())["models"]] == ["y11x_pano_h200"]
+
+
+def test_check_refuses_a_subset():
+    """--check on a subset would compare a partial board against the full page and
+    report the page as stale. That is a false alarm, so it is refused instead."""
+    done = _run_scoreboard("--check", "--models", "rampnet")
+    assert done.returncode != 0
+    assert "drop --models" in done.stdout
+
+
+def test_a_figure_helper_survives_a_board_without_rampnet(board, tmp_path):
+    """The subset guard protects the committed files; these two protect the process.
+
+    Both used to raise StopIteration on any board with no RampNet row, after main() had
+    already rewritten the doc and the JSON.
+    """
+    from scoreboard_figures import fig_by_split, fig_headline
+    plt = pytest.importorskip("matplotlib.pyplot")
+    import matplotlib
+    matplotlib.use("Agg")
+
+    trimmed = dict(board)
+    trimmed["models"] = [m for m in board["models"] if m["model"] != "rampnet"]
+    trimmed["per_split"] = {k: v for k, v in board["per_split"].items() if k != "rampnet"}
+    out = str(tmp_path / "fig.png")
+    fig_headline(trimmed, out, plt)
+    fig_by_split(trimmed, out, plt)

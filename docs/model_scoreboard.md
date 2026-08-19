@@ -27,7 +27,7 @@ model, and the reasons are in "How to read this" below.
 
 <!-- BEGIN GENERATED: headline (scripts/analysis/scoreboard.py) -->
 
-| model | class | op | P | R | F1 | ΔF1 vs RampNet | AP | FP/pano | F1 range |
+| model | class | op | P | R | F1 | ΔF1 vs RampNet | AP (macro) | FP/pano | F1 range |
 |---|---|--:|--:|--:|--:|--:|--:|--:|:-:|
 | **RampNet** | purpose-trained | 0.55 | 0.958 | 0.728 | **0.827** | — | 0.849&nbsp;† | 0.1 | 0.80–0.85 |
 | YOLO11l (pano) | supervised baseline | 0.25 | 0.939 | 0.449 | 0.604 | -0.223 | 0.722 | 0.1 | 0.48–0.71 |
@@ -171,9 +171,13 @@ independently of any model. Plotting it against the deployed average separates t
 that a single F1 confuses:
 
 - **A zero-shot model has no training distribution to be inside**, so it lands on the diagonal
-  — Molmo +0.01, Qwen-32B +0.07, Gemini 3.7 Flash +0.05. That they sit slightly *above* the
-  line is the un-anchored-GT check from #58 coming out clean: they do not gain on a split
-  whose ground truth RampNet never touched.
+  — and the seven that have a `manual_gold` cell scatter to *both* sides of it, by small
+  amounts: Qwen-32B +0.07, Gemini 3.7 Flash +0.05, Molmo +0.01, OWLv2 −0.02, Grounding DINO
+  −0.03, Qwen-8B −0.05. A two-sided scatter of ±0.07 with no systematic direction is the
+  un-anchored-GT check from #58 coming out clean, and it is a *stronger* result than a
+  one-sided one would be: these models neither gain nor lose on a split whose ground truth
+  RampNet never touched, which is what "the city GT was not tilted toward what RampNet finds"
+  predicts.
 - **A model trained on the RampNet dataset starts above the line and falls.** How far it falls
   is the generalization penalty, and it is the whole #51 ablation in one distance: RampNet
   **−0.08**, YOLO26 **−0.19**, YOLO11l **−0.24**, YOLO11x **−0.28**.
@@ -183,7 +187,9 @@ behind.** Its `manual_gold` AP is **0.931** against RampNet's **0.917**, at the 
 export floor — and RampNet's export used horizontal-flip TTA while YOLO's did not, so that
 comparison is if anything generous to RampNet. On home turf a generic detector trained on this
 dataset matches the purpose-built one. It is the 0.20 F1 it gives back on unfamiliar cities
-that RampNet does not — and out of domain the AP ordering is not close either, 0.849 to 0.734.
+that RampNet does not — and out of domain the AP ordering is not close either, **0.849 to
+0.730** (macro-mean, the table above; micro-pooled it is 0.844 to 0.734 — see the note on the
+two AP families under "Choosing an operating point").
 
 ---
 
@@ -205,11 +211,20 @@ The figure says three things a table of F1 cannot:
    models emit no confidence to threshold on. Comparing a tuned model against an untunable
    one at one threshold flatters whichever happened to land well.
 2. **RampNet's curve dominates over the whole range**, not just at 0.55. At every recall the
-   YOLO arms reach, RampNet is above them, and the AP ordering (0.844 pooled vs 0.734) is the
+   YOLO arms reach, RampNet is above them, and the AP ordering (0.844 vs 0.734) is the
    integral of that.
 3. **The deployed point is not the F1 optimum.** RampNet sits at 0.55 (hollow marker) where
    the curve is nearly flat; #54's recommended 0.30 (filled) buys recall at a shallow
    precision cost.
+
+> **Two AP families, and this figure uses the other one.** A PR curve is an integral over
+> ranked predictions, so pooling it across splits has to be **micro** — concatenate every
+> panorama, integrate once — and the legend above reports that. The headline table's AP
+> column is the **macro-mean** of the per-split APs, each city weighted equally, like every
+> other column in it. Same detections, same scorer; the two land a few thousandths apart
+> (RampNet 0.844 micro / 0.849 macro, YOLO11x 0.734 / 0.730 — note it moves the *other* way).
+> Neither is more correct. They are labelled everywhere both appear, and a comparison is only
+> meaningful within one family: macro-to-macro the gap is 0.119, micro-to-micro 0.110.
 
 <!-- BEGIN GENERATED: thresholds (scripts/analysis/scoreboard.py) -->
 
@@ -276,6 +291,33 @@ only where the bundle floor sits more than 0.1 above the cache floor. `manual_go
 is already at 0.05, so it keeps its own AP (0.917) — there is nothing to un-truncate there,
 and swapping in the cache would quietly trade that split's flip-TTA export for a no-TTA one.
 
+**This is the one number on this page that differs from `model_comparison.md`**, so here is
+the whole mapping rather than a description of it. The middle column is what the log prints;
+the test asserts it against the log's committed tables, so the two documents cannot drift
+apart without failing CI:
+
+<!-- BEGIN GENERATED: ap-provenance (scripts/analysis/scoreboard.py) -->
+
+| split | AP in `model_comparison.md` | AP here | read from | why |
+|---|--:|--:|---|---|
+| `richmond` | 0.763 | **0.876** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
+| `bend` | 0.754 | **0.868** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
+| `clovis` | 0.688 | **0.871** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
+| `morgantown` | 0.728 | **0.856** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
+| `annapolis` | 0.734 | **0.875** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
+| `paterson` | 0.681 | **0.748** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
+| `gainesville` | 0.691 | **0.846** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
+| `budapest_district5` | 0.478 | **0.648** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
+| `sao_paulo` | 0.666 | **0.812** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
+| `manual_gold` | 0.917 | 0.917 | bundle — already at 0.05 | no truncation to undo; flip-TTA export |
+
+<!-- END GENERATED: ap-provenance -->
+
+Everything else agrees to three decimals, and that is enforced rather than claimed:
+`test_every_number_matches_model_comparison` parses all ten of the log's per-split tables
+and checks P, R, F1 and AP on every row it finds. A number edited in either document
+without re-running fails CI.
+
 Two things travel with that number. **P/R/F1 still come from `records.jsonl`**, the published
 deployment-faithful operating point, so a single row has two sources; and **the sub-0.55 half
 of the curve is a lower bound**, because the GT was assembled from detections at or above 0.55
@@ -311,10 +353,12 @@ Omissions are content, so they are named rather than left as blanks:
   re-paying for the run. It is also why both are absent from the generalization figure.
 - **`gemini-3.7-flash`, the YOLO arms, the Vistas arms and the Claude legs are all on this
   board but `standing=False` in the roster**, so `model_comparison.md`'s roster tables keep
-  a consistent 8-model set pending each write-up. Its detections are
-  published and verified (10/10 pairs identical to cache) and its silent-panorama behaviour
-  was investigated under #120. Including it here is deliberate: this page's job is to show
-  everything that has been measured.
+  a consistent 8-model set pending each write-up. Every one of those legs has its
+  detections published and verified against cache, and `gemini-3.7-flash`'s silent-panorama
+  behaviour specifically was investigated under #120 (10/10 pairs identical to cache).
+  Including them here is deliberate: this page's job is to show everything that has been
+  measured, and `standing` governs which roster tables a leg appears in, not whether its
+  numbers are real.
 - **The YOLO tiles arms are absent** — still training. The three pano arms are the completed
   half of the #51 ablation; the resolution-controlled half is not done.
 - **`manual_gold` has no null-recall pass** (O(n²) in panos), so the open detectors' recall
@@ -354,14 +398,17 @@ Omissions are content, so they are named rather than left as blanks:
 From a clean clone, with no GPU, no credentials and no network:
 
 ```bash
-pip install -r requirements-dev.txt             # the scoring path: numpy + pillow
+pip install numpy pillow                        # the whole scoring path, nothing else
 python scripts/analysis/scoreboard.py --no-figures   # tables + analysis_out/scoreboard.json
-python scripts/analysis/scoreboard.py --check        # non-zero if this page is stale
+python scripts/analysis/scoreboard.py --check        # non-zero if this page or its JSON is stale
 
 # The figures additionally need matplotlib, which lives in requirements.txt /
 # environment.yml rather than requirements-dev.txt — the test suite stays plotting-free,
 # the same arrangement plot_operating_point.py uses.
 pip install matplotlib && python scripts/analysis/scoreboard.py
+
+# requirements-dev.txt also works, but it installs torch, timm, transformers, datasets
+# and scikit-image for the REST of the test suite — several GB this page does not need.
 ```
 
 Inputs are `benchmark/<split>/{records.jsonl,verdicts.json}`, `manual_labels/`, and
@@ -372,4 +419,4 @@ anything this page does not tabulate.
 Files: [`scripts/analysis/scoreboard.py`](../scripts/analysis/scoreboard.py) (scoring),
 [`scripts/analysis/scoreboard_render.py`](../scripts/analysis/scoreboard_render.py) (tables
 and the splice), [`scripts/analysis/scoreboard_figures.py`](../scripts/analysis/scoreboard_figures.py)
-(the four figures).
+(the five figures).

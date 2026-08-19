@@ -1,19 +1,24 @@
-"""The four figures for docs/model_scoreboard.md — the findings that read faster as a picture.
+"""The five figures for docs/model_scoreboard.md — the findings that read faster as a picture.
 
 Called by ``scoreboard.py``; importable on its own for iterating on a figure without
 re-scoring. Matplotlib is imported inside ``render_all`` so ``--no-figures`` needs no
 plotting stack at all.
 
-**Colour.** One hue does all the work here: the validated categorical slot 1
+**Colour.** The four aggregate figures run on one hue: the validated categorical slot 1
 (``#2a78d6``) plus the palette's neutral inks, with the sequential blue ramp for the
 heatmap. That is a deliberate reduction, not laziness. The natural design — a hue per
-model class — cannot ship: three of the four figures are scatter/matrix forms, which are
+model class — cannot ship: three of those four are scatter/matrix forms, which are
 scored on the **all-pairs** pairlist, and five categorical slots fail it outright
 (``validate_palette.js``: magenta↔orange normal-vision ΔE 12.9, below the hard floor of
 15). A normal-vision FAIL is the one result secondary encoding does not excuse, so the
 documented remedy is to cut series or facet rather than to add a legend and hope. Model
 class is therefore carried by **position** (bar order, group headers) and **marker
 shape** — channels with no CVD failure mode — and colour is freed to carry emphasis.
+
+The PR-curve figure is the exception and gets four hues, because overlapping *lines* are
+scored on the **adjacent** pairlist, which that set passes outright (worst adjacent CVD
+ΔE 9.1); see ``CURVE_COLOR``. Marker shape cannot separate curves, so there is no
+position-or-shape substitute to fall back on there.
 
 The palette's contrast WARN (slot 1 sits above 3:1, but the light neutrals do not) is
 discharged the way ``plot_operating_point.py`` discharges it: every plotted number is
@@ -61,16 +66,32 @@ PR_NUDGE = {
     "IDEA-Research/grounding-dino-base": (-9, -2, "right"),
 }
 GEN_NUDGE = {
-    "rampnet": (-14, -13, "right"),   # up-left runs into the diagonal caption
+    # RampNet sits close to the diagonal in the top-right, so its label crosses that line
+    # whichever side it goes; the halo carries it rather than a nudge that cannot fit.
+    "rampnet": (-14, -13, "right"),
     "y11l_pano": (11, 6, "left"),
     "y11x_pano_h200": (11, -7, "left"),
     "y26_pano": (-11, -10, "right"),
     "gemini-3.7-flash": (11, 3, "left"),
-    "Qwen/Qwen3-VL-32B-Instruct": (11, 6, "left"),
+    # Left, not right: running right puts this label across Qwen-8B's marker 0.10 away,
+    # and a reader then attaches it to the wrong point.
+    "Qwen/Qwen3-VL-32B-Instruct": (-11, 4, "right"),
     "Qwen/Qwen3-VL-8B-Instruct": (11, -8, "left"),
     "google/owlv2-large-patch14-ensemble": (12, 7, "left"),
     "IDEA-Research/grounding-dino-base": (12, -9, "left"),
 }
+
+
+def _halo(width=2.6):
+    """A SURFACE-coloured stroke behind label text.
+
+    These are dense scatters over contours, a reference diagonal and each other, and a
+    label that crosses a hairline reads as damaged even though it is legible. A halo
+    fixes every such crossing at once, which nudging one label at a time does not — and
+    unlike a nudge it cannot push a label off the axes.
+    """
+    from matplotlib import patheffects
+    return [patheffects.withStroke(linewidth=width, foreground=SURFACE)]
 
 
 def _titles(ax, title, subtitle):
@@ -152,11 +173,19 @@ def fig_headline(result, path, plt):
     # The lead goes in the subtitle rather than into an annotated arrow: the gap between
     # the top two bars is 0.38 of a row, which cannot hold a rule and a caption without
     # colliding with one of them.
-    runner_up = max((m for m in models if m["model"] != "rampnet"), key=lambda m: m["f1"])
-    ref_f1 = next(m["f1"] for m in models if m["model"] == "rampnet")
+    #
+    # Both lookups tolerate absence: a --models subset run may hold no RampNet row, or no
+    # challenger, and a figure helper is the wrong place to die on that.
+    runner_up = max((m for m in models if m["model"] != "rampnet"),
+                    key=lambda m: m["f1"], default=None)
+    ref_f1 = next((m["f1"] for m in models if m["model"] == "rampnet"), None)
+    if ref_f1 is not None and runner_up is not None:
+        subtitle = (f"+{ref_f1 - runner_up['f1']:.3f} F1 clear of the best challenger "
+                    f"({runner_up['display']}, {runner_up['f1']:.3f}).")
+    else:
+        subtitle = "Macro-mean over the seven pooled US city splits."
     _titles(ax, "RampNet leads every off-the-shelf and supervised baseline tested",
-            f"+{ref_f1 - runner_up['f1']:.3f} F1 clear of the best challenger "
-            f"({runner_up['display']}, {runner_up['f1']:.3f}).")
+            subtitle)
     # Two lines: at 7.4pt one line of this runs past the right edge and gets clipped.
     n_partial = len([m for m in result["models"] if not m["complete"]])
     fig.text(0.008, 0.030,
@@ -197,7 +226,12 @@ def fig_precision_recall(result, path, plt):
     f1 = 2 * rr * pp / (rr + pp)
     levels = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
     cs = ax.contour(rr, pp, f1, levels=levels, colors=GRID, linewidths=0.9, zorder=1)
-    ax.clabel(cs, fmt=lambda v: f"F1 {v:.1f}", fontsize=6.8, colors=INK_MUTED)
+    # Contour labels go in the right margin, not wherever the auto-placer picks. Left to
+    # itself it put "F1 0.6" at recall 0.44 / precision 0.99 — on top of the two YOLO
+    # markers and their labels. Every iso-F1 curve crosses recall 1.0 at p = F1/(2 - F1),
+    # and nothing on this board reaches recall 1.0, so that column is always free.
+    ax.clabel(cs, fmt=lambda v: f"F1 {v:.1f}", fontsize=6.8, colors=INK_MUTED,
+              manual=[(1.0, lv / (2 - lv)) for lv in levels])
 
     for m in models:
         ref = m["model"] == "rampnet"
@@ -208,7 +242,8 @@ def fig_precision_recall(result, path, plt):
         ax.annotate(m["display"], (m["recall"], m["precision"]),
                     textcoords="offset points", xytext=(dx, dy), ha=ha,
                     fontsize=8.4, color=INK if ref else INK_SECONDARY,
-                    fontweight="bold" if ref else "normal", zorder=6)
+                    fontweight="bold" if ref else "normal", zorder=6,
+                    path_effects=_halo())
 
     ax.set_xlim(0, 1.04)
     ax.set_ylim(0, 1.04)
@@ -308,11 +343,14 @@ def fig_by_split(result, path, plt):
     working = [m for m in models
                if m["complete"] and m["f1"] is not None and m["f1"] >= 0.1]
     spreads = [m["f1_max"] - m["f1_min"] for m in working if m["model"] != "rampnet"]
-    ref = next(m for m in models if m["model"] == "rampnet")
-    _titles(ax, "F1 by model and split",
-            f"RampNet varies by {ref['f1_max'] - ref['f1_min']:.2f} across the seven "
-            f"pooled cities; every challenger above F1 0.1 varies by "
-            f"{min(spreads):.2f}–{max(spreads):.2f}.")
+    ref = next((m for m in models if m["model"] == "rampnet"), None)
+    if ref is not None and ref["f1_max"] is not None and spreads:
+        subtitle = (f"RampNet varies by {ref['f1_max'] - ref['f1_min']:.2f} across the "
+                    f"seven pooled cities; every challenger above F1 0.1 varies by "
+                    f"{min(spreads):.2f}–{max(spreads):.2f}.")
+    else:
+        subtitle = "F1 per (model, split). Held-out splits sit right of the gutter."
+    _titles(ax, "F1 by model and split", subtitle)
     fig.text(0.008, 0.012,
              "† held out of the pooled headline: budapest (single-rater GT at low reviewer "
              "confidence), sao_paulo (non-US), manual_gold (in-distribution reference).",
@@ -362,7 +400,8 @@ def fig_generalization(result, path, plt):
         ax.annotate(f"{m['display']}  {y - x:+.2f}", (x, y), textcoords="offset points",
                     xytext=(dx, dy), ha=ha, fontsize=8.4,
                     color=INK if ref else INK_SECONDARY,
-                    fontweight="bold" if ref else "normal", zorder=6)
+                    fontweight="bold" if ref else "normal", zorder=6,
+                    path_effects=_halo())
 
     ax.set_xlim(0, 1.04)
     ax.set_ylim(0, 1.04)
@@ -446,16 +485,23 @@ def fig_pr_curves(result, path, plt):
     ax.set_axisbelow(True)
 
     # Scoreless models first, so the curves draw over them.
+    #
+    # MICRO precision/recall, not the headline table's macro-mean: these axes are the
+    # micro-pooled curve's, and a macro point plotted on them is a different aggregation
+    # under the same subtitle. The shift is small (max 0.010 in P, Qwen-32B) but "small"
+    # is not "labelled", and this figure's whole subject is what a point on a curve means.
     for m in result["models"]:
         if m["model"] in curves or not m["complete"]:
             continue
-        if m["precision"] is None:
+        pr = m.get("micro_precision"), m.get("micro_recall")
+        if pr[0] is None or pr[1] is None:
             continue
-        ax.plot(m["recall"], m["precision"], "o", ms=7, color=INK_MUTED,
+        precision, recall = pr
+        ax.plot(recall, precision, "o", ms=7, color=INK_MUTED,
                 mec=SURFACE, mew=1.6, zorder=4)
-        ax.annotate(m["display"], (m["recall"], m["precision"]),
+        ax.annotate(m["display"], (recall, precision),
                     textcoords="offset points", xytext=(9, -3.5), fontsize=8,
-                    color=INK_MUTED, zorder=5)
+                    color=INK_MUTED, zorder=5, path_effects=_halo())
 
     handles = []
     for name, curve in sorted(curves.items(),
@@ -468,32 +514,41 @@ def fig_pr_curves(result, path, plt):
                 zorder=6 if ref else 5, solid_capstyle="round")
         label = by_name.get(name, {}).get("display", name)
         handles.append(Line2D([], [], color=colour, lw=2.6 if ref else 1.7, ls=dash,
-                              label=f"{label}  AP {curve['ap']:.3f}"))
+                              label=f"{label}  {curve['ap']:.3f}"))
 
     # The two thresholds the project has argued about, on RampNet's curve.
+    from scoreboard import DEPLOYED_THRESHOLD
+
     marks = (curves.get("rampnet") or {}).get("marks") or {}
     for thr, mk in sorted(marks.items()):
-        deployed = abs(float(thr) - 0.55) < 1e-9
+        deployed = abs(float(thr) - DEPLOYED_THRESHOLD) < 1e-9
         ax.plot(mk["recall"], mk["precision"], "o", ms=9,
                 mfc=CURVE_COLOR["rampnet"] if not deployed else SURFACE,
                 mec=CURVE_COLOR["rampnet"], mew=2.2, zorder=8)
         ax.annotate(f"{float(thr):.2f}" + ("  deployed" if deployed else "  recommended (#54)"),
                     (mk["recall"], mk["precision"]), textcoords="offset points",
                     xytext=(-10, 11 if deployed else -16), ha="right", fontsize=8.2,
-                    color=INK, zorder=9)
+                    color=INK, zorder=9, path_effects=_halo())
 
     ax.set_xlim(0, 1.02)
     ax.set_ylim(0, 1.02)
     ax.set_xlabel("recall", fontsize=9.5, color=INK_SECONDARY)
     ax.set_ylabel("precision", fontsize=9.5, color=INK_SECONDARY)
     _titles(ax, "A calibrated score is a dial; a chat VLM is a dot",
-            "Pooled over the seven US splits (micro — every panorama counts once). "
-            "Grey dots emit no confidence and cannot be moved.")
+            "Pooled over the seven US splits, micro — every panorama counts once, dots "
+            "included. Grey dots emit no confidence and cannot be moved.")
     # Mid-left: the lower-left corner is where the two open-detector curves live, and a
     # legend there sits on top of them.
+    #
+    # "micro" belongs in the legend TITLE, not repeated on six rows: the headline table's
+    # AP column is the macro-mean of the same data and lands a few thousandths away, so
+    # the family has to be named — but naming it six times widened the block until its
+    # last row ran into the Qwen-8B dot label.
     leg = ax.legend(handles=handles, loc="lower left", frameon=False, fontsize=8.2,
                     labelcolor=INK_SECONDARY, handlelength=2.6,
+                    title="AP, micro-pooled", alignment="left",
                     bbox_to_anchor=(0.01, 0.30))
+    leg.get_title().set(color=INK_MUTED, fontsize=7.8)
     leg.set_zorder(10)
     fig.text(0.008, 0.030,
              "RampNet's curve is read from analysis_out/op_cache — the #54 low-floor "
