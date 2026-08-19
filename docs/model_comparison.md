@@ -1642,6 +1642,47 @@ Models differ by an order of magnitude in how much they do that (gemini-3.6-flas
 flash legs are not as cheap relative to pro as the rate card suggests — the 3.6-flash /
 3.1-pro gap is $1.98 vs $2.31 per leg, not the 2.7× the input rates alone imply.
 
+### The claude-opus-5 nine-split leg: layer 1 failed, layer 3 recovered it (#139)
+
+**This is the case the three-layer scheme was designed for, and it is worth reading as a
+worked example rather than a footnote.** The eight-split `claude-opus-5` run of 2026-08-18
+(984 panoramas: bend, budapest_district5, clovis, gainesville, morgantown, paterson,
+richmond, sao_paulo) **wrote no record to `analysis_out/usage_log.jsonl`.** The ledger
+holds three entries totalling $0.34 — one `claude-sonnet-5` annapolis leg and two richmond
+smoke tests — and nothing for the run itself. Layer 1 simply did not fire.
+
+Layer 3 recovered the ground truth the next day:
+
+| model | input tokens | output tokens | est. cost |
+|---|---:|---:|---:|
+| claude-opus-5 (eight splits + 4 smoke panos, 08-18) | 11,988,993 | 418,503 | **$70.41** |
+| claude-sonnet-5 (re-run remnant) | 12,594 | 480 | $0.03 |
+
+`python scripts/analysis/vertex_usage.py --days 3`, run 2026-08-19. Four things follow,
+and the last one is the one that bites:
+
+- **Input tokens are deterministic, so the input half is checkable without any cloud
+  access.** An Opus pano is exactly **12,186 tokens** (6 views × 2,031), identical in both
+  smoke records. 984 panos predicts 11,991,024 against 11,988,993 billed — 0.02% out, a
+  single call. Anyone can re-derive that from the committed detections; it is $59.94 of the
+  $70.41.
+- **The output half cannot be reconstructed this way.** Extrapolating the smoke tests'
+  688 output tokens/pano gives $16.92 where the true figure is $10.46 — **62% high**,
+  because output is thinking plus box count and the two smoke panos were unusually verbose.
+  Actual: 425 output tokens/pano. Estimate input from geometry; never estimate output.
+- **Recovery is per-model per-day, not per-split.** Cloud Monitoring cannot say what
+  richmond cost as distinct from clovis. That attribution is permanently gone, which is
+  tolerable here only because the eight splits were one contiguous run of one model.
+- **The recovery window is ~6 weeks and then it is not.** Had this gone unnoticed until
+  October the number would have been unrecoverable at any price. **A missing layer-1 record
+  is an emergency with a deadline, not a paperwork error** — run `vertex_usage.py` the
+  moment a paid leg finishes without logging, not when someone next reads the doc.
+
+The `--usage-log none` guard added in #119 refuses to start a paid leg with logging
+disabled, so the likely mechanism is a run whose `REPO_ROOT` resolved to a scratch worktree
+that was later deleted, taking the ledger with it. That is a real hole: the guard proves a
+log path was *accepted*, not that the file it wrote still exists. See #143.
+
 ## Running it
 
 ```bash
