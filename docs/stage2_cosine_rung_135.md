@@ -54,7 +54,9 @@ size. This is the cleanest isolation available.
 
 `stage_two/train.py`'s `lr_at_step` computes the rate from the **absolute step index** rather
 than from a scheduler object. This matters because Stage 2 runs on klone's preemptible
-`ckpt-all` partition and resumes from `latest_checkpoint.pth` — Run A was requeued twice.
+`ckpt-all` partition and resumes from `latest_checkpoint.pth` — Run A was requeued five
+times across its two job ids, measured with `sacct -D` (plain `sacct` shows only the last
+incarnation, which is why the earlier count here said twice).
 
 A stateful scheduler (`CosineAnnealingLR` and friends keep `last_epoch` internally) restarts its
 decay from the peak on every requeue unless its state is *also* saved and restored. That turns a

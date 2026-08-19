@@ -16,7 +16,7 @@
 # WHY THE SCHEDULE IS STATELESS
 # -----------------------------
 # train.py computes the rate from the absolute step index (see lr_at_step), not
-# from a scheduler object. This partition preempts -- Run A was requeued twice --
+# from a scheduler object. This partition preempts -- Run A was requeued 5x, per sacct -D --
 # and a stateful scheduler restarts its decay from the peak on every requeue
 # unless its state is also serialized, turning the cosine into a sawtooth. That
 # failure is SILENT: the job completes and the loss curve looks plausible. The

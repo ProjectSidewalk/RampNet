@@ -36,7 +36,7 @@ def lr_at_step(step, total_steps, peak_lr, schedule='constant', final_frac=0.0):
     """The learning rate for training step ``step``, from the step index alone.
 
     **Deliberately stateless, and that is the whole point.** Stage 2 runs on klone's
-    preemptible ``ckpt-all`` partition -- Run A was requeued twice -- and resumes from
+    preemptible ``ckpt-all`` partition -- Run A was requeued five times -- and resumes from
     ``latest_checkpoint.pth``. A stateful scheduler (``CosineAnnealingLR`` and friends
     keep ``last_epoch`` internally) would restart its decay from the peak on every
     requeue unless its state were also saved and restored, turning a smooth cosine
