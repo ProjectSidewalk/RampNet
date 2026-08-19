@@ -18,34 +18,20 @@ Importing train.py executes it, so the function is loaded from source rather tha
 imported — the module is a script, not a library, and running it here would try to
 build a model and open a dataset.
 """
-import ast
-import math
 import os
 import sys
-import types
 
 import pytest
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TRAIN_PY = os.path.join(REPO, "stage_two", "train.py")
+sys.path.insert(0, os.path.join(REPO, "scripts", "analysis"))
 
+# The AST lift lives with the script that checks the *applied* schedule against it, so
+# there is one copy: this file tests the formula, that one tests where it was applied.
+from check_lr_schedule_135 import load_schedule  # noqa: E402
 
-def _load_schedule():
-    """`lr_at_step` and `LR_SCHEDULES`, lifted from train.py without running it."""
-    with open(TRAIN_PY, encoding="utf-8") as fh:
-        tree = ast.parse(fh.read(), filename=TRAIN_PY)
-    wanted = [n for n in tree.body
-              if (isinstance(n, ast.FunctionDef) and n.name == "lr_at_step")
-              or (isinstance(n, ast.Assign)
-                  and any(getattr(t, "id", None) == "LR_SCHEDULES" for t in n.targets))]
-    assert len(wanted) == 2, "train.py no longer defines LR_SCHEDULES and lr_at_step"
-    mod = types.ModuleType("train_lr")
-    mod.math = math
-    exec(compile(ast.Module(body=wanted, type_ignores=[]), TRAIN_PY, "exec"), mod.__dict__)
-    return mod
-
-
-SCHED = _load_schedule()
+SCHED = load_schedule()
 TOTAL = 8 * 9378          # the rung: 8 epochs at world size 16
 PEAK = 1e-5
 
