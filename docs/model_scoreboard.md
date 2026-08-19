@@ -34,6 +34,7 @@ model, and the reasons are in "How to read this" below.
 | YOLO11x (pano) | supervised baseline | 0.25 | **0.969** | 0.416 | 0.575 | -0.252 | 0.730 | 0.0 | 0.40–0.71 |
 | YOLO26 (pano) | supervised baseline | 0.25 | 0.736 | 0.446 | 0.550 | -0.277 | 0.603 | 0.4 | 0.45–0.68 |
 | Gemini 3.1 Pro | chat VLM | no score | 0.656 | 0.573 | 0.608 | -0.219 | – | 0.7 | 0.51–0.68 |
+| Claude Opus 5 (low) | chat VLM | no score | 0.573 | 0.614 | 0.588 | -0.239 | – | 1.1 | 0.48–0.65 |
 | Gemini 3.7 Flash | chat VLM | no score | 0.698 | 0.496 | 0.576 | -0.251 | – | 0.5 | 0.46–0.66 |
 | Gemini 3.6 Flash | chat VLM | no score | 0.588 | 0.549 | 0.564 | -0.263 | – | 0.9 | 0.44–0.63 |
 | Qwen3-VL-32B | chat VLM | no score | 0.664 | 0.246 | 0.356 | -0.471 | – | 0.3 | 0.17–0.43 |
@@ -68,6 +69,18 @@ operating point anyone has committed to, and on ground truth that never saw a Ra
    model here can be made precise. Finding the ramps is the hard part, which is why the
    project's operating-point work optimizes recall-first
    ([`operating_point.md`](operating_point.md)).
+4. **One split can invert a challenger ranking, and it did.** `claude-opus-5` at low effort
+   beat `gemini-3.1-pro` on annapolis by **+0.021 F1** — the only time any model has displaced
+   the top challenger — so #139 ran it on the other eight splits. Pooled, it **trails by
+   −0.021** (0.588 against 0.608): the one split that made the result look real was the one
+   split that flattered it. The headline row is unchanged, and the claim "nothing has
+   displaced `gemini-3.1-pro`" is now tested rather than merely unchallenged.
+
+   The F1 near-tie hides two models that are not alike, and by this board's own third finding
+   the difference matters: **Opus trades −0.083 precision for +0.041 recall**, which makes it
+   the **highest-recall chat VLM on the board** (0.614, above every Gemini leg). It loses on
+   the aggregate and wins on the axis the operating-point work says to optimize. Quote the
+   ranking without that and you have the direction right and the reason wrong.
 
 ![Precision vs recall](figures/scoreboard_pr.png)
 
@@ -81,7 +94,7 @@ and F1 cannot tell you.
 
 ## Legs that have not run every pooled split
 
-Six legs have run one split each, so they have no pooled mean to put in the table above —
+Five legs have run one split each, so they have no pooled mean to put in the table above —
 a one-city average printed beside a seven-city one is exactly the comparison the coverage
 column exists to prevent. They are reported per split instead, at the split they ran on:
 
@@ -91,7 +104,6 @@ column exists to prevent. They are reported per split instead, at the split they
 |---|---|---|--:|--:|--:|--:|--:|--:|
 | Mask2Former Vistas (curb cut) | supervised transfer | `richmond` | 0.411 | 0.697 | 0.517 | 0.513 | 2.5 | 216/309/94 |
 | Mask2Former Vistas (+curb) | supervised transfer | `richmond` | 0.126 | 0.648 | 0.210 | 0.089 | 11.3 | 201/1399/109 |
-| Claude Opus 5 (low) | chat VLM | `annapolis` | 0.572 | 0.605 | 0.588 | – | 1.1 | 178/133/116 |
 | Claude Opus 5 (high) | chat VLM | `annapolis` | 0.430 | 0.656 | 0.520 | – | 2.0 | 193/256/101 |
 | Claude Sonnet 5 (low) | chat VLM | `annapolis` | 0.589 | 0.381 | 0.463 | – | 0.6 | 112/78/182 |
 | Claude Sonnet 5 (high) | chat VLM | `annapolis` | 0.506 | 0.415 | 0.456 | – | 1.0 | 122/119/172 |
@@ -101,10 +113,13 @@ column exists to prevent. They are reported per split instead, at the split they
 Two things worth carrying out of that table, both from splits where the roster's own
 numbers are directly above them in `model_comparison.md`:
 
-- **Claude Opus 5 at low effort is the strongest challenger measured on annapolis** (F1
-  0.588, against gemini-3.1-pro's 0.567) — and **more thinking makes it worse** (0.520 at
-  high effort). The same direction holds for Sonnet 5 (0.463 → 0.456). Effort moves the
-  operating point; it does not raise the ceiling (#122).
+- **More thinking makes it worse.** Claude Opus 5 drops from 0.588 at low effort to 0.520 at
+  high on annapolis, and the same direction holds for Sonnet 5 (0.463 → 0.456). Effort moves
+  the operating point; it does not raise the ceiling (#122). The low-effort leg has since run
+  nine splits and is in the headline table above — **and its annapolis lead over
+  `gemini-3.1-pro` did not survive the other six splits** (#139); see the note under that
+  table. The high-effort leg stays here, at one split, because re-running it comprehensively
+  would roughly double the bill to re-measure a result we already have.
 - **Supervised transfer fixes most of the precision problem and still loses.** Mask2Former
   reading Vistas' `Curb Cut` class scores 0.517 on richmond with **12.4× OWLv2's
   precision** and no training at all — but RampNet's 0.855 on that split is 0.337 clear of
@@ -125,6 +140,7 @@ numbers are directly above them in `model_comparison.md`:
 | YOLO11x (pano) | 0.547 | 0.710 | 0.551 | 0.686 | 0.397 | 0.635 | 0.499 | 0.575 | 0.221 | 0.659 | 0.851 |
 | YOLO26 (pano) | 0.491 | 0.637 | 0.552 | 0.681 | 0.450 | 0.591 | 0.451 | 0.550 | 0.277 | 0.605 | 0.739 |
 | Gemini 3.1 Pro | 0.667 | 0.638 | 0.514 | 0.643 | 0.567 | 0.681 | 0.548 | 0.608 | 0.381 | 0.454 | – |
+| Claude Opus 5 (low) | 0.601 | 0.604 | 0.550 | 0.649 | 0.588 | 0.642 | 0.479 | 0.588 | 0.378 | 0.468 | – |
 | Gemini 3.7 Flash | 0.664 | 0.639 | 0.504 | 0.595 | 0.565 | 0.609 | 0.456 | 0.576 | 0.338 | 0.358 | 0.527 |
 | Gemini 3.6 Flash | 0.634 | 0.597 | 0.483 | 0.633 | 0.554 | 0.608 | 0.438 | 0.564 | 0.336 | 0.346 | – |
 | Qwen3-VL-32B | 0.427 | 0.415 | 0.311 | 0.426 | 0.398 | 0.347 | 0.168 | 0.356 | 0.079 | 0.218 | 0.285 |
@@ -134,7 +150,6 @@ numbers are directly above them in `model_comparison.md`:
 | Grounding DINO | 0.053 | 0.073 | 0.035 | 0.042 | 0.055 | 0.068 | 0.055 | 0.055 | 0.042 | 0.049 | 0.082 |
 | Mask2Former Vistas (curb cut) | 0.517 | – | – | – | – | – | – | – | – | – | – |
 | Mask2Former Vistas (+curb) | 0.210 | – | – | – | – | – | – | – | – | – | – |
-| Claude Opus 5 (low) | – | – | – | – | 0.588 | – | – | – | – | – | – |
 | Claude Opus 5 (high) | – | – | – | – | 0.520 | – | – | – | – | – | – |
 | Claude Sonnet 5 (low) | – | – | – | – | 0.463 | – | – | – | – | – | – |
 | Claude Sonnet 5 (high) | – | – | – | – | 0.456 | – | – | – | – | – | – |
@@ -363,9 +378,19 @@ Omissions are content, so they are named rather than left as blanks:
   half of the #51 ablation; the resolution-controlled half is not done.
 - **`manual_gold` has no null-recall pass** (O(n²) in panos), so the open detectors' recall
   discount is unmeasured on that split.
-- **Six legs have one split each**, so they are in the partial table rather than the
-  headline: the two Vistas arms (richmond) and the four Claude legs (annapolis). Extending
-  either to the full pool is a run, not a code change.
+- **Five legs have one split each**, so they are in the partial table rather than the
+  headline: the two Vistas arms (richmond), and Claude Opus 5 (high) plus both Sonnet 5 legs
+  (annapolis). Extending either to the full pool is a run, not a code change.
+- **`claude-opus-5-effort-low` is scored here but is not a standing roster entry.** It has
+  full 7/7 coverage, so it appears in every table above; `standing` stays `False` because
+  `roster.py` forbids a *pinned* leg from being standing — a scored entry has to be what a
+  bare `--models` spec reproduces, and both efforts of `claude:claude-opus-5` share one spec.
+  The consequence is narrow and deliberate: it is absent from the `fp_taxonomy` /
+  `null_recall` defaults and from the frozen `WITNESS_POOL_46`, not from the scoreboard. The
+  three YOLO pano arms and `gemini-3.7-flash` sit in exactly the same position.
+- **`claude-opus-5` has no `manual_gold` row, and that is a decision rather than a pending
+  run** — `gemini-3.1-pro-preview` has none either, so a Claude-only run there would have no
+  peer to compare against. Stated in full in #144.
 - **Nothing else in the registry is missing.** The board is driven by `rampnet/roster.py`,
   and `unregistered_exports` is empty — every published detections file is claimed by a
   roster entry and scored here.

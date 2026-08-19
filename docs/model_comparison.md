@@ -1487,6 +1487,16 @@ tokens to lose 0.068 F1.
 precision** (0.589 → 0.572), which is a capability difference rather than a threshold
 shift. RampNet still leads it by **0.251** (0.839 vs 0.588).
 
+> **Superseded on the pooled board, 2026-08-19 (#139).** That displacement is an
+> annapolis result and it does not generalise. Run on the other eight splits, `claude-opus-5`
+> at `low` pools to **F1 0.588 against `gemini-3.1-pro`'s 0.608** — an annapolis lead of
+> +0.021 becoming a pooled deficit of −0.021. **`gemini-3.1-pro` remains the best
+> challenger.** What survives is the shape rather than the ranking: Opus trades **−0.083
+> precision for +0.041 recall**, making it the highest-recall chat VLM on the board (0.614).
+> The pooled table is in [`model_scoreboard.md`](model_scoreboard.md); the paragraph above is
+> left as written because the annapolis numbers in it are still correct and are what the rest
+> of this section analyses.
+
 **Correction, 2026-08-18 — the sonnet/low row originally used a different denominator.**
 As first published it read 0.587 / 0.372 / 0.456 on `108/76/182`, which is **290** GT
 ramps, not 294: one panorama (`annapolis:1528518111324684`) was lost when a malformed tool

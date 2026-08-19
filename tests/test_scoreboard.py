@@ -401,7 +401,11 @@ def test_partial_coverage_is_reported_not_averaged_away(board):
 
 
 def test_single_split_legs_stay_out_of_the_pooled_tables(board):
-    """Vistas ran richmond only; the Claude legs ran annapolis only.
+    """Vistas ran richmond only; three of the four Claude legs ran annapolis only.
+
+    claude-opus-5-effort-low is deliberately NOT in this set any more: #139 took it to
+    nine splits, so it is a complete leg and belongs in the pooled tables. If it ever
+    reappears here, a leg lost coverage rather than a test needing a nudge.
 
     A one-city macro-mean in the pooled column would be read as a seven-city one. It is
     computed (the number is real, for that one city) but must not reach the headline
@@ -410,7 +414,7 @@ def test_single_split_legs_stay_out_of_the_pooled_tables(board):
     single = [m for m in board["models"] if not m["complete"]]
     assert {m["model"] for m in single} == {
         "mask2former-vistas-curb-cut", "mask2former-vistas-curb-cut+curb",
-        "claude-opus-5-effort-low", "claude-opus-5-effort-high",
+        "claude-opus-5-effort-high",
         "claude-sonnet-5-effort-low", "claude-sonnet-5-effort-high",
     }
     for m in single:
@@ -433,8 +437,10 @@ def test_single_split_legs_stay_out_of_the_pooled_tables(board):
 def test_partial_table_names_the_split_every_number_came_from(board):
     table = sr.partial_table(board)
     assert "`richmond`" in table and "`annapolis`" in table
-    assert "Claude Opus 5 (low)" in table
+    assert "Claude Opus 5 (high)" in table
     assert "Mask2Former Vistas (curb cut)" in table
+    # The low-effort leg went to nine splits in #139, so it is pooled now, not partial.
+    assert "Claude Opus 5 (low)" not in table
 
 
 def test_a_leg_from_an_unmapped_provider_is_classified_not_dropped():
