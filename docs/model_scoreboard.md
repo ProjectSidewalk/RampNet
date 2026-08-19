@@ -32,15 +32,15 @@ model, and the reasons are in "How to read this" below.
 | **RampNet** | purpose-trained | 0.55 | 0.958 | 0.728 | **0.827** | — | 0.849&nbsp;† | 0.1 | 0.80–0.85 |
 | YOLO11l (pano) | supervised baseline | 0.25 | 0.939 | 0.449 | 0.604 | -0.223 | 0.722 | 0.1 | 0.48–0.71 |
 | YOLO11x (pano) | supervised baseline | 0.25 | **0.969** | 0.416 | 0.575 | -0.252 | 0.730 | 0.0 | 0.40–0.71 |
-| YOLO26 (pano) | supervised baseline | 0.25 | 0.736 | 0.446 | 0.550 | -0.277 | 0.602 | 0.4 | 0.45–0.68 |
-| Gemini 3.1 Pro | chat VLM | no score | 0.653 | 0.570 | 0.606 | -0.221 | – | 0.7 | 0.50–0.68 |
-| Gemini 3.7 Flash | chat VLM | no score | 0.697 | 0.496 | 0.575 | -0.252 | – | 0.5 | 0.46–0.66 |
-| Gemini 3.6 Flash | chat VLM | no score | 0.587 | 0.548 | 0.562 | -0.265 | – | 0.9 | 0.44–0.63 |
-| Qwen3-VL-32B | chat VLM | no score | 0.663 | 0.246 | 0.355 | -0.472 | – | 0.3 | 0.17–0.43 |
-| Qwen3-VL-8B | chat VLM | no score | 0.324 | 0.358 | 0.337 | -0.490 | – | 1.8 | 0.25–0.41 |
-| Molmo2-8B | pointing model | no score | 0.431 | 0.439 | 0.429 | -0.398 | – | 1.4 | 0.33–0.51 |
-| OWLv2-large | open-vocab detector | 0.05 floor | 0.034 | **0.942** | 0.065 | -0.762 | 0.097 | 64.8 | 0.05–0.08 |
-| Grounding DINO | open-vocab detector | 0.05 floor | 0.028 | 0.856 | 0.055 | -0.772 | 0.037 | 71.6 | 0.03–0.07 |
+| YOLO26 (pano) | supervised baseline | 0.25 | 0.736 | 0.446 | 0.550 | -0.277 | 0.603 | 0.4 | 0.45–0.68 |
+| Gemini 3.1 Pro | chat VLM | no score | 0.656 | 0.573 | 0.608 | -0.219 | – | 0.7 | 0.51–0.68 |
+| Gemini 3.7 Flash | chat VLM | no score | 0.698 | 0.496 | 0.576 | -0.251 | – | 0.5 | 0.46–0.66 |
+| Gemini 3.6 Flash | chat VLM | no score | 0.588 | 0.549 | 0.564 | -0.263 | – | 0.9 | 0.44–0.63 |
+| Qwen3-VL-32B | chat VLM | no score | 0.664 | 0.246 | 0.356 | -0.471 | – | 0.3 | 0.17–0.43 |
+| Qwen3-VL-8B | chat VLM | no score | 0.325 | 0.360 | 0.338 | -0.489 | – | 1.8 | 0.26–0.41 |
+| Molmo2-8B | pointing model | no score | 0.432 | 0.440 | 0.430 | -0.397 | – | 1.4 | 0.33–0.51 |
+| OWLv2-large | open-vocab detector | 0.05 floor | 0.034 | **0.944** | 0.065 | -0.762 | 0.098 | 64.8 | 0.05–0.08 |
+| Grounding DINO | open-vocab detector | 0.05 floor | 0.028 | 0.857 | 0.055 | -0.772 | 0.038 | 71.6 | 0.03–0.07 |
 
 <!-- END GENERATED: headline -->
 
@@ -48,18 +48,18 @@ model, and the reasons are in "How to read this" below.
 
 ![Pooled F1 by model](figures/scoreboard_f1.png)
 
-**RampNet wins by 0.221 F1**, and the gap is not a threshold artifact: it holds at every
+**RampNet wins by 0.219 F1**, and the gap is not a threshold artifact: it holds at every
 operating point anyone has committed to, and on ground truth that never saw a RampNet review
 (`manual_gold`). The three findings that only become visible once the splits are pooled:
 
 1. **The supervised baseline and the best zero-shot VLM are a dead heat.** YOLO11l trained on
    the RampNet dataset scores **0.604**; Gemini 3.1 Pro, zero-shot with an untuned prompt,
-   scores **0.606**. Issue #51 asks whether RampNet's advantage is the data or the
+   scores **0.608**. Issue #51 asks whether RampNet's advantage is the data or the
    architecture; pooled, the answer is that the *data alone*, handed to a generic detector,
    buys you a tie with an off-the-shelf chat model — and the remaining 0.22 F1 is what the
    keypoint architecture adds.
 2. **RampNet is the only strong model that is also stable.** Its F1 spans 0.80–0.85 across the
-   seven cities, a range of 0.053. Every challenger scoring above 0.1 swings between 0.153
+   seven cities, a range of 0.053. Every challenger scoring above 0.1 swings between 0.148
    (Qwen-8B) and 0.313 (YOLO11x). The two open-vocabulary detectors *are* flatter (0.028,
    0.039) — because they are pinned near zero everywhere, which is consistency of a kind
    nobody wants.
@@ -72,7 +72,7 @@ operating point anyone has committed to, and on ground truth that never saw a Ra
 ![Precision vs recall](figures/scoreboard_pr.png)
 
 The P/R plane is where the single-number ranking stops being enough. Models sitting on the
-same F1 contour fail in opposite directions: Qwen-32B and Qwen-8B score 0.355 and 0.337 —
+same F1 contour fail in opposite directions: Qwen-32B and Qwen-8B score 0.356 and 0.338 —
 practically tied — but 32B gets there by firing rarely at high precision and 8B by flooding.
 Which one you would deploy depends entirely on whether a miss or a false positive costs more,
 and F1 cannot tell you.
@@ -107,7 +107,7 @@ numbers are directly above them in `model_comparison.md`:
   operating point; it does not raise the ceiling (#122).
 - **Supervised transfer fixes most of the precision problem and still loses.** Mask2Former
   reading Vistas' `Curb Cut` class scores 0.517 on richmond with **12.4× OWLv2's
-  precision** and no training at all — but RampNet's 0.855 on that split is 0.338 clear of
+  precision** and no training at all — but RampNet's 0.855 on that split is 0.337 clear of
   it. The union arm (`+curb`) is a committed negative result: adding Vistas' `Curb` class
   *loses* recall while precision collapses, because `Curb` fuses adjacent ramps into one
   component (#126).
@@ -124,13 +124,13 @@ numbers are directly above them in `model_comparison.md`:
 | YOLO11l (pano) | 0.595 | 0.713 | 0.600 | 0.675 | 0.481 | 0.647 | 0.516 | 0.604 | 0.247 | 0.662 | 0.839 |
 | YOLO11x (pano) | 0.547 | 0.710 | 0.551 | 0.686 | 0.397 | 0.635 | 0.499 | 0.575 | 0.221 | 0.659 | 0.851 |
 | YOLO26 (pano) | 0.491 | 0.637 | 0.552 | 0.681 | 0.450 | 0.591 | 0.451 | 0.550 | 0.277 | 0.605 | 0.739 |
-| Gemini 3.1 Pro | 0.664 | 0.638 | 0.503 | 0.639 | 0.567 | 0.681 | 0.548 | 0.606 | 0.381 | 0.454 | – |
-| Gemini 3.7 Flash | 0.664 | 0.639 | 0.499 | 0.595 | 0.565 | 0.609 | 0.456 | 0.575 | 0.338 | 0.358 | 0.527 |
-| Gemini 3.6 Flash | 0.634 | 0.597 | 0.478 | 0.629 | 0.554 | 0.608 | 0.438 | 0.562 | 0.336 | 0.346 | – |
-| Qwen3-VL-32B | 0.427 | 0.415 | 0.311 | 0.421 | 0.398 | 0.347 | 0.168 | 0.355 | 0.079 | 0.218 | 0.285 |
-| Qwen3-VL-8B | 0.377 | 0.357 | 0.252 | 0.337 | 0.327 | 0.405 | 0.302 | 0.337 | 0.169 | 0.219 | 0.386 |
-| Molmo2-8B | 0.457 | 0.449 | 0.376 | 0.460 | 0.424 | 0.511 | 0.329 | 0.429 | 0.274 | 0.326 | 0.422 |
-| OWLv2-large | 0.064 | 0.070 | 0.049 | 0.071 | 0.063 | 0.077 | 0.060 | 0.065 | 0.062 | 0.052 | 0.088 |
+| Gemini 3.1 Pro | 0.667 | 0.638 | 0.514 | 0.643 | 0.567 | 0.681 | 0.548 | 0.608 | 0.381 | 0.454 | – |
+| Gemini 3.7 Flash | 0.664 | 0.639 | 0.504 | 0.595 | 0.565 | 0.609 | 0.456 | 0.576 | 0.338 | 0.358 | 0.527 |
+| Gemini 3.6 Flash | 0.634 | 0.597 | 0.483 | 0.633 | 0.554 | 0.608 | 0.438 | 0.564 | 0.336 | 0.346 | – |
+| Qwen3-VL-32B | 0.427 | 0.415 | 0.311 | 0.426 | 0.398 | 0.347 | 0.168 | 0.356 | 0.079 | 0.218 | 0.285 |
+| Qwen3-VL-8B | 0.377 | 0.359 | 0.257 | 0.340 | 0.327 | 0.405 | 0.302 | 0.338 | 0.169 | 0.219 | 0.386 |
+| Molmo2-8B | 0.457 | 0.449 | 0.381 | 0.463 | 0.424 | 0.511 | 0.329 | 0.430 | 0.274 | 0.326 | 0.422 |
+| OWLv2-large | 0.064 | 0.071 | 0.049 | 0.071 | 0.063 | 0.077 | 0.060 | 0.065 | 0.062 | 0.052 | 0.088 |
 | Grounding DINO | 0.053 | 0.073 | 0.035 | 0.042 | 0.055 | 0.068 | 0.055 | 0.055 | 0.042 | 0.049 | 0.082 |
 | Mask2Former Vistas (curb cut) | 0.517 | – | – | – | – | – | – | – | – | – | – |
 | Mask2Former Vistas (+curb) | 0.210 | – | – | – | – | – | – | – | – | – | – |

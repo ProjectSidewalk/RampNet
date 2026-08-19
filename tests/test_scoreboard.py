@@ -82,16 +82,24 @@ def test_every_held_out_split_states_why(board):
 # --------------------------------------------------------------------------- #
 # agreement with the detailed log
 # --------------------------------------------------------------------------- #
-# (model, split) -> (P, R, F1) exactly as committed in docs/model_comparison.md. If the
-# scoreboard and the log disagree, one of them is wrong and both are quoted.
+# (model, split) -> (P, R, F1) as committed in docs/model_comparison.md.
+#
+# This is a hand-copy, and test_every_number_matches_model_comparison below reads the log
+# itself — so this dict is deliberately NOT the contract, it is a regression pin. Its job
+# is to name a handful of numbers explicitly, in a form that is readable in a diff and
+# that does not depend on the parser. When the #132 seam wrap moved the challengers, this
+# dict went stale exactly as a hand-copy does; the full check caught the same thing across
+# all 88 rows. Keep it small, and update it from the log, never from the scorer.
 PUBLISHED = {
     ("rampnet", "richmond"): (0.964, 0.768, 0.855),
     ("rampnet", "annapolis"): (0.973, 0.738, 0.839),
     ("rampnet", "budapest_district5"): (0.874, 0.510, 0.644),
     ("gemini-3.1-pro-preview", "paterson"): (0.852, 0.567, 0.681),
     ("Qwen/Qwen3-VL-32B-Instruct", "budapest_district5"): (0.433, 0.043, 0.079),
-    ("allenai/Molmo2-8B", "morgantown"): (0.462, 0.457, 0.460),
-    ("google/owlv2-large-patch14-ensemble", "clovis"): (0.025, 0.908, 0.049),
+    # These two moved with the #132 seam wrap (0.462/0.457/0.460 and 0.025/0.908/0.049
+    # before it): one detection each sat across the 360 seam from its ground truth.
+    ("allenai/Molmo2-8B", "morgantown"): (0.466, 0.461, 0.463),
+    ("google/owlv2-large-patch14-ensemble", "clovis"): (0.025, 0.913, 0.049),
     # The two arms that arrived with #126 and #122, at the same no-floor operating
     # point their own write-ups report.
     ("mask2former-vistas-curb-cut", "richmond"): (0.411, 0.697, 0.517),

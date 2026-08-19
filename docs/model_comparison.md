@@ -211,6 +211,20 @@ Perspective tiling, match radius 0.022, all models scored against the same deriv
 Open detectors are shown at their 0.05 cache floor; their tuned operating points are in the
 sweep below. Run on Hyak (L40S); RampNet and Gemini rows are cache-scored.
 
+**Regenerated 2026-08-18 for the #132 seam wrap.** `score_pano` now wraps the 360°
+seam, so a detection at x=0.99 is matched against ground truth at x=0.01 rather than
+treated as ~1,010 px away. That recovers a genuine match on each of **19 (model, split)
+pairs** and moved **66 cells** in the tables below — every one a challenger, all in the
+same direction, none large enough to reorder anything. **RampNet, the three YOLO arms,
+both Vistas arms and the four Claude legs are unchanged**, which is why the effect was
+missed when #132 landed: it was checked against RampNet. Ranking, the headline claim and
+every conclusion in this document are unaffected; the largest single move is
+gemini-3.1-pro on clovis, F1 0.503 → 0.514.
+
+These tables are now checked against the scorer on every CI run
+(`tests/test_scoreboard.py::test_every_number_matches_model_comparison`), so a code change
+that moves a published number here fails the build instead of going unnoticed.
+
 **The AP column is computed from each split's bundle**, which for RampNet means a curve
 truncated at its deployed 0.55 — the bundles *are* a production run, and that is where
 production stops. So RampNet's AP below is not comparable to the arms exported at 0.05, and
@@ -226,13 +240,13 @@ is the one untruncated RampNet AP here.
 | model | P | R | F1 | AP | tp/fp/fn |
 |---|---|---|---|---|---|
 | **rampnet** | **0.964** | 0.768 | **0.855** | 0.763 | 238/9/72 |
-| gemini-3.1-pro-preview | 0.631 | 0.700 | 0.664 | – | 217/127/93 |
+| gemini-3.1-pro-preview | 0.634 | 0.703 | 0.667 | – | 218/126/92 |
 | gemini-3.6-flash | 0.626 | 0.642 | 0.634 | – | 199/119/111 |
 | **molmo2-8B** (points) | 0.410 | 0.516 | **0.457** | – | 160/230/150 |
 | Qwen3-VL-32B-Instruct | 0.760 | 0.297 | 0.427 | – | 92/29/218 |
 | Qwen3-VL-8B-Instruct | 0.323 | 0.452 | 0.377 | – | 140/293/170 |
 | owlv2-large-patch14-ensemble | 0.033 | **0.971** | 0.064 | 0.104 | 301/8799/9 |
-| grounding-dino-base | 0.028 | 0.852 | 0.053 | 0.032 | 264/9321/46 |
+| grounding-dino-base | 0.028 | 0.852 | 0.053 | 0.033 | 264/9321/46 |
 
 **bend** (110 reviewed panos, 327 GT ramps)
 
@@ -243,8 +257,8 @@ is the one untruncated RampNet AP here.
 | gemini-3.6-flash | 0.608 | 0.587 | 0.597 | – | 192/124/135 |
 | **molmo2-8B** (points) | 0.510 | 0.401 | **0.449** | – | 131/126/196 |
 | Qwen3-VL-32B-Instruct | 0.706 | 0.294 | 0.415 | – | 96/40/231 |
-| Qwen3-VL-8B-Instruct | 0.379 | 0.336 | 0.357 | – | 110/180/217 |
-| owlv2-large-patch14-ensemble | 0.037 | 0.951 | 0.070 | 0.093 | 311/8187/16 |
+| Qwen3-VL-8B-Instruct | 0.381 | 0.339 | 0.359 | – | 111/180/216 |
+| owlv2-large-patch14-ensemble | 0.037 | 0.954 | 0.071 | 0.093 | 312/8187/15 |
 | grounding-dino-base | 0.038 | 0.850 | 0.073 | 0.049 | 278/6969/49 |
 
 **clovis** (125 reviewed panos, 195 GT ramps) — Mapillary GoPro Fusion 360s, the hardest of the
@@ -253,18 +267,18 @@ three deployment cities
 | model | P | R | F1 | AP | tp/fp/fn |
 |---|---|---|---|---|---|
 | **rampnet** | **0.914** | 0.713 | **0.801** | 0.688 | 139/13/56 |
-| gemini-3.1-pro-preview | 0.531 | 0.477 | 0.503 | – | 93/82/102 |
-| gemini-3.6-flash | 0.460 | 0.497 | 0.478 | – | 97/114/98 |
-| **molmo2-8B** (points) | 0.331 | 0.436 | **0.376** | – | 85/172/110 |
+| gemini-3.1-pro-preview | 0.543 | 0.487 | 0.514 | – | 95/80/100 |
+| gemini-3.6-flash | 0.464 | 0.503 | 0.483 | – | 98/113/97 |
+| **molmo2-8B** (points) | 0.335 | 0.441 | **0.381** | – | 86/171/109 |
 | Qwen3-VL-32B-Instruct | 0.696 | 0.200 | 0.311 | – | 39/17/156 |
-| Qwen3-VL-8B-Instruct | 0.222 | 0.292 | 0.252 | – | 57/200/138 |
-| owlv2-large-patch14-ensemble | 0.025 | **0.908** | 0.049 | 0.067 | 177/6911/18 |
-| grounding-dino-base | 0.018 | 0.867 | 0.035 | 0.026 | 169/9433/26 |
+| Qwen3-VL-8B-Instruct | 0.226 | 0.297 | 0.257 | – | 58/199/137 |
+| owlv2-large-patch14-ensemble | 0.025 | **0.913** | 0.049 | 0.067 | 178/6910/17 |
+| grounding-dino-base | 0.018 | 0.872 | 0.035 | 0.026 | 170/9432/25 |
 
 Clovis is 100% soft, 2018-era GoPro Fusion 360 imagery, so every model degrades relative to
 richmond/bend — RampNet's own P/R slips to 0.914/0.713 (from richmond's 0.964/0.768). But the
 **ranking is identical across all three cities**, and RampNet's lead *widens*: the gap to the best
-challenger grows from ~0.19 (richmond) to **~0.30** here. These are the all-125 numbers, so every
+challenger grows from ~0.19 (richmond) to **~0.29** here. These are the all-125 numbers, so every
 model is scored on the same panos; clovis's ground-truth quality against the 120-pano *unbiased*
 subset (P 0.889 / R 0.650) is in `benchmark/README.md`. (`gemini-2.5-flash`, not run on richmond,
 scores F1 0.278 on clovis — between Qwen-32B and Qwen-8B, tracking its 0.252 on bend.)
@@ -294,7 +308,7 @@ Best sweep F1 for the open detectors: OWLv2 **0.208** (thr 0.25), Grounding DINO
 signature recurs: Molmo best open-weight with the only balanced profile, Qwen-32B cautious
 (challenger-best precision 0.608 at the worst recall 0.296), Qwen-8B FP-leaky, open-vocab
 detectors trading a huge nominal recall for ~3% precision. RampNet's lead over the best
-challenger is 0.27 F1, between richmond's ~0.19 and clovis's ~0.30.
+challenger is 0.27 F1, between richmond's ~0.19 and clovis's ~0.29.
 
 Annapolis is also where the open detectors' recall column stops being believable — see
 "How much of a detector's recall is real?" below, which was measured here first and then
@@ -306,17 +320,18 @@ the benchmark and the control for everything below
 | model | P | R | F1 | AP | tp/fp/fn |
 |---|---|---|---|---|---|
 | **rampnet** | **0.975** | 0.730 | **0.835** | 0.728 | 195/5/72 |
-| gemini-3.1-pro-preview | 0.675 | 0.607 | 0.639 | – | 162/78/105 |
-| gemini-3.6-flash | 0.633 | 0.625 | 0.629 | – | 167/97/100 |
-| **molmo2-8B** (points) | 0.462 | 0.457 | **0.460** | – | 122/142/145 |
-| Qwen3-VL-32B-Instruct | 0.667 | 0.307 | 0.421 | – | 82/41/185 |
-| Qwen3-VL-8B-Instruct | 0.301 | 0.382 | 0.337 | – | 102/237/165 |
+| gemini-3.1-pro-preview | 0.679 | 0.610 | 0.643 | – | 163/77/104 |
+| gemini-3.6-flash | 0.636 | 0.629 | 0.633 | – | 168/96/99 |
+| **molmo2-8B** (points) | 0.466 | 0.461 | **0.463** | – | 123/141/144 |
+| Qwen3-VL-32B-Instruct | 0.675 | 0.311 | 0.426 | – | 83/40/184 |
+| Qwen3-VL-8B-Instruct | 0.304 | 0.386 | 0.340 | – | 103/236/164 |
 | owlv2-large-patch14-ensemble | 0.037 | **0.948** | 0.071 | 0.114 | 253/6613/14 |
 | grounding-dino-base | 0.022 | 0.831 | 0.042 | 0.028 | 222/9991/45 |
 
 Best sweep F1: OWLv2 **0.196** (thr 0.25), Grounding DINO **0.068** (thr 0.15). This is the
 **canonical ordering, position for position**, and every model posts its best or near-best
-score of any city — Gemini-3.1-pro's 0.639 and Molmo's 0.460 are their highest anywhere. That
+score of any city — Gemini-3.1-pro's 0.643 and Molmo's 0.463 were their highest anywhere
+when this split ran; paterson has since beaten both (0.681 and 0.511). That
 is what you would expect from the sharpest imagery in the benchmark, and it is why morgantown
 is the right control to read budapest against.
 
@@ -331,8 +346,8 @@ confidence HIGH; the split whose misses are structural (`benchmark/README.md`)
 | **molmo2-8B** (points) | 0.585 | 0.453 | **0.511** | – | 179/127/216 |
 | Qwen3-VL-8B-Instruct | 0.460 | 0.362 | 0.405 | – | 143/168/252 |
 | **Qwen3-VL-32B-Instruct** | 0.813 | **0.220** | **0.347** | – | 87/20/308 |
-| owlv2-large-patch14-ensemble | 0.040 | **0.891** | 0.077 | 0.116 | 352/8399/43 |
-| grounding-dino-base | 0.036 | 0.800 | 0.068 | 0.043 | 316/8552/79 |
+| owlv2-large-patch14-ensemble | 0.040 | **0.894** | 0.077 | 0.116 | 353/8398/42 |
+| grounding-dino-base | 0.036 | 0.803 | 0.068 | 0.044 | 317/8551/78 |
 
 Best sweep F1: OWLv2 **0.216** (thr 0.25), Grounding DINO **0.100** (thr 0.15).
 
@@ -1253,7 +1268,7 @@ detections; both runs agree to every digit printed here.
 | model | P | R | F1 | AP | tp/fp/fn |
 |---|---|---|---|---|---|
 | **rampnet** | **0.964** | 0.768 | **0.855** | **0.763** | 238/9/72 |
-| gemini-3.1-pro-preview | 0.631 | 0.700 | 0.664 | – | 217/127/93 |
+| gemini-3.1-pro-preview | 0.634 | 0.703 | 0.667 | – | 218/126/92 |
 | gemini-3.6-flash | 0.626 | 0.642 | 0.634 | – | 199/119/111 |
 | **mask2former-vistas-curb-cut** | **0.411** | **0.697** | **0.517** | **0.513** | 216/309/94 |
 | molmo2-8B (points) | 0.410 | 0.516 | 0.457 | – | 160/230/150 |
@@ -1261,7 +1276,7 @@ detections; both runs agree to every digit printed here.
 | Qwen3-VL-8B-Instruct | 0.323 | 0.452 | 0.377 | – | 140/293/170 |
 | *mask2former-vistas-curb-cut+curb* | *0.126* | *0.648* | *0.210* | *0.089* | 201/1399/109 |
 | owlv2-large-patch14-ensemble | 0.033 | **0.971** | 0.064 | 0.104 | 301/8799/9 |
-| grounding-dino-base | 0.028 | 0.852 | 0.053 | 0.032 | 264/9321/46 |
+| grounding-dino-base | 0.028 | 0.852 | 0.053 | 0.033 | 264/9321/46 |
 
 **Every row above is at one operating point — no confidence floor — which is what the rest of
 this document's roster tables use.** An earlier version of this table scored the two Vistas rows
@@ -1856,8 +1871,8 @@ in the loop)
 | **molmo2-8B** (points) | 0.511 | 0.360 | **0.422** | – | 1409/1346/2510 |
 | Qwen3-VL-8B-Instruct | 0.445 | 0.341 | 0.386 | – | 1338/1667/2581 |
 | Qwen3-VL-32B-Instruct | 0.739 | 0.177 | 0.285 | – | 693/245/3226 |
-| owlv2-large-patch14-ensemble | 0.046 | **0.906** | 0.088 | 0.097 | 3551/73444/368 |
-| grounding-dino-base | 0.043 | 0.855 | 0.082 | 0.067 | 3351/74953/568 |
+| owlv2-large-patch14-ensemble | 0.046 | **0.907** | 0.088 | 0.097 | 3554/73441/365 |
+| grounding-dino-base | 0.043 | 0.856 | 0.082 | 0.067 | 3353/74951/566 |
 
 Best sweep F1 for the open detectors: OWLv2 **0.180** (thr 0.20), Grounding DINO **0.140**
 (thr 0.20) — the FP flood is not a threshold artifact.

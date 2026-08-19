@@ -195,9 +195,17 @@ def score_pano(pred_points, gt, radius_sq=None, scale_x=PANO_SCALE_X, scale_y=PA
     ``wrap_x`` defaults to **True** here, unlike the generic matcher: this is the
     panorama scorer, its default scales are the panorama's, and every production caller
     is in pano space. Pass ``wrap_x=False`` for a non-cyclic coordinate space — the
-    synthetic unit-scale spaces in the tests are the only such callers today. Wrapping
-    moves no metric on any committed split (issue #132 §4), because the duplicate ground
-    truth in #130 currently masks it; the two fixes have to land together to have effect.
+    synthetic unit-scale spaces in the tests are the only such callers today.
+
+    **Wrapping moves no RampNet or YOLO metric on any committed split — but it does move
+    the challengers.** That distinction was missed when #132 landed, because the effect
+    was checked against RampNet: measured across the whole roster it recovers a genuine
+    match on 19 (model, split) pairs and moves 66 published cells in
+    ``docs/model_comparison.md`` (six splits, seven chat-VLM and open-vocab models, all
+    in the same direction, no reordering). That document has been regenerated for it, and
+    ``tests/test_scoreboard.py::test_every_number_matches_model_comparison`` now re-derives
+    every one of its table cells on each CI run, so the next change to this function that
+    moves a published number fails the build rather than going unnoticed.
     """
     if radius_sq is None:
         radius_sq = radius_sq_for(scale_x=scale_x)
