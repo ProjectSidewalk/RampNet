@@ -100,6 +100,11 @@ def dedup_seam_only(gt_points):
 
     Seam-crossing pairs only: genuinely adjacent ramps away from the seam are common in
     this data (#130) and merging them would strip hard cases out of the comparison.
+
+    Which member survives is first-in-list-order, so it is deterministic against the
+    committed op_cache but can differ against a regenerated cache whose rows come back
+    in another order — the kept member's coordinates (and so its seam distance) would
+    shift by the pair separation, up to ~25 px.
     """
     keep = []
     for g in gt_points:
