@@ -1,846 +1,1174 @@
 {
   "material_threshold": 0.05,
   "seam_band_px": 11.264,
+  "radius_px": 22.528,
+  "model_id": "projectsidewalk/rampnet-model",
+  "model_revision": "606a11956743f7eb328d9207769034752f6191f4",
+  "panos_root": "D:\\Git\\RampNet\\benchmark",
+  "cache_dir": "D:\\Git\\RampNet\\.claude\\worktrees\\seam-130\\analysis_out\\op_cache",
+  "op_cache_sha256": {
+    "richmond": "70521f84493a246597d5315c5754a9a1de99d56f21cb4cd93f2a5028ce91529a",
+    "bend": "5d5e02be023e934ce34aa2e37059eb7cd599274faf9c90ac5854de62050bb15a",
+    "clovis": "31b008716ac894af2e70dfb4f24246aabc214ff02e860f053ddb68df8413dc8b",
+    "morgantown": "7f13d73f3c29851824f325f3e99bdf15543e22a87966ac6066297fb8ce94c92a",
+    "annapolis": "fee5a2a4ccbc8d292651895cd7389e70e42167c997df162c1533ac0437ed06ed",
+    "paterson": "57d3145840fa6fb3630bf0390adce3c75363ffbe5439e2e563b6c659f1f8d94d",
+    "gainesville": "cc1f0dddfe7cfee54d6275a2663fb53117f782ffa01044d03de1c2c4bf8d1c4f",
+    "budapest_district5": "a948693691f07f55bc2f9f49c6f932ebada106639a61c1ef2629a5a8850ea71d",
+    "sao_paulo": "efd99c48b66abca9323935a6dd02e020877b7fb920f8ef527f913e535ad3327e",
+    "manual_gold": "3768ee2074f82c244db1adced83022942389e4477cb7ba73f0ace6a5597cb1e6"
+  },
+  "panos": 25,
+  "skipped": [],
+  "seam_window_overlap_pairs": 0,
   "summary": {
     "seam": {
       "n": 25,
-      "mean_stored": 0.7853834128379822,
-      "mean_rolled": 0.818435926437378,
-      "paired_diff": 0.033052513599395754,
-      "se": 0.027504740366558117,
-      "t": 1.2017024396122984,
+      "mean_stored": 0.783712,
+      "mean_rolled": 0.815325,
+      "paired_diff": 0.031612,
+      "se": 0.027496,
+      "t": 1.149715,
       "gained": 9,
       "lost": 3
     },
     "control": {
-      "n": 111,
-      "mean_stored": 0.8480807201819377,
-      "mean_rolled": 0.8451194338970356,
-      "paired_diff": -0.002961286284902074,
-      "se": 0.00175008924260261,
-      "t": -1.6920773025827283,
+      "n": 77,
+      "mean_stored": 0.848792,
+      "mean_rolled": 0.848665,
+      "paired_diff": -0.000127,
+      "se": 0.000484,
+      "t": -0.262511,
       "gained": 0,
-      "lost": 3
+      "lost": 0
     }
   },
   "seam_rows": [
     {
       "pano": "manual_gold:wVEb1Vhhz4yPct7DrQ8-fQ",
+      "x": 0.000647,
+      "y": 0.559133,
       "seam_px": 0.66,
-      "stored": 0.9071,
-      "rolled": 0.8711
+      "stored": 0.907068,
+      "rolled": 0.871057
     },
     {
       "pano": "manual_gold:QGbpvWpeg9zLcu5HZneRbw",
+      "x": 0.001149,
+      "y": 0.545085,
       "seam_px": 1.18,
-      "stored": 0.9646,
-      "rolled": 0.7731
+      "stored": 0.964554,
+      "rolled": 0.773109
     },
     {
       "pano": "manual_gold:5wp4GvraXfsuAGujVx1X8w",
+      "x": 0.001293,
+      "y": 0.563456,
       "seam_px": 1.32,
-      "stored": 0.4107,
-      "rolled": 0.4971
+      "stored": 0.410711,
+      "rolled": 0.49707
     },
     {
       "pano": "manual_gold:oE6q6mzI7U-P8l35PsTDFA",
+      "x": 0.001387,
+      "y": 0.558619,
       "seam_px": 1.42,
-      "stored": 0.9879,
-      "rolled": 1.0274
+      "stored": 0.98789,
+      "rolled": 1.0
     },
     {
       "pano": "manual_gold:5JtOUPhPxP29dOkItrmQMw",
+      "x": 0.998356,
+      "y": 0.542989,
       "seam_px": 1.68,
-      "stored": 0.6138,
-      "rolled": 0.2848
+      "stored": 0.613803,
+      "rolled": 0.284768
     },
     {
       "pano": "manual_gold:tRwq7cx78-g4Mi59uuN5-Q",
+      "x": 0.001921,
+      "y": 0.543661,
       "seam_px": 1.97,
-      "stored": 0.4526,
-      "rolled": 0.7689
+      "stored": 0.452612,
+      "rolled": 0.768932
     },
     {
       "pano": "paterson:3dq9TqRXzopD0yvztHg8rg",
+      "x": 0.997933,
+      "y": 0.528875,
       "seam_px": 2.12,
-      "stored": 0.9357,
-      "rolled": 0.9695
+      "stored": 0.935743,
+      "rolled": 0.969533
     },
     {
       "pano": "manual_gold:2NgKmkIoU9nUwvjk6K5wtw",
+      "x": 0.002138,
+      "y": 0.544149,
       "seam_px": 2.19,
-      "stored": 0.8785,
-      "rolled": 0.9085
+      "stored": 0.878492,
+      "rolled": 0.908524
     },
     {
       "pano": "manual_gold:MJbCTDJV5advy8eYbL0V5Q",
+      "x": 0.0023,
+      "y": 0.541611,
       "seam_px": 2.36,
-      "stored": 0.8963,
-      "rolled": 0.9284
+      "stored": 0.896305,
+      "rolled": 0.928436
     },
     {
       "pano": "manual_gold:oyyca_diFZoYJGETmlwc3g",
+      "x": 0.00375,
+      "y": 0.562424,
       "seam_px": 3.84,
-      "stored": 0.9222,
-      "rolled": 0.9611
+      "stored": 0.922234,
+      "rolled": 0.961092
     },
     {
       "pano": "manual_gold:bIvg28w_vN1FEprlX0biKg",
+      "x": 0.99502,
+      "y": 0.547984,
       "seam_px": 5.1,
-      "stored": 0.9491,
-      "rolled": 1.0099
+      "stored": 0.949079,
+      "rolled": 1.0
     },
     {
       "pano": "manual_gold:XCbhS0jxrSrOLyndJXtQvA",
+      "x": 0.994238,
+      "y": 0.547147,
       "seam_px": 5.9,
-      "stored": 0.7869,
-      "rolled": 0.9245
+      "stored": 0.786895,
+      "rolled": 0.924489
     },
     {
       "pano": "manual_gold:i3klZw0fkItNns0UNkA_UA",
+      "x": 0.006538,
+      "y": 0.542825,
       "seam_px": 6.7,
-      "stored": 0.8986,
-      "rolled": 0.7769
+      "stored": 0.898639,
+      "rolled": 0.776946
     },
     {
       "pano": "manual_gold:AtjYvSXhWYyuGm0A40b2EA",
+      "x": 0.006566,
+      "y": 0.557932,
       "seam_px": 6.72,
-      "stored": 0.5313,
-      "rolled": 0.7741
+      "stored": 0.531267,
+      "rolled": 0.774106
     },
     {
       "pano": "manual_gold:JrR9wwG_ynJrSP9ov3Rxrw",
+      "x": 0.006715,
+      "y": 0.55001,
       "seam_px": 6.88,
-      "stored": 0.6656,
-      "rolled": 0.6361
+      "stored": 0.665628,
+      "rolled": 0.636119
     },
     {
       "pano": "richmond:723487737079243",
+      "x": 0.006869,
+      "y": 0.543535,
       "seam_px": 7.03,
-      "stored": 0.9459,
-      "rolled": 1.0008
+      "stored": 0.945867,
+      "rolled": 1.0
     },
     {
       "pano": "manual_gold:4lENFOhzGGSJaPgXnTfAJA",
+      "x": 0.992773,
+      "y": 0.546628,
       "seam_px": 7.4,
-      "stored": 1.0418,
-      "rolled": 1.0396
+      "stored": 1.0,
+      "rolled": 1.0
     },
     {
       "pano": "bend:bVadNrPq_zXgbJjhhDSwDw",
+      "x": 0.007273,
+      "y": 0.525657,
       "seam_px": 7.45,
-      "stored": 0.7954,
-      "rolled": 0.9558
+      "stored": 0.795372,
+      "rolled": 0.955776
     },
     {
       "pano": "manual_gold:XFxls0YjTNlFLpZ6eNUuwg",
+      "x": 0.008065,
+      "y": 0.543046,
       "seam_px": 8.26,
-      "stored": 0.8349,
-      "rolled": 0.9233
+      "stored": 0.834931,
+      "rolled": 0.923325
     },
     {
       "pano": "manual_gold:shnQL5DurRLY94LPJmCTYA",
+      "x": 0.991886,
+      "y": 0.53821,
       "seam_px": 8.31,
-      "stored": 0.3754,
-      "rolled": 0.6654
+      "stored": 0.37541,
+      "rolled": 0.665396
     },
     {
       "pano": "manual_gold:YRTsmStw9SqMzZGZpNTcsg",
+      "x": 0.009297,
+      "y": 0.579413,
       "seam_px": 9.52,
-      "stored": 0.932,
-      "rolled": 0.9305
+      "stored": 0.931982,
+      "rolled": 0.930548
     },
     {
       "pano": "paterson:gZ3Acgi38PrzOVBkW-Il4Q",
+      "x": 0.990703,
+      "y": 0.534039,
       "seam_px": 9.52,
-      "stored": 0.7602,
-      "rolled": 0.771
+      "stored": 0.760158,
+      "rolled": 0.770978
     },
     {
       "pano": "paterson:iPgLrrQ5XDrWWlTXzI5MLQ",
+      "x": 0.990701,
+      "y": 0.528969,
       "seam_px": 9.52,
-      "stored": 0.9144,
-      "rolled": 0.8667
+      "stored": 0.914376,
+      "rolled": 0.86666
     },
     {
       "pano": "manual_gold:mLHZho9oLtF_S2JpEUai6g",
+      "x": 0.989983,
+      "y": 0.604434,
       "seam_px": 10.26,
-      "stored": 0.9255,
-      "rolled": 0.8945
+      "stored": 0.92546,
+      "rolled": 0.894527
     },
     {
       "pano": "bend:NzRL8weHSGkfduBHnrgd5g",
+      "x": 0.010909,
+      "y": 0.540202,
       "seam_px": 11.17,
-      "stored": 0.3083,
-      "rolled": 0.3017
+      "stored": 0.308332,
+      "rolled": 0.301728
     }
   ],
   "control_rows": [
     {
       "pano": "bend:NzRL8weHSGkfduBHnrgd5g",
-      "seam_px": 323.0,
-      "stored": 0.6665,
-      "rolled": 0.6763
-    },
-    {
-      "pano": "bend:NzRL8weHSGkfduBHnrgd5g",
-      "seam_px": 36.62,
-      "stored": 0.3083,
-      "rolled": 0.3017
-    },
-    {
-      "pano": "bend:NzRL8weHSGkfduBHnrgd5g",
+      "x": 0.070303,
+      "y": 0.534141,
       "seam_px": 71.99,
-      "stored": 0.3368,
-      "rolled": 0.3444
+      "stored": 0.336784,
+      "rolled": 0.344418
     },
     {
       "pano": "bend:NzRL8weHSGkfduBHnrgd5g",
-      "seam_px": 31.03,
-      "stored": 0.5795,
-      "rolled": 0.5484
+      "x": 0.31543,
+      "y": 0.570312,
+      "seam_px": 323.0,
+      "stored": 0.666456,
+      "rolled": 0.676344
     },
     {
       "pano": "bend:bVadNrPq_zXgbJjhhDSwDw",
+      "x": 0.910156,
+      "y": 0.568359,
       "seam_px": 92.0,
-      "stored": 0.9511,
-      "rolled": 0.9493
+      "stored": 0.951104,
+      "rolled": 0.949268
     },
     {
       "pano": "manual_gold:2NgKmkIoU9nUwvjk6K5wtw",
+      "x": 0.201979,
+      "y": 0.631538,
       "seam_px": 206.83,
-      "stored": 0.9711,
-      "rolled": 0.9695
+      "stored": 0.971081,
+      "rolled": 0.969468
     },
     {
       "pano": "manual_gold:2NgKmkIoU9nUwvjk6K5wtw",
+      "x": 0.664981,
+      "y": 0.596535,
       "seam_px": 343.06,
-      "stored": 0.7037,
-      "rolled": 0.7031
+      "stored": 0.703741,
+      "rolled": 0.703074
     },
     {
       "pano": "manual_gold:2NgKmkIoU9nUwvjk6K5wtw",
+      "x": 0.851611,
+      "y": 0.545423,
       "seam_px": 151.95,
-      "stored": 0.9838,
-      "rolled": 0.9816
+      "stored": 0.983768,
+      "rolled": 0.981593
     },
     {
       "pano": "manual_gold:4lENFOhzGGSJaPgXnTfAJA",
+      "x": 0.072752,
+      "y": 0.540328,
       "seam_px": 74.5,
-      "stored": 0.8768,
-      "rolled": 0.8752
+      "stored": 0.876765,
+      "rolled": 0.875155
     },
     {
       "pano": "manual_gold:4lENFOhzGGSJaPgXnTfAJA",
-      "seam_px": 100.38,
-      "stored": 0.8747,
-      "rolled": 0.8735
-    },
-    {
-      "pano": "manual_gold:4lENFOhzGGSJaPgXnTfAJA",
-      "seam_px": 149.21,
-      "stored": 0.8609,
-      "rolled": 0.8583
-    },
-    {
-      "pano": "manual_gold:4lENFOhzGGSJaPgXnTfAJA",
+      "x": 0.14273,
+      "y": 0.594976,
       "seam_px": 146.16,
-      "stored": 0.8609,
-      "rolled": 0.8583
+      "stored": 0.860869,
+      "rolled": 0.85829
     },
     {
       "pano": "manual_gold:4lENFOhzGGSJaPgXnTfAJA",
+      "x": 0.903854,
+      "y": 0.580695,
       "seam_px": 98.45,
-      "stored": 0.9123,
-      "rolled": 0.9126
-    },
-    {
-      "pano": "manual_gold:4lENFOhzGGSJaPgXnTfAJA",
-      "seam_px": 82.62,
-      "stored": 0.9123,
-      "rolled": 0.9126
-    },
-    {
-      "pano": "manual_gold:4lENFOhzGGSJaPgXnTfAJA",
-      "seam_px": 29.5,
-      "stored": 1.0418,
-      "rolled": 1.0396
+      "stored": 0.912255,
+      "rolled": 0.912609
     },
     {
       "pano": "manual_gold:5JtOUPhPxP29dOkItrmQMw",
-      "seam_px": 33.72,
-      "stored": 0.8357,
-      "rolled": 0.8336
-    },
-    {
-      "pano": "manual_gold:5JtOUPhPxP29dOkItrmQMw",
-      "seam_px": 95.9,
-      "stored": 0.2524,
-      "rolled": 0.2516
-    },
-    {
-      "pano": "manual_gold:5JtOUPhPxP29dOkItrmQMw",
-      "seam_px": 280.36,
-      "stored": 0.9106,
-      "rolled": 0.9112
-    },
-    {
-      "pano": "manual_gold:5JtOUPhPxP29dOkItrmQMw",
+      "x": 0.203007,
+      "y": 0.636648,
       "seam_px": 207.88,
-      "stored": 0.8927,
-      "rolled": 0.892
+      "stored": 0.89274,
+      "rolled": 0.892049
+    },
+    {
+      "pano": "manual_gold:5JtOUPhPxP29dOkItrmQMw",
+      "x": 0.726211,
+      "y": 0.6085,
+      "seam_px": 280.36,
+      "stored": 0.91058,
+      "rolled": 0.911239
+    },
+    {
+      "pano": "manual_gold:5JtOUPhPxP29dOkItrmQMw",
+      "x": 0.90635,
+      "y": 0.547892,
+      "seam_px": 95.9,
+      "stored": 0.252393,
+      "rolled": 0.251604
     },
     {
       "pano": "manual_gold:5wp4GvraXfsuAGujVx1X8w",
-      "seam_px": 45.13,
-      "stored": 0.888,
-      "rolled": 0.893
-    },
-    {
-      "pano": "manual_gold:5wp4GvraXfsuAGujVx1X8w",
+      "x": 0.182943,
+      "y": 0.608182,
       "seam_px": 187.33,
-      "stored": 0.9699,
-      "rolled": 0.9697
+      "stored": 0.969872,
+      "rolled": 0.969744
     },
     {
       "pano": "manual_gold:5wp4GvraXfsuAGujVx1X8w",
+      "x": 0.234572,
+      "y": 0.61813,
       "seam_px": 240.2,
-      "stored": 1.0247,
-      "rolled": 1.026
+      "stored": 1.0,
+      "rolled": 1.0
     },
     {
       "pano": "manual_gold:5wp4GvraXfsuAGujVx1X8w",
+      "x": 0.597971,
+      "y": 0.606789,
       "seam_px": 411.68,
-      "stored": 0.9011,
-      "rolled": 0.9024
+      "stored": 0.901052,
+      "rolled": 0.902393
     },
     {
       "pano": "manual_gold:5wp4GvraXfsuAGujVx1X8w",
+      "x": 0.648606,
+      "y": 0.59903,
       "seam_px": 359.83,
-      "stored": 0.9305,
-      "rolled": 0.9308
+      "stored": 0.930544,
+      "rolled": 0.930778
     },
     {
       "pano": "manual_gold:5wp4GvraXfsuAGujVx1X8w",
+      "x": 0.801904,
+      "y": 0.566401,
       "seam_px": 202.85,
-      "stored": 0.9256,
-      "rolled": 0.9243
-    },
-    {
-      "pano": "manual_gold:5wp4GvraXfsuAGujVx1X8w",
-      "seam_px": 174.33,
-      "stored": 0.9461,
-      "rolled": 0.9463
+      "stored": 0.925599,
+      "rolled": 0.924333
     },
     {
       "pano": "manual_gold:AtjYvSXhWYyuGm0A40b2EA",
+      "x": 0.074212,
+      "y": 0.585388,
       "seam_px": 75.99,
-      "stored": 0.9529,
-      "rolled": 0.9542
+      "stored": 0.952885,
+      "rolled": 0.954239
     },
     {
       "pano": "manual_gold:AtjYvSXhWYyuGm0A40b2EA",
+      "x": 0.349969,
+      "y": 0.540821,
       "seam_px": 358.37,
-      "stored": 0.7062,
-      "rolled": 0.701
+      "stored": 0.706248,
+      "rolled": 0.700989
     },
     {
       "pano": "manual_gold:AtjYvSXhWYyuGm0A40b2EA",
+      "x": 0.621149,
+      "y": 0.637117,
       "seam_px": 387.94,
-      "stored": 0.787,
-      "rolled": 0.785
+      "stored": 0.786958,
+      "rolled": 0.785017
     },
     {
       "pano": "manual_gold:AtjYvSXhWYyuGm0A40b2EA",
+      "x": 0.82155,
+      "y": 0.599649,
       "seam_px": 182.73,
-      "stored": 0.6052,
-      "rolled": 0.6024
+      "stored": 0.605177,
+      "rolled": 0.602438
     },
     {
       "pano": "manual_gold:JrR9wwG_ynJrSP9ov3Rxrw",
+      "x": 0.106465,
+      "y": 0.549215,
       "seam_px": 109.02,
-      "stored": 0.9145,
-      "rolled": 0.9158
+      "stored": 0.914466,
+      "rolled": 0.915839
     },
     {
       "pano": "manual_gold:JrR9wwG_ynJrSP9ov3Rxrw",
+      "x": 0.245619,
+      "y": 0.623315,
       "seam_px": 251.51,
-      "stored": 0.924,
-      "rolled": 0.9245
+      "stored": 0.924009,
+      "rolled": 0.924504
     },
     {
       "pano": "manual_gold:JrR9wwG_ynJrSP9ov3Rxrw",
-      "seam_px": 99.79,
-      "stored": 0.756,
-      "rolled": 0.7576
-    },
-    {
-      "pano": "manual_gold:JrR9wwG_ynJrSP9ov3Rxrw",
+      "x": 0.883605,
+      "y": 0.691246,
       "seam_px": 119.19,
-      "stored": 0.8578,
-      "rolled": 0.8572
+      "stored": 0.857774,
+      "rolled": 0.857223
     },
     {
       "pano": "manual_gold:MJbCTDJV5advy8eYbL0V5Q",
+      "x": 0.074621,
+      "y": 0.538398,
       "seam_px": 76.41,
-      "stored": 0.8862,
-      "rolled": 0.8854
+      "stored": 0.886232,
+      "rolled": 0.885415
     },
     {
       "pano": "manual_gold:MJbCTDJV5advy8eYbL0V5Q",
-      "seam_px": 100.82,
-      "stored": 0.9092,
-      "rolled": 0.9084
-    },
-    {
-      "pano": "manual_gold:MJbCTDJV5advy8eYbL0V5Q",
+      "x": 0.21442,
+      "y": 0.590753,
       "seam_px": 219.57,
-      "stored": 0.8714,
-      "rolled": 0.8718
+      "stored": 0.871422,
+      "rolled": 0.871772
     },
     {
       "pano": "manual_gold:MJbCTDJV5advy8eYbL0V5Q",
-      "seam_px": 242.9,
-      "stored": 0.9486,
-      "rolled": 0.9464
-    },
-    {
-      "pano": "manual_gold:MJbCTDJV5advy8eYbL0V5Q",
-      "seam_px": 141.36,
-      "stored": 0.8282,
-      "rolled": 0.8282
-    },
-    {
-      "pano": "manual_gold:MJbCTDJV5advy8eYbL0V5Q",
+      "x": 0.839699,
+      "y": 0.64584,
       "seam_px": 164.15,
-      "stored": 0.9855,
-      "rolled": 0.9859
+      "stored": 0.985541,
+      "rolled": 0.985866
     },
     {
       "pano": "manual_gold:QGbpvWpeg9zLcu5HZneRbw",
+      "x": 0.136369,
+      "y": 0.535454,
       "seam_px": 139.64,
-      "stored": 0.7881,
-      "rolled": 0.7822
+      "stored": 0.788058,
+      "rolled": 0.782179
     },
     {
       "pano": "manual_gold:QGbpvWpeg9zLcu5HZneRbw",
-      "seam_px": 170.4,
-      "stored": 0.8892,
-      "rolled": 0.8888
-    },
-    {
-      "pano": "manual_gold:QGbpvWpeg9zLcu5HZneRbw",
-      "seam_px": 281.92,
-      "stored": 0.961,
-      "rolled": 0.9584
-    },
-    {
-      "pano": "manual_gold:QGbpvWpeg9zLcu5HZneRbw",
+      "x": 0.262541,
+      "y": 0.565052,
       "seam_px": 268.84,
-      "stored": 0.961,
-      "rolled": 0.9584
+      "stored": 0.960967,
+      "rolled": 0.95836
     },
     {
       "pano": "manual_gold:QGbpvWpeg9zLcu5HZneRbw",
+      "x": 0.846201,
+      "y": 0.633879,
       "seam_px": 157.49,
-      "stored": 0.9616,
-      "rolled": 0.9623
-    },
-    {
-      "pano": "manual_gold:QGbpvWpeg9zLcu5HZneRbw",
-      "seam_px": 137.36,
-      "stored": 0.7222,
-      "rolled": 0.7176
-    },
-    {
-      "pano": "manual_gold:QGbpvWpeg9zLcu5HZneRbw",
-      "seam_px": 23.88,
-      "stored": 0.7419,
-      "rolled": 0.7731
+      "stored": 0.961626,
+      "rolled": 0.962312
     },
     {
       "pano": "manual_gold:XCbhS0jxrSrOLyndJXtQvA",
-      "seam_px": 141.36,
-      "stored": 0.8287,
-      "rolled": 0.8288
-    },
-    {
-      "pano": "manual_gold:XCbhS0jxrSrOLyndJXtQvA",
+      "x": 0.195438,
+      "y": 0.604437,
       "seam_px": 200.13,
-      "stored": 0.9207,
-      "rolled": 0.9225
+      "stored": 0.920678,
+      "rolled": 0.922462
     },
     {
       "pano": "manual_gold:XCbhS0jxrSrOLyndJXtQvA",
-      "seam_px": 230.99,
-      "stored": 0.9851,
-      "rolled": 0.9827
+      "x": 0.861954,
+      "y": 0.631935,
+      "seam_px": 141.36,
+      "stored": 0.828738,
+      "rolled": 0.828803
     },
     {
       "pano": "manual_gold:XFxls0YjTNlFLpZ6eNUuwg",
+      "x": 0.180353,
+      "y": 0.58183,
       "seam_px": 184.68,
-      "stored": 0.8635,
-      "rolled": 0.8613
+      "stored": 0.863499,
+      "rolled": 0.861289
     },
     {
       "pano": "manual_gold:XFxls0YjTNlFLpZ6eNUuwg",
+      "x": 0.308112,
+      "y": 0.580684,
       "seam_px": 315.51,
-      "stored": 0.9185,
+      "stored": 0.918472,
       "rolled": 0.918
     },
     {
       "pano": "manual_gold:XFxls0YjTNlFLpZ6eNUuwg",
+      "x": 0.527996,
+      "y": 0.569913,
       "seam_px": 483.33,
-      "stored": 0.9094,
-      "rolled": 0.9396
+      "stored": 0.909413,
+      "rolled": 0.939567
     },
     {
       "pano": "manual_gold:XFxls0YjTNlFLpZ6eNUuwg",
+      "x": 0.608433,
+      "y": 0.569226,
       "seam_px": 400.96,
       "stored": 0.8982,
-      "rolled": 0.8968
+      "rolled": 0.896777
     },
     {
       "pano": "manual_gold:XFxls0YjTNlFLpZ6eNUuwg",
+      "x": 0.806202,
+      "y": 0.555018,
       "seam_px": 198.45,
-      "stored": 0.8751,
-      "rolled": 0.8732
+      "stored": 0.875148,
+      "rolled": 0.873206
     },
     {
       "pano": "manual_gold:XFxls0YjTNlFLpZ6eNUuwg",
+      "x": 0.86716,
+      "y": 0.544705,
       "seam_px": 136.03,
-      "stored": 0.951,
-      "rolled": 0.9512
+      "stored": 0.950971,
+      "rolled": 0.951236
     },
     {
       "pano": "manual_gold:YRTsmStw9SqMzZGZpNTcsg",
-      "seam_px": 180.8,
-      "stored": 0.9529,
-      "rolled": 0.9457
-    },
-    {
-      "pano": "manual_gold:YRTsmStw9SqMzZGZpNTcsg",
-      "seam_px": 324.32,
-      "stored": 0.8744,
-      "rolled": 0.8748
-    },
-    {
-      "pano": "manual_gold:YRTsmStw9SqMzZGZpNTcsg",
-      "seam_px": 246.4,
-      "stored": 0.8814,
-      "rolled": 0.8777
-    },
-    {
-      "pano": "manual_gold:YRTsmStw9SqMzZGZpNTcsg",
+      "x": 0.197148,
+      "y": 0.625728,
       "seam_px": 201.88,
-      "stored": 0.8854,
-      "rolled": 0.8854
+      "stored": 0.885354,
+      "rolled": 0.885421
+    },
+    {
+      "pano": "manual_gold:YRTsmStw9SqMzZGZpNTcsg",
+      "x": 0.240622,
+      "y": 0.644151,
+      "seam_px": 246.4,
+      "stored": 0.881377,
+      "rolled": 0.877661
+    },
+    {
+      "pano": "manual_gold:YRTsmStw9SqMzZGZpNTcsg",
+      "x": 0.683284,
+      "y": 0.607477,
+      "seam_px": 324.32,
+      "stored": 0.874358,
+      "rolled": 0.874837
+    },
+    {
+      "pano": "manual_gold:YRTsmStw9SqMzZGZpNTcsg",
+      "x": 0.823435,
+      "y": 0.556514,
+      "seam_px": 180.8,
+      "stored": 0.952879,
+      "rolled": 0.945674
     },
     {
       "pano": "manual_gold:bIvg28w_vN1FEprlX0biKg",
-      "seam_px": 18.43,
-      "stored": 1.011,
-      "rolled": 0.9494
-    },
-    {
-      "pano": "manual_gold:bIvg28w_vN1FEprlX0biKg",
+      "x": 0.152961,
+      "y": 0.601201,
       "seam_px": 156.63,
-      "stored": 0.9478,
-      "rolled": 0.9478
+      "stored": 0.947782,
+      "rolled": 0.947825
     },
     {
       "pano": "manual_gold:bIvg28w_vN1FEprlX0biKg",
-      "seam_px": 193.28,
-      "stored": 0.9953,
-      "rolled": 0.9959
-    },
-    {
-      "pano": "manual_gold:bIvg28w_vN1FEprlX0biKg",
+      "x": 0.779549,
+      "y": 0.631083,
       "seam_px": 225.74,
-      "stored": 0.9203,
-      "rolled": 0.9224
+      "stored": 0.920299,
+      "rolled": 0.922442
     },
     {
       "pano": "manual_gold:bIvg28w_vN1FEprlX0biKg",
-      "seam_px": 216.05,
-      "stored": 0.8614,
-      "rolled": 0.8625
-    },
-    {
-      "pano": "manual_gold:bIvg28w_vN1FEprlX0biKg",
+      "x": 0.882252,
+      "y": 0.539162,
       "seam_px": 120.57,
-      "stored": 0.9204,
-      "rolled": 0.9211
-    },
-    {
-      "pano": "manual_gold:bIvg28w_vN1FEprlX0biKg",
-      "seam_px": 97.33,
-      "stored": 0.9204,
-      "rolled": 0.9211
+      "stored": 0.920355,
+      "rolled": 0.921082
     },
     {
       "pano": "manual_gold:i3klZw0fkItNns0UNkA_UA",
-      "seam_px": 121.45,
-      "stored": 0.9702,
-      "rolled": 0.9698
-    },
-    {
-      "pano": "manual_gold:i3klZw0fkItNns0UNkA_UA",
+      "x": 0.854697,
+      "y": 0.681684,
       "seam_px": 148.79,
-      "stored": 0.871,
-      "rolled": 0.8705
+      "stored": 0.870996,
+      "rolled": 0.870502
     },
     {
       "pano": "manual_gold:i3klZw0fkItNns0UNkA_UA",
-      "seam_px": 18.3,
-      "stored": 1.0163,
-      "rolled": 0.9344
+      "x": 0.881395,
+      "y": 0.61133,
+      "seam_px": 121.45,
+      "stored": 0.970212,
+      "rolled": 0.969784
     },
     {
       "pano": "manual_gold:mLHZho9oLtF_S2JpEUai6g",
+      "x": 0.167736,
+      "y": 0.57148,
       "seam_px": 171.76,
-      "stored": 0.8895,
+      "stored": 0.889523,
       "rolled": 0.8909
     },
     {
       "pano": "manual_gold:mLHZho9oLtF_S2JpEUai6g",
-      "seam_px": 195.95,
-      "stored": 0.8608,
-      "rolled": 0.8613
-    },
-    {
-      "pano": "manual_gold:mLHZho9oLtF_S2JpEUai6g",
+      "x": 0.309137,
+      "y": 0.555489,
       "seam_px": 316.56,
-      "stored": 0.7753,
-      "rolled": 0.7774
+      "stored": 0.775285,
+      "rolled": 0.777423
     },
     {
       "pano": "manual_gold:mLHZho9oLtF_S2JpEUai6g",
+      "x": 0.369487,
+      "y": 0.556365,
       "seam_px": 378.35,
-      "stored": 0.8409,
-      "rolled": 0.8449
+      "stored": 0.84093,
+      "rolled": 0.844899
     },
     {
       "pano": "manual_gold:mLHZho9oLtF_S2JpEUai6g",
-      "seam_px": 507.52,
-      "stored": 0.9312,
-      "rolled": 0.7864
-    },
-    {
-      "pano": "manual_gold:mLHZho9oLtF_S2JpEUai6g",
+      "x": 0.546193,
+      "y": 0.625514,
       "seam_px": 464.7,
-      "stored": 0.9574,
-      "rolled": 0.956
+      "stored": 0.957424,
+      "rolled": 0.956006
     },
     {
       "pano": "manual_gold:mLHZho9oLtF_S2JpEUai6g",
+      "x": 0.947174,
+      "y": 0.628069,
       "seam_px": 54.09,
-      "stored": 0.9638,
-      "rolled": 0.9645
+      "stored": 0.963762,
+      "rolled": 0.964515
     },
     {
       "pano": "manual_gold:oE6q6mzI7U-P8l35PsTDFA",
+      "x": 0.208566,
+      "y": 0.568249,
       "seam_px": 213.57,
-      "stored": 0.9004,
-      "rolled": 0.9004
+      "stored": 0.900432,
+      "rolled": 0.900367
     },
     {
       "pano": "manual_gold:oE6q6mzI7U-P8l35PsTDFA",
+      "x": 0.404719,
+      "y": 0.576128,
       "seam_px": 414.43,
-      "stored": 0.9124,
-      "rolled": 0.9096
+      "stored": 0.912377,
+      "rolled": 0.909649
     },
     {
       "pano": "manual_gold:oE6q6mzI7U-P8l35PsTDFA",
+      "x": 0.737462,
+      "y": 0.580949,
       "seam_px": 268.84,
-      "stored": 0.9475,
-      "rolled": 0.9456
+      "stored": 0.947528,
+      "rolled": 0.945551
     },
     {
       "pano": "manual_gold:oE6q6mzI7U-P8l35PsTDFA",
+      "x": 0.783972,
+      "y": 0.575893,
       "seam_px": 221.21,
-      "stored": 0.9897,
-      "rolled": 0.9891
+      "stored": 0.989742,
+      "rolled": 0.989122
     },
     {
       "pano": "manual_gold:oE6q6mzI7U-P8l35PsTDFA",
+      "x": 0.9569,
+      "y": 0.556136,
       "seam_px": 44.13,
-      "stored": 0.9107,
-      "rolled": 0.9073
+      "stored": 0.910724,
+      "rolled": 0.90726
     },
     {
       "pano": "manual_gold:oyyca_diFZoYJGETmlwc3g",
+      "x": 0.140103,
+      "y": 0.62784,
       "seam_px": 143.47,
-      "stored": 0.9605,
-      "rolled": 0.9588
+      "stored": 0.960507,
+      "rolled": 0.958788
     },
     {
       "pano": "manual_gold:oyyca_diFZoYJGETmlwc3g",
+      "x": 0.272081,
+      "y": 0.63284,
       "seam_px": 278.61,
-      "stored": 0.9989,
-      "rolled": 0.9968
+      "stored": 0.998921,
+      "rolled": 0.99681
     },
     {
       "pano": "manual_gold:shnQL5DurRLY94LPJmCTYA",
+      "x": 0.131239,
+      "y": 0.53433,
       "seam_px": 134.39,
-      "stored": 0.8868,
-      "rolled": 0.8859
+      "stored": 0.886842,
+      "rolled": 0.885949
     },
     {
       "pano": "manual_gold:shnQL5DurRLY94LPJmCTYA",
+      "x": 0.236901,
+      "y": 0.586308,
       "seam_px": 242.59,
-      "stored": 0.9218,
-      "rolled": 0.9218
+      "stored": 0.921756,
+      "rolled": 0.921775
     },
     {
       "pano": "manual_gold:shnQL5DurRLY94LPJmCTYA",
+      "x": 0.30452,
+      "y": 0.603007,
       "seam_px": 311.83,
-      "stored": 0.4051,
-      "rolled": 0.4047
+      "stored": 0.405052,
+      "rolled": 0.404721
     },
     {
       "pano": "manual_gold:shnQL5DurRLY94LPJmCTYA",
+      "x": 0.860463,
+      "y": 0.636757,
       "seam_px": 142.89,
-      "stored": 0.8757,
-      "rolled": 0.8753
+      "stored": 0.875727,
+      "rolled": 0.875335
     },
     {
       "pano": "manual_gold:tRwq7cx78-g4Mi59uuN5-Q",
+      "x": 0.116254,
+      "y": 0.651234,
       "seam_px": 119.04,
-      "stored": 0.8124,
-      "rolled": 0.8119
+      "stored": 0.812441,
+      "rolled": 0.811927
     },
     {
       "pano": "manual_gold:tRwq7cx78-g4Mi59uuN5-Q",
-      "seam_px": 71.1,
-      "stored": 0.4039,
-      "rolled": 0.4035
-    },
-    {
-      "pano": "manual_gold:tRwq7cx78-g4Mi59uuN5-Q",
+      "x": 0.892995,
+      "y": 0.532562,
       "seam_px": 109.57,
-      "stored": 0.3679,
-      "rolled": 0.365
+      "stored": 0.367864,
+      "rolled": 0.364962
     },
     {
       "pano": "manual_gold:tRwq7cx78-g4Mi59uuN5-Q",
+      "x": 0.900604,
+      "y": 0.6202,
       "seam_px": 101.78,
-      "stored": 0.4225,
-      "rolled": 0.4221
+      "stored": 0.422493,
+      "rolled": 0.422108
     },
     {
       "pano": "manual_gold:wVEb1Vhhz4yPct7DrQ8-fQ",
+      "x": 0.118708,
+      "y": 0.551654,
       "seam_px": 121.56,
-      "stored": 0.761,
-      "rolled": 0.7638
+      "stored": 0.760959,
+      "rolled": 0.763781
     },
     {
       "pano": "manual_gold:wVEb1Vhhz4yPct7DrQ8-fQ",
-      "seam_px": 142.78,
-      "stored": 0.8449,
-      "rolled": 0.8477
-    },
-    {
-      "pano": "manual_gold:wVEb1Vhhz4yPct7DrQ8-fQ",
+      "x": 0.244691,
+      "y": 0.59077,
       "seam_px": 250.56,
-      "stored": 0.6874,
-      "rolled": 0.687
+      "stored": 0.687365,
+      "rolled": 0.686996
     },
     {
       "pano": "manual_gold:wVEb1Vhhz4yPct7DrQ8-fQ",
-      "seam_px": 267.47,
-      "stored": 0.7295,
-      "rolled": 0.729
-    },
-    {
-      "pano": "manual_gold:wVEb1Vhhz4yPct7DrQ8-fQ",
+      "x": 0.826327,
+      "y": 0.721095,
       "seam_px": 177.84,
-      "stored": 0.6532,
-      "rolled": 0.6518
+      "stored": 0.653247,
+      "rolled": 0.651762
     },
     {
       "pano": "paterson:3dq9TqRXzopD0yvztHg8rg",
-      "seam_px": 12.0,
-      "stored": 0.9357,
-      "rolled": 0.9695
+      "x": 0.158568,
+      "y": 0.55874,
+      "seam_px": 162.37,
+      "stored": 0.864141,
+      "rolled": 0.86214
     },
     {
       "pano": "paterson:3dq9TqRXzopD0yvztHg8rg",
+      "x": 0.933594,
+      "y": 0.599609,
       "seam_px": 68.0,
       "stored": 0.8571,
-      "rolled": 0.8527
-    },
-    {
-      "pano": "paterson:3dq9TqRXzopD0yvztHg8rg",
-      "seam_px": 171.0,
-      "stored": 0.8641,
-      "rolled": 0.8621
-    },
-    {
-      "pano": "paterson:3dq9TqRXzopD0yvztHg8rg",
-      "seam_px": 162.37,
-      "stored": 0.8641,
-      "rolled": 0.8621
-    },
-    {
-      "pano": "paterson:3dq9TqRXzopD0yvztHg8rg",
-      "seam_px": 63.58,
-      "stored": 0.8571,
-      "rolled": 0.8527
+      "rolled": 0.852737
     },
     {
       "pano": "paterson:gZ3Acgi38PrzOVBkW-Il4Q",
+      "x": 0.893555,
+      "y": 0.599609,
       "seam_px": 109.0,
-      "stored": 0.9022,
-      "rolled": 0.9007
+      "stored": 0.902215,
+      "rolled": 0.900743
     },
     {
       "pano": "paterson:iPgLrrQ5XDrWWlTXzI5MLQ",
-      "seam_px": 20.0,
-      "stored": 0.9144,
-      "rolled": 0.8667
-    },
-    {
-      "pano": "paterson:iPgLrrQ5XDrWWlTXzI5MLQ",
-      "seam_px": 259.0,
-      "stored": 0.8492,
-      "rolled": 0.8508
-    },
-    {
-      "pano": "paterson:iPgLrrQ5XDrWWlTXzI5MLQ",
+      "x": 0.230469,
+      "y": 0.599609,
       "seam_px": 236.0,
-      "stored": 0.8285,
-      "rolled": 0.8292
+      "stored": 0.828457,
+      "rolled": 0.829196
     },
     {
       "pano": "paterson:iPgLrrQ5XDrWWlTXzI5MLQ",
-      "seam_px": 132.0,
-      "stored": 0.7714,
-      "rolled": 0.7739
-    },
-    {
-      "pano": "paterson:iPgLrrQ5XDrWWlTXzI5MLQ",
+      "x": 0.854492,
+      "y": 0.679688,
       "seam_px": 149.0,
-      "stored": 0.6153,
-      "rolled": 0.6165
+      "stored": 0.615309,
+      "rolled": 0.616453
     },
     {
       "pano": "richmond:723487737079243",
-      "seam_px": 236.0,
-      "stored": 0.9836,
-      "rolled": 0.9831
-    },
-    {
-      "pano": "richmond:723487737079243",
+      "x": 0.121094,
+      "y": 0.523438,
       "seam_px": 124.0,
-      "stored": 0.945,
-      "rolled": 0.9432
+      "stored": 0.944997,
+      "rolled": 0.943188
     },
     {
       "pano": "richmond:723487737079243",
+      "x": 0.230469,
+      "y": 0.554688,
+      "seam_px": 236.0,
+      "stored": 0.983583,
+      "rolled": 0.983072
+    },
+    {
+      "pano": "richmond:723487737079243",
+      "x": 0.886719,
+      "y": 0.632812,
       "seam_px": 116.0,
       "stored": 0.8846,
-      "rolled": 0.884
+      "rolled": 0.884011
+    }
+  ],
+  "excluded_rows": [
+    {
+      "pano": "paterson:3dq9TqRXzopD0yvztHg8rg",
+      "x": 0.988281,
+      "y": 0.523438,
+      "seam_px": 12.0,
+      "stored": 0.935743,
+      "rolled": 0.969533,
+      "reason": "window touches a seam position (stored or rolled)"
+    },
+    {
+      "pano": "manual_gold:i3klZw0fkItNns0UNkA_UA",
+      "x": 0.982125,
+      "y": 0.544643,
+      "seam_px": 18.3,
+      "stored": 1.0,
+      "rolled": 0.934449,
+      "reason": "window touches a seam position (stored or rolled)"
+    },
+    {
+      "pano": "manual_gold:bIvg28w_vN1FEprlX0biKg",
+      "x": 0.017995,
+      "y": 0.555383,
+      "seam_px": 18.43,
+      "stored": 1.0,
+      "rolled": 0.949359,
+      "reason": "window touches a seam position (stored or rolled)"
+    },
+    {
+      "pano": "paterson:iPgLrrQ5XDrWWlTXzI5MLQ",
+      "x": 0.980469,
+      "y": 0.523438,
+      "seam_px": 20.0,
+      "stored": 0.914376,
+      "rolled": 0.86666,
+      "reason": "window touches a seam position (stored or rolled)"
+    },
+    {
+      "pano": "manual_gold:QGbpvWpeg9zLcu5HZneRbw",
+      "x": 0.976675,
+      "y": 0.545615,
+      "seam_px": 23.88,
+      "stored": 0.741929,
+      "rolled": 0.773109,
+      "reason": "window overlaps a seam-band ramp's window"
+    },
+    {
+      "pano": "manual_gold:4lENFOhzGGSJaPgXnTfAJA",
+      "x": 0.971195,
+      "y": 0.548728,
+      "seam_px": 29.5,
+      "stored": 1.0,
+      "rolled": 1.0,
+      "reason": "window overlaps a seam-band ramp's window"
+    },
+    {
+      "pano": "bend:NzRL8weHSGkfduBHnrgd5g",
+      "x": 0.969697,
+      "y": 0.537778,
+      "seam_px": 31.03,
+      "stored": 0.579488,
+      "rolled": 0.548363,
+      "reason": "window overlaps a seam-band ramp's window"
+    },
+    {
+      "pano": "manual_gold:5JtOUPhPxP29dOkItrmQMw",
+      "x": 0.032928,
+      "y": 0.542179,
+      "seam_px": 33.72,
+      "stored": 0.835661,
+      "rolled": 0.833626,
+      "reason": "window overlaps a seam-band ramp's window"
+    },
+    {
+      "pano": "bend:NzRL8weHSGkfduBHnrgd5g",
+      "x": 0.035758,
+      "y": 0.53899,
+      "seam_px": 36.62,
+      "stored": 0.308332,
+      "rolled": 0.301728,
+      "reason": "window overlaps a seam-band ramp's window"
+    },
+    {
+      "pano": "manual_gold:5wp4GvraXfsuAGujVx1X8w",
+      "x": 0.044069,
+      "y": 0.577144,
+      "seam_px": 45.13,
+      "stored": 0.888023,
+      "rolled": 0.892998,
+      "reason": "window overlaps a seam-band ramp's window"
+    },
+    {
+      "pano": "paterson:3dq9TqRXzopD0yvztHg8rg",
+      "x": 0.937909,
+      "y": 0.579157,
+      "seam_px": 63.58,
+      "stored": 0.8571,
+      "rolled": 0.852737,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "manual_gold:tRwq7cx78-g4Mi59uuN5-Q",
+      "x": 0.930567,
+      "y": 0.658536,
+      "seam_px": 71.1,
+      "stored": 0.393896,
+      "rolled": 0.393491,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "manual_gold:4lENFOhzGGSJaPgXnTfAJA",
+      "x": 0.919319,
+      "y": 0.616327,
+      "seam_px": 82.62,
+      "stored": 0.912255,
+      "rolled": 0.912609,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "manual_gold:bIvg28w_vN1FEprlX0biKg",
+      "x": 0.904948,
+      "y": 0.537881,
+      "seam_px": 97.33,
+      "stored": 0.920355,
+      "rolled": 0.921082,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "manual_gold:JrR9wwG_ynJrSP9ov3Rxrw",
+      "x": 0.902544,
+      "y": 0.617055,
+      "seam_px": 99.79,
+      "stored": 0.756044,
+      "rolled": 0.757576,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "manual_gold:4lENFOhzGGSJaPgXnTfAJA",
+      "x": 0.098027,
+      "y": 0.542553,
+      "seam_px": 100.38,
+      "stored": 0.874662,
+      "rolled": 0.873529,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "manual_gold:MJbCTDJV5advy8eYbL0V5Q",
+      "x": 0.098462,
+      "y": 0.541027,
+      "seam_px": 100.82,
+      "stored": 0.909189,
+      "rolled": 0.908447,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "paterson:iPgLrrQ5XDrWWlTXzI5MLQ",
+      "x": 0.871094,
+      "y": 0.632812,
+      "seam_px": 132.0,
+      "stored": 0.771364,
+      "rolled": 0.773871,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "manual_gold:QGbpvWpeg9zLcu5HZneRbw",
+      "x": 0.865859,
+      "y": 0.601101,
+      "seam_px": 137.36,
+      "stored": 0.722238,
+      "rolled": 0.717583,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "manual_gold:MJbCTDJV5advy8eYbL0V5Q",
+      "x": 0.861955,
+      "y": 0.599481,
+      "seam_px": 141.36,
+      "stored": 0.828167,
+      "rolled": 0.828151,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "manual_gold:wVEb1Vhhz4yPct7DrQ8-fQ",
+      "x": 0.139431,
+      "y": 0.554064,
+      "seam_px": 142.78,
+      "stored": 0.844942,
+      "rolled": 0.847655,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "manual_gold:4lENFOhzGGSJaPgXnTfAJA",
+      "x": 0.14571,
+      "y": 0.569175,
+      "seam_px": 149.21,
+      "stored": 0.860869,
+      "rolled": 0.85829,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "manual_gold:QGbpvWpeg9zLcu5HZneRbw",
+      "x": 0.166409,
+      "y": 0.537751,
+      "seam_px": 170.4,
+      "stored": 0.889227,
+      "rolled": 0.888751,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "paterson:3dq9TqRXzopD0yvztHg8rg",
+      "x": 0.166992,
+      "y": 0.568359,
+      "seam_px": 171.0,
+      "stored": 0.864141,
+      "rolled": 0.86214,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "manual_gold:5wp4GvraXfsuAGujVx1X8w",
+      "x": 0.829758,
+      "y": 0.564411,
+      "seam_px": 174.33,
+      "stored": 0.946085,
+      "rolled": 0.946304,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "manual_gold:bIvg28w_vN1FEprlX0biKg",
+      "x": 0.188747,
+      "y": 0.633075,
+      "seam_px": 193.28,
+      "stored": 0.995337,
+      "rolled": 0.995923,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "manual_gold:mLHZho9oLtF_S2JpEUai6g",
+      "x": 0.191357,
+      "y": 0.567099,
+      "seam_px": 195.95,
+      "stored": 0.86075,
+      "rolled": 0.861293,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "manual_gold:bIvg28w_vN1FEprlX0biKg",
+      "x": 0.789012,
+      "y": 0.589106,
+      "seam_px": 216.05,
+      "stored": 0.84751,
+      "rolled": 0.848336,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "manual_gold:XCbhS0jxrSrOLyndJXtQvA",
+      "x": 0.225578,
+      "y": 0.636259,
+      "seam_px": 230.99,
+      "stored": 0.98511,
+      "rolled": 0.982722,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "manual_gold:MJbCTDJV5advy8eYbL0V5Q",
+      "x": 0.237202,
+      "y": 0.62551,
+      "seam_px": 242.9,
+      "stored": 0.948553,
+      "rolled": 0.946414,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "paterson:iPgLrrQ5XDrWWlTXzI5MLQ",
+      "x": 0.25293,
+      "y": 0.615234,
+      "seam_px": 259.0,
+      "stored": 0.849193,
+      "rolled": 0.850807,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "manual_gold:wVEb1Vhhz4yPct7DrQ8-fQ",
+      "x": 0.261197,
+      "y": 0.617678,
+      "seam_px": 267.47,
+      "stored": 0.729527,
+      "rolled": 0.729035,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "manual_gold:QGbpvWpeg9zLcu5HZneRbw",
+      "x": 0.275308,
+      "y": 0.577422,
+      "seam_px": 281.92,
+      "stored": 0.960967,
+      "rolled": 0.95836,
+      "reason": "window overlaps a kept control ramp's window"
+    },
+    {
+      "pano": "manual_gold:mLHZho9oLtF_S2JpEUai6g",
+      "x": 0.495628,
+      "y": 0.601053,
+      "seam_px": 507.52,
+      "stored": 0.931214,
+      "rolled": 0.786443,
+      "reason": "window touches a seam position (stored or rolled)"
     }
   ]
 }

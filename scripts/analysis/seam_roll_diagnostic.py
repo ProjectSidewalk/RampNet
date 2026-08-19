@@ -146,19 +146,28 @@ def peaks(h, threshold):
     return [(float(c / W), float(r / H), float(h[r][c])) for r, c in pk]
 
 
+def roll_half(img):
+    """The panorama rolled by half its width — the seam moved to where the centre was.
+
+    Applied to the image at native resolution, before preprocessing. This is the one
+    definition of the roll; ``seam_response.py`` measures through the same function so
+    the two seam experiments cannot drift apart.
+    """
+    w, h_px = img.size
+    half = w // 2
+    rolled = Image.new(img.mode, img.size)
+    rolled.paste(img.crop((half, 0, w, h_px)), (0, 0))
+    rolled.paste(img.crop((0, 0, half, h_px)), (w - half, 0))
+    return rolled
+
+
 def rolled_pass(model, device, img, threshold):
     """Detections from a pano rolled by half its width, mapped back to original coords.
 
-    The roll is applied to the image at native resolution, before preprocessing, so the
-    model sees a panorama whose seam sits where the centre used to be. Peaks come back in
-    rolled coordinates and are shifted by -0.5 (mod 1) to land in the original frame.
+    Peaks come back in rolled coordinates and are shifted by -0.5 (mod 1) to land in
+    the original frame.
     """
-    w, h_px = img.size
-    rolled = Image.new(img.mode, img.size)
-    half = w // 2
-    rolled.paste(img.crop((half, 0, w, h_px)), (0, 0))
-    rolled.paste(img.crop((0, 0, half, h_px)), (w - half, 0))
-    dets = peaks(heatmap(model, device, rolled), threshold)
+    dets = peaks(heatmap(model, device, roll_half(img)), threshold)
     return [(((x - 0.5) % 1.0), y, s) for x, y, s in dets]
 
 
