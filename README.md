@@ -76,6 +76,20 @@ Swapping only the matching rule on identical model outputs moves precision by �
 
 Full analysis — including the exact published code, executable traces, and visual examples of double-counted detections — is in [`docs/eval_protocol_verification.html`](docs/eval_protocol_verification.html) (open in a browser) and [issue #9](https://github.com/ProjectSidewalk/RampNet/issues/9). Corrected result curves and metrics are committed in [`stage_two/evaluation_results_new/`](stage_two/evaluation_results_new/); the as-published results remain unchanged in [`stage_two/evaluation_results/`](stage_two/evaluation_results/).
 
+## Dataset note: the 360° seam (August 2026)
+
+A panorama wraps: the left and right edges of an equirectangular image are the same place. Stage 1's label generator extracts curb ramp locations from a 4096×2048 equirectangular heatmap with `peak_local_max(min_distance=40)`, and that suppression does not carry across the wrap. A ramp sitting on the seam can therefore produce a peak on each edge and be labelled **twice**.
+
+Measured across the whole published dataset: **8,361 seam-crossing duplicate label pairs among 849,904 labels (0.98%)**, affecting **7,987 of 214,385 panoramas (3.7%)** — 17.2× more than a uniform-azimuth null predicts. Independently of that null, panoramas containing such a pair carry exactly **+1.000** more labels than they have source government ramp records.
+
+**We are not correcting the published 1.0 dataset.** It is the artifact the paper's numbers were computed on; replacing it would mean a downloader gets different data than the paper used, which we think is worse for reproducibility than a documented defect.
+
+**The seam also costs the detector some response, though less than it costs the labels.** Rolling a panorama so the seam falls elsewhere raises the model's activation at the ramp by more than 0.05 for 9 of 25 gold-set ramps within ~4° of the seam, against 0 of 111 control ramps in the same panoramas. The effect varies with how much of a ramp falls on each side of the split; in this sample it rarely pushed a ramp below the detection threshold — 24 of the 25 were still detected — but it would where response is already marginal. The evaluation path itself is unaffected.
+
+Separately, the 1,000-panorama gold set carries 10 human-adjudicated duplicate marks of its own, which slightly understate recall for every model scored on it; corrected figures will follow when that set is re-scored.
+
+Full analysis — including two findings we initially reported and then retracted — is in [`docs/seam.md`](docs/seam.md) and [issue #132](https://github.com/ProjectSidewalk/RampNet/issues/132).
+
 ## Curb Ramp Detection Example
 *For a step-by-step walkthrough, see our [Google Colab notebook](https://colab.research.google.com/drive/1TOtScud5ac2McXJmg1n_YkOoZBchdn3w?usp=sharing), which includes a visualization in addition to the code below.*
 
