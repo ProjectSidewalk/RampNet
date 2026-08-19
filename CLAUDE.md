@@ -53,6 +53,38 @@ When a task involves human raters, assume from the start that **a second rater w
 the two will be compared** — per-rater files, a stable item list, and an agreement script, not a
 single blob that has to be reverse-engineered later.
 
+## Record what every experiment cost — time *and* money — as it runs
+
+**Any experiment on a non-free model or non-free compute records both its wall-clock time and
+its spend, at the time it runs.** A paper reports cost alongside accuracy, and neither number
+survives being left for later: a re-run reads the detection cache, makes no calls, and returns
+in seconds, so it reproduces neither the token counts nor the runtime.
+
+- **Paid APIs.** `compare.py` appends one row per leg to `analysis_out/usage_log.jsonl`
+  (committed): tokens, dollars, wall-clock, seconds-per-panorama, the rig, and the build that
+  actually served it. `--usage-log none` requires `--allow-unrecorded-spend`. Prices live in
+  `scripts/model_comparison/pricing.py` and are **verified-only** — each rate carries the date
+  it was checked and the page it came from, never memory.
+- **Free models still cost time.** OWLv2, Grounding DINO, Qwen, Molmo and the YOLO arms bill no
+  tokens and burn real GPU-hours. They write the same row with `paid: false`, because "what did
+  this cost" has two units and only one of them is dollars.
+- **Cluster jobs.** `scripts/analysis/slurm_usage.py` scrapes `sacct` into
+  `analysis_out/compute_log.jsonl` — elapsed, GPUs, GPU-hours, and dollars on the clusters that
+  bill. Run it after a cluster run, not at the end of the project.
+- **A ledger is not a commit, and it has to outlive the run.** Both default into the **main
+  checkout**, never a scratch worktree: a worktree is deleted when its session ends, and that is
+  exactly how one leg spent $70.41 and left no row (#139, #143). Committing the ledger is part
+  of finishing the experiment.
+- **A missing record is an emergency with a deadline.** Vertex telemetry retains ~6 weeks
+  (`scripts/analysis/vertex_usage.py`) and `sacct` retention is finite too, so recover a missing
+  number the day you notice it. Recovery is per-model per-day, so **per-split attribution is
+  permanently gone** even after a successful pull — layer 3 rescues the total, never the
+  breakdown.
+- **Token counts and GPU-hours are the durable facts; dollars are estimates** and the billing
+  console is authoritative. Estimate input tokens from geometry when you must (deterministic —
+  it came within 0.02% for a 984-panorama leg); **never estimate output**, which is thinking
+  plus box count and ran 62% high when tried.
+
 ## Environment & commands
 
 - Conda env (Linux + CUDA 11.8; env file pins linux-64 packages — this does not run natively on Windows):
