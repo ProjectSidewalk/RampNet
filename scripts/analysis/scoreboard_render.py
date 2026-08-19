@@ -265,6 +265,36 @@ def splice(text, tables):
     return text
 
 
+# Decimals kept for every float in the committed JSON. Six is ~3,000x finer than
+# anything the page reports (three decimals) and still coarse enough to be identical on
+# every platform this runs on -- which is the whole point, see _round_floats.
+JSON_PRECISION = 6
+
+
+def _round_floats(value, places=JSON_PRECISION):
+    """Round every float in a nested structure, so the artifact is byte-reproducible.
+
+    Full-precision floats do NOT survive the trip between environments: AP comes out of
+    numpy, and a different numpy build reorders the last bits of an accumulation, which
+    changes ``repr`` and therefore the file. That made a byte-compare of this file fail
+    on CI's Python 3.10 while passing on 3.12 and on the author's machine -- the artifact
+    was not reproducible, and the check that was supposed to prove it was reproducible
+    was the thing that noticed.
+
+    Rounding fixes the artifact rather than weakening the check: seventeen significant
+    digits of accumulation noise were never meaningful in a file whose purpose is to be
+    diffed by a reviewer, and at six decimals a real change is still visible thousands of
+    times before the page's three decimals would move.
+    """
+    if isinstance(value, float):
+        return round(value, places)
+    if isinstance(value, dict):
+        return {k: _round_floats(v, places) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_round_floats(v, places) for v in value]
+    return value
+
+
 def json_payload(result):
     """The committed JSON, as a string — the result minus the plot-only curve arrays.
 
@@ -274,16 +304,17 @@ def json_payload(result):
     about three seconds. What the page actually cites — the AP, RampNet's marked
     thresholds, and how many points the curve had — is kept.
 
-    LF on every platform: this is byte-compared by ``--check``, and Python's default
-    newline translation on Windows would emit CRLF and make a re-run look like a change
-    (the imagery_manifest fix, 22dd536).
+    Floats are rounded (``_round_floats``) so the file is identical on every platform,
+    and written LF-only for the same reason: this is byte-compared by ``--check``, and
+    Python's default newline translation on Windows would emit CRLF and make a re-run
+    look like a change (the imagery_manifest fix, 22dd536).
     """
     slim = dict(result)
     slim["curves"] = {
         name: {k: v for k, v in curve.items() if k not in ("recalls", "precisions")}
         for name, curve in (result.get("curves") or {}).items()
     }
-    return json.dumps(slim, indent=2, sort_keys=False) + "\n"
+    return json.dumps(_round_floats(slim), indent=2, sort_keys=False) + "\n"
 
 
 def write_json(path, result):

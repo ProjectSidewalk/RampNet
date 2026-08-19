@@ -510,6 +510,32 @@ def test_the_committed_json_has_no_crlf():
         assert b"\r\n" not in fh.read()
 
 
+def test_the_json_is_reproducible_across_environments():
+    """No float in the committed JSON may carry more digits than the writer rounds to.
+
+    A byte-compare of full-precision floats is not a portable check: AP comes out of
+    numpy, and a different numpy build shifts the last bits, so the file differed between
+    CI's 3.10 and 3.12 while every value was the same. Rounding at the writer is what
+    makes the artifact reproducible; this asserts the file on disk actually went through
+    it, because a hand-edit or an older writer would not show up in any value comparison.
+    """
+    def deepest(value):
+        if isinstance(value, float):
+            text = repr(value)
+            return len(text.split(".")[1]) if "." in text and "e" not in text else 0
+        if isinstance(value, dict):
+            return max((deepest(v) for v in value.values()), default=0)
+        if isinstance(value, list):
+            return max((deepest(v) for v in value), default=0)
+        return 0
+
+    with open(sb.DEFAULT_JSON, encoding="utf-8") as fh:
+        payload = json.load(fh)
+    assert deepest(payload) <= sr.JSON_PRECISION, \
+        "a full-precision float reached the committed JSON; it will not survive a " \
+        "different numpy build"
+
+
 def test_write_json_pins_lf_on_the_writer_not_on_git(tmp_path, board):
     """Round-trip through the actual writer, checked on bytes.
 
