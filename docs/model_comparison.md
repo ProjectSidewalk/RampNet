@@ -1619,6 +1619,23 @@ the runtime. Three layers, plus a separate ledger for cluster compute:
    source others cannot query, while `analysis_out/usage_log.jsonl` is checkable from a
    clean clone.
 
+### Reconcile, or a silent no-write goes unnoticed
+
+Layers 1 and 3 measure the same spend two ways, and until #143 nothing compared them.
+`vertex_usage.py --reconcile` does: it totals the committed ledger per model over the same
+window as the metric query and prints both side by side.
+
+```bash
+python scripts/analysis/vertex_usage.py --days 3 --reconcile
+```
+
+It is the **only** check that catches a leg which ran, billed, and left no row — the #139
+failure. The verdicts are deliberately asymmetric: `billed > ledger` is spend with no record
+and is called out, while `ledger > billed` is odd but harmless (a re-run, or a row stamped
+just outside the window). Tolerance is 2%, because Cloud Monitoring's daily rows are 24 h
+windows ending at the query's time-of-day rather than calendar days, so a leg straddling the
+boundary moves either way. Run it the day a paid leg finishes, not at writing-up time.
+
 ### Cluster compute is a fourth ledger
 
 Layers 1–3 cover API money. They say nothing about GPU-hours, which is what most of the
