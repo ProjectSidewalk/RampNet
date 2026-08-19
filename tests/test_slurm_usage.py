@@ -54,7 +54,11 @@ def test_the_debug_qos_is_priced_at_slurms_usage_factor_not_wall_clock():
     pricing.py's note, so a reader is never handed a bare 'free' with no source."""
     rec, = parse_sacct(SMOKE)
     assert rec["est_cost_usd"] == 0.0
-    assert "hyakusage" in rec["pricing"]["note"]
+    # The row carries the rate it was priced at and when that was checked; the
+    # caveat itself lives in the versioned table, not repeated in every row.
+    assert rec["rate_usd_per_gpu_hour"] == 0.90 and rec["rate_as_of"] == "2026-07-30"
+    from pricing import compute_price_for
+    assert "hyakusage" in compute_price_for("tillicum")["note"]
 
 
 def test_gpu_hours_multiply_by_gpu_count():
@@ -91,8 +95,21 @@ def test_an_unpriced_cluster_is_visibly_unpriced_not_silently_free():
     rec, = parse_sacct(_line("7", "j", "somewhere_else", "gpu", "normal", "COMPLETED",
                              "2026-08-01T00:00:00", "2026-08-01T01:00:00", 3600,
                              "gres/gpu=1"))
-    assert rec["est_cost_usd"] is None and rec["pricing"] is None
+    assert rec["est_cost_usd"] is None and rec["rate_usd_per_gpu_hour"] is None
     assert summarize([rec])["somewhere_else"]["unpriced"] == 1
+
+
+def test_overriding_the_cluster_name_says_so(capsys):
+    """A dump can legitimately span clusters, and restamping one silently would
+    price its jobs at the wrong rate and attribute its GPU-hours to the wrong
+    machine. Nothing downstream can detect that, so it has to be loud here."""
+    rows = parse_sacct(PREP, cluster="klone")
+    assert rows[0]["cluster"] == "klone" and rows[0]["rate_usd_per_gpu_hour"] == 0.0
+    out = capsys.readouterr().out
+    assert "WARNING" in out and "tillicum" in out
+    # ...and no warning when the override agrees with sacct.
+    parse_sacct(PREP, cluster="tillicum")
+    assert "WARNING" not in capsys.readouterr().out
 
 
 def test_lines_that_are_not_job_records_are_skipped():

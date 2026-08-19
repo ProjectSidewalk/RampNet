@@ -106,7 +106,7 @@ def parse_sacct(text, cluster=None, user=None):
     ``cluster`` overrides sacct's own Cluster column, which reports the Slurm
     cluster name — that is what we want when they agree and a lie when a site
     names its cluster something other than how we price it."""
-    rows = []
+    rows, overridden = [], set()
     for line in text.splitlines():
         line = line.strip()
         if not line:
@@ -119,7 +119,10 @@ def parse_sacct(text, cluster=None, user=None):
         gpus, gpu_type = gpus_from_tres(rec["AllocTRES"])
         gpu_hours = elapsed_s / 3600.0 * gpus
         name = (cluster or rec["Cluster"] or "").lower()
+        if cluster and rec["Cluster"] and rec["Cluster"].lower() != cluster.lower():
+            overridden.add(rec["Cluster"])
         cost = estimate_compute_cost(name, gpu_hours, rec["QOS"])
+        price = compute_price_for(name)
         rows.append({
             "cluster": name,
             "job_id": rec["JobID"],
@@ -139,8 +142,22 @@ def parse_sacct(text, cluster=None, user=None):
             "gpu_hours": round(gpu_hours, 4),
             "exit_code": rec["ExitCode"] or None,
             "est_cost_usd": round(cost, 4) if cost is not None else None,
-            "pricing": compute_price_for(name),
+            # The rate and the date it was checked, not the whole pricing entry:
+            # this ledger runs to thousands of rows (3,991 on klone alone, because
+            # ckpt requeues), and embedding the full table in each one was 1.7 MB of
+            # the 2.6 MB file. The table itself, caveats included, is versioned in
+            # scripts/model_comparison/pricing.py.
+            "rate_usd_per_gpu_hour": (price or {}).get("usd_per_gpu_hour"),
+            "rate_as_of": (price or {}).get("as_of"),
         })
+    if overridden:
+        # Silently restamping another cluster's jobs would price them at the wrong
+        # rate and attribute their GPU-hours to the wrong machine -- and a dump can
+        # legitimately span clusters. Loud, because nothing downstream can detect it.
+        print(f"WARNING: --cluster {cluster} overrides the Cluster column on rows "
+              f"reporting {', '.join(sorted(overridden))}. Those jobs are now priced "
+              f"and attributed as {cluster}. Drop --cluster to trust sacct's own "
+              f"names.")
     return rows
 
 
@@ -186,6 +203,31 @@ def summarize(rows):
     return dict(by_cluster)
 
 
+def print_by_name(rows, top=15):
+    """GPU-hours per job name.
+
+    The ledger records every job on the account, including other projects' -- a
+    complete measurement, with attribution left to the reader rather than baked
+    into the durable artifact by a filter chosen once. This is how the reader sees
+    the composition immediately instead of summing the wrong thing."""
+    agg = defaultdict(lambda: [0, 0.0, 0.0])
+    for rec in rows:
+        a = agg[rec.get("job_name") or "?"]
+        a[0] += 1
+        a[1] += rec.get("gpu_hours") or 0
+        a[2] += rec.get("est_cost_usd") or 0
+    ranked = sorted(agg.items(), key=lambda kv: -kv[1][1])
+    print(f"\n{'job name':<34} {'jobs':>6} {'GPU-h':>10} {'est $':>9}")
+    print("-" * 62)
+    for name, (jobs, gpu_h, usd) in ranked[:top]:
+        print(f"{name:<34.34} {jobs:>6,} {gpu_h:>10,.1f} {usd:>9,.2f}")
+    if len(ranked) > top:
+        rest = ranked[top:]
+        print(f"{f'... {len(rest)} more job name(s)':<34} "
+              f"{sum(a[0] for _, a in rest):>6,} {sum(a[1] for _, a in rest):>10,.1f} "
+              f"{sum(a[2] for _, a in rest):>9,.2f}")
+
+
 def print_summary(rows, title):
     print(f"\n{title}")
     print(f"{'cluster':<12} {'jobs':>6} {'GPU-h':>10} {'wall-h':>9} {'est $':>9}")
@@ -213,6 +255,9 @@ def main():
                                        "access. Commit it beside the results.")
     ap.add_argument("--out", help=f"Ledger to append to (default: "
                                   f"{DEFAULT_COMPUTE_LOG_REL} in the main checkout).")
+    ap.add_argument("--by-name", action="store_true",
+                    help="Also break the summary down by job name — the ledger holds "
+                         "every job on the account, including other projects'.")
     ap.add_argument("--dry-run", action="store_true",
                     help="Print what would be appended; write nothing.")
     ap.add_argument("--print-command", action="store_true",
@@ -241,7 +286,12 @@ def main():
         text = proc.stdout
 
     if args.save_raw:
-        Path(args.save_raw).write_text(text, encoding="utf-8", newline="")
+        raw = Path(args.save_raw)
+        raw.parent.mkdir(parents=True, exist_ok=True)
+        # newline="" so the dump keeps the cluster's own LF endings on Windows: it is
+        # committed as a replication input and has to stay byte-identical to what
+        # sacct emitted.
+        raw.write_text(text, encoding="utf-8", newline="")
         print(f"raw sacct output saved to {args.save_raw}")
 
     rows = parse_sacct(text, cluster=args.cluster, user=args.user)
@@ -249,6 +299,8 @@ def main():
         print("no job records parsed — check the sacct format and the date range.")
         return 1
     print_summary(rows, f"Parsed {len(rows):,} job record(s)")
+    if args.by_name:
+        print_by_name(rows)
 
     # The ledger belongs in the MAIN checkout: a scratch worktree is deleted when
     # its session ends, which is how #139's $70.41 vanished (#143).
