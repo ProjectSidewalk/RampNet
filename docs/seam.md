@@ -27,8 +27,15 @@ retracted claim that nobody can find gets re-proposed:
 | "RampNet finds under half the ramps on the seam" | our own extractor bug — `peak_local_max`'s `exclude_border` was left at skimage's default of `True`, discarding every peak within 10 columns of the array edge. Production (`stage_two/evaluate.py`) always passed `exclude_border=False` and was never affected. The model responds at **24 of 25** seam-band ramps; recall at the production setting is **0.96**, not 0.44. |
 | "Stage 1 drops ~72% of labels near the seam" | the along-street axis. The identical density profile appears at the **anti-seam** (x=0.5), where there is no seam: 0.278× vs 0.283× at the centre bin, 0.413× vs 0.411× one bin out. `x=0` is north with the panorama's own heading removed, so both dips sit straight ahead of and behind the vehicle, where ramps are distant and sparse. |
 
-**What was never affected:** the released model, the published evaluation path, and the paper's
-numbers. The model has no seam defect.
+**What these two retractions never touched:** the published evaluation path and the paper's
+numbers. (The gold-set double-marks in §2 are a separate defect and do slightly understate recall
+for every model scored on that set — that correction is pending, see §4.)
+
+**The model is affected, but far less than the labels are** — and less than the retracted claim
+said. Its *detections* at the deployed threshold are essentially unchanged (24 of 25 seam-band
+ramps found, recall 0.96), but its *response* is measurably reduced for about a third of them.
+See §4a; this is a correction to an earlier version of this document, which said the model had no
+seam defect at all.
 
 ---
 
@@ -167,6 +174,63 @@ GT merge and the cache regeneration, and is not quoted here until both land.
 
 ---
 
+## 4a. The seam costs the detector response, for about a third of ramps
+
+The retracted claim in §1 said the model was blind at the seam. It is not. But "the model is
+unaffected" is also wrong, and this section is what replaces both.
+
+The measurement is paired and within-ramp, and deliberately avoids peak extraction entirely — the
+thing that produced the retracted result. For each ground-truth ramp, the **maximum raw heatmap
+response inside the match radius**, taken twice: with the panorama as stored, and with it rolled
+180° so the same ramp sits half a world from the seam. Responses are read on the same [0, 1]
+clipped scale peak extraction uses, so a response here and a detection score are the same
+quantity. Ramps far from the seam *in the same panoramas* are the control.
+
+A control is only a control if the roll is neutral for it, so ramps the roll itself moves are
+excluded from both arms: any ramp whose response window touches the seam as stored or touches the
+column the seam lands on when rolled, and any ramp whose window overlaps a seam-band ramp's window
+or an already-kept control's window — overlapping windows are one measurement, not two. The first
+committed version of this experiment did not exclude them, and its control arm's three "lost"
+rows were exactly the three contaminated ramps: the ramp 4.5 px from the centre column, which is
+where the roll lands the seam, and two ramps whose windows straddle the seam as stored. The
+numbers below are from the corrected binning; the correction changes only the control arm (the
+clip to the peak-extraction scale moves the seam-arm means by under 0.004 and no count).
+
+The sample is every seam-band ramp in the benchmark caches: 25 ramps — 19 from the
+1,000-panorama gold set, 3 from paterson, 2 from bend, 1 from richmond.
+
+| | n | seam through it | rolled away | paired diff | **gained > 0.05** | lost > 0.05 |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: |
+| seam-band ramps | 25 | 0.784 | 0.815 | +0.032 (t=1.15) | **9 / 25** | 3 / 25 |
+| control, same panoramas | 77 | 0.849 | 0.849 | −0.0001 (t=−0.26) | **0 / 77** | 0 / 77 |
+| excluded — the roll is not neutral for these | 34 | | | | | |
+
+**Read the rate, not the mean.** The mean shift is small and not individually significant, because
+the effect is heterogeneous — it depends on how much of a ramp falls on each side of the split, so
+averaging the badly-affected together with the unaffected dilutes it. The sharp statistic is
+two-sided: rolling the seam away moves **12 of 25** seam ramps by more than 0.05 — 9 up, with
+individual gains reaching +0.32, +0.29 and +0.24, and 3 down, the largest by −0.33 — against
+**0 of 77** controls moving in either direction. The three losses are the unpredicted direction
+and cut against the simple suppression story: the seam's presence can inflate a ramp's response
+as well as cost it, and the one rolled value in the sample that falls below the 0.30 threshold is
+one of these (0.61 stored with the seam through it, 0.28 rolled away). What the control rules out
+is indifference — away from the seam, nothing moves at all.
+
+**What this does and does not mean.** In this sample no seam-band ramp's stored response sits
+below the 0.30 detection threshold (the minimum is 0.31), so the response the seam costs changed
+no detection here; the separate, peak-level diagnostic in §4 found 24 of 25 seam-band ramps
+detected at the production setting. Where a ramp's response is already marginal, a shift of this
+size would flip it. So the seam is a real but second-order effect on detection, and a first-order
+one only for faint ramps.
+
+Reproduce with command 5 in §6; result in `analysis_out/seam_response.json`, which records the
+model revision and the op_cache hashes it read. n = 25 is small, and the seam-band ramps were not
+stratified by how much of each ramp falls on either side of the split, which is the variable the
+effect most plausibly depends on. Two of the nine gains clear the 0.05 bar by less than 0.005,
+so the 9 is softer than the 12-versus-0 contrast it feeds.
+
+---
+
 ## 5. The code audit
 
 The defect class was never "the seam" — it was cyclic distance re-derived inline at every site.
@@ -221,6 +285,13 @@ python scripts/analysis/seam_review.py --panos-root benchmark --rater <you> --bl
 # 4. The gallery behind the figures (needs a GPU and the benchmark panoramas)
 python scripts/analysis/seam_gallery.py --panos-root benchmark \
     --out analysis_out/seam_gallery
+
+# 5. The paired seam-response experiment behind section 4a (needs a GPU, the
+#    Hugging Face model download, and the benchmark panoramas; from a worktree,
+#    point --panos-root at a checkout that has them)
+python scripts/analysis/seam_response.py --json-out analysis_out/seam_response.json
+#    -> analysis_out/seam_response.json, which records the model revision and
+#       the sha256 of every op_cache file it read
 ```
 
 The deck's `manifest_digest` (`022a8686d324868d` for the 14-item list) is written into every export,
@@ -243,7 +314,51 @@ rubric text and version travel in the file itself.
 - **Not done:** the GT merge itself; the Stage 1 generator fix; regenerating the `op_caches`; the
   three remaining clamping viewers in §5; the 234 non-seam within-radius pairs, which have never
   been adjudicated and have no tool.
+- **§4a is small.** n = 25, and unstratified by how much of each ramp straddles the seam — the
+  variable the effect most likely depends on. It establishes that the seam costs response, not how
+  much, nor for which ramps.
 - **Two retracted claims** are in §1 rather than deleted. Both survived internally-consistent
   measurement — one survived a designed falsification test — and were caught only by a rendering that
   disagreed with the numbers, and by a control that should have been run first. The lesson is in the
   order: verify the instrument before the subject.
+
+
+---
+
+## Appendix: the note published on the Hugging Face dataset card
+
+Kept here so the published wording is version-controlled and cannot drift from this report.
+The card is at `projectsidewalk/rampnet-dataset`.
+
+> ### Known limitation: duplicate labels at the 360° seam
+>
+> Panoramas wrap — the left and right edges of an equirectangular image are the same place — but
+> this dataset's label generator extracts peaks without suppressing across that wrap. A curb ramp
+> sitting on the seam can therefore be labelled **twice**, once per edge.
+>
+> Measured across the full dataset: **8,361 seam-crossing label pairs among 849,904 labels
+> (0.98%)**, affecting **7,987 of 214,385 panoramas (3.7%)**. Panoramas containing such a pair
+> carry on average +0.591 more labels than they have source government ramp records, where
+> panoramas without one carry −0.408 — a gap of +1.000 label per pair (z = +14.0).
+>
+> **If you are training on this dataset**, the practical effect is a small number of near-duplicate
+> targets close to `x ≈ 0` / `x ≈ 1`. Pairs sit between 0.09° and 7.9° apart (7.9° is the radius
+> they were counted within), and one pair in eight is closer than 1°. Not every pair is a
+> duplicate: on a 14-pair human adjudication, separations up to ~4.5° were always one physical
+> ramp and those from ~6° up were two genuine adjacent ramps. By those boundaries roughly one
+> pair in seven is two real neighbouring ramps that must not be merged, and a further fifth of
+> the pairs fall in a separation band the adjudication never observed — and the rater could see
+> each pair's separation, so treat the boundary as indicative rather than settled.
+>
+> **This dataset is not being changed.** It is the exact artifact the ICCV'25 paper's numbers were
+> computed on, and replacing it would break reproduction from the published inputs.
+>
+> The released [model](https://huggingface.co/projectsidewalk/rampnet-model) is affected less than
+> the labels are, but not unaffected: rolling a panorama so the seam falls elsewhere moves the
+> model's response at the ramp by more than 0.05 for 12 of 25 seam-adjacent benchmark ramps —
+> raised for 9, lowered for 3 — against 0 of 77 control ramps in the same panoramas (19 of the
+> 25 are from the independently labelled gold set). In that sample no ramp changed detection
+> status, but a shift of that size would flip a ramp whose response is already near threshold.
+>
+> Full analysis: [`docs/seam.md`](https://github.com/ProjectSidewalk/RampNet/blob/main/docs/seam.md)
+> and [issue #132](https://github.com/ProjectSidewalk/RampNet/issues/132).
