@@ -41,7 +41,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))          # rampnet.* (editable install fallback)
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # local detectors.py
 
-from rampnet import roster  # noqa: E402
+from rampnet import ledger, roster  # noqa: E402
 from rampnet.detection_eval import (  # noqa: E402
     build_ground_truth, load_yolo_ground_truths, score_pano, aggregate,
     prediction_confidence, radius_sq_for, PANO_RADIUS_NORMALIZED,
@@ -65,63 +65,20 @@ def canonical_repo_root(start=None):
     """The MAIN checkout, even when this is running from a linked worktree.
 
     ``REPO_ROOT`` is this file's own checkout, so from a worktree the default
-    ledger lands *inside that worktree* — and scratch worktrees get deleted,
+    ledger lands *inside that worktree* -- and scratch worktrees get deleted,
     taking the ledger with them. That is not hypothetical: the #139
     claude-opus-5 leg spent **$70.41 and left no row**, recovered only because
     Cloud Monitoring still had it inside its ~6-week window (#143).
 
     The #119 guard cannot see this failure. It proves a log path was *accepted*,
-    not that the file it wrote still exists — the operator followed the rule and
-    lost the record anyway. git's *common* dir is shared by every worktree of a
-    repo, so its parent is the one checkout that outlives them all, and every
-    worktree appends to a single canonical ledger.
-
-    Falls back to ``REPO_ROOT`` whenever git can't answer — a tarball, an HF
-    clone, no git on PATH. A bookkeeping helper must never be the reason a run
-    won't start."""
-    start = Path(start or REPO_ROOT)
-    try:
-        proc = subprocess.run(["git", "rev-parse", "--git-common-dir"],
-                              cwd=str(start), capture_output=True, text=True,
-                              timeout=10)
-    except (OSError, subprocess.SubprocessError):
-        return start
-    if proc.returncode != 0 or not proc.stdout.strip():
-        return start
-    # Relative to `start` when git returns a bare ".git"; Path handles both.
-    root = (start / proc.stdout.strip()).resolve().parent
-    return root if root.is_dir() else start
+    not that the file it wrote still exists -- the operator followed the rule and
+    lost the record anyway. See rampnet/ledger.py, which both ledgers share."""
+    return ledger.canonical_repo_root(start or REPO_ROOT)
 
 
 def default_usage_log():
     return str(canonical_repo_root() / DEFAULT_USAGE_LOG_REL)
 
-
-def ledger_totals(usage_log_path):
-    """(rows, total USD, total wall-clock hours) in an existing ledger.
-
-    Printed after every logged leg so a run that wrote somewhere unexpected is
-    visible *while someone is still watching*, rather than weeks later when the
-    provider's usage telemetry has aged out. Tolerant by construction: rows
-    predating #143 carry no timing keys, free legs carry no cost, and a row that
-    won't parse must not cost the run its record."""
-    rows = total_usd = total_s = 0
-    try:
-        with open(usage_log_path, encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    rec = json.loads(line)
-                except ValueError:
-                    continue
-                rows += 1
-                total_usd += rec.get("est_cost_usd") or 0
-                total_s += rec.get("elapsed_s") or 0
-    except OSError:
-        return None
-    return rows, total_usd, total_s / 3600.0
 
 # Generated from detectors.PROVIDERS so the roster cannot drift out of the help
 # text again (`claude` shipped working but undocumented in three places).
@@ -132,7 +89,6 @@ MODELS_HELP = (
     "'rampnet,gemini:gemini-2.5-flash,owlv2'. yolo needs trained weights: "
     "'yolo:<path.pt>' or --yolo-model."
 )
-
 
 def load_dotenv(root):
     """Load KEY=VALUE lines from a repo-root .env into os.environ (without
@@ -574,7 +530,7 @@ def report_usage(detector, label, city, panos_scored, usage_log_path, timing=Non
     # unexpected has to be visible now, not six weeks later when the provider's
     # usage telemetry has aged out and the number is gone at any price (#143).
     print(f"[{label}] usage logged to {os.path.abspath(usage_log_path)}")
-    totals = ledger_totals(usage_log_path)
+    totals = ledger.ledger_totals(usage_log_path)
     if totals:
         rows, usd, hours = totals
         print(f"[{label}] ledger now: {rows:,} rows, ${usd:,.2f}, {hours:,.1f} h")

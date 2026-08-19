@@ -39,6 +39,7 @@ from compare import (  # noqa: E402
 )
 import pricing  # noqa: E402
 from pricing import estimate_cost, price_for  # noqa: E402
+from rampnet import ledger  # noqa: E402
 from rampnet.detection_eval import GroundTruth, radius_sq_for  # noqa: E402
 from prepare_yolo_dataset import (  # noqa: E402
     parse_box_size, _ground_distance_m, _box_wh, _resolve_distances, write_data_yaml,
@@ -1761,9 +1762,9 @@ def test_ledger_totals_tolerate_the_rows_written_before_this_change(tmp_path):
         + "not json at all\n"
         + json.dumps({"label": "both", "est_cost_usd": 0.75, "elapsed_s": 1800.0}) + "\n",
         encoding="utf-8", newline="")
-    rows, usd, hours = compare.ledger_totals(str(log))
+    rows, usd, hours = ledger.ledger_totals(str(log))
     assert (rows, usd, hours) == (3, 1.0, 1.5)
-    assert compare.ledger_totals(str(tmp_path / "nope.jsonl")) is None
+    assert ledger.ledger_totals(str(tmp_path / "nope.jsonl")) is None
 
 
 # --- tiled detect() end-to-end (no live model) ------------------------------
