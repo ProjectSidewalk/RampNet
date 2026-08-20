@@ -81,26 +81,42 @@ RUNG_PEAK_LR = 1e-5
 REL_TOL = 1e-6
 
 
-def load_schedule():
-    """`lr_at_step` and `LR_SCHEDULES`, lifted from train.py without running it.
+def load_from_train_py(*names, **namespace):
+    """Lift top-level defs/classes/assignments out of train.py without running it.
 
     train.py is a script, not a library -- importing it builds a model and opens a
-    dataset -- so the two names are compiled out of the AST instead.
-    `tests/test_train_lr_schedule.py` imports this same loader, so there is one lift
-    rather than two copies to drift apart, and the suite exercises it either way.
+    dataset -- so the wanted names are compiled out of the AST instead. Callers pass
+    whatever globals the lifted code needs (`math`, `itertools`, `Sampler`, ...) as
+    keyword arguments.
+
+    This is the single lift in the repo: `tests/test_train_lr_schedule.py` and
+    `tests/test_resume_skip_sampler.py` both come through here, so there is one copy
+    to keep working rather than three to drift apart.
     """
     tree = ast.parse(TRAIN_PY.read_text(encoding="utf-8"), filename=str(TRAIN_PY))
-    wanted = [n for n in tree.body
-              if (isinstance(n, ast.FunctionDef) and n.name == "lr_at_step")
-              or (isinstance(n, ast.Assign)
-                  and any(getattr(t, "id", None) == "LR_SCHEDULES" for t in n.targets))]
-    if len(wanted) != 2:
-        raise SystemExit(f"{TRAIN_PY} no longer defines LR_SCHEDULES and lr_at_step")
-    mod = types.ModuleType("train_lr")
-    mod.math = math
+    wanted, found = [], set()
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.ClassDef)) and node.name in names:
+            wanted.append(node)
+            found.add(node.name)
+        elif isinstance(node, ast.Assign):
+            hit = [t for t in node.targets if getattr(t, "id", None) in names]
+            if hit:
+                wanted.append(node)
+                found.update(t.id for t in hit)
+    missing = sorted(set(names) - found)
+    if missing:
+        raise SystemExit(f"{TRAIN_PY} no longer defines: {', '.join(missing)}")
+    mod = types.ModuleType("train_lifted")
+    mod.__dict__.update(namespace)
     exec(compile(ast.Module(body=wanted, type_ignores=[]), str(TRAIN_PY), "exec"),
          mod.__dict__)
     return mod
+
+
+def load_schedule():
+    """`lr_at_step` and `LR_SCHEDULES` -- see `load_from_train_py`."""
+    return load_from_train_py("lr_at_step", "LR_SCHEDULES", math=math)
 
 
 def load_lr_at_step():

@@ -187,6 +187,48 @@ almost perfectly one-sided, which is exactly what flip-TTA's max-combine mechani
 (pointwise ≥, so it can only add detections) and what #78 documented; and the +0.0022 F1 it
 buys on `manual_gold` reproduces #78's finding that this is the one split where TTA helps.
 
+### Re-scored after #140 sealed the seam, and what that moved
+
+Everything above was first computed against the **pre-#140** matcher: this analysis branched
+before the seam wrap landed. Merging `main` in surfaced that immediately, and by the intended
+route — `score_model` asserts on every panorama that its own `match_detail` agrees with
+`rampnet.detection_eval.score_pano`, and the assertion fired, because `score_pano` had started
+wrapping and `match_detail` had not. Two matchers exist here precisely so that a divergence is
+an error rather than a slightly different number, and that is what happened.
+
+`match_detail` now wraps, and both the greedy match and the ignore-point fallback go through
+`rampnet.geometry.dist_sq` rather than an inline distance — the same defect #132 §4 found in
+`score_pano` itself.
+
+**Measured, the seam is worth almost nothing to this analysis.** Re-scoring all eight committed
+epoch dumps with the wrapping matcher moves **one** number:
+
+| epoch | max-F1, pre-#140 | max-F1, post-#140 | Δ |
+| :--- | ---: | ---: | ---: |
+| 7 | 0.911009 | 0.910745 | **−0.000264** |
+| 1–6, 8 | — | — | **0.000000** |
+
+One prediction on one panorama now claims a ground-truth ramp across the seam instead of
+counting as a false positive on one side and a miss on the other. That is 4% of the 0.0063
+paired MDE the recommendation rests on, and it moves epoch 7 **further below** the plateau, so
+every verdict below holds and the 7-and-8 decline is marginally sharper, not softer. Both
+matchers are pinned in `tests/test_benchmark_power_135.py`: the historical curve is checked
+against the historical matcher at 1e-5, and the single post-#140 difference is asserted rather
+than absorbed by a loosened tolerance, so a *second* epoch starting to move fails the build.
+
+One consequence for how the max-F1 table below is built. Its point estimates used to be read
+from `docs/data/run_a_84_manual_gold/summary.csv` while its standard errors were bootstrapped
+from re-scored detections — which after #140 meant one column was pre-fix and the one beside it
+post-fix. They now both come from the epoch dumps under the same matcher. `summary.csv` remains
+the provenance record of the #84 run and the regression test's target; it is **not** an input to
+this analysis, and it is deliberately left as written, because only four of its ten columns are
+exactly re-derivable from the committed detections (the max-F1 block is; the operating-point and
+AP columns come from `evaluate.py` and use different conventions).
+
+**This does not generalise to the rest of the repo.** Re-scoring the whole roster while checking
+the above turned up three *committed* YOLO baseline cells that #140 did move and that were never
+regenerated — see **#148**. RampNet's own numbers are unaffected on every split.
+
 ## Run A's plateau, re-read as a paired comparison
 
 Applying the paired instrument to Run A's own committed numbers. "Required discordance" is how
@@ -215,8 +257,8 @@ separation:
 | 1 vs 3 | 0.9064 | 0.9191 | +0.0126 | 0.0025 | 5.1 | resolvable |
 | 2 vs 6 | 0.9165 | 0.9165 | +0.0000 | 0.0022 | 0.0 | **not resolvable** |
 | 3 vs 6 | 0.9191 | 0.9165 | −0.0025 | 0.0018 | 1.4 | **not resolvable** |
-| 6 vs 7 | 0.9165 | 0.9110 | −0.0055 | 0.0019 | 2.8 | resolvable |
-| 3 vs 7 | 0.9191 | 0.9110 | −0.0080 | 0.0021 | 3.9 | resolvable |
+| 6 vs 7 | 0.9165 | 0.9107 | −0.0058 | 0.0020 | 3.0 | resolvable |
+| 3 vs 7 | 0.9191 | 0.9107 | −0.0083 | 0.0021 | 4.0 | resolvable |
 | 3 vs 8 | 0.9191 | 0.9124 | −0.0066 | 0.0022 | 3.0 | resolvable |
 | 5 vs 8 | 0.9179 | 0.9124 | −0.0055 | 0.0020 | 2.8 | resolvable |
 | 1 vs 8 | 0.9064 | 0.9124 | +0.0060 | 0.0028 | 2.1 | resolvable |
@@ -226,8 +268,8 @@ respect correct it.
 
 **The plateau is real, but narrower than "epochs 2–8".** Epochs 2 and 6 are identical on max-F1
 to four decimals and 3 vs 6 is unreadable, so the *core* of Run A's finding survives a sharper
-instrument intact. But **epochs 7 and 8 are measurably below the plateau** — 3 vs 7 at z = 3.9,
-3 vs 8 at 3.0, 6 vs 7 at 2.8 — and the unpaired 0.01 bar could not see it.
+instrument intact. But **epochs 7 and 8 are measurably below the plateau** — 3 vs 7 at z = 4.0,
+3 vs 8 at 3.0, 6 vs 7 at 3.0 — and the unpaired 0.01 bar could not see it.
 
 So the curve is not "steps up once from epoch 1 to 2 and is then flat", which is what #84
 recorded. Measured paired, it is:

@@ -189,15 +189,36 @@ def test_committed_json_matches_the_doc():
     assert sum(far) / len(far) > sum(gap1) / len(gap1)
 
 
+#: The one Run A max-F1 that #140 moved. ``summary.csv`` was written on 2026-08-18
+#: 14:24, about two hours before the seam wrap merged (bf64451, 16:30), so it records
+#: the curve under the non-wrapping matcher. Re-scored with wrapping, exactly one of
+#: the eight epochs changes -- epoch 7, by 0.000264, because one prediction there now
+#: claims a ground-truth ramp across the 360 seam. Pinned rather than tolerated: a
+#: second epoch starting to move would be a real change and has to fail the build.
+SEAM_FIXED_MAX_F1 = {7: 0.910745}
+
+
+def _epoch_max_f1(records, gts, epoch, wrap_x):
+    """max-F1 for one committed epoch dump, under the chosen matcher."""
+    label = bp.RUN_A_EPOCH.format(epoch)
+    if bp.detections_for(REPO, "manual_gold", label, records) is None:
+        return None
+    s = bp.score_model(REPO, "manual_gold", label, records, gts, RSQ, wrap_x=wrap_x)
+    return float(np.array(bp.metrics(s, np.ones((1, len(s.pids))), 0.30)).ravel()[3])
+
+
 def test_run_a_epoch_dumps_are_the_committed_curve():
-    """Every epoch dump must reproduce summary.csv's max-F1.
+    """Every epoch dump must reproduce summary.csv's max-F1, under its own matcher.
 
     dump_peaks_from_cache.py checks this at write time, but the check has to survive
     into the repo: these files are committed precisely because the 13 GB heatmap cache
     they came from cannot be, so nothing else can re-derive them.
+
+    The matcher is passed explicitly because summary.csv predates #140. Checking the
+    historical file against the historical matcher keeps this exact to 1e-5 -- a
+    tolerance loose enough to absorb the seam would also absorb a real regression.
     """
     import csv
-
     summary_path = os.path.join(REPO, "docs", "data", "run_a_84_manual_gold", "summary.csv")
     with open(summary_path, encoding="utf-8") as fh:
         rows = {int(r["epoch"]): r for r in csv.DictReader(fh)}
@@ -205,12 +226,44 @@ def test_run_a_epoch_dumps_are_the_committed_curve():
     records, gts = bp.load_split(REPO, "manual_gold")
     checked = 0
     for epoch, row in rows.items():
-        label = bp.RUN_A_EPOCH.format(epoch)
-        if bp.detections_for(REPO, "manual_gold", label, records) is None:
+        max_f1 = _epoch_max_f1(records, gts, epoch, wrap_x=False)
+        if max_f1 is None:
             continue
-        s = bp.score_model(REPO, "manual_gold", label, records, gts, RSQ)
-        _, _, _, max_f1 = (float(v) for v in np.array(
-            bp.metrics(s, np.ones((1, len(s.pids))), 0.30)).ravel())
         assert max_f1 == pytest.approx(float(row["max_f1"]), abs=1e-5), epoch
         checked += 1
     assert checked == 8, f"expected 8 committed epoch dumps, found {checked}"
+
+
+def test_seam_wrap_moves_exactly_one_epoch_of_the_run_a_curve():
+    """What #140 did to the curve this analysis is built on, measured and pinned.
+
+    The analysis runs at ``bp.WRAP_X``; the committed file does not. That difference
+    is a fact about the data, so it is asserted rather than described: every epoch but
+    one is unchanged within summary.csv's own rounding, and epoch 7 moves by the
+    amount recorded above. The
+    conclusion in docs/stage2_run_b_power_135.md is unaffected -- 0.000264 is 4% of
+    the 0.0063 paired MDE it rests on, and it moves epoch 7 further down, not up.
+    """
+    import csv
+    summary_path = os.path.join(REPO, "docs", "data", "run_a_84_manual_gold", "summary.csv")
+    with open(summary_path, encoding="utf-8") as fh:
+        rows = {int(r["epoch"]): r for r in csv.DictReader(fh)}
+
+    records, gts = bp.load_split(REPO, "manual_gold")
+    moved = {}
+    for epoch, row in rows.items():
+        wrapped = _epoch_max_f1(records, gts, epoch, wrap_x=bp.WRAP_X)
+        if wrapped is None:
+            continue
+        historical = float(row["max_f1"])
+        # summary.csv is written to 6 decimals, so 5e-7 is pure rounding; 1e-6
+        # sits above that and 264x below the epoch-7 move, a clean separation.
+        if wrapped != pytest.approx(historical, abs=1e-6):
+            moved[epoch] = wrapped
+
+    assert sorted(moved) == sorted(SEAM_FIXED_MAX_F1), moved
+    for epoch, expected in SEAM_FIXED_MAX_F1.items():
+        assert moved[epoch] == pytest.approx(expected, abs=1e-6), epoch
+        # Downward: the wrap gives a seam ramp to a prediction that had been a false
+        # positive on one side and a miss on the other, which cannot raise max-F1 here.
+        assert moved[epoch] < float(rows[epoch]["max_f1"])

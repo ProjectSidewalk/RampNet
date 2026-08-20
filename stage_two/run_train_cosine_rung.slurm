@@ -67,6 +67,12 @@ ENV_PREFIX="${RAMPNET_ENV:-$HOME/envs/sidewalkcv2}"
 DATA_ROOT="${RAMPNET_DATA:-$REPO/dataset}"
 EPOCHS="${RAMPNET_EPOCHS:-8}"
 LR_FINAL_FRAC="${RAMPNET_LR_FINAL_FRAC:-0.0}"
+# A preemption rewinds to the last checkpoint, so this is the granularity of loss.
+# 200 steps is ~4.5 min at the measured 1.34 s/step, against train.py's default 1000
+# (~22 min) -- chosen because ckpt-all preempted this job after as little as 36 s on
+# 2026-08-19/20 and nothing under ~45 min was banking any progress at all. The write
+# is ~1 GB, so going much below 200 starts paying more in I/O than it saves in rewind.
+CKPT_INTERVAL_STEPS="${RAMPNET_CKPT_INTERVAL_STEPS:-200}"
 
 PYBIN="$ENV_PREFIX/bin/python"
 TORCHRUN="$ENV_PREFIX/bin/torchrun"
@@ -103,6 +109,7 @@ echo "Data root       : ${DATA_ROOT}"
 echo "Working dir     : $(pwd)"
 echo "Epochs          : ${EPOCHS}"
 echo "LR schedule     : cosine, peak 1e-5 -> ${LR_FINAL_FRAC} x peak, no warmup"
+echo "Checkpoint every: ${CKPT_INTERVAL_STEPS} steps (~$(( CKPT_INTERVAL_STEPS * 134 / 6000 )) min at 1.34 s/step)"
 echo "Resume file     : $(pwd)/latest_checkpoint.pth$([ -f latest_checkpoint.pth ] && echo ' (PRESENT -- resuming)' || echo ' (absent -- fresh start)')"
 echo "----------------------------------------"
 
@@ -124,6 +131,7 @@ srun --export=ALL \
              --preset scratch \
              --lr-schedule cosine \
              --lr-final-frac "$LR_FINAL_FRAC" \
+             --checkpoint-interval-steps "$CKPT_INTERVAL_STEPS" \
              --checkpoint-dir checkpoints
 
 echo "--- Slurm job finished ---"

@@ -73,7 +73,15 @@ from export_model_cache import load_detections  # noqa: E402
 from rampnet.detection_eval import (  # noqa: E402
     PANO_SCALE_X, PANO_SCALE_Y, prediction_confidence, radius_sq_for, score_pano,
 )
+from rampnet.geometry import dist_sq  # noqa: E402
 from rampnet.metrics import greedy_match  # noqa: E402
+
+#: Panorama x is cyclic, so the matcher must wrap at the 360 seam (#130/#140).
+#: ``score_pano`` defaults to ``wrap_x=True`` for exactly this reason, and
+#: ``match_detail`` below has to make the same choice or ``score_model``'s runtime
+#: assertion fires -- which is how this was caught: the assertion is the whole point
+#: of keeping two matchers, and it did its job.
+WRAP_X = True
 
 #: Two-sided alpha 0.05, 80% power. z_{0.975} + z_{0.80}.
 Z_MDE = 2.8015854
@@ -158,14 +166,18 @@ def detections_for(repo, split, model, records):
                            os.path.join(repo, "benchmark", "model_detections"))
 
 
-def match_detail(pred_points, gt, radius_sq):
+def match_detail(pred_points, gt, radius_sq, wrap_x=WRAP_X):
     """Per-prediction (confidence, is_tp, gt_index) for the *scored* predictions.
 
-    Reproduces ``score_pano``'s ordering and ignore-point fallback, but keeps the
-    ground-truth index each true positive claimed, which ``score_pano`` discards and
-    which the McNemar decomposition needs (it asks *which* ramps a model found, not
-    how many). ``score_pano`` remains the authority on the counts -- the caller
-    asserts the two agree, so this cannot silently drift from it.
+    Reproduces ``score_pano``'s ordering, seam wrapping and ignore-point fallback,
+    but keeps the ground-truth index each true positive claimed, which ``score_pano``
+    discards and which the McNemar decomposition needs (it asks *which* ramps a model
+    found, not how many). ``score_pano`` remains the authority on the counts -- the
+    caller asserts the two agree, so this cannot silently drift from it.
+
+    Every geometry decision here is ``score_pano``'s, including ``WRAP_X``: matching
+    and the ignore fallback both go through ``rampnet.geometry.dist_sq`` rather than
+    an inline distance, which is the mistake #132 4 found in ``score_pano`` itself.
 
     Predictions are ordered by descending confidence, and greedy matching in that
     order means the assignment of the top-k predictions is identical for every k.
@@ -183,16 +195,17 @@ def match_detail(pred_points, gt, radius_sq):
 
     xy = [(float(p["x_normalized"]), float(p["y_normalized"])) if isinstance(p, dict)
           else (float(p[0]), float(p[1])) for p in preds]
-    assignments = greedy_match(xy, gt.gt_points, radius_sq, PANO_SCALE_X, PANO_SCALE_Y)
+    assignments = greedy_match(xy, gt.gt_points, radius_sq,
+                              PANO_SCALE_X, PANO_SCALE_Y, wrap_x)
 
     scored = []
     for (px_n, py_n), p, (gt_index, _) in zip(xy, preds, assignments):
         if gt_index >= 0:
             scored.append((prediction_confidence(p), True, gt_index))
             continue
-        px, py = px_n * PANO_SCALE_X, py_n * PANO_SCALE_Y
-        in_ignore = any((px - ix * PANO_SCALE_X) ** 2 + (py - iy * PANO_SCALE_Y) ** 2 < radius_sq
-                        for ix, iy in gt.ignore_points)
+        in_ignore = any(
+            dist_sq(px_n, py_n, ix, iy, PANO_SCALE_X, PANO_SCALE_Y, wrap_x) < radius_sq
+            for ix, iy in gt.ignore_points)
         if not in_ignore:
             scored.append((prediction_confidence(p), False, -1))
     return scored
@@ -221,8 +234,14 @@ class Scored:
         self.gt_x = gt_x                    # (n_instances,) normalized x, for the seam check
 
 
-def score_model(repo, split, model, records, gts, radius_sq):
-    """Reduce one (model, split) to a :class:`Scored`, or None if it was never run."""
+def score_model(repo, split, model, records, gts, radius_sq, wrap_x=WRAP_X):
+    """Reduce one (model, split) to a :class:`Scored`, or None if it was never run.
+
+    ``wrap_x`` is a parameter rather than a constant for one reason: the committed
+    #84 curve in ``docs/data/run_a_84_manual_gold/summary.csv`` was measured before
+    #140 sealed the seam, so reproducing *that file* needs the matcher of the day.
+    Analysis always runs at ``WRAP_X``; only the regression test passes False.
+    """
     dets = detections_for(repo, split, model, records)
     if dets is None:
         return None
@@ -238,11 +257,11 @@ def score_model(repo, split, model, records, gts, radius_sq):
         i = pid_index[pid]
         gt = gts[pid]
         points = dets.get(pid, [])
-        detail = match_detail(points, gt, radius_sq)
+        detail = match_detail(points, gt, radius_sq, wrap_x)
         # score_pano stays the authority on the counts; this asserts match_detail
         # did not drift from it. A mismatch means the two matchers disagree, which
         # would invalidate every number below -- so it fails rather than warns.
-        ref = score_pano(points, gt, radius_sq=radius_sq)
+        ref = score_pano(points, gt, radius_sq=radius_sq, wrap_x=wrap_x)
         assert sum(1 for _, tp, _ in detail if tp) == ref.tp, (split, model, pid, "tp")
         assert sum(1 for _, tp, _ in detail if not tp) == ref.fp, (split, model, pid, "fp")
 
@@ -852,10 +871,30 @@ def main(argv=None):
               f"{'se':>8} {'z':>6} {'verdict':>16}")
         out["run_a_paired"]["max_f1_se_bracket"] = [se_lo, se_hi]
         out["run_a_paired"]["max_f1_pairs"] = {}
+        out["run_a_paired"]["wrap_x"] = WRAP_X
+        # The point estimates must come from the SAME scoring as the standard errors
+        # standing beside them. Reading them off summary.csv instead mixes provenance:
+        # that file was written before #140 sealed the seam, so its epoch-7 max-F1 is
+        # the non-wrapping matcher's while every s.e. in the row is the wrapping one's.
+        # The gap is only 0.000264, but a table that quietly averages two matchers is
+        # the failure this repo keeps finding, not a rounding question. summary.csv
+        # stays the provenance record and the regression test's target; it is not the
+        # analysis's input when the per-panorama dumps are present.
+        def epoch_max_f1(e):
+            scored = get("manual_gold", RUN_A_EPOCH.format(e))
+            if scored is None:
+                return float(by_ep[e]["max_f1"]), "summary.csv"
+            weights = np.ones((1, len(scored.pids)))
+            thr_e = protocol_threshold(RUN_A_EPOCH.format(e))
+            value = float(np.array(metrics(scored, weights, thr_e)).ravel()[3])
+            return value, "epoch dump"
+
+        sources = set()
         for ea, eb in interesting:
             if ea not in by_ep or eb not in by_ep:
                 continue
-            ma, mb = float(by_ep[ea]["max_f1"]), float(by_ep[eb]["max_f1"])
+            (ma, sa_src), (mb, sb_src) = epoch_max_f1(ea), epoch_max_f1(eb)
+            sources.update((sa_src, sb_src))
             pair = measured.get(f"{ea}v{eb}")
             if pair is not None:
                 se = pair["delta"]["max_f1"]["se"]
@@ -871,7 +910,8 @@ def main(argv=None):
                 note = " (bracketed)"
             out["run_a_paired"]["max_f1_pairs"][f"{ea}v{eb}"] = {
                 "max_f1_a": ma, "max_f1_b": mb, "delta": mb - ma,
-                "se": se, "z": z, "verdict": verdict, "measured": pair is not None}
+                "se": se, "z": z, "verdict": verdict, "measured": pair is not None,
+                "max_f1_source": sa_src if sa_src == sb_src else f"{sa_src}/{sb_src}"}
             print(f"  {f'{ea} vs {eb}':>10} {ma:>9.4f} {mb:>9.4f} {mb - ma:>+9.4f} "
                   f"{fmt(se) if se else 'n/a':>8} {z:>6.1f} {verdict + note:>16}")
 
