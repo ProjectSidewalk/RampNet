@@ -1478,6 +1478,11 @@ reading anything into the numbers — predictions sit tight on the ramps, no off
 | **claude-opus-5** | **low** | 0.572 | 0.605 | **0.588** | 178/133/116 | 523 | $8.94 |
 | claude-opus-5 | high | 0.430 | 0.656 | 0.520 | 193/256/101 | 127,227 | $12.46 |
 
+The two Opus costs are the only ones here with independent corroboration: they were recorded
+from console output at run time, and Cloud Monitoring's minute series was later solved for
+the same split and returned $8.95 / $12.47 (§"Splitting a two-leg day by effort"). The Sonnet
+pair has no such check — that day's telemetry does not separate.
+
 **Every number in this table is re-derivable from committed files**, with no
 `.model_cache`, no API key and no GPU: the per-panorama detections are published under
 `benchmark/model_detections/claude-*-effort-*__annapolis.json`, and
@@ -1610,10 +1615,13 @@ time of day rather than a calendar day.
 So the console numbers were right to within **1.5%**, and the table above stands as
 published. Two things this changes, and one it does not:
 
-- **The per-leg split is still unrecoverable, and always will be.** Monitoring is per model
-  per day, and both efforts of each model ran the same day — $21.47 cannot be divided into
-  its `low` and `high` halves from this source. The console figures are the only per-leg
-  record there will ever be, which is why they stay in the table rather than being replaced.
+- **The Opus per-leg split is recoverable too, at minute resolution.** The daily row is
+  per model, so `low` and `high` land in one number — but the metric can be aligned to 60 s
+  instead of 86,400 s, and the two legs leave different traces. `vertex_effort_split.py`
+  does this and confirms the console figures **to 0.1%**; the working is below.
+- **The Sonnet split is not recoverable, and the tool says so rather than guessing.**
+  Whether a per-effort split survives depends on whether effort actually changed the
+  model's behaviour, which makes this a property of the *result*, not of the telemetry.
 - **The method validated itself against the one leg that did log.** The 2026-08-18 Sonnet
   re-run appears in monitoring as 12,594 input / 480 output — token-for-token identical to
   its committed `usage_log.jsonl` record. Layer 3 reproducing layer 1 exactly, on the one
@@ -1621,12 +1629,62 @@ published. Two things this changes, and one it does not:
 - **It does not make the loss cheap.** Recovery worked because someone looked within six
   weeks. Past that window this paragraph's original claim becomes true retroactively.
 
+#### Splitting a two-leg day by effort
+
+Cloud Monitoring has **no `effort` label** — effort is a request parameter and never
+reaches the metric, whose labels are `type`, `request_type`, `shared_request_type`,
+`source`, `explicit_caching` plus the resource's `model_user_id` / `model_version_id` /
+`publisher` / `location`. The daily alignment is a *query* choice, though, not a property
+of the data, so the lever is time plus two facts this repo already holds:
+
+1. **Input is deterministic** — 12,186 tokens per Opus panorama (6 views × 2,031). Total
+   input therefore pins the pano count exactly: the 08-15 Opus day is **251.00 panos**, two
+   125-pano legs plus the one re-run panorama. The input half of the split needs no
+   inference at all.
+2. **Effort bills as output, not input.** A high-effort leg has a higher output/input ratio
+   *and* a lower throughput, so when the fast leg finishes, both change at once.
+
+That leaves one unknown — how the output divides — and the minute series shows exactly the
+predicted shape. The legs ran **concurrently**, not back to back: throughput holds at ~5
+panos/min until **18:32 UTC**, then drops **2.54×** to ~1.7 while the output ratio doubles
+(0.0675 → 0.1203). That is the `low` leg finishing and leaving `high` running alone.
+
+| anchor | low effort | high effort | sum |
+|---|---:|---:|---:|
+| tail ratio = pure high (0.1203) | $9.21 | $12.20 | $21.41 |
+| low ratio = 0.0349, measured on the 984-pano #139 leg | **$8.95** | **$12.47** | $21.41 |
+| **console output, recorded at run time** | **$8.94** | **$12.46** | $21.40 |
+
+**The rate-anchored solve reproduces the console figures to 0.1%, from a completely
+independent source.** The anchor was taken from the #139 leg's measured output rate before
+either number was compared, so the agreement is a check, not a fit. Quote **$8.94 / $12.46**
+— the run-time record — and treat this as the corroboration that they are right.
+
+```bash
+python scripts/analysis/vertex_effort_split.py --model claude-opus-5 \
+    --start 2026-08-15T17:00:00Z --end 2026-08-15T21:30:00Z \
+    --per-pano-input 12186 --anchor-low-ratio 0.034908
+```
+
+**The same command on `claude-sonnet-5` refuses to answer, and that is the more
+transferable result.** Sonnet's ratio is flat across its whole run — throughput drops only
+1.63× and the ratio moves the *wrong way* (0.0365 → 0.0281) — so there is no second
+component to find and the script prints `NOT SEPARABLE`. The reason is in the result table
+above: Sonnet's high leg spent **17,820** thinking tokens against Opus's **127,227**, so the
+dial that this method reads barely moved. A mixture solver run on that series returns "high
+effort cost less than low", which is false; the guard exists because the wrong answer is the
+plausible-looking one. **A per-effort split is recoverable exactly when effort changed the
+model enough to be worth splitting** — the telemetry is not the limiting factor.
+
 Two guards now stand where that went wrong, and the order matters. `compare.py` **refuses to
 start** a paid leg under `--usage-log none` (override: `--allow-unrecorded-spend`), which is
 the check that fires while the money is still unspent; `report_usage` still warns loudly at
 the end of a leg that logged nothing, for the case where the log path existed but could not
-be written. A warning after the fact could not have saved these four legs' **per-leg** split —
-by the time it prints, the tokens are bought and only the daily total is still recoverable.
+be written. A warning after the fact would still have been worth having: everything above was
+reconstructed five days late, and the only reason it worked is that nobody waited six weeks.
+What the reconstruction cannot give you is a *guarantee* — Opus separated because its effort
+dial moved 127k thinking tokens, Sonnet's did not separate at all, and which case you are in
+is not knowable until after the money is spent. Layer 1 is the only layer that always works.
 
 ## Cost accounting for paid models
 
@@ -2088,6 +2146,10 @@ What this split adds to the story:
 - `scripts/analysis/vertex_usage.py` — server-side reconciliation: actual billed tokens per
   model from Cloud Monitoring. Needs ADC on the billing project, so only its output is
   replicable from this repo.
+- `scripts/analysis/vertex_effort_split.py` — divides one such daily total between two legs
+  of the same model (the #122 low/high pairs) using minute alignment plus the deterministic
+  input geometry. Refuses with `NOT SEPARABLE` when the legs leave no distinguishable
+  trace, which is the Sonnet case. Same ADC requirement.
 - `analysis_out/usage_log.jsonl` — committed, append-only record of what each paid run spent.
 - `requirements-vlm.txt` — optional VLM deps.
 - `tests/test_detection_eval.py`, `tests/test_model_comparison.py`,

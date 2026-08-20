@@ -198,13 +198,21 @@ to record. Only the 2026-08-18 single-panorama re-run ($0.03) is in the log.
 
 **Cloud Monitoring can, and did (2026-08-19).** `scripts/analysis/vertex_usage.py --days 7`
 recovered the billed daily totals — `claude-opus-5` $21.47 and `claude-sonnet-5` $7.79,
-$29.26 against the console's $28.82, so the published figures are right to 1.5%. What stays
-lost is the **per-leg** split: monitoring is per model per day and both efforts ran the same
-day, so no source will ever divide $21.47 into `low` and `high`. Numbers and method are in
-`docs/model_comparison.md` §"Reproducing these four legs". **Retention is ~6 weeks**, so
-this was recoverable only because someone looked within it; treat a missing usage record as
-having a deadline, not as paperwork. `compare.report_usage` now prints a loud warning when a
-leg that spent money finishes with no log destination.
+$29.26 against the console's $28.82, so the published figures are right to 1.5%.
+
+The **per-leg** split goes one level further and only half works.
+`scripts/analysis/vertex_effort_split.py` re-queries the same metric at 60 s instead of
+daily alignment: the two Opus legs ran concurrently and separate at their changepoint
+(18:32 UTC, throughput /2.54), giving **$8.95 low / $12.47 high** against the console's
+**$8.94 / $12.46** — 0.1%, from an independent source. **Sonnet does not separate**, and
+the script prints `NOT SEPARABLE` rather than a number: its high leg spent 17,820 thinking
+tokens to Opus's 127,227, so the signal this method reads is not there. Numbers, method and
+the exact commands are in `docs/model_comparison.md` §"Splitting a two-leg day by effort".
+
+**Retention is ~6 weeks**, so all of this was recoverable only because someone looked within
+it; treat a missing usage record as having a deadline, not as paperwork.
+`compare.report_usage` now prints a loud warning when a leg that spent money finishes with
+no log destination.
 
 Downstream scripts prefer the published files over `.model_cache`, and the label a `--models` spec
 resolves to is derived *without* building a detector, so **a clean clone reproduces these numbers
