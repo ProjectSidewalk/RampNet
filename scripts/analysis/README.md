@@ -26,7 +26,7 @@ checkout.
 | script | GPU | what it answers |
 |---|---|---|
 | `miss_analysis.py` | no | Are misses localization near-misses or blind? Are they hard (a VLM also missed) or RampNet-specific? |
-| `complementarity.py [model] [split]` | no | Oracle-union recall + the RampNet-miss ∩ VLM-hit set (issue #35 gate). Reads cached VLM detections from `.model_cache`; split defaults to richmond. |
+| `complementarity.py [model] [split]` | no | Oracle-union recall + the RampNet-miss ∩ challenger-hit set, with a chance null on that subset and the FP bill a naive union would actually pay (issue #35 gate). Takes any model spec (`provider` or `provider:model_id`); a bare non-provider token is read as a Gemini model id. Reads cached detections from `.model_cache`; split defaults to richmond. Pass the same `--vistas-input-size` the run used — it is part of the cache key. |
 | `precision_by_distance.py` | no | Is precision worse at distance — i.e. is culling far detections worth it? (No.) |
 | `threshold_sweep.py` | **yes** | Re-runs inference on all benchmark panos and sweeps `threshold_abs` × `min_distance`. |
 | `peak_nms_check.py` | no | Would suppressing peaks closer than the match radius help? (No — 6 of the 10 within-R pairs in the reviewed records are real ramp pairs; issue #62.) Reads all seven splits' committed records, no panos needed. |
