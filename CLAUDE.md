@@ -80,6 +80,14 @@ in seconds, so it reproduces neither the token counts nor the runtime.
   number the day you notice it. Recovery is per-model per-day, so **per-split attribution is
   permanently gone** even after a successful pull — layer 3 rescues the total, never the
   breakdown.
+- **A recovered number belongs in the ledger, and belongs marked.** Write it as a row with
+  `kind: "recovered"` (`rampnet.ledger.RECOVERED`) carrying the billed total *minus what the
+  surviving rows already account for*, so the ledger sums to the bill rather than double
+  counting. Two rules follow and they pull opposite ways: **cost totals include it** — omitting
+  #139's $70.41 under-reported the benchmark's Claude spend by ~200x — but **reconciliation must
+  exclude it**, because a recovered row was read off that same bill, so counting it as "logged"
+  compares the bill against itself and reports `ok` for the exact gap the check exists to find.
+  A recovered row carries no `bundle` and no `elapsed_s`; those were never in the telemetry.
 - **Token counts and GPU-hours are the durable facts; dollars are estimates** and the billing
   console is authoritative. Estimate input tokens from geometry when you must (deterministic —
   it came within 0.02% for a 984-panorama leg); **never estimate output**, which is thinking

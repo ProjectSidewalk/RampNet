@@ -173,9 +173,10 @@ def test_the_ledger_round_trips_through_the_shared_writer(tmp_path):
     back = ledger.read_rows(str(log))
     assert [r["job_id"] for r in back] == ["198910", "198638"]
     # Both ledgers name the duration the same, so one reader can total them.
-    rows, usd, hours = ledger.ledger_totals(str(log))
+    rows, usd, hours, recovered = ledger.ledger_totals(str(log))
     assert rows == 2 and usd == pytest.approx(4.20, abs=0.005)
     assert hours == pytest.approx((16812 + 120) / 3600.0)
+    assert recovered == 0        # sacct rows are measured, never reconstructed
 
 
 def test_the_compute_ledger_is_re_included_in_gitignore():

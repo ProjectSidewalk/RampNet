@@ -20,6 +20,32 @@ import json
 import subprocess
 from pathlib import Path
 
+#: A row's provenance. Absent means ``MEASURED``: every row written before this
+#: convention existed was taken at run time.
+MEASURED = "measured"
+#: Reconstructed after the fact from the provider's billing telemetry, because layer 1
+#: failed to write and the spend would otherwise be absent from every total.
+RECOVERED = "recovered"
+
+
+def row_kind(rec):
+    """``MEASURED`` or ``RECOVERED`` for one ledger row.
+
+    **A recovered row is not a measurement, and the difference is load-bearing.** It
+    carries real money and real token counts, but it was read *off the bill*, so:
+
+    - it has **no per-split attribution** — recovery is per-model per-day, and which
+      split spent what is permanently gone;
+    - it must **never be fed back into reconciliation**. ``vertex_usage.reconcile``
+      compares the ledger against that same bill, so counting a recovered row as
+      "logged" makes the bill agree with itself and reports ``ok`` for precisely the
+      gap the check exists to find.
+
+    Totals still include it — a cost table that omits recovered spend is wrong by the
+    whole amount, which for #139 was a factor of about 200.
+    """
+    return rec.get("kind") or MEASURED
+
 
 def canonical_repo_root(start):
     """The MAIN checkout for ``start``, even when ``start`` is a linked worktree.
@@ -78,15 +104,22 @@ def append_rows(path, rows):
 
 
 def ledger_totals(path):
-    """(rows, total USD, total wall-clock hours) in an existing ledger.
+    """(rows, total USD, wall-clock hours, recovered USD) in an existing ledger.
 
     Printed after every logged leg so a run that wrote somewhere unexpected is
     visible *while someone is still watching*, rather than weeks later when the
     provider's usage telemetry has aged out. Rows predating #143 carry no timing
-    keys and free rows carry no cost; both are counted as the zero they are."""
+    keys and free rows carry no cost; both are counted as the zero they are.
+
+    ``recovered`` is the part of the USD total that came from :data:`RECOVERED` rows
+    rather than from measurement. It is reported separately, not subtracted: the
+    money was really spent, but nobody timed it and no split can claim it, so a
+    reader should never mistake it for an as-run number."""
     rows = read_rows(path)
     if rows is None:
         return None
     usd = sum(r.get("est_cost_usd") or 0 for r in rows)
     seconds = sum(r.get("elapsed_s") or 0 for r in rows)
-    return len(rows), usd, seconds / 3600.0
+    recovered = sum(r.get("est_cost_usd") or 0
+                    for r in rows if row_kind(r) == RECOVERED)
+    return len(rows), usd, seconds / 3600.0, recovered

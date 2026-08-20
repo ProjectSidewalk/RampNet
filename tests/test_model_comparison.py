@@ -1762,9 +1762,47 @@ def test_ledger_totals_tolerate_the_rows_written_before_this_change(tmp_path):
         + "not json at all\n"
         + json.dumps({"label": "both", "est_cost_usd": 0.75, "elapsed_s": 1800.0}) + "\n",
         encoding="utf-8", newline="")
-    rows, usd, hours = ledger.ledger_totals(str(log))
+    rows, usd, hours, recovered = ledger.ledger_totals(str(log))
     assert (rows, usd, hours) == (3, 1.0, 1.5)
+    # No row carries a kind, so every one of them reads as measured.
+    assert recovered == 0
     assert ledger.ledger_totals(str(tmp_path / "nope.jsonl")) is None
+
+
+def test_a_recovered_row_counts_toward_cost_but_never_toward_reconciliation(tmp_path):
+    """The #139 case, as a fixture.
+
+    A recovered row is real spend read off the provider's bill after layer 1 failed
+    to write. Two things have to be true at once, and they pull in opposite
+    directions: cost totals must include it (otherwise every table under-reports by
+    the whole amount), and reconciliation must exclude it (otherwise the bill is
+    compared against itself and the missing measurement reads as ``ok``).
+    """
+    sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "analysis"))
+    from vertex_usage import ledger_totals_by_model, reconcile
+
+    log = tmp_path / "usage_log.jsonl"
+    ledger.append_rows(str(log), [
+        {"ts": "2026-08-18T23:29:11+00:00", "label": "claude-opus-5",
+         "model_id": "claude-opus-5", "input_tokens": 12_186, "output_tokens": 780,
+         "est_cost_usd": 0.0804},
+        {"ts": "2026-08-18T00:00:00+00:00", "kind": ledger.RECOVERED,
+         "label": "claude-opus-5", "model_id": "claude-opus-5",
+         "input_tokens": 11_940_249, "output_tokens": 415_751,
+         "est_cost_usd": 70.095},
+    ])
+
+    rows, usd, hours, recovered = ledger.ledger_totals(str(log))
+    assert rows == 2
+    assert usd == pytest.approx(70.1754)          # the money is all there
+    assert recovered == pytest.approx(70.095)     # and it is labelled
+
+    # Reconciliation sees only the measured row, so the bill still reads as short.
+    logged = ledger_totals_by_model(ledger.read_rows(str(log)))
+    assert logged["claude-opus-5"]["input"] == 12_186
+    assert logged["claude-opus-5"]["rows"] == 1
+    billed = {"claude-opus-5": {"input": 11_952_435, "output": 416_531}}
+    assert reconcile(billed, logged)[0]["verdict"].startswith("UNDER")
 
 
 # --- tiled detect() end-to-end (no live model) ------------------------------

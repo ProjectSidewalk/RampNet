@@ -109,9 +109,17 @@ def ledger_totals_by_model(rows, since=None):
 
     ``since`` is an ISO date (YYYY-MM-DD); rows stamped earlier are skipped so the
     comparison covers the same window the metric query did. Free legs carry no
-    token keys and are skipped: they have nothing to reconcile against a bill."""
+    token keys and are skipped: they have nothing to reconcile against a bill.
+
+    **Recovered rows are skipped too, and that exclusion is the point.** A recovered
+    row was read off this very bill (``rampnet.ledger.RECOVERED``), so counting it as
+    "logged" would compare the bill against itself and report ``ok`` for the exact
+    gap this function exists to find — turning the one check that catches a silent
+    no-write into a check that cannot."""
     out = defaultdict(lambda: defaultdict(float))
     for rec in rows or []:
+        if ledger.row_kind(rec) == ledger.RECOVERED:
+            continue
         if not rec.get("input_tokens") and not rec.get("output_tokens"):
             continue
         if since and (rec.get("ts") or "")[:10] < since:

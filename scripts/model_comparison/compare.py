@@ -532,8 +532,12 @@ def report_usage(detector, label, city, panos_scored, usage_log_path, timing=Non
     print(f"[{label}] usage logged to {os.path.abspath(usage_log_path)}")
     totals = ledger.ledger_totals(usage_log_path)
     if totals:
-        rows, usd, hours = totals
-        print(f"[{label}] ledger now: {rows:,} rows, ${usd:,.2f}, {hours:,.1f} h")
+        rows, usd, hours, recovered = totals
+        # Recovered spend is called out rather than folded in: it is real money with
+        # no timing and no split attribution, so it must not read as an as-run number.
+        tail = (f" (of which ${recovered:,.2f} recovered, not measured)"
+                if recovered else "")
+        print(f"[{label}] ledger now: {rows:,} rows, ${usd:,.2f}, {hours:,.1f} h{tail}")
 def rescore(scored, radius_sq, min_confidence=0.0):
     """Re-aggregate a finished run with predictions below ``min_confidence`` dropped.
 
