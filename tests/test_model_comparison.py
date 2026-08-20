@@ -7,6 +7,8 @@ cache stays valid across changes (see ``test_gemini_cache_key_is_frozen``).
 """
 import json
 import os
+import shutil
+import subprocess
 import sys
 
 import pytest
@@ -34,10 +36,10 @@ from compare import (  # noqa: E402
     score_model, validate_bundle, validate_manual_bundle, DetectionCache, cache_key,
     ground_truths_from_verdicts, has_confidences, load_bundle,
     load_manual_ground_truths, operating_report, report_usage, rescore, sweep_rows,
-    DEFAULT_USAGE_LOG,
 )
 import pricing  # noqa: E402
 from pricing import estimate_cost, price_for  # noqa: E402
+from rampnet import ledger  # noqa: E402
 from rampnet.detection_eval import GroundTruth, radius_sq_for  # noqa: E402
 from prepare_yolo_dataset import (  # noqa: E402
     parse_box_size, _ground_distance_m, _box_wh, _resolve_distances, write_data_yaml,
@@ -1596,15 +1598,211 @@ def test_an_unwritable_usage_log_does_not_abort_the_run(tmp_path, capsys):
     assert '"calls": 2' in out
 
 
+# --- time is recorded too, and free legs are not invisible (#143) -----------
+
+class _FreeDetector:
+    """A local GPU model: no API bill, and before #143 no ledger row either."""
+    name = "owlv2"
+
+    def __init__(self):
+        self.model_id = "owlv2-large-patch14-ensemble"
+        self.usage = None          # the shape every free detector has
+        self.model_versions = None
+
+    def signature(self):
+        return {"provider": "owlv2", "model_id": self.model_id}
+
+
+def test_a_free_leg_still_gets_a_row(tmp_path):
+    """OWLv2, Grounding DINO, Qwen, Molmo, YOLO and RampNet itself bill no tokens
+    and cost real GPU-hours. Before #143 report_usage returned early on them, so
+    the entire GPU half of the roster left no record and its runtimes survive only
+    as prose in docs/model_comparison.md."""
+    log = tmp_path / "usage_log.jsonl"
+    report_usage(_FreeDetector(), "owlv2", "annapolis", 125, str(log),
+                 timing={"elapsed_s": 900.0, "load_s": 60.0, "detect_s": 800.0,
+                         "panos_called": 125})
+    rec = json.loads(log.read_text(encoding="utf-8").splitlines()[-1])
+    assert rec["paid"] is False
+    assert rec["est_cost_usd"] is None          # free in API terms...
+    assert rec["elapsed_s"] == 900.0            # ...but not free in time
+    assert rec["detect_s"] == 800.0 and rec["panos_called"] == 125
+    assert rec["s_per_pano"] == pytest.approx(6.4)
+    # No token keys at all rather than zeros: a free leg spent no tokens, and a
+    # zero would average into a per-token figure as if it had.
+    assert "input_tokens" not in rec
+
+
+def test_a_paid_leg_records_time_beside_the_tokens(tmp_path):
+    log = tmp_path / "usage_log.jsonl"
+    det = ClaudeDetector(model_id="claude-sonnet-5")
+    det.accumulate_usage(1000, 50, 0)
+    report_usage(det, "claude-sonnet-5", "annapolis", 125, str(log),
+                 timing={"elapsed_s": 1200.5, "load_s": 0.0, "detect_s": 1190.0,
+                         "panos_called": 100})
+    rec = json.loads(log.read_text(encoding="utf-8").splitlines()[-1])
+    assert rec["paid"] is True and rec["input_tokens"] == 1000
+    assert rec["elapsed_s"] == 1200.5
+    # Per-pano divides by panos actually put through the model (100), never by
+    # the panos reported on (125) — the rest came from the cache and cost nothing.
+    assert rec["s_per_pano"] == pytest.approx(11.9)
+
+
+def test_a_leg_that_spent_nothing_writes_nothing(tmp_path):
+    """A fully cached re-score makes no calls and loads no model; a leg that was
+    never runnable does neither either. Writing a zero row per re-run would bury
+    the rows that carry a measurement."""
+    log = tmp_path / "usage_log.jsonl"
+    report_usage(_FreeDetector(), "owlv2", "annapolis", 125, str(log),
+                 timing={"elapsed_s": 0.4, "load_s": 0.0, "detect_s": 0.0,
+                         "panos_called": 0})
+    assert not log.exists()
+
+
+class _AlwaysFailsDetector:
+    """Every call raises — an outage, or a model that cannot answer."""
+    name = "always-fails"
+
+    def prepare(self):
+        pass
+
+    def signature(self):
+        return None
+
+    def detect(self, sample):
+        raise RuntimeError("simulated transient API failure")
+
+
+def test_replaying_committed_detections_is_not_logged_as_a_cost(tmp_path):
+    """`--models rampnet` reads detections back out of the bundle: no model is
+    loaded and nothing is inferred, so it is not an experiment that cost anything.
+    It is also in nearly every run, so a zero row per run would bury the ledger."""
+    log = tmp_path / "usage_log.jsonl"
+    det = BundleRampNetDetector({})
+    assert det.replays_committed_detections is True
+    report_usage(det, "rampnet", "richmond", 124, str(log),
+                 timing={"elapsed_s": 0.002, "load_s": 0.0, "detect_s": 0.0,
+                         "panos_called": 124})
+    assert not log.exists()
+
+
+def test_score_model_fills_in_the_timing_it_was_handed():
+    """timing is caller-owned rather than returned because report_usage reads it
+    from a finally, where a leg that died partway has no ModelRun to read."""
+    records, gts = _aligned_gts()
+    timing = {}
+    score_model(_FixedDetector(), records, gts, "", radius_sq_for(), "fixed",
+                "richmond", DetectionCache("x", enabled=False), timing=timing)
+    assert timing["panos_called"] == len(gts)
+    assert timing["detect_s"] >= 0.0 and "load_s" in timing
+
+
+def test_a_failed_call_still_counts_as_time_spent():
+    """A call that raised burnt wall-clock and, on a paid provider, still billed.
+    Counting only successes would understate both — and an outage would look like
+    a suspiciously cheap run rather than a broken one."""
+    records, gts = _aligned_gts()
+    timing = {}
+    run = score_model(_AlwaysFailsDetector(), records, gts, "", radius_sq_for(),
+                      "fails", "richmond", DetectionCache("x", enabled=False),
+                      max_consecutive_failures=99, timing=timing)
+    assert run.failures and timing["panos_called"] == len(gts)
+
+
+# --- the ledger has to land where it outlives the run (#143) ----------------
+
 def test_the_default_usage_log_is_tracked_not_in_the_gitignored_cache():
     # The whole point of recording spend is that it outlives the machine. Defaulting
     # into .model_cache/ (gitignored) is the bug export_model_cache.py exists to undo.
-    assert ".model_cache" not in DEFAULT_USAGE_LOG
-    assert DEFAULT_USAGE_LOG.replace("\\", "/").endswith("analysis_out/usage_log.jsonl")
+    default = compare.default_usage_log()
+    assert ".model_cache" not in default
+    assert default.replace(chr(92), "/").endswith("analysis_out/usage_log.jsonl")
     with open(os.path.join(REPO_ROOT, ".gitignore"), encoding="utf-8") as fh:
         gitignore = fh.read()
     assert "!analysis_out/usage_log.jsonl" in gitignore, \
         "analysis_out/* is ignored, so the log needs an explicit re-include"
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason="needs git on PATH")
+def test_the_ledger_resolves_to_the_main_checkout_from_a_worktree(tmp_path):
+    """The #139 failure: a leg run from a scratch worktree wrote its ledger inside
+    that worktree, the worktree was deleted, and $70.41 of spend left no record —
+    invisible to #119's guard, which proves a path was accepted and nothing about
+    whether the file survives. Every worktree must append to one canonical ledger."""
+    main = tmp_path / "main"
+    main.mkdir()
+    run = lambda *a, **kw: subprocess.run(a, cwd=str(kw.get("cwd", main)), check=True,
+                                          capture_output=True)
+    run("git", "init", "-q")
+    run("git", "config", "user.email", "t@example.com")
+    run("git", "config", "user.name", "t")
+    (main / "f.txt").write_text("x", encoding="utf-8")
+    run("git", "add", "f.txt")
+    run("git", "commit", "-qm", "init")
+    wt = tmp_path / "wt"
+    run("git", "worktree", "add", "-q", str(wt), "HEAD")
+    assert compare.canonical_repo_root(wt).resolve() == main.resolve()
+    assert compare.canonical_repo_root(main).resolve() == main.resolve()
+
+
+def test_the_ledger_path_falls_back_when_git_cannot_answer(tmp_path):
+    """A tarball or an HF clone is not a git checkout. Bookkeeping must never be
+    the reason a run refuses to start."""
+    assert compare.canonical_repo_root(tmp_path).resolve() == tmp_path.resolve()
+
+
+def test_ledger_totals_tolerate_the_rows_written_before_this_change(tmp_path):
+    """The ledger is append-only and committed, so rows predating #143 carry no
+    timing keys and free rows carry no cost. A running total that choked on them
+    would be a regression in the one artifact that is supposed to be durable."""
+    log = tmp_path / "usage_log.jsonl"
+    log.write_text(
+        json.dumps({"label": "old-paid-row", "est_cost_usd": 0.25}) + "\n"
+        + json.dumps({"label": "free", "elapsed_s": 3600.0}) + "\n"
+        + "not json at all\n"
+        + json.dumps({"label": "both", "est_cost_usd": 0.75, "elapsed_s": 1800.0}) + "\n",
+        encoding="utf-8", newline="")
+    rows, usd, hours, recovered = ledger.ledger_totals(str(log))
+    assert (rows, usd, hours) == (3, 1.0, 1.5)
+    # No row carries a kind, so every one of them reads as measured.
+    assert recovered == 0
+    assert ledger.ledger_totals(str(tmp_path / "nope.jsonl")) is None
+
+
+def test_a_recovered_row_counts_toward_cost_but_never_toward_reconciliation(tmp_path):
+    """The #139 case, as a fixture.
+
+    A recovered row is real spend read off the provider's bill after layer 1 failed
+    to write. Two things have to be true at once, and they pull in opposite
+    directions: cost totals must include it (otherwise every table under-reports by
+    the whole amount), and reconciliation must exclude it (otherwise the bill is
+    compared against itself and the missing measurement reads as ``ok``).
+    """
+    sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "analysis"))
+    from vertex_usage import ledger_totals_by_model, reconcile
+
+    log = tmp_path / "usage_log.jsonl"
+    ledger.append_rows(str(log), [
+        {"ts": "2026-08-18T23:29:11+00:00", "label": "claude-opus-5",
+         "model_id": "claude-opus-5", "input_tokens": 12_186, "output_tokens": 780,
+         "est_cost_usd": 0.0804},
+        {"ts": "2026-08-18T00:00:00+00:00", "kind": ledger.RECOVERED,
+         "label": "claude-opus-5", "model_id": "claude-opus-5",
+         "input_tokens": 11_940_249, "output_tokens": 415_751,
+         "est_cost_usd": 70.095},
+    ])
+
+    rows, usd, hours, recovered = ledger.ledger_totals(str(log))
+    assert rows == 2
+    assert usd == pytest.approx(70.1754)          # the money is all there
+    assert recovered == pytest.approx(70.095)     # and it is labelled
+
+    # Reconciliation sees only the measured row, so the bill still reads as short.
+    logged = ledger_totals_by_model(ledger.read_rows(str(log)))
+    assert logged["claude-opus-5"]["input"] == 12_186
+    assert logged["claude-opus-5"]["rows"] == 1
+    billed = {"claude-opus-5": {"input": 11_952_435, "output": 416_531}}
+    assert reconcile(billed, logged)[0]["verdict"].startswith("UNDER")
 
 
 # --- tiled detect() end-to-end (no live model) ------------------------------

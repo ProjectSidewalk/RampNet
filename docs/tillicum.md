@@ -135,7 +135,12 @@ At that ceiling:
 | 2 GPUs | ~833 |
 | 8 GPUs (full node) | ~208 |
 
-Monitor with `hyakusage`.
+Monitor with `hyakusage`. **Record it too**: `hyakusage` is a live view, not a record, and
+the numbers in this file were transcribed by hand, per job, when someone remembered.
+`scripts/analysis/slurm_usage.py` writes them to `analysis_out/compute_log.jsonl` from
+`sacct` instead — GPU-hours and dollars per job, priced from `COMPUTE_PRICING` in
+`scripts/model_comparison/pricing.py`, which carries the rates below with their as-of
+dates. Run it after a job finishes; `sacct` retention is finite (#143).
 
 ### `debug` is free — but the two cost tools disagree (measured 2026-07-31)
 

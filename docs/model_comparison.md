@@ -1570,21 +1570,31 @@ the end of a leg that logged nothing, for the case where the log path existed bu
 be written. A warning after the fact could not have saved these four legs — by the time it
 prints, the tokens are bought and the counts are already unrecoverable.
 
-## Cost accounting for paid models
+## Cost accounting: what a run cost in time and money
 
-**Standing rule: every experiment that spends API money records what it spent, at the time
-it runs.** A paper reports cost alongside accuracy, and a token count that wasn't captured
-at run time has to be reconstructed later (or lost). Three layers:
+**Standing rule: every experiment on a non-free model or non-free compute records both its
+wall-clock time and its spend, at the time it runs (#143).** A paper reports cost alongside
+accuracy, and neither number survives being left for later — a re-run reads the detection
+cache, makes no calls and returns in seconds, so it reproduces neither the token counts nor
+the runtime. Three layers, plus a separate ledger for cluster compute:
 
-1. **At run time** — `compare.py` accumulates each paid provider's own usage metadata
-   (currently Gemini; local GPU models are free in API terms) and appends one JSONL record
-   per model run — token counts, panos actually scored, detector signature, estimated cost —
-   to `--usage-log` (default **`analysis_out/usage_log.jsonl`**, which is committed;
-   `--usage-log none` disables). Cached panos make no call, so the record is what *that run*
-   actually paid, not what a full run would cost. The append happens in a `finally`, so a leg
+1. **At run time** — `compare.py` appends one JSONL record per model run to `--usage-log`
+   (default **`analysis_out/usage_log.jsonl`**, which is committed; `--usage-log none`
+   disables). Every leg that spent something gets a row: **wall-clock, model-load seconds,
+   inference seconds, panos actually put through the model and seconds-per-pano always**, and
+   token counts + estimated cost when the provider bills for them (a `paid` flag says which).
+   Cached panos make no call, so the record is what *that run* actually paid, not what a full
+   run would cost — and per-pano figures divide by `panos_called`, never by the bundle size.
+   The append happens in a `finally`, so a leg
    that dies or is interrupted after paying still records its spend — that is the case the
    rule exists for — and a failure to write the file degrades to printing the record rather
    than aborting the comparison.
+   **Free local models get a row too.** OWLv2, Grounding DINO, Qwen, Molmo and the YOLO arms
+   bill no tokens and cost real GPU-hours; before #143 they returned early and left no record
+   at all, which is why their runtimes below are prose transcribed by hand rather than
+   anything a script can re-derive. Two legs deliberately write nothing: a fully cached
+   re-score (it spent nothing) and `--models rampnet`, which replays detections already
+   committed to the bundle rather than running a model.
    Each record also carries **`model_versions`** — the build(s) that actually served the run.
    **A pinned model id is an alias, not a build**: `gemini:gemini-3.7-flash` in `--models`
    resolves to whatever the provider currently serves under that name, and the alias moves.
@@ -1608,6 +1618,73 @@ at run time has to be reconstructed later (or lost). Three layers:
    its numbers.** That is why layer 1 is committed: the table below is transcribed from a
    source others cannot query, while `analysis_out/usage_log.jsonl` is checkable from a
    clean clone.
+
+### Reconcile, or a silent no-write goes unnoticed
+
+Layers 1 and 3 measure the same spend two ways, and until #143 nothing compared them.
+`vertex_usage.py --reconcile` does: it totals the committed ledger per model over the same
+window as the metric query and prints both side by side.
+
+```bash
+python scripts/analysis/vertex_usage.py --days 3 --reconcile
+```
+
+It is the **only** check that catches a leg which ran, billed, and left no row — the #139
+failure. The verdicts are deliberately asymmetric: `billed > ledger` is spend with no record
+and is called out, while `ledger > billed` is odd but harmless (a re-run, or a row stamped
+just outside the window). Tolerance is 2%, because Cloud Monitoring's daily rows are 24 h
+windows ending at the query's time-of-day rather than calendar days, so a leg straddling the
+boundary moves either way. Run it the day a paid leg finishes, not at writing-up time.
+
+### Cluster compute is a fourth ledger
+
+Layers 1–3 cover API money. They say nothing about GPU-hours, which is what most of the
+roster actually costs and the whole of what a Tillicum run costs.
+`scripts/analysis/slurm_usage.py` scrapes `sacct` into **`analysis_out/compute_log.jsonl`**
+— one row per job allocation with elapsed, GPUs, GPU type, GPU-hours, QoS and dollars, priced
+from `COMPUTE_PRICING` in `pricing.py` (verified-only, same discipline as the token table).
+
+```bash
+python scripts/analysis/slurm_usage.py --cluster tillicum --since 2026-07-01
+python scripts/analysis/slurm_usage.py --cluster klone --from-file sacct_klone.txt
+```
+
+Three details that a hand tally gets wrong:
+
+- **`sacct -D`.** By default Slurm reports only the *last* incarnation of a requeued job. Our
+  klone runs live on the preemptable `ckpt` partition — the paper's Stage 2 run was 15
+  preemptions, 44.7 h of compute across 74.6 h of calendar — so without `-D` most of a
+  preempted run's compute silently disappears. Rows are keyed on **(cluster, job id, start)**
+  for the same reason.
+- **GPU-hours = elapsed × N GPUs**, which is how Tillicum bills: an idle GPU in a 2-GPU job
+  costs exactly what a busy one does. `gres/gpu=2` and `gres/gpu:a40=2` are the same GPUs
+  reported twice, so the generic count wins rather than being summed.
+- **Unpriced ≠ free.** klone is $0 because that was checked; a cluster with no entry returns
+  `None`. Only one of those is safe to put in a paper.
+
+Unlike tokens, this half is **partly back-fillable** — `sacct` retains job records — which is
+the argument for running it now rather than at writing-up time. `--save-raw` keeps the exact
+dump a run parsed, so committing it makes the numbers re-derivable by someone with no cluster
+account.
+
+### The ledger has to outlive the run
+
+`--usage-log` used to default to a path derived from the *running file's* checkout. From a
+linked worktree that is the worktree — so a leg run from a scratch worktree wrote its ledger
+there, and the ledger died with the worktree. That is how the #139 `claude-opus-5` leg spent
+$70.41 and left no row.
+
+The #119 guard cannot catch this, and it is worth being precise about why: it proves a log
+path was **accepted**, not that the file it wrote still **exists**. The operator followed the
+rule and lost the record anyway. Nor would promoting the rule into `CLAUDE.md` have helped —
+this is not a discipline failure.
+
+Both ledgers now resolve through `git rev-parse --git-common-dir`, which every worktree of a
+repo shares, so they all append to one canonical file in the main checkout; an explicit
+`--usage-log` pointing into a worktree warns; and each logged leg prints the **absolute** path
+plus the running total, so a run that logged somewhere unexpected is visible while someone is
+still watching. It falls back to the local checkout whenever git can't answer (a tarball, an
+HF clone) — bookkeeping must never be the reason a run refuses to start.
 
 **Measured: the complete Gemini history of this benchmark** (Cloud Monitoring,
 2026-08-15; every Gemini leg ever run on the project — richmond/bend 07-23/24 onward —
