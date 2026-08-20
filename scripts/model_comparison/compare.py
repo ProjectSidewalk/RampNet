@@ -14,11 +14,11 @@ anchoring.
     python scripts/model_comparison/compare.py benchmark/manual_gold --models rampnet,gemini
 
 Each --models token is a provider (rampnet/gemini/claude/qwen/owlv2/gdino/molmo/
-yolo — the roster is detectors.PROVIDERS) or provider:model_id to pin a variant,
+vistas/yolo — the roster is detectors.PROVIDERS) or provider:model_id to pin a variant,
 so several models from the same provider compare side by side. Detectors that emit calibrated scores (RampNet, OWLv2,
-Grounding DINO, YOLO) additionally get AP, a PR curve (--pr-out) and a threshold
-sweep (--sweep); chat VLMs have no score to rank by, so they get one operating
-point. See docs/model_comparison.md.
+Grounding DINO, Vistas, YOLO) additionally get AP, a PR curve (--pr-out) and a
+threshold sweep (--sweep); chat VLMs have no score to rank by, so they get one
+operating point. See docs/model_comparison.md.
 
 The supervised YOLO baseline (--models yolo:<best.pt>) is evaluated under the
 pre-registered checkpoint-selection & eval protocol in
@@ -399,7 +399,10 @@ def report_usage(detector, label, city, panos_scored, usage_log_path):
     }
     try:
         os.makedirs(os.path.dirname(usage_log_path) or ".", exist_ok=True)
-        with open(usage_log_path, "a", encoding="utf-8") as f:
+        # newline="" so a Windows run appends LF, not CRLF. This ledger is
+        # append-only and byte-compared in review; a CRLF line silently breaks that
+        # (the same defect imagery_manifest.py was fixed for).
+        with open(usage_log_path, "a", encoding="utf-8", newline="") as f:
             f.write(json.dumps(rec) + "\n")
     except OSError as e:
         # Print the record so the numbers survive in the run log even when the
@@ -628,6 +631,38 @@ def build_parser():
     ap.add_argument("--yolo-imgsz", type=int, default=_D["yolo_imgsz"],
                     help="YOLO inference image size (default 1024, matching the perspective view "
                          "size). For --tiling none, set this to the pano-geometry training size.")
+    ap.add_argument("--vistas-class-set", default=_D["vistas_class_set"],
+                    help="Which Vistas classes are read out as curb ramps, when the "
+                         "--models spec does not say ('vistas' rather than "
+                         "'vistas:curb-cut'). Part of the detection signature: the "
+                         "arm IS its class set.")
+    ap.add_argument("--vistas-input-size", type=int, nargs=2, metavar=("H", "W"),
+                    default=None,
+                    help="Override what the model actually sees. The checkpoint's own "
+                         "processor resizes every view to 384x384 — about 1/7 the "
+                         "pixel area of the 1024x1024 views every other tiled leg "
+                         "gets — so the published richmond numbers carry an "
+                         "uncontrolled resolution handicap. Default: leave the "
+                         "processor alone, which is what was published. Setting this "
+                         "IS a cache-key change.")
+    ap.add_argument("--vistas-revision", default=None,
+                    help="Pin the checkpoint revision. Default: unpinned, which is "
+                         "what the published run used — recorded in the signature "
+                         "only when set, so pinning does not orphan those detections.")
+    ap.add_argument("--vistas-model", default=_D["vistas_model"],
+                    help="Vistas-supervised segmentation checkpoint (#126). The arm "
+                         "itself is chosen by the --models spec — 'vistas:curb-cut' "
+                         "or 'vistas:curb-cut+curb' — because it varies by which "
+                         "Vistas classes are read out, not by checkpoint.")
+    ap.add_argument("--vistas-min-area-px", type=int, default=_D["vistas_min_area_px"],
+                    help="Drop mask components smaller than this (default 16 px). "
+                         "Like --score-threshold, a CACHE floor in the signature, not "
+                         "the operating point; higher points are free re-scores.")
+    ap.add_argument("--vistas-dtype", choices=["float16", "float32"],
+                    default=_D["vistas_dtype"],
+                    help="Inference precision. In the signature, because fp16 and "
+                         "fp32 do not produce identical masks — a desktop run and a "
+                         "cluster run must not silently share a cache entry.")
     ap.add_argument("--tiling", choices=["perspective", "none"], default="perspective",
                     help="VLM input: 'perspective' reprojects the pano into rectilinear "
                          "views (fair); 'none' uses one whole-pano call (lower bound). "
@@ -640,7 +675,7 @@ def build_parser():
                          "the cache); models without confidences are unaffected.")
     ap.add_argument("--sweep", action="store_true",
                     help="Also print a threshold sweep for every model whose detections carry "
-                         "confidences (RampNet, owlv2, gdino, yolo) — the tunable operating range.")
+                         "confidences (RampNet, owlv2, gdino, vistas, yolo) — the tunable operating range.")
     ap.add_argument("--pr-out", help="Directory to write PR curves to (JSON per model, plus a "
                                      "combined PNG when matplotlib is installed).")
     ap.add_argument("--limit", type=int,

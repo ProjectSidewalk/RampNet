@@ -205,6 +205,9 @@ def main():
             RADIUS_THRESHOLD_PIXELS_SQ,
             scale_x=341 / 4,
             scale_y=1024 / 4,
+            # NOT wrap_x: this is CROP space, not a panorama. The two ends of a crop's
+            # x axis are different places, so wrapping here would be a fresh bug, not a
+            # fix. See rampnet/geometry.py and #132 section 5; pinned by a test.
         ))
         if input_image_pil_for_vis:
             draw = ImageDraw.Draw(input_image_pil_for_vis)

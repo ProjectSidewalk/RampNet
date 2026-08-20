@@ -39,6 +39,7 @@ complete-scan attestation (`no_missed`) mitigates this; it is documented in
 import os
 from collections import namedtuple
 
+from rampnet.geometry import dist_sq as _dist_sq
 from rampnet.metrics import calculate_ap_and_pr_curve, greedy_match
 from rampnet.validation import wilson_interval
 
@@ -176,7 +177,8 @@ def prediction_confidence(point):
     return point[2] if len(point) > 2 else None
 
 
-def score_pano(pred_points, gt, radius_sq=None, scale_x=PANO_SCALE_X, scale_y=PANO_SCALE_Y):
+def score_pano(pred_points, gt, radius_sq=None, scale_x=PANO_SCALE_X, scale_y=PANO_SCALE_Y,
+               wrap_x=True):
     """Score one pano's predictions against its GroundTruth.
 
     Greedy one-to-one matching via :func:`rampnet.metrics.greedy_match`,
@@ -189,6 +191,21 @@ def score_pano(pred_points, gt, radius_sq=None, scale_x=PANO_SCALE_X, scale_y=PA
 
     Returns a PanoScore. False negatives are ``n_gt - tp`` (computed in aggregate,
     and only for panos whose recall is confirmed).
+
+    ``wrap_x`` defaults to **True** here, unlike the generic matcher: this is the
+    panorama scorer, its default scales are the panorama's, and every production caller
+    is in pano space. Pass ``wrap_x=False`` for a non-cyclic coordinate space — the
+    synthetic unit-scale spaces in the tests are the only such callers today.
+
+    **Wrapping moves no RampNet or YOLO metric on any committed split — but it does move
+    the challengers.** That distinction was missed when #132 landed, because the effect
+    was checked against RampNet: measured across the whole roster it recovers a genuine
+    match on 19 (model, split) pairs and moves 66 published cells in
+    ``docs/model_comparison.md`` (six splits, seven chat-VLM and open-vocab models, all
+    in the same direction, no reordering). That document has been regenerated for it, and
+    ``tests/test_scoreboard.py::test_every_number_matches_model_comparison`` now re-derives
+    every one of its table cells on each CI run, so the next change to this function that
+    moves a published number fails the build rather than going unnoticed.
     """
     if radius_sq is None:
         radius_sq = radius_sq_for(scale_x=scale_x)
@@ -209,7 +226,7 @@ def score_pano(pred_points, gt, radius_sq=None, scale_x=PANO_SCALE_X, scale_y=PA
     # fallback is specific to this scorer, and it applies solely to predictions
     # the matcher left unassigned — which is what gives GT priority over ignores.
     assignments = greedy_match([_xy(p) for p in preds], gt_pts,
-                               radius_sq, scale_x, scale_y)
+                               radius_sq, scale_x, scale_y, wrap_x)
 
     tp = fp = ignored = 0
     details = []
@@ -219,9 +236,10 @@ def score_pano(pred_points, gt, radius_sq=None, scale_x=PANO_SCALE_X, scale_y=PA
             details.append((prediction_confidence(p), True))
             continue
         px_n, py_n = _xy(p)
-        px, py = px_n * scale_x, py_n * scale_y
+        # Same geometry as the matcher above — this fallback had its own inline
+        # distance, which meant it did not wrap even once the matcher did (#132 §4).
         in_ignore = any(
-            (px - ix * scale_x) ** 2 + (py - iy * scale_y) ** 2 < radius_sq
+            _dist_sq(px_n, py_n, ix, iy, scale_x, scale_y, wrap_x) < radius_sq
             for ix, iy in ignore_pts)
         if in_ignore:
             ignored += 1        # neither TP nor FP, so it stays out of the PR curve too
