@@ -85,6 +85,40 @@ def _table_lines(text):
         yield line
 
 
+def test_no_runbook_snippet_has_a_collapsed_line_continuation():
+    """A shell snippet whose trailing backslash was lost still *looks* fine -- the
+    wrap becomes a run of spaces inside one long line -- and it still runs, so
+    nothing catches it. But the exact-commands-in-order rule is what these blocks
+    exist to satisfy, and a reader copying the wrapped form gets a broken command.
+
+    Two of them shipped in #126 because a patch script ate the backslashes.
+    """
+    import re
+    for name in ("model_comparison.md", "replication.md", "operating_point.md",
+                 "adding_a_benchmark_city.md"):
+        path = REPO / "docs" / name
+        if not path.exists():
+            continue
+        in_shell = False
+        for n, line in enumerate(path.read_text("utf-8").splitlines(), 1):
+            if line.startswith("```"):
+                in_shell = line.startswith("```bash") or line.startswith("```sh")
+                continue
+            if not in_shell or line.lstrip().startswith("#"):
+                continue
+            # An aligned trailing comment legitimately uses run-on spaces.
+            line = line.split(" #", 1)[0].rstrip()
+            # A line that still HAS its continuation is correct by definition,
+            # whatever spacing it uses to align its arguments.
+            if line.endswith("\\"):
+                continue
+            # Three or more spaces mid-command is what a swallowed trailing
+            # backslash plus newline leaves behind.
+            hit = re.search(r"\S {3,}\S", line)
+            assert hit is None, (
+                f"docs/{name}:{n} looks like a collapsed line continuation: {line.strip()!r}")
+
+
 def test_no_doc_still_hardcodes_the_old_roster_count():
     """These exact phrases were the drift. Catch them coming back.
 

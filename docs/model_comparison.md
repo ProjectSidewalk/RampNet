@@ -1189,7 +1189,8 @@ driveway aprons should appear as a characteristic false-positive mode — which
 recall hides on the other side of it is measurable:
 
 ```bash
-python scripts/model_comparison/compare.py benchmark/richmond     --models rampnet,vistas:curb-cut,vistas:curb-cut+curb
+python scripts/model_comparison/compare.py benchmark/richmond \
+    --models rampnet,vistas:curb-cut,vistas:curb-cut+curb
 ```
 
 The spec's `model_id` slot carries the **class set**, not a model id — the checkpoint comes
@@ -1346,7 +1347,8 @@ No new launcher; the arm needs nothing beyond the `transformers` + `torchvision`
 models already use, and Mask2Former is in-library (no `trust_remote_code`).
 
 ```bash
-PYTHON=$ENVPY MODELS=rampnet,vistas:curb-cut BUNDLE=benchmark/richmond     sbatch -A <account> scripts/model_comparison/run_open_models.slurm
+PYTHON=$ENVPY MODELS=rampnet,vistas:curb-cut BUNDLE=benchmark/richmond \
+    sbatch -A <account> scripts/model_comparison/run_open_models.slurm
 ```
 
 ## Status
