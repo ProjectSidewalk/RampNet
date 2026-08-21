@@ -49,8 +49,7 @@ them belongs to a registered leg:
 | the standing zero-shot roster, ten splits each (two Gemini legs are absent on `manual_gold`) | 68 | the roster tables in [`model_comparison.md`](model_comparison.md) |
 | `gemini-3.7-flash`, ten splits, published ahead of its write-up (#120) | 10 | §below |
 | the supervised YOLO pano trio, ten splits each (#51) | 30 | [`model_comparison.md` §supervised baseline](model_comparison.md), and the [training record](../scripts/model_comparison/yolo_baseline/README.md) |
-| `claude-opus-5` at `low` effort, nine splits (#122, extended to the full pool by #139) | 9 | [`model_comparison.md` §Claude](model_comparison.md) |
-| the other three Claude legs, annapolis only (#122) | 3 | [`model_comparison.md` §Claude](model_comparison.md) |
+| the four annapolis Claude legs (#122) | 4 | [`model_comparison.md` §Claude](model_comparison.md) |
 | the two Mapillary Vistas class-set arms, richmond only (#126) | 2 | [`model_comparison.md` §Vistas](model_comparison.md) |
 
 `rampnet` is a row in every results table and has no file here: it is read from each bundle's
@@ -137,15 +136,11 @@ longer touches is the #46 human pass.** `silent_witness.py` defaults to
 `roster.WITNESS_POOL_46`, the pool frozen at the state the pass was rated under, and both
 committed artifacts record the pool they ran over.
 
-#### The four Claude legs are published, one file per effort level per split
+#### The four Claude legs are published, annapolis only, one file per effort level
 
-`benchmark/model_detections/claude-{sonnet,opus}-5-effort-{low,high}__*.json` — **12 files**,
-0 uncached. Three of the four legs ran annapolis only (125 panoramas, #122) and the other
-nine splits are a stated gap for them. **`claude-opus-5` at `low` ran nine splits** (#139) —
-1,109 panoramas over annapolis, bend, budapest_district5, clovis, gainesville, morgantown,
-paterson, richmond, sao_paulo. `manual_gold` is deliberately absent from all four: no
-`gemini-3.1-pro-preview` row exists there either, so a Claude-only run would have no peer
-(#144).
+`benchmark/model_detections/claude-{sonnet,opus}-5-effort-{low,high}__annapolis.json` — four
+files, 125 panoramas each, 0 uncached (#122). Only annapolis was run; the other nine splits
+are a stated gap.
 
 These need one flag the other legs do not. **Effort is part of the cache signature, so one
 model id is two different legs**, and both would export to `claude-sonnet-5__annapolis.json`
@@ -156,7 +151,6 @@ because it is baked into keys that have already been paid for), and `export_mode
 now refuses outright to overwrite a file whose recorded signature differs from the run's:
 
 ```bash
-# the three annapolis-only legs
 for m in claude-sonnet-5 claude-opus-5; do for e in low high; do
   python scripts/analysis/export_model_cache.py --splits annapolis \
       --models claude:$m --claude-effort $e --publish-as $m-effort-$e
@@ -164,18 +158,7 @@ for m in claude-sonnet-5 claude-opus-5; do for e in low high; do
       --models claude:$m --claude-effort $e --publish-as $m-effort-$e
 done; done
 # -> 4 x "compared 1 (model, split) pair(s); published detections score IDENTICALLY"
-
-# the nine-split opus/low leg (#139) -- no --splits, so it covers the whole pool
-python scripts/analysis/export_model_cache.py --verify \
-    --models claude:claude-opus-5 --claude-effort low \
-    --publish-as claude-opus-5-effort-low
-# -> "compared 9 (model, split) pair(s) ... 9 pair(s): published detections score
-#     IDENTICALLY to the cache", plus "claude-opus-5 / manual_gold: no published
-#     export to check" -- the #144 decision, showing up as a named absence.
 ```
-
-Add `--cache-dir <path>` when running from a git worktree: the default resolves against
-`REPO_ROOT`, which is the worktree, not the checkout holding `.model_cache`.
 
 Neither Claude spec is in `CHALLENGERS`, so the same caveat as `gemini-3.7-flash` applies:
 the default `--verify` never opens these files, and `fp_taxonomy.py` / `silent_witness.py`
@@ -185,34 +168,15 @@ Unlike every other published leg, these four can also be checked with **no cache
 credentials at all** — `tests/test_claude_annapolis_leg.py` recomputes the entire published
 result table from the committed detections plus the committed annapolis bundle, and runs in
 CI. That is the strongest form this ledger's promise can take, and it is the pattern worth
-copying to the other legs. The opus/low leg's other eight splits get the same treatment one
-level up: `tests/test_scoreboard.py` builds the whole board by re-scoring every committed
-detections file against every committed bundle, so those numbers are re-derived in CI too
-rather than read back from `analysis_out/scoreboard.json`.
+copying to the other legs.
 
-**Known gap, partly recovered: the four legs' token counts were never written to
+**Known gap, unrecoverable: the four legs' token counts were never written to
 `analysis_out/usage_log.jsonl`.** The $28.82 figure and the per-leg costs quoted in
-`docs/model_comparison.md` come from the runs' console output. A *re-run* cannot back-fill
-them, because it reads the detection cache, makes zero API calls and therefore has no usage
-to record. Only the 2026-08-18 single-panorama re-run ($0.03) is in the log.
-
-**Cloud Monitoring can, and did (2026-08-19).** `scripts/analysis/vertex_usage.py --days 7`
-recovered the billed daily totals — `claude-opus-5` $21.47 and `claude-sonnet-5` $7.79,
-$29.26 against the console's $28.82, so the published figures are right to 1.5%.
-
-The **per-leg** split goes one level further and only half works.
-`scripts/analysis/vertex_effort_split.py` re-queries the same metric at 60 s instead of
-daily alignment: the two Opus legs ran concurrently and separate at their changepoint
-(18:32 UTC, throughput /2.54), giving **$8.95 low / $12.47 high** against the console's
-**$8.94 / $12.46** — 0.1%, from an independent source. **Sonnet does not separate**, and
-the script prints `NOT SEPARABLE` rather than a number: its high leg spent 17,820 thinking
-tokens to Opus's 127,227, so the signal this method reads is not there. Numbers, method and
-the exact commands are in `docs/model_comparison.md` §"Splitting a two-leg day by effort".
-
-**Retention is ~6 weeks**, so all of this was recoverable only because someone looked within
-it; treat a missing usage record as having a deadline, not as paperwork.
-`compare.report_usage` now prints a loud warning when a leg that spent money finishes with
-no log destination.
+`docs/model_comparison.md` come from the runs' console output. They cannot be back-filled,
+because a re-run reads the detection cache, makes zero API calls and therefore has no usage
+to record — the cost record is the one artifact here that is write-once. Only the
+2026-08-18 single-panorama re-run ($0.03) is in the log. `compare.report_usage` now prints
+a loud warning when a leg that spent money finishes with no log destination.
 
 Downstream scripts prefer the published files over `.model_cache`, and the label a `--models` spec
 resolves to is derived *without* building a detector, so **a clean clone reproduces these numbers

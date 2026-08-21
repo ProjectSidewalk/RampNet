@@ -77,27 +77,14 @@ the matrix above exists to make, stated here because the artifact is already in 
 would otherwise read as a withheld result. Promoting it is one field in the registry plus a
 re-run; since #122 froze the #46 witness pool, doing so no longer disturbs that human pass.
 
-**Two more off-roster models, `claude-sonnet-5` and `claude-opus-5`, have been run** — four
-legs, both models × effort `low`/`high` (#122). They are absent from the roster tables
-below, so no number in this document moves; `claude-opus-5` at `low` **is** scored in
-[`model_scoreboard.md`](model_scoreboard.md), which keys off coverage rather than
-`standing`. Detections are published and verified
-(`benchmark/model_detections/claude-*-effort-*__*.json`, 12 files, every pair identical to
-the cache) and the write-up is the "Claude on Vertex" section further down, where the
-annapolis result table is re-derived from those files by
-`tests/test_claude_annapolis_leg.py`.
-
-Coverage is no longer uniform across the four, so it is stated per leg:
-
-- **`claude-opus-5` at `low` has run nine splits** — everything but `manual_gold` (#139).
-  That is a decision, not a pending run: `gemini-3.1-pro-preview` has no `manual_gold` row
-  either, so a Claude-only run there would have no peer to compare against (#144).
-- **The other three legs have run annapolis only.** A gap in coverage, not a withheld
-  result. It was estimated at "about $57 at `low` effort" before anyone ran it; the nine-split
-  Opus leg then **measured $70.41 for eight splits** (§"Cost accounting" below), so budget
-  roughly **$8.80 per split** for Opus and re-derive Sonnet from its own $3.60 annapolis leg
-  rather than from that average. Re-running `high` comprehensively would roughly double the
-  bill to re-measure a result we already have, which is why it stays at one split.
+**Two more off-roster models, `claude-sonnet-5` and `claude-opus-5`, have been run on
+annapolis only** — four legs, both models × effort `low`/`high` (#122). They are likewise
+absent from the roster tables, so no number below moves. Detections are published and
+verified (`benchmark/model_detections/claude-*-effort-*__annapolis.json`, 4/4 pairs
+identical to the cache) and the write-up is the "Claude on Vertex" section further down,
+where the whole result table is re-derived from those files by
+`tests/test_claude_annapolis_leg.py`. **The other nine splits have not been run** — that is
+a gap in coverage, not a withheld result, and closing it costs about $57 at `low` effort.
 
 **The three `y*_pano` rows are the supervised YOLO baseline** (#51), the one part of the
 registry that is not zero-shot. They have run on all ten splits and are scored, but under the
@@ -1478,11 +1465,6 @@ reading anything into the numbers — predictions sit tight on the ramps, no off
 | **claude-opus-5** | **low** | 0.572 | 0.605 | **0.588** | 178/133/116 | 523 | $8.94 |
 | claude-opus-5 | high | 0.430 | 0.656 | 0.520 | 193/256/101 | 127,227 | $12.46 |
 
-The two Opus costs are the only ones here with independent corroboration: they were recorded
-from console output at run time, and Cloud Monitoring's minute series was later solved for
-the same split and returned $8.95 / $12.47 (§"Splitting a two-leg day by effort"). The Sonnet
-pair has no such check — that day's telemetry does not separate.
-
 **Every number in this table is re-derivable from committed files**, with no
 `.model_cache`, no API key and no GPU: the per-panorama detections are published under
 `benchmark/model_detections/claude-*-effort-*__annapolis.json`, and
@@ -1509,14 +1491,11 @@ shift. RampNet still leads it by **0.251** (0.839 vs 0.588).
 > annapolis result and it does not generalise. Run on the other eight splits, `claude-opus-5`
 > at `low` pools to **F1 0.588 against `gemini-3.1-pro`'s 0.608** — an annapolis lead of
 > +0.021 becoming a pooled deficit of −0.021. **`gemini-3.1-pro` remains the best
-> challenger.** Read per split rather than pooled, the two trade wins — Opus takes three of
-> the seven pooled splits (four of nine overall) and the deficit is carried by gainesville
-> and richmond — so the honest reading is not "Opus is worse" but **"a ±0.07 split-to-split
-> spread swamped a +0.021 lead"**. What survives is the shape rather than the ranking: Opus
-> trades **−0.083 precision for +0.041 recall**, the highest recall of any chat VLM with full
-> pooled coverage (0.614). The pooled table is in
-> [`model_scoreboard.md`](model_scoreboard.md); the paragraph above is left as written because
-> the annapolis numbers in it are still correct and are what the rest of this section analyses.
+> challenger.** What survives is the shape rather than the ranking: Opus trades **−0.083
+> precision for +0.041 recall**, making it the highest-recall chat VLM on the board (0.614).
+> The pooled table is in [`model_scoreboard.md`](model_scoreboard.md); the paragraph above is
+> left as written because the annapolis numbers in it are still correct and are what the rest
+> of this section analyses.
 
 **Correction, 2026-08-18 — the sonnet/low row originally used a different denominator.**
 As first published it read 0.587 / 0.372 / 0.456 on `108/76/182`, which is **290** GT
@@ -1585,106 +1564,21 @@ for m in claude-sonnet-5 claude-opus-5; do for e in low high; do
   python scripts/analysis/export_model_cache.py --verify --splits annapolis \
       --models claude:$m --claude-effort $e --publish-as $m-effort-$e
 done; done
-
-# and the nine-split opus/low leg (#139), which takes no --splits:
-python scripts/analysis/export_model_cache.py --verify \
-    --models claude:claude-opus-5 --claude-effort low \
-    --publish-as claude-opus-5-effort-low
-# -> 9 pair(s): published detections score IDENTICALLY to the cache
 ```
 
 **The gap, stated plainly: the four original legs' token counts were never written to
-`analysis_out/usage_log.jsonl`.** The $28.82 total and the per-leg costs in the table above
-come from the runs' console output, not from a committed record. A re-run cannot back-fill
-them — the detections are cached, so a repeat run makes zero API calls and has no usage to
-report. Only the 2026-08-18 single-panorama re-run ($0.03) is in the log.
-
-**Recovered from Cloud Monitoring, 2026-08-19 — this paragraph previously said the counts
-"cannot be recovered", and that was wrong.** A re-run cannot back-fill them, but the
-server-side metrics can: `vertex_usage.py --days 7` returns billed tokens per model per day,
-and the #122 legs are four days inside the ~6-week retention window. They ran 2026-08-15 and
-land in the row labelled 2026-08-16, because each row is a 24 h window ending at the query's
-time of day rather than a calendar day.
-
-| model (both efforts, one row each) | input | output | billed | console figures |
-|---|---:|---:|---:|---:|
-| `claude-opus-5` (low + high) | 3,058,702 | 247,222 | **$21.47** | $8.94 + $12.46 = $21.40 |
-| `claude-sonnet-5` (low + high) | 3,300,368 | 118,471 | **$7.79** | $3.60 + $3.82 = $7.42 |
-| **total** | | | **$29.26** | **$28.82** |
-
-So the console numbers were right to within **1.5%**, and the table above stands as
-published. Two things this changes, and one it does not:
-
-- **The Opus per-leg split is recoverable too, at minute resolution.** The daily row is
-  per model, so `low` and `high` land in one number — but the metric can be aligned to 60 s
-  instead of 86,400 s, and the two legs leave different traces. `vertex_effort_split.py`
-  does this and confirms the console figures **to 0.1%**; the working is below.
-- **The Sonnet split is not recoverable, and the tool says so rather than guessing.**
-  Whether a per-effort split survives depends on whether effort actually changed the
-  model's behaviour, which makes this a property of the *result*, not of the telemetry.
-- **The method validated itself against the one leg that did log.** The 2026-08-18 Sonnet
-  re-run appears in monitoring as 12,594 input / 480 output — token-for-token identical to
-  its committed `usage_log.jsonl` record. Layer 3 reproducing layer 1 exactly, on the one
-  case where both exist, is what makes the recovered figures above trustworthy.
-- **It does not make the loss cheap.** Recovery worked because someone looked within six
-  weeks. Past that window this paragraph's original claim becomes true retroactively.
-
-#### Splitting a two-leg day by effort
-
-Cloud Monitoring has **no `effort` label** — effort is a request parameter and never
-reaches the metric, whose labels are `type`, `request_type`, `shared_request_type`,
-`source`, `explicit_caching` plus the resource's `model_user_id` / `model_version_id` /
-`publisher` / `location`. The daily alignment is a *query* choice, though, not a property
-of the data, so the lever is time plus two facts this repo already holds:
-
-1. **Input is deterministic** — 12,186 tokens per Opus panorama (6 views × 2,031). Total
-   input therefore pins the pano count exactly: the 08-15 Opus day is **251.00 panos**, two
-   125-pano legs plus the one re-run panorama. The input half of the split needs no
-   inference at all.
-2. **Effort bills as output, not input.** A high-effort leg has a higher output/input ratio
-   *and* a lower throughput, so when the fast leg finishes, both change at once.
-
-That leaves one unknown — how the output divides — and the minute series shows exactly the
-predicted shape. The legs ran **concurrently**, not back to back: throughput holds at ~5
-panos/min until **18:32 UTC**, then drops **2.54×** to ~1.7 while the output ratio doubles
-(0.0675 → 0.1203). That is the `low` leg finishing and leaving `high` running alone.
-
-| anchor | low effort | high effort | sum |
-|---|---:|---:|---:|
-| tail ratio = pure high (0.1203) | $9.21 | $12.20 | $21.41 |
-| low ratio = 0.0349, measured on the 984-pano #139 leg | **$8.95** | **$12.47** | $21.41 |
-| **console output, recorded at run time** | **$8.94** | **$12.46** | $21.40 |
-
-**The rate-anchored solve reproduces the console figures to 0.1%, from a completely
-independent source.** The anchor was taken from the #139 leg's measured output rate before
-either number was compared, so the agreement is a check, not a fit. Quote **$8.94 / $12.46**
-— the run-time record — and treat this as the corroboration that they are right.
-
-```bash
-python scripts/analysis/vertex_effort_split.py --model claude-opus-5 \
-    --start 2026-08-15T17:00:00Z --end 2026-08-15T21:30:00Z \
-    --per-pano-input 12186 --anchor-low-ratio 0.034908
-```
-
-**The same command on `claude-sonnet-5` refuses to answer, and that is the more
-transferable result.** Sonnet's ratio is flat across its whole run — throughput drops only
-1.63× and the ratio moves the *wrong way* (0.0365 → 0.0281) — so there is no second
-component to find and the script prints `NOT SEPARABLE`. The reason is in the result table
-above: Sonnet's high leg spent **17,820** thinking tokens against Opus's **127,227**, so the
-dial that this method reads barely moved. A mixture solver run on that series returns "high
-effort cost less than low", which is false; the guard exists because the wrong answer is the
-plausible-looking one. **A per-effort split is recoverable exactly when effort changed the
-model enough to be worth splitting** — the telemetry is not the limiting factor.
+`analysis_out/usage_log.jsonl`, and they cannot be recovered.** The $28.82 total and the
+per-leg costs in the table above come from the runs' console output, not from a committed
+record. A re-run cannot back-fill them either — the detections are cached, so a repeat run
+makes zero API calls and has no usage to report. Only the 2026-08-18 single-panorama
+re-run ($0.03) is in the log.
 
 Two guards now stand where that went wrong, and the order matters. `compare.py` **refuses to
 start** a paid leg under `--usage-log none` (override: `--allow-unrecorded-spend`), which is
 the check that fires while the money is still unspent; `report_usage` still warns loudly at
 the end of a leg that logged nothing, for the case where the log path existed but could not
-be written. A warning after the fact would still have been worth having: everything above was
-reconstructed five days late, and the only reason it worked is that nobody waited six weeks.
-What the reconstruction cannot give you is a *guarantee* — Opus separated because its effort
-dial moved 127k thinking tokens, Sonnet's did not separate at all, and which case you are in
-is not knowable until after the money is spent. Layer 1 is the only layer that always works.
+be written. A warning after the fact could not have saved these four legs — by the time it
+prints, the tokens are bought and the counts are already unrecoverable.
 
 ## Cost accounting for paid models
 
@@ -1771,28 +1665,21 @@ Layer 3 recovered the ground truth the next day:
 
 | model | input tokens | output tokens | est. cost |
 |---|---:|---:|---:|
-| claude-opus-5 (the eight splits, 984 panos, 08-18) | 11,988,993 | 418,503 | **$70.41** |
+| claude-opus-5 (eight splits + 4 smoke panos, 08-18) | 11,988,993 | 418,503 | **$70.41** |
 | claude-sonnet-5 (re-run remnant) | 12,594 | 480 | $0.03 |
 
-`python scripts/analysis/vertex_usage.py --days 3`, run 2026-08-19. **The four richmond
-smoke panos are inside that 984, not additional to it** — both smoke records carry
-`bundle: richmond`, the export covers all 124 richmond panos, and the main run found those
-four already cached and re-billed nothing. For the same reason the ledger's $0.31 of smoke
-spend is a *subset* of the $70.41 above, not a line to add to it. Four things follow, and
-the last one is the one that bites:
+`python scripts/analysis/vertex_usage.py --days 3`, run 2026-08-19. Four things follow,
+and the last one is the one that bites:
 
 - **Input tokens are deterministic, so the input half is checkable without any cloud
   access.** An Opus pano is exactly **12,186 tokens** (6 views × 2,031), identical in both
-  smoke records. 984 panos predicts 11,991,024 against 11,988,993 billed — 0.02% out.
-  Precisely: the billed figure is 2,031 × **5,903**, one view short of the 5,904 the
-  geometry demands, and that single missing call is unexplained. Anyone can re-derive this
-  from the committed detections; it is $59.94 of the $70.41. A second, fully independent
-  check agrees — the annapolis leg's measured **$8.94/125 panos** scales to $70.4 for 984.
-- **The output half cannot be reconstructed this way.** Extrapolating the smoke runs'
-  688 output tokens/pano (2,752 tokens over four panos, across two records) gives $16.92
-  where the true figure is $10.46 — **62% high**, because output is thinking plus box count
-  and those four panos were unusually verbose. Actual: 425 output tokens/pano. Estimate
-  input from geometry; never estimate output.
+  smoke records. 984 panos predicts 11,991,024 against 11,988,993 billed — 0.02% out, a
+  single call. Anyone can re-derive that from the committed detections; it is $59.94 of the
+  $70.41.
+- **The output half cannot be reconstructed this way.** Extrapolating the smoke tests'
+  688 output tokens/pano gives $16.92 where the true figure is $10.46 — **62% high**,
+  because output is thinking plus box count and the two smoke panos were unusually verbose.
+  Actual: 425 output tokens/pano. Estimate input from geometry; never estimate output.
 - **Recovery is per-model per-day, not per-split.** Cloud Monitoring cannot say what
   richmond cost as distinct from clovis. That attribution is permanently gone, which is
   tolerable here only because the eight splits were one contiguous run of one model.
@@ -1805,14 +1692,6 @@ The `--usage-log none` guard added in #119 refuses to start a paid leg with logg
 disabled, so the likely mechanism is a run whose `REPO_ROOT` resolved to a scratch worktree
 that was later deleted, taking the ledger with it. That is a real hole: the guard proves a
 log path was *accepted*, not that the file it wrote still exists. See #143.
-
-**Corroborating evidence for that mechanism, found while reviewing this section.**
-`REPO_ROOT` is derived from `__file__`, so *every* repo-root path breaks the same way in a
-worktree — including the read side. Run `vertex_usage.py` from a worktree and it exits with
-"no project: pass `--project`, or set `GOOGLE_CLOUD_PROJECT`… in a repo-root `.env`",
-because the `.env` sits in the main checkout. Same root cause, both directions: a leg run
-from a worktree writes its ledger somewhere disposable, and the tool that would recover the
-spend cannot even find the project id. Pass `--project` explicitly when running from one.
 
 ## Running it
 
@@ -2146,10 +2025,6 @@ What this split adds to the story:
 - `scripts/analysis/vertex_usage.py` — server-side reconciliation: actual billed tokens per
   model from Cloud Monitoring. Needs ADC on the billing project, so only its output is
   replicable from this repo.
-- `scripts/analysis/vertex_effort_split.py` — divides one such daily total between two legs
-  of the same model (the #122 low/high pairs) using minute alignment plus the deterministic
-  input geometry. Refuses with `NOT SEPARABLE` when the legs leave no distinguishable
-  trace, which is the Sonnet case. Same ADC requirement.
 - `analysis_out/usage_log.jsonl` — committed, append-only record of what each paid run spent.
 - `requirements-vlm.txt` — optional VLM deps.
 - `tests/test_detection_eval.py`, `tests/test_model_comparison.py`,

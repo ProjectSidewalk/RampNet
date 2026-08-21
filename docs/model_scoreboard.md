@@ -69,29 +69,18 @@ operating point anyone has committed to, and on ground truth that never saw a Ra
    model here can be made precise. Finding the ramps is the hard part, which is why the
    project's operating-point work optimizes recall-first
    ([`operating_point.md`](operating_point.md)).
-4. **A one-split lead of this size is indistinguishable from split noise.** `claude-opus-5`
-   at low effort beat `gemini-3.1-pro` on annapolis by **+0.021 F1** — the only time any model
-   has displaced the top challenger — so #139 ran it on the other eight splits. Pooled, it
-   **trails by −0.021** (0.588 against 0.608). The headline row is unchanged, and the claim
-   "nothing has displaced `gemini-3.1-pro`" is now tested rather than merely unchallenged.
+4. **One split can invert a challenger ranking, and it did.** `claude-opus-5` at low effort
+   beat `gemini-3.1-pro` on annapolis by **+0.021 F1** — the only time any model has displaced
+   the top challenger — so #139 ran it on the other eight splits. Pooled, it **trails by
+   −0.021** (0.588 against 0.608): the one split that made the result look real was the one
+   split that flattered it. The headline row is unchanged, and the claim "nothing has
+   displaced `gemini-3.1-pro`" is now tested rather than merely unchallenged.
 
-   **The ranking flip is the weaker half of that result.** Per split, the two trade wins:
-   Opus takes clovis (+0.037), annapolis (+0.022) and morgantown (+0.006), Gemini takes
-   gainesville (−0.069), richmond (−0.066), paterson (−0.039) and bend (−0.033) — **three of
-   seven pooled splits, four of nine overall.** The pooled deficit is carried almost entirely
-   by gainesville and richmond. So the split-to-split spread is roughly **3× the annapolis
-   lead that motivated the run**, and that lead was smaller in magnitude than four of the
-   seven per-split gaps. It was never evidence of a real difference. That generalizes past
-   these two models: a single-split margin under ~0.07 F1 on this benchmark should be treated
-   as unresolved until it is pooled, whichever direction it points.
-
-   The F1 near-tie also hides two models that are not alike, and by this board's own third
-   finding the difference matters: **Opus trades −0.083 precision for +0.041 recall**, the
-   **highest recall of any chat VLM with full pooled coverage** (0.614, above every Gemini
-   leg; `claude-opus-5` at *high* effort reaches 0.656 but on annapolis alone — see the
-   partial table below). It loses on the aggregate and wins on the axis the operating-point
-   work says to optimize. Quote the ranking without that and you have the direction right and
-   the reason wrong.
+   The F1 near-tie hides two models that are not alike, and by this board's own third finding
+   the difference matters: **Opus trades −0.083 precision for +0.041 recall**, which makes it
+   the **highest-recall chat VLM on the board** (0.614, above every Gemini leg). It loses on
+   the aggregate and wins on the axis the operating-point work says to optimize. Quote the
+   ranking without that and you have the direction right and the reason wrong.
 
 ![Precision vs recall](figures/scoreboard_pr.png)
 

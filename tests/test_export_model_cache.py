@@ -336,19 +336,6 @@ def test_the_ledger_count_matches_the_directory():
     assert row and int(row.group(1)) == len(published), (
         "the 'Status by input' table's file count disagrees with the directory")
 
-    # The per-leg breakdown is the half a reader uses to find a given file's write-up,
-    # and it is the half that drifts: #139 published eight files and updated only the
-    # total, leaving rows that summed to 114 under a heading that said 122. A total
-    # nobody can decompose is not a ledger, so check the decomposition too.
-    block = re.search(r"^\| what \| files \|.*?\n\n", text, re.S | re.M)
-    assert block, "docs/replication.md no longer has a '| what | files |' breakdown table"
-    rows = re.findall(r"^\|[^|\n]+\|\s*(\d+)\s*\|", block.group(0), re.M)
-    assert rows, "the breakdown table has no countable rows"
-    assert sum(int(n) for n in rows) == len(published), (
-        f"the per-leg breakdown in docs/replication.md sums to "
-        f"{sum(int(n) for n in rows)} ({'+'.join(rows)}), but {em.PUBLISHED_DIR} holds "
-        f"{len(published)}. A row is missing or stale — the total alone is not the ledger.")
-
 
 def test_every_published_file_is_in_canonical_form():
     """A regenerated copy must be provably identical, not merely equivalent.

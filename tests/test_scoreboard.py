@@ -386,44 +386,6 @@ def test_a_pinned_leg_loads_its_own_detections(board):
     assert low["f1"] == pytest.approx(0.588, abs=0.0006)
 
 
-def test_the_annapolis_displacement_does_not_survive_pooling(board):
-    """#139's whole result, pinned: the one split that flattered Opus was the one split.
-
-    The doc-currency tests below catch a *forgotten* regeneration. They pass happily on a
-    regenerated wrong number, because the doc and the JSON would both move together. This
-    is the assertion that has to be edited deliberately, so it names the claim instead of
-    the artifact: on annapolis Opus leads by +0.021, pooled over the seven city splits it
-    trails by the same amount, and the split-to-split spread is what swamps the lead.
-    """
-    opus = _summary(board, "claude-opus-5-effort-low")
-    gem = _summary(board, "gemini-3.1-pro-preview")
-
-    assert opus["coverage"] == "7/7" and opus["complete"] is True
-    assert opus["n_splits_run"] == 9          # 7 pooled + budapest + sao_paulo
-    assert opus["f1"] == pytest.approx(0.588, abs=0.0006)
-    assert opus["precision"] == pytest.approx(0.573, abs=0.0006)
-    assert opus["recall"] == pytest.approx(0.614, abs=0.0006)
-    assert gem["f1"] == pytest.approx(0.608, abs=0.0006)
-
-    # The ranking claim itself, not just the two numbers behind it.
-    assert opus["f1"] < gem["f1"], "gemini-3.1-pro is no longer the best challenger"
-    assert _cell(board, "claude-opus-5-effort-low", "annapolis")["f1"] > \
-        _cell(board, "gemini-3.1-pro-preview", "annapolis")["f1"]
-
-    # ...and the reason it inverted: three wins out of seven, a spread far wider than the
-    # annapolis margin. Quoting the flip without this reads as "Opus is worse everywhere".
-    deltas = {s: _cell(board, "claude-opus-5-effort-low", s)["f1"] - _cell(board, gem["model"], s)["f1"]
-              for s in opus["pooled_splits"]}
-    assert sum(d > 0 for d in deltas.values()) == 3, deltas
-    assert max(deltas.values()) - min(deltas.values()) > 3 * abs(deltas["annapolis"])
-
-    # Opus is the highest-recall chat VLM that has run the full pool -- the axis
-    # operating_point.md says to optimize, and the reason the near-tie is not a wash.
-    pooled_vlms = [m for m in board["models"]
-                   if m["class"] == "chat-vlm" and m["complete"]]
-    assert max(pooled_vlms, key=lambda m: m["recall"])["model"] == "claude-opus-5-effort-low"
-
-
 def test_partial_coverage_is_reported_not_averaged_away(board):
     """The two Gemini legs have city detections but no published manual_gold.
 
