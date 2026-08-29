@@ -29,7 +29,7 @@
 
 set -eo pipefail
 
-REPO="${RAMPNET_REPO:-/gscratch/makelab/jonf/lrcheck_135}"
+REPO="${RAMPNET_REPO:-$HOME/RampNet}"
 CACHE_DIR="${YOLO_CACHE_DIR:-/gscratch/makelab/jonf/rampnet_yolo_baseline_51/label_cache_rescue}"
 DATA_ROOT="${YOLO_DATA_ROOT:-/gscratch/scrubbed/jfroehli/yolo/tiles}"
 PY="${YOLO_PY:-/gscratch/makelab/jonf/envs/yolo/bin/python}"
