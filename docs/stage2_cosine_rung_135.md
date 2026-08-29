@@ -1,6 +1,6 @@
 # The 8-epoch cosine rung: does annealing help RampNet at all? (#135)
 
-**Status: PRE-REGISTERED 2026-08-18, before launch. Nothing below has been run.** The decision
+**Status: PRE-REGISTERED 2026-08-18 before launch; training COMPLETE 2026-08-21; `manual_gold` scoring in flight.** Everything above Results is as written on 2026-08-18 and has not been edited. The decision
 rule, the comparison, and what each outcome means are fixed here so they cannot be chosen after
 the numbers arrive. Results will be appended to this file, not substituted into it.
 
@@ -207,4 +207,112 @@ the schedule, which would invalidate the run and is invisible in the loss curve.
 
 ## Results
 
-*Not yet run. This section will be appended to; the pre-registration above stays as written.*
+**Status: training COMPLETE 2026-08-21. The auto-label half of the curve is below, and the applied
+LR schedule is verified over 100% of the run. The `manual_gold` half — the question this rung
+exists to answer — is not scored yet.**
+
+### The run completed, after 21 restarts, without the livelock fix
+
+`38640313` finished at **2026-08-21T19:07:16**. It was never cancelled and never resubmitted: the
+requeue livelock diagnosed on 2026-08-20 **broke on its own** when `ckpt-all` capacity freed up and
+incarnations went from minutes to eight-hour slices.
+
+This is recorded as a caveat, not a success. The fix in `fa02b37` was **never applied to this job** —
+the `train.py` that ran carries no `ResumeSkipSampler` and still has `checkpoint_interval_steps = 1000`
+hardcoded. The rung finished on capacity weather. That does not retire the fix; it says the livelock
+is a property of the partition regime, which will recur, and that a run whose completion depends on
+luck is not one to schedule deliberately.
+
+| | value |
+| :--- | ---: |
+| restarts | 21 |
+| aggregate wall-clock | 35.06 h |
+| **GPU-hours (× 16)** | **560.9** (free, `ckpt-all`) |
+| epoch checkpoints written | 8 of 8 |
+| final validation loss | 0.0005 |
+
+Checkpoints at `/gscratch/makelab/jonf/rampnet_cosine_rung_135/checkpoints/`,
+`epoch_1_step_9378.pth` … `epoch_8_step_75024.pth`.
+
+### The pre-registered LR check passes over the whole run
+
+The pre-registration above names one check as the thing that licenses reading any of this: the `LR`
+scalar must fall smoothly, because a requeue that reset the schedule would be invisible in the loss
+curve. Run against the complete event set with the **as-run** `train.py` as the lift source (not
+this branch's copy, which `fa02b37` changed):
+
+```
+11 incarnation(s); 10 resume boundaries
+Merged: 75024 unique steps, 1-75024 of 75024 (100.00% of the run)
+Non-decreasing violations: 0
+Max |logged - lr_at_step(step-1)|: 4.547e-13 at step 15339  (tolerance 1.0e-11)
+PASS
+```
+
+Every boundary lands at the rate its step index predicts — `0.993003`, `0.964910`, `0.693931`,
+`0.654700`, `0.165709`, `0.000460` × peak — and never at `1.000000`, which is the sawtooth
+signature. The cosine reaches `4.38e-15` at step 75,024, the pre-registered floor of zero.
+**The schedule under test is the schedule that was applied, over the entire run rather than a
+sample.** (Eleven incarnations against 21 restarts: ten allocations logged no training step at all.)
+
+### Auto-label validation loss, budget-matched against Run A
+
+Run A (`docs/stage2_epoch_curve_84.md`) and this rung differ in exactly one thing. Both are seed 42,
+world size 16, global batch 16, same data, same splits, same ImageNet-initialised backbone.
+
+| epoch | Run A (constant 1e-5) | cosine rung | cosine better by |
+| ---: | ---: | ---: | ---: |
+| 1 | 0.00052194 | 0.00052057 | +0.263% |
+| 2 | 0.00048067 | 0.00048145 | −0.162% |
+| 3 | 0.00046341 | 0.00046519 | −0.383% |
+| 4 | 0.00046485 | 0.00046191 | +0.633% |
+| **5** | **0.00045976** | **0.00045534** | **+0.962%** |
+| 6 | 0.00046855 | 0.00045752 | +2.355% |
+| 7 | 0.00047676 | 0.00046077 | +3.354% |
+| 8 | 0.00048100 | 0.00046186 | +3.980% |
+
+Committed at `docs/data/stage2_cosine_rung_135.csv`, and re-derivable from a clean clone with
+no cluster access — both runs' event files are in the repo:
+
+```bash
+python scripts/analysis/stage2_epoch_curve.py \
+    --events-dir stage_two/cosine_rung_135_events \
+    --paper-events-dir stage_two/run_a_84_events \
+    --curve-label cosine_rung --reference-label run_a \
+    --out-csv docs/data/stage2_cosine_rung_135.csv
+```
+
+The percentages are computed from the raw float32 scalars in the events, not from the
+8-decimal values in the table, so hand-arithmetic off the printed column can differ in the
+third decimal. That is the same trap #84 recorded when a typed delta read 1.69% against a
+true 1.755%, which is why these are script-derived.
+
+Two readings:
+
+1. **Annealing does not move the optimum.** Both arms bottom at **epoch 5**. The rung does not
+   relocate the minimum the #84 amendment identified, and does not turn epochs 7–8 into the best
+   checkpoints.
+2. **Annealing damps the post-minimum decline.** Run A rises **+4.62%** from its own minimum to
+   epoch 8; the rung rises **+1.43%**. About 70% of the late-epoch degradation is schedule rather
+   than overfitting.
+
+The reason to believe (2) is the shape, not the size: the arms are indistinguishable through
+epochs 1–3, where cosine is still between 1.00× and 0.69× of peak, and separate monotonically from
+epoch 4 as the anneal bites. That is a schedule effect, not seed noise — though with n=1 per arm,
+seed variance remains the unmeasured term #138 identified as the binding limit.
+
+### What is not answered yet, and a prediction on the record
+
+**Auto-label val loss is the signal `train.py` selects on, not the deciding metric.** The pre-registered
+question is `manual_gold`. That sweep is running on makelab2 with the protocol copied verbatim from
+`run_a_84/run_evals.sh` — `--threshold 0.0 --no-tta`, a separate `--results-dir` per epoch, and the
+eval host's repo pinned at `dc7450e`, the commit Run A was scored under, so the comparison isolates
+the schedule rather than confounding it with the #140 matcher change (#148).
+
+Recorded before the numbers arrive, so it can be wrong: #84 measured a 13.5% auto-val improvement
+buying ~0.009 F1 on `manual_gold`. Scaled, this rung's 0.961% advantage at the shared optimum maps
+to well under #138's measured paired MDE of **0.0063**, and its 3.979% advantage at epoch 8 to about
+0.005. **The expected result is "tied at every epoch."** If that holds, the finding is that annealing
+buys a real, reproducible, mechanistically-consistent improvement in the *selection signal* that does
+not survive translation to human-labelled F1 — which closes the Run B gate on a measurement rather
+than an extrapolation.
