@@ -1,6 +1,6 @@
 # The 8-epoch cosine rung: does annealing help RampNet at all? (#135)
 
-**Status: PRE-REGISTERED 2026-08-18 before launch; training COMPLETE 2026-08-21; `manual_gold` scoring in flight.** Everything above Results is as written on 2026-08-18 and has not been edited. The decision
+**Status: PRE-REGISTERED 2026-08-18 before launch; training COMPLETE 2026-08-21; `manual_gold` scored 2026-08-29 — TIED at every epoch.** Everything above Results is as written on 2026-08-18 and has not been edited. The decision
 rule, the comparison, and what each outcome means are fixed here so they cannot be chosen after
 the numbers arrive. Results will be appended to this file, not substituted into it.
 
@@ -207,9 +207,9 @@ the schedule, which would invalidate the run and is invisible in the loss curve.
 
 ## Results
 
-**Status: training COMPLETE 2026-08-21. The auto-label half of the curve is below, and the applied
-LR schedule is verified over 100% of the run. The `manual_gold` half — the question this rung
-exists to answer — is not scored yet.**
+**Status: COMPLETE.** Training finished 2026-08-21, the applied LR schedule is verified over 100%
+of the run, and `manual_gold` was scored 2026-08-29: **the two arms are tied at every epoch**,
+largest delta 0.0042 against #138's measured paired MDE of 0.0063.
 
 ### The run completed, after 21 restarts, without the livelock fix
 
@@ -316,3 +316,99 @@ to well under #138's measured paired MDE of **0.0063**, and its 3.979% advantage
 buys a real, reproducible, mechanistically-consistent improvement in the *selection signal* that does
 not survive translation to human-labelled F1 — which closes the Run B gate on a measurement rather
 than an extrapolation.
+
+### `manual_gold`: tied at every epoch, as predicted
+
+Scored 2026-08-29 on makelab2, one `evaluate.py` run per checkpoint, protocol copied verbatim
+from `run_a_84/run_evals.sh` and the repo pinned at `dc7450e` — the commit Run A was scored
+under — so the comparison isolates the schedule rather than confounding it with the #140 matcher
+change (#148). All 8 checkpoints were sha256-verified against the klone originals before
+transfer, and `evaluate.py` stamps each checkpoint's fingerprint into its own metrics file: the
+eight `checkpoint_fingerprint` values in `summary.csv` match the eight source hashes, so every
+row below ties to specific weights rather than to a directory name.
+
+| epoch | Run A F1@0.30 | cosine F1@0.30 | Δ | Run A max-F1 | cosine max-F1 | Δ |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | 0.9052 | 0.9054 | +0.0002 | 0.9064 | 0.9069 | +0.0005 |
+| 2 | 0.9120 | 0.9119 | −0.0001 | 0.9165 | 0.9169 | +0.0003 |
+| 3 | 0.9128 | 0.9126 | −0.0002 | **0.9191** | **0.9206** | +0.0015 |
+| 4 | 0.9131 | **0.9163** | +0.0032 | 0.9171 | 0.9183 | +0.0013 |
+| 5 | 0.9143 | 0.9124 | −0.0018 | 0.9179 | 0.9164 | −0.0015 |
+| 6 | **0.9161** | 0.9144 | −0.0017 | 0.9165 | 0.9173 | +0.0007 |
+| 7 | 0.9103 | 0.9113 | +0.0010 | 0.9110 | 0.9153 | +0.0042 |
+| 8 | 0.9088 | 0.9124 | +0.0036 | 0.9124 | 0.9154 | +0.0030 |
+
+**Largest |Δ| on either pre-registered metric: 0.0042, against #138's measured paired MDE of
+0.0063. No epoch separates the two arms.** The prediction recorded above, before the numbers
+existed, was that the benchmark answer would be "tied at every epoch". It is.
+
+The two arms' F1@0.30 peaks are **0.9161 (Run A, epoch 6)** and **0.9163 (cosine, epoch 4)** —
+a difference of 0.0002, which is to say the same number at a different epoch. Both replicate
+#84's finding of no resolvable human peak: every epoch from 2 on sits inside the tie bar.
+
+### The finding: a real gain in the selection signal that does not translate
+
+This is the result, and it is a negative one about the *signal*, not about the schedule:
+
+- **Annealing measurably improves auto-label validation loss.** Up to 3.980% at epoch 8,
+  monotone in the anneal, and mechanistically consistent — the arms are indistinguishable while
+  the cosine is still near peak and separate as it bites. That is not noise.
+- **None of it reaches human-labelled F1.** The same checkpoints, scored against 3,919
+  human-placed instances, are tied everywhere.
+
+So the ~1% auto-val improvement at the shared optimum buys nothing measurable on the benchmark,
+which is consistent with #84's exchange rate (a 13.5% auto-val gain bought ~0.009 F1) and is
+what the prediction was scaled from. **Auto-label validation loss is a real optimisation signal
+that is only loosely coupled to the thing we care about.**
+
+One directional hint, stated as a hint and not a finding: from its own F1@0.30 peak to epoch 8,
+Run A declines **−0.0073** while the cosine arm declines **−0.0039**. That is the late-epoch
+damping the auto-val curve shows, surviving into F1 at about half the size — but both numbers
+straddle the tie bar, so this is a thing to test at length, not a thing to claim at n=1.
+
+### AP moves where F1 does not, and that is worth recording
+
+AP is **not** a pre-registered metric here and nothing above rests on it, but the two disagree
+in a way that would mislead anyone reading only one:
+
+| epoch | Run A AP | cosine AP | Δ AP | Δ max-F1 |
+| ---: | ---: | ---: | ---: | ---: |
+| 7 | 0.9066 | 0.9158 | **+0.0092** | +0.0042 |
+| 8 | 0.9085 | 0.9154 | **+0.0069** | +0.0030 |
+
+At epoch 7 the AP gap is more than twice the max-F1 gap. AP integrates the whole
+precision/recall curve while F1 is read at a point, so the natural reading is that annealing
+improves the **low-confidence tail** more than the operating region — where a fixed-threshold
+metric cannot see it. Under this project's recall-first framing that tail is not worthless, but
+it is also not what #54's operating point scores, and quoting the AP delta as the headline would
+overstate the result by a factor of two. Recorded so the next person does not have to rediscover
+the discrepancy.
+
+### What this does and does not settle for Run B
+
+- **It settles**: at 8 epochs, budget-matched, seed-matched, the LR schedule does not change
+  `manual_gold` performance. The mechanism-based argument for the annealed arm — "annealing
+  helps, so a longer annealed run should help more" — has no benchmark support at this length.
+- **It does not settle**: whether a 30-epoch annealed run helps. That changes length and
+  schedule together, which is precisely the confound the #84 amendment flagged, and this rung
+  was deliberately built not to answer it.
+
+What the rung does supply is a measured prior for that decision: the schedule is worth ~0.000
+F1 at 8 epochs and possibly ~0.003 in late-epoch damping, against #138's 0.0063 detection floor.
+A 30-epoch arm would need the effect to grow substantially with length to be resolvable at all.
+
+### Reproducing
+
+The downsampled PR-vs-confidence curves are committed at
+`docs/data/cosine_rung_135_manual_gold/` (a few KB each; the full curves are ~4 MB × 8 and the
+checkpoints 8.6 GB, neither committable). They re-derive F1 at any threshold to three decimals,
+well inside the tie bar, so the table above is checkable without cluster access:
+
+```bash
+python scripts/analysis/stage2_manual_gold_curve.py \
+    --results-root docs/data/cosine_rung_135_manual_gold --downsampled
+```
+
+The checkpoints remain at `/gscratch/makelab/jonf/rampnet_cosine_rung_135/checkpoints/` and on
+makelab2 at `/homes/gws/jonf/RampNet/cosine_rung_135/checkpoints/`. Publishing them is a
+decision about HF storage, not a technical blocker — the same gap Run A records.
