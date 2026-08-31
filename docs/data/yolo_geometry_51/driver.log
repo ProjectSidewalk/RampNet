@@ -1,0 +1,53 @@
+run started      : 2026-08-30T17:10:09-07:00
+host             : makelab2.cs.washington.edu
+repo HEAD        : d964d5db2037451ef4060efc8419d90d1794190b  Merge pull request #142 from ProjectSidewalk/docs/seam-amendment
+repo dirty       : 10 paths
+torch 2.13.0+cu130 cuda True
+ultralytics 8.4.120
+gpu              : NVIDIA A40
+checkpoint sha256:
+63bbe5d6ed773b04b79a46e2ab6b3c216abea8f369aaa18dc53404269abde077  /homes/gws/jonf/RampNet/yolo_ckpts/y11x_tiles.pt
+0653409f9e1b309e479153c5967fadadf74f88913dceb5c1527db97dd0d958fe  /homes/gws/jonf/RampNet/yolo_ckpts/y11x_pano.pt
+8ee4f7bfc372270071dd1f94ae3130adbefe4fec27acac8b4e8887ede6600159  /homes/gws/jonf/RampNet/yolo_ckpts/y11x_pano_h200.pt
+splits           : manual_gold bend richmond annapolis budapest_district5 clovis gainesville morgantown paterson sao_paulo
+=== manual_gold tiles  start 2026-08-30T17:10:13-07:00
+=== manual_gold tiles  exit=0 elapsed=1229s
+=== manual_gold pano   start 2026-08-30T17:30:42-07:00
+=== manual_gold pano   exit=0 elapsed=140s
+=== bend tiles  start 2026-08-30T17:33:02-07:00
+=== bend tiles  exit=0 elapsed=241s
+=== bend pano   start 2026-08-30T17:37:03-07:00
+=== bend pano   exit=0 elapsed=143s
+=== richmond tiles  start 2026-08-30T17:39:26-07:00
+=== richmond tiles  exit=0 elapsed=175s
+=== richmond pano   start 2026-08-30T17:42:21-07:00
+=== richmond pano   exit=0 elapsed=67s
+=== annapolis tiles  start 2026-08-30T17:43:28-07:00
+=== annapolis tiles  exit=0 elapsed=166s
+=== annapolis pano   start 2026-08-30T17:46:14-07:00
+=== annapolis pano   exit=0 elapsed=51s
+=== budapest_district5 tiles  start 2026-08-30T17:47:05-07:00
+=== budapest_district5 tiles  exit=0 elapsed=120s
+=== budapest_district5 pano   start 2026-08-30T17:49:05-07:00
+=== budapest_district5 pano   exit=0 elapsed=32s
+=== clovis tiles  start 2026-08-30T17:49:37-07:00
+=== clovis tiles  exit=0 elapsed=153s
+=== clovis pano   start 2026-08-30T17:52:10-07:00
+=== clovis pano   exit=0 elapsed=50s
+=== gainesville tiles  start 2026-08-30T17:53:00-07:00
+=== gainesville tiles  exit=0 elapsed=276s
+=== gainesville pano   start 2026-08-30T17:57:36-07:00
+=== gainesville pano   exit=0 elapsed=154s
+=== morgantown tiles  start 2026-08-30T18:00:10-07:00
+=== morgantown tiles  exit=0 elapsed=120s
+=== morgantown pano   start 2026-08-30T18:02:10-07:00
+=== morgantown pano   exit=0 elapsed=22s
+=== paterson tiles  start 2026-08-30T18:02:32-07:00
+=== paterson tiles  exit=0 elapsed=286s
+=== paterson pano   start 2026-08-30T18:07:18-07:00
+=== paterson pano   exit=0 elapsed=173s
+=== sao_paulo tiles  start 2026-08-30T18:10:11-07:00
+=== sao_paulo tiles  exit=0 elapsed=287s
+=== sao_paulo pano   start 2026-08-30T18:14:58-07:00
+=== sao_paulo pano   exit=0 elapsed=170s
+ALL_SPLITS_DONE 2026-08-30T18:17:48-07:00
