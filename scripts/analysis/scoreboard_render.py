@@ -25,7 +25,7 @@ SPLIT_HEADER = {
     "annapolis": "annap",
     "paterson": "pater",
     "gainesville": "gaines",
-    "laurens": "laurens",
+    "laurens_mapillary": "laur_mly",
     "budapest_district5": "budapest †",
     "sao_paulo": "sao_paulo †",
     "manual_gold": "manual_gold †",

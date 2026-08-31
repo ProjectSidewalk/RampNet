@@ -75,7 +75,8 @@ from miss_decomposition import DEFAULT_THRESHOLD  # noqa: E402
 # pins the committed analysis_out/silent_activation.json to the numbers the issue's
 # section 0c quotes. It therefore carries its own split tuple rather than importing the
 # live `US_SPLITS`, so registering a new city cannot silently restate a published
-# finding. laurens is absent for that reason alone -- it is pooled everywhere else.
+# finding. laurens_mapillary is absent for that reason alone -- it is pooled
+# everywhere else.
 # To fold a split in: re-run the study, re-quote it, update the 0c expectations.
 US_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson",
              "gainesville")

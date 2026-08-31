@@ -7,7 +7,7 @@
     "annapolis",
     "paterson",
     "gainesville",
-    "laurens"
+    "laurens_mapillary"
   ],
   "city_splits": [
     "richmond",
@@ -17,7 +17,7 @@
     "annapolis",
     "paterson",
     "gainesville",
-    "laurens",
+    "laurens_mapillary",
     "budapest_district5",
     "sao_paulo"
   ],
@@ -29,7 +29,7 @@
     "annapolis",
     "paterson",
     "gainesville",
-    "laurens",
+    "laurens_mapillary",
     "budapest_district5",
     "sao_paulo",
     "manual_gold"
@@ -95,7 +95,7 @@
       "n_gt": 272,
       "pooled": true
     },
-    "laurens": {
+    "laurens_mapillary": {
       "n_panos": 94,
       "n_gt": 249,
       "pooled": true
@@ -137,7 +137,7 @@
         "annapolis",
         "paterson",
         "gainesville",
-        "laurens"
+        "laurens_mapillary"
       ],
       "precision": 0.95072,
       "recall": 0.685578,
@@ -150,7 +150,7 @@
       "micro_recall": 0.691208,
       "f1_min": 0.543417,
       "f1_max": 0.854578,
-      "f1_min_split": "laurens",
+      "f1_min_split": "laurens_mapillary",
       "f1_max_split": "richmond",
       "n_splits_run": 11,
       "budapest_district5_f1": 0.644211,
@@ -1054,8 +1054,8 @@
         "n_gt_recall": 272,
         "fp_per_pano": 0.088
       },
-      "laurens": {
-        "split": "laurens",
+      "laurens_mapillary": {
+        "split": "laurens_mapillary",
         "precision": 0.898148,
         "recall": 0.389558,
         "f1": 0.543417,

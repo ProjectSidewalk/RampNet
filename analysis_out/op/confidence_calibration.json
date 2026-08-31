@@ -1632,7 +1632,7 @@
         ]
       }
     ],
-    "laurens": [
+    "laurens_mapillary": [
       {
         "lo": 0.05,
         "hi": 0.1,
@@ -2562,7 +2562,7 @@
       "annapolis",
       "paterson",
       "gainesville",
-      "laurens"
+      "laurens_mapillary"
     ],
     "bins": [
       {

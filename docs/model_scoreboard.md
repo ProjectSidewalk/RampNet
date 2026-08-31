@@ -215,7 +215,7 @@ numbers are directly above them in `model_comparison.md`:
 
 <!-- BEGIN GENERATED: by-split (scripts/analysis/scoreboard.py) -->
 
-| model | rich | bend | clovis | morg | annap | pater | gaines | laurens | **pooled** | budapest † | sao_paulo † | manual_gold † |
+| model | rich | bend | clovis | morg | annap | pater | gaines | laur_mly | **pooled** | budapest † | sao_paulo † | manual_gold † |
 |---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|
 | **RampNet** | **0.855** | **0.850** | **0.801** | **0.835** | **0.839** | **0.805** | **0.803** | **0.543** | **0.792** | **0.644** | **0.777** | **0.908** |
 | YOLO11l (pano) | 0.595 | 0.713 | 0.600 | 0.675 | 0.481 | 0.647 | 0.516 | – | – | 0.247 | 0.662 | 0.839 |
@@ -404,7 +404,7 @@ apart without failing CI:
 | `annapolis` | 0.734 | **0.875** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `paterson` | 0.681 | **0.748** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `gainesville` | 0.691 | **0.846** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
-| `laurens` | 0.377 | **0.691** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
+| `laurens_mapillary` | 0.377 | **0.691** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `budapest_district5` | 0.478 | **0.648** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `sao_paulo` | 0.666 | **0.812** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `manual_gold` | 0.917 | 0.917 | bundle — already at 0.05 | no truncation to undo; flip-TTA export |
@@ -483,7 +483,7 @@ Omissions are content, so they are named rather than left as blanks:
 | `annapolis` | pooled | 125 | 294 | US deployment city, verdict-grade GT |
 | `paterson` | pooled | 125 | 395 | US deployment city, verdict-grade GT |
 | `gainesville` | pooled | 125 | 272 | US deployment city, verdict-grade GT |
-| `laurens` | pooled | 94 | 249 | US deployment city, verdict-grade GT |
+| `laurens_mapillary` | pooled | 94 | 249 | US deployment city, verdict-grade GT |
 | `budapest_district5` | held out † | 125 | 300 | single-rater GT at low reviewer confidence (docs/model_comparison.md: do not pool) |
 | `sao_paulo` | held out † | 125 | 281 | non-US city — the pooled recommendation is a US-deployment basis (GT is HIGH reviewer confidence; held out for geography, not GT quality) |
 | `manual_gold` | held out † | 1000 | 3919 | in-distribution GSV + independently-labelled GT (in-domain reference, not a deployment city) |

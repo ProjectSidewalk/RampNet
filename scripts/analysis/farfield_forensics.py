@@ -54,10 +54,11 @@ from miss_decomposition import (  # noqa: E402
 # forensics.py asserts that the committed analysis_out/farfield_forensics.json still
 # reproduces the numbers quoted in the issue's section 0c, byte for byte. It therefore
 # pins its own split tuple instead of importing the live `US_SPLITS`, which would let
-# any newly registered city silently restate a published finding. laurens (the first
-# rural split) is deliberately absent for that reason, NOT because it is held out of
-# the pooled recommendation -- it is pooled everywhere else. To fold a new split in,
-# re-run the study, re-quote it, and update the section-0c expectations together.
+# any newly registered city silently restate a published finding. laurens_mapillary
+# (the first rural split) is deliberately absent for that reason, NOT because it is
+# held out of the pooled recommendation -- it is pooled everywhere else. To fold a
+# new split in, re-run the study, re-quote it, and update the section-0c
+# expectations together.
 from miss_gallery import (  # noqa: E402
     JUDGEABLE_SOURCE_PX, MODEL_WIDTH, load_queue, source_px, tag_key)
 
