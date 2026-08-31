@@ -66,7 +66,7 @@ from operating_point_curve import (  # noqa: E402
 
 # The seven US city splits carry verdict-grade GT and are the recommendation's basis.
 US_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson",
-             "gainesville")
+             "gainesville", "laurens")
 CITY_SPLITS = US_SPLITS + ("budapest_district5", "sao_paulo")
 ALL_SPLITS = CITY_SPLITS + ("manual_gold",)
 

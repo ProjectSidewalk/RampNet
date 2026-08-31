@@ -66,6 +66,7 @@ SERIES = {
     "annapolis": "#e87ba4",
     "gainesville": "#008300",
     "paterson": "#e34948",
+    "laurens": "#4a3aa7",             # slot 7, vacated by the manual_gold fold
     "budapest_district5": "#52514e",   # neutral ink — held out, not a categorical slot
     "sao_paulo": "#52514e",            # neutral ink — held out, not a categorical slot
     "manual_gold": "#52514e",          # neutral ink — held out, not a categorical slot

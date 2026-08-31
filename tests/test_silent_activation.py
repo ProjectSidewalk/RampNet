@@ -335,8 +335,10 @@ def test_the_header_describes_the_run_it_came_from(result):
 @needs_result
 def test_the_recorded_scope_is_the_pooled_population(result):
     # A subset run is not what 0c quotes; the payload has to say which it is.
-    from miss_decomposition import US_SPLITS
-    assert sorted(result["cities"]) == sorted(US_SPLITS)
+    # The frozen published population, not the live registry (see the module comment
+    # in scripts/analysis/silent_activation.py).
+    from silent_activation import US_SPLITS as PUBLISHED_SPLITS
+    assert sorted(result["cities"]) == sorted(PUBLISHED_SPLITS)
     assert result["panos"] == len({(r["city"], r["pano"]) for r in result["results"]})
     assert result["panos"] == 108
 

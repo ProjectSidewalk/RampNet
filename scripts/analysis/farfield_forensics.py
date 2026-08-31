@@ -48,9 +48,22 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import miss_taxonomy as mt  # noqa: E402
 from miss_decomposition import (  # noqa: E402
-    DEFAULT_THRESHOLD, FAR_BOUNDARY_M, TIER, US_SPLITS)
+    DEFAULT_THRESHOLD, FAR_BOUNDARY_M, TIER)
+
+# This module is a FROZEN forensic study of a published result: tests/test_farfield_
+# forensics.py asserts that the committed analysis_out/farfield_forensics.json still
+# reproduces the numbers quoted in the issue's section 0c, byte for byte. It therefore
+# pins its own split tuple instead of importing the live `US_SPLITS`, which would let
+# any newly registered city silently restate a published finding. laurens (the first
+# rural split) is deliberately absent for that reason, NOT because it is held out of
+# the pooled recommendation -- it is pooled everywhere else. To fold a new split in,
+# re-run the study, re-quote it, and update the section-0c expectations together.
 from miss_gallery import (  # noqa: E402
     JUDGEABLE_SOURCE_PX, MODEL_WIDTH, load_queue, source_px, tag_key)
+
+# The seven splits the published far-field study covered.
+PUBLISHED_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis",
+                    "paterson", "gainesville")
 
 # Distance bands inside the far field, in metres. The first two match E1's gold-set
 # bins (recall 0.90 at 18-25, 0.49 at 25-40), so the pooled-benchmark rates here are
@@ -252,7 +265,7 @@ def main(argv=None):
 
     # Populations, all at the deployed threshold. --------------------------------
     pooled = []
-    for city in US_SPLITS:
+    for city in PUBLISHED_SPLITS:
         loaded = mt.load_rows(city, args.threshold, rng=None)
         if loaded is not None:
             pooled.extend(loaded[0])
@@ -269,7 +282,7 @@ def main(argv=None):
     rated_rows = [r for r in unw_far if row_key(r) in rated_keys]
     excluded_rows = [r for r in unw_far if row_key(r) not in rated_keys]
 
-    widths = {city: stored_widths(city) for city in US_SPLITS}
+    widths = {city: stored_widths(city) for city in PUBLISHED_SPLITS}
     visible = [v for v in rated.values() if v["verdict"] == "visible"]
 
     print(f"=== Far-field 'visible' anomaly, Phase 0: sample forensics "
@@ -291,7 +304,7 @@ def main(argv=None):
     print(f"{'split':>12} {'tier':>10} {'stored px':>12} {'floor(model px)':>16} "
           f"{'far-silent':>11} {'unwitn.':>8} {'rated':>6}")
     per_split = {}
-    for city in US_SPLITS:
+    for city in PUBLISHED_SPLITS:
         fs = [r for r in far_silent if r["city"] == city]
         if not fs:
             continue
