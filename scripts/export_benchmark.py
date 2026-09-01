@@ -77,7 +77,8 @@ MANIFEST_NAME = "build_manifest.json"
 # tests/test_export_benchmark.py::test_split_allowlist_matches_the_analysis_registry keeps it in
 # step with scripts/analysis/miss_decomposition.py.
 BENCHMARK_SPLITS = ("annapolis", "bend", "budapest_district5", "clovis", "gainesville",
-                    "laurens_mapillary", "morgantown", "paterson", "richmond", "sao_paulo")
+                    "laurens_gsv", "laurens_mapillary", "morgantown", "paterson",
+                    "richmond", "sao_paulo")
 EXCLUDED_SPLITS = {"manual_gold": "the paper's gold set -- published in rampnet-dataset already"}
 
 # A `panos/` directory can pick up .DS_Store, Thumbs.db, a leftover .json sidecar or a

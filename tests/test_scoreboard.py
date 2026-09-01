@@ -360,6 +360,32 @@ def test_the_ap_provenance_table_shows_the_logs_number(board):
 # --------------------------------------------------------------------------- #
 # coverage — a run that happened must appear; one that didn't must not be invented
 # --------------------------------------------------------------------------- #
+def test_the_provenance_table_does_not_claim_an_untruncated_bundle_it_has_not_got(board):
+    """Three AP provenances, not two — and the third one used to be mislabelled.
+
+    The table had a binary: substituted means "op_cache, was truncated", anything else
+    means "bundle, already at 0.05, flip-TTA export". That held while manual_gold was
+    the only unsubstituted row. `laurens_gsv` is the third case — a held-out split that
+    never went through the #54 re-extraction, so there is no cache to swap in and its
+    bundle is truncated at the deployed 0.55 like every other city's. The old table
+    printed "already at 0.05" against it, which is a false provenance claim on the one
+    page whose job is provenance, and no test would have caught it.
+    """
+    table = sr.ap_provenance_table(board)
+
+    gold = next(l for l in table.splitlines() if l.startswith("| `manual_gold` |"))
+    assert "already at 0.05" in gold
+    assert _cell(board, "rampnet", "manual_gold")["bundle_floor"] < 0.4
+
+    gsv = next(l for l in table.splitlines() if l.startswith("| `laurens_gsv` |"))
+    assert "already at 0.05" not in gsv,         "laurens_gsv has no op_cache and a 0.55 bundle; it is truncated, not low-floor"
+    assert "truncated" in gsv and "no `op_cache`" in gsv
+    cell = _cell(board, "rampnet", "laurens_gsv")
+    assert cell["ap_source"] == "bundle"
+    assert cell["bundle_floor"] >= 0.4,         "a city bundle is exported at the deployed 0.55, so its floor cannot be low"
+    assert cell["ap"] == cell["ap_bundle"]
+
+
 def test_scores_every_registered_leg(board):
     """The roster is the source of truth for who has been run, so every entry is scored.
 

@@ -66,7 +66,10 @@ US_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson"
 TIER = {"bend": "gsv", "paterson": "gsv", "gainesville": "gsv",
         "richmond": "mapillary", "clovis": "mapillary", "morgantown": "mapillary",
         "annapolis": "mapillary", "laurens_mapillary": "mapillary"}
-HELD_OUT = {"budapest_district5": "single-rater GT at low reviewer confidence",
+HELD_OUT = {"laurens_gsv": "second imagery arm of laurens, already pooled through "
+                           "laurens_mapillary -- same town, largely the same "
+                           "physical ramps, so pooling both double-counts",
+            "budapest_district5": "single-rater GT at low reviewer confidence",
             "sao_paulo": "non-US city, and the pooled basis is US deployment "
                          "(GT is high confidence; held out for geography, "
                          "not GT quality)",

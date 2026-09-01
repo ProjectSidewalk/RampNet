@@ -475,6 +475,76 @@ Three things laurens adds:
    the benchmark has. OWLv2's 0.851 recall against RampNet's 0.390 is, as everywhere, mostly
    density — 68.0 boxes/pano — and is not a recall ceiling anyone can deploy.
 
+**laurens_gsv** (86 reviewed panos, 220 GT ramps) — the **second imagery arm** of Laurens
+(2026-08-31), reviewer confidence HIGH; Google Street View zoom-5 over the same 1.91 km²
+footprint as `laurens_mapillary`. **Held out of the pooled basis** and of the tier rows: the
+two arms sample one small town and largely the same physical ramps (59% of these panos sit
+within 20 m of a `laurens_mapillary` one, median nearest neighbour 17.2 m), so pooling both
+would double-count them and break the independence the Wilson intervals assume. It is held
+out for non-independence, not for GT quality. It exists to answer one question (#151): is
+Laurens hard because it is **rural**, or because of the **rig**?
+
+| model | P | R | F1 | AP | tp/fp/fn |
+|---|---|---|---|---|---|
+| **rampnet** | **0.933** | **0.509** | **0.659** | 0.494 | 112/8/108 |
+| **molmo2-8B** (points) | 0.332 | 0.286 | **0.307** | – | 63/127/157 |
+| gemini-3.1-pro-preview | 0.519 | 0.191 | 0.279 | – | 42/39/178 |
+| gemini-3.6-flash | 0.355 | 0.223 | 0.274 | – | 49/89/171 |
+| Qwen3-VL-8B-Instruct | 0.181 | 0.145 | 0.161 | – | 32/145/188 |
+| **Qwen3-VL-32B-Instruct** | 0.250 | **0.009** | **0.018** | – | 2/6/218 |
+| owlv2-large-patch14-ensemble | 0.028 | 0.855 | 0.055 | 0.035 | 188/6476/32 |
+| grounding-dino-base | 0.028 | **0.882** | 0.054 | 0.038 | 194/6799/26 |
+
+### The rig, not the town (#151)
+
+Same town, same footprint, same rubric, same reviewer, two rigs. Every model was run on both
+arms, so the imagery is the only thing that moves. ΔF1 is `laurens_gsv` minus
+`laurens_mapillary`:
+
+| model | Mapillary (GoPro Max) | GSV (zoom 5) | ΔF1 |
+|---|---|---|---|
+| **rampnet** | 0.543 | **0.659** | **+0.115** |
+| y11x_pano_h200 | 0.529 | 0.568 | +0.039 |
+| y11l_pano | 0.563 | 0.587 | +0.024 |
+| grounding-dino-base | 0.045 | 0.054 | +0.008 |
+| gemini-3.6-flash | 0.277 | 0.274 | −0.003 |
+| owlv2-large-patch14-ensemble | 0.062 | 0.055 | −0.007 |
+| gemini-3.7-flash | 0.281 | 0.261 | −0.020 |
+| allenai/Molmo2-8B | 0.339 | 0.307 | −0.032 |
+| y26_pano | 0.574 | 0.538 | −0.036 |
+| Qwen3-VL-32B-Instruct | 0.066 | 0.018 | −0.048 |
+| Qwen3-VL-8B-Instruct | 0.210 | 0.161 | −0.049 |
+| gemini-3.1-pro-preview | 0.343 | 0.279 | −0.064 |
+
+Three readings, in decreasing order of how well the data supports them:
+
+1. **The town is not the problem.** Every zero-shot challenger is flat or *worse* on the
+   imagery RampNet prefers — seven of eight move down, none moves up by more than 0.008. If
+   rural streetscape were intrinsically hard, the arm that is easier for RampNet would be
+   easier for them too. It is not. So Laurens' headline recall of 0.390 is not "rural defeats
+   detectors"; it is RampNet meeting an out-of-domain rig.
+2. **The RampNet–YOLO ordering flips between the arms.** On Mapillary the supervised baseline
+   wins (`y26_pano` 0.574, `y11l_pano` 0.563, against 0.543); on GSV RampNet leads by 0.072
+   (0.659 against `y11l_pano`'s 0.587). The claim "YOLO beats RampNet on the rural split" is
+   therefore really "**on non-GSV imagery**", and it does not survive changing the rig over
+   the same ground.
+3. **Being GSV-trained is not the whole mechanism.** The YOLO arms were trained on the same
+   GSV-derived dataset, so if in-domain imagery were sufficient they should gain like RampNet
+   did. They barely move: +0.039, +0.024, and `y26_pano` goes the *other* way. RampNet's
+   +0.115 is three to five times larger, so **RampNet is markedly more rig-sensitive than a
+   YOLO trained on its own data** — which points at its preprocessing and 2048×4096 input
+   rather than at the training distribution alone. That is the open question this split hands
+   to #151, not one it closes.
+
+Two caveats travel with the table. **It is unpaired**: the arms are different panorama sets
+with different GT (249 ramps against 220), so ΔF1 compares two samples of one town, not the
+same corners twice. The ~51 corners inside 20 m of each other are the paired subset that
+would turn this into a measurement, and both arms' detections are now committed, so that
+analysis needs no new inference. And **the AP column is not comparable across the two arms
+for RampNet**: `laurens_mapillary` has a 0.05-floor `op_cache` and `laurens_gsv` does not, so
+its 0.494 is truncated at the deployed 0.55 while the other arm's 0.691 is not. The F1, P and
+R columns are comparable — both arms are read at 0.55.
+
 **sao_paulo** (125 reviewed panos, 281 GT ramps) — the second non-US split (2026-08-01),
 reviewer confidence **HIGH**; NBR 9050 design vocabulary on GSV (the same imagery path as
 bend/paterson/gainesville — see `benchmark/README.md` for what the split de-confounds)

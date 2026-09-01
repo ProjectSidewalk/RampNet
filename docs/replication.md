@@ -20,7 +20,7 @@ lives on one machine.
 | `benchmark/miss_taxonomy_46/*.json` (human verdicts) | small | **committed** | ✅ |
 | RampNet model weights | — | HF `projectsidewalk/rampnet-model` | ✅ |
 | Stage 1 dataset | **463 GB** (test split ~44 GB) | HF `projectsidewalk/rampnet-dataset` | ✅ |
-| `benchmark/model_detections/` (challenger detections) | 24.1 MB (125 files) | **committed** ✅ | ✅ |
+| `benchmark/model_detections/` (challenger detections) | 25.1 MB (136 files) | **committed** ✅ | ✅ |
 | **`location_data/` (the paper's government inventories)** | 71.8 MB | **committed** ✅ | ✅ |
 | **`street_data/` derivative (what the pipeline actually reads)** | 18.7 MB | **committed** ✅ | ✅ |
 | `street_data/` raw downloads (NY file alone is 669 MB) | 801 MB | git-ignored; HF #21 pending | ⚠️ superseded by the derivative |
@@ -41,14 +41,14 @@ in this sentence — the list here was one of the things that drifted.
 single-panorama shards keyed by an opaque SHA-1 of (label, signature, city, pano), unreadable
 without reconstructing detector signatures. `scripts/analysis/export_model_cache.py` consolidates
 it into human-readable files, one per (model, split), keyed by panorama id with the detector
-signature recorded inside. As of 2026-09-01 that is **125 files, 24.1 MB**, and every one of
+signature recorded inside. As of 2026-09-01 that is **136 files, 25.1 MB**, and every one of
 them belongs to a registered leg:
 
 | what | files | where it is written up |
 |---|---:|---|
-| the standing zero-shot roster, eleven splits each (two Gemini legs are absent on `manual_gold`) | 75 | the roster tables in [`model_comparison.md`](model_comparison.md) |
-| `gemini-3.7-flash`, eleven splits, published ahead of its write-up (#120) | 11 | §below |
-| the supervised YOLO pano trio, eleven splits each (#51) | 33 | [`model_comparison.md` §supervised baseline](model_comparison.md), and the [training record](../scripts/model_comparison/yolo_baseline/README.md) |
+| the standing zero-shot roster, twelve splits each (two Gemini legs are absent on `manual_gold`) | 82 | the roster tables in [`model_comparison.md`](model_comparison.md) |
+| `gemini-3.7-flash`, twelve splits, published ahead of its write-up (#120) | 12 | §below |
+| the supervised YOLO pano trio, twelve splits each (#51) | 36 | [`model_comparison.md` §supervised baseline](model_comparison.md), and the [training record](../scripts/model_comparison/yolo_baseline/README.md) |
 | the four annapolis Claude legs (#122) | 4 | [`model_comparison.md` §Claude](model_comparison.md) |
 | the two Mapillary Vistas class-set arms, richmond only (#126) | 2 | [`model_comparison.md` §Vistas](model_comparison.md) |
 
@@ -110,7 +110,7 @@ test rather than a promise.
 
 #### The gemini-3.7-flash leg is published but off the default roster
 
-`benchmark/model_detections/gemini-3.7-flash__*.json` covers **all eleven splits**, including
+`benchmark/model_detections/gemini-3.7-flash__*.json` covers **all twelve splits**, including
 `manual_gold` (1,000 panoramas, 0 uncached — that leg finished 2026-08-15 08:04 UTC, after the
 first nine were exported). It is currently the only Gemini with a `manual_gold` file: the other
 two are absent for a different reason, their `manual_gold` detections not being in the cache
@@ -121,6 +121,13 @@ python scripts/analysis/export_model_cache.py --models gemini:gemini-3.7-flash
 python scripts/analysis/export_model_cache.py --verify --models gemini:gemini-3.7-flash
 # -> compared 10 (model, split) pair(s); published detections score IDENTICALLY
 ```
+
+#### The two Laurens arms (2026-09-01)
+
+Both arms of Laurens — `laurens_mapillary` (pooled) and `laurens_gsv` (held out, the #151
+discriminator) — were run through the identical leg list, which is what makes their ΔF1
+table in `model_comparison.md` a comparison of rigs rather than of protocols. Substitute
+`laurens_gsv` for `laurens_mapillary` in every command below to reproduce the second arm.
 
 #### The `laurens_mapillary` legs (2026-09-01)
 

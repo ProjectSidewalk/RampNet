@@ -124,6 +124,45 @@ def test_held_out_splits_are_not_in_the_pooled_basis():
     assert set(md.ALL_SPLITS) == set(md.US_SPLITS) | set(md.HELD_OUT)
 
 
+def test_a_city_contributes_at_most_one_pooled_split():
+    """One city, one pooled row — the rule docs/adding_a_benchmark_city.md states.
+
+    Laurens is the only city run on two imagery rigs, and the two arms sample one
+    1.91 km2 town: 59% of `laurens_gsv`'s panos sit within 20 m of a
+    `laurens_mapillary` one (median nearest neighbour 17.2 m), so they largely see
+    the same physical curb ramps. Pooling both would count those ramps twice and
+    break the independence the Wilson intervals assume — and it would do it
+    silently, by moving every pooled number a little.
+
+    So the second arm is held out, and this is what enforces it rather than
+    anyone remembering. Splits with no `CITY_OF` entry are their own city, which
+    keeps the registry to the one line per genuine ambiguity.
+    """
+    import low_floor_sweep as lfs
+    seen = {}
+    for split in lfs.US_SPLITS:
+        city = lfs.CITY_OF.get(split, split)
+        assert city not in seen, (
+            f"{split} and {seen[city]} are both pooled and are both the city "
+            f"{city!r}. A second imagery arm must go in HELD_OUT, not US_SPLITS.")
+        seen[city] = split
+
+
+def test_every_multi_arm_city_is_declared_in_city_of():
+    """A second arm that nobody declared reads as an unrelated city, and the guard
+    above then passes vacuously — which is the failure mode that matters, because
+    it looks identical to having no second arm at all."""
+    import low_floor_sweep as lfs
+    for split in lfs.ALL_SPLITS:
+        base = split.rsplit("_", 1)[0]
+        siblings = [s for s in lfs.ALL_SPLITS if s != split and s.startswith(base + "_")]
+        if siblings:
+            assert split in lfs.CITY_OF, (
+                f"{split} shares the prefix {base!r} with {siblings} but has no "
+                f"CITY_OF entry, so the one-pooled-split-per-city guard cannot see "
+                f"the pairing.")
+
+
 def test_registries_agree_with_low_floor_sweep():
     """The two split registries must cover the same splits.
 

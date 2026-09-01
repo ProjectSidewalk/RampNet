@@ -26,6 +26,7 @@ SPLIT_HEADER = {
     "paterson": "pater",
     "gainesville": "gaines",
     "laurens_mapillary": "laur_mly",
+    "laurens_gsv": "laur_gsv †",
     "budapest_district5": "budapest †",
     "sao_paulo": "sao_paulo †",
     "manual_gold": "manual_gold †",
@@ -209,13 +210,25 @@ def ap_provenance_table(result):
         if not cell:
             continue
         substituted = cell["ap_source"] != "bundle"
+        floor = cell.get("bundle_floor")
+        low_floor_bundle = floor is not None and floor < 0.4
+        if substituted:
+            read_from, why = ("`op_cache` (0.05 floor)",
+                              "truncated at the deployed 0.55")
+        elif low_floor_bundle:
+            read_from, why = ("bundle — already at 0.05",
+                              "no truncation to undo; flip-TTA export")
+        else:
+            # Truncated like the substituted rows, but with no low-floor cache to
+            # swap in -- a held-out split never went through the #54 re-extraction.
+            read_from, why = ("bundle — 0.55 floor, no `op_cache`",
+                              "**truncated**; not comparable with the rows above")
         rows.append([
             f"`{split}`",
             num(cell["ap_bundle"]),
             bold(num(cell["ap"]), substituted),
-            "`op_cache` (0.05 floor)" if substituted else "bundle — already at 0.05",
-            "truncated at the deployed 0.55" if substituted
-            else "no truncation to undo; flip-TTA export",
+            read_from,
+            why,
         ])
     return _table(["split", "AP in `model_comparison.md`", "AP here", "read from", "why"],
                   rows, ["---", "--:", "--:", "---", "---"])

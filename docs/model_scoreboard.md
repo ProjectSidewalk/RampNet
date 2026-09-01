@@ -118,26 +118,26 @@ numbers are directly above them in `model_comparison.md`:
 
 <!-- BEGIN GENERATED: by-split (scripts/analysis/scoreboard.py) -->
 
-| model | rich | bend | clovis | morg | annap | pater | gaines | laur_mly | **pooled** | budapest † | sao_paulo † | manual_gold † |
-|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|
-| **RampNet** | **0.855** | **0.850** | **0.801** | **0.835** | **0.839** | **0.805** | **0.803** | 0.543 | **0.792** | **0.644** | **0.777** | **0.908** |
-| YOLO11l (pano) | 0.595 | 0.713 | 0.600 | 0.675 | 0.481 | 0.647 | 0.516 | 0.563 | 0.599 | 0.247 | 0.662 | 0.839 |
-| YOLO11x (pano) | 0.547 | 0.710 | 0.551 | 0.686 | 0.397 | 0.635 | 0.499 | 0.529 | 0.569 | 0.221 | 0.659 | 0.851 |
-| YOLO26 (pano) | 0.491 | 0.637 | 0.552 | 0.681 | 0.450 | 0.591 | 0.451 | **0.574** | 0.553 | 0.277 | 0.605 | 0.739 |
-| Gemini 3.1 Pro | 0.667 | 0.638 | 0.514 | 0.643 | 0.567 | 0.681 | 0.548 | 0.343 | 0.575 | 0.381 | 0.454 | – |
-| Gemini 3.7 Flash | 0.664 | 0.639 | 0.504 | 0.595 | 0.565 | 0.609 | 0.456 | 0.281 | 0.539 | 0.338 | 0.358 | 0.527 |
-| Gemini 3.6 Flash | 0.634 | 0.597 | 0.483 | 0.633 | 0.554 | 0.608 | 0.438 | 0.277 | 0.528 | 0.336 | 0.346 | – |
-| Qwen3-VL-8B | 0.377 | 0.359 | 0.257 | 0.340 | 0.327 | 0.405 | 0.302 | 0.210 | 0.322 | 0.169 | 0.219 | 0.386 |
-| Qwen3-VL-32B | 0.427 | 0.415 | 0.311 | 0.426 | 0.398 | 0.347 | 0.168 | 0.066 | 0.320 | 0.079 | 0.218 | 0.285 |
-| Molmo2-8B | 0.457 | 0.449 | 0.381 | 0.463 | 0.424 | 0.511 | 0.329 | 0.339 | 0.419 | 0.274 | 0.326 | 0.422 |
-| OWLv2-large | 0.064 | 0.071 | 0.049 | 0.071 | 0.063 | 0.077 | 0.060 | 0.062 | 0.065 | 0.062 | 0.052 | 0.088 |
-| Grounding DINO | 0.053 | 0.073 | 0.035 | 0.042 | 0.055 | 0.068 | 0.055 | 0.045 | 0.053 | 0.042 | 0.049 | 0.082 |
-| Mask2Former Vistas (curb cut) | 0.517 | – | – | – | – | – | – | – | – | – | – | – |
-| Mask2Former Vistas (+curb) | 0.210 | – | – | – | – | – | – | – | – | – | – | – |
-| Claude Opus 5 (low) | – | – | – | – | 0.588 | – | – | – | – | – | – | – |
-| Claude Opus 5 (high) | – | – | – | – | 0.520 | – | – | – | – | – | – | – |
-| Claude Sonnet 5 (low) | – | – | – | – | 0.463 | – | – | – | – | – | – | – |
-| Claude Sonnet 5 (high) | – | – | – | – | 0.456 | – | – | – | – | – | – | – |
+| model | rich | bend | clovis | morg | annap | pater | gaines | laur_mly | **pooled** | laur_gsv † | budapest † | sao_paulo † | manual_gold † |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|
+| **RampNet** | **0.855** | **0.850** | **0.801** | **0.835** | **0.839** | **0.805** | **0.803** | 0.543 | **0.792** | **0.659** | **0.644** | **0.777** | **0.908** |
+| YOLO11l (pano) | 0.595 | 0.713 | 0.600 | 0.675 | 0.481 | 0.647 | 0.516 | 0.563 | 0.599 | 0.587 | 0.247 | 0.662 | 0.839 |
+| YOLO11x (pano) | 0.547 | 0.710 | 0.551 | 0.686 | 0.397 | 0.635 | 0.499 | 0.529 | 0.569 | 0.568 | 0.221 | 0.659 | 0.851 |
+| YOLO26 (pano) | 0.491 | 0.637 | 0.552 | 0.681 | 0.450 | 0.591 | 0.451 | **0.574** | 0.553 | 0.538 | 0.277 | 0.605 | 0.739 |
+| Gemini 3.1 Pro | 0.667 | 0.638 | 0.514 | 0.643 | 0.567 | 0.681 | 0.548 | 0.343 | 0.575 | 0.279 | 0.381 | 0.454 | – |
+| Gemini 3.7 Flash | 0.664 | 0.639 | 0.504 | 0.595 | 0.565 | 0.609 | 0.456 | 0.281 | 0.539 | 0.261 | 0.338 | 0.358 | 0.527 |
+| Gemini 3.6 Flash | 0.634 | 0.597 | 0.483 | 0.633 | 0.554 | 0.608 | 0.438 | 0.277 | 0.528 | 0.274 | 0.336 | 0.346 | – |
+| Qwen3-VL-8B | 0.377 | 0.359 | 0.257 | 0.340 | 0.327 | 0.405 | 0.302 | 0.210 | 0.322 | 0.161 | 0.169 | 0.219 | 0.386 |
+| Qwen3-VL-32B | 0.427 | 0.415 | 0.311 | 0.426 | 0.398 | 0.347 | 0.168 | 0.066 | 0.320 | 0.018 | 0.079 | 0.218 | 0.285 |
+| Molmo2-8B | 0.457 | 0.449 | 0.381 | 0.463 | 0.424 | 0.511 | 0.329 | 0.339 | 0.419 | 0.307 | 0.274 | 0.326 | 0.422 |
+| OWLv2-large | 0.064 | 0.071 | 0.049 | 0.071 | 0.063 | 0.077 | 0.060 | 0.062 | 0.065 | 0.055 | 0.062 | 0.052 | 0.088 |
+| Grounding DINO | 0.053 | 0.073 | 0.035 | 0.042 | 0.055 | 0.068 | 0.055 | 0.045 | 0.053 | 0.054 | 0.042 | 0.049 | 0.082 |
+| Mask2Former Vistas (curb cut) | 0.517 | – | – | – | – | – | – | – | – | – | – | – | – |
+| Mask2Former Vistas (+curb) | 0.210 | – | – | – | – | – | – | – | – | – | – | – | – |
+| Claude Opus 5 (low) | – | – | – | – | 0.588 | – | – | – | – | – | – | – | – |
+| Claude Opus 5 (high) | – | – | – | – | 0.520 | – | – | – | – | – | – | – | – |
+| Claude Sonnet 5 (low) | – | – | – | – | 0.463 | – | – | – | – | – | – | – | – |
+| Claude Sonnet 5 (high) | – | – | – | – | 0.456 | – | – | – | – | – | – | – | – |
 
 <!-- END GENERATED: by-split -->
 
@@ -308,6 +308,7 @@ apart without failing CI:
 | `paterson` | 0.681 | **0.748** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `gainesville` | 0.691 | **0.846** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `laurens_mapillary` | 0.377 | **0.691** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
+| `laurens_gsv` | 0.494 | 0.494 | bundle — 0.55 floor, no `op_cache` | **truncated**; not comparable with the rows above |
 | `budapest_district5` | 0.478 | **0.648** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `sao_paulo` | 0.666 | **0.812** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `manual_gold` | 0.917 | 0.917 | bundle — already at 0.05 | no truncation to undo; flip-TTA export |
@@ -387,6 +388,7 @@ Omissions are content, so they are named rather than left as blanks:
 | `paterson` | pooled | 125 | 395 | US deployment city, verdict-grade GT |
 | `gainesville` | pooled | 125 | 272 | US deployment city, verdict-grade GT |
 | `laurens_mapillary` | pooled | 94 | 249 | US deployment city, verdict-grade GT |
+| `laurens_gsv` | held out † | 86 | 220 | second imagery arm of laurens, which is already pooled through laurens_mapillary -- the two arms sample one town and largely the same physical ramps (59% of gsv panos within 20 m of a mapillary one, median NN 17.2 m), so pooling both would double-count them and break the independence the Wilson intervals assume (GT is HIGH confidence; held out for non-independence, not GT quality) |
 | `budapest_district5` | held out † | 125 | 300 | single-rater GT at low reviewer confidence (docs/model_comparison.md: do not pool) |
 | `sao_paulo` | held out † | 125 | 281 | non-US city — the pooled recommendation is a US-deployment basis (GT is HIGH reviewer confidence; held out for geography, not GT quality) |
 | `manual_gold` | held out † | 1000 | 3919 | in-distribution GSV + independently-labelled GT (in-domain reference, not a deployment city) |
