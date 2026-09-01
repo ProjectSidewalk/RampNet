@@ -112,6 +112,14 @@ After removing the handicap, the best YOLO cell that exists is **0.667 against R
 0.827 — a residual 0.160 F1**. The claim "the architecture is what RampNet contributes"
 still holds; the honest magnitude is **0.16, not 0.25**, and #51's write-up should say so.
 
+> **Superseded, 2026-09-01.** Both numbers in that sentence are read at operating points
+> chosen by different procedures — RampNet at its shipped 0.55, every YOLO leg at the
+> Ultralytics default 0.25. Give each model a threshold selected the same way and the
+> residual falls to **0.039**. See
+> [`operating_point_parity_51.md`](operating_point_parity_51.md). The geometry decomposition
+> below is unaffected — it compares YOLO legs to each other, all at the same 0.25 — but the
+> *headline against RampNet* on this page should be read as 0.039, not 0.160.
+
 Note the shape is unchanged: RampNet still wins on **recall** (0.728 vs 0.520) while YOLO
 holds comparable precision. Every version of this comparison lands in the same place —
 finding the ramps is the hard part.
@@ -141,10 +149,26 @@ The tiles arm at ep44 — undertrained, on free preempted GPU — is already the
 in the grid on the pooled US splits. Finishing it is unlikely to change any conclusion in #51,
 and the decomposition it would sharpen is the *budget* term, which is the confounded one.
 
-**A cheaper experiment answers more**: score the tiles checkpoints that already exist at
-several epochs (they are on durable storage) and get a proper F1-vs-epoch curve on the
-benchmark rather than on YOLO's val split. That is CPU/GPU-minutes, not 400 GPU-hours, and it
-would turn the fork-confounded budget term into a measured one.
+**A cheaper experiment was proposed here and it cannot be run.** The original version of this
+section suggested scoring "the tiles checkpoints that already exist at several epochs" to turn
+the fork-confounded budget term into a measured one. **Those checkpoints do not exist.** Every
+arm was trained with `save_period: -1`, so Ultralytics kept only `best.pt` and `last.pt`;
+`find` over both the durable snapshot and `/gscratch/scrubbed/jfroehli/yolo_runs` returns zero
+`epoch*.pt` files, and `best.pt`/`last.pt` are 0–4 epochs apart (tiles 43 vs 44, pano 35 vs 38,
+h200 60 vs 60). The `y11x_pano_h200` arm was a *resume*, so it inherited `save_period=-1` and
+the Tillicum launcher's `SAVE_PERIOD=5` never applied to it.
+
+`retarget_yolo_checkpoint.py` already says so in as many words — "per-epoch weights cannot be
+recovered for an arm that did not start with it" — which is the docstring this section
+contradicted. **The budget term cannot be de-confounded cheaply**: per-epoch weights require
+*starting* a run with `save_period` set, and a resume honours the value saved in the
+checkpoint, so a fresh-start run would reset the LR schedule and stop being a continuation.
+It is the full retrain or nothing. Given that the geometry term is the better-controlled half
+and is already measured, leaving the budget term confounded is the right call.
+
+**What did turn out to be cheap** is fixing the operating-point asymmetry — see
+[`operating_point_parity_51.md`](operating_point_parity_51.md), which needed no GPU at all and
+moved the headline four times further than any of this.
 
 ## Gaps, stated
 
