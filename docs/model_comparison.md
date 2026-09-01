@@ -431,6 +431,50 @@ Three things gainesville adds:
    at all). OWLv2's 0.967 recall — its highest anywhere — is mostly density: 67.9 boxes/pano
    and a 0.722 null (see the null-recall section).
 
+**laurens_mapillary** (94 reviewed panos, 249 GT ramps) — the first **rural** split
+(2026-08-31), reviewer confidence HIGH; a consumer GoPro Max 360 rig over a 1.91 km² town
+of 1,264 people. The eighth US split, and the one RampNet does worst on by a factor of two.
+
+| model | P | R | F1 | AP | tp/fp/fn |
+|---|---|---|---|---|---|
+| **rampnet** | **0.898** | 0.390 | **0.543** | 0.377 | 97/11/152 |
+| gemini-3.1-pro-preview | 0.516 | 0.257 | 0.343 | – | 64/60/185 |
+| **molmo2-8B** (points) | 0.359 | **0.321** | 0.339 | – | 80/143/169 |
+| gemini-3.6-flash | 0.446 | 0.201 | 0.277 | – | 50/62/199 |
+| Qwen3-VL-8B-Instruct | 0.220 | 0.201 | 0.210 | – | 50/177/199 |
+| **Qwen3-VL-32B-Instruct** | 0.360 | **0.036** | **0.066** | – | 9/16/240 |
+| owlv2-large-patch14-ensemble | 0.032 | **0.851** | 0.062 | 0.054 | 212/6391/37 |
+| grounding-dino-base | 0.023 | 0.783 | 0.045 | 0.025 | 195/8162/54 |
+
+Best sweep F1: OWLv2 **0.099** (thr 0.15), Grounding DINO **0.060** (thr 0.15).
+
+Three things laurens adds:
+
+1. **RampNet's worst split is still a 0.200 lead over the best zero-shot challenger.** Its
+   recall halves against every other US split (0.390 against clovis's next-worst 0.650), but
+   the challengers fall further: gemini-pro lands at 0.343, its second-lowest US F1. So the
+   rural deficit is not RampNet-specific in the zero-shot field — whatever makes this town
+   hard makes it hard for everything that has never seen a curb ramp label. What it is *not*
+   is a ramp-poor or weak sample: laurens is ramp-**rich** (2.65 ramps/pano, third of ten).
+2. **The supervised YOLO baseline beats RampNet here — the first split where that happens at
+   the pre-registered operating point.** Under the #71 protocol (conf 0.25) `y26_pano` reads
+   F1 **0.574** and `y11l_pano` **0.563**, against RampNet's 0.543; `y11x_pano_h200` is
+   0.529. The margin is small and one-sided in a specific way: the YOLO arms win on
+   **recall** (0.450 and 0.402 vs 0.390) while RampNet keeps the precision (0.898 vs y26's
+   0.794). And it is an operating-point result, not a curve result — read full-range at the
+   0.05 floor RampNet's AP is **0.691**, still the highest of the four (y11l 0.689, y11x
+   0.675, y26 0.627). The same pattern the matched-operating-point work found on
+   `manual_gold` shows up here in its sharpest form: RampNet's deployed 0.55 costs it more
+   on rural imagery than the architecture does.
+3. **The Qwen-32B inversion recurs a fourth time, and this is its most extreme instance.**
+   32B falls below 8B again (0.066 vs 0.210) by the documented mechanism — it stops firing:
+   **0.27 boxes/pano**, far below its previous US floor (gainesville 0.6, paterson 0.9), for
+   recall 0.036 on 249 ramps. Four splits now reproduce the swap, three of them
+   HIGH-confidence US GT, so 32B's conservatism on unusual-looking infrastructure is
+   established rather than suggestive; rural streetscape is simply the strongest dose of it
+   the benchmark has. OWLv2's 0.851 recall against RampNet's 0.390 is, as everywhere, mostly
+   density — 68.0 boxes/pano — and is not a recall ceiling anyone can deploy.
+
 **sao_paulo** (125 reviewed panos, 281 GT ramps) — the second non-US split (2026-08-01),
 reviewer confidence **HIGH**; NBR 9050 design vocabulary on GSV (the same imagery path as
 bend/paterson/gainesville — see `benchmark/README.md` for what the split de-confounds)

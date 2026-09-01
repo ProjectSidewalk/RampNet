@@ -262,26 +262,35 @@ recommendation below rests on the recall-first policy, the density budget and re
 instead. Note also how the per-split optima (the dots) cluster in a narrow band while the
 *levels* differ a lot — that is the same pattern the per-tier table shows.
 
-### Pooled across the seven US city splits (n = 859 panos)
+### Pooled across the eight US city splits (n = 953 panos)
 
 Wilson 95% intervals in brackets.
 
 | threshold | precision | recall | F1 | detections/pano |
 |---|---|---|---|---|
-| 0.25 | 0.877 [0.861, 0.891] | 0.805 [0.788, 0.822] | 0.840 | 2.34 |
-| 0.30 | 0.900 [0.886, 0.913] | 0.793 [0.775, 0.810] | 0.843 | 2.23 |
-| **0.32** | 0.908 [0.894, 0.920] | 0.789 [0.771, 0.806] | **0.844** | 2.20 |
-| 0.35 | 0.915 [0.901, 0.927] | 0.780 [0.761, 0.797] | 0.842 | 2.15 |
-| 0.40 | 0.933 [0.920, 0.944] | 0.768 [0.750, 0.786] | 0.843 | 2.07 |
-| 0.45 | 0.944 [0.932, 0.954] | 0.752 [0.733, 0.770] | 0.837 | 1.99 |
-| 0.50 | 0.960 [0.949, 0.968] | 0.738 [0.719, 0.757] | 0.835 | 1.93 |
-| **0.55** (deployed) | 0.964 [0.953, 0.972] | 0.722 [0.703, 0.741] | 0.826 | 1.86 |
+| 0.25 | 0.876 [0.861, 0.890] | 0.780 [0.763, 0.797] | 0.825 | 2.28 |
+| 0.30 | 0.899 [0.885, 0.912] | 0.764 [0.746, 0.781] | 0.826 | 2.17 |
+| **0.32** | 0.907 [0.893, 0.919] | 0.760 [0.742, 0.777] | **0.827** | 2.14 |
+| 0.35 | 0.913 [0.900, 0.925] | 0.749 [0.731, 0.766] | 0.823 | 2.09 |
+| 0.40 | 0.930 [0.918, 0.941] | 0.735 [0.717, 0.753] | 0.821 | 2.01 |
+| 0.45 | 0.941 [0.929, 0.951] | 0.716 [0.697, 0.734] | 0.813 | 1.92 |
+| 0.50 | 0.955 [0.944, 0.964] | 0.701 [0.682, 0.719] | 0.809 | 1.85 |
+| **0.55** (deployed) | 0.959 [0.949, 0.968] | 0.686 [0.667, 0.705] | 0.800 | 1.80 |
 
-**F1 is flat.** It varies by under 0.01 across 0.25–0.50 and only drops (to 0.826) at the
-deployed 0.55 itself, so F1-optimality alone does not pick an operating point — a finding
-worth stating plainly, because "F1-optimal" is the obvious criterion and here it is nearly
-uninformative. What *does* move decisively is recall: 0.722 → 0.789 at 0.32, with
-**non-overlapping** confidence intervals.
+Re-pooled 2026-09-01 over eight splits: `laurens_mapillary` joined the pool and it is
+the split RampNet does worst on by a factor of two (recall 0.390), so every recall and
+F1 cell here is lower than the seven-split version this table replaces (0.55 was
+0.964 / 0.722 / 0.826). **Precision is essentially untouched** — 0.964 → 0.959 — which
+is the point: Laurens costs recall, not precision. The threshold ordering, the
+F1-optimum and the recommendation are all unchanged.
+
+**F1 is flat.** It varies by under 0.02 across 0.25–0.50 and drops furthest (to 0.800) at
+the deployed 0.55 itself, so F1-optimality alone does not pick an operating point — a
+finding worth stating plainly, because "F1-optimal" is the obvious criterion and here it is
+nearly uninformative. What *does* move decisively is recall: 0.686 → 0.760 at 0.32, with
+**non-overlapping** confidence intervals. (Seven-split: 0.722 → 0.789, span under 0.01.
+Adding Laurens widened the F1 span because its own curve peaks far lower, at 0.15; it did
+not move the pooled optimum, which is still 0.32.)
 
 ### Per split, 0.55 → 0.32
 
@@ -294,6 +303,7 @@ uninformative. What *does* move decisively is recall: 0.722 → 0.789 at 0.32, w
 | annapolis | 0.973 | 0.738 | 0.912 | 0.806 | +0.068 | −0.062 | 1.82 → 2.13 | 0.32 |
 | paterson | 0.971 | 0.681 | 0.953 | 0.716 | +0.035 | −0.018 | 2.25 → 2.44 | 0.26 |
 | gainesville | 0.948 | 0.673 | 0.867 | 0.768 | +0.096 | −0.081 | 1.58 → 1.98 | 0.38 |
+| laurens_mapillary | 0.898 | 0.390 | 0.895 | 0.514 | +0.124 | −0.003 | 1.18 → 1.57 | 0.15 |
 | budapest † | 0.874 | 0.510 | 0.718 | 0.637 | +0.127 | −0.156 | 1.51 → 2.27 | 0.37 |
 | sao_paulo § | 0.906 | 0.651 | 0.809 | 0.783 | **+0.132** | −0.097 | 1.82 → 2.50 | 0.31 |
 | manual_gold ‡ | 0.955 | 0.849 | 0.926 | 0.884 | +0.035 | −0.028 | 3.49 → 3.74 | 0.36 |

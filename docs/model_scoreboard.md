@@ -29,7 +29,18 @@ model, and the reasons are in "How to read this" below.
 
 | model | class | op | P | R | F1 | ΔF1 vs RampNet | AP (macro) | FP/pano | F1 range |
 |---|---|--:|--:|--:|--:|--:|--:|--:|:-:|
-| **RampNet** | purpose-trained | 0.55 | **0.951** | **0.686** | **0.792** | — | 0.829&nbsp;† | 0.1 | 0.54–0.85 |
+| **RampNet** | purpose-trained | 0.55 | 0.951 | 0.686 | **0.792** | — | 0.829&nbsp;† | 0.1 | 0.54–0.85 |
+| YOLO11l (pano) | supervised baseline | 0.25 | 0.940 | 0.443 | 0.599 | -0.193 | 0.718 | 0.1 | 0.48–0.71 |
+| YOLO11x (pano) | supervised baseline | 0.25 | **0.967** | 0.409 | 0.569 | -0.222 | 0.723 | 0.0 | 0.40–0.71 |
+| YOLO26 (pano) | supervised baseline | 0.25 | 0.744 | 0.447 | 0.553 | -0.238 | 0.606 | 0.4 | 0.45–0.68 |
+| Gemini 3.1 Pro | chat VLM | no score | 0.638 | 0.533 | 0.575 | -0.217 | – | 0.7 | 0.34–0.68 |
+| Gemini 3.7 Flash | chat VLM | no score | 0.679 | 0.458 | 0.539 | -0.252 | – | 0.5 | 0.28–0.66 |
+| Gemini 3.6 Flash | chat VLM | no score | 0.571 | 0.505 | 0.528 | -0.264 | – | 0.9 | 0.28–0.63 |
+| Qwen3-VL-8B | chat VLM | no score | 0.312 | 0.340 | 0.322 | -0.469 | – | 1.8 | 0.21–0.41 |
+| Qwen3-VL-32B | chat VLM | no score | 0.626 | 0.220 | 0.320 | -0.472 | – | 0.3 | 0.07–0.43 |
+| Molmo2-8B | pointing model | no score | 0.423 | 0.425 | 0.419 | -0.372 | – | 1.4 | 0.33–0.51 |
+| OWLv2-large | open-vocab detector | 0.05 floor | 0.033 | **0.932** | 0.065 | -0.727 | 0.092 | 65.2 | 0.05–0.08 |
+| Grounding DINO | open-vocab detector | 0.05 floor | 0.028 | 0.848 | 0.053 | -0.738 | 0.036 | 73.5 | 0.03–0.07 |
 
 <!-- END GENERATED: headline -->
 
@@ -78,120 +89,12 @@ column exists to prevent. They are reported per split instead, at the split they
 
 | model | class | split | P | R | F1 | AP | FP/pano | tp/fp/fn |
 |---|---|---|--:|--:|--:|--:|--:|--:|
-| YOLO11l (pano) | supervised baseline | `richmond` | 0.925 | 0.439 | 0.595 | 0.724 | 0.1 | 136/11/174 |
-| YOLO11l (pano) | supervised baseline | `bend` | 0.964 | 0.566 | 0.713 | 0.778 | 0.1 | 185/7/142 |
-| YOLO11l (pano) | supervised baseline | `clovis` | 0.916 | 0.446 | 0.600 | 0.708 | 0.1 | 87/8/108 |
-| YOLO11l (pano) | supervised baseline | `morgantown` | 0.946 | 0.524 | 0.675 | 0.797 | 0.1 | 140/8/127 |
-| YOLO11l (pano) | supervised baseline | `annapolis` | 0.969 | 0.320 | 0.481 | 0.619 | 0.0 | 94/3/200 |
-| YOLO11l (pano) | supervised baseline | `paterson` | 0.946 | 0.491 | 0.647 | 0.793 | 0.1 | 194/11/201 |
-| YOLO11l (pano) | supervised baseline | `gainesville` | 0.907 | 0.360 | 0.516 | 0.639 | 0.1 | 98/10/174 |
-| YOLO11l (pano) | supervised baseline | `budapest_district5` | 0.786 | 0.147 | 0.247 | 0.443 | 0.1 | 44/12/256 |
-| YOLO11l (pano) | supervised baseline | `sao_paulo` | 0.902 | 0.523 | 0.662 | 0.784 | 0.1 | 147/16/134 |
-| YOLO11l (pano) | supervised baseline | `manual_gold` | 0.931 | 0.763 | 0.839 | 0.914 | 0.2 | 2992/222/927 |
-| YOLO11x (pano) | supervised baseline | `richmond` | 0.952 | 0.384 | 0.547 | 0.748 | 0.0 | 119/6/191 |
-| YOLO11x (pano) | supervised baseline | `bend` | 0.989 | 0.554 | 0.710 | 0.781 | 0.0 | 181/2/146 |
-| YOLO11x (pano) | supervised baseline | `clovis` | 0.938 | 0.390 | 0.551 | 0.711 | 0.0 | 76/5/119 |
-| YOLO11x (pano) | supervised baseline | `morgantown` | 0.993 | 0.524 | 0.686 | 0.790 | 0.0 | 140/1/127 |
-| YOLO11x (pano) | supervised baseline | `annapolis` | 0.986 | 0.248 | 0.397 | 0.662 | 0.0 | 73/1/221 |
-| YOLO11x (pano) | supervised baseline | `paterson` | 0.974 | 0.471 | 0.635 | 0.800 | 0.0 | 186/5/209 |
-| YOLO11x (pano) | supervised baseline | `gainesville` | 0.948 | 0.338 | 0.499 | 0.616 | 0.0 | 92/5/180 |
-| YOLO11x (pano) | supervised baseline | `budapest_district5` | 0.864 | 0.127 | 0.221 | 0.427 | 0.0 | 38/6/262 |
-| YOLO11x (pano) | supervised baseline | `sao_paulo` | 0.923 | 0.512 | 0.659 | 0.783 | 0.1 | 144/12/137 |
-| YOLO11x (pano) | supervised baseline | `manual_gold` | 0.956 | 0.767 | 0.851 | 0.931 | 0.1 | 3005/139/914 |
-| YOLO26 (pano) | supervised baseline | `richmond` | 0.680 | 0.384 | 0.491 | 0.537 | 0.5 | 119/56/191 |
-| YOLO26 (pano) | supervised baseline | `bend` | 0.733 | 0.563 | 0.637 | 0.661 | 0.6 | 184/67/143 |
-| YOLO26 (pano) | supervised baseline | `clovis` | 0.687 | 0.462 | 0.552 | 0.596 | 0.3 | 90/41/105 |
-| YOLO26 (pano) | supervised baseline | `morgantown` | 0.802 | 0.592 | 0.681 | 0.740 | 0.3 | 158/39/109 |
-| YOLO26 (pano) | supervised baseline | `annapolis` | 0.758 | 0.320 | 0.450 | 0.493 | 0.2 | 94/30/200 |
-| YOLO26 (pano) | supervised baseline | `paterson` | 0.786 | 0.473 | 0.591 | 0.712 | 0.4 | 187/51/208 |
-| YOLO26 (pano) | supervised baseline | `gainesville` | 0.709 | 0.331 | 0.451 | 0.481 | 0.3 | 90/37/182 |
-| YOLO26 (pano) | supervised baseline | `budapest_district5` | 0.639 | 0.177 | 0.277 | 0.350 | 0.2 | 53/30/247 |
-| YOLO26 (pano) | supervised baseline | `sao_paulo` | 0.723 | 0.520 | 0.605 | 0.658 | 0.4 | 146/56/135 |
-| YOLO26 (pano) | supervised baseline | `manual_gold` | 0.740 | 0.739 | 0.739 | 0.843 | 1.0 | 2896/1020/1023 |
 | Mask2Former Vistas (curb cut) | supervised transfer | `richmond` | 0.411 | 0.697 | 0.517 | 0.513 | 2.5 | 216/309/94 |
 | Mask2Former Vistas (+curb) | supervised transfer | `richmond` | 0.126 | 0.648 | 0.210 | 0.089 | 11.3 | 201/1399/109 |
-| Gemini 3.1 Pro | chat VLM | `richmond` | 0.634 | 0.703 | 0.667 | – | 1.0 | 218/126/92 |
-| Gemini 3.1 Pro | chat VLM | `bend` | 0.706 | 0.581 | 0.638 | – | 0.7 | 190/79/137 |
-| Gemini 3.1 Pro | chat VLM | `clovis` | 0.543 | 0.487 | 0.514 | – | 0.6 | 95/80/100 |
-| Gemini 3.1 Pro | chat VLM | `morgantown` | 0.679 | 0.610 | 0.643 | – | 0.6 | 163/77/104 |
-| Gemini 3.1 Pro | chat VLM | `annapolis` | 0.613 | 0.527 | 0.567 | – | 0.8 | 155/98/139 |
-| Gemini 3.1 Pro | chat VLM | `paterson` | 0.852 | 0.567 | 0.681 | – | 0.3 | 224/39/171 |
-| Gemini 3.1 Pro | chat VLM | `gainesville` | 0.564 | 0.533 | 0.548 | – | 0.9 | 145/112/127 |
-| Gemini 3.1 Pro | chat VLM | `budapest_district5` | 0.434 | 0.340 | 0.381 | – | 1.1 | 102/133/198 |
-| Gemini 3.1 Pro | chat VLM | `sao_paulo` | 0.463 | 0.445 | 0.454 | – | 1.2 | 125/145/156 |
 | Claude Opus 5 (low) | chat VLM | `annapolis` | 0.572 | 0.605 | 0.588 | – | 1.1 | 178/133/116 |
-| Gemini 3.7 Flash | chat VLM | `richmond` | 0.744 | 0.600 | 0.664 | – | 0.5 | 186/64/124 |
-| Gemini 3.7 Flash | chat VLM | `bend` | 0.713 | 0.578 | 0.639 | – | 0.7 | 189/76/138 |
-| Gemini 3.7 Flash | chat VLM | `clovis` | 0.571 | 0.451 | 0.504 | – | 0.5 | 88/66/107 |
-| Gemini 3.7 Flash | chat VLM | `morgantown` | 0.701 | 0.517 | 0.595 | – | 0.5 | 138/59/129 |
-| Gemini 3.7 Flash | chat VLM | `annapolis` | 0.734 | 0.459 | 0.565 | – | 0.4 | 135/49/159 |
-| Gemini 3.7 Flash | chat VLM | `paterson` | 0.910 | 0.458 | 0.609 | – | 0.1 | 181/18/214 |
-| Gemini 3.7 Flash | chat VLM | `gainesville` | 0.511 | 0.412 | 0.456 | – | 0.9 | 112/107/160 |
-| Gemini 3.7 Flash | chat VLM | `budapest_district5` | 0.484 | 0.260 | 0.338 | – | 0.7 | 78/83/222 |
-| Gemini 3.7 Flash | chat VLM | `sao_paulo` | 0.561 | 0.263 | 0.358 | – | 0.5 | 74/58/207 |
-| Gemini 3.7 Flash | chat VLM | `manual_gold` | 0.735 | 0.411 | 0.527 | – | 0.6 | 1612/582/2307 |
-| Gemini 3.6 Flash | chat VLM | `richmond` | 0.626 | 0.642 | 0.634 | – | 1.0 | 199/119/111 |
-| Gemini 3.6 Flash | chat VLM | `bend` | 0.608 | 0.587 | 0.597 | – | 1.1 | 192/124/135 |
-| Gemini 3.6 Flash | chat VLM | `clovis` | 0.464 | 0.503 | 0.483 | – | 0.9 | 98/113/97 |
-| Gemini 3.6 Flash | chat VLM | `morgantown` | 0.636 | 0.629 | 0.633 | – | 0.8 | 168/96/99 |
-| Gemini 3.6 Flash | chat VLM | `annapolis` | 0.637 | 0.490 | 0.554 | – | 0.7 | 144/82/150 |
-| Gemini 3.6 Flash | chat VLM | `paterson` | 0.744 | 0.514 | 0.608 | – | 0.6 | 203/70/192 |
-| Gemini 3.6 Flash | chat VLM | `gainesville` | 0.404 | 0.478 | 0.438 | – | 1.5 | 130/192/142 |
-| Gemini 3.6 Flash | chat VLM | `budapest_district5` | 0.353 | 0.320 | 0.336 | – | 1.4 | 96/176/204 |
-| Gemini 3.6 Flash | chat VLM | `sao_paulo` | 0.333 | 0.359 | 0.346 | – | 1.6 | 101/202/180 |
 | Claude Opus 5 (high) | chat VLM | `annapolis` | 0.430 | 0.656 | 0.520 | – | 2.0 | 193/256/101 |
 | Claude Sonnet 5 (low) | chat VLM | `annapolis` | 0.589 | 0.381 | 0.463 | – | 0.6 | 112/78/182 |
 | Claude Sonnet 5 (high) | chat VLM | `annapolis` | 0.506 | 0.415 | 0.456 | – | 1.0 | 122/119/172 |
-| Qwen3-VL-32B | chat VLM | `richmond` | 0.760 | 0.297 | 0.427 | – | 0.2 | 92/29/218 |
-| Qwen3-VL-32B | chat VLM | `bend` | 0.706 | 0.294 | 0.415 | – | 0.4 | 96/40/231 |
-| Qwen3-VL-32B | chat VLM | `clovis` | 0.696 | 0.200 | 0.311 | – | 0.1 | 39/17/156 |
-| Qwen3-VL-32B | chat VLM | `morgantown` | 0.675 | 0.311 | 0.426 | – | 0.3 | 83/40/184 |
-| Qwen3-VL-32B | chat VLM | `annapolis` | 0.608 | 0.296 | 0.398 | – | 0.4 | 87/56/207 |
-| Qwen3-VL-32B | chat VLM | `paterson` | 0.813 | 0.220 | 0.347 | – | 0.2 | 87/20/308 |
-| Qwen3-VL-32B | chat VLM | `gainesville` | 0.392 | 0.107 | 0.168 | – | 0.4 | 29/45/243 |
-| Qwen3-VL-32B | chat VLM | `budapest_district5` | 0.433 | 0.043 | 0.079 | – | 0.1 | 13/17/287 |
-| Qwen3-VL-32B | chat VLM | `sao_paulo` | 0.506 | 0.139 | 0.218 | – | 0.3 | 39/38/242 |
-| Qwen3-VL-32B | chat VLM | `manual_gold` | 0.739 | 0.177 | 0.285 | – | 0.2 | 693/245/3226 |
-| Qwen3-VL-8B | chat VLM | `richmond` | 0.323 | 0.452 | 0.377 | – | 2.4 | 140/293/170 |
-| Qwen3-VL-8B | chat VLM | `bend` | 0.381 | 0.339 | 0.359 | – | 1.6 | 111/180/216 |
-| Qwen3-VL-8B | chat VLM | `clovis` | 0.226 | 0.297 | 0.257 | – | 1.6 | 58/199/137 |
-| Qwen3-VL-8B | chat VLM | `morgantown` | 0.304 | 0.386 | 0.340 | – | 1.9 | 103/236/164 |
-| Qwen3-VL-8B | chat VLM | `annapolis` | 0.304 | 0.354 | 0.327 | – | 1.9 | 104/238/190 |
-| Qwen3-VL-8B | chat VLM | `paterson` | 0.460 | 0.362 | 0.405 | – | 1.3 | 143/168/252 |
-| Qwen3-VL-8B | chat VLM | `gainesville` | 0.278 | 0.331 | 0.302 | – | 1.9 | 90/234/182 |
-| Qwen3-VL-8B | chat VLM | `budapest_district5` | 0.184 | 0.157 | 0.169 | – | 1.7 | 47/209/253 |
-| Qwen3-VL-8B | chat VLM | `sao_paulo` | 0.229 | 0.210 | 0.219 | – | 1.6 | 59/199/222 |
-| Qwen3-VL-8B | chat VLM | `manual_gold` | 0.445 | 0.341 | 0.386 | – | 1.7 | 1338/1667/2581 |
-| Molmo2-8B | pointing model | `richmond` | 0.410 | 0.516 | 0.457 | – | 1.9 | 160/230/150 |
-| Molmo2-8B | pointing model | `bend` | 0.510 | 0.401 | 0.449 | – | 1.1 | 131/126/196 |
-| Molmo2-8B | pointing model | `clovis` | 0.335 | 0.441 | 0.381 | – | 1.4 | 86/171/109 |
-| Molmo2-8B | pointing model | `morgantown` | 0.466 | 0.461 | 0.463 | – | 1.1 | 123/141/144 |
-| Molmo2-8B | pointing model | `annapolis` | 0.434 | 0.415 | 0.424 | – | 1.3 | 122/159/172 |
-| Molmo2-8B | pointing model | `paterson` | 0.585 | 0.453 | 0.511 | – | 1.0 | 179/127/216 |
-| Molmo2-8B | pointing model | `gainesville` | 0.282 | 0.393 | 0.329 | – | 2.2 | 107/272/165 |
-| Molmo2-8B | pointing model | `budapest_district5` | 0.260 | 0.290 | 0.274 | – | 2.0 | 87/247/213 |
-| Molmo2-8B | pointing model | `sao_paulo` | 0.319 | 0.335 | 0.326 | – | 1.6 | 94/201/187 |
-| Molmo2-8B | pointing model | `manual_gold` | 0.511 | 0.360 | 0.422 | – | 1.3 | 1409/1346/2510 |
-| OWLv2-large | open-vocab detector | `richmond` | 0.033 | 0.971 | 0.064 | 0.104 | 71.0 | 301/8799/9 |
-| OWLv2-large | open-vocab detector | `bend` | 0.037 | 0.954 | 0.071 | 0.093 | 74.4 | 312/8187/15 |
-| OWLv2-large | open-vocab detector | `clovis` | 0.025 | 0.913 | 0.049 | 0.067 | 55.3 | 178/6910/17 |
-| OWLv2-large | open-vocab detector | `morgantown` | 0.037 | 0.948 | 0.071 | 0.114 | 52.9 | 253/6613/14 |
-| OWLv2-large | open-vocab detector | `annapolis` | 0.032 | 0.959 | 0.063 | 0.126 | 67.6 | 282/8444/12 |
-| OWLv2-large | open-vocab detector | `paterson` | 0.040 | 0.894 | 0.077 | 0.116 | 67.2 | 353/8398/42 |
-| OWLv2-large | open-vocab detector | `gainesville` | 0.031 | 0.967 | 0.060 | 0.063 | 65.5 | 263/8185/9 |
-| OWLv2-large | open-vocab detector | `budapest_district5` | 0.032 | 0.930 | 0.062 | 0.089 | 67.7 | 279/8467/21 |
-| OWLv2-large | open-vocab detector | `sao_paulo` | 0.027 | 0.922 | 0.052 | 0.050 | 75.5 | 259/9433/22 |
-| OWLv2-large | open-vocab detector | `manual_gold` | 0.046 | 0.907 | 0.088 | 0.097 | 73.4 | 3554/73441/365 |
-| Grounding DINO | open-vocab detector | `richmond` | 0.028 | 0.852 | 0.053 | 0.033 | 75.2 | 264/9321/46 |
-| Grounding DINO | open-vocab detector | `bend` | 0.038 | 0.850 | 0.073 | 0.049 | 63.4 | 278/6969/49 |
-| Grounding DINO | open-vocab detector | `clovis` | 0.018 | 0.872 | 0.035 | 0.026 | 75.5 | 170/9432/25 |
-| Grounding DINO | open-vocab detector | `morgantown` | 0.022 | 0.831 | 0.042 | 0.028 | 79.9 | 222/9991/45 |
-| Grounding DINO | open-vocab detector | `annapolis` | 0.029 | 0.898 | 0.055 | 0.042 | 71.9 | 264/8992/30 |
-| Grounding DINO | open-vocab detector | `paterson` | 0.036 | 0.803 | 0.068 | 0.044 | 68.4 | 317/8551/78 |
-| Grounding DINO | open-vocab detector | `gainesville` | 0.028 | 0.893 | 0.055 | 0.040 | 66.6 | 243/8328/29 |
-| Grounding DINO | open-vocab detector | `budapest_district5` | 0.021 | 0.787 | 0.042 | 0.025 | 86.0 | 236/10755/64 |
-| Grounding DINO | open-vocab detector | `sao_paulo` | 0.025 | 0.797 | 0.049 | 0.034 | 69.4 | 224/8676/57 |
-| Grounding DINO | open-vocab detector | `manual_gold` | 0.043 | 0.856 | 0.082 | 0.067 | 75.0 | 3353/74951/566 |
 
 <!-- END GENERATED: partial -->
 
@@ -217,24 +120,24 @@ numbers are directly above them in `model_comparison.md`:
 
 | model | rich | bend | clovis | morg | annap | pater | gaines | laur_mly | **pooled** | budapest † | sao_paulo † | manual_gold † |
 |---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|
-| **RampNet** | **0.855** | **0.850** | **0.801** | **0.835** | **0.839** | **0.805** | **0.803** | **0.543** | **0.792** | **0.644** | **0.777** | **0.908** |
-| YOLO11l (pano) | 0.595 | 0.713 | 0.600 | 0.675 | 0.481 | 0.647 | 0.516 | – | – | 0.247 | 0.662 | 0.839 |
-| YOLO11x (pano) | 0.547 | 0.710 | 0.551 | 0.686 | 0.397 | 0.635 | 0.499 | – | – | 0.221 | 0.659 | 0.851 |
-| YOLO26 (pano) | 0.491 | 0.637 | 0.552 | 0.681 | 0.450 | 0.591 | 0.451 | – | – | 0.277 | 0.605 | 0.739 |
+| **RampNet** | **0.855** | **0.850** | **0.801** | **0.835** | **0.839** | **0.805** | **0.803** | 0.543 | **0.792** | **0.644** | **0.777** | **0.908** |
+| YOLO11l (pano) | 0.595 | 0.713 | 0.600 | 0.675 | 0.481 | 0.647 | 0.516 | 0.563 | 0.599 | 0.247 | 0.662 | 0.839 |
+| YOLO11x (pano) | 0.547 | 0.710 | 0.551 | 0.686 | 0.397 | 0.635 | 0.499 | 0.529 | 0.569 | 0.221 | 0.659 | 0.851 |
+| YOLO26 (pano) | 0.491 | 0.637 | 0.552 | 0.681 | 0.450 | 0.591 | 0.451 | **0.574** | 0.553 | 0.277 | 0.605 | 0.739 |
+| Gemini 3.1 Pro | 0.667 | 0.638 | 0.514 | 0.643 | 0.567 | 0.681 | 0.548 | 0.343 | 0.575 | 0.381 | 0.454 | – |
+| Gemini 3.7 Flash | 0.664 | 0.639 | 0.504 | 0.595 | 0.565 | 0.609 | 0.456 | 0.281 | 0.539 | 0.338 | 0.358 | 0.527 |
+| Gemini 3.6 Flash | 0.634 | 0.597 | 0.483 | 0.633 | 0.554 | 0.608 | 0.438 | 0.277 | 0.528 | 0.336 | 0.346 | – |
+| Qwen3-VL-8B | 0.377 | 0.359 | 0.257 | 0.340 | 0.327 | 0.405 | 0.302 | 0.210 | 0.322 | 0.169 | 0.219 | 0.386 |
+| Qwen3-VL-32B | 0.427 | 0.415 | 0.311 | 0.426 | 0.398 | 0.347 | 0.168 | 0.066 | 0.320 | 0.079 | 0.218 | 0.285 |
+| Molmo2-8B | 0.457 | 0.449 | 0.381 | 0.463 | 0.424 | 0.511 | 0.329 | 0.339 | 0.419 | 0.274 | 0.326 | 0.422 |
+| OWLv2-large | 0.064 | 0.071 | 0.049 | 0.071 | 0.063 | 0.077 | 0.060 | 0.062 | 0.065 | 0.062 | 0.052 | 0.088 |
+| Grounding DINO | 0.053 | 0.073 | 0.035 | 0.042 | 0.055 | 0.068 | 0.055 | 0.045 | 0.053 | 0.042 | 0.049 | 0.082 |
 | Mask2Former Vistas (curb cut) | 0.517 | – | – | – | – | – | – | – | – | – | – | – |
 | Mask2Former Vistas (+curb) | 0.210 | – | – | – | – | – | – | – | – | – | – | – |
-| Gemini 3.1 Pro | 0.667 | 0.638 | 0.514 | 0.643 | 0.567 | 0.681 | 0.548 | – | – | 0.381 | 0.454 | – |
 | Claude Opus 5 (low) | – | – | – | – | 0.588 | – | – | – | – | – | – | – |
-| Gemini 3.7 Flash | 0.664 | 0.639 | 0.504 | 0.595 | 0.565 | 0.609 | 0.456 | – | – | 0.338 | 0.358 | 0.527 |
-| Gemini 3.6 Flash | 0.634 | 0.597 | 0.483 | 0.633 | 0.554 | 0.608 | 0.438 | – | – | 0.336 | 0.346 | – |
 | Claude Opus 5 (high) | – | – | – | – | 0.520 | – | – | – | – | – | – | – |
 | Claude Sonnet 5 (low) | – | – | – | – | 0.463 | – | – | – | – | – | – | – |
 | Claude Sonnet 5 (high) | – | – | – | – | 0.456 | – | – | – | – | – | – | – |
-| Qwen3-VL-32B | 0.427 | 0.415 | 0.311 | 0.426 | 0.398 | 0.347 | 0.168 | – | – | 0.079 | 0.218 | 0.285 |
-| Qwen3-VL-8B | 0.377 | 0.359 | 0.257 | 0.340 | 0.327 | 0.405 | 0.302 | – | – | 0.169 | 0.219 | 0.386 |
-| Molmo2-8B | 0.457 | 0.449 | 0.381 | 0.463 | 0.424 | 0.511 | 0.329 | – | – | 0.274 | 0.326 | 0.422 |
-| OWLv2-large | 0.064 | 0.071 | 0.049 | 0.071 | 0.063 | 0.077 | 0.060 | – | – | 0.062 | 0.052 | 0.088 |
-| Grounding DINO | 0.053 | 0.073 | 0.035 | 0.042 | 0.055 | 0.068 | 0.055 | – | – | 0.042 | 0.049 | 0.082 |
 
 <!-- END GENERATED: by-split -->
 

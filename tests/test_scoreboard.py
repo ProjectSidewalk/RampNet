@@ -147,17 +147,20 @@ def test_ap_is_read_full_range_not_truncated_at_the_operating_point(board):
 def test_rampnet_city_ap_comes_from_the_low_floor_cache(board):
     """The city bundles stop at 0.55, so an AP computed from them is a truncated curve.
 
-    Read that way richmond is 0.763 and the pooled figure is 0.720 — which puts RampNet
+    Read that way richmond is 0.763 and the pooled figure is 0.677 — which puts RampNet
     BELOW the YOLO arms on AP, an artifact of the floor rather than a result. The #54
     re-extraction carries the same run down to 0.05, which is where every other scored
     model is exported.
+
+    The pooled figure was 0.720 over seven splits; laurens_mapillary is the eighth, and
+    it is the split RampNet does worst on, so the truncated pooled AP falls further.
     """
     cell = _cell(board, "rampnet", "richmond")
     assert cell["ap_source"] == "op_cache (0.05 floor)"
     assert cell["ap"] == pytest.approx(0.876, abs=0.002)
     assert cell["ap_bundle"] == pytest.approx(0.763, abs=0.0006)
     # ...and the pooled truncated figure is the one that inverts the ordering.
-    assert _summary(board, "rampnet")["ap_bundle"] == pytest.approx(0.720, abs=0.0006)
+    assert _summary(board, "rampnet")["ap_bundle"] == pytest.approx(0.677, abs=0.0006)
 
 
 def test_the_substitution_is_scoped_to_actual_truncation(board):
@@ -181,15 +184,20 @@ def test_ap_ordering_is_not_an_artifact_of_the_floor(board):
 def test_threshold_marks_reproduce_the_published_operating_point_table(board):
     """The PR figure's marked points must agree with docs/operating_point.md.
 
-    That document's pooled row is P 0.964 / R 0.722 / F1 0.826 at the deployed 0.55 and
-    0.900 raw precision at 0.30. Computed here from the same committed cache by a
+    That document's pooled row is P 0.9594 / R 0.6864 / F1 0.8003 at the deployed 0.55
+    and 0.8991 raw precision at 0.30. Computed here from the same committed cache by a
     different code path, so a drift in either is a real disagreement.
+
+    These were 0.964 / 0.722 / 0.826 and 0.900 over seven splits. Registering
+    laurens_mapillary as the eighth moved them: precision is untouched (0.964 -> 0.959),
+    the recall drop is laurens' own 0.390 entering the pool. Both documents are on the
+    eight-split basis; if one is ever re-pooled without the other, this fails.
     """
     marks = board["curves"]["rampnet"]["marks"]
-    assert marks["0.55"]["precision"] == pytest.approx(0.964, abs=0.0006)
-    assert marks["0.55"]["recall"] == pytest.approx(0.722, abs=0.0006)
-    assert marks["0.55"]["f1"] == pytest.approx(0.826, abs=0.0006)
-    assert marks["0.30"]["precision"] == pytest.approx(0.900, abs=0.0006)
+    assert marks["0.55"]["precision"] == pytest.approx(0.9594, abs=0.0006)
+    assert marks["0.55"]["recall"] == pytest.approx(0.6864, abs=0.0006)
+    assert marks["0.55"]["f1"] == pytest.approx(0.8003, abs=0.0006)
+    assert marks["0.30"]["precision"] == pytest.approx(0.8991, abs=0.0006)
 
 
 def test_only_score_carrying_models_get_a_curve(board):
@@ -394,7 +402,7 @@ def test_partial_coverage_is_reported_not_averaged_away(board):
     """
     for model in ("gemini-3.1-pro-preview", "gemini-3.6-flash"):
         summary = _summary(board, model)
-        assert summary["coverage"] == "7/7"
+        assert summary["coverage"] == "8/8"
         assert summary["complete"] is True
         assert summary["manual_gold_f1"] is None
         assert "manual_gold" not in board["per_split"][model]
@@ -414,7 +422,7 @@ def test_single_split_legs_stay_out_of_the_pooled_tables(board):
         "claude-sonnet-5-effort-low", "claude-sonnet-5-effort-high",
     }
     for m in single:
-        assert m["coverage"] == "1/7"
+        assert m["coverage"] == "1/8"
 
     headline = sr.headline_table(board)
     matrix = sr.by_split_table(board)
@@ -563,7 +571,7 @@ def test_the_json_does_not_carry_the_curve_point_arrays(board):
         assert "recalls" not in curve and "precisions" not in curve, \
             f"{name}: point arrays leaked back into the committed JSON"
         assert curve["ap"] is not None and curve["n_points"] > 0
-    assert payload["curves"]["rampnet"]["marks"]["0.55"]["f1"] == pytest.approx(0.826,
+    assert payload["curves"]["rampnet"]["marks"]["0.55"]["f1"] == pytest.approx(0.8003,
                                                                                abs=0.0006)
     # In-memory, the figures still get the full curves.
     assert len(board["curves"]["rampnet"]["recalls"]) == \
