@@ -1775,34 +1775,53 @@ def test_a_recovered_row_counts_toward_cost_but_never_toward_reconciliation(tmp_
     A recovered row is real spend read off the provider's bill after layer 1 failed
     to write. Two things have to be true at once, and they pull in opposite
     directions: cost totals must include it (otherwise every table under-reports by
-    the whole amount), and reconciliation must exclude it (otherwise the bill is
-    compared against itself and the missing measurement reads as ``ok``).
+    the whole amount), and reconciliation must never count it as a measurement
+    (otherwise the bill is compared against itself and the missing measurement reads
+    as ``ok``). What it may do is explain the gap, which is a different statement
+    from closing it.
+
+    The numbers are the committed ledger's: two measured richmond smoke legs
+    totalling 48,744 input tokens against a bill of 11,988,993.
     """
     sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "analysis"))
     from vertex_usage import ledger_totals_by_model, reconcile
 
-    log = tmp_path / "usage_log.jsonl"
-    ledger.append_rows(str(log), [
+    measured = [
         {"ts": "2026-08-18T23:29:11+00:00", "label": "claude-opus-5",
          "model_id": "claude-opus-5", "input_tokens": 12_186, "output_tokens": 780,
          "est_cost_usd": 0.0804},
-        {"ts": "2026-08-18T00:00:00+00:00", "kind": ledger.RECOVERED,
-         "label": "claude-opus-5", "model_id": "claude-opus-5",
-         "input_tokens": 11_940_249, "output_tokens": 415_751,
-         "est_cost_usd": 70.095},
-    ])
+        {"ts": "2026-08-18T23:54:02+00:00", "label": "claude-opus-5",
+         "model_id": "claude-opus-5", "input_tokens": 36_558, "output_tokens": 1_972,
+         "est_cost_usd": 0.2321},
+    ]
+    recovery = {"ts": "2026-08-18T00:00:00+00:00", "kind": ledger.RECOVERED,
+                "label": "claude-opus-5", "model_id": "claude-opus-5",
+                "input_tokens": 11_940_249, "output_tokens": 415_751,
+                "est_cost_usd": 70.095}
+    billed = {"claude-opus-5": {"input": 11_988_993, "output": 418_503}}
+
+    # Before the recovery was written, the gap is unexplained and gets the verdict.
+    short = reconcile(billed, ledger_totals_by_model(measured))[0]
+    assert short["verdict"].startswith("UNDER")
+    assert short["unexplained_input"] == 11_940_249
+
+    log = tmp_path / "usage_log.jsonl"
+    ledger.append_rows(str(log), measured + [recovery])
 
     rows, usd, hours, recovered = ledger.ledger_totals(str(log))
-    assert rows == 2
-    assert usd == pytest.approx(70.1754)          # the money is all there
+    assert rows == 3
+    assert usd == pytest.approx(70.4075)          # the money is all there
     assert recovered == pytest.approx(70.095)     # and it is labelled
 
-    # Reconciliation sees only the measured row, so the bill still reads as short.
+    # Reconciliation still counts only the measured rows as logged...
     logged = ledger_totals_by_model(ledger.read_rows(str(log)))
-    assert logged["claude-opus-5"]["input"] == 12_186
-    assert logged["claude-opus-5"]["rows"] == 1
-    billed = {"claude-opus-5": {"input": 11_952_435, "output": 416_531}}
-    assert reconcile(billed, logged)[0]["verdict"].startswith("UNDER")
+    assert logged["claude-opus-5"]["input"] == 48_744
+    assert logged["claude-opus-5"]["rows"] == 2
+    # ...but the gap they leave is the one already written down, so it is reported
+    # as explained rather than as an emergency that repeats every run.
+    row = reconcile(billed, logged)[0]
+    assert row["verdict"] == "ok (1 recovered)"
+    assert row["recovered_input"] == 11_940_249 and row["unexplained_input"] == 0
 
 
 # --- tiled detect() end-to-end (no live model) ------------------------------

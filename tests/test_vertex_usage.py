@@ -19,6 +19,7 @@ sys.path.insert(0, REPO_ROOT)
 sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "analysis"))
 sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "model_comparison"))
 
+from rampnet import ledger  # noqa: E402
 from vertex_usage import (  # noqa: E402
     ledger_totals_by_model, print_reconciliation, reconcile,
 )
@@ -89,6 +90,47 @@ def test_rows_outside_the_window_are_not_counted_against_it():
             _row("m", ts="2026-08-18T00:00:00+00:00", input_tokens=1_000_000)]
     assert ledger_totals_by_model(rows, since="2026-08-01")["m"]["input"] == 1_000_000
     assert ledger_totals_by_model(rows)["m"]["input"] == 10_000_000
+
+
+def test_a_recorded_recovery_explains_the_gap_instead_of_repeating_the_alarm():
+    """The #139 gap is closed: it was found, priced, and written into the ledger as
+    a recovery. The check must still refuse to count that row as a measurement — it
+    was read off this same bill — but reporting the same 11,940,249 tokens as
+    unaccounted for every run teaches an operator to ignore the one check that
+    catches a silent no-write."""
+    logged = ledger_totals_by_model([
+        _row("claude-opus-5", input_tokens=48_744, output_tokens=2_752),
+        _row("claude-opus-5", kind=ledger.RECOVERED, input_tokens=11_940_249,
+             output_tokens=415_751),
+    ])
+    assert logged["claude-opus-5"]["input"] == 48_744        # not the recovered row
+    assert logged["claude-opus-5"]["recovered_input"] == 11_940_249
+    row = reconcile({"claude-opus-5": OPUS_BILLED}, logged)[0]
+    assert row["verdict"] == "ok (1 recovered)"
+    assert row["logged_rows"] == 1 and row["unexplained_input"] == 0
+
+
+def test_a_partial_recovery_still_flags_the_part_nobody_has_looked_at():
+    """A recovery explains only what it covers. The remainder is spend with no
+    record, which is exactly what the check exists to say."""
+    logged = ledger_totals_by_model([
+        _row("m", kind=ledger.RECOVERED, input_tokens=400_000)])
+    row = reconcile({"m": {"input": 1_000_000}}, logged)[0]
+    assert row["verdict"].startswith("UNDER")
+    assert row["unexplained_input"] == 600_000
+
+
+def test_the_report_prints_the_recovered_column_and_does_not_cry_emergency(capsys):
+    logged = ledger_totals_by_model([
+        _row("claude-opus-5", input_tokens=48_744),
+        _row("claude-opus-5", kind=ledger.RECOVERED, input_tokens=11_940_249),
+    ])
+    worst = print_reconciliation(reconcile({"claude-opus-5": OPUS_BILLED}, logged))
+    out = capsys.readouterr().out
+    assert worst == []
+    assert "recovered in" in out and "11,940,249" in out
+    assert "emergency with a deadline" not in out
+    assert "not a measurement" in out       # still not evidence the leg was logged
 
 
 def test_the_report_says_what_to_do_about_a_gap(capsys):

@@ -1636,6 +1636,13 @@ just outside the window). Tolerance is 2%, because Cloud Monitoring's daily rows
 windows ending at the query's time-of-day rather than calendar days, so a leg straddling the
 boundary moves either way. Run it the day a paid leg finishes, not at writing-up time.
 
+It also separates a gap nobody has looked at from one that is already written down. A row
+marked `kind: recovered` is never counted as logged — it was read off this same bill, so
+counting it would compare the bill against itself — but it is totalled in its own column and
+subtracted before the verdict. So #139's 11,940,249 opus tokens now read `ok (1 recovered)`
+rather than raising the same emergency on every run, and only the unexplained remainder gets
+`UNDER`.
+
 ### Cluster compute is a fourth ledger
 
 Layers 1–3 cover API money. They say nothing about GPU-hours, which is what most of the

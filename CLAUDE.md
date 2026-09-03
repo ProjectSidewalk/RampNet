@@ -85,9 +85,13 @@ in seconds, so it reproduces neither the token counts nor the runtime.
   surviving rows already account for*, so the ledger sums to the bill rather than double
   counting. Two rules follow and they pull opposite ways: **cost totals include it** — omitting
   #139's $70.41 under-reported the benchmark's Claude spend by ~200x — but **reconciliation must
-  exclude it**, because a recovered row was read off that same bill, so counting it as "logged"
-  compares the bill against itself and reports `ok` for the exact gap the check exists to find.
-  A recovered row carries no `bundle` and no `elapsed_s`; those were never in the telemetry.
+  never count it as logged**, because a recovered row was read off that same bill, so counting it
+  that way compares the bill against itself and reports `ok` for the exact gap the check exists to
+  find. `--reconcile` totals it in a separate column and subtracts it before the verdict, so a gap
+  already found and written down reads as `ok (1 recovered)` and only the unexplained remainder is
+  called out — a check that reports the same handled gap as an emergency every run is a check
+  people stop reading. A recovered row carries no `bundle` and no `elapsed_s`; those were never in
+  the telemetry.
 - **Token counts and GPU-hours are the durable facts; dollars are estimates** and the billing
   console is authoritative. Estimate input tokens from geometry when you must (deterministic —
   it came within 0.02% for a 984-panorama leg); **never estimate output**, which is thinking
