@@ -1,6 +1,6 @@
 # The 8-epoch cosine rung: does annealing help RampNet at all? (#135)
 
-**Status: PRE-REGISTERED 2026-08-18 before launch; training COMPLETE 2026-08-21; `manual_gold` scored 2026-08-29 — TIED at every epoch.** Everything above Results is as written on 2026-08-18 and has not been edited. The decision
+**Status: PRE-REGISTERED 2026-08-18 before launch; training COMPLETE 2026-08-21; `manual_gold` scored 2026-08-29 — TIED at every epoch; gate applied and **Run B DECIDED AGAINST** 2026-09-03 (see the last section).** Everything above Results is as written on 2026-08-18 and has not been edited. The decision
 rule, the comparison, and what each outcome means are fixed here so they cannot be chosen after
 the numbers arrive. Results will be appended to this file, not substituted into it.
 
@@ -412,3 +412,93 @@ python scripts/analysis/stage2_manual_gold_curve.py \
 The checkpoints remain at `/gscratch/makelab/jonf/rampnet_cosine_rung_135/checkpoints/` and on
 makelab2 at `/homes/gws/jonf/RampNet/cosine_rung_135/checkpoints/`. Publishing them is a
 decision about HF storage, not a technical blocker — the same gap Run A records.
+
+## The decision: Run B is not being run
+
+**Recorded 2026-09-03. This closes #135.** The gate above was written before the rung launched
+and was never applied to its results; `scripts/analysis/run_b_gate_135.py` applies it from the
+committed summaries, and `docs/data/run_b_gate_135.json` is its artifact.
+
+```
+PRIMARY   max-F1(cosine ep8) - max-F1(Run A ep8) = +0.002994
+          |z| = 1.02 to 1.86        -> not significant
+          reading: no effect at 8 epochs
+
+SECONDARY ep3 -> ep8 change per arm
+          Run A  -0.006624
+          cosine -0.005158          arrested (>=0)? NO
+          difference of declines +0.001466, |z| = 0.50 to 0.91 -> not significant
+
+GATE VERDICT: JUDGMENT CALL
+```
+
+The primary fails to reach significance **at the favourable end of the measured standard-error
+bracket**, so the reading does not depend on which value inside that bracket is chosen. The
+secondary does not fire either: the cosine arm still declines from its own epoch 3 to epoch 8,
+and by an amount not distinguishable from Run A's.
+
+By the pre-registration that is a tie on both, which is explicitly *not* an automatic
+cancellation — "it is a judgment call about spending 1,800 GPU-hours on a mechanism that showed
+nothing at a quarter of the cost, and it will be recorded as a judgment call rather than dressed
+as a rule." So here is the judgment, and the reasoning, rather than a rule pretending to make it.
+
+### Why not
+
+1. **The mechanism that justified Run B is the one that failed.** Run B's case came from #51:
+   a long budget pays through its *annealed tail*, so RampNet might have a tail too. This rung
+   tested that mechanism at matched budget, matched seed and matched data order — the cleanest
+   isolation available — and it moved `manual_gold` by nothing measurable. A 30-epoch arm
+   changes length *and* schedule together, which is the confound the #84 amendment flagged, so
+   it could not recover the attribution even if it did show a difference.
+
+2. **The gain is real, in the wrong place.** Annealing improves auto-label validation loss by up
+   to 3.98%, monotone in the anneal and mechanistically clean. None of it reaches human-labelled
+   F1. That is #84's exchange rate replicating, and Run B buys more of the same signal with no
+   evidence it converts.
+
+3. **Run B as specified is n=1, and this issue established that seed variance is the binding
+   limit.** This is the argument that was not available when Run B was specified. The rung's own
+   "What this run cannot settle" says a difference below ~0.01 max-F1 is **measured but not
+   attributable** without a seed control. The plausible Run B effect — the rung's ~0.003 of
+   late-epoch damping, extrapolated with length — sits well below that. So a single 30-epoch
+   annealed run produces one number that cannot be told apart from a seed draw, at *any* length.
+   A Run B that could actually be read needs three seeds: **5,025–10,050 GPU-hours**, roughly
+   $4,500–$9,000 on Tillicum, against a $1,500/month cap.
+
+4. **Opportunity cost, measured.** #151 has just produced a **+0.115 F1** rig effect on the same
+   model — thirty times anything Run B could plausibly show — and the deployment question behind
+   it is open. The hours are better spent there.
+
+### What is not being claimed
+
+- **Not** that annealing does nothing for RampNet. It demonstrably improves the optimisation
+  signal, and the ~0.003 of late-epoch F1 damping is a directional hint the rung was too short
+  and too underpowered to confirm. It is unresolved, not refuted.
+- **Not** that a 30-epoch annealed run would fail. It was never run. What is claimed is that at
+  n=1 its result would not be interpretable, and that a properly-powered version costs 3× the
+  figure #135 quoted.
+- **Not** a reading of epoch 7. Its +0.0042 is the largest gap anywhere and *would* clear 1.96
+  at the favourable end of the bracket. It is not the pre-registered comparison and selecting it
+  after seeing the table is precisely what the pre-registration exists to prevent. Flagged in
+  the artifact so nobody quotes it as the result.
+
+### What would reopen it
+
+Concrete and cheap, in order:
+
+- **The seed campaign now running** (`docs/seed_variance_51_135.md`, klone jobs 39515025/26/27)
+  prices this directly. If RampNet's seed SD comes back at **≤ ~0.002 max-F1**, an effect of
+  0.003–0.008 becomes readable at n=1 and Run B stops being uninterpretable. That is the single
+  measurement that would change the answer, and it is already in flight at zero cost.
+- **A 16-epoch cosine rung** (~1,120 GPU-h) if the doubt is specifically that 8 epochs is too
+  short for the anneal to bite. It doubles the horizon without paying for 30, and unlike Run B
+  it keeps the budget-matched comparison against a Run A epoch.
+
+### A deliberate omission, stated
+
+#135's spec asked for evaluation on `manual_gold` **plus the benchmark splits** at the #54
+operating point, per-split. Only `manual_gold` was scored. That is deliberate: `docs/
+stage2_run_b_power_135.md` measured the nine city splits *pooled* at an unpaired MDE of **0.0219**
+against `manual_gold`'s **0.0117**, so they cannot resolve an effect `manual_gold` cannot, and
+scoring them would have added GPU-hours and no power. If the rung is ever revisited with a
+seed control, that calculus does not change.

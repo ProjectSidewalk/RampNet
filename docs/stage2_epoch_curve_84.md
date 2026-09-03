@@ -515,6 +515,8 @@ Two smaller things this arm settles:
 
 ### The Run B gate: PASSES, so Run B is not cancelled
 
+> ⚠️ **Later outcome (2026-09-03): Run B was decided against and #135 is closed.** The gate below is a *degradation* check and it did pass — that is unchanged. What settled it was the 8-epoch cosine rung, which isolated schedule from length at matched budget and found `manual_gold` tied at every epoch, plus the fact that Run B at n=1 could not be told apart from a seed draw. See [`stage2_cosine_rung_135.md`](stage2_cosine_rung_135.md), final section.
+
 The gate is "Run B runs **unless** the curve degrades — every epoch ≥ 2 below epoch 1 by more than
 the tie bar", read on the calibration-free column. Every epoch from 2 to 8 is *above* epoch 1 on
 max-F1, so nothing resembling degradation occurred and **the gate does not cancel Run B**.

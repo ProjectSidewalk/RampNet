@@ -313,7 +313,7 @@ classic signature of a learning rate left too high late in training, which is ex
 anneal fixes and is the mechanism #51's arms displayed — but it also means a 30-epoch run whose
 decay does *not* bite could plausibly land **below** Run A's epoch 3.
 
-**Recommendation: run the 30-epoch arm. Do not run 60 on spec.** The plateau ends at epoch 6, so
+**Recommendation: run the 30-epoch arm. Do not run 60 on spec.** ⚠️ **SUPERSEDED 2026-09-03 — Run B was decided AGAINST.** This paragraph was written before the 8-epoch cosine rung had results. The rung then tested the same mechanism at matched budget and moved `manual_gold` by nothing measurable, and the n=1 objection below turned out to be binding rather than a footnote. The decision and its reasoning are in [`stage2_cosine_rung_135.md`](stage2_cosine_rung_135.md); the rest of this paragraph is kept as written. The plateau ends at epoch 6, so
 the extra 30 epochs buy schedule shape rather than useful steps, and a 60-epoch cosine spends
 proportionally longer at the high learning rates that the epoch 7–8 decline is evidence against.
 If a tail shows at 30, going to 60 becomes an informed follow-up instead of a speculative
