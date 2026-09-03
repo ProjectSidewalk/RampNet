@@ -1693,6 +1693,12 @@ plus the running total, so a run that logged somewhere unexpected is visible whi
 still watching. It falls back to the local checkout whenever git can't answer (a tarball, an
 HF clone) — bookkeeping must never be the reason a run refuses to start.
 
+The credentials resolve the same way. `compare.py` and `vertex_usage.py` read `.env` from the
+worktree they are running in *and* from the main checkout, worktree first so a deliberate
+local override still wins: a scratch worktree does not carry the `.env`, and a leg that cannot
+find `GOOGLE_CLOUD_PROJECT` or an API key from the place it was most likely launched is a leg
+that does not run — including the recovery tool itself.
+
 **Measured: the complete Gemini history of this benchmark** (Cloud Monitoring,
 2026-08-15; every Gemini leg ever run on the project — richmond/bend 07-23/24 onward —
 falls inside the retention window):

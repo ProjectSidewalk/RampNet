@@ -106,6 +106,21 @@ def load_dotenv(root):
             os.environ.setdefault(key.strip(), val.strip().strip('"').strip("'"))
 
 
+def load_dotenv_for_run(start=None):
+    """Load `.env` from this checkout and from the main checkout it belongs to.
+
+    Same reason the ledger resolves that way (#143): a leg is often run from a
+    scratch worktree, which carries no `.env` because the file is git-ignored, so
+    a Gemini or Claude leg launched there finds no key and `vertex_usage.py` finds
+    no project. `load_dotenv` uses `setdefault`, so the worktree's own file is read
+    first and still wins wherever the two disagree."""
+    root = Path(start or REPO_ROOT)
+    load_dotenv(str(root))
+    canonical = canonical_repo_root(root)
+    if canonical != root:
+        load_dotenv(str(canonical))
+
+
 def cache_key(label, signature, city, pano_id):
     """Stable hash over everything that determines a detector's output for one
     pano, so re-runs reuse cached detections and don't re-pay the API."""
@@ -833,7 +848,7 @@ def main():
     ap = build_parser()
     args = ap.parse_args()
 
-    load_dotenv(str(REPO_ROOT))
+    load_dotenv_for_run()
     specs = [parse_model_spec(t) for t in args.models.split(",") if t.strip()]
     records, verdicts, panos_dir = load_bundle(args.bundle)
     # Fail fast on a broken bundle before any (paid) detector call, then reduce

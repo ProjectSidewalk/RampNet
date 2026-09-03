@@ -1723,16 +1723,11 @@ def test_the_default_usage_log_is_tracked_not_in_the_gitignored_cache():
         "analysis_out/* is ignored, so the log needs an explicit re-include"
 
 
-@pytest.mark.skipif(shutil.which("git") is None, reason="needs git on PATH")
-def test_the_ledger_resolves_to_the_main_checkout_from_a_worktree(tmp_path):
-    """The #139 failure: a leg run from a scratch worktree wrote its ledger inside
-    that worktree, the worktree was deleted, and $70.41 of spend left no record —
-    invisible to #119's guard, which proves a path was accepted and nothing about
-    whether the file survives. Every worktree must append to one canonical ledger."""
+def _main_and_worktree(tmp_path):
+    """A real checkout with a linked worktree — the shape that lost #139's $70.41."""
     main = tmp_path / "main"
     main.mkdir()
-    run = lambda *a, **kw: subprocess.run(a, cwd=str(kw.get("cwd", main)), check=True,
-                                          capture_output=True)
+    run = lambda *a: subprocess.run(a, cwd=str(main), check=True, capture_output=True)
     run("git", "init", "-q")
     run("git", "config", "user.email", "t@example.com")
     run("git", "config", "user.name", "t")
@@ -1741,8 +1736,37 @@ def test_the_ledger_resolves_to_the_main_checkout_from_a_worktree(tmp_path):
     run("git", "commit", "-qm", "init")
     wt = tmp_path / "wt"
     run("git", "worktree", "add", "-q", str(wt), "HEAD")
+    return main, wt
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason="needs git on PATH")
+def test_the_ledger_resolves_to_the_main_checkout_from_a_worktree(tmp_path):
+    """The #139 failure: a leg run from a scratch worktree wrote its ledger inside
+    that worktree, the worktree was deleted, and $70.41 of spend left no record —
+    invisible to #119's guard, which proves a path was accepted and nothing about
+    whether the file survives. Every worktree must append to one canonical ledger."""
+    main, wt = _main_and_worktree(tmp_path)
     assert compare.canonical_repo_root(wt).resolve() == main.resolve()
     assert compare.canonical_repo_root(main).resolve() == main.resolve()
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason="needs git on PATH")
+def test_credentials_resolve_to_the_main_checkout_too(tmp_path, monkeypatch):
+    """`.env` is git-ignored, so a scratch worktree does not carry one. Reading it
+    only from the running file's checkout means a leg launched from a worktree finds
+    no API key and vertex_usage.py exits with "no project" — the recovery tool
+    failing in exactly the situation that loses a record. The worktree's own file is
+    still read first, so a deliberate local override wins."""
+    main, wt = _main_and_worktree(tmp_path)
+    (main / ".env").write_text("RAMPNET_TEST_KEY=from-main\nRAMPNET_TEST_BOTH=main\n",
+                               encoding="utf-8")
+    (wt / ".env").write_text("RAMPNET_TEST_BOTH=worktree\n", encoding="utf-8")
+    monkeypatch.setattr(os, "environ", dict(os.environ))
+    for key in ("RAMPNET_TEST_KEY", "RAMPNET_TEST_BOTH"):
+        os.environ.pop(key, None)
+    compare.load_dotenv_for_run(wt)
+    assert os.environ["RAMPNET_TEST_KEY"] == "from-main"
+    assert os.environ["RAMPNET_TEST_BOTH"] == "worktree"
 
 
 def test_the_ledger_path_falls_back_when_git_cannot_answer(tmp_path):

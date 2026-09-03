@@ -45,13 +45,19 @@ KNOWN_TOKEN_TYPES = ("input", "output")
 
 def _load_dotenv():
     """Reuse compare.py's .env loader so both halves of the harness read the same
-    credentials file. Imported inside the function (the export_model_cache idiom)
-    so the module still imports without the detector stack on the path."""
+    credentials file, from this checkout and from the main checkout it belongs to.
+    Imported inside the function (the export_model_cache idiom) so the module still
+    imports without the detector stack on the path.
+
+    The main checkout matters here for the same reason the ledger does (#143): run
+    from a scratch worktree, which carries no git-ignored `.env`, this script would
+    otherwise exit with "no project" — the tool whose job is to recover a lost spend
+    failing in exactly the situation that loses one."""
     try:
-        from compare import load_dotenv
+        from compare import load_dotenv_for_run
     except ImportError:
         return
-    load_dotenv(str(REPO))
+    load_dotenv_for_run(REPO)
 
 
 def fetch_token_series(project, days):
