@@ -47,10 +47,20 @@ Read-only. Needs the same ADC and project as ``vertex_usage.py``.
 
 **Replication note:** like ``vertex_usage.py`` this reads one cloud project's billing
 telemetry, so only someone with access to that project can re-derive it, and Google's
-metric retention is ~6 weeks. The numbers it produced are transcribed into
-``docs/model_comparison.md`` section "Reproducing these four legs".
+metric retention is ~6 weeks. ``--save-series`` writes the fetched minute rows to a JSON
+file and ``--from-series`` replays one, which is what takes the result off that clock:
+the series committed under ``docs/data/vertex_minute_series/`` re-runs the whole analysis
+with no cloud access at all, long after the metric has aged out.
+
+    python scripts/analysis/vertex_effort_split.py --model claude-opus-5 \\
+        --from-series docs/data/vertex_minute_series/claude-opus-5_2026-08-15.json \\
+        --per-pano-input 12186 --anchor-low-ratio 0.034908
+
+The numbers it produced are transcribed into ``docs/model_comparison.md`` section
+"Reproducing these four legs".
 """
 import argparse
+import json
 import os
 import sys
 from collections import defaultdict
@@ -58,8 +68,10 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "model_comparison"))
-from pricing import estimate_cost, price_for  # noqa: E402
+from pricing import estimate_cost, price_for      # noqa: E402
+from vertex_usage import write_json               # noqa: E402  (same snapshot format)
 
 TOKEN_METRIC = "aiplatform.googleapis.com/publisher/online_serving/token_count"
 
@@ -140,6 +152,32 @@ def fetch_minute_series(project, model, start, end):
                   for ts, d in buckets.items() if d.get("input", 0))
 
 
+def save_series(path, model, start, end, rows):
+    """Write the fetched minute rows so the analysis outlives metric retention."""
+    doc = {
+        "model": model,
+        "metric": TOKEN_METRIC,
+        "alignment_period": "60s",
+        "interval_start": start,
+        "interval_end": end,
+        "fetched_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "columns": ["end_time", "input_tokens", "output_tokens"],
+        "rows": [[ts, int(i), int(o)] for ts, i, o in rows],
+    }
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    write_json(path, doc, "rows")
+    return doc
+
+
+def load_series(path):
+    """Replay a saved series. Returns (rows, model, start, end)."""
+    doc = json.loads(Path(path).read_text(encoding="utf-8"))
+    rows = [(ts, int(i), int(o)) for ts, i, o in doc["rows"]]
+    return (rows, doc.get("model"), doc.get("interval_start"),
+            doc.get("interval_end"))
+
+
 def find_changepoint(rows, window=5):
     """Index of the largest sustained drop in throughput, and the drop factor."""
     best, best_drop = None, 0.0
@@ -158,8 +196,15 @@ def main():
                     help="GCP project (default: $GOOGLE_CLOUD_PROJECT / repo-root .env). "
                          "Pass explicitly when running from a git worktree.")
     ap.add_argument("--model", required=True, help="model_user_id, e.g. claude-opus-5")
-    ap.add_argument("--start", required=True, help="RFC3339, e.g. 2026-08-15T17:00:00Z")
-    ap.add_argument("--end", required=True)
+    ap.add_argument("--start", help="RFC3339, e.g. 2026-08-15T17:00:00Z. Required "
+                                    "unless --from-series is given.")
+    ap.add_argument("--end", help="RFC3339. Required unless --from-series is given.")
+    ap.add_argument("--save-series", metavar="PATH",
+                    help="Write the fetched minute rows to PATH as JSON, so the "
+                         "analysis survives the ~6-week metric retention.")
+    ap.add_argument("--from-series", metavar="PATH",
+                    help="Replay a saved series instead of querying Cloud "
+                         "Monitoring. Needs no credentials and no project.")
     ap.add_argument("--per-pano-input", type=int, default=0,
                     help="Deterministic input tokens per panorama; pins the pano count.")
     ap.add_argument("--legs", type=int, default=2,
@@ -168,11 +213,28 @@ def main():
                     help="output/input ratio for the FAST leg, measured on a cleanly "
                          "attributed run of the same model at the same effort.")
     args = ap.parse_args()
-    if not args.project:
-        raise SystemExit("no project: pass --project, or set GOOGLE_CLOUD_PROJECT in "
-                         "the environment or a repo-root .env.")
 
-    rows = fetch_minute_series(args.project, args.model, args.start, args.end)
+    if args.from_series:
+        rows, saved_model, start, end = load_series(args.from_series)
+        # A series is a per-model file; replaying one under a different --model would
+        # price the wrong rate card against it and say nothing.
+        if saved_model and saved_model != args.model:
+            raise SystemExit(f"{args.from_series} holds {saved_model}, not "
+                             f"{args.model} — pass --model {saved_model}.")
+        print(f"(replaying {args.from_series}: {len(rows)} minutes, "
+              f"{start} -> {end}, no cloud query)")
+    else:
+        if not args.project:
+            raise SystemExit("no project: pass --project, or set GOOGLE_CLOUD_PROJECT "
+                             "in the environment or a repo-root .env.")
+        if not (args.start and args.end):
+            raise SystemExit("a cloud query needs --start and --end (or replay a "
+                             "saved window with --from-series).")
+        rows = fetch_minute_series(args.project, args.model, args.start, args.end)
+        if args.save_series:
+            save_series(args.save_series, args.model, args.start, args.end, rows)
+            print(f"(wrote {len(rows)} minute rows to {args.save_series})")
+
     if len(rows) < 4 * GUARD_MINUTES:
         raise SystemExit(f"only {len(rows)} active minute(s) in the window — widen it")
     tin = sum(r[1] for r in rows)
@@ -213,24 +275,32 @@ def main():
         per_leg_in = tin / args.legs
     print(f"\n   per-leg input (geometry, {args.legs} legs): {per_leg_in:,.0f}")
 
+    # estimate_cost returns None for an id that is not in the verified rate card, and
+    # None cannot be formatted as a dollar figure. Decide once, up front, so an
+    # unpriced model reports its token split instead of raising inside report().
+    priced = price_for(args.model) is not None
+    if not priced:
+        print(f"   (no verified price for {args.model}; token splits only — add a "
+              f"verified entry to scripts/model_comparison/pricing.py)")
+
     def report(tag, out_slow):
         out_fast = tout - out_slow
-        c_slow = estimate_cost(args.model, per_leg_in, out_slow)
-        c_fast = estimate_cost(args.model, per_leg_in, out_fast)
         print(f"   [{tag}]")
-        print(f"      low  effort: output {out_fast:>10,.0f}  "
-              f"ratio {out_fast / per_leg_in:.4f}  ${c_fast:7.2f}")
-        print(f"      high effort: output {out_slow:>10,.0f}  "
-              f"ratio {out_slow / per_leg_in:.4f}  ${c_slow:7.2f}")
-        print(f"      sum ${c_fast + c_slow:7.2f} vs billed day "
-              f"${estimate_cost(args.model, tin, tout):.2f}")
+        for label, out in (("low ", out_fast), ("high", out_slow)):
+            cost = (f"  ${estimate_cost(args.model, per_leg_in, out):7.2f}"
+                    if priced else "")
+            print(f"      {label} effort: output {out:>10,.0f}  "
+                  f"ratio {out / per_leg_in:.4f}{cost}")
+        if priced:
+            total = (estimate_cost(args.model, per_leg_in, out_fast)
+                     + estimate_cost(args.model, per_leg_in, out_slow))
+            print(f"      sum ${total:7.2f} vs billed day "
+                  f"${estimate_cost(args.model, tin, tout):.2f}")
 
     report("tail anchor", r_tail * per_leg_in)
     if args.anchor_low_ratio:
         report(f"rate anchor (low ratio {args.anchor_low_ratio:.4f})",
                tout - args.anchor_low_ratio * per_leg_in)
-    if price_for(args.model) is None:
-        print(f"   (no verified price for {args.model}; costs above are None)")
     print("\n   Two anchors that disagree are two estimates, not one answer -- quote "
           "the spread.")
     return 0
