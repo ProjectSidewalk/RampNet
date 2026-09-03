@@ -32,7 +32,9 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "model_comparison"))
+from rampnet import ledger  # noqa: E402
 from pricing import estimate_cost, price_for  # noqa: E402
 
 TOKEN_METRIC = "aiplatform.googleapis.com/publisher/online_serving/token_count"
@@ -43,13 +45,19 @@ KNOWN_TOKEN_TYPES = ("input", "output")
 
 def _load_dotenv():
     """Reuse compare.py's .env loader so both halves of the harness read the same
-    credentials file. Imported inside the function (the export_model_cache idiom)
-    so the module still imports without the detector stack on the path."""
+    credentials file, from this checkout and from the main checkout it belongs to.
+    Imported inside the function (the export_model_cache idiom) so the module still
+    imports without the detector stack on the path.
+
+    The main checkout matters here for the same reason the ledger does (#143): run
+    from a scratch worktree, which carries no git-ignored `.env`, this script would
+    otherwise exit with "no project" — the tool whose job is to recover a lost spend
+    failing in exactly the situation that loses one."""
     try:
-        from compare import load_dotenv
+        from compare import load_dotenv_for_run
     except ImportError:
         return
-    load_dotenv(str(REPO))
+    load_dotenv_for_run(REPO)
 
 
 def fetch_token_series(project, days):
@@ -102,6 +110,116 @@ def fetch_token_series(project, days):
     return series
 
 
+def ledger_totals_by_model(rows, since=None):
+    """Per-model token totals from usage_log.jsonl rows, for reconciliation.
+
+    ``since`` is an ISO date (YYYY-MM-DD); rows stamped earlier are skipped so the
+    comparison covers the same window the metric query did. Free legs carry no
+    token keys and are skipped: they have nothing to reconcile against a bill.
+
+    **Recovered rows are totalled separately, and that separation is the point.** A
+    recovered row was read off this very bill (``rampnet.ledger.RECOVERED``), so
+    counting it as "logged" would compare the bill against itself and report ``ok``
+    for the exact gap this function exists to find — turning the one check that
+    catches a silent no-write into a check that cannot. It is still worth reporting,
+    because a gap someone has already written down as unmeasured is not the same
+    finding as a gap nobody has looked at; ``reconcile`` subtracts it to get the part
+    that is genuinely unexplained."""
+    out = defaultdict(lambda: defaultdict(float))
+    for rec in rows or []:
+        if not rec.get("input_tokens") and not rec.get("output_tokens"):
+            continue
+        if since and (rec.get("ts") or "")[:10] < since:
+            continue
+        model = rec.get("model_id") or "?"
+        prefix = "recovered_" if ledger.row_kind(rec) == ledger.RECOVERED else ""
+        out[model][prefix + "input"] += rec.get("input_tokens") or 0
+        out[model][prefix + "output"] += rec.get("output_tokens") or 0
+        out[model][prefix + "rows"] += 1
+    return {m: dict(v) for m, v in out.items()}
+
+
+def reconcile(billed, logged, tolerance=0.02):
+    """Compare per-model billed tokens against what the ledger says we recorded.
+
+    This is the only check that catches a **silent no-write** — a paid leg that ran,
+    billed, and left no row. #119's guard cannot: it proves a log path was accepted,
+    not that the file survived (#139 lost $70.41 that way). A missing row is only
+    recoverable while the metric is still retained, ~6 weeks, so the check has to be
+    run close to the run.
+
+    Returns one dict per model with the billed, logged and recovered totals and a
+    verdict. Deliberately one-sided in what it treats as alarming: ledger > billed is
+    odd but harmless (a re-run, a mis-stamped window), while billed > ledger is spend
+    with no record, which is the failure this exists for.
+
+    The gap that earns a verdict is ``billed - logged - recovered``. A recovered row
+    still never makes the bill agree with itself, because it is not counted as a
+    measurement — but it does say that the part of the gap it covers has already been
+    found, priced and written down, and reporting that part as unaccounted for would
+    make this check raise an emergency about the one thing that was handled."""
+    rows = []
+    for model in sorted(set(billed) | set(logged)):
+        b = billed.get(model, {})
+        lg = logged.get(model, {})
+        b_in, l_in = b.get("input", 0), lg.get("input", 0)
+        r_in, r_rows = lg.get("recovered_input", 0), int(lg.get("recovered_rows", 0))
+        unexplained = b_in - l_in - r_in
+        if not l_in and not r_in and b_in:
+            verdict = "MISSING - billed, nothing logged"
+        elif b_in and abs(unexplained) / b_in > tolerance:
+            verdict = ("UNDER — ledger short" if unexplained > 0
+                       else "over — ledger exceeds billed")
+        elif r_rows:
+            verdict = f"ok ({r_rows} recovered)"
+        else:
+            verdict = "ok"
+        rows.append({
+            "model_id": model, "billed_input": b_in, "billed_output": b.get("output", 0),
+            "logged_input": l_in, "logged_output": lg.get("output", 0),
+            "logged_rows": int(lg.get("rows", 0)), "recovered_input": r_in,
+            "recovered_output": lg.get("recovered_output", 0),
+            "recovered_rows": r_rows, "unexplained_input": unexplained,
+            "verdict": verdict,
+        })
+    return rows
+
+
+def print_reconciliation(rows):
+    print(f"\n== reconciliation: Cloud Monitoring vs analysis_out/usage_log.jsonl ==")
+    print(f"{'model':26s} {'billed in':>14s} {'logged in':>14s} {'recovered in':>14s} "
+          f"{'rows':>5s}  verdict")
+    worst, recovered = [], []
+    for r in rows:
+        print(f"  {r['model_id']:24s} {r['billed_input']:14,.0f} "
+              f"{r['logged_input']:14,.0f} {r['recovered_input']:14,.0f} "
+              f"{r['logged_rows']:5d}  {r['verdict']}")
+        if r["verdict"].startswith(("MISSING", "UNDER")):
+            worst.append(r)
+        elif r["recovered_rows"]:
+            recovered.append(r)
+    if worst:
+        gap = sum(r["unexplained_input"] for r in worst)
+        print(f"\n  {len(worst)} model(s) billed more than the ledger explains "
+              f"({gap:,.0f} input tokens unaccounted for, over and above any "
+              f"recovered row).")
+        print("  A missing layer-1 row is an emergency with a deadline: this metric "
+              "retains ~6 weeks,\n  after which the number is unrecoverable at any "
+              "price. Recovery is per-model per-DAY,\n  so per-split attribution is "
+              "already gone - record the total against the run it came from.")
+    else:
+        print("\n  every billed model has a ledger row within tolerance.")
+    if recovered:
+        # Stated rather than left to read as a fresh gap: this column is spend that
+        # WAS lost and has since been reconstructed from the bill, so an operator who
+        # sees it reported as an emergency every run will learn to ignore the check.
+        print(f"  {len(recovered)} model(s) close the gap with a recovered row "
+              f"({sum(r['recovered_input'] for r in recovered):,.0f} input tokens) — "
+              f"a reconstruction\n  from this same bill, not a measurement, so the "
+              f"per-split attribution stays gone.")
+    return worst
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     # Same env var the Gemini legs run under (detectors.py GeminiDetector, and the
@@ -113,6 +231,14 @@ def main():
                          "which compare.py also reads from a repo-root .env).")
     ap.add_argument("--days", type=float, default=30,
                     help="Lookback window (metric retention is ~6 weeks).")
+    ap.add_argument("--reconcile", action="store_true",
+                    help="Compare these billed totals against what "
+                         "analysis_out/usage_log.jsonl recorded, per model. The only "
+                         "check that catches a paid leg which ran, billed, and left "
+                         "no row (#139, #143).")
+    ap.add_argument("--usage-log", help="Ledger to reconcile against (default: the "
+                                        "committed analysis_out/usage_log.jsonl in "
+                                        "the main checkout).")
     ap.add_argument("--min-tokens", type=int, default=1000,
                     help="Hide rows below this many input tokens (smoke-test noise). "
                          "Suppressed rows are counted and their cost reported.")
@@ -184,6 +310,19 @@ def main():
         print(f"  {len(suppressed)} model(s) below --min-tokens {args.min_tokens:,} "
               f"excluded (~${suppressed_cost:.2f}): {', '.join(suppressed)}")
     print("\nEstimates only; the billing console is authoritative for spend.")
+
+    if args.reconcile:
+        log_path = args.usage_log or str(
+            ledger.canonical_repo_root(REPO) / "analysis_out" / "usage_log.jsonl")
+        rows = ledger.read_rows(log_path)
+        if rows is None:
+            print(f"\ncannot reconcile: no ledger at {os.path.abspath(log_path)}")
+            return
+        since = (datetime.now(timezone.utc)
+                 - timedelta(days=args.days)).date().isoformat()
+        print(f"(ledger: {os.path.abspath(log_path)}, rows stamped >= {since})")
+        print_reconciliation(reconcile({m: dict(t) for m, t in totals.items()},
+                                       ledger_totals_by_model(rows, since)))
 
 
 if __name__ == "__main__":
