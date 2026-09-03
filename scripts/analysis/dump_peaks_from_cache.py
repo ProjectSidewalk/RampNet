@@ -20,8 +20,14 @@ part that must not diverge -- `extract_peaks_from_heatmap`, `PEAK_MIN_DISTANCE` 
 extracted by the same code that produced the committed curve.
 
     python scripts/analysis/dump_peaks_from_cache.py \
-        --cache-dir /path/to/run_a_84/evaluate_cache \
-        --out-dir benchmark/model_detections --verify
+        --cache-dir /path/to/run_a_84/evaluate_cache --verify
+
+**Not** ``benchmark/model_detections/`` -- ``rampnet/roster.py`` asserts every file in
+that directory belongs to a registered challenger leg (#122), and these dumps are
+internal checkpoints of a training run rather than entries in the RampNet-vs-VLM
+comparison. The default ``--out-dir`` is ``docs/data/run_a_84_detections``; pass a
+different one (and ``--label-prefix``, see below) for a different run's cache, e.g.
+``--out-dir docs/data/cosine_rung_135_detections --label-prefix cosine_rung_epoch_``.
 
 Output is one file per cached checkpoint in the published-detections shape
 (`{pano_id: [[x, y, confidence], ...]}`), so `benchmark_power_135.py` and every other
@@ -70,12 +76,18 @@ def parse_cache_key(name):
     return parts[0], parts[1], parts[2] == "tta"
 
 
-def fingerprint_labels(summary_csv):
-    """{fingerprint: 'run_a_epoch_N'} from Run A's committed summary table.
+def fingerprint_labels(summary_csv, label_prefix):
+    """{fingerprint: '<label_prefix>N'} from a committed per-epoch summary table.
 
     The cache directories are named by checkpoint fingerprint, which is the right key
     and an unreadable label. The committed summary already carries the mapping, so
     the epoch numbers come from the repo rather than from a filename someone typed.
+
+    ``label_prefix`` is an argument, not baked in, because more than one run shares
+    this script's summary-csv shape: Run A's dumps are ``run_a_epoch_N`` and the
+    cosine rung's (#135) are ``cosine_rung_epoch_N``. Hardcoding the former here once
+    meant passing the rung's ``--summary-csv`` silently mislabelled its dumps as Run
+    A's and overwrote them.
     """
     labels = {}
     if not os.path.exists(summary_csv):
@@ -88,7 +100,7 @@ def fingerprint_labels(summary_csv):
             row = dict(zip(header, line.rstrip("\n").split(",")))
             fp = row.get("checkpoint_fingerprint")
             if fp:
-                labels[fp] = f"run_a_epoch_{int(row['epoch'])}"
+                labels[fp] = f"{label_prefix}{int(row['epoch'])}"
     return labels
 
 
@@ -148,6 +160,12 @@ def main(argv=None):
     # checkpoints of one experiment rather than entries in the RampNet-vs-VLM
     # comparison. They belong beside the rest of the #84 data.
     ap.add_argument("--out-dir", default=str(REPO / "docs" / "data" / "run_a_84_detections"))
+    ap.add_argument("--label-prefix", default="run_a_epoch_",
+                    help="Prefix for the '<prefix>N' label built from --summary-csv's "
+                         "epoch column (default: Run A's). Change this together with "
+                         "--summary-csv and --out-dir for a different run's cache -- "
+                         "e.g. 'cosine_rung_epoch_' for the #135 rung -- so its dumps "
+                         "get their own label instead of Run A's.")
     ap.add_argument("--city", default="manual_gold",
                     help="Split name the detections belong to, for the filename.")
     ap.add_argument("--threshold", type=float, default=0.05,
@@ -157,7 +175,9 @@ def main(argv=None):
                     help="Which cache arm to read (default: the single-pass one, which "
                          "is the #54 protocol and what Run A's curve was read on).")
     ap.add_argument("--summary-csv", default=str(DEFAULT_SUMMARY),
-                    help="Committed table mapping checkpoint fingerprint -> epoch.")
+                    help="Committed table mapping checkpoint fingerprint -> epoch. "
+                         "Pass the run's own summary.csv together with --label-prefix "
+                         "and --out-dir; the default is Run A's.")
     ap.add_argument("--manual-labels", default=str(REPO / "manual_labels"))
     ap.add_argument("--verify", action="store_true",
                     help="Re-score each dump against manual_labels and check it "
@@ -170,7 +190,7 @@ def main(argv=None):
     if not os.path.isdir(heatmaps):
         raise SystemExit(f"{heatmaps}: not an evaluate.py cache (no heatmaps/ inside)")
 
-    labels = fingerprint_labels(args.summary_csv)
+    labels = fingerprint_labels(args.summary_csv, args.label_prefix)
     committed = {}
     if os.path.exists(args.summary_csv):
         with open(args.summary_csv, encoding="utf-8") as fh:
@@ -203,7 +223,7 @@ def main(argv=None):
                 "peak_floor": args.threshold,
                 "peak_min_distance": ev.PEAK_MIN_DISTANCE,
                 "heatmap_size": list(ev.MODEL_HEATMAP_SIZE),
-                "exclude_border": False,
+                "exclude_border": ev.PEAK_EXCLUDE_BORDER,
             },
             "n_panos": len(detections), "n_uncached": 0,
             "detections": detections,
@@ -213,18 +233,28 @@ def main(argv=None):
             json.dump(payload, fh, **DUMP_KW)
         written.append((label, len(detections), n_dets, os.path.getsize(path)))
 
-        if args.verify and fingerprint in committed:
-            row = committed[fingerprint]
-            f1, max_f1 = score_against_manual(detections, args.manual_labels, 0.30)
-            d_f1 = abs(f1 - float(row["f1_at_protocol"]))
-            d_max = abs(max_f1 - float(row["max_f1"]))
-            status = "ok" if max(d_f1, d_max) <= args.tolerance else "MISMATCH"
-            if status != "ok":
+        if args.verify:
+            if fingerprint not in committed:
+                # Silent before this fix: an unknown fingerprint just skipped the
+                # check, so a wrong --summary-csv (or a cache holding a checkpoint the
+                # summary doesn't know about) produced a dump nobody had verified.
                 problems.append(
-                    f"{label}: F1@0.30 {f1:.6f} vs committed {row['f1_at_protocol']} "
-                    f"(d={d_f1:.6f}); max-F1 {max_f1:.6f} vs {row['max_f1']} (d={d_max:.6f})")
-            print(f"  verify {label:>16}  F1@0.30 {f1:.6f} (d {d_f1:.2e})  "
-                  f"max-F1 {max_f1:.6f} (d {d_max:.2e})  {status}")
+                    f"{label}: fingerprint {fingerprint} not found in "
+                    f"{args.summary_csv} -- cannot verify against a committed curve.")
+                print(f"  verify {label:>16}  NO MATCH for fingerprint {fingerprint} "
+                      f"in {args.summary_csv}")
+            else:
+                row = committed[fingerprint]
+                f1, max_f1 = score_against_manual(detections, args.manual_labels, 0.30)
+                d_f1 = abs(f1 - float(row["f1_at_protocol"]))
+                d_max = abs(max_f1 - float(row["max_f1"]))
+                status = "ok" if max(d_f1, d_max) <= args.tolerance else "MISMATCH"
+                if status != "ok":
+                    problems.append(
+                        f"{label}: F1@0.30 {f1:.6f} vs committed {row['f1_at_protocol']} "
+                        f"(d={d_f1:.6f}); max-F1 {max_f1:.6f} vs {row['max_f1']} (d={d_max:.6f})")
+                print(f"  verify {label:>16}  F1@0.30 {f1:.6f} (d {d_f1:.2e})  "
+                      f"max-F1 {max_f1:.6f} (d {d_max:.2e})  {status}")
 
     print(f"\nwrote {len(written)} file(s) -> {args.out_dir}")
     print(f"{'label':>18} {'panos':>6} {'detections':>11} {'KB':>8}")

@@ -24,6 +24,10 @@ MODEL_HEATMAP_SIZE = (512, 1024)
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 RADIUS_THRESHOLD_NORMALIZED = 0.022
 PEAK_MIN_DISTANCE = 10
+#: peak_local_max's exclude_border, exposed so other readers of a heatmap cache
+#: (scripts/analysis/dump_peaks_from_cache.py) can stamp the value that was actually
+#: used rather than guess it -- #132 found a divergence here once already.
+PEAK_EXCLUDE_BORDER = False
 
 
 def parse_args():
@@ -75,7 +79,7 @@ def extract_peaks_from_heatmap(heatmap_np, min_distance, threshold_abs, heatmap_
     if heatmap_np.ndim > 2:
         heatmap_np = heatmap_np.squeeze()
     heatmap_np_contiguous = np.ascontiguousarray(heatmap_np)
-    coordinates = peak_local_max(heatmap_np_contiguous, min_distance=min_distance, threshold_abs=threshold_abs, exclude_border=False)
+    coordinates = peak_local_max(heatmap_np_contiguous, min_distance=min_distance, threshold_abs=threshold_abs, exclude_border=PEAK_EXCLUDE_BORDER)
     peaks_normalized = []
     for r, c in coordinates:
         confidence = heatmap_np[r, c]
