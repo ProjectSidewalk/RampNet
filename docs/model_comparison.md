@@ -1663,7 +1663,8 @@ either number was compared, so the agreement is a check, not a fit. Quote **$8.9
 ```bash
 python scripts/analysis/vertex_effort_split.py --model claude-opus-5 \
     --start 2026-08-15T17:00:00Z --end 2026-08-15T21:30:00Z \
-    --per-pano-input 12186 --anchor-low-ratio 0.034908
+    --per-pano-input 12186 --anchor-low-ratio 0.034908 \
+    --save-series docs/data/vertex_minute_series/claude-opus-5_2026-08-15.json
 ```
 
 **The same command on `claude-sonnet-5` refuses to answer, and that is the more
@@ -1675,6 +1676,42 @@ dial that this method reads barely moved. A mixture solver run on that series re
 effort cost less than low", which is false; the guard exists because the wrong answer is the
 plausible-looking one. **A per-effort split is recoverable exactly when effort changed the
 model enough to be worth splitting** — the telemetry is not the limiting factor.
+
+**The minute series is committed, so this section no longer has an expiry date.**
+Everything above was read out of telemetry with ~6 weeks of retention: the
+2026-08-15 series would have aged out around **2026-09-26** and the 2026-08-18 day
+around **2026-09-29**, after which nobody, with or without access to the project,
+could re-derive a number in it. `--save-series` writes the fetched rows to JSON and
+`--from-series` replays one, which needs no credentials, no project and no network:
+
+```bash
+python scripts/analysis/vertex_effort_split.py --model claude-opus-5 \
+    --from-series docs/data/vertex_minute_series/claude-opus-5_2026-08-15.json \
+    --per-pano-input 12186 --anchor-low-ratio 0.034908
+python scripts/analysis/vertex_effort_split.py --model claude-sonnet-5 \
+    --from-series docs/data/vertex_minute_series/claude-sonnet-5_2026-08-15.json
+```
+
+Four snapshots are committed under `docs/data/vertex_minute_series/`, all fetched
+2026-09-03, and replaying them reproduces every figure published above exactly:
+
+| file | window (UTC) | active minutes | input | output |
+|---|---|---:|---:|---:|
+| `claude-opus-5_2026-08-15.json` | 08-15 17:00-21:30, both effort legs | 76 | 3,058,702 | 247,222 |
+| `claude-sonnet-5_2026-08-15.json` | 08-15 12:00-21:30, both effort legs | 55 | 3,300,368 | 118,470 |
+| `claude-opus-5_2026-08-18.json` | 08-18 00:00 - 08-19 12:00, the #139 leg | 83 | 11,988,993 | 418,503 |
+| `vertex_usage_daily_2026-09-03.json` | the daily rows, 25-day lookback | - | - | - |
+
+Three details worth knowing before re-running any of it. The Sonnet window is wider
+than the Opus one because that leg started before 17:00 — the narrower window clips
+it to 3,157,769 input and moves the head ratio to 0.0374, which is why the figures
+quoted above need the wide one. Sonnet's output is one token under the daily row's
+118,471, a boundary artifact of 60 s alignment rather than a discrepancy in the day.
+And the daily-row snapshot, written by `vertex_usage.py --save-rows`, carries every
+token type including the three cache buckets that are zero here: a snapshot that
+quietly dropped a billed bucket would be worse than no snapshot. Only `fetched_utc`
+moves between regenerations; the rows are byte-stable, and
+`tests/test_vertex_effort_split.py` asserts that along with the published numbers.
 
 Two guards now stand where that went wrong, and the order matters. `compare.py` **refuses to
 start** a paid leg under `--usage-log none` (override: `--allow-unrecorded-spend`), which is
@@ -1774,7 +1811,18 @@ Layer 3 recovered the ground truth the next day:
 | claude-opus-5 (the eight splits, 984 panos, 08-18) | 11,988,993 | 418,503 | **$70.41** |
 | claude-sonnet-5 (re-run remnant) | 12,594 | 480 | $0.03 |
 
-`python scripts/analysis/vertex_usage.py --days 3`, run 2026-08-19. **The four richmond
+`python scripts/analysis/vertex_usage.py --days 3`, run 2026-08-19.
+
+**Wall-clock, recovered 2026-09-03 from the same metric at 60 s alignment:
+2026-08-18 23:29 to 2026-08-19 01:15 UTC — a 106-minute span, 83 of those
+minutes active, 9.3 panos/min.** Layer 1 would have recorded that at run time;
+layer 3 gives it back only because someone looked inside the retention window, so
+the series is committed as
+`docs/data/vertex_minute_series/claude-opus-5_2026-08-18.json` and the span is
+re-derivable from the repo alone. The 425 output tokens/pano below come from the
+same file.
+
+**The four richmond
 smoke panos are inside that 984, not additional to it** — both smoke records carry
 `bundle: richmond`, the export covers all 124 richmond panos, and the main run found those
 four already cached and re-billed nothing. For the same reason the ledger's $0.31 of smoke

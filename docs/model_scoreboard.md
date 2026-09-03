@@ -80,8 +80,8 @@ operating point anyone has committed to, and on ground truth that never saw a Ra
    gainesville (−0.069), richmond (−0.066), paterson (−0.039) and bend (−0.033) — **three of
    seven pooled splits, four of nine overall.** The pooled deficit is carried almost entirely
    by gainesville and richmond. So the split-to-split spread is roughly **3× the annapolis
-   lead that motivated the run**, and that lead was smaller in magnitude than four of the
-   seven per-split gaps. It was never evidence of a real difference. That generalizes past
+   lead that motivated the run**, and that lead was smaller in magnitude than five of the
+   other six per-split gaps. It was never evidence of a real difference. That generalizes past
    these two models: a single-split margin under ~0.07 F1 on this benchmark should be treated
    as unresolved until it is pooled, whichever direction it points.
 

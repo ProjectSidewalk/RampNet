@@ -210,7 +210,12 @@ tokens to Opus's 127,227, so the signal this method reads is not there. Numbers,
 the exact commands are in `docs/model_comparison.md` §"Splitting a two-leg day by effort".
 
 **Retention is ~6 weeks**, so all of this was recoverable only because someone looked within
-it; treat a missing usage record as having a deadline, not as paperwork.
+it; treat a missing usage record as having a deadline, not as paperwork. The 2026-08-15
+series would have aged out around **2026-09-26** and the 2026-08-18 day around
+**2026-09-29**, so the minute rows behind both are now committed under
+`docs/data/vertex_minute_series/` — `vertex_effort_split.py --from-series` replays them
+with no credentials and no project, and `tests/test_vertex_effort_split.py` checks that the
+published figures still fall out of them.
 `compare.report_usage` now prints a loud warning when a leg that spent money finishes with
 no log destination.
 
