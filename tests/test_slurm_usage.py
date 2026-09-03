@@ -17,8 +17,8 @@ sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "analysis"))
 sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "model_comparison"))
 
 from slurm_usage import (  # noqa: E402
-    gpus_from_tres, is_terminal, new_rows, parse_sacct, row_key, sacct_command,
-    summarize, SACCT_FIELDS, COLUMNS,
+    gpus_from_tres, is_terminal, latest_rows, new_rows, parse_sacct, print_by_name,
+    row_key, sacct_command, summarize, SACCT_FIELDS, COLUMNS,
 )
 from rampnet import ledger  # noqa: E402
 
@@ -150,10 +150,33 @@ def test_a_job_recorded_while_running_is_re_recorded_once_it_finishes():
     assert new_rows(done, done) == []          # ...but only once
 
 
+def test_a_re_recorded_job_is_counted_once_not_twice(capsys):
+    """The other half of re-appending: the ledger then holds both the RUNNING row
+    and the finished one, and totalling every row bills the job for both. 5.0
+    GPU-hours, not 6.0."""
+    running = parse_sacct(_line("500", "train", "tillicum", "", "normal", "RUNNING",
+                                "2026-08-01T00:00:00", "Unknown", 3600, "gres/gpu=1"))
+    done = parse_sacct(_line("500", "train", "tillicum", "", "normal", "COMPLETED",
+                             "2026-08-01T00:00:00", "2026-08-01T05:00:00", 18000,
+                             "gres/gpu=1"))
+    ledger_rows = running + new_rows(done, running)
+    assert len(ledger_rows) == 2
+    assert [r["state"] for r in latest_rows(ledger_rows)] == ["COMPLETED"]
+    agg = summarize(ledger_rows)["tillicum"]
+    assert agg["jobs"] == 1
+    assert agg["gpu_hours"] == pytest.approx(5.0)
+    assert agg["usd"] == pytest.approx(4.50)
+    print_by_name(ledger_rows)
+    assert "5.0" in capsys.readouterr().out
+
+
 def test_terminal_states_include_the_ones_with_a_suffix():
     assert is_terminal("CANCELLED by 12345") and is_terminal("COMPLETED")
     assert is_terminal("PREEMPTED") and not is_terminal("RUNNING")
     assert not is_terminal("PENDING") and not is_terminal("")
+    # A requeued incarnation is finished: it has an End time and its elapsed will
+    # not grow, and the next incarnation carries a different start.
+    assert is_terminal("REQUEUED")
 
 
 def test_the_sacct_command_asks_for_duplicates_and_the_pinned_columns():

@@ -37,7 +37,8 @@ Three things this gets right that a hand tally does not:
   2-GPU job costs exactly as much as a busy one.
 - **Idempotent.** Rows are keyed by (cluster, job id, start), so re-running after
   more jobs finish appends only what is new. A job first recorded while RUNNING is
-  re-appended once it reaches a terminal state; readers take the last row per key.
+  re-appended once it reaches a terminal state, so every total reads the ledger
+  through `latest_rows`, which keeps the last row per key.
 """
 import argparse
 import os
@@ -69,8 +70,11 @@ COLUMNS = [f.split("%")[0] for f in SACCT_FIELDS]
 GPU_TRES = re.compile(r"gres/gpu(?::([^=,]+))?=(\d+)")
 
 # Terminal from the accounting point of view: the elapsed time will not grow.
+# REQUEUED is one of them: the incarnation under that state has an End time and a
+# fixed elapsed, and the next incarnation gets its own (job id, start) key.
 TERMINAL_STATES = ("COMPLETED", "FAILED", "CANCELLED", "TIMEOUT", "PREEMPTED",
-                   "NODE_FAIL", "OUT_OF_MEMORY", "BOOT_FAIL", "DEADLINE", "REVOKED")
+                   "NODE_FAIL", "OUT_OF_MEMORY", "BOOT_FAIL", "DEADLINE", "REVOKED",
+                   "REQUEUED")
 
 
 def sacct_command(user, since, until=None):
@@ -186,12 +190,25 @@ def new_rows(parsed, existing):
     return out
 
 
+def latest_rows(rows):
+    """The last row per key, which is what any total has to read.
+
+    `new_rows` re-appends a job that was first recorded while RUNNING, so the
+    ledger holds both the understated row and the finished one. Summing every row
+    counts that job twice. The key is (cluster, job id, start), so genuinely
+    separate requeued incarnations are untouched."""
+    latest = {}
+    for rec in rows:
+        latest[row_key(rec)] = rec
+    return list(latest.values())
+
+
 def summarize(rows):
     """Per-cluster totals: jobs, GPU-hours, dollars. What a paper's methods
     section quotes, and what `hyakusage` is checked against."""
     by_cluster = defaultdict(lambda: {"jobs": 0, "gpu_hours": 0.0, "usd": 0.0,
                                       "elapsed_h": 0.0, "unpriced": 0})
-    for rec in rows:
+    for rec in latest_rows(rows):
         agg = by_cluster[rec.get("cluster") or "?"]
         agg["jobs"] += 1
         agg["gpu_hours"] += rec.get("gpu_hours") or 0
@@ -211,7 +228,7 @@ def print_by_name(rows, top=15):
     into the durable artifact by a filter chosen once. This is how the reader sees
     the composition immediately instead of summing the wrong thing."""
     agg = defaultdict(lambda: [0, 0.0, 0.0])
-    for rec in rows:
+    for rec in latest_rows(rows):
         a = agg[rec.get("job_name") or "?"]
         a[0] += 1
         a[1] += rec.get("gpu_hours") or 0
