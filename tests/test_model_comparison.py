@@ -1512,6 +1512,29 @@ def test_report_usage_appends_jsonl(tmp_path):
     assert len(log.read_text().splitlines()) == 2
 
 
+def test_report_usage_writes_lf_on_every_platform(tmp_path):
+    """The spend ledger is append-only and byte-compared in review, so a CRLF line is a
+    real defect — and `read_text().splitlines()` above cannot see one, because it strips
+    \\r\\n and \\n alike. Asserted on the bytes instead.
+
+    The writer was appending CRLF on Windows and git's autocrlf was normalising it away
+    on commit, so the blob looked right while every working copy was wrong. Same defect
+    imagery_manifest.py was fixed for in 22dd536.
+    """
+    class _Det:
+        name = "gemini"
+        model_id = "gemini-2.5-flash"
+        usage = {"calls": 1, "input_tokens": 10, "output_tokens": 10,
+                 "thoughts_tokens": 0}
+
+    log = tmp_path / "usage_log.jsonl"
+    report_usage(_Det(), "gemini-2.5-flash", "richmond", 1, str(log))
+    report_usage(_Det(), "gemini-2.5-flash", "bend", 1, str(log))
+    raw = log.read_bytes()
+    assert b"\r\n" not in raw, "usage ledger written with CRLF"
+    assert raw.count(b"\n") == 2 and raw.endswith(b"\n")
+
+
 def test_usage_record_carries_the_rig_that_priced_it(tmp_path):
     # Two runs of the same model on the same bundle at different tiling cost ~6x
     # different input, and without the signature the log cannot tell them apart.

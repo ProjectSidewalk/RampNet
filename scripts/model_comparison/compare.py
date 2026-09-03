@@ -399,7 +399,10 @@ def report_usage(detector, label, city, panos_scored, usage_log_path):
     }
     try:
         os.makedirs(os.path.dirname(usage_log_path) or ".", exist_ok=True)
-        with open(usage_log_path, "a", encoding="utf-8") as f:
+        # newline="" so a Windows run appends LF, not CRLF. This ledger is
+        # append-only and byte-compared in review; a CRLF line silently breaks that
+        # (the same defect imagery_manifest.py was fixed for).
+        with open(usage_log_path, "a", encoding="utf-8", newline="") as f:
             f.write(json.dumps(rec) + "\n")
     except OSError as e:
         # Print the record so the numbers survive in the run log even when the
