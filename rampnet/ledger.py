@@ -32,15 +32,17 @@ def row_kind(rec):
     """``MEASURED`` or ``RECOVERED`` for one ledger row.
 
     **A recovered row is not a measurement, and the difference matters for
-    reconciliation.** It
-    carries real money and real token counts, but it was read *off the bill*, so:
+    reconciliation.** It carries real money and real token counts, but it was read
+    *off the bill*, so:
 
     - it has **no per-split attribution** — recovery is per-model per-day, and which
       split spent what is permanently gone;
-    - it must **never be fed back into reconciliation**. ``vertex_usage.reconcile``
-      compares the ledger against that same bill, so counting a recovered row as
-      "logged" makes the bill agree with itself and reports ``ok`` for precisely the
-      gap the check exists to find.
+    - it must **never count as a measurement in reconciliation**.
+      ``vertex_usage.reconcile`` compares the ledger against that same bill, so
+      counting a recovered row as "logged" makes the bill agree with itself and
+      reports ``ok`` for precisely the gap the check exists to find. It is reported
+      in a column of its own and subtracted before the verdict, so a gap already
+      written down is not re-raised as an emergency on every run either.
 
     Totals still include it — a cost table that omits recovered spend is wrong by the
     whole amount, which for #139 was a factor of about 200.
