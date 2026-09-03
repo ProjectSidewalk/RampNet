@@ -64,7 +64,7 @@ in seconds, so it reproduces neither the token counts nor the runtime.
   (committed): tokens, dollars, wall-clock, seconds-per-panorama, the rig, and the build that
   actually served it. `--usage-log none` requires `--allow-unrecorded-spend`. Prices live in
   `scripts/model_comparison/pricing.py` and are **verified-only** — each rate carries the date
-  it was checked and the page it came from, never memory.
+  it was checked and, for compute, the page it came from, never memory.
 - **Free models still cost time.** OWLv2, Grounding DINO, Qwen, Molmo and the YOLO arms bill no
   tokens and burn real GPU-hours. They write the same row with `paid: false`, because "what did
   this cost" has two units and only one of them is dollars.

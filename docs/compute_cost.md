@@ -49,7 +49,7 @@ confirms the original query was duplicate-inclusive.
 | :--- | ---: | ---: | :--- |
 | `yolo_curb_ramp_train` | 3,857 | 2,046.9 | the supervised YOLO baseline (#51) |
 | `rampnet_run_a_84` | 6 | 528.6 | Run A, the epoch curve (#84) |
-| `rampnet_cosine_rung_135` | 2 | 25.1 | the 8-epoch cosine rung (#135), still in flight |
+| `rampnet_cosine_rung_135` | 2 | 25.1 | the 8-epoch cosine rung (#135), still in flight as of the 2026-08-19 pull |
 | `qwen_curb_ramp_compare` | 20 | 19.3 | Qwen legs of the model comparison |
 | `open_curb_ramp_compare` | 16 | 8.9 | OWLv2 / Grounding DINO legs |
 | `eval_run_a_84` | 16 | 3.1 | Run A evaluation |

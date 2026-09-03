@@ -31,7 +31,8 @@ RECOVERED = "recovered"
 def row_kind(rec):
     """``MEASURED`` or ``RECOVERED`` for one ledger row.
 
-    **A recovered row is not a measurement, and the difference is load-bearing.** It
+    **A recovered row is not a measurement, and the difference matters for
+    reconciliation.** It
     carries real money and real token counts, but it was read *off the bill*, so:
 
     - it has **no per-split attribution** — recovery is per-model per-day, and which
