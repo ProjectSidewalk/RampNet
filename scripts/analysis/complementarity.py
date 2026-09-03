@@ -51,33 +51,39 @@ from rampnet import roster                                                # noqa
 from rampnet.detection_eval import (                                      # noqa: E402
     build_ground_truth, score_pano, radius_sq_for, PANO_SCALE_X, PANO_SCALE_Y,
     _xy, prediction_confidence)
+from rampnet.metrics import greedy_match                                  # noqa: E402
 from compare import load_bundle, DetectionCache, cache_key                # noqa: E402
 from detectors import build_detector, parse_model_spec, PROVIDERS         # noqa: E402
 from operating_point_curve import CACHE_DIR, read_cache                   # noqa: E402
 
 
 def matched_gt(preds, gt_points, radius_sq):
-    """Greedy 1:1 match (mirrors score_pano); return the set of GT indices covered."""
+    """Which GT ramps a model covers: greedy 1:1, exactly as ``score_pano`` matches.
+
+    Ordering and geometry are ``score_pano``'s -- highest confidence first when the
+    predictions carry one, else input order, then ``rampnet.metrics.greedy_match``
+    with ``wrap_x=True``, which measures the x separation the shorter way round the
+    panorama (``rampnet.geometry.fold``, #132). Calling the shared matcher rather than
+    re-deriving the distance here is what keeps the four cells below and the FP counts
+    from ``score_pano`` on the same matcher: this script prints both in one table, and
+    ``score_pano`` wraps by default, so an inline non-wrapping distance here would put
+    two matchers in one output.
+
+    Measured effect of the wrap on this script's cells: zero flips on RampNet's side
+    at >= 0.5519, >= 0.30 and >= 0.05, and zero on the published Vistas 384 arm
+    (richmond); the paterson #35 gate reproduces unchanged. The parity 1024 arm could
+    not be re-checked -- its detections are not published (see the note beside the
+    parity table in ``docs/model_comparison.md``) -- so the bound there is the doc's
+    own seam count, 1 site in 38.
+    """
     confs = [prediction_confidence(p) for p in preds]
     order = (sorted(range(len(preds)),
                     key=lambda i: confs[i] if confs[i] is not None else float("-inf"),
                     reverse=True)
              if any(c is not None for c in confs) else range(len(preds)))
-    claimed, hit = [False] * len(gt_points), set()
-    for i in order:
-        pxn, pyn = _xy(preds[i])
-        px, py = pxn * PANO_SCALE_X, pyn * PANO_SCALE_Y
-        best_k, best = -1, radius_sq
-        for k, (gx, gy) in enumerate(gt_points):
-            if claimed[k]:
-                continue
-            d = (px - gx * PANO_SCALE_X) ** 2 + (py - gy * PANO_SCALE_Y) ** 2
-            if d < best:
-                best, best_k = d, k
-        if best_k >= 0:
-            claimed[best_k] = True
-            hit.add(best_k)
-    return hit
+    assignments = greedy_match([_xy(preds[i]) for i in order], gt_points,
+                               radius_sq, PANO_SCALE_X, PANO_SCALE_Y, wrap_x=True)
+    return {gt_index for gt_index, _ in assignments if gt_index >= 0}
 
 
 def complementary_null(rows, radius_sq):
