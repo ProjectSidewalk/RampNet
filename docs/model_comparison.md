@@ -1347,15 +1347,16 @@ At conf ≥ 0.30: control **0.419 / 0.694 / 0.522** (published: 0.419 / 0.697 / 
 **0.384 / 0.884 / 0.536**. Note the threshold barely bites at parity — it removes 3 false
 positives against 10 at 384 — because the higher-resolution masks are more confident.
 
-**The env control was not in the original plan and it earns its place.** The published run was on
-Jon's RTX 3070 on an older `transformers`; makelab2 is a major version on. Since the
-`transformers` version is *not* in the detection signature — a hazard this document already flags
-— parity-vs-published would have differed in **two** things. Re-running 384 in the parity env
-separates them: it lands within **one detection out of 523** of the published run (215/308/95 vs
-216/309/94, F1 0.516 vs 0.517). So the 4.x→5.15 jump is benign for this checkpoint, the residual
-is fp16 kernel nondeterminism rather than a version break, and **the whole parity delta is
-attributable to input size.** That also retires the "an upgrade could have changed every mask
-under an unchanged cache key" worry for this arm, as a measurement rather than an assurance.
+**The env control was not in the original plan, and it is what makes the parity delta
+attributable.** The published run was on Jon's RTX 3070 on an older `transformers`; makelab2 is a
+major version on. Since the `transformers` version is *not* in the detection signature — a hazard
+this document already flags — parity-vs-published would have differed in **two** things.
+Re-running 384 in the parity env separates them: it lands within **one detection out of 523** of
+the published run (215/308/95 vs 216/309/94, F1 0.516 vs 0.517). So the 4.x→5.15 jump is benign
+for this checkpoint, the residual is fp16 kernel nondeterminism rather than a version break, and
+**the whole parity delta is attributable to input size.** That also retires the "an upgrade could
+have changed every mask under an unchanged cache key" worry for this arm, as a measurement rather
+than an assurance.
 
 **The decision rule returns "stands", and it is not close.** Against the same-env control, parity
 moves F1 **0.516 → 0.534, +0.018** — about a third of the 0.05 bar. RampNet's lead goes 0.339 →
@@ -1395,30 +1396,57 @@ parity unqualified:
 
 **Caveats that travel with these numbers.** `min_area_px=16` is inert at 384 but sits exactly at
 the smallest achievable blob at 1024 (see above), so the two rows do not share that setting's
-meaning even though they share its value. The parity detections are **deliberately not
-published**: `--vistas-input-size` does not change the arm's label, so exporting them would
-overwrite `mask2former-vistas-curb-cut__richmond.json` — publishing them needs a distinct
-published name (the `--publish-as` pattern from #123), which was out of scope here. And this is
-still **richmond only**.
+meaning even though they share its value. And this is still **richmond only**.
+
+**Neither A40 run's detections are published, so the bottom two rows of that table are not
+re-derivable from a clean clone.** The parity (1024×1024) and same-env control (384×384)
+detections live in a private `--cache-dir` on makelab2 and nowhere else; only the published 384
+row and RampNet's row come from committed files. `--vistas-input-size` does not change the arm's
+label, so exporting either one would overwrite
+`benchmark/model_detections/mask2former-vistas-curb-cut__richmond.json`. Publishing them needs a
+distinct published name — `scripts/analysis/export_model_cache.py --publish-as` (#123, on `main`),
+e.g. `mask2former-vistas-curb-cut-1024` — which was out of scope here. **Everything downstream of
+those detections carries the same limit**: the 1024 column of the complementarity table, the whole
+operating-point-correction table, both cascade tables, both `analysis_out/cascade_gate*.json`, and
+the seam-exposure count. Each says so where it appears.
 
 #### Complementarity: 61% of RampNet's misses are recoverable, and a union still loses
 
 Parity raised the obvious recall-first question — this arm misses 36 ramps where RampNet misses
 72, so how much of *RampNet's* miss set does a free, zero-training model already cover? Run
 through the #35 gate (`scripts/analysis/complementarity.py`, generalized past its Gemini-only
-form for this), on the same cached detections, scoring-side only:
+form for this), scoring-side only:
 
-| | vistas @384 | **vistas @1024 (parity)** |
+| | vistas @384 (published) | **vistas @1024 (parity)** |
 |---|---:|---:|
 | found by BOTH | 194 | 220 |
 | rampnet ONLY | 44 | 18 |
-| **challenger ONLY** (rampnet-miss ∩ hit) | 21 | **54** |
-| found by NEITHER | 51 | **18** |
-| of rampnet's 72 misses, recovered | 21 (29%) | **54 (75%)** |
+| **challenger ONLY** (rampnet-miss ∩ hit) | 22 | **54** |
+| found by NEITHER | 50 | **18** |
+| of rampnet's 72 misses, recovered | 22 (31%) | **54 (75%)** |
 | null on that subset (same boxes, wrong pano) | 0.090 | 0.143 |
 | **attributable after the null** | **~15** | **~44** |
-| oracle-union recall | 0.835 | **0.942** |
-| boxes/pano · above chance (`null_recall.py`) | 4.5 · 0.657 | 6.2 · **0.864** |
+| oracle-union recall | 0.839 | **0.942** |
+| boxes/pano · above chance (`null_recall.py`) | 4.5 · 0.661 | 6.2 · **0.864** |
+
+**Which 384 run each column is.** The 384 column is the **published** arm, so both sides of it
+are committed: `benchmark/model_detections/mask2former-vistas-curb-cut__richmond.json` for the
+challenger and `benchmark/richmond/records.jsonl` for RampNet. One wrinkle in reading it back —
+`complementarity.py` and `null_recall.py` take their challenger detections from `.model_cache`
+rather than from the published export the way `fp_taxonomy.py` and `silent_witness.py` do, so on a
+clean clone the export has to be written into a cache directory first (*Reproducing it* below).
+`tests/test_complementarity.py` does that in a temporary directory and asserts this column cell
+for cell, so `pytest tests/test_complementarity.py` checks it with no setup at all.
+
+An earlier version of this column was the same-env A40 control rather than the published run. The
+two differ by one detection in 523, which moved two cells by one ramp each: challenger-only 22 →
+21 and found-by-nobody 50 → 51. Nothing turned on it, but the control is not published either, so
+the column as printed was not re-derivable and did not say which run it was.
+
+**The 1024 column cannot be re-derived from a clean clone.** The parity detections are not
+published (see the caveat under *Resolution parity*), so that column exists only against the
+private makelab2 cache. Closing that needs `scripts/analysis/export_model_cache.py --publish-as`
+(#123) to give the parity arm its own published name.
 
 **Discounted for chance, a free zero-training model finds ~44 of the 72 ramps RampNet misses —
 61%.** The null here is measured on the miss subset rather than extrapolated from the split-wide
@@ -1430,25 +1458,26 @@ OWLv2's 0.733 null at 74 boxes/pano.
 
 **The resolution fix mattered far more here than the headline suggested.** Parity moved F1 by
 +0.018 and was correctly judged not to change the ranking — but it nearly **tripled** the
-attributable complementary gain (~15 → ~44 ramps) and shrank the found-by-nobody core from 51 to
+attributable complementary gain (~15 → ~44 ramps) and shrank the found-by-nobody core from 50 to
 **18**, 5.8% of GT. That core is much smaller than paterson's 88 (22%) or gainesville's 55 (20%),
 though those are different splits against a different challenger, so read it as suggestive rather
 than a like-for-like. The general lesson is worth keeping: **a flat headline metric hid a large
 change in the structure underneath it**, and only the complementarity read surfaced it.
 
-**A naive union is nonetheless dead, and it is not close.** The oracle-union recall of 0.942 is a
-*ceiling* — it assumes a combiner that keeps every right call and discards every wrong one, which
-does not exist. What a real union pays is both FP bills:
+**A naive union of the two loses to RampNet alone, and it is not close.** The oracle-union recall
+of 0.942 is a *ceiling* — it assumes a combiner that keeps every right call and discards every
+wrong one, which does not exist. What a real union pays is both FP bills:
 
 | | P | R | F1 |
 |---|---:|---:|---:|
 | rampnet alone | 0.964 | 0.768 | **0.855** |
 | naive union with vistas @1024 | 0.393 | 0.942 | 0.555 |
-| naive union with vistas @384 | 0.450 | 0.835 | 0.585 |
+| naive union with vistas @384 | 0.450 | 0.839 | 0.586 |
 
-The economics are the whole story: those 54 ramps arrive with 442 false positives, about **8.2 FPs
-per recovered ramp**, against the 9 FPs RampNet currently pays for 238 true positives. So
-ensembling by union is not a close call at any operating point on this arm's PR curve.
+The false-positive bill decides it: those 54 ramps arrive with 442 false positives, about
+**8.2 FPs per recovered ramp**, against the 9 FPs RampNet currently pays for 238 true
+positives. So ensembling by union is not a close call at any operating point on this arm's
+PR curve.
 
 **What that leaves is a gated cascade, and it is a real open question rather than a plan.** The
 useful form is not "take both models' boxes" but "use this arm's candidates as a *spatial prior*
@@ -1487,12 +1516,19 @@ matching the committed `analysis_out/op/corrected_at_0.3.csv`. `complementarity.
 | oracle-union recall | 0.942 | 0.952 |
 | naive union F1 | 0.555 | 0.549 |
 
-**So ~14 of the ramps the challenger got credit for recovering are ramps RampNet already has at
-the operating point we recommend — the shipped threshold was discarding them.** The deployable
-complementary gain is **~30, not ~44**. The recovery *rate* barely moves (75% → 72%), which is the
-honest way to read it: the challenger is not preferentially finding the easy sub-threshold ones,
-there are simply fewer misses to find. And a naive union stays dead against the stronger baseline
-(0.549 vs 0.864).
+**Both columns are the parity arm, so neither re-derives from a clean clone** — the challenger
+side is the unpublished 1024 cache (see *Resolution parity*). RampNet's side is committed on both
+columns: `benchmark/richmond/records.jsonl` at 0.55 and `analysis_out/op_cache/richmond.json` at
+0.30.
+
+**So 16 of the 54 ramps the challenger got credit for recovering are ramps RampNet already has at
+the operating point we recommend — the shipped threshold was discarding them.** That is 16 raw,
+**~14 after the chance null** (~44 → ~30). RampNet gains 19 hits going 0.55 → 0.30 (72 misses →
+53); 16 of the 19 come out of the challenger-recovered cell and the other 3 out of the
+found-by-nobody cell, which is why the headline falls by 16 and not by 19. The deployable
+complementary gain is **~30, not ~44**. The recovery *rate* barely moves (75% → 72%): the
+challenger is not preferentially finding the easy sub-threshold ones, there are simply fewer
+misses to find. And a naive union still loses against the stronger baseline (0.549 vs 0.864).
 
 #### The cascade gate: live, but the ceiling is ~19 ramps, not 54
 
@@ -1504,18 +1540,38 @@ RampNet's heatmap at each, reusing #46 Phase 1's instrument verbatim (`site_prof
 Read pre-registered on #126 before running. Artifacts: `analysis_out/cascade_gate.json` (shipped
 point) and `analysis_out/cascade_gate_op030.json` (recommended point).
 
+**Both artifacts are committed and neither can be regenerated from a clean clone.** The four-cell
+partition inside them was computed against the parity detections, which are not published (see
+*Resolution parity*); the RampNet half — one forward per pano — needs the native-res panoramas
+from `projectsidewalk/rampnet-benchmark` and a GPU. What a clean clone *can* do is check each file
+against itself: `tests/test_cascade_gate.py` re-derives every `cells[]` figure from the same
+file's `sites` list, so a hand-copied number in the tables below fails the build.
+
+**Two things about `cascade_gate.json` specifically, so a regenerated copy is not mistaken for a
+changed result.** It was written at `b7342dc`, before `4c192ca` added `rampnet_op_threshold` to the
+payload, so it lacks that key while `cascade_gate_op030.json` carries it: a re-run would add
+`"rampnet_op_threshold": null` and change the bytes with identical results, which is exactly the
+comparison the `newline=""` pinning exists to make possible. And both were written before this
+branch took the #132 seam wrap (below). Regenerate both when the parity detections are published.
+
 At **rampnet@0.30**, of the 38 genuinely-complementary ramps:
 
 | what RampNet has there | n | what it means |
 |---|---:|---|
 | floor peak in radius, **0.05–0.30** | **19** | **promotable** — a peak exists, below threshold. This is the cascade's real target. |
 | floor peak in radius, ≥0.30 but unmatched | 4 | the greedy matcher gave that peak to an **adjacent GT**. A matcher/σ problem (#130), not a threshold one. |
-| no floor peak in radius | 15 | nothing to promote. `act` is 0.215 median — unpeaked heatmap mass `peak_local_max` never called a maximum. |
+| no floor peak in radius | 15 | nothing to promote. `act` across these 15 is 0.272 median (0.369 mean) — unpeaked heatmap mass `peak_local_max` never called a maximum. |
+
+The activation figure in the last row is the median over those **15 rows**, not over the 38-ramp
+cell. The cell's own median — `cells[].act_median` in `analysis_out/cascade_gate_op030.json` — is
+0.2152, and the 19 promotable rows sit lower still at 0.153. Three subsets, three medians, which
+is why the row says which one it is.
 
 **So the cascade is live and its ceiling is ~19 ramps on richmond — +6.1 recall points (0.829 →
 0.890) before any false-positive cost, which is unmeasured.** That is a real number and it is a
 long way below the 54 the raw complementarity suggested. Two-fifths of the recoverable set has no
-peak to raise, and a further tenth is a matching bug wearing a threshold costume.
+peak to raise, and a further tenth is a matching problem (#130) that no threshold prior can
+reach.
 
 **A negative worth recording: RampNet's own activation does not tell you which misses are
 recoverable.** `challenger_only` sits at null percentile **0.88** and the hard-core `neither` at
@@ -1534,26 +1590,53 @@ measured here**, so "+6.1 recall points" is a ceiling on the benefit with the co
 The next step, if this is ever picked up, is to build the gate and score it, not to reason further
 about it.
 
-**Seam exposure, stated because these numbers predate the #132 seam fixes.** This work branched at
-`5e20d11`, before `eccadda` (wrap the 360° seam in the matcher) and `f4c71c8` (`peaks_to_dets`
-dropped peaks beside the seam) landed. Two consequences, both bounded by measurement rather than
-argued away:
+**Seam exposure: the two committed artifacts predate the #132 seam fixes, and the effect has now
+been measured rather than bounded.** This work branched at `5e20d11`, before `eccadda` (wrap the
+360° seam in the matcher) and `f4c71c8` (`peaks_to_dets` dropped peaks beside the seam) landed.
+The branch has since merged `main`, so both fixes are in it, and `complementarity.py`'s own
+`matched_gt` — which produces the four cells — now calls the shared wrapping matcher instead of
+re-deriving the distance inline. That matters here because `score_pano` supplies the false-positive
+counts and union P/R/F1 printed in the same tables and wraps by default, so the two halves of one
+output were on different matchers.
 
-* The greedy match used here does not wrap. `score_pano`'s own docstring records that wrapping
-  *"moves no metric on any committed split"* while #130's duplicate ground truth masks it, so the
-  aggregate P/R/F1 are unaffected — but a cell assignment is finer-grained than an aggregate.
-* `analysis_out/op_cache/richmond.json` is **unchanged by those commits**, i.e. it was not
-  regenerated after the `peaks_to_dets` fix, so it can still be missing peaks that sit beside the
-  seam. That would make a site read "no floor peak in radius" when one exists — it can only
-  *understate* the promotable count, never inflate it.
+The earlier version of this paragraph quoted `score_pano`'s docstring as saying wrapping *"moves
+no metric on any committed split"*. **That is half the sentence.** In full: *"Wrapping moves no
+RampNet or YOLO metric on any committed split — but it does move the challengers."* The challenger
+is the side being partitioned here, so the half that was dropped is the one that applies, and the
+right way to settle it is to measure rather than to cite.
 
-**Measured exposure: 6 of richmond's 310 GT ramps straddle the seam, and only 1 of them is in
-`challenger_only`** (the other 5 are in `both`, where neither fix can move the partition in a
-direction that matters). So the worst case for the headline is one ramp in 38, and no conclusion
-here turns on it. Re-running on a post-#140 main is the clean way to retire the caveat rather than
-bound it.
+**Measured, on the cells themselves** (both / rampnet-only / challenger-only / neither), wrapping
+against not wrapping:
+
+| arm | RampNet's side | cells | wrapped |
+|---|---|---|---|
+| vistas 384 (published) | bundle, ≥ 0.5519 | 194 / 44 / 22 / 50 | identical |
+| vistas 384 (published) | op_cache ≥ 0.30 | 202 / 55 / 14 / 39 | identical |
+| vistas 384 (published) | op_cache ≥ 0.05 | 213 / 66 / 3 / 28 | identical |
+| gemini-3.1-pro-preview, paterson (#35 gate) | bundle | 188 / 83 / 36 / 88 | identical |
+| gemini-3.1-pro-preview, paterson (#35 gate) | op_cache ≥ 0.30 | 194 / 90 / 30 / 81 | identical |
+| gemini-3.1-pro-preview, paterson (#35 gate) | op_cache ≥ 0.05 | 201 / 98 / 23 / 73 | identical |
+
+**Zero cell flips, at every threshold, on both arms.** So the published 384 column and the
+committed #35 gate numbers are unchanged by the wrap. **The parity arm cannot be re-checked** —
+its detections are not published — so for the 1024 columns and both `cascade_gate*.json` the bound
+is still the count below rather than a measurement.
+
+One residual, unchanged by the merge: `analysis_out/op_cache/richmond.json` was last written at
+`c7098be` (2026-07-28), i.e. **before** `f4c71c8`, so it can still be missing peaks that sit
+beside the seam. That would make a site read "no floor peak in radius" when one exists — it can
+only *understate* the promotable count, never inflate it.
+
+**Measured exposure on the artifacts: 6 of richmond's 310 GT ramps straddle the seam, and only 1
+of them is in `challenger_only`** (the other 5 are in `both`, where neither fix can move the
+partition in a direction that matters). So the worst case for the ~19-ramp ceiling is one ramp in
+38, and no conclusion here turns on it. Regenerating both artifacts once the parity detections are
+published is the clean way to retire that bound.
 
 ##### Reproducing it
+
+The scored runs. These need a GPU and the native-resolution panoramas
+(`projectsidewalk/rampnet-benchmark`), and they are what produced the parity table:
 
 ```bash
 # parity (the measurement)
@@ -1568,15 +1651,57 @@ python scripts/model_comparison/compare.py benchmark/richmond \
     --models vistas:curb-cut --vistas-input-size 1024 1024 --op-threshold 0.30
 ```
 
-Cost, measured rather than guessed, because the estimate going in was 3–4× and it was wrong in
-the cheap direction: **the full 124-pano parity run takes 3m38s** on one A40, and the GPU forward
-goes 0.078 s → 0.092 s per view, only **1.17×**. Swin's windowed attention scales far better than
+The complementarity, null and cascade reads. Every one of these re-scores detections that are
+already cached, so they cost nothing; only `cascade_gate.py` needs a GPU, because it runs
+RampNet. `--vistas-input-size` is part of the cache key, so it is also what selects which run
+is being read: drop it to read the **published 384** arm instead of the parity arm.
+
+```bash
+# the four cells at parity, with the chance null measured on the miss subset
+python scripts/analysis/complementarity.py vistas:curb-cut richmond \
+    --vistas-input-size 1024 1024
+
+# the same, re-based on the operating point this document recommends
+python scripts/analysis/complementarity.py vistas:curb-cut richmond \
+    --vistas-input-size 1024 1024 --rampnet-op-threshold 0.30
+
+# density vs detection: boxes/pano, the shifted-pano null, above-chance
+python scripts/analysis/null_recall.py benchmark/richmond \
+    --models rampnet,vistas:curb-cut --vistas-input-size 1024 1024
+
+# the cascade gate, at the shipped point and at the recommended one. Needs a GPU
+# and the native-res panos; --panos-root is the checkout that holds them.
+python scripts/analysis/cascade_gate.py --panos-root /path/to/RampNet \
+    --model vistas:curb-cut --vistas-input-size 1024 1024 \
+    --json-out analysis_out/cascade_gate.json
+python scripts/analysis/cascade_gate.py --panos-root /path/to/RampNet \
+    --model vistas:curb-cut --vistas-input-size 1024 1024 \
+    --rampnet-op-threshold 0.30 --json-out analysis_out/cascade_gate_op030.json
+```
+
+`complementarity.py` and `null_recall.py` read `--cache-dir` (default `.model_cache`), which is
+git-ignored, so on a clean clone the published detections have to be written into one first.
+`benchmark/model_detections/<model>__<split>.json` records the signature they were cached under
+and `compare.cache_key(model, signature, city, pano_id)` is the shard name;
+`tests/test_complementarity.py` does the whole thing in eight lines and is the shortest working
+example. For the **parity** arm there is nothing to write — those detections are not published
+(see *Resolution parity*) — so the 1024 commands above run only where that private cache exists.
+
+**Cost, in both units.** Money: **$0** — makelab2 is lab-owned hardware with no metered
+billing, and every read above is free. Time: one leg of three was timed, and **the full 124-pano
+parity run takes 3m38s** on one A40. That was measured rather than guessed because the estimate
+going in was 3–4× and it was wrong in the cheap direction: the GPU forward goes 0.078 s →
+0.092 s per view, only **1.17×**. Swin's windowed attention scales far better than
 pixel count, and the documented "2.3 s/view" is dominated by reprojection and CPU work, not the
-encoder. Peak GPU memory is 1.64 GB. Verified before the run rather than assumed: the override
+encoder. Peak GPU memory is 1.64 GB. The same-env 384 control was **not timed** (the same 124
+panos at 1/7 the pixel area, so it is the cheaper of the two), and RampNet's row in that table
+costs no GPU at all — `--models rampnet` scores the bundle's committed detections without loading
+a model. **So there is no session total to quote; what is recorded is 3m38s for the one leg that
+was measured.** Verified before the run rather than assumed: the override
 reaches the model — `pixel_values` (1, 3, 384, 384) → (1, 3, 1024, 1024) and mask logits
 (1, 100, 96, 96) → (1, 100, 256, 256) — which a silently no-opping `processor.size` assignment on
 a new major version would not have done, and which would have made "parity" a second 384 run
-wearing a different cache key.
+under a different cache key.
 
 Two mechanisms, both measured rather than assumed:
 
