@@ -190,9 +190,16 @@ ROSTER = (
         density="sparse", standing=False, added="2026-08-15",
         pins=(("claude_effort", "low"),),
         published_as="claude-opus-5-effort-low",
-        note="Top challenger on annapolis (F1 0.588), the first model to displace "
-             "gemini-3.1-pro. 2.56 boxes/pano. Effort low is the provider default, "
-             "so this is what a bare `claude:claude-opus-5` reproduces."),
+        note="Nine splits (#139). Pooled F1 0.588 over the seven city splits, which "
+             "TRAILS gemini-3.1-pro's 0.608 -- its +0.021 annapolis lead, the only "
+             "time anything displaced the top challenger, did not survive pooling. "
+             "Per split the two trade wins (Opus takes 3 of 7 pooled, 4 of 9 overall); "
+             "the spread is ~3x the lead, so that lead was split noise, not a "
+             "difference. Highest recall of any fully-pooled chat VLM though (0.614), "
+             "trading -0.083 precision for +0.041 recall. 2.61 boxes/pano over nine "
+             "splits (2.56 on annapolis alone). No manual_gold row, deliberately: "
+             "#144. Effort low is the provider default, so this is what a bare "
+             "`claude:claude-opus-5` reproduces."),
     Challenger(
         spec="claude:claude-opus-5", label="claude-opus-5", provider="claude",
         density="sparse", standing=False, added="2026-08-15",

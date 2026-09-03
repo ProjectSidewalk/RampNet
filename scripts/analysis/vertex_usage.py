@@ -16,7 +16,10 @@ the same `GOOGLE_CLOUD_PROJECT` (environment or repo-root `.env`) they read.
     python scripts/analysis/vertex_usage.py --days 42 --project my-project
 
 **Replication note:** this reads one specific cloud project's billing telemetry, so
-only someone with access to that project can re-derive its output. The numbers it
+only someone with access to that project can re-derive its output, and only inside the
+retention window. `--save-rows` writes the daily rows to a JSON file, which is how a
+recovered figure stops depending on that window; the snapshots behind the #122 and #139
+cost tables are committed under docs/data/vertex_minute_series/. The numbers this
 produced are transcribed into docs/model_comparison.md; the per-run token counts in
 analysis_out/usage_log.jsonl are the committed, checkable half.
 
@@ -25,6 +28,7 @@ NOT a calendar day — a leg run on the evening of the 14th lands in the row
 labeled the 15th. Attribute rows to legs by the run record, not by eye.
 """
 import argparse
+import json
 import os
 import sys
 from collections import defaultdict
@@ -39,6 +43,27 @@ TOKEN_METRIC = "aiplatform.googleapis.com/publisher/online_serving/token_count"
 # The only `type` label values this metric is known to carry. Anything else is
 # tokens we would neither print nor price, so it gets reported rather than dropped.
 KNOWN_TOKEN_TYPES = ("input", "output")
+
+
+def write_json(path, doc, compact_key=None):
+    """Write a committed telemetry snapshot: LF-only, one row per line.
+
+    Plain ``indent=2`` puts every integer of a 76-row series on its own line, which
+    buries a real change in several hundred lines of noise, so the list named by
+    ``compact_key`` is emitted one entry per line instead. Everything written here is
+    an integer token count or a string, so there is nothing to round and a regenerated
+    copy is provably byte-identical to the committed one (only ``fetched_utc`` moves).
+    """
+    if compact_key is None:
+        text = json.dumps(doc, indent=2)
+    else:
+        marker = "__ROWS_PLACEHOLDER__"
+        entries = [json.dumps(r, separators=(", ", ": ")) for r in doc[compact_key]]
+        rendered = ("[\n    " + ",\n    ".join(entries) + "\n  ]") if entries else "[]"
+        text = json.dumps(dict(doc, **{compact_key: marker}), indent=2).replace(
+            json.dumps(marker), rendered)
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        f.write(text + "\n")
 
 
 def _load_dotenv():
@@ -113,6 +138,10 @@ def main():
                          "which compare.py also reads from a repo-root .env).")
     ap.add_argument("--days", type=float, default=30,
                     help="Lookback window (metric retention is ~6 weeks).")
+    ap.add_argument("--save-rows", metavar="PATH",
+                    help="Write the daily rows to PATH as JSON, so a recovered "
+                         "figure survives the ~6-week metric retention. Every row "
+                         "is written, including ones --min-tokens hides.")
     ap.add_argument("--min-tokens", type=int, default=1000,
                     help="Hide rows below this many input tokens (smoke-test noise). "
                          "Suppressed rows are counted and their cost reported.")
@@ -147,6 +176,24 @@ def main():
         print(f"WARNING: unpriced token type(s) {', '.join(unknown)} carrying "
               f"{extra:,.0f} tokens are excluded from every figure below. "
               f"Price them in pricing.py or the total understates real spend.\n")
+
+    if args.save_rows:
+        # Every row and every token type, not just the two that get priced below:
+        # a snapshot that silently drops a bucket is worse than no snapshot.
+        doc = {
+            "metric": TOKEN_METRIC,
+            "alignment_period": "86400s",
+            "lookback_days": args.days,
+            "fetched_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "rows": [{"window_end": day, "model": model,
+                      "tokens": {t: int(round(v))
+                                 for t, v in sorted(daily[(day, model)].items())}}
+                     for (day, model) in sorted(daily)],
+        }
+        out = Path(args.save_rows)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        write_json(out, doc, "rows")
+        print(f"(wrote {len(doc['rows'])} daily rows to {args.save_rows})\n")
 
     print(f"{'window end':12s} {'model':26s} {'input':>14s} {'output':>12s}")
     for (day, model) in sorted(daily):
