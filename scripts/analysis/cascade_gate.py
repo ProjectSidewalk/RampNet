@@ -2,7 +2,7 @@
 
 The complementarity gate (``complementarity.py``) says a Vistas-supervised segmenter at
 input parity finds 54 of the 72 richmond ramps RampNet misses, ~44 of them after the
-chance null. A naive union is nonetheless dead — those 54 arrive with 442 false
+chance null. A naive union of the two still loses — those 54 arrive with 442 false
 positives, ~8.2 FP per recovered ramp, and the union scores F1 0.555 against RampNet's
 0.855.
 
@@ -28,7 +28,7 @@ cutoffs (``ABSENT_MAX`` 0.01, ``PEAK_FLOOR`` 0.05) all come from
 comparable to that phase's 8% absent / 62% adjacent-tail / 30% faint decomposition,
 and it means a fix to the probe fixes both analyses.
 
-**``class_of`` is imported for comparability, but the load-bearing column here is
+**``class_of`` is imported for comparability, but the column the read turns on here is
 ``peak_in_radius``, not the class.** #46 Phase 1 applied those cutoffs to *silent*
 misses — defined as no floor peak within the radius — so there ``tail`` (act >= 0.05)
 could only mean an outside mode reaching in. This population is every RampNet miss, not
@@ -153,7 +153,8 @@ def main(argv=None):
                         "threshold instead of the bundle's shipped detections "
                         "(>=0.5519 on richmond). This document recommends 0.30, and "
                         "the cells move: 19 of the shipped point's misses are ramps "
-                        "RampNet already has. Default: the bundle, as published.")
+                        "RampNet already has, 16 of them from challenger_only. "
+                        "Default: the bundle, as published.")
     p.add_argument("--radius", type=float, default=0.022)
     p.add_argument("--tiling", choices=["perspective", "none"], default="perspective")
     p.add_argument("--vistas-input-size", type=int, nargs=2, metavar=("H", "W"), default=None,
@@ -182,12 +183,13 @@ def main(argv=None):
 
     # Floor peaks (>= 0.05). Used for the sub-threshold probe always, and to
     # DEFINE rampnet's hits when --rampnet-op-threshold is given.
-    floor_peaks, floor_src = {}, "op_cache"
+    floor_peaks, floor_src, have_op_cache = {}, "op_cache", True
     try:
         cached, _ = read_cache(os.path.join(CACHE_DIR, f"{args.split}.json"))
         for pd in cached:
             floor_peaks[pd["pano"]] = pd["preds"]
     except (OSError, ValueError, KeyError):
+        have_op_cache = False
         floor_src = ("MISSING (fell back to bundle records -- distances are to the "
                      "shipped operating point, not the 0.05 floor)")
         if args.rampnet_op_threshold is not None:
@@ -195,7 +197,7 @@ def main(argv=None):
                      f"{args.split}.json, which could not be read.")
 
     # ---- partition every GT ramp into a complementarity cell ------------------
-    sites, missing = [], 0
+    sites, missing, no_floor = [], 0, 0
     for pid, entry in verdicts.items():
         gt = build_ground_truth(records[pid]["detections"], entry["dets"],
                                 entry["missed"], entry["no_missed"])
@@ -206,6 +208,11 @@ def main(argv=None):
             missing += 1
             continue
         if args.rampnet_op_threshold is not None:
+            # A pano the op_cache does not list would score as RampNet-blank, which
+            # turns every GT on it into a miss. That is a silent shift of the whole
+            # partition, so it is counted and reported rather than absorbed.
+            if pid not in floor_peaks:
+                no_floor += 1
             rp = [q for q in floor_peaks.get(pid, [])
                   if q[2] >= args.rampnet_op_threshold]
         else:
@@ -219,6 +226,11 @@ def main(argv=None):
     if missing:
         print(f"WARNING: {missing} panos had no cached {label} detections and were "
               f"skipped. Pass the --vistas-input-size the run used.", flush=True)
+    if no_floor:
+        print(f"WARNING: {no_floor} panos are absent from analysis_out/op_cache/"
+              f"{args.split}.json, so RampNet scored blank on them and every GT ramp "
+              f"there counts as a miss. Regenerate the op_cache for this split before "
+              f"reading the cells.", flush=True)
     if not sites:
         sys.exit("No sites -- is the challenger cached for this split/input size?")
 
@@ -253,9 +265,14 @@ def main(argv=None):
             skipped += len(by_pano[pid])
             continue
         heat = ts.heatmap_for(model, device, path, use_fp16=False)
-        preds = floor_peaks.get(pid) or [
-            (d["x_normalized"], d["y_normalized"], d["confidence"])
-            for d in records[pid]["detections"]]
+        # One source per run, not per pano. `floor_peaks.get(pid) or <bundle>` would
+        # substitute the shipped detections for any pano the op_cache lists with zero
+        # floor peaks, while the header still says the floor came from op_cache -- and
+        # a pano with no peak at the 0.05 floor genuinely has nothing to promote, which
+        # is the answer, not a gap to fill.
+        preds = (floor_peaks.get(pid, []) if have_op_cache else
+                 [(d["x_normalized"], d["y_normalized"], d["confidence"])
+                  for d in records[pid]["detections"]])
         for s in by_pano[pid]:
             act, off_px, center = site_profile(heat, s["x"], s["y"], radius_sq)
             npx, nscore = nearest_peak(preds, s["x"], s["y"])

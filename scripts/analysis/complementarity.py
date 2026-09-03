@@ -11,8 +11,10 @@ challenger's from ``.model_cache``, so this never runs a model or spends anythin
 point — on richmond every one scores >= 0.5519 — while this document's own
 recommendation since #54/#55 (PR #79) is **0.30**. Those are different models for this
 purpose: at 0.30 RampNet finds 257 of richmond's 310 ramps instead of 238, so 19 of the
-"misses" a challenger gets credit for recovering are ramps RampNet already has and the
-shipped threshold is discarding. ``--rampnet-op-threshold`` re-sources RampNet's side
+misses the shipped threshold reports are ramps RampNet already has. 16 of those 19 are
+in the challenger-recovered cell, which is what the complementary-gain headline counts,
+so that headline falls from 54 to 38 (~44 to ~30 after the chance null); the other 3 come
+out of the found-by-nobody cell. ``--rampnet-op-threshold`` re-sources RampNet's side
 from the committed ``analysis_out/op_cache/<split>.json`` floor peaks at a given
 threshold, which is how you ask "what is the complementary gain at the operating point
 we would actually deploy?". Default is the bundle records, so the published roster
@@ -118,12 +120,25 @@ def complementary_null(rows, radius_sq):
 
 
 def model_spec(token):
-    """``provider``/``provider:model_id``, or a legacy bare Gemini model id."""
+    """``provider``/``provider:model_id``, or a legacy bare Gemini model id.
+
+    A colon means the caller wrote ``provider:model_id``, so an unrecognised provider
+    there is a typo and is rejected. Without a colon the token is read as a Gemini
+    model id: that is the form the #35 gate was invoked with before this script grew
+    past one provider, and reading it as a provider would reject strings that used to
+    be valid.
+
+    Rejecting the colon form matters because a bad spec does not fail loudly on its
+    own. It builds a detector whose signature nothing ever cached, every lookup
+    misses, and the script reports a model with zero cached detections -- which reads
+    as a missing run rather than a mistyped argument.
+    """
     provider, model_id = parse_model_spec(token)
     if provider in PROVIDERS:
         return provider, model_id
-    # Legacy positional form: a bare model id meant gemini. Keep it working --
-    # reading it as a provider would raise on strings that used to be valid.
+    if ":" in token:
+        sys.exit(f"unknown provider {provider!r} in model spec {token!r} "
+                 f"(choose from: {', '.join(PROVIDERS)})")
     return "gemini", token
 
 
