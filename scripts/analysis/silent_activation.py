@@ -77,8 +77,11 @@ from miss_decomposition import DEFAULT_THRESHOLD  # noqa: E402
 # live `US_SPLITS`, so registering a new city cannot silently restate a published
 # finding. laurens is absent for that reason alone -- it is pooled everywhere else.
 # To fold a split in: re-run the study, re-quote it, update the 0c expectations.
-US_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson",
-             "gainesville")
+# The name matches farfield_forensics' frozen tuple: `US_SPLITS` means the live
+# registry in every other module, and two of them meaning different things is how a
+# reader ends up quoting the wrong population.
+PUBLISHED_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson",
+                    "gainesville")
 from farfield_forensics import (  # noqa: E402
     DEFAULT_RATER, load_rated, quartiles, row_key)
 from rampnet.detection_eval import (  # noqa: E402
@@ -282,7 +285,7 @@ def main(argv=None):
     p.add_argument("--panos-root", default=REPO,
                    help="Checkout holding benchmark/<city>/panos (git-ignored, so "
                         "in a worktree it lives in the main checkout instead).")
-    p.add_argument("--cities", default=",".join(US_SPLITS))
+    p.add_argument("--cities", default=",".join(PUBLISHED_SPLITS))
     p.add_argument("--limit", type=int, default=None,
                    help="Stop after this many panos (smoke test). Refused with "
                         "--json-out: a truncated run must not be written as a result.")
@@ -301,8 +304,8 @@ def main(argv=None):
     cities = [c.strip() for c in args.cities.split(",") if c.strip()]
     if args.json_out and args.limit:
         p.error("--limit truncates the run; refusing to write it to --json-out")
-    if args.json_out and sorted(cities) != sorted(US_SPLITS) and not args.allow_partial:
-        p.error(f"--cities is a subset ({len(cities)} of {len(US_SPLITS)}); the "
+    if args.json_out and sorted(cities) != sorted(PUBLISHED_SPLITS) and not args.allow_partial:
+        p.error(f"--cities is a subset ({len(cities)} of {len(PUBLISHED_SPLITS)}); the "
                 f"pooled population is what 0c quotes. Pass --allow-partial if a "
                 f"scoped result file is really what you want.")
 
