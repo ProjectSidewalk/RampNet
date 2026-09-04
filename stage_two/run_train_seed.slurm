@@ -43,7 +43,12 @@ set -euo pipefail
 
 # The seed IS the experiment, so it is required rather than defaulted -- a replicate
 # that silently ran at 42 would be a duplicate of the published run wearing a new name.
-SEED="${SEED:?set SEED to the replicate's seed, e.g. SEED=1}"
+# NO APOSTROPHE in this message. Inside ${VAR:?...} bash parses the word for quoting
+# even within double quotes, so a lone ' opens a quote and the closing } is never found:
+# "unexpected EOF while looking for matching `}'". The script then dies at submit time
+# with exit 2 in about one second, having printed nothing -- which is how jobs
+# 39515025/26/27 failed on 2026-09-03 and then sat unnoticed for a day.
+SEED="${SEED:?set SEED to the seed for this replicate, e.g. SEED=1}"
 
 REPO="${REPO:-$HOME/RampNet}"
 DATA_ROOT="${DATA_ROOT:-/gscratch/scrubbed/$USER/rampnet_dataset}"
