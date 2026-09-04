@@ -1,4 +1,5 @@
 import argparse
+import itertools
 import os
 import random
 import numpy as np
@@ -11,7 +12,7 @@ import json
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import Dataset, DataLoader, DistributedSampler
+from torch.utils.data import Dataset, DataLoader, DistributedSampler, Sampler
 from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms
 import torchvision.transforms.functional as F
@@ -27,6 +28,90 @@ from rampnet.seeding import HISTORICAL_SEED, sampler_seed_for
 # uses the paper's 1e-5; fine-tuning released/earlier RampNet weights wants a
 # much smaller step so it refines rather than forgets.
 PRESET_LR = {'scratch': 1e-5, 'finetune': 3e-6}
+
+#: Learning-rate schedules. 'constant' is the paper recipe and the default, so every
+#: existing invocation is byte-for-byte unaffected; 'cosine' is the #135 rung.
+LR_SCHEDULES = ('constant', 'cosine')
+
+
+def lr_at_step(step, total_steps, peak_lr, schedule='constant', final_frac=0.0):
+    """The learning rate for training step ``step``, from the step index alone.
+
+    **Deliberately stateless, and that is the whole point.** Stage 2 runs on klone's
+    preemptible ``ckpt-all`` partition -- Run A was requeued five times -- and resumes from
+    ``latest_checkpoint.pth``. A stateful scheduler (``CosineAnnealingLR`` and friends
+    keep ``last_epoch`` internally) would restart its decay from the peak on every
+    requeue unless its state were also saved and restored, turning a smooth cosine
+    into a sawtooth. That failure is silent: the run completes, the loss curve looks
+    plausible, and the schedule under test was never actually applied.
+
+    Computing the rate from ``global_step`` -- which is already checkpointed, already
+    broadcast to every rank, and already correct across resume -- makes that
+    impossible by construction rather than by remembering to serialize one more field.
+
+    ``final_frac`` is the fraction of ``peak_lr`` the cosine lands on at the end
+    (0.0 = decay to zero). There is **no warmup**: adding one would be a second
+    change, and the rung exists to isolate the decay.
+    """
+    if schedule == 'constant':
+        return peak_lr
+    if schedule != 'cosine':
+        raise ValueError(f"unknown lr schedule {schedule!r}")
+    progress = min(max(step / max(1, total_steps), 0.0), 1.0)
+    floor = peak_lr * final_frac
+    return floor + (peak_lr - floor) * 0.5 * (1.0 + math.cos(math.pi * progress))
+
+
+class ResumeSkipSampler(Sampler):
+    """Wraps a sampler so a resumed epoch can drop the batches it already did.
+
+    **Why this exists.** Resuming used to fast-forward with ``if i < batch_idx_in_epoch:
+    continue`` inside the training loop, which pulls each skipped batch all the way
+    through the DataLoader -- reading and decoding a 2048x4096 panorama per skipped
+    step -- only to throw it away. Measured on the #135 cosine rung: **4.6 min from job
+    start to the first training step on a fresh start, against 23-30 min when resuming**,
+    growing with position in the epoch.
+
+    On a preemptible partition that is not a slow resume, it is a livelock. Once the
+    resume cost exceeds the interval between preemptions, every incarnation spends its
+    whole slice re-reading panoramas, reaches no checkpoint, and the run advances by
+    nothing -- which is exactly what happened for 8h54m on 2026-08-19/20 at step 9,000.
+
+    Dropping the *indices* instead means the workers never fetch them, so the cost falls
+    to essentially zero. **The batches that remain, and their order, are identical**:
+    ``DistributedSampler``'s permutation is a pure function of (seed, epoch), so taking
+    an islice off the front leaves the rest of the sequence untouched. This is a speed
+    fix, not a change to what the model sees.
+
+    ``skip`` is set per epoch by the training loop; ``epoch_length`` is the full,
+    unskipped per-rank count, because the LR horizon must not move when a run resumes.
+
+    **One window this does not cover: the epoch boundary.** ``latest_checkpoint.pth``
+    is refreshed every ``--checkpoint-interval-steps`` mid-epoch, but at the end of an
+    epoch it is written only *after* the validation pass, the 1 GB epoch checkpoint and
+    the peek image. The #135 cosine rung's committed events show what that costs:
+    incarnations 5 and 6 both logged through step 9378 (the end of epoch 1) and the next
+    incarnation resumed at 9001 both times -- the whole validation pass plus 378 steps,
+    lost twice. Shortening the mid-epoch interval does not narrow that window; one
+    ``latest_checkpoint.pth`` write *before* validation would. Left as a known gap
+    rather than fixed here, because the change is to a training script no test on this
+    branch exercises end to end and the run it would have helped is finished.
+    """
+
+    def __init__(self, base):
+        self.base = base
+        self.skip = 0
+        self.epoch_length = len(base)
+
+    def set_epoch(self, epoch):
+        self.base.set_epoch(epoch)
+
+    def __iter__(self):
+        indices = iter(self.base)
+        return itertools.islice(indices, self.skip, None) if self.skip else indices
+
+    def __len__(self):
+        return max(0, self.epoch_length - self.skip)
 
 
 def parse_args():
@@ -51,7 +136,23 @@ def parse_args():
                              f"(default: {HISTORICAL_SEED}, the value every published run used). "
                              f"Change it only to measure run-to-run variance -- see "
                              f"docs/seed_variance_51_135.md")
+    parser.add_argument('--lr-schedule', choices=LR_SCHEDULES, default='constant',
+                        help="'constant' is the paper recipe and the default -- every "
+                             "existing invocation is unaffected. 'cosine' decays --lr to "
+                             "--lr-final-frac of itself over the whole run, with no "
+                             "warmup (#135 rung).")
+    parser.add_argument('--lr-final-frac', type=float, default=0.0,
+                        help="Fraction of --lr the cosine ends at (default 0.0).")
+    parser.add_argument('--checkpoint-interval-steps', type=int, default=1000,
+                        help="Steps between writes of latest_checkpoint.pth (default 1000, "
+                             "the paper recipe). This is the granularity a preemption "
+                             "rewinds to, so on a preemptible partition it must be well "
+                             "under the interval between preemptions or nothing is banked.")
     args = parser.parse_args()
+    if not 0.0 <= args.lr_final_frac < 1.0:
+        parser.error("--lr-final-frac must be in [0, 1)")
+    if args.checkpoint_interval_steps < 1:
+        parser.error("--checkpoint-interval-steps must be >= 1")
     if args.preset == 'finetune' and args.init_weights is None:
         parser.error("--preset finetune requires --init-weights")
     if args.lr is None:
@@ -282,8 +383,9 @@ if len(val_dataset) == 0 and rank == 0:
 # Both halves have to move together. A sweep that varied initialization but reused one
 # data order would understate the true run-to-run spread -- and would do it silently,
 # since nothing in the logs distinguishes the two.
-train_sampler = DistributedSampler(train_dataset, num_replicas=world_size, rank=rank, shuffle=True, drop_last=True,
-                                   seed=sampler_seed_for(args.seed))
+train_sampler = ResumeSkipSampler(
+    DistributedSampler(train_dataset, num_replicas=world_size, rank=rank, shuffle=True, drop_last=True,
+                       seed=sampler_seed_for(args.seed)))
 val_sampler = DistributedSampler(val_dataset, num_replicas=world_size, rank=rank, shuffle=False, drop_last=False) if len(val_dataset) > 0 else None
 
 train_loader = DataLoader(train_dataset, batch_size=1, sampler=train_sampler, num_workers=4, pin_memory=True)
@@ -297,6 +399,14 @@ criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=args.lr)
 scaler = torch.cuda.amp.GradScaler()
 
+num_epochs = args.epochs
+# The cosine's horizon. epoch_length is per-rank and drop_last=True, so this is the
+# same 9,378 steps per epoch the paper run and Run A took at world size 16 -- the decay
+# is defined over the whole run, not per epoch. Read off the sampler's FULL length
+# rather than len(train_loader), which shrinks on the epoch a resume lands in: the
+# horizon a resumed run decays over has to be the one it started with.
+total_train_steps = num_epochs * train_sampler.epoch_length
+
 if rank == 0:
     os.makedirs("peek_training", exist_ok=True)
     os.makedirs(args.checkpoint_dir, exist_ok=True)
@@ -307,12 +417,14 @@ if rank == 0:
     # to leave unset without noticing.
     print(f"Seed: {args.seed} (sampler seed: {sampler_seed_for(args.seed)}), "
           f"checkpoint dir: {args.checkpoint_dir}")
+    print(f"LR schedule: {args.lr_schedule}"
+          + (f" -> {args.lr * args.lr_final_frac:.3g} over {total_train_steps} steps"
+             if args.lr_schedule != 'constant' else " (no decay, as in the paper)"))
 
 else:
     writer = None
 
-num_epochs = args.epochs
-checkpoint_interval_steps = 1000
+checkpoint_interval_steps = args.checkpoint_interval_steps
 start_epoch = 0
 global_step = 0
 batch_idx_in_epoch = 0
@@ -372,19 +484,37 @@ for epoch in range(start_epoch, num_epochs):
     
     
     
+    # Batches this epoch already did before the interruption. The sampler drops their
+    # INDICES, so the DataLoader never reads them back off disk -- see ResumeSkipSampler.
+    # Every rank has the same value (it is broadcast above), so DDP stays in lockstep.
+    resume_offset = batch_idx_in_epoch if epoch == start_epoch else 0
+    train_sampler.skip = resume_offset
+
     if rank == 0:
-        progress_bar = tqdm(desc=f"Epoch {epoch+1}/{num_epochs}", 
-                            total=len(train_loader), 
-                            initial=batch_idx_in_epoch if epoch == start_epoch else 0)
-    
-    
+        progress_bar = tqdm(desc=f"Epoch {epoch+1}/{num_epochs}",
+                            total=train_sampler.epoch_length,
+                            initial=resume_offset)
+
+
     for i, (images, target_heatmaps) in enumerate(train_loader):
-        if epoch == start_epoch and i < batch_idx_in_epoch:
-            continue 
+        # `i` counts batches actually processed this epoch; the skipped ones are gone
+        # from the sampler, so the position within the epoch is resume_offset + i.
+        #
+        # Absolute, 0-based index of the step about to be taken. Reconstructed from
+        # the checkpointed global_step, so it is correct on the first launch and after
+        # any number of requeues -- see lr_at_step for why the schedule reads this
+        # rather than keeping state of its own.
+        iter_in_epoch = i
+        step_index = global_step + iter_in_epoch
+        current_lr = lr_at_step(step_index, total_train_steps, args.lr,
+                                args.lr_schedule, args.lr_final_frac)
+        if args.lr_schedule != 'constant':
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = current_lr
 
         images = images.cuda(local_rank, non_blocking=True)
         target_heatmaps = target_heatmaps.cuda(local_rank, non_blocking=True)
-        
+
         optimizer.zero_grad(set_to_none=True)
         
         with torch.cuda.amp.autocast():
@@ -400,11 +530,14 @@ for epoch in range(start_epoch, num_epochs):
         
         
         
-        current_iter_in_epoch = i - (batch_idx_in_epoch if epoch == start_epoch else 0)
-        current_total_step = global_step + current_iter_in_epoch + 1 
+        current_total_step = step_index + 1
 
         if rank == 0:
             writer.add_scalar('Loss/train_step', loss.item(), current_total_step)
+            # Logged every step so the schedule that was ACTUALLY applied is
+            # recoverable from the committed events afterwards. A sawtooth from a
+            # mis-resumed scheduler is invisible in the loss curve and obvious here.
+            writer.add_scalar('LR', current_lr, current_total_step)
             progress_bar.set_postfix(loss=loss.item(), step=current_total_step)
             progress_bar.update(1) 
 
@@ -413,7 +546,7 @@ for epoch in range(start_epoch, num_epochs):
                 torch.save({
                     'epoch': epoch, 
                     'global_step': current_total_step,
-                    'batch_idx_in_epoch': i + 1, 
+                    'batch_idx_in_epoch': resume_offset + i + 1,
                     'model_state_dict': model_state_to_save,
                     'optimizer_state_dict': optimizer.state_dict(),
                     'scaler_state_dict': scaler.state_dict(),
@@ -426,9 +559,12 @@ for epoch in range(start_epoch, num_epochs):
 
     
     
-    num_batches_processed_this_epoch = len(train_loader) - (batch_idx_in_epoch if epoch == start_epoch else 0)
+    # len(train_loader) already excludes the skipped batches (ResumeSkipSampler.__len__),
+    # so it IS the count processed this epoch -- no second subtraction.
+    num_batches_processed_this_epoch = len(train_loader)
     global_step += num_batches_processed_this_epoch
-    batch_idx_in_epoch = 0 
+    batch_idx_in_epoch = 0
+    train_sampler.skip = 0
 
     
     if val_loader is not None:

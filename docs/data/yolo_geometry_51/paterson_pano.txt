@@ -1,0 +1,60 @@
+Bundle: benchmark/paterson  (125 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: /homes/gws/jonf/RampNet/.model_cache
+
+[y11x_pano_h200] all 125 panos already cached; model load skipped
+Operating point: predictions with confidence < 0.25 dropped (models without confidences are unaffected).
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+y11x_pano                             0.974   (0.940-0.989)  0.471   (0.422-0.520)  0.635  0.816        186/5/209/3
+y11x_pano_h200                        0.974   (0.940-0.989)  0.471   (0.422-0.520)  0.635  0.800        186/5/209/2
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+[y11x_pano] threshold sweep (re-scored from cached detections)
+    thr      P      R     F1         tp/fp/fn
+   0.05  0.653  0.876  0.748       346/184/49
+   0.10  0.848  0.747  0.794       295/53/100 <- best F1
+   0.15  0.912  0.630  0.746       249/24/146
+   0.20  0.934  0.539  0.684       213/15/182
+   0.25  0.974  0.471  0.635        186/5/209
+   0.30  0.976  0.408  0.575        161/4/234
+   0.40  1.000  0.251  0.401         99/0/296
+   0.50  1.000  0.159  0.275         63/0/332
+   0.60  1.000  0.111  0.200         44/0/351
+   0.70  1.000  0.061  0.115         24/0/371
+   0.80  1.000  0.005  0.010          2/0/393
+
+[y11x_pano_h200] threshold sweep (re-scored from cached detections)
+    thr      P      R     F1         tp/fp/fn
+   0.05  0.660  0.856  0.745       338/174/57
+   0.10  0.820  0.737  0.776       291/64/104 <- best F1
+   0.15  0.919  0.635  0.751       251/22/144
+   0.20  0.957  0.559  0.706       221/10/174
+   0.25  0.974  0.471  0.635        186/5/209
+   0.30  0.982  0.405  0.573        160/3/235
+   0.40  0.990  0.261  0.413        103/1/292
+   0.50  1.000  0.182  0.308         72/0/323
+   0.60  1.000  0.104  0.188         41/0/354
+   0.70  1.000  0.068  0.128         27/0/368
+   0.80  1.000  0.020  0.040          8/0/387
+
+PR curves written to /homes/gws/jonf/RampNet/yolo_eval_results_geometry_51/pr_paterson_pano (JSON + pr_curves.png)
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   125 (of 125 seen)
+Detections judged:    277  (correct 270, incorrect 7)
+Detections duplicate: 1  (redundant hits on an already-counted ramp; folded into the numbers above per this run's duplicate scoring)
+Detections unsure:    7  (abstained — not in precision or recall)
+Missed ramps marked:  125  (+36 unsure, abstained)
+Precision: 0.975  (95% CI 0.949-0.988)
+Recall:    0.684  (95% CI 0.636-0.727)  [vs ramps visible in the 125 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    277      0.975    0.684
+     0.60    270      0.974    0.666
+     0.65    259      0.977    0.641
+     0.70    248      0.984    0.618
+     0.75    222      0.982    0.552
+     0.80    199      0.980    0.494
+     0.85    156      1.000    0.395
+     0.90     88      1.000    0.223
+     0.95     25      1.000    0.063

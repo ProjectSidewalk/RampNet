@@ -1,0 +1,57 @@
+Bundle: benchmark/morgantown  (125 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: /homes/gws/jonf/RampNet/.model_cache
+
+[y11x_pano_h200] all 125 panos already cached; model load skipped
+Operating point: predictions with confidence < 0.25 dropped (models without confidences are unaffected).
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+y11x_pano                             0.935   (0.888-0.963)  0.596   (0.536-0.653)  0.728  0.796       159/11/108/0
+y11x_pano_h200                        0.993   (0.961-0.999)  0.524   (0.465-0.583)  0.686  0.790        140/1/127/0
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+[y11x_pano] threshold sweep (re-scored from cached detections)
+    thr      P      R     F1         tp/fp/fn
+   0.05  0.652  0.850  0.738       227/121/40
+   0.10  0.803  0.779  0.791        208/51/59
+   0.15  0.867  0.730  0.793        195/30/72 <- best F1
+   0.20  0.926  0.652  0.765        174/14/93
+   0.25  0.935  0.596  0.728       159/11/108
+   0.30  0.952  0.524  0.676        140/7/127
+   0.40  0.950  0.360  0.522         96/5/171
+   0.50  0.987  0.288  0.446         77/1/190
+   0.60  1.000  0.202  0.336         54/0/213
+   0.70  1.000  0.097  0.177         26/0/241
+
+[y11x_pano_h200] threshold sweep (re-scored from cached detections)
+    thr      P      R     F1         tp/fp/fn
+   0.05  0.714  0.813  0.760        217/87/50
+   0.10  0.900  0.742  0.813        198/22/69 <- best F1
+   0.15  0.963  0.678  0.796         181/7/86
+   0.20  0.982  0.599  0.744        160/3/107
+   0.25  0.993  0.524  0.686        140/1/127
+   0.30  0.991  0.419  0.589        112/1/155
+   0.40  0.988  0.296  0.455         79/1/188
+   0.50  0.984  0.228  0.371         61/1/206
+   0.60  1.000  0.154  0.266         41/0/226
+   0.70  1.000  0.034  0.065          9/0/258
+
+PR curves written to /homes/gws/jonf/RampNet/yolo_eval_results_geometry_51/pr_morgantown_pano (JSON + pr_curves.png)
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   125 (of 125 seen)
+Detections judged:    200  (correct 195, incorrect 5)
+Detections unsure:    9  (abstained — not in precision or recall)
+Missed ramps marked:  72  (+20 unsure, abstained)
+Precision: 0.975  (95% CI 0.943-0.989)
+Recall:    0.730  (95% CI 0.674-0.780)  [vs ramps visible in the 125 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    200      0.975    0.730
+     0.60    189      0.984    0.697
+     0.65    169      0.988    0.625
+     0.70    159      0.994    0.592
+     0.75    140      1.000    0.524
+     0.80    123      1.000    0.461
+     0.85     99      1.000    0.371
+     0.90     57      1.000    0.213
+     0.95     16      1.000    0.060

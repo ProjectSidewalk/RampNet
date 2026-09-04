@@ -237,7 +237,7 @@ def test_the_split_date_range_is_read_from_the_committed_verdicts():
     """Hardcoded as "2026-07-22 to 2026-07-31" until sao_paulo landed on 2026-08-01 outside it."""
     benchmark = os.path.join(REPO_ROOT, "benchmark")
     assert split_date_range(benchmark, ["sao_paulo"]) == "on 2026-08-01"
-    assert split_date_range(benchmark, BENCHMARK_SPLITS) == "between 2026-07-22 and 2026-08-01"
+    assert split_date_range(benchmark, BENCHMARK_SPLITS) == "between 2026-07-22 and 2026-08-31"
 
 
 def test_the_date_range_never_invents_a_date_it_cannot_read(tmp_path):

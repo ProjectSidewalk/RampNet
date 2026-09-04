@@ -125,6 +125,28 @@ def test_train_py_seeds_all_three_rngs_from_args():
     assert "np.random.seed(42)" not in src
 
 
+def _unwrap_to(call, func_name):
+    """Descend through wrapper calls to the ``func_name`` call inside.
+
+    ``train_sampler`` is ``ResumeSkipSampler(DistributedSampler(...))`` since #135's
+    resume-skip landed. The seed belongs on the INNER sampler -- putting it on the
+    wrapper would be inert -- so this walks in rather than asserting on the outer call,
+    and fails loudly if the target is not found at all.
+    """
+    seen = []
+    while isinstance(call, ast.Call):
+        name = call.func.id if isinstance(call.func, ast.Name) else None
+        seen.append(name)
+        if name == func_name:
+            return call
+        nested = [a for a in call.args if isinstance(a, ast.Call)]
+        assert len(nested) == 1, (
+            f"cannot find {func_name}(...) in the assignment; walked {seen} and the last "
+            f"call has {len(nested)} nested calls, so which one to follow is ambiguous")
+        call = nested[0]
+    raise AssertionError(f"no {func_name}(...) call found; walked {seen}")
+
+
 def test_train_sampler_seed_is_derived_not_hardcoded():
     """The regression this guards: dropping the sampler seed (back to its constant 0
     default) and leaving a sweep that varies initialization only.
@@ -133,8 +155,7 @@ def test_train_sampler_seed_is_derived_not_hardcoded():
     the file text. Deleting the kwarg passes any whole-file substring check, because the
     same expression appears in the seed log line.
     """
-    call = _assigned_call("train_sampler")
-    assert isinstance(call.func, ast.Name) and call.func.id == "DistributedSampler"
+    call = _unwrap_to(_assigned_call("train_sampler"), "DistributedSampler")
 
     shuffle = _kwarg(call, "shuffle")
     assert isinstance(shuffle, ast.Constant) and shuffle.value is True, (

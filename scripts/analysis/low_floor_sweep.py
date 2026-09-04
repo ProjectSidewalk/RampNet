@@ -66,13 +66,26 @@ from operating_point_curve import (  # noqa: E402
 
 # The seven US city splits carry verdict-grade GT and are the recommendation's basis.
 US_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson",
-             "gainesville")
-CITY_SPLITS = US_SPLITS + ("budapest_district5", "sao_paulo")
+             "gainesville", "laurens_mapillary")
+CITY_SPLITS = US_SPLITS + ("laurens_gsv", "budapest_district5", "sao_paulo")
 ALL_SPLITS = CITY_SPLITS + ("manual_gold",)
 
 # Why a split is swept but not pooled. Printed with the results so an omission can
 # never be mistaken for a withheld result.
+# Which city a split belongs to. Only needed where one city has more than one
+# imagery arm -- everywhere else the split id IS the city. Consumed by
+# test_a_city_contributes_at_most_one_pooled_split, which is what actually stops a
+# second arm from being pooled alongside its sibling.
+CITY_OF = {"laurens_mapillary": "laurens", "laurens_gsv": "laurens"}
+
 HELD_OUT = {
+    "laurens_gsv": "second imagery arm of laurens, which is already pooled through "
+                   "laurens_mapillary -- the two arms sample one town and largely "
+                   "the same physical ramps (59% of gsv panos within 20 m of a "
+                   "mapillary one, median NN 17.2 m), so pooling both would "
+                   "double-count them and break the independence the Wilson "
+                   "intervals assume (GT is HIGH confidence; held out for "
+                   "non-independence, not GT quality)",
     "budapest_district5": "single-rater GT at low reviewer confidence "
                           "(docs/model_comparison.md: do not pool)",
     "sao_paulo": "non-US city — the pooled recommendation is a US-deployment "
@@ -409,17 +422,23 @@ def _write_csv(path, rows, fields):
 
 def pool_of(cities, include_budapest=False, include_gold=False,
             include_sao_paulo=False):
-    """Which of ``cities`` contribute to the POOLED and per-tier rows."""
-    keep = []
-    for c in cities:
-        if c == "budapest_district5" and not include_budapest:
-            continue
-        if c == "manual_gold" and not include_gold:
-            continue
-        if c == "sao_paulo" and not include_sao_paulo:
-            continue
-        keep.append(c)
-    return keep
+    """Which of ``cities`` contribute to the POOLED and per-tier rows.
+
+    Derived from ``HELD_OUT`` rather than from a list of split names. It used to
+    name the three held-out splits literally, which meant a *newly* held-out split
+    was pooled anyway -- the exclusion lived here while the stated reason lived in
+    HELD_OUT, and nothing tied them together. `laurens_gsv` found that: registering
+    it with a documented reason silently pooled it alongside its own sibling arm.
+
+    The three keyword flags stay because each has a caller that deliberately opts
+    that split back in for a specific figure. There is deliberately no flag for a
+    second imagery arm: pooling one would double-count a town, which is not a thing
+    any caller should be able to ask for.
+    """
+    opt_in = {"budapest_district5": include_budapest,
+              "manual_gold": include_gold,
+              "sao_paulo": include_sao_paulo}
+    return [c for c in cities if c not in HELD_OUT or opt_in.get(c, False)]
 
 
 # --------------------------------------------------------------------------- #

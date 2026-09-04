@@ -54,7 +54,7 @@ CACHE_DIR = os.path.join(OUT, "op_cache")
 # imagery_manifest, miss_taxonomy, fp_taxonomy, the galleries), which looks exactly
 # like a result nobody ran. test_registries_agree_with_low_floor_sweep enforces it.
 US_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson",
-             "gainesville")
+             "gainesville", "laurens_mapillary")
 
 # Imagery tier per split (benchmark/README.md). Reported separately because the
 # distance estimate is NOT equally trustworthy across them: flat-ground geometry
@@ -65,8 +65,11 @@ US_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson"
 # POOLED rows, and a split that never pools has no business appearing in one.
 TIER = {"bend": "gsv", "paterson": "gsv", "gainesville": "gsv",
         "richmond": "mapillary", "clovis": "mapillary", "morgantown": "mapillary",
-        "annapolis": "mapillary"}
-HELD_OUT = {"budapest_district5": "single-rater GT at low reviewer confidence",
+        "annapolis": "mapillary", "laurens_mapillary": "mapillary"}
+HELD_OUT = {"laurens_gsv": "second imagery arm of laurens, already pooled through "
+                           "laurens_mapillary -- same town, largely the same "
+                           "physical ramps, so pooling both double-counts",
+            "budapest_district5": "single-rater GT at low reviewer confidence",
             "sao_paulo": "non-US city, and the pooled basis is US deployment "
                          "(GT is high confidence; held out for geography, "
                          "not GT quality)",

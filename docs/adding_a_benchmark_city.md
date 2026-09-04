@@ -47,6 +47,42 @@ Also decide now, and record it in the PR:
 - **Does this split enter the pooled recommendation?** Default yes for a US/VA deployment city
   with verdict-grade GT. No for out-of-distribution or rubric-uncertain splits.
 - **Which imagery tier is it?** If the rig is new, `tier_of()` needs a branch (see phase 5).
+- **Is this a second imagery arm of a city already in the benchmark?** If so it does *not*
+  pool — see below.
+
+### Split naming, and second imagery arms
+
+A split id is normally the bare city name — and that name silently also means "the one
+imagery source this city happened to be run on". Laurens broke that: it is the only city
+run on **both** GSV and Mapillary over one footprint (area hash `d8dd392b…`), which is
+exactly what makes it the control for #151.
+
+The rule:
+
+> **A split carries a `_<source>` suffix if and only if its city has more than one imagery
+> arm.** The suffix is disambiguation — present exactly where it is needed, absent where it
+> is not.
+
+So the benchmark holds `laurens_mapillary` and `laurens_gsv`, while `bend`, `richmond` and
+the rest stay bare. If bend ever gains a Mapillary arm it becomes `bend_gsv` +
+`bend_mapillary` **at that moment**, not pre-emptively. Renaming costs a directory move,
+the `op_cache` file, the `split` column of six committed CSVs, `scoreboard.json`, and a
+republish of the HF dataset under new config names — and that last part **breaks every
+existing `load_dataset(..., "bend")`**. So rename before the split's first HF publish if
+you possibly can; that is the only irreversible piece.
+
+**A second arm does not enter the pooled recommendation.** The two arms sample the same
+town and — because the 30 m de-clustering saturates in a small city — largely the *same
+physical curb ramps*: 59% of `laurens_gsv`'s panos sit within 20 m of a `laurens_mapillary`
+one, median nearest neighbour 17.2 m. Pooling both would double-count those ramps and break
+the independence the Wilson intervals assume. The second arm goes into `HELD_OUT` with that
+as its stated reason — a **third** category, alongside "GT is not trustworthy" (budapest)
+and "wrong population" (sao_paulo, manual_gold). `CITY_OF` records which city a split
+belongs to, and a test enforces that pooled splits are one per city.
+
+That overlap is also the experiment's best asset: it hands you a paired subset of ~51
+corners seen by both rigs, for free, with no bespoke sampler. Measure it and report it
+alongside the two independent recalls.
 
 ## Phase 1 — auto-labeler: detect the city and export the bundle
 
@@ -211,6 +247,7 @@ city or mislabelling it.
 |---|---|
 | `scripts/analysis/low_floor_sweep.py` → `US_SPLITS` / `CITY_SPLITS` / `ALL_SPLITS` | add the split; `US_SPLITS` membership is what puts it in the pooled recommendation |
 | `low_floor_sweep.py` → `HELD_OUT` | **required** if it is not pooled — every held-out split must carry a stated reason, and a test enforces this |
+| `low_floor_sweep.py` → `CITY_OF` | **required for a second imagery arm** — maps the split to its city, so the one-pooled-split-per-city test can see the pairing |
 | `low_floor_sweep.py` → `tier_of()` | add a branch if the rig is new, or the split lands in `unknown` |
 | `low_floor_sweep.py` → `SPLIT_IMAGERY_FALLBACK` | only if `records.jsonl` lacks camera provenance |
 | `low_floor_sweep.py` → `TTA_RECORD_SPLITS` | only if the committed detections used TTA |
@@ -287,6 +324,7 @@ Copy into the PR description and tick. Anything not done gets a line saying so a
 **Phase 5 — code**
 - [ ] Added to `US_SPLITS` / `CITY_SPLITS` / `ALL_SPLITS`
 - [ ] `HELD_OUT` reason recorded if not pooled
+- [ ] `CITY_OF` entry added if this is a second imagery arm
 - [ ] `tier_of()` recognises the rig (not `unknown`)
 - [ ] `SERIES` colour added from the validated palette in slot order
 - [ ] `pytest -q` green

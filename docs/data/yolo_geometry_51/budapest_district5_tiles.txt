@@ -1,0 +1,42 @@
+Bundle: benchmark/budapest_district5  (125 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: /homes/gws/jonf/RampNet/.model_cache
+
+Operating point: predictions with confidence < 0.25 dropped (models without confidences are unaffected).
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+y11x_tiles                            0.843   (0.740-0.910)  0.197   (0.156-0.245)  0.319  0.458        59/11/241/4
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+[y11x_tiles] threshold sweep (re-scored from cached detections)
+    thr      P      R     F1         tp/fp/fn
+   0.05  0.645  0.570  0.605       171/94/129 <- best F1
+   0.10  0.701  0.453  0.551       136/58/164
+   0.15  0.757  0.343  0.472       103/33/197
+   0.20  0.784  0.267  0.398        80/22/220
+   0.25  0.843  0.197  0.319        59/11/241
+   0.30  0.881  0.123  0.216         37/5/263
+   0.40  0.958  0.077  0.142         23/1/277
+   0.50  0.900  0.030  0.058          9/1/291
+   0.60  1.000  0.013  0.026          4/0/296
+
+PR curves written to /homes/gws/jonf/RampNet/yolo_eval_results_geometry_51/pr_budapest_district5_tiles (JSON + pr_curves.png)
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   125 (of 125 seen)
+Detections judged:    173  (correct 151, incorrect 22)
+Detections duplicate: 7  (redundant hits on an already-counted ramp; folded into the numbers above per this run's duplicate scoring)
+Detections unsure:    16  (abstained — not in precision or recall)
+Missed ramps marked:  149  (+48 unsure, abstained)
+Precision: 0.873  (95% CI 0.815-0.915)
+Recall:    0.503  (95% CI 0.447-0.560)  [vs ramps visible in the 125 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    173      0.873    0.503
+     0.60    139      0.914    0.423
+     0.65    119      0.924    0.367
+     0.70     99      0.919    0.303
+     0.75     73      0.904    0.220
+     0.80     50      0.920    0.153
+     0.85     23      1.000    0.077
+     0.90      9      1.000    0.030
+     0.95      2      1.000    0.007

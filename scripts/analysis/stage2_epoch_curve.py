@@ -232,6 +232,16 @@ def main() -> int:
              "(default: %(default)s)",
     )
     parser.add_argument("--out-csv", type=Path, default=None, help="write the curve here as CSV")
+    parser.add_argument(
+        "--curve-label", default="run_a",
+        help="name for the --events-dir run, used as a CSV column prefix and in the "
+             "printed table (default: %(default)s). Set it when reading a run that is "
+             "not Run A, or the artifact claims to be a run it is not.",
+    )
+    parser.add_argument(
+        "--reference-label", default="paper",
+        help="name for the --paper-events-dir comparison run (default: %(default)s)",
+    )
     parser.add_argument("--tag", default=VAL_TAG, help="scalar tag to extract (default: %(default)s)")
     parser.add_argument(
         "--steps-per-epoch",
@@ -243,6 +253,10 @@ def main() -> int:
     parser.add_argument("--verify", action="store_true",
                         help="print a sha256 manifest of the event files and exit")
     args = parser.parse_args()
+    # Column names travel with the data: a CSV headed run_a_val_loss that holds some other
+    # run is worse than no CSV, because nothing downstream can tell.
+    curve_col = f"{args.curve_label}_val_loss"
+    ref_col = f"{args.reference_label}_val_loss"
 
     if args.verify:
         for path in sorted(args.events_dir.glob("events.out.tfevents.*")):
@@ -273,38 +287,39 @@ def main() -> int:
         rows.append({
             "epoch": epoch,
             "step": epoch * args.steps_per_epoch,
-            "run_a_val_loss": value,
-            "paper_val_loss": reference,
+            curve_col: value,
+            ref_col: reference,
             "delta_pct": (value / reference - 1.0) * 100.0 if reference else None,
         })
 
-    best = min(rows, key=lambda r: r["run_a_val_loss"])
+    best = min(rows, key=lambda r: r[curve_col])
 
     print()
-    print("| epoch | auto-label val loss | paper run | delta | vs. Run A min |")
+    print(f"| epoch | auto-label val loss | {args.reference_label} run | delta | "
+          f"vs. {args.curve_label} min |")
     print("| ---: | ---: | ---: | ---: | ---: |")
     for row in rows:
         mark = "**" if row is best else ""
-        paper_txt = f"{row['paper_val_loss']:.8f}" if row["paper_val_loss"] else ""
+        paper_txt = f"{row[ref_col]:.8f}" if row[ref_col] else ""
         delta_txt = f"{row['delta_pct']:+.3f}%" if row["delta_pct"] is not None else ""
-        gap = (row["run_a_val_loss"] / best["run_a_val_loss"] - 1.0) * 100.0
+        gap = (row[curve_col] / best[curve_col] - 1.0) * 100.0
         gap_txt = "min" if row is best else f"+{gap:.1f}%"
         print(
-            f"| {row['epoch']} | {mark}{row['run_a_val_loss']:.8f}{mark} | {paper_txt} | "
+            f"| {row['epoch']} | {mark}{row[curve_col]:.8f}{mark} | {paper_txt} | "
             f"{delta_txt} | {gap_txt} |"
         )
 
     deltas = [abs(row["delta_pct"]) for row in rows if row["delta_pct"] is not None]
     if deltas:
         print()
-        print(f"Largest |delta| vs. the paper run: {max(deltas):.3f}%   "
+        print(f"Largest |delta| vs. the {args.reference_label} run: {max(deltas):.3f}%   "
               f"mean {sum(deltas) / len(deltas):.3f}%  (n={len(deltas)})")
 
     print()
-    print(f"Run A minimum:     epoch {best['epoch']}  ({best['run_a_val_loss']:.8f})")
+    print(f"{args.curve_label} minimum:     epoch {best['epoch']}  ({best[curve_col]:.8f})")
     if paper:
         paper_best = min(paper, key=paper.get)
-        print(f"Paper run minimum: epoch {paper_best}  ({paper[paper_best]:.8f})")
+        print(f"{args.reference_label} run minimum: epoch {paper_best}  ({paper[paper_best]:.8f})")
         print("MATCH" if best["epoch"] == paper_best
               else "MISMATCH -- the selection epoch did not replicate")
 
@@ -328,7 +343,7 @@ def main() -> int:
         with args.out_csv.open("w", newline="\n", encoding="utf-8") as handle:
             writer = csv.DictWriter(
                 handle,
-                fieldnames=["epoch", "step", "run_a_val_loss", "paper_val_loss", "delta_pct"],
+                fieldnames=["epoch", "step", curve_col, ref_col, "delta_pct"],
                 lineterminator="\n",
             )
             writer.writeheader()
@@ -337,8 +352,8 @@ def main() -> int:
                     {
                         "epoch": row["epoch"],
                         "step": row["step"],
-                        "run_a_val_loss": f"{row['run_a_val_loss']:.8f}",
-                        "paper_val_loss": f"{row['paper_val_loss']:.8f}" if row["paper_val_loss"] else "",
+                        curve_col: f"{row[curve_col]:.8f}",
+                        ref_col: f"{row[ref_col]:.8f}" if row[ref_col] else "",
                         "delta_pct": f"{row['delta_pct']:.3f}" if row["delta_pct"] is not None else "",
                     }
                 )
