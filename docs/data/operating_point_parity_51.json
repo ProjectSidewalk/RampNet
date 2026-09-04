@@ -1,0 +1,582 @@
+{
+  "control": {
+    "agrees": true,
+    "delta": -0.0025,
+    "f1_op_cache": 0.8245,
+    "f1_published_bundle": 0.827,
+    "per_split": {
+      "annapolis": {
+        "agrees": true,
+        "delta": 0.0005,
+        "f1_op_cache": 0.8395,
+        "f1_published_bundle": 0.839,
+        "paths_agree_by_construction": true,
+        "tolerance": 0.002
+      },
+      "bend": {
+        "agrees": true,
+        "delta": 0.0032,
+        "f1_op_cache": 0.8532,
+        "f1_published_bundle": 0.85,
+        "paths_agree_by_construction": false,
+        "tolerance": 0.025
+      },
+      "budapest_district5": {
+        "agrees": true,
+        "delta": 0.0002,
+        "f1_op_cache": 0.6442,
+        "f1_published_bundle": 0.644,
+        "paths_agree_by_construction": true,
+        "tolerance": 0.002
+      },
+      "clovis": {
+        "agrees": true,
+        "delta": 0.0002,
+        "f1_op_cache": 0.8012,
+        "f1_published_bundle": 0.801,
+        "paths_agree_by_construction": true,
+        "tolerance": 0.002
+      },
+      "gainesville": {
+        "agrees": true,
+        "delta": -0.0159,
+        "f1_op_cache": 0.7871,
+        "f1_published_bundle": 0.803,
+        "paths_agree_by_construction": false,
+        "tolerance": 0.025
+      },
+      "manual_gold": {
+        "agrees": true,
+        "delta": -0.009,
+        "f1_op_cache": 0.899,
+        "f1_published_bundle": 0.908,
+        "paths_agree_by_construction": false,
+        "tolerance": 0.025
+      },
+      "morgantown": {
+        "agrees": true,
+        "delta": 0.0001,
+        "f1_op_cache": 0.8351,
+        "f1_published_bundle": 0.835,
+        "paths_agree_by_construction": true,
+        "tolerance": 0.002
+      },
+      "paterson": {
+        "agrees": true,
+        "delta": -0.0044,
+        "f1_op_cache": 0.8006,
+        "f1_published_bundle": 0.805,
+        "paths_agree_by_construction": false,
+        "tolerance": 0.025
+      },
+      "richmond": {
+        "agrees": true,
+        "delta": -0.0004,
+        "f1_op_cache": 0.8546,
+        "f1_published_bundle": 0.855,
+        "paths_agree_by_construction": true,
+        "tolerance": 0.002
+      },
+      "sao_paulo": {
+        "agrees": true,
+        "delta": -0.0192,
+        "f1_op_cache": 0.7578,
+        "f1_published_bundle": 0.777,
+        "paths_agree_by_construction": false,
+        "tolerance": 0.025
+      }
+    },
+    "per_split_agrees": true,
+    "threshold": 0.55,
+    "tolerance": 0.005
+  },
+  "dev_split": "sao_paulo",
+  "grid_rampnet": [
+    0.05,
+    0.1,
+    0.15,
+    0.2,
+    0.25,
+    0.3,
+    0.35,
+    0.4,
+    0.45,
+    0.5,
+    0.55,
+    0.6,
+    0.65,
+    0.7,
+    0.75,
+    0.8,
+    0.85,
+    0.9,
+    0.95
+  ],
+  "models": {
+    "RampNet": {
+      "at_floor": false,
+      "per_split": {
+        "annapolis": {
+          "f1": 0.853,
+          "fn": 56,
+          "fp": 26,
+          "p": 0.9015,
+          "r": 0.8095,
+          "tp": 238
+        },
+        "bend": {
+          "f1": 0.8706,
+          "fn": 58,
+          "fp": 22,
+          "p": 0.9244,
+          "r": 0.8226,
+          "tp": 269
+        },
+        "budapest_district5": {
+          "f1": 0.6736,
+          "fn": 107,
+          "fp": 80,
+          "p": 0.707,
+          "r": 0.6433,
+          "tp": 193
+        },
+        "clovis": {
+          "f1": 0.8355,
+          "fn": 35,
+          "fp": 28,
+          "p": 0.8511,
+          "r": 0.8205,
+          "tp": 160
+        },
+        "gainesville": {
+          "f1": 0.8124,
+          "fn": 62,
+          "fp": 35,
+          "p": 0.8571,
+          "r": 0.7721,
+          "tp": 210
+        },
+        "manual_gold": {
+          "f1": 0.9018,
+          "fn": 423,
+          "fp": 338,
+          "p": 0.9118,
+          "r": 0.8921,
+          "tp": 3496
+        },
+        "morgantown": {
+          "f1": 0.8448,
+          "fn": 52,
+          "fp": 27,
+          "p": 0.8884,
+          "r": 0.8052,
+          "tp": 215
+        },
+        "paterson": {
+          "f1": 0.8184,
+          "fn": 111,
+          "fp": 15,
+          "p": 0.9498,
+          "r": 0.719,
+          "tp": 284
+        },
+        "richmond": {
+          "f1": 0.8639,
+          "fn": 53,
+          "fp": 28,
+          "p": 0.9018,
+          "r": 0.829,
+          "tp": 257
+        },
+        "sao_paulo": {
+          "f1": 0.8,
+          "fn": 57,
+          "fp": 55,
+          "p": 0.8029,
+          "r": 0.7972,
+          "tp": 224
+        }
+      },
+      "pooled": {
+        "f1": 0.8427,
+        "n_splits": 7,
+        "p": 0.8963,
+        "r": 0.7969,
+        "threshold": 0.3
+      },
+      "published_point": {
+        "f1": 0.8245,
+        "n_splits": 7,
+        "p": 0.9608,
+        "r": 0.7226,
+        "threshold": 0.55
+      },
+      "selected_threshold": 0.3
+    },
+    "y11x_pano": {
+      "at_floor": false,
+      "per_split": {
+        "annapolis": {
+          "f1": 0.723,
+          "fn": 110,
+          "fp": 31,
+          "p": 0.856,
+          "r": 0.626,
+          "tp": 184
+        },
+        "bend": {
+          "f1": 0.789,
+          "fn": 78,
+          "fp": 55,
+          "p": 0.819,
+          "r": 0.761,
+          "tp": 249
+        },
+        "budapest_district5": {
+          "f1": 0.528,
+          "fn": 169,
+          "fp": 65,
+          "p": 0.668,
+          "r": 0.437,
+          "tp": 131
+        },
+        "clovis": {
+          "f1": 0.704,
+          "fn": 52,
+          "fp": 68,
+          "p": 0.678,
+          "r": 0.733,
+          "tp": 143
+        },
+        "gainesville": {
+          "f1": 0.673,
+          "fn": 103,
+          "fp": 61,
+          "p": 0.735,
+          "r": 0.621,
+          "tp": 169
+        },
+        "manual_gold": {
+          "f1": 0.844,
+          "fn": 318,
+          "fp": 1013,
+          "p": 0.78,
+          "r": 0.919,
+          "tp": 3601
+        },
+        "morgantown": {
+          "f1": 0.791,
+          "fn": 59,
+          "fp": 51,
+          "p": 0.803,
+          "r": 0.779,
+          "tp": 208
+        },
+        "paterson": {
+          "f1": 0.794,
+          "fn": 100,
+          "fp": 53,
+          "p": 0.848,
+          "r": 0.747,
+          "tp": 295
+        },
+        "richmond": {
+          "f1": 0.791,
+          "fn": 57,
+          "fp": 77,
+          "p": 0.767,
+          "r": 0.816,
+          "tp": 253
+        },
+        "sao_paulo": {
+          "f1": 0.744,
+          "fn": 63,
+          "fp": 87,
+          "p": 0.715,
+          "r": 0.776,
+          "tp": 218
+        }
+      },
+      "pooled": {
+        "f1": 0.7521,
+        "n_splits": 7,
+        "p": 0.7866,
+        "r": 0.7261,
+        "threshold": 0.1
+      },
+      "published_point": {
+        "f1": 0.6231,
+        "n_splits": 7,
+        "p": 0.9417,
+        "r": 0.4743,
+        "threshold": 0.25
+      },
+      "selected_threshold": 0.1
+    },
+    "y11x_pano_h200": {
+      "at_floor": false,
+      "per_split": {
+        "annapolis": {
+          "f1": 0.689,
+          "fn": 130,
+          "fp": 18,
+          "p": 0.901,
+          "r": 0.558,
+          "tp": 164
+        },
+        "bend": {
+          "f1": 0.799,
+          "fn": 79,
+          "fp": 46,
+          "p": 0.844,
+          "r": 0.758,
+          "tp": 248
+        },
+        "budapest_district5": {
+          "f1": 0.51,
+          "fn": 180,
+          "fp": 51,
+          "p": 0.702,
+          "r": 0.4,
+          "tp": 120
+        },
+        "clovis": {
+          "f1": 0.734,
+          "fn": 61,
+          "fp": 36,
+          "p": 0.788,
+          "r": 0.687,
+          "tp": 134
+        },
+        "gainesville": {
+          "f1": 0.668,
+          "fn": 110,
+          "fp": 51,
+          "p": 0.761,
+          "r": 0.596,
+          "tp": 162
+        },
+        "manual_gold": {
+          "f1": 0.872,
+          "fn": 282,
+          "fp": 782,
+          "p": 0.823,
+          "r": 0.928,
+          "tp": 3637
+        },
+        "morgantown": {
+          "f1": 0.813,
+          "fn": 69,
+          "fp": 22,
+          "p": 0.9,
+          "r": 0.742,
+          "tp": 198
+        },
+        "paterson": {
+          "f1": 0.776,
+          "fn": 104,
+          "fp": 64,
+          "p": 0.82,
+          "r": 0.737,
+          "tp": 291
+        },
+        "richmond": {
+          "f1": 0.777,
+          "fn": 91,
+          "fp": 35,
+          "p": 0.862,
+          "r": 0.706,
+          "tp": 219
+        },
+        "sao_paulo": {
+          "f1": 0.754,
+          "fn": 62,
+          "fp": 81,
+          "p": 0.73,
+          "r": 0.779,
+          "tp": 219
+        }
+      },
+      "pooled": {
+        "f1": 0.7509,
+        "n_splits": 7,
+        "p": 0.8394,
+        "r": 0.6834,
+        "threshold": 0.1
+      },
+      "published_point": {
+        "f1": 0.575,
+        "n_splits": 7,
+        "p": 0.9686,
+        "r": 0.4156,
+        "threshold": 0.25
+      },
+      "selected_threshold": 0.1
+    },
+    "y11x_tiles": {
+      "at_floor": false,
+      "per_split": {
+        "annapolis": {
+          "f1": 0.783,
+          "fn": 87,
+          "fp": 28,
+          "p": 0.881,
+          "r": 0.704,
+          "tp": 207
+        },
+        "bend": {
+          "f1": 0.87,
+          "fn": 57,
+          "fp": 24,
+          "p": 0.918,
+          "r": 0.826,
+          "tp": 270
+        },
+        "budapest_district5": {
+          "f1": 0.551,
+          "fn": 164,
+          "fp": 58,
+          "p": 0.701,
+          "r": 0.453,
+          "tp": 136
+        },
+        "clovis": {
+          "f1": 0.77,
+          "fn": 39,
+          "fp": 54,
+          "p": 0.743,
+          "r": 0.8,
+          "tp": 156
+        },
+        "gainesville": {
+          "f1": 0.778,
+          "fn": 79,
+          "fp": 31,
+          "p": 0.862,
+          "r": 0.71,
+          "tp": 193
+        },
+        "manual_gold": {
+          "f1": 0.911,
+          "fn": 420,
+          "fp": 263,
+          "p": 0.93,
+          "r": 0.893,
+          "tp": 3499
+        },
+        "morgantown": {
+          "f1": 0.862,
+          "fn": 51,
+          "fp": 18,
+          "p": 0.923,
+          "r": 0.809,
+          "tp": 216
+        },
+        "paterson": {
+          "f1": 0.761,
+          "fn": 143,
+          "fp": 15,
+          "p": 0.944,
+          "r": 0.638,
+          "tp": 252
+        },
+        "richmond": {
+          "f1": 0.803,
+          "fn": 75,
+          "fp": 40,
+          "p": 0.855,
+          "r": 0.758,
+          "tp": 235
+        },
+        "sao_paulo": {
+          "f1": 0.776,
+          "fn": 70,
+          "fp": 52,
+          "p": 0.802,
+          "r": 0.751,
+          "tp": 211
+        }
+      },
+      "pooled": {
+        "f1": 0.8039,
+        "n_splits": 7,
+        "p": 0.8751,
+        "r": 0.7493,
+        "threshold": 0.1
+      },
+      "published_point": {
+        "f1": 0.6669,
+        "n_splits": 7,
+        "p": 0.9446,
+        "r": 0.5197,
+        "threshold": 0.25
+      },
+      "selected_threshold": 0.1
+    }
+  },
+  "pool": [
+    "richmond",
+    "bend",
+    "clovis",
+    "morgantown",
+    "annapolis",
+    "paterson",
+    "gainesville"
+  ],
+  "sensitivity": {
+    "budapest_district5": {
+      "RampNet": {
+        "f1": 0.842,
+        "thr": 0.35
+      },
+      "y11x_pano": {
+        "f1": 0.6873,
+        "thr": 0.05
+      },
+      "y11x_pano_h200": {
+        "f1": 0.7509,
+        "thr": 0.1
+      },
+      "y11x_tiles": {
+        "f1": 0.8096,
+        "thr": 0.05
+      }
+    },
+    "manual_gold": {
+      "RampNet": {
+        "f1": 0.842,
+        "thr": 0.35
+      },
+      "y11x_pano": {
+        "f1": 0.7393,
+        "thr": 0.15
+      },
+      "y11x_pano_h200": {
+        "f1": 0.7203,
+        "thr": 0.15
+      },
+      "y11x_tiles": {
+        "f1": 0.8039,
+        "thr": 0.1
+      }
+    },
+    "sao_paulo": {
+      "RampNet": {
+        "f1": 0.8427,
+        "thr": 0.3
+      },
+      "y11x_pano": {
+        "f1": 0.7521,
+        "thr": 0.1
+      },
+      "y11x_pano_h200": {
+        "f1": 0.7509,
+        "thr": 0.1
+      },
+      "y11x_tiles": {
+        "f1": 0.8039,
+        "thr": 0.1
+      }
+    }
+  }
+}
