@@ -69,7 +69,17 @@ sys.path.insert(0, REPO)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import miss_taxonomy as mt  # noqa: E402
-from miss_decomposition import DEFAULT_THRESHOLD, US_SPLITS  # noqa: E402
+from miss_decomposition import DEFAULT_THRESHOLD  # noqa: E402
+
+# A FROZEN forensic study, like farfield_forensics: tests/test_silent_activation.py
+# pins the committed analysis_out/silent_activation.json to the numbers the issue's
+# section 0c quotes. It therefore carries its own split tuple rather than importing the
+# live `US_SPLITS`, so registering a new city cannot silently restate a published
+# finding. laurens_mapillary is absent for that reason alone -- it is pooled
+# everywhere else.
+# To fold a split in: re-run the study, re-quote it, update the 0c expectations.
+US_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson",
+             "gainesville")
 from farfield_forensics import (  # noqa: E402
     DEFAULT_RATER, load_rated, quartiles, row_key)
 from rampnet.detection_eval import (  # noqa: E402

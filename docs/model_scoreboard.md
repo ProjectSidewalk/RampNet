@@ -29,18 +29,18 @@ model, and the reasons are in "How to read this" below.
 
 | model | class | op | P | R | F1 | ΔF1 vs RampNet | AP (macro) | FP/pano | F1 range |
 |---|---|--:|--:|--:|--:|--:|--:|--:|:-:|
-| **RampNet** | purpose-trained | 0.55 | 0.958 | 0.728 | **0.827** | — | 0.849&nbsp;† | 0.1 | 0.80–0.85 |
-| YOLO11l (pano) | supervised baseline | 0.25 | 0.939 | 0.449 | 0.604 | -0.223 | 0.722 | 0.1 | 0.48–0.71 |
-| YOLO11x (pano) | supervised baseline | 0.25 | **0.969** | 0.416 | 0.575 | -0.252 | 0.730 | 0.0 | 0.40–0.71 |
-| YOLO26 (pano) | supervised baseline | 0.25 | 0.736 | 0.446 | 0.550 | -0.277 | 0.603 | 0.4 | 0.45–0.68 |
-| Gemini 3.1 Pro | chat VLM | no score | 0.656 | 0.573 | 0.608 | -0.219 | – | 0.7 | 0.51–0.68 |
-| Gemini 3.7 Flash | chat VLM | no score | 0.698 | 0.496 | 0.576 | -0.251 | – | 0.5 | 0.46–0.66 |
-| Gemini 3.6 Flash | chat VLM | no score | 0.588 | 0.549 | 0.564 | -0.263 | – | 0.9 | 0.44–0.63 |
-| Qwen3-VL-32B | chat VLM | no score | 0.664 | 0.246 | 0.356 | -0.471 | – | 0.3 | 0.17–0.43 |
-| Qwen3-VL-8B | chat VLM | no score | 0.325 | 0.360 | 0.338 | -0.489 | – | 1.8 | 0.26–0.41 |
-| Molmo2-8B | pointing model | no score | 0.432 | 0.440 | 0.430 | -0.397 | – | 1.4 | 0.33–0.51 |
-| OWLv2-large | open-vocab detector | 0.05 floor | 0.034 | **0.944** | 0.065 | -0.762 | 0.098 | 64.8 | 0.05–0.08 |
-| Grounding DINO | open-vocab detector | 0.05 floor | 0.028 | 0.857 | 0.055 | -0.772 | 0.038 | 71.6 | 0.03–0.07 |
+| **RampNet** | purpose-trained | 0.55 | 0.951 | 0.686 | **0.792** | — | 0.829&nbsp;† | 0.1 | 0.54–0.85 |
+| YOLO11l (pano) | supervised baseline | 0.25 | 0.940 | 0.443 | 0.599 | -0.193 | 0.718 | 0.1 | 0.48–0.71 |
+| YOLO11x (pano) | supervised baseline | 0.25 | **0.967** | 0.409 | 0.569 | -0.222 | 0.723 | 0.0 | 0.40–0.71 |
+| YOLO26 (pano) | supervised baseline | 0.25 | 0.744 | 0.447 | 0.553 | -0.238 | 0.606 | 0.4 | 0.45–0.68 |
+| Gemini 3.1 Pro | chat VLM | no score | 0.638 | 0.533 | 0.575 | -0.217 | – | 0.7 | 0.34–0.68 |
+| Gemini 3.7 Flash | chat VLM | no score | 0.679 | 0.458 | 0.539 | -0.252 | – | 0.5 | 0.28–0.66 |
+| Gemini 3.6 Flash | chat VLM | no score | 0.571 | 0.505 | 0.528 | -0.264 | – | 0.9 | 0.28–0.63 |
+| Qwen3-VL-8B | chat VLM | no score | 0.312 | 0.340 | 0.322 | -0.469 | – | 1.8 | 0.21–0.41 |
+| Qwen3-VL-32B | chat VLM | no score | 0.626 | 0.220 | 0.320 | -0.472 | – | 0.3 | 0.07–0.43 |
+| Molmo2-8B | pointing model | no score | 0.423 | 0.425 | 0.419 | -0.372 | – | 1.4 | 0.33–0.51 |
+| OWLv2-large | open-vocab detector | 0.05 floor | 0.033 | **0.932** | 0.065 | -0.727 | 0.092 | 65.2 | 0.05–0.08 |
+| Grounding DINO | open-vocab detector | 0.05 floor | 0.028 | 0.848 | 0.053 | -0.738 | 0.036 | 73.5 | 0.03–0.07 |
 
 <!-- END GENERATED: headline -->
 
@@ -91,8 +91,10 @@ column exists to prevent. They are reported per split instead, at the split they
 |---|---|---|--:|--:|--:|--:|--:|--:|
 | Mask2Former Vistas (curb cut) | supervised transfer | `richmond` | 0.411 | 0.697 | 0.517 | 0.513 | 2.5 | 216/309/94 |
 | Mask2Former Vistas (+curb) | supervised transfer | `richmond` | 0.126 | 0.648 | 0.210 | 0.089 | 11.3 | 201/1399/109 |
-| Claude Opus 5 (low) | chat VLM | `annapolis` | 0.572 | 0.605 | 0.588 | – | 1.1 | 178/133/116 |
 | Claude Opus 5 (high) | chat VLM | `annapolis` | 0.430 | 0.656 | 0.520 | – | 2.0 | 193/256/101 |
+| Claude Opus 5 (low) | chat VLM | `annapolis` | 0.572 | 0.605 | 0.588 | – | 1.1 | 178/133/116 |
+| Claude Opus 5 (low) | chat VLM | `laurens_mapillary` | 0.485 | 0.386 | 0.430 | – | 1.1 | 96/102/153 |
+| Claude Opus 5 (low) | chat VLM | `laurens_gsv` | 0.489 | 0.395 | 0.437 | – | 1.1 | 87/91/133 |
 | Claude Sonnet 5 (low) | chat VLM | `annapolis` | 0.589 | 0.381 | 0.463 | – | 0.6 | 112/78/182 |
 | Claude Sonnet 5 (high) | chat VLM | `annapolis` | 0.506 | 0.415 | 0.456 | – | 1.0 | 122/119/172 |
 
@@ -118,26 +120,26 @@ numbers are directly above them in `model_comparison.md`:
 
 <!-- BEGIN GENERATED: by-split (scripts/analysis/scoreboard.py) -->
 
-| model | rich | bend | clovis | morg | annap | pater | gaines | **pooled** | budapest † | sao_paulo † | manual_gold † |
-|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|
-| **RampNet** | **0.855** | **0.850** | **0.801** | **0.835** | **0.839** | **0.805** | **0.803** | **0.827** | **0.644** | **0.777** | **0.908** |
-| YOLO11l (pano) | 0.595 | 0.713 | 0.600 | 0.675 | 0.481 | 0.647 | 0.516 | 0.604 | 0.247 | 0.662 | 0.839 |
-| YOLO11x (pano) | 0.547 | 0.710 | 0.551 | 0.686 | 0.397 | 0.635 | 0.499 | 0.575 | 0.221 | 0.659 | 0.851 |
-| YOLO26 (pano) | 0.491 | 0.637 | 0.552 | 0.681 | 0.450 | 0.591 | 0.451 | 0.550 | 0.277 | 0.605 | 0.739 |
-| Gemini 3.1 Pro | 0.667 | 0.638 | 0.514 | 0.643 | 0.567 | 0.681 | 0.548 | 0.608 | 0.381 | 0.454 | – |
-| Gemini 3.7 Flash | 0.664 | 0.639 | 0.504 | 0.595 | 0.565 | 0.609 | 0.456 | 0.576 | 0.338 | 0.358 | 0.527 |
-| Gemini 3.6 Flash | 0.634 | 0.597 | 0.483 | 0.633 | 0.554 | 0.608 | 0.438 | 0.564 | 0.336 | 0.346 | – |
-| Qwen3-VL-32B | 0.427 | 0.415 | 0.311 | 0.426 | 0.398 | 0.347 | 0.168 | 0.356 | 0.079 | 0.218 | 0.285 |
-| Qwen3-VL-8B | 0.377 | 0.359 | 0.257 | 0.340 | 0.327 | 0.405 | 0.302 | 0.338 | 0.169 | 0.219 | 0.386 |
-| Molmo2-8B | 0.457 | 0.449 | 0.381 | 0.463 | 0.424 | 0.511 | 0.329 | 0.430 | 0.274 | 0.326 | 0.422 |
-| OWLv2-large | 0.064 | 0.071 | 0.049 | 0.071 | 0.063 | 0.077 | 0.060 | 0.065 | 0.062 | 0.052 | 0.088 |
-| Grounding DINO | 0.053 | 0.073 | 0.035 | 0.042 | 0.055 | 0.068 | 0.055 | 0.055 | 0.042 | 0.049 | 0.082 |
-| Mask2Former Vistas (curb cut) | 0.517 | – | – | – | – | – | – | – | – | – | – |
-| Mask2Former Vistas (+curb) | 0.210 | – | – | – | – | – | – | – | – | – | – |
-| Claude Opus 5 (low) | – | – | – | – | 0.588 | – | – | – | – | – | – |
-| Claude Opus 5 (high) | – | – | – | – | 0.520 | – | – | – | – | – | – |
-| Claude Sonnet 5 (low) | – | – | – | – | 0.463 | – | – | – | – | – | – |
-| Claude Sonnet 5 (high) | – | – | – | – | 0.456 | – | – | – | – | – | – |
+| model | rich | bend | clovis | morg | annap | pater | gaines | laur_mly | **pooled** | laur_gsv † | budapest † | sao_paulo † | manual_gold † |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|
+| **RampNet** | **0.855** | **0.850** | **0.801** | **0.835** | **0.839** | **0.805** | **0.803** | 0.543 | **0.792** | **0.659** | **0.644** | **0.777** | **0.908** |
+| YOLO11l (pano) | 0.595 | 0.713 | 0.600 | 0.675 | 0.481 | 0.647 | 0.516 | 0.563 | 0.599 | 0.587 | 0.247 | 0.662 | 0.839 |
+| YOLO11x (pano) | 0.547 | 0.710 | 0.551 | 0.686 | 0.397 | 0.635 | 0.499 | 0.529 | 0.569 | 0.568 | 0.221 | 0.659 | 0.851 |
+| YOLO26 (pano) | 0.491 | 0.637 | 0.552 | 0.681 | 0.450 | 0.591 | 0.451 | **0.574** | 0.553 | 0.538 | 0.277 | 0.605 | 0.739 |
+| Gemini 3.1 Pro | 0.667 | 0.638 | 0.514 | 0.643 | 0.567 | 0.681 | 0.548 | 0.343 | 0.575 | 0.279 | 0.381 | 0.454 | – |
+| Gemini 3.7 Flash | 0.664 | 0.639 | 0.504 | 0.595 | 0.565 | 0.609 | 0.456 | 0.281 | 0.539 | 0.261 | 0.338 | 0.358 | 0.527 |
+| Gemini 3.6 Flash | 0.634 | 0.597 | 0.483 | 0.633 | 0.554 | 0.608 | 0.438 | 0.277 | 0.528 | 0.274 | 0.336 | 0.346 | – |
+| Qwen3-VL-8B | 0.377 | 0.359 | 0.257 | 0.340 | 0.327 | 0.405 | 0.302 | 0.210 | 0.322 | 0.161 | 0.169 | 0.219 | 0.386 |
+| Qwen3-VL-32B | 0.427 | 0.415 | 0.311 | 0.426 | 0.398 | 0.347 | 0.168 | 0.066 | 0.320 | 0.018 | 0.079 | 0.218 | 0.285 |
+| Molmo2-8B | 0.457 | 0.449 | 0.381 | 0.463 | 0.424 | 0.511 | 0.329 | 0.339 | 0.419 | 0.307 | 0.274 | 0.326 | 0.422 |
+| OWLv2-large | 0.064 | 0.071 | 0.049 | 0.071 | 0.063 | 0.077 | 0.060 | 0.062 | 0.065 | 0.055 | 0.062 | 0.052 | 0.088 |
+| Grounding DINO | 0.053 | 0.073 | 0.035 | 0.042 | 0.055 | 0.068 | 0.055 | 0.045 | 0.053 | 0.054 | 0.042 | 0.049 | 0.082 |
+| Mask2Former Vistas (curb cut) | 0.517 | – | – | – | – | – | – | – | – | – | – | – | – |
+| Mask2Former Vistas (+curb) | 0.210 | – | – | – | – | – | – | – | – | – | – | – | – |
+| Claude Opus 5 (high) | – | – | – | – | 0.520 | – | – | – | – | – | – | – | – |
+| Claude Opus 5 (low) | – | – | – | – | 0.588 | – | – | 0.430 | – | 0.437 | – | – | – |
+| Claude Sonnet 5 (low) | – | – | – | – | 0.463 | – | – | – | – | – | – | – | – |
+| Claude Sonnet 5 (high) | – | – | – | – | 0.456 | – | – | – | – | – | – | – | – |
 
 <!-- END GENERATED: by-split -->
 
@@ -230,8 +232,8 @@ The figure says three things a table of F1 cannot:
 
 | peak threshold | P | R | F1 |  |
 |---|--:|--:|--:|---|
-| **0.55** | 0.964 | 0.722 | 0.826 | deployed today (`OPERATIONAL_CONFIDENCE`, auto-labeler) |
-| **0.30** | 0.900 | 0.793 | 0.843 | recommended by #54; **not yet adopted** (labeler#20 open) |
+| **0.55** | 0.959 | 0.686 | 0.800 | deployed today (`OPERATIONAL_CONFIDENCE`, auto-labeler) |
+| **0.30** | 0.899 | 0.764 | 0.826 | recommended by #54; **not yet adopted** (labeler#20 open) |
 
 <!-- END GENERATED: thresholds -->
 
@@ -307,6 +309,8 @@ apart without failing CI:
 | `annapolis` | 0.734 | **0.875** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `paterson` | 0.681 | **0.748** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `gainesville` | 0.691 | **0.846** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
+| `laurens_mapillary` | 0.377 | **0.691** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
+| `laurens_gsv` | 0.494 | 0.494 | bundle — 0.55 floor, no `op_cache` | **truncated**; not comparable with the rows above |
 | `budapest_district5` | 0.478 | **0.648** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `sao_paulo` | 0.666 | **0.812** | `op_cache` (0.05 floor) | truncated at the deployed 0.55 |
 | `manual_gold` | 0.917 | 0.917 | bundle — already at 0.05 | no truncation to undo; flip-TTA export |
@@ -385,6 +389,8 @@ Omissions are content, so they are named rather than left as blanks:
 | `annapolis` | pooled | 125 | 294 | US deployment city, verdict-grade GT |
 | `paterson` | pooled | 125 | 395 | US deployment city, verdict-grade GT |
 | `gainesville` | pooled | 125 | 272 | US deployment city, verdict-grade GT |
+| `laurens_mapillary` | pooled | 94 | 249 | US deployment city, verdict-grade GT |
+| `laurens_gsv` | held out † | 86 | 220 | second imagery arm of laurens, which is already pooled through laurens_mapillary -- the two arms sample one town and largely the same physical ramps (59% of gsv panos within 20 m of a mapillary one, median NN 17.2 m), so pooling both would double-count them and break the independence the Wilson intervals assume (GT is HIGH confidence; held out for non-independence, not GT quality) |
 | `budapest_district5` | held out † | 125 | 300 | single-rater GT at low reviewer confidence (docs/model_comparison.md: do not pool) |
 | `sao_paulo` | held out † | 125 | 281 | non-US city — the pooled recommendation is a US-deployment basis (GT is HIGH reviewer confidence; held out for geography, not GT quality) |
 | `manual_gold` | held out † | 1000 | 3919 | in-distribution GSV + independently-labelled GT (in-domain reference, not a deployment city) |

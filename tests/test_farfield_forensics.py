@@ -240,9 +240,12 @@ def test_every_returned_item_carries_a_verdict():
 @pytest.fixture(scope="module")
 def far_populations():
     import miss_taxonomy as mt
-    from miss_decomposition import DEFAULT_THRESHOLD, US_SPLITS
+    # The frozen population the published study covered, NOT the live US_SPLITS —
+    # a newly registered city must not restate a published finding (see
+    # farfield_forensics.PUBLISHED_SPLITS).
+    from miss_decomposition import DEFAULT_THRESHOLD
     pooled = []
-    for city in US_SPLITS:
+    for city in ff.PUBLISHED_SPLITS:
         loaded = mt.load_rows(city, DEFAULT_THRESHOLD, rng=None)
         if loaded is not None:
             pooled.extend(loaded[0])
