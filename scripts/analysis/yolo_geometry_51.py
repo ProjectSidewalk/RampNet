@@ -41,7 +41,23 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, ROOT)
 
-from analysis.low_floor_sweep import ALL_SPLITS, HELD_OUT, US_SPLITS  # noqa: E402
+from analysis.low_floor_sweep import HELD_OUT  # noqa: E402
+
+# The split population this study was run over, PINNED -- deliberately NOT the live
+# registry in ``analysis.low_floor_sweep``. The 2026-08-30 run scored these ten splits
+# and no others, and the seven-split pool is the population every macro-mean in
+# docs/yolo_geometry_51.md is taken over. A split added to the benchmark afterwards has
+# no report here, so following the registry would silently turn every pooled number into
+# ``None`` and take the committed artifact with it. Adding a split to this study means
+# running the driver over it, not editing a tuple.
+POOLED_SPLITS = ("richmond", "bend", "clovis", "morgantown", "annapolis", "paterson",
+                 "gainesville")
+ALL_SPLITS_AS_RUN = POOLED_SPLITS + ("budapest_district5", "sao_paulo", "manual_gold")
+
+# Why each non-pooled split is scored but not pooled. The KEYS are pinned to the run;
+# only the reason text follows the registry, so the two cannot disagree about a split
+# this study never saw.
+HELD_OUT_AS_RUN = {s: HELD_OUT[s] for s in ALL_SPLITS_AS_RUN if s in HELD_OUT}
 
 IN_DIR = os.path.join(ROOT, "..", "docs", "data", "yolo_geometry_51")
 OUT_JSON = os.path.join(ROOT, "..", "docs", "data", "yolo_geometry_51.json")
@@ -102,7 +118,7 @@ def parse_report(path):
 
 def collect():
     cells, best = {}, {}
-    for split in ALL_SPLITS:
+    for split in ALL_SPLITS_AS_RUN:
         for kind in ("tiles", "pano"):
             path = os.path.join(IN_DIR, f"{split}_{kind}.txt")
             if not os.path.exists(path):
@@ -116,14 +132,14 @@ def collect():
 
 
 def pooled(per_split):
-    """Macro-mean over US_SPLITS, and count-pooled P/R alongside it.
+    """Macro-mean over POOLED_SPLITS, and count-pooled P/R alongside it.
 
     Macro is the published convention (each city weighted equally, so a big split
     cannot dominate); micro is carried because a macro-mean of ratios hides how many
     ramps are actually behind each city.
     """
-    got = [per_split[s] for s in US_SPLITS if s in per_split]
-    if len(got) != len(US_SPLITS):
+    got = [per_split[s] for s in POOLED_SPLITS if s in per_split]
+    if len(got) != len(POOLED_SPLITS):
         return None
     tp = sum(c["tp"] for c in got)
     fp = sum(c["fp"] for c in got)
@@ -195,7 +211,7 @@ def main():
     hdr = f"{'split':<20}" + "".join(f"{m:>17}" for m in order) + "   tiles-pano60"
     print(hdr)
     print("-" * len(hdr))
-    for s in ALL_SPLITS:
+    for s in ALL_SPLITS_AS_RUN:
         line = f"{s:<20}"
         for m in order:
             c = cells.get(m, {}).get(s)
@@ -203,11 +219,11 @@ def main():
         t = cells.get("y11x_tiles", {}).get(s)
         h = cells.get("y11x_pano_h200", {}).get(s)
         line += f"{t['f1'] - h['f1']:>15.3f}" if t and h else f"{'-':>15}"
-        if s in HELD_OUT:
+        if s in HELD_OUT_AS_RUN:
             line += "  (held out)"
         print(line)
 
-    print(f"\nMacro-mean over the seven pooled US splits ({', '.join(US_SPLITS)}):\n")
+    print(f"\nMacro-mean over the seven pooled US splits ({', '.join(POOLED_SPLITS)}):\n")
     print(f"{'leg':<20}{'epoch':>7}{'P':>9}{'R':>9}{'F1':>9}{'AP':>9}   vs RampNet {PUBLISHED_RAMPNET_F1}")
     print("-" * 78)
     for m in order:
@@ -255,8 +271,8 @@ def main():
         "what": "#51 geometry-pair eval: tiles vs pano at near-matched budget, "
                 "plus the published pano arm re-scored as a control",
         "operating_point": 0.25,
-        "pooled_splits": list(US_SPLITS),
-        "held_out": HELD_OUT,
+        "pooled_splits": list(POOLED_SPLITS),
+        "held_out": HELD_OUT_AS_RUN,
         "legs": LEGS,
         "published_control": PUBLISHED_CONTROL,
         "published_rampnet_pooled_f1": PUBLISHED_RAMPNET_F1,

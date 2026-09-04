@@ -85,7 +85,8 @@ rather than from a login session. Metrics are Ultralytics **validation** metrics
 auto-labelled val split at each arm's best epoch. They are the *selection* metric only —
 **not** the issue #51 headline, which is F1@conf0.25 against the benchmark. (As of
 2026-08-14 that benchmark eval **has now run for the three pano arms** — see "Benchmark
-eval — the pano trio" below; the tiles arms remain unevaluated.)
+eval — the pano trio" below; `y11x_tiles` was scored on 2026-08-30, see
+`docs/yolo_geometry_51.md`. `y11l_tiles` and `y26_tiles` remain unevaluated.)
 
 | arm | epochs | best ep | mAP50 | mAP50-95 | state |
 |---|---:|---:|---:|---:|---|
@@ -133,8 +134,13 @@ The three pano-geometry arms are the first checkpoints of this grid to be scored
 the benchmark, under the pre-registered protocol below with nothing changed: `best.pt` as
 saved, one `compare.py` run per bundle, `--tiling none --yolo-imgsz 1280`, headline **F1 at
 conf 0.25**, match radius 0.022, all ten splits (nine cities + `manual_gold`). This was
-each test bundle's first and only contact with any YOLO checkpoint. The tiles arms are
-still training and remain unevaluated.
+each test bundle's first and only contact with any YOLO checkpoint.
+
+**Since superseded in part.** `y11x_tiles` (ep44) and `y11x_pano` (ep38) were scored on all
+ten splits on 2026-08-30 under the same protocol, with `y11x_pano_h200` re-scored alongside
+them as a control; it reproduced its published row to three decimals. Results, decomposition
+and caveats: `docs/yolo_geometry_51.md`. `y11l_tiles` and `y26_tiles` are still unevaluated
+and are too undertrained to compare.
 
 **Provenance.** Run on makelab2 (A40), torch 2.13.0+cu130, **ultralytics 8.4.120 at
 inference vs 8.4.105 at training** (recorded, not assumed equivalent). Checkpoints are the

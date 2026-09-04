@@ -25,6 +25,18 @@ Macro-mean over the seven pooled US city splits, each city weighted equally.
 **Read the operating-point column before comparing rows** — it is not the same for every
 model, and the reasons are in "How to read this" below.
 
+> **Read the `op` column before comparing two rows — and know what it costs.** The
+> operating points in this table were **not chosen by one procedure**: RampNet is at its
+> shipped deployment threshold 0.55, and every YOLO row is at 0.25, the Ultralytics
+> `predict()` default that nobody selected. Give each model one uniform threshold picked
+> the same way, on a split the headline is never reported over, and the RampNet-vs-YOLO
+> residual falls from 0.252 to **0.039** — because parity is worth +0.018 F1 to RampNet
+> and +0.137 to the best YOLO leg. The measurement, its controls and its caveats are in
+> [`operating_point_parity_51.md`](operating_point_parity_51.md); the geometry half of
+> the same question is in [`yolo_geometry_51.md`](yolo_geometry_51.md). **The rows below
+> are unchanged and still correct at the operating points they name** — what changes is
+> how much of the gap between two of them you may attribute to the models.
+
 <!-- BEGIN GENERATED: headline (scripts/analysis/scoreboard.py) -->
 
 | model | class | op | P | R | F1 | ΔF1 vs RampNet | AP (macro) | FP/pano | F1 range |
@@ -359,8 +371,11 @@ Omissions are content, so they are named rather than left as blanks:
   Including them here is deliberate: this page's job is to show everything that has been
   measured, and `standing` governs which roster tables a leg appears in, not whether its
   numbers are real.
-- **The YOLO tiles arms are absent** — still training. The three pano arms are the completed
-  half of the #51 ablation; the resolution-controlled half is not done.
+- **The YOLO tiles arms are absent from this board**, but they are no longer unmeasured:
+  `y11x_tiles` (ep44) was scored on all ten splits on 2026-08-30 and it is the best YOLO
+  cell in the grid. See [`yolo_geometry_51.md`](yolo_geometry_51.md). It is absent here
+  because its detections are not published and it is not in `rampnet/roster.py`, not
+  because it is untested.
 - **`manual_gold` has no null-recall pass** (O(n²) in panos), so the open detectors' recall
   discount is unmeasured on that split.
 - **Six legs have one split each**, so they are in the partial table rather than the

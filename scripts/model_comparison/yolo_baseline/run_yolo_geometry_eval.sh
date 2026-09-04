@@ -23,6 +23,13 @@
 #   a fresh tiles number against a stale pano number would attribute a code change to
 #   geometry.
 #
+#   NOTE what "re-scored" means: compare.py reuses the detection cache, so on a host that
+#   already holds the 2026-08-14 detections the control leg is RE-SCORED, not re-inferred
+#   ("all N panos already cached; model load skipped" in the report).  That is the right
+#   instrument for a matcher change -- detections held fixed, scoring code varied -- but
+#   it is NOT a test that inference reproduces.  Delete the cache entries first if that
+#   is the question being asked.
+#
 #   y11x_pano ep38 and y11x_tiles ep44 are NOT equal budget.  They are the epochs that
 #   exist.  Read the pair as "roughly matched", and read the h200 control for what a
 #   converged pano arm does.
@@ -55,7 +62,11 @@ if [ "$#" -gt 0 ]; then SPLITS=("$@"); else SPLITS=("${SPLITS_DEFAULT[@]}"); fi
   echo "run started      : $(date -Is)"
   echo "host             : $(hostname)"
   echo "repo HEAD        : $(git rev-parse HEAD)  $(git log -1 --format=%s)"
+  # The full list, not a count: "dirty: 10 paths" cannot tell a reader whether those
+  # were untracked outputs or modified scoring code, which is the only thing that would
+  # invalidate the run.
   echo "repo dirty       : $(git status --porcelain | wc -l) paths"
+  git status --porcelain | sed 's/^/                   /'
   "$PY" -c "import torch,ultralytics;print('torch',torch.__version__,'cuda',torch.cuda.is_available());print('ultralytics',ultralytics.__version__)"
   echo "gpu              : $(nvidia-smi --query-gpu=name --format=csv,noheader | head -1)"
   echo "checkpoint sha256:"

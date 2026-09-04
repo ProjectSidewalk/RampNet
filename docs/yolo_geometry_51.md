@@ -54,6 +54,13 @@ published checkpoint was re-scored under the same commit as the two new legs:
 validates this comparison and means the published #51 table needs no amendment. The assertion
 is in the script, so the day that stops being true, it fails loudly.
 
+**What the control does and does not test.** All ten `*_pano.txt` reports record
+`[y11x_pano_h200] all N panos already cached; model load skipped`: the control leg was
+**re-scored from the detections cached by the 2026-08-14 publishing run, not re-inferred**.
+That is the right instrument for the question — it isolates the matcher and the scorer,
+which is what #132 changed, and holds the detections fixed. It is *not* a test that YOLO
+inference reproduces across ultralytics versions or hardware; nothing here measures that.
+
 ## Results
 
 Per-split F1 at conf 0.25:
@@ -169,6 +176,35 @@ and is already measured, leaving the budget term confounded is the right call.
 **What did turn out to be cheap** is fixing the operating-point asymmetry — see
 [`operating_point_parity_51.md`](operating_point_parity_51.md), which needed no GPU at all and
 moved the headline four times further than any of this.
+
+## Provenance and cost
+
+- **Compute.** The eval ran 2026-08-30 17:10:09 → 18:17:48 on one A40 on makelab2:
+  **67 min 39 s wall, ≈ 1.13 GPU-hours, $0** (lab hardware, not billed). Per-split
+  timings are in [`driver.log`](data/yolo_geometry_51/driver.log). The analysis on top of
+  it ([`yolo_geometry_51.py`](../scripts/analysis/yolo_geometry_51.py)) is CPU-only and
+  takes seconds. The label rescue and the durable snapshot that preceded it were CPU-only
+  klone jobs on the free `ckpt-all` partition; their Slurm job ids are not recorded in
+  this repo, which is a gap. A ledger row follows once
+  [#147](https://github.com/ProjectSidewalk/RampNet/pull/147) lands.
+- **The working tree was dirty.** [`env.txt`](data/yolo_geometry_51/env.txt) records
+  `repo dirty : 10 paths` at `d964d5d` — a **count**, not a list, so a reader cannot tell
+  whether those were untracked output directories or modified code. The driver now logs
+  `git status --porcelain` in full, so this is answerable for every future run and
+  unanswerable for this one. The control leg reproducing its published row to three
+  decimals is the evidence that the scoring code was not among them.
+- **The checkpoints are not published.** `env.txt` records sha256s of the copies under
+  makelab2's `yolo_ckpts/`. The durable copies carrying those hashes are on klone at
+  `/gscratch/makelab/jonf/rampnet_yolo_baseline_51/<arm>/weights/best.pt`
+  ([`run_durable_snapshot.slurm`](../scripts/model_comparison/yolo_baseline/run_durable_snapshot.slurm)).
+  **So this run is reproducible by someone with cluster access, and not from a clean
+  clone.** Publishing the three checkpoints, or their per-pano detections, is what would
+  change that; neither is done.
+- **The rescue's outcome is recorded only in the pull request that introduced it**
+  ([#154](https://github.com/ProjectSidewalk/RampNet/pull/154)) — 557,413 train records /
+  968,227 boxes / 59,923 background, `--verify PASS`. The expected counts are pinned in
+  the two scripts' docstrings and enforced by `check_yolo_dataset_loads.py --expect-*`,
+  so a re-run proves them; the job ids and dates are not in the repo.
 
 ## Gaps, stated
 

@@ -55,11 +55,26 @@ def test_row_regex_ignores_the_header(mod):
     assert mod.ROW_RE.match(header) is None
 
 
+def test_the_split_population_is_pinned_not_taken_from_the_live_registry(mod):
+    """A frozen study must not follow the benchmark registry.
+
+    ``analysis.low_floor_sweep.US_SPLITS`` grows as splits are added (laurens in #152,
+    for one). This study scored ten splits on 2026-08-30 and no others, so a new split
+    has no report here: following the registry would make every pooled number ``None``
+    and take the committed artifact down with it. Pinned tuples, asserted literally.
+    """
+    assert mod.POOLED_SPLITS == ("richmond", "bend", "clovis", "morgantown",
+                                 "annapolis", "paterson", "gainesville")
+    assert mod.ALL_SPLITS_AS_RUN == mod.POOLED_SPLITS + (
+        "budapest_district5", "sao_paulo", "manual_gold")
+    assert set(mod.HELD_OUT_AS_RUN) == set(mod.ALL_SPLITS_AS_RUN) - set(mod.POOLED_SPLITS)
+
+
 def test_every_split_has_all_three_legs(mod):
     cells, _ = mod.collect()
     assert set(cells) == set(mod.LEGS), "a leg went missing from the reports"
     for leg, per_split in cells.items():
-        missing = set(mod.ALL_SPLITS) - set(per_split)
+        missing = set(mod.ALL_SPLITS_AS_RUN) - set(per_split)
         assert not missing, f"{leg} is missing splits: {sorted(missing)}"
 
 
@@ -85,17 +100,17 @@ def test_control_check_would_actually_fail_if_scoring_moved(mod):
 def test_pooled_uses_exactly_the_seven_us_splits(mod):
     cells, _ = mod.collect()
     pool = mod.pooled(cells["y11x_tiles"])
-    assert pool["n_splits"] == len(mod.US_SPLITS) == 7
+    assert pool["n_splits"] == len(mod.POOLED_SPLITS) == 7
     # held-out splits must not leak into the headline
     for held in ("budapest_district5", "sao_paulo", "manual_gold"):
-        assert held not in mod.US_SPLITS
+        assert held not in mod.POOLED_SPLITS
 
 
 def test_pooled_macro_mean_is_a_plain_mean(mod):
     cells, _ = mod.collect()
     per_split = cells["y11x_tiles"]
     pool = mod.pooled(per_split)
-    expect = sum(per_split[s]["f1"] for s in mod.US_SPLITS) / len(mod.US_SPLITS)
+    expect = sum(per_split[s]["f1"] for s in mod.POOLED_SPLITS) / len(mod.POOLED_SPLITS)
     assert pool["macro_f1"] == pytest.approx(expect)
 
 

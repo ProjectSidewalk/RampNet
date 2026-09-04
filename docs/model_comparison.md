@@ -144,7 +144,7 @@ sweep from a 0.05 peak floor across all nine splits, per-imagery-tier curves, th
 confidence-calibration tables, and the recommendation to lower the deployment threshold from
 0.55 to 0.30.
 
-**Supervised baseline (issue #51): the pano trio is benchmarked; tiles still training.**
+**Supervised baseline (issue #51): the pano trio is benchmarked, and the tiles arm has since been scored too.**
 The roster above is all zero-shot except RampNet. The supervised **YOLO** baseline — the
 architecture-vs-data ablation (does a generic detector trained on the RampNet dataset *also*
 beat the zero-shot field, or is RampNet's keypoint architecture doing the work?) — completed
@@ -182,9 +182,17 @@ verify-identical) are in the
 [training record](../scripts/model_comparison/yolo_baseline/README.md) and its
 `benchmark_eval/` directory. Training-side history (the warmup-LR collapse at epoch 3 across
 all arms, the ckpt slice ceiling, the `y26_tiles` fork) stays in that record; the stabilized
-rerun remains tracked in #70 and the caveat write-up in #72. The tiles arms — the
-resolution-controlled half of the ablation, and the geometry the VLM rows are scored with —
-are still training and are deliberately absent from every table above.
+rerun remains tracked in #70 and the caveat write-up in #72.
+
+The tiles arms — the resolution-controlled half of the ablation, and the geometry the VLM
+rows are scored with — are **absent from every table above because their detections are not
+published**, not because they are unmeasured. `y11x_tiles` (ep44) was scored on all ten
+splits on 2026-08-30: the equirect handicap is real and worth about **0.044 F1**, and the
+tiles arm is the best YOLO cell in the grid
+([`yolo_geometry_51.md`](yolo_geometry_51.md)). Two further caveats belong with the YOLO
+rows above: they are all read at conf **0.25**, the Ultralytics default that nobody
+selected, and at a threshold selected the same way as RampNet's the residual to RampNet is
+**0.039**, not 0.252 ([`operating_point_parity_51.md`](operating_point_parity_51.md)).
 
 Three classes of challenger, which fail differently and are worth keeping distinct:
 

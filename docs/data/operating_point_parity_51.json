@@ -4,6 +4,89 @@
     "delta": -0.0025,
     "f1_op_cache": 0.8245,
     "f1_published_bundle": 0.827,
+    "per_split": {
+      "annapolis": {
+        "agrees": true,
+        "delta": 0.0005,
+        "f1_op_cache": 0.8395,
+        "f1_published_bundle": 0.839,
+        "paths_agree_by_construction": true,
+        "tolerance": 0.002
+      },
+      "bend": {
+        "agrees": true,
+        "delta": 0.0032,
+        "f1_op_cache": 0.8532,
+        "f1_published_bundle": 0.85,
+        "paths_agree_by_construction": false,
+        "tolerance": 0.025
+      },
+      "budapest_district5": {
+        "agrees": true,
+        "delta": 0.0002,
+        "f1_op_cache": 0.6442,
+        "f1_published_bundle": 0.644,
+        "paths_agree_by_construction": true,
+        "tolerance": 0.002
+      },
+      "clovis": {
+        "agrees": true,
+        "delta": 0.0002,
+        "f1_op_cache": 0.8012,
+        "f1_published_bundle": 0.801,
+        "paths_agree_by_construction": true,
+        "tolerance": 0.002
+      },
+      "gainesville": {
+        "agrees": true,
+        "delta": -0.0159,
+        "f1_op_cache": 0.7871,
+        "f1_published_bundle": 0.803,
+        "paths_agree_by_construction": false,
+        "tolerance": 0.025
+      },
+      "manual_gold": {
+        "agrees": true,
+        "delta": -0.009,
+        "f1_op_cache": 0.899,
+        "f1_published_bundle": 0.908,
+        "paths_agree_by_construction": false,
+        "tolerance": 0.025
+      },
+      "morgantown": {
+        "agrees": true,
+        "delta": 0.0001,
+        "f1_op_cache": 0.8351,
+        "f1_published_bundle": 0.835,
+        "paths_agree_by_construction": true,
+        "tolerance": 0.002
+      },
+      "paterson": {
+        "agrees": true,
+        "delta": -0.0044,
+        "f1_op_cache": 0.8006,
+        "f1_published_bundle": 0.805,
+        "paths_agree_by_construction": false,
+        "tolerance": 0.025
+      },
+      "richmond": {
+        "agrees": true,
+        "delta": -0.0004,
+        "f1_op_cache": 0.8546,
+        "f1_published_bundle": 0.855,
+        "paths_agree_by_construction": true,
+        "tolerance": 0.002
+      },
+      "sao_paulo": {
+        "agrees": true,
+        "delta": -0.0192,
+        "f1_op_cache": 0.7578,
+        "f1_published_bundle": 0.777,
+        "paths_agree_by_construction": false,
+        "tolerance": 0.025
+      }
+    },
+    "per_split_agrees": true,
     "threshold": 0.55,
     "tolerance": 0.005
   },

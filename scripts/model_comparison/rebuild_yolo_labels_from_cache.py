@@ -34,7 +34,13 @@ flight were trained on these.
 
 The write format below is lifted from `prepare_yolo_dataset.py::_write_pair` and the
 line construction beside it, so a rebuilt file is byte-identical to the original for
-any value that survives the float32 round trip through the cache:
+any value that survives the float32 round trip through the cache -- with ONE exception,
+which is training-equivalent but not byte-identical. Ultralytics' `verify_image_label`
+runs `np.unique(lb, axis=0, return_index=True)` and, when a file held duplicate rows,
+keeps `lb[i]`: the duplicates are dropped AND the survivors come back in `np.unique`'s
+sorted order. So a source file that had a duplicated box is rebuilt deduplicated and
+row-sorted. That is exactly what Ultralytics would itself have trained on, but do not
+expect `diff` against a pre-purge backup to be empty for such a file.
 
     line = f"0 {u:.6f} {v:.6f} {w:.6f} {h:.6f}"
     body = "\n".join(lines) + ("\n" if lines else "")
@@ -111,7 +117,9 @@ def main() -> int:
     for i, rec in enumerate(labels, 1):
         stem = Path(rec["im_file"]).stem
         body = format_record(rec)
-        (args.labels_dir / f"{stem}.txt").write_text(body)
+        # newline='\n' so a rebuild run from Windows cannot write CRLF into a
+        # dataset the cluster reads.
+        (args.labels_dir / f"{stem}.txt").write_text(body, newline="\n")
         written += 1
         if not body:
             empty += 1
