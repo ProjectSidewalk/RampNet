@@ -229,6 +229,9 @@ _LOG_ROW_NAMES = {
     "grounding-dino-base": "IDEA-Research/grounding-dino-base",
     "mask2former-vistas-curb-cut": "mask2former-vistas-curb-cut",
     "mask2former-vistas-curb-cut+curb": "mask2former-vistas-curb-cut+curb",
+    # Effort-pinned legs carry the effort in the row label, because one model id is
+    # two legs and the bare id would name whichever ran last (see roster.published_as).
+    "claude-opus-5 (effort low)": "claude-opus-5-effort-low",
 }
 # (model, split) pairs the log prints and this page deliberately does not carry, each with
 # the reason. Anything else missing is a failure, not an exemption.
@@ -435,20 +438,30 @@ def test_partial_coverage_is_reported_not_averaged_away(board):
 
 
 def test_single_split_legs_stay_out_of_the_pooled_tables(board):
-    """Vistas ran richmond only; the Claude legs ran annapolis only.
+    """Vistas ran richmond only; the Claude legs cover one or two cities, not eight.
 
-    A one-city macro-mean in the pooled column would be read as a seven-city one. It is
-    computed (the number is real, for that one city) but must not reach the headline
-    table or the pooled column of the matrix.
+    A one- or two-city macro-mean in the pooled column would be read as an eight-city
+    one. It is computed (the number is real, for those cities) but must not reach the
+    headline table or the pooled column of the matrix.
+
+    Coverage is pinned per leg rather than as one number, because it is no longer
+    uniform: `claude-opus-5` at effort low was run on both Laurens arms for #151, so it
+    now covers 2 of the 8 pooled splits (annapolis + laurens_mapillary -- laurens_gsv is
+    held out of the pool as the second arm of a city already in it). Partial coverage
+    still means excluded; the point of this test is the exclusion, not the number.
     """
-    single = [m for m in board["models"] if not m["complete"]]
-    assert {m["model"] for m in single} == {
-        "mask2former-vistas-curb-cut", "mask2former-vistas-curb-cut+curb",
-        "claude-opus-5-effort-low", "claude-opus-5-effort-high",
-        "claude-sonnet-5-effort-low", "claude-sonnet-5-effort-high",
+    want_coverage = {
+        "mask2former-vistas-curb-cut": "1/8",
+        "mask2former-vistas-curb-cut+curb": "1/8",
+        "claude-opus-5-effort-low": "2/8",
+        "claude-opus-5-effort-high": "1/8",
+        "claude-sonnet-5-effort-low": "1/8",
+        "claude-sonnet-5-effort-high": "1/8",
     }
+    single = [m for m in board["models"] if not m["complete"]]
+    assert {m["model"] for m in single} == set(want_coverage)
     for m in single:
-        assert m["coverage"] == "1/8"
+        assert m["coverage"] == want_coverage[m["model"]], m["model"]
 
     headline = sr.headline_table(board)
     matrix = sr.by_split_table(board)

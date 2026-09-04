@@ -20,7 +20,7 @@ lives on one machine.
 | `benchmark/miss_taxonomy_46/*.json` (human verdicts) | small | **committed** | ✅ |
 | RampNet model weights | — | HF `projectsidewalk/rampnet-model` | ✅ |
 | Stage 1 dataset | **463 GB** (test split ~44 GB) | HF `projectsidewalk/rampnet-dataset` | ✅ |
-| `benchmark/model_detections/` (challenger detections) | 25.1 MB (136 files) | **committed** ✅ | ✅ |
+| `benchmark/model_detections/` (challenger detections) | 25.1 MB (138 files) | **committed** ✅ | ✅ |
 | **`location_data/` (the paper's government inventories)** | 71.8 MB | **committed** ✅ | ✅ |
 | **`street_data/` derivative (what the pipeline actually reads)** | 18.7 MB | **committed** ✅ | ✅ |
 | `street_data/` raw downloads (NY file alone is 669 MB) | 801 MB | git-ignored; HF #21 pending | ⚠️ superseded by the derivative |
@@ -41,7 +41,7 @@ in this sentence — the list here was one of the things that drifted.
 single-panorama shards keyed by an opaque SHA-1 of (label, signature, city, pano), unreadable
 without reconstructing detector signatures. `scripts/analysis/export_model_cache.py` consolidates
 it into human-readable files, one per (model, split), keyed by panorama id with the detector
-signature recorded inside. As of 2026-09-01 that is **136 files, 25.1 MB**, and every one of
+signature recorded inside. As of 2026-09-04 that is **138 files, 25.1 MB**, and every one of
 them belongs to a registered leg:
 
 | what | files | where it is written up |
@@ -176,8 +176,21 @@ committed artifacts record the pool they ran over.
 #### The four Claude legs are published, annapolis only, one file per effort level
 
 `benchmark/model_detections/claude-{sonnet,opus}-5-effort-{low,high}__annapolis.json` — four
-files, 125 panoramas each, 0 uncached (#122). Only annapolis was run; the other nine splits
-are a stated gap.
+files, 125 panoramas each, 0 uncached (#122).
+
+**`claude-opus-5` at effort low now covers three splits**, not one:
+`claude-opus-5-effort-low__{annapolis,laurens_mapillary,laurens_gsv}.json` (125 / 94 / 86
+panoramas, 0 uncached each). The two Laurens arms were run 2026-09-04 to answer #151 — whether
+Laurens is hard because it is rural or because of the imagery rig — and needed the strongest
+zero-shot model in the benchmark to make that test sharp. The other seven splits, and all three
+remaining Claude legs on every split but annapolis, are still a stated gap.
+
+⚠️ **The mapillary arm needed a second pass.** Two panoramas
+(`2102336717175440`, `2281219182305735`) died on Vertex's transient 404 even after the detector's
+four retries, and `compare.py` isolated them and scored the other 92 — which would have published
+a recall against 247 GT ramps inside a table captioned 249. The re-run recovered both for 12 calls
+and $0.14. This is the same defect class as the annapolis sonnet/low pano, and
+`test_claude_published_legs.py` asserts whole-split coverage for exactly that reason.
 
 These need one flag the other legs do not. **Effort is part of the cache signature, so one
 model id is two different legs**, and both would export to `claude-sonnet-5__annapolis.json`

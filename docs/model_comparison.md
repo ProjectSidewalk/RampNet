@@ -438,6 +438,7 @@ of 1,264 people. The eighth US split, and the one RampNet does worst on by a fac
 | model | P | R | F1 | AP | tp/fp/fn |
 |---|---|---|---|---|---|
 | **rampnet** | **0.898** | 0.390 | **0.543** | 0.377 | 97/11/152 |
+| **claude-opus-5** (effort low) | 0.485 | 0.386 | **0.430** | – | 96/102/153 |
 | gemini-3.1-pro-preview | 0.516 | 0.257 | 0.343 | – | 64/60/185 |
 | **molmo2-8B** (points) | 0.359 | **0.321** | 0.339 | – | 80/143/169 |
 | gemini-3.6-flash | 0.446 | 0.201 | 0.277 | – | 50/62/199 |
@@ -450,9 +451,12 @@ Best sweep F1: OWLv2 **0.099** (thr 0.15), Grounding DINO **0.060** (thr 0.15).
 
 Three things laurens adds:
 
-1. **RampNet's worst split is still a 0.200 lead over the best zero-shot challenger.** Its
+1. **RampNet's worst split still leads the best zero-shot challenger — by 0.113.** Its
    recall halves against every other US split (0.390 against clovis's next-worst 0.650), but
-   the challengers fall further: gemini-pro lands at 0.343, its second-lowest US F1. So the
+   the challengers fall further: `claude-opus-5` at effort low, added 2026-09-04 and the
+   strongest zero-shot model in the benchmark, lands at 0.430; gemini-pro at 0.343, its
+   second-lowest US F1. **That lead was published as 0.200 against gemini-pro before the
+   Claude leg existed — quote 0.113, not the earlier figure.** So the
    rural deficit is not RampNet-specific in the zero-shot field — whatever makes this town
    hard makes it hard for everything that has never seen a curb ramp label. What it is *not*
    is a ramp-poor or weak sample: laurens is ramp-**rich** (2.65 ramps/pano, third of ten).
@@ -487,6 +491,7 @@ Laurens hard because it is **rural**, or because of the **rig**?
 | model | P | R | F1 | AP | tp/fp/fn |
 |---|---|---|---|---|---|
 | **rampnet** | **0.933** | **0.509** | **0.659** | 0.494 | 112/8/108 |
+| **claude-opus-5** (effort low) | 0.489 | 0.395 | **0.437** | – | 87/91/133 |
 | **molmo2-8B** (points) | 0.332 | 0.286 | **0.307** | – | 63/127/157 |
 | gemini-3.1-pro-preview | 0.519 | 0.191 | 0.279 | – | 42/39/178 |
 | gemini-3.6-flash | 0.355 | 0.223 | 0.274 | – | 49/89/171 |
@@ -497,8 +502,10 @@ Laurens hard because it is **rural**, or because of the **rig**?
 
 ### The rig, not the town (#151)
 
-Same town, same footprint, same rubric, same reviewer, two rigs. Every model was run on both
-arms, so the imagery is the only thing that moves. ΔF1 is `laurens_gsv` minus
+Same town, same footprint, same rubric, same reviewer, two rigs. Every **scored** model was run
+on both arms, so the imagery is the only thing that moves. (The four annapolis-only Claude legs of
+#122 are not scored rows; `claude-opus-5` at effort low was run on both arms specifically for this
+comparison and appears below.) ΔF1 is `laurens_gsv` minus
 `laurens_mapillary`:
 
 | model | Mapillary (GoPro Max) | GSV (zoom 5) | ΔF1 |
@@ -507,6 +514,7 @@ arms, so the imagery is the only thing that moves. ΔF1 is `laurens_gsv` minus
 | y11x_pano_h200 | 0.529 | 0.568 | +0.039 |
 | y11l_pano | 0.563 | 0.587 | +0.024 |
 | grounding-dino-base | 0.045 | 0.054 | +0.008 |
+| **claude-opus-5** (effort low) | 0.430 | 0.437 | **+0.007** |
 | gemini-3.6-flash | 0.277 | 0.274 | −0.003 |
 | owlv2-large-patch14-ensemble | 0.062 | 0.055 | −0.007 |
 | gemini-3.7-flash | 0.281 | 0.261 | −0.020 |
@@ -519,10 +527,17 @@ arms, so the imagery is the only thing that moves. ΔF1 is `laurens_gsv` minus
 Three readings, in decreasing order of how well the data supports them:
 
 1. **The town is not the problem.** Every zero-shot challenger is flat or *worse* on the
-   imagery RampNet prefers — seven of eight move down, none moves up by more than 0.008. If
-   rural streetscape were intrinsically hard, the arm that is easier for RampNet would be
-   easier for them too. It is not. So Laurens' headline recall of 0.390 is not "rural defeats
-   detectors"; it is RampNet meeting an out-of-domain rig.
+   imagery RampNet prefers — seven of nine move down, and neither of the two that rise clears
+   +0.008. If rural streetscape were intrinsically hard, the arm that is easier for RampNet
+   would be easier for them too. It is not. So Laurens' headline recall of 0.390 is not "rural
+   defeats detectors"; it is RampNet meeting an out-of-domain rig.
+
+   **`claude-opus-5` is the sharpest version of this test**, because it is the strongest
+   zero-shot model the benchmark has — best non-RampNet F1 on *both* arms (0.430 and 0.437),
+   ahead of molmo2-8B and gemini-3.1-pro on each. It moves **+0.007**. The best available
+   general model gains essentially nothing from the rig that gains RampNet +0.115, which is
+   the cleanest available evidence that the gain is a domain effect specific to RampNet's
+   training distribution rather than a property of the imagery being easier to read.
 2. **The RampNet–YOLO ordering flips between the arms.** On Mapillary the supervised baseline
    wins (`y26_pano` 0.574, `y11l_pano` 0.563, against 0.543); on GSV RampNet leads by 0.072
    (0.659 against `y11l_pano`'s 0.587). The claim "YOLO beats RampNet on the rural split" is
