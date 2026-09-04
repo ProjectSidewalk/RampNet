@@ -125,6 +125,8 @@ The ≥0.020 branch is a live possibility, not a formality.
 
 ## Amendment 1 (2026-09-04)
 
+**Ratified by Jon Froehlich, 2026-09-04, before any replicate was scored.** Raised in code review rather than by looking at a result: the correction below is arithmetic, the cut points 0.010 and 0.020 are unchanged from the original table, and Campaign B's rule was written with no number from either campaign in hand.
+
 Raised in code review of PR #155, **before any replicate had finished** — the three
 klone replicates had not started (their launcher died at submit time on 2026-09-03) and
 the Tillicum replicates were mid-schedule with no epoch scored. No number from either
