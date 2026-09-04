@@ -6,6 +6,8 @@ pass, and the failure they prevent is silent — the numbers simply change.
 """
 import json
 import pathlib
+import re
+import subprocess
 
 import pytest
 
@@ -83,6 +85,100 @@ def _table_lines(text):
         if not line.startswith("|"):
             return
         yield line
+
+
+def _blank_quoted(line):
+    """Replace the contents of "..." and '...' spans with x, keeping the width.
+
+    Quoted text is data, not command structure: a run of spaces or a ``#``
+    inside it says nothing about a lost continuation, and left alone the first
+    produces a false positive and the second hides everything after it."""
+    out = []
+    quote = None
+    for ch in line:
+        if quote is None:
+            out.append(ch)
+            if ch in "\"'":
+                quote = ch
+        else:
+            out.append(ch if ch == quote else "x")
+            if ch == quote:
+                quote = None
+    return "".join(out)
+
+
+def _collapsed_continuations(text):
+    """Yield (line_no, line) for every shell line that looks like a lost backslash.
+
+    Three spaces is the threshold because these runbooks indent continuations by
+    four, so a swallowed trailing backslash leaves at least that indent inside
+    one line; a flush-left or two-space continuation would collapse below three
+    and is not used here.
+    """
+    in_shell = False
+    for n, line in enumerate(text.splitlines(), 1):
+        stripped = line.lstrip()
+        if stripped.startswith("```"):
+            # lstrip, so a fence nested in a list item is entered and left.
+            in_shell = stripped.startswith("```bash") or stripped.startswith("```sh")
+            continue
+        if not in_shell or stripped.startswith("#"):
+            continue
+        scan = _blank_quoted(line)
+        # An aligned trailing comment legitimately uses run-on spaces.
+        scan = scan.split(" #", 1)[0].rstrip()
+        # A line that still HAS its continuation is correct by definition,
+        # whatever spacing it uses to align its arguments.
+        if scan.endswith("\\"):
+            continue
+        # Three or more spaces mid-command is what a swallowed trailing
+        # backslash plus newline leaves behind.
+        if re.search(r"\S {3,}\S", scan):
+            yield n, line
+
+
+def test_the_collapsed_continuation_scanner_catches_the_shape_it_claims():
+    """The scanner is the guard; these fixtures are the guard on the guard.
+
+    Planting a defect in a committed doc is the only other way to check that it
+    still catches the class, and that is not a thing to leave lying around."""
+    collapsed = "```bash\npython x.py --a b     --c d\n```\n"
+    assert list(_collapsed_continuations(collapsed)) == [
+        (2, "python x.py --a b     --c d")]
+
+    aligned_comment = "```bash\npython x.py --a b        # what b is for\n```\n"
+    assert list(_collapsed_continuations(aligned_comment)) == []
+
+    kept_continuation = "```bash\npython x.py --a b   \\\n    --c d\n```\n"
+    assert list(_collapsed_continuations(kept_continuation)) == []
+
+
+def test_no_runbook_snippet_has_a_collapsed_line_continuation():
+    """A shell snippet whose trailing backslash was lost still *looks* fine -- the
+    wrap becomes a run of spaces inside one long line -- and it still runs, so
+    nothing catches it. But the exact-commands-in-order rule is what these blocks
+    exist to satisfy, and a reader copying the wrapped form gets a broken command.
+
+    Two of them shipped in #126 because a patch script ate the backslashes.
+
+    Every tracked .md is walked, not the four runbooks the two defects happened
+    to be in: a collapsed snippet in README.md would be just as invisible.
+    """
+    hits = []
+    for path in _tracked_docs():
+        rel = path.relative_to(REPO).as_posix()
+        hits += [f"{rel}:{n} {line.strip()!r}"
+                 for n, line in _collapsed_continuations(path.read_text("utf-8"))]
+    assert hits == [], (
+        "these lines look like collapsed line continuations:\n" + "\n".join(hits))
+
+
+def _tracked_docs():
+    """Tracked .md paths. git ls-files, not a walk: the checkout can contain
+    nested worktrees and virtualenvs that a walk would descend into."""
+    listing = subprocess.run(["git", "-C", str(REPO), "ls-files", "-z", "*.md"],
+                             capture_output=True, text=True, check=True)
+    return [REPO / p for p in listing.stdout.split("\0") if p]
 
 
 def test_no_doc_still_hardcodes_the_old_roster_count():
