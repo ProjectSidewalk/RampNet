@@ -139,6 +139,19 @@ def main():
     ap.add_argument("--molmo-model", default=_D["molmo_model"])
     ap.add_argument("--molmo-coord-scale", choices=["auto", "100", "1000"],
                     default=_D["molmo_coord_scale"])
+    ap.add_argument("--vistas-class-set", default=_D["vistas_class_set"])
+    ap.add_argument("--vistas-model", default=_D["vistas_model"])
+    ap.add_argument("--vistas-min-area-px", type=int,
+                    default=_D["vistas_min_area_px"])
+    ap.add_argument("--vistas-dtype", choices=["float16", "float32"],
+                    default=_D["vistas_dtype"])
+    # Deviation-only, exactly as in compare.py: absent from the signature
+    # unless set. Without these two the vistas arm here would silently be the
+    # published 384x384 one even when the run being analysed was at parity --
+    # a wrong-arm read that looks like a valid answer (#126).
+    ap.add_argument("--vistas-input-size", type=int, nargs=2, metavar=("H", "W"),
+                    default=None)
+    ap.add_argument("--vistas-revision", default=None)
     args = ap.parse_args()
 
     records, verdicts, panos_dir = compare.load_bundle(args.bundle)
