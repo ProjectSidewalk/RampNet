@@ -89,8 +89,9 @@ PATIENCE="${PATIENCE:-20}"
 # SEED. Every #51 arm ran seed=0 (the ultralytics default), so the whole baseline is
 # n=1 and its run-to-run spread has never been measured. That was a footnote while the
 # RampNet-vs-YOLO gap was 0.252 F1; at the matched-operating-point gap of 0.039
-# (docs/operating_point_parity_51.md) it is the binding question, and #51's own rule is
-# that differences under ~0.02 should not be read.
+# (docs/operating_point_parity_51.md -- on branch fix/yolo-label-cache-rescue-51 / PR
+# #154, not on main yet) it is the binding question, and #51's own rule is that
+# differences under ~0.02 should not be read.
 #
 # Ultralytics seeds torch/numpy/random from this AND sets deterministic=True by default,
 # so it also governs augmentation and the initial head weights -- i.e. it is the whole

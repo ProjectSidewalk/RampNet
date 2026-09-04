@@ -37,6 +37,14 @@ def sampler_seed_for(seed: int) -> int:
 
     The asymmetry is deliberate and is the whole point of the function: it is the only
     way to add a seed flag without silently changing what the default does.
+
+    .. warning::
+       The mapping is therefore NOT injective: ``sampler_seed_for(0)`` and
+       ``sampler_seed_for(42)`` are both ``0``. A replicate at seed ``0`` gets a fresh
+       initialization but the **published run's data order**, which makes it less
+       independent of the published run than its seed column suggests. Seed 0 is the
+       natural first pick -- it is the ultralytics default every #51 YOLO arm used -- so
+       extend a Stage 2 sweep with 4, 5, ..., never with 0.
     """
     if seed == HISTORICAL_SEED:
         return HISTORICAL_SAMPLER_SEED

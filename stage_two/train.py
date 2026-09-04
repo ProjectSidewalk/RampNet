@@ -274,7 +274,10 @@ if len(val_dataset) == 0 and rank == 0:
 # seed + epoch in set_epoch(), so it is independent of torch.manual_seed above. Every
 # published run therefore paired manual_seed(42) with sampler seed 0, and
 # sampler_seed_for() preserves that pairing exactly at the default: passing --seed 42
-# reproduces those runs byte for byte, while any other --seed moves the data order too.
+# gives those runs' initialization AND their data order, while any other --seed moves
+# the data order too. Not bit-identical, and no claim to be: cuDNN autotuning, AMP loss
+# scaling and DDP allreduce ordering are not seeded and torch.use_deterministic_algorithms
+# is not set. What is preserved is every source of randomness this script controls.
 #
 # Both halves have to move together. A sweep that varied initialization but reused one
 # data order would understate the true run-to-run spread -- and would do it silently,

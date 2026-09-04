@@ -7,6 +7,7 @@ reproducing the published run all produce a job that finishes green with the wro
 number in it.
 """
 
+import ast
 import re
 from pathlib import Path
 
@@ -22,6 +23,37 @@ REPO = Path(__file__).resolve().parents[1]
 TRAIN_PY = REPO / "stage_two" / "train.py"
 SEED_SLURM = REPO / "stage_two" / "run_train_seed.slurm"
 TILLICUM_SLURM = REPO / "scripts" / "model_comparison" / "run_yolo_train_tillicum.slurm"
+
+
+def _assigned_call(target_name):
+    """Return the ``ast.Call`` assigned to ``target_name`` at module level in train.py.
+
+    Substring assertions over the whole file are NOT good enough here. ``train.py`` also
+    logs ``sampler_seed_for(args.seed)`` in a print(), so ``"sampler_seed_for(args.seed)"
+    in src`` stays true even after the kwarg is deleted from the sampler itself -- which
+    is the one regression this file exists to catch. Parsing the actual statement is the
+    only assertion that distinguishes them.
+    """
+    tree = ast.parse(TRAIN_PY.read_text(encoding="utf-8"))
+    for node in tree.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        if not any(isinstance(t, ast.Name) and t.id == target_name for t in node.targets):
+            continue
+        value = node.value
+        # `x = Call(...) if cond else None` -- the val sampler's shape
+        if isinstance(value, ast.IfExp):
+            value = value.body
+        if isinstance(value, ast.Call):
+            return value
+    raise AssertionError(f"no module-level `{target_name} = <call>(...)` in train.py")
+
+
+def _kwarg(call, name):
+    for kw in call.keywords:
+        if kw.arg == name:
+            return kw.value
+    return None
 
 
 # --------------------------------------------------------------------------------
@@ -40,6 +72,19 @@ def test_historical_seed_maps_to_the_historical_sampler_seed():
 def test_every_other_seed_maps_to_itself(seed):
     """A sweep has to move the data order too; identity is what guarantees that."""
     assert sampler_seed_for(seed) == seed
+
+
+def test_seed_zero_shares_the_published_data_order():
+    """The mapping is deliberately NOT injective, and seed 0 is where that bites.
+
+    ``sampler_seed_for(0) == sampler_seed_for(42) == 0``, so a replicate at ``--seed 0``
+    gets a different initialization from the published run but the SAME data order. That
+    is a legal thing to want; it is not a legal thing to do by accident, because it makes
+    two arms less independent than the seed column suggests. Campaigns A and B both use
+    1/2/3, which is why this is documented rather than forbidden -- extend with 4, 5, ...,
+    never with 0.
+    """
+    assert sampler_seed_for(0) == sampler_seed_for(HISTORICAL_SEED)
 
 
 def test_distinct_seeds_give_distinct_sampler_seeds():
@@ -64,28 +109,50 @@ def test_train_py_declares_seed_defaulting_to_the_historical_value():
 
 def test_train_py_seeds_all_three_rngs_from_args():
     """torch, numpy and random were all hardcoded to 42; all three have to follow the
-    flag or the sweep varies only part of the state."""
+    flag or the sweep varies only part of the state.
+
+    Matched line-anchored, not as substrings: ``"random.seed(args.seed)" in src`` is
+    satisfied by ``np.random.seed(args.seed)`` alone, so the stdlib ``random`` call --
+    the one that drives the horizontal-flip augmentation in EquiHeatmapDataset -- could
+    be deleted without failing anything.
+    """
     src = TRAIN_PY.read_text(encoding="utf-8")
     for call in ("torch.manual_seed(args.seed)",
                  "random.seed(args.seed)",
                  "np.random.seed(args.seed)"):
-        assert call in src, f"{call} missing"
+        assert re.search(rf"^{re.escape(call)}$", src, re.M), f"{call} missing"
     assert "torch.manual_seed(42)" not in src
     assert "np.random.seed(42)" not in src
 
 
 def test_train_sampler_seed_is_derived_not_hardcoded():
-    """The regression this guards: dropping the sampler seed (back to a constant 0) and
-    leaving a sweep that varies initialization only."""
-    src = TRAIN_PY.read_text(encoding="utf-8")
-    sampler_line = next(l for l in src.splitlines()
-                        if "DistributedSampler(train_dataset" in l or
-                        (l.strip().startswith("seed=sampler_seed_for")))
-    assert "sampler_seed_for(args.seed)" in src
-    assert "shuffle=True" in src
-    # and the val sampler must NOT be shuffled, so it needs no seed
-    val_line = next(l for l in src.splitlines() if "val_sampler = DistributedSampler" in l)
-    assert "shuffle=False" in val_line
+    """The regression this guards: dropping the sampler seed (back to its constant 0
+    default) and leaving a sweep that varies initialization only.
+
+    Asserted on the parsed ``train_sampler = DistributedSampler(...)`` statement, not on
+    the file text. Deleting the kwarg passes any whole-file substring check, because the
+    same expression appears in the seed log line.
+    """
+    call = _assigned_call("train_sampler")
+    assert isinstance(call.func, ast.Name) and call.func.id == "DistributedSampler"
+
+    shuffle = _kwarg(call, "shuffle")
+    assert isinstance(shuffle, ast.Constant) and shuffle.value is True, (
+        "the train sampler must shuffle, or the seed is inert")
+
+    seed = _kwarg(call, "seed")
+    assert seed is not None, (
+        "train_sampler has no seed= -- every replicate would reuse DistributedSampler's "
+        "default of 0, i.e. one data order across the whole sweep, silently")
+    assert ast.unparse(seed) == "sampler_seed_for(args.seed)", (
+        f"train_sampler seed= is {ast.unparse(seed)!r}; it must be derived from --seed "
+        f"via sampler_seed_for, not a literal")
+
+
+def test_val_sampler_is_unshuffled_and_therefore_needs_no_seed():
+    call = _assigned_call("val_sampler")
+    assert _kwarg(call, "shuffle").value is False
+    assert _kwarg(call, "seed") is None
 
 
 def test_train_py_logs_both_seeds():
@@ -140,7 +207,10 @@ def test_tillicum_launcher_positional_args_line_up():
     src = TILLICUM_SLURM.read_text(encoding="utf-8")
 
     call = src.split("run_train() {", 1)[1].split("<<'PY'", 1)[0]
-    n_passed = len(re.findall(r'"\$[A-Z_]+"', call))
+    # Both spellings, "$VAR" and "${VAR}". Counting only the bare form left the check
+    # blind to a braced positional: inserting "${LR0}" mid-list shifts data -> imgsz ->
+    # epochs by one and used to pass green.
+    n_passed = len(re.findall(r'"\$\{?[A-Za-z_][A-Za-z0-9_]*\}?"', call))
 
     unpack = re.search(r"\)\s*=\s*sys\.argv\[1:(\d+)\]", src)
     assert unpack, "could not find the sys.argv unpack"
