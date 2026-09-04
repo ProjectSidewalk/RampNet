@@ -918,7 +918,22 @@ def boxes_from_claude_response(resp):
 # closes that gap at the price of re-running the legs; see docs/model_comparison.md.
 CLAUDE_AS_RUN_IMAGE_FORMAT = "jpeg"
 CLAUDE_AS_RUN_TEMPERATURE = None      # i.e. the provider default, NOT greedy
+# What the four published annapolis legs sent. Thinking bills against this, so it
+# is the ceiling on how long a call may think before answering -- see
+# ClaudeDetector._TRUNCATED_STOP_REASON for why hitting it is raised rather than
+# scored. Held at the as-run value so the paid detection cache keeps its key.
+CLAUDE_AS_RUN_MAX_TOKENS = 4096
 CLAUDE_IMAGE_FORMATS = {"jpeg": ("JPEG", "image/jpeg"), "png": ("PNG", "image/png")}
+
+
+def claude_forbids_forced_tools(model_id):
+    """Whether ``model_id`` rejects ``tool_choice`` of ``tool``/``any`` with a 400.
+
+    True for the Fable family, which removed forced tool use. Matched on the id
+    rather than probed because the point is to fail before the first paid call;
+    an id this does not recognise is assumed to allow forcing, which is the
+    behaviour every leg published so far relies on."""
+    return "fable" in (model_id or "").lower()
 
 
 class ClaudeDetector(_VLMDetector):
@@ -939,7 +954,8 @@ class ClaudeDetector(_VLMDetector):
     def __init__(self, model_id="claude-sonnet-5", max_edge=None, tile=True,
                  project=None, location=None, effort="low", tool_choice="auto",
                  views=None, image_format=CLAUDE_AS_RUN_IMAGE_FORMAT,
-                 temperature=CLAUDE_AS_RUN_TEMPERATURE):
+                 temperature=CLAUDE_AS_RUN_TEMPERATURE,
+                 max_tokens=CLAUDE_AS_RUN_MAX_TOKENS):
         super().__init__(model_id, max_edge, tile=tile, views=views)
         if image_format not in CLAUDE_IMAGE_FORMATS:
             raise ValueError(f"unknown image_format {image_format!r} "
@@ -968,6 +984,21 @@ class ClaudeDetector(_VLMDetector):
         # back as a tool call (no text fallback needed) and is the better choice
         # at effort=low, where there is no thinking to lose.
         self.tool_choice = tool_choice
+        # Claude Fable removed forced tool use: `tool_choice` of `tool` or `any`
+        # returns a 400 on that family. Caught at construction rather than at call
+        # time because the provider's 400 does not name --claude-tool-choice, and
+        # a leg that fails on every one of ~750 views is an afternoon lost to an
+        # error message about a knob nobody set deliberately.
+        if self.tool_choice == "forced" and claude_forbids_forced_tools(self.model_id):
+            raise ValueError(
+                f"--claude-tool-choice forced is not supported on {self.model_id}: "
+                f"the Fable family rejects tool_choice `tool`/`any` with a 400. Use "
+                f"`auto` (the default). Note the tradeoff the other way is real too: "
+                f"`auto` is what lets --claude-effort do anything at all.")
+        # Thinking bills against max_tokens. On the Opus/Sonnet legs effort=low
+        # thinks near zero, so 4096 was ample; the Fable family cannot disable
+        # thinking at all, so its floor is higher and this may need raising.
+        self.max_tokens = max_tokens
         self._client = None
         self.init_usage()
         self._usage_warned = False
@@ -1000,6 +1031,11 @@ class ClaudeDetector(_VLMDetector):
             sig["image_format"] = self.image_format
         if self.temperature != CLAUDE_AS_RUN_TEMPERATURE:
             sig["temperature"] = self.temperature
+        # Same deviation-only rule: max_tokens truncates the answer when it binds,
+        # so it is an input to the detections -- but recording the as-run value
+        # would rewrite the key of every paid detection already in the cache.
+        if self.max_tokens != CLAUDE_AS_RUN_MAX_TOKENS:
+            sig["max_tokens"] = self.max_tokens
         return sig
 
     def location_warning(self):
@@ -1109,7 +1145,7 @@ class ClaudeDetector(_VLMDetector):
             kwargs["temperature"] = self.temperature
         resp = self._client.messages.create(
             model=self.model_id,
-            max_tokens=4096,
+            max_tokens=self.max_tokens,
             # effort is allowed by the org policy; structured_outputs is not.
             output_config={"effort": self.effort},
             tools=[CLAUDE_BOX_TOOL],
@@ -1142,7 +1178,10 @@ class ClaudeDetector(_VLMDetector):
                 f"(effort={self.effort}). Thinking bills against max_tokens, so a "
                 f"high-effort call can be cut off mid-thought; scoring that as "
                 f"'no curb ramps' would be a silent recall loss AND would be "
-                f"cached. Raise max_tokens or lower --claude-effort.")
+                f"cached. Raise --claude-max-tokens (currently {self.max_tokens}) "
+                f"or lower --claude-effort. On the Fable family only the first "
+                f"works: thinking cannot be turned off there, so effort has a "
+                f"floor.")
         if reason == "refusal" and not self._refusal_warned:
             self._refusal_warned = True
             print(f"[{self.model_id}] WARNING: a call ended in `refusal`, which "
@@ -1859,7 +1898,9 @@ def build_detector(provider, model_id, records, args):
             tool_choice=getattr(args, "claude_tool_choice", None) or _D("claude_tool_choice"),
             image_format=(getattr(args, "claude_image_format", None)
                           or CLAUDE_AS_RUN_IMAGE_FORMAT),
-            temperature=getattr(args, "claude_temperature", CLAUDE_AS_RUN_TEMPERATURE))
+            temperature=getattr(args, "claude_temperature", CLAUDE_AS_RUN_TEMPERATURE),
+            max_tokens=(getattr(args, "claude_max_tokens", None)
+                        or CLAUDE_AS_RUN_MAX_TOKENS))
     if provider == "qwen":
         mid = model_id or args.qwen_model
         coord_space = getattr(args, "qwen_coord_space", "auto")

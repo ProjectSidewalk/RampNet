@@ -1133,11 +1133,14 @@ def test_claude_as_run_defaults_stay_out_of_the_signature():
     det = ClaudeDetector(model_id="claude-sonnet-5")
     assert det.image_format == detectors.CLAUDE_AS_RUN_IMAGE_FORMAT == "jpeg"
     assert det.temperature is detectors.CLAUDE_AS_RUN_TEMPERATURE is None
+    assert det.max_tokens == detectors.CLAUDE_AS_RUN_MAX_TOKENS == 4096
     sig = det.signature()
     assert "image_format" not in sig and "temperature" not in sig
+    assert "max_tokens" not in sig
 
 
-@pytest.mark.parametrize("kwargs", [{"image_format": "png"}, {"temperature": 0.0}])
+@pytest.mark.parametrize("kwargs", [{"image_format": "png"}, {"temperature": 0.0},
+                                    {"max_tokens": 8192}])
 def test_claude_deviating_from_the_as_run_settings_invalidates_the_cache(kwargs):
     base = ClaudeDetector(model_id="claude-sonnet-5")
     other = ClaudeDetector(model_id="claude-sonnet-5", **kwargs)
@@ -1150,6 +1153,26 @@ def test_claude_tool_choice_is_in_the_cache_key():
     forced = ClaudeDetector(model_id="claude-sonnet-5", tool_choice="forced")
     assert cache_key("claude-sonnet-5", auto.signature(), "bend", "p1") != \
            cache_key("claude-sonnet-5", forced.signature(), "bend", "p1")
+
+
+@pytest.mark.parametrize("model_id", ["claude-fable-5", "claude-fable-5-1"])
+def test_forced_tool_choice_is_refused_on_fable_before_the_run_starts(model_id):
+    """The Fable family removed forced tool use — `tool` and `any` are a 400.
+
+    A leg discovers that on its first call and then repeats it ~750 times, so the
+    refusal has to happen at construction, where it costs nothing and can name the
+    flag the provider's own error does not."""
+    with pytest.raises(ValueError, match="tool-choice"):
+        ClaudeDetector(model_id=model_id, tool_choice="forced")
+    # `auto` — the default, and what a Fable leg must run — is unaffected.
+    assert ClaudeDetector(model_id=model_id, tool_choice="auto").tool_choice == "auto"
+
+
+def test_forced_tool_choice_still_works_on_the_models_that_published_with_it():
+    """The guard keys on the id, so it must not spread to the existing legs."""
+    for mid in ("claude-opus-5", "claude-sonnet-5"):
+        assert not detectors.claude_forbids_forced_tools(mid)
+        assert ClaudeDetector(model_id=mid, tool_choice="forced").tool_choice == "forced"
 
 
 # --- Claude: what pixels the model actually sees ----------------------------

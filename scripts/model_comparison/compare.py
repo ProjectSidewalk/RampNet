@@ -582,6 +582,14 @@ def build_parser():
                          "SUPPRESSES THINKING, which makes --claude-effort inert. "
                          "'auto' (default) lets effort actually do something. Also "
                          "part of the cache key.")
+    ap.add_argument("--claude-max-tokens", type=int, default=_D["claude_max_tokens"],
+                    help="Ceiling on one call's answer. Thinking bills against it, so "
+                         "a call that thinks too long is CUT OFF mid-thought and the "
+                         "run aborts rather than scoring it as 'no ramps'. Default "
+                         "4096 is what the published legs ran and is ample at "
+                         "effort=low there; the Fable family cannot disable thinking, "
+                         "so it may need raising. A non-default value is a cache-key "
+                         "change.")
     ap.add_argument("--claude-image-format", default=_D["claude_image_format"], choices=["jpeg", "png"],
                     help="How each view is encoded before it is sent. Default 'jpeg' "
                          "(q90) is what the published annapolis legs ran; 'png' is "

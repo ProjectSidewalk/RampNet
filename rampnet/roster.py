@@ -279,6 +279,7 @@ PROVIDER_DEFAULTS = {
     # cache key and every lookup misses.
     "claude_image_format": None,
     "claude_temperature": None,
+    "claude_max_tokens": None,
     "qwen_model": "Qwen/Qwen3-VL-8B-Instruct",
     "qwen_coord_space": "auto",
     "owlv2_model": "google/owlv2-large-patch14-ensemble",
