@@ -4,7 +4,10 @@
 resolve the effect Run B would plausibly produce, but only if the comparison is read **paired**;
 **pooling the benchmark splits does not help**; and Run A's curve, re-read paired, turns out to
 **decline measurably after epoch 6** rather than staying flat to epoch 8. The recommendation is
-at the bottom.
+at the bottom — and it is **SUPERSEDED**: this document recommended running the 30-epoch arm, and
+on 2026-09-03 Run B was decided against on evidence this document did not have. The power
+analysis itself stands; see [`stage2_cosine_rung_135.md`](stage2_cosine_rung_135.md)'s final
+section for the decision.
 
 ## The question
 
@@ -20,10 +23,18 @@ does pooling the ten splits raise it?** Both are answerable from what is already
 
 | | s.e. on `manual_gold` max-F1 | detectable at 80% power |
 | :--- | ---: | ---: |
-| **Unpaired**, as the 0.01 tie bar assumes | 0.0042 | **0.0117** |
+| **Unpaired**, as the 0.01 tie bar assumes | 0.0041 | **0.0114** |
 | **Paired, MEASURED** — Run A epochs, median | 0.0021 | **0.0059** |
-| **Paired, MEASURED** — Run A epochs, range over 28 pairs | 0.0016–0.0029 | **0.0045–0.0081** |
-| Pooling all ten splits, unpaired | 0.0039 | 0.0109 |
+| **Paired, MEASURED** — Run A epochs, range over 28 pairs | 0.0016–0.0029 | **0.0045–0.0082** |
+| Pooling all ten splits, unpaired † | 0.0039 | 0.0108 |
+
+Every cell is max-F1, matching the header. (Rows 1 and 4 previously carried
+`unpaired.*.f1.se` — 0.0042 and 0.0039, MDE 0.0117 and 0.0109 — which is the F1 column under a
+max-F1 heading. The correction is immaterial numerically and is made because this is the table
+people quote. The unpaired-F1 figures still appear, correctly labelled, in the unpaired table
+below.) † carries the truncation caveat two sections down: on nine of the ten splits the
+committed detections stop at 0.55, so the pooled rows are not RampNet at 0.30, and the pooling
+gain they show is understated by about 2×.
 
 Three things follow.
 
@@ -31,8 +42,11 @@ Three things follow.
    panoramas against the same ground truth, so the panorama-to-panorama difficulty that
    dominates the unpaired noise is common to both and cancels. Measured across all 28 pairs of
    Run A checkpoints, the gain is **2.0× on the median pair**.
-2. **Pooling is worth 7%.** Ten splits together hold 6,560 instances against `manual_gold`'s
-   3,919, and the MDE moves 0.0117 → 0.0109. That is not a lever.
+2. **Pooling is worth 7% as committed, 14% untruncated — either way, not a lever.** Ten splits
+   together hold 6,560 instances against `manual_gold`'s 3,919, and the F1 MDE moves 0.0117 →
+   0.0109 (on max-F1, the column in the table above, 0.0114 → 0.0108, a 5% gain). The nine city
+   rows are cut at 0.55 rather than read at 0.30, which understates the gain by about 2× — 14%
+   measured against an untruncated arm; see "Pooling does not help".
 3. **The tie bar is the wrong instrument for an epoch-vs-epoch comparison**, and using it cost
    Run A a result. Read paired, Run A's curve is not "a step then a plateau" — it is a
    plateau with a **measurable decline in its tail**. See "Run A's plateau, re-read" below.
@@ -70,8 +84,25 @@ and `docs/model_comparison.md` already carry.
 
 ## The unpaired noise floor, and where 0.01 came from
 
+> ⚠️ **Read every unpaired row below with this caveat, which the pooled rows inherit.** The nine
+> city bundles in `benchmark/*/records.jsonl` were published with a **0.55 peak floor** — measured
+> minima 0.5501 to 0.5607, with **0.0%** of their detections below 0.55. `manual_gold` reaches
+> 0.0501, 28.8% of it below 0.55. So on those nine splits the #54 operating point of 0.30 is below
+> *every* committed detection: **filtering at 0.30 is a no-op there and the effective operating
+> point is that split's own floor**, not 0.30. The max-F1 sweep on those rows likewise peaks on an
+> already-cut curve, which is why `max_f1 == f1` **exactly** on eight of the nine cities and on
+> `POOLED cities` in `docs/data/benchmark_power_135.json` — only `manual_gold` and `sao_paulo`
+> differ. The artifact now records this per split as `inventory.<split>.reference_min_confidence`
+> and `protocol_threshold_binds`, and the script marks affected rows, so it is visible rather than
+> inferable. **There is no clean uniform-0.30 RampNet arm in committed data** —
+> `analysis_out/op_cache` reaches 0.05 on all ten splits but is single-pass and, per
+> [#132](https://github.com/ProjectSidewalk/RampNet/issues/132), missing seam detections, so it
+> bounds the effect rather than correcting it. This is the same caveat
+> `docs/model_comparison.md` already carries for RampNet's AP; it belongs here too.
+
 Cluster bootstrap, resampling **panoramas** (B = 20,000, seed 42), RampNet at the #54 operating
-point of 0.30:
+point of 0.30 — on `manual_gold`; at the bundle's own 0.55 floor on the nine cities, per the
+caveat above:
 
 | split | F1 | s.e.(F1) | s.e.(R) | naive binomial s.e.(R) | design effect | MDE 80% |
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -96,18 +127,45 @@ The pre-registration derived the 0.01 bar from "≈0.008 s.e. on recall". That n
 achieves it is `sqrt(0.9 × 0.1 / 3919) = 0.0048`, and the measured clustered value is **0.0055**.
 So the bar was set conservatively, by about 45% — which was the right instinct given that the
 clustering had not been measured, and it happens to land close to the right answer for the wrong
-reason: 0.01 is very nearly the correct *unpaired* MDE of 0.0117.
+reason: 0.01 is very nearly the correct *unpaired* MDE — 0.0117 on F1, 0.0114 on max-F1.
 
 ## Pooling does not help
 
-`manual_gold` alone gives an MDE of 0.0117. All ten splits pooled give 0.0109 — a **7%**
+`manual_gold` alone gives an MDE of 0.0117 on F1. All ten splits pooled give 0.0109 — a **7%**
 improvement — and the nine city splits *on their own* are worse than `manual_gold` alone
 (0.0219), despite holding 1,109 panoramas to its 1,000. Two reasons: they carry 2,641 instances
 to `manual_gold`'s 3,919, and F1 is lower there (0.80 vs 0.90), which puts more variance in
 every count.
 
-So pooling buys 7% of an MDE in exchange for mixing an independently-labeled ground truth with
-nine RampNet-anchored ones. It is not worth it, and the #135 spec's instruction to evaluate
+**That 7% is a lower bound, and by roughly 2×.** The nine city rows are RampNet read at their
+own 0.55 floor rather than at 0.30 (see the caveat above), and a truncated curve carries fewer
+detections and so contributes less variance, which makes the pooled row look better than it
+would against untruncated city curves. Measured against the one untruncated arm in committed
+data — `analysis_out/op_cache`, which reaches 0.05 on all ten splits:
+
+```bash
+python scripts/analysis/benchmark_power_135.py --reference rampnet_1pass \
+    --bootstrap 20000 --matrix-bootstrap 5000
+```
+
+| | committed run (cities cut at 0.55) | `rampnet_1pass` (untruncated, all ten) |
+| :--- | ---: | ---: |
+| `manual_gold` MDE | 0.0117 | 0.0121 |
+| `POOLED cities` MDE | 0.0219 | 0.0190 |
+| `POOLED all` MDE | 0.0109 | 0.0105 |
+| **pooling gain** | **7%** | **14%** (13.6%) |
+
+**The pooling gain is understated by about 2×.** That arm is single-pass rather than TTA and, per
+[#132](https://github.com/ProjectSidewalk/RampNet/issues/132), missing seam detections, so 14%
+bounds the size of the correction rather than being the corrected number — there is no clean
+uniform-0.30 RampNet arm in committed data to produce one. What is certain is that **the
+committed 7% is not the quantity its own header names.** Its JSON is not committed (one
+artifact per reference); the command above regenerates it in ~35 minutes on CPU.
+
+**The conclusion is unchanged and does not depend on which figure is right.** 14% is still not a
+lever, `POOLED cities` alone stays far worse than `manual_gold` alone on both readings (0.0190 or
+0.0219 against 0.0117–0.0121), and the exchange — mixing one independently-labeled ground truth
+with nine RampNet-anchored ones — is the same. The #135 spec's instruction to evaluate
 **per-split rather than pooled** is the right call for reasons beyond the ones it gave.
 
 ## The paired noise floor, and the mechanism
@@ -124,7 +182,7 @@ On `manual_gold`, for the three real detector pairs the repo can build from comm
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | RampNet TTA − RampNet single-pass | +0.0022 | 0.0017 | 0.0060 | 3.6× | +0.0049 | 0.0015 | 78 | 3 | 2.1% |
 | y11x_pano_h200 − y11l_pano | +0.0120 | 0.0034 | 0.0086 | 2.6× | +0.0244 | 0.0029 | 165 | 152 | 8.1% |
-| y11x_pano_h200 − y26_pano | +0.1119 | 0.0043 | 0.0079 | 1.8× | +0.1492 | 0.0048 | 233 | 123 | 9.1% |
+| y11x_pano_h200 − y26_pano | +0.1117 | 0.0043 | 0.0079 | 1.8× | +0.1489 | 0.0048 | 233 | 124 | 9.1% |
 
 Read the first row as the near-identical end of the range and the third as the far end. These
 three pairs were originally the whole answer: the comparison Run B would actually make — two
@@ -140,16 +198,18 @@ so all 28 pairs of Run A checkpoints can be compared on the same 1,000 panoramas
 
 | | s.e.(Δ max-F1) | MDE 80% | discordance |
 | :--- | ---: | ---: | ---: |
-| adjacent epochs (gap 1) | 0.0016–0.0023 | 0.0045–0.0064 | 2.5–4.2% |
-| **gap ≥ 3 — the Run B analogue** | **median 0.0022** | **0.0063** | 3.3–6.6% |
-| across all 28 pairs | 0.0016–0.0029 | 0.0045–0.0081 | 2.5–6.6% |
+| adjacent epochs (gap 1) | 0.0016–0.0023 | 0.0045–0.0064 | 2.50–4.26% |
+| **gap ≥ 3 — the Run B analogue** | **median 0.0022** | **0.0063** | 3.32–6.66% |
+| across all 28 pairs | 0.0016–0.0029 | 0.0045–0.0082 | 2.50–6.66% |
 
 **s.e.(Δ max-F1) for two Stage 2 checkpoints is 0.0016 to 0.0029 — measured, not assumed — so
-the MDE is 0.0045 to 0.0081.** The earlier bracket [0.0043, 0.0135] contained it; the working
+the MDE is 0.0045 to 0.0082**, and the 1.96 "CI clear of zero" bar the pre-registrations actually
+use is **0.0032 to 0.0057**. Those are different bars and the difference is 1.43×; an effect
+below the MDE is not thereby non-significant. The earlier bracket [0.0043, 0.0135] contained it; the working
 assumption of "4–6% discordance ⇒ 0.006–0.009" was almost exactly right.
 
 **The standard error grows with epoch separation, and that matters for planning.** Discordance
-runs 2.5–4.2% for adjacent epochs and 6.5–6.6% for the widest pair available (1 vs 7, 1 vs 8),
+runs 2.50–4.26% for adjacent epochs and 6.48–6.66% for the widest pairs available (1 vs 8, 1 vs 7),
 with s.e. tracking it from 0.0016 to 0.0029. A Run B checkpoint at epoch 30 under cosine decay
 is further from any Run A checkpoint than any pair measured here, so **plan the Run B comparison
 at s.e. ≈ 0.003 and an MDE of ≈ 0.008**, not at the median. That is an extrapolation of a
@@ -174,7 +234,7 @@ two sources, so part of its disagreement is that artifact rather than a model di
 | :--- | ---: | ---: |
 | RampNet TTA − RampNet single-pass | **24 of 81 (30%)** | 2.1% |
 | y11x_pano_h200 − y11l_pano | 7 of 317 (2%) | 2.1% |
-| y11x_pano_h200 − y26_pano | 9 of 356 (3%) | 2.1% |
+| y11x_pano_h200 − y26_pano | 10 of 357 (3%) | 2.1% |
 
 A 30% seam share against a 2.1% baseline is a 14× enrichment; the two pairs drawn from a single
 source read the baseline exactly, which is the control that says the diagnostic is not firing
@@ -236,16 +296,34 @@ far apart two checkpoints would have to be for the observed gap to be *unreadabl
 real pairs on this benchmark run 2.1–9.1%, so anything above that is resolvable for any
 plausible pair. Design effect 1.15, measured.
 
-**Recall at the fixed 0.30 operating point:**
+**Recall at the fixed 0.30 operating point.** All nine pairs the script computes, not a
+selection:
 
 | epochs | recall A | recall B | Δ | required b+c | required rate | verdict |
 | :--- | ---: | ---: | ---: | ---: | ---: | :--- |
 | 1 vs 2 | 0.8961 | 0.9138 | +0.0176 | 1081 | 27.6% | resolvable |
 | 1 vs 3 | 0.8961 | 0.9158 | +0.0196 | 1346 | 34.4% | resolvable |
+| 1 vs 8 | 0.8961 | 0.9005 | +0.0043 | 66 | 1.7% | **not resolvable** |
 | 2 vs 6 | 0.9138 | 0.8987 | −0.0151 | 790 | 20.2% | resolvable |
 | 3 vs 6 | 0.9158 | 0.8987 | −0.0171 | 1019 | 26.0% | resolvable |
 | 3 vs 7 | 0.9158 | 0.8788 | −0.0370 | 4774 | >100% | resolvable |
+| 3 vs 8 | 0.9158 | 0.9005 | −0.0153 | 817 | 20.9% | resolvable |
 | 5 vs 8 | 0.9061 | 0.9005 | −0.0056 | 110 | 2.8% | borderline |
+| 6 vs 7 | 0.8987 | 0.8788 | −0.0199 | 1381 | 35.2% | resolvable |
+
+> **These verdicts are conditional, and on a weaker assumption than the max-F1 table's.** The
+> max-F1 column below reads each pair against **its own measured** paired s.e. This one does not:
+> it converts a recall gap into the discordance that would be needed to hide it, then compares
+> that to 2.1–9.1% — a range taken from **three cross-detector pairs**, two of them
+> YOLO-vs-YOLO with different architectures and one a seam-contaminated RampNet self-pair. **None
+> is an epoch-vs-epoch comparison**, which is the comparison being judged. The measured
+> epoch-pair matrix puts real Run A discordance at **2.50–6.66%**, so the "resolvable" verdicts
+> in the 20–35% band are safe by a wide margin, but the two rows near the bottom of the
+> observed range — 1 vs 8 at 1.7% and 5 vs 8 at 2.8% — sit inside the assumption rather than
+> clear of it and should be read as such. Where the same pair appears in both tables the max-F1
+> reading is the one to prefer, because it is measured rather than assumed: 1 vs 8 is "not
+> resolvable" on recall and resolvable on max-F1 (z = 2.1), which is a real disagreement between
+> two metrics, not a contradiction.
 
 **max-F1, the calibration-free gate column.** Each pair is read against **its own measured paired
 standard error**, not a global bracket — which matters, because the s.e. grows with epoch
@@ -283,8 +361,10 @@ pre-registered question was where `manual_gold` F1 peaks, and there is still no 
 part of the plateau, and **at constant learning rate the model begins to lose capability after
 about epoch 6.** That is a measured fact with a direct bearing on Run B, taken up below.
 
-**On the operating point, the "plateau" contains differences the tie bar hid.** The recall gaps
-at fixed 0.30 need 20–34% discordance to be unreadable, against 2.1–9.1% observed. These are real
+**On the operating point, the "plateau" contains differences the tie bar hid.** Seven of the nine
+recall gaps at fixed 0.30 need 20–35% discordance to be unreadable, against 2.50–6.66% measured
+between real Run A epoch pairs — a margin wide enough that the caveat above does not touch them
+(1 vs 8 and 5 vs 8 are the two that it does). These are real
 movements, and the doc's own reading — *"later epochs buy F1 with precision and pay for it in
 recall… epoch 3 is the better checkpoint than epoch 6 despite the lower F1@0.30"* — was correct
 but had to be hedged as "inside the tie bar" because the bar being applied was unpaired. It is
@@ -333,7 +413,8 @@ the measurement moved it, not to relitigate the spec.
 1. **Read Run B against Run A paired, on max-F1**, with the 0.01 tie bar replaced by the measured
    paired MDE — **0.008** at Run B's expected separation. Reading a 1,675-GPU-hour result with an
    instrument 2× blunter than necessary is the cheapest mistake available here.
-2. **Report per-split, not pooled.** Pooling buys 7% and costs GT homogeneity.
+2. **Report per-split, not pooled.** Pooling buys 7% as committed (14% untruncated) and costs
+   GT homogeneity.
 3. **Attribute cautiously below ~0.01.** See the limit below.
 
 ### The limit that actually binds, and it is not the benchmark
@@ -408,8 +489,26 @@ Roughly 20 minutes on a laptop. Inputs: `manual_labels/` and `benchmark/*/record
 `verdicts.json` for ground truth, `benchmark/model_detections/*.json` for the YOLO arms,
 `docs/data/run_a_84_detections/*.json` for the Run A epoch dumps,
 `analysis_out/op_cache/*.json` for the single-pass RampNet arm, and
-`docs/data/run_a_84_manual_gold/summary.csv` for Run A's own curve. Every derived number in this
-document is in `docs/data/benchmark_power_135.json`.
+`docs/data/run_a_84_manual_gold/summary.csv` for Run A's own curve.
+
+**Every derived number in this document is in `docs/data/benchmark_power_135.json`, with four
+stated exceptions** — the earlier claim of "every" was not true and the exceptions are named
+rather than left to be discovered:
+
+1. The **pre-#140 seam table** (0.911009 → 0.910745 on Run A's epoch 7) comes from re-scoring the
+   committed epoch dumps under both matchers. It is pinned in
+   `tests/test_benchmark_power_135.py` as `SEAM_FIXED_MAX_F1`, which is where to re-derive it.
+2. The **14% untruncated pooling gain** comes from a second run of this same script with
+   `--reference rampnet_1pass`; that arm's JSON is not committed (the script writes one artifact
+   per reference), and the exact command is given beside the number.
+3. The **1.96-bar figures** (0.0032–0.0057) are `z_ci` × the committed s.e. bracket, arithmetic
+   on two committed numbers rather than a field.
+4. The **"4–6% discordance ⇒ 0.006–0.009"** working assumption quoted above is the historical
+   hand interpolation this analysis replaced with a measurement. It is kept as a record of what
+   the guess was, not as a result, and is labelled as such where it appears.
+
+`tests/test_committed_json_matches_the_doc` pins the headline values, so a re-run that moved them
+without the prose following would fail the build rather than drift quietly.
 
 Regenerating the epoch dumps themselves needs the heatmap cache, which is 13 GB and lives on
 makelab2 rather than in the repo — **that is the one input here a clean clone cannot obtain**,
@@ -426,8 +525,14 @@ to a registered challenger leg (#122), and Run A's epochs are internal checkpoin
 experiment rather than entries in the RampNet-vs-VLM comparison. The test suite caught the first
 attempt to put them there, which is the registry working as intended.
 
-The bootstrap is seeded (`--seed 42`), so the run is deterministic; changing `--bootstrap` moves
-the third decimal of the standard errors and none of the conclusions.
+The bootstrap is seeded (`--seed 42`), so the run is deterministic — **for the exact invocation
+above**. One `Generator` is threaded through every group and pair in order, so the draw stream
+depends on *which* splits and pairs are present: `--splits manual_gold` reproduces the committed
+`manual_gold` s.e. only to bootstrap noise, not exactly. That is a property of the seeding, not a
+bug, and it is deliberately left as it is — re-seeding per group would move every standard error
+this document quotes, for no gain in correctness. Reproduce the committed artifact with the full
+command; use `--splits` for exploration. Changing `--bootstrap` likewise moves the third decimal
+of the standard errors and none of the conclusions.
 
 **No figure.** The tables carry the result and a plot of six standard errors would not add to it.
 Noted here so the omission is visible rather than assumed.

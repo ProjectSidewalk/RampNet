@@ -84,6 +84,17 @@ class ResumeSkipSampler(Sampler):
 
     ``skip`` is set per epoch by the training loop; ``epoch_length`` is the full,
     unskipped per-rank count, because the LR horizon must not move when a run resumes.
+
+    **One window this does not cover: the epoch boundary.** ``latest_checkpoint.pth``
+    is refreshed every ``--checkpoint-interval-steps`` mid-epoch, but at the end of an
+    epoch it is written only *after* the validation pass, the 1 GB epoch checkpoint and
+    the peek image. The #135 cosine rung's committed events show what that costs:
+    incarnations 5 and 6 both logged through step 9378 (the end of epoch 1) and the next
+    incarnation resumed at 9001 both times -- the whole validation pass plus 378 steps,
+    lost twice. Shortening the mid-epoch interval does not narrow that window; one
+    ``latest_checkpoint.pth`` write *before* validation would. Left as a known gap
+    rather than fixed here, because the change is to a training script no test on this
+    branch exercises end to end and the run it would have helped is finished.
     """
 
     def __init__(self, base):

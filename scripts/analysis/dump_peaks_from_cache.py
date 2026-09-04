@@ -20,12 +20,24 @@ part that must not diverge -- `extract_peaks_from_heatmap`, `PEAK_MIN_DISTANCE` 
 extracted by the same code that produced the committed curve.
 
     python scripts/analysis/dump_peaks_from_cache.py \
-        --cache-dir /path/to/run_a_84/evaluate_cache \
-        --out-dir benchmark/model_detections --verify
+        --cache-dir /path/to/run_a_84/evaluate_cache --verify
+
+    # a non-Run-A arm needs its own summary AND its own label prefix, or the dumps
+    # either become invisible to the reader or overwrite Run A's committed ones
+    python scripts/analysis/dump_peaks_from_cache.py \
+        --cache-dir /path/to/cosine_rung_135/evaluate_cache \
+        --summary-csv docs/data/cosine_rung_135_manual_gold/summary.csv \
+        --label-prefix cosine_epoch_ \
+        --out-dir docs/data/cosine_rung_135_detections --verify
 
 Output is one file per cached checkpoint in the published-detections shape
-(`{pano_id: [[x, y, confidence], ...]}`), so `benchmark_power_135.py` and every other
-reader of `benchmark/model_detections/` consumes it with no special case.
+(`{pano_id: [[x, y, confidence], ...]}`), so every reader of that shape consumes it
+with no special case. It defaults to `docs/data/run_a_84_detections/` and **must not**
+be pointed at `benchmark/model_detections/`: `rampnet/roster.py` asserts every file
+there belongs to a registered challenger leg (#122), and these are internal
+checkpoints of one experiment rather than entries in the RampNet-vs-VLM comparison.
+The test suite catches that mistake -- but this docstring used to recommend it, which
+is why the working example above no longer names that directory.
 
 **`--threshold` truncates the confidence tail, and that is deliberate.** The Run A
 scoring ran `evaluate.py --threshold 0.0`, which keeps every local maximum -- about
@@ -60,6 +72,26 @@ DEFAULT_SUMMARY = REPO / "docs" / "data" / "run_a_84_manual_gold" / "summary.csv
 #: Serialization must match export_model_cache.DUMP_KW, or two runs that agree on
 #: every value still produce different bytes.
 DUMP_KW = {"separators": (",", ":"), "sort_keys": True}
+#: Label written into each dump, with the epoch number appended. Must stay
+#: ``run_a_epoch_`` for Run A, because ``benchmark_power_135.RAMPNET_PREFIXES``
+#: keys the #54 operating point off exactly that prefix.
+DEFAULT_LABEL_PREFIX = "run_a_epoch_"
+
+
+def _extractor_exclude_border():
+    """What ``stage_two/evaluate.py`` actually passes, read from its source.
+
+    The value is a literal inside ``extract_peaks_from_heatmap`` rather than a module
+    constant, so there is nothing to import. Reading it beats restating it: a stamped
+    constant that drifts from the extractor is the #132 failure exactly.
+    """
+    import inspect
+    src = inspect.getsource(ev.extract_peaks_from_heatmap)
+    if "exclude_border=False" in src:
+        return False
+    if "exclude_border=True" in src:
+        return True
+    return "unknown -- not a literal in extract_peaks_from_heatmap"
 
 
 def parse_cache_key(name):
@@ -70,12 +102,19 @@ def parse_cache_key(name):
     return parts[0], parts[1], parts[2] == "tta"
 
 
-def fingerprint_labels(summary_csv):
-    """{fingerprint: 'run_a_epoch_N'} from Run A's committed summary table.
+def fingerprint_labels(summary_csv, prefix=DEFAULT_LABEL_PREFIX):
+    """{fingerprint: '<prefix>N'} from a committed summary table.
 
     The cache directories are named by checkpoint fingerprint, which is the right key
     and an unreadable label. The committed summary already carries the mapping, so
     the epoch numbers come from the repo rather than from a filename someone typed.
+
+    ``prefix`` is a parameter because this used to hardcode ``run_a_epoch_`` whatever
+    ``--summary-csv`` was passed, which is silently wrong for any other arm. With the
+    default summary a second run's checkpoints match no fingerprint at all and fall
+    back to ``ckpt_<fingerprint>``, which ``benchmark_power_135.py`` cannot see (its
+    loader keys on the ``run_a_epoch_`` prefix); with the second arm's own summary
+    they are labelled ``run_a_epoch_N`` and **overwrite Run A's committed dumps**.
     """
     labels = {}
     if not os.path.exists(summary_csv):
@@ -88,7 +127,7 @@ def fingerprint_labels(summary_csv):
             row = dict(zip(header, line.rstrip("\n").split(",")))
             fp = row.get("checkpoint_fingerprint")
             if fp:
-                labels[fp] = f"run_a_epoch_{int(row['epoch'])}"
+                labels[fp] = f"{prefix}{int(row['epoch'])}"
     return labels
 
 
@@ -158,6 +197,11 @@ def main(argv=None):
                          "is the #54 protocol and what Run A's curve was read on).")
     ap.add_argument("--summary-csv", default=str(DEFAULT_SUMMARY),
                     help="Committed table mapping checkpoint fingerprint -> epoch.")
+    ap.add_argument("--label-prefix", default=DEFAULT_LABEL_PREFIX,
+                    help="Prefix for the dump label, epoch number appended. MUST match "
+                         "--summary-csv: pass a non-Run-A summary without changing this "
+                         "and the dumps overwrite Run A's committed ones. "
+                         f"(default: {DEFAULT_LABEL_PREFIX!r})")
     ap.add_argument("--manual-labels", default=str(REPO / "manual_labels"))
     ap.add_argument("--verify", action="store_true",
                     help="Re-score each dump against manual_labels and check it "
@@ -170,7 +214,7 @@ def main(argv=None):
     if not os.path.isdir(heatmaps):
         raise SystemExit(f"{heatmaps}: not an evaluate.py cache (no heatmaps/ inside)")
 
-    labels = fingerprint_labels(args.summary_csv)
+    labels = fingerprint_labels(args.summary_csv, args.label_prefix)
     committed = {}
     if os.path.exists(args.summary_csv):
         with open(args.summary_csv, encoding="utf-8") as fh:
@@ -203,7 +247,10 @@ def main(argv=None):
                 "peak_floor": args.threshold,
                 "peak_min_distance": ev.PEAK_MIN_DISTANCE,
                 "heatmap_size": list(ev.MODEL_HEATMAP_SIZE),
-                "exclude_border": False,
+                # Read from the extractor rather than restated: the signature has
+                # to describe what actually ran. #132 was exactly a disagreement
+                # between this flag's real value and what a caller assumed.
+                "exclude_border": _extractor_exclude_border(),
             },
             "n_panos": len(detections), "n_uncached": 0,
             "detections": detections,
@@ -213,6 +260,15 @@ def main(argv=None):
             json.dump(payload, fh, **DUMP_KW)
         written.append((label, len(detections), n_dets, os.path.getsize(path)))
 
+        if args.verify and fingerprint not in committed:
+            # Previously this branch fell through in silence, so a dump against the
+            # wrong --summary-csv "verified" by verifying nothing and the run exited
+            # 0. Verification that can be skipped without saying so is not
+            # verification.
+            problems.append(
+                f"{label}: fingerprint {fingerprint} is not in {args.summary_csv}, so "
+                f"--verify checked NOTHING for this checkpoint. Pass the summary that "
+                f"belongs to this cache (and the matching --label-prefix).")
         if args.verify and fingerprint in committed:
             row = committed[fingerprint]
             f1, max_f1 = score_against_manual(detections, args.manual_labels, 0.30)

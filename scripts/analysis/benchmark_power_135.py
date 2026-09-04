@@ -49,10 +49,27 @@ holds by construction:
   to different budgets are **less** correlated than two epochs of one run, so their
   paired s.e. is an upper bound on the epoch-vs-epoch case.
 - The same RampNet detections read at two nearby confidence thresholds are **more**
-  correlated than two checkpoints, so they give the lower bound.
+  correlated than two checkpoints, so they give the lower bound -- **on F1 only**.
+  max-F1 re-picks its own threshold, so moving the read-out point cannot move it and
+  its delta is identically zero for every row. That block therefore bounds F1 and is
+  emitted as null for max-F1, rather than as a zero that reads like a measurement.
 
 The true epoch-vs-epoch s.e. lies between. Both ends are reported rather than one
 point estimate, because the bracket is the honest form of the answer.
+
+ONE PROPERTY OF THE COMMITTED DATA THAT EVERY UNPAIRED ROW INHERITS. The nine city
+bundles under `benchmark/*/records.jsonl` were published with a 0.55 peak floor;
+`manual_gold` reaches 0.05. So on those nine splits the #54 operating point of 0.30
+is BELOW every committed detection: filtering at it is a no-op, and the max-F1 sweep
+peaks on an already-truncated curve (which is why `max_f1 == f1` exactly on those
+rows). The inventory records `reference_min_confidence` and
+`protocol_threshold_binds` per split so this is visible in the artifact instead of
+having to be inferred, the unpaired table marks affected rows with `*`, and the
+pooling comparison is a LOWER bound on what pooling would buy against untruncated
+city curves. There is no clean uniform-0.30 RampNet arm in committed data;
+`--reference rampnet_1pass` reads `analysis_out/op_cache` down to 0.05 on all ten
+splits but is single-pass and missing seam detections (#132), so it bounds the size
+of the effect rather than correcting it.
 """
 import argparse
 import json
@@ -221,7 +238,7 @@ class Scored:
     """
 
     def __init__(self, split, model, pids, conf, is_tp, det_pano, n_gt, recall_ok,
-                 hit_gt, gt_pano, gt_x):
+                 hit_gt, gt_x):
         self.split, self.model = split, model
         self.pids = pids                    # (n_panos,) pano ids, the bootstrap unit
         self.conf = conf                    # (n_dets,) descending within pano
@@ -230,7 +247,7 @@ class Scored:
         self.n_gt = n_gt                    # (n_panos,) GT instances, recall-gated
         self.recall_ok = recall_ok          # (n_panos,) bool
         self.hit_gt = hit_gt                # (n_instances,) confidence that found it,
-        self.gt_pano = gt_pano              #   -inf if never found; and its pano index
+                                            #   -inf if never found
         self.gt_x = gt_x                    # (n_instances,) normalized x, for the seam check
 
 
@@ -251,7 +268,7 @@ def score_model(repo, split, model, records, gts, radius_sq, wrap_x=WRAP_X):
     conf, is_tp, det_pano = [], [], []
     n_gt = np.zeros(len(pids), dtype=np.float64)
     recall_ok = np.zeros(len(pids), dtype=bool)
-    hit_gt, gt_pano, gt_x = [], [], []
+    hit_gt, gt_x = [], []
 
     for pid in pids:
         i = pid_index[pid]
@@ -282,7 +299,6 @@ def score_model(repo, split, model, records, gts, radius_sq, wrap_x=WRAP_X):
         if gt.fn_confirmed:
             for k, (gx, _) in enumerate(gt.gt_points):
                 hit_gt.append(found.get(k, -math.inf))
-                gt_pano.append(i)
                 gt_x.append(gx)
 
     return Scored(split, model, pids,
@@ -291,7 +307,6 @@ def score_model(repo, split, model, records, gts, radius_sq, wrap_x=WRAP_X):
                   np.asarray(det_pano, dtype=np.int64),
                   n_gt, recall_ok,
                   np.asarray(hit_gt, dtype=np.float64),
-                  np.asarray(gt_pano, dtype=np.int64),
                   np.asarray(gt_x, dtype=np.float64))
 
 
@@ -302,8 +317,8 @@ def stack(scoreds):
     caller resamples *within* each split (stratified) so the pooled statistic keeps
     each split's fixed size rather than letting a large split randomly dominate.
     """
-    pids, conf, is_tp, det_pano, n_gt, recall_ok, hit_gt, gt_pano, gt_x = (
-        [] for _ in range(9))
+    pids, conf, is_tp, det_pano, n_gt, recall_ok, hit_gt, gt_x = (
+        [] for _ in range(8))
     offset = 0
     for s in scoreds:
         pids.extend(f"{s.split}/{p}" for p in s.pids)
@@ -313,14 +328,12 @@ def stack(scoreds):
         n_gt.append(s.n_gt)
         recall_ok.append(s.recall_ok)
         hit_gt.append(s.hit_gt)
-        gt_pano.append(s.gt_pano + offset)
         gt_x.append(s.gt_x)
         offset += len(s.pids)
     return Scored("+".join(s.split for s in scoreds), scoreds[0].model, pids,
                   np.concatenate(conf), np.concatenate(is_tp), np.concatenate(det_pano),
                   np.concatenate(n_gt), np.concatenate(recall_ok),
-                  np.concatenate(hit_gt), np.concatenate(gt_pano),
-                  np.concatenate(gt_x))
+                  np.concatenate(hit_gt), np.concatenate(gt_x))
 
 
 def _f1(p, r):
@@ -400,7 +413,14 @@ def observed_and_se(s, split_sizes, threshold, rng, n_reps, chunk=500, paired=No
     The identical weight matrix is applied to both, so the panorama-difficulty
     component that dominates the unpaired spread cancels -- which is the entire
     reason a paired comparison resolves smaller effects than an unpaired one.
+
+    That shared order is a precondition, not a convention: column j of the weight
+    matrix means a different panorama in each :class:`Scored` if it is violated, and
+    the result is a plausible-looking wrong standard error rather than an error. So
+    it is asserted here, the way ``mcnemar`` asserts its own.
     """
+    if paired is not None:
+        assert list(s.pids) == list(paired.pids),             "paired comparison needs the same panoramas in the same order"
     ones = np.ones((1, len(s.pids)))
     obs = np.array(metrics(s, ones, threshold)).ravel()
     if paired is not None:
@@ -539,6 +559,12 @@ def main(argv=None):
     splits = ([s.strip() for s in args.splits.split(",") if s.strip()]
               if args.splits else discover_splits(repo))
     rsq = radius_sq_for()
+    # ONE Generator for the whole run, threaded through every group and pair in the
+    # order they are computed. That makes the committed artifact exactly reproducible
+    # from the full invocation, and it makes a SUBSET only reproducible to bootstrap
+    # noise: `--splits manual_gold` draws a different stream than the same split does
+    # inside the ten-split run. Documented in the doc's Reproduce section rather than
+    # re-seeded per group, because re-seeding would move every published s.e.
     rng = np.random.default_rng(args.seed)
 
     bundles, scored = {}, {}
@@ -571,8 +597,22 @@ def main(argv=None):
         n_inst = int(s.n_gt.sum())
         src = "manual" if (Path(repo) / "benchmark" / split / "gt_source.json").exists() \
             else "anchored"
-        out["inventory"][split] = {"n_panos": n_panos, "n_recall_panos": n_rec,
-                                   "n_gt_instances": n_inst, "gt_source": src}
+        # THE TRUNCATION, RECORDED RATHER THAN INFERRED. The nine city bundles were
+        # published with a 0.55 peak floor while manual_gold reaches 0.05, so on those
+        # splits a "keep conf >= 0.30" filter is a no-op and the max-F1 sweep runs off
+        # the end of a curve that was already cut. Without these two fields the only
+        # evidence is indirect (max_f1 == f1 exactly, self_pair b = c = 0), which is
+        # what let the effect sit unnoticed in this artifact for two review passes.
+        floor = float(s.conf.min()) if len(s.conf) else float("nan")
+        out["inventory"][split] = {
+            "n_panos": n_panos, "n_recall_panos": n_rec,
+            "n_gt_instances": n_inst, "gt_source": src,
+            "reference_min_confidence": floor,
+            # True when the protocol threshold sits below every committed detection,
+            # i.e. the operating point named in the header was never actually applied.
+            "protocol_threshold_binds": bool(
+                len(s.conf) and floor < protocol_threshold(args.reference)),
+        }
         print(f"{split:>20} {n_panos:>7} {n_rec:>13} {n_inst:>13} "
               f"{n_inst / max(n_rec, 1):>11.2f} {src:>12}")
 
@@ -595,8 +635,15 @@ def main(argv=None):
     print(f"UNPAIRED NOISE FLOOR -- {args.reference} at conf {thr:.2f}, "
           f"cluster bootstrap over panoramas (B={args.bootstrap})")
     print("=" * 96)
-    print(f"{'split':>20} {'F1':>8} {'se(F1)':>8} {'se(R)':>8} {'naive se(R)':>12} "
-          f"{'design eff':>11} {'MDE 80%':>9}")
+    truncated = [s_ for s_ in splits
+                 if not out["inventory"][s_]["protocol_threshold_binds"]]
+    if truncated:
+        print(f"  !! {len(truncated)} of {len(splits)} split(s) hold NO detection below "
+              f"the {thr:.2f} threshold, so it is a no-op there and the effective")
+        print(f"     operating point is that split's own floor: "
+              f"{', '.join(sorted(truncated))}.")
+        print("     max-F1 on those rows is also the peak of a TRUNCATED curve, not of "
+              "the full one. Read every row below with that caveat.")
     for name, members in groups.items():
         parts = [get(m, args.reference) for m in members]
         if any(p is None for p in parts):
@@ -607,12 +654,19 @@ def main(argv=None):
         n_inst = int(s.n_gt.sum())
         naive = naive_binomial_se(res["recall"]["observed"], n_inst)
         deff = (res["recall"]["se"] / naive) ** 2 if naive else float("nan")
+        cut = sorted(m for m in members if m in truncated)
         out["unpaired"][name] = {"threshold": thr, "n_gt_instances": n_inst,
                                  "naive_binomial_se_recall": naive,
-                                 "design_effect_recall": deff, **res}
+                                 "design_effect_recall": deff,
+                                 # Which members of this row were measured above the
+                                 # named threshold rather than at it.
+                                 "truncated_members": cut, **res}
+        mark = " *" if cut else ""
         print(f"{name:>20} {fmt(res['f1']['observed']):>8} {fmt(res['f1']['se']):>8} "
               f"{fmt(res['recall']['se']):>8} {fmt(naive):>12} {deff:>11.2f} "
-              f"{fmt(Z_MDE * res['f1']['se']):>9}")
+              f"{fmt(Z_MDE * res['f1']['se']):>9}{mark}")
+    if truncated:
+        print("  * row includes at least one truncated split; see the warning above.")
 
     # ---- paired noise floor ----------------------------------------------------
     pairs = [tuple(p.split(":")) for p in args.pairs.split(",") if p.strip()]
@@ -638,6 +692,16 @@ def main(argv=None):
                     f"{a_model} (conf {ta}) and {b_model} (conf {tb}) have different "
                     "protocol operating points, so their difference would mix a "
                     "capability gap with a calibration gap. Pair like with like.")
+            # NOTE -- res_a and res_b run a full 20,000-replicate bootstrap each to
+            # produce ONE scalar between them (unpaired_se_f1, below). About half the
+            # work in this block is therefore redundant, and y11x_pano_h200's unpaired
+            # result is recomputed for each of the two pairs it appears in. That is
+            # DELIBERATELY not optimised: one Generator is threaded through this loop
+            # in order, so removing a draw shifts the stream for everything after it
+            # and moves every standard error the doc quotes. The cost is ~10 minutes
+            # of CPU on a run that happens when the analysis changes; the benefit of
+            # touching it is zero. If it is ever reworked, regenerate the artifact and
+            # re-read every number out of it -- do not assume they held.
             res_d = observed_and_se(sb, sizes, tb, rng, args.bootstrap, paired=sa)
             res_a = observed_and_se(sa, sizes, ta, rng, args.bootstrap)
             res_b = observed_and_se(sb, sizes, tb, rng, args.bootstrap)
@@ -688,6 +752,10 @@ def main(argv=None):
     print("=" * 96)
     print("  Two checkpoints of one run are less correlated than one checkpoint read at")
     print("  two thresholds, so this brackets the paired s.e. from below.")
+    print("  F1 ONLY. max-F1 re-picks its own threshold, so it is not a function of the")
+    print("  shift being varied and its delta is identically zero by construction --")
+    print("  which is a degenerate statistic, not a measurement of zero uncertainty.")
+    print("  It is therefore recorded as null here rather than as 0.0 +/- 0.0.")
     print(f"  {'split':>18} {'shift':>7} {'dF1':>9} {'se(dF1)':>9} {'MDE 80%':>9} "
           f"{'b':>5} {'c':>5} {'discord%':>9}")
     out["self_pair"] = {}
@@ -716,7 +784,15 @@ def main(argv=None):
                 "delta_conf": delta, "n_gt_instances": n_inst,
                 "mcnemar_b": bc, "mcnemar_c": cc,
                 "f1": {"observed": float(obs[2]), "se": float(np.std(d[2], ddof=1))},
-                "max_f1": {"observed": float(obs[3]), "se": float(np.std(d[3], ddof=1))},
+                # max_f1 sweeps its own threshold, so shifting the read-out point
+                # cannot move it: obs[3] and its bootstrap spread are exactly 0 for
+                # every row. Emitting {"observed": 0.0, "se": 0.0} reads as a
+                # measured zero with zero uncertainty; null plus the note below says
+                # what it actually is.
+                "max_f1": None,
+                "max_f1_note": ("not a function of the operating-point shift -- "
+                                "max-F1 re-picks its own threshold, so this block "
+                                "bounds F1 only"),
             }
             print(f"  {name:>18} {delta:>+7.2f} {fmt(obs[2]):>9} "
                   f"{fmt(float(np.std(d[2], ddof=1))):>9} "

@@ -5,61 +5,81 @@
       "gt_source": "anchored",
       "n_gt_instances": 294,
       "n_panos": 125,
-      "n_recall_panos": 125
+      "n_recall_panos": 125,
+      "protocol_threshold_binds": false,
+      "reference_min_confidence": 0.5500670075416565
     },
     "bend": {
       "gt_source": "anchored",
       "n_gt_instances": 327,
       "n_panos": 110,
-      "n_recall_panos": 110
+      "n_recall_panos": 110,
+      "protocol_threshold_binds": false,
+      "reference_min_confidence": 0.5607247352600098
     },
     "budapest_district5": {
       "gt_source": "anchored",
       "n_gt_instances": 300,
       "n_panos": 125,
-      "n_recall_panos": 125
+      "n_recall_panos": 125,
+      "protocol_threshold_binds": false,
+      "reference_min_confidence": 0.5501139760017395
     },
     "clovis": {
       "gt_source": "anchored",
       "n_gt_instances": 195,
       "n_panos": 125,
-      "n_recall_panos": 125
+      "n_recall_panos": 125,
+      "protocol_threshold_binds": false,
+      "reference_min_confidence": 0.5533488392829895
     },
     "gainesville": {
       "gt_source": "anchored",
       "n_gt_instances": 272,
       "n_panos": 125,
-      "n_recall_panos": 125
+      "n_recall_panos": 125,
+      "protocol_threshold_binds": false,
+      "reference_min_confidence": 0.5513428449630737
     },
     "manual_gold": {
       "gt_source": "manual",
       "n_gt_instances": 3919,
       "n_panos": 1000,
-      "n_recall_panos": 1000
+      "n_recall_panos": 1000,
+      "protocol_threshold_binds": true,
+      "reference_min_confidence": 0.05006973817944527
     },
     "morgantown": {
       "gt_source": "anchored",
       "n_gt_instances": 267,
       "n_panos": 125,
-      "n_recall_panos": 125
+      "n_recall_panos": 125,
+      "protocol_threshold_binds": false,
+      "reference_min_confidence": 0.5522266030311584
     },
     "paterson": {
       "gt_source": "anchored",
       "n_gt_instances": 395,
       "n_panos": 125,
-      "n_recall_panos": 125
+      "n_recall_panos": 125,
+      "protocol_threshold_binds": false,
+      "reference_min_confidence": 0.5515386462211609
     },
     "richmond": {
       "gt_source": "anchored",
       "n_gt_instances": 310,
       "n_panos": 124,
-      "n_recall_panos": 124
+      "n_recall_panos": 124,
+      "protocol_threshold_binds": false,
+      "reference_min_confidence": 0.5558204054832458
     },
     "sao_paulo": {
       "gt_source": "anchored",
       "n_gt_instances": 281,
       "n_panos": 125,
-      "n_recall_panos": 125
+      "n_recall_panos": 125,
+      "protocol_threshold_binds": false,
+      "reference_min_confidence": 0.552963137626648
     }
   },
   "measured_epoch_pairs": {
@@ -4577,10 +4597,8 @@
         "observed": 0.001012504492159727,
         "se": 0.0004552023726052273
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 8,
       "n_gt_instances": 6560
@@ -4591,10 +4609,8 @@
         "observed": 0.0021629316650472186,
         "se": 0.0007529911322591644
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 23,
       "n_gt_instances": 6560
@@ -4605,10 +4621,8 @@
         "observed": 0.0,
         "se": 0.0
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 0,
       "n_gt_instances": 2641
@@ -4619,10 +4633,8 @@
         "observed": 0.0,
         "se": 0.0
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 0,
       "n_gt_instances": 2641
@@ -4633,10 +4645,8 @@
         "observed": 0.0,
         "se": 0.0
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 0,
       "n_gt_instances": 294
@@ -4647,10 +4657,8 @@
         "observed": 0.0,
         "se": 0.0
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 0,
       "n_gt_instances": 294
@@ -4661,10 +4669,8 @@
         "observed": 0.0,
         "se": 0.0
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 0,
       "n_gt_instances": 327
@@ -4675,10 +4681,8 @@
         "observed": 0.0,
         "se": 0.0
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 0,
       "n_gt_instances": 327
@@ -4689,10 +4693,8 @@
         "observed": 0.0,
         "se": 0.0
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 0,
       "n_gt_instances": 300
@@ -4703,10 +4705,8 @@
         "observed": 0.0,
         "se": 0.0
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 0,
       "n_gt_instances": 300
@@ -4717,10 +4717,8 @@
         "observed": 0.0,
         "se": 0.0
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 0,
       "n_gt_instances": 195
@@ -4731,10 +4729,8 @@
         "observed": 0.0,
         "se": 0.0
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 0,
       "n_gt_instances": 195
@@ -4745,10 +4741,8 @@
         "observed": 0.0,
         "se": 0.0
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 0,
       "n_gt_instances": 272
@@ -4759,10 +4753,8 @@
         "observed": 0.0,
         "se": 0.0
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 0,
       "n_gt_instances": 272
@@ -4773,10 +4765,8 @@
         "observed": 0.0017584429752226516,
         "se": 0.0007321688096037338
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 8,
       "n_gt_instances": 3919
@@ -4787,10 +4777,8 @@
         "observed": 0.0038306362800100136,
         "se": 0.001221748849787297
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 23,
       "n_gt_instances": 3919
@@ -4801,10 +4789,8 @@
         "observed": 0.0,
         "se": 0.0
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 0,
       "n_gt_instances": 267
@@ -4815,10 +4801,8 @@
         "observed": 0.0,
         "se": 0.0
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 0,
       "n_gt_instances": 267
@@ -4829,10 +4813,8 @@
         "observed": 0.0,
         "se": 0.0
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 0,
       "n_gt_instances": 395
@@ -4843,10 +4825,8 @@
         "observed": 0.0,
         "se": 0.0
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 0,
       "n_gt_instances": 395
@@ -4857,10 +4837,8 @@
         "observed": 0.0,
         "se": 0.0
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 0,
       "n_gt_instances": 310
@@ -4871,10 +4849,8 @@
         "observed": 0.0,
         "se": 0.0
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 0,
       "n_gt_instances": 310
@@ -4885,10 +4861,8 @@
         "observed": 0.0,
         "se": 0.0
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 0,
       "n_gt_instances": 281
@@ -4899,10 +4873,8 @@
         "observed": 0.0,
         "se": 0.0
       },
-      "max_f1": {
-        "observed": 0.0,
-        "se": 0.0
-      },
+      "max_f1": null,
+      "max_f1_note": "not a function of the operating-point shift -- max-F1 re-picks its own threshold, so this block bounds F1 only",
       "mcnemar_b": 0,
       "mcnemar_c": 0,
       "n_gt_instances": 281
@@ -4949,7 +4921,18 @@
         "observed": 0.8256097560975609,
         "se": 0.0058485332414797905
       },
-      "threshold": 0.3
+      "threshold": 0.3,
+      "truncated_members": [
+        "annapolis",
+        "bend",
+        "budapest_district5",
+        "clovis",
+        "gainesville",
+        "morgantown",
+        "paterson",
+        "richmond",
+        "sao_paulo"
+      ]
     },
     "POOLED cities": {
       "design_effect_recall": 1.6010048106698187,
@@ -4979,7 +4962,18 @@
         "observed": 0.6985990155244226,
         "se": 0.011297918453513366
       },
-      "threshold": 0.3
+      "threshold": 0.3,
+      "truncated_members": [
+        "annapolis",
+        "bend",
+        "budapest_district5",
+        "clovis",
+        "gainesville",
+        "morgantown",
+        "paterson",
+        "richmond",
+        "sao_paulo"
+      ]
     },
     "annapolis": {
       "design_effect_recall": 1.6703957079082925,
@@ -5009,7 +5003,10 @@
         "observed": 0.7380952380952381,
         "se": 0.03314087087346063
       },
-      "threshold": 0.3
+      "threshold": 0.3,
+      "truncated_members": [
+        "annapolis"
+      ]
     },
     "bend": {
       "design_effect_recall": 1.8827636314607477,
@@ -5039,7 +5036,10 @@
         "observed": 0.7614678899082569,
         "se": 0.03233875128435022
       },
-      "threshold": 0.3
+      "threshold": 0.3,
+      "truncated_members": [
+        "bend"
+      ]
     },
     "budapest_district5": {
       "design_effect_recall": 1.7599053103975526,
@@ -5069,7 +5069,10 @@
         "observed": 0.51,
         "se": 0.038288394110502486
       },
-      "threshold": 0.3
+      "threshold": 0.3,
+      "truncated_members": [
+        "budapest_district5"
+      ]
     },
     "clovis": {
       "design_effect_recall": 1.487166925816414,
@@ -5099,7 +5102,10 @@
         "observed": 0.7128205128205128,
         "se": 0.039512031167266336
       },
-      "threshold": 0.3
+      "threshold": 0.3,
+      "truncated_members": [
+        "clovis"
+      ]
     },
     "gainesville": {
       "design_effect_recall": 1.6024081777531414,
@@ -5129,7 +5135,10 @@
         "observed": 0.6985294117647058,
         "se": 0.03522223797036132
       },
-      "threshold": 0.3
+      "threshold": 0.3,
+      "truncated_members": [
+        "gainesville"
+      ]
     },
     "manual_gold": {
       "design_effect_recall": 1.4641702556294105,
@@ -5159,7 +5168,8 @@
         "observed": 0.9112018372033682,
         "se": 0.005498160859687979
       },
-      "threshold": 0.3
+      "threshold": 0.3,
+      "truncated_members": []
     },
     "morgantown": {
       "design_effect_recall": 1.2722424482565708,
@@ -5189,7 +5199,10 @@
         "observed": 0.7303370786516854,
         "se": 0.030633851495752654
       },
-      "threshold": 0.3
+      "threshold": 0.3,
+      "truncated_members": [
+        "morgantown"
+      ]
     },
     "paterson": {
       "design_effect_recall": 1.23480147954201,
@@ -5219,7 +5232,10 @@
         "observed": 0.6860759493670886,
         "se": 0.02594767293910628
       },
-      "threshold": 0.3
+      "threshold": 0.3,
+      "truncated_members": [
+        "paterson"
+      ]
     },
     "richmond": {
       "design_effect_recall": 1.4678399723865796,
@@ -5249,7 +5265,10 @@
         "observed": 0.7677419354838709,
         "se": 0.029057051366664022
       },
-      "threshold": 0.3
+      "threshold": 0.3,
+      "truncated_members": [
+        "richmond"
+      ]
     },
     "sao_paulo": {
       "design_effect_recall": 1.8572832335634553,
@@ -5279,7 +5298,10 @@
         "observed": 0.6868327402135231,
         "se": 0.037705055103823125
       },
-      "threshold": 0.3
+      "threshold": 0.3,
+      "truncated_members": [
+        "sao_paulo"
+      ]
     }
   },
   "z_ci": 1.959964,

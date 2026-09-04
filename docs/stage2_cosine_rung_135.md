@@ -1,8 +1,19 @@
 # The 8-epoch cosine rung: does annealing help RampNet at all? (#135)
 
-**Status: PRE-REGISTERED 2026-08-18 before launch; training COMPLETE 2026-08-21; `manual_gold` scored 2026-08-29 — TIED at every epoch; gate applied and **Run B DECIDED AGAINST** 2026-09-03 (see the last section).** Everything above Results is as written on 2026-08-18 and has not been edited. The decision
-rule, the comparison, and what each outcome means are fixed here so they cannot be chosen after
-the numbers arrive. Results will be appended to this file, not substituted into it.
+**Status: PRE-REGISTERED 2026-08-18 before launch; training COMPLETE 2026-08-21; `manual_gold` scored 2026-08-29 — the pre-registered primary is a TIE and no epoch clears the pre-registered bar at both ends of the measured s.e. bracket (epoch 7 straddles it; see Results); gate applied and **Run B DECIDED AGAINST** 2026-09-03 (see the last section).**
+
+**What was edited above Results, and what was not.** The decision rule, the primary and
+secondary tests, the gate and the outcome table are exactly as written on 2026-08-18 and have
+not been touched — that is the whole point of a pre-registration and it holds. Two factual
+corrections were made above the Results line afterwards and are named here so the no-edit claim
+is true rather than approximately true: `cb2fb59` (2026-08-18) filled in the Launch record, which
+was left blank at write time, and `d9c4fcd` (2026-08-20) corrected "Run A was requeued twice" to
+"five times across its two job ids, measured with `sacct -D`". Neither touches the rule. A
+2026-09-04 review pass added this paragraph and the pre-#140 footnote below it; it changed no
+number and no rule. A third class of staleness is left in place and flagged where it occurs: the
+z values quoted in "Why this run" are the pre-#140 ones this document was written against.
+
+Results are appended to this file, not substituted into it.
 
 ## Why this run, and why now
 
@@ -12,6 +23,11 @@ measurements since have made it the right next step rather than a nice-to-have.
 **1. Constant LR does not just flatten — it declines.** `docs/stage2_run_b_power_135.md` re-read
 Run A's curve with a paired instrument and found epochs 7 and 8 measurably *below* the plateau
 (3 vs 7 at z = 3.9, 3 vs 8 at 3.0, 6 vs 7 at 2.8). The shape is:
+
+> Those three z values are the **pre-#140** ones this pre-registration was written against, kept
+> unedited for that reason. `docs/stage2_run_b_power_135.md` now reports 4.0, 3.0 and 3.0 after
+> the seam wrap was re-scored (a 0.000264 move on epoch 7 alone). The direction and the reading
+> are unchanged; the two documents differ in the third digit for this reason and no other.
 
 > epoch 1 clearly low → epochs 2–6 a genuine plateau → epochs 7–8 measurably declining.
 
@@ -208,8 +224,11 @@ the schedule, which would invalidate the run and is invisible in the loss curve.
 ## Results
 
 **Status: COMPLETE.** Training finished 2026-08-21, the applied LR schedule is verified over 100%
-of the run, and `manual_gold` was scored 2026-08-29: **the two arms are tied at every epoch**,
-largest delta 0.0042 against #138's measured paired MDE of 0.0063.
+of the run, and `manual_gold` was scored 2026-08-29: **the pre-registered primary comparison
+(epoch 8) is a tie, and no epoch separates the arms at the unfavourable end of the measured
+standard-error bracket.** The largest delta anywhere is epoch 7's +0.0042, which is *not* the
+pre-registered comparison and which does clear the pre-registered 1.96 bar at the favourable end
+of that bracket — read below, not skipped over.
 
 ### The run completed, after 21 restarts, without the livelock fix
 
@@ -223,13 +242,25 @@ hardcoded. The rung finished on capacity weather. That does not retire the fix; 
 is a property of the partition regime, which will recur, and that a run whose completion depends on
 luck is not one to schedule deliberately.
 
-| | value |
-| :--- | ---: |
-| restarts | 21 |
-| aggregate wall-clock | 35.06 h |
-| **GPU-hours (× 16)** | **560.9** (free, `ckpt-all`) |
-| epoch checkpoints written | 8 of 8 |
-| final validation loss | 0.0005 |
+| | value | source |
+| :--- | ---: | :--- |
+| restarts | 21 | `sacct -D` on klone, 2026-08-29 |
+| aggregate wall-clock | 35.06 h | `sacct -D` on klone, 2026-08-29 |
+| **GPU-hours (× 16)** | **560.9** (free, `ckpt-all`) | derived from the above |
+| epoch checkpoints written | 8 of 8 | committed events + `summary.csv` fingerprints |
+| final validation loss | 0.0005 | committed events |
+
+**Two provenance gaps, stated rather than left implicit.** (1) The first three rows come from
+`sacct -D` and **no dump of that query is committed on this branch** — `sacct` retains the record
+for a bounded window, so a clean clone cannot re-derive them; #147's
+`sacct_klone_2026-08-19.txt` ends two days before this run finished. What a clean clone *can*
+count is the committed event set: **18 event files, 11 of which logged at least one training
+step**, which is the "eleven incarnations" the LR check reports. The 21 restarts and the 35.06 h
+are not that number and are not derivable from the repo. (2) The 560.9 GPU-hours are recorded per
+this repo's cost rule but are **not in any committed ledger** — the compute ledger lives on
+[#147](https://github.com/ProjectSidewalk/RampNet/pull/147)'s branch and is not merged, so this
+entry is *pending* `compute_log.jsonl`. Money is $0 either way: `ckpt-all` is klone's free
+scavenger partition.
 
 Checkpoints at `/gscratch/makelab/jonf/rampnet_cosine_rung_135/checkpoints/`,
 `epoch_1_step_9378.pth` … `epoch_8_step_75024.pth`.
@@ -254,6 +285,14 @@ Every boundary lands at the rate its step index predicts — `0.993003`, `0.9649
 signature. The cosine reaches `4.38e-15` at step 75,024, the pre-registered floor of zero.
 **The schedule under test is the schedule that was applied, over the entire run rather than a
 sample.** (Eleven incarnations against 21 restarts: ten allocations logged no training step at all.)
+
+Re-derivable from a clean clone, no cluster access — the event files and their `SHA256SUMS` are
+committed under `stage_two/cosine_rung_135_events/`:
+
+```bash
+python scripts/analysis/check_lr_schedule_135.py \
+    --events-dir stage_two/cosine_rung_135_events
+```
 
 ### Auto-label validation loss, budget-matched against Run A
 
@@ -310,14 +349,14 @@ eval host's repo pinned at `dc7450e`, the commit Run A was scored under, so the 
 the schedule rather than confounding it with the #140 matcher change (#148).
 
 Recorded before the numbers arrive, so it can be wrong: #84 measured a 13.5% auto-val improvement
-buying ~0.009 F1 on `manual_gold`. Scaled, this rung's 0.961% advantage at the shared optimum maps
-to well under #138's measured paired MDE of **0.0063**, and its 3.979% advantage at epoch 8 to about
+buying ~0.009 F1 on `manual_gold`. Scaled, this rung's 0.962% advantage at the shared optimum maps
+to well under #138's measured paired MDE of **0.0063**, and its 3.980% advantage at epoch 8 to about
 0.005. **The expected result is "tied at every epoch."** If that holds, the finding is that annealing
 buys a real, reproducible, mechanistically-consistent improvement in the *selection signal* that does
 not survive translation to human-labelled F1 — which closes the Run B gate on a measurement rather
 than an extrapolation.
 
-### `manual_gold`: tied at every epoch, as predicted
+### `manual_gold`: the primary comparison is a tie, and one epoch is undetermined
 
 Scored 2026-08-29 on makelab2, one `evaluate.py` run per checkpoint, protocol copied verbatim
 from `run_a_84/run_evals.sh` and the repo pinned at `dc7450e` — the commit Run A was scored
@@ -338,9 +377,66 @@ row below ties to specific weights rather than to a directory name.
 | 7 | 0.9103 | 0.9113 | +0.0010 | 0.9110 | 0.9153 | +0.0042 |
 | 8 | 0.9088 | 0.9124 | +0.0036 | 0.9124 | 0.9154 | +0.0030 |
 
-**Largest |Δ| on either pre-registered metric: 0.0042, against #138's measured paired MDE of
-0.0063. No epoch separates the two arms.** The prediction recorded above, before the numbers
-existed, was that the benchmark answer would be "tied at every epoch". It is.
+**Both columns are read under one matcher, and it is the pre-#140 one.** Run A's values are
+`docs/data/run_a_84_manual_gold/summary.csv` and the cosine arm's were produced with the eval
+host pinned at `dc7450e`, so the two arms are directly comparable — which is the property that
+matters here. It does mean the Run A epoch-7 max-F1 above (0.9110) is *not* the value
+`docs/stage2_run_b_power_135.md` reports for the same checkpoint (0.9107): re-scored with the
+#140 seam wrap, epoch 7 alone moves by −0.000264, and this branch pins that in
+`tests/test_benchmark_power_135.py` as `SEAM_FIXED_MAX_F1`. Under the wrapping matcher Run A's
+epoch 7 falls further, so the epoch-7 Δ above is if anything an **under**statement (+0.0045
+rather than +0.0042) — the cosine arm's own post-wrap value is unknown for the same reason its
+per-panorama detections are. Nothing else in either table is affected.
+
+**Read against the bar the pre-registration actually named.** The rule above is `|Δ| / s.e. ≥ 1.96`
+per pair, not "below the MDE" — and those are different bars. The MDE of 0.0063 is 2.80 × s.e. at
+80% power; the significance bar is 1.96 × s.e., 1.43× lower, so **an effect below the MDE is not
+thereby non-significant**. The comparison the pre-registration asks for is a paired bootstrap
+between the two arms, and it **cannot be run on this branch**: it needs both arms' per-panorama
+detections, and only Run A's are committed (`docs/data/run_a_84_detections/`); the cosine arm's
+`docs/data/cosine_rung_135_manual_gold/` holds downsampled PR curves only. Recovering them needs
+the makelab2 evaluation heatmap cache for the rung, whose survival is not established (see
+*Reproducing*). **That is a deviation from the pre-registration and it is stated here rather than
+absorbed.**
+
+The pre-registration's own "Exact commands" prescribe exactly this step, and **as written they
+would not have run it.** `dump_peaks_from_cache.py` hardcoded a `run_a_epoch_N` label whatever
+`--summary-csv` it was given, so the rung's dumps would either have been invisible to
+`benchmark_power_135.py` or have overwritten Run A's committed ones; that is fixed on this
+branch (`--label-prefix`, and `--verify` now fails loudly on a fingerprint the summary does not
+contain, instead of silently checking nothing). `benchmark_power_135.py` still has no cross-arm
+block — it compares Run A epochs to each other, not to a second run — so `--splits manual_gold`
+would not have made this comparison either. Both are prerequisites for closing the gap above,
+and neither is done here. Also promised "alongside, not as the decision" and likewise absent for
+the same reason: the full 8-epoch paired matrix against Run A.
+
+What is available instead is the paired s.e. #138 *measured* across 28 Run A epoch pairs on the
+same 1,000 panoramas and the same ground truth, **0.0016–0.0029**, used as a bracket and read at
+both ends. `scripts/analysis/run_b_gate_135.py` does that per epoch and
+`docs/data/run_b_gate_135.json` is the artifact:
+
+| epoch | Δ max-F1 | \|z\| at s.e. 0.0029 | \|z\| at s.e. 0.0016 | clears 1.96 at the favourable end? |
+| ---: | ---: | ---: | ---: | :--- |
+| 1 | +0.0005 | 0.17 | 0.31 | no |
+| 2 | +0.0003 | 0.11 | 0.20 | no |
+| 3 | +0.0015 | 0.52 | 0.95 | no |
+| 4 | +0.0013 | 0.43 | 0.78 | no |
+| 5 | −0.0015 | 0.50 | 0.91 | no |
+| 6 | +0.0007 | 0.25 | 0.45 | no |
+| **7** | **+0.0042** | 1.45 | **2.64** | **YES — undetermined, not a tie** |
+| **8 (primary)** | **+0.0030** | 1.02 | 1.86 | no |
+
+**So the accurate statement is narrower than "tied at every epoch".** The pre-registered primary
+(epoch 8) fails significance at *both* ends of the bracket, which is the reading the decision
+rests on and which does not depend on which s.e. inside the bracket is chosen. Six of the other
+seven epochs are ties at both ends. **Epoch 7 is undetermined**: at the favourable end of the
+bracket it clears 1.96. It is not the pre-registered comparison, and selecting it after seeing
+the table is exactly what a pre-registration exists to prevent — but recording it as a tie would
+be reading the wrong bar, so it is recorded as what it is. Resolving it needs the cosine arm's
+per-panorama detections, i.e. the same missing input.
+
+The prediction recorded above, before the numbers existed, was "tied at every epoch". On the
+primary it holds; at epoch 7 it is not established either way.
 
 The two arms' F1@0.30 peaks are **0.9161 (Run A, epoch 6)** and **0.9163 (cosine, epoch 4)** —
 a difference of 0.0002, which is to say the same number at a different epoch. Both replicate
@@ -386,15 +482,19 @@ the discrepancy.
 
 ### What this does and does not settle for Run B
 
-- **It settles**: at 8 epochs, budget-matched, seed-matched, the LR schedule does not change
-  `manual_gold` performance. The mechanism-based argument for the annealed arm — "annealing
-  helps, so a longer annealed run should help more" — has no benchmark support at this length.
+- **It settles**: at 8 epochs, budget-matched, seed-matched, the schedule does not move
+  `manual_gold` at the pre-registered endpoint. The mechanism-based argument for the annealed arm
+  — "annealing helps, so a longer annealed run should help more" — has no benchmark support at
+  this length. (Narrower than "does not change performance": epoch 7 is undetermined, and the
+  arms' *whole* trajectories were never compared paired, because that needs the cosine arm's
+  per-panorama detections. Both gaps are the same missing input.)
 - **It does not settle**: whether a 30-epoch annealed run helps. That changes length and
   schedule together, which is precisely the confound the #84 amendment flagged, and this rung
   was deliberately built not to answer it.
 
 What the rung does supply is a measured prior for that decision: the schedule is worth ~0.000
-F1 at 8 epochs and possibly ~0.003 in late-epoch damping, against #138's 0.0063 detection floor.
+F1 at the pre-registered endpoint, at most ~0.004 anywhere on the curve, and possibly ~0.003 in
+late-epoch damping, against #138's 0.0063 detection floor and 1.96-bar of 0.0032–0.0057.
 A 30-epoch arm would need the effect to grow substantially with length to be resolvable at all.
 
 ### Reproducing
@@ -412,6 +512,18 @@ python scripts/analysis/stage2_manual_gold_curve.py \
 The checkpoints remain at `/gscratch/makelab/jonf/rampnet_cosine_rung_135/checkpoints/` and on
 makelab2 at `/homes/gws/jonf/RampNet/cosine_rung_135/checkpoints/`. Publishing them is a
 decision about HF storage, not a technical blocker — the same gap Run A records.
+
+**The one input that would close the pre-registration's own comparison is the rung's evaluation
+heatmap cache**, which `evaluate.py` leaves at `<results-root>/evaluate_cache/heatmaps/` on
+makelab2 — the same artifact whose Run A counterpart let #138 measure the paired s.e. for four
+minutes of CPU. **Whether it survived is not established here** — nobody has checked, and Run A's
+counterpart is ~13 GB, so it is not a safe assumption. If it is intact, the eight epochs dump with
+`scripts/analysis/dump_peaks_from_cache.py --label-prefix cosine_epoch_`, the cross-arm paired
+bootstrap becomes runnable once `benchmark_power_135.py` grows a cross-arm block, and epoch 7
+stops being undetermined. If it is gone, regenerating it costs one `evaluate.py` pass per
+checkpoint (~12.5 min each on the A40) from checkpoints that do still exist — so this is
+recoverable at ~1.7 GPU-hours, not lost. Stated because an unstated gap is indistinguishable
+from a hidden one.
 
 ## The decision: Run B is not being run
 
@@ -465,9 +577,21 @@ as a rule." So here is the judgment, and the reasoning, rather than a rule prete
    A Run B that could actually be read needs three seeds: **5,025–10,050 GPU-hours**, roughly
    $4,500–$9,000 on Tillicum, against a $1,500/month cap.
 
-4. **Opportunity cost, measured.** #151 has just produced a **+0.115 F1** rig effect on the same
-   model — thirty times anything Run B could plausibly show — and the deployment question behind
-   it is open. The hours are better spent there.
+   *The ~0.01 is a stated working assumption, not a measurement, and it is the load-bearing
+   number in this bullet.* Nothing in this repo has measured RampNet's training-seed variance;
+   `docs/stage2_run_b_power_135.md` sets the figure by analogy to the #51-scale effect (~0.02+)
+   that seed noise plausibly could not explain. Replacing it with a measured value is exactly
+   what the seed campaign below does, which is why that campaign is the reopening condition
+   rather than a nicety. Note also that the argument does not need the number to be right: at
+   *any* seed SD, one run of one seed cannot separate schedule from draw, and the bullet is
+   about how large the effect would have to be before it could.
+
+4. **Opportunity cost, measured.** [#151](https://github.com/ProjectSidewalk/RampNet/issues/151)
+   has just produced a **+0.115 F1** rig effect on the same model — thirty times anything Run B
+   could plausibly show — and the deployment question behind it is open. The hours are better
+   spent there. (That number comes from the Laurens GSV/Mapillary arms, which live on
+   `benchmark/laurens_*` on another branch and are **not** committed here, so it is not
+   re-derivable from this branch alone. It is a reason, not a result of this document.)
 
 ### What is not being claimed
 
@@ -486,7 +610,9 @@ as a rule." So here is the judgment, and the reasoning, rather than a rule prete
 
 Concrete and cheap, in order:
 
-- **The seed campaign now running** (`docs/seed_variance_51_135.md`, klone jobs 39515025/26/27)
+- **The seed campaign now running** (PR
+  [#155](https://github.com/ProjectSidewalk/RampNet/pull/155), klone jobs 39515025/26/27 — the
+  write-up lands on that branch, so there is no `docs/` file to follow from here yet)
   prices this directly. If RampNet's seed SD comes back at **≤ ~0.002 max-F1**, an effect of
   0.003–0.008 becomes readable at n=1 and Run B stops being uninterpretable. That is the single
   measurement that would change the answer, and it is already in flight at zero cost.

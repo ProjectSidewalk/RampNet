@@ -26,6 +26,22 @@ panoramas and the same GT, as a bracket, and reports z at both ends.
 That is weaker than a direct bootstrap and it is stated rather than hidden -- but it is
 sufficient here, because the primary comparison fails to reach significance at the
 FAVOURABLE end of the bracket, so the reading does not depend on which value is picked.
+It is NOT sufficient for epoch 7, whose |z| straddles 1.96 across the bracket; that
+epoch is reported as undetermined rather than as a tie, and resolving it needs the same
+missing per-panorama detections.
+
+WHICH MATCHER THE POINT ESTIMATES COME FROM
+Both arms' max-F1 are read from their own summary.csv, and both were scored with the
+eval host pinned at dc7450e -- i.e. under the PRE-#140 matcher, before the 360-seam
+wrap landed. That is the right choice for a comparison BETWEEN the arms, because it is
+the only way to hold the matcher fixed across them. It does mean Run A's epoch-7 value
+here (0.911009) differs from the post-#140 one this branch pins in
+tests/test_benchmark_power_135.py as SEAM_FIXED_MAX_F1 (0.910745). The seam wrap moves
+Run A's epoch 7 DOWN, so the epoch-7 delta below is if anything understated; no other
+epoch is affected, and neither the primary (epoch 8) nor the secondary (3 -> 8) is.
+The standard-error bracket, by contrast, comes from the post-#140 re-scoring -- an s.e.
+is not sensitive at the 3e-4 scale that separates the two matchers, but it is a mixed
+provenance and is named here rather than left to be found.
 
 Usage:
     python scripts/analysis/run_b_gate_135.py

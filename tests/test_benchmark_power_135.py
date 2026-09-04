@@ -44,6 +44,12 @@ RSQ = radius_sq_for()
 CASES = [("clovis", "rampnet"), ("paterson", "y11l_pano"), ("annapolis", "y11x_pano_h200")]
 
 
+def _conf_or_floor(p):
+    """A prediction's confidence, or -inf when it genuinely has none."""
+    c = prediction_confidence(p)
+    return -math.inf if c is None else c
+
+
 @pytest.mark.parametrize("split,model", CASES)
 def test_observed_metrics_match_aggregate(split, model):
     """All-ones weights must reproduce the repo's own scorer to machine precision."""
@@ -52,8 +58,11 @@ def test_observed_metrics_match_aggregate(split, model):
     dets = bp.detections_for(REPO, split, model, records)
     thr = bp.protocol_threshold(model)
 
+    # `if c is None`, not `or`: a legitimate confidence of exactly 0.0 is falsy, so
+    # `or -1e9` would drop a real detection rather than an unscored one. Inert at the
+    # 0.25/0.30 protocol points, wrong the moment this is reused at a 0.0 floor.
     scores = [score_pano([p for p in dets.get(pid, [])
-                          if (prediction_confidence(p) or -1e9) >= thr],
+                          if _conf_or_floor(p) >= thr],
                          gts[pid], radius_sq=RSQ)
               for pid in sorted(gts)]
     ref = aggregate(scores)
@@ -187,6 +196,105 @@ def test_committed_json_matches_the_doc():
     gap1 = [v["delta"]["max_f1"]["se"] for v in m["pairs"].values() if v["gap"] == 1]
     far = [v["delta"]["max_f1"]["se"] for v in m["pairs"].values() if v["gap"] >= 5]
     assert sum(far) / len(far) > sum(gap1) / len(gap1)
+
+
+#: Every number the doc's headline tables and the PR body quote, to the precision they
+#: are quoted at. The gap this closes: the previous version of the test below pinned
+#: three inventory integers and a handful of inequalities, so the doc could -- and did
+#: -- drift away from the artifact in the fourth decimal without anything noticing.
+#: Keyed by the doc's own wording so a failure says which sentence to fix.
+DOC_HEADLINE = {
+    # "The answer, up front" -- all four rows are max-F1, matching the header.
+    "unpaired manual_gold max-F1 s.e.": 0.0041,
+    "unpaired POOLED all max-F1 s.e.": 0.0039,
+    # The unpaired F1 column, which the same table used to print under a max-F1 header.
+    "unpaired manual_gold F1 s.e.": 0.0042,
+    "unpaired POOLED all F1 s.e.": 0.0039,
+    # The measured paired bracket -- the recommendation is stated in these.
+    "paired s.e. min": 0.0016,
+    "paired s.e. max": 0.0029,
+    "paired s.e. median": 0.0021,
+    "paired s.e. median, gap >= 3": 0.0022,
+}
+
+
+def test_committed_json_matches_the_doc_headline_numbers():
+    """Every value the doc quotes in a headline table, pinned to 4 decimals.
+
+    Prior review finding 7e: the test below guards the artifact's *shape* and the
+    findings' *direction*, but pinned none of the numbers the doc actually prints, so
+    a regeneration that moved them left the prose silently stale. Four of them were
+    in fact stale when this was added.
+    """
+    import json
+    path = os.path.join(REPO, "docs", "data", "benchmark_power_135.json")
+    if not os.path.exists(path):
+        pytest.skip("benchmark_power_135.json not committed")
+    with open(path, encoding="utf-8") as fh:
+        out = json.load(fh)
+
+    m = out["measured_epoch_pairs"]
+    actual = {
+        "unpaired manual_gold max-F1 s.e.": out["unpaired"]["manual_gold"]["max_f1"]["se"],
+        "unpaired POOLED all max-F1 s.e.": out["unpaired"]["POOLED all"]["max_f1"]["se"],
+        "unpaired manual_gold F1 s.e.": out["unpaired"]["manual_gold"]["f1"]["se"],
+        "unpaired POOLED all F1 s.e.": out["unpaired"]["POOLED all"]["f1"]["se"],
+        "paired s.e. min": m["se_max_f1_min"],
+        "paired s.e. max": m["se_max_f1_max"],
+        "paired s.e. median": m["se_max_f1_median"],
+        "paired s.e. median, gap >= 3": m["se_max_f1_median_gap_ge_3"],
+    }
+    for name, quoted in DOC_HEADLINE.items():
+        assert round(actual[name], 4) == quoted, (
+            f"{name}: artifact has {actual[name]:.6f} (rounds to "
+            f"{round(actual[name], 4)}), the doc quotes {quoted}")
+
+    # The MDE column beside them is Z_MDE x s.e., and the doc prints it rounded.
+    assert round(bp.Z_MDE * actual["unpaired manual_gold max-F1 s.e."], 4) == 0.0114
+    assert round(bp.Z_MDE * actual["unpaired POOLED all max-F1 s.e."], 4) == 0.0108
+    assert round(bp.Z_MDE * actual["paired s.e. median, gap >= 3"], 4) == 0.0063
+    assert round(bp.Z_MDE * actual["paired s.e. min"], 4) == 0.0045
+    assert round(bp.Z_MDE * actual["paired s.e. max"], 4) == 0.0082
+
+
+def test_committed_json_records_the_bundle_truncation():
+    """The nine city bundles stop at 0.55, so the named 0.30 point is a no-op there.
+
+    Prior review finding 1. This was true, load-bearing for the pooling claim, and
+    only *indirectly* visible in the artifact (max_f1 == f1 exactly, self_pair b = c =
+    0) for two review passes. The inventory now records it directly, and this pins
+    that it keeps doing so -- an artifact that stopped saying which rows are truncated
+    would let the caveat quietly fall out of the doc again.
+    """
+    import json
+    path = os.path.join(REPO, "docs", "data", "benchmark_power_135.json")
+    if not os.path.exists(path):
+        pytest.skip("benchmark_power_135.json not committed")
+    with open(path, encoding="utf-8") as fh:
+        out = json.load(fh)
+    if out.get("reference") != "rampnet":
+        pytest.skip("truncation is a property of the published bundles, not op_cache")
+
+    inv = out["inventory"]
+    assert inv["manual_gold"]["protocol_threshold_binds"] is True
+    assert inv["manual_gold"]["reference_min_confidence"] < 0.10
+    cities = [k for k, v in inv.items() if v["gt_source"] == "anchored"]
+    assert len(cities) == 9
+    for c in cities:
+        assert inv[c]["protocol_threshold_binds"] is False, (
+            f"{c} now holds detections below 0.30 -- the truncation caveat in "
+            f"docs/stage2_run_b_power_135.md needs rewriting, not deleting")
+        assert inv[c]["reference_min_confidence"] > 0.55 - 1e-2
+
+    # Both pooled rows inherit it, and the artifact says which members.
+    assert set(out["unpaired"]["POOLED cities"]["truncated_members"]) == set(cities)
+    assert set(out["unpaired"]["POOLED all"]["truncated_members"]) == set(cities)
+    assert out["unpaired"]["manual_gold"]["truncated_members"] == []
+
+    # And the self-pair block no longer reports a degenerate max-F1 as a measurement.
+    for key, row in out["self_pair"].items():
+        assert row["max_f1"] is None, f"{key}: max-F1 is not a function of the shift"
+        assert "max_f1_note" in row
 
 
 #: The one Run A max-F1 that #140 moved. ``summary.csv`` was written on 2026-08-18
