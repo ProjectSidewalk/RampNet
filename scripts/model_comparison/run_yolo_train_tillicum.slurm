@@ -86,6 +86,21 @@ EPOCHS="${EPOCHS:-60}"
 BATCH="${BATCH:--1}"                          # pin per config to match the klone runs
 PATIENCE="${PATIENCE:-20}"
 
+# SEED. Every #51 arm ran seed=0 (the ultralytics default), so the whole baseline is
+# n=1 and its run-to-run spread has never been measured. That was a footnote while the
+# RampNet-vs-YOLO gap was 0.252 F1; at the matched-operating-point gap of 0.039
+# (docs/operating_point_parity_51.md -- on branch fix/yolo-label-cache-rescue-51 / PR
+# #154, not on main yet) it is the binding question, and #51's own rule is that
+# differences under ~0.02 should not be read.
+#
+# Ultralytics seeds torch/numpy/random from this AND sets deterministic=True by default,
+# so it also governs augmentation and the initial head weights -- i.e. it is the whole
+# run-to-run knob, not just the shuffle.
+#
+# Leave it 0 for anything meant to reproduce an existing arm. Set it for a seed sweep:
+#   SEED=1 NAME=y11x_tiles_s1 ... sbatch <this script>
+SEED="${SEED:-0}"
+
 # Keep a checkpoint every N epochs. Ultralytics defaults save_period=-1, keeping ONLY
 # last.pt and best.pt -- which forecloses, permanently and retroactively, any analysis
 # that needs a checkpoint from a specific epoch.
@@ -144,7 +159,7 @@ APPTAINER_IMG="${APPTAINER_IMG:-}"
 echo "--- YOLO train on TILLICUM (issue #51 / #70) ---"
 echo "base:   ${YOLO_CKPT}"
 echo "data:   ${YOLO_DATA}"
-echo "imgsz:  ${YOLO_IMGSZ}   epochs: ${EPOCHS}   batch: ${BATCH}   patience: ${PATIENCE}"
+echo "imgsz:  ${YOLO_IMGSZ}   epochs: ${EPOCHS}   batch: ${BATCH}   patience: ${PATIENCE}   seed: ${SEED}"
 echo "alloc:  ${SLURM_GPUS_ON_NODE:-?} GPU(s), ${SLURM_CPUS_PER_TASK:-?} CPUs on ${SLURMD_NODENAME:-?}"
 echo "device: ${DEVICE}   workers: ${WORKERS}   (allocation and device differ on purpose -- see header)"
 echo "chain:  ${CHAIN} follow-on job(s) queued after this one"
@@ -173,11 +188,12 @@ fi
 
 run_train() {
     "$@" - "$YOLO_CKPT" "$YOLO_DATA" "$YOLO_IMGSZ" "$EPOCHS" "$BATCH" "$PATIENCE" \
-            "$PROJECT" "$NAME" "$TRAIN_HOURS" "$DEVICE" "$SAVE_PERIOD" "$WORKERS" <<'PY'
+            "$PROJECT" "$NAME" "$TRAIN_HOURS" "$DEVICE" "$SAVE_PERIOD" "$WORKERS" \
+            "$SEED" <<'PY'
 import os, sys
 from ultralytics import YOLO
 (ckpt, data, imgsz, epochs, batch, patience, project, name, hours, device,
- save_period, workers) = sys.argv[1:13]
+ save_period, workers, seed) = sys.argv[1:14]
 last = os.path.join(project, name, "weights", "last.pt")
 # Still needed on Tillicum, but for a different reason than on klone: not preemption,
 # but the 24 h normal-QoS ceiling. A 60-epoch tiles schedule does not fit in one job,
@@ -206,7 +222,7 @@ else:
     kw = dict(
         data=data, imgsz=int(imgsz), epochs=int(epochs), batch=batch_arg,
         patience=int(patience), project=project, name=name, device=dev, exist_ok=True,
-        save_period=int(save_period), workers=int(workers),
+        save_period=int(save_period), workers=int(workers), seed=int(seed),
     )
     if float(hours) > 0:
         kw["time"] = float(hours)

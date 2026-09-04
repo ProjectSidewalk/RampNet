@@ -22,6 +22,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 
 from rampnet.model import KeypointModel
 from rampnet.loading import load_checkpoint
+from rampnet.seeding import HISTORICAL_SEED, sampler_seed_for
 
 # Learning-rate defaults per preset: training from ImageNet initialization
 # uses the paper's 1e-5; fine-tuning released/earlier RampNet weights wants a
@@ -130,6 +131,11 @@ def parse_args():
                              "run always takes precedence, and warm-starting applies at step 0 only.")
     parser.add_argument('--checkpoint-dir', default='checkpoints',
                         help="Directory for per-epoch checkpoints (default: checkpoints)")
+    parser.add_argument('--seed', type=int, default=HISTORICAL_SEED,
+                        help=f"Seed for torch/numpy/random AND the DistributedSampler shuffle "
+                             f"(default: {HISTORICAL_SEED}, the value every published run used). "
+                             f"Change it only to measure run-to-run variance -- see "
+                             f"docs/seed_variance_51_135.md")
     parser.add_argument('--lr-schedule', choices=LR_SCHEDULES, default='constant',
                         help="'constant' is the paper recipe and the default -- every "
                              "existing invocation is unaffected. 'cosine' decays --lr to "
@@ -172,9 +178,18 @@ def cleanup_distributed():
 
 rank, local_rank, world_size = setup_distributed()
 
-torch.manual_seed(42)
-random.seed(42)
-np.random.seed(42)
+# These were hardcoded to 42, so every published run shares one seed and the recipe's
+# run-to-run spread is unmeasured (n=1). --seed defaults to 42, so nothing about an
+# existing run changes; it exists so a seed sweep is possible at all. See
+# docs/seed_variance_51_135.md for why that spread is now the binding number.
+#
+# The sampler seed has to move WITH this one. DistributedSampler takes its own `seed`
+# (default 0) and derives the shuffle from seed + epoch via set_epoch(), so leaving it
+# alone would give every "different" seed the identical data order -- a sweep that
+# varies initialization only, silently understating the true spread.
+torch.manual_seed(args.seed)
+random.seed(args.seed)
+np.random.seed(args.seed)
 
 new_root_dir = args.data_root
 
@@ -356,8 +371,21 @@ if len(train_dataset) == 0:
 if len(val_dataset) == 0 and rank == 0:
     print("Warning: Validation dataset is empty.")
 
+# DistributedSampler has its OWN seed (default 0) and derives the shuffle from
+# seed + epoch in set_epoch(), so it is independent of torch.manual_seed above. Every
+# published run therefore paired manual_seed(42) with sampler seed 0, and
+# sampler_seed_for() preserves that pairing exactly at the default: passing --seed 42
+# gives those runs' initialization AND their data order, while any other --seed moves
+# the data order too. Not bit-identical, and no claim to be: cuDNN autotuning, AMP loss
+# scaling and DDP allreduce ordering are not seeded and torch.use_deterministic_algorithms
+# is not set. What is preserved is every source of randomness this script controls.
+#
+# Both halves have to move together. A sweep that varied initialization but reused one
+# data order would understate the true run-to-run spread -- and would do it silently,
+# since nothing in the logs distinguishes the two.
 train_sampler = ResumeSkipSampler(
-    DistributedSampler(train_dataset, num_replicas=world_size, rank=rank, shuffle=True, drop_last=True))
+    DistributedSampler(train_dataset, num_replicas=world_size, rank=rank, shuffle=True, drop_last=True,
+                       seed=sampler_seed_for(args.seed)))
 val_sampler = DistributedSampler(val_dataset, num_replicas=world_size, rank=rank, shuffle=False, drop_last=False) if len(val_dataset) > 0 else None
 
 train_loader = DataLoader(train_dataset, batch_size=1, sampler=train_sampler, num_workers=4, pin_memory=True)
@@ -384,6 +412,11 @@ if rank == 0:
     os.makedirs(args.checkpoint_dir, exist_ok=True)
     writer = SummaryWriter(log_dir='runs/experiment_1')
     print(f"Preset: {args.preset}, lr: {args.lr}, epochs: {args.epochs}, data root: {new_root_dir}")
+    # Both seeds in the log, always. A seed sweep whose arms cannot be told apart from
+    # their own logs is not reproducible, and the sampler half is the one that is easy
+    # to leave unset without noticing.
+    print(f"Seed: {args.seed} (sampler seed: {sampler_seed_for(args.seed)}), "
+          f"checkpoint dir: {args.checkpoint_dir}")
     print(f"LR schedule: {args.lr_schedule}"
           + (f" -> {args.lr * args.lr_final_frac:.3g} over {total_train_steps} steps"
              if args.lr_schedule != 'constant' else " (no decay, as in the paper)"))

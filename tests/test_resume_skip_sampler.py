@@ -29,6 +29,8 @@ sys.path.insert(0, os.path.join(REPO, "scripts", "analysis"))
 
 from check_lr_schedule_135 import load_from_train_py  # noqa: E402
 
+from rampnet.seeding import HISTORICAL_SEED
+
 import itertools  # noqa: E402
 
 LIFTED = load_from_train_py("ResumeSkipSampler", itertools=itertools, Sampler=Sampler)
@@ -151,7 +153,8 @@ def test_checkpoint_interval_default_is_still_the_paper_recipe():
     checkpointing granularity along with it.
     """
     import argparse
-    mod = load_from_train_py("parse_args", "PRESET_LR", "LR_SCHEDULES", argparse=argparse)
+    mod = load_from_train_py("parse_args", "PRESET_LR", "LR_SCHEDULES",
+                             argparse=argparse, HISTORICAL_SEED=HISTORICAL_SEED)
     argv = sys.argv
     try:
         sys.argv = ["train.py"]
