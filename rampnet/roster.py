@@ -34,6 +34,15 @@ Five properties of an entry are worth stating because they are easy to get wrong
   ``claude-sonnet-5`` at effort ``low`` and at effort ``high`` are different runs with
   different cache keys and different results. Each is its own entry, and ``pins``
   names the knob it holds, as ``(("claude_effort", "high"),)``.
+
+  **A pin is what the leg needs to REPRODUCE, which is a superset of what enters the
+  signature.** ``claude_serving_path`` (#156) will be the first pin that is not a
+  signature key: a Fable leg must run against ``anthropic`` because Vertex gates that
+  family, but the path does not change the detections and deliberately stays out of the
+  cache key (see ``ClaudeDetector.signature``). Pinning it anyway is what will keep a
+  bare ``claude:claude-fable-5-1`` from resolving to a Vertex run that 403s. Note the
+  consequence for naming: ``published_as`` must spell out every pin's value, so such a
+  leg is ``claude-fable-5-1-effort-low-anthropic``.
 * ``published_as`` is the filename stem under ``benchmark/model_detections/``, and it
   defaults to ``label``. It exists because ``label`` cannot carry a pin: the label is
   baked into cache keys that were already paid for, so renaming it orphans the
@@ -220,6 +229,31 @@ ROSTER = (
         published_as="claude-sonnet-5-effort-high",
         note="1.98 boxes/pano. Loses F1 to effort in the same direction as Opus, "
              "which is what makes that a pattern rather than one model's quirk."),
+    # #156. The first legs served OFF Vertex -- that family is gated there behind a
+    # publisher data-sharing setting, so these ran on Anthropic's first-party API.
+    # The serving path is NOT in the detection signature (it does not change the
+    # answer; see ClaudeDetector.signature), but it IS pinned, because reproducing
+    # these legs requires it -- which is why `published_as` spells it out.
+    Challenger(
+        spec="claude:claude-fable-5-1", label="claude-fable-5-1", provider="claude",
+        density="sparse", standing=False, added="2026-09-05",
+        pins=(("claude_effort", "low"), ("claude_serving_path", "anthropic")),
+        published_as="claude-fable-5-1-effort-low-anthropic",
+        note="F1 0.610 on annapolis (P 0.637 / R 0.585), 2.28 boxes/pano. Clears "
+             "the 0.567 gate and displaces claude-opus-5 effort-low (0.588) -- the "
+             "first general-purpose model to do so on this split. Tied with "
+             "claude-fable-5 (0.611) at a MORE PRECISE operating point, which is "
+             "the whole difference between them."),
+    Challenger(
+        spec="claude:claude-fable-5", label="claude-fable-5", provider="claude",
+        density="sparse", standing=False, added="2026-09-05",
+        pins=(("claude_effort", "low"), ("claude_serving_path", "anthropic")),
+        published_as="claude-fable-5-effort-low-anthropic",
+        note="F1 0.611 on annapolis (P 0.579 / R 0.646), 2.72 boxes/pano. "
+             "Indistinguishable from claude-fable-5-1 on F1 while trading 0.058 "
+             "precision for 0.061 recall: within this family the model version is "
+             "an operating-point dial, the same shape as effort in #123. Also "
+             "spends ~33 thinking tokens/call against 5.1's ~0.35, for no F1."),
 )
 
 #: Specs whose label cannot be derived from the spec, because the ``model_id`` slot
@@ -279,6 +313,14 @@ PROVIDER_DEFAULTS = {
     # cache key and every lookup misses.
     "claude_image_format": None,
     "claude_temperature": None,
+    "claude_max_tokens": None,
+    # Which account serves the calls. `vertex` is what all four published legs ran
+    # on, so it stays the default; the Fable legs pin `anthropic` because Vertex
+    # gates that family. Unlike the three settings above, this one does NOT enter
+    # the detection signature -- see ClaudeDetector.signature -- so changing it
+    # does not orphan the cache. It is still a pin, because reproducing a Fable
+    # leg requires it.
+    "claude_serving_path": "vertex",
     "qwen_model": "Qwen/Qwen3-VL-8B-Instruct",
     "qwen_coord_space": "auto",
     "owlv2_model": "google/owlv2-large-patch14-ensemble",

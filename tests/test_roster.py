@@ -267,7 +267,17 @@ def test_each_published_file_names_the_leg_it_says_it_is():
         assert payload["signature"]["model_id"] == entry.label, name
         for key, value in entry.pins:
             sig_key = key.split("_", 1)[1]          # claude_effort -> effort
-            assert payload["signature"][sig_key] == value, (name, key)
+            if sig_key in payload["signature"]:
+                assert payload["signature"][sig_key] == value, (name, key)
+            else:
+                # A pin that is NOT a signature field (claude_serving_path, #156:
+                # it changes who bills, not what was asked, so it is deliberately
+                # kept out of the cache key). The file still has to name it, or
+                # nothing in the published artifact distinguishes a Vertex-served
+                # leg from a first-party one. `pins` is absent on files published
+                # before that field existed — those legs pin only signature
+                # fields, so they never reach this branch.
+                assert payload.get("pins", {}).get(key) == value, (name, key)
 
 
 # --------------------------------------------------------------------------- #

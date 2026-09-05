@@ -57,15 +57,34 @@ SPLITS = {
     "laurens_gsv": (86, 220),
 }
 
-# (model, effort, split) -> (panos, n_gt, tp, fp, fn, P, R, F1) exactly as published.
+# (model, effort, serving_path, split) -> (panos, n_gt, tp, fp, fn, P, R, F1) exactly
+# as published. The serving path is part of the key because it is part of the leg's
+# published NAME (#156): it does not enter the detection signature -- it changes who
+# bills, not what was asked -- but a Fable leg cannot run on Vertex at all, so two
+# rows of this table now come from a different account than the other six, and a
+# fixture that could not say which would be hiding that.
 PUBLISHED_LEGS = {
-    ("claude-sonnet-5", "low", "annapolis"): (125, 294, 112, 78, 182, 0.589, 0.381, 0.463),
-    ("claude-sonnet-5", "high", "annapolis"): (125, 294, 122, 119, 172, 0.506, 0.415, 0.456),
-    ("claude-opus-5", "low", "annapolis"): (125, 294, 178, 133, 116, 0.572, 0.605, 0.588),
-    ("claude-opus-5", "high", "annapolis"): (125, 294, 193, 256, 101, 0.430, 0.656, 0.520),
-    ("claude-opus-5", "low", "laurens_mapillary"): (94, 249, 96, 102, 153, 0.485, 0.386, 0.430),
-    ("claude-opus-5", "low", "laurens_gsv"): (86, 220, 87, 91, 133, 0.489, 0.395, 0.437),
+    ("claude-sonnet-5", "low", "vertex", "annapolis"): (125, 294, 112, 78, 182, 0.589, 0.381, 0.463),
+    ("claude-sonnet-5", "high", "vertex", "annapolis"): (125, 294, 122, 119, 172, 0.506, 0.415, 0.456),
+    ("claude-opus-5", "low", "vertex", "annapolis"): (125, 294, 178, 133, 116, 0.572, 0.605, 0.588),
+    ("claude-opus-5", "high", "vertex", "annapolis"): (125, 294, 193, 256, 101, 0.430, 0.656, 0.520),
+    ("claude-opus-5", "low", "vertex", "laurens_mapillary"): (94, 249, 96, 102, 153, 0.485, 0.386, 0.430),
+    ("claude-opus-5", "low", "vertex", "laurens_gsv"): (86, 220, 87, 91, 133, 0.489, 0.395, 0.437),
+    ("claude-fable-5-1", "low", "anthropic", "annapolis"): (125, 294, 172, 98, 122, 0.637, 0.585, 0.610),
+    ("claude-fable-5", "low", "anthropic", "annapolis"): (125, 294, 190, 138, 104, 0.579, 0.646, 0.611),
 }
+
+
+def _publish_as(model, effort, serving):
+    """The filename stem this leg publishes under.
+
+    Mirrors ``roster.published_name`` without importing the registry, so this file
+    stays an independent check on the published numbers rather than a second reading
+    of the same source. `vertex` is elided because it is the default and the six
+    Vertex legs were published before the path was a pin.
+    """
+    stem = f"{model}-effort-{effort}"
+    return stem if serving == "vertex" else f"{stem}-{serving}"
 
 
 def _bundle(split):
@@ -77,9 +96,9 @@ def _ground_truths(split):
     return C.ground_truths_from_verdicts(records, verdicts)
 
 
-def _score(model, effort, split, gts):
+def _score(model, effort, serving, split, gts):
     pub = load_detections(model, split, PUBLISHED,
-                          publish_as=f"{model}-effort-{effort}")
+                          publish_as=_publish_as(model, effort, serving))
     assert pub is not None, f"no published export for {model}/{effort}/{split}"
     tp = fp = n_gt = panos = 0
     for pid, gt in gts.items():
@@ -105,10 +124,11 @@ def test_the_bundles_are_the_ones_the_numbers_were_read_against(split):
     assert sum(len(g.gt_points) for g in gts.values()) == want_gt
 
 
-@pytest.mark.parametrize("model,effort,split", sorted(PUBLISHED_LEGS))
-def test_published_claude_numbers_reproduce_from_the_committed_detections(model, effort, split):
-    want = PUBLISHED_LEGS[(model, effort, split)]
-    got = _score(model, effort, split, _ground_truths(split))
+@pytest.mark.parametrize("model,effort,serving,split", sorted(PUBLISHED_LEGS))
+def test_published_claude_numbers_reproduce_from_the_committed_detections(
+        model, effort, serving, split):
+    want = PUBLISHED_LEGS[(model, effort, serving, split)]
+    got = _score(model, effort, serving, split, _ground_truths(split))
     assert got[:5] == want[:5], (
         f"{model}/{effort}/{split}: (panos, n_gt, tp, fp, fn) = {got[:5]}, "
         f"published {want[:5]}")
@@ -125,11 +145,11 @@ def test_every_leg_covers_the_whole_split(split):
     printed a plausible table. This is the guard that makes it impossible to
     reintroduce quietly."""
     gts = _ground_truths(split)
-    legs = [k for k in PUBLISHED_LEGS if k[2] == split]
+    legs = [k for k in PUBLISHED_LEGS if k[3] == split]
     assert legs, f"no published legs for {split}"
-    for model, effort, _ in legs:
+    for model, effort, serving, _ in legs:
         pub = load_detections(model, split, PUBLISHED,
-                              publish_as=f"{model}-effort-{effort}")
+                              publish_as=_publish_as(model, effort, serving))
         missing = set(gts) - set(pub)
         assert not missing, f"{model}/{effort}/{split} is missing {len(missing)} pano(s)"
         for pano in RECOVERED.get(split, ()):
@@ -142,23 +162,30 @@ def test_every_leg_covers_the_whole_split(split):
 def test_each_leg_is_published_under_its_own_name():
     """Two effort levels of one model id are two legs. Publishing them under the
     bare id would put both on one filename and silently keep only the last."""
-    paths = {published_path(m, split, PUBLISHED, publish_as=f"{m}-effort-{e}")
-             for m, e, split in PUBLISHED_LEGS}
+    paths = {published_path(m, split, PUBLISHED, publish_as=_publish_as(m, e, sp))
+             for m, e, sp, split in PUBLISHED_LEGS}
     assert len(paths) == len(PUBLISHED_LEGS)
     for path in paths:
         assert os.path.exists(path), f"missing published export: {path}"
 
 
-@pytest.mark.parametrize("model,effort,split", sorted(PUBLISHED_LEGS))
-def test_every_export_records_the_signature_that_produced_it(model, effort, split):
+@pytest.mark.parametrize("model,effort,serving,split", sorted(PUBLISHED_LEGS))
+def test_every_export_records_the_signature_that_produced_it(
+        model, effort, serving, split):
     """Provenance has to survive in the file, because the cache it came from is
     git-ignored and the effort level is not visible in the detections."""
-    path = published_path(model, split, PUBLISHED, publish_as=f"{model}-effort-{effort}")
+    path = published_path(model, split, PUBLISHED,
+                          publish_as=_publish_as(model, effort, serving))
     with open(path, encoding="utf-8") as fh:
         blob = json.load(fh)
     sig = blob["signature"]
     assert blob["model"] == model
-    assert blob["published_as"] == f"{model}-effort-{effort}"
+    assert blob["published_as"] == _publish_as(model, effort, serving)
+    # The serving path is NOT in the signature, by design. On the legs where it is
+    # not the default it must therefore be legible from `pins`, or the published
+    # file cannot say which account produced it.
+    if serving != "vertex":
+        assert blob["pins"]["claude_serving_path"] == serving
     assert sig["provider"] == "claude"
     assert sig["model_id"] == model
     assert sig["effort"] == effort
@@ -175,10 +202,12 @@ def test_the_laurens_arms_are_the_pair_the_rig_comparison_rests_on():
     A comparison whose two halves came from different effort levels (or different
     model ids) would attribute to the imagery a difference that is really a
     configuration change -- the exact confound the second arm exists to remove."""
-    arms = [k for k in PUBLISHED_LEGS if k[2].startswith("laurens_")]
-    assert {k[2] for k in arms} == {"laurens_mapillary", "laurens_gsv"}
-    assert {(k[0], k[1]) for k in arms} == {("claude-opus-5", "low")}
-    f1 = {k[2]: PUBLISHED_LEGS[k][7] for k in arms}
+    arms = [k for k in PUBLISHED_LEGS if k[3].startswith("laurens_")]
+    assert {k[3] for k in arms} == {"laurens_mapillary", "laurens_gsv"}
+    # Serving path is pinned here too: both arms must come from the same account,
+    # for the same reason they must share an effort level.
+    assert {(k[0], k[1], k[2]) for k in arms} == {("claude-opus-5", "low", "vertex")}
+    f1 = {k[3]: PUBLISHED_LEGS[k][7] for k in arms}
     # The published reading: the strongest zero-shot model is FLAT across the rigs
     # (+0.007) where RampNet gains +0.115. If a re-run ever moves this materially,
     # the write-up's argument changes and should be re-read, not silently updated.

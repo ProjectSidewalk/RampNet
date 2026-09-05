@@ -457,6 +457,10 @@ def test_single_split_legs_stay_out_of_the_pooled_tables(board):
         "claude-opus-5-effort-high": "1/8",
         "claude-sonnet-5-effort-low": "1/8",
         "claude-sonnet-5-effort-high": "1/8",
+        # #156, annapolis only. Both clear the expansion gate, so these may well
+        # grow past 1/8 later; until they do, partial coverage means excluded.
+        "claude-fable-5-1-effort-low-anthropic": "1/8",
+        "claude-fable-5-effort-low-anthropic": "1/8",
     }
     single = [m for m in board["models"] if not m["complete"]]
     assert {m["model"] for m in single} == set(want_coverage)

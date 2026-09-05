@@ -159,6 +159,8 @@ def export(cache_dir, out_dir, splits, specs, allow_partial=False, overrides=Non
                          "would write to the same file.")
     for spec in specs:
         name = publication_name(spec, cargs, publish_as)
+        leg = roster.leg_for(spec, cargs)
+        pins = dict(leg.pins) if leg is not None else {}
         for city in splits:
             bundle = os.path.join(REPO, "benchmark", city)
             if not os.path.exists(os.path.join(bundle, "records.jsonl")):
@@ -197,8 +199,16 @@ def export(cache_dir, out_dir, splits, specs, allow_partial=False, overrides=Non
                     collisions.append((label, city, path))
                     continue
             with open(path, "w", encoding="utf-8") as fh:
+                # `pins` is the leg's identity as the registry states it. Every pin
+                # used to be a signature field, so `signature` recorded them all by
+                # construction; claude_serving_path (#156) is the first that is not
+                # -- it changes who bills, not what was asked, so it is kept out of
+                # the cache key on purpose. Recording the pins here keeps the
+                # published file self-describing anyway, which is what lets a reader
+                # tell a Vertex-served leg from a first-party one. Absent on files
+                # published before this field existed; readers must tolerate that.
                 json.dump({"model": label, "published_as": name,
-                           "city": city, "signature": sig,
+                           "city": city, "signature": sig, "pins": pins,
                            "n_panos": len(dets), "n_uncached": missing,
                            "detections": dets}, fh, **DUMP_KW)
             written.append((label, city, len(dets), missing, os.path.getsize(path)))
@@ -345,6 +355,15 @@ def main(argv=None):
                         "must match the run or the export finds no cache.")
     p.add_argument("--claude-tool-choice", default="auto", choices=["auto", "forced"],
                    help="Claude tool choice of the producing run (signature field).")
+    p.add_argument("--claude-serving-path", default="vertex",
+                   choices=["vertex", "anthropic"],
+                   help="Which account served the producing run. UNLIKE the two flags "
+                        "above this is NOT a signature field -- the serving path does "
+                        "not change the detections, so it plays no part in finding the "
+                        "cache. It is here only so the registry lookup can match a leg "
+                        "pinned on it (#156's Fable legs are), which is what lets the "
+                        "filename come from the roster instead of a --publish-as typed "
+                        "from memory.")
     p.add_argument("--publish-as",
                    help="Filename stem for this leg, when the model id alone does not "
                         "identify it — e.g. claude-sonnet-5 at two effort levels are two "
@@ -372,7 +391,10 @@ def main(argv=None):
     specs = [s.strip() for s in args.models.split(",") if s.strip()]
     overrides = {"tiling": args.tiling, "yolo_imgsz": args.yolo_imgsz,
                  "claude_effort": args.claude_effort,
-                 "claude_tool_choice": args.claude_tool_choice}
+                 "claude_tool_choice": args.claude_tool_choice,
+                 # Not a signature field, so it does not affect the cache lookup --
+                 # it is here purely so leg_for() can match a leg pinned on it.
+                 "claude_serving_path": args.claude_serving_path}
 
     if args.verify:
         compared, problems, vacuous, unpublished = verify(
