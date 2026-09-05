@@ -925,6 +925,14 @@ CLAUDE_AS_RUN_TEMPERATURE = None      # i.e. the provider default, NOT greedy
 CLAUDE_AS_RUN_MAX_TOKENS = 4096
 CLAUDE_IMAGE_FORMATS = {"jpeg": ("JPEG", "image/jpeg"), "png": ("PNG", "image/png")}
 
+# Which account serves the call (#156). NOT one of the as-run constants above,
+# because it is deliberately absent from the signature -- see
+# ClaudeDetector.signature. `vertex` is what all four published legs ran on;
+# `anthropic` is the first-party API, reached when Vertex gates a model the way
+# it gates the Fable family behind the publisher data-sharing setting.
+CLAUDE_SERVING_PATHS = ("vertex", "anthropic")
+CLAUDE_AS_RUN_SERVING_PATH = "vertex"
+
 
 def claude_forbids_forced_tools(model_id):
     """Whether ``model_id`` rejects ``tool_choice`` of ``tool``/``any`` with a 400.
@@ -937,12 +945,28 @@ def claude_forbids_forced_tools(model_id):
 
 
 class ClaudeDetector(_VLMDetector):
-    """Claude via Google Cloud Vertex AI (#122).
+    """Claude, over either of two serving paths (#122, #156).
 
-    Runs on the SAME credential path as the Gemini legs -- Vertex + ADC, same
-    project, same ``global`` location -- so it needs no new secret. Vertex's
-    Claude rates match Anthropic's first-party rates on ``global`` (regional
-    endpoints cost 10% more), verified 2026-08-15; see pricing.py.
+    ``serving_path="vertex"`` (the default, and what all four published legs ran
+    on) uses Google Cloud Vertex AI: the SAME credential path as the Gemini legs
+    -- Vertex + ADC, same project, same ``global`` location -- so it needs no new
+    secret. Vertex's Claude rates match Anthropic's first-party rates on
+    ``global`` (regional endpoints cost 10% more), verified 2026-08-15.
+
+    ``serving_path="anthropic"`` uses Anthropic's first-party API and an
+    ``ANTHROPIC_API_KEY``. It exists because Vertex gates the Fable family behind
+    a project-level publisher data-sharing setting; first-party serves both Fable
+    ids today (probed 2026-09-05, see probe_claude_models.py). Same weights, and
+    the rate card is separate but currently identical for the models we price.
+
+    **The path does not enter the cache key** -- see ``signature`` -- so a leg run
+    on one path and re-scored on the other reuses detections rather than re-paying.
+    That is deliberate, and it makes recording which path ran a job for the
+    usage log (compare.report_usage), not the signature. Two consequences worth
+    knowing before you switch a leg: a number produced here carries its serving
+    path as a caveat that must travel with it into docs/model_comparison.md, and
+    ``scripts/analysis/vertex_usage.py`` can reconcile spend server-side only for
+    the vertex path -- on first-party, ``--usage-log`` is the only record.
     """
 
     name = "claude"
@@ -955,8 +979,13 @@ class ClaudeDetector(_VLMDetector):
                  project=None, location=None, effort="low", tool_choice="auto",
                  views=None, image_format=CLAUDE_AS_RUN_IMAGE_FORMAT,
                  temperature=CLAUDE_AS_RUN_TEMPERATURE,
-                 max_tokens=CLAUDE_AS_RUN_MAX_TOKENS):
+                 max_tokens=CLAUDE_AS_RUN_MAX_TOKENS,
+                 serving_path=CLAUDE_AS_RUN_SERVING_PATH):
         super().__init__(model_id, max_edge, tile=tile, views=views)
+        if serving_path not in CLAUDE_SERVING_PATHS:
+            raise ValueError(f"unknown serving_path {serving_path!r} "
+                             f"(choose from: {', '.join(CLAUDE_SERVING_PATHS)})")
+        self.serving_path = serving_path
         if image_format not in CLAUDE_IMAGE_FORMATS:
             raise ValueError(f"unknown image_format {image_format!r} "
                              f"(choose from: {', '.join(sorted(CLAUDE_IMAGE_FORMATS))})")
@@ -1022,7 +1051,16 @@ class ClaudeDetector(_VLMDetector):
         Image encoding and temperature are inputs too, but they appear ONLY when
         they deviate from what the published legs ran (see
         CLAUDE_AS_RUN_IMAGE_FORMAT). Recording an unchanged default would change
-        the hash without changing the run and orphan the paid annapolis cache."""
+        the hash without changing the run and orphan the paid annapolis cache.
+
+        ``serving_path`` is NOT here, and not under the deviation rule either. It
+        names which account answered, not what was asked -- the same model id on
+        the same views should return the same detections whoever bills for them,
+        so adding it would fragment the cache along an axis that does not change
+        the answer, and would orphan $28.82 of paid annapolis detections the
+        moment any leg moved. It is recorded in the usage log instead, where
+        provenance belongs. If the two paths ever DO diverge in output, that is a
+        finding to measure and write down, not a cache key to add quietly."""
         sig = super().signature()
         sig["effort"] = self.effort
         sig["tool_choice"] = self.tool_choice
@@ -1044,7 +1082,13 @@ class ClaudeDetector(_VLMDetector):
         pricing.py's Claude rates are the ``global`` ones; Vertex bills regional
         endpoints 10% above them. GOOGLE_CLOUD_LOCATION is shared with the Gemini
         legs, so a region set for Gemini's sake silently makes every Claude cost
-        figure ~9% low. Returns None when there is nothing to say."""
+        figure ~9% low. Returns None when there is nothing to say.
+
+        Vertex-only. First-party billing has no endpoint dimension, so a
+        GOOGLE_CLOUD_LOCATION left set for Gemini's sake must not raise a pricing
+        alarm about a path it does not price."""
+        if self.serving_path != "vertex":
+            return None
         if self.location == "global":
             return None
         return (f"[{self.model_id}] WARNING: {self.location!r} is a REGIONAL Vertex "
@@ -1053,30 +1097,56 @@ class ClaudeDetector(_VLMDetector):
                 f"Unset GOOGLE_CLOUD_LOCATION (or set it to 'global') to match the "
                 f"table.")
 
+    # max_retries above the SDK default of 2: a full-city run is ~750 calls and a
+    # transient 429/5xx mid-leg is expensive to redo. Matches the Gemini rig's 5
+    # attempts, and applies to both serving paths -- a rate limit is a rate limit.
+    _MAX_RETRIES = 5
+
     def _ensure_ready(self):
+        if self._client is not None:
+            return
+        warning = self.location_warning()
+        if warning:
+            print(warning)
+        self._client = (self._anthropic_client() if self.serving_path == "anthropic"
+                        else self._vertex_client())
+
+    def _vertex_client(self):
         try:
             from anthropic import AnthropicVertex
         except ImportError as e:
             raise ImportError(
                 "ClaudeDetector needs the `anthropic[vertex]` package "
                 "(pip install -r requirements-vlm.txt)") from e
-        if self._client is not None:
-            return
         if not self.project:
             raise RuntimeError(
                 "Claude on Vertex needs GOOGLE_CLOUD_PROJECT (and ADC via "
                 "`gcloud auth application-default login`) -- the same credentials "
                 "the Gemini legs use. Each Claude model must also be enabled "
                 "separately in Vertex Model Garden; an un-enabled model 404s with "
-                "'was not found or your project does not have access to it'.")
-        # max_retries above the SDK default of 2: a full-city run is ~750 calls and
-        # a transient 429/5xx mid-leg is expensive to redo. Matches the Gemini rig's
-        # 5 attempts.
-        warning = self.location_warning()
-        if warning:
-            print(warning)
-        self._client = AnthropicVertex(project_id=self.project, region=self.location,
-                                       max_retries=5)
+                "'was not found or your project does not have access to it'. If "
+                "the model is gated rather than un-enabled (the Fable family is, "
+                "behind the publisher data-sharing setting), "
+                "--claude-serving-path anthropic is the other way in.")
+        return AnthropicVertex(project_id=self.project, region=self.location,
+                               max_retries=self._MAX_RETRIES)
+
+    def _anthropic_client(self):
+        try:
+            from anthropic import Anthropic
+        except ImportError as e:
+            raise ImportError(
+                "ClaudeDetector needs the `anthropic` package "
+                "(pip install -r requirements-vlm.txt)") from e
+        if not os.environ.get("ANTHROPIC_API_KEY"):
+            raise RuntimeError(
+                "Claude on the first-party API needs ANTHROPIC_API_KEY. It reads "
+                "from the environment or the gitignored repo-root .env, the same "
+                "file GOOGLE_CLOUD_PROJECT lives in. Note the API is PREPAID: a "
+                "valid key with no credit balance authenticates and then fails "
+                "every call with a 400 saying so. Check reachability first with "
+                "`probe_claude_models.py --serving-path anthropic`.")
+        return Anthropic(max_retries=self._MAX_RETRIES)
 
     # Vertex intermittently answers a perfectly good request with 404 "Publisher
     # model ... was not found or your project does not have access to it", most
@@ -1115,12 +1185,19 @@ class ClaudeDetector(_VLMDetector):
 
         b64, media_type = self._encode_image(image)
 
+        # Vertex-only. The transient 404 below is an artifact of entitlement
+        # propagating unevenly across Vertex serving backends; on the first-party
+        # API a 404 means the model id does not exist for this account, which is
+        # permanent. Retrying it there would turn a typo into 30 seconds of
+        # backoff before the same error, which is how a wrong --claude-model
+        # reads as a network problem.
+        attempts = self._NOT_FOUND_RETRIES if self.serving_path == "vertex" else 1
         delay = self._NOT_FOUND_BACKOFF
-        for attempt in range(self._NOT_FOUND_RETRIES):
+        for attempt in range(attempts):
             try:
                 return self._call(b64, media_type)
             except NotFoundError:
-                if attempt == self._NOT_FOUND_RETRIES - 1:
+                if attempt == attempts - 1:
                     raise
                 if not self._not_found_warned:
                     self._not_found_warned = True
@@ -1900,7 +1977,9 @@ def build_detector(provider, model_id, records, args):
                           or CLAUDE_AS_RUN_IMAGE_FORMAT),
             temperature=getattr(args, "claude_temperature", CLAUDE_AS_RUN_TEMPERATURE),
             max_tokens=(getattr(args, "claude_max_tokens", None)
-                        or CLAUDE_AS_RUN_MAX_TOKENS))
+                        or CLAUDE_AS_RUN_MAX_TOKENS),
+            serving_path=(getattr(args, "claude_serving_path", None)
+                          or _D("claude_serving_path")))
     if provider == "qwen":
         mid = model_id or args.qwen_model
         coord_space = getattr(args, "qwen_coord_space", "auto")

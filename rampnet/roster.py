@@ -34,6 +34,15 @@ Five properties of an entry are worth stating because they are easy to get wrong
   ``claude-sonnet-5`` at effort ``low`` and at effort ``high`` are different runs with
   different cache keys and different results. Each is its own entry, and ``pins``
   names the knob it holds, as ``(("claude_effort", "high"),)``.
+
+  **A pin is what the leg needs to REPRODUCE, which is a superset of what enters the
+  signature.** ``claude_serving_path`` (#156) will be the first pin that is not a
+  signature key: a Fable leg must run against ``anthropic`` because Vertex gates that
+  family, but the path does not change the detections and deliberately stays out of the
+  cache key (see ``ClaudeDetector.signature``). Pinning it anyway is what will keep a
+  bare ``claude:claude-fable-5-1`` from resolving to a Vertex run that 403s. Note the
+  consequence for naming: ``published_as`` must spell out every pin's value, so such a
+  leg is ``claude-fable-5-1-effort-low-anthropic``.
 * ``published_as`` is the filename stem under ``benchmark/model_detections/``, and it
   defaults to ``label``. It exists because ``label`` cannot carry a pin: the label is
   baked into cache keys that were already paid for, so renaming it orphans the
@@ -220,6 +229,14 @@ ROSTER = (
         published_as="claude-sonnet-5-effort-high",
         note="1.98 boxes/pano. Loses F1 to effort in the same direction as Opus, "
              "which is what makes that a pattern rather than one model's quirk."),
+    # #156's two Fable legs are NOT registered here yet, deliberately. A row in
+    # this table is a leg that has RUN and published detections -- that is what
+    # test_every_registered_leg_has_published_detections enforces -- so they get
+    # added with the annapolis results, not in advance of them. The machinery they
+    # need (claude_serving_path in PROVIDER_DEFAULTS, priced rows for both ids) is
+    # in place; when they land, `published_as` must name the serving path as well
+    # as the effort, per test_a_pinned_leg_is_published_under_a_name_that_says_so:
+    # `claude-fable-5-1-effort-low-anthropic`, not `...-effort-low`.
 )
 
 #: Specs whose label cannot be derived from the spec, because the ``model_id`` slot
@@ -280,6 +297,13 @@ PROVIDER_DEFAULTS = {
     "claude_image_format": None,
     "claude_temperature": None,
     "claude_max_tokens": None,
+    # Which account serves the calls. `vertex` is what all four published legs ran
+    # on, so it stays the default; the Fable legs pin `anthropic` because Vertex
+    # gates that family. Unlike the three settings above, this one does NOT enter
+    # the detection signature -- see ClaudeDetector.signature -- so changing it
+    # does not orphan the cache. It is still a pin, because reproducing a Fable
+    # leg requires it.
+    "claude_serving_path": "vertex",
     "qwen_model": "Qwen/Qwen3-VL-8B-Instruct",
     "qwen_coord_space": "auto",
     "owlv2_model": "google/owlv2-large-patch14-ensemble",

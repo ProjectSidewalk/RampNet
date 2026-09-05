@@ -1148,6 +1148,75 @@ def test_claude_deviating_from_the_as_run_settings_invalidates_the_cache(kwargs)
            cache_key("claude-sonnet-5", other.signature(), "annapolis", "p1")
 
 
+def test_claude_serving_path_stays_out_of_the_cache_key():
+    """Which account billed the call is not part of what was asked (#156).
+
+    The same model id, prompt and views should return the same detections whoever
+    serves them, so putting the path in the key would fragment the cache along an
+    axis that does not change the answer — and would orphan $28.82 of paid
+    annapolis detections the instant a leg moved. Provenance goes to the usage
+    log instead. This is the pair to test_claude_cache_key_is_frozen: that one
+    pins the four published keys, this one says a path switch cannot move them."""
+    vertex = ClaudeDetector(model_id="claude-sonnet-5", serving_path="vertex")
+    first_party = ClaudeDetector(model_id="claude-sonnet-5", serving_path="anthropic")
+    assert "serving_path" not in vertex.signature()
+    assert vertex.signature() == first_party.signature()
+    assert cache_key("claude-sonnet-5", vertex.signature(), "annapolis", "p1") == \
+           cache_key("claude-sonnet-5", first_party.signature(), "annapolis", "p1")
+
+
+def test_claude_rejects_an_unknown_serving_path():
+    """Refused at construction, like the Fable forced-tool guard: a typo that
+    reaches the client constructor fails with the SDK's error, not ours."""
+    with pytest.raises(ValueError, match="serving_path"):
+        ClaudeDetector(model_id="claude-sonnet-5", serving_path="bedrock")
+
+
+def test_usage_record_carries_the_serving_path(tmp_path):
+    """The one place the path is written down, so it has to actually be written.
+
+    `model_versions` cannot stand in — both paths report the bare model id — and
+    the signature deliberately omits it, so without this field nothing
+    distinguishes a Vertex leg from a first-party one after the fact. It also
+    says which reconciliation exists: vertex_usage.py recovers server-side spend
+    for `vertex` and has no first-party equivalent."""
+    det = ClaudeDetector(model_id="claude-fable-5-1", serving_path="anthropic")
+    det.accumulate_usage(10, 5, 0)
+    log = tmp_path / "usage_log.jsonl"
+    report_usage(det, "claude-fable-5-1", "annapolis", 125, str(log))
+    rec = json.loads(log.read_text(encoding="utf-8").splitlines()[-1])
+    assert rec["serving_path"] == "anthropic"
+    assert "serving_path" not in (rec["signature"] or {})
+
+
+def test_the_regional_pricing_warning_is_vertex_only():
+    """GOOGLE_CLOUD_LOCATION is shared with the Gemini legs, so it can be set to a
+    region for reasons that have nothing to do with Claude. On Vertex that really
+    does make the cost figures ~9% low and is worth shouting about; on the
+    first-party path there is no endpoint dimension, and warning anyway would
+    train the reader to ignore a real alarm."""
+    regional = ClaudeDetector(model_id="claude-sonnet-5", location="us-east5")
+    assert "REGIONAL" in (regional.location_warning() or "")
+    first_party = ClaudeDetector(model_id="claude-fable-5-1", location="us-east5",
+                                 serving_path="anthropic")
+    assert first_party.location_warning() is None
+
+
+@pytest.mark.parametrize("model_id", ["claude-fable-5", "claude-fable-5-1"])
+def test_both_fable_ids_are_priced_from_the_first_party_card(model_id):
+    """#156 runs both ids, so both need a price — and the cache rows had to be
+    READ, not derived. Fable 5 reads cache at the standard 0.1x of input; Fable
+    5.1 reads at $0.25/MTok, which is no multiple of its $10 input rate. Deriving
+    it would have overstated 5.1's cache reads 4x."""
+    from pricing import price_for
+    p = price_for(model_id)
+    assert (p["input_per_m"], p["output_per_m"]) == (10.00, 50.00)
+    assert p["as_of"] == "2026-09-05"
+    assert "first-party" in p["note"]
+    assert price_for("claude-fable-5")["cache_read_per_m"] == 1.00
+    assert price_for("claude-fable-5-1")["cache_read_per_m"] == 0.25
+
+
 def test_claude_tool_choice_is_in_the_cache_key():
     auto = ClaudeDetector(model_id="claude-sonnet-5", tool_choice="auto")
     forced = ClaudeDetector(model_id="claude-sonnet-5", tool_choice="forced")

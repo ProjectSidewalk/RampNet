@@ -391,6 +391,15 @@ def report_usage(detector, label, city, panos_scored, usage_log_path):
         # ~6x more tiled than whole-pano, and without this two such runs log
         # identically. Same reasoning as the detections export (9e87290).
         "signature": detector.signature() if hasattr(detector, "signature") else None,
+        # Which account served this run (#156). Deliberately NOT in `signature`
+        # above -- that is the cache key, and the path does not change the answer
+        # -- so this is the only place it is written down, and the only thing
+        # that can distinguish a Vertex leg from a first-party one afterwards
+        # (`model_versions` cannot; both report the bare model id). It also says
+        # which reconciliation is available: vertex_usage.py can recover
+        # server-side spend for `vertex` and has no equivalent for `anthropic`.
+        # None for providers that have no such notion.
+        "serving_path": getattr(detector, "serving_path", None),
         # How each call terminated. Empty for providers that report nothing.
         "stop_reasons": stop_reasons or None,
         **usage,
@@ -582,6 +591,17 @@ def build_parser():
                          "SUPPRESSES THINKING, which makes --claude-effort inert. "
                          "'auto' (default) lets effort actually do something. Also "
                          "part of the cache key.")
+    ap.add_argument("--claude-serving-path", default=_D["claude_serving_path"],
+                    choices=["vertex", "anthropic"],
+                    help="Which account serves the calls. 'vertex' (default) is "
+                         "ADC + GOOGLE_CLOUD_PROJECT, what all four published "
+                         "Claude legs ran on. 'anthropic' is the first-party API "
+                         "via ANTHROPIC_API_KEY, needed for models Vertex gates "
+                         "(the Fable family). NOT part of the cache key -- the "
+                         "same request should return the same detections whoever "
+                         "bills for it -- but it IS recorded in --usage-log, and "
+                         "a number produced on one path carries that as a caveat "
+                         "when compared with numbers from the other.")
     ap.add_argument("--claude-max-tokens", type=int, default=_D["claude_max_tokens"],
                     help="Ceiling on one call's answer. Thinking bills against it, so "
                          "a call that thinks too long is CUT OFF mid-thought and the "
