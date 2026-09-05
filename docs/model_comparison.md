@@ -59,6 +59,8 @@ and `tests/test_roster.py` fails if the two stop agreeing. Regenerate it with
 | `claude-opus-5-effort-high` | claude | sparse | 2026-08-15 | — published, not in these tables |
 | `claude-sonnet-5-effort-low` | claude | sparse | 2026-08-15 | — published, not in these tables |
 | `claude-sonnet-5-effort-high` | claude | sparse | 2026-08-15 | — published, not in these tables |
+| `claude-fable-5-1-effort-low-anthropic` | claude | sparse | 2026-09-05 | — published, not in these tables |
+| `claude-fable-5-effort-low-anthropic` | claude | sparse | 2026-09-05 | — published, not in these tables |
 
 **"Not in these tables" covers three different situations, and the difference matters.**
 The tables below are the zero-shot comparison; a leg can sit outside them because its
@@ -83,7 +85,7 @@ absent from the roster tables, so no number below moves. Detections are publishe
 verified (`benchmark/model_detections/claude-*-effort-*__annapolis.json`, 4/4 pairs
 identical to the cache) and the write-up is the "Claude on Vertex" section further down,
 where the whole result table is re-derived from those files by
-`tests/test_claude_annapolis_leg.py`. **The other nine splits have not been run** — that is
+`tests/test_claude_published_legs.py`. **The other nine splits have not been run** — that is
 a gap in coverage, not a withheld result, and closing it costs about $57 at `low` effort.
 
 **The three `y*_pano` rows are the supervised YOLO baseline** (#51), the one part of the
@@ -1605,7 +1607,7 @@ reading anything into the numbers — predictions sit tight on the ramps, no off
 **Every number in this table is re-derivable from committed files**, with no
 `.model_cache`, no API key and no GPU: the per-panorama detections are published under
 `benchmark/model_detections/claude-*-effort-*__annapolis.json`, and
-`tests/test_claude_annapolis_leg.py` recomputes the whole table from them on every CI run.
+`tests/test_claude_published_legs.py` recomputes the whole table from them on every CI run.
 A number edited here without re-running anything fails the suite.
 
 **Effort is an operating-point dial, never a quality lever.** Both models move the same
@@ -1670,13 +1672,94 @@ prefix. That puts a 125-pano leg at **≈$3.60** and all ten splits at **≈$61*
 batch). Effort is the dominant lever: thinking bills as output at $10/MTok, and `low`
 spends none of it.
 
+### Claude Fable on annapolis (#156): the first legs served off Vertex
+
+**Serving path caveat, and it travels with every number below.** Vertex gates the whole
+Fable family behind a project-level publisher data-sharing setting
+(`PublisherModelConfig.data_sharing_enabled_provider`), so these two legs did **not** run
+on the Vertex path the four legs above used. They ran on Anthropic's first-party API under
+`--claude-serving-path anthropic`, a different account and a different rate card for the
+same weights. Same rig, same prompt, same tool definition, same `effort=low`, same JPEG
+q90 encoding. The path is deliberately **not** part of the detection cache key — it
+changes who bills, not what was asked, and putting it in the key would have orphaned the
+$28.82 of paid detections above — so it is recorded in `analysis_out/usage_log.jsonl` and
+in each published file's `pins` instead. Whether the two paths return bit-identical
+detections for one model id is **untested**; nothing here depends on it, because no model
+was run on both.
+
+| model | P | R | F1 | tp/fp/fn | boxes/pano | thinking tok | cost |
+| :--- | ---: | ---: | ---: | :--- | ---: | ---: | ---: |
+| `claude-fable-5` | 0.579 | 0.646 | **0.611** | 190/138/104 | 2.72 | 23,699 | $18.47 |
+| `claude-fable-5-1` | 0.637 | 0.585 | **0.610** | 172/98/122 | 2.28 | 254 | $19.86 |
+| *`claude-opus-5` (low), for reference* | *0.572* | *0.605* | *0.588* | *178/133/116* | *2.56* | *523* | *$8.94* |
+
+**Both displace `claude-opus-5` at the top of this split**, which had itself displaced
+`gemini-3.1-pro-preview` (0.567). This is the first time a general-purpose model has beaten
+Opus here. RampNet still leads by **0.228** (0.839 vs 0.611).
+
+**Within the family, the version is an operating-point dial — not a quality lever.** The
+two are separated by **0.001 F1**, which is nothing, while sitting at visibly different
+operating points: 5.1 trades 0.061 recall for 0.058 precision against 5, and emits 0.44
+fewer boxes per pano. That is the same shape as the effort finding above and the same shape
+as the Qwen 8B→32B inversion: the knob moves *where* on the P/R curve the model sits, and
+the ceiling does not move. Which one to prefer is therefore a decision about the
+objective, not about the models — and under this project's recall-first framing, where a
+false negative is permanent and a false positive is cheap, that argues for `claude-fable-5`
+despite it being the older id.
+
+**The always-on-thinking cost premise was wrong, and this is where it was measured.**
+Because the Fable family cannot disable thinking (`{"type": "disabled"}` is a 400 and
+`budget_tokens` was removed), #156 predicted a cost band "wider than a flat 2x" — no
+near-zero-thinking floor to make an `effort=low` leg cheap. It is a flat 2x. Fable is
+$10/$50 per MTok against Opus's $5/$25, and the legs cost 2.2x and 2.1x the Opus leg.
+`claude-fable-5` spent ~33 thinking tokens/call and `claude-fable-5-1` ~0.35, against
+Opus-low's ~0.7 — always-on thinking is *adaptive*, and on a localization task at low
+effort it costs essentially nothing. A 5-pano calibration predicted the full-leg cost to
+within 1.5% on both ids.
+
+**These legs are `standing=False` and cover annapolis only (1 of 8 pooled splits).** Both
+clear the pre-registered 0.567 gate for expanding to the full split set, so that expansion
+is now a live decision rather than a hypothetical — at the measured $0.0272/call it is
+~$155 per id for `manual_gold` alone. It has **not** been taken, and no other split has
+been run.
+
+**Reproducing them** (the detections are committed; nothing below needs an API key):
+
+```bash
+pytest -q tests/test_claude_published_legs.py   # recompute both rows from committed files
+```
+
+Re-exporting from a `.model_cache` that produced them needs the serving path as well as the
+effort — not because it changes the cache lookup (it does not), but because the registry
+uses it to resolve the leg's published filename:
+
+```bash
+for m in claude-fable-5-1 claude-fable-5; do
+  python scripts/analysis/export_model_cache.py --splits annapolis       --models claude:$m --claude-effort low --claude-serving-path anthropic
+  python scripts/analysis/export_model_cache.py --verify --splits annapolis       --models claude:$m --claude-effort low --claude-serving-path anthropic
+done
+```
+
+Re-running them from scratch needs `ANTHROPIC_API_KEY` (the repo-root `.env` is the
+gitignored home for it) and costs ~$38:
+
+```bash
+for m in claude-fable-5-1 claude-fable-5; do
+  python scripts/model_comparison/compare.py benchmark/annapolis       --models claude:$m --claude-serving-path anthropic --claude-effort low
+done
+```
+
+Check reachability first — `python scripts/model_comparison/probe_claude_models.py
+--serving-path anthropic` — because a key with no credit balance authenticates and then
+fails every call with a 400 that says so.
+
 ### Reproducing these four legs, and one gap in the record
 
 The detections are committed, so the table above can be re-derived by anyone with a clone
 and nothing else:
 
 ```bash
-pytest -q tests/test_claude_annapolis_leg.py     # recompute the table from committed files
+pytest -q tests/test_claude_published_legs.py     # recompute the table from committed files
 ```
 
 Re-exporting them from a `.model_cache` that produced them needs the leg's settings, because

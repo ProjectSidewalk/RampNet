@@ -103,6 +103,8 @@ column exists to prevent. They are reported per split instead, at the split they
 |---|---|---|--:|--:|--:|--:|--:|--:|
 | Mask2Former Vistas (curb cut) | supervised transfer | `richmond` | 0.411 | 0.697 | 0.517 | 0.513 | 2.5 | 216/309/94 |
 | Mask2Former Vistas (+curb) | supervised transfer | `richmond` | 0.126 | 0.648 | 0.210 | 0.089 | 11.3 | 201/1399/109 |
+| claude-fable-5-effort-low-anthropic | chat VLM | `annapolis` | 0.579 | 0.646 | 0.611 | – | 1.1 | 190/138/104 |
+| claude-fable-5-1-effort-low-anthropic | chat VLM | `annapolis` | 0.637 | 0.585 | 0.610 | – | 0.8 | 172/98/122 |
 | Claude Opus 5 (high) | chat VLM | `annapolis` | 0.430 | 0.656 | 0.520 | – | 2.0 | 193/256/101 |
 | Claude Opus 5 (low) | chat VLM | `annapolis` | 0.572 | 0.605 | 0.588 | – | 1.1 | 178/133/116 |
 | Claude Opus 5 (low) | chat VLM | `laurens_mapillary` | 0.485 | 0.386 | 0.430 | – | 1.1 | 96/102/153 |
@@ -148,6 +150,8 @@ numbers are directly above them in `model_comparison.md`:
 | Grounding DINO | 0.053 | 0.073 | 0.035 | 0.042 | 0.055 | 0.068 | 0.055 | 0.045 | 0.053 | 0.054 | 0.042 | 0.049 | 0.082 |
 | Mask2Former Vistas (curb cut) | 0.517 | – | – | – | – | – | – | – | – | – | – | – | – |
 | Mask2Former Vistas (+curb) | 0.210 | – | – | – | – | – | – | – | – | – | – | – | – |
+| claude-fable-5-effort-low-anthropic | – | – | – | – | 0.611 | – | – | – | – | – | – | – | – |
+| claude-fable-5-1-effort-low-anthropic | – | – | – | – | 0.610 | – | – | – | – | – | – | – | – |
 | Claude Opus 5 (high) | – | – | – | – | 0.520 | – | – | – | – | – | – | – | – |
 | Claude Opus 5 (low) | – | – | – | – | 0.588 | – | – | 0.430 | – | 0.437 | – | – | – |
 | Claude Sonnet 5 (low) | – | – | – | – | 0.463 | – | – | – | – | – | – | – | – |

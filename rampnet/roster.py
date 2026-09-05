@@ -229,14 +229,31 @@ ROSTER = (
         published_as="claude-sonnet-5-effort-high",
         note="1.98 boxes/pano. Loses F1 to effort in the same direction as Opus, "
              "which is what makes that a pattern rather than one model's quirk."),
-    # #156's two Fable legs are NOT registered here yet, deliberately. A row in
-    # this table is a leg that has RUN and published detections -- that is what
-    # test_every_registered_leg_has_published_detections enforces -- so they get
-    # added with the annapolis results, not in advance of them. The machinery they
-    # need (claude_serving_path in PROVIDER_DEFAULTS, priced rows for both ids) is
-    # in place; when they land, `published_as` must name the serving path as well
-    # as the effort, per test_a_pinned_leg_is_published_under_a_name_that_says_so:
-    # `claude-fable-5-1-effort-low-anthropic`, not `...-effort-low`.
+    # #156. The first legs served OFF Vertex -- that family is gated there behind a
+    # publisher data-sharing setting, so these ran on Anthropic's first-party API.
+    # The serving path is NOT in the detection signature (it does not change the
+    # answer; see ClaudeDetector.signature), but it IS pinned, because reproducing
+    # these legs requires it -- which is why `published_as` spells it out.
+    Challenger(
+        spec="claude:claude-fable-5-1", label="claude-fable-5-1", provider="claude",
+        density="sparse", standing=False, added="2026-09-05",
+        pins=(("claude_effort", "low"), ("claude_serving_path", "anthropic")),
+        published_as="claude-fable-5-1-effort-low-anthropic",
+        note="F1 0.610 on annapolis (P 0.637 / R 0.585), 2.28 boxes/pano. Clears "
+             "the 0.567 gate and displaces claude-opus-5 effort-low (0.588) -- the "
+             "first general-purpose model to do so on this split. Tied with "
+             "claude-fable-5 (0.611) at a MORE PRECISE operating point, which is "
+             "the whole difference between them."),
+    Challenger(
+        spec="claude:claude-fable-5", label="claude-fable-5", provider="claude",
+        density="sparse", standing=False, added="2026-09-05",
+        pins=(("claude_effort", "low"), ("claude_serving_path", "anthropic")),
+        published_as="claude-fable-5-effort-low-anthropic",
+        note="F1 0.611 on annapolis (P 0.579 / R 0.646), 2.72 boxes/pano. "
+             "Indistinguishable from claude-fable-5-1 on F1 while trading 0.058 "
+             "precision for 0.061 recall: within this family the model version is "
+             "an operating-point dial, the same shape as effort in #123. Also "
+             "spends ~33 thinking tokens/call against 5.1's ~0.35, for no F1."),
 )
 
 #: Specs whose label cannot be derived from the spec, because the ``model_id`` slot
