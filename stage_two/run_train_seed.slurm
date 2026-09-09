@@ -20,9 +20,46 @@
 # USAGE. Submit from the repo root; logs/ must ALREADY exist, because Slurm opens
 # --output relative to the SUBMIT directory before this script runs (the mkdir below
 # cannot help with that -- it is there for a RUNDIR that does not exist yet).
-#   mkdir -p logs
-#   SEED=1 sbatch stage_two/run_train_seed.slurm
-#   SEED=2 RUNDIR=/gscratch/scrubbed/$USER/seedvar/rampnet_s2 sbatch stage_two/run_train_seed.slurm
+#
+#   cd /gscratch/scrubbed/$USER/RampNet_seedvar && mkdir -p logs
+#   for s in 1 2 3; do
+#       REPO=$PWD \
+#       RAMPNET_ENV=/gscratch/makelab/jonf/envs/sidewalkcv2 \
+#       SEED=$s sbatch stage_two/run_train_seed.slurm
+#   done
+#
+# SET REPO AND RAMPNET_ENV EXPLICITLY -- THE DEFAULTS ARE BOTH WRONG ON KLONE. This
+# header used to show the bare `SEED=1 sbatch ...` form. That form has now failed three
+# times, on three different one-line causes, each costing days of calendar:
+#
+#   * REPO defaults to $HOME/RampNet, which on klone is a STALE clone. On 2026-09-06 it
+#     was an Aug-17 checkout whose train.py predates --seed, so every rank of jobs
+#     39619547/48/49 died in ~20 s with
+#         train.py: error: unrecognized arguments: --seed 1
+#     printed at the TOP of a 30 KB .err whose remaining bulk is a torch
+#     RendezvousConnectionError traceback -- pure downstream noise from the ranks
+#     tearing down. Read the FIRST lines of the .err, not the tail. REPO also feeds
+#     PYTHONPATH (below), so a wrong REPO hides `rampnet.seeding` as well. `$PWD` is
+#     the right value whenever you submit from the checkout you mean to run.
+#
+#   * RAMPNET_ENV unset falls back to `source activate sidewalkcv2`, which cannot work
+#     here: sbatch inherits the SUBMITTER's PATH, a non-login ssh has no conda on it,
+#     and there is no *named* env on this cluster anyway (prefixes only). That killed
+#     39583887/90/91 on 2026-09-04 in one second, having printed a single line.
+#     NOTE THE LITERAL `jonf` IN THAT PATH. /gscratch/makelab holds both `jonf` and
+#     `jfroehli` directories for the same person, and the env is under `jonf` while
+#     $USER is `jfroehli` -- so $USER silently points at the wrong one here, even
+#     though it is correct for RUNDIR and DATA_ROOT on /gscratch/scrubbed.
+#
+#   * The SEED guard itself had a bash parse error until 2b7471c, which killed
+#     39515025/26/27 on 2026-09-03 at submit time, in about one second, printing
+#     nothing at all.
+#
+# THEN CHECK IT WITH `sacct -D`, ABOUT AN HOUR LATER. All three of those failures
+# returned a job id and looked indistinguishable from a healthy submission in `squeue`;
+# two of them sat unnoticed for a day or more. Plain `sacct` additionally hides requeued
+# incarnations, so `-D` is the flag that tells you what really happened:
+#   sacct -D -u $USER -S $(date -d '1 day ago' +%Y-%m-%d) -o JobID%16,State%14,Elapsed
 #
 # RUNDIR IS ON A VOLUME THAT PURGES. best_model.pth -- the only artifact this campaign
 # produces -- lands in RUNDIR, and /gscratch/scrubbed purges on a ~21-day idle window

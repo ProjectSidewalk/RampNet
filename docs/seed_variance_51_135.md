@@ -264,8 +264,24 @@ SEED=1 NAME=y11x_tiles_s1 YOLO_CKPT=yolo11x.pt \
 
 # Campaign B, per replicate (klone). logs/ must exist BEFORE submit -- Slurm opens
 # --output against the submit directory, so a missing logs/ fails the job at start.
-cd ~/RampNet && mkdir -p logs
-SEED=1 sbatch stage_two/run_train_seed.slurm
+#
+# REPO and RAMPNET_ENV are both REQUIRED in practice, and neither failure names itself.
+# REPO defaults to $HOME/RampNet, which on klone is a stale clone whose train.py has no
+# --seed; RAMPNET_ENV unset falls back to `source activate`, which a non-login sbatch
+# environment cannot resolve. See the launcher header for the three submissions this
+# cost. Note the literal `jonf` in the env path: /gscratch/makelab carries both `jonf`
+# and `jfroehli` directories for the same person and the env is under `jonf`, so $USER
+# is wrong there -- but correct on /gscratch/scrubbed, which is why RUNDIR keeps it.
+cd /gscratch/scrubbed/$USER/RampNet_seedvar && mkdir -p logs
+for s in 1 2 3; do
+  REPO=$PWD \
+  RAMPNET_ENV=/gscratch/makelab/jonf/envs/sidewalkcv2 \
+  SEED=$s sbatch stage_two/run_train_seed.slurm
+done
+
+# A bad submission returns a job id and looks healthy in `squeue`. Verify with sacct -D
+# about an hour later -- plain `sacct` also hides requeued incarnations.
+sacct -D -u $USER -S $(date -d '1 day ago' +%Y-%m-%d) -o JobID%16,State%14,Elapsed
 
 # ... and copy Campaign B's artifact off scrubbed as soon as a replicate completes.
 # RUNDIR is /gscratch/scrubbed/$USER/seedvar/rampnet_s<SEED>, which purges on a ~21-day
