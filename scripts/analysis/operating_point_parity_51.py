@@ -218,14 +218,17 @@ def rampnet_grid(floor=0.05, step=0.05, top=0.95):
     return [round(floor + i * step, 10) for i in range(n + 1)]
 
 
-def rampnet_sweep(split, grid, radius_sq=None):
+def rampnet_sweep(split, grid, radius_sq=None, op_cache=OP_CACHE):
     """``{threshold: metrics}`` for RampNet on one split, or None if uncached.
 
     Re-scores ``analysis_out/op_cache/<split>.json`` at each threshold with the same
     ``score_pano``/``aggregate`` path ``scoreboard.py`` uses, so the numbers are the
     published ones by construction rather than by coincidence.
+
+    ``op_cache`` is the directory holding ``<split>.json``. The default is the published
+    checkpoint's cache; ``seed_variance_read_51_135.py`` points it at a replicate's.
     """
-    path = os.path.join(OP_CACHE, f"{split}.json")
+    path = os.path.join(op_cache, f"{split}.json")
     if not os.path.exists(path):
         return None
     if radius_sq is None:
@@ -249,10 +252,10 @@ def rampnet_sweep(split, grid, radius_sq=None):
     return out
 
 
-def collect_rampnet(grid):
+def collect_rampnet(grid, op_cache=OP_CACHE, splits=ALL_SPLITS_AS_RUN):
     per_split = {}
-    for split in ALL_SPLITS_AS_RUN:
-        sweep = rampnet_sweep(split, grid)
+    for split in splits:
+        sweep = rampnet_sweep(split, grid, op_cache=op_cache)
         if sweep is not None:
             per_split[split] = sweep
     return per_split
