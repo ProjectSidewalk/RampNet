@@ -1,6 +1,6 @@
 # Seed variance: the number both #51 and #135 are now blocked on
 
-**Status: PRE-REGISTERED 2026-09-03, before any replicate finished. The reading rules
+**Status: PRE-REGISTERED 2026-09-03, before any replicate finished; SCORED 2026-09-15 (results below). The reading rules
 below were written first, so the interpretation cannot be chosen after seeing the
 numbers — the same discipline as the #71 checkpoint-selection protocol and Tillicum
 measurement 3.**
@@ -9,6 +9,127 @@ measurement 3.**
 [Amendment 1](#amendment-1-2026-09-04). The original rule divided 0.039 by Campaign A's
 SD alone, and gave Campaign B no reading at all. Both are corrected below; the original
 text is kept verbatim so the amendment is auditable rather than a silent rewrite.
+
+**Scored 2026-09-15. Both campaigns complete (3 + 3 replicates), read once, by the
+committed script, under the rules below as amended. The result is the AMBIGUOUS band —
+see [Results](#results-2026-09-15).**
+
+## Results (2026-09-15)
+
+Every number here is `docs/data/seed_variance_51_135.json`, produced by
+`scripts/analysis/seed_variance_read_51_135.py` from the inputs in
+`docs/data/seed_variance_51_135/` (CPU, no panos), and pinned by
+`tests/test_seed_variance_read_51_135.py`. The inputs came from one makelab2 run
+(`env.txt`: HEAD `7b52c4e`, A40, ultralytics 8.4.120 / torch 2.13 for YOLO, torch 2.6.0
+/ timm 1.0.28 for RampNet; 9 checkpoint sha256s; 5 h 44 min wall-clock, free).
+
+### The pre-registered read
+
+Macro-mean F1 over the seven pooled US splits, each replicate at its own uniform
+threshold selected on `sao_paulo`. Campaign A read at its best `metrics/mAP50-95(B)`
+epoch ≤ 44 (s1 ep44, s2 ep44, s3 ep42 — on s2 the fitness blend would have said ep41,
+by 0.00006; the named column wins). Campaign B is each replicate's `best_model.pth`.
+
+| leg | thr | richmond | bend | clovis | morgantown | annapolis | paterson | gainesville | sao_paulo (dev) | manual_gold† | **US7 macro F1** |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| `y11x_tiles_s1_ep44` | 0.10 | 0.816 | 0.879 | 0.780 | 0.853 | 0.800 | 0.772 | 0.790 | 0.791 | 0.913 | **0.8129** |
+| `y11x_tiles_s2_ep44` | 0.10 | 0.811 | 0.873 | 0.776 | 0.855 | 0.783 | 0.763 | 0.800 | 0.784 | 0.912 | **0.8087** |
+| `y11x_tiles_s3_ep42` | 0.10 | 0.814 | 0.878 | 0.775 | 0.858 | 0.792 | 0.761 | 0.785 | 0.788 | 0.911 | **0.8090** |
+| `rampnet_s1` | 0.45 | 0.865 | 0.855 | 0.743 | 0.803 | 0.853 | 0.818 | 0.793 | 0.773 | 0.904 | **0.8188** |
+| `rampnet_s2` | 0.40 | 0.861 | 0.873 | 0.781 | 0.834 | 0.867 | 0.818 | 0.805 | 0.790 | 0.909 | **0.8340** |
+| `rampnet_s3` | 0.40 | 0.843 | 0.838 | 0.810 | 0.803 | 0.841 | 0.802 | 0.749 | 0.783 | 0.900 | **0.8124** |
+| `y11x_tiles` (the n=1 arm the 0.039 was measured on) | 0.10 | 0.803 | 0.870 | 0.770 | 0.862 | 0.783 | 0.761 | 0.778 | 0.776 | 0.911 | **0.8039** |
+| `RampNet` (published checkpoint, n=1) | 0.30 | 0.864 | 0.871 | 0.836 | 0.845 | 0.853 | 0.818 | 0.812 | 0.800 | 0.902 | **0.8427** |
+
+† not pooled; shown because it is the split the "sharper statement" lives on.
+
+| statistic | value |
+|---|---|
+| mean US7 F1, Campaign A / Campaign B | 0.8102 / 0.8217 |
+| `s_A` (YOLO, n=3) | **0.0023** |
+| `s_B` (RampNet, n=3) | **0.0111** |
+| `s_gap = sqrt(s_A² + s_B²)` | **0.0114** |
+| published gap (n=1 vs n=1) | 0.0388 |
+| published gap / `s_gap` | 3.4 σ |
+| **A1.1 band** | **ambiguous** (`0.010 ≤ s_gap < 0.020`) |
+| **A1.2** | `s_B ≥ 0.0063`: **seed variance dominates the paired MDE** |
+
+**#51.** The band is ambiguous, so per A1.1 this document claims neither "real" nor
+"indistinguishable", and reports the interval: the published 0.039 sits at 3.4 σ of a
+σ that is itself measured from three draws per arm, and 0.039 ± 2 `s_gap` is
+**[0.016, 0.062]**. The pre-registered response to this band is a fourth and fifth
+Campaign A replicate. **The arithmetic says that response will not resolve it**: `s_gap`
+is 96% `s_B`. Two more YOLO seeds at `s_A` = 0.002 move `s_gap` by nothing; what
+narrows it is more *RampNet* replicates, which are free (klone `ckpt-all`, ~4 h each).
+The pre-registration assumed the paid arm was the noisy one. It was the other way
+round. That decision — which arm to extend, or neither — is not made here.
+
+Two descriptive facts that the rule does not use but a reader should have:
+
+- **The gap of replicate means is 0.0115, not 0.039.** The published RampNet checkpoint
+  (0.8427) sits 0.021 above its recipe's replicate mean, 1.9 `s_B`; the published
+  `y11x_tiles` arm (0.8039) sits 0.006 *below* its replicate mean, 2.7 `s_A`. The 0.039
+  was measured on a favourable RampNet draw against an unfavourable YOLO draw. (The
+  released checkpoint is the paper run's epoch 1, comparable to these replicates
+  "modulo seed and dataloader order" per `stage2_epoch_curve_84.md` — but the code
+  that produced it predates git, and this document pre-registered that the released
+  checkpoint is compared, not pooled. So it stays out of `s_B`.) A Welch two-sample
+  read of the replicate means gives t = 1.8 on 3 + 3.
+- **RampNet's seed-selected thresholds are 0.40–0.45, not the published 0.30.** All three
+  replicates' `sao_paulo`-optimal threshold is above the deployment recommendation.
+
+**#135.** `s_B` = 0.0111 is 1.8× the paired epoch-to-epoch MDE of 0.0063. Per A1.2,
+**every unpaired single-seed comparison in this repo is limited by `s_B`, not by the
+MDE** — that includes #84's epoch curve read across runs, the cosine rung's tie, and
+any single-checkpoint number quoted against another. The MDE is demoted to the paired
+(same-run, epoch-vs-epoch) case only. `s_B` is an upper bound on the pure seed effect
+(the limitations note requeue boundaries, but none of these three replicates was
+requeued — each ran one link, `39880702/03/06`), so here it is close to the seed effect
+itself.
+
+### Secondary reads (post-hoc, descriptive only)
+
+Added 2026-09-15 before any number was seen, fenced from the decision above.
+
+**YOLO at as-saved `best.pt` (≤ 60 epochs).** 0.8133 / 0.8127 / 0.8130, mean 0.8130,
+SD **0.0003**. Sixteen more epochs move the tiles arm by +0.003 pooled and shrink its
+spread eight-fold. The n=1 "more training hurt out-of-distribution" finding was on the
+*pano* arm (`yolo_geometry_51.md`); on the tiles arm, with three seeds, it does not
+appear.
+
+**manual_gold, both arms.** At each leg's own `sao_paulo`-selected threshold (the same
+threshold as the primary read), YOLO scores 0.911–0.913 and RampNet 0.900–0.909 —
+the "RampNet loses `manual_gold` at matched operating points" statement from
+`operating_point_parity_51.md` replicates on all nine pairings, now with spread:
+YOLO 0.912 ± 0.001, RampNet 0.905 ± 0.005. Over the full sweep:
+
+| leg | F1 at protocol thr | max F1 | at thr |
+|---|---|---|---|
+| `y11x_tiles_s{1,2,3}_ep≤44` | 0.828 / 0.823 / 0.820 (@0.25) | 0.913 / 0.912 / 0.911 | 0.10 |
+| `y11x_tiles_s{1,2,3}_best` | 0.831 / 0.834 / 0.830 (@0.25) | 0.912 / 0.905 / 0.912 | 0.10 |
+| `rampnet_s{1,2,3}` | 0.900 / 0.907 / 0.894 (@0.30) | 0.905 / 0.909 / 0.901 | 0.40 / 0.40 / 0.50 |
+| `run_a_epoch_1` (seed 42, reference, same 1-epoch recipe) | 0.906 (@0.30) | 0.906 | 0.35 |
+
+RampNet's max-F1 seed SD on `manual_gold` is **0.0042**. `stage2_cosine_rung_135.md`
+set "seed SD ≤ ~0.002 max-F1" as the condition for reopening Run B; it is not met.
+(YOLO's protocol column is at 0.25, far from its 0.10 optimum, which is why it reads
+0.82 there and 0.91 at max — the published-point comparison on this split was never
+matched, which is exactly what the parity protocol fixed.)
+
+### Caveats that travel with these numbers
+
+- Three replicates per arm. `s_A` and `s_B` are each a sample SD on n=3; the band edge
+  at 0.010 is 0.0014 away from `s_gap`, well inside that uncertainty. A1.2's own
+  instruction applies: say so rather than pick the side.
+- The YOLO sweep rows carry 3-decimal F1 (they are parsed from `compare.py` reports,
+  the parity script's path), so each per-split value has ±0.0005 quantisation and the
+  macro mean ±0.0002. RampNet's values are re-scored from the op_cache at full precision.
+- Campaign A's three replicates ran on Tillicum H200s; the n=1 arm ran on klone L40S.
+  Hardware is a stated confound for the *offset* between the seed-0 arm and the
+  replicate mean, not for `s_A`.
+- The pooled statistic is macro F1 over seven US splits at one uniform threshold.
+  Per-split, the replicates disagree with each other by far more than the macro does
+  (`rampnet` on clovis: 0.743 / 0.781 / 0.810), which the macro averages away.
 
 ## Where the inputs live
 
@@ -210,6 +331,16 @@ in place of RampNet. Also not in this PR.
 Until both exist as committed, argument-configured scripts, this campaign is not
 replicable from a clean clone. That is a stated gap, not an oversight.
 
+**Closed 2026-09-15**, before any replicate was scored, by three committed scripts —
+see [Scoring, as run](#scoring-as-run) below:
+`scripts/model_comparison/yolo_baseline/run_seedvar_eval.sh` produces both campaigns'
+inputs on makelab2; `scripts/analysis/operating_point_curve.py extract --checkpoint`
+is the Campaign B half; `scripts/analysis/seed_variance_read_51_135.py` is this
+document's reading rule as code, importing `select_threshold` and `macro_at` from the
+parity script rather than re-implementing them. The parity script itself was not
+re-pointed — its hardcoded legs and control gate still guard the published 0.039 — it
+only gained an `op_cache` argument on the two functions the read imports.
+
 ## Stated limitations
 
 - **n=3 gives a wide interval on the SD itself** — with 2 degrees of freedom the 95% CI
@@ -273,6 +404,43 @@ SEED=1 sbatch stage_two/run_train_seed.slurm
 cp /gscratch/scrubbed/$USER/seedvar/rampnet_s1/best_model.pth \
    /gscratch/makelab/$USER/seedvar/rampnet_s1_best.pth
 ```
+
+### Scoring, as run
+
+Both campaigns are scored by one driver on makelab2 (the host every committed
+`manual_gold` and YOLO-sweep number came from — all nine bundles' panos are staged
+there, and its `.venv-eval` / `.venv` are the ultralytics and Stage 2 environments
+recorded in `docs/data/seed_variance_51_135/env.txt`). The checkpoints are copied in
+under names whose **stem is the leg label** — `compare.py` has no `--yolo-label`, it
+uses the weights file's stem — and hashed at every hop
+(`seedvar_ckpts/SHA256SUMS` on makelab2 equals the klone manifests).
+
+```bash
+# 1. Which epoch each Campaign A replicate is read at. The column is
+#    metrics/mAP50-95(B); on s2 the fitness blend picks ep41 instead, by 0.00006.
+python -c "from scripts.analysis.seed_variance_read_51_135 import pick_epoch as p;   print([p(f'docs/data/seed_variance_51_135/y11x_tiles_s{s}/results.csv')[0] for s in (1,2,3)])"
+# -> [44, 44, 42]
+
+# 2. On makelab2, with seedvar_ckpts/{y11x_tiles_s1_ep44,y11x_tiles_s2_ep44,
+#    y11x_tiles_s3_ep42,y11x_tiles_s{1,2,3}_best}.pt and rampnet_s{1,2,3}_best.pth:
+nohup scripts/model_comparison/yolo_baseline/run_seedvar_eval.sh > seedvar_driver.out 2>&1 &
+#    YOLO: one compare.py call per split, six legs, perspective tiling, imgsz 1024,
+#    cache floor 0.05, full sweep -- the seed-0 arm's flags exactly.
+#    RampNet: operating_point_curve.py extract --checkpoint ... --cache <own dir>,
+#    floor 0.05, min_distance 10, no TTA -- the committed op_cache arm.
+#    Splits: the seven pooled US splits, sao_paulo (dev), manual_gold (secondary).
+
+# 3. Copy yolo/*.txt, rampnet_s*/*.json, env.txt, driver.log into
+#    docs/data/seed_variance_51_135/ and apply the read (CPU, no panos needed):
+python scripts/analysis/seed_variance_read_51_135.py            # writes docs/data/seed_variance_51_135.json
+python scripts/analysis/seed_variance_read_51_135.py --check    # exit 1 if the artifact is stale
+python scripts/analysis/seed_variance_read_51_135.py --markdown # the tables in the Results section
+```
+
+`tests/test_seed_variance_read_51_135.py` pins the epoch picks against the committed
+`results.csv`, the disjoint bands, `s_gap`'s arithmetic, that every primary threshold
+was selected on `sao_paulo` and no pooled split, that the secondary reads cannot enter
+`s_gap`, and that the committed artifact reproduces from the committed inputs.
 
 The seed plumbing itself is unit-tested in `tests/test_seeding.py` — including that the
 default preserves the published pairing (`sampler_seed_for(42) == 0`; same seeds and

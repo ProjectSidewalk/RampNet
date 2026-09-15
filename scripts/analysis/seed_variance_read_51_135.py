@@ -414,16 +414,16 @@ def render_markdown(result):
     L.append(f"| mean F1, Campaign A / B | {_f(st['mean_a'])} / {_f(st['mean_b'])} |")
     L.append(f"| `s_A` | {_f(st['s_A'])} |")
     L.append(f"| `s_B` | {_f(st['s_B'])} |")
-    L.append(f"| `s_gap = sqrt(s_A² + s_B²)` | **{_f(st['s_gap'])}** |")
+    L.append(f"| `s_gap = sqrt(s_A^2 + s_B^2)` | **{_f(st['s_gap'])}** |")
     L.append(f"| published gap (n=1) | {_f(st['gap_published'])} |")
-    L.append(f"| gap of replicate means (B − A) | {_f(st['gap_of_means'])} |")
-    L.append(f"| published gap / `s_gap` | {_f(st['z_gap'], 2)} σ |")
+    L.append(f"| gap of replicate means (B - A) | {_f(st['gap_of_means'])} |")
+    L.append(f"| published gap / `s_gap` | {_f(st['z_gap'], 2)} sigma |")
     L.append(f"| **A1.1 band** | **{st['band_gap']}** |")
     L.append(f"| A1.2: `s_B` vs paired MDE {PAIRED_MDE_135} | {st['band_b']} |")
     L.append("")
     L.append("### Secondary reads (post-hoc, descriptive only)\n")
     sb = result["secondary"]["yolo_best_pt"]
-    L.append("| YOLO at as-saved `best.pt` (≤60) | thr | pooled F1 |")
+    L.append("| YOLO at as-saved `best.pt` (<=60) | thr | pooled F1 |")
     L.append("|---|---|---|")
     for k, r in sb["replicates"].items():
         rd = r["read"]
@@ -433,7 +433,7 @@ def render_markdown(result):
     mg = result["secondary"]["manual_gold"]
     L.append("| manual_gold | leg | F1 at protocol thr | max F1 | at thr |")
     L.append("|---|---|---|---|---|")
-    for group, rows in (("A ≤44", result["campaign_a"]), ("A best.pt", sb["replicates"]),
+    for group, rows in (("A <=44", result["campaign_a"]), ("A best.pt", sb["replicates"]),
                         ("B", result["campaign_b"])):
         for k, r in rows.items():
             m = r["manual_gold"]
