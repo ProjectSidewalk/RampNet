@@ -20,19 +20,66 @@
 # USAGE. Submit from the repo root; logs/ must ALREADY exist, because Slurm opens
 # --output relative to the SUBMIT directory before this script runs (the mkdir below
 # cannot help with that -- it is there for a RUNDIR that does not exist yet).
-#   mkdir -p logs
-#   SEED=1 sbatch stage_two/run_train_seed.slurm
-#   SEED=2 RUNDIR=/gscratch/scrubbed/$USER/seedvar/rampnet_s2 sbatch stage_two/run_train_seed.slurm
 #
-# RUNDIR IS ON A VOLUME THAT PURGES. best_model.pth -- the only artifact this campaign
-# produces -- lands in RUNDIR, and /gscratch/scrubbed purges on a ~21-day idle window
-# (docs/stage2_epoch_curve_84.md). Campaign B's calendar is unbounded (ckpt-all duty
-# cycle 3.9%), so a replicate can finish and then sit unscored past that window while
-# its siblings are still pending. COPY IT OUT as soon as the job completes:
-#   cp "$RUNDIR/best_model.pth" /gscratch/makelab/$USER/seedvar/rampnet_s${SEED}_best.pth
-# /gscratch/makelab is purchased and never purged, which is where #84 put Run A's
-# checkpoints for the same reason. The default is deliberately left on scrubbed so it
-# matches the replicates already queued; changing it is a decision, not a cleanup.
+#   cd /gscratch/scrubbed/$USER/RampNet_seedvar && mkdir -p logs
+#   for s in 1 2 3; do
+#       REPO=$PWD \
+#       RAMPNET_ENV=/gscratch/makelab/jonf/envs/sidewalkcv2 \
+#       SEED=$s sbatch stage_two/run_train_seed.slurm
+#   done
+#
+# RAMPNET_ENV IS REQUIRED; REPO DEFAULTS TO THE SUBMIT DIRECTORY. This header used to
+# show the bare `SEED=1 sbatch ...` form, and both of those variables defaulted to
+# values that cannot work on klone. That form failed three times, on three different
+# one-line causes, each costing days of calendar, before the defaults were changed:
+#
+#   * REPO defaulted to $HOME/RampNet, which on klone is a STALE clone. On 2026-09-06
+#     it was an Aug-17 checkout whose train.py predates --seed, so every rank of jobs
+#     39619547/48/49 died in ~20 s with
+#         train.py: error: unrecognized arguments: --seed 1
+#     printed at the TOP of a 30 KB .err whose remaining bulk is a torch
+#     RendezvousConnectionError traceback -- pure downstream noise from the ranks
+#     tearing down. Read the FIRST lines of the .err, not the tail. REPO also feeds
+#     PYTHONPATH (below), so a wrong REPO hides `rampnet.seeding` as well. REPO now
+#     defaults to SLURM_SUBMIT_DIR, the directory sbatch ran in, and the job refuses
+#     to start unless $REPO/stage_two/train.py takes --seed. `REPO=$PWD` in the loop
+#     above is therefore redundant, and kept because it is what the completed
+#     replicates were submitted with.
+#
+#   * RAMPNET_ENV unset fell back to `source activate sidewalkcv2`, which cannot work
+#     here: sbatch inherits the SUBMITTER's PATH, a non-login ssh has no conda on it,
+#     and there is no *named* env on this cluster anyway (prefixes only). That killed
+#     39583887/90/91 on 2026-09-04 in one second, having printed a single line. The
+#     fallback is gone; an unset RAMPNET_ENV now fails at job start naming itself.
+#     NOTE THE LITERAL `jonf` IN THAT PATH. /gscratch/makelab holds both `jonf` and
+#     `jfroehli` directories for the same person, and the env is under `jonf` while
+#     $USER is `jfroehli` -- so $USER silently points at the wrong one here, even
+#     though it is correct for RUNDIR and DATA_ROOT on /gscratch/scrubbed.
+#
+#   * The SEED guard itself had a bash parse error until 2b7471c, which killed
+#     39515025/26/27 on 2026-09-03 at job start, in about one second, printing
+#     nothing at all.
+#
+# THEN CHECK IT WITH `sacct -D`, ABOUT AN HOUR LATER. All three of those failures
+# returned a job id and looked indistinguishable from a healthy submission in `squeue`;
+# two of them sat unnoticed for a day or more. Plain `sacct` additionally hides requeued
+# incarnations, so `-D` is the flag that tells you what really happened:
+#   sacct -D -u $USER -S $(date -d '1 day ago' +%Y-%m-%d) -o JobID%16,State%14,Elapsed
+#
+# RUNDIR IS ON A VOLUME THAT PURGES. best_model.pth (the artifact that gets scored) and
+# checkpoints/epoch_1_step_9378.pth (the end-of-epoch state) both land in RUNDIR, and
+# /gscratch/scrubbed purges on a ~21-day idle window (docs/stage2_epoch_curve_84.md).
+# Campaign B's calendar is unbounded (ckpt-all duty cycle 3.9%), so a replicate can
+# finish and then sit unscored past that window while its siblings are still pending.
+# COPY THEM OUT, with the job log, as soon as the job completes -- the exact commands
+# are in docs/seed_variance_51_135.md, "Reproducing". Where the completed replicates
+# went (#135, 2026-09-14): /gscratch/makelab/jonf/seedvar/, as rampnet_s<SEED>_best.pth,
+# rampnet_s<SEED>_epoch_1_step_9378.pth, seedvar_<jobid>.out and a SHA256SUMS
+# over all of them. NOTE THE LITERAL `jonf` -- $USER is `jfroehli` and points at the
+# wrong directory under /gscratch/makelab (see above). /gscratch/makelab is purchased
+# and never purged, which is where #84 put Run A's checkpoints for the same reason. The
+# default RUNDIR is deliberately left on scrubbed so it matches the replicates already
+# run; changing it is a decision, not a cleanup.
 #
 # COST. klone ckpt is FREE and preemptable. One replicate is 1 epoch = ~3.5 h on 16
 # GPUs (~56 GPU-h, measured -- docs/stage2_training_cost.md). Preemption is handled by
@@ -58,12 +105,24 @@ set -euo pipefail
 # that silently ran at 42 would be a duplicate of the published run wearing a new name.
 # NO APOSTROPHE in this message. Inside ${VAR:?...} bash parses the word for quoting
 # even within double quotes, so a lone ' opens a quote and the closing } is never found:
-# "unexpected EOF while looking for matching `}'". The script then dies at submit time
+# "unexpected EOF while looking for matching `}'". The script then dies at job start
 # with exit 2 in about one second, having printed nothing -- which is how jobs
 # 39515025/26/27 failed on 2026-09-03 and then sat unnoticed for a day.
 SEED="${SEED:?set SEED to the seed for this replicate, e.g. SEED=1}"
 
-REPO="${REPO:-$HOME/RampNet}"
+# The checkout to run. Defaults to the directory sbatch was run from (Slurm exports it
+# as SLURM_SUBMIT_DIR), which USAGE already requires to be the repo root. It used to
+# default to $HOME/RampNet, a stale clone on klone, which is how 39619547/48/49 died.
+REPO="${REPO:-${SLURM_SUBMIT_DIR:-$PWD}}"
+# The checkout must be the one this launcher was written against. A checkout whose
+# train.py predates --seed fails 20 s in with the error buried under a torch traceback
+# (see USAGE), and a checkout stale in rampnet/seeding.py or the model head would train
+# to completion and be scored as if it were the recipe. Name the problem here instead.
+if ! grep -q -- '--seed' "$REPO/stage_two/train.py" 2>/dev/null; then
+    echo "FATAL: $REPO/stage_two/train.py is missing or has no --seed (stale checkout?)" >&2
+    echo "       Submit from the repo root, or set REPO= to the checkout to run." >&2
+    exit 1
+fi
 DATA_ROOT="${DATA_ROOT:-/gscratch/scrubbed/$USER/rampnet_dataset}"
 # NOT $HOME: klone home is a separate 10 GB quota that gscratch cleanup does not touch,
 # and one replicate's per-epoch checkpoints alone would blow it.
@@ -72,28 +131,18 @@ EPOCHS="${EPOCHS:-1}"        # the published recipe is 1 epoch / 9,378 steps (#8
 
 mkdir -p "$RUNDIR/checkpoints" "$REPO/logs"
 
-# Interpreter. Default behaviour is unchanged -- `source activate sidewalkcv2`, then
-# torchrun off PATH -- but every other klone launcher here carries an escape hatch
-# (PYTHON= in run_yolo_train.slurm and run_gold_bundle.slurm, RAMPNET_ENV in
-# run_train_epoch_curve.slurm) and this one did not. It matters because #84's env was
-# built at a PREFIX, /gscratch/scrubbed/$USER/envs/sidewalkcv2, which `source activate
-# <name>` cannot resolve: under `set -e` the job would then die here having printed one
-# line. Set RAMPNET_ENV to a conda prefix and the env's own torchrun is called by
-# absolute path instead -- the pattern run_train_epoch_curve.slurm documents as the one
-# proven on this cluster.
-RAMPNET_ENV="${RAMPNET_ENV:-}"
-if [ -n "$RAMPNET_ENV" ]; then
-    TORCHRUN="$RAMPNET_ENV/bin/torchrun"
-    if [ ! -x "$TORCHRUN" ]; then
-        echo "FATAL: RAMPNET_ENV=$RAMPNET_ENV has no executable bin/torchrun" >&2
-        exit 1
-    fi
-    echo "Using conda prefix ${RAMPNET_ENV} (no activation)"
-else
-    echo "Loading Conda environment..."
-    source activate sidewalkcv2
-    TORCHRUN=torchrun
+# Interpreter: a conda PREFIX, whose own torchrun is called by absolute path -- the
+# pattern run_train_epoch_curve.slurm documents as the one proven on this cluster. It
+# is REQUIRED, not defaulted: there is no named env to `source activate` on klone, so
+# the old fallback could only ever fail (39583887/90/91; see USAGE for the prefix).
+# NO APOSTROPHE in the message, for the reason given above SEED.
+RAMPNET_ENV="${RAMPNET_ENV:?set RAMPNET_ENV to the conda prefix, e.g. RAMPNET_ENV=/gscratch/makelab/jonf/envs/sidewalkcv2}"
+TORCHRUN="$RAMPNET_ENV/bin/torchrun"
+if [ ! -x "$TORCHRUN" ]; then
+    echo "FATAL: RAMPNET_ENV=$RAMPNET_ENV has no executable bin/torchrun" >&2
+    exit 1
 fi
+echo "Using conda prefix ${RAMPNET_ENV} (no activation)"
 
 export MASTER_ADDR=$(scontrol show hostnames $SLURM_JOB_NODELIST | head -n 1)
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
@@ -108,6 +157,19 @@ WORLD_SIZE=$(($SLURM_NNODES * $NPROC_PER_NODE))
 echo "--- Stage 2 seed replicate (#51 / #135) ---"
 echo "Job ID:      ${SLURM_JOBID}"
 echo "Seed:        ${SEED}"
+# The commit is the one thing a SUCCESSFUL run cannot be traced back to otherwise: a
+# checkout stale somewhere train.py does not complain about trains to completion and
+# gets scored as the recipe. 39880702/03/06 ran before this line existed, so their
+# commit is not recorded (docs/seed_variance_51_135.md, "Reproducing").
+echo "Repo:        ${REPO}"
+# One status for both fields: a `dirty files: 0` beside an unknown commit would read as
+# a clean checkout when nothing was measured.
+if commit=$(git -C "$REPO" rev-parse --short HEAD 2>/dev/null); then
+    dirty=$(git -C "$REPO" status --porcelain | wc -l)
+else
+    commit=unknown; dirty=unknown
+fi
+echo "Repo commit: ${commit}   dirty files: ${dirty}"
 echo "Run dir:     ${RUNDIR}   (cwd -- best_model.pth and latest_checkpoint.pth land here)"
 echo "Data root:   ${DATA_ROOT}"
 echo "Epochs:      ${EPOCHS}"
