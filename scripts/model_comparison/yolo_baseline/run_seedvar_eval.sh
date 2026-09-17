@@ -15,6 +15,11 @@
 #     y11x_tiles_s{1,2,3}_best.pt            SECONDARY as-saved best.pt (<= 60 epochs)
 #   The file STEM is the leg label -- compare.py has no --yolo-label, so the checkpoints
 #   were renamed on copy (their sha256s are in seedvar_ckpts/SHA256SUMS).
+#   _ep<N> IS THE 1-BASED results.csv EPOCH, AND THAT IS NOT THE FILE NAME ON DISK.
+#   Ultralytics writes epoch{self.epoch}.pt with the 0-based counter, so results.csv
+#   row 44 is epoch43.pt. The 2026-09-15 run copied epoch44/44/42.pt as _ep44/44/42 and
+#   scored one epoch late (two legs outside the <=44 window; PR #161). Every _ep<N> leg
+#   is now checked against ckpt["epoch"]+1 by check_epoch_ckpt.py before anything runs.
 #   Flags are the seed-0 arm's exactly: perspective tiling, imgsz 1024, cache floor 0.05,
 #   full sweep. See run_yolo_geometry_eval.sh.
 #
@@ -35,6 +40,9 @@
 # USAGE (makelab2)
 #   nohup scripts/model_comparison/yolo_baseline/run_seedvar_eval.sh > seedvar_driver.out 2>&1 &
 #   ... SPLITS can be overridden positionally, e.g. `run_seedvar_eval.sh richmond bend`.
+#   ARMS="yolo" (or "rampnet") scores one half only -- the 2026-09-17 re-score touched
+#   the YOLO legs and left the RampNet caches as scored. Point OUT at a fresh dir for a
+#   re-score so the earlier outputs stay on disk beside the new ones.
 #   PY_YOLO is the ultralytics env, PY_RN the Stage 2 (torch+timm) env; they differ on
 #   makelab2, which is why there are two.
 #
@@ -49,6 +57,7 @@ CKPTS="${CKPTS:-$REPO/seedvar_ckpts}"
 YOLO_LEGS=(y11x_tiles_s1_ep44 y11x_tiles_s2_ep44 y11x_tiles_s3_ep42
            y11x_tiles_s1_best y11x_tiles_s2_best y11x_tiles_s3_best)
 RN_SEEDS=(1 2 3)
+ARMS="${ARMS:-yolo rampnet}"
 
 cd "$REPO" || exit 2
 mkdir -p "$OUT/yolo"
@@ -65,6 +74,11 @@ done
 for s in "${RN_SEEDS[@]}"; do
   [ -f "$CKPTS/rampnet_s${s}_best.pth" ] || { echo "missing checkpoint: $CKPTS/rampnet_s${s}_best.pth" >&2; exit 2; }
 done
+
+# The label must be the epoch the file holds. Refuses to score otherwise (see header).
+if ! (cd "$CKPTS" && "$PY_YOLO" "$REPO/scripts/model_comparison/yolo_baseline/check_epoch_ckpt.py" "${YOLO_LEGS[@]/%/.pt}"); then
+  echo "epoch label check FAILED -- not scoring" >&2; exit 3
+fi
 
 # Provenance first. A number whose checkpoint hash is not written down cannot be
 # re-derived by someone else; the full dirty list, not a count, says whether the
@@ -83,13 +97,14 @@ done
   echo "checkpoint sha256:"
   (cd "$CKPTS" && sha256sum "${YOLO_LEGS[@]/%/.pt}" rampnet_s{1,2,3}_best.pth)
   echo "splits           : ${SPLITS[*]}"
+  echo "arms             : $ARMS"
 } > "$OUT/env.txt" 2>&1
 cat "$OUT/env.txt"
 
 log() { echo "$*" | tee -a "$OUT/driver.log"; }
 
 # --- YOLO: one call per split, all six legs ----------------------------------------
-for b in "${SPLITS[@]}"; do
+case " $ARMS " in *" yolo "*) for b in "${SPLITS[@]}"; do
   if [ ! -d "benchmark/$b" ]; then
     log "=== $b SKIPPED (no bundle dir)"
     continue
@@ -104,10 +119,10 @@ for b in "${SPLITS[@]}"; do
   rc=$?
   n=$(grep -c "threshold sweep" "$OUT/yolo/${b}_tiles.txt")
   log "=== yolo $b exit=$rc sweeps=$n/${#YOLO_LEGS[@]} elapsed=$(( $(date +%s) - t0 ))s"
-done
+done ;; esac
 
 # --- RampNet: one extract per replicate, own cache dir -----------------------------
-for s in "${RN_SEEDS[@]}"; do
+case " $ARMS " in *" rampnet "*) for s in "${RN_SEEDS[@]}"; do
   log "=== rampnet_s$s start $(date -Is)"
   t0=$(date +%s)
   "$PY_RN" scripts/analysis/operating_point_curve.py extract \
@@ -118,6 +133,6 @@ for s in "${RN_SEEDS[@]}"; do
   rc=$?
   n=$(ls "$OUT/rampnet_s$s"/*.json 2>/dev/null | wc -l)
   log "=== rampnet_s$s exit=$rc splits=$n/${#SPLITS[@]} elapsed=$(( $(date +%s) - t0 ))s"
-done
+done ;; esac
 
 log "ALL_DONE $(date -Is)"
