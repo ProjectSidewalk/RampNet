@@ -6,6 +6,7 @@ pointed at a flat series will cheerfully report that high effort cost less than 
 These pin the changepoint detector and the separability rule against series whose
 right answer is known by construction.
 """
+import json
 import os
 import sys
 
@@ -16,9 +17,11 @@ sys.path.insert(0, os.path.join(REPO, "scripts", "analysis"))
 sys.path.insert(0, os.path.join(REPO, "scripts", "model_comparison"))
 
 ves = pytest.importorskip("vertex_effort_split")
+vu = pytest.importorskip("vertex_usage")
 pricing = pytest.importorskip("pricing")
 
 SERIES_DIR = os.path.join(REPO, "docs", "data", "vertex_minute_series")
+DAILY_SNAPSHOT = os.path.join(SERIES_DIR, "vertex_usage_daily_2026-09-03.json")
 
 
 @pytest.fixture
@@ -287,6 +290,50 @@ def test_every_committed_series_round_trips_through_save_and_load(tmp_path):
         assert "\r" not in written
         assert sum(1 for x in written.splitlines()
                    if x.startswith('    ["')) == len(rows)
+
+
+def test_the_daily_snapshot_backs_the_published_cost_table(tmp_path):
+    """S4: the four Claude rows in docs/model_comparison.md's recovery table -- $21.47,
+    $7.79, $70.41 and the $0.03 re-run -- come from the committed daily snapshot, and
+    until this test nothing opened that file. The rows are pinned, priced through
+    pricing.py to the published figures, and round-tripped through write_json (the
+    --save-rows path, dict rows, not save_series) byte-for-byte except fetched_utc."""
+    with open(DAILY_SNAPSHOT, encoding="utf-8", newline="") as f:
+        original = f.read()
+    doc = json.loads(original)
+    assert doc["alignment_period"] == "86400s"
+    claude = {(r["window_end"], r["model"]): r["tokens"] for r in doc["rows"]
+              if r["model"].startswith("claude-")}
+    want = {                                   # window_end, model -> input, output, $
+        ("2026-08-16", "claude-opus-5"): (3_058_702, 247_222, 21.47),
+        ("2026-08-16", "claude-sonnet-5"): (3_300_368, 118_471, 7.79),
+        ("2026-08-19", "claude-opus-5"): (11_988_993, 418_503, 70.41),
+        ("2026-08-19", "claude-sonnet-5"): (12_594, 480, 0.03),
+    }
+    assert set(claude) == set(want)
+    for key, (tin, tout, dollars) in want.items():
+        tokens = claude[key]
+        assert (tokens["input"], tokens["output"]) == (tin, tout), key
+        # Every token type is carried, including the cache buckets that are zero here:
+        # a snapshot that dropped a billed bucket would be worse than no snapshot.
+        assert {"cache_read_input", "cache_write_1h_input", "cache_write_input"} <= set(tokens)
+        assert pricing.estimate_cost(key[1], tin, tout) == pytest.approx(dollars, abs=0.005)
+    # The 08-15 Opus and Sonnet minute series are these two daily rows, re-read at 60 s.
+    opus_rows, _, _, _ = _replay("claude-opus-5_2026-08-15.json")
+    assert (sum(r[1] for r in opus_rows), sum(r[2] for r in opus_rows)) == (3_058_702, 247_222)
+    sonnet_rows, _, _, _ = _replay("claude-sonnet-5_2026-08-15.json")
+    assert sum(r[1] for r in sonnet_rows) == 3_300_368
+    assert sum(r[2] for r in sonnet_rows) == 118_471 - 1     # the one-token gap, see the doc
+
+    out = tmp_path / "daily.json"
+    vu.write_json(out, doc, "rows")
+    with open(out, encoding="utf-8", newline="") as f:
+        written = f.read()
+    keep = lambda t: [x for x in t.splitlines() if "fetched_utc" not in x]
+    assert keep(written) == keep(original)
+    assert "\r" not in written
+    assert sum(1 for x in written.splitlines() if x.startswith('    {"window_end"')) == \
+        len(doc["rows"])
 
 
 def test_an_unpriced_model_reports_tokens_instead_of_raising():

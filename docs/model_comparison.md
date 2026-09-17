@@ -1782,9 +1782,14 @@ reaches the metric, whose labels are `type`, `request_type`, `shared_request_typ
 of the data, so the lever is time plus two facts this repo already holds:
 
 1. **Input is deterministic** — 12,186 tokens per Opus panorama (6 views × 2,031). Total
-   input therefore pins the pano count exactly: the 08-15 Opus day is **251.00 panos**, two
-   125-pano legs plus the one re-run panorama. The input half of the split needs no
-   inference at all.
+   input therefore pins the pano count exactly: the 08-15 Opus day is **251.00 panos** —
+   250 leg panos plus one panorama's worth of input (12,186 tokens, about $0.06) whose
+   origin is not in the record. The only single-panorama re-run in
+   `analysis_out/usage_log.jsonl` is Sonnet's, on 08-18, so it is not that; the likeliest
+   source is a smoke call or a 404 retry from the #122 enablement window (the "12/12
+   identical calls … 3 of 5 panos 404'd" measurement above, which did not name a model).
+   The geometric split drops it from both legs, which is why the two anchors sum to
+   $21.41 against the day's $21.47. The input half of the split needs no inference at all.
 2. **Effort bills as output, not input.** A high-effort leg has a higher output/input ratio
    *and* a lower throughput, so when the fast leg finishes, both change at once.
 
@@ -1864,8 +1869,10 @@ inside the retention window could carry one more row than these do. The daily-ro
 snapshot, written by `vertex_usage.py --save-rows`, carries every token type including
 the three cache buckets that are zero here: a snapshot that quietly dropped a billed
 bucket would be worse than no snapshot. Only `fetched_utc` moves between regenerations;
-the rows are byte-stable, and `tests/test_vertex_effort_split.py` asserts that along
-with the published numbers.
+the rows are byte-stable, and `tests/test_vertex_effort_split.py` asserts that for all
+four files — `test_the_daily_snapshot_backs_the_published_cost_table` opens the daily
+file, pins the four Claude rows, prices them to the $21.47 / $7.79 / $70.41 / $0.03 in
+the table above and round-trips it through `write_json`.
 
 Two guards now stand where that went wrong, and the order matters. `compare.py` **refuses to
 start** a paid leg under `--usage-log none` (override: `--allow-unrecorded-spend`), which is
