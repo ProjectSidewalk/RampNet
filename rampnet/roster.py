@@ -36,10 +36,10 @@ Five properties of an entry are worth stating because they are easy to get wrong
   names the knob it holds, as ``(("claude_effort", "high"),)``.
 
   **A pin is what the leg needs to REPRODUCE, which is a superset of what enters the
-  signature.** ``claude_serving_path`` (#156) will be the first pin that is not a
+  signature.** ``claude_serving_path`` (#156) is the first pin that is not a
   signature key: a Fable leg must run against ``anthropic`` because Vertex gates that
   family, but the path does not change the detections and deliberately stays out of the
-  cache key (see ``ClaudeDetector.signature``). Pinning it anyway is what will keep a
+  cache key (see ``ClaudeDetector.signature``). Pinning it anyway is what keeps a
   bare ``claude:claude-fable-5-1`` from resolving to a Vertex run that 403s. Note the
   consequence for naming: ``published_as`` must spell out every pin's value, so such a
   leg is ``claude-fable-5-1-effort-low-anthropic``.

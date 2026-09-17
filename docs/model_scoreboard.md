@@ -93,9 +93,11 @@ and F1 cannot tell you.
 
 ## Legs that have not run every pooled split
 
-Six legs have run one split each, so they have no pooled mean to put in the table above —
-a one-city average printed beside a seven-city one is exactly the comparison the coverage
-column exists to prevent. They are reported per split instead, at the split they ran on:
+Eight legs have not run the pooled splits — six of them one split each, and Opus 5 at low
+effort three (annapolis plus both Laurens arms) — so they have no pooled mean to put in the
+table above: a one-city average printed beside a seven-city one is exactly the comparison
+the coverage column exists to prevent. They are reported per split instead, at the splits
+they ran on:
 
 <!-- BEGIN GENERATED: partial (scripts/analysis/scoreboard.py) -->
 
@@ -103,8 +105,8 @@ column exists to prevent. They are reported per split instead, at the split they
 |---|---|---|--:|--:|--:|--:|--:|--:|
 | Mask2Former Vistas (curb cut) | supervised transfer | `richmond` | 0.411 | 0.697 | 0.517 | 0.513 | 2.5 | 216/309/94 |
 | Mask2Former Vistas (+curb) | supervised transfer | `richmond` | 0.126 | 0.648 | 0.210 | 0.089 | 11.3 | 201/1399/109 |
-| claude-fable-5-effort-low-anthropic | chat VLM | `annapolis` | 0.579 | 0.646 | 0.611 | – | 1.1 | 190/138/104 |
-| claude-fable-5-1-effort-low-anthropic | chat VLM | `annapolis` | 0.637 | 0.585 | 0.610 | – | 0.8 | 172/98/122 |
+| Claude Fable 5 (low, anthropic) | chat VLM | `annapolis` | 0.579 | 0.646 | 0.611 | – | 1.1 | 190/138/104 |
+| Claude Fable 5.1 (low, anthropic) | chat VLM | `annapolis` | 0.637 | 0.585 | 0.610 | – | 0.8 | 172/98/122 |
 | Claude Opus 5 (high) | chat VLM | `annapolis` | 0.430 | 0.656 | 0.520 | – | 2.0 | 193/256/101 |
 | Claude Opus 5 (low) | chat VLM | `annapolis` | 0.572 | 0.605 | 0.588 | – | 1.1 | 178/133/116 |
 | Claude Opus 5 (low) | chat VLM | `laurens_mapillary` | 0.485 | 0.386 | 0.430 | – | 1.1 | 96/102/153 |
@@ -117,10 +119,16 @@ column exists to prevent. They are reported per split instead, at the split they
 Two things worth carrying out of that table, both from splits where the roster's own
 numbers are directly above them in `model_comparison.md`:
 
-- **Claude Opus 5 at low effort is the strongest challenger measured on annapolis** (F1
-  0.588, against gemini-3.1-pro's 0.567) — and **more thinking makes it worse** (0.520 at
-  high effort). The same direction holds for Sonnet 5 (0.463 → 0.456). Effort moves the
-  operating point; it does not raise the ceiling (#122).
+- **Claude Fable 5 at low effort is the strongest challenger measured on annapolis** (F1
+  0.611), with Fable 5.1 at 0.610 — both displace Claude Opus 5 at low effort (0.588),
+  which had itself displaced gemini-3.1-pro (0.567). The two Fable legs ran on Anthropic's
+  first-party API rather than the Vertex path every other Claude leg used, because Vertex
+  gates that family; the path is pinned in each published file and the caveat travels
+  with the numbers in `model_comparison.md` (#156). Within the Claude legs, **more
+  thinking makes it worse** (Opus 0.588 → 0.520 at high effort; Sonnet 5 0.463 → 0.456),
+  and the Fable version is the same kind of dial: 5 and 5.1 sit 0.001 F1 apart at visibly
+  different P/R points. Effort and version move the operating point; neither raises the
+  ceiling (#122, #156).
 - **Supervised transfer fixes most of the precision problem and still loses.** Mask2Former
   reading Vistas' `Curb Cut` class scores 0.517 on richmond with **12.4× OWLv2's
   precision** and no training at all — but RampNet's 0.855 on that split is 0.337 clear of
@@ -150,8 +158,8 @@ numbers are directly above them in `model_comparison.md`:
 | Grounding DINO | 0.053 | 0.073 | 0.035 | 0.042 | 0.055 | 0.068 | 0.055 | 0.045 | 0.053 | 0.054 | 0.042 | 0.049 | 0.082 |
 | Mask2Former Vistas (curb cut) | 0.517 | – | – | – | – | – | – | – | – | – | – | – | – |
 | Mask2Former Vistas (+curb) | 0.210 | – | – | – | – | – | – | – | – | – | – | – | – |
-| claude-fable-5-effort-low-anthropic | – | – | – | – | 0.611 | – | – | – | – | – | – | – | – |
-| claude-fable-5-1-effort-low-anthropic | – | – | – | – | 0.610 | – | – | – | – | – | – | – | – |
+| Claude Fable 5 (low, anthropic) | – | – | – | – | 0.611 | – | – | – | – | – | – | – | – |
+| Claude Fable 5.1 (low, anthropic) | – | – | – | – | 0.610 | – | – | – | – | – | – | – | – |
 | Claude Opus 5 (high) | – | – | – | – | 0.520 | – | – | – | – | – | – | – | – |
 | Claude Opus 5 (low) | – | – | – | – | 0.588 | – | – | 0.430 | – | 0.437 | – | – | – |
 | Claude Sonnet 5 (low) | – | – | – | – | 0.463 | – | – | – | – | – | – | – | – |
@@ -386,9 +394,10 @@ Omissions are content, so they are named rather than left as blanks:
   because it is untested.
 - **`manual_gold` has no null-recall pass** (O(n²) in panos), so the open detectors' recall
   discount is unmeasured on that split.
-- **Six legs have one split each**, so they are in the partial table rather than the
-  headline: the two Vistas arms (richmond) and the four Claude legs (annapolis). Extending
-  either to the full pool is a run, not a code change.
+- **Eight legs have not run the pooled splits**, so they are in the partial table rather
+  than the headline: the two Vistas arms (richmond) and the six Claude legs (annapolis;
+  Opus 5 at low effort also has both Laurens arms). Extending any of them to the full pool
+  is a run, not a code change.
 - **Nothing else in the registry is missing.** The board is driven by `rampnet/roster.py`,
   and `unregistered_exports` is empty — every published detections file is claimed by a
   roster entry and scored here.
