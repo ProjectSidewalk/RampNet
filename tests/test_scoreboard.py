@@ -147,17 +147,20 @@ def test_ap_is_read_full_range_not_truncated_at_the_operating_point(board):
 def test_rampnet_city_ap_comes_from_the_low_floor_cache(board):
     """The city bundles stop at 0.55, so an AP computed from them is a truncated curve.
 
-    Read that way richmond is 0.763 and the pooled figure is 0.720 — which puts RampNet
+    Read that way richmond is 0.763 and the pooled figure is 0.677 — which puts RampNet
     BELOW the YOLO arms on AP, an artifact of the floor rather than a result. The #54
     re-extraction carries the same run down to 0.05, which is where every other scored
     model is exported.
+
+    The pooled figure was 0.720 over seven splits; laurens_mapillary is the eighth, and
+    it is the split RampNet does worst on, so the truncated pooled AP falls further.
     """
     cell = _cell(board, "rampnet", "richmond")
     assert cell["ap_source"] == "op_cache (0.05 floor)"
     assert cell["ap"] == pytest.approx(0.876, abs=0.002)
     assert cell["ap_bundle"] == pytest.approx(0.763, abs=0.0006)
     # ...and the pooled truncated figure is the one that inverts the ordering.
-    assert _summary(board, "rampnet")["ap_bundle"] == pytest.approx(0.720, abs=0.0006)
+    assert _summary(board, "rampnet")["ap_bundle"] == pytest.approx(0.677, abs=0.0006)
 
 
 def test_the_substitution_is_scoped_to_actual_truncation(board):
@@ -181,15 +184,20 @@ def test_ap_ordering_is_not_an_artifact_of_the_floor(board):
 def test_threshold_marks_reproduce_the_published_operating_point_table(board):
     """The PR figure's marked points must agree with docs/operating_point.md.
 
-    That document's pooled row is P 0.964 / R 0.722 / F1 0.826 at the deployed 0.55 and
-    0.900 raw precision at 0.30. Computed here from the same committed cache by a
+    That document's pooled row is P 0.9594 / R 0.6864 / F1 0.8003 at the deployed 0.55
+    and 0.8991 raw precision at 0.30. Computed here from the same committed cache by a
     different code path, so a drift in either is a real disagreement.
+
+    These were 0.964 / 0.722 / 0.826 and 0.900 over seven splits. Registering
+    laurens_mapillary as the eighth moved them: precision is untouched (0.964 -> 0.959),
+    the recall drop is laurens' own 0.390 entering the pool. Both documents are on the
+    eight-split basis; if one is ever re-pooled without the other, this fails.
     """
     marks = board["curves"]["rampnet"]["marks"]
-    assert marks["0.55"]["precision"] == pytest.approx(0.964, abs=0.0006)
-    assert marks["0.55"]["recall"] == pytest.approx(0.722, abs=0.0006)
-    assert marks["0.55"]["f1"] == pytest.approx(0.826, abs=0.0006)
-    assert marks["0.30"]["precision"] == pytest.approx(0.900, abs=0.0006)
+    assert marks["0.55"]["precision"] == pytest.approx(0.9594, abs=0.0006)
+    assert marks["0.55"]["recall"] == pytest.approx(0.6864, abs=0.0006)
+    assert marks["0.55"]["f1"] == pytest.approx(0.8003, abs=0.0006)
+    assert marks["0.30"]["precision"] == pytest.approx(0.8991, abs=0.0006)
 
 
 def test_only_score_carrying_models_get_a_curve(board):
@@ -221,6 +229,9 @@ _LOG_ROW_NAMES = {
     "grounding-dino-base": "IDEA-Research/grounding-dino-base",
     "mask2former-vistas-curb-cut": "mask2former-vistas-curb-cut",
     "mask2former-vistas-curb-cut+curb": "mask2former-vistas-curb-cut+curb",
+    # Effort-pinned legs carry the effort in the row label, because one model id is
+    # two legs and the bare id would name whichever ran last (see roster.published_as).
+    "claude-opus-5 (effort low)": "claude-opus-5-effort-low",
 }
 # (model, split) pairs the log prints and this page deliberately does not carry, each with
 # the reason. Anything else missing is a failure, not an exemption.
@@ -352,6 +363,32 @@ def test_the_ap_provenance_table_shows_the_logs_number(board):
 # --------------------------------------------------------------------------- #
 # coverage — a run that happened must appear; one that didn't must not be invented
 # --------------------------------------------------------------------------- #
+def test_the_provenance_table_does_not_claim_an_untruncated_bundle_it_has_not_got(board):
+    """Three AP provenances, not two — and the third one used to be mislabelled.
+
+    The table had a binary: substituted means "op_cache, was truncated", anything else
+    means "bundle, already at 0.05, flip-TTA export". That held while manual_gold was
+    the only unsubstituted row. `laurens_gsv` is the third case — a held-out split that
+    never went through the #54 re-extraction, so there is no cache to swap in and its
+    bundle is truncated at the deployed 0.55 like every other city's. The old table
+    printed "already at 0.05" against it, which is a false provenance claim on the one
+    page whose job is provenance, and no test would have caught it.
+    """
+    table = sr.ap_provenance_table(board)
+
+    gold = next(l for l in table.splitlines() if l.startswith("| `manual_gold` |"))
+    assert "already at 0.05" in gold
+    assert _cell(board, "rampnet", "manual_gold")["bundle_floor"] < 0.4
+
+    gsv = next(l for l in table.splitlines() if l.startswith("| `laurens_gsv` |"))
+    assert "already at 0.05" not in gsv,         "laurens_gsv has no op_cache and a 0.55 bundle; it is truncated, not low-floor"
+    assert "truncated" in gsv and "no `op_cache`" in gsv
+    cell = _cell(board, "rampnet", "laurens_gsv")
+    assert cell["ap_source"] == "bundle"
+    assert cell["bundle_floor"] >= 0.4,         "a city bundle is exported at the deployed 0.55, so its floor cannot be low"
+    assert cell["ap"] == cell["ap_bundle"]
+
+
 def test_scores_every_registered_leg(board):
     """The roster is the source of truth for who has been run, so every entry is scored.
 
@@ -394,27 +431,37 @@ def test_partial_coverage_is_reported_not_averaged_away(board):
     """
     for model in ("gemini-3.1-pro-preview", "gemini-3.6-flash"):
         summary = _summary(board, model)
-        assert summary["coverage"] == "7/7"
+        assert summary["coverage"] == "8/8"
         assert summary["complete"] is True
         assert summary["manual_gold_f1"] is None
         assert "manual_gold" not in board["per_split"][model]
 
 
 def test_single_split_legs_stay_out_of_the_pooled_tables(board):
-    """Vistas ran richmond only; the Claude legs ran annapolis only.
+    """Vistas ran richmond only; the Claude legs cover one or two cities, not eight.
 
-    A one-city macro-mean in the pooled column would be read as a seven-city one. It is
-    computed (the number is real, for that one city) but must not reach the headline
-    table or the pooled column of the matrix.
+    A one- or two-city macro-mean in the pooled column would be read as an eight-city
+    one. It is computed (the number is real, for those cities) but must not reach the
+    headline table or the pooled column of the matrix.
+
+    Coverage is pinned per leg rather than as one number, because it is no longer
+    uniform: `claude-opus-5` at effort low was run on both Laurens arms for #151, so it
+    now covers 2 of the 8 pooled splits (annapolis + laurens_mapillary -- laurens_gsv is
+    held out of the pool as the second arm of a city already in it). Partial coverage
+    still means excluded; the point of this test is the exclusion, not the number.
     """
-    single = [m for m in board["models"] if not m["complete"]]
-    assert {m["model"] for m in single} == {
-        "mask2former-vistas-curb-cut", "mask2former-vistas-curb-cut+curb",
-        "claude-opus-5-effort-low", "claude-opus-5-effort-high",
-        "claude-sonnet-5-effort-low", "claude-sonnet-5-effort-high",
+    want_coverage = {
+        "mask2former-vistas-curb-cut": "1/8",
+        "mask2former-vistas-curb-cut+curb": "1/8",
+        "claude-opus-5-effort-low": "2/8",
+        "claude-opus-5-effort-high": "1/8",
+        "claude-sonnet-5-effort-low": "1/8",
+        "claude-sonnet-5-effort-high": "1/8",
     }
+    single = [m for m in board["models"] if not m["complete"]]
+    assert {m["model"] for m in single} == set(want_coverage)
     for m in single:
-        assert m["coverage"] == "1/7"
+        assert m["coverage"] == want_coverage[m["model"]], m["model"]
 
     headline = sr.headline_table(board)
     matrix = sr.by_split_table(board)
@@ -563,7 +610,7 @@ def test_the_json_does_not_carry_the_curve_point_arrays(board):
         assert "recalls" not in curve and "precisions" not in curve, \
             f"{name}: point arrays leaked back into the committed JSON"
         assert curve["ap"] is not None and curve["n_points"] > 0
-    assert payload["curves"]["rampnet"]["marks"]["0.55"]["f1"] == pytest.approx(0.826,
+    assert payload["curves"]["rampnet"]["marks"]["0.55"]["f1"] == pytest.approx(0.8003,
                                                                                abs=0.0006)
     # In-memory, the figures still get the full curves.
     assert len(board["curves"]["rampnet"]["recalls"]) == \

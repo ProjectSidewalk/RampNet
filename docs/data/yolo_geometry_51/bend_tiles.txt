@@ -1,0 +1,43 @@
+Bundle: benchmark/bend  (110 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: /homes/gws/jonf/RampNet/.model_cache
+
+Operating point: predictions with confidence < 0.25 dropped (models without confidences are unaffected).
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+y11x_tiles                            0.975   (0.944-0.989)  0.609   (0.555-0.660)  0.750  0.844        199/5/128/2
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+[y11x_tiles] threshold sweep (re-scored from cached detections)
+    thr      P      R     F1         tp/fp/fn
+   0.05  0.870  0.859  0.865        281/42/46
+   0.10  0.918  0.826  0.870        270/24/57 <- best F1
+   0.15  0.958  0.758  0.846        248/11/79
+   0.20  0.961  0.679  0.796        222/9/105
+   0.25  0.975  0.609  0.750        199/5/128
+   0.30  0.994  0.505  0.669        165/1/162
+   0.40  1.000  0.355  0.524        116/0/211
+   0.50  1.000  0.232  0.377         76/0/251
+   0.60  1.000  0.107  0.193         35/0/292
+   0.70  1.000  0.018  0.036          6/0/321
+
+PR curves written to /homes/gws/jonf/RampNet/yolo_eval_results_geometry_51/pr_bend_tiles (JSON + pr_curves.png)
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   110 (of 110 seen)
+Detections judged:    260  (correct 248, incorrect 12)
+Detections duplicate: 1  (redundant hits on an already-counted ramp; folded into the numbers above per this run's duplicate scoring)
+Detections unsure:    5  (abstained — not in precision or recall)
+Missed ramps marked:  79  (+72 unsure, abstained)
+Precision: 0.954  (95% CI 0.921-0.973)
+Recall:    0.758  (95% CI 0.709-0.802)  [vs ramps visible in the 110 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    260      0.954    0.758
+     0.60    252      0.952    0.734
+     0.65    244      0.959    0.716
+     0.70    221      0.973    0.657
+     0.75    195      0.974    0.581
+     0.80    171      0.988    0.517
+     0.85    138      0.986    0.416
+     0.90     81      0.975    0.242
+     0.95     31      0.968    0.092

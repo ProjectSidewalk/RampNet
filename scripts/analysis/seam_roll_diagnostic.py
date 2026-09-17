@@ -100,6 +100,11 @@ def dedup_seam_only(gt_points):
 
     Seam-crossing pairs only: genuinely adjacent ramps away from the seam are common in
     this data (#130) and merging them would strip hard cases out of the comparison.
+
+    Which member survives is first-in-list-order, so it is deterministic against the
+    committed op_cache but can differ against a regenerated cache whose rows come back
+    in another order — the kept member's coordinates (and so its seam distance) would
+    shift by the pair separation, up to ~25 px.
     """
     keep = []
     for g in gt_points:
@@ -146,19 +151,28 @@ def peaks(h, threshold):
     return [(float(c / W), float(r / H), float(h[r][c])) for r, c in pk]
 
 
+def roll_half(img):
+    """The panorama rolled by half its width — the seam moved to where the centre was.
+
+    Applied to the image at native resolution, before preprocessing. This is the one
+    definition of the roll; ``seam_response.py`` measures through the same function so
+    the two seam experiments cannot drift apart.
+    """
+    w, h_px = img.size
+    half = w // 2
+    rolled = Image.new(img.mode, img.size)
+    rolled.paste(img.crop((half, 0, w, h_px)), (0, 0))
+    rolled.paste(img.crop((0, 0, half, h_px)), (w - half, 0))
+    return rolled
+
+
 def rolled_pass(model, device, img, threshold):
     """Detections from a pano rolled by half its width, mapped back to original coords.
 
-    The roll is applied to the image at native resolution, before preprocessing, so the
-    model sees a panorama whose seam sits where the centre used to be. Peaks come back in
-    rolled coordinates and are shifted by -0.5 (mod 1) to land in the original frame.
+    Peaks come back in rolled coordinates and are shifted by -0.5 (mod 1) to land in
+    the original frame.
     """
-    w, h_px = img.size
-    rolled = Image.new(img.mode, img.size)
-    half = w // 2
-    rolled.paste(img.crop((half, 0, w, h_px)), (0, 0))
-    rolled.paste(img.crop((0, 0, half, h_px)), (w - half, 0))
-    dets = peaks(heatmap(model, device, rolled), threshold)
+    dets = peaks(heatmap(model, device, roll_half(img)), threshold)
     return [(((x - 0.5) % 1.0), y, s) for x, y, s in dets]
 
 

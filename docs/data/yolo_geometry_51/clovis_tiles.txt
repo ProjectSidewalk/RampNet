@@ -1,0 +1,42 @@
+Bundle: benchmark/clovis  (125 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: /homes/gws/jonf/RampNet/.model_cache
+
+Operating point: predictions with confidence < 0.25 dropped (models without confidences are unaffected).
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+y11x_tiles                            0.885   (0.820-0.929)  0.595   (0.525-0.661)  0.712  0.769        116/15/79/4
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+[y11x_tiles] threshold sweep (re-scored from cached detections)
+    thr      P      R     F1         tp/fp/fn
+   0.05  0.673  0.856  0.754        167/81/28
+   0.10  0.743  0.800  0.770        156/54/39
+   0.15  0.802  0.749  0.775        146/36/49 <- best F1
+   0.20  0.826  0.682  0.747        133/28/62
+   0.25  0.885  0.595  0.712        116/15/79
+   0.30  0.895  0.482  0.627        94/11/101
+   0.40  0.940  0.323  0.481         63/4/132
+   0.50  0.919  0.174  0.293         34/3/161
+   0.60  1.000  0.056  0.107         11/0/184
+   0.70  1.000  0.015  0.030          3/0/192
+
+PR curves written to /homes/gws/jonf/RampNet/yolo_eval_results_geometry_51/pr_clovis_tiles (JSON + pr_curves.png)
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   125 (of 125 seen)
+Detections judged:    152  (correct 139, incorrect 13)
+Detections unsure:    12  (abstained — not in precision or recall)
+Missed ramps marked:  56  (+21 unsure, abstained)
+Precision: 0.914  (95% CI 0.859-0.949)
+Recall:    0.713  (95% CI 0.646-0.772)  [vs ramps visible in the 125 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    152      0.914    0.713
+     0.60    140      0.936    0.672
+     0.65    126      0.937    0.605
+     0.70    115      0.948    0.559
+     0.75     96      0.938    0.462
+     0.80     75      0.973    0.374
+     0.85     47      0.979    0.236
+     0.90     25      0.960    0.123
+     0.95      6      1.000    0.031

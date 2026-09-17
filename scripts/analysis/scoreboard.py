@@ -347,6 +347,14 @@ def score(leg, split, records, gts, radius_sq, op):
         # just the substituted ones, so the two documents can be diffed mechanically
         # (test_every_number_matches_model_comparison) instead of by eye.
         "ap_bundle": rep.ap,
+        # The lowest confidence the bundle actually carries. Three states have to be
+        # told apart downstream and "was it substituted?" only distinguishes two:
+        # substituted (truncated, cache swapped in), not substituted because the
+        # bundle is already at 0.05 (manual_gold), and not substituted because no
+        # low-floor cache exists for that split at all (laurens_gsv). The last one is
+        # still a truncated AP, and reporting it as "already at 0.05" is a false
+        # provenance claim -- which is what the generated table did until this existed.
+        "bundle_floor": bundle_floor(preds),
         "tp": rep.tp, "fp": rep.fp, "fn": rep.fn,
         "n_panos": rep.n_panos, "n_gt_recall": rep.n_gt_recall,
         "fp_per_pano": rep.fp / rep.n_panos if rep.n_panos else None,

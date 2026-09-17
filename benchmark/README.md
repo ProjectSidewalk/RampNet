@@ -78,8 +78,11 @@ Per-step, for adding a city to this benchmark:
 (the whole benchmark up to the Hub as Parquet). Adding a city means adding it to that script's
 `BENCHMARK_SPLITS` allowlist, or the package silently omits it.
 
-All nine splits are published, four configs each — `records`, `native`, `4096x2048`, `galleries`
-(#21, verified against the live repo 2026-08-17). `scripts/build_benchmark_dataset.py` is the
+Nine of the eleven splits are published, four configs each — `records`, `native`, `4096x2048`,
+`galleries` (#21, verified against the live repo 2026-08-17). **The two Laurens arms are in
+`BENCHMARK_SPLITS` but have not been pushed to the Hub yet** — they were built after that
+verification, so the exporter would include them on the next run and the live repo does not
+carry them today. That is a stated gap, not an omission. `scripts/build_benchmark_dataset.py` is the
 two-city predecessor and publishes nothing; don't run it.
 
 What the published copy still does not carry is the reviewer's own commentary: `review_notes` and
@@ -105,6 +108,8 @@ marked for deletion; run the RampNet versions, not those.
 | gainesville | GSV (Google Street View) | 125 | 0.945 | 0.695 |
 | budapest_district5 † | Mapillary 360 (GoPro Max) | 125 | 0.873 | 0.503 |
 | sao_paulo ‡ | GSV (Google Street View) | 125 | 0.888 | 0.676 |
+| laurens_mapillary § | Mapillary 360 (GoPro Max) | 94 | 0.898 | 0.390 |
+| laurens_gsv § | GSV (Google Street View) | 86 | 0.925 | 0.505 |
 
 † **Budapest is not comparable to the seven US splits without its caveats** — the reviewer rated
 their own pass low confidence and the rubric does not transfer cleanly. Read the section below
@@ -114,7 +119,15 @@ their own pass low confidence and the rubric does not transfer cleanly. Read the
 is comparable with context. It is held out of the pooled recommendation for geography, not GT
 quality. Read its section below.
 
-All nine city splits are **self-contained**: the reviewer's complete-scan attestation is baked into
+§ **The two Laurens rows are one town shot twice, not two splits.** Same 1.91 km² footprint, same
+rubric, same reviewer, two imagery rigs — the benchmark's first rural split and the only place the
+rig is the manipulated variable. `laurens_gsv` is **held out of the pooled basis and the tier rows**
+(`HELD_OUT` in `scripts/analysis/miss_decomposition.py`) because 59% of its panos sit within 20 m of
+a `laurens_mapillary` one, so pooling both double-counts the same physical ramps and breaks the
+independence the Wilson intervals assume. Held out for non-independence, **not** for GT quality.
+Read the section below before quoting either row.
+
+All eleven city splits are **self-contained**: the reviewer's complete-scan attestation is baked into
 `no_missed` (set on fully-judged panos with no missed marks), so the numbers reproduce with a
 plain `python scripts/score_validation.py benchmark/<city>` — no `--assume-scanned` needed.
 This matters because the recall gate otherwise excludes unconfirmed panos and biases recall
@@ -138,6 +151,8 @@ hand-picked high-density panos — is the honest between-city comparison, and
 | gainesville | 120 | 0.943 | 0.647 |
 | budapest_district5 † | 120 | 0.885 | 0.459 |
 | sao_paulo ‡ | 120 | 0.869 | 0.626 |
+| laurens_mapillary § | 89 | 0.863 | 0.325 |
+| laurens_gsv § | 81 | 0.904 | 0.459 |
 
 Clovis is below the other cities on both metrics because it is 100% soft, 2018-era GoPro Fusion
 360 imagery, where richmond mixes in the sharper NCTECH iSTAR Pulsar (camera provenance is in the
@@ -437,6 +452,49 @@ mostly, not entirely, right. A live Project Sidewalk deployment
 (sidewalk-sao-paulo.cs.washington.edu) sits inside the footprint, so an agree-rate comparison
 is possible later; it covers Brás only and is 8.2% audited, so that comparison would be thin.
 
+## Laurens, IA — one town, two rigs, and the split that tests the rig itself
+
+The benchmark's first **rural** split (2026-08-31), and the only one that exists twice. Both arms
+cover the same 1.91 km² footprint of Laurens, Iowa — population 1,264 — reviewed by the same
+person under the same rubric, rated high confidence in `docs/model_comparison.md` (though not,
+yet, in the bundle — see the caveat below):
+
+| arm | rig | panos | GT ramps | P | R |
+|---|---|---|---|---|---|
+| `laurens_mapillary` | Mapillary 360, consumer GoPro Max | 94 | 249 | 0.898 | 0.390 |
+| `laurens_gsv` | GSV zoom 5 | 86 | 220 | 0.925 | 0.505 |
+
+**The Mapillary arm alone was the benchmark's worst recall by a factor of two**, and that is why
+the second arm exists (#151). A single rural split cannot distinguish two explanations: is Laurens
+hard because it is *rural* — gravel shoulders, sparse sidewalk, few ramps, long sight lines — or
+because of the *rig*? Holding the town fixed and changing only the imagery separates them.
+
+It separates them cleanly. RampNet gains **+0.115 F1** on the GSV arm (0.543 → 0.659, recall
+0.390 → 0.509), while **every zero-shot challenger is flat or worse** on that same arm — seven of
+eight move down, none moves up by more than 0.008. If rural streetscape were intrinsically hard,
+the arm that is easier for RampNet would be easier for them too. It is not. Laurens' 0.390 is the
+rig, not the town. The full per-model table, including the ordering flip against the YOLO
+baselines, is in the Laurens sections of `docs/model_comparison.md`.
+
+**Read the two rows as a pair, never as two independent splits.** 59% of the GSV panos sit within
+20 m of a Mapillary one (median nearest neighbour 17.2 m), so they largely re-photograph the same
+physical ramps. `laurens_gsv` is therefore held out of the pooled basis and the tier rows; the
+reason is recorded in `HELD_OUT` (`scripts/analysis/miss_decomposition.py`) and the scorers print
+it.
+
+⚠️ **Neither arm carries a `review_notes` block**, so the "high confidence" rating quoted for both
+in `docs/model_comparison.md` lives only in that write-up — not in the artifact, where §1 of
+`RUBRICS.md` says it belongs and where `score_validation.py` looks for it. `annapolis` has the same
+gap; `sao_paulo`, `gainesville` and `budapest_district5` all carry theirs. Writing the three
+missing blocks is an open item, and until it is done the confidence rating for these splits is not
+reproducible from the bundle. The comparison is also **unpaired** — different panorama sets with different ground truth
+(249 ramps against 220) — so Δ between the arms compares two samples of one town, not the same
+corner twice. The ~51 corners within 20 m of each other are the paired subset that would turn this
+into a measurement rather than a strong signal; both arms' detections are committed, so that
+analysis needs no new inference.
+
+Duplicate verdicts: `laurens_gsv` has 1, `laurens_mapillary` none.
+
 ## The manual_gold split (in-distribution gold reference)
 
 `benchmark/manual_gold/` (issue #58) is a different kind of split: its ground truth is the
@@ -492,14 +550,14 @@ Two caveats travel with that fetch:
   because nobody has run the writer on a machine holding all 1,000 panos. The fetch checks
   the manifest when it exists and otherwise prints the command that writes it, so until then
   this split's imagery is verified by `bundle_meta.json`'s recorded source and each pano's
-  pixel size in `records.jsonl` — weaker than the other nine. Writing that manifest is the
+  pixel size in `records.jsonl` — weaker than the other eleven. Writing that manifest is the
   open item.
 
 The exporter ends with a reproduction gate against the published gold-set numbers
 (P 0.949 / R 0.873 @ conf >= 0.55, TTA). Read the manual-gold section of
 `docs/model_comparison.md` before quoting numbers from this split.
 
-**All eight city splits were reviewed at model resolution** with the pan/zoom labeler (`scripts/gt_gallery.py`),
+**Every city split was reviewed at model resolution** with the pan/zoom labeler (`scripts/gt_gallery.py`),
 which shows the full pano at the model's input resolution (4096×2048) with pan/zoom, rather than a
 downscaled overview. For richmond and bend this was a *re-review*: reviewing at model resolution
 surfaced genuinely-missed ramps that the earlier 1600 px overview hid — small/distant curb ramps a

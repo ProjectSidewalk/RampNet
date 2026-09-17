@@ -181,10 +181,12 @@ ROSTER = (
              "at 0.05, roughly double the YOLO11 arms -- which is why it leads only "
              "on budapest, where firing at all is the binding constraint."),
 
-    # The four annapolis Claude legs (#122). One split, so they cannot join tables
-    # the other rows report over ten; the write-up is annapolis-only for the same
-    # reason. Two model ids x two efforts: the first provider whose knob splits one
-    # id into several legs, hence `pins` and `published_as`.
+    # The Claude legs (#122). Two model ids x two efforts, all four on annapolis;
+    # the opus/low leg also covers both Laurens arms (#151, 2026-09-04). Still far
+    # short of the ten splits the standing rows report, so they stay off the roster
+    # tables and the write-up scopes each number to the splits it was measured on.
+    # The first provider whose knob splits one id into several legs, hence `pins`
+    # and `published_as`.
     Challenger(
         spec="claude:claude-opus-5", label="claude-opus-5", provider="claude",
         density="sparse", standing=False, added="2026-08-15",
@@ -192,7 +194,10 @@ ROSTER = (
         published_as="claude-opus-5-effort-low",
         note="Top challenger on annapolis (F1 0.588), the first model to displace "
              "gemini-3.1-pro. 2.56 boxes/pano. Effort low is the provider default, "
-             "so this is what a bare `claude:claude-opus-5` reproduces."),
+             "so this is what a bare `claude:claude-opus-5` reproduces. Also the "
+             "best zero-shot model on BOTH Laurens arms (0.430 mapillary, 0.437 "
+             "gsv) -- and flat across them (+0.007) where RampNet gains +0.115, "
+             "which is what makes #151's rig-not-town reading sharp."),
     Challenger(
         spec="claude:claude-opus-5", label="claude-opus-5", provider="claude",
         density="sparse", standing=False, added="2026-08-15",

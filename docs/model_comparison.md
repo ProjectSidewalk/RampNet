@@ -144,7 +144,7 @@ sweep from a 0.05 peak floor across all nine splits, per-imagery-tier curves, th
 confidence-calibration tables, and the recommendation to lower the deployment threshold from
 0.55 to 0.30.
 
-**Supervised baseline (issue #51): the pano trio is benchmarked; tiles still training.**
+**Supervised baseline (issue #51): the pano trio is benchmarked, and the tiles arm has since been scored too.**
 The roster above is all zero-shot except RampNet. The supervised **YOLO** baseline — the
 architecture-vs-data ablation (does a generic detector trained on the RampNet dataset *also*
 beat the zero-shot field, or is RampNet's keypoint architecture doing the work?) — completed
@@ -182,9 +182,17 @@ verify-identical) are in the
 [training record](../scripts/model_comparison/yolo_baseline/README.md) and its
 `benchmark_eval/` directory. Training-side history (the warmup-LR collapse at epoch 3 across
 all arms, the ckpt slice ceiling, the `y26_tiles` fork) stays in that record; the stabilized
-rerun remains tracked in #70 and the caveat write-up in #72. The tiles arms — the
-resolution-controlled half of the ablation, and the geometry the VLM rows are scored with —
-are still training and are deliberately absent from every table above.
+rerun remains tracked in #70 and the caveat write-up in #72.
+
+The tiles arms — the resolution-controlled half of the ablation, and the geometry the VLM
+rows are scored with — are **absent from every table above because their detections are not
+published**, not because they are unmeasured. `y11x_tiles` (ep44) was scored on all ten
+splits on 2026-08-30: the equirect handicap is real and worth about **0.044 F1**, and the
+tiles arm is the best YOLO cell in the grid
+([`yolo_geometry_51.md`](yolo_geometry_51.md)). Two further caveats belong with the YOLO
+rows above: they are all read at conf **0.25**, the Ultralytics default that nobody
+selected, and at a threshold selected the same way as RampNet's the residual to RampNet is
+**0.039**, not 0.252 ([`operating_point_parity_51.md`](operating_point_parity_51.md)).
 
 Three classes of challenger, which fail differently and are worth keeping distinct:
 
@@ -430,6 +438,135 @@ Three things gainesville adds:
    threshold-lowering alone recovers (at 0.30 the recommendation buys +9.9 R with no fusion
    at all). OWLv2's 0.967 recall — its highest anywhere — is mostly density: 67.9 boxes/pano
    and a 0.722 null (see the null-recall section).
+
+**laurens_mapillary** (94 reviewed panos, 249 GT ramps) — the first **rural** split
+(2026-08-31), reviewer confidence HIGH; a consumer GoPro Max 360 rig over a 1.91 km² town
+of 1,264 people. The eighth US split, and the one RampNet does worst on by a factor of two.
+
+| model | P | R | F1 | AP | tp/fp/fn |
+|---|---|---|---|---|---|
+| **rampnet** | **0.898** | 0.390 | **0.543** | 0.377 | 97/11/152 |
+| **claude-opus-5** (effort low) | 0.485 | 0.386 | **0.430** | – | 96/102/153 |
+| gemini-3.1-pro-preview | 0.516 | 0.257 | 0.343 | – | 64/60/185 |
+| **molmo2-8B** (points) | 0.359 | **0.321** | 0.339 | – | 80/143/169 |
+| gemini-3.6-flash | 0.446 | 0.201 | 0.277 | – | 50/62/199 |
+| Qwen3-VL-8B-Instruct | 0.220 | 0.201 | 0.210 | – | 50/177/199 |
+| **Qwen3-VL-32B-Instruct** | 0.360 | **0.036** | **0.066** | – | 9/16/240 |
+| owlv2-large-patch14-ensemble | 0.032 | **0.851** | 0.062 | 0.054 | 212/6391/37 |
+| grounding-dino-base | 0.023 | 0.783 | 0.045 | 0.025 | 195/8162/54 |
+
+Best sweep F1: OWLv2 **0.099** (thr 0.15), Grounding DINO **0.060** (thr 0.15).
+
+Three things laurens adds:
+
+1. **RampNet's worst split still leads the best zero-shot challenger — by 0.113.** Its
+   recall halves against every other US split (0.390 against clovis's next-worst 0.650), but
+   the challengers fall further: `claude-opus-5` at effort low, added 2026-09-04 and the
+   strongest zero-shot model in the benchmark, lands at 0.430; gemini-pro at 0.343, its
+   second-lowest US F1. **That lead was published as 0.200 against gemini-pro before the
+   Claude leg existed — quote 0.113, not the earlier figure.** So the
+   rural deficit is not RampNet-specific in the zero-shot field — whatever makes this town
+   hard makes it hard for everything that has never seen a curb ramp label. What it is *not*
+   is a ramp-poor or weak sample: laurens is ramp-**rich** (2.65 ramps/pano, third of ten).
+2. **The supervised YOLO baseline beats RampNet here — the first split where that happens at
+   the pre-registered operating point.** Under the #71 protocol (conf 0.25) `y26_pano` reads
+   F1 **0.574** and `y11l_pano` **0.563**, against RampNet's 0.543; `y11x_pano_h200` is
+   0.529. The margin is small and one-sided in a specific way: the YOLO arms win on
+   **recall** (0.450 and 0.402 vs 0.390) while RampNet keeps the precision (0.898 vs y26's
+   0.794). And it is an operating-point result, not a curve result — read full-range at the
+   0.05 floor RampNet's AP is **0.691**, still the highest of the four (y11l 0.689, y11x
+   0.675, y26 0.627). The same pattern the matched-operating-point work found on
+   `manual_gold` shows up here in its sharpest form: RampNet's deployed 0.55 costs it more
+   on rural imagery than the architecture does.
+3. **The Qwen-32B inversion recurs a fourth time, and this is its most extreme instance.**
+   32B falls below 8B again (0.066 vs 0.210) by the documented mechanism — it stops firing:
+   **0.27 boxes/pano**, far below its previous US floor (gainesville 0.6, paterson 0.9), for
+   recall 0.036 on 249 ramps. Four splits now reproduce the swap, three of them
+   HIGH-confidence US GT, so 32B's conservatism on unusual-looking infrastructure is
+   established rather than suggestive; rural streetscape is simply the strongest dose of it
+   the benchmark has. OWLv2's 0.851 recall against RampNet's 0.390 is, as everywhere, mostly
+   density — 68.0 boxes/pano — and is not a recall ceiling anyone can deploy.
+
+**laurens_gsv** (86 reviewed panos, 220 GT ramps) — the **second imagery arm** of Laurens
+(2026-08-31), reviewer confidence HIGH; Google Street View zoom-5 over the same 1.91 km²
+footprint as `laurens_mapillary`. **Held out of the pooled basis** and of the tier rows: the
+two arms sample one small town and largely the same physical ramps (59% of these panos sit
+within 20 m of a `laurens_mapillary` one, median nearest neighbour 17.2 m), so pooling both
+would double-count them and break the independence the Wilson intervals assume. It is held
+out for non-independence, not for GT quality. It exists to answer one question (#151): is
+Laurens hard because it is **rural**, or because of the **rig**?
+
+| model | P | R | F1 | AP | tp/fp/fn |
+|---|---|---|---|---|---|
+| **rampnet** | **0.933** | **0.509** | **0.659** | 0.494 | 112/8/108 |
+| **claude-opus-5** (effort low) | 0.489 | 0.395 | **0.437** | – | 87/91/133 |
+| **molmo2-8B** (points) | 0.332 | 0.286 | **0.307** | – | 63/127/157 |
+| gemini-3.1-pro-preview | 0.519 | 0.191 | 0.279 | – | 42/39/178 |
+| gemini-3.6-flash | 0.355 | 0.223 | 0.274 | – | 49/89/171 |
+| Qwen3-VL-8B-Instruct | 0.181 | 0.145 | 0.161 | – | 32/145/188 |
+| **Qwen3-VL-32B-Instruct** | 0.250 | **0.009** | **0.018** | – | 2/6/218 |
+| owlv2-large-patch14-ensemble | 0.028 | 0.855 | 0.055 | 0.035 | 188/6476/32 |
+| grounding-dino-base | 0.028 | **0.882** | 0.054 | 0.038 | 194/6799/26 |
+
+### The rig, not the town (#151)
+
+Same town, same footprint, same rubric, same reviewer, two rigs. Every **scored** model was run
+on both arms, so the imagery is the only thing that moves. (The four annapolis-only Claude legs of
+#122 are not scored rows; `claude-opus-5` at effort low was run on both arms specifically for this
+comparison and appears below.) ΔF1 is `laurens_gsv` minus
+`laurens_mapillary`:
+
+| model | Mapillary (GoPro Max) | GSV (zoom 5) | ΔF1 |
+|---|---|---|---|
+| **rampnet** | 0.543 | **0.659** | **+0.115** |
+| y11x_pano_h200 | 0.529 | 0.568 | +0.039 |
+| y11l_pano | 0.563 | 0.587 | +0.024 |
+| grounding-dino-base | 0.045 | 0.054 | +0.008 |
+| **claude-opus-5** (effort low) | 0.430 | 0.437 | **+0.007** |
+| gemini-3.6-flash | 0.277 | 0.274 | −0.003 |
+| owlv2-large-patch14-ensemble | 0.062 | 0.055 | −0.007 |
+| gemini-3.7-flash | 0.281 | 0.261 | −0.020 |
+| allenai/Molmo2-8B | 0.339 | 0.307 | −0.032 |
+| y26_pano | 0.574 | 0.538 | −0.036 |
+| Qwen3-VL-32B-Instruct | 0.066 | 0.018 | −0.048 |
+| Qwen3-VL-8B-Instruct | 0.210 | 0.161 | −0.049 |
+| gemini-3.1-pro-preview | 0.343 | 0.279 | −0.064 |
+
+Three readings, in decreasing order of how well the data supports them:
+
+1. **The town is not the problem.** Every zero-shot challenger is flat or *worse* on the
+   imagery RampNet prefers — seven of nine move down, and neither of the two that rise clears
+   +0.008. If rural streetscape were intrinsically hard, the arm that is easier for RampNet
+   would be easier for them too. It is not. So Laurens' headline recall of 0.390 is not "rural
+   defeats detectors"; it is RampNet meeting an out-of-domain rig.
+
+   **`claude-opus-5` is the sharpest version of this test**, because it is the strongest
+   zero-shot model the benchmark has — best non-RampNet F1 on *both* arms (0.430 and 0.437),
+   ahead of molmo2-8B and gemini-3.1-pro on each. It moves **+0.007**. The best available
+   general model gains essentially nothing from the rig that gains RampNet +0.115, which is
+   the cleanest available evidence that the gain is a domain effect specific to RampNet's
+   training distribution rather than a property of the imagery being easier to read.
+2. **The RampNet–YOLO ordering flips between the arms.** On Mapillary the supervised baseline
+   wins (`y26_pano` 0.574, `y11l_pano` 0.563, against 0.543); on GSV RampNet leads by 0.072
+   (0.659 against `y11l_pano`'s 0.587). The claim "YOLO beats RampNet on the rural split" is
+   therefore really "**on non-GSV imagery**", and it does not survive changing the rig over
+   the same ground.
+3. **Being GSV-trained is not the whole mechanism.** The YOLO arms were trained on the same
+   GSV-derived dataset, so if in-domain imagery were sufficient they should gain like RampNet
+   did. They barely move: +0.039, +0.024, and `y26_pano` goes the *other* way. RampNet's
+   +0.115 is three to five times larger, so **RampNet is markedly more rig-sensitive than a
+   YOLO trained on its own data** — which points at its preprocessing and 2048×4096 input
+   rather than at the training distribution alone. That is the open question this split hands
+   to #151, not one it closes.
+
+Two caveats travel with the table. **It is unpaired**: the arms are different panorama sets
+with different GT (249 ramps against 220), so ΔF1 compares two samples of one town, not the
+same corners twice. The ~51 corners inside 20 m of each other are the paired subset that
+would turn this into a measurement, and both arms' detections are now committed, so that
+analysis needs no new inference. And **the AP column is not comparable across the two arms
+for RampNet**: `laurens_mapillary` has a 0.05-floor `op_cache` and `laurens_gsv` does not, so
+its 0.494 is truncated at the deployed 0.55 while the other arm's 0.691 is not. The F1, P and
+R columns are comparable — both arms are read at 0.55.
 
 **sao_paulo** (125 reviewed panos, 281 GT ramps) — the second non-US split (2026-08-01),
 reviewer confidence **HIGH**; NBR 9050 design vocabulary on GSV (the same imagery path as
