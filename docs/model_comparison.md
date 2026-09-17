@@ -81,9 +81,14 @@ re-run; since #122 froze the #46 witness pool, doing so no longer disturbs that 
 legs, both models × effort `low`/`high` (#122). They are absent from the roster tables
 below, so no number in this document moves; `claude-opus-5` at `low` **is** scored in
 [`model_scoreboard.md`](model_scoreboard.md), which keys off coverage rather than
-`standing`. Detections are published and verified
-(`benchmark/model_detections/claude-*-effort-*__*.json`, 14 files, every pair identical to
-the cache) and the write-up is the "Claude on Vertex" section further down, where the
+`standing`. Detections are published
+(`benchmark/model_detections/claude-*-effort-*__*.json`, 14 files) and 12 of the 14 are
+verified identical to the desktop cache with `export_model_cache.py --verify` (the four
+annapolis legs and the eight #139 splits); the two Laurens files were exported with
+`n_uncached` 0 on the machine that ran #151, which never had a recorded `--verify`, and
+are re-scored from the committed detections by `tests/test_claude_published_legs.py` — a
+different guarantee, stated as such. The write-up is the "Claude on Vertex" section
+further down, where the
 annapolis result table is re-derived from those files by
 `tests/test_claude_published_legs.py`.
 
@@ -1733,9 +1738,10 @@ done; done
 python scripts/analysis/export_model_cache.py --verify \
     --models claude:claude-opus-5 --claude-effort low \
     --publish-as claude-opus-5-effort-low
-# -> 11 pair(s): published detections score IDENTICALLY to the cache -- on a cache that
-#    holds every run. A cache without the two Laurens runs reports them as "NOTHING was
-#    compared", which is unverified, not verified.
+# -> on a cache holding every run, "11 pair(s): published detections score IDENTICALLY
+#    to the cache". Nobody has run it on such a cache: observed 2026-09-17 on the desktop
+#    cache, which never held the two Laurens runs, it printed "compared 9" and flagged
+#    both Laurens files as "NOTHING was compared" -- unverified, not verified.
 ```
 
 **The gap, stated plainly: the four original legs' token counts were never written to
@@ -1962,9 +1968,10 @@ flash legs are not as cheap relative to pro as the rate card suggests — the 3.
 **This is the case the three-layer scheme was designed for, and it is worth reading as a
 worked example rather than a footnote.** The eight-split `claude-opus-5` run of 2026-08-18
 (984 panoramas: bend, budapest_district5, clovis, gainesville, morgantown, paterson,
-richmond, sao_paulo) **wrote no record to `analysis_out/usage_log.jsonl`.** The ledger
-holds three entries totalling $0.34 — one `claude-sonnet-5` annapolis leg and two richmond
-smoke tests — and nothing for the run itself. Layer 1 simply did not fire.
+richmond, sao_paulo) **wrote no record to `analysis_out/usage_log.jsonl`.** As of
+2026-08-19 the ledger held three entries totalling $0.34 — one `claude-sonnet-5` annapolis
+leg and two richmond smoke tests — and nothing for the run itself. Layer 1 simply did not
+fire. (The three Laurens rows of 2026-09-04, $12.78, came later and are #151's.)
 
 Layer 3 recovered the ground truth the next day:
 

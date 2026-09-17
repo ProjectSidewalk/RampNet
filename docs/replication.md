@@ -216,11 +216,16 @@ done; done
 python scripts/analysis/export_model_cache.py --verify \
     --models claude:claude-opus-5 --claude-effort low \
     --publish-as claude-opus-5-effort-low
+# What a cache holding every run prints:
 # -> "compared 11 (model, split) pair(s) ... 11 pair(s): published detections score
 #     IDENTICALLY to the cache", plus "claude-opus-5 / manual_gold: no published
 #     export to check" -- the #144 decision, showing up as a named absence.
-# A cache that never held the two Laurens runs prints "compared 9" and flags both
-# Laurens files as "NOTHING was compared": that is unverified, not verified.
+# What was actually observed, 2026-09-17, on the desktop cache (which never held the
+# two Laurens runs, made on the #151 machine): "compared 9 ... 9 pair(s): published
+# detections score IDENTICALLY", with both Laurens files flagged "NOTHING was
+# compared". So 12 of the 14 Claude files have a recorded cache-identity check; the
+# two Laurens files have n_uncached 0 at export and the CI re-score in
+# tests/test_claude_published_legs.py, which is a different guarantee.
 ```
 
 Add `--cache-dir <path>` when running from a git worktree: the default resolves against
