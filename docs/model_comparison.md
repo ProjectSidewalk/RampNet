@@ -1574,12 +1574,20 @@ from `projectsidewalk/rampnet-benchmark` and a GPU. What a clean clone *can* do 
 against itself: `tests/test_cascade_gate.py` re-derives every `cells[]` figure from the same
 file's `sites` list, so a hand-copied number in the tables below fails the build.
 
-**Two things about `cascade_gate.json` specifically, so a regenerated copy is not mistaken for a
-changed result.** It was written at `b7342dc`, before `4c192ca` added `rampnet_op_threshold` to the
-payload, so it lacks that key while `cascade_gate_op030.json` carries it: a re-run would add
-`"rampnet_op_threshold": null` and change the bytes with identical results, which is exactly the
-comparison the `newline=""` pinning exists to make possible. And both were written before this
-branch took the #132 seam wrap (below). Regenerate both when the parity detections are published.
+**What a regenerated copy of either artifact will differ in, so it is not mistaken for a changed
+result.** `cascade_gate.json` was written at `b7342dc`, before `4c192ca` added
+`rampnet_op_threshold` to the payload, so it lacks that key while `cascade_gate_op030.json` carries
+it. Since the round-1 review fixes (`d1860e5`, `cc2299e`) a re-run of *either* file also adds two
+payload keys, `null_rng: "per-site"` and `panos_without_floor_peaks`, and one per-site key,
+`nearest_peak_claimed`; and because the null is now seeded per site, every miss-cell `null_pct`,
+`null_med` and `null_p95` moves — by up to 0.075 on the committed files, see the caveat under *A
+negative worth recording* below — with `act`, `argmax_off_px`, `nearest_peak_px` and the cells
+unchanged. Both were also written before this branch took the #132 seam wrap (below). Two tests pin
+the *pre-fix* state and will need editing in the same commit as a regeneration:
+`test_only_the_op030_artifact_records_the_threshold_key` and
+`test_the_committed_nulls_came_from_one_stream_and_say_so`. The `newline=""` pinning is what makes
+that comparison a byte diff rather than a guess. Regenerate both when the parity detections are
+published.
 
 At **rampnet@0.30**, of the 38 genuinely-complementary ramps:
 
@@ -1604,12 +1612,15 @@ pano (`cascade_gate.claimed_by_adjacent`, pinned in `tests/test_cascade_gate.py`
 | the 38 recoverable ramps at rampnet@0.30 | n | mechanism |
 |---|---:|---|
 | floor peak in radius, 0.05–0.30 | **19** | promotable — the cascade's target, unchanged |
-| nearest floor peak ≥0.30 and **claimed by an adjacent GT** — 4 inside R, 7 at 1–2 R (26.8–44.1 px) | **11** | the #130 matcher/σ mechanism; the old "4" row and most of the old "15" row are one cause |
-| nearest floor peak at 1–2 R, unclaimed (23.5 px @0.643, 24.3 px @0.242, 32.2 px @0.358, 42.5 px @0.143) | 4 | a peak just outside the window; would need a wider radius, not a lower threshold |
+| nearest floor peak ≥0.30 and **claimed by an adjacent GT** — 4 inside R, 7 at 1–2 R (26.8–44.1 px) | **11** | the #130 matcher/σ mechanism; the old "4" row and 7 of the old "15" row are one cause |
+| nearest floor peak at 1–2 R, unclaimed (23.5 px @0.643, 24.3 px @0.242, 32.2 px @0.358, 42.5 px @0.143) | 4 | a peak just outside the window; would need a wider radius (and, for the two below 0.30, a lower threshold as well) |
 | no floor peak within 2 R (51–117 px) | 4 | genuinely nothing near — and one of the 4 is the seam site below, where the heatmap *has* a peak the op_cache dropped |
 
-So the row that read as "two-fifths of the recoverable set has no peak to raise" is 11 parts
-matching problem, 4 parts near-miss geometry and 4 parts absence. `class_of`, the #46 Phase 1
+So the 15-row that read as "two-fifths of the recoverable set has no peak to raise" is 7 parts
+matching problem, 4 parts near-miss geometry and 4 parts absence; with the old 4-row folded in, the
+38 are 19 / 11 / 4 / 4. (The 4 "absence" sites also have a claimed nearest peak, just beyond 2 R —
+51–117 px away, scores 0.85 / 0.86 / 0.34 / 0.94 — which is why the 11 in the table are 4 + 7 and
+not 4 + 11.) `class_of`, the #46 Phase 1
 decomposition the pre-registration promised for comparability, puts the 15 at **12 `tail` / 3
 `faint_local` / 0 `absent`** (80 / 20 / 0%, against Phase 1's 62 / 30 / 8% over silent misses);
 over the whole 38-ramp cell it is 35 / 3 / 0, and the 15-ramp `neither` cell is 15 / 0 / 0. Both
@@ -1709,8 +1720,12 @@ The scored runs. These need a GPU and the native-resolution panoramas
 python scripts/model_comparison/compare.py benchmark/richmond \
     --models rampnet,vistas:curb-cut --vistas-input-size 1024 1024
 
-# same-env control (the attribution) -- default 384, no override
-python scripts/model_comparison/compare.py benchmark/richmond --models vistas:curb-cut
+# same-env control (the attribution) -- default 384, no override. It has the SAME
+# signature and cache key as the published 384 run, so on a clone that has written
+# the published detections into .model_cache (below) compare.py would find all 124
+# panos cached and never run the model: --no-cache (or a fresh --cache-dir) is what
+# makes this an actual re-inference rather than a re-score of the published arm.
+python scripts/model_comparison/compare.py benchmark/richmond --models vistas:curb-cut     --no-cache
 
 # either, re-scored at the deployment threshold (free, reads the cache)
 python scripts/model_comparison/compare.py benchmark/richmond \
