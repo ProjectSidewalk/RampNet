@@ -1280,16 +1280,30 @@ def test_forced_tool_choice_still_works_on_the_ids_it_was_measured_on():
         assert ClaudeDetector(model_id=mid, tool_choice="forced").tool_choice == "forced"
 
 
-def test_the_probe_can_send_the_forced_tool_choice_the_guard_is_waiting_on():
+def test_the_probe_can_send_the_forced_tool_choice_the_guard_is_waiting_on(monkeypatch):
     """The unverified set points at `probe_claude_models.py --tool-choice forced`;
     this checks that flag builds the request the detector would send -- tool_choice
     type `tool` naming a declared tool, AND output_config.effort beside it, since
     effort is the axis forcing is known to interact with and the detector never
     sends one without the other -- and that `auto` sends none of it, without a
-    network. Measuring the answer is deliberately NOT done here."""
+    network. Measuring the answer is deliberately NOT done here.
+
+    Runs without the `anthropic` package: it is not in requirements-dev.txt, so
+    CI does not have it, and the first version of this test failed there on the
+    probe's import guard. The probe only needs the SDK for its two exception
+    classes, so a stub stands in for it and the request-shape check still runs."""
     import types
     sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "model_comparison"))
     import probe_claude_models as probe
+
+    class _StatusError(Exception):
+        pass
+
+    class _ConnError(Exception):
+        pass
+
+    monkeypatch.setattr(probe, "_sdk", lambda: types.SimpleNamespace(
+        APIStatusError=_StatusError, APIConnectionError=_ConnError))
 
     seen = {}
 
