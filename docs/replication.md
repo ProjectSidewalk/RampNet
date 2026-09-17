@@ -558,10 +558,10 @@ per (config, city), embedding the **exact source bytes** — rows carry `image` 
 so nothing is re-encoded on write, and each row also carries the `sha256` of its own bytes.
 
 ```bash
-python scripts/export_benchmark.py build  --benchmark benchmark \
+python scripts/export_benchmark.py build --benchmark benchmark \
     --panos-4096 <rendered dir> --galleries analysis_out/op --out dist/rampnet-benchmark
 python scripts/export_benchmark.py verify --out dist/rampnet-benchmark
-python scripts/export_benchmark.py push   --out dist/rampnet-benchmark \
+python scripts/export_benchmark.py push --out dist/rampnet-benchmark \
     --repo-id projectsidewalk/rampnet-benchmark
 ```
 
