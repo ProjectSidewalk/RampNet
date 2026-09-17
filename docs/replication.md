@@ -322,10 +322,10 @@ that size and never native. What remains blocking a second rater is a *person*, 
 > The exact sequence, which is what a replicator runs:
 >
 > ```bash
-> python scripts/export_benchmark.py adopt  --out dist/rampnet-benchmark   # only needed once
-> python scripts/export_benchmark.py build  --galleries analysis_out/op --out dist/rampnet-benchmark
+> python scripts/export_benchmark.py adopt --out dist/rampnet-benchmark   # only needed once
+> python scripts/export_benchmark.py build --galleries analysis_out/op --out dist/rampnet-benchmark
 > python scripts/export_benchmark.py verify --out dist/rampnet-benchmark
-> python scripts/export_benchmark.py push   --out dist/rampnet-benchmark --message "..."
+> python scripts/export_benchmark.py push --out dist/rampnet-benchmark --message "..."
 > ```
 >
 > `build` also regenerates `records` from the committed `records.jsonl` / `verdicts.json`; it came
