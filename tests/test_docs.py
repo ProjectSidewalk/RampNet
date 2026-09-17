@@ -234,6 +234,42 @@ def test_no_runbook_snippet_has_a_collapsed_line_continuation():
 # --------------------------------------------------------------------------- #
 # Hand-written numbers that the registry now owns
 # --------------------------------------------------------------------------- #
+# Each entry is a phrase that was actually in the docs and wrong. Two properties
+# matter and neither is obvious:
+#  * No entry may be a prefix of another -- "all 8" and "all 8 model groups"
+#    both shipped, and the shorter can never fail independently, so the longer
+#    reads as coverage it does not add.
+#  * The count has to be bound to the roster, or the guard fires on perfectly
+#    good prose. The second pattern is bound by exclusion: it rejects every
+#    "all 8" EXCEPT the other eights these docs count -- splits, cities, epochs,
+#    seeds, checkpoints -- so a new non-roster axis has to be added here before
+#    "all 8 <axis>" will pass. That is deliberate: a false hit costs one edit to
+#    this tuple; a miss is a stale number in a published doc.
+# The word boundary after the 8 is load-bearing: without it "all 83 far-field
+# silent misses" is a hit. The copy this was moved from carried a literal
+# backspace byte there instead of \b (a heredoc ate the backslash), so the
+# second pattern could never match anything and the guard was inert;
+# test_stale_roster_patterns_match_what_they_claim pins it against reverting.
+STALE_ROSTER_PHRASES = (
+    r"all 8 (?:model|challenger|zero-shot)",
+    r"all 8\b(?! splits| cities| epochs| seeds| checkpoints)",
+    r"8-model roster", r"seven-model roster", r"8 model groups")
+
+
+def test_stale_roster_patterns_match_what_they_claim():
+    """The guard on the guard. The second pattern shipped inert once -- a
+    literal 0x08 where \b should be -- and every test stayed green, because
+    nothing asserted what the patterns match."""
+    for pattern in STALE_ROSTER_PHRASES:
+        assert chr(8) not in pattern, "a backspace byte where a word boundary was meant"
+    all_8 = STALE_ROSTER_PHRASES[1]
+    for hit in ("all 8 of them", "all 8 models", "all 8, and", "all 8 epoch groups"):
+        assert re.search(all_8, hit), hit
+    for miss in ("all 83 far-field silent misses", "all 8 splits", "all 8 cities",
+                 "all 8 epochs", "all 8 seeds", "all 8 checkpoints"):
+        assert not re.search(all_8, miss), miss
+
+
 def test_no_doc_still_hardcodes_the_old_roster_count():
     """These exact phrases were the drift. Catch them coming back.
 
@@ -241,20 +277,7 @@ def test_no_doc_still_hardcodes_the_old_roster_count():
     across a line break in the prose, so a naive substring check finds none of them
     and passes while the docs are still wrong.
     """
-    # Each entry is a phrase that was actually in the docs and wrong. Two properties
-    # matter and neither is obvious:
-    #  * No entry may be a prefix of another -- "all 8" and "all 8 model groups"
-    #    both shipped, and the shorter can never fail independently, so the longer
-    #    reads as coverage it does not add.
-    #  * The count has to be bound to the roster, or the guard fires on perfectly
-    #    good prose. "all 8" alone would reject a future "all 8 splits"; the splits
-    #    are a different axis and there are ten of them.
-    # The word boundary after the 8 is load-bearing: without it "all 83 far-field
-    # silent misses" is a hit. The copy this was moved from carried a literal
-    # backspace byte there instead of \b (a heredoc ate the backslash), so the
-    # second pattern could never match anything and the guard was inert.
-    stale = (r"all 8 (?:model|challenger|zero-shot)", r"all 8\b(?! splits| cities)",
-             r"8-model roster", r"seven-model roster", r"8 model groups")
+    stale = STALE_ROSTER_PHRASES
     docs = ("model_comparison.md", "replication.md", "curb_ramp_data_sourcing.md")
     for name in docs:
         text = re.sub(r"\s+", " ", (REPO / "docs" / name).read_text("utf-8"))
