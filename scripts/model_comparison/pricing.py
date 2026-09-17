@@ -70,6 +70,32 @@ PRICING = {
         "cache_read_per_m": 0.50, "cache_write_per_m": 6.25, "as_of": "2026-08-15",
         "note": "Vertex `global`; regional +10%.",
     },
+    # Claude Fable via Anthropic's FIRST-PARTY API (#156), not Vertex: that family
+    # is gated on Vertex behind the publisher data-sharing setting, so these legs
+    # run on a different account and a different rate card. Source: the Anthropic
+    # pricing page (claude.com/pricing), read 2026-09-05 -- i.e. the page that
+    # actually governs this billing path. No endpoint dimension here, so unlike
+    # the Vertex rows above there is no regional premium to get wrong.
+    #
+    # Both ids are $10/$50, exactly 2x claude-opus-5. The cache rows are why this
+    # had to be READ: Fable 5 reads cache at the standard 0.1x of input ($1.00),
+    # but Fable 5.1 reads at $0.25/MTok, which is NOT any multiplier of its input
+    # rate. Deriving these from the usual multipliers would have overstated 5.1's
+    # cache reads 4x. Both write at 1.25x input, the standard 5-minute-TTL rate.
+    # Zero on every run so far -- nothing sets cache_control, and the tool
+    # definition renders below the minimum cacheable prefix -- but recorded so the
+    # first run that does is priced whole rather than silently low.
+    "claude-fable-5": {
+        "input_per_m": 10.00, "output_per_m": 50.00,
+        "cache_read_per_m": 1.00, "cache_write_per_m": 12.50, "as_of": "2026-09-05",
+        "note": "Anthropic first-party API, NOT Vertex (gated there). No regional tier.",
+    },
+    "claude-fable-5-1": {
+        "input_per_m": 10.00, "output_per_m": 50.00,
+        "cache_read_per_m": 0.25, "cache_write_per_m": 12.50, "as_of": "2026-09-05",
+        "note": ("Anthropic first-party API, NOT Vertex (gated there). No regional "
+                 "tier. Cache read $0.25/MTok is a rate of its own, not 0.1x input."),
+    },
 }
 
 

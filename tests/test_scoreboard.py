@@ -532,6 +532,10 @@ def test_single_split_legs_stay_out_of_the_pooled_tables(board):
         "claude-opus-5-effort-high": "1/8",
         "claude-sonnet-5-effort-low": "1/8",
         "claude-sonnet-5-effort-high": "1/8",
+        # #156, annapolis only. Both clear the expansion gate, so these may well
+        # grow past 1/8 later; until they do, partial coverage means excluded.
+        "claude-fable-5-1-effort-low-anthropic": "1/8",
+        "claude-fable-5-effort-low-anthropic": "1/8",
     }
     single = [m for m in board["models"] if not m["complete"]]
     assert {m["model"] for m in single} == set(want_coverage)
@@ -559,6 +563,54 @@ def test_partial_table_names_the_split_every_number_came_from(board):
     assert "Mask2Former Vistas (curb cut)" in table
     # The low-effort leg went to nine splits in #139, so it is pooled now, not partial.
     assert "Claude Opus 5 (low)" not in table
+
+
+_WORDS = {2: "Two", 3: "Three", 4: "Four", 5: "Five", 6: "Six", 7: "Seven", 8: "Eight",
+          9: "Nine", 10: "Ten", 11: "Eleven", 12: "Twelve"}
+
+
+def test_the_prose_beside_the_partial_table_agrees_with_it(board):
+    """The generator rewrites the tables and nothing else. The sentences around them
+    are hand-written, and when the Fable legs landed (#156) the table gained two rows
+    that beat the leg the prose still called the strongest challenger, while the leg
+    count it quoted stayed at six. (S2 on PR #157.)
+
+    Two checks, both against the board rather than against any number typed here:
+    the count of legs outside the pooled tables, and which leg is the best challenger
+    on annapolis -- the split every Claude leg has run, and the one the prose singles
+    out.
+    """
+    with open(sb.DEFAULT_DOC, encoding="utf-8", newline="") as fh:
+        doc = fh.read()
+    partial = [m for m in board["models"] if not m["complete"]]
+    one_split = [m for m in partial if m["n_splits_run"] == 1]
+    more = [m for m in partial if m["n_splits_run"] > 1]
+    if not more:
+        # Every partial leg is one-split (the state since #139 completed Opus-low),
+        # and the sentence says exactly that.
+        want = f"{_WORDS[len(partial)]} legs have run one split each"
+    else:
+        # A breakdown, which has to add up. The first version of this test pinned
+        # the total only, and the sentence said "six of them one split each"
+        # beside a three-split leg: six plus one is seven.
+        want = (f"{_WORDS[len(partial)]} legs have not run the pooled splits — "
+                f"{_WORDS[len(one_split)].lower()} of them one split each")
+    assert doc.count(want) == 2, (
+        f"expected {want!r} twice in docs/model_scoreboard.md (the section opener and "
+        f"the 'What is missing' bullet); the board has {len(partial)} partial legs, "
+        f"{len(one_split)} of them one-split, {[m['model'] for m in more]} with more")
+
+    best = max((m for m in board["models"] if m["model"] != "rampnet"
+                and "annapolis" in board["per_split"][m["model"]]),
+               key=lambda m: board["per_split"][m["model"]]["annapolis"]["f1"])
+    claim = re.search(r"\*\*(.+?) is the strongest challenger measured on annapolis\*\*", doc)
+    assert claim, "the strongest-challenger sentence is gone"
+    # Whole model name, not a prefix: "Claude Fable 5" is a prefix of "Claude Fable
+    # 5.1 (low, anthropic)", and the two are 0.001 F1 apart, so a prefix match
+    # would stay green through the one flip that is actually plausible.
+    assert best["display"].split(" (")[0] == claim.group(1).split(" at ")[0], (
+        f"the doc names {claim.group(1)!r}; the board says {best['display']!r} "
+        f"(F1 {board['per_split'][best['model']]['annapolis']['f1']:.3f})")
 
 
 def test_a_leg_from_an_unmapped_provider_is_classified_not_dropped():

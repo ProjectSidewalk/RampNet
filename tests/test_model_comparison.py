@@ -1135,11 +1135,14 @@ def test_claude_as_run_defaults_stay_out_of_the_signature():
     det = ClaudeDetector(model_id="claude-sonnet-5")
     assert det.image_format == detectors.CLAUDE_AS_RUN_IMAGE_FORMAT == "jpeg"
     assert det.temperature is detectors.CLAUDE_AS_RUN_TEMPERATURE is None
+    assert det.max_tokens == detectors.CLAUDE_AS_RUN_MAX_TOKENS == 4096
     sig = det.signature()
     assert "image_format" not in sig and "temperature" not in sig
+    assert "max_tokens" not in sig
 
 
-@pytest.mark.parametrize("kwargs", [{"image_format": "png"}, {"temperature": 0.0}])
+@pytest.mark.parametrize("kwargs", [{"image_format": "png"}, {"temperature": 0.0},
+                                    {"max_tokens": 8192}])
 def test_claude_deviating_from_the_as_run_settings_invalidates_the_cache(kwargs):
     base = ClaudeDetector(model_id="claude-sonnet-5")
     other = ClaudeDetector(model_id="claude-sonnet-5", **kwargs)
@@ -1147,11 +1150,184 @@ def test_claude_deviating_from_the_as_run_settings_invalidates_the_cache(kwargs)
            cache_key("claude-sonnet-5", other.signature(), "annapolis", "p1")
 
 
+def test_claude_serving_path_stays_out_of_the_cache_key():
+    """Which account billed the call is not part of what was asked (#156).
+
+    The same model id, prompt and views should return the same detections whoever
+    serves them, so putting the path in the key would fragment the cache along an
+    axis that does not change the answer — and would orphan $28.82 of paid
+    annapolis detections the instant a leg moved. Provenance goes to the usage
+    log instead. This is the pair to test_claude_cache_key_is_frozen: that one
+    pins the four published keys, this one says a path switch cannot move them."""
+    vertex = ClaudeDetector(model_id="claude-sonnet-5", serving_path="vertex")
+    first_party = ClaudeDetector(model_id="claude-sonnet-5", serving_path="anthropic")
+    assert "serving_path" not in vertex.signature()
+    assert vertex.signature() == first_party.signature()
+    assert cache_key("claude-sonnet-5", vertex.signature(), "annapolis", "p1") == \
+           cache_key("claude-sonnet-5", first_party.signature(), "annapolis", "p1")
+
+
+def test_claude_rejects_an_unknown_serving_path():
+    """Refused at construction, like the Fable forced-tool guard: a typo that
+    reaches the client constructor fails with the SDK's error, not ours."""
+    with pytest.raises(ValueError, match="serving_path"):
+        ClaudeDetector(model_id="claude-sonnet-5", serving_path="bedrock")
+
+
+def test_usage_record_carries_the_serving_path(tmp_path):
+    """The one place the path is written down, so it has to actually be written.
+
+    `model_versions` cannot stand in — both paths report the bare model id — and
+    the signature deliberately omits it, so without this field nothing
+    distinguishes a Vertex leg from a first-party one after the fact. It also
+    says which reconciliation exists: vertex_usage.py recovers server-side spend
+    for `vertex` and has no first-party equivalent."""
+    det = ClaudeDetector(model_id="claude-fable-5-1", serving_path="anthropic")
+    det.accumulate_usage(10, 5, 0)
+    log = tmp_path / "usage_log.jsonl"
+    report_usage(det, "claude-fable-5-1", "annapolis", 125, str(log))
+    rec = json.loads(log.read_text(encoding="utf-8").splitlines()[-1])
+    assert rec["serving_path"] == "anthropic"
+    assert "serving_path" not in (rec["signature"] or {})
+
+
+def test_the_regional_pricing_warning_is_vertex_only():
+    """GOOGLE_CLOUD_LOCATION is shared with the Gemini legs, so it can be set to a
+    region for reasons that have nothing to do with Claude. On Vertex that really
+    does make the cost figures ~9% low and is worth shouting about; on the
+    first-party path there is no endpoint dimension, and warning anyway would
+    train the reader to ignore a real alarm."""
+    regional = ClaudeDetector(model_id="claude-sonnet-5", location="us-east5")
+    assert "REGIONAL" in (regional.location_warning() or "")
+    first_party = ClaudeDetector(model_id="claude-fable-5-1", location="us-east5",
+                                 serving_path="anthropic")
+    assert first_party.location_warning() is None
+
+
+@pytest.mark.parametrize("model_id", ["claude-fable-5", "claude-fable-5-1"])
+def test_both_fable_ids_are_priced_from_the_first_party_card(model_id):
+    """#156 runs both ids, so both need a price — and the cache rows had to be
+    READ, not derived. Fable 5 reads cache at the standard 0.1x of input; Fable
+    5.1 reads at $0.25/MTok, which is no multiple of its $10 input rate. Deriving
+    it would have overstated 5.1's cache reads 4x."""
+    from pricing import price_for
+    p = price_for(model_id)
+    assert (p["input_per_m"], p["output_per_m"]) == (10.00, 50.00)
+    assert p["as_of"] == "2026-09-05"
+    assert "first-party" in p["note"]
+    assert price_for("claude-fable-5")["cache_read_per_m"] == 1.00
+    assert price_for("claude-fable-5-1")["cache_read_per_m"] == 0.25
+
+
 def test_claude_tool_choice_is_in_the_cache_key():
     auto = ClaudeDetector(model_id="claude-sonnet-5", tool_choice="auto")
     forced = ClaudeDetector(model_id="claude-sonnet-5", tool_choice="forced")
     assert cache_key("claude-sonnet-5", auto.signature(), "bend", "p1") != \
            cache_key("claude-sonnet-5", forced.signature(), "bend", "p1")
+
+
+@pytest.mark.parametrize("model_id, status", [
+    ("claude-fable-5-1", "rejected"),      # per Anthropic's docs
+    ("claude-mythos-5-1", "rejected"),     # same docs, same restriction
+    ("claude-fable-5", "unverified"),      # refused until someone measures it
+])
+def test_forced_tool_choice_is_refused_before_the_run_starts(model_id, status):
+    """Some ids reject `tool_choice` `tool`/`any` with a 400 -- and one is refused
+    without a measurement either way (see CLAUDE_FORCED_TOOLS_UNVERIFIED).
+
+    A leg discovers a 400 on its first call and then repeats it ~750 times, so the
+    refusal has to happen at construction, where it costs nothing and can name the
+    flag the provider's own error does not. The message also has to say WHICH
+    kind of refusal it is: a documented 400 and an unmeasured id call for
+    different responses (change the flag vs. run the probe)."""
+    assert detectors.claude_forced_tools_status(model_id) == status
+    with pytest.raises(ValueError, match="tool-choice") as err:
+        ClaudeDetector(model_id=model_id, tool_choice="forced")
+    msg = str(err.value)
+    if status == "unverified":
+        assert "not been measured" in msg
+        assert f"probe_claude_models.py --serving-path anthropic --models {model_id} " \
+               f"--tool-choice forced" in msg
+    else:
+        assert "400" in msg and "not been measured" not in msg
+    # `auto` -- the default, and what a Fable leg must run -- is unaffected.
+    assert ClaudeDetector(model_id=model_id, tool_choice="auto").tool_choice == "auto"
+
+
+def test_the_forced_tool_guard_matches_exact_ids_not_a_family_substring():
+    """The guard used to be `"fable" in model_id`. Anthropic's docs say the 400
+    arrived with 5.1, not with the family, so a substring match refused ids nobody
+    had looked at and could not say why. Now every refused id is listed, with its
+    evidence, and anything else is allowed -- which is the assumption every
+    published leg relies on."""
+    assert detectors.CLAUDE_FORCED_TOOLS_REJECTED.isdisjoint(
+        detectors.CLAUDE_FORCED_TOOLS_UNVERIFIED)
+    for mid in detectors.CLAUDE_FORCED_TOOLS_REJECTED | detectors.CLAUDE_FORCED_TOOLS_UNVERIFIED:
+        assert detectors.claude_forbids_forced_tools(mid)
+    # A spelling that is not a listed id is not refused, whatever it contains.
+    for mid in ("claude-fable-6", "claude-fable-5-1-fast", "fable", None, ""):
+        assert detectors.claude_forced_tools_status(mid) is None
+        assert not detectors.claude_forbids_forced_tools(mid)
+
+
+def test_forced_tool_choice_still_works_on_the_ids_it_was_measured_on():
+    """The guard keys on the id, so it must not spread to the existing legs.
+
+    "Measured", not "published with": every published Claude leg ran `auto` (all
+    six annapolis signatures and all twelve ledger rows say so). The only forced
+    measurement on record is the one-view Vertex check in docs/model_comparison.md
+    ("The tool is offered, not forced"), on these two ids."""
+    for mid in ("claude-opus-5", "claude-sonnet-5"):
+        assert not detectors.claude_forbids_forced_tools(mid)
+        assert ClaudeDetector(model_id=mid, tool_choice="forced").tool_choice == "forced"
+
+
+def test_the_probe_can_send_the_forced_tool_choice_the_guard_is_waiting_on(monkeypatch):
+    """The unverified set points at `probe_claude_models.py --tool-choice forced`;
+    this checks that flag builds the request the detector would send -- tool_choice
+    type `tool` naming a declared tool, AND output_config.effort beside it, since
+    effort is the axis forcing is known to interact with and the detector never
+    sends one without the other -- and that `auto` sends none of it, without a
+    network. Measuring the answer is deliberately NOT done here.
+
+    Runs without the `anthropic` package: it is not in requirements-dev.txt, so
+    CI does not have it, and the first version of this test failed there on the
+    probe's import guard. The probe only needs the SDK for its two exception
+    classes, so a stub stands in for it and the request-shape check still runs."""
+    import types
+    sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "model_comparison"))
+    import probe_claude_models as probe
+
+    class _StatusError(Exception):
+        pass
+
+    class _ConnError(Exception):
+        pass
+
+    monkeypatch.setattr(probe, "_sdk", lambda: types.SimpleNamespace(
+        APIStatusError=_StatusError, APIConnectionError=_ConnError))
+
+    seen = {}
+
+    class _Messages:
+        def create(self, **kw):
+            seen.clear()
+            seen.update(kw)
+            return types.SimpleNamespace(model=kw["model"], usage=None,
+                                         stop_reason="tool_use")
+
+    client = types.SimpleNamespace(messages=_Messages())
+    status, _ = probe.probe(client, "claude-fable-5", tool_choice="forced")
+    assert status == 200
+    assert seen["tool_choice"] == {"type": "tool", "name": probe.PROBE_TOOL["name"]}
+    assert [t["name"] for t in seen["tools"]] == [probe.PROBE_TOOL["name"]]
+    assert seen["output_config"] == {"effort": "low"}
+    # ...the same keys ClaudeDetector._call sends, so the probe answers for it.
+    assert {"model", "max_tokens", "output_config", "tools", "tool_choice",
+            "messages"} <= set(seen)
+    probe.probe(client, "claude-fable-5")
+    assert "tool_choice" not in seen and "tools" not in seen
+    assert "output_config" not in seen      # the reachability probe is unchanged
 
 
 # --- Claude: what pixels the model actually sees ----------------------------
