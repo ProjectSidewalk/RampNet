@@ -16,7 +16,10 @@ the same `GOOGLE_CLOUD_PROJECT` (environment or repo-root `.env`) they read.
     python scripts/analysis/vertex_usage.py --days 42 --project my-project
 
 **Replication note:** this reads one specific cloud project's billing telemetry, so
-only someone with access to that project can re-derive its output. The numbers it
+only someone with access to that project can re-derive its output, and only inside the
+retention window. `--save-rows` writes the daily rows to a JSON file, which is how a
+recovered figure stops depending on that window; the snapshots behind the #122 and #139
+cost tables are committed under docs/data/vertex_minute_series/. The numbers this
 produced are transcribed into docs/model_comparison.md; the per-run token counts in
 analysis_out/usage_log.jsonl are the committed, checkable half.
 
@@ -25,6 +28,7 @@ NOT a calendar day — a leg run on the evening of the 14th lands in the row
 labeled the 15th. Attribute rows to legs by the run record, not by eye.
 """
 import argparse
+import json
 import os
 import sys
 from collections import defaultdict
@@ -43,24 +47,79 @@ TOKEN_METRIC = "aiplatform.googleapis.com/publisher/online_serving/token_count"
 KNOWN_TOKEN_TYPES = ("input", "output")
 
 
+def write_json(path, doc, compact_key=None):
+    """Write a committed telemetry snapshot: LF-only, one row per line.
+
+    Plain ``indent=2`` puts every integer of a 76-row series on its own line, which
+    buries a real change in several hundred lines of noise, so the list named by
+    ``compact_key`` is emitted one entry per line instead. Everything written here is
+    an integer token count or a string, so there is nothing to round and a regenerated
+    copy is provably byte-identical to the committed one (only ``fetched_utc`` moves).
+    """
+    if compact_key is None:
+        text = json.dumps(doc, indent=2)
+    else:
+        marker = "__ROWS_PLACEHOLDER__"
+        entries = [json.dumps(r, separators=(", ", ": ")) for r in doc[compact_key]]
+        rendered = ("[\n    " + ",\n    ".join(entries) + "\n  ]") if entries else "[]"
+        text = json.dumps(dict(doc, **{compact_key: marker}), indent=2).replace(
+            json.dumps(marker), rendered)
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        f.write(text + "\n")
+
+
+def _parse_dotenv(path):
+    """KEY=VALUE lines from ``path`` into os.environ, never overriding a set var.
+
+    The same minimal parser as ``compare.load_dotenv``, kept here so this module
+    and ``vertex_effort_split.py`` still read the repo-root .env when the detector
+    stack is not importable (a bare ``pip install -r requirements-vlm.txt`` clone).
+    """
+    if not os.path.exists(path):
+        return
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, val = line.split("=", 1)
+            os.environ.setdefault(key.strip(), val.strip().strip('"').strip("'"))
+
+
 def _load_dotenv():
-    """Reuse compare.py's .env loader so both halves of the harness read the same
-    credentials file, from this checkout and from the main checkout it belongs to.
-    Imported inside the function (the export_model_cache idiom) so the module still
-    imports without the detector stack on the path.
+    """Same repo-root .env the rest of the harness reads.
+
+    Prefers compare.py's loader so both halves of the harness read one credentials
+    file the same way, from this checkout and from the main checkout it belongs to;
+    imported inside the function (the export_model_cache idiom) so the module still
+    imports without the detector stack on the path, in which case the local parser
+    above does the same job rather than silently loading nothing.
 
     The main checkout matters here for the same reason the ledger does (#143): run
     from a scratch worktree, which carries no git-ignored `.env`, this script would
-    otherwise exit with "no project" — the tool whose job is to recover a lost spend
-    failing in exactly the situation that loses one."""
+    otherwise exit with "no project" -- the tool whose job is to recover a lost spend
+    failing in exactly the situation that loses one. REPO is derived from __file__,
+    so a worktree looks in the worktree: pass --project explicitly there.
+    """
     try:
         from compare import load_dotenv_for_run
     except ImportError:
+        _parse_dotenv(os.path.join(str(REPO), ".env"))
         return
     load_dotenv_for_run(REPO)
 
 
-def fetch_token_series(project, days):
+def fetch_series(project, filter_, start, end, alignment_period, group_by,
+                 timeout=60, page_size=1000):
+    """Every ALIGN_DELTA / REDUCE_SUM time series for one Cloud Monitoring query.
+
+    One paging loop for both the daily (``vertex_usage.py``) and the minute
+    (``vertex_effort_split.py``) queries, so the two cannot drift apart. ``start``
+    and ``end`` are RFC3339 strings; ``group_by`` is the list of label paths the
+    reducer keeps. Follows ``nextPageToken`` to the end: a dropped page is a SILENT
+    UNDERCOUNT in the one tool whose job is server-side ground truth, and "the total
+    came back low" has no symptom a reader could notice.
+    """
     try:
         import google.auth
         import google.auth.transport.requests
@@ -73,26 +132,21 @@ def fetch_token_series(project, days):
     creds.refresh(google.auth.transport.requests.Request())
     headers = {"Authorization": f"Bearer {creds.token}",
                "x-goog-user-project": project}
-    end = datetime.now(timezone.utc)
     params = {
-        "filter": f'metric.type = "{TOKEN_METRIC}"',
-        "interval.startTime": (end - timedelta(days=days)).isoformat(),
-        "interval.endTime": end.isoformat(),
-        "aggregation.alignmentPeriod": "86400s",
+        "filter": filter_,
+        "interval.startTime": start,
+        "interval.endTime": end,
+        "aggregation.alignmentPeriod": alignment_period,
         "aggregation.perSeriesAligner": "ALIGN_DELTA",
         "aggregation.crossSeriesReducer": "REDUCE_SUM",
-        "aggregation.groupByFields": ["resource.labels.model_user_id",
-                                      "metric.labels.type"],
-        "pageSize": 1000,
+        "aggregation.groupByFields": list(group_by),
+        "pageSize": page_size,
     }
-    # Follow nextPageToken. A dropped page is a SILENT UNDERCOUNT in the one tool
-    # whose job is server-side ground truth, and "the total came back low" has no
-    # symptom a reader could notice.
     url = f"https://monitoring.googleapis.com/v3/projects/{project}/timeSeries"
     series, token, pages = [], None, 0
     while True:
         page_params = dict(params, **({"pageToken": token} if token else {}))
-        r = requests.get(url, params=page_params, headers=headers, timeout=60)
+        r = requests.get(url, params=page_params, headers=headers, timeout=timeout)
         if r.status_code != 200:
             raise SystemExit(f"Cloud Monitoring query failed ({r.status_code}): "
                              f"{r.text[:500]}")
@@ -104,12 +158,20 @@ def fetch_token_series(project, days):
             break
         if pages >= 50:   # runaway guard; say so rather than truncating quietly
             raise SystemExit(f"stopped after {pages} pages with more remaining — "
-                             f"narrow --days and re-run, or the totals would be partial")
+                             f"narrow the window and re-run, or the totals would be "
+                             f"partial")
     if pages > 1:
         print(f"(fetched {len(series)} time series across {pages} pages)")
     return series
 
 
+def fetch_token_series(project, days):
+    """Daily-aligned token counts per (model_user_id, type) over the last ``days``."""
+    end = datetime.now(timezone.utc)
+    return fetch_series(
+        project, f'metric.type = "{TOKEN_METRIC}"',
+        (end - timedelta(days=days)).isoformat(), end.isoformat(), "86400s",
+        ["resource.labels.model_user_id", "metric.labels.type"])
 def ledger_totals_by_model(rows, since=None):
     """Per-model token totals from usage_log.jsonl rows, for reconciliation.
 
@@ -244,6 +306,10 @@ def main():
                          "which compare.py also reads from a repo-root .env).")
     ap.add_argument("--days", type=float, default=30,
                     help="Lookback window (metric retention is ~6 weeks).")
+    ap.add_argument("--save-rows", metavar="PATH",
+                    help="Write the daily rows to PATH as JSON, so a recovered "
+                         "figure survives the ~6-week metric retention. Every row "
+                         "is written, including ones --min-tokens hides.")
     ap.add_argument("--reconcile", action="store_true",
                     help="Compare these billed totals against what "
                          "analysis_out/usage_log.jsonl recorded, per model. The only "
@@ -286,6 +352,24 @@ def main():
         print(f"WARNING: unpriced token type(s) {', '.join(unknown)} carrying "
               f"{extra:,.0f} tokens are excluded from every figure below. "
               f"Price them in pricing.py or the total understates real spend.\n")
+
+    if args.save_rows:
+        # Every row and every token type, not just the two that get priced below:
+        # a snapshot that silently drops a bucket is worse than no snapshot.
+        doc = {
+            "metric": TOKEN_METRIC,
+            "alignment_period": "86400s",
+            "lookback_days": args.days,
+            "fetched_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "rows": [{"window_end": day, "model": model,
+                      "tokens": {t: int(round(v))
+                                 for t, v in sorted(daily[(day, model)].items())}}
+                     for (day, model) in sorted(daily)],
+        }
+        out = Path(args.save_rows)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        write_json(out, doc, "rows")
+        print(f"(wrote {len(doc['rows'])} daily rows to {args.save_rows})\n")
 
     print(f"{'window end':12s} {'model':26s} {'input':>14s} {'output':>12s}")
     for (day, model) in sorted(daily):

@@ -423,6 +423,78 @@ def test_a_pinned_leg_loads_its_own_detections(board):
     assert low["f1"] == pytest.approx(0.588, abs=0.0006)
 
 
+def test_the_annapolis_displacement_does_not_survive_pooling(board):
+    """#139's whole result, pinned: the one split that flattered Opus was the one split.
+
+    The doc-currency tests below catch a *forgotten* regeneration. They pass happily on a
+    regenerated wrong number, because the doc and the JSON would both move together. This
+    is the assertion that has to be edited deliberately, so it names the claim instead of
+    the artifact: on annapolis Opus leads by +0.021; pooled over the eight city splits the
+    two are within 0.01 of each other (0.568 vs 0.575, Gemini ahead); and the split-to-split
+    spread is what swamps the lead.
+
+    History, because the numbers moved once already: on the seven-split board this was
+    0.588 vs 0.608, a -0.021 deficit with 3 wins of 7. Registering laurens_mapillary as the
+    eighth pooled split (#151) -- the split where Opus leads Gemini by the most, +0.086 --
+    pulled the gap to -0.007 and the wins to 4 each. The claim that survives both boards is
+    "the annapolis lead was noise", not "Opus trails"; the win count is deliberately not
+    pinned, because it is the number most likely to churn with the next split.
+    """
+    opus = _summary(board, "claude-opus-5-effort-low")
+    gem = _summary(board, "gemini-3.1-pro-preview")
+
+    assert opus["coverage"] == "8/8" and opus["complete"] is True
+    assert opus["n_splits_run"] == 11         # 8 pooled + laurens_gsv + budapest + sao_paulo
+    assert opus["f1"] == pytest.approx(0.568, abs=0.0006)
+    assert opus["precision"] == pytest.approx(0.562, abs=0.0006)
+    assert opus["recall"] == pytest.approx(0.586, abs=0.0006)
+    assert gem["f1"] == pytest.approx(0.575, abs=0.0006)
+
+    # The ranking claim itself, not just the two numbers behind it: Gemini still tops the
+    # table, and by less than the 0.01 the doc calls a tie.
+    assert opus["f1"] < gem["f1"], "gemini-3.1-pro is no longer the best challenger"
+    assert abs(opus["f1"] - gem["f1"]) < 0.01
+    assert _cell(board, "claude-opus-5-effort-low", "annapolis")["f1"] > \
+        _cell(board, "gemini-3.1-pro-preview", "annapolis")["f1"]
+
+    # ...and the reason the lead did not generalise: the per-split gaps span a range far
+    # wider than the annapolis margin, and both signs occur. The doc quotes the range and
+    # the largest single gap as multiples of the lead, so both statistics are named here.
+    deltas = {s: _cell(board, "claude-opus-5-effort-low", s)["f1"] - _cell(board, gem["model"], s)["f1"]
+              for s in opus["pooled_splits"]}
+    assert any(d > 0 for d in deltas.values()) and any(d < 0 for d in deltas.values()), deltas
+    spread = max(deltas.values()) - min(deltas.values())
+    assert spread == pytest.approx(0.156, abs=0.001), deltas
+    assert spread > 7 * abs(deltas["annapolis"])
+    assert max(abs(d) for d in deltas.values()) == pytest.approx(0.086, abs=0.001)
+    assert max(deltas, key=deltas.get) == "laurens_mapillary"
+    # "smaller than six of the other seven": every pooled gap but morgantown's exceeds it.
+    assert sum(abs(d) > abs(deltas["annapolis"])
+               for s, d in deltas.items() if s != "annapolis") == 6, deltas
+
+    # The pooled scope matters: the held-out laurens_gsv is a wider gap still, and the
+    # doc must say "of the eight pooled splits" for 0.086 and name laurens_gsv (+0.158)
+    # as the largest on the whole board -- not call 0.086 the board's largest.
+    city_deltas = {s: _cell(board, "claude-opus-5-effort-low", s)["f1"]
+                   - _cell(board, gem["model"], s)["f1"]
+                   for s in board["city_splits"]}
+    assert max(city_deltas, key=lambda s: abs(city_deltas[s])) == "laurens_gsv"
+    assert city_deltas["laurens_gsv"] == pytest.approx(0.158, abs=0.001)
+    assert sum(d > 0 for d in city_deltas.values()) == 6      # six of eleven overall
+    with open(sb.DEFAULT_DOC, encoding="utf-8") as f:
+        prose = re.sub(r"\s+", " ", f.read())          # the doc wraps at 90 columns
+    assert "+0.086, the largest gap of the eight pooled splits" in prose
+    assert "laurens_gsv, by +0.158, the largest gap on the whole board" in prose
+    assert "the largest gap on the board)" not in prose
+    assert "smaller in magnitude than six of the other seven" in prose
+
+    # Opus is the highest-recall chat VLM that has run the full pool -- the axis
+    # operating_point.md says to optimize, and the reason the near-tie is not a wash.
+    pooled_vlms = [m for m in board["models"]
+                   if m["class"] == "chat-vlm" and m["complete"]]
+    assert max(pooled_vlms, key=lambda m: m["recall"])["model"] == "claude-opus-5-effort-low"
+
+
 def test_partial_coverage_is_reported_not_averaged_away(board):
     """The two Gemini legs have city detections but no published manual_gold.
 
@@ -438,22 +510,25 @@ def test_partial_coverage_is_reported_not_averaged_away(board):
 
 
 def test_single_split_legs_stay_out_of_the_pooled_tables(board):
-    """Vistas ran richmond only; the Claude legs cover one or two cities, not eight.
+    """Vistas ran richmond only; three of the four Claude legs ran annapolis only.
 
-    A one- or two-city macro-mean in the pooled column would be read as an eight-city
-    one. It is computed (the number is real, for those cities) but must not reach the
-    headline table or the pooled column of the matrix.
+    claude-opus-5-effort-low is deliberately NOT in this set any more: #139 took it to
+    nine splits and #151 to both Laurens arms, so it is a complete leg and belongs in
+    the pooled tables. If it ever reappears here, a leg lost coverage rather than a
+    test needing a nudge.
 
-    Coverage is pinned per leg rather than as one number, because it is no longer
-    uniform: `claude-opus-5` at effort low was run on both Laurens arms for #151, so it
-    now covers 2 of the 8 pooled splits (annapolis + laurens_mapillary -- laurens_gsv is
-    held out of the pool as the second arm of a city already in it). Partial coverage
-    still means excluded; the point of this test is the exclusion, not the number.
+    A one-city macro-mean in the pooled column would be read as an eight-city one. It
+    is computed (the number is real, for that city) but must not reach the headline
+    table or the pooled column of the matrix.
+
+    Coverage is pinned per leg rather than as one number, so a leg that gains a split
+    without reaching the full pool is noticed here rather than averaged in. Partial
+    coverage still means excluded; the point of this test is the exclusion, not the
+    number.
     """
     want_coverage = {
         "mask2former-vistas-curb-cut": "1/8",
         "mask2former-vistas-curb-cut+curb": "1/8",
-        "claude-opus-5-effort-low": "2/8",
         "claude-opus-5-effort-high": "1/8",
         "claude-sonnet-5-effort-low": "1/8",
         "claude-sonnet-5-effort-high": "1/8",
@@ -480,8 +555,10 @@ def test_single_split_legs_stay_out_of_the_pooled_tables(board):
 def test_partial_table_names_the_split_every_number_came_from(board):
     table = sr.partial_table(board)
     assert "`richmond`" in table and "`annapolis`" in table
-    assert "Claude Opus 5 (low)" in table
+    assert "Claude Opus 5 (high)" in table
     assert "Mask2Former Vistas (curb cut)" in table
+    # The low-effort leg went to nine splits in #139, so it is pooled now, not partial.
+    assert "Claude Opus 5 (low)" not in table
 
 
 def test_a_leg_from_an_unmapped_provider_is_classified_not_dropped():
