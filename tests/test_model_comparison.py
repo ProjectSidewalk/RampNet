@@ -1224,17 +1224,48 @@ def test_claude_tool_choice_is_in_the_cache_key():
            cache_key("claude-sonnet-5", forced.signature(), "bend", "p1")
 
 
-@pytest.mark.parametrize("model_id", ["claude-fable-5", "claude-fable-5-1"])
-def test_forced_tool_choice_is_refused_on_fable_before_the_run_starts(model_id):
-    """The Fable family removed forced tool use — `tool` and `any` are a 400.
+@pytest.mark.parametrize("model_id, status", [
+    ("claude-fable-5-1", "rejected"),      # per Anthropic's docs
+    ("claude-mythos-5-1", "rejected"),     # same docs, same restriction
+    ("claude-fable-5", "unverified"),      # refused until someone measures it
+])
+def test_forced_tool_choice_is_refused_before_the_run_starts(model_id, status):
+    """Some ids reject `tool_choice` `tool`/`any` with a 400 -- and one is refused
+    without a measurement either way (see CLAUDE_FORCED_TOOLS_UNVERIFIED).
 
-    A leg discovers that on its first call and then repeats it ~750 times, so the
+    A leg discovers a 400 on its first call and then repeats it ~750 times, so the
     refusal has to happen at construction, where it costs nothing and can name the
-    flag the provider's own error does not."""
-    with pytest.raises(ValueError, match="tool-choice"):
+    flag the provider's own error does not. The message also has to say WHICH
+    kind of refusal it is: a documented 400 and an unmeasured id call for
+    different responses (change the flag vs. run the probe)."""
+    assert detectors.claude_forced_tools_status(model_id) == status
+    with pytest.raises(ValueError, match="tool-choice") as err:
         ClaudeDetector(model_id=model_id, tool_choice="forced")
-    # `auto` — the default, and what a Fable leg must run — is unaffected.
+    msg = str(err.value)
+    if status == "unverified":
+        assert "not been measured" in msg
+        assert f"probe_claude_models.py --serving-path anthropic --models {model_id} " \
+               f"--tool-choice forced" in msg
+    else:
+        assert "400" in msg and "not been measured" not in msg
+    # `auto` -- the default, and what a Fable leg must run -- is unaffected.
     assert ClaudeDetector(model_id=model_id, tool_choice="auto").tool_choice == "auto"
+
+
+def test_the_forced_tool_guard_matches_exact_ids_not_a_family_substring():
+    """The guard used to be `"fable" in model_id`. Anthropic's docs say the 400
+    arrived with 5.1, not with the family, so a substring match refused ids nobody
+    had looked at and could not say why. Now every refused id is listed, with its
+    evidence, and anything else is allowed -- which is the assumption every
+    published leg relies on."""
+    assert detectors.CLAUDE_FORCED_TOOLS_REJECTED.isdisjoint(
+        detectors.CLAUDE_FORCED_TOOLS_UNVERIFIED)
+    for mid in detectors.CLAUDE_FORCED_TOOLS_REJECTED | detectors.CLAUDE_FORCED_TOOLS_UNVERIFIED:
+        assert detectors.claude_forbids_forced_tools(mid)
+    # A spelling that is not a listed id is not refused, whatever it contains.
+    for mid in ("claude-fable-6", "claude-fable-5-1-fast", "fable", None, ""):
+        assert detectors.claude_forced_tools_status(mid) is None
+        assert not detectors.claude_forbids_forced_tools(mid)
 
 
 def test_forced_tool_choice_still_works_on_the_models_that_published_with_it():
@@ -1242,6 +1273,33 @@ def test_forced_tool_choice_still_works_on_the_models_that_published_with_it():
     for mid in ("claude-opus-5", "claude-sonnet-5"):
         assert not detectors.claude_forbids_forced_tools(mid)
         assert ClaudeDetector(model_id=mid, tool_choice="forced").tool_choice == "forced"
+
+
+def test_the_probe_can_send_the_forced_tool_choice_the_guard_is_waiting_on():
+    """The unverified set points at `probe_claude_models.py --tool-choice forced`;
+    this checks that flag builds the request the detector would send (tool_choice
+    type `tool`, naming a declared tool) and that `auto` sends none, without a
+    network. Measuring the answer is deliberately NOT done here."""
+    import types
+    sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "model_comparison"))
+    import probe_claude_models as probe
+
+    seen = {}
+
+    class _Messages:
+        def create(self, **kw):
+            seen.clear()
+            seen.update(kw)
+            return types.SimpleNamespace(model=kw["model"], usage=None,
+                                         stop_reason="tool_use")
+
+    client = types.SimpleNamespace(messages=_Messages())
+    status, _ = probe.probe(client, "claude-fable-5", tool_choice="forced")
+    assert status == 200
+    assert seen["tool_choice"] == {"type": "tool", "name": probe.PROBE_TOOL["name"]}
+    assert [t["name"] for t in seen["tools"]] == [probe.PROBE_TOOL["name"]]
+    probe.probe(client, "claude-fable-5")
+    assert "tool_choice" not in seen and "tools" not in seen
 
 
 # --- Claude: what pixels the model actually sees ----------------------------

@@ -934,14 +934,49 @@ CLAUDE_SERVING_PATHS = ("vertex", "anthropic")
 CLAUDE_AS_RUN_SERVING_PATH = "vertex"
 
 
-def claude_forbids_forced_tools(model_id):
-    """Whether ``model_id`` rejects ``tool_choice`` of ``tool``/``any`` with a 400.
+# Model ids on which `tool_choice` of `tool`/`any` returns a 400, per Anthropic's API
+# docs (the copy bundled with Claude Code's claude-api reference, cached 2026-06-24,
+# read 2026-09-17): the restriction is listed as one of the breaking changes Fable 5.1
+# introduced relative to Fable 5, and Mythos 5.1 shares it. Nothing in this repo has
+# measured it -- every published Fable leg ran `auto`, and the probe never sent a
+# forced tool_choice -- so this is a statement from the docs, not a result.
+CLAUDE_FORCED_TOOLS_REJECTED = frozenset({"claude-fable-5-1", "claude-mythos-5-1"})
 
-    True for the Fable family, which removed forced tool use. Matched on the id
-    rather than probed because the point is to fail before the first paid call;
-    an id this does not recognise is assumed to allow forcing, which is the
-    behaviour every leg published so far relies on."""
-    return "fable" in (model_id or "").lower()
+# Ids this guard refuses WITHOUT a source either way. `claude-fable-5` was refused
+# from the start (commit 1213fbb, "forced tool use is gone in that family") on the
+# assumption that the whole family rejects it; the docs above say the restriction
+# arrived with 5.1, which would make Fable 5 accept it. No probe on record settles
+# this. It stays refused because a wrong refusal costs one flag, while a wrong
+# acceptance costs a leg that 400s on every view. To settle it, one 16-token call:
+#
+#     python scripts/model_comparison/probe_claude_models.py \
+#         --serving-path anthropic --models claude-fable-5 --tool-choice forced
+#
+# A 200 means the id belongs in neither set (move it, and move its case in
+# test_forced_tool_choice_is_refused_before_the_run_starts to the still-works test);
+# a 400 means it belongs in CLAUDE_FORCED_TOOLS_REJECTED. Record the status code in
+# #156 either way.
+CLAUDE_FORCED_TOOLS_UNVERIFIED = frozenset({"claude-fable-5"})
+
+
+def claude_forced_tools_status(model_id):
+    """``"rejected"``, ``"unverified"`` or ``None`` for ``model_id``.
+
+    Matched on the EXACT id, not a substring: the docs say the restriction is
+    per-version (5.1, not the family), so a family match would refuse an id nobody
+    has looked at. An id in neither set is assumed to allow forcing, which is the
+    behaviour every leg published so far relies on. Checked at construction rather
+    than probed because the point is to fail before the first paid call."""
+    if model_id in CLAUDE_FORCED_TOOLS_REJECTED:
+        return "rejected"
+    if model_id in CLAUDE_FORCED_TOOLS_UNVERIFIED:
+        return "unverified"
+    return None
+
+
+def claude_forbids_forced_tools(model_id):
+    """Whether the detector refuses ``tool_choice="forced"`` on ``model_id``."""
+    return claude_forced_tools_status(model_id) is not None
 
 
 class ClaudeDetector(_VLMDetector):
@@ -1013,17 +1048,29 @@ class ClaudeDetector(_VLMDetector):
         # back as a tool call (no text fallback needed) and is the better choice
         # at effort=low, where there is no thinking to lose.
         self.tool_choice = tool_choice
-        # Claude Fable removed forced tool use: `tool_choice` of `tool` or `any`
-        # returns a 400 on that family. Caught at construction rather than at call
-        # time because the provider's 400 does not name --claude-tool-choice, and
-        # a leg that fails on every one of ~750 views is an afternoon lost to an
-        # error message about a knob nobody set deliberately.
-        if self.tool_choice == "forced" and claude_forbids_forced_tools(self.model_id):
+        # Some ids reject `tool_choice` of `tool` or `any` with a 400 -- see
+        # CLAUDE_FORCED_TOOLS_REJECTED / _UNVERIFIED for which, and on what
+        # evidence. Caught at construction rather than at call time because the
+        # provider's 400 does not name --claude-tool-choice, and a leg that fails
+        # on every one of ~750 views is an afternoon lost to an error message
+        # about a knob nobody set deliberately.
+        status = claude_forced_tools_status(self.model_id)
+        if self.tool_choice == "forced" and status is not None:
+            if status == "rejected":
+                why = (f"{self.model_id} rejects tool_choice `tool`/`any` with a 400 "
+                       f"(per Anthropic's API docs; see CLAUDE_FORCED_TOOLS_REJECTED "
+                       f"in detectors.py).")
+            else:
+                why = (f"whether {self.model_id} accepts tool_choice `tool`/`any` has "
+                       f"not been measured, so it is refused until it is. Settle it "
+                       f"with `python scripts/model_comparison/probe_claude_models.py "
+                       f"--serving-path anthropic --models {self.model_id} "
+                       f"--tool-choice forced` and update "
+                       f"CLAUDE_FORCED_TOOLS_UNVERIFIED in detectors.py.")
             raise ValueError(
                 f"--claude-tool-choice forced is not supported on {self.model_id}: "
-                f"the Fable family rejects tool_choice `tool`/`any` with a 400. Use "
-                f"`auto` (the default). Note the tradeoff the other way is real too: "
-                f"`auto` is what lets --claude-effort do anything at all.")
+                f"{why} Use `auto` (the default). Note the tradeoff the other way is "
+                f"real too: `auto` is what lets --claude-effort do anything at all.")
         # Thinking bills against max_tokens. On the Opus/Sonnet legs effort=low
         # thinks near zero, so 4096 was ample; the Fable family cannot disable
         # thinking at all, so its floor is higher and this may need raising.
