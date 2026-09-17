@@ -1790,7 +1790,7 @@ from `COMPUTE_PRICING` in `pricing.py` (verified-only, same discipline as the to
 
 ```bash
 python scripts/analysis/slurm_usage.py --cluster tillicum --since 2026-07-01
-python scripts/analysis/slurm_usage.py --cluster klone --from-file sacct_klone.txt
+python scripts/analysis/slurm_usage.py --cluster klone --user <cluster account> --from-file sacct_klone.txt
 ```
 
 Three details that a hand tally gets wrong:
