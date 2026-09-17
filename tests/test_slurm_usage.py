@@ -327,6 +327,27 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
     assert len(running) == 3 and round(sum(r["gpu_hours"] for r in running), 1) == 158.0
 
 
+def test_from_file_prints_the_dump_hash_and_the_doc_pins_the_committed_one(
+        monkeypatch, capsys):
+    """The ledger cannot be byte-compared on regeneration (recorded_at), so the
+    dump is the artifact that can be, and its hash has to be both printed and
+    written down. docs/compute_cost.md carries the committed dump's."""
+    import hashlib
+    import re
+    with open(KLONE_DUMP, "rb") as fh:
+        raw = fh.read()
+    digest = hashlib.sha256(raw).hexdigest()
+    assert _run_main(monkeypatch, "--from-file", KLONE_DUMP, "--user", "jfroehli",
+                     "--cluster", "klone", "--dry-run") == 0
+    out = capsys.readouterr().out
+    assert f"sha256 {digest}" in out and f"({len(raw):,} bytes)" in out
+    with open(os.path.join(REPO_ROOT, "docs", "compute_cost.md"), encoding="utf-8") as fh:
+        doc = fh.read()
+    pinned = re.search(r"sha256\s+`([0-9a-f]{64})`", doc).group(1)
+    assert pinned == digest
+    assert f"({len(raw):,} bytes" in doc
+
+
 def test_the_compute_ledger_is_re_included_in_gitignore():
     """analysis_out/* is ignored wholesale, so a new committed artifact under it
     needs an explicit re-include or it is silently never committed — which is the

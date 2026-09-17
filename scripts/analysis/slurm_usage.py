@@ -44,6 +44,7 @@ Three things this gets right that a hand tally does not:
   through `latest_rows`, which keeps the last row per key.
 """
 import argparse
+import hashlib
 import os
 import re
 import subprocess
@@ -332,7 +333,13 @@ def main():
             ap.error("--user is required with --from-file: the dump does not name "
                      "the account it was pulled for, and the local login is not it "
                      "(the committed klone dump is jfroehli's).")
-        text = Path(args.from_file).read_text(encoding="utf-8")
+        raw_bytes = Path(args.from_file).read_bytes()
+        text = raw_bytes.decode("utf-8")
+        # The dump is the replication input; the ledger derived from it cannot be
+        # byte-compared (recorded_at), but the dump can. Print the hash so a re-pull
+        # is checked against the one pinned in docs/compute_cost.md, not assumed.
+        print(f"sha256 {hashlib.sha256(raw_bytes).hexdigest()}  {args.from_file} "
+              f"({len(raw_bytes):,} bytes)")
     else:
         # The caller's own account, which is what sacct reports on by default. If
         # the environment does not say, sacct still runs (no -u) and the rows are
@@ -358,7 +365,8 @@ def main():
         # committed as a replication input and has to stay byte-identical to what
         # sacct emitted.
         raw.write_text(text, encoding="utf-8", newline="")
-        print(f"raw sacct output saved to {args.save_raw}")
+        print(f"raw sacct output saved to {args.save_raw} "
+              f"(sha256 {hashlib.sha256(text.encode('utf-8')).hexdigest()})")
 
     rows = parse_sacct(text, cluster=args.cluster, user=args.user)
     if not rows:

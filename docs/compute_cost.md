@@ -17,9 +17,14 @@ python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
 ```
 
 The raw `sacct` dump that command parses is committed at
-`docs/data/compute/sacct_klone_2026-08-19.txt`, so the numbers below are re-derivable from a
-clean clone **with no cluster account** — the same reason `usage_log.jsonl` is committed while
-`vertex_usage.py` needs cloud credentials. Regenerate the dump with `--print-command`.
+`docs/data/compute/sacct_klone_2026-08-19.txt` (765,754 bytes, sha256
+`d6597d97e3ccca4324763195c66f268f6eaf76bc07b4e34d3c565ee4c4e8c69d`), so the numbers below are
+re-derivable from a clean clone **with no cluster account** — the same reason `usage_log.jsonl`
+is committed while `vertex_usage.py` needs cloud credentials. The ledger itself can never be
+byte-identical on regeneration (every row carries a `recorded_at` stamp), but the dump can, and
+`--from-file` prints its sha256 so a re-run can be checked against this line rather than
+assumed to match; `tests/test_slurm_usage.py` asserts the committed ledger is exactly this
+dump's parse. Regenerate the dump with `--print-command`.
 
 ## `sacct -D` is worth 4.3x, and it is the whole finding
 
