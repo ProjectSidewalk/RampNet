@@ -79,14 +79,18 @@ the matrix above exists to make, stated here because the artifact is already in 
 would otherwise read as a withheld result. Promoting it is one field in the registry plus a
 re-run; since #122 froze the #46 witness pool, doing so no longer disturbs that human pass.
 
-**Two more off-roster models, `claude-sonnet-5` and `claude-opus-5`, have been run on
-annapolis only** — four legs, both models × effort `low`/`high` (#122). They are likewise
-absent from the roster tables, so no number below moves. Detections are published and
-verified (`benchmark/model_detections/claude-*-effort-*__annapolis.json`, 4/4 pairs
-identical to the cache) and the write-up is the "Claude on Vertex" section further down,
-where the whole result table is re-derived from those files by
-`tests/test_claude_published_legs.py`. **The other nine splits have not been run** — that is
-a gap in coverage, not a withheld result, and closing it costs about $57 at `low` effort.
+**Six Claude legs are off-roster and have been run on annapolis only.** Four are
+`claude-sonnet-5` and `claude-opus-5` at effort `low`/`high` (#122), served on Vertex; two
+are `claude-fable-5` and `claude-fable-5-1` at effort `low` (#156), served on Anthropic's
+first-party API because Vertex gates that family — which is why their published names carry
+`-anthropic`. All six are absent from the roster tables, so no number below moves.
+Detections are published and verified (`benchmark/model_detections/claude-*__annapolis.json`,
+6/6 pairs identical to the cache); the write-ups are the "Claude on Vertex" section and the
+"Claude Fable on annapolis" section further down, where every result table is re-derived
+from those files by `tests/test_claude_published_legs.py`. (`claude-opus-5` at `low` has
+also run both Laurens arms, for #151.) **The other nine splits have not been run** for any
+of them — that is a gap in coverage, not a withheld result, and closing it costs about $57
+per Opus/Sonnet leg and about $155–165 per Fable id for `manual_gold` alone.
 
 **The three `y*_pano` rows are the supervised YOLO baseline** (#51), the one part of the
 registry that is not zero-shot. They have run on all ten splits and are scored, but under the
@@ -1620,11 +1624,12 @@ Same shape as this benchmark's Qwen 8B→32B finding, where scaling flipped the 
 instead of fixing it. Note that the expensive setting is the worse one — 127k thinking
 tokens to lose 0.068 F1.
 
-**`claude-opus-5` at `low` is the strongest general model measured on annapolis**, at
-0.588 — the first to displace `gemini-3.1-pro-preview` (0.567) from that slot. Against
+**`claude-opus-5` at `low` was the strongest general model measured on annapolis**, at
+0.588 — the first to displace `gemini-3.1-pro-preview` (0.567) from that slot — **until the
+two Fable legs (0.611 and 0.610, next section) displaced it in turn.** Against
 `claude-sonnet-5` at the same effort it gains **+0.224 recall at essentially unchanged
 precision** (0.589 → 0.572), which is a capability difference rather than a threshold
-shift. RampNet still leads it by **0.251** (0.839 vs 0.588).
+shift. RampNet leads it by **0.251** (0.839 vs 0.588).
 
 **Correction, 2026-08-18 — the sonnet/low row originally used a different denominator.**
 As first published it read 0.587 / 0.372 / 0.456 on `108/76/182`, which is **290** GT
@@ -1753,7 +1758,7 @@ done
 ```
 
 Re-running them from scratch needs `ANTHROPIC_API_KEY` (the repo-root `.env` is the
-gitignored home for it) and costs ~$38:
+gitignored home for it) and costs ~$40 (the whole-split totals above):
 
 ```bash
 for m in claude-fable-5-1 claude-fable-5; do

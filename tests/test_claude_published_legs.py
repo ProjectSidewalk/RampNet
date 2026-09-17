@@ -215,6 +215,49 @@ def test_the_laurens_arms_are_the_pair_the_rig_comparison_rests_on():
 
 
 # --------------------------------------------------------------------------- #
+# the prose that ranks the annapolis legs (#122, #156)
+# --------------------------------------------------------------------------- #
+def test_the_strongest_annapolis_claim_tracks_the_published_legs():
+    """When the Fable legs landed, docs/model_scoreboard.md and this doc both kept
+    saying claude-opus-5 was the strongest general model on annapolis, in the
+    present tense, above a table that showed otherwise. The scoreboard got a pin
+    in review round 1; this is the same pin for model_comparison.md, read off the
+    published detections rather than off any number typed into the doc.
+
+    The sentence is allowed either shape -- "X is the strongest" when X is the best
+    published annapolis leg, or "X was the strongest ... until Y" when Y is -- but
+    the leg it names has to agree with the files."""
+    import re
+    with open(os.path.join(REPO, "docs", "model_comparison.md"), encoding="utf-8") as fh:
+        doc = fh.read()
+    scored = {k: _score(*k, _ground_truths("annapolis"))
+              for k in PUBLISHED_LEGS if k[3] == "annapolis"}
+    best = max(scored, key=lambda k: scored[k][7])
+    m = re.search(r"\*\*`([\w.-]+)` at `(\w+)` (is|was) the strongest general model "
+                  r"measured on annapolis\*\*", doc)
+    assert m, "the strongest-general-model sentence is gone from model_comparison.md"
+    named, effort, verb = m.groups()
+    if verb == "is":
+        assert (named, effort) == best[:2], (
+            f"the doc says {named}/{effort} is the strongest on annapolis; the published "
+            f"files say {best[0]}/{best[1]} (F1 {scored[best][7]:.3f})")
+    else:
+        assert (named, effort) != best[:2], f"{named}/{effort} IS still the best; say so"
+        # The supersession has to name the leg that did it, close by.
+        after = doc[m.end():m.end() + 400]
+        assert "until" in after and f"`{best[0]}`" in doc, after
+        # ...and the Fable section's own claim has to hold: both Fable legs above Opus.
+        opus = scored[("claude-opus-5", "low", "vertex", "annapolis")][7]
+        for k in scored:
+            if k[0].startswith("claude-fable"):
+                assert scored[k][7] > opus, (k, scored[k][7], opus)
+        assert "**Both displace `claude-opus-5` at the top of this split**" in doc
+    # The coverage paragraph at the top of the doc names every off-roster Claude leg.
+    assert "**Six Claude legs are off-roster and have been run on annapolis only.**" in doc
+    assert len({k[:3] for k in scored}) == 6
+
+
+# --------------------------------------------------------------------------- #
 # the Fable cost figures, re-derived from the ledger (#156)
 # --------------------------------------------------------------------------- #
 USAGE_LOG = os.path.join(REPO, "analysis_out", "usage_log.jsonl")
