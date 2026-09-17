@@ -193,6 +193,51 @@ def test_seed_launcher_requires_a_seed():
     assert 'SEED="${SEED:?' in src, "SEED must be required (:?), never defaulted"
 
 
+def test_seed_launcher_requires_a_conda_prefix():
+    """There is no named env to `source activate` on klone, so the old fallback could
+    only fail -- and it did, 39583887/90/91 on 2026-09-04, having printed one line.
+    The header said the default was wrong for a full PR before the default changed."""
+    src = SEED_SLURM.read_text(encoding="utf-8")
+    assert 'RAMPNET_ENV="${RAMPNET_ENV:?' in src, (
+        "RAMPNET_ENV must be required (:?), never defaulted")
+    code = [l for l in src.splitlines() if not l.lstrip().startswith("#")]
+    assert not any("source activate" in l for l in code), (
+        "the named-env fallback cannot work on klone (the history in the header may "
+        "mention it; a code line must not)")
+
+
+def test_seed_launcher_does_not_default_repo_to_home():
+    """$HOME/RampNet on klone is a stale clone; 39619547/48/49 ran its train.py, which
+    predates --seed. The submit directory is the checkout USAGE requires."""
+    src = SEED_SLURM.read_text(encoding="utf-8")
+    repo = next(l for l in src.splitlines() if l.startswith("REPO="))
+    assert "$HOME" not in repo and "~/" not in repo
+    assert "SLURM_SUBMIT_DIR" in repo
+
+
+def test_seed_launcher_refuses_a_checkout_without_seed_support():
+    """A wrong REPO used to fail 20 s in, under a torch traceback. A checkout stale in
+    some other file would not fail at all: it would train and be scored. The launcher
+    has to check the checkout before torchrun, and the check has to abort the job."""
+    src = SEED_SLURM.read_text(encoding="utf-8")
+    m = re.search(
+        r"grep -q -- '--seed' \"\$REPO/stage_two/train.py\".*?\n(.*?)\nfi\n", src, re.S)
+    assert m, "no preflight grep for --seed in $REPO/stage_two/train.py"
+    assert "exit 1" in m.group(1), "a failed preflight must abort the job"
+    assert src.index("grep -q -- '--seed'") < src.index('cd "$RUNDIR"')
+
+
+def test_seed_launcher_logs_the_commit_it_ran():
+    """The 09-06 failure was a checkout at the wrong commit, and it was only visible
+    because that checkout's train.py rejected --seed. A checkout stale elsewhere trains
+    to completion, and without the commit in the job log nothing says which code
+    produced the checkpoint that gets scored."""
+    src = SEED_SLURM.read_text(encoding="utf-8")
+    banner = src.split("--- Stage 2 seed replicate", 1)[1].split("-----------", 1)[0]
+    assert 'git -C "$REPO" rev-parse' in banner, "the banner must print the repo commit"
+    assert 'git -C "$REPO" status --porcelain' in banner, "and whether it is dirty"
+
+
 def test_seed_launcher_isolates_each_replicate_in_its_own_directory():
     """train.py writes best_model.pth and latest_checkpoint.pth to the CWD, so shared
     directories cross-contaminate resume state between replicates."""
