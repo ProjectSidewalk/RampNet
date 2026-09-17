@@ -116,9 +116,20 @@ def test_overriding_the_cluster_name_says_so(capsys):
     assert "WARNING" not in capsys.readouterr().out
 
 
-def test_lines_that_are_not_job_records_are_skipped():
+def test_lines_that_are_not_job_records_are_skipped_but_counted(capsys):
+    """A dropped line used to leave no trace. A job name with the delimiter in it
+    is a whole record gone from every total, so the parser says how many it
+    dropped and shows the first."""
     text = "\n".join(["", "sacct: warning: something", "a|b|c", PREP])
     assert len(parse_sacct(text)) == 1
+    out = capsys.readouterr().out
+    assert "WARNING: 2 non-blank line(s)" in out and "sacct: warning: something" in out
+    piped = _line("9", "yolo|baseline", "klone", "ckpt-all", "ckpt", "COMPLETED",
+                  "2026-08-01T00:00:00", "2026-08-01T01:00:00", 3600, "gres/gpu=1")
+    assert parse_sacct(piped) == []
+    assert "1 non-blank line(s)" in capsys.readouterr().out
+    parse_sacct(PREP)
+    assert "WARNING" not in capsys.readouterr().out
 
 
 def test_requeued_incarnations_are_separate_rows_not_one():
@@ -346,6 +357,16 @@ def test_from_file_prints_the_dump_hash_and_the_doc_pins_the_committed_one(
     pinned = re.search(r"sha256\s+`([0-9a-f]{64})`", doc).group(1)
     assert pinned == digest
     assert f"({len(raw):,} bytes" in doc
+    # The pin only holds if git never normalises the dump's line endings: a
+    # core.autocrlf=true clone checks it out CRLF and the hash above fails for a
+    # file that is byte-correct. So .gitattributes must mark it -text (or binary),
+    # and the same for the two ledgers append_rows writes LF.
+    with open(os.path.join(REPO_ROOT, ".gitattributes"), encoding="utf-8") as fh:
+        rules = [ln.split() for ln in fh if ln.strip() and not ln.startswith("#")]
+    pinned_patterns = {r[0] for r in rules if "-text" in r[1:] or "binary" in r[1:]}
+    assert "docs/data/compute/*" in pinned_patterns
+    assert "analysis_out/*.jsonl" in pinned_patterns
+    assert raw.count(b"\r\n") == 0          # ...and the dump on disk is LF
 
 
 def test_the_compute_ledger_is_re_included_in_gitignore():
