@@ -254,6 +254,12 @@ def main():
         per_leg_in = (round(tin / args.per_pano_input) // args.legs) * args.per_pano_input
     else:
         per_leg_in = tin / args.legs
+    if per_leg_in <= 0:
+        # Fewer than `legs` panos at this rate: the rate is wrong for the series, and
+        # every ratio in report() would divide by it.
+        raise SystemExit(f"per-leg input is zero: fewer than {args.legs} panos at "
+                         f"{args.per_pano_input:,} input/pano -- the rate is wrong for "
+                         f"this series.")
     print(f"\n   per-leg input (geometry, {args.legs} legs): {per_leg_in:,.0f}")
 
     # estimate_cost returns None for an id that is not in the verified rate card, and

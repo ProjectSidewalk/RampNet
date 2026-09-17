@@ -115,6 +115,16 @@ def test_an_output_only_series_replays_to_a_message_not_a_traceback(
     # Nothing but output: refused before the blended ratio would divide by zero.
     assert "no input tokens" in replay(
         [(f"2026-08-15T00:{m:02d}:00Z", 0, 50) for m in range(20)])
+    # A per-pano rate too large for the series: per_leg_in rounds to 0 and every
+    # ratio in report() would divide by it. The "NOT an integer" verdict prints and
+    # continues, so this guard is the one that has to fire.
+    monkeypatch.setattr(sys, "argv", [
+        "vertex_effort_split.py", "--model", "claude-opus-5", "--per-pano-input",
+        "3000000", "--from-series",
+        os.path.join(SERIES_DIR, "claude-opus-5_2026-08-15.json")])
+    with pytest.raises(SystemExit) as e:
+        ves.main()
+    assert "per-leg input is zero" in str(e.value)
     # Some input, but never on both sides of a window: the detector returns None
     # and main() must say so rather than slice rows[:None - 3].
     assert "no changepoint" in replay(
