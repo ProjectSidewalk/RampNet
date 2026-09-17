@@ -74,7 +74,7 @@
 # COPY THEM OUT, with the job log, as soon as the job completes -- the exact commands
 # are in docs/seed_variance_51_135.md, "Reproducing". Where the completed replicates
 # went (#135, 2026-09-14): /gscratch/makelab/jonf/seedvar/, as rampnet_s<SEED>_best.pth,
-# rampnet_s<SEED>_epoch_1_step_9378.pth, logs/seedvar_<jobid>.out and a SHA256SUMS
+# rampnet_s<SEED>_epoch_1_step_9378.pth, seedvar_<jobid>.out and a SHA256SUMS
 # over all of them. NOTE THE LITERAL `jonf` -- $USER is `jfroehli` and points at the
 # wrong directory under /gscratch/makelab (see above). /gscratch/makelab is purchased
 # and never purged, which is where #84 put Run A's checkpoints for the same reason. The
@@ -162,7 +162,14 @@ echo "Seed:        ${SEED}"
 # gets scored as the recipe. 39880702/03/06 ran before this line existed, so their
 # commit is not recorded (docs/seed_variance_51_135.md, "Reproducing").
 echo "Repo:        ${REPO}"
-echo "Repo commit: $(git -C "$REPO" rev-parse --short HEAD 2>/dev/null || echo unknown)   dirty files: $(git -C "$REPO" status --porcelain 2>/dev/null | wc -l)"
+# One status for both fields: a `dirty files: 0` beside an unknown commit would read as
+# a clean checkout when nothing was measured.
+if commit=$(git -C "$REPO" rev-parse --short HEAD 2>/dev/null); then
+    dirty=$(git -C "$REPO" status --porcelain | wc -l)
+else
+    commit=unknown; dirty=unknown
+fi
+echo "Repo commit: ${commit}   dirty files: ${dirty}"
 echo "Run dir:     ${RUNDIR}   (cwd -- best_model.pth and latest_checkpoint.pth land here)"
 echo "Data root:   ${DATA_ROOT}"
 echo "Epochs:      ${EPOCHS}"

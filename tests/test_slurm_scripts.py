@@ -15,6 +15,7 @@ costs. CPU-only, no network, no cluster.
 """
 
 import re
+import shlex
 import shutil
 import subprocess
 from pathlib import Path
@@ -148,11 +149,16 @@ def test_the_checkout_preflight_rejects_a_train_py_without_seed(tmp_path, has_se
 @requires_bash
 def test_the_commit_line_survives_a_checkout_that_is_not_a_repo():
     """The banner runs under `set -euo pipefail`. A checkout rsync'd without .git, or a
-    node without git on PATH, must print `unknown`, not kill the job before torchrun."""
-    line = _seed_launcher_line('echo "Repo commit:')
+    node without git on PATH, must print `unknown` for BOTH fields -- `dirty files: 0`
+    beside an unknown commit reads as a clean checkout when nothing was measured -- and
+    must not kill the job before torchrun."""
+    src = (REPO / "stage_two" / "run_train_seed.slurm").read_text()
+    m = re.search(r'^if commit=\$\(git -C "\$REPO" rev-parse.*?^echo "Repo commit: .*?$',
+                  src, re.S | re.M)
+    assert m, "no commit/dirty status block in the banner"
     proc = subprocess.run(
-        [BASH, "-c", "set -euo pipefail\nREPO=/nonexistent\n" + line],
+        [BASH, "-c", "set -euo pipefail\nREPO=/nonexistent\n" + m.group(0)],
         capture_output=True, text=True, env={"PATH": "/usr/bin:/bin"},
     )
     assert proc.returncode == 0, proc.stderr
-    assert proc.stdout.startswith("Repo commit: unknown")
+    assert proc.stdout.strip() == "Repo commit: unknown   dirty files: unknown"
