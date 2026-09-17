@@ -66,15 +66,20 @@
 # incarnations, so `-D` is the flag that tells you what really happened:
 #   sacct -D -u $USER -S $(date -d '1 day ago' +%Y-%m-%d) -o JobID%16,State%14,Elapsed
 #
-# RUNDIR IS ON A VOLUME THAT PURGES. best_model.pth -- the only artifact this campaign
-# produces -- lands in RUNDIR, and /gscratch/scrubbed purges on a ~21-day idle window
-# (docs/stage2_epoch_curve_84.md). Campaign B's calendar is unbounded (ckpt-all duty
-# cycle 3.9%), so a replicate can finish and then sit unscored past that window while
-# its siblings are still pending. COPY IT OUT as soon as the job completes:
-#   cp "$RUNDIR/best_model.pth" /gscratch/makelab/$USER/seedvar/rampnet_s${SEED}_best.pth
-# /gscratch/makelab is purchased and never purged, which is where #84 put Run A's
-# checkpoints for the same reason. The default is deliberately left on scrubbed so it
-# matches the replicates already queued; changing it is a decision, not a cleanup.
+# RUNDIR IS ON A VOLUME THAT PURGES. best_model.pth (the artifact that gets scored) and
+# checkpoints/epoch_1_step_9378.pth (the end-of-epoch state) both land in RUNDIR, and
+# /gscratch/scrubbed purges on a ~21-day idle window (docs/stage2_epoch_curve_84.md).
+# Campaign B's calendar is unbounded (ckpt-all duty cycle 3.9%), so a replicate can
+# finish and then sit unscored past that window while its siblings are still pending.
+# COPY THEM OUT, with the job log, as soon as the job completes -- the exact commands
+# are in docs/seed_variance_51_135.md, "Reproducing". Where the completed replicates
+# went (#135, 2026-09-14): /gscratch/makelab/jonf/seedvar/, as rampnet_s<SEED>_best.pth,
+# rampnet_s<SEED>_epoch_1_step_9378.pth, logs/seedvar_<jobid>.out and a SHA256SUMS
+# over all of them. NOTE THE LITERAL `jonf` -- $USER is `jfroehli` and points at the
+# wrong directory under /gscratch/makelab (see above). /gscratch/makelab is purchased
+# and never purged, which is where #84 put Run A's checkpoints for the same reason. The
+# default RUNDIR is deliberately left on scrubbed so it matches the replicates already
+# run; changing it is a decision, not a cleanup.
 #
 # COST. klone ckpt is FREE and preemptable. One replicate is 1 epoch = ~3.5 h on 16
 # GPUs (~56 GPU-h, measured -- docs/stage2_training_cost.md). Preemption is handled by

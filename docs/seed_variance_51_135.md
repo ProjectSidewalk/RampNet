@@ -284,11 +284,24 @@ done
 # about an hour later -- plain `sacct` also hides requeued incarnations.
 sacct -D -u $USER -S $(date -d '1 day ago' +%Y-%m-%d) -o JobID%16,State%14,Elapsed
 
-# ... and copy Campaign B's artifact off scrubbed as soon as a replicate completes.
+# ... and copy Campaign B's artifacts off scrubbed as soon as a replicate completes.
 # RUNDIR is /gscratch/scrubbed/$USER/seedvar/rampnet_s<SEED>, which purges on a ~21-day
-# idle window; /gscratch/makelab is purchased and never purged.
-cp /gscratch/scrubbed/$USER/seedvar/rampnet_s1/best_model.pth \
-   /gscratch/makelab/$USER/seedvar/rampnet_s1_best.pth
+# idle window; /gscratch/makelab is purchased and never purged. The destination is the
+# literal `jonf` directory, not $USER, for the reason given above. This is the layout
+# the three completed replicates (39880702/03/06) were copied to on 2026-09-14
+# (#135): best_model.pth, the end-of-epoch checkpoint, the job log, and one SHA256SUMS
+# over all nine files, verified against the originals before scrubbed was left to purge.
+DST=/gscratch/makelab/jonf/seedvar && mkdir -p "$DST"
+for s in 1 2 3; do
+  RUNDIR=/gscratch/scrubbed/$USER/seedvar/rampnet_s$s
+  cp "$RUNDIR/best_model.pth"                    "$DST/rampnet_s${s}_best.pth"
+  cp "$RUNDIR/checkpoints/epoch_1_step_9378.pth" "$DST/rampnet_s${s}_epoch_1_step_9378.pth"
+  cmp "$RUNDIR/best_model.pth"                    "$DST/rampnet_s${s}_best.pth"
+  cmp "$RUNDIR/checkpoints/epoch_1_step_9378.pth" "$DST/rampnet_s${s}_epoch_1_step_9378.pth"
+done
+cp logs/seedvar_39880702.out logs/seedvar_39880703.out logs/seedvar_39880706.out "$DST/"
+(cd "$DST" && sha256sum rampnet_s*_best.pth rampnet_s*_epoch_1_step_9378.pth seedvar_*.out \
+   > SHA256SUMS && sha256sum -c SHA256SUMS)
 ```
 
 The seed plumbing itself is unit-tested in `tests/test_seeding.py` — including that the
