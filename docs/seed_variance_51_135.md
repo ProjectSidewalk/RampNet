@@ -12,7 +12,8 @@ text is kept verbatim so the amendment is auditable rather than a silent rewrite
 
 **Scored 2026-09-15. Both campaigns complete (3 + 3 replicates), read once, by the
 committed script, under the rules below as amended. The result is the AMBIGUOUS band —
-see [Results](#results-2026-09-15).**
+see [Results](#results-2026-09-15). **Extended 2026-09-17**: Campaign B goes to nine
+replicates under [Amendment 2](#amendment-2-2026-09-17-campaign-b-is-extended-to-nine-replicates), declared before any of the six new seeds was trained.**
 
 ## Results (2026-09-15)
 
@@ -62,7 +63,8 @@ Campaign A replicate. **The arithmetic says that response will not resolve it**:
 is 96% `s_B`. Two more YOLO seeds at `s_A` = 0.002 move `s_gap` by nothing; what
 narrows it is more *RampNet* replicates, which are free (klone `ckpt-all`, ~4 h each).
 The pre-registration assumed the paid arm was the noisy one. It was the other way
-round. That decision — which arm to extend, or neither — is not made here.
+round. That decision — which arm to extend, or neither — is not made here; it was made two
+days later, in [Amendment 2](#amendment-2-2026-09-17-campaign-b-is-extended-to-nine-replicates).
 
 Two descriptive facts that the rule does not use but a reader should have:
 
@@ -340,6 +342,80 @@ document's reading rule as code, importing `select_threshold` and `macro_at` fro
 parity script rather than re-implementing them. The parity script itself was not
 re-pointed — its hardcoded legs and control gate still guard the published 0.039 — it
 only gained an `op_cache` argument on the two functions the read imports.
+
+## Amendment 2 (2026-09-17): Campaign B is extended to nine replicates
+
+**Declared 2026-09-17, after the n=3 result above was scored and before any further
+replicate was trained.** Amendment 1 was made blind; this one was not. It is a
+deviation from the pre-registered response to the ambiguous band, and it is recorded
+as one — the n=3 reading above stays in the record exactly as scored, and the n=9
+reading is reported beside it, never in place of it.
+
+### A2.1 Why the pre-registered response is replaced
+
+A1.1's response to the ambiguous band was a fourth and fifth Campaign A replicate.
+That was written on the assumption that the paid arm would be the noisy one. The
+measurement says the opposite: `s_A` = 0.0023, `s_B` = 0.0111, so `s_B²` is 96% of
+`s_gap²`. Two consequences, both arithmetic on the numbers already in this document:
+
+- **The standard error of the gap of replicate means** is `sqrt(s_A²/n_A + s_B²/n_B)`:
+  0.0065 at 3 + 3. Two more YOLO seeds (5 + 3) give 0.0065; six more RampNet seeds
+  (3 + 9) give 0.0039, if `s_B` holds. The pre-registered response cannot move the
+  number; the alternative can, and costs nothing (klone `ckpt-all`).
+- **The SD estimate itself.** On 2 degrees of freedom the 95% CI on σ is 0.52–6.3×
+  the sample SD, so `s_B` = 0.0111 is consistent with a true σ anywhere in
+  **[0.006, 0.070]** — spanning all three A1.1 bands. On 8 df it narrows to
+  0.68–1.92×, i.e. [0.0075, 0.021] if the point estimate holds. (The "0.5σ̂ to 3.7σ̂"
+  in Stated limitations below understates the upper end; 6.3× is the 95% figure on
+  2 df. The original text is left as written.)
+
+The decision is driven by that arithmetic, not by the direction of any result: the
+gap of replicate means (0.0115) cannot be raised toward the published 0.039 by any
+number of RampNet seeds, and the reading rules below are the ones already ratified.
+
+### A2.2 What is run
+
+Six more replicates of the committed Stage 2 recipe, **seeds 4, 5, 6, 7, 8, 9**,
+launched from the same checkout and launcher as seeds 1–3, with the same
+`REPO=`/`RAMPNET_ENV=` invocation (Reproducing, below), on klone `ckpt-all`. Free.
+Campaign A is **not** extended; `n_A` stays 3 and `s_A` is not recomputed.
+
+Seeds 1–3 remain in the sample. No replicate is dropped for any reason other than
+never producing a `best_model.pth`. A requeued replicate is kept, and its restart
+count is recorded beside its number, per A1.2's upper-bound note.
+
+### A2.3 How it is read
+
+1. **One read, no interim look.** The read runs once, when all six have a
+   `best_model.pth`, or on **2026-10-15** with however many have completed by then —
+   whichever comes first — and `n_B` is reported as whatever it is. Nothing is scored
+   before that.
+2. **Same statistic, same script, same bands.** `s_B` is recomputed on `n_B` = 9,
+   `s_gap` with the unchanged `s_A`, and A1.1's bands applied with the cut points
+   unchanged (0.010 / 0.020). A1.2 is re-applied to the n=9 `s_B`. The n=3 band call
+   above is not overwritten; the table gains a column.
+3. **The gap of replicate means is reported with a Welch 95% CI on 3 + 9.** This is
+   a report, not a decision rule. It answers a different question from A1.1: A1.1 asks
+   whether the published n=1 gap clears the noise, the CI says what the
+   recipe-vs-recipe gap is. If they disagree, both are stated; neither is suppressed.
+4. **The secondary reads** (`manual_gold` at matched thresholds, as-saved thresholds)
+   are re-reported on n=9 and stay fenced from the statistic, as in Results.
+5. **What cannot come out of this.** If the n=9 `s_gap` lands under 0.010, the finding
+   is "small but real, at the gap of replicate means (~0.01)" — not that the published
+   0.039 is the size of the effect. The published checkpoint is compared, not pooled
+   (A1.2), and that does not change here.
+
+### A2.4 Plumbing gaps, named up front (as A1.3 did)
+
+- `scripts/analysis/seed_variance_read_51_135.py` has one `SEEDS = (1, 2, 3)` tuple
+  serving both arms. It needs a separate RampNet seed list before it can read 3 + 9;
+  the test suite pins the n=3 artifact and will need the n=9 artifact pinned beside it.
+- Scoring is the same makelab2 driver (`run_seedvar_eval.sh`, RampNet half only):
+  ~35 min per replicate ⇒ ~3.5 h for six, plus copying six checkpoints klone → desktop
+  → makelab2 with the hash at every hop.
+- The copy-out from `/gscratch/scrubbed` to `/gscratch/makelab` after each completion
+  is part of the protocol (Reproducing); with six replicates on a 3.9% duty cycle the
+  21-day purge window is more likely to bite than it was with three.
 
 ## Stated limitations
 
