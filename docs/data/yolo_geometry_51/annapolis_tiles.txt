@@ -1,0 +1,43 @@
+Bundle: benchmark/annapolis  (125 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: /homes/gws/jonf/RampNet/.model_cache
+
+Operating point: predictions with confidence < 0.25 dropped (models without confidences are unaffected).
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+y11x_tiles                            0.923   (0.870-0.955)  0.490   (0.433-0.547)  0.640  0.738       144/12/150/2
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+[y11x_tiles] threshold sweep (re-scored from cached detections)
+    thr      P      R     F1         tp/fp/fn
+   0.05  0.823  0.776  0.799        228/49/66 <- best F1
+   0.10  0.881  0.704  0.783        207/28/87
+   0.15  0.914  0.650  0.759       191/18/103
+   0.20  0.914  0.578  0.708       170/16/124
+   0.25  0.923  0.490  0.640       144/12/150
+   0.30  0.953  0.415  0.578        122/6/172
+   0.40  1.000  0.299  0.461         88/0/206
+   0.50  1.000  0.167  0.286         49/0/245
+   0.60  1.000  0.095  0.174         28/0/266
+   0.70  1.000  0.003  0.007          1/0/293
+
+PR curves written to /homes/gws/jonf/RampNet/yolo_eval_results_geometry_51/pr_annapolis_tiles (JSON + pr_curves.png)
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   125 (of 125 seen)
+Detections judged:    222  (correct 214, incorrect 8)
+Detections duplicate: 3  (redundant hits on an already-counted ramp; folded into the numbers above per this run's duplicate scoring)
+Detections unsure:    5  (abstained — not in precision or recall)
+Missed ramps marked:  80  (+34 unsure, abstained)
+Precision: 0.964  (95% CI 0.931-0.982)
+Recall:    0.728  (95% CI 0.674-0.776)  [vs ramps visible in the 125 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    222      0.964    0.728
+     0.60    208      0.976    0.690
+     0.65    193      0.990    0.650
+     0.70    181      0.989    0.609
+     0.75    164      0.994    0.554
+     0.80    145      0.993    0.490
+     0.85    117      0.991    0.395
+     0.90     68      1.000    0.231
+     0.95     26      1.000    0.088

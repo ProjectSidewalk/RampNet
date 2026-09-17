@@ -1,0 +1,43 @@
+Bundle: benchmark/sao_paulo  (125 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: /homes/gws/jonf/RampNet/.model_cache
+
+Operating point: predictions with confidence < 0.25 dropped (models without confidences are unaffected).
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+y11x_tiles                            0.894   (0.835-0.934)  0.480   (0.423-0.539)  0.625  0.751       135/16/146/9
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+[y11x_tiles] threshold sweep (re-scored from cached detections)
+    thr      P      R     F1         tp/fp/fn
+   0.05  0.722  0.815  0.766        229/88/52
+   0.10  0.802  0.751  0.776        211/52/70 <- best F1
+   0.15  0.844  0.676  0.751        190/35/91
+   0.20  0.894  0.601  0.719       169/20/112
+   0.25  0.894  0.480  0.625       135/16/146
+   0.30  0.921  0.413  0.570       116/10/165
+   0.40  0.974  0.267  0.419         75/2/206
+   0.50  0.979  0.167  0.286         47/1/234
+   0.60  1.000  0.075  0.139         21/0/260
+   0.70  1.000  0.004  0.007          1/0/280
+
+PR curves written to /homes/gws/jonf/RampNet/yolo_eval_results_geometry_51/pr_sao_paulo_tiles (JSON + pr_curves.png)
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   125 (of 125 seen)
+Detections judged:    214  (correct 190, incorrect 24)
+Detections duplicate: 1  (redundant hits on an already-counted ramp; folded into the numbers above per this run's duplicate scoring)
+Detections unsure:    37  (abstained — not in precision or recall)
+Missed ramps marked:  91  (+43 unsure, abstained)
+Precision: 0.888  (95% CI 0.839-0.923)
+Recall:    0.676  (95% CI 0.619-0.728)  [vs ramps visible in the 125 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    214      0.888    0.676
+     0.60    197      0.909    0.637
+     0.65    185      0.930    0.612
+     0.70    167      0.928    0.552
+     0.75    146      0.938    0.488
+     0.80    128      0.953    0.434
+     0.85     96      0.979    0.335
+     0.90     59      1.000    0.210
+     0.95     23      1.000    0.082

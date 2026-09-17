@@ -181,25 +181,34 @@ ROSTER = (
              "at 0.05, roughly double the YOLO11 arms -- which is why it leads only "
              "on budapest, where firing at all is the binding constraint."),
 
-    # The four annapolis Claude legs (#122). One split, so they cannot join tables
-    # the other rows report over ten; the write-up is annapolis-only for the same
-    # reason. Two model ids x two efforts: the first provider whose knob splits one
-    # id into several legs, hence `pins` and `published_as`.
+    # The Claude legs (#122). Two model ids x two efforts, all four on annapolis.
+    # The opus/low leg now covers eleven splits -- the nine of #139 plus both
+    # Laurens arms (#151, 2026-09-04) -- so it is a complete leg on the scoreboard;
+    # the other three are annapolis only and stay off every pooled table, with the
+    # write-up scoping each number to the split it was measured on. None is
+    # `standing`: a pinned leg cannot be, because both efforts of one model id share
+    # a spec (see the check below). The first provider whose knob splits one id
+    # into several legs, hence `pins` and `published_as`.
     Challenger(
         spec="claude:claude-opus-5", label="claude-opus-5", provider="claude",
         density="sparse", standing=False, added="2026-08-15",
         pins=(("claude_effort", "low"),),
         published_as="claude-opus-5-effort-low",
-        note="Nine splits (#139). Pooled F1 0.588 over the seven city splits, which "
-             "TRAILS gemini-3.1-pro's 0.608 -- its +0.021 annapolis lead, the only "
-             "time anything displaced the top challenger, did not survive pooling. "
-             "Per split the two trade wins (Opus takes 3 of 7 pooled, 4 of 9 overall); "
-             "the spread is ~3x the lead, so that lead was split noise, not a "
-             "difference. Highest recall of any fully-pooled chat VLM though (0.614), "
-             "trading -0.083 precision for +0.041 recall. 2.61 boxes/pano over nine "
-             "splits (2.56 on annapolis alone). No manual_gold row, deliberately: "
-             "#144. Effort low is the provider default, so this is what a bare "
-             "`claude:claude-opus-5` reproduces."),
+        note="Eleven splits: nine in #139, both Laurens arms in #151. Pooled F1 0.568 "
+             "over the eight city splits, within 0.01 of gemini-3.1-pro's 0.575 -- its "
+             "+0.021 annapolis lead, the only time anything displaced the top "
+             "challenger, did not survive pooling, but neither did a deficit: the two "
+             "split 4 wins each on the pooled eight (Opus 6 of 11 overall), and the "
+             "per-split gaps range from -0.069 (gainesville) to +0.086 "
+             "(laurens_mapillary, Opus's largest win), so the annapolis lead was split "
+             "noise, not a difference. Highest recall of any fully-pooled chat VLM "
+             "(0.586), trading -0.077 precision for +0.052 recall. Best zero-shot model "
+             "on BOTH Laurens arms (0.430 mapillary, 0.437 gsv) and flat across them "
+             "(+0.007) where RampNet gains +0.115, which is what makes #151's "
+             "rig-not-town reading sharp. 2.54 boxes/pano over eleven splits (2.56 on "
+             "annapolis alone). No manual_gold row, deliberately: #144. Effort low is "
+             "the provider default, so this is what a bare `claude:claude-opus-5` "
+             "reproduces."),
     Challenger(
         spec="claude:claude-opus-5", label="claude-opus-5", provider="claude",
         density="sparse", standing=False, added="2026-08-15",
