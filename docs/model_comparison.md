@@ -1687,11 +1687,20 @@ in each published file's `pins` instead. Whether the two paths return bit-identi
 detections for one model id is **untested**; nothing here depends on it, because no model
 was run on both.
 
-| model | P | R | F1 | tp/fp/fn | boxes/pano | thinking tok | cost |
+| model | P | R | F1 | tp/fp/fn | boxes/pano | thinking tok | cost, 720 calls (120 of 125 panos) |
 | :--- | ---: | ---: | ---: | :--- | ---: | ---: | ---: |
 | `claude-fable-5` | 0.579 | 0.646 | **0.611** | 190/138/104 | 2.72 | 23,699 | $18.47 |
 | `claude-fable-5-1` | 0.637 | 0.585 | **0.610** | 172/98/122 | 2.28 | 254 | $19.86 |
 | *`claude-opus-5` (low), for reference* | *0.572* | *0.605* | *0.588* | *178/133/116* | *2.56* | *523* | *$8.94* |
+
+The cost and thinking-token columns are the two 720-call full-leg rows in
+`analysis_out/usage_log.jsonl` (2026-09-05 15:52 and 16:47), which cover 120 of the 125
+panos: the other 5 were served from the cache the calibration pass had already written.
+Counting that pass's first 30 calls on those 5 panos ($0.76 for `claude-fable-5`, $0.82 for
+`claude-fable-5-1`), each id's whole split cost **$19.23** and **$20.67**. The calibration's
+second pass (42 calls, $1.11, re-issued after a cache-write gap) is in the ledger too but
+belongs to neither leg's number. The Opus row is the whole 125-pano leg, from console
+output rather than the ledger (see the gap stated below).
 
 **Both displace `claude-opus-5` at the top of this split**, which had itself displaced
 `gemini-3.1-pro-preview` (0.567). This is the first time a general-purpose model has beaten
@@ -1711,7 +1720,9 @@ despite it being the older id.
 Because the Fable family cannot disable thinking (`{"type": "disabled"}` is a 400 and
 `budget_tokens` was removed), #156 predicted a cost band "wider than a flat 2x" — no
 near-zero-thinking floor to make an `effort=low` leg cheap. It is a flat 2x. Fable is
-$10/$50 per MTok against Opus's $5/$25, and the legs cost 2.2x and 2.1x the Opus leg.
+$10/$50 per MTok against Opus's $5/$25, and per call the legs cost 2.15x and 2.31x the
+Opus leg ($0.0257 and $0.0276 against $0.0119) — the whole-split totals above, $19.23 and
+$20.67 against $8.94, give the same ratios.
 `claude-fable-5` spent ~33 thinking tokens/call and `claude-fable-5-1` ~0.35, against
 Opus-low's ~0.7 — always-on thinking is *adaptive*, and on a localization task at low
 effort it costs essentially nothing. A 5-pano calibration predicted the full-leg cost to
@@ -1719,9 +1730,10 @@ within 1.5% on both ids.
 
 **These legs are `standing=False` and cover annapolis only (1 of 8 pooled splits).** Both
 clear the pre-registered 0.567 gate for expanding to the full split set, so that expansion
-is now a live decision rather than a hypothetical — at the measured $0.0272/call it is
-~$155 per id for `manual_gold` alone. It has **not** been taken, and no other split has
-been run.
+is now a live decision rather than a hypothetical — `manual_gold` is 1,000 panos × 6
+views = 6,000 calls, so at the measured full-leg rates ($0.0257/call for `claude-fable-5`,
+$0.0276/call for `claude-fable-5-1`) it is **~$154 and ~$165 per id** for that split alone.
+It has **not** been taken, and no other split has been run.
 
 **Reproducing them** (the detections are committed; nothing below needs an API key):
 

@@ -212,3 +212,69 @@ def test_the_laurens_arms_are_the_pair_the_rig_comparison_rests_on():
     # (+0.007) where RampNet gains +0.115. If a re-run ever moves this materially,
     # the write-up's argument changes and should be re-read, not silently updated.
     assert abs(f1["laurens_gsv"] - f1["laurens_mapillary"]) < 0.01
+
+
+# --------------------------------------------------------------------------- #
+# the Fable cost figures, re-derived from the ledger (#156)
+# --------------------------------------------------------------------------- #
+USAGE_LOG = os.path.join(REPO, "analysis_out", "usage_log.jsonl")
+DOC = os.path.join(REPO, "docs", "model_comparison.md")
+
+
+def _fable_ledger():
+    """``{model_id: [rows]}`` for the two Fable ids, in ledger order."""
+    rows = {}
+    with open(USAGE_LOG, encoding="utf-8") as fh:
+        for line in fh:
+            if not line.strip():
+                continue
+            r = json.loads(line)
+            if r.get("provider") == "claude" and "fable" in r["model_id"]:
+                rows.setdefault(r["model_id"], []).append(r)
+    return rows
+
+
+def test_the_fable_cost_figures_are_what_the_ledger_says():
+    """The doc's cost column was the 720-call row (120 panos), labelled as if it were
+    the leg; the manual_gold estimate quoted one id's calibration rate and did not
+    follow from it (6,000 calls at $0.0272 is $163, not $155). Every figure the doc
+    now states is recomputed here from the committed ledger. (S3 on PR #157.)"""
+    with open(DOC, encoding="utf-8") as fh:
+        doc = fh.read()
+    ledger = _fable_ledger()
+    assert set(ledger) == {"claude-fable-5", "claude-fable-5-1"}
+    # Both legs: one 720-call full row, and a calibration pass of 30 calls on the
+    # 5 panos the full row then read from cache (a second, partial calibration pass
+    # follows it -- that one belongs to neither number).
+    want = {}
+    for model, rows in ledger.items():
+        full = [r for r in rows if r["calls"] == 720]
+        cal = [r for r in rows if r["panos_scored"] == 5]
+        assert len(full) == 1 and full[0]["panos_scored"] == 125
+        assert cal[0]["calls"] == 30 and 720 + 30 == 125 * 6
+        per_call = full[0]["est_cost_usd"] / 720
+        want[model] = {
+            "row": full[0]["est_cost_usd"],
+            "whole": full[0]["est_cost_usd"] + cal[0]["est_cost_usd"],
+            "per_call": per_call,
+            "manual_gold": per_call * 1000 * 6,
+            "thinking": full[0]["thoughts_tokens"],
+        }
+    f5, f51 = want["claude-fable-5"], want["claude-fable-5-1"]
+    assert f"| `claude-fable-5` | 0.579 | 0.646 | **0.611** | 190/138/104 | 2.72 | " \
+           f"{f5['thinking']:,} | ${f5['row']:.2f} |" in doc
+    assert f"| `claude-fable-5-1` | 0.637 | 0.585 | **0.610** | 172/98/122 | 2.28 | " \
+           f"{f51['thinking']:,} | ${f51['row']:.2f} |" in doc
+    assert "cost, 720 calls (120 of 125 panos)" in doc      # the column says what it is
+    assert f"each id's whole split cost **${f5['whole']:.2f}** and **${f51['whole']:.2f}**" in doc
+    assert f"(${f5['per_call']:.4f}/call for `claude-fable-5`," in doc
+    assert f"${f51['per_call']:.4f}/call for `claude-fable-5-1`)" in doc
+    assert f"**~${f5['manual_gold']:.0f} and ~${f51['manual_gold']:.0f} per id**" in doc
+    # The Opus leg has no ledger row (its tokens were never logged; see the doc), so
+    # $8.94 for 750 calls is a stated number, and the ratio is checked against it.
+    opus_per_call = 8.94 / 750
+    assert f"per call the legs cost {f5['per_call'] / opus_per_call:.2f}x and " \
+           f"{f51['per_call'] / opus_per_call:.2f}x the" in doc
+    # The thing the old sentence got wrong: an estimate must follow from the rate
+    # beside it. $155 at $0.0272/call would have needed 5,699 calls.
+    assert "$0.0272/call it is" not in doc
