@@ -227,6 +227,17 @@ def test_seed_launcher_refuses_a_checkout_without_seed_support():
     assert src.index("grep -q -- '--seed'") < src.index('cd "$RUNDIR"')
 
 
+def test_seed_launcher_logs_the_commit_it_ran():
+    """The 09-06 failure was a checkout at the wrong commit, and it was only visible
+    because that checkout's train.py rejected --seed. A checkout stale elsewhere trains
+    to completion, and without the commit in the job log nothing says which code
+    produced the checkpoint that gets scored."""
+    src = SEED_SLURM.read_text(encoding="utf-8")
+    banner = src.split("--- Stage 2 seed replicate", 1)[1].split("-----------", 1)[0]
+    assert 'git -C "$REPO" rev-parse' in banner, "the banner must print the repo commit"
+    assert 'git -C "$REPO" status --porcelain' in banner, "and whether it is dirty"
+
+
 def test_seed_launcher_isolates_each_replicate_in_its_own_directory():
     """train.py writes best_model.pth and latest_checkpoint.pth to the CWD, so shared
     directories cross-contaminate resume state between replicates."""

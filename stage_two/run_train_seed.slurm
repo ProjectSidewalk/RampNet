@@ -157,6 +157,12 @@ WORLD_SIZE=$(($SLURM_NNODES * $NPROC_PER_NODE))
 echo "--- Stage 2 seed replicate (#51 / #135) ---"
 echo "Job ID:      ${SLURM_JOBID}"
 echo "Seed:        ${SEED}"
+# The commit is the one thing a SUCCESSFUL run cannot be traced back to otherwise: a
+# checkout stale somewhere train.py does not complain about trains to completion and
+# gets scored as the recipe. 39880702/03/06 ran before this line existed, so their
+# commit is not recorded (docs/seed_variance_51_135.md, "Reproducing").
+echo "Repo:        ${REPO}"
+echo "Repo commit: $(git -C "$REPO" rev-parse --short HEAD 2>/dev/null || echo unknown)   dirty files: $(git -C "$REPO" status --porcelain 2>/dev/null | wc -l)"
 echo "Run dir:     ${RUNDIR}   (cwd -- best_model.pth and latest_checkpoint.pth land here)"
 echo "Data root:   ${DATA_ROOT}"
 echo "Epochs:      ${EPOCHS}"

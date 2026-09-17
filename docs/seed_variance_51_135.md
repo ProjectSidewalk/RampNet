@@ -262,8 +262,27 @@ SEED=1 NAME=y11x_tiles_s1 YOLO_CKPT=yolo11x.pt \
   YOLO_IMGSZ=1024 BATCH=12 EPOCHS=60 SAVE_PERIOD=1 CHAIN=5 \
   sbatch scripts/model_comparison/run_yolo_train_tillicum.slurm
 
-# Campaign B, per replicate (klone). logs/ must exist BEFORE submit -- Slurm opens
-# --output against the submit directory, so a missing logs/ fails the job at start.
+# Campaign B (klone). First put a checkout on scratch -- code only, the dataset already
+# lives there. Not klone home: it is a separate 10 GB quota (docs/stage2_epoch_curve_84.md).
+# The checkout, like RUNDIR, is on the purging volume; that is fine because everything
+# durable is copied out below, and it is what the completed replicates used.
+rsync -av --exclude .venv --exclude .model_cache --exclude 'benchmark/*/panos' \
+      --exclude 'benchmark/*/gallery' --exclude view_dump --exclude dataset \
+      --exclude runs --exclude '*.pt' RampNet/ klone:/gscratch/scrubbed/$USER/RampNet_seedvar/
+#
+# The launcher prints the commit of that checkout, and whether it is dirty, at the top
+# of every job log. It did not when 39880702/03/06 ran, so THE COMMIT THOSE THREE
+# REPLICATES TRAINED AT IS NOT RECORDED. What the run itself pins down: train.py took
+# --seed and the launcher honoured RAMPNET_ENV, so the checkout was at or after 455e1c4
+# (2026-09-04), and it was synced no later than the 2026-09-09 submission, so at or
+# before 2916ba5 (main on that date). Nothing under rampnet/ or stage_two/ changed on
+# main between the 2026-09-04 merge (538a3bb) and 2916ba5. Between 455e1c4 and 538a3bb,
+# train.py gained the stateless LR scheduler and per-step resume checkpoints from #135;
+# the scheduler defaults to constant, which is the recipe, and none of the three jobs
+# was preempted, so the same recipe trained either way.
+#
+# Per replicate: logs/ must exist BEFORE submit -- Slurm opens --output against the
+# submit directory, so a missing logs/ fails the job at start.
 #
 # RAMPNET_ENV is REQUIRED (the launcher refuses to start without it -- there is no
 # named env to `source activate` on klone). REPO defaults to the submit directory and

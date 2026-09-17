@@ -143,3 +143,16 @@ def test_the_checkout_preflight_rejects_a_train_py_without_seed(tmp_path, has_se
     else:
         assert proc.returncode == 1
         assert "stale checkout" in proc.stderr and tmp_path.as_posix() in proc.stderr
+
+
+@requires_bash
+def test_the_commit_line_survives_a_checkout_that_is_not_a_repo():
+    """The banner runs under `set -euo pipefail`. A checkout rsync'd without .git, or a
+    node without git on PATH, must print `unknown`, not kill the job before torchrun."""
+    line = _seed_launcher_line('echo "Repo commit:')
+    proc = subprocess.run(
+        [BASH, "-c", "set -euo pipefail\nREPO=/nonexistent\n" + line],
+        capture_output=True, text=True, env={"PATH": "/usr/bin:/bin"},
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.startswith("Repo commit: unknown")
