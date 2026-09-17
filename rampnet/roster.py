@@ -469,6 +469,17 @@ def label_for(spec, cargs=None):
     return PROVIDER_DEFAULTS.get(key, provider)
 
 
+def legs_of(spec, cargs=None):
+    """Every registered leg a spec could name, in roster order.
+
+    ``leg_for`` picks one of these by matching pins against ``cargs``. Callers that
+    need to know *why* nothing matched -- the exporter, which must not fall back to
+    a bare filename when every candidate is pinned -- read the whole list.
+    """
+    label = label_for(spec, cargs)
+    return [c for c in ROSTER if c.spec == spec or c.label == label]
+
+
 def leg_for(spec, cargs=None):
     """The registered leg a run resolves to, or ``None`` if it is not registered.
 
@@ -478,8 +489,7 @@ def leg_for(spec, cargs=None):
     name a file without being told (see ``published_name``) instead of relying on
     whoever ran it to remember ``--publish-as``.
     """
-    label = label_for(spec, cargs)
-    candidates = [c for c in ROSTER if c.spec == spec or c.label == label]
+    candidates = legs_of(spec, cargs)
     for c in candidates:                      # a pinned leg wins when its pins match
         if c.pins and all(getattr(cargs, k, None) == v for k, v in c.pins):
             return c

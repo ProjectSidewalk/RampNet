@@ -119,11 +119,35 @@ def publication_name(spec, cargs, publish_as=None):
     nothing, so the overwrite guard stays quiet, and surfaces only later as a file
     that belongs to no registered leg. The registry knows the answer; this is the
     one place that writes the filename, so this is where it should ask.
+
+    And when the registry knows the spec but none of its legs match the run's
+    settings, this REFUSES rather than falling back to the plain label. Every leg
+    of that model is pinned, so a run that matches none of them is either a new
+    leg (name it with ``--publish-as``) or, far more likely, the right leg exported
+    at the wrong flags: both Fable legs pin ``claude_serving_path=anthropic`` while
+    the default is ``vertex``, so a plain ``--models claude:claude-fable-5`` used
+    to write ``claude-fable-5__annapolis.json`` with ``pins: {}`` and no error. The
+    serving path is not in the cache key, so the lookup even succeeded.
     """
     if publish_as:
         return publish_as
     leg = roster.leg_for(spec, cargs)
-    return roster.published_name(leg) if leg is not None else spec_label(spec, cargs)
+    if leg is not None:
+        return roster.published_name(leg)
+    candidates = roster.legs_of(spec, cargs)
+    if candidates:
+        known = "; ".join(
+            f"{roster.published_name(c)}: "
+            + ", ".join(f"{k}={v}" for k, v in c.pins) for c in candidates)
+        actual = ", ".join(
+            f"{k}={getattr(cargs, k, None)}"
+            for k in sorted({k for c in candidates for k, _ in c.pins}))
+        raise ValueError(
+            f"{spec!r} is registered, but every leg of it is pinned and none matches "
+            f"this run ({actual}). Refusing to publish it as the bare label "
+            f"{spec_label(spec, cargs)!r}. Registered legs: {known}. Pass the "
+            f"matching flags, or --publish-as to name a genuinely new leg.")
+    return spec_label(spec, cargs)
 
 
 def export(cache_dir, out_dir, splits, specs, allow_partial=False, overrides=None,
