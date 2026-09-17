@@ -13,7 +13,8 @@ does the snapshot: each incarnation's elapsed, truncated at the query instant.
 
 reproduces docs/tillicum.md's "496.5 GPU-hours consumed on the baseline since
 2026-07-24", written 2026-07-30 at 07:07: 497.5 at 07:00, and 496.5 itself about
-seventeen minutes before the line was committed. Without `--job-name` the same
+seventeen minutes before the line was written (its commit landed at 08:15, when the
+snapshot reads 503.9). Without `--job-name` the same
 snapshot is 553.2, which is what that sentence would have said had it been an
 account-wide figure. Timestamps are the cluster's own clock, as sacct prints them.
 """

@@ -59,7 +59,8 @@ python scripts/analysis/gpu_hours_as_of.py \
 ```
 
 The baseline passes 496.5 at about 06:50 that morning, seventeen minutes before the line was
-committed. It also confirms the original query was duplicate-inclusive: the same snapshot over
+written (author time 07:07; the commit landed at 08:15, by which point the snapshot reads
+503.9). It also confirms the original query was duplicate-inclusive: the same snapshot over
 only the last incarnation per job id (what `sacct` shows without `-D`) is 85.8 GPU-hours.
 Two things this check is *not*: it is not account-wide — every job name at that instant gives
 553.2 — and it is not a running sum over jobs by their end time, which crosses 496.5 only at
