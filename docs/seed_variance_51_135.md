@@ -317,9 +317,9 @@ sacct -D -u $USER -S $(date -d '1 day ago' +%Y-%m-%d) -o JobID%16,State%14,Elaps
 DST=/gscratch/makelab/jonf/seedvar && mkdir -p "$DST"
 for s in 1 2 3; do
   RUNDIR=/gscratch/scrubbed/$USER/seedvar/rampnet_s$s
-  cp "$RUNDIR/best_model.pth"                    "$DST/rampnet_s${s}_best.pth"
+  cp "$RUNDIR/best_model.pth" "$DST/rampnet_s${s}_best.pth"
   cp "$RUNDIR/checkpoints/epoch_1_step_9378.pth" "$DST/rampnet_s${s}_epoch_1_step_9378.pth"
-  cmp "$RUNDIR/best_model.pth"                    "$DST/rampnet_s${s}_best.pth"
+  cmp "$RUNDIR/best_model.pth" "$DST/rampnet_s${s}_best.pth"
   cmp "$RUNDIR/checkpoints/epoch_1_step_9378.pth" "$DST/rampnet_s${s}_epoch_1_step_9378.pth"
 done
 cp logs/seedvar_39880702.out logs/seedvar_39880703.out logs/seedvar_39880706.out "$DST/"
