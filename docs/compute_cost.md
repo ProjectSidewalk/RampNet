@@ -2,7 +2,9 @@
 
 **2,684.4 GPU-hours across 3,991 job allocations on klone since 2026-07-02, at $0.** That is
 the compute side of every RampNet experiment run on Jon's klone account, and until now it was
-recorded nowhere — the figures in [`tillicum.md`](tillicum.md) and
+recorded nowhere. It is a snapshot as of the 2026-08-19 pull: **158.0 of those GPU-hours are
+elapsed-so-far from 3 jobs that were still RUNNING** (`38304087` alone, 157.5 h), and the next
+pull will re-record them finished and move the total — the figures in [`tillicum.md`](tillicum.md) and
 [`stage2_training_cost.md`](stage2_training_cost.md) were transcribed by hand, per job, when
 someone remembered (#143).
 
@@ -22,8 +24,8 @@ clean clone **with no cluster account** — the same reason `usage_log.jsonl` is
 ## `sacct -D` is worth 4.3x, and it is the whole finding
 
 Slurm reports only the **last incarnation** of a requeued job unless you pass `-D`. Our klone
-work lives on the preemptable `ckpt` partition, where **96% of allocations end in `PREEMPTED`**
-(3,780 of 3,991). So the default view does not undercount slightly — it discards nearly
+work lives on the preemptable `ckpt` partition, where **95% of allocations end in `PREEMPTED`**
+(3,780 of 3,991; 96% counting the 59 `REQUEUED` incarnations). So the default view does not undercount slightly — it discards nearly
 everything:
 
 | the #51 YOLO baseline (`yolo_curb_ramp_train`) | rows | GPU-hours |
@@ -38,10 +40,26 @@ the job id: 3,857 rows collapse to 27 keys otherwise.
 
 **This validates rather than contradicts the number already in the repo.**
 [`tillicum.md`](tillicum.md) records *"496.5 GPU-hours consumed on the baseline since
-2026-07-24 (`sacct`, all arms)"*, measured 2026-07-30. Summing this ledger over jobs **ending**
-from 2026-07-24 onward, the running total crosses 496.5 GPU-hours at **2026-07-29T21:17** —
-i.e. the evening before that figure was written. It reproduces to the hour, which also
-confirms the original query was duplicate-inclusive.
+2026-07-24 (`sacct`, all arms)"*, written 2026-07-30 at 07:07. That figure was a **snapshot**
+of a live `sacct -S 2026-07-24` on the baseline's job name: every incarnation alive after
+07-24, with a still-running one counting its elapsed so far. Re-read that way from this dump
+(`scripts/analysis/gpu_hours_as_of.py`, each incarnation's elapsed truncated at the query
+instant):
+
+```bash
+python scripts/analysis/gpu_hours_as_of.py     --from-file docs/data/compute/sacct_klone_2026-08-19.txt     --since 2026-07-24 --at 2026-07-30T07:00 --job-name yolo_curb_ramp_train
+# 497.5 GPU-hours as of 2026-07-30T07:00:00: 400 incarnation(s) ...
+```
+
+The baseline passes 496.5 at about 06:50 that morning, seventeen minutes before the line was
+committed. It also confirms the original query was duplicate-inclusive: the same snapshot over
+only the last incarnation per job id (what `sacct` shows without `-D`) is 85.8 GPU-hours.
+Two things this check is *not*: it is not account-wide — every job name at that instant gives
+553.2 — and it is not a running sum over jobs by their end time, which crosses 496.5 only at
+2026-07-30T11:03 on the baseline, hours after the line was written, because it waits for each
+incarnation to finish before counting any of it. An earlier version of this section used that
+by-end sum over every job name and reported a crossing at 2026-07-29T21:17; that number was a
+coincidence of two mistakes, not a validation.
 
 ## What the 2,684 hours went on
 
@@ -69,7 +87,7 @@ RampNet-only total of **2,650.0 GPU-h**.
 ## Cost
 
 **$0.** Every one of these hours was on klone, which is free at the point of use (condo model,
-and `ckpt` is scavenger). The price is paid in preemption instead: 96% of allocations were
+and `ckpt` is scavenger). The price is paid in preemption instead: 95% of allocations were
 preempted, and `stage2_training_cost.md` measures the resulting overhead at **1.67x** on the
 paper's Stage 2 run — 44.7 h of compute stretched over 74.6 h of calendar across 15 restarts.
 
@@ -85,8 +103,9 @@ statements and only one is safe to put in a paper.
   control master was down when this was written. One command once it is up:
   `python scripts/analysis/slurm_usage.py --cluster tillicum --since 2026-07-01 --save-raw docs/data/compute/sacct_tillicum_<date>.txt`.
   Until then the $4.20 and $0.03 figures in [`tillicum.md`](tillicum.md) remain hand-transcribed.
-- **The window starts 2026-07-02**, which is where this account's retained records begin, not
-  where RampNet's compute begins.
+- **The window starts 2026-07-02.** The dump was pulled with `-S 2026-07-01` and its first
+  record started 2026-07-02, so nothing here says whether older records exist on the account;
+  it is only where this pull begins, not where RampNet's compute begins.
 - **The paper's own Stage 1 and Stage 2 runs are not here at all.** They ran on a different
   user's account (see [`stage1_generation_cost.md`](stage1_generation_cost.md)), so they are
   outside this `sacct` query and are not recoverable through it. What survives of them is the

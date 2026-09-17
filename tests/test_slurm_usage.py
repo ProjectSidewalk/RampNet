@@ -17,10 +17,13 @@ sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "analysis"))
 sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "model_comparison"))
 
 from slurm_usage import (  # noqa: E402
-    gpus_from_tres, is_terminal, latest_rows, new_rows, parse_sacct, print_by_name,
-    row_key, sacct_command, summarize, SACCT_FIELDS, COLUMNS,
+    gpu_hours_as_of, gpus_from_tres, is_terminal, latest_rows, new_rows, parse_sacct,
+    print_by_name, row_key, sacct_command, summarize, SACCT_FIELDS, COLUMNS,
 )
+import gpu_hours_as_of as as_of_script  # noqa: E402
 from rampnet import ledger  # noqa: E402
+
+KLONE_DUMP = os.path.join(REPO_ROOT, "docs", "data", "compute", "sacct_klone_2026-08-19.txt")
 
 
 def _line(job_id, name, cluster, part, qos, state, start, end, elapsed, tres,
@@ -208,3 +211,75 @@ def test_the_compute_ledger_is_re_included_in_gitignore():
     class of failure this whole issue is about."""
     with open(os.path.join(REPO_ROOT, ".gitignore"), encoding="utf-8") as fh:
         assert "!analysis_out/compute_log.jsonl" in fh.read()
+
+
+def test_a_snapshot_counts_elapsed_so_far_not_finished_jobs():
+    """A figure copied from a live sacct counts a running job's hours up to that
+    moment. A by-end running sum counts nothing of it until it ends -- which is how
+    the 496.5 check was first done, and why it landed on the wrong instant."""
+    from datetime import datetime
+    rows = parse_sacct("\n".join([
+        # 4 GPUs, started 2 h before the query and ran 3 h more: 8 GPU-h so far.
+        _line("1", "train", "klone", "ckpt-all", "ckpt", "PREEMPTED",
+              "2026-07-30T05:00:00", "2026-07-30T10:00:00", 18000, "gres/gpu=4"),
+        # Ended before the window: sacct -S excludes it entirely.
+        _line("2", "train", "klone", "ckpt-all", "ckpt", "COMPLETED",
+              "2026-07-20T00:00:00", "2026-07-23T00:00:00", 259200, "gres/gpu=4"),
+        # Alive across the window's start: counted in full, as -S does.
+        _line("3", "train", "klone", "ckpt-all", "ckpt", "COMPLETED",
+              "2026-07-23T23:00:00", "2026-07-24T01:00:00", 7200, "gres/gpu=1"),
+        # Not started yet at query time.
+        _line("4", "train", "klone", "ckpt-all", "ckpt", "COMPLETED",
+              "2026-07-30T08:00:00", "2026-07-30T09:00:00", 3600, "gres/gpu=1"),
+        # Another job name: out of scope when one is asked for.
+        _line("5", "other", "klone", "ckpt-all", "ckpt", "COMPLETED",
+              "2026-07-29T00:00:00", "2026-07-29T01:00:00", 3600, "gres/gpu=1"),
+    ]))
+    at, since = datetime(2026, 7, 30, 7), datetime(2026, 7, 24)
+    assert gpu_hours_as_of(rows, at, since, "train") == (pytest.approx(10.0), 2)
+    assert gpu_hours_as_of(rows, at, since) == (pytest.approx(11.0), 3)
+    # No -S: the 288 GPU-h job that ended before the window counts too.
+    assert gpu_hours_as_of(rows, at, None, "train") == (pytest.approx(298.0), 3)
+
+
+def test_the_tillicum_496_5_reproduces_from_the_committed_dump_as_a_baseline_snapshot():
+    """docs/compute_cost.md: the baseline-only snapshot at 07:00 on 2026-07-30 is
+    497.5 GPU-hours (all job names: 553.2; last incarnation per job id: 85.8), and
+    the by-end running sum crosses 496.5 only at 11:03 that day. Pinned so the doc's
+    numbers cannot drift from the script that produces them."""
+    from datetime import datetime
+    with open(KLONE_DUMP, encoding="utf-8") as fh:
+        rows = parse_sacct(fh.read(), cluster="klone", user="jfroehli")
+    at, since = datetime(2026, 7, 30, 7), datetime(2026, 7, 24)
+    hours, n = gpu_hours_as_of(rows, at, since, "yolo_curb_ramp_train")
+    assert round(hours, 1) == 497.5 and n == 400
+    assert round(gpu_hours_as_of(rows, at, since)[0], 1) == 553.2
+    # 496.5 itself is passed at about 06:50, before the 07:07 commit that wrote it.
+    assert gpu_hours_as_of(rows, datetime(2026, 7, 30, 6, 50), since,
+                           "yolo_curb_ramp_train")[0] > 496.5
+    assert gpu_hours_as_of(rows, datetime(2026, 7, 30, 6, 45), since,
+                           "yolo_curb_ramp_train")[0] < 496.5
+    # Without -D: the last incarnation per job id that had started by then.
+    last = {}
+    for r in sorted(rows, key=lambda r: r["start"]):
+        if r["job_name"] == "yolo_curb_ramp_train" and r["start"] < "2026-07-30T07":
+            last[r["job_id"]] = r
+    assert round(gpu_hours_as_of(list(last.values()), at, since)[0], 1) == 85.8
+    # The by-end sum the doc warns against: baseline crosses at 11:03, not 21:17.
+    total, crossed = 0.0, None
+    for r in sorted((r for r in rows if r["job_name"] == "yolo_curb_ramp_train"
+                     and r["end"] >= "2026-07-24"), key=lambda r: r["end"]):
+        total += r["gpu_hours"]
+        if total >= 496.5:
+            crossed = r["end"]
+            break
+    assert crossed == "2026-07-30T11:03:20"
+
+
+def test_the_snapshot_script_prints_the_documented_figure(capsys, monkeypatch):
+    monkeypatch.setattr(sys, "argv", [
+        "gpu_hours_as_of.py", "--from-file", KLONE_DUMP, "--since", "2026-07-24",
+        "--at", "2026-07-30T07:00", "--job-name", "yolo_curb_ramp_train"])
+    assert as_of_script.main() == 0
+    out = capsys.readouterr().out
+    assert out.startswith("497.5 GPU-hours as of 2026-07-30T07:00:00: 400 incarnation(s)")

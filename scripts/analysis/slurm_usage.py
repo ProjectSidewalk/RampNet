@@ -165,6 +165,46 @@ def parse_sacct(text, cluster=None, user=None):
     return rows
 
 
+def _ts(value):
+    """A sacct timestamp as a datetime, or None for Unknown/None/empty."""
+    if not value or value in ("Unknown", "None"):
+        return None
+    try:
+        return datetime.fromisoformat(value)
+    except ValueError:
+        return None
+
+
+def gpu_hours_as_of(rows, at, since=None, job_name=None):
+    """What `sacct -D -S since` would have reported at `at`, re-read from a later dump.
+
+    A number transcribed from a live `sacct` is a *snapshot*: every incarnation that
+    was alive after ``since`` counts, and one still running at query time counts its
+    elapsed **so far**. Re-deriving such a number from a dump taken weeks later is
+    therefore not a running sum over finished jobs — it is each incarnation's elapsed
+    truncated at ``at``. The difference is hours: on the #51 baseline the two methods
+    disagree by 47 GPU-hours at the instant docs/tillicum.md's 496.5 was written.
+
+    ``since`` and ``at`` are naive datetimes in the cluster's own clock, which is what
+    sacct prints. ``job_name`` restricts to one job name, because a per-project
+    figure must not be checked against the whole account.
+
+    Returns (GPU-hours, incarnations counted)."""
+    total, count = 0.0, 0
+    for rec in rows:
+        if job_name and rec.get("job_name") != job_name:
+            continue
+        start, end = _ts(rec.get("start")), _ts(rec.get("end"))
+        if start is None or start >= at:
+            continue                     # not yet started at query time
+        if since and end is not None and end < since:
+            continue                     # finished before the window: -S excludes it
+        elapsed_s = (min(end, at) if end else at) - start
+        total += max(elapsed_s.total_seconds(), 0) / 3600.0 * (rec.get("gpus") or 0)
+        count += 1
+    return total, count
+
+
 def row_key(rec):
     """(cluster, job id, start) — not the job id alone.
 
