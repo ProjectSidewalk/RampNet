@@ -6,9 +6,9 @@
       "leg": "y11x_tiles_s1_ep44",
       "manual_gold": {
         "f1_at_protocol": 0.828,
-        "max_f1": 0.913,
+        "max_f1": 0.912,
         "max_f1_threshold": 0.1,
-        "p_at_max": 0.932,
+        "p_at_max": 0.93,
         "protocol_threshold": 0.25,
         "r_at_max": 0.894
       },
@@ -17,242 +17,44 @@
         "at_floor": false,
         "per_split": {
           "annapolis": {
-            "f1": 0.8,
-            "fn": 84,
-            "fp": 21,
-            "p": 0.909,
-            "r": 0.714,
-            "tp": 210
+            "f1": 0.784,
+            "fn": 87,
+            "fp": 27,
+            "p": 0.885,
+            "r": 0.704,
+            "tp": 207
           },
           "bend": {
-            "f1": 0.879,
+            "f1": 0.874,
             "fn": 54,
-            "fp": 21,
-            "p": 0.929,
+            "fp": 25,
+            "p": 0.916,
             "r": 0.835,
             "tp": 273
           },
           "clovis": {
-            "f1": 0.78,
-            "fn": 32,
-            "fp": 60,
-            "p": 0.731,
-            "r": 0.836,
-            "tp": 163
+            "f1": 0.775,
+            "fn": 35,
+            "fp": 58,
+            "p": 0.734,
+            "r": 0.821,
+            "tp": 160
           },
           "gainesville": {
-            "f1": 0.79,
-            "fn": 73,
-            "fp": 33,
-            "p": 0.858,
-            "r": 0.732,
-            "tp": 199
-          },
-          "manual_gold": {
-            "f1": 0.913,
-            "fn": 415,
-            "fp": 255,
-            "p": 0.932,
-            "r": 0.894,
-            "tp": 3504
-          },
-          "morgantown": {
-            "f1": 0.853,
-            "fn": 53,
-            "fp": 21,
-            "p": 0.911,
-            "r": 0.801,
-            "tp": 214
-          },
-          "paterson": {
-            "f1": 0.772,
-            "fn": 138,
-            "fp": 14,
-            "p": 0.948,
-            "r": 0.651,
-            "tp": 257
-          },
-          "richmond": {
-            "f1": 0.816,
-            "fn": 69,
-            "fp": 40,
-            "p": 0.858,
-            "r": 0.777,
-            "tp": 241
-          },
-          "sao_paulo": {
-            "f1": 0.791,
-            "fn": 64,
-            "fp": 51,
-            "p": 0.81,
-            "r": 0.772,
-            "tp": 217
-          }
-        },
-        "pooled": {
-          "f1": 0.81286,
-          "n_splits": 7,
-          "p": 0.87771,
-          "r": 0.76371,
-          "threshold": 0.1
-        },
-        "selected_threshold": 0.1
-      }
-    },
-    "s2": {
-      "epoch": 44,
-      "fitness_epoch_would_be": 41,
-      "leg": "y11x_tiles_s2_ep44",
-      "manual_gold": {
-        "f1_at_protocol": 0.823,
-        "max_f1": 0.912,
-        "max_f1_threshold": 0.1,
-        "p_at_max": 0.929,
-        "protocol_threshold": 0.25,
-        "r_at_max": 0.896
-      },
-      "map5095_at_epoch": 0.47734,
-      "read": {
-        "at_floor": false,
-        "per_split": {
-          "annapolis": {
-            "f1": 0.783,
-            "fn": 90,
-            "fp": 23,
-            "p": 0.899,
-            "r": 0.694,
-            "tp": 204
-          },
-          "bend": {
-            "f1": 0.873,
-            "fn": 56,
-            "fp": 23,
-            "p": 0.922,
-            "r": 0.829,
-            "tp": 271
-          },
-          "clovis": {
             "f1": 0.776,
-            "fn": 37,
-            "fp": 54,
-            "p": 0.745,
-            "r": 0.81,
-            "tp": 158
-          },
-          "gainesville": {
-            "f1": 0.8,
-            "fn": 72,
-            "fp": 28,
-            "p": 0.877,
-            "r": 0.735,
-            "tp": 200
+            "fn": 76,
+            "fp": 37,
+            "p": 0.841,
+            "r": 0.721,
+            "tp": 196
           },
           "manual_gold": {
             "f1": 0.912,
-            "fn": 409,
-            "fp": 268,
-            "p": 0.929,
-            "r": 0.896,
-            "tp": 3510
-          },
-          "morgantown": {
-            "f1": 0.855,
-            "fn": 55,
-            "fp": 17,
-            "p": 0.926,
-            "r": 0.794,
-            "tp": 212
-          },
-          "paterson": {
-            "f1": 0.763,
-            "fn": 141,
-            "fp": 17,
-            "p": 0.937,
-            "r": 0.643,
-            "tp": 254
-          },
-          "richmond": {
-            "f1": 0.811,
-            "fn": 74,
-            "fp": 36,
-            "p": 0.868,
-            "r": 0.761,
-            "tp": 236
-          },
-          "sao_paulo": {
-            "f1": 0.784,
-            "fn": 62,
-            "fp": 59,
-            "p": 0.788,
-            "r": 0.779,
-            "tp": 219
-          }
-        },
-        "pooled": {
-          "f1": 0.80871,
-          "n_splits": 7,
-          "p": 0.882,
-          "r": 0.75229,
-          "threshold": 0.1
-        },
-        "selected_threshold": 0.1
-      }
-    },
-    "s3": {
-      "epoch": 42,
-      "fitness_epoch_would_be": 42,
-      "leg": "y11x_tiles_s3_ep42",
-      "manual_gold": {
-        "f1_at_protocol": 0.82,
-        "max_f1": 0.911,
-        "max_f1_threshold": 0.1,
-        "p_at_max": 0.928,
-        "protocol_threshold": 0.25,
-        "r_at_max": 0.895
-      },
-      "map5095_at_epoch": 0.47863,
-      "read": {
-        "at_floor": false,
-        "per_split": {
-          "annapolis": {
-            "f1": 0.792,
-            "fn": 85,
-            "fp": 25,
-            "p": 0.893,
-            "r": 0.711,
-            "tp": 209
-          },
-          "bend": {
-            "f1": 0.878,
-            "fn": 56,
-            "fp": 19,
-            "p": 0.934,
-            "r": 0.829,
-            "tp": 271
-          },
-          "clovis": {
-            "f1": 0.775,
-            "fn": 38,
-            "fp": 53,
-            "p": 0.748,
-            "r": 0.805,
-            "tp": 157
-          },
-          "gainesville": {
-            "f1": 0.785,
-            "fn": 77,
-            "fp": 30,
-            "p": 0.867,
-            "r": 0.717,
-            "tp": 195
-          },
-          "manual_gold": {
-            "f1": 0.911,
-            "fn": 411,
-            "fp": 272,
-            "p": 0.928,
-            "r": 0.895,
-            "tp": 3508
+            "fn": 414,
+            "fp": 263,
+            "p": 0.93,
+            "r": 0.894,
+            "tp": 3505
           },
           "morgantown": {
             "f1": 0.858,
@@ -263,35 +65,233 @@
             "tp": 214
           },
           "paterson": {
-            "f1": 0.761,
-            "fn": 142,
-            "fp": 17,
-            "p": 0.937,
-            "r": 0.641,
-            "tp": 253
+            "f1": 0.769,
+            "fn": 137,
+            "fp": 18,
+            "p": 0.935,
+            "r": 0.653,
+            "tp": 258
           },
           "richmond": {
-            "f1": 0.814,
+            "f1": 0.807,
             "fn": 73,
-            "fp": 35,
-            "p": 0.871,
+            "fp": 40,
+            "p": 0.856,
             "r": 0.765,
             "tp": 237
           },
           "sao_paulo": {
-            "f1": 0.788,
+            "f1": 0.791,
+            "fn": 63,
+            "fp": 52,
+            "p": 0.807,
+            "r": 0.776,
+            "tp": 218
+          }
+        },
+        "pooled": {
+          "f1": 0.80614,
+          "n_splits": 7,
+          "p": 0.86986,
+          "r": 0.75714,
+          "threshold": 0.1
+        },
+        "selected_threshold": 0.1
+      }
+    },
+    "s2": {
+      "epoch": 44,
+      "fitness_epoch_would_be": 41,
+      "leg": "y11x_tiles_s2_ep44",
+      "manual_gold": {
+        "f1_at_protocol": 0.825,
+        "max_f1": 0.91,
+        "max_f1_threshold": 0.1,
+        "p_at_max": 0.928,
+        "protocol_threshold": 0.25,
+        "r_at_max": 0.893
+      },
+      "map5095_at_epoch": 0.47734,
+      "read": {
+        "at_floor": false,
+        "per_split": {
+          "annapolis": {
+            "f1": 0.782,
+            "fn": 89,
+            "fp": 25,
+            "p": 0.891,
+            "r": 0.697,
+            "tp": 205
+          },
+          "bend": {
+            "f1": 0.877,
+            "fn": 57,
+            "fp": 19,
+            "p": 0.934,
+            "r": 0.826,
+            "tp": 270
+          },
+          "clovis": {
+            "f1": 0.766,
+            "fn": 38,
+            "fp": 58,
+            "p": 0.73,
+            "r": 0.805,
+            "tp": 157
+          },
+          "gainesville": {
+            "f1": 0.787,
+            "fn": 76,
+            "fp": 30,
+            "p": 0.867,
+            "r": 0.721,
+            "tp": 196
+          },
+          "manual_gold": {
+            "f1": 0.91,
+            "fn": 418,
+            "fp": 273,
+            "p": 0.928,
+            "r": 0.893,
+            "tp": 3501
+          },
+          "morgantown": {
+            "f1": 0.858,
+            "fn": 55,
+            "fp": 15,
+            "p": 0.934,
+            "r": 0.794,
+            "tp": 212
+          },
+          "paterson": {
+            "f1": 0.756,
+            "fn": 144,
+            "fp": 18,
+            "p": 0.933,
+            "r": 0.635,
+            "tp": 251
+          },
+          "richmond": {
+            "f1": 0.808,
+            "fn": 76,
+            "fp": 35,
+            "p": 0.87,
+            "r": 0.755,
+            "tp": 234
+          },
+          "sao_paulo": {
+            "f1": 0.782,
             "fn": 67,
-            "fp": 48,
-            "p": 0.817,
+            "fp": 52,
+            "p": 0.805,
             "r": 0.762,
             "tp": 214
           }
         },
         "pooled": {
-          "f1": 0.809,
+          "f1": 0.80486,
           "n_splits": 7,
-          "p": 0.88171,
-          "r": 0.75271,
+          "p": 0.87986,
+          "r": 0.74757,
+          "threshold": 0.1
+        },
+        "selected_threshold": 0.1
+      }
+    },
+    "s3": {
+      "epoch": 42,
+      "fitness_epoch_would_be": 42,
+      "leg": "y11x_tiles_s3_ep42",
+      "manual_gold": {
+        "f1_at_protocol": 0.821,
+        "max_f1": 0.912,
+        "max_f1_threshold": 0.1,
+        "p_at_max": 0.929,
+        "protocol_threshold": 0.25,
+        "r_at_max": 0.896
+      },
+      "map5095_at_epoch": 0.47863,
+      "read": {
+        "at_floor": false,
+        "per_split": {
+          "annapolis": {
+            "f1": 0.795,
+            "fn": 86,
+            "fp": 21,
+            "p": 0.908,
+            "r": 0.707,
+            "tp": 208
+          },
+          "bend": {
+            "f1": 0.883,
+            "fn": 56,
+            "fp": 16,
+            "p": 0.944,
+            "r": 0.829,
+            "tp": 271
+          },
+          "clovis": {
+            "f1": 0.783,
+            "fn": 36,
+            "fp": 52,
+            "p": 0.754,
+            "r": 0.815,
+            "tp": 159
+          },
+          "gainesville": {
+            "f1": 0.786,
+            "fn": 76,
+            "fp": 31,
+            "p": 0.863,
+            "r": 0.721,
+            "tp": 196
+          },
+          "manual_gold": {
+            "f1": 0.912,
+            "fn": 407,
+            "fp": 267,
+            "p": 0.929,
+            "r": 0.896,
+            "tp": 3512
+          },
+          "morgantown": {
+            "f1": 0.847,
+            "fn": 56,
+            "fp": 20,
+            "p": 0.913,
+            "r": 0.79,
+            "tp": 211
+          },
+          "paterson": {
+            "f1": 0.766,
+            "fn": 141,
+            "fp": 14,
+            "p": 0.948,
+            "r": 0.643,
+            "tp": 254
+          },
+          "richmond": {
+            "f1": 0.808,
+            "fn": 72,
+            "fp": 41,
+            "p": 0.853,
+            "r": 0.768,
+            "tp": 238
+          },
+          "sao_paulo": {
+            "f1": 0.789,
+            "fn": 66,
+            "fp": 49,
+            "p": 0.814,
+            "r": 0.765,
+            "tp": 215
+          }
+        },
+        "pooled": {
+          "f1": 0.80971,
+          "n_splits": 7,
+          "p": 0.88329,
+          "r": 0.75329,
           "threshold": 0.1
         },
         "selected_threshold": 0.1
@@ -656,9 +656,9 @@
         "sd_max_f1": 0.00404
       },
       "yolo_ep_le44": {
-        "mean_max_f1": 0.912,
-        "sd_f1_at_protocol": 0.00404,
-        "sd_max_f1": 0.001
+        "mean_max_f1": 0.91133,
+        "sd_f1_at_protocol": 0.00351,
+        "sd_max_f1": 0.00115
       }
     },
     "note": "Post-hoc reads added 2026-09-15 before any number was seen. Reported beside the pre-registered statistic; never enter s_gap or the bands.",
@@ -971,24 +971,24 @@
       "real_below": 0.01
     },
     "campaign_a_f1": [
-      0.81286,
-      0.80871,
-      0.809
+      0.80614,
+      0.80486,
+      0.80971
     ],
     "campaign_b_f1": [
       0.81878,
       0.83405,
       0.81236
     ],
-    "gap_of_means": 0.01154,
+    "gap_of_means": 0.01482,
     "gap_published": 0.0388,
-    "mean_a": 0.81019,
+    "mean_a": 0.8069,
     "mean_b": 0.82173,
     "paired_mde_135": 0.0063,
-    "s_A": 0.00231,
+    "s_A": 0.00252,
     "s_A_only_band": null,
     "s_B": 0.01114,
-    "s_gap": 0.01138,
-    "z_gap": 3.40963
+    "s_gap": 0.01142,
+    "z_gap": 3.3968
   }
 }

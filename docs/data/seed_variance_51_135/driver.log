@@ -1,25 +1,19 @@
-=== yolo richmond start 2026-09-15T10:23:20-07:00
-=== yolo richmond exit=0 sweeps=6/6 elapsed=925s
-=== yolo bend start 2026-09-15T10:38:45-07:00
-=== yolo bend exit=0 sweeps=6/6 elapsed=1359s
-=== yolo clovis start 2026-09-15T11:01:24-07:00
-=== yolo clovis exit=0 sweeps=6/6 elapsed=769s
-=== yolo morgantown start 2026-09-15T11:14:13-07:00
-=== yolo morgantown exit=0 sweeps=6/6 elapsed=616s
-=== yolo annapolis start 2026-09-15T11:24:29-07:00
-=== yolo annapolis exit=0 sweeps=6/6 elapsed=869s
-=== yolo paterson start 2026-09-15T11:38:58-07:00
-=== yolo paterson exit=0 sweeps=6/6 elapsed=1517s
-=== yolo gainesville start 2026-09-15T12:04:15-07:00
-=== yolo gainesville exit=0 sweeps=6/6 elapsed=1526s
-=== yolo sao_paulo start 2026-09-15T12:29:41-07:00
-=== yolo sao_paulo exit=0 sweeps=6/6 elapsed=1580s
-=== yolo manual_gold start 2026-09-15T12:56:01-07:00
-=== yolo manual_gold exit=0 sweeps=6/6 elapsed=5152s
-=== rampnet_s1 start 2026-09-15T14:21:53-07:00
-=== rampnet_s1 exit=0 splits=9/9 elapsed=2109s
-=== rampnet_s2 start 2026-09-15T14:57:02-07:00
-=== rampnet_s2 exit=0 splits=9/9 elapsed=2095s
-=== rampnet_s3 start 2026-09-15T15:31:57-07:00
-=== rampnet_s3 exit=0 splits=9/9 elapsed=2103s
-ALL_DONE 2026-09-15T16:07:00-07:00
+=== yolo richmond start 2026-09-17T08:57:47-07:00
+=== yolo richmond exit=0 sweeps=6/6 elapsed=477s
+=== yolo bend start 2026-09-17T09:05:44-07:00
+=== yolo bend exit=0 sweeps=6/6 elapsed=728s
+=== yolo clovis start 2026-09-17T09:17:52-07:00
+=== yolo clovis exit=0 sweeps=6/6 elapsed=399s
+=== yolo morgantown start 2026-09-17T09:24:31-07:00
+=== yolo morgantown exit=0 sweeps=6/6 elapsed=424s
+=== yolo annapolis start 2026-09-17T09:31:35-07:00
+=== yolo annapolis exit=0 sweeps=6/6 elapsed=442s
+=== yolo paterson start 2026-09-17T09:38:57-07:00
+=== yolo paterson exit=0 sweeps=6/6 elapsed=760s
+=== yolo gainesville start 2026-09-17T09:51:37-07:00
+=== yolo gainesville exit=0 sweeps=6/6 elapsed=791s
+=== yolo sao_paulo start 2026-09-17T10:04:48-07:00
+=== yolo sao_paulo exit=0 sweeps=6/6 elapsed=810s
+=== yolo manual_gold start 2026-09-17T10:18:18-07:00
+=== yolo manual_gold exit=0 sweeps=6/6 elapsed=3566s
+ALL_DONE 2026-09-17T11:17:44-07:00

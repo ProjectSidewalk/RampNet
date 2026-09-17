@@ -222,3 +222,41 @@ def test_env_records_the_checkpoint_hashes_the_run_used():
         env = fh.read()
     for s in sv.SEEDS:
         assert f"{sv.primary_leg(s)}.pt" in env and f"rampnet_s{s}_best.pth" in env
+
+
+# --------------------------------------------------------------------------- #
+# the 2026-09-17 correction: the primary legs were re-scored on the right checkpoints
+# --------------------------------------------------------------------------- #
+MISLABELLED = os.path.join(DATA, "yolo_mislabelled_ep45_45_43")
+
+
+@needs_scored
+def test_corrected_sweeps_differ_from_the_mislabelled_ones_only_on_the_ep_legs():
+    """The 09-15 files scored epoch44/44/42.pt, which are results.csv epochs 45/45/43.
+    The re-score swapped the checkpoints and nothing else, so the three best.pt control
+    legs must reproduce cell-for-cell and the three _ep legs must not."""
+    def cells(yolo_dir):  # collect_yolo_seed expects <data>/yolo/; the archive is flat
+        out = {}
+        for split in sv.SPLITS_AS_RUN:
+            for model, sweep in sv.parse_sweeps(os.path.join(yolo_dir, f"{split}_tiles.txt")).items():
+                out.setdefault(model, {})[split] = sweep
+        return out
+    old = cells(MISLABELLED)
+    new = cells(os.path.join(DATA, "yolo"))
+    assert set(old) == set(new)
+    for leg in new:
+        same = all(new[leg][sp][t] == old[leg][sp].get(t)
+                   for sp in new[leg] for t in new[leg][sp])
+        if leg.endswith("_best"):
+            assert same, f"{leg}: the control leg should reproduce exactly"
+        else:
+            assert not same, f"{leg}: the corrected leg scored identically to the wrong one"
+
+
+@needs_scored
+def test_the_corrected_primary_read_is_pinned():
+    """Guards against the mislabelled files ever being copied back over the read."""
+    with open(sv.OUT_JSON, encoding="utf-8") as fh:
+        stats = json.load(fh)["statistics"]
+    assert stats["campaign_a_f1"] == [0.80614, 0.80486, 0.80971]
+    assert stats["campaign_a_f1"] != [0.81286, 0.80871, 0.80900]  # the 09-15 numbers
