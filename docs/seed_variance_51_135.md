@@ -265,13 +265,14 @@ SEED=1 NAME=y11x_tiles_s1 YOLO_CKPT=yolo11x.pt \
 # Campaign B, per replicate (klone). logs/ must exist BEFORE submit -- Slurm opens
 # --output against the submit directory, so a missing logs/ fails the job at start.
 #
-# REPO and RAMPNET_ENV are both REQUIRED in practice, and neither failure names itself.
-# REPO defaults to $HOME/RampNet, which on klone is a stale clone whose train.py has no
-# --seed; RAMPNET_ENV unset falls back to `source activate`, which a non-login sbatch
-# environment cannot resolve. See the launcher header for the three submissions this
-# cost. Note the literal `jonf` in the env path: /gscratch/makelab carries both `jonf`
-# and `jfroehli` directories for the same person and the env is under `jonf`, so $USER
-# is wrong there -- but correct on /gscratch/scrubbed, which is why RUNDIR keeps it.
+# RAMPNET_ENV is REQUIRED (the launcher refuses to start without it -- there is no
+# named env to `source activate` on klone). REPO defaults to the submit directory and
+# the launcher checks that its train.py takes --seed before anything runs; it used to
+# default to $HOME/RampNet, a stale clone on klone, and neither of those failures
+# named itself. See the launcher header for the three submissions this cost. Note the
+# literal `jonf` in the env path: /gscratch/makelab carries both `jonf` and `jfroehli`
+# directories for the same person and the env is under `jonf`, so $USER is wrong there
+# -- but correct on /gscratch/scrubbed, which is why RUNDIR keeps it.
 cd /gscratch/scrubbed/$USER/RampNet_seedvar && mkdir -p logs
 for s in 1 2 3; do
   REPO=$PWD \

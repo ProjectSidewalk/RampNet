@@ -28,24 +28,29 @@
 #       SEED=$s sbatch stage_two/run_train_seed.slurm
 #   done
 #
-# SET REPO AND RAMPNET_ENV EXPLICITLY -- THE DEFAULTS ARE BOTH WRONG ON KLONE. This
-# header used to show the bare `SEED=1 sbatch ...` form. That form has now failed three
-# times, on three different one-line causes, each costing days of calendar:
+# RAMPNET_ENV IS REQUIRED; REPO DEFAULTS TO THE SUBMIT DIRECTORY. This header used to
+# show the bare `SEED=1 sbatch ...` form, and both of those variables defaulted to
+# values that cannot work on klone. That form failed three times, on three different
+# one-line causes, each costing days of calendar, before the defaults were changed:
 #
-#   * REPO defaults to $HOME/RampNet, which on klone is a STALE clone. On 2026-09-06 it
-#     was an Aug-17 checkout whose train.py predates --seed, so every rank of jobs
+#   * REPO defaulted to $HOME/RampNet, which on klone is a STALE clone. On 2026-09-06
+#     it was an Aug-17 checkout whose train.py predates --seed, so every rank of jobs
 #     39619547/48/49 died in ~20 s with
 #         train.py: error: unrecognized arguments: --seed 1
 #     printed at the TOP of a 30 KB .err whose remaining bulk is a torch
 #     RendezvousConnectionError traceback -- pure downstream noise from the ranks
 #     tearing down. Read the FIRST lines of the .err, not the tail. REPO also feeds
-#     PYTHONPATH (below), so a wrong REPO hides `rampnet.seeding` as well. `$PWD` is
-#     the right value whenever you submit from the checkout you mean to run.
+#     PYTHONPATH (below), so a wrong REPO hides `rampnet.seeding` as well. REPO now
+#     defaults to SLURM_SUBMIT_DIR, the directory sbatch ran in, and the job refuses
+#     to start unless $REPO/stage_two/train.py takes --seed. `REPO=$PWD` in the loop
+#     above is therefore redundant, and kept because it is what the completed
+#     replicates were submitted with.
 #
-#   * RAMPNET_ENV unset falls back to `source activate sidewalkcv2`, which cannot work
+#   * RAMPNET_ENV unset fell back to `source activate sidewalkcv2`, which cannot work
 #     here: sbatch inherits the SUBMITTER's PATH, a non-login ssh has no conda on it,
 #     and there is no *named* env on this cluster anyway (prefixes only). That killed
-#     39583887/90/91 on 2026-09-04 in one second, having printed a single line.
+#     39583887/90/91 on 2026-09-04 in one second, having printed a single line. The
+#     fallback is gone; an unset RAMPNET_ENV now fails at job start naming itself.
 #     NOTE THE LITERAL `jonf` IN THAT PATH. /gscratch/makelab holds both `jonf` and
 #     `jfroehli` directories for the same person, and the env is under `jonf` while
 #     $USER is `jfroehli` -- so $USER silently points at the wrong one here, even
@@ -100,7 +105,19 @@ set -euo pipefail
 # 39515025/26/27 failed on 2026-09-03 and then sat unnoticed for a day.
 SEED="${SEED:?set SEED to the seed for this replicate, e.g. SEED=1}"
 
-REPO="${REPO:-$HOME/RampNet}"
+# The checkout to run. Defaults to the directory sbatch was run from (Slurm exports it
+# as SLURM_SUBMIT_DIR), which USAGE already requires to be the repo root. It used to
+# default to $HOME/RampNet, a stale clone on klone, which is how 39619547/48/49 died.
+REPO="${REPO:-${SLURM_SUBMIT_DIR:-$PWD}}"
+# The checkout must be the one this launcher was written against. A checkout whose
+# train.py predates --seed fails 20 s in with the error buried under a torch traceback
+# (see USAGE), and a checkout stale in rampnet/seeding.py or the model head would train
+# to completion and be scored as if it were the recipe. Name the problem here instead.
+if ! grep -q -- '--seed' "$REPO/stage_two/train.py" 2>/dev/null; then
+    echo "FATAL: $REPO/stage_two/train.py is missing or has no --seed (stale checkout?)" >&2
+    echo "       Submit from the repo root, or set REPO= to the checkout to run." >&2
+    exit 1
+fi
 DATA_ROOT="${DATA_ROOT:-/gscratch/scrubbed/$USER/rampnet_dataset}"
 # NOT $HOME: klone home is a separate 10 GB quota that gscratch cleanup does not touch,
 # and one replicate's per-epoch checkpoints alone would blow it.
@@ -109,28 +126,18 @@ EPOCHS="${EPOCHS:-1}"        # the published recipe is 1 epoch / 9,378 steps (#8
 
 mkdir -p "$RUNDIR/checkpoints" "$REPO/logs"
 
-# Interpreter. Default behaviour is unchanged -- `source activate sidewalkcv2`, then
-# torchrun off PATH -- but every other klone launcher here carries an escape hatch
-# (PYTHON= in run_yolo_train.slurm and run_gold_bundle.slurm, RAMPNET_ENV in
-# run_train_epoch_curve.slurm) and this one did not. It matters because #84's env was
-# built at a PREFIX, /gscratch/scrubbed/$USER/envs/sidewalkcv2, which `source activate
-# <name>` cannot resolve: under `set -e` the job would then die here having printed one
-# line. Set RAMPNET_ENV to a conda prefix and the env's own torchrun is called by
-# absolute path instead -- the pattern run_train_epoch_curve.slurm documents as the one
-# proven on this cluster.
-RAMPNET_ENV="${RAMPNET_ENV:-}"
-if [ -n "$RAMPNET_ENV" ]; then
-    TORCHRUN="$RAMPNET_ENV/bin/torchrun"
-    if [ ! -x "$TORCHRUN" ]; then
-        echo "FATAL: RAMPNET_ENV=$RAMPNET_ENV has no executable bin/torchrun" >&2
-        exit 1
-    fi
-    echo "Using conda prefix ${RAMPNET_ENV} (no activation)"
-else
-    echo "Loading Conda environment..."
-    source activate sidewalkcv2
-    TORCHRUN=torchrun
+# Interpreter: a conda PREFIX, whose own torchrun is called by absolute path -- the
+# pattern run_train_epoch_curve.slurm documents as the one proven on this cluster. It
+# is REQUIRED, not defaulted: there is no named env to `source activate` on klone, so
+# the old fallback could only ever fail (39583887/90/91; see USAGE for the prefix).
+# NO APOSTROPHE in the message, for the reason given above SEED.
+RAMPNET_ENV="${RAMPNET_ENV:?set RAMPNET_ENV to the conda prefix, e.g. RAMPNET_ENV=/gscratch/makelab/jonf/envs/sidewalkcv2}"
+TORCHRUN="$RAMPNET_ENV/bin/torchrun"
+if [ ! -x "$TORCHRUN" ]; then
+    echo "FATAL: RAMPNET_ENV=$RAMPNET_ENV has no executable bin/torchrun" >&2
+    exit 1
 fi
+echo "Using conda prefix ${RAMPNET_ENV} (no activation)"
 
 export MASTER_ADDR=$(scontrol show hostnames $SLURM_JOB_NODELIST | head -n 1)
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
