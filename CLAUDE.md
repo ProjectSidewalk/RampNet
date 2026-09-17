@@ -84,7 +84,9 @@ in seconds, so it reproduces neither the token counts nor the runtime.
   `kind: "recovered"` (`rampnet.ledger.RECOVERED`) carrying the billed total *minus what the
   surviving rows already account for*, so the ledger sums to the bill rather than double
   counting. Two rules follow and they pull opposite ways: **cost totals include it** — omitting
-  #139's $70.41 under-reported the benchmark's Claude spend by ~200x — but **reconciliation must
+  #139's $70.41 under-reported the benchmark's Claude spend by ~200x when it was found (measured
+  Claude rows in `analysis_out/usage_log.jsonl` totalled $0.34 on 2026-08-19; with the Laurens
+  legs of 2026-09-04 they total $13.12 and the same omission would be ~5x) — but **reconciliation must
   never count it as logged**, because a recovered row was read off that same bill, so counting it
   that way compares the bill against itself and reports `ok` for the exact gap the check exists to
   find. `--reconcile` totals it in a separate column and subtracts it before the verdict, so a gap
@@ -95,7 +97,8 @@ in seconds, so it reproduces neither the token counts nor the runtime.
 - **Token counts and GPU-hours are the durable facts; dollars are estimates** and the billing
   console is authoritative. Estimate input tokens from geometry when you must (deterministic —
   it came within 0.02% for a 984-panorama leg); **never estimate output**, which is thinking
-  plus box count and ran 62% high when tried.
+  plus box count and ran 62% high when tried. Both figures are from the #139 recovery, worked in
+  the body of #146; they are not re-derived by any committed script.
 
 ## Environment & commands
 
