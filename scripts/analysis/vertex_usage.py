@@ -167,6 +167,12 @@ def reconcile(billed, logged, tolerance=0.02):
         unexplained = b_in - l_in - r_in
         if not l_in and not r_in and b_in:
             verdict = "MISSING - billed, nothing logged"
+        elif not b_in and (l_in or r_in):
+            # Not the division-by-zero case it looks like: tokens the ledger says
+            # were spent on this model and the bill has no trace of. That is what a
+            # leg run against another GCP project, or a mistyped model_id, looks
+            # like -- the spend exists, on a bill nobody is reconciling.
+            verdict = "LOGGED, NOT BILLED - no billed tokens for this model"
         elif b_in and abs(unexplained) / b_in > tolerance:
             verdict = ("UNDER — ledger short" if unexplained > 0
                        else "over — ledger exceeds billed")
@@ -189,13 +195,15 @@ def print_reconciliation(rows):
     print(f"\n== reconciliation: Cloud Monitoring vs analysis_out/usage_log.jsonl ==")
     print(f"{'model':26s} {'billed in':>14s} {'logged in':>14s} {'recovered in':>14s} "
           f"{'rows':>5s}  verdict")
-    worst, recovered = [], []
+    worst, recovered, unbilled = [], [], []
     for r in rows:
         print(f"  {r['model_id']:24s} {r['billed_input']:14,.0f} "
               f"{r['logged_input']:14,.0f} {r['recovered_input']:14,.0f} "
               f"{r['logged_rows']:5d}  {r['verdict']}")
         if r["verdict"].startswith(("MISSING", "UNDER")):
             worst.append(r)
+        elif r["verdict"].startswith("LOGGED, NOT BILLED"):
+            unbilled.append(r)
         elif r["recovered_rows"]:
             recovered.append(r)
     if worst:
@@ -209,6 +217,11 @@ def print_reconciliation(rows):
               "already gone - record the total against the run it came from.")
     else:
         print("\n  every billed model has a ledger row within tolerance.")
+    if unbilled:
+        print(f"  {len(unbilled)} model(s) have ledger rows this project's bill does not "
+              f"show: a leg run against\n  another GCP project, a mistyped model_id, or a "
+              f"row stamped outside --days. The spend is\n  real either way; find which bill "
+              f"it is on.")
     if recovered:
         # Stated rather than left to read as a fresh gap: this column is spend that
         # WAS lost and has since been reconstructed from the bill, so an operator who

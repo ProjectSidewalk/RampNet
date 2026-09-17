@@ -66,6 +66,34 @@ def test_a_short_ledger_is_flagged_under_and_an_over_one_is_not_alarming():
     assert over[0]["verdict"].startswith("over")
 
 
+def test_tokens_logged_against_a_model_the_bill_never_saw_are_not_ok():
+    """billed 0 is not 'nothing to check'. A ledger row with tokens and no billed
+    counterpart is a leg that ran against another GCP project or under a mistyped
+    model_id -- spend on a bill nobody is reconciling -- and it used to fall
+    through the division-by-zero guard to a verdict of ok."""
+    logged = ledger_totals_by_model([_row("m", input_tokens=12_594, output_tokens=480)])
+    explicit_zero = reconcile({"m": {"input": 0}}, logged)
+    absent = reconcile({}, logged)
+    for rows in (explicit_zero, absent):
+        assert rows[0]["verdict"].startswith("LOGGED, NOT BILLED")
+        assert rows[0]["unexplained_input"] == -12_594
+    # A recovered row with no bill behind it is the same finding.
+    recovered_only = reconcile({}, ledger_totals_by_model(
+        [_row("m", kind=ledger.RECOVERED, input_tokens=100)]))
+    assert recovered_only[0]["verdict"].startswith("LOGGED, NOT BILLED")
+    # ...and a model with nothing on either side is still just ok.
+    assert reconcile({"m": {"input": 0}}, {})[0]["verdict"] == "ok"
+
+
+def test_the_report_names_the_unbilled_rows_without_crying_emergency(capsys):
+    logged = ledger_totals_by_model([_row("m", input_tokens=12_594)])
+    worst = print_reconciliation(reconcile({"m": {"input": 0}}, logged))
+    out = capsys.readouterr().out
+    assert worst == []                      # not a missing-row emergency...
+    assert "another GCP project" in out     # ...but not silently fine either
+    assert "emergency with a deadline" not in out
+
+
 def test_small_drift_is_within_tolerance():
     """Cloud Monitoring's daily rows are 24 h windows ending at query time-of-day,
     not calendar days, so an exact match is not the bar — a leg straddling the
