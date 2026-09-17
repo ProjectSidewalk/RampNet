@@ -17,10 +17,11 @@ lives on one machine.
 | `analysis_out/op_cache/*.json` (RampNet low-floor detections) | ~KB | **committed** | ✅ |
 | `analysis_out/*.json` (derived results) | ~100 KB | **committed** | ✅ |
 | `analysis_out/usage_log.jsonl` (paid-run spend) | ~KB | **committed** ✅ | ⚠️ starts 2026-08-18; see the Claude section |
+| `analysis_out/compute_log.jsonl` (cluster GPU-hours + $) | ~2 MB, grows per pull | **committed** ✅ | ⚠️ needs a `sacct` pull per cluster (#143); klone back-filled 2026-08-19 (3,990 rows) from the committed dump `docs/data/compute/sacct_klone_2026-08-19.txt` (748 KB, sha256 pinned in `compute_cost.md`), Tillicum pending |
 | `benchmark/miss_taxonomy_46/*.json` (human verdicts) | small | **committed** | ✅ |
 | RampNet model weights | — | HF `projectsidewalk/rampnet-model` | ✅ |
 | Stage 1 dataset | **463 GB** (test split ~44 GB) | HF `projectsidewalk/rampnet-dataset` | ✅ |
-| `benchmark/model_detections/` (challenger detections) | 25.1 MB (140 files) | **committed** ✅ | ✅ |
+| `benchmark/model_detections/` (challenger detections) | 25.3 MB (148 files) | **committed** ✅ | ✅ |
 | **`location_data/` (the paper's government inventories)** | 71.8 MB | **committed** ✅ | ✅ |
 | **`street_data/` derivative (what the pipeline actually reads)** | 18.7 MB | **committed** ✅ | ✅ |
 | `street_data/` raw downloads (NY file alone is 669 MB) | 801 MB | git-ignored; HF #21 pending | ⚠️ superseded by the derivative |
@@ -41,7 +42,7 @@ in this sentence — the list here was one of the things that drifted.
 single-panorama shards keyed by an opaque SHA-1 of (label, signature, city, pano), unreadable
 without reconstructing detector signatures. `scripts/analysis/export_model_cache.py` consolidates
 it into human-readable files, one per (model, split), keyed by panorama id with the detector
-signature recorded inside. As of 2026-09-05 that is **140 files, 25.1 MB**, and every one of
+signature recorded inside. As of 2026-09-17 that is **148 files, 25.3 MB**, and every one of
 them belongs to a registered leg:
 
 | what | files | where it is written up |
@@ -49,7 +50,9 @@ them belongs to a registered leg:
 | the standing zero-shot roster, twelve splits each (two Gemini legs are absent on `manual_gold`) | 82 | the roster tables in [`model_comparison.md`](model_comparison.md) |
 | `gemini-3.7-flash`, twelve splits, published ahead of its write-up (#120) | 12 | §below |
 | the supervised YOLO pano trio, twelve splits each (#51) | 36 | [`model_comparison.md` §supervised baseline](model_comparison.md), and the [training record](../scripts/model_comparison/yolo_baseline/README.md) |
-| the four annapolis Claude legs (#122) | 4 | [`model_comparison.md` §Claude](model_comparison.md) |
+| `claude-opus-5` at `low` effort, eleven splits (#122; the pool by #139, both Laurens arms by #151) | 11 | [`model_comparison.md` §Claude](model_comparison.md) |
+| the other three Vertex Claude legs, annapolis only (#122) | 3 | [`model_comparison.md` §Claude](model_comparison.md) |
+| the two Fable legs, annapolis only, served on Anthropic's first-party API (#156) | 2 | [`model_comparison.md` §Claude Fable on annapolis](model_comparison.md) |
 | the two Mapillary Vistas class-set arms, richmond only (#126) | 2 | [`model_comparison.md` §Vistas](model_comparison.md) |
 
 `rampnet` is a row in every results table and has no file here: it is read from each bundle's
@@ -136,19 +139,29 @@ were produced for it in one pass. Exact commands, in order:
 
 ```bash
 # 1. the seven standing roster challengers (owlv2/gdino on an A40, Qwen-32B on 2x L40S)
-python scripts/model_comparison/compare.py benchmark/laurens_mapillary     --models rampnet,owlv2,gdino --sweep
-python scripts/model_comparison/compare.py benchmark/laurens_mapillary     --models rampnet,qwen:Qwen/Qwen3-VL-8B-Instruct
-QWEN_MODEL=Qwen/Qwen3-VL-32B-Instruct BUNDLE=benchmark/laurens_mapillary     sbatch -A <account> --nodes=1 --gpus-per-node=2 scripts/model_comparison/run_qwen.slurm
-python scripts/model_comparison/compare.py benchmark/laurens_mapillary     --models rampnet,molmo:allenai/Molmo2-8B      # transformers==4.57.1 env, see below
-python scripts/model_comparison/compare.py benchmark/laurens_mapillary     --models gemini:gemini-3.6-flash              # and 3.1-pro-preview, and 3.7-flash
+python scripts/model_comparison/compare.py benchmark/laurens_mapillary \
+    --models rampnet,owlv2,gdino --sweep
+python scripts/model_comparison/compare.py benchmark/laurens_mapillary \
+    --models rampnet,qwen:Qwen/Qwen3-VL-8B-Instruct
+QWEN_MODEL=Qwen/Qwen3-VL-32B-Instruct BUNDLE=benchmark/laurens_mapillary \
+    sbatch -A <account> --nodes=1 --gpus-per-node=2 scripts/model_comparison/run_qwen.slurm
+python scripts/model_comparison/compare.py benchmark/laurens_mapillary \
+    --models rampnet,molmo:allenai/Molmo2-8B      # transformers==4.57.1 env, see below
+python scripts/model_comparison/compare.py benchmark/laurens_mapillary \
+    --models gemini:gemini-3.6-flash              # and 3.1-pro-preview, and 3.7-flash
 
 # 2. the YOLO trio, under the #71 pre-registered protocol
-python scripts/model_comparison/compare.py benchmark/laurens_mapillary     --models yolo:yolo_ckpts/y11l_pano.pt,yolo:yolo_ckpts/y26_pano.pt,yolo:yolo_ckpts/y11x_pano_h200.pt     --tiling none --yolo-imgsz 1280 --op-threshold 0.25 --sweep
+python scripts/model_comparison/compare.py benchmark/laurens_mapillary \
+    --models yolo:yolo_ckpts/y11l_pano.pt,yolo:yolo_ckpts/y26_pano.pt,yolo:yolo_ckpts/y11x_pano_h200.pt \
+    --tiling none --yolo-imgsz 1280 --op-threshold 0.25 --sweep
 
 # 3. export -- three invocations, because --models defaults to CHALLENGERS only
 python scripts/analysis/export_model_cache.py --splits laurens_mapillary
-python scripts/analysis/export_model_cache.py --splits laurens_mapillary     --models gemini:gemini-3.7-flash
-python scripts/analysis/export_model_cache.py --splits laurens_mapillary     --models yolo:yolo_ckpts/y11l_pano.pt,yolo:yolo_ckpts/y26_pano.pt,yolo:yolo_ckpts/y11x_pano_h200.pt     --tiling none --yolo-imgsz 1280
+python scripts/analysis/export_model_cache.py --splits laurens_mapillary \
+    --models gemini:gemini-3.7-flash
+python scripts/analysis/export_model_cache.py --splits laurens_mapillary \
+    --models yolo:yolo_ckpts/y11l_pano.pt,yolo:yolo_ckpts/y26_pano.pt,yolo:yolo_ckpts/y11x_pano_h200.pt \
+    --tiling none --yolo-imgsz 1280
 # ...then the same three with --verify; all reported 0 uncached and IDENTICAL scores.
 ```
 
@@ -173,17 +186,18 @@ longer touches is the #46 human pass.** `silent_witness.py` defaults to
 `roster.WITNESS_POOL_46`, the pool frozen at the state the pass was rated under, and both
 committed artifacts record the pool they ran over.
 
-#### The four Claude legs are published, annapolis only, one file per effort level
+#### The four Claude legs are published, one file per effort level per split
 
-`benchmark/model_detections/claude-{sonnet,opus}-5-effort-{low,high}__annapolis.json` — four
-files, 125 panoramas each, 0 uncached (#122).
-
-**`claude-opus-5` at effort low now covers three splits**, not one:
-`claude-opus-5-effort-low__{annapolis,laurens_mapillary,laurens_gsv}.json` (125 / 94 / 86
-panoramas, 0 uncached each). The two Laurens arms were run 2026-09-04 to answer #151 — whether
-Laurens is hard because it is rural or because of the imagery rig — and needed the strongest
-zero-shot model in the benchmark to make that test sharp. The other seven splits, and all three
-remaining Claude legs on every split but annapolis, are still a stated gap.
+`benchmark/model_detections/claude-{sonnet,opus}-5-effort-{low,high}__*.json` — **14 files**,
+0 uncached. Three of the four legs ran annapolis only (125 panoramas, #122) and the other
+splits are a stated gap for them. **`claude-opus-5` at `low` ran eleven splits** — 1,289
+panoramas: the nine of #139 (annapolis, bend, budapest_district5, clovis, gainesville,
+morgantown, paterson, richmond, sao_paulo; 1,109 panoramas) plus both Laurens arms
+(`laurens_mapillary` 94, `laurens_gsv` 86), run 2026-09-04 to answer #151 — whether Laurens
+is hard because it is rural or because of the imagery rig — with the strongest zero-shot
+model in the benchmark. `manual_gold` is deliberately absent from all four: no
+`gemini-3.1-pro-preview` row exists there either, so a Claude-only run would have no peer
+(#144).
 
 ⚠️ **The mapillary arm needed a second pass.** Two panoramas
 (`2102336717175440`, `2281219182305735`) died on Vertex's transient 404 even after the detector's
@@ -201,6 +215,7 @@ because it is baked into keys that have already been paid for), and `export_mode
 now refuses outright to overwrite a file whose recorded signature differs from the run's:
 
 ```bash
+# the three annapolis-only legs
 for m in claude-sonnet-5 claude-opus-5; do for e in low high; do
   python scripts/analysis/export_model_cache.py --splits annapolis \
       --models claude:$m --claude-effort $e --publish-as $m-effort-$e
@@ -208,25 +223,67 @@ for m in claude-sonnet-5 claude-opus-5; do for e in low high; do
       --models claude:$m --claude-effort $e --publish-as $m-effort-$e
 done; done
 # -> 4 x "compared 1 (model, split) pair(s); published detections score IDENTICALLY"
+
+# the eleven-split opus/low leg (#139, #151) -- no --splits, so it covers every bundle
+python scripts/analysis/export_model_cache.py --verify \
+    --models claude:claude-opus-5 --claude-effort low \
+    --publish-as claude-opus-5-effort-low
+# What a cache holding every run prints:
+# -> "compared 11 (model, split) pair(s) ... 11 pair(s): published detections score
+#     IDENTICALLY to the cache", plus "claude-opus-5 / manual_gold: no published
+#     export to check" -- the #144 decision, showing up as a named absence.
+# What was actually observed, 2026-09-17, on the desktop cache (which never held the
+# two Laurens runs, made on the #151 machine): "compared 9 ... 9 pair(s): published
+# detections score IDENTICALLY", with both Laurens files flagged "NOTHING was
+# compared". So 12 of the 14 Claude files have a recorded cache-identity check; the
+# two Laurens files have n_uncached 0 at export and the CI re-score in
+# tests/test_claude_published_legs.py, which is a different guarantee.
 ```
+
+Add `--cache-dir <path>` when running from a git worktree: the default resolves against
+`REPO_ROOT`, which is the worktree, not the checkout holding `.model_cache`.
 
 Neither Claude spec is in `CHALLENGERS`, so the same caveat as `gemini-3.7-flash` applies:
 the default `--verify` never opens these files, and `fp_taxonomy.py` / `silent_witness.py`
 cannot reach them without the explicit `--models`.
 
 Unlike every other published leg, these four can also be checked with **no cache and no
-credentials at all** — `tests/test_claude_annapolis_leg.py` recomputes the entire published
-result table from the committed detections plus the committed annapolis bundle, and runs in
-CI. That is the strongest form this ledger's promise can take, and it is the pattern worth
-copying to the other legs.
+credentials at all** — `tests/test_claude_published_legs.py` recomputes the entire published
+result table from the committed detections plus the committed bundles, and runs in CI. That
+is the strongest form this ledger's promise can take, and it is the pattern worth copying to
+the other legs. The opus/low leg's other splits get the same treatment one level up:
+`tests/test_scoreboard.py` builds the whole board by re-scoring every committed detections
+file against every committed bundle, so those numbers are re-derived in CI too rather than
+read back from `analysis_out/scoreboard.json`.
 
-**Known gap, unrecoverable: the four legs' token counts were never written to
+**Known gap, partly recovered: the four legs' token counts were never written to
 `analysis_out/usage_log.jsonl`.** The $28.82 figure and the per-leg costs quoted in
-`docs/model_comparison.md` come from the runs' console output. They cannot be back-filled,
-because a re-run reads the detection cache, makes zero API calls and therefore has no usage
-to record — the cost record is the one artifact here that is write-once. Only the
-2026-08-18 single-panorama re-run ($0.03) is in the log. `compare.report_usage` now prints
-a loud warning when a leg that spent money finishes with no log destination.
+`docs/model_comparison.md` come from the runs' console output. A *re-run* cannot back-fill
+them, because it reads the detection cache, makes zero API calls and therefore has no usage
+to record. Only the 2026-08-18 single-panorama re-run ($0.03) is in the log.
+
+**Cloud Monitoring can, and did (2026-08-19).** `scripts/analysis/vertex_usage.py --days 7`
+recovered the billed daily totals — `claude-opus-5` $21.47 and `claude-sonnet-5` $7.79,
+$29.26 against the console's $28.82, so the published figures are right to 1.5%.
+
+The **per-leg** split goes one level further and only half works.
+`scripts/analysis/vertex_effort_split.py` re-queries the same metric at 60 s instead of
+daily alignment: the two Opus legs ran concurrently and separate at their changepoint
+(18:32 UTC, throughput /2.54), giving **$8.95 low / $12.47 high** against the console's
+**$8.94 / $12.46** — 0.1%, from an independent source. **Sonnet does not separate**, and
+the script prints `NOT SEPARABLE` rather than a number: its high leg spent 17,820 thinking
+tokens to Opus's 127,227, so the signal this method reads is not there. Numbers, method and
+the exact commands are in `docs/model_comparison.md` §"Splitting a two-leg day by effort".
+
+**Retention is ~6 weeks**, so all of this was recoverable only because someone looked within
+it; treat a missing usage record as having a deadline, not as paperwork. The 2026-08-15
+series would have aged out around **2026-09-26** and the 2026-08-18 day around
+**2026-09-29**, so the minute rows behind both are now committed under
+`docs/data/vertex_minute_series/` — `vertex_effort_split.py --from-series` replays them
+with no credentials and no project, and `tests/test_vertex_effort_split.py` checks that the
+published figures still fall out of them.
+`compare.report_usage` now prints a loud warning when a leg that spent money finishes with
+no log destination.
 
 Downstream scripts prefer the published files over `.model_cache`, and the label a `--models` spec
 resolves to is derived *without* building a detector, so **a clean clone reproduces these numbers
@@ -312,10 +369,10 @@ that size and never native. What remains blocking a second rater is a *person*, 
 > The exact sequence, which is what a replicator runs:
 >
 > ```bash
-> python scripts/export_benchmark.py adopt  --out dist/rampnet-benchmark   # only needed once
-> python scripts/export_benchmark.py build  --galleries analysis_out/op --out dist/rampnet-benchmark
+> python scripts/export_benchmark.py adopt --out dist/rampnet-benchmark   # only needed once
+> python scripts/export_benchmark.py build --galleries analysis_out/op --out dist/rampnet-benchmark
 > python scripts/export_benchmark.py verify --out dist/rampnet-benchmark
-> python scripts/export_benchmark.py push   --out dist/rampnet-benchmark --message "..."
+> python scripts/export_benchmark.py push --out dist/rampnet-benchmark --message "..."
 > ```
 >
 > `build` also regenerates `records` from the committed `records.jsonl` / `verdicts.json`; it came
@@ -548,10 +605,10 @@ per (config, city), embedding the **exact source bytes** — rows carry `image` 
 so nothing is re-encoded on write, and each row also carries the `sha256` of its own bytes.
 
 ```bash
-python scripts/export_benchmark.py build  --benchmark benchmark \
+python scripts/export_benchmark.py build --benchmark benchmark \
     --panos-4096 <rendered dir> --galleries analysis_out/op --out dist/rampnet-benchmark
 python scripts/export_benchmark.py verify --out dist/rampnet-benchmark
-python scripts/export_benchmark.py push   --out dist/rampnet-benchmark \
+python scripts/export_benchmark.py push --out dist/rampnet-benchmark \
     --repo-id projectsidewalk/rampnet-benchmark
 ```
 

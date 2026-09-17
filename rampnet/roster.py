@@ -190,23 +190,35 @@ ROSTER = (
              "at 0.05, roughly double the YOLO11 arms -- which is why it leads only "
              "on budapest, where firing at all is the binding constraint."),
 
-    # The Claude legs (#122). Two model ids x two efforts, all four on annapolis;
-    # the opus/low leg also covers both Laurens arms (#151, 2026-09-04). Still far
-    # short of the ten splits the standing rows report, so they stay off the roster
-    # tables and the write-up scopes each number to the splits it was measured on.
-    # The first provider whose knob splits one id into several legs, hence `pins`
-    # and `published_as`.
+    # The Claude legs (#122). Two model ids x two efforts, all four on annapolis.
+    # The opus/low leg now covers eleven splits -- the nine of #139 plus both
+    # Laurens arms (#151, 2026-09-04) -- so it is a complete leg on the scoreboard;
+    # the other three are annapolis only and stay off every pooled table, with the
+    # write-up scoping each number to the split it was measured on. None is
+    # `standing`: a pinned leg cannot be, because both efforts of one model id share
+    # a spec (see the check below). The first provider whose knob splits one id
+    # into several legs, hence `pins` and `published_as`.
     Challenger(
         spec="claude:claude-opus-5", label="claude-opus-5", provider="claude",
         density="sparse", standing=False, added="2026-08-15",
         pins=(("claude_effort", "low"),),
         published_as="claude-opus-5-effort-low",
-        note="Top challenger on annapolis (F1 0.588), the first model to displace "
-             "gemini-3.1-pro. 2.56 boxes/pano. Effort low is the provider default, "
-             "so this is what a bare `claude:claude-opus-5` reproduces. Also the "
-             "best zero-shot model on BOTH Laurens arms (0.430 mapillary, 0.437 "
-             "gsv) -- and flat across them (+0.007) where RampNet gains +0.115, "
-             "which is what makes #151's rig-not-town reading sharp."),
+        note="Eleven splits: nine in #139, both Laurens arms in #151. Pooled F1 0.568 "
+             "over the eight city splits, within 0.01 of gemini-3.1-pro's 0.575 -- its "
+             "+0.021 annapolis lead, the only time anything displaced the top "
+             "challenger, did not survive pooling, but neither did a deficit: the two "
+             "split 4 wins each on the pooled eight (Opus 6 of 11 overall), and the "
+             "pooled per-split gaps range from -0.069 (gainesville) to +0.086 "
+             "(laurens_mapillary; the held-out laurens_gsv is wider, +0.158), so the "
+             "annapolis lead was split noise, not a difference. Highest recall of any "
+             "fully-pooled chat VLM "
+             "(0.586), trading -0.077 precision for +0.052 recall. Best zero-shot model "
+             "on BOTH Laurens arms (0.430 mapillary, 0.437 gsv) and flat across them "
+             "(+0.007) where RampNet gains +0.115, which is what makes #151's "
+             "rig-not-town reading sharp. 2.54 boxes/pano over eleven splits (2.56 on "
+             "annapolis alone). No manual_gold row, deliberately: #144. Effort low is "
+             "the provider default, so this is what a bare `claude:claude-opus-5` "
+             "reproduces."),
     Challenger(
         spec="claude:claude-opus-5", label="claude-opus-5", provider="claude",
         density="sparse", standing=False, added="2026-08-15",

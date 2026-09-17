@@ -58,6 +58,12 @@ class BundleRampNetDetector:
     """RampNet's baseline detections, read from the benchmark records.jsonl."""
 
     name = "rampnet"
+    # This leg replays detections that are already committed: no model is loaded,
+    # nothing is inferred, and the "runtime" is a JSON read. It is excluded from the
+    # cost ledger (compare.py report_usage) so the near-universal `--models rampnet`
+    # arm does not append a meaningless zero row to a committed file on every run.
+    # A real RampNet inference run is stage_two/evaluate.py, not this class.
+    replays_committed_detections = True
 
     def __init__(self, records):
         # records: {pano_id: record_dict} from the bundle's records.jsonl.

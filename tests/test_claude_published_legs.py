@@ -252,8 +252,9 @@ def test_the_strongest_annapolis_claim_tracks_the_published_legs():
             if k[0].startswith("claude-fable"):
                 assert scored[k][7] > opus, (k, scored[k][7], opus)
         assert "**Both displace `claude-opus-5` at the top of this split**" in doc
-    # The coverage paragraph at the top of the doc names every off-roster Claude leg.
-    assert "**Six Claude legs are off-roster and have been run on annapolis only.**" in doc
+    # The coverage paragraph at the top of the doc names every off-roster Claude leg
+    # (not "annapolis only" any more: Opus-low has eleven splits since #139/#151).
+    assert "**Six Claude legs are off-roster.**" in doc
     assert len({k[:3] for k in scored}) == 6
 
 
