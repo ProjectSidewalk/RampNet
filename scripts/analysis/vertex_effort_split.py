@@ -64,39 +64,20 @@ import json
 import os
 import sys
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "model_comparison"))
 from pricing import estimate_cost, price_for      # noqa: E402
-from vertex_usage import write_json               # noqa: E402  (same snapshot format)
-
-TOKEN_METRIC = "aiplatform.googleapis.com/publisher/online_serving/token_count"
+from vertex_usage import (                        # noqa: E402  (same query, same snapshot format)
+    TOKEN_METRIC, _load_dotenv, fetch_series, write_json)
 
 #: A tail ratio must exceed the head ratio by this factor before the two legs are
 #: called separable. Below it the series is flat and any split is fitting noise.
 MIN_RATIO_LIFT = 1.25
 #: Minutes dropped either side of the changepoint, which is a blend of both legs.
 GUARD_MINUTES = 3
-
-
-def _load_dotenv():
-    """Same repo-root .env the rest of the harness reads.
-
-    NOTE: REPO is derived from __file__, so running from a git worktree looks in the
-    worktree, not the checkout that holds .env -- pass --project explicitly there.
-    That is the read-side face of the #143 bug.
-    """
-    path = REPO / ".env"
-    if not path.exists():
-        return
-    for line in path.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if line and not line.startswith("#") and "=" in line:
-            k, _, v = line.partition("=")
-            os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
 
 
 def minute_rows(series):
@@ -124,46 +105,10 @@ def minute_rows(series):
 
 def fetch_minute_series(project, model, start, end):
     """Minute-aligned (input, output) deltas for one model, oldest first."""
-    try:
-        import google.auth
-        import google.auth.transport.requests
-        import requests
-    except ImportError as e:                              # pragma: no cover
-        raise SystemExit(f"needs google-auth + requests (pip install -r "
-                         f"requirements-vlm.txt): {e}")
-    creds, _ = google.auth.default(
-        scopes=["https://www.googleapis.com/auth/cloud-platform"])
-    creds.refresh(google.auth.transport.requests.Request())
-    headers = {"Authorization": f"Bearer {creds.token}",
-               "x-goog-user-project": project}
-    params = {
-        "filter": f'metric.type = "{TOKEN_METRIC}" AND '
-                  f'resource.labels.model_user_id = "{model}"',
-        "interval.startTime": start,
-        "interval.endTime": end,
-        "aggregation.alignmentPeriod": "60s",
-        "aggregation.perSeriesAligner": "ALIGN_DELTA",
-        "aggregation.crossSeriesReducer": "REDUCE_SUM",
-        "aggregation.groupByFields": ["metric.labels.type"],
-        "pageSize": 2000,
-    }
-    url = f"https://monitoring.googleapis.com/v3/projects/{project}/timeSeries"
-    series, token, pages = [], None, 0
-    while True:
-        page = dict(params, **({"pageToken": token} if token else {}))
-        r = requests.get(url, params=page, headers=headers, timeout=90)
-        if r.status_code != 200:
-            raise SystemExit(f"Cloud Monitoring query failed ({r.status_code}): "
-                             f"{r.text[:500]}")
-        body = r.json()
-        series.extend(body.get("timeSeries", []))
-        pages += 1
-        token = body.get("nextPageToken")
-        if not token:
-            break
-        if pages >= 50:            # same runaway guard as vertex_usage.py
-            raise SystemExit("stopped after 50 pages with more remaining — "
-                             "narrow the window, or the totals would be partial")
+    series = fetch_series(
+        project,
+        f'metric.type = "{TOKEN_METRIC}" AND resource.labels.model_user_id = "{model}"',
+        start, end, "60s", ["metric.labels.type"], timeout=90, page_size=2000)
     return minute_rows(series)
 
 

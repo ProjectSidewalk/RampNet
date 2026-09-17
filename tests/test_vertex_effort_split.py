@@ -369,3 +369,45 @@ def test_a_cloud_query_still_needs_a_window(monkeypatch, no_dotenv):
         ves.main()
     assert "--start and --end" in str(e.value)
 
+
+def test_the_minute_query_and_the_daily_query_share_one_fetch(monkeypatch):
+    """S8: vertex_effort_split.py had its own copy of vertex_usage.py's paging loop
+    and .env parser, differing only in timeout and page size. One fetch_series now
+    serves both, so a paging fix lands in both queries. Checked without HTTP: the
+    minute fetch must call the shared function with a 60 s alignment and the
+    per-model filter, and hand its result to minute_rows."""
+    calls = []
+
+    def fake_fetch(project, filter_, start, end, alignment_period, group_by, **kw):
+        calls.append((project, filter_, start, end, alignment_period, list(group_by), kw))
+        return [_point(end, "input", 12_186), _point(end, "output", 400)]
+
+    monkeypatch.setattr(ves, "fetch_series", fake_fetch)
+    rows = ves.fetch_minute_series("proj", "claude-opus-5", "S", "E")
+    assert rows == [("E", 12_186, 400)]
+    (project, filter_, start, end, alignment, group_by, kw), = calls
+    assert (project, start, end, alignment) == ("proj", "S", "E", "60s")
+    assert ves.TOKEN_METRIC in filter_ and 'model_user_id = "claude-opus-5"' in filter_
+    assert group_by == ["metric.labels.type"]
+    assert kw == {"timeout": 90, "page_size": 2000}
+    assert ves.fetch_series is not vu.fetch_series      # the patch took
+    assert ves._load_dotenv is vu._load_dotenv          # one .env reader, not two
+
+
+def test_the_dotenv_fallback_reads_the_same_file_the_same_way(tmp_path, monkeypatch):
+    """vertex_usage._load_dotenv prefers compare.load_dotenv; when the detector stack
+    is not importable it must still read .env rather than silently load nothing,
+    and the two parsers must agree on what a line means."""
+    env = tmp_path / ".env"
+    env.write_text('# comment\nGOOGLE_CLOUD_PROJECT="proj-a"\nOTHER=x=y\n\nBAD LINE\n',
+                   encoding="utf-8")
+    monkeypatch.delenv("GOOGLE_CLOUD_PROJECT", raising=False)
+    monkeypatch.delenv("OTHER", raising=False)
+    vu._parse_dotenv(str(env))
+    assert os.environ["GOOGLE_CLOUD_PROJECT"] == "proj-a"
+    assert os.environ["OTHER"] == "x=y"                  # split on the first '=' only
+    compare = pytest.importorskip("compare")
+    monkeypatch.delenv("GOOGLE_CLOUD_PROJECT", raising=False)
+    monkeypatch.delenv("OTHER", raising=False)
+    compare.load_dotenv(str(tmp_path))
+    assert (os.environ["GOOGLE_CLOUD_PROJECT"], os.environ["OTHER"]) == ("proj-a", "x=y")

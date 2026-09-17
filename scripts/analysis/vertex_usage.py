@@ -66,18 +66,55 @@ def write_json(path, doc, compact_key=None):
         f.write(text + "\n")
 
 
+def _parse_dotenv(path):
+    """KEY=VALUE lines from ``path`` into os.environ, never overriding a set var.
+
+    The same minimal parser as ``compare.load_dotenv``, kept here so this module
+    and ``vertex_effort_split.py`` still read the repo-root .env when the detector
+    stack is not importable (a bare ``pip install -r requirements-vlm.txt`` clone).
+    """
+    if not os.path.exists(path):
+        return
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, val = line.split("=", 1)
+            os.environ.setdefault(key.strip(), val.strip().strip('"').strip("'"))
+
+
 def _load_dotenv():
-    """Reuse compare.py's .env loader so both halves of the harness read the same
-    credentials file. Imported inside the function (the export_model_cache idiom)
-    so the module still imports without the detector stack on the path."""
+    """Same repo-root .env the rest of the harness reads.
+
+    Prefers compare.py's loader so both halves of the harness read one file the same
+    way; imported inside the function (the export_model_cache idiom) so the module
+    still imports without the detector stack on the path, in which case the local
+    parser above does the same job rather than silently loading nothing.
+
+    NOTE: REPO is derived from __file__, so running from a git worktree looks in the
+    worktree, not the checkout that holds .env -- pass --project explicitly there.
+    That is the read-side face of the #143 bug.
+    """
     try:
         from compare import load_dotenv
     except ImportError:
+        _parse_dotenv(os.path.join(str(REPO), ".env"))
         return
     load_dotenv(str(REPO))
 
 
-def fetch_token_series(project, days):
+def fetch_series(project, filter_, start, end, alignment_period, group_by,
+                 timeout=60, page_size=1000):
+    """Every ALIGN_DELTA / REDUCE_SUM time series for one Cloud Monitoring query.
+
+    One paging loop for both the daily (``vertex_usage.py``) and the minute
+    (``vertex_effort_split.py``) queries, so the two cannot drift apart. ``start``
+    and ``end`` are RFC3339 strings; ``group_by`` is the list of label paths the
+    reducer keeps. Follows ``nextPageToken`` to the end: a dropped page is a SILENT
+    UNDERCOUNT in the one tool whose job is server-side ground truth, and "the total
+    came back low" has no symptom a reader could notice.
+    """
     try:
         import google.auth
         import google.auth.transport.requests
@@ -90,26 +127,21 @@ def fetch_token_series(project, days):
     creds.refresh(google.auth.transport.requests.Request())
     headers = {"Authorization": f"Bearer {creds.token}",
                "x-goog-user-project": project}
-    end = datetime.now(timezone.utc)
     params = {
-        "filter": f'metric.type = "{TOKEN_METRIC}"',
-        "interval.startTime": (end - timedelta(days=days)).isoformat(),
-        "interval.endTime": end.isoformat(),
-        "aggregation.alignmentPeriod": "86400s",
+        "filter": filter_,
+        "interval.startTime": start,
+        "interval.endTime": end,
+        "aggregation.alignmentPeriod": alignment_period,
         "aggregation.perSeriesAligner": "ALIGN_DELTA",
         "aggregation.crossSeriesReducer": "REDUCE_SUM",
-        "aggregation.groupByFields": ["resource.labels.model_user_id",
-                                      "metric.labels.type"],
-        "pageSize": 1000,
+        "aggregation.groupByFields": list(group_by),
+        "pageSize": page_size,
     }
-    # Follow nextPageToken. A dropped page is a SILENT UNDERCOUNT in the one tool
-    # whose job is server-side ground truth, and "the total came back low" has no
-    # symptom a reader could notice.
     url = f"https://monitoring.googleapis.com/v3/projects/{project}/timeSeries"
     series, token, pages = [], None, 0
     while True:
         page_params = dict(params, **({"pageToken": token} if token else {}))
-        r = requests.get(url, params=page_params, headers=headers, timeout=60)
+        r = requests.get(url, params=page_params, headers=headers, timeout=timeout)
         if r.status_code != 200:
             raise SystemExit(f"Cloud Monitoring query failed ({r.status_code}): "
                              f"{r.text[:500]}")
@@ -121,10 +153,20 @@ def fetch_token_series(project, days):
             break
         if pages >= 50:   # runaway guard; say so rather than truncating quietly
             raise SystemExit(f"stopped after {pages} pages with more remaining — "
-                             f"narrow --days and re-run, or the totals would be partial")
+                             f"narrow the window and re-run, or the totals would be "
+                             f"partial")
     if pages > 1:
         print(f"(fetched {len(series)} time series across {pages} pages)")
     return series
+
+
+def fetch_token_series(project, days):
+    """Daily-aligned token counts per (model_user_id, type) over the last ``days``."""
+    end = datetime.now(timezone.utc)
+    return fetch_series(
+        project, f'metric.type = "{TOKEN_METRIC}"',
+        (end - timedelta(days=days)).isoformat(), end.isoformat(), "86400s",
+        ["resource.labels.model_user_id", "metric.labels.type"])
 
 
 def main():
