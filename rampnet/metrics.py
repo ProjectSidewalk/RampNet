@@ -7,8 +7,10 @@ positives, and duplicate detections of an already-matched ground-truth point
 were dropped entirely instead of counted as false positives.
 """
 
+from rampnet.geometry import fold
 
-def greedy_match(pred_points, gt_points, radius_sq, scale_x, scale_y):
+
+def greedy_match(pred_points, gt_points, radius_sq, scale_x, scale_y, wrap_x=False):
     """Assign each prediction, in the order given, to the nearest unclaimed GT.
 
     The single matching core shared by every RampNet evaluator — keep it that
@@ -24,6 +26,13 @@ def greedy_match(pred_points, gt_points, radius_sq, scale_x, scale_y):
       already counted from a detection with no ramp anywhere near it — a
       distinction some callers report separately, though both are false
       positives.
+
+    ``wrap_x`` makes the x axis cyclic with period ``scale_x`` — the panoramic case,
+    where a prediction at x=0.988 sits ~14 px from ground truth at x=0.002 rather than
+    ~1010 px (issue #132). It defaults to **off** because not every caller is in pano
+    space: the round-2 crop model evaluator matches in crop space (``scale_x=341/4``),
+    where the two ends of the axis are genuinely different places. Pano callers opt in;
+    :func:`rampnet.detection_eval.score_pano` does so by default.
     """
     gt_scaled = [(gx * scale_x, gy * scale_y) for gx, gy in gt_points]
     claimed = [False] * len(gt_scaled)
@@ -32,7 +41,8 @@ def greedy_match(pred_points, gt_points, radius_sq, scale_x, scale_y):
         pred_x, pred_y = x_norm * scale_x, y_norm * scale_y
         best_k, best_dist_sq, saw_in_range = -1, radius_sq, False
         for k, (gt_x, gt_y) in enumerate(gt_scaled):
-            dist_sq = (pred_x - gt_x) ** 2 + (pred_y - gt_y) ** 2
+            dx = fold(pred_x - gt_x, scale_x) if wrap_x else (pred_x - gt_x)
+            dist_sq = dx * dx + (pred_y - gt_y) ** 2
             if dist_sq < radius_sq:
                 saw_in_range = True
                 if not claimed[k] and dist_sq < best_dist_sq:
@@ -43,7 +53,8 @@ def greedy_match(pred_points, gt_points, radius_sq, scale_x, scale_y):
     return assignments
 
 
-def match_predictions(pred_peaks, gt_points, radius_sq, scale_x, scale_y):
+def match_predictions(pred_peaks, gt_points, radius_sq, scale_x, scale_y,
+                      wrap_x=False):
     """Greedy one-to-one matching of predicted peaks to ground-truth points.
 
     pred_peaks: iterable of (x_norm, y_norm, confidence).
@@ -60,11 +71,12 @@ def match_predictions(pred_peaks, gt_points, radius_sq, scale_x, scale_y):
     """
     preds_sorted = sorted(pred_peaks, key=lambda p: p[2], reverse=True)
     assignments = greedy_match([(p[0], p[1]) for p in preds_sorted],
-                               gt_points, radius_sq, scale_x, scale_y)
+                               gt_points, radius_sq, scale_x, scale_y, wrap_x)
     return [(p[2], gt_index >= 0) for p, (gt_index, _) in zip(preds_sorted, assignments)]
 
 
-def match_points(pred_points, gt_points, radius_sq, scale_x, scale_y):
+def match_points(pred_points, gt_points, radius_sq, scale_x, scale_y,
+                 wrap_x=False):
     """Match unscored points (no confidence) and summarise as counts.
 
     The Stage 1 dataset evaluator's entry point: generated label points carry no
@@ -78,7 +90,8 @@ def match_points(pred_points, gt_points, radius_sq, scale_x, scale_y):
     ``match_predictions`` and ``rampnet.validation``'s duplicate handling
     (issue #18).
     """
-    assignments = greedy_match(pred_points, gt_points, radius_sq, scale_x, scale_y)
+    assignments = greedy_match(pred_points, gt_points, radius_sq, scale_x, scale_y,
+                               wrap_x)
     tp = sum(1 for gt_index, _ in assignments if gt_index >= 0)
     n_redundant = sum(1 for gt_index, saw in assignments if gt_index < 0 and saw)
     return tp, len(assignments) - tp, n_redundant

@@ -20,7 +20,7 @@ lives on one machine.
 | `benchmark/miss_taxonomy_46/*.json` (human verdicts) | small | **committed** | ✅ |
 | RampNet model weights | — | HF `projectsidewalk/rampnet-model` | ✅ |
 | Stage 1 dataset | **463 GB** (test split ~44 GB) | HF `projectsidewalk/rampnet-dataset` | ✅ |
-| `benchmark/model_detections/` (challenger detections) | 23.1 MB (114 files) | **committed** ✅ | ✅ |
+| `benchmark/model_detections/` (challenger detections) | 25.1 MB (138 files) | **committed** ✅ | ✅ |
 | **`location_data/` (the paper's government inventories)** | 71.8 MB | **committed** ✅ | ✅ |
 | **`street_data/` derivative (what the pipeline actually reads)** | 18.7 MB | **committed** ✅ | ✅ |
 | `street_data/` raw downloads (NY file alone is 669 MB) | 801 MB | git-ignored; HF #21 pending | ⚠️ superseded by the derivative |
@@ -41,14 +41,14 @@ in this sentence — the list here was one of the things that drifted.
 single-panorama shards keyed by an opaque SHA-1 of (label, signature, city, pano), unreadable
 without reconstructing detector signatures. `scripts/analysis/export_model_cache.py` consolidates
 it into human-readable files, one per (model, split), keyed by panorama id with the detector
-signature recorded inside. As of 2026-08-18 that is **114 files, 23.1 MB**, and every one of
+signature recorded inside. As of 2026-09-04 that is **138 files, 25.1 MB**, and every one of
 them belongs to a registered leg:
 
 | what | files | where it is written up |
 |---|---:|---|
-| the standing zero-shot roster, ten splits each (two Gemini legs are absent on `manual_gold`) | 68 | the roster tables in [`model_comparison.md`](model_comparison.md) |
-| `gemini-3.7-flash`, ten splits, published ahead of its write-up (#120) | 10 | §below |
-| the supervised YOLO pano trio, ten splits each (#51) | 30 | [`model_comparison.md` §supervised baseline](model_comparison.md), and the [training record](../scripts/model_comparison/yolo_baseline/README.md) |
+| the standing zero-shot roster, twelve splits each (two Gemini legs are absent on `manual_gold`) | 82 | the roster tables in [`model_comparison.md`](model_comparison.md) |
+| `gemini-3.7-flash`, twelve splits, published ahead of its write-up (#120) | 12 | §below |
+| the supervised YOLO pano trio, twelve splits each (#51) | 36 | [`model_comparison.md` §supervised baseline](model_comparison.md), and the [training record](../scripts/model_comparison/yolo_baseline/README.md) |
 | the four annapolis Claude legs (#122) | 4 | [`model_comparison.md` §Claude](model_comparison.md) |
 | the two Mapillary Vistas class-set arms, richmond only (#126) | 2 | [`model_comparison.md` §Vistas](model_comparison.md) |
 
@@ -110,7 +110,7 @@ test rather than a promise.
 
 #### The gemini-3.7-flash leg is published but off the default roster
 
-`benchmark/model_detections/gemini-3.7-flash__*.json` covers **all ten splits**, including
+`benchmark/model_detections/gemini-3.7-flash__*.json` covers **all twelve splits**, including
 `manual_gold` (1,000 panoramas, 0 uncached — that leg finished 2026-08-15 08:04 UTC, after the
 first nine were exported). It is currently the only Gemini with a `manual_gold` file: the other
 two are absent for a different reason, their `manual_gold` detections not being in the cache
@@ -121,6 +121,43 @@ python scripts/analysis/export_model_cache.py --models gemini:gemini-3.7-flash
 python scripts/analysis/export_model_cache.py --verify --models gemini:gemini-3.7-flash
 # -> compared 10 (model, split) pair(s); published detections score IDENTICALLY
 ```
+
+#### The two Laurens arms (2026-09-01)
+
+Both arms of Laurens — `laurens_mapillary` (pooled) and `laurens_gsv` (held out, the #151
+discriminator) — were run through the identical leg list, which is what makes their ΔF1
+table in `model_comparison.md` a comparison of rigs rather than of protocols. Substitute
+`laurens_gsv` for `laurens_mapillary` in every command below to reproduce the second arm.
+
+#### The `laurens_mapillary` legs (2026-09-01)
+
+The eighth US split arrived after every challenger had already been run, so all eleven legs
+were produced for it in one pass. Exact commands, in order:
+
+```bash
+# 1. the seven standing roster challengers (owlv2/gdino on an A40, Qwen-32B on 2x L40S)
+python scripts/model_comparison/compare.py benchmark/laurens_mapillary     --models rampnet,owlv2,gdino --sweep
+python scripts/model_comparison/compare.py benchmark/laurens_mapillary     --models rampnet,qwen:Qwen/Qwen3-VL-8B-Instruct
+QWEN_MODEL=Qwen/Qwen3-VL-32B-Instruct BUNDLE=benchmark/laurens_mapillary     sbatch -A <account> --nodes=1 --gpus-per-node=2 scripts/model_comparison/run_qwen.slurm
+python scripts/model_comparison/compare.py benchmark/laurens_mapillary     --models rampnet,molmo:allenai/Molmo2-8B      # transformers==4.57.1 env, see below
+python scripts/model_comparison/compare.py benchmark/laurens_mapillary     --models gemini:gemini-3.6-flash              # and 3.1-pro-preview, and 3.7-flash
+
+# 2. the YOLO trio, under the #71 pre-registered protocol
+python scripts/model_comparison/compare.py benchmark/laurens_mapillary     --models yolo:yolo_ckpts/y11l_pano.pt,yolo:yolo_ckpts/y26_pano.pt,yolo:yolo_ckpts/y11x_pano_h200.pt     --tiling none --yolo-imgsz 1280 --op-threshold 0.25 --sweep
+
+# 3. export -- three invocations, because --models defaults to CHALLENGERS only
+python scripts/analysis/export_model_cache.py --splits laurens_mapillary
+python scripts/analysis/export_model_cache.py --splits laurens_mapillary     --models gemini:gemini-3.7-flash
+python scripts/analysis/export_model_cache.py --splits laurens_mapillary     --models yolo:yolo_ckpts/y11l_pano.pt,yolo:yolo_ckpts/y26_pano.pt,yolo:yolo_ckpts/y11x_pano_h200.pt     --tiling none --yolo-imgsz 1280
+# ...then the same three with --verify; all reported 0 uncached and IDENTICAL scores.
+```
+
+**The `--tiling none --yolo-imgsz 1280` flags are load-bearing on the export, not just the
+run.** The exporter defaults to `--tiling perspective --yolo-imgsz 1024`, and those settings
+enter the detector signature and therefore the cache key. Export without them and the
+lookup misses every pano: the command reports `94 uncached` and writes empty files rather
+than failing. A non-zero `uncached` column on a leg that has already been run means the
+signature was reconstructed wrong — check it before committing anything.
 
 `gemini:gemini-3.7-flash` is registered in `rampnet/roster.py` as published-but-off-roster,
 so it is not in `CHALLENGERS` and not what `--models` defaults to. The two commands above are
@@ -139,8 +176,21 @@ committed artifacts record the pool they ran over.
 #### The four Claude legs are published, annapolis only, one file per effort level
 
 `benchmark/model_detections/claude-{sonnet,opus}-5-effort-{low,high}__annapolis.json` — four
-files, 125 panoramas each, 0 uncached (#122). Only annapolis was run; the other nine splits
-are a stated gap.
+files, 125 panoramas each, 0 uncached (#122).
+
+**`claude-opus-5` at effort low now covers three splits**, not one:
+`claude-opus-5-effort-low__{annapolis,laurens_mapillary,laurens_gsv}.json` (125 / 94 / 86
+panoramas, 0 uncached each). The two Laurens arms were run 2026-09-04 to answer #151 — whether
+Laurens is hard because it is rural or because of the imagery rig — and needed the strongest
+zero-shot model in the benchmark to make that test sharp. The other seven splits, and all three
+remaining Claude legs on every split but annapolis, are still a stated gap.
+
+⚠️ **The mapillary arm needed a second pass.** Two panoramas
+(`2102336717175440`, `2281219182305735`) died on Vertex's transient 404 even after the detector's
+four retries, and `compare.py` isolated them and scored the other 92 — which would have published
+a recall against 247 GT ramps inside a table captioned 249. The re-run recovered both for 12 calls
+and $0.14. This is the same defect class as the annapolis sonnet/low pano, and
+`test_claude_published_legs.py` asserts whole-split coverage for exactly that reason.
 
 These need one flag the other legs do not. **Effort is part of the cache signature, so one
 model id is two different legs**, and both would export to `claude-sonnet-5__annapolis.json`

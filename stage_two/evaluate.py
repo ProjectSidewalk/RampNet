@@ -234,6 +234,7 @@ def evaluate(model, image_paths, label_paths, is_manual_dataset, heatmap_cache_d
             radius_threshold_pixels_sq,
             scale_x=heatmap_w,
             scale_y=heatmap_h,
+            wrap_x=True,       # equirectangular pano: x is cyclic (#132)
         ))
 
     ap, recalls_curve_plot, precisions_curve_plot, sorted_confidences, sorted_tp_flags = \

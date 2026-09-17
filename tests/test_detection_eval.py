@@ -17,7 +17,10 @@ from rampnet.detection_eval import (
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Unit scale + radius 0.5 (radius_sq 0.25): plain Euclidean on raw coords.
-UNIT = dict(scale_x=1, scale_y=1, radius_sq=0.25)
+# wrap_x=False: this is a synthetic algebraic space, not a panorama — the points below
+# range well outside [0, 1], so a cyclic x axis of period 1 would be meaningless here.
+# score_pano defaults to wrapping because its real callers are panoramic (#132).
+UNIT = dict(scale_x=1, scale_y=1, radius_sq=0.25, wrap_x=False)
 
 
 # --- build_ground_truth -----------------------------------------------------

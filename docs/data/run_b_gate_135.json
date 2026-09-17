@@ -1,0 +1,97 @@
+{
+  "gate_source": "docs/stage2_cosine_rung_135.md, Pre-registered decision rule",
+  "largest_absolute_delta": {
+    "delta": 0.004245,
+    "epoch": 7,
+    "would_reach_significance_at_favourable_se": true,
+    "z_at_se_hi": 1.45,
+    "z_at_se_lo": 2.638
+  },
+  "per_epoch": [
+    {
+      "delta": 0.000492,
+      "epoch": 1,
+      "would_reach_significance_at_favourable_se": false,
+      "z_at_se_hi": 0.168,
+      "z_at_se_lo": 0.306
+    },
+    {
+      "delta": 0.000325,
+      "epoch": 2,
+      "would_reach_significance_at_favourable_se": false,
+      "z_at_se_hi": 0.111,
+      "z_at_se_lo": 0.202
+    },
+    {
+      "delta": 0.001528,
+      "epoch": 3,
+      "would_reach_significance_at_favourable_se": false,
+      "z_at_se_hi": 0.522,
+      "z_at_se_lo": 0.95
+    },
+    {
+      "delta": 0.001253,
+      "epoch": 4,
+      "would_reach_significance_at_favourable_se": false,
+      "z_at_se_hi": 0.428,
+      "z_at_se_lo": 0.779
+    },
+    {
+      "delta": -0.001463,
+      "epoch": 5,
+      "would_reach_significance_at_favourable_se": false,
+      "z_at_se_hi": 0.5,
+      "z_at_se_lo": 0.909
+    },
+    {
+      "delta": 0.000729,
+      "epoch": 6,
+      "would_reach_significance_at_favourable_se": false,
+      "z_at_se_hi": 0.249,
+      "z_at_se_lo": 0.453
+    },
+    {
+      "delta": 0.004245,
+      "epoch": 7,
+      "would_reach_significance_at_favourable_se": true,
+      "z_at_se_hi": 1.45,
+      "z_at_se_lo": 2.638
+    },
+    {
+      "delta": 0.002994,
+      "epoch": 8,
+      "would_reach_significance_at_favourable_se": false,
+      "z_at_se_hi": 1.022,
+      "z_at_se_lo": 1.86
+    }
+  ],
+  "primary": {
+    "cosine": 0.915423,
+    "delta": 0.002994,
+    "epoch": 8,
+    "reading": "no effect at 8 epochs",
+    "run_a": 0.912429,
+    "significant": false,
+    "z_at_se_hi": 1.022,
+    "z_at_se_lo": 1.86
+  },
+  "se_bracket": [
+    0.001609,
+    0.002928
+  ],
+  "se_source": "MEASURED across 28 Run A epoch pairs",
+  "secondary": {
+    "arrested": false,
+    "confirms_arrest": false,
+    "cosine_change": -0.005158,
+    "difference_of_declines": 0.001466,
+    "from_epoch": 3,
+    "run_a_change": -0.006624,
+    "significantly_smaller": false,
+    "to_epoch": 8,
+    "z_at_se_hi": 0.501,
+    "z_at_se_lo": 0.911
+  },
+  "verdict": "JUDGMENT CALL",
+  "z_critical": 1.959964
+}

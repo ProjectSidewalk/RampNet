@@ -1,0 +1,243 @@
+{
+  "rater": "jon",
+  "manifest_digest": "022a8686d324868d",
+  "rubric_version": 1,
+  "rubric": [
+    {
+      "rule": "A ramp split by the panorama edge is ONE ramp",
+      "detail": "We are marking physical ramps. The image seam is an artifact of the projection, not a feature of the world. Use view B (rolled 180 deg) to check yourself: if the ramps sit in unbroken imagery and still read as one, they are one."
+    },
+    {
+      "rule": "A driveway is NOT a curb ramp",
+      "detail": "Absolutely not. Driveway aprons are excluded however ramp-like they look."
+    },
+    {
+      "rule": "Mark every ramp you can SEE; never mark one you only infer",
+      "detail": "No marking a ramp because a crossing implies one should be there."
+    },
+    {
+      "rule": "A partially occluded ramp counts if enough of it is showing",
+      "detail": "If enough ramp is visible that you can confidently call it a ramp, mark it."
+    },
+    {
+      "rule": "Unsure is a real answer",
+      "detail": "If you cannot tell whether it is one ramp or two, say unsure rather than guessing. An unsure verdict is data; a coerced one is noise."
+    },
+    {
+      "rule": "Judge at full stored resolution",
+      "detail": "manual_gold is stored at 4096x2048, which is also the model's input size, so for this split there is no difference between reviewer pixels and model pixels. Zoom freely."
+    }
+  ],
+  "verdicts": [
+    {
+      "pano": "tRwq7cx78-g4Mi59uuN5-Q",
+      "a": [
+        0.001921,
+        0.543661
+      ],
+      "b": [
+        0.999075,
+        0.544514
+      ],
+      "sep_px": 2.95,
+      "inside_match_radius": true,
+      "verdict": "one",
+      "note": null
+    },
+    {
+      "pano": "XCbhS0jxrSrOLyndJXtQvA",
+      "a": [
+        0.994238,
+        0.547147
+      ],
+      "b": [
+        0.000374,
+        0.545885
+      ],
+      "sep_px": 6.32,
+      "inside_match_radius": true,
+      "verdict": "one",
+      "note": null
+    },
+    {
+      "pano": "oyyca_diFZoYJGETmlwc3g",
+      "a": [
+        0.00375,
+        0.562424
+      ],
+      "b": [
+        0.996908,
+        0.561155
+      ],
+      "sep_px": 7.04,
+      "inside_match_radius": true,
+      "verdict": "one",
+      "note": null
+    },
+    {
+      "pano": "XFxls0YjTNlFLpZ6eNUuwg",
+      "a": [
+        0.008065,
+        0.543046
+      ],
+      "b": [
+        0.999198,
+        0.545851
+      ],
+      "sep_px": 9.19,
+      "inside_match_radius": true,
+      "verdict": "one",
+      "note": null
+    },
+    {
+      "pano": "JrR9wwG_ynJrSP9ov3Rxrw",
+      "a": [
+        0.006715,
+        0.55001
+      ],
+      "b": [
+        0.997129,
+        0.552834
+      ],
+      "sep_px": 9.92,
+      "inside_match_radius": true,
+      "verdict": "one",
+      "note": null
+    },
+    {
+      "pano": "shnQL5DurRLY94LPJmCTYA",
+      "a": [
+        0.991886,
+        0.53821
+      ],
+      "b": [
+        0.001878,
+        0.537662
+      ],
+      "sep_px": 10.24,
+      "inside_match_radius": true,
+      "verdict": "one",
+      "note": null
+    },
+    {
+      "pano": "oE6q6mzI7U-P8l35PsTDFA",
+      "a": [
+        0.001387,
+        0.558619
+      ],
+      "b": [
+        0.991298,
+        0.55743
+      ],
+      "sep_px": 10.35,
+      "inside_match_radius": true,
+      "verdict": "one",
+      "note": null
+    },
+    {
+      "pano": "wVEb1Vhhz4yPct7DrQ8-fQ",
+      "a": [
+        0.000647,
+        0.559133
+      ],
+      "b": [
+        0.990039,
+        0.559108
+      ],
+      "sep_px": 10.86,
+      "inside_match_radius": true,
+      "verdict": "one",
+      "note": null
+    },
+    {
+      "pano": "YRTsmStw9SqMzZGZpNTcsg",
+      "a": [
+        0.009297,
+        0.579413
+      ],
+      "b": [
+        0.996901,
+        0.579757
+      ],
+      "sep_px": 12.7,
+      "inside_match_radius": true,
+      "verdict": "one",
+      "note": null
+    },
+    {
+      "pano": "2NgKmkIoU9nUwvjk6K5wtw",
+      "a": [
+        0.002138,
+        0.544149
+      ],
+      "b": [
+        0.98969,
+        0.541625
+      ],
+      "sep_px": 12.81,
+      "inside_match_radius": true,
+      "verdict": "one",
+      "note": null
+    },
+    {
+      "pano": "MJbCTDJV5advy8eYbL0V5Q",
+      "a": [
+        0.0023,
+        0.541611
+      ],
+      "b": [
+        0.985422,
+        0.541945
+      ],
+      "sep_px": 17.28,
+      "inside_match_radius": true,
+      "verdict": "two",
+      "note": null
+    },
+    {
+      "pano": "bIvg28w_vN1FEprlX0biKg",
+      "a": [
+        0.017995,
+        0.555383
+      ],
+      "b": [
+        0.99502,
+        0.547984
+      ],
+      "sep_px": 23.83,
+      "inside_match_radius": false,
+      "verdict": "two",
+      "note": null
+    },
+    {
+      "pano": "i3klZw0fkItNns0UNkA_UA",
+      "a": [
+        0.982125,
+        0.544643
+      ],
+      "b": [
+        0.006538,
+        0.542825
+      ],
+      "sep_px": 25.02,
+      "inside_match_radius": false,
+      "verdict": "two",
+      "note": null
+    },
+    {
+      "pano": "QGbpvWpeg9zLcu5HZneRbw",
+      "a": [
+        0.001149,
+        0.545085
+      ],
+      "b": [
+        0.976675,
+        0.545615
+      ],
+      "sep_px": 25.06,
+      "inside_match_radius": false,
+      "verdict": "two",
+      "note": null
+    }
+  ]
+}

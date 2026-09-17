@@ -7,6 +7,18 @@ fourth outcome the pre-registration did not enumerate: under its own 0.01 tie ba
 resolvable human peak. Only epoch 1 sits clear of the maximum; epochs 2–8 are tied with one another,
 so the curve steps up once and is then flat.**
 
+> ⚠️ **AMENDED 2026-08-18 by [#135](https://github.com/ProjectSidewalk/RampNet/issues/135) — the
+> instrument, and therefore the curve SHAPE, has been superseded.** The 0.01 tie bar quoted
+> throughout this document is an **unpaired** bar; epoch-vs-epoch is a paired question, and
+> `docs/stage2_run_b_power_135.md` measured the paired standard error on the same checkpoints at
+> **0.0016–0.0029** (MDE 0.0045–0.0081) from all 28 pairs, with no GPU. Read paired, **the
+> plateau is epochs 2–6, not 2–8: epochs 7 and 8 are measurably below it** (3 vs 7 at z = 4.0,
+> 6 vs 7 at 3.0, 3 vs 8 at 3.0). The *headline* is unchanged — there is still no resolvable human
+> peak, and 2–6 remain mutually indistinguishable — but "steps up once and is then flat" is not
+> the right description of the tail, and every use of the 0.01 bar below should be read as the
+> conservative unpaired instrument it is. **A later outcome (2026-09-03) also settled Run B
+> against; see the gate section near the end of this file.**
+
 ## What this run is
 
 One question: **does `manual_gold` F1 peak before, at, or after epoch 5?**
@@ -514,6 +526,8 @@ Two smaller things this arm settles:
   an artifact of the inference protocol.
 
 ### The Run B gate: PASSES, so Run B is not cancelled
+
+> ⚠️ **Later outcome (2026-09-03): Run B was decided against and #135 is closed.** The gate below is a *degradation* check and it did pass — that is unchanged. What settled it was the 8-epoch cosine rung, which isolated schedule from length at matched budget and found `manual_gold` tied on the pre-registered primary comparison (epoch 8; epoch 7 is undetermined and is not that comparison), plus the fact that Run B at n=1 could not be told apart from a seed draw. See [`stage2_cosine_rung_135.md`](stage2_cosine_rung_135.md), final section.
 
 The gate is "Run B runs **unless** the curve degrades — every epoch ≥ 2 below epoch 1 by more than
 the tie bar", read on the calibration-free column. Every epoch from 2 to 8 is *above* epoch 1 on

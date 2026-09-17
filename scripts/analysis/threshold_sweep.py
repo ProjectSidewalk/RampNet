@@ -94,7 +94,14 @@ def heatmap_for(model, device, path, use_fp16, flip=False):
 
 
 def peaks_to_dets(h, thr, md):
-    pk = peak_local_max(np.clip(h, 0, 1), min_distance=md, threshold_abs=thr)
+    # exclude_border=False is LOAD-BEARING and must match stage_two/evaluate.py.
+    # skimage defaults it to True, which silently drops every peak within min_distance
+    # of the array edge -- on a panorama that is a 3.5 deg blind strip either side of
+    # the 360 seam, and it is not a model property at all. Omitting it here made the
+    # committed op_caches miss seam detections and produced a spurious "the model cannot
+    # see the seam" result in #132 before the extractor was checked.
+    pk = peak_local_max(np.clip(h, 0, 1), min_distance=md, threshold_abs=thr,
+                        exclude_border=False)
     H, W = h.shape
     return [(float(c / W), float(r / H), float(h[r][c])) for r, c in pk]
 

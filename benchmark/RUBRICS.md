@@ -110,3 +110,69 @@ carrying its appearance?**
 
 Full guidance, including worked cases, is rendered into the tagging page itself by
 `make_tagger.py`.
+
+
+---
+
+## 4. Curb-ramp labelling — `manual_labels/*.txt` (the 1,000-pano `manual_gold` pass)
+
+**Stated by:** Jon Froehlich, 2026-08-18.
+**Issues:** #130, #132.
+
+**This rubric is retroactive, and that is worth saying plainly.** The original 1,000-pano pass
+(3,919 ramps, 207 negative panos) ran without a written rubric — `benchmark/manual_gold/gt_source.json`
+records the *format* and the independence of the pass, but never what counts as a ramp. Sections 1–3
+above cover the verdict GT, the FP spot-check and the miss taxonomy; the labelling pass that produced
+the largest ground-truth set in this benchmark was not among them.
+
+The gap has a measured consequence: #130 found **11 ramps double-marked across the 360° seam**, a
+systematic error the rule below would have prevented, and one that survived because the labelling
+viewer clamped its crop window instead of wrapping it — so a reviewer never saw the two halves as one
+object.
+
+Written down now so that a second pass measures **labelling disagreement** rather than
+labelling disagreement *plus* undocumented rubric drift. Anyone comparing two passes must check
+they were made under the same version.
+
+| question | rule |
+| :--- | :--- |
+| Does a driveway count? | **No.** Driveway aprons are not curb ramps, however ramp-like they look. |
+| Where does the point go? | On the **centre of the ramp, or just below the TSI** (the truncated-dome panel). |
+| How far out do you mark? | **Every ramp you can see.** No distance cutoff. |
+| May you mark a ramp you infer? | **No.** Only ramps you can actually see. A crossing implying a ramp is not a ramp. |
+| Partial occlusion? | **Mark it**, if enough of the ramp is showing that you can confidently call it a ramp. |
+| A ramp split by the panorama edge? | **One ramp.** We are marking *physical* ramps; the seam is an artifact of the projection. |
+| Unsure? | **Yes** — mark the ramp and flag the point `unsure`. A coerced verdict is noise; an abstention is data. |
+| A pano with no ramps? | The labeller must **explicitly attest** that this pano contains none. Silence is not a negative. |
+| Resolution? | Label at **full stored resolution** — give the human every pixel. See the note below. |
+
+### Tooling this rubric requires
+
+- **A seam check.** The viewer must be able to shift the seam (90° / 180°) with the labels attached,
+  so a labeller can confirm a judgment is not an artifact of where the edge happens to fall.
+  `scripts/analysis/seam_review.py` implements this as its A/B views.
+- **A wrapping crop window.** Not a clamping one. `rampnet/geometry.py::crop_left` is the shared
+  definition; `scripts/gt_gallery.py` clamped, which is the direct cause of the #130 defect.
+
+### The resolution question, and why it does not conflict with #26
+
+#26 requires model-resolution review for **verdict GT**, so that recall is not inflated by ramps the
+model's downsampled input never contained. That is right *for scoring*.
+
+It is not right for labelling. Ground truth about **what ramps physically exist** must not depend on
+our model's input size, or the truth changes whenever the model does. So: label at full resolution,
+and **record each mark's apparent size** so a scorer can filter to "what the model could have seen"
+afterwards. One pass then serves both purposes and survives a change of input resolution.
+`scripts/analysis/miss_gallery.py` already computes that parity metric.
+
+For `manual_gold` specifically the question is moot: all 1,000 panoramas are stored at 4096×2048,
+which is exactly the model's input size, so reviewer pixels and model pixels are the same thing.
+It binds for splits stored larger — richmond at 12288 and bend at 16384.
+
+### Known open question
+
+Whether two marks close together are one ramp or two is **not** settled by this rubric, and cannot be
+settled by a rule. `manual_gold` holds 234 within-radius pairs away from the seam, 87 of them at
+near-identical elevation on the horizon, and those are overwhelmingly genuine adjacent far-field
+ramps. Adjudication is per-pair and human: `scripts/analysis/seam_review.py` for the seam cases,
+nothing yet for the rest.
