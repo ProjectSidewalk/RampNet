@@ -505,18 +505,29 @@ def test_the_prose_beside_the_partial_table_agrees_with_it(board):
     """
     with open(sb.DEFAULT_DOC, encoding="utf-8", newline="") as fh:
         doc = fh.read()
-    n_partial = sum(1 for m in board["models"] if not m["complete"])
-    want = f"{_WORDS[n_partial]} legs have not run the pooled splits"
+    partial = [m for m in board["models"] if not m["complete"]]
+    want = f"{_WORDS[len(partial)]} legs have not run the pooled splits"
     assert doc.count(want) == 2, (
         f"expected {want!r} twice in docs/model_scoreboard.md (the section opener and "
-        f"the 'What is missing' bullet); the board has {n_partial} such legs")
+        f"the 'What is missing' bullet); the board has {len(partial)} such legs")
+    # ...and the breakdown that follows the opener has to add up to it. The first
+    # version of this test pinned the total only, and the sentence said "six of
+    # them one split each" beside a three-split leg: six plus one is seven.
+    one_split = [m for m in partial if m["n_splits_run"] == 1]
+    more = [m for m in partial if m["n_splits_run"] > 1]
+    assert f"{want} — {_WORDS[len(one_split)].lower()} of them one split each" in doc, (
+        f"the board has {len(one_split)} one-split legs and {len(more)} with more")
+    assert len(more) == 1 and more[0]["n_splits_run"] == 3, more   # the sentence's "three"
 
     best = max((m for m in board["models"] if m["model"] != "rampnet"
                 and "annapolis" in board["per_split"][m["model"]]),
                key=lambda m: board["per_split"][m["model"]]["annapolis"]["f1"])
     claim = re.search(r"\*\*(.+?) is the strongest challenger measured on annapolis\*\*", doc)
     assert claim, "the strongest-challenger sentence is gone"
-    assert best["display"].startswith(claim.group(1).split(" at ")[0]), (
+    # Whole model name, not a prefix: "Claude Fable 5" is a prefix of "Claude Fable
+    # 5.1 (low, anthropic)", and the two are 0.001 F1 apart, so a prefix match
+    # would stay green through the one flip that is actually plausible.
+    assert best["display"].split(" (")[0] == claim.group(1).split(" at ")[0], (
         f"the doc names {claim.group(1)!r}; the board says {best['display']!r} "
         f"(F1 {board['per_split'][best['model']]['annapolis']['f1']:.3f})")
 

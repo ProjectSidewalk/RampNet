@@ -93,7 +93,7 @@ and F1 cannot tell you.
 
 ## Legs that have not run every pooled split
 
-Eight legs have not run the pooled splits — six of them one split each, and Opus 5 at low
+Eight legs have not run the pooled splits — seven of them one split each, and Opus 5 at low
 effort three (annapolis plus both Laurens arms) — so they have no pooled mean to put in the
 table above: a one-city average printed beside a seven-city one is exactly the comparison
 the coverage column exists to prevent. They are reported per split instead, at the splits
