@@ -952,8 +952,9 @@ CLAUDE_FORCED_TOOLS_REJECTED = frozenset({"claude-fable-5-1", "claude-mythos-5-1
 #     python scripts/model_comparison/probe_claude_models.py \
 #         --serving-path anthropic --models claude-fable-5 --tool-choice forced
 #
-# A 200 means the id belongs in neither set (move it, and move its case in
-# test_forced_tool_choice_is_refused_before_the_run_starts to the still-works test);
+# A 200 means the id belongs in neither set (move it, and move its case from
+# test_forced_tool_choice_is_refused_before_the_run_starts to
+# test_forced_tool_choice_still_works_on_the_ids_it_was_measured_on);
 # a 400 means it belongs in CLAUDE_FORCED_TOOLS_REJECTED. Record the status code in
 # #156 either way.
 CLAUDE_FORCED_TOOLS_UNVERIFIED = frozenset({"claude-fable-5"})

@@ -1268,8 +1268,13 @@ def test_the_forced_tool_guard_matches_exact_ids_not_a_family_substring():
         assert not detectors.claude_forbids_forced_tools(mid)
 
 
-def test_forced_tool_choice_still_works_on_the_models_that_published_with_it():
-    """The guard keys on the id, so it must not spread to the existing legs."""
+def test_forced_tool_choice_still_works_on_the_ids_it_was_measured_on():
+    """The guard keys on the id, so it must not spread to the existing legs.
+
+    "Measured", not "published with": every published Claude leg ran `auto` (all
+    six annapolis signatures and all twelve ledger rows say so). The only forced
+    measurement on record is the one-view Vertex check in docs/model_comparison.md
+    ("The tool is offered, not forced"), on these two ids."""
     for mid in ("claude-opus-5", "claude-sonnet-5"):
         assert not detectors.claude_forbids_forced_tools(mid)
         assert ClaudeDetector(model_id=mid, tool_choice="forced").tool_choice == "forced"
@@ -1277,8 +1282,10 @@ def test_forced_tool_choice_still_works_on_the_models_that_published_with_it():
 
 def test_the_probe_can_send_the_forced_tool_choice_the_guard_is_waiting_on():
     """The unverified set points at `probe_claude_models.py --tool-choice forced`;
-    this checks that flag builds the request the detector would send (tool_choice
-    type `tool`, naming a declared tool) and that `auto` sends none, without a
+    this checks that flag builds the request the detector would send -- tool_choice
+    type `tool` naming a declared tool, AND output_config.effort beside it, since
+    effort is the axis forcing is known to interact with and the detector never
+    sends one without the other -- and that `auto` sends none of it, without a
     network. Measuring the answer is deliberately NOT done here."""
     import types
     sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "model_comparison"))
@@ -1298,8 +1305,13 @@ def test_the_probe_can_send_the_forced_tool_choice_the_guard_is_waiting_on():
     assert status == 200
     assert seen["tool_choice"] == {"type": "tool", "name": probe.PROBE_TOOL["name"]}
     assert [t["name"] for t in seen["tools"]] == [probe.PROBE_TOOL["name"]]
+    assert seen["output_config"] == {"effort": "low"}
+    # ...the same keys ClaudeDetector._call sends, so the probe answers for it.
+    assert {"model", "max_tokens", "output_config", "tools", "tool_choice",
+            "messages"} <= set(seen)
     probe.probe(client, "claude-fable-5")
     assert "tool_choice" not in seen and "tools" not in seen
+    assert "output_config" not in seen      # the reachability probe is unchanged
 
 
 # --- Claude: what pixels the model actually sees ----------------------------

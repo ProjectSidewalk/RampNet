@@ -51,8 +51,12 @@ for us" rather than "not a model".
 `detectors.CLAUDE_FORCED_TOOLS_UNVERIFIED` refuses it until someone runs this.
 The request is validated before any generation, so a 400 whose message names
 `tool_choice` is the answer, and a 200 -- even one that stops at `max_tokens`
-before the tool call -- means the id accepts it. Record the status code in #156
-and update the two sets in detectors.py.
+before the tool call -- means the id accepts it. The forced request also carries
+`output_config={"effort": "low"}`, because that is what `ClaudeDetector._call`
+sends beside `tool_choice` on every call, and effort is the one axis forcing is
+known to interact with (forcing suppresses thinking; the Fable family cannot
+disable it). A 200 on the bare shape would not answer for the detector's
+request. Record the status code in #156 and update the two sets in detectors.py.
 
 Cost: each 200 is a real generate call, capped at --max-tokens, so a full run
 costs a fraction of a cent. Every non-200 costs nothing. Nothing here writes to
@@ -100,6 +104,11 @@ PROBE_PROMPT = "Reply with the single word: ok"
 
 SERVING_PATHS = ("vertex", "anthropic")
 TOOL_CHOICES = ("auto", "forced")
+
+# Sent with the forced probe, as the detector sends it on every call. `low` is
+# what every published Claude leg ran at, and the setting under which the
+# detector's own comment calls `forced` the better choice.
+PROBE_EFFORT = "low"
 
 # The smallest tool that can be forced. Not the detector's box tool: this asks
 # whether the REQUEST SHAPE is accepted, and a schema this small keeps the
@@ -167,7 +176,8 @@ def probe(client, model_id, max_tokens=PROBE_MAX_TOKENS, tool_choice="auto"):
     """``(status, detail)`` for one model id. Never raises.
 
     ``tool_choice="forced"`` sends ``PROBE_TOOL`` with ``tool_choice`` of type
-    ``tool``, the shape the detector's ``--claude-tool-choice forced`` uses."""
+    ``tool`` and ``output_config.effort``, the shape ``ClaudeDetector._call``
+    sends under ``--claude-tool-choice forced``."""
     anthropic = _sdk()
 
     request = dict(model=model_id, max_tokens=max_tokens,
@@ -175,6 +185,7 @@ def probe(client, model_id, max_tokens=PROBE_MAX_TOKENS, tool_choice="auto"):
     if tool_choice == "forced":
         request["tools"] = [PROBE_TOOL]
         request["tool_choice"] = {"type": "tool", "name": PROBE_TOOL["name"]}
+        request["output_config"] = {"effort": PROBE_EFFORT}
     try:
         resp = client.messages.create(**request)
     except anthropic.APIStatusError as e:
