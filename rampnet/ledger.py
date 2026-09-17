@@ -106,6 +106,39 @@ def append_rows(path, rows):
             f.write(json.dumps(rec) + "\n")
 
 
+def row_key(rec):
+    """(cluster, job id, start) for a compute row — not the job id alone.
+
+    With `sacct -D` a requeued job appears once per incarnation under the same id,
+    and on `ckpt` that is routine: collapsing them on job id would throw away most
+    of a preempted run's compute."""
+    return (rec.get("cluster"), rec.get("job_id"), rec.get("start"))
+
+
+def latest_rows(rows):
+    """The last row per key, which is what any total has to read.
+
+    The compute ledger re-appends a job that was first recorded while RUNNING once
+    it finishes (`slurm_usage.new_rows`), so the file holds both the understated
+    row and the final one, and summing every row bills that job twice. The key is
+    (cluster, job id, start), so separate requeued incarnations are untouched. A
+    row with no ``job_id`` is an API leg from usage_log.jsonl: every one of those
+    is its own spend, and none is ever superseded, so they pass through as-is.
+    Order is preserved; a superseding row takes its predecessor's place."""
+    seen, out = {}, []
+    for rec in rows:
+        if rec.get("job_id") is None:
+            out.append(rec)
+            continue
+        key = row_key(rec)
+        if key in seen:
+            out[seen[key]] = rec
+        else:
+            seen[key] = len(out)
+            out.append(rec)
+    return out
+
+
 def ledger_totals(path):
     """(rows, total USD, wall-clock hours, recovered USD) in an existing ledger.
 
@@ -114,6 +147,10 @@ def ledger_totals(path):
     provider's usage telemetry has aged out. Rows predating #143 carry no timing
     keys and free rows carry no cost; both are counted as the zero they are.
 
+    Reads through :func:`latest_rows`, so a compute-ledger job recorded while
+    RUNNING and again when finished is counted once, at its final size; ``rows``
+    is that de-duplicated count. For usage_log.jsonl it is every row.
+
     ``recovered`` is the part of the USD total that came from :data:`RECOVERED` rows
     rather than from measurement. It is reported separately, not subtracted: the
     money was really spent, but nobody timed it and no split can claim it, so a
@@ -121,6 +158,7 @@ def ledger_totals(path):
     rows = read_rows(path)
     if rows is None:
         return None
+    rows = latest_rows(rows)
     usd = sum(r.get("est_cost_usd") or 0 for r in rows)
     seconds = sum(r.get("elapsed_s") or 0 for r in rows)
     recovered = sum(r.get("est_cost_usd") or 0

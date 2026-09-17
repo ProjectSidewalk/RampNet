@@ -111,6 +111,16 @@ def is_terminal(state):
     return (state or "").split()[0].upper() in TERMINAL_STATES if state else False
 
 
+def _ts(value):
+    """A sacct timestamp as a datetime, or None for Unknown/None/empty."""
+    if not value or value in ("Unknown", "None"):
+        return None
+    try:
+        return datetime.fromisoformat(value)
+    except ValueError:
+        return None
+
+
 def parse_sacct(text, cluster=None, user=None):
     """Rows for one ledger, from `sacct -P -n` output.
 
@@ -126,6 +136,12 @@ def parse_sacct(text, cluster=None, user=None):
         if len(parts) != len(COLUMNS):
             continue  # a header, a warning, a wrapped line: not a job record
         rec = dict(zip(COLUMNS, parts))
+        if _ts(rec["Start"]) is None and not is_terminal(rec["State"]):
+            # PENDING: no allocation, no elapsed, and a start of "Unknown". Its key
+            # (cluster, id, Unknown) is never superseded once the job starts under a
+            # real start, so it would sit in the ledger as a permanent zero-hour
+            # job. It comes back on the next pull as a real incarnation.
+            continue
         elapsed_s = int(rec["ElapsedRaw"]) if rec["ElapsedRaw"].isdigit() else 0
         gpus, gpu_type = gpus_from_tres(rec["AllocTRES"])
         gpu_hours = elapsed_s / 3600.0 * gpus
@@ -154,7 +170,7 @@ def parse_sacct(text, cluster=None, user=None):
             "exit_code": rec["ExitCode"] or None,
             "est_cost_usd": round(cost, 4) if cost is not None else None,
             # The rate and the date it was checked, not the whole pricing entry:
-            # this ledger runs to thousands of rows (3,991 on klone alone, because
+            # this ledger runs to thousands of rows (3,990 on klone alone, because
             # ckpt requeues), and embedding the full table in each one was 1.7 MB of
             # the 2.6 MB file. The table itself, caveats included, is versioned in
             # scripts/model_comparison/pricing.py.
@@ -170,16 +186,6 @@ def parse_sacct(text, cluster=None, user=None):
               f"and attributed as {cluster}. Drop --cluster to trust sacct's own "
               f"names.")
     return rows
-
-
-def _ts(value):
-    """A sacct timestamp as a datetime, or None for Unknown/None/empty."""
-    if not value or value in ("Unknown", "None"):
-        return None
-    try:
-        return datetime.fromisoformat(value)
-    except ValueError:
-        return None
 
 
 def gpu_hours_as_of(rows, at, since=None, job_name=None):
@@ -212,13 +218,10 @@ def gpu_hours_as_of(rows, at, since=None, job_name=None):
     return total, count
 
 
-def row_key(rec):
-    """(cluster, job id, start) — not the job id alone.
-
-    With `-D` a requeued job appears once per incarnation under the same id, and
-    on `ckpt` that is routine: collapsing them on job id would throw away most of
-    a preempted run's compute."""
-    return (rec.get("cluster"), rec.get("job_id"), rec.get("start"))
+# The key and the last-row-per-key reader live in rampnet.ledger, so the shared
+# ledger_totals reads this ledger the same way every total here does.
+row_key = ledger.row_key
+latest_rows = ledger.latest_rows
 
 
 def new_rows(parsed, existing):
@@ -235,19 +238,6 @@ def new_rows(parsed, existing):
         elif not is_terminal(prior.get("state")) and is_terminal(rec.get("state")):
             out.append(rec)
     return out
-
-
-def latest_rows(rows):
-    """The last row per key, which is what any total has to read.
-
-    `new_rows` re-appends a job that was first recorded while RUNNING, so the
-    ledger holds both the understated row and the finished one. Summing every row
-    counts that job twice. The key is (cluster, job id, start), so genuinely
-    separate requeued incarnations are untouched."""
-    latest = {}
-    for rec in rows:
-        latest[row_key(rec)] = rec
-    return list(latest.values())
 
 
 def summarize(rows):

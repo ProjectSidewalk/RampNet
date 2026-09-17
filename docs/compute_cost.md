@@ -1,6 +1,6 @@
 # What our cluster compute has cost
 
-**2,684.4 GPU-hours across 3,991 job allocations on klone since 2026-07-02, at $0.** That is
+**2,684.4 GPU-hours across 3,990 job allocations on klone since 2026-07-02, at $0.** That is
 the compute side of every RampNet experiment run on Jon's klone account, and until now it was
 recorded nowhere. It is a snapshot as of the 2026-08-19 pull: **158.0 of those GPU-hours are
 elapsed-so-far from 3 jobs that were still RUNNING** (`38304087` alone, 157.5 h), and the next
@@ -25,7 +25,7 @@ clean clone **with no cluster account** — the same reason `usage_log.jsonl` is
 
 Slurm reports only the **last incarnation** of a requeued job unless you pass `-D`. Our klone
 work lives on the preemptable `ckpt` partition, where **95% of allocations end in `PREEMPTED`**
-(3,780 of 3,991; 96% counting the 59 `REQUEUED` incarnations). So the default view does not undercount slightly — it discards nearly
+(3,780 of 3,990; 96% counting the 59 `REQUEUED` incarnations). So the default view does not undercount slightly — it discards nearly
 everything:
 
 | the #51 YOLO baseline (`yolo_curb_ramp_train`) | rows | GPU-hours |
@@ -67,7 +67,7 @@ coincidence of two mistakes, not a validation.
 | :--- | ---: | ---: | :--- |
 | `yolo_curb_ramp_train` | 3,857 | 2,046.9 | the supervised YOLO baseline (#51) |
 | `rampnet_run_a_84` | 6 | 528.6 | Run A, the epoch curve (#84) |
-| `rampnet_cosine_rung_135` | 2 | 25.1 | the 8-epoch cosine rung (#135), still in flight as of the 2026-08-19 pull |
+| `rampnet_cosine_rung_135` | 1 | 25.1 | the 8-epoch cosine rung (#135), one preempted incarnation; still PENDING its requeue at the 2026-08-19 pull, which the ledger does not record as an allocation |
 | `qwen_curb_ramp_compare` | 20 | 19.3 | Qwen legs of the model comparison |
 | `open_curb_ramp_compare` | 16 | 8.9 | OWLv2 / Grounding DINO legs |
 | `eval_run_a_84` | 16 | 3.1 | Run A evaluation |

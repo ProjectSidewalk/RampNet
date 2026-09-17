@@ -250,6 +250,83 @@ def test_the_ledger_round_trips_through_the_shared_writer(tmp_path):
     assert recovered == 0        # sacct rows are measured, never reconstructed
 
 
+def test_the_shared_reader_counts_a_re_recorded_job_once(tmp_path):
+    """The other half of 'one reader can total both ledgers': the compute ledger
+    holds a RUNNING row and its finished replacement for any job that spanned two
+    pulls, and ledger_totals used to add them -- 6.0 h and $5.40 for a 5.0 h job.
+    The moment a second pull landed, the number compare.py prints after every leg
+    would have been wrong for every job that was in flight at the first one."""
+    running = parse_sacct(_line("500", "train", "tillicum", "", "normal", "RUNNING",
+                                "2026-08-01T00:00:00", "Unknown", 3600, "gres/gpu=1"))
+    done = parse_sacct(_line("500", "train", "tillicum", "", "normal", "COMPLETED",
+                             "2026-08-01T00:00:00", "2026-08-01T05:00:00", 18000,
+                             "gres/gpu=1"))
+    log = tmp_path / "compute_log.jsonl"
+    ledger.append_rows(str(log), running)
+    ledger.append_rows(str(log), new_rows(done, running))
+    assert len(ledger.read_rows(str(log))) == 2          # both rows are on disk...
+    rows, usd, hours, _ = ledger.ledger_totals(str(log))
+    assert rows == 1                                     # ...one job is counted
+    assert hours == pytest.approx(5.0) and usd == pytest.approx(4.50)
+
+
+def test_api_rows_are_never_collapsed_by_the_shared_reader(tmp_path):
+    """usage_log.jsonl rows carry no job_id: two legs on the same bundle with the
+    same model are two spends, and nothing about them is a re-record."""
+    leg = {"ts": "2026-08-18T14:54:02+00:00", "bundle": "annapolis",
+           "model_id": "claude-sonnet-5", "est_cost_usd": 1.5, "elapsed_s": 1800}
+    log = tmp_path / "usage_log.jsonl"
+    ledger.append_rows(str(log), [leg, dict(leg)])
+    rows, usd, hours, _ = ledger.ledger_totals(str(log))
+    assert rows == 2 and usd == pytest.approx(3.0) and hours == pytest.approx(1.0)
+    assert ledger.latest_rows([leg, dict(leg)]) == [leg, leg]
+
+
+def test_a_pending_row_is_not_a_job_allocation():
+    """A PENDING record has no start and no elapsed, and its key (cluster, id,
+    Unknown) is never superseded once the job starts under a real start -- so it
+    would sit in the ledger for good as a zero-hour job. The 2026-08-19 klone pull
+    had one (38640313, the #135 cosine rung, then 6 h into a requeue wait)."""
+    pending = _line("38640313", "rampnet_cosine_rung_135", "klone", "ckpt-all",
+                    "ckpt-gpu", "PENDING", "Unknown", "Unknown", 0, "gres/gpu=8")
+    started = _line("38640313", "rampnet_cosine_rung_135", "klone", "ckpt-all",
+                    "ckpt-gpu", "RUNNING", "2026-08-20T01:00:00", "Unknown", 3600,
+                    "gres/gpu=8")
+    assert parse_sacct(pending) == []
+    assert len(parse_sacct(pending + "\n" + started)) == 1
+    # A job cancelled before it ever started is terminal: a final, zero-hour
+    # record with a stable key, and it stays.
+    never_ran = _line("7", "j", "klone", "ckpt-all", "ckpt", "CANCELLED by 1",
+                      "None", "2026-08-01T00:00:00", 0, "gres/gpu=1")
+    assert parse_sacct(never_ran)[0]["gpu_hours"] == 0.0
+
+
+def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
+    """docs/compute_cost.md's numbers are claimed re-derivable from a clean clone.
+    That is only true if the ledger is the dump's parse and nothing else: same
+    rows, same order, differing only in the recorded_at stamp."""
+    with open(KLONE_DUMP, encoding="utf-8") as fh:
+        parsed = parse_sacct(fh.read(), cluster="klone", user="jfroehli")
+    committed = ledger.read_rows(os.path.join(REPO_ROOT, "analysis_out",
+                                              "compute_log.jsonl"))
+    assert len(committed) == len(parsed) == 3990
+    for have, want in zip(committed, parsed):
+        have = dict(have)
+        assert have.pop("recorded_at").startswith("2026-08-19T")
+        assert have == want
+    # ...and the headline figures in the doc, from the ledger as committed.
+    agg = summarize(committed)["klone"]
+    assert agg["jobs"] == 3990 and round(agg["gpu_hours"], 1) == 2684.4
+    assert agg["usd"] == 0.0 and agg["unpriced"] == 0
+    base = [r for r in committed if r["job_name"] == "yolo_curb_ramp_train"]
+    assert len(base) == 3857 and round(sum(r["gpu_hours"] for r in base), 1) == 2046.9
+    assert len({r["job_id"] for r in base}) == 27
+    assert sum(r["state"].startswith("PREEMPTED") for r in committed) == 3780
+    assert sum(r["state"] == "REQUEUED" for r in committed) == 59
+    running = [r for r in committed if r["state"] == "RUNNING"]
+    assert len(running) == 3 and round(sum(r["gpu_hours"] for r in running), 1) == 158.0
+
+
 def test_the_compute_ledger_is_re_included_in_gitignore():
     """analysis_out/* is ignored wholesale, so a new committed artifact under it
     needs an explicit re-include or it is silently never committed — which is the
