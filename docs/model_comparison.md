@@ -1752,8 +1752,8 @@ uses it to resolve the leg's published filename:
 
 ```bash
 for m in claude-fable-5-1 claude-fable-5; do
-  python scripts/analysis/export_model_cache.py --splits annapolis       --models claude:$m --claude-effort low --claude-serving-path anthropic
-  python scripts/analysis/export_model_cache.py --verify --splits annapolis       --models claude:$m --claude-effort low --claude-serving-path anthropic
+  python scripts/analysis/export_model_cache.py --splits annapolis --models claude:$m --claude-effort low --claude-serving-path anthropic
+  python scripts/analysis/export_model_cache.py --verify --splits annapolis --models claude:$m --claude-effort low --claude-serving-path anthropic
 done
 ```
 
@@ -1762,7 +1762,7 @@ gitignored home for it) and costs ~$40 (the whole-split totals above):
 
 ```bash
 for m in claude-fable-5-1 claude-fable-5; do
-  python scripts/model_comparison/compare.py benchmark/annapolis       --models claude:$m --claude-serving-path anthropic --claude-effort low
+  python scripts/model_comparison/compare.py benchmark/annapolis --models claude:$m --claude-serving-path anthropic --claude-effort low
 done
 ```
 
