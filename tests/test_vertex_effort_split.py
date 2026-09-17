@@ -21,6 +21,14 @@ pricing = pytest.importorskip("pricing")
 SERIES_DIR = os.path.join(REPO, "docs", "data", "vertex_minute_series")
 
 
+@pytest.fixture
+def no_dotenv(monkeypatch):
+    """main() reads the repo-root .env before argparse. On a developer checkout that
+    file holds credentials, and a test that calls main() would load them into the
+    pytest process for the rest of the run (S7). Every main() test takes this."""
+    monkeypatch.setattr(ves, "_load_dotenv", lambda: None)
+
+
 def _series(spec):
     """[(n_minutes, input_per_min, ratio)] -> the (ts, input, output) rows."""
     rows, minute = [], 0
@@ -219,7 +227,7 @@ def test_an_unpriced_model_reports_tokens_instead_of_raising():
         "{:7.2f}".format(pricing.estimate_cost(unpriced, 1_000_000, 1_000))
 
 
-def test_replaying_a_series_under_the_wrong_model_is_refused(monkeypatch):
+def test_replaying_a_series_under_the_wrong_model_is_refused(monkeypatch, no_dotenv):
     """A series file is per-model. Replaying Sonnet's series as Opus would price the
     wrong rate card against it and print a confident wrong number."""
     monkeypatch.setattr(sys, "argv", [
@@ -230,7 +238,7 @@ def test_replaying_a_series_under_the_wrong_model_is_refused(monkeypatch):
     assert "claude-sonnet-5" in str(e.value)
 
 
-def test_a_cloud_query_still_needs_a_window(monkeypatch):
+def test_a_cloud_query_still_needs_a_window(monkeypatch, no_dotenv):
     """--start/--end stopped being argparse-required so --from-series could omit them.
     The check has to survive by hand, or a windowless query reaches the API."""
     monkeypatch.setattr(sys, "argv", [
