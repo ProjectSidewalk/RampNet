@@ -100,22 +100,34 @@ def _load_dotenv():
     load_dotenv(str(REPO))
 
 
+def _sdk():
+    """The ``anthropic`` package, or the same ImportError ``ClaudeDetector`` raises.
+
+    This is the script the docs tell a new user to run first, so a bare
+    ``ModuleNotFoundError`` is the wrong first thing for it to say: the detector
+    it fronts names the requirements file, and so does this."""
+    try:
+        import anthropic
+    except ImportError as e:
+        raise ImportError(
+            "probe_claude_models.py needs the `anthropic[vertex]` package "
+            "(pip install -r requirements-vlm.txt)") from e
+    return anthropic
+
+
 def make_client(args, ap):
     """The SDK client for one serving path, or ``ap.error`` with what is missing.
 
     ``max_retries=0`` on both: a 403/404/401 is the answer here, not a blip, and
     retrying it would only slow the probe down and blur the reading."""
+    anthropic = _sdk()
     if args.serving_path == "vertex":
         if not args.project:
             ap.error("no project: pass --project or set GOOGLE_CLOUD_PROJECT "
                      "(and authenticate with `gcloud auth application-default "
                      "login`)")
-        from anthropic import AnthropicVertex
-
-        return AnthropicVertex(project_id=args.project, region=args.location,
-                               max_retries=0)
-
-    from anthropic import Anthropic
+        return anthropic.AnthropicVertex(project_id=args.project, region=args.location,
+                                         max_retries=0)
 
     if not os.environ.get("ANTHROPIC_API_KEY"):
         ap.error("no ANTHROPIC_API_KEY: put it in the repo-root .env (which is "
@@ -123,12 +135,12 @@ def make_client(args, ap):
                  "console.anthropic.com; a key with no credit balance "
                  "authenticates and then fails each call with a 400 that says "
                  "so.")
-    return Anthropic(max_retries=0)
+    return anthropic.Anthropic(max_retries=0)
 
 
 def probe(client, model_id, max_tokens=PROBE_MAX_TOKENS):
     """``(status, detail)`` for one model id. Never raises."""
-    import anthropic
+    anthropic = _sdk()
 
     try:
         resp = client.messages.create(
