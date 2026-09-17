@@ -1560,18 +1560,44 @@ At **rampnet@0.30**, of the 38 genuinely-complementary ramps:
 |---|---:|---|
 | floor peak in radius, **0.05–0.30** | **19** | **promotable** — a peak exists, below threshold. This is the cascade's real target. |
 | floor peak in radius, ≥0.30 but unmatched | 4 | the greedy matcher gave that peak to an **adjacent GT**. A matcher/σ problem (#130), not a threshold one. |
-| no floor peak in radius | 15 | nothing to promote. `act` across these 15 is 0.272 median (0.369 mean) — unpeaked heatmap mass `peak_local_max` never called a maximum. |
+| no floor peak in radius | 15 | nothing *of this ramp's* to promote — but not, for most of them, nothing nearby. `act` across these 15 is 0.272 median (0.369 mean); the nearest floor peak is a median **35.0 px** away (R = 22.5 px) and the in-window maximum sits on the window edge (median `argmax_off_px` **22.4**, 11 of 15 within 0.5 px of R). That is a neighbouring mode's shoulder reaching into the window, not mass the extractor overlooked. See the re-cut below. |
 
 The activation figure in the last row is the median over those **15 rows**, not over the 38-ramp
 cell. The cell's own median — `cells[].act_median` in `analysis_out/cascade_gate_op030.json` — is
 0.2152, and the 19 promotable rows sit lower still at 0.153. Three subsets, three medians, which
 is why the row says which one it is.
 
+**What the 15 "no peak in radius" sites are, from the artifact's own columns.** An earlier version
+of this table called them "unpeaked heatmap mass `peak_local_max` never called a maximum", and
+that reading is withdrawn: the committed `sites[]` rows, joined to `analysis_out/op_cache/richmond.json`,
+say the opposite for most of them. Re-cutting the 38 exhaustively, by where each site's nearest
+floor peak is and whether the greedy match at 0.30 already gave that peak to another GT on the
+pano (`cascade_gate.claimed_by_adjacent`, pinned in `tests/test_cascade_gate.py`):
+
+| the 38 recoverable ramps at rampnet@0.30 | n | mechanism |
+|---|---:|---|
+| floor peak in radius, 0.05–0.30 | **19** | promotable — the cascade's target, unchanged |
+| nearest floor peak ≥0.30 and **claimed by an adjacent GT** — 4 inside R, 7 at 1–2 R (26.8–44.1 px) | **11** | the #130 matcher/σ mechanism; the old "4" row and most of the old "15" row are one cause |
+| nearest floor peak at 1–2 R, unclaimed (23.5 px @0.643, 24.3 px @0.242, 32.2 px @0.358, 42.5 px @0.143) | 4 | a peak just outside the window; would need a wider radius, not a lower threshold |
+| no floor peak within 2 R (51–117 px) | 4 | genuinely nothing near — and one of the 4 is the seam site below, where the heatmap *has* a peak the op_cache dropped |
+
+So the row that read as "two-fifths of the recoverable set has no peak to raise" is 11 parts
+matching problem, 4 parts near-miss geometry and 4 parts absence. `class_of`, the #46 Phase 1
+decomposition the pre-registration promised for comparability, puts the 15 at **12 `tail` / 3
+`faint_local` / 0 `absent`** (80 / 20 / 0%, against Phase 1's 62 / 30 / 8% over silent misses);
+over the whole 38-ramp cell it is 35 / 3 / 0, and the 15-ramp `neither` cell is 15 / 0 / 0. Both
+artifacts carry these in `cells[].classes`. The seam site is the one case of a different kind:
+`723487737079243` at x = 0.0069 has `act` 0.946 **7.4 px** from the ramp, centre 0.78, and no
+op_cache peak within 117 px — the `f4c71c8` seam dropout bounded abstractly further down, made
+concrete. A regenerated op_cache would almost certainly list that peak, which makes the site a
+RampNet **hit** at 0.30 and moves it out of `challenger_only` (38 → 37) rather than into any
+row of this table.
+
 **So the cascade is live and its ceiling is ~19 ramps on richmond — +6.1 recall points (0.829 →
 0.890) before any false-positive cost, which is unmeasured.** That is a real number and it is a
-long way below the 54 the raw complementarity suggested. Two-fifths of the recoverable set has no
-peak to raise, and a further tenth is a matching problem (#130) that no threshold prior can
-reach.
+long way below the 54 the raw complementarity suggested. Of the other 19, eleven are a matching
+problem (#130) that no threshold prior can reach — a σ or matcher change is what would act on
+them — four sit just outside the window, and four have nothing near them.
 
 **A negative worth recording: RampNet's own activation does not tell you which misses are
 recoverable.** `challenger_only` sits at null percentile **0.88** and the hard-core `neither` at
@@ -1640,8 +1666,11 @@ only *understate* the promotable count, never inflate it.
 **Measured exposure on the artifacts: 6 of richmond's 310 GT ramps straddle the seam, and only 1
 of them is in `challenger_only`** (the other 5 are in `both`, where neither fix can move the
 partition in a direction that matters). So the worst case for the ~19-ramp ceiling is one ramp in
-38, and no conclusion here turns on it. Regenerating both artifacts once the parity detections are
-published is the clean way to retire that bound.
+38, and no conclusion here turns on it. That one ramp is now identified rather than bounded:
+`723487737079243` at x = 0.0069 (see the re-cut of the 38 above) has a 0.946 heatmap peak 7.4 px
+from the ramp and no op_cache peak within 117 px, so on a regenerated op_cache it is a RampNet hit
+at 0.30 and leaves `challenger_only` (38 → 37) — the ceiling of 19 does not move. Regenerating
+both artifacts once the parity detections are published is the clean way to retire that bound.
 
 ##### Reproducing it
 

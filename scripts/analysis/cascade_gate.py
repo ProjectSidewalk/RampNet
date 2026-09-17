@@ -38,9 +38,16 @@ class alone cannot separate them:
 * **a floor peak inside the radius** — the model localized the ramp and the detection
   was lost *downstream*, either to the shipped threshold or to the greedy matcher giving
   that peak to an adjacent GT. Recoverable, and recoverable **without a second model**.
-* **no floor peak inside the radius** — ``act`` is unpeaked heatmap mass that
-  ``peak_local_max`` never called a local maximum. A threshold prior has nothing to
-  promote, because promotion operates on peaks.
+* **no floor peak inside the radius** — a threshold prior has nothing *of this ramp's*
+  to promote, because promotion operates on peaks. ``act`` there is usually **not**
+  unpeaked mass: on the committed richmond run the nearest floor peak sits a median
+  35 px away (1-2 R) and the in-window maximum sits on the window edge (median
+  ``argmax_off_px`` 22.4 of 22.5), i.e. a neighbouring mode's shoulder reaching in —
+  #46 Phase 1's ``tail``, and that peak is mostly one the matcher already gave to an
+  adjacent GT (#130). ``no_peak_profile`` reports this per cell so the row is read as
+  what it is. Genuinely peakless mass — no floor peak within 2 R — is the minority
+  (4 of 15 on richmond), and one of those 4 is a peak the op_cache dropped beside the
+  seam (pre-``f4c71c8``), not a peak the model never made.
 
 ``peak_in_radius`` is therefore reported per cell and is what the read below turns on.
 
@@ -80,7 +87,9 @@ sys.path.insert(0, REPO)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "scripts", "model_comparison"))
 
-from rampnet.detection_eval import radius_sq_for                     # noqa: E402
+from rampnet.detection_eval import (                                   # noqa: E402
+    radius_sq_for, PANO_SCALE_X, PANO_SCALE_Y)
+from rampnet.metrics import greedy_match                               # noqa: E402
 from compare import load_bundle, DetectionCache, cache_key             # noqa: E402
 from detectors import build_detector                                   # noqa: E402
 from complementarity import (                                          # noqa: E402
@@ -118,6 +127,76 @@ def panos_without_floor(panos, floor_peaks):
     under ``--rampnet-op-threshold``, on the path that did not warn.
     """
     return [pid for pid in panos if pid not in floor_peaks]
+
+
+def nearest_peak_index(preds, x, y):
+    """Index into ``preds`` of the closest floor peak (``nearest_peak``'s geometry)."""
+    best, best_i = float("inf"), None
+    for i, p in enumerate(preds):
+        dx = abs(p[0] - x) * PANO_SCALE_X
+        dx = min(dx, PANO_SCALE_X - dx)
+        d = (dx * dx + ((p[1] - y) * PANO_SCALE_Y) ** 2) ** 0.5
+        if d < best:
+            best, best_i = d, i
+    return best_i
+
+
+def claimed_by_adjacent(pano_sites, preds, threshold, radius_sq):
+    """For each site, is its nearest floor peak one the matcher gave to a DIFFERENT GT?
+
+    Re-runs the greedy match that defines RampNet's hits at ``threshold`` (highest
+    score first, wrapped, as ``matched_gt``) over all GT on the pano, then asks of
+    each site's nearest floor peak whether it was assigned to some other GT. That is
+    the #130 mechanism — a neighbouring ramp's detection sitting 1-2 R from this one
+    — and it is what most of the "no floor peak in radius" rows turn out to be.
+    Returns one bool per site; ``False`` when there is no peak at all.
+    """
+    gt_points = [(s["x"], s["y"]) for s in pano_sites]
+    kept = [i for i, p in enumerate(preds) if p[2] >= threshold]
+    order = sorted(kept, key=lambda i: preds[i][2], reverse=True)
+    assignments = greedy_match([(preds[i][0], preds[i][1]) for i in order], gt_points,
+                               radius_sq, PANO_SCALE_X, PANO_SCALE_Y, wrap_x=True)
+    claimed = {order[k]: gi for k, (gi, _) in enumerate(assignments) if gi >= 0}
+    out = []
+    for si, s in enumerate(pano_sites):
+        ni = nearest_peak_index(preds, s["x"], s["y"])
+        out.append(ni is not None and ni in claimed and claimed[ni] != si)
+    return out
+
+
+def no_peak_profile(rows, cell, radius_px):
+    """Where the nearest floor peak actually is, for the rows of ``cell`` that have
+    none inside the radius.
+
+    The cell summary's medians are over the whole cell; the table row in
+    ``docs/model_comparison.md`` is about this subset, and what it says the subset
+    *is* turns on these columns: a nearest peak 1-2 R away with the in-window
+    maximum on the window edge is a neighbour's shoulder (``tail``), not mass the
+    extractor overlooked. ``argmax_on_edge`` counts rows whose maximum is within
+    0.5 px of the radius; ``claimed`` counts rows whose nearest peak the matcher gave
+    to another GT (only present on rows that carry ``nearest_peak_claimed``, i.e.
+    runs since this key was added).
+    """
+    sel = [r for r in rows if r["cell"] == cell and not r["peak_in_radius"]]
+    if not sel:
+        return {"cell": cell, "n": 0}
+    near = [r["nearest_peak_px"] for r in sel if r["nearest_peak_px"] is not None]
+    out = {
+        "cell": cell,
+        "n": len(sel),
+        "act_median": round(quartiles([r["act"] for r in sel])[1], 4),
+        "argmax_off_px_median": round(quartiles([r["argmax_off_px"] for r in sel])[1], 1),
+        "argmax_on_edge": sum(1 for r in sel if r["argmax_off_px"] >= radius_px - 0.5),
+        "nearest_peak_px_median": round(quartiles(near)[1], 1) if near else None,
+        "peak_within_2r": sum(1 for d in near if d <= 2 * radius_px),
+        "peak_beyond_2r": len(sel) - sum(1 for d in near if d <= 2 * radius_px),
+        "classes": {c: sum(1 for r in sel if r["class"] == c)
+                    for c in ("absent", "faint_local", "tail")},
+        "seam": sum(1 for r in sel if r["seam"]),
+    }
+    if all("nearest_peak_claimed" in r for r in sel):
+        out["claimed"] = sum(1 for r in sel if r["nearest_peak_claimed"])
+    return out
 
 
 def summarize(rows, cell):
@@ -262,6 +341,12 @@ def main(argv=None):
           + ("bundle records (shipped point)" if args.rampnet_op_threshold is None
              else f"op_cache >= {args.rampnet_op_threshold:g}"), flush=True)
 
+    # The threshold that defines RampNet's hits, for the "did the matcher give this
+    # site's nearest peak to a neighbour" column. At the shipped point that is the
+    # bundle's floor, 0.5519 on richmond, which is the lowest committed score.
+    claim_threshold = (args.rampnet_op_threshold if args.rampnet_op_threshold is not None
+                       else min((d["confidence"] for r in records.values()
+                                 for d in r["detections"]), default=0.0))
     r_px = radius_sq ** 0.5
     rows, skipped = [], 0
     for i, pid in enumerate(panos, 1):
@@ -278,7 +363,8 @@ def main(argv=None):
         preds = (floor_peaks.get(pid, []) if have_op_cache else
                  [(d["x_normalized"], d["y_normalized"], d["confidence"])
                   for d in records[pid]["detections"]])
-        for s in by_pano[pid]:
+        claimed = claimed_by_adjacent(by_pano[pid], preds, claim_threshold, radius_sq)
+        for s, is_claimed in zip(by_pano[pid], claimed):
             act, off_px, center = site_profile(heat, s["x"], s["y"], radius_sq)
             npx, nscore = nearest_peak(preds, s["x"], s["y"])
             row = {**s, "act": round(act, 6), "center": round(center, 6),
@@ -291,6 +377,10 @@ def main(argv=None):
                    # the peak to an adjacent GT. That is recoverable without a second
                    # model; a peak outside the radius is not.
                    "peak_in_radius": bool(npx < r_px),
+                   # ...and whether that nearest peak is one the matcher already handed
+                   # to a different GT on this pano (#130), which is what most of the
+                   # "no peak in radius" rows are.
+                   "nearest_peak_claimed": bool(is_claimed),
                    "class": class_of(act), "seam": seam_of(s["x"], radius_sq),
                    "null_pct": None, "null_med": None, "null_p95": None}
             # The null is only meaningful where rampnet did NOT find the ramp; the
@@ -337,9 +427,21 @@ def main(argv=None):
     print("   - peak inside R  -> the model DID localize the ramp and the detection was")
     print("     lost downstream, to the shipped threshold or to the greedy matcher handing")
     print("     the peak to an adjacent GT. Recoverable WITHOUT a second model.")
-    print("   - peak outside R -> nothing was extracted there even at the 0.05 floor, so a")
-    print("     threshold prior has no peak to promote. 'act' can still be non-zero: that is")
-    print("     unpeaked heatmap mass, which peak_local_max did not call a local maximum.")
+    print("   - peak outside R -> nothing of THIS ramp's to promote. 'act' there is usually")
+    print("     a neighbouring peak's shoulder reaching into the window (nearest peak 1-2 R")
+    print("     away, argmax on the window edge), not mass the extractor overlooked -- the")
+    print("     profile below says which, per cell.")
+    print()
+    print(f"  no floor peak in R, by where the nearest peak is (R = {r_px:.1f} px):")
+    for cell in MISS_CELLS:
+        prof = no_peak_profile(rows, cell, r_px)
+        if not prof["n"]:
+            continue
+        print(f"    {cell:16s} n={prof['n']:<3d} nearest peak median "
+              f"{prof['nearest_peak_px_median']} px; within 2R {prof['peak_within_2r']}, "
+              f"beyond {prof['peak_beyond_2r']}; argmax on edge {prof['argmax_on_edge']}; "
+              f"nearest peak claimed by another GT {prof.get('claimed', '?')}; "
+              f"classes {prof['classes']}; seam {prof['seam']}")
 
     if args.json_out:
         payload = {"split": args.split, "challenger": label,

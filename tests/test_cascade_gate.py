@@ -13,7 +13,10 @@ wrong (the cell's ``act_median`` is not the no-peak rows' median).
 
 The parity (1024x1024) detections behind those two artifacts are not published, so a
 clean clone cannot regenerate these files. It can still check them against themselves,
-which is what the second half of this file does.
+which is what the second half of this file does — including what the "no floor peak in
+radius" row *is*: the committed ``op_cache`` says where each such site's nearest peak
+sits and whether the matcher already gave it to a neighbour, and the doc's reading of
+that row is pinned to those columns here.
 """
 import json
 import os
@@ -30,13 +33,14 @@ sys.path.insert(0, os.path.join(REPO, "scripts", "model_comparison"))
 import cascade_gate as cg  # noqa: E402
 import silent_activation as sa  # noqa: E402
 from farfield_forensics import quartiles  # noqa: E402
-from rampnet.detection_eval import radius_sq_for  # noqa: E402
+from rampnet.detection_eval import PANO_SCALE_X, radius_sq_for  # noqa: E402
 
 OUT = os.path.join(REPO, "analysis_out")
 SHIPPED = os.path.join(OUT, "cascade_gate.json")
 OP030 = os.path.join(OUT, "cascade_gate_op030.json")
 RSQ = radius_sq_for()
 R_PX = RSQ ** 0.5                            # 22.5 heatmap px
+R_NORM = R_PX / PANO_SCALE_X                 # the same radius in normalized x
 
 
 def _row(cell, **kw):
@@ -149,6 +153,76 @@ def test_the_class_shares_sum_to_one():
 
 
 # --------------------------------------------------------------------------- #
+# no_peak_profile — what the "no floor peak in radius" row is made of
+# --------------------------------------------------------------------------- #
+def test_the_profile_covers_only_the_rows_with_no_peak_in_radius():
+    rows = [_row("challenger_only", peak_in_radius=True, nearest_peak_px=5.0),
+            _row("challenger_only", peak_in_radius=False, nearest_peak_px=30.0,
+                 argmax_off_px=22.4, act=0.3),
+            _row("challenger_only", peak_in_radius=False, nearest_peak_px=60.0,
+                 argmax_off_px=3.0, act=0.1, **{"class": "faint_local"}),
+            _row("neither", peak_in_radius=False, nearest_peak_px=30.0)]
+    out = cg.no_peak_profile(rows, "challenger_only", R_PX)
+    assert out["n"] == 2
+    assert out["nearest_peak_px_median"] == 60.0       # quartiles: v[n // 2]
+    assert out["peak_within_2r"] == 1 and out["peak_beyond_2r"] == 1
+    assert out["argmax_on_edge"] == 1                  # 22.4 is within 0.5 px of R
+    assert out["classes"] == {"absent": 0, "faint_local": 1, "tail": 1}
+    assert "claimed" not in out                        # rows predate the column
+
+
+def test_the_profile_reports_the_claimed_count_only_when_every_row_carries_it():
+    rows = [_row("neither", peak_in_radius=False, nearest_peak_px=30.0,
+                 nearest_peak_claimed=True),
+            _row("neither", peak_in_radius=False, nearest_peak_px=30.0,
+                 nearest_peak_claimed=False)]
+    assert cg.no_peak_profile(rows, "neither", R_PX)["claimed"] == 1
+
+
+def test_an_empty_profile_reports_n_zero():
+    assert cg.no_peak_profile([_row("both")], "neither", R_PX) == {"cell": "neither",
+                                                                   "n": 0}
+
+
+def test_a_row_with_no_peak_anywhere_counts_as_beyond_two_radii():
+    rows = [_row("neither", peak_in_radius=False, nearest_peak_px=None,
+                 nearest_peak_score=None)]
+    out = cg.no_peak_profile(rows, "neither", R_PX)
+    assert out["nearest_peak_px_median"] is None
+    assert out["peak_within_2r"] == 0 and out["peak_beyond_2r"] == 1
+
+
+# --------------------------------------------------------------------------- #
+# claimed_by_adjacent — the #130 mechanism, per site
+# --------------------------------------------------------------------------- #
+def test_a_neighbours_detection_between_two_ramps_is_claimed_by_the_nearer_one():
+    # Two ramps 1.5 R apart, one peak on the left ramp. The left ramp's nearest peak
+    # is its own (not claimed by another); the right ramp's nearest peak is that same
+    # one, and the matcher gave it to the left ramp.
+    sites = [{"x": 0.5, "y": 0.5}, {"x": 0.5 + 1.5 * R_NORM, "y": 0.5}]
+    preds = [(0.5, 0.5, 0.9)]
+    assert cg.claimed_by_adjacent(sites, preds, 0.30, RSQ) == [False, True]
+
+
+def test_a_peak_below_the_threshold_claims_nothing():
+    sites = [{"x": 0.5, "y": 0.5}, {"x": 0.5 + 1.5 * R_NORM, "y": 0.5}]
+    assert cg.claimed_by_adjacent(sites, [(0.5, 0.5, 0.2)], 0.30, RSQ) == [False, False]
+
+
+def test_no_peaks_means_nothing_is_claimed():
+    assert cg.claimed_by_adjacent([{"x": 0.5, "y": 0.5}], [], 0.30, RSQ) == [False]
+
+
+def test_nearest_peak_index_agrees_with_nearest_peak_across_the_seam():
+    preds = [(0.5, 0.5, 0.9), (0.998, 0.5, 0.4)]
+    x, y = 0.002, 0.5
+    i = cg.nearest_peak_index(preds, x, y)
+    assert i == 1
+    assert sa.nearest_peak(preds, x, y)[1] == preds[i][2]
+    assert cg.nearest_peak_index([], x, y) is None
+
+
+# --------------------------------------------------------------------------- #
 # site_rng — a site's null must not depend on which sites came before it
 # --------------------------------------------------------------------------- #
 def _heat_with_bump():
@@ -242,7 +316,7 @@ def test_the_cascade_ceiling_is_nineteen_promotable_ramps():
     # docs/model_comparison.md, "The cascade gate": of the 38 genuinely-complementary
     # ramps at rampnet@0.30, 19 carry a floor peak in radius scoring 0.05-0.30 (the
     # promotable set), 4 carry one at >= 0.30 that the greedy matcher gave to an
-    # adjacent GT, and 15 carry none.
+    # adjacent GT, and 15 carry none inside the radius.
     sites = [s for s in _payload(OP030)["sites"] if s["cell"] == "challenger_only"]
     assert len(sites) == 38
     peaked = [s for s in sites if s["peak_in_radius"]]
@@ -262,6 +336,87 @@ def test_the_no_peak_rows_have_their_own_activation_median():
     no_peak = [s["act"] for s in sites if not s["peak_in_radius"]]
     assert round(quartiles(no_peak)[1], 4) == 0.2723
     assert cell["act_median"] == 0.2152
+
+
+def _claimed_at_030(payload):
+    """``{(pano, x, y): bool}`` -- is the site's nearest floor peak one the greedy
+    match at 0.30 gave to a different GT? From the committed op_cache, the same
+    source the artifact's peak columns were read from."""
+    floor = cg.load_floor_peaks(payload["split"])
+    rsq = radius_sq_for(payload["radius"])
+    by_pano = {}
+    for s in payload["sites"]:
+        by_pano.setdefault(s["pano"], []).append(s)
+    out = {}
+    for pid, sites in by_pano.items():
+        flags = cg.claimed_by_adjacent(sites, floor.get(pid, []),
+                                       payload["rampnet_op_threshold"], rsq)
+        for s, flag in zip(sites, flags):
+            out[(pid, s["x"], s["y"])] = flag
+    return out
+
+
+def test_the_no_peak_row_is_mostly_a_neighbours_shoulder_not_unpeaked_mass():
+    # docs/model_comparison.md, the "no floor peak in radius" row of the cascade
+    # table. The first write-up read these 15 as "unpeaked heatmap mass
+    # peak_local_max never called a maximum". The artifact's own columns say
+    # otherwise: for 11 of the 15 the nearest floor peak is 1-2 R away (median 35.0
+    # px against R = 22.5), and for 11 the in-window maximum sits on the window edge
+    # (median argmax_off_px 22.4) -- a neighbouring mode's shoulder reaching in, #46
+    # Phase 1's `tail`, which is where class_of puts 12 of the 15. Only 4 have no
+    # floor peak within 2 R, and one of those is the seam site whose peak the
+    # pre-f4c71c8 op_cache dropped.
+    payload = _payload(OP030)
+    r_px = radius_sq_for(payload["radius"]) ** 0.5
+    prof = cg.no_peak_profile(payload["sites"], "challenger_only", r_px)
+    assert prof["n"] == 15
+    assert prof["nearest_peak_px_median"] == 35.0
+    assert prof["argmax_off_px_median"] == 22.4
+    assert prof["argmax_on_edge"] == 11
+    assert prof["peak_within_2r"] == 11
+    assert prof["peak_beyond_2r"] == 4
+    assert prof["classes"] == {"absent": 0, "faint_local": 3, "tail": 12}
+    assert prof["seam"] == 1
+    assert prof["act_median"] == 0.2723
+
+
+def test_the_no_peak_rows_nearest_peaks_are_mostly_claimed_by_an_adjacent_ramp():
+    # ...and that neighbouring peak is, for 11 of the 15, one the matcher already
+    # gave to another GT at 0.30 (7 of them within 2 R) -- the same #130 mechanism
+    # the table's "4 in radius at >= 0.30" row names, so those two rows are one
+    # cause, not two. All 4 of that row are claimed too, which is what "unmatched"
+    # there meant.
+    payload = _payload(OP030)
+    r_px = radius_sq_for(payload["radius"]) ** 0.5
+    claimed = _claimed_at_030(payload)
+    co = [s for s in payload["sites"] if s["cell"] == "challenger_only"]
+    no_peak = [s for s in co if not s["peak_in_radius"]]
+    assert sum(claimed[(s["pano"], s["x"], s["y"])] for s in no_peak) == 11
+    assert sum(claimed[(s["pano"], s["x"], s["y"])] for s in no_peak
+               if s["nearest_peak_px"] <= 2 * r_px) == 7
+    in_r_high = [s for s in co if s["peak_in_radius"] and s["nearest_peak_score"] >= 0.30]
+    assert len(in_r_high) == 4
+    assert all(claimed[(s["pano"], s["x"], s["y"])] for s in in_r_high)
+    # The re-cut of the 38 the doc now prints, exhaustive and disjoint.
+    promotable = sum(1 for s in co if s["peak_in_radius"] and s["nearest_peak_score"] < 0.30)
+    within_2r_unclaimed = sum(1 for s in no_peak if s["nearest_peak_px"] <= 2 * r_px
+                              and not claimed[(s["pano"], s["x"], s["y"])])
+    beyond_2r = sum(1 for s in no_peak if s["nearest_peak_px"] > 2 * r_px)
+    assert (promotable, len(in_r_high) + 7, within_2r_unclaimed, beyond_2r) == (19, 11, 4, 4)
+    assert promotable + 11 + within_2r_unclaimed + beyond_2r == 38
+
+
+def test_the_seam_site_in_the_recovered_cell_has_a_peak_the_op_cache_lacks():
+    # 723487737079243 at x = 0.0069: act 0.946 at 7.4 px from the ramp, centre 0.78,
+    # and the committed op_cache's nearest peak 117 px away. That is the f4c71c8 seam
+    # dropout made concrete -- a regenerated op_cache would list this peak, making
+    # the site a RampNet hit at 0.30 and taking it out of challenger_only (38 -> 37).
+    payload = _payload(OP030)
+    site = next(s for s in payload["sites"]
+                if s["cell"] == "challenger_only" and s["seam"])
+    assert site["pano"] == "723487737079243"
+    assert not site["peak_in_radius"] and site["nearest_peak_px"] > 100
+    assert site["act"] > 0.9 and site["center"] > 0.7 and site["argmax_off_px"] < 10
 
 
 def test_the_committed_nulls_came_from_one_stream_and_say_so():
