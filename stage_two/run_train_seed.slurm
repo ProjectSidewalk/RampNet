@@ -57,7 +57,7 @@
 #     though it is correct for RUNDIR and DATA_ROOT on /gscratch/scrubbed.
 #
 #   * The SEED guard itself had a bash parse error until 2b7471c, which killed
-#     39515025/26/27 on 2026-09-03 at submit time, in about one second, printing
+#     39515025/26/27 on 2026-09-03 at job start, in about one second, printing
 #     nothing at all.
 #
 # THEN CHECK IT WITH `sacct -D`, ABOUT AN HOUR LATER. All three of those failures
@@ -105,7 +105,7 @@ set -euo pipefail
 # that silently ran at 42 would be a duplicate of the published run wearing a new name.
 # NO APOSTROPHE in this message. Inside ${VAR:?...} bash parses the word for quoting
 # even within double quotes, so a lone ' opens a quote and the closing } is never found:
-# "unexpected EOF while looking for matching `}'". The script then dies at submit time
+# "unexpected EOF while looking for matching `}'". The script then dies at job start
 # with exit 2 in about one second, having printed nothing -- which is how jobs
 # 39515025/26/27 failed on 2026-09-03 and then sat unnoticed for a day.
 SEED="${SEED:?set SEED to the seed for this replicate, e.g. SEED=1}"

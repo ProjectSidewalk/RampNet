@@ -3,7 +3,7 @@
 This exists because of a real loss. `stage_two/run_train_seed.slurm` carried an
 apostrophe inside a `${SEED:?...}` message; bash parses the word for quoting even
 inside double quotes, so the closing brace was never found. The three klone Stage 2
-seed replicates (39515025/26/27, #51 / #135) therefore died at submit time with exit 2
+seed replicates (39515025/26/27, #51 / #135) therefore died at job start with exit 2
 in about one second each, printed nothing to stdout, and sat unnoticed for a day while
 the paid Tillicum half of the same campaign ran normally.
 
