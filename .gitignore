@@ -82,6 +82,12 @@ analysis_out/op/*
 # becomes unrecoverable rather than merely inconvenient. Append-only; never rewrite
 # a past line, since each one is a measurement.
 !analysis_out/usage_log.jsonl
+# The compute half of the same record (scripts/analysis/slurm_usage.py, #143): one
+# row per Slurm job allocation -- elapsed, GPUs, GPU-hours, and dollars on the
+# clusters that bill. Unlike the token ledger this one is partly back-fillable from
+# `sacct`, but only while the cluster still retains the job records. Same rules:
+# append-only, one row per (cluster, job id, start), last row per key wins.
+!analysis_out/compute_log.jsonl
 # Crop-window sizing eval summaries (#114): per-rule containment/context stats plus
 # the sha256 of the per-box CSV each summarizes (the CSVs themselves regenerate).
 # The glob also covers per-bundle runs against box_gallery extent gold (#116),

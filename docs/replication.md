@@ -17,6 +17,7 @@ lives on one machine.
 | `analysis_out/op_cache/*.json` (RampNet low-floor detections) | ~KB | **committed** | ✅ |
 | `analysis_out/*.json` (derived results) | ~100 KB | **committed** | ✅ |
 | `analysis_out/usage_log.jsonl` (paid-run spend) | ~KB | **committed** ✅ | ⚠️ starts 2026-08-18; see the Claude section |
+| `analysis_out/compute_log.jsonl` (cluster GPU-hours + $) | ~2 MB, grows per pull | **committed** ✅ | ⚠️ needs a `sacct` pull per cluster (#143); klone back-filled 2026-08-19 (3,990 rows) from the committed dump `docs/data/compute/sacct_klone_2026-08-19.txt` (748 KB, sha256 pinned in `compute_cost.md`), Tillicum pending |
 | `benchmark/miss_taxonomy_46/*.json` (human verdicts) | small | **committed** | ✅ |
 | RampNet model weights | — | HF `projectsidewalk/rampnet-model` | ✅ |
 | Stage 1 dataset | **463 GB** (test split ~44 GB) | HF `projectsidewalk/rampnet-dataset` | ✅ |
