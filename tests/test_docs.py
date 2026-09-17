@@ -129,7 +129,8 @@ def _collapsed_continuations(text):
             if re.search(r"\\[ \t]+$", scan):
                 yield n, line
                 continue
-            scan = scan.split(" #", 1)[0].rstrip()
+            # A blank of either kind starts a comment, as bash reads it.
+            scan = re.split(r"[ \t]#", scan, 1)[0].rstrip()
             if scan.endswith("\\"):
                 scan = scan[:-1].rstrip()
             if re.search(r"\S {3,}\S", scan):
@@ -191,6 +192,10 @@ def test_the_collapsed_continuation_scanner_catches_the_shape_it_claims():
     comment_apostrophe = (
         "```bash\n# don't\ncmd     --x\ncmd --a   # it's fine\ncmd2     --y\n```\n")
     assert hits(comment_apostrophe) == [(3, "cmd     --x"), (5, "cmd2     --y")]
+
+    # A tab before the # starts a comment just as a space does.
+    tab_comment = "```bash\ncmd --a b\t#   why this\n```\n"
+    assert hits(tab_comment) == []
 
     # Lines are numbered within the file, not within the block.
     later_block = "text\n\n```python\nx = 1\n```\n\n```bash\ncmd     --x\n```\n"
