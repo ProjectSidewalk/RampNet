@@ -128,14 +128,18 @@ def parse_sacct(text, cluster=None, user=None):
     ``cluster`` overrides sacct's own Cluster column, which reports the Slurm
     cluster name — that is what we want when they agree and a lie when a site
     names its cluster something other than how we price it."""
-    rows, overridden = [], set()
+    rows, overridden, skipped = [], set(), []
     for line in text.splitlines():
         line = line.strip()
         if not line:
             continue
         parts = line.split("|")
         if len(parts) != len(COLUMNS):
-            continue  # a header, a warning, a wrapped line: not a job record
+            # A header, a warning, a wrapped line -- or a job record whose name
+            # contains the delimiter. Not a row either way, but never silently:
+            # a dropped record is compute missing from every total downstream.
+            skipped.append(line)
+            continue
         rec = dict(zip(COLUMNS, parts))
         if _ts(rec["Start"]) is None and not is_terminal(rec["State"]):
             # PENDING: no allocation, no elapsed, and a start of "Unknown". Its key
@@ -178,6 +182,10 @@ def parse_sacct(text, cluster=None, user=None):
             "rate_usd_per_gpu_hour": (price or {}).get("usd_per_gpu_hour"),
             "rate_as_of": (price or {}).get("as_of"),
         })
+    if skipped:
+        print(f"WARNING: {len(skipped):,} non-blank line(s) did not have the "
+              f"{len(COLUMNS)} pinned columns and were not parsed; the first is:\n  "
+              f"{skipped[0][:200]}")
     if overridden:
         # Silently restamping another cluster's jobs would price them at the wrong
         # rate and attribute their GPU-hours to the wrong machine -- and a dump can
