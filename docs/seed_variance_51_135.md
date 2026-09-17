@@ -265,10 +265,14 @@ SEED=1 NAME=y11x_tiles_s1 YOLO_CKPT=yolo11x.pt \
 # Campaign B (klone). First put a checkout on scratch -- code only, the dataset already
 # lives there. Not klone home: it is a separate 10 GB quota (docs/stage2_epoch_curve_84.md).
 # The checkout, like RUNDIR, is on the purging volume; that is fine because everything
-# durable is copied out below, and it is what the completed replicates used.
+# durable is copied out below. /gscratch/scrubbed/jfroehli/RampNet_seedvar is the
+# directory the completed replicates were submitted from (#135, 2026-09-09); how it was
+# synced that day was not recorded. The username is written out because rsync expands
+# the path after `klone:` on the LOCAL machine -- $USER there is not the klone user, and
+# in Git Bash it is empty. The cd below runs on klone, where $USER is `jfroehli`.
 rsync -av --exclude .venv --exclude .model_cache --exclude 'benchmark/*/panos' \
       --exclude 'benchmark/*/gallery' --exclude view_dump --exclude dataset \
-      --exclude runs --exclude '*.pt' RampNet/ klone:/gscratch/scrubbed/$USER/RampNet_seedvar/
+      --exclude runs --exclude '*.pt' RampNet/ klone:/gscratch/scrubbed/jfroehli/RampNet_seedvar/
 #
 # The launcher prints the commit of that checkout, and whether it is dirty, at the top
 # of every job log. It did not when 39880702/03/06 ran, so THE COMMIT THOSE THREE
