@@ -40,6 +40,7 @@
 # USAGE (makelab2)
 #   nohup scripts/model_comparison/yolo_baseline/run_seedvar_eval.sh > seedvar_driver.out 2>&1 &
 #   ... SPLITS can be overridden positionally, e.g. `run_seedvar_eval.sh richmond bend`.
+#   RN_SEEDS="4 5 6 7 8 9" scores the Amendment 2 replicates (default "1 2 3").
 #   ARMS="yolo" (or "rampnet") scores one half only -- the 2026-09-17 re-score touched
 #   the YOLO legs and left the RampNet caches as scored. Point OUT at a fresh dir for a
 #   re-score so the earlier outputs stay on disk beside the new ones.
@@ -56,7 +57,7 @@ CKPTS="${CKPTS:-$REPO/seedvar_ckpts}"
 
 YOLO_LEGS=(y11x_tiles_s1_ep44 y11x_tiles_s2_ep44 y11x_tiles_s3_ep42
            y11x_tiles_s1_best y11x_tiles_s2_best y11x_tiles_s3_best)
-RN_SEEDS=(1 2 3)
+read -r -a RN_SEEDS <<< "${RN_SEEDS:-1 2 3}"   # RN_SEEDS="4 5 6 7 8 9" for Amendment 2
 ARMS="${ARMS:-yolo rampnet}"
 
 cd "$REPO" || exit 2
@@ -95,7 +96,7 @@ fi
   "$PY_RN" -c "import torch,timm;print('  torch',torch.__version__,'cuda',torch.cuda.is_available());print('  timm',timm.__version__)"
   echo "gpu              : $(nvidia-smi --query-gpu=name --format=csv,noheader | head -1)"
   echo "checkpoint sha256:"
-  (cd "$CKPTS" && sha256sum "${YOLO_LEGS[@]/%/.pt}" rampnet_s{1,2,3}_best.pth)
+  (cd "$CKPTS" && sha256sum "${YOLO_LEGS[@]/%/.pt}" && for s in "${RN_SEEDS[@]}"; do sha256sum "rampnet_s${s}_best.pth"; done)
   echo "splits           : ${SPLITS[*]}"
   echo "arms             : $ARMS"
 } > "$OUT/env.txt" 2>&1
