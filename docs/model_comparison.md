@@ -1650,8 +1650,9 @@ shift. RampNet still leads it by **0.251** (0.839 vs 0.588).
 > annapolis lead of +0.021 becoming a pooled gap of −0.007, inside any reading of a tie.
 > **`gemini-3.1-pro` still tops the table, by less than 0.01.** Read per split rather than
 > pooled, the two trade wins — four each on the eight pooled splits, six of eleven overall
-> for Opus, with laurens_mapillary (+0.086) the largest gap on the board in Opus's favour and
-> gainesville (−0.069) and richmond (−0.066) the largest against — so the honest reading is
+> for Opus, with laurens_mapillary (+0.086) the largest pooled gap in Opus's favour (the
+> held-out laurens_gsv is wider still, +0.158) and gainesville (−0.069) and richmond
+> (−0.066) the largest against — so the honest reading is
 > not "Opus is worse" but **"per-split gaps whose range is 0.156 swamped a +0.021 lead"**.
 > What survives is the shape rather than the ranking: Opus trades **−0.077 precision for
 > +0.052 recall**, the highest recall of any chat VLM with full pooled coverage (0.586). The

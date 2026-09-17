@@ -468,6 +468,25 @@ def test_the_annapolis_displacement_does_not_survive_pooling(board):
     assert spread > 7 * abs(deltas["annapolis"])
     assert max(abs(d) for d in deltas.values()) == pytest.approx(0.086, abs=0.001)
     assert max(deltas, key=deltas.get) == "laurens_mapillary"
+    # "smaller than six of the other seven": every pooled gap but morgantown's exceeds it.
+    assert sum(abs(d) > abs(deltas["annapolis"])
+               for s, d in deltas.items() if s != "annapolis") == 6, deltas
+
+    # The pooled scope matters: the held-out laurens_gsv is a wider gap still, and the
+    # doc must say "of the eight pooled splits" for 0.086 and name laurens_gsv (+0.158)
+    # as the largest on the whole board -- not call 0.086 the board's largest.
+    city_deltas = {s: _cell(board, "claude-opus-5-effort-low", s)["f1"]
+                   - _cell(board, gem["model"], s)["f1"]
+                   for s in board["city_splits"]}
+    assert max(city_deltas, key=lambda s: abs(city_deltas[s])) == "laurens_gsv"
+    assert city_deltas["laurens_gsv"] == pytest.approx(0.158, abs=0.001)
+    assert sum(d > 0 for d in city_deltas.values()) == 6      # six of eleven overall
+    with open(sb.DEFAULT_DOC, encoding="utf-8") as f:
+        prose = re.sub(r"\s+", " ", f.read())          # the doc wraps at 90 columns
+    assert "+0.086, the largest gap of the eight pooled splits" in prose
+    assert "laurens_gsv, by +0.158, the largest gap on the whole board" in prose
+    assert "the largest gap on the board)" not in prose
+    assert "smaller in magnitude than six of the other seven" in prose
 
     # Opus is the highest-recall chat VLM that has run the full pool -- the axis
     # operating_point.md says to optimize, and the reason the near-tie is not a wash.

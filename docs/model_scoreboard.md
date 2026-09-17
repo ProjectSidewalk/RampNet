@@ -90,16 +90,18 @@ operating point anyone has committed to, and on ground truth that never saw a Ra
    unchallenged lead.
 
    **The pooled number is the weaker half of that result.** Per split, the two trade wins:
-   Opus takes laurens_mapillary (+0.086, the largest gap on the board), clovis (+0.037),
-   annapolis (+0.022) and morgantown (+0.006); Gemini takes gainesville (−0.069), richmond
-   (−0.066), paterson (−0.039) and bend (−0.033) — **four wins each on the eight pooled
-   splits, six of eleven overall for Opus** (it also takes laurens_gsv and sao_paulo, and
-   loses budapest by 0.004). The range of the eight per-split gaps is 0.156, roughly
-   **7× the annapolis lead that motivated the run**, and the largest single gap (0.086) is
-   4× it; the annapolis lead was smaller in magnitude than five of the other seven. It was
-   never evidence of a real difference. That generalizes past these two models: a
-   single-split margin under ~0.09 F1 on this benchmark should be treated as unresolved
-   until it is pooled, whichever direction it points.
+   Opus takes laurens_mapillary (+0.086, the largest gap of the eight pooled splits),
+   clovis (+0.037), annapolis (+0.022) and morgantown (+0.006); Gemini takes gainesville
+   (−0.069), richmond (−0.066), paterson (−0.039) and bend (−0.033) — **four wins each on
+   the eight pooled splits, six of eleven overall for Opus** (it also takes laurens_gsv, by
+   +0.158, the largest gap on the whole board, and sao_paulo by +0.015, and loses budapest
+   by 0.004). The range of the eight pooled gaps is 0.156, roughly **7× the annapolis lead
+   that motivated the run**, and the largest single pooled gap (0.086) is 4× it; the
+   annapolis lead was smaller in magnitude than six of the other seven. It was never
+   evidence of a real difference. That generalizes past these two models: a single-split
+   margin under ~0.09 F1 — the largest gap two models on this board have shown on a pooled
+   split, and under 0.16 counting the held-out laurens_gsv — should be treated as
+   unresolved until it is pooled, whichever direction it points.
 
    The F1 tie also hides two models that are not alike, and by this board's own third
    finding the difference matters: **Opus trades −0.077 precision for +0.052 recall**, the
