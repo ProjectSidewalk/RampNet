@@ -1583,6 +1583,16 @@ find these by looking harder at RampNet's confidence. Against the pre-registered
 **PARTIAL** branch — signal present, but not at the site — and the peak-level column, not the
 activation, is what supplies the bounded answer.
 
+One caveat on those two null percentiles, and on any per-site null read across the two
+artifacts. Both files were written with **one** random stream consumed in pano order over the
+miss-cell sites only, so a site's draw depended on which sites came before it; the miss set
+differs between the files (19 cell transitions), and of the 53 sites that carry a null in both,
+**43 differ, by up to 0.075**, while `act` and `nearest_peak_px` agree on every one
+(`test_the_committed_nulls_came_from_one_stream_and_say_so`). The within-file comparison above
+stands. `cascade_gate.py` now seeds per site (`site_rng`), so a regeneration will move individual
+`null_pct` values by that much, and the two medians slightly, for reasons that have nothing to do
+with the heatmap; that is a reason to regenerate both files together, not a change in the result.
+
 **What would have to be true for the cascade to pay.** Promoting sub-0.30 peaks gated on
 challenger candidates also promotes them wherever the challenger fires on a driveway and RampNet
 has a faint bump — and 442 of the challenger's 716 boxes are false positives. That cost is **not

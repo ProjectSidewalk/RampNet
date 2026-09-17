@@ -80,25 +80,44 @@ sys.path.insert(0, REPO)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "scripts", "model_comparison"))
 
-from rampnet.detection_eval import build_ground_truth, radius_sq_for   # noqa: E402
+from rampnet.detection_eval import radius_sq_for                     # noqa: E402
 from compare import load_bundle, DetectionCache, cache_key             # noqa: E402
 from detectors import build_detector                                   # noqa: E402
-from complementarity import matched_gt, model_spec, compare_args       # noqa: E402
+from complementarity import (                                          # noqa: E402
+    CELLS, cell_of, compare_args, floor_gap_warning, load_floor_peaks, model_spec,
+    partition_cells)
 from silent_activation import (                                        # noqa: E402
     NULL_SEED, NULL_TRIALS, class_of, nearest_peak, null_percentile, seam_of,
     site_profile)
 from farfield_forensics import quartiles                               # noqa: E402
-from operating_point_curve import CACHE_DIR, read_cache                # noqa: E402
 
-CELLS = ("both", "rampnet_only", "challenger_only", "neither")
 #: Cells where RampNet did NOT find the ramp -- the only ones a null is meaningful for.
 MISS_CELLS = ("challenger_only", "neither")
 
 
-def cell_of(rampnet_hit, challenger_hit):
-    if rampnet_hit:
-        return "both" if challenger_hit else "rampnet_only"
-    return "challenger_only" if challenger_hit else "neither"
+def site_rng(pid, x, y):
+    """One RNG per site, seeded from ``NULL_SEED`` and the site's identity.
+
+    A single stream consumed in pano order made a site's ``null_pct`` depend on which
+    sites preceded it: the miss set differs between the shipped-point and the 0.30
+    artifacts (19 cell transitions), so the same site drew different azimuths in
+    each — 43 of the 53 sites carrying a null in both files differed, by up to 0.075,
+    with ``act`` and ``nearest_peak_px`` identical on all of them. Seeding per site
+    makes a site's null a function of its heatmap and nothing else, so a per-site
+    comparison across runs measures the heatmap rather than the neighbours.
+    """
+    return random.Random(f"{NULL_SEED}:{pid}:{x!r}:{y!r}")
+
+
+def panos_without_floor(panos, floor_peaks):
+    """Panos the op_cache does not list, in the order given.
+
+    On the probe path a missing pano reads ``peak_in_radius: false`` and
+    ``nearest_peak_px: null`` for every site on it while the header still says the
+    floor came from the op_cache — the same silent shift ``partition_cells`` counts
+    under ``--rampnet-op-threshold``, on the path that did not warn.
+    """
+    return [pid for pid in panos if pid not in floor_peaks]
 
 
 def summarize(rows, cell):
@@ -185,9 +204,7 @@ def main(argv=None):
     # DEFINE rampnet's hits when --rampnet-op-threshold is given.
     floor_peaks, floor_src, have_op_cache = {}, "op_cache", True
     try:
-        cached, _ = read_cache(os.path.join(CACHE_DIR, f"{args.split}.json"))
-        for pd in cached:
-            floor_peaks[pd["pano"]] = pd["preds"]
+        floor_peaks = load_floor_peaks(args.split)
     except (OSError, ValueError, KeyError):
         have_op_cache = False
         floor_src = ("MISSING (fell back to bundle records -- distances are to the "
@@ -197,40 +214,19 @@ def main(argv=None):
                      f"{args.split}.json, which could not be read.")
 
     # ---- partition every GT ramp into a complementarity cell ------------------
-    sites, missing, no_floor = [], 0, 0
-    for pid, entry in verdicts.items():
-        gt = build_ground_truth(records[pid]["detections"], entry["dets"],
-                                entry["missed"], entry["no_missed"])
-        if not gt.fn_confirmed:
-            continue
-        cp = cache.get(cache_key(label, sig, args.split, pid))
-        if cp is None:
-            missing += 1
-            continue
-        if args.rampnet_op_threshold is not None:
-            # A pano the op_cache does not list would score as RampNet-blank, which
-            # turns every GT on it into a miss. That is a silent shift of the whole
-            # partition, so it is counted and reported rather than absorbed.
-            if pid not in floor_peaks:
-                no_floor += 1
-            rp = [q for q in floor_peaks.get(pid, [])
-                  if q[2] >= args.rampnet_op_threshold]
-        else:
-            rp = [(d["x_normalized"], d["y_normalized"], d["confidence"])
-                  for d in records[pid]["detections"]]
-        mr = matched_gt(rp, gt.gt_points, radius_sq)
-        mc = matched_gt(cp, gt.gt_points, radius_sq)
-        for i, (gx, gy) in enumerate(gt.gt_points):
-            sites.append({"pano": pid, "x": gx, "y": gy,
-                          "cell": cell_of(i in mr, i in mc)})
+    # The same loop complementarity.py's table comes from, so the two cannot drift.
+    part = partition_cells(
+        records, verdicts,
+        lambda pid: cache.get(cache_key(label, sig, args.split, pid)),
+        radius_sq, args.rampnet_op_threshold,
+        floor_peaks if args.rampnet_op_threshold is not None else None)
+    sites, missing = part.sites, part.missing
     if missing:
         print(f"WARNING: {missing} panos had no cached {label} detections and were "
               f"skipped. Pass the --vistas-input-size the run used.", flush=True)
-    if no_floor:
-        print(f"WARNING: {no_floor} panos are absent from analysis_out/op_cache/"
-              f"{args.split}.json, so RampNet scored blank on them and every GT ramp "
-              f"there counts as a miss. Regenerate the op_cache for this split before "
-              f"reading the cells.", flush=True)
+    warning = floor_gap_warning(part.no_floor, args.split)
+    if warning:
+        print(warning, flush=True)
     if not sites:
         sys.exit("No sites -- is the challenger cached for this split/input size?")
 
@@ -240,6 +236,15 @@ def main(argv=None):
     panos = sorted(by_pano)
     if args.limit:
         panos = panos[:args.limit]
+    # The probe path reads the op_cache for every pano regardless of the threshold
+    # flag, so a pano it does not list is a gap here too -- and until now this path
+    # said nothing about it.
+    no_floor_probe = panos_without_floor(panos, floor_peaks) if have_op_cache else []
+    if no_floor_probe:
+        print(f"WARNING: {len(no_floor_probe)} pano(s) are absent from analysis_out/"
+              f"op_cache/{args.split}.json, so every site on them reads 'no floor peak' "
+              f"(nearest_peak_px null) whatever the heatmap says. Regenerate the "
+              f"op_cache for this split before reading the peak columns.", flush=True)
 
     counts = {c: sum(1 for s in sites if s["cell"] == c) for c in CELLS}
     rn = ("rampnet" if args.rampnet_op_threshold is None
@@ -257,7 +262,7 @@ def main(argv=None):
           + ("bundle records (shipped point)" if args.rampnet_op_threshold is None
              else f"op_cache >= {args.rampnet_op_threshold:g}"), flush=True)
 
-    rng = random.Random(NULL_SEED)
+    r_px = radius_sq ** 0.5
     rows, skipped = [], 0
     for i, pid in enumerate(panos, 1):
         path = pano_path(args.split, pid, args.panos_root)
@@ -276,7 +281,6 @@ def main(argv=None):
         for s in by_pano[pid]:
             act, off_px, center = site_profile(heat, s["x"], s["y"], radius_sq)
             npx, nscore = nearest_peak(preds, s["x"], s["y"])
-            r_px = radius_sq ** 0.5
             row = {**s, "act": round(act, 6), "center": round(center, 6),
                    "argmax_off_px": round(off_px, 1),
                    "nearest_peak_px": None if npx == float("inf") else round(npx, 1),
@@ -291,8 +295,13 @@ def main(argv=None):
                    "null_pct": None, "null_med": None, "null_p95": None}
             # The null is only meaningful where rampnet did NOT find the ramp; the
             # hit cells are high by construction and are here as a positive control.
+            # Seeded per site (site_rng), so the draw does not depend on which sites
+            # came before it -- the committed artifacts predate this and were written
+            # from one stream, so a regeneration moves individual null_pct values by
+            # up to 0.075 without any change in the heatmap.
             if s["cell"] in MISS_CELLS:
-                a, pct, med, p95 = null_percentile(heat, s["x"], s["y"], rng,
+                a, pct, med, p95 = null_percentile(heat, s["x"], s["y"],
+                                                   site_rng(pid, s["x"], s["y"]),
                                                    radius_sq=radius_sq)
                 row.update(null_pct=round(pct, 4), null_med=round(med, 6),
                            null_p95=round(p95, 6))
@@ -337,8 +346,10 @@ def main(argv=None):
                    "rampnet_op_threshold": args.rampnet_op_threshold,
                    "vistas_input_size": args.vistas_input_size,
                    "radius": args.radius, "null_trials": NULL_TRIALS,
-                   "null_seed": NULL_SEED, "n_sites": len(rows),
+                   "null_seed": NULL_SEED, "null_rng": "per-site",
+                   "n_sites": len(rows),
                    "n_panos": len(panos), "skipped_sites": skipped,
+                   "panos_without_floor_peaks": len(no_floor_probe),
                    "cells": summaries, "sites": rows}
         os.makedirs(os.path.dirname(os.path.abspath(args.json_out)), exist_ok=True)
         # newline="" so a Windows re-run does not emit CRLF and break byte-comparison.

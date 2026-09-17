@@ -42,6 +42,7 @@ is read as a Gemini model id, which is how the #35 gate was invoked before this
 script grew past one provider.
 """
 import argparse
+from collections import namedtuple
 import os
 import sys
 
@@ -57,6 +58,106 @@ from rampnet.metrics import greedy_match                                  # noqa
 from compare import load_bundle, DetectionCache, cache_key                # noqa: E402
 from detectors import build_detector, parse_model_spec, PROVIDERS         # noqa: E402
 from operating_point_curve import CACHE_DIR, read_cache                   # noqa: E402
+
+#: The four complementarity cells, in table order.
+CELLS = ("both", "rampnet_only", "challenger_only", "neither")
+
+
+def cell_of(rampnet_hit, challenger_hit):
+    """Which of the four cells a GT ramp falls in."""
+    if rampnet_hit:
+        return "both" if challenger_hit else "rampnet_only"
+    return "challenger_only" if challenger_hit else "neither"
+
+
+def load_floor_peaks(split):
+    """``{pano_id: [(x, y, score), ...]}`` from ``analysis_out/op_cache/<split>.json``.
+
+    Raises ``OSError`` / ``ValueError`` / ``KeyError`` exactly as ``read_cache`` does;
+    callers decide whether a missing op_cache is fatal (this script: it is, the
+    threshold has nothing to apply to) or a fallback (``cascade_gate.py``).
+    """
+    cached, _ = read_cache(os.path.join(CACHE_DIR, f"{split}.json"))
+    return {pd["pano"]: pd["preds"] for pd in cached}
+
+
+def floor_gap_warning(no_floor, split):
+    """The warning both scripts print when the op_cache is missing panos, or ``None``.
+
+    A pano the op_cache does not list scores as RampNet-blank -- every GT ramp on it
+    becomes a miss -- while the header still says RampNet came from the op_cache.
+    That is a silent shift of the whole partition in the direction that under-states
+    the cascade, so it is counted and said out loud rather than absorbed.
+    """
+    if not no_floor:
+        return None
+    return (f"WARNING: {no_floor} pano(s) are absent from analysis_out/op_cache/"
+            f"{split}.json, so RampNet scored blank on them and every GT ramp there "
+            f"counts as a miss. Regenerate the op_cache for this split before reading "
+            f"the cells.")
+
+
+#: What ``partition_cells`` returns. ``sites`` is one row per GT ramp
+#: (``pano``, ``x``, ``y``, ``cell``); ``counts`` is the four cells; ``r_fp``/``c_fp``
+#: are RampNet's and the challenger's false positives on the same panos, from the same
+#: matcher; ``shift_rows`` feeds ``complementary_null``; ``no_floor`` counts panos the
+#: op_cache did not list (only meaningful when it was the source).
+Partition = namedtuple(
+    "Partition", "sites counts r_fp c_fp shift_rows panos missing no_floor")
+
+
+def partition_cells(records, verdicts, challenger_for, radius_sq,
+                    rampnet_op_threshold=None, floor_peaks=None):
+    """Partition every recall-eligible GT ramp into the four complementarity cells.
+
+    The one loop behind this script's table, ``cascade_gate.py``'s partition and the
+    regression tests -- it used to be copied into all three, so a change to the
+    threshold filter or the op_cache fallback in one did not fail the others.
+
+    ``challenger_for(pano_id)`` returns the challenger's cached predictions for a pano
+    or ``None`` when it has none (the pano is then skipped and counted in
+    ``missing``). RampNet's side is the bundle's shipped detections unless
+    ``rampnet_op_threshold`` is given, in which case it is ``floor_peaks`` (from
+    ``load_floor_peaks``) filtered at that threshold.
+
+    The cells and the false-positive counts come from one matcher at one radius:
+    ``matched_gt`` and ``score_pano`` are both handed ``radius_sq``. Before that,
+    ``--radius`` reached the cells but ``score_pano`` fell back to its default, so a
+    non-default radius printed cells and an FP bill measured two different ways.
+    """
+    if (rampnet_op_threshold is None) != (floor_peaks is None):
+        raise ValueError("rampnet_op_threshold and floor_peaks go together: the "
+                         "threshold is applied to the floor peaks and to nothing else")
+    sites, shift_rows = [], []
+    counts = dict.fromkeys(CELLS, 0)
+    r_fp = c_fp = panos = missing = no_floor = 0
+    for pid, entry in verdicts.items():
+        gt = build_ground_truth(records[pid]["detections"], entry["dets"],
+                                entry["missed"], entry["no_missed"])
+        if not gt.fn_confirmed:
+            continue
+        cp = challenger_for(pid)
+        if cp is None:
+            missing += 1
+            continue
+        if floor_peaks is not None:
+            if pid not in floor_peaks:
+                no_floor += 1
+            rp = [q for q in floor_peaks.get(pid, []) if q[2] >= rampnet_op_threshold]
+        else:
+            rp = [(d["x_normalized"], d["y_normalized"], d["confidence"])
+                  for d in records[pid]["detections"]]
+        mr = matched_gt(rp, gt.gt_points, radius_sq)
+        mc = matched_gt(cp, gt.gt_points, radius_sq)
+        for i, (gx, gy) in enumerate(gt.gt_points):
+            cell = cell_of(i in mr, i in mc)
+            counts[cell] += 1
+            sites.append({"pano": pid, "x": gx, "y": gy, "cell": cell})
+        r_fp += score_pano(rp, gt, radius_sq).fp
+        c_fp += score_pano(cp, gt, radius_sq).fp
+        shift_rows.append((cp, [g for i, g in enumerate(gt.gt_points) if i not in mr]))
+        panos += 1
+    return Partition(sites, counts, r_fp, c_fp, shift_rows, panos, missing, no_floor)
 
 
 def matched_gt(preds, gt_points, radius_sq):
@@ -102,6 +203,16 @@ def complementary_null(rows, radius_sq):
     would assume the coincidence rate is uniform across GT. It need not be:
     rampnet's misses are a biased sample (far-field, adjacent pairs), and those
     are exactly the places box density differs. Hence measuring it here.
+
+    One construction difference from ``null_recall.py``, stated so the two are not
+    read as the same number: the shifted pano's *whole* prediction set is matched
+    against only the missed GT, whereas the real ``c_only`` cell was matched against
+    all GT on the pano (a box that lands on a found ramp there is spent). Each box
+    therefore has more targets here than it had in the real pairing, so this null is
+    a slight over-estimate of chance and the "attributable" figures quoted after it
+    are conservative. ``null_recall.py`` matches against all GT; that the two land
+    close on richmond (0.143 here against 0.145 there) is the evidence the bias is
+    small, not a sign they are the same measurement.
 
     Returns (mean, max) as a fraction of the missed GT.
     """
@@ -207,48 +318,32 @@ def main():
 
     floor_peaks = None
     if args.rampnet_op_threshold is not None:
-        cached, _ = read_cache(os.path.join(CACHE_DIR, f"{args.split}.json"))
-        floor_peaks = {pd["pano"]: pd["preds"] for pd in cached}
+        try:
+            floor_peaks = load_floor_peaks(args.split)
+        except (OSError, ValueError, KeyError) as e:
+            sys.exit("--rampnet-op-threshold needs analysis_out/op_cache/"
+                     f"{args.split}.json, which could not be read ({e}). Generate it "
+                     "with scripts/analysis/operating_point_curve.py, or drop the "
+                     "flag to score RampNet from the bundle's shipped detections.")
         print(f"rampnet re-sourced from op_cache at >= {args.rampnet_op_threshold} "
               f"(bundle records are the shipped point and are NOT used)\n")
 
-    n = both = r_only = c_only = neither = 0
-    r_fp = c_fp = 0
-    panos = missing = 0
-    # (challenger preds, GT points rampnet MISSED) per pano, for the null below
-    shift_rows = []
-    for pid, entry in verdicts.items():
-        gt = build_ground_truth(records[pid]["detections"], entry["dets"],
-                                entry["missed"], entry["no_missed"])
-        if not gt.fn_confirmed:
-            continue
-        cp = cache.get(cache_key(label, sig, args.split, pid))
-        if cp is None:
-            missing += 1
-            continue
-        if floor_peaks is not None:
-            rp = [p for p in floor_peaks.get(pid, [])
-                  if p[2] >= args.rampnet_op_threshold]
-        else:
-            rp = [(d["x_normalized"], d["y_normalized"], d["confidence"])
-                  for d in records[pid]["detections"]]
-        mr, mc = matched_gt(rp, gt.gt_points, radius_sq), matched_gt(cp, gt.gt_points, radius_sq)
-        for i in range(len(gt.gt_points)):
-            r, c = i in mr, i in mc
-            both += r and c
-            r_only += r and not c
-            c_only += c and not r
-            neither += not r and not c
-        n += len(gt.gt_points)
-        r_fp += score_pano(rp, gt).fp
-        c_fp += score_pano(cp, gt).fp
-        shift_rows.append((cp, [g for i, g in enumerate(gt.gt_points) if i not in mr]))
-        panos += 1
+    part = partition_cells(
+        records, verdicts,
+        lambda pid: cache.get(cache_key(label, sig, args.split, pid)),
+        radius_sq, args.rampnet_op_threshold, floor_peaks)
+    both, r_only, c_only, neither = (part.counts[c] for c in CELLS)
+    n = sum(part.counts.values())
+    r_fp, c_fp, shift_rows = part.r_fp, part.c_fp, part.shift_rows
+    panos, missing = part.panos, part.missing
 
     if not n:
         sys.exit("No recall-eligible panos with cached detections -- nothing to compare. "
                  "Run compare.py for this model/split first (and pass the SAME "
                  "--vistas-input-size, which is part of the cache key).")
+    warning = floor_gap_warning(part.no_floor, args.split)
+    if warning:
+        print(warning + "\n")
 
     r_tp, c_tp, union = both + r_only, both + c_only, both + r_only + c_only
     r_miss = c_only + neither

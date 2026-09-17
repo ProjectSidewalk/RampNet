@@ -21,7 +21,12 @@ What they protect:
 * **``complementary_null``** is the discount every attributable-gain number in
   ``docs/model_comparison.md`` is quoted after, so it is checked against cases whose
   answer is arithmetic rather than measurement.
-* the published 384 richmond column, cell for cell.
+* **``partition_cells``** is the one loop behind this script's table, the cascade
+  gate's partition and the regression tests below — the tests call it rather than
+  re-implementing it, so a bug in the threshold filter or the op_cache fallback fails
+  here instead of being copied into a third place.
+* the published 384 richmond column, cell for cell, at the shipped point and at the
+  two op_cache thresholds the doc quotes.
 """
 import argparse
 import json
@@ -104,6 +109,87 @@ def test_the_cells_and_the_fp_counts_come_from_one_matcher():
     preds = [(0.998, 0.5, 0.9)]
     assert cx.matched_gt(preds, gt.gt_points, RSQ) == {0}
     assert score_pano(preds, gt, RSQ).fp == 0
+
+
+def _one_pano(rampnet_x, challenger_x):
+    """A single recall-eligible pano with one GT ramp at x=0.5, RampNet's shipped
+    detection at ``rampnet_x`` and the challenger's at ``challenger_x``."""
+    records = {"p": {"detections": [{"x_normalized": rampnet_x, "y_normalized": 0.5,
+                                     "confidence": 0.9}]}}
+    verdicts = {"p": {"dets": [False], "missed": [{"x": 0.5, "y": 0.5}],
+                      "no_missed": False}}
+    return records, verdicts, {"p": [(challenger_x, 0.5, 0.9)]}
+
+
+def test_a_non_default_radius_reaches_the_cells_and_the_fp_counts_alike():
+    # Both models' detections sit 1.5 default radii from the ramp. At the default
+    # radius each is a miss AND a false positive; at twice the radius each is a hit
+    # and no false positive. `--radius` used to reach matched_gt only, so the cells
+    # moved to "both" while score_pano, still at its default, kept billing two FPs.
+    records, verdicts, challenger = _one_pano(0.5 + 1.5 * R_NORM, 0.5 - 1.5 * R_NORM)
+    tight = cx.partition_cells(records, verdicts, challenger.get, RSQ)
+    assert tight.counts["neither"] == 1 and (tight.r_fp, tight.c_fp) == (1, 1)
+    wide = cx.partition_cells(records, verdicts, challenger.get, radius_sq_for(0.044))
+    assert wide.counts["both"] == 1 and (wide.r_fp, wide.c_fp) == (0, 0)
+
+
+# --------------------------------------------------------------------------- #
+# partition_cells — the loop three places used to carry a copy of
+# --------------------------------------------------------------------------- #
+def test_the_threshold_filters_the_floor_peaks_and_nothing_else():
+    records, verdicts, challenger = _one_pano(0.5, 0.5)
+    floor = {"p": [(0.5, 0.5, 0.20)]}                       # a peak below 0.30
+    at_030 = cx.partition_cells(records, verdicts, challenger.get, RSQ, 0.30, floor)
+    at_005 = cx.partition_cells(records, verdicts, challenger.get, RSQ, 0.05, floor)
+    assert at_030.counts["challenger_only"] == 1
+    assert at_005.counts["both"] == 1
+    # The shipped detection in records.jsonl is not consulted under the flag.
+    assert at_030.sites == [{"pano": "p", "x": 0.5, "y": 0.5, "cell": "challenger_only"}]
+
+
+def test_the_threshold_and_the_floor_peaks_go_together():
+    records, verdicts, challenger = _one_pano(0.5, 0.5)
+    with pytest.raises(ValueError):
+        cx.partition_cells(records, verdicts, challenger.get, RSQ, 0.30, None)
+    with pytest.raises(ValueError):
+        cx.partition_cells(records, verdicts, challenger.get, RSQ, None, {"p": []})
+
+
+def test_a_pano_the_challenger_never_cached_is_skipped_and_counted():
+    records, verdicts, _ = _one_pano(0.5, 0.5)
+    part = cx.partition_cells(records, verdicts, lambda pid: None, RSQ)
+    assert part.missing == 1 and part.panos == 0 and sum(part.counts.values()) == 0
+
+
+def test_a_pano_missing_from_the_op_cache_is_counted_not_absorbed():
+    # Under --rampnet-op-threshold a pano the op_cache does not list scores as
+    # RampNet-blank: every GT ramp on it becomes a miss. It used to do so silently in
+    # this script (cascade_gate.py warned; this one did not).
+    records, verdicts, challenger = _one_pano(0.5, 0.5)
+    part = cx.partition_cells(records, verdicts, challenger.get, RSQ, 0.30, {})
+    assert part.no_floor == 1
+    assert part.counts["challenger_only"] == 1          # RampNet's shipped hit is gone
+    assert "1 pano(s) are absent" in cx.floor_gap_warning(part.no_floor, "richmond")
+    assert cx.floor_gap_warning(0, "richmond") is None
+
+
+def test_the_missed_gt_handed_to_the_null_is_what_rampnet_missed():
+    records, verdicts, challenger = _one_pano(0.5 + 2 * R_NORM, 0.5)
+    part = cx.partition_cells(records, verdicts, challenger.get, RSQ)
+    assert part.shift_rows == [([(0.5, 0.5, 0.9)], [(0.5, 0.5)])]
+
+
+def test_a_split_without_an_op_cache_exits_with_a_message_not_a_traceback(
+        tmp_path, monkeypatch):
+    # --rampnet-op-threshold on a split whose op_cache is missing used to be a raw
+    # FileNotFoundError. cascade_gate.py already exits with a message; this mirrors it.
+    monkeypatch.setattr(cx, "CACHE_DIR", str(tmp_path / "no_op_cache"))
+    monkeypatch.setattr(sys, "argv", [
+        "complementarity.py", "vistas:curb-cut", "richmond",
+        "--rampnet-op-threshold", "0.3", "--cache-dir", str(tmp_path / "no_model_cache")])
+    with pytest.raises(SystemExit) as e:
+        cx.main()
+    assert "op_cache" in str(e.value) and "richmond" in str(e.value)
 
 
 # --------------------------------------------------------------------------- #
@@ -210,13 +296,15 @@ def test_the_null_averages_over_every_non_identity_shift():
 # --------------------------------------------------------------------------- #
 # regression — the published 384 richmond column, read from committed files only
 # --------------------------------------------------------------------------- #
-def _published_cells(tmp_path):
+def _published_cells(tmp_path, rampnet_op_threshold=None):
     """The four cells for the published Vistas 384 arm on richmond.
 
     Rebuilds a ``.model_cache``-shaped directory from the published export and reads it
     back through ``DetectionCache``/``cache_key``, i.e. the path the script itself
     takes. That is deliberate: the lookup only succeeds if the signature reconstructed
-    from ``compare_args`` is the one the export was written under.
+    from ``compare_args`` is the one the export was written under. The partition is
+    the script's own ``partition_cells``, not a copy of it, so the threshold filter
+    and the op_cache fallback are under test here too.
     """
     published = json.load(open(PUBLISHED, encoding="utf-8"))
     cache = DetectionCache(str(tmp_path / "cache"))
@@ -227,24 +315,14 @@ def _published_cells(tmp_path):
     label, det = build_detector("vistas", "curb-cut", {}, cx.compare_args(_args()))
     sig = det.signature()
     records, verdicts, _ = load_bundle(os.path.join(REPO, "benchmark", "richmond"))
-    counts = {"both": 0, "rampnet_only": 0, "challenger_only": 0, "neither": 0}
-    for pid, entry in verdicts.items():
-        gt = build_ground_truth(records[pid]["detections"], entry["dets"],
-                                entry["missed"], entry["no_missed"])
-        if not gt.fn_confirmed:
-            continue
-        cp = cache.get(cache_key(label, sig, "richmond", pid))
-        assert cp is not None, f"{pid}: signature drifted from the published export"
-        rp = [(d["x_normalized"], d["y_normalized"], d["confidence"])
-              for d in records[pid]["detections"]]
-        mr = cx.matched_gt(rp, gt.gt_points, RSQ)
-        mc = cx.matched_gt(cp, gt.gt_points, RSQ)
-        for i in range(len(gt.gt_points)):
-            r, c = i in mr, i in mc
-            key = ("both" if r and c else "rampnet_only" if r else
-                   "challenger_only" if c else "neither")
-            counts[key] += 1
-    return counts
+    floor = (cx.load_floor_peaks("richmond") if rampnet_op_threshold is not None
+             else None)
+    part = cx.partition_cells(
+        records, verdicts, lambda pid: cache.get(cache_key(label, sig, "richmond", pid)),
+        RSQ, rampnet_op_threshold, floor)
+    assert part.missing == 0, "signature drifted from the published export"
+    assert part.no_floor == 0
+    return part.counts
 
 
 def test_the_published_384_column_reproduces(tmp_path):
@@ -261,3 +339,13 @@ def test_the_384_column_adds_up_to_richmond_s_recall_eligible_ground_truth(tmp_p
     # which is the recall its published row reports.
     assert counts["challenger_only"] + counts["neither"] == 72
     assert counts["both"] + counts["challenger_only"] == 216
+
+
+def test_the_384_column_at_the_two_op_cache_thresholds_reproduces(tmp_path):
+    # docs/model_comparison.md, the seam-exposure table: the published 384 arm with
+    # RampNet re-sourced from analysis_out/op_cache/richmond.json at the recommended
+    # 0.30 and at the 0.05 floor. Both sides committed, so a clean clone checks them.
+    assert _published_cells(tmp_path, 0.30) == {"both": 202, "rampnet_only": 55,
+                                                "challenger_only": 14, "neither": 39}
+    assert _published_cells(tmp_path, 0.05) == {"both": 213, "rampnet_only": 66,
+                                                "challenger_only": 3, "neither": 28}

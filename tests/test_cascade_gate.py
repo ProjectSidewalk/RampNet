@@ -17,7 +17,10 @@ which is what the second half of this file does.
 """
 import json
 import os
+import random
 import sys
+
+import pytest
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, REPO)
@@ -25,11 +28,15 @@ sys.path.insert(0, os.path.join(REPO, "scripts", "analysis"))
 sys.path.insert(0, os.path.join(REPO, "scripts", "model_comparison"))
 
 import cascade_gate as cg  # noqa: E402
+import silent_activation as sa  # noqa: E402
 from farfield_forensics import quartiles  # noqa: E402
+from rampnet.detection_eval import radius_sq_for  # noqa: E402
 
 OUT = os.path.join(REPO, "analysis_out")
 SHIPPED = os.path.join(OUT, "cascade_gate.json")
 OP030 = os.path.join(OUT, "cascade_gate_op030.json")
+RSQ = radius_sq_for()
+R_PX = RSQ ** 0.5                            # 22.5 heatmap px
 
 
 def _row(cell, **kw):
@@ -142,6 +149,62 @@ def test_the_class_shares_sum_to_one():
 
 
 # --------------------------------------------------------------------------- #
+# site_rng — a site's null must not depend on which sites came before it
+# --------------------------------------------------------------------------- #
+def _heat_with_bump():
+    # A ramp along the site's row, so every azimuth draws a different value and the
+    # null's median and p95 depend on which azimuths were drawn.
+    h = [[0.0] * 1024 for _ in range(512)]
+    for c in range(1024):
+        h[256][c] = 0.03 * c / 1024
+    h[256][512] = 0.04
+    return h
+
+
+def test_a_sites_null_is_the_same_whatever_ran_before_it():
+    h = _heat_with_bump()
+    x, y = 512 / 1024, 256 / 512
+    first = sa.null_percentile(h, x, y, cg.site_rng("p", x, y), trials=50)
+    # Consume a different amount of "other sites" work, then ask again.
+    for other in range(3):
+        sa.null_percentile(h, 0.1 * (other + 1), y, cg.site_rng("p", 0.1 * (other + 1), y),
+                           trials=50)
+    again = sa.null_percentile(h, x, y, cg.site_rng("p", x, y), trials=50)
+    assert first == again
+
+
+def test_one_stream_shared_across_sites_did_depend_on_order():
+    # The shape being replaced: the same site, read second instead of first from one
+    # stream, draws different azimuths. Guarded so the reason for site_rng stays
+    # demonstrable rather than remembered.
+    h = _heat_with_bump()
+    x, y = 512 / 1024, 256 / 512
+    rng = random.Random(sa.NULL_SEED)
+    alone = sa.null_percentile(h, x, y, rng, trials=50)[2:]
+    rng = random.Random(sa.NULL_SEED)
+    sa.null_percentile(h, 0.1, y, rng, trials=50)
+    after_another = sa.null_percentile(h, x, y, rng, trials=50)[2:]
+    assert alone != after_another
+
+
+def test_different_sites_get_different_streams():
+    a = cg.site_rng("p", 0.5, 0.5).random()
+    assert a != cg.site_rng("p", 0.5, 0.6).random()
+    assert a != cg.site_rng("q", 0.5, 0.5).random()
+    assert a == cg.site_rng("p", 0.5, 0.5).random()
+
+
+# --------------------------------------------------------------------------- #
+# panos_without_floor — the probe path's op_cache gap, which used to be silent
+# --------------------------------------------------------------------------- #
+def test_a_pano_the_op_cache_does_not_list_is_named():
+    floor = {"a": [(0.5, 0.5, 0.2)], "b": []}
+    assert cg.panos_without_floor(["a", "b", "c"], floor) == ["c"]
+    # Listed with zero floor peaks is an answer, not a gap.
+    assert cg.panos_without_floor(["b"], floor) == []
+
+
+# --------------------------------------------------------------------------- #
 # the committed artifacts — every cell figure re-derives from the sites list
 # --------------------------------------------------------------------------- #
 def _payload(path):
@@ -199,6 +262,27 @@ def test_the_no_peak_rows_have_their_own_activation_median():
     no_peak = [s["act"] for s in sites if not s["peak_in_radius"]]
     assert round(quartiles(no_peak)[1], 4) == 0.2723
     assert cell["act_median"] == 0.2152
+
+
+def test_the_committed_nulls_came_from_one_stream_and_say_so():
+    # Both artifacts predate site_rng: their nulls were drawn from one stream in pano
+    # order, so a site carries a different draw in each file (43 of the 53 sites with
+    # a null in both differ, by up to 0.075) while act and nearest_peak_px agree on
+    # every one. A regeneration with per-site seeding moves those values without any
+    # change in the heatmap, which is why neither file records "null_rng".
+    shipped, op030 = _payload(SHIPPED), _payload(OP030)
+    assert "null_rng" not in shipped and "null_rng" not in op030
+    key = lambda s: (s["pano"], s["x"], s["y"])  # noqa: E731
+    a = {key(s): s for s in shipped["sites"]}
+    both = [(a[key(s)], s) for s in op030["sites"]
+            if key(s) in a and a[key(s)]["null_pct"] is not None
+            and s["null_pct"] is not None]
+    assert len(both) == 53
+    differ = [(x, y) for x, y in both if x["null_pct"] != y["null_pct"]]
+    assert len(differ) == 43
+    assert max(abs(x["null_pct"] - y["null_pct"]) for x, y in differ) == pytest.approx(0.075)
+    assert all(x["act"] == y["act"] and x["nearest_peak_px"] == y["nearest_peak_px"]
+               for x, y in both)
 
 
 def test_moving_to_the_recommended_threshold_takes_sixteen_from_the_recovered_cell():
