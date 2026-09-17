@@ -1399,16 +1399,43 @@ the smallest achievable blob at 1024 (see above), so the two rows do not share t
 meaning even though they share its value. And this is still **richmond only**.
 
 **Neither A40 run's detections are published, so the bottom two rows of that table are not
-re-derivable from a clean clone.** The parity (1024×1024) and same-env control (384×384)
-detections live in a private `--cache-dir` on makelab2 and nowhere else; only the published 384
-row and RampNet's row come from committed files. `--vistas-input-size` does not change the arm's
-label, so exporting either one would overwrite
-`benchmark/model_detections/mask2former-vistas-curb-cut__richmond.json`. Publishing them needs a
-distinct published name — `scripts/analysis/export_model_cache.py --publish-as` (#123, on `main`),
-e.g. `mask2former-vistas-curb-cut-1024` — which was out of scope here. **Everything downstream of
-those detections carries the same limit**: the 1024 column of the complementarity table, the whole
-operating-point-correction table, both cascade tables, both `analysis_out/cascade_gate*.json`, and
-the seam-exposure count. Each says so where it appears.
+re-derivable from a clean clone — and as of 2026-09-17 the private cache they lived in cannot be
+found either.** The parity (1024×1024) and same-env control (384×384) detections were written to
+a private `--cache-dir` in a scratch worktree on makelab2 and nowhere else; only the published 384
+row and RampNet's row come from committed files. Looked for on 2026-09-17 before publishing them:
+the checkout at `/homes/gws/jonf/RampNet` has no worktree registered, its `.model_cache` holds no
+shard written 2026-08-17..20, and the parity run's shard names (`compare.cache_key` over the
+1024 signature, e.g. `f2acf1b1…`) are absent from `/homes/gws/jonf`, `/tmp`, `/var`, the root
+filesystem and the lab mounts. The cache went with the scratch worktree, so **the two A40
+rows, the 1024 complementarity column, the operating-point-correction table, both cascade tables,
+both `analysis_out/cascade_gate*.json` and the seam-exposure count now rest on the committed
+artifacts alone.** The cascade artifacts carry their full per-site input (`sites[]`), so every
+figure in those tables still re-derives from committed files (`tests/test_cascade_gate.py`);
+what cannot be re-derived is the partition itself, and the parity row's P/R/F1/AP.
+
+**Retiring that takes one decision and one 3m38s GPU run, not a rescue.** The run is cheap to
+repeat (`compare.py … --vistas-input-size 1024 1024`, one A40, timed above), and a repeat
+should land within a detection or so of the original — the control-vs-published pair did, across
+a `transformers` major version, with fp16 kernel nondeterminism the only residual. What is not
+settled is how it publishes, and the roster's own rules leave three
+things open rather than one:
+
+- `--vistas-input-size` does not change the arm's label, so the export needs a distinct published
+  name (`export_model_cache.py --publish-as`, #123) and a roster leg pinned on it. But
+  `rampnet/roster.py` requires that **once one leg of a model is qualified, every leg is** — so
+  the published 384 file would be renamed too (e.g. `mask2former-vistas-curb-cut-384`), which
+  touches every reference to it here and in `tests/`. The registry's pin naming also expects a
+  scalar (`str(value)` appears in the published name), and this pin is a 2-element size.
+- The same-env 384 control has the **same** signature and cache key as the published 384 run —
+  that was the point of it — so it cannot be a pinned leg at all; the roster has no notion of
+  "same detector, different host". Publishing it means either a new kind of entry or recording
+  it as an unregistered replicate beside the published file.
+- `export_model_cache.py` does not yet take `--vistas-input-size`, so it cannot address the 1024
+  cache entry even where one exists.
+
+Until those are decided, this section states the gap rather than guessing at the layout; the
+numbers above are as-run on 2026-08-18 and are not being changed. Each downstream table says so
+where it appears.
 
 #### Complementarity: 61% of RampNet's misses are recoverable, and a union still loses
 
@@ -1443,10 +1470,10 @@ two differ by one detection in 523, which moved two cells by one ramp each: chal
 21 and found-by-nobody 50 → 51. Nothing turned on it, but the control is not published either, so
 the column as printed was not re-derivable and did not say which run it was.
 
-**The 1024 column cannot be re-derived from a clean clone.** The parity detections are not
-published (see the caveat under *Resolution parity*), so that column exists only against the
-private makelab2 cache. Closing that needs `scripts/analysis/export_model_cache.py --publish-as`
-(#123) to give the parity arm its own published name.
+**The 1024 column cannot be re-derived from a clean clone, or from anywhere.** The parity
+detections are not published, and the private makelab2 cache that held them could not be found
+on 2026-09-17 (see the caveat under *Resolution parity*), so that column now rests on this
+table alone. Closing that needs a 3m38s re-run and a publishing decision, both spelled out there.
 
 **Discounted for chance, a free zero-training model finds ~44 of the 72 ramps RampNet misses —
 61%.** The null here is measured on the miss subset rather than extrapolated from the split-wide
@@ -1723,8 +1750,9 @@ git-ignored, so on a clean clone the published detections have to be written int
 `benchmark/model_detections/<model>__<split>.json` records the signature they were cached under
 and `compare.cache_key(model, signature, city, pano_id)` is the shard name;
 `tests/test_complementarity.py` does the whole thing in eight lines and is the shortest working
-example. For the **parity** arm there is nothing to write — those detections are not published
-(see *Resolution parity*) — so the 1024 commands above run only where that private cache exists.
+example. For the **parity** arm there is nothing to write — those detections are not published,
+and the private cache that held them is gone (see *Resolution parity*) — so the 1024 commands
+above need the `compare.py --vistas-input-size 1024 1024` run first, which regenerates them.
 
 **Cost, in both units.** Money: **$0** — makelab2 is lab-owned hardware with no metered
 billing, and every read above is free. Time: one leg of three was timed, and **the full 124-pano
