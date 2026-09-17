@@ -16,6 +16,7 @@ sys.path.insert(0, REPO_ROOT)
 sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "analysis"))
 sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "model_comparison"))
 
+import slurm_usage  # noqa: E402
 from slurm_usage import (  # noqa: E402
     gpu_hours_as_of, gpus_from_tres, is_terminal, latest_rows, new_rows, parse_sacct,
     print_by_name, row_key, sacct_command, summarize, SACCT_FIELDS, COLUMNS,
@@ -190,6 +191,50 @@ def test_the_sacct_command_asks_for_duplicates_and_the_pinned_columns():
     assert "--format=" + ",".join(SACCT_FIELDS) in cmd
     # The parser indexes by position, so the two lists must stay in step.
     assert len(COLUMNS) == len(SACCT_FIELDS)
+
+
+def _run_main(monkeypatch, *argv):
+    monkeypatch.setattr(sys, "argv", ["slurm_usage.py", *argv])
+    return slurm_usage.main()
+
+
+def test_a_dump_must_name_the_account_it_came_from(tmp_path, monkeypatch, capsys):
+    """The committed klone dump is jfroehli's. Parsed on a laptop whose login is
+    jonf, the old default stamped every row -- and the printed regeneration
+    command -- with jonf. Nothing in a dump says whose it is, so the caller has to."""
+    dump = tmp_path / "sacct.txt"
+    dump.write_text(PREP + "\n", encoding="utf-8")
+    monkeypatch.setenv("USER", "jonf")
+    monkeypatch.setenv("USERNAME", "jonf")
+    with pytest.raises(SystemExit) as exc:
+        _run_main(monkeypatch, "--from-file", str(dump), "--dry-run")
+    assert exc.value.code == 2
+    assert "--user is required with --from-file" in capsys.readouterr().err
+    # With the account named, the rows carry it and not the local login.
+    out = tmp_path / "compute_log.jsonl"
+    assert _run_main(monkeypatch, "--from-file", str(dump), "--user", "jfroehli",
+                     "--out", str(out)) == 0
+    assert [r["user"] for r in ledger.read_rows(str(out))] == ["jfroehli"]
+
+
+def test_print_command_never_substitutes_the_local_login(monkeypatch, capsys):
+    """The printed command is run ON the cluster, where sacct defaults to the
+    caller; -u <laptop login> there is the wrong account or no account."""
+    monkeypatch.setenv("USER", "jonf")
+    monkeypatch.setenv("USERNAME", "jonf")
+    assert _run_main(monkeypatch, "--print-command") == 0
+    printed = capsys.readouterr().out
+    assert "jonf" not in printed and " -u " not in printed
+    assert _run_main(monkeypatch, "--print-command", "--user", "jfroehli") == 0
+    assert " -u jfroehli " in capsys.readouterr().out
+
+
+def test_no_user_means_sacct_default_not_a_none_in_argv():
+    """With $USER unset and no --user, the live path used to put None in the argv
+    list and die inside subprocess.run with a TypeError nothing caught."""
+    cmd = sacct_command(None, "2026-07-01")
+    assert "-u" not in cmd and all(isinstance(a, str) for a in cmd)
+    assert "-D" in cmd
 
 
 def test_the_ledger_round_trips_through_the_shared_writer(tmp_path):

@@ -16,9 +16,12 @@ records — which is the whole reason to run it now rather than later.
     ssh klone 'sacct -X -D -P -n -u $USER -S 2026-07-01 \\
         --format=JobID,JobName%60,Cluster,Partition,QOS,State,Submit,Start,End,\\
 ElapsedRaw,AllocTRES,NNodes,ExitCode' > sacct_klone.txt
-    python scripts/analysis/slurm_usage.py --cluster klone --from-file sacct_klone.txt
+    python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \\
+        --from-file sacct_klone.txt
 
 `--print-command` prints that command for the current settings rather than guessing.
+`--user` is required with `--from-file`: a dump does not name the account it came
+from, and the login on the machine parsing it is not that account.
 
 **Replication:** `sacct` output is retrievable only by someone with an account on the
 cluster, so `--save-raw` writes the exact dump a run parsed. Commit it next to the
@@ -78,8 +81,12 @@ TERMINAL_STATES = ("COMPLETED", "FAILED", "CANCELLED", "TIMEOUT", "PREEMPTED",
 
 
 def sacct_command(user, since, until=None):
-    cmd = ["sacct", "-X", "-D", "-P", "-n", "-u", user, "-S", since,
-           "--format=" + ",".join(SACCT_FIELDS)]
+    """The sacct invocation, as an argv list. ``user`` None means sacct's own
+    default, the caller — never the local login of whatever machine builds it."""
+    cmd = ["sacct", "-X", "-D", "-P", "-n"]
+    if user:
+        cmd += ["-u", user]
+    cmd += ["-S", since, "--format=" + ",".join(SACCT_FIELDS)]
     if until:
         cmd += ["-E", until]
     return cmd
@@ -299,8 +306,11 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     ap.add_argument("--cluster", help="Cluster name for pricing (tillicum, klone). "
                                       "Defaults to sacct's own Cluster column.")
-    ap.add_argument("--user", default=os.environ.get("USER") or os.environ.get("USERNAME"),
-                    help="Slurm user to query (default: $USER).")
+    ap.add_argument("--user",
+                    help="Slurm account the rows belong to. Live: defaults to the caller, "
+                         "which is who sacct reports on anyway. Required with "
+                         "--from-file: a dump does not say whose jobs it holds, and the "
+                         "login on this machine is not the answer.")
     ap.add_argument("--since", default="2026-07-01",
                     help="sacct -S start date (default: 2026-07-01, before the first "
                          "RampNet cluster run this ledger covers).")
@@ -322,20 +332,29 @@ def main():
     args = ap.parse_args()
 
     if args.print_command:
-        print(" ".join(sacct_command(args.user or "$USER", args.since, args.until)))
+        # No -u when none was given: on the cluster, sacct defaults to the caller.
+        # Substituting this machine's $USER would print the wrong account.
+        print(" ".join(sacct_command(args.user, args.since, args.until)))
         return 0
 
     if args.from_file:
+        if not args.user:
+            ap.error("--user is required with --from-file: the dump does not name "
+                     "the account it was pulled for, and the local login is not it "
+                     "(the committed klone dump is jfroehli's).")
         text = Path(args.from_file).read_text(encoding="utf-8")
     else:
+        # The caller's own account, which is what sacct reports on by default. If
+        # the environment does not say, sacct still runs (no -u) and the rows are
+        # stamped with no user rather than a wrong one.
+        args.user = args.user or os.environ.get("USER") or os.environ.get("USERNAME")
         cmd = sacct_command(args.user, args.since, args.until)
         try:
             proc = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
         except (OSError, subprocess.SubprocessError) as e:
             print(f"could not run sacct ({type(e).__name__}: {e}).\nRun it on a login "
                   f"node and pass the output with --from-file:\n  "
-                  + " ".join(sacct_command(args.user or "$USER", args.since, args.until)),
-                  file=sys.stderr)
+                  + " ".join(cmd), file=sys.stderr)
             return 2
         if proc.returncode != 0:
             print(f"sacct failed ({proc.returncode}): {proc.stderr.strip()}", file=sys.stderr)
