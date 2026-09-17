@@ -29,6 +29,13 @@ def no_dotenv(monkeypatch):
     monkeypatch.setattr(ves, "_load_dotenv", lambda: None)
 
 
+def _point(end_time, ttype, n):
+    """One Cloud Monitoring time series carrying one ALIGN_DELTA point."""
+    return {"metric": {"type": ves.TOKEN_METRIC, "labels": {"type": ttype}},
+            "points": [{"interval": {"endTime": end_time},
+                        "value": {"int64Value": str(n)}}]}
+
+
 def _series(spec):
     """[(n_minutes, input_per_min, ratio)] -> the (ts, input, output) rows."""
     rows, minute = [], 0
@@ -47,6 +54,69 @@ def test_changepoint_finds_the_throughput_cliff():
     cut, drop = ves.find_changepoint(rows)
     assert cut == 30
     assert drop == pytest.approx(3.0, abs=0.01)
+
+
+def test_changepoint_can_land_on_the_last_full_window():
+    """S6: a cliff exactly `window` minutes from the end. rows[i:i+window] is a full
+    window up to i == len(rows) - window, and the search has to include it -- the
+    first version stopped one short, put the cut a minute early and read a diluted
+    "after" window (3.57x here instead of the real 10x). This is not hypothetical:
+    the committed Sonnet series has its largest drop at exactly that position."""
+    rows = _series([(15, 100, 0.05), (5, 10, 0.05)])
+    cut, drop = ves.find_changepoint(rows)
+    assert cut == 15
+    assert drop == pytest.approx(10.0, abs=0.01)
+    # ...and one more tail minute, which the old range did search, agrees.
+    cut, drop = ves.find_changepoint(rows + [("2026-08-15T00:20:00Z", 10, 1)])
+    assert (cut, drop) == (15, pytest.approx(10.0, abs=0.01))
+
+
+def test_changepoint_refuses_a_series_with_no_input_to_anchor_on():
+    """S2 made zero-input minutes reachable, so the detector must say "none" rather
+    than slice on it: (None, 0.0), and main() turns that into a message, not a
+    TypeError."""
+    rows = [(f"2026-08-15T00:{m:02d}:00Z", 0, 50) for m in range(20)]
+    assert ves.find_changepoint(rows) == (None, 0.0)
+
+
+def test_output_only_minutes_survive_the_bucket_step():
+    """S2: a minute with output tokens and no input tokens is a long response
+    completing after its request was counted. It is billed, and the first version
+    dropped it before save_series ran, so the committed file could never be checked
+    against the daily row for that loss. Every minute with any tokens is kept."""
+    series = [_point("2026-08-15T17:51:00Z", "input", 60_000),
+              _point("2026-08-15T17:51:00Z", "output", 2_000),
+              _point("2026-08-15T17:52:00Z", "output", 5),        # output only
+              _point("2026-08-15T17:53:00Z", "input", 60_000),
+              _point("2026-08-15T17:54:00Z", "input", 0)]          # a zero point
+    rows = ves.minute_rows(series)
+    assert rows == [("2026-08-15T17:51:00Z", 60_000, 2_000),
+                    ("2026-08-15T17:52:00Z", 0, 5),
+                    ("2026-08-15T17:53:00Z", 60_000, 0)]
+    assert sum(r[2] for r in rows) == 2_005                # nothing lost
+
+
+def test_an_output_only_series_replays_to_a_message_not_a_traceback(
+        tmp_path, monkeypatch, no_dotenv):
+    """The other half of S2: now that such minutes are kept, a replayed series can
+    have no input anywhere, and main() must exit with a sentence."""
+    def replay(rows):
+        path = tmp_path / "series.json"
+        ves.save_series(path, "claude-opus-5", "s", "e", rows)
+        monkeypatch.setattr(sys, "argv", ["vertex_effort_split.py", "--model",
+                                          "claude-opus-5", "--from-series", str(path)])
+        with pytest.raises(SystemExit) as e:
+            ves.main()
+        return str(e.value)
+
+    # Nothing but output: refused before the blended ratio would divide by zero.
+    assert "no input tokens" in replay(
+        [(f"2026-08-15T00:{m:02d}:00Z", 0, 50) for m in range(20)])
+    # Some input, but never on both sides of a window: the detector returns None
+    # and main() must say so rather than slice rows[:None - 3].
+    assert "no changepoint" in replay(
+        [("2026-08-15T00:00:00Z", 12_186, 400), ("2026-08-15T00:01:00Z", 12_186, 400)]
+        + [(f"2026-08-15T00:{m:02d}:00Z", 0, 50) for m in range(2, 20)])
 
 
 def test_a_flat_series_is_reported_as_not_separable():
@@ -158,11 +228,16 @@ def test_the_committed_sonnet_series_still_refuses_to_separate():
     assert model == "claude-sonnet-5"
     assert sum(r[1] for r in rows) == 3_300_368      # == the billed daily row
     cut, drop = ves.find_changepoint(rows)
-    assert drop == pytest.approx(1.63, abs=0.01)
+    # The largest drop sits exactly `window` minutes from the end -- the position the
+    # S6 off-by-one used to exclude. It read 17:35 and 1.63x before that fix.
+    assert rows[cut][0] == "2026-08-15T17:36:00Z"
+    assert drop == pytest.approx(1.78, abs=0.01)
     g = ves.GUARD_MINUTES
     head, tail = rows[:cut - g], rows[cut + g:]
     r_head = sum(r[2] for r in head) / sum(r[1] for r in head)
     r_tail = sum(r[2] for r in tail) / sum(r[1] for r in tail)
+    assert r_head == pytest.approx(0.0363, abs=0.0001)
+    assert r_tail == pytest.approx(0.0273, abs=0.0001)
     assert r_tail < r_head                            # the ratio moves the wrong way
     assert r_tail < r_head * ves.MIN_RATIO_LIFT       # NOT SEPARABLE
 
@@ -246,3 +321,4 @@ def test_a_cloud_query_still_needs_a_window(monkeypatch, no_dotenv):
     with pytest.raises(SystemExit) as e:
         ves.main()
     assert "--start and --end" in str(e.value)
+

@@ -99,6 +99,29 @@ def _load_dotenv():
             os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
 
 
+def minute_rows(series):
+    """Cloud Monitoring time series -> sorted (end_time, input, output) rows.
+
+    **Every minute with any tokens is kept.** A minute with output and no input is a
+    long response completing after its request was counted (a thinking-heavy call
+    that spans the 60 s boundary), and it is still billed. The first version of this
+    filtered on input alone, which threw such minutes away before ``save_series`` ran
+    -- so the committed series could never be checked against the daily row for that
+    class of loss. Zero-input minutes are handled downstream by ``find_changepoint``
+    (they cannot anchor a window) rather than by dropping them here.
+    """
+    buckets = defaultdict(lambda: defaultdict(int))
+    for s in series:
+        ttype = s.get("metric", {}).get("labels", {}).get("type", "?")
+        for pt in s.get("points", []):
+            n = int(pt["value"].get("int64Value", 0) or 0)
+            if n:
+                buckets[pt["interval"]["endTime"]][ttype] += n
+    return sorted((ts, d.get("input", 0), d.get("output", 0))
+                  for ts, d in buckets.items()
+                  if d.get("input", 0) or d.get("output", 0))
+
+
 def fetch_minute_series(project, model, start, end):
     """Minute-aligned (input, output) deltas for one model, oldest first."""
     try:
@@ -141,15 +164,7 @@ def fetch_minute_series(project, model, start, end):
         if pages >= 50:            # same runaway guard as vertex_usage.py
             raise SystemExit("stopped after 50 pages with more remaining — "
                              "narrow the window, or the totals would be partial")
-    buckets = defaultdict(lambda: defaultdict(int))
-    for s in series:
-        ttype = s.get("metric", {}).get("labels", {}).get("type", "?")
-        for pt in s.get("points", []):
-            n = int(pt["value"].get("int64Value", 0) or 0)
-            if n:
-                buckets[pt["interval"]["endTime"]][ttype] += n
-    return sorted((ts, d.get("input", 0), d.get("output", 0))
-                  for ts, d in buckets.items() if d.get("input", 0))
+    return minute_rows(series)
 
 
 def save_series(path, model, start, end, rows):
@@ -179,9 +194,17 @@ def load_series(path):
 
 
 def find_changepoint(rows, window=5):
-    """Index of the largest sustained drop in throughput, and the drop factor."""
+    """Index of the largest sustained drop in throughput, and the drop factor.
+
+    Returns ``(None, 0.0)`` when no position has input on both sides of it, which
+    is what a series of output-only minutes looks like; callers must not slice on
+    a ``None`` cut. The last valid position is ``len(rows) - window`` -- the one
+    whose "after" window is exactly the final ``window`` minutes -- so the range is
+    inclusive of it. An earlier version stopped one short, which put a cliff that
+    sat ``window`` minutes from the end one minute early, with a diluted "after".
+    """
     best, best_drop = None, 0.0
-    for i in range(window, len(rows) - window):
+    for i in range(window, len(rows) - window + 1):
         before = sum(r[1] for r in rows[i - window:i]) / window
         after = sum(r[1] for r in rows[i:i + window]) / window
         if before and after and before / after > best_drop:
@@ -239,6 +262,11 @@ def main():
         raise SystemExit(f"only {len(rows)} active minute(s) in the window — widen it")
     tin = sum(r[1] for r in rows)
     tout = sum(r[2] for r in rows)
+    if not tin:
+        # Reachable since output-only minutes are kept: a window that caught only
+        # the tail of a response has tokens but nothing to split on.
+        raise SystemExit(f"no input tokens in the window ({len(rows)} output-only "
+                         f"minute(s), {tout:,} output tokens) -- widen it.")
 
     print(f"== {args.model}  {rows[0][0]} -> {rows[-1][0]}")
     print(f"   {len(rows)} active minutes, input {tin:,}, output {tout:,}, "
@@ -253,9 +281,17 @@ def main():
         print(f"   panos {n:.2f} at {args.per_pano_input:,} input/pano ({verdict})")
 
     cut, drop = find_changepoint(rows)
+    if cut is None:
+        raise SystemExit("no changepoint: no position in the window has input on both "
+                         "sides of it. Widen the window, or the series is not a run.")
     head, tail = rows[:cut - GUARD_MINUTES], rows[cut + GUARD_MINUTES:]
     hi, ho = sum(r[1] for r in head), sum(r[2] for r in head)
     ti, to = sum(r[1] for r in tail), sum(r[2] for r in tail)
+    if not (hi and ti):
+        # A cut this close to an edge leaves a guard-trimmed side with no input,
+        # and a ratio over zero input is not a ratio.
+        raise SystemExit(f"changepoint {rows[cut][0]} leaves a side with no input "
+                         f"(head {hi:,}, tail {ti:,}) -- widen the window.")
     r_head, r_tail = ho / hi, to / ti
     print(f"   changepoint {rows[cut][0]}: throughput /{drop:.2f}, "
           f"output ratio {r_head:.4f} -> {r_tail:.4f}")

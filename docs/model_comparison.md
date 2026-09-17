@@ -1813,8 +1813,11 @@ python scripts/analysis/vertex_effort_split.py --model claude-opus-5 \
 
 **The same command on `claude-sonnet-5` refuses to answer, and that is the more
 transferable result.** Sonnet's ratio is flat across its whole run — throughput drops only
-1.63× and the ratio moves the *wrong way* (0.0365 → 0.0281) — so there is no second
-component to find and the script prints `NOT SEPARABLE`. The reason is in the result table
+1.78× and the ratio moves the *wrong way* (0.0363 → 0.0273) — so there is no second
+component to find and the script prints `NOT SEPARABLE`. (First published as 1.63× and
+0.0365 → 0.0281: the changepoint search stopped one position short of the last full window,
+which is exactly where this series' largest drop sits, so the cut landed a minute early at
+17:35 instead of 17:36. Fixed 2026-09-17; the verdict does not move.) The reason is in the result table
 above: Sonnet's high leg spent **17,820** thinking tokens against Opus's **127,227**, so the
 dial that this method reads barely moved. A mixture solver run on that series returns "high
 effort cost less than low", which is false; the guard exists because the wrong answer is the
@@ -1846,16 +1849,23 @@ Four snapshots are committed under `docs/data/vertex_minute_series/`, all fetche
 | `claude-opus-5_2026-08-18.json` | 08-18 00:00 - 08-19 12:00, the #139 leg | 83 | 11,988,993 | 418,503 |
 | `vertex_usage_daily_2026-09-03.json` | the daily rows, 25-day lookback | - | - | - |
 
-Three details worth knowing before re-running any of it. The Sonnet window is wider
+Four details worth knowing before re-running any of it. The Sonnet window is wider
 than the Opus one because that leg started before 17:00 — the narrower window clips
 it to 3,157,769 input and moves the head ratio to 0.0374, which is why the figures
 quoted above need the wide one. Sonnet's output is one token under the daily row's
-118,471, a boundary artifact of 60 s alignment rather than a discrepancy in the day.
-And the daily-row snapshot, written by `vertex_usage.py --save-rows`, carries every
-token type including the three cache buckets that are zero here: a snapshot that
-quietly dropped a billed bucket would be worse than no snapshot. Only `fetched_utc`
-moves between regenerations; the rows are byte-stable, and
-`tests/test_vertex_effort_split.py` asserts that along with the published numbers.
+118,471, and the cause is not identified: the 60 s deltas over a window that holds the
+whole run should sum to the daily delta (the Opus series matches its row to the token),
+and the fetch that wrote these files kept only minutes with input tokens, so a minute
+holding a single output token and no input — a response finishing after its request
+was counted, the shape of the 2-token smoke minutes at 16:13–16:14 — would have been
+dropped before the file was saved. That filter is gone (`minute_rows` keeps every
+minute with any tokens), but the committed series were fetched under it, so a re-fetch
+inside the retention window could carry one more row than these do. The daily-row
+snapshot, written by `vertex_usage.py --save-rows`, carries every token type including
+the three cache buckets that are zero here: a snapshot that quietly dropped a billed
+bucket would be worse than no snapshot. Only `fetched_utc` moves between regenerations;
+the rows are byte-stable, and `tests/test_vertex_effort_split.py` asserts that along
+with the published numbers.
 
 Two guards now stand where that went wrong, and the order matters. `compare.py` **refuses to
 start** a paid leg under `--usage-log none` (override: `--allow-unrecorded-spend`), which is
