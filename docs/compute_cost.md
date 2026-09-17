@@ -2,11 +2,11 @@
 
 **2,684.4 GPU-hours across 3,990 job allocations on klone since 2026-07-02, at $0.** That is
 the compute side of every RampNet experiment run on Jon's klone account, and until now it was
-recorded nowhere. It is a snapshot as of the 2026-08-19 pull: **158.0 of those GPU-hours are
-elapsed-so-far from 3 jobs that were still RUNNING** (`38304087` alone, 157.5 h), and the next
-pull will re-record them finished and move the total — the figures in [`tillicum.md`](tillicum.md) and
+recorded nowhere — the figures in [`tillicum.md`](tillicum.md) and
 [`stage2_training_cost.md`](stage2_training_cost.md) were transcribed by hand, per job, when
-someone remembered (#143).
+someone remembered (#143). It is a snapshot as of the 2026-08-19 pull: **158.0 of those
+GPU-hours are elapsed-so-far from 3 jobs that were still RUNNING** (`38304087` alone, 157.5 h),
+and the next pull will re-record them finished and move the total.
 
 The ledger is `analysis_out/compute_log.jsonl`, one row per job allocation, written by:
 
@@ -30,8 +30,8 @@ dump's parse. Regenerate the dump with `--print-command`.
 
 Slurm reports only the **last incarnation** of a requeued job unless you pass `-D`. Our klone
 work lives on the preemptable `ckpt` partition, where **95% of allocations end in `PREEMPTED`**
-(3,780 of 3,990; 96% counting the 59 `REQUEUED` incarnations). So the default view does not undercount slightly — it discards nearly
-everything:
+(3,780 of 3,990; 96% counting the 59 `REQUEUED` incarnations). So the default view does not
+undercount slightly — it discards nearly everything:
 
 | the #51 YOLO baseline (`yolo_curb_ramp_train`) | rows | GPU-hours |
 | :--- | ---: | ---: |
@@ -52,7 +52,9 @@ of a live `sacct -S 2026-07-24` on the baseline's job name: every incarnation al
 instant):
 
 ```bash
-python scripts/analysis/gpu_hours_as_of.py     --from-file docs/data/compute/sacct_klone_2026-08-19.txt     --since 2026-07-24 --at 2026-07-30T07:00 --job-name yolo_curb_ramp_train
+python scripts/analysis/gpu_hours_as_of.py \
+    --from-file docs/data/compute/sacct_klone_2026-08-19.txt \
+    --since 2026-07-24 --at 2026-07-30T07:00 --job-name yolo_curb_ramp_train
 # 497.5 GPU-hours as of 2026-07-30T07:00:00: 400 incarnation(s) ...
 ```
 

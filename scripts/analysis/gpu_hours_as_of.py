@@ -7,8 +7,8 @@ running sum over finished jobs -- that method crosses the same figure hours late
 because it waits for each incarnation to end before counting any of it. This script
 does the snapshot: each incarnation's elapsed, truncated at the query instant.
 
-    python scripts/analysis/gpu_hours_as_of.py \
-        --from-file docs/data/compute/sacct_klone_2026-08-19.txt \
+    python scripts/analysis/gpu_hours_as_of.py \\
+        --from-file docs/data/compute/sacct_klone_2026-08-19.txt \\
         --since 2026-07-24 --at 2026-07-30T07:00 --job-name yolo_curb_ramp_train
 
 reproduces docs/tillicum.md's "496.5 GPU-hours consumed on the baseline since
