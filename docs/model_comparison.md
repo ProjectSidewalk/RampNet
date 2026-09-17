@@ -1863,7 +1863,7 @@ python scripts/model_comparison/compare.py benchmark/richmond \
 # the published detections into .model_cache (below) compare.py would find all 124
 # panos cached and never run the model: --no-cache (or a fresh --cache-dir) is what
 # makes this an actual re-inference rather than a re-score of the published arm.
-python scripts/model_comparison/compare.py benchmark/richmond --models vistas:curb-cut     --no-cache
+python scripts/model_comparison/compare.py benchmark/richmond --models vistas:curb-cut --no-cache
 
 # either, re-scored at the deployment threshold (free, reads the cache)
 python scripts/model_comparison/compare.py benchmark/richmond \
