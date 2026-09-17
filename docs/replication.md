@@ -136,19 +136,29 @@ were produced for it in one pass. Exact commands, in order:
 
 ```bash
 # 1. the seven standing roster challengers (owlv2/gdino on an A40, Qwen-32B on 2x L40S)
-python scripts/model_comparison/compare.py benchmark/laurens_mapillary     --models rampnet,owlv2,gdino --sweep
-python scripts/model_comparison/compare.py benchmark/laurens_mapillary     --models rampnet,qwen:Qwen/Qwen3-VL-8B-Instruct
-QWEN_MODEL=Qwen/Qwen3-VL-32B-Instruct BUNDLE=benchmark/laurens_mapillary     sbatch -A <account> --nodes=1 --gpus-per-node=2 scripts/model_comparison/run_qwen.slurm
-python scripts/model_comparison/compare.py benchmark/laurens_mapillary     --models rampnet,molmo:allenai/Molmo2-8B      # transformers==4.57.1 env, see below
-python scripts/model_comparison/compare.py benchmark/laurens_mapillary     --models gemini:gemini-3.6-flash              # and 3.1-pro-preview, and 3.7-flash
+python scripts/model_comparison/compare.py benchmark/laurens_mapillary \
+    --models rampnet,owlv2,gdino --sweep
+python scripts/model_comparison/compare.py benchmark/laurens_mapillary \
+    --models rampnet,qwen:Qwen/Qwen3-VL-8B-Instruct
+QWEN_MODEL=Qwen/Qwen3-VL-32B-Instruct BUNDLE=benchmark/laurens_mapillary \
+    sbatch -A <account> --nodes=1 --gpus-per-node=2 scripts/model_comparison/run_qwen.slurm
+python scripts/model_comparison/compare.py benchmark/laurens_mapillary \
+    --models rampnet,molmo:allenai/Molmo2-8B      # transformers==4.57.1 env, see below
+python scripts/model_comparison/compare.py benchmark/laurens_mapillary \
+    --models gemini:gemini-3.6-flash              # and 3.1-pro-preview, and 3.7-flash
 
 # 2. the YOLO trio, under the #71 pre-registered protocol
-python scripts/model_comparison/compare.py benchmark/laurens_mapillary     --models yolo:yolo_ckpts/y11l_pano.pt,yolo:yolo_ckpts/y26_pano.pt,yolo:yolo_ckpts/y11x_pano_h200.pt     --tiling none --yolo-imgsz 1280 --op-threshold 0.25 --sweep
+python scripts/model_comparison/compare.py benchmark/laurens_mapillary \
+    --models yolo:yolo_ckpts/y11l_pano.pt,yolo:yolo_ckpts/y26_pano.pt,yolo:yolo_ckpts/y11x_pano_h200.pt \
+    --tiling none --yolo-imgsz 1280 --op-threshold 0.25 --sweep
 
 # 3. export -- three invocations, because --models defaults to CHALLENGERS only
 python scripts/analysis/export_model_cache.py --splits laurens_mapillary
-python scripts/analysis/export_model_cache.py --splits laurens_mapillary     --models gemini:gemini-3.7-flash
-python scripts/analysis/export_model_cache.py --splits laurens_mapillary     --models yolo:yolo_ckpts/y11l_pano.pt,yolo:yolo_ckpts/y26_pano.pt,yolo:yolo_ckpts/y11x_pano_h200.pt     --tiling none --yolo-imgsz 1280
+python scripts/analysis/export_model_cache.py --splits laurens_mapillary \
+    --models gemini:gemini-3.7-flash
+python scripts/analysis/export_model_cache.py --splits laurens_mapillary \
+    --models yolo:yolo_ckpts/y11l_pano.pt,yolo:yolo_ckpts/y26_pano.pt,yolo:yolo_ckpts/y11x_pano_h200.pt \
+    --tiling none --yolo-imgsz 1280
 # ...then the same three with --verify; all reported 0 uncached and IDENTICAL scores.
 ```
 
@@ -312,10 +322,10 @@ that size and never native. What remains blocking a second rater is a *person*, 
 > The exact sequence, which is what a replicator runs:
 >
 > ```bash
-> python scripts/export_benchmark.py adopt  --out dist/rampnet-benchmark   # only needed once
-> python scripts/export_benchmark.py build  --galleries analysis_out/op --out dist/rampnet-benchmark
+> python scripts/export_benchmark.py adopt --out dist/rampnet-benchmark   # only needed once
+> python scripts/export_benchmark.py build --galleries analysis_out/op --out dist/rampnet-benchmark
 > python scripts/export_benchmark.py verify --out dist/rampnet-benchmark
-> python scripts/export_benchmark.py push   --out dist/rampnet-benchmark --message "..."
+> python scripts/export_benchmark.py push --out dist/rampnet-benchmark --message "..."
 > ```
 >
 > `build` also regenerates `records` from the committed `records.jsonl` / `verdicts.json`; it came
@@ -548,10 +558,10 @@ per (config, city), embedding the **exact source bytes** — rows carry `image` 
 so nothing is re-encoded on write, and each row also carries the `sha256` of its own bytes.
 
 ```bash
-python scripts/export_benchmark.py build  --benchmark benchmark \
+python scripts/export_benchmark.py build --benchmark benchmark \
     --panos-4096 <rendered dir> --galleries analysis_out/op --out dist/rampnet-benchmark
 python scripts/export_benchmark.py verify --out dist/rampnet-benchmark
-python scripts/export_benchmark.py push   --out dist/rampnet-benchmark \
+python scripts/export_benchmark.py push --out dist/rampnet-benchmark \
     --repo-id projectsidewalk/rampnet-benchmark
 ```
 

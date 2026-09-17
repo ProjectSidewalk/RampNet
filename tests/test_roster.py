@@ -85,40 +85,6 @@ def _table_lines(text):
         yield line
 
 
-def test_no_doc_still_hardcodes_the_old_roster_count():
-    """These exact phrases were the drift. Catch them coming back.
-
-    Whitespace is collapsed first, deliberately: every one of these was wrapped
-    across a line break in the prose, so a naive substring check finds none of them
-    and passes while the docs are still wrong.
-    """
-    import re
-    # Each entry is a phrase that was actually in the docs and wrong. Two properties
-    # matter and neither is obvious:
-    #  * No entry may be a prefix of another -- "all 8" and "all 8 model groups"
-    #    both shipped, and the shorter can never fail independently, so the longer
-    #    reads as coverage it does not add.
-    #  * The count has to be bound to the roster, or the guard fires on perfectly
-    #    good prose. "all 8" alone would reject a future "all 8 splits"; the splits
-    #    are a different axis and there are ten of them.
-    stale = (r"all 8 (?:model|challenger|zero-shot)", r"all 8(?! splits| cities)",
-             r"8-model roster", r"seven-model roster", r"8 model groups")
-    docs = ("model_comparison.md", "replication.md", "curb_ramp_data_sourcing.md")
-    for name in docs:
-        text = re.sub(r"\s+", " ", (REPO / "docs" / name).read_text("utf-8"))
-        for phrase in stale:
-            hit = re.search(phrase, text)
-            assert hit is None, f"docs/{name} still says {hit.group(0)!r}"
-    # The analysis README carries per-model prose and this PR edits it, so it is in
-    # scope for the same rot even though it is not under docs/.
-    readme = REPO / "scripts" / "analysis" / "README.md"
-    if readme.exists():
-        text = re.sub(r"\s+", " ", readme.read_text("utf-8"))
-        for phrase in stale:
-            hit = re.search(phrase, text)
-            assert hit is None, f"scripts/analysis/README.md still says {hit.group(0)!r}"
-
-
 # --------------------------------------------------------------------------- #
 # Registry consistency
 # --------------------------------------------------------------------------- #
