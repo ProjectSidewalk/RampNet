@@ -300,6 +300,17 @@
   },
   "campaign_b": {
     "s1": {
+      "amendment_2": false,
+      "klone_job": {
+        "elapsed_total_s": 14043,
+        "final_state": "COMPLETED",
+        "incarnations": 1,
+        "job": 39880702,
+        "restarts": 0,
+        "states": [
+          "COMPLETED"
+        ]
+      },
       "leg": "rampnet_s1",
       "manual_gold": {
         "f1_at_protocol": 0.90027,
@@ -397,6 +408,17 @@
       }
     },
     "s2": {
+      "amendment_2": false,
+      "klone_job": {
+        "elapsed_total_s": 14303,
+        "final_state": "COMPLETED",
+        "incarnations": 1,
+        "job": 39880703,
+        "restarts": 0,
+        "states": [
+          "COMPLETED"
+        ]
+      },
       "leg": "rampnet_s2",
       "manual_gold": {
         "f1_at_protocol": 0.90675,
@@ -494,6 +516,17 @@
       }
     },
     "s3": {
+      "amendment_2": false,
+      "klone_job": {
+        "elapsed_total_s": 13943,
+        "final_state": "COMPLETED",
+        "incarnations": 1,
+        "job": 39880706,
+        "restarts": 0,
+        "states": [
+          "COMPLETED"
+        ]
+      },
       "leg": "rampnet_s3",
       "manual_gold": {
         "f1_at_protocol": 0.89382,
@@ -589,6 +622,662 @@
         },
         "selected_threshold": 0.4
       }
+    },
+    "s4": {
+      "amendment_2": true,
+      "klone_job": {
+        "elapsed_total_s": 13811,
+        "final_state": "COMPLETED",
+        "incarnations": 1,
+        "job": 40255661,
+        "restarts": 0,
+        "states": [
+          "COMPLETED"
+        ]
+      },
+      "leg": "rampnet_s4",
+      "manual_gold": {
+        "f1_at_protocol": 0.90437,
+        "max_f1": 0.90462,
+        "max_f1_threshold": 0.35,
+        "p_at_max": 0.9323,
+        "protocol_threshold": 0.3,
+        "r_at_max": 0.87854
+      },
+      "model_label": "rampnet_s4",
+      "read": {
+        "at_floor": false,
+        "per_split": {
+          "annapolis": {
+            "f1": 0.879,
+            "fn": 47,
+            "fp": 21,
+            "p": 0.92164,
+            "r": 0.84014,
+            "tp": 247
+          },
+          "bend": {
+            "f1": 0.86224,
+            "fn": 61,
+            "fp": 24,
+            "p": 0.91724,
+            "r": 0.81346,
+            "tp": 266
+          },
+          "clovis": {
+            "f1": 0.76,
+            "fn": 43,
+            "fp": 53,
+            "p": 0.74146,
+            "r": 0.77949,
+            "tp": 152
+          },
+          "gainesville": {
+            "f1": 0.78471,
+            "fn": 77,
+            "fp": 30,
+            "p": 0.86667,
+            "r": 0.71691,
+            "tp": 195
+          },
+          "manual_gold": {
+            "f1": 0.90437,
+            "fn": 434,
+            "fp": 303,
+            "p": 0.92001,
+            "r": 0.88926,
+            "tp": 3485
+          },
+          "morgantown": {
+            "f1": 0.82376,
+            "fn": 59,
+            "fp": 30,
+            "p": 0.87395,
+            "r": 0.77903,
+            "tp": 208
+          },
+          "paterson": {
+            "f1": 0.81322,
+            "fn": 112,
+            "fp": 18,
+            "p": 0.9402,
+            "r": 0.71646,
+            "tp": 283
+          },
+          "richmond": {
+            "f1": 0.85,
+            "fn": 55,
+            "fp": 35,
+            "p": 0.87931,
+            "r": 0.82258,
+            "tp": 255
+          },
+          "sao_paulo": {
+            "f1": 0.78755,
+            "fn": 66,
+            "fp": 50,
+            "p": 0.81132,
+            "r": 0.76512,
+            "tp": 215
+          }
+        },
+        "pooled": {
+          "f1": 0.8247,
+          "n_splits": 7,
+          "p": 0.87721,
+          "r": 0.78115,
+          "threshold": 0.3
+        },
+        "selected_threshold": 0.3
+      }
+    },
+    "s5": {
+      "amendment_2": true,
+      "klone_job": {
+        "elapsed_total_s": 16006,
+        "final_state": "COMPLETED",
+        "incarnations": 4,
+        "job": 40255662,
+        "restarts": 3,
+        "states": [
+          "PREEMPTED",
+          "PREEMPTED",
+          "PREEMPTED",
+          "COMPLETED"
+        ]
+      },
+      "leg": "rampnet_s5",
+      "manual_gold": {
+        "f1_at_protocol": 0.90541,
+        "max_f1": 0.909,
+        "max_f1_threshold": 0.4,
+        "p_at_max": 0.93357,
+        "protocol_threshold": 0.3,
+        "r_at_max": 0.88569
+      },
+      "model_label": "rampnet_s5",
+      "read": {
+        "at_floor": false,
+        "per_split": {
+          "annapolis": {
+            "f1": 0.86989,
+            "fn": 60,
+            "fp": 10,
+            "p": 0.95902,
+            "r": 0.79592,
+            "tp": 234
+          },
+          "bend": {
+            "f1": 0.84899,
+            "fn": 74,
+            "fp": 16,
+            "p": 0.94052,
+            "r": 0.7737,
+            "tp": 253
+          },
+          "clovis": {
+            "f1": 0.83289,
+            "fn": 38,
+            "fp": 25,
+            "p": 0.86264,
+            "r": 0.80513,
+            "tp": 157
+          },
+          "gainesville": {
+            "f1": 0.76271,
+            "fn": 92,
+            "fp": 20,
+            "p": 0.9,
+            "r": 0.66176,
+            "tp": 180
+          },
+          "manual_gold": {
+            "f1": 0.909,
+            "fn": 448,
+            "fp": 247,
+            "p": 0.93357,
+            "r": 0.88569,
+            "tp": 3471
+          },
+          "morgantown": {
+            "f1": 0.82306,
+            "fn": 60,
+            "fp": 29,
+            "p": 0.87712,
+            "r": 0.77528,
+            "tp": 207
+          },
+          "paterson": {
+            "f1": 0.8029,
+            "fn": 118,
+            "fp": 18,
+            "p": 0.93898,
+            "r": 0.70127,
+            "tp": 277
+          },
+          "richmond": {
+            "f1": 0.86248,
+            "fn": 56,
+            "fp": 25,
+            "p": 0.91039,
+            "r": 0.81935,
+            "tp": 254
+          },
+          "sao_paulo": {
+            "f1": 0.80303,
+            "fn": 69,
+            "fp": 35,
+            "p": 0.8583,
+            "r": 0.75445,
+            "tp": 212
+          }
+        },
+        "pooled": {
+          "f1": 0.82899,
+          "n_splits": 7,
+          "p": 0.91267,
+          "r": 0.76177,
+          "threshold": 0.4
+        },
+        "selected_threshold": 0.4
+      }
+    },
+    "s6": {
+      "amendment_2": true,
+      "klone_job": {
+        "elapsed_total_s": 10881,
+        "final_state": "COMPLETED",
+        "incarnations": 1,
+        "job": 40255663,
+        "restarts": 0,
+        "states": [
+          "COMPLETED"
+        ]
+      },
+      "leg": "rampnet_s6",
+      "manual_gold": {
+        "f1_at_protocol": 0.9034,
+        "max_f1": 0.90393,
+        "max_f1_threshold": 0.35,
+        "p_at_max": 0.92798,
+        "protocol_threshold": 0.3,
+        "r_at_max": 0.88109
+      },
+      "model_label": "rampnet_s6",
+      "read": {
+        "at_floor": false,
+        "per_split": {
+          "annapolis": {
+            "f1": 0.86988,
+            "fn": 50,
+            "fp": 23,
+            "p": 0.91386,
+            "r": 0.82993,
+            "tp": 244
+          },
+          "bend": {
+            "f1": 0.85256,
+            "fn": 61,
+            "fp": 31,
+            "p": 0.89562,
+            "r": 0.81346,
+            "tp": 266
+          },
+          "clovis": {
+            "f1": 0.79093,
+            "fn": 38,
+            "fp": 45,
+            "p": 0.77723,
+            "r": 0.80513,
+            "tp": 157
+          },
+          "gainesville": {
+            "f1": 0.78707,
+            "fn": 65,
+            "fp": 47,
+            "p": 0.81496,
+            "r": 0.76103,
+            "tp": 207
+          },
+          "manual_gold": {
+            "f1": 0.90103,
+            "fn": 414,
+            "fp": 356,
+            "p": 0.9078,
+            "r": 0.89436,
+            "tp": 3505
+          },
+          "morgantown": {
+            "f1": 0.82759,
+            "fn": 63,
+            "fp": 22,
+            "p": 0.90265,
+            "r": 0.76404,
+            "tp": 204
+          },
+          "paterson": {
+            "f1": 0.80925,
+            "fn": 115,
+            "fp": 17,
+            "p": 0.94276,
+            "r": 0.70886,
+            "tp": 280
+          },
+          "richmond": {
+            "f1": 0.84053,
+            "fn": 57,
+            "fp": 39,
+            "p": 0.86644,
+            "r": 0.81613,
+            "tp": 253
+          },
+          "sao_paulo": {
+            "f1": 0.80144,
+            "fn": 59,
+            "fp": 51,
+            "p": 0.81319,
+            "r": 0.79004,
+            "tp": 222
+          }
+        },
+        "pooled": {
+          "f1": 0.8254,
+          "n_splits": 7,
+          "p": 0.87336,
+          "r": 0.78551,
+          "threshold": 0.25
+        },
+        "selected_threshold": 0.25
+      }
+    },
+    "s7": {
+      "amendment_2": true,
+      "klone_job": {
+        "elapsed_total_s": 14977,
+        "final_state": "COMPLETED",
+        "incarnations": 4,
+        "job": 40255664,
+        "restarts": 3,
+        "states": [
+          "PREEMPTED",
+          "PREEMPTED",
+          "PREEMPTED",
+          "COMPLETED"
+        ]
+      },
+      "leg": "rampnet_s7",
+      "manual_gold": {
+        "f1_at_protocol": 0.90454,
+        "max_f1": 0.90454,
+        "max_f1_threshold": 0.3,
+        "p_at_max": 0.93588,
+        "protocol_threshold": 0.3,
+        "r_at_max": 0.87522
+      },
+      "model_label": "rampnet_s7",
+      "read": {
+        "at_floor": false,
+        "per_split": {
+          "annapolis": {
+            "f1": 0.83738,
+            "fn": 70,
+            "fp": 17,
+            "p": 0.92946,
+            "r": 0.7619,
+            "tp": 224
+          },
+          "bend": {
+            "f1": 0.84068,
+            "fn": 79,
+            "fp": 15,
+            "p": 0.94297,
+            "r": 0.75841,
+            "tp": 248
+          },
+          "clovis": {
+            "f1": 0.75209,
+            "fn": 60,
+            "fp": 29,
+            "p": 0.82317,
+            "r": 0.69231,
+            "tp": 135
+          },
+          "gainesville": {
+            "f1": 0.73548,
+            "fn": 101,
+            "fp": 22,
+            "p": 0.88601,
+            "r": 0.62868,
+            "tp": 171
+          },
+          "manual_gold": {
+            "f1": 0.90313,
+            "fn": 530,
+            "fp": 197,
+            "p": 0.94506,
+            "r": 0.86476,
+            "tp": 3389
+          },
+          "morgantown": {
+            "f1": 0.83027,
+            "fn": 64,
+            "fp": 19,
+            "p": 0.91441,
+            "r": 0.7603,
+            "tp": 203
+          },
+          "paterson": {
+            "f1": 0.78806,
+            "fn": 131,
+            "fp": 11,
+            "p": 0.96,
+            "r": 0.66835,
+            "tp": 264
+          },
+          "richmond": {
+            "f1": 0.85069,
+            "fn": 65,
+            "fp": 21,
+            "p": 0.92105,
+            "r": 0.79032,
+            "tp": 245
+          },
+          "sao_paulo": {
+            "f1": 0.7853,
+            "fn": 78,
+            "fp": 33,
+            "p": 0.86017,
+            "r": 0.72242,
+            "tp": 203
+          }
+        },
+        "pooled": {
+          "f1": 0.80495,
+          "n_splits": 7,
+          "p": 0.91101,
+          "r": 0.7229,
+          "threshold": 0.35
+        },
+        "selected_threshold": 0.35
+      }
+    },
+    "s8": {
+      "amendment_2": true,
+      "klone_job": {
+        "elapsed_total_s": 12793,
+        "final_state": "COMPLETED",
+        "incarnations": 2,
+        "job": 40255665,
+        "restarts": 1,
+        "states": [
+          "PREEMPTED",
+          "COMPLETED"
+        ]
+      },
+      "leg": "rampnet_s8",
+      "manual_gold": {
+        "f1_at_protocol": 0.90531,
+        "max_f1": 0.90855,
+        "max_f1_threshold": 0.4,
+        "p_at_max": 0.92675,
+        "protocol_threshold": 0.3,
+        "r_at_max": 0.89104
+      },
+      "model_label": "rampnet_s8",
+      "read": {
+        "at_floor": false,
+        "per_split": {
+          "annapolis": {
+            "f1": 0.87726,
+            "fn": 51,
+            "fp": 17,
+            "p": 0.93462,
+            "r": 0.82653,
+            "tp": 243
+          },
+          "bend": {
+            "f1": 0.85762,
+            "fn": 68,
+            "fp": 18,
+            "p": 0.93502,
+            "r": 0.79205,
+            "tp": 259
+          },
+          "clovis": {
+            "f1": 0.82888,
+            "fn": 40,
+            "fp": 24,
+            "p": 0.86592,
+            "r": 0.79487,
+            "tp": 155
+          },
+          "gainesville": {
+            "f1": 0.77689,
+            "fn": 77,
+            "fp": 35,
+            "p": 0.84783,
+            "r": 0.71691,
+            "tp": 195
+          },
+          "manual_gold": {
+            "f1": 0.90855,
+            "fn": 427,
+            "fp": 276,
+            "p": 0.92675,
+            "r": 0.89104,
+            "tp": 3492
+          },
+          "morgantown": {
+            "f1": 0.81511,
+            "fn": 62,
+            "fp": 31,
+            "p": 0.86864,
+            "r": 0.76779,
+            "tp": 205
+          },
+          "paterson": {
+            "f1": 0.81042,
+            "fn": 115,
+            "fp": 16,
+            "p": 0.94595,
+            "r": 0.70886,
+            "tp": 280
+          },
+          "richmond": {
+            "f1": 0.85956,
+            "fn": 56,
+            "fp": 27,
+            "p": 0.90391,
+            "r": 0.81935,
+            "tp": 254
+          },
+          "sao_paulo": {
+            "f1": 0.79554,
+            "fn": 67,
+            "fp": 43,
+            "p": 0.83268,
+            "r": 0.76157,
+            "tp": 214
+          }
+        },
+        "pooled": {
+          "f1": 0.83225,
+          "n_splits": 7,
+          "p": 0.90027,
+          "r": 0.7752,
+          "threshold": 0.4
+        },
+        "selected_threshold": 0.4
+      }
+    },
+    "s9": {
+      "amendment_2": true,
+      "klone_job": {
+        "elapsed_total_s": 15444,
+        "final_state": "COMPLETED",
+        "incarnations": 2,
+        "job": 40255666,
+        "restarts": 1,
+        "states": [
+          "PREEMPTED",
+          "COMPLETED"
+        ]
+      },
+      "leg": "rampnet_s9",
+      "manual_gold": {
+        "f1_at_protocol": 0.9001,
+        "max_f1": 0.90266,
+        "max_f1_threshold": 0.35,
+        "p_at_max": 0.92757,
+        "protocol_threshold": 0.3,
+        "r_at_max": 0.87905
+      },
+      "model_label": "rampnet_s9",
+      "read": {
+        "at_floor": false,
+        "per_split": {
+          "annapolis": {
+            "f1": 0.86268,
+            "fn": 49,
+            "fp": 29,
+            "p": 0.89416,
+            "r": 0.83333,
+            "tp": 245
+          },
+          "bend": {
+            "f1": 0.86088,
+            "fn": 64,
+            "fp": 21,
+            "p": 0.92606,
+            "r": 0.80428,
+            "tp": 263
+          },
+          "clovis": {
+            "f1": 0.78351,
+            "fn": 43,
+            "fp": 41,
+            "p": 0.78756,
+            "r": 0.77949,
+            "tp": 152
+          },
+          "gainesville": {
+            "f1": 0.78447,
+            "fn": 70,
+            "fp": 41,
+            "p": 0.83128,
+            "r": 0.74265,
+            "tp": 202
+          },
+          "manual_gold": {
+            "f1": 0.90266,
+            "fn": 474,
+            "fp": 269,
+            "p": 0.92757,
+            "r": 0.87905,
+            "tp": 3445
+          },
+          "morgantown": {
+            "f1": 0.80672,
+            "fn": 75,
+            "fp": 17,
+            "p": 0.91866,
+            "r": 0.7191,
+            "tp": 192
+          },
+          "paterson": {
+            "f1": 0.81662,
+            "fn": 110,
+            "fp": 18,
+            "p": 0.94059,
+            "r": 0.72152,
+            "tp": 285
+          },
+          "richmond": {
+            "f1": 0.84786,
+            "fn": 62,
+            "fp": 27,
+            "p": 0.90182,
+            "r": 0.8,
+            "tp": 248
+          },
+          "sao_paulo": {
+            "f1": 0.77071,
+            "fn": 81,
+            "fp": 38,
+            "p": 0.84034,
+            "r": 0.71174,
+            "tp": 200
+          }
+        },
+        "pooled": {
+          "f1": 0.82325,
+          "n_splits": 7,
+          "p": 0.88573,
+          "r": 0.77148,
+          "threshold": 0.35
+        },
+        "selected_threshold": 0.35
+      }
     }
   },
   "dev_split": "sao_paulo",
@@ -635,7 +1324,14 @@
   "secondary": {
     "manual_gold": {
       "rampnet": {
+        "mean_max_f1": 0.90536,
+        "n": 9,
+        "sd_f1_at_protocol": 0.00401,
+        "sd_max_f1": 0.00296
+      },
+      "rampnet_prereg": {
         "mean_max_f1": 0.90498,
+        "n": 3,
         "sd_f1_at_protocol": 0.00647,
         "sd_max_f1": 0.00422
       },
@@ -652,16 +1348,18 @@
       "run_b_reopen_condition_max_f1_sd": 0.002,
       "yolo_best_pt": {
         "mean_max_f1": 0.90967,
+        "n": 3,
         "sd_f1_at_protocol": 0.00208,
         "sd_max_f1": 0.00404
       },
       "yolo_ep_le44": {
         "mean_max_f1": 0.91133,
+        "n": 3,
         "sd_f1_at_protocol": 0.00351,
         "sd_max_f1": 0.00115
       }
     },
-    "note": "Post-hoc reads added 2026-09-15 before any number was seen. Reported beside the pre-registered statistic; never enter s_gap or the bands.",
+    "note": "Post-hoc reads added 2026-09-15 before any number was seen. Reported beside the pre-registered statistic; never enter s_gap or the bands. `rampnet` is over every scored Campaign B replicate (A2.3 item 4); `rampnet_prereg` is the seeds-1-3 subset the 09-15 read used.",
     "yolo_best_pt": {
       "f1": [
         0.81329,
@@ -984,11 +1682,102 @@
     "gap_published": 0.0388,
     "mean_a": 0.8069,
     "mean_b": 0.82173,
+    "n_A": 3,
+    "n_B": 3,
     "paired_mde_135": 0.0063,
     "s_A": 0.00252,
     "s_A_only_band": null,
     "s_B": 0.01114,
     "s_gap": 0.01142,
+    "seeds_a": [
+      1,
+      2,
+      3
+    ],
+    "seeds_b": [
+      1,
+      2,
+      3
+    ],
+    "welch_gap_of_means": {
+      "ci": [
+        -0.01118,
+        0.04083
+      ],
+      "conf": 0.95,
+      "df": 2.20354,
+      "diff": 0.01482,
+      "p_two_sided": 0.14177,
+      "se": 0.00659,
+      "t": 2.24793,
+      "t_crit": 3.94336
+    },
     "z_gap": 3.3968
+  },
+  "statistics_a2": {
+    "band_b": "dominates_paired_mde",
+    "band_gap": "real",
+    "band_gap_edges": {
+      "ambiguous_below": 0.02,
+      "real_below": 0.01
+    },
+    "campaign_a_f1": [
+      0.80614,
+      0.80486,
+      0.80971
+    ],
+    "campaign_b_f1": [
+      0.81878,
+      0.83405,
+      0.81236,
+      0.8247,
+      0.82899,
+      0.8254,
+      0.80495,
+      0.83225,
+      0.82325
+    ],
+    "gap_of_means": 0.01584,
+    "gap_published": 0.0388,
+    "mean_a": 0.8069,
+    "mean_b": 0.82275,
+    "n_A": 3,
+    "n_B": 9,
+    "note": "Amendment 2 (2026-09-17): same statistic, script and cut points on n_A=3 + n_B=len(seeds_b). The n=3 read in `statistics` is not overwritten. welch_gap_of_means is a report, not a decision rule.",
+    "paired_mde_135": 0.0063,
+    "s_A": 0.00252,
+    "s_A_only_band": null,
+    "s_B": 0.00941,
+    "s_gap": 0.00974,
+    "seeds_a": [
+      1,
+      2,
+      3
+    ],
+    "seeds_b": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "welch_gap_of_means": {
+      "ci": [
+        0.00814,
+        0.02355
+      ],
+      "conf": 0.95,
+      "df": 9.96605,
+      "diff": 0.01584,
+      "p_two_sided": 0.00102,
+      "se": 0.00346,
+      "t": 4.58288,
+      "t_crit": 2.22917
+    },
+    "z_gap": 3.98312
   }
 }

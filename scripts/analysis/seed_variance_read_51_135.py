@@ -18,6 +18,16 @@ ratified 2026-09-04). This script IS that reading, as code:
     ``s_gap = sqrt(s_A^2 + s_B^2)``, and the A1.1 bands are applied to ``s_gap``;
   * ``s_B`` is also read against #135's paired MDE of 0.0063 (A1.2).
 
+Amendment 2 (declared 2026-09-17, after the n=3 result was scored and before any further
+replicate was trained) extended Campaign B to nine replicates (seeds 4-9). The artifact
+therefore carries TWO primary readings, side by side and never merged:
+
+  * ``statistics``     -- the pre-registered n=3 read, seeds 1/2/3 on both arms. It is
+                          not overwritten by the extension (A2.3 item 2);
+  * ``statistics_a2``  -- the same statistic, script and bands on n_A=3 + n_B=9, plus
+                          the Welch 95% CI on the gap of replicate means that A2.3 item 3
+                          asks for. ``n_B`` is whatever was scored, and is reported.
+
 Two SECONDARY reads travel in the same artifact, fenced off and never fed into ``s_gap``:
 the YOLO replicates at their as-saved ``best.pt`` (<= 60 epochs), and both arms on
 ``manual_gold``. They were added on 2026-09-15, after the campaigns finished but before
@@ -27,9 +37,15 @@ Inputs, all committed under ``docs/data/seed_variance_51_135/``:
 
   y11x_tiles_s{1,2,3}/results.csv     Ultralytics per-epoch metrics (the epoch pick)
   yolo/<split>_tiles.txt              compare.py --sweep report, six YOLO legs per file
-  rampnet_s{1,2,3}/<split>.json       op_cache written by operating_point_curve.py
+  rampnet_s{1..9}/<split>.json        op_cache written by operating_point_curve.py
                                       extract --checkpoint, floor 0.05, no TTA
-  env.txt, driver.log                 the makelab2 run that produced the above
+  env.txt, driver.log                 the makelab2 run that scored the YOLO legs and
+                                      rampnet_s{1,2,3}; env_amend2_*.txt and
+                                      driver_amend2_*.log the run that scored s4-s9
+  klone_sacct_D.txt                   ``sacct -D`` for the nine Campaign B jobs: the
+                                      restart count A2.2 says to report beside each
+                                      replicate comes from here, not from the .out log
+                                      (a requeue overwrites that)
 
 Usage:
     python scripts/analysis/seed_variance_read_51_135.py            # writes the JSON
@@ -63,7 +79,16 @@ OUT_JSON = os.path.join(REPO, "docs", "data", "seed_variance_51_135.json")
 RUN_A_EPOCH1 = os.path.join(REPO, "docs", "data", "run_a_84_detections",
                             "run_a_epoch_1__manual_gold.json")
 
-SEEDS = (1, 2, 3)
+SEEDS_A = (1, 2, 3)                   # Campaign A (YOLO); n_A stays 3 under Amendment 2
+SEEDS_B = (1, 2, 3, 4, 5, 6, 7, 8, 9)  # Campaign B (RampNet); 4-9 are Amendment 2
+SEEDS_PREREG = (1, 2, 3)              # the seeds the pre-registered n=3 read uses, both arms
+SEEDS = SEEDS_A                       # kept: the YOLO-side name the tests were written against
+# The klone job behind each Campaign B replicate (issue #135 comments), so the restart
+# count can be read from klone_sacct_D.txt rather than remembered.
+CAMPAIGN_B_JOBS = {1: 39880702, 2: 39880703, 3: 39880706,
+                   4: 40255661, 5: 40255662, 6: 40255663,
+                   7: 40255664, 8: 40255665, 9: 40255666}
+SACCT = "klone_sacct_D.txt"
 MAX_EPOCH = 44                        # the seed-0 arm's best.pt came from ~ep44
 MAP5095 = "metrics/mAP50-95(B)"       # the selection column, per the pre-registration
 MAP50 = "metrics/mAP50(B)"
@@ -210,12 +235,127 @@ def run_a_epoch1_manual_gold(grid, gts_from, radius_sq=None):
 
 
 # --------------------------------------------------------------------------- #
+# Campaign B: what klone did to each replicate (A2.2: restarts are reported beside it)
+# --------------------------------------------------------------------------- #
+def _elapsed_seconds(text):
+    """Slurm's ``[D-]HH:MM:SS``."""
+    days, _, hms = text.rpartition("-")
+    h, m, s = (int(x) for x in hms.split(":"))
+    return (int(days) if days else 0) * 86400 + h * 3600 + m * 60 + s
+
+
+def read_sacct(path):
+    """``{job_id: {...}}`` from a ``sacct -D -X --parsable2`` dump. ``-D`` is what makes
+    every requeued incarnation a row of its own; without it Slurm shows the last one and
+    reports the replicate as if it had run once."""
+    if not os.path.exists(path):
+        return {}
+    with open(path, encoding="utf-8") as fh:
+        rows = list(csv.DictReader(fh, delimiter="|"))
+    out = {}
+    for r in rows:
+        job = int(r["JobID"])
+        j = out.setdefault(job, {"job": job, "incarnations": 0, "restarts": 0,
+                                 "elapsed_total_s": 0, "states": [], "final_state": None})
+        j["incarnations"] += 1
+        j["restarts"] = max(j["restarts"], int(r["Restarts"]))
+        j["elapsed_total_s"] += _elapsed_seconds(r["Elapsed"])
+        j["states"].append(r["State"])
+        j["final_state"] = r["State"]          # rows arrive in submit order
+    return out
+
+
+def campaign_b_job(seed, data=DATA):
+    jobs = read_sacct(os.path.join(data, SACCT))
+    return jobs.get(CAMPAIGN_B_JOBS.get(seed))
+
+
+# --------------------------------------------------------------------------- #
 # the statistics and the bands
 # --------------------------------------------------------------------------- #
 def sd(values):
-    """Sample SD (n-1). None unless all three replicates are present."""
+    """Sample SD (n-1). None unless at least two replicates are present."""
     vals = [v for v in values if v is not None]
     return statistics.stdev(vals) if len(vals) >= 2 else None
+
+
+# Student t without scipy (requirements-dev.txt does not carry it): the CDF through the
+# regularised incomplete beta (Numerical Recipes betacf), the quantile by bisection.
+def _betacf(a, b, x, max_iter=300, eps=1e-15):
+    tiny = 1e-300
+    qab, qap, qam = a + b, a + 1.0, a - 1.0
+    c, d = 1.0, 1.0 - qab * x / qap
+    d = 1.0 / (d if abs(d) > tiny else tiny)
+    h = d
+    for m in range(1, max_iter + 1):
+        m2 = 2 * m
+        aa = m * (b - m) * x / ((qam + m2) * (a + m2))
+        d = 1.0 + aa * d
+        d = 1.0 / (d if abs(d) > tiny else tiny)
+        c = 1.0 + aa / c
+        c = c if abs(c) > tiny else tiny
+        h *= d * c
+        aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2))
+        d = 1.0 + aa * d
+        d = 1.0 / (d if abs(d) > tiny else tiny)
+        c = 1.0 + aa / c
+        c = c if abs(c) > tiny else tiny
+        delta = d * c
+        h *= delta
+        if abs(delta - 1.0) < eps:
+            break
+    return h
+
+
+def _betainc(a, b, x):
+    if x <= 0.0:
+        return 0.0
+    if x >= 1.0:
+        return 1.0
+    ln_beta = math.lgamma(a + b) - math.lgamma(a) - math.lgamma(b)
+    front = math.exp(ln_beta + a * math.log(x) + b * math.log(1.0 - x))
+    if x < (a + 1.0) / (a + b + 2.0):
+        return front * _betacf(a, b, x) / a
+    return 1.0 - front * _betacf(b, a, 1.0 - x) / b
+
+
+def t_cdf(t, df):
+    x = df / (df + t * t)
+    tail = 0.5 * _betainc(df / 2.0, 0.5, x)
+    return 1.0 - tail if t >= 0 else tail
+
+
+def t_quantile(p, df, tol=1e-10):
+    """Inverse of ``t_cdf`` in ``p``; e.g. ``t_quantile(0.975, 2) == 4.3027``."""
+    lo, hi = 0.0, 1.0
+    while t_cdf(hi, df) < p:
+        hi *= 2.0
+    while hi - lo > tol:
+        mid = 0.5 * (lo + hi)
+        if t_cdf(mid, df) < p:
+            lo = mid
+        else:
+            hi = mid
+    return 0.5 * (lo + hi)
+
+
+def welch(a, b, conf=0.95):
+    """Welch's two-sample read of ``mean(b) - mean(a)``: the SE, the Satterthwaite df, the
+    t statistic and a ``conf`` CI. A report, not a decision rule (A2.3 item 3)."""
+    n_a, n_b = len(a), len(b)
+    if n_a < 2 or n_b < 2:
+        return None
+    va, vb = statistics.variance(a) / n_a, statistics.variance(b) / n_b
+    se = math.sqrt(va + vb)
+    df = (va + vb) ** 2 / (va ** 2 / (n_a - 1) + vb ** 2 / (n_b - 1))
+    diff = statistics.fmean(b) - statistics.fmean(a)
+    t_crit = t_quantile(0.5 + conf / 2.0, df)
+    return {
+        "diff": diff, "se": se, "df": df, "t": diff / se if se else None,
+        "t_crit": t_crit, "conf": conf,
+        "ci": [diff - t_crit * se, diff + t_crit * se],
+        "p_two_sided": 2.0 * (1.0 - t_cdf(abs(diff / se), df)) if se else None,
+    }
 
 
 def band_gap(s_gap):
@@ -252,13 +392,44 @@ def published_reference():
     }
 
 
+def read_statistics(camp_a, camp_b, ref, seeds_a, seeds_b):
+    """The pre-registered statistic on the named replicates: ``s_A``, ``s_B``,
+    ``s_gap``, the A1.1 / A1.2 bands, and (A2.3 item 3) the Welch read of the gap of
+    replicate means. Called once for the n=3 read and once for the n=9 read."""
+    f1_a = [camp_a[f"s{s}"]["read"]["pooled"]["f1"] if camp_a[f"s{s}"]["read"] else None
+            for s in seeds_a]
+    f1_b = [camp_b[f"s{s}"]["read"]["pooled"]["f1"] if camp_b[f"s{s}"]["read"] else None
+            for s in seeds_b]
+    s_a, s_b = sd(f1_a), sd(f1_b)
+    complete_a = all(v is not None for v in f1_a)
+    complete_b = all(v is not None for v in f1_b)
+    s_gap = math.sqrt(s_a ** 2 + s_b ** 2) if (complete_a and complete_b) else None
+    return {
+        "seeds_a": list(seeds_a), "seeds_b": list(seeds_b),
+        "n_A": len(f1_a), "n_B": len(f1_b),
+        "campaign_a_f1": f1_a, "campaign_b_f1": f1_b,
+        "mean_a": statistics.fmean(f1_a) if complete_a else None,
+        "mean_b": statistics.fmean(f1_b) if complete_b else None,
+        "s_A": s_a, "s_B": s_b, "s_gap": s_gap,
+        "gap_published": ref["gap"],
+        "gap_of_means": (statistics.fmean(f1_b) - statistics.fmean(f1_a)
+                         if complete_a and complete_b else None),
+        "z_gap": (ref["gap"] / s_gap if s_gap else None),
+        "band_gap": band_gap(s_gap),
+        "band_gap_edges": {"real_below": BAND_REAL, "ambiguous_below": BAND_AMBIGUOUS},
+        "s_A_only_band": band_gap(s_a) if s_a is not None and s_gap is None else None,
+        "band_b": band_b(s_b), "paired_mde_135": PAIRED_MDE_135,
+        "welch_gap_of_means": welch(f1_a, f1_b) if complete_a and complete_b else None,
+    }
+
+
 def build(data=DATA, dev_split=DEFAULT_DEV):
     grid = rampnet_grid()
     yolo = collect_yolo_seed(data)
 
     # --- Campaign A, primary ---------------------------------------------------
     camp_a = {}
-    for seed in SEEDS:
+    for seed in SEEDS_A:
         csv_path = os.path.join(data, f"{YOLO_ARM}_s{seed}", "results.csv")
         ep, val = pick_epoch(csv_path)
         leg = f"{YOLO_ARM}_s{seed}_ep{ep}"
@@ -272,7 +443,7 @@ def build(data=DATA, dev_split=DEFAULT_DEV):
 
     # --- Campaign B, primary ---------------------------------------------------
     camp_b = {}
-    for seed in SEEDS:
+    for seed in SEEDS_B:
         per_split = collect_rampnet_seed(seed, grid, data)
         cache = os.path.join(data, f"rampnet_s{seed}", "manual_gold.json")
         label = None
@@ -281,36 +452,24 @@ def build(data=DATA, dev_split=DEFAULT_DEV):
                 label = json.load(fh)["meta"].get("model")
         camp_b[f"s{seed}"] = {
             "leg": f"rampnet_s{seed}", "model_label": label,
+            "amendment_2": seed not in SEEDS_PREREG,
+            "klone_job": campaign_b_job(seed, data),
             "read": read_replicate(per_split, dev_split),
             "manual_gold": manual_gold_read(per_split, PROTOCOL_THRESHOLD["rampnet"]),
         }
 
-    # --- the pre-registered statistics ----------------------------------------
-    f1_a = [r["read"]["pooled"]["f1"] if r["read"] else None for r in camp_a.values()]
-    f1_b = [r["read"]["pooled"]["f1"] if r["read"] else None for r in camp_b.values()]
-    s_a, s_b = sd(f1_a), sd(f1_b)
-    complete_a, complete_b = all(v is not None for v in f1_a), all(v is not None for v in f1_b)
-    s_gap = math.sqrt(s_a ** 2 + s_b ** 2) if (complete_a and complete_b) else None
+    # --- the pre-registered statistics: n=3, and the Amendment 2 n=9 beside it -----
     ref = published_reference()
-
-    stats = {
-        "campaign_a_f1": f1_a, "campaign_b_f1": f1_b,
-        "mean_a": statistics.fmean(f1_a) if complete_a else None,
-        "mean_b": statistics.fmean(f1_b) if complete_b else None,
-        "s_A": s_a, "s_B": s_b, "s_gap": s_gap,
-        "gap_published": ref["gap"],
-        "gap_of_means": (statistics.fmean(f1_b) - statistics.fmean(f1_a)
-                         if complete_a and complete_b else None),
-        "z_gap": (ref["gap"] / s_gap if s_gap else None),
-        "band_gap": band_gap(s_gap),
-        "band_gap_edges": {"real_below": BAND_REAL, "ambiguous_below": BAND_AMBIGUOUS},
-        "s_A_only_band": band_gap(s_a) if s_a is not None and s_gap is None else None,
-        "band_b": band_b(s_b), "paired_mde_135": PAIRED_MDE_135,
-    }
+    stats = read_statistics(camp_a, camp_b, ref, SEEDS_PREREG, SEEDS_PREREG)
+    scored_b = tuple(s for s in SEEDS_B if camp_b[f"s{s}"]["read"] is not None)
+    stats_a2 = read_statistics(camp_a, camp_b, ref, SEEDS_A, scored_b)
+    stats_a2["note"] = ("Amendment 2 (2026-09-17): same statistic, script and cut points "
+                        "on n_A=3 + n_B=len(seeds_b). The n=3 read in `statistics` is not "
+                        "overwritten. welch_gap_of_means is a report, not a decision rule.")
 
     # --- secondary: YOLO at as-saved best.pt ------------------------------------
     secondary_best = {}
-    for seed in SEEDS:
+    for seed in SEEDS_A:
         leg = secondary_leg(seed)
         secondary_best[f"s{seed}"] = {
             "leg": leg,
@@ -322,33 +481,33 @@ def build(data=DATA, dev_split=DEFAULT_DEV):
 
     # --- secondary: manual_gold ------------------------------------------------
     mg_a = [r["manual_gold"] for r in camp_a.values()]
-    mg_b = [r["manual_gold"] for r in camp_b.values()]
+    mg_b3 = [camp_b[f"s{s}"]["manual_gold"] for s in SEEDS_PREREG]
+    mg_b9 = [camp_b[f"s{s}"]["manual_gold"] for s in scored_b]
     mg_best = [r["manual_gold"] for r in secondary_best.values()]
 
-    def _sd_of(rows, key):
-        return sd([r[key] if r else None for r in rows])
+    def _mg_summary(rows):
+        return {
+            "n": len(rows),
+            "sd_f1_at_protocol": sd([r["f1_at_protocol"] if r else None for r in rows]),
+            "sd_max_f1": sd([r["max_f1"] if r else None for r in rows]),
+            "mean_max_f1": statistics.fmean([r["max_f1"] for r in rows]) if all(rows) else None,
+        }
 
     secondary = {
         "note": ("Post-hoc reads added 2026-09-15 before any number was seen. Reported "
-                 "beside the pre-registered statistic; never enter s_gap or the bands."),
+                 "beside the pre-registered statistic; never enter s_gap or the bands. "
+                 "`rampnet` is over every scored Campaign B replicate (A2.3 item 4); "
+                 "`rampnet_prereg` is the seeds-1-3 subset the 09-15 read used."),
         "yolo_best_pt": {
             "replicates": secondary_best,
             "f1": f1_best, "mean": statistics.fmean(f1_best) if all(v is not None for v in f1_best) else None,
             "sd": sd(f1_best),
         },
         "manual_gold": {
-            "yolo_ep_le44": {"sd_f1_at_protocol": _sd_of(mg_a, "f1_at_protocol"),
-                             "sd_max_f1": _sd_of(mg_a, "max_f1"),
-                             "mean_max_f1": (statistics.fmean([r["max_f1"] for r in mg_a])
-                                             if all(mg_a) else None)},
-            "yolo_best_pt": {"sd_f1_at_protocol": _sd_of(mg_best, "f1_at_protocol"),
-                             "sd_max_f1": _sd_of(mg_best, "max_f1"),
-                             "mean_max_f1": (statistics.fmean([r["max_f1"] for r in mg_best])
-                                             if all(mg_best) else None)},
-            "rampnet": {"sd_f1_at_protocol": _sd_of(mg_b, "f1_at_protocol"),
-                        "sd_max_f1": _sd_of(mg_b, "max_f1"),
-                        "mean_max_f1": (statistics.fmean([r["max_f1"] for r in mg_b])
-                                        if all(mg_b) else None)},
+            "yolo_ep_le44": _mg_summary(mg_a),
+            "yolo_best_pt": _mg_summary(mg_best),
+            "rampnet": _mg_summary(mg_b9),
+            "rampnet_prereg": _mg_summary(mg_b3),
             "run_a_epoch_1_reference": run_a_epoch1_manual_gold(
                 grid, os.path.join(data, "rampnet_s1", "manual_gold.json")),
             "run_b_reopen_condition_max_f1_sd": 0.002,   # docs/stage2_cosine_rung_135.md
@@ -360,7 +519,7 @@ def build(data=DATA, dev_split=DEFAULT_DEV):
         "selection_column": MAP5095, "grid_rampnet": grid,
         "published_reference": ref,
         "campaign_a": camp_a, "campaign_b": camp_b,
-        "statistics": stats, "secondary": secondary,
+        "statistics": stats, "statistics_a2": stats_a2, "secondary": secondary,
     }
 
 
@@ -388,38 +547,50 @@ def _rel(path):
         return path
 
 
+def _welch_cells(w):
+    if not w:
+        return "-", "-", "-"
+    return (f"[{w['ci'][0]:.4f}, {w['ci'][1]:.4f}]", f"{w['t']:.2f} on {w['df']:.1f} df",
+            f"{w['p_two_sided']:.3f}")
+
+
 def render_markdown(result):
-    st, ref = result["statistics"], result["published_reference"]
+    st, st9, ref = result["statistics"], result["statistics_a2"], result["published_reference"]
     L = []
     L.append("### Primary read (pre-registered)\n")
-    L.append("| replicate | leg | epoch | mAP50-95 (val) | thr on sao_paulo | pooled P | pooled R | **pooled F1** |")
-    L.append("|---|---|---|---|---|---|---|---|")
+    L.append("| replicate | leg | epoch | mAP50-95 (val) | restarts | thr on sao_paulo | pooled P | pooled R | **pooled F1** |")
+    L.append("|---|---|---|---|---|---|---|---|---|")
     for k, r in result["campaign_a"].items():
         rd = r["read"]
-        L.append(f"| A {k} | `{r['leg']}` | {r['epoch']} | {_f(r['map5095_at_epoch'])} | "
+        L.append(f"| A {k} | `{r['leg']}` | {r['epoch']} | {_f(r['map5095_at_epoch'])} | - | "
                  f"{_f(rd['selected_threshold'], 2) if rd else '-'}{'*' if rd and rd['at_floor'] else ''} | "
                  f"{_f(rd['pooled']['p'], 3) if rd else '-'} | {_f(rd['pooled']['r'], 3) if rd else '-'} | "
                  f"**{_f(rd['pooled']['f1']) if rd else '-'}** |")
     for k, r in result["campaign_b"].items():
-        rd = r["read"]
-        L.append(f"| B {k} | `{r['leg']}` | 1 | - | "
+        rd, job = r["read"], r["klone_job"]
+        tag = " (A2)" if r["amendment_2"] else ""
+        L.append(f"| B {k}{tag} | `{r['leg']}` | 1 | - | {job['restarts'] if job else '?'} | "
                  f"{_f(rd['selected_threshold'], 2) if rd else '-'}{'*' if rd and rd['at_floor'] else ''} | "
                  f"{_f(rd['pooled']['p'], 3) if rd else '-'} | {_f(rd['pooled']['r'], 3) if rd else '-'} | "
                  f"**{_f(rd['pooled']['f1']) if rd else '-'}** |")
-    L.append(f"| seed-0 arm (n=1, published) | `{SEED0_YOLO_LEG}` | ~44 | - | {_f(ref['yolo_threshold'], 2)} | | | {_f(ref['yolo_f1'])} |")
-    L.append(f"| RampNet (n=1, published) | `{RAMPNET}` | 1 | - | {_f(ref['rampnet_threshold'], 2)} | | | {_f(ref['rampnet_f1'])} |")
+    L.append(f"| seed-0 arm (n=1, published) | `{SEED0_YOLO_LEG}` | ~44 | - | - | {_f(ref['yolo_threshold'], 2)} | | | {_f(ref['yolo_f1'])} |")
+    L.append(f"| RampNet (n=1, published) | `{RAMPNET}` | 1 | - | - | {_f(ref['rampnet_threshold'], 2)} | | | {_f(ref['rampnet_f1'])} |")
     L.append("")
-    L.append("| statistic | value |")
-    L.append("|---|---|")
-    L.append(f"| mean F1, Campaign A / B | {_f(st['mean_a'])} / {_f(st['mean_b'])} |")
-    L.append(f"| `s_A` | {_f(st['s_A'])} |")
-    L.append(f"| `s_B` | {_f(st['s_B'])} |")
-    L.append(f"| `s_gap = sqrt(s_A^2 + s_B^2)` | **{_f(st['s_gap'])}** |")
-    L.append(f"| published gap (n=1) | {_f(st['gap_published'])} |")
-    L.append(f"| gap of replicate means (B - A) | {_f(st['gap_of_means'])} |")
-    L.append(f"| published gap / `s_gap` | {_f(st['z_gap'], 2)} sigma |")
-    L.append(f"| **A1.1 band** | **{st['band_gap']}** |")
-    L.append(f"| A1.2: `s_B` vs paired MDE {PAIRED_MDE_135} | {st['band_b']} |")
+    ci3, t3, p3 = _welch_cells(st["welch_gap_of_means"])
+    ci9, t9, p9 = _welch_cells(st9["welch_gap_of_means"])
+    L.append(f"| statistic | pre-registered, n_A=3 + n_B=3 | Amendment 2, n_A={st9['n_A']} + n_B={st9['n_B']} |")
+    L.append("|---|---|---|")
+    L.append(f"| mean F1, Campaign A / B | {_f(st['mean_a'])} / {_f(st['mean_b'])} | {_f(st9['mean_a'])} / {_f(st9['mean_b'])} |")
+    L.append(f"| `s_A` | {_f(st['s_A'])} | {_f(st9['s_A'])} (unchanged) |")
+    L.append(f"| `s_B` | {_f(st['s_B'])} | {_f(st9['s_B'])} |")
+    L.append(f"| `s_gap = sqrt(s_A^2 + s_B^2)` | **{_f(st['s_gap'])}** | **{_f(st9['s_gap'])}** |")
+    L.append(f"| published gap (n=1) | {_f(st['gap_published'])} | {_f(st9['gap_published'])} |")
+    L.append(f"| gap of replicate means (B - A) | {_f(st['gap_of_means'])} | {_f(st9['gap_of_means'])} |")
+    L.append(f"| Welch 95% CI on the gap of means | {ci3} | {ci9} |")
+    L.append(f"| Welch t | {t3} (p {p3}) | {t9} (p {p9}) |")
+    L.append(f"| published gap / `s_gap` | {_f(st['z_gap'], 2)} sigma | {_f(st9['z_gap'], 2)} sigma |")
+    L.append(f"| **A1.1 band** | **{st['band_gap']}** | **{st9['band_gap']}** |")
+    L.append(f"| A1.2: `s_B` vs paired MDE {PAIRED_MDE_135} | {st['band_b']} | {st9['band_b']} |")
     L.append("")
     L.append("### Secondary reads (post-hoc, descriptive only)\n")
     sb = result["secondary"]["yolo_best_pt"]
@@ -445,11 +616,11 @@ def render_markdown(result):
         L.append(f"| Run A ep1 (seed 42, reference) | `{ra['label']}` | {_f(ra['f1_at_protocol'])} (@{ra['protocol_threshold']:.2f}) | "
                  f"{_f(ra['max_f1'])} | {ra['max_f1_threshold']:.2f} |")
     L.append("")
-    L.append("| manual_gold SD (n=3) | SD F1 at protocol | SD max F1 | mean max F1 |")
-    L.append("|---|---|---|---|")
-    for k in ("yolo_ep_le44", "yolo_best_pt", "rampnet"):
+    L.append("| manual_gold SD | n | SD F1 at protocol | SD max F1 | mean max F1 |")
+    L.append("|---|---|---|---|---|")
+    for k in ("yolo_ep_le44", "yolo_best_pt", "rampnet_prereg", "rampnet"):
         g = mg[k]
-        L.append(f"| {k} | {_f(g['sd_f1_at_protocol'])} | {_f(g['sd_max_f1'])} | {_f(g['mean_max_f1'])} |")
+        L.append(f"| {k} | {g['n']} | {_f(g['sd_f1_at_protocol'])} | {_f(g['sd_max_f1'])} | {_f(g['mean_max_f1'])} |")
     L.append("")
     L.append("\\* selected threshold is the cache floor: the true optimum may be lower and unmeasured, so that F1 is a lower bound.")
     return "\n".join(L)
@@ -464,18 +635,26 @@ def _render_text(result):
         for k, r in result[camp].items():
             rd = r["read"]
             ep = f" ep{r['epoch']}" if "epoch" in r else ""
+            job = r.get("klone_job")
+            rs = f" restarts {job['restarts']}" if job else ""
             if rd:
                 lines.append(f"  {camp[-1].upper()} {k:<3} {r['leg']:<22}{ep:<6} thr {rd['selected_threshold']:.2f}"
-                             f"{'*' if rd['at_floor'] else ' '}  F1 {rd['pooled']['f1']:.4f}")
+                             f"{'*' if rd['at_floor'] else ' '}  F1 {rd['pooled']['f1']:.4f}{rs}")
             else:
-                lines.append(f"  {camp[-1].upper()} {k:<3} {r['leg']:<22}{ep:<6} NOT SCORED")
-    lines.append("")
-    lines.append(f"  s_A {_f(st['s_A'])}   s_B {_f(st['s_B'])}   s_gap {_f(st['s_gap'])}"
-                 f"   published gap {_f(st['gap_published'])} = {_f(st['z_gap'], 2)} sigma")
-    lines.append(f"  A1.1 band: {st['band_gap']}    A1.2: {st['band_b']}")
-    if st["s_A_only_band"]:
-        lines.append(f"  (Campaign B incomplete: on s_A alone the band would be {st['s_A_only_band']} -- "
-                     "an upper bound on significance, not the finding)")
+                lines.append(f"  {camp[-1].upper()} {k:<3} {r['leg']:<22}{ep:<6} NOT SCORED{rs}")
+    for label, s in (("pre-registered n=3+3", st), ("Amendment 2", result["statistics_a2"])):
+        lines.append("")
+        lines.append(f"  [{label}: n_A={s['n_A']} n_B={s['n_B']}]")
+        lines.append(f"  s_A {_f(s['s_A'])}   s_B {_f(s['s_B'])}   s_gap {_f(s['s_gap'])}"
+                     f"   published gap {_f(s['gap_published'])} = {_f(s['z_gap'], 2)} sigma")
+        w = s["welch_gap_of_means"]
+        if w:
+            lines.append(f"  gap of means {_f(s['gap_of_means'])}  Welch 95% CI [{w['ci'][0]:.4f}, {w['ci'][1]:.4f}]"
+                         f"  t {w['t']:.2f} on {w['df']:.1f} df  p {w['p_two_sided']:.3f}")
+        lines.append(f"  A1.1 band: {s['band_gap']}    A1.2: {s['band_b']}")
+        if s["s_A_only_band"]:
+            lines.append(f"  (Campaign B incomplete: on s_A alone the band would be {s['s_A_only_band']} -- "
+                         "an upper bound on significance, not the finding)")
     return "\n".join(lines)
 
 
