@@ -194,18 +194,29 @@ def score_pano(pred_points, gt, radius_sq=None, scale_x=PANO_SCALE_X, scale_y=PA
 
     ``wrap_x`` defaults to **True** here, unlike the generic matcher: this is the
     panorama scorer, its default scales are the panorama's, and every production caller
-    is in pano space. Pass ``wrap_x=False`` for a non-cyclic coordinate space — the
-    synthetic unit-scale spaces in the tests are the only such callers today.
+    is in pano space. Pass ``wrap_x=False`` for a non-cyclic coordinate space (the
+    synthetic unit-scale spaces in the tests) or to reproduce a pre-#140 number on
+    purpose (``rescore_benchmark_eval.py --no-wrap-x``, ``benchmark_power_135.py``).
 
-    **Wrapping moves no RampNet or YOLO metric on any committed split — but it does move
-    the challengers.** That distinction was missed when #132 landed, because the effect
-    was checked against RampNet: measured across the whole roster it recovers a genuine
-    match on 19 (model, split) pairs and moves 66 published cells in
-    ``docs/model_comparison.md`` (six splits, seven chat-VLM and open-vocab models, all
-    in the same direction, no reordering). That document has been regenerated for it, and
-    ``tests/test_scoreboard.py::test_every_number_matches_model_comparison`` now re-derives
-    every one of its table cells on each CI run, so the next change to this function that
-    moves a published number fails the build rather than going unnoticed.
+    **What wrapping moves, measured on the committed detections (#140, #148).** It moves
+    no RampNet metric on any committed split, and no arm's F1 at its operating point. It
+    does move the challengers: across the whole roster it recovers a genuine match on 19
+    (model, split) pairs and moved 66 published cells in ``docs/model_comparison.md``
+    (six splits, seven chat-VLM and open-vocab models, all in the same direction, no
+    reordering). That distinction was missed when #132 landed, because the effect was
+    checked against RampNet alone. It also moves three published YOLO pano cells at three
+    decimals -- ``manual_gold``/``y26_pano`` precision 0.739 -> 0.740 (one seam-crossing
+    detection becomes a TP instead of an FP plus a miss), ``clovis``/``y26_pano`` AP
+    0.593 -> 0.596, ``richmond``/``y26_pano`` AP 0.536 -> 0.537 -- plus sweep rows away
+    from the 0.25 operating point on bend, clovis and manual_gold, and max-F1 over the
+    full curve by up to +0.0030 (``richmond``/``y26_pano``; ``bend``/``y11x_pano_h200``
+    +0.0014). The earlier claim here that "no YOLO metric" moved was wrong (#148).
+
+    Both committed artifacts are re-derived in CI: ``docs/model_comparison.md`` by
+    ``tests/test_scoreboard.py::test_every_number_matches_model_comparison`` and
+    ``scripts/model_comparison/yolo_baseline/benchmark_eval/`` by
+    ``tests/test_benchmark_eval.py``, so the next change to this function that moves a
+    published number fails the build rather than going unnoticed.
     """
     if radius_sq is None:
         radius_sq = radius_sq_for(scale_x=scale_x)

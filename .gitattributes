@@ -41,3 +41,11 @@ analysis_out/*.jsonl -text
 docs/data/rampnet1_stage2_run/SHA256SUMS text eol=lf
 docs/data/rampnet1_stage1_run/SHA256SUMS text eol=lf
 stage_two/run_a_84_events/SHA256SUMS text eol=lf
+
+# The regenerated YOLO benchmark tables are written LF by rescore_benchmark_eval.py on
+# every platform and compared byte-for-byte (after CRLF normalisation) by
+# tests/test_benchmark_eval.py. Pinning them LF keeps an autocrlf=true clone's working
+# copy identical to what the script writes, so a regeneration there shows no phantom diff.
+scripts/model_comparison/yolo_baseline/benchmark_eval/*.txt   text eol=lf
+scripts/model_comparison/yolo_baseline/benchmark_eval/*.md    text eol=lf
+scripts/model_comparison/yolo_baseline/benchmark_eval/*/*.json text eol=lf

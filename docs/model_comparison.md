@@ -206,9 +206,11 @@ pattern as RampNet's own #54/#55 threshold correction. Full tables, calibration 
 provenance, and the exported per-pano detections (`benchmark/model_detections/`,
 verify-identical) are in the
 [training record](../scripts/model_comparison/yolo_baseline/README.md) and its
-`benchmark_eval/` directory. Training-side history (the warmup-LR collapse at epoch 3 across
-all arms, the ckpt slice ceiling, the `y26_tiles` fork) stays in that record; the stabilized
-rerun remains tracked in #70 and the caveat write-up in #72.
+`benchmark_eval/` directory (re-scored after the #140 seam wrap and re-derived in CI by
+`tests/test_benchmark_eval.py`, #148 — three `y26_pano` cells moved, no F1). Training-side
+history (the warmup-LR collapse at epoch 3 across all arms, the ckpt slice ceiling, the
+`y26_tiles` fork) stays in that record; the stabilized rerun remains tracked in #70 and the
+caveat write-up in #72.
 
 The tiles arms — the resolution-controlled half of the ablation, and the geometry the VLM
 rows are scored with — are **absent from every table above because their detections are not
@@ -1479,10 +1481,11 @@ end of this benchmark's 0.12–0.34 range. Vistas' curb-cut labels transfer; the
 but it is not the best non-RampNet model, and the thing that beats it is in this same
 document.** The supervised YOLO baseline (#51), trained on the RampNet dataset and scored on
 this same split, reports richmond AP **0.748** (`y11x_pano_h200`), **0.724** (`y11l_pano`) and
-**0.536** (`y26_pano`) — all above 0.513 — and `y11l_pano` also beats it on F1 (0.595 at conf
-0.25 against 0.517). That comparison belongs here rather than being left out, because it is the
-sharpest version of what this arm was built to test: **somebody else's labels for a neighbouring
-class transfer usefully, and our own labels for the actual class do substantially better.**
+**0.537** (`y26_pano`; 0.536 before the #140 seam wrap, re-scored under #148) — all above
+0.513 — and `y11l_pano` also beats it on F1 (0.595 at conf 0.25 against 0.517). That comparison
+belongs here rather than being left out, because it is the sharpest version of what this arm
+was built to test: **somebody else's labels for a neighbouring class transfer usefully, and our
+own labels for the actual class do substantially better.**
 Against the *untrained* field the AP point still stands — the chat VLMs above it on F1 have no
 AP at all, emitting boxes without scores, so they are pinned at one operating point and cannot
 be tuned, and a tunable model at AP 0.513 is a more useful starting point than an untunable one
@@ -1552,7 +1555,7 @@ source for being *"overly broad"*.
 parity unqualified:
 
 - The AP comparison against the YOLO baseline said richmond AP **0.748** (`y11x_pano_h200`),
-  **0.724** (`y11l_pano`) and **0.536** (`y26_pano`) are *"all above 0.513"*. At parity the arm is
+  **0.724** (`y11l_pano`) and **0.537** (`y26_pano`) are *"all above 0.513"*. At parity the arm is
   at **0.649**, so **`y26_pano` no longer clears it** — somebody else's labels for a neighbouring
   class, at equal input, beat one of our own three YOLO arms on AP. The two stronger YOLO arms
   still lead, so the sentence's conclusion holds; its arithmetic does not.
