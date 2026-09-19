@@ -184,8 +184,9 @@ best-sweep F1 and threshold. Away from the headline, sweep rows at other thresho
 bend (all three arms), clovis (`y26_pano`) and manual_gold (all three arms), and 9 of the 30
 PR-curve JSONs changed (the four `pr_curves.png` whose curves moved are redrawn). Max-F1 over
 the full curve, which #135 reads, moves by up to +0.0030 (`richmond`/`y26_pano`). The full
-per-row diff is in the regeneration commit `32d24e4`. The pre-fix files remain in history
-(commit `3d7c7bf`) and on `wip/untracked-artifacts-20260821`.
+per-row diff is in the regeneration commit `32d24e4` (re-stamped without any number
+changing in `5ad2322`, when the fingerprint was widened to `validation.py`). The pre-fix
+files remain in history (commit `3d7c7bf`) and on `wip/untracked-artifacts-20260821`.
 
 Scope and what the guard does not cover: the regenerator and `tests/test_benchmark_eval.py`
 cover the ten splits of the 2026-08-14 sweep only — the two laurens arms were scored later
