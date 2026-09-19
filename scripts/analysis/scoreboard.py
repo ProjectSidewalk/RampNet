@@ -195,6 +195,10 @@ DISPLAY = {
     "claude-opus-5-effort-high": "Claude Opus 5 (high)",
     "claude-sonnet-5-effort-low": "Claude Sonnet 5 (low)",
     "claude-sonnet-5-effort-high": "Claude Sonnet 5 (high)",
+    # #156: served on Anthropic's first-party API, not Vertex -- the pin is part of
+    # the published name, so it is part of the display name too.
+    "claude-fable-5-effort-low-anthropic": "Claude Fable 5 (low, anthropic)",
+    "claude-fable-5-1-effort-low-anthropic": "Claude Fable 5.1 (low, anthropic)",
     "mask2former-vistas-curb-cut": "Mask2Former Vistas (curb cut)",
     "mask2former-vistas-curb-cut+curb": "Mask2Former Vistas (+curb)",
 }

@@ -25,6 +25,17 @@ stage_two/run_a_84_events/events.out.tfevents.* binary
 # the cluster wrote them, on every platform.
 docs/data/rampnet1_stage1_run/* -text
 
+# The committed sacct dump is the replication input for analysis_out/compute_log.jsonl
+# and its sha256 is pinned in docs/compute_cost.md and asserted by
+# tests/test_slurm_usage.py. Same reasoning: a core.autocrlf=true clone would check it
+# out with CRLF and the pin would fail for a file that is byte-correct (#143).
+docs/data/compute/* -text
+
+# Both ledgers are append-only and written LF by rampnet.ledger.append_rows on every
+# platform. Without this, an autocrlf=true clone checks them out CRLF and every later
+# append leaves a mixed-ending file on disk.
+analysis_out/*.jsonl -text
+
 # The manifests themselves are ours, and stay LF. Listed after the rule above
 # because the last matching pattern wins.
 docs/data/rampnet1_stage2_run/SHA256SUMS text eol=lf

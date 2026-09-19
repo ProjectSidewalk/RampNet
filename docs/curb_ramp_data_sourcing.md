@@ -312,7 +312,7 @@ what the gallery is for.
 The gap between 0.009 and 0.022 is the **59 unwitnessed** silent misses. Those, and only those,
 need a reviewer:
 
-```
+```bash
 python scripts/analysis/silent_witness.py --json-out analysis_out/silent_witness.json
 python scripts/analysis/miss_gallery.py --bucket silent \
     --queue analysis_out/silent_witness.json --render analysis_out/gallery46_silent
@@ -841,7 +841,7 @@ regression) so the filter's data cost is measured rather than assumed, handles t
 undated while reporting it separately. Pure core, unit-tested in `tests/test_temporal_gap.py`
 (21 tests); no GPU, no network, no imagery.
 
-```
+```bash
 python scripts/analysis/temporal_gap.py --city "Washington, DC" \
     --inventory dc.json --inventory-date-field INSTALLDATE \
     --tracker-snapshot washington--district-of-columbia--...2024-04-11.csv.gz \

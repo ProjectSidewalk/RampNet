@@ -59,6 +59,8 @@ and `tests/test_roster.py` fails if the two stop agreeing. Regenerate it with
 | `claude-opus-5-effort-high` | claude | sparse | 2026-08-15 | — published, not in these tables |
 | `claude-sonnet-5-effort-low` | claude | sparse | 2026-08-15 | — published, not in these tables |
 | `claude-sonnet-5-effort-high` | claude | sparse | 2026-08-15 | — published, not in these tables |
+| `claude-fable-5-1-effort-low-anthropic` | claude | sparse | 2026-09-05 | — published, not in these tables |
+| `claude-fable-5-effort-low-anthropic` | claude | sparse | 2026-09-05 | — published, not in these tables |
 
 **"Not in these tables" covers three different situations, and the difference matters.**
 The tables below are the zero-shot comparison; a leg can sit outside them because its
@@ -77,14 +79,38 @@ the matrix above exists to make, stated here because the artifact is already in 
 would otherwise read as a withheld result. Promoting it is one field in the registry plus a
 re-run; since #122 froze the #46 witness pool, doing so no longer disturbs that human pass.
 
-**Two more off-roster models, `claude-sonnet-5` and `claude-opus-5`, have been run on
-annapolis only** — four legs, both models × effort `low`/`high` (#122). They are likewise
-absent from the roster tables, so no number below moves. Detections are published and
-verified (`benchmark/model_detections/claude-*-effort-*__annapolis.json`, 4/4 pairs
-identical to the cache) and the write-up is the "Claude on Vertex" section further down,
-where the whole result table is re-derived from those files by
-`tests/test_claude_annapolis_leg.py`. **The other nine splits have not been run** — that is
-a gap in coverage, not a withheld result, and closing it costs about $57 at `low` effort.
+**Six Claude legs are off-roster.** Four are `claude-sonnet-5` and `claude-opus-5` at
+effort `low`/`high` (#122), served on Vertex; two are `claude-fable-5` and `claude-fable-5-1`
+at effort `low` (#156), served on Anthropic's first-party API because Vertex gates that
+family — which is why their published names carry `-anthropic`. All six are absent from the
+roster tables below, so no number in this document moves; `claude-opus-5` at `low` **is**
+scored in [`model_scoreboard.md`](model_scoreboard.md), which keys off coverage rather than
+`standing`. Detections are published (`benchmark/model_detections/claude-*__*.json`, 16
+files) and 14 of the 16 are verified identical to the cache that produced them with
+`export_model_cache.py --verify` (the four Vertex annapolis legs, the eight #139 splits, and
+the two Fable annapolis legs); the two Laurens files were exported with `n_uncached` 0 on the
+machine that ran #151, which never had a recorded `--verify`, and are re-scored from the
+committed detections by `tests/test_claude_published_legs.py` — a different guarantee,
+stated as such. The write-ups are the "Claude on Vertex" section and the "Claude Fable on
+annapolis" section further down, where every result table is re-derived from those files by
+`tests/test_claude_published_legs.py`.
+
+Coverage is not uniform across the six, so it is stated per leg:
+
+- **`claude-opus-5` at `low` has run eleven splits** — everything but `manual_gold`: the
+  nine of #139 plus both Laurens arms (#151). The `manual_gold` absence is a decision, not a
+  pending run: `gemini-3.1-pro-preview` has no `manual_gold` row either, so a Claude-only
+  run there would have no peer to compare against (#144).
+- **The other five legs have run annapolis only.** A gap in coverage, not a withheld
+  result. For the Opus/Sonnet legs it was estimated at "about $57 at `low` effort" before
+  anyone ran it; the nine-split Opus leg then **measured $70.41 for eight splits** (§"Cost
+  accounting" below), so budget roughly **$8.80 per split** for Opus and re-derive Sonnet
+  from its own $3.60 annapolis leg rather than from that average. Re-running `high`
+  comprehensively would roughly double the bill to re-measure a result we already have,
+  which is why it stays at one split. The two Fable legs are annapolis-only for a different
+  reason: both clear the pre-registered expansion gate, and the expansion has not been
+  taken — `manual_gold` alone is ~$154–165 per id at their measured rates (§"Claude Fable
+  on annapolis" below).
 
 **The three `y*_pano` rows are the supervised YOLO baseline** (#51), the one part of the
 registry that is not zero-shot. They have run on all ten splits and are scored, but under the
@@ -1326,7 +1352,8 @@ driveway aprons should appear as a characteristic false-positive mode — which
 recall hides on the other side of it is measurable:
 
 ```bash
-python scripts/model_comparison/compare.py benchmark/richmond     --models rampnet,vistas:curb-cut,vistas:curb-cut+curb
+python scripts/model_comparison/compare.py benchmark/richmond \
+    --models rampnet,vistas:curb-cut,vistas:curb-cut+curb
 ```
 
 The spec's `model_id` slot carries the **class set**, not a model id — the checkpoint comes
@@ -1346,6 +1373,14 @@ upsample can produce is on the order of 114 px and the 16 px floor drops nothing
 at 16 rather than recalibrated because it sits in the cache signature — changing it would
 orphan both arms' published detections to no effect.
 
+**That inertness is a property of 384×384, not of the floor, and it does not carry to the
+parity run below.** At 1024×1024 input the mask logits arrive at 256×256 and are upsampled
+only 4×, so the smallest component the upsample can produce is about **16 px — exactly the
+floor**. `min_area_px=16` is therefore marginally *binding* at parity where it was provably
+inert at 384, and it is the one setting shared by both that does not mean the same thing in
+each. It was still left untouched, because changing it would confound the single variable the
+parity run exists to isolate.
+
 The **rig** is the identical six-view one every other tiled leg uses
 (`equirect_tiling.default_views()`: 6 yaws, 90°×90°, pitch −30°, 1024×1024, source capped at
 4096) — but **the rig is not what the model sees, and that is a real caveat on the headline
@@ -1361,10 +1396,10 @@ upgrade could have changed every mask under an unchanged cache key.
 What changed here: `--vistas-input-size H W` now overrides the processor, and
 `--vistas-revision` pins the checkpoint. Both are recorded in the signature **only when set**,
 so the published richmond detections keep their key and nothing already paid for is orphaned —
-and a future run at parity is a distinct, self-describing cache entry. **The parity run has not
-been done**, so every number in this section is at 384×384 and the gap to RampNet is an upper
-bound on this arm, not a measurement of it at equal input. That is the first thing to try if
-this arm is ever revisited.
+and a future run at parity is a distinct, self-describing cache entry. **The parity run has now
+been done** — see *Resolution parity* below. Every number in the table that follows is still at
+384×384, and the parity numbers are reported separately rather than replacing them, because the
+384 run is the one whose detections are published.
 
 Note for anyone reading #126: that issue says `scripts/box_gallery.py` already cuts
 perspective views. **It does not** — its `--fov` sizes an axis-aligned crop of the
@@ -1453,6 +1488,467 @@ AP at all, emitting boxes without scores, so they are pinned at one operating po
 be tuned, and a tunable model at AP 0.513 is a more useful starting point than an untunable one
 at F1 0.664.
 
+#### Resolution parity: the handicap was real, and it was not the problem (2026-08-18)
+
+Everything above is measured at 384×384. This section removes that handicap and changes one
+variable. Read fixed in advance and posted to #126 **before** the scored output was read: the
+gap closes by **< 0.05 F1** ⇒ *"transfers but does not compete"* stands and this stays a
+one-split arm; more than that ⇒ the write-up is revised and 3–4 further splits get costed.
+
+Run on **makelab2 (A40, fp16, transformers 5.15.0 / torch 2.13.0+cu130)**, in a scratch worktree
+with a private `--cache-dir`, so nothing here shares a cache directory with the published
+detections. RampNet is re-run alongside as the comparability check and **reproduces its committed
+richmond row to every digit** (0.964 / 0.768 / 0.855, AP 0.763, 238/9/72).
+
+| arm | model input | P | R | F1 | AP | tp/fp/fn |
+|---|---|---:|---:|---:|---:|---|
+| rampnet (committed, reproduced) | — | 0.964 | 0.768 | **0.855** | 0.763 | 238/9/72 |
+| vistas curb-cut — **published** (RTX 3070) | 384×384 | 0.411 | 0.697 | 0.517 | 0.513 | 216/309/94 |
+| vistas curb-cut — **same-env control** (A40) | 384×384 | 0.411 | 0.694 | 0.516 | 0.510 | 215/308/95 |
+| vistas curb-cut — **parity** (A40) | **1024×1024** | 0.383 | **0.884** | **0.534** | **0.649** | 274/442/36 |
+
+At conf ≥ 0.30: control **0.419 / 0.694 / 0.522** (published: 0.419 / 0.697 / 0.524), parity
+**0.384 / 0.884 / 0.536**. Note the threshold barely bites at parity — it removes 3 false
+positives against 10 at 384 — because the higher-resolution masks are more confident.
+
+**The env control was not in the original plan, and it is what makes the parity delta
+attributable.** The published run was on Jon's RTX 3070 on an older `transformers`; makelab2 is a
+major version on. Since the `transformers` version is *not* in the detection signature — a hazard
+this document already flags — parity-vs-published would have differed in **two** things.
+Re-running 384 in the parity env separates them: it lands within **one detection out of 523** of
+the published run (215/308/95 vs 216/309/94, F1 0.516 vs 0.517). So the 4.x→5.15 jump is benign
+for this checkpoint, the residual is fp16 kernel nondeterminism rather than a version break, and
+**the whole parity delta is attributable to input size.** That also retires the "an upgrade could
+have changed every mask under an unchanged cache key" worry for this arm, as a measurement rather
+than an assurance.
+
+**The decision rule returns "stands", and it is not close.** Against the same-env control, parity
+moves F1 **0.516 → 0.534, +0.018** — about a third of the 0.05 bar. RampNet's lead goes 0.339 →
+**0.321**. One split, and no case for costing more.
+
+**But the mechanism underneath that flat F1 is the actual finding, and it is not the one the
+caveat predicted.** The handicap was real and it was large — it was just almost entirely a
+*recall* handicap:
+
+- **Recall 0.694 → 0.884 (+0.190).** Misses fall from 95 to **36**, a 62% reduction. At parity
+  this arm **out-recalls RampNet** (0.884 vs 0.768) while remaining a model that has never seen a
+  curb ramp label of ours.
+- **AP 0.510 → 0.649 (+0.139)**, a 27% relative gain — the ranking, not just the operating point,
+  is substantially better.
+- **Precision 0.411 → 0.383 (−0.028)**: slightly *worse*. False positives rise 308 → 442, faster
+  than true positives rise 215 → 274.
+
+So resolution was buying recall the whole time, and F1 stayed flat only because precision is the
+binding constraint and resolution does nothing for it. **That sharpens rather than softens the
+conclusion #126 was built to test.** The original framing — *the concept is findable, the
+discrimination is not* — was stated against OWLv2 and Grounding DINO; it now holds against the
+supervised arm at equal input too, and it is no longer confounded with how many pixels the model
+was given. Vistas' curb-cut labels **find** curb ramps on deployment panoramas better than our own
+model does; what they cannot do is tell a curb ramp from the things that look like one, which is
+exactly the failure the RampNet paper predicted when it rejected this class as a supervision
+source for being *"overly broad"*.
+
+**What this changes above.** Two claims in this section were stated at 384 and do not survive
+parity unqualified:
+
+- The AP comparison against the YOLO baseline said richmond AP **0.748** (`y11x_pano_h200`),
+  **0.724** (`y11l_pano`) and **0.536** (`y26_pano`) are *"all above 0.513"*. At parity the arm is
+  at **0.649**, so **`y26_pano` no longer clears it** — somebody else's labels for a neighbouring
+  class, at equal input, beat one of our own three YOLO arms on AP. The two stronger YOLO arms
+  still lead, so the sentence's conclusion holds; its arithmetic does not.
+- "Best *zero-training* model on AP" is unchanged and strengthened: 0.649 against OWLv2's 0.104.
+
+**Caveats that travel with these numbers.** `min_area_px=16` is inert at 384 but sits exactly at
+the smallest achievable blob at 1024 (see above), so the two rows do not share that setting's
+meaning even though they share its value. And this is still **richmond only**.
+
+**Neither A40 run's detections are published, so the bottom two rows of that table are not
+re-derivable from a clean clone — and as of 2026-09-17 the private cache they lived in cannot be
+found either.** The parity (1024×1024) and same-env control (384×384) detections were written to
+a private `--cache-dir` in a scratch worktree on makelab2 and nowhere else; only the published 384
+row and RampNet's row come from committed files. Looked for on 2026-09-17 before publishing them:
+the checkout at `/homes/gws/jonf/RampNet` has no worktree registered, its `.model_cache` holds no
+shard written 2026-08-17..20, and the parity run's shard names (`compare.cache_key` over the
+1024 signature, e.g. `f2acf1b1…`) are absent from `/homes/gws/jonf`, `/tmp`, `/var`, the root
+filesystem and the lab mounts. The cache went with the scratch worktree, so **the two A40
+rows, the 1024 complementarity column, the operating-point-correction table, both cascade tables,
+both `analysis_out/cascade_gate*.json` and the seam-exposure count now rest on the committed
+artifacts alone.** The cascade artifacts carry their full per-site input (`sites[]`), so every
+figure in those tables still re-derives from committed files (`tests/test_cascade_gate.py`);
+what cannot be re-derived is the partition itself, and the parity row's P/R/F1/AP.
+
+**Retiring that takes one decision and one 3m38s GPU run, not a rescue.** The run is cheap to
+repeat (`compare.py … --vistas-input-size 1024 1024`, one A40, timed above), and a repeat
+should land within a detection or so of the original — the control-vs-published pair did, across
+a `transformers` major version, with fp16 kernel nondeterminism the only residual. What is not
+settled is how it publishes, and the roster's own rules leave three
+things open rather than one:
+
+- `--vistas-input-size` does not change the arm's label, so the export needs a distinct published
+  name (`export_model_cache.py --publish-as`, #123) and a roster leg pinned on it. But
+  `rampnet/roster.py` requires that **once one leg of a model is qualified, every leg is** — so
+  the published 384 file would be renamed too (e.g. `mask2former-vistas-curb-cut-384`), which
+  touches every reference to it here and in `tests/`. The registry's pin naming also expects a
+  scalar (`str(value)` appears in the published name), and this pin is a 2-element size.
+- The same-env 384 control has the **same** signature and cache key as the published 384 run —
+  that was the point of it — so it cannot be a pinned leg at all; the roster has no notion of
+  "same detector, different host". Publishing it means either a new kind of entry or recording
+  it as an unregistered replicate beside the published file.
+- `export_model_cache.py` does not yet take `--vistas-input-size`, so it cannot address the 1024
+  cache entry even where one exists.
+
+Until those are decided, this section states the gap rather than guessing at the layout; the
+numbers above are as-run on 2026-08-18 and are not being changed. Each downstream table says so
+where it appears.
+
+#### Complementarity: 61% of RampNet's misses are recoverable, and a union still loses
+
+Parity raised the obvious recall-first question — this arm misses 36 ramps where RampNet misses
+72, so how much of *RampNet's* miss set does a free, zero-training model already cover? Run
+through the #35 gate (`scripts/analysis/complementarity.py`, generalized past its Gemini-only
+form for this), scoring-side only:
+
+| | vistas @384 (published) | **vistas @1024 (parity)** |
+|---|---:|---:|
+| found by BOTH | 194 | 220 |
+| rampnet ONLY | 44 | 18 |
+| **challenger ONLY** (rampnet-miss ∩ hit) | 22 | **54** |
+| found by NEITHER | 50 | **18** |
+| of rampnet's 72 misses, recovered | 22 (31%) | **54 (75%)** |
+| null on that subset (same boxes, wrong pano) | 0.090 | 0.143 |
+| **attributable after the null** | **~15** | **~44** |
+| oracle-union recall | 0.839 | **0.942** |
+| boxes/pano · above chance (`null_recall.py`) | 4.5 · 0.661 | 6.2 · **0.864** |
+
+**Which 384 run each column is.** The 384 column is the **published** arm, so both sides of it
+are committed: `benchmark/model_detections/mask2former-vistas-curb-cut__richmond.json` for the
+challenger and `benchmark/richmond/records.jsonl` for RampNet. One wrinkle in reading it back —
+`complementarity.py` and `null_recall.py` take their challenger detections from `.model_cache`
+rather than from the published export the way `fp_taxonomy.py` and `silent_witness.py` do, so on a
+clean clone the export has to be written into a cache directory first (*Reproducing it* below).
+`tests/test_complementarity.py` does that in a temporary directory and asserts this column cell
+for cell, so `pytest tests/test_complementarity.py` checks it with no setup at all.
+
+An earlier version of this column was the same-env A40 control rather than the published run. The
+two differ by one detection in 523, which moved two cells by one ramp each: challenger-only 22 →
+21 and found-by-nobody 50 → 51. Nothing turned on it, but the control is not published either, so
+the column as printed was not re-derivable and did not say which run it was.
+
+**The 1024 column cannot be re-derived from a clean clone, or from anywhere.** The parity
+detections are not published, and the private makelab2 cache that held them could not be found
+on 2026-09-17 (see the caveat under *Resolution parity*), so that column now rests on this
+table alone. Closing that needs a 3m38s re-run and a publishing decision, both spelled out there.
+
+**Discounted for chance, a free zero-training model finds ~44 of the 72 ramps RampNet misses —
+61%.** The null here is measured on the miss subset rather than extrapolated from the split-wide
+one, because RampNet's misses are a biased sample (far-field, adjacent pairs) and that is exactly
+where density differs; it lands at 0.143 against the split-wide 0.145, so in this case the
+extrapolation would have been fair. And the recall is real detection, not density: at 6.2
+boxes/pano the arm's **above-chance is 0.864, higher than RampNet's own 0.754** — nothing like
+OWLv2's 0.733 null at 74 boxes/pano.
+
+**The resolution fix mattered far more here than the headline suggested.** Parity moved F1 by
++0.018 and was correctly judged not to change the ranking — but it nearly **tripled** the
+attributable complementary gain (~15 → ~44 ramps) and shrank the found-by-nobody core from 50 to
+**18**, 5.8% of GT. That core is much smaller than paterson's 88 (22%) or gainesville's 55 (20%),
+though those are different splits against a different challenger, so read it as suggestive rather
+than a like-for-like. The general lesson is worth keeping: **a flat headline metric hid a large
+change in the structure underneath it**, and only the complementarity read surfaced it.
+
+**A naive union of the two loses to RampNet alone, and it is not close.** The oracle-union recall
+of 0.942 is a *ceiling* — it assumes a combiner that keeps every right call and discards every
+wrong one, which does not exist. What a real union pays is both FP bills:
+
+| | P | R | F1 |
+|---|---:|---:|---:|
+| rampnet alone | 0.964 | 0.768 | **0.855** |
+| naive union with vistas @1024 | 0.393 | 0.942 | 0.555 |
+| naive union with vistas @384 | 0.450 | 0.839 | 0.586 |
+
+The false-positive bill decides it: those 54 ramps arrive with 442 false positives, about
+**8.2 FPs per recovered ramp**, against the 9 FPs RampNet currently pays for 238 true
+positives. So ensembling by union is not a close call at any operating point on this arm's
+PR curve.
+
+**What that leaves is a gated cascade, and it is a real open question rather than a plan.** The
+useful form is not "take both models' boxes" but "use this arm's candidates as a *spatial prior*
+to locally relax RampNet's threshold", which would keep RampNet's precision and buy back some of
+the 54. Whether it can work is empirical and decidable: #131 measured RampNet's silent misses as
+8% absent / 62% adjacent-tail / 30% faint, so most misses *do* have sub-threshold heatmap signal —
+but nobody has checked whether that holds at these 54 locations specifically. If the signal is
+absent there, the miss is genuine and the cascade has nothing to work with. `silent_activation.py`
+is the instrument. **Not run, not costed here.**
+
+**Caveats.** richmond only, one imagery tier. The 442 FPs are not free even in a recall-first
+framing — at 3.6 FP/pano against RampNet's 0.07 they are a ~50× review burden, so "FPs are cheap"
+is a claim about the labeling workflow that would need its own justification at this ratio.
+
+#### The operating-point correction: a third of that gain is RampNet's own
+
+**Everything above scores RampNet from the committed bundle detections, which are the *shipped*
+operating point — on richmond every one of them is ≥ 0.5519. This document has recommended
+**0.30** since #54/#55 (PR #79).** For a complementarity read those are different models, and the
+difference decides who gets credit for a recovery.
+
+Checked before relying on it: `analysis_out/op_cache/richmond.json` filtered at ≥ 0.5519
+reproduces the published row **exactly** (P 0.9636 / R 0.7677 / F1 0.8546, 238/9/72), so it is the
+same source. At 0.30 those same peaks give **P 0.9018 / R 0.8290 / F1 0.8639, 257/28/53** —
+matching the committed `analysis_out/op/corrected_at_0.3.csv`. `complementarity.py
+--rampnet-op-threshold 0.30` re-bases the gate on it:
+
+| | rampnet @0.55 (published) | **rampnet @0.30 (recommended)** |
+|---|---:|---:|
+| rampnet recall | 0.768 (238) | **0.829 (257)** |
+| rampnet F1 | 0.855 | **0.864** |
+| rampnet misses | 72 | **53** |
+| challenger recovers | 54 (75%) | **38 (72%)** |
+| **attributable after the null** | ~44 | **~30** |
+| found by NEITHER | 18 | **15** |
+| oracle-union recall | 0.942 | 0.952 |
+| naive union F1 | 0.555 | 0.549 |
+
+**Both columns are the parity arm, so neither re-derives from a clean clone** — the challenger
+side is the unpublished 1024 cache (see *Resolution parity*). RampNet's side is committed on both
+columns: `benchmark/richmond/records.jsonl` at 0.55 and `analysis_out/op_cache/richmond.json` at
+0.30.
+
+**So 16 of the 54 ramps the challenger got credit for recovering are ramps RampNet already has at
+the operating point we recommend — the shipped threshold was discarding them.** That is 16 raw,
+**~14 after the chance null** (~44 → ~30). RampNet gains 19 hits going 0.55 → 0.30 (72 misses →
+53); 16 of the 19 come out of the challenger-recovered cell and the other 3 out of the
+found-by-nobody cell, which is why the headline falls by 16 and not by 19. The deployable
+complementary gain is **~30, not ~44**. The recovery *rate* barely moves (75% → 72%): the
+challenger is not preferentially finding the easy sub-threshold ones, there are simply fewer
+misses to find. And a naive union still loses against the stronger baseline (0.549 vs 0.864).
+
+#### The cascade gate: live, but the ceiling is ~19 ramps, not 54
+
+`scripts/analysis/cascade_gate.py` (new) asks the one question that decides whether a gated
+cascade is possible at all: **at the ramps the challenger recovers, does RampNet already produce
+something a prior could promote?** It partitions all 310 GT ramps into the four cells and reads
+RampNet's heatmap at each, reusing #46 Phase 1's instrument verbatim (`site_profile`,
+`null_percentile`, `nearest_peak`, `class_of`) so the numbers are comparable to that phase.
+Read pre-registered on #126 before running. Artifacts: `analysis_out/cascade_gate.json` (shipped
+point) and `analysis_out/cascade_gate_op030.json` (recommended point).
+
+**Both artifacts are committed and neither can be regenerated from a clean clone.** The four-cell
+partition inside them was computed against the parity detections, which are not published (see
+*Resolution parity*); the RampNet half — one forward per pano — needs the native-res panoramas
+from `projectsidewalk/rampnet-benchmark` and a GPU. What a clean clone *can* do is check each file
+against itself: `tests/test_cascade_gate.py` re-derives every `cells[]` figure from the same
+file's `sites` list, so a hand-copied number in the tables below fails the build.
+
+**What a regenerated copy of either artifact will differ in, so it is not mistaken for a changed
+result.** `cascade_gate.json` was written at `b7342dc`, before `4c192ca` added
+`rampnet_op_threshold` to the payload, so it lacks that key while `cascade_gate_op030.json` carries
+it. Since the round-1 review fixes (`d1860e5`, `cc2299e`) a re-run of *either* file also adds two
+payload keys, `null_rng: "per-site"` and `panos_without_floor_peaks`, and one per-site key,
+`nearest_peak_claimed`; and because the null is now seeded per site, every miss-cell `null_pct`,
+`null_med` and `null_p95` moves — by up to 0.075 on the committed files, see the caveat under *A
+negative worth recording* below — with `act`, `argmax_off_px`, `nearest_peak_px` and the cells
+unchanged. Both were also written before this branch took the #132 seam wrap (below). Two tests pin
+the *pre-fix* state and will need editing in the same commit as a regeneration:
+`test_only_the_op030_artifact_records_the_threshold_key` and
+`test_the_committed_nulls_came_from_one_stream_and_say_so`. The `newline=""` pinning is what makes
+that comparison a byte diff rather than a guess. Regenerate both when the parity detections are
+published.
+
+At **rampnet@0.30**, of the 38 genuinely-complementary ramps:
+
+| what RampNet has there | n | what it means |
+|---|---:|---|
+| floor peak in radius, **0.05–0.30** | **19** | **promotable** — a peak exists, below threshold. This is the cascade's real target. |
+| floor peak in radius, ≥0.30 but unmatched | 4 | the greedy matcher gave that peak to an **adjacent GT**. A matcher/σ problem (#130), not a threshold one. |
+| no floor peak in radius | 15 | nothing *of this ramp's* to promote — but not, for most of them, nothing nearby. `act` across these 15 is 0.272 median (0.369 mean); the nearest floor peak is a median **35.0 px** away (R = 22.5 px) and the in-window maximum sits on the window edge (median `argmax_off_px` **22.4**, 11 of 15 within 0.5 px of R). That is a neighbouring mode's shoulder reaching into the window, not mass the extractor overlooked. See the re-cut below. |
+
+The activation figure in the last row is the median over those **15 rows**, not over the 38-ramp
+cell. The cell's own median — `cells[].act_median` in `analysis_out/cascade_gate_op030.json` — is
+0.2152, and the 19 promotable rows sit lower still at 0.153. Three subsets, three medians, which
+is why the row says which one it is.
+
+**What the 15 "no peak in radius" sites are, from the artifact's own columns.** An earlier version
+of this table called them "unpeaked heatmap mass `peak_local_max` never called a maximum", and
+that reading is withdrawn: the committed `sites[]` rows, joined to `analysis_out/op_cache/richmond.json`,
+say the opposite for most of them. Re-cutting the 38 exhaustively, by where each site's nearest
+floor peak is and whether the greedy match at 0.30 already gave that peak to another GT on the
+pano (`cascade_gate.claimed_by_adjacent`, pinned in `tests/test_cascade_gate.py`):
+
+| the 38 recoverable ramps at rampnet@0.30 | n | mechanism |
+|---|---:|---|
+| floor peak in radius, 0.05–0.30 | **19** | promotable — the cascade's target, unchanged |
+| nearest floor peak ≥0.30 and **claimed by an adjacent GT** — 4 inside R, 7 at 1–2 R (26.8–44.1 px) | **11** | the #130 matcher/σ mechanism; the old "4" row and 7 of the old "15" row are one cause |
+| nearest floor peak at 1–2 R, unclaimed (23.5 px @0.643, 24.3 px @0.242, 32.2 px @0.358, 42.5 px @0.143) | 4 | a peak just outside the window; would need a wider radius (and, for the two below 0.30, a lower threshold as well) |
+| no floor peak within 2 R (51–117 px) | 4 | genuinely nothing near — and one of the 4 is the seam site below, where the heatmap *has* a peak the op_cache dropped |
+
+So the 15-row that read as "two-fifths of the recoverable set has no peak to raise" is 7 parts
+matching problem, 4 parts near-miss geometry and 4 parts absence; with the old 4-row folded in, the
+38 are 19 / 11 / 4 / 4. (The 4 "absence" sites also have a claimed nearest peak, just beyond 2 R —
+51–117 px away, scores 0.85 / 0.86 / 0.34 / 0.94 — which is why the 11 in the table are 4 + 7 and
+not 4 + 11.) `class_of`, the #46 Phase 1
+decomposition the pre-registration promised for comparability, puts the 15 at **12 `tail` / 3
+`faint_local` / 0 `absent`** (80 / 20 / 0%, against Phase 1's 62 / 30 / 8% over silent misses);
+over the whole 38-ramp cell it is 35 / 3 / 0, and the 15-ramp `neither` cell is 15 / 0 / 0. Both
+artifacts carry these in `cells[].classes`. The seam site is the one case of a different kind:
+`723487737079243` at x = 0.0069 has `act` 0.946 **7.4 px** from the ramp, centre 0.78, and no
+op_cache peak within 117 px — the `f4c71c8` seam dropout bounded abstractly further down, made
+concrete. A regenerated op_cache would almost certainly list that peak, which makes the site a
+RampNet **hit** at 0.30 and moves it out of `challenger_only` (38 → 37) rather than into any
+row of this table.
+
+**So the cascade is live and its ceiling is ~19 ramps on richmond — +6.1 recall points (0.829 →
+0.890) before any false-positive cost, which is unmeasured.** That is a real number and it is a
+long way below the 54 the raw complementarity suggested. Of the other 19, eleven are a matching
+problem (#130) that no threshold prior can reach — a σ or matcher change is what would act on
+them — four sit just outside the window, and four have nothing near them.
+
+**A negative worth recording: RampNet's own activation does not tell you which misses are
+recoverable.** `challenger_only` sits at null percentile **0.88** and the hard-core `neither` at
+**0.925** — the ramps *nobody* finds look, if anything, *stronger* on raw heatmap mass than the
+ones the challenger recovers (they contain 6 of 15 matcher-claimed peaks ≥0.30, which inflates
+it). Median argmax offset is 19.0 px inside a 22.5 px radius, i.e. near the window edge rather
+than on the ramp. So there is no cheap self-gating shortcut: you cannot skip the second model and
+find these by looking harder at RampNet's confidence. Against the pre-registered rule this is the
+**PARTIAL** branch — signal present, but not at the site — and the peak-level column, not the
+activation, is what supplies the bounded answer.
+
+One caveat on those two null percentiles, and on any per-site null read across the two
+artifacts. Both files were written with **one** random stream consumed in pano order over the
+miss-cell sites only, so a site's draw depended on which sites came before it; the miss set
+differs between the files (19 cell transitions), and of the 53 sites that carry a null in both,
+**43 differ, by up to 0.075**, while `act` and `nearest_peak_px` agree on every one
+(`test_the_committed_nulls_came_from_one_stream_and_say_so`). The within-file comparison above
+stands. `cascade_gate.py` now seeds per site (`site_rng`), so a regeneration will move individual
+`null_pct` values by that much, and the two medians slightly, for reasons that have nothing to do
+with the heatmap; that is a reason to regenerate both files together, not a change in the result.
+
+**What would have to be true for the cascade to pay.** Promoting sub-0.30 peaks gated on
+challenger candidates also promotes them wherever the challenger fires on a driveway and RampNet
+has a faint bump — and 442 of the challenger's 716 boxes are false positives. That cost is **not
+measured here**, so "+6.1 recall points" is a ceiling on the benefit with the cost still blank.
+The next step, if this is ever picked up, is to build the gate and score it, not to reason further
+about it.
+
+**Seam exposure: the two committed artifacts predate the #132 seam fixes, and the effect has now
+been measured rather than bounded.** This work branched at `5e20d11`, before `eccadda` (wrap the
+360° seam in the matcher) and `f4c71c8` (`peaks_to_dets` dropped peaks beside the seam) landed.
+The branch has since merged `main`, so both fixes are in it, and `complementarity.py`'s own
+`matched_gt` — which produces the four cells — now calls the shared wrapping matcher instead of
+re-deriving the distance inline. That matters here because `score_pano` supplies the false-positive
+counts and union P/R/F1 printed in the same tables and wraps by default, so the two halves of one
+output were on different matchers.
+
+The earlier version of this paragraph quoted `score_pano`'s docstring as saying wrapping *"moves
+no metric on any committed split"*. **That is half the sentence.** In full: *"Wrapping moves no
+RampNet or YOLO metric on any committed split — but it does move the challengers."* The challenger
+is the side being partitioned here, so the half that was dropped is the one that applies, and the
+right way to settle it is to measure rather than to cite.
+
+**Measured, on the cells themselves** (both / rampnet-only / challenger-only / neither), wrapping
+against not wrapping:
+
+| arm | RampNet's side | cells | wrapped |
+|---|---|---|---|
+| vistas 384 (published) | bundle, ≥ 0.5519 | 194 / 44 / 22 / 50 | identical |
+| vistas 384 (published) | op_cache ≥ 0.30 | 202 / 55 / 14 / 39 | identical |
+| vistas 384 (published) | op_cache ≥ 0.05 | 213 / 66 / 3 / 28 | identical |
+| gemini-3.1-pro-preview, paterson (#35 gate) | bundle | 188 / 83 / 36 / 88 | identical |
+| gemini-3.1-pro-preview, paterson (#35 gate) | op_cache ≥ 0.30 | 194 / 90 / 30 / 81 | identical |
+| gemini-3.1-pro-preview, paterson (#35 gate) | op_cache ≥ 0.05 | 201 / 98 / 23 / 73 | identical |
+
+**Zero cell flips, at every threshold, on both arms.** So the published 384 column and the
+committed #35 gate numbers are unchanged by the wrap. **The parity arm cannot be re-checked** —
+its detections are not published — so for the 1024 columns and both `cascade_gate*.json` the bound
+is still the count below rather than a measurement.
+
+One residual, unchanged by the merge: `analysis_out/op_cache/richmond.json` was last written at
+`c7098be` (2026-07-28), i.e. **before** `f4c71c8`, so it can still be missing peaks that sit
+beside the seam. That would make a site read "no floor peak in radius" when one exists — it can
+only *understate* the promotable count, never inflate it.
+
+**Measured exposure on the artifacts: 6 of richmond's 310 GT ramps straddle the seam, and only 1
+of them is in `challenger_only`** (the other 5 are in `both`, where neither fix can move the
+partition in a direction that matters). So the worst case for the ~19-ramp ceiling is one ramp in
+38, and no conclusion here turns on it. That one ramp is now identified rather than bounded:
+`723487737079243` at x = 0.0069 (see the re-cut of the 38 above) has a 0.946 heatmap peak 7.4 px
+from the ramp and no op_cache peak within 117 px, so on a regenerated op_cache it is a RampNet hit
+at 0.30 and leaves `challenger_only` (38 → 37) — the ceiling of 19 does not move. Regenerating
+both artifacts once the parity detections are published is the clean way to retire that bound.
+
+##### Reproducing it
+
+The scored runs. These need a GPU and the native-resolution panoramas
+(`projectsidewalk/rampnet-benchmark`), and they are what produced the parity table:
+
+```bash
+# parity (the measurement)
+python scripts/model_comparison/compare.py benchmark/richmond \
+    --models rampnet,vistas:curb-cut --vistas-input-size 1024 1024
+
+# same-env control (the attribution) -- default 384, no override. It has the SAME
+# signature and cache key as the published 384 run, so on a clone that has written
+# the published detections into .model_cache (below) compare.py would find all 124
+# panos cached and never run the model: --no-cache (or a fresh --cache-dir) is what
+# makes this an actual re-inference rather than a re-score of the published arm.
+python scripts/model_comparison/compare.py benchmark/richmond --models vistas:curb-cut --no-cache
+
+# either, re-scored at the deployment threshold (free, reads the cache)
+python scripts/model_comparison/compare.py benchmark/richmond \
+    --models vistas:curb-cut --vistas-input-size 1024 1024 --op-threshold 0.30
+```
+
+The complementarity, null and cascade reads. Every one of these re-scores detections that are
+already cached, so they cost nothing; only `cascade_gate.py` needs a GPU, because it runs
+RampNet. `--vistas-input-size` is part of the cache key, so it is also what selects which run
+is being read: drop it to read the **published 384** arm instead of the parity arm.
+
+```bash
+# the four cells at parity, with the chance null measured on the miss subset
+python scripts/analysis/complementarity.py vistas:curb-cut richmond \
+    --vistas-input-size 1024 1024
+
+# the same, re-based on the operating point this document recommends
+python scripts/analysis/complementarity.py vistas:curb-cut richmond \
+    --vistas-input-size 1024 1024 --rampnet-op-threshold 0.30
+
+# density vs detection: boxes/pano, the shifted-pano null, above-chance
+python scripts/analysis/null_recall.py benchmark/richmond \
+    --models rampnet,vistas:curb-cut --vistas-input-size 1024 1024
+
+# the cascade gate, at the shipped point and at the recommended one. Needs a GPU
+# and the native-res panos; --panos-root is the checkout that holds them.
+python scripts/analysis/cascade_gate.py --panos-root /path/to/RampNet \
+    --model vistas:curb-cut --vistas-input-size 1024 1024 \
+    --json-out analysis_out/cascade_gate.json
+python scripts/analysis/cascade_gate.py --panos-root /path/to/RampNet \
+    --model vistas:curb-cut --vistas-input-size 1024 1024 \
+    --rampnet-op-threshold 0.30 --json-out analysis_out/cascade_gate_op030.json
+```
+
+`complementarity.py` and `null_recall.py` read `--cache-dir` (default `.model_cache`), which is
+git-ignored, so on a clean clone the published detections have to be written into one first.
+`benchmark/model_detections/<model>__<split>.json` records the signature they were cached under
+and `compare.cache_key(model, signature, city, pano_id)` is the shard name;
+`tests/test_complementarity.py` does the whole thing in eight lines and is the shortest working
+example. For the **parity** arm there is nothing to write — those detections are not published,
+and the private cache that held them is gone (see *Resolution parity*) — so the 1024 commands
+above need the `compare.py --vistas-input-size 1024 1024` run first, which regenerates them.
+
+**Cost, in both units.** Money: **$0** — makelab2 is lab-owned hardware with no metered
+billing, and every read above is free. Time: one leg of three was timed, and **the full 124-pano
+parity run takes 3m38s** on one A40. That was measured rather than guessed because the estimate
+going in was 3–4× and it was wrong in the cheap direction: the GPU forward goes 0.078 s →
+0.092 s per view, only **1.17×**. Swin's windowed attention scales far better than
+pixel count, and the documented "2.3 s/view" is dominated by reprojection and CPU work, not the
+encoder. Peak GPU memory is 1.64 GB. The same-env 384 control was **not timed** (the same 124
+panos at 1/7 the pixel area, so it is the cheaper of the two), and RampNet's row in that table
+costs no GPU at all — `--models rampnet` scores the bundle's committed detections without loading
+a model. **So there is no session total to quote; what is recorded is 3m38s for the one leg that
+was measured.** Verified before the run rather than assumed: the override
+reaches the model — `pixel_values` (1, 3, 384, 384) → (1, 3, 1024, 1024) and mask logits
+(1, 100, 96, 96) → (1, 100, 256, 256) — which a silently no-opping `processor.size` assignment on
+a new major version would not have done, and which would have made "parity" a second 384 run
+under a different cache key.
+
 Two mechanisms, both measured rather than assumed:
 
 - **The `curb-cut+curb` union is a clean negative result.** It was run to test whether recall
@@ -1483,7 +1979,8 @@ No new launcher; the arm needs nothing beyond the `transformers` + `torchvision`
 models already use, and Mask2Former is in-library (no `trust_remote_code`).
 
 ```bash
-PYTHON=$ENVPY MODELS=rampnet,vistas:curb-cut BUNDLE=benchmark/richmond     sbatch -A <account> scripts/model_comparison/run_open_models.slurm
+PYTHON=$ENVPY MODELS=rampnet,vistas:curb-cut BUNDLE=benchmark/richmond \
+    sbatch -A <account> scripts/model_comparison/run_open_models.slurm
 ```
 
 ## Status
@@ -1602,10 +2099,15 @@ reading anything into the numbers — predictions sit tight on the ramps, no off
 | **claude-opus-5** | **low** | 0.572 | 0.605 | **0.588** | 178/133/116 | 523 | $8.94 |
 | claude-opus-5 | high | 0.430 | 0.656 | 0.520 | 193/256/101 | 127,227 | $12.46 |
 
+The two Opus costs are the only ones here with independent corroboration: they were recorded
+from console output at run time, and Cloud Monitoring's minute series was later solved for
+the same split and returned $8.95 / $12.47 (§"Splitting a two-leg day by effort"). The Sonnet
+pair has no such check — that day's telemetry does not separate.
+
 **Every number in this table is re-derivable from committed files**, with no
 `.model_cache`, no API key and no GPU: the per-panorama detections are published under
 `benchmark/model_detections/claude-*-effort-*__annapolis.json`, and
-`tests/test_claude_annapolis_leg.py` recomputes the whole table from them on every CI run.
+`tests/test_claude_published_legs.py` recomputes the whole table from them on every CI run.
 A number edited here without re-running anything fails the suite.
 
 **Effort is an operating-point dial, never a quality lever.** Both models move the same
@@ -1618,11 +2120,30 @@ Same shape as this benchmark's Qwen 8B→32B finding, where scaling flipped the 
 instead of fixing it. Note that the expensive setting is the worse one — 127k thinking
 tokens to lose 0.068 F1.
 
-**`claude-opus-5` at `low` is the strongest general model measured on annapolis**, at
-0.588 — the first to displace `gemini-3.1-pro-preview` (0.567) from that slot. Against
+**`claude-opus-5` at `low` was the strongest general model measured on annapolis**, at
+0.588 — the first to displace `gemini-3.1-pro-preview` (0.567) from that slot — **until the
+two Fable legs (0.611 and 0.610, next section) displaced it in turn.** Against
 `claude-sonnet-5` at the same effort it gains **+0.224 recall at essentially unchanged
 precision** (0.589 → 0.572), which is a capability difference rather than a threshold
-shift. RampNet still leads it by **0.251** (0.839 vs 0.588).
+shift. RampNet leads it by **0.251** (0.839 vs 0.588).
+
+> **Superseded on the pooled board, 2026-08-19 (#139); re-pooled over eight splits
+> 2026-09-17 after #151 added `laurens_mapillary`.** That displacement is an annapolis
+> result and it does not generalise. Run on the other splits, `claude-opus-5` at `low` pools
+> to **F1 0.568 against `gemini-3.1-pro`'s 0.575** over the eight US city splits — an
+> annapolis lead of +0.021 becoming a pooled gap of −0.007, inside any reading of a tie.
+> **`gemini-3.1-pro` still tops the table, by less than 0.01.** Read per split rather than
+> pooled, the two trade wins — four each on the eight pooled splits, six of eleven overall
+> for Opus, with laurens_mapillary (+0.086) the largest pooled gap in Opus's favour (the
+> held-out laurens_gsv is wider still, +0.158) and gainesville (−0.069) and richmond
+> (−0.066) the largest against — so the honest reading is
+> not "Opus is worse" but **"per-split gaps whose range is 0.156 swamped a +0.021 lead"**.
+> What survives is the shape rather than the ranking: Opus trades **−0.077 precision for
+> +0.052 recall**, the highest recall of any chat VLM with full pooled coverage (0.586). The
+> pooled table is in [`model_scoreboard.md`](model_scoreboard.md); the paragraph above is
+> left as written because the annapolis numbers in it are still correct and are what the rest
+> of this section analyses. (On the seven-split board this note was first written against,
+> the same detections pooled to 0.588 against 0.608, 3 wins of 7; the eighth split moved it.)
 
 **Correction, 2026-08-18 — the sonnet/low row originally used a different denominator.**
 As first published it read 0.587 / 0.372 / 0.456 on `108/76/182`, which is **290** GT
@@ -1670,13 +2191,106 @@ prefix. That puts a 125-pano leg at **≈$3.60** and all ten splits at **≈$61*
 batch). Effort is the dominant lever: thinking bills as output at $10/MTok, and `low`
 spends none of it.
 
+### Claude Fable on annapolis (#156): the first legs served off Vertex
+
+**Serving path caveat, and it travels with every number below.** Vertex gates the whole
+Fable family behind a project-level publisher data-sharing setting
+(`PublisherModelConfig.data_sharing_enabled_provider`), so these two legs did **not** run
+on the Vertex path the four legs above used. They ran on Anthropic's first-party API under
+`--claude-serving-path anthropic`, a different account and a different rate card for the
+same weights. Same rig, same prompt, same tool definition, same `effort=low`, same JPEG
+q90 encoding. The path is deliberately **not** part of the detection cache key — it
+changes who bills, not what was asked, and putting it in the key would have orphaned the
+$28.82 of paid detections above — so it is recorded in `analysis_out/usage_log.jsonl` and
+in each published file's `pins` instead. Whether the two paths return bit-identical
+detections for one model id is **untested**; nothing here depends on it, because no model
+was run on both.
+
+| model | P | R | F1 | tp/fp/fn | boxes/pano | thinking tok | cost, 720 calls (120 of 125 panos) |
+| :--- | ---: | ---: | ---: | :--- | ---: | ---: | ---: |
+| `claude-fable-5` | 0.579 | 0.646 | **0.611** | 190/138/104 | 2.72 | 23,699 | $18.47 |
+| `claude-fable-5-1` | 0.637 | 0.585 | **0.610** | 172/98/122 | 2.28 | 254 | $19.86 |
+| *`claude-opus-5` (low), for reference* | *0.572* | *0.605* | *0.588* | *178/133/116* | *2.56* | *523* | *$8.94* |
+
+The cost and thinking-token columns are the two 720-call full-leg rows in
+`analysis_out/usage_log.jsonl` (2026-09-05 15:52 and 16:47), which cover 120 of the 125
+panos: the other 5 were served from the cache the calibration pass had already written.
+Counting that pass's first 30 calls on those 5 panos ($0.76 for `claude-fable-5`, $0.82 for
+`claude-fable-5-1`), each id's whole split cost **$19.23** and **$20.67**. The calibration's
+second pass (42 calls, $1.11, re-issued after a cache-write gap) is in the ledger too but
+belongs to neither leg's number. The Opus row is the whole 125-pano leg, from console
+output rather than the ledger (see the gap stated below).
+
+**Both displace `claude-opus-5` at the top of this split**, which had itself displaced
+`gemini-3.1-pro-preview` (0.567). This is the first time a general-purpose model has beaten
+Opus here. RampNet still leads by **0.228** (0.839 vs 0.611).
+
+**Within the family, the version is an operating-point dial — not a quality lever.** The
+two are separated by **0.001 F1**, which is nothing, while sitting at visibly different
+operating points: 5.1 trades 0.061 recall for 0.058 precision against 5, and emits 0.44
+fewer boxes per pano. That is the same shape as the effort finding above and the same shape
+as the Qwen 8B→32B inversion: the knob moves *where* on the P/R curve the model sits, and
+the ceiling does not move. Which one to prefer is therefore a decision about the
+objective, not about the models — and under this project's recall-first framing, where a
+false negative is permanent and a false positive is cheap, that argues for `claude-fable-5`
+despite it being the older id.
+
+**The always-on-thinking cost premise was wrong, and this is where it was measured.**
+Because the Fable family cannot disable thinking (`{"type": "disabled"}` is a 400 and
+`budget_tokens` was removed), #156 predicted a cost band "wider than a flat 2x" — no
+near-zero-thinking floor to make an `effort=low` leg cheap. It is a flat 2x. Fable is
+$10/$50 per MTok against Opus's $5/$25, and per call the legs cost 2.15x and 2.31x the
+Opus leg ($0.0257 and $0.0276 against $0.0119) — the whole-split totals above, $19.23 and
+$20.67 against $8.94, give the same ratios.
+`claude-fable-5` spent ~33 thinking tokens/call and `claude-fable-5-1` ~0.35, against
+Opus-low's ~0.7 — always-on thinking is *adaptive*, and on a localization task at low
+effort it costs essentially nothing. A 5-pano calibration predicted the full-leg cost to
+within 1.5% on both ids.
+
+**These legs are `standing=False` and cover annapolis only (1 of 8 pooled splits).** Both
+clear the pre-registered 0.567 gate for expanding to the full split set, so that expansion
+is now a live decision rather than a hypothetical — `manual_gold` is 1,000 panos × 6
+views = 6,000 calls, so at the measured full-leg rates ($0.0257/call for `claude-fable-5`,
+$0.0276/call for `claude-fable-5-1`) it is **~$154 and ~$165 per id** for that split alone.
+It has **not** been taken, and no other split has been run.
+
+**Reproducing them** (the detections are committed; nothing below needs an API key):
+
+```bash
+pytest -q tests/test_claude_published_legs.py   # recompute both rows from committed files
+```
+
+Re-exporting from a `.model_cache` that produced them needs the serving path as well as the
+effort — not because it changes the cache lookup (it does not), but because the registry
+uses it to resolve the leg's published filename:
+
+```bash
+for m in claude-fable-5-1 claude-fable-5; do
+  python scripts/analysis/export_model_cache.py --splits annapolis --models claude:$m --claude-effort low --claude-serving-path anthropic
+  python scripts/analysis/export_model_cache.py --verify --splits annapolis --models claude:$m --claude-effort low --claude-serving-path anthropic
+done
+```
+
+Re-running them from scratch needs `ANTHROPIC_API_KEY` (the repo-root `.env` is the
+gitignored home for it) and costs ~$40 (the whole-split totals above):
+
+```bash
+for m in claude-fable-5-1 claude-fable-5; do
+  python scripts/model_comparison/compare.py benchmark/annapolis --models claude:$m --claude-serving-path anthropic --claude-effort low
+done
+```
+
+Check reachability first — `python scripts/model_comparison/probe_claude_models.py
+--serving-path anthropic` — because a key with no credit balance authenticates and then
+fails every call with a 400 that says so.
+
 ### Reproducing these four legs, and one gap in the record
 
 The detections are committed, so the table above can be re-derived by anyone with a clone
 and nothing else:
 
 ```bash
-pytest -q tests/test_claude_annapolis_leg.py     # recompute the table from committed files
+pytest -q tests/test_claude_published_legs.py     # recompute the table from committed files
 ```
 
 Re-exporting them from a `.model_cache` that produced them needs the leg's settings, because
@@ -1691,37 +2305,189 @@ for m in claude-sonnet-5 claude-opus-5; do for e in low high; do
   python scripts/analysis/export_model_cache.py --verify --splits annapolis \
       --models claude:$m --claude-effort $e --publish-as $m-effort-$e
 done; done
+
+# and the eleven-split opus/low leg (#139, #151), which takes no --splits:
+python scripts/analysis/export_model_cache.py --verify \
+    --models claude:claude-opus-5 --claude-effort low \
+    --publish-as claude-opus-5-effort-low
+# -> on a cache holding every run, "11 pair(s): published detections score IDENTICALLY
+#    to the cache". Nobody has run it on such a cache: observed 2026-09-17 on the desktop
+#    cache, which never held the two Laurens runs, it printed "compared 9" and flagged
+#    both Laurens files as "NOTHING was compared" -- unverified, not verified.
 ```
 
 **The gap, stated plainly: the four original legs' token counts were never written to
-`analysis_out/usage_log.jsonl`, and they cannot be recovered.** The $28.82 total and the
-per-leg costs in the table above come from the runs' console output, not from a committed
-record. A re-run cannot back-fill them either — the detections are cached, so a repeat run
-makes zero API calls and has no usage to report. Only the 2026-08-18 single-panorama
-re-run ($0.03) is in the log.
+`analysis_out/usage_log.jsonl`.** The $28.82 total and the per-leg costs in the table above
+come from the runs' console output, not from a committed record. A re-run cannot back-fill
+them — the detections are cached, so a repeat run makes zero API calls and has no usage to
+report. Only the 2026-08-18 single-panorama re-run ($0.03) is in the log.
+
+**Recovered from Cloud Monitoring, 2026-08-19 — this paragraph previously said the counts
+"cannot be recovered", and that was wrong.** A re-run cannot back-fill them, but the
+server-side metrics can: `vertex_usage.py --days 7` returns billed tokens per model per day,
+and the #122 legs are four days inside the ~6-week retention window. They ran 2026-08-15 and
+land in the row labelled 2026-08-16, because each row is a 24 h window ending at the query's
+time of day rather than a calendar day.
+
+| model (both efforts, one row each) | input | output | billed | console figures |
+|---|---:|---:|---:|---:|
+| `claude-opus-5` (low + high) | 3,058,702 | 247,222 | **$21.47** | $8.94 + $12.46 = $21.40 |
+| `claude-sonnet-5` (low + high) | 3,300,368 | 118,471 | **$7.79** | $3.60 + $3.82 = $7.42 |
+| **total** | | | **$29.26** | **$28.82** |
+
+So the console numbers were right to within **1.5%**, and the table above stands as
+published. Two things this changes, and one it does not:
+
+- **The Opus per-leg split is recoverable too, at minute resolution.** The daily row is
+  per model, so `low` and `high` land in one number — but the metric can be aligned to 60 s
+  instead of 86,400 s, and the two legs leave different traces. `vertex_effort_split.py`
+  does this and confirms the console figures **to 0.1%**; the working is below.
+- **The Sonnet split is not recoverable, and the tool says so rather than guessing.**
+  Whether a per-effort split survives depends on whether effort actually changed the
+  model's behaviour, which makes this a property of the *result*, not of the telemetry.
+- **The method validated itself against the one leg that did log.** The 2026-08-18 Sonnet
+  re-run appears in monitoring as 12,594 input / 480 output — token-for-token identical to
+  its committed `usage_log.jsonl` record. Layer 3 reproducing layer 1 exactly, on the one
+  case where both exist, is what makes the recovered figures above trustworthy.
+- **It does not make the loss cheap.** Recovery worked because someone looked within six
+  weeks. Past that window this paragraph's original claim becomes true retroactively.
+
+#### Splitting a two-leg day by effort
+
+Cloud Monitoring has **no `effort` label** — effort is a request parameter and never
+reaches the metric, whose labels are `type`, `request_type`, `shared_request_type`,
+`source`, `explicit_caching` plus the resource's `model_user_id` / `model_version_id` /
+`publisher` / `location`. The daily alignment is a *query* choice, though, not a property
+of the data, so the lever is time plus two facts this repo already holds:
+
+1. **Input is deterministic** — 12,186 tokens per Opus panorama (6 views × 2,031). Total
+   input therefore pins the pano count exactly: the 08-15 Opus day is **251.00 panos** —
+   250 leg panos plus one panorama's worth of input (12,186 tokens, about $0.06) whose
+   origin is not in the record. The only single-panorama re-run in
+   `analysis_out/usage_log.jsonl` is Sonnet's, on 08-18, so it is not that; the likeliest
+   source is a smoke call or a 404 retry from the #122 enablement window (the "12/12
+   identical calls … 3 of 5 panos 404'd" measurement above, which did not name a model).
+   The geometric split drops it from both legs, which is why the two anchors sum to
+   $21.41 against the day's $21.47. The input half of the split needs no inference at all.
+2. **Effort bills as output, not input.** A high-effort leg has a higher output/input ratio
+   *and* a lower throughput, so when the fast leg finishes, both change at once.
+
+That leaves one unknown — how the output divides — and the minute series shows exactly the
+predicted shape. The legs ran **concurrently**, not back to back: throughput holds at ~5
+panos/min until **18:32 UTC**, then drops **2.54×** to ~1.7 while the output ratio doubles
+(0.0675 → 0.1203). That is the `low` leg finishing and leaving `high` running alone.
+
+| anchor | low effort | high effort | sum |
+|---|---:|---:|---:|
+| tail ratio = pure high (0.1203) | $9.21 | $12.20 | $21.41 |
+| low ratio = 0.0349, measured on the 984-pano #139 leg | **$8.95** | **$12.47** | $21.41 |
+| **console output, recorded at run time** | **$8.94** | **$12.46** | $21.40 |
+
+**The rate-anchored solve reproduces the console figures to 0.1%, from a completely
+independent source.** The anchor was taken from the #139 leg's measured output rate before
+either number was compared, so the agreement is a check, not a fit. Quote **$8.94 / $12.46**
+— the run-time record — and treat this as the corroboration that they are right.
+
+```bash
+python scripts/analysis/vertex_effort_split.py --model claude-opus-5 \
+    --start 2026-08-15T17:00:00Z --end 2026-08-15T21:30:00Z \
+    --per-pano-input 12186 --anchor-low-ratio 0.034908 \
+    --save-series docs/data/vertex_minute_series/claude-opus-5_2026-08-15.json
+```
+
+**The same command on `claude-sonnet-5` refuses to answer, and that is the more
+transferable result.** Sonnet's ratio is flat across its whole run — throughput drops only
+1.78× and the ratio moves the *wrong way* (0.0363 → 0.0273) — so there is no second
+component to find and the script prints `NOT SEPARABLE`. (First published as 1.63× and
+0.0365 → 0.0281: the changepoint search stopped one position short of the last full window,
+which is exactly where this series' largest drop sits, so the cut landed a minute early at
+17:35 instead of 17:36. Fixed 2026-09-17; the verdict does not move.) The reason is in the result table
+above: Sonnet's high leg spent **17,820** thinking tokens against Opus's **127,227**, so the
+dial that this method reads barely moved. A mixture solver run on that series returns "high
+effort cost less than low", which is false; the guard exists because the wrong answer is the
+plausible-looking one. **A per-effort split is recoverable exactly when effort changed the
+model enough to be worth splitting** — the telemetry is not the limiting factor.
+
+**The minute series is committed, so this section no longer has an expiry date.**
+Everything above was read out of telemetry with ~6 weeks of retention: the
+2026-08-15 series would have aged out around **2026-09-26** and the 2026-08-18 day
+around **2026-09-29**, after which nobody, with or without access to the project,
+could re-derive a number in it. `--save-series` writes the fetched rows to JSON and
+`--from-series` replays one, which needs no credentials, no project and no network:
+
+```bash
+python scripts/analysis/vertex_effort_split.py --model claude-opus-5 \
+    --from-series docs/data/vertex_minute_series/claude-opus-5_2026-08-15.json \
+    --per-pano-input 12186 --anchor-low-ratio 0.034908
+python scripts/analysis/vertex_effort_split.py --model claude-sonnet-5 \
+    --from-series docs/data/vertex_minute_series/claude-sonnet-5_2026-08-15.json
+```
+
+Four snapshots are committed under `docs/data/vertex_minute_series/`, all fetched
+2026-09-03, and replaying them reproduces every figure published above exactly:
+
+| file | window (UTC) | active minutes | input | output |
+|---|---|---:|---:|---:|
+| `claude-opus-5_2026-08-15.json` | 08-15 17:00-21:30, both effort legs | 76 | 3,058,702 | 247,222 |
+| `claude-sonnet-5_2026-08-15.json` | 08-15 12:00-21:30, both effort legs | 55 | 3,300,368 | 118,470 |
+| `claude-opus-5_2026-08-18.json` | 08-18 00:00 - 08-19 12:00, the #139 leg | 83 | 11,988,993 | 418,503 |
+| `vertex_usage_daily_2026-09-03.json` | the daily rows, 25-day lookback | - | - | - |
+
+Four details worth knowing before re-running any of it. The Sonnet window is wider
+than the Opus one because that leg started before 17:00 — the narrower window clips
+it to 3,157,769 input and moves the head ratio to 0.0374, which is why the figures
+quoted above need the wide one. Sonnet's output is one token under the daily row's
+118,471, and the cause is not identified: the 60 s deltas over a window that holds the
+whole run should sum to the daily delta (the Opus series matches its row to the token),
+and the fetch that wrote these files kept only minutes with input tokens, so a minute
+holding a single output token and no input — a response finishing after its request
+was counted, the shape of the 2-token smoke minutes at 16:13–16:14 — would have been
+dropped before the file was saved. That filter is gone (`minute_rows` keeps every
+minute with any tokens), but the committed series were fetched under it, so a re-fetch
+inside the retention window could carry one more row than these do. The daily-row
+snapshot, written by `vertex_usage.py --save-rows`, carries every token type including
+the three cache buckets that are zero here: a snapshot that quietly dropped a billed
+bucket would be worse than no snapshot. Only `fetched_utc` moves between regenerations;
+the rows are byte-stable, and `tests/test_vertex_effort_split.py` asserts that for all
+four files — `test_the_daily_snapshot_backs_the_published_cost_table` opens the daily
+file, pins the four Claude rows, prices them to the $21.47 / $7.79 / $70.41 / $0.03 in
+the table above and round-trips it through `write_json`.
 
 Two guards now stand where that went wrong, and the order matters. `compare.py` **refuses to
 start** a paid leg under `--usage-log none` (override: `--allow-unrecorded-spend`), which is
 the check that fires while the money is still unspent; `report_usage` still warns loudly at
 the end of a leg that logged nothing, for the case where the log path existed but could not
-be written. A warning after the fact could not have saved these four legs — by the time it
-prints, the tokens are bought and the counts are already unrecoverable.
+be written. A warning after the fact would still have been worth having: everything above was
+reconstructed five days late, and the only reason it worked is that nobody waited six weeks.
+What the reconstruction cannot give you is a *guarantee* — Opus separated because its effort
+dial moved 127k thinking tokens, Sonnet's did not separate at all, and which case you are in
+is not knowable until after the money is spent. Layer 1 is the only layer that always works.
 
-## Cost accounting for paid models
+## Cost accounting: what a run cost in time and money
 
-**Standing rule: every experiment that spends API money records what it spent, at the time
-it runs.** A paper reports cost alongside accuracy, and a token count that wasn't captured
-at run time has to be reconstructed later (or lost). Three layers:
+**Standing rule: every experiment on a non-free model or non-free compute records both its
+wall-clock time and its spend, at the time it runs (#143).** A paper reports cost alongside
+accuracy, and neither number survives being left for later — a re-run reads the detection
+cache, makes no calls and returns in seconds, so it reproduces neither the token counts nor
+the runtime. Three layers, plus a separate ledger for cluster compute:
 
-1. **At run time** — `compare.py` accumulates each paid provider's own usage metadata
-   (currently Gemini; local GPU models are free in API terms) and appends one JSONL record
-   per model run — token counts, panos actually scored, detector signature, estimated cost —
-   to `--usage-log` (default **`analysis_out/usage_log.jsonl`**, which is committed;
-   `--usage-log none` disables). Cached panos make no call, so the record is what *that run*
-   actually paid, not what a full run would cost. The append happens in a `finally`, so a leg
+1. **At run time** — `compare.py` appends one JSONL record per model run to `--usage-log`
+   (default **`analysis_out/usage_log.jsonl`**, which is committed; `--usage-log none`
+   disables). Every leg that spent something gets a row: **wall-clock, model-load seconds,
+   inference seconds, panos actually put through the model and seconds-per-pano always**, and
+   token counts + estimated cost when the provider bills for them (a `paid` flag says which).
+   Cached panos make no call, so the record is what *that run* actually paid, not what a full
+   run would cost — and per-pano figures divide by `panos_called`, never by the bundle size.
+   The append happens in a `finally`, so a leg
    that dies or is interrupted after paying still records its spend — that is the case the
    rule exists for — and a failure to write the file degrades to printing the record rather
    than aborting the comparison.
+   **Free local models get a row too.** OWLv2, Grounding DINO, Qwen, Molmo and the YOLO arms
+   bill no tokens and cost real GPU-hours; before #143 they returned early and left no record
+   at all, which is why their runtimes below are prose transcribed by hand rather than
+   anything a script can re-derive. Two legs deliberately write nothing: a fully cached
+   re-score (it spent nothing) and `--models rampnet`, which replays detections already
+   committed to the bundle rather than running a model.
    Each record also carries **`model_versions`** — the build(s) that actually served the run.
    **A pinned model id is an alias, not a build**: `gemini:gemini-3.7-flash` in `--models`
    resolves to whatever the provider currently serves under that name, and the alias moves.
@@ -1745,6 +2511,86 @@ at run time has to be reconstructed later (or lost). Three layers:
    its numbers.** That is why layer 1 is committed: the table below is transcribed from a
    source others cannot query, while `analysis_out/usage_log.jsonl` is checkable from a
    clean clone.
+
+### Reconcile, or a silent no-write goes unnoticed
+
+Layers 1 and 3 measure the same spend two ways, and until #143 nothing compared them.
+`vertex_usage.py --reconcile` does: it totals the committed ledger per model over the same
+window as the metric query and prints both side by side.
+
+```bash
+python scripts/analysis/vertex_usage.py --days 3 --reconcile
+```
+
+It is the **only** check that catches a leg which ran, billed, and left no row — the #139
+failure. The verdicts are deliberately asymmetric: `billed > ledger` is spend with no record
+and is called out, while `ledger > billed` is odd but harmless (a re-run, or a row stamped
+just outside the window). Tolerance is 2%, because Cloud Monitoring's daily rows are 24 h
+windows ending at the query's time-of-day rather than calendar days, so a leg straddling the
+boundary moves either way. Run it the day a paid leg finishes, not at writing-up time.
+
+It also separates a gap nobody has looked at from one that is already written down. A row
+marked `kind: recovered` is never counted as logged — it was read off this same bill, so
+counting it would compare the bill against itself — but it is totalled in its own column and
+subtracted before the verdict. So #139's 11,940,249 opus tokens now read `ok (1 recovered)`
+rather than raising the same emergency on every run, and only the unexplained remainder gets
+`UNDER`.
+
+### Cluster compute is a fourth ledger
+
+Layers 1–3 cover API money. They say nothing about GPU-hours, which is what most of the
+roster actually costs and the whole of what a Tillicum run costs.
+`scripts/analysis/slurm_usage.py` scrapes `sacct` into **`analysis_out/compute_log.jsonl`**
+— one row per job allocation with elapsed, GPUs, GPU type, GPU-hours, QoS and dollars, priced
+from `COMPUTE_PRICING` in `pricing.py` (verified-only, same discipline as the token table).
+
+```bash
+python scripts/analysis/slurm_usage.py --cluster tillicum --since 2026-07-01
+python scripts/analysis/slurm_usage.py --cluster klone --user <cluster account> --from-file sacct_klone.txt
+```
+
+Three details that a hand tally gets wrong:
+
+- **`sacct -D`.** By default Slurm reports only the *last* incarnation of a requeued job. Our
+  klone runs live on the preemptable `ckpt` partition — the paper's Stage 2 run was 15
+  preemptions, 44.7 h of compute across 74.6 h of calendar — so without `-D` most of a
+  preempted run's compute silently disappears. Rows are keyed on **(cluster, job id, start)**
+  for the same reason.
+- **GPU-hours = elapsed × N GPUs**, which is how Tillicum bills: an idle GPU in a 2-GPU job
+  costs exactly what a busy one does. `gres/gpu=2` and `gres/gpu:a40=2` are the same GPUs
+  reported twice, so the generic count wins rather than being summed.
+- **Unpriced ≠ free.** klone is $0 because that was checked; a cluster with no entry returns
+  `None`. Only one of those is safe to put in a paper.
+
+Unlike tokens, this half is **partly back-fillable** — `sacct` retains job records — which is
+the argument for running it now rather than at writing-up time. `--save-raw` keeps the exact
+dump a run parsed, so committing it makes the numbers re-derivable by someone with no cluster
+account.
+
+### The ledger has to outlive the run
+
+`--usage-log` used to default to a path derived from the *running file's* checkout. From a
+linked worktree that is the worktree — so a leg run from a scratch worktree wrote its ledger
+there, and the ledger died with the worktree. That is how the #139 `claude-opus-5` leg spent
+$70.41 and left no row.
+
+The #119 guard cannot catch this, and it is worth being precise about why: it proves a log
+path was **accepted**, not that the file it wrote still **exists**. The operator followed the
+rule and lost the record anyway. Nor would promoting the rule into `CLAUDE.md` have helped —
+this is not a discipline failure.
+
+Both ledgers now resolve through `git rev-parse --git-common-dir`, which every worktree of a
+repo shares, so they all append to one canonical file in the main checkout; an explicit
+`--usage-log` pointing into a worktree warns; and each logged leg prints the **absolute** path
+plus the running total, so a run that logged somewhere unexpected is visible while someone is
+still watching. It falls back to the local checkout whenever git can't answer (a tarball, an
+HF clone) — bookkeeping must never be the reason a run refuses to start.
+
+The credentials resolve the same way. `compare.py` and `vertex_usage.py` read `.env` from the
+worktree they are running in *and* from the main checkout, worktree first so a deliberate
+local override still wins: a scratch worktree does not carry the `.env`, and a leg that cannot
+find `GOOGLE_CLOUD_PROJECT` or an API key from the place it was most likely launched is a leg
+that does not run — including the recovery tool itself.
 
 **Measured: the complete Gemini history of this benchmark** (Cloud Monitoring,
 2026-08-15; every Gemini leg ever run on the project — richmond/bend 07-23/24 onward —
@@ -1778,6 +2624,74 @@ Models differ by an order of magnitude in how much they do that (gemini-3.6-flas
 6.1M output tokens where gemini-3.1-pro emitted 0.59M on comparable input), which is why
 flash legs are not as cheap relative to pro as the rate card suggests — the 3.6-flash /
 3.1-pro gap is $1.98 vs $2.31 per leg, not the 2.7× the input rates alone imply.
+
+### The claude-opus-5 nine-split leg: layer 1 failed, layer 3 recovered it (#139)
+
+**This is the case the three-layer scheme was designed for, and it is worth reading as a
+worked example rather than a footnote.** The eight-split `claude-opus-5` run of 2026-08-18
+(984 panoramas: bend, budapest_district5, clovis, gainesville, morgantown, paterson,
+richmond, sao_paulo) **wrote no record to `analysis_out/usage_log.jsonl`.** As of
+2026-08-19 the ledger held three entries totalling $0.34 — one `claude-sonnet-5` annapolis
+leg and two richmond smoke tests — and nothing for the run itself. Layer 1 simply did not
+fire. (The three Laurens rows of 2026-09-04, $12.78, came later and are #151's.)
+
+Layer 3 recovered the ground truth the next day:
+
+| model | input tokens | output tokens | est. cost |
+|---|---:|---:|---:|
+| claude-opus-5 (the eight splits, 984 panos, 08-18) | 11,988,993 | 418,503 | **$70.41** |
+| claude-sonnet-5 (re-run remnant) | 12,594 | 480 | $0.03 |
+
+`python scripts/analysis/vertex_usage.py --days 3`, run 2026-08-19.
+
+**Wall-clock, recovered 2026-09-03 from the same metric at 60 s alignment:
+2026-08-18 23:29 to 2026-08-19 01:15 UTC — a 106-minute span, 83 of those
+minutes active, 9.3 panos/min.** Layer 1 would have recorded that at run time;
+layer 3 gives it back only because someone looked inside the retention window, so
+the series is committed as
+`docs/data/vertex_minute_series/claude-opus-5_2026-08-18.json` and the span is
+re-derivable from the repo alone. The 425 output tokens/pano below come from the
+same file.
+
+**The four richmond
+smoke panos are inside that 984, not additional to it** — both smoke records carry
+`bundle: richmond`, the export covers all 124 richmond panos, and the main run found those
+four already cached and re-billed nothing. For the same reason the ledger's $0.31 of smoke
+spend is a *subset* of the $70.41 above, not a line to add to it. Four things follow, and
+the last one is the one that bites:
+
+- **Input tokens are deterministic, so the input half is checkable without any cloud
+  access.** An Opus pano is exactly **12,186 tokens** (6 views × 2,031), identical in both
+  smoke records. 984 panos predicts 11,991,024 against 11,988,993 billed — 0.02% out.
+  Precisely: the billed figure is 2,031 × **5,903**, one view short of the 5,904 the
+  geometry demands, and that single missing call is unexplained. Anyone can re-derive this
+  from the committed detections; it is $59.94 of the $70.41. A second, fully independent
+  check agrees — the annapolis leg's measured **$8.94/125 panos** scales to $70.4 for 984.
+- **The output half cannot be reconstructed this way.** Extrapolating the smoke runs'
+  688 output tokens/pano (2,752 tokens over four panos, across two records) gives $16.92
+  where the true figure is $10.46 — **62% high**, because output is thinking plus box count
+  and those four panos were unusually verbose. Actual: 425 output tokens/pano. Estimate
+  input from geometry; never estimate output.
+- **Recovery is per-model per-day, not per-split.** Cloud Monitoring cannot say what
+  richmond cost as distinct from clovis. That attribution is permanently gone, which is
+  tolerable here only because the eight splits were one contiguous run of one model.
+- **The recovery window is ~6 weeks and then it is not.** Had this gone unnoticed until
+  October the number would have been unrecoverable at any price. **A missing layer-1 record
+  is an emergency with a deadline, not a paperwork error** — run `vertex_usage.py` the
+  moment a paid leg finishes without logging, not when someone next reads the doc.
+
+The `--usage-log none` guard added in #119 refuses to start a paid leg with logging
+disabled, so the likely mechanism is a run whose `REPO_ROOT` resolved to a scratch worktree
+that was later deleted, taking the ledger with it. That is a real hole: the guard proves a
+log path was *accepted*, not that the file it wrote still exists. See #143.
+
+**Corroborating evidence for that mechanism, found while reviewing this section.**
+`REPO_ROOT` is derived from `__file__`, so *every* repo-root path breaks the same way in a
+worktree — including the read side. Run `vertex_usage.py` from a worktree and it exits with
+"no project: pass `--project`, or set `GOOGLE_CLOUD_PROJECT`… in a repo-root `.env`",
+because the `.env` sits in the main checkout. Same root cause, both directions: a leg run
+from a worktree writes its ledger somewhere disposable, and the tool that would recover the
+spend cannot even find the project id. Pass `--project` explicitly when running from one.
 
 ## Running it
 
@@ -2111,6 +3025,10 @@ What this split adds to the story:
 - `scripts/analysis/vertex_usage.py` — server-side reconciliation: actual billed tokens per
   model from Cloud Monitoring. Needs ADC on the billing project, so only its output is
   replicable from this repo.
+- `scripts/analysis/vertex_effort_split.py` — divides one such daily total between two legs
+  of the same model (the #122 low/high pairs) using minute alignment plus the deterministic
+  input geometry. Refuses with `NOT SEPARABLE` when the legs leave no distinguishable
+  trace, which is the Sonnet case. Same ADC requirement.
 - `analysis_out/usage_log.jsonl` — committed, append-only record of what each paid run spent.
 - `requirements-vlm.txt` — optional VLM deps.
 - `tests/test_detection_eval.py`, `tests/test_model_comparison.py`,

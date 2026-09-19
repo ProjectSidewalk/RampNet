@@ -39,7 +39,7 @@ re-reviews (`gt_gallery.py` prefills and re-exports them). Schema:
 `records.jsonl` + `verdicts.json` are all the **scoring** needs — they're image-free, so
 precision/recall reproduce with no imagery. Score with:
 
-```
+```bash
 python scripts/score_validation.py benchmark/<city>
 ```
 
@@ -521,7 +521,7 @@ benchmark/manual_gold/
 No verdicts means `scripts/score_validation.py` and `scripts/gt_gallery.py` do **not** apply
 here; the split is scored by the model-comparison harness only:
 
-```
+```bash
 python scripts/fetch_manual_gold.py --audit       # id membership/overlap audit, no download
 python scripts/fetch_manual_gold.py --images-only # imagery for THIS machine (run on Hyak)
 python scripts/export_gold_records.py --checkpoint <stage2.pth>   # RampNet detections + gate

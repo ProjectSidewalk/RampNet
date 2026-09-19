@@ -275,6 +275,40 @@ def test_a_pinned_leg_publishes_under_its_registry_name_without_being_told():
     assert em.publication_name("gemini:gemini-9-turbo", cargs) == "gemini-9-turbo"
 
 
+@pytest.mark.parametrize("spec", ["claude:claude-fable-5", "claude:claude-fable-5-1"])
+def test_a_registered_spec_whose_pins_all_miss_refuses_the_bare_label(spec):
+    """Both Fable legs pin claude_serving_path=anthropic; the default is vertex. The
+    path is not in the cache key, so an export at the defaults found every pano,
+    named the file `claude-fable-5__annapolis.json`, wrote `pins: {}`, collided with
+    nothing, and reported success. The effort pin never had this hole because its
+    default (`low`) matches the published legs; the serving-path default matches
+    neither. (S1 on PR #157.)"""
+    cargs = em._compare_args(".model_cache")
+    assert cargs.claude_serving_path == "vertex"          # the trap, as shipped
+    with pytest.raises(ValueError) as err:
+        em.publication_name(spec, cargs)
+    msg = str(err.value)
+    # The message names what the registry knows and what the run had, so the fix is
+    # readable off the error rather than off the roster.
+    assert "claude_serving_path=anthropic" in msg
+    assert "claude_serving_path=vertex" in msg
+    assert "--publish-as" in msg
+    cargs.claude_serving_path = "anthropic"
+    assert em.publication_name(spec, cargs).endswith("-effort-low-anthropic")
+
+
+def test_the_same_hole_on_the_effort_pin_is_closed_too():
+    """Pre-existing shape of the same bug: `claude:claude-sonnet-5` has legs at
+    effort low and high only, so `medium` used to publish as the bare
+    `claude-sonnet-5`."""
+    cargs = em._compare_args(".model_cache")
+    cargs.claude_effort = "medium"
+    with pytest.raises(ValueError, match="claude_effort=medium"):
+        em.publication_name("claude:claude-sonnet-5", cargs)
+    # --publish-as remains the way to name a leg that is genuinely new.
+    assert em.publication_name("claude:claude-sonnet-5", cargs, "sonnet-medium") == "sonnet-medium"
+
+
 def test_publish_as_refuses_more_than_one_spec(tmp_path):
     with pytest.raises(ValueError, match="ONE leg"):
         em.export("/nope", str(tmp_path), ["annapolis"],
@@ -335,6 +369,19 @@ def test_the_ledger_count_matches_the_directory():
     row = re.search(r"model_detections/`[^|]*\|[^|]*\((\d+) files\)", text)
     assert row and int(row.group(1)) == len(published), (
         "the 'Status by input' table's file count disagrees with the directory")
+
+    # The per-leg breakdown is the half a reader uses to find a given file's write-up,
+    # and it is the half that drifts: #139 published eight files and updated only the
+    # total, leaving rows that summed to 114 under a heading that said 122. A total
+    # nobody can decompose is not a ledger, so check the decomposition too.
+    block = re.search(r"^\| what \| files \|.*?\n\n", text, re.S | re.M)
+    assert block, "docs/replication.md no longer has a '| what | files |' breakdown table"
+    rows = re.findall(r"^\|[^|\n]+\|\s*(\d+)\s*\|", block.group(0), re.M)
+    assert rows, "the breakdown table has no countable rows"
+    assert sum(int(n) for n in rows) == len(published), (
+        f"the per-leg breakdown in docs/replication.md sums to "
+        f"{sum(int(n) for n in rows)} ({'+'.join(rows)}), but {em.PUBLISHED_DIR} holds "
+        f"{len(published)}. A row is missing or stale — the total alone is not the ledger.")
 
 
 def test_every_published_file_is_in_canonical_form():

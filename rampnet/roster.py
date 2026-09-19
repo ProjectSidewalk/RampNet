@@ -34,6 +34,15 @@ Five properties of an entry are worth stating because they are easy to get wrong
   ``claude-sonnet-5`` at effort ``low`` and at effort ``high`` are different runs with
   different cache keys and different results. Each is its own entry, and ``pins``
   names the knob it holds, as ``(("claude_effort", "high"),)``.
+
+  **A pin is what the leg needs to REPRODUCE, which is a superset of what enters the
+  signature.** ``claude_serving_path`` (#156) is the first pin that is not a
+  signature key: a Fable leg must run against ``anthropic`` because Vertex gates that
+  family, but the path does not change the detections and deliberately stays out of the
+  cache key (see ``ClaudeDetector.signature``). Pinning it anyway is what keeps a
+  bare ``claude:claude-fable-5-1`` from resolving to a Vertex run that 403s. Note the
+  consequence for naming: ``published_as`` must spell out every pin's value, so such a
+  leg is ``claude-fable-5-1-effort-low-anthropic``.
 * ``published_as`` is the filename stem under ``benchmark/model_detections/``, and it
   defaults to ``label``. It exists because ``label`` cannot carry a pin: the label is
   baked into cache keys that were already paid for, so renaming it orphans the
@@ -181,23 +190,35 @@ ROSTER = (
              "at 0.05, roughly double the YOLO11 arms -- which is why it leads only "
              "on budapest, where firing at all is the binding constraint."),
 
-    # The Claude legs (#122). Two model ids x two efforts, all four on annapolis;
-    # the opus/low leg also covers both Laurens arms (#151, 2026-09-04). Still far
-    # short of the ten splits the standing rows report, so they stay off the roster
-    # tables and the write-up scopes each number to the splits it was measured on.
-    # The first provider whose knob splits one id into several legs, hence `pins`
-    # and `published_as`.
+    # The Claude legs (#122). Two model ids x two efforts, all four on annapolis.
+    # The opus/low leg now covers eleven splits -- the nine of #139 plus both
+    # Laurens arms (#151, 2026-09-04) -- so it is a complete leg on the scoreboard;
+    # the other three are annapolis only and stay off every pooled table, with the
+    # write-up scoping each number to the split it was measured on. None is
+    # `standing`: a pinned leg cannot be, because both efforts of one model id share
+    # a spec (see the check below). The first provider whose knob splits one id
+    # into several legs, hence `pins` and `published_as`.
     Challenger(
         spec="claude:claude-opus-5", label="claude-opus-5", provider="claude",
         density="sparse", standing=False, added="2026-08-15",
         pins=(("claude_effort", "low"),),
         published_as="claude-opus-5-effort-low",
-        note="Top challenger on annapolis (F1 0.588), the first model to displace "
-             "gemini-3.1-pro. 2.56 boxes/pano. Effort low is the provider default, "
-             "so this is what a bare `claude:claude-opus-5` reproduces. Also the "
-             "best zero-shot model on BOTH Laurens arms (0.430 mapillary, 0.437 "
-             "gsv) -- and flat across them (+0.007) where RampNet gains +0.115, "
-             "which is what makes #151's rig-not-town reading sharp."),
+        note="Eleven splits: nine in #139, both Laurens arms in #151. Pooled F1 0.568 "
+             "over the eight city splits, within 0.01 of gemini-3.1-pro's 0.575 -- its "
+             "+0.021 annapolis lead, the only time anything displaced the top "
+             "challenger, did not survive pooling, but neither did a deficit: the two "
+             "split 4 wins each on the pooled eight (Opus 6 of 11 overall), and the "
+             "pooled per-split gaps range from -0.069 (gainesville) to +0.086 "
+             "(laurens_mapillary; the held-out laurens_gsv is wider, +0.158), so the "
+             "annapolis lead was split noise, not a difference. Highest recall of any "
+             "fully-pooled chat VLM "
+             "(0.586), trading -0.077 precision for +0.052 recall. Best zero-shot model "
+             "on BOTH Laurens arms (0.430 mapillary, 0.437 gsv) and flat across them "
+             "(+0.007) where RampNet gains +0.115, which is what makes #151's "
+             "rig-not-town reading sharp. 2.54 boxes/pano over eleven splits (2.56 on "
+             "annapolis alone). No manual_gold row, deliberately: #144. Effort low is "
+             "the provider default, so this is what a bare `claude:claude-opus-5` "
+             "reproduces."),
     Challenger(
         spec="claude:claude-opus-5", label="claude-opus-5", provider="claude",
         density="sparse", standing=False, added="2026-08-15",
@@ -220,6 +241,31 @@ ROSTER = (
         published_as="claude-sonnet-5-effort-high",
         note="1.98 boxes/pano. Loses F1 to effort in the same direction as Opus, "
              "which is what makes that a pattern rather than one model's quirk."),
+    # #156. The first legs served OFF Vertex -- that family is gated there behind a
+    # publisher data-sharing setting, so these ran on Anthropic's first-party API.
+    # The serving path is NOT in the detection signature (it does not change the
+    # answer; see ClaudeDetector.signature), but it IS pinned, because reproducing
+    # these legs requires it -- which is why `published_as` spells it out.
+    Challenger(
+        spec="claude:claude-fable-5-1", label="claude-fable-5-1", provider="claude",
+        density="sparse", standing=False, added="2026-09-05",
+        pins=(("claude_effort", "low"), ("claude_serving_path", "anthropic")),
+        published_as="claude-fable-5-1-effort-low-anthropic",
+        note="F1 0.610 on annapolis (P 0.637 / R 0.585), 2.28 boxes/pano. Clears "
+             "the 0.567 gate and displaces claude-opus-5 effort-low (0.588) -- the "
+             "first general-purpose model to do so on this split. Tied with "
+             "claude-fable-5 (0.611) at a MORE PRECISE operating point, which is "
+             "the whole difference between them."),
+    Challenger(
+        spec="claude:claude-fable-5", label="claude-fable-5", provider="claude",
+        density="sparse", standing=False, added="2026-09-05",
+        pins=(("claude_effort", "low"), ("claude_serving_path", "anthropic")),
+        published_as="claude-fable-5-effort-low-anthropic",
+        note="F1 0.611 on annapolis (P 0.579 / R 0.646), 2.72 boxes/pano. "
+             "Indistinguishable from claude-fable-5-1 on F1 while trading 0.058 "
+             "precision for 0.061 recall: within this family the model version is "
+             "an operating-point dial, the same shape as effort in #123. Also "
+             "spends ~33 thinking tokens/call against 5.1's ~0.35, for no F1."),
 )
 
 #: Specs whose label cannot be derived from the spec, because the ``model_id`` slot
@@ -279,6 +325,14 @@ PROVIDER_DEFAULTS = {
     # cache key and every lookup misses.
     "claude_image_format": None,
     "claude_temperature": None,
+    "claude_max_tokens": None,
+    # Which account serves the calls. `vertex` is what all four published legs ran
+    # on, so it stays the default; the Fable legs pin `anthropic` because Vertex
+    # gates that family. Unlike the three settings above, this one does NOT enter
+    # the detection signature -- see ClaudeDetector.signature -- so changing it
+    # does not orphan the cache. It is still a pin, because reproducing a Fable
+    # leg requires it.
+    "claude_serving_path": "vertex",
     "qwen_model": "Qwen/Qwen3-VL-8B-Instruct",
     "qwen_coord_space": "auto",
     "owlv2_model": "google/owlv2-large-patch14-ensemble",
@@ -427,6 +481,17 @@ def label_for(spec, cargs=None):
     return PROVIDER_DEFAULTS.get(key, provider)
 
 
+def legs_of(spec, cargs=None):
+    """Every registered leg a spec could name, in roster order.
+
+    ``leg_for`` picks one of these by matching pins against ``cargs``. Callers that
+    need to know *why* nothing matched -- the exporter, which must not fall back to
+    a bare filename when every candidate is pinned -- read the whole list.
+    """
+    label = label_for(spec, cargs)
+    return [c for c in ROSTER if c.spec == spec or c.label == label]
+
+
 def leg_for(spec, cargs=None):
     """The registered leg a run resolves to, or ``None`` if it is not registered.
 
@@ -436,8 +501,7 @@ def leg_for(spec, cargs=None):
     name a file without being told (see ``published_name``) instead of relying on
     whoever ran it to remember ``--publish-as``.
     """
-    label = label_for(spec, cargs)
-    candidates = [c for c in ROSTER if c.spec == spec or c.label == label]
+    candidates = legs_of(spec, cargs)
     for c in candidates:                      # a pinned leg wins when its pins match
         if c.pins and all(getattr(cargs, k, None) == v for k, v in c.pins):
             return c

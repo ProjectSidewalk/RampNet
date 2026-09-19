@@ -70,6 +70,32 @@ PRICING = {
         "cache_read_per_m": 0.50, "cache_write_per_m": 6.25, "as_of": "2026-08-15",
         "note": "Vertex `global`; regional +10%.",
     },
+    # Claude Fable via Anthropic's FIRST-PARTY API (#156), not Vertex: that family
+    # is gated on Vertex behind the publisher data-sharing setting, so these legs
+    # run on a different account and a different rate card. Source: the Anthropic
+    # pricing page (claude.com/pricing), read 2026-09-05 -- i.e. the page that
+    # actually governs this billing path. No endpoint dimension here, so unlike
+    # the Vertex rows above there is no regional premium to get wrong.
+    #
+    # Both ids are $10/$50, exactly 2x claude-opus-5. The cache rows are why this
+    # had to be READ: Fable 5 reads cache at the standard 0.1x of input ($1.00),
+    # but Fable 5.1 reads at $0.25/MTok, which is NOT any multiplier of its input
+    # rate. Deriving these from the usual multipliers would have overstated 5.1's
+    # cache reads 4x. Both write at 1.25x input, the standard 5-minute-TTL rate.
+    # Zero on every run so far -- nothing sets cache_control, and the tool
+    # definition renders below the minimum cacheable prefix -- but recorded so the
+    # first run that does is priced whole rather than silently low.
+    "claude-fable-5": {
+        "input_per_m": 10.00, "output_per_m": 50.00,
+        "cache_read_per_m": 1.00, "cache_write_per_m": 12.50, "as_of": "2026-09-05",
+        "note": "Anthropic first-party API, NOT Vertex (gated there). No regional tier.",
+    },
+    "claude-fable-5-1": {
+        "input_per_m": 10.00, "output_per_m": 50.00,
+        "cache_read_per_m": 0.25, "cache_write_per_m": 12.50, "as_of": "2026-09-05",
+        "note": ("Anthropic first-party API, NOT Vertex (gated there). No regional "
+                 "tier. Cache read $0.25/MTok is a rate of its own, not 0.1x input."),
+    },
 }
 
 
@@ -101,3 +127,71 @@ def estimate_cost(model_id, input_tokens, output_tokens,
     if cache_write_tokens and "cache_write_per_m" in p:
         usd += cache_write_tokens * p["cache_write_per_m"]
     return usd / 1e6
+
+
+# --- compute, not tokens ----------------------------------------------------
+#
+# The other half of what an experiment costs (#143). Same discipline as the token
+# table above: verified-only, each entry carrying the date it was checked and where
+# it came from. GPU-hours are the durable measurement; the dollar figure is an
+# estimate and the billing system is authoritative.
+#
+# `usd_per_gpu_hour` is applied to GPU-hours = elapsed wall-clock x N GPUs, which
+# is how Tillicum defines the unit -- an idle GPU in a 2-GPU job bills exactly like
+# a busy one. `qos_usage_factor` is Slurm's own UsageFactor per QoS.
+COMPUTE_PRICING = {
+    "tillicum": {
+        "usd_per_gpu_hour": 0.90,
+        "as_of": "2026-07-30",
+        "source": ("hyak.uw.edu/docs/systems/tillicum + the 2026-07-29 provisioning "
+                   "email; QoS factors from `sacctmgr show qos`, read 2026-07-31"),
+        "qos_usage_factor": {
+            "debug": 0.0, "normal": 1.0, "interactive": 1.0,
+            "urgent": 1.0, "long": 1.0, "wide": 1.0,
+        },
+        # This caveat has to travel with any "free" figure quoted from `debug`:
+        # Slurm bills that QoS at UsageFactor 0, but `hyakusage` charged the 2-minute
+        # smoke job (198638) 0.03 GPU-hours / $0.03 anyway -- raw wall-clock x rate,
+        # the factor apparently not applied -- even though its own header says
+        # "billable GPU hours = raw GPU hours x QOS multiplier". The two tools state
+        # different things and we do not know which one ITBill follows. Exposure is
+        # capped at $0.90/job (debug is 1 h x 1 GPU), so this is unresolved, not
+        # urgent. See docs/tillicum.md.
+        "note": ("`debug` is UsageFactor 0 in Slurm but `hyakusage` bills it anyway; "
+                 "this table follows Slurm. Never quote a debug-QoS cost without "
+                 "saying which tool it came from."),
+    },
+    "klone": {
+        # Lab-owned and scavenger partitions alike: no per-hour charge. GPU-hours
+        # are still recorded, because the scientific cost of a run is its compute
+        # whether or not an invoice follows, and because the #51 baseline's 496.5
+        # GPU-hours is a real number that belongs in the paper.
+        "usd_per_gpu_hour": 0.0,
+        "as_of": "2026-07-30",
+        "source": "hyak.uw.edu — condo model, no usage billing",
+        "qos_usage_factor": {},
+        "note": "Free at the point of use; ckpt is preemptable, which costs restarts.",
+    },
+}
+
+
+def compute_price_for(cluster):
+    """The compute-rate entry for a cluster, or None when we have no verified rate.
+
+    None rather than $0: an unpriced cluster must be visible as unpriced, not
+    silently free. klone is $0 because that was checked, which is a different
+    statement."""
+    return COMPUTE_PRICING.get((cluster or "").lower())
+
+
+def estimate_compute_cost(cluster, gpu_hours, qos=None):
+    """Estimated USD for a job's GPU-hours, or None without a verified rate.
+
+    ``qos`` applies Slurm's UsageFactor when the cluster publishes one; an
+    unknown QoS is charged at full rate rather than assumed free, because
+    guessing downward is the expensive direction to be wrong in."""
+    p = compute_price_for(cluster)
+    if p is None:
+        return None
+    factor = p.get("qos_usage_factor", {}).get((qos or "").lower(), 1.0)
+    return gpu_hours * p["usd_per_gpu_hour"] * factor

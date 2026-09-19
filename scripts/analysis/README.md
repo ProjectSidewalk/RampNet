@@ -26,7 +26,7 @@ checkout.
 | script | GPU | what it answers |
 |---|---|---|
 | `miss_analysis.py` | no | Are misses localization near-misses or blind? Are they hard (a VLM also missed) or RampNet-specific? |
-| `complementarity.py [model] [split]` | no | Oracle-union recall + the RampNet-miss ∩ VLM-hit set (issue #35 gate). Reads cached VLM detections from `.model_cache`; split defaults to richmond. |
+| `complementarity.py [model] [split]` | no | Oracle-union recall + the RampNet-miss ∩ challenger-hit set, with a chance null on that subset and the FP bill a naive union would actually pay (issue #35 gate). Takes any model spec (`provider` or `provider:model_id`); a bare non-provider token is read as a Gemini model id. Reads cached detections from `.model_cache`; split defaults to richmond. Pass the same `--vistas-input-size` the run used — it is part of the cache key. |
 | `precision_by_distance.py` | no | Is precision worse at distance — i.e. is culling far detections worth it? (No.) |
 | `threshold_sweep.py` | **yes** | Re-runs inference on all benchmark panos and sweeps `threshold_abs` × `min_distance`. |
 | `peak_nms_check.py` | no | Would suppressing peaks closer than the match radius help? (No — 6 of the 10 within-R pairs in the reviewed records are real ramp pairs; issue #62.) Reads all seven splits' committed records, no panos needed. |
@@ -35,6 +35,7 @@ checkout.
 | `depth_analysis.py` | no | Recall vs true distance / apparent size + the resolution forecast. Needs `gt_depth_da3.json`. |
 | `farfield_forensics.py` | no | Is the far-field `visible` verdict deck a representative sample, and does apparent size actually separate a far-field hit from a far-field silent miss? (#46 Phase 0.) Committed caches, witness list, gallery verdicts and imagery manifests only. |
 | `silent_activation.py` | **yes** | Is a `silent` miss attenuated or absent? Reads the heatmap inside each silent miss's match window plus a per-pano azimuth null (#46 Phase 1). Needs the native-res `panos/` (HF `projectsidewalk/rampnet-benchmark`); `--panos-root` points at the checkout holding them. |
+| `cascade_gate.py` | **yes** | Is a gated cascade possible? Partitions every GT ramp into `complementarity.py`'s four cells, then reads RampNet's heatmap at each with #46 Phase 1's instrument, so the question "does RampNet already produce something a prior could promote at the ramps the challenger recovers?" gets a bounded answer (#126). Floor peaks come from `analysis_out/op_cache/<split>.json`, not the bundle records. Needs the native-res `panos/` and the challenger already cached — pass the same `--vistas-input-size` the run used. |
 | `size_analysis.py` | no | Geometry-only size stratification (no depth model) + the hard-miss montage figure. |
 | `overlap_test.py` | **yes** | Do the threshold and resolution levers target the same ramps? Needs `gt_depth_da3.json`. |
 | `operating_point_curve.py extract` | **yes** | Inference once → all peaks down to a low score floor → per-pano cache (issue #54). Handles both bundle kinds, so `manual_gold` (independent YOLO GT, no verdict review) is covered too. `--tta` extracts the horizontal-flip-TTA arm instead (#78) — two passes per pano, mirrored heatmap un-flipped and maxed exactly as `stage_two/evaluate.py`; each arm must live in its own `--cache` dir (mixing is refused). |

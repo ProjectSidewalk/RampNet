@@ -6,7 +6,7 @@
 imagery is needed for any number below; the committed summary with a content hash of the
 per-box table is `analysis_out/crop_window_eval.json`.
 
-```
+```bash
 python scripts/analysis/crop_window_eval.py                 # numbers + JSON + per-box CSV
 python scripts/analysis/crop_window_eval.py --fetch-sample 40 --gallery 80   # + overlay gallery
 python scripts/analysis/crop_window_eval.py --bundle benchmark/richmond      # real extent gold

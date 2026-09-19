@@ -7,6 +7,8 @@ cache stays valid across changes (see ``test_gemini_cache_key_is_frozen``).
 """
 import json
 import os
+import shutil
+import subprocess
 import sys
 
 import pytest
@@ -34,10 +36,10 @@ from compare import (  # noqa: E402
     score_model, validate_bundle, validate_manual_bundle, DetectionCache, cache_key,
     ground_truths_from_verdicts, has_confidences, load_bundle,
     load_manual_ground_truths, operating_report, report_usage, rescore, sweep_rows,
-    DEFAULT_USAGE_LOG,
 )
 import pricing  # noqa: E402
 from pricing import estimate_cost, price_for  # noqa: E402
+from rampnet import ledger  # noqa: E402
 from rampnet.detection_eval import GroundTruth, radius_sq_for  # noqa: E402
 from prepare_yolo_dataset import (  # noqa: E402
     parse_box_size, _ground_distance_m, _box_wh, _resolve_distances, write_data_yaml,
@@ -1133,11 +1135,14 @@ def test_claude_as_run_defaults_stay_out_of_the_signature():
     det = ClaudeDetector(model_id="claude-sonnet-5")
     assert det.image_format == detectors.CLAUDE_AS_RUN_IMAGE_FORMAT == "jpeg"
     assert det.temperature is detectors.CLAUDE_AS_RUN_TEMPERATURE is None
+    assert det.max_tokens == detectors.CLAUDE_AS_RUN_MAX_TOKENS == 4096
     sig = det.signature()
     assert "image_format" not in sig and "temperature" not in sig
+    assert "max_tokens" not in sig
 
 
-@pytest.mark.parametrize("kwargs", [{"image_format": "png"}, {"temperature": 0.0}])
+@pytest.mark.parametrize("kwargs", [{"image_format": "png"}, {"temperature": 0.0},
+                                    {"max_tokens": 8192}])
 def test_claude_deviating_from_the_as_run_settings_invalidates_the_cache(kwargs):
     base = ClaudeDetector(model_id="claude-sonnet-5")
     other = ClaudeDetector(model_id="claude-sonnet-5", **kwargs)
@@ -1145,11 +1150,184 @@ def test_claude_deviating_from_the_as_run_settings_invalidates_the_cache(kwargs)
            cache_key("claude-sonnet-5", other.signature(), "annapolis", "p1")
 
 
+def test_claude_serving_path_stays_out_of_the_cache_key():
+    """Which account billed the call is not part of what was asked (#156).
+
+    The same model id, prompt and views should return the same detections whoever
+    serves them, so putting the path in the key would fragment the cache along an
+    axis that does not change the answer — and would orphan $28.82 of paid
+    annapolis detections the instant a leg moved. Provenance goes to the usage
+    log instead. This is the pair to test_claude_cache_key_is_frozen: that one
+    pins the four published keys, this one says a path switch cannot move them."""
+    vertex = ClaudeDetector(model_id="claude-sonnet-5", serving_path="vertex")
+    first_party = ClaudeDetector(model_id="claude-sonnet-5", serving_path="anthropic")
+    assert "serving_path" not in vertex.signature()
+    assert vertex.signature() == first_party.signature()
+    assert cache_key("claude-sonnet-5", vertex.signature(), "annapolis", "p1") == \
+           cache_key("claude-sonnet-5", first_party.signature(), "annapolis", "p1")
+
+
+def test_claude_rejects_an_unknown_serving_path():
+    """Refused at construction, like the Fable forced-tool guard: a typo that
+    reaches the client constructor fails with the SDK's error, not ours."""
+    with pytest.raises(ValueError, match="serving_path"):
+        ClaudeDetector(model_id="claude-sonnet-5", serving_path="bedrock")
+
+
+def test_usage_record_carries_the_serving_path(tmp_path):
+    """The one place the path is written down, so it has to actually be written.
+
+    `model_versions` cannot stand in — both paths report the bare model id — and
+    the signature deliberately omits it, so without this field nothing
+    distinguishes a Vertex leg from a first-party one after the fact. It also
+    says which reconciliation exists: vertex_usage.py recovers server-side spend
+    for `vertex` and has no first-party equivalent."""
+    det = ClaudeDetector(model_id="claude-fable-5-1", serving_path="anthropic")
+    det.accumulate_usage(10, 5, 0)
+    log = tmp_path / "usage_log.jsonl"
+    report_usage(det, "claude-fable-5-1", "annapolis", 125, str(log))
+    rec = json.loads(log.read_text(encoding="utf-8").splitlines()[-1])
+    assert rec["serving_path"] == "anthropic"
+    assert "serving_path" not in (rec["signature"] or {})
+
+
+def test_the_regional_pricing_warning_is_vertex_only():
+    """GOOGLE_CLOUD_LOCATION is shared with the Gemini legs, so it can be set to a
+    region for reasons that have nothing to do with Claude. On Vertex that really
+    does make the cost figures ~9% low and is worth shouting about; on the
+    first-party path there is no endpoint dimension, and warning anyway would
+    train the reader to ignore a real alarm."""
+    regional = ClaudeDetector(model_id="claude-sonnet-5", location="us-east5")
+    assert "REGIONAL" in (regional.location_warning() or "")
+    first_party = ClaudeDetector(model_id="claude-fable-5-1", location="us-east5",
+                                 serving_path="anthropic")
+    assert first_party.location_warning() is None
+
+
+@pytest.mark.parametrize("model_id", ["claude-fable-5", "claude-fable-5-1"])
+def test_both_fable_ids_are_priced_from_the_first_party_card(model_id):
+    """#156 runs both ids, so both need a price — and the cache rows had to be
+    READ, not derived. Fable 5 reads cache at the standard 0.1x of input; Fable
+    5.1 reads at $0.25/MTok, which is no multiple of its $10 input rate. Deriving
+    it would have overstated 5.1's cache reads 4x."""
+    from pricing import price_for
+    p = price_for(model_id)
+    assert (p["input_per_m"], p["output_per_m"]) == (10.00, 50.00)
+    assert p["as_of"] == "2026-09-05"
+    assert "first-party" in p["note"]
+    assert price_for("claude-fable-5")["cache_read_per_m"] == 1.00
+    assert price_for("claude-fable-5-1")["cache_read_per_m"] == 0.25
+
+
 def test_claude_tool_choice_is_in_the_cache_key():
     auto = ClaudeDetector(model_id="claude-sonnet-5", tool_choice="auto")
     forced = ClaudeDetector(model_id="claude-sonnet-5", tool_choice="forced")
     assert cache_key("claude-sonnet-5", auto.signature(), "bend", "p1") != \
            cache_key("claude-sonnet-5", forced.signature(), "bend", "p1")
+
+
+@pytest.mark.parametrize("model_id, status", [
+    ("claude-fable-5-1", "rejected"),      # per Anthropic's docs
+    ("claude-mythos-5-1", "rejected"),     # same docs, same restriction
+    ("claude-fable-5", "unverified"),      # refused until someone measures it
+])
+def test_forced_tool_choice_is_refused_before_the_run_starts(model_id, status):
+    """Some ids reject `tool_choice` `tool`/`any` with a 400 -- and one is refused
+    without a measurement either way (see CLAUDE_FORCED_TOOLS_UNVERIFIED).
+
+    A leg discovers a 400 on its first call and then repeats it ~750 times, so the
+    refusal has to happen at construction, where it costs nothing and can name the
+    flag the provider's own error does not. The message also has to say WHICH
+    kind of refusal it is: a documented 400 and an unmeasured id call for
+    different responses (change the flag vs. run the probe)."""
+    assert detectors.claude_forced_tools_status(model_id) == status
+    with pytest.raises(ValueError, match="tool-choice") as err:
+        ClaudeDetector(model_id=model_id, tool_choice="forced")
+    msg = str(err.value)
+    if status == "unverified":
+        assert "not been measured" in msg
+        assert f"probe_claude_models.py --serving-path anthropic --models {model_id} " \
+               f"--tool-choice forced" in msg
+    else:
+        assert "400" in msg and "not been measured" not in msg
+    # `auto` -- the default, and what a Fable leg must run -- is unaffected.
+    assert ClaudeDetector(model_id=model_id, tool_choice="auto").tool_choice == "auto"
+
+
+def test_the_forced_tool_guard_matches_exact_ids_not_a_family_substring():
+    """The guard used to be `"fable" in model_id`. Anthropic's docs say the 400
+    arrived with 5.1, not with the family, so a substring match refused ids nobody
+    had looked at and could not say why. Now every refused id is listed, with its
+    evidence, and anything else is allowed -- which is the assumption every
+    published leg relies on."""
+    assert detectors.CLAUDE_FORCED_TOOLS_REJECTED.isdisjoint(
+        detectors.CLAUDE_FORCED_TOOLS_UNVERIFIED)
+    for mid in detectors.CLAUDE_FORCED_TOOLS_REJECTED | detectors.CLAUDE_FORCED_TOOLS_UNVERIFIED:
+        assert detectors.claude_forbids_forced_tools(mid)
+    # A spelling that is not a listed id is not refused, whatever it contains.
+    for mid in ("claude-fable-6", "claude-fable-5-1-fast", "fable", None, ""):
+        assert detectors.claude_forced_tools_status(mid) is None
+        assert not detectors.claude_forbids_forced_tools(mid)
+
+
+def test_forced_tool_choice_still_works_on_the_ids_it_was_measured_on():
+    """The guard keys on the id, so it must not spread to the existing legs.
+
+    "Measured", not "published with": every published Claude leg ran `auto` (all
+    six annapolis signatures and all twelve ledger rows say so). The only forced
+    measurement on record is the one-view Vertex check in docs/model_comparison.md
+    ("The tool is offered, not forced"), on these two ids."""
+    for mid in ("claude-opus-5", "claude-sonnet-5"):
+        assert not detectors.claude_forbids_forced_tools(mid)
+        assert ClaudeDetector(model_id=mid, tool_choice="forced").tool_choice == "forced"
+
+
+def test_the_probe_can_send_the_forced_tool_choice_the_guard_is_waiting_on(monkeypatch):
+    """The unverified set points at `probe_claude_models.py --tool-choice forced`;
+    this checks that flag builds the request the detector would send -- tool_choice
+    type `tool` naming a declared tool, AND output_config.effort beside it, since
+    effort is the axis forcing is known to interact with and the detector never
+    sends one without the other -- and that `auto` sends none of it, without a
+    network. Measuring the answer is deliberately NOT done here.
+
+    Runs without the `anthropic` package: it is not in requirements-dev.txt, so
+    CI does not have it, and the first version of this test failed there on the
+    probe's import guard. The probe only needs the SDK for its two exception
+    classes, so a stub stands in for it and the request-shape check still runs."""
+    import types
+    sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "model_comparison"))
+    import probe_claude_models as probe
+
+    class _StatusError(Exception):
+        pass
+
+    class _ConnError(Exception):
+        pass
+
+    monkeypatch.setattr(probe, "_sdk", lambda: types.SimpleNamespace(
+        APIStatusError=_StatusError, APIConnectionError=_ConnError))
+
+    seen = {}
+
+    class _Messages:
+        def create(self, **kw):
+            seen.clear()
+            seen.update(kw)
+            return types.SimpleNamespace(model=kw["model"], usage=None,
+                                         stop_reason="tool_use")
+
+    client = types.SimpleNamespace(messages=_Messages())
+    status, _ = probe.probe(client, "claude-fable-5", tool_choice="forced")
+    assert status == 200
+    assert seen["tool_choice"] == {"type": "tool", "name": probe.PROBE_TOOL["name"]}
+    assert [t["name"] for t in seen["tools"]] == [probe.PROBE_TOOL["name"]]
+    assert seen["output_config"] == {"effort": "low"}
+    # ...the same keys ClaudeDetector._call sends, so the probe answers for it.
+    assert {"model", "max_tokens", "output_config", "tools", "tool_choice",
+            "messages"} <= set(seen)
+    probe.probe(client, "claude-fable-5")
+    assert "tool_choice" not in seen and "tools" not in seen
+    assert "output_config" not in seen      # the reachability probe is unchanged
 
 
 # --- Claude: what pixels the model actually sees ----------------------------
@@ -1596,15 +1774,254 @@ def test_an_unwritable_usage_log_does_not_abort_the_run(tmp_path, capsys):
     assert '"calls": 2' in out
 
 
+# --- time is recorded too, and free legs are not invisible (#143) -----------
+
+class _FreeDetector:
+    """A local GPU model: no API bill, and before #143 no ledger row either."""
+    name = "owlv2"
+
+    def __init__(self):
+        self.model_id = "owlv2-large-patch14-ensemble"
+        self.usage = None          # the shape every free detector has
+        self.model_versions = None
+
+    def signature(self):
+        return {"provider": "owlv2", "model_id": self.model_id}
+
+
+def test_a_free_leg_still_gets_a_row(tmp_path):
+    """OWLv2, Grounding DINO, Qwen, Molmo, YOLO and RampNet itself bill no tokens
+    and cost real GPU-hours. Before #143 report_usage returned early on them, so
+    the entire GPU half of the roster left no record and its runtimes survive only
+    as prose in docs/model_comparison.md."""
+    log = tmp_path / "usage_log.jsonl"
+    report_usage(_FreeDetector(), "owlv2", "annapolis", 125, str(log),
+                 timing={"elapsed_s": 900.0, "load_s": 60.0, "detect_s": 800.0,
+                         "panos_called": 125})
+    rec = json.loads(log.read_text(encoding="utf-8").splitlines()[-1])
+    assert rec["paid"] is False
+    assert rec["est_cost_usd"] is None          # free in API terms...
+    assert rec["elapsed_s"] == 900.0            # ...but not free in time
+    assert rec["detect_s"] == 800.0 and rec["panos_called"] == 125
+    assert rec["s_per_pano"] == pytest.approx(6.4)
+    # No token keys at all rather than zeros: a free leg spent no tokens, and a
+    # zero would average into a per-token figure as if it had.
+    assert "input_tokens" not in rec
+
+
+def test_a_paid_leg_records_time_beside_the_tokens(tmp_path):
+    log = tmp_path / "usage_log.jsonl"
+    det = ClaudeDetector(model_id="claude-sonnet-5")
+    det.accumulate_usage(1000, 50, 0)
+    report_usage(det, "claude-sonnet-5", "annapolis", 125, str(log),
+                 timing={"elapsed_s": 1200.5, "load_s": 0.0, "detect_s": 1190.0,
+                         "panos_called": 100})
+    rec = json.loads(log.read_text(encoding="utf-8").splitlines()[-1])
+    assert rec["paid"] is True and rec["input_tokens"] == 1000
+    assert rec["elapsed_s"] == 1200.5
+    # Per-pano divides by panos actually put through the model (100), never by
+    # the panos reported on (125) — the rest came from the cache and cost nothing.
+    assert rec["s_per_pano"] == pytest.approx(11.9)
+
+
+def test_a_leg_that_spent_nothing_writes_nothing(tmp_path):
+    """A fully cached re-score makes no calls and loads no model; a leg that was
+    never runnable does neither either. Writing a zero row per re-run would bury
+    the rows that carry a measurement."""
+    log = tmp_path / "usage_log.jsonl"
+    report_usage(_FreeDetector(), "owlv2", "annapolis", 125, str(log),
+                 timing={"elapsed_s": 0.4, "load_s": 0.0, "detect_s": 0.0,
+                         "panos_called": 0})
+    assert not log.exists()
+
+
+class _AlwaysFailsDetector:
+    """Every call raises — an outage, or a model that cannot answer."""
+    name = "always-fails"
+
+    def prepare(self):
+        pass
+
+    def signature(self):
+        return None
+
+    def detect(self, sample):
+        raise RuntimeError("simulated transient API failure")
+
+
+def test_replaying_committed_detections_is_not_logged_as_a_cost(tmp_path):
+    """`--models rampnet` reads detections back out of the bundle: no model is
+    loaded and nothing is inferred, so it is not an experiment that cost anything.
+    It is also in nearly every run, so a zero row per run would bury the ledger."""
+    log = tmp_path / "usage_log.jsonl"
+    det = BundleRampNetDetector({})
+    assert det.replays_committed_detections is True
+    report_usage(det, "rampnet", "richmond", 124, str(log),
+                 timing={"elapsed_s": 0.002, "load_s": 0.0, "detect_s": 0.0,
+                         "panos_called": 124})
+    assert not log.exists()
+
+
+def test_score_model_fills_in_the_timing_it_was_handed():
+    """timing is caller-owned rather than returned because report_usage reads it
+    from a finally, where a leg that died partway has no ModelRun to read."""
+    records, gts = _aligned_gts()
+    timing = {}
+    score_model(_FixedDetector(), records, gts, "", radius_sq_for(), "fixed",
+                "richmond", DetectionCache("x", enabled=False), timing=timing)
+    assert timing["panos_called"] == len(gts)
+    assert timing["detect_s"] >= 0.0 and "load_s" in timing
+
+
+def test_a_failed_call_still_counts_as_time_spent():
+    """A call that raised burnt wall-clock and, on a paid provider, still billed.
+    Counting only successes would understate both — and an outage would look like
+    a suspiciously cheap run rather than a broken one."""
+    records, gts = _aligned_gts()
+    timing = {}
+    run = score_model(_AlwaysFailsDetector(), records, gts, "", radius_sq_for(),
+                      "fails", "richmond", DetectionCache("x", enabled=False),
+                      max_consecutive_failures=99, timing=timing)
+    assert run.failures and timing["panos_called"] == len(gts)
+
+
+# --- the ledger has to land where it outlives the run (#143) ----------------
+
 def test_the_default_usage_log_is_tracked_not_in_the_gitignored_cache():
     # The whole point of recording spend is that it outlives the machine. Defaulting
     # into .model_cache/ (gitignored) is the bug export_model_cache.py exists to undo.
-    assert ".model_cache" not in DEFAULT_USAGE_LOG
-    assert DEFAULT_USAGE_LOG.replace("\\", "/").endswith("analysis_out/usage_log.jsonl")
+    default = compare.default_usage_log()
+    assert ".model_cache" not in default
+    assert default.replace(chr(92), "/").endswith("analysis_out/usage_log.jsonl")
     with open(os.path.join(REPO_ROOT, ".gitignore"), encoding="utf-8") as fh:
         gitignore = fh.read()
     assert "!analysis_out/usage_log.jsonl" in gitignore, \
         "analysis_out/* is ignored, so the log needs an explicit re-include"
+
+
+def _main_and_worktree(tmp_path):
+    """A real checkout with a linked worktree — the shape that lost #139's $70.41."""
+    main = tmp_path / "main"
+    main.mkdir()
+    run = lambda *a: subprocess.run(a, cwd=str(main), check=True, capture_output=True)
+    run("git", "init", "-q")
+    run("git", "config", "user.email", "t@example.com")
+    run("git", "config", "user.name", "t")
+    (main / "f.txt").write_text("x", encoding="utf-8")
+    run("git", "add", "f.txt")
+    run("git", "commit", "-qm", "init")
+    wt = tmp_path / "wt"
+    run("git", "worktree", "add", "-q", str(wt), "HEAD")
+    return main, wt
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason="needs git on PATH")
+def test_the_ledger_resolves_to_the_main_checkout_from_a_worktree(tmp_path):
+    """The #139 failure: a leg run from a scratch worktree wrote its ledger inside
+    that worktree, the worktree was deleted, and $70.41 of spend left no record —
+    invisible to #119's guard, which proves a path was accepted and nothing about
+    whether the file survives. Every worktree must append to one canonical ledger."""
+    main, wt = _main_and_worktree(tmp_path)
+    assert compare.canonical_repo_root(wt).resolve() == main.resolve()
+    assert compare.canonical_repo_root(main).resolve() == main.resolve()
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason="needs git on PATH")
+def test_credentials_resolve_to_the_main_checkout_too(tmp_path, monkeypatch):
+    """`.env` is git-ignored, so a scratch worktree does not carry one. Reading it
+    only from the running file's checkout means a leg launched from a worktree finds
+    no API key and vertex_usage.py exits with "no project" — the recovery tool
+    failing in exactly the situation that loses a record. The worktree's own file is
+    still read first, so a deliberate local override wins."""
+    main, wt = _main_and_worktree(tmp_path)
+    (main / ".env").write_text("RAMPNET_TEST_KEY=from-main\nRAMPNET_TEST_BOTH=main\n",
+                               encoding="utf-8")
+    (wt / ".env").write_text("RAMPNET_TEST_BOTH=worktree\n", encoding="utf-8")
+    monkeypatch.setattr(os, "environ", dict(os.environ))
+    for key in ("RAMPNET_TEST_KEY", "RAMPNET_TEST_BOTH"):
+        os.environ.pop(key, None)
+    compare.load_dotenv_for_run(wt)
+    assert os.environ["RAMPNET_TEST_KEY"] == "from-main"
+    assert os.environ["RAMPNET_TEST_BOTH"] == "worktree"
+
+
+def test_the_ledger_path_falls_back_when_git_cannot_answer(tmp_path):
+    """A tarball or an HF clone is not a git checkout. Bookkeeping must never be
+    the reason a run refuses to start."""
+    assert compare.canonical_repo_root(tmp_path).resolve() == tmp_path.resolve()
+
+
+def test_ledger_totals_tolerate_the_rows_written_before_this_change(tmp_path):
+    """The ledger is append-only and committed, so rows predating #143 carry no
+    timing keys and free rows carry no cost. A running total that choked on them
+    would be a regression in the one artifact that is supposed to be durable."""
+    log = tmp_path / "usage_log.jsonl"
+    log.write_text(
+        json.dumps({"label": "old-paid-row", "est_cost_usd": 0.25}) + "\n"
+        + json.dumps({"label": "free", "elapsed_s": 3600.0}) + "\n"
+        + "not json at all\n"
+        + json.dumps({"label": "both", "est_cost_usd": 0.75, "elapsed_s": 1800.0}) + "\n",
+        encoding="utf-8", newline="")
+    rows, usd, hours, recovered = ledger.ledger_totals(str(log))
+    assert (rows, usd, hours) == (3, 1.0, 1.5)
+    # No row carries a kind, so every one of them reads as measured.
+    assert recovered == 0
+    assert ledger.ledger_totals(str(tmp_path / "nope.jsonl")) is None
+
+
+def test_a_recovered_row_counts_toward_cost_but_never_toward_reconciliation(tmp_path):
+    """The #139 case, as a fixture.
+
+    A recovered row is real spend read off the provider's bill after layer 1 failed
+    to write. Two things have to be true at once, and they pull in opposite
+    directions: cost totals must include it (otherwise every table under-reports by
+    the whole amount), and reconciliation must never count it as a measurement
+    (otherwise the bill is compared against itself and the missing measurement reads
+    as ``ok``). What it may do is explain the gap, which is a different statement
+    from closing it.
+
+    The numbers are the committed ledger's: two measured richmond smoke legs
+    totalling 48,744 input tokens against a bill of 11,988,993.
+    """
+    sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "analysis"))
+    from vertex_usage import ledger_totals_by_model, reconcile
+
+    measured = [
+        {"ts": "2026-08-18T23:29:11+00:00", "label": "claude-opus-5",
+         "model_id": "claude-opus-5", "input_tokens": 12_186, "output_tokens": 780,
+         "est_cost_usd": 0.0804},
+        {"ts": "2026-08-18T23:54:02+00:00", "label": "claude-opus-5",
+         "model_id": "claude-opus-5", "input_tokens": 36_558, "output_tokens": 1_972,
+         "est_cost_usd": 0.2321},
+    ]
+    recovery = {"ts": "2026-08-18T00:00:00+00:00", "kind": ledger.RECOVERED,
+                "label": "claude-opus-5", "model_id": "claude-opus-5",
+                "input_tokens": 11_940_249, "output_tokens": 415_751,
+                "est_cost_usd": 70.095}
+    billed = {"claude-opus-5": {"input": 11_988_993, "output": 418_503}}
+
+    # Before the recovery was written, the gap is unexplained and gets the verdict.
+    short = reconcile(billed, ledger_totals_by_model(measured))[0]
+    assert short["verdict"].startswith("UNDER")
+    assert short["unexplained_input"] == 11_940_249
+
+    log = tmp_path / "usage_log.jsonl"
+    ledger.append_rows(str(log), measured + [recovery])
+
+    rows, usd, hours, recovered = ledger.ledger_totals(str(log))
+    assert rows == 3
+    assert usd == pytest.approx(70.4075)          # the money is all there
+    assert recovered == pytest.approx(70.095)     # and it is labelled
+
+    # Reconciliation still counts only the measured rows as logged...
+    logged = ledger_totals_by_model(ledger.read_rows(str(log)))
+    assert logged["claude-opus-5"]["input"] == 48_744
+    assert logged["claude-opus-5"]["rows"] == 2
+    # ...but the gap they leave is the one already written down, so it is reported
+    # as explained rather than as an emergency that repeats every run.
+    row = reconcile(billed, logged)[0]
+    assert row["verdict"] == "ok (1 recovered)"
+    assert row["recovered_input"] == 11_940_249 and row["unexplained_input"] == 0
 
 
 # --- tiled detect() end-to-end (no live model) ------------------------------
