@@ -1,0 +1,46 @@
+device=cuda model=rampnet_s2 score_floor=0.05 min_distance=10 tta=False
+  richmond: 50/124
+  richmond: 100/124
+richmond: 124 panos -> /homes/gws/jonf/RampNet/seedvar_eval_51_135/rampnet_s2/richmond.json
+  bend: 50/110
+  bend: 100/110
+bend: 110 panos -> /homes/gws/jonf/RampNet/seedvar_eval_51_135/rampnet_s2/bend.json
+  clovis: 50/125
+  clovis: 100/125
+clovis: 125 panos -> /homes/gws/jonf/RampNet/seedvar_eval_51_135/rampnet_s2/clovis.json
+  morgantown: 50/125
+  morgantown: 100/125
+morgantown: 125 panos -> /homes/gws/jonf/RampNet/seedvar_eval_51_135/rampnet_s2/morgantown.json
+  annapolis: 50/125
+  annapolis: 100/125
+annapolis: 125 panos -> /homes/gws/jonf/RampNet/seedvar_eval_51_135/rampnet_s2/annapolis.json
+  paterson: 50/125
+  paterson: 100/125
+paterson: 125 panos -> /homes/gws/jonf/RampNet/seedvar_eval_51_135/rampnet_s2/paterson.json
+  gainesville: 50/125
+  gainesville: 100/125
+gainesville: 125 panos -> /homes/gws/jonf/RampNet/seedvar_eval_51_135/rampnet_s2/gainesville.json
+  sao_paulo: 50/125
+  sao_paulo: 100/125
+sao_paulo: 125 panos -> /homes/gws/jonf/RampNet/seedvar_eval_51_135/rampnet_s2/sao_paulo.json
+  manual_gold: 50/1000
+  manual_gold: 100/1000
+  manual_gold: 150/1000
+  manual_gold: 200/1000
+  manual_gold: 250/1000
+  manual_gold: 300/1000
+  manual_gold: 350/1000
+  manual_gold: 400/1000
+  manual_gold: 450/1000
+  manual_gold: 500/1000
+  manual_gold: 550/1000
+  manual_gold: 600/1000
+  manual_gold: 650/1000
+  manual_gold: 700/1000
+  manual_gold: 750/1000
+  manual_gold: 800/1000
+  manual_gold: 850/1000
+  manual_gold: 900/1000
+  manual_gold: 950/1000
+  manual_gold: 1000/1000
+manual_gold: 1000 panos -> /homes/gws/jonf/RampNet/seedvar_eval_51_135/rampnet_s2/manual_gold.json

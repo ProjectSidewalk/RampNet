@@ -1,0 +1,46 @@
+run started      : 2026-09-17T15:30:31-07:00
+host             : makelab2.cs.washington.edu
+repo HEAD        : 395b67492f0485dabea03ee49e02b313ab17d5d7  Driver takes RN_SEEDS so the Amendment 2 replicates can be scored alone (#51, #135)
+repo dirty       : 20 paths
+                   ?? analysis_out/op/bend_pr_curve.csv
+                   ?? analysis_out/op/bend_threshold_sweep.csv
+                   ?? analysis_out/op/richmond_pr_curve.csv
+                   ?? analysis_out/op/richmond_threshold_sweep.csv
+                   ?? cosine_rung_135/
+                   ?? laurens_challenger_logs/
+                   ?? laurens_gsv_logs/
+                   ?? laurens_gsv_logs_driver.log
+                   ?? run_a_84/
+                   ?? run_gsv_chain.sh
+                   ?? run_laurens_molmo.sh
+                   ?? run_laurens_open.sh
+                   ?? run_laurens_yolo.sh
+                   ?? run_yolo_pano_eval.sh
+                   ?? seedvar_ckpts/
+                   ?? seedvar_eval_51_135/
+                   ?? seedvar_eval_51_135_amend2/
+                   ?? seedvar_eval_51_135_rescore/
+                   ?? yolo_eval_results/
+                   ?? yolo_eval_results_geometry_51/
+yolo env         : /homes/gws/jonf/RampNet/.venv-eval/bin/python
+  torch 2.13.0+cu130 cuda True
+  ultralytics 8.4.120
+rampnet env      : /homes/gws/jonf/RampNet/.venv/bin/python
+  torch 2.6.0+cu124 cuda True
+  timm 1.0.28
+gpu              : NVIDIA A40
+checkpoint sha256:
+47ac0ad8bd6a77f916695820bab7aec9c762184e928763c199ee2c1aed0486cf  y11x_tiles_s1_ep44.pt
+991002ffe6881a0792d0e2772475078674aa74fb540bf650f737ef45ae29dbe4  y11x_tiles_s2_ep44.pt
+72890a27b5217a7bb5a756a12b4fbdf2b782603b4cc14e617afd8eab44b4a454  y11x_tiles_s3_ep42.pt
+55e6cc739a7a7b24295e8e175e8c2928140f1387647dc6970c2e84cfdf46f169  y11x_tiles_s1_best.pt
+7999200f4ffef158b1bc3aa7a827d581d70671b7cff063955910325fbaf2c80d  y11x_tiles_s2_best.pt
+6abbd642d32169d56a5087b2afc094a3694bd412eefb9bdadf89fbb54776cd1b  y11x_tiles_s3_best.pt
+0987b07ee11687c93860a4cad9cf0de92ea8874cef13811c441b2ea0172f34e2  rampnet_s4_best.pth
+d347abf171178f2315805a23a7335fc3d03eeff57dc034c44c40a40dcdabc749  rampnet_s5_best.pth
+72f7b33696afa2e47a11cf9d199286a8b314d8fc1a27c632e94b31f073c611de  rampnet_s6_best.pth
+fcd03acf2b8e37ed10a9b27d4127253dd5069c656369960bf16ae066455c59be  rampnet_s7_best.pth
+5e483a3fae467daf2db4f820beba959ed6aa9d3e12bd0015247e2b151b78cc7e  rampnet_s8_best.pth
+ca8dc8cfe8d357336debc1653eeba5934d4eb80e12d5fe2c69cde7eda71ffdc6  rampnet_s9_best.pth
+splits           : richmond bend clovis morgantown annapolis paterson gainesville sao_paulo manual_gold
+arms             : rampnet

@@ -8,6 +8,10 @@ dataset
 # checksums it, and scripts/analysis/stage1_yield.py reads it by default -- so without
 # it that script cannot run from a clean clone.
 !docs/data/rampnet1_stage1_run/*.out
+# ...and the nine klone job logs of the seed-variance campaign (#51, #135): they are
+# the per-replicate training record docs/seed_variance_51_135.md points at, and
+# docs/data/seed_variance_51_135/SHA256SUMS checksums them.
+!docs/data/seed_variance_51_135/klone_slurm_out/*.out
 .venv/
 *.egg-info/
 benchmark/*/panos/

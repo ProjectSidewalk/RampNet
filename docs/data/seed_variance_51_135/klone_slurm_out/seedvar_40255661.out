@@ -1,0 +1,47 @@
+Using conda prefix /gscratch/makelab/jonf/envs/sidewalkcv2 (no activation)
+--- Stage 2 seed replicate (#51 / #135) ---
+Job ID:      40255661
+Seed:        4
+Run dir:     /gscratch/scrubbed/jfroehli/seedvar/rampnet_s4   (cwd -- best_model.pth and latest_checkpoint.pth land here)
+Data root:   /gscratch/scrubbed/jfroehli/rampnet_dataset
+Epochs:      1
+Nodes:       4 x 4 GPU  (world size 16)
+Node list:   g[3043,3046-3047,3073]
+Restarts:    0   (requeue resumes from latest_checkpoint.pth)
+-------------------------------------------
+Initialized EquiHeatmapDataset for split 'train' with 150063 samples. Horizontal flip: True
+Initialized EquiHeatmapDataset for split 'val' with 42875 samples. Horizontal flip: False
+Preset: scratch, lr: 1e-05, epochs: 1, data root: /gscratch/scrubbed/jfroehli/rampnet_dataset
+Seed: 4 (sampler seed: 4), checkpoint dir: /gscratch/scrubbed/jfroehli/seedvar/rampnet_s4/checkpoints
+LR schedule: constant (no decay, as in the paper)
+Saved latest checkpoint at step 1000
+Saved latest checkpoint at step 2000
+Saved latest checkpoint at step 3000
+Saved latest checkpoint at step 4000
+Saved latest checkpoint at step 5000
+Saved latest checkpoint at step 6000
+Saved latest checkpoint at step 7000
+Saved latest checkpoint at step 8000
+Saved latest checkpoint at step 9000
+Epoch 1 Validation Loss: 0.0005
+Rank 14 finished.
+Rank 9 finished.
+Rank 6 finished.
+Rank 8 finished.
+Rank 4 finished.
+Rank 10 finished.
+Rank 7 finished.
+Rank 5 finished.
+Rank 11 finished.
+Rank 15 finished.
+Rank 12 finished.
+Rank 13 finished.
+Rank 2 finished.
+Rank 3 finished.
+Saved epoch checkpoint to /gscratch/scrubbed/jfroehli/seedvar/rampnet_s4/checkpoints/epoch_1_step_9378.pth
+New best validation loss: 0.0005. Saving best_model.pth
+Saved visualization to peek_training/epoch_1_step_9378.jpg
+Saved latest checkpoint at end of epoch 1
+Rank 1 finished.
+Rank 0 finished.
+--- Slurm job finished ---

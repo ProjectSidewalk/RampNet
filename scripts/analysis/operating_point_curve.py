@@ -448,15 +448,38 @@ def _assert_cache_arm(cache_dir, tta):
                 f"analysis_out/op_cache_tta).")
 
 
+def _load_extract_model(checkpoint, model_label):
+    """The model ``extract`` runs, and the label its cache records as ``meta.model``.
+
+    Default (no ``--checkpoint``) is the published Hub checkpoint, as it always was, so
+    every committed op_cache is reproduced by the same call that made it. A local
+    ``--checkpoint`` (a ``stage_two/train.py`` ``best_model.pth``, or any layout
+    ``rampnet.loading.load_checkpoint`` accepts) is for internal replicates -- the seed
+    campaigns of #51/#135 -- whose detections must never be confused with the published
+    model's. Hence the label defaults to the checkpoint's content fingerprint rather than
+    to the Hub id, and ``--model-label`` exists so a run can name the replicate.
+    """
+    import threshold_sweep as ts
+    if checkpoint is None:
+        return ts.load_model(), model_label or HF_MODEL_REPO
+    from rampnet.loading import checkpoint_fingerprint, load_checkpoint
+    from rampnet.model import KeypointModel
+    model = KeypointModel()
+    load_checkpoint(model, checkpoint, map_location="cpu")
+    label = model_label or f"checkpoint:{checkpoint_fingerprint(checkpoint)}"
+    return model.eval(), label
+
+
 def cmd_extract(args):
     import torch  # lazy: only extract needs a GPU / torch
     import threshold_sweep as ts
 
     _assert_cache_arm(args.cache, args.tta)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = ts.load_model().to(device)
+    model, model_label = _load_extract_model(args.checkpoint, args.model_label)
+    model = model.to(device)
     use_fp16 = False
-    print(f"device={device} score_floor={args.score_floor} "
+    print(f"device={device} model={model_label} score_floor={args.score_floor} "
           f"min_distance={args.min_distance} tta={args.tta}", flush=True)
     radius_sq = radius_sq_for()
 
@@ -492,7 +515,7 @@ def cmd_extract(args):
         meta = {"score_floor": args.score_floor, "min_distance": args.min_distance,
                 "radius_normalized": 0.022, "fp16": use_fp16, "tta": args.tta,
                 "n_panos": len(panos), "deployed_threshold": DEPLOYED_THRESHOLD,
-                "model": HF_MODEL_REPO, "device": device.type}
+                "model": model_label, "device": device.type}
         write_cache(out_path, city, panos, meta)
         print(f"{city}: {len(panos)} panos -> {out_path}", flush=True)
 
@@ -958,6 +981,14 @@ def main():
                         "exactly stage_two/evaluate.py's composition. Use a dedicated "
                         "--cache dir (e.g. analysis_out/op_cache_tta); mixing arms in "
                         "one dir is refused.")
+    e.add_argument("--checkpoint", default=None,
+                   help="score a LOCAL checkpoint (e.g. a seed replicate's best_model.pth) "
+                        "instead of the published Hub model. Use a dedicated --cache dir "
+                        "per checkpoint: extract skips splits that already have a file and "
+                        "does not check which model wrote them.")
+    e.add_argument("--model-label", default=None,
+                   help="what meta.model records; default is the Hub id, or "
+                        "'checkpoint:<fingerprint>' when --checkpoint is given")
     e.set_defaults(func=cmd_extract)
 
     c = sub.add_parser("curve", help="CPU: PR curve + AP + F1-vs-threshold from the cache")

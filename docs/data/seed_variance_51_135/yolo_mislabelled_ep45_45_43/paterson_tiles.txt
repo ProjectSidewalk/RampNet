@@ -1,0 +1,115 @@
+Bundle: benchmark/paterson  (125 scored panos)  match radius 0.022  ground truth: reviewer-confirmed ramps + missed marks
+Detection cache: /homes/gws/jonf/RampNet/.model_cache
+
+Operating point: predictions with confidence < 0.25 dropped (models without confidences are unaffected).
+model                                     P          95% CI      R          95% CI     F1     AP       tp/fp/fn/ign
+-------------------------------------------------------------------------------------------------------------------
+y11x_tiles_s1_ep44                    0.973   (0.938-0.988)  0.451   (0.402-0.500)  0.616  0.717        178/5/217/4
+y11x_tiles_s2_ep44                    0.972   (0.936-0.988)  0.435   (0.387-0.485)  0.601  0.713        172/5/223/4
+y11x_tiles_s3_ep42                    0.971   (0.935-0.988)  0.428   (0.380-0.477)  0.594  0.708        169/5/226/3
+y11x_tiles_s1_best                    0.963   (0.925-0.982)  0.458   (0.410-0.508)  0.621  0.727        181/7/214/4
+y11x_tiles_s2_best                    0.974   (0.941-0.989)  0.481   (0.432-0.530)  0.644  0.718        190/5/205/4
+y11x_tiles_s3_best                    0.978   (0.945-0.992)  0.456   (0.407-0.505)  0.622  0.731        180/4/215/4
+AP: all-point interpolated, over the recall-confirmed panos, from the full confidence range (--op-threshold does not truncate it); '-' = no calibrated per-box score.
+
+[y11x_tiles_s1_ep44] threshold sweep (re-scored from cached detections)
+    thr      P      R     F1         tp/fp/fn
+   0.05  0.895  0.732  0.805       289/34/106 <- best F1
+   0.10  0.948  0.651  0.772       257/14/138
+   0.15  0.962  0.572  0.717        226/9/169
+   0.20  0.971  0.514  0.672        203/6/192
+   0.25  0.973  0.451  0.616        178/5/217
+   0.30  0.981  0.395  0.563        156/3/239
+   0.40  1.000  0.291  0.451        115/0/280
+   0.50  1.000  0.192  0.323         76/0/319
+   0.60  1.000  0.106  0.192         42/0/353
+   0.70  1.000  0.035  0.068         14/0/381
+
+[y11x_tiles_s2_ep44] threshold sweep (re-scored from cached detections)
+    thr      P      R     F1         tp/fp/fn
+   0.05  0.903  0.729  0.807       288/31/107 <- best F1
+   0.10  0.937  0.643  0.763       254/17/141
+   0.15  0.957  0.559  0.706       221/10/174
+   0.20  0.976  0.511  0.671        202/5/193
+   0.25  0.972  0.435  0.601        172/5/223
+   0.30  0.980  0.372  0.539        147/3/248
+   0.40  1.000  0.278  0.436        110/0/285
+   0.50  1.000  0.177  0.301         70/0/325
+   0.60  1.000  0.109  0.196         43/0/352
+   0.70  1.000  0.030  0.059         12/0/383
+
+[y11x_tiles_s3_ep42] threshold sweep (re-scored from cached detections)
+    thr      P      R     F1         tp/fp/fn
+   0.05  0.883  0.724  0.796       286/38/109 <- best F1
+   0.10  0.937  0.641  0.761       253/17/142
+   0.15  0.961  0.567  0.713        224/9/171
+   0.20  0.970  0.496  0.657        196/6/199
+   0.25  0.971  0.428  0.594        169/5/226
+   0.30  0.986  0.370  0.538        146/2/249
+   0.40  1.000  0.276  0.433        109/0/286
+   0.50  1.000  0.177  0.301         70/0/325
+   0.60  1.000  0.094  0.171         37/0/358
+   0.70  1.000  0.028  0.054         11/0/384
+
+[y11x_tiles_s1_best] threshold sweep (re-scored from cached detections)
+    thr      P      R     F1         tp/fp/fn
+   0.05  0.863  0.747  0.801       295/47/100 <- best F1
+   0.10  0.919  0.689  0.787       272/24/123
+   0.15  0.947  0.587  0.725       232/13/163
+   0.20  0.960  0.542  0.693        214/9/181
+   0.25  0.963  0.458  0.621        181/7/214
+   0.30  0.981  0.387  0.555        153/3/242
+   0.40  0.991  0.286  0.444        113/1/282
+   0.50  1.000  0.200  0.333         79/0/316
+   0.60  1.000  0.119  0.213         47/0/348
+   0.70  1.000  0.046  0.087         18/0/377
+   0.80  1.000  0.003  0.005          1/0/394
+
+[y11x_tiles_s2_best] threshold sweep (re-scored from cached detections)
+    thr      P      R     F1         tp/fp/fn
+   0.05  0.829  0.737  0.780       291/60/104 <- best F1
+   0.10  0.903  0.681  0.776       269/29/126
+   0.15  0.948  0.605  0.739       239/13/156
+   0.20  0.968  0.532  0.686        210/7/185
+   0.25  0.974  0.481  0.644        190/5/205
+   0.30  0.987  0.397  0.567        157/2/238
+   0.40  0.992  0.301  0.462        119/1/276
+   0.50  1.000  0.203  0.337         80/0/315
+   0.60  1.000  0.137  0.241         54/0/341
+   0.70  1.000  0.051  0.096         20/0/375
+   0.80  1.000  0.005  0.010          2/0/393
+
+[y11x_tiles_s3_best] threshold sweep (re-scored from cached detections)
+    thr      P      R     F1         tp/fp/fn
+   0.05  0.848  0.749  0.796        296/53/99 <- best F1
+   0.10  0.932  0.689  0.792       272/20/123
+   0.15  0.952  0.600  0.736       237/12/158
+   0.20  0.967  0.519  0.675        205/7/190
+   0.25  0.978  0.456  0.622        180/4/215
+   0.30  0.987  0.382  0.551        151/2/244
+   0.40  1.000  0.281  0.439        111/0/284
+   0.50  1.000  0.195  0.326         77/0/318
+   0.60  1.000  0.119  0.213         47/0/348
+   0.70  1.000  0.038  0.073         15/0/380
+
+PR curves written to /homes/gws/jonf/RampNet/seedvar_eval_51_135/pr_paterson_tiles (JSON + pr_curves.png)
+
+--- RampNet verdict-based cross-check ---
+Panos fully judged:   125 (of 125 seen)
+Detections judged:    277  (correct 270, incorrect 7)
+Detections duplicate: 1  (redundant hits on an already-counted ramp; folded into the numbers above per this run's duplicate scoring)
+Detections unsure:    7  (abstained — not in precision or recall)
+Missed ramps marked:  125  (+36 unsure, abstained)
+Precision: 0.975  (95% CI 0.949-0.988)
+Recall:    0.684  (95% CI 0.636-0.727)  [vs ramps visible in the 125 recall-pool panos]
+
+threshold   kept  precision   recall
+     0.55    277      0.975    0.684
+     0.60    270      0.974    0.666
+     0.65    259      0.977    0.641
+     0.70    248      0.984    0.618
+     0.75    222      0.982    0.552
+     0.80    199      0.980    0.494
+     0.85    156      1.000    0.395
+     0.90     88      1.000    0.223
+     0.95     25      1.000    0.063
