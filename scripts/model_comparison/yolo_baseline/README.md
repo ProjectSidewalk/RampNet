@@ -199,7 +199,8 @@ To regenerate, check, or reproduce the pre-#140 files (no GPU, no checkpoint, no
 ```bash
 python scripts/model_comparison/yolo_baseline/rescore_benchmark_eval.py --check   # what CI runs
 python scripts/model_comparison/yolo_baseline/rescore_benchmark_eval.py           # rewrite + stamp
-python scripts/model_comparison/yolo_baseline/rescore_benchmark_eval.py     --no-wrap-x --no-png --out <dir>   # the 2026-08-14 numbers, from the pre-#140 matcher
+python scripts/model_comparison/yolo_baseline/rescore_benchmark_eval.py --no-wrap-x --no-png --out <dir>
+#   ^ the 2026-08-14 numbers, from the pre-#140 matcher; compare <dir> against commit 3d7c7bf
 ```
 
 ### Headline: F1 at the pre-registered conf 0.25
