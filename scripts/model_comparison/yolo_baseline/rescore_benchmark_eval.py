@@ -309,10 +309,15 @@ def main(argv=None):
         if args.check:
             drift += _check(targets)
             continue
+        # The figure is a function of the JSON curves: redraw it only when one of them
+        # actually changed (or it is missing), so a regeneration that moves nothing does
+        # not churn ten binary files.
+        png = os.path.join(args.out, f"pr_{split}", "pr_curves.png")
+        curves_changed = _check({p: b for p, b in targets.items() if p.endswith(".json")})
         for path, body in targets.items():
             write_lf(path, body)
-        if not args.no_png:
-            write_png(os.path.join(args.out, f"pr_{split}", "pr_curves.png"), rows)
+        if not args.no_png and (curves_changed or not os.path.exists(png)):
+            write_png(png, rows)
         print(f"wrote {split}: {', '.join(f'{a} F1 {r.f1:.3f}' for a, r in rows.items())}")
 
     summary = render_summary(per_split, wrap_x, fp, head)
