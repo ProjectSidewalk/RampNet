@@ -347,11 +347,26 @@ def strip_head_pointer(text):
     return "\n".join(out)
 
 
+def _display_path(path):
+    """Repo-relative for the drift message when the path is under the repo, else absolute.
+
+    ``os.path.relpath`` raises on Windows when ``--out`` is on a different drive from the
+    checkout (``C:`` scratch vs ``D:`` repo), which took the documented ``--no-wrap-x
+    --out <dir>`` audit down with it."""
+    try:
+        rel = os.path.relpath(path, REPO)
+    except ValueError:
+        return os.path.normpath(path)
+    if rel.startswith(os.pardir):
+        return os.path.normpath(path)
+    return rel.replace(os.sep, "/")
+
+
 def _check(targets):
     """Which of ``targets`` (path -> expected text) differ from what is on disk."""
     drift = []
     for path, body in targets.items():
-        rel = os.path.relpath(path, REPO).replace(os.sep, "/")
+        rel = _display_path(path)
         if not os.path.exists(path):
             drift.append(f"{rel}: missing")
             continue
