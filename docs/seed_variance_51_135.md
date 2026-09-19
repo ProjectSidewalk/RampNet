@@ -15,7 +15,7 @@ text is kept verbatim so the amendment is auditable rather than a silent rewrite
 **Amended 2026-09-17, after the n=3 result was seen and before any further replicate was
 trained** — see
 [Amendment 2](#amendment-2-2026-09-17-campaign-b-is-extended-to-nine-replicates). The
-n=3 read landed in the ambiguous band with 96% of the noise on the RampNet side; the
+n=3 read landed in the ambiguous band with 95% of the noise on the RampNet side; the
 pre-registered response (two more YOLO seeds) could not move the number, six more
 RampNet seeds could, and they were free. The n=3 reading stays in the record; the n=9
 reading sits beside it.
@@ -91,7 +91,7 @@ its restart count (klone requeues, resumed from the last 1,000-step checkpoint) 
 **#51, the n=3 read (as scored, corrected checkpoints).** The band is ambiguous, so per
 A1.1 this reading claims neither "real" nor "indistinguishable" and reports the
 interval: the published 0.039 sits at 3.4 σ of a σ that is itself measured from three
-draws per arm, and 0.039 ± 2 `s_gap` is **[0.016, 0.062]**. `s_gap` is 96% `s_B`. The
+draws per arm, and 0.039 ± 2 `s_gap` is **[0.016, 0.062]**. `s_B²` is 95% of `s_gap²`. The
 pre-registered response to this band — a fourth and fifth Campaign A replicate — cannot
 narrow it: two more YOLO seeds at `s_A` = 0.0025 move `s_gap` by nothing. That is what
 Amendment 2 acted on.
@@ -143,7 +143,8 @@ runs, the cosine rung's tie, and any single-checkpoint number quoted against ano
 The MDE is demoted to the paired (same-run, epoch-vs-epoch) case only. The n=9
 estimate is the one to carry: it is tighter, it includes replicates that were
 requeued (the production regime on `ckpt-all`), and its CI [0.0064, 0.0180] does not
-reach below the MDE.
+reach below the MDE — though only by 0.0001 (the lower end is 0.00636), the same
+kind of margin as the band call.
 
 ### Secondary reads (post-hoc, descriptive only)
 
@@ -152,8 +153,9 @@ RampNet rows re-reported on n=9 per A2.3 item 4, with the seeds-1–3 subset kep
 
 **YOLO at as-saved `best.pt` (≤ 60 epochs).** 0.8133 / 0.8127 / 0.8130, mean 0.8130,
 SD **0.0003** (unchanged by the correction: these legs reproduced cell-for-cell).
-Sixteen more epochs move the tiles arm by +0.006 pooled over the corrected ≤ 44 read
-and shrink its spread eight-fold. The n=1 "more training hurt out-of-distribution"
+Thirteen to fifteen more epochs (`best.pt` is `results.csv` epoch 57 / 59 / 56) move
+the tiles arm by +0.006 pooled over the corrected ≤ 44 read and shrink its spread
+eight-fold. The n=1 "more training hurt out-of-distribution"
 finding was on the *pano* arm (`yolo_geometry_51.md`); on the tiles arm, with three
 seeds, it does not appear.
 
@@ -431,6 +433,13 @@ That was written on the assumption that the paid arm would be the noisy one. The
 measurement says the opposite: `s_A` = 0.0023, `s_B` = 0.0111, so `s_B²` is 96% of
 `s_gap²`. Two consequences, both arithmetic on the numbers already in this document:
 
+*(The numbers in this section are the ones on the table when the amendment was
+declared, 05:21 on 2026-09-17 — the 09-15 scoring, whose three Campaign A legs were
+later that morning found to be one epoch late. On the corrected legs `s_A` is 0.0025,
+`s_B²` is 95% of `s_gap²`, and the gap of replicate means is 0.0148, not 0.0115; the
+standard errors below become 0.0066 at 3 + 3 and 0.0040 at 3 + 9. The conclusion is
+the same. The text is left as declared.)*
+
 - **The standard error of the gap of replicate means** is `sqrt(s_A²/n_A + s_B²/n_B)`:
   0.0065 at 3 + 3. Two more YOLO seeds (5 + 3) give 0.0065; six more RampNet seeds
   (3 + 9) give 0.0039, if `s_B` holds. The pre-registered response cannot move the
@@ -626,7 +635,7 @@ uses the weights file's stem — and hashed at every hop
 ```bash
 # 1. Which epoch each Campaign A replicate is read at. The column is
 #    metrics/mAP50-95(B); on s2 the fitness blend picks ep41 instead, by 0.00006.
-python -c "from scripts.analysis.seed_variance_read_51_135 import pick_epoch as p;   print([p(f'docs/data/seed_variance_51_135/y11x_tiles_s{s}/results.csv')[0] for s in (1,2,3)])"
+python -c "from scripts.analysis.seed_variance_read_51_135 import pick_epoch as p; print([p(f'docs/data/seed_variance_51_135/y11x_tiles_s{s}/results.csv')[0] for s in (1,2,3)])"
 # -> [44, 44, 42]
 
 # 2. On makelab2, with seedvar_ckpts/{y11x_tiles_s1_ep44,y11x_tiles_s2_ep44,
@@ -637,10 +646,22 @@ nohup scripts/model_comparison/yolo_baseline/run_seedvar_eval.sh > seedvar_drive
 #    RampNet: operating_point_curve.py extract --checkpoint ... --cache <own dir>,
 #    floor 0.05, min_distance 10, no TTA -- the committed op_cache arm.
 #    Splits: the seven pooled US splits, sao_paulo (dev), manual_gold (secondary).
+#    This is the 2026-09-15 run (env_2026-09-15.txt); its three _ep legs were scored
+#    on the wrong checkpoints and are archived under yolo_mislabelled_ep45_45_43/.
+
+# 2a. The 2026-09-17 re-score of the six YOLO legs on the right checkpoints, into a
+#     fresh OUT so the 09-15 outputs stay on disk beside it (env.txt, driver.log).
+#     ARMS is how the driver scores one half; the epoch guard runs first either way.
+ARMS=yolo OUT=seedvar_eval_51_135_rescore \
+  nohup scripts/model_comparison/yolo_baseline/run_seedvar_eval.sh > seedvar_rescore.out 2>&1 &
 
 # 2b. Amendment 2 (seeds 4-9), same driver, RampNet half only, after
-#     rampnet_s{4..9}_best.pth are in seedvar_ckpts/ with their hashes checked:
-RN_SEEDS="4 5 6 7 8 9" YOLO_LEGS="" OUT=seedvar_eval_51_135_amend2   nohup scripts/model_comparison/yolo_baseline/run_seedvar_eval.sh > seedvar_amend2.out 2>&1 &
+#     rampnet_s{4..9}_best.pth are in seedvar_ckpts/ with their hashes checked
+#     (env_amend2_2026-09-17.txt, driver_amend2_2026-09-17.log). The six YOLO
+#     checkpoints must still be present: the driver hashes and label-checks them
+#     before scoring anything, whichever arm is selected.
+RN_SEEDS="4 5 6 7 8 9" ARMS=rampnet OUT=seedvar_eval_51_135_amend2 \
+  nohup scripts/model_comparison/yolo_baseline/run_seedvar_eval.sh > seedvar_amend2.out 2>&1 &
 #     Restart counts for the table come from klone, not from the .out logs (a requeue
 #     overwrites them): sacct -D -X --parsable2 -j <the nine job ids in CAMPAIGN_B_JOBS>
 #     -> docs/data/seed_variance_51_135/klone_sacct_D.txt
