@@ -4,7 +4,8 @@ Sibling of ``test_scoreboard.py::test_every_number_matches_model_comparison``, f
 committed artifact that test does not cover. The YOLO pano arms are listed in
 ``docs/model_comparison.md`` as "published, not in these tables", so when the #140 seam
 wrap changed what the scorer returns, that document was regenerated and re-derived in CI
-while ``benchmark_eval/`` kept its pre-fix values for ten days and nothing failed (#148).
+while ``benchmark_eval/`` kept its pre-fix values for a month (#140 merged 2026-08-18;
+regenerated 2026-09-19) and nothing failed (#148).
 
 Everything here is CPU-only and reads committed inputs alone -- the benchmark bundles,
 ``benchmark/model_detections/``, ``manual_labels/`` -- through the same regenerator that
@@ -125,8 +126,9 @@ def test_every_split_and_arm_was_scored(rendered):
 # --------------------------------------------------------------------------- #
 def test_every_file_names_the_scorer_that_produced_it():
     """The #148 ask: a committed number carries its scorer version. The stamp is the
-    sha256 of the matcher's three source files plus the ``wrap_x`` setting; any edit to
-    those files, behavioural or not, changes it and forces a regeneration."""
+    sha256 of the four source files every number in the file depends on (matcher, pano
+    scorer, validation for the CIs and cross-check) plus the ``wrap_x`` setting; any edit
+    to those files, behavioural or not, changes it and forces a regeneration."""
     want = rbe.scorer_line(True, rbe.scorer_fingerprint())
     for name in [f"{s}.txt" for s in rbe.SPLITS] + ["SUMMARY_TABLES.md"]:
         lines = _read(os.path.join(EVAL_DIR, name)).split("\n")
@@ -134,9 +136,12 @@ def test_every_file_names_the_scorer_that_produced_it():
         assert stamps == [want], f"{name}: scorer stamp {stamps} != {want!r}"
 
 
-def test_the_stamp_records_the_scorers_actual_default():
-    """``wrap_x=True`` in the stamp is read from ``score_pano``'s signature at render
-    time, so a change to the default cannot leave the stamp describing the old one."""
+def test_the_stamp_records_what_was_passed_and_the_scorer_default_is_true():
+    """The stamp echoes the ``wrap_x`` the regenerator passed to ``score_pano`` -- it does
+    not consult the function's default. So the committed stamps saying ``wrap_x=True``
+    describe the current default only while that default IS True; this pins it, so a
+    change to the default fails here and prompts the regenerator (and the stamp wording)
+    to follow."""
     assert inspect.signature(score_pano).parameters["wrap_x"].default is True
     assert "wrap_x=True" in rbe.scorer_line(True)
     assert "wrap_x=False" in rbe.scorer_line(False)

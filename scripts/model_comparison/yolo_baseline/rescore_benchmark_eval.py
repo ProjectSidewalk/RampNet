@@ -14,8 +14,9 @@ function, made explicit:
 
 Why it exists (#148): the #140 seam-wrap fix changed what ``score_pano`` returns for a
 detection that lands within the match radius of a ground-truth ramp *across* the x seam.
-Three published YOLO cells moved, and ``benchmark_eval/`` kept the pre-fix values for ten
-days because nothing re-derived it. ``tests/test_benchmark_eval.py`` now calls
+Three published YOLO cells moved, and ``benchmark_eval/`` kept the pre-fix values for a
+month (#140 merged 2026-08-18, this regeneration is 2026-09-19) because nothing re-derived
+it. ``tests/test_benchmark_eval.py`` now calls
 :func:`render_split` on every CI run and fails if the committed text drifts from what the
 current scorer produces, which is the same guard ``docs/model_comparison.md`` already had.
 
@@ -26,12 +27,15 @@ detections and are never touched. ``pr_<split>/pr_curves.png`` is rewritten only
 matplotlib is importable (``--no-png`` skips it); the test does not compare PNGs.
 
 **The scorer stamp.** Every regenerated file carries a ``Scorer:`` line naming the
-matcher's ``wrap_x`` setting and a sha256 over the three source files the matcher lives
-in (``rampnet/geometry.py``, ``rampnet/metrics.py``, ``rampnet/detection_eval.py``,
-LF-normalised). The test recomputes that fingerprint, so a change to any of those files
--- behavioural or not -- requires re-running this script, which is how a committed
-number always says which scorer produced it. The repo HEAD at regeneration is recorded
-beside it as a pointer, not as the identity: the files land in the *next* commit.
+matcher's ``wrap_x`` setting and a sha256 over the four source files every number in the
+file is a function of (``SCORER_SOURCES``: the matcher in ``rampnet/geometry.py`` and
+``rampnet/metrics.py``, the pano scorer and aggregation in ``rampnet/detection_eval.py``,
+and ``rampnet/validation.py`` for the Wilson intervals in the 95% CI columns and the
+RampNet verdict cross-check block; LF-normalised). The test recomputes that fingerprint,
+so a change to any of those files -- behavioural or not -- requires re-running this
+script, which is how a committed number always says which scorer produced it. The repo
+HEAD at regeneration is recorded beside it as a pointer, not as the identity: the files
+land in the *next* commit.
 
 Output is written LF on every platform and every float is rendered through the same
 format strings ``compare.py`` prints with, so a regenerated file is byte-comparable.
@@ -77,9 +81,12 @@ OP_THRESHOLD = 0.25
 #: sweep row below it is printed. Equals the lowest sweep threshold, so nothing is cut.
 YOLO_FLOOR = 0.05
 
-#: The files the matcher's behaviour is a function of. Hashed, LF-normalised, into the
-#: ``Scorer:`` stamp so a committed number names the code that produced it.
-SCORER_SOURCES = ("rampnet/geometry.py", "rampnet/metrics.py", "rampnet/detection_eval.py")
+#: The files every number in a stamped file is a function of: the matcher (geometry,
+#: metrics), the pano scorer and aggregation (detection_eval), and validation for the
+#: Wilson CIs and the verdict cross-check. Hashed, LF-normalised, into the ``Scorer:``
+#: stamp so a committed number names the code that produced it.
+SCORER_SOURCES = ("rampnet/geometry.py", "rampnet/metrics.py", "rampnet/detection_eval.py",
+                  "rampnet/validation.py")
 
 RELATIVE_SCRIPT = "scripts/model_comparison/yolo_baseline/rescore_benchmark_eval.py"
 
