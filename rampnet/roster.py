@@ -173,8 +173,14 @@ ROSTER = (
              "published 2026-09-20 from the same host and env. The handicap was "
              "real and it was recall: 0.694 -> 0.884, AP 0.510 -> 0.649, precision "
              "slightly worse, F1 +0.018, so 'transfers but does not compete' "
-             "stands. richmond only. Density read off the published detections: "
-             "see docs/model_comparison.md, Resolution parity."),
+             "stands. richmond only. Density 6.2 boxes/pano, read off the published "
+             "detections with null_recall.py (docs/model_comparison.md, Resolution "
+             "parity): above the 1-4 band the module docstring quotes for sparse, "
+             "but 1.4x its 384 sibling's 4.48 and an order of magnitude under the "
+             "open detectors' 55-88, so it is classed with the sibling -- unlike the "
+             "+curb arm's 13.31, which is 3x and was left unclassified. The value is "
+             "inert in any case: a pinned leg is not in BY_SPEC, so density_of never "
+             "reads it, and it is here so the roster table says what was measured."),
     Challenger(
         spec="gemini:gemini-3.7-flash", label="gemini-3.7-flash", provider="gemini",
         density="sparse", standing=False, added="2026-08-14",
@@ -446,17 +452,30 @@ def needs_qualified_name(c):
     """Must this leg be published under a name other than its bare label?
 
     Always, if it is pinned. If it is NOT pinned, only when a sibling leg (same
-    label) is pinned on a knob that is in every leg's signature -- Claude's effort,
-    which is ``low`` in the bare leg's signature and ``high`` in its sibling's, so a
-    bare ``claude-sonnet-5__annapolis.json`` would hide which one it is.
+    label) is pinned on a knob that is not opt-in, where opt-in means exactly
+    ``is_opt_in_pin(key)``: ``PROVIDER_DEFAULTS[key] is None``. That is the whole
+    criterion; it is a statement about the default, not about which detector
+    signatures the knob appears in, so:
 
-    An unpinned leg beside siblings pinned only on opt-in knobs keeps its bare name.
-    ``mask2former-vistas-curb-cut__richmond.json`` IS the arm at its defaults: its
-    signature carries no ``input_size`` key at all, and the parity sibling's does, so
-    the two files describe themselves and a rename would only orphan every reference
-    to the published one (#163). The half-qualified directory that rule was written
-    against (#122) cannot arise here, because a bare name can only ever mean "every
-    opt-in knob unset".
+    * ``claude_effort`` (default ``"low"``) is not opt-in. The bare Claude leg's
+      signature says ``effort: low`` and its sibling's says ``high``, so a bare
+      ``claude-sonnet-5__annapolis.json`` would hide which one it is, and every leg
+      of that model is qualified.
+    * ``vistas_input_size`` (default ``None``) is opt-in. ``VistasDetector`` records
+      it only when set, so ``mask2former-vistas-curb-cut__richmond.json`` carries no
+      ``input_size`` key and the parity sibling's does: the two files describe
+      themselves, the bare leg keeps its name, and a rename would only orphan every
+      reference to the published one (#163). The half-qualified directory #122 was
+      written against cannot arise, because a bare name can only ever mean "every
+      opt-in knob unset" -- which ``leg_for`` enforces (``set_opt_in_knobs``).
+    * ``claude_serving_path`` (default ``"vertex"``) is not opt-in, although it is
+      not a signature field at all (#156: it changes who bills, not what was asked).
+      A sibling pinned on it therefore forces the bare leg to qualify, which is the
+      conservative answer: the published file's signature cannot tell the two apart,
+      so the name has to.
+    * A key ``PROVIDER_DEFAULTS`` does not know is not opt-in either (``False``), so
+      a pin on an unregistered knob also forces qualification rather than being
+      waved through.
     """
     if c.pins:
         return True
@@ -511,10 +530,11 @@ PUBLISHED = tuple(c for c in ROSTER if c.provider != "rampnet")
 #:
 #:     benchmark/model_detections/replicates/<tag>/<slug(of)>__<split>.json
 #:
-#: written by ``export_model_cache.py --out benchmark/model_detections/replicates/<tag>``
-#: with no other change -- inside its directory a replicate file is exactly a
-#: published file, and ``load_detections`` reads it with ``published_dir`` pointed
-#: there. What a replicate must share with the file it replicates is the header
+#: written by ``export_model_cache.py --replicate <tag>``, which derives that path from
+#: ``replicate_dir`` so it is never typed by hand (typing the published directory
+#: instead used to overwrite the file being replicated, PR #167 M1) -- inside its
+#: directory a replicate file is exactly a published file, and ``load_detections``
+#: reads it with ``published_dir`` pointed there. What a replicate must share with the file it replicates is the header
 #: (``model``, ``published_as``, ``signature``); what it may differ in is the
 #: detections, and the size of that difference is the result it exists to record.
 #: ``tests/test_roster.py`` holds both halves.
@@ -657,10 +677,31 @@ def leg_for(spec, cargs=None):
     for c in candidates:                      # a pinned leg wins when its pins match
         if c.pins and pins_match(cargs, c.pins):
             return c
+    if set_opt_in_knobs(cargs, candidates):   # an opt-in knob is SET: not the bare leg
+        return None
     for c in candidates:                      # otherwise the leg the bare spec names
         if not c.pins:
             return c
     return None
+
+
+def set_opt_in_knobs(cargs, candidates):
+    """The opt-in knobs some candidate leg pins that ``cargs`` has set (non-``None``).
+
+    A bare name means "every opt-in knob unset" (``needs_qualified_name``): the bare
+    file's signature carries no such key, and that is what lets it keep its name
+    beside a pinned sibling. So once a run SETS one of those knobs it is not the bare
+    leg, whatever the value -- ``vistas_input_size=[512, 512]`` is a leg nobody has
+    registered, not the 384 arm, and ``leg_for`` must answer ``None`` so the exporter
+    refuses rather than writing ``mask2former-vistas-curb-cut__richmond.json`` with
+    ``input_size: [512, 512]`` inside and ``pins: {}`` (PR #167 review, M2). A value
+    some sibling does register was matched before this is consulted, so by the time
+    it runs every set knob is, for this run, unregistered. Sorted, for the message.
+    """
+    if cargs is None:
+        return []
+    pinned = {k for c in candidates for k, _ in c.pins if is_opt_in_pin(k)}
+    return sorted(k for k in pinned if getattr(cargs, k, None) is not None)
 
 
 def density_of(spec):

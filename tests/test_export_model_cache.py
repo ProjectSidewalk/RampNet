@@ -245,17 +245,79 @@ def test_export_refuses_to_overwrite_a_different_leg(tmp_path, monkeypatch):
 
 def test_export_overwrites_the_same_leg_happily(tmp_path, monkeypatch):
     """Re-exporting an unchanged leg must stay a no-op-shaped success, or every
-    routine re-run would look like a collision."""
+    routine re-run would look like a collision. Unchanged means the DETECTIONS
+    too: this test used to overwrite `{"p1": []}` with a real point and call that
+    a no-op, which is the hole the next test closes (PR #167 M1)."""
     out = tmp_path / "out"
     out.mkdir()
     sig = {"provider": "claude", "effort": "low"}
+    dets = {"p1": [[0.1, 0.2, None]]}
     (out / "claude-sonnet-5-effort-low__annapolis.json").write_text(json.dumps({
         "model": "claude-sonnet-5", "city": "annapolis", "signature": sig,
+        "detections": dets}), encoding="utf-8")
+
+    written, skipped, partial, collisions = _fake_export(
+        monkeypatch, out, sig=sig, detections=dets)
+    assert collisions == [] and len(written) == 1
+    assert json.loads((out / "claude-sonnet-5-effort-low__annapolis.json")
+                      .read_text("utf-8"))["detections"] == dets
+
+
+def test_export_refuses_the_same_leg_with_different_detections(tmp_path, monkeypatch):
+    """A file with THIS run's signature but other detections is a re-run of the
+    same leg. A replicate is exactly that by construction, so exporting the #163
+    control's cache at the default --out replaced 114 of 124 panos' detections in
+    the published 384 file with `collisions == []`, and --verify then passed
+    against the replaced file (PR #167 M1). Refuse it; --replace is the override,
+    and it has to be a decision."""
+    out = tmp_path / "out"
+    out.mkdir()
+    sig = {"provider": "claude", "effort": "low"}
+    path = out / "claude-sonnet-5-effort-low__annapolis.json"
+    path.write_text(json.dumps({
+        "model": "claude-sonnet-5", "city": "annapolis", "signature": sig,
         "detections": {"p1": []}}), encoding="utf-8")
+    before = path.read_text(encoding="utf-8")
 
     written, skipped, partial, collisions = _fake_export(
         monkeypatch, out, sig=sig, detections={"p1": [[0.1, 0.2, None]]})
+    assert written == []
+    assert [(c[1], c[3]) for c in collisions] == [("annapolis", "detections")]
+    assert path.read_text(encoding="utf-8") == before        # untouched
+
+    written, skipped, partial, collisions = _fake_export(
+        monkeypatch, out, sig=sig, detections={"p1": [[0.1, 0.2, None]]}, replace=True)
     assert collisions == [] and len(written) == 1
+    assert json.loads(path.read_text("utf-8"))["detections"] == {"p1": [[0.1, 0.2, None]]}
+    # --replace does NOT reach across to another leg: a different signature is
+    # still a name collision, whatever the flag says.
+    written, skipped, partial, collisions = _fake_export(
+        monkeypatch, out, sig={"provider": "claude", "effort": "high"},
+        detections={"p1": []}, replace=True)
+    assert written == [] and [c[3] for c in collisions] == ["signature"]
+
+
+def test_export_refuses_an_unregistered_value_of_an_opt_in_knob():
+    """`--vistas-input-size 512 512` is neither the bare 384 leg (its signature
+    carries no input_size) nor the 1024 one. It used to publish as the bare name
+    with `input_size: [512, 512]` inside and `pins: {}` (PR #167 M2)."""
+    cargs = em._compare_args(".model_cache")
+    assert cargs.vistas_input_size is None
+    assert em.publication_name("vistas:curb-cut", cargs) == "mask2former-vistas-curb-cut"
+    cargs.vistas_input_size = [1024, 1024]
+    assert em.publication_name("vistas:curb-cut", cargs) == "mask2former-vistas-curb-cut-1024x1024"
+    cargs.vistas_input_size = [512, 512]
+    with pytest.raises(ValueError) as err:
+        em.publication_name("vistas:curb-cut", cargs)
+    msg = str(err.value)
+    assert "vistas_input_size=[512, 512]" in msg and "not the bare leg" in msg
+    assert "--publish-as" in msg
+    # The whole run refuses, not just the name: export() asks publication_name first.
+    with pytest.raises(ValueError, match="not the bare leg"):
+        em.export("/nope", "/nowhere", ["richmond"], ["vistas:curb-cut"],
+                  overrides={"vistas_input_size": [512, 512]})
+    # And --publish-as remains the way to name a genuinely new leg.
+    assert em.publication_name("vistas:curb-cut", cargs, "vistas-512") == "vistas-512"
 
 
 def test_a_pinned_leg_publishes_under_its_registry_name_without_being_told():
@@ -316,13 +378,14 @@ def test_publish_as_refuses_more_than_one_spec(tmp_path):
                   publish_as="both")
 
 
-def _fake_export(monkeypatch, out, sig, detections):
-    """Drive export() over the real annapolis bundle path without torch or a cache.
+def _fake_stack(monkeypatch, sig, detections, label="claude-sonnet-5",
+                provider="claude"):
+    """Stub the detector stack and the cache so export() runs without torch.
 
     export() imports compare/detectors lazily inside the function, so the stubs go
-    into sys.modules; ``benchmark/annapolis/records.jsonl`` genuinely exists, so
-    the only thing faked is the detector stack and the cache lookup. The point is
-    to exercise the collision branch, not to re-test scoring."""
+    into sys.modules; the bundle's ``records.jsonl`` genuinely exists, so the only
+    thing faked is the detector stack and the cache lookup. Every pano gets the
+    same points (``detections["p1"]``)."""
     import types
 
     gts = dict.fromkeys(detections)
@@ -336,12 +399,151 @@ def _fake_export(monkeypatch, out, sig, detections):
     )
     fake_detectors = types.SimpleNamespace(
         build_detector=lambda provider, mid, records, cargs: (
-            "claude-sonnet-5", types.SimpleNamespace(signature=lambda: sig)),
-        parse_model_spec=lambda spec: ("claude", "claude-sonnet-5"),
+            label, types.SimpleNamespace(signature=lambda: sig)),
+        parse_model_spec=lambda spec: (provider, label),
     )
     monkeypatch.setitem(sys.modules, "compare", fake_compare)
     monkeypatch.setitem(sys.modules, "detectors", fake_detectors)
-    return em.export("/nope", str(out), ["annapolis"], ["claude:claude-sonnet-5"])
+
+
+def _fake_export(monkeypatch, out, sig, detections, replace=False):
+    """Drive export() over the real annapolis bundle path without torch or a cache.
+    The point is to exercise the overwrite guard, not to re-test scoring."""
+    _fake_stack(monkeypatch, sig, detections)
+    return em.export("/nope", str(out), ["annapolis"], ["claude:claude-sonnet-5"],
+                     replace=replace)
+
+
+# --------------------------------------------------------------------------- #
+# --replicate: the directory comes from the registry, never from the keyboard
+# --------------------------------------------------------------------------- #
+REPLICATE_TAG = "makelab2-a40-2026-09-20"
+
+
+def _replicate_argv(*extra):
+    return ["--cache-dir", "/nope", "--models", "vistas:curb-cut",
+            "--splits", "richmond", "--replicate", REPLICATE_TAG, *extra]
+
+
+def test_replicate_flag_derives_out_from_the_registry(tmp_path, monkeypatch, capsys):
+    """Exporting the control with a typed --out was how it could land on the file
+    it replicates. With --replicate the directory is roster.replicate_dir(tag), so
+    the file cannot be anywhere but under replicates/<tag>/ (PR #167 M1)."""
+    from rampnet import roster
+    monkeypatch.setattr(em, "PUBLISHED_DIR", str(tmp_path))
+    sig = {"provider": "vistas", "model_id": "mask2former-vistas-curb-cut"}
+    _fake_stack(monkeypatch, sig, {"p1": [[0.1, 0.2, None]]},
+                label="mask2former-vistas-curb-cut", provider="vistas")
+    assert em.main(_replicate_argv()) == 0
+    rep = roster.REPLICATES_BY_TAG[REPLICATE_TAG]
+    expected = tmp_path / "replicates" / REPLICATE_TAG / roster.replicate_filename(rep, "richmond")
+    assert expected.exists()
+    assert not (tmp_path / roster.replicate_filename(rep, "richmond")).exists()
+    payload = json.loads(expected.read_text("utf-8"))
+    assert payload["published_as"] == rep.of and payload["signature"] == sig
+    assert str(expected.parent) in capsys.readouterr().out
+
+
+def test_replicate_flag_refuses_an_explicit_out_and_an_unknown_tag(tmp_path, monkeypatch):
+    monkeypatch.setattr(em, "PUBLISHED_DIR", str(tmp_path))
+    with pytest.raises(SystemExit):
+        em.main(_replicate_argv("--out", str(tmp_path / "elsewhere")))
+    with pytest.raises(SystemExit):
+        em.main(["--cache-dir", "/nope", "--models", "vistas:curb-cut",
+                 "--splits", "richmond", "--replicate", "no-such-tag"])
+    assert not (tmp_path / "replicates").exists()
+
+
+def test_replicate_flag_refuses_a_leg_or_split_the_tag_does_not_replicate(
+        tmp_path, monkeypatch):
+    """A tag's directory holds only (rep.of, rep.splits) files -- test_roster.py
+    asserts that on the committed tree -- so the exporter refuses to put anything
+    else there rather than leave a stray for that test to find."""
+    monkeypatch.setattr(em, "PUBLISHED_DIR", str(tmp_path))
+    sig = {"provider": "vistas", "model_id": "mask2former-vistas-curb-cut"}
+    _fake_stack(monkeypatch, sig, {"p1": []},
+                label="mask2former-vistas-curb-cut", provider="vistas")
+    with pytest.raises(SystemExit):                 # the 1024 leg is not what it replicates
+        em.main(_replicate_argv("--vistas-input-size", "1024", "1024"))
+    with pytest.raises(SystemExit):                 # a split it is not registered for
+        em.main(["--cache-dir", "/nope", "--models", "vistas:curb-cut",
+                 "--splits", "richmond,bend", "--replicate", REPLICATE_TAG])
+    assert not (tmp_path / "replicates").exists()
+
+
+# --------------------------------------------------------------------------- #
+# the two #163 files round-trip through the real exporter, byte for byte
+# --------------------------------------------------------------------------- #
+PARITY_FILE = os.path.join(em.PUBLISHED_DIR, "mask2former-vistas-curb-cut-1024x1024__richmond.json")
+PUBLISHED_384_FILE = os.path.join(em.PUBLISHED_DIR, "mask2former-vistas-curb-cut__richmond.json")
+
+
+def _cache_from_published(tmp_path, path):
+    """A ``.model_cache``-shaped directory holding exactly one published file's
+    detections, keyed the way the exporter will look them up."""
+    from compare import DetectionCache, cache_key
+    with open(path, encoding="utf-8") as fh:
+        published = json.load(fh)
+    cache_dir = tmp_path / "cache"
+    cache = DetectionCache(str(cache_dir))
+    for pid, pts in published["detections"].items():
+        cache.put(cache_key(published["model"], published["signature"],
+                            published["city"], pid), pts)
+    return str(cache_dir)
+
+
+def test_the_parity_file_round_trips_through_the_exporter(tmp_path):
+    """Rebuild a cache from the committed parity file, export it with the flags
+    the doc records, and require the bytes back. This is the review's own check
+    (PR #167), kept: it proves the committed file is what the exporter writes for
+    `--vistas-input-size 1024 1024`, with no GPU and no cache of its own."""
+    cache_dir = _cache_from_published(tmp_path, PARITY_FILE)
+    out = tmp_path / "out"
+    written, skipped, partial, collisions = em.export(
+        cache_dir, str(out), ["richmond"], ["vistas:curb-cut"],
+        overrides={"vistas_input_size": [1024, 1024]})
+    assert [w[:2] for w in written] == [("mask2former-vistas-curb-cut", "richmond")]
+    assert partial == [] and collisions == []
+    got = out / os.path.basename(PARITY_FILE)
+    assert got.read_bytes() == open(PARITY_FILE, "rb").read()
+
+
+def test_the_replicate_round_trips_and_cannot_land_on_the_file_it_replicates(tmp_path):
+    """The other half of M1 on the real files. The replicate's cache re-exports
+    byte-identically into its registered directory; the same cache aimed at the
+    published directory, where the 384 file already sits with the SAME signature
+    and different detections, is refused and the published file is untouched --
+    which is the overwrite the review reproduced on a scratch copy."""
+    import shutil
+    from rampnet import roster
+    rep = roster.REPLICATES_BY_TAG["makelab2-a40-2026-09-20"]
+    committed = os.path.join(roster.replicate_dir(rep, em.PUBLISHED_DIR),
+                             roster.replicate_filename(rep, "richmond"))
+    cache_dir = _cache_from_published(tmp_path, committed)
+    out = tmp_path / "out"
+    out.mkdir()
+    rep_dir = roster.replicate_dir(rep, str(out))
+
+    written, _, partial, collisions = em.export(
+        cache_dir, rep_dir, ["richmond"], ["vistas:curb-cut"])
+    assert len(written) == 1 and partial == [] and collisions == []
+    got = os.path.join(rep_dir, roster.replicate_filename(rep, "richmond"))
+    assert open(got, "rb").read() == open(committed, "rb").read()
+
+    # Now the published 384 file sits where a hand-typed --out would aim.
+    target = out / os.path.basename(PUBLISHED_384_FILE)
+    shutil.copyfile(PUBLISHED_384_FILE, target)
+    before = target.read_bytes()
+    written, _, partial, collisions = em.export(
+        cache_dir, str(out), ["richmond"], ["vistas:curb-cut"])
+    assert written == [] and partial == []
+    assert [(c[1], c[3]) for c in collisions] == [("richmond", "detections")]
+    assert target.read_bytes() == before
+    # The same signature is what makes it a replicate, so the two files agree on
+    # the header and disagree only in the detections -- which is why the old
+    # guard (signature only) waved it through.
+    a, b = json.loads(before), json.loads(open(committed, encoding="utf-8").read())
+    assert a["signature"] == b["signature"] and a["detections"] != b["detections"]
 
 
 # --------------------------------------------------------------------------- #

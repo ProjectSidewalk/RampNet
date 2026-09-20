@@ -152,19 +152,47 @@ def test_every_leg_of_a_pinned_model_is_qualified():
 def test_the_parity_leg_is_reached_only_with_its_pin_and_in_every_spelling():
     """The 1024 arm and the 384 arm share a spec and a label. A bare spec, or one
     with the size unset, is the 384 leg; the size set is the parity leg -- whether
-    it arrives as the registry's tuple, argparse's list, or JSON's list (#163)."""
+    it arrives as the registry's tuple, argparse's list, or JSON's list (#163).
+
+    And a size that is SET but that no leg registers is neither: a bare name means
+    every opt-in knob unset, so [512, 512] must resolve to no leg at all rather than
+    to the 384 one (PR #167 M2 -- this test used to assert the opposite, and the
+    exporter wrote `mask2former-vistas-curb-cut__richmond.json` with
+    `input_size: [512, 512]` inside)."""
     class _Args:
         vistas_input_size = None
     assert roster.leg_for("vistas:curb-cut", _Args()).published_as is None
-    assert roster.leg_for("vistas:curb-cut").published_as is None
+    assert roster.leg_for("vistas:curb-cut").published_as is None      # cargs None
     for size in ((1024, 1024), [1024, 1024]):
         _Args.vistas_input_size = size
         leg = roster.leg_for("vistas:curb-cut", _Args())
         assert leg.published_as == "mask2former-vistas-curb-cut-1024x1024"
     _Args.vistas_input_size = [512, 512]
-    assert roster.leg_for("vistas:curb-cut", _Args()).published_as is None
+    assert roster.leg_for("vistas:curb-cut", _Args()) is None
+    assert roster.set_opt_in_knobs(_Args(), roster.legs_of("vistas:curb-cut")) == [
+        "vistas_input_size"]
+    _Args.vistas_input_size = None
+    assert roster.set_opt_in_knobs(_Args(), roster.legs_of("vistas:curb-cut")) == []
+    assert roster.set_opt_in_knobs(None, roster.legs_of("vistas:curb-cut")) == []
     assert roster.pin_value([1024, 1024]) == roster.pin_value((1024, 1024))
     assert roster.pin_value("low") == "low"
+
+
+def test_a_set_non_opt_in_knob_still_reaches_a_bare_leg():
+    """The M2 guard is about OPT-IN knobs only. A model whose siblings are pinned on
+    a knob that is always in the signature (Claude's effort) has no bare leg to
+    protect -- every leg is qualified -- and a model with no pinned sibling at all
+    must keep resolving to its bare leg whatever `cargs` carries, or the guard
+    would turn every ordinary export into a refusal."""
+    class _Args:
+        claude_effort = "medium"
+        vistas_input_size = [512, 512]
+    # No sibling of gemini-3.6-flash pins anything, so cargs is irrelevant.
+    leg = roster.leg_for("gemini:gemini-3.6-flash", _Args())
+    assert leg is not None and not leg.pins
+    assert roster.set_opt_in_knobs(_Args(), roster.legs_of("gemini:gemini-3.6-flash")) == []
+    # Claude: every leg pinned on a non-opt-in knob, no bare leg -- None, as before.
+    assert roster.leg_for("claude:claude-sonnet-5", _Args()) is None
 
 
 def test_every_published_filename_round_trips_to_its_model_and_city():

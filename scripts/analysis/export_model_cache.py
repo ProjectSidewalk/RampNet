@@ -38,14 +38,20 @@ the default command will silently skip those files forever otherwise.
 
 A **replicate** -- the same leg re-run at the same signature on another host, to show
 the published numbers reproduce (``rampnet.roster.REPLICATES``) -- is published with the
-same command and nothing new, by pointing ``--out`` at its registered directory::
+same command plus ``--replicate <tag>``, which derives ``--out`` from the registry
+(``roster.replicate_dir``) so the directory is never typed by hand::
 
     python scripts/analysis/export_model_cache.py --cache-dir <that run's cache> \
-        --models vistas:curb-cut --splits richmond \
-        --out benchmark/model_detections/replicates/makelab2-a40-2026-09-20
+        --models vistas:curb-cut --splits richmond --replicate makelab2-a40-2026-09-20
 
 Inside that directory the file is exactly a published file (same name, same header),
-and ``--verify --out <same dir>`` checks it the same way.
+and ``--verify --replicate <tag>`` checks it the same way. The flag matters because of
+the overwrite guard: a replicate has the published file's signature BY CONSTRUCTION, so
+before PR #167 an export of the control's cache at the default ``--out`` replaced the
+published 384 file's detections in place, ``collisions`` stayed empty and ``--verify``
+then passed against the replaced file. ``export`` now refuses to overwrite a file whose
+signature matches but whose detections do not, unless ``--replace`` says that is the
+intent (a deliberate re-publication from a new cache, to be recorded next to the result).
 
 Downstream code reads the export through :func:`load_detections`, preferring it over
 ``.model_cache`` when present, so a fresh clone works with no cache at all.
@@ -132,13 +138,18 @@ def publication_name(spec, cargs, publish_as=None):
     one place that writes the filename, so this is where it should ask.
 
     And when the registry knows the spec but none of its legs match the run's
-    settings, this REFUSES rather than falling back to the plain label. Every leg
-    of that model is pinned, so a run that matches none of them is either a new
-    leg (name it with ``--publish-as``) or, far more likely, the right leg exported
-    at the wrong flags: both Fable legs pin ``claude_serving_path=anthropic`` while
-    the default is ``vertex``, so a plain ``--models claude:claude-fable-5`` used
-    to write ``claude-fable-5__annapolis.json`` with ``pins: {}`` and no error. The
-    serving path is not in the cache key, so the lookup even succeeded.
+    settings, this REFUSES rather than falling back to the plain label. Two ways
+    that happens. Every leg of that model is pinned, so a run that matches none of
+    them is either a new leg (name it with ``--publish-as``) or, far more likely,
+    the right leg exported at the wrong flags: both Fable legs pin
+    ``claude_serving_path=anthropic`` while the default is ``vertex``, so a plain
+    ``--models claude:claude-fable-5`` used to write ``claude-fable-5__annapolis.json``
+    with ``pins: {}`` and no error. The serving path is not in the cache key, so the
+    lookup even succeeded. Or the model has a bare leg, but the run SETS an opt-in
+    knob a sibling is pinned on, to a value no sibling registers: a bare name means
+    every opt-in knob unset, so ``--vistas-input-size 512 512`` is not the 384 arm
+    and must not be written as ``mask2former-vistas-curb-cut__richmond.json`` with
+    ``input_size: [512, 512]`` inside (``roster.set_opt_in_knobs``, PR #167 M2).
     """
     if publish_as:
         return publish_as
@@ -149,20 +160,24 @@ def publication_name(spec, cargs, publish_as=None):
     if candidates:
         known = "; ".join(
             f"{roster.published_name(c)}: "
-            + ", ".join(f"{k}={v}" for k, v in c.pins) for c in candidates)
+            + (", ".join(f"{k}={v}" for k, v in c.pins) or "(bare: every opt-in knob unset)")
+            for c in candidates)
         actual = ", ".join(
             f"{k}={getattr(cargs, k, None)}"
             for k in sorted({k for c in candidates for k, _ in c.pins}))
+        set_knobs = roster.set_opt_in_knobs(cargs, candidates)
+        why = (f"this run sets {', '.join(set_knobs)} to a value no leg registers, so "
+               f"it is not the bare leg either" if set_knobs
+               else "every leg of it is pinned and none matches this run")
         raise ValueError(
-            f"{spec!r} is registered, but every leg of it is pinned and none matches "
-            f"this run ({actual}). Refusing to publish it as the bare label "
-            f"{spec_label(spec, cargs)!r}. Registered legs: {known}. Pass the "
-            f"matching flags, or --publish-as to name a genuinely new leg.")
+            f"{spec!r} is registered, but {why} ({actual}). Refusing to publish it "
+            f"as the bare label {spec_label(spec, cargs)!r}. Registered legs: {known}. "
+            f"Pass the matching flags, or --publish-as to name a genuinely new leg.")
     return spec_label(spec, cargs)
 
 
 def export(cache_dir, out_dir, splits, specs, allow_partial=False, overrides=None,
-           publish_as=None):
+           publish_as=None, replace=False):
     """Consolidate ``.model_cache`` into one file per (model, split).
 
     A split whose cache is incomplete is REFUSED unless ``allow_partial``. A
@@ -178,6 +193,13 @@ def export(cache_dir, out_dir, splits, specs, allow_partial=False, overrides=Non
     same settings as the run that produced the detections — e.g. the supervised
     YOLO pano arms (#51) ran ``--tiling none --yolo-imgsz 1280``, and an export at
     the defaults would rebuild a different signature and silently find no cache.
+
+    An existing file is overwritten only when the write would change nothing. A file
+    holding a DIFFERENT signature is another leg under this name and is refused
+    outright; a file holding the SAME signature but different detections is a re-run
+    of this leg (a replicate exported at the wrong ``--out``, or a genuinely new
+    cache) and is refused unless ``replace``. Both land in ``collisions`` as
+    ``(label, city, path, reason)`` with reason ``"signature"`` or ``"detections"``.
     """
     import compare as C
     from detectors import build_detector, parse_model_spec
@@ -229,9 +251,18 @@ def export(cache_dir, out_dir, splits, specs, allow_partial=False, overrides=Non
             # leg was written last, and the other leg's numbers are simply gone.
             if os.path.exists(path):
                 with open(path, encoding="utf-8") as fh:
-                    existing = json.load(fh).get("signature")
-                if existing is not None and existing != sig:
-                    collisions.append((label, city, path))
+                    existing = json.load(fh)
+                existing_sig = existing.get("signature")
+                if existing_sig is not None and existing_sig != sig:
+                    collisions.append((label, city, path, "signature"))
+                    continue
+                # Same signature, different detections: a re-run of THIS leg. A
+                # replicate has the published file's signature by construction, so
+                # this is exactly what exporting the #163 control at the default
+                # --out looked like, and it replaced 114 of 124 panos' detections
+                # with `collisions=[]` (PR #167, M1). Refuse unless told otherwise.
+                if existing.get("detections") != dets and not replace:
+                    collisions.append((label, city, path, "detections"))
                     continue
             with open(path, "w", encoding="utf-8") as fh:
                 # `pins` is the leg's identity as the registry states it. Every pin
@@ -408,10 +439,24 @@ def main(argv=None):
                         "filename again comes from the roster.")
     p.add_argument("--publish-as",
                    help="Filename stem for this leg, when the model id alone does not "
-                        "identify it — e.g. claude-sonnet-5 at two effort levels are two "
+                        "identify it -- e.g. claude-sonnet-5 at two effort levels are two "
                         "legs that would otherwise both write claude-sonnet-5__<split>.json. "
                         "Names ONE leg, so it takes a single --models spec. The SAME value "
                         "must be passed to --verify.")
+    p.add_argument("--replicate", metavar="TAG",
+                   help="Publish (or --verify) a REPLICATE of a leg -- the same leg "
+                        "re-run at the same signature on another host "
+                        "(rampnet.roster.REPLICATES). Sets --out to the tag's "
+                        "registered directory, benchmark/model_detections/replicates/"
+                        "<tag>, so the path is never typed by hand and the replicate "
+                        "cannot land on the published file it replicates. Refuses to be "
+                        "combined with an explicit --out.")
+    p.add_argument("--replace", action="store_true",
+                   help="Overwrite a published file whose signature matches this run "
+                        "but whose detections do not. Off by default: that shape is a "
+                        "replicate exported at the wrong --out, or a new cache for a leg "
+                        "whose numbers are already quoted, and either way it must be a "
+                        "decision, not a side effect. Record why next to the result.")
     p.add_argument("--canonicalize", action="store_true",
                    help="Bring the published files up to the current metadata "
                         "envelope and exit. Touches no detections and needs no "
@@ -420,11 +465,23 @@ def main(argv=None):
                    help="With --canonicalize, actually rewrite the files.")
     args = p.parse_args(argv)
 
+    if args.replicate:
+        # An explicit --out beside --replicate is two answers to one question; the
+        # registry's is the one the tests check, so refuse rather than pick.
+        if args.out != PUBLISHED_DIR:
+            p.error("--replicate derives --out from the registry; do not pass both")
+        rep = roster.REPLICATES_BY_TAG.get(args.replicate)
+        if rep is None:
+            p.error(f"--replicate {args.replicate!r} is not registered; known tags: "
+                    f"{', '.join(sorted(roster.REPLICATES_BY_TAG)) or '(none)'}. "
+                    f"Add it to rampnet.roster.REPLICATES first.")
+        args.out = roster.replicate_dir(rep, PUBLISHED_DIR)
+
     if args.canonicalize:
         changed, unfixable = canonicalize(args.out, write=args.write)
         for name, model in unfixable:
-            print(f"  ✗ {name}: published under a name not derivable from "
-                  f"model {model!r} — re-export it from the cache that made it")
+            print(f"  FAIL {name}: published under a name not derivable from "
+                  f"model {model!r} -- re-export it from the cache that made it")
         verb = "rewrote" if args.write else "would rewrite"
         print(f"{verb} {len(changed)} file(s); {len(unfixable)} need a real re-export")
         return 1 if unfixable else 0
@@ -439,15 +496,38 @@ def main(argv=None):
                  # it is here purely so leg_for() can match a leg pinned on it.
                  "claude_serving_path": args.claude_serving_path}
 
+    if args.replicate:
+        # A tag's directory holds ONLY the leg and splits the registry says it
+        # replicates (tests/test_roster.py checks the directory against that), so
+        # refuse anything else up front rather than leave a stray file for the
+        # test to find.
+        rep = roster.REPLICATES_BY_TAG[args.replicate]
+        cargs = _compare_args(args.cache_dir)
+        for k, v in overrides.items():
+            setattr(cargs, k, v)
+        wrong = sorted({publication_name(spec, cargs, args.publish_as) for spec in specs}
+                       - {rep.of})
+        if wrong:
+            p.error(f"--replicate {args.replicate} replicates {rep.of!r}, not "
+                    f"{', '.join(repr(w) for w in wrong)}")
+        extra = [c for c in splits if c not in rep.splits]
+        if extra:
+            p.error(f"--replicate {args.replicate} is registered for "
+                    f"{', '.join(rep.splits)}, not {', '.join(extra)}; add the split "
+                    f"to its REPLICATES entry first")
+
     if args.verify:
         compared, problems, vacuous, unpublished = verify(
             args.cache_dir, args.out, splits, specs, overrides, args.publish_as)
         print(f"compared {compared} (model, split) pair(s) against {args.cache_dir}")
+        # ASCII only on this path: the failure branch used to print a U+2717 and
+        # die with UnicodeEncodeError on a cp1252 console, i.e. exactly when it had
+        # something to say (PR #167, n4).
         for msg in problems:
-            print(f"  ✗ {msg}")
+            print(f"  FAIL {msg}")
         for label, city in vacuous:
             print(f"  ! {label} / {city}: published, but the cache has none of its "
-                  f"panos — NOTHING was compared")
+                  f"panos -- NOTHING was compared")
         for label, city in unpublished:
             print(f"  - {label} / {city}: no published export to check")
         if problems:
@@ -462,13 +542,13 @@ def main(argv=None):
             return 1
         if vacuous:
             print(f"{len(vacuous)} published pair(s) had NO cached panos to check "
-                  f"against — they are unverified, not verified.")
+                  f"against -- they are unverified, not verified.")
         print(f"{compared} pair(s): published detections score IDENTICALLY to the cache")
         return 1 if vacuous else 0
 
     written, skipped, partial, collisions = export(
         args.cache_dir, args.out, splits, specs, allow_partial=args.allow_partial,
-        overrides=overrides, publish_as=args.publish_as)
+        overrides=overrides, publish_as=args.publish_as, replace=args.replace)
     total = sum(w[4] for w in written)
     print(f"wrote {len(written)} file(s), {total/1e6:.1f} MB total -> {args.out}\n")
     print(f"{'model':>42} {'split':>20} {'panos':>6} {'uncached':>9} {'KB':>7}")
@@ -478,14 +558,21 @@ def main(argv=None):
     for label, city in skipped:
         print(f"  (no cache: {label} / {city})")
     for label, city, n, missing in partial:
-        print(f"  REFUSED (incomplete): {label} / {city} — {n} cached, {missing} "
+        print(f"  REFUSED (incomplete): {label} / {city} -- {n} cached, {missing} "
               f"uncached. Finish the leg, or pass --allow-partial to publish it "
               f"anyway and say so where the numbers are quoted.")
-    for label, city, path in collisions:
-        print(f"  REFUSED (name collision): {label} / {city} — {path} already holds a "
-              f"DIFFERENT leg's detections (its recorded signature does not match this "
-              f"run's). One model id can be several legs; give this one a distinct "
-              f"--publish-as instead of overwriting the other.")
+    for label, city, path, reason in collisions:
+        if reason == "signature":
+            print(f"  REFUSED (name collision): {label} / {city} -- {path} already "
+                  f"holds a DIFFERENT leg's detections (its recorded signature does "
+                  f"not match this run's). One model id can be several legs; give "
+                  f"this one a distinct --publish-as instead of overwriting the other.")
+        else:
+            print(f"  REFUSED (same leg, different detections): {label} / {city} -- "
+                  f"{path} already holds this leg (same signature) with detections "
+                  f"that differ from this cache's. If this is a replicate, publish it "
+                  f"with --replicate <tag>; if it really is a re-publication of the "
+                  f"leg, pass --replace and record why beside the numbers it moves.")
     if collisions:
         return 1
     if any(w[3] for w in written):
