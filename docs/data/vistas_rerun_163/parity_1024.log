@@ -4,7 +4,7 @@ Bundle: /homes/gws/jonf/RampNet/benchmark/richmond  (124 scored panos)  match ra
 Detection cache: /homes/gws/jonf/wt-163/.model_cache
 
 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading weights:   0%|          | 0/758 [00:00<?, ?it/s]Loading weights:  10%|█         | 78/758 [00:00<00:00, 759.75it/s]Loading weights:  23%|██▎       | 176/758 [00:00<00:00, 864.07it/s]Loading weights:  35%|███▍      | 263/758 [00:00<00:00, 554.45it/s]Loading weights:  43%|████▎     | 328/758 [00:00<00:01, 409.41it/s]Loading weights:  50%|████▉     | 378/758 [00:00<00:00, 381.08it/s]Loading weights:  56%|█████▌    | 422/758 [00:00<00:00, 382.16it/s]Loading weights:  61%|██████    | 464/758 [00:01<00:00, 351.63it/s]Loading weights:  66%|██████▋   | 503/758 [00:01<00:00, 359.45it/s]Loading weights:  71%|███████▏  | 541/758 [00:01<00:00, 302.73it/s]Loading weights:  79%|███████▉  | 602/758 [00:01<00:00, 372.56it/s]Loading weights:  89%|████████▉ | 677/758 [00:01<00:00, 462.39it/s]Loading weights:  98%|█████████▊| 743/758 [00:01<00:00, 509.09it/s]Loading weights: 100%|██████████| 758/758 [00:01<00:00, 448.04it/s]
+Loading weights: 100%|██████████| 758/758 [00:01<00:00, 448.04it/s]
 [transformers] [1mMask2FormerForUniversalSegmentation LOAD REPORT[0m from: facebook/mask2former-swin-large-mapillary-vistas-semantic
 Key                                                                                                                      | Status     | 
 -------------------------------------------------------------------------------------------------------------------------+------------+-

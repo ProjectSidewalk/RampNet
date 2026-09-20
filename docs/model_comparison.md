@@ -1619,11 +1619,20 @@ the roster's own rules left open. Each is settled in `rampnet/roster.py` and hel
 - **The same-env control is a replicate, not a leg.** It has the published arm's signature and
   cache key by construction, so no pin could name it. `roster.REPLICATES` registers it
   (`of = mask2former-vistas-curb-cut`, `tag = makelab2-a40-2026-09-20`) and it publishes under
-  `benchmark/model_detections/replicates/<tag>/` with the exporter's ordinary `--out` and no
-  new flag; inside that directory the file is exactly a published file, and `tests/test_roster.py`
-  asserts that every replicate directory is registered and that a replicate shares the header
-  (`model`, `published_as`, `signature`) of the file it replicates. What it may differ in is the
-  detections, and the size of that difference is the result it exists to record.
+  `benchmark/model_detections/replicates/<tag>/`, a directory the exporter derives from the
+  registry (`--replicate <tag>`) rather than taking from the keyboard; inside it the file is
+  exactly a published file, and `tests/test_roster.py` asserts that every replicate directory is
+  registered, holds exactly the registered (leg, split) files, and that a replicate shares the
+  header (`model`, `published_as`, `signature`) of the file it replicates while matching no
+  pinned sibling's pins. What it may differ in is the detections, and the size of that
+  difference is the result it exists to record. The flag exists because of what the review of
+  this write-up found (PR #167): a replicate has the published file's signature by
+  construction, so the exporter's overwrite guard — which compared signatures only — let the
+  control's cache, exported at the default `--out`, replace the published 384 file's detections
+  in place with no error and a passing `--verify`. The guard now also refuses a same-signature
+  file whose detections differ unless `--replace` is passed, and `tests/test_export_model_cache.py`
+  re-exports both committed #163 files from a cache rebuilt out of them and requires the bytes
+  back, then aims the replicate's cache at the published directory and requires the refusal.
 - **`export_model_cache.py` takes `--vistas-input-size H W`**, which is what lets it address the
   1024 cache entry and lets the filename come from the roster rather than from a `--publish-as`
   typed from memory.
@@ -1671,8 +1680,10 @@ re-run reads 194 / 44 / **21** / **51** off it — the same one-ramp shift, from
 published, and `tests/test_complementarity.py` rebuilds this column from that file and the
 committed bundle, cell for cell, at both operating points — between 2026-09-17 and 2026-09-20
 it rested on this table alone, because the private makelab2 cache that held the first run's
-detections could not be found. The re-run reproduced every cell (220 / 18 / 54 / 18, null 0.143,
-6.2 boxes/pano, above-chance 0.864).
+detections could not be found. The re-run reproduced every cell (220 / 18 / 54 / 18, and the
+miss-subset null of 0.143 that `complementarity.py` reports beside them; `null_recall.py`'s
+split-wide read is 6.2 boxes/pano, null 0.145, above-chance 0.864 — two nulls, two scripts, both
+reproduced).
 
 **Discounted for chance, a free zero-training model finds ~44 of the 72 ramps RampNet misses —
 61%.** The null here is measured on the miss subset rather than extrapolated from the split-wide
@@ -1790,8 +1801,9 @@ precision, which also says the RampNet forward on this host is deterministic acr
 only columns that moved are the null ones: 59 of 72 miss-cell nulls in `cascade_gate.json` and 46
 of 53 in `cascade_gate_op030.json`, by up to 0.09 and 0.08, and the cell medians with them
 (`challenger_only` 0.895 → 0.88 at the shipped point and 0.88 → 0.865 at 0.30; `neither`
-0.925 → 0.905 at 0.30; `above_null_p95` down by one in three of the four miss cells). That is the
-per-site seeding, not the heatmap, and it has one visible benefit: the 53 sites that carry a null
+0.925 → 0.905 at 0.30; `above_null_p95` down by one in two of the four miss cells — `neither` at
+the shipped point 7 → 6 and `challenger_only` at 0.30 9 → 8, the other two holding at 12 and 5).
+That is the per-site seeding, not the heatmap, and it has one visible benefit: the 53 sites that carry a null
 in both files now carry the *same* null in both, where before 43 of them differed. The two tests
 that pinned the pre-fix state were rewritten in the same commit
 (`test_both_artifacts_record_the_threshold_key_and_the_current_envelope`,
@@ -1907,7 +1919,8 @@ against not wrapping:
 **Zero cell flips, at every threshold, on both arms.** So the published 384 column and the
 committed #35 gate numbers are unchanged by the wrap. **The parity arm has now been re-checked
 too** (#163): the 2026-08-18 cascade artifacts were partitioned by the pre-wrap matcher, and the
-2026-09-20 regeneration — same detections, published, wrapping matcher — reproduces both
+2026-09-20 regeneration — a re-run whose every printed figure and every one of 310 site assignments
+matched, published, wrapping matcher — reproduces both
 partitions site for site (220 / 18 / 54 / 18 and 236 / 21 / 38 / 15, zero of 310 sites moved), so
 the wrap moves nothing at 1024 either, as a measurement rather than a bound.
 
@@ -2000,19 +2013,26 @@ python scripts/analysis/export_model_cache.py --verify --cache-dir <that run's c
     --models vistas:curb-cut --splits richmond --vistas-input-size 1024 1024
 
 # the same-env 384 control: a REPLICATE of the published arm (same signature, same cache
-# key), so it publishes under its registered tag's directory with no other flag
+# key), so it publishes under its registered tag's directory, which --replicate derives
+# from the registry
 python scripts/analysis/export_model_cache.py --cache-dir <that run's cache> \
-    --models vistas:curb-cut --splits richmond \
-    --out benchmark/model_detections/replicates/makelab2-a40-2026-09-20
+    --models vistas:curb-cut --splits richmond --replicate makelab2-a40-2026-09-20
 python scripts/analysis/export_model_cache.py --verify --cache-dir <that run's cache> \
-    --models vistas:curb-cut --splits richmond \
-    --out benchmark/model_detections/replicates/makelab2-a40-2026-09-20
+    --models vistas:curb-cut --splits richmond --replicate makelab2-a40-2026-09-20
 ```
 
-Both `--verify` runs reported the published file scoring identically to the cache. The
-environment record and every log from the session are under `docs/data/vistas_rerun_163/`
-(`env.txt`, the four `compare.py` logs, the three `complementarity.py` logs, `null_recall`, and
-both `cascade_gate` logs).
+On 2026-09-20 the replicate was exported with the directory spelled out as
+`--out benchmark/model_detections/replicates/makelab2-a40-2026-09-20`; `--replicate` arrived with
+PR #167, resolves to the same directory, and the committed file is byte-identical under either
+(the round-trip test named above). Both `--verify` runs reported the published file scoring identically to the cache. Under
+`docs/data/vistas_rerun_163/` are the environment record (`env.txt`) and ten logs: the four
+`compare.py` runs (`parity_1024`, `parity_1024_op030`, `control_384`, `control_384_op030`), the
+three `complementarity.py` runs (`complementarity_1024`, `complementarity_1024_op030`,
+`complementarity_384control`), `null_recall_1024`, and both `cascade_gate` runs. The two export
+and two `--verify` invocations were not captured to a file; what they printed is recorded in the
+sentence above, and the round-trip test is the stronger check. The two `compare.py` model-load
+logs had their `tqdm` weight-loading progress collapsed to its final line (PR #167 n2); nothing
+else in any log was edited.
 
 **Cost, in both units.** Money: **$0** — makelab2 is lab-owned hardware with no metered
 billing, and every read above is free. Time: one leg of three was timed, and **the full 124-pano

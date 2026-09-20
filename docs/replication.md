@@ -65,9 +65,12 @@ is a **replicate**, not a leg — the published 384×384 Vistas arm run again on
 the parity run's environment, at the *same* signature and cache key, so that the parity delta
 can be attributed to input size rather than to the host (#163). A replicate cannot be a roster
 leg (nothing in its signature distinguishes it), so `rampnet/roster.py` registers it in
-`REPLICATES` and it publishes under its tag's directory with the exporter's ordinary `--out`;
-`tests/test_roster.py` checks that every replicate directory is registered and that each
-replicate file carries the same header as the file it replicates. The 1024 leg and the
+`REPLICATES` and it publishes under its tag's directory via `export_model_cache.py --replicate
+<tag>`, which derives the path from the registry (a typed `--out` used to be able to land it on
+the very file it replicates, since the two share a signature — the exporter now refuses that);
+`tests/test_roster.py` checks that every replicate directory is registered and holds exactly the
+registered files, and that each replicate file carries the same header as the file it
+replicates. The canonical-form and provenance checks below cover the replicate file too. The 1024 leg and the
 replicate were exported and `--verify`-ed against the cache that produced them on 2026-09-20;
 the exact commands are in [`model_comparison.md` §Resolution parity](model_comparison.md).
 
