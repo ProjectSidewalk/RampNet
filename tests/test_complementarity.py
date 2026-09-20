@@ -52,6 +52,10 @@ PUBLISHED = os.path.join(REPO, "benchmark", "model_detections",
                          "mask2former-vistas-curb-cut__richmond.json")
 PARITY = os.path.join(REPO, "benchmark", "model_detections",
                       "mask2former-vistas-curb-cut-1024x1024__richmond.json")
+# The same-environment 384 control (#163): a REPLICATE of PUBLISHED, so the same
+# signature and cache key, published under its registered tag's directory.
+CONTROL = os.path.join(REPO, "benchmark", "model_detections", "replicates",
+                       "makelab2-a40-2026-09-20", "mask2former-vistas-curb-cut__richmond.json")
 
 
 def _args(**kw):
@@ -386,6 +390,19 @@ def test_the_parity_column_adds_up_to_its_published_row(tmp_path):
     assert sum(counts.values()) == 310
     assert counts["challenger_only"] + counts["neither"] == 72          # rampnet's misses
     assert counts["both"] + counts["challenger_only"] == 274            # recall 0.884
+
+
+def test_the_same_env_384_control_reproduces_its_column(tmp_path):
+    """docs/model_comparison.md, "Complementarity": the makelab2 A40 re-run of the
+    384 arm reads 194 / 44 / 21 / 51 -- the known one-ramp shift against the
+    published 194 / 44 / 22 / 50 -- and it is addressed with NO pin, because a
+    replicate has the published file's signature (#163). Pinned here so the
+    control's numbers are checked by CI rather than only quoted (PR #167 m3b)."""
+    assert _published_cells(tmp_path, path=CONTROL) == {
+        "both": 194, "rampnet_only": 44, "challenger_only": 21, "neither": 51}
+    counts = _published_cells(tmp_path, path=CONTROL)
+    assert sum(counts.values()) == 310
+    assert counts["both"] + counts["challenger_only"] == 215                # tp 215
 
 
 def test_the_parity_file_is_the_pinned_leg_and_the_384_file_is_not(tmp_path):

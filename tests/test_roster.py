@@ -255,8 +255,17 @@ def test_every_entry_records_when_it_joined():
 DETECTIONS = REPO / "benchmark" / "model_detections"
 
 
-def _published_files():
-    return sorted(p.name for p in DETECTIONS.glob("*__*.json"))
+def _published_files(replicates=False):
+    """Published detection files, as paths relative to ``DETECTIONS``.
+
+    Top level only by default: those are the LEGS' files, and the orphan check
+    below is a statement about legs. ``replicates=True`` adds
+    ``replicates/<tag>/*__*.json`` for checks about a file's own header, which a
+    replicate has to pass exactly as the file it replicates does (PR #167 m3c)."""
+    files = list(DETECTIONS.glob("*__*.json"))
+    if replicates:
+        files += DETECTIONS.glob("replicates/*/*__*.json")
+    return sorted(p.relative_to(DETECTIONS).as_posix() for p in files)
 
 
 def test_every_published_detections_file_belongs_to_a_registered_leg():
@@ -269,7 +278,8 @@ def test_every_published_detections_file_belongs_to_a_registered_leg():
     supposed to list them said nothing about them.
     """
     known = {roster.slug(roster.published_name(c)) for c in roster.ROSTER}
-    orphans = sorted({f.rsplit("__", 1)[0] for f in _published_files()} - known)
+    orphans = sorted({f.rsplit("__", 1)[0] for f in _published_files(replicates=False)}
+                     - known)
     assert not orphans, (
         "published detections with no roster entry: " + ", ".join(orphans) +
         " -- add them to rampnet/roster.py")
@@ -291,13 +301,18 @@ def test_rampnet_is_the_only_roster_member_without_detections():
 
 def test_each_published_file_names_the_leg_it_says_it_is():
     """The filename, the `published_as` recorded inside, and the registry all have to
-    agree, or a file can be renamed into a different leg's identity."""
-    for name in _published_files():
+    agree, or a file can be renamed into a different leg's identity. A replicate's
+    file is held to the same header as the leg it replicates, so it is checked here
+    too (PR #167 m3c)."""
+    files = _published_files(replicates=True)
+    assert any(f.startswith("replicates/") for f in files)
+    for rel in files:
+        name = rel.rpartition("/")[2]
         city = name.rpartition("__")[2][:-len(".json")]
         entry = next((c for c in roster.ROSTER
                       if roster.published_filename(c, city) == name), None)
-        assert entry is not None, name
-        payload = json.loads((DETECTIONS / name).read_text("utf-8"))
+        assert entry is not None, rel
+        payload = json.loads((DETECTIONS / rel).read_text("utf-8"))
         assert payload["model"] == entry.label, name
         assert payload.get("published_as", entry.label) == roster.published_name(entry), name
         assert payload["signature"]["model_id"] == entry.label, name
@@ -331,12 +346,19 @@ def test_every_replicate_directory_is_registered_and_vice_versa():
     on_disk = (sorted(p.name for p in REPLICATES_DIR.iterdir() if p.is_dir())
                if REPLICATES_DIR.exists() else [])
     assert on_disk == sorted(roster.REPLICATES_BY_TAG), (on_disk, list(roster.REPLICATES_BY_TAG))
+    # Nothing sits directly under replicates/: a file there belongs to no tag, so
+    # no registry entry says what it is (PR #167 m3d).
+    if REPLICATES_DIR.exists():
+        assert [p.name for p in REPLICATES_DIR.iterdir() if not p.is_dir()] == []
     for rep in roster.REPLICATES:
         assert rep.of in roster.BY_PUBLISHED, rep.tag
         assert rep.added and len(rep.added) == 10 and rep.note, rep.tag
-        for city in rep.splits:
-            assert (REPLICATES_DIR / rep.tag / roster.replicate_filename(rep, city)).exists(), (
-                rep.tag, city)
+        assert rep.splits, rep.tag
+        # A tag's directory holds EXACTLY the (rep.of, rep.splits) files: each one
+        # present, and nothing else -- a second leg or an extra split in there would
+        # be a run the registry does not describe.
+        expected = sorted(roster.replicate_filename(rep, city) for city in rep.splits)
+        assert sorted(p.name for p in (REPLICATES_DIR / rep.tag).iterdir()) == expected, rep.tag
 
 
 def test_a_replicate_shares_the_header_of_the_leg_it_replicates():
@@ -358,12 +380,36 @@ def test_a_replicate_shares_the_header_of_the_leg_it_replicates():
             assert set(copy["detections"]) == set(original["detections"])
 
 
-def test_a_replicate_is_not_a_leg():
-    """The registry must not also list it as a pinned entry: nothing in its
-    signature distinguishes it, so a pin could not name it (#163)."""
+def test_a_replicate_carries_the_bare_leg_s_signature_and_no_pinned_sibling_s():
+    """What "a replicate is not a leg" actually means, checked on the files: the
+    replicate's recorded signature is the BARE leg's -- it names no pinned sibling,
+    because every pinned sibling's pins, read as signature fields, fail to match it
+    -- and its `published_as` is the bare leg's publication name. The earlier form
+    of this test (`rep.tag not in BY_PUBLISHED`, and `replicate_dir` restated)
+    could not fail (PR #167 m4)."""
     for rep in roster.REPLICATES:
-        assert rep.tag not in roster.BY_PUBLISHED
-        assert roster.replicate_dir(rep) == os.path.join("replicates", rep.tag)
+        leg = roster.BY_PUBLISHED[rep.of]
+        assert not leg.pins, (rep.tag, "a replicate replicates a bare leg")
+        siblings = [c for c in roster.ROSTER if c.label == leg.label and c.pins]
+        assert siblings, (rep.tag, "no pinned sibling: the property is vacuous here")
+        for city in rep.splits:
+            payload = json.loads((REPLICATES_DIR / rep.tag / roster.replicate_filename(rep, city))
+                                 .read_text("utf-8"))
+            sig = payload["signature"]
+            assert payload["published_as"] == roster.published_name(leg), (rep.tag, city)
+            assert payload.get("pins", {}) == {}, (rep.tag, city)
+            for sib in siblings:
+                matched = all(
+                    roster.pin_value(sig.get(k.split("_", 1)[1])) == roster.pin_value(v)
+                    for k, v in sib.pins)
+                assert not matched, (rep.tag, city, sib.published_as,
+                                     "the replicate's signature is a pinned sibling's")
+            # ...and, for the opt-in pins specifically, the key is simply absent:
+            # that is what makes the bare name mean "every opt-in knob unset".
+            for sib in siblings:
+                for k, _ in sib.pins:
+                    if roster.is_opt_in_pin(k):
+                        assert k.split("_", 1)[1] not in sig, (rep.tag, city, k)
 
 
 # --------------------------------------------------------------------------- #

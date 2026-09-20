@@ -291,6 +291,22 @@ def canonical_bytes(payload):
     return json.dumps(payload, **DUMP_KW).encode("utf-8")
 
 
+def published_files(out_dir=PUBLISHED_DIR, replicates=True):
+    """Every published detection file under ``out_dir``, sorted, as absolute paths.
+
+    The top level holds one file per (leg, split). ``replicates/<tag>/`` holds a
+    replicate's files (``rampnet.roster.REPLICATES``), which are published files
+    in every respect but one: they are not legs, so anything that counts legs --
+    the ledger count in ``docs/replication.md``, ``scoreboard.unregistered_exports``,
+    the roster's orphan check -- enumerates the top level itself and must keep
+    doing so. Everything that checks a file's FORM (canonical bytes, provenance
+    header, structural soundness, pano coverage) wants both, which is the default.
+    """
+    top = glob.glob(os.path.join(out_dir, "*__*.json"))
+    reps = glob.glob(os.path.join(out_dir, "replicates", "*", "*__*.json")) if replicates else []
+    return sorted(top + reps)
+
+
 def canonicalize(out_dir=PUBLISHED_DIR, write=False):
     """Bring published files up to the current envelope, without a cache.
 
@@ -311,9 +327,13 @@ def canonicalize(out_dir=PUBLISHED_DIR, write=False):
     cannot be derived -- ``slug(model)`` disagreeing with the filename means the file
     was published under a name only the run that made it knew, and guessing it is
     exactly the silent rename this whole mechanism exists to prevent.
+
+    Covers the replicate files too (``published_files``): a replicate is a published
+    file that happens to live one directory down, and it has to be provably what
+    the exporter writes for the same reason (PR #167 m3c).
     """
     changed, unfixable = [], []
-    for path in sorted(glob.glob(os.path.join(out_dir, "*__*.json"))):
+    for path in published_files(out_dir):
         raw = open(path, "rb").read()
         payload = json.loads(raw.decode("utf-8"))
         stem = os.path.basename(path).rpartition("__")[0]

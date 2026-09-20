@@ -104,6 +104,9 @@ PUBLISHED = {
     # point their own write-ups report.
     ("mask2former-vistas-curb-cut", "richmond"): (0.411, 0.697, 0.517),
     ("mask2former-vistas-curb-cut+curb", "richmond"): (0.126, 0.648, 0.210),
+    # The #126 resolution-parity arm, published under #163: the numbers the
+    # "Resolution parity" section reports for the 1024x1024 re-run (274/442/36).
+    ("mask2former-vistas-curb-cut-1024x1024", "richmond"): (0.383, 0.884, 0.534),
 }
 
 

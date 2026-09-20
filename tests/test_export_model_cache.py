@@ -99,9 +99,11 @@ def test_every_published_file_records_its_provenance():
     if not os.path.isdir(em.PUBLISHED_DIR):
         import pytest
         pytest.skip("published detections not present in this checkout")
-    import glob
-    files = sorted(glob.glob(os.path.join(em.PUBLISHED_DIR, "*.json")))
+    files = em.published_files(em.PUBLISHED_DIR)
     assert files
+    # Replicates included (PR #167 m3c): the one committed so far sat outside every
+    # form check because they all globbed the top level.
+    assert any(os.sep + "replicates" + os.sep in f for f in files)
     # EVERY file, not a slice. This used to check files[:5], which the directory
     # outgrew: at 77 files the slice was five Molmo entries, so a newly published
     # leg was never opened by any test and the suite passed without looking at it.
@@ -138,8 +140,7 @@ def test_published_detections_are_structurally_sound():
     if not os.path.isdir(em.PUBLISHED_DIR):
         import pytest
         pytest.skip("published detections not present in this checkout")
-    import glob
-    for f in sorted(glob.glob(os.path.join(em.PUBLISHED_DIR, "*.json"))):
+    for f in em.published_files(em.PUBLISHED_DIR):
         with open(f, encoding="utf-8") as fh:
             p = json.load(fh)
         dets = p["detections"]
@@ -162,9 +163,8 @@ def test_published_panos_match_the_committed_bundles():
     if not os.path.isdir(em.PUBLISHED_DIR):
         import pytest
         pytest.skip("published detections not present in this checkout")
-    import glob
     bundles = {}
-    for f in sorted(glob.glob(os.path.join(em.PUBLISHED_DIR, "*.json"))):
+    for f in em.published_files(em.PUBLISHED_DIR):
         with open(f, encoding="utf-8") as fh:
             p = json.load(fh)
         city = p["city"]
@@ -554,10 +554,16 @@ def test_the_ledger_count_matches_the_directory():
 
     That number drifted three times (61 -> 68 -> 78 -> 108) before anyone noticed,
     in the one document whose entire job is keeping the repo honest about what a
-    stranger can actually obtain. Prose cannot hold a count; this can."""
+    stranger can actually obtain. Prose cannot hold a count; this can.
+
+    The count is of LEGS' files, i.e. the top level: a replicate is not a leg and
+    the ledger says "+ one replicate" beside the number rather than folding it in,
+    so this deliberately does not use ``published_files`` (PR #167 m3c)."""
     import re
 
     published = [f for f in os.listdir(em.PUBLISHED_DIR) if f.endswith(".json")]
+    assert set(published) == {os.path.basename(f) for f in
+                              em.published_files(em.PUBLISHED_DIR, replicates=False)}
     doc = os.path.join(REPO, "docs", "replication.md")
     with open(doc, encoding="utf-8") as fh:
         text = fh.read()
@@ -596,6 +602,9 @@ def test_every_published_file_is_in_canonical_form():
     have produced a diff with identical detections inside.
     """
     stale = em.canonicalize(em.PUBLISHED_DIR, write=False)[0]
+    # canonicalize walks replicates/<tag>/ too; make sure this run actually did.
+    assert any(os.sep + "replicates" + os.sep in f
+               for f in em.published_files(em.PUBLISHED_DIR))
     assert not stale, (
         f"{len(stale)} published file(s) are not what the exporter would write, "
         f"e.g. {stale[:3]} — run `python scripts/analysis/export_model_cache.py "
@@ -606,28 +615,26 @@ def test_canonicalize_never_touches_detections():
     """It exists to edit the metadata envelope. If it could rewrite a detection it
     would be a way to silently alter published results without a cache."""
     before = {}
-    for name in os.listdir(em.PUBLISHED_DIR):
-        if name.endswith(".json"):
-            with open(os.path.join(em.PUBLISHED_DIR, name), encoding="utf-8") as fh:
-                before[name] = json.load(fh)["detections"]
+    for path in em.published_files(em.PUBLISHED_DIR):
+        with open(path, encoding="utf-8") as fh:
+            before[path] = json.load(fh)["detections"]
     changed, unfixable = em.canonicalize(em.PUBLISHED_DIR, write=False)
     assert not changed and not unfixable          # already canonical, so a no-op
-    for name, dets in before.items():
-        with open(os.path.join(em.PUBLISHED_DIR, name), encoding="utf-8") as fh:
-            assert json.load(fh)["detections"] == dets, name
+    for path, dets in before.items():
+        with open(path, encoding="utf-8") as fh:
+            assert json.load(fh)["detections"] == dets, path
 
 
 def test_every_published_file_declares_the_name_it_is_published_under():
     """`model` is the cache label and `published_as` is the filename. They differ
     exactly when a pin is involved, so a file that omits the second is a file whose
     identity has to be inferred from its own filename."""
-    for name in os.listdir(em.PUBLISHED_DIR):
-        if not name.endswith(".json"):
-            continue
-        with open(os.path.join(em.PUBLISHED_DIR, name), encoding="utf-8") as fh:
+    for path in em.published_files(em.PUBLISHED_DIR):
+        name = os.path.basename(path)
+        with open(path, encoding="utf-8") as fh:
             payload = json.load(fh)
-        assert "published_as" in payload, name
-        assert em.slug(payload["published_as"]) == name.rpartition("__")[0], name
+        assert "published_as" in payload, path
+        assert em.slug(payload["published_as"]) == name.rpartition("__")[0], path
 
 
 def test_every_published_leg_is_named_in_the_ledger():
