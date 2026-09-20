@@ -30,6 +30,12 @@ trained on the RampNet dataset on Hyak (klone). It exists so the experiment surv
   (CPU-only, no network, no checkpoints): `python plot_training_curves.py`.
 - `figures/*.png` — the generated diagnostics, committed so the finding is legible
   without re-running anything.
+- `benchmark_eval/` — the pano trio's benchmark tables, one `<split>.txt` per split plus
+  `pr_<split>/` curves and `SUMMARY_TABLES.md`, all **re-derived from the committed
+  detections** by `rescore_benchmark_eval.py` (CPU-only, ~2 s) and checked on every CI
+  run by `tests/test_benchmark_eval.py`; `driver.log`, `env.txt` and
+  `run_yolo_pano_eval.sh` are the as-run record of the 2026-08-14 GPU pass that produced
+  those detections. See "Re-scored after #140" below.
 
 **What's deliberately NOT here** (see the repo `.gitignore` philosophy — curated record
 in git, bulk/binary/regenerable out):
@@ -154,6 +160,48 @@ GPU. Since both completed klone arms ran the full 60-epoch budget with patience 
 firing, these are **budget-exhausted** models, not converged ones — the earlier
 "lower bound / undertrained" caveat is retired in its old form and survives only in that
 milder sense.
+
+**Re-scored after #140 (2026-09-19, #148).** The seam-wrap fix to the matcher (#130/#140,
+`score_pano(wrap_x=True)`) merged on 2026-08-18, four days after these tables were produced,
+and nothing re-derived them for a month. They are now regenerated from the committed
+detections by `rescore_benchmark_eval.py` — the same files, the same protocol, only the
+matcher changed — and every file carries a `Scorer:` stamp (the `wrap_x` setting plus a
+sha256 of the four source files every number in it depends on: `rampnet/geometry.py`,
+`rampnet/metrics.py`, `rampnet/detection_eval.py`, and `rampnet/validation.py` for the
+Wilson CIs and the verdict cross-check) and the repo HEAD it ran under. Scoring with
+`--no-wrap-x` reproduces the 2026-08-14 files exactly, every numeric line and all 30
+PR-curve JSONs, so the delta is the matcher and nothing else. **What moved, at three
+decimals:**
+
+| split | arm | metric | before | after | note |
+|---|---|---|---:|---:|---|
+| `manual_gold` | `y26_pano` | P | 0.739 | 0.740 | one seam-crossing box becomes a TP: tp/fp/fn 2895/1021/1024 → 2896/1020/1023 |
+| `clovis` | `y26_pano` | AP | 0.593 | 0.596 | counts unchanged at conf 0.25 |
+| `richmond` | `y26_pano` | AP | 0.536 | 0.537 | counts unchanged at conf 0.25 |
+
+Nothing else in any headline row moved; **both tables below are unchanged**, including every
+best-sweep F1 and threshold. Away from the headline, sweep rows at other thresholds moved on
+bend (all three arms), clovis (`y26_pano`) and manual_gold (all three arms), and 9 of the 30
+PR-curve JSONs changed (the four `pr_curves.png` whose curves moved are redrawn). Max-F1 over
+the full curve, which #135 reads, moves by up to +0.0030 (`richmond`/`y26_pano`). The full
+per-row diff is in the regeneration commit `32d24e4` (re-stamped without any number
+changing in `5ad2322`, when the fingerprint was widened to `validation.py`). The pre-fix
+files remain in history (commit `3d7c7bf`) and on `wip/untracked-artifacts-20260821`.
+
+Scope and what the guard does not cover: the regenerator and `tests/test_benchmark_eval.py`
+cover the ten splits of the 2026-08-14 sweep only — the two laurens arms were scored later
+under #151 and are reported in `docs/`, not here. `pr_<split>/pr_curves.png` is redrawn when
+its curves change but is **not compared** by the test (matplotlib output is not
+byte-stable); the JSON curves beside it are.
+
+To regenerate, check, or reproduce the pre-#140 files (no GPU, no checkpoint, no network):
+
+```bash
+python scripts/model_comparison/yolo_baseline/rescore_benchmark_eval.py --check   # what CI runs
+python scripts/model_comparison/yolo_baseline/rescore_benchmark_eval.py           # rewrite + stamp
+python scripts/model_comparison/yolo_baseline/rescore_benchmark_eval.py --no-wrap-x --no-png --out <dir>
+#   ^ the 2026-08-14 numbers, from the pre-#140 matcher; compare <dir> against commit 3d7c7bf
+```
 
 ### Headline: F1 at the pre-registered conf 0.25
 
