@@ -18,6 +18,9 @@ Inputs, all committed, CPU only, no network:
 * ``docs/data/seed_variance_51_135/y11x_tiles_s{1,2,3}/results.csv`` -- the three
   Campaign A seed replicates (Tillicum H200, seeds 1-3), the only runs of this recipe
   that are not seed 0.
+* the ``args.yaml`` beside each of those eleven CSVs -- read as plain text lines, so
+  ``--check`` can pin the schedule (``optimizer: auto``, ``lr0: 0.01``,
+  ``warmup_epochs: 3.0``) and each run's batch / imgsz / seed without a YAML parser.
 
 Per run it reports: val mAP@50 at epoch 1; the minimum over epochs 2-12 and the epoch
 it lands on; the first epoch after that minimum at which mAP@50 is back to at least
@@ -25,10 +28,16 @@ its epoch-1 value ("recovered by"); how many epochs before that sat below the ep
 value; how many epochs the model emitted no boxes at all (precision = recall = 0);
 the epoch at which ``lr/pg0`` peaks and its value; and the epoch of the run's best
 ``metrics/mAP50-95(B)``, which is what ``best.pt`` selects on in this Ultralytics build.
+A run needs at least three epochs (the pre-collapse high, the first drop, the
+``lr/pg0`` peak); shorter CSVs are rejected with a ``ValueError``.
 
     python scripts/analysis/yolo_warmup_dip_72.py             # per-run table, plain text
-    python scripts/analysis/yolo_warmup_dip_72.py --markdown  # the table pasted into the README
+    python scripts/analysis/yolo_warmup_dip_72.py --markdown  # the table in the README (diff, do not paste)
     python scripts/analysis/yolo_warmup_dip_72.py --check     # exit 1 if any pinned fact fails
+    python scripts/analysis/yolo_warmup_dip_72.py --check --markdown  # check first; table only if it passes
+
+``--markdown`` writes LF; a redirected stdout on Windows may write CRLF, so compare the
+output against the README block with a diff rather than pasting it in.
 
 The definitions are deliberately simple. "Minimum over epochs 2-12" is a fixed window
 rather than a change-point search because the dip is over by epoch 12 on every curve;
@@ -63,7 +72,26 @@ RUNS = [
     ("y11x_tiles_s3", "docs/data/seed_variance_51_135/y11x_tiles_s3/results.csv", "y11x_tiles replicate, seed 3, H200"),
 ]
 GRID_CONFIGS = ("y11l_pano", "y11x_pano", "y26_pano", "y11l_tiles", "y11x_tiles", "y26_tiles")
+CONTINUATIONS = ("y11x_pano_h200", "y26_tiles_l40s")
 SEED_REPLICATES = ("y11x_tiles_s1", "y11x_tiles_s2", "y11x_tiles_s3")
+
+# What the caveat says every run trained under, and the grid it says was covered. Each
+# run's ``args.yaml`` sits beside its ``results.csv``; ``check()`` matches these as plain
+# text lines (Ultralytics writes ``key: value``, one per line) so no YAML parser is needed.
+SCHEDULE_ARGS = ("optimizer: auto", "lr0: 0.01", "warmup_epochs: 3.0")
+GRID_ARGS = {  # name -> (batch, imgsz, seed)
+    "y11l_pano": (4, 1280, 0),
+    "y11x_pano": (2, 1280, 0),
+    "y26_pano": (4, 1280, 0),
+    "y11l_tiles": (6, 1024, 0),
+    "y11x_tiles": (12, 1024, 0),
+    "y26_tiles": (6, 1024, 0),
+    "y11x_pano_h200": (2, 1280, 0),
+    "y26_tiles_l40s": (6, 1024, 0),
+    "y11x_tiles_s1": (12, 1024, 1),
+    "y11x_tiles_s2": (12, 1024, 2),
+    "y11x_tiles_s3": (12, 1024, 3),
+}
 
 MAP50 = "metrics/mAP50(B)"
 MAP5095 = "metrics/mAP50-95(B)"
@@ -71,8 +99,10 @@ PRECISION = "metrics/precision(B)"
 RECALL = "metrics/recall(B)"
 LR = "lr/pg0"
 VAL_CLS = "val/cls_loss"
+TRAIN_CLS = "train/cls_loss"
 
 DIP_WINDOW_LAST_EPOCH = 12  # the dip is over by here on every committed curve
+MIN_EPOCHS = 3  # ep1 (the pre-collapse high), ep2 (already lower), ep3 (the lr/pg0 peak)
 
 
 def read_results_csv(path):
@@ -88,12 +118,17 @@ def summarize(path):
     epochs = [int(r["epoch"]) for r in rows]
     if epochs != list(range(1, len(rows) + 1)):
         raise ValueError(f"{path}: epochs are not 1..N contiguous: {epochs[:5]}...")
+    if len(rows) < MIN_EPOCHS:
+        raise ValueError(
+            f"{path}: {len(rows)} epoch(s); the dip statistics need at least {MIN_EPOCHS} "
+            f"(epoch 1 is the pre-collapse high, epoch 3 the lr/pg0 peak)")
     map50 = [float(r[MAP50]) for r in rows]
     map5095 = [float(r[MAP5095]) for r in rows]
     prec = [float(r[PRECISION]) for r in rows]
     rec = [float(r[RECALL]) for r in rows]
     lr = [float(r[LR]) for r in rows]
     val_cls = [float(r[VAL_CLS]) for r in rows]
+    train_cls = [float(r[TRAIN_CLS]) for r in rows]
 
     n = len(rows)
     window = range(1, min(n, DIP_WINDOW_LAST_EPOCH))  # indices of epochs 2..12
@@ -104,11 +139,20 @@ def summarize(path):
     i_lr_peak = max(range(n), key=lambda i: lr[i])
     i_best = max(range(n), key=lambda i: (map5095[i], -i))  # ties to the earlier epoch
     i_vcls = max(range(n), key=lambda i: val_cls[i])
+    i_map50_max = max(range(n), key=lambda i: (map50[i], -i))
+    # Training-side reading of the collapse: the largest single-epoch rise in train
+    # cls_loss over epochs 2-6, and the most it sits above its epoch-2 value over epochs
+    # 3-6 (the pano arms tick up 0.02-0.07 at epochs 3-4; the y11 tiles arms are monotone).
+    early = range(1, min(n, 6))  # indices of epochs 2..6
+    train_cls_max_uptick = max(train_cls[i] - train_cls[i - 1] for i in early)
+    train_cls_rise_over_ep2 = max(train_cls[i] - train_cls[1] for i in range(2, min(n, 6)))
     return {
         "epochs": n,
         "map50_ep1": map50[0],
-        "map50_ep2": map50[1] if n > 1 else None,
-        "map50_ep3": map50[2] if n > 2 else None,
+        "map50_ep2": map50[1],
+        "map50_ep3": map50[2],
+        "map50_max": map50[i_map50_max],
+        "map50_max_epoch": i_map50_max + 1,
         "dip_min": map50[i_min],
         "dip_epoch": i_min + 1,
         "dip_depth": map50[0] - map50[i_min],
@@ -123,20 +167,49 @@ def summarize(path):
         "best_map5095": map5095[i_best],
         "val_cls_peak": val_cls[i_vcls],
         "val_cls_peak_epoch": i_vcls + 1,
+        "val_cls_ep1": val_cls[0],
+        "train_cls_ep1": train_cls[0],
+        "train_cls_ep8": train_cls[7] if n > 7 else None,
+        "train_cls_max_uptick": train_cls_max_uptick,
+        "train_cls_rise_over_ep2": train_cls_rise_over_ep2,
         "precision": prec,
         "recall": rec,
         "map50": map50,
     }
 
 
+def read_args_lines(csv_path):
+    """The ``key: value`` lines of the ``args.yaml`` beside a run's ``results.csv``.
+
+    Plain text, whitespace-stripped, one entry per line -- Ultralytics writes the file
+    flat, so a line match is enough and no YAML dependency is needed.
+    """
+    path = os.path.join(os.path.dirname(csv_path), "args.yaml")
+    with open(path, encoding="utf-8") as f:
+        return frozenset(line.strip() for line in f if line.strip())
+
+
 def summarize_all(repo=REPO):
-    return {name: dict(summarize(os.path.join(repo, rel)), note=note) for name, rel, note in RUNS}
+    out = {}
+    for name, rel, note in RUNS:
+        csv_path = os.path.join(repo, rel)
+        out[name] = dict(summarize(csv_path), note=note, args=read_args_lines(csv_path))
+    return out
 
 
 def _fmt_rec(s):
     if s["recovered_epoch"] is None:
         return "not within run"
     return f"ep{s['recovered_epoch']} ({s['recovered_map50']:.3f})"
+
+
+def _fmt_no_box(name, epochs):
+    """``N (epA-epB)`` -- a span, so it refuses a non-contiguous set rather than misreport it."""
+    if not epochs:
+        return "0"
+    if epochs != list(range(epochs[0], epochs[-1] + 1)):
+        raise ValueError(f"{name}: no-box epochs {epochs} are not contiguous; the span format would misreport them")
+    return f"{len(epochs)} (ep{epochs[0]}-{epochs[-1]})"
 
 
 def markdown_table(stats):
@@ -146,12 +219,10 @@ def markdown_table(stats):
         "|---|---:|---:|---:|---:|---:|---|---:|---:|---:|",
     ]
     for name, s in stats.items():
-        nb = len(s["no_box_epochs"])
-        nb_txt = "0" if nb == 0 else f"{nb} (ep{s['no_box_epochs'][0]}-{s['no_box_epochs'][-1]})"
         lines.append(
             f"| `{name}` | {s['epochs']} | {s['map50_ep1']:.3f} | {s['map50_ep2']:.3f} | {s['map50_ep3']:.3f} "
             f"| {s['dip_min']:.3f} (ep{s['dip_epoch']}) | {_fmt_rec(s)} | {s['epochs_below_ep1']} "
-            f"| {nb_txt} | {s['best_map5095_epoch']} |"
+            f"| {_fmt_no_box(name, s['no_box_epochs'])} | {s['best_map5095_epoch']} |"
         )
     return "\n".join(lines) + "\n"
 
@@ -165,20 +236,45 @@ def check(stats):
             failures.append(msg)
 
     for name, s in stats.items():
+        # The schedule and the grid cell, from the run's own args.yaml (plain-text lines).
+        batch, imgsz, seed = GRID_ARGS[name]
+        for line in SCHEDULE_ARGS + (f"batch: {batch}", f"imgsz: {imgsz}", f"seed: {seed}"):
+            expect(line in s["args"], f"{name}: args.yaml has no line `{line}`")
+
         expect(s["lr_peak_epoch"] == 3 and abs(s["lr_peak"] - 0.0290) < 0.0005,
                f"{name}: lr/pg0 should peak at epoch 3 at 0.029, got ep{s['lr_peak_epoch']} {s['lr_peak']:.4f}")
         expect(abs(s["lr_ep1"] - 0.0100) < 0.0005, f"{name}: lr/pg0 at epoch 1 should be 0.010")
         expect(s["map50_ep2"] < s["map50_ep1"], f"{name}: mAP50 should already be falling at epoch 2")
         expect(3 <= s["dip_epoch"] <= 6, f"{name}: dip minimum should land at epoch 3-6, got ep{s['dip_epoch']}")
         expect(s["dip_depth"] >= 0.35, f"{name}: dip depth {s['dip_depth']:.3f} < 0.35")
-        expect(s["dip_min"] <= 0.27, f"{name}: dip minimum {s['dip_min']:.3f} > 0.27")
+        # 0.255 is what the prose claims ("0.00-0.25"). y26_tiles_l40s is the one
+        # exception: it resumed from y26_tiles' epoch-3 checkpoint on other hardware, so
+        # its epoch 4 is a different epoch 4 (0.268 vs the parent's 0.251) and gets its own
+        # bound below.
+        dip_bound = 0.27 if name in CONTINUATIONS else 0.255
+        expect(s["dip_min"] <= dip_bound, f"{name}: dip minimum {s['dip_min']:.3f} > {dip_bound}")
         expect(s["recovered_epoch"] is not None, f"{name}: never regained its epoch-1 mAP50")
         expect(s["recovered_epoch"] is not None and s["best_map5095_epoch"] > s["recovered_epoch"],
                f"{name}: best mAP50-95 epoch {s['best_map5095_epoch']} is not after recovery")
+        # Epoch 1 is the pre-collapse high, not the run's peak: every run's global
+        # mAP50 maximum comes after the recovery.
+        expect(s["recovered_epoch"] is not None and s["map50_max_epoch"] > s["recovered_epoch"],
+               f"{name}: global mAP50 max at ep{s['map50_max_epoch']} is not after recovery")
         expect(s["val_cls_peak_epoch"] in range(3, 7),
                f"{name}: val/cls_loss should peak inside the dip (ep3-6), got ep{s['val_cls_peak_epoch']}")
+        # Validation cls_loss rises 1.7-7.3x to its peak while training cls_loss stays
+        # flat: at most +0.07 above its epoch-2 value over epochs 3-6, no single-epoch rise
+        # above 0.1, and below its epoch-1 value by epoch 8.
+        ratio = s["val_cls_peak"] / s["val_cls_ep1"]
+        expect(1.7 <= ratio <= 7.5, f"{name}: val/cls_loss peak is {ratio:.2f}x epoch 1, expected 1.7-7.3x")
+        expect(s["train_cls_max_uptick"] <= 0.10,
+               f"{name}: train/cls_loss rose {s['train_cls_max_uptick']:+.3f} in one epoch over epochs 2-6")
+        expect(s["train_cls_rise_over_ep2"] <= 0.075,
+               f"{name}: train/cls_loss sits {s['train_cls_rise_over_ep2']:+.3f} above its epoch-2 value, expected <= 0.07")
+        expect(s["train_cls_ep8"] is not None and s["train_cls_ep8"] < s["train_cls_ep1"],
+               f"{name}: train/cls_loss at epoch 8 should be below epoch 1")
 
-    # The six grid configs: epoch-1 peak 0.65-0.78, minimum 0.00-0.25.
+    # The six grid configs: epoch-1 high 0.65-0.78, minimum 0.00-0.25.
     grid = [stats[n] for n in GRID_CONFIGS]
     expect(0.645 <= min(s["map50_ep1"] for s in grid) and max(s["map50_ep1"] for s in grid) <= 0.785,
            "grid epoch-1 mAP50 should span 0.65-0.78")
@@ -197,8 +293,12 @@ def check(stats):
     p, r = stats["y11l_pano"]["precision"], stats["y11l_pano"]["recall"]
     expect(all(p[i] >= 0.94 for i in range(5, 9)) and all(r[i] <= 0.03 for i in range(5, 9)),
            "y11l_pano epochs 6-9 should hold precision >= 0.94 at recall <= 0.03")
-    expect(all(stats[n]["precision"][2] >= 0.82 for n in ("y11l_pano", "y26_pano")),
-           "y11l_pano/y26_pano at epoch 3 should still be precise while recall falls")
+    for n in ("y11l_pano", "y26_pano"):
+        p3, r1, r3 = stats[n]["precision"][2], stats[n]["recall"][0], stats[n]["recall"][2]
+        expect(p3 >= 0.82, f"{n}: precision at epoch 3 should still be >= 0.82, got {p3:.3f}")
+        expect(r3 <= r1 - 0.10, f"{n}: recall should fall at epoch 3 (ep1 {r1:.3f} -> ep3 {r3:.3f})")
+    expect(stats["y11l_pano"]["recall"][2] <= 0.04,
+           "y11l_pano at epoch 3 should be at recall ~0.038")
 
     # The seed replicates reproduce the dip: minimum at epoch 3, back by epoch 5.
     for n in SEED_REPLICATES:
@@ -210,18 +310,25 @@ def check(stats):
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--markdown", action="store_true", help="print the README table")
+    ap = argparse.ArgumentParser(
+        description=__doc__.splitlines()[0],
+        epilog="With both --check and --markdown, the check runs first and the table is "
+               "printed only if it passes (exit 1 otherwise, no table).")
+    ap.add_argument("--markdown", action="store_true", help="print the README table (LF; diff it against the README block)")
     ap.add_argument("--check", action="store_true", help="assert the pinned facts; exit 1 on failure")
     args = ap.parse_args(argv)
 
     stats = summarize_all()
     if args.check:
         failures = check(stats)
+        out = sys.stderr if args.markdown else sys.stdout  # keep stdout clean for the table
         for f in failures:
-            print("FAIL:", f)
-        print("ok" if not failures else f"{len(failures)} failure(s)")
-        return 1 if failures else 0
+            print("FAIL:", f, file=out)
+        print("ok" if not failures else f"{len(failures)} failure(s)", file=out)
+        if failures:
+            return 1
+        if not args.markdown:
+            return 0
     if args.markdown:
         sys.stdout.write(markdown_table(stats))
         return 0
