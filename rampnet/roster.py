@@ -50,7 +50,16 @@ Five properties of an entry are worth stating because they are easy to get wrong
   wanted ``claude-sonnet-5__annapolis.json``, the second silently overwriting the
   first. **Once any leg of a model needs disambiguating, give every leg of that model
   the same treatment** — a directory where one file is bare and its sibling is
-  qualified reads as though the bare one is the whole model.
+  qualified reads as though the bare one is the whole model. The one exception is a
+  sibling pinned only on an **opt-in** knob, one whose default is ``None`` and which
+  is absent from the signature unless set (``vistas_input_size``, #163): there the
+  bare file genuinely is the model at its defaults and says so in its own signature,
+  so it keeps its name. ``needs_qualified_name`` is the rule; ``pin_token`` spells a
+  non-scalar pin (``1024x1024``) inside the qualified name.
+* A **replicate** is not a leg. It is the same leg run again — same signature, same
+  cache key — on another host or in another environment, kept so the published
+  numbers can be shown to reproduce (or not). ``REPLICATES`` registers them, and
+  they publish under ``benchmark/model_detections/replicates/<tag>/``.
 """
 from collections import namedtuple
 import os
@@ -145,6 +154,27 @@ ROSTER = (
              "sits between the sparse group (1-4) and the open detectors (55-88), so "
              "the binary does not apply and density_of should refuse rather than "
              "round. Kept as a recorded negative result, not a live arm."),
+    # The #126 resolution-parity arm (#137), re-run and published under #163. Same
+    # checkpoint and class set as the leg above; the one difference is that the
+    # processor's 384x384 resize is overridden to the view's own 1024x1024, which
+    # VistasDetector records in the signature only when set -- so this is a distinct
+    # cache key, a distinct leg, and the bare leg above keeps its name (see
+    # ``needs_qualified_name``). min_area_px=16 is shared and does NOT mean the same
+    # thing here: inert at 384, exactly the smallest achievable blob at 1024.
+    Challenger(
+        spec="vistas:curb-cut", label="mask2former-vistas-curb-cut", provider="vistas",
+        density="sparse", standing=False, added="2026-09-20",
+        pins=(("vistas_input_size", (1024, 1024)),),
+        published_as="mask2former-vistas-curb-cut-1024x1024",
+        note="Resolution parity for the arm above (#126, #137): the checkpoint's own "
+             "384x384 preprocessor is overridden so the model sees the full "
+             "1024x1024 view every other tiled leg sees. First run 2026-08-18 on "
+             "makelab2 into a private cache that was later lost (#163); re-run and "
+             "published 2026-09-20 from the same host and env. The handicap was "
+             "real and it was recall: 0.694 -> 0.884, AP 0.510 -> 0.649, precision "
+             "slightly worse, F1 +0.018, so 'transfers but does not compete' "
+             "stands. richmond only. Density read off the published detections: "
+             "see docs/model_comparison.md, Resolution parity."),
     Challenger(
         spec="gemini:gemini-3.7-flash", label="gemini-3.7-flash", provider="gemini",
         density="sparse", standing=False, added="2026-08-14",
@@ -348,6 +378,12 @@ PROVIDER_DEFAULTS = {
     "vistas_model": "facebook/mask2former-swin-large-mapillary-vistas-semantic",
     "vistas_min_area_px": 16,
     "vistas_dtype": "float16",
+    # The two #129 overrides. ``None`` keeps each OUT of the detection signature
+    # (VistasDetector.signature records them only when set), which is what keeps
+    # the published 384 richmond arm's cache key intact. A leg that sets one is a
+    # different leg -- the 1024x1024 parity arm (#163) pins ``vistas_input_size``.
+    "vistas_input_size": None,
+    "vistas_revision": None,
 }
 
 #: Providers whose calls cost money -- registry knowledge, so it lives here rather
@@ -363,6 +399,72 @@ PAID_PROVIDERS = frozenset({"gemini", "claude"})
 # --------------------------------------------------------------------------- #
 # Derived views — nothing below is hand-maintained
 # --------------------------------------------------------------------------- #
+def pin_value(value):
+    """A pin value in comparable form.
+
+    A pin arrives three ways -- as the registry's literal (a tuple for a size), as
+    argparse's ``nargs=2`` list, and as the list JSON gave a published file's
+    ``signature`` -- and ``[1024, 1024] == (1024, 1024)`` is False. Sequences are
+    compared as tuples so all three spellings of one pin agree.
+    """
+    if isinstance(value, (list, tuple)):
+        return tuple(value)
+    return value
+
+
+def pins_match(cargs, pins):
+    """True when every pin in ``pins`` is what ``cargs`` carries."""
+    return all(pin_value(getattr(cargs, k, None)) == pin_value(v) for k, v in pins)
+
+
+def pin_token(value):
+    """How a pin's value is spelled inside a published name.
+
+    ``published_as`` has to say every pin's value so the file is self-describing
+    (``claude-opus-5-effort-low``). A scalar is ``str(value)``; a size is joined with
+    ``x`` -- ``(1024, 1024)`` -> ``1024x1024`` -- because ``str((1024, 1024))`` is not
+    something anyone would put in a filename.
+    """
+    if isinstance(value, (list, tuple)):
+        return "x".join(str(v) for v in value)
+    return str(value)
+
+
+def is_opt_in_pin(key):
+    """A pin whose default is ``None``, i.e. a knob that is ABSENT from the detection
+    signature unless it is set.
+
+    That is the convention the Claude image/temperature settings and the two Vistas
+    overrides follow ("a setting enters the signature only when it deviates from
+    as-run"), and it decides whether a model's bare-named leg has to be renamed when
+    a pinned sibling arrives -- see ``needs_qualified_name``.
+    """
+    return key in PROVIDER_DEFAULTS and PROVIDER_DEFAULTS[key] is None
+
+
+def needs_qualified_name(c):
+    """Must this leg be published under a name other than its bare label?
+
+    Always, if it is pinned. If it is NOT pinned, only when a sibling leg (same
+    label) is pinned on a knob that is in every leg's signature -- Claude's effort,
+    which is ``low`` in the bare leg's signature and ``high`` in its sibling's, so a
+    bare ``claude-sonnet-5__annapolis.json`` would hide which one it is.
+
+    An unpinned leg beside siblings pinned only on opt-in knobs keeps its bare name.
+    ``mask2former-vistas-curb-cut__richmond.json`` IS the arm at its defaults: its
+    signature carries no ``input_size`` key at all, and the parity sibling's does, so
+    the two files describe themselves and a rename would only orphan every reference
+    to the published one (#163). The half-qualified directory that rule was written
+    against (#122) cannot arise here, because a bare name can only ever mean "every
+    opt-in knob unset".
+    """
+    if c.pins:
+        return True
+    return any(not is_opt_in_pin(k)
+               for sib in ROSTER if sib.label == c.label and sib is not c
+               for k, _ in sib.pins)
+
+
 def is_default_leg(c):
     """True when this leg is what a bare ``--models <spec>`` reproduces.
 
@@ -370,7 +472,7 @@ def is_default_leg(c):
     else does. Only default legs go in ``BY_SPEC``, which is what keeps that mapping
     single-valued now that one spec can name several legs.
     """
-    return all(PROVIDER_DEFAULTS.get(k) == v for k, v in c.pins)
+    return all(pin_value(PROVIDER_DEFAULTS.get(k)) == pin_value(v) for k, v in c.pins)
 
 
 def published_name(c):
@@ -395,6 +497,56 @@ BY_PUBLISHED = {published_name(c): c for c in ROSTER}
 #: member of the roster with none: it is read from each bundle's committed
 #: ``records.jsonl`` and carries no detector signature.
 PUBLISHED = tuple(c for c in ROSTER if c.provider != "rampnet")
+
+# --------------------------------------------------------------------------- #
+# Replicates -- the same leg, run again somewhere else
+# --------------------------------------------------------------------------- #
+#: A re-run of a published leg at the SAME signature, on a different host or in a
+#: different environment. It is not a leg: the detections it produced have the same
+#: cache key as the published ones (that is the point -- it measures whether the
+#: published numbers reproduce), so it cannot be a pinned entry in ``ROSTER``, and
+#: giving it one would need a pin that changes no signature field, which is what a
+#: pin is not. ``of`` is the published name it replicates; ``tag`` names the run and
+#: is the directory it publishes under:
+#:
+#:     benchmark/model_detections/replicates/<tag>/<slug(of)>__<split>.json
+#:
+#: written by ``export_model_cache.py --out benchmark/model_detections/replicates/<tag>``
+#: with no other change -- inside its directory a replicate file is exactly a
+#: published file, and ``load_detections`` reads it with ``published_dir`` pointed
+#: there. What a replicate must share with the file it replicates is the header
+#: (``model``, ``published_as``, ``signature``); what it may differ in is the
+#: detections, and the size of that difference is the result it exists to record.
+#: ``tests/test_roster.py`` holds both halves.
+Replicate = namedtuple("Replicate", "of tag splits added note")
+
+REPLICATES = (
+    Replicate(
+        of="mask2former-vistas-curb-cut", tag="makelab2-a40-2026-09-20",
+        splits=("richmond",), added="2026-09-20",
+        note="The same-environment 384x384 control for the resolution-parity arm "
+             "(#126, #137, #163): the published arm ran on an RTX 3070 on transformers "
+             "4.x, and the parity arm on makelab2's A40 on transformers 5.15, so "
+             "without this the parity delta would confound input size with the "
+             "environment. First run 2026-08-18 into a private cache that was later "
+             "lost; this is the 2026-09-20 re-run, same host, same env. Read against "
+             "the published file in docs/model_comparison.md, Resolution parity."),
+)
+
+#: Every replicate by its tag -- the directory name, so unique by construction.
+REPLICATES_BY_TAG = {r.tag: r for r in REPLICATES}
+
+
+def replicate_dir(rep, published_dir=None):
+    """The directory one replicate publishes into, relative to ``published_dir``
+    when given (the caller supplies the absolute ``benchmark/model_detections``)."""
+    parts = ("replicates", rep.tag)
+    return os.path.join(published_dir, *parts) if published_dir else os.path.join(*parts)
+
+
+def replicate_filename(rep, city):
+    """Basename of one (replicate, split) file: the replicated leg's own filename."""
+    return slug(rep.of) + "__" + city + ".json"
 
 # A standing leg must be reproducible from its spec alone, because that is all the
 # scored tuples below carry. A pinned leg is not: `--models claude:claude-opus-5`
@@ -503,7 +655,7 @@ def leg_for(spec, cargs=None):
     """
     candidates = legs_of(spec, cargs)
     for c in candidates:                      # a pinned leg wins when its pins match
-        if c.pins and all(getattr(cargs, k, None) == v for k, v in c.pins):
+        if c.pins and pins_match(cargs, c.pins):
             return c
     for c in candidates:                      # otherwise the leg the bare spec names
         if not c.pins:

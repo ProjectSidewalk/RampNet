@@ -36,6 +36,17 @@ naming it explicitly, e.g.::
 and the exact command belongs in ``docs/replication.md`` beside the result, because
 the default command will silently skip those files forever otherwise.
 
+A **replicate** -- the same leg re-run at the same signature on another host, to show
+the published numbers reproduce (``rampnet.roster.REPLICATES``) -- is published with the
+same command and nothing new, by pointing ``--out`` at its registered directory::
+
+    python scripts/analysis/export_model_cache.py --cache-dir <that run's cache> \
+        --models vistas:curb-cut --splits richmond \
+        --out benchmark/model_detections/replicates/makelab2-a40-2026-09-20
+
+Inside that directory the file is exactly a published file (same name, same header),
+and ``--verify --out <same dir>`` checks it the same way.
+
 Downstream code reads the export through :func:`load_detections`, preferring it over
 ``.model_cache`` when present, so a fresh clone works with no cache at all.
 """
@@ -388,6 +399,13 @@ def main(argv=None):
                         "pinned on it (#156's Fable legs are), which is what lets the "
                         "filename come from the roster instead of a --publish-as typed "
                         "from memory.")
+    p.add_argument("--vistas-input-size", type=int, nargs=2, metavar=("H", "W"),
+                   default=None,
+                   help="Input size the producing Vistas run overrode the processor "
+                        "to (signature field, recorded only when set). Absent for the "
+                        "published 384 arm; `1024 1024` addresses the resolution-parity "
+                        "leg (#126, #163), which the registry pins on it, so the "
+                        "filename again comes from the roster.")
     p.add_argument("--publish-as",
                    help="Filename stem for this leg, when the model id alone does not "
                         "identify it — e.g. claude-sonnet-5 at two effort levels are two "
@@ -416,6 +434,7 @@ def main(argv=None):
     overrides = {"tiling": args.tiling, "yolo_imgsz": args.yolo_imgsz,
                  "claude_effort": args.claude_effort,
                  "claude_tool_choice": args.claude_tool_choice,
+                 "vistas_input_size": args.vistas_input_size,
                  # Not a signature field, so it does not affect the cache lookup --
                  # it is here purely so leg_for() can match a leg pinned on it.
                  "claude_serving_path": args.claude_serving_path}

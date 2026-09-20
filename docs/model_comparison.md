@@ -51,6 +51,7 @@ and `tests/test_roster.py` fails if the two stop agreeing. Regenerate it with
 | `IDEA-Research/grounding-dino-base` | gdino | dense | 2026-07-22 | ✅ |
 | `mask2former-vistas-curb-cut` | vistas | sparse | 2026-08-18 | — published, not in these tables |
 | `mask2former-vistas-curb-cut+curb` | vistas | not yet measured | 2026-08-18 | — published, not in these tables |
+| `mask2former-vistas-curb-cut-1024x1024` | vistas | sparse | 2026-09-20 | — published, not in these tables |
 | `gemini-3.7-flash` | gemini | sparse | 2026-08-14 | — published, not in these tables |
 | `y11l_pano` | yolo | sparse | 2026-08-14 | — published, not in these tables |
 | `y11x_pano_h200` | yolo | sparse | 2026-08-14 | — published, not in these tables |
