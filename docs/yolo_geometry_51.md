@@ -213,6 +213,14 @@ moved the headline four times further than any of this.
 - **ep44 vs ep38 is "roughly matched", not matched.** They are the epochs that exist.
 - **One seed per cell.** As with the rest of #51, seed variance is unmeasured, so differences
   below roughly 0.02 F1 should not be read.
+- **All three legs trained under the untuned default schedule and went through the warmup-LR
+  collapse (#72).** `y11x_tiles` fell from 0.678 val mAP@50 at epoch 1 to 0.078 at epoch 3 and
+  the `y11x_pano` lineage emitted no boxes at all for epochs 3–7; both recovered as the LR
+  decayed, and the scored epochs (44, 38, 60) are far past the recovery. No tuned schedule has
+  been run (#90, #70), so every YOLO figure on this page is a lower bound on what the recipe
+  reaches with a tuned LR/warmup. Per-run numbers and the pinning test:
+  `scripts/analysis/yolo_warmup_dip_72.py`; the caveat in full is in the
+  [training record](../scripts/model_comparison/yolo_baseline/README.md#the-caveat-that-travels-with-every-number-above-the-warmup-lr-collapse-72).
 - **Not re-scored:** `y11l_pano` and `y26_pano`, whose published numbers stand on the control
   above (the seam fix moved nothing for `y11x_pano_h200`, so it almost certainly moved nothing
   for them either — but that is an inference, not a measurement).

@@ -207,10 +207,35 @@ provenance, and the exported per-pano detections (`benchmark/model_detections/`,
 verify-identical) are in the
 [training record](../scripts/model_comparison/yolo_baseline/README.md) and its
 `benchmark_eval/` directory (re-scored after the #140 seam wrap and re-derived in CI by
-`tests/test_benchmark_eval.py`, #148 — three `y26_pano` cells moved, no F1). Training-side
-history (the warmup-LR collapse at epoch 3 across all arms, the ckpt slice ceiling, the
-`y26_tiles` fork) stays in that record; the stabilized rerun remains tracked in #70 and the
-caveat write-up in #72.
+`tests/test_benchmark_eval.py`, #148 — three `y26_pano` cells moved, no F1). The ckpt slice
+ceiling and the `y26_tiles` fork stay in that record.
+
+**Caveat that travels with every YOLO number in this document (#72).** Every YOLO arm
+trained under the Ultralytics default schedule (`optimizer=auto`, which resolves to MuSGD
+at `lr0=0.01`, `warmup_epochs=3.0`), and every one of them collapsed on validation during
+the warmup ramp: `lr/pg0` climbs 0.010 → 0.020 → 0.029 over epochs 1–3; validation mAP@50
+peaks at epoch 1 (0.65–0.78 across the six configurations), is already lower at epoch 2 in
+every one, and bottoms at 0.00–0.25 between epochs 3 and 6, while training loss keeps
+falling and nothing fails numerically. It is a recall collapse, not a false-positive flood —
+`y11l_pano` held precision 0.94–1.00 at recall ≤ 0.03 across epochs 6–9, and `y11x_pano`
+emitted no boxes at all for epochs 3–7 — and every run recovered as the LR decayed (the
+tiles arms regain their epoch-1 value by epoch 5–7, the pano arms by epoch 15–22). The grid
+rules out batch size (2/4/6/12), resolution (1024/1280), architecture (YOLO11 vs YOLO26),
+preemption and data faults, most cleanly by `y11l_pano` and `y26_pano` at the same batch 4
+and imgsz 1280; the three `y11x_tiles` seed replicates of
+[`seed_variance_51_135.md`](seed_variance_51_135.md) reproduce it on different seeds and
+hardware (minimum 0.10–0.12 at epoch 3), so eleven of eleven committed curves show it. The
+reported checkpoints all sit long after the recovery (`y11l_pano` ep59, `y26_pano` ep56,
+`y11x_pano_h200` ep60, `y11x_tiles` ep44), so the "one-epoch model" form of the caveat is
+retired. What remains is that no tuned schedule has been run — #90 (the pre-registered
+LR/warmup sweep) and #70 (the stabilized rerun) are both open and unrun — so **every YOLO
+figure in this document is a lower bound on what a supervised detector reaches on this
+dataset under a tuned schedule**. The seed-variance read does not depend on either issue:
+it compares the two recipes as run, and its YOLO replicates carry the same dip. Per-run
+numbers, their source CSVs and the pinning test:
+[`scripts/analysis/yolo_warmup_dip_72.py`](../scripts/analysis/yolo_warmup_dip_72.py) and
+the training record's
+[caveat section](../scripts/model_comparison/yolo_baseline/README.md#the-caveat-that-travels-with-every-number-above-the-warmup-lr-collapse-72).
 
 The tiles arms — the resolution-controlled half of the ablation, and the geometry the VLM
 rows are scored with — are **absent from every table above because their detections are not
