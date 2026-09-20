@@ -840,6 +840,52 @@
       "manual_gold_ap": 0.06732
     },
     {
+      "model": "mask2former-vistas-curb-cut-1024x1024",
+      "label": "mask2former-vistas-curb-cut",
+      "spec": "vistas:curb-cut",
+      "provider": "vistas",
+      "standing": false,
+      "display": "Mask2Former Vistas (curb cut, 1024)",
+      "class": "supervised-transfer",
+      "operating_point": 0.0,
+      "operating_point_note": "export floor",
+      "coverage": "1/8",
+      "complete": false,
+      "pooled_splits": [
+        "richmond"
+      ],
+      "precision": 0.382682,
+      "recall": 0.883871,
+      "f1": 0.534113,
+      "ap": 0.648753,
+      "ap_bundle": 0.648753,
+      "ap_is_substituted": false,
+      "fp_per_pano": 3.564516,
+      "micro_precision": 0.382682,
+      "micro_recall": 0.883871,
+      "f1_min": 0.534113,
+      "f1_max": 0.534113,
+      "f1_min_split": "richmond",
+      "f1_max_split": "richmond",
+      "n_splits_run": 1,
+      "laurens_gsv_f1": null,
+      "laurens_gsv_precision": null,
+      "laurens_gsv_recall": null,
+      "laurens_gsv_ap": null,
+      "budapest_district5_f1": null,
+      "budapest_district5_precision": null,
+      "budapest_district5_recall": null,
+      "budapest_district5_ap": null,
+      "sao_paulo_f1": null,
+      "sao_paulo_precision": null,
+      "sao_paulo_recall": null,
+      "sao_paulo_ap": null,
+      "manual_gold_f1": null,
+      "manual_gold_precision": null,
+      "manual_gold_recall": null,
+      "manual_gold_ap": null
+    },
+    {
       "model": "mask2former-vistas-curb-cut",
       "label": "mask2former-vistas-curb-cut",
       "spec": "vistas:curb-cut",
@@ -3635,6 +3681,24 @@
         "n_panos": 1000,
         "n_gt_recall": 3919,
         "fp_per_pano": 74.951
+      }
+    },
+    "mask2former-vistas-curb-cut-1024x1024": {
+      "richmond": {
+        "split": "richmond",
+        "precision": 0.382682,
+        "recall": 0.883871,
+        "f1": 0.534113,
+        "ap": 0.648753,
+        "ap_source": "bundle",
+        "ap_bundle": 0.648753,
+        "bundle_floor": 0.244622,
+        "tp": 274,
+        "fp": 442,
+        "fn": 36,
+        "n_panos": 124,
+        "n_gt_recall": 310,
+        "fp_per_pano": 3.564516
       }
     },
     "mask2former-vistas-curb-cut": {

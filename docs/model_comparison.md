@@ -1401,8 +1401,9 @@ What changed here: `--vistas-input-size H W` now overrides the processor, and
 so the published richmond detections keep their key and nothing already paid for is orphaned —
 and a future run at parity is a distinct, self-describing cache entry. **The parity run has now
 been done** — see *Resolution parity* below. Every number in the table that follows is still at
-384×384, and the parity numbers are reported separately rather than replacing them, because the
-384 run is the one whose detections are published.
+384×384, and the parity numbers are reported separately rather than replacing them: the 384 run
+is the one every other Vistas figure in this document was read from, and the parity arm is its
+own published leg (`mask2former-vistas-curb-cut-1024x1024`, #163).
 
 Note for anyone reading #126: that issue says `scripts/box_gallery.py` already cuts
 perspective views. **It does not** — its `--fov` sizes an axis-aligned crop of the
@@ -1504,6 +1505,16 @@ with a private `--cache-dir`, so nothing here shares a cache directory with the 
 detections. RampNet is re-run alongside as the comparability check and **reproduces its committed
 richmond row to every digit** (0.964 / 0.768 / 0.855, AP 0.763, 238/9/72).
 
+**Run twice.** The first run, 2026-08-18, is the one the numbers below were written from; its
+cache was private and was later lost (see *How it is published* below). The second run,
+2026-09-20 (#163), repeated both A40 arms on the same host in the same environment from a fresh,
+empty cache — worktree at `fe97940`, panos from `benchmark/richmond/`, log and environment
+record in `docs/data/vistas_rerun_163/` — and **every printed figure in this section reproduced
+to the digit**: the parity row, the control row, both `conf ≥ 0.30` re-scores, the four
+complementarity cells at both operating points, the null read, and both cascade partitions. The
+detections published under `benchmark/model_detections/` are the 2026-09-20 run's; the table
+below is unchanged by it.
+
 | arm | model input | P | R | F1 | AP | tp/fp/fn |
 |---|---|---:|---:|---:|---:|---|
 | rampnet (committed, reproduced) | — | 0.964 | 0.768 | **0.855** | 0.763 | 238/9/72 |
@@ -1513,7 +1524,12 @@ richmond row to every digit** (0.964 / 0.768 / 0.855, AP 0.763, 238/9/72).
 
 At conf ≥ 0.30: control **0.419 / 0.694 / 0.522** (published: 0.419 / 0.697 / 0.524), parity
 **0.384 / 0.884 / 0.536**. Note the threshold barely bites at parity — it removes 3 false
-positives against 10 at 384 — because the higher-resolution masks are more confident.
+positives against 10 at 384 — because the higher-resolution masks are more confident. The
+bottom two rows are committed files since #163: the parity row is
+`benchmark/model_detections/mask2former-vistas-curb-cut-1024x1024__richmond.json` and the
+control row is
+`benchmark/model_detections/replicates/makelab2-a40-2026-09-20/mask2former-vistas-curb-cut__richmond.json`;
+`tests/test_scoreboard.py` re-scores the first against the committed bundle in CI.
 
 **The env control was not in the original plan, and it is what makes the parity delta
 attributable.** The published run was on Jon's RTX 3070 on an older `transformers`; makelab2 is a
@@ -1522,7 +1538,15 @@ this document already flags — parity-vs-published would have differed in **two
 Re-running 384 in the parity env separates them: it lands within **one detection out of 523** of
 the published run (215/308/95 vs 216/309/94, F1 0.516 vs 0.517). So the 4.x→5.15 jump is benign
 for this checkpoint, the residual is fp16 kernel nondeterminism rather than a version break, and
-**the whole parity delta is attributable to input size.** That also retires the "an upgrade could
+**the whole parity delta is attributable to input size.** With the control published (#163) that
+residual can be stated at the detection level rather than the metric level: the control emits 553
+points to the published run's 555, and **550 of the 555 pair with a control point within 0.005 of
+the pano width** (median offset 0.00002, i.e. sub-pixel; median score difference 0.0006, 95th
+percentile 0.006, largest 0.077). Five published points have no counterpart at that tolerance and
+three control points are new; only 10 of the 124 panos are byte-identical. That is what "within
+one detection" is made of — the masks are the same masks with fp16 jitter on their edges and
+scores, not a re-drawn segmentation — and it is the size of environment effect a reader should
+expect from any re-run of this arm. That also retires the "an upgrade could
 have changed every mask under an unchanged cache key" worry for this arm, as a measurement rather
 than an assurance.
 
@@ -1566,44 +1590,47 @@ parity unqualified:
 the smallest achievable blob at 1024 (see above), so the two rows do not share that setting's
 meaning even though they share its value. And this is still **richmond only**.
 
-**Neither A40 run's detections are published, so the bottom two rows of that table are not
-re-derivable from a clean clone — and as of 2026-09-17 the private cache they lived in cannot be
-found either.** The parity (1024×1024) and same-env control (384×384) detections were written to
-a private `--cache-dir` in a scratch worktree on makelab2 and nowhere else; only the published 384
-row and RampNet's row come from committed files. Looked for on 2026-09-17 before publishing them:
-the checkout at `/homes/gws/jonf/RampNet` has no worktree registered, its `.model_cache` holds no
-shard written 2026-08-17..20, and the parity run's shard names (`compare.cache_key` over the
-1024 signature, e.g. `f2acf1b1…`) are absent from `/homes/gws/jonf`, `/tmp`, `/var`, the root
-filesystem and the lab mounts. The cache went with the scratch worktree, so **the two A40
-rows, the 1024 complementarity column, the operating-point-correction table, both cascade tables,
-both `analysis_out/cascade_gate*.json` and the seam-exposure count now rest on the committed
-artifacts alone.** The cascade artifacts carry their full per-site input (`sites[]`), so every
-figure in those tables still re-derives from committed files (`tests/test_cascade_gate.py`);
-what cannot be re-derived is the partition itself, and the parity row's P/R/F1/AP.
+**How it is published (#163).** The 2026-08-18 detections were written to a private
+`--cache-dir` in a scratch worktree on makelab2 and nowhere else; when the time came to publish
+them (2026-09-17) the checkout at `/homes/gws/jonf/RampNet` had no worktree registered, its
+`.model_cache` held no shard written 2026-08-17..20, and the parity run's shard names
+(`compare.cache_key` over the 1024 signature) were absent from the home directory, `/tmp`,
+`/var`, the root filesystem and the lab mounts. So the two rows, the 1024 complementarity column,
+the operating-point-correction table, both cascade tables and both `analysis_out/cascade_gate*.json`
+rested for three days on the committed artifacts alone, and this section said so. The re-run of
+2026-09-20 closed that; publishing it needed three decisions about the registry, all of which
+the roster's own rules left open. Each is settled in `rampnet/roster.py` and held by
+`tests/test_roster.py`:
 
-**Retiring that takes one decision and one 3m38s GPU run, not a rescue.** The run is cheap to
-repeat (`compare.py … --vistas-input-size 1024 1024`, one A40, timed above), and a repeat
-should land within a detection or so of the original — the control-vs-published pair did, across
-a `transformers` major version, with fp16 kernel nondeterminism the only residual. What is not
-settled is how it publishes, and the roster's own rules leave three
-things open rather than one:
+- **The parity arm is a pinned leg, and the published 384 file keeps its bare name.** The leg is
+  `mask2former-vistas-curb-cut` pinned on `vistas_input_size = (1024, 1024)` and published as
+  `mask2former-vistas-curb-cut-1024x1024` (`roster.pin_token` spells a size as `1024x1024`;
+  the pin-naming rule used to assume a scalar). The registry's rule that *every* leg of a pinned
+  model is qualified — written against a bare `claude-sonnet-5` file sitting beside an
+  `-effort-high` one, where the bare file hid which effort it was — has one exception now, and it
+  is a principled one: `vistas_input_size` is an **opt-in** knob, default `None`, absent from the
+  detection signature unless set. The bare 384 file therefore carries no `input_size` key and
+  the parity file carries `[1024, 1024]`, so the two describe themselves without a rename, and a
+  bare name can only ever mean "every opt-in knob unset". Claude's `effort` is not opt-in
+  (`low` is in the signature either way), so the Claude legs stay fully qualified.
+  `roster.needs_qualified_name` is the rule; renaming the published file to
+  `mask2former-vistas-curb-cut-384` would have touched every reference to it in this document
+  and in `tests/` for no information.
+- **The same-env control is a replicate, not a leg.** It has the published arm's signature and
+  cache key by construction, so no pin could name it. `roster.REPLICATES` registers it
+  (`of = mask2former-vistas-curb-cut`, `tag = makelab2-a40-2026-09-20`) and it publishes under
+  `benchmark/model_detections/replicates/<tag>/` with the exporter's ordinary `--out` and no
+  new flag; inside that directory the file is exactly a published file, and `tests/test_roster.py`
+  asserts that every replicate directory is registered and that a replicate shares the header
+  (`model`, `published_as`, `signature`) of the file it replicates. What it may differ in is the
+  detections, and the size of that difference is the result it exists to record.
+- **`export_model_cache.py` takes `--vistas-input-size H W`**, which is what lets it address the
+  1024 cache entry and lets the filename come from the roster rather than from a `--publish-as`
+  typed from memory.
 
-- `--vistas-input-size` does not change the arm's label, so the export needs a distinct published
-  name (`export_model_cache.py --publish-as`, #123) and a roster leg pinned on it. But
-  `rampnet/roster.py` requires that **once one leg of a model is qualified, every leg is** — so
-  the published 384 file would be renamed too (e.g. `mask2former-vistas-curb-cut-384`), which
-  touches every reference to it here and in `tests/`. The registry's pin naming also expects a
-  scalar (`str(value)` appears in the published name), and this pin is a 2-element size.
-- The same-env 384 control has the **same** signature and cache key as the published 384 run —
-  that was the point of it — so it cannot be a pinned leg at all; the roster has no notion of
-  "same detector, different host". Publishing it means either a new kind of entry or recording
-  it as an unregistered replicate beside the published file.
-- `export_model_cache.py` does not yet take `--vistas-input-size`, so it cannot address the 1024
-  cache entry even where one exists.
-
-Until those are decided, this section states the gap rather than guessing at the layout; the
-numbers above are as-run on 2026-08-18 and are not being changed. Each downstream table says so
-where it appears.
+The re-run's cache shards are not committed (the exports are their published form, and
+`--verify` reported both identical to the cache that produced them); the run logs, the
+environment record and the four free reads are, under `docs/data/vistas_rerun_163/`.
 
 #### Complementarity: 61% of RampNet's misses are recoverable, and a union still loses
 
@@ -1635,13 +1662,17 @@ for cell, so `pytest tests/test_complementarity.py` checks it with no setup at a
 
 An earlier version of this column was the same-env A40 control rather than the published run. The
 two differ by one detection in 523, which moved two cells by one ramp each: challenger-only 22 →
-21 and found-by-nobody 50 → 51. Nothing turned on it, but the control is not published either, so
-the column as printed was not re-derivable and did not say which run it was.
+21 and found-by-nobody 50 → 51. Nothing turned on it, but at the time the control was not
+published either, so the column as printed was not re-derivable and did not say which run it
+was. The control is published now (the replicate under *Resolution parity*), and the 2026-09-20
+re-run reads 194 / 44 / **21** / **51** off it — the same one-ramp shift, from a fresh inference.
 
-**The 1024 column cannot be re-derived from a clean clone, or from anywhere.** The parity
-detections are not published, and the private makelab2 cache that held them could not be found
-on 2026-09-17 (see the caveat under *Resolution parity*), so that column now rests on this
-table alone. Closing that needs a 3m38s re-run and a publishing decision, both spelled out there.
+**The 1024 column is committed and checked in CI since #163.** The parity detections are
+published, and `tests/test_complementarity.py` rebuilds this column from that file and the
+committed bundle, cell for cell, at both operating points — between 2026-09-17 and 2026-09-20
+it rested on this table alone, because the private makelab2 cache that held the first run's
+detections could not be found. The re-run reproduced every cell (220 / 18 / 54 / 18, null 0.143,
+6.2 boxes/pano, above-chance 0.864).
 
 **Discounted for chance, a free zero-training model finds ~44 of the 72 ramps RampNet misses —
 61%.** The null here is measured on the miss subset rather than extrapolated from the split-wide
@@ -1711,10 +1742,11 @@ matching the committed `analysis_out/op/corrected_at_0.3.csv`. `complementarity.
 | oracle-union recall | 0.942 | 0.952 |
 | naive union F1 | 0.555 | 0.549 |
 
-**Both columns are the parity arm, so neither re-derives from a clean clone** — the challenger
-side is the unpublished 1024 cache (see *Resolution parity*). RampNet's side is committed on both
-columns: `benchmark/richmond/records.jsonl` at 0.55 and `analysis_out/op_cache/richmond.json` at
-0.30.
+**Both columns are the parity arm, and both re-derive from a clean clone since #163** — the
+challenger side is the published 1024 file (see *Resolution parity*), and RampNet's side is
+committed on both columns: `benchmark/richmond/records.jsonl` at 0.55 and
+`analysis_out/op_cache/richmond.json` at 0.30. `tests/test_complementarity.py` pins the 0.30
+column (236 / 21 / 38 / 15) the same way as the shipped one.
 
 **So 16 of the 54 ramps the challenger got credit for recovering are ramps RampNet already has at
 the operating point we recommend — the shipped threshold was discarding them.** That is 16 raw,
@@ -1735,27 +1767,36 @@ RampNet's heatmap at each, reusing #46 Phase 1's instrument verbatim (`site_prof
 Read pre-registered on #126 before running. Artifacts: `analysis_out/cascade_gate.json` (shipped
 point) and `analysis_out/cascade_gate_op030.json` (recommended point).
 
-**Both artifacts are committed and neither can be regenerated from a clean clone.** The four-cell
-partition inside them was computed against the parity detections, which are not published (see
-*Resolution parity*); the RampNet half — one forward per pano — needs the native-res panoramas
-from `projectsidewalk/rampnet-benchmark` and a GPU. What a clean clone *can* do is check each file
-against itself: `tests/test_cascade_gate.py` re-derives every `cells[]` figure from the same
-file's `sites` list, so a hand-copied number in the tables below fails the build.
+**Both artifacts are committed, and both were regenerated on 2026-09-20 from the published parity
+detections (#163).** The challenger side of the partition is now a committed file (see *Resolution
+parity*); the RampNet half — one forward per pano — still needs the native-res panoramas from
+`projectsidewalk/rampnet-benchmark` and a GPU, so a clean clone cannot regenerate them without
+those, but it can check each file against itself: `tests/test_cascade_gate.py` re-derives every
+`cells[]` figure from the same file's `sites` list, so a hand-copied number in the tables below
+fails the build, and `tests/test_complementarity.py` re-derives the four cell counts from the
+published detections alone.
 
-**What a regenerated copy of either artifact will differ in, so it is not mistaken for a changed
-result.** `cascade_gate.json` was written at `b7342dc`, before `4c192ca` added
-`rampnet_op_threshold` to the payload, so it lacks that key while `cascade_gate_op030.json` carries
-it. Since the round-1 review fixes (`d1860e5`, `cc2299e`) a re-run of *either* file also adds two
-payload keys, `null_rng: "per-site"` and `panos_without_floor_peaks`, and one per-site key,
-`nearest_peak_claimed`; and because the null is now seeded per site, every miss-cell `null_pct`,
-`null_med` and `null_p95` moves — by up to 0.075 on the committed files, see the caveat under *A
-negative worth recording* below — with `act`, `argmax_off_px`, `nearest_peak_px` and the cells
-unchanged. Both were also written before this branch took the #132 seam wrap (below). Two tests pin
-the *pre-fix* state and will need editing in the same commit as a regeneration:
-`test_only_the_op030_artifact_records_the_threshold_key` and
-`test_the_committed_nulls_came_from_one_stream_and_say_so`. The `newline=""` pinning is what makes
-that comparison a byte diff rather than a guess. Regenerate both when the parity detections are
-published.
+**What the regeneration changed, and what it did not.** The originals were written at `b7342dc`
+and `4c192ca`, before the round-1 review fixes (`d1860e5`, `cc2299e`) and before this branch took
+the #132 seam wrap, and the prediction recorded here at the time was that a re-run would add three
+payload keys (`rampnet_op_threshold` on the shipped file, `null_rng: "per-site"` and
+`panos_without_floor_peaks` on both), one per-site key (`nearest_peak_claimed`), and move every
+miss-cell null by up to ~0.075 with everything else unchanged. Measured against the originals
+(`makelab2`, A40, 128 s and 119 s wall): the **partition is identical** — 220 / 18 / 54 / 18 and
+236 / 21 / 38 / 15, zero of 310 sites changed cell in either file — and so is **every
+heatmap-derived per-site column**: `act`, `center`, `argmax_off_px`, `nearest_peak_px`,
+`nearest_peak_score`, `peak_in_radius`, `class` and `seam` agree on all 310 sites to the recorded
+precision, which also says the RampNet forward on this host is deterministic across a month. The
+only columns that moved are the null ones: 59 of 72 miss-cell nulls in `cascade_gate.json` and 46
+of 53 in `cascade_gate_op030.json`, by up to 0.09 and 0.08, and the cell medians with them
+(`challenger_only` 0.895 → 0.88 at the shipped point and 0.88 → 0.865 at 0.30; `neither`
+0.925 → 0.905 at 0.30; `above_null_p95` down by one in three of the four miss cells). That is the
+per-site seeding, not the heatmap, and it has one visible benefit: the 53 sites that carry a null
+in both files now carry the *same* null in both, where before 43 of them differed. The two tests
+that pinned the pre-fix state were rewritten in the same commit
+(`test_both_artifacts_record_the_threshold_key_and_the_current_envelope`,
+`test_the_committed_nulls_are_seeded_per_site_and_agree_across_the_two_files`). The `newline=""`
+pinning is what made that comparison a field-by-field diff rather than a guess.
 
 At **rampnet@0.30**, of the 38 genuinely-complementary ramps:
 
@@ -1806,8 +1847,10 @@ problem (#130) that no threshold prior can reach — a σ or matcher change is w
 them — four sit just outside the window, and four have nothing near them.
 
 **A negative worth recording: RampNet's own activation does not tell you which misses are
-recoverable.** `challenger_only` sits at null percentile **0.88** and the hard-core `neither` at
-**0.925** — the ramps *nobody* finds look, if anything, *stronger* on raw heatmap mass than the
+recoverable.** `challenger_only` sits at null percentile **0.865** and the hard-core `neither` at
+**0.905** (0.88 and 0.925 on the 2026-08-18 artifacts; the 2026-09-20 regeneration re-drew the
+nulls per site and moved both medians by 0.015–0.02, with the ordering and the conclusion intact)
+— the ramps *nobody* finds look, if anything, *stronger* on raw heatmap mass than the
 ones the challenger recovers (they contain 6 of 15 matcher-claimed peaks ≥0.30, which inflates
 it). Median argmax offset is 19.0 px inside a 22.5 px radius, i.e. near the window edge rather
 than on the ramp. So there is no cheap self-gating shortcut: you cannot skip the second model and
@@ -1815,15 +1858,17 @@ find these by looking harder at RampNet's confidence. Against the pre-registered
 **PARTIAL** branch — signal present, but not at the site — and the peak-level column, not the
 activation, is what supplies the bounded answer.
 
-One caveat on those two null percentiles, and on any per-site null read across the two
-artifacts. Both files were written with **one** random stream consumed in pano order over the
-miss-cell sites only, so a site's draw depended on which sites came before it; the miss set
-differs between the files (19 cell transitions), and of the 53 sites that carry a null in both,
-**43 differ, by up to 0.075**, while `act` and `nearest_peak_px` agree on every one
-(`test_the_committed_nulls_came_from_one_stream_and_say_so`). The within-file comparison above
-stands. `cascade_gate.py` now seeds per site (`site_rng`), so a regeneration will move individual
-`null_pct` values by that much, and the two medians slightly, for reasons that have nothing to do
-with the heatmap; that is a reason to regenerate both files together, not a change in the result.
+One note on those two null percentiles, and on any per-site null read across the two
+artifacts. The 2026-08-18 files were written with **one** random stream consumed in pano order
+over the miss-cell sites only, so a site's draw depended on which sites came before it; the miss
+set differs between the files (19 cell transitions), and of the 53 sites that carried a null in
+both, **43 differed, by up to 0.075**, while `act` and `nearest_peak_px` agreed on every one.
+`cascade_gate.py` seeds per site now (`site_rng`), and the 2026-09-20 regeneration is what that
+produces: the same 53 sites carry the **same** null in both files
+(`test_the_committed_nulls_are_seeded_per_site_and_agree_across_the_two_files`), individual
+values moved by up to 0.09 against the originals, the medians by 0.015–0.02, and nothing that
+depends on the heatmap moved at all. Both files were regenerated together, which is the only
+way this comparison is meaningful.
 
 **What would have to be true for the cascade to pay.** Promoting sub-0.30 peaks gated on
 challenger candidates also promotes them wherever the challenger fires on a driveway and RampNet
@@ -1860,9 +1905,11 @@ against not wrapping:
 | gemini-3.1-pro-preview, paterson (#35 gate) | op_cache ≥ 0.05 | 201 / 98 / 23 / 73 | identical |
 
 **Zero cell flips, at every threshold, on both arms.** So the published 384 column and the
-committed #35 gate numbers are unchanged by the wrap. **The parity arm cannot be re-checked** —
-its detections are not published — so for the 1024 columns and both `cascade_gate*.json` the bound
-is still the count below rather than a measurement.
+committed #35 gate numbers are unchanged by the wrap. **The parity arm has now been re-checked
+too** (#163): the 2026-08-18 cascade artifacts were partitioned by the pre-wrap matcher, and the
+2026-09-20 regeneration — same detections, published, wrapping matcher — reproduces both
+partitions site for site (220 / 18 / 54 / 18 and 236 / 21 / 38 / 15, zero of 310 sites moved), so
+the wrap moves nothing at 1024 either, as a measurement rather than a bound.
 
 One residual, unchanged by the merge: `analysis_out/op_cache/richmond.json` was last written at
 `c7098be` (2026-07-28), i.e. **before** `f4c71c8`, so it can still be missing peaks that sit
@@ -1875,8 +1922,10 @@ partition in a direction that matters). So the worst case for the ~19-ramp ceili
 38, and no conclusion here turns on it. That one ramp is now identified rather than bounded:
 `723487737079243` at x = 0.0069 (see the re-cut of the 38 above) has a 0.946 heatmap peak 7.4 px
 from the ramp and no op_cache peak within 117 px, so on a regenerated op_cache it is a RampNet hit
-at 0.30 and leaves `challenger_only` (38 → 37) — the ceiling of 19 does not move. Regenerating
-both artifacts once the parity detections are published is the clean way to retire that bound.
+at 0.30 and leaves `challenger_only` (38 → 37) — the ceiling of 19 does not move. The 2026-09-20
+regeneration of both cascade artifacts (#163) did **not** regenerate the op_cache, so that site
+still reads the same way in the committed files (`test_the_seam_site_in_the_recovered_cell_has_a_peak_the_op_cache_lacks`);
+retiring it is an op_cache regeneration for richmond, a separate run.
 
 ##### Reproducing it
 
@@ -1933,9 +1982,37 @@ git-ignored, so on a clean clone the published detections have to be written int
 `benchmark/model_detections/<model>__<split>.json` records the signature they were cached under
 and `compare.cache_key(model, signature, city, pano_id)` is the shard name;
 `tests/test_complementarity.py` does the whole thing in eight lines and is the shortest working
-example. For the **parity** arm there is nothing to write — those detections are not published,
-and the private cache that held them is gone (see *Resolution parity*) — so the 1024 commands
-above need the `compare.py --vistas-input-size 1024 1024` run first, which regenerates them.
+example, for the 384 arm and, since #163, for the parity arm
+(`mask2former-vistas-curb-cut-1024x1024__richmond.json`, whose recorded signature carries
+`input_size: [1024, 1024]`). So none of the reads above needs a GPU on a clean clone; only
+`cascade_gate.py` does, for RampNet's forward.
+
+**Publishing the two A40 arms (#163), exactly as run on 2026-09-20.** Both `compare.py` runs
+above were made from a worktree of this branch at `fe97940` on makelab2 with a fresh, empty
+`--cache-dir`, then the cache was copied back and exported:
+
+```bash
+# the parity leg: --vistas-input-size selects the 1024 cache entry, and the registry
+# supplies the filename (mask2former-vistas-curb-cut-1024x1024__richmond.json)
+python scripts/analysis/export_model_cache.py --cache-dir <that run's cache> \
+    --models vistas:curb-cut --splits richmond --vistas-input-size 1024 1024
+python scripts/analysis/export_model_cache.py --verify --cache-dir <that run's cache> \
+    --models vistas:curb-cut --splits richmond --vistas-input-size 1024 1024
+
+# the same-env 384 control: a REPLICATE of the published arm (same signature, same cache
+# key), so it publishes under its registered tag's directory with no other flag
+python scripts/analysis/export_model_cache.py --cache-dir <that run's cache> \
+    --models vistas:curb-cut --splits richmond \
+    --out benchmark/model_detections/replicates/makelab2-a40-2026-09-20
+python scripts/analysis/export_model_cache.py --verify --cache-dir <that run's cache> \
+    --models vistas:curb-cut --splits richmond \
+    --out benchmark/model_detections/replicates/makelab2-a40-2026-09-20
+```
+
+Both `--verify` runs reported the published file scoring identically to the cache. The
+environment record and every log from the session are under `docs/data/vistas_rerun_163/`
+(`env.txt`, the four `compare.py` logs, the three `complementarity.py` logs, `null_recall`, and
+both `cascade_gate` logs).
 
 **Cost, in both units.** Money: **$0** — makelab2 is lab-owned hardware with no metered
 billing, and every read above is free. Time: one leg of three was timed, and **the full 124-pano
@@ -1946,8 +2023,16 @@ pixel count, and the documented "2.3 s/view" is dominated by reprojection and CP
 encoder. Peak GPU memory is 1.64 GB. The same-env 384 control was **not timed** (the same 124
 panos at 1/7 the pixel area, so it is the cheaper of the two), and RampNet's row in that table
 costs no GPU at all — `--models rampnet` scores the bundle's committed detections without loading
-a model. **So there is no session total to quote; what is recorded is 3m38s for the one leg that
-was measured.** Verified before the run rather than assumed: the override
+a model. **So for the 2026-08-18 session there is no total to quote; what is recorded is 3m38s for the
+one leg that was measured.** The 2026-09-20 re-run (#163) timed everything, and the rows are in
+`analysis_out/usage_log.jsonl` with `paid: false` (makelab2 is not a Slurm host, so it has no
+`sacct` record and no row in `compute_log.jsonl`; the usage ledger is where a free GPU leg's
+runtime goes): parity **237.2 s** wall (29.5 s model load, 207.3 s inference, 1.67 s/pano over
+124 panos) and the 384 control **191.3 s** (12.8 s load, 178.2 s inference, 1.44 s/pano), so the
+parity arm costs 1.16× the control per pano, in line with the 1.17× per-view forward measured in
+August. The two cascade-gate regenerations were 128 s and 119 s. The A40 was shared with an idle
+process holding 8.8 GB of its 46 GB throughout; total GPU time for the session, about 11 minutes,
+at **$0**. Verified before the run rather than assumed: the override
 reaches the model — `pixel_values` (1, 3, 384, 384) → (1, 3, 1024, 1024) and mask logits
 (1, 100, 96, 96) → (1, 100, 256, 256) — which a silently no-opping `processor.size` assignment on
 a new major version would not have done, and which would have made "parity" a second 384 run
