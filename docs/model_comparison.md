@@ -214,9 +214,12 @@ ceiling and the `y26_tiles` fork stay in that record.
 trained under the Ultralytics default schedule (`optimizer=auto`, which resolves to MuSGD
 at `lr0=0.01`, `warmup_epochs=3.0`), and every one of them collapsed on validation during
 the warmup ramp: `lr/pg0` climbs 0.010 → 0.020 → 0.029 over epochs 1–3; validation mAP@50
-peaks at epoch 1 (0.65–0.78 across the six configurations), is already lower at epoch 2 in
-every one, and bottoms at 0.00–0.25 between epochs 3 and 6, while training loss keeps
-falling and nothing fails numerically. It is a recall collapse, not a false-positive flood —
+starts at 0.65–0.78 at epoch 1 (the pre-collapse high across the six configurations; every
+run's global maximum comes after the recovery), is already lower at epoch 2 in every one,
+and bottoms at 0.00–0.25 between epochs 3 and 6, while training `cls_loss` stays flat (at
+most +0.07 above its epoch-2 value over epochs 3–6, below epoch 1 by epoch 8) and
+validation `cls_loss` rises to 1.7–7.3× its epoch-1 value; nothing fails numerically (no
+NaN or Inf in any committed CSV). It is a recall collapse, not a false-positive flood —
 `y11l_pano` held precision 0.94–1.00 at recall ≤ 0.03 across epochs 6–9, and `y11x_pano`
 emitted no boxes at all for epochs 3–7 — and every run recovered as the LR decayed (the
 tiles arms regain their epoch-1 value by epoch 5–7, the pano arms by epoch 15–22). The grid
@@ -224,11 +227,16 @@ rules out batch size (2/4/6/12), resolution (1024/1280), architecture (YOLO11 vs
 preemption and data faults, most cleanly by `y11l_pano` and `y26_pano` at the same batch 4
 and imgsz 1280; the three `y11x_tiles` seed replicates of
 [`seed_variance_51_135.md`](seed_variance_51_135.md) reproduce it on different seeds and
-hardware (minimum 0.10–0.12 at epoch 3), so eleven of eleven committed curves show it. The
+hardware (minimum 0.10–0.12 at epoch 3), so all nine independent runs show it (eleven
+committed curves, two of them continuations that repeat their parents' early epochs). The
 reported checkpoints all sit long after the recovery (`y11l_pano` ep59, `y26_pano` ep56,
-`y11x_pano_h200` ep60, `y11x_tiles` ep44), so the "one-epoch model" form of the caveat is
-retired. What remains is that no tuned schedule has been run — #90 (the pre-registered
-LR/warmup sweep) and #70 (the stabilized rerun) are both open and unrun — so **every YOLO
+`y11x_pano_h200` ep60, `y11x_tiles` ep44 — two of these are later than the committed
+curve that shows their recovery: `y26_pano/results.csv` ends at epoch 55 and
+`y11x_tiles/results.csv` at epoch 21, so ep56 and ep44 are past the end of the record, not
+inside the dip; the training record says so beside its table), so the "one-epoch model"
+form of the caveat is retired. What remains is that no tuned schedule has been run — #90
+(the pre-registered LR/warmup sweep) and #70 (the stabilized rerun) are both open and
+unrun — so **every YOLO
 figure in this document is a lower bound on what a supervised detector reaches on this
 dataset under a tuned schedule**. The seed-variance read does not depend on either issue:
 it compares the two recipes as run, and its YOLO replicates carry the same dip. Per-run

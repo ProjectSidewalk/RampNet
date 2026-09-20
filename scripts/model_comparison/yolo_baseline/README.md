@@ -250,15 +250,21 @@ which resolves to MuSGD at `lr0=0.01`, with `warmup_epochs=3.0` (every `runs/*/a
 — and every one of them lost most of its validation mAP@50 during the warmup ramp and got
 it back as the learning rate decayed. `lr/pg0` climbs 0.010 → 0.020 → 0.029 over epochs
 1–3 and then decays linearly (the `lr/pg0` column of every `runs/*/results.csv`).
-Validation mAP@50 peaks at epoch 1 in all six configurations, at 0.65–0.78, is already
-lower at epoch 2 in every one, and bottoms between epochs 3 and 6 at 0.00–0.25. Training
-loss keeps falling through the collapse and nothing fails numerically (no NaN/Inf, no AMP
-error in the Slurm logs); validation `cls_loss` rises from 1.1–1.2 at epoch 1 to 8.2 at
-the bottom (`y11l_pano`, epoch 4). The pano arms take 15–22 epochs to regain their
-epoch-1 value; the tiles arms take 5–7. Per run, from the committed CSVs — the table is
-printed by `scripts/analysis/yolo_warmup_dip_72.py --markdown`, and
-`tests/test_yolo_warmup_dip_72.py` fails if it, or any figure in this section, stops
-matching the CSVs:
+Validation mAP@50 starts at 0.65–0.78 at epoch 1 in the six configurations — the
+pre-collapse high, not the run's peak; every run's global maximum comes after the
+recovery — is already lower at epoch 2 in every one, and bottoms between epochs 3 and 6
+at 0.00–0.25. Training `cls_loss` is flat through the collapse: it sits at most +0.07
+above its epoch-2 value over epochs 3–6 (the pano arms and `y26_tiles` tick up 0.02–0.07
+at epochs 3–4; the YOLO11 tiles arms are monotone) and is below its epoch-1 value by
+epoch 8 on every curve, while validation `cls_loss` peaks inside the dip at 1.7–7.3× its
+epoch-1 value — on `y11l_pano`, 1.133 at epoch 1 to 8.227 at epoch 4. Nothing fails
+numerically: the eleven committed CSVs contain no NaN or Inf in any column. (That
+`optimizer=auto` resolved to MuSGD, and that no AMP error fired, are 2026-07-29 readings
+of the Slurm logs, which are gitignored and not committed; the CSVs cannot confirm
+either.) The pano arms take 15–22 epochs to regain their epoch-1 value; the tiles arms
+take 5–7. Per run, from the committed CSVs — the table is printed by
+`scripts/analysis/yolo_warmup_dip_72.py --markdown`, and `tests/test_yolo_warmup_dip_72.py`
+fails if it, or any figure in this section, stops matching the CSVs:
 
 <!-- yolo_warmup_dip_72:begin -->
 | run | epochs | mAP50 ep1 | ep2 | ep3 | dip minimum (epoch) | back to ep1 level | epochs below ep1 | no-box epochs | best mAP50-95 epoch |
@@ -302,7 +308,7 @@ architecture (YOLO11 vs YOLO26), scheduler preemption and data faults are each e
 most cleanly by `y11l_pano` and `y26_pano`, which share batch 4 and imgsz 1280 and differ
 only in the shape of the dip (`y26_pano` bottoms later and shallower, 0.125 at epoch 6, and
 takes longest to get back). ckpt requeues are scattered across epochs and do not line up
-with the collapses (`figures/fig4_per_config.png`); a data fault would depress training
+with the collapses (`figures/fig4_per_config.png`); a data fault would show in training
 loss too and would not recover on an LR schedule. The three `y11x_tiles` seed replicates
 from the seed-variance campaign (seeds 1–3, Tillicum H200, batch 12;
 `docs/data/seed_variance_51_135/y11x_tiles_s*/results.csv`) reproduce it exactly — minimum
@@ -461,13 +467,29 @@ a larger batch.
 
 > **Update 2026-09-20 (#72).** Still untested. The full curves and the three seed
 > replicates from `docs/seed_variance_51_135.md` are read together in "The caveat that
-> travels with every number above" — eleven of eleven committed curves show the dip, the
-> replicates bottom at epoch 3 on a different cluster and different seeds — and the
+> travels with every number above" — all nine independent runs show the dip (eleven
+> committed curves, two of them continuations), the replicates bottom at epoch 3 on a
+> different cluster and different seeds — and the
 > per-run numbers are pinned to the CSVs by `scripts/analysis/yolo_warmup_dip_72.py`.
-> The "Not architecture" bullet above has `y26_pano` recovering "by ep9" and `y11l_pano`
-> "until ep10", meaning the epoch the curve turned upward; on the completed curves they
-> first regain their epoch-1 mAP@50 at epochs 22 and 15, which is the definition that
-> section uses.
+> Three of the bullets above are 2026-07-29 readings that the completed curves refine:
+>
+> - "Not a crash": "training loss keeps falling straight through the collapse" is too
+>   strong. On the committed CSVs `train/cls_loss` ticks *up* by 0.02–0.07 at epochs 3–4
+>   on all three pano arms and `y26_tiles` (`y11l_pano` 1.334 → 1.237 → 1.238 → 1.264;
+>   `y11x_pano` 1.404 → 1.298 → 1.352 → 1.366) and is monotone only on the YOLO11 tiles
+>   arms; on every curve it stays within +0.07 of its epoch-2 value through epoch 6 and
+>   is below epoch 1 by epoch 8. The accurate reading is *flat while val `cls_loss`
+>   rises* — 1.133 → 8.227 on `y11l_pano` (the "1.2 → 8.2" mixes `y11x_pano`'s epoch 1
+>   with `y11l_pano`'s peak). "No NaN/Inf anywhere in the logs" rests on the Slurm logs,
+>   which are not committed; what the repo can show is that the eleven committed CSVs
+>   have no NaN or Inf in any column, which the caveat section now pins.
+> - "Not small physical batch": "Batch spans 2/4/6" omits `y11x_tiles` at batch 12; the
+>   grid spans 2/4/6/12 (every `args.yaml`, pinned by the script).
+> - "Not architecture": "`y26_pano` recovered by ep9" and "`y11l_pano` took until ep10"
+>   were read off curves still in progress. `y26_pano` bottomed at epoch 6 (0.125) and was
+>   climbing from epoch 7; `y11l_pano` sat at 0.000–0.024 through epoch 9 and lifted off
+>   at epoch 10 (0.183). On the completed curves they first regain their epoch-1 mAP@50 at
+>   epochs 22 and 15, which is the definition the caveat section uses.
 
 ### Failure signature: recall collapse, not false-positive flood
 
@@ -679,6 +701,13 @@ stabilized rerun (#70) when it lands.
 7. **Seeds (aspirational).** All runs are `seed=0`. If ckpt capacity allows, ≥3 seeds
    of the headline configs → mean ± std, which makes single-run instability commentary
    moot. Not a blocker for reporting the lower-bound numbers.
+
+   > **Note, 2026-09-20.** "All runs are `seed=0`" is no longer true: the seed-variance
+   > campaign (#135, `docs/seed_variance_51_135.md`) ran three `y11x_tiles` replicates at
+   > seeds 1, 2 and 3 on Tillicum H200s (`docs/data/seed_variance_51_135/y11x_tiles_s{1,2,3}/`).
+   > Every run in *this* grid is still seed 0. The replicates are the "≥3 seeds" this item
+   > asked for, on one tiles config; their spread is read in that document, and their
+   > warmup-LR dip is in "The caveat that travels with every number above" (#72).
 
 The paper's "Baseline protocol" appendix paragraph is this section, condensed.
 `docs/model_comparison.md` links here from its baseline-in-progress note, and the
