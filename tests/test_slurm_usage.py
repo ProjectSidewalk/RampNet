@@ -25,6 +25,8 @@ import gpu_hours_as_of as as_of_script  # noqa: E402
 from rampnet import ledger  # noqa: E402
 
 KLONE_DUMP = os.path.join(REPO_ROOT, "docs", "data", "compute", "sacct_klone_2026-08-19.txt")
+TILLICUM_DUMP = os.path.join(REPO_ROOT, "docs", "data", "compute",
+                             "sacct_tillicum_2026-09-21.txt")
 
 
 def _line(job_id, name, cluster, part, qos, state, start, end, elapsed, tres,
@@ -316,26 +318,45 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
     """docs/compute_cost.md's numbers are claimed re-derivable from a clean clone.
     That is only true if the ledger is the dump's parse and nothing else: same
     rows, same order, differing only in the recorded_at stamp."""
+    # Two dumps, appended in this order: klone on 2026-08-19, Tillicum on 2026-09-21.
     with open(KLONE_DUMP, encoding="utf-8") as fh:
         parsed = parse_sacct(fh.read(), cluster="klone", user="jfroehli")
+    with open(TILLICUM_DUMP, encoding="utf-8") as fh:
+        parsed += parse_sacct(fh.read(), cluster="tillicum", user="jfroehli")
     committed = ledger.read_rows(os.path.join(REPO_ROOT, "analysis_out",
                                               "compute_log.jsonl"))
-    assert len(committed) == len(parsed) == 3990
+    assert len(committed) == len(parsed) == 3990 + 38
     for have, want in zip(committed, parsed):
         have = dict(have)
-        assert have.pop("recorded_at").startswith("2026-08-19T")
+        stamp = "2026-08-19T" if want["cluster"] == "klone" else "2026-09-21T"
+        assert have.pop("recorded_at").startswith(stamp)
         assert have == want
     # ...and the headline figures in the doc, from the ledger as committed.
     agg = summarize(committed)["klone"]
     assert agg["jobs"] == 3990 and round(agg["gpu_hours"], 1) == 2684.4
     assert agg["usd"] == 0.0 and agg["unpriced"] == 0
-    base = [r for r in committed if r["job_name"] == "yolo_curb_ramp_train"]
+    base = [r for r in committed
+            if r["cluster"] == "klone" and r["job_name"] == "yolo_curb_ramp_train"]
     assert len(base) == 3857 and round(sum(r["gpu_hours"] for r in base), 1) == 2046.9
     assert len({r["job_id"] for r in base}) == 27
     assert sum(r["state"].startswith("PREEMPTED") for r in committed) == 3780
     assert sum(r["state"] == "REQUEUED" for r in committed) == 59
     running = [r for r in committed if r["state"] == "RUNNING"]
     assert len(running) == 3 and round(sum(r["gpu_hours"] for r in running), 1) == 158.0
+    # Tillicum: the only billed compute. The 30 rows that ended in the 2026-08-26..09-21
+    # billing cycle must sum to what `hyakusage` billed for that cycle, to the cent
+    # (docs/data/compute/hyakusage_tillicum_2026-09-21.txt: 600.68 GPU hours, $540.61).
+    till = summarize(committed)["tillicum"]
+    assert till["jobs"] == 38 and round(till["gpu_hours"], 2) == 674.74
+    assert round(till["usd"], 2) == 607.24 and till["unpriced"] == 0
+    cycle = [r for r in committed if r["cluster"] == "tillicum" and r["end"] >= "2026-08-26"]
+    assert len(cycle) == 30
+    assert round(sum(r["gpu_hours"] for r in cycle), 2) == 600.68
+    assert round(sum(r["est_cost_usd"] for r in cycle), 2) == 540.61
+    # Nothing on Tillicum was preempted or requeued: every allocation ran to its wall
+    # or completed, which is the property the cluster is paid for.
+    assert all(r["state"] in ("COMPLETED", "TIMEOUT", "FAILED")
+               for r in committed if r["cluster"] == "tillicum")
 
 
 def test_from_file_prints_the_dump_hash_and_the_doc_pins_the_committed_one(
@@ -357,6 +378,12 @@ def test_from_file_prints_the_dump_hash_and_the_doc_pins_the_committed_one(
     pinned = re.search(r"sha256\s+`([0-9a-f]{64})`", doc).group(1)
     assert pinned == digest
     assert f"({len(raw):,} bytes" in doc
+    # The Tillicum dump is pinned the same way, further down the same doc.
+    with open(TILLICUM_DUMP, "rb") as fh:
+        raw_t = fh.read()
+    digest_t = hashlib.sha256(raw_t).hexdigest()
+    assert digest_t in re.findall(r"sha256\s+`([0-9a-f]{64})`", doc)
+    assert f"({len(raw_t):,} bytes" in doc
     # The pin only holds if git never normalises the dump's line endings: a
     # core.autocrlf=true clone checks it out CRLF and the hash above fails for a
     # file that is byte-correct. So .gitattributes must mark it -text (or binary),

@@ -8,6 +8,12 @@ someone remembered (#143). It is a snapshot as of the 2026-08-19 pull: **158.0 o
 GPU-hours are elapsed-so-far from 3 jobs that were still RUNNING** (`38304087` alone, 157.5 h),
 and the next pull will re-record them finished and move the total.
 
+**Plus 674.7 GPU-hours across 38 allocations on Tillicum since 2026-07-30, at $607.24** — the
+only billed compute in the project, back-filled 2026-09-21 from a second committed dump
+(see [Tillicum](#tillicum-6747-gpu-hours-60724-the-only-billed-compute) below). Of that,
+$540.61 is the three Campaign A seed replicates (#51), which the seed-variance doc had
+projected at ~$130 each and which cost ~$180 each.
+
 The ledger is `analysis_out/compute_log.jsonl`, one row per job allocation, written by:
 
 ```bash
@@ -104,13 +110,59 @@ Rates live in `COMPUTE_PRICING` in `scripts/model_comparison/pricing.py`, verifi
 to `None`, not `$0` — "we checked and it is free" and "we have no rate" are different
 statements and only one is safe to put in a paper.
 
+## Tillicum: 674.7 GPU-hours, $607.24, the only billed compute
+
+Back-filled 2026-09-21, five weeks after the klone pull, from
+`docs/data/compute/sacct_tillicum_2026-09-21.txt` (7,282 bytes, sha256
+`420642438d3b36b1bebb0dfd659bde759d5767882a3f22bceb9a847826e022fb`), pulled on Tillicum with
+the exact command `--print-command` prints and parsed with:
+
+```bash
+python scripts/analysis/slurm_usage.py --cluster tillicum --user jfroehli \
+    --from-file docs/data/compute/sacct_tillicum_2026-09-21.txt \
+    --by-name
+```
+
+Every training allocation is named `yolo_curb_ramp_train`, so `--by-name` cannot separate the
+runs. The attribution below comes from the `out:` line the launcher echoes at the top of each
+job's log (`logs/yolo_train_till_<jobid>.out` on Tillicum), read 2026-09-21; it is not
+derivable from the dump alone.
+
+| run | jobs | GPU-h | $ | what it is |
+| :--- | ---: | ---: | ---: | :--- |
+| `y11x_tiles_s1` | 10 | 225.2 | 202.66 | Campaign A seed 1 (#51), 2026-09-03 → 09-14, ran all 60 epochs |
+| `y11x_tiles_s2` | 10 | 195.5 | 175.91 | seed 2, same |
+| `y11x_tiles_s3` | 10 | 180.1 | 162.05 | seed 3, same |
+| `y11x_pano_h200` | 4 | 62.4 | 56.12 | the pano arm resumed from its klone checkpoint and run to epoch 60, 2026-08-04 → 08-06; it is a published arm in `model_comparison.md`, but its compute was recorded nowhere until now |
+| `y11x_tiles_h200_probe` | 1 | 7.0 | 6.30 | measurement 3 in [`tillicum.md`](tillicum.md), bounded at 7 h and hit the wall |
+| `yolo_data_prep` | 1 | 4.7 | 4.20 | the tiles dataset regeneration; matches the hand-transcribed $4.20 exactly |
+| `tillicum_smoke`, `chain_env_probe` | 2 | 0.0 | 0.00 | `debug` QoS, UsageFactor 0 in Slurm |
+
+**Reconciled to the bill, to the cent.** `hyakusage` on 2026-09-21 (saved as
+`docs/data/compute/hyakusage_tillicum_2026-09-21.txt`) reports the current billing cycle,
+2026-08-26 to 2026-09-21, at **600.68 GPU hours, $540.61, 30 jobs**. The ledger's 30 rows that
+ended in that window sum to 600.68 GPU-h and $540.61; `tests/test_slurm_usage.py` asserts it.
+The August cycle's $66.62 (the other 8 rows) was drawn against the 100-hour demo credit:
+`hyakusage` shows $23.35 of credit remaining, which is $90.00 − $66.62 to the cent. Campaign A
+was therefore the first spend against the $1,500/month budget, and it used 36% of one month.
+
+**Three things this corrects.** (1) [`seed_variance_51_135.md`](seed_variance_51_135.md) said
+the replicates would stop near epoch 48 because `CHAIN=5` buys six slices; each chain in fact
+ran ten 24 h slices and all three reached epoch 60, so the per-replicate cost is ~200 GPU-h
+and ~$180, not 144 GPU-h and ~$130. The spread between replicates (180 to 225 GPU-h) is chain
+overhead — the partial epoch in flight at each 24 h wall is re-run from `last.pt` — not
+different training. (2) The `y11x_pano_h200` arm's 62.4 GPU-h were unrecorded anywhere.
+(3) The two hand-transcribed figures in `tillicum.md` ($4.20 prep, $0.03 smoke) are now
+measured: the prep job is 4.67 GPU-h at `normal` and prices to $4.20 exactly; the smoke job
+is 0.03 GPU-h at `debug`, which this ledger prices at $0 per Slurm's UsageFactor while
+`hyakusage` charges $0.03 — the disagreement documented in `tillicum.md`, still unresolved
+and still capped at $0.90 per job.
+
 ## Gaps, stated
 
-- **Tillicum is not in the ledger.** Its jobs bill at $0.90/GPU-hour and are the only compute
-  spend we have. The back-fill needs a `sacct` pull from Tillicum, which is Duo-gated; the
-  control master was down when this was written. One command once it is up:
-  `python scripts/analysis/slurm_usage.py --cluster tillicum --since 2026-07-01 --save-raw docs/data/compute/sacct_tillicum_<date>.txt`.
-  Until then the $4.20 and $0.03 figures in [`tillicum.md`](tillicum.md) remain hand-transcribed.
+- **Tillicum is a snapshot as of 2026-09-21.** Nothing after that date is in the ledger; the
+  next Tillicum campaign needs another pull, with the same command and a new dated dump.
+  Nothing was RUNNING at the pull, so no row will be re-recorded.
 - **The window starts 2026-07-02.** The dump was pulled with `-S 2026-07-01` and its first
   record started 2026-07-02, so nothing here says whether older records exist on the account;
   it is only where this pull begins, not where RampNet's compute begins.

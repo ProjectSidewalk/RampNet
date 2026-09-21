@@ -1,0 +1,25 @@
+
+  * Billing cycle starts on the 26th of each month.
+  * Usage is counted by job END date.
+  * Costs are calculated by base rate x billable GPU hours,
+      where billable GPU hours = raw GPU hours x QOS multiplier x partition multiplier.
+  * Costs are rounded to nearest cent.
+
+[1mUsage Report for Account [36mmakelab[0m:
+Current Billing Cycle TOTAL Usage: 600.68 GPU hours, $540.61
+TOTAL Active Credits: $23.35
+  * $23.35 (no expiration)
+╭────────────────────────────────────────────────────╮
+│   Usage User Breakdown (2026-08-26 to 2026-09-21)  │
+├────────────────────────┬────────────┬──────────────┤
+│ USER                   │    JOBS    │  COST (USD)  │
+├────────────────────────┼────────────┼──────────────┤
+│ jfroehli               │         30 │      $540.61 │
+╰────────────────────────┴────────────┴──────────────╯
+╭──────────────────────────────────────────────────────────────────────────────╮
+│                             Budget Usage Summary                             │
+├──────────────┬─────────────────────┬────────┬─────────┬────────────┬─────────┤
+│ USER         │  USED/BUDGET (USD)  │ USED % │   TYPE  │     END    │ ENFORCE │
+├──────────────┼─────────────────────┼────────┼─────────┼────────────┼─────────┤
+│ makelab      │    540.61 / 1500.00 │    [32m36%[0m │ monthly │ 2026-09-25 │    true │
+╰──────────────┴─────────────────────┴────────┴─────────┴────────────┴─────────╯

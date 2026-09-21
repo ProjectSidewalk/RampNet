@@ -142,6 +142,13 @@ the numbers in this file were transcribed by hand, per job, when someone remembe
 `scripts/model_comparison/pricing.py`, which carries the rates below with their as-of
 dates. Run it after a job finishes; `sacct` retention is finite (#143).
 
+**Done for everything through 2026-09-21:** 38 allocations, **674.7 GPU-hours, $607.24**, of
+which $540.61 is the three Campaign A seed replicates and $66.62 was covered by the demo
+credit. The per-run table, the `hyakusage` reconciliation (exact, to the cent) and the
+committed dump are in [`compute_cost.md`](compute_cost.md#tillicum-6747-gpu-hours-60724-the-only-billed-compute).
+Dollar figures elsewhere in this file were written before or during those runs and are
+projections; that table is the record.
+
 ### `debug` is free — but the two cost tools disagree (measured 2026-07-31)
 
 The full QoS table, from `sacctmgr show qos`:
