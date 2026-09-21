@@ -123,8 +123,9 @@ monthly via ITBill to the lab's UW worktag. (**The worktag and subscription IDs 
 deliberately not recorded in this repo** — it is public. Ask Jon, or see the Tillicum
 provisioning email.)
 
-- **100 free GPU demo hours** on the new account (≈ $90). Whether these expire is
-  **UNVERIFIED**.
+- **100 free GPU demo hours** on the new account (≈ $90). They do not expire:
+  `hyakusage` lists the $23.35 remaining on 2026-09-21 as "(no expiration)"
+  (`docs/data/compute/hyakusage_tillicum_2026-09-21.txt`).
 - Budget requested 2026-07-30: **$1,500/month** ≈ **1,666 GPU-hours/month**.
 
 At that ceiling:

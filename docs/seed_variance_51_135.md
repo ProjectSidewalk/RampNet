@@ -321,9 +321,12 @@ replicates reached epoch 60** (`results.csv` has 60 rows for each; the as-saved 
 read at ≤ 60 epochs is reported above). The read at ≤ 44 is unaffected — it never depended
 on where the run stopped — but the cost did: measured from `sacct` on 2026-09-21, the three
 replicates took **225.2 / 195.5 / 180.1 GPU-h, $202.66 / $175.91 / $162.05**, $540.61 in
-all, against the ~$130 each projected below. The spread is chain overhead (the partial epoch
-in flight at each 24 h wall is redone from `last.pt`), not different training. The ledger
-row-by-row and the `hyakusage` reconciliation are in
+all (unrounded; the rounded dollar figures add to $540.62), against the ~$130 each projected
+below. The spread is mostly *not* restart overhead: from this directory's `results.csv`
+files, restarts account for 12.7 / 7.5 / 6.6 h, and the rest is blocks of epochs running at
+about 2.4× the common 2.9 h median (s1 epochs 1–3 and 44–49, s2 epochs 41–43, s3 none) —
+throughput stalls of unestablished cause, not different training. The ledger row-by-row,
+the decomposition and the `hyakusage` reconciliation are in
 [`compute_cost.md`](compute_cost.md#tillicum-6747-gpu-hours-60724-the-only-billed-compute).
 
 **Decision rule for #51**, on the sample SD `s` of the three Campaign A replicates.
@@ -530,7 +533,9 @@ hashes the same afternoon; the purge window never came into it. Scoring took 3 h
   response if the result lands in the ambiguous band. They are not being run up front.
   Cost per extra replicate, **measured** on the three that ran (2026-09-21 `sacct`, see
   [`compute_cost.md`](compute_cost.md#tillicum-6747-gpu-hours-60724-the-only-billed-compute)):
-  **$162 to $203, mean $180**, for a full 60-epoch run including chain restart overhead.
+  **modal ~180 GPU-h ≈ $162, with a stall tail up to $203** for a full 60-epoch run
+  including chain restart overhead (the s1 and s2 excess is blocks of ~2.4× slow epochs,
+  not restarts, so the mean $180 is not the number to plan on).
   The pre-registered projection here was ~$130 as launched (`CHAIN=5` capping the run at
   144 GPU-h ≈ ep48) or ~$119 if stopped at ep44; the chains ran ten slices, not six, and
   the runs went to epoch 60. Budget a fourth or fifth replicate at the measured figure, or
