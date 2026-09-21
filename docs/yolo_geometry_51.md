@@ -208,11 +208,25 @@ moved the headline four times further than any of this.
 
 ## Gaps, stated
 
-- **Only the `x` architecture is covered.** `y11l_tiles` (ep11) and `y26_tiles` (ep12) are far
-  too undertrained to compare, so this is a single-architecture read on geometry.
+- **Only the `x` architecture is covered.** `y11l_tiles` and `y26_tiles` are far too
+  undertrained to compare, so this is a single-architecture read on geometry. (Their
+  committed `results.csv` files end at epoch 9; the cluster copies had reached epochs 11
+  and 12 when this was written on 2026-08-30 — the counts in `run_durable_snapshot.slurm`'s
+  header — and those later epochs were never mirrored, so epoch 9 is the committed record.)
 - **ep44 vs ep38 is "roughly matched", not matched.** They are the epochs that exist.
 - **One seed per cell.** As with the rest of #51, seed variance is unmeasured, so differences
   below roughly 0.02 F1 should not be read.
+- **All three legs trained under the untuned default schedule and went through the warmup-LR
+  collapse (#72).** `y11x_tiles` fell from 0.678 val mAP@50 at epoch 1 to 0.078 at epoch 3 and
+  the `y11x_pano` lineage emitted no boxes at all for epochs 3–7; both recovered as the LR
+  decayed (`y11x_tiles` by epoch 5, `y11x_pano` by epoch 18), and the scored epochs (44, 38,
+  60) are far past the recovery. (The committed `y11x_tiles/results.csv` ends at epoch 21, so
+  epoch 44 is past the end of the committed curve, not inside it; epochs 38 and 60 are on the
+  committed 60-epoch `y11x_pano_h200` continuation.) No tuned schedule has
+  been run (#90, #70), so every YOLO figure on this page is a lower bound on what the recipe
+  reaches with a tuned LR/warmup. Per-run numbers and the pinning test:
+  `scripts/analysis/yolo_warmup_dip_72.py`; the caveat in full is in the
+  [training record](../scripts/model_comparison/yolo_baseline/README.md#the-caveat-that-travels-with-every-number-above-the-warmup-lr-collapse-72).
 - **Not re-scored:** `y11l_pano` and `y26_pano`, whose published numbers stand on the control
   above (the seam fix moved nothing for `y11x_pano_h200`, so it almost certainly moved nothing
   for them either — but that is an inference, not a measurement).
