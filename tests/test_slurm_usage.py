@@ -25,6 +25,32 @@ import gpu_hours_as_of as as_of_script  # noqa: E402
 from rampnet import ledger  # noqa: E402
 
 KLONE_DUMP = os.path.join(REPO_ROOT, "docs", "data", "compute", "sacct_klone_2026-08-19.txt")
+TILLICUM_DUMP = os.path.join(REPO_ROOT, "docs", "data", "compute",
+                             "sacct_tillicum_2026-09-21.txt")
+HYAKUSAGE_REPORT = os.path.join(REPO_ROOT, "docs", "data", "compute",
+                                "hyakusage_tillicum_2026-09-21.txt")
+
+
+def _hyakusage_figures():
+    """The billing figures as `hyakusage` printed them, parsed from the committed report
+    (which carries ANSI colour escapes and box-drawing characters; only these lines matter):
+
+        Current Billing Cycle TOTAL Usage: 600.68 GPU hours, $540.61
+        TOTAL Active Credits: $23.35
+        | Usage User Breakdown (2026-08-26 to 2026-09-21) |
+        | jfroehli | 30 | $540.61 |
+    """
+    import re
+    with open(HYAKUSAGE_REPORT, encoding="utf-8") as fh:
+        text = re.sub(r"\x1b\[[0-9;]*m", "", fh.read())
+    usage = re.search(r"TOTAL Usage: ([\d.]+) GPU hours, \$([\d.]+)", text)
+    credit = re.search(r"TOTAL Active Credits: \$([\d.]+)", text)
+    window = re.search(r"Usage User Breakdown \((\d{4}-\d{2}-\d{2}) to (\d{4}-\d{2}-\d{2})\)", text)
+    user = re.search(r"jfroehli\s*\S\s*(\d+)\s*\S\s*\$([\d.]+)", text)
+    return {"gpu_hours": float(usage.group(1)), "usd": float(usage.group(2)),
+            "credit": float(credit.group(1)), "cycle_start": window.group(1),
+            "cycle_end": window.group(2), "jobs": int(user.group(1)),
+            "user_usd": float(user.group(2))}
 
 
 def _line(job_id, name, cluster, part, qos, state, start, end, elapsed, tres,
@@ -316,26 +342,57 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
     """docs/compute_cost.md's numbers are claimed re-derivable from a clean clone.
     That is only true if the ledger is the dump's parse and nothing else: same
     rows, same order, differing only in the recorded_at stamp."""
+    # Two dumps, appended in this order: klone on 2026-08-19, Tillicum on 2026-09-21.
     with open(KLONE_DUMP, encoding="utf-8") as fh:
         parsed = parse_sacct(fh.read(), cluster="klone", user="jfroehli")
+    with open(TILLICUM_DUMP, encoding="utf-8") as fh:
+        parsed += parse_sacct(fh.read(), cluster="tillicum", user="jfroehli")
     committed = ledger.read_rows(os.path.join(REPO_ROOT, "analysis_out",
                                               "compute_log.jsonl"))
-    assert len(committed) == len(parsed) == 3990
+    assert len(committed) == len(parsed) == 3990 + 38
     for have, want in zip(committed, parsed):
         have = dict(have)
-        assert have.pop("recorded_at").startswith("2026-08-19T")
+        stamp = "2026-08-19T" if want["cluster"] == "klone" else "2026-09-21T"
+        assert have.pop("recorded_at").startswith(stamp)
         assert have == want
     # ...and the headline figures in the doc, from the ledger as committed.
     agg = summarize(committed)["klone"]
     assert agg["jobs"] == 3990 and round(agg["gpu_hours"], 1) == 2684.4
     assert agg["usd"] == 0.0 and agg["unpriced"] == 0
-    base = [r for r in committed if r["job_name"] == "yolo_curb_ramp_train"]
+    base = [r for r in committed
+            if r["cluster"] == "klone" and r["job_name"] == "yolo_curb_ramp_train"]
     assert len(base) == 3857 and round(sum(r["gpu_hours"] for r in base), 1) == 2046.9
     assert len({r["job_id"] for r in base}) == 27
     assert sum(r["state"].startswith("PREEMPTED") for r in committed) == 3780
     assert sum(r["state"] == "REQUEUED" for r in committed) == 59
     running = [r for r in committed if r["state"] == "RUNNING"]
     assert len(running) == 3 and round(sum(r["gpu_hours"] for r in running), 1) == 158.0
+    # Tillicum: the only billed compute. The rows that ended in the current billing
+    # cycle must sum to what `hyakusage` billed for that cycle, to the cent -- read from
+    # the committed report, not from a transcription of it.
+    till = summarize(committed)["tillicum"]
+    assert till["jobs"] == 38 and round(till["gpu_hours"], 2) == 674.74
+    assert round(till["usd"], 2) == 607.24 and till["unpriced"] == 0
+    bill = _hyakusage_figures()
+    cycle = [r for r in committed if r["cluster"] == "tillicum"
+             and r["end"] >= bill["cycle_start"]]
+    assert len(cycle) == bill["jobs"] == 30
+    assert round(sum(r["gpu_hours"] for r in cycle), 2) == bill["gpu_hours"] == 600.68
+    assert round(sum(r["est_cost_usd"] for r in cycle), 2) == bill["usd"] == 540.61
+    # The rows before that cycle were drawn from the $90 demo credit. This ledger prices
+    # the `debug` smoke job at Slurm's UsageFactor 0 while hyakusage charged it $0.03, so
+    # the credit arithmetic closes only once that one job is added back (compute_cost.md).
+    earlier = [r for r in committed if r["cluster"] == "tillicum"
+               and r["end"] < bill["cycle_start"]]
+    assert len(earlier) == 8
+    debug_hours = sum(r["gpu_hours"] for r in earlier if r["qos"] == "debug")
+    ledger_usd = sum(r["est_cost_usd"] for r in earlier)
+    assert round(ledger_usd, 2) == 66.62
+    assert round(90.00 - ledger_usd - round(debug_hours * 0.90, 2), 2) == bill["credit"] == 23.35
+    # Nothing on Tillicum was preempted or requeued: every allocation ran to its wall
+    # or completed, which is the property the cluster is paid for.
+    assert all(r["state"] in ("COMPLETED", "TIMEOUT", "FAILED")
+               for r in committed if r["cluster"] == "tillicum")
 
 
 def test_from_file_prints_the_dump_hash_and_the_doc_pins_the_committed_one(
@@ -357,6 +414,12 @@ def test_from_file_prints_the_dump_hash_and_the_doc_pins_the_committed_one(
     pinned = re.search(r"sha256\s+`([0-9a-f]{64})`", doc).group(1)
     assert pinned == digest
     assert f"({len(raw):,} bytes" in doc
+    # The Tillicum dump is pinned the same way, further down the same doc.
+    with open(TILLICUM_DUMP, "rb") as fh:
+        raw_t = fh.read()
+    digest_t = hashlib.sha256(raw_t).hexdigest()
+    assert digest_t in re.findall(r"sha256\s+`([0-9a-f]{64})`", doc)
+    assert f"({len(raw_t):,} bytes" in doc
     # The pin only holds if git never normalises the dump's line endings: a
     # core.autocrlf=true clone checks it out CRLF and the hash above fails for a
     # file that is byte-correct. So .gitattributes must mark it -text (or binary),
@@ -366,7 +429,14 @@ def test_from_file_prints_the_dump_hash_and_the_doc_pins_the_committed_one(
     pinned_patterns = {r[0] for r in rules if "-text" in r[1:] or "binary" in r[1:]}
     assert "docs/data/compute/*" in pinned_patterns
     assert "analysis_out/*.jsonl" in pinned_patterns
-    assert raw.count(b"\r\n") == 0          # ...and the dump on disk is LF
+    assert raw.count(b"\r\n") == 0          # ...and the dumps on disk are LF
+    assert raw_t.count(b"\r\n") == 0
+    # The hyakusage report is pinned too: it is the bill the Tillicum rows reconcile to.
+    with open(HYAKUSAGE_REPORT, "rb") as fh:
+        raw_h = fh.read()
+    assert raw_h.count(b"\r\n") == 0
+    assert hashlib.sha256(raw_h).hexdigest() in re.findall(r"sha256\s+`([0-9a-f]{64})`", doc)
+    assert f"({len(raw_h):,} bytes" in doc
 
 
 def test_the_compute_ledger_is_re_included_in_gitignore():

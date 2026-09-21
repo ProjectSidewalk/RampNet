@@ -123,8 +123,9 @@ monthly via ITBill to the lab's UW worktag. (**The worktag and subscription IDs 
 deliberately not recorded in this repo** — it is public. Ask Jon, or see the Tillicum
 provisioning email.)
 
-- **100 free GPU demo hours** on the new account (≈ $90). Whether these expire is
-  **UNVERIFIED**.
+- **100 free GPU demo hours** on the new account (≈ $90). They do not expire:
+  `hyakusage` lists the $23.35 remaining on 2026-09-21 as "(no expiration)"
+  (`docs/data/compute/hyakusage_tillicum_2026-09-21.txt`).
 - Budget requested 2026-07-30: **$1,500/month** ≈ **1,666 GPU-hours/month**.
 
 At that ceiling:
@@ -141,6 +142,13 @@ the numbers in this file were transcribed by hand, per job, when someone remembe
 `sacct` instead — GPU-hours and dollars per job, priced from `COMPUTE_PRICING` in
 `scripts/model_comparison/pricing.py`, which carries the rates below with their as-of
 dates. Run it after a job finishes; `sacct` retention is finite (#143).
+
+**Done for everything through 2026-09-21:** 38 allocations, **674.7 GPU-hours, $607.24**, of
+which $540.61 is the three Campaign A seed replicates and $66.62 was covered by the demo
+credit. The per-run table, the `hyakusage` reconciliation (exact, to the cent) and the
+committed dump are in [`compute_cost.md`](compute_cost.md#tillicum-6747-gpu-hours-60724-the-only-billed-compute).
+Dollar figures elsewhere in this file were written before or during those runs and are
+projections; that table is the record.
 
 ### `debug` is free — but the two cost tools disagree (measured 2026-07-31)
 

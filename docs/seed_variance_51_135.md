@@ -314,11 +314,20 @@ not always peak at the same epoch.
 
 Replicates are configured `epochs=60` so the LR curve is identical — a 44-epoch schedule
 is *not* the first 44 epochs of a 60-epoch one, and truncating the schedule instead of
-the run would have confounded the comparison. **They will not actually reach epoch 60**:
-`CHAIN=5` buys six 24 h slices = 144 GPU-h, which at 3.0 h/epoch is about 48 epochs
-before per-slice restart overhead. That is deliberate and costs nothing — the read is at
-≤ 44 — but the runs stop around ep48, not ep60, and the LR curve they follow up to that
-point is the 60-epoch one, which is the whole requirement.
+the run would have confounded the comparison. *As pre-registered, this paragraph went on to
+say they would not actually reach epoch 60 because `CHAIN=5` buys six 24 h slices (144 GPU-h,
+about 48 epochs).* **That is not what happened: each chain ran ten slices and all three
+replicates reached epoch 60** (`results.csv` has 60 rows for each; the as-saved `best.pt`
+read at ≤ 60 epochs is reported above). The read at ≤ 44 is unaffected — it never depended
+on where the run stopped — but the cost did: measured from `sacct` on 2026-09-21, the three
+replicates took **225.2 / 195.5 / 180.1 GPU-h, $202.66 / $175.91 / $162.05**, $540.61 in
+all (unrounded; the rounded dollar figures add to $540.62), against the ~$130 each projected
+below. The spread is mostly *not* restart overhead: from this directory's `results.csv`
+files, restarts account for 12.7 / 7.5 / 6.6 h, and the rest is blocks of epochs running at
+about 2.4× the common 2.9 h median (s1 epochs 1–3 and 44–49, s2 epochs 41–43, s3 none) —
+throughput stalls of unestablished cause, not different training. The ledger row-by-row,
+the decomposition and the `hyakusage` reconciliation are in
+[`compute_cost.md`](compute_cost.md#tillicum-6747-gpu-hours-60724-the-only-billed-compute).
 
 **Decision rule for #51**, on the sample SD `s` of the three Campaign A replicates.
 *(Kept verbatim as the pre-registration of record. The σ it divides by is corrected, and
@@ -522,11 +531,15 @@ hashes the same afternoon; the purge window never came into it. Scoring took 3 h
 - **n=3 gives a wide interval on the SD itself** — with 2 degrees of freedom the 95% CI
   on σ spans roughly 0.5σ̂ to 3.7σ̂. A fourth and fifth replicate are the pre-registered
   response if the result lands in the ambiguous band. They are not being run up front.
-  Cost per extra replicate at $0.90/GPU-hour and 3.0 h/epoch: **~$130** as launched
-  (`CHAIN=5` caps the run at 144 GPU-h ≈ ep48), or ~$119 if stopped at ep44, the last
-  epoch the reading uses. An earlier draft quoted $119 while also saying the replicates
-  run all 60 epochs; those two are inconsistent — 60 epochs would be 180 GPU-h ≈ $162,
-  and the chain does not buy that much wall-clock.
+  Cost per extra replicate, **measured** on the three that ran (2026-09-21 `sacct`, see
+  [`compute_cost.md`](compute_cost.md#tillicum-6747-gpu-hours-60724-the-only-billed-compute)):
+  **modal ~180 GPU-h ≈ $162, with a stall tail up to $203** for a full 60-epoch run
+  including chain restart overhead (the s1 and s2 excess is blocks of ~2.4× slow epochs,
+  not restarts, so the mean $180 is not the number to plan on).
+  The pre-registered projection here was ~$130 as launched (`CHAIN=5` capping the run at
+  144 GPU-h ≈ ep48) or ~$119 if stopped at ep44; the chains ran ten slices, not six, and
+  the runs went to epoch 60. Budget a fourth or fifth replicate at the measured figure, or
+  at ~$119 to ~$130 only if the chain is actually stopped at ep44.
   Extend the campaign with seeds **4, 5, …, never 0**: `sampler_seed_for(0)` collides
   with the published run's data order (`rampnet/seeding.py`).
 - **Campaign A's replicates are Tillicum H200; the existing `seed: 0` arm is klone
