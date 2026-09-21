@@ -99,7 +99,9 @@ first of those three capabilities and this report is about how far it got.
 ## 3. Related work, as of the paper and as of now
 
 The paper's review (§2 of arXiv:2508.09415) covers the prior curb-ramp detectors and the reasons
-none was usable at scale. In brief, as the paper states them:
+none was usable at scale. In brief, as the paper states them (the figures in this section are the
+paper's own §2 and are not re-derived anywhere in this repository; Tile2Net is Hosseini et al.,
+*Computers, Environment and Urban Systems* 2023):
 
 - **Tohme (Hara et al.)** combined crowdsourcing and computer vision to find curb ramps in GSV,
   reaching recall 67% and precision 26% against manual labels.
@@ -143,15 +145,19 @@ Three things, in decreasing order of how much they turned out to matter.
 
 **The data engine.** Stage 1 is the contribution. It converts a government point inventory into
 per-panorama pixel labels without a human in the loop, at 97.91% yield over the panoramas Google
-would serve, and its labels agree with hand labels at roughly 0.91 to 0.94 precision and 0.92
-recall. No other curb-ramp dataset of this size exists. The Stage 1 label recall, stratified by
-distance, is flatter than the detector's own recall (0.78 at 25 to 40 m against the model's 0.49),
-so the labels are not the ceiling the detector is hitting (`curb_ramp_data_sourcing.md` §0).
+would serve, and its labels agree with hand labels at 0.94 precision as published, at most 0.91 once redundant
+points count as false positives, and 0.92 recall. No other curb-ramp dataset of this size exists.
+The Stage 1 label recall, stratified by distance, is flatter than the detector's own recall (0.78
+at 25 to 40 m against the model's 0.49), so the labels are not the ceiling the detector is hitting
+(`curb_ramp_data_sourcing.md` §0). That is an in-distribution result: the gold set is drawn from
+the NYC/Portland/Bend test split, so it says nothing about the out-of-distribution failure
+vocabularies of §6.10.
 
 **Government coordinates as priors.** Stage 1 consumes the published coordinate only for its
 bearing from the panorama; range is computed and discarded. The tolerance is therefore angular,
 ±18.37°, and a coordinate error of 0.29 m (Denver) costs 0.25% of labels while 1.75 m (Seattle)
-costs 8.87% (`curb_ramp_data_sourcing.md` §5g). That is why "location precision" was the paper's
+costs 8.87% (`curb_ramp_data_sourcing.md` §5g for Denver's tolerance curve, §5l for Seattle's own
+measured loss; §5g's curve read at 1.74 m gives 16.5%, because it scales Denver's distribution). That is why "location precision" was the paper's
 gate for admitting a city, and why it remains the gate for scaling (§6.10). It is also the
 advantage no zero-shot model has: RampNet's training labels come from a source that knows where
 the ramps are.
@@ -181,8 +187,10 @@ Twenty percent of the final set is negative panoramas sampled from streets with 
 
 The output is 214,376 panoramas and 849,895 point labels, split 70/20/10 into 150,063 train,
 42,875 validation and 21,438 test panoramas, published as `projectsidewalk/rampnet-dataset`
-(463 GB). Two facts about it that the paper did not record: the run stopped at a disk-quota wall
-at about 214k panoramas, and 8,361 of its labels (0.98%) are seam duplicates, a ramp on the
+(463 GB). Two facts about it that the paper did not record: the run hit a storage wall at about
+214k panoramas, which cost no data (every quota-failed panorama completed on a later pass,
+`stage1_generation_cost.md`) but means a 2.0-scale corpus of roughly twice the size needs storage
+headroom first; and 8,361 of its labels (0.98%) are seam duplicates, a ramp on the
 panorama's wrap column labelled once on each edge (§6.7).
 
 ### 5.2 Stage 2: the detector
@@ -230,8 +238,8 @@ carry Wilson intervals; pooled numbers are macro-means over the pooled splits so
 counts once (`model_scoreboard.md`, "How to read this"; `model_comparison.md`, Methodology). Two
 properties of that ground truth matter for everything below. It was assembled from a RampNet
 review, so it is RampNet-anchored, and the size of that bias has been measured on every split
-(§6.4). And except for `manual_gold` and `laurens_mapillary` (whose reviewer confidence is HIGH),
-each split's rating rests on one reviewer.
+(§6.4). Every split's rating rests on one reviewer; `budapest_district5` is the only split where that
+reviewer rated their own pass low confidence.
 
 ### 5.5 Published artifacts
 
@@ -266,8 +274,10 @@ Pooled over the eight US city splits (`model_scoreboard.md`, "The board"):
 | OWLv2-large (0.05 floor) | open-vocab detector | 0.033 | 0.932 | 0.065 |
 | Grounding DINO (0.05 floor) | open-vocab detector | 0.028 | 0.848 | 0.053 |
 
-RampNet leads the best zero-shot model on every one of the twelve bundles, from 0.113 on
-`laurens_mapillary` to 0.340 on `manual_gold`. The lead holds on ground truth that never saw a
+RampNet leads the best zero-shot model on every one of the twelve bundles, from 0.114 on
+`laurens_mapillary` to 0.340 on `manual_gold`. That top figure is against
+`gemini-3.1-pro-preview`, the one cell in the comparison not re-derivable from a clean clone;
+against the best challenger that is, the `manual_gold` lead is 0.381. The lead holds on ground truth that never saw a
 RampNet review (`manual_gold`), on non-US imagery (`sao_paulo`, `budapest_district5`), and on
 the split whose rubric the reviewer distrusts (budapest). It is not a threshold artifact: chat
 VLMs have no confidence to threshold, and the open-vocabulary detectors are worse at every
@@ -277,7 +287,8 @@ Four things that qualify the ranking (`model_comparison.md`, Caveats and per-spl
 
 - **Ranking is robust, not invariant.** Qwen3-VL-32B falls below the smaller 8B model on four
   splits (budapest, paterson, gainesville, laurens_mapillary) by going nearly silent: 0.24 boxes
-  per panorama on budapest against 1.0 to 1.2 elsewhere. The mechanism is the larger model's
+  per panorama on budapest, below even its previous US floor of 0.6 (gainesville) and 0.9
+  (paterson). The mechanism is the larger model's
   caution on unfamiliar-looking infrastructure, and it replicates on HIGH-confidence US ground
   truth, so it is not a rubric dispute.
 - **Open-detector recall is mostly density.** Scoring richmond's ramps against OWLv2 boxes from a
@@ -293,7 +304,8 @@ Four things that qualify the ranking (`model_comparison.md`, Caveats and per-spl
 - **The prompt is fixed and Gemini-derived**, the challengers see perspective reprojections of a
   panorama they were not trained on, and a single-split margin under about 0.09 F1 between two
   models should be treated as unresolved until pooled; Opus's annapolis lead over Gemini Pro
-  reversed on the other seven splits.
+  did not survive pooling: the two trade wins four apiece on the eight pooled splits and the
+  pooled gap is −0.007.
 
 The honest one-line version, from `model_comparison.md`: an in-domain model trained for curb
 ramps beats zero-shot general models, chat VLMs and open-vocabulary detectors alike, under a
@@ -330,7 +342,9 @@ The replicated gap of 0.016 F1 has a Welch 95% CI of [0.008, 0.024]: it excludes
 excludes 0.039. RampNet still wins on recall (0.797 vs 0.749 at parity) at similar precision, and
 its precision-recall curve dominates over the whole range (AP 0.849 vs 0.773). On the
 in-distribution gold set the two are level or YOLO is ahead: 0.911 ± 0.001 (n=3) against
-0.905 ± 0.003 (n=9) at matched thresholds, and YOLO11x has the higher AP there (0.931 vs 0.917).
+0.905 ± 0.003 (n=9) at matched thresholds. Separately, the whole-panorama `y11x_pano_h200` arm
+has the higher `manual_gold` AP, 0.931 against RampNet's 0.917 (`model_scoreboard.md`,
+"In-distribution vs deployed"); the tiles arm has no committed `manual_gold` AP.
 
 Caveats that travel with this: every YOLO arm ran Ultralytics' untuned default schedule and lost
 its validation mAP during warmup before recovering ([#72](https://github.com/ProjectSidewalk/RampNet/issues/72)),
@@ -349,8 +363,8 @@ replicate SD on pooled US7 F1 is `s_B` = 0.0094 (n=9, 95% CI [0.0064, 0.0180]); 
 the paired epoch-to-epoch minimum detectable effect on the gold set (0.0063,
 `stage2_run_b_power_135.md`), every unpaired single-checkpoint comparison in this repository, the
 epoch curve read across runs, the cosine rung, any published number against any other, is limited
-by seed variance and not by the benchmark. Differences under about 0.01 F1 between single runs
-should not be read (`seed_variance_51_135.md`, A1.2).
+by seed variance and not by the benchmark. The limit is `s_B` = 0.0094 (`seed_variance_51_135.md`, A1.2); in practice, single-run
+differences of that order should not be read.
 
 ### 6.4 In-distribution versus deployed, and what the ground truth is worth
 
@@ -381,10 +395,13 @@ The deployed threshold of 0.55 was set for precision and was never swept downwar
 the seven US splits, with the ground-truth completeness correction applied
 (`operating_point.md`):
 
-| threshold | P (corrected) | R (corrected) | F1 | detections / pano |
+| threshold | P | R | F1 | detections / pano |
 |---|--:|--:|--:|--:|
 | 0.55 (deployed) | 0.964 | 0.722 | 0.826 | 1.86 |
 | **0.30 (recommended)** | 0.919 | 0.796 | 0.853 | 2.23 |
+
+The 0.30 row is corrected for ground-truth completeness; no correction applies at 0.55, where
+the incremental band is empty by construction (`operating_point.md`).
 
 That is +7.4 recall for −4.5 precision at 0.37 more detections per panorama. Clovis is the
 binding split, at corrected precision 0.883. The gain is uniform across distance, so it stacks
@@ -427,7 +444,9 @@ Of the 128 silent misses, only 10 (8%) have a flat heatmap; 62% sit in the tail 
 confident mode and 30% show a faint response on site. Far-field failure is graded sensitivity,
 not a cliff: the model detects other far ramps of the same apparent size as its silent misses at a
 median 57% rate. The population a broader training corpus could reach, chance-corrected, is about
-0.013 recall points (bracket 0.009 to 0.022), against the 0.087 first estimated. The levers this
+0.013 recall points (bracket 0.009 to 0.022), against the 0.087 first estimated; the source
+holds that point estimate deliberately unrevised until its Phase 2 and Phase 3 run, so it is
+provisional. The levers this
 points to are decoder-side: the σ of the training target (78 of 124 merged pairs sit above the
 peak extractor's minimum spacing), threshold calibration, and multi-view, which re-presents a far
 ramp near-field. It does not point to vocabulary.
@@ -435,7 +454,8 @@ ramp near-field. It does not point to vocabulary.
 ### 6.7 The 360° seam
 
 A panorama wraps, and several things in the codebase measured horizontal distance without
-wrapping (`seam.md`, [#132](https://github.com/ProjectSidewalk/RampNet/issues/132)). Three real
+wrapping (`seam.md`, [#132](https://github.com/ProjectSidewalk/RampNet/issues/132), whose title
+still states the retracted claim). Three real
 defects were found and are stated with their status:
 
 - **The scorer.** Matching and cached-peak extraction did not wrap. Fixed (`eccadda`, `f4c71c8`);
@@ -463,7 +483,8 @@ not the reason it does not compete (`model_comparison.md`, "Supervised transfer"
 [#126](https://github.com/ProjectSidewalk/RampNet/issues/126)). Two things about it matter for
 2.0. It out-recalls RampNet (0.884 vs 0.768 at 0.55), and after re-basing RampNet at 0.30 and
 discounting chance it finds about 30 of the 53 ramps RampNet misses on that split. And a naive
-union is dead: F1 0.555, about 8.2 false positives per recovered ramp. A confidence-gated cascade,
+union is dead: F1 0.549 against RampNet's 0.864 at that operating point (0.555 at 0.55), about
+8.2 false positives per recovered ramp at 0.55. A confidence-gated cascade,
 promoting RampNet's sub-threshold peaks where the challenger also fires, has a measured ceiling of
 about 19 ramps (+6.1 recall points) and an unmeasured false-positive cost. RampNet's own heatmap
 mass does not predict which misses are recoverable, so there is no self-gating shortcut. This is
@@ -500,10 +521,13 @@ answer (`curb_ramp_data_sourcing.md`):
   assessment: a basemap hunt, a 60-chip sheet, and an hour of a reviewer per city, with up to 42%
   of chips unjudgeable under tree canopy.
 - **The gate works and has been applied.** Denver's coordinates are Good (median offset 0.29 m,
-  92% within 1 m). Charlotte's are 0.52 m and pass on Stage 1's angular tolerance; dropping its
-  undated records cuts label loss from 2.45% to 0.77%, a rule that does not transfer to Seattle.
-  Seattle's Poor rating is confirmed and attributed: genuinely imprecise at 1.75 m, no
-  registration shift. San Francisco publishes intersection centroids and is unusable.
+  92% within 1 m; a lower bound below the imagery's own registration residual, to be read with
+  §5a of the source, and against our threshold rather than the paper's). Charlotte's are 0.52 m
+  and pass on Stage 1's angular tolerance; dropping its undated records cuts label loss from
+  2.45% to 0.77%, a rule that did not show an effect in Seattle, where the test is underpowered
+  for a moderate one (power 0.31 at 1.0 m). Seattle's Poor rating is confirmed and attributed:
+  genuinely imprecise at 1.75 m, no registration shift; the 34 measured offsets are un-treed
+  corners, so that median is a best-case read at MEDIUM reviewer confidence. San Francisco publishes intersection centroids and is unusable.
 - **Stage 1's tolerance is angular.** The pipeline uses only the bearing, so metric error is
   absorbed in proportion to range: 1 m at 3 m, 6.6 m at 20 m. The "90% within 1 m" bar first
   proposed was far too strict; the cost curve is what to read.
@@ -600,7 +624,8 @@ Things this report states as caveats rather than resolves:
 - **The 0.30 operating point is tuned on the benchmark** and has no held-out validation.
 - **Two Laurens bundles are not yet on the Hub**, and the review notes and Bend overlap flag are
   not yet in the published benchmark ([#127](https://github.com/ProjectSidewalk/RampNet/issues/127)).
-- **The paper's own runs and every billed cluster job are absent from the compute ledger** (§10).
+- **The paper's own runs are absent from the compute ledger**, and 535.8 of the cosine rung's
+  560.9 GPU-h are recorded in its doc only (§10).
 
 ## 9. RampNet 2.0
 
@@ -658,12 +683,12 @@ and GPU-hours are the facts (`compute_cost.md`, `stage1_generation_cost.md`,
 |---|---|---|
 | Paper Stage 1 generation | ≥ 49 h wall-clock, 97.91% yield, ≤ 4,370 panoramas/h | $0 (klone) |
 | Paper Stage 2 training | ~12 epochs at ~56 GPU-h/epoch; 44.7 h compute over 74.6 h calendar, 15 preemptions | $0 (klone) |
-| Everything on klone since 2026-07-02 | 2,684.4 GPU-h across 3,990 allocations (YOLO baseline 2,046.9; Run A 528.6); 95% preempted | $0 |
-| Cosine rung | 560.9 GPU-h, 21 restarts (doc only, not in the ledger) | $0 |
+| Everything on klone since 2026-07-02 | 2,684.4 GPU-h across 3,990 allocations (YOLO baseline 2,046.9; Run A 528.6); 95% preempted. A 2026-08-19 snapshot: 158.0 h of it is still-running elapsed, and 34.3 h belongs to other projects, so the RampNet-only total is 2,650.0 | $0 |
+| Cosine rung | 560.9 GPU-h, 21 restarts; one 25.1 GPU-h incarnation is in the ledger, the other 535.8 are in its doc only because the dump predates the run's end | $0 |
 | Paid API legs (log from 2026-08-18) | 22 rows | $131.45, of which $70.10 recovered from billing telemetry for an eight-split Opus leg that wrote no row |
 | Claude on annapolis, the four original legs (2026-08-15) | | $28.82 from console output, **not in the ledger** (only a $0.03 re-run is); Cloud Monitoring puts it at $29.26, within 1.5%. Paid API spend is therefore about $160 across both records |
 | Claude Fable 5 / 5.1 on annapolis (in the $131.45) | | $19.23 / $20.67 |
-| Tillicum (billed, $0.90/GPU-h) | 674.7 GPU-h across 38 allocations, 2026-07-30 to 09-14: three YOLO seed replicates at 225.2 / 195.5 / 180.1 GPU-h (all 60 epochs), the `y11x_pano_h200` arm 62.4, the throughput probe 7.0, data prep 4.7 | **$607.24**, reconciled to `hyakusage` to the cent; $540.61 of it is the replicates (~$180 each, not the ~$130 projected), $66.62 came from the demo credit. Back-filled 2026-09-21 in [#170](https://github.com/ProjectSidewalk/RampNet/pull/170) |
+| Tillicum (billed, $0.90/GPU-h) | 674.7 GPU-h across 38 allocations, 2026-07-30 to 09-14: three YOLO seed replicates at 225.2 / 195.5 / 180.1 GPU-h (all 60 epochs), the `y11x_pano_h200` arm 62.4, the throughput probe 7.0, data prep 4.7 | **$607.24**, reconciled to `hyakusage` to the cent; $540.61 of it is the replicates ($162 to $203 each, modal $162 with a stall tail, not the ~$130 projected), $66.62 came from the demo credit. Back-filled 2026-09-21 in [#170](https://github.com/ProjectSidewalk/RampNet/pull/170) |
 
 Two lessons are worth more than the totals. `sacct -D` recovers 4.35× the GPU-hours plain
 `sacct` reports on a preemptible partition, so a ledger built without it under-counts by that
