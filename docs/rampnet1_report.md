@@ -661,9 +661,9 @@ and GPU-hours are the facts (`compute_cost.md`, `stage1_generation_cost.md`,
 | Everything on klone since 2026-07-02 | 2,684.4 GPU-h across 3,990 allocations (YOLO baseline 2,046.9; Run A 528.6); 95% preempted | $0 |
 | Cosine rung | 560.9 GPU-h, 21 restarts (doc only, not in the ledger) | $0 |
 | Paid API legs (log from 2026-08-18) | 22 rows | $131.45, of which $70.10 recovered from billing telemetry for an eight-split Opus leg that wrote no row |
-| Claude on annapolis, four legs | | $28.82 (reconciled to billing within 1.5%) |
-| Claude Fable 5 / 5.1 on annapolis | | $19.23 / $20.67 |
-| Tillicum (billed, $0.90/GPU-h) | 4.7 GPU-h recorded; three YOLO seed replicates ~144 GPU-h each projected | $4.23 recorded; ~$130 per replicate projected, no committed bill |
+| Claude on annapolis, the four original legs (2026-08-15) | | $28.82 from console output, **not in the ledger** (only a $0.03 re-run is); Cloud Monitoring puts it at $29.26, within 1.5%. Paid API spend is therefore about $160 across both records |
+| Claude Fable 5 / 5.1 on annapolis (in the $131.45) | | $19.23 / $20.67 |
+| Tillicum (billed, $0.90/GPU-h) | 674.7 GPU-h across 38 allocations, 2026-07-30 to 09-14: three YOLO seed replicates at 225.2 / 195.5 / 180.1 GPU-h (all 60 epochs), the `y11x_pano_h200` arm 62.4, the throughput probe 7.0, data prep 4.7 | **$607.24**, reconciled to `hyakusage` to the cent; $540.61 of it is the replicates (~$180 each, not the ~$130 projected), $66.62 came from the demo credit. Back-filled 2026-09-21 in [#170](https://github.com/ProjectSidewalk/RampNet/pull/170) |
 
 Two lessons are worth more than the totals. `sacct -D` recovers 4.35× the GPU-hours plain
 `sacct` reports on a preemptible partition, so a ledger built without it under-counts by that
