@@ -1,0 +1,19 @@
+richmond complementarity — rampnet vs mask2former-vistas-curb-cut  (124 recall-eligible panos, 310 GT ramps)
+
+  rampnet            recall 0.768   (238/310)
+  mask2former-vistas recall 0.884   (274/310)
+  ORACLE-UNION recall 0.942   (292/310)   <- ceiling if you could keep every right call
+
+  found by BOTH         220  (71.0%)
+  rampnet        ONLY     18  (5.8%)
+  mask2former-vi ONLY     54  (17.4%)   <- complementary gain (rampnet-miss n challenger-hit)
+  found by NEITHER       18  (5.8%)   <- hard misses, no model helps
+
+  Union recall lift over rampnet:  +0.174  (54 ramps)
+  Of rampnet's 72 misses, mask2former-vistas-curb-cut recovers 54 (75%); 18 nobody finds
+    null (same boxes, wrong pano): 0.143 => ~10 of those 54 are coincidence, ~44 attributable  (worst shift 0.333)
+
+  FP cost on these panos:  rampnet 9  |  mask2former-vistas-curb-cut 442   (a naive union pays ~both)
+  rampnet alone:  P 0.964  R 0.768  F1 0.855
+  NAIVE UNION:    P 0.393  R 0.942  F1 0.555   <- precision is a lower bound (no FP dedup)
+  => a naive union LOSES TO rampnet alone on F1 (0.555 vs 0.855)

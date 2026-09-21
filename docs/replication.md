@@ -21,7 +21,7 @@ lives on one machine.
 | `benchmark/miss_taxonomy_46/*.json` (human verdicts) | small | **committed** | ✅ |
 | RampNet model weights | — | HF `projectsidewalk/rampnet-model` | ✅ |
 | Stage 1 dataset | **463 GB** (test split ~44 GB) | HF `projectsidewalk/rampnet-dataset` | ✅ |
-| `benchmark/model_detections/` (challenger detections) | 25.3 MB (148 files) | **committed** ✅ | ✅ |
+| `benchmark/model_detections/` (challenger detections) | 25.3 MB (149 files) + one replicate under `replicates/` | **committed** ✅ | ✅ |
 | **`location_data/` (the paper's government inventories)** | 71.8 MB | **committed** ✅ | ✅ |
 | **`street_data/` derivative (what the pipeline actually reads)** | 18.7 MB | **committed** ✅ | ✅ |
 | `street_data/` raw downloads (NY file alone is 669 MB) | 801 MB | git-ignored; HF #21 pending | ⚠️ superseded by the derivative |
@@ -42,7 +42,7 @@ in this sentence — the list here was one of the things that drifted.
 single-panorama shards keyed by an opaque SHA-1 of (label, signature, city, pano), unreadable
 without reconstructing detector signatures. `scripts/analysis/export_model_cache.py` consolidates
 it into human-readable files, one per (model, split), keyed by panorama id with the detector
-signature recorded inside. As of 2026-09-17 that is **148 files, 25.3 MB**, and every one of
+signature recorded inside. As of 2026-09-20 that is **149 files, 25.3 MB**, and every one of
 them belongs to a registered leg:
 
 | what | files | where it is written up |
@@ -54,9 +54,25 @@ them belongs to a registered leg:
 | the other three Vertex Claude legs, annapolis only (#122) | 3 | [`model_comparison.md` §Claude](model_comparison.md) |
 | the two Fable legs, annapolis only, served on Anthropic's first-party API (#156) | 2 | [`model_comparison.md` §Claude Fable on annapolis](model_comparison.md) |
 | the two Mapillary Vistas class-set arms, richmond only (#126) | 2 | [`model_comparison.md` §Vistas](model_comparison.md) |
+| the Vistas curb-cut arm at 1024×1024 input — the resolution-parity leg, richmond only (#126, #137; re-run and published under #163) | 1 | [`model_comparison.md` §Resolution parity](model_comparison.md) |
 
 `rampnet` is a row in every results table and has no file here: it is read from each bundle's
 committed `records.jsonl` and carries no detector signature.
+
+One more file sits outside that count, on purpose:
+`benchmark/model_detections/replicates/makelab2-a40-2026-09-20/mask2former-vistas-curb-cut__richmond.json`
+is a **replicate**, not a leg — the published 384×384 Vistas arm run again on makelab2's A40 in
+the parity run's environment, at the *same* signature and cache key, so that the parity delta
+can be attributed to input size rather than to the host (#163). A replicate cannot be a roster
+leg (nothing in its signature distinguishes it), so `rampnet/roster.py` registers it in
+`REPLICATES` and it publishes under its tag's directory via `export_model_cache.py --replicate
+<tag>`, which derives the path from the registry (a typed `--out` used to be able to land it on
+the very file it replicates, since the two share a signature — the exporter now refuses that);
+`tests/test_roster.py` checks that every replicate directory is registered and holds exactly the
+registered files, and that each replicate file carries the same header as the file it
+replicates. The canonical-form and provenance checks below cover the replicate file too. The 1024 leg and the
+replicate were exported and `--verify`-ed against the cache that produced them on 2026-09-20;
+the exact commands are in [`model_comparison.md` §Resolution parity](model_comparison.md).
 
 Every one of those files is in **canonical form** — byte-identical to what
 `export_model_cache.py` would write today — which is the difference between a corpus that

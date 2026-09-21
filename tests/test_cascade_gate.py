@@ -11,12 +11,16 @@ to a committed run's ``sites`` reproduces that run's ``cells`` exactly — which
 pins which *subset* each figure is a median of, the thing a hand-copied number gets
 wrong (the cell's ``act_median`` is not the no-peak rows' median).
 
-The parity (1024x1024) detections behind those two artifacts are not published, so a
-clean clone cannot regenerate these files. It can still check them against themselves,
-which is what the second half of this file does — including what the "no floor peak in
-radius" row *is*: the committed ``op_cache`` says where each such site's nearest peak
-sits and whether the matcher already gave it to a neighbour, and the doc's reading of
-that row is pinned to those columns here.
+The parity (1024x1024) detections behind those two artifacts are published since #163
+(``benchmark/model_detections/mask2former-vistas-curb-cut-1024x1024__richmond.json``),
+and both artifacts were regenerated from them on 2026-09-20 -- the partition, every
+heatmap-derived per-site column and every cell count came back identical to the
+2026-08-18 originals, and only the null columns moved, as the per-site seeding
+predicted. A clean clone still cannot regenerate them without a GPU and the native-res
+panoramas, so the second half of this file checks them against themselves — including
+what the "no floor peak in radius" row *is*: the committed ``op_cache`` says where each
+such site's nearest peak sits and whether the matcher already gave it to a neighbour,
+and the doc's reading of that row is pinned to those columns here.
 """
 import json
 import os
@@ -304,12 +308,18 @@ def test_the_two_artifacts_partition_the_same_310_richmond_ramps():
         assert payload["skipped_sites"] == 0
 
 
-def test_only_the_op030_artifact_records_the_threshold_key():
-    # cascade_gate.json was written before --rampnet-op-threshold entered the payload,
-    # so a regeneration would add "rampnet_op_threshold": null and change its bytes
-    # even with identical results. Stated in docs/model_comparison.md beside it.
-    assert "rampnet_op_threshold" not in _payload(SHIPPED)
-    assert _payload(OP030)["rampnet_op_threshold"] == 0.3
+def test_both_artifacts_record_the_threshold_key_and_the_current_envelope():
+    # Until #163 cascade_gate.json predated --rampnet-op-threshold entering the payload
+    # and lacked the key; both files were regenerated on 2026-09-20 from the published
+    # parity detections, so both now carry the full current envelope. Stated in
+    # docs/model_comparison.md beside them.
+    shipped, op030 = _payload(SHIPPED), _payload(OP030)
+    assert shipped["rampnet_op_threshold"] is None
+    assert op030["rampnet_op_threshold"] == 0.3
+    for payload in (shipped, op030):
+        assert payload["null_rng"] == "per-site"
+        assert payload["panos_without_floor_peaks"] == 0
+        assert all("nearest_peak_claimed" in s for s in payload["sites"])
 
 
 def test_the_cascade_ceiling_is_nineteen_promotable_ramps():
@@ -419,25 +429,30 @@ def test_the_seam_site_in_the_recovered_cell_has_a_peak_the_op_cache_lacks():
     assert site["act"] > 0.9 and site["center"] > 0.7 and site["argmax_off_px"] < 10
 
 
-def test_the_committed_nulls_came_from_one_stream_and_say_so():
-    # Both artifacts predate site_rng: their nulls were drawn from one stream in pano
-    # order, so a site carries a different draw in each file (43 of the 53 sites with
-    # a null in both differ, by up to 0.075) while act and nearest_peak_px agree on
-    # every one. A regeneration with per-site seeding moves those values without any
-    # change in the heatmap, which is why neither file records "null_rng".
+def test_the_committed_nulls_are_seeded_per_site_and_agree_across_the_two_files():
+    # Before #163 both artifacts predated site_rng: their nulls were drawn from one
+    # stream in pano order, so a site carried a different draw in each file (43 of the
+    # 53 sites with a null in both differed, by up to 0.075). Regenerated with per-site
+    # seeding on 2026-09-20, a site's null no longer depends on which sites came before
+    # it, so the 53 sites that carry a null in both files now agree on every one -- as
+    # act and nearest_peak_px always did. The regeneration moved the two null medians
+    # the doc quotes (challenger_only 0.88 -> 0.865, neither 0.925 -> 0.905 at
+    # rampnet@0.30) and nothing else: docs/model_comparison.md, "A negative worth
+    # recording".
     shipped, op030 = _payload(SHIPPED), _payload(OP030)
-    assert "null_rng" not in shipped and "null_rng" not in op030
     key = lambda s: (s["pano"], s["x"], s["y"])  # noqa: E731
     a = {key(s): s for s in shipped["sites"]}
     both = [(a[key(s)], s) for s in op030["sites"]
             if key(s) in a and a[key(s)]["null_pct"] is not None
             and s["null_pct"] is not None]
     assert len(both) == 53
-    differ = [(x, y) for x, y in both if x["null_pct"] != y["null_pct"]]
-    assert len(differ) == 43
-    assert max(abs(x["null_pct"] - y["null_pct"]) for x, y in differ) == pytest.approx(0.075)
+    assert all(x["null_pct"] == y["null_pct"] and x["null_med"] == y["null_med"]
+               and x["null_p95"] == y["null_p95"] for x, y in both)
     assert all(x["act"] == y["act"] and x["nearest_peak_px"] == y["nearest_peak_px"]
                for x, y in both)
+    cells = {c["cell"]: c for c in op030["cells"]}
+    assert cells["challenger_only"]["null_pct_median"] == 0.865
+    assert cells["neither"]["null_pct_median"] == 0.905
 
 
 def test_moving_to_the_recommended_threshold_takes_sixteen_from_the_recovered_cell():

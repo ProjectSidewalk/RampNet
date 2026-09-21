@@ -121,3 +121,11 @@ statements and only one is safe to put in a paper.
   ~56 GPU-hours per epoch, ~12 epochs.
 - **Retention is finite.** `sacct` keeps job records for a while and then does not. This
   back-fill was possible in August 2026; the same query in 2027 will return less.
+- **GPU time on a host without Slurm is not in this ledger, by design.** makelab2 (the lab's
+  A40) has no `sacct`, and `compute_log.jsonl` is asserted equal to the `sacct` dump's parse, so
+  a row for it cannot go here. It goes in `analysis_out/usage_log.jsonl` instead, the same
+  append-only ledger the paid API legs use, as a `paid: false` row with the host, GPU and
+  `elapsed_s`. The two #163 Vistas re-runs are the example: 237.153 s and 191.318 s on
+  makelab2, recorded there and quoted, with the per-stage breakdown, in the cost paragraph of
+  [`model_comparison.md` §Resolution parity](model_comparison.md). At $0 it changes no total,
+  but a reader who starts here should not conclude the time went unrecorded.

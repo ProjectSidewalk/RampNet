@@ -50,6 +50,12 @@ RSQ = radius_sq_for()
 R_NORM = RSQ ** 0.5 / PANO_SCALE_X          # match radius in normalized x, ~0.022
 PUBLISHED = os.path.join(REPO, "benchmark", "model_detections",
                          "mask2former-vistas-curb-cut__richmond.json")
+PARITY = os.path.join(REPO, "benchmark", "model_detections",
+                      "mask2former-vistas-curb-cut-1024x1024__richmond.json")
+# The same-environment 384 control (#163): a REPLICATE of PUBLISHED, so the same
+# signature and cache key, published under its registered tag's directory.
+CONTROL = os.path.join(REPO, "benchmark", "model_detections", "replicates",
+                       "makelab2-a40-2026-09-20", "mask2former-vistas-curb-cut__richmond.json")
 
 
 def _args(**kw):
@@ -296,8 +302,8 @@ def test_the_null_averages_over_every_non_identity_shift():
 # --------------------------------------------------------------------------- #
 # regression — the published 384 richmond column, read from committed files only
 # --------------------------------------------------------------------------- #
-def _published_cells(tmp_path, rampnet_op_threshold=None):
-    """The four cells for the published Vistas 384 arm on richmond.
+def _published_cells(tmp_path, rampnet_op_threshold=None, path=PUBLISHED, **overrides):
+    """The four cells for a published Vistas arm on richmond (384 by default).
 
     Rebuilds a ``.model_cache``-shaped directory from the published export and reads it
     back through ``DetectionCache``/``cache_key``, i.e. the path the script itself
@@ -306,13 +312,14 @@ def _published_cells(tmp_path, rampnet_op_threshold=None):
     the script's own ``partition_cells``, not a copy of it, so the threshold filter
     and the op_cache fallback are under test here too.
     """
-    published = json.load(open(PUBLISHED, encoding="utf-8"))
+    published = json.load(open(path, encoding="utf-8"))
     cache = DetectionCache(str(tmp_path / "cache"))
     for pid, points in published["detections"].items():
         cache.put(cache_key(published["model"], published["signature"],
                             published["city"], pid), points)
 
-    label, det = build_detector("vistas", "curb-cut", {}, cx.compare_args(_args()))
+    label, det = build_detector("vistas", "curb-cut", {},
+                                cx.compare_args(_args(**overrides)))
     sig = det.signature()
     records, verdicts, _ = load_bundle(os.path.join(REPO, "benchmark", "richmond"))
     floor = (cx.load_floor_peaks("richmond") if rampnet_op_threshold is not None
@@ -349,3 +356,71 @@ def test_the_384_column_at_the_two_op_cache_thresholds_reproduces(tmp_path):
                                                 "challenger_only": 14, "neither": 39}
     assert _published_cells(tmp_path, 0.05) == {"both": 213, "rampnet_only": 66,
                                                 "challenger_only": 3, "neither": 28}
+
+
+# --------------------------------------------------------------------------- #
+# regression — the published 1024 (parity) richmond column, committed since #163
+# --------------------------------------------------------------------------- #
+def _parity_cells(tmp_path, rampnet_op_threshold=None):
+    """Same path as ``_published_cells``, addressed with the parity pin: the lookup
+    only succeeds if ``--vistas-input-size 1024 1024`` rebuilds the signature the
+    parity export records, which is what selects this arm over the 384 one."""
+    return _published_cells(tmp_path, rampnet_op_threshold, path=PARITY,
+                            vistas_input_size=[1024, 1024])
+
+
+def test_the_parity_1024_column_reproduces(tmp_path):
+    # docs/model_comparison.md, "Complementarity" table, the vistas @1024 column, and
+    # the cells of analysis_out/cascade_gate.json. Until #163 this column rested on
+    # the table alone; the detections are published now, so a clean clone checks it.
+    assert _parity_cells(tmp_path) == {"both": 220, "rampnet_only": 18,
+                                       "challenger_only": 54, "neither": 18}
+
+
+def test_the_parity_column_at_the_recommended_point_reproduces(tmp_path):
+    # The operating-point-correction table: rampnet re-sourced from the op_cache at
+    # 0.30, so 16 of the 54 recovered ramps are ones RampNet already has (54 -> 38),
+    # and the cells of analysis_out/cascade_gate_op030.json.
+    assert _parity_cells(tmp_path, 0.30) == {"both": 236, "rampnet_only": 21,
+                                             "challenger_only": 38, "neither": 15}
+
+
+def test_the_parity_column_adds_up_to_its_published_row(tmp_path):
+    counts = _parity_cells(tmp_path)
+    assert sum(counts.values()) == 310
+    assert counts["challenger_only"] + counts["neither"] == 72          # rampnet's misses
+    assert counts["both"] + counts["challenger_only"] == 274            # recall 0.884
+
+
+def test_the_same_env_384_control_reproduces_its_column(tmp_path):
+    """docs/model_comparison.md, "Complementarity": the makelab2 A40 re-run of the
+    384 arm reads 194 / 44 / 21 / 51 -- the known one-ramp shift against the
+    published 194 / 44 / 22 / 50 -- and it is addressed with NO pin, because a
+    replicate has the published file's signature (#163). Pinned here so the
+    control's numbers are checked by CI rather than only quoted (PR #167 m3b)."""
+    assert _published_cells(tmp_path, path=CONTROL) == {
+        "both": 194, "rampnet_only": 44, "challenger_only": 21, "neither": 51}
+    counts = _published_cells(tmp_path, path=CONTROL)
+    assert sum(counts.values()) == 310
+    assert counts["both"] + counts["challenger_only"] == 215                # tp 215
+
+
+def test_the_parity_file_is_the_pinned_leg_and_the_384_file_is_not(tmp_path):
+    # The two files share model and label; the parity one carries the input_size
+    # key and the 384 one does not, which is the whole naming argument in #163.
+    published = json.load(open(PUBLISHED, encoding="utf-8"))
+    parity = json.load(open(PARITY, encoding="utf-8"))
+    assert parity["model"] == published["model"] == "mask2former-vistas-curb-cut"
+    assert parity["published_as"] == "mask2former-vistas-curb-cut-1024x1024"
+    assert parity["signature"]["input_size"] == [1024, 1024]
+    assert "input_size" not in published["signature"]
+    assert parity["pins"] == {"vistas_input_size": [1024, 1024]}
+    # ...and addressing the parity file at the 384 signature finds nothing.
+    cache = DetectionCache(str(tmp_path / "cache"))
+    for pid, points in parity["detections"].items():
+        cache.put(cache_key(parity["model"], parity["signature"], parity["city"], pid),
+                  points)
+    label, det = build_detector("vistas", "curb-cut", {}, cx.compare_args(_args()))
+    assert cache.get(cache_key(label, det.signature(), "richmond",
+                               next(iter(parity["detections"])))) is None
+

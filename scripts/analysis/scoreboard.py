@@ -201,6 +201,8 @@ DISPLAY = {
     "claude-fable-5-1-effort-low-anthropic": "Claude Fable 5.1 (low, anthropic)",
     "mask2former-vistas-curb-cut": "Mask2Former Vistas (curb cut)",
     "mask2former-vistas-curb-cut+curb": "Mask2Former Vistas (+curb)",
+    # #163: the resolution-parity leg, pinned on the 1024x1024 input override.
+    "mask2former-vistas-curb-cut-1024x1024": "Mask2Former Vistas (curb cut, 1024)",
 }
 
 DEFAULT_JSON = os.path.join(REPO, "analysis_out", "scoreboard.json")

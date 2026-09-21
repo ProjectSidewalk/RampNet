@@ -5,6 +5,7 @@ in this file is ordinary consistency checking; those are a guard on a finished h
 pass, and the failure they prevent is silent — the numbers simply change.
 """
 import json
+import os
 import pathlib
 
 import pytest
@@ -106,23 +107,92 @@ def test_published_names_are_unique():
 
 def test_a_pinned_leg_is_published_under_a_name_that_says_so():
     """If a pin changes the detections, the filename has to change with it, or the
-    directory claims one set of detections is the whole model."""
+    directory claims one set of detections is the whole model. The value is spelled
+    by ``pin_token``: a scalar as itself, a size as ``1024x1024`` (#163)."""
     for c in roster.ROSTER:
         if not c.pins:
             continue
         assert c.published_as, c.spec
         for _, value in c.pins:
-            assert str(value) in c.published_as, (c.published_as, c.pins)
+            assert roster.pin_token(value) in c.published_as, (c.published_as, c.pins)
+
+
+def test_pin_token_spells_a_size_as_a_filename_and_a_scalar_as_itself():
+    assert roster.pin_token("low") == "low"
+    assert roster.pin_token((1024, 1024)) == "1024x1024"
+    assert roster.pin_token([1024, 1024]) == "1024x1024"
 
 
 def test_every_leg_of_a_pinned_model_is_qualified():
     """Half-qualified is worse than unqualified: a bare `claude-sonnet-5__annapolis`
     sitting next to `claude-sonnet-5-effort-high__annapolis` reads as the model
-    rather than as one of its legs."""
-    pinned = {c.label for c in roster.ROSTER if c.pins}
+    rather than as one of its legs.
+
+    The exception (#163): a sibling pinned only on an OPT-IN knob -- default
+    ``None``, absent from the signature unless set -- leaves the bare leg bare.
+    ``mask2former-vistas-curb-cut__richmond.json`` carries no ``input_size`` key
+    and its 1024x1024 sibling does, so the two files describe themselves; renaming
+    the published one would orphan every reference to it for no information."""
     for c in roster.ROSTER:
-        if c.label in pinned:
-            assert c.published_as, (c.label, "sibling leg is pinned")
+        if roster.needs_qualified_name(c):
+            assert c.published_as, (c.label, "pinned, or a sibling is pinned on a "
+                                             "knob that is always in the signature")
+        else:
+            assert not c.pins, c.label                # a pinned leg always qualifies
+    # The rule, on the two cases it was written for.
+    by = roster.BY_PUBLISHED
+    assert roster.needs_qualified_name(by["claude-opus-5-effort-low"])
+    assert roster.needs_qualified_name(by["mask2former-vistas-curb-cut-1024x1024"])
+    assert not roster.needs_qualified_name(by["mask2former-vistas-curb-cut"])
+    assert roster.is_opt_in_pin("vistas_input_size")
+    assert not roster.is_opt_in_pin("claude_effort")
+    assert not roster.is_opt_in_pin("no_such_knob")
+
+
+def test_the_parity_leg_is_reached_only_with_its_pin_and_in_every_spelling():
+    """The 1024 arm and the 384 arm share a spec and a label. A bare spec, or one
+    with the size unset, is the 384 leg; the size set is the parity leg -- whether
+    it arrives as the registry's tuple, argparse's list, or JSON's list (#163).
+
+    And a size that is SET but that no leg registers is neither: a bare name means
+    every opt-in knob unset, so [512, 512] must resolve to no leg at all rather than
+    to the 384 one (PR #167 M2 -- this test used to assert the opposite, and the
+    exporter wrote `mask2former-vistas-curb-cut__richmond.json` with
+    `input_size: [512, 512]` inside)."""
+    class _Args:
+        vistas_input_size = None
+    assert roster.leg_for("vistas:curb-cut", _Args()).published_as is None
+    assert roster.leg_for("vistas:curb-cut").published_as is None      # cargs None
+    for size in ((1024, 1024), [1024, 1024]):
+        _Args.vistas_input_size = size
+        leg = roster.leg_for("vistas:curb-cut", _Args())
+        assert leg.published_as == "mask2former-vistas-curb-cut-1024x1024"
+    _Args.vistas_input_size = [512, 512]
+    assert roster.leg_for("vistas:curb-cut", _Args()) is None
+    assert roster.set_opt_in_knobs(_Args(), roster.legs_of("vistas:curb-cut")) == [
+        "vistas_input_size"]
+    _Args.vistas_input_size = None
+    assert roster.set_opt_in_knobs(_Args(), roster.legs_of("vistas:curb-cut")) == []
+    assert roster.set_opt_in_knobs(None, roster.legs_of("vistas:curb-cut")) == []
+    assert roster.pin_value([1024, 1024]) == roster.pin_value((1024, 1024))
+    assert roster.pin_value("low") == "low"
+
+
+def test_a_set_non_opt_in_knob_still_reaches_a_bare_leg():
+    """The M2 guard is about OPT-IN knobs only. A model whose siblings are pinned on
+    a knob that is always in the signature (Claude's effort) has no bare leg to
+    protect -- every leg is qualified -- and a model with no pinned sibling at all
+    must keep resolving to its bare leg whatever `cargs` carries, or the guard
+    would turn every ordinary export into a refusal."""
+    class _Args:
+        claude_effort = "medium"
+        vistas_input_size = [512, 512]
+    # No sibling of gemini-3.6-flash pins anything, so cargs is irrelevant.
+    leg = roster.leg_for("gemini:gemini-3.6-flash", _Args())
+    assert leg is not None and not leg.pins
+    assert roster.set_opt_in_knobs(_Args(), roster.legs_of("gemini:gemini-3.6-flash")) == []
+    # Claude: every leg pinned on a non-opt-in knob, no bare leg -- None, as before.
+    assert roster.leg_for("claude:claude-sonnet-5", _Args()) is None
 
 
 def test_every_published_filename_round_trips_to_its_model_and_city():
@@ -185,8 +255,17 @@ def test_every_entry_records_when_it_joined():
 DETECTIONS = REPO / "benchmark" / "model_detections"
 
 
-def _published_files():
-    return sorted(p.name for p in DETECTIONS.glob("*__*.json"))
+def _published_files(replicates=False):
+    """Published detection files, as paths relative to ``DETECTIONS``.
+
+    Top level only by default: those are the LEGS' files, and the orphan check
+    below is a statement about legs. ``replicates=True`` adds
+    ``replicates/<tag>/*__*.json`` for checks about a file's own header, which a
+    replicate has to pass exactly as the file it replicates does (PR #167 m3c)."""
+    files = list(DETECTIONS.glob("*__*.json"))
+    if replicates:
+        files += DETECTIONS.glob("replicates/*/*__*.json")
+    return sorted(p.relative_to(DETECTIONS).as_posix() for p in files)
 
 
 def test_every_published_detections_file_belongs_to_a_registered_leg():
@@ -199,7 +278,8 @@ def test_every_published_detections_file_belongs_to_a_registered_leg():
     supposed to list them said nothing about them.
     """
     known = {roster.slug(roster.published_name(c)) for c in roster.ROSTER}
-    orphans = sorted({f.rsplit("__", 1)[0] for f in _published_files()} - known)
+    orphans = sorted({f.rsplit("__", 1)[0] for f in _published_files(replicates=False)}
+                     - known)
     assert not orphans, (
         "published detections with no roster entry: " + ", ".join(orphans) +
         " -- add them to rampnet/roster.py")
@@ -221,20 +301,27 @@ def test_rampnet_is_the_only_roster_member_without_detections():
 
 def test_each_published_file_names_the_leg_it_says_it_is():
     """The filename, the `published_as` recorded inside, and the registry all have to
-    agree, or a file can be renamed into a different leg's identity."""
-    for name in _published_files():
+    agree, or a file can be renamed into a different leg's identity. A replicate's
+    file is held to the same header as the leg it replicates, so it is checked here
+    too (PR #167 m3c)."""
+    files = _published_files(replicates=True)
+    assert any(f.startswith("replicates/") for f in files)
+    for rel in files:
+        name = rel.rpartition("/")[2]
         city = name.rpartition("__")[2][:-len(".json")]
         entry = next((c for c in roster.ROSTER
                       if roster.published_filename(c, city) == name), None)
-        assert entry is not None, name
-        payload = json.loads((DETECTIONS / name).read_text("utf-8"))
+        assert entry is not None, rel
+        payload = json.loads((DETECTIONS / rel).read_text("utf-8"))
         assert payload["model"] == entry.label, name
         assert payload.get("published_as", entry.label) == roster.published_name(entry), name
         assert payload["signature"]["model_id"] == entry.label, name
         for key, value in entry.pins:
             sig_key = key.split("_", 1)[1]          # claude_effort -> effort
             if sig_key in payload["signature"]:
-                assert payload["signature"][sig_key] == value, (name, key)
+                # pin_value: JSON gives the 1024x1024 size back as a list.
+                assert (roster.pin_value(payload["signature"][sig_key])
+                        == roster.pin_value(value)), (name, key)
             else:
                 # A pin that is NOT a signature field (claude_serving_path, #156:
                 # it changes who bills, not what was asked, so it is deliberately
@@ -244,6 +331,85 @@ def test_each_published_file_names_the_leg_it_says_it_is():
                 # before that field existed — those legs pin only signature
                 # fields, so they never reach this branch.
                 assert payload.get("pins", {}).get(key) == value, (name, key)
+
+
+# --------------------------------------------------------------------------- #
+# Replicates: the same leg again, elsewhere -- registered, and the same header
+# --------------------------------------------------------------------------- #
+REPLICATES_DIR = DETECTIONS / "replicates"
+
+
+def test_every_replicate_directory_is_registered_and_vice_versa():
+    """A replicate is published under its tag's directory. A directory nobody
+    registered is a stray run; a registered tag with no directory is a run that
+    was meant to be published and was not -- the #163 failure mode."""
+    on_disk = (sorted(p.name for p in REPLICATES_DIR.iterdir() if p.is_dir())
+               if REPLICATES_DIR.exists() else [])
+    assert on_disk == sorted(roster.REPLICATES_BY_TAG), (on_disk, list(roster.REPLICATES_BY_TAG))
+    # Nothing sits directly under replicates/: a file there belongs to no tag, so
+    # no registry entry says what it is (PR #167 m3d).
+    if REPLICATES_DIR.exists():
+        assert [p.name for p in REPLICATES_DIR.iterdir() if not p.is_dir()] == []
+    for rep in roster.REPLICATES:
+        assert rep.of in roster.BY_PUBLISHED, rep.tag
+        assert rep.added and len(rep.added) == 10 and rep.note, rep.tag
+        assert rep.splits, rep.tag
+        # A tag's directory holds EXACTLY the (rep.of, rep.splits) files: each one
+        # present, and nothing else -- a second leg or an extra split in there would
+        # be a run the registry does not describe.
+        expected = sorted(roster.replicate_filename(rep, city) for city in rep.splits)
+        assert sorted(p.name for p in (REPLICATES_DIR / rep.tag).iterdir()) == expected, rep.tag
+
+
+def test_a_replicate_shares_the_header_of_the_leg_it_replicates():
+    """What makes it a replicate rather than a leg: the same model, the same
+    published name and the SAME signature (so the same cache key). Only the
+    detections may differ, and that difference is the result it records."""
+    for rep in roster.REPLICATES:
+        leg = roster.BY_PUBLISHED[rep.of]
+        for city in rep.splits:
+            original = json.loads((DETECTIONS / roster.published_filename(leg, city))
+                                  .read_text("utf-8"))
+            copy = json.loads((REPLICATES_DIR / rep.tag / roster.replicate_filename(rep, city))
+                              .read_text("utf-8"))
+            for key in ("model", "published_as", "city", "signature"):
+                assert copy[key] == original[key], (rep.tag, city, key)
+            # `pins` is absent on files published before the field existed (#156).
+            assert copy.get("pins", {}) == original.get("pins", {}), (rep.tag, city)
+            assert copy["n_uncached"] == 0 and copy["n_panos"] == original["n_panos"]
+            assert set(copy["detections"]) == set(original["detections"])
+
+
+def test_a_replicate_carries_the_bare_leg_s_signature_and_no_pinned_sibling_s():
+    """What "a replicate is not a leg" actually means, checked on the files: the
+    replicate's recorded signature is the BARE leg's -- it names no pinned sibling,
+    because every pinned sibling's pins, read as signature fields, fail to match it
+    -- and its `published_as` is the bare leg's publication name. The earlier form
+    of this test (`rep.tag not in BY_PUBLISHED`, and `replicate_dir` restated)
+    could not fail (PR #167 m4)."""
+    for rep in roster.REPLICATES:
+        leg = roster.BY_PUBLISHED[rep.of]
+        assert not leg.pins, (rep.tag, "a replicate replicates a bare leg")
+        siblings = [c for c in roster.ROSTER if c.label == leg.label and c.pins]
+        assert siblings, (rep.tag, "no pinned sibling: the property is vacuous here")
+        for city in rep.splits:
+            payload = json.loads((REPLICATES_DIR / rep.tag / roster.replicate_filename(rep, city))
+                                 .read_text("utf-8"))
+            sig = payload["signature"]
+            assert payload["published_as"] == roster.published_name(leg), (rep.tag, city)
+            assert payload.get("pins", {}) == {}, (rep.tag, city)
+            for sib in siblings:
+                matched = all(
+                    roster.pin_value(sig.get(k.split("_", 1)[1])) == roster.pin_value(v)
+                    for k, v in sib.pins)
+                assert not matched, (rep.tag, city, sib.published_as,
+                                     "the replicate's signature is a pinned sibling's")
+            # ...and, for the opt-in pins specifically, the key is simply absent:
+            # that is what makes the bare name mean "every opt-in knob unset".
+            for sib in siblings:
+                for k, _ in sib.pins:
+                    if roster.is_opt_in_pin(k):
+                        assert k.split("_", 1)[1] not in sig, (rep.tag, city, k)
 
 
 # --------------------------------------------------------------------------- #

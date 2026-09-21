@@ -1,0 +1,38 @@
+=== Cascade gate: rampnet heatmap at mask2former-vistas-curb-cut's recoveries (richmond, 310 GT ramps in 92 panos) ===
+    cells: both=220  rampnet_only=18  challenger_only=54  neither=18
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+    device=cuda model=projectsidewalk/rampnet-model (single-pass fp32, as op_cache)
+    floor peaks (>=0.05) from: op_cache
+    rampnet hits defined by: bundle records (shipped point)
+    20/92 panos
+    40/92 panos
+    60/92 panos
+    80/92 panos
+    92/92 panos
+
+cell                 n  act med   centre  argmax off  floor peak in R  its score  null pct
+------------------------------------------------------------------------------------------
+both               220   0.8893   0.8893        0.0p       220 (100%)      0.889        —
+rampnet_only        18   0.8449   0.8431        0.0p        18 (100%)      0.843        —
+challenger_only     54   0.3386   0.1420       10.7p        39 (72%)      0.339    0.880
+neither             18   0.4973   0.1820       19.2p        14 (78%)      0.460    0.920
+
+  The hit cells are the positive control: a matched detection is inside the
+  radius by definition, so their act/centre ~0.85+ and 100% peak-in-R are what
+  a working probe MUST show, not a finding.
+
+  For the two MISS cells, 'floor peak in R' is the whole question:
+   - peak inside R  -> the model DID localize the ramp and the detection was
+     lost downstream, to the shipped threshold or to the greedy matcher handing
+     the peak to an adjacent GT. Recoverable WITHOUT a second model.
+   - peak outside R -> nothing of THIS ramp's to promote. 'act' there is usually
+     a neighbouring peak's shoulder reaching into the window (nearest peak 1-2 R
+     away, argmax on the window edge), not mass the extractor overlooked -- the
+     profile below says which, per cell.
+
+  no floor peak in R, by where the nearest peak is (R = 22.5 px):
+    challenger_only  n=15  nearest peak median 35.0 px; within 2R 11, beyond 4; argmax on edge 11; nearest peak claimed by another GT 9; classes {'absent': 0, 'faint_local': 3, 'tail': 12}; seam 1
+    neither          n=4   nearest peak median 39.5 px; within 2R 4, beyond 0; argmax on edge 2; nearest peak claimed by another GT 3; classes {'absent': 0, 'faint_local': 0, 'tail': 4}; seam 0
+
+wrote analysis_out/cascade_gate.json
+rc=0 wall_s=128

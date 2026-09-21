@@ -104,6 +104,9 @@ PUBLISHED = {
     # point their own write-ups report.
     ("mask2former-vistas-curb-cut", "richmond"): (0.411, 0.697, 0.517),
     ("mask2former-vistas-curb-cut+curb", "richmond"): (0.126, 0.648, 0.210),
+    # The #126 resolution-parity arm, published under #163: the numbers the
+    # "Resolution parity" section reports for the 1024x1024 re-run (274/442/36).
+    ("mask2former-vistas-curb-cut-1024x1024", "richmond"): (0.383, 0.884, 0.534),
 }
 
 
@@ -529,6 +532,7 @@ def test_single_split_legs_stay_out_of_the_pooled_tables(board):
     want_coverage = {
         "mask2former-vistas-curb-cut": "1/8",
         "mask2former-vistas-curb-cut+curb": "1/8",
+        "mask2former-vistas-curb-cut-1024x1024": "1/8",     # #163, richmond only
         "claude-opus-5-effort-high": "1/8",
         "claude-sonnet-5-effort-low": "1/8",
         "claude-sonnet-5-effort-high": "1/8",

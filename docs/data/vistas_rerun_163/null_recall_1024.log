@@ -1,0 +1,8 @@
+Bundle: /homes/gws/jonf/RampNet/benchmark/richmond  (124 scored panos)  match radius 0.022
+Null model: 123 cyclic shifts per model
+
+model                                  preds/pano   recall     null  null max  above chance
+-------------------------------------------------------------------------------------------
+rampnet                                       2.2    0.768    0.055     0.132         0.754
+[mask2former-vistas-curb-cut] all 124 panos already cached; model load skipped
+mask2former-vistas-curb-cut                   6.2    0.884    0.145     0.210         0.864

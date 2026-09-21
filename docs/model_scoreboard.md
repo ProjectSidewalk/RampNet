@@ -123,7 +123,7 @@ and F1 cannot tell you.
 
 ## Legs that have not run every pooled split
 
-Seven legs have run one split each, so they have no pooled mean to put in the table above —
+Eight legs have run one split each, so they have no pooled mean to put in the table above —
 a one-city average printed beside an eight-city one is exactly the comparison the coverage
 column exists to prevent. They are reported per split instead, at the split they ran on:
 
@@ -131,6 +131,7 @@ column exists to prevent. They are reported per split instead, at the split they
 
 | model | class | split | P | R | F1 | AP | FP/pano | tp/fp/fn |
 |---|---|---|--:|--:|--:|--:|--:|--:|
+| Mask2Former Vistas (curb cut, 1024) | supervised transfer | `richmond` | 0.383 | 0.884 | 0.534 | 0.649 | 3.6 | 274/442/36 |
 | Mask2Former Vistas (curb cut) | supervised transfer | `richmond` | 0.411 | 0.697 | 0.517 | 0.513 | 2.5 | 216/309/94 |
 | Mask2Former Vistas (+curb) | supervised transfer | `richmond` | 0.126 | 0.648 | 0.210 | 0.089 | 11.3 | 201/1399/109 |
 | Claude Fable 5 (low, anthropic) | chat VLM | `annapolis` | 0.579 | 0.646 | 0.611 | – | 1.1 | 190/138/104 |
@@ -163,7 +164,9 @@ numbers are directly above them in `model_comparison.md`:
 - **Supervised transfer fixes most of the precision problem and still loses.** Mask2Former
   reading Vistas' `Curb Cut` class scores 0.517 on richmond with **12.4× OWLv2's
   precision** and no training at all — but RampNet's 0.855 on that split is 0.337 clear of
-  it. The union arm (`+curb`) is a committed negative result: adding Vistas' `Curb` class
+  it. Giving it the full 1024×1024 view instead of the checkpoint's 384×384 resize (the
+  `1024` row) buys recall, 0.697 → 0.884, and AP, 0.513 → 0.649, and only 0.018 of F1,
+  because precision gets slightly worse; the gap to RampNet is 0.321 at parity. The union arm (`+curb`) is a committed negative result: adding Vistas' `Curb` class
   *loses* recall while precision collapses, because `Curb` fuses adjacent ramps into one
   component (#126).
 
@@ -188,6 +191,7 @@ numbers are directly above them in `model_comparison.md`:
 | Molmo2-8B | 0.457 | 0.449 | 0.381 | 0.463 | 0.424 | 0.511 | 0.329 | 0.339 | 0.419 | 0.307 | 0.274 | 0.326 | 0.422 |
 | OWLv2-large | 0.064 | 0.071 | 0.049 | 0.071 | 0.063 | 0.077 | 0.060 | 0.062 | 0.065 | 0.055 | 0.062 | 0.052 | 0.088 |
 | Grounding DINO | 0.053 | 0.073 | 0.035 | 0.042 | 0.055 | 0.068 | 0.055 | 0.045 | 0.053 | 0.054 | 0.042 | 0.049 | 0.082 |
+| Mask2Former Vistas (curb cut, 1024) | 0.534 | – | – | – | – | – | – | – | – | – | – | – | – |
 | Mask2Former Vistas (curb cut) | 0.517 | – | – | – | – | – | – | – | – | – | – | – | – |
 | Mask2Former Vistas (+curb) | 0.210 | – | – | – | – | – | – | – | – | – | – | – | – |
 | Claude Fable 5 (low, anthropic) | – | – | – | – | 0.611 | – | – | – | – | – | – | – | – |
@@ -425,8 +429,9 @@ Omissions are content, so they are named rather than left as blanks:
   because it is untested.
 - **`manual_gold` has no null-recall pass** (O(n²) in panos), so the open detectors' recall
   discount is unmeasured on that split.
-- **Seven legs have run one split each**, so they are in the partial table rather than the
-  headline: the two Vistas arms (richmond), and five Claude legs on annapolis — Claude Opus 5
+- **Eight legs have run one split each**, so they are in the partial table rather than the
+  headline: the three Vistas arms (richmond; the 1024 row is the curb-cut arm at resolution
+  parity, #126/#163), and five Claude legs on annapolis — Claude Opus 5
   (high), both Sonnet 5 legs, and both Fable legs. Extending any of them to the full pool is
   a run, not a code change.
 - **`claude-opus-5-effort-low` is scored here but is not a standing roster entry.** It has
