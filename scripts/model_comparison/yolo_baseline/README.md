@@ -72,8 +72,9 @@ non-preemptable `gpu-l40s` partition on 2026-08-03 (job `38063498`, node `g3103`
 `--time=7-00:00:00`, started immediately), taking the venue decided 2026-07-31 in #51 once
 the `y26_tiles_l40s` fork released the lab node. As-run config: **batch 12**, with
 `optimizer=auto` kept per the decision so the arm fills the grid hole rather than creating a
-differently-scheduled config; the as-run submit line is committed on
-`exp/y11x-tiles-restart-51`. The batch **deviates from the 2026-07-31 decision comment**,
+differently-scheduled config; the as-run submit line is committed in
+`scripts/model_comparison/run_yolo_train.slurm` (the y11x_tiles exception block in its header,
+merged to main from `exp/y11x-tiles-restart-51` on 2026-09-21). The batch **deviates from the 2026-07-31 decision comment**,
 which specified 6 to match the sibling tiles arms; the submission followed this grid's
 committed batch-12 pin instead — at eval time its `args.yaml` is the authority, not either
 note. It is a fresh start (no `last.pt` existed), so unlike the fork below it is a clean
@@ -698,6 +699,11 @@ stabilized rerun (#70) when it lands.
    > checkpoints all late-epoch, well after the recovery — is "The caveat that travels
    > with every number above" (#72). Added as a dated note rather than by editing the
    > item, since this section is a pre-registration.
+   >
+   > **Note, 2026-09-21.** #70 and #90 were closed won't-do for RampNet 1.0, unrun: the tiles
+   > arm is the reported baseline, its seed spread is small (`s_A` 0.0025,
+   > `docs/seed_variance_51_135.md`), and a tuned schedule would be a new recipe reported
+   > beside these rows, not a correction to them. The lower-bound caveat stands as written.
 7. **Seeds (aspirational).** All runs are `seed=0`. If ckpt capacity allows, ≥3 seeds
    of the headline configs → mean ± std, which makes single-run instability commentary
    moot. Not a blocker for reporting the lower-bound numbers.
