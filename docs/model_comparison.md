@@ -236,8 +236,8 @@ curve that shows their recovery: `y26_pano/results.csv` ends at epoch 55 and
 `y11x_tiles/results.csv` at epoch 21, so ep56 and ep44 are past the end of the record, not
 inside the dip; the training record says so beside its table), so the "one-epoch model"
 form of the caveat is retired. What remains is that no tuned schedule has been run — #90
-(the pre-registered LR/warmup sweep) and #70 (the stabilized rerun) are both open and
-unrun — so **every YOLO
+(the pre-registered LR/warmup sweep) and #70 (the stabilized rerun) were both closed
+won't-do for 1.0 on 2026-09-21 without running — so **every YOLO
 figure in this document is a lower bound on what a supervised detector reaches on this
 dataset under a tuned schedule**. The seed-variance read does not depend on either issue:
 it compares the two recipes as run, and its YOLO replicates carry the same dip. Per-run

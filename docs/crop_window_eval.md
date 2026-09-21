@@ -236,6 +236,53 @@ help containment, so the size ratio is a mild lower bound (6 of 227 geo rows shi
 227 for either v1 rule). The size-ratio spread on manual_labels (4.3–5.4) is *not*
 comparable — those are near-point marks, so the denominator is not an extent.
 
+## Round 3 — three PARTIAL extent-gold sets (paterson, annapolis, sao_paulo; on main 2026-09-21)
+
+After Richmond, the open questions were all *between*-city — does the scale constant vary by
+provider, by pano height, by design code? — and Richmond's own checkpoints had shown the
+within-city answer converges by ~100 boxes. So the effort was spread at ~100 boxes each over
+three more cities rather than finishing a fourth complete one. All three were drawn by one
+annotator (jonf) under box rule **v2**, the same rule as Richmond's gold, in
+`scripts/box_gallery.py`, and each is a **deliberate partial sample**: the gallery is ordered by
+`sha1(pano_id)` with a pano's ramps kept consecutive, so any prefix is a random sample of panos
+and stopping partway is statistically clean for per-ramp rates (not for anything that needs a
+complete pano set — every pano in a file is complete; the sampling unit is the pano).
+
+| bundle | boxed + can't / adjudicated | session | imagery | committed summary |
+|---|---|---|---|---|
+| `benchmark/paterson` | 109 + 10 / 395 | 2026-08-15, 2026-08-17 | GSV, 28 of 30 panos 16384×8192 | `analysis_out/crop_window_eval_paterson.json` |
+| `benchmark/annapolis` | 131 + 11 / 294 | 2026-08-17 | Mapillary, 8000×4000 | `analysis_out/crop_window_eval_annapolis.json` |
+| `benchmark/sao_paulo` | 119 + 15 / 281 | 2026-08-18 | GSV, 39 of 40 panos 16384×8192 | `analysis_out/crop_window_eval_sao_paulo.json` |
+
+Each city's `box_annotation_log/README.md` carries the interim exports, the rule version, why that
+city was annotated, and what it answered; the São Paulo log also records a mis-attached box found
+by scoring the first export and fixed in the second, which withdrew one explanation ("its ramps
+sit closer to the camera") and replaced it with a measured one (its ramps are the smallest of the
+four). In brief, from those logs: Annapolis (Mapillary at higher resolution than most of Richmond)
+behaves like Richmond, so the Paterson-vs-Richmond difference is provider/SfM, not resolution; the
+depression-only fit is tighter on both GSV cities (R² 0.600 Paterson, 0.738 São Paulo) than on
+either Mapillary city (0.478, 0.431); and the per-city v1-norm constant for ≥98.5% det-mode
+containment runs ×2.0 (São Paulo) / ×2.5 (Paterson) / ×3.5 (Richmond) / ×4.0 (Annapolis), ordered
+by apparent ramp size at matched range. Those cross-city figures were worked on #114 and #116 and
+are recorded in the READMEs; the per-city scorer outputs are what the committed summaries hold.
+
+The three `boxes.json` files lived only on unmerged branches until 2026-09-21, while the summaries
+computed from them were already committed — the summaries named an input the repo did not have.
+Merging the gold closed that gap, and the merge was checked the way the content hashes are meant
+to be used: each summary was regenerated from the merged gold and compared leaf-for-leaf with the
+committed file, including `per_box_csv_sha256` — identical for all three.
+
+```bash
+python scripts/analysis/crop_window_eval.py --bundle benchmark/paterson
+python scripts/analysis/crop_window_eval.py --bundle benchmark/annapolis
+python scripts/analysis/crop_window_eval.py --bundle benchmark/sao_paulo
+```
+
+Caveats specific to this round: single annotator, no second-rater pass on any city; partial
+coverage, so the scorer prints a `completeness_warning` and every rate is over the covered subset;
+morgantown (Mapillary, 4096×2048 — the one regime where the v1 resolution normalization is a
+factor of 2) was named as an optional fourth and was not annotated.
+
 ## Caveats
 
 - Flat-ground distance from depression (2.5 m camera height) is a proxy; per-pano heights
