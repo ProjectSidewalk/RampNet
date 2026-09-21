@@ -20,7 +20,7 @@ the page is wrong more recently and should be fixed first.
 4. [What differentiates RampNet](#4-what-differentiates-rampnet)
 5. [Method](#5-method)
 6. [Findings](#6-findings)
-7. [What we retracted or corrected](#7-what-we-retracted-or-corrected)
+7. [What we withdrew or corrected](#7-what-we-withdrew-or-corrected)
 8. [Limitations and open items](#8-limitations-and-open-items)
 9. [RampNet 2.0](#9-rampnet-20)
 10. [Cost](#10-cost)
@@ -69,7 +69,7 @@ What we know now that we did not know at publication:
   Assessed inventories cannot reach 500,000 records; two million candidate records exist, and
   what limits us is the throughput of judging their coordinate precision, one reviewer-hour per
   city.
-- **Two of our own findings were wrong and are retracted:** that the model is blind at the
+- **Two of our own findings were wrong and are withdrawn:** that the model is blind at the
   360° seam, and that Stage 1 drops most labels near it. Both were instrument errors. What
   survives is a 1% label-duplication defect in the published dataset, documented and deliberately
   left in place.
@@ -455,7 +455,7 @@ ramp near-field. It does not point to vocabulary.
 
 A panorama wraps, and several things in the codebase measured horizontal distance without
 wrapping (`seam.md`, [#132](https://github.com/ProjectSidewalk/RampNet/issues/132), whose title
-still states the retracted claim). Three real
+still states the withdrawn claim). Three real
 defects were found and are stated with their status:
 
 - **The scorer.** Matching and cached-peak extraction did not wrap. Fixed (`eccadda`, `f4c71c8`);
@@ -575,7 +575,7 @@ undeterminable) and as random partial samples for paterson, annapolis and sao_pa
 annotator. It feeds the crop rule in the Project Sidewalk gallery and the extent work in
 [#83](https://github.com/ProjectSidewalk/RampNet/issues/83); it does not affect the ranking.
 
-## 7. What we retracted or corrected
+## 7. What we withdrew or corrected
 
 Recording these is part of the method. Each was internally consistent when reported, and each was
 caught by a control or a rendering that disagreed with the number.
