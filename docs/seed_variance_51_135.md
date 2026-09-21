@@ -200,6 +200,18 @@ the parity protocol fixed.)
 - Campaign A's three replicates ran on Tillicum H200s; the n=1 arm ran on klone L40S.
   Hardware is a stated confound for the *offset* between the seed-0 arm and the
   replicate mean, not for `s_A`.
+- **All three Campaign A replicates carry the YOLO baseline's warmup-LR collapse
+  (#72).** Each ran the untuned default schedule, and each lost its validation mAP@50
+  during the warmup ramp — 0.686 / 0.691 / 0.692 at epoch 1 to 0.116 / 0.110 / 0.103 at
+  epoch 3, the `lr/pg0` peak — and regained the epoch-1 level by epoch 5
+  (`y11x_tiles_s{1,2,3}/results.csv`; per-run table and pinning test in
+  `scripts/analysis/yolo_warmup_dip_72.py`). That is the same dip the seed-0 arm shows
+  (0.078 at epoch 3), on different seeds and different hardware, so the collapse is a
+  property of the recipe, not of one run. The read above is unaffected: it compares the
+  RampNet recipe against this YOLO recipe as run, and the replicates are read at
+  epochs ≤ 44, long after the recovery. What it does mean is that `s_A` is the spread of
+  an untuned recipe; the LR/warmup sweep in #90 and the stabilized rerun in #70 have not
+  run, and a tuned YOLO schedule would be a different recipe with its own replicates.
 - Four of the six Amendment 2 replicates were requeued (s5 ×3, s7 ×3, s8 ×1, s9 ×1),
   resuming from a 1,000-step checkpoint each time; seeds 1–3 ran one incarnation each.
   `s_B` at n=9 is therefore training-run variance under `ckpt-all`'s preemption regime,
