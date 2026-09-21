@@ -297,7 +297,7 @@ def test_export_refuses_the_same_leg_with_different_detections(tmp_path, monkeyp
     assert written == [] and [c[3] for c in collisions] == ["signature"]
 
 
-def test_export_refuses_an_unregistered_value_of_an_opt_in_knob():
+def test_export_refuses_an_unregistered_value_of_an_opt_in_knob(tmp_path):
     """`--vistas-input-size 512 512` is neither the bare 384 leg (its signature
     carries no input_size) nor the 1024 one. It used to publish as the bare name
     with `input_size: [512, 512]` inside and `pins: {}` (PR #167 M2)."""
@@ -312,10 +312,12 @@ def test_export_refuses_an_unregistered_value_of_an_opt_in_knob():
     msg = str(err.value)
     assert "vistas_input_size=[512, 512]" in msg and "not the bare leg" in msg
     assert "--publish-as" in msg
-    # The whole run refuses, not just the name: export() asks publication_name first.
+    # The whole run refuses, not just the name, and nothing is written first.
+    out = tmp_path / "out"
     with pytest.raises(ValueError, match="not the bare leg"):
-        em.export("/nope", "/nowhere", ["richmond"], ["vistas:curb-cut"],
+        em.export(str(tmp_path / "cache"), str(out), ["richmond"], ["vistas:curb-cut"],
                   overrides={"vistas_input_size": [512, 512]})
+    assert not any(out.iterdir())
     # And --publish-as remains the way to name a genuinely new leg.
     assert em.publication_name("vistas:curb-cut", cargs, "vistas-512") == "vistas-512"
 
