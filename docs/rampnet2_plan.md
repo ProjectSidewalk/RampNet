@@ -84,10 +84,19 @@ recall. Caveat: that split is by label, not by pano.
 - Extent: `manual_labels` boxes are tactile-pad marks, not aprons (#114). Whole-apron gold exists
   on Richmond (complete) and partially on three more (#116). SAM2 on gnomonic views is the designed
   first experiment (#83).
-- GSV native per-pano depth is harvested on the labeler side (`sidewalk-auto-labeler/scripts/
-  harvest_depth.py`, `runs/<city>/depth`) for bend, paterson, gainesville and sao_paulo (78.6k /
-  34.4k / 35.2k / 22.7k panos on disk, 2026-09-22); not for laurens_gsv or richmond. #111, the
-  RampNet-side archive of the benchmark panos, is still open.
+- GSV native per-pano depth exists in two places. (a) The production pano store: since
+  2026-09-06 `sidewalk-panorama-tools`' nightly downloader fetches depth for every GSV pano in
+  every Project Sidewalk city (54 cities, a corpus of 1,433,938 panos; ~62k artifacts saved per
+  night and roughly 12 nights from complete at the 2026-09-19 close-out of
+  [sidewalk-panorama-tools#43](https://github.com/ProjectSidewalk/sidewalk-panorama-tools/issues/43)).
+  Each `<pano_id>.depth.npz` (format v3) carries the depth map plus Google's plane list, from
+  which per-pano camera height and ground tilt are derived (`downloaders/gsv.py`,
+  `ground_plane_from_artifact`). The store's own caveat: this is Google's plane model, not a
+  measurement; vehicles and vegetation are absent and curb ramps sit ~0.15 m above the modelled
+  road. (b) The labeler's per-run harvest (`sidewalk-auto-labeler/scripts/harvest_depth.py`,
+  `runs/<city>/depth`) for bend, paterson, gainesville and sao_paulo. #111's archive-first ask is
+  therefore met for every GSV pano in a Project Sidewalk city; what remains of it is benchmark panos
+  outside those cities and the Mapillary rigs, which have no Google depth at all.
 
 ### 2.5 The unit of ground truth is the real-world ramp
 
@@ -179,9 +188,10 @@ Each one names the decision it makes. GPU work runs on makelab2 or Hyak (never t
 
 7. **SAM2 on gnomonic views** vs the Richmond whole-apron gold, as designed on #83. ~1 GPU-day,
    unblocked, prerequisite for width.
-8. **Cross-view repeatability** of width and slope using the labeler's fusion clusters and its GSV
-   depth archives. No ground truth needed; decides whether measurement is precise enough to justify
-   field truth.
+8. **Cross-view repeatability** of width and slope using the labeler's fusion clusters and the
+   production depth store's ground planes (§2.4). No ground truth needed; decides whether
+   measurement is precise enough to justify field truth. The store is on the scraper box, an
+   unpublished input; the artifacts for the panos used are copied into the run's bundle.
 9. **Field truth.** ~50 Seattle ramps with tape and inclinometer. The only route to a defensible
    "better than humans" claim on slope or width. Jon's call. Check first whether the one public
    field-measured set (Seoul, 514 images, laser-measured width and slope, CC0 on Zenodo
