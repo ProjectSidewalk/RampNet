@@ -59,6 +59,8 @@ CITY_SPECIFIC_TAGS = ("not aligned with crosswalk", "parallel lines", "not visib
 RETIRED_TAGS = ("tactile warning",)
 
 SEVERITIES = (1, 2, 3)
+#: Put this in ``cannot_judge_tags`` to abstain on severity while still judging tags.
+SEVERITY_TOKEN = "severity"
 VERDICTS = ("agree", "disagree", "unsure")
 
 RUBRIC_BEGIN = "<!-- rubric:begin -->"
@@ -487,7 +489,9 @@ def agreement(a, b, tags=None, group_by=None, allow_rubric_mismatch=False):
             })
         return out
 
-    sev = [i for i in judged if ia[i]["severity"] is not None and ib[i]["severity"] is not None]
+    # "severity" in cannot_judge_tags is the per-item way to abstain on severity alone.
+    sev = [i for i in judged if ia[i]["severity"] is not None and ib[i]["severity"] is not None
+           and SEVERITY_TOKEN not in ia[i]["cannot_judge_tags"] and SEVERITY_TOKEN not in ib[i]["cannot_judge_tags"]]
     sx = [ia[i]["severity"] for i in sev]
     sy = [ib[i]["severity"] for i in sev]
     verdict_matrix = {}

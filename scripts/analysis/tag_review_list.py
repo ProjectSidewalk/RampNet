@@ -85,14 +85,14 @@ BAND_EDGES_M = (8.0, 15.0)
 
 LIST_COLUMNS = (
     "item_id", "city", "label_id", "label_uid", "pano_id", "tag_state", "distance_band",
-    "depression_deg", "est_distance_m", "camera_pitch", "placed_at", "image_capture_date",
+    "depression_deg", "est_distance_m", "camera_pitch", "label_heading_deg", "label_pitch_deg", "placed_at", "image_capture_date",
     "tags_at_list", "severity_at_list", "applicable_tags", "tag_reviewed_by", "placed_by_rater",
     "has_server_crop", "editor_url", "labelmap_url", "gsv_url",
 )
 
 RAW_COLS = ["label_id", "user_id", "pano_id", "pano_source", "severity", "tags", "time_created",
             "correct", "pano_y", "pano_height", "camera_pitch", "latitude", "longitude",
-            "image_capture_date", "pano_url"]
+            "image_capture_date", "pano_x", "pano_width", "camera_heading"]
 
 
 # ----------------------------------------------------------------------------- geometry
@@ -114,6 +114,24 @@ def flat_ground_distance_m(dep_deg, camera_height_m=CAMERA_HEIGHT_M):
 def distance_band(dist_m, edges=BAND_EDGES_M):
     d = np.asarray(dist_m, dtype=float)
     return np.where(d < edges[0], "near", np.where(d < edges[1], "mid", "far"))
+
+
+def label_view(pano_x, pano_width, camera_heading, dep_deg):
+    """(heading, pitch) in degrees that centre a viewer on the label.
+
+    Column 0 of a GSV equirectangular pano faces ``camera_heading - 180``; pitch is minus
+    the pitch-corrected depression. Checked against the labeller's own POV on seattle
+    label 9 (POV heading 299.3 with the label right of centre; this gives 302.3)."""
+    heading = (np.asarray(pano_x, dtype=float) / np.asarray(pano_width, dtype=float) * 360.0
+               + np.nan_to_num(np.asarray(camera_heading, dtype=float)) - 180.0) % 360.0
+    return heading, -np.asarray(dep_deg, dtype=float)
+
+
+def gsv_url(pano_id, heading, pitch, fov=60):
+    """A Google Maps viewer link pinned to this pano id, centred on the label. Shows the
+    imagery only: no Project Sidewalk tags, so it is the blind rater's view (protocol)."""
+    return (f"https://www.google.com/maps/@?api=1&map_action=pano&pano={pano_id}"
+            f"&heading={heading:.1f}&pitch={pitch:.1f}&fov={fov}")
 
 
 def haversine_m(lat1, lon1, lat2, lon2):
@@ -214,7 +232,7 @@ def build_candidates(cache, *, exclude_cities, require_tags, crop_date, sources,
 
     d = load_pool(cache, cities)
     n0 = len(d)
-    funnel = [("human CurbRamp labels in the vocabulary-eligible cities", n0)]
+    funnel = [("CurbRamp labels in the vocabulary-eligible cities, SidewalkAI included", n0)]
     d = d[d.user_id != SIDEWALK_AI_USER]
     funnel.append(("minus SidewalkAI", len(d)))
     d["t"] = pd.to_datetime(d.time_created, utc=True, format="ISO8601")
@@ -241,9 +259,10 @@ def build_candidates(cache, *, exclude_cities, require_tags, crop_date, sources,
     d["dep"] = depression_deg(d.pano_y, d.pano_height, d.camera_pitch)
     d["dist"] = flat_ground_distance_m(d.dep)
     d["band"] = distance_band(d.dist)
+    d["lab_heading"], d["lab_pitch"] = label_view(d.pano_x, d.pano_width, d.camera_heading, d.dep)
     d["placed_by_rater"] = d.user_id.map(lambda u: raters.get(u, ""))
 
-    pool = d.groupby("city").size()
+    pool = d.groupby("city").size().reindex(cities, fill_value=0)
     small = sorted(pool[pool < min_city_pool].index)
     for c in small:
         dropped[c] = f"fewer than {min_city_pool} eligible labels ({int(pool[c])})"
@@ -384,6 +403,8 @@ def list_rows(sel, hosts, vocab, seed):
             "depression_deg": _fmt(float(r.dep), 2),
             "est_distance_m": _fmt(float(r.dist), 1),
             "camera_pitch": _fmt(float(r.camera_pitch), 3) if pd.notna(r.camera_pitch) else "",
+            "label_heading_deg": _fmt(float(r.lab_heading), 1),
+            "label_pitch_deg": _fmt(float(r.lab_pitch), 1),
             "placed_at": r.t.strftime("%Y-%m-%d"),
             "image_capture_date": "" if pd.isna(r.image_capture_date) else str(r.image_capture_date),
             "tags_at_list": tr.join_tags(r.tag_list),
@@ -394,7 +415,7 @@ def list_rows(sel, hosts, vocab, seed):
             "has_server_crop": "true",
             "editor_url": f"{host}/gallery?labelType=CurbRamp&labelId={lid}",
             "labelmap_url": f"{host}/labelMap?labelId={lid}",
-            "gsv_url": "" if pd.isna(r.pano_url) else r.pano_url,
+            "gsv_url": gsv_url(r.pano_id, float(r.lab_heading), float(r.lab_pitch)),
         })
     return rows
 
@@ -485,7 +506,7 @@ def cmd_build(args):
 
 
 def cmd_power(args):
-    print("95% CI half-width of Cohen's kappa (simulated, %d draws), true kappa %.2f" % (args.sims, args.kappa))
+    print(f"95% CI half-width of Cohen's kappa (simulated, {args.sims} draws), true kappa {args.kappa:.2f}")
     print("| positives (n x prevalence) | " + " | ".join(f"n={n}" for n in args.ns) + " |")
     print("|---|" + "---|" * len(args.ns))
     for pos in args.positives:

@@ -2,19 +2,27 @@
  "cities_dropped": {
   "amsterdam": "vocabulary lacks missing tactile warning, points into traffic",
   "auckland": "fewer than 100 eligible labels (5)",
+  "bayonne-fr": "fewer than 100 eligible labels (0)",
   "blackhawk-hills-il": "fewer than 100 eligible labels (57)",
   "chandigarh-india": "vocabulary lacks missing tactile warning, narrow, not enough landing space, points into traffic, steep, surface problem",
   "clifton-nj": "fewer than 100 eligible labels (77)",
+  "cuenca": "fewer than 100 eligible labels (0)",
+  "dc": "fewer than 100 eligible labels (0)",
   "houston-tx": "fewer than 100 eligible labels (97)",
   "la": "fewer than 100 eligible labels (70)",
   "la-piedad": "fewer than 100 eligible labels (22)",
+  "la-piedad-old": "fewer than 100 eligible labels (0)",
+  "laurens-ia": "fewer than 100 eligible labels (0)",
   "newport-ky": "fewer than 100 eligible labels (47)",
+  "richmond-va": "fewer than 100 eligible labels (0)",
   "spgg": "fewer than 100 eligible labels (19)",
   "taichung": "fewer than 100 eligible labels (91)",
   "tainan": "fewer than 100 eligible labels (34)",
   "validation-study": "excluded by --exclude-cities",
   "vancouver-wa": "fewer than 100 eligible labels (33)",
-  "virden-il": "fewer than 100 eligible labels (47)"
+  "virden-il": "fewer than 100 eligible labels (47)",
+  "winterthur-infra3d": "fewer than 100 eligible labels (0)",
+  "zurich-infra3d": "fewer than 100 eligible labels (0)"
  },
  "cities_in_list": [
   "burnaby",
@@ -136,7 +144,7 @@
  "funnel": [
   {
    "labels": 569800,
-   "step": "human CurbRamp labels in the vocabulary-eligible cities"
+   "step": "CurbRamp labels in the vocabulary-eligible cities, SidewalkAI included"
   },
   {
    "labels": 490449,
@@ -830,7 +838,7 @@
  "list": {
   "path": "benchmark/tag_review/review_list.csv",
   "rows": 500,
-  "sha256": "43d6aec2078fe973645d9c5a2e1d37efdfae527882883457df432baed38ce387"
+  "sha256": "9dbe2e7c433d3e1978bc63f4761581ef920f23cb00c875d3858245d23aa5a3e6"
  },
  "params": {
   "band_edges_m": [
