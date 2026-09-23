@@ -945,7 +945,9 @@ def main(argv=None):
     p = sub.add_parser("log-usage", help="append a paid:false GPU-time row to the usage ledger")
     p.add_argument("--label", required=True, help="e.g. tagger-eval, infer-released, train-control")
     p.add_argument("--elapsed-s", type=float, required=True)
-    p.add_argument("--status", default="ok", choices=["ok", "failed", "killed"])
+    p.add_argument("--status", default="ok", choices=["ok", "failed", "killed", "in_progress"],
+                   help="in_progress: elapsed so far for a run still going at the time of writing; "
+                        "a final row supersedes it in the doc's cost table")
     p.add_argument("--what", required=True, help="one line: what ran")
     p.add_argument("--n", type=int, default=None, help="crops scored / trained on")
     p.add_argument("--ts", default=None, help="run start (UTC ISO); default now")

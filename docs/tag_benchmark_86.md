@@ -96,7 +96,7 @@ also the tag validators most often removed since the freeze (471 of 543 removals
   torch 2.0.0 and xformers 0.0.18. The headline and per-tag AP match to 4e-6, so the attention
   kernel does not matter at the reported precision.
 - **Stored scores are logits.** The first scoring pass stored rounded sigmoid scores and came
-  out 0.002 mAP low on every tag: at 6 decimals, 867 of 2,183 "missing tactile warning" scores
+  out 0.002 mAP low, lower on every tag: at 6 decimals, 867 of 2,183 "missing tactile warning" scores
   rounded to exactly 0 and tied. The committed predictions are logits (5 dp); the scorer applies
   the sigmoid in float32, as `evaluate.py` does. A batch-1 vs batch-64 check ruled out batching
   (largest score difference 2.9e-5).

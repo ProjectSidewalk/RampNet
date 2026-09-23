@@ -1,0 +1,28 @@
+{
+ "checkpoint": "best_after_ep4.pth",
+ "checkpoint_sha256": "4241acf12860b36693768733e02b83dc0a291d0250ada5652cbfd0de7dc34e1c",
+ "csv": "hf_curbramp_labels.csv",
+ "elapsed_s": 487.996798,
+ "gpu": "NVIDIA A40",
+ "host": "makelab2.cs.washington.edu",
+ "infer_s": 478.213318,
+ "load_s": 5.892166,
+ "n_listed": 10857,
+ "n_scored": 10857,
+ "predictions_sha256": "ffff2566a53291a772c3470098fe522c3bd5ee94eb88b683cf2fea4f8cde19e2",
+ "tagger_sha": "3b7405cd3206ece631cb7a65e22b1ab219df4b75",
+ "tags": [
+  "missing-tactile-warning",
+  "narrow",
+  "not-enough-landing-space",
+  "not-level-with-street",
+  "parallel-lines",
+  "points-into-traffic",
+  "pooled-water",
+  "steep",
+  "surface-problem",
+  "tactile-warning"
+ ],
+ "torch": "2.4.1+cu121",
+ "ts": "2026-09-23T03:10:00+00:00"
+}
