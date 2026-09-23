@@ -101,9 +101,82 @@ also the tag validators most often removed since the freeze (471 of 543 removals
   the sigmoid in float32, as `evaluate.py` does. A batch-1 vs batch-64 check ruled out batching
   (largest score difference 2.9e-5).
 
-## 5. Pano-grouped re-split and retrain
+## 5. Retraining the recipe on leak-free splits (interim: epoch 4 of 100)
 
-PENDING.
+The tagger's DINOv2 recipe (`notebooks/dino-trainer.ipynb`: full fine-tune of DINOv2-B with 4
+registers, Adam lr 1e-6, batch 4, BCE, no augmentation, 100 epochs, checkpoint kept by best
+*training* exact-match accuracy) is running on three splits of the same 10,857 labels:
+
+| arm | split | train / test labels | committed split file |
+|---|---|---:|---|
+| control | the published HF split | 8,674 / 2,183 | (HF `csv/`) |
+| pano | seeded pano-grouped re-split: no panorama on both sides | 8,660 / 2,197 | `resplit_pano_grouped_seed86.csv` |
+| cell | seeded ~100 m block-grouped re-split: a panorama goes wherever its block goes | 8,638 / 2,219 | `resplit_cell100m_seed86.csv` |
+
+Both re-splits draw panoramas (or blocks) per city until each city's test count reaches its
+count in the published split, so city mix and test size match (seed 86). The pano-grouped split
+still leaves 692 of its 2,197 test labels within 10 m of a train label (a neighbouring panorama
+of the same corner); the block-grouped split cuts that to 70 of 2,219. For comparison, the published
+split has 1,128 of its 2,183 test labels within 10 m of a train label (930 of them also on a
+shared panorama).
+
+**Status: all three arms are at epoch 8 of 100 as of 2026-09-23 03:28 UTC**, at ~630 s per
+epoch with three arms sharing the A40, so the full recipe finishes around 2026-09-23 21:00 UTC.
+The numbers below are the checkpoint each arm had kept after epoch 4 (its best by the recipe's
+rule at that point), scored on its own held-out labels, same eight tags as §1:
+
+| arm, epoch 4 | test n (panos) | mAP | micro-F1 | macro-F1 |
+|---|---:|---:|---:|---:|
+| released checkpoint, for reference | 2,183 (1,869) | 0.341 [0.324, 0.371] | 0.665 [0.648, 0.682] | 0.315 [0.289, 0.340] |
+| control, all of `test.csv` | 2,183 (1,869) | 0.337 [0.319, 0.372] | 0.661 [0.644, 0.678] | 0.304 [0.282, 0.325] |
+| control, leak-free subset | 957 (889) | 0.353 [0.329, 0.395] | 0.678 [0.654, 0.699] | 0.294 [0.263, 0.323] |
+| control, leaked subset | 1,226 (980) | 0.337 [0.311, 0.387] | 0.645 [0.617, 0.668] | 0.314 [0.280, 0.342] |
+| **pano-grouped**, its held-out panos | 2,197 (1,283) | **0.360** [0.341, 0.388] | 0.655 [0.635, 0.674] | 0.276 [0.258, 0.294] |
+| **block-grouped**, its held-out blocks | 2,219 (1,256) | **0.373** [0.350, 0.406] | 0.655 [0.637, 0.673] | 0.301 [0.281, 0.319] |
+
+- **A model trained without the leak scores no lower.** At epoch 4 the control arm is within
+  0.004 mAP of the released checkpoint, and the two leak-free arms score 0.360 and 0.373 on
+  held-out panoramas and blocks. Inside the control arm, leaked minus leak-free is mAP −0.017
+  [−0.068, +0.032] and micro-F1 −0.032 [−0.067, −0.001]: the leaked labels are, if anything,
+  slightly *harder*, the opposite of what a leak would do.
+- **Caveat: the arms' test sets are different labels.** The re-splits hold out different ramps,
+  with different tag base rates (e.g. "narrow" has 152 test positives in the published split,
+  178 and 177 in the re-splits), so 0.360 vs 0.337 is not a paired comparison. Labels that are
+  test in all three splits and leak-free in the published one number only 39, too few to score.
+  What the table does support: none of the leak-free numbers is lower than the leaky one.
+- **Caveat: epoch 4 is not the recipe.** Training exact-match accuracy is climbing fast (0.67 at
+  epoch 4, 0.82 at epoch 7), so by epoch 100 the model will be close to memorising its train
+  set, which is exactly when a panorama-level leak would pay off most. The released checkpoint's
+  epoch is not recorded anywhere we can find. The epoch-100 read is the one that answers
+  item 3; this is an interim read.
+
+Per-tag AP at epoch 4 (full held-out set of each arm): missing tactile warning 0.974 / 0.973 /
+0.972, surface problem 0.574 / 0.593 / 0.564, points into traffic 0.320 / 0.340 / 0.385, narrow
+0.276 / 0.353 / 0.399, not enough landing space 0.115 / 0.240 / 0.210, pooled water 0.202 /
+0.125 / 0.175, not level with street 0.182 / 0.178 / 0.185, steep 0.056 / 0.077 / 0.092
+(control / pano / block).
+
+Two deliberate differences from the notebook, both inside `train`: a fixed seed (86; the
+notebook sets none), and the deterministic preprocessing (read, resize to 256, pad to 266) is
+done once and held in memory as uint8, which produces the same tensors and removes the per-epoch
+PNG decode. **Assumption:** the HF zip ships 1440×960 crops and the notebook does not crop; the
+arms train on the same `crop.py` 640 px box the test set is evaluated on, on the reading that the
+released model was trained on the framing it is evaluated on. The notebook alone does not settle
+this.
+
+### Finishing the 100-epoch runs
+
+The runs write to `/homes/gws/jonf/nobackup/tagbench86/train_<arm>/` on makelab2 and snapshot
+`best.pth` after epochs 4, 9, 19 and 49 (`best_after_ep<N>.pth`). When `train_<arm>.log` ends in
+`EXIT 0`, the run has already scored `best.pth` on all 10,857 crops into
+`train_<arm>_predictions.csv`. Then, per arm (`control` takes no `--split-csv`):
+
+```bash
+python scripts/analysis/tag_benchmark_86.py score --pred train_pano_predictions.csv --split-csv analysis_out/tag_benchmark_86/resplit_pano_grouped_seed86.csv --fixed-tags missing-tactile-warning,narrow,not-enough-landing-space,not-level-with-street,points-into-traffic,pooled-water,steep,surface-problem --out analysis_out/tag_benchmark_86/train_pano_ep99_scores.json
+```
+
+and copy `train_<arm>/train_log.csv` and `train_meta.json` into `analysis_out/tag_benchmark_86/`
+(the meta holds `elapsed_s` for the final usage-log row).
 
 ## 6. Reproduce
 
@@ -166,12 +239,20 @@ makelab2 (1x A40, shared with another job holding ~9–11 GB), no Slurm, so ever
 | `infer`, released checkpoint (first pass, sigmoid scores; superseded) | 64.0 s |
 | `infer`, batch-1 diagnostic | 72.7 s |
 | `infer`, released checkpoint (logits; committed) | 74.5 s |
+| `infer`, epoch-4 snapshots, 10,857 crops each (GPU shared with training) | 521.4 s, 488.0 s, 509.6 s |
+| `train`, three arms concurrently (in progress; 8 epochs in 5,339 s each) | ~18.5 h projected per arm, same wall-clock |
+
+The training rows are marked `status: in_progress` with the elapsed time at the time of
+writing; the final row goes in when the runs end. At three arms sharing the A40, the full recipe
+is ~18.5 A40-hours of wall-clock for all three together.
 
 Plus CPU: the zip download (~16 min), hashing, extraction and cropping of 10,857 crops (~58 min on NFS),
 and `score` (~5.5 min per prediction file, dominated by the bootstrap).
 
 ## 8. Not run
 
+- **The 100-epoch retrain results.** In flight at the time of writing (§5); only the epoch-4
+  snapshot is scored.
 - **Expert-validate as a second test set (plan item 2, last clause): requires item 2b.** The
   2,432 expert-validated labels have no crops in the HF format. Production stores a browser
   crop only for labels placed since 2023-10-12, served through a signed, referer-checked route,
