@@ -208,3 +208,11 @@ analysis_out/ps_audit/*
 !analysis_out/ps_audit/*.csv
 !analysis_out/ps_audit/*.json
 analysis_out/ps_audit/hf_validated_curbramp_index.csv
+# #86 tag benchmark (docs/tag_benchmark_86.md): the label->pano table, the re-split, the
+# per-label predictions and the score summaries are committed; model checkpoints and crops
+# live on makelab2 nobackup and are never committed.
+!analysis_out/tag_benchmark_86/
+analysis_out/tag_benchmark_86/*
+!analysis_out/tag_benchmark_86/*.csv
+!analysis_out/tag_benchmark_86/*.json
+!analysis_out/tag_benchmark_86/as_run/
