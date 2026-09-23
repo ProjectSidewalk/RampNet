@@ -267,8 +267,8 @@ def test_cell_split_is_pano_disjoint_and_keeps_near_panos_together():
 
 
 def test_logits_keep_saturated_scores_distinct():
-    # at 6 dp, sigmoid(-14) and sigmoid(-16) are both 0.000000; their logits are not
-    pred = pd.DataFrame({"filename": ["a", "b"], "logit:t": [-14.0, -16.0]})
+    # at 6 dp, sigmoid(-15) and sigmoid(-17) are both 0.000000; their logits are not
+    pred = pd.DataFrame({"filename": ["a", "b"], "logit:t": [-15.0, -17.0]})
     p = tb.score_probs(pred, ["t"])
     assert p[0, 0] > p[1, 0] > 0
     assert round(p[0, 0], 6) == round(p[1, 0], 6) == 0.0
