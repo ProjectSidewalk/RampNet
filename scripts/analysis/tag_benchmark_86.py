@@ -364,8 +364,8 @@ def tagger_metrics(y_true, y_score, tags, min_instances=MIN_INSTANCES, threshold
     return out
 
 
-def bootstrap_ci(y_true, y_score, groups, tags, selected, n_boot=1000, seed=86, alpha=0.05):
-    """Pano-clustered bootstrap CI for mAP and micro/macro F1 on a fixed tag set.
+def bootstrap_samples(y_true, y_score, groups, tags, selected, n_boot=1000, seed=86):
+    """Pano-clustered bootstrap draws of mAP and micro/macro F1 on a fixed tag set.
 
     Labels on one panorama are not independent (same image, same rater session), so the
     resampling unit is the panorama."""
@@ -379,10 +379,19 @@ def bootstrap_ci(y_true, y_score, groups, tags, selected, n_boot=1000, seed=86, 
         idx = np.concatenate([members[k] for k in pick])
         m = tagger_metrics(y_true[idx], y_score[idx], tags, selected=selected)
         for k in stats:
-            if m[k] is not None:
-                stats[k].append(m[k])
-    return {k: [float(np.quantile(v, alpha / 2)), float(np.quantile(v, 1 - alpha / 2))]
-            for k, v in stats.items() if v}
+            stats[k].append(np.nan if m[k] is None else m[k])
+    return {k: np.array(v) for k, v in stats.items()}
+
+
+def _ci(v, alpha=0.05):
+    v = np.asarray(v)[~np.isnan(v)]
+    return [float(np.quantile(v, alpha / 2)), float(np.quantile(v, 1 - alpha / 2))] if len(v) else None
+
+
+def bootstrap_ci(y_true, y_score, groups, tags, selected, n_boot=1000, seed=86, alpha=0.05):
+    """95 % pano-clustered bootstrap CI for mAP and micro/macro F1 (see bootstrap_samples)."""
+    d = bootstrap_samples(y_true, y_score, groups, tags, selected, n_boot, seed)
+    return {k: _ci(v, alpha) for k, v in d.items()}
 
 
 # ----------------------------------------------------------------------------- prepare
@@ -631,6 +640,7 @@ def score_subsets(pred, lab, tags, test_split="test", train_split="train", near_
                                                       & (m.nearest_train_m > near_m)).to_numpy(),
     }
     out = {"n_scored": int(len(m)), "tags_fixed": fixed, "subsets": {}}
+    draws = {}
     for name, mask in subsets.items():
         if mask.sum() == 0:
             continue
@@ -641,9 +651,18 @@ def score_subsets(pred, lab, tags, test_split="test", train_split="train", near_
             "cities": m.city[mask].value_counts().sort_index().to_dict(),
             "tagger_rule": {k: own[k] for k in ("mAP", "micro_f1", "macro_f1", "weighted_f1", "tags_averaged")},
             "fixed_tags": {k: same[k] for k in ("mAP", "micro_f1", "macro_f1", "weighted_f1")},
-            "ci95_fixed_tags": bootstrap_ci(y[mask], s[mask], groups[mask], tags, fixed, n_boot=n_boot) if n_boot else None,
+            "ci95_fixed_tags": None,
             "per_tag": same["per_tag"],
         }
+        if n_boot:
+            draws[name] = bootstrap_samples(y[mask], s[mask], groups[mask], tags, fixed, n_boot=n_boot)
+            out["subsets"][name]["ci95_fixed_tags"] = {k: _ci(v) for k, v in draws[name].items()}
+    if n_boot and "leaked" in draws and "leak_free" in draws:
+        # the two subsets share no panorama, so independent draws are the right null
+        out["leaked_minus_leak_free"] = {
+            k: {"point": out["subsets"]["leaked"]["fixed_tags"][k] - out["subsets"]["leak_free"]["fixed_tags"][k],
+                "ci95": _ci(draws["leaked"][k] - draws["leak_free"][k])}
+            for k in ("mAP", "micro_f1", "macro_f1")}
     per_label = m[["filename", "city", "label_id", "pano_id", "pano_in_train", "nearest_train_m"] + tags].copy()
     for j, t in enumerate(tags):
         per_label[f"prob:{t}"] = s[:, j]
