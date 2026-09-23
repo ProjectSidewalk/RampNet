@@ -116,9 +116,10 @@ wide-FOV views.
 
 ## Not part of the recall analysis
 
-Two scripts in this directory belong to a different question and read none of the caches above:
+These scripts belong to different questions and read none of the caches above:
 
 | script | GPU | what it answers |
 |---|---|---|
 | `stage2_epoch_curve.py` | no | **The Stage 2 epoch curve (#84).** Extracts per-epoch auto-label validation loss from the committed TensorBoard events of Run A (`stage_two/run_a_84_events/`) and compares it against the paper run's own rescued events (`docs/data/rampnet1_stage2_run/`, #104) at full float32 precision. Reads them with `stage2_train_cost.read_scalars` — standard library only, no tensorboard install, and one parser rather than two. Checks every file against the `SHA256SUMS` committed beside it. See [`docs/stage2_epoch_curve_84.md`](../../docs/stage2_epoch_curve_84.md). |
 | `plot_epoch_curve.py` | no | The figure for the above: both runs' curves on one absolute axis, and each epoch's excess over Run A's own minimum → `docs/figures/stage2_epoch_curve_84.png`. |
+| `sam2_extent_83.py run` / `summarize` / `gallery` | **yes** (`run` only) | **SAM2 extent vs the whole-apron gold (#83 path 1, RampNet 2.0 plan item 7).** Point-prompted SAM2.1 Hiera-L on a gnomonic view centered on the point vs the plain equirect crop, from the gold box center and from the recorded (detection) point, at 90/76/60°; each mask's seam-aware equirect bbox is scored by IoU against `benchmark/<city>/boxes.json`. `summarize` and `gallery` are CPU and read the committed `analysis_out/sam2_extent_83/*_rows.csv`. Exact commands: `sam2_extent_83_runbook.sh`; results and decision: [`docs/sam2_extent_83.md`](../../docs/sam2_extent_83.md). |

@@ -1,0 +1,72 @@
+{
+ "arms": [
+  "boxcenter_gnomonic",
+  "boxcenter_equirect",
+  "point_gnomonic",
+  "point_equirect"
+ ],
+ "autocast": "bfloat16",
+ "box_rule_version": 2,
+ "boxes_json_sha256": "f6b7f73ca5024dff5a82b1be92a4dea391f35efdf24ec3f96e3454d2dcc6293b",
+ "checkpoint": "sam2.1_hiera_large.pt",
+ "checkpoint_sha256": "2647878d5dfa5098f2f8649825738a9345572bae2d4350a2468587ece47dd318",
+ "city": "richmond",
+ "decode_s": 371.801,
+ "detect_s": 3281.562,
+ "elapsed_s": 3289.095,
+ "embed_s": 202.39,
+ "finished_at": "2026-09-23T01:45:45+00:00",
+ "fovs": [
+  90,
+  76,
+  60
+ ],
+ "gnomonic_render": "bilinear, view side = box_gallery crop side at the same fov",
+ "gold": {
+  "completeness_warning": null,
+  "crop_fov_deg": 90,
+  "crop_px_by_pano_dims": {
+   "11000x5500": 2750,
+   "12288x6144": 3072,
+   "4096x2048": 1024,
+   "5760x2880": 1440
+  },
+  "n_adjudicated": 310,
+  "n_boxed": 299,
+  "n_cant": 11,
+  "n_other": 0
+ },
+ "gpus": [
+  "NVIDIA A40"
+ ],
+ "headline_variant": "pt_multi",
+ "host": "makelab2.cs.washington.edu",
+ "imagery_manifest_digest": "ec8ef3678aa9bf84",
+ "load_s": 3.425,
+ "n_items": 299,
+ "n_panos": 86,
+ "n_rows": 14352,
+ "n_views": 3588,
+ "panos_verified_against_manifest": 86,
+ "prior": {
+  "apron_m": 1.5,
+  "cam_height_m": 2.5,
+  "scale": 2.0
+ },
+ "python": "3.11.15",
+ "records_jsonl_sha256": "8b0669d694bd51b0e8b44ed88e4477626eb1a559f6869625c6d2d56ef950ebe9",
+ "render_s": 2293.889,
+ "rows_csv_sha256": "af33a8699344b409df0392dc051252ccfbc1a6ad652881e5ff9b41276b3ec871",
+ "sam2": {
+  "dist_version": "1.0",
+  "git_commit": "2b90b9f5ceec907a1c18123530e92e794ad901a4"
+ },
+ "sam2_config": "configs/sam2.1/sam2.1_hiera_l.yaml",
+ "torch": "2.5.1+cu124",
+ "variants": [
+  "pt_multi",
+  "pt_single",
+  "ptbox_multi",
+  "ptbox_single"
+ ]
+}

@@ -308,8 +308,11 @@ def prior_box(x, y, cam_height=2.5, apron_m=1.5, scale=2.0, min_dep_deg=1.0):
     distance ``d``; a ``scale * apron_m`` square on the ground centered there
     subtends the returned box (horizontal angle at slant range, vertical from the
     near and far ground edges). Production has exactly these inputs (a point, and
-    the pano geometry), so this prior never touches the gold. ``scale`` makes it a
-    loose bound rather than an estimate.
+    the pano geometry), so this prior never touches the gold. ``scale = 2`` was meant
+    as a loose bound; measured on Richmond it lands near the gold's own size (median
+    sqrt-area ratio 0.88, the 1.5 m nominal being ~1.25x small and the 2.5 m camera
+    ~1.5x high there, ``crop_window_eval.md`` Finding 4), so it is effectively a size
+    *estimate* -- which is why ``summarize`` scores the prior alone as a control.
     """
     dep = max(math.radians(min_dep_deg), math.radians(depression_deg(y)))
     d = cam_height / math.tan(dep)
@@ -737,7 +740,9 @@ def dist_stats(rows):
         "size_ratio_p90": round(_q(size, 0.9), 4) if size else None,
         "empty_masks": sum(1 for r in rows if not r["sam_w"]),
         "mask_touches_edge": sum(r["mask_touches_edge"] for r in rows),
-        "pred_iou_median": round(_q([r["pred_iou"] for r in rows], 0.5), 4),
+        "pred_iou_median": (round(_q(pi, 0.5), 4) if (pi := [r["pred_iou"] for r in rows
+                                                              if r["pred_iou"] == r["pred_iou"]])
+                            else None),
     }
 
 
@@ -775,10 +780,56 @@ def paired_delta(rows, a, b, seed=BOOTSTRAP_SEED, reps=BOOTSTRAP_REPS):
             "bootstrap": {"reps": reps, "seed": seed, "unit": "pano"}}
 
 
-def summarize_rows(rows):
-    arms = sorted({r["arm"] for r in rows})
-    fovs = sorted({r["fov"] for r in rows})
+def prior_only_rows(rows, prior_kw=None):
+    """The no-SAM2 control for the ``ptbox_*`` variants: score the geometry prior box
+    itself against the gold, one row per (item, prompt source). The prior depends on
+    the prompt only, not on the projection or FOV, so it is emitted once per prompt
+    as arm ``<prompt>_prior``, fov 0, variant ``prior_only``. Without this row a
+    ``ptbox`` IoU cannot be read: part of it is the prior's own overlap."""
+    prior_kw = prior_kw or {}
+    out, seen = [], set()
+    for r in rows:
+        prompt = r["arm"].split("_", 1)[0]
+        key = (r["pano_id"], r["key"], prompt)
+        if key in seen:
+            continue
+        seen.add(key)
+        pb = prior_box(r["prompt_x"], r["prompt_y"], **prior_kw)
+        gold = (r["gold_cx"], r["gold_cy"], r["gold_w"], r["gold_h"])
+        q = dict(r)
+        q.update({"arm": f"{prompt}_prior", "projection": "prior", "fov": 0,
+                  "variant": "prior_only", "sam_cx": pb[0], "sam_cy": pb[1],
+                  "sam_w": pb[2], "sam_h": pb[3], "iou": seam_iou(gold, pb),
+                  "gold_frac_covered": seam_intersection(gold, pb) / (gold[2] * gold[3]),
+                  "mask_frac_in_gold": None, "pred_iou": float("nan"), "mask_px": 0,
+                  "mask_touches_edge": 0})
+        out.append(q)
+    return out
+
+
+def summarize_rows(rows, prior_kw=None):
+    prior = prior_only_rows(rows, prior_kw)
+    rows = rows + prior
+    arms = sorted({r["arm"] for r in rows if not r["arm"].endswith("_prior")})
+    fovs = sorted({r["fov"] for r in rows if r["fov"]})
     out = {"cells": {}, "bands": {}, "deltas": {}, "subsets": {}}
+    for prompt in PROMPTS:
+        sel = [r for r in prior if r["arm"] == f"{prompt}_prior"]
+        if sel:
+            key = f"{prompt}_prior|0|prior_only"
+            out["cells"][key] = dist_stats(sel)
+            out["bands"][key] = {b: dist_stats([r for r in sel if r["band"] == b])
+                                 for b in BAND_ORDER}
+            out["subsets"][key] = {k: dist_stats([r for r in sel if r["kind"] == k])
+                                   for k in ("det", "missed")}
+            for arm in (a for a in arms if a.startswith(prompt + "_")):
+                for fov in fovs:
+                    for variant in ("ptbox_multi", "ptbox_single"):
+                        res = paired_delta(rows, {"arm": arm, "fov": fov, "variant": variant},
+                                           {"arm": f"{prompt}_prior", "fov": 0,
+                                            "variant": "prior_only"})
+                        if res.get("n"):
+                            out["deltas"][f"sam-prior|{arm}|{fov}|{variant}"] = res
     for arm in arms:
         for fov in fovs:
             for variant in VARIANTS:
@@ -845,10 +896,23 @@ def cmd_summarize(args):
     rows = []
     for city in cities:
         rows.extend(read_rows(os.path.join(args.out, f"{city}_rows.csv")))
-    summary = {"cities": cities, "headline_variant": HEADLINE_VARIANT,
+    priors = set()
+    for c in cities:
+        rj = os.path.join(args.out, f"{c}_run.json")
+        if os.path.exists(rj):
+            with open(rj, encoding="utf-8") as f:
+                p = json.load(f)["prior"]
+            priors.add((p["cam_height_m"], p["apron_m"], p["scale"]))
+    if len(priors) > 1:
+        raise SystemExit(f"cities were run with different box priors: {priors}")
+    prior_kw = {}
+    if priors:
+        h, a, k = priors.pop()
+        prior_kw = {"cam_height": h, "apron_m": a, "scale": k}
+    summary = {"cities": cities, "headline_variant": HEADLINE_VARIANT, "prior": prior_kw,
                "rows_csv_sha256": {c: sha256_file(os.path.join(args.out, f"{c}_rows.csv"))
                                    for c in cities}}
-    summary.update(summarize_rows(rows))
+    summary.update(summarize_rows(rows, prior_kw))
     name = args.name or "+".join(cities)
     write_json(os.path.join(args.out, f"{name}_summary.json"), summary)
     print(format_tables(summary))
@@ -881,11 +945,11 @@ def cmd_gallery(args):
     Image.MAX_IMAGE_PIXELS = None
     rows = read_rows(os.path.join(args.out, f"{args.city}_rows.csv"))
     head = [r for r in rows if r["arm"] == args.gallery_arm and r["fov"] == args.gallery_fov
-            and r["variant"] == HEADLINE_VARIANT]
+            and r["variant"] == args.gallery_variant]
     other_arm = args.gallery_arm.replace("gnomonic", "equirect")
     other = {(r["pano_id"], r["key"]): r for r in rows
              if r["arm"] == other_arm and r["fov"] == args.gallery_fov
-             and r["variant"] == HEADLINE_VARIANT}
+             and r["variant"] == args.gallery_variant}
     head.sort(key=lambda r: (r["iou"], r["pano_id"], r["key"]))
     n = args.gallery_n
     worst = head[:n]
@@ -905,7 +969,7 @@ def cmd_gallery(args):
             tiles.append(_gallery_tile(cache[pid], r, other.get((pid, r["key"])),
                                        args.tile, ImageDraw))
         sheet = _sheet(tiles, cols=4, tile=args.tile)
-        path = os.path.join(args.assets, f"sam2_extent_83_{args.city}_{label}.jpg")
+        path = os.path.join(args.assets, f"sam2_extent_83_{args.city}_{args.gallery_variant}_{label}.jpg")
         sheet.save(path, quality=85)
         written.append(path)
     print("wrote", *written)
@@ -1011,6 +1075,7 @@ def main(argv=None):
     g.add_argument("--assets", default=os.path.join("docs", "assets"))
     g.add_argument("--gallery-arm", default="boxcenter_gnomonic")
     g.add_argument("--gallery-fov", type=int, default=90)
+    g.add_argument("--gallery-variant", default=HEADLINE_VARIANT, choices=VARIANTS)
     g.add_argument("--gallery-n", type=int, default=8)
     g.add_argument("--tile", type=int, default=256)
     g.set_defaults(func=cmd_gallery)

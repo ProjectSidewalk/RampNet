@@ -230,3 +230,15 @@ def test_items_load_and_det_points_are_the_detections(city, n_boxed, n_det):
     assert len(items) == n_boxed == meta["n_boxed"]
     assert sum(it["kind"] == "det" for it in items) == n_det
     assert all(it["pano_w"] == 2 * it["pano_h"] for it in items)
+
+
+def test_prior_only_control_is_one_row_per_item_and_prompt():
+    base = {"pano_id": "p", "key": "det:0", "kind": "det", "fov": 90, "variant": "pt_multi",
+            "prompt_x": 0.3, "prompt_y": 0.56, "gold_cx": 0.3, "gold_cy": 0.56,
+            "gold_w": 0.01, "gold_h": 0.004, "band": "9-18 m", "iou": 0.1}
+    rows = [dict(base, arm=a, fov=f) for a in ("boxcenter_gnomonic", "boxcenter_equirect",
+                                               "point_gnomonic") for f in (90, 60)]
+    prior = se.prior_only_rows(rows)
+    assert sorted(r["arm"] for r in prior) == ["boxcenter_prior", "point_prior"]
+    pb = se.prior_box(0.3, 0.56)
+    assert prior[0]["iou"] == pytest.approx(se.seam_iou((0.3, 0.56, 0.01, 0.004), pb))
