@@ -727,6 +727,9 @@ def dist_stats(rows):
         if r["sam_w"]:
             size.append(math.sqrt((r["sam_w"] * r["sam_h"]) / (r["gold_w"] * r["gold_h"])))
     mig = [r["mask_frac_in_gold"] for r in rows if r["mask_frac_in_gold"] is not None]
+    # Width is the measurement #86 wants first, so its error gets its own column:
+    # the box-width ratio SAM2/gold (an empty mask counts as ratio 0, i.e. a miss).
+    wr = [(r["sam_w"] or 0.0) / r["gold_w"] for r in rows]
     return {
         "n": n,
         "iou_median": round(_q(iou, 0.5), 4), "iou_mean": round(float(np.mean(iou)), 4),
@@ -738,6 +741,8 @@ def dist_stats(rows):
         "size_ratio_median": round(_q(size, 0.5), 4) if size else None,
         "size_ratio_p10": round(_q(size, 0.1), 4) if size else None,
         "size_ratio_p90": round(_q(size, 0.9), 4) if size else None,
+        "width_ratio_median": round(_q(wr, 0.5), 4),
+        "width_within_20pct": round(sum(0.8 <= v <= 1.25 for v in wr) / n, 4),
         "empty_masks": sum(1 for r in rows if not r["sam_w"]),
         "mask_touches_edge": sum(r["mask_touches_edge"] for r in rows),
         "pred_iou_median": (round(_q(pi, 0.5), 4) if (pi := [r["pred_iou"] for r in rows
@@ -920,13 +925,14 @@ def cmd_summarize(args):
 
 def format_tables(summary):
     lines = ["arm | fov | variant | n | IoU med | mean | >=0.5 | >=0.75 | cover med | "
-             "in-gold med | size p10/p50/p90 | empty | edge"]
+             "in-gold med | size p10/p50/p90 | width ±20% | empty | edge"]
     for k, s in summary["cells"].items():
         arm, fov, var = k.split("|")
         lines.append(f"{arm} | {fov} | {var} | {s['n']} | {s['iou_median']} | {s['iou_mean']} | "
                      f"{s['iou_ge_050']} | {s['iou_ge_075']} | {s['gold_frac_covered_median']} | "
                      f"{s['mask_frac_in_gold_median']} | {s['size_ratio_p10']}/"
-                     f"{s['size_ratio_median']}/{s['size_ratio_p90']} | {s['empty_masks']} | "
+                     f"{s['size_ratio_median']}/{s['size_ratio_p90']} | "
+                     f"{s['width_within_20pct']} | {s['empty_masks']} | "
                      f"{s['mask_touches_edge']}")
     lines.append("")
     for k, d in summary["deltas"].items():
