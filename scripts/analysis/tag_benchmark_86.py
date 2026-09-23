@@ -514,13 +514,17 @@ def cmd_infer(args):
     with torch.no_grad():
         for i in range(0, len(present), args.batch):
             batch = torch.stack([tf(Image.open(where[f])) for f in present[i:i + args.batch]])
-            scores.append(torch.sigmoid(model(batch.to(dev))).float().cpu().numpy())
+            scores.append(model(batch.to(dev)).float().cpu().numpy())   # logits
     infer_s = time.time() - t1
     s = np.concatenate(scores) if scores else np.zeros((0, len(tags)))
     out = pd.DataFrame({"filename": present})
+    # Logits, not sigmoid scores: rounded to a fixed number of decimals, sigmoid scores
+    # collapse into ties near 0 and 1 (867 of 2,183 missing-tactile-warning scores rounded to
+    # 0.000000 at 6 dp), and ties lower AP. score_probs() applies the sigmoid in float32, as
+    # evaluate.py does.
     for j, t in enumerate(tags):
-        out[f"score:{t}"] = s[:, j]
-    write_csv(out, args.out, float_digits=6)
+        out[f"logit:{t}"] = s[:, j]
+    write_csv(out, args.out, float_digits=5)
     meta = {"checkpoint": os.path.basename(args.checkpoint), "checkpoint_sha256": sha256_file(args.checkpoint),
             "tagger_sha": sha, "csv": os.path.basename(args.csv), "n_scored": len(present),
             "n_listed": int(len(df)), "tags": tags, "load_s": load_s, "infer_s": infer_s,
@@ -594,10 +598,20 @@ def cmd_tagger_eval(args):
 
 # ----------------------------------------------------------------------------- score
 
+def score_probs(pred, tags):
+    """Sigmoid scores per tag from a predictions frame: ``logit:<tag>`` columns go through a
+    float32 sigmoid (what evaluate.py's ``torch.sigmoid`` does on its float32 logits);
+    ``score:<tag>`` columns are taken as they are."""
+    if all(f"logit:{t}" in pred for t in tags):
+        z = pred[[f"logit:{t}" for t in tags]].to_numpy(np.float32)
+        return (1.0 / (1.0 + np.exp(-z, dtype=np.float32))).astype(np.float32).astype(float)
+    return pred[[f"score:{t}" for t in tags]].to_numpy(float)
+
+
 def _arrays(pred, lab, tags):
     m = lab.merge(pred, on="filename", how="inner", validate="one_to_one")
     y = m[tags].to_numpy(float)
-    s = m[[f"score:{t}" for t in tags]].to_numpy(float)
+    s = score_probs(m, tags)
     return m, y, s
 
 
@@ -630,8 +644,9 @@ def score_subsets(pred, lab, tags, test_split="test", train_split="train", near_
             "ci95_fixed_tags": bootstrap_ci(y[mask], s[mask], groups[mask], tags, fixed, n_boot=n_boot) if n_boot else None,
             "per_tag": same["per_tag"],
         }
-    per_label = m[["filename", "city", "label_id", "pano_id", "pano_in_train", "nearest_train_m"] + tags
-                  + [f"score:{t}" for t in tags]]
+    per_label = m[["filename", "city", "label_id", "pano_id", "pano_in_train", "nearest_train_m"] + tags].copy()
+    for j, t in enumerate(tags):
+        per_label[f"prob:{t}"] = s[:, j]
     return out, per_label
 
 

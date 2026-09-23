@@ -145,8 +145,8 @@ def test_score_subsets_partition():
     splits, raw = _splits()
     lab, tags = tb.build_label_table(splits, raw)
     te = lab[lab.split == "test"]
-    pred = pd.DataFrame({"filename": te.filename, "score:narrow": [.9, .1, .1, .8],
-                         "score:steep": [.7, .2, .1, .1]})
+    pred = pd.DataFrame({"filename": te.filename, "logit:narrow": [2.0, -2.0, -2.0, 1.5],
+                         "logit:steep": [1.0, -1.5, -2.0, -2.0]})
     out, per_label = tb.score_subsets(pred, lab, tags, n_boot=0)
     s = out["subsets"]
     assert s["full"]["n"] == 4
@@ -264,3 +264,11 @@ def test_cell_split_is_pano_disjoint_and_keeps_near_panos_together():
     assert g[2] == g[3] != g[0]   # one pano, one group
     sp = tb.pano_grouped_split(lab, seed=0, group="cell")
     assert sp.groupby("pano_id").split.nunique().max() == 1
+
+
+def test_logits_keep_saturated_scores_distinct():
+    # at 6 dp, sigmoid(-14) and sigmoid(-16) are both 0.000000; their logits are not
+    pred = pd.DataFrame({"filename": ["a", "b"], "logit:t": [-14.0, -16.0]})
+    p = tb.score_probs(pred, ["t"])
+    assert p[0, 0] > p[1, 0] > 0
+    assert round(p[0, 0], 6) == round(p[1, 0], 6) == 0.0
