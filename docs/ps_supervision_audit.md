@@ -14,8 +14,8 @@ python scripts/analysis/ps_supervision_audit.py report --cutoff 2018-04-29 --tru
 - **Deployments:** 58 (39 public from the cities API, 19 private by hostname from the committed `PRIVATE_HOSTS` list). The cities API lists private deployments without a URL, so a private host not in that list is invisible to this audit.
 - **Endpoints per deployment:** `rawLabels` (CurbRamp, NoCurbRamp), `validations` (CurbRamp, NoCurbRamp), `labelEdits`, `labelTags`.
 - **Excluded account:** `51b0b927…` (SidewalkAI), 79,351 CurbRamp labels and 0 NoCurbRamp labels, dropped by user id from every human count below. Its `high_quality_user` flag is true, so that flag cannot be used to find it.
-- **Tag era cutoff:** `2018-04-29` by label placement date (tags entered the schema on 2018-04-29, SidewalkWebpage evolution 14). A label placed before that is pre-tag, not tag-negative; every tag rate below is over the 361,863 human CurbRamp labels on or after the cutoff, and the 142,931 before it (32 of which carry tags added later) are position-only supervision.
-- **Server crops:** production stores a browser crop for every label placed since `2023-10-12`; 196,556 human CurbRamp labels have one. Anything older needs a re-cut from the pano store (plan item 2b).
+- **Tag era cutoff:** `2018-04-29` by label placement date (tags entered the schema on 2018-04-29, SidewalkWebpage evolution 14). A label placed before that is pre-tag, not tag-negative; every tag rate below is over the 362,217 human CurbRamp labels on or after the cutoff, and the 143,076 before it (32 of which carry tags added later) are position-only supervision.
+- **Server crops:** production stores a browser crop for every label placed since `2023-10-12`; 196,742 human CurbRamp labels have one. Anything older needs a re-cut from the pano store (plan item 2b).
 - **Trusted raters:** jonfroehlich, mikey (Owners, committed) plus 71 Administrators and 47 Researchers from `--trusted-users` (not committed; it names MTurk worker accounts).
 
 
@@ -25,16 +25,16 @@ Tier 2 is a **position** tier: the validate and mobile UIs have no tag control, 
 
 | tier | labels | users | cities | rated | tagged | correct | tagged_and_correct | human_net_agree_ge2 | tag_era | tagged_tag_era | with_server_crop |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| tier 1: every human label | 505,293 | 7,790 | 58 | 467,125 | 118,434 | 296,075 | 89,546 | 68,460 | 361,863 | 118,293 | 196,556 |
-| tier 2: crowd-validated correct (correct == true) | 296,075 | 6,041 | 56 | 288,617 | 89,546 | 296,075 | 89,546 | 68,460 | 295,668 | 89,431 | 168,791 |
-| tier 2b: human net Agree >= 2 | 68,460 | 3,871 | 51 | 66,891 | 24,091 | 68,460 | 24,091 | 68,460 | 68,401 | 24,067 | 38,682 |
-| tier 3: placed by an Owner | 19,186 | 2 | 49 | 17,146 | 3,278 | 7,049 | 2,808 | 2,973 | 8,052 | 3,275 | 1,562 |
-|     jonfroehlich | 12,147 | 1 | 38 | 10,302 | 2,212 | 3,802 | 1,899 | 1,952 | 4,234 | 2,210 | 1,197 |
-|     mikey | 7,039 | 1 | 44 | 6,844 | 1,066 | 3,247 | 909 | 1,021 | 3,818 | 1,065 | 365 |
-| tier 3v: Agree-validated by an Owner | 22,267 | 2,143 | 41 | 21,668 | 10,600 | 21,675 | 10,206 | 12,976 | 22,122 | 10,556 | 6,180 |
-| tier 3+: placed by Owner or Administrator | 45,958 | 63 | 54 | 40,265 | 9,872 | 27,223 | 8,592 | 9,355 | 29,951 | 9,860 | 18,443 |
-| tier 3v+: Agree-validated by Owner or Administrator | 50,274 | 2,737 | 46 | 49,214 | 19,557 | 48,818 | 18,702 | 26,740 | 50,101 | 19,506 | 25,563 |
-| tier 3++: placed by Owner, Administrator or Researcher | 49,451 | 100 | 54 | 42,646 | 10,348 | 28,204 | 8,952 | 9,930 | 31,123 | 10,335 | 18,443 |
+| tier 1: every human label | 505,293 | 7,790 | 58 | 467,125 | 118,434 | 296,075 | 89,546 | 68,460 | 362,217 | 118,402 | 196,742 |
+| tier 2: crowd-validated correct (correct == true) | 296,075 | 6,041 | 56 | 288,617 | 89,546 | 296,075 | 89,546 | 68,460 | 295,957 | 89,514 | 168,952 |
+| tier 2b: human net Agree >= 2 | 68,460 | 3,871 | 51 | 66,891 | 24,091 | 68,460 | 24,091 | 68,460 | 68,460 | 24,091 | 38,714 |
+| tier 3: placed by an Owner | 19,186 | 2 | 49 | 17,146 | 3,278 | 7,049 | 2,808 | 2,973 | 8,063 | 3,277 | 1,564 |
+|     jonfroehlich | 12,147 | 1 | 38 | 10,302 | 2,212 | 3,802 | 1,899 | 1,952 | 4,238 | 2,211 | 1,198 |
+|     mikey | 7,039 | 1 | 44 | 6,844 | 1,066 | 3,247 | 909 | 1,021 | 3,825 | 1,066 | 366 |
+| tier 3v: Agree-validated by an Owner | 22,267 | 2,143 | 41 | 21,668 | 10,600 | 21,675 | 10,206 | 12,976 | 22,149 | 10,568 | 6,186 |
+| tier 3+: placed by Owner or Administrator | 45,958 | 63 | 54 | 40,265 | 9,872 | 27,223 | 8,592 | 9,355 | 29,982 | 9,870 | 18,457 |
+| tier 3v+: Agree-validated by Owner or Administrator | 50,274 | 2,737 | 46 | 49,214 | 19,557 | 48,818 | 18,702 | 26,740 | 50,156 | 19,525 | 25,589 |
+| tier 3++: placed by Owner, Administrator or Researcher | 49,451 | 100 | 54 | 42,646 | 10,348 | 28,204 | 8,952 | 9,930 | 31,155 | 10,346 | 18,457 |
 
 NoCurbRamp, for the record: 130,242 human labels, 75,779 tagged (58%), 80,415 validated correct. Absence detection is out of scope for 2.0 (plan §5) but the supervision exists.
 
@@ -43,19 +43,19 @@ NoCurbRamp, for the record: 130,242 human labels, 75,779 tagged (58%), 80,415 va
 | year | labels | cities | private | rated | tagged | correct | human_validated | tagged_and_correct | pct_tagged | pct_rated |
 |---|---|---|---|---|---|---|---|---|---|---|
 | 2015 | 2,559 | 1 | 2,559 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| 2016 | 34,869 | 1 | 34,869 | 25,112 | 5 | 25 | 26 | 5 | 0 | 72 |
-| 2017 | 67,263 | 1 | 67,263 | 57,280 | 19 | 55 | 57 | 19 | 0 | 85.2 |
-| 2018 | 40,393 | 1 | 40,393 | 34,777 | 19 | 41 | 48 | 8 | 0 | 86.1 |
-| 2019 | 33,912 | 5 | 1,439 | 32,773 | 9,365 | 27,128 | 22,364 | 7,489 | 27.6 | 96.6 |
-| 2020 | 27,508 | 7 | 1,254 | 26,662 | 8,407 | 21,800 | 18,738 | 6,445 | 30.6 | 96.9 |
-| 2021 | 46,550 | 9 | 4 | 45,612 | 12,182 | 35,873 | 35,936 | 8,480 | 26.2 | 98 |
-| 2022 | 28,716 | 12 | 621 | 27,865 | 12,925 | 20,709 | 15,896 | 8,755 | 45 | 97 |
-| 2023 | 45,153 | 20 | 22,483 | 44,081 | 17,319 | 36,821 | 31,514 | 12,855 | 38.4 | 97.6 |
-| 2024 | 49,967 | 25 | 5,048 | 48,877 | 16,262 | 44,668 | 29,177 | 13,431 | 32.5 | 97.8 |
-| 2025 | 73,417 | 38 | 27,466 | 71,011 | 27,865 | 63,748 | 45,203 | 22,420 | 38 | 96.7 |
-| 2026 | 54,487 | 47 | 6,039 | 52,618 | 13,957 | 44,918 | 7,736 | 9,556 | 25.6 | 96.6 |
+| 2016 | 34,903 | 1 | 34,903 | 25,131 | 5 | 25 | 26 | 5 | 0 | 72 |
+| 2017 | 67,335 | 1 | 67,335 | 57,341 | 19 | 55 | 57 | 19 | 0 | 85.2 |
+| 2018 | 40,437 | 1 | 40,437 | 34,814 | 19 | 41 | 48 | 8 | 0 | 86.1 |
+| 2019 | 33,949 | 5 | 1,444 | 32,808 | 9,369 | 27,153 | 22,385 | 7,491 | 27.6 | 96.6 |
+| 2020 | 27,535 | 7 | 1,255 | 26,689 | 8,416 | 21,820 | 18,759 | 6,452 | 30.6 | 96.9 |
+| 2021 | 46,593 | 9 | 4 | 45,654 | 12,196 | 35,909 | 35,969 | 8,491 | 26.2 | 98 |
+| 2022 | 28,740 | 12 | 621 | 27,889 | 12,941 | 20,731 | 15,910 | 8,769 | 45 | 97 |
+| 2023 | 45,200 | 20 | 22,506 | 44,128 | 17,335 | 36,857 | 31,545 | 12,864 | 38.4 | 97.6 |
+| 2024 | 50,021 | 25 | 5,055 | 48,931 | 16,277 | 44,718 | 29,205 | 13,445 | 32.5 | 97.8 |
+| 2025 | 73,484 | 38 | 27,494 | 71,076 | 27,889 | 63,809 | 45,242 | 22,439 | 38 | 96.7 |
+| 2026 | 54,537 | 47 | 6,045 | 52,664 | 13,968 | 44,957 | 7,745 | 9,563 | 25.6 | 96.6 |
 
-Labels on or after the cutoff: 361,863 (118,293 tagged, 89,431 tagged and validated correct). The private deployments contribute 209,658 of the 505,293 human labels; `dc` alone is 147,937, almost all pre-cutoff.
+Labels on or after the cutoff: 362,217 (118,402 tagged, 89,514 tagged and validated correct). The private deployments contribute 209,658 of the 505,293 human labels; `dc` alone is 147,937, almost all pre-cutoff.
 
 ## 4. Tags
 
@@ -63,18 +63,18 @@ Union vocabulary across the 58 deployments' `labelTags` endpoints: 12 CurbRamp t
 
 | tag | labels | labels_correct | pct_of_tag_era | cities_with_labels | deployments_listing | labels_where_unlisted | unlisted_in |
 |---|---|---|---|---|---|---|---|
-| debris / pooled water | 4,759 | 3,743 | 1.32 | 47 | 58 | 0 |  |
-| missing tactile warning | 61,044 | 45,586 | 16.87 | 56 | 56 | 771 | amsterdam, chandigarh-india |
-| narrow | 19,167 | 14,375 | 5.3 | 56 | 57 | 3 | chandigarh-india |
-| not aligned with crosswalk | 1,293 | 992 | 0.36 | 3 | 5 | 0 |  |
-| not enough landing space | 13,021 | 10,352 | 3.6 | 54 | 57 | 2 | chandigarh-india |
-| not level with street | 14,597 | 8,255 | 4.03 | 53 | 58 | 0 |  |
+| debris / pooled water | 4,760 | 3,743 | 1.31 | 47 | 58 | 0 |  |
+| missing tactile warning | 61,103 | 45,628 | 16.87 | 56 | 56 | 772 | amsterdam, chandigarh-india |
+| narrow | 19,196 | 14,401 | 5.3 | 56 | 57 | 3 | chandigarh-india |
+| not aligned with crosswalk | 1,295 | 992 | 0.36 | 3 | 5 | 0 |  |
+| not enough landing space | 13,036 | 10,364 | 3.6 | 54 | 57 | 2 | chandigarh-india |
+| not level with street | 14,616 | 8,265 | 4.04 | 53 | 58 | 0 |  |
 | not visible | 5 | 0 | 0 | 1 | 1 | 0 |  |
-| parallel lines | 789 | 728 | 0.22 | 1 | 1 | 0 |  |
-| points into traffic | 33,241 | 27,569 | 9.19 | 54 | 56 | 809 | amsterdam |
-| steep | 4,602 | 2,738 | 1.27 | 51 | 57 | 3 | chandigarh-india |
-| surface problem | 15,338 | 10,993 | 4.24 | 56 | 57 | 2 | chandigarh-india |
-| tactile warning | 1,143 | 998 | 0.32 | 1 | 1 | 0 |  |
+| parallel lines | 792 | 731 | 0.22 | 1 | 1 | 0 |  |
+| points into traffic | 33,263 | 27,589 | 9.18 | 54 | 56 | 809 | amsterdam |
+| steep | 4,604 | 2,738 | 1.27 | 51 | 57 | 3 | chandigarh-india |
+| surface problem | 15,355 | 11,004 | 4.24 | 56 | 57 | 2 | chandigarh-india |
+| tactile warning | 1,144 | 999 | 0.32 | 1 | 1 | 0 |  |
 
 The modal vocabulary omits: not aligned with crosswalk, not visible, parallel lines, tactile warning. Deployments whose list differs from that (8; the full per-deployment table is `excluded_tags.csv`):
 
@@ -91,29 +91,29 @@ The modal vocabulary omits: not aligned with crosswalk, not visible, parallel li
 
 ## 5. Severity
 
-CurbRamp severity is a 3-level quality scale, not 1–5: over the 351,488 rated human labels in the tag era the split is 1 = 85.0%, 2 = 11.3%, 3 = 3.7%. It is largely carried by the tags:
+CurbRamp severity is a 3-level quality scale, not 1–5: over the 351,833 rated human labels in the tag era the split is 1 = 85.0%, 2 = 11.3%, 3 = 3.7%. It is largely carried by the tags:
 
 | state | n | p_sev_ge2 | p_sev3 |
 |---|---|---|---|
-| no tags | 236,059 | 0.027 | 0.007 |
-| any tag | 115,429 | 0.401 | 0.099 |
-| 1 tag(s) | 79,471 | 0.267 | 0.043 |
-| 2 tag(s) | 25,623 | 0.633 | 0.137 |
-| 3 tag(s) | 7,872 | 0.832 | 0.377 |
-| 4 tag(s) | 1,846 | 0.918 | 0.605 |
-| tag: debris / pooled water | 4,665 | 0.582 | 0.202 |
-| tag: missing tactile warning | 59,607 | 0.446 | 0.116 |
-| tag: narrow | 18,586 | 0.512 | 0.18 |
-| tag: not aligned with crosswalk | 1,247 | 0.596 | 0.2 |
-| tag: not enough landing space | 12,692 | 0.647 | 0.271 |
-| tag: not level with street | 14,242 | 0.515 | 0.202 |
-| tag: parallel lines | 784 | 0.218 | 0.028 |
-| tag: points into traffic | 32,618 | 0.497 | 0.118 |
-| tag: steep | 4,435 | 0.686 | 0.308 |
-| tag: surface problem | 14,967 | 0.582 | 0.218 |
-| tag: tactile warning | 1,139 | 0.021 | 0.003 |
+| no tags | 236,298 | 0.027 | 0.007 |
+| any tag | 115,535 | 0.401 | 0.099 |
+| 1 tag(s) | 79,539 | 0.267 | 0.043 |
+| 2 tag(s) | 25,650 | 0.633 | 0.137 |
+| 3 tag(s) | 7,878 | 0.832 | 0.377 |
+| 4 tag(s) | 1,850 | 0.918 | 0.605 |
+| tag: debris / pooled water | 4,666 | 0.583 | 0.202 |
+| tag: missing tactile warning | 59,664 | 0.447 | 0.116 |
+| tag: narrow | 18,613 | 0.512 | 0.181 |
+| tag: not aligned with crosswalk | 1,249 | 0.596 | 0.201 |
+| tag: not enough landing space | 12,706 | 0.647 | 0.271 |
+| tag: not level with street | 14,260 | 0.515 | 0.202 |
+| tag: parallel lines | 787 | 0.219 | 0.028 |
+| tag: points into traffic | 32,640 | 0.497 | 0.118 |
+| tag: steep | 4,437 | 0.686 | 0.308 |
+| tag: surface problem | 14,983 | 0.582 | 0.218 |
+| tag: tactile warning | 1,140 | 0.021 | 0.003 |
 
-A logistic regression from tag indicators to recorded severity, 5-fold cross-validated on the 115,429 tagged labels, reaches quadratic-weighted κ 0.439 (balanced accuracy 0.55, chance 0.333). That is the S1 baseline in plan §Phase 1b; a severity head has to beat it on consensus severity, not on this recorded scale, whose two-rater κ was only 0.21 on the validation-study deployment (#86).
+A logistic regression from tag indicators to recorded severity, 5-fold cross-validated on the 115,535 tagged labels, reaches quadratic-weighted κ 0.439 (balanced accuracy 0.55, chance 0.333). That is the S1 baseline in plan §Phase 1b; a severity head has to beat it on consensus severity, not on this recorded scale, whose two-rater κ was only 0.21 on the validation-study deployment (#86).
 
 ## 6. Tag-reviewed corpora
 
@@ -220,21 +220,21 @@ Per-tag rate on labels the two Owners placed, by year. The reporting threshold m
 | rater | year | labels | cities | pct_any_tag | pct_rated | missing tactile warning | points into traffic | not level with street | narrow | steep | not enough landing space | surface problem |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | jonfroehlich | 2018 | 17 | 1 | 0 | 100 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| jonfroehlich | 2019 | 1,563 | 3 | 48.4 | 99.6 | 35.1 | 16 | 0.2 | 5.1 | 0 | 6.5 | 0.6 |
+| jonfroehlich | 2019 | 1,565 | 3 | 48.3 | 99.6 | 35 | 16 | 0.2 | 5 | 0 | 6.5 | 0.6 |
 | jonfroehlich | 2020 | 78 | 3 | 60.3 | 98.7 | 57.7 | 9 | 1.3 | 26.9 | 6.4 | 10.3 | 6.4 |
 | jonfroehlich | 2021 | 71 | 3 | 38 | 100 | 29.6 | 15.5 | 7 | 9.9 | 7 | 1.4 | 5.6 |
-| jonfroehlich | 2022 | 942 | 7 | 44.6 | 99.9 | 26.1 | 9.9 | 10 | 5.9 | 0.7 | 5.1 | 10.1 |
+| jonfroehlich | 2022 | 943 | 7 | 44.6 | 99.9 | 26.1 | 9.9 | 10.1 | 5.9 | 0.7 | 5.1 | 10.1 |
 | jonfroehlich | 2023 | 430 | 9 | 54.4 | 99.8 | 47.2 | 6.3 | 5.6 | 4 | 4.9 | 7.4 | 6.5 |
 | jonfroehlich | 2024 | 470 | 8 | 51.1 | 99.8 | 31.3 | 13.4 | 8.5 | 7.4 | 4 | 15.3 | 1.1 |
 | jonfroehlich | 2025 | 221 | 13 | 82.4 | 96.4 | 62.4 | 44.8 | 9.5 | 15.8 | 7.2 | 17.2 | 16.3 |
-| jonfroehlich | 2026 | 442 | 15 | 68.8 | 99.1 | 33.9 | 15.6 | 9.3 | 25.6 | 3.4 | 5 | 14.9 |
+| jonfroehlich | 2026 | 443 | 15 | 68.6 | 99.1 | 33.9 | 15.6 | 9.3 | 25.5 | 3.4 | 5 | 14.9 |
 | mikey | 2018 | 116 | 1 | 8.6 | 100 | 8.6 | 0 | 0 | 0 | 0 | 0 | 0 |
 | mikey | 2019 | 490 | 4 | 44.3 | 99.8 | 35.1 | 11 | 0.8 | 4.7 | 0 | 3.9 | 1.4 |
-| mikey | 2020 | 606 | 6 | 30 | 100 | 13.9 | 3.6 | 0.5 | 4.8 | 1.2 | 2.6 | 13.7 |
-| mikey | 2021 | 904 | 8 | 25 | 99.9 | 15.3 | 3.8 | 0.9 | 3.4 | 0.3 | 2.1 | 3.9 |
+| mikey | 2020 | 607 | 6 | 30 | 100 | 13.8 | 3.6 | 0.5 | 4.8 | 1.2 | 2.6 | 13.7 |
+| mikey | 2021 | 906 | 8 | 24.9 | 99.9 | 15.2 | 3.8 | 0.9 | 3.4 | 0.3 | 2.1 | 3.9 |
 | mikey | 2022 | 360 | 8 | 24.4 | 99.4 | 13.9 | 3.1 | 0 | 1.9 | 0.3 | 3.3 | 8.6 |
-| mikey | 2023 | 979 | 10 | 18.7 | 100 | 9.7 | 3.8 | 0.7 | 1.3 | 0 | 1.3 | 5.9 |
-| mikey | 2024 | 123 | 11 | 44.7 | 99.2 | 35.8 | 16.3 | 0 | 3.3 | 0 | 4.1 | 5.7 |
+| mikey | 2023 | 982 | 10 | 18.7 | 100 | 9.7 | 3.8 | 0.7 | 1.3 | 0 | 1.4 | 6 |
+| mikey | 2024 | 124 | 11 | 44.4 | 99.2 | 35.5 | 16.1 | 0 | 3.2 | 0 | 4 | 5.6 |
 | mikey | 2025 | 82 | 14 | 35.4 | 97.6 | 29.3 | 13.4 | 1.2 | 1.2 | 0 | 1.2 | 8.5 |
 | mikey | 2026 | 158 | 12 | 47.5 | 97.5 | 26.6 | 15.2 | 3.2 | 0.6 | 0 | 2.5 | 10.8 |
 
