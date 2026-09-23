@@ -1,0 +1,921 @@
+{
+ "cities_dropped": {
+  "amsterdam": "vocabulary lacks missing tactile warning, points into traffic",
+  "auckland": "fewer than 100 eligible labels (5)",
+  "blackhawk-hills-il": "fewer than 100 eligible labels (57)",
+  "chandigarh-india": "vocabulary lacks missing tactile warning, narrow, not enough landing space, points into traffic, steep, surface problem",
+  "clifton-nj": "fewer than 100 eligible labels (77)",
+  "houston-tx": "fewer than 100 eligible labels (97)",
+  "la": "fewer than 100 eligible labels (70)",
+  "la-piedad": "fewer than 100 eligible labels (22)",
+  "newport-ky": "fewer than 100 eligible labels (47)",
+  "spgg": "fewer than 100 eligible labels (19)",
+  "taichung": "fewer than 100 eligible labels (91)",
+  "tainan": "fewer than 100 eligible labels (34)",
+  "validation-study": "excluded by --exclude-cities",
+  "vancouver-wa": "fewer than 100 eligible labels (33)",
+  "virden-il": "fewer than 100 eligible labels (47)"
+ },
+ "cities_in_list": [
+  "burnaby",
+  "cdmx",
+  "chicago-il",
+  "cliffside-park-nj",
+  "columbia",
+  "columbus-oh",
+  "danville-il",
+  "detroit-mi",
+  "fort-wayne-in",
+  "gainesville-fl",
+  "hackensack-nj",
+  "kaohsiung",
+  "keelung",
+  "knox-oh",
+  "madison-wi",
+  "maywood-nj",
+  "mendota-il",
+  "new-taipei",
+  "newberg-or",
+  "niagara-falls-ny",
+  "oradell-nj",
+  "paterson-nj",
+  "pittsburgh-pa",
+  "rancagua-chile",
+  "santiago-chile",
+  "sao-paulo-brazil",
+  "seattle-wa",
+  "st-louis-mo",
+  "taipei",
+  "teaneck-nj",
+  "tucson-az",
+  "walla-walla",
+  "waltham-ma",
+  "west-chester",
+  "zurich"
+ ],
+ "composition": {
+  "n": 500,
+  "per_city": {
+   "burnaby": 15,
+   "cdmx": 12,
+   "chicago-il": 19,
+   "cliffside-park-nj": 10,
+   "columbia": 18,
+   "columbus-oh": 15,
+   "danville-il": 17,
+   "detroit-mi": 16,
+   "fort-wayne-in": 18,
+   "gainesville-fl": 19,
+   "hackensack-nj": 9,
+   "kaohsiung": 9,
+   "keelung": 9,
+   "knox-oh": 14,
+   "madison-wi": 12,
+   "maywood-nj": 19,
+   "mendota-il": 18,
+   "new-taipei": 9,
+   "newberg-or": 11,
+   "niagara-falls-ny": 9,
+   "oradell-nj": 12,
+   "paterson-nj": 18,
+   "pittsburgh-pa": 18,
+   "rancagua-chile": 13,
+   "santiago-chile": 12,
+   "sao-paulo-brazil": 12,
+   "seattle-wa": 18,
+   "st-louis-mo": 18,
+   "taipei": 9,
+   "teaneck-nj": 19,
+   "tucson-az": 15,
+   "walla-walla": 22,
+   "waltham-ma": 14,
+   "west-chester": 13,
+   "zurich": 9
+  },
+  "placed_by_rater": {
+   "(neither)": 415,
+   "jonfroehlich": 60,
+   "mikey": 25
+  },
+  "state_by_band": {
+   "affirmed_empty": {
+    "far": 28,
+    "mid": 41,
+    "near": 31
+   },
+   "tagged": {
+    "far": 58,
+    "mid": 59,
+    "near": 58
+   },
+   "tagged_trusted": {
+    "far": 19,
+    "mid": 29,
+    "near": 27
+   },
+   "untagged": {
+    "far": 49,
+    "mid": 50,
+    "near": 51
+   }
+  },
+  "tag_positives_at_list": {
+   "debris / pooled water": 33,
+   "missing tactile warning": 106,
+   "narrow": 45,
+   "not aligned with crosswalk": 4,
+   "not enough landing space": 57,
+   "not level with street": 45,
+   "parallel lines": 5,
+   "points into traffic": 54,
+   "steep": 47,
+   "surface problem": 46
+  },
+  "tag_reviewed_before": 112
+ },
+ "funnel": [
+  {
+   "labels": 569800,
+   "step": "human CurbRamp labels in the vocabulary-eligible cities"
+  },
+  {
+   "labels": 490449,
+   "step": "minus SidewalkAI"
+  },
+  {
+   "labels": 195663,
+   "step": "placed on/after 2023-10-12 (has a production crop)"
+  },
+  {
+   "labels": 186004,
+   "step": "minus crowd-validated incorrect (correct == false)"
+  },
+  {
+   "labels": 183816,
+   "step": "pano source in ['gsv']"
+  },
+  {
+   "labels": 183816,
+   "step": "with pano geometry and a location"
+  },
+  {
+   "labels": 183217,
+   "step": "in cities with >= 100 eligible labels"
+  }
+ ],
+ "generated_by": "scripts/analysis/tag_review_list.py build",
+ "generated_on": "2026-09-22",
+ "inputs": {
+  "auckland__labelTags": {
+   "fetched_at": "2026-09-22T20:03:07+00:00",
+   "sha256": "7adf30bf1c1edfed9efc7d6dad9fbab87dbe1493e10edfab7804b76cd4342210"
+  },
+  "auckland__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:07+00:00",
+   "sha256": "d498c534ff419c6233345ef62e53890b1afede2a0cc79241c46039085bdee7db"
+  },
+  "auckland__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:07+00:00",
+   "sha256": "9d3b544a5a1deb3fb71a63de321671bafb028826999844f49dee808a81c2826b"
+  },
+  "bayonne-fr__labelTags": {
+   "fetched_at": "2026-09-22T20:02:52+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "bayonne-fr__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:51+00:00",
+   "sha256": "89d2f6aeee546ed61b0794c0e3051be0743b7a83387406f4e75836e1cf7cc8d1"
+  },
+  "bayonne-fr__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:51+00:00",
+   "sha256": "729842389183e258d1913a497c2fa4d121d276d838b2fabe73e1e7db7a6141f1"
+  },
+  "blackhawk-hills-il__labelTags": {
+   "fetched_at": "2026-09-22T20:02:31+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "blackhawk-hills-il__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:31+00:00",
+   "sha256": "c49aebcf6ba117dc311b07c3fe6f1d46dd94767b3eaf4be30003d0cfb70b6a2d"
+  },
+  "blackhawk-hills-il__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:31+00:00",
+   "sha256": "b0f846f5ef4456b5ec10fa4871de94d921deeea6da0956cfe8b6e8c1373c0fe9"
+  },
+  "burnaby__labelTags": {
+   "fetched_at": "2026-09-22T20:03:10+00:00",
+   "sha256": "4c319582e2296772a84623643591caa6f51d0ef063c9b422cb7c199a1c93ef6e"
+  },
+  "burnaby__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:10+00:00",
+   "sha256": "48620786126562f769dbeedbfb653cf46ec8704f32c9d0f12e35d581e7a3f978"
+  },
+  "burnaby__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:10+00:00",
+   "sha256": "dd5c835be7230b63dd21fc3e00e83df2d7c658c1f22e265bc283a84295b9b977"
+  },
+  "cdmx__labelTags": {
+   "fetched_at": "2026-09-22T20:02:05+00:00",
+   "sha256": "e3fe619f5fa6004e1cfe43d8c075162e06f73f5ef564cf67ebc7be43f4312a68"
+  },
+  "cdmx__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:06+00:00",
+   "sha256": "14b918884789e99250ee8af367b4787d91cdcbadadfdaea17934c54742025dd9"
+  },
+  "cdmx__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:05+00:00",
+   "sha256": "ea567eefc1766ffedb33876a7a6357955f558d3f496dac87f937b4549d4f270a"
+  },
+  "chicago-il__labelTags": {
+   "fetched_at": "2026-09-22T20:02:17+00:00",
+   "sha256": "c4ae6c7231d3ed8c795264b27b1403096b3160f686cb273365e14c055b619ea2"
+  },
+  "chicago-il__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:25+00:00",
+   "sha256": "213d0cf28a172f3f3e830c68a0999eaefbf0ec3215899f056e28946a3759b5b3"
+  },
+  "chicago-il__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:22+00:00",
+   "sha256": "f212285a1f3f5947bf4d71018bd3e2c8f24bd461bff8c7ad86602e03fd773610"
+  },
+  "cliffside-park-nj__labelTags": {
+   "fetched_at": "2026-09-22T20:02:30+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "cliffside-park-nj__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:30+00:00",
+   "sha256": "0145d7c2f3a0ef51002712d8a77109c53b74990718666fd58e358a30f29ea237"
+  },
+  "cliffside-park-nj__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:30+00:00",
+   "sha256": "f0a16b984a82c4386db9226666e1d5e53d92ce53f3231e840c5f63eaaa302d42"
+  },
+  "clifton-nj__labelTags": {
+   "fetched_at": "2026-09-22T20:02:35+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "clifton-nj__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:34+00:00",
+   "sha256": "db547d2d04b58e9a46f94c0c5b0f0b7913d5a38490b3f025b2466eb6dcc4d268"
+  },
+  "clifton-nj__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:34+00:00",
+   "sha256": "09225e4f28cc550207f408c23c7813a52614d99859bfef36063de4887b78ff28"
+  },
+  "columbia__labelTags": {
+   "fetched_at": "2026-09-22T20:03:23+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "columbia__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:23+00:00",
+   "sha256": "ace79dc7bd34b445dcb69aefc90e63882d1d3945f5cf53fadc640b0dc28b3c37"
+  },
+  "columbia__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:23+00:00",
+   "sha256": "fecb1dafe5cd430b7724210946695b95a38dbd01ae442780bee68855d8ba233c"
+  },
+  "columbus-oh__labelTags": {
+   "fetched_at": "2026-09-22T20:02:03+00:00",
+   "sha256": "dabb01bdb724a4d5b845f8026891bd18428ea5f1290d0f55a14016e6fbf75d3f"
+  },
+  "columbus-oh__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:03+00:00",
+   "sha256": "bee57698d0a197e58d76cf58e737aba5e0082d0c57e5766f0cede74ef9f9c315"
+  },
+  "columbus-oh__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:03+00:00",
+   "sha256": "69b1cd3b121c19a05cbfd98f4ee91ebe45c23e02a779be42fdd1f6e424a6b433"
+  },
+  "cuenca__labelTags": {
+   "fetched_at": "2026-09-22T20:03:08+00:00",
+   "sha256": "129e7cb2c8a50c36804bc1c6561177f2f217a55957d2cbf3d1904a3ba6e1bd49"
+  },
+  "cuenca__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:08+00:00",
+   "sha256": "05afde6e32a24c22be471db03afea0bed40a5d175c5a497720c9a92ab922ac77"
+  },
+  "cuenca__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:08+00:00",
+   "sha256": "bde317938bb71fdb075a150955d4bca92434562ca0387fda4632b74e8fa89554"
+  },
+  "danville-il__labelTags": {
+   "fetched_at": "2026-09-22T20:02:32+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "danville-il__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:32+00:00",
+   "sha256": "838c7e767a74ff8e34a5a4d721ef658fd6419d8fa19cd7fcddc4e172b8826c03"
+  },
+  "danville-il__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:32+00:00",
+   "sha256": "6437710b6398d5380ab48d2c1c12d2d04bf81b5aa7b04af1a477cc880d22b930"
+  },
+  "dc__labelTags": {
+   "fetched_at": "2026-09-22T20:02:56+00:00",
+   "sha256": "19b295e3f072045fe6a207f8ce875989734f9fa63b28a156eadf79843033730e"
+  },
+  "dc__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:04+00:00",
+   "sha256": "3c806ae5f3c15af7611794ab5a1bdb22c976ed3368347df518719292fbddd4a3"
+  },
+  "dc__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:55+00:00",
+   "sha256": "482bfe7ac2684f213a9153e8022b6527515777fb36b724fb6f78bdf0b3b2c5e4"
+  },
+  "detroit-mi__labelTags": {
+   "fetched_at": "2026-09-22T20:02:33+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "detroit-mi__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:33+00:00",
+   "sha256": "8b859e49b8e4e768950969c04ab66e1cc0c39c5793e8fbfb9f1996a8dd6a4c71"
+  },
+  "detroit-mi__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:33+00:00",
+   "sha256": "ce5801844a48fb9eef2e37612580e6a32213a0186a9797a845af48c69571d0cc"
+  },
+  "fort-wayne-in__labelTags": {
+   "fetched_at": "2026-09-22T20:02:46+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "fort-wayne-in__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:45+00:00",
+   "sha256": "e4052650886093f02a31b8e0b9c91c4f588d253b132bba8bb7628f7609df12cb"
+  },
+  "fort-wayne-in__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:46+00:00",
+   "sha256": "51f89eb8ce10ad1bf3373a842672e6c9ce39b54c99a1413ce8d1462ceec22be7"
+  },
+  "gainesville-fl__labelTags": {
+   "fetched_at": "2026-09-22T20:02:48+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "gainesville-fl__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:47+00:00",
+   "sha256": "f96d3bbcfc7139d2596e48f74eeba93fdc246726dd0ff6d4191f5bf88a1b9c09"
+  },
+  "gainesville-fl__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:47+00:00",
+   "sha256": "6fab5d7cc2b17e2e9710813488599036de7b014c1f839a823f3fce936335d2b3"
+  },
+  "hackensack-nj__labelTags": {
+   "fetched_at": "2026-09-22T20:02:34+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "hackensack-nj__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:34+00:00",
+   "sha256": "91935c30d136a2f6c333ec902b0e814d981385386e91b9683a1a206792b6b3d3"
+  },
+  "hackensack-nj__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:34+00:00",
+   "sha256": "4cfedea69a3735f2b3490cb81b77afa06d78c191dabf0b973c055ef2f48f2183"
+  },
+  "houston-tx__labelTags": {
+   "fetched_at": "2026-09-22T20:02:50+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "houston-tx__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:50+00:00",
+   "sha256": "820708eb60fd5d41fb0077dfdb848ae2dc2ba4ba5a2eb79da52ca081a12f7f1d"
+  },
+  "houston-tx__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:50+00:00",
+   "sha256": "7b3a41c4e1005419d53efd701df99d2bcaa2423e2252786c01e9cc5a4179335a"
+  },
+  "kaohsiung__labelTags": {
+   "fetched_at": "2026-09-22T20:03:18+00:00",
+   "sha256": "bdfcbe398bd371469f661f050bb2beae4f97b98adfee9914fb13d873887514f4"
+  },
+  "kaohsiung__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:18+00:00",
+   "sha256": "d6892972cd61cd3bf12d79dac6f50159e77c934cac1dbb4c48e04c90b93533c9"
+  },
+  "kaohsiung__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:20+00:00",
+   "sha256": "2a028398ff97a9faa24ac1e7ad69f9d89c5ebbef65ee734fa1ec1eadbb9afb71"
+  },
+  "keelung__labelTags": {
+   "fetched_at": "2026-09-22T20:03:06+00:00",
+   "sha256": "ce3e1f6e9711852afbb178aee03091d8f2c93e1630993f26708b5b9ab4de4ff4"
+  },
+  "keelung__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:06+00:00",
+   "sha256": "ea9dfff480d66ddbc3cdea65feac16af6b772b293eb84c669711d6a322da2224"
+  },
+  "keelung__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:06+00:00",
+   "sha256": "08b1034d9a97a60e718d92c9affe6ebe51579e83b0bc7a68da8049eaca4a54f2"
+  },
+  "knox-oh__labelTags": {
+   "fetched_at": "2026-09-22T20:02:29+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "knox-oh__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:29+00:00",
+   "sha256": "506751d1e91199013c65b61184092bf8b02c1c04b6dc9c2607ecca9576b57508"
+  },
+  "knox-oh__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:29+00:00",
+   "sha256": "21dd40fcbe76ed0b333a5c1e0edc5f83df19137fef70b1983ccfb48348cc2758"
+  },
+  "la-piedad-old__labelTags": {
+   "fetched_at": "2026-09-22T20:03:25+00:00",
+   "sha256": "129e7cb2c8a50c36804bc1c6561177f2f217a55957d2cbf3d1904a3ba6e1bd49"
+  },
+  "la-piedad-old__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:25+00:00",
+   "sha256": "822141215a38fd46de1d14076ecf8f846d14853f530a14c919a053fcbb11bf2d"
+  },
+  "la-piedad-old__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:25+00:00",
+   "sha256": "55400b9058ed3800fe245c95b09f64a40e84ad2db4922f534c8c106dd169c384"
+  },
+  "la-piedad__labelTags": {
+   "fetched_at": "2026-09-22T20:02:19+00:00",
+   "sha256": "129e7cb2c8a50c36804bc1c6561177f2f217a55957d2cbf3d1904a3ba6e1bd49"
+  },
+  "la-piedad__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:17+00:00",
+   "sha256": "ae82af11ff8962ec66ce20c4731b325ea873d6c4ee3a5339b78df232d1a29518"
+  },
+  "la-piedad__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:18+00:00",
+   "sha256": "3c3ef1cb1ff19df872b10e2d160bf5814d9593a053569e89d783e022f920bf2b"
+  },
+  "la__labelTags": {
+   "fetched_at": "2026-09-22T20:03:11+00:00",
+   "sha256": "78aee2248edb0726c40a3909602dfeae732598705d677a637fc7cdd3343abc62"
+  },
+  "la__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:11+00:00",
+   "sha256": "433f1bc07c1c075166d28c7f2441a82e202056a8735d50e134450f16c95f00c7"
+  },
+  "la__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:11+00:00",
+   "sha256": "0890d1ce7ccd9d7ad2801a2f1652454446e5b1daf5bfc6734b0a0ab76101a531"
+  },
+  "laurens-ia__labelTags": {
+   "fetched_at": "2026-09-22T20:02:52+00:00",
+   "sha256": "b903088dfe06539794a51b98ae8509b2125f932cec40b4e41944a420e8817629"
+  },
+  "laurens-ia__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:52+00:00",
+   "sha256": "2fc56aa58c38f511b354e41f1fa612d616c030cf1d3077c6eaeb54a065909a1d"
+  },
+  "laurens-ia__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:52+00:00",
+   "sha256": "5f51b10687b4f98344ba61e162222053b95fc2df160fc1775290412f7c58cf3c"
+  },
+  "madison-wi__labelTags": {
+   "fetched_at": "2026-09-22T20:02:37+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "madison-wi__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:37+00:00",
+   "sha256": "6e8def7a361c88cc8a07b0526c0f1233079f5f8eea39ec0291061a2059c05610"
+  },
+  "madison-wi__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:37+00:00",
+   "sha256": "16eecab62dbdfa9e0acc1b9c71f90bfc75e7d632dc72e2b5c4b519e42328fa77"
+  },
+  "maywood-nj__labelTags": {
+   "fetched_at": "2026-09-22T20:02:36+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "maywood-nj__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:36+00:00",
+   "sha256": "f157dca2a669998c1a630b256ecc1e89513e6ce63e4b9e31c65a07759099b516"
+  },
+  "maywood-nj__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:35+00:00",
+   "sha256": "96058e1a2c234e96dd6bc4b1123b223f0025759e156384399e1402fce84613b6"
+  },
+  "mendota-il__labelTags": {
+   "fetched_at": "2026-09-22T20:02:28+00:00",
+   "sha256": "78aee2248edb0726c40a3909602dfeae732598705d677a637fc7cdd3343abc62"
+  },
+  "mendota-il__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:28+00:00",
+   "sha256": "858516c7027f86b736be717ac7d7b7d171b31fece696e4e7b991172710c6788e"
+  },
+  "mendota-il__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:28+00:00",
+   "sha256": "a87a26de237a2e0087e29f5bc948fcb8ee799a2a3536287c65c56e8a8e548762"
+  },
+  "new-taipei__labelTags": {
+   "fetched_at": "2026-09-22T20:03:05+00:00",
+   "sha256": "bdfcbe398bd371469f661f050bb2beae4f97b98adfee9914fb13d873887514f4"
+  },
+  "new-taipei__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:05+00:00",
+   "sha256": "9fc34a084797b26b7e1ea5e1c182e446d00c5f9b88c5ba9bed989ffaa1f36cfa"
+  },
+  "new-taipei__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:05+00:00",
+   "sha256": "e2aec65a0f69bb5f215a29cb9cd3b07ce39565f44d2e28ebf84b8f87fbe09b51"
+  },
+  "newberg-or__labelTags": {
+   "fetched_at": "2026-09-22T20:02:12+00:00",
+   "sha256": "0dfac0e3bf20d36d8c5468ff91259f6e628d44b00828ec45f8a06a36de5dedfc"
+  },
+  "newberg-or__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:12+00:00",
+   "sha256": "aaf18c1ff90104cdc775dbefb1e6a1ff646ab13d685c9ed606dbf43cf030b7a5"
+  },
+  "newberg-or__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:12+00:00",
+   "sha256": "446e67ded35647ad09c6ee70ca7d5d6db9278091ae566e9e5bdc852849befcf2"
+  },
+  "newport-ky__labelTags": {
+   "fetched_at": "2026-09-22T20:02:51+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "newport-ky__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:50+00:00",
+   "sha256": "01485f951853e05d3e2146b1e90c71864f747e22c56afffc2f1aaf4b15223a43"
+  },
+  "newport-ky__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:51+00:00",
+   "sha256": "cd370fb867f3b246bc427d9b633496e9ce66320bf7a0b9839ea198426cdefb03"
+  },
+  "niagara-falls-ny__labelTags": {
+   "fetched_at": "2026-09-22T20:02:38+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "niagara-falls-ny__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:37+00:00",
+   "sha256": "d791526785c3f0620663f5fd64d8a90f0ca903a5e6d1796d444088d954a39685"
+  },
+  "niagara-falls-ny__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:37+00:00",
+   "sha256": "a97fcfc3d7047ff431b42abe0206183ddb6a165bf638e11e2755847e9e0004bd"
+  },
+  "oradell-nj__labelTags": {
+   "fetched_at": "2026-09-22T20:02:22+00:00",
+   "sha256": "2c3f4b0bfabb7ade5d9f381e406c4b9789fa47254bf24450d0432d905b7b817e"
+  },
+  "oradell-nj__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:21+00:00",
+   "sha256": "ade1f42d1ee5ad7b45df26f8452b85dcb4a4f80a505b65f8b012f95067811c5e"
+  },
+  "oradell-nj__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:22+00:00",
+   "sha256": "105131fe031e40051f8139ba03ba61098d9e3660357ff2082dad56be857f6f9c"
+  },
+  "paterson-nj__labelTags": {
+   "fetched_at": "2026-09-22T20:02:44+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "paterson-nj__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:44+00:00",
+   "sha256": "28906603b84f6eaed1519312b4a3873bbbf16e9fc2a87cd15f3cad073be3f048"
+  },
+  "paterson-nj__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:44+00:00",
+   "sha256": "d80958342de5a445c53ec9e82468bdb0e61285bda12c871a837f132fdcb907f5"
+  },
+  "pittsburgh-pa__labelTags": {
+   "fetched_at": "2026-09-22T20:02:11+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "pittsburgh-pa__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:10+00:00",
+   "sha256": "5def34c213f16db03232ec9211c8881285635093c35d4ec931e8995825188f8a"
+  },
+  "pittsburgh-pa__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:11+00:00",
+   "sha256": "4c723f7927b9290b1f4dac9b41357b1f42ee3e7c5e9a532c003e6cf0f81252ab"
+  },
+  "rancagua-chile__labelTags": {
+   "fetched_at": "2026-09-22T20:02:39+00:00",
+   "sha256": "0b26d408bbecb326642d6fa1bde0758a454ac921ceba54f926bc8808bc415705"
+  },
+  "rancagua-chile__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:39+00:00",
+   "sha256": "42044ad45bc8358d8ef66ece1c116955c7f810e33f515b3baaa82f4ccdcc0fad"
+  },
+  "rancagua-chile__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:39+00:00",
+   "sha256": "c0e45e786993efd93de8a8ad0d62f99c428814373fc027015b3813e4009b813b"
+  },
+  "richmond-va__labelTags": {
+   "fetched_at": "2026-09-22T20:02:45+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "richmond-va__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:45+00:00",
+   "sha256": "1b1a599019412d95ae2f89d26b255dd4599073a1f55f07d4b7eb191a57c20d24"
+  },
+  "richmond-va__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:45+00:00",
+   "sha256": "b5b764063dafdb7fcf511f4d0a50f0f1e2ebe91cc3cf4eda6905849ed9c0128e"
+  },
+  "santiago-chile__labelTags": {
+   "fetched_at": "2026-09-22T20:02:41+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "santiago-chile__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:41+00:00",
+   "sha256": "f3dcb0f1e168e942396ef228d8654b5b7af4accc14b48e08c20ccba51fca3627"
+  },
+  "santiago-chile__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:41+00:00",
+   "sha256": "8b77c16e693bf467290c22cbd0025bdf5d90d253abfba68f64315e36c35ea21b"
+  },
+  "sao-paulo-brazil__labelTags": {
+   "fetched_at": "2026-09-22T20:02:49+00:00",
+   "sha256": "129e7cb2c8a50c36804bc1c6561177f2f217a55957d2cbf3d1904a3ba6e1bd49"
+  },
+  "sao-paulo-brazil__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:48+00:00",
+   "sha256": "95859a0f4a17bd1874c1abdc891f8250b8faacbf58350d2a14d78a3aa08f6130"
+  },
+  "sao-paulo-brazil__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:48+00:00",
+   "sha256": "106c1a6d1b93eca0395b335bc2f4d7abcbfa466d618aa630056543b5067b9c86"
+  },
+  "seattle-wa__labelTags": {
+   "fetched_at": "2026-09-22T20:01:59+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "seattle-wa__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:02+00:00",
+   "sha256": "01f151e0207c072c205ee6f9489549d5a5543141add8fb4a4496849ff478fe52"
+  },
+  "seattle-wa__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:01+00:00",
+   "sha256": "669ea05afb7d463c5f12d813e72c8998d7cf3733581e512e1db7ace84ca7e849"
+  },
+  "spgg__labelTags": {
+   "fetched_at": "2026-09-22T20:02:09+00:00",
+   "sha256": "129e7cb2c8a50c36804bc1c6561177f2f217a55957d2cbf3d1904a3ba6e1bd49"
+  },
+  "spgg__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:08+00:00",
+   "sha256": "16b5926f762f860458050638fae4b7103a8ba910fa43f5fc7f61731c813dee03"
+  },
+  "spgg__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:08+00:00",
+   "sha256": "5c558381e93365dd3eab4a3b699797eabee8cc2e74816e04b5c3456db62de0a9"
+  },
+  "st-louis-mo__labelTags": {
+   "fetched_at": "2026-09-22T20:02:27+00:00",
+   "sha256": "78aee2248edb0726c40a3909602dfeae732598705d677a637fc7cdd3343abc62"
+  },
+  "st-louis-mo__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:28+00:00",
+   "sha256": "5f2b645cbf040bf967ffec62d04259ffbece3f47f90e7599dae21b0bbd387150"
+  },
+  "st-louis-mo__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:26+00:00",
+   "sha256": "24366dbf3be01357153e82fdd3dfab493658d3c444747cd67420e0cfe69eb668"
+  },
+  "taichung__labelTags": {
+   "fetched_at": "2026-09-22T20:03:20+00:00",
+   "sha256": "bdfcbe398bd371469f661f050bb2beae4f97b98adfee9914fb13d873887514f4"
+  },
+  "taichung__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:19+00:00",
+   "sha256": "edee4088ce4c6277cf952f70478fffabe151ad5bd6457fac811a666bba3b5a69"
+  },
+  "taichung__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:19+00:00",
+   "sha256": "d9abc1e3e73b570b0c1df1e622ad4887baffbe13fc1e271f9c355f914893dae5"
+  },
+  "tainan__labelTags": {
+   "fetched_at": "2026-09-22T20:03:24+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "tainan__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:24+00:00",
+   "sha256": "cb6efef7d150193fadd8491ccc52ff66a02a5b8f00f1652543613d090e2d4980"
+  },
+  "tainan__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:24+00:00",
+   "sha256": "5f60a4d02acb6b0e637cfa350f692a705af1371bc5c879cb687807ece3eb1de9"
+  },
+  "taipei__labelTags": {
+   "fetched_at": "2026-09-22T20:03:03+00:00",
+   "sha256": "bdfcbe398bd371469f661f050bb2beae4f97b98adfee9914fb13d873887514f4"
+  },
+  "taipei__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:02+00:00",
+   "sha256": "dc486e262bae1269df796d325af9de51581318d1204d4869e77372d57860a6ca"
+  },
+  "taipei__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:03+00:00",
+   "sha256": "cfdd835241383c2aec30ec3b2ff727283747e611ce4e1d723c7c126e23f3768a"
+  },
+  "teaneck-nj__labelTags": {
+   "fetched_at": "2026-09-22T20:02:25+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "teaneck-nj__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:24+00:00",
+   "sha256": "1650f4c916009e5ca7eb9794e61395fa4b037092a3f02563b74f9e133d602883"
+  },
+  "teaneck-nj__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:25+00:00",
+   "sha256": "d42341e893cabd13f02a629ff32252ba0e72015a32692f381f01bde89421c54a"
+  },
+  "tucson-az__labelTags": {
+   "fetched_at": "2026-09-22T20:02:42+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "tucson-az__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:42+00:00",
+   "sha256": "70944131d623cf1258b5ad7d9e1259e79403eb69d15b3a3fba1948a792e8ad3f"
+  },
+  "tucson-az__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:42+00:00",
+   "sha256": "17081703dc05216c7e63a3ff8b4cc5b83ee6ed766b523af8aca4d940d2786cc1"
+  },
+  "vancouver-wa__labelTags": {
+   "fetched_at": "2026-09-22T20:02:40+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "vancouver-wa__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:45+00:00",
+   "sha256": "1e1a9f0fb6088856baa2a76b1b1fab9d5edcb9e16a47cf65af384677a126c36f"
+  },
+  "vancouver-wa__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:40+00:00",
+   "sha256": "20a60416f4adc15008da2ccbf01463f0c8f07db57d135f8540a9bf828d333226"
+  },
+  "virden-il__labelTags": {
+   "fetched_at": "2026-09-22T20:02:47+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "virden-il__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:46+00:00",
+   "sha256": "724771913fbc5fd3045ffe394148424f3f24cede31f45cdf0d4c046ac9e206af"
+  },
+  "virden-il__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:46+00:00",
+   "sha256": "3380386e68e9d00cba053feb3ea51bcb66a8d19787087a5a13e909d652120807"
+  },
+  "walla-walla__labelTags": {
+   "fetched_at": "2026-09-22T20:01:42+00:00",
+   "sha256": "1ee32f84e589ff61c54fdbc40ae2fd3fea1031ed4aab1d0738a52e1207c44309"
+  },
+  "walla-walla__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:01:42+00:00",
+   "sha256": "5aa4639467f1821433314ebcd68dae2699d38ecbc14c171dea3e4bc24a145ef1"
+  },
+  "walla-walla__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:01:42+00:00",
+   "sha256": "654945731656ad1833f958d702bd7f98a22e0ab4871983bcbbeb4811bee36852"
+  },
+  "waltham-ma__labelTags": {
+   "fetched_at": "2026-09-22T20:02:49+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "waltham-ma__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:49+00:00",
+   "sha256": "db0339c93bf12b78b678c3d6c75e2919f2a10e8378674608d499bc1defdfc9a4"
+  },
+  "waltham-ma__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:49+00:00",
+   "sha256": "38379d3c163dc488ec82bd7854b6d1e8cf382bcbf96753996b6626714e2d8ff6"
+  },
+  "west-chester__labelTags": {
+   "fetched_at": "2026-09-22T20:03:24+00:00",
+   "sha256": "b12835f326cba2f7331df20b22a04a5db000e45bbc6183b9bf85925d7b41da2e"
+  },
+  "west-chester__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:23+00:00",
+   "sha256": "b2cc3540819ce4c2d3a6a91011ee87f9ef6812519418f74d047d287379aa6fb2"
+  },
+  "west-chester__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:23+00:00",
+   "sha256": "0e87aa5292f7fb3b5120ffc2b4756d95c0bd83038b6ba3d33b80d0ed5773130b"
+  },
+  "winterthur-infra3d__labelTags": {
+   "fetched_at": "2026-09-22T20:03:26+00:00",
+   "sha256": "5975b8030d9f438d1f9522ae7fa9a46d5490c8e8d96d49206fd75992602076d7"
+  },
+  "winterthur-infra3d__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:25+00:00",
+   "sha256": "ae558d336e47f49ba94f2202b03eb3f72c84732b38e242c7ee1f0f4aa666a63f"
+  },
+  "winterthur-infra3d__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:03:26+00:00",
+   "sha256": "561114d718b40e33fdc4b3f8e4846d387f1fbfa7c7a4d400521565249e8029dd"
+  },
+  "zurich-infra3d__labelTags": {
+   "fetched_at": "2026-09-22T20:02:59+00:00",
+   "sha256": "5975b8030d9f438d1f9522ae7fa9a46d5490c8e8d96d49206fd75992602076d7"
+  },
+  "zurich-infra3d__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:59+00:00",
+   "sha256": "3c7d18754f2a1ee350ea940f5975d9f888e0eb73ffe7856ddf245aade3f01d3f"
+  },
+  "zurich-infra3d__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:59+00:00",
+   "sha256": "929058abd8525f01c6302370843b92287084d46a7e32ac3c1c33ce322eec8251"
+  },
+  "zurich__labelTags": {
+   "fetched_at": "2026-09-22T20:02:59+00:00",
+   "sha256": "0c1e9e70747c1d1dcf6bdb039d6a56758d8f9011e39308d26f167d107c91bc84"
+  },
+  "zurich__rawLabels__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:58+00:00",
+   "sha256": "1965752276213bd08ef71410fd46464f07eae3d1e6418e3c67ad95c855aa7ad5"
+  },
+  "zurich__validations__CurbRamp": {
+   "fetched_at": "2026-09-22T20:02:58+00:00",
+   "sha256": "df1556472f3c43fd8e9b5bae431d5a5ea96244f156df1af6eb5350fac3895c12"
+  }
+ },
+ "list": {
+  "path": "benchmark/tag_review/review_list.csv",
+  "rows": 500,
+  "sha256": "43d6aec2078fe973645d9c5a2e1d37efdfae527882883457df432baed38ce387"
+ },
+ "params": {
+  "band_edges_m": [
+   8.0,
+   15.0
+  ],
+  "camera_height_m": 2.5,
+  "crop_date": "2023-10-12",
+  "exclude_cities": [
+   "validation-study"
+  ],
+  "min_city_pool": 100,
+  "min_sep_m": 10.0,
+  "n": 500,
+  "rare_power": 1.5,
+  "require_tags": [
+   "debris / pooled water",
+   "missing tactile warning",
+   "narrow",
+   "not enough landing space",
+   "not level with street",
+   "points into traffic",
+   "steep",
+   "surface problem"
+  ],
+  "seed": 86,
+  "shares": {
+   "affirmed_empty": 0.2,
+   "tagged": 0.35,
+   "tagged_trusted": 0.15,
+   "untagged": 0.3
+  },
+  "sources": [
+   "gsv"
+  ],
+  "trusted_users": "owners only"
+ },
+ "pool_by_city": {
+  "burnaby": 3046,
+  "cdmx": 3962,
+  "chicago-il": 64702,
+  "cliffside-park-nj": 343,
+  "columbia": 9866,
+  "columbus-oh": 2637,
+  "danville-il": 1773,
+  "detroit-mi": 1036,
+  "fort-wayne-in": 236,
+  "gainesville-fl": 4400,
+  "hackensack-nj": 132,
+  "kaohsiung": 17549,
+  "keelung": 370,
+  "knox-oh": 1114,
+  "madison-wi": 318,
+  "maywood-nj": 1150,
+  "mendota-il": 1829,
+  "new-taipei": 1629,
+  "newberg-or": 179,
+  "niagara-falls-ny": 522,
+  "oradell-nj": 217,
+  "paterson-nj": 11869,
+  "pittsburgh-pa": 2355,
+  "rancagua-chile": 446,
+  "santiago-chile": 288,
+  "sao-paulo-brazil": 175,
+  "seattle-wa": 15820,
+  "st-louis-mo": 14929,
+  "taipei": 7836,
+  "teaneck-nj": 6551,
+  "tucson-az": 2049,
+  "walla-walla": 2066,
+  "waltham-ma": 468,
+  "west-chester": 520,
+  "zurich": 835
+ },
+ "pool_by_state": {
+  "affirmed_empty": 1094,
+  "tagged": 57740,
+  "tagged_trusted": 609,
+  "untagged": 123774
+ },
+ "shortfall": [],
+ "targets": {
+  "affirmed_empty": 100,
+  "tagged": 175,
+  "tagged_trusted": 75,
+  "untagged": 150
+ }
+}

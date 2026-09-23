@@ -49,3 +49,9 @@ stage_two/run_a_84_events/SHA256SUMS text eol=lf
 scripts/model_comparison/yolo_baseline/benchmark_eval/*.txt   text eol=lf
 scripts/model_comparison/yolo_baseline/benchmark_eval/*.md    text eol=lf
 scripts/model_comparison/yolo_baseline/benchmark_eval/*/*.json text eol=lf
+
+# The tag review pass (#86 item 3): the list's sha256 is quoted in docs/tag_rubric_draft.md
+# and carried inside every per-rater export, and the exports are written LF by
+# rampnet.tag_review.write_json. Pin both LF so an autocrlf=true clone keeps the hash true.
+benchmark/tag_review/*.csv  text eol=lf
+benchmark/tag_review/*.json text eol=lf
