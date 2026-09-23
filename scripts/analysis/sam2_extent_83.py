@@ -44,7 +44,7 @@ Subcommands::
     # GPU (makelab2): segment every boxed item, one CSV row per item x arm x fov x variant
     python scripts/analysis/sam2_extent_83.py run --city richmond \
         --arm boxcenter_gnomonic,boxcenter_equirect,point_gnomonic,point_equirect \
-        --fov 90,60 --checkpoint /path/sam2.1_hiera_large.pt \
+        --fov 90,76,60 --checkpoint /path/sam2.1_hiera_large.pt \
         --out analysis_out/sam2_extent_83
 
     # CPU: tables, paired projection delta with a pano-clustered bootstrap
@@ -792,6 +792,20 @@ def summarize_rows(rows):
                         k: dist_stats([r for r in sel if r["kind"] == k])
                         for k in ("det", "missed")}
     for prompt in PROMPTS:
+        # Cross-FOV pairs too: at equal FOV a gnomonic view shows the prompted ramp
+        # smaller than the equirect crop does (center magnification (side/2)/tan(fov/2)
+        # vs side/fov px per radian: 0.79x at 90 deg), so gnomonic@76 vs equirect@90 is
+        # the matched-magnification comparison. Keyed "gnomonic@<g>-equirect@<e>".
+        for fg in fovs:
+            for fe in fovs:
+                if fg == fe:
+                    continue
+                for variant in VARIANTS:
+                    res = paired_delta(rows,
+                                       {"arm": f"{prompt}_gnomonic", "fov": fg, "variant": variant},
+                                       {"arm": f"{prompt}_equirect", "fov": fe, "variant": variant})
+                    if res.get("n"):
+                        out["deltas"][f"gnomonic@{fg}-equirect@{fe}|{prompt}|{variant}"] = res
         for fov in fovs:
             for variant in VARIANTS:
                 g = {"arm": f"{prompt}_gnomonic", "fov": fov, "variant": variant}
@@ -975,7 +989,7 @@ def main(argv=None):
     r = sub.add_parser("run", help="GPU: segment every boxed item.")
     common(r)
     r.add_argument("--arm", default=",".join(ARMS), help=f"Comma list from {ARMS}.")
-    r.add_argument("--fov", default="90,60", help="Comma list of square FOVs in degrees.")
+    r.add_argument("--fov", default="90,76,60", help="Comma list of square FOVs in degrees.")
     r.add_argument("--checkpoint", required=True, help="Path to sam2.1_hiera_large.pt.")
     r.add_argument("--prior-cam-height", type=float, default=2.5)
     r.add_argument("--prior-apron-m", type=float, default=1.5)
