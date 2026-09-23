@@ -91,6 +91,14 @@ SAM2_CONFIG = "configs/sam2.1/sam2.1_hiera_l.yaml"
 BOOTSTRAP_SEED = 83
 BOOTSTRAP_REPS = 10000
 ROUND = 5
+# The box-width band: SAM2 (or prior) box width within [0.8, 1.25]x the gold's. Asymmetric
+# on purpose -- it is +/-20 % in log ratio (1/1.25 = 0.8), so over- and under-estimates are
+# penalized alike. The width is the equirect bbox's *horizontal angular span* (longitude),
+# NOT the ramp's metric width: for a diagonal ramp it mixes width with length. It is the
+# only width-like quantity a box score can give. Added after the Richmond numbers had been
+# seen (commit 93c478f), so it is a post-hoc column; HEADLINE_VARIANT and the prior
+# constants were fixed before any run (a258256).
+WIDTH_BAND = (0.8, 1.25)
 
 CSV_FIELDS = [
     "city", "pano_id", "key", "kind", "arm", "prompt", "projection", "fov", "variant",
@@ -220,7 +228,13 @@ def gnomonic_mask_to_equirect_bbox(mask, view):
 
     Maps the four *corners* of every boundary pixel (not its center) back to the
     equirect, so the box covers the pixels' full footprint -- the same convention
-    as :func:`crop_mask_to_equirect_bbox`, which uses pixel edges."""
+    as :func:`crop_mask_to_equirect_bbox`, which uses pixel edges.
+
+    Exact only when the nadir (or zenith) is outside the view. With a pole inside
+    the view, latitude has an interior extremum that no boundary pixel reaches and
+    longitude wraps all the way round, so the box is wrong. In the committed runs
+    that happened in 4 of 15,792 gnomonic rows: one view (Sao Paulo ``missed:0``,
+    recorded-point prompt, 90 deg) times its four prompt variants."""
     b = mask_boundary(mask)
     rows, cols = np.nonzero(b)
     if rows.size == 0:
@@ -727,9 +741,10 @@ def dist_stats(rows):
         if r["sam_w"]:
             size.append(math.sqrt((r["sam_w"] * r["sam_h"]) / (r["gold_w"] * r["gold_h"])))
     mig = [r["mask_frac_in_gold"] for r in rows if r["mask_frac_in_gold"] is not None]
-    # Width is the measurement #86 wants first, so its error gets its own column:
-    # the box-width ratio SAM2/gold (an empty mask counts as ratio 0, i.e. a miss).
-    wr = [(r["sam_w"] or 0.0) / r["gold_w"] for r in rows]
+    # Box-width ratio SAM2/gold: the equirect bbox's horizontal angular span, a proxy for
+    # (not a measurement of) the ramp width #86 wants; see WIDTH_BAND. An empty mask counts
+    # as ratio 0, i.e. a miss.
+    wr = [box_width_ratio(r) for r in rows]
     return {
         "n": n,
         "iou_median": round(_q(iou, 0.5), 4), "iou_mean": round(float(np.mean(iou)), 4),
@@ -741,8 +756,8 @@ def dist_stats(rows):
         "size_ratio_median": round(_q(size, 0.5), 4) if size else None,
         "size_ratio_p10": round(_q(size, 0.1), 4) if size else None,
         "size_ratio_p90": round(_q(size, 0.9), 4) if size else None,
-        "width_ratio_median": round(_q(wr, 0.5), 4),
-        "width_within_20pct": round(sum(0.8 <= v <= 1.25 for v in wr) / n, 4),
+        "box_width_ratio_median": round(_q(wr, 0.5), 4),
+        "box_width_ratio_in_band": round(sum(in_width_band(v) for v in wr) / n, 4),
         "empty_masks": sum(1 for r in rows if not r["sam_w"]),
         "mask_touches_edge": sum(r["mask_touches_edge"] for r in rows),
         "pred_iou_median": (round(_q(pi, 0.5), 4) if (pi := [r["pred_iou"] for r in rows
@@ -751,23 +766,45 @@ def dist_stats(rows):
     }
 
 
-def paired_delta(rows, a, b, seed=BOOTSTRAP_SEED, reps=BOOTSTRAP_REPS):
-    """Mean IoU(a) - IoU(b) over items present in both, with a pano-clustered
+def box_width_ratio(r):
+    """SAM2 (or prior) box width over the gold box width; 0 for an empty mask."""
+    return (r["sam_w"] or 0.0) / r["gold_w"]
+
+
+def in_width_band(ratio):
+    return WIDTH_BAND[0] <= ratio <= WIDTH_BAND[1]
+
+
+def width_in_band(r):
+    """1.0 if the row's box-width ratio is inside WIDTH_BAND, else 0.0 -- the per-item
+    value :func:`paired_delta` differences for the width comparison."""
+    return 1.0 if in_width_band(box_width_ratio(r)) else 0.0
+
+
+def paired_delta(rows, a, b, seed=BOOTSTRAP_SEED, reps=BOOTSTRAP_REPS, value="iou"):
+    """Mean value(a) - value(b) over items present in both, with a pano-clustered
     percentile bootstrap CI (items in one pano share imagery and rig, so resampling
     items independently would understate the interval).
 
-    ``a``/``b`` are filters: dicts of column -> value.
+    ``a``/``b`` are filters: dicts of column -> value. ``value`` is a column name
+    (default IoU) or a function of a row, e.g. :func:`width_in_band`. Items are keyed
+    on ``(city, pano_id, key)`` and clustered on ``(city, pano_id)``: ids are per
+    city, so a pooled summary must never merge two cities' items.
     """
+    val = value if callable(value) else (lambda r: r[value])
+
     def pick(flt):
-        return {(r["pano_id"], r["key"]): r["iou"] for r in rows
+        return {(r.get("city", ""), r["pano_id"], r["key"]): val(r) for r in rows
                 if all(r[k] == v for k, v in flt.items())}
     A, B = pick(a), pick(b)
     keys = sorted(set(A) & set(B))
     if not keys:
         return {"n": 0}
     d = np.array([A[k] - B[k] for k in keys])
-    panos = sorted({k[0] for k in keys})
-    idx = {p: [i for i, k in enumerate(keys) if k[0] == p] for p in panos}
+    panos = sorted({k[:2] for k in keys})
+    idx = {}
+    for i, k in enumerate(keys):
+        idx.setdefault(k[:2], []).append(i)
     rng = np.random.default_rng(seed)
     means = np.empty(reps)
     sums = np.array([d[idx[p]].sum() for p in panos])
@@ -812,6 +849,43 @@ def prior_only_rows(rows, prior_kw=None):
     return out
 
 
+BAND_REPS = 2000
+
+
+def projection_deltas_by_band(rows, prompt, fov, variant, reps=BAND_REPS):
+    """Matched-FOV gnomonic - equirect IoU delta within each distance band, as
+    ``{band: paired_delta}`` (bands with no items omitted). Fewer resamples than the
+    headline deltas; the ``<5 m`` band holds only a handful of panos, so its CIs are
+    the least stable in the summary."""
+    g = {"arm": f"{prompt}_gnomonic", "fov": fov, "variant": variant}
+    e = {"arm": f"{prompt}_equirect", "fov": fov, "variant": variant}
+    per_band = {}
+    for b in BAND_ORDER:
+        pb = paired_delta([r for r in rows if r["band"] == b], g, e, reps=reps)
+        if pb.get("n"):
+            per_band[b] = pb
+    return per_band
+
+
+def count_ci_exclusions(by_band_deltas):
+    """Tally per-band CIs that exclude zero, from ``{key: {band: paired_delta}}``.
+
+    Returns ``{"n", "excluding", "positive", "negative", "by_band": {band: [pos, neg]}}``;
+    the doc's per-band sentence quotes these, and a test re-derives them from the rows."""
+    out = {"n": 0, "excluding": 0, "positive": 0, "negative": 0, "by_band": {}}
+    for per_band in by_band_deltas.values():
+        for band, d in per_band.items():
+            out["n"] += 1
+            lo, hi = d["ci95"]
+            if lo > 0 or hi < 0:
+                out["excluding"] += 1
+                side = "positive" if lo > 0 else "negative"
+                out[side] += 1
+                pn = out["by_band"].setdefault(band, [0, 0])
+                pn[0 if lo > 0 else 1] += 1
+    return out
+
+
 def summarize_rows(rows, prior_kw=None):
     prior = prior_only_rows(rows, prior_kw)
     rows = rows + prior
@@ -835,6 +909,16 @@ def summarize_rows(rows, prior_kw=None):
                                             "variant": "prior_only"})
                         if res.get("n"):
                             out["deltas"][f"sam-prior|{arm}|{fov}|{variant}"] = res
+                        # The same pairing on the width band (share of items whose box
+                        # width is within WIDTH_BAND of the gold), all items and det only.
+                        for subset, flt in (("all", None), ("det", "det")):
+                            sub = rows if flt is None else [r for r in rows if r["kind"] == flt]
+                            res = paired_delta(sub, {"arm": arm, "fov": fov, "variant": variant},
+                                               {"arm": f"{prompt}_prior", "fov": 0,
+                                                "variant": "prior_only"},
+                                               value=width_in_band)
+                            if res.get("n"):
+                                out["deltas"][f"width-sam-prior|{subset}|{arm}|{fov}|{variant}"] = res
     for arm in arms:
         for fov in fovs:
             for variant in VARIANTS:
@@ -869,13 +953,7 @@ def summarize_rows(rows, prior_kw=None):
                 res = paired_delta(rows, g, e)
                 if res.get("n"):
                     out["deltas"][f"gnomonic-equirect|{prompt}|{fov}|{variant}"] = res
-                    per_band = {}
-                    for b in BAND_ORDER:
-                        rb = [r for r in rows if r["band"] == b]
-                        pb = paired_delta(rb, g, e, reps=2000)
-                        if pb.get("n"):
-                            per_band[b] = pb
-                    out["deltas"][f"gnomonic-equirect|{prompt}|{fov}|{variant}|by_band"] = per_band
+                    out["deltas"][f"gnomonic-equirect|{prompt}|{fov}|{variant}|by_band"] =                         projection_deltas_by_band(rows, prompt, fov, variant)
         for proj in PROJECTIONS:
             for variant in VARIANTS:
                 if len(fovs) > 1:
@@ -893,6 +971,8 @@ def summarize_rows(rows, prior_kw=None):
                                    {"arm": f"boxcenter_{proj}", "fov": fov, "variant": variant})
                 if res.get("n"):
                     out["deltas"][f"detpoint-boxcenter|det|{proj}|{fov}|{variant}"] = res
+    out["band_projection_ci_exclusions"] = count_ci_exclusions(
+        {k: v for k, v in out["deltas"].items() if k.endswith("|by_band")})
     return out
 
 
@@ -925,14 +1005,14 @@ def cmd_summarize(args):
 
 def format_tables(summary):
     lines = ["arm | fov | variant | n | IoU med | mean | >=0.5 | >=0.75 | cover med | "
-             "in-gold med | size p10/p50/p90 | width ±20% | empty | edge"]
+             "in-gold med | size p10/p50/p90 | box width in [0.8,1.25] | empty | edge"]
     for k, s in summary["cells"].items():
         arm, fov, var = k.split("|")
         lines.append(f"{arm} | {fov} | {var} | {s['n']} | {s['iou_median']} | {s['iou_mean']} | "
                      f"{s['iou_ge_050']} | {s['iou_ge_075']} | {s['gold_frac_covered_median']} | "
                      f"{s['mask_frac_in_gold_median']} | {s['size_ratio_p10']}/"
                      f"{s['size_ratio_median']}/{s['size_ratio_p90']} | "
-                     f"{s['width_within_20pct']} | {s['empty_masks']} | "
+                     f"{s['box_width_ratio_in_band']} | {s['empty_masks']} | "
                      f"{s['mask_touches_edge']}")
     lines.append("")
     for k, d in summary["deltas"].items():

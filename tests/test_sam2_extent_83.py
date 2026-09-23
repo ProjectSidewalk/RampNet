@@ -5,6 +5,7 @@ pinned is what fails silently -- a gnomonic view that does not round-trip, a mas
 that loses the seam, an IoU that compares a box against the wrong side of x = 0, and
 a distance band read off the wrong row.
 """
+import json
 import os
 import sys
 
@@ -242,3 +243,53 @@ def test_prior_only_control_is_one_row_per_item_and_prompt():
     assert sorted(r["arm"] for r in prior) == ["boxcenter_prior", "point_prior"]
     pb = se.prior_box(0.3, 0.56)
     assert prior[0]["iou"] == pytest.approx(se.seam_iou((0.3, 0.56, 0.01, 0.004), pb))
+
+
+def test_width_band_delta_pairs_on_the_indicator():
+    rows = []
+    for p in range(4):
+        for k in range(2):
+            # SAM2 box exactly the gold width (in band); prior 2x too wide (out of band)
+            for arm, w in (("point_gnomonic", 0.01), ("point_prior", 0.02)):
+                rows.append({"city": "c", "pano_id": f"p{p}", "key": f"det:{k}", "arm": arm,
+                             "fov": 90 if arm == "point_gnomonic" else 0,
+                             "variant": "ptbox_multi" if arm == "point_gnomonic" else "prior_only",
+                             "sam_w": w, "gold_w": 0.01, "iou": 0.5})
+    res = se.paired_delta(rows, {"arm": "point_gnomonic", "fov": 90, "variant": "ptbox_multi"},
+                          {"arm": "point_prior", "fov": 0, "variant": "prior_only"},
+                          reps=200, value=se.width_in_band)
+    assert res["n"] == 8 and res["mean_delta"] == 1.0 and res["ci95"] == [1.0, 1.0]
+    assert se.in_width_band(0.8) and se.in_width_band(1.25) and not se.in_width_band(1.26)
+    assert se.width_in_band({"sam_w": None, "gold_w": 0.01}) == 0.0   # empty mask is a miss
+
+
+def test_paired_delta_keeps_cities_apart():
+    """Pano ids are per city: the same (pano_id, key) in two cities is two items."""
+    rows = [{"city": c, "pano_id": "p0", "key": "det:0", "arm": arm, "fov": 90,
+             "variant": "pt_multi", "iou": iou}
+            for c in ("a", "b") for arm, iou in (("g", 0.6), ("e", 0.5))]
+    res = se.paired_delta(rows, {"arm": "g"}, {"arm": "e"}, reps=50)
+    assert res["n"] == 2 and res["n_panos"] == 2
+
+
+def test_richmond_band_ci_exclusions_rederive_from_rows():
+    """docs/sam2_extent_83.md quotes this tally ("13 of the 16", 6 in <5 m); an earlier draft
+    said 14 and nothing caught it. Re-derived from the committed rows, not the summary."""
+    out = os.path.join(REPO, "analysis_out", "sam2_extent_83")
+    rows = se.read_rows(os.path.join(out, "richmond_rows.csv"))
+    by_band = {}
+    for prompt in se.PROMPTS:
+        for fov in (90, 76, 60):
+            for variant in se.VARIANTS:
+                by_band[f"{prompt}|{fov}|{variant}"] = se.projection_deltas_by_band(
+                    rows, prompt, fov, variant)
+    t = se.count_ci_exclusions(by_band)
+    assert (t["n"], t["excluding"], t["positive"], t["negative"]) == (120, 16, 13, 3)
+    assert t["by_band"] == {"<5 m": [4, 2], "5-9 m": [3, 0], "9-18 m": [5, 0],
+                            ">36 m / horizon": [1, 1]}
+    with open(os.path.join(out, "richmond_summary.json"), encoding="utf-8") as f:
+        committed = json.load(f)["band_projection_ci_exclusions"]
+    assert committed == t
+    with open(os.path.join(REPO, "docs", "sam2_extent_83.md"), encoding="utf-8") as f:
+        doc = f.read()
+    assert "13 of the 16" in doc and "6 of the 16" in doc
