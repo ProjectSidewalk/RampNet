@@ -22,8 +22,15 @@ Constraints this draft works inside (Jon, 2026-09-22, on #86 and in the plan): n
 and [#5449](https://github.com/ProjectSidewalk/SidewalkWebpage/issues/5449)); the retired
 `tactile warning` tag drops out and `parallel lines` stays; the 94 disputed "missing tactile
 warning" ramps from the validation study are not reviewed now, so **no label from the
-validation-study deployment is in the list**; the review happens on production; Jon rates
-first and a second rater (Mikey, unconfirmed) repeats the same list blind.
+validation-study deployment is in the list** (excluded by deployment, not by physical ramp;
+see D21); the review happens on production; Jon rates first and a second rater (Mikey,
+unconfirmed) repeats the same list blind.
+
+> **Needs Jon's explicit confirmation before merge (D20):** the committed list carries
+> per-label rows (host URL, label id, pano id, tags) from **9 private deployments, 114 of the
+> 500 items**: burnaby, columbia, kaohsiung, keelung, new-taipei, taipei, walla-walla,
+> west-chester, zurich. They are kept in the list for now so the draw is not silently changed,
+> but this repo is public.
 
 ## Decisions for Jon
 
@@ -33,23 +40,32 @@ list builder with different arguments.
 
 | # | question | drafted default | why it matters |
 |---|---|---|---|
-| D1 | How does the second rater stay blind when the first rater's edits are live on production? | Jon reviews on production. The second rater uses the **review sheet** route (`tag_review_pull.py sheet-template`): a CSV plus a Google Maps link pinned to the label's pano id and centred on the label, no production URL. Nothing the second rater decides is written to production until both exports are committed. | The production gallery shows the current tags. After Jon's pass those are Jon's tags, so a second rater on production would be reviewing Jon, and κ would be inflated by anchoring. |
-| D2 | Should both raters see the original labeller's tags? | Yes, both see them (production shows them to Jon; the sheet pre-fills them for the second rater), so the two passes are anchored identically. It measures agreement on a *review*, not on labelling from a blank slate. | The alternative (both blank) needs Jon on the sheet route too, and then production gets no edits from this pass. |
-| D3 | Width threshold for `narrow` and landing depth for `not enough landing space`: 48 in (PROWAG R304.5.1.1, R304.2.5) or 36 in (the labeling guide and the 2010 ADA Standards)? | **48 in (1.2 m)**, the current federal guideline, which is also what a width measurement (plan items 7–8) would be scored against. | The crowd was taught 3 ft. At 48 in the reviewed set will call more ramps narrow than the crowd did, which reads as low crowd recall rather than a threshold change. Either is defensible; mixing them is not. |
+| D1 | How does the second rater stay blind when the first rater's edits are live on production? | Jon reviews on production. The second rater uses the **review sheet** route (`tag_review_pull.py sheet-template`): a CSV plus a Google Maps link pinned to the label's pano id and centred on the label, no production URL. Nothing the second rater decides is written to production until both exports are committed. **κ is then measured across two different viewing routes**: the gallery shows the label marker and the crop, the sheet's Google Maps view shows neither (protocol, "Known asymmetry between the production and sheet routes"). `tag_review_agreement.py` prints both routes and warns when they differ. | The production gallery shows the current tags. After Jon's pass those are Jon's tags, so a second rater on production would be reviewing Jon, and κ would be inflated by anchoring. The alternative that removes the asymmetry is both raters on the sheet route (D2's cost), or a marked view for the sheet (not built). |
+| D2 | Should both raters see the original labeller's tags and severity? | Yes, both see them (production shows them to Jon; the sheet pre-fills `tags` and `severity` for the second rater, with `tags_at_list` / `severity_at_list` beside them), so the two passes are anchored identically. It measures agreement on a *review*, not on labelling from a blank slate. A severity the sheet rater blanks is recorded as missing and counted, not dropped. | The alternative (both blank) needs Jon on the sheet route too, and then production gets no edits from this pass. |
+| D3 | Width threshold for `narrow` and landing depth for `not enough landing space`: 48 in (PROWAG R304.5.1.1, R304.2.5) or 36 in (the labeling guide and the 2010 ADA Standards)? | **48 in (1.2 m)**, the current federal guideline, which is also what a width measurement (plan items 7–8) would be scored against. Written inline in the rubric. | The crowd was taught 3 ft. At 48 in the reviewed set will call more ramps narrow than the crowd did, which reads as low crowd recall rather than a threshold change. Either is defensible; mixing them is not. |
 | D4 | What confidence does a tag need? | **More likely than not** that the condition, at the stated threshold, is present on this image. Unresolvable ⇒ "cannot judge", never a guess either way. | This is the reporting threshold itself. "Only when clearly present" would lower both raters' tag rates and raise κ, at the cost of recall. |
-| D5 | How is `steep` judged when slope cannot be measured? | Tag when the ramp run (or a flare a pedestrian must cross) is visibly **shorter than about 8 times the curb height** it climbs (≈ 12.5 %, well past the 8.3 % limit), or the counter slope at the gutter is obviously steep. | A threshold exactly at 1:12 is not resolvable from street-level imagery; a margin above it is. |
-| D6 | Heavy leaves or debris on a ramp: `surface problem` or `debris / pooled water`? | **`debris / pooled water` only.** `surface problem` is reserved for the ramp's own surface. | The labeling guide still says to add "surface problem" for heavy debris; that text predates the debris tag. |
+| D5 | How is `steep` judged when slope cannot be measured? | Tag when the ramp run (or a flare a pedestrian must cross) is visibly **shorter than about 8 times the curb height** it climbs (≈ 12.5 %, well past the 8.3 % limit), or the counter slope at the gutter is obviously steep. Written inline in the rubric. | A threshold exactly at 1:12 is not resolvable from street-level imagery; a margin above it is. |
+| D6 | Heavy leaves or debris on a ramp: `surface problem` or `debris / pooled water`? | **`debris / pooled water` only.** `surface problem` is reserved for the ramp's own surface. Written inline in the rubric. | The labeling guide still says to add "surface problem" for heavy debris; that text predates the debris tag. |
 | D7 | Grooves instead of truncated domes. | Where the city offers `parallel lines` (Burnaby): tag `parallel lines`, not `missing tactile warning`. Everywhere else: `missing tactile warning`, because PROWAG R305.1 requires truncated domes. | Otherwise Burnaby's `parallel lines` and `missing tactile warning` double-count one condition. |
-| D8 | Which yardstick outside the US? | PROWAG thresholds everywhere, as a fixed reference, not as a statement about local code. 109 of the 500 items are in non-US deployments. | Without one yardstick, "narrow" means different things by city. |
+| D8 | Which yardstick outside the US? | PROWAG thresholds everywhere, as a fixed reference, not as a statement about local code. 114 of the 500 items are in non-US deployments. | Without one yardstick, "narrow" means different things by city. |
 | D9 | Severity 1 / 2 / 3 definitions (plan S4). | The draft in [Severity](#severity-draft-definitions-s4) below: usability for a wheelchair user, judged on the whole ramp after the tags, not a count of tags. | The recorded scale never had a definition; the census shows it behaves like a weighted tag count (plan §2.4). |
 | D10 | List design: size 500, shares 20 / 15 / 35 / 30 % over affirmed-empty / trusted-tagged / tagged / untagged, crop-era GSV labels only, 35 cities. | As committed. | See [The review list](#the-review-list); every choice is a CLI argument. |
-| D11 | Labels either rater placed (Jon 60, Mikey 25 of the 500). | Kept and flagged in `placed_by_rater`, so agreement can be reported with and without them. | Re-reviewing your own label is not the same act as reviewing a stranger's; the `tagged_trusted` stratum is mostly Jon's own labels because Owner-placed crop-era labels are mostly his. |
+| D11 | Items either rater has already touched. Placed: Jon 62, Mikey 24. Any prior contact (placed, validated or edited before the list was built): Jon 117, Mikey 67, **either rater 179 of the 500**. Jon validated 34 of the 100 `affirmed_empty` items himself. | Kept and flagged per rater in `prior_contact_jonfroehlich` / `prior_contact_mikey` (`placed;validated;edited`). `tag_review_agreement.py` always reports κ both with and without those items. | Re-reviewing your own label, or re-affirming your own affirmation, is not the same act as reviewing a stranger's. Dropping 179 items would cost too many positives, so the draft reports both. |
 | D12 | Per-tag "cannot judge" and notes have no production field. | A per-rater sidecar CSV (`item_id,cannot_judge,cannot_judge_tags,note`), merged by the pull script. Revisit if the list-driven queue ([SidewalkWebpage#5444](https://github.com/ProjectSidewalk/SidewalkWebpage/issues/5444)) grows a field for it. | Without it, "cannot judge" on production collapses into "no", which is exactly the confusion of absence and negative the plan rules out. |
+| D13 | Snow and ice, and the reach of `debris / pooled water`. | One rule: snow or ice that **hides** the ramp ⇒ the item is *Unsure*; snow, ice, slush, sand, gravel, leaves or trash on a ramp that is **still visible enough to judge** ⇒ `debris / pooled water` when a wheelchair user would have to go through it. The draft also extends the tag from "pooled at the bottom of the curb ramp" (the PS definition) to the ramp surface. | The first draft said both "under snow ⇒ Unsure" and "tag snow and ice as debris". The extension widens the PS definition; the narrower reading (bottom of the ramp only) is the alternative. |
+| D14 | Which point in time is judged (R1)? | **The imagery shown**, the panorama the label was placed on, even where the ramp is known to have changed (say so in the note). | The alternative, current conditions, needs newer imagery or a site visit and breaks the link between the item and the crop a model is scored on. |
+| D15 | Step height for `not level with street`. | A visible lip of **about 1 in (2.5 cm)** or more. PROWAG's ¼ in is not resolvable. | This is the tag's working threshold; a lower one raises the tag rate. |
+| D16 | A dome panel narrower than the ramp, or worn. | **Not** `missing tactile warning`; record it in the note. | PROWAG R305 sets a width, so a narrow panel is non-compliant; the draft keeps the tag for "absent". The alternative tags it. |
+| D17 | Several ramps near the label point. | Judge the **one nearest the label point**. On the sheet route there is no marker, so the rater takes the view centre (the link is centred on the label). | Without a rule the two raters can judge different ramps. The sheet can only approximate it (D1). |
+| D18 | What does *Unsure* mean? | The **item-level "cannot judge"**: the item leaves every rate. It is not a vote on whether the label is a ramp. | Production's Unsure has no defined meaning; this pass gives it one. |
+| D19 | Which labels are eligible by validation status? | Labels the crowd voted incorrect (`correct == false`) are **out**; unvalidated labels **stay in**. | The first saves rater time on likely *Disagree* items; the second keeps the list from over-representing validated labels. |
+| D20 | **Publishing per-label rows from private deployments.** 114 of the 500 items are from 9 private deployments (burnaby, columbia, kaohsiung, keelung, new-taipei, taipei, walla-walla, west-chester, zurich); the list carries each one's host URL, label id, pano id and tags. | **Kept in the committed list for now, pending Jon's explicit confirmation.** The column `deployment_visibility` marks them. If Jon says no, rebuild with `--exclude-cities` for the nine (the draw changes). | This repo is public. The private deployments' partners may not expect their host names and label ids in it. |
+| D21 | Validation-study overlap. | The validation-study deployment is excluded **by deployment**. A physical ramp it also covers can still be listed through another deployment's label. Nothing is dropped for that; two flag columns show it: `vstudy_same_pano` (0 items) and `vstudy_within_10m` (1 item, `tr0391` seattle-wa:271169, 2 validation-study labels within 10 m, neither tagged `missing tactile warning`). Across all labels, 62 validation-study panos also appear in seattle-wa (58) and chicago-il (4); 22 of them are in the eligible pool. | The deferred adjudication covers 94 validation-study ramps; an item on the same ramp would be judged here first. |
 
 <!-- rubric:begin -->
 ## Rubric
 
-**Rubric version:** `tag-rubric-v0.1-draft`
+**Rubric version:** `tag-rubric-v0.2-draft`
 
 **Status of this text: PROPOSED DRAFT, not approved.** A pass rated under this version measures
 agreement under a draft; say so next to any number it produces.
@@ -58,12 +74,16 @@ agreement under a draft; say so next to any number it produces.
 
 - **The item** is one Project Sidewalk `CurbRamp` label, identified by `city:label_id`, judged on
   the panorama it was placed on (`pano_id` in the list). Judge the physical curb ramp the label
-  marks. If several ramps are close, judge the one nearest the label point.
+  marks. If several ramps are close, judge the one nearest the label point (on the review
+  sheet, which shows no marker, the one at the centre of the linked view, which is centred on
+  the label point).
 - **Not a curb ramp** (a driveway apron, a blended level crossing with no ramp, nothing there):
   vote *Disagree* and judge no tags. The labeling guide's rules on what counts as a curb ramp
   (driveways are not; see its `#driveways` section) apply unchanged.
-- **The whole item cannot be judged** (ramp occluded, too far, blurred, under snow or in
-  darkness): vote *Unsure*. That is the item-level "cannot judge"; it is not a Disagree.
+- **The whole item cannot be judged** (ramp occluded, too far, blurred, hidden under snow or
+  ice, or in darkness): vote *Unsure*. That is the item-level "cannot judge"; it is not a
+  Disagree, and the item leaves every rate. Snow, ice or other material on a ramp that is
+  still visible enough to judge is not a reason for *Unsure*; see `debris / pooled water`.
 - **Every applicable tag gets a decision**: present, absent, or cannot judge. The applicable tags
   are the ones the label's city offers (column `applicable_tags`), minus the retired
   `tactile warning`. A reviewed item on which a tag is left off means *absent* for that tag; that
@@ -80,8 +100,8 @@ agreement under a draft; say so next to any number it produces.
 ### R1. Which point in time
 
 Judge **the imagery shown**, which is the panorama the label was placed on. Its capture date is
-typically 1–2.4 years before the label (census on #86; cuenca 8.2 years), and in this list the
-median gap is 1.8 years with 63 of 500 items at five years or more. Do not use a newer or older
+typically 1.2–2.4 years before the label (median by city, census on #86; cuenca 8.2 years), and
+in this list the median gap is 2.0 years with 73 of 500 items at five years or more. Do not use a newer or older
 panorama, a site visit, or knowledge of reconstruction to change a tag; if you know the ramp has
 changed, judge the image and say so in the note. Transient conditions (water, snow, leaves,
 debris, a parked car) are judged as they appear in this image.
@@ -178,7 +198,8 @@ SidewalkWebpage (read at commit `8a542b8`, 2026-08-10), cited by its section anc
 - **PS definition:** "The ramp is not wide enough for a wheelchair to safely use it." Guide
   (`#narrow-ramps`): "the ADA requires a width of at least 3 ft"; severity Medium or High.
 - **Standard:** PROWAG R304.5.1.1: clear width of the ramp run, excluding flares, 48 in (1220 mm)
-  minimum. 2010 ADA Standards 405.5: 36 in. **This draft uses 48 in** (decision D3).
+  minimum. 2010 ADA Standards 405.5: 36 in. **The threshold is 48 in (1.2 m)**, not the guide's
+  3 ft.
 - **Tag it when:** the ramp run, not counting its flares, looks narrower than 4 ft (1.2 m). Useful
   references in the image: a standard dome panel is 2 ft deep; a wheelchair is about 2.2 ft wide;
   a US sidewalk flag is often 4–5 ft.
@@ -193,7 +214,8 @@ SidewalkWebpage (read at commit `8a542b8`, 2026-08-10), cited by its section anc
   steep flares too.
 - **Standard:** PROWAG R304.2.5: where a change of direction is needed to reach the ramp, a landing
   at the top 48 × 48 in minimum; R304.3.4: for parallel ramps the landing is at the bottom, also
-  48 × 48 in. 2010 ADA Standards 406.4: 36 in. **This draft uses 48 in** (decision D3).
+  48 × 48 in. 2010 ADA Standards 406.4: 36 in. **The threshold is 48 in (1.2 m)**, not the
+  guide's 3 ft.
 - **Tag it when:** the level area where a user turns onto the ramp is shallower than 4 ft before
   it meets a building, wall, grass, a drop, or the far edge of the sidewalk; including a ramp whose
   run takes up the entire sidewalk depth so that there is no level top at all.
@@ -205,14 +227,15 @@ SidewalkWebpage (read at commit `8a542b8`, 2026-08-10), cited by its section anc
 
 - **PS definition:** "The ramp is overly steep, making it dangerous or uncomfortable to use." Guide:
   steep flares (`#steep-flares`, Low or Medium alone, worse with no landing space) and steep counter
-  slopes (ADA 406.2, "only obvious cases").
+  slopes (`#steep-counter-slopes`, ADA 406.2, "only obvious cases").
 - **Standard:** PROWAG R304.2.1 (running slope 1:12, 8.3 % maximum); R304.2.6 (flared sides 1:10,
   10 % maximum, where a pedestrian circulation path crosses them); R304.4.1 (blended transitions
   1:20, 5 %). 2010 ADA Standards 406.2: counter slope 1:20.
 - **Tag it when:** the ramp run is visibly shorter than about 8 times the curb height it climbs
   (≈ 12.5 %; a standard 6 in curb then needs a run of about 4 ft or more to escape the tag), or a
   flare pedestrians must cross is similarly steep, or the gutter rises steeply against the bottom
-  of the ramp (decision D5).
+  of the ramp. A slope exactly at 1:12 is not resolvable from imagery; the 8× rule is the
+  margin that is.
 - **Do not tag when:** the slope might be a little over 8.3 %; that is not resolvable from imagery.
 - **Cannot judge when:** the curb height or the ramp length cannot be seen (a straight-down view,
   far distance).
@@ -228,7 +251,8 @@ SidewalkWebpage (read at commit `8a542b8`, 2026-08-10), cited by its section anc
   potholed, patched with a different material that leaves an edge, has vegetation growing across
   it, or carries a grate or utility cover with visible gaps.
 - **Do not tag when:** hairline cracks, stains, colour differences; loose leaves, water or trash
-  (that is `debris / pooled water`, decision D6); a lip at the bottom edge (that is
+  (that is `debris / pooled water`, even when heavy; the labeling guide's older advice to add
+  `surface problem` for heavy debris does not apply); a lip at the bottom edge (that is
   `not level with street`).
 - **Cannot judge when:** the surface is not resolvable (distance, resolution, snow).
 
@@ -240,9 +264,12 @@ SidewalkWebpage (read at commit `8a542b8`, 2026-08-10), cited by its section anc
 - **Standard:** no PROWAG technical provision covers drainage or debris (checked against the R3
   technical requirements page, 2026-09-22). 2010 ADA Standards 405.10: landings subject to wet
   conditions shall be designed to prevent the accumulation of water.
-- **Tag it when:** water, ice, snow, sand, gravel, leaves or trash covers enough of the ramp or the
-  area at its bottom that a wheelchair user would have to go through it.
-- **Do not tag when:** a few scattered leaves; a damp surface with no standing water.
+- **Tag it when:** water, ice, snow, slush, sand, gravel, leaves or trash covers enough of the
+  ramp or the area at its bottom that a wheelchair user would have to go through it, **and the
+  ramp is still visible enough to judge**. This reads the PS definition ("pooled at the bottom
+  of the curb ramp") to include the ramp surface and frozen or granular material.
+- **Do not tag when:** a few scattered leaves; a damp surface with no standing water; snow or
+  ice that hides the ramp itself (then the whole item is *Unsure*, R0).
 - **Cannot judge when:** the ramp surface is not resolvable.
 
 #### Tags outside this pass
@@ -285,13 +312,24 @@ If severity cannot be judged while the tags can, put `severity` in `cannot_judge
 API cache fetched on 2026-09-22 by PR #175's `scripts/analysis/ps_supervision_audit.py fetch`
 (the cache is gitignored; `review_list.meta.json` records the sha256 of every input file it read).
 
-**List sha256:** `9dbe2e7c433d3e1978bc63f4761581ef920f23cb00c875d3858245d23aa5a3e6`
+**List sha256:** `00e850e478489fbca6a9dacfb46c92fa14cde75a803b8afe3460c8eecdbc9ff8`
+(rebuilt 2026-09-22 after the PR #176 review; it replaces `9dbe2e7c…a3e6`, whose distance bands
+double-corrected camera pitch)
+
+**Depends on PR [#175](https://github.com/ProjectSidewalk/RampNet/pull/175)**, which is not
+merged: the fetch script (`ps_supervision_audit.py fetch`) lives there, and the cache it writes
+is gitignored and unpublished. This PR imports no code from #175.
 
 **The committed CSV is the artifact of record.** Production is live: a fresh fetch returns a
 different pool (new labels, edits, votes), so the script reproduces this list byte for byte only
 from a cache whose hashes match the meta file. Anyone can check the list against the meta file and
 against this hash; nobody can regenerate it from a later fetch, and that is stated rather than
-hidden.
+hidden. **What would unblock regeneration from a clean clone:** merge #175, then publish the
+2026-09-22 cache (the files named in `review_list.meta.json` `inputs`) to Hugging Face under a
+stated identifier. A reduced candidate pool (the 183,217 eligible rows × the columns
+`build_candidates` uses, no free-text descriptions) was measured and **not committed**: it is
+about 10 MB gzipped, over the ~5 MB a committed file should be, and 43,717 of its rows come from
+the private deployments D20 is about. Publishing either is Jon's call under D20.
 
 ### Eligibility
 
@@ -318,17 +356,23 @@ Why these filters:
 
 - **Crop era.** Labels placed since 2023-10-12 have a production crop, so the reviewed items can
   double as a model test set (plan items 4–5) without the unpublished pano-store re-cut (item 2b).
-  It also puts the whole list in the tag era: tags entered the schema on 2018-04-29.
+  It also puts the whole list in the tag era: tags entered the schema on 2018-04-29. The crop's
+  existence is inferred from the placement date, not checked per label, so the list has no crop
+  column.
 - **`correct == false` out.** The crowd already voted these not to be ramps; reviewing tags on
-  them spends rater time on items that mostly end as *Disagree*. Unvalidated labels stay in.
+  them spends rater time on items that mostly end as *Disagree*. Unvalidated labels stay in (D19).
+- **validation-study out, by deployment** (D21). The two `vstudy_*` columns flag the one listed
+  item that sits within 10 m of a validation-study label; nothing is dropped for it.
 - **GSV only.** The distance band assumes a 2.5 m camera; infra3d (Zurich) and Mapillary rigs
   differ, and 2,188 crop-era labels were not worth a second geometry.
 
 ### Strata
 
 - **Tag state** (precedence top down):
-  `affirmed_empty` = no tags today and a tag-review pass looked at it (`ExpertValidate`, or the
-  ASSETS'24 `ExternalTagValidationASSETS2024` pass); `tagged_trusted` = tagged, placed by an Owner
+  `affirmed_empty` = no tags today and a tag-review pass affirmed it: an *Agree* vote or an edit
+  from `ExpertValidate` or the ASSETS'24 `ExternalTagValidationASSETS2024` pass (an Unsure or
+  Disagree vote alone does not count; the first draft counted those, which put three unaffirmed
+  labels in this stratum); `tagged_trusted` = tagged, placed by an Owner
   account (jonfroehlich, mikey); `tagged` = tagged by anyone else; `untagged` = no tags and never
   tag-reviewed. `untagged` is not a negative stratum: it is where the review measures how often an
   untagged label actually carries a condition, which is the number the positive-unlabeled
@@ -336,19 +380,28 @@ Why these filters:
   ordinary Validate never saw a tag control. The trusted tier is Owners only, because the wider
   role list is not committed (it names MTurk worker accounts); `--trusted-users` widens it.
 - **Distance band** from the label's depression below the horizon,
-  `(pano_y / pano_height − 0.5) × 180 − camera_pitch` degrees (world pitch = image pitch +
-  camera pitch, as in SidewalkWebpage's `PannellumViewer.js`), converted to a flat-ground distance
-  with a fixed 2.5 m camera height (the constant `crop_window_eval.py` and `size_analysis.py`
-  already use): near < 8 m, mid 8–15 m, far ≥ 15 m. The edges sit near the crop-era tertiles
-  (8.2 m and 12.3 m) with a wider far band, because far is where "cannot judge" is expected.
+  `(pano_y / pano_height − 0.5) × 180` degrees, converted to a flat-ground distance with a fixed
+  2.5 m camera height: near < 8 m, mid 8–15 m, far ≥ 15 m. This is the convention, and the
+  constant, of `crop_window_eval.py` and `size_analysis.py`. There is no `camera_pitch` term
+  because Project Sidewalk writes `pano_y` from the label's world-frame pitch
+  (`util.pano.povToPanoCoord` in `panoUtilities.js`, called from `Label.js` with a POV that
+  `GsvViewer` / `PannellumViewer.getPov` report in world pitch). The first draft subtracted
+  `camera_pitch` a second time, which put 67 of its 500 items (and 9.7 % of the pool) in the wrong
+  band and tilted every `gsv_url` by the camera pitch (median 0.66°, max 9.2°). The check
+  (`tag_review_list.py pitch-check`): on
+  crop-era GSV labels placed at the canvas centre, `(0.5 − pano_y / pano_height) × 180 − pov_pitch`
+  has slope −0.04 (seattle-wa, n 1,310), −0.01 (chicago-il, 6,405) and −0.01 (taipei, 1,109)
+  against `camera_pitch`; a double correction needs −1. The edges sit near the crop-era pool's
+  tertiles (8.4 m and 12.2 m) with a wider far band, because far is where "cannot judge" is
+  expected.
 - **City**: each tag state's quota is split equally over the deployments that have candidates in
-  it, capped by what each has; no deployment has more than 22 of the 500 items.
+  it, capped by what each has; no deployment has more than 20 of the 500 items.
 
-Within `tagged` and `tagged_trusted`, a label is drawn with weight (1 / global frequency of its
-rarest tag)^1.5, which lifts the rare tags to at least 33 list-time positives each. Within a (tag
-state, city) cell the draw rotates through the bands. No two items share a (city, pano) and no two
-in one city are within 10 m, so one physical ramp (plan §2.5) is not two items. Item order is a
-seeded shuffle.
+Within `tagged` and `tagged_trusted`, a label is drawn with weight (1 / *f*)^1.5, where *f* is the
+frequency of its rarest tag among that tag state's candidates; this lifts every core tag to at
+least 37 list-time positives on the committed draw. Within a (tag state, city) cell the draw
+rotates through the bands. No two items share a (city, pano) and no two in one city are within
+10 m, so one physical ramp (plan §2.5) is not two items. Item order is a seeded shuffle.
 
 ### Composition
 
@@ -356,32 +409,39 @@ Tag state by distance band (500 items):
 
 | tag state | pool | near | mid | far | total |
 |---|---:|---:|---:|---:|---:|
-| affirmed_empty | 1,094 | 31 | 41 | 28 | 100 |
-| tagged_trusted | 609 | 27 | 29 | 19 | 75 |
+| affirmed_empty | 1,087 | 31 | 38 | 31 | 100 |
+| tagged_trusted | 609 | 29 | 28 | 18 | 75 |
 | tagged | 57,740 | 58 | 59 | 58 | 175 |
-| untagged | 123,774 | 51 | 50 | 49 | 150 |
+| untagged | 123,781 | 49 | 52 | 49 | 150 |
 
-Of the 100 `affirmed_empty` items, 79 were affirmed by ExpertValidate and 21 by the ASSETS'24
-pass. 12 more items carry tags that a tag-review pass affirmed. 35 deployments, 9–22 items each;
-109 items are outside the US (burnaby, cdmx, kaohsiung, keelung, new-taipei, rancagua-chile,
-santiago-chile, sao-paulo-brazil, taipei, zurich).
+Of the 100 `affirmed_empty` items, 80 were affirmed by ExpertValidate and 20 by the ASSETS'24
+pass. 9 more items carry tags that a tag-review pass affirmed. 35 deployments, 9–20 items each;
+114 items are outside the US (burnaby, cdmx, kaohsiung, keelung, new-taipei, rancagua-chile,
+santiago-chile, sao-paulo-brazil, taipei, zurich). 114 items are from private deployments (D20).
 
 List-time positives per tag (the original labeller's tags, before review):
 
 | tag | items carrying it |
 |---|---:|
-| missing tactile warning | 106 |
-| not enough landing space | 57 |
-| points into traffic | 54 |
+| missing tactile warning | 94 |
+| points into traffic | 52 |
+| narrow | 48 |
 | steep | 47 |
-| surface problem | 46 |
-| narrow | 45 |
-| not level with street | 45 |
-| debris / pooled water | 33 |
+| not enough landing space | 45 |
+| not level with street | 41 |
+| surface problem | 39 |
+| debris / pooled water | 37 |
 | parallel lines | 5 |
 | not aligned with crosswalk | 4 |
 
-Severity at list time: 1 = 344, 2 = 106, 3 = 35, unrated 15.
+Severity at list time: 1 = 355, 2 = 111, 3 = 22, unrated 12.
+
+Prior contact (D11): Jon placed 62, validated 55 and edited 5 listed labels (117 items in all);
+Mikey placed 24, validated 43, edited 2 (67); either rater, 179 items. Jon validated 34 of the
+100 `affirmed_empty` items himself.
+
+Every number in this section is in `review_list.meta.json` (`composition`, `pool_by_state`,
+`pool_stats`), written by the same `build` run.
 
 ### Size: why 500
 
@@ -398,9 +458,21 @@ at the same prevalence, 4,000 draws):
 | 80 | 0.10 | 0.10 | 0.10 |
 
 At about 30 positives a tag's κ is known to ±0.16, which separates the validation study's
-0.00–0.21 from a usable 0.6. The rare tags are the constraint, so 500 items with rare-tag weighting
-is the smallest list that gives every core tag at least 30 list-time positives; at roughly 30 s an
-item on production that is about four hours per rater. `--n` changes it.
+0.00–0.21 from a usable 0.6. The rare core tags are the constraint. `tag_review_list.py size`
+draws the list at three sizes over ten seeds (86 and 1–9, all other parameters as committed) and
+reports the fewest list-time positives any core tag gets:
+
+| n | seed 86 (committed) | range over 10 seeds | seeds with every core tag ≥ 30 |
+|---:|---:|---:|---:|
+| 400 | 22 | 15–31 | 1 of 10 |
+| 450 | 35 | 29–37 | 9 of 10 |
+| 500 | 37 | 30–40 | 10 of 10 |
+
+So 500 is not the smallest size that can clear 30: 450 clears it on this seed and on 9 of 10
+seeds. 500 is the size that clears it on every seed tried, with a margin of 7 on the committed
+draw; 400 does not. The binding tag is almost always `debris / pooled water`. At roughly 30 s an
+item on production, 500 items is about four hours per rater (450 would save about 25 minutes).
+`--n` changes it (D10).
 
 ### Caveats that travel with any number from this list
 
@@ -410,8 +482,13 @@ item on production that is about four hours per rater. `--n` changes it.
   items, not a population estimate.
 - **List-time positives are the original labeller's tags**, not truth. The reviewed counts will
   differ; how much is part of the result.
-- **Items either rater placed** are flagged in `placed_by_rater` (Jon 60, Mikey 25) and should be
-  reported both ways (decision D11).
+- **Items either rater already touched** (179 of 500: placed, validated or edited, per rater in
+  `prior_contact_<rater>`) are reported both ways; `tag_review_agreement.py` prints κ with and
+  without them (D11).
+- **The two passes use different views** if D1 stands (gallery vs Google Maps link); the
+  agreement report names both routes and warns when they differ. Quote κ with the routes.
+- **114 items come from private deployments** (D20); if they are removed the list is redrawn and
+  every number above changes.
 - The two city-specific tags (`parallel lines` 5, `not aligned with crosswalk` 4) will not reach a
   readable κ on this list. That gap is by design; a κ for them needs a Burnaby- or Taiwan-only
   list.
@@ -424,7 +501,7 @@ item on production that is about four hours per rater. `--n` changes it.
 | `benchmark/tag_review/review_list.meta.json` | build parameters, eligibility funnel, pool sizes, input file hashes, composition |
 | `benchmark/tag_review/<rater>.json` | a rater's export, rubric embedded (none yet; the first is Jon's pass) |
 | `rampnet/tag_review.py` | export format, rubric loading, κ and weighted κ, the production reconstruction |
-| `scripts/analysis/tag_review_list.py` | `build` the list, `power` the size table |
+| `scripts/analysis/tag_review_list.py` | `build` the list; `power` and `size` the size tables; `pitch-check` the world-frame check behind the distance band |
 | `scripts/analysis/tag_review_pull.py` | `prod` / `sheet` / `sheet-template`: a pass to an export |
 | `scripts/analysis/tag_review_agreement.py` | two exports to per-tag κ, prevalence and severity weighted κ |
 
@@ -439,6 +516,9 @@ item on production that is about four hours per rater. `--n` changes it.
   whether PROWAG R205 adds scoping exceptions for detectable warnings (only R304.1 and R305 were
   read).
 - Tag descriptions: the per-deployment `/v3/api/labelTags` responses in the audit cache, 2026-09-22.
+- `pano_y` convention: SidewalkWebpage `public/js/common/pano-viewer/src/panoUtilities.js`
+  (`povToPanoCoord`), `public/js/explore/src/label/Label.js` (constructor),
+  `GsvViewer.js` and `PannellumViewer.js` (`getPov`), at `8a542b8`.
 - Labeling guide: SidewalkWebpage `labelingGuideCurbRamps.scala.html` at `8a542b8`; tutorial
   severity anchors from `public/js/explore/src/onboarding/OnboardingStates.js` and
   `public/locales/en/audit.json` at the same commit.
