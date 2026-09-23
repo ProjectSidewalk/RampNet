@@ -1,4 +1,27 @@
 {
+ "full_minus_leak_free": {
+  "mAP": {
+   "ci95": [
+    -0.045391,
+    0.010202
+   ],
+   "point": -0.016199
+  },
+  "macro_f1": {
+   "ci95": [
+    -0.012846,
+    0.035012
+   ],
+   "point": 0.009971
+  },
+  "micro_f1": {
+   "ci95": [
+    -0.034619,
+    0.000339
+   ],
+   "point": -0.016748
+  }
+ },
  "labels_sha256": "20731670b66e09df8b6b1e0facb8b55155ba6a4b5f76d616b4a19fdcd6cfa5ec",
  "leaked_minus_leak_free": {
   "mAP": {
