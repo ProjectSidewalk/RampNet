@@ -350,7 +350,7 @@ def cmd_compare(args):
                         arr[int(y), int(x)] = (255, 255, 0)
             sheet.paste(Image.fromarray(arr), (j * tw, i * th))
     os.makedirs(ASSETS, exist_ok=True)
-    sheet.save(os.path.join(ASSETS, "crop_cutter_contact_sheet.jpg"), quality=80)
+    sheet.save(os.path.join(ASSETS, "crop_cutter_contact_sheet.jpg"), quality=70)
     print("wrote", os.path.join(ASSETS, "crop_cutter_contact_sheet.jpg"), "columns: HF |", " | ".join(tags))
 
 
