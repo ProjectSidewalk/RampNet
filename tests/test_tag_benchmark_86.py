@@ -236,3 +236,16 @@ def test_write_csv_is_lf_and_rounded(tmp_path):
     p = tmp_path / "x.csv"
     tb.write_csv(pd.DataFrame({"a": [1 / 3], "b": ["x"]}), str(p), float_digits=4)
     assert p.read_bytes() == b"a,b\n0.3333,x\n"
+
+
+def test_parse_tagger_title():
+    svg = "<text>mAP: 0.34 | Micro F1: 0.67 | Macro F1: 0.31 | Weighted F1: 0.6 | Manual avg.: 0.31 | Threshold: 0.3</text>"
+    assert tb.parse_tagger_title(svg) == {"mAP": 0.34, "micro_f1": 0.67, "macro_f1": 0.31,
+                                          "weighted_f1": 0.6, "manual_avg_f1": 0.31, "threshold": 0.3}
+    assert tb.parse_tagger_title("<svg/>") is None
+
+
+def test_usage_row_is_unpaid_and_shaped_like_the_ledger():
+    r = tb.usage_row("infer-released", 12.3456, "ok", "x", n=2183, ts="2026-09-22T00:00:00+00:00")
+    assert r["paid"] is False and r["elapsed_s"] == 12.346 and r["hardware"]["gpus"] == ["NVIDIA A40"]
+    assert r["est_cost_usd"] == 0.0 and r["provider"] != "claude"

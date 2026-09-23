@@ -527,6 +527,66 @@ def cmd_infer(args):
     print(json.dumps(_round(meta, 3), indent=1))
 
 
+# ----------------------------------------------------------------------------- tagger-eval
+
+_TAGGER_EVAL_BOOT = """
+import os, sys, runpy
+import matplotlib
+matplotlib.use("Agg")
+matplotlib.rcParams["svg.fonttype"] = "none"   # keep the title as text so it can be read back
+os.chdir(sys.argv[1])
+sys.argv = ["evaluate.py"] + sys.argv[2:]
+runpy.run_path("evaluate.py", run_name="__main__")
+"""
+
+
+def parse_tagger_title(svg_text):
+    """The headline numbers evaluate.py prints only into its figure title (2 dp)."""
+    import re
+    m = re.search(r"mAP: ([\d.]+) \| Micro F1: ([\d.]+) \| Macro F1: ([\d.]+) \| "
+                  r"Weighted F1: ([\d.]+) \| Manual avg\.: ([\d.]+) \| Threshold: ([\d.]+)", svg_text)
+    if not m:
+        return None
+    k = ("mAP", "micro_f1", "macro_f1", "weighted_f1", "manual_avg_f1", "threshold")
+    return dict(zip(k, map(float, m.groups())))
+
+
+def cmd_tagger_eval(args):
+    """Run the tagger's notebooks/evaluate.py UNMODIFIED on the prepared test crops and read
+    back what it reports: per-tag AP from its stats JSON, headline numbers from its figure
+    title. This is the reproduction of record; ``infer`` + ``score`` must agree with it."""
+    sha = check_tagger(args.tagger_repo, args.tagger_sha)
+    nb = os.path.join(args.tagger_repo, "notebooks")
+    need = [os.path.join(args.tagger_repo, "dinov2_vitb14_reg4_pretrain.pth"),
+            os.path.join(nb, "models", "validated-dino-cls-b-curbramp-tags-best.pth"),
+            os.path.join(args.tagger_repo, "datasets", "crops-curbramp-tags", "test", "test.csv")]
+    for p in need:
+        if not os.path.exists(p):
+            raise SystemExit(f"missing {p} (see docs/tag_benchmark_86.md for the layout)")
+    t0 = time.time()
+    with open(args.log, "w", encoding="utf-8") as log:
+        rc = subprocess.run([sys.executable, "-c", _TAGGER_EVAL_BOOT, nb, "--label-type", "curbramp",
+                             "--model", "DINO", "--dataset-type", "validated"],
+                            stdout=log, stderr=subprocess.STDOUT).returncode
+    elapsed = time.time() - t0
+    if rc != 0:
+        raise SystemExit(f"evaluate.py exited {rc}; see {args.log}")
+    res = os.path.join(args.tagger_repo, "results", "curbramp")
+    with open(os.path.join(res, "validated-dino-inference-stats.json"), encoding="utf-8") as fh:
+        stats = json.load(fh)["category_to_prediction_stats"]
+    with open(os.path.join(res, "validated-dino-pr-curve.svg"), encoding="utf-8") as fh:
+        title = parse_tagger_title(fh.read())
+    per_tag = {t: {"n_pos": v["n_instances"], "ap": v["average_precision_val"], "pr_auc": v["pr_auc"]}
+               for t, v in stats.items()}
+    sel = [t for t, v in per_tag.items() if v["n_pos"] >= MIN_INSTANCES]
+    out = {"tagger_sha": sha, "title_2dp": title, "per_tag": per_tag, "tags_averaged": sorted(sel),
+           "mAP_from_stats_json": float(np.mean([per_tag[t]["ap"] for t in sel])),
+           "elapsed_s": elapsed, "host": socket.getfqdn(),
+           "ts": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
+    write_json(out, args.out)
+    print(json.dumps(_round(out, 4), indent=1))
+
+
 # ----------------------------------------------------------------------------- score
 
 def _arrays(pred, lab, tags):
@@ -722,6 +782,30 @@ def cmd_train(args):
     print(json.dumps(_round(meta, 3)))
 
 
+# ----------------------------------------------------------------------------- usage
+
+def usage_row(label, elapsed_s, status, what, n=None, host="makelab2.cs.washington.edu",
+              gpu="NVIDIA A40", ts=None, extra=None):
+    """One ``paid: false`` row for analysis_out/usage_log.jsonl (docs/compute_cost.md: GPU
+    time on a host without Slurm goes there). Failed runs get a row too."""
+    row = {"ts": ts or dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+           "bundle": "hf-tagger-validated-curbramp", "label": label, "provider": "tagger-86",
+           "model_id": label, "paid": False, "panos_scored": n, "elapsed_s": round(float(elapsed_s), 3),
+           "hardware": {"host": host, "gpus": [gpu] if gpu else []}, "status": status, "what": what,
+           "est_cost_usd": 0.0, "pricing": None}
+    if extra:
+        row.update(extra)
+    return row
+
+
+def cmd_log_usage(args):
+    sys.path.insert(0, REPO)
+    from rampnet import ledger
+    row = usage_row(args.label, args.elapsed_s, args.status, args.what, n=args.n, ts=args.ts)
+    ledger.append_rows(args.log, [row])
+    print(json.dumps(row))
+
+
 # ----------------------------------------------------------------------------- cli
 
 def main(argv=None):
@@ -755,6 +839,12 @@ def main(argv=None):
     p.add_argument("--out", required=True)
     p.set_defaults(func=cmd_infer)
 
+    p = sub.add_parser("tagger-eval", help="run the tagger's evaluate.py unmodified (GPU)")
+    tagger(p)
+    p.add_argument("--log", required=True)
+    p.add_argument("--out", required=True)
+    p.set_defaults(func=cmd_tagger_eval)
+
     p = sub.add_parser("score", help="tagger metrics on full / leak-free / leaked subsets")
     p.add_argument("--pred", required=True)
     p.add_argument("--labels", default=os.path.join(OUT_DIR, "hf_curbramp_labels.csv"))
@@ -783,6 +873,16 @@ def main(argv=None):
     p.add_argument("--seed", type=int, default=86)
     p.add_argument("--out-dir", required=True)
     p.set_defaults(func=cmd_train)
+
+    p = sub.add_parser("log-usage", help="append a paid:false GPU-time row to the usage ledger")
+    p.add_argument("--label", required=True, help="e.g. tagger-eval, infer-released, train-control")
+    p.add_argument("--elapsed-s", type=float, required=True)
+    p.add_argument("--status", default="ok", choices=["ok", "failed", "killed"])
+    p.add_argument("--what", required=True, help="one line: what ran")
+    p.add_argument("--n", type=int, default=None, help="crops scored / trained on")
+    p.add_argument("--ts", default=None, help="run start (UTC ISO); default now")
+    p.add_argument("--log", default=os.path.join(REPO, "analysis_out", "usage_log.jsonl"))
+    p.set_defaults(func=cmd_log_usage)
 
     args = ap.parse_args(argv)
     args.func(args)
