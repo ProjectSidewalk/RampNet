@@ -197,3 +197,11 @@ analysis_out/stage1_bearing_cache/
 # Inventory discovery sweep (#96): the candidate list, with record counts. A few
 # tens of KB, and it is the evidence that supply is not the constraint.
 !analysis_out/inventory_discovery.json
+
+# #86 tag benchmark (docs/tag_benchmark_86.md): the label->pano table, the re-split, the
+# per-label predictions and the score summaries are committed; model checkpoints and crops
+# live on makelab2 nobackup and are never committed.
+!analysis_out/tag_benchmark_86/
+analysis_out/tag_benchmark_86/*
+!analysis_out/tag_benchmark_86/*.csv
+!analysis_out/tag_benchmark_86/*.json
