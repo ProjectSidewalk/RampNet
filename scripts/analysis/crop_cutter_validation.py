@@ -258,6 +258,10 @@ def cmd_compare(args):
                 continue
             cut = Image.open(os.path.join(args.crops, name)).convert("RGB")
             c = compare_pair(hf_img, cut)
+            # the residual shift as an angle at the view centre, so zooms are comparable
+            ppd = m["width"] / 2.0 / math.tan(math.radians(m["fov_h_deg"]) / 2.0) * math.pi / 180.0
+            c["shift_deg"] = math.hypot(c["shift_x_px"], c["shift_y_px"]) / ppd
+            c["black_frac"] = crops.black_fraction(np.asarray(cut))
             for k, v in c.items():
                 row[f"{tag}_{k}"] = _rnd(v)
             row[f"{tag}_status"] = "ok"
@@ -292,6 +296,9 @@ def cmd_compare(args):
                      "ncc_p90": _q([p[f"{tag}_ncc"] for p in ok], 0.9),
                      "ssim_median": _q([p[f"{tag}_ssim"] for p in ok], 0.5),
                      "shift_px_median": _q(sh, 0.5), "shift_px_p90": _q(sh, 0.9),
+                     "shift_deg_median": _q([p[f"{tag}_shift_deg"] for p in ok], 0.5),
+                     "shift_deg_p90": _q([p[f"{tag}_shift_deg"] for p in ok], 0.9),
+                     "n_black_frac_gt_1pct": sum(p[f"{tag}_black_frac"] > 0.01 for p in ok),
                      "shift_y_px_median": _q([p[f"{tag}_shift_y_px"] for p in ok], 0.5),
                      "shift_x_px_median": _q([p[f"{tag}_shift_x_px"] for p in ok], 0.5),
                      "frac_ncc_ge_0p5": round(sum(p[f"{tag}_ncc"] >= 0.5 for p in ok) / len(ok), 4) if ok else None}
@@ -303,6 +310,7 @@ def cmd_compare(args):
     for z in sorted({p["zoom"] for p in per}):
         ok = [p for p in per if p["zoom"] == z and p.get(f"{base}_status") == "ok"]
         by_zoom[z] = {"n": len(ok), "ncc_median": _q([p[f"{base}_ncc"] for p in ok], 0.5),
+                      "shift_deg_median": _q([p[f"{base}_shift_deg"] for p in ok], 0.5),
                       "shift_px_median": _q([math.hypot(p[f"{base}_shift_x_px"], p[f"{base}_shift_y_px"])
                                              for p in ok], 0.5)}
     res = {"sample": os.path.relpath(args.sample, REPO), "n_sample": len(sample),

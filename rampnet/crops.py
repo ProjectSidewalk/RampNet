@@ -318,6 +318,18 @@ def equirect_window(pano: np.ndarray, pano_x, pano_y, pano_width, pano_height, f
     return np.asarray(img), shift, label_xy
 
 
+def black_fraction(arr: np.ndarray, thresh: int = 8) -> float:
+    """Share of pixels whose brightest channel is <= ``thresh``: a store-integrity signal.
+
+    Some store panos have tiles that never downloaded and were stitched as black. Real
+    imagery is almost never this dark over more than a sliver, so a crop with a visible
+    black fraction is cut from a damaged pano, not a dark scene.
+    """
+    a = np.asarray(arr)
+    m = a.max(axis=-1) if a.ndim == 3 else a
+    return float((m <= thresh).mean())
+
+
 def encode_jpeg(arr: np.ndarray, quality: int = 92) -> bytes:
     """Deterministic baseline JPEG (no EXIF, no timestamp), so the bytes hash stably."""
     from PIL import Image

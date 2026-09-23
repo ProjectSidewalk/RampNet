@@ -397,3 +397,10 @@ def test_cli_label_list_forms(tmp_path):
     assert crop_cutter.fov_tag("60", "equirect", "pp") == "fov60_eq_tiltpp"
     assert crop_cutter.store_city_dir("walla-walla", {}) == "walla-walla-wa"
     assert crop_cutter.store_city_dir("seattle-wa", {"seattle-wa": "sea"}) == "sea"
+
+
+def test_black_fraction_flags_missing_tiles():
+    a = np.full((10, 10, 3), 90, np.uint8)
+    assert crops.black_fraction(a) == 0.0
+    a[:5] = 0
+    assert crops.black_fraction(a) == 0.5

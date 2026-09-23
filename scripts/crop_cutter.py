@@ -57,7 +57,7 @@ if REPO not in sys.path:
 
 from rampnet import crops  # noqa: E402
 
-CROP_CUTTER_VERSION = "1"
+CROP_CUTTER_VERSION = "2"
 
 #: Audit city ids whose store directory has a different name. Anything else resolves to the
 #: directory of the same name. Checked against the 58 directories of the makelab2 store on
@@ -283,6 +283,7 @@ def _process_pano(payload):
                 fov_v_deg=_r(v.fov_v_deg), width=v.width, height=v.height,
                 decode_width=dec_w, reduce=int(k), jpeg_quality=cfg["quality"],
                 label_px=[_r(label_px[0], 3), _r(label_px[1], 3)],
+                black_frac=_r(crops.black_fraction(arr), 4),
                 equirect_shift_px=shifted,
                 bytes=len(data), sha256=crops.sha256_hex(data)))
         return rows
