@@ -177,21 +177,40 @@ def _norm_severity(v):
     return sev
 
 
+def prior_contact(row):
+    """``{rater: [kinds]}`` from a list row's ``prior_contact_<rater>`` columns (blank = none)."""
+    out = {}
+    for k, v in row.items():
+        if k.startswith("prior_contact_"):
+            kinds = [s for s in str(v or "").split(";") if s.strip()]
+            out[k[len("prior_contact_"):]] = kinds
+    return out
+
+
 def make_item(row, *, reviewed, verdict=None, tags_affirmed=None, severity=None,
-              cannot_judge=False, cannot_judge_tags=(), note="", judged_at=None, evidence=None):
+              cannot_judge=False, cannot_judge_tags=(), note="", judged_at=None, evidence=None,
+              drop_non_applicable=False, problems=(), edited_by_others=()):
     """One export item from a review-list row plus the rater's judgment.
 
     ``row`` is a review-list row (dict of strings). ``tags_affirmed`` is the full tag set
     the rater left on the label; ``tags_added`` / ``tags_removed`` are derived against the
-    tags the label carried when the list was built."""
+    tags the label carried when the list was built.
+
+    A tag the city does not offer raises, unless ``drop_non_applicable`` (the production
+    route, where a retired tag can survive on a label): then it is dropped from the scored
+    set and listed in ``tags_not_applicable``. ``problems`` (e.g. the label type was changed)
+    takes the item out of every rate while keeping it in the file, with the reason."""
     applicable = parse_tag_list(row["applicable_tags"])
     before = parse_tag_list(row.get("tags_at_list"))
     after = parse_tag_list(tags_affirmed) if reviewed else []
     unknown = sorted(set(after) - set(applicable))
-    if unknown:
+    if unknown and not drop_non_applicable:
         raise ValueError(f"item {row['item_id']}: tags {unknown} are not offered in {row['city']}")
+    after = [t for t in after if t in applicable]
+    before_scored = [t for t in before if t in applicable]
     cj_tags = parse_tag_list(list(cannot_judge_tags))
     verdict = _norm_verdict(verdict)
+    sev = _norm_severity(severity) if reviewed else None
     return {
         "item_id": row["item_id"],
         "city": row["city"],
@@ -205,14 +224,22 @@ def make_item(row, *, reviewed, verdict=None, tags_affirmed=None, severity=None,
         "reviewed": bool(reviewed),
         "verdict": verdict if reviewed else None,
         "tags_affirmed": after,
-        "tags_added": sorted(set(after) - set(before)) if reviewed else [],
-        "tags_removed": sorted(set(before) - set(after)) if reviewed else [],
-        "severity": _norm_severity(severity) if reviewed else None,
+        "tags_added": sorted(set(after) - set(before_scored)) if reviewed else [],
+        "tags_removed": sorted(set(before_scored) - set(after)) if reviewed else [],
+        "tags_not_applicable": unknown if reviewed else [],
+        "severity": sev,
+        # Reviewed, not a Disagree / Unsure, no severity abstention, and still no severity:
+        # recorded, counted in the agreement report, never silently dropped.
+        "severity_missing": bool(reviewed and sev is None and verdict not in ("disagree", "unsure")
+                                 and SEVERITY_TOKEN not in cj_tags),
         # "unsure" on prod is the item-level cannot-judge convention (protocol step 5).
         "cannot_judge": bool(reviewed and (cannot_judge or verdict == "unsure")),
         "cannot_judge_tags": cj_tags if reviewed else [],
         "note": (note or "").strip() if reviewed else "",
         "judged_at": judged_at if reviewed else None,
+        "prior_contact": prior_contact(row),
+        "problems": sorted(problems) if reviewed else [],
+        "edited_by_others": sorted(edited_by_others),
         "evidence": evidence or {},
     }
 
@@ -283,7 +310,8 @@ def _strip_tz(s):
     return str(t)
 
 
-def items_from_prod(rows, edits, validations, *, since=None, until=None, sidecar=None):
+def items_from_prod(rows, edits, validations, *, since=None, until=None, sidecar=None,
+                    other_edits=None, list_fetched_at=None):
     """Reconstruct a rater's pass from their production edits and validations.
 
     ``rows``: review-list rows. ``edits`` / ``validations``: dicts shaped like the
@@ -296,8 +324,17 @@ def items_from_prod(rows, edits, validations, *, since=None, until=None, sidecar
     The affirmed tag set is the ``new_tags`` of the rater's last edit, else the tags the
     label had when the list was built (an Agree with no edit = "correct as is"; the gallery
     editor writes nothing when unchanged, which is why the protocol requires the Agree).
-    Known limit: if someone else edited the label between list build and review, an
-    unchanged-Agree is recorded against the list-time tags, not what the rater saw.
+
+    Per-item problems do not abort the pull: a tag the city no longer offers (e.g. the
+    retired ``tactile warning``) is dropped from the scored set and listed in
+    ``tags_not_applicable``; a last edit that changed the label type is recorded in
+    ``problems`` and takes the item out of every rate.
+
+    ``other_edits`` (edit rows by anyone *other* than the rater, same shape) with
+    ``list_fetched_at`` (ISO string, or ``{city: ISO string}``) flag the known limit: an edit
+    by someone else between the list's fetch and the rater's judgment means an unchanged
+    Agree was recorded against tags the rater did not see. Those edit ids go in
+    ``edited_by_others``; the item is kept.
     """
     lo = _ts(since) if since else None
     hi = _ts(until) if until else None
@@ -305,6 +342,14 @@ def items_from_prod(rows, edits, validations, *, since=None, until=None, sidecar
     def inside(t):
         t = _ts(t)
         return t is not None and (lo is None or t >= lo) and (hi is None or t <= hi)
+
+    def fetched(city):
+        v = list_fetched_at.get(city) if isinstance(list_fetched_at, dict) else list_fetched_at
+        return _ts(v) if v else None
+
+    by_key_o = {}
+    for e in other_edits or ():
+        by_key_o.setdefault((e["city"], int(e["label_id"])), []).append(e)
 
     by_key_e, by_key_v = {}, {}
     for e in edits:
@@ -330,11 +375,21 @@ def items_from_prod(rows, edits, validations, *, since=None, until=None, sidecar
             sev = es[-1]["new_severity"]
         verdict = vs[-1]["validation_result"] if vs else None
         times = [e["edit_time"] for e in es] + [v.get("end_timestamp") or v.get("start_timestamp") for v in vs]
+        judged = max(times, key=_ts)
+        problems = []
+        new_type = (es[-1].get("new_label_type") or "").strip() if es else ""
+        if new_type and new_type != "CurbRamp":
+            problems.append(f"label type changed to {new_type}")
+        f0, j = fetched(row["city"]), _ts(judged)
+        others = [int(e["label_edit_id"]) for e in by_key_o.get(key, [])
+                  if e.get("label_edit_id") and _ts(e.get("edit_time")) is not None
+                  and (f0 is None or _ts(e["edit_time"]) > f0) and _ts(e["edit_time"]) <= j]
         items.append(make_item(
             row, reviewed=True, verdict=verdict, tags_affirmed=tags, severity=sev,
             cannot_judge=_truthy(sc.get("cannot_judge")),
             cannot_judge_tags=parse_tag_list(sc.get("cannot_judge_tags")),
-            note=sc.get("note", ""), judged_at=_strip_tz(max(times, key=_ts)),
+            note=sc.get("note", ""), judged_at=_strip_tz(judged),
+            drop_non_applicable=True, problems=problems, edited_by_others=others,
             evidence={"edit_ids": [int(e["label_edit_id"]) for e in es if e.get("label_edit_id")],
                       "validation_ids": [int(v["label_validation_id"]) for v in vs
                                          if v.get("label_validation_id")],
@@ -351,8 +406,11 @@ def items_from_sheet(rows, sheet_rows):
     """Items from a filled review sheet (``tag_review_pull.py sheet-template`` output).
 
     A sheet row counts as reviewed when its ``verdict`` is filled in. ``tags`` is the full
-    tag set the rater leaves on the label (``;``-joined); the template pre-fills the
-    list-time tags, the same anchor the production editor shows."""
+    tag set the rater leaves on the label (``;``-joined) and ``severity`` the severity; the
+    template pre-fills both with the list-time values, the same anchor the production
+    editor shows (and ``tags_at_list`` / ``severity_at_list`` beside them for reference).
+    A reviewed row whose ``severity`` was blanked is kept, with ``severity_missing: true``;
+    the agreement report counts those per rater instead of silently dropping them."""
     by_id = {r["item_id"]: r for r in sheet_rows}
     items = []
     for row in rows:
@@ -443,7 +501,18 @@ def check_comparable(a, b, allow_rubric_mismatch=False):
 
 
 def _judgeable(it):
-    return it["reviewed"] and not it["cannot_judge"] and it["verdict"] != "disagree"
+    return (it["reviewed"] and not it["cannot_judge"] and it["verdict"] != "disagree"
+            and not it.get("problems"))
+
+
+def _had_contact(it, raters):
+    """True if the list flags prior contact for either rater (by name), or, when neither
+    name appears in the item's prior-contact columns, for anyone."""
+    pc = it.get("prior_contact") or {}
+    named = [r for r in raters if r in pc]
+    if named:
+        return any(pc[r] for r in named)
+    return any(pc.values())
 
 
 def agreement(a, b, tags=None, group_by=None, allow_rubric_mismatch=False):
@@ -454,8 +523,20 @@ def agreement(a, b, tags=None, group_by=None, allow_rubric_mismatch=False):
     in the item's city, and neither rater marked that tag cannot-judge.
 
     ``group_by`` (``"tag_state"`` / ``"distance_band"``) adds the same per-tag table per
-    stratum value."""
+    stratum value.
+
+    Always reported alongside: ``per_tag_without_prior_contact``, the same table on the
+    items neither rater placed, validated or edited before the list was built (the list's
+    ``prior_contact_<rater>`` columns); each export's ``method``, with a warning when the two
+    passes used different routes (production vs sheet: the views differ, see the protocol);
+    and, for severity, how many judgeable items each rater left without a severity."""
     check_comparable(a, b, allow_rubric_mismatch)
+    warnings = []
+    ma, mb = a.get("method"), b.get("method")
+    if ma != mb:
+        warnings.append(f"the two passes used different routes ({a['rater']}: {ma}, {b['rater']}: {mb}); "
+                        "kappa is measured across two different views of each item (protocol, 'Known "
+                        "asymmetry between the production and sheet routes')")
     ia = {it["item_id"]: it for it in a["items"]}
     ib = {it["item_id"]: it for it in b["items"]}
     common = sorted(set(ia) & set(ib))
@@ -498,8 +579,15 @@ def agreement(a, b, tags=None, group_by=None, allow_rubric_mismatch=False):
     for i in both_rev:
         k = f"{ia[i]['verdict']}|{ib[i]['verdict']}"
         verdict_matrix[k] = verdict_matrix.get(k, 0) + 1
+    raters = (a["rater"], b["rater"])
+    if judged and not any(r in (ia[judged[0]].get("prior_contact") or {}) for r in raters):
+        warnings.append(f"neither rater name {raters} has a prior_contact column in the list; "
+                        "the without-prior-contact table excludes contact by anyone listed")
+    no_contact = [i for i in judged if not _had_contact(ia[i], raters)]
     report = {
         "rater_a": a["rater"], "rater_b": b["rater"],
+        "method": {"a": ma, "b": mb, "same": ma == mb},
+        "warnings": warnings,
         "rubric": {"a": a["rubric"]["version"], "b": b["rubric"]["version"],
                    "same_text": a["rubric"]["sha256"] == b["rubric"]["sha256"]},
         "review_list_sha256": a["review_list"]["sha256"],
@@ -508,8 +596,12 @@ def agreement(a, b, tags=None, group_by=None, allow_rubric_mismatch=False):
                   "cannot_judge_b": sum(1 for i in both_rev if ib[i]["cannot_judge"])},
         "verdicts": dict(sorted(verdict_matrix.items())),
         "per_tag": table(judged),
+        "prior_contact": {"items_with_contact": len(judged) - len(no_contact), "items_without": len(no_contact)},
+        "per_tag_without_prior_contact": table(no_contact),
         "severity": {
             "n": len(sev),
+            "missing_a": sum(1 for i in judged if ia[i].get("severity_missing")),
+            "missing_b": sum(1 for i in judged if ib[i].get("severity_missing")),
             "weighted_kappa_quadratic": weighted_kappa(sx, sy, weights="quadratic") if sev else None,
             "weighted_kappa_linear": weighted_kappa(sx, sy, weights="linear") if sev else None,
             "exact_agree": sum(1 for u, v in zip(sx, sy) if u == v) / len(sev) if sev else None,

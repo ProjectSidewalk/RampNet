@@ -244,18 +244,186 @@ def test_sheet_route_and_agreement_cli(tmp_path):
     assert (tmp_path / "a.md").read_text(encoding="utf-8").startswith("# Tag review agreement")
 
 
+def _write_list(path, rows):
+    with open(path, "w", encoding="utf-8", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=list(rows[0]), lineterminator="\n")
+        w.writeheader()
+        w.writerows(rows)
+
+
+def test_sheet_template_prefills_the_severity_anchor(tmp_path):
+    rows = [_row(1, tags="narrow", sev="2"), _row(2, sev="")]
+    lst, sheet = tmp_path / "list.csv", tmp_path / "sheet.csv"
+    _write_list(lst, rows)
+    trp.main(["sheet-template", "--list", str(lst), "--out", str(sheet)])
+    got = list(csv.DictReader(open(sheet, encoding="utf-8")))
+    assert tuple(got[0]) == trp.SHEET_COLUMNS
+    assert (got[0]["severity_at_list"], got[0]["severity"], got[0]["tags_at_list"]) == ("2", "2", "narrow")
+    assert got[1]["severity"] == ""
+
+
+def test_blank_sheet_severity_is_kept_and_counted(tmp_path):
+    rows = [_row(i, tags="narrow") for i in range(1, 4)]
+    sheet = [{"item_id": r["item_id"], "verdict": "agree", "tags": "narrow", "severity": "2"} for r in rows]
+    sheet[0]["severity"] = ""                           # blanked: must not drop the item
+    a = tr.items_from_sheet(rows, sheet)
+    assert all(it["reviewed"] for it in a)
+    assert a[0]["severity"] is None and a[0]["severity_missing"] is True
+    assert a[1]["severity_missing"] is False
+    b = [tr.make_item(r, reviewed=True, verdict="agree", tags_affirmed=["narrow"], severity=2) for r in rows]
+    rep = tr.agreement(_export(a, "ra"), _export(b, "rb"))
+    assert rep["items"]["both_judgeable"] == 3
+    narrow = next(r for r in rep["per_tag"] if r["tag"] == "narrow")
+    assert narrow["n"] == 3                              # still in every tag table
+    assert rep["severity"]["n"] == 2 and rep["severity"]["missing_a"] == 1 and rep["severity"]["missing_b"] == 0
+
+
+def test_excel_saved_sheet_with_bom_and_crlf(tmp_path):
+    rows = [_row(i, tags="narrow") for i in range(1, 3)]
+    lst = tmp_path / "list.csv"
+    _write_list(lst, rows)
+    body = ("item_id,verdict,tags,severity\n" + "\n".join(f"{r['item_id']},agree,narrow,1" for r in rows) + "\n")
+    lf, excel = tmp_path / "lf.csv", tmp_path / "excel.csv"
+    lf.write_bytes(body.encode("utf-8"))
+    excel.write_bytes(b"\xef\xbb\xbf" + body.replace("\n", "\r\n").encode("utf-8"))
+    outs = {}
+    for name, sheet in (("lf", lf), ("excel", excel)):
+        out = tmp_path / f"{name}.json"
+        trp.main(["sheet", "--rater", "rb", "--list", str(lst), "--sheet", str(sheet),
+                  "--rubric", str(RUBRIC_DOC), "--out", str(out)])
+        outs[name] = tr.read_json(out)
+    assert outs["excel"]["counts"]["reviewed"] == 2
+    # the recorded hash is of the LF, BOM-free bytes, i.e. what git stores
+    assert outs["excel"]["sheet_sha256"] == outs["lf"]["sheet_sha256"] == tr.sha256_file(lf)
+
+
+def test_user_filter_fails_closed():
+    recs = [{"user_id": "me", "label_id": "1"}, {"user_id": "", "label_id": "1"},
+            {"label_id": "2"}, {"user_id": "other", "label_id": "1"}, {"user_id": "other", "label_id": "9"}]
+    mine, others = trp.split_by_user(recs, "me", "alpha", listed={("alpha", 1), ("alpha", 2)})
+    assert [r["label_id"] for r in mine] == ["1"] and all(r["city"] == "alpha" for r in mine)
+    # blank / missing user ids are never the rater's; label 9 is not listed
+    assert [(r.get("user_id"), r["label_id"]) for r in others] == [("", "1"), (None, "2"), ("other", "1")]
+
+
+def test_prod_pull_handles_retired_tags_type_changes_and_other_edits():
+    rows = [_row(1, tags="narrow"), _row(2), _row(3)]
+    rows[0]["tags_at_list"] = "narrow;tactile warning"        # a retired tag survives on the label
+    edits = [{"city": "alpha", "label_id": "102", "label_edit_id": "5", "new_tags": "[]", "new_severity": "",
+              "new_label_type": "NoCurbRamp", "edit_time": "2026-09-23T10:00:00Z"}]
+    vals = [{"city": "alpha", "label_id": "101", "label_validation_id": "1", "validation_result": "Agree",
+             "end_timestamp": "2026-09-23T11:00:00Z"},
+            {"city": "alpha", "label_id": "103", "label_validation_id": "2", "validation_result": "Agree",
+             "end_timestamp": "2026-09-23T11:00:00Z"}]
+    others = [{"city": "alpha", "label_id": "103", "label_edit_id": "77", "edit_time": "2026-09-22T23:00:00Z"},
+              {"city": "alpha", "label_id": "103", "label_edit_id": "78", "edit_time": "2026-09-20T00:00:00Z"}]
+    items = {it["item_id"]: it for it in tr.items_from_prod(
+        rows, edits, vals, since="2026-09-23T00:00:00Z", other_edits=others,
+        list_fetched_at={"alpha": "2026-09-22T20:00:00+00:00"})}
+    one = items["tr0001"]
+    assert one["tags_affirmed"] == ["narrow"] and one["tags_not_applicable"] == ["tactile warning"]
+    assert one["tags_removed"] == []
+    assert items["tr0002"]["problems"] == ["label type changed to NoCurbRamp"]
+    assert items["tr0003"]["edited_by_others"] == [77]        # after the fetch, before the vote
+    assert not tr._judgeable(items["tr0002"]) and tr._judgeable(items["tr0003"])
+
+
+def test_agreement_reports_methods_and_prior_contact():
+    rows = [_row(i, tags="narrow" if i < 5 else "") for i in range(1, 9)]
+    for r in rows:
+        r["prior_contact_ra"] = "validated" if r["item_id"] in ("tr0001", "tr0002") else ""
+        r["prior_contact_rb"] = ""
+    a = [tr.make_item(r, reviewed=True, verdict="agree", tags_affirmed=["narrow"] if i < 4 else [], severity=1)
+         for i, r in enumerate(rows, 1)]
+    b = [tr.make_item(r, reviewed=True, verdict="agree", tags_affirmed=["narrow"] if i < 5 else [], severity=1)
+         for i, r in enumerate(rows, 1)]
+    ea, eb = _export(a, "ra"), _export(b, "rb")
+    eb["method"] = "review_sheet"
+    rep = tr.agreement(ea, eb)
+    assert rep["method"] == {"a": "test", "b": "review_sheet", "same": False}
+    assert any("different routes" in w for w in rep["warnings"])
+    assert rep["prior_contact"] == {"items_with_contact": 2, "items_without": 6}
+    assert next(r for r in rep["per_tag_without_prior_contact"] if r["tag"] == "narrow")["n"] == 6
+    assert "WARNING" in tra.render(rep)
+    rep_same = tr.agreement(ea, _export(b, "rb"))
+    assert rep_same["warnings"] == [] and rep_same["method"]["same"] is True
+
+
 # ----------------------------------------------------------------------------- list builder
 
 def test_geometry_matches_the_labellers_view():
-    # seattle-wa label 9 (API row): pano_x 13740, pano_y 4754 of 16384 x 8192,
-    # camera heading 180.369, camera pitch 1.461; the labeller's POV was heading 299.3,
-    # pitch -17.5 with the label right of and above centre.
-    dep = trl.depression_deg(4754, 8192, 1.4609375)
-    assert float(dep) == pytest.approx(13.0, abs=0.1)
-    heading, pitch = trl.label_view(13740, 16384, 180.36891174316406, dep)
-    assert 299.3 < float(heading) < 306 and -17.5 < float(pitch) < 0
+    # seattle-wa:274404 (API row, crop era): placed with the label at the canvas centre
+    # (canvas 358, 241 of about 720 x 480), so the labeller's recorded POV *is* the label's
+    # world-frame direction: heading 3.4375, pitch -30.125. The camera is tilted 10.708 deg,
+    # so this row separates the two conventions by 10.7 deg: pano_y is world-frame
+    # (SidewalkWebpage povToPanoCoord), and subtracting camera_pitch again, as the first
+    # draft did, would put the view at about -19.6.
+    pano_y, pano_h, cam_pitch, pov_pitch, pov_heading = 5474, 8192, 10.707985, -30.125, 3.4375
+    dep = trl.depression_deg(pano_y, pano_h)
+    heading, pitch = trl.label_view(12684, 16384, 264.373962, dep)
+    assert float(pitch) == pytest.approx(pov_pitch, abs=0.5)
+    assert float(heading) == pytest.approx(pov_heading, abs=0.5)
+    double_corrected = -(float(dep) - cam_pitch)
+    assert abs(double_corrected - pov_pitch) > 5, "fixture must tell the two conventions apart"
     d = trl.flat_ground_distance_m(np.array([30.0, 10.0, 5.0, -1.0]))
     assert list(trl.distance_band(d)) == ["near", "mid", "far", "far"]
+    url = trl.gsv_url("P", float(heading), float(pitch))
+    assert "&pitch=-30.3&" in url
+
+
+def _cands(n, *, state="untagged", tags=None, pano=None, latlon=None):
+    """A hand-built candidate frame for ``draw``: one city, one band."""
+    import pandas as pd
+    rows = []
+    for i in range(n):
+        lat, lon = latlon(i) if latlon else (47.0 + i * 0.001, -122.0)
+        rows.append({"city": "a", "label_id": i + 1, "pano_id": pano(i) if pano else f"p{i}",
+                     "latitude": lat, "longitude": lon, "state": state, "band": "near",
+                     "tag_list": tags(i) if tags else []})
+    return pd.DataFrame(rows)
+
+
+def _only(state):
+    return {s: (1.0 if s == state else 0.0) for s in trl.STATES}
+
+
+def test_draw_enforces_the_min_separation():
+    # pairs of labels 5 m apart (different panos), pairs 100 m from each other
+    c = _cands(40, latlon=lambda i: (47.0 + (i // 2) * 0.0009 + (i % 2) * 0.000045, -122.0))
+    idx, _, short = trl.draw(c, 40, _only("untagged"), seed=1, min_sep_m=10.0)
+    assert len(idx) == 20 and short == [("untagged", "*", 20)]
+    pts = [(c.latitude[i], c.longitude[i]) for i in idx]
+    assert min(trl.haversine_m(*p, *q) for k, p in enumerate(pts) for q in pts[k + 1:]) >= 10.0
+    # removing the rule lets both labels of a pair in
+    idx0, _, _ = trl.draw(c, 40, _only("untagged"), seed=1, min_sep_m=0.0)
+    assert len(idx0) == 40
+
+
+def test_draw_takes_one_label_per_pano():
+    # pairs of labels share a pano but sit 100 m apart, so only the pano rule can block them
+    c = _cands(40, pano=lambda i: f"p{i // 2}")
+    idx, _, _ = trl.draw(c, 40, _only("untagged"), seed=1, min_sep_m=0.0)
+    assert len(idx) == 20 and len({c.pano_id[i] for i in idx}) == 20
+
+
+def test_rare_tag_weighting_lifts_the_rare_tag():
+    c = _cands(200, state="tagged", tags=lambda i: ["steep"] if i < 10 else ["narrow"])
+    def steep(power):
+        idx, _, _ = trl.draw(c, 20, _only("tagged"), seed=5, min_sep_m=0.0, rare_power=power)
+        return sum("steep" in c.tag_list[i] for i in idx)
+    assert steep(1.5) >= 8        # (1/10)^1.5 vs (1/190)^1.5: the 10 rare labels dominate
+    assert steep(0.0) <= 5        # unweighted: about 1 expected
+    assert trl.rare_tag_weights(c)[0] == pytest.approx(1 / 10)
+
+
+def test_vstudy_flags_by_distance_and_pano():
+    import pandas as pd
+    vs = pd.DataFrame({"label_id": [4429, 6114, 9], "pano_id": ["X", "Y", "Z"],
+                       "latitude": [47.0, 47.00002, 47.01], "longitude": [-122.0, -122.0, -122.0]})
+    same, near = trl.vstudy_flags(47.000004, -122.0, "Y", vs)   # 0.4 m and 1.8 m away; nearest first
+    assert same is True and near == ["validation-study:4429", "validation-study:6114"]
+    same, near = trl.vstudy_flags(47.02, -122.0, "Q", vs)
+    assert same is False and near == []
 
 
 def _write_cache(root):
@@ -282,15 +450,25 @@ def _write_cache(root):
                          "pano_x": 1000 * (i % 16), "pano_width": 16384, "camera_heading": 90.0,
                          "label_type": "CurbRamp"})
             if i % 7 == 0 and not tags:
-                vals.append({"label_id": i, "source": "ExpertValidate"})
+                # an ExpertValidate Agree affirms; an Unsure alone does not (S2)
+                vals.append({"label_id": i, "source": "ExpertValidate", "user_id": "u9",
+                             "validation_result": "Agree" if i % 14 == 0 else "Unsure"})
+            if i % 23 == 0:
+                vals.append({"label_id": i, "source": "Validate", "user_id": jon, "validation_result": "Agree"})
         with open(root / f"{c}__rawLabels__CurbRamp.csv", "w", encoding="utf-8", newline="") as fh:
             w = csv.DictWriter(fh, fieldnames=header, lineterminator="\n")
             w.writeheader()
             w.writerows(rows)
         with open(root / f"{c}__validations__CurbRamp.csv", "w", encoding="utf-8", newline="") as fh:
-            w = csv.DictWriter(fh, fieldnames=["label_id", "source"], lineterminator="\n")
+            w = csv.DictWriter(fh, fieldnames=["label_id", "source", "user_id", "validation_result"],
+                               lineterminator="\n")
             w.writeheader()
             w.writerows(vals)
+        # an ExpertValidate edit affirms label 5 (untagged, never voted on) in every city
+        with open(root / f"{c}__labelEdits.csv", "w", encoding="utf-8", newline="") as fh:
+            w = csv.DictWriter(fh, fieldnames=["label_id", "source", "user_id"], lineterminator="\n")
+            w.writeheader()
+            w.writerow({"label_id": 5, "source": "ExpertValidate", "user_id": "u9"})
     (root / "fetch_manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
 
 
@@ -327,6 +505,23 @@ def test_list_builder_is_deterministic_and_applies_every_filter(tmp_path):
     assert other.read_bytes() != outs[0].read_bytes()
 
 
+def test_candidates_affirm_only_on_agree_or_edit_and_flag_prior_contact(tmp_path):
+    cache = tmp_path / "raw"
+    cache.mkdir()
+    _write_cache(cache)
+    c, info = trl.build_candidates(
+        str(cache), exclude_cities={"validation-study"}, require_tags=list(tr.CORE_TAGS),
+        crop_date=trl.CROP_DATE, sources={"gsv"}, trusted=dict(trl.OWNERS), min_city_pool=10,
+        raters=dict(trl.OWNERS))
+    a = c[c.city == "alpha"].set_index("label_id")
+    assert a.loc[14, "state"] == "affirmed_empty"          # ExpertValidate Agree
+    assert a.loc[5, "state"] == "affirmed_empty"           # ExpertValidate edit
+    assert a.loc[7, "state"] == "untagged"                 # ExpertValidate Unsure only
+    assert a.loc[23, "prior_contact_jonfroehlich"] == "validated"
+    assert a.loc[22, "prior_contact_jonfroehlich"] == "placed"
+    assert a.loc[1, "prior_contact_jonfroehlich"] == "" and a.loc[1, "prior_contact_mikey"] == ""
+
+
 # ----------------------------------------------------------------------------- the committed list
 
 def test_committed_list_matches_its_meta_and_the_rubric_doc():
@@ -335,7 +530,14 @@ def test_committed_list_matches_its_meta_and_the_rubric_doc():
     assert meta["list"]["sha256"] == digest
     assert digest in RUBRIC_DOC.read_text(encoding="utf-8"), "update the list sha256 in the rubric doc"
     rows = trl.read_list(LIST)
+    assert tuple(rows[0]) == trl.LIST_COLUMNS
     assert len(rows) == meta["list"]["rows"]
+    assert "no camera_pitch term" in meta["params"]["depression"]
+    for r in rows:   # the committed band agrees with the world-frame geometry
+        dep = float(r["depression_deg"])
+        assert r["distance_band"] == str(trl.distance_band(trl.flat_ground_distance_m(dep)))
+        assert float(r["label_pitch_deg"]) == pytest.approx(-dep, abs=0.06)
+        assert set(r["prior_contact_jonfroehlich"].split(";")) <= {"", *trl.CONTACT_KINDS}
     assert len({r["label_uid"] for r in rows}) == len(rows)
     assert len({(r["city"], r["pano_id"]) for r in rows}) == len(rows)
     assert not any(r["city"] == "validation-study" for r in rows)
@@ -355,6 +557,7 @@ def test_committed_list_matches_its_meta_and_the_rubric_doc():
                     reason="network: set RAMPNET_NETWORK_TESTS=1 to query production")
 def test_prod_pull_reaches_the_api():
     rows = trl.read_list(LIST)[:1]
-    edits, vals, pulls = trp.fetch_rater_rows(rows, trp.RATER_IDS["jonfroehlich"])
+    edits, vals, others, pulls = trp.fetch_rater_rows(rows, trp.RATER_IDS["jonfroehlich"])
     assert len(pulls) == 2 and all(p["sha256"] for p in pulls.values())
+    assert all(r["user_id"] != trp.RATER_IDS["jonfroehlich"] for r in others)
     assert all(r["user_id"] == trp.RATER_IDS["jonfroehlich"] for r in edits + vals)
