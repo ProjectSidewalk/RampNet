@@ -45,6 +45,11 @@ class RangeFile(io.RawIOBase):
             return 0
         r = self.s.get(self.url, headers={**UA, "Range": f"bytes={self.pos}-{self.pos + n - 1}"}, timeout=120)
         r.raise_for_status()
+        if r.status_code != 206:
+            # a server that ignores Range sends the whole body with 200; never splice that in
+            raise IOError(f"{self.url}: expected 206 Partial Content for a range read, got {r.status_code}")
+        if len(r.content) > n:
+            raise IOError(f"{self.url}: range read returned {len(r.content)} bytes for {n} requested")
         b[:len(r.content)] = r.content
         self.pos += len(r.content)
         return len(r.content)

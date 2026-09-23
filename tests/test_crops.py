@@ -12,8 +12,11 @@ run depends on. Pinned:
   5. Viewport mode reproduces Project Sidewalk's own click->pano math: a label synthesised
      with calculatePovIfCentered + calculatePanoXYFromPov lands at (canvas_x, canvas_y) * 2.
   6. The committed validation sample's real rows replay the same way.
-  7. CLI: manifest resumability, idempotency, sha256 of the written bytes, missing panos as a
-     status, corrupt panos as an error with exit 1.
+  7. Tilt: the signed relation image_lat = level_lat + camera_pitch * cos(phi) (+ roll * sin)
+     for the viewer's convention, and a click rendered with that tilt lands at the centre.
+  8. CLI: manifest resumability (including changed output parameters and a truncated last
+     line), idempotency, sha256 of the written bytes, missing panos as a status, corrupt panos
+     as an error with exit 1, tilt only on GSV panos, bad flag combinations refused.
 """
 import csv
 import hashlib
@@ -178,16 +181,50 @@ def test_agrees_with_equirect_tiling_point_math():
         assert (x / 50, y / 30) == pytest.approx((u, v), abs=1e-9)
 
 
-def test_tilt_moves_the_horizon_by_the_sinusoid():
-    T = crops.tilt_matrix(3.0, 0.0, "pp")
-    lon, lat = crops.rays_to_lonlat(crops.lonlat_to_ray(0.0, 0.0)[None, :], T)
-    assert abs(abs(lat[0]) - 3.0) < 1e-9          # straight ahead: the full pitch
-    lon, lat = crops.rays_to_lonlat(crops.lonlat_to_ray(90.0, 0.0)[None, :], T)
-    assert abs(lat[0]) < 1e-9                     # 90 deg round: pitch does not move it
-    T = crops.tilt_matrix(0.0, 2.0, "pp")
-    lon, lat = crops.rays_to_lonlat(crops.lonlat_to_ray(90.0, 0.0)[None, :], T)
-    assert abs(abs(lat[0]) - 2.0) < 1e-9          # roll bites at 90 deg
+def _image_lat(phi, pitch, roll, conv):
+    T = crops.tilt_matrix(pitch, roll, conv)
+    return float(crops.rays_to_lonlat(crops.lonlat_to_ray(phi, 0.0)[None, :], T)[1][0])
+
+
+def test_tilt_sign_is_the_documented_relation():
+    """Signed, so a flipped convention fails: under the viewer's convention ("mm") a level ray
+    lands at image_lat = level_lat + camera_pitch * cos(phi) + camera_roll * sin(phi)."""
+    assert crops.VIEWER_TILT == "mm"
+    assert _image_lat(0.0, 3.0, 0.0, "mm") == pytest.approx(3.0, abs=1e-9)     # ahead: +pitch
+    assert _image_lat(180.0, 3.0, 0.0, "mm") == pytest.approx(-3.0, abs=1e-9)  # behind: -pitch
+    assert _image_lat(90.0, 3.0, 0.0, "mm") == pytest.approx(0.0, abs=1e-9)    # side: pitch is inert
+    assert _image_lat(90.0, 0.0, 2.0, "mm") == pytest.approx(2.0, abs=1e-9)    # roll bites at 90
+    assert _image_lat(-90.0, 0.0, 2.0, "mm") == pytest.approx(-2.0, abs=1e-9)
+    # the docstring's general form: image_lat = level_lat - sp*pitch*cos(phi) - sr*roll*sin(phi)
+    for conv, (sp, sr) in crops.TILT_CONVENTIONS.items():
+        for phi in (0.0, 180.0):
+            assert _image_lat(phi, 3.0, 0.0, conv) == pytest.approx(-sp * 3.0 * math.cos(math.radians(phi)), abs=1e-9)
+        assert _image_lat(90.0, 0.0, 2.0, conv) == pytest.approx(-sr * 2.0, abs=1e-9)
+    # first order holds at small angles: pitch and roll together, 1-degree scale
+    assert _image_lat(40.0, 1.0, 0.5, "mm") == pytest.approx(
+        math.cos(math.radians(40)) + 0.5 * math.sin(math.radians(40)), abs=0.01)
     assert crops.tilt_matrix(3.0, 1.0, "none") is None
+
+
+def test_click_is_at_centre_only_when_rendered_with_the_viewer_tilt():
+    """B1 of the PR #177 review: the stored point is the click in the level frame. Plant the
+    click's content where the viewer's tilt puts it in the image; a centred view rendered with
+    that tilt shows it at the centre, and an untilted one shows it where label_pixel says."""
+    W, H = 4096, 2048
+    px, py, pitch = 1400.0, 1250.0, 4.0            # phi = -56.95 deg, 20 deg below the horizon
+    T = crops.tilt_matrix(pitch, 0.0, crops.VIEWER_TILT)
+    lon, lat = crops.pano_px_to_lonlat(px, py, W, H)
+    ilon, ilat = crops.rays_to_lonlat(crops.lonlat_to_ray(lon, lat), T)
+    mx, my = crops.lonlat_to_pano_px(ilon, ilat, W, H)
+    pano = marker_pano(W, H, [(float(mx), float(my))], radius=2)
+    view = crops.centered_view(px, py, W, H, 20, width=240)
+    cx, cy = red_centroid(crops.render_view(pano, view, T))
+    assert abs(cx - 120) < 2 and abs(cy - 80) < 2
+    assert crops.label_pixel(px, py, W, H, view, T, T) == pytest.approx((120.0, 80.0), abs=1e-6)
+    ex, ey = crops.label_pixel(px, py, W, H, view, None, T)
+    assert math.hypot(ex - 120, ey - 80) > 20       # 4 deg of pitch is ~27 px at this focal length
+    cx, cy = red_centroid(crops.render_view(pano, view))
+    assert abs(cx - ex) < 2 and abs(cy - ey) < 2
 
 
 # ----------------------------------------------------------------------------- FOV scaling
@@ -258,9 +295,24 @@ def test_committed_sample_replays_into_its_viewport():
         ex, ey = crops.label_pixel_in_viewport(float(r["canvas_x"]), float(r["canvas_y"]), view)
         errs.append(math.hypot(x - ex, y - ey))
     errs = np.array(errs)
-    # pre-2021 rows carry parseInt-truncated POVs and camera_heading drift (pov_replay.py);
-    # the bulk still replays to a few output pixels
-    assert np.median(errs) < 3.0, np.median(errs)
+    # pre-2021 rows carry parseInt-truncated POVs and camera_heading drift (pov_replay.py), so
+    # the tail is long (max ~15 px), but the median was measured at 0.18 px: a small FOV or
+    # heading regression moves it past 0.5
+    assert np.median(errs) < 0.5, np.median(errs)
+
+
+@pytest.mark.parametrize("aspect", [1.0, 1.5, 2.0])
+def test_viewport_label_pixel_at_any_aspect(aspect):
+    """The viewport's focal length is set by its width, so canvas y scales by width/720 too."""
+    cx, cy, heading, pitch, zoom, cam = 360, 400, 20.0, -15.0, 2, 10.0
+    ph, pp = ps_pov_if_centered(cx, cy, heading, pitch, zoom)
+    px, py = ps_pano_xy(ph, pp, cam, 16384, 8192)
+    view = crops.viewport_view(heading, pitch, zoom, cam, width=1440, aspect=aspect)
+    lon, lat = crops.pano_px_to_lonlat(px, py, 16384, 8192)
+    assert crops.project_lonlat(lon, lat, view) == pytest.approx(
+        crops.label_pixel_in_viewport(cx, cy, view), abs=1e-6)
+    if aspect == 1.0:
+        assert crops.label_pixel_in_viewport(cx, cy, view)[1] == pytest.approx(1040.0)
 
 
 # ----------------------------------------------------------------------------- equirect window
@@ -270,6 +322,15 @@ def test_equirect_window_wraps_and_reports_label():
     pano = marker_pano(W, H, [(2, 300)])
     crop, shift, (lx, ly) = crops.equirect_window(pano, 2, 300, W, H, 20, width=120)
     assert shift == 0 and crop.min() >= 0
+    cx, cy = red_centroid(crop)
+    assert abs(cx - lx) < 3 and abs(cy - ly) < 3
+
+
+def test_equirect_window_reports_another_point():
+    W, H = 1024, 512
+    pano = marker_pano(W, H, [(1020, 310)])
+    # stored point just right of the seam; the reported point is across it
+    crop, shift, (lx, ly) = crops.equirect_window(pano, 3, 300, W, H, 20, width=120, point=(1020, 310))
     cx, cy = red_centroid(crop)
     assert abs(cx - lx) < 3 and abs(cy - ly) < 3
 
@@ -301,7 +362,7 @@ def _write_store(root, city, pano_id, W=512, H=256, marker=(100, 150)):
 
 def _labels_csv(path, rows):
     cols = ["city", "label_id", "pano_id", "pano_x", "pano_y", "pano_width", "pano_height", "heading",
-            "pitch", "zoom", "camera_heading", "camera_pitch", "camera_roll", "canvas_x", "canvas_y"]
+            "pitch", "zoom", "camera_heading", "camera_pitch", "camera_roll", "canvas_x", "canvas_y", "pano_source"]
     with open(path, "w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=cols, lineterminator="\n")
         w.writeheader()
@@ -393,8 +454,11 @@ def test_cli_label_list_forms(tmp_path):
     p.write_text("# comment\nseattle-wa:9\ncdmx:10\n", encoding="utf-8")
     assert [(c, l) for c, l, _ in crop_cutter.read_label_list(str(p))] == [("seattle-wa", 9), ("cdmx", 10)]
     assert [(c, l) for c, l, _ in crop_cutter.read_label_list("a:1,b-c:2")] == [("a", 1), ("b-c", 2)]
-    assert crop_cutter.fov_tag("22.5", "gnomonic", "none") == "fov22p5"
-    assert crop_cutter.fov_tag("60", "equirect", "pp") == "fov60_eq_tiltpp"
+    assert crop_cutter.fov_tag("22.5", "gnomonic", "mm") == "fov22p5"          # the default
+    assert crop_cutter.fov_tag("22.5", "gnomonic", "none") == "fov22p5_tiltnone"
+    assert crop_cutter.fov_tag("viewport", "gnomonic", "pp") == "viewport_tiltpp"
+    assert crop_cutter.fov_tag("60", "equirect", "none") == "fov60_eq"
+    assert crop_cutter.store_city_dir("la-piedad-old", {}) == "la-piedad"
     assert crop_cutter.store_city_dir("walla-walla", {}) == "walla-walla-wa"
     assert crop_cutter.store_city_dir("seattle-wa", {"seattle-wa": "sea"}) == "sea"
 
@@ -404,3 +468,100 @@ def test_black_fraction_flags_missing_tiles():
     assert crops.black_fraction(a) == 0.0
     a[:5] = 0
     assert crops.black_fraction(a) == 0.5
+
+
+def _one_label(tmp_path, **kw):
+    store, out = str(tmp_path / "store"), str(tmp_path / "out")
+    _write_store(store, "seattle-wa", "AAAApano")
+    # a consistent row: the stored point (lon 0, lat -10) is the centre of its viewport
+    row = {"city": "seattle-wa", "label_id": 1, "pano_id": "AAAApano", "pano_x": 256, "pano_y": 142.2222,
+           "pano_width": 512, "pano_height": 256, "heading": 0, "pitch": -10, "zoom": 1,
+           "camera_heading": 0, "camera_pitch": 3, "canvas_x": 360, "canvas_y": 240}
+    row.update(kw)
+    labels = str(tmp_path / "labels.csv")
+    _labels_csv(labels, [row])
+    return store, out, labels
+
+
+def test_cli_recuts_when_output_parameters_change(tmp_path):
+    import crop_cutter
+    store, out, labels = _one_label(tmp_path)
+    argv = ["--labels", labels, "--store", store, "--out", out, "--fov", "30"]
+    assert crop_cutter.main(argv + ["--size", "96"]) == 0
+    assert crop_cutter.main(argv + ["--size", "96"]) == 0
+    m = _manifest(os.path.join(out, "manifest.jsonl"))
+    assert len(m) == 1                                   # same parameters: skipped
+    assert crop_cutter.main(argv + ["--size", "48"]) == 0
+    m = _manifest(os.path.join(out, "manifest.jsonl"))
+    assert len(m) == 2 and (m[-1]["width"], m[-1]["height"]) == (48, 32)
+    assert Image.open(os.path.join(out, "seattle-wa__1__fov30.jpg")).size == (48, 32)
+    assert crop_cutter.main(argv + ["--size", "48", "--quality", "80"]) == 0
+    assert _manifest(os.path.join(out, "manifest.jsonl"))[-1]["jpeg_quality"] == 80
+
+
+def test_cli_survives_a_truncated_manifest(tmp_path, capsys):
+    import crop_cutter
+    store, out, labels = _one_label(tmp_path)
+    argv = ["--labels", labels, "--store", store, "--out", out, "--fov", "30", "--fov", "40", "--size", "48"]
+    assert crop_cutter.main(argv) == 0
+    mpath = os.path.join(out, "manifest.jsonl")
+    with open(mpath, "rb") as fh:
+        data = fh.read()
+    with open(mpath, "wb") as fh:                        # a killed run: half of the last row
+        fh.write(data[: len(data) - 40])
+    assert crop_cutter.main(argv) == 0
+    assert "malformed" in capsys.readouterr().err
+    rows = _manifest_lenient(mpath)
+    assert {r["name"] for r in rows} == {"seattle-wa__1__fov30.jpg", "seattle-wa__1__fov40.jpg"}
+    assert crop_cutter.main(argv) == 0                  # and the next resume is clean again
+
+
+def _manifest_lenient(path):
+    out = []
+    with open(path, encoding="utf-8") as fh:
+        for ln in fh:
+            try:
+                out.append(json.loads(ln))
+            except ValueError:
+                pass
+    return out
+
+
+def test_cli_tilt_default_and_sources(tmp_path):
+    import crop_cutter
+    store, out, labels = _one_label(tmp_path)
+    assert crop_cutter.main(["--labels", labels, "--store", store, "--out", out, "--fov", "30",
+                             "--fov", "viewport", "--size", "96"]) == 0
+    m = {r["tag"]: r for r in _manifest(os.path.join(out, "manifest.jsonl"))}
+    assert m["fov30"]["tilt"] == "mm" and m["fov30"]["tilt_applied"] == "mm"
+    assert m["fov30"]["label_px"] == pytest.approx([48.0, 32.0], abs=1e-3)
+    assert m["viewport"]["label_px"] == pytest.approx([48.0, 32.0], abs=1e-3)   # canvas centre
+    # --tilt none: the click is off centre by the tilt, and the manifest says where
+    assert crop_cutter.main(["--labels", labels, "--store", store, "--out", out, "--fov", "30",
+                             "--tilt", "none", "--size", "96"]) == 0
+    r = [x for x in _manifest(os.path.join(out, "manifest.jsonl")) if x["tag"] == "fov30_tiltnone"][0]
+    assert r["tilt_applied"] == "none" and abs(r["label_px"][1] - 32.0) > 1.0
+    # a non-GSV pano is never tilted, whatever --tilt says
+    store2, out2, labels2 = _one_label(tmp_path / "b", pano_source="infra3d")
+    assert crop_cutter.main(["--labels", labels2, "--store", store2, "--out", out2, "--fov", "30",
+                             "--size", "96"]) == 0
+    r = _manifest(os.path.join(out2, "manifest.jsonl"))[0]
+    assert r["pano_source"] == "infra3d" and r["tilt_applied"] == "none"
+    assert r["label_px"] == pytest.approx([48.0, 32.0], abs=1e-3)
+
+
+def test_cli_refuses_bad_flag_combinations(tmp_path):
+    import crop_cutter
+    store, out, labels = _one_label(tmp_path)
+    base = ["--labels", labels, "--store", store, "--out", out]
+    with pytest.raises(SystemExit):
+        crop_cutter.main(base + ["--fov", "60", "--projection", "equirect", "--tilt", "mm"])
+    with pytest.raises(SystemExit):
+        crop_cutter.main(base + ["--fov", "180"])
+    with pytest.raises(SystemExit):
+        crop_cutter.main(base + ["--fov", "wide"])
+    # equirect with no --tilt is fine, never tilts, and reports where the click's content is
+    assert crop_cutter.main(base + ["--fov", "60", "--projection", "equirect", "--size", "96"]) == 0
+    r = _manifest(os.path.join(out, "manifest.jsonl"))[0]
+    assert r["tag"] == "fov60_eq" and r["tilt"] == "none" and r["tilt_applied"] == "none"
+    assert abs(r["label_px"][1] - 32.0) > 0.5          # camera_pitch 3 moves the click off the stored pixel

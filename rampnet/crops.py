@@ -10,11 +10,12 @@ consumer that wants CropRunner's framing.
 Two ways to aim the view:
 
 * **centered** (:func:`centered_view`): the view looks straight at the label's stored pano
-  point, with a horizontal field of view you choose. The label lands at the exact centre.
+  point, with a horizontal field of view you choose. Rendered with the viewer's tilt (below),
+  the clicked point lands at the exact centre.
 * **viewport** (:func:`viewport_view`): the view the labeler was looking at when they placed
   the label: the stored ``heading``/``pitch``, the viewer's field of view for the stored
-  ``zoom`` (:func:`get_3d_fov`), 3:2. The label lands at ``(canvas_x, canvas_y)`` of the
-  720x480 canvas, not at the centre. This is the framing of the HF
+  ``zoom`` (:func:`get_3d_fov`), 3:2. Rendered with the viewer's tilt, the label lands at
+  ``(canvas_x, canvas_y)`` of the 720x480 canvas, not at the centre. This is the framing of the HF
   ``sidewalk-tagger-ai-validated`` crops (1440x960 = the canvas at 2x), which item 4
   compares against.
 
@@ -30,11 +31,22 @@ module is cross-checked against in the tests):
 * World axes: +z forward (lon 0), +x right, +y up. Views are roll-free (the horizon is level).
 * Only x wraps. Column 0 and column ``pano_width`` are the same place; the poles are not.
 
-Camera tilt. Project Sidewalk's click-to-pano mapping ignores the rig's pitch and roll
-(``camera_pitch``/``camera_roll``); the GSV viewer does not. :func:`tilt_matrix` rotates the
-view's rays from the level (viewer) frame into the pano image frame for a given sign
-convention. The default everywhere is **no tilt**, which is the frame the stored ``pano_x``/
-``pano_y`` are in. See ``docs/crop_cutter.md`` for what the validation run measured.
+Camera tilt. The stored ``heading``/``pitch`` and ``pano_x``/``pano_y`` are all in the
+**level (viewer) frame**: Project Sidewalk's ``povToPanoCoord`` is a linear map of the viewer's
+heading and pitch that ignores the rig's ``camera_pitch``/``camera_roll``, while the GSV viewer
+shows the image rotated by them (the known y-error, SidewalkWebpage#4784). :func:`tilt_matrix`
+rotates the view's level-frame rays into the equirect image frame. The validation run
+(``docs/crop_cutter.md`` section 3) measured that the viewer's relation is convention
+:data:`VIEWER_TILT` (``"mm"``): a level-frame ray at azimuth ``phi`` (relative to the pano's
+centre column) and elevation ``lat`` sits in the image at elevation, to first order::
+
+    image_lat = lat + camera_pitch * cos(phi) + camera_roll * sin(phi)
+
+(the roll sign is untested: ``camera_roll`` is empty in every row measured). Rendering with
+that tilt puts the clicked point where the labeler saw it: at the centre of a centred view,
+at ``(canvas_x, canvas_y)`` of a viewport. Rendering with no tilt treats the stored point as a
+raw image pixel, which is off the click by the tilt; :func:`label_pixel` says where the click
+lands for any render tilt.
 
 Pure functions of numpy arrays; the only I/O helpers are :func:`encode_jpeg` and
 :func:`sha256_hex`. Usage::
@@ -43,7 +55,8 @@ Pure functions of numpy arrays; the only I/O helpers are :func:`encode_jpeg` and
     from rampnet.crops import centered_view, render_view
     pano = np.asarray(PIL.Image.open("pano.jpg"))              # (H, W, 3) uint8
     view = centered_view(13740, 4754, 16384, 8192, fov_h_deg=60, width=1440)
-    crop = render_view(pano, view)                             # (960, 1440, 3) uint8
+    tilt = tilt_matrix(camera_pitch, camera_roll, VIEWER_TILT)   # GSV panos; None if unknown
+    crop = render_view(pano, view, tilt)                         # (960, 1440, 3) uint8
 """
 from __future__ import annotations
 
@@ -69,6 +82,11 @@ TILT_CONVENTIONS = {
     "mp": (-1, 1),
     "mm": (-1, -1),
 }
+
+#: The convention the GSV viewer uses, as measured against the HF viewport screenshots
+#: (``docs/crop_cutter.md`` section 3): image_lat = level_lat + camera_pitch * cos(phi) +
+#: camera_roll * sin(phi). The default render tilt for gnomonic crops of GSV panos.
+VIEWER_TILT = "mm"
 
 
 def get_3d_fov(zoom):
@@ -154,19 +172,31 @@ def viewport_view(heading, pitch, zoom, camera_heading,
 
 
 def label_pixel_in_viewport(canvas_x, canvas_y, view: View):
-    """Where Project Sidewalk says the label sits in a viewport crop, in output pixels."""
-    return (float(canvas_x) / CANVAS_W * view.width, float(canvas_y) / CANVAS_H * view.height)
+    """Where Project Sidewalk's canvas point sits in a viewport crop rendered in the level frame
+    (i.e. with the viewer's tilt, or on a pano with none), in output pixels.
+
+    The canvas is 720x480 and the view's focal length is set by its *width*, so both axes scale
+    by ``width / 720`` about the centre; for the default 3:2 output this is ``canvas * 2``.
+    """
+    s = view.width / float(CANVAS_W)
+    return (view.width / 2.0 + (float(canvas_x) - CANVAS_W / 2.0) * s,
+            view.height / 2.0 + (float(canvas_y) - CANVAS_H / 2.0) * s)
 
 
 def tilt_matrix(camera_pitch, camera_roll, convention: Optional[str] = None) -> Optional[np.ndarray]:
     """Rotation taking a level-frame ray into the pano image frame, or None for no tilt.
 
-    ``convention`` picks the signs on (pitch, roll) from :data:`TILT_CONVENTIONS`, because
-    GSV's is not documented where this code can check it; ``docs/crop_cutter.md`` records
-    which one (if any) the validation run supports. Pitch rotates about the pano's x (right)
-    axis, roll about its z (forward = lon 0) axis. To first order a level ray at relative
-    azimuth ``phi`` moves ``sp * pitch * cos(phi) + sr * roll * sin(phi)`` degrees in
-    elevation, the sinusoid label-latlng-estimation's ``tilt_probe`` tests.
+    ``convention`` picks the signs ``(sp, sr)`` on (pitch, roll) from :data:`TILT_CONVENTIONS`.
+    Pitch rotates about the pano's x (right) axis, roll about its z (forward = lon 0) axis. To
+    first order a level-frame ray at relative azimuth ``phi`` lands in the image at elevation
+
+        image_lat = level_lat - sp * camera_pitch * cos(phi) - sr * camera_roll * sin(phi)
+
+    so ``"mm"`` (:data:`VIEWER_TILT`, the one the validation run supports) is
+    ``image_lat = level_lat + camera_pitch * cos(phi) + camera_roll * sin(phi)``: with
+    ``camera_pitch = 3`` a level ray straight ahead (phi = 0) is at image lat +3, and one behind
+    (phi = 180) at -3. ``tests/test_crops.py`` pins these signed values. This is the sinusoid
+    label-latlng-estimation's ``tilt_probe`` fits; port the relation, not the name.
     """
     if convention in (None, "", "none"):
         return None
@@ -243,6 +273,31 @@ def project_lonlat(lon, lat, view: View, tilt: Optional[np.ndarray] = None):
     return (float(x), float(y)) if np.ndim(x) == 0 else (x, y)
 
 
+def label_pixel(pano_x, pano_y, pano_width, pano_height, view: View,
+                render_tilt: Optional[np.ndarray] = None, true_tilt: Optional[np.ndarray] = None):
+    """Where the *clicked* point lands in a crop rendered with ``render_tilt``, in output pixels.
+
+    The stored ``pano_x``/``pano_y`` are the click in the level frame. Its content sits in the
+    image at the level point rotated by ``true_tilt`` (the viewer's tilt for this pano, from
+    :func:`tilt_matrix` with :data:`VIEWER_TILT`, or None where no tilt is known); the crop shows
+    image content through ``render_tilt``. When the two are the same rotation the click is where
+    the level-frame view puts it (the centre of a centred view); otherwise it is off by the
+    difference, which is what a ``--tilt none`` crop of a tilted pano carries.
+
+    Example: seattle-wa:9's stored point (phi = 121.9 degrees) on a pano with
+    ``camera_pitch = 3``: a 30-degree centred view rendered with no tilt shows the click about
+    74 px below and 31 px left of centre; rendered with the viewer's tilt, at the centre::
+
+        v = centered_view(13740, 4754, 16384, 8192, 30)
+        T = tilt_matrix(3, 0, VIEWER_TILT)
+        label_pixel(13740, 4754, 16384, 8192, v, None, T)   # ~(688.6, 553.7)
+        label_pixel(13740, 4754, 16384, 8192, v, T, T)      # (720.0, 480.0)
+    """
+    lon, lat = pano_px_to_lonlat(pano_x, pano_y, pano_width, pano_height)
+    ilon, ilat = rays_to_lonlat(lonlat_to_ray(lon, lat), true_tilt)
+    return project_lonlat(ilon, ilat, view, render_tilt)
+
+
 def sample_bilinear(img: np.ndarray, sx: np.ndarray, sy: np.ndarray) -> np.ndarray:
     """Bilinear sample of ``img`` (H, W[, C]) at continuous pixel coords (centre = i + 0.5).
 
@@ -290,13 +345,16 @@ def render_view(pano: np.ndarray, view: View, tilt: Optional[np.ndarray] = None)
 
 
 def equirect_window(pano: np.ndarray, pano_x, pano_y, pano_width, pano_height, fov_h_deg,
-                    width=DEFAULT_WIDTH, aspect=DEFAULT_ASPECT):
+                    width=DEFAULT_WIDTH, aspect=DEFAULT_ASPECT, point=None):
     """A plain rectangle of the equirect, CropRunner's framing: ``fov_h_deg`` of azimuth wide,
     ``1/aspect`` as tall, centred on the label, x wrapping at the seam, y shifted (never
     padded) at the poles. Resized to ``width`` with Lanczos. Returns
     ``(crop, shifted_px, label_xy)``: ``shifted_px`` is how far (source pixels) the window was
     moved vertically to stay in frame (0 for every real label in sidewalk-panorama-tools'
-    clamp census), and ``label_xy`` is where the label lands in the output crop.
+    clamp census), and ``label_xy`` is where the label lands in the output crop: the stored
+    point, or ``point`` (another ``(x, y)`` in the same pano_x/pano_y units, e.g. where the
+    viewer's tilt puts the click's image content) when given. The window is never rotated, so
+    it is centred on the raw stored pixel, as CropRunner's is.
     """
     from PIL import Image
 
@@ -314,6 +372,10 @@ def equirect_window(pano: np.ndarray, pano_x, pano_y, pano_width, pano_height, f
     out_w, out_h = _size(width, aspect)
     img = Image.fromarray(win).resize((out_w, out_h), Image.LANCZOS)
     shift = top - top0
+    if point is not None:
+        px = float(point[0]) / float(pano_width)
+        dx = (px - X + 0.5) % 1.0 - 0.5          # wrap: the point is near the stored one
+        X, Y = X + dx, float(point[1]) / float(pano_height)
     label_xy = ((X * W - left) * out_w / ww, (Y * H - top) * out_h / wh)
     return np.asarray(img), shift, label_xy
 

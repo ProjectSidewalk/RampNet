@@ -21,20 +21,31 @@ Outputs
   <out>/<city>__<label_id>__<tag>.jpg, where <tag> is ``fov<deg>`` (label-centred view with
   that horizontal field of view), ``viewport`` (the labeler's own view, the HF
   sidewalk-tagger-ai-validated framing), with ``_eq`` appended for ``--projection equirect``
-  and ``_tilt<conv>`` for a tilt-corrected render; and one manifest JSONL row per attempt
-  (the latest row for a crop wins).
+  and ``_tilt<conv>`` when ``--tilt`` is not the default; and one manifest JSONL row per
+  attempt (the latest row for a crop wins).
 
-Resumable: a crop whose latest manifest row is ``ok`` and whose file exists is skipped; a
-``missing_pano`` is re-checked and only re-logged if its status changes, so re-running over
-an unchanged store appends nothing. Exit status is 1 only on real errors (``error``), never on
-``missing_pano``/``no_geometry``/``out_of_frame``/``bad_aspect``.
+Tilt. The stored label geometry is in the viewer's level frame, and the GSV viewer shows the
+image rotated by the rig's camera_pitch/camera_roll. Gnomonic crops are therefore rendered with
+the viewer's tilt by default (``--tilt mm``, ``crops.VIEWER_TILT``), so the clicked point is
+at the centre (or at the canvas point of a viewport). ``--tilt none`` renders the raw image
+around the stored pixel; its manifest ``label_px`` says where the click then is. Tilt is only
+applied to GSV panos (``pano_source`` ``gsv``, or blank when the labels file does not say):
+the measured convention is GSV's, and other sources' camera_pitch is not a rig tilt.
+``--projection equirect`` never tilts. See ``docs/crop_cutter.md``.
+
+Resumable: a crop whose latest manifest row is ``ok``, was cut with the same output parameters
+(size, quality, projection, tilt, cutter version) and whose file exists is skipped; one cut with
+other parameters is re-cut. A ``missing_pano`` is re-checked and only re-logged if its status
+changes, so re-running over an unchanged store appends nothing. A truncated manifest line (a
+killed run) is skipped with a warning. Exit status is 1 only on real errors (``error``), never
+on ``missing_pano``/``no_geometry``/``out_of_frame``/``bad_aspect``.
 
 Example (makelab2)::
 
     python3 scripts/crop_cutter.py --labels docs/data/crop_cutter/validation_sample.csv \\
         --store /projects/makeabilitylab/sidewalk_panos/Panoramas \\
         --fov viewport --fov 30 --fov 60 --fov 90 --size 1440 \\
-        --out /homes/gws/jonf/nobackup/crop_cutter/validation --workers 8
+        --out /homes/gws/jonf/nobackup/crop_cutter/validation_v3 --workers 8
 """
 from __future__ import annotations
 
@@ -57,22 +68,26 @@ if REPO not in sys.path:
 
 from rampnet import crops  # noqa: E402
 
-CROP_CUTTER_VERSION = "2"
+CROP_CUTTER_VERSION = "3"
 
 #: Audit city ids whose store directory has a different name. Anything else resolves to the
-#: directory of the same name. Checked against the 58 directories of the makelab2 store on
-#: 2026-09-22 (``docs/crop_cutter.md``). Override with ``--city-dir city=dir``.
+#: directory of the same name. Checked against the 55 city directories of the makelab2 store
+#: on 2026-09-22 (``docs/crop_cutter.md``). Override with ``--city-dir city=dir``.
 STORE_CITY_DIRS = {
     "columbia": "columbia-sc",
     "kaohsiung": "kaohsiung-tw",
     "keelung": "keelung-tw",
     "la": "la-ca",
+    "la-piedad-old": "la-piedad",   # the retired deployment's GSV panos sit with the new one's
     "new-taipei": "new-taipei-tw",
     "taichung": "taichung-tw",
     "tainan": "tainan-tw",
     "walla-walla": "walla-walla-wa",
     "west-chester": "west-chester-pa",
 }
+
+#: Tilt is applied only to panos of these sources ("" = the labels file does not say).
+TILT_SOURCES = ("gsv", "")
 
 GEOMETRY_COLUMNS = ("pano_id", "pano_x", "pano_y", "pano_width", "pano_height", "heading", "pitch",
                     "zoom", "camera_heading", "camera_pitch", "camera_roll", "canvas_x", "canvas_y")
@@ -148,7 +163,14 @@ def store_relpath(city_dir, pano_id):
 
 # ----------------------------------------------------------------------------- jobs
 
+def default_tilt(projection):
+    """The ``--tilt`` a projection gets when none is given: the viewer's for gnomonic views,
+    none for the equirect window (a rectangle of the raw image cannot be rotated)."""
+    return crops.VIEWER_TILT if projection == "gnomonic" else "none"
+
+
 def fov_tag(fov, projection, tilt):
+    """File-name tag. The tilt is named only when it is not the projection's default."""
     if fov == "viewport":
         tag = "viewport"
     else:
@@ -156,7 +178,7 @@ def fov_tag(fov, projection, tilt):
         tag = "fov" + (str(int(v)) if v == int(v) else f"{v:g}".replace(".", "p"))
     if projection == "equirect":
         tag += "_eq"
-    if tilt not in (None, "none"):
+    if tilt is not None and tilt != default_tilt(projection):
         tag += f"_tilt{tilt}"
     return tag
 
@@ -178,6 +200,7 @@ def make_job(city, label_id, row, fov, args):
         return job
     g = {k: row.get(k) for k in GEOMETRY_COLUMNS}
     job["pano_id"] = str(g["pano_id"]).strip()
+    job["pano_source"] = str(row.get("pano_source") or "").strip().lower()
     for k in GEOMETRY_COLUMNS[1:]:
         try:
             job[k] = _f(g[k])
@@ -219,7 +242,7 @@ def _process_pano(payload):
              "status": status, "pano_id": job.get("pano_id"), "store_path": rel,
              "pano_x": _r(job.get("pano_x"), 3), "pano_y": _r(job.get("pano_y"), 3),
              "pano_width": _r(job.get("pano_width"), 1), "pano_height": _r(job.get("pano_height"), 1),
-             "crop_cutter_version": CROP_CUTTER_VERSION}
+             "pano_source": job.get("pano_source") or None, "crop_cutter_version": CROP_CUTTER_VERSION}
         r.update(kw)
         return r
 
@@ -251,23 +274,39 @@ def _process_pano(payload):
             if k not in reduced:
                 reduced[k] = np.asarray(dec.reduce(k) if k > 1 else dec)
             src = reduced[k]
-            tilt = crops.tilt_matrix(j.get("camera_pitch"), j.get("camera_roll"), cfg["tilt"])
+            # tilt only where the measured convention holds: GSV panos (see TILT_SOURCES)
+            tilted = j.get("pano_source", "") in TILT_SOURCES
+            pitch, roll = j.get("camera_pitch"), j.get("camera_roll")
+            true_tilt = crops.tilt_matrix(pitch, roll, crops.VIEWER_TILT) if tilted else None
+            applied = cfg["tilt"] if tilted else "none"
+            render_tilt = crops.tilt_matrix(pitch, roll, applied)
+            geo = (j["pano_x"], j["pano_y"], j["pano_width"], j["pano_height"])
             shifted = None
             if cfg["projection"] == "equirect":
                 if j["fov"] == "viewport":
                     rows.append(base(j, "error", error="viewport is gnomonic-only"))
                     continue
+                # the window is centred on the stored pixel (CropRunner's framing); label_px is
+                # where the click's image content is, which the viewer's tilt moves off it
+                ilon, ilat = crops.rays_to_lonlat(crops.lonlat_to_ray(*crops.pano_px_to_lonlat(*geo)),
+                                                  true_tilt)
+                click = crops.lonlat_to_pano_px(ilon, ilat, j["pano_width"], j["pano_height"])
                 arr, shifted, label_px = crops.equirect_window(
-                    src, j["pano_x"], j["pano_y"], j["pano_width"], j["pano_height"], float(j["fov"]),
-                    cfg["size"], cfg["aspect"])
+                    src, *geo, float(j["fov"]), cfg["size"], cfg["aspect"], point=click)
             else:
-                arr = crops.render_view(src, v, tilt)
-                if j["fov"] == "viewport":
-                    cx, cy = j.get("canvas_x"), j.get("canvas_y")
-                    label_px = crops.label_pixel_in_viewport(np.nan if cx is None else cx,
-                                                             np.nan if cy is None else cy, v)
-                else:
-                    label_px = (v.width / 2.0, v.height / 2.0)
+                arr = crops.render_view(src, v, render_tilt)
+                # where the clicked point lands in this render: the centre of a centred view
+                # rendered with the viewer's tilt, off it by the tilt under --tilt none
+                label_px = crops.label_pixel(*geo, v, render_tilt, true_tilt)
+                cx, cy = j.get("canvas_x"), j.get("canvas_y")
+                if j["fov"] == "viewport" and cx is not None and cy is not None:
+                    # the canvas point is the authoritative click; carry the render's offset
+                    ex, ey = crops.label_pixel(*geo, v, true_tilt, true_tilt)
+                    px, py = crops.label_pixel_in_viewport(cx, cy, v)
+                    dx, dy = label_px[0] - ex, label_px[1] - ey
+                    if not (np.isfinite(dx) and np.isfinite(dy)):
+                        dx = dy = 0.0  # stored point outside its own viewport (legacy POV drift)
+                    label_px = (px + dx, py + dy)
             data = crops.encode_jpeg(arr, cfg["quality"])
             out_path = os.path.join(cfg["out"], j["name"])
             tmp = out_path + ".part"
@@ -277,7 +316,7 @@ def _process_pano(payload):
             rows.append(base(
                 j, "ok", store_width=full_w, store_height=full_h,
                 dims_match=bool(j.get("pano_width") == full_w and j.get("pano_height") == full_h),
-                projection=cfg["projection"], tilt=cfg["tilt"],
+                projection=cfg["projection"], tilt=cfg["tilt"], tilt_applied=applied,
                 camera_pitch=_r(j.get("camera_pitch"), 4), camera_roll=_r(j.get("camera_roll"), 4),
                 yaw_deg=_r(v.yaw_deg), pitch_deg=_r(v.pitch_deg), fov_h_deg=_r(v.fov_h_deg),
                 fov_v_deg=_r(v.fov_v_deg), width=v.width, height=v.height,
@@ -295,15 +334,33 @@ def _process_pano(payload):
 # ----------------------------------------------------------------------------- manifest
 
 def read_manifest(path):
+    """Latest row per crop name. A line that does not parse (the tail of a killed run) is
+    skipped with a warning on stderr rather than failing the resume; its crop is re-cut."""
     latest = {}
+    bad = 0
     if os.path.isfile(path):
         with open(path, encoding="utf-8") as fh:
             for ln in fh:
                 ln = ln.strip()
-                if ln:
+                if not ln:
+                    continue
+                try:
                     r = json.loads(ln)
                     latest[r["name"]] = r
+                except (ValueError, KeyError, TypeError):
+                    bad += 1
+    if bad:
+        print(f"warning: {path}: skipped {bad} malformed manifest line(s); those crops are re-cut",
+              file=sys.stderr)
     return latest
+
+
+def _ends_with_newline(path):
+    if not os.path.isfile(path) or os.path.getsize(path) == 0:
+        return True
+    with open(path, "rb") as fh:
+        fh.seek(-1, os.SEEK_END)
+        return fh.read(1) == b"\n"
 
 
 def dump_row(r):
@@ -322,8 +379,9 @@ def build_parser():
     ap.add_argument("--size", type=int, default=crops.DEFAULT_WIDTH, help="output width px (default 1440)")
     ap.add_argument("--aspect", type=float, default=crops.DEFAULT_ASPECT, help="width/height (default 1.5)")
     ap.add_argument("--projection", choices=("gnomonic", "equirect"), default="gnomonic")
-    ap.add_argument("--tilt", choices=("none",) + tuple(crops.TILT_CONVENTIONS), default="none",
-                    help="rotate by camera_pitch/camera_roll under this sign convention (default none)")
+    ap.add_argument("--tilt", choices=("none",) + tuple(crops.TILT_CONVENTIONS), default=None,
+                    help=f"rotate GSV panos by camera_pitch/camera_roll under this sign convention "
+                         f"(default {crops.VIEWER_TILT}, the viewer's, for gnomonic; none for equirect)")
     ap.add_argument("--quality", type=int, default=92)
     ap.add_argument("--out", required=True)
     ap.add_argument("--manifest", help="manifest JSONL (default <out>/manifest.jsonl)")
@@ -340,9 +398,19 @@ def main(argv=None):
     args = build_parser().parse_args(argv)
     for f in args.fov:
         if f != "viewport":
-            float(f)
+            try:
+                fv = float(f)
+            except ValueError:
+                raise SystemExit(f"--fov {f!r} is neither a number nor 'viewport'")
+            if not 0.0 < fv < 180.0:
+                raise SystemExit(f"--fov {f} is outside (0, 180) degrees")
     if args.projection == "equirect" and "viewport" in args.fov:
         raise SystemExit("--projection equirect cannot cut a viewport crop")
+    if args.projection == "equirect" and args.tilt not in (None, "none"):
+        raise SystemExit("--projection equirect cuts a rectangle of the raw image and cannot apply "
+                         "--tilt; use the default gnomonic projection for a tilt-corrected crop")
+    if args.tilt is None:
+        args.tilt = default_tilt(args.projection)
     os.makedirs(args.out, exist_ok=True)
     manifest = args.manifest or os.path.join(args.out, "manifest.jsonl")
     overrides = dict(s.split("=", 1) for s in args.city_dir)
@@ -356,9 +424,13 @@ def main(argv=None):
 
     cfg = {"size": args.size, "aspect": args.aspect, "projection": args.projection, "tilt": args.tilt,
            "quality": args.quality, "out": args.out, "draft": args.draft}
+    out_w, out_h = crops._size(args.size, args.aspect)
+    # an ok crop is reused only if it was cut with these output parameters
+    want = {"width": out_w, "height": out_h, "jpeg_quality": args.quality, "projection": args.projection,
+            "tilt": args.tilt, "crop_cutter_version": CROP_CUTTER_VERSION}
     by_pano = defaultdict(list)
     immediate = []
-    skipped = 0
+    skipped = recut = 0
     seen = set()
     for city, lid, row in labels:
         for fov in args.fov:
@@ -368,8 +440,10 @@ def main(argv=None):
             seen.add(j["name"])
             prev = latest.get(j["name"])
             if prev and prev["status"] == "ok" and os.path.isfile(os.path.join(args.out, j["name"])):
-                skipped += 1
-                continue
+                if all(prev.get(k) == v for k, v in want.items()):
+                    skipped += 1
+                    continue
+                recut += 1  # cut earlier with other output parameters: cut again, the new row wins
             if j.get("status") == "no_geometry":
                 immediate.append({"city": city, "label_id": int(lid), "tag": j["tag"], "name": j["name"],
                                   "status": "no_geometry", "crop_cutter_version": CROP_CUTTER_VERSION})
@@ -380,7 +454,10 @@ def main(argv=None):
     payloads = [(os.path.join(args.store, rel), rel, js, cfg) for rel, js in by_pano.items()]
     counts = Counter()
     n_new = 0
+    tail_ok = _ends_with_newline(manifest)
     with open(manifest, "a", encoding="utf-8", newline="") as mf:
+        if not tail_ok:
+            mf.write("\n")  # a killed run left a partial line: never glue the next row onto it
         def emit(rows):
             nonlocal n_new
             for r in rows:
@@ -404,6 +481,7 @@ def main(argv=None):
     wall = time.time() - t0
     from PIL import Image
     summary = {"labels": len(labels), "crops_requested": len(seen), "skipped_existing": skipped,
+               "recut_changed_params": recut,
                "panos_opened": len(payloads), "status": {s: counts.get(s, 0) for s in STATUSES},
                "manifest_rows_appended": n_new, "wall_s": round(wall, 2),
                "crops_per_s": round(counts.get("ok", 0) / wall, 3) if wall > 0 else None,

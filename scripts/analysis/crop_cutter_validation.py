@@ -44,8 +44,13 @@ SEED = 86
 TAG_ERA_START = "2018-04-29"      # tags entered the schema (SidewalkWebpage evolution 14)
 CROP_DATE = "2023-10-12"          # production stores a crop for every label placed since
 SIDEWALK_AI_USER = "51b0b927-3c8a-45b2-93de-bd878d1e5cf4"
+#: The HF dataset commit the comparison reads, pinned so the crops it compares against are a
+#: fixed set of bytes. 6e3a116 ("2nd Part of Validated Dataset", 2024-10-29) was ``main`` when
+#: the crops were first fetched (2026-09-22) and still is; every cached crop is checked
+#: against this revision's zip CRC-32 before it is used, and its sha256 is written per label.
+HF_REVISION = "6e3a116a3c228dd35bcd72f6e5fb921f6ebb6a50"
 HF_VALIDATED_ZIP = ("https://huggingface.co/datasets/projectsidewalk/sidewalk-tagger-ai-validated/"
-                    "resolve/main/Validated/CurbRamp.zip")
+                    f"resolve/{HF_REVISION}/Validated/CurbRamp.zip")
 #: HF filename city -> audit city id (from the audit's hf_validated_join.json city_map).
 HF_CITY = {"amsterdam": "amsterdam", "cdmx": "cdmx", "chicago": "chicago-il", "columbus": "columbus-oh",
            "newberg": "newberg-or", "oradell": "oradell-nj", "pittsburgh": "pittsburgh-pa",
@@ -182,15 +187,24 @@ def _hf_zip():
 
 
 def fetch_hf_crops(filenames, cache=HF_CACHE):
-    """Fetch only the named members of the HF zip (HTTP range), caching them as PNG files."""
+    """Fetch only the named members of the pinned HF zip (HTTP range), caching them as PNG
+    files. Every cached file, new or old, is checked against the pinned zip's CRC-32 for that
+    member, so a cache filled from another revision fails loudly instead of being compared."""
+    import zlib
     os.makedirs(cache, exist_ok=True)
-    todo = [f for f in filenames if not os.path.isfile(os.path.join(cache, f))]
-    if todo:
-        z = _hf_zip()
-        for f in todo:
-            data = z.read("CurbRamp/crops/" + f)
-            with open(os.path.join(cache, f), "wb") as fh:
+    z = _hf_zip()  # reads the central directory only (a few MB)
+    for f in filenames:
+        info = z.getinfo("CurbRamp/crops/" + f)
+        path = os.path.join(cache, f)
+        if not os.path.isfile(path):
+            data = z.read(info)
+            with open(path, "wb") as fh:
                 fh.write(data)
+        with open(path, "rb") as fh:
+            crc = zlib.crc32(fh.read()) & 0xFFFFFFFF
+        if crc != info.CRC:
+            raise SystemExit(f"{path}: CRC-32 {crc:08x} is not revision {HF_REVISION[:7]}'s {info.CRC:08x}; "
+                             f"delete it and re-run")
     return {f: os.path.join(cache, f) for f in filenames}
 
 
@@ -208,14 +222,14 @@ def ncc(a, b):
     return float((a * b).sum() / d) if d > 0 else float("nan")
 
 
-def compare_pair(hf_img, cut_img, size=(360, 240)):
+def compare_pair(hf_img, cut_img, size=(360, 240), frame_width=1440.0):
     """NCC and SSIM at ``size`` (grey), and the residual shift by phase correlation, reported in
-    pixels of the 1440x960 frame and as degrees at the view centre."""
+    pixels of the cut's own frame (``frame_width`` wide, the manifest's ``width``)."""
     from skimage.metrics import structural_similarity
     from skimage.registration import phase_cross_correlation
     a, b = _gray(hf_img, size), _gray(cut_img, size)
     shift, _, _ = phase_cross_correlation(a, b, upsample_factor=4)
-    scale = 1440.0 / size[0]
+    scale = float(frame_width) / size[0]
     return {"ncc": ncc(a, b), "ssim": float(structural_similarity(a, b, data_range=255.0)),
             "shift_x_px": float(shift[1]) * scale, "shift_y_px": float(shift[0]) * scale}
 
@@ -226,7 +240,18 @@ def _q(vals, q):
     return round(float(np.quantile(v, q)), 4) if v else None
 
 
+def _latest_rows(path):
+    latest = {}
+    with open(path, encoding="utf-8") as fh:
+        for ln in fh:
+            if ln.strip():
+                r = json.loads(ln)
+                latest[r["name"]] = r
+    return latest
+
+
 def cmd_compare(args):
+    import hashlib
     import numpy as np
     from PIL import Image
     from rampnet import crops
@@ -234,14 +259,12 @@ def cmd_compare(args):
     sample = _read_csv(args.sample)
     manifests = {}
     for tag, path in (s.split("=", 1) for s in args.manifest):
-        latest = {}
-        with open(path, encoding="utf-8") as fh:
-            for ln in fh:
-                if ln.strip():
-                    r = json.loads(ln)
-                    latest[r["name"]] = r
-        manifests[tag] = latest
+        manifests[tag] = _latest_rows(path)
     hf_paths = fetch_hf_crops([r["hf_filename"] for r in sample])
+    hf_sha = {}
+    for f, pth in hf_paths.items():
+        with open(pth, "rb") as fh:
+            hf_sha[f] = hashlib.sha256(fh.read()).hexdigest()
     rng = random.Random(args.seed)
 
     per, fovs = [], {}
@@ -249,7 +272,8 @@ def cmd_compare(args):
         hf_img = Image.open(hf_paths[r["hf_filename"]]).convert("RGB")
         row = {"city": r["city"], "label_id": r["label_id"], "pano_id": r["pano_id"],
                "zoom": r["zoom"], "time_created": r["time_created"],
-               "hf_width": hf_img.size[0], "hf_height": hf_img.size[1]}
+               "hf_width": hf_img.size[0], "hf_height": hf_img.size[1],
+               "hf_sha256": hf_sha[r["hf_filename"]]}
         for tag, latest in manifests.items():
             name = f"{r['city']}__{r['label_id']}__{tag}.jpg"
             m = latest.get(name)
@@ -257,7 +281,7 @@ def cmd_compare(args):
                 row[f"{tag}_status"] = m["status"] if m else "absent"
                 continue
             cut = Image.open(os.path.join(args.crops, name)).convert("RGB")
-            c = compare_pair(hf_img, cut)
+            c = compare_pair(hf_img, cut, frame_width=m["width"])
             # the residual shift as an angle at the view centre, so zooms are comparable
             ppd = m["width"] / 2.0 / math.tan(math.radians(m["fov_h_deg"]) / 2.0) * math.pi / 180.0
             c["shift_deg"] = math.hypot(c["shift_x_px"], c["shift_y_px"]) / ppd
@@ -284,7 +308,7 @@ def cmd_compare(args):
             continue
         a = Image.open(hf_paths[o["hf_filename"]]).convert("RGB")
         b = Image.open(os.path.join(args.crops, name)).convert("RGB")
-        null.append(compare_pair(a, b))
+        null.append(compare_pair(a, b, frame_width=manifests[base][name]["width"]))
 
     summ = {}
     for tag in manifests:
@@ -316,17 +340,21 @@ def cmd_compare(args):
     res = {"sample": os.path.relpath(args.sample, REPO), "n_sample": len(sample),
            "metric": "grey 360x240 after bilinear resize; NCC = zero-mean normalized cross-correlation; "
                      "SSIM = skimage structural_similarity; shift = phase correlation, in 1440x960 px",
-           "hf_zip": HF_VALIDATED_ZIP, "by_tag": summ, "viewport_by_zoom": by_zoom,
+           "hf_zip": HF_VALIDATED_ZIP, "hf_revision": HF_REVISION, "by_tag": summ, "viewport_by_zoom": by_zoom,
            "cut_run": args.cut_run}
     if args.cut_summary and os.path.isfile(args.cut_summary):
         with open(args.cut_summary, encoding="utf-8") as fh:
             res["cut_summary"] = json.load(fh)
     cols = sorted({k for p in per for k in p}, key=lambda k: (k not in ("city", "label_id"), k))
-    _write_csv(os.path.join(DATA, "validation_per_label.csv"), per, cols)
-    _write_json(os.path.join(DATA, "validation.json"), res)
+    _write_csv(os.path.join(DATA, f"validation_per_label{args.suffix}.csv"), per, cols)
+    _write_json(os.path.join(DATA, f"validation{args.suffix}.json"), res)
     print(json.dumps(summ, indent=1))
 
-    # contact sheet: HF crop | viewport cut | the label-centred cuts, for a seeded handful
+    # contact sheet: HF crop | viewport cut | the label-centred cuts, for a seeded handful. The
+    # cutter's columns are marked at the manifest's label_px (where the click is in that render)
+    sheet_manifest = {}
+    for pth in args.sheet_manifest or []:
+        sheet_manifest.update(_latest_rows(pth))
     tags = [t for t in args.sheet_tags]
     pick = random.Random(args.seed).sample([r for r in sample], min(args.sheet_n, len(sample)))
     tw, th = 240, 160
@@ -339,8 +367,11 @@ def cmd_compare(args):
         for j, im in enumerate(ims):
             im = im.resize((tw, th), Image.LANCZOS)
             arr = np.asarray(im).copy()
-            # mark where the label is: canvas point for HF/viewport, centre for label-centred cuts
-            if j == 0 or tags[j - 1] == "viewport":
+            # mark the label: the canvas point on the HF crop, the manifest's label_px on a cut
+            m = sheet_manifest.get(f"{r['city']}__{r['label_id']}__{tags[j - 1]}.jpg") if j else None
+            if j and m and m.get("label_px") and None not in m["label_px"]:
+                lx, ly = m["label_px"][0] / m["width"] * tw, m["label_px"][1] / m["height"] * th
+            elif j == 0 or tags[j - 1] == "viewport":
                 lx, ly = float(r["canvas_x"]) / 720 * tw, float(r["canvas_y"]) / 480 * th
             else:
                 lx, ly = tw / 2, th / 2
@@ -350,8 +381,9 @@ def cmd_compare(args):
                         arr[int(y), int(x)] = (255, 255, 0)
             sheet.paste(Image.fromarray(arr), (j * tw, i * th))
     os.makedirs(ASSETS, exist_ok=True)
-    sheet.save(os.path.join(ASSETS, "crop_cutter_contact_sheet.jpg"), quality=70)
-    print("wrote", os.path.join(ASSETS, "crop_cutter_contact_sheet.jpg"), "columns: HF |", " | ".join(tags))
+    sheet_path = os.path.join(ASSETS, f"crop_cutter_contact_sheet{args.suffix}.jpg")
+    sheet.save(sheet_path, quality=70)
+    print("wrote", sheet_path, "columns: HF |", " | ".join(tags))
 
 
 # ----------------------------------------------------------------------------- cli
@@ -391,6 +423,10 @@ def main(argv=None):
     m.add_argument("--null-tag", default="viewport")
     m.add_argument("--sheet-tags", nargs="*", default=["viewport", "fov30", "fov60", "fov90"])
     m.add_argument("--sheet-n", type=int, default=8)
+    m.add_argument("--sheet-manifest", action="append",
+                   help="manifest(s) whose label_px marks the cutter's columns (repeatable)")
+    m.add_argument("--suffix", default="",
+                   help="appended to validation*.json/csv and the contact sheet name (e.g. _v2)")
     m.add_argument("--seed", type=int, default=SEED)
     m.add_argument("--cut-summary", help="the cutter's --summary JSON, embedded in validation.json")
     m.add_argument("--cut-run", help="free text: where/when the cut ran")
