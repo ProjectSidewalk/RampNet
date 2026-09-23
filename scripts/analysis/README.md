@@ -117,9 +117,10 @@ wide-FOV views.
 
 ## Not part of the recall analysis
 
-Two scripts in this directory belong to a different question and read none of the caches above:
+These scripts belong to other questions and read none of the caches above:
 
 | script | GPU | what it answers |
 |---|---|---|
 | `stage2_epoch_curve.py` | no | **The Stage 2 epoch curve (#84).** Extracts per-epoch auto-label validation loss from the committed TensorBoard events of Run A (`stage_two/run_a_84_events/`) and compares it against the paper run's own rescued events (`docs/data/rampnet1_stage2_run/`, #104) at full float32 precision. Reads them with `stage2_train_cost.read_scalars` — standard library only, no tensorboard install, and one parser rather than two. Checks every file against the `SHA256SUMS` committed beside it. See [`docs/stage2_epoch_curve_84.md`](../../docs/stage2_epoch_curve_84.md). |
 | `plot_epoch_curve.py` | no | The figure for the above: both runs' curves on one absolute axis, and each epoch's excess over Run A's own minimum → `docs/figures/stage2_epoch_curve_84.png`. |
+| `crop_cutter_validation.py` | no | **The crop cutter (#86, RampNet 2.0 plan item 2b).** Does `scripts/crop_cutter.py` reproduce the HF `sidewalk-tagger-ai-validated` crops, and how much of the label set has a pano in the makelab2 store? Four steps (`sample` → `coverage` on makelab2 → `pick` → `compare`); reads individual HF crops by HTTP range, never the 30 GB zip. Committed outputs in `docs/data/crop_cutter/`. See [`docs/crop_cutter.md`](../../docs/crop_cutter.md). |

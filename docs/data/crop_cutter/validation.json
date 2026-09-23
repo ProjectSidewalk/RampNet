@@ -1,0 +1,116 @@
+{
+ "by_tag": {
+  "null_shuffled_same_city": {
+   "n": 199,
+   "ncc_median": 0.0978,
+   "ncc_p90": 0.3476,
+   "ssim_median": 0.2752
+  },
+  "viewport": {
+   "frac_ncc_ge_0p5": 0.885,
+   "n": 200,
+   "n_black_frac_gt_1pct": 11,
+   "ncc_median": 0.7803,
+   "ncc_p10": 0.4874,
+   "ncc_p90": 0.9476,
+   "shift_deg_median": 0.7074,
+   "shift_deg_p90": 2.1749,
+   "shift_px_median": 17.7603,
+   "shift_px_p90": 52.2229,
+   "shift_x_px_median": 0.0,
+   "shift_y_px_median": 1.0,
+   "ssim_median": 0.4576
+  },
+  "viewport_tiltnone": {
+   "frac_ncc_ge_0p5": 0.845,
+   "n": 200,
+   "n_black_frac_gt_1pct": 9,
+   "ncc_median": 0.7445,
+   "ncc_p10": 0.3942,
+   "ncc_p90": 0.9042,
+   "shift_deg_median": 0.9508,
+   "shift_deg_p90": 2.9366,
+   "shift_px_median": 23.4016,
+   "shift_px_p90": 75.1007,
+   "shift_x_px_median": 0.0,
+   "shift_y_px_median": -0.5,
+   "ssim_median": 0.4107
+  },
+  "viewport_tiltpp": {
+   "frac_ncc_ge_0p5": 0.76,
+   "n": 200,
+   "n_black_frac_gt_1pct": 9,
+   "ncc_median": 0.6711,
+   "ncc_p10": 0.3172,
+   "ncc_p90": 0.866,
+   "shift_deg_median": 1.3582,
+   "shift_deg_p90": 5.1026,
+   "shift_px_median": 31.0161,
+   "shift_px_p90": 116.0004,
+   "shift_x_px_median": 0.0,
+   "shift_y_px_median": 0.0,
+   "ssim_median": 0.3886
+  }
+ },
+ "cut_run": "makelab2 (48 cores, 8 workers), 2026-09-22, branch tools/crop-cutter-86 at c677b92, crop cutter v3",
+ "cut_summary": {
+  "aspect": 1.5,
+  "crop_cutter_version": "3",
+  "crops_per_s": 7.936,
+  "crops_requested": 800,
+  "finished_utc": "2026-09-23T01:52:25Z",
+  "fov": [
+   "viewport",
+   "30",
+   "60",
+   "90"
+  ],
+  "host": "makelab2.cs.washington.edu",
+  "labels": 200,
+  "manifest_rows_appended": 800,
+  "numpy": "1.23.5",
+  "panos_opened": 195,
+  "pillow": "10.0.1",
+  "projection": "gnomonic",
+  "python": "3.9.25",
+  "recut_changed_params": 0,
+  "size": 1440,
+  "skipped_existing": 0,
+  "status": {
+   "bad_aspect": 0,
+   "error": 0,
+   "missing_pano": 0,
+   "no_geometry": 0,
+   "ok": 800,
+   "out_of_frame": 0
+  },
+  "tilt": "mm",
+  "wall_s": 100.8,
+  "workers": 8
+ },
+ "hf_revision": "6e3a116a3c228dd35bcd72f6e5fb921f6ebb6a50",
+ "hf_zip": "https://huggingface.co/datasets/projectsidewalk/sidewalk-tagger-ai-validated/resolve/6e3a116a3c228dd35bcd72f6e5fb921f6ebb6a50/Validated/CurbRamp.zip",
+ "metric": "grey 360x240 after bilinear resize; NCC = zero-mean normalized cross-correlation; SSIM = skimage structural_similarity; shift = phase correlation, in 1440x960 px",
+ "n_sample": 200,
+ "sample": "docs\\data\\crop_cutter\\validation_sample.csv",
+ "viewport_by_zoom": {
+  "1.0": {
+   "n": 97,
+   "ncc_median": 0.8218,
+   "shift_deg_median": 0.7923,
+   "shift_px_median": 10.0
+  },
+  "2.0": {
+   "n": 50,
+   "ncc_median": 0.7899,
+   "shift_deg_median": 0.7427,
+   "shift_px_median": 18.7195
+  },
+  "3.0": {
+   "n": 53,
+   "ncc_median": 0.7152,
+   "shift_deg_median": 0.6141,
+   "shift_px_median": 31.3209
+  }
+ }
+}
