@@ -205,3 +205,4 @@ analysis_out/stage1_bearing_cache/
 analysis_out/tag_benchmark_86/*
 !analysis_out/tag_benchmark_86/*.csv
 !analysis_out/tag_benchmark_86/*.json
+!analysis_out/tag_benchmark_86/as_run/

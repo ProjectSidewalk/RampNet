@@ -8,15 +8,26 @@
 #
 #   WORK=/path/to/scratch PY=/path/to/python bash scripts/analysis/tag_benchmark_86.sh [stage...]
 #
-# Stages: fetch prepare eval infer score train  (default: all but train)
+# Stages: fetch prepare eval infer score  (the default: the released checkpoint)
+#         train      launch the three retrain arms concurrently, plus the snapshot watcher,
+#                    in the background (~17 h on one A40), exactly as the committed run did
+#         snapshots  while or after they run: score every best_after_ep<E>.pth that exists
+#         finish     once all three train_<arm>.log end in "EXIT 0": snapshots + final best.pth
+# snapshots and finish write analysis_out/tag_benchmark_86/train_<arm>_{ep<E>,final}_* and
+# rows in analysis_out/usage_log.jsonl; commit both. Re-running either is safe: outputs are
+# rewritten and usage rows carry a run_id, so a re-written row replaces its predecessor.
 # PY needs torch + torchvision (CUDA), scikit-learn, pandas, pillow, matplotlib, timm,
 # requests. The committed runs used Python 3.10, torch 2.4.1+cu121, torchvision 0.19.1,
 # scikit-learn 1.7.2, pandas 2.3.3, without xformers.
 set -euo pipefail
 
 WORK=${WORK:?set WORK to a scratch directory with ~70 GB free}
+mkdir -p "$WORK"
+WORK=$(cd "$WORK" && pwd)   # absolute: the train stage's background jobs and later stages share it
 PY=${PY:-python}
 TAGGER_SHA=3b7405cd3206ece631cb7a65e22b1ab219df4b75
+HF_DATASET_REV=6e3a116a3c228dd35bcd72f6e5fb921f6ebb6a50   # projectsidewalk/sidewalk-tagger-ai-validated
+HF_MODEL_REV=65959dbc80b87e4f39385204c4b639cbcf58e1a8     # projectsidewalk/sidewalk-tagger-ai-models
 TAGGER=$WORK/sidewalk-tagger-ai
 DATA=$TAGGER/datasets/crops-curbramp-tags     # the layout the tagger's evaluate.py expects
 OUT=analysis_out/tag_benchmark_86
@@ -30,15 +41,18 @@ if has fetch; then
   [ -d "$TAGGER" ] || git clone -q https://github.com/ProjectSidewalk/sidewalk-tagger-ai.git "$TAGGER"
   git -C "$TAGGER" checkout -q $TAGGER_SHA
   cd "$WORK"
-  # HF dataset projectsidewalk/sidewalk-tagger-ai-validated @ 6e3a116a (LFS sha256 5a856835...)
-  [ -f CurbRamp.zip ] || curl -sSL -C - -o CurbRamp.zip \
-    https://huggingface.co/datasets/projectsidewalk/sidewalk-tagger-ai-validated/resolve/main/Validated/CurbRamp.zip
-  # HF model projectsidewalk/sidewalk-tagger-ai-models @ 65959dbc (LFS sha256 4d00193a...)
-  [ -f validated-dino-cls-b-curbramp-tags-best.pth ] || curl -sSL -o validated-dino-cls-b-curbramp-tags-best.pth \
-    https://huggingface.co/projectsidewalk/sidewalk-tagger-ai-models/resolve/main/validated-dino-cls-b-curbramp-tags-best.pth
-  [ -f dinov2_vitb14_reg4_pretrain.pth ] || curl -sSL -o dinov2_vitb14_reg4_pretrain.pth \
+  # pinned revisions (docs/tag_benchmark_86.md §6); the sha256 check below stops on any mismatch
+  [ -f CurbRamp.zip ] || curl -fsSL -C - -o CurbRamp.zip \
+    https://huggingface.co/datasets/projectsidewalk/sidewalk-tagger-ai-validated/resolve/$HF_DATASET_REV/Validated/CurbRamp.zip
+  [ -f validated-dino-cls-b-curbramp-tags-best.pth ] || curl -fsSL -o validated-dino-cls-b-curbramp-tags-best.pth \
+    https://huggingface.co/projectsidewalk/sidewalk-tagger-ai-models/resolve/$HF_MODEL_REV/validated-dino-cls-b-curbramp-tags-best.pth
+  [ -f dinov2_vitb14_reg4_pretrain.pth ] || curl -fsSL -o dinov2_vitb14_reg4_pretrain.pth \
     https://dl.fbaipublicfiles.com/dinov2/dinov2_vitb14/dinov2_vitb14_reg4_pretrain.pth
-  sha256sum CurbRamp.zip validated-dino-cls-b-curbramp-tags-best.pth dinov2_vitb14_reg4_pretrain.pth
+  sha256sum -c - <<SUMS
+5a8568353d720084ce4ec170ad9e3cc2b57b8d549bdd5d93099c180b82ed9a2d  CurbRamp.zip
+4d00193aed73fc199049f31cebade51f236bfca92ad9f76adf08a9d08a272833  validated-dino-cls-b-curbramp-tags-best.pth
+73182a088cf94833c94b1666d1c99e02fe87e2007bff57b564fb6206e25dba71  dinov2_vitb14_reg4_pretrain.pth
+SUMS
   cd - >/dev/null
   # the layout REPRODUCE_RESULTS.md sets up
   mkdir -p "$TAGGER/notebooks/models"
@@ -69,23 +83,61 @@ if has score; then
     --per-label-out $OUT/released_test_per_label.csv
 fi
 
+ARMS="control pano cell"
+split_args() {  # the split each arm trains and is scored on (control: the published HF split)
+  case $1 in
+    control) ;;
+    pano) echo "--split-csv $OUT/resplit_pano_grouped_seed86.csv" ;;
+    cell) echo "--split-csv $OUT/resplit_cell100m_seed86.csv" ;;
+  esac
+}
+
 if has train; then
-  # the tagger's training recipe, three arms; ~GPU-hours each, see the doc for measured times
-  FIXED=missing-tactile-warning,narrow,not-enough-landing-space,not-level-with-street,points-into-traffic,pooled-water,steep,surface-problem
-  for ARM in control pano cell; do
-    case $ARM in
-      control) SPLIT=() ;;
-      pano) SPLIT=(--split-csv $OUT/resplit_pano_grouped_seed86.csv) ;;
-      cell) SPLIT=(--split-csv $OUT/resplit_cell100m_seed86.csv) ;;
-    esac
-    $PY $S train --tagger-repo "$TAGGER" "${SPLIT[@]}" --images "$DATA/train" "$DATA/test" \
-      --backbone "$WORK/dinov2_vitb14_reg4_pretrain.pth" --out-dir "$WORK/train_$ARM"
-    cp "$WORK/train_$ARM/train_log.csv" $OUT/train_${ARM}_log.csv
-    cp "$WORK/train_$ARM/train_meta.json" $OUT/train_${ARM}_meta.json
-    $PY $S infer --tagger-repo "$TAGGER" --checkpoint "$WORK/train_$ARM/best.pth" \
-      --csv $OUT/hf_curbramp_labels.csv --images "$DATA/train" "$DATA/test" \
-      --out $OUT/train_${ARM}_predictions.csv
-    $PY $S score --pred $OUT/train_${ARM}_predictions.csv "${SPLIT[@]}" --fixed-tags $FIXED \
-      --out $OUT/train_${ARM}_scores.json
+  # The tagger's training recipe, three arms at once on one GPU (the committed run: makelab2
+  # A40, ~605 s/epoch each while sharing it), each followed by inference of its final best.pth
+  # on all 10,857 crops. Paths are absolute so a later stage finds them. The wrapper's first
+  # line (date -u) is the start time `collect` reads, and "EXIT <rc>" marks the end.
+  REPO=$(pwd)
+  for ARM in $ARMS; do
+    [ -e "$WORK/train_$ARM.log" ] && { echo "$WORK/train_$ARM.log exists; refusing to start $ARM over it" >&2; exit 1; }
+    nohup bash -c "date -u +%FT%TZ; \
+      $PY $S train --tagger-repo $TAGGER $(split_args $ARM) --images $DATA/train $DATA/test \
+        --backbone $WORK/dinov2_vitb14_reg4_pretrain.pth --out-dir $WORK/train_$ARM \
+      && $PY $S infer --tagger-repo $TAGGER --checkpoint $WORK/train_$ARM/best.pth \
+        --csv $REPO/$OUT/hf_curbramp_labels.csv --images $DATA/train $DATA/test \
+        --out $WORK/train_${ARM}_predictions.csv; \
+      echo EXIT \$?; date -u +%FT%TZ" > "$WORK/train_$ARM.log" 2>&1 &
   done
+  sleep 5
+  WORK=$WORK ARMS="$ARMS" nohup bash scripts/analysis/tag_benchmark_86_snap.sh >> "$WORK/snap.log" 2>&1 &
+  echo "launched; watch $WORK/train_{control,pano,cell}.log and $WORK/snap.log"
+fi
+
+snapshot_infer() {  # GPU: score each best_after_ep<E>.pth that has no predictions yet
+  for E in 4 9 19 49; do
+    for ARM in $ARMS; do
+      CK=$WORK/train_$ARM/best_after_ep$E.pth
+      P=$WORK/snap_ep${E}_${ARM}_predictions.csv
+      [ -f "$CK" ] && [ ! -f "$P.meta.json" ] || continue
+      $PY $S infer --tagger-repo "$TAGGER" --checkpoint "$CK" --csv $OUT/hf_curbramp_labels.csv \
+        --images "$DATA/train" "$DATA/test" --out "$P"
+    done
+  done
+}
+
+if has snapshots; then
+  snapshot_infer
+  # CPU: test rows, scores, one usage row per inference (train rows stay as they are)
+  $PY $S collect --work "$WORK"
+fi
+
+if has finish; then
+  for ARM in $ARMS; do
+    grep -qx 'EXIT 0' "$WORK/train_$ARM.log" || { echo "$ARM has not ended with EXIT 0; not finishing" >&2; exit 1; }
+  done
+  snapshot_infer
+  # CPU: everything `snapshots` does, plus each arm's final best.pth (epoch read from the
+  # checkpoint and train_meta.json, not assumed), its train log/meta under arm-prefixed
+  # names, and the final training row, which replaces the in_progress row (same run_id)
+  $PY $S collect --work "$WORK" --final
 fi

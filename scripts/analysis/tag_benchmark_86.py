@@ -47,8 +47,24 @@ import pandas as pd
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT_DIR = os.path.join(REPO, "analysis_out", "tag_benchmark_86")
 
+#: HF revisions every number in docs/tag_benchmark_86.md was produced from. The URLs resolve
+#: at these commits, not at ``main``, so a later upload cannot change what a re-run reads.
+HF_DATASET_REV = "6e3a116a3c228dd35bcd72f6e5fb921f6ebb6a50"   # sidewalk-tagger-ai-validated
+HF_MODEL_REV = "65959dbc80b87e4f39385204c4b639cbcf58e1a8"     # sidewalk-tagger-ai-models
 HF_ZIP_URL = ("https://huggingface.co/datasets/projectsidewalk/sidewalk-tagger-ai-validated/"
-              "resolve/main/Validated/CurbRamp.zip")
+              f"resolve/{HF_DATASET_REV}/Validated/CurbRamp.zip")
+
+#: The three retrain arms and the split each trains on (None = the published HF split).
+ARM_SPLITS = {"control": None,
+              "pano": "resplit_pano_grouped_seed86.csv",
+              "cell": "resplit_cell100m_seed86.csv"}
+#: The eight tags every committed number averages (the tagger's >= 10-positive rule on the
+#: published test set); the re-split arms are scored on the same eight.
+FIXED_TAGS = ["missing-tactile-warning", "narrow", "not-enough-landing-space", "not-level-with-street",
+              "points-into-traffic", "pooled-water", "steep", "surface-problem"]
+#: Epoch indices (0-based) after which the live run copied best.pth
+#: (scripts/analysis/tag_benchmark_86_snap.sh).
+SNAPSHOT_EPOCHS = (4, 9, 19, 49)
 #: sidewalk-tagger-ai commit every number in docs/tag_benchmark_86.md was produced with.
 TAGGER_SHA = "3b7405cd3206ece631cb7a65e22b1ab219df4b75"
 UA = {"User-Agent": "Mozilla/5.0 (RampNet research; #86 tag benchmark)"}
@@ -251,7 +267,11 @@ def build_label_table(splits, raw):
         r = r[["label_id", "pano_id", "latitude", "longitude"]].copy()
         r.insert(0, "city", city)
         live.append(r)
-    live = pd.concat(live, ignore_index=True).drop_duplicates(["city", "label_id"])
+    live = pd.concat(live, ignore_index=True)
+    # assert rather than drop_duplicates: a duplicated live row must stop the join, not be
+    # silently resolved to whichever copy came first (0 duplicates on 2026-09-21)
+    dup = live[live.duplicated(["city", "label_id"], keep=False)]
+    assert dup.empty, f"duplicate (city, label_id) in rawLabels: {dup.head().to_dict('records')}"
     lab = lab.merge(live, on=["city", "label_id"], how="left", validate="one_to_one")
     lab = lab.rename(columns={"latitude": "lat", "longitude": "lng"})
     front = ["split", "filename", "city", "label_id", "label_uid", "pano_id", "lat", "lng",
@@ -383,6 +403,31 @@ def bootstrap_samples(y_true, y_score, groups, tags, selected, n_boot=1000, seed
     return {k: np.array(v) for k, v in stats.items()}
 
 
+def paired_subset_diff_samples(y_true, y_score, groups, sub_mask, tags, selected, n_boot=1000, seed=86):
+    """Bootstrap draws of metric(whole set) - metric(subset), both computed on the SAME
+    pano-clustered resample. ``sub_mask`` must be constant within a panorama (leak-free is a
+    pano-level property), so the subset of a resample is the resample of the subset.
+
+    This is the direct test of "does the leak inflate the published number": the published
+    number is the whole set, its leak-free counterpart is the subset, and they share
+    panoramas, so independent draws would overstate the noise."""
+    rng = np.random.default_rng(seed)
+    groups = np.asarray(groups)
+    sub_mask = np.asarray(sub_mask, bool)
+    uniq, inv = np.unique(groups, return_inverse=True)
+    members = [np.where(inv == k)[0] for k in range(len(uniq))]
+    stats = {"mAP": [], "micro_f1": [], "macro_f1": []}
+    for _ in range(n_boot):
+        idx = np.concatenate([members[k] for k in rng.integers(0, len(uniq), len(uniq))])
+        sub = idx[sub_mask[idx]]
+        a = tagger_metrics(y_true[idx], y_score[idx], tags, selected=selected)
+        b = tagger_metrics(y_true[sub], y_score[sub], tags, selected=selected) if len(sub) else None
+        for k in stats:
+            ok = b is not None and a[k] is not None and b[k] is not None
+            stats[k].append(a[k] - b[k] if ok else np.nan)
+    return {k: np.array(v) for k, v in stats.items()}
+
+
 def _ci(v, alpha=0.05):
     v = np.asarray(v)[~np.isnan(v)]
     return [float(np.quantile(v, alpha / 2)), float(np.quantile(v, 1 - alpha / 2))] if len(v) else None
@@ -409,6 +454,21 @@ def load_tagger_function(tagger_repo, relpath, name):
     ns = {}
     exec(compile(ast.Module(body=keep, type_ignores=[]), path, "exec"), ns)  # noqa: S102
     return ns[name]
+
+
+#: (width, height) of every crop in the HF zip at HF_DATASET_REV, before crop.py.
+HF_CROP_SIZE = (1440, 960)
+
+
+def uncropped_violations(d, filenames, size=HF_CROP_SIZE):
+    """Filenames in ``d`` whose image is not ``size`` (reads headers only)."""
+    from PIL import Image
+    bad = []
+    for fn in filenames:
+        with Image.open(os.path.join(d, fn)) as im:
+            if im.size != tuple(size):
+                bad.append(fn)
+    return bad
 
 
 def cmd_prepare(args):
@@ -442,6 +502,15 @@ def cmd_prepare(args):
         if os.path.exists(marker):
             print(f"{split}: already cropped ({marker}); not cropping twice")
             continue
+        # crop_image crops in place and the marker is written only after it returns, so an
+        # interrupted run leaves a mix of cropped and uncropped files that a resumed run would
+        # crop again, silently changing the framing. Refuse unless every crop is still the
+        # HF original size.
+        bad = uncropped_violations(d, [f for f in df.filename if f in names])
+        if bad:
+            raise SystemExit(f"{split}: {len(bad)} crops are not {HF_CROP_SIZE[0]}x{HF_CROP_SIZE[1]} "
+                             f"(e.g. {bad[:3]}) but {marker} is absent: an earlier prepare was "
+                             f"interrupted mid-crop. Delete {d} and run prepare again.")
         crop_image(d, csv_path)  # the tagger's own function, in place, as its pipeline does
         with open(marker, "w") as fh:
             fh.write(dt.datetime.now(dt.timezone.utc).isoformat())
@@ -663,28 +732,49 @@ def score_subsets(pred, lab, tags, test_split="test", train_split="train", near_
             k: {"point": out["subsets"]["leaked"]["fixed_tags"][k] - out["subsets"]["leak_free"]["fixed_tags"][k],
                 "ci95": _ci(draws["leaked"][k] - draws["leak_free"][k])}
             for k in ("mAP", "micro_f1", "macro_f1")}
+    if n_boot and "leaked" in out["subsets"] and "leak_free" in out["subsets"]:
+        # the published number against its own leak-free part, paired on the same draws: an
+        # upper bound on how much the leak can be inflating the whole-test-set number
+        d = paired_subset_diff_samples(y, s, groups, subsets["leak_free"], tags, fixed, n_boot=n_boot)
+        out["full_minus_leak_free"] = {
+            k: {"point": out["subsets"]["full"]["fixed_tags"][k] - out["subsets"]["leak_free"]["fixed_tags"][k],
+                "ci95": _ci(d[k])}
+            for k in ("mAP", "micro_f1", "macro_f1")}
     per_label = m[["filename", "city", "label_id", "pano_id", "pano_in_train", "nearest_train_m"] + tags].copy()
     for j, t in enumerate(tags):
         per_label[f"prob:{t}"] = s[:, j]
     return out, per_label
 
 
-def cmd_score(args):
-    lab = pd.read_csv(args.labels)
-    if args.split_csv:
-        sp = pd.read_csv(args.split_csv)[["label_uid", "split"]]
+LABEL_META_COLS = ("split", "filename", "city", "label_id", "label_uid", "pano_id", "lat", "lng",
+                   "normalized_x", "normalized_y")
+
+
+def load_labels(labels_path, split_csv=None):
+    """(label table, tag columns), with ``split`` replaced by ``split_csv``'s when given."""
+    lab = pd.read_csv(labels_path)
+    if split_csv:
+        sp = pd.read_csv(split_csv)[["label_uid", "split"]]
         lab = lab.drop(columns="split").merge(sp, on="label_uid", how="inner", validate="one_to_one")
-    tags = [c for c in lab.columns if c not in ("split", "filename", "city", "label_id", "label_uid",
-                                                 "pano_id", "lat", "lng", "normalized_x", "normalized_y")]
-    pred = pd.read_csv(args.pred)
-    fixed = args.fixed_tags.split(",") if args.fixed_tags else None
-    summary, per_label = score_subsets(pred, lab, tags, near_m=args.near_m, n_boot=args.n_boot,
+    return lab, [c for c in lab.columns if c not in LABEL_META_COLS]
+
+
+def score_file(pred_path, labels_path, split_csv=None, fixed=None, n_boot=1000, near_m=10.0):
+    """``score`` on files: (summary with input hashes, per-label frame)."""
+    lab, tags = load_labels(labels_path, split_csv)
+    summary, per_label = score_subsets(pd.read_csv(pred_path), lab, tags, near_m=near_m, n_boot=n_boot,
                                        fixed_tags=fixed)
-    summary["pred_file"] = os.path.basename(args.pred)
-    summary["pred_sha256"] = sha256_file(args.pred)
-    summary["labels_sha256"] = sha256_file(args.labels)
-    if args.split_csv:
-        summary["split_csv_sha256"] = sha256_file(args.split_csv)
+    summary["pred_file"] = os.path.basename(pred_path)
+    summary["pred_sha256"] = sha256_file(pred_path)
+    summary["labels_sha256"] = sha256_file(labels_path)
+    if split_csv:
+        summary["split_csv_sha256"] = sha256_file(split_csv)
+    return summary, per_label
+
+
+def cmd_score(args):
+    fixed = args.fixed_tags.split(",") if args.fixed_tags else None
+    summary, per_label = score_file(args.pred, args.labels, args.split_csv, fixed, args.n_boot, args.near_m)
     write_json(summary, args.out)
     if args.per_label_out:
         write_csv(per_label, args.per_label_out)
@@ -845,12 +935,196 @@ def cmd_train(args):
     print(json.dumps(_round(meta, 3)))
 
 
+# ----------------------------------------------------------------------------- test-only
+
+def filter_test_lines(pred_path, test_filenames):
+    """The header plus the rows of a predictions CSV whose filename is in ``test_filenames``,
+    in source order, byte for byte (a text filter, so no float is re-formatted)."""
+    with open(pred_path, "rb") as fh:
+        lines = fh.read().split(b"\n")
+    keep = [lines[0]] + [ln for ln in lines[1:]
+                         if ln and ln.split(b",", 1)[0].decode("utf-8") in test_filenames]
+    return b"\n".join(keep) + b"\n", len(keep) - 1
+
+
+def write_test_only(pred_path, labels_path, split_csv, out_path):
+    """Keep only the labels that are ``test`` under ``split_csv`` (or the HF split). The meta
+    beside the output describes the OUTPUT (rows, sha256) and carries the source
+    predictions' own meta and hash, so the chain checkpoint -> 10,857 logits -> test rows can
+    be checked link by link."""
+    lab, _ = load_labels(labels_path, split_csv)
+    test = set(lab.loc[lab.split == "test", "filename"])
+    data, n = filter_test_lines(pred_path, test)
+    assert n == len(test), f"{pred_path}: {n} test rows found, {len(test)} expected"
+    os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
+    with open(out_path, "wb") as fh:
+        fh.write(data)
+    src_meta = pred_path + ".meta.json"
+    meta = {"file": os.path.basename(out_path), "n_rows": n, "predictions_sha256": sha256_file(out_path),
+            "filter": "rows whose label is test under split_csv (tag_benchmark_86.py test-only)",
+            "split_csv": os.path.basename(split_csv) if split_csv else "hf test.csv/train.csv",
+            "split_csv_sha256": sha256_file(split_csv) if split_csv else None,
+            "labels_sha256": sha256_file(labels_path),
+            "source_file": os.path.basename(pred_path), "source_sha256": sha256_file(pred_path),
+            "source_meta": json.load(open(src_meta, encoding="utf-8")) if os.path.exists(src_meta) else None}
+    write_json(meta, out_path + ".meta.json")
+    return meta
+
+
+def cmd_test_only(args):
+    meta = write_test_only(args.pred, args.labels, args.split_csv, args.out)
+    print(f"wrote {args.out}: {meta['n_rows']} rows, sha256 {meta['predictions_sha256']}")
+
+
+# ----------------------------------------------------------------------------- collect
+
+def _utc(s):
+    return dt.datetime.fromisoformat(s.replace("Z", "+00:00"))
+
+
+def _iso(t):
+    return t.astimezone(dt.timezone.utc).isoformat(timespec="seconds")
+
+
+def train_interval(work, arm):
+    """(start, end or None) of one arm's training, from its logs: the first line of
+    ``train_<arm>.log`` is the launch's ``date -u``; the end is ``train_meta.json``'s ts,
+    written when training returns (None while it is still running)."""
+    with open(os.path.join(work, f"train_{arm}.log"), encoding="utf-8") as fh:
+        start = _utc(fh.readline().strip())
+    meta = os.path.join(work, f"train_{arm}", "train_meta.json")
+    end = _utc(json.load(open(meta, encoding="utf-8"))["ts"]) if os.path.exists(meta) else None
+    return start, end
+
+
+def concurrent_runs(intervals, start, end, min_overlap=0.5):
+    """Labels of the runs in ``intervals`` ({label: (start, end or None)}) that overlap
+    [start, end] for at least ``min_overlap`` of its length. The GPU is shared with them,
+    so a sum of wall-clock across rows overstates GPU occupancy (``gpu_share``)."""
+    span = max((end - start).total_seconds(), 1e-9)
+    out = []
+    for label, (a, b) in sorted(intervals.items()):
+        b = b or dt.datetime.max.replace(tzinfo=dt.timezone.utc)
+        ov = (min(end, b) - max(start, a)).total_seconds()
+        if ov >= min_overlap * span:
+            out.append(label)
+    return out
+
+
+def share_fields(concurrent):
+    """Machine-readable GPU sharing: ``gpu_share`` = 1 / (1 + runs of ours on the same GPU
+    at the same time). elapsed_s x gpu_share is this run's nominal share of the GPU. Other
+    users' jobs on the same GPU are not counted (the doc says which)."""
+    return {"concurrent_with": list(concurrent), "gpu_share": round(1.0 / (1 + len(concurrent)), 6)}
+
+
+def collect_arm(arm, work, log_path, epochs=SNAPSHOT_EPOCHS, final=False, n_boot=1000, out_dir=OUT_DIR,
+                labels_path=None, host="makelab2.cs.washington.edu", gpu="NVIDIA A40"):
+    """The CPU side of finishing one retrain arm, from what the GPU steps left in ``work``.
+
+    For every snapshot epoch E whose ``snap_ep<E>_<arm>_predictions.csv`` exists: the test
+    rows -> ``train_<arm>_ep<E>_test_predictions.csv`` (+ meta), scores ->
+    ``train_<arm>_ep<E>_scores.json``, and a usage row for that inference. With ``final``: the
+    run must have ended with ``EXIT 0``; the checkpoint scored is ``best.pth``, whose epoch is
+    read from the checkpoint (when torch is present) and checked against ``train_meta.json``;
+    the post-train predictions must name that checkpoint's sha256; the arm's log and meta are
+    copied under arm-prefixed names; outputs are named ``_final_`` with ``best_epoch`` inside;
+    and the training row replaces its ``in_progress`` row (same ``run_id``).
+
+    Every usage row carries a ``run_id``, so running this twice replaces rather than
+    double counts (``rampnet.ledger.latest_rows``). Returns the list of rows written."""
+    sys.path.insert(0, REPO)
+    from rampnet import ledger
+    labels_path = labels_path or os.path.join(out_dir, "hf_curbramp_labels.csv")
+    split = os.path.join(out_dir, ARM_SPLITS[arm]) if ARM_SPLITS[arm] else None
+    trains = {f"train-{a}": train_interval(work, a) for a in ARM_SPLITS
+              if os.path.exists(os.path.join(work, f"train_{a}.log"))}
+    rows = []
+
+    def infer_row(pred, label, what):
+        m = json.load(open(pred + ".meta.json", encoding="utf-8"))
+        end = _utc(m["ts"])
+        start = end - dt.timedelta(seconds=m["elapsed_s"])
+        conc = concurrent_runs(trains, start, end)
+        return usage_row(label, m["elapsed_s"], "ok", what, n=m["n_scored"], ts=_iso(start), host=host,
+                         gpu=m.get("gpu") or gpu,
+                         extra={"run_id": f"tagger-86:{label}:{_iso(start)}", **share_fields(conc)})
+
+    def score_to(pred_full, stem, extra=None):
+        test_pred = os.path.join(out_dir, f"{stem}_test_predictions.csv")
+        write_test_only(pred_full, labels_path, split, test_pred)
+        summary, _ = score_file(test_pred, labels_path, split, FIXED_TAGS, n_boot)
+        if extra:
+            summary.update(extra)
+        write_json(summary, os.path.join(out_dir, f"{stem}_scores.json"))
+        f = summary["subsets"]["full"]["fixed_tags"]
+        print(f"{stem}: n={summary['n_scored']} mAP={f['mAP']:.4f} microF1={f['micro_f1']:.4f} "
+              f"macroF1={f['macro_f1']:.4f}")
+
+    for e in epochs:
+        pred = os.path.join(work, f"snap_ep{e}_{arm}_predictions.csv")
+        if not os.path.exists(pred):
+            print(f"{arm} ep{e}: no {pred}; skipped")
+            continue
+        score_to(pred, f"train_{arm}_ep{e}")
+        rows.append(infer_row(pred, f"infer-train-{arm}-ep{e}",
+                              f"retrained {arm} arm, best.pth as of epoch index {e} ({e + 1} epochs), "
+                              f"all 10,857 crops (#86 item 2)"))
+
+    if final:
+        log = open(os.path.join(work, f"train_{arm}.log"), encoding="utf-8").read().splitlines()
+        if "EXIT 0" not in log:
+            raise SystemExit(f"{arm}: train_{arm}.log has no 'EXIT 0' line; the run has not finished cleanly")
+        d = os.path.join(work, f"train_{arm}")
+        meta = json.load(open(os.path.join(d, "train_meta.json"), encoding="utf-8"))
+        best = os.path.join(d, "best.pth")
+        best_sha = sha256_file(best)
+        try:
+            import torch
+            ck_epoch = int(torch.load(best, map_location="cpu")["epoch"])
+            assert ck_epoch == meta["best_epoch"], f"best.pth epoch {ck_epoch} != train_meta best_epoch {meta['best_epoch']}"
+        except ImportError:
+            ck_epoch = None
+        pred = os.path.join(work, f"train_{arm}_predictions.csv")
+        pm = json.load(open(pred + ".meta.json", encoding="utf-8"))
+        assert pm["checkpoint_sha256"] == best_sha, f"{pred} was not made from {best}"
+        for src, dst in (("train_log.csv", f"train_{arm}_log.csv"), ("train_meta.json", f"train_{arm}_meta.json")):
+            with open(os.path.join(d, src), "rb") as a, open(os.path.join(out_dir, dst), "wb") as b:
+                b.write(a.read())
+        score_to(pred, f"train_{arm}_final",
+                 extra={"best_epoch": meta["best_epoch"], "best_epoch_from_checkpoint": ck_epoch,
+                        "epochs": meta["epochs"], "checkpoint_sha256": best_sha})
+        start, end = trains[f"train-{arm}"]
+        conc = concurrent_runs({k: v for k, v in trains.items() if k != f"train-{arm}"}, start, end)
+        rows.append(usage_row(f"train-{arm}", meta["elapsed_s"], "ok",
+                              f"tagger DINOv2 recipe ({meta['epochs']} ep, Adam {meta['lr']}, batch {meta['batch']}) "
+                              f"on the {arm} split; best.pth = epoch index {meta['best_epoch']}; elapsed from "
+                              f"train_meta.json (#86 item 2)",
+                              n=meta["n_train"], ts=_iso(start), host=host, gpu=meta.get("gpu") or gpu,
+                              extra={"run_id": f"tagger-86:train-{arm}:{_iso(start)}", **share_fields(conc)}))
+        rows.append(infer_row(pred, f"infer-train-{arm}-final",
+                              f"retrained {arm} arm, final best.pth (epoch index {meta['best_epoch']}), "
+                              f"all 10,857 crops (#86 item 2)"))
+    if rows:
+        ledger.append_rows(log_path, rows)
+    return rows
+
+
+def cmd_collect(args):
+    epochs = [int(e) for e in args.epochs.split(",")] if args.epochs else []
+    for arm in args.arms:
+        for r in collect_arm(arm, args.work, args.log, epochs=epochs, final=args.final, n_boot=args.n_boot):
+            print(json.dumps(r))
+
+
 # ----------------------------------------------------------------------------- usage
 
 def usage_row(label, elapsed_s, status, what, n=None, host="makelab2.cs.washington.edu",
               gpu="NVIDIA A40", ts=None, extra=None):
     """One ``paid: false`` row for analysis_out/usage_log.jsonl (docs/compute_cost.md: GPU
-    time on a host without Slurm goes there). Failed runs get a row too."""
+    time on a host without Slurm goes there). Failed runs get a row too. ``ts`` is the run's
+    start. Rows written by ``collect`` also carry ``run_id`` (so a re-write replaces rather
+    than adds) and ``concurrent_with`` / ``gpu_share`` (see share_fields)."""
     row = {"ts": ts or dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
            "bundle": "hf-tagger-validated-curbramp", "label": label, "provider": "tagger-86",
            "model_id": label, "paid": False, "panos_scored": n, "elapsed_s": round(float(elapsed_s), 3),
@@ -864,7 +1138,12 @@ def usage_row(label, elapsed_s, status, what, n=None, host="makelab2.cs.washingt
 def cmd_log_usage(args):
     sys.path.insert(0, REPO)
     from rampnet import ledger
-    row = usage_row(args.label, args.elapsed_s, args.status, args.what, n=args.n, ts=args.ts)
+    extra = {}
+    if args.run_id:
+        extra["run_id"] = args.run_id
+    if args.concurrent_with is not None:
+        extra.update(share_fields([c for c in args.concurrent_with.split(",") if c]))
+    row = usage_row(args.label, args.elapsed_s, args.status, args.what, n=args.n, ts=args.ts, extra=extra)
     ledger.append_rows(args.log, [row])
     print(json.dumps(row))
 
@@ -942,12 +1221,34 @@ def main(argv=None):
     p.add_argument("--out-dir", required=True)
     p.set_defaults(func=cmd_train)
 
+    p = sub.add_parser("test-only", help="keep a predictions file's test rows, byte for byte, + meta")
+    p.add_argument("--pred", required=True, help="predictions over all 10,857 crops")
+    p.add_argument("--labels", default=os.path.join(OUT_DIR, "hf_curbramp_labels.csv"))
+    p.add_argument("--split-csv", default=None, help="the arm's split (default: the HF split)")
+    p.add_argument("--out", required=True)
+    p.set_defaults(func=cmd_test_only)
+
+    p = sub.add_parser("collect", help="CPU side of the retrain arms: filter, score, usage rows")
+    p.add_argument("--work", required=True, help="the runbook's $WORK (holds train_<arm>/ and snap_*)")
+    p.add_argument("--arms", nargs="+", default=list(ARM_SPLITS), choices=list(ARM_SPLITS))
+    p.add_argument("--epochs", default=",".join(map(str, SNAPSHOT_EPOCHS)),
+                   help="snapshot epoch indices to collect ('' = none)")
+    p.add_argument("--final", action="store_true", help="also the finished run's best.pth")
+    p.add_argument("--n-boot", type=int, default=1000)
+    p.add_argument("--log", default=os.path.join(REPO, "analysis_out", "usage_log.jsonl"))
+    p.set_defaults(func=cmd_collect)
+
     p = sub.add_parser("log-usage", help="append a paid:false GPU-time row to the usage ledger")
     p.add_argument("--label", required=True, help="e.g. tagger-eval, infer-released, train-control")
     p.add_argument("--elapsed-s", type=float, required=True)
     p.add_argument("--status", default="ok", choices=["ok", "failed", "killed", "in_progress"],
                    help="in_progress: elapsed so far for a run still going at the time of writing; "
-                        "a final row supersedes it in the doc's cost table")
+                        "give it a --run-id, and the final row with the same --run-id replaces it in "
+                        "every total (rampnet.ledger.latest_rows)")
+    p.add_argument("--run-id", default=None,
+                   help="supersede key, e.g. tagger-86:train-control:2026-09-23T01:58:54+00:00")
+    p.add_argument("--concurrent-with", default=None,
+                   help="comma list of our other runs sharing the GPU ('' = none); sets gpu_share")
     p.add_argument("--what", required=True, help="one line: what ran")
     p.add_argument("--n", type=int, default=None, help="crops scored / trained on")
     p.add_argument("--ts", default=None, help="run start (UTC ISO); default now")

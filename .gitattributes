@@ -49,3 +49,9 @@ stage_two/run_a_84_events/SHA256SUMS text eol=lf
 scripts/model_comparison/yolo_baseline/benchmark_eval/*.txt   text eol=lf
 scripts/model_comparison/yolo_baseline/benchmark_eval/*.md    text eol=lf
 scripts/model_comparison/yolo_baseline/benchmark_eval/*/*.json text eol=lf
+
+# The #86 tag benchmark outputs are hash-pinned: docs/tag_benchmark_86.md §6 quotes their
+# sha256, and the score JSONs and .meta.json files carry the sha256 of the files they read.
+# A core.autocrlf=true clone would check them out CRLF and every one of those hashes would
+# fail for files that are byte-correct. tag_benchmark_86.py writes them LF on every platform.
+analysis_out/tag_benchmark_86/** text eol=lf
