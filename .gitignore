@@ -197,3 +197,14 @@ analysis_out/stage1_bearing_cache/
 # Inventory discovery sweep (#96): the candidate list, with record counts. A few
 # tens of KB, and it is the evidence that supply is not the constraint.
 !analysis_out/inventory_discovery.json
+
+# Project Sidewalk supervision audit (#86, scripts/analysis/ps_supervision_audit.py).
+# The reduced tables are what docs/ps_supervision_audit.md quotes, ~130 KB of CSV/JSON,
+# committed so a figure in the prose can be checked without re-pulling 58 deployments.
+# raw/ is the ~650 MB of API pulls (regenerable with `fetch`), and the HF crop index is
+# regenerable in seconds with `hf-index`; both stay ignored.
+!analysis_out/ps_audit/
+analysis_out/ps_audit/*
+!analysis_out/ps_audit/*.csv
+!analysis_out/ps_audit/*.json
+analysis_out/ps_audit/hf_validated_curbramp_index.csv
