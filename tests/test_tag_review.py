@@ -62,7 +62,7 @@ def test_kappa_ci_halfwidth_shrinks_with_positives():
 def test_committed_rubric_loads_and_is_marked_draft():
     r = tr.load_rubric(RUBRIC_DOC)
     assert r["version"].endswith("-draft")
-    assert "PROPOSED DRAFT" in r["text"]
+    assert "working draft" in r["text"]
     assert r["sha256"] == tr.sha256_bytes(r["text"].encode("utf-8"))
     # The retired tag is never an applicable tag; the rubric says so.
     assert "tactile warning" in tr.RETIRED_TAGS

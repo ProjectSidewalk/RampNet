@@ -1,7 +1,7 @@
 # Tag review protocol (RampNet 2.0 plan item 3)
 
-**Status: PROPOSED DRAFT, 2026-09-22**, paired with the rubric in
-[`docs/tag_rubric_draft.md`](tag_rubric_draft.md), which is also a draft. Issue
+**Status: working draft, 2026-09-22; updated 2026-09-23**, paired with the rubric in
+[`docs/tag_rubric_draft.md`](tag_rubric_draft.md). Issue
 [#86](https://github.com/ProjectSidewalk/RampNet/issues/86).
 
 **One rater for now** (rubric decision D1, Jon, 2026-09-23): Jon reviews the 500 items in
@@ -13,8 +13,8 @@ describe how it would run, and the tooling for it stays built.
 ## Before a pass
 
 1. Read the rubric block of `docs/tag_rubric_draft.md` (between the `rubric:begin` and
-   `rubric:end` markers) and note its version (`tag-rubric-v1.0-draft` at the time of writing).
-   The whole pass is rated under that one version.
+   `rubric:end` markers) and note its version (`tag-rubric-v1.1-draft` at the time of writing).
+   If the rubric changes partway through, note the item where it changed.
 2. Note the pass start time in UTC. The production pull only counts edits and votes after it, so
    an older expert-validate of the same label is not mistaken for this pass.
 3. Create an empty sidecar file, `benchmark/tag_review/<rater>__sidecar.csv`, with the header
@@ -29,8 +29,9 @@ For each row of the list, in `item_id` order:
    an Owner or Administrator. `labelmap_url` opens the same label on the label map if the gallery
    view is not enough.
 2. **Is it a curb ramp?** If not, vote **Disagree** and go to the next item.
-3. **If the ramp itself cannot be judged** (occluded, too far, dark, hidden under snow or ice), vote **Unsure**
-   and go to the next item.
+3. **If you cannot tell whether it is a curb ramp** (occluded, too far, dark, hidden under snow or
+   ice), vote **Unsure** and go to the next item. If it is clearly a ramp but its tags cannot be
+   judged, vote **Agree**, set `cannot_judge` to 1 for the item in the sidecar, and go to the next item.
 4. **Judge every applicable tag** against the rubric: add the tags that apply, remove the ones that
    do not. A tag you cannot judge from this image: leave it as it is on the label and add it to
    `cannot_judge_tags` for this item in the sidecar (`;`-separated).

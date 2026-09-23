@@ -179,10 +179,10 @@ nothing yet for the rest.
 
 ---
 
-## 5. Curb-ramp tag review — `benchmark/tag_review/<rater>.json` (PROPOSED DRAFT)
+## 5. Curb-ramp tag review — `benchmark/tag_review/<rater>.json` (working draft)
 
 **Rubric:** [`docs/tag_rubric_draft.md`](../docs/tag_rubric_draft.md), the block between its
-`rubric:begin` / `rubric:end` markers. **Status: a proposed draft for Jon to edit, not decided.**
+`rubric:begin` / `rubric:end` markers. **Status: a working draft, changed as we learn from using it.**
 **Protocol:** [`docs/tag_review_protocol.md`](../docs/tag_review_protocol.md).
 **List:** `benchmark/tag_review/review_list.csv` (500 items; built by
 `scripts/analysis/tag_review_list.py`).
