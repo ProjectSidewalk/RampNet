@@ -1,8 +1,9 @@
 # Curb-ramp tag rubric and review list (RampNet 2.0 plan item 3)
 
-**Status: PROPOSED DRAFT, 2026-09-22, written for Jon to edit. Nothing in it is decided.**
-Every "tag it when" line below is a proposal; the choices that most change what a rater
-does are pulled out first, under [Decisions for Jon](#decisions-for-jon). Umbrella issue:
+**Status: PROPOSED DRAFT, 2026-09-22; Jon's first decisions applied 2026-09-23.** Rows of the
+decisions table marked **Decided** are Jon's; the rest are still drafted defaults. The rubric
+text stays a draft (`-draft` in its version) until Jon approves it as a whole. The choices that
+most change what a rater does are pulled out first, under [Decisions for Jon](#decisions-for-jon). Umbrella issue:
 [#86](https://github.com/ProjectSidewalk/RampNet/issues/86); plan:
 [`docs/rampnet2_plan.md`](rampnet2_plan.md) §2.2, §2.3, §2.5, §3 and §4 item 3.
 
@@ -11,7 +12,9 @@ What this document is for. The census on #86 found that two trained raters looki
 (per-tag κ 0.00–0.21): the disagreement is the **reporting threshold**, not perception (plan
 §2.2). A per-tag agreement number is only meaningful if both raters were given the same
 threshold, so each tag below has an explicit "tag it when" / "do not tag when" line and a
-"cannot judge" escape. The rubric proper sits between the `rubric:begin` / `rubric:end`
+"cannot judge" escape. **For now there is one rater (Jon, decided 2026-09-23, to move fast), so
+this pass produces no κ.** The explicit thresholds still matter: they keep one rater consistent
+across 500 items, and they are what a later second pass would be held to. The rubric proper sits between the `rubric:begin` / `rubric:end`
 markers; that block, and only that block, is embedded verbatim with its sha256 in every
 per-rater export (`benchmark/tag_review/<rater>.json`), following the precedent in
 [`benchmark/RUBRICS.md`](../benchmark/RUBRICS.md) §3. The rater's steps are
@@ -23,49 +26,48 @@ and [#5449](https://github.com/ProjectSidewalk/SidewalkWebpage/issues/5449)); th
 `tactile warning` tag drops out and `parallel lines` stays; the 94 disputed "missing tactile
 warning" ramps from the validation study are not reviewed now, so **no label from the
 validation-study deployment is in the list** (excluded by deployment, not by physical ramp;
-see D21); the review happens on production; Jon rates first and a second rater (Mikey,
-unconfirmed) repeats the same list blind.
+see D21); the review happens on production; **Jon is the only rater for now** (D1). A second
+blind pass is deferred, not ruled out; the sheet route and the agreement script stay built for it.
 
-> **Needs Jon's explicit confirmation before merge (D20):** the committed list carries
-> per-label rows (host URL, label id, pano id, tags) from **9 private deployments, 114 of the
-> 500 items**: burnaby, columbia, kaohsiung, keelung, new-taipei, taipei, walla-walla,
-> west-chester, zurich. They are kept in the list for now so the draw is not silently changed,
-> but this repo is public.
+**D20 decided (Jon, 2026-09-23):** the committed list keeps its per-label rows (host URL, label
+id, pano id, tags) from the **9 private deployments, 114 of the 500 items**: burnaby, columbia,
+kaohsiung, keelung, new-taipei, taipei, walla-walla, west-chester, zurich.
 
 ## Decisions for Jon
 
 Each has a drafted default, which is what the rubric text and the committed list currently
-use. Changing one means editing the rubric block (and bumping its version) or re-running the
+use. **Decided** marks Jon's answers of 2026-09-23 (on PR #176); an unmarked row is still a
+drafted default. Changing one means editing the rubric block (and bumping its version) or re-running the
 list builder with different arguments.
 
 | # | question | drafted default | why it matters |
 |---|---|---|---|
-| D1 | How does the second rater stay blind when the first rater's edits are live on production? | Jon reviews on production. The second rater uses the **review sheet** route (`tag_review_pull.py sheet-template`): a CSV plus a Google Maps link pinned to the label's pano id and centred on the label, no production URL. Nothing the second rater decides is written to production until both exports are committed. **κ is then measured across two different viewing routes**: the gallery shows the label marker and the crop, the sheet's Google Maps view shows neither (protocol, "Known asymmetry between the production and sheet routes"). `tag_review_agreement.py` prints both routes and warns when they differ. | The production gallery shows the current tags. After Jon's pass those are Jon's tags, so a second rater on production would be reviewing Jon, and κ would be inflated by anchoring. The alternative that removes the asymmetry is both raters on the sheet route (D2's cost), or a marked view for the sheet (not built). |
-| D2 | Should both raters see the original labeller's tags and severity? | Yes, both see them (production shows them to Jon; the sheet pre-fills `tags` and `severity` for the second rater, with `tags_at_list` / `severity_at_list` beside them), so the two passes are anchored identically. It measures agreement on a *review*, not on labelling from a blank slate. A severity the sheet rater blanks is recorded as missing and counted, not dropped. | The alternative (both blank) needs Jon on the sheet route too, and then production gets no edits from this pass. |
-| D3 | Width threshold for `narrow` and landing depth for `not enough landing space`: 48 in (PROWAG R304.5.1.1, R304.2.5) or 36 in (the labeling guide and the 2010 ADA Standards)? | **48 in (1.2 m)**, the current federal guideline, which is also what a width measurement (plan items 7–8) would be scored against. Written inline in the rubric. | The crowd was taught 3 ft. At 48 in the reviewed set will call more ramps narrow than the crowd did, which reads as low crowd recall rather than a threshold change. Either is defensible; mixing them is not. |
-| D4 | What confidence does a tag need? | **More likely than not** that the condition, at the stated threshold, is present on this image. Unresolvable ⇒ "cannot judge", never a guess either way. | This is the reporting threshold itself. "Only when clearly present" would lower both raters' tag rates and raise κ, at the cost of recall. |
-| D5 | How is `steep` judged when slope cannot be measured? | Tag when the ramp run (or a flare a pedestrian must cross) is visibly **shorter than about 8 times the curb height** it climbs (≈ 12.5 %, well past the 8.3 % limit), or the counter slope at the gutter is obviously steep. Written inline in the rubric. | A threshold exactly at 1:12 is not resolvable from street-level imagery; a margin above it is. |
-| D6 | Heavy leaves or debris on a ramp: `surface problem` or `debris / pooled water`? | **`debris / pooled water` only.** `surface problem` is reserved for the ramp's own surface. Written inline in the rubric. | The labeling guide still says to add "surface problem" for heavy debris; that text predates the debris tag. |
-| D7 | Grooves instead of truncated domes. | Where the city offers `parallel lines` (Burnaby): tag `parallel lines`, not `missing tactile warning`. Everywhere else: `missing tactile warning`, because PROWAG R305.1 requires truncated domes. | Otherwise Burnaby's `parallel lines` and `missing tactile warning` double-count one condition. |
-| D8 | Which yardstick outside the US? | PROWAG thresholds everywhere, as a fixed reference, not as a statement about local code. 114 of the 500 items are in non-US deployments. | Without one yardstick, "narrow" means different things by city. |
-| D9 | Severity 1 / 2 / 3 definitions (plan S4). | The draft in [Severity](#severity-draft-definitions-s4) below: usability for a wheelchair user, judged on the whole ramp after the tags, not a count of tags. | The recorded scale never had a definition; the census shows it behaves like a weighted tag count (plan §2.4). |
+| D1 | How does the second rater stay blind when the first rater's edits are live on production? | **Decided: one rater (Jon) for now, on production, to move fast. No κ from this pass.** A second pass is deferred; if it happens, the draft below is how it would run. Draft: Jon reviews on production. The second rater uses the **review sheet** route (`tag_review_pull.py sheet-template`): a CSV plus a Google Maps link pinned to the label's pano id and centred on the label, no production URL. Nothing the second rater decides is written to production until both exports are committed. **κ is then measured across two different viewing routes**: the gallery shows the label marker and the crop, the sheet's Google Maps view shows neither (protocol, "Known asymmetry between the production and sheet routes"). `tag_review_agreement.py` prints both routes and warns when they differ. | The production gallery shows the current tags. After Jon's pass those are Jon's tags, so a second rater on production would be reviewing Jon, and κ would be inflated by anchoring. The alternative that removes the asymmetry is both raters on the sheet route (D2's cost), or a marked view for the sheet (not built). |
+| D2 | Should both raters see the original labeller's tags and severity? | **Settled by D1 for this pass:** Jon, on production, sees the original tags and severity, so the pass is a *review*, not labelling from a blank slate. For a later second pass: yes, both see them (production shows them to Jon; the sheet pre-fills `tags` and `severity` for the second rater, with `tags_at_list` / `severity_at_list` beside them), so the two passes are anchored identically. It measures agreement on a *review*, not on labelling from a blank slate. A severity the sheet rater blanks is recorded as missing and counted, not dropped. | The alternative (both blank) needs Jon on the sheet route too, and then production gets no edits from this pass. |
+| D3 | Width threshold for `narrow` and landing depth for `not enough landing space`: 48 in (PROWAG R304.5.1.1, R304.2.5) or 36 in (the labeling guide and the 2010 ADA Standards)? | **Decided: 48 in (1.2 m)**, the current federal guideline, which is also what a width measurement (plan items 7–8) would be scored against. Written inline in the rubric. | The crowd was taught 3 ft. At 48 in the reviewed set will call more ramps narrow than the crowd did, which reads as low crowd recall rather than a threshold change. Either is defensible; mixing them is not. |
+| D4 | What confidence does a tag need? | **Decided: more likely than not** that the condition, at the stated threshold, is present on this image. Unresolvable ⇒ "cannot judge", never a guess either way. | This is the reporting threshold itself. "Only when clearly present" would lower both raters' tag rates and raise κ, at the cost of recall. |
+| D5 | How is `steep` judged when slope cannot be measured? | **Revised 2026-09-23, awaiting Jon's check.** Jon: the first draft's rule (run shorter than about 8× the curb height) is too hard to think about and act on in Project Sidewalk. The revision is a visual judgment, on the same pattern as D15: tag a ramp (or a flare a pedestrian must cross, or the gutter at its bottom) that **looks noticeably steeper than a typical well-built ramp**, and let severity carry how steep. Written inline in the rubric. | A threshold exactly at 1:12 is not resolvable from street-level imagery. A looser visual rule will raise the tag rate over the 8× rule; severity is what separates mild from severe. |
+| D6 | Heavy leaves or debris on a ramp: `surface problem` or `debris / pooled water`? | **Decided: `debris / pooled water` only**, kept separate from `surface problem` for now (Jon: the two might be collapsed at some point). `surface problem` is reserved for the ramp's own surface. Written inline in the rubric. | The labeling guide still says to add "surface problem" for heavy debris; that text predates the debris tag. |
+| D7 | Grooves instead of truncated domes. | **Decided.** Where the city offers `parallel lines` (Burnaby): tag `parallel lines`, not `missing tactile warning`. Everywhere else: `missing tactile warning`, because PROWAG R305.1 requires truncated domes. | Otherwise Burnaby's `parallel lines` and `missing tactile warning` double-count one condition. |
+| D8 | Which yardstick outside the US? | **Decided.** PROWAG thresholds everywhere, as a fixed reference, not as a statement about local code. 114 of the 500 items are in non-US deployments. | Without one yardstick, "narrow" means different things by city. |
+| D9 | Severity 1 / 2 / 3 definitions (plan S4). | **Decided (Jon: "seemed fine").** The draft in [Severity](#severity-draft-definitions-s4) below: usability for a wheelchair user, judged on the whole ramp after the tags, not a count of tags. | The recorded scale never had a definition; the census shows it behaves like a weighted tag count (plan §2.4). |
 | D10 | List design: size 500, shares 20 / 15 / 35 / 30 % over affirmed-empty / trusted-tagged / tagged / untagged, crop-era GSV labels only, 35 cities. | As committed. | See [The review list](#the-review-list); every choice is a CLI argument. |
-| D11 | Items either rater has already touched. Placed: Jon 62, Mikey 24. Any prior contact (placed, validated or edited before the list was built): Jon 117, Mikey 67, **either rater 179 of the 500**. Jon validated 34 of the 100 `affirmed_empty` items himself. | Kept and flagged per rater in `prior_contact_jonfroehlich` / `prior_contact_mikey` (`placed;validated;edited`). `tag_review_agreement.py` always reports κ both with and without those items. | Re-reviewing your own label, or re-affirming your own affirmation, is not the same act as reviewing a stranger's. Dropping 179 items would cost too many positives, so the draft reports both. |
+| D11 | Items either rater has already touched. Placed: Jon 62, Mikey 24. Any prior contact (placed, validated or edited before the list was built): Jon 117, Mikey 67, **either rater 179 of the 500**. Jon validated 34 of the 100 `affirmed_empty` items himself. | Kept and flagged per rater in `prior_contact_jonfroehlich` / `prior_contact_mikey` (`placed;validated;edited`). With one rater (D1), the 117 items Jon touched are the ones that matter: any tag rate from this pass is reported with and without them. `tag_review_agreement.py` reports κ both ways if a second pass happens. | Re-reviewing your own label, or re-affirming your own affirmation, is not the same act as reviewing a stranger's. Dropping 179 items would cost too many positives, so the draft reports both. |
 | D12 | Per-tag "cannot judge" and notes have no production field. | A per-rater sidecar CSV (`item_id,cannot_judge,cannot_judge_tags,note`), merged by the pull script. Revisit if the list-driven queue ([SidewalkWebpage#5444](https://github.com/ProjectSidewalk/SidewalkWebpage/issues/5444)) grows a field for it. | Without it, "cannot judge" on production collapses into "no", which is exactly the confusion of absence and negative the plan rules out. |
-| D13 | Snow and ice, and the reach of `debris / pooled water`. | One rule: snow or ice that **hides** the ramp ⇒ the item is *Unsure*; snow, ice, slush, sand, gravel, leaves or trash on a ramp that is **still visible enough to judge** ⇒ `debris / pooled water` when a wheelchair user would have to go through it. The draft also extends the tag from "pooled at the bottom of the curb ramp" (the PS definition) to the ramp surface. | The first draft said both "under snow ⇒ Unsure" and "tag snow and ice as debris". The extension widens the PS definition; the narrower reading (bottom of the ramp only) is the alternative. |
+| D13 | Snow and ice, and the reach of `debris / pooled water`. | **Decided with D6.** One rule: snow or ice that **hides** the ramp ⇒ the item is *Unsure*; snow, ice, slush, sand, gravel, leaves or trash on a ramp that is **still visible enough to judge** ⇒ `debris / pooled water` when a wheelchair user would have to go through it. The draft also extends the tag from "pooled at the bottom of the curb ramp" (the PS definition) to the ramp surface. | The first draft said both "under snow ⇒ Unsure" and "tag snow and ice as debris". The extension widens the PS definition; the narrower reading (bottom of the ramp only) is the alternative. |
 | D14 | Which point in time is judged (R1)? | **The imagery shown**, the panorama the label was placed on, even where the ramp is known to have changed (say so in the note). | The alternative, current conditions, needs newer imagery or a site visit and breaks the link between the item and the crop a model is scored on. |
-| D15 | Step height for `not level with street`. | A visible lip of **about 1 in (2.5 cm)** or more. PROWAG's ¼ in is not resolvable. | This is the tag's working threshold; a lower one raises the tag rate. |
-| D16 | A dome panel narrower than the ramp, or worn. | **Not** `missing tactile warning`; record it in the note. | PROWAG R305 sets a width, so a narrow panel is non-compliant; the draft keeps the tag for "absent". The alternative tags it. |
+| D15 | Step height for `not level with street`. | **Decided (Jon, changed from the draft's "about 1 in or more"):** tag **any** visible step or lip at the bottom of the ramp, and use severity for how bad it is (R4). This is how Jon already labels. PROWAG's ¼ in is not resolvable either way. | This lowers the tag's threshold to "visible at all", so the tag rate rises and severity carries the magnitude. |
+| D16 | A dome panel narrower than the ramp, or worn. | **Decided: not** `missing tactile warning`. A damaged, worn or undersized warning still counts as having one; the damage can raise severity, and goes in the note. | PROWAG R305 sets a width, so a narrow panel is non-compliant; the draft keeps the tag for "absent". The alternative tags it. |
 | D17 | Several ramps near the label point. | Judge the **one nearest the label point**. On the sheet route there is no marker, so the rater takes the view centre (the link is centred on the label). | Without a rule the two raters can judge different ramps. The sheet can only approximate it (D1). |
 | D18 | What does *Unsure* mean? | The **item-level "cannot judge"**: the item leaves every rate. It is not a vote on whether the label is a ramp. | Production's Unsure has no defined meaning; this pass gives it one. |
 | D19 | Which labels are eligible by validation status? | Labels the crowd voted incorrect (`correct == false`) are **out**; unvalidated labels **stay in**. | The first saves rater time on likely *Disagree* items; the second keeps the list from over-representing validated labels. |
-| D20 | **Publishing per-label rows from private deployments.** 114 of the 500 items are from 9 private deployments (burnaby, columbia, kaohsiung, keelung, new-taipei, taipei, walla-walla, west-chester, zurich); the list carries each one's host URL, label id, pano id and tags. | **Kept in the committed list for now, pending Jon's explicit confirmation.** The column `deployment_visibility` marks them. If Jon says no, rebuild with `--exclude-cities` for the nine (the draw changes). | This repo is public. The private deployments' partners may not expect their host names and label ids in it. |
+| D20 | **Publishing per-label rows from private deployments.** 114 of the 500 items are from 9 private deployments (burnaby, columbia, kaohsiung, keelung, new-taipei, taipei, walla-walla, west-chester, zurich); the list carries each one's host URL, label id, pano id and tags. | **Decided (Jon, 2026-09-23): kept.** The column `deployment_visibility` marks them. | This repo is public. The private deployments' partners may not expect their host names and label ids in it. |
 | D21 | Validation-study overlap. | The validation-study deployment is excluded **by deployment**. A physical ramp it also covers can still be listed through another deployment's label. Nothing is dropped for that; two flag columns show it: `vstudy_same_pano` (0 items) and `vstudy_within_10m` (1 item, `tr0391` seattle-wa:271169, 2 validation-study labels within 10 m, neither tagged `missing tactile warning`). Across all labels, 62 validation-study panos also appear in seattle-wa (58) and chicago-il (4); 22 of them are in the eligible pool. | The deferred adjudication covers 94 validation-study ramps; an item on the same ramp would be judged here first. |
 
 <!-- rubric:begin -->
 ## Rubric
 
-**Rubric version:** `tag-rubric-v0.2-draft`
+**Rubric version:** `tag-rubric-v1.0-draft`
 
 **Status of this text: PROPOSED DRAFT, not approved.** A pass rated under this version measures
 agreement under a draft; say so next to any number it produces.
@@ -136,8 +138,9 @@ SidewalkWebpage (read at commit `8a542b8`, 2026-08-10), cited by its section anc
 - **Tag it when:** there is no truncated-dome surface at the street edge of the ramp. Grooves,
   paint, or a textured band that is not domes count as missing, except in cities that offer
   `parallel lines` (next entry).
-- **Do not tag when:** a dome panel is present, even if faded, partly worn or narrower than the
-  ramp. Record the defect in the note.
+- **Do not tag when:** a dome panel is present, even if faded, damaged, partly worn or narrower
+  than the ramp. The ramp still has a tactile warning; the defect can raise severity (R4) and goes
+  in the note.
 - **Cannot judge when:** the bottom of the ramp is not resolvable (distance, occlusion, snow,
   glare).
 
@@ -186,9 +189,9 @@ SidewalkWebpage (read at commit `8a542b8`, 2026-08-10), cited by its section anc
 - **Standard:** PROWAG R304.5.4 (changes in level are not permitted on curb ramp surfaces); R302.6.2
   (up to ¼ in may be vertical); R304.5.2 (change of grade at the gutter 13.3 % maximum, or a 24 in
   transitional space).
-- **Tag it when:** a lip or step is visible where the ramp meets the gutter or street: a shadow
+- **Tag it when:** any lip or step is visible where the ramp meets the gutter or street: a shadow
   line, an exposed edge, asphalt built up against the ramp, or a gutter that drops away below it.
-  Imagery cannot resolve ¼ in; in practice a visible step of about 1 in (2.5 cm) or more.
+  There is no minimum height beyond "visible"; severity (R4) says how bad the step is.
 - **Do not tag when:** the transition is flush and the only issue is a change of grade (a steep
   gutter pan) with no step; that is `steep` if it is severe.
 - **Cannot judge when:** the bottom edge is hidden (parked car, shadow, distance).
@@ -231,12 +234,13 @@ SidewalkWebpage (read at commit `8a542b8`, 2026-08-10), cited by its section anc
 - **Standard:** PROWAG R304.2.1 (running slope 1:12, 8.3 % maximum); R304.2.6 (flared sides 1:10,
   10 % maximum, where a pedestrian circulation path crosses them); R304.4.1 (blended transitions
   1:20, 5 %). 2010 ADA Standards 406.2: counter slope 1:20.
-- **Tag it when:** the ramp run is visibly shorter than about 8 times the curb height it climbs
-  (≈ 12.5 %; a standard 6 in curb then needs a run of about 4 ft or more to escape the tag), or a
-  flare pedestrians must cross is similarly steep, or the gutter rises steeply against the bottom
-  of the ramp. A slope exactly at 1:12 is not resolvable from imagery; the 8× rule is the
-  margin that is.
-- **Do not tag when:** the slope might be a little over 8.3 %; that is not resolvable from imagery.
+- **Tag it when:** the ramp looks noticeably steeper than a typical well-built ramp: short and
+  abrupt for the height of curb it climbs, or with a flare pedestrians must cross that is
+  similarly steep, or with the gutter rising steeply against its bottom. Severity (R4) says how
+  steep: steep but easy to climb is 1, climbable with effort or risk is 2, too steep to use
+  without help is 3.
+- **Do not tag when:** the ramp looks like an ordinary ramp and you would only be guessing that it
+  is a little over 1:12; that is not resolvable from imagery.
 - **Cannot judge when:** the curb height or the ramp length cannot be seen (a straight-down view,
   far distance).
 
@@ -286,7 +290,7 @@ ones can be a 1.
 
 | severity | draft definition | anchors from the labeling guide and tutorial |
 |---|---|---|
-| **1 (Low)** | Usable as is by a wheelchair user without assistance and without leaving the crossing. Any defect is an inconvenience, or affects other users (a missing tactile warning). | Guide `#tactile-warning`: missing tactile warning as the only problem ⇒ Low. Tutorial: a ramp with good slope and warning strip ⇒ 1. |
+| **1 (Low)** | Usable as is by a wheelchair user without assistance and without leaving the crossing. Any defect is an inconvenience (a small lip a wheelchair rolls over, a ramp a little steep), or affects other users (a missing or damaged tactile warning). | Guide `#tactile-warning`: missing tactile warning as the only problem ⇒ Low. Tutorial: a ramp with good slope and warning strip ⇒ 1. |
 | **2 (Medium)** | Usable with difficulty or with risk: a defect a wheelchair user has to work around, such as a lip that needs care, a ramp that points into traffic, a narrow run, a landing too small to turn comfortably, steep but climbable. | Tutorial: points into traffic as the only issue ⇒ 2; no landing space as the only issue ⇒ 2. Guide: narrow ⇒ Medium or High; pooled water alone is not High. |
 | **3 (High)** | Likely not usable without assistance, or not safely: a step a manual wheelchair cannot mount, a run too steep or too narrow to use, the ramp blocked, or medium defects that compound (steep with no landing). | Guide `#steep-flares`: steep flares plus poor landing space ⇒ High. Guide `#debris-on/around-ramp`: heavy debris ⇒ High as an extreme case. |
 
@@ -482,13 +486,14 @@ item on production, 500 items is about four hours per rater (450 would save abou
   items, not a population estimate.
 - **List-time positives are the original labeller's tags**, not truth. The reviewed counts will
   differ; how much is part of the result.
-- **Items either rater already touched** (179 of 500: placed, validated or edited, per rater in
-  `prior_contact_<rater>`) are reported both ways; `tag_review_agreement.py` prints κ with and
-  without them (D11).
-- **The two passes use different views** if D1 stands (gallery vs Google Maps link); the
-  agreement report names both routes and warns when they differ. Quote κ with the routes.
-- **114 items come from private deployments** (D20); if they are removed the list is redrawn and
-  every number above changes.
+- **One rater (D1).** The reviewed tags are Jon's judgment under this rubric, not an agreed
+  reference. There is no κ, so no human ceiling can be quoted from this pass, and the size above
+  was chosen for a κ that is not being measured yet. Say "one rater" next to every number.
+- **Items Jon already touched** (117 of 500: placed, validated or edited, in
+  `prior_contact_jonfroehlich`) are reported both ways (D11).
+- **If a second pass happens** on the sheet route, the two passes use different views (gallery vs
+  Google Maps link); the agreement report names both routes and warns when they differ.
+- **114 items come from private deployments** (D20, kept).
 - The two city-specific tags (`parallel lines` 5, `not aligned with crosswalk` 4) will not reach a
   readable κ on this list. That gap is by design; a κ for them needs a Burnaby- or Taiwan-only
   list.

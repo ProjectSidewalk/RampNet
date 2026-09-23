@@ -4,15 +4,16 @@
 [`docs/tag_rubric_draft.md`](tag_rubric_draft.md), which is also a draft. Issue
 [#86](https://github.com/ProjectSidewalk/RampNet/issues/86).
 
-Two raters review the same 500 items in `benchmark/tag_review/review_list.csv`. Jon goes first,
-on production. The second rater goes second, blind to Jon's pass (rubric decision D1). Each pass
-becomes one committed file, `benchmark/tag_review/<rater>.json`, with the rubric text embedded;
-the two files are then compared per tag.
+**One rater for now** (rubric decision D1, Jon, 2026-09-23): Jon reviews the 500 items in
+`benchmark/tag_review/review_list.csv` on production. The pass becomes one committed file,
+`benchmark/tag_review/jonfroehlich.json`, with the rubric text embedded. A second, blind pass is
+deferred, not ruled out; the sections on the review sheet and on comparing two passes below
+describe how it would run, and the tooling for it stays built.
 
 ## Before a pass
 
 1. Read the rubric block of `docs/tag_rubric_draft.md` (between the `rubric:begin` and
-   `rubric:end` markers) and note its version (`tag-rubric-v0.2-draft` at the time of writing).
+   `rubric:end` markers) and note its version (`tag-rubric-v1.0-draft` at the time of writing).
    The whole pass is rated under that one version.
 2. Note the pass start time in UTC. The production pull only counts edits and votes after it, so
    an older expert-validate of the same label is not mistaken for this pass.
@@ -20,7 +21,7 @@ the two files are then compared per tag.
    `item_id,cannot_judge,cannot_judge_tags,note`. Production has no field for a per-tag "cannot
    judge" or a note, so they go here (decision D12).
 
-## First rater: on production
+## The rater: on production
 
 For each row of the list, in `item_id` order:
 
@@ -41,9 +42,9 @@ For each row of the list, in `item_id` order:
 7. Anything the vocabulary cannot say, or a known change to the ramp since the imagery (rubric R1),
    goes in the sidecar `note`.
 
-## Second rater: on the review sheet (blind)
+## Second rater, deferred: on the review sheet (blind)
 
-The production editor would show the first rater's edits, so the second rater does not open it.
+Not part of the current pass (D1). The production editor would show the first rater's edits, so the second rater does not open it.
 
 ```bash
 python scripts/analysis/tag_review_pull.py sheet-template --out benchmark/tag_review/mikey__sheet.csv
@@ -88,14 +89,14 @@ sheet (production then gets no edits from this pass), or a sheet view with the l
 
 ## Producing the exports
 
-First rater, from production (network; queries `/v3/api/labelEdits` and `/v3/api/validations` on
+The rater, from production (network; queries `/v3/api/labelEdits` and `/v3/api/validations` on
 every deployment in the list for the rater's own user id):
 
 ```bash
 python scripts/analysis/tag_review_pull.py prod --rater jonfroehlich --since 2026-09-23T00:00:00Z --sidecar benchmark/tag_review/jonfroehlich__sidecar.csv
 ```
 
-Second rater, from the sheet (offline):
+A second rater, if one is added, from the sheet (offline):
 
 ```bash
 python scripts/analysis/tag_review_pull.py sheet --rater mikey --sheet benchmark/tag_review/mikey__sheet.csv
@@ -125,7 +126,11 @@ abort the pull: a tag the city no longer offers is dropped from the scored set
 (`tags_not_applicable`), and a label whose type the rater changed is kept with a `problems` entry
 and left out of every rate. A row whose `user_id` is blank is never attributed to the rater.
 
-## Comparing the two passes
+## Comparing two passes (only if a second pass happens)
+
+With one rater there is nothing to compare. What the single export does record, per item, is the
+tags Jon added and removed against the original labeller's (list-time) tags. No committed script
+summarises that yet.
 
 ```bash
 python scripts/analysis/tag_review_agreement.py benchmark/tag_review/jonfroehlich.json benchmark/tag_review/mikey.json --by tag_state --md analysis_out/tag_review/agreement.md --json analysis_out/tag_review/agreement.json
