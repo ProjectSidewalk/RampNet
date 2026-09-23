@@ -1,7 +1,8 @@
 # Context experiment: field of view vs curb-ramp tag accuracy (#86, RampNet 2.0 plan item 4)
 
-**Status: in flight (started 2026-09-23).** Crops are being cut on makelab2; training runs on
-klone's `gpu-l40s` allocation once they land. Numbers below are filled in as each arm finishes.
+**Status: in flight (started 2026-09-23).** Crops cut on makelab2 (12 workers, 60 min; 32,544 of
+32,559 label-centred crops and 10,848 of 10,853 viewport crops, the rest `missing_pano`,
+`cut_summary_*.json`); training runs on klone's `gpu-l40s` allocation once they land. Numbers below are filled in as each arm finishes.
 **Script:** `scripts/analysis/context_fov_86.py`; run order in `scripts/analysis/context_fov_86.sh`;
 one Slurm job per arm, `scripts/analysis/context_fov_86.slurm`; environment,
 `scripts/analysis/context_fov_86_env.slurm`. **Tests:** `tests/test_context_fov_86.py`.

@@ -6,11 +6,14 @@
 #
 # Stages, in order:
 #   cut-input   anywhere, CPU: the 10,853 HF labels with geometry -> analysis_out/context_fov_86/cut_input.csv
-#   cut         makelab2, CPU (~1.5 h at 12 workers): the four arms' crops -> $WORK/crops (+ manifests)
-#   pack        makelab2: $WORK/context_fov_86_crops.tar, to move to klone
+#   cut         makelab2, CPU (60 min at 12 workers, 18 crops/s): the four arms' crops -> $WORK/crops (+ manifests)
+#   labels      wherever the crops are mounted (the committed run: makelab1, same NFS home), CPU:
+#               per-arm label tables on the common labels; the viewport arm's 640 px box, in place.
+#               Before pack, so the 1440x960 viewport crops (6 of the 11 GB) never travel.
+#   pack        makelab1/2: $WORK/context_fov_86_crops.tar, to move to klone
 #   unpack      klone: the tar -> $WORK/crops
-#   labels      klone, CPU: per-arm label tables on the common labels; the viewport arm's 640 px box
 #   train       klone: one Slurm job per arm on the lab's L40S allocation (context_fov_86.slurm)
+#   (the tar moves through a third machine: neither makelab nor klone holds a key for the other)
 #   control     CPU: the #178 control arm re-scored on the common test rows
 #   report      CPU: the summary table
 # The committed numbers came from: cut on makelab2 (48 cores), train on klone gpu-l40s (1x L40S per arm).
@@ -29,7 +32,7 @@ WORKERS=${WORKERS:-12}
 TAGGER=$WORK/sidewalk-tagger-ai
 CONTROL_PRED=${CONTROL_PRED:-analysis_out/tag_benchmark_86/train_control_final_test_predictions.csv}
 STAGES=${*:-}
-[ -n "$STAGES" ] || { echo "usage: $0 <stage...>  (cut-input cut pack unpack labels train control report)" >&2; exit 2; }
+[ -n "$STAGES" ] || { echo "usage: $0 <stage...>  (cut-input cut labels pack unpack train control report)" >&2; exit 2; }
 has() { [[ " $STAGES " == *" $1 "* ]]; }
 
 if has cut-input; then
@@ -47,17 +50,17 @@ if has cut; then
     --out "$WORK/crops" --manifest "$WORK/crops/manifest_viewport.jsonl" --summary $OUT/cut_summary_viewport.json \
     --workers "$WORKERS"
 fi
+if has labels; then
+  $PY $S labels --manifest "$WORK/crops/manifest_fov.jsonl" "$WORK/crops/manifest_viewport.jsonl" \
+    --images "$WORK/crops" --arms $ARMS --out-dir $OUT
+  $PY $S crop640 --labels $OUT/labels_viewport.csv --images "$WORK/crops"
+fi
 if has pack; then
   tar -cf "$WORK/context_fov_86_crops.tar" -C "$WORK" crops
   sha256sum "$WORK/context_fov_86_crops.tar"
 fi
 if has unpack; then
   tar -xf "$WORK/context_fov_86_crops.tar" -C "$WORK"
-fi
-if has labels; then
-  $PY $S labels --manifest "$WORK/crops/manifest_fov.jsonl" "$WORK/crops/manifest_viewport.jsonl" \
-    --images "$WORK/crops" --arms $ARMS --out-dir $OUT
-  $PY $S crop640 --labels $OUT/labels_viewport.csv --images "$WORK/crops"
 fi
 if has train; then
   mkdir -p logs
