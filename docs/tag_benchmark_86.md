@@ -227,6 +227,8 @@ Committed outputs (`analysis_out/tag_benchmark_86/`):
 | `released_test_per_label.csv` | per-label labels, leak flags, nearest-train distance, probabilities | `ecda7f08af051a081fa515ddb04b212b953b3feb663d42788f10113d1df84c7f` |
 | `resplit_pano_grouped_seed86.csv` | seeded pano-grouped re-split | `c54aa284da4b8d15aff79f2fd447cc5c4578d41fb45434cce497116a733d9222` |
 | `resplit_cell100m_seed86.csv` | seeded 100 m block-grouped re-split | `4651dcc79dcc8f7afb180413039a847c6bcf4655c64bac4e114d8eca2521ab9f` |
+| `train_{control,pano,cell}_ep4_test_predictions.csv` | per-label logits of each arm's epoch-4 checkpoint on its own test labels (+ `.meta.json`) | `45d76552…`, `c4d4da33…`, `e2abcc70…` |
+| `train_{control,pano,cell}_ep4_scores.json` | §5 numbers | `a20cea66…`, `358a2f8e…`, `3cde5799…` |
 
 ## 7. Cost
 
