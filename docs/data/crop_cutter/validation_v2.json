@@ -2,39 +2,39 @@
  "by_tag": {
   "null_shuffled_same_city": {
    "n": 199,
-   "ncc_median": 0.0978,
-   "ncc_p90": 0.3476,
-   "ssim_median": 0.2752
+   "ncc_median": 0.1126,
+   "ncc_p90": 0.354,
+   "ssim_median": 0.275
   },
   "viewport": {
-   "frac_ncc_ge_0p5": 0.885,
-   "n": 200,
-   "n_black_frac_gt_1pct": 11,
-   "ncc_median": 0.7803,
-   "ncc_p10": 0.4874,
-   "ncc_p90": 0.9476,
-   "shift_deg_median": 0.7074,
-   "shift_deg_p90": 2.1749,
-   "shift_px_median": 17.7603,
-   "shift_px_p90": 52.2229,
-   "shift_x_px_median": 0.0,
-   "shift_y_px_median": 1.0,
-   "ssim_median": 0.4576
-  },
-  "viewport_tiltnone": {
    "frac_ncc_ge_0p5": 0.845,
    "n": 200,
    "n_black_frac_gt_1pct": 9,
-   "ncc_median": 0.7445,
+   "ncc_median": 0.7455,
    "ncc_p10": 0.3942,
-   "ncc_p90": 0.9042,
-   "shift_deg_median": 0.9508,
-   "shift_deg_p90": 2.9366,
-   "shift_px_median": 23.4016,
+   "ncc_p90": 0.904,
+   "shift_deg_median": 0.8679,
+   "shift_deg_p90": 3.0222,
+   "shift_px_median": 22.2361,
    "shift_px_p90": 75.1007,
    "shift_x_px_median": 0.0,
-   "shift_y_px_median": -0.5,
-   "ssim_median": 0.4107
+   "shift_y_px_median": 0.0,
+   "ssim_median": 0.4112
+  },
+  "viewport_tiltmm": {
+   "frac_ncc_ge_0p5": 0.885,
+   "n": 200,
+   "n_black_frac_gt_1pct": 11,
+   "ncc_median": 0.7819,
+   "ncc_p10": 0.4863,
+   "ncc_p90": 0.9486,
+   "shift_deg_median": 0.6999,
+   "shift_deg_p90": 2.1683,
+   "shift_px_median": 17.3635,
+   "shift_px_p90": 52.2229,
+   "shift_x_px_median": 0.0,
+   "shift_y_px_median": 1.0,
+   "ssim_median": 0.4547
   },
   "viewport_tiltpp": {
    "frac_ncc_ge_0p5": 0.76,
@@ -52,13 +52,13 @@
    "ssim_median": 0.3886
   }
  },
- "cut_run": "makelab2 (48 cores, 8 workers), 2026-09-22, branch tools/crop-cutter-86 at c677b92, crop cutter v3",
+ "cut_run": "makelab2 (48 cores, 8 workers), 2026-09-22, branch tools/crop-cutter-86 at 40cc3c4",
  "cut_summary": {
   "aspect": 1.5,
-  "crop_cutter_version": "3",
-  "crops_per_s": 7.936,
+  "crop_cutter_version": "2",
+  "crops_per_s": 7.196,
   "crops_requested": 800,
-  "finished_utc": "2026-09-23T01:52:25Z",
+  "finished_utc": "2026-09-23T01:09:31Z",
   "fov": [
    "viewport",
    "30",
@@ -73,7 +73,6 @@
   "pillow": "10.0.1",
   "projection": "gnomonic",
   "python": "3.9.25",
-  "recut_changed_params": 0,
   "size": 1440,
   "skipped_existing": 0,
   "status": {
@@ -84,33 +83,32 @@
    "ok": 800,
    "out_of_frame": 0
   },
-  "tilt": "mm",
-  "wall_s": 100.8,
+  "tilt": "none",
+  "wall_s": 111.17,
   "workers": 8
  },
- "hf_revision": "6e3a116a3c228dd35bcd72f6e5fb921f6ebb6a50",
- "hf_zip": "https://huggingface.co/datasets/projectsidewalk/sidewalk-tagger-ai-validated/resolve/6e3a116a3c228dd35bcd72f6e5fb921f6ebb6a50/Validated/CurbRamp.zip",
+ "hf_zip": "https://huggingface.co/datasets/projectsidewalk/sidewalk-tagger-ai-validated/resolve/main/Validated/CurbRamp.zip",
  "metric": "grey 360x240 after bilinear resize; NCC = zero-mean normalized cross-correlation; SSIM = skimage structural_similarity; shift = phase correlation, in 1440x960 px",
  "n_sample": 200,
  "sample": "docs\\data\\crop_cutter\\validation_sample.csv",
  "viewport_by_zoom": {
   "1.0": {
    "n": 97,
-   "ncc_median": 0.8218,
-   "shift_deg_median": 0.7923,
-   "shift_px_median": 10.0
+   "ncc_median": 0.803,
+   "shift_deg_median": 0.8422,
+   "shift_px_median": 10.6301
   },
   "2.0": {
    "n": 50,
-   "ncc_median": 0.7899,
-   "shift_deg_median": 0.7427,
-   "shift_px_median": 18.7195
+   "ncc_median": 0.7069,
+   "shift_deg_median": 1.2303,
+   "shift_px_median": 31.0081
   },
   "3.0": {
    "n": 53,
-   "ncc_median": 0.7152,
-   "shift_deg_median": 0.6141,
-   "shift_px_median": 31.3209
+   "ncc_median": 0.6755,
+   "shift_deg_median": 0.7391,
+   "shift_px_median": 37.6962
   }
  }
 }

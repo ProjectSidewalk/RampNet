@@ -1,35 +1,31 @@
 {
  "aspect": 1.5,
- "crop_cutter_version": "3",
- "crops_per_s": 0.0,
- "crops_requested": 800,
- "finished_utc": "2026-09-23T01:52:26Z",
+ "crop_cutter_version": "2",
+ "crops_per_s": 4.441,
+ "crops_requested": 200,
+ "finished_utc": "2026-09-23T01:10:16Z",
  "fov": [
-  "viewport",
-  "30",
-  "60",
-  "90"
+  "viewport"
  ],
  "host": "makelab2.cs.washington.edu",
  "labels": 200,
- "manifest_rows_appended": 0,
+ "manifest_rows_appended": 200,
  "numpy": "1.23.5",
- "panos_opened": 0,
+ "panos_opened": 195,
  "pillow": "10.0.1",
  "projection": "gnomonic",
  "python": "3.9.25",
- "recut_changed_params": 0,
  "size": 1440,
- "skipped_existing": 800,
+ "skipped_existing": 0,
  "status": {
   "bad_aspect": 0,
   "error": 0,
   "missing_pano": 0,
   "no_geometry": 0,
-  "ok": 0,
+  "ok": 200,
   "out_of_frame": 0
  },
- "tilt": "mm",
- "wall_s": 0.21,
+ "tilt": "pp",
+ "wall_s": 45.04,
  "workers": 8
 }

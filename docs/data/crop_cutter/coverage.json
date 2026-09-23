@@ -88,8 +88,8 @@
   "tag_era_5k": {
    "all": {
     "n": 5000,
-    "pct": 99.12,
-    "present": 4956
+    "pct": 99.16,
+    "present": 4958
    },
    "by_city": {
     "amsterdam": {
@@ -204,8 +204,8 @@
     },
     "la-piedad-old": {
      "n": 2,
-     "pct": 0.0,
-     "present": 0
+     "pct": 100.0,
+     "present": 2
     },
     "madison-wi": {
      "n": 6,
@@ -356,15 +356,15 @@
     },
     "needs_recut": {
      "n": 2279,
-     "pct": 99.52,
-     "present": 2268
+     "pct": 99.61,
+     "present": 2270
     }
    },
    "by_source": {
     "gsv": {
      "n": 4972,
-     "pct": 99.64,
-     "present": 4954
+     "pct": 99.68,
+     "present": 4956
     },
     "infra3d": {
      "n": 26,
@@ -379,8 +379,8 @@
    },
    "distinct_panos": {
     "n": 4876,
-    "pct": 99.12,
-    "present": 4833
+    "pct": 99.16,
+    "present": 4835
    }
   }
  },

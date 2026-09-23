@@ -1,9 +1,9 @@
 {
  "aspect": 1.5,
- "crop_cutter_version": "2",
- "crops_per_s": 7.196,
+ "crop_cutter_version": "3",
+ "crops_per_s": 7.936,
  "crops_requested": 800,
- "finished_utc": "2026-09-23T01:09:31Z",
+ "finished_utc": "2026-09-23T01:52:25Z",
  "fov": [
   "viewport",
   "30",
@@ -18,6 +18,7 @@
  "pillow": "10.0.1",
  "projection": "gnomonic",
  "python": "3.9.25",
+ "recut_changed_params": 0,
  "size": 1440,
  "skipped_existing": 0,
  "status": {
@@ -28,7 +29,7 @@
   "ok": 800,
   "out_of_frame": 0
  },
- "tilt": "none",
- "wall_s": 111.17,
+ "tilt": "mm",
+ "wall_s": 100.8,
  "workers": 8
 }
