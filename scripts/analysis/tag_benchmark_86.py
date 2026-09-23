@@ -502,13 +502,18 @@ def cmd_infer(args):
     model = model.to(dev).eval()
     load_s = time.time() - t0
     tf = eval_transform()
-    present = [f for f in df.filename if os.path.exists(os.path.join(args.images, f))]
+    where = {}
+    for d in args.images:
+        for f in df.filename:
+            if f not in where and os.path.exists(os.path.join(d, f)):
+                where[f] = os.path.join(d, f)
+    present = [f for f in df.filename if f in where]
     print(f"{len(present)}/{len(df)} crops present; {len(tags)} tags; device {dev}")
     scores = []
     t1 = time.time()
     with torch.no_grad():
         for i in range(0, len(present), args.batch):
-            batch = torch.stack([tf(Image.open(os.path.join(args.images, f))) for f in present[i:i + args.batch]])
+            batch = torch.stack([tf(Image.open(where[f])) for f in present[i:i + args.batch]])
             scores.append(torch.sigmoid(model(batch.to(dev))).float().cpu().numpy())
     infer_s = time.time() - t1
     s = np.concatenate(scores) if scores else np.zeros((0, len(tags)))
@@ -858,7 +863,7 @@ def main(argv=None):
     tagger(p)
     p.add_argument("--checkpoint", required=True)
     p.add_argument("--csv", required=True, help="a tagger-format CSV listing the crops and tag columns")
-    p.add_argument("--images", required=True)
+    p.add_argument("--images", required=True, nargs="+", help="prepared crop dir(s), searched in order")
     p.add_argument("--batch", type=int, default=64)
     p.add_argument("--out", required=True)
     p.set_defaults(func=cmd_infer)
