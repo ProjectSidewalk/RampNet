@@ -195,7 +195,7 @@ def load_labels(cache, label_type, exclude_users):
         raise SystemExit(f"no rawLabels__{label_type} files in {cache}; run `fetch` first")
     df = pd.concat(frames, ignore_index=True)
     df["is_ai"] = df.user_id.isin(exclude_users)
-    df["time_created"] = pd.to_datetime(df.time_created, errors="coerce", utc=True)
+    df["time_created"] = pd.to_datetime(df.time_created, errors="coerce", utc=True, format="ISO8601")
     df["year"] = df.time_created.dt.year
     df["taglist"] = df.tags.map(_json_list)
     df["n_tags"] = df.taglist.map(len)
@@ -239,7 +239,7 @@ def load_edits(cache):
     df = pd.concat(frames, ignore_index=True)
     df["old"] = df.old_tags.map(lambda s: set(_json_list(s)))
     df["new"] = df.new_tags.map(lambda s: set(_json_list(s)))
-    df["edit_time"] = pd.to_datetime(df.edit_time, errors="coerce", utc=True)
+    df["edit_time"] = pd.to_datetime(df.edit_time, errors="coerce", utc=True, format="ISO8601")
     return df
 
 
