@@ -80,5 +80,6 @@ def test_crop_box_is_the_taggers_arithmetic():
     """crop.py: x = int(nx * w); left = max(0, x - 320) ... right = min(w, x + 320)."""
     assert cf.crop_box(0.5, 0.5, 1440, 960) == (400, 160, 1040, 800)
     assert cf.crop_box(0.05, 0.9, 1440, 960) == (0, 544, 392, 960)       # clamped at the left and bottom
-    # a real row (pittsburgh-pa:9291): x = int(304.0) = 304 clamps left to 0; y = 306 clamps top
-    assert cf.crop_box(0.2111111, 0.31875, 1440, 960) == (0, 0, 624, 626)
+    # a real row (pittsburgh-pa:9291): int(0.2111111 * 1440) = int(303.99998) = 303, so left clamps
+    # to 0 and right is 623; y = 306 clamps top to 0. crop.py truncates, it does not round.
+    assert cf.crop_box(0.2111111, 0.31875, 1440, 960) == (0, 0, 623, 626)
