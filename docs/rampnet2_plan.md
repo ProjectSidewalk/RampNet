@@ -187,7 +187,9 @@ Each one names the decision it makes. GPU work runs on makelab2 or Hyak (never t
 ### Phase 2, extent and measurement
 
 7. **SAM2 on gnomonic views** vs the Richmond whole-apron gold, as designed on #83. ~1 GPU-day,
-   unblocked, prerequisite for width.
+   unblocked, prerequisite for width. Ran 2026-09-23 ([`sam2_extent_83.md`](sam2_extent_83.md)):
+   point-prompted SAM2 is not an extent source as is (median IoU 0.20 from the detection), and the
+   projection does not matter (gnomonic − equirect ≤ 0.013 IoU).
 8. **Cross-view repeatability** of width and slope using the labeler's fusion clusters and the
    production depth store's ground planes (§2.4). No ground truth needed; decides whether
    measurement is precise enough to justify field truth. The store is on the scraper box, an

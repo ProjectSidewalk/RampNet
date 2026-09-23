@@ -57,10 +57,14 @@ done
 python scripts/analysis/sam2_extent_83.py summarize --city richmond --out analysis_out/sam2_extent_83
 python scripts/analysis/sam2_extent_83.py summarize --city annapolis,sao_paulo,paterson \
     --name partial3 --out analysis_out/sam2_extent_83
+python scripts/analysis/sam2_extent_83.py summarize --city richmond,annapolis,sao_paulo,paterson \
+    --name all4 --out analysis_out/sam2_extent_83
 for city in annapolis sao_paulo paterson; do
   python scripts/analysis/sam2_extent_83.py summarize --city "$city" --out analysis_out/sam2_extent_83
 done
 
 # 5. CPU + Richmond panos: the committed contact sheets.
-python scripts/analysis/sam2_extent_83.py gallery --city richmond \
-    --out analysis_out/sam2_extent_83 --assets docs/assets
+for variant in pt_multi ptbox_multi; do
+  python scripts/analysis/sam2_extent_83.py gallery --city richmond --gallery-variant "$variant" \
+      --panos-root "$PANOS_ROOT" --out analysis_out/sam2_extent_83 --assets docs/assets
+done

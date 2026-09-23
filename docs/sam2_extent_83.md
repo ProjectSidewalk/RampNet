@@ -16,21 +16,31 @@ not a slightly wrong outline: its median size is right (size ratio 1.01) but the
 is 0.45–4.2×, because SAM2 returns the tactile pad or a slab of the ramp on one side of that and
 the whole corner, the road or a car on the other (galleries below). **The gnomonic view does not
 fix this:** gnomonic minus equirect at 90° is **+0.013 IoU [−0.002, +0.028]** (pano-clustered
-95% CI), and **+0.001 [−0.010, +0.012]** at matched magnification (gnomonic 76° vs equirect 90°);
-across all 72 projection comparisons (2 prompts × 4 variants × 9 FOV pairings) the largest mean delta is 0.026 IoU; none of the 24 matched-FOV CIs excludes zero, and the 9 cross-FOV ones that do split 6 for gnomonic, 3 for equirect. Adding a **box prior built from
+95% CI), and **+0.001 [−0.010, +0.012]** at matched magnification (gnomonic 76° vs equirect
+90°); across all 72 projection comparisons on Richmond (2 prompts × 4 variants × 9 FOV pairings)
+the largest mean delta is 0.026 IoU, none of the 24 matched-FOV CIs excludes zero, and the 9
+cross-FOV ones that do split 6 for gnomonic, 3 for equirect. Adding a **box prior built from
 flat-ground geometry alone** lifts the median IoU to 0.574 (box center) and 0.436 (detection),
 but most of that is the prior: the prior box by itself, no SAM2, scores 0.469 and 0.356. SAM2 adds
 +0.098 IoU [+0.075, +0.121] on top of it, and **on the quantity #86 wants first, width, SAM2 plus
-the prior is no better than the prior alone at the detection (43% vs 45% of ramps within ±20%)**.
+the prior gets 43% of Richmond's detected ramps within ±20% against 44% for the prior alone**
+(42% vs 39% pooled over all four cities; below).
 
-**Decision for #83:** do not mint extent labels with point-prompted SAM2 on the 850k points.
+No acceptance bar for extent was ever set, so "not production-grade" is a judgment, stated here
+so it can be argued with: at the detection prompt, 16% of ramps reach IoU 0.5 and 17% get a
+width within ±20%; with the prior, 37% and 43%. A label that is wrong on well over half the ramps
+cannot seed a measurement pipeline.
+
+**The decision this supports for #83 (proposed; Jon's call):** do not mint extent labels with
+point-prompted SAM2 on the 850k points.
 Path 1 needs work before it can be the extent source, and the work is on *what SAM2 is asked*
 (a better prompt or a ramp-specific decoder), not on *what SAM2 sees*: the equirect crop is as good
 as the gnomonic view, so the input path for any follow-up can be whichever is cheaper (the
-equirect crop needs no reprojection; the reprojection was 70% of this run's wall-clock). This
-moves #83's weight toward path 2 (a size head on the keypoint model), with the gold here as its
+equirect crop needs no reprojection, and the reprojection was two-thirds of this run's
+wall-clock). It moves #83's weight toward path 2 (a size head on the keypoint model), with the gold here as its
 test set, and makes the geometry prior the baseline any extent method has to beat, on width in
-particular. The secondary cities agree (below).
+particular. The three partial-gold cities (two GSV, one Mapillary) reproduce every part of this
+within their smaller samples (next section).
 
 ## Richmond (primary: complete gold, Mapillary)
 
@@ -157,6 +167,50 @@ With the geometry prior (`ptbox_multi`), median 8 (IoU ≈ 0.57) and worst 8:
 
 ![worst SAM2 point + prior cases](assets/sam2_extent_83_richmond_ptbox_multi_worst.jpg)
 
+## Secondary: Annapolis, São Paulo, Paterson (partial gold)
+
+The same pipeline ran unchanged on the three partial whole-apron sets (random-pano prefixes; see
+[`crop_window_eval.md`](crop_window_eval.md) Round 3). They add a second provider (GSV: São Paulo,
+Paterson) and a higher-resolution Mapillary city (Annapolis, 8000 px). Cells are IoU median (share
+≥ 0.5), all at 90°, gnomonic, `pt_multi` / `ptbox_multi`; detection columns are `det:` ramps only;
+the last column is the paired SAM2-plus-prior minus prior-alone delta with the recorded-point
+prompt (all items, so it includes the reviewer clicks on `missed:` ramps).
+
+| split (imagery) | n box / det | box center: point only | + prior | prior alone | detection: point only | + prior | prior alone | width ±20%, detection: + prior / prior alone | SAM2 + prior − prior alone (recorded-point prompt, all items) |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Richmond (Mapillary, complete) | 299 / 227 | 0.260 (0.23) | 0.574 (0.63) | 0.469 (0.43) | 0.195 (0.16) | 0.436 (0.37) | 0.356 (0.17) | 0.43 / 0.44 | +0.089 [+0.069, +0.109] |
+| Annapolis (Mapillary, partial) | 131 / 94 | 0.183 (0.14) | 0.516 (0.53) | 0.428 (0.40) | 0.160 (0.09) | 0.462 (0.38) | 0.352 (0.16) | 0.38 / 0.49 | +0.085 [+0.061, +0.113] |
+| São Paulo (GSV, partial) | 119 / 75 | 0.295 (0.24) | 0.589 (0.63) | 0.523 (0.55) | 0.289 (0.21) | 0.471 (0.43) | 0.371 (0.25) | 0.40 / 0.21 | +0.054 [+0.029, +0.078] |
+| Paterson (GSV, partial) | 109 / 86 | 0.264 (0.14) | 0.527 (0.53) | 0.509 (0.52) | 0.191 (0.07) | 0.416 (0.33) | 0.373 (0.17) | 0.44 / 0.31 | +0.072 [+0.039, +0.106] |
+| 3 partial, pooled | 359 / 255 | 0.249 (0.17) | 0.537 (0.56) | 0.495 (0.49) | 0.200 (0.12) | 0.441 (0.38) | 0.360 (0.19) | 0.41 / 0.35 | +0.070 [+0.055, +0.087] |
+| all 4, pooled | 658 / 482 | 0.255 (0.20) | 0.555 (0.59) | 0.487 (0.46) | 0.197 (0.14) | 0.439 (0.37) | 0.358 (0.18) | 0.42 / 0.39 | +0.079 [+0.066, +0.092] |
+
+Projection deltas (gnomonic − equirect, box-center prompt, mean IoU, pano-clustered 95% CI):
+
+| split | Δ proj @90, point only | Δ proj @90, + prior | Δ gnomonic@76 − equirect@90, point only | Δ gnomonic@76 − equirect@90, + prior |
+|---|---:|---:|---:|---:|
+| Richmond | +0.013 [-0.002, +0.028] | -0.003 [-0.014, +0.008] | +0.001 [-0.010, +0.012] | -0.001 [-0.007, +0.005] |
+| Annapolis | +0.011 [-0.019, +0.039] | +0.000 [-0.015, +0.014] | -0.001 [-0.013, +0.012] | +0.000 [-0.011, +0.011] |
+| São Paulo | +0.010 [-0.021, +0.036] | -0.013 [-0.034, +0.006] | +0.010 [-0.017, +0.040] | -0.012 [-0.026, +0.000] |
+| Paterson | +0.016 [-0.009, +0.039] | -0.014 [-0.030, +0.004] | +0.015 [-0.005, +0.038] | -0.006 [-0.019, +0.008] |
+| 3 partial, pooled | +0.012 [-0.004, +0.027] | -0.009 [-0.018, +0.001] | +0.008 [-0.004, +0.020] | -0.006 [-0.013, +0.002] |
+| all 4, pooled | +0.012 [+0.001, +0.023] | -0.006 [-0.013, +0.001] | +0.005 [-0.003, +0.013] | -0.004 [-0.009, +0.001] |
+
+What replicates: point-only SAM2 sits at a median IoU of 0.18–0.30 in every city, with the
+detection prompt at or below the box center; the prior alone accounts for most of the lift the
+prior gives (SAM2 adds +0.05 to +0.09 over it); and no single city shows a projection delta whose
+CI excludes zero. Pooled over all 658 ramps, the matched-FOV point-only delta is **+0.012
+[+0.001, +0.023]**, the only projection CI in these headline rows to clear zero; it disappears at
+matched magnification (+0.005 [−0.003, +0.013]) and turns negative with the prior (−0.006
+[−0.013, +0.001]). Read it as "the projection is worth about 0.01 IoU at most", not as a reason
+to reproject.
+
+What differs by provider: on width, SAM2 plus the prior beats the prior alone on the two GSV
+cities (40% vs 21% and 44% vs 31% of detected ramps within ±20%) and does not on the two Mapillary
+cities (43% vs 44%, 38% vs 49%). The prior's own size bias differs by rig (its 2.5 m camera is
+closer to GSV's ~2.2 m than to Mapillary's ~1.7 m, `crop_window_eval.md`), so part of that split
+is the prior, not SAM2. Either way, no arm gets half of the detected ramps' widths within ±20%.
+
 ## Method
 
 **Question.** RampNet emits points. Given a point, can a point-prompted SAM2 recover the ramp's
@@ -235,7 +289,22 @@ since ramps in one pano share imagery and rig.
 
 Committed outputs, `analysis_out/sam2_extent_83/` (LF-pinned, floats rounded to 5 places):
 
-__SHA_TABLE__
+| file | sha256 |
+|---|---|
+| `all4_summary.json` | `056d68c2c90ceb37197071183f02481def30807f1bff7bc06645af3506d88bd9` |
+| `annapolis_rows.csv` | `ae02c87380aad01faae7154e27370d3bea196fe40909b373cb9d8c3362d6c37f` |
+| `annapolis_run.json` | `3c1ed9641a3bceb3f8718021b0a1539574eea42550c3f2bafd8686a1d8c23f13` |
+| `annapolis_summary.json` | `bd736d454482dddfa476d17e5ceb9bceed65263625f8fcd6823b52b8ac60a3d3` |
+| `partial3_summary.json` | `dc5e4d760882ae082eeac805fa3612956decc6772f12bb4e91e60cd609fce141` |
+| `paterson_rows.csv` | `3f556a04e58f64668663a0215292d6074dc27d2dfb74d4172ed19cc182aa377d` |
+| `paterson_run.json` | `a214b970ec1f9edd7a12f0539fb752dbee20c6ba837ebed2f6772afa286c8c6b` |
+| `paterson_summary.json` | `5941d826090a2eb4f5a22cb0a4ebb5b3d6c298f318f4201c974d62b9d01c8069` |
+| `richmond_rows.csv` | `af33a8699344b409df0392dc051252ccfbc1a6ad652881e5ff9b41276b3ec871` |
+| `richmond_run.json` | `b3d2f8a97ae4f164a40f809296a0a4650f0538c7a24f9650522744cf01fb25a1` |
+| `richmond_summary.json` | `8394c1e6d33c2d099c56897cdfc13ac6a6becf64b69139e84cd62bf8975827a6` |
+| `sao_paulo_rows.csv` | `77609e21da3da7cfa4fe272287c8bdd0ad8365b3e6d8b0bf7a30053513dd6954` |
+| `sao_paulo_run.json` | `90db88d955b6dec75d2db997b15b9261492a8340f7223a26ede9f544a5824653` |
+| `sao_paulo_summary.json` | `9fd76741fa916da59ee0e24f3bddb12bf6a2718ee0561778122009b5b8d9fda3` |
 
 Each `<city>_run.json` records the rows-CSV sha256 as written on makelab2; the committed CSVs
 match it byte for byte. The summaries regenerate on CPU from the CSVs
@@ -246,7 +315,19 @@ match it byte for byte. The summaries regenerate on CPU from the CSVs
 makelab2 has no Slurm, so the time is recorded as `paid: false` rows in
 `analysis_out/usage_log.jsonl` (provider `sam2`), per [`compute_cost.md`](compute_cost.md).
 
-__COST_TABLE__
+| run | panos | ramps | views | wall-clock | of which render / embed / decode |
+|---|---:|---:|---:|---:|---:|
+| smoke (Richmond, 2 panos) | 2 | 7 | 84 | 90 s | not split |
+| Richmond | 86 | 299 | 3,588 | 3,289 s (54.8 min) | 2,294 / 202 / 372 s |
+| Annapolis | 42 | 131 | 1,572 | 876 s (14.6 min) | 571 / 65 / 124 s |
+| São Paulo | 40 | 119 | 1,428 | 4,252 s (70.9 min) | 2,802 / 274 / 740 s |
+| Paterson | 30 | 109 | 1,308 | 3,172 s (52.9 min) | 2,023 / 217 / 566 s |
+| **total** | | **658** | **7,980** | **11,679 s (3.24 h)** | 7,691 / 758 / 1,801 s |
+
+Dollar cost: $0 (lab hardware). GPU-busy time (embed + decode) was about 0.71 h of the 3.24 h;
+the A40 was shared throughout with one unrelated process (~8.8 GB). São Paulo and Paterson are
+slower per view because their panos are 16384 px wide, so their views are 4096 px square before
+SAM2 downsamples them.
 
 Most of the wall-clock is not the GPU. On Richmond, the numpy gnomonic render took 2,294 s of
 3,289 (70%); SAM2 image embedding 202 s and the four decodes per view 372 s. Anyone scaling this
@@ -306,6 +387,11 @@ python scripts/analysis/sam2_extent_83.py run --city richmond \
 python scripts/analysis/sam2_extent_83.py summarize --city richmond --out analysis_out/sam2_extent_83
 python scripts/analysis/sam2_extent_83.py summarize --city annapolis,sao_paulo,paterson --name partial3 \
     --out analysis_out/sam2_extent_83
+python scripts/analysis/sam2_extent_83.py summarize --city richmond,annapolis,sao_paulo,paterson --name all4 \
+    --out analysis_out/sam2_extent_83
+for c in annapolis sao_paulo paterson; do
+  python scripts/analysis/sam2_extent_83.py summarize --city $c --out analysis_out/sam2_extent_83
+done
 python scripts/analysis/sam2_extent_83.py gallery --city richmond --gallery-variant pt_multi \
     --out analysis_out/sam2_extent_83 --assets docs/assets
 python scripts/analysis/sam2_extent_83.py gallery --city richmond --gallery-variant ptbox_multi \
