@@ -597,12 +597,12 @@ def _arrays(pred, lab, tags):
 
 
 def score_subsets(pred, lab, tags, test_split="test", train_split="train", near_m=10.0,
-                  n_boot=1000):
+                  n_boot=1000, fixed_tags=None):
     """Full / leak-free / leaked metrics for one prediction file. Returns (summary, per_label)."""
     te = leak_table(lab, test_split, train_split)
     m, y, s = _arrays(pred, te, tags)
     full = tagger_metrics(y, s, tags)
-    fixed = full["tags_averaged"]
+    fixed = list(fixed_tags) if fixed_tags else full["tags_averaged"]
     groups = m.pano_id.fillna(m.label_uid).to_numpy()
     subsets = {
         "full": np.ones(len(m), bool),
@@ -638,7 +638,9 @@ def cmd_score(args):
     tags = [c for c in lab.columns if c not in ("split", "filename", "city", "label_id", "label_uid",
                                                  "pano_id", "lat", "lng", "normalized_x", "normalized_y")]
     pred = pd.read_csv(args.pred)
-    summary, per_label = score_subsets(pred, lab, tags, near_m=args.near_m, n_boot=args.n_boot)
+    fixed = args.fixed_tags.split(",") if args.fixed_tags else None
+    summary, per_label = score_subsets(pred, lab, tags, near_m=args.near_m, n_boot=args.n_boot,
+                                       fixed_tags=fixed)
     summary["pred_file"] = os.path.basename(args.pred)
     summary["pred_sha256"] = sha256_file(args.pred)
     summary["labels_sha256"] = sha256_file(args.labels)
@@ -655,14 +657,36 @@ def cmd_score(args):
 
 # ----------------------------------------------------------------------------- resplit
 
-def pano_grouped_split(lab, seed=86, target=None):
+def cell_groups(lab, cell_m=100.0):
+    """A group key per label from a ~``cell_m`` square lat/lng grid (a city block), so a ramp
+    seen from two neighbouring panoramas lands on one side. A panorama is placed by the mean
+    location of its labels, so every label of one panorama shares a cell and the split stays
+    pano-disjoint. Labels with no location or pano are their own group."""
+    lab = lab.copy()
+    lab["_g"] = lab.pano_id.fillna("nopano:" + lab.label_uid)
+    loc = lab.groupby("_g")[["lat", "lng"]].mean()
+    dy = cell_m / 111_320.0
+    dx = cell_m / (111_320.0 * np.cos(np.radians(loc.lat.fillna(0).to_numpy())))
+    iy, ix = np.floor(loc.lat.to_numpy() / dy), np.floor(loc.lng.to_numpy() / dx)
+    city = lab.groupby("_g").city.first().reindex(loc.index)
+    key = {g: (f"cell:{c}:{int(a)}:{int(b)}" if not (np.isnan(a) or np.isnan(b)) else g)
+           for g, c, a, b in zip(loc.index, city, iy, ix)}
+    return lab["_g"].map(key)
+
+
+def pano_grouped_split(lab, seed=86, target=None, group="pano", cell_m=100.0):
     """Seeded pano-grouped re-split, per city: panos are shuffled and moved to test until the
     city's test count reaches its count in the original split (so city mix and test size
     match the published split). No pano ends up on both sides. Labels without a pano_id are
     each their own group."""
     rng = np.random.default_rng(seed)
     lab = lab.copy()
-    lab["group"] = lab.pano_id.fillna("nopano:" + lab.label_uid)
+    if group == "pano":
+        lab["group"] = lab.pano_id.fillna("nopano:" + lab.label_uid)
+    elif group == "cell":
+        lab["group"] = cell_groups(lab, cell_m)
+    else:
+        raise ValueError(group)
     if target is None:
         target = lab[lab.split == "test"].city.value_counts().to_dict()
     test_groups = set()
@@ -683,7 +707,7 @@ def pano_grouped_split(lab, seed=86, target=None):
 
 def cmd_resplit(args):
     lab = pd.read_csv(args.labels)
-    sp = pano_grouped_split(lab, seed=args.seed)
+    sp = pano_grouped_split(lab, seed=args.seed, group=args.group, cell_m=args.cell_m)
     both = set(sp[sp.split == "train"].pano_id.dropna()) & set(sp[sp.split == "test"].pano_id.dropna())
     assert not both, f"{len(both)} panos on both sides"
     write_csv(sp, args.out)
@@ -850,6 +874,8 @@ def main(argv=None):
     p.add_argument("--labels", default=os.path.join(OUT_DIR, "hf_curbramp_labels.csv"))
     p.add_argument("--split-csv", default=None, help="score against this split instead of the HF one")
     p.add_argument("--near-m", type=float, default=10.0)
+    p.add_argument("--fixed-tags", default=None,
+                   help="comma list of tags every subset averages (default: the tagger rule on the full set)")
     p.add_argument("--n-boot", type=int, default=1000)
     p.add_argument("--out", required=True)
     p.add_argument("--per-label-out", default=None)
@@ -858,6 +884,9 @@ def main(argv=None):
     p = sub.add_parser("resplit", help="seeded pano-grouped re-split")
     p.add_argument("--labels", default=os.path.join(OUT_DIR, "hf_curbramp_labels.csv"))
     p.add_argument("--seed", type=int, default=86)
+    p.add_argument("--group", default="pano", choices=["pano", "cell"],
+                   help="pano: no panorama on both sides; cell: no ~--cell-m grid cell on both sides")
+    p.add_argument("--cell-m", type=float, default=100.0)
     p.add_argument("--out", default=os.path.join(OUT_DIR, "resplit_pano_grouped_seed86.csv"))
     p.set_defaults(func=cmd_resplit)
 

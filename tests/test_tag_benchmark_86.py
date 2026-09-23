@@ -249,3 +249,18 @@ def test_usage_row_is_unpaid_and_shaped_like_the_ledger():
     r = tb.usage_row("infer-released", 12.3456, "ok", "x", n=2183, ts="2026-09-22T00:00:00+00:00")
     assert r["paid"] is False and r["elapsed_s"] == 12.346 and r["hardware"]["gpus"] == ["NVIDIA A40"]
     assert r["est_cost_usd"] == 0.0 and r["provider"] != "claude"
+
+
+def test_cell_split_is_pano_disjoint_and_keeps_near_panos_together():
+    lab = pd.DataFrame([
+        # panos P1 and P2 are 5 m apart (same corner); P3 is 2 km away
+        dict(split="train", filename="a", city="seattle-wa", label_id=1, label_uid="s:1", pano_id="P1", lat=47.60000, lng=-122.3),
+        dict(split="test", filename="b", city="seattle-wa", label_id=2, label_uid="s:2", pano_id="P2", lat=47.60004, lng=-122.3),
+        dict(split="test", filename="c", city="seattle-wa", label_id=3, label_uid="s:3", pano_id="P3", lat=47.62, lng=-122.3),
+        dict(split="train", filename="d", city="seattle-wa", label_id=4, label_uid="s:4", pano_id="P3", lat=47.62001, lng=-122.3),
+    ])
+    g = tb.cell_groups(lab, cell_m=100.0)
+    assert g[0] == g[1]           # the same corner seen from two panos: one group
+    assert g[2] == g[3] != g[0]   # one pano, one group
+    sp = tb.pano_grouped_split(lab, seed=0, group="cell")
+    assert sp.groupby("pano_id").split.nunique().max() == 1
