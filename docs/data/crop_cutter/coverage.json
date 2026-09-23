@@ -1,0 +1,388 @@
+{
+ "input": "docs/data/crop_cutter/coverage_input.csv",
+ "probed_utc": "2026-09-22",
+ "sets": {
+  "hf_validated": {
+   "all": {
+    "n": 10853,
+    "pct": 99.95,
+    "present": 10848
+   },
+   "by_city": {
+    "amsterdam": {
+     "n": 191,
+     "pct": 100.0,
+     "present": 191
+    },
+    "cdmx": {
+     "n": 503,
+     "pct": 100.0,
+     "present": 503
+    },
+    "chicago-il": {
+     "n": 2253,
+     "pct": 100.0,
+     "present": 2253
+    },
+    "columbus-oh": {
+     "n": 1581,
+     "pct": 100.0,
+     "present": 1581
+    },
+    "newberg-or": {
+     "n": 1231,
+     "pct": 99.59,
+     "present": 1226
+    },
+    "oradell-nj": {
+     "n": 1153,
+     "pct": 100.0,
+     "present": 1153
+    },
+    "pittsburgh-pa": {
+     "n": 761,
+     "pct": 100.0,
+     "present": 761
+    },
+    "seattle-wa": {
+     "n": 2588,
+     "pct": 100.0,
+     "present": 2588
+    },
+    "spgg": {
+     "n": 452,
+     "pct": 100.0,
+     "present": 452
+    },
+    "walla-walla": {
+     "n": 140,
+     "pct": 100.0,
+     "present": 140
+    }
+   },
+   "by_era": {
+    "has_prod_crop": {
+     "n": 195,
+     "pct": 100.0,
+     "present": 195
+    },
+    "needs_recut": {
+     "n": 10658,
+     "pct": 99.95,
+     "present": 10653
+    }
+   },
+   "by_source": {
+    "gsv": {
+     "n": 10853,
+     "pct": 99.95,
+     "present": 10848
+    }
+   },
+   "distinct_panos": {
+    "n": 6295,
+    "pct": 99.94,
+    "present": 6291
+   }
+  },
+  "tag_era_5k": {
+   "all": {
+    "n": 5000,
+    "pct": 99.12,
+    "present": 4956
+   },
+   "by_city": {
+    "amsterdam": {
+     "n": 153,
+     "pct": 100.0,
+     "present": 153
+    },
+    "auckland": {
+     "n": 29,
+     "pct": 100.0,
+     "present": 29
+    },
+    "burnaby": {
+     "n": 61,
+     "pct": 100.0,
+     "present": 61
+    },
+    "cdmx": {
+     "n": 181,
+     "pct": 99.45,
+     "present": 180
+    },
+    "chandigarh-india": {
+     "n": 2,
+     "pct": 100.0,
+     "present": 2
+    },
+    "chicago-il": {
+     "n": 1097,
+     "pct": 99.91,
+     "present": 1096
+    },
+    "cliffside-park-nj": {
+     "n": 5,
+     "pct": 100.0,
+     "present": 5
+    },
+    "clifton-nj": {
+     "n": 2,
+     "pct": 100.0,
+     "present": 2
+    },
+    "columbia": {
+     "n": 145,
+     "pct": 100.0,
+     "present": 145
+    },
+    "columbus-oh": {
+     "n": 249,
+     "pct": 100.0,
+     "present": 249
+    },
+    "cuenca": {
+     "n": 44,
+     "pct": 100.0,
+     "present": 44
+    },
+    "danville-il": {
+     "n": 14,
+     "pct": 100.0,
+     "present": 14
+    },
+    "dc": {
+     "n": 72,
+     "pct": 97.22,
+     "present": 70
+    },
+    "detroit-mi": {
+     "n": 18,
+     "pct": 100.0,
+     "present": 18
+    },
+    "fort-wayne-in": {
+     "n": 5,
+     "pct": 100.0,
+     "present": 5
+    },
+    "gainesville-fl": {
+     "n": 75,
+     "pct": 100.0,
+     "present": 75
+    },
+    "hackensack-nj": {
+     "n": 3,
+     "pct": 100.0,
+     "present": 3
+    },
+    "houston-tx": {
+     "n": 1,
+     "pct": 100.0,
+     "present": 1
+    },
+    "kaohsiung": {
+     "n": 268,
+     "pct": 98.13,
+     "present": 263
+    },
+    "keelung": {
+     "n": 14,
+     "pct": 100.0,
+     "present": 14
+    },
+    "knox-oh": {
+     "n": 14,
+     "pct": 100.0,
+     "present": 14
+    },
+    "la-piedad": {
+     "n": 1,
+     "pct": 100.0,
+     "present": 1
+    },
+    "la-piedad-old": {
+     "n": 2,
+     "pct": 0.0,
+     "present": 0
+    },
+    "madison-wi": {
+     "n": 6,
+     "pct": 100.0,
+     "present": 6
+    },
+    "maywood-nj": {
+     "n": 19,
+     "pct": 100.0,
+     "present": 19
+    },
+    "mendota-il": {
+     "n": 27,
+     "pct": 100.0,
+     "present": 27
+    },
+    "new-taipei": {
+     "n": 26,
+     "pct": 100.0,
+     "present": 26
+    },
+    "newberg-or": {
+     "n": 63,
+     "pct": 98.41,
+     "present": 62
+    },
+    "newport-ky": {
+     "n": 1,
+     "pct": 100.0,
+     "present": 1
+    },
+    "niagara-falls-ny": {
+     "n": 8,
+     "pct": 100.0,
+     "present": 8
+    },
+    "oradell-nj": {
+     "n": 29,
+     "pct": 100.0,
+     "present": 29
+    },
+    "paterson-nj": {
+     "n": 176,
+     "pct": 100.0,
+     "present": 176
+    },
+    "pittsburgh-pa": {
+     "n": 128,
+     "pct": 100.0,
+     "present": 128
+    },
+    "rancagua-chile": {
+     "n": 8,
+     "pct": 100.0,
+     "present": 8
+    },
+    "richmond-va": {
+     "n": 2,
+     "pct": 100.0,
+     "present": 2
+    },
+    "sao-paulo-brazil": {
+     "n": 3,
+     "pct": 100.0,
+     "present": 3
+    },
+    "seattle-wa": {
+     "n": 1400,
+     "pct": 99.71,
+     "present": 1396
+    },
+    "spgg": {
+     "n": 70,
+     "pct": 98.57,
+     "present": 69
+    },
+    "st-louis-mo": {
+     "n": 213,
+     "pct": 100.0,
+     "present": 213
+    },
+    "tainan": {
+     "n": 1,
+     "pct": 100.0,
+     "present": 1
+    },
+    "taipei": {
+     "n": 115,
+     "pct": 100.0,
+     "present": 115
+    },
+    "teaneck-nj": {
+     "n": 82,
+     "pct": 100.0,
+     "present": 82
+    },
+    "tucson-az": {
+     "n": 30,
+     "pct": 100.0,
+     "present": 30
+    },
+    "validation-study": {
+     "n": 22,
+     "pct": 100.0,
+     "present": 22
+    },
+    "virden-il": {
+     "n": 1,
+     "pct": 100.0,
+     "present": 1
+    },
+    "walla-walla": {
+     "n": 33,
+     "pct": 96.97,
+     "present": 32
+    },
+    "waltham-ma": {
+     "n": 9,
+     "pct": 100.0,
+     "present": 9
+    },
+    "west-chester": {
+     "n": 6,
+     "pct": 100.0,
+     "present": 6
+    },
+    "winterthur-infra3d": {
+     "n": 1,
+     "pct": 0.0,
+     "present": 0
+    },
+    "zurich": {
+     "n": 41,
+     "pct": 100.0,
+     "present": 41
+    },
+    "zurich-infra3d": {
+     "n": 25,
+     "pct": 0.0,
+     "present": 0
+    }
+   },
+   "by_era": {
+    "has_prod_crop": {
+     "n": 2721,
+     "pct": 98.79,
+     "present": 2688
+    },
+    "needs_recut": {
+     "n": 2279,
+     "pct": 99.52,
+     "present": 2268
+    }
+   },
+   "by_source": {
+    "gsv": {
+     "n": 4972,
+     "pct": 99.64,
+     "present": 4954
+    },
+    "infra3d": {
+     "n": 26,
+     "pct": 0.0,
+     "present": 0
+    },
+    "mapillary": {
+     "n": 2,
+     "pct": 100.0,
+     "present": 2
+    }
+   },
+   "distinct_panos": {
+    "n": 4876,
+    "pct": 99.12,
+    "present": 4833
+   }
+  }
+ },
+ "store": "/projects/makeabilitylab/sidewalk_panos/Panoramas"
+}
