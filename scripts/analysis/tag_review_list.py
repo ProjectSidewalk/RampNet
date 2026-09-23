@@ -17,29 +17,48 @@ reproduces it byte for byte only from a cache whose hashes match
     # the list (defaults = the committed one)
     python scripts/analysis/tag_review_list.py build --cache analysis_out/ps_audit/raw
 
-    # the kappa-precision table the default size rests on
+    # the kappa-precision table, and the positives each list size gives over 10 seeds
     python scripts/analysis/tag_review_list.py power
+    python scripts/analysis/tag_review_list.py size --cache analysis_out/ps_audit/raw
+
+    # the check that pano_y is world-frame (why the depression has no camera_pitch term)
+    python scripts/analysis/tag_review_list.py pitch-check --cache analysis_out/ps_audit/raw
 
 Strata (full definitions in the rubric doc, section "The review list"):
 
 - **tag state**, precedence top down: ``affirmed_empty`` (no tags now, and a tag-review
-  pass looked at it: ``ExpertValidate`` or the ASSETS'24 ``ExternalTagValidationASSETS2024``
-  pass), ``tagged_trusted`` (tagged, placed by a trusted account), ``tagged`` (tagged by
+  pass affirmed it: an *Agree* vote, or an edit, from ``ExpertValidate`` or the ASSETS'24
+  ``ExternalTagValidationASSETS2024`` pass; an Unsure or Disagree vote alone does not
+  count), ``tagged_trusted`` (tagged, placed by a trusted account), ``tagged`` (tagged by
   anyone else), ``untagged`` (no tags, never tag-reviewed; *not* a negative);
 - **distance band** from the label's depression angle below the horizon,
-  ``(pano_y / pano_height - 0.5) * 180 - camera_pitch`` degrees (the image-to-world pitch
-  relation in SidewalkWebpage's ``PannellumViewer.js``: world = image + cameraPitch), turned
-  into a flat-ground distance with a fixed 2.5 m camera height, the same constant as
-  ``crop_window_eval.py`` and ``size_analysis.py``: near < 8 m, mid 8-15 m, far >= 15 m;
+  ``(pano_y / pano_height - 0.5) * 180`` degrees, turned into a flat-ground distance with a
+  fixed 2.5 m camera height: near < 8 m, mid 8-15 m, far >= 15 m. There is **no**
+  ``camera_pitch`` term: Project Sidewalk writes ``pano_y`` from the label's world-frame
+  pitch (``util.pano.povToPanoCoord`` in ``panoUtilities.js``, called from ``Label.js`` with a
+  POV that ``GsvViewer`` / ``PannellumViewer.getPov`` already report in world pitch), so the
+  row is already measured from the horizon. This is the same convention, and the same
+  2.5 m constant, as ``crop_window_eval.py`` and ``size_analysis.py``. (The first draft of
+  this script subtracted ``camera_pitch`` a second time; 67 of 500 items were in the wrong
+  band. Measured on crop-era labels placed at the canvas centre, the residual
+  ``(0.5 - pano_y / pano_height) * 180 - pov_pitch`` has slope about 0 against
+  ``camera_pitch``, not the -1 a double correction needs.);
 - **city**, with equal allocation across eligible cities (capped by what each city has), so
-  Chicago's 67k crop-era labels do not outvote Laurens's 143.
+  Chicago's 67k crop-era labels do not outvote a deployment with a few hundred.
 
-Within a tagged stratum a label is drawn with weight 1 / (frequency of its rarest tag), so
-the rare tags reach enough positives for a per-tag kappa; within a (state, city) cell the
-draw rotates through the distance bands. At most one label per (city, pano) and none within
-``--min-sep-m`` of an already-drawn label in the same city, so two labels of one physical
-ramp (plan §2.5) are not two items. Item order is a seeded shuffle, so a rater never sees a
-block of one stratum.
+Within a tagged stratum a label is drawn with weight ``(1 / f) ** rare_power`` (default
+power 1.5), where ``f`` is the frequency of the label's rarest tag *within that tag state's
+candidates*, so the rare tags reach enough positives for a per-tag kappa; within a (state,
+city) cell the draw rotates through the distance bands. At most one label per (city, pano)
+and none within ``--min-sep-m`` of an already-drawn label in the same city, so two labels of
+one physical ramp (plan §2.5) are not two items. Item order is a seeded shuffle, so a rater
+never sees a block of one stratum.
+
+Flags, never filters: per-rater prior contact (``prior_contact_<rater>``: the rater placed,
+validated or edited the label before the list was built) and proximity to a
+validation-study label (``vstudy_same_pano``, ``vstudy_within_10m``). The validation-study
+deployment is excluded *by deployment*; a physical ramp it also covers can still be listed
+through another deployment's label, and these columns show where.
 """
 import argparse
 import csv
@@ -76,6 +95,16 @@ TAG_REVIEW_SOURCES = ("ExpertValidate", "ExternalTagValidationASSETS2024")
 DEFAULT_EXCLUDE_CITIES = ("validation-study",)
 #: Production stores a browser crop for every label placed on or after this date.
 CROP_DATE = "2023-10-12"
+#: The deployment whose labels are flagged by proximity (S4 of the PR #176 review).
+VSTUDY_CITY = "validation-study"
+VSTUDY_RADIUS_M = 10.0
+#: Deployments outside the US (for the composition count only; nothing is filtered on it).
+NON_US = frozenset({
+    "amsterdam", "auckland", "bayonne-fr", "burnaby", "cdmx", "chandigarh-india", "cuenca",
+    "kaohsiung", "keelung", "la-piedad", "la-piedad-old", "new-taipei", "rancagua-chile",
+    "santiago-chile", "sao-paulo-brazil", "spgg", "taichung", "tainan", "taipei",
+    "winterthur-infra3d", "zurich", "zurich-infra3d",
+})
 
 STATES = ("affirmed_empty", "tagged_trusted", "tagged", "untagged")
 DEFAULT_SHARES = "affirmed_empty=0.20,tagged_trusted=0.15,tagged=0.35,untagged=0.30"
@@ -84,11 +113,15 @@ CAMERA_HEIGHT_M = 2.5
 BAND_EDGES_M = (8.0, 15.0)
 
 LIST_COLUMNS = (
-    "item_id", "city", "label_id", "label_uid", "pano_id", "tag_state", "distance_band",
-    "depression_deg", "est_distance_m", "camera_pitch", "label_heading_deg", "label_pitch_deg", "placed_at", "image_capture_date",
-    "tags_at_list", "severity_at_list", "applicable_tags", "tag_reviewed_by", "placed_by_rater",
-    "has_server_crop", "editor_url", "labelmap_url", "gsv_url",
+    "item_id", "city", "deployment_visibility", "label_id", "label_uid", "pano_id", "tag_state",
+    "distance_band", "depression_deg", "est_distance_m", "camera_pitch", "label_heading_deg",
+    "label_pitch_deg", "placed_at", "image_capture_date", "tags_at_list", "severity_at_list",
+    "applicable_tags", "tag_reviewed_by", "placed_by_rater", "prior_contact_jonfroehlich",
+    "prior_contact_mikey", "vstudy_same_pano", "vstudy_within_10m", "editor_url", "labelmap_url",
+    "gsv_url",
 )
+#: Prior-contact kinds, in the order they are written (``;``-joined, blank = none).
+CONTACT_KINDS = ("placed", "validated", "edited")
 
 RAW_COLS = ["label_id", "user_id", "pano_id", "pano_source", "severity", "tags", "time_created",
             "correct", "pano_y", "pano_height", "camera_pitch", "latitude", "longitude",
@@ -97,10 +130,11 @@ RAW_COLS = ["label_id", "user_id", "pano_id", "pano_source", "severity", "tags",
 
 # ----------------------------------------------------------------------------- geometry
 
-def depression_deg(pano_y, pano_height, camera_pitch):
-    """Degrees below the horizon of a pano pixel row, corrected for camera pitch."""
-    pitch = np.nan_to_num(np.asarray(camera_pitch, dtype=float), nan=0.0)
-    return (np.asarray(pano_y, dtype=float) / np.asarray(pano_height, dtype=float) - 0.5) * 180.0 - pitch
+def depression_deg(pano_y, pano_height):
+    """Degrees below the horizon of a label's ``pano_y``.
+
+    ``pano_y`` is already world-frame (see the module docstring), so no camera-pitch term."""
+    return (np.asarray(pano_y, dtype=float) / np.asarray(pano_height, dtype=float) - 0.5) * 180.0
 
 
 def flat_ground_distance_m(dep_deg, camera_height_m=CAMERA_HEIGHT_M):
@@ -119,9 +153,9 @@ def distance_band(dist_m, edges=BAND_EDGES_M):
 def label_view(pano_x, pano_width, camera_heading, dep_deg):
     """(heading, pitch) in degrees that centre a viewer on the label.
 
-    Column 0 of a GSV equirectangular pano faces ``camera_heading - 180``; pitch is minus
-    the pitch-corrected depression. Checked against the labeller's own POV on seattle
-    label 9 (POV heading 299.3 with the label right of centre; this gives 302.3)."""
+    Column 0 of a GSV equirectangular pano faces ``camera_heading - 180``
+    (``povToPanoCoord``); the pitch is minus the depression, a world-frame pitch, which is
+    what the Google Maps ``pitch`` URL parameter takes."""
     heading = (np.asarray(pano_x, dtype=float) / np.asarray(pano_width, dtype=float) * 360.0
                + np.nan_to_num(np.asarray(camera_heading, dtype=float)) - 180.0) % 360.0
     return heading, -np.asarray(dep_deg, dtype=float)
@@ -168,18 +202,71 @@ def load_pool(cache, cities):
     return pd.concat(frames, ignore_index=True)
 
 
+def _read_validations(cache, city):
+    path = os.path.join(cache, f"{city}__validations__CurbRamp.csv")
+    if not os.path.exists(path):
+        return pd.DataFrame(columns=["label_id", "source", "validation_result", "user_id"])
+    return pd.read_csv(path, usecols=["label_id", "source", "validation_result", "user_id"])
+
+
+def _read_edits(cache, city):
+    path = os.path.join(cache, f"{city}__labelEdits.csv")
+    if not os.path.exists(path):
+        return pd.DataFrame(columns=["label_id", "source", "user_id"])
+    return pd.read_csv(path, usecols=["label_id", "source", "user_id"])
+
+
 def load_tag_reviews(cache, cities):
-    """(city, label_id) -> sorted tag-review sources, from the validations cache."""
+    """(city, label_id) -> sorted tag-review sources that *affirmed* the label's tag set.
+
+    A tag-review source counts only through an ``Agree`` vote or an edit (the rater changed
+    the tags or severity there). An Unsure or Disagree vote from the same source is not an
+    affirmation: on the first draft three ``affirmed_empty`` items rested on exactly that."""
     out = {}
     for city in cities:
-        path = os.path.join(cache, f"{city}__validations__CurbRamp.csv")
-        if not os.path.exists(path):
-            continue
-        v = pd.read_csv(path, usecols=["label_id", "source"])
-        v = v[v.source.isin(TAG_REVIEW_SOURCES)]
-        for lid, grp in v.groupby("label_id"):
+        v = _read_validations(cache, city)
+        v = v[v.source.isin(TAG_REVIEW_SOURCES) & (v.validation_result.astype(str) == "Agree")]
+        e = _read_edits(cache, city)
+        e = e[e.source.isin(TAG_REVIEW_SOURCES)]
+        both = pd.concat([v[["label_id", "source"]], e[["label_id", "source"]]], ignore_index=True)
+        for lid, grp in both.groupby("label_id"):
             out[(city, int(lid))] = sorted(set(grp.source))
     return out
+
+
+def load_prior_contact(cache, cities, raters):
+    """(city, label_id) -> {rater name: {"validated", "edited"}} from the cached votes and edits.
+
+    ``placed`` is added from the label's own ``user_id`` by the caller."""
+    out = {}
+    for city in cities:
+        for kind, df in (("validated", _read_validations(cache, city)), ("edited", _read_edits(cache, city))):
+            df = df[df.user_id.isin(raters)]
+            for lid, uid in zip(df.label_id, df.user_id):
+                out.setdefault((city, int(lid)), {}).setdefault(raters[uid], set()).add(kind)
+    return out
+
+
+def load_vstudy(cache):
+    """Validation-study label positions and pano ids, or an empty frame if not cached."""
+    path = os.path.join(cache, f"{VSTUDY_CITY}__rawLabels__CurbRamp.csv")
+    if not os.path.exists(path):
+        return pd.DataFrame(columns=["label_id", "pano_id", "latitude", "longitude"])
+    v = pd.read_csv(path, usecols=["label_id", "pano_id", "latitude", "longitude"], dtype={"pano_id": "object"})
+    return v.dropna(subset=["latitude", "longitude"]).reset_index(drop=True)
+
+
+def vstudy_flags(lat, lon, pano_id, vstudy, radius_m=VSTUDY_RADIUS_M):
+    """(same_pano, [validation-study label uids within ``radius_m``]) for one label."""
+    same = bool(len(vstudy)) and bool((vstudy.pano_id == pano_id).any())
+    if not len(vstudy):
+        return same, []
+    # cheap prefilter on a lat/lon box, then haversine
+    dlat = radius_m / 111_000.0 * 1.5
+    dlon = dlat / max(math.cos(math.radians(lat)), 1e-6)
+    box = vstudy[(vstudy.latitude.sub(lat).abs() < dlat) & (vstudy.longitude.sub(lon).abs() < dlon)]
+    near = sorted((haversine_m(lat, lon, a, b), int(l)) for l, a, b in zip(box.label_id, box.latitude, box.longitude))
+    return same, [f"{VSTUDY_CITY}:{l}" for d, l in near if d < radius_m]
 
 
 def read_trusted(path):
@@ -210,6 +297,7 @@ def build_candidates(cache, *, exclude_cities, require_tags, crop_date, sources,
                      min_city_pool, raters):
     manifest = load_manifest(cache)
     hosts = {c: h["url"] for c, h in manifest.get("hosts", {}).items()}
+    visibility = {c: h.get("visibility", "") for c, h in manifest.get("hosts", {}).items()}
     cities_all = sorted(os.path.basename(p).split("__")[0]
                         for p in glob.glob(os.path.join(cache, "*__rawLabels__CurbRamp.csv")))
     dropped = {}
@@ -256,11 +344,18 @@ def build_candidates(cache, *, exclude_cities, require_tags, crop_date, sources,
          (d.n_tags > 0) & d.user_id.isin(trusted_ids),
          d.n_tags > 0],
         ["affirmed_empty", "tagged_trusted", "tagged"], default="untagged")
-    d["dep"] = depression_deg(d.pano_y, d.pano_height, d.camera_pitch)
+    d["dep"] = depression_deg(d.pano_y, d.pano_height)
     d["dist"] = flat_ground_distance_m(d.dep)
     d["band"] = distance_band(d.dist)
     d["lab_heading"], d["lab_pitch"] = label_view(d.pano_x, d.pano_width, d.camera_heading, d.dep)
     d["placed_by_rater"] = d.user_id.map(lambda u: raters.get(u, ""))
+    contact = load_prior_contact(cache, cities, raters)
+    for name in sorted(set(raters.values())):
+        d[f"prior_contact_{name}"] = [
+            ";".join(k for k in CONTACT_KINDS
+                     if (k == "placed" and raters.get(u) == name)
+                     or k in contact.get((c, int(l)), {}).get(name, ()))
+            for c, l, u in zip(d.city, d.label_id, d.user_id)]
 
     pool = d.groupby("city").size().reindex(cities, fill_value=0)
     small = sorted(pool[pool < min_city_pool].index)
@@ -269,7 +364,17 @@ def build_candidates(cache, *, exclude_cities, require_tags, crop_date, sources,
     d = d[~d.city.isin(small)]
     funnel.append((f"in cities with >= {min_city_pool} eligible labels", len(d)))
     d = d.sort_values(["city", "label_id"]).reset_index(drop=True)
-    return d, dict(hosts=hosts, vocab=vocab, dropped=dropped, funnel=funnel)
+    vs = load_vstudy(cache)
+    vs_panos = set(vs.pano_id.dropna())
+    pool_stats = {
+        "distance_tertiles_m": [round(float(q), 1) for q in np.quantile(d.dist[np.isfinite(d.dist)], [1 / 3, 2 / 3])]
+        if len(d) else [],
+        "validation_study_panos_shared_with_pool": int(len(vs_panos & set(d.pano_id.dropna()))),
+        "validation_study_shared_panos_by_city": {
+            c: int(n) for c, n in d[d.pano_id.isin(vs_panos)].drop_duplicates("pano_id").groupby("city").size().items()},
+    }
+    return d, dict(hosts=hosts, visibility=visibility, vocab=vocab, dropped=dropped, funnel=funnel,
+                   vstudy=vs, pool_stats=pool_stats)
 
 
 # ----------------------------------------------------------------------------- allocation
@@ -304,7 +409,8 @@ def water_fill(total, avail, rng):
 
 
 def rare_tag_weights(frame):
-    """1 / global frequency of each label's rarest tag; 1 for untagged labels."""
+    """1 / frequency (within ``frame``, i.e. one tag state) of each label's rarest tag; 1 for
+    untagged labels. The draw raises this to ``rare_power``."""
     freq = {}
     for tags in frame.tag_list:
         for t in tags:
@@ -383,18 +489,23 @@ def _fmt(x, nd=3):
     return "" if x is None or (isinstance(x, float) and not math.isfinite(x)) else f"{x:.{nd}f}"
 
 
-def list_rows(sel, hosts, vocab, seed):
+def list_rows(sel, hosts, vocab, seed, visibility=None, vstudy=None):
     rng = np.random.default_rng(seed + 1)
     order = rng.permutation(len(sel))
     sel = sel.iloc[order].reset_index(drop=True)
+    visibility = visibility or {}
+    if vstudy is None:
+        vstudy = pd.DataFrame(columns=["label_id", "pano_id", "latitude", "longitude"])
     rows = []
     for k, r in sel.iterrows():
         host = hosts[r.city]
         lid = int(r.label_id)
         sev = "" if pd.isna(r.severity) else str(int(r.severity))
+        same_pano, near = vstudy_flags(float(r.latitude), float(r.longitude), r.pano_id, vstudy)
         rows.append({
             "item_id": f"tr{k + 1:04d}",
             "city": r.city,
+            "deployment_visibility": visibility.get(r.city, ""),
             "label_id": lid,
             "label_uid": f"{r.city}:{lid}",
             "pano_id": r.pano_id,
@@ -412,7 +523,10 @@ def list_rows(sel, hosts, vocab, seed):
             "applicable_tags": tr.join_tags(vocab[r.city]),
             "tag_reviewed_by": r.tag_reviewed_by,
             "placed_by_rater": r.placed_by_rater,
-            "has_server_crop": "true",
+            "prior_contact_jonfroehlich": r.get("prior_contact_jonfroehlich", ""),
+            "prior_contact_mikey": r.get("prior_contact_mikey", ""),
+            "vstudy_same_pano": "true" if same_pano else "",
+            "vstudy_within_10m": ";".join(near),
             "editor_url": f"{host}/gallery?labelType=CurbRamp&labelId={lid}",
             "labelmap_url": f"{host}/labelMap?labelId={lid}",
             "gsv_url": gsv_url(r.pano_id, float(r.lab_heading), float(r.lab_pitch)),
@@ -447,13 +561,44 @@ def composition(rows):
     for tags in df.tags_at_list:
         for t in tr.parse_tag_list(tags):
             tag_pos[t] = tag_pos.get(t, 0) + 1
+    def col(name):
+        return df[name] if name in df else pd.Series([""] * len(df))
+
+    contact = {}
+    for name in ("jonfroehlich", "mikey"):
+        c = col(f"prior_contact_{name}").fillna("")
+        contact[name] = {"any": int((c != "").sum()),
+                         **{k: int(c.map(lambda s, k=k: k in s.split(";")).sum()) for k in CONTACT_KINDS}}
+    any_contact = (col("prior_contact_jonfroehlich").fillna("") != "") | (col("prior_contact_mikey").fillna("") != "")
+    aff = df[df.tag_state == "affirmed_empty"]
+    # capture gap: label date minus imagery capture month (first of the month), in years
+    cap = pd.to_datetime(col("image_capture_date"), errors="coerce", format="mixed")
+    placed = pd.to_datetime(col("placed_at"), errors="coerce")
+    gap = ((placed - cap).dt.days / 365.25).dropna()
+    vis = col("deployment_visibility").fillna("")
     return {
         "n": len(df),
         "state_by_band": {s: {b: int(sxb.loc[s, b]) for b in BANDS} for s in STATES},
         "per_city": {c: int(n) for c, n in per_city.items()},
+        "per_city_range": [int(per_city.min()), int(per_city.max())] if len(per_city) else [],
+        "non_us_items": int(df.city.isin(NON_US).sum()),
+        "non_us_cities": sorted(set(df.city) & NON_US),
         "tag_positives_at_list": dict(sorted(tag_pos.items())),
+        "severity_at_list": {(k or "unrated"): int(v) for k, v in
+                             col("severity_at_list").fillna("").value_counts().sort_index().items()},
         "placed_by_rater": {k or "(neither)": int(v) for k, v in df.placed_by_rater.value_counts().sort_index().items()},
+        "prior_contact": {**contact, "either_rater": int(any_contact.sum()),
+                          "affirmed_empty_validated_by_jonfroehlich": int(
+                              col("prior_contact_jonfroehlich")[aff.index].fillna("").str.contains("validated").sum())},
         "tag_reviewed_before": int((df.tag_reviewed_by != "").sum()),
+        "affirmed_empty_by_source": {k: int(v) for k, v in aff.tag_reviewed_by.value_counts().sort_index().items()},
+        "tagged_items_tag_reviewed": int(((df.tag_state != "affirmed_empty") & (df.tag_reviewed_by != "")).sum()),
+        "capture_gap_years": {"n": int(len(gap)), "median": round(float(gap.median()), 2) if len(gap) else None,
+                              "at_least_5y": int((gap >= 5).sum())},
+        "validation_study_same_pano": int((col("vstudy_same_pano") == "true").sum()),
+        "validation_study_within_10m": int((col("vstudy_within_10m").fillna("") != "").sum()),
+        "by_deployment_visibility": {k or "?": int(v) for k, v in vis.value_counts().sort_index().items()},
+        "private_deployments_in_list": sorted(set(df.city[vis == "private"])),
     }
 
 
@@ -468,16 +613,19 @@ def cmd_build(args):
         min_city_pool=args.min_city_pool, raters=raters)
     shares = parse_shares(args.shares)
     idx, targets, shortfall = draw(cands, args.n, shares, args.seed, args.min_sep_m, args.rare_power)
-    rows = list_rows(cands.loc[idx], info["hosts"], info["vocab"], args.seed)
+    rows = list_rows(cands.loc[idx], info["hosts"], info["vocab"], args.seed,
+                     visibility=info["visibility"], vstudy=info["vstudy"])
     digest = write_csv(args.out, rows)
     comp = composition(rows)
     manifest = load_manifest(args.cache)
     used = sorted({r["city"] for r in rows})
     inputs = {}
-    for c in sorted(info["vocab"]):
-        for ep in ("rawLabels__CurbRamp", "validations__CurbRamp", "labelTags"):
-            m = manifest["files"].get(f"{c}__{ep}", {})
-            inputs[f"{c}__{ep}"] = {"sha256": m.get("sha256"), "fetched_at": m.get("fetched_at")}
+    keys = [f"{c}__{ep}" for c in sorted(info["vocab"])
+            for ep in ("rawLabels__CurbRamp", "validations__CurbRamp", "labelEdits", "labelTags")]
+    keys.append(f"{VSTUDY_CITY}__rawLabels__CurbRamp")
+    for key in keys:
+        m = manifest.get("files", {}).get(key, {})
+        inputs[key] = {"sha256": m.get("sha256"), "fetched_at": m.get("fetched_at")}
     meta = {
         "generated_by": "scripts/analysis/tag_review_list.py build",
         "generated_on": dt.date.today().isoformat(),
@@ -487,10 +635,15 @@ def cmd_build(args):
                    "require_tags": sorted(args.require_tags), "min_city_pool": args.min_city_pool,
                    "min_sep_m": args.min_sep_m, "rare_power": args.rare_power, "camera_height_m": CAMERA_HEIGHT_M,
                    "band_edges_m": list(BAND_EDGES_M),
+                   "depression": "(pano_y / pano_height - 0.5) * 180, pano_y world-frame, no camera_pitch term",
+                   "vstudy_radius_m": VSTUDY_RADIUS_M,
                    "trusted_users": "owners only" if not args.trusted_users else "owners + --trusted-users file"},
         "funnel": [{"step": s, "labels": int(n)} for s, n in info["funnel"]],
         "pool_by_state": {s: int((cands.state == s).sum()) for s in STATES},
         "pool_by_city": {c: int(n) for c, n in cands.groupby("city").size().items()},
+        "pool_by_state_and_band": {s: {b: int(((cands.state == s) & (cands.band == b)).sum()) for b in BANDS}
+                                   for s in STATES},
+        "pool_stats": info["pool_stats"],
         "cities_dropped": dict(sorted(info["dropped"].items())),
         "targets": targets,
         "shortfall": [{"state": s, "city": c, "missing": int(m)} for s, c, m in shortfall],
@@ -503,6 +656,52 @@ def cmd_build(args):
     print(f"wrote {args.out} ({len(rows)} items, sha256 {digest})")
     print(f"wrote {meta_path}")
     print(json.dumps({"targets": targets, "shortfall": meta["shortfall"], **comp}, indent=1))
+
+
+def cmd_size(args):
+    """List-time positives per core tag for several list sizes and seeds (the size rationale)."""
+    cands, _ = build_candidates(
+        args.cache, exclude_cities=set(args.exclude_cities), require_tags=list(tr.CORE_TAGS),
+        crop_date=CROP_DATE, sources={"gsv"}, trusted=dict(OWNERS), min_city_pool=args.min_city_pool,
+        raters=dict(OWNERS))
+    shares = parse_shares(DEFAULT_SHARES)
+    print(f"minimum list-time positives over the {len(tr.CORE_TAGS)} core tags; "
+          f"a cell is 'min (tag)'; seeds {args.seeds}")
+    print("| n | " + " | ".join(f"seed {s}" for s in args.seeds) + " | seeds with every core tag >= 30 |")
+    print("|---:|" + "---|" * len(args.seeds) + "---:|")
+    for n in args.ns:
+        cells, ok = [], 0
+        for seed in args.seeds:
+            idx, _, _ = draw(cands, n, shares, seed, args.min_sep_m, args.rare_power)
+            pos = {t: 0 for t in tr.CORE_TAGS}
+            for tags in cands.loc[idx].tag_list:
+                for t in tags:
+                    if t in pos:
+                        pos[t] += 1
+            low = min(pos, key=lambda t: (pos[t], t))
+            cells.append(f"{pos[low]} ({low})")
+            ok += all(v >= 30 for v in pos.values())
+        print(f"| {n} | " + " | ".join(cells) + f" | {ok} of {len(args.seeds)} |")
+
+
+def cmd_pitch_check(args):
+    """Is ``pano_y`` world-frame? Slope of the residual against ``camera_pitch``.
+
+    For crop-era GSV labels placed within ``--tol-px`` of the canvas centre, the labeller's
+    recorded POV pitch is the label's world pitch. The residual
+    ``(0.5 - pano_y / pano_height) * 180 - pov_pitch`` has slope 0 against ``camera_pitch``
+    if ``pano_y`` is world-frame, and -1 if it is image-frame (so that ``camera_pitch`` would
+    have to be subtracted)."""
+    cols = ["time_created", "pano_source", "canvas_x", "canvas_y", "canvas_width", "canvas_height",
+            "pitch", "pano_y", "pano_height", "camera_pitch"]
+    print("| city | n | slope | camera_pitch sd |\n|---|---:|---:|---:|")
+    for city in args.cities:
+        d = pd.read_csv(os.path.join(args.cache, f"{city}__rawLabels__CurbRamp.csv"), usecols=cols)
+        d = d[(d.pano_source == "gsv") & (d.time_created >= CROP_DATE)]
+        d = d[((d.canvas_y - d.canvas_height / 2).abs() <= args.tol_px)].dropna()
+        resid = (0.5 - d.pano_y / d.pano_height) * 180.0 - d.pitch
+        slope = float(np.polyfit(d.camera_pitch, resid, 1)[0]) if len(d) > 2 else float("nan")
+        print(f"| {city} | {len(d):,} | {slope:.3f} | {d.camera_pitch.std():.2f} |")
 
 
 def cmd_power(args):
@@ -540,6 +739,20 @@ def main(argv=None):
     b.add_argument("--trusted-users", default=None,
                    help="role|username|user_id file to widen the trusted placers (not committed)")
     b.set_defaults(func=cmd_build)
+    z = sub.add_parser("size", help="min list-time positives per core tag vs list size and seed")
+    z.add_argument("--cache", default=DEFAULT_CACHE)
+    z.add_argument("--ns", type=int, nargs="+", default=[400, 450, 500])
+    z.add_argument("--seeds", type=int, nargs="+", default=[86, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    z.add_argument("--exclude-cities", nargs="*", default=list(DEFAULT_EXCLUDE_CITIES))
+    z.add_argument("--min-city-pool", type=int, default=100)
+    z.add_argument("--min-sep-m", type=float, default=10.0)
+    z.add_argument("--rare-power", type=float, default=1.5)
+    z.set_defaults(func=cmd_size)
+    g = sub.add_parser("pitch-check", help="is pano_y world-frame? residual slope vs camera_pitch")
+    g.add_argument("--cache", default=DEFAULT_CACHE)
+    g.add_argument("--cities", nargs="+", default=["seattle-wa", "chicago-il", "taipei"])
+    g.add_argument("--tol-px", type=float, default=10.0)
+    g.set_defaults(func=cmd_pitch_check)
     p = sub.add_parser("power", help="kappa CI half-width vs list size and positives")
     p.add_argument("--ns", type=int, nargs="+", default=[300, 500, 800])
     p.add_argument("--positives", type=int, nargs="+", default=[10, 20, 30, 50, 80])
