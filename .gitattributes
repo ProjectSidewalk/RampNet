@@ -55,3 +55,5 @@ scripts/model_comparison/yolo_baseline/benchmark_eval/*/*.json text eol=lf
 # A core.autocrlf=true clone would check them out CRLF and every one of those hashes would
 # fail for files that are byte-correct. tag_benchmark_86.py writes them LF on every platform.
 analysis_out/tag_benchmark_86/** text eol=lf
+# The #86 context experiment (docs/context_fov_86.md) is scored the same way.
+analysis_out/context_fov_86/** text eol=lf

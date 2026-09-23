@@ -1143,7 +1143,8 @@ def cmd_log_usage(args):
         extra["run_id"] = args.run_id
     if args.concurrent_with is not None:
         extra.update(share_fields([c for c in args.concurrent_with.split(",") if c]))
-    row = usage_row(args.label, args.elapsed_s, args.status, args.what, n=args.n, ts=args.ts, extra=extra)
+    row = usage_row(args.label, args.elapsed_s, args.status, args.what, n=args.n, ts=args.ts, extra=extra,
+                    host=args.host, gpu=args.gpu)
     ledger.append_rows(args.log, [row])
     print(json.dumps(row))
 
@@ -1252,6 +1253,8 @@ def main(argv=None):
     p.add_argument("--what", required=True, help="one line: what ran")
     p.add_argument("--n", type=int, default=None, help="crops scored / trained on")
     p.add_argument("--ts", default=None, help="run start (UTC ISO); default now")
+    p.add_argument("--host", default="makelab2.cs.washington.edu", help="where it ran (the #86 benchmark: makelab2)")
+    p.add_argument("--gpu", default="NVIDIA A40", help="the GPU it ran on ('' = none)")
     p.add_argument("--log", default=os.path.join(REPO, "analysis_out", "usage_log.jsonl"))
     p.set_defaults(func=cmd_log_usage)
 
