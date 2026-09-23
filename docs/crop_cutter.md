@@ -272,15 +272,7 @@ before 2023-10-12) are covered at 99.61 % (2,270 / 2,279), those with one at 98.
 (2,688 / 2,721): the newest labels are the likeliest to be on a pano the scraper has not
 reached yet. Per-city rows for all 51 cities in the sample are in `coverage.json`.
 
-**Why the tag-era frame is 362,217, not #175's 361,863 or the plan's ~354k.** The frame here is
-every non-SidewalkAI CurbRamp row of the audit's rawLabels cache whose `time_created` string is
-≥ `2018-04-29` (a string comparison of ISO-8601 UTC timestamps). The PR #175 audit parses the
-timestamps with `pandas.to_datetime(errors="coerce")`, which turns the 499 timestamps written
-without fractional seconds (`2022-03-05T14:58:59Z`) into NaT and so drops them; 354 of those are
-in the tag era, which is exactly 362,217 − 361,863 (seattle-wa 91, chicago-il 74, columbus-oh 18,
-…). Both see 505,293 human labels. The plan's ~354k (118k tagged + ~236k untagged, §4 item 5)
-predates the audit: it is the rounded scratch census on #86 (505,193 human labels), and is not
-re-derived here.
+**Why the tag-era frame is 362,217, not the plan's ~354k.** The frame here is every non-SidewalkAI CurbRamp row of the audit's rawLabels cache whose `time_created` string is ≥ `2018-04-29` (a string comparison of ISO-8601 UTC timestamps). PR #175's audit first reported 361,863 because it parsed the timestamps with `pandas.to_datetime(errors="coerce")` and no format, which turned the 499 timestamps written without fractional seconds (`2022-03-05T14:58:59Z`) into NaT; 354 of those are in the tag era, exactly the difference. That was found by this PR's review and fixed on #175 (`format="ISO8601"`, commit fdd73c6), and the two now agree at 362,217. Both see 505,293 human labels. The plan's ~354k (118k tagged + ~236k untagged, §4 item 5) predates the audit: it is the rounded scratch census on #86 (505,193 human labels), and is not re-derived here.
 
 A file that exists is not a file that decodes. In the 200-label validation all 195 panos opened
 and one was damaged (above); the whole-store decode rate is not measured.
