@@ -19,7 +19,10 @@ untested. Needs item 2b for every label without a production crop. ~2 GPU-days.*
 
 The question in one line: **does the tag head get better when it is trained on every human
 curb-ramp label of the tag era, with the untagged ones treated as unlabeled rather than
-negative, than when it is trained on the 8,674 reviewed crops the ASSETS'24 tagger used?**
+negative, than when it is trained on the reviewed ASSETS'24 crops alone?** The reviewed set here
+is the part of the 8,674 HF train crops that survives the test exclusions (§3.1: at most 4,279),
+because the rest sit on or beside the test panoramas; the published model trained on all 8,674
+is reported as a reference row.
 
 Why it is not obvious. The ASSETS'24 paper ran exactly the naive version of this experiment on
 its whole 33-class dataset (a ~24k cleaned set against a ~87k "larger but noisier crowdsourced"
@@ -43,8 +46,11 @@ pano-clustered bootstrap CIs as the benchmark reports them:
    test set, once its crops exist (§2.4; this is also the unfinished last clause of item 2,
    `tag_benchmark_86.md` §8).
 
-The comparison is paired on test labels: every arm is scored on the same rows. A gain counts if
-the paired difference's 95 % interval excludes zero on (1) *and* (2); (3) is reported beside them.
+The comparison is paired on test labels: every new arm, and the matched `clean` control, is
+scored on the same rows, and none of them has trained on or within 10 m of any of the three test
+sets. A gain counts if the paired difference against `clean` has a 95 % interval that excludes
+zero on (1) *and* (2); (3) is reported beside them. The #178 arms are reference rows only, each
+on the one test set it did not train on (§3.1, §8 decision 13).
 The benchmark's seed variance is unmeasured (`context_fov_86.md` §6), so a difference smaller than
 a seed's worth is not a result; §7 says what that costs to fix.
 
@@ -123,10 +129,13 @@ every training arm, by panorama, not by label:
   label of the same city within 10 m of any of those test labels, the benchmark's stricter rule
   (`tag_benchmark_86.md` §3: the same corner seen from a neighbouring panorama);
 - every panorama carrying one of the 2,452 expert-validate labels, and the same 10 m rule;
-- the validation slice of §5.3.
+- the validation slice of §5.3, which is itself drawn only from HF train rows that survive the
+  rules above.
 
 The exclusion list is written once, committed as `analysis_out/pu_training_86/excluded_panos.csv`
-with the reason per row, and asserted against every arm's training table by the test suite.
+with the reason per row, and asserted by the test suite against every arm's training table
+(training ∩ each test set ∩ slice = ∅, by panorama and by the 10 m rule) and against the slice
+itself (slice ∩ each test set = ∅, same two rules).
 The four HF train labels with no live row (`tag_benchmark_86.md` §3) are simply absent.
 
 ## 3. The PU formulation
@@ -135,20 +144,49 @@ The four HF train labels with no live row (`tag_benchmark_86.md` §3) are simply
 
 Every arm is the benchmark's recipe (`tag_benchmark_86.py train`: DINOv2-B/14 with registers,
 full fine-tune, Adam 1e-6, batch 4, BCE-with-logits, no augmentation, seed 86) with only the
-training table and the loss changed. The control already exists.
+training table and the loss changed.
+
+**The existing #178 control cannot be the paired control.** Crossing the committed
+`hf_curbramp_labels.csv` with `resplit_pano_grouped_seed86.csv` (both on `bench/tag-benchmark-86`;
+`analysis_out/pu_training_86/plan_numbers.json`, from `scripts/analysis/pu_training_86_plan.py`):
+
+- **1,772 of the re-split's 2,197 test labels (81 %) are HF train rows**, so #178 `train_control`
+  trained on them and cannot be scored on test (2). Symmetrically, 1,758 of the 2,183 HF test
+  labels are re-split train rows, so #178's `pano` arm cannot be scored on test (1).
+- Applying §2.4's exclusions to the 8,674 HF train rows removes 3,565 that sit on a panorama of
+  either test set and 830 more within 10 m of a test label of the same city, leaving **4,279**
+  (4 of them the labels with no live row), before the expert-validate and review-list exclusions,
+  which need those sets' coordinates. A new arm cannot carry the other half of the HF train rows
+  without training on or beside the test sets, so it cannot be a superset of #178's control.
+- On test (1), #178's control keeps the label-level leak (56 % of test labels share a panorama
+  with train, `tag_benchmark_86.md` §1) and the new arms do not. That bias runs against the new
+  arms; it was bounded at about 0.02 mAP at epoch index 4, and the 100-epoch bound is not yet
+  measured (`tag_benchmark_86.md` §5).
+
+**PROPOSED: a new, matched `clean` control, and the #178 arms as reference rows.**
 
 | arm | training labels | loss on an untagged label | what it isolates |
 |---|---|---|---|
-| **clean** (control, exists) | HF train, 8,674 reviewed crops, absence affirmed | negative (correct: the ASSETS'24 pass affirmed empty tag sets, audit §8) | the published benchmark, #178 `train_control`, re-scored on the shared test rows |
-| **naive** | tier 2 tag era minus §2.4 | negative for every tag | the ASSETS'24 "Experiment 2" arm on curb ramps; the thing PU is supposed to fix |
+| **clean** (control, new run) | the HF train rows that survive §2.4, minus the §5.3 selection slice: at most 4,279 − ~430 ≈ 3,850 reviewed crops, cut at the §4.1 framing | negative (correct: the ASSETS'24 pass affirmed empty tag sets, audit §8) | the reviewed set alone, matched to the new arms in exclusions, framing and selection rule |
+| **naive** | tier 2 tag era minus §2.4 (which contains the `clean` rows) | negative for every tag | the ASSETS'24 "Experiment 2" arm on curb ramps; the thing PU is supposed to fix |
 | **nnPU** | same table as naive | unlabeled: non-negative PU risk per tag with a class prior per tag (§3.2) | the experiment |
-| soft-negative (PROPOSED, only if the budget allows a fourth arm) | same table | negative with target 1 − c_t instead of 0, where c_t is the tag's labeling frequency | the cheapest fix; tells whether nnPU's unlabeled term is doing anything a soft target does not |
+| soft-negative (PROPOSED, only if the budget allows a fourth arm) | same table | negative with a soft target (§3.2) instead of 0 | the cheapest fix; tells whether nnPU's unlabeled term is doing anything a soft target does not |
+| reference: #178 `train_control` | all 8,674 HF train rows, HF screenshot framing | negative | the published benchmark; scored on test (1) only, leak included |
+| reference: #178 `pano` | the re-split's 8,660 train rows, HF framing | negative | the leak-free recipe; scored on test (2) only |
 
-Both `naive` and `nnPU` include the HF train crops in their table, framed the same way as every
-other label (§4), so the PU arms are supersets of the control's data, not disjoint from it. On the
-HF train rows the absence *is* affirmed, so their cells stay hard negatives in every arm
-(they are the only labels in the universe for which that is true, plus the expert-validate rows,
-which are test).
+The two reference rows are **pending**: the 100-epoch #178 arms died with the makelab2 reboot of
+2026-09-23 and were relaunched from scratch at 2026-09-24 04:09 UTC, ending about 20:30 UTC
+(PR #178 comment of 2026-09-24 04:12 UTC). They answer "does the store beat the published
+tagger", unpaired in data and framing; the `clean` control answers "does the store add to the
+reviewed rows available under the same exclusions", which is the paired question. The cost of
+the matched control: it carries about half the HF train rows, so it will score below the
+published model, and it is one more job, 100 epochs over ~3,850 crops, ~50 s per epoch at the
+measured ~77 crops/s (§5.1), about 1.4 h plus preprocessing on one L40S (arithmetic).
+
+Both `naive` and `nnPU` contain every `clean` row at the same framing, so every new arm is a true
+superset of the control. On the HF rows the absence *is* affirmed, so their cells stay hard
+negatives in every arm (they are the only labels in the universe for which that is true, plus the
+expert-validate rows, which are test); §3.1 below says how they enter the PU loss.
 
 **nnPU per tag.** For tag t with prior π_t, positives P_t (labels carrying t) and unlabeled U_t
 (every other, unmasked label), the non-negative PU risk (Kiryo et al., 2017) is
@@ -315,8 +353,11 @@ The recipe is 100 epochs over 8,674 crops, 867k sample presentations. On tier 2 
 **2.9 epochs**. Two budgets, both PROPOSED, run in this order:
 
 1. **Presentation-matched, 3 epochs** (~3.2 h per arm on one L40S, plus prep). The same number
-   of optimizer steps as the control saw, so a difference is data, not compute. Cheap enough to
-   run `naive`, `nnPU` and the soft-negative arm all three: ~10 GPU-hours.
+   of optimizer steps as the published recipe (867k presentations), so a difference from the
+   reference rows is data, not compute. The matched `clean` control runs the recipe's 100 epochs
+   over its ~3,850 crops, about 385k presentations, so it sees fewer steps than any new arm; that
+   is stated beside its row, not corrected by running it longer. Cheap enough to run `naive`,
+   `nnPU` and the soft-negative arm all three: ~10 GPU-hours, plus ~1.4 h for `clean`.
 2. **30 epochs** (~32 h per arm) for `naive` and `nnPU`, ~64 GPU-hours, with a checkpoint scored
    on the validation slice every 5 epochs so the curve says whether 30 was enough. This is the
    arm the headline comes from.
@@ -329,14 +370,23 @@ Stated so the ledger is not a surprise.
 The recipe keeps the checkpoint with the best *training* exact-match accuracy
 (`tag_benchmark_86.md` §5). Under a PU loss that number is meaningless (the targets are not
 labels), and on 296k crops the last epoch is not necessarily the best. PROPOSED: hold out a
-**10 % pano-grouped slice of the HF train rows** (about 870 reviewed labels, absence affirmed,
-same seed-86 grouping as the re-split) from every new arm, score every 5-epoch checkpoint on it,
-and select by its mAP. It is the only place in the universe with affirmed negatives that is not a
-test set. The control keeps its published selection (best training accuracy, epoch read from
-`best.pth`), which is a stated asymmetry: the control was selected by a rule that reads only its
-training set, the new arms by a reviewed slice they never trained on. If that worries the read,
-the control's epoch-4/9/19/49 snapshots (PR #178) can be scored on the same slice, but they are
-training labels for the control, so that read is optimistic and is reported as such.
+**10 % pano-grouped slice of the HF train rows that survive §2.4** (10 % of at most 4,279, so
+about 430 reviewed labels, absence affirmed, seed 86) from every arm, `clean` included, score
+every 5-epoch checkpoint on it (every 10 epochs for `clean`'s 100), and select by its mAP over the
+tags with at least 10 slice positives (the benchmark's rule, `tag_benchmark_86.md` §1). The
+slice is drawn from the survivors, never from all 8,674 HF train rows: 1,772 of those are test (2)
+rows and 3,565 sit on a test panorama (§3.1). It is the only place in the universe with affirmed
+negatives that is not a test set.
+
+The slice is small. At the survivors' rates (`plan_numbers.json`) 430 labels carry about 6–7 *steep*
+and 5 *pooled water* positives, so those two tags will usually fall below the 10-positive rule
+and selection rests on the other six. A 20 % slice (~860) would fix that and take another ~430
+rows out of `clean`, which already has half the HF train rows; 10 % is proposed, 20 % is the
+alternative (§8 decision 6).
+
+Because `clean` is a new run, it is selected by the same rule, so the selection asymmetry the
+first draft carried is gone for the paired comparison. The #178 reference rows keep their
+published selection (best training exact-match accuracy), stated beside them.
 
 ### 5.4 What the trainer needs before a 30-hour job is safe
 
@@ -413,7 +463,8 @@ a two-crop model would.
 - **Training crops are an unpublished input** (§4.4). The control's crops are public.
 - **The framing decision inherits item 4's result**, including its one-seed caveat and its
   interim control column (the #178 epoch-index-49 snapshot, until the re-run finishes).
-- **The control is selected by a different rule** than the new arms (§5.3).
+- **The #178 reference rows are selected by a different rule** than the new arms and `clean`
+  (best training accuracy vs the §5.3 slice), and each is scored on one test set only (§3.1).
 - **The 8 scored tags are the benchmark's**; a tag with no test positives cannot be scored no
   matter how many training labels it gains (`parallel lines`, `tactile warning`).
 
@@ -431,8 +482,9 @@ a two-crop model would.
 4. **Arms:** `naive` + `nnPU` at both budgets, soft-negative at budget 1 only?
 5. **Budgets:** 3 epochs (presentation-matched) then 30 epochs; ~3 GPU-days on the lab L40S
    allocation for the full set, against the plan's ~2?
-6. **Selection:** a 10 % pano-grouped slice of HF train held out from the new arms, control
-   left as published?
+6. **Selection:** a 10 % pano-grouped slice (~430 labels) of the HF train rows that survive the
+   test exclusions, held out from every arm including `clean`, or 20 % (~860, keeps *steep* and
+   *pooled water* scoreable, costs `clean` another ~430 rows)?
 7. **Cut host and cap:** makelab2 at ≤ 6 workers, `nice`, after the #178 rerun finishes; makelab1
    over NFS only after a timed sample?
 8. **Transfer:** per-city tars relayed through the desktop, or set up a direct makelab → klone
@@ -443,3 +495,8 @@ a two-crop model would.
 11. **Publish the cut crops** as a Hugging Face dataset so the arms are reproducible without the
     store, or record them as an unpublished input?
 12. **Batch size** stays 4 for the comparison, batch 16 as a follow-up?
+13. **Control per test set:** a new `clean` control trained on the surviving HF train rows at the
+    §4.1 framing, selected on the §5.3 slice, as the paired control on all three test sets
+    (proposed; ~1.4 h on one L40S), with #178 `train_control` as a reference row on test (1) and
+    #178 `pano` as a reference row on test (2)? The alternative, pairing against #178's control,
+    scores it on its own training labels on test (2) and is not proposed.
