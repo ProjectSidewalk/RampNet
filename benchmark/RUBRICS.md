@@ -5,8 +5,8 @@ else can reproduce — a second rater would have to read source to learn what th
 These rubrics were extracted from the tools that produced them so they sit **beside the data they
 describe**, and so a rating pass can be repeated without reverse-engineering it.
 
-Three human passes exist. Each is defined below, with the tool that renders it and the file its
-judgments land in.
+Four human passes exist, and a fifth is drafted (§5). Each is defined below, with the tool that
+renders it and the file its judgments land in.
 
 ---
 
@@ -176,3 +176,18 @@ settled by a rule. `manual_gold` holds 234 within-radius pairs away from the sea
 near-identical elevation on the horizon, and those are overwhelmingly genuine adjacent far-field
 ramps. Adjudication is per-pair and human: `scripts/analysis/seam_review.py` for the seam cases,
 nothing yet for the rest.
+
+---
+
+## 5. Curb-ramp tag review — `benchmark/tag_review/<rater>.json` (working draft)
+
+**Rubric:** [`docs/tag_rubric_draft.md`](../docs/tag_rubric_draft.md), the block between its
+`rubric:begin` / `rubric:end` markers. **Status: a working draft, changed as we learn from using it.**
+**Protocol:** [`docs/tag_review_protocol.md`](../docs/tag_review_protocol.md).
+**List:** `benchmark/tag_review/review_list.csv` (500 items; built by
+`scripts/analysis/tag_review_list.py`).
+**Scored by:** `scripts/analysis/tag_review_agreement.py`.
+**Issue:** #86 (RampNet 2.0 plan item 3).
+
+Like §3, the rubric travels inside every rater file: its version, its sha256 and its full text,
+and the agreement script refuses two files rated under different text. No rater file exists yet.

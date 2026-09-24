@@ -27,6 +27,8 @@ from rampnet import ledger  # noqa: E402
 KLONE_DUMP = os.path.join(REPO_ROOT, "docs", "data", "compute", "sacct_klone_2026-08-19.txt")
 TILLICUM_DUMP = os.path.join(REPO_ROOT, "docs", "data", "compute",
                              "sacct_tillicum_2026-09-21.txt")
+KLONE_DUMP_SA131 = os.path.join(REPO_ROOT, "docs", "data", "compute",
+                                "sacct_klone_2026-09-24_sa131.txt")
 KLONE_DUMP_CTX = os.path.join(REPO_ROOT, "docs", "data", "compute", "sacct_klone_2026-09-24.txt")
 HYAKUSAGE_REPORT = os.path.join(REPO_ROOT, "docs", "data", "compute",
                                 "hyakusage_tillicum_2026-09-21.txt")
@@ -343,12 +345,13 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
     """docs/compute_cost.md's numbers are claimed re-derivable from a clean clone.
     That is only true if the ledger is the dump's parse and nothing else: same
     rows, same order, differing only in the recorded_at stamp."""
-    # Three dumps, appended in this order: klone on 2026-08-19, Tillicum on 2026-09-21,
-    # then the five klone jobs of the #86 context experiment (docs/context_fov_86.md),
-    # pulled by job id on 2026-09-24.
+    # Dumps, appended in this order: klone on 2026-08-19, Tillicum on 2026-09-21, then two
+    # klone pulls by job id on 2026-09-24: the three jobs of the #131 Phase 1 replication
+    # (#185, merged first) and the five of the #86 context experiment (docs/context_fov_86.md).
     parsed, stamps = [], []
     for dump, cluster, stamp in ((KLONE_DUMP, "klone", "2026-08-19T"),
                                  (TILLICUM_DUMP, "tillicum", "2026-09-21T"),
+                                 (KLONE_DUMP_SA131, "klone", "2026-09-24T"),
                                  (KLONE_DUMP_CTX, "klone", "2026-09-24T")):
         with open(dump, encoding="utf-8") as fh:
             rows = parse_sacct(fh.read(), cluster=cluster, user="jfroehli")
@@ -356,7 +359,7 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
         stamps += [stamp] * len(rows)
     committed = ledger.read_rows(os.path.join(REPO_ROOT, "analysis_out",
                                               "compute_log.jsonl"))
-    assert len(committed) == len(parsed) == 3990 + 38 + 5
+    assert len(committed) == len(parsed) == 3990 + 38 + 3 + 5
     for have, want, stamp in zip(committed, parsed, stamps):
         have = dict(have)
         assert have.pop("recorded_at").startswith(stamp)
@@ -364,7 +367,7 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
     # The context experiment: four L40S arms on the lab's allocation plus a CPU-only env
     # build on ckpt, all COMPLETED, so free. 16.54 GPU-hours; the doc's per-arm table reads
     # these rows. Selected by job id, not by position: another PR appending its own dump
-    # after the 2026-09-21 snapshot (#185 does) must not shift these rows out from under
+    # after the 2026-09-21 snapshot (#185 did, first) must not shift these rows out from under
     # the check.
     ctx = [r for r in committed if r["cluster"] == "klone"
            and r["job_id"] in {"40485927", "40486691", "40486692", "40486693", "40486694"}]
@@ -373,12 +376,22 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
     assert all(r["state"] == "COMPLETED" and r["est_cost_usd"] == 0.0 for r in ctx)
     assert [r["gpus"] for r in ctx] == [0, 1, 1, 1, 1]
     assert round(sum(r["gpu_hours"] for r in ctx), 2) == 16.54
+    # The #131 replication: a CPU unpack on ckpt plus the same GPU job twice, once on the
+    # lab's L40S allocation and once as a ckpt copy, both COMPLETED, free. 0.22 GPU-hours.
+    # Selected by job id, not by position: another PR appending its own dump after the
+    # 2026-09-21 snapshot (#180 does) must not shift these rows out from under the check.
+    sa131 = [r for r in committed if r["cluster"] == "klone"
+             and r["job_id"] in {"40546626", "40546727", "40549843"}]
+    assert [r["job_name"] for r in sa131] == ["sa131_unpack", "sa131_phase1", "sa131_phase1"]
+    assert all(r["state"] == "COMPLETED" and r["est_cost_usd"] == 0.0 for r in sa131)
+    assert [r["gpus"] for r in sa131] == [0, 1, 1]
+    assert round(sum(r["gpu_hours"] for r in sa131), 2) == 0.22
     # ...and the headline figures in the doc, from the ledger before that pull (the
     # 2026-08-19 snapshot the doc's opening line describes).
-    agg = summarize(committed[:3990 + 38])["klone"]
+    snapshot = committed[:3990 + 38]
+    agg = summarize(snapshot)["klone"]
     assert agg["jobs"] == 3990 and round(agg["gpu_hours"], 1) == 2684.4
     assert agg["usd"] == 0.0 and agg["unpriced"] == 0
-    snapshot = committed[:3990 + 38]
     base = [r for r in snapshot
             if r["cluster"] == "klone" and r["job_name"] == "yolo_curb_ramp_train"]
     assert len(base) == 3857 and round(sum(r["gpu_hours"] for r in base), 1) == 2046.9
@@ -440,6 +453,12 @@ def test_from_file_prints_the_dump_hash_and_the_doc_pins_the_committed_one(
     digest_t = hashlib.sha256(raw_t).hexdigest()
     assert digest_t in re.findall(r"sha256\s+`([0-9a-f]{64})`", doc)
     assert f"({len(raw_t):,} bytes" in doc
+    # ...and the 2026-09-24 klone pull for the #131 replication.
+    with open(KLONE_DUMP_SA131, "rb") as fh:
+        raw_s = fh.read()
+    assert hashlib.sha256(raw_s).hexdigest() in re.findall(r"sha256\s+`([0-9a-f]{64})`", doc)
+    assert f"({len(raw_s):,} bytes" in doc
+    assert raw_s.count(b"\r\n") == 0
     # ...and the 2026-09-24 klone pull for the context experiment.
     with open(KLONE_DUMP_CTX, "rb") as fh:
         raw_c = fh.read()

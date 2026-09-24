@@ -267,7 +267,7 @@ def cmd_compare(args):
             hf_sha[f] = hashlib.sha256(fh.read()).hexdigest()
     rng = random.Random(args.seed)
 
-    per, fovs = [], {}
+    per, fovs, widths = [], {}, set()
     for r in sample:
         hf_img = Image.open(hf_paths[r["hf_filename"]]).convert("RGB")
         row = {"city": r["city"], "label_id": r["label_id"], "pano_id": r["pano_id"],
@@ -282,6 +282,7 @@ def cmd_compare(args):
                 continue
             cut = Image.open(os.path.join(args.crops, name)).convert("RGB")
             c = compare_pair(hf_img, cut, frame_width=m["width"])
+            widths.add(int(m["width"]))
             # the residual shift as an angle at the view centre, so zooms are comparable
             ppd = m["width"] / 2.0 / math.tan(math.radians(m["fov_h_deg"]) / 2.0) * math.pi / 180.0
             c["shift_deg"] = math.hypot(c["shift_x_px"], c["shift_y_px"]) / ppd
@@ -339,7 +340,9 @@ def cmd_compare(args):
                                              for p in ok], 0.5)}
     res = {"sample": os.path.relpath(args.sample, REPO), "n_sample": len(sample),
            "metric": "grey 360x240 after bilinear resize; NCC = zero-mean normalized cross-correlation; "
-                     "SSIM = skimage structural_similarity; shift = phase correlation, in 1440x960 px",
+                     "SSIM = skimage structural_similarity; shift = phase correlation, in px of the "
+                     "cut's own frame (its manifest width: "
+                     + ", ".join(str(w) for w in sorted(widths)) + " px here)",
            "hf_zip": HF_VALIDATED_ZIP, "hf_revision": HF_REVISION, "by_tag": summ, "viewport_by_zoom": by_zoom,
            "cut_run": args.cut_run}
     if args.cut_summary and os.path.isfile(args.cut_summary):
