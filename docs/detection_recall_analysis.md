@@ -85,8 +85,10 @@ A–C decide the image↔raw column mapping; D confirms the labeler's ray formul
 composition is the lookup the script uses. The independent reviewer's own checks
 ([PR #184 review](https://github.com/ProjectSidewalk/RampNet/pull/184#pullrequestreview-5305326643)) agreed (sky vs
 brightness 189 vs 26; ground hit 1,096 vs 1,061; seam 0.031 vs 0.344 on paterson). Sky and edges
-peak off zero for the remaining panos because many upper halves carry little sky or are
-tree-lined, not because they favour the other hypothesis (1 and 0 panos respectively do).
+peak off zero for the remaining panos, but not near the mirrored mapping's zero either: only
+1 (sky) and 0 (edge) panos put the mirrored peak within ±2 columns. Over all shifts the mirrored
+mapping scores best on 94 of 404 sky panos and 202 of 483 edge panos, at large shifts, which reads
+as noise rather than support for the mirror. Why those panos peak off zero was not measured.
 
 **Open question, not checked here.** The labeler's own `ground_range_at` uses the same stored ↔
 raw convention as the lookup this section stopped using. Whether the labeler's imagery shares

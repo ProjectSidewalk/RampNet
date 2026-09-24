@@ -98,6 +98,13 @@ analysis_out/op/*
 # e.g. crop_window_eval_richmond.json.
 !analysis_out/crop_window_eval.json
 !analysis_out/crop_window_eval_*.json
+# SAM2 extent vs the whole-apron gold (#83, plan item 7): the per-item rows are the
+# GPU output (they do NOT regenerate without a GPU run), plus each run's provenance and
+# the CPU summaries. See docs/sam2_extent_83.md.
+!analysis_out/sam2_extent_83/
+analysis_out/sam2_extent_83/*
+!analysis_out/sam2_extent_83/*.csv
+!analysis_out/sam2_extent_83/*.json
 # The machine-readable scoreboard behind docs/model_scoreboard.md: every (leg, split) cell --
 # P/R/F1/AP, TP/FP/FN, panorama and GT counts -- for the aggregates that page tabulates.
 # ~80 KB. It regenerates from committed data alone, but committing it is what lets a
@@ -112,6 +119,11 @@ analysis_out/op/*
 !analysis_out/scoreboard.json
 !analysis_out/farfield_forensics.json
 !analysis_out/silent_activation.json
+# #131: the same study re-run on klone, written beside the original, plus its run record
+!analysis_out/silent_activation_replica.json
+!analysis_out/silent_activation_replica.run.json
+!analysis_out/silent_activation_replica_ckpt.json
+!analysis_out/silent_activation_replica_ckpt.run.json
 # The #126 cascade go/no-go: rampnet's heatmap at the ramps a challenger recovers.
 !analysis_out/cascade_gate.json
 !analysis_out/cascade_gate_op030.json
@@ -213,3 +225,8 @@ analysis_out/ps_audit/hf_validated_curbramp_index.csv
 !analysis_out/recall_by_depth_112.json
 !analysis_out/recall_by_depth_112.md
 !analysis_out/depth_image_alignment_112.json
+# The Stage 1 agreement re-measurement (#172): the gold panos' Stage 1 points (280 KB, the two
+# label columns of the published test split at a pinned revision) and the result they give, so
+# the corrected P/R re-derives on CPU and tests/test_stage1_agreement_172.py checks it byte for byte.
+!analysis_out/stage1_agreement_172.json
+!analysis_out/stage1_agreement_172/

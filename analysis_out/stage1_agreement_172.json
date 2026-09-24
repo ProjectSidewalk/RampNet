@@ -1,0 +1,132 @@
+{
+  "bootstrap": {
+    "n": 2000,
+    "seed": 172,
+    "unit": "panorama"
+  },
+  "conventions": {
+    "published": {
+      "ci95": {
+        "precision": [
+          0.93099,
+          0.949231
+        ],
+        "recall": [
+          0.915053,
+          0.933904
+        ]
+      },
+      "f1": 0.932321,
+      "fn": 296,
+      "fp": 230,
+      "ignored": 119,
+      "n_gt": 3919,
+      "n_pred": 3972,
+      "precision": 0.940306,
+      "recall": 0.924471,
+      "tp": 3623
+    },
+    "published_redund_fp": {
+      "ci95": {
+        "precision": [
+          0.901436,
+          0.922202
+        ],
+        "recall": [
+          0.915053,
+          0.933904
+        ]
+      },
+      "f1": 0.918261,
+      "fn": 296,
+      "fp": 349,
+      "ignored": 0,
+      "n_gt": 3919,
+      "n_pred": 3972,
+      "precision": 0.912135,
+      "recall": 0.924471,
+      "tp": 3623
+    },
+    "shared": {
+      "ci95": {
+        "precision": [
+          0.904414,
+          0.92517
+        ],
+        "recall": [
+          0.918153,
+          0.936989
+        ]
+      },
+      "f1": 0.921303,
+      "fn": 284,
+      "fp": 337,
+      "ignored": 0,
+      "n_gt": 3919,
+      "n_pred": 3972,
+      "precision": 0.915156,
+      "recall": 0.927533,
+      "tp": 3635
+    },
+    "shared_nowrap": {
+      "ci95": {
+        "precision": [
+          0.904486,
+          0.92517
+        ],
+        "recall": [
+          0.918217,
+          0.936744
+        ]
+      },
+      "f1": 0.921303,
+      "fn": 284,
+      "fp": 337,
+      "ignored": 0,
+      "n_gt": 3919,
+      "n_pred": 3972,
+      "precision": 0.915156,
+      "recall": 0.927533,
+      "tp": 3635
+    }
+  },
+  "delta_shared": {
+    "precision_vs_published": -0.025144,
+    "precision_vs_redundant_only": 0.003056,
+    "recall_vs_published": 0.003033
+  },
+  "inputs": {
+    "dataset": "projectsidewalk/rampnet-dataset",
+    "labels_json": "analysis_out/stage1_agreement_172/stage1_gold_labels.json",
+    "labels_json_sha256": "98d9d5f470e3ab842aa6b8f387c36a7cd62784c6777ca6da95552083dfb8837b",
+    "manual_labels_dir": "manual_labels",
+    "revision": "ee882e3f3c779dc13182f307bca616e50d9b8c5c"
+  },
+  "matching_change": {
+    "n_panos_changed": 14,
+    "tp_gained": 13,
+    "tp_lost": 1,
+    "tp_net": 12
+  },
+  "n_dropped_out_of_range": 0,
+  "n_gold_only": 0,
+  "n_negative_panos": 207,
+  "n_panos": 1000,
+  "order_sensitivity": {
+    "n_shuffles": 200,
+    "precision_max_matching": 0.91566,
+    "recall_max_matching": 0.928043,
+    "seed": 172,
+    "tp_max_matching": 3637,
+    "tp_shuffle_max": 3637,
+    "tp_shuffle_min": 3635,
+    "tp_stored_order": 3635,
+    "unit": "points within each panorama"
+  },
+  "published": {
+    "precision": 0.9403,
+    "recall": 0.9245
+  },
+  "radius_normalized": 0.022,
+  "redundant_only_precision": 0.9121
+}

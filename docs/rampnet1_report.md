@@ -145,8 +145,8 @@ Three things, in decreasing order of how much they turned out to matter.
 
 **The data engine.** Stage 1 is the contribution. It converts a government point inventory into
 per-panorama pixel labels without a human in the loop, at 97.91% yield over the panoramas Google
-would serve, and its labels agree with hand labels at 0.94 precision as published, at most 0.91 once redundant
-points count as false positives, and 0.92 recall. No other curb-ramp dataset of this size exists.
+would serve, and its labels agree with hand labels at 0.94 precision as published, 0.92 once redundant
+points count as false positives and matching claims the nearest unclaimed ramp (#172), and 0.93 recall. No other curb-ramp dataset of this size exists.
 The Stage 1 label recall, stratified by distance, is flatter than the detector's own recall (0.78
 at 25 to 40 m against the model's 0.49), so the labels are not the ceiling the detector is hitting
 (`curb_ramp_data_sourcing.md` §0). That is an in-distribution result: the gold set is drawn from
@@ -214,8 +214,9 @@ and did not count redundant detections as false positives. Both biases are upwar
 greedy one-to-one matching, the released model reads precision 0.949, recall 0.873 and AP 0.9205
 instead of 0.938 / 0.935 / 0.9236; the matching rule alone moves precision −1.0 and recall −4.4
 points (`README.md` §Erratum, [#9](https://github.com/ProjectSidewalk/RampNet/issues/9)). The
-Stage 1 precision of 94.0% has the same flaw and has not been re-measured; 91.2% is an upper
-bound on the corrected figure. The repository is tagged `v1.0-iccv2025` at paper state and
+Stage 1 agreement of 94.0% precision / 92.5% recall had the same flaws; re-measured under the
+shared matcher it is precision 0.9152 / recall 0.9275
+([#172](https://github.com/ProjectSidewalk/RampNet/issues/172)). The repository is tagged `v1.0-iccv2025` at paper state and
 `v1.1-corrected-eval` with the corrected scorer.
 
 ### 5.4 The post-publication benchmark
@@ -618,8 +619,10 @@ Things this report states as caveats rather than resolves:
   that split and changes recall by at most 10 in 3,919.
 - **The Stage 1 dataset carries its 1% duplication defect** into any model trained on it. The fix
   is in the generator for 2.0.
-- **`silent_activation.json` has one provenance**: produced once on one local GPU
-  ([#131](https://github.com/ProjectSidewalk/RampNet/issues/131)). §6.6's 8/62/30 split rests on it.
+- **`silent_activation.json` now has two provenances**: the RTX 3070 original and a klone L40S
+  replica from the published inputs ([#131](https://github.com/ProjectSidewalk/RampNet/issues/131),
+  2026-09-24). Every number §6.6's 8/62/30 split rests on reproduces; the raw activations differ
+  by at most 7 × 10⁻⁵ (`curb_ramp_data_sourcing.md` §0c).
 - **The YOLO baseline is untuned**, so the 0.016 gap is against a lower bound; a tuned schedule
   is a different recipe with its own replicates
   ([#90](https://github.com/ProjectSidewalk/RampNet/issues/90) and

@@ -179,6 +179,31 @@ prep job is 4.665 GPU-h at `normal` and prices to $4.20 at cent precision; the s
 0.03 GPU-h at `debug`, which this ledger prices at $0 per Slurm's UsageFactor while
 `hyakusage` charges $0.03 — still unresolved and still capped at $0.90 per job.
 
+## klone, 2026-09-24: the #131 Phase 1 replication, pulled by job id
+
+Three jobs, 0.22 GPU-hours, $0, from `docs/data/compute/sacct_klone_2026-09-24_sa131.txt`
+(519 bytes, sha256 `5a08c98d9885bb789b6cc7657f1489e490bff11ffdb18ff57401999efe7a6c36`), pulled
+on klone with the `--print-command` invocation plus `-j 40546626,40546727,40549843` so it holds
+these three allocations and nothing else, and parsed with:
+
+```bash
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
+    --from-file docs/data/compute/sacct_klone_2026-09-24_sa131.txt --out analysis_out/compute_log.jsonl
+```
+
+| job | what | partition | elapsed | GPU-h |
+| :--- | :--- | :--- | ---: | ---: |
+| 40546626 `sa131_unpack` | the seven US splits from the Hub onto scratch (CPU) | ckpt-all | 218 s | 0 |
+| 40549843 `sa131_phase1` | `silent_activation.py`, ckpt copy | ckpt-all, L40S on g3124 | 527 s | 0.146 |
+| 40546727 `sa131_phase1` | `silent_activation.py`, lab allocation | gpu-l40s, L40S on g3104 | 271 s | 0.075 |
+
+The two GPU jobs are the same run twice; both replicas are byte-identical
+([`curb_ramp_data_sourcing.md` §0c](curb_ramp_data_sourcing.md), #131). A pull by job id is the
+right shape for a small experiment: it adds exactly its own rows, so the ledger stays the sum of
+its committed dumps and two experiments pulled the same day cannot re-record each other's jobs.
+(A pull by date range would also have re-recorded the plan-item-4 arms running that day, which
+#180 records from its own dump.)
+
 ## Gaps, stated
 
 - **Tillicum is a snapshot as of 2026-09-21.** Nothing after that date is in the ledger; the
