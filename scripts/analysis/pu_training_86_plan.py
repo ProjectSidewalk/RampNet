@@ -7,16 +7,14 @@ frequency c_t, the positive fraction among untagged labels pi_U, the soft-negati
 This script derives all of them so the doc can cite one committed output instead of arithmetic
 done in a session.
 
-Inputs are committed on other branches until their PRs merge; fetch them with ``git show``:
+The audit tables (``tags.csv``, ``tiers.csv``) are on ``main`` since PR #183 merged (29fe638),
+so the default paths work for them. The two HF tables are on the #178 branch until it merges;
+fetch them with ``git show``:
 
     git show origin/bench/tag-benchmark-86:analysis_out/tag_benchmark_86/hf_curbramp_labels.csv > hf.csv
     git show origin/bench/tag-benchmark-86:analysis_out/tag_benchmark_86/resplit_pano_grouped_seed86.csv > rs.csv
-    git show origin/audit/ps-supervision-86-timestamp-fix:analysis_out/ps_audit/tags.csv > tags.csv
-    git show origin/audit/ps-supervision-86-timestamp-fix:analysis_out/ps_audit/tiers.csv > tiers.csv
     python scripts/analysis/pu_training_86_plan.py --labels hf.csv --resplit rs.csv \\
-        --tags tags.csv --tiers tiers.csv --out analysis_out/pu_training_86/plan_numbers.json
-
-(PR #178 and PR #183 respectively; once merged, the default paths on ``main`` work.)
+        --out analysis_out/pu_training_86/plan_numbers.json
 
 Definitions, per tag t, in the censoring reading of PU data (a label either carries t or it
 does not, and a label that does not is unlabeled for t):
@@ -27,6 +25,9 @@ does not, and a label that does not is unlabeled for t):
 - pi_U = (pi_t - o_t) / (1 - o_t), the fraction of *untagged* labels that truly carry t.
   Clamped at 0 when o_t >= pi_t (then the prior says every true positive was tagged, and a
   PU loss reduces to treating untagged labels as negatives).
+- pi'_t = max(pi_t, o_t), the prior the case-control nnPU risk is given: only with pi' >= o does
+  the case-control form equal the clamped censoring form (and reduce to the naive loss when
+  pi' == o).
 
 Example: pi = 0.389, o = 0.154 gives c = 0.40 and pi_U = 0.278.
 """
@@ -91,8 +92,12 @@ def survivors(lab, rs, near_m=NEAR_M):
             d[i] = float(np.min(haversine_m(r.lat, r.lng, t.lat.values, t.lng.values)))
     near = d <= near_m
     surv = rest[~near]
+    # Rows with no live pano have no coordinates: their proximity to the tests is unknown and
+    # they cannot be re-cut, so they are counted but not trainable (the benchmark's leak-free
+    # subset likewise drops ``pano_unknown``).
+    trainable = surv[surv.pano_id.notna()]
     cross = pd.crosstab(m.split, m.resplit)
-    return surv, {
+    return trainable, {
         "hf_rows": int(len(m)),
         "hf_train": int(len(tr)),
         "hf_test": int((m.split == "test").sum()),
@@ -104,7 +109,8 @@ def survivors(lab, rs, near_m=NEAR_M):
         "hf_train_within_10m_of_test": int(near.sum()),
         "survivors": int(len(surv)),
         "survivors_without_live_row": int(surv.pano_id.isna().sum()),
-        "survivor_panos": int(surv.pano_id.nunique()),
+        "survivors_trainable": int(len(trainable)),
+        "survivor_panos": int(trainable.pano_id.nunique()),
     }
 
 
@@ -140,6 +146,7 @@ def main():
             pi, o = priors[src][t], o2[t]
             pu[src][t] = {"pi": pi, "o_tier2": o, "c": round(o / pi, 3) if pi else None,
                           "pi_U": round(pi_unlabeled(pi, o), 4),
+                          "pi_prime": round(max(pi, o), 4),
                           "soft_target_1_minus_c": round(1 - o / pi, 3) if pi else None}
 
     out = {"inputs": {k: os.path.basename(getattr(a, k)) for k in ("labels", "resplit", "tags", "tiers")},

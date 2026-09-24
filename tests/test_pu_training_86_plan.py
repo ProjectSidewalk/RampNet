@@ -43,6 +43,7 @@ def test_survivors_excludes_test_panos_and_10m_neighbours_only():
                        "split": ["train", "train", "train", "train", "test", "train"]})
     surv, counts = pu.survivors(lab, rs)
     assert sorted(surv.label_uid) == ["a:5", "b:3"]
+    assert counts["survivors"] == counts["survivors_trainable"] == 2
     assert counts["hf_train_on_test_pano"] == 2               # a:2 (HF test pano), a:4 (re-split)
     assert counts["hf_train_within_10m_of_test"] == 1         # a:3
     assert counts["hf_split_x_resplit"]["train/test"] == 1
