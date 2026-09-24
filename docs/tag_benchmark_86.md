@@ -209,9 +209,11 @@ Unpaired micro-F1 and macro-F1: pano − control +0.001 [−0.025, +0.025] and +
   0.391]; the released checkpoint's 0.341 is inside that interval, 0.013 below the point
   estimate. That is consistent with the train framing being the `crop.py` 640 px box (see the
   assumption below). It does not prove it.
-- **Across 18 intervals, expect about one to exclude zero by chance.** Two do (block − control
-  unpaired mAP, and block − pano paired macro-F1 +0.057 [+0.010, +0.096]); a third (block −
-  control unpaired macro-F1) touches zero. Treat them as leads for a second seed, not results.
+- **Across these 18 intervals, expect about one to exclude zero by chance alone.** Three do, all
+  favouring the block arm: block − control unpaired mAP (above), block − pano paired macro-F1
+  +0.057 [+0.010, +0.096], and block − control unpaired macro-F1, whose lower end is +0.0001.
+  The first is explained by the label sets (next bullet up); treat the other two as leads for a
+  second seed, not results.
 
 **Caveats that travel with §5.1:**
 
