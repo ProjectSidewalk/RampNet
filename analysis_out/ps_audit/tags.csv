@@ -1,13 +1,13 @@
 tag,labels,labels_correct,pct_of_tag_era,cities_with_labels,deployments_listing,labels_where_unlisted,unlisted_in
-debris / pooled water,4759,3743,1.32,47,58,0,
-missing tactile warning,61044,45586,16.87,56,56,771,"amsterdam, chandigarh-india"
-narrow,19167,14375,5.3,56,57,3,chandigarh-india
-not aligned with crosswalk,1293,992,0.36,3,5,0,
-not enough landing space,13021,10352,3.6,54,57,2,chandigarh-india
-not level with street,14597,8255,4.03,53,58,0,
+debris / pooled water,4760,3743,1.31,47,58,0,
+missing tactile warning,61103,45628,16.87,56,56,772,"amsterdam, chandigarh-india"
+narrow,19196,14401,5.3,56,57,3,chandigarh-india
+not aligned with crosswalk,1295,992,0.36,3,5,0,
+not enough landing space,13036,10364,3.6,54,57,2,chandigarh-india
+not level with street,14616,8265,4.04,53,58,0,
 not visible,5,0,0.0,1,1,0,
-parallel lines,789,728,0.22,1,1,0,
-points into traffic,33241,27569,9.19,54,56,809,amsterdam
-steep,4602,2738,1.27,51,57,3,chandigarh-india
-surface problem,15338,10993,4.24,56,57,2,chandigarh-india
-tactile warning,1143,998,0.32,1,1,0,
+parallel lines,792,731,0.22,1,1,0,
+points into traffic,33263,27589,9.18,54,56,809,amsterdam
+steep,4604,2738,1.27,51,57,3,chandigarh-india
+surface problem,15355,11004,4.24,56,57,2,chandigarh-india
+tactile warning,1144,999,0.32,1,1,0,

@@ -1,0 +1,71 @@
+{
+ "arms": [
+  "boxcenter_gnomonic",
+  "boxcenter_equirect",
+  "point_gnomonic",
+  "point_equirect"
+ ],
+ "autocast": "bfloat16",
+ "box_rule_version": 2,
+ "boxes_json_sha256": "0a3f166dd782161930f549a43d3f9331c24006a8480f7ddbe9f926f16a16fff1",
+ "checkpoint": "sam2.1_hiera_large.pt",
+ "checkpoint_sha256": "2647878d5dfa5098f2f8649825738a9345572bae2d4350a2468587ece47dd318",
+ "city": "paterson",
+ "decode_s": 565.743,
+ "detect_s": 3158.645,
+ "elapsed_s": 3171.77,
+ "embed_s": 217.381,
+ "finished_at": "2026-09-23T04:04:37+00:00",
+ "fovs": [
+  90,
+  76,
+  60
+ ],
+ "gnomonic_render": "bilinear, view side = box_gallery crop side at the same fov",
+ "gold": {
+  "completeness_warning": "boxes.json covers 119 of 395 adjudicated ramps (276 never annotated) \u2014 every rate below is over that subset, not over the benchmark's ramps",
+  "crop_fov_deg": 90,
+  "crop_px_by_pano_dims": {
+   "13312x6656": 3328,
+   "16384x8192": 4096,
+   "3328x1664": 832
+  },
+  "n_adjudicated": 395,
+  "n_boxed": 109,
+  "n_cant": 10,
+  "n_other": 0
+ },
+ "gpus": [
+  "NVIDIA A40"
+ ],
+ "headline_variant": "pt_multi",
+ "host": "makelab2.cs.washington.edu",
+ "imagery_manifest_digest": "18fb224f05242c89",
+ "load_s": 7.439,
+ "n_items": 109,
+ "n_panos": 30,
+ "n_rows": 5232,
+ "n_views": 1308,
+ "panos_verified_against_manifest": 30,
+ "prior": {
+  "apron_m": 1.5,
+  "cam_height_m": 2.5,
+  "scale": 2.0
+ },
+ "python": "3.11.15",
+ "records_jsonl_sha256": "363dba08d49d60ce9d9322115c89b27f450b35cd74598f127b261ab321979096",
+ "render_s": 2023.406,
+ "rows_csv_sha256": "3f556a04e58f64668663a0215292d6074dc27d2dfb74d4172ed19cc182aa377d",
+ "sam2": {
+  "dist_version": "1.0",
+  "git_commit": "2b90b9f5ceec907a1c18123530e92e794ad901a4"
+ },
+ "sam2_config": "configs/sam2.1/sam2.1_hiera_l.yaml",
+ "torch": "2.5.1+cu124",
+ "variants": [
+  "pt_multi",
+  "pt_single",
+  "ptbox_multi",
+  "ptbox_single"
+ ]
+}
