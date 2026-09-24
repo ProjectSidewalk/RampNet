@@ -116,6 +116,27 @@ extrapolation got wrong is the population: paterson and gainesville are half-to-
 the measured ones. The 25–35% stretch is real and matters for any split — or deployment — on the
 new rig.
 
+**Cross-check against a depth-free measurement.** The labeler measures the same range scale
+without any depth: a leave-one-view-out reprojection residual over every multi-view site
+([sidewalk-auto-labeler PR #76](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/pull/76),
+its `docs/reprojection-residual.md` at commit `e221b03` on branch `reprojection-residual-36`)
+gives a corrected flat-ground scale at 2.6 m of **k = 1.19 for paterson's 2025 rig and 1.18 for
+gainesville's 2026 rig**, against 1.01–1.07 for 2019–24 vintages; under per-pano depth heights
+the same fit reads 0.99 on the new rig and 0.94–1.00 on older imagery, i.e. depth ranges 1–4%
+short — the same direction as the camera-height study's "depth frame runs short", at a smaller
+magnitude. Put on the same footing (flat at 2.6 m over depth, per capture year, GT points), this
+document's rows agree with that on the older vintages and not on the new rig: bend 2024 1.12
+(n 236) vs k 1.06, paterson 2019–24 1.07–1.14 vs 1.04–1.06, sao_paulo 2022–25 1.07–1.13 vs
+1.01–1.02, all within a few percent and on the side a 1–4% short depth range predicts; but
+**paterson 2025 reads 1.45 (n 166) and gainesville 2026 1.51 (n 200) here against 1.19 and 1.18
+there.** Two independent methods agree that the new rig is the outlier and disagree on its size
+by a factor the older vintages do not show. That gap is an open question, not resolved here;
+the candidates are the pano population (benchmark panos vs every multi-view site), the
+stand-in-ground exclusion, and the 2026 rig's depth frame. The same labeler document reports
+that about half of #101's 0.07–0.13 along-ray slope is regression bias (a naive along-ray-vs-range
+fit returns 0.047–0.054 on simulated data with no scale error) — reported there, not re-derived
+here ([#101](https://github.com/ProjectSidewalk/RampNet/issues/101)).
+
 ### 0.2 Recall by distance, flat vs depth
 
 bend, measured-ground panoramas (254 of the 327 GT points in §1's bend half):
