@@ -220,3 +220,8 @@ analysis_out/ps_audit/*
 !analysis_out/ps_audit/*.csv
 !analysis_out/ps_audit/*.json
 analysis_out/ps_audit/hf_validated_curbramp_index.csv
+# The Stage 1 agreement re-measurement (#172): the gold panos' Stage 1 points (280 KB, the two
+# label columns of the published test split at a pinned revision) and the result they give, so
+# the corrected P/R re-derives on CPU and tests/test_stage1_agreement_172.py checks it byte for byte.
+!analysis_out/stage1_agreement_172.json
+!analysis_out/stage1_agreement_172/
