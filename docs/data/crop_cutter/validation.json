@@ -90,7 +90,7 @@
  },
  "hf_revision": "6e3a116a3c228dd35bcd72f6e5fb921f6ebb6a50",
  "hf_zip": "https://huggingface.co/datasets/projectsidewalk/sidewalk-tagger-ai-validated/resolve/6e3a116a3c228dd35bcd72f6e5fb921f6ebb6a50/Validated/CurbRamp.zip",
- "metric": "grey 360x240 after bilinear resize; NCC = zero-mean normalized cross-correlation; SSIM = skimage structural_similarity; shift = phase correlation, in 1440x960 px",
+ "metric": "grey 360x240 after bilinear resize; NCC = zero-mean normalized cross-correlation; SSIM = skimage structural_similarity; shift = phase correlation, in px of the cut's own frame (its manifest width: 1440 px here)",
  "n_sample": 200,
  "sample": "docs\\data\\crop_cutter\\validation_sample.csv",
  "viewport_by_zoom": {

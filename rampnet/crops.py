@@ -52,10 +52,12 @@ Pure functions of numpy arrays; the only I/O helpers are :func:`encode_jpeg` and
 :func:`sha256_hex`. Usage::
 
     import numpy as np
-    from rampnet.crops import centered_view, render_view
-    pano = np.asarray(PIL.Image.open("pano.jpg"))              # (H, W, 3) uint8
+    from PIL import Image
+    from rampnet.crops import VIEWER_TILT, centered_view, render_view, tilt_matrix
+    pano = np.asarray(Image.open("pano.jpg").convert("RGB"))  # (H, W, 3) uint8
     view = centered_view(13740, 4754, 16384, 8192, fov_h_deg=60, width=1440)
-    tilt = tilt_matrix(camera_pitch, camera_roll, VIEWER_TILT)   # GSV panos; None if unknown
+    camera_pitch, camera_roll = 1.8, None     # the pano's stored tilt, degrees; None = unknown
+    tilt = tilt_matrix(camera_pitch, camera_roll, VIEWER_TILT)   # GSV panos; None for no tilt
     crop = render_view(pano, view, tilt)                         # (960, 1440, 3) uint8
 """
 from __future__ import annotations
