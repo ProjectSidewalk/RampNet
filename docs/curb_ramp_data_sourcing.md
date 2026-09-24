@@ -553,7 +553,7 @@ the job fails at launch with no log at all.
 | population | n | act q1 / med / q3 | act ≥ 0.01 |
 | :--- | ---: | :---: | ---: |
 | near / rated | 13 | 0.009 / 0.099 / 0.197 | 9 |
-| near / witnessed | 32 | 0.033 / 0.211 / 0.592 | 30 |
+| near / witnessed | 32 | 0.032 / 0.211 / 0.592 | 30 |
 | far / rated | 37 | 0.022 / 0.076 / 0.409 | 34 |
 | far / below-floor | 9 | 0.042 / 0.194 / 0.381 | 8 |
 | far / witnessed | 37 | 0.045 / 0.188 / 0.615 | 37 |

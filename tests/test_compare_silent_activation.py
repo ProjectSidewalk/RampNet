@@ -171,3 +171,69 @@ def test_the_two_klone_replicas_are_byte_identical():
     deterministic on that hardware, so the drift above is between machines, not runs."""
     with open(REPLICA_JSON, "rb") as fh, open(REPLICA_CKPT_JSON, "rb") as gh:
         assert fh.read() == gh.read()
+
+
+def _empty():
+    return _payload([])
+
+
+def test_two_empty_files_are_not_a_match(tmp_path):
+    """Nothing compared is not 'every value identical': an empty replica is a failed run."""
+    assert cs.compare(_empty(), _empty())["status"] == cs.POPULATIONS_DIFFER
+    a = _write(tmp_path, "a.json", _empty())
+    b = _write(tmp_path, "b.json", _empty())
+    assert cs.main([a, b]) == cs.POPULATIONS_DIFFER       # even byte-identical
+
+
+def test_a_repeated_row_key_is_not_hidden_by_the_join(tmp_path, capsys):
+    doubled = copy.deepcopy(BASE)
+    doubled["results"].append(copy.deepcopy(doubled["results"][0]))
+    cmp = cs.compare(BASE, doubled)
+    assert cmp["status"] == cs.POPULATIONS_DIFFER
+    assert cmp["duplicates"]["replica"] == [("a", "p1", 0.1, 0.55)]
+    assert not cmp["duplicates"]["reference"]
+    a = _write(tmp_path, "a.json", doubled)
+    assert cs.main([a, a]) == cs.POPULATIONS_DIFFER
+    assert "repeats 1 row keys" in capsys.readouterr().out
+
+
+def _doc_activation_table():
+    """The '| population | n | act q1 / med / q3 | act >= 0.01 |' table in 0c, parsed."""
+    import re
+    doc = os.path.join(REPO_ROOT, "docs", "curb_ramp_data_sourcing.md")
+    with open(doc, encoding="utf-8") as fh:
+        text = fh.read()
+    start = text.index("| population | n | act q1 / med / q3 |")
+    rows = {}
+    for line in text[start:].splitlines()[2:]:
+        if not line.startswith("|"):
+            break
+        name, n, q, n01 = [c.strip().strip("*") for c in line.strip("|").split("|")]
+        rows[name] = (int(n), tuple(float(x) for x in q.split(" / ")), int(n01))
+        assert re.fullmatch(r"[\d.]+ / [\d.]+ / [\d.]+", q)
+    return rows
+
+
+def test_the_activation_quartile_table_0c_prints_reads_from_both_files():
+    """0c's per-population act quartiles, at the three decimals the doc prints, from the
+    committed original and from the klone replica alike. (Until #131's review the
+    near / witnessed q1 cell read 0.033; both files give 0.0325 -> 0.032.)"""
+    from farfield_forensics import quartiles
+    doc = _doc_activation_table()
+    assert len(doc) == 6
+    for path in (RESULT_JSON, REPLICA_JSON):
+        with open(path, encoding="utf-8") as fh:
+            results = json.load(fh)["results"]
+        got = {}
+        for field in ("near", "far"):
+            for grp in ("rated", "below_floor", "witnessed"):
+                sel = [r["act"] for r in results if r["field"] == field and r["group"] == grp]
+                if sel:
+                    got[f"{field} / {grp.replace('_', '-')}"] = sel
+        got["all silent misses"] = [r["act"] for r in results]
+        assert set(got) == set(doc), (sorted(got), sorted(doc))
+        for name, acts in got.items():
+            n, q, n01 = doc[name]
+            assert len(acts) == n, name
+            assert tuple(round(x, 3) for x in quartiles(acts)) == q, (path, name)
+            assert sum(a >= 0.01 for a in acts) == n01, name

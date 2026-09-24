@@ -20,7 +20,8 @@ population is a different study.
         analysis_out/silent_activation.json analysis_out/silent_activation_replica.json
 
 Exit status is 0 when the two are byte-identical, 1 when values are identical but bytes
-differ, 2 when any value moved, 3 when the populations differ. The printed report is the
+differ, 2 when any value moved, 3 when the populations differ (which includes a file with no
+rows, or with a row key that occurs twice, since the join would hide it). The printed report is the
 result either way; the status is for a script that wants to branch on the outcome.
 """
 import argparse
@@ -28,6 +29,7 @@ import hashlib
 import json
 import os
 import sys
+from collections import Counter
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -79,6 +81,11 @@ def compare(a, b):
             va, vb = sorted(va or []), sorted(vb or [])
         if va != vb:
             out["header"][k] = (a.get(k), b.get(k))
+    # A key that occurs twice would collapse in the dicts below and hide a row, so it is
+    # reported and makes the populations differ, like an empty file does.
+    out["duplicates"] = {name: sorted(k for k, c in Counter(row_key(r) for r in p["results"]).items()
+                                      if c > 1)
+                         for name, p in (("reference", a), ("replica", b))}
     ra = {row_key(r): r for r in a["results"]}
     rb = {row_key(r): r for r in b["results"]}
     out["only_in_a"] = sorted(set(ra) - set(rb))
@@ -108,7 +115,8 @@ def compare(a, b):
         if ra[k]["above_own_null_p95"] != rb[k]["above_own_null_p95"]:
             out["p95_changes"].append((k, ra[k]["above_own_null_p95"],
                                        rb[k]["above_own_null_p95"]))
-    if out["only_in_a"] or out["only_in_b"] or out["header"]:
+    if (out["only_in_a"] or out["only_in_b"] or out["header"] or not common
+            or any(out["duplicates"].values())):
         out["status"] = POPULATIONS_DIFFER
     elif out["fields"] or out["inputs"]:
         out["status"] = VALUES_MOVED
@@ -143,6 +151,12 @@ def report(a, b, meta_a, meta_b, cmp, byte_identical):
             lines.append(f"  only in reference: {k}")
         for k in cmp["only_in_b"][:5]:
             lines.append(f"  only in replica:   {k}")
+    for name, keys in cmp["duplicates"].items():
+        if keys:
+            lines.append(f"{name} repeats {len(keys)} row keys, e.g. {keys[0]} -- a row "
+                         f"would be hidden by the join")
+    if cmp["n_common"] == 0:
+        lines.append("no rows in common -- nothing was compared")
     if cmp["status"] == POPULATIONS_DIFFER:
         lines.append("OUTCOME: the populations differ -- not the same study; compare inputs first.")
         return "\n".join(lines)
@@ -189,8 +203,10 @@ def main(argv=None):
     args = p.parse_args(argv)
     a, sha_a, n_a = load(args.reference)
     b, sha_b, n_b = load(args.replica)
-    byte_identical = sha_a == sha_b
     cmp = compare(a, b)
+    # identical bytes cannot differ in header or rows, so a POPULATIONS_DIFFER here means an
+    # empty or duplicate-keyed file, which is broken whether or not the two copies match
+    byte_identical = sha_a == sha_b and cmp["status"] != POPULATIONS_DIFFER
     if byte_identical:
         cmp["status"] = BYTE_IDENTICAL
     print(report(a, b, (args.reference, sha_a, n_a), (args.replica, sha_b, n_b), cmp,
