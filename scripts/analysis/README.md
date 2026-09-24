@@ -120,7 +120,7 @@ wide-FOV views.
 
 ## Not part of the recall analysis
 
-These scripts belong to different questions and read none of the caches above:
+These scripts belong to other questions and read none of the caches above:
 
 | script | GPU | what it answers |
 |---|---|---|
