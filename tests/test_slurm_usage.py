@@ -363,7 +363,10 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
         assert have == want
     # The #131 replication: a CPU unpack on ckpt plus the same GPU job twice, once on the
     # lab's L40S allocation and once as a ckpt copy, both COMPLETED, free. 0.22 GPU-hours.
-    sa131 = committed[3990 + 38:]
+    # Selected by job id, not by position: another PR appending its own dump after the
+    # 2026-09-21 snapshot (#180 does) must not shift these rows out from under the check.
+    sa131 = [r for r in committed if r["cluster"] == "klone"
+             and r["job_id"] in {"40546626", "40546727", "40549843"}]
     assert [r["job_name"] for r in sa131] == ["sa131_unpack", "sa131_phase1", "sa131_phase1"]
     assert all(r["state"] == "COMPLETED" and r["est_cost_usd"] == 0.0 for r in sa131)
     assert [r["gpus"] for r in sa131] == [0, 1, 1]
