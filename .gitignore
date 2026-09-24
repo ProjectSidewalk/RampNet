@@ -215,3 +215,9 @@ analysis_out/ps_audit/*
 !analysis_out/ps_audit/*.csv
 !analysis_out/ps_audit/*.json
 analysis_out/ps_audit/hf_validated_curbramp_index.csv
+# PU training plan (#86 item 5): the derived numbers the plan doc cites
+# (scripts/analysis/pu_training_86_plan.py), and later the committed exclusion list.
+!analysis_out/pu_training_86/
+analysis_out/pu_training_86/*
+!analysis_out/pu_training_86/*.json
+!analysis_out/pu_training_86/*.csv
