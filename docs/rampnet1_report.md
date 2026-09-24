@@ -610,8 +610,10 @@ Things this report states as caveats rather than resolves:
   that split and changes recall by at most 10 in 3,919.
 - **The Stage 1 dataset carries its 1% duplication defect** into any model trained on it. The fix
   is in the generator for 2.0.
-- **`silent_activation.json` has one provenance**: produced once on one local GPU
-  ([#131](https://github.com/ProjectSidewalk/RampNet/issues/131)). §6.6's 8/62/30 split rests on it.
+- **`silent_activation.json` now has two provenances**: the RTX 3070 original and a klone L40S
+  replica from the published inputs ([#131](https://github.com/ProjectSidewalk/RampNet/issues/131),
+  2026-09-24). Every number §6.6's 8/62/30 split rests on reproduces; the raw activations differ
+  by at most 7 × 10⁻⁵ (`curb_ramp_data_sourcing.md` §0c).
 - **The YOLO baseline is untuned**, so the 0.016 gap is against a lower bound; a tuned schedule
   is a different recipe with its own replicates
   ([#90](https://github.com/ProjectSidewalk/RampNet/issues/90) and
