@@ -214,8 +214,9 @@ and did not count redundant detections as false positives. Both biases are upwar
 greedy one-to-one matching, the released model reads precision 0.949, recall 0.873 and AP 0.9205
 instead of 0.938 / 0.935 / 0.9236; the matching rule alone moves precision −1.0 and recall −4.4
 points (`README.md` §Erratum, [#9](https://github.com/ProjectSidewalk/RampNet/issues/9)). The
-Stage 1 precision of 94.0% has the same flaw and has not been re-measured; 91.2% is an upper
-bound on the corrected figure. The repository is tagged `v1.0-iccv2025` at paper state and
+Stage 1 agreement of 94.0% precision / 92.5% recall had the same flaws; re-measured under the
+shared matcher it is precision 0.9152 / recall 0.9275
+([#172](https://github.com/ProjectSidewalk/RampNet/issues/172)). The repository is tagged `v1.0-iccv2025` at paper state and
 `v1.1-corrected-eval` with the corrected scorer.
 
 ### 5.4 The post-publication benchmark

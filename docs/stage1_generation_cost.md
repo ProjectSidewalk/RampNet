@@ -154,7 +154,7 @@ so the shared matcher claims ramps in the order the dataset stores the points, a
 that order meaningful. The script measures the sensitivity (`order_sensitivity` in the result): 200
 seeded shuffles of each panorama's points give TP **3,635 to 3,637**, and the maximum one-to-one
 matching over any order (Kuhn's augmenting paths) is 3,637, P 0.9157 / R 0.9280. The stored order
-gives the low end. The effect is at most 0.0005 on either figure, well inside the CI; 0.9152 /
+gives the low end. The effect is about 0.0005 at most on either figure (recall moves 2/3,919 = 0.00051), well inside the CI; 0.9152 /
 0.9275 stays the number of record because it is what the shared evaluator reports.
 
 Re-derive on CPU in seconds (`tests/test_stage1_agreement_172.py` does so byte for byte):
