@@ -1,22 +1,22 @@
 {
- "file": "train_control_ep4_test_predictions.csv",
+ "file": "train_control_ep19_test_predictions.csv",
  "filter": "rows whose label is test under split_csv (tag_benchmark_86.py test-only)",
  "labels_sha256": "20731670b66e09df8b6b1e0facb8b55155ba6a4b5f76d616b4a19fdcd6cfa5ec",
  "n_rows": 2183,
- "predictions_sha256": "0d87f312912b124a52b8339872843979690781fc9203aa7f9f068d4ed70fd62e",
- "source_file": "snap_ep4_control_predictions.csv",
+ "predictions_sha256": "64b5c7c6a252bbbb5150c2322033c957c350f847cf2383de0577c57a48500821",
+ "source_file": "snap_ep19_control_predictions.csv",
  "source_meta": {
-  "checkpoint": "best_after_ep4.pth",
-  "checkpoint_sha256": "ff7b8ce953a6051372945028d9769b2e044827a4c513fb53a0aed50d65094450",
+  "checkpoint": "best_after_ep19.pth",
+  "checkpoint_sha256": "1061a3df86fb6879668c2437dfdfdf9dd815fbea705949656e6148b9ada6595f",
   "csv": "hf_curbramp_labels.csv",
-  "elapsed_s": 287.593551,
+  "elapsed_s": 284.049945,
   "gpu": "NVIDIA A40",
   "host": "makelab2.cs.washington.edu",
-  "infer_s": 278.657274,
-  "load_s": 5.62203,
+  "infer_s": 276.702221,
+  "load_s": 5.210982,
   "n_listed": 10857,
   "n_scored": 10857,
-  "predictions_sha256": "43237dc10fe81eba10cb6a44eb7f4d4125488cea554bd6a63e64353104d25584",
+  "predictions_sha256": "a5242b9367e6bd08c9780309982e33c323eebc70eac93eaeebac45e1f5230c89",
   "tagger_sha": "3b7405cd3206ece631cb7a65e22b1ab219df4b75",
   "tags": [
    "missing-tactile-warning",
@@ -31,9 +31,9 @@
    "tactile-warning"
   ],
   "torch": "2.4.1+cu121",
-  "ts": "2026-09-24T20:45:04+00:00"
+  "ts": "2026-09-24T21:13:52+00:00"
  },
- "source_sha256": "43237dc10fe81eba10cb6a44eb7f4d4125488cea554bd6a63e64353104d25584",
+ "source_sha256": "a5242b9367e6bd08c9780309982e33c323eebc70eac93eaeebac45e1f5230c89",
  "split_csv": "hf test.csv/train.csv",
  "split_csv_sha256": null
 }
