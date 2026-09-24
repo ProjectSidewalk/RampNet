@@ -220,6 +220,11 @@ analysis_out/ps_audit/*
 !analysis_out/ps_audit/*.csv
 !analysis_out/ps_audit/*.json
 analysis_out/ps_audit/hf_validated_curbramp_index.csv
+
+# #112: the depth-axis re-measure; per-point rows so the tables re-derive without the payloads
+!analysis_out/recall_by_depth_112.json
+!analysis_out/recall_by_depth_112.md
+!analysis_out/depth_image_alignment_112.json
 # The Stage 1 agreement re-measurement (#172): the gold panos' Stage 1 points (280 KB, the two
 # label columns of the published test split at a pinned revision) and the result they give, so
 # the corrected P/R re-derives on CPU and tests/test_stage1_agreement_172.py checks it byte for byte.

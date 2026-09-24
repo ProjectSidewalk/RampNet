@@ -10,6 +10,17 @@ past 25 m. Three levers close the gap, in increasing cost — a free operating-p
 (unmeasured, plausibly the largest). Precision is **not** the problem and culling distant
 detections actively hurts.
 
+> **The metre labels were re-measured on GSV's own depth (§0, #112).** On bend, the GSV half
+> of this population, the flat-ground axis below runs **~6–8% long** near the thresholds, so
+> "18 m / 25 m" reads **16.9 m / 23.3 m** there. With the labeler's depth-frame correction it is
+> within 2% of what is printed. The larger stretch the issue measured is a property of Google's
+> **2025–26 rig** (paterson 2025, gainesville 2026 capture), whose camera sits at ~1.8–1.9 m
+> instead of ~2.4 m. That rig's axis is ~1.4× long, and the same thresholds are
+> **13.1 m / 18.7 m** on it. Richmond is Mapillary, which serves no depth, so its half of every
+> table stays on the flat-ground axis. Every table in this document is kept as published; the
+> depth-axis versions are in §0. (§0 was corrected on 2026-09-24: its first version read the
+> depth payload azimuth-mirrored; see §0 and [#112](https://github.com/ProjectSidewalk/RampNet/issues/112).)
+
 ## Why this needed depth
 
 The benchmark labels are **points, not boxes**, so a ramp's apparent size is unknown — yet "the
@@ -30,6 +41,302 @@ imagery we care most about.
 Apparent size then follows from distance: a ramp of real width `W` at distance `d` subtends
 `W/d × (4096 / 2π)` px in RampNet's 4096-px-wide input space.
 
+## 0. The distance axis, re-measured on GSV depth (#112)
+
+Every distance below is flat-ground geometry (or DA3, which agreed with it to 6.5–8.5%) at an
+*assumed* 2.5 m camera height. GSV's depth payload is a list of planes plus a per-pixel plane
+index, and the dominant ground plane's distance is the camera height — a per-panorama
+measurement, not a constant. The sidewalk-auto-labeler archived that payload for every panorama
+of its bend, paterson, gainesville and sao_paulo runs; the 485 benchmark panoramas of those four
+splits are all in it, sha256-verified against its `index.csv`. laurens_gsv was never harvested
+and richmond is Mapillary, so neither has a depth axis.
+
+`scripts/analysis/recall_by_depth_112.py` re-derives the axis. It parses the payloads and
+classifies the ground plane with the labeler's own `depth.py` (labeler commit `86bb909`, branch
+`camera-height-40`; `origin/main` was `c4bebf1` and lacks only the stand-in-ground
+classification used here), and does the per-point plane lookup and ray itself, for the reason
+in the next paragraph. It re-issues this document's tables on the flat axis and the depth axis
+side by side, per split and pooled over the four GSV splits. The committed
+`analysis_out/recall_by_depth_112.json` carries every GT point and detection with both
+distances, and every table re-derives from those rows on CPU (`recall_by_depth_112.py --check`).
+`tests/test_recall_by_depth_112.py` pins those tables and checks that every table in this
+section is the committed one, verbatim (`--check --doc-tables` prints them). Nothing here needs
+the payloads to check. The full tables, per split, are in `analysis_out/recall_by_depth_112.md`.
+
+**Which way round the payload is (checked against the imagery, not assumed).** The payload
+stores its plane index in *raw* column order. The labeler's `depth.py` maps an image column `c`
+to raw column `511 − c`. That is right for streetlevel's rastered depth map, which is mirrored,
+but **it is mirrored against the RampNet benchmark JPEGs**, which are the frame the GT points and
+detections live in. The first version of this section (PR #184 before review) used the labeler's
+lookup and so read every point's depth at the azimuth-mirrored position. The mapping used now is
+**image column `c` = raw column `c`**, with the labeler's raw-column ray
+(`phi = (1 − x)·2π + π/2`). `scripts/analysis/depth_image_alignment_112.py` measures it four
+independent ways, and commits the result to `analysis_out/depth_image_alignment_112.json`:
+
+| check | image column = raw column | image column = raw 511 − c (the labeler's lookup) |
+|---|---|---|
+| A. Sky: best of both hypotheses × 512 column shifts, correlating the payload's sky mask with an image sky score (404 panos with sky) | **189** peak within ±2 columns of zero shift; 333 win at zero shift | 1 |
+| B. The plane under each GT point is ground-like (1,101 points, measured-ground panos) | **1,096** (99.5%) | 1,061 (96.4%) |
+| B. The same for true-positive detections (774) | **770** (99.5%) | 745 (96.3%) |
+| C. Plane-index boundaries vs vertical image edges near the horizon (483 panos) | **348** win at zero shift; 40 best within ±2 | 0 best within ±2 |
+| D. Raw-space ray formula: where ground meets a wall across a column boundary, the two planes give the same range (47,019 boundaries, all 485 payloads; no image involved) | **median \|log ratio\| 0.023** (labeler's `_direction`) | 0.424 (mirrored azimuth) |
+
+A–C decide the image↔raw column mapping; D confirms the labeler's ray formula in raw space. The
+composition is the lookup the script uses. The independent reviewer's own checks
+([PR #184 review](https://github.com/ProjectSidewalk/RampNet/pull/184#pullrequestreview-5305326643)) agreed (sky vs
+brightness 189 vs 26; ground hit 1,096 vs 1,061; seam 0.031 vs 0.344 on paterson). Sky and edges
+peak off zero for the remaining panos, but not near the mirrored mapping's zero either: only
+1 (sky) and 0 (edge) panos put the mirrored peak within ±2 columns. Over all shifts the mirrored
+mapping scores best on 94 of 404 sky panos and 202 of 483 edge panos, at large shifts, which reads
+as noise rather than support for the mirror. Why those panos peak off zero was not measured.
+
+**Open question, not checked here.** The labeler's own `ground_range_at` uses the same stored ↔
+raw convention as the lookup this section stopped using. Whether the labeler's imagery shares
+these JPEGs' orientation or streetlevel's raster is a question for the labeler, and nothing in
+this document tests it.
+
+**The rule.** Depth distance = horizontal range along the exact ray through the point to the
+payload plane under its pixel (the plane index is per pixel of a 512×256 grid; the intersection
+is continuous, never snapped to a pixel row). If that plane is not ground-like (tilt > 18°) the
+point falls back to level ground at the measured camera height (the ground plane's tilt is not
+applied there), and the row says so. With the aligned lookup that happens for **5 of 1,101 GT
+points** (4 `fallback_wall`, 1 above the horizon; the mirrored lookup had put 39 there). Apparent
+size uses the Euclidean ray distance. Ground truth and hits are exactly this document's (verdict
+review, deployed 0.55, the same greedy matcher). The richmond + bend population reproduces at
+**637 / 0.765** on the way in.
+
+**Which panoramas count.** 14% of GSV payloads carry Google's stand-in ground — an exactly
+level plane at exactly 2.500 m, a default rather than a measurement — and a few are 2-plane
+fallbacks or implausible. Those panoramas are **excluded from the depth axis**, never backfilled,
+and their GT points stay on the flat axis only:
+
+| split | panos | measured | stand-in ground | degenerate / implausible | camera height median (min–max), measured |
+|---|---:|---:|---:|---:|---|
+| bend | 110 | 90 | 20 | 0 / 0 | 2.37 m (1.66–2.49) |
+| paterson | 125 | 113 | 10 | 2 / 0 | 2.06 m (1.46–2.50) |
+| gainesville | 125 | 112 | 12 | 0 / 1 | 1.83 m (1.12–2.48) |
+| sao_paulo | 125 | 101 | 24 | 0 / 0 | 2.25 m (1.22–2.48) |
+
+The excluded panoramas skew old (bend's stand-ins are 2012–2018 imagery plus 11 from 2024).
+Their GT recall on the flat axis is lower than the included panoramas' on bend (0.699 vs 0.779,
+73 vs 254 points) and higher on the other three. The depth-axis tables are therefore a subset,
+not the whole split, and the `all` row of each table says which.
+
+**What the camera height is.** It tracks the rig, not the city. bend's 2024 imagery reads
+2.37 m (74 panos with GT points), paterson's pre-2025 imagery 2.34–2.46 m, and Google's
+**2025–26 rig 1.86 m (paterson 2025) and 1.80 m (gainesville 2026)**. The labeler's own study
+(`docs/camera-height-study.md` on its `camera-height-40` branch) uses bearing-only
+triangulation. It finds that the depth frame runs **6–16% short** of the height the imagery
+implies, by city (bend ~1.06, paterson ~1.08, gainesville ~1.10, sao_paulo ~1.16), and cannot
+yet say whether that is a scale or an offset. Both readings are reported: the raw depth axis,
+and the depth axis multiplied by that per-city factor ("depth × scale").
+
+### 0.1 How stretched the flat axis is, and what the thresholds become
+
+The ratio flat(2.5 m) / depth grows with distance, so the stretch at the *median point* is not
+the stretch at 18 m or 25 m. Each threshold is therefore deflated by the median ratio of the
+points whose flat distance lies within ±20% of it: 14.4–21.6 m for 18 m, 20–30 m for 25 m. The
+window's n is in brackets. The per-point median over all points, and the ratio of medians the
+issue tabulated, are beside it:
+
+| population | n | median flat / median depth | median-point ratio (p10–p90) | 18 m becomes (window n) | 25 m becomes (window n) | depth × scale: 18 m / 25 m become |
+|---|---:|---:|---|---|---|---|
+| **bend** (this document's GSV city) | 254 | 14.41 / 12.33 = 1.17 | 1.062 (1.00–1.23) | 16.9 m (107) | 23.3 m (49) | 17.9 m / 24.6 m |
+| paterson | 360 | 14.95 / 13.70 = 1.09 | 1.166 (1.00–1.56) | 15.9 m (127) | 21.7 m (90) | 17.2 m / 23.4 m |
+| gainesville | 249 | 14.95 / 12.08 = 1.24 | 1.372 (1.05–1.93) | 13.8 m (103) | 19.7 m (66) | 15.2 m / 21.6 m |
+| sao_paulo | 237 | 11.46 / 11.13 = 1.03 | 1.083 (1.00–1.31) | 16.9 m (77) | 22.8 m (48) | 19.6 m / 26.4 m |
+| GSV pooled | 1,100 | 14.41 / 12.24 = 1.18 | 1.133 (1.00–1.61) | 16.2 m (414) | 21.7 m (253) | 17.4 m / 23.5 m |
+
+**By capture year, which is the rig, and not by split.** A split mixes vintages, and paterson is
+under half new-rig imagery (166 of its 360 points). Rows are (split, capture year) with at least
+20 measured-ground GT points, then the 2025–26 rig pooled and the older US vintages pooled:
+
+| capture vintage | GT points (panos) | camera height, median | flat 2.5 m / depth, median point (p10–p90) | flat 2.6 m / depth | 18 m becomes (window n) | 25 m becomes (window n) |
+|---|---:|---:|---|---:|---|---|
+| bend 2024 | 236 (74) | 2.37 m | 1.062 (1.00–1.21) | 1.10 | 16.9 m (100) | 23.4 m (45) |
+| paterson 2019 | 20 (5) | 2.46 m | 1.044 (1.00–1.18) | 1.09 | – | – |
+| paterson 2020 | 31 (9) | 2.37 m | 1.102 (1.02–1.28) | 1.15 | – | – |
+| paterson 2021 | 69 (11) | 2.34 m | 1.066 (1.00–1.27) | 1.11 | 18.0 m (24) | 23.5 m (14) |
+| paterson 2024 | 66 (19) | 2.35 m | 1.069 (1.00–1.19) | 1.11 | 16.8 m (28) | 22.8 m (14) |
+| paterson 2025 | 166 (44) | 1.86 m | 1.374 (1.15–1.69) | 1.43 | 13.6 m (55) | 18.7 m (44) |
+| gainesville 2024 | 32 (10) | 2.22 m | 1.050 (1.00–1.19) | 1.09 | 17.8 m (13) | – |
+| gainesville 2026 | 200 (68) | 1.80 m | 1.441 (1.19–1.97) | 1.50 | 13.0 m (84) | 18.7 m (53) |
+| sao_paulo 2023 | 20 (5) | 2.20 m | 1.033 (1.00–1.30) | 1.07 | – | – |
+| sao_paulo 2024 | 96 (27) | 2.31 m | 1.071 (1.00–1.21) | 1.11 | 16.6 m (32) | 22.8 m (19) |
+| sao_paulo 2025 | 91 (23) | 2.25 m | 1.105 (1.00–1.32) | 1.15 | 17.7 m (34) | 23.5 m (18) |
+| 2025-26 rig (paterson 2025 + gainesville 2026) | 366 (112) | 1.83 m | 1.399 (1.16–1.90) | 1.45 | 13.1 m (139) | 18.7 m (97) |
+| older US vintages (bend, paterson, gainesville; the rest) | 497 (144) | 2.36 m | 1.063 (1.00–1.24) | 1.11 | 17.1 m (198) | 23.2 m (108) |
+
+The issue's own check reproduces on operational detections at the labeler's 2.6 m. The ratio of
+medians is 1.26 on paterson (issue: 1.29) and 1.38 on gainesville (issue: 1.35; the
+per-detection median is 1.40). Correcting only the camera height leaves 0.998–1.003 (issue:
+1.02–1.03), so the cotangent form is right and only the constant was wrong, as stated. What the
+issue's extrapolation got wrong is the population. **On the 2025–26 rig the flat axis is ~1.4×
+long** (40% at the median point, 37% and 34% at the two thresholds), so 18 m / 25 m read
+**13.1 m / 18.7 m**. **On the older US vintages pooled it is ~1.05–1.08× long**, so they read **17.1 m / 23.2 m**
+(per vintage 16.8–18.0 m / 22.8–23.5 m, on windows of 13–100 points). That includes bend, this
+document's GSV city, at 16.9 m / 23.3 m.
+With the labeler's depth-frame correction, bend's thresholds are 17.9 m / 24.6 m, within 2% of
+what is printed at both. Without it they are 6–7% short.
+
+**Cross-check against a depth-free measurement.** The labeler measures the same range scale
+without any depth: a leave-one-view-out reprojection residual over every multi-view site
+([sidewalk-auto-labeler PR #76](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/pull/76),
+its `docs/reprojection-residual.md` at commit `e221b03` on branch `reprojection-residual-36`).
+That gives a corrected flat-ground scale at 2.6 m of **k = 1.19 for paterson's 2025 rig and 1.18
+for gainesville's 2026 rig**, against 1.01–1.07 for 2019–24 vintages. Under per-pano depth
+heights the same fit reads 0.99 on the new rig and 0.94–1.00 on older imagery, i.e. depth ranges
+1–4% short. That is the same direction as the camera-height study's "depth frame runs short", at
+a smaller magnitude. The "flat 2.6 m / depth" column above puts this document's rows on the same
+footing. They agree with it on the older vintages and not on the new rig. Bend 2024 reads 1.10
+vs k 1.06, paterson 2019–24 1.09–1.15 vs 1.04–1.06, and sao_paulo 2023–25 1.07–1.15 vs
+1.01–1.02. All are higher than k by 4–13%, the side a 1–4% short depth range predicts, if by
+more than that. But
+**paterson 2025 reads 1.43 (n 166) and gainesville 2026 1.50 (n 200) here against 1.19 and 1.18
+there.** Two independent methods agree that the new rig is the outlier, and disagree on its size
+by a factor the older vintages do not show. That gap is an open question, not resolved here. The
+candidates are the pano population (benchmark panos vs every multi-view site), the
+stand-in-ground exclusion, and the 2026 rig's depth frame. The same labeler document reports that
+about half of #101's 0.07–0.13 along-ray slope is regression bias (a naive along-ray-vs-range
+fit returns 0.047–0.054 on simulated data with no scale error). That is reported there, not
+re-derived here ([#101](https://github.com/ProjectSidewalk/RampNet/issues/101)).
+
+### 0.2 Recall by distance, flat vs depth
+
+bend, measured-ground panoramas (254 of the 327 GT points in §1's bend half):
+
+| distance | n (flat 2.5 m) | recall (flat) | n (depth) | recall (depth) | n (depth × scale) | recall |
+|---|---:|---:|---:|---:|---:|---:|
+| 0–8 m | 59 | 0.898 | 61 | 0.885 | 58 | 0.897 |
+| 8–12 m | 62 | 0.903 | 64 | 0.922 | 62 | 0.903 |
+| 12–18 m | 60 | 0.817 | 72 | 0.778 | 71 | 0.803 |
+| 18–25 m | 56 | 0.625 | 46 | 0.565 | 50 | 0.600 |
+| 25–40 m | 14 | 0.357 | 11 | 0.273 | 13 | 0.231 |
+| 40 m+ | 3 | 0.000 | – | – | – | – |
+| all | 254 | 0.779 | 254 | 0.779 | 254 | 0.779 |
+
+Four GSV splits pooled, measured-ground panoramas (1,100 GT points):
+
+| distance | n (flat 2.5 m) | recall (flat) | n (depth) | recall (depth) |
+|---|---:|---:|---:|---:|
+| 0–8 m | 214 | 0.836 | 281 | 0.804 |
+| 8–12 m | 245 | 0.792 | 254 | 0.791 |
+| 12–18 m | 238 | 0.719 | 286 | 0.717 |
+| 18–25 m | 234 | 0.705 | 194 | 0.598 |
+| 25–40 m | 134 | 0.448 | 83 | 0.301 |
+| 40 m+ | 35 | 0.114 | 2 | 0.000 |
+| all | 1,100 | 0.703 | 1,100 | 0.703 |
+
+The shape is the same on both axes; what moves is the population under each label. On the depth
+axis, 124 of the 403 ramps the flat axis put at or beyond 18 m are inside it (bend 16 of 73,
+gainesville 51 of 111), and the "far-field" band shrinks. Its recall falls: pooled 18–25 m goes
+from 0.705 to 0.598, and 25–40 m from 0.448 to 0.301. The far ramps that remain far are missed
+more often than the flat axis made it look, because the flat axis had been diluting that band
+with nearer ramps. Read through §0.1's thresholds, the published "reliable to 18 m, blind past
+25 m" is **~13 m / ~19 m on the 2025–26 rig and ~17 m / ~23 m on the older 2.3–2.4 m rigs**.
+
+### 0.3 Apparent size and the resolution forecast
+
+bend, measured-ground (recall by apparent size of a 1.2 m ramp):
+
+| apparent size | n (flat 2.5 m) | recall (flat) | n (depth) | recall (depth) |
+|---|---:|---:|---:|---:|
+| 12–20 px | 3 | 0.000 | – | – |
+| 20–32 px | 15 | 0.333 | 11 | 0.273 |
+| 32–50 px | 59 | 0.593 | 60 | 0.600 |
+| 50–80 px | 90 | 0.856 | 87 | 0.828 |
+| 80 px+ | 87 | 0.931 | 96 | 0.906 |
+| all | 254 | 0.779 | 254 | 0.779 |
+
+Four GSV splits pooled:
+
+| apparent size | n (flat 2.5 m) | recall (flat) | n (depth) | recall (depth) |
+|---|---:|---:|---:|---:|
+| 0–12 px | 6 | 0.333 | – | – |
+| 12–20 px | 31 | 0.065 | 2 | 0.000 |
+| 20–32 px | 138 | 0.435 | 89 | 0.292 |
+| 32–50 px | 248 | 0.665 | 266 | 0.609 |
+| 50–80 px | 361 | 0.778 | 338 | 0.772 |
+| 80 px+ | 316 | 0.832 | 405 | 0.800 |
+| all | 1,100 | 0.703 | 1,100 | 0.703 |
+
+The issue's second point holds: the missed ramps are **larger in pixels** than the flat axis
+said. Pooled, the sub-32 px population drops from 175 to 91 points. But recall *within* each
+size band is mostly lower, not higher, so the diagnosis "not enough signal in the pixels" does
+not weaken; it just has fewer ramps in its smallest band. The §4 forecast (the gain in recall),
+re-run by the same method on each axis:
+
+| factor | bend, flat | bend, depth | bend, depth × scale | pooled, flat | pooled, depth |
+|---|---|---|---|---|---|
+| 1.5× | +0.096 | +0.087 | +0.092 | +0.072 | +0.071 |
+| 2× | +0.117 | +0.111 | +0.116 | +0.092 | +0.088 |
+| 3× | +0.145 | +0.125 | +0.126 | +0.119 | +0.096 |
+
+**The 2× forecast barely moves** (+0.11–0.12 on bend, +0.09 pooled). What the depth axis takes
+away is the tail: at 3× the pooled gain drops from +0.119 to +0.096, because the ramps the flat
+axis said were tiny and far are not, so tripling their size buys less than the curve suggested.
+The retraining-resolution argument in §4 survives with a lower ceiling; the ranking of the three
+levers does not change.
+
+### 0.4 Precision by distance is still flat
+
+Pooled over the four GSV splits on the depth axis (TP + FP, measured-ground panoramas):
+
+| distance (depth) | detections (TP + FP) | precision |
+|---|---:|---:|
+| 0–8 m | 238 | 0.950 |
+| 8–12 m | 216 | 0.935 |
+| 12–18 m | 217 | 0.945 |
+| 18–25 m | 123 | 0.951 |
+| 25–40 m | 23 | 1.000 |
+| all | 817 | 0.946 |
+
+§2's conclusion (do not cull by distance) is unchanged on either axis.
+
+### 0.5 Not done, and caveats that travel with these numbers
+
+- **The payloads are an unpublished input.** They are Google-derived and mirrored from the
+  labeler's archive (`makelab2:/projects/makeabilitylab/sidewalk-auto-labeler/runs/<city>/depth/`,
+  local mirror `D:\Git\sidewalk-auto-labeler\runs\<city>\depth\`). Every file's sha256 and
+  each `index.csv`'s sha256 are in `analysis_out/recall_by_depth_112.json`, and publication is
+  pending Jon's decision. The per-point rows are committed so every table here re-derives
+  without them; only *new* points, and the alignment check, need the archive.
+- **The depth axis covers only measured-ground panoramas.** bend 254 of 327 GT points, paterson
+  360 of 395, gainesville 249 of 272, sao_paulo 237 of 280. On the flat axis, the excluded points'
+  recall differs from the included ones' by up to ~10 points (bend 0.699 vs 0.779; the other
+  three are higher, 0.767–0.783 vs 0.671–0.691).
+- **The image↔payload mapping is this document's, not the labeler's.** It is measured above
+  against the benchmark JPEGs. `tests/test_recall_by_depth_112.py` pins it with a tilted-plane
+  known answer that runs in CI without payloads. It has not been checked against any other
+  imagery.
+- **The parser revision is a branch, not main.** `depth.py` at labeler `86bb909`
+  (`camera-height-40`, its PR #68, unmerged at the time of writing). Only its parser, ground-plane
+  pick and stand-in classification are used here.
+- **The depth frame's absolute scale is open.** The labeler's triangulation says the depth
+  heights are 6–16% short. The "depth × scale" columns apply that as a multiplicative factor per
+  city, which is one of the two hypotheses its study cannot yet separate. Read the raw depth
+  column as a lower bound on range and the scaled one as the current best estimate.
+- **Richmond and laurens_gsv keep the flat axis.** Mapillary serves no depth (richmond,
+  and everything in the Mapillary tier), and laurens_gsv was not harvested. Mapillary is exactly
+  where the flat axis is worst (§ *Why this needed depth*, ρ 0.81), and this measurement says
+  nothing about it.
+- **DA3 was not regressed against GSV depth.** `gt_depth_da3.json` is not committed and needs a
+  GPU to regenerate, so the issue's "calibrate DA3 and carry it to Mapillary" item is untouched.
+  The 6.5–8.5% DA3/flat agreement on bend is consistent with both sharing bend's ~6–7% bias, but
+  that is an inference, not a measurement.
+- **Occlusion was not partitioned, and the depth payload is not the instrument for it.** With the
+  aligned lookup only 5 of 1,101 GT points sit under a non-ground plane. The 39 the first version
+  reported were almost all the azimuth mirror, so the payload does not supply raw material for
+  the issue's occluded-vs-under-resolved split.
+- **One seed, one operating point (0.55), verdict-review GT**: the same limits as every other
+  table in this document.
+
+Other documents that quote the published metre labels, left as they are and pointing here:
+`curb_ramp_data_sourcing.md` §0a (the 18 m far/near boundary at 0.30 over seven splits, five of
+them Mapillary), `operating_point.md` (the near/mid/far bands, already stated as a rank
+statement), `crop_window_eval.md` (flat-ground strata at 2.5 m), `rampnet1_findings.md` and
+`rampnet1_report.md` §6.6 (the recall-by-distance row; its stretch figure is corrected).
+
 ## 1. Recall collapses with distance
 
 | distance | n | recall |
@@ -45,7 +352,9 @@ By apparent size: 20–32 px → 0.189, 32–50 px → 0.671, 50–80 px → 0.8
 simply not enough signal left in the pixels.
 
 > **Recommendation:** report benchmark recall **stratified by distance**. "Reliable to 18 m, blind
-> past 25 m" is far more actionable than a scalar 0.765.
+> past 25 m" is far more actionable than a scalar 0.765. (On GSV's own depth the labels are
+> ~17 m / 23 m for the 2.4 m rig this table's bend half was captured with, and ~13 m / 19 m on
+> Google's 2025–26 rig — §0.1.)
 
 ## 2. Precision is flat with distance — do not cull
 
@@ -151,6 +460,8 @@ consumer-rig Mapillary frames, and pano stitching artifacts.
   the reviewer never marked scores as a **false positive**. The precision drops in §3 are therefore
   slight *over*-estimates, and low-threshold precision deserves a fresh spot-check before being quoted.
 - Apparent size assumes a ~1.2 m ramp width; distance assumes ~2.5 m camera height where geometry is
-  used. Both were cross-checked against DA3 metric depth.
+  used. Both were cross-checked against DA3 metric depth — and, for the GSV half, against GSV's own
+  depth in §0: the 2.5 m assumption is ~6–8% high on bend and ~40% high on the 2025–26 rig
+  (the flat axis is 1.40× the depth axis there at the median point; 2.5 m / 1.83 m is 1.37).
 - Two cities (one GSV/in-distribution, one Mapillary/OOD). Patterns are consistent across both, but
   this is not yet broad geographic evidence.
