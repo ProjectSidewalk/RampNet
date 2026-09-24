@@ -179,6 +179,22 @@ prep job is 4.665 GPU-h at `normal` and prices to $4.20 at cent precision; the s
 0.03 GPU-h at `debug`, which this ledger prices at $0 per Slurm's UsageFactor while
 `hyakusage` charges $0.03 — still unresolved and still capped at $0.90 per job.
 
+## klone, 2026-09-24: the #86 context experiment, 16.5 GPU-hours, $0
+
+Five jobs on the lab's `gpu-l40s` allocation (no preemption, so one incarnation each), pulled
+by job id on 2026-09-24 into `docs/data/compute/sacct_klone_2026-09-24.txt` (884 bytes, sha256
+`795acb09313778f441b5689c0060f34728c0cd6565637993be11774544b86241`) and parsed with:
+
+```bash
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli     --from-file docs/data/compute/sacct_klone_2026-09-24.txt     --by-name
+```
+
+The pull is `sacct ... -j 40485927,40486691,40486692,40486693,40486694` rather than a date
+window, so that a window would not sweep in other jobs run on the account the same day (the
+#131 replication ran on klone that night and records its own). The ledger is rebuilt in append
+order: klone 2026-08-19, Tillicum 2026-09-21, then this file; `tests/test_slurm_usage.py`
+compares all three. What the five rows are is in [`context_fov_86.md`](context_fov_86.md) §5.
+
 ## Gaps, stated
 
 - **Tillicum is a snapshot as of 2026-09-21.** Nothing after that date is in the ledger; the
