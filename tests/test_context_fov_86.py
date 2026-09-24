@@ -83,3 +83,21 @@ def test_crop_box_is_the_taggers_arithmetic():
     # a real row (pittsburgh-pa:9291): int(0.2111111 * 1440) = int(303.99998) = 303, so left clamps
     # to 0 and right is 623; y = 306 clamps top to 0. crop.py truncates, it does not round.
     assert cf.crop_box(0.2111111, 0.31875, 1440, 960) == (0, 0, 623, 626)
+
+
+def test_report_names_the_control_row_as_told(tmp_path, capsys):
+    """The control row is whatever score file --control-scores points at, so the table has
+    to say what that file is: the default label names the 100-epoch benchmark control, and
+    an interim snapshot must be labelled as such rather than pass for it."""
+    arm_scores = os.path.join(REPO, "analysis_out", "context_fov_86", "train_viewport_final_scores.json")
+    out = tmp_path / "out"
+    out.mkdir()
+    import shutil
+    shutil.copy(arm_scores, out / "train_viewport_final_scores.json")
+    cf.main(["report", "--out-dir", str(out), "--control-scores", arm_scores,
+             "--control-label", "control (#178 epoch-49 snapshot, INTERIM)", "--arms", "viewport"])
+    summary = json.load(open(out / "summary.json"))
+    assert [r["arm"] for r in summary["rows"]] == ["control (#178 epoch-49 snapshot, INTERIM)", "viewport"]
+    assert "INTERIM" in (out / "summary.md").read_text()
+    cf.main(["report", "--out-dir", str(out), "--control-scores", arm_scores, "--arms", "viewport"])
+    assert json.load(open(out / "summary.json"))["rows"][0]["arm"] == "control (#178, HF crops)"

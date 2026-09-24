@@ -212,7 +212,7 @@ def _fmt(v, nd=3):
 
 def cmd_report(a):
     tags = list(tb.FIXED_TAGS)
-    rows = [score_row("control (#178, HF crops)", a.control_scores, tags)]
+    rows = [score_row(a.control_label, a.control_scores, tags)]
     for arm in a.arms:
         rows.append(score_row(arm, os.path.join(a.out_dir, f"train_{arm}_final_scores.json"), tags))
     out = {"tags": tags, "rows": rows, "ts": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
@@ -262,6 +262,9 @@ def main(argv=None):
     p = sub.add_parser("report", help="one table over the arms and the re-scored control")
     p.add_argument("--out-dir", default=OUT_DIR)
     p.add_argument("--control-scores", default=os.path.join(OUT_DIR, "control_scores.json"))
+    p.add_argument("--control-label", default="control (#178, HF crops)",
+                   help="the control row's name in the table; say so here when the score file is not "
+                        "the 100-epoch benchmark control (e.g. an interim snapshot)")
     p.add_argument("--arms", nargs="+", default=list(ARMS))
     p.set_defaults(fn=cmd_report)
 
