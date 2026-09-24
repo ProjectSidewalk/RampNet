@@ -4,7 +4,6 @@
     "seed": 172,
     "unit": "panorama"
   },
-  "bound_precision": 0.9121,
   "conventions": {
     "published": {
       "ci95": {
@@ -92,8 +91,8 @@
     }
   },
   "delta_shared": {
-    "precision_vs_bound": 0.003056,
     "precision_vs_published": -0.025144,
+    "precision_vs_redundant_only": 0.003056,
     "recall_vs_published": 0.003033
   },
   "inputs": {
@@ -103,12 +102,31 @@
     "manual_labels_dir": "manual_labels",
     "revision": "ee882e3f3c779dc13182f307bca616e50d9b8c5c"
   },
+  "matching_change": {
+    "n_panos_changed": 14,
+    "tp_gained": 13,
+    "tp_lost": 1,
+    "tp_net": 12
+  },
+  "n_dropped_out_of_range": 0,
   "n_gold_only": 0,
   "n_negative_panos": 207,
   "n_panos": 1000,
+  "order_sensitivity": {
+    "n_shuffles": 200,
+    "precision_max_matching": 0.91566,
+    "recall_max_matching": 0.928043,
+    "seed": 172,
+    "tp_max_matching": 3637,
+    "tp_shuffle_max": 3637,
+    "tp_shuffle_min": 3635,
+    "tp_stored_order": 3635,
+    "unit": "points within each panorama"
+  },
   "published": {
     "precision": 0.9403,
     "recall": 0.9245
   },
-  "radius_normalized": 0.022
+  "radius_normalized": 0.022,
+  "redundant_only_precision": 0.9121
 }
