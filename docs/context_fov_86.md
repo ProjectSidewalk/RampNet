@@ -1,10 +1,12 @@
 # Context experiment: field of view vs curb-ramp tag accuracy (#86, RampNet 2.0 plan item 4)
 
-**Status: four arms scored (2026-09-24); the control column is INTERIM.** Crops cut on makelab2
+**Status: four arms scored (2026-09-24); the control is INTERIM.** Crops cut on makelab2
 (12 workers, 48 min; 32,544 of 32,559 label-centred crops and 10,848 of 10,853 viewport crops,
 the rest `missing_pano`, `cut_summary_*.json`); the four arms trained on klone's `gpu-l40s`
 allocation 2026-09-23/24 (§5). The 100-epoch #178 control died with a makelab2 reboot and is
-being re-run; §4 reads its epoch-49 snapshot in its place until then (§6, first bullet).
+being re-run; until it finishes, §4 reads that dead run's epoch-49 snapshot as the control
+(§6, first bullet), and **every number marked "interim" below depends on it**. The arm rows and
+the "minus viewport" contrasts do not.
 **Script:** `scripts/analysis/context_fov_86.py`; run order in `scripts/analysis/context_fov_86.sh`;
 one Slurm job per arm, `scripts/analysis/context_fov_86.slurm`; environment,
 `scripts/analysis/context_fov_86_env.slurm`. **Tests:** `tests/test_context_fov_86.py`.
@@ -17,7 +19,10 @@ with street*, *not enough landing space*) fail for lack of context or lack of vi
 ASSETS'24 tagger, reproduced exactly as the benchmark of record
 ([`tag_benchmark_86.md`](tag_benchmark_86.md), mAP 0.3408), is strong only on *missing tactile
 warning*, a tag that is visible on the ramp itself. This experiment holds everything else fixed
-(labels, recipe, split, test rows, backbone) and varies only how much of the scene the crop shows.
+(labels, recipe, split, test rows, backbone, the model's 256×256 input) and varies only how much
+of the scene the crop shows. One exception to "labels fixed": the arms train on the 8,666 train
+labels every arm has, the control on the HF split's 8,674 (the 9 labels no arm has are 8 train
+and 1 test, `dropped_labels.csv`). The control is *scored* on the same 2,182 test rows as the arms.
 
 ## 2. What the control actually sees
 
@@ -30,6 +35,14 @@ The benchmark's labels are 54% zoom 1, 28% zoom 2, 18% zoom 3 (`docs/crop_cutter
 control is a mixture, not one field of view, and its framing is the labeler's, with the ramp
 off-centre.
 
+**The model never sees 640 px.** Every crop, control and arm alike, is resized to **256×256**
+before the model sees it (`tag_benchmark_86.py`: `IMAGE_DIMENSION = 256`, the `Resize((256, 256))`
+in `train` and in the evaluation transform, as in the tagger). So the model's pixel budget is
+fixed, and a wider field of view spreads it over more of the scene. At the crop centre, in model
+pixels per degree: **10.1** at 25°, **4.8** at 50°, **2.2** at 90°; the control's box is 5.0 /
+10.1 / 20.4 at zoom 1 / 2 / 3. fov90 therefore has 4.5× coarser linear resolution than fov25,
+about 20× fewer model pixels on the ramp; fov50 has 2.1× coarser, about 4.4× fewer.
+
 ## 3. Arms
 
 All arms are cut by `scripts/crop_cutter.py` (plan item 2b, PR #177) from the makelab2 pano
@@ -37,30 +50,36 @@ store, gnomonic, rendered with the viewer's tilt (the cutter's default `--tilt m
 same 10,853 labels (the benchmark's 10,857 minus 4 with no rawLabels geometry,
 `docs/data/crop_cutter/coverage_input.csv`), then restricted to the labels every arm has.
 
-| arm | framing | crop | what it isolates |
-|---|---|---|---|
-| control | HF screenshot, labeler's zoom, then the 640 px box | 640×640 at 12.5°–48° | the published benchmark (#178, `train_control`, 100 epochs) |
-| `viewport` | the labeler's own view re-cut from the store (1440×960), then the same 640 px box (`crop640`, the tagger's arithmetic, saved at JPEG quality 92) | 640×640 at 12.5°–48° | re-cut from the archive vs the screenshot, at the control's field of view |
-| `fov25` | label-centred, 25° horizontal | 640×640 | about the zoom-2 control, centred |
-| `fov50` | label-centred, 50° | 640×640 | about the zoom-1 control, centred |
-| `fov90` | label-centred, 90° | 640×640 | wider than any control |
+| arm | framing | crop, then model input | centre px/deg at the input | what it isolates |
+|---|---|---|---:|---|
+| control | HF screenshot, labeler's zoom, then the 640 px box | 640×640 at 12.5°–48° → 256×256 | 5.0–20.4 | the published benchmark (#178, `train_control`, 100 epochs) |
+| `viewport` | the labeler's own view re-cut from the store (1440×960), then the same 640 px box (`crop640`, the tagger's arithmetic, saved at JPEG quality 92) | 640×640 at 12.5°–48° → 256×256 | 5.0–20.4 | re-cut from the archive vs the screenshot, at the control's field of view |
+| `fov25` | label-centred, 25° horizontal | 640×640 → 256×256 | 10.1 | about the zoom-2 control, centred |
+| `fov50` | label-centred, 50° | 640×640 → 256×256 | 4.8 | about the zoom-1 control, centred |
+| `fov90` | label-centred, 90° | 640×640 → 256×256 | 2.2 | wider than any control |
 
 Every arm trains the benchmark's recipe unchanged (`tag_benchmark_86.py train`: DINOv2-B/14
 with registers, full fine-tune, Adam 1e-6, batch 4, 100 epochs, seed 86, checkpoint by best
 training exact-match accuracy) on the **published HF split** restricted to the common labels
 (`split_common.csv`), and is scored on the common test rows. The #178 control is re-scored on
-those same rows (`control_scores.json`), so the comparison is paired on the test set. The
-pano-grouped re-split is not used here: #178 found no measurable inflation from the pano leak.
+those same rows (interim: `control_interim_ep49_scores.json`; final, after §6:
+`control_scores.json`), so the comparison is paired on the test set. The pano-grouped re-split
+is not used here: #178 found no measurable inflation from the pano leak.
 
 ## 4. Results
 
-**Wider is worse.** On the 2,182 common test rows, mAP falls monotonically with field of view
-past the control's: the label-centred 25° arm matches the control and the re-cut viewport arm,
-50° loses 0.03, and 90° loses 0.07, with the loss concentrated on the tags that are visible on
-the ramp itself. The street-dependent tags the experiment was designed for (*points into
-traffic*, *not level with street*, *not enough landing space*) do not gain from any of the
-wider crops. `analysis_out/context_fov_86/summary.md`, produced by `context_fov_86.py report
---control-scores control_interim_ep49_scores.json --control-label "…INTERIM"`:
+**Every number in this section that involves the control is against the INTERIM epoch-49
+control**: its table row, the "− control (interim)" contrasts, and every reading that cites
+them. The arm rows and the "− viewport" contrasts are final.
+
+**Wider is worse, at a fixed 256 px input.** On the 2,182 common test rows, mAP falls
+monotonically with field of view past the control's: the label-centred 25° arm matches the
+control (interim) and the re-cut viewport arm, 50° loses 0.03, and 90° loses 0.07, with the
+loss concentrated on the tags that are visible on the ramp itself. The street-dependent tags
+the experiment was designed for (*points into traffic*, *not level with street*, *not enough
+landing space*) show no detected gain from any wider crop, though the intervals do not rule out
+gains of up to about 0.09–0.10 AP on two of them (reading 3). `summary_interim_ep49.md`, from
+`CONTROL=interim bash scripts/analysis/context_fov_86.sh report` (the full sequence is in §6):
 
 | arm | n test | mAP | 95% CI | micro-F1 | macro-F1 | leak-free mAP | missing-tactile-warning | narrow | not-enough-landing-space | not-level-with-street | points-into-traffic | pooled-water | steep | surface-problem |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -73,7 +92,8 @@ wider crops. `analysis_out/context_fov_86/summary.md`, produced by `context_fov_
 n = 2,182 test rows on 1,868 panoramas in every row; the CI is the pano-clustered bootstrap
 (1,000 draws) on the arm's own mAP; leak-free = the 957 rows whose panorama has no train label.
 *parallel-lines* and *tactile-warning* have too few positives to score and are outside the
-fixed eight-tag average, as in #178.
+fixed eight-tag average, as in #178. Test positives on the street-dependent tags: 297
+(*points into traffic*), 84 (*not enough landing space*), 65 (*not level with street*).
 
 **Paired contrasts** (`contrast_vs_control_interim_ep49.json`, `contrast_vs_viewport.json`;
 `context_fov_86.py contrast`): each arm minus the reference on the same test rows *and the same
@@ -91,36 +111,74 @@ Per-tag AP differences whose interval excludes 0 are marked.
 | fov50 − viewport | **−0.026 [−0.053, −0.002]** | −0.014 [−0.030, +0.003] | **−0.038 [−0.073, −0.003]** | steep −0.067, surface-problem −0.062 |
 | fov90 − viewport | **−0.065 [−0.093, −0.042]** | **−0.055 [−0.072, −0.038]** | **−0.080 [−0.114, −0.045]** | missing-tactile −0.040, narrow −0.055, pooled-water −0.169, surface-problem −0.130 |
 
+The same contrast restricted to the 957 leak-free rows on 889 panoramas
+(`contrast_vs_control_interim_ep49_leak_free.json`, `contrast --subset leak_free`), where the
+interim control's own mAP is 0.381:
+
+| arm minus reference, leak-free rows | mAP | micro-F1 | macro-F1 | per-tag AP with an interval off 0 |
+|---|---:|---:|---:|---|
+| viewport − control (interim) | −0.036 [−0.069, +0.000] | −0.015 [−0.038, +0.006] | +0.012 [−0.031, +0.059] | surface-problem −0.111 [−0.187, −0.037] |
+| fov25 − control (interim) | −0.020 [−0.060, +0.016] | −0.004 [−0.025, +0.016] | −0.003 [−0.050, +0.041] | missing-tactile +0.012 [+0.001, +0.023] |
+| fov50 − control (interim) | **−0.051 [−0.088, −0.017]** | **−0.028 [−0.051, −0.005]** | −0.031 [−0.081, +0.022] | steep −0.147, surface-problem −0.106 |
+| fov90 − control (interim) | **−0.103 [−0.147, −0.063]** | **−0.070 [−0.095, −0.046]** | **−0.081 [−0.130, −0.033]** | missing-tactile −0.030, narrow −0.103, pooled-water −0.233, steep −0.131, surface-problem −0.192 |
+
+The viewport row's upper end is +0.0002: on the leak-free rows the re-cut's loss is at the edge
+of detection. The pattern is the full-set one, larger.
+
 Reading, in the order the arms were built to be read:
 
-1. **Re-cutting from the archive costs nothing measurable.** `viewport` (the labeler's view
-   rendered from the pano store, same 640 px box) is −0.010 [−0.035, +0.017] against the HF
-   screenshot control on mAP, with one tag off 0 (*surface problem*, −0.054): the JPEG
-   re-encode and the renderer's tilt model are not what limits the tagger. That is the
-   permission plan item 5 needed: crops cut by `crop_cutter.py` for the ~354k labels without a
-   production crop are interchangeable with the screenshots the benchmark was built on.
-2. **Centring the ramp at the zoom-2 field of view changes nothing.** `fov25` is within
-   ±0.03 of both the control and `viewport` on every headline metric, and no tag moves off 0.
-   The one hint of a gain is *points into traffic*, +0.045 [−0.003, +0.089] against the
-   control and +0.030 [−0.017, +0.076] against `viewport`; it needs seeds before it is a
-   result.
-3. **Context hurts, and it hurts the ramp-surface tags first.** At 50° the ramp occupies a
-   quarter of the pixels it had at 25°, and *surface problem* (−0.116), *steep* (−0.045) and
-   *missing tactile warning* (−0.013) drop with intervals off 0; at 90° every ramp-surface tag
-   drops and mAP is −0.075 [−0.105, −0.048]. These are the tags that need pixels on the ramp,
-   and a fixed 640 px crop trades those pixels for street. The street-dependent tags do not pay
-   for the trade: *points into traffic* is flat at every field of view (+0.045 / +0.037 /
-   +0.000 against the control), *not level with street* only gets worse (−0.045 / −0.061 /
-   −0.072, intervals through 0), *not enough landing space* is flat (−0.015 / +0.031 /
-   −0.011).
+1. **Re-cutting from the archive: no mAP loss detected, bounded at 0.035, and one tag loses
+   (interim control).** `viewport` (the labeler's view rendered from the pano store, same
+   640 px box) is −0.010 [−0.035, +0.017] against the HF screenshot control (interim) on mAP,
+   so a loss of up to 0.035 (about 10% of 0.355) is not ruled out. *Surface problem* loses
+   −0.054 [−0.102, −0.009], a detected loss. On the 957 leak-free rows both are larger: mAP
+   0.381 → 0.346, paired −0.036 [−0.069, +0.000] (upper end +0.0002, so a loss of up to 0.069
+   is not ruled out and the interval barely reaches 0), and *surface problem* −0.111
+   [−0.187, −0.037].
+   The one tag that moves is a texture tag, which is where the viewport arm's second JPEG encode
+   (§6) would show, so the encode is not ruled out as a cause. What plan item 5 inherits is this
+   bound, not a go-ahead: crops cut by `crop_cutter.py` for the ~354k labels without a production
+   crop cost no detected mAP against the screenshots the benchmark was built on, with the loss
+   bounded at about 0.035 mAP on all test rows (0.069 on the leak-free rows), and a detected loss
+   of 0.05–0.11 AP on *surface problem*.
+2. **Centring the ramp at the zoom-2 field of view changes nothing detectable on the full test
+   set.** `fov25`'s point estimates are within 0.015 of both the control (interim) and `viewport`
+   on mAP, micro-F1 and macro-F1, every interval includes 0, and no tag moves off 0. The one hint
+   of a gain is *points into traffic*, +0.045 [−0.003, +0.089] against the control (interim) and
+   +0.030 [−0.017, +0.076] against `viewport`; it needs seeds before it is a result. On the
+   leak-free rows *missing tactile warning* gains +0.012 [+0.001, +0.023] (interim control), a
+   tag visible on the ramp itself, so if real it is the centring, not street context.
+3. **At a fixed 256 px input, widening the crop costs resolution faster than any tag gains from
+   context.** Field of view and angular resolution move together in these arms (§2): at 50° the
+   ramp gets about a quarter of the model pixels it had at 25°, at 90° about a twentieth. The
+   losses are on the tags that need pixels on the ramp. At 50°, *surface problem* (−0.116),
+   *steep* (−0.045) and *missing tactile warning* (−0.013) drop with intervals off 0 (interim
+   control); at 90°, *surface problem* (−0.184), *pooled water* (−0.179), *narrow* (−0.082) and
+   *missing tactile warning* (−0.041) do, and mAP is −0.075 [−0.105, −0.048] (interim control);
+   *steep* at 90° is −0.029 [−0.133, +0.014], through 0. The same four at 90° are off 0 against
+   `viewport` too. The street-dependent tags show no detected gain at any field of view (against
+   the control, interim, for fov25 / fov50 / fov90): *points into traffic* +0.045 / +0.037 /
+   +0.000, *not level with street* −0.045 / −0.061 / −0.072, *not enough landing space* −0.015 /
+   +0.031 / −0.011, every interval through 0. The intervals do not rule out gains of up to about
+   0.09 AP on *points into traffic* (fov25, upper end +0.089) and 0.10 on *not enough landing
+   space* (fov50, +0.104), and one seed per arm cannot resolve gains that size; on *not level
+   with street* every upper end is at most +0.048.
 
 So the plan-item-4 question, "do the street-dependent tags fail for lack of context or lack of
-vision", answers on the vision side, at least for context delivered this way: showing the
-tagger more street at 640 px does not help any tag and costs the ones it was good at. Two
-readings survive for the next experiment. Either the street-dependent tags are limited by the
-labels (§2.2 of the plan: positive-unlabeled, rater-dependent), which a wider crop cannot fix
-and item 5 addresses; or they need context *and* resolution together, which means a larger
-input or a two-crop model, not a wider single crop. The experiment does not separate those.
+vision", is **not answered by this design**. What it shows is narrower: delivering context as a
+wider single crop at the tagger's 256 px input does not produce a detectable gain on any
+street-dependent tag and costs the ramp-surface tags, and that loss may be resolution rather than context, because the
+two are confounded here. Three readings survive. The street-dependent tags may be limited by the
+labels (§2.2 of the plan: positive-unlabeled, rater-dependent), which no crop can fix and item 5
+addresses; they may need context *and* resolution together (a larger input or a two-crop model);
+or context may not help them at all. **The arm that separates resolution from context** is
+fov25 crops downsampled to fov90's pixels per degree (2.2 px/deg at the centre: a 25° view
+rendered at about 57 px, then resized to 256), trained with the same recipe: the same scene as
+fov25 at fov90's resolution. If it loses what fov90 loses, the loss is resolution; if it keeps
+fov25's scores, the loss is the added street. That is a CPU-only cut (or a resize of the
+existing fov25 crops) plus one 3 h L40S run. The converse, fov90 at a larger input so that its
+centre resolution matches fov25's (about 1,150 px), tests whether context helps once resolution
+is restored, but needs a different backbone input size and far more GPU time.
 
 ## 5. Cost
 
@@ -133,14 +191,17 @@ Slurm jobs, from `docs/data/compute/sacct_klone_2026-09-24.txt`, see
 | step | where | wall-clock | GPU-hours | $ |
 |---|---|---:|---:|---:|
 | cut, 3 fov arms (32,544 crops) + viewport (10,848) | makelab2, 12 CPU workers | 1,767 s + 1,122 s | 0 | 0 |
-| env build (job 40485927) | klone, CPU | 144 s | 0 | 0 |
+| env build (job 40485927) | klone `ckpt-all`, CPU | 144 s | 0 | 0 |
 | `viewport` (job 40486691, g3120) | klone, 1x L40S | 4.04 h (train 3.15 h) | 4.04 | 0 |
 | `fov25` (job 40486692, g3100) | klone, 1x L40S | 4.95 h (train 3.10 h, prep 0.73 h) | 4.95 | 0 |
 | `fov50` (job 40486693, g3100) | klone, 1x L40S | 3.98 h (train 3.14 h, prep 0.45 h) | 3.98 | 0 |
 | `fov90` (job 40486694, g3104) | klone, 1x L40S | 3.57 h (train 3.13 h) | 3.57 | 0 |
-| interim control inference (epoch-49 snapshot, 10,857 crops) | makelab2 A40, shared 4 ways | 476 s | 0.13 | 0 |
-| **total** | | | **16.7** | **0** |
+| interim control inference (epoch-49 snapshot, 10,857 crops) | makelab2 A40, shared 4 ways (`gpu_share` 0.25) | 476 s | 0.03 | 0 |
+| **total** | | | **16.57** (klone 16.54 + makelab2 0.03) | **0** |
 
+GPU-hours on the shared A40 are `elapsed_s × gpu_share` ([`tag_benchmark_86.md`](tag_benchmark_86.md)
+§7), so the interim inference is a quarter of its 476 s. The klone figure is the sum of the four
+L40S rows in `compute_log.jsonl` (`tests/test_slurm_usage.py` pins 16.54).
 Training itself is the same 3.1 h on every arm (100 epochs at 111–116 s on a dedicated
 L40S, `train_<arm>_train_meta.json`); the spread in job wall-clock is the one-off crop
 preparation on g3100 (fov25 2,634 s, fov50 1,603 s, against 349–369 s on the other two nodes;
@@ -150,38 +211,108 @@ allocation, so the arms ran one after another (14:20 UTC to 06:53 UTC the next d
 
 ## 6. Not run / caveats
 
-- **The control row is interim.** The 100-epoch #178 control (`train_control`) died at epoch
-  index 66 with the makelab2 reboot of 2026-09-23 15:15 UTC (recorded on #178). The row in §4
-  is that dead run's epoch-index-49 checkpoint (`best_after_ep49.pth`, sha256 `f22a2f09…`;
-  `control_interim_ep49_*`), inferred on 2026-09-24 and filtered to the common test rows.
-  Whether the last 50 epochs of the recipe move the control's test mAP is exactly what the
-  re-run will show; until then the control column is a lower-epoch read, not the benchmark of
-  record. The re-run started 2026-09-24 04:09 UTC and finishes about 21:00 UTC; then
-  `tag_benchmark_86.sh finish` on #178, and here:
+- **The control is interim.** The 100-epoch #178 control (`train_control`) died at epoch
+  index 66 with the makelab2 reboot of 2026-09-23 15:15 UTC (recorded on #178). The control in
+  §4 is that dead run's epoch-index-49 checkpoint (makelab2
+  `/homes/gws/jonf/nobackup/tagbench86/dead_2026-09-23/train_control/best_after_ep49.pth`,
+  sha256 `f22a2f0954d866a2aea06b0b2d06f3e8660dddc4911a8a43a5edc69e9b4bf036`), inferred on
+  2026-09-24 over all 10,857 HF crops and filtered to the common test rows. Whether the last 50
+  epochs of the recipe move the control's test mAP is exactly what the re-run will show; until
+  then the control is a lower-epoch read, not the benchmark of record. The interim files were
+  made by these commands, in order (the first on makelab2 with the #178 runbook's `TB_WORK`
+  and tagger venv, the rest on CPU in any checkout; the `interim-infer` stage is reconstructed
+  from the committed meta and ledger row, since its as-run shell line was not saved, and its
+  output `control_interim_ep49_predictions_all.csv` stays on makelab2):
 
   ```bash
-  bash scripts/analysis/context_fov_86.sh control report
-  python scripts/analysis/context_fov_86.py contrast --reference control \
-      --reference-pred analysis_out/context_fov_86/control_test_predictions.csv \
-      --out analysis_out/context_fov_86/contrast_vs_control.json
+  # makelab2, GPU: -> $TB_WORK/control_interim_ep49_predictions_all.csv (+ .meta.json) and the ledger row
+  CONTROL=interim PY=/homes/gws/jonf/envs/tagger/bin/python bash scripts/analysis/context_fov_86.sh interim-infer
+  # CPU: `control` reads that makelab2 file; `contrast` and `report` read only committed files
+  CONTROL=interim PY=python bash scripts/analysis/context_fov_86.sh control contrast report
   ```
 
-  (`control` writes `control_scores.json`; the `contrast` needs the control's common test
-  rows, `tag_benchmark_86.py test-only` over #178's `train_control_final_test_predictions.csv`
-  with `--split-csv split_common.csv`, the same filter the arms went through, written to
-  `control_test_predictions.csv`.) Replace the §4 table and the
-  contrast column, keep the interim files as the record of what was read first.
+  The second writes `control_interim_ep49_{test_predictions.csv,scores.json,per_label.csv}`,
+  `contrast_vs_control_interim_ep49{,_leak_free}.json`, `contrast_vs_viewport.json` and
+  `summary_interim_ep49.{json,md}`. From a clean clone, `CONTROL=interim ... contrast report`
+  and `tag_benchmark_86.py score` over the committed `control_interim_ep49_test_predictions.csv`
+  (with `--split-csv split_common.csv`) re-derive every interim number. Re-running them on the
+  committed inputs reproduced the committed files except for their `ts` stamps (and the `subset`
+  key that `contrast` now writes): checked 2026-09-24 for the score file, both contrast files'
+  rows, and the summary table.
+
+  **The swap to the final control**, once the #178 re-run has ended (about 21:00 UTC
+  2026-09-24). Everything after step 1 is CPU-only in this worktree; nothing here touches
+  makelab2.
+
+  1. On #178 (`bench/tag-benchmark-86`), on makelab2: `tag_benchmark_86.sh finish`, then commit
+     and push its outputs, as that doc's runbook says. That writes
+     `analysis_out/tag_benchmark_86/train_control_final_test_predictions.csv`.
+  2. Here:
+
+     ```bash
+     git fetch origin
+     git merge origin/bench/tag-benchmark-86        # #178's final control predictions
+     test -f analysis_out/tag_benchmark_86/train_control_final_test_predictions.csv
+     PY=D:/Git/RampNet/.venv/Scripts/python.exe bash scripts/analysis/context_fov_86.sh control contrast report
+     git checkout -- analysis_out/context_fov_86/contrast_vs_viewport.json   # it does not read the control; keep the as-run file
+     git status --short analysis_out/context_fov_86
+     ```
+
+     `CONTROL=final` is the default. `test-only` must print 2182 rows. The new files are
+     `control_test_predictions.csv` (+ `.meta.json`), `control_scores.json`,
+     `control_per_label.csv`, `contrast_vs_control.json`, `contrast_vs_control_leak_free.json`,
+     `summary.json` and `summary.md`; nothing interim is overwritten. Each `contrast` call
+     (1,000 paired draws) took 12–18 minutes on the Windows desktop's CPU on 2026-09-24, with
+     other jobs running, so the stage takes about 45 minutes.
+  3. Replace every interim number. `grep -n -i interim docs/context_fov_86.md` lists every
+     place: the status paragraph, §3's pointer to the control score file, §4's opening
+     sentence, headline paragraph and report command (now `summary.md`, no `CONTROL=`), the
+     control row of the results table, the four "− control" rows of the contrast table, the
+     leak-free table, readings 1–3 and the conclusion that cites them. Re-read every reading
+     against the new numbers rather than only swapping them: a reading that held against the
+     interim control may not hold against the final one. Keep this bullet, re-titled as the
+     record of what was read first; the interim files stay committed.
+  4. PR #180's body: the "Result (interim control)" table and its reading, and the status
+     checklist. Then commit, push, post the final numbers on #180, and mark it ready.
+  If the merge in step 2 conflicts in `analysis_out/usage_log.jsonl` (`finish` appends #178's
+  rows there, as this branch did), keep both blocks: rows supersede by `run_id`, and no test
+  reads them by position. #185's ledger conflict is already resolved on this branch.
+
+- **Not reproducible from a clean clone: the pano store, the crops and the checkpoints are
+  lab-local.** The crops are cut from the makelab2 pano store, which is unpublished
+  ([`replication.md`](replication.md)). The crops as trained are on klone,
+  `/gscratch/makelab/jonf/context_fov_86/crops/`, and in the transfer tar beside them
+  (`context_fov_86_crops.tar`, 6,284,554,240 bytes, sha256 in `crops_tar.sha256`); the four
+  `best.pth` are in `/gscratch/makelab/jonf/context_fov_86/train_<arm>/` (sha256 in
+  `train_<arm>_best_pth.sha256`); the interim checkpoint and its all-crop predictions are on
+  makelab2 (above). None is published. What a clean clone can re-derive: every number in §4,
+  from the committed predictions, on CPU (`control`, `contrast`, `report`). What it can check
+  without re-running: any copy of the crops against `crops_as_trained.sha256` (the sha256 of
+  every one of the 43,392 JPEGs the arms trained on, written on klone on 2026-09-24 from the
+  unpacked crops, none of whose mtime or ctime is later than the first training job's start; the
+  tar's own sha256 was taken the same day, and `tests/test_context_fov_86.py` checks the listing
+  against the label tables and the manifests), and a re-cut against
+  the cutter's manifests, `manifest_fov.jsonl.gz` and `manifest_viewport.jsonl.gz` (committed
+  gzipped, one row per crop with its geometry and sha256 as cut). **The viewport crops were
+  rewritten in place** by `crop640` after the manifest was written, so the manifest's sha256 for a
+  viewport crop is of the 1440×960 cut, not of what trained; for those, only
+  `crops_as_trained.sha256` describes the trained-on file. Re-training needs the crops, which
+  means the store or the tar; publishing the tar (6.3 GB) and the four checkpoints (about
+  350 MB each) to Hugging Face would close that, and is not done here.
 - **One seed per arm.** The benchmark's seed-variance is unmeasured; a difference between
   arms smaller than a seed's worth is not a result. The paired contrasts in §4 are the right
   interval for "A vs B on these test rows" (both arms scored on the same pano resample), not
   for "A's recipe vs B's recipe" (that needs seeds). The checkpoint rule (best training
   exact-match accuracy) picked epoch 81 / 77 / 41 / 93 for viewport / fov25 / fov50 / fov90,
   so the arms are not compared at one epoch either.
+- **Field of view and resolution are confounded** (§2, reading 3). Every arm is resized to
+  256×256, so a wider arm is also a coarser one. The separating arm is named in §4 and not run.
 - **A second JPEG encode on the viewport arm.** The cutter writes JPEG at quality 92; the
   640 px box is then re-saved at quality 92. The fov arms are encoded once. The HF control is
   PNG throughout.
-- **Store coverage.** Labels whose pano is not in the store (5 of 10,848 in the coverage
-  probe) drop from every arm, including the control's re-score.
+- **Store coverage.** Labels whose pano is not in the store (5 of the 10,853 cut,
+  `cut_summary_viewport.json`: 10,848 ok, 5 `missing_pano`) drop from every arm, and from the
+  control's re-score, but not from the control's training (§1).
 - **The cut cost the #178 arms their run.** Cutting with 12 workers beside three trainers
   drove makelab2's load to 60 on 48 cores (12:30 UTC); the box stopped answering SSH and was
   rebooted at 15:15 UTC, which killed the three #178 arms at epoch 62–66 of 100 (no resume in

@@ -1,0 +1,433 @@
+{
+ "reference": "control_interim_ep49",
+ "reference_labels": "hf_curbramp_labels.csv",
+ "reference_pred": "control_interim_ep49_test_predictions.csv",
+ "rows": [
+  {
+   "a": "train_viewport_final_test_predictions.csv",
+   "a_mAP": 0.345576,
+   "a_minus_b": {
+    "mAP": {
+     "ci95": [
+      -0.068993,
+      0.000199
+     ],
+     "point": -0.035705
+    },
+    "macro_f1": {
+     "ci95": [
+      -0.030813,
+      0.059123
+     ],
+     "point": 0.012242
+    },
+    "micro_f1": {
+     "ci95": [
+      -0.038455,
+      0.005685
+     ],
+     "point": -0.0154
+    }
+   },
+   "a_sha256": "01c39b6f5ec2b4e32db2387fd9f41ff129f1922cf90c0629714baa45a15026a6",
+   "arm": "viewport",
+   "b": "control_interim_ep49_test_predictions.csv",
+   "b_mAP": 0.381281,
+   "b_sha256": "ee5a0d6f5491828ea062f13af126fe502b4b7dd97d9271efe711599847dae571",
+   "n": 957,
+   "n_boot": 1000,
+   "n_panos": 889,
+   "per_tag_ap_a_minus_b": {
+    "missing-tactile-warning": {
+     "ci95": [
+      -0.014539,
+      0.011916
+     ],
+     "point": -0.000694
+    },
+    "narrow": {
+     "ci95": [
+      -0.096706,
+      0.049839
+     ],
+     "point": -0.027244
+    },
+    "not-enough-landing-space": {
+     "ci95": [
+      -0.079804,
+      0.051522
+     ],
+     "point": -0.008645
+    },
+    "not-level-with-street": {
+     "ci95": [
+      -0.117805,
+      0.077486
+     ],
+     "point": -0.035713
+    },
+    "points-into-traffic": {
+     "ci95": [
+      -0.053163,
+      0.063349
+     ],
+     "point": 0.008533
+    },
+    "pooled-water": {
+     "ci95": [
+      -0.224091,
+      0.12365
+     ],
+     "point": -0.027552
+    },
+    "steep": {
+     "ci95": [
+      -0.207183,
+      0.088521
+     ],
+     "point": -0.083544
+    },
+    "surface-problem": {
+     "ci95": [
+      -0.187112,
+      -0.03684
+     ],
+     "point": -0.110784
+    }
+   },
+   "reference": "control_interim_ep49",
+   "seed": 86,
+   "subset": "leak_free",
+   "tags_fixed": [
+    "missing-tactile-warning",
+    "narrow",
+    "not-enough-landing-space",
+    "not-level-with-street",
+    "points-into-traffic",
+    "pooled-water",
+    "steep",
+    "surface-problem"
+   ]
+  },
+  {
+   "a": "train_fov25_final_test_predictions.csv",
+   "a_mAP": 0.36089,
+   "a_minus_b": {
+    "mAP": {
+     "ci95": [
+      -0.060499,
+      0.015965
+     ],
+     "point": -0.020391
+    },
+    "macro_f1": {
+     "ci95": [
+      -0.050476,
+      0.041473
+     ],
+     "point": -0.00314
+    },
+    "micro_f1": {
+     "ci95": [
+      -0.024744,
+      0.016077
+     ],
+     "point": -0.004415
+    }
+   },
+   "a_sha256": "afe0e4dad10b89313169ce4f88724794950f4b7b29d75d4faca68c79733f7e4c",
+   "arm": "fov25",
+   "b": "control_interim_ep49_test_predictions.csv",
+   "b_mAP": 0.381281,
+   "b_sha256": "ee5a0d6f5491828ea062f13af126fe502b4b7dd97d9271efe711599847dae571",
+   "n": 957,
+   "n_boot": 1000,
+   "n_panos": 889,
+   "per_tag_ap_a_minus_b": {
+    "missing-tactile-warning": {
+     "ci95": [
+      0.001124,
+      0.023181
+     ],
+     "point": 0.011887
+    },
+    "narrow": {
+     "ci95": [
+      -0.115614,
+      0.036861
+     ],
+     "point": -0.042821
+    },
+    "not-enough-landing-space": {
+     "ci95": [
+      -0.109244,
+      0.026056
+     ],
+     "point": -0.029792
+    },
+    "not-level-with-street": {
+     "ci95": [
+      -0.145849,
+      0.120954
+     ],
+     "point": -0.031446
+    },
+    "points-into-traffic": {
+     "ci95": [
+      -0.026463,
+      0.114937
+     ],
+     "point": 0.050778
+    },
+    "pooled-water": {
+     "ci95": [
+      -0.156661,
+      0.212809
+     ],
+     "point": 0.054908
+    },
+    "steep": {
+     "ci95": [
+      -0.292146,
+      0.015171
+     ],
+     "point": -0.120085
+    },
+    "surface-problem": {
+     "ci95": [
+      -0.141009,
+      0.025261
+     ],
+     "point": -0.056562
+    }
+   },
+   "reference": "control_interim_ep49",
+   "seed": 86,
+   "subset": "leak_free",
+   "tags_fixed": [
+    "missing-tactile-warning",
+    "narrow",
+    "not-enough-landing-space",
+    "not-level-with-street",
+    "points-into-traffic",
+    "pooled-water",
+    "steep",
+    "surface-problem"
+   ]
+  },
+  {
+   "a": "train_fov50_final_test_predictions.csv",
+   "a_mAP": 0.330696,
+   "a_minus_b": {
+    "mAP": {
+     "ci95": [
+      -0.087757,
+      -0.017129
+     ],
+     "point": -0.050586
+    },
+    "macro_f1": {
+     "ci95": [
+      -0.080817,
+      0.021646
+     ],
+     "point": -0.030833
+    },
+    "micro_f1": {
+     "ci95": [
+      -0.051222,
+      -0.005246
+     ],
+     "point": -0.027666
+    }
+   },
+   "a_sha256": "5b780ed094429720927b3e6ac2edcf5d4f0dc045f4a4b4fb74bcaf0ac67e1080",
+   "arm": "fov50",
+   "b": "control_interim_ep49_test_predictions.csv",
+   "b_mAP": 0.381281,
+   "b_sha256": "ee5a0d6f5491828ea062f13af126fe502b4b7dd97d9271efe711599847dae571",
+   "n": 957,
+   "n_boot": 1000,
+   "n_panos": 889,
+   "per_tag_ap_a_minus_b": {
+    "missing-tactile-warning": {
+     "ci95": [
+      -0.020225,
+      0.003108
+     ],
+     "point": -0.008643
+    },
+    "narrow": {
+     "ci95": [
+      -0.066388,
+      0.073744
+     ],
+     "point": 0.00473
+    },
+    "not-enough-landing-space": {
+     "ci95": [
+      -0.054957,
+      0.101828
+     ],
+     "point": 0.031492
+    },
+    "not-level-with-street": {
+     "ci95": [
+      -0.189695,
+      0.051714
+     ],
+     "point": -0.07815
+    },
+    "points-into-traffic": {
+     "ci95": [
+      -0.063909,
+      0.071641
+     ],
+     "point": 0.005974
+    },
+    "pooled-water": {
+     "ci95": [
+      -0.275023,
+      0.009464
+     ],
+     "point": -0.106475
+    },
+    "steep": {
+     "ci95": [
+      -0.306951,
+      -0.020519
+     ],
+     "point": -0.147302
+    },
+    "surface-problem": {
+     "ci95": [
+      -0.193838,
+      -0.025092
+     ],
+     "point": -0.106314
+    }
+   },
+   "reference": "control_interim_ep49",
+   "seed": 86,
+   "subset": "leak_free",
+   "tags_fixed": [
+    "missing-tactile-warning",
+    "narrow",
+    "not-enough-landing-space",
+    "not-level-with-street",
+    "points-into-traffic",
+    "pooled-water",
+    "steep",
+    "surface-problem"
+   ]
+  },
+  {
+   "a": "train_fov90_final_test_predictions.csv",
+   "a_mAP": 0.278607,
+   "a_minus_b": {
+    "mAP": {
+     "ci95": [
+      -0.146868,
+      -0.063016
+     ],
+     "point": -0.102675
+    },
+    "macro_f1": {
+     "ci95": [
+      -0.129768,
+      -0.033114
+     ],
+     "point": -0.081328
+    },
+    "micro_f1": {
+     "ci95": [
+      -0.094616,
+      -0.04641
+     ],
+     "point": -0.069607
+    }
+   },
+   "a_sha256": "1a5026662a7d8f21117c9325e28199cac075abf3096f3396516d2084a19fd271",
+   "arm": "fov90",
+   "b": "control_interim_ep49_test_predictions.csv",
+   "b_mAP": 0.381281,
+   "b_sha256": "ee5a0d6f5491828ea062f13af126fe502b4b7dd97d9271efe711599847dae571",
+   "n": 957,
+   "n_boot": 1000,
+   "n_panos": 889,
+   "per_tag_ap_a_minus_b": {
+    "missing-tactile-warning": {
+     "ci95": [
+      -0.04902,
+      -0.014394
+     ],
+     "point": -0.030323
+    },
+    "narrow": {
+     "ci95": [
+      -0.177702,
+      -0.033114
+     ],
+     "point": -0.103393
+    },
+    "not-enough-landing-space": {
+     "ci95": [
+      -0.12458,
+      0.059134
+     ],
+     "point": -0.027276
+    },
+    "not-level-with-street": {
+     "ci95": [
+      -0.201489,
+      0.068686
+     ],
+     "point": -0.085774
+    },
+    "points-into-traffic": {
+     "ci95": [
+      -0.094237,
+      0.044451
+     ],
+     "point": -0.018168
+    },
+    "pooled-water": {
+     "ci95": [
+      -0.439198,
+      -0.073798
+     ],
+     "point": -0.233023
+    },
+    "steep": {
+     "ci95": [
+      -0.297322,
+      -0.008875
+     ],
+     "point": -0.130958
+    },
+    "surface-problem": {
+     "ci95": [
+      -0.280244,
+      -0.109037
+     ],
+     "point": -0.192481
+    }
+   },
+   "reference": "control_interim_ep49",
+   "seed": 86,
+   "subset": "leak_free",
+   "tags_fixed": [
+    "missing-tactile-warning",
+    "narrow",
+    "not-enough-landing-space",
+    "not-level-with-street",
+    "points-into-traffic",
+    "pooled-water",
+    "steep",
+    "surface-problem"
+   ]
+  }
+ ],
+ "subset": "leak_free",
+ "ts": "2026-09-24T14:40:22+00:00"
+}
