@@ -97,10 +97,12 @@ pooled water, steep* (`tag_benchmark_86.md` §2). The other four in the union vo
 §2), `parallel lines` and `not aligned with crosswalk` are city-specific (1 and 3 cities with
 labels, audit §4), `not visible` has 5 labels.
 
-Observed positive rate in the tag era, tier 1 (audit §4, `tags.csv`): missing tactile warning
-16.9 %, points into traffic 9.2 %, narrow 5.3 %, surface problem 4.2 %, not level with street
-4.0 %, not enough landing space 3.6 %, debris / pooled water 1.3 %, steep 1.3 %. These are the
-*labeled* frequencies the PU loss sees, not the class priors (§3.2).
+Observed positive rate in the tag era, tier 2, the proposed universe (`tags.csv`
+`labels_correct` over 295,957; `plan_numbers.json`, `observed_rate_tier2`): missing tactile
+warning 15.4 %, points into traffic 9.3 %, narrow 4.9 %, surface problem 3.7 %, not enough landing
+space 3.5 %, not level with street 2.8 %, debris / pooled water 1.3 %, steep 0.93 %. Tier 1's
+(audit §4) are 16.9, 9.2, 5.3, 4.2, 3.6, 4.0, 1.3 and 1.3 %. These are the *labeled* frequencies
+the PU loss sees, not the class priors (§3.2).
 
 ### 2.3 Excluded tags are masked cells, not negatives
 
@@ -129,6 +131,9 @@ every training arm, by panorama, not by label:
   label of the same city within 10 m of any of those test labels, the benchmark's stricter rule
   (`tag_benchmark_86.md` §3: the same corner seen from a neighbouring panorama);
 - every panorama carrying one of the 2,452 expert-validate labels, and the same 10 m rule;
+- every panorama carrying one of the 500 item-3 review items
+  (`benchmark/tag_review/review_list.csv`, PR #176), and the same 10 m rule, because a PU win
+  makes the review a test set (§1);
 - the validation slice of §5.3, which is itself drawn only from HF train rows that survive the
   rules above.
 
@@ -168,7 +173,7 @@ training table and the loss changed.
 | arm | training labels | loss on an untagged label | what it isolates |
 |---|---|---|---|
 | **clean** (control, new run) | the HF train rows that survive §2.4, minus the §5.3 selection slice: at most 4,279 − ~430 ≈ 3,850 reviewed crops, cut at the §4.1 framing | negative (correct: the ASSETS'24 pass affirmed empty tag sets, audit §8) | the reviewed set alone, matched to the new arms in exclusions, framing and selection rule |
-| **naive** | tier 2 tag era minus §2.4 (which contains the `clean` rows) | negative for every tag | the ASSETS'24 "Experiment 2" arm on curb ramps; the thing PU is supposed to fix |
+| **naive** | tier 2 tag era minus §2.4, united with every `clean` row (on `label_uid`; an HF row that is not tier 2 or not tag-era is added, not dropped) | negative for every tag | the ASSETS'24 "Experiment 2" arm on curb ramps; the thing PU is supposed to fix |
 | **nnPU** | same table as naive | unlabeled: non-negative PU risk per tag with a class prior per tag (§3.2) | the experiment |
 | soft-negative (PROPOSED, only if the budget allows a fourth arm) | same table | negative with a soft target (§3.2) instead of 0 | the cheapest fix; tells whether nnPU's unlabeled term is doing anything a soft target does not |
 | reference: #178 `train_control` | all 8,674 HF train rows, HF screenshot framing | negative | the published benchmark; scored on test (1) only, leak included |
@@ -186,16 +191,56 @@ measured ~77 crops/s (§5.1), about 1.4 h plus preprocessing on one L40S (arithm
 Both `naive` and `nnPU` contain every `clean` row at the same framing, so every new arm is a true
 superset of the control. On the HF rows the absence *is* affirmed, so their cells stay hard
 negatives in every arm (they are the only labels in the universe for which that is true, plus the
-expert-validate rows, which are test); §3.1 below says how they enter the PU loss.
+expert-validate rows, which are test); the loss paragraph below says how they enter.
 
-**nnPU per tag.** For tag t with prior π_t, positives P_t (labels carrying t) and unlabeled U_t
-(every other, unmasked label), the non-negative PU risk (Kiryo et al., 2017) is
+**The loss per tag, PROPOSED.** For tag t, every unmasked (label, tag) cell falls in one of three
+disjoint sets: P_t, labels carrying t; N_t, HF rows (the `clean` rows) not carrying t, whose
+absence the ASSETS'24 pass affirmed; and U_t, every other tier-2 label not carrying t. ℓ is the
+**logistic loss**, ℓ(z, y) = log(1 + e^(−yz)), which is the control's BCE-with-logits, so `nnPU`
+and `naive` differ only in how U_t is treated, not in the loss family. (Kiryo et al., 2017 used
+the sigmoid loss in their experiments, and their estimation-error analysis assumes a bounded
+loss, which the logistic loss is not; a sigmoid-loss `nnPU` is a not-run ablation, §7.)
 
-    R_t = π_t · E_P[ℓ(f_t, +1)] + max(0, E_U[ℓ(f_t, −1)] − π_t · E_P[ℓ(f_t, −1)])
+- `naive`: ℓ(f_t, −1) on every U_t and N_t cell, ℓ(f_t, +1) on every P_t cell; the batch mean,
+  as in the recipe.
+- `nnPU`: the non-negative PU risk of Kiryo et al. (2017) on the non-HF rows, in its
+  case-control form, where the unlabeled sample U*_t is *every* unmasked non-HF label, tagged t
+  or not, and π_t is the marginal class prior of §3.2:
 
-with ℓ the sigmoid loss, summed over the eight tags, per mini-batch, with the paper's
-gradient-ascent step when the bracket is negative. Batch 4 is small for the unlabeled-term
-estimate; §5.4 makes batch size a decision.
+      R_PU,t = π_t · E_P[ℓ(f_t, +1)] + max(0, E_U*[ℓ(f_t, −1)] − π_t · E_P[ℓ(f_t, −1)])
+
+  plus the ordinary BCE on the HF rows (their positives and their affirmed negatives), each crop
+  weighted by its share of the table as in `naive`, so the HF rows carry the same weight in both
+  arms (about 1 % of the table). A PNU-style mixing weight on the HF term (Sakai et al., 2017) is
+  not tuned; an up-weighted HF term is a not-run ablation.
+
+**Why U*_t includes the tagged labels.** The first draft paired an untagged-only U_t with π_t,
+which mixes two settings. With U restricted to the labels *not* tagged t, the right prior is the
+positive fraction among untagged labels, π_U,t = (π_t − o_t) / (1 − o_t), where o_t is the tag's
+observed rate in the table; using π_t there over-subtracts the negative risk, so the clamp fires
+for the wrong reason. The two correct forms are algebraically identical: expanding
+E_U*[ℓ] = o_t · E_P[ℓ] + (1 − o_t) · E_U[ℓ], the bracket becomes (1 − o_t) · E_U[ℓ(f_t, −1)] −
+(π_t − o_t) · E_P[ℓ(f_t, −1)], which is (1 − o_t) times the untagged-only bracket with π_U,t.
+The trainer implements the case-control form (one prior per tag, no o_t needed at train time),
+and the loss PR's unit test checks it against the censoring form on a hand-computed batch. Both
+rest on the selected-completely-at-random assumption: a true positive's chance of being tagged
+does not depend on what the crop looks like. The rater and era effects (audit §7) say that is
+only approximately true; §7 records it.
+
+**The estimator at batch 4, PROPOSED.** In tier 2, *steep* is on 2,738 of 295,957 labels (0.93 %,
+audit `tags.csv`), so a batch of 4 holds a *steep* positive about 3.7 % of the time
+(1 − 0.9907⁴, arithmetic), and a per-batch E_P for *steep* is empty in ~96 % of batches. The
+first draft left that undefined. The proposal is the per-sample form with **global**
+normalisation: for a batch B of size b drawn uniformly from the N non-HF rows,
+Ê_P[g] = (N / (b · n_P,t)) · Σ_{i ∈ B ∩ P_t} g_i and Ê_U*[g] = (1 / b) · Σ_{i ∈ B} g_i. Both are
+unbiased over batches, both are defined for any batch (an empty P term is 0, never NaN), and the
+clamp is applied to the batch's estimate as in the paper, with its gradient-ascent step when the
+bracket falls below −β (β and the step size γ are CLI arguments, recorded in the run meta). The
+cost is variance: one *steep* positive in a batch carries a weight of N / (4 · n_P) ≈ 27. The
+trainer logs, per tag, how often the clamp fires; a rare tag whose clamp fires on most steps is
+the signal for the batch-16 follow-up (§8 decision 12). Not chosen: positive-stratified sampling
+(changes the data distribution and needs re-weighting) and a running-average clamp (a
+refinement of the same estimator, left for the batch-16 run).
 
 **PROPOSED: a tagged label that lacks tag t is unlabeled for t, not negative.** A rater who
 tagged *narrow* looked at the ramp and did not tag *steep*; that is stronger evidence than an
@@ -205,30 +250,71 @@ is the conservative reading; the alternative is a cheap ablation on `nnPU` and i
 
 ### 3.2 The class prior per tag
 
-nnPU needs π_t, the fraction of curb ramps that *truly* carry tag t, which the labeled frequency
-under-reports by the labeling rate c_t (π_t = observed / c_t). Two candidate sources exist; both
-are committed.
+nnPU needs π_t, the fraction of curb ramps that *truly* carry tag t, which the observed rate o_t
+under-reports by the labeling frequency c_t = o_t / π_t. Four candidate sources; the first three
+are committed, the fourth is pending.
 
 | source | n labels | missing tactile | points into traffic | surface problem | narrow | landing | not level | steep | pooled water |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| ASSETS'24 validated set, all 10,857 rows (positives from #86, 2026-09-22T12:50 comment; rate is arithmetic on 10,857) | 10,857 | 38.9 % | 12.7 % | 9.9 % | 8.5 % | 5.8 % | 4.1 % | 1.4 % | 1.4 % |
-| jonfroehlich, own labels 2024–2026 (`rater_drift.csv`, rate weighted by labels per year) | 1,133 | 38.4 % | 20.4 % | 9.4 % | 16.1 % | 11.7 % | 9.0 % | 4.4 % | — |
-| mikey, own labels 2024–2026 (same) | 363 | 30.3 % | 15.2 % | 8.6 % | 1.7 % | 2.7 % | 1.7 % | 0.0 % | — |
+| **HF train rows that survive §2.4** (proposed; `plan_numbers.json`, `priors.survivors`) | 4,279 | 42.5 % | 13.2 % | 7.9 % | 9.3 % | 6.4 % | 4.2 % | 1.5 % | 1.2 % |
+| ASSETS'24 validated set, all 10,857 rows (reference only: includes the 2,183 HF test rows and 1,772 re-split test rows; positives from the #86 comment of 2026-09-22T12:50, rates in `plan_numbers.json`, `priors.hf_all_10857`) | 10,857 | 38.9 % | 12.7 % | 9.9 % | 8.5 % | 5.8 % | 4.1 % | 1.4 % | 1.4 % |
+| jonfroehlich, own labels 2024–2026 (`rater_drift.csv` from PR #183, rate weighted by labels per year) | 1,134 | 38.4 % | 20.4 % | 9.5 % | 16.1 % | 11.6 % | 9.0 % | 4.4 % | — |
+| mikey, own labels 2024–2026 (same) | 364 | 30.2 % | 15.1 % | 8.5 % | 1.6 % | 2.7 % | 1.7 % | 0.0 % | — |
+| item-3 review, `untagged` stratum (`tag_rubric_draft.md`, PR #176; not yet reviewed) | 150 | measures π_U,t directly, see below | | | | | | | |
 
 `rater_drift.csv` does not carry pooled water. The two trusted raters disagree by 2× or more on
-five of the seven tags they share (narrow 16.1 vs 1.7, landing 11.7 vs 2.7, not level 9.0 vs 1.7,
-steep 4.4 vs 0.0), which is the reporting-threshold effect again, now inside the trusted tier.
-Against the tag-era observed rates (§2.2) the ASSETS priors imply labeling frequencies c_t of
-about 0.43 for missing tactile warning and 0.72 for points into traffic, and near 1 for the
-rare tags, which is plausible: the rarer the defect the more likely it was tagged when seen.
+four of the seven tags they share (narrow 16.1 vs 1.6, landing 11.6 vs 2.7, not level 9.0 vs 1.7,
+steep 4.4 vs 0.0; missing tactile, points into traffic and surface problem are within 1.4×),
+which is the reporting-threshold effect again, now inside the trusted tier.
 
-**PROPOSED: π_t from the ASSETS'24 validated set**, because it is the only source where absence
-was affirmed over a full tag set by more than one reviewer (five editor accounts, 10 cities,
-audit §6 and §8), and it is 7× the size of the trusted-rater 2024+ set; the trusted-rater rates are the
-sensitivity check (one extra `nnPU` run with Jon's priors, §7, if the main result is close).
-Its known bias travels with it: the validated set is 10 cities and the reviewers' own threshold.
-Everything about the prior is a CLI argument (`--prior-csv`), never a constant edited in a
-session.
+**The item-3 review measures the quantity PU needs.** PR #176's review list samples 150
+`untagged` items (no tags, never tag-reviewed) from crop-era labels in 35 deployments,
+explicitly as "where the review measures how often an untagged label actually carries a
+condition, which is the number the positive-unlabeled experiment (plan item 5) needs"
+(`tag_rubric_draft.md`, Strata). That is a direct estimate of π_U,t, from the population the PU
+arms train on rather than from the HF set's 10 cities. At 150 items its intervals are wide (a
+20 % rate is about ±6.4 points at 95 %, arithmetic), so it checks the prior rather than
+replacing it, and it only exists once the review is done. Its 500 items are excluded from
+training (§2.4), since a PU win makes the review a test set (§1).
+
+**Labeling frequencies against the universe's own rates.** The universe is tier 2, so o_t is
+the tier-2 rate (`tags.csv` `labels_correct` over 295,957; §2.2). With the proposed prior
+(`plan_numbers.json`, `pu_tier2.survivors`):
+
+| | missing tactile | points into traffic | surface problem | narrow | landing | not level | steep | pooled water |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| o_t, tier 2 | 15.4 % | 9.3 % | 3.7 % | 4.9 % | 3.5 % | 2.8 % | 0.93 % | 1.3 % |
+| c_t = o_t / π_t | 0.36 | 0.71 | 0.47 | 0.52 | 0.55 | 0.67 | 0.61 | 1.08 |
+| π_U,t (untagged labels truly carrying t) | 32.1 % | 4.2 % | 4.3 % | 4.7 % | 3.0 % | 1.4 % | 0.6 % | 0 (clamped) |
+
+Three readings. First, c_t is not ordered by rarity: *surface problem* is tagged about as
+rarely as *missing tactile warning*, and *steep* and *not level* sit mid-range, so the first
+draft's "the rarer the defect the more likely it was tagged" does not hold. (That draft also
+compared the prior against tier-1 rates; tier 2's are lower, e.g. *not level* 2.8 % vs 4.0 %.)
+Second, where c_t ≥ 1, π_U,t is clamped to 0 and nnPU reduces to `naive` for that tag: with this
+prior that is *pooled water* (with the all-10,857 prior its c_t is 0.92), so any PU effect can
+only show on the other seven. Third, c_t compares a prior from 10 cities with an observed rate
+from 56 deployments, so it mixes the labeling frequency with the city mix; it is a plausibility
+check on the prior, not a measurement of c_t.
+
+**PROPOSED: π_t from the HF train rows that survive §2.4**, because the HF set is the only
+source whose absences were affirmed over a full tag set (one ASSETS'24 validation per label,
+10,356 on 10,356 labels, five editor accounts pooled; audit §6 and §8), and because only the
+survivors are free of test rows: a prior from all 10,857 sets a training hyperparameter from
+test labels. The survivors are 2.9× the trusted-rater 2024+ set. They are a spatially selected
+subset (rows away from any test label), and their rates differ from the full set's by up to 3.6
+points (*missing tactile*, 42.5 % vs 38.9 %); both rows are committed so the difference is
+visible. The trusted-rater rates are the sensitivity check (one extra `nnPU` run with Jon's
+priors, §7, if the main result is close), and the item-3 `untagged` stratum checks π_U,t once
+reviewed. The known bias travels with the prior: 10 cities and the ASSETS'24 reviewers' own
+threshold. Everything about the prior is a CLI argument (`--prior-csv`), never a constant edited
+in a session.
+
+**The soft-negative target.** The first draft set the target for an untagged cell to 1 − c_t,
+which is P(untagged | positive). The target for an untagged cell is P(positive | untagged), which
+is π_U,t. For *missing tactile warning* that is 0.32, not 0.64; for *steep* it is 0.006, not
+0.39, about 65× smaller (`plan_numbers.json`). Proposed: target π_U,t on U_t cells, 0 on HF
+negatives, 1 on positives.
 
 ## 4. Cut plan
 
@@ -453,6 +539,12 @@ a two-crop model would.
   first suspect (§3.2); the sensitivity run with Jon's 2024+ rates separates the two only
   partly, because those rates are one rater's threshold. A prior estimated from the data (e.g.
   the KM or TIcE estimators) is a further arm, not run.
+- **Selected completely at random is assumed, not shown.** Both forms of the nnPU risk (§3.1)
+  assume a true positive's chance of being tagged does not depend on the crop. Rater and era
+  effects (audit §7) make it at best approximate; a PU result is conditional on it.
+- **Not run: a sigmoid-loss `nnPU`** (the loss of Kiryo et al.'s experiments; the plan uses the
+  logistic loss so that `nnPU` and `naive` share a loss family, §3.1), and **an up-weighted HF
+  term** (a PNU-style mixing weight on the affirmed-negative rows).
 - **Rater × era drift** (audit §7). The universe spans 2018–2026 and the reporting threshold moved
   over it; a PU loss with one prior per tag assumes a single labeling frequency. A per-era prior
   is the natural refinement and is not run.
@@ -477,9 +569,12 @@ a two-crop model would.
    framing, at the cost of a second JPEG encode and a per-label zoom); `fov50` is out, measured
    worse (−0.036 [−0.064, −0.009] mAP against the control). Re-cut the HF rows the same way, with
    no production crops in any arm?
-3. **Priors:** ASSETS'24 validated base rates as the main prior, trusted-rater 2024+ as the
-   sensitivity check?
-4. **Arms:** `naive` + `nnPU` at both budgets, soft-negative at budget 1 only?
+3. **Priors:** the HF train rows that survive the test exclusions (4,279) as the main prior
+   (proposed; the all-10,857 rates include test rows and are shown for reference only),
+   trusted-rater 2024+ as the sensitivity check, and the item-3 review's 150 `untagged` items as
+   a direct check on π_U,t once reviewed?
+4. **Arms:** `naive` + `nnPU` at both budgets, soft-negative (target π_U,t on untagged cells,
+   §3.2) at budget 1 only?
 5. **Budgets:** 3 epochs (presentation-matched) then 30 epochs; ~3 GPU-days on the lab L40S
    allocation for the full set, against the plan's ~2?
 6. **Selection:** a 10 % pano-grouped slice (~430 labels) of the HF train rows that survive the
