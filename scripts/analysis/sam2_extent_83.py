@@ -824,15 +824,15 @@ def paired_delta(rows, a, b, seed=BOOTSTRAP_SEED, reps=BOOTSTRAP_REPS, value="io
 
 def prior_only_rows(rows, prior_kw=None):
     """The no-SAM2 control for the ``ptbox_*`` variants: score the geometry prior box
-    itself against the gold, one row per (item, prompt source). The prior depends on
-    the prompt only, not on the projection or FOV, so it is emitted once per prompt
-    as arm ``<prompt>_prior``, fov 0, variant ``prior_only``. Without this row a
-    ``ptbox`` IoU cannot be read: part of it is the prior's own overlap."""
+    itself against the gold, one row per (city, item, prompt source). The prior
+    depends on the prompt only, not on the projection or FOV, so it is emitted once
+    per prompt as arm ``<prompt>_prior``, fov 0, variant ``prior_only``. Without this
+    row a ``ptbox`` IoU cannot be read: part of it is the prior's own overlap."""
     prior_kw = prior_kw or {}
     out, seen = [], set()
     for r in rows:
         prompt = r["arm"].split("_", 1)[0]
-        key = (r["pano_id"], r["key"], prompt)
+        key = (r.get("city", ""), r["pano_id"], r["key"], prompt)
         if key in seen:
             continue
         seen.add(key)
@@ -953,7 +953,8 @@ def summarize_rows(rows, prior_kw=None):
                 res = paired_delta(rows, g, e)
                 if res.get("n"):
                     out["deltas"][f"gnomonic-equirect|{prompt}|{fov}|{variant}"] = res
-                    out["deltas"][f"gnomonic-equirect|{prompt}|{fov}|{variant}|by_band"] =                         projection_deltas_by_band(rows, prompt, fov, variant)
+                    out["deltas"][f"gnomonic-equirect|{prompt}|{fov}|{variant}|by_band"] = \
+                        projection_deltas_by_band(rows, prompt, fov, variant)
         for proj in PROJECTIONS:
             for variant in VARIANTS:
                 if len(fovs) > 1:

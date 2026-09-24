@@ -467,9 +467,11 @@ python scripts/analysis/sam2_extent_83.py run --city richmond --limit 2 \
 head -n 337 analysis_out/sam2_extent_83/richmond_rows.csv | cmp - "$WORK/runs/smoke/richmond_rows.csv"
 
 # then every city, into your own $OUT
-python scripts/analysis/sam2_extent_83.py run --city richmond \
-    --arm boxcenter_gnomonic,boxcenter_equirect,point_gnomonic,point_equirect --fov 90,76,60 \
-    --checkpoint /path/sam2.1_hiera_large.pt --out "$OUT" --usage-log "$WORK/runs/usage_rows.jsonl"
+for c in richmond annapolis sao_paulo paterson; do
+  python scripts/analysis/sam2_extent_83.py run --city $c \
+      --arm boxcenter_gnomonic,boxcenter_equirect,point_gnomonic,point_equirect --fov 90,76,60 \
+      --checkpoint /path/sam2.1_hiera_large.pt --out "$OUT" --usage-log "$WORK/runs/usage_rows.jsonl"
+done
 
 # CPU: summarize YOUR rows, then compare with the committed ones
 for c in richmond annapolis sao_paulo paterson; do
