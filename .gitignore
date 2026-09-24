@@ -115,6 +115,8 @@ analysis_out/op/*
 # #131: the same study re-run on klone, written beside the original, plus its run record
 !analysis_out/silent_activation_replica.json
 !analysis_out/silent_activation_replica.run.json
+!analysis_out/silent_activation_replica_ckpt.json
+!analysis_out/silent_activation_replica_ckpt.run.json
 # The #126 cascade go/no-go: rampnet's heatmap at the ramps a challenger recovers.
 !analysis_out/cascade_gate.json
 !analysis_out/cascade_gate_op030.json

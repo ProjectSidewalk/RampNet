@@ -10,6 +10,8 @@
 #
 #   cd /gscratch/makelab/jonf/silent_activation_131/RampNet
 #   sbatch --dependency=afterok:<unpack job> scripts/analysis/silent_activation_131.slurm
+#   # optional second copy, first-come on the scavenger partition (same GPU class, another node):
+#   sbatch --account=ckpt-makelab --partition=ckpt-all --gres=gpu:l40s:1 --requeue \n#       --export=ALL,OUT=analysis_out/silent_activation_replica_ckpt.json,TAG=silent-activation-replica-131-ckpt \n#       scripts/analysis/silent_activation_131.slurm
 #
 # Outputs, all under the checkout (copied back and committed):
 #   analysis_out/silent_activation_replica.json       the replica itself
@@ -32,7 +34,10 @@ set -eo pipefail
 WORK=${WORK:-/gscratch/makelab/jonf/silent_activation_131}
 PY=${PY:-/gscratch/makelab/jonf/envs/sidewalkcv2/bin/python}
 PANOS_ROOT=${PANOS_ROOT:-$WORK/benchmark_root}
-OUT=analysis_out/silent_activation_replica.json
+# OUT and TAG can be overridden (--export=ALL,OUT=...,TAG=...) so a second copy of the job on the
+# preemptable ckpt partition writes a second replica beside this one instead of over it.
+OUT=${OUT:-analysis_out/silent_activation_replica.json}
+TAG=${TAG:-silent-activation-replica-131}
 export HF_HOME=$WORK/hf_home
 export HF_HUB_DISABLE_PROGRESS_BARS=1
 START=$(date -u +%FT%TZ); T0=$SECONDS
@@ -48,7 +53,7 @@ echo "phase 1 done in ${ELAPSED}s"
 
 # the run record: what ran, on what, with which library and artifact versions
 START="$START" HOST="$HOST" GPU="$GPU" DRIVER="$DRIVER" ELAPSED="$ELAPSED" PANOS_ROOT="$PANOS_ROOT" \
-JOB="$SLURM_JOB_ID" OUT="$OUT" $PY - <<'EOF'
+JOB="$SLURM_JOB_ID" OUT="$OUT" TAG="$TAG" $PY - <<'EOF'
 import json, os, platform, sys, hashlib
 import torch, timm, numpy, PIL, skimage
 from huggingface_hub import HfApi
@@ -74,12 +79,12 @@ rec = {
 }
 with open(out.replace(".json", ".run.json"), "w", encoding="utf-8", newline="") as fh:
     json.dump(rec, fh, indent=1, sort_keys=True)
-row = {"ts": os.environ["START"], "bundle": "pooled-7-us-splits", "label": "silent-activation-replica-131",
+row = {"ts": os.environ["START"], "bundle": "pooled-7-us-splits", "label": os.environ["TAG"],
        "provider": "rampnet", "model_id": "projectsidewalk/rampnet-model", "paid": False,
        "panos_scored": 108, "elapsed_s": float(os.environ["ELAPSED"]),
        "hardware": {"host": os.environ["HOST"], "gpus": [os.environ["GPU"]]}, "status": "ok",
        "what": rec["what"] + f", klone job {os.environ['JOB']}, single-pass fp32, 128 misses / 108 panos",
-       "est_cost_usd": 0.0, "pricing": None, "run_id": f"silent-activation-131:{os.environ['START']}"}
+       "est_cost_usd": 0.0, "pricing": None, "run_id": f"{os.environ['TAG']}:{os.environ['START']}"}
 ledger.append_rows("analysis_out/usage_log.jsonl", [row])
 print(json.dumps(rec, indent=1))
 EOF
