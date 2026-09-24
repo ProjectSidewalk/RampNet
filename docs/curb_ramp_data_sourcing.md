@@ -476,6 +476,62 @@ dataset `projectsidewalk/rampnet-benchmark` (the bundle #94's imagery manifests 
 hash). `--panos-root` points at whichever checkout holds them. Everything else it reads is
 committed.
 
+**Replicated on a second machine (#131, 2026-09-24).** The same script, on klone's L40S, from
+the published inputs only, reproduces every number in the tables below. Result:
+`analysis_out/silent_activation_replica.json` (run record beside it, `.run.json`: host, GPU,
+driver, library versions, model and dataset commits). Against the committed file it is the
+issue's **outcome 3, at the noise floor**: no row changed class (10 / 39 / 79 both), no row
+flipped `above_own_null_p95` (31 both), `null_pct` identical to its three decimals in all 128
+rows, and the only movement is in the raw activations — `act` differs in 50 of 128 rows by at
+most **7 × 10⁻⁵**, `null_p95` in 61 by ≤ 4 × 10⁻⁵, `null_med` in 19 by ≤ 2 × 10⁻⁵,
+`act_at_site` in 37 by ≤ 1 × 10⁻⁵ (fifth-decimal float noise, on values rounded to 5 places).
+`scripts/analysis/compare_silent_activation.py` produces that report from the two committed
+files, and `tests/test_compare_silent_activation.py` pins it. So the size of GPU / driver / OS
+nondeterminism on this pipeline, single-pass fp32, is **below 10⁻⁴ on the heatmap**, and no
+statement this section makes depends on the fourth decimal. Two further things the run
+established:
+
+- **It is deterministic on the same hardware class.** The job ran twice, on the lab's
+  allocation (g3104) and as a copy on the scavenger partition (g3124), both L40S; the two
+  replicas are byte-identical (`silent_activation_replica_ckpt.json`). The drift is between the
+  RTX 3070 / Windows / cuDNN 9.5 original and the L40S / Rocky 8 / cuDNN 9.10 replica, not
+  between runs.
+- **The header's `cities` list is in a different order** in the two files (alphabetical in the
+  original, which took `US_SPLITS` from `miss_decomposition`; the frozen tuple the script carries
+  since the #99 review starts at richmond). It is the run's scope, not an input to any number:
+  results are sorted by (city, pano) and the null RNG is consumed in that order. The comparison
+  treats it as a set.
+
+What differed, for the record: the original was the Windows venv (`torch 2.6.0+cu126`,
+`timm 1.0.28`, RTX 3070; the venv's exact versions on 2026-07-31 were not written down, which
+is itself a finding — the run record now travels with the artifact); the replica is the repo's
+`environment.yml` env on klone (Python 3.10.20, torch 2.6.0+cu126, cuDNN 91002, timm 1.0.28,
+numpy 2.2.6, Pillow 12.0.0, scikit-image 0.25.2, driver 580.178.04, Rocky Linux 8.10),
+`rampnet-model` at `606a1195`, `rampnet-benchmark` at `63d5ffd0`. Cost: 0.22 GPU-hours on klone,
+$0, three rows in `analysis_out/compute_log.jsonl` and two `paid: false` rows in
+`analysis_out/usage_log.jsonl` (265 s and 495 s of wall-clock; the ckpt copy shared its node).
+
+To re-run it from a clean clone (klone; any Linux box with one CUDA GPU works the same way
+without the `sbatch`):
+
+```bash
+# 1. the seven pooled splits' native panoramas from the Hub into a checkout-shaped root, every
+#    image checked against the Parquet's sha256 and the committed imagery_manifest.json
+python scripts/unpack_benchmark_panos.py --out $WORK/benchmark_root \
+    --cities richmond,bend,clovis,morgantown,annapolis,paterson,gainesville
+# 2. the study, written beside the committed result, never over it
+python scripts/analysis/silent_activation.py --panos-root $WORK/benchmark_root \
+    --json-out analysis_out/silent_activation_replica.json
+# 3. the three-outcome comparison (exit 0 bytes / 1 values / 2 moved / 3 different population)
+python scripts/analysis/compare_silent_activation.py \
+    analysis_out/silent_activation.json analysis_out/silent_activation_replica.json
+```
+
+On klone steps 1 and 2 are `scripts/analysis/silent_activation_131_unpack.slurm` (CPU, ckpt) and
+`scripts/analysis/silent_activation_131.slurm` (one L40S), in that order; the usage comments in
+each carry the exact `sbatch` lines, and the second writes the run record and the ledger row
+itself.
+
 | population | n | act q1 / med / q3 | act ≥ 0.01 |
 | :--- | ---: | :---: | ---: |
 | near / rated | 13 | 0.009 / 0.099 / 0.197 | 9 |

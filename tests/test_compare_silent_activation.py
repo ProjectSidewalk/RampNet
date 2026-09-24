@@ -16,6 +16,8 @@ sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "analysis"))
 import compare_silent_activation as cs  # noqa: E402
 
 RESULT_JSON = os.path.join(REPO_ROOT, "analysis_out", "silent_activation.json")
+REPLICA_JSON = os.path.join(REPO_ROOT, "analysis_out", "silent_activation_replica.json")
+REPLICA_CKPT_JSON = os.path.join(REPO_ROOT, "analysis_out", "silent_activation_replica_ckpt.json")
 
 
 def _row(city, pano, x, act, null_p95=0.5, off=10.0):
@@ -115,6 +117,22 @@ def test_a_changed_input_field_is_reported_as_inputs_not_measurement(tmp_path):
     assert "verdict" in cmp["inputs"] and not cmp["fields"]
 
 
+def test_the_order_cities_were_passed_in_is_not_a_difference(tmp_path):
+    reordered = copy.deepcopy(BASE)
+    reordered["cities"] = list(reversed(BASE["cities"]))
+    a = _write(tmp_path, "a.json", BASE)
+    b = _write(tmp_path, "b.json", reordered)
+    assert cs.main([a, b]) == cs.VALUES_IDENTICAL
+
+
+def test_a_different_city_set_is_a_different_study(tmp_path):
+    narrower = copy.deepcopy(BASE)
+    narrower["cities"] = ["a"]
+    a = _write(tmp_path, "a.json", BASE)
+    b = _write(tmp_path, "b.json", narrower)
+    assert cs.main([a, b]) == cs.POPULATIONS_DIFFER
+
+
 def test_the_committed_result_compared_with_itself_is_outcome_1():
     assert cs.main([RESULT_JSON, RESULT_JSON]) == cs.BYTE_IDENTICAL
 
@@ -127,3 +145,29 @@ def test_json_out_records_the_status(tmp_path):
     rec = json.loads(out.read_text(encoding="utf-8"))
     assert rec["status"] == cs.VALUES_IDENTICAL
     assert rec["reference"]["sha256"] != rec["replica"]["sha256"]
+
+
+def test_the_committed_klone_replica_moves_no_number_0c_quotes():
+    """#131's outcome, pinned: the klone L40S re-run (2026-09-24) is outcome 3 against the
+    RTX 3070 original -- fifth-decimal activation noise -- and nothing the 0c tables are
+    built from moved: no class change, no null-p95 flip, null_pct identical to 3 places."""
+    with open(RESULT_JSON, encoding="utf-8") as fh:
+        a = json.load(fh)
+    with open(REPLICA_JSON, encoding="utf-8") as fh:
+        b = json.load(fh)
+    cmp = cs.compare(a, b)
+    assert cmp["status"] == cs.VALUES_MOVED
+    assert cmp["n_common"] == 128 and not cmp["only_in_a"] and not cmp["only_in_b"]
+    assert not cmp["header"]                      # same scope; only --cities' spelling differs
+    assert not cmp["inputs"]
+    assert set(cmp["fields"]) <= {"act", "null_med", "null_p95", "act_at_site"}
+    assert max(d["max_abs"] for d in cmp["fields"].values()) < 1e-4
+    assert cmp["class_changes"] == [] and cmp["p95_changes"] == []
+    assert cs.class_counts(a) == cs.class_counts(b) == {"absent": 10, "faint_local": 39, "tail": 79}
+
+
+def test_the_two_klone_replicas_are_byte_identical():
+    """Same GPU class on two nodes (the lab allocation, then a ckpt copy): the run is
+    deterministic on that hardware, so the drift above is between machines, not runs."""
+    with open(REPLICA_JSON, "rb") as fh, open(REPLICA_CKPT_JSON, "rb") as gh:
+        assert fh.read() == gh.read()

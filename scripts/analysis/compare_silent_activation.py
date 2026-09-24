@@ -69,7 +69,15 @@ def compare(a, b):
     out = {"header": {}, "only_in_a": [], "only_in_b": [], "fields": {}, "inputs": {},
            "class_changes": [], "p95_changes": [], "n_common": 0}
     for k in HEADER:
-        if a.get(k) != b.get(k):
+        va, vb = a.get(k), b.get(k)
+        if k == "cities":
+            # the scope, not its spelling: the results are sorted by (city, pano) and the
+            # null RNG is consumed in that order, so the order --cities was passed in
+            # cannot change a number. The committed file lists them alphabetically (the
+            # 2026-07-31 run took US_SPLITS from miss_decomposition); the frozen tuple the
+            # script carries today starts at richmond.
+            va, vb = sorted(va or []), sorted(vb or [])
+        if va != vb:
             out["header"][k] = (a.get(k), b.get(k))
     ra = {row_key(r): r for r in a["results"]}
     rb = {row_key(r): r for r in b["results"]}
