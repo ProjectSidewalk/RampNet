@@ -167,8 +167,9 @@ allocation, so the arms ran one after another (14:20 UTC to 06:53 UTC the next d
   ```
 
   (`control` writes `control_scores.json`; the `contrast` needs the control's common test
-  rows, `tag_benchmark_86.py test-only` over `train_control_final_predictions.csv` with
-  `split_common.csv`, the same filter the arms went through.) Replace the §4 table and the
+  rows, `tag_benchmark_86.py test-only` over #178's `train_control_final_test_predictions.csv`
+  with `--split-csv split_common.csv`, the same filter the arms went through, written to
+  `control_test_predictions.csv`.) Replace the §4 table and the
   contrast column, keep the interim files as the record of what was read first.
 - **One seed per arm.** The benchmark's seed-variance is unmeasured; a difference between
   arms smaller than a seed's worth is not a result. The paired contrasts in §4 are the right
