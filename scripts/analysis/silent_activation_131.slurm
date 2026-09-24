@@ -54,7 +54,8 @@ START=$(date -u +%FT%TZ); T0=$SECONDS
 # LAUNCHER_BLOB is this script's own git blob id, comparable with
 # `git rev-parse <commit>:scripts/analysis/silent_activation_131.slurm`.
 GIT_COMMIT=$(git rev-parse HEAD)
-GIT_DIRTY_PATHS=$(git status --porcelain --untracked-files=no -- . ':!analysis_out' | cut -c4- | tr '\n' ' ')
+# One path per line (a path may contain spaces; a rename is reported by its new name).
+GIT_DIRTY_PATHS=$(git -c core.quotepath=off diff --name-only HEAD -- . ':!analysis_out')
 LAUNCHER_BLOB=$(git hash-object "$0")
 HOST=$(hostname -f)
 GPU=$(nvidia-smi --query-gpu=name --format=csv,noheader | head -1)
@@ -88,7 +89,7 @@ wdigest = hashlib.sha256(open(os.path.join(snap, wfile), "rb").read()).hexdigest
 out = os.environ["OUT"]
 digest = hashlib.sha256(open(out, "rb").read()).hexdigest()
 payload = json.load(open(out, encoding="utf-8"))
-dirty = os.environ["GIT_DIRTY_PATHS"].split()
+dirty = [p for p in os.environ["GIT_DIRTY_PATHS"].split("\n") if p]
 rec = {
     "what": "scripts/analysis/silent_activation.py --json-out (the #46 Phase 1 study), re-run for #131",
     "result": out, "result_sha256": digest,
