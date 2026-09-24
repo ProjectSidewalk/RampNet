@@ -55,3 +55,15 @@ scripts/model_comparison/yolo_baseline/benchmark_eval/*/*.json text eol=lf
 # A core.autocrlf=true clone would check them out CRLF and every one of those hashes would
 # fail for files that are byte-correct. tag_benchmark_86.py writes them LF on every platform.
 analysis_out/tag_benchmark_86/** text eol=lf
+
+# The tag review pass (#86 item 3): the list's sha256 is quoted in docs/tag_rubric_draft.md
+# and carried inside every per-rater export, and the exports are written LF by
+# rampnet.tag_review.write_json. Pin both LF so an autocrlf=true clone keeps the hash true.
+benchmark/tag_review/*.csv  text eol=lf
+benchmark/tag_review/*.json text eol=lf
+
+# The #131 Phase 1 replicas: their .run.json files record the replica's sha256
+# (result_sha256), and tests/test_compare_silent_activation.py compares the two replicas
+# byte for byte. An autocrlf=true clone would check them out CRLF and the recorded hash
+# would stop matching a file that is byte-correct.
+analysis_out/silent_activation_replica*.json -text

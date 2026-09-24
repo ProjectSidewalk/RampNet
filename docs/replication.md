@@ -29,6 +29,19 @@ lives on one machine.
 | **Crop-model checkpoints** (rounds 1 + 2) | 720.7 MB | HF [`rampnet-crop-model`](https://huggingface.co/projectsidewalk/rampnet-crop-model) | ✅ |
 | Round-1 crop training set (Project Sidewalk crops) | 13.4 GB | [`rampnet-crop-model-dataset-round1`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset-round1) | ✅ published 2026-08-05 (§4) |
 | **`benchmark/*/panos/` (benchmark panoramas)** | 11.41 GB | HF [`rampnet-benchmark`](https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark) | ✅ |
+| GSV depth payloads for the 485 benchmark panos of bend / paterson / gainesville / sao_paulo (#112) | ~2.5 MB (gzipped) | labeler archive `makelab2:/projects/makeabilitylab/sidewalk-auto-labeler/runs/<city>/depth/` + local mirror; per-file sha256 in `analysis_out/recall_by_depth_112.json` | ⚠️ unpublished (Google-derived; publication pending Jon's decision). Every table in `detection_recall_analysis.md` §0 re-derives from the committed per-point rows without them. Re-deriving the rows, or re-running the image↔payload alignment check (`scripts/analysis/depth_image_alignment_112.py` → `analysis_out/depth_image_alignment_112.json`, which also needs the benchmark panos), needs the payloads |
+| makelab2 pano store (`/projects/makeabilitylab/sidewalk_panos/Panoramas`, the Project Sidewalk scraper's equirect archive; input to the crop cutter, #86 item 2b) | not measured; 55 city directories | makelab2 only, **unpublished** | ❌ the crops and the HF-similarity numbers in [`crop_cutter.md`](crop_cutter.md) cannot be re-cut outside the lab; the geometry tests, the coverage input/result and every crop's sha256 are committed (see below) |
+
+### ❌ Open — the makelab2 pano store (crop cutter, #86 item 2b)
+
+`scripts/crop_cutter.py` cuts label crops from the equirect panos on makelab2, and the store is
+not published. What a clean clone can check without it is listed at the top of
+[`crop_cutter.md`](crop_cutter.md): every geometry test (`pytest tests/test_crops.py`, on
+synthetic panos and on the 200 committed validation rows), the coverage input and per-row
+result, and the sha256 of every crop the validation runs wrote, which proves a re-cut
+identical or not. What it cannot do is re-cut a crop or re-derive the similarity table.
+Publishing the crops that items 4 and 5 train on would close this for those experiments; that
+is a decision for those items, not done here.
 
 ### ✅ Resolved — the challenger detections are published
 

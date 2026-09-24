@@ -1,0 +1,57 @@
+{
+ "by_split": {
+  "test": 2183,
+  "train": 8674
+ },
+ "cities": {
+  "amsterdam": 191,
+  "cdmx": 503,
+  "chicago": 2253,
+  "columbus": 1581,
+  "newberg": 1231,
+  "oradell": 1153,
+  "pittsburgh": 761,
+  "seattle": 2592,
+  "spgg": 452,
+  "walla-walla": 140
+ },
+ "city_map": {
+  "amsterdam": "amsterdam",
+  "cdmx": "cdmx",
+  "chicago": "chicago-il",
+  "columbus": "columbus-oh",
+  "newberg": "newberg-or",
+  "oradell": "oradell-nj",
+  "pittsburgh": "pittsburgh-pa",
+  "seattle": "seattle-wa",
+  "spgg": "spgg",
+  "walla-walla": "walla-walla"
+ },
+ "hf_rows_with_no_tag": 4719,
+ "identical_tags": 10297,
+ "labels_with_tags_added": 53,
+ "labels_with_tags_removed": 543,
+ "matched_live": 10853,
+ "matched_with_human_validation": 10822,
+ "panos_in_both_splits": 980,
+ "panos_total": 6295,
+ "pct_identical": 94.9,
+ "rows": 10857,
+ "top_added": {
+  "missing tactile warning": 6,
+  "narrow": 11,
+  "not enough landing space": 9,
+  "not level with street": 15,
+  "points into traffic": 7,
+  "surface problem": 6
+ },
+ "top_removed": {
+  "missing tactile warning": 66,
+  "narrow": 57,
+  "not enough landing space": 39,
+  "points into traffic": 69,
+  "surface problem": 49,
+  "tactile warning": 471
+ },
+ "unmapped_cities": {}
+}
