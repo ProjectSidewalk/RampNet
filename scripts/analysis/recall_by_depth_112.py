@@ -20,16 +20,30 @@ The distance rule, stated once:
   * **flat** -- ``h / tan(depression)`` at the fixed 2.5 m (and 2.6 m, the labeler's old
     constant, for the issue's check). Horizontal range. Infinite at or above the horizon.
   * **depth** -- the horizontal range along the exact ray through the point to the payload
-    plane under its pixel (``depth.ground_range_at``): plane lookup is per pixel of the
-    512x256 index, the intersection is continuous. If that plane is not ground-like (tilt
-    > ``GROUND_MAX_TILT_DEG`` -- a wall, a car) or the pixel is sky, the point falls back
-    to the dominant ground plane intersected along the same ray (a ramp is on the ground),
-    and the row says so (``depth_source``). Euclidean ray distance is kept beside it and is
-    what apparent size uses (a subtended angle depends on the ray, not the horizontal).
+    plane under its pixel: plane lookup is per pixel of the 512x256 index, the intersection
+    is continuous. If that plane is not ground-like (tilt > ``GROUND_MAX_TILT_DEG`` -- a
+    wall, a car) or the pixel is sky, the point falls back to **level ground at the
+    measured camera height** (``flat_range`` at the pano's ground-plane distance; the
+    ground plane's tilt is not used there), and the row says so (``depth_source``).
+    Euclidean ray distance is kept beside it and is what apparent size uses (a subtended
+    angle depends on the ray, not the horizontal).
   * A panorama whose ground is a stand-in (Google's exactly-level 2.500 m plane,
     ``depth.SYNTHETIC_GROUND``), a fallback reconstruction (``DEGENERATE``), or has no
     usable floor is **excluded from the depth axis**, never silently backfilled: its rows
     carry ``camera_height_status`` and no depth range. The doc reports the count per split.
+
+The image <-> payload mapping, stated once because it is the easiest thing here to get
+wrong (#112, PR #184 review B1): **benchmark image column c is raw payload index column c**,
+and the ray through image x has azimuth ``phi = (1 - x) * 2pi + pi/2`` -- the labeler's
+``depth._direction`` evaluated at raw column ``x * width``. The labeler's own lookup
+(``depth._plane_at`` / ``ray_depth_at`` / ``ground_range_at``) instead maps a stored column
+c to raw column ``width - 1 - c``: correct for streetlevel's rastered depth map, which is
+mirrored, and **mirrored in azimuth relative to the RampNet benchmark JPEGs**. This script
+therefore uses the labeler only to parse payloads and classify the ground plane, and does
+the lookup and the ray itself (``raw_column``, ``image_ray``). The mapping is evidenced, not
+assumed: ``depth_image_alignment_112.py`` checks it against the benchmark JPEGs (sky mask
+vs image, ground plane under the GT points, plane boundaries vs image edges, and seam
+continuity of the raw-space ray) and commits the result.
 
 Ground truth and hits are exactly the doc's: ``build_ground_truth`` over each split's
 ``verdicts.json``, hit = RampNet's committed detection (the deployed 0.55 operating point,
@@ -78,7 +92,12 @@ M_BUCKETS = [(0, 8), (8, 12), (12, 18), (18, 25), (25, 40), (40, 1e9)]
 PX_BUCKETS = [(0, 12), (12, 20), (20, 32), (32, 50), (50, 80), (80, 1e9)]
 RESOLUTION_FACTORS = (1.5, 2.0, 3.0)
 PUBLISHED_THRESHOLDS_M = (18.0, 25.0)   # "reliable to ~18 m, blind past 25 m"
-ND = 4                 # decimals in every committed float
+THRESHOLD_WINDOW = 0.2   # deflate a threshold t by the median ratio of points with flat in t*(1 +/- this)
+ND = 4                 # decimals in every committed float (never the x / y coordinates)
+GROUND_MAX_TILT_DEG = 18.0   # the labeler's depth.GROUND_MAX_TILT_DEG; derive() asserts they agree
+SKY = 0                      # plane index 0 = no plane (the labeler's depth.SKY)
+NEW_RIG = (("paterson", "2025"), ("gainesville", "2026"))   # Google's 2025-26 rig, by capture year
+MIN_YEAR_N = 20          # a (split, capture year) row is tabulated from this many GT points
 
 # The depth frame runs short of the height the imagery's own geometry implies, by a
 # per-city factor the labeler measured by bearing-only triangulation (its
@@ -184,8 +203,9 @@ def deflation(points, flat_key="flat_2p5", depth_key="depth_range"):
     """How much longer the flat axis is than the depth axis, two ways.
 
     ``ratio_of_medians`` is what the issue tabulated; ``median_ratio`` is the per-point
-    median of flat/depth, which is the factor to deflate a threshold by (it is not
-    dominated by the far tail). Both are reported because they differ.
+    median of flat/depth, the stretch at the *median point*. Neither is the factor to
+    deflate a far-field threshold by: the ratio grows with distance, so 18 m and 25 m are
+    deflated by ``window_threshold`` instead, from the points near each threshold.
     """
     pairs = [(p[flat_key], p[depth_key]) for p in points
              if p.get(flat_key) is not None and p.get(depth_key)]
@@ -206,6 +226,69 @@ def deflated_thresholds(median_ratio, thresholds=PUBLISHED_THRESHOLDS_M):
     return [round(t / median_ratio, 1) for t in thresholds]
 
 
+def window_threshold(points, t, flat_key="flat_2p5", depth_key="depth_range", rel=THRESHOLD_WINDOW):
+    """Where a flat-axis threshold t lands on the depth axis, from the points near it.
+
+    Median of flat/depth over the points whose flat distance lies in ``t * (1 -/+ rel)``,
+    and ``t`` divided by it. ``None`` for the threshold when fewer than 10 points fall in the
+    window. Example: bend's 18 m uses its GT points at flat 14.4-21.6 m.
+    """
+    lo, hi = t * (1 - rel), t * (1 + rel)
+    ratios = sorted(p[flat_key] / p[depth_key] for p in points
+                    if p.get(flat_key) is not None and p.get(depth_key) and lo <= p[flat_key] <= hi)
+    if len(ratios) < 10:
+        return {"t": t, "window_m": [round(lo, 1), round(hi, 1)], "n": len(ratios),
+                "median_ratio": None, "deflated_m": None}
+    r = st.median(ratios)
+    return {"t": t, "window_m": [round(lo, 1), round(hi, 1)], "n": len(ratios),
+            "median_ratio": round(r, ND), "deflated_m": round(t / r, 1)}
+
+
+# ---------------------------------------------------------------------------
+# the image <-> payload mapping (B1 of the PR #184 review; see the module docstring)
+
+def raw_column(x_norm, width):
+    """Raw payload index column under benchmark-image x: the identity, image column c is raw c.
+
+    NOT the labeler's ``depth._raw_column`` (``width - 1 - c``), which is for streetlevel's
+    mirrored raster. ``x`` wraps at the seam. Example: ``raw_column(0.75, 512) == 384``.
+    """
+    return min(width - 1, max(0, int((x_norm % 1.0) * width)))
+
+
+def image_ray(x_norm, y_norm):
+    """Unit ray through an exact benchmark-image coordinate, in the payload's plane frame.
+
+    The labeler's raw-column ray ``depth._direction`` (``phi = (width - col - 0.5)/width *
+    2pi + pi/2``, +z down) made continuous at raw column ``col + 0.5 = x * width``, so
+    ``phi = (1 - x) * 2pi + pi/2``; ``theta = (1 - y) * pi``. At a pixel centre it equals
+    ``depth._direction(payload, row, raw_column(x))`` exactly.
+    """
+    theta = (1.0 - y_norm) * math.pi
+    phi = (1.0 - x_norm) * 2.0 * math.pi + math.pi / 2.0
+    s = math.sin(theta)
+    return s * math.cos(phi), s * math.sin(phi), math.cos(theta)
+
+
+def plane_under(payload, x_norm, y_norm):
+    """The payload plane under a benchmark-image coordinate, or None for sky / no plane."""
+    w, h = payload.width, payload.height
+    row = min(h - 1, max(0, int(y_norm * h)))
+    idx = payload.indices[row * w + raw_column(x_norm, w)]
+    if idx == SKY or idx >= len(payload.planes):
+        return None
+    return payload.planes[idx]
+
+
+def intersect(plane, direction):
+    """Distance along a unit ray to a plane (n . p = d), or None if parallel."""
+    vx, vy, vz = direction
+    denom = vx * plane.nx + vy * plane.ny + vz * plane.nz
+    if denom == 0:
+        return None
+    return abs(plane.d / denom)
+
+
 # ---------------------------------------------------------------------------
 # the labeler's parser and archive
 
@@ -221,15 +304,13 @@ def load_depthlib(labeler_root):
 
 
 def labeler_commit(labeler_root):
-    """The labeler checkout's HEAD and branch, so the doc can name the parser revision used."""
-    def git(*args):
-        try:
-            return subprocess.run(["git", "-C", labeler_root, *args],
-                                  capture_output=True, text=True, check=True).stdout.strip()
-        except (OSError, subprocess.CalledProcessError):
-            return None
-    return {"head": git("rev-parse", "HEAD"), "branch": git("branch", "--show-current"),
-            "origin_main": git("rev-parse", "origin/main")}
+    """The labeler checkout's HEAD commit -- only that, so the committed JSON does not depend on
+    the machine (no path, no branch, no remote-tracking state)."""
+    try:
+        return subprocess.run(["git", "-C", labeler_root, "rev-parse", "HEAD"],
+                              capture_output=True, text=True, check=True).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        return None
 
 
 def sha256_of(path):
@@ -272,29 +353,30 @@ def pano_geometry(depthlib, payload):
     return status, (ground if status == depthlib.MEASURED else None)
 
 
-def depth_ranges(depthlib, payload, ground, x, y):
-    """(horizontal range, ray distance, source) at a normalized point, per the docstring rule.
+def depth_ranges(payload, camera_height_m, x, y):
+    """(horizontal range, ray distance, source) at a benchmark-image point, per the docstring rule.
 
-    The plane lookup and the exact-ray intersection are the library's (``_plane_at`` is
-    what ``ray_depth_at`` / ``ground_range_at`` are built on); this only adds the "is that
-    plane ground-like" test that decides the fallback.
+    Plane lookup by ``plane_under`` (image column = raw column), exact-ray intersection
+    along ``image_ray``. If the plane under the pixel is not ground-like, or the pixel is
+    sky, the range is ``flat_range`` over level ground at ``camera_height_m`` (the pano's
+    measured ground-plane distance; that plane's tilt is not applied) and the source says
+    ``fallback_wall`` / ``fallback_sky`` (``_none`` if the point is at or above the horizon).
     """
-    plane, _, _ = depthlib._plane_at(payload, x, y)
-    theta = (0.5 - y) * math.pi
+    plane = plane_under(payload, x, y)
+    elev = (0.5 - y) * math.pi
     if plane is not None:
         tilt = math.degrees(math.acos(min(1.0, abs(plane.nz))))
-        if tilt <= depthlib.GROUND_MAX_TILT_DEG:
-            ray = depthlib.ray_depth_at(payload, x, y)
+        if tilt <= GROUND_MAX_TILT_DEG:
+            ray = intersect(plane, image_ray(x, y))
             if ray is not None:
-                return ray * math.cos(theta), ray, "pixel_plane"
+                return ray * math.cos(elev), ray, "pixel_plane"
         source = "fallback_wall"
     else:
         source = "fallback_sky"
-    # not a ground surface under the pixel: the measured camera height over level ground
-    rng = flat_range(y, ground.camera_height_m)
+    rng = flat_range(y, camera_height_m)
     if rng is None:
         return None, None, source + "_none"
-    return rng, math.hypot(rng, ground.camera_height_m), source
+    return rng, math.hypot(rng, camera_height_m), source
 
 
 # ---------------------------------------------------------------------------
@@ -344,6 +426,8 @@ def match(preds, gt):
 
 def derive(labeler_root, splits):
     depthlib = load_depthlib(labeler_root)
+    if depthlib.GROUND_MAX_TILT_DEG != GROUND_MAX_TILT_DEG or depthlib.SKY != SKY:
+        raise SystemExit("the labeler's ground-tilt / sky constants changed; update this script's copies")
     points, dets, panos, index_sha = [], [], [], {}
     for city in list(splits) + list(FLAT_ONLY_SPLITS):
         records, verdicts = load_bundle(city)
@@ -386,7 +470,7 @@ def derive(labeler_root, splits):
                     row["apparent_px_flat"] = _r(apparent_px(ray_flat))
                 if ground is not None:
                     row["flat_h"] = _r(flat_range(y, ground.camera_height_m))
-                    rng, ray, src = depth_ranges(depthlib, payload, ground, x, y)
+                    rng, ray, src = depth_ranges(payload, ground.camera_height_m, x, y)
                     row["depth_range"], row["depth_ray"], row["depth_source"] = _r(rng), _r(ray), src
                     if ray:
                         row["apparent_px_depth"] = _r(apparent_px(ray))
@@ -397,14 +481,15 @@ def derive(labeler_root, splits):
 
             if gt.fn_confirmed and gt.gt_points:
                 for k, g in enumerate(gt.gt_points):
-                    points.append({"city": city, "pano": pid, "x": round(g[0], 6), "y": round(g[1], 6),
+                    # x / y unrounded: detections sit on exact binary fractions (e.g. 138/256),
+                    # and rounding them can move a point across a payload row (review N2)
+                    points.append({"city": city, "pano": pid, "x": g[0], "y": g[1],
                                    "hit": k in hit, "camera_height_status": status, **geom(g[0], g[1])})
             for i, (x, y, conf) in enumerate(preds):
-                dets.append({"city": city, "pano": pid, "x": round(x, 6), "y": round(y, 6),
+                dets.append({"city": city, "pano": pid, "x": x, "y": y,
                              "confidence": round(conf, 6), "kind": kinds[i],
                              "camera_height_status": status, **geom(x, y)})
-    return {"labeler_root": os.path.abspath(labeler_root).replace("\\", "/"),
-            "labeler_commit": labeler_commit(labeler_root),
+    return {"labeler_commit": labeler_commit(labeler_root),
             "index_sha256": index_sha,
             "constants": {"depth_frame_scale": DEPTH_FRAME_SCALE, "cam_h": CAM_H, "cam_h_labeler": CAM_H_LABELER, "ramp_w": RAMP_W,
                           "radius_px": round(R, ND), "operating_point": 0.55,
@@ -425,7 +510,8 @@ def tables(data):
     measured = [p for p in pts if p["camera_height_status"] == "measured"]
     t = {"inventory": [], "issue_check": [], "deflation": {}, "deflation_scaled": {}, "thresholds": {},
          "recall_distance": {}, "recall_size": {}, "forecast": {}, "precision_distance": {},
-         "excluded": {}, "depth_source": {}, "published_reproduction": {}}
+         "excluded": {}, "depth_source": {}, "published_reproduction": {}, "by_capture_year": []}
+    year = {(p["city"], p["pano"]): (p.get("capture_date") or "")[:4] for p in panos}
 
     for city in splits + list(FLAT_ONLY_SPLITS):
         cp = [p for p in panos if p["city"] == city]
@@ -466,8 +552,12 @@ def tables(data):
         dfl = deflation(g)
         t["deflation"][name] = dfl
         if dfl:
-            t["thresholds"][name] = {"published_m": list(PUBLISHED_THRESHOLDS_M),
-                                     "deflated_m": deflated_thresholds(dfl["median_ratio"])}
+            t["thresholds"][name] = {
+                "published_m": list(PUBLISHED_THRESHOLDS_M),
+                "median_point_m": deflated_thresholds(dfl["median_ratio"]),
+                "window": [window_threshold(g, th) for th in PUBLISHED_THRESHOLDS_M],
+                "window_scaled": [window_threshold(g, th, depth_key="depth_range_scaled")
+                                  for th in PUBLISHED_THRESHOLDS_M]}
         t["recall_distance"][name] = {"flat_2p5": recall_table(g, "flat_2p5", M_BUCKETS, "m"),
                                       "depth": recall_table(g, "depth_range", M_BUCKETS, "m"),
                                       "depth_scaled": recall_table(g, "depth_range_scaled", M_BUCKETS, "m")}
@@ -479,7 +569,8 @@ def tables(data):
                                "depth_scaled": resolution_forecast(g, "apparent_px_depth_scaled")}
         t["deflation_scaled"][name] = deflation(g, "flat_2p5", "depth_range_scaled")
         if t["deflation_scaled"][name]:
-            t["thresholds"][name]["deflated_scaled_m"] = deflated_thresholds(t["deflation_scaled"][name]["median_ratio"])
+            t["thresholds"][name]["median_point_scaled_m"] = deflated_thresholds(
+                t["deflation_scaled"][name]["median_ratio"])
         src = {}
         for p in g:
             src[p["depth_source"]] = src.get(p["depth_source"], 0) + 1
@@ -498,6 +589,34 @@ def tables(data):
         t["excluded"][name] = {"n": len(ex), "hit": sum(1 for p in ex if p["hit"]),
                                "recall_flat_2p5": round(sum(1 for p in ex if p["hit"]) / len(ex), ND) if ex else None,
                                "included_recall_flat_2p5": recall_table(g, "flat_2p5", M_BUCKETS, "m")[-1]["recall"]}
+
+    # by capture year: the rig, reported apart from the split (review S1). A split mixes
+    # vintages; Google's 2025-26 rig is paterson 2025 + gainesville 2026.
+    def rig_row(label, g):
+        keys = {(q["city"], q["pano"]) for q in g}
+        heights = sorted(p["camera_height_m"] for p in panos if (p["city"], p["pano"]) in keys)
+        dfl = deflation(g)
+        d26 = deflation(g, "flat_2p6", "depth_range")
+        return {"group": label, "n": len(g), "n_panos": len(heights),
+                "camera_height_median_m": round(st.median(heights), ND) if heights else None,
+                "median_ratio": dfl and dfl["median_ratio"],
+                "p10_ratio": dfl and dfl["p10_ratio"], "p90_ratio": dfl and dfl["p90_ratio"],
+                "median_ratio_flat_2p6": d26 and d26["median_ratio"],
+                "window": [window_threshold(g, th) for th in PUBLISHED_THRESHOLDS_M]}
+
+    for city in splits:
+        cm = [p for p in measured if p["city"] == city]
+        for y in sorted({year[(p["city"], p["pano"])] for p in cm}):
+            g = [p for p in cm if year[(p["city"], p["pano"])] == y]
+            if len(g) >= MIN_YEAR_N:
+                t["by_capture_year"].append(rig_row(f"{city} {y}", g))
+    t["by_capture_year"].append(rig_row(
+        "2025-26 rig (" + " + ".join(f"{c} {y}" for c, y in NEW_RIG) + ")",
+        [p for p in measured if (p["city"], year[(p["city"], p["pano"])]) in NEW_RIG]))
+    t["by_capture_year"].append(rig_row(
+        "older US vintages (bend, paterson, gainesville; the rest)",
+        [p for p in measured if p["city"] != "sao_paulo"
+         and (p["city"], year[(p["city"], p["pano"])]) not in NEW_RIG]))
 
     # the doc's population, richmond + bend, all panos, flat axis: must reproduce 637 / 0.765
     doc = [p for p in pts if p["city"] in ("richmond", "bend")]
@@ -540,12 +659,114 @@ def _side_by_side(columns, key="recall"):
     return "\n".join(lines)
 
 
+DOC_TABLE_NOTE = ("Thresholds: 18 m and 25 m on the flat axis divided by the median flat/depth ratio of "
+                  f"the points whose flat distance is within +/-{THRESHOLD_WINDOW:.0%} of the threshold "
+                  "(window n in brackets); the median-point ratio is the whole population's.\n")
+
+
+def _n(v):
+    return f"{v:,}"
+
+
+def _thr(w):
+    return "–" if w["deflated_m"] is None else f"{w['deflated_m']} m ({w['n']})"
+
+
+def _band(b):
+    return b if b == "all" else b.replace("-", "–")
+
+
+def doc_tables(data, t):
+    """The tables of docs/detection_recall_analysis.md §0, verbatim.
+
+    The doc is pasted from these (``--doc-tables``), and tests/test_recall_by_depth_112.py
+    checks that every one appears in the doc unchanged.
+    """
+    out = {}
+    splits = data["constants"]["depth_splits"]
+    L = ["| split | panos | measured | stand-in ground | degenerate / implausible | camera height median (min–max), measured |",
+         "|---|---:|---:|---:|---:|---|"]
+    for r in t["inventory"]:
+        if r["city"] not in splits:
+            continue
+        s_ = r["status"]
+        L.append(f"| {r['city']} | {r['panos']} | {s_.get('measured', 0)} | {s_.get('synthetic_ground', 0)} | "
+                 f"{s_.get('degenerate', 0)} / {s_.get('implausible', 0)} | "
+                 f"{r['camera_height_median_m']:.2f} m ({r['camera_height_min_m']:.2f}–{r['camera_height_max_m']:.2f}) |")
+    out["inventory"] = "\n".join(L)
+
+    label = {"bend": "**bend** (this document's GSV city)", "gsv_pooled": "GSV pooled"}
+    L = ["| population | n | median flat / median depth | median-point ratio (p10–p90) | 18 m becomes (window n) | 25 m becomes (window n) | depth × scale: 18 m / 25 m become |",
+         "|---|---:|---:|---|---|---|---|"]
+    for name, d in t["deflation"].items():
+        if not d:
+            continue
+        th = t["thresholds"][name]
+        ws = th["window_scaled"]
+        L.append(f"| {label.get(name, name)} | {_n(d['n'])} | {d['median_flat']:.2f} / {d['median_depth']:.2f} = "
+                 f"{d['ratio_of_medians']:.2f} | {d['median_ratio']:.3f} ({d['p10_ratio']:.2f}–{d['p90_ratio']:.2f}) | "
+                 f"{_thr(th['window'][0])} | {_thr(th['window'][1])} | "
+                 f"{ws[0]['deflated_m']} m / {ws[1]['deflated_m']} m |")
+    out["deflation"] = "\n".join(L)
+
+    L = ["| capture vintage | GT points (panos) | camera height, median | flat 2.5 m / depth, median point (p10–p90) | flat 2.6 m / depth | 18 m becomes (window n) | 25 m becomes (window n) |",
+         "|---|---:|---:|---|---:|---|---|"]
+    for r in t["by_capture_year"]:
+        L.append(f"| {r['group']} | {r['n']} ({r['n_panos']}) | {r['camera_height_median_m']:.2f} m | "
+                 f"{r['median_ratio']:.3f} ({r['p10_ratio']:.2f}–{r['p90_ratio']:.2f}) | {r['median_ratio_flat_2p6']:.2f} | "
+                 f"{_thr(r['window'][0])} | {_thr(r['window'][1])} |")
+    out["by_capture_year"] = "\n".join(L)
+
+    heads = {"flat_2p5": ("flat 2.5 m", "recall (flat)"), "depth": ("depth", "recall (depth)"),
+             "depth_scaled": ("depth × scale", "recall")}
+
+    def side(name, keys, which, first):
+        tabs = [t[which][name][k] for k in keys]
+        h = [first]
+        for k in keys:
+            h += [f"n ({heads[k][0]})", heads[k][1]]
+        L = ["| " + " | ".join(h) + " |", "|---|" + "---:|---:|" * len(keys)]
+        order = []
+        for tb in tabs:
+            order += [r["bucket"] for r in tb if r["bucket"] not in order and r["bucket"] != "all"]
+        order.append("all")
+        maps = [{r["bucket"]: r for r in tb} for tb in tabs]
+        for b in order:
+            cells = []
+            for m in maps:
+                r = m.get(b)
+                cells += ([_n(r["n"]), f"{r['recall']:.3f}"] if r else ["–", "–"])
+            L.append(f"| {_band(b)} | " + " | ".join(cells) + " |")
+        return "\n".join(L)
+
+    out["bend_distance"] = side("bend", ("flat_2p5", "depth", "depth_scaled"), "recall_distance", "distance")
+    out["pooled_distance"] = side("gsv_pooled", ("flat_2p5", "depth"), "recall_distance", "distance")
+    out["bend_size"] = side("bend", ("flat_2p5", "depth"), "recall_size", "apparent size")
+    out["pooled_size"] = side("gsv_pooled", ("flat_2p5", "depth"), "recall_size", "apparent size")
+
+    L = ["| factor | bend, flat | bend, depth | bend, depth × scale | pooled, flat | pooled, depth |",
+         "|---|---|---|---|---|---|"]
+    fc = t["forecast"]
+    for i, f in enumerate(fc["bend"]["flat_2p5"]):
+        cells = [fc["bend"]["flat_2p5"][i], fc["bend"]["depth"][i], fc["bend"]["depth_scaled"][i],
+                 fc["gsv_pooled"]["flat_2p5"][i], fc["gsv_pooled"]["depth"][i]]
+        L.append(f"| {f['factor']:g}× | " + " | ".join(f"{c['gain']:+.3f}" for c in cells) + " |")
+    out["forecast"] = "\n".join(L)
+
+    L = ["| distance (depth) | detections (TP + FP) | precision |", "|---|---:|---:|"]
+    for r in t["precision_distance"]["gsv_pooled"]["depth"]:
+        L.append(f"| {_band(r['bucket'])} | {_n(r['n'])} | {r['precision']:.3f} |")
+    out["pooled_precision"] = "\n".join(L)
+    return out
+
+
 def markdown(data, t):
     L = []
     L.append("# Recall by distance on GSV depth vs flat-ground geometry (#112)\n")
     lc = data["labeler_commit"]
     L.append(f"Generated by `scripts/analysis/recall_by_depth_112.py`; labeler parser at "
-             f"`{lc['head']}` (branch `{lc['branch']}`; origin/main was `{lc['origin_main']}`). Depth axis = horizontal range along the exact ray to the "
+             f"`{lc}`. Image column = raw payload column (see the script docstring). "
+             f"Depth axis = horizontal range along the exact ray to the "
              f"plane under the point's pixel; flat axis = {CAM_H} m / tan(depression). "
              f"Measured-ground panoramas only on the depth axis.\n")
     L.append("## Payload inventory\n")
@@ -561,19 +782,12 @@ def markdown(data, t):
         L.append(f"| {r['city']} | {r['n_detections']} | {r['n_panos']} | {_fmt(r['median_flat_2p6'])} | "
                  f"{_fmt(r['median_depth_range'])} | {_fmt(r['median_depth_ray'])} | {_fmt(r['ratio_of_medians'])} | "
                  f"{_fmt(r['median_ratio'])} | {_fmt(r['ratio_after_height_only'])} |")
+    dt = doc_tables(data, t)
     L.append("\n## Deflation of the flat axis at the GT points, and the published thresholds\n")
-    L.append("| population | n | median flat @2.5 | median depth | ratio of medians | median ratio (p10-p90) | 18 m / 25 m become | with the depth-frame scale: ratio, thresholds |")
-    L.append("|---|---:|---:|---:|---:|---|---|---|")
-    for name, d in t["deflation"].items():
-        if not d:
-            continue
-        th = t["thresholds"][name]
-        ds = t["deflation_scaled"].get(name)
-        sc = th.get("deflated_scaled_m", ["", ""])
-        L.append(f"| {name} | {d['n']} | {_fmt(d['median_flat'])} | {_fmt(d['median_depth'])} | "
-                 f"{_fmt(d['ratio_of_medians'])} | {_fmt(d['median_ratio'])} ({_fmt(d['p10_ratio'])}-{_fmt(d['p90_ratio'])}) | "
-                 f"{th['deflated_m'][0]} m / {th['deflated_m'][1]} m | "
-                 f"{_fmt(ds and ds['median_ratio'])}, {sc[0]} m / {sc[1]} m |")
+    L.append(DOC_TABLE_NOTE)
+    L.append(dt["deflation"])
+    L.append("\n## By capture year (the rig), not by split\n")
+    L.append(dt["by_capture_year"])
     pr = t["published_reproduction"]
     L.append(f"\n## The doc's population reproduces: richmond + bend n = {pr['n']}, hit {pr['hit']}, "
              f"recall {pr['recall']} (per city {pr['per_city']})\n")
@@ -619,6 +833,8 @@ def main(argv=None):
     ap.add_argument("--check", action="store_true",
                     help="re-derive the tables from the committed rows (no payloads) and fail on drift")
     ap.add_argument("--markdown", action="store_true", help="print the markdown tables")
+    ap.add_argument("--doc-tables", action="store_true",
+                    help="with --check: print the §0 tables of docs/detection_recall_analysis.md")
     a = ap.parse_args(argv)
 
     if a.check:
@@ -631,6 +847,9 @@ def main(argv=None):
               f"tables re-derive from the rows")
         if a.markdown:
             print(markdown(data, fresh))
+        if a.doc_tables:
+            for name, tab in doc_tables(data, fresh).items():
+                print(f"<!-- {name} -->\n{tab}\n")
         return 0
 
     data = derive(a.labeler_root, a.splits)
