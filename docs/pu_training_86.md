@@ -204,13 +204,37 @@ referer-checked route (`tag_benchmark_86.md` §8); mixing those with cutter crop
 for every crop, including the HF train and test rows (whose re-cut at the control's framing is
 the `viewport` arm of item 4).
 
-**The field of view is decided by item 4, not here.** `context_fov_86.md` is training `viewport`
-(the labeler's framing re-cut), `fov25`, `fov50` and `fov90`; when its §4 is filled in,
-item 5 cuts at whichever framing scored best on the common test rows, with `fov50` as the
-default if the arms are within a seed's worth of each other (it is the centred analogue of the
-zoom-1 majority of the control, §2 there). PROPOSED, and it is the one dependency that
-stops the cut from starting today. The cut command is the cutter's, unchanged
-(`scripts/crop_cutter.py --fov <deg> --size 640 --aspect 1.0 --tilt mm`, PR #177).
+**The field of view comes from item 4's results: PROPOSED `fov25`.** `context_fov_86.md` §4
+(PR #180, on `exp/context-fov-86`) scored four framings on 2,182 common test rows, paired
+against an interim control (the #178 control's epoch-index-49 snapshot) and against `viewport`:
+
+| arm minus reference | mAP, paired 95 % interval |
+|---|---|
+| `viewport` − control | −0.010 [−0.035, +0.017] |
+| `fov25` − control | −0.006 [−0.035, +0.020] |
+| `fov25` − `viewport` | +0.004 [−0.024, +0.025] |
+| `fov50` − control | **−0.036 [−0.064, −0.009]** |
+| `fov50` − `viewport` | **−0.026 [−0.053, −0.002]** |
+| `fov90` − control | **−0.075 [−0.105, −0.048]** |
+
+So `fov50` and `fov90` are measurably worse (*surface problem*, *steep* and *missing tactile
+warning* all drop at 50°), and `fov25` and `viewport` tie the control and each other. The
+choice between the two tied framings is a trade-off:
+
+- **`fov25` (proposed):** label-centred, one field of view for every label, one JPEG encode, and
+  independent of the labeler's zoom. Zoom varies by rater, and rater is the axis the PU loss is
+  trying not to learn, so a framing that does not depend on it is the safer default. Its one hint
+  (*points into traffic* +0.045 [−0.003, +0.089] against the control) needs seeds before it is
+  anything.
+- **`viewport`:** reproduces the control's framing (the labeler's zoom, 12.5°–48°, ramp
+  off-centre), so a PU arm would differ from the HF-framed reference rows (§3.1) only in data. It
+  needs each label's zoom, re-saves the 640 px box as a second JPEG encode, and had one tag off 0
+  against the control (*surface problem* −0.054 [−0.102, −0.009]).
+
+Item 4's control column is interim until the #178 re-run finishes (`context_fov_86.md` §6); if
+the final control changes this reading, the default is revisited before the cut. The cut command
+is the cutter's, unchanged (`scripts/crop_cutter.py --fov 25 --size 640 --aspect 1.0 --tilt mm`,
+PR #177).
 
 Crops to cut: 295,957 (tier 2 tag era) plus the expert-validate 2,452, minus overlap. Store
 coverage on a seeded 5,000-label tag-era sample was 99.16 % (`crop_cutter.md` §4); the misses
@@ -245,12 +269,15 @@ timed sample run.
 
 ### 4.3 Size and transfer
 
-Measured bytes per crop on klone for item 4's crops (2026-09-24, `find -printf %s`, 10,848 crops
-per arm): fov25 155.0 KB, fov50 161.2 KB, fov90 133.6 KB, viewport after the 640 px box 123.1 KB.
-At 134–161 KB, 296k crops are **40–48 GB**; item 4's 43,392-crop tar was 6,284,554,240 bytes.
+Bytes per crop for item 4's crops, **observed on klone and not committed** (2026-09-24,
+`find -printf %s` over the 10,848 crops per arm): fov25 155.0 KB, fov50 161.2 KB, fov90 133.6 KB,
+viewport after the 640 px box 123.1 KB. At fov25's 155.0 KB, 295,957 crops are about **46 GB**
+(arithmetic). The cutter's manifest records every crop's `bytes` and `sha256`, so the real total
+is summed from it and committed with the cut summary rather than projected.
 
 Neither makelab nor klone holds a key for the other, so item 4's tar went makelab → this
-desktop → klone in two hops, and a 6.3 GB push needed one resume. Eight times that is a day of
+desktop → klone in two hops; the 6.3 GB push needed one resume (observed during item 4's
+transfer, not recorded in a committed file). Eight times that is a day of
 relay. PROPOSED: split the tar per city (`tar` one archive per deployment, sha256 each), push with
 `rsync --partial` from the desktop, and verify the per-city sums on klone before unpacking; the
 manifest already carries a per-crop sha256, so an incomplete city is detected, not guessed. A
@@ -358,9 +385,13 @@ in the cut summaries and the prep manifest respectively.
 | neither > `clean` (and the 3-epoch read agrees) | the head is limited by reviewed labels, not by crops | stop cutting; the effort is the review pass and the closed loop (plan items 10–11); keep the arms' checkpoints for item 6's ablation |
 | `nnPU` < `naive` | the priors are wrong or the unlabeled term at batch 4 is too noisy | the sensitivity run with Jon's priors and a batch-16 run, before any conclusion about PU |
 
-Per-tag results are the content either way: the street-dependent tags (*points into traffic, not
-level, landing space*) are where item 4 expects context to matter and where the tag rates drift
-most by rater; a gain concentrated on them says something different from a uniform gain.
+Per-tag results are the content either way. The street-dependent tags (*points into traffic, not
+level, landing space*) gained nothing from wider context at any field of view in item 4
+(`context_fov_86.md` §4), which left two readings: they are limited by the labels
+(positive-unlabeled, rater-dependent), or they need context and resolution together. This
+experiment tests the first. A gain concentrated on those tags supports it; no gain on them, with
+gains elsewhere, points to the second, which a wider single crop cannot test and a larger input or
+a two-crop model would.
 
 ## 7. Not run, and caveats that travel with the numbers
 
@@ -380,7 +411,8 @@ most by rater; a gain concentrated on them says something different from a unifo
 - **The expert-validate test set depends on its crops existing**, which is the same cutter run;
   until then tests (1) and (2) carry the result.
 - **Training crops are an unpublished input** (§4.4). The control's crops are public.
-- **The framing decision inherits item 4's result**, including its one-seed caveat.
+- **The framing decision inherits item 4's result**, including its one-seed caveat and its
+  interim control column (the #178 epoch-index-49 snapshot, until the re-run finishes).
 - **The control is selected by a different rule** than the new arms (§5.3).
 - **The 8 scored tags are the benchmark's**; a tag with no test positives cannot be scored no
   matter how many training labels it gains (`parallel lines`, `tactile warning`).
@@ -389,8 +421,11 @@ most by rater; a gain concentrated on them says something different from a unifo
 
 1. **Universe:** tier 2 (validated correct, 295,957 tag-era labels) as proposed, or tier 1
    (362,217)?
-2. **Framing:** cut at item 4's winning field of view, `fov50` on a tie, and re-cut the HF rows
-   the same way (no production crops in any arm)?
+2. **Framing:** cut at `fov25` (proposed: ties the control and `viewport` in item 4, centred,
+   independent of the labeler's zoom) or `viewport` (ties too, and reproduces the control's
+   framing, at the cost of a second JPEG encode and a per-label zoom); `fov50` is out, measured
+   worse (−0.036 [−0.064, −0.009] mAP against the control). Re-cut the HF rows the same way, with
+   no production crops in any arm?
 3. **Priors:** ASSETS'24 validated base rates as the main prior, trusted-rater 2024+ as the
    sensitivity check?
 4. **Arms:** `naive` + `nnPU` at both budgets, soft-negative at budget 1 only?
