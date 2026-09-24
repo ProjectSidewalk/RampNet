@@ -68,8 +68,8 @@ The link's heading and pitch point at the label, computed from its `pano_x` and 
 
 ### Known asymmetry between the production and sheet routes
 
-If D1 stands, the two raters do not see the same thing, and κ is measured across two views.
-The differences, so Jon can decide D1 with them in hand:
+D1 is decided (one rater for now), so this matters only if the deferred second pass happens. If
+it does, the two raters do not see the same thing, and κ is measured across two views:
 
 | | first rater, production gallery | second rater, review sheet |
 |---|---|---|

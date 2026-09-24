@@ -327,17 +327,17 @@ API cache fetched on 2026-09-22 by PR #175's `scripts/analysis/ps_supervision_au
 (rebuilt 2026-09-22 after the PR #176 review; it replaces `9dbe2e7c…a3e6`, whose distance bands
 double-corrected camera pitch)
 
-**Depends on PR [#175](https://github.com/ProjectSidewalk/RampNet/pull/175)**, which is not
-merged: the fetch script (`ps_supervision_audit.py fetch`) lives there, and the cache it writes
-is gitignored and unpublished. This PR imports no code from #175.
+**Input from PR [#175](https://github.com/ProjectSidewalk/RampNet/pull/175)** (merged 2026-09-23,
+`4ee54f0`): the fetch script (`ps_supervision_audit.py fetch`) is on main, but the cache it wrote
+on 2026-09-22 is gitignored and unpublished. This PR imports no code from #175.
 
 **The committed CSV is the artifact of record.** Production is live: a fresh fetch returns a
 different pool (new labels, edits, votes), so the script reproduces this list byte for byte only
 from a cache whose hashes match the meta file. Anyone can check the list against the meta file and
 against this hash; nobody can regenerate it from a later fetch, and that is stated rather than
-hidden. **What would unblock regeneration from a clean clone:** merge #175, then publish the
+hidden. **What would unblock regeneration from a clean clone:** publishing the
 2026-09-22 cache (the files named in `review_list.meta.json` `inputs`) to Hugging Face under a
-stated identifier. A reduced candidate pool (the 183,217 eligible rows × the columns
+stated identifier. With #175 merged, that is the only remaining blocker. A reduced candidate pool (the 183,217 eligible rows × the columns
 `build_candidates` uses, no free-text descriptions) was measured and **not committed**: it is
 about 10 MB gzipped, over the ~5 MB a committed file should be, and 43,717 of its rows come from
 the private deployments D20 is about. Publishing either is Jon's call under D20.

@@ -232,7 +232,8 @@ def make_item(row, *, reviewed, verdict=None, tags_affirmed=None, severity=None,
         # recorded, counted in the agreement report, never silently dropped.
         "severity_missing": bool(reviewed and sev is None and verdict not in ("disagree", "unsure")
                                  and SEVERITY_TOKEN not in cj_tags),
-        # "unsure" on prod is the item-level cannot-judge convention (protocol step 5).
+        # "unsure" on prod means the rater cannot tell whether it is a curb ramp (D18, protocol
+        # step 3); like an item-level cannot-judge, it takes the item out of every tag rate.
         "cannot_judge": bool(reviewed and (cannot_judge or verdict == "unsure")),
         "cannot_judge_tags": cj_tags if reviewed else [],
         "note": (note or "").strip() if reviewed else "",
