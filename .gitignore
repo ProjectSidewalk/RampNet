@@ -208,3 +208,7 @@ analysis_out/ps_audit/*
 !analysis_out/ps_audit/*.csv
 !analysis_out/ps_audit/*.json
 analysis_out/ps_audit/hf_validated_curbramp_index.csv
+
+# #112: the depth-axis re-measure; per-point rows so the tables re-derive without the payloads
+!analysis_out/recall_by_depth_112.json
+!analysis_out/recall_by_depth_112.md
