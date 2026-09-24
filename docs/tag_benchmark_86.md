@@ -7,8 +7,8 @@ test set sharing panoramas with train?
 Everything here re-derives from a clean clone: the numbers in §2 and §3 come from committed
 per-label predictions through `scripts/analysis/tag_benchmark_86.py score` on CPU, and the
 GPU steps that produced those predictions are in §6 as exact commands. The one exception is
-stated where it applies: the §5 interim numbers also need the arms' epoch-4 checkpoints, which
-are unpublished and live on makelab2.
+stated where it applies: the GPU half of §5 (the retrained arms) needs the arms' checkpoints,
+which are unpublished and live on makelab2; the CPU half re-derives from committed predictions.
 
 ## 1. Result
 
@@ -46,10 +46,19 @@ them here (§8).
   the caveats in §4. The weak tags are weak on both sides of the split: outside "missing tactile warning"
   (AP 0.98) and "surface problem" (0.62), every averaged tag is at AP 0.30 or below.
 
+- **Retraining without the leak does not lower the score either (§5).** The recipe retrained
+  for 100 epochs on a pano-grouped and a ~100 m block-grouped re-split scores mAP 0.381 and
+  0.412 on its own held-out labels, against 0.354 for the same recipe retrained on the published
+  split. Unpaired, pano − control is +0.027 [−0.014, +0.064] and block − control +0.058 [+0.010,
+  +0.099]; paired on the labels both splits hold out, +0.049 [−0.006, +0.104] (425 labels) and
+  +0.002 [−0.051, +0.088] (418). The arms' test sets are different labels, the checkpoint is kept
+  by training accuracy, and each arm is one run; §5.1 has the caveats.
+
 Why a leak might not matter much here: a crop is a 640 px box around one label, so two labels
 on one panorama usually show different ramps, and the tags are judgments about each ramp. The
 retrained arms in §5 test this directly: if the leak were doing work, a model trained on a
-pano-grouped split would score lower on its held-out panos than the control does on its own.
+pano-grouped split would score lower on its held-out panos than the control does on its own. It
+does not.
 
 ## 2. Per-tag AP (released checkpoint)
 
@@ -114,11 +123,11 @@ fully retracted.
   the sigmoid in float32, as `evaluate.py` does. A batch-1 vs batch-64 check ruled out batching
   (largest score difference 2.9e-5).
 
-## 5. Retraining the recipe on leak-free splits (interim: epoch index 4, i.e. 5 of 100 epochs)
+## 5. Retraining the recipe on leak-free splits (100 epochs)
 
 The tagger's DINOv2 recipe (`notebooks/dino-trainer.ipynb`: full fine-tune of DINOv2-B with 4
 registers, Adam lr 1e-6, batch 4, BCE, no augmentation, 100 epochs, checkpoint kept by best
-*training* exact-match accuracy) is running on three splits of the same 10,857 labels:
+*training* exact-match accuracy) was run on three splits of the same 10,857 labels:
 
 | arm | split | train / test labels | committed split file |
 |---|---|---:|---|
@@ -134,7 +143,168 @@ split has 1,128 of its 2,183 test labels within 10 m of a train label (930 of th
 shared panorama).
 
 Epochs are counted from 0 in the logs and file names: "epoch index 4" / `ep4` is the checkpoint
-after 5 epochs. **Status:** all three arms finished epoch index 9 (10 epochs) at about
+after 5 epochs.
+
+**Status: final.** The first launch (2026-09-23 01:58:54 UTC) died with a makelab2 reboot at
+15:15 UTC, 47,766 s in. Its last epoch lines were at 12:53 UTC (control and block, epoch index
+66) and 12:25 UTC (pano, index 62), while the box was at load 60 from another job; the recipe has
+no resume (§5.3, §5.4). All three arms were relaunched from scratch at 2026-09-24 04:09:18 UTC
+with `tag_benchmark_86.sh train`, unchanged recipe and seed, from the branch at `7b66ad8`, and all
+three ended `EXIT 0` between 20:30 and 20:33 UTC
+(`train_<arm>_meta.json`: 58,869–59,034 s each, three arms sharing the A40, ~587 s per epoch).
+`tag_benchmark_86.sh finish` then scored the snapshots and the final checkpoints (commit
+`05fec46`). Every number in §5.1–§5.3 is from the relaunch.
+
+### 5.1 Final result: training without the leak does not lower the score
+
+Each arm's final `best.pth`, scored on its own held-out labels, same eight tags as §1. Brackets
+are 95 % pano-clustered bootstrap intervals (1,000 draws, seed 86), from
+`train_<arm>_final_scores.json`:
+
+| arm, final `best.pth` (epoch index) | test n (panos) | mAP | micro-F1 | macro-F1 |
+|---|---:|---:|---:|---:|
+| released checkpoint, for reference | 2,183 (1,869) | 0.341 [0.324, 0.371] | 0.665 [0.648, 0.682] | 0.315 [0.289, 0.340] |
+| control (89), all of `test.csv` | 2,183 (1,869) | **0.354** [0.335, 0.391] | 0.660 [0.642, 0.677] | 0.315 [0.285, 0.344] |
+| control (89), leak-free subset | 957 (889) | 0.370 [0.341, 0.415] | 0.676 [0.654, 0.699] | 0.304 [0.269, 0.339] |
+| control (89), leaked subset | 1,226 (980) | 0.358 [0.329, 0.411] | 0.644 [0.618, 0.668] | 0.326 [0.282, 0.369] |
+| pano-grouped (90), its held-out panos | 2,197 (1,283) | **0.381** [0.357, 0.417] | 0.660 [0.641, 0.680] | 0.330 [0.298, 0.364] |
+| block-grouped (91), its held-out blocks | 2,219 (1,256) | **0.412** [0.381, 0.451] | 0.653 [0.634, 0.671] | 0.367 [0.326, 0.400] |
+
+The contrasts, from `final_contrasts.json` (`tag_benchmark_86.py contrast`, §6). **Unpaired**
+compares each arm's headline number on its own test set, the two sets resampled independently
+(the re-split arm with seed 86, the other with seed 87), as §1's leaked-minus-leak-free
+contrast does. **Paired** keeps only the labels that are test in both splits and scores both
+models on the same pano-clustered resamples (seed 86), as §1's full-minus-leak-free contrast
+does; it removes the label-set difference at the cost of sample size.
+
+| contrast | unpaired mAP | paired: n labels (panos) | paired mAP | paired micro-F1 | paired macro-F1 |
+|---|---:|---:|---:|---:|---:|
+| pano-grouped − control | +0.027 [−0.014, +0.064] | 425 (374) | +0.049 [−0.006, +0.104] | +0.021 [−0.010, +0.052] | +0.003 [−0.064, +0.074] |
+| block-grouped − control | +0.058 [+0.010, +0.099] | 418 (364) | +0.002 [−0.051, +0.088] | +0.003 [−0.027, +0.033] | +0.003 [−0.062, +0.074] |
+| block-grouped − pano-grouped | +0.031 [−0.014, +0.075] | 488 (267) | +0.001 [−0.050, +0.047] | +0.029 [−0.003, +0.059] | +0.057 [+0.010, +0.096] |
+
+Unpaired micro-F1 and macro-F1: pano − control +0.001 [−0.025, +0.025] and +0.015 [−0.029,
++0.063]; block − control −0.007 [−0.031, +0.018] and +0.052 [+0.000, +0.095]; block − pano
+−0.007 [−0.036, +0.020] and +0.036 [−0.011, +0.081].
+
+- **The headline question: does a model trained without the leak score lower? No.** Both
+  leak-free arms score *higher* than the control on every point estimate of mAP, unpaired and
+  paired. The one mAP interval that excludes zero (block − control, unpaired, +0.058) points
+  the other way from a leak effect. The lower ends of the intervals bound how much lower a
+  leak-free model could score: 0.014 mAP (pano, unpaired) and 0.006 (pano, paired on 425
+  labels). The block-grouped paired interval is wide (−0.051) because 418 labels is a small set.
+- **The block arm's unpaired lead is a label-set effect, not a model effect.** On the 418 labels
+  both splits hold out, block − control is +0.002 mAP, against +0.058 unpaired. The block
+  split's test set is easier on average: for example "pooled water" scores AP 0.52 there
+  against 0.32 for the control on its own set (per-tag table below). So +0.058 does not show
+  that block-grouped training is better.
+- **Inside the control arm, still no measurable inflation.** Full minus leak-free (paired, as in
+  §1): mAP −0.016 [−0.046, +0.014], micro-F1 −0.016 [−0.034, +0.000], macro-F1 +0.011 [−0.018,
+  +0.045]. Leaked minus leak-free (unpaired): mAP −0.012 [−0.064, +0.045], micro-F1 −0.032
+  [−0.066, −0.000], macro-F1 +0.022 [−0.036, +0.075]. As at epoch index 4, the micro-F1
+  interval sits on zero (its upper end is −0.00005) and supports no reading. After 100 epochs,
+  at 99.98 % training exact-match accuracy, the leaked labels still do not score higher than
+  the leak-free ones.
+- **The framing check stated in advance passes.** The control's final mAP is 0.354 [0.335,
+  0.391]; the released checkpoint's 0.341 is inside that interval, 0.013 below the point
+  estimate. That is consistent with the train framing being the `crop.py` 640 px box (see the
+  assumption below). It does not prove it.
+- **Across 18 intervals, expect about one to exclude zero by chance.** Two do (block − control
+  unpaired mAP, and block − pano paired macro-F1 +0.057 [+0.010, +0.096]); a third (block −
+  control unpaired macro-F1) touches zero. Treat them as leads for a second seed, not results.
+
+**Caveats that travel with §5.1:**
+
+- **The arms' test sets are different labels.** Unpaired contrasts mix the model difference with
+  the difference between the held-out sets (base rates and difficulty differ; "narrow" has 152
+  test positives in the published split, 178 and 177 in the re-splits). The paired contrasts
+  remove that but use only 418–488 labels, and those labels are not a random sample of either
+  test set: they are the labels that fall in the test side of both splits.
+- **The final checkpoint is chosen by training accuracy, not held-out accuracy.** The recipe
+  keeps `best.pth` by best training exact-match accuracy, ties broken by lower training loss
+  (`train_<arm>_log.csv`, column `saved`). Training accuracy saturates early: it first reaches
+  its maximum (0.99977 / 0.99954 / 0.99965 for control / pano / block) at epoch index 29 / 51 /
+  45, and the kept checkpoints (89 / 90 / 91) are later epochs tied at that accuracy with lower
+  loss. So "final" means "late in training", chosen by a rule that never sees held-out data;
+  the snapshot curve (§5.2) shows how much the held-out score moves meanwhile.
+- **One run per arm.** §5.3 measures how much a re-run with the same seed moves the epoch-4
+  numbers (about 0.001 mAP), but that is not seed variance: a different seed changes the head's
+  initialisation and the shuffle order, which the re-run did not. No second seed was run (§8).
+
+Per-tag AP of the final checkpoints (full held-out set of each arm, control / pano / block):
+missing tactile warning 0.973 / 0.970 / 0.969, surface problem 0.597 / 0.607 / 0.575, points into
+traffic 0.323 / 0.378 / 0.348, narrow 0.234 / 0.339 / 0.326, not enough landing space 0.182 /
+0.241 / 0.299, pooled water 0.323 / 0.210 / 0.522, not level with street 0.141 / 0.161 / 0.180,
+steep 0.062 / 0.145 / 0.079. Same caveat as §2: per-tag AP carries each test set's base rate,
+and the rare tags (13–42 positives) move several points per ramp.
+
+### 5.2 Epoch curve (relaunch)
+
+mAP of each arm's `best.pth` as of each snapshot, on its own held-out labels (from
+`train_<arm>_ep<E>_scores.json` and `train_<arm>_final_scores.json`); training exact-match
+accuracy at that epoch from `train_<arm>_log.csv`:
+
+| epoch index | control mAP | pano mAP | block mAP | train acc (control / pano / block) |
+|---:|---:|---:|---:|---|
+| 4 | 0.338 [0.320, 0.373] | 0.361 [0.342, 0.390] | 0.373 [0.350, 0.406] | 0.669 / 0.678 / 0.681 |
+| 9 | 0.327 [0.310, 0.364] | 0.365 [0.343, 0.401] | 0.397 [0.366, 0.435] | 0.917 / 0.913 / 0.906 |
+| 19 | 0.339 [0.321, 0.376] | 0.379 [0.355, 0.415] | 0.398 [0.368, 0.434] | 0.995 / 0.997 / 0.995 |
+| 49 | 0.352 [0.333, 0.388] | 0.373 [0.351, 0.405] | 0.416 [0.385, 0.453] | 0.999 / 0.998 / 0.998 |
+| final (89 / 90 / 91) | 0.354 [0.335, 0.391] | 0.381 [0.357, 0.417] | 0.412 [0.381, 0.451] | 0.9998 / 0.9995 / 0.9997 |
+
+The ordering control < pano < block holds at every snapshot, and each arm moves by at most
+~0.04 mAP from epoch index 4 to the end. The epoch-index-4 prediction that
+memorisation would make a panorama-level leak "pay off most" late in training did not come true:
+the control's leaked-minus-leak-free mAP was −0.017 at epoch index 4 and is −0.012 at the end.
+
+### 5.3 The first launch's epoch-4 snapshot, and what the re-run says about run-to-run noise
+
+The first launch's epoch-index-4 predictions were committed before the reboot (they are what the
+superseded interim reading in §5.4 quotes). `finish` rewrote `train_<arm>_ep4_*` with the
+relaunch's epoch-4 snapshot, so the first launch's files are kept, byte for byte as committed at
+`81e768f`, in `analysis_out/tag_benchmark_86/dead_run_2026-09-23/`. Their checkpoints
+(`best_after_ep4.pth`, sha256 control `60443250…`, pano `4241acf1…`, block `8e3d77ef…`, full
+values in the files' `.meta.json` and in `tests/test_tag_benchmark_86.py`) were moved before the
+relaunch, with the first launch's other snapshots and logs, to
+`/homes/gws/jonf/nobackup/tagbench86/dead_2026-09-23/train_<arm>/` on makelab2 (unpublished; per
+the #178 run-status comment of 2026-09-24 04:15 UTC, not re-checked here). The relaunch's
+epoch-4 checkpoints are different files (their metas name `ff7b8ce9…`, `452b6486…`,
+`6c235d32…`).
+
+Both launches ran the same `train` code (`cmd_train` and `build_model` are identical at `533924c`,
+the first launch, and `7b66ad8`, the relaunch) with seed 86, which fixes the head's initialisation and
+the shuffle order. They still differ. The likely cause is that `train` does not force deterministic CUDA
+kernels, so some GPU reductions can sum in a different order on each run and the rounding
+differences grow over thousands of steps; the runs did not record enough to confirm which
+kernels differed. `ep4_relaunch_minus_dead_run.json`
+(`contrast`, relaunch minus first launch, same test labels, so the paired contrast is on every
+label):
+
+| arm, epoch index 4 | first launch mAP | relaunch mAP | paired difference, mAP | micro-F1 | macro-F1 |
+|---|---:|---:|---:|---:|---:|
+| control | 0.3372 | 0.3381 | +0.0008 [−0.0006, +0.0028] | +0.0006 [−0.0026, +0.0039] | −0.0009 [−0.0041, +0.0024] |
+| pano-grouped | 0.3598 | 0.3609 | +0.0011 [−0.0017, +0.0060] | +0.0005 [−0.0035, +0.0044] | −0.0003 [−0.0039, +0.0032] |
+| block-grouped | 0.3727 | 0.3733 | +0.0006 [−0.0029, +0.0045] | −0.0016 [−0.0060, +0.0028] | −0.0036 [−0.0103, +0.0033] |
+
+What this shows, and what it does not: at epoch index 4, re-running the recipe with the same seed
+moved mAP by 0.0006–0.0011, and no interval excludes zero. That is small beside the gaps
+between arms (0.02–0.06) and beside each arm's own bootstrap interval (about ±0.035). It is
+n = 2 runs per arm, at 5 of 100 epochs, and with the seed held fixed. It is therefore not an
+estimate of seed variance, which also varies the initialisation and the data order and is
+usually larger (for RampNet's detector it was the binding limit, `docs/seed_variance_51_135.md`).
+Nor does it say how far two runs have drifted apart by epoch 100.
+
+**A consumer of the first launch:** #180's interim control (`docs/context_fov_86.md` on its branch)
+is the first launch's `best_after_ep49.pth`, inferred on 2026-09-24 before the relaunch reached
+epoch 49. The relaunch's epoch-49 snapshot is a different checkpoint (control mAP 0.352 on its full
+test set here). #180 swaps to this section's final control per its own §6.
+
+### 5.4 Superseded: the interim reading at epoch index 4 (first launch, 2026-09-23)
+
+*Kept as history. Superseded by §5.1–§5.3. The numbers below are the first launch's epoch-4
+snapshot, now in `dead_run_2026-09-23/`; `tests/test_tag_benchmark_86.py` still re-derives them.*
+
+**Status at the time (superseded):** all three arms finished epoch index 9 (10 epochs) at about
 2026-09-23 03:45:42 UTC, 6,407–6,410 s after launch (from the mtime of `train_<arm>/train_log.csv`
 and the launch line of `train_<arm>.log`). An epoch takes ~605 s with the three arms sharing the
 A40 (630–690 s while the epoch-4 inference also ran), so 100 epochs is ~17 h per arm and the runs
@@ -174,19 +344,31 @@ Per-tag AP at epoch index 4 (full held-out set of each arm): missing tactile war
 0.125 / 0.175, not level with street 0.182 / 0.178 / 0.185, steep 0.056 / 0.077 / 0.092
 (control / pano / block).
 
-**Where the interim numbers come from.** `tag_benchmark_86_snap.sh` copied each arm's
-`best.pth` to `best_after_ep4.pth` right after epoch index 4; `infer` scored each copy on all
-10,857 crops (`snap_ep4_<arm>_predictions.csv`); `test-only` kept each arm's test rows, byte for
-byte, as the committed `train_<arm>_ep4_test_predictions.csv`; `score` gave the table (the
-`snapshots` stage of the runbook does all of this). Each committed `.meta.json` describes the
-file beside it (rows, sha256) and carries the 10,857-row file's own meta and sha256. The CPU half
-re-derives from the repo, and `tests/test_tag_benchmark_86.py` re-derives it on every run. The
-GPU half needs the three checkpoints, which are **not published**: they are on makelab2 at
-`/homes/gws/jonf/nobackup/tagbench86/train_<arm>/best_after_ep4.pth`, 347,189,218 bytes each,
-sha256 control `604432509a9420efad12f20fb16aed2d63426bb5da6928db2f877f265f045de9`, pano
-`4241acf12860b36693768733e02b83dc0a291d0250ada5652cbfd0de7dc34e1c`, cell
-`8e3d77ef28a41ffa0a9af38253a391c8409262e479b82b7fc2022e8cd5998437`. Without them, `tag_benchmark_86.sh
-train` regenerates them with the same seed, but GPU nondeterminism means not bit for bit.
+### 5.5 Where the §5 numbers come from
+
+`tag_benchmark_86_snap.sh` copied each arm's `best.pth` to `best_after_ep<E>.pth` right after
+epoch indices 4, 9, 19 and 49; `infer` scored each copy on all 10,857 crops
+(`snap_ep<E>_<arm>_predictions.csv`); `test-only` kept each arm's test rows, byte for byte, as the
+committed `train_<arm>_ep<E>_test_predictions.csv`; `score` gave the scores JSON. The final
+checkpoint went the same way from `train_<arm>/best.pth` (inferred by each run's wrapper right
+after training) to `train_<arm>_final_*`. `finish` / `collect --final` did all of this for the
+relaunch (§"How the runs were finished"). Each committed `.meta.json` describes the file beside it
+(rows, sha256) and carries the 10,857-row file's own meta, including the checkpoint's sha256. The
+contrasts are `contrast` over the committed test predictions (commands in §6).
+
+The CPU half re-derives from the repo, and `tests/test_tag_benchmark_86.py` re-derives every §5
+point estimate (snapshots, finals, the first launch's epoch 4, and the contrasts) on every run.
+The GPU half needs the checkpoints, which are **not published** (347 MB each). The relaunch's
+are on makelab2 under `/homes/gws/jonf/nobackup/tagbench86/train_<arm>/`; the final `best.pth`
+sha256 are control `de59f2d38511332376d79c694ede00b5ef547ea6a2a32824e800fac7db2ce24c`, pano
+`d821d2eafe3fe545287657dbecd617049e98648a3eb2716101a533f2a192f239`, block
+`d77cfb2e423a47605969e34217fe0dba6bcac452943670e31ad2bef97ea667d8` (also in
+`train_<arm>_final_scores.json`), and each snapshot's is in its `.meta.json`. The first launch's
+are under `dead_2026-09-23/` beside them (§5.3). Without the checkpoints, `tag_benchmark_86.sh train` regenerates
+them with the same seed, but GPU nondeterminism means not bit for bit; §5.3 measures how far
+apart two such runs were at epoch index 4.
+
+### 5.6 Recipe notes
 
 Two deliberate differences from the notebook, both inside `train`: a fixed seed (86; the
 notebook sets none), and the deterministic preprocessing (read, resize to 256, pad to 266) is
@@ -203,11 +385,12 @@ and the paper pipeline having used 640 px crops, which fits the exact reproducti
 published numbers on `crop.py` output (§1). All 10,857 prepared crops were checked in review to be single
 `crop.py` passes of a 1440×960 original. **Stated in advance:** if the control arm's final
 checkpoint scores near 0.341 mAP on `test.csv`, the framing assumption holds; if it lands well
-away from it, the train framing is the first suspect.
+away from it, the train framing is the first suspect. **Result:** the control's final
+checkpoint scores 0.354 [0.335, 0.391], which contains 0.341, so the check passes (§5.1).
 
-### Finishing the 100-epoch runs
+### How the runs were finished
 
-Once all three `train_<arm>.log` files end in `EXIT 0` (each run's wrapper has then also scored
+This is the procedure that produced commit `05fec46`, kept as the runbook for a re-run. Once all three `train_<arm>.log` files end in `EXIT 0` (each run's wrapper has then also scored
 its final `best.pth` on all 10,857 crops), from a checkout of this branch on makelab2:
 
 ```bash
@@ -231,7 +414,8 @@ snapshot not yet scored (epoch indices 9, 19 and 49; ~6 min each on a free A40),
   row, which replaces the `in_progress` row because it carries the same `run_id`.
 
 `collect` is safe to re-run: outputs are rewritten and a re-written usage row replaces its
-predecessor. Then commit `analysis_out/` and update §5 and §7.
+predecessor. Then commit `analysis_out/`, move any overwritten earlier record aside (as §5.3 did
+for the first launch's epoch 4), and update §5 and §7.
 
 ## 6. Reproduce
 
@@ -244,7 +428,7 @@ Inputs:
 | released checkpoint | HF model `projectsidewalk/sidewalk-tagger-ai-models` @ `65959dbc80b87e4f39385204c4b639cbcf58e1a8`, `validated-dino-cls-b-curbramp-tags-best.pth`, 347,207,242 bytes | sha256 `4d00193aed73fc199049f31cebade51f236bfca92ad9f76adf08a9d08a272833` |
 | DINOv2 backbone (training only) | `https://dl.fbaipublicfiles.com/dinov2/dinov2_vitb14/dinov2_vitb14_reg4_pretrain.pth`, 346,393,545 bytes | sha256 `73182a088cf94833c94b1666d1c99e02fe87e2007bff57b564fb6206e25dba71` |
 | label → pano | public `rawLabels` API, 10 deployments | committed result: `hf_curbramp_labels.csv` |
-| retrain checkpoints (§5 interim only) | `best_after_ep4.pth` per arm, **unpublished**, makelab2 | sha256 in §5 |
+| retrain checkpoints (GPU half of §5 only) | `best.pth` and `best_after_ep{4,9,19,49}.pth` per arm, **unpublished**, makelab2 | sha256 in §5.5 and each `.meta.json` |
 
 The `fetch` stage downloads the two HF files from `resolve/<revision>/…` at the revisions above,
 not from `main`, and checks all three downloads with `sha256sum -c`, stopping on a mismatch.
@@ -272,7 +456,9 @@ scripts that ran beside it are in `analysis_out/tag_benchmark_86/as_run/` (`snap
 `infer_snap.sh`, whose job `snapshots` now does). The per-arm launch, read from `ps` on
 makelab2 and run from a checkout at `533924c` (identical `train` code to HEAD), was
 `bash -c "date -u +%FT%TZ; $PY scripts/analysis/tag_benchmark_86.py train … --out-dir $W/train_<arm> && $PY scripts/analysis/tag_benchmark_86.py infer … --checkpoint $W/train_<arm>/best.pth --out $W/train_<arm>_predictions.csv; echo EXIT \$?; date -u +%FT%TZ" > $W/train_<arm>.log 2>&1`,
-which is what the `train` stage writes.
+which is what the `train` stage writes. That describes the first launch; the relaunch of
+2026-09-24 04:09 UTC ran `tag_benchmark_86.sh train` itself, from the branch at `7b66ad8`
+(its `train_<arm>_meta.json` records the same tagger sha, torch version and seed).
 
 CPU steps (any machine, from the committed files):
 
@@ -280,13 +466,19 @@ CPU steps (any machine, from the committed files):
 python scripts/analysis/tag_benchmark_86.py score --pred analysis_out/tag_benchmark_86/released_test_predictions.csv --out analysis_out/tag_benchmark_86/released_scores.json --per-label-out analysis_out/tag_benchmark_86/released_test_per_label.csv
 python scripts/analysis/tag_benchmark_86.py resplit --out analysis_out/tag_benchmark_86/resplit_pano_grouped_seed86.csv
 python scripts/analysis/tag_benchmark_86.py resplit --group cell --out analysis_out/tag_benchmark_86/resplit_cell100m_seed86.csv
-# §5, per arm (control: no --split-csv; cell: resplit_cell100m_seed86.csv)
-python scripts/analysis/tag_benchmark_86.py score --pred analysis_out/tag_benchmark_86/train_pano_ep4_test_predictions.csv --split-csv analysis_out/tag_benchmark_86/resplit_pano_grouped_seed86.csv --fixed-tags missing-tactile-warning,narrow,not-enough-landing-space,not-level-with-street,points-into-traffic,pooled-water,steep,surface-problem --out analysis_out/tag_benchmark_86/train_pano_ep4_scores.json
+# §5, per arm and per stem (ep4, ep9, ep19, ep49, final; control: no --split-csv; cell: resplit_cell100m_seed86.csv)
+python scripts/analysis/tag_benchmark_86.py score --pred analysis_out/tag_benchmark_86/train_pano_final_test_predictions.csv --split-csv analysis_out/tag_benchmark_86/resplit_pano_grouped_seed86.csv --fixed-tags missing-tactile-warning,narrow,not-enough-landing-space,not-level-with-street,points-into-traffic,pooled-water,steep,surface-problem --out analysis_out/tag_benchmark_86/train_pano_final_scores.json
+# §5.1 contrasts (~15 min) and §5.3's relaunch-minus-first-launch (~20 min)
+O=analysis_out/tag_benchmark_86
+python scripts/analysis/tag_benchmark_86.py contrast --pair pano=$O/train_pano_final_test_predictions.csv control=$O/train_control_final_test_predictions.csv --pair cell=$O/train_cell_final_test_predictions.csv control=$O/train_control_final_test_predictions.csv --pair cell=$O/train_cell_final_test_predictions.csv pano=$O/train_pano_final_test_predictions.csv --out $O/final_contrasts.json
+python scripts/analysis/tag_benchmark_86.py contrast --pair control=$O/train_control_ep4_test_predictions.csv control=$O/dead_run_2026-09-23/train_control_ep4_test_predictions.csv --pair pano=$O/train_pano_ep4_test_predictions.csv pano=$O/dead_run_2026-09-23/train_pano_ep4_test_predictions.csv --pair cell=$O/train_cell_ep4_test_predictions.csv cell=$O/dead_run_2026-09-23/train_cell_ep4_test_predictions.csv --out $O/ep4_relaunch_minus_dead_run.json
 ```
 
+The contrast JSONs carry the sha256 of every prediction file and of the label table they read.
+
 With the 10,857-row snapshot predictions in `$WORK` (makelab2), `tag_benchmark_86.py collect
---work $WORK --epochs 4` regenerates the committed test-only files byte for byte, their metas
-and the §5 scores. `pytest -q tests/test_tag_benchmark_86.py` re-derives the §1 and §5 point
+--work $WORK --final` regenerates the committed test-only files byte for byte, their metas
+and the §5 scores (and appends usage rows, which replace their predecessors by `run_id`). `pytest -q tests/test_tag_benchmark_86.py` re-derives the §1 and §5 point
 estimates from the committed predictions without the bootstrap.
 
 The label table is rebuilt with
@@ -307,8 +499,13 @@ hold on any clone):
 | `released_test_per_label.csv` | per-label labels, leak flags, nearest-train distance, probabilities | `ecda7f08af051a081fa515ddb04b212b953b3feb663d42788f10113d1df84c7f` |
 | `resplit_pano_grouped_seed86.csv` | seeded pano-grouped re-split | `c54aa284da4b8d15aff79f2fd447cc5c4578d41fb45434cce497116a733d9222` |
 | `resplit_cell100m_seed86.csv` | seeded 100 m block-grouped re-split | `4651dcc79dcc8f7afb180413039a847c6bcf4655c64bac4e114d8eca2521ab9f` |
-| `train_{control,pano,cell}_ep4_test_predictions.csv` | per-label logits of each arm's epoch-index-4 checkpoint on its own test labels (+ `.meta.json`) | `45d76552…`, `c4d4da33…`, `e2abcc70…` |
-| `train_{control,pano,cell}_ep4_scores.json` | §5 numbers | `63d3dca3…`, `358a2f8e…`, `3cde5799…` |
+| `train_{control,pano,cell}_ep{4,9,19,49}_test_predictions.csv` | relaunch: per-label logits of each arm's snapshot checkpoint on its own test labels (+ `.meta.json`) | ep4 `0d87f312…`, `ecb840bd…`, `a1d7074f…`; ep9 `c8046a6d…`, `d14bacd0…`, `4336c604…`; ep19 `64b5c7c6…`, `d072aa16…`, `2c333103…`; ep49 `01b82c5f…`, `989b0186…`, `b98f6355…` |
+| `train_{control,pano,cell}_final_test_predictions.csv` | relaunch: the same for the final `best.pth` (+ `.meta.json`) | `4e97dbea…`, `e9f5932a…`, `d577216b…` |
+| `train_{control,pano,cell}_{ep4,ep9,ep19,ep49,final}_scores.json` | §5.1–§5.2 numbers, with bootstrap CIs; `_final_` also carries `best_epoch` and the checkpoint sha256 | final `06aa2b69…`, `369ca379…`, `30954eeb…` |
+| `train_{control,pano,cell}_log.csv`, `train_{control,pano,cell}_meta.json` | relaunch: per-epoch loss, training exact-match accuracy, `saved`; run metadata | provenance |
+| `dead_run_2026-09-23/train_{control,pano,cell}_ep4_{test_predictions.csv,scores.json}` (+ `.meta.json`) | the first launch's epoch-index-4 record, byte for byte as committed at `81e768f` (§5.3, §5.4) | predictions `45d76552…`, `c4d4da33…`, `e2abcc70…`; scores `63d3dca3…`, `358a2f8e…`, `3cde5799…` |
+| `final_contrasts.json` | §5.1 arm contrasts, unpaired and paired, with the sha256 of every input | re-derived by the tests (point estimates) |
+| `ep4_relaunch_minus_dead_run.json` | §5.3 relaunch minus first launch at epoch index 4 | re-derived by the tests (point estimates) |
 | `as_run/snap.sh`, `as_run/infer_snap.sh` | the helper scripts as they ran on makelab2 | provenance only |
 
 ## 7. Cost
@@ -323,30 +520,48 @@ A40 throughout.
 | `infer`, released checkpoint (first pass, sigmoid scores; superseded) | 64.0 s | 1 |
 | `infer`, batch-1 diagnostic | 72.7 s | 1 |
 | `infer`, released checkpoint (logits; committed) | 74.5 s | 1 |
-| `infer`, epoch-index-4 snapshots, 10,857 crops each, run one after another | 521.4 s, 488.0 s, 509.6 s | 0.25 |
-| `train`, three arms concurrently (in progress; 10 epochs in 6,407–6,410 s each) | ~17 h projected per arm, same wall-clock | 0.333 |
+| `infer`, first launch's epoch-index-4 snapshots, 10,857 crops each, one after another | 521.4 s, 488.0 s, 509.6 s | 0.25 |
+| `train`, first launch, three arms concurrently, **failed** (killed by the reboot; row `status: failed`) | 47,766 s each, same wall-clock | 0.333 |
+| `train`, relaunch, three arms concurrently (control / pano / block) | 59,034 s, 58,982 s, 58,869 s | 0.333 |
+| `infer`, relaunch final `best.pth`, 10,857 crops (control / pano / block; the three overlapped each other for ~5 min) | 315.3 s, 327.6 s, 358.9 s | 1 |
+| `infer`, relaunch snapshots at epoch indices 4 / 9 / 19 / 49, 12 runs one after another, after training | 284.1–287.6 s each, 3,422.1 s total | 1 |
 
 **Rows share one GPU, so their wall-clock does not add up to GPU time.** The three training rows
-each carry the full wall-clock of an A40 they shared three ways, and the snapshot inference ran
-on the same GPU at the same time. Every `tagger-86` row therefore carries `concurrent_with` (our
-other runs on that GPU for at least half of this run, read from the run logs) and `gpu_share` =
-1 / (1 + that count). Summing `elapsed_s` over the training rows overstates GPU occupancy about
-3×; sum `elapsed_s × gpu_share` instead. The other lab job is not counted in `gpu_share`.
+each carry the full wall-clock of an A40 they shared three ways, and the first launch's snapshot
+inference ran on the same GPU at the same time. Every `tagger-86` row therefore carries
+`concurrent_with` (our other training runs on that GPU for at least half of this run, read from
+the run logs) and `gpu_share` = 1 / (1 + that count). Summing `elapsed_s` over the training rows
+overstates GPU occupancy about 3×; sum `elapsed_s × gpu_share` instead. The other lab job is not
+counted in `gpu_share`, and neither is overlap between inference runs (only training runs are
+checked), so the three final inferences, which overlapped each other, each carry `gpu_share` 1.
 
-The training rows are `status: in_progress`, with the elapsed time measured from the logs at
-10 epochs. Each carries a `run_id`; `finish` writes the final row with the same `run_id`, and
-`rampnet.ledger.latest_rows` (which every ledger total reads through) keeps only the last row per
-`run_id`, so the interim time is not counted twice. At three arms sharing the A40, the full
-recipe is ~17 A40-hours of wall-clock for all three together.
+Totals, `elapsed_s × gpu_share` over `rampnet.ledger.latest_rows` of the `tagger-86:` rows:
+
+| part | A40-hours |
+|---|---:|
+| released checkpoint (evaluate + 3 inference passes) | 0.10 |
+| first launch: training (failed at 47,766 s) + epoch-4 inference | 13.27 + 0.11 |
+| relaunch: training | 16.38 |
+| relaunch: 12 snapshot + 3 final inferences | 0.95 + 0.28 |
+| **total** | **31.08** (of which 13.37 is the failed first launch) |
+
+All `paid: false`; $0. The first launch's time is real GPU time spent and stays in the ledger
+as `status: failed` rows. Each training row carries a `run_id`; the in-progress rows written
+while the runs were going were replaced by the `failed` rows (first launch) and by `finish`'s
+final rows (relaunch), because `rampnet.ledger.latest_rows` (which every ledger total reads
+through) keeps only the last row per `run_id`.
 
 Plus CPU: the zip download (~16 min), hashing, extraction and cropping of 10,857 crops (~58 min on NFS),
 and `score` (~5.5 min per prediction file, dominated by the bootstrap).
 
 ## 8. Not run
 
-- **The 100-epoch retrain results.** In flight at the time of writing (§5); only the
-  epoch-index-4 snapshot is scored. The epoch-index-9 snapshots exist on makelab2 and are scored
-  by `finish`.
+- **A second seed per arm.** Each arm is one run of the recipe at seed 86 (§5.1). §5.3's re-run
+  held the seed fixed, so it is not a seed-variance estimate. A second seed would take ~16 A40-hours
+  for all three arms together on makelab2 (§7).
+- **The first launch's later snapshots (epoch indices 9, 19, 49).** Their checkpoints are kept on
+  makelab2 (§5.3) but were not scored here; only #180 used one (control, epoch index 49), on its
+  own common rows.
 - **Expert-validate as a second test set (plan item 2, last clause).** The 2,432
   expert-validated labels have no crops in the HF format. Production stores a browser crop only
   for labels placed since 2023-10-12, served through a signed, referer-checked route, and those
