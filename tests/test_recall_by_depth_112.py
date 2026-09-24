@@ -3,13 +3,17 @@
 CPU only. The geometry helpers are checked on closed forms; the committed
 ``analysis_out/recall_by_depth_112.json`` is checked to re-derive its own tables from its
 per-point rows (the replication guard: the payloads are unpublished, the rows are not) and
-to reproduce the doc's population. The synthetic-plane test drives the labeler's parser
-through ``depth_ranges`` and is skipped when no labeler checkout is available.
+to reproduce the doc's population, and the doc's §0 tables are pinned to it. The geometry is
+checked on stub payloads (no checkout needed, so it runs in CI), including a tilted plane with an
+explicit image-column <-> raw-column mapping; one parity test against the labeler's parser is
+skipped when no labeler checkout is available.
 """
 import json
 import math
 import os
 import sys
+
+from collections import namedtuple
 
 import pytest
 
@@ -90,16 +94,44 @@ def test_committed_artifact_reproduces_the_docs_population(committed):
     assert pr["per_city"] == {"richmond": {"n": 310, "hit": 238}, "bend": {"n": 327, "hit": 249}}
 
 
-def test_committed_artifact_is_lf_and_rounded():
+def test_committed_artifact_is_lf_and_rounded(committed):
     with open(COMMITTED, "rb") as fh:
         raw = fh.read()
     assert b"\r" not in raw
-    # every float in the rows carries at most ND decimals
-    data = json.loads(raw)
-    for row in data["points"][:200] + data["detections"][:200]:
-        for k, v in row.items():
-            if isinstance(v, float) and k not in ("x", "y", "confidence"):
-                assert round(v, rbd.ND) == v, (k, v)
+    # every float in every row carries at most ND decimals, except the coordinates, which are
+    # stored exactly (review N2: rounding them moved points across a payload row)
+    for row in committed["points"] + committed["detections"]:
+        for key, v in row.items():
+            if isinstance(v, float) and key not in ("x", "y", "confidence"):
+                assert round(v, rbd.ND) == v, (key, v)
+    # no machine-specific path in the artifact (review N3), so a derive elsewhere is byte-identical
+    assert "labeler_root" not in committed
+    assert isinstance(committed["labeler_commit"], str) and len(committed["labeler_commit"]) == 40
+
+
+def test_the_doc_section_0_tables_are_the_committed_tables(committed):
+    """Every table in docs/detection_recall_analysis.md §0 is pasted from ``doc_tables`` and
+    must appear there verbatim (as test_scoreboard pins model_comparison.md)."""
+    with open(os.path.join(REPO, "docs", "detection_recall_analysis.md"), encoding="utf-8") as fh:
+        doc = fh.read().replace("\r\n", "\n")
+    tabs = rbd.doc_tables(committed, rbd.tables(committed))
+    assert len(tabs) == 9
+    for name, tab in tabs.items():
+        assert tab in doc, f"§0 table {name!r} in the doc does not match the committed rows"
+
+
+def test_the_alignment_evidence_favours_the_mapping_the_script_uses():
+    """analysis_out/depth_image_alignment_112.json: image column = raw column, raw-space ray."""
+    with open(os.path.join(REPO, "analysis_out", "depth_image_alignment_112.json"), encoding="utf-8") as fh:
+        al = json.load(fh)
+    sky = al["A_sky"]["pooled"]
+    assert sky["best_raw_within_2"] > 10 * max(1, sky["best_flip_within_2"])
+    gt = al["B_ground_under_point"]["gt_points"]
+    assert gt["raw"] > gt["flip"]
+    edges = al["C_edges"]["pooled"]
+    assert edges["raw_beats_flip_at_zero_shift"] > edges["panos"] / 2
+    seam = al["D_seam_continuity"]
+    assert seam["raw_formula"]["median_abs_log_ratio"] < seam["mirrored_formula"]["median_abs_log_ratio"] / 5
 
 
 def test_depth_axis_never_backfills_a_non_measured_pano(committed):
@@ -117,50 +149,125 @@ def test_every_payload_read_is_hash_verified(committed):
 
 
 # ---------------------------------------------------------------------------
-# the parser on a synthetic scene (needs the labeler checkout)
+# the geometry on synthetic payloads: stubs, no labeler checkout, so these run in CI
+
+Plane = namedtuple("Plane", "nx ny nz d")
+Payload = namedtuple("Payload", "width height planes indices")
+NO_PLANE = Plane(0.0, 0.0, 0.0, 0.0)
+
+
+def _payload(w, h, planes, index_of):
+    """Raw index array from index_of(row, raw_col) -- raw column order, as the payload stores it."""
+    return Payload(w, h, [NO_PLANE] + planes, bytes(index_of(r, c) for r in range(h) for c in range(w)))
+
+
+def _raw_ray(w, h, row, raw_col):
+    """The labeler's raw-column ray (depth._direction; streetlevel's convention), written out
+    here independently: theta from the zenith, +z down, azimuth counted down from width."""
+    theta = (h - row - 0.5) / h * math.pi
+    phi = (w - raw_col - 0.5) / w * 2 * math.pi + math.pi / 2
+    return math.sin(theta) * math.cos(phi), math.sin(theta) * math.sin(phi), math.cos(theta)
+
+
+def test_raw_column_is_the_identity_and_wraps():
+    assert rbd.raw_column(0.0, 512) == 0
+    assert rbd.raw_column(0.75, 512) == 384
+    assert rbd.raw_column(0.999999, 512) == 511
+    assert rbd.raw_column(1.0, 512) == 0          # the seam wraps
+    assert rbd.raw_column(138 / 512, 512) == 138  # an exact column boundary belongs to the right
+
+
+def test_depth_ranges_on_a_level_plane_equal_flat_ground_at_the_measured_height():
+    w, h, cam_h = 512, 256, 1.8
+    p = _payload(w, h, [Plane(0.0, 0.0, -1.0, cam_h)], lambda r, c: 0 if r < h // 2 else 1)
+    for x, y in ((0.1, 0.6), (0.5, 0.75), (0.9, 0.55)):
+        rng, ray, src = rbd.depth_ranges(p, cam_h, x, y)
+        assert src == "pixel_plane"
+        assert rng == pytest.approx(rbd.flat_range(y, cam_h), rel=1e-9)
+        assert ray == pytest.approx(math.hypot(rng, cam_h), rel=1e-9)
+    rng, ray, src = rbd.depth_ranges(p, cam_h, 0.5, 0.45)   # sky, above the horizon
+    assert src == "fallback_sky_none" and rng is None
+
+
+@pytest.mark.parametrize("raw_col", [40, 128, 200, 300, 384, 470])
+def test_tilted_plane_known_answer_with_an_explicit_column_mapping(raw_col):
+    """A 3-degree roll (nx != 0) is the case a mirrored azimuth gets wrong; a level plane
+    cannot tell the two apart. Image column c is raw column c; the ray is the raw-column ray."""
+    w, h, cam_h, roll = 512, 256, 2.0, math.radians(3.0)
+    tilted = Plane(math.sin(roll), 0.0, -math.cos(roll), cam_h)
+    p = _payload(w, h, [tilted], lambda r, c: 0 if r < h // 2 else 1)
+    row = 150
+    x, y = (raw_col + 0.5) / w, (row + 0.5) / h            # a pixel centre in the image
+    v = _raw_ray(w, h, row, raw_col)                        # the same pixel's raw-column ray
+    expected_ray = cam_h / abs(v[0] * tilted.nx + v[1] * tilted.ny + v[2] * tilted.nz)
+    expected_rng = expected_ray * math.cos((0.5 - y) * math.pi)
+    rng, ray, src = rbd.depth_ranges(p, cam_h, x, y)
+    assert src == "pixel_plane"
+    assert ray == pytest.approx(expected_ray, rel=1e-9)
+    assert rng == pytest.approx(expected_rng, rel=1e-9)
+    # and the mirrored answer (the labeler's stored-column mapping) is measurably different,
+    # except where the roll is along the line of sight's normal (cos(phi) == 0)
+    vm = _raw_ray(w, h, row, w - 1 - raw_col)
+    mirrored = cam_h / abs(vm[0] * tilted.nx + vm[1] * tilted.ny + vm[2] * tilted.nz)
+    if abs(v[0]) > 0.2:
+        assert abs(mirrored / expected_ray - 1) > 0.01
+
+
+def test_tilted_plane_is_nearer_on_the_side_it_rises_toward():
+    """Physical sense, both sides: with the ground normal tipped toward +x the ground is nearer
+    where the ray has vx < 0. Under the raw-column ray vx < 0 is image x in (0.5, 1)."""
+    w, h, cam_h, roll = 512, 256, 2.0, math.radians(3.0)
+    tilted = Plane(math.sin(roll), 0.0, -math.cos(roll), cam_h)
+    p = _payload(w, h, [tilted], lambda r, c: 0 if r < h // 2 else 1)
+    y = 0.6
+    left, _, _ = rbd.depth_ranges(p, cam_h, 0.25, y)    # vx > 0: ground falls away
+    right, _, _ = rbd.depth_ranges(p, cam_h, 0.75, y)   # vx < 0: ground rises toward the camera
+    level = rbd.flat_range(y, cam_h)
+    assert right < level < left
+
+
+def test_depth_ranges_falls_back_under_a_wall_in_raw_columns():
+    w, h, cam_h = 512, 256, 2.0
+    ground, wall = Plane(0.0, 0.0, -1.0, cam_h), Plane(0.0, 1.0, 0.0, 6.0)
+
+    def index_of(r, c):
+        if r < h // 2:
+            return 0
+        # the wall occupies the near-horizon rows of RAW columns w/2 .. w-1
+        return 2 if (r < h // 2 + 8 and c >= w // 2) else 1
+    p = _payload(w, h, [ground, wall], index_of)
+    y = (h // 2 + 2 + 0.5) / h
+    # image column = raw column, so the wall is under image x >= 0.5
+    rng, _, src = rbd.depth_ranges(p, cam_h, 0.75, y)
+    assert src == "fallback_wall" and rng == pytest.approx(rbd.flat_range(y, cam_h))
+    rng, _, src = rbd.depth_ranges(p, cam_h, 0.25, y)
+    assert src == "pixel_plane" and rng == pytest.approx(rbd.flat_range(y, cam_h))
+
+
+def test_window_threshold_uses_only_the_points_near_the_threshold():
+    near = [{"flat_2p5": 18.0, "depth_range": 18.0 / 1.5}] * 12       # stretched 1.5x near 18 m
+    far = [{"flat_2p5": 40.0, "depth_range": 40.0}] * 50               # unstretched elsewhere
+    w = rbd.window_threshold(near + far, 18.0)
+    assert w["n"] == 12 and w["median_ratio"] == 1.5 and w["deflated_m"] == 12.0
+    assert rbd.window_threshold(far, 18.0)["deflated_m"] is None      # fewer than 10: no estimate
+
+
+# ---------------------------------------------------------------------------
+# parity with the labeler's parser (needs the checkout; skipped in CI)
 
 LABELER = os.environ.get("LABELER_ROOT", r"D:\Git\sidewalk-auto-labeler")
 
 
 @pytest.mark.skipif(not os.path.exists(os.path.join(LABELER, "depth.py")),
                     reason="no sidewalk-auto-labeler checkout (LABELER_ROOT)")
-def test_depth_ranges_on_a_level_plane_equal_flat_ground_at_the_measured_height():
+def test_image_x_is_the_labelers_stored_one_minus_x():
+    """The only difference from the labeler's lookup is the mirror: depth_ranges at image x
+    equals depth.ray_depth_at at stored 1 - x, on a tilted plane, away from column edges."""
     depthlib = rbd.load_depthlib(LABELER)
-    w, h, cam_h = 512, 256, 1.8
-    # plane 1: level ground at 1.8 m under every pixel below the horizon; sky above
-    ground = depthlib.Plane(0.0, 0.0, -1.0, cam_h)
-    indices = bytes([0] * (w * (h // 2)) + [1] * (w * (h // 2)))
-    payload = depthlib.DepthPayload(w, h, [depthlib.Plane(0.0, 0.0, 0.0, 0.0), ground], indices)
-    gp = depthlib.ground_plane(payload)
-    assert gp.camera_height_m == pytest.approx(cam_h)
-    for x, y in ((0.1, 0.6), (0.5, 0.75), (0.9, 0.55)):
-        rng, ray, src = rbd.depth_ranges(depthlib, payload, gp, x, y)
-        assert src == "pixel_plane"
-        assert rng == pytest.approx(rbd.flat_range(y, cam_h), rel=1e-9)
-        assert ray == pytest.approx(math.hypot(rng, cam_h), rel=1e-9)
-    # a sky pixel falls back to the measured height over level ground, and says so
-    rng, ray, src = rbd.depth_ranges(depthlib, payload, gp, 0.5, 0.45)
-    assert src == "fallback_sky_none" and rng is None
-
-
-@pytest.mark.skipif(not os.path.exists(os.path.join(LABELER, "depth.py")),
-                    reason="no sidewalk-auto-labeler checkout (LABELER_ROOT)")
-def test_depth_ranges_falls_back_under_a_wall():
-    depthlib = rbd.load_depthlib(LABELER)
-    w, h, cam_h = 512, 256, 2.0
-    ground = depthlib.Plane(0.0, 0.0, -1.0, cam_h)
-    wall = depthlib.Plane(0.0, 1.0, 0.0, 6.0)    # vertical, 6 m away
-    idx = [0] * (w * (h // 2)) + [1] * (w * (h // 2))
-    # the wall occupies the near-horizon rows on the right half of the image
-    for row in range(h // 2, h // 2 + 8):
-        for col in range(w // 2, w):
-            idx[row * w + col] = 2
-    payload = depthlib.DepthPayload(w, h, [depthlib.Plane(0.0, 0.0, 0.0, 0.0), ground, wall], bytes(idx))
-    gp = depthlib.ground_plane(payload)
-    assert gp.camera_height_m == pytest.approx(cam_h)
-    # stored x maps to raw column w - col - 1, so the wall sits under stored x < 0.5
-    y = (h // 2 + 2 + 0.5) / h
-    rng, _, src = rbd.depth_ranges(depthlib, payload, gp, 0.25, y)
-    assert src == "fallback_wall" and rng == pytest.approx(rbd.flat_range(y, cam_h))
-    rng, _, src = rbd.depth_ranges(depthlib, payload, gp, 0.75, y)
-    assert src == "pixel_plane" and rng == pytest.approx(rbd.flat_range(y, cam_h))
+    w, h, cam_h, roll = 512, 256, 2.0, math.radians(3.0)
+    tilted = depthlib.Plane(math.sin(roll), 0.0, -math.cos(roll), cam_h)
+    idx = bytes(0 if r < h // 2 else 1 for r in range(h) for c in range(w))
+    payload = depthlib.DepthPayload(w, h, [depthlib.Plane(0.0, 0.0, 0.0, 0.0), tilted], idx)
+    for x in (0.1234, 0.3791, 0.6602, 0.9013):
+        _, ray, _ = rbd.depth_ranges(payload, cam_h, x, 0.61)
+        assert ray == pytest.approx(depthlib.ray_depth_at(payload, 1.0 - x, 0.61), rel=1e-12)
