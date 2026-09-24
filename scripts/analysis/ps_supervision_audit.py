@@ -179,6 +179,26 @@ def _json_list(s):
     return []
 
 
+def _parse_times(values, what):
+    """Parse an API timestamp column as ISO 8601 (UTC), refusing to drop any row silently.
+
+    The API mixes `2019-06-01T00:00:00.123Z` and `2022-03-05T14:58:59Z` in one column.
+    Without `format="ISO8601"`, pandas infers one format from the first value and coerces
+    the other shape to NaT, and a NaT row then falls out of both the tag-era and pre-tag
+    counts while staying in the total (499 labels in #175). Any NaT left after this parse
+    is a new timestamp form or a missing value, so stop and name it rather than count it.
+
+    Example: `_parse_times(df.time_created, "rawLabels time_created")`.
+    """
+    out = pd.to_datetime(values, errors="coerce", utc=True, format="ISO8601")
+    bad = out.isna()
+    if bad.any():
+        sample = values[bad].iloc[0]
+        raise SystemExit(f"{int(bad.sum())} of {len(out)} {what} values did not parse as ISO 8601 "
+                         f"(first: {sample!r}); fix the parse before counting, or rows drop out of every era")
+    return out
+
+
 def load_labels(cache, label_type, exclude_users):
     """All cached rawLabels rows of one label type, across deployments, with derived columns."""
     frames, skipped = [], {}
@@ -195,7 +215,7 @@ def load_labels(cache, label_type, exclude_users):
         raise SystemExit(f"no rawLabels__{label_type} files in {cache}; run `fetch` first")
     df = pd.concat(frames, ignore_index=True)
     df["is_ai"] = df.user_id.isin(exclude_users)
-    df["time_created"] = pd.to_datetime(df.time_created, errors="coerce", utc=True, format="ISO8601")
+    df["time_created"] = _parse_times(df.time_created, f"rawLabels__{label_type} time_created")
     df["year"] = df.time_created.dt.year
     df["taglist"] = df.tags.map(_json_list)
     df["n_tags"] = df.taglist.map(len)
@@ -239,7 +259,7 @@ def load_edits(cache):
     df = pd.concat(frames, ignore_index=True)
     df["old"] = df.old_tags.map(lambda s: set(_json_list(s)))
     df["new"] = df.new_tags.map(lambda s: set(_json_list(s)))
-    df["edit_time"] = pd.to_datetime(df.edit_time, errors="coerce", utc=True, format="ISO8601")
+    df["edit_time"] = _parse_times(df.edit_time, "labelEdits edit_time")
     return df
 
 

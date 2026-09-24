@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 REPO_ROOT = str(Path(__file__).resolve().parents[1])
 sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "analysis"))
@@ -165,3 +166,24 @@ def test_mixed_timestamp_formats_keep_every_row(tmp_path):
     assert by_year.labels.sum() == t1.labels   # a NaT row would be in `labels` but in no year
     assert by_year.loc[2021].labels == 1
 
+
+def test_unparseable_timestamp_fails_loudly(tmp_path):
+    cache = str(tmp_path / "raw")
+    _write_cache(cache)
+    path = os.path.join(cache, "beta__rawLabels__CurbRamp.csv")
+    df = pd.read_csv(path, dtype=str, keep_default_na=False)
+    df.loc[0, "time_created"] = "22/01/2022 10:00"
+    df.to_csv(path, index=False)
+    with pytest.raises(SystemExit, match=r"1 of 7 rawLabels__CurbRamp time_created .*'22/01/2022 10:00'"):
+        audit.load_labels(cache, "CurbRamp", {AI})
+
+
+def test_unparseable_edit_time_fails_loudly(tmp_path):
+    cache = str(tmp_path / "raw")
+    _write_cache(cache)
+    path = os.path.join(cache, "alpha__labelEdits.csv")
+    df = pd.read_csv(path, dtype=str, keep_default_na=False)
+    df.loc[0, "edit_time"] = ""
+    df.to_csv(path, index=False)
+    with pytest.raises(SystemExit, match=r"1 of 1 labelEdits edit_time"):
+        audit.load_edits(cache)
