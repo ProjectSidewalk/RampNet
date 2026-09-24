@@ -1,8 +1,13 @@
 """Unpack the published benchmark panoramas into ``benchmark/<city>/panos/``.
 
-The imagery behind every benchmark split is git-ignored (``.gitignore``: ``benchmark/*/panos/``)
-and published as the Hugging Face dataset ``projectsidewalk/rampnet-benchmark`` in Parquet, one
-file per city per config (``export_benchmark.py``). Everything in this repo that needs pixels --
+The benchmark imagery is git-ignored (``.gitignore``: ``benchmark/*/panos/``) and published as
+the Hugging Face dataset ``projectsidewalk/rampnet-benchmark`` in Parquet, one file per city per
+config (``export_benchmark.py``). Not every split is there: at dataset commit ``63d5ffd0`` the
+Hub carries nine (annapolis, bend, budapest_district5, clovis, gainesville, morgantown,
+paterson, richmond, sao_paulo). ``laurens_gsv`` and ``laurens_mapillary`` are in
+``export_benchmark.BENCHMARK_SPLITS`` but have not been uploaded yet, and ``manual_gold`` is
+excluded from the export by design. Asking for a split the Hub does not have fails with a
+message naming the splits it does have. Everything in this repo that needs pixels --
 ``silent_activation.py``, ``seam_response.py``, ``cascade_gate.py``, the gallery renderers --
 reads the loose-file layout, and until this script existed nothing committed turned the one
 into the other (#179 recorded the gap; #131 needed it closed to re-run Phase 1 elsewhere).
@@ -21,7 +26,11 @@ one the split was reviewed on. Either is a hard failure, never a warning.
     python scripts/analysis/silent_activation.py --panos-root /scratch/benchmark_root
 
 ``--out`` is a *checkout-shaped* root: files land at ``<out>/benchmark/<city>/panos/<id>.jpg``
-so ``--panos-root <out>`` works unchanged. ``--revision`` pins the dataset commit (default
+so ``--panos-root <out>`` works unchanged. Both configs write to that same ``panos/`` path, so
+one root holds one config: a root whose ``unpack_manifest.json`` names the other config is
+refused rather than silently overwritten image by image. For ``4096x2048`` the committed
+manifest is only a membership check (every pano must be one the split was reviewed on); its
+hashes are the native bytes', so they are not compared. ``--revision`` pins the dataset commit (default
 ``main``; the resolved commit is printed and written to ``<out>/unpack_manifest.json`` with every
 file's hash, so a run is a record and not just a directory). Network only for the download;
 ``--parquet`` takes local Parquet files instead, which is what the tests use.
@@ -38,6 +47,14 @@ REPO_ID = "projectsidewalk/rampnet-benchmark"
 NATIVE = "native"
 MODEL_RES = "4096x2048"
 CONFIGS = (NATIVE, MODEL_RES)
+#: Splits the export leaves out on purpose (mirrors ``export_benchmark.EXCLUDED_SPLITS``,
+#: not imported because that module pulls in PIL and the export's own helpers).
+EXCLUDED_SPLITS = {"manual_gold": "the paper's gold set -- published in rampnet-dataset, "
+                                  "not in rampnet-benchmark"}
+
+
+class SplitNotOnHub(Exception):
+    """The requested split has no Parquet for this config at this revision."""
 
 
 def sha256_bytes(data):
@@ -117,13 +134,32 @@ def check_complete(manifest, entries, city):
                          f"e.g. {missing[:3]}")
 
 
+def missing_split_message(repo_id, revision, config, city, available):
+    """What to say when ``data/<config>/<city>.parquet`` is not on the Hub."""
+    have = ", ".join(sorted(available)) or "none"
+    return (f"{repo_id}@{revision} has no data/{config}/{city}.parquet. Splits it has for "
+            f"{config}: {have}. laurens_gsv and laurens_mapillary are not uploaded yet; "
+            f"manual_gold is excluded from this dataset by design.")
+
+
 def download(repo_id, revision, config, city, cache_dir):
-    """Fetch one city's Parquet from the Hub; returns (local path, resolved commit sha)."""
+    """Fetch one city's Parquet from the Hub; returns (local path, resolved commit sha).
+
+    Raises :class:`SplitNotOnHub`, naming the splits that are there, when the file is not."""
     from huggingface_hub import HfApi, hf_hub_download
+    from huggingface_hub.errors import EntryNotFoundError
     filename = f"data/{config}/{city}.parquet"
-    path = hf_hub_download(repo_id, filename, repo_type="dataset", revision=revision,
-                           cache_dir=cache_dir)
-    info = HfApi().dataset_info(repo_id, revision=revision)
+    api = HfApi()
+    try:
+        path = hf_hub_download(repo_id, filename, repo_type="dataset", revision=revision,
+                               cache_dir=cache_dir)
+    except EntryNotFoundError:
+        prefix = f"data/{config}/"
+        available = [f[len(prefix):-len(".parquet")]
+                     for f in api.list_repo_files(repo_id, repo_type="dataset", revision=revision)
+                     if f.startswith(prefix) and f.endswith(".parquet")]
+        raise SplitNotOnHub(missing_split_message(repo_id, revision, config, city, available))
+    info = api.dataset_info(repo_id, revision=revision)
     return path, info.sha
 
 
@@ -153,6 +189,16 @@ def main(argv=None):
     cities = [c.strip() for c in args.cities.split(",") if c.strip()]
     if args.parquet is not None and len(args.parquet) != len(cities):
         p.error(f"--parquet gives {len(args.parquet)} files for {len(cities)} cities")
+    for city in cities:
+        if city in EXCLUDED_SPLITS:
+            p.error(f"{city} is not in {args.repo_id}: {EXCLUDED_SPLITS[city]}")
+    prior = os.path.join(args.out, "unpack_manifest.json")
+    if os.path.isfile(prior):
+        with open(prior, encoding="utf-8") as fh:
+            prior_config = json.load(fh).get("config")
+        if prior_config != args.config:
+            p.error(f"{args.out} already holds the {prior_config!r} config (unpack_manifest.json) "
+                    f"and both configs write to benchmark/<city>/panos/; use a separate --out")
 
     record = {"repo_id": args.repo_id, "revision": args.revision, "resolved_sha": None,
               "config": args.config, "out": os.path.abspath(args.out), "cities": {}}
@@ -162,7 +208,11 @@ def main(argv=None):
         if args.parquet is not None:
             path, sha = args.parquet[i], None
         else:
-            path, sha = download(args.repo_id, args.revision, args.config, city, args.cache_dir)
+            try:
+                path, sha = download(args.repo_id, args.revision, args.config, city,
+                                     args.cache_dir)
+            except SplitNotOnHub as e:
+                p.error(str(e))
             record["resolved_sha"] = sha
         written, skipped, entries = unpack_parquet(path, args.out, city, manifest, args.config)
         if manifest is not None:

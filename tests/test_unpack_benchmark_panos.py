@@ -2,7 +2,8 @@
 
 CPU only, no network: the tests build a two-row Parquet in the export's own schema and
 unpack it, so what is checked is the layout, the two hash checks and the resume path.
-Skipped when pyarrow is not installed (it is not in requirements-dev.txt's minimum).
+requirements-dev.txt lists pyarrow, so CI runs these; the importorskip only keeps an env
+without it from erroring at collection.
 """
 import hashlib
 import json
@@ -122,3 +123,66 @@ def test_without_a_manifest_only_the_parquets_own_hash_is_checked(tmp_path):
                     "--benchmark", str(tmp_path / "no_such_dir")]) == 0
     record = json.loads((out / "unpack_manifest.json").read_text(encoding="utf-8"))
     assert record["cities"]["testville"]["checked_against_manifest"] is False
+
+
+def test_a_row_for_another_city_is_refused(tmp_path):
+    parquet = tmp_path / "mixed.parquet"
+    _write_parquet(parquet, [_row("p1", PANOS["p1"]), _row("p2", PANOS["p2"], city="elsewhere")])
+    with pytest.raises(ValueError, match="city='elsewhere', expected 'testville'"):
+        up.unpack_parquet(str(parquet), str(tmp_path / "out"), "testville")
+
+
+def test_the_4096_config_checks_membership_not_the_native_hashes(fixture, tmp_path):
+    """The 4096x2048 re-render has different bytes from the reviewed native files, so the
+    committed manifest can only say which panos belong to the split."""
+    _, benchmark, _ = fixture
+    rerendered = {p: b + b" resized" for p, b in PANOS.items()}
+    parquet = tmp_path / "t4096.parquet"
+    _write_parquet(parquet, [_row(p, b) for p, b in rerendered.items()])
+    out = tmp_path / "out4096"
+    assert up.main(["--out", str(out), "--cities", "testville", "--parquet", str(parquet),
+                    "--benchmark", str(benchmark), "--config", "4096x2048"]) == 0
+    assert (out / "benchmark" / "testville" / "panos" / "p1.jpg").read_bytes() == rerendered["p1"]
+    # ...but a pano the split was never reviewed on is still refused
+    stray = tmp_path / "stray.parquet"
+    _write_parquet(stray, [_row("p9", b"\xff\xd8 stray")])
+    with pytest.raises(ValueError, match="not in the committed imagery_manifest"):
+        up.main(["--out", str(tmp_path / "out_stray"), "--cities", "testville",
+                 "--parquet", str(stray), "--benchmark", str(benchmark), "--config", "4096x2048"])
+
+
+def test_one_root_holds_one_config(fixture, tmp_path):
+    """Both configs write benchmark/<city>/panos/, so unpacking the other config into a
+    root would overwrite the reviewed native images one by one; it is refused instead."""
+    parquet, benchmark, out = fixture
+    assert up.main(["--out", str(out), "--cities", "testville", "--parquet", str(parquet),
+                    "--benchmark", str(benchmark)]) == 0
+    with pytest.raises(SystemExit):
+        up.main(["--out", str(out), "--cities", "testville", "--parquet", str(parquet),
+                 "--benchmark", str(benchmark), "--config", "4096x2048"])
+    assert (out / "benchmark" / "testville" / "panos" / "p1.jpg").read_bytes() == PANOS["p1"]
+
+
+def test_manual_gold_is_refused_before_any_download(tmp_path, capsys):
+    with pytest.raises(SystemExit):
+        up.main(["--out", str(tmp_path / "out"), "--cities", "manual_gold"])
+    assert "rampnet-dataset" in capsys.readouterr().err
+
+
+def test_a_split_missing_from_the_hub_names_the_ones_that_are_there(tmp_path, monkeypatch):
+    """No network: the two Hub calls are replaced. laurens_mapillary was not uploaded at
+    63d5ffd0; the raw EntryNotFoundError said nothing about what to ask for instead."""
+    hub = pytest.importorskip("huggingface_hub")
+    from huggingface_hub.errors import EntryNotFoundError
+
+    def not_found(*a, **k):
+        raise EntryNotFoundError("404")
+    monkeypatch.setattr(hub, "hf_hub_download", not_found)
+    monkeypatch.setattr(hub.HfApi, "list_repo_files", lambda self, *a, **k: [
+        "data/native/bend.parquet", "data/native/richmond.parquet",
+        "data/4096x2048/bend.parquet", "README.md"])
+    with pytest.raises(up.SplitNotOnHub) as e:
+        up.download(up.REPO_ID, "main", "native", "laurens_mapillary", str(tmp_path))
+    msg = str(e.value)
+    assert "data/native/laurens_mapillary.parquet" in msg
+    assert "for native: bend, richmond." in msg
