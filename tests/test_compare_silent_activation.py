@@ -237,3 +237,16 @@ def test_the_activation_quartile_table_0c_prints_reads_from_both_files():
             assert len(acts) == n, name
             assert tuple(round(x, 3) for x in quartiles(acts)) == q, (path, name)
             assert sum(a >= 0.01 for a in acts) == n01, name
+
+
+def test_each_run_record_hashes_the_replica_beside_it():
+    """The .run.json's result_sha256 is the replica's own bytes. It holds on every clone only
+    because .gitattributes marks the replicas -text (an autocrlf=true checkout is CRLF)."""
+    import hashlib
+    for path in (REPLICA_JSON, REPLICA_CKPT_JSON):
+        with open(path, "rb") as fh:
+            raw = fh.read()
+        with open(path.replace(".json", ".run.json"), encoding="utf-8") as fh:
+            rec = json.load(fh)
+        assert b"\r\n" not in raw
+        assert rec["result_sha256"] == hashlib.sha256(raw).hexdigest()
