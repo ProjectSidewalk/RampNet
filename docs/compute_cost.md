@@ -186,7 +186,9 @@ by job id on 2026-09-24 into `docs/data/compute/sacct_klone_2026-09-24.txt` (884
 `795acb09313778f441b5689c0060f34728c0cd6565637993be11774544b86241`) and parsed with:
 
 ```bash
-python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli     --from-file docs/data/compute/sacct_klone_2026-09-24.txt     --by-name
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
+    --from-file docs/data/compute/sacct_klone_2026-09-24.txt \
+    --by-name
 ```
 
 The pull is `sacct ... -j 40485927,40486691,40486692,40486693,40486694` rather than a date

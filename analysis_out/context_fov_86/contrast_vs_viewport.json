@@ -212,7 +212,112 @@
     "steep",
     "surface-problem"
    ]
+  },
+  {
+   "a": "train_fov90_final_test_predictions.csv",
+   "a_mAP": 0.280352,
+   "a_minus_b": {
+    "mAP": {
+     "ci95": [
+      -0.093399,
+      -0.042217
+     ],
+     "point": -0.065168
+    },
+    "macro_f1": {
+     "ci95": [
+      -0.114173,
+      -0.044532
+     ],
+     "point": -0.079999
+    },
+    "micro_f1": {
+     "ci95": [
+      -0.072254,
+      -0.038341
+     ],
+     "point": -0.055149
+    }
+   },
+   "a_sha256": "1a5026662a7d8f21117c9325e28199cac075abf3096f3396516d2084a19fd271",
+   "arm": "fov90",
+   "b": "train_viewport_final_test_predictions.csv",
+   "b_mAP": 0.34552,
+   "b_sha256": "01c39b6f5ec2b4e32db2387fd9f41ff129f1922cf90c0629714baa45a15026a6",
+   "n": 2182,
+   "n_boot": 1000,
+   "n_panos": 1868,
+   "per_tag_ap_a_minus_b": {
+    "missing-tactile-warning": {
+     "ci95": [
+      -0.055168,
+      -0.025879
+     ],
+     "point": -0.039936
+    },
+    "narrow": {
+     "ci95": [
+      -0.112561,
+      -0.00405
+     ],
+     "point": -0.054602
+    },
+    "not-enough-landing-space": {
+     "ci95": [
+      -0.077166,
+      0.051369
+     ],
+     "point": -0.015519
+    },
+    "not-level-with-street": {
+     "ci95": [
+      -0.125011,
+      0.018874
+     ],
+     "point": -0.046779
+    },
+    "points-into-traffic": {
+     "ci95": [
+      -0.06269,
+      0.036094
+     ],
+     "point": -0.014325
+    },
+    "pooled-water": {
+     "ci95": [
+      -0.291152,
+      -0.053994
+     ],
+     "point": -0.168664
+    },
+    "steep": {
+     "ci95": [
+      -0.184786,
+      0.005266
+     ],
+     "point": -0.051271
+    },
+    "surface-problem": {
+     "ci95": [
+      -0.184066,
+      -0.074076
+     ],
+     "point": -0.130249
+    }
+   },
+   "reference": "viewport",
+   "seed": 86,
+   "tags_fixed": [
+    "missing-tactile-warning",
+    "narrow",
+    "not-enough-landing-space",
+    "not-level-with-street",
+    "points-into-traffic",
+    "pooled-water",
+    "steep",
+    "surface-problem"
+   ]
   }
  ],
- "ts": "2026-09-24T05:14:53+00:00"
+ "ts": "2026-09-24T07:10:47+00:00"
 }

@@ -317,7 +317,112 @@
     "steep",
     "surface-problem"
    ]
+  },
+  {
+   "a": "train_fov90_final_test_predictions.csv",
+   "a_mAP": 0.280352,
+   "a_minus_b": {
+    "mAP": {
+     "ci95": [
+      -0.105327,
+      -0.048398
+     ],
+     "point": -0.074878
+    },
+    "macro_f1": {
+     "ci95": [
+      -0.096933,
+      -0.029836
+     ],
+     "point": -0.061148
+    },
+    "micro_f1": {
+     "ci95": [
+      -0.081778,
+      -0.04595
+     ],
+     "point": -0.063847
+    }
+   },
+   "a_sha256": "1a5026662a7d8f21117c9325e28199cac075abf3096f3396516d2084a19fd271",
+   "arm": "fov90",
+   "b": "control_interim_ep49_test_predictions.csv",
+   "b_mAP": 0.35523,
+   "b_sha256": "ee5a0d6f5491828ea062f13af126fe502b4b7dd97d9271efe711599847dae571",
+   "n": 2182,
+   "n_boot": 1000,
+   "n_panos": 1868,
+   "per_tag_ap_a_minus_b": {
+    "missing-tactile-warning": {
+     "ci95": [
+      -0.056534,
+      -0.026731
+     ],
+     "point": -0.041335
+    },
+    "narrow": {
+     "ci95": [
+      -0.131104,
+      -0.032459
+     ],
+     "point": -0.081773
+    },
+    "not-enough-landing-space": {
+     "ci95": [
+      -0.08556,
+      0.06297
+     ],
+     "point": -0.011192
+    },
+    "not-level-with-street": {
+     "ci95": [
+      -0.15539,
+      0.014648
+     ],
+     "point": -0.071808
+    },
+    "points-into-traffic": {
+     "ci95": [
+      -0.048194,
+      0.049512
+     ],
+     "point": 8e-05
+    },
+    "pooled-water": {
+     "ci95": [
+      -0.322589,
+      -0.04346
+     ],
+     "point": -0.179198
+    },
+    "steep": {
+     "ci95": [
+      -0.132755,
+      0.013656
+     ],
+     "point": -0.02948
+    },
+    "surface-problem": {
+     "ci95": [
+      -0.237595,
+      -0.122378
+     ],
+     "point": -0.18432
+    }
+   },
+   "reference": "control_interim_ep49",
+   "seed": 86,
+   "tags_fixed": [
+    "missing-tactile-warning",
+    "narrow",
+    "not-enough-landing-space",
+    "not-level-with-street",
+    "points-into-traffic",
+    "pooled-water",
+    "steep",
+    "surface-problem"
+   ]
   }
  ],
- "ts": "2026-09-24T05:18:14+00:00"
+ "ts": "2026-09-24T07:13:29+00:00"
 }
