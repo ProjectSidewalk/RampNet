@@ -222,17 +222,19 @@ and `naive` differ only in how U_t is treated, not in the loss family. (Kiryo et
 the sigmoid loss in their experiments, and their estimation-error analysis assumes a bounded
 loss, which the logistic loss is not; a sigmoid-loss `nnPU` is a not-run ablation, §7.)
 
-- `naive`: ℓ(f_t, −1) on every U_t and N_t cell, ℓ(f_t, +1) on every P_t cell; the batch mean,
-  as in the recipe.
+- `naive`: ℓ(f_t, −1) on every U_t and N_t cell, ℓ(f_t, +1) on every P_t cell (HF positives
+  included), summed over the batch's unmasked cells and divided by the batch size b, as in the
+  recipe (for an unmasked tag this is the recipe's batch mean).
 - `nnPU`: the non-negative PU risk of Kiryo et al. (2017) on the non-HF rows, in its
   case-control form, where the unlabeled sample U*_t is *every* unmasked non-HF label, tagged t
   or not, and π_t is the marginal class prior of §3.2:
 
       R_PU,t = π_t · E_P[ℓ(f_t, +1)] + max(0, E_U*[ℓ(f_t, −1)] − π_t · E_P[ℓ(f_t, −1)])
 
-  plus the ordinary BCE on the HF rows (their positives and their affirmed negatives), each crop
-  weighted by its share of the table as in `naive`, so the HF rows carry the same weight in both
-  arms (about 1 % of the table). A PNU-style mixing weight on the HF term (Sakai et al., 2017) is
+  Here P_t is the *non-HF* positives only, so the PU term covers non-HF cells and nothing else.
+  The HF rows enter as the ordinary BCE, ℓ(f_t, +1) on HF positives and ℓ(f_t, −1) on HF
+  negatives (N_t), exactly as in `naive`, so they carry the same weight in both arms (about 1 %
+  of the table). A PNU-style mixing weight on the HF term (Sakai et al., 2017) is
   not tuned; an up-weighted HF term is a not-run ablation.
 
 **Why U*_t includes the tagged labels.** The first draft paired an untagged-only U_t with π_t,
@@ -247,9 +249,11 @@ o 0.0126), the censoring form clamps π_U,t to 0 and becomes `naive`, but the ca
 does not: its bracket is (1 − o_t) · E_U[ℓ(f_t, −1)] + (o_t − π_t) · E_P[ℓ(f_t, −1)], which
 under-weights the positive term and pushes the *tagged* positives toward negative. So the
 trainer gives the case-control form **π′_t = max(π_t, o_t)** (`plan_numbers.json`,
-`pi_prime`), which restores the identity and makes a clamped tag exactly `naive`. That means
-o_t is needed at train time after all: it is computed from the training table's unmasked cells
-when the job starts and written to the run meta beside π′_t. The loss PR's unit test checks the
+`pi_prime`, indicative only: that field uses the audit's tier-2 rate before exclusions and
+masking), which restores the identity and makes a clamped tag exactly `naive`. That means o_t is
+needed at train time after all. For the reduction to be exact it must be the rate over the same
+cells the estimator uses, o_t = n_P,t / n_U*,t over the **non-HF unmasked** cells of the training
+table, computed when the job starts and written to the run meta beside π′_t. The loss PR's unit test checks the
 case-control form against the censoring form on a hand-computed batch for a tag with π_t > o_t
 *and* for one with π_t < o_t (where both must equal the `naive` loss). Both
 rest on the selected-completely-at-random assumption: a true positive's chance of being tagged
@@ -264,13 +268,18 @@ normalisation. A batch B of size b is drawn uniformly from the whole table of N 
 included, as in `naive`). For tag t, n_P,t, n_U*,t and n_N,t count the table's *unmasked* cells
 in P_t, U*_t (non-HF, tagged t or not) and N_t (HF negatives), and each term is estimated as
 Ê_X[g] = (N / (b · n_X,t)) · Σ_{i ∈ B ∩ X_t} g_i over the batch's unmasked cells in X_t. The
-risk weights each term by its share of the table (the PU risk by the non-HF share, the HF BCE by
-the HF share), so the HF rows carry the same weight as in `naive`. All three estimates are
-unbiased over batches, both are defined for any batch (an empty P term is 0, never NaN), and the
+per-tag risk is (n_U*,t / N) · R̂_PU,t + (1 / b) · Σ over the batch's unmasked HF cells of their
+BCE (HF positives and HF negatives alike). The PU weight is the tag's own unmasked non-HF count
+over N, not the non-HF row share: with the row share, a masked tag's PU term would be scaled by
+rows / n_U*,t relative to `naive`. With these weights and π′_t = o_t, the per-batch loss equals
+`naive`'s term for term (the bracket is then (1/b) · Σ over untagged cells of ℓ(f_t, −1) ≥ 0, so
+the clamp never fires), which is what the unit test checks. The estimates are unbiased over
+batches, are defined for any batch (an empty P term is 0, never NaN), and the
 clamp is applied to the batch's estimate as in the paper, with its gradient-ascent step when the
 bracket falls below −β (β and the step size γ are CLI arguments, recorded in the run meta). The
-cost is variance: one *steep* positive in a batch carries a weight of N / (4 · n_P) ≈ 27
-(295,957 / (4 × 2,738), arithmetic).
+cost is variance: the factor N / (b · n_P,t) in Ê_P for *steep* is about 27, with N the whole
+table (~296k tier-2 rows plus ~3.85k HF rows) and n_P,t ≈ 2,738 non-HF positives before
+exclusions: 299,807 / (4 × 2,738) ≈ 27.4 (arithmetic).
 
 One bias from the mask rule of §2.3: a tag carried anyway in a deployment that hides it (up to
 772 *missing tactile warning* and 809 *points into traffic* cells, amsterdam and
@@ -454,7 +463,9 @@ timed sample run.
 
 Bytes per crop for item 4's crops, **observed on klone and not committed** (2026-09-24,
 `find -printf %s` over the 10,848 crops per arm): fov25 155.0 KB, fov50 161.2 KB, fov90 133.6 KB,
-viewport after the 640 px box 123.1 KB. At fov25's 155.0 KB, 295,957 crops are about **46 GB**
+viewport after the 640 px box 123.1 KB. At fov25's 155.0 KB, the 295,957 tier-2 crops are about
+**46 GB**, and everything to cut (§4.1: at most 309,266, with the HF and expert-validate rows) about
+48 GB
 (arithmetic). The cutter's manifest records every crop's `bytes` and `sha256`, so the real total
 is summed from it and committed with the cut summary rather than projected.
 
@@ -474,7 +485,8 @@ The makelab2 pano store is the Project Sidewalk scraper's archive, not a publish
 someone without the store, and every number from those arms says so beside it. What a reader
 without the store can still check: the committed training tables (label ids, tags, priors, mask,
 exclusion list), the per-crop sha256 manifests, and the CPU scoring of the committed per-label
-predictions. What would publish the input: a Hugging Face dataset of the 640 px crops (~46 GB, the
+predictions. What would publish the input: a Hugging Face dataset of the 640 px training crops (the tier-2 universe, ~46 GB; ~48 GB with the
+HF and expert-validate rows; the
 same shape as `sidewalk-tagger-ai-validated`, which ships 30.8 GB of crops of the same labels'
 subset today). Whether to publish is a decision for Jon (§8); the doc records the gap until then.
 
@@ -558,7 +570,8 @@ budget-2 job is submitted:
   step index is recomputed from the index, never carried in optimizer state.
 - **The PU loss and the mask** as a `--loss {bce,nnpu,soft}` switch with `--prior-csv` and
   `--mask-csv`, unit-tested against a hand-computed batch (positive term, unlabeled term, the
-  non-negative clamp, a masked cell contributing zero to both).
+  non-negative clamp, a masked cell contributing zero to both, and a tag with π_t < o_t, where
+  π′_t = o_t makes the loss equal `naive`'s, §3.1).
 
 Batch size stays at 4 (PROPOSED). Raising it would cut wall-clock and improve the unlabeled-term
 estimate, and would also change the recipe the control was trained under; if the 3-epoch read

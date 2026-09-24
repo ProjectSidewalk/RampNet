@@ -27,7 +27,12 @@ does not, and a label that does not is unlabeled for t):
   PU loss reduces to treating untagged labels as negatives).
 - pi'_t = max(pi_t, o_t), the prior the case-control nnPU risk is given: only with pi' >= o does
   the case-control form equal the clamped censoring form (and reduce to the naive loss when
-  pi' == o).
+  pi' == o). The ``pi_prime`` written here is INDICATIVE: it uses the audit's tier-2 rate before
+  the test exclusions and the tag mask. The trainer recomputes o_t over the training table's
+  non-HF unmasked cells at job start.
+
+No 1 - c_t field is written: that was the first draft's soft-negative target, which is wrong
+(the target for an untagged cell is pi_U) and is negative when c_t > 1.
 
 Example: pi = 0.389, o = 0.154 gives c = 0.40 and pi_U = 0.278.
 """
@@ -127,6 +132,13 @@ def main():
     p.add_argument("--out", default="analysis_out/pu_training_86/plan_numbers.json")
     a = p.parse_args()
 
+    fetch = {a.labels: "hf_curbramp_labels.csv", a.resplit: "resplit_pano_grouped_seed86.csv"}
+    for path, name in fetch.items():
+        if not os.path.exists(path):
+            raise SystemExit(
+                f"{path} not found. It is committed on PR #178's branch; fetch it with\n"
+                f"  git show origin/bench/tag-benchmark-86:analysis_out/tag_benchmark_86/{name} > {name}\n"
+                f"and pass --labels / --resplit with the local path.")
     lab = pd.read_csv(a.labels)
     rs = pd.read_csv(a.resplit)
     surv, counts = survivors(lab, rs)
@@ -146,8 +158,7 @@ def main():
             pi, o = priors[src][t], o2[t]
             pu[src][t] = {"pi": pi, "o_tier2": o, "c": round(o / pi, 3) if pi else None,
                           "pi_U": round(pi_unlabeled(pi, o), 4),
-                          "pi_prime": round(max(pi, o), 4),
-                          "soft_target_1_minus_c": round(1 - o / pi, 3) if pi else None}
+                          "pi_prime": round(max(pi, o), 4)}
 
     out = {"inputs": {k: os.path.basename(getattr(a, k)) for k in ("labels", "resplit", "tags", "tiers")},
            "near_m": NEAR_M, "exclusion": counts,

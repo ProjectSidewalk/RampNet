@@ -38,12 +38,15 @@ def test_survivors_excludes_test_panos_and_10m_neighbours_only():
         _row("b:3", "train", "b", "P3", 47.0, -122.00005),     # same spot, other city: kept
         _row("a:4", "train", "a", "P4", 47.01, -122.0),        # re-split test pano
         _row("a:5", "train", "a", "P5", 47.02, -122.0),        # far from everything: kept
+        _row("a:6", "train", "a", None, float("nan"), float("nan")),  # no live row: survives, not trainable
     ])
     rs = pd.DataFrame({"label_uid": lab.label_uid,
-                       "split": ["train", "train", "train", "train", "test", "train"]})
+                       "split": ["train", "train", "train", "train", "test", "train", "train"]})
     surv, counts = pu.survivors(lab, rs)
     assert sorted(surv.label_uid) == ["a:5", "b:3"]
-    assert counts["survivors"] == counts["survivors_trainable"] == 2
+    assert counts["survivors"] == 3
+    assert counts["survivors_without_live_row"] == 1
+    assert counts["survivors_trainable"] == 2
     assert counts["hf_train_on_test_pano"] == 2               # a:2 (HF test pano), a:4 (re-split)
     assert counts["hf_train_within_10m_of_test"] == 1         # a:3
     assert counts["hf_split_x_resplit"]["train/test"] == 1

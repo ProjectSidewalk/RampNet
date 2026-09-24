@@ -85,64 +85,56 @@
     "o_tier2": 0.0126,
     "pi": 0.0137,
     "pi_U": 0.0011,
-    "pi_prime": 0.0137,
-    "soft_target_1_minus_c": 0.08
+    "pi_prime": 0.0137
    },
    "missing tactile warning": {
     "c": 0.396,
     "o_tier2": 0.1542,
     "pi": 0.3891,
     "pi_U": 0.2777,
-    "pi_prime": 0.3891,
-    "soft_target_1_minus_c": 0.604
+    "pi_prime": 0.3891
    },
    "narrow": {
     "c": 0.57,
     "o_tier2": 0.0487,
     "pi": 0.0854,
     "pi_U": 0.0386,
-    "pi_prime": 0.0854,
-    "soft_target_1_minus_c": 0.43
+    "pi_prime": 0.0854
    },
    "not enough landing space": {
     "c": 0.602,
     "o_tier2": 0.035,
     "pi": 0.0581,
     "pi_U": 0.0239,
-    "pi_prime": 0.0581,
-    "soft_target_1_minus_c": 0.398
+    "pi_prime": 0.0581
    },
    "not level with street": {
     "c": 0.679,
     "o_tier2": 0.0279,
     "pi": 0.0411,
     "pi_U": 0.0136,
-    "pi_prime": 0.0411,
-    "soft_target_1_minus_c": 0.321
+    "pi_prime": 0.0411
    },
    "points into traffic": {
     "c": 0.731,
     "o_tier2": 0.0932,
     "pi": 0.1275,
     "pi_U": 0.0378,
-    "pi_prime": 0.1275,
-    "soft_target_1_minus_c": 0.269
+    "pi_prime": 0.1275
    },
    "steep": {
     "c": 0.674,
     "o_tier2": 0.0093,
     "pi": 0.0138,
     "pi_U": 0.0045,
-    "pi_prime": 0.0138,
-    "soft_target_1_minus_c": 0.326
+    "pi_prime": 0.0138
    },
    "surface problem": {
     "c": 0.375,
     "o_tier2": 0.0372,
     "pi": 0.0991,
     "pi_U": 0.0643,
-    "pi_prime": 0.0991,
-    "soft_target_1_minus_c": 0.625
+    "pi_prime": 0.0991
    }
   },
   "survivors": {
@@ -151,64 +143,56 @@
     "o_tier2": 0.0126,
     "pi": 0.0117,
     "pi_U": 0.0,
-    "pi_prime": 0.0126,
-    "soft_target_1_minus_c": -0.077
+    "pi_prime": 0.0126
    },
    "missing tactile warning": {
     "c": 0.363,
     "o_tier2": 0.1542,
     "pi": 0.4253,
     "pi_U": 0.3205,
-    "pi_prime": 0.4253,
-    "soft_target_1_minus_c": 0.637
+    "pi_prime": 0.4253
    },
    "narrow": {
     "c": 0.522,
     "o_tier2": 0.0487,
     "pi": 0.0933,
     "pi_U": 0.0469,
-    "pi_prime": 0.0933,
-    "soft_target_1_minus_c": 0.478
+    "pi_prime": 0.0933
    },
    "not enough landing space": {
     "c": 0.548,
     "o_tier2": 0.035,
     "pi": 0.0639,
     "pi_U": 0.0299,
-    "pi_prime": 0.0639,
-    "soft_target_1_minus_c": 0.452
+    "pi_prime": 0.0639
    },
    "not level with street": {
     "c": 0.671,
     "o_tier2": 0.0279,
     "pi": 0.0416,
     "pi_U": 0.0141,
-    "pi_prime": 0.0416,
-    "soft_target_1_minus_c": 0.329
+    "pi_prime": 0.0416
    },
    "points into traffic": {
     "c": 0.71,
     "o_tier2": 0.0932,
     "pi": 0.1312,
     "pi_U": 0.0419,
-    "pi_prime": 0.1312,
-    "soft_target_1_minus_c": 0.29
+    "pi_prime": 0.1312
    },
    "steep": {
     "c": 0.612,
     "o_tier2": 0.0093,
     "pi": 0.0152,
     "pi_U": 0.006,
-    "pi_prime": 0.0152,
-    "soft_target_1_minus_c": 0.388
+    "pi_prime": 0.0152
    },
    "surface problem": {
     "c": 0.473,
     "o_tier2": 0.0372,
     "pi": 0.0786,
     "pi_U": 0.043,
-    "pi_prime": 0.0786,
-    "soft_target_1_minus_c": 0.527
+    "pi_prime": 0.0786
    }
   }
  },
