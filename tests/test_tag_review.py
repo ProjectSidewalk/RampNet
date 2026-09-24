@@ -472,6 +472,26 @@ def _write_cache(root):
     (root / "fetch_manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
 
 
+def test_recent_edits_counts_only_tag_changes_in_the_window(tmp_path, capsys):
+    jon = "549187e0-82c9-4014-a48d-31f18083d575"
+    cols = ["label_type", "user_id", "old_tags", "new_tags", "source", "edit_time"]
+    rows = [
+        ["CurbRamp", jon, "[]", '["narrow"]', "ExpertValidate", "2026-09-01T10:00:00-07:00"],  # counted
+        ["CurbRamp", "u1", '["a","b"]', '["b","a"]', "ExpertValidate", "2026-09-01T10:00:00Z"],  # same set
+        ["CurbRamp", "u1", "[]", '["steep"]', "ExpertValidate", "2026-08-01T00:00:00Z"],  # before window
+        ["Obstacle", "u1", "[]", '["pole"]', "ExpertValidate", "2026-09-01T00:00:00Z"],  # not a ramp
+    ]
+    with open(tmp_path / "alpha__labelEdits.csv", "w", encoding="utf-8", newline="") as fh:
+        w = csv.writer(fh, lineterminator="\n")
+        w.writerow(cols)
+        w.writerows(rows)
+    trl.main(["recent-edits", "--cache", str(tmp_path)])
+    out = capsys.readouterr().out
+    assert "| yes | ExpertValidate | jonfroehlich | 1 |" in out
+    assert "| no | ExpertValidate | other | 1 |" in out
+    assert out.rstrip().endswith("tag-changing total: 1")
+
+
 def test_list_builder_is_deterministic_and_applies_every_filter(tmp_path):
     cache = tmp_path / "raw"
     cache.mkdir()

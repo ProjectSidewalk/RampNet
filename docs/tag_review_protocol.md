@@ -120,7 +120,8 @@ another user on a listed label after the list's fetch time (from `review_list.me
 before the rater's judgment is written to that item's `edited_by_others` and printed as a warning.
 In the 30 days before the list's fetch (2026-08-23 to 2026-09-22, all deployments) the #175 cache
 holds 49 tag-changing CurbRamp edits, all ExpertValidate and all by the two raters (Jon 17,
-Mikey 32), and none by anyone else (measured ad hoc on that cache; no committed script). So the
+Mikey 32), and none by anyone else (`python scripts/analysis/tag_review_list.py recent-edits`,
+whose defaults are that window, on the 2026-09-22 cache). So the
 edits most likely to trip this flag are the *other rater's* ExpertValidate work, which counts as
 "someone else" from each rater's side. Other per-item problems do not
 abort the pull: a tag the city no longer offers is dropped from the scored set

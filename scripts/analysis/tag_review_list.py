@@ -24,6 +24,9 @@ reproduces it byte for byte only from a cache whose hashes match
     # the check that pano_y is world-frame (why the depression has no camera_pitch term)
     python scripts/analysis/tag_review_list.py pitch-check --cache analysis_out/ps_audit/raw
 
+    # CurbRamp edits in the 30 days before the fetch (the protocol's known-limit figure)
+    python scripts/analysis/tag_review_list.py recent-edits --cache analysis_out/ps_audit/raw
+
 Strata (full definitions in the rubric doc, section "The review list"):
 
 - **tag state**, precedence top down: ``affirmed_empty`` (no tags now, and a tag-review
@@ -704,6 +707,26 @@ def cmd_pitch_check(args):
         print(f"| {city} | {len(d):,} | {slope:.3f} | {d.camera_pitch.std():.2f} |")
 
 
+def cmd_recent_edits(args):
+    """CurbRamp edits in a window, all deployments, by source and user, split by whether the
+    tags changed. The protocol's known-limit paragraph quotes this (defaults = its window)."""
+    rows = []
+    for path in sorted(glob.glob(os.path.join(args.cache, "*__labelEdits.csv"))):
+        d = pd.read_csv(path, usecols=["label_type", "user_id", "old_tags", "new_tags", "source", "edit_time"])
+        d = d[d.label_type == "CurbRamp"]
+        t = pd.to_datetime(d.edit_time, utc=True, format="ISO8601")
+        d = d[(t >= pd.Timestamp(args.since, tz="UTC")) & (t < pd.Timestamp(args.until, tz="UTC"))]
+        rows.append(d)
+    d = pd.concat(rows, ignore_index=True)
+    d["tags_changed"] = [set(json.loads(a)) != set(json.loads(b)) for a, b in zip(d.old_tags, d.new_tags)]
+    d["user"] = d.user_id.map(lambda u: OWNERS.get(u, "other" if u != SIDEWALK_AI_USER else "SidewalkAI"))
+    print(f"CurbRamp edits {args.since} <= edit_time < {args.until}, all deployments in {args.cache}")
+    print("| tags changed | source | user | edits |\n|---|---|---|---:|")
+    for (c, src, u), n in d.groupby(["tags_changed", "source", "user"]).size().items():
+        print(f"| {'yes' if c else 'no'} | {src} | {u} | {n} |")
+    print(f"tag-changing total: {int(d.tags_changed.sum())}")
+
+
 def cmd_power(args):
     print(f"95% CI half-width of Cohen's kappa (simulated, {args.sims} draws), true kappa {args.kappa:.2f}")
     print("| positives (n x prevalence) | " + " | ".join(f"n={n}" for n in args.ns) + " |")
@@ -753,6 +776,11 @@ def main(argv=None):
     g.add_argument("--cities", nargs="+", default=["seattle-wa", "chicago-il", "taipei"])
     g.add_argument("--tol-px", type=float, default=10.0)
     g.set_defaults(func=cmd_pitch_check)
+    r = sub.add_parser("recent-edits", help="CurbRamp edits in a window, by source, user and tag change")
+    r.add_argument("--cache", default=DEFAULT_CACHE)
+    r.add_argument("--since", default="2026-08-23", help="UTC, inclusive (30 days before the fetch)")
+    r.add_argument("--until", default="2026-09-22T20:03:07", help="UTC, exclusive (the list's fetch time)")
+    r.set_defaults(func=cmd_recent_edits)
     p = sub.add_parser("power", help="kappa CI half-width vs list size and positives")
     p.add_argument("--ns", type=int, nargs="+", default=[300, 500, 800])
     p.add_argument("--positives", type=int, nargs="+", default=[10, 20, 30, 50, 80])
