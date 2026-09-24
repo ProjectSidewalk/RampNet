@@ -101,3 +101,28 @@ def test_report_names_the_control_row_as_told(tmp_path, capsys):
     assert "INTERIM" in (out / "summary.md").read_text()
     cf.main(["report", "--out-dir", str(out), "--control-scores", arm_scores, "--arms", "viewport"])
     assert json.load(open(out / "summary.json"))["rows"][0]["arm"] == "control (#178, HF crops)"
+
+
+def test_contrast_of_an_arm_with_itself_is_exactly_zero(tmp_path):
+    """The paired contrast scores both arms on the same pano-clustered resample, so an arm
+    against itself is 0 on every draw, not merely 0 in expectation: the interval must be
+    [0, 0], which is what distinguishes a paired draw from two independent ones."""
+    out = os.path.join(REPO, "analysis_out", "context_fov_86")
+    pred = os.path.join(out, "train_viewport_final_test_predictions.csv")
+    labels = os.path.join(out, "labels_viewport.csv")
+    c = cf.paired_contrast(pred, labels, pred, labels, os.path.join(out, "split_common.csv"), n_boot=5)
+    assert c["n"] == 2182 and c["tags_fixed"] == list(cf.tb.FIXED_TAGS)
+    for k in ("mAP", "micro_f1", "macro_f1"):
+        assert c["a_minus_b"][k]["point"] == 0.0 and c["a_minus_b"][k]["ci95"] == [0.0, 0.0]
+    assert all(v["ci95"] == [0.0, 0.0] for v in c["per_tag_ap_a_minus_b"].values())
+
+
+def test_contrast_refuses_prediction_files_over_different_rows(tmp_path):
+    out = os.path.join(REPO, "analysis_out", "context_fov_86")
+    pred = os.path.join(out, "train_viewport_final_test_predictions.csv")
+    short = tmp_path / "short.csv"
+    pd.read_csv(pred).iloc[:-1].to_csv(short, index=False)
+    import pytest
+    with pytest.raises(SystemExit, match="same test rows"):
+        labels = os.path.join(out, "labels_viewport.csv")
+        cf.paired_contrast(pred, labels, str(short), labels, os.path.join(out, "split_common.csv"), n_boot=2)

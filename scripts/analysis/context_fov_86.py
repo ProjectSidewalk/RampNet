@@ -234,6 +234,88 @@ def cmd_report(a):
     print(md)
 
 
+def _test_side(pred_path, labels_path, split_csv, tags):
+    """One arm's test rows: (label_uid-indexed frame with the tag columns and the arm's
+    sigmoid scores, ordered by label_uid). Each arm's predictions name ITS crops
+    (``<city>__<id>__<arm>.jpg``, the HF ``.png`` for the control), so the join to the other
+    arm is on ``label_uid``, never on filename."""
+    lab, arm_tags = tb.load_labels(labels_path, split_csv)
+    if list(arm_tags) != list(tags):
+        raise SystemExit(f"{labels_path}: tag columns differ from the reference's")
+    te = tb.leak_table(lab, "test", "train")
+    m = te.merge(pd.read_csv(pred_path), on="filename", how="inner", validate="one_to_one")
+    return m.sort_values("label_uid").reset_index(drop=True)
+
+
+def paired_contrast(pred_a, labels_a, pred_b, labels_b, split_csv, tags_fixed=None, n_boot=1000, seed=86):
+    """arm A minus arm B on the SAME test rows and the SAME pano-clustered bootstrap draws.
+
+    Every arm here is scored on the common test rows (split_common.csv), so two arms' CIs
+    overlap for a reason that has nothing to do with the arms: they share every panorama.
+    The right null for "is A better than B" resamples panoramas once and scores both arms
+    on that resample. Returns the point difference and the 95% CI for mAP / micro-F1 /
+    macro-F1 and per-tag AP, on the benchmark's fixed tag set."""
+    import numpy as np
+    _, tags = tb.load_labels(labels_b, split_csv)
+    a = _test_side(pred_a, labels_a, split_csv, tags)
+    b = _test_side(pred_b, labels_b, split_csv, tags)
+    if list(a.label_uid) != list(b.label_uid):
+        raise SystemExit("the two prediction files do not cover the same test rows")
+    y = a[tags].to_numpy(float)
+    if not np.array_equal(y, b[tags].to_numpy(float)):
+        raise SystemExit("the two label tables disagree on the test rows' tags")
+    sa, sb = tb.score_probs(a, tags), tb.score_probs(b, tags)
+    fixed = list(tags_fixed or tb.FIXED_TAGS)
+    groups = a.pano_id.fillna(a.label_uid).to_numpy()
+    pa, pb = (tb.tagger_metrics(y, s, tags, selected=fixed) for s in (sa, sb))
+    rng = np.random.default_rng(seed)
+    uniq, inv = np.unique(groups, return_inverse=True)
+    members = [np.where(inv == k)[0] for k in range(len(uniq))]
+    keys = ("mAP", "micro_f1", "macro_f1")
+    draws = {k: [] for k in keys}
+    per_tag = {t: [] for t in fixed}
+    for _ in range(n_boot):
+        idx = np.concatenate([members[k] for k in rng.integers(0, len(uniq), len(uniq))])
+        ra = tb.tagger_metrics(y[idx], sa[idx], tags, selected=fixed)
+        rb = tb.tagger_metrics(y[idx], sb[idx], tags, selected=fixed)
+        for k in keys:
+            ok = ra[k] is not None and rb[k] is not None
+            draws[k].append(ra[k] - rb[k] if ok else np.nan)
+        for t in fixed:
+            xa, xb = ra["per_tag"][t]["ap"], rb["per_tag"][t]["ap"]
+            per_tag[t].append(xa - xb if xa is not None and xb is not None else np.nan)
+
+    def _pt(t):
+        xa, xb = pa["per_tag"][t]["ap"], pb["per_tag"][t]["ap"]
+        return None if xa is None or xb is None else xa - xb
+
+    return {"n": int(len(a)), "n_panos": int(len(uniq)), "n_boot": n_boot, "seed": seed, "tags_fixed": fixed,
+            "a": os.path.basename(pred_a), "b": os.path.basename(pred_b),
+            "a_sha256": tb.sha256_file(pred_a), "b_sha256": tb.sha256_file(pred_b),
+            "a_mAP": pa["mAP"], "b_mAP": pb["mAP"],
+            "a_minus_b": {k: {"point": pa[k] - pb[k], "ci95": tb._ci(draws[k])} for k in keys},
+            "per_tag_ap_a_minus_b": {t: {"point": _pt(t), "ci95": tb._ci(per_tag[t])} for t in fixed}}
+
+
+def cmd_contrast(a):
+    rows = []
+    for arm in a.arms:
+        pred = os.path.join(a.out_dir, f"train_{arm}_final_test_predictions.csv")
+        labels = os.path.join(a.out_dir, f"labels_{arm}.csv")
+        if not os.path.exists(pred):
+            print(f"{arm}: not run ({os.path.basename(pred)} missing)")
+            continue
+        c = paired_contrast(pred, labels, a.reference_pred, a.reference_labels, a.split_csv, n_boot=a.n_boot)
+        c["arm"] = arm
+        c["reference"] = a.reference
+        rows.append(c)
+        d = c["a_minus_b"]["mAP"]
+        print(f"{arm} minus {a.reference}: mAP {d['point']:+.4f} [{d['ci95'][0]:+.4f}, {d['ci95'][1]:+.4f}]")
+    tb.write_json({"reference": a.reference, "reference_pred": os.path.basename(a.reference_pred),
+                   "reference_labels": os.path.basename(a.reference_labels), "rows": rows,
+                   "ts": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}, a.out)
+
+
 # ----------------------------------------------------------------------------- cli
 
 def main(argv=None):
@@ -267,6 +349,18 @@ def main(argv=None):
                         "the 100-epoch benchmark control (e.g. an interim snapshot)")
     p.add_argument("--arms", nargs="+", default=list(ARMS))
     p.set_defaults(fn=cmd_report)
+
+    p = sub.add_parser("contrast", help="each arm minus a reference, paired on the same test rows and draws")
+    p.add_argument("--reference", required=True, help="name of the reference arm in the output, e.g. control")
+    p.add_argument("--reference-pred", required=True, help="the reference's test predictions file")
+    p.add_argument("--reference-labels", default=os.path.join(tb.OUT_DIR, "hf_curbramp_labels.csv"),
+                   help="the label table the reference was scored with (an arm: its labels_<arm>.csv)")
+    p.add_argument("--split-csv", default=os.path.join(OUT_DIR, "split_common.csv"))
+    p.add_argument("--out-dir", default=OUT_DIR)
+    p.add_argument("--arms", nargs="+", default=list(ARMS))
+    p.add_argument("--n-boot", type=int, default=1000)
+    p.add_argument("--out", required=True)
+    p.set_defaults(fn=cmd_contrast)
 
     a = ap.parse_args(argv)
     a.fn(a)
