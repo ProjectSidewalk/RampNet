@@ -122,8 +122,8 @@ interim control's own mAP is 0.381:
 | fov50 − control (interim) | **−0.051 [−0.088, −0.017]** | **−0.028 [−0.051, −0.005]** | −0.031 [−0.081, +0.022] | steep −0.147, surface-problem −0.106 |
 | fov90 − control (interim) | **−0.103 [−0.147, −0.063]** | **−0.070 [−0.095, −0.046]** | **−0.081 [−0.130, −0.033]** | missing-tactile −0.030, narrow −0.103, pooled-water −0.233, steep −0.131, surface-problem −0.192 |
 
-The viewport row's upper end is +0.0002: on the leak-free rows the re-cut's loss is at the edge
-of detection. The pattern is the full-set one, larger.
+The viewport row's upper end is +0.0002 with the committed seed and −0.0006 with other draws:
+on the leak-free rows the re-cut's loss is at the edge of detection. The pattern is the full-set one, larger.
 
 Reading, in the order the arms were built to be read:
 
@@ -134,13 +134,15 @@ Reading, in the order the arms were built to be read:
    −0.054 [−0.102, −0.009], a detected loss. On the 957 leak-free rows both are larger: mAP
    0.381 → 0.346, paired −0.036 [−0.069, +0.000] (upper end +0.0002, so a loss of up to 0.069
    is not ruled out and the interval barely reaches 0), and *surface problem* −0.111
-   [−0.187, −0.037].
+   [−0.187, −0.037]. That upper end sits on 0 and depends on the bootstrap draws: +0.0002 with
+   the committed seed (86), −0.0006 with the final review's own draws, so the leak-free loss is
+   at the edge of detection, not clearly inside or outside it.
    The one tag that moves is a texture tag, which is where the viewport arm's second JPEG encode
    (§6) would show, so the encode is not ruled out as a cause. What plan item 5 inherits is this
-   bound, not a go-ahead: crops cut by `crop_cutter.py` for the ~354k labels without a production
-   crop cost no detected mAP against the screenshots the benchmark was built on, with the loss
-   bounded at about 0.035 mAP on all test rows (0.069 on the leak-free rows), and a detected loss
-   of 0.05–0.11 AP on *surface problem*.
+   bound, not a go-ahead: on all test rows, crops cut by `crop_cutter.py` for the ~354k labels
+   without a production crop cost no detected mAP against the screenshots the benchmark was built
+   on, with the loss bounded at about 0.035 mAP; on the leak-free rows the loss is borderline
+   (above) and bounded at 0.069; and *surface problem* loses 0.05–0.11 AP on both.
 2. **Centring the ramp at the zoom-2 field of view changes nothing detectable on the full test
    set.** `fov25`'s point estimates are within 0.015 of both the control (interim) and `viewport`
    on mAP, micro-F1 and macro-F1, every interval includes 0, and no tag moves off 0. The one hint
@@ -274,8 +276,8 @@ allocation, so the arms ran one after another (14:20 UTC to 06:53 UTC the next d
      record of what was read first; the interim files stay committed.
   4. PR #180's body: the "Result (interim control)" table and its reading, and the status
      checklist. Then commit, push, post the final numbers on #180, and mark it ready.
-  If the merge in step 2 conflicts in `analysis_out/usage_log.jsonl` (`finish` appends #178's
-  rows there, as this branch did), keep both blocks: rows supersede by `run_id`, and no test
+  The merge in step 2 will conflict in `analysis_out/usage_log.jsonl` (`finish` appends #178's
+  rows there, as this branch did); keep both blocks: rows supersede by `run_id`, and no test
   reads them by position. #185's ledger conflict is already resolved on this branch.
 
 - **Not reproducible from a clean clone: the pano store, the crops and the checkpoints are
@@ -286,7 +288,11 @@ allocation, so the arms ran one after another (14:20 UTC to 06:53 UTC the next d
   `best.pth` are in `/gscratch/makelab/jonf/context_fov_86/train_<arm>/` (sha256 in
   `train_<arm>_best_pth.sha256`); the interim checkpoint and its all-crop predictions are on
   makelab2 (above). None is published. What a clean clone can re-derive: every number in §4,
-  from the committed predictions, on CPU (`control`, `contrast`, `report`). What it can check
+  from the committed predictions, on CPU: `contrast` and `report` in either mode, and `control`
+  only with `CONTROL=final` (it reads #178's committed `train_control_final_test_predictions.csv`;
+  in interim mode it reads the all-crop predictions on makelab2, so there
+  `tag_benchmark_86.py score` over the committed `control_interim_ep49_test_predictions.csv` is
+  the clean-clone route). What it can check
   without re-running: any copy of the crops against `crops_as_trained.sha256` (the sha256 of
   every one of the 43,392 JPEGs the arms trained on, written on klone on 2026-09-24 from the
   unpacked crops, none of whose mtime or ctime is later than the first training job's start; the
