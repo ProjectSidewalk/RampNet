@@ -22,7 +22,8 @@ dependencies:
   - scikit-image
   - scikit-learn
   - scipy
-  - pandas
+  # >=2.0 for pd.to_datetime(format="ISO8601"); the paper lock has 2.2.3 on python 3.10.
+  - pandas>=2.0
   - geopy
   - pyproj
   - shapely

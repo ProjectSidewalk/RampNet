@@ -46,3 +46,6 @@ datasets
 # Parquet with it directly and tests/test_export_crop_dataset.py imports it by
 # name — so declare it rather than rely on someone else's dependency.
 pyarrow
+# Arrives transitively with datasets, but tests/test_ps_supervision_audit.py relies on
+# pd.to_datetime(format="ISO8601"), which pandas added in 2.0.
+pandas>=2.0

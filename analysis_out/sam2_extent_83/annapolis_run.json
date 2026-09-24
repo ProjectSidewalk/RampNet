@@ -1,0 +1,69 @@
+{
+ "arms": [
+  "boxcenter_gnomonic",
+  "boxcenter_equirect",
+  "point_gnomonic",
+  "point_equirect"
+ ],
+ "autocast": "bfloat16",
+ "box_rule_version": 2,
+ "boxes_json_sha256": "a5ff1a75b6bbe87cfdc586155e1b280ffa84ccff48fb0edf3da8cc08acb3456f",
+ "checkpoint": "sam2.1_hiera_large.pt",
+ "checkpoint_sha256": "2647878d5dfa5098f2f8649825738a9345572bae2d4350a2468587ece47dd318",
+ "city": "annapolis",
+ "decode_s": 123.779,
+ "detect_s": 869.998,
+ "elapsed_s": 875.802,
+ "embed_s": 64.721,
+ "finished_at": "2026-09-23T02:00:31+00:00",
+ "fovs": [
+  90,
+  76,
+  60
+ ],
+ "gnomonic_render": "bilinear, view side = box_gallery crop side at the same fov",
+ "gold": {
+  "completeness_warning": "boxes.json covers 142 of 294 adjudicated ramps (152 never annotated) \u2014 every rate below is over that subset, not over the benchmark's ramps",
+  "crop_fov_deg": 90,
+  "crop_px_by_pano_dims": {
+   "8000x4000": 2000
+  },
+  "n_adjudicated": 294,
+  "n_boxed": 131,
+  "n_cant": 11,
+  "n_other": 0
+ },
+ "gpus": [
+  "NVIDIA A40"
+ ],
+ "headline_variant": "pt_multi",
+ "host": "makelab2.cs.washington.edu",
+ "imagery_manifest_digest": "f00c825a10afa4a8",
+ "load_s": 3.036,
+ "n_items": 131,
+ "n_panos": 42,
+ "n_rows": 6288,
+ "n_views": 1572,
+ "panos_verified_against_manifest": 42,
+ "prior": {
+  "apron_m": 1.5,
+  "cam_height_m": 2.5,
+  "scale": 2.0
+ },
+ "python": "3.11.15",
+ "records_jsonl_sha256": "4ba644a42d0baebf5a9f446650832b38bb0a7dfbbd864b1724dbf24191019cb7",
+ "render_s": 571.094,
+ "rows_csv_sha256": "ae02c87380aad01faae7154e27370d3bea196fe40909b373cb9d8c3362d6c37f",
+ "sam2": {
+  "dist_version": "1.0",
+  "git_commit": "2b90b9f5ceec907a1c18123530e92e794ad901a4"
+ },
+ "sam2_config": "configs/sam2.1/sam2.1_hiera_l.yaml",
+ "torch": "2.5.1+cu124",
+ "variants": [
+  "pt_multi",
+  "pt_single",
+  "ptbox_multi",
+  "ptbox_single"
+ ]
+}

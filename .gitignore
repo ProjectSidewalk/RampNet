@@ -98,6 +98,13 @@ analysis_out/op/*
 # e.g. crop_window_eval_richmond.json.
 !analysis_out/crop_window_eval.json
 !analysis_out/crop_window_eval_*.json
+# SAM2 extent vs the whole-apron gold (#83, plan item 7): the per-item rows are the
+# GPU output (they do NOT regenerate without a GPU run), plus each run's provenance and
+# the CPU summaries. See docs/sam2_extent_83.md.
+!analysis_out/sam2_extent_83/
+analysis_out/sam2_extent_83/*
+!analysis_out/sam2_extent_83/*.csv
+!analysis_out/sam2_extent_83/*.json
 # The machine-readable scoreboard behind docs/model_scoreboard.md: every (leg, split) cell --
 # P/R/F1/AP, TP/FP/FN, panorama and GT counts -- for the aggregates that page tabulates.
 # ~80 KB. It regenerates from committed data alone, but committing it is what lets a
@@ -197,3 +204,14 @@ analysis_out/stage1_bearing_cache/
 # Inventory discovery sweep (#96): the candidate list, with record counts. A few
 # tens of KB, and it is the evidence that supply is not the constraint.
 !analysis_out/inventory_discovery.json
+
+# Project Sidewalk supervision audit (#86, scripts/analysis/ps_supervision_audit.py).
+# The reduced tables are what docs/ps_supervision_audit.md quotes, ~130 KB of CSV/JSON,
+# committed so a figure in the prose can be checked without re-pulling 58 deployments.
+# raw/ is the ~650 MB of API pulls (regenerable with `fetch`), and the HF crop index is
+# regenerable in seconds with `hf-index`; both stay ignored.
+!analysis_out/ps_audit/
+analysis_out/ps_audit/*
+!analysis_out/ps_audit/*.csv
+!analysis_out/ps_audit/*.json
+analysis_out/ps_audit/hf_validated_curbramp_index.csv

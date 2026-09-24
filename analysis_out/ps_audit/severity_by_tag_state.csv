@@ -1,0 +1,18 @@
+state,n,p_sev_ge2,p_sev3
+no tags,236298,0.027,0.007
+any tag,115535,0.401,0.099
+1 tag(s),79539,0.267,0.043
+2 tag(s),25650,0.633,0.137
+3 tag(s),7878,0.832,0.377
+4 tag(s),1850,0.918,0.605
+tag: debris / pooled water,4666,0.583,0.202
+tag: missing tactile warning,59664,0.447,0.116
+tag: narrow,18613,0.512,0.181
+tag: not aligned with crosswalk,1249,0.596,0.201
+tag: not enough landing space,12706,0.647,0.271
+tag: not level with street,14260,0.515,0.202
+tag: parallel lines,787,0.219,0.028
+tag: points into traffic,32640,0.497,0.118
+tag: steep,4437,0.686,0.308
+tag: surface problem,14983,0.582,0.218
+tag: tactile warning,1140,0.021,0.003
