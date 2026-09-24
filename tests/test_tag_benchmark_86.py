@@ -393,18 +393,27 @@ def test_each_meta_describes_the_file_beside_it(arm):
 
 
 def test_committed_tagger86_ledger_rows_are_supersedable_and_carry_gpu_share():
+    """Every tagger-86 row is keyed <experiment>:<label>:<start> (tagger-86 for the
+    benchmark of record, context-fov-86 for docs/context_fov_86.md, whose arms share this
+    provider and scorer), so a final row replaces its in_progress row and the file may hold
+    both; what any total reads is latest_rows, and there each run appears once."""
     from rampnet import ledger
     rows = [r for r in ledger.read_rows(os.path.join(REPO, "analysis_out", "usage_log.jsonl"))
             if r.get("provider") == "tagger-86"]
     assert rows
     for r in rows:
-        assert r["run_id"].startswith(f"tagger-86:{r['label']}:"), r
+        experiment, label, start = r["run_id"].split(":", 2)
+        assert experiment in ("tagger-86", "context-fov-86") and label == r["label"], r
         assert 0 < r["gpu_share"] <= 1 and isinstance(r["concurrent_with"], list), r
-    assert len({r["run_id"] for r in rows}) == len(rows)
-    for r in rows:
         if r["status"] == "in_progress":
-            # the final row collect() writes uses exactly this key, so it replaces this one
-            assert r["run_id"] == f"tagger-86:{r['label']}:{r['ts']}"
+            # the final row collect() / the Slurm launcher writes uses exactly this key
+            assert r["run_id"] == f"{experiment}:{r['label']}:{r['ts']}"
+    latest = ledger.latest_rows(rows)
+    assert len({r["run_id"] for r in latest}) == len(latest)
+    finished = {r["run_id"] for r in rows if r["status"] != "in_progress"}
+    assert not [r for r in latest if r["status"] == "in_progress" and r["run_id"] in finished]
+    # ...and the file does hold superseded rows, or this test is not testing anything
+    assert len(rows) > len(latest)
 
 
 def _fake_run(tmp_path, with_torch):
@@ -475,3 +484,18 @@ def test_collect_refuses_an_arm_that_did_not_exit_cleanly(tmp_path):
     with pytest.raises(SystemExit, match="EXIT 0"):
         tb.collect_arm("control", str(work), str(tmp_path / "u.jsonl"), epochs=(), final=True, n_boot=0,
                        out_dir=str(out))
+
+
+def test_log_usage_on_a_dedicated_gpu_writes_gpu_share_1(tmp_path, monkeypatch):
+    """--concurrent-with omitted means the run had the GPU to itself, and the row must say
+    so (gpu_share 1.0, concurrent_with []) rather than leave the fields out, or a total
+    that multiplies elapsed by share silently drops the run."""
+    import json
+    log = tmp_path / "usage_log.jsonl"
+    monkeypatch.setattr(sys, "argv", ["x"])
+    tb.main(["log-usage", "--label", "train-fov25", "--elapsed-s", "10", "--what", "t",
+             "--run-id", "context-fov-86:train-fov25:2026-09-23T18:22:29Z", "--ts", "2026-09-23T18:22:29Z",
+             "--host", "g3100.hyak.local", "--gpu", "NVIDIA L40S", "--log", str(log)])
+    row = json.loads(log.read_text().strip())
+    assert row["gpu_share"] == 1.0 and row["concurrent_with"] == []
+    assert row["hardware"] == {"host": "g3100.hyak.local", "gpus": ["NVIDIA L40S"]}

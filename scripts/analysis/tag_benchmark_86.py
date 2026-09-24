@@ -1141,8 +1141,8 @@ def cmd_log_usage(args):
     extra = {}
     if args.run_id:
         extra["run_id"] = args.run_id
-    if args.concurrent_with is not None:
-        extra.update(share_fields([c for c in args.concurrent_with.split(",") if c]))
+    # a dedicated GPU is gpu_share 1.0, written out, so every row says what it shared
+    extra.update(share_fields([c for c in (args.concurrent_with or "").split(",") if c]))
     row = usage_row(args.label, args.elapsed_s, args.status, args.what, n=args.n, ts=args.ts, extra=extra,
                     host=args.host, gpu=args.gpu)
     ledger.append_rows(args.log, [row])
