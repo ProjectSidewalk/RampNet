@@ -146,7 +146,7 @@ Three things, in decreasing order of how much they turned out to matter.
 **The data engine.** Stage 1 is the contribution. It converts a government point inventory into
 per-panorama pixel labels without a human in the loop, at 97.91% yield over the panoramas Google
 would serve, and its labels agree with hand labels at 0.94 precision as published, 0.92 once redundant
-points count as false positives and matching is one-to-one (#172), and 0.93 recall. No other curb-ramp dataset of this size exists.
+points count as false positives and matching claims the nearest unclaimed ramp (#172), and 0.93 recall. No other curb-ramp dataset of this size exists.
 The Stage 1 label recall, stratified by distance, is flatter than the detector's own recall (0.78
 at 25 to 40 m against the model's 0.49), so the labels are not the ceiling the detector is hitting
 (`curb_ramp_data_sourcing.md` §0). That is an in-distribution result: the gold set is drawn from

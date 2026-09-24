@@ -99,7 +99,7 @@ Google's endpoints will sustain this rate in 2026, only that they did in 2025.
 paper's Stage 1 dataset-agreement numbers — precision **0.9403**, recall **0.9245** on the
 1,000-panorama gold set, which the README quotes as 94.0%.
 
-It also records the quantity the README says has **not** been re-measured: **119 predicted points
+It also records the quantity behind the redundant-detection correction: **119 predicted points
 "ignored (matched already-claimed GT)"** out of 3,972. Counting those as false positives — the
 redundant-detection half of the [#18](https://github.com/ProjectSidewalk/RampNet/issues/18)
 correction — is arithmetic on the committed file:
@@ -111,13 +111,20 @@ correction — is arithmetic on the committed file:
 
 **This is not the corrected Stage 1 number.** The README is explicit that *two* changes move it:
 redundant points counted as FP, **and** matching through `rampnet/metrics.py` (nearest unclaimed
-ground truth) rather than first-in-list order. Only the first is computable from this artefact, so
-0.9121 is an **upper bound** on the corrected precision. The corrected figure itself is below.
+ground truth) rather than first-in-list order. Only the first is computable from this artefact.
+An earlier version of this section called 0.9121 an **upper bound** on the corrected precision.
+**That did not hold**: the corrected precision, 0.9152, is above 0.9121. Nearest-unclaimed matching
+mostly *recovers* points: when an earlier point takes its nearest ramp rather than the first in
+file order, a later point that first-in-order matching had left redundant often finds an unclaimed
+ramp of its own in range. Nor is
+0.9121 a formal lower bound: the matching change also costs one panorama a true positive (below).
+Read 0.9121 as the redundant-only figure, not as a bound in either direction.
 
 ### The corrected figure ([#172](https://github.com/ProjectSidewalk/RampNet/issues/172))
 
-`scripts/analysis/stage1_agreement_172.py` scores the same 1,000 panoramas under both evaluators
-on identical inputs: the gold centres from `manual_labels/` and the Stage 1 points of those
+`scripts/analysis/stage1_agreement_172.py` scores the same 1,000 panoramas under four conventions
+(the v1.0 evaluator, the v1.0 evaluator with redundant points as FP, and the shared matcher with and
+without the seam wrap) on identical inputs: the gold centres from `manual_labels/` and the Stage 1 points of those
 panoramas, read from the two label columns of the published dataset's test split
 (`projectsidewalk/rampnet-dataset` at revision `ee882e3f`, 3,972 points, committed as
 `analysis_out/stage1_agreement_172/stage1_gold_labels.json`). Under the paper's own convention
@@ -127,17 +134,28 @@ these are the points the paper scored.
 | Stage 1 dataset agreement, 1,000 panoramas, radius 0.022 | P | R | F1 | TP | FP | FN |
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
 | As published (first ramp in file order, redundant points ignored) | 0.9403 | 0.9245 | 0.9323 | 3,623 | 230 | 296 |
-| Redundant points as FP only (the bound above) | 0.9121 | 0.9245 | 0.9183 | 3,623 | 349 | 296 |
+| Redundant points as FP only (the arithmetic above; not a bound) | 0.9121 | 0.9245 | 0.9183 | 3,623 | 349 | 296 |
 | **Shared matcher: nearest unclaimed ramp, redundant as FP (corrected)** | **0.9152** | **0.9275** | **0.9213** | 3,635 | 337 | 284 |
 
 Corrected: **precision 0.9152, recall 0.9275** (pano-clustered bootstrap 95% CI: P [0.904, 0.925],
 R [0.918, 0.937]). Against the published 0.9403 / 0.9245 that is **−2.5 points of precision and
-+0.3 of recall**; against the 0.9121 bound, +0.3 of precision. The two halves of #18 pull the way
-its closing note predicted: counting redundant points costs 2.8 points, and nearest-unclaimed
-matching gives 0.3 of that back by turning 12 first-in-order misassignments into matches (12 more
-TP, 12 fewer FP, 12 fewer FN). Making the x axis cyclic at the seam (#132) moves nothing here: the
-cyclic and non-cyclic shared conventions agree to the count. The correction is the same size as
-the Stage 2 one (−1.0 precision, −4.4 recall), not an order larger.
++0.3 of recall**; against the redundant-only 0.9121, +0.3 of precision. The two halves of #18
+pull the way its closing note predicted: counting redundant points costs 2.8 points, and
+nearest-unclaimed matching gives 0.3 of that back. That 0.3 is a **net +12 TP (13 gained, 1 lost,
+across 14 panoramas)**: in 13 panoramas a point that first-in-order matching had scored redundant
+(12 panoramas) or as a plain FP (1) now claims a ramp of its own, and in one (`QGbpvWpeg9zLcu5HZneRbw`) nearest-first claiming strands a
+point and a TP is lost (6 TP → 5, 0 FP → 1). Making the x axis cyclic at the seam (#132) moves
+nothing here: the cyclic and non-cyclic shared conventions agree to the count. The correction is
+the same order of magnitude as the Stage 2 one (−1.0 precision, −4.4 recall) but not the same shape:
+Stage 1 precision moves 2.5 times as far, and Stage 1 recall moves the other way.
+
+**The corrected figure depends on an arbitrary point order.** Stage 1 points carry no confidence,
+so the shared matcher claims ramps in the order the dataset stores the points, and nothing makes
+that order meaningful. The script measures the sensitivity (`order_sensitivity` in the result): 200
+seeded shuffles of each panorama's points give TP **3,635 to 3,637**, and the maximum one-to-one
+matching over any order (Kuhn's augmenting paths) is 3,637, P 0.9157 / R 0.9280. The stored order
+gives the low end. The effect is at most 0.0005 on either figure, well inside the CI; 0.9152 /
+0.9275 stays the number of record because it is what the shared evaluator reports.
 
 Re-derive on CPU in seconds (`tests/test_stage1_agreement_172.py` does so byte for byte):
 
