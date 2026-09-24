@@ -7,14 +7,15 @@
 # unpack is resumable, so `--requeue` on ckpt is safe. Compute nodes have outbound network
 # (context_fov_86_env.slurm built an env the same way); the login node does no download.
 #
-#   mkdir -p /gscratch/makelab/jonf/silent_activation_131/logs
 #   cd /gscratch/makelab/jonf/silent_activation_131/RampNet
+#   mkdir -p logs    # --output below is relative to this directory, and logs/ is not tracked
 #   sbatch scripts/analysis/silent_activation_131_unpack.slurm      # ~8 GB, minutes
 #
-# UNPACK_PY is a venv with pyarrow + huggingface_hub (the repo's conda env has no pyarrow):
-#   UV_CACHE_DIR=/gscratch/makelab/jonf/uv_cache UV_PYTHON_INSTALL_DIR=/gscratch/makelab/jonf/uv_python \
-#     uv venv --python 3.10 /gscratch/makelab/jonf/envs/hfunpack && \
-#     uv pip install --python /gscratch/makelab/jonf/envs/hfunpack/bin/python pyarrow huggingface_hub
+# The repo's conda env (environment.yml) is enough: it has huggingface_hub, and pyarrow comes
+# in with `datasets` (20.0.0 on klone). The 2026-09-23 run (job 40546626) used a separate uv
+# venv, /gscratch/makelab/jonf/envs/hfunpack, on the mistaken belief that the conda env had
+# no pyarrow; UNPACK_PY still overrides the interpreter. The unpack only copies bytes and
+# checks their hashes, so the interpreter cannot change what lands on disk.
 #
 #SBATCH --job-name=sa131_unpack
 #SBATCH --account=ckpt-makelab
@@ -28,7 +29,7 @@
 #SBATCH --output=logs/sa131_unpack_%j.out
 set -eo pipefail
 WORK=${WORK:-/gscratch/makelab/jonf/silent_activation_131}
-PY=${UNPACK_PY:-/gscratch/makelab/jonf/envs/hfunpack/bin/python}
+PY=${UNPACK_PY:-/gscratch/makelab/jonf/envs/sidewalkcv2/bin/python}
 REV=${BENCHMARK_REV:-main}
 CITIES=${CITIES:-richmond,bend,clovis,morgantown,annapolis,paterson,gainesville}
 export HF_HOME=$WORK/hf_home

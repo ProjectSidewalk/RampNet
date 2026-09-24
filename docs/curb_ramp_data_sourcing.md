@@ -494,20 +494,36 @@ established:
 - **It is deterministic on the same hardware class.** The job ran twice, on the lab's
   allocation (g3104) and as a copy on the scavenger partition (g3124), both L40S; the two
   replicas are byte-identical (`silent_activation_replica_ckpt.json`). The drift is between the
-  RTX 3070 / Windows / cuDNN 9.5 original and the L40S / Rocky 8 / cuDNN 9.10 replica, not
-  between runs.
+  RTX 3070 / Windows original (cuDNN 9.5 is what that venv reports today, not a record of the
+  2026-07-31 run) and the L40S / Rocky 8 / cuDNN 9.10 replica, not between runs.
 - **The header's `cities` list is in a different order** in the two files (alphabetical in the
   original, which took `US_SPLITS` from `miss_decomposition`; the frozen tuple the script carries
   since the #99 review starts at richmond). It is the run's scope, not an input to any number:
   results are sorted by (city, pano) and the null RNG is consumed in that order. The comparison
   treats it as a set.
 
-What differed, for the record: the original was the Windows venv (`torch 2.6.0+cu126`,
-`timm 1.0.28`, RTX 3070; the venv's exact versions on 2026-07-31 were not written down, which
-is itself a finding — the run record now travels with the artifact); the replica is the repo's
-`environment.yml` env on klone (Python 3.10.20, torch 2.6.0+cu126, cuDNN 91002, timm 1.0.28,
-numpy 2.2.6, Pillow 12.0.0, scikit-image 0.25.2, driver 580.178.04, Rocky Linux 8.10),
-`rampnet-model` at `606a1195`, `rampnet-benchmark` at `63d5ffd0`. Cost: 0.22 GPU-hours on klone,
+What differed, for the record: the original was the Windows venv (the PyTorch pip wheel
+`torch 2.6.0+cu126`, cuDNN 9.5, `timm 1.0.28`, RTX 3070 — what the venv reports today; its
+exact versions on 2026-07-31 were not written down, which is itself a finding — the run record
+now travels with the artifact); the replica is the repo's `environment.yml` env on klone
+(Python 3.10.20, torch 2.6.0 as the conda-forge CUDA 12.6 build
+`pytorch-2.6.0-cuda126_mkl_py310_h5ee0071_304`, cuDNN 91002, timm 1.0.28, numpy 2.2.6,
+Pillow 12.0.0, scikit-image 0.25.2, driver 580.178.04, Rocky Linux 8.10), `rampnet-model` at
+`606a1195`, `rampnet-benchmark` at `63d5ffd0`. So the torch *build* differs as well as the GPU,
+OS, driver and cuDNN; the torch and timm version numbers and the repo code do not.
+
+Which RampNet commit produced each replica (the committed `.run.json` files predate the
+`code` field the launcher now writes, so this is recovered, not recorded): both jobs ran the
+Python in the klone checkout at `c803120` (cloned at `1b6e463` at 21:59:25 PDT on 2026-09-23,
+fast-forwarded to `c803120` at 22:13:29, per its reflog; both jobs started after that). The
+launcher is the copy Slurm stored at submit time: the lab job 40546727 was submitted at
+21:59:40 with `1b6e463`'s launcher, the ckpt copy 40549843 at 22:13:41 with `c803120`'s — each
+stored script (`sacct --batch-script`) is byte-identical to that commit's file. Neither
+difference reaches a number: `scripts/analysis/silent_activation.py` and `rampnet/` are the same
+blobs at both commits, and the launchers differ only in the `OUT` / `TAG` overrides, which is
+why the lab job's ledger row carries the older `silent-activation-131:` run id. The checkout's
+tracked code was clean when checked on 2026-09-24 (only `analysis_out/` modified); whether it was
+clean at the moment each job ran was not recorded. Cost: 0.22 GPU-hours on klone,
 $0, three rows in `analysis_out/compute_log.jsonl` and two `paid: false` rows in
 `analysis_out/usage_log.jsonl` (265 s and 495 s of wall-clock; the ckpt copy shared its node).
 
@@ -530,7 +546,9 @@ python scripts/analysis/compare_silent_activation.py \
 On klone steps 1 and 2 are `scripts/analysis/silent_activation_131_unpack.slurm` (CPU, ckpt) and
 `scripts/analysis/silent_activation_131.slurm` (one L40S), in that order; the usage comments in
 each carry the exact `sbatch` lines, and the second writes the run record and the ledger row
-itself.
+itself. Run `mkdir -p logs` in the checkout before the first `sbatch`: both jobs write their
+Slurm log to `logs/` relative to the submit directory, `logs/` is not tracked, and without it
+the job fails at launch with no log at all.
 
 | population | n | act q1 / med / q3 | act ≥ 0.01 |
 | :--- | ---: | :---: | ---: |
