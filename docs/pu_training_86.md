@@ -24,9 +24,11 @@ is the part of the 8,674 HF train crops that survives the test exclusions (§3.1
 because the rest sit on or beside the test panoramas; the published model trained on all 8,674
 is reported as a reference row.
 
-Why it is not obvious. The ASSETS'24 paper ran exactly the naive version of this experiment on
-its whole 33-class dataset (a ~24k cleaned set against a ~87k "larger but noisier crowdsourced"
-set) and reports that the larger set was *detrimental* (`sidewalk-tagger-ai` README, abstract).
+Why it is not obvious. The ASSETS'24 paper ran a version of this experiment on its whole
+33-class dataset (a ~24k cleaned set against a ~87k "larger but noisier crowdsourced" set) and
+reports that the larger set was *detrimental* (`sidewalk-tagger-ai` README, abstract). The
+abstract does not say how the noisier set treated untagged labels, so "naive" is our reading of
+it, not the paper's description.
 The audit explains why that should happen for curb ramps: an untagged label is not a negative.
 Tags are positive-unlabeled (plan §2.2; audit §4, §7): the two validation-study raters tagged the
 same ramps at 61 % vs 14 %, and when both tagged they agreed on *which* tag, so the difference is
@@ -42,7 +44,11 @@ pano-clustered bootstrap CIs as the benchmark reports them:
    0.34 mAP;
 2. the pano-grouped re-split's held-out panos (`resplit_pano_grouped_seed86.csv`, 2,197 labels),
    the leak-free read;
-3. the expert-validate corpus (2,452 labels, 22 deployments, audit §6) as a second, independent
+3. the expert-validate corpus (2,452 labels, 22 deployments, audit §6; `tag_benchmark_86.md`
+   and the #86 sweep of 2026-09-22 say 2,432 in 21 deployments, i.e. one deployment with 20
+   labels fewer; which one is not recorded in a committed file, and in the audit's
+   `review_corpus.csv` both laurens-ia and gainesville-fl have exactly 20. The cut uses the
+   audit's list and records its own count) as a second, independent
    test set, once its crops exist (§2.4; this is also the unfinished last clause of item 2,
    `tag_benchmark_86.md` §8).
 
@@ -84,8 +90,9 @@ placed since 2023-10-12, which is inside the tag era, so it is the same number i
 `/validate` or `/mobile` says the ramp is there, not that its tags are right (audit §2). That is
 exactly what a PU loss wants: every crop really shows a curb ramp, and only the tag set is
 uncertain. Tier 1 adds 66,260 labels that nobody confirmed, and a crop of a non-ramp with
-"unlabeled" tags is noise a PU loss cannot model (its unlabeled term assumes the class prior of
-the positive-labeled population). The cost is 28,888 tagged labels (118,402 − 89,514). Tier 1 is
+"unlabeled" tags is noise a PU loss cannot model: a crop of something that is not a curb ramp
+belongs to neither the positive nor the negative class of any tag, and the PU risk has no term
+for it. The cost is 28,888 tagged labels (118,402 − 89,514). Tier 1 is
 recorded as a not-run arm in §7.
 
 ### 2.2 Which tags
@@ -195,6 +202,12 @@ Both `naive` and `nnPU` contain every `clean` row at the same framing, so every 
 superset of the control. On the HF rows the absence *is* affirmed, so their cells stay hard
 negatives in every arm (they are the only labels in the universe for which that is true, plus the
 expert-validate rows, which are test); the loss paragraph below says how they enter.
+
+**Head size, PROPOSED: 8 outputs** for `clean` and every new arm, one per scored tag. The
+recipe's head has `len(tags)` outputs (`tag_benchmark_86.py`), which is 10 for the HF set,
+including `parallel-lines` and `tactile-warning` (`train_<arm>_train_meta.json` on
+`exp/context-fov-86`); neither is scored and neither is in the §2.2 vocabulary. The #178
+reference rows keep their 10, which affects them only through the shared backbone's gradients.
 
 **The loss per tag, PROPOSED.** For tag t, every unmasked (label, tag) cell falls in one of three
 disjoint sets: P_t, labels carrying t; N_t, HF rows (the `clean` rows) not carrying t, whose
@@ -380,9 +393,11 @@ Measured on item 4's cut (`analysis_out/context_fov_86/cut_summary_*.json`, make
 
 The pano decode dominates (one decode serves all three crops of a label in the first row), so a
 single-field-of-view pass over 296k labels runs at roughly 6–10 labels/s at 12 workers, **8–14 h**,
-and about twice that at 6 workers. That is an estimate from two passes over 6,295 panos; the first
-thing the cut does is time the same 5,000-label coverage sample and write the measured rate into
-this section before the full run.
+and about twice that at 6 workers. That is an estimate from two passes over 6,295 panos holding
+10,853 labels, 1.72 labels per pano (arithmetic). Because the decode is per pano, the real rate
+scales with the tag-era universe's labels per pano, which is not in a committed table; that is
+why the first thing the cut does is time the same 5,000-label coverage sample and write the
+measured rate into this section before the full run.
 
 **12 workers is not allowed again.** The item 4 cut at 12 workers beside the three #178 training
 arms drove makelab2's load to 60, its sshd refused connections from about 12:30 UTC, and the box
@@ -451,8 +466,8 @@ The recipe is 100 epochs over 8,674 crops, 867k sample presentations. On tier 2 
    on the validation slice every 5 epochs so the curve says whether 30 was enough. This is the
    arm the headline comes from.
 
-The plan's "~2 GPU-days" is budget 1 plus one 30-epoch arm; both 30-epoch arms are ~3 GPU-days.
-Stated so the ledger is not a surprise.
+Budget 1, both 30-epoch arms and `clean` come to ~75 GPU-h, about 3 GPU-days against the plan's
+~2 (arithmetic). Stated so the ledger is not a surprise.
 
 ### 5.3 Selection without reading the test set
 
