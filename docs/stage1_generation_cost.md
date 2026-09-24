@@ -111,10 +111,40 @@ correction — is arithmetic on the committed file:
 
 **This is not the corrected Stage 1 number.** The README is explicit that *two* changes move it:
 redundant points counted as FP, **and** matching through `rampnet/metrics.py` (nearest unclaimed
-ground truth) rather than first-in-list order. Only the first is computable from this artefact; the
-second still requires re-running `stage_one/dataset_evaluation/evaluate.py`. 0.9121 is therefore an
-**upper bound** on the corrected precision, and a useful one: it says the Stage 1 correction is of
-the same size as the Stage 2 one (−1.0 precision), not an order larger.
+ground truth) rather than first-in-list order. Only the first is computable from this artefact, so
+0.9121 is an **upper bound** on the corrected precision. The corrected figure itself is below.
+
+### The corrected figure ([#172](https://github.com/ProjectSidewalk/RampNet/issues/172))
+
+`scripts/analysis/stage1_agreement_172.py` scores the same 1,000 panoramas under both evaluators
+on identical inputs: the gold centres from `manual_labels/` and the Stage 1 points of those
+panoramas, read from the two label columns of the published dataset's test split
+(`projectsidewalk/rampnet-dataset` at revision `ee882e3f`, 3,972 points, committed as
+`analysis_out/stage1_agreement_172/stage1_gold_labels.json`). Under the paper's own convention
+it reproduces the committed output exactly (TP 3,623 / FP 230 / ignored 119), which is what says
+these are the points the paper scored.
+
+| Stage 1 dataset agreement, 1,000 panoramas, radius 0.022 | P | R | F1 | TP | FP | FN |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: |
+| As published (first ramp in file order, redundant points ignored) | 0.9403 | 0.9245 | 0.9323 | 3,623 | 230 | 296 |
+| Redundant points as FP only (the bound above) | 0.9121 | 0.9245 | 0.9183 | 3,623 | 349 | 296 |
+| **Shared matcher: nearest unclaimed ramp, redundant as FP (corrected)** | **0.9152** | **0.9275** | **0.9213** | 3,635 | 337 | 284 |
+
+Corrected: **precision 0.9152, recall 0.9275** (pano-clustered bootstrap 95% CI: P [0.904, 0.925],
+R [0.918, 0.937]). Against the published 0.9403 / 0.9245 that is **−2.5 points of precision and
++0.3 of recall**; against the 0.9121 bound, +0.3 of precision. The two halves of #18 pull the way
+its closing note predicted: counting redundant points costs 2.8 points, and nearest-unclaimed
+matching gives 0.3 of that back by turning 12 first-in-order misassignments into matches (12 more
+TP, 12 fewer FP, 12 fewer FN). Making the x axis cyclic at the seam (#132) moves nothing here: the
+cyclic and non-cyclic shared conventions agree to the count. The correction is the same size as
+the Stage 2 one (−1.0 precision, −4.4 recall), not an order larger.
+
+Re-derive on CPU in seconds (`tests/test_stage1_agreement_172.py` does so byte for byte):
+
+```
+python scripts/analysis/stage1_agreement_172.py score      # -> analysis_out/stage1_agreement_172.json
+python scripts/analysis/stage1_agreement_172.py fetch      # only to re-pull the labels file from the Hub
+```
 
 ## Provenance and replication
 
