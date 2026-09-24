@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 REPO_ROOT = str(Path(__file__).resolve().parents[1])
 sys.path.insert(0, os.path.join(REPO_ROOT, "scripts", "analysis"))
@@ -118,3 +119,71 @@ def test_trusted_users_file_widens_tier_3(tmp_path):
     assert trusted[JON] == ("Owner", "jonfroehlich")
     assert trusted[CROWD] == ("Administrator", "someone")
     assert audit.load_trusted(None).keys() == set(audit.OWNERS)
+
+
+def _write_mixed_format_cache(cache):
+    """The synthetic cache, with timestamps in the mixed shapes the real API returns.
+
+    alpha's FIRST row carries fractional seconds and a later tag-era label does not, so a
+    parse that infers one format from the first value (pandas without `format="ISO8601"`)
+    turns the later one into NaT. The edit rows use the real `labelEdits` offset shape.
+    Regression fixture for #183: the uniform timestamps above pass with or without the fix.
+    """
+    _write_cache(cache)
+    path = os.path.join(cache, "alpha__rawLabels__CurbRamp.csv")
+    df = pd.read_csv(path, dtype=str, keep_default_na=False)
+    df.loc[df.label_id == "1", "time_created"] = "2017-06-01T00:00:00.123Z"
+    extra = _label(6, CROWD, "2021-03-05T14:58:59Z", ["narrow"], 2, "true")
+    df = pd.concat([df, pd.DataFrame([extra], columns=LABEL_COLS).astype(str)], ignore_index=True)
+    df.to_csv(path, index=False)
+    edits_path = os.path.join(cache, "alpha__labelEdits.csv")
+    edits = pd.read_csv(edits_path, dtype=str, keep_default_na=False)
+    first = edits.iloc[0].copy()
+    edits.loc[0, "edit_time"] = "2026-04-02T17:39:20.200850-07:00"
+    first["label_edit_id"], first["edit_time"] = "2", "2024-02-01T00:00:00-08:00"
+    pd.concat([edits, first.to_frame().T], ignore_index=True).to_csv(edits_path, index=False)
+
+
+def test_mixed_timestamp_formats_keep_every_row(tmp_path):
+    cache = str(tmp_path / "raw")
+    _write_mixed_format_cache(cache)
+
+    labels, _ = audit.load_labels(cache, "CurbRamp", {AI})
+    assert labels.time_created.isna().sum() == 0
+    assert labels.loc[labels.label_id.astype(str) == "6", "time_created"].iloc[0] == pd.Timestamp("2021-03-05T14:58:59Z")
+
+    edits = audit.load_edits(cache)
+    assert edits.edit_time.isna().sum() == 0
+    assert list(edits.edit_time) == [pd.Timestamp("2026-04-03T00:39:20.200850Z"), pd.Timestamp("2024-02-01T08:00:00Z")]
+
+    tables = str(tmp_path / "tables")
+    audit.main(["report", "--cache", cache, "--tables", tables, "--out", str(tmp_path / "audit.md"),
+                "--hf-index", str(tmp_path / "none.csv")])
+    t1 = pd.read_csv(os.path.join(tables, "tiers.csv")).set_index("tier").loc["tier 1: every human label"]
+    assert t1.labels == 7                      # the base 6 plus alpha label 6 (2021, no fraction)
+    assert t1.tag_era == 6                     # only label 1 (2017) is pre-tag
+    by_year = pd.read_csv(os.path.join(tables, "by_year.csv")).set_index("year")
+    assert by_year.labels.sum() == t1.labels   # a NaT row would be in `labels` but in no year
+    assert by_year.loc[2021].labels == 1
+
+
+def test_unparseable_timestamp_fails_loudly(tmp_path):
+    cache = str(tmp_path / "raw")
+    _write_cache(cache)
+    path = os.path.join(cache, "beta__rawLabels__CurbRamp.csv")
+    df = pd.read_csv(path, dtype=str, keep_default_na=False)
+    df.loc[0, "time_created"] = "22/01/2022 10:00"
+    df.to_csv(path, index=False)
+    with pytest.raises(SystemExit, match=r"1 of 7 rawLabels__CurbRamp time_created .*'22/01/2022 10:00'"):
+        audit.load_labels(cache, "CurbRamp", {AI})
+
+
+def test_unparseable_edit_time_fails_loudly(tmp_path):
+    cache = str(tmp_path / "raw")
+    _write_cache(cache)
+    path = os.path.join(cache, "alpha__labelEdits.csv")
+    df = pd.read_csv(path, dtype=str, keep_default_na=False)
+    df.loc[0, "edit_time"] = ""
+    df.to_csv(path, index=False)
+    with pytest.raises(SystemExit, match=r"1 of 1 labelEdits edit_time"):
+        audit.load_edits(cache)
