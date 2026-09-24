@@ -371,25 +371,134 @@ def test_headline_numbers_rederive_from_the_committed_predictions():
             assert committed["subsets"][k]["fixed_tags"][m] == pytest.approx(v["fixed_tags"][m], abs=1e-6)
 
 
-@pytest.mark.parametrize("arm,n,map4", [("control", 2183, 0.3372), ("pano", 2197, 0.3598), ("cell", 2219, 0.3727)])
-def test_epoch4_arm_numbers_rederive(arm, n, map4):
-    out = _score_committed(f"train_{arm}_ep4_test_predictions.csv", tb.ARM_SPLITS[arm])
-    assert out["subsets"]["full"]["n"] == n
-    assert round(out["subsets"]["full"]["fixed_tags"]["mAP"], 4) == map4
+DEAD = "dead_run_2026-09-23"
+ARM_N = {"control": 2183, "pano": 2197, "cell": 2219}
+#: mAP (8 fixed tags, each arm on its own test labels) of the RELAUNCHED run (2026-09-24 04:09Z),
+#: doc §5. Every value re-derives from the committed test predictions.
+RELAUNCH_MAP = {
+    "control": {"ep4": 0.3381, "ep9": 0.3272, "ep19": 0.3394, "ep49": 0.3524, "final": 0.3544},
+    "pano": {"ep4": 0.3609, "ep9": 0.3649, "ep19": 0.3791, "ep49": 0.3728, "final": 0.3814},
+    "cell": {"ep4": 0.3733, "ep9": 0.3969, "ep19": 0.3981, "ep49": 0.4159, "final": 0.4124},
+}
+BEST_EPOCH = {"control": 89, "pano": 90, "cell": 91}
+#: The FIRST launch's epoch-4 snapshot (2026-09-23 01:58Z, killed by the makelab2 reboot), kept in
+#: analysis_out/tag_benchmark_86/dead_run_2026-09-23/ byte for byte as committed at 81e768f.
+DEAD_EP4_MAP = {"control": 0.3372, "pano": 0.3598, "cell": 0.3727}
+#: the checkpoints those predictions were made from, as quoted in doc §5 (no longer on makelab2)
+DEAD_EP4_CKPT = {"control": "604432509a9420efad12f20fb16aed2d63426bb5da6928db2f877f265f045de9",
+                 "pano": "4241acf12860b36693768733e02b83dc0a291d0250ada5652cbfd0de7dc34e1c",
+                 "cell": "8e3d77ef28a41ffa0a9af38253a391c8409262e479b82b7fc2022e8cd5998437"}
+
+
+def _committed_json(name):
+    import json
+    return json.load(open(os.path.join(OUT, name), encoding="utf-8"))
+
+
+@pytest.mark.parametrize("arm,stem", [(a, s) for a in RELAUNCH_MAP for s in RELAUNCH_MAP[a]])
+def test_relaunch_arm_numbers_rederive(arm, stem):
+    """Snapshot and final numbers of the relaunched run, re-derived from the committed test
+    predictions, and equal to what the committed scores JSON says."""
+    out = _score_committed(f"train_{arm}_{stem}_test_predictions.csv", tb.ARM_SPLITS[arm])
+    full = out["subsets"]["full"]
+    assert full["n"] == ARM_N[arm]
+    assert round(full["fixed_tags"]["mAP"], 4) == RELAUNCH_MAP[arm][stem]
+    committed = _committed_json(f"train_{arm}_{stem}_scores.json")
+    for k in ("mAP", "micro_f1", "macro_f1"):
+        assert committed["subsets"]["full"]["fixed_tags"][k] == pytest.approx(full["fixed_tags"][k], abs=1e-6)
+    if stem == "final":
+        # best.pth is the checkpoint with the best TRAINING exact-match accuracy (ties -> lower loss)
+        assert committed["best_epoch"] == committed["best_epoch_from_checkpoint"] == BEST_EPOCH[arm]
+        log = pd.read_csv(os.path.join(OUT, f"train_{arm}_log.csv"))
+        assert log[log.saved == "best"].epoch.max() == BEST_EPOCH[arm]
+        assert len(log) == committed["epochs"] == 100
 
 
 @pytest.mark.parametrize("arm", ["control", "pano", "cell"])
-def test_each_meta_describes_the_file_beside_it(arm):
+def test_dead_run_epoch4_numbers_still_rederive(arm):
+    """The first launch's epoch-4 record: its quoted numbers still re-derive from its own files."""
+    out = _score_committed(f"{DEAD}/train_{arm}_ep4_test_predictions.csv", tb.ARM_SPLITS[arm])
+    assert out["subsets"]["full"]["n"] == ARM_N[arm]
+    assert round(out["subsets"]["full"]["fixed_tags"]["mAP"], 4) == DEAD_EP4_MAP[arm]
+    committed = _committed_json(f"{DEAD}/train_{arm}_ep4_scores.json")
+    assert committed["subsets"]["full"]["fixed_tags"]["mAP"] == pytest.approx(
+        out["subsets"]["full"]["fixed_tags"]["mAP"], abs=1e-6)
+    meta = _committed_json(f"{DEAD}/train_{arm}_ep4_test_predictions.csv.meta.json")
+    assert meta["source_meta"]["checkpoint_sha256"] == DEAD_EP4_CKPT[arm]
+    assert meta["source_meta"]["ts"].startswith("2026-09-23")
+    # the relaunch's epoch-4 snapshot is a different checkpoint of the same recipe and seed
+    relaunch = _committed_json(f"train_{arm}_ep4_test_predictions.csv.meta.json")
+    assert relaunch["source_meta"]["checkpoint_sha256"] != DEAD_EP4_CKPT[arm]
+    assert relaunch["source_meta"]["ts"].startswith("2026-09-24")
+
+
+@pytest.mark.parametrize("path", [f"train_{a}_{s}_test_predictions.csv"
+                                  for a in RELAUNCH_MAP for s in RELAUNCH_MAP[a]]
+                         + [f"{DEAD}/train_{a}_ep4_test_predictions.csv" for a in RELAUNCH_MAP])
+def test_each_meta_describes_the_file_beside_it(path):
     import json
-    p = os.path.join(OUT, f"train_{arm}_ep4_test_predictions.csv")
+    p = os.path.join(OUT, path)
     meta = json.load(open(p + ".meta.json", encoding="utf-8"))
     with open(p, "rb") as fh:
         body = fh.read()
+    assert b"\r" not in body
     assert meta["file"] == os.path.basename(p)
     assert meta["n_rows"] == body.count(b"\n") - 1
     assert meta["predictions_sha256"] == tb.sha256_file(p)
     assert meta["source_meta"]["n_scored"] == 10857          # the 10,857-crop inference it came from
-    assert meta["source_meta"]["checkpoint"] == "best_after_ep4.pth"
+    stem = os.path.basename(p).split("_")[2]
+    want = "best.pth" if stem == "final" else f"best_after_{stem}.pth"
+    assert meta["source_meta"]["checkpoint"] == want
+
+
+def test_final_contrasts_rederive():
+    """doc §5's arm-minus-control point estimates (unpaired and paired on the common labels)
+    re-derive from the committed predictions; the CIs are the committed bootstrap."""
+    committed = _committed_json("final_contrasts.json")
+    labels = os.path.join(OUT, "hf_curbramp_labels.csv")
+    assert committed["labels_sha256"] == tb.sha256_file(labels)
+    assert [(c["a"]["arm"], c["b"]["arm"]) for c in committed["contrasts"]] == [
+        ("pano", "control"), ("cell", "control"), ("cell", "pano")]
+    for c in committed["contrasts"]:
+        pa, pb = (os.path.join(OUT, c[k]["pred_file"]) for k in ("a", "b"))
+        assert c["a"]["pred_sha256"] == tb.sha256_file(pa) and c["b"]["pred_sha256"] == tb.sha256_file(pb)
+        sa, sb = (os.path.join(OUT, tb.ARM_SPLITS[c[k]["arm"]]) if tb.ARM_SPLITS[c[k]["arm"]] else None
+                  for k in ("a", "b"))
+        got = tb.contrast_files(pa, sa, pb, sb, labels, n_boot=0)
+        for part in ("unpaired", "paired"):
+            for k in ("mAP", "micro_f1", "macro_f1"):
+                assert got[part][k]["point"] == pytest.approx(c[part][k]["point"], abs=1e-6)
+        assert got["paired"]["n"] == c["paired"]["n"]
+    pano, cell = committed["contrasts"][0], committed["contrasts"][1]
+    assert (pano["paired"]["n"], cell["paired"]["n"]) == (425, 418)
+    assert (round(pano["unpaired"]["mAP"]["a"], 4), round(pano["unpaired"]["mAP"]["b"], 4)) == (0.3814, 0.3544)
+    assert round(cell["unpaired"]["mAP"]["a"], 4) == 0.4124
+    # doc §5.1: neither leak-free arm scores below the control on any mAP point estimate
+    for c in (pano, cell):
+        assert c["unpaired"]["mAP"]["point"] > 0 and c["paired"]["mAP"]["point"] > 0
+
+
+def test_ep4_relaunch_minus_dead_run_is_paired_on_every_label():
+    committed = _committed_json("ep4_relaunch_minus_dead_run.json")
+    for c, arm in zip(committed["contrasts"], ("control", "pano", "cell")):
+        assert c["a"]["arm"] == c["b"]["arm"] == arm
+        assert c["b"]["pred_file"] == f"{DEAD}/train_{arm}_ep4_test_predictions.csv"
+        assert c["paired"]["n"] == c["a"]["n"] == c["b"]["n"] == ARM_N[arm]
+        p = c["paired"]["mAP"]
+        assert (round(p["a"], 4), round(p["b"], 4)) == (RELAUNCH_MAP[arm]["ep4"], DEAD_EP4_MAP[arm])
+        assert p["point"] == pytest.approx(p["a"] - p["b"], abs=2e-6)   # JSON holds 6 dp
+        assert abs(p["point"]) < 0.002 and p["ci95"][0] < 0 < p["ci95"][1]   # doc §5.3
+
+
+def test_contrast_of_a_file_with_itself_is_zero_when_paired(tmp_path):
+    work, out = _fake_run(tmp_path, with_torch=False)
+    labels = str(out / "hf_curbramp_labels.csv")
+    pred = str(work / "train_control_predictions.csv")
+    c = tb.contrast_files(pred, None, pred, None, labels, n_boot=30)
+    assert c["paired"]["n"] == 10
+    assert c["paired"]["mAP"]["point"] == 0 and c["paired"]["mAP"]["ci95"] == [0.0, 0.0]
+    assert c["unpaired"]["mAP"]["point"] == 0     # but independent draws give an interval around it
+    assert c["unpaired"]["mAP"]["ci95"][0] < 0 < c["unpaired"]["mAP"]["ci95"][1]
 
 
 def test_committed_tagger86_ledger_rows_are_supersedable_and_carry_gpu_share():

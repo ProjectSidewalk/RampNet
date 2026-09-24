@@ -1,0 +1,266 @@
+{
+ "contrasts": [
+  {
+   "a": {
+    "arm": "control",
+    "n": 2183,
+    "pred_file": "train_control_ep4_test_predictions.csv",
+    "pred_sha256": "0d87f312912b124a52b8339872843979690781fc9203aa7f9f068d4ed70fd62e"
+   },
+   "b": {
+    "arm": "control",
+    "n": 2183,
+    "pred_file": "dead_run_2026-09-23/train_control_ep4_test_predictions.csv",
+    "pred_sha256": "45d765523ac5f2574d9c32c2b45093d2c00da2cb36c537fe52afadea71be5522"
+   },
+   "n_boot": 1000,
+   "name": "control (train_control_ep4_test_predictions.csv) minus control (dead_run_2026-09-23/train_control_ep4_test_predictions.csv)",
+   "paired": {
+    "mAP": {
+     "a": 0.338079,
+     "b": 0.337241,
+     "ci95": [
+      -0.000635,
+      0.002773
+     ],
+     "point": 0.000838
+    },
+    "macro_f1": {
+     "a": 0.302747,
+     "b": 0.303618,
+     "ci95": [
+      -0.004116,
+      0.002395
+     ],
+     "point": -0.000871
+    },
+    "micro_f1": {
+     "a": 0.661371,
+     "b": 0.660808,
+     "ci95": [
+      -0.002578,
+      0.003914
+     ],
+     "point": 0.000563
+    },
+    "n": 2183,
+    "n_panos": 1869
+   },
+   "seed": 86,
+   "tags_fixed": [
+    "missing-tactile-warning",
+    "narrow",
+    "not-enough-landing-space",
+    "not-level-with-street",
+    "points-into-traffic",
+    "pooled-water",
+    "steep",
+    "surface-problem"
+   ],
+   "unpaired": {
+    "mAP": {
+     "a": 0.338079,
+     "b": 0.337241,
+     "ci95": [
+      -0.036085,
+      0.037881
+     ],
+     "point": 0.000838
+    },
+    "macro_f1": {
+     "a": 0.302747,
+     "b": 0.303618,
+     "ci95": [
+      -0.031985,
+      0.029571
+     ],
+     "point": -0.000871
+    },
+    "micro_f1": {
+     "a": 0.661371,
+     "b": 0.660808,
+     "ci95": [
+      -0.023449,
+      0.024339
+     ],
+     "point": 0.000563
+    }
+   }
+  },
+  {
+   "a": {
+    "arm": "pano",
+    "n": 2197,
+    "pred_file": "train_pano_ep4_test_predictions.csv",
+    "pred_sha256": "ecb840bdf3742525564df6f2d2d53d4fc982a9368d173b587477aaed38ea0bf7"
+   },
+   "b": {
+    "arm": "pano",
+    "n": 2197,
+    "pred_file": "dead_run_2026-09-23/train_pano_ep4_test_predictions.csv",
+    "pred_sha256": "c4d4da33b19808379645dbdaa11386576b7226274106d67c0a033da92cf59fd2"
+   },
+   "n_boot": 1000,
+   "name": "pano (train_pano_ep4_test_predictions.csv) minus pano (dead_run_2026-09-23/train_pano_ep4_test_predictions.csv)",
+   "paired": {
+    "mAP": {
+     "a": 0.360873,
+     "b": 0.359807,
+     "ci95": [
+      -0.001681,
+      0.006027
+     ],
+     "point": 0.001067
+    },
+    "macro_f1": {
+     "a": 0.276223,
+     "b": 0.276492,
+     "ci95": [
+      -0.003906,
+      0.003174
+     ],
+     "point": -0.000268
+    },
+    "micro_f1": {
+     "a": 0.655904,
+     "b": 0.655414,
+     "ci95": [
+      -0.003532,
+      0.004407
+     ],
+     "point": 0.00049
+    },
+    "n": 2197,
+    "n_panos": 1283
+   },
+   "seed": 86,
+   "tags_fixed": [
+    "missing-tactile-warning",
+    "narrow",
+    "not-enough-landing-space",
+    "not-level-with-street",
+    "points-into-traffic",
+    "pooled-water",
+    "steep",
+    "surface-problem"
+   ],
+   "unpaired": {
+    "mAP": {
+     "a": 0.360873,
+     "b": 0.359807,
+     "ci95": [
+      -0.031117,
+      0.035127
+     ],
+     "point": 0.001067
+    },
+    "macro_f1": {
+     "a": 0.276223,
+     "b": 0.276492,
+     "ci95": [
+      -0.026385,
+      0.026183
+     ],
+     "point": -0.000268
+    },
+    "micro_f1": {
+     "a": 0.655904,
+     "b": 0.655414,
+     "ci95": [
+      -0.028039,
+      0.029544
+     ],
+     "point": 0.00049
+    }
+   }
+  },
+  {
+   "a": {
+    "arm": "cell",
+    "n": 2219,
+    "pred_file": "train_cell_ep4_test_predictions.csv",
+    "pred_sha256": "a1d7074f0f3ea98194121afd48a717179f888921b68514d1516af40c729f7f35"
+   },
+   "b": {
+    "arm": "cell",
+    "n": 2219,
+    "pred_file": "dead_run_2026-09-23/train_cell_ep4_test_predictions.csv",
+    "pred_sha256": "e2abcc70f16e0d743fef5fa6b6f034faa3eec221995016e4e68526b6c958f26a"
+   },
+   "n_boot": 1000,
+   "name": "cell (train_cell_ep4_test_predictions.csv) minus cell (dead_run_2026-09-23/train_cell_ep4_test_predictions.csv)",
+   "paired": {
+    "mAP": {
+     "a": 0.373333,
+     "b": 0.372712,
+     "ci95": [
+      -0.002869,
+      0.004492
+     ],
+     "point": 0.000621
+    },
+    "macro_f1": {
+     "a": 0.297121,
+     "b": 0.300711,
+     "ci95": [
+      -0.010298,
+      0.003258
+     ],
+     "point": -0.00359
+    },
+    "micro_f1": {
+     "a": 0.653269,
+     "b": 0.654851,
+     "ci95": [
+      -0.006008,
+      0.002791
+     ],
+     "point": -0.001582
+    },
+    "n": 2219,
+    "n_panos": 1256
+   },
+   "seed": 86,
+   "tags_fixed": [
+    "missing-tactile-warning",
+    "narrow",
+    "not-enough-landing-space",
+    "not-level-with-street",
+    "points-into-traffic",
+    "pooled-water",
+    "steep",
+    "surface-problem"
+   ],
+   "unpaired": {
+    "mAP": {
+     "a": 0.373333,
+     "b": 0.372712,
+     "ci95": [
+      -0.037987,
+      0.041575
+     ],
+     "point": 0.000621
+    },
+    "macro_f1": {
+     "a": 0.297121,
+     "b": 0.300711,
+     "ci95": [
+      -0.029477,
+      0.021879
+     ],
+     "point": -0.00359
+    },
+    "micro_f1": {
+     "a": 0.653269,
+     "b": 0.654851,
+     "ci95": [
+      -0.025191,
+      0.025155
+     ],
+     "point": -0.001582
+    }
+   }
+  }
+ ],
+ "labels_sha256": "20731670b66e09df8b6b1e0facb8b55155ba6a4b5f76d616b4a19fdcd6cfa5ec"
+}

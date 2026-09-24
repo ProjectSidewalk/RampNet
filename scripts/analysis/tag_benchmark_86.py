@@ -20,6 +20,9 @@ Subcommands, in run order (``docs/tag_benchmark_86.md`` has the exact commands):
 ``score``    CPU. The tagger's metrics (mAP, micro/macro F1 at 0.3, per-tag AP; tags with
              fewer than 10 positives dropped) on the full test set and on the pano-disjoint
              ("leak-free") and pano-shared ("leaked") subsets, with pano-clustered bootstrap CIs.
+``contrast`` CPU. One arm's predictions minus another's: unpaired (each on its own test set,
+             independent pano-clustered draws) and paired (the labels test in both splits,
+             same draws).
 ``resplit``  CPU. A seeded, pano-grouped, per-city re-split of all 10,857 labels.
 ``train``    GPU. The tagger's DINOv2 training recipe (``notebooks/dino-trainer.ipynb``),
              on a split CSV.
@@ -784,6 +787,97 @@ def cmd_score(args):
               f"microF1={f['micro_f1']:.4f} macroF1={f['macro_f1']:.4f}  CI(mAP)={v['ci95_fixed_tags'] and v['ci95_fixed_tags']['mAP']}")
 
 
+# ----------------------------------------------------------------------------- contrast
+
+def _arm_frame(pred_path, labels_path, split_csv):
+    """(test rows of this arm's split joined to its predictions, tags)."""
+    lab, tags = load_labels(labels_path, split_csv)
+    te = lab[lab.split == "test"]
+    m, y, s = _arrays(pd.read_csv(pred_path), te, tags)
+    return m.reset_index(drop=True), y, s, tags
+
+
+def contrast_files(pred_a, split_a, pred_b, split_b, labels_path, fixed=None, n_boot=1000, seed=86):
+    """metric(A) - metric(B) for two prediction files, each on its own split's test labels.
+
+    - ``unpaired``: each file on ALL of its own test labels, resampled independently
+      (pano-clustered, A with ``seed``, B with ``seed + 1``). This is the comparison of the
+      arms' headline numbers; when the two test sets are different labels it mixes the model
+      difference with the difference between the label sets.
+    - ``paired``: only the labels that are test in BOTH splits, both files scored on the SAME
+      pano-clustered resample, so label-set differences cancel. Fewer labels, same ramps.
+
+    Point estimates and 95 % percentile intervals on the fixed tag set, for mAP and micro/macro
+    F1. Returns a dict."""
+    fixed = list(fixed or FIXED_TAGS)
+    ma, ya, sa, tags = _arm_frame(pred_a, labels_path, split_a)
+    mb, yb, sb, tags_b = _arm_frame(pred_b, labels_path, split_b)
+    assert tags == tags_b
+    keys = ("mAP", "micro_f1", "macro_f1")
+    def rel(q):   # path under OUT_DIR, "/"-separated; a file elsewhere is named by its basename
+        q = os.path.abspath(q)
+        inside = os.path.commonpath([q, os.path.abspath(OUT_DIR)]) == os.path.abspath(OUT_DIR)             if os.path.splitdrive(q)[0].lower() == os.path.splitdrive(os.path.abspath(OUT_DIR))[0].lower() else False
+        return os.path.relpath(q, OUT_DIR).replace(os.sep, "/") if inside else os.path.basename(q)
+    out = {"a": {"pred_file": rel(pred_a), "pred_sha256": sha256_file(pred_a), "n": int(len(ma))},
+           "b": {"pred_file": rel(pred_b), "pred_sha256": sha256_file(pred_b), "n": int(len(mb))},
+           "tags_fixed": fixed, "n_boot": n_boot, "seed": seed}
+    fa = tagger_metrics(ya, sa, tags, selected=fixed)
+    fb = tagger_metrics(yb, sb, tags, selected=fixed)
+    ga = ma.pano_id.fillna(ma.label_uid).to_numpy()
+    gb = mb.pano_id.fillna(mb.label_uid).to_numpy()
+    da = bootstrap_samples(ya, sa, ga, tags, fixed, n_boot=n_boot, seed=seed)
+    db = bootstrap_samples(yb, sb, gb, tags, fixed, n_boot=n_boot, seed=seed + 1)
+    out["unpaired"] = {k: {"a": fa[k], "b": fb[k], "point": fa[k] - fb[k], "ci95": _ci(da[k] - db[k])}
+                       for k in keys}
+    # paired: the common test labels, in one order, same draws for both
+    common = ma[["label_uid"]].reset_index().merge(mb[["label_uid"]].reset_index(), on="label_uid",
+                                                    how="inner", validate="one_to_one",
+                                                    suffixes=("_a", "_b"))
+    ia, ib = common.index_a.to_numpy(), common.index_b.to_numpy()
+    assert np.array_equal(ya[ia], yb[ib]), "the same label carries different tags in the two frames"
+    y, s1, s2 = ya[ia], sa[ia], sb[ib]
+    groups = ma.pano_id.fillna(ma.label_uid).to_numpy()[ia]
+    pa = tagger_metrics(y, s1, tags, selected=fixed)
+    pb = tagger_metrics(y, s2, tags, selected=fixed)
+    rng = np.random.default_rng(seed)
+    uniq, inv = np.unique(groups, return_inverse=True)
+    members = [np.where(inv == k)[0] for k in range(len(uniq))]
+    d = {k: [] for k in keys}
+    for _ in range(n_boot):
+        idx = np.concatenate([members[k] for k in rng.integers(0, len(uniq), len(uniq))])
+        a = tagger_metrics(y[idx], s1[idx], tags, selected=fixed)
+        b = tagger_metrics(y[idx], s2[idx], tags, selected=fixed)
+        for k in keys:
+            d[k].append(np.nan if a[k] is None or b[k] is None else a[k] - b[k])
+    out["paired"] = {"n": int(len(common)), "n_panos": int(len(uniq)),
+                     **{k: {"a": pa[k], "b": pb[k], "point": pa[k] - pb[k], "ci95": _ci(np.array(d[k]))}
+                        for k in keys}}
+    return out
+
+
+def _resolve_arm_file(spec):
+    """``<arm>=<predictions path>`` -> (arm, path, the arm's split CSV or None)."""
+    arm, path = spec.split("=", 1)
+    split = os.path.join(OUT_DIR, ARM_SPLITS[arm]) if ARM_SPLITS[arm] else None
+    return arm, path, split
+
+
+def cmd_contrast(args):
+    labels = args.labels
+    res = {"labels_sha256": sha256_file(labels), "contrasts": []}
+    for a_spec, b_spec in args.pair:
+        arm_a, pa, sa = _resolve_arm_file(a_spec)
+        arm_b, pb, sb = _resolve_arm_file(b_spec)
+        c = contrast_files(pa, sa, pb, sb, labels, n_boot=args.n_boot, seed=args.seed)
+        c["name"] = f"{arm_a} ({c['a']['pred_file']}) minus {arm_b} ({c['b']['pred_file']})"
+        c["a"]["arm"], c["b"]["arm"] = arm_a, arm_b
+        res["contrasts"].append(c)
+        u, p = c["unpaired"]["mAP"], c["paired"]["mAP"]
+        print(f"{c['name']}: unpaired mAP {u['point']:+.4f} {u['ci95']}; paired on "
+              f"{c['paired']['n']} common labels {p['point']:+.4f} {p['ci95']}", flush=True)
+    write_json(res, args.out)
+
+
 # ----------------------------------------------------------------------------- resplit
 
 def cell_groups(lab, cell_m=100.0):
@@ -1199,6 +1293,15 @@ def main(argv=None):
     p.add_argument("--out", required=True)
     p.add_argument("--per-label-out", default=None)
     p.set_defaults(func=cmd_score)
+
+    p = sub.add_parser("contrast", help="metric(A) - metric(B) for two arms' predictions, unpaired and paired")
+    p.add_argument("--pair", nargs=2, action="append", required=True, metavar=("ARM=PRED_A", "ARM=PRED_B"),
+                   help="two test-prediction files, each prefixed by the arm whose split it is scored on")
+    p.add_argument("--labels", default=os.path.join(OUT_DIR, "hf_curbramp_labels.csv"))
+    p.add_argument("--n-boot", type=int, default=1000)
+    p.add_argument("--seed", type=int, default=86)
+    p.add_argument("--out", required=True)
+    p.set_defaults(func=cmd_contrast)
 
     p = sub.add_parser("resplit", help="seeded pano-grouped re-split")
     p.add_argument("--labels", default=os.path.join(OUT_DIR, "hf_curbramp_labels.csv"))
