@@ -1,0 +1,119 @@
+{
+ "A_sky": {
+  "bend": {
+   "best_flip_within_2": 0,
+   "best_flip_within_8": 1,
+   "best_raw_within_2": 23,
+   "best_raw_within_8": 26,
+   "panos": 86,
+   "raw_beats_flip_at_zero_shift": 66
+  },
+  "gainesville": {
+   "best_flip_within_2": 0,
+   "best_flip_within_8": 2,
+   "best_raw_within_2": 15,
+   "best_raw_within_8": 18,
+   "panos": 81,
+   "raw_beats_flip_at_zero_shift": 56
+  },
+  "paterson": {
+   "best_flip_within_2": 0,
+   "best_flip_within_8": 2,
+   "best_raw_within_2": 77,
+   "best_raw_within_8": 85,
+   "panos": 115,
+   "raw_beats_flip_at_zero_shift": 104
+  },
+  "pooled": {
+   "best_flip_within_2": 1,
+   "best_flip_within_8": 11,
+   "best_raw_within_2": 189,
+   "best_raw_within_8": 212,
+   "panos": 404,
+   "raw_beats_flip_at_zero_shift": 333
+  },
+  "sao_paulo": {
+   "best_flip_within_2": 1,
+   "best_flip_within_8": 6,
+   "best_raw_within_2": 74,
+   "best_raw_within_8": 83,
+   "panos": 122,
+   "raw_beats_flip_at_zero_shift": 107
+  }
+ },
+ "B_ground_under_point": {
+  "gt_points": {
+   "flip": 1061,
+   "flip_share": 0.9637,
+   "n": 1101,
+   "raw": 1096,
+   "raw_share": 0.9955
+  },
+  "tp_detections": {
+   "flip": 745,
+   "flip_share": 0.9625,
+   "n": 774,
+   "raw": 770,
+   "raw_share": 0.9948
+  }
+ },
+ "C_edges": {
+  "bend": {
+   "best_flip_within_2": 0,
+   "best_flip_within_8": 0,
+   "best_raw_within_2": 2,
+   "best_raw_within_8": 3,
+   "panos": 110,
+   "raw_beats_flip_at_zero_shift": 72
+  },
+  "gainesville": {
+   "best_flip_within_2": 0,
+   "best_flip_within_8": 2,
+   "best_raw_within_2": 4,
+   "best_raw_within_8": 5,
+   "panos": 125,
+   "raw_beats_flip_at_zero_shift": 83
+  },
+  "paterson": {
+   "best_flip_within_2": 0,
+   "best_flip_within_8": 3,
+   "best_raw_within_2": 16,
+   "best_raw_within_8": 26,
+   "panos": 123,
+   "raw_beats_flip_at_zero_shift": 91
+  },
+  "pooled": {
+   "best_flip_within_2": 0,
+   "best_flip_within_8": 8,
+   "best_raw_within_2": 40,
+   "best_raw_within_8": 60,
+   "panos": 483,
+   "raw_beats_flip_at_zero_shift": 348
+  },
+  "sao_paulo": {
+   "best_flip_within_2": 0,
+   "best_flip_within_8": 3,
+   "best_raw_within_2": 18,
+   "best_raw_within_8": 26,
+   "panos": 125,
+   "raw_beats_flip_at_zero_shift": 102
+  }
+ },
+ "D_seam_continuity": {
+  "mirrored_formula": {
+   "median_abs_log_ratio": 0.424,
+   "n_boundaries": 47019,
+   "share_below_0p1": 0.1741
+  },
+  "raw_formula": {
+   "median_abs_log_ratio": 0.0227,
+   "n_boundaries": 47019,
+   "share_below_0p1": 0.7264
+  }
+ },
+ "hypotheses": {
+  "flip": "image column c = raw payload column width-1-c (depth.py _raw_column)",
+  "raw": "image column c = raw payload column c"
+ },
+ "labeler_commit": "86bb90964004f972c15c9948471cdef851f54da8"
+}

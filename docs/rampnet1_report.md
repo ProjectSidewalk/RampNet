@@ -427,9 +427,17 @@ knob was added, deliberately.
 not fall with distance; beyond 25 m it is 1.000. Culling detections beyond 18 m would lose 132
 true ramps to remove 4 false ones. When RampNet sees a distant ramp it is almost always right; it
 usually does not see it (`detection_recall_analysis.md`). The distance axis is a flat-ground
-estimate at an assumed 2.5 m camera height, and GSV's own depth says real camera heights are
-lower, stretching the metre labels by about 1.3× ([#112](https://github.com/ProjectSidewalk/RampNet/issues/112));
-the band ordering is unaffected.
+estimate at an assumed 2.5 m camera height. Re-measured on GSV's own depth
+(`detection_recall_analysis.md` §0, [#112](https://github.com/ProjectSidewalk/RampNet/issues/112)),
+that axis is about 1.06–1.08× long on bend, whose rig sits at 2.4 m, so 18 m / 25 m read
+16.9 m / 23.3 m there. On Google's 2025–26 rig (camera at 1.8–1.9 m; paterson's 2025 and
+gainesville's 2026 imagery, reported by capture year rather than by split) it is ~1.4× long, and
+the same thresholds are 13.1 m / 18.7 m. Richmond is Mapillary and has no depth. The band
+ordering is unaffected. Two caveats travel with these factors. The GSV depth payloads they come
+from are an unpublished input (per-file sha256 pinned; every table re-derives from the committed
+per-point rows). And the depth axis covers only panoramas with a measured ground plane (bend 254
+of 327 GT points), whose flat-axis recall differs from the excluded panoramas' by up to ~10
+points.
 
 **Mechanism.** Of the 427 misses at 0.30 across the seven US splits
 (`curb_ramp_data_sourcing.md` §0a–§0c, [#46](https://github.com/ProjectSidewalk/RampNet/issues/46)):
@@ -622,8 +630,11 @@ Things this report states as caveats rather than resolves:
 - **Several inputs live only on cluster storage**: the YOLO checkpoints and the tiles arm's
   detections, Run A's and the cosine rung's eight checkpoints each, and the 13 GB evaluation
   heatmap caches. Publishing them is a storage decision, not a technical one.
-- **The distance axis is ~1.3× stretched** in `detection_recall_analysis.md` and the miss
-  taxonomy's 18 m boundary inherits it ([#112](https://github.com/ProjectSidewalk/RampNet/issues/112)).
+- **The distance axis is stretched by a rig-dependent factor** in `detection_recall_analysis.md`
+  (~1.06–1.08× on bend's 2.4 m rig, ~1.4× on the 2025–26 GSV rig, unmeasured on Mapillary) and the
+  miss taxonomy's 18 m boundary inherits it ([#112](https://github.com/ProjectSidewalk/RampNet/issues/112),
+  measured in `detection_recall_analysis.md` §0). The depth payloads behind it are unpublished,
+  and the depth axis covers only measured-ground panoramas.
 - **The 0.30 operating point is tuned on the benchmark** and has no held-out validation.
 - **Two Laurens bundles are not yet on the Hub**, and the review notes and Bend overlap flag are
   not yet in the published benchmark ([#127](https://github.com/ProjectSidewalk/RampNet/issues/127)).
