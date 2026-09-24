@@ -11,7 +11,9 @@
 #   cd /gscratch/makelab/jonf/silent_activation_131/RampNet
 #   sbatch --dependency=afterok:<unpack job> scripts/analysis/silent_activation_131.slurm
 #   # optional second copy, first-come on the scavenger partition (same GPU class, another node):
-#   sbatch --account=ckpt-makelab --partition=ckpt-all --gres=gpu:l40s:1 --requeue \n#       --export=ALL,OUT=analysis_out/silent_activation_replica_ckpt.json,TAG=silent-activation-replica-131-ckpt \n#       scripts/analysis/silent_activation_131.slurm
+#   sbatch --account=ckpt-makelab --partition=ckpt-all --gres=gpu:l40s:1 --requeue \
+#       --export=ALL,OUT=analysis_out/silent_activation_replica_ckpt.json,TAG=silent-activation-replica-131-ckpt \
+#       scripts/analysis/silent_activation_131.slurm
 #
 # Outputs, all under the checkout (copied back and committed):
 #   analysis_out/silent_activation_replica.json       the replica itself
