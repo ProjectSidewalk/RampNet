@@ -12,7 +12,8 @@ tqdm
 scikit-image
 scikit-learn
 scipy
-pandas
+# >=2.0 for pd.to_datetime(format="ISO8601") in scripts/analysis/ps_supervision_audit.py.
+pandas>=2.0
 geopy
 pyproj
 shapely
