@@ -351,7 +351,7 @@ simply not enough signal left in the pixels.
 
 > **Recommendation:** report benchmark recall **stratified by distance**. "Reliable to 18 m, blind
 > past 25 m" is far more actionable than a scalar 0.765. (On GSV's own depth the labels are
-> ~17 m / 23 m for the 2.4 m rig this table's bend half was captured with, and ~13 m / 18 m on
+> ~17 m / 23 m for the 2.4 m rig this table's bend half was captured with, and ~13 m / 19 m on
 > Google's 2025–26 rig — §0.1.)
 
 ## 2. Precision is flat with distance — do not cull
