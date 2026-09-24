@@ -218,10 +218,11 @@ analysis_out/tag_benchmark_86/*
 !analysis_out/tag_benchmark_86/as_run/
 # #86 context experiment (docs/context_fov_86.md): the cutter input, per-arm label tables,
 # the common split, per-label predictions, scores and train logs are committed; the crops
-# (makelab2 / klone scratch) and checkpoints are not.
+# (makelab2 / klone scratch) and checkpoints are not; the cutter manifests are, gzipped.
 !analysis_out/context_fov_86/
 analysis_out/context_fov_86/*
 !analysis_out/context_fov_86/*.csv
 !analysis_out/context_fov_86/*.json
 !analysis_out/context_fov_86/*.md
 !analysis_out/context_fov_86/*.sha256
+!analysis_out/context_fov_86/*.jsonl.gz

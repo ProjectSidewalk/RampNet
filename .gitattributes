@@ -57,3 +57,5 @@ scripts/model_comparison/yolo_baseline/benchmark_eval/*/*.json text eol=lf
 analysis_out/tag_benchmark_86/** text eol=lf
 # The #86 context experiment (docs/context_fov_86.md) is scored the same way.
 analysis_out/context_fov_86/** text eol=lf
+# ...except the gzipped cutter manifests, which are bytes.
+analysis_out/context_fov_86/*.gz binary

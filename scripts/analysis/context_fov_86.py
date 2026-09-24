@@ -30,6 +30,11 @@ Subcommands (CPU; the GPU work is ``tag_benchmark_86.py train`` / ``infer``, seq
   crop640     the tagger's crop.py box (640 px around the canvas point) over the viewport
               arm's crops, in place, once
   report      one table over the arms' score files and the re-scored control
+  contrast    each arm minus a reference arm, paired on the same test rows and pano draws
+
+Every arm is resized to 256x256 before the model sees it (``tag_benchmark_86.IMAGE_DIMENSION``),
+so a wider field of view is also a coarser angular resolution at the model's input: the arms
+vary context and resolution together (``docs/context_fov_86.md`` section 4, reading 3).
 """
 from __future__ import annotations
 
@@ -216,7 +221,7 @@ def cmd_report(a):
     for arm in a.arms:
         rows.append(score_row(arm, os.path.join(a.out_dir, f"train_{arm}_final_scores.json"), tags))
     out = {"tags": tags, "rows": rows, "ts": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
-    tb.write_json(out, os.path.join(a.out_dir, "summary.json"))
+    tb.write_json(out, os.path.join(a.out_dir, f"{a.out_stem}.json"))
     lines = ["| arm | n test | mAP | 95% CI | micro-F1 | macro-F1 | leak-free mAP | " + " | ".join(tags) + " |",
              "|---|---:|---:|---:|---:|---:|---:|" + "---:|" * len(tags)]
     for r in rows:
@@ -229,7 +234,7 @@ def cmd_report(a):
                      + f" | {_fmt(r['micro_f1'])} | {_fmt(r['macro_f1'])} | {_fmt(r['leak_free_mAP'])} | "
                      + " | ".join(_fmt(r["per_tag_ap"][t]) for t in tags) + " |")
     md = "\n".join(lines) + "\n"
-    with open(os.path.join(a.out_dir, "summary.md"), "w", encoding="utf-8", newline="") as fh:
+    with open(os.path.join(a.out_dir, f"{a.out_stem}.md"), "w", encoding="utf-8", newline="") as fh:
         fh.write(md)
     print(md)
 
@@ -247,14 +252,21 @@ def _test_side(pred_path, labels_path, split_csv, tags):
     return m.sort_values("label_uid").reset_index(drop=True)
 
 
-def paired_contrast(pred_a, labels_a, pred_b, labels_b, split_csv, tags_fixed=None, n_boot=1000, seed=86):
+SUBSETS = ("full", "leak_free")
+
+
+def paired_contrast(pred_a, labels_a, pred_b, labels_b, split_csv, tags_fixed=None, n_boot=1000, seed=86,
+                    subset="full"):
     """arm A minus arm B on the SAME test rows and the SAME pano-clustered bootstrap draws.
 
     Every arm here is scored on the common test rows (split_common.csv), so two arms' CIs
     overlap for a reason that has nothing to do with the arms: they share every panorama.
     The right null for "is A better than B" resamples panoramas once and scores both arms
     on that resample. Returns the point difference and the 95% CI for mAP / micro-F1 /
-    macro-F1 and per-tag AP, on the benchmark's fixed tag set."""
+    macro-F1 and per-tag AP, on the benchmark's fixed tag set.
+
+    ``subset="leak_free"`` keeps only the test rows whose panorama has no train label (the
+    score files' ``leak_free`` subset: known pano, not in train), then resamples as above."""
     import numpy as np
     _, tags = tb.load_labels(labels_b, split_csv)
     a = _test_side(pred_a, labels_a, split_csv, tags)
@@ -264,6 +276,11 @@ def paired_contrast(pred_a, labels_a, pred_b, labels_b, split_csv, tags_fixed=No
     y = a[tags].to_numpy(float)
     if not np.array_equal(y, b[tags].to_numpy(float)):
         raise SystemExit("the two label tables disagree on the test rows' tags")
+    if subset not in SUBSETS:
+        raise SystemExit(f"subset must be one of {SUBSETS}, not {subset!r}")
+    if subset == "leak_free":
+        keep = (~a.pano_in_train & ~a.pano_unknown).to_numpy()
+        a, b, y = a[keep].reset_index(drop=True), b[keep].reset_index(drop=True), y[keep]
     sa, sb = tb.score_probs(a, tags), tb.score_probs(b, tags)
     fixed = list(tags_fixed or tb.FIXED_TAGS)
     groups = a.pano_id.fillna(a.label_uid).to_numpy()
@@ -289,7 +306,8 @@ def paired_contrast(pred_a, labels_a, pred_b, labels_b, split_csv, tags_fixed=No
         xa, xb = pa["per_tag"][t]["ap"], pb["per_tag"][t]["ap"]
         return None if xa is None or xb is None else xa - xb
 
-    return {"n": int(len(a)), "n_panos": int(len(uniq)), "n_boot": n_boot, "seed": seed, "tags_fixed": fixed,
+    return {"subset": subset, "n": int(len(a)), "n_panos": int(len(uniq)), "n_boot": n_boot, "seed": seed,
+            "tags_fixed": fixed,
             "a": os.path.basename(pred_a), "b": os.path.basename(pred_b),
             "a_sha256": tb.sha256_file(pred_a), "b_sha256": tb.sha256_file(pred_b),
             "a_mAP": pa["mAP"], "b_mAP": pb["mAP"],
@@ -305,13 +323,14 @@ def cmd_contrast(a):
         if not os.path.exists(pred):
             print(f"{arm}: not run ({os.path.basename(pred)} missing)")
             continue
-        c = paired_contrast(pred, labels, a.reference_pred, a.reference_labels, a.split_csv, n_boot=a.n_boot)
+        c = paired_contrast(pred, labels, a.reference_pred, a.reference_labels, a.split_csv, n_boot=a.n_boot,
+                            subset=a.subset)
         c["arm"] = arm
         c["reference"] = a.reference
         rows.append(c)
         d = c["a_minus_b"]["mAP"]
         print(f"{arm} minus {a.reference}: mAP {d['point']:+.4f} [{d['ci95'][0]:+.4f}, {d['ci95'][1]:+.4f}]")
-    tb.write_json({"reference": a.reference, "reference_pred": os.path.basename(a.reference_pred),
+    tb.write_json({"reference": a.reference, "subset": a.subset, "reference_pred": os.path.basename(a.reference_pred),
                    "reference_labels": os.path.basename(a.reference_labels), "rows": rows,
                    "ts": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}, a.out)
 
@@ -348,6 +367,8 @@ def main(argv=None):
                    help="the control row's name in the table; say so here when the score file is not "
                         "the 100-epoch benchmark control (e.g. an interim snapshot)")
     p.add_argument("--arms", nargs="+", default=list(ARMS))
+    p.add_argument("--out-stem", default="summary",
+                   help="<out-dir>/<stem>.json and .md (the interim control's table: summary_interim_ep49)")
     p.set_defaults(fn=cmd_report)
 
     p = sub.add_parser("contrast", help="each arm minus a reference, paired on the same test rows and draws")
@@ -359,6 +380,8 @@ def main(argv=None):
     p.add_argument("--out-dir", default=OUT_DIR)
     p.add_argument("--arms", nargs="+", default=list(ARMS))
     p.add_argument("--n-boot", type=int, default=1000)
+    p.add_argument("--subset", default="full", choices=SUBSETS,
+                   help="leak_free: only test rows whose panorama has no train label")
     p.add_argument("--out", required=True)
     p.set_defaults(fn=cmd_contrast)
 

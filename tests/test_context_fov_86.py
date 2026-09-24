@@ -117,6 +117,21 @@ def test_contrast_of_an_arm_with_itself_is_exactly_zero(tmp_path):
     assert all(v["ci95"] == [0.0, 0.0] for v in c["per_tag_ap_a_minus_b"].values())
 
 
+def test_leak_free_contrast_keeps_only_panos_absent_from_train():
+    """--subset leak_free is the score files' leak_free subset: the 957 common test rows whose
+    panorama has no train label (docs/context_fov_86.md section 4), still paired."""
+    out = os.path.join(REPO, "analysis_out", "context_fov_86")
+    pred = os.path.join(out, "train_viewport_final_test_predictions.csv")
+    labels = os.path.join(out, "labels_viewport.csv")
+    c = cf.paired_contrast(pred, labels, pred, labels, os.path.join(out, "split_common.csv"), n_boot=3,
+                           subset="leak_free")
+    assert c["subset"] == "leak_free" and c["n"] == 957
+    assert c["a_minus_b"]["mAP"]["ci95"] == [0.0, 0.0]
+    with open(os.path.join(out, "train_viewport_final_scores.json")) as fh:
+        lf = json.load(fh)["subsets"]["leak_free"]
+    assert lf["n"] == 957 and abs(c["a_mAP"] - lf["fixed_tags"]["mAP"]) < 1e-6  # the score file rounds to 6 places
+
+
 def test_contrast_refuses_prediction_files_over_different_rows(tmp_path):
     out = os.path.join(REPO, "analysis_out", "context_fov_86")
     pred = os.path.join(out, "train_viewport_final_test_predictions.csv")
@@ -126,3 +141,36 @@ def test_contrast_refuses_prediction_files_over_different_rows(tmp_path):
     with pytest.raises(SystemExit, match="same test rows"):
         labels = os.path.join(out, "labels_viewport.csv")
         cf.paired_contrast(pred, labels, str(short), labels, os.path.join(out, "split_common.csv"), n_boot=2)
+
+
+def test_crops_as_trained_listing_matches_the_labels_and_the_manifests():
+    """crops_as_trained.sha256 is the only hash of the viewport crops as trained (crop640
+    rewrote them in place after the cutter's manifest was written). Pin what it must be: one
+    line per crop every arm trains or is scored on, the label-centred crops byte-identical
+    to the cut (the manifest's sha256), and every viewport crop different from its 1440x960 cut."""
+    import gzip
+    out = os.path.join(REPO, "analysis_out", "context_fov_86")
+    listing = {}
+    with open(os.path.join(out, "crops_as_trained.sha256"), "rb") as fh:
+        raw = fh.read()
+    assert b"\r" not in raw
+    for line in raw.decode("utf-8").splitlines():
+        h, name = line.split("  ", 1)
+        assert len(h) == 64 and name not in listing
+        listing[name] = h
+    names = set()
+    for arm in cf.ARMS:
+        names |= set(pd.read_csv(os.path.join(out, f"labels_{arm}.csv")).filename)
+    assert set(listing) == names and len(names) == 4 * 10848
+    cut = {}
+    for m in ("fov", "viewport"):
+        with gzip.open(os.path.join(out, f"manifest_{m}.jsonl.gz"), "rt", encoding="utf-8") as fh:
+            for line in fh:
+                r = json.loads(line)
+                cut[r["name"]] = r
+    for name, h in listing.items():
+        assert cut[name]["status"] == "ok"
+        if name.endswith("__viewport.jpg"):
+            assert h != cut[name]["sha256"], name
+        else:
+            assert h == cut[name]["sha256"], name
