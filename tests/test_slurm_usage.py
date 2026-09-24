@@ -361,10 +361,13 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
         have = dict(have)
         assert have.pop("recorded_at").startswith(stamp)
         assert have == want
-    # The context experiment: four L40S arms plus a CPU-only env build, all COMPLETED
-    # on the lab's allocation, so free. 16.5 GPU-hours; the doc's per-arm table reads
-    # these rows.
-    ctx = committed[3990 + 38:]
+    # The context experiment: four L40S arms on the lab's allocation plus a CPU-only env
+    # build on ckpt, all COMPLETED, so free. 16.54 GPU-hours; the doc's per-arm table reads
+    # these rows. Selected by job id, not by position: another PR appending its own dump
+    # after the 2026-09-21 snapshot (#185 does) must not shift these rows out from under
+    # the check.
+    ctx = [r for r in committed if r["cluster"] == "klone"
+           and r["job_id"] in {"40485927", "40486691", "40486692", "40486693", "40486694"}]
     assert [r["job_name"] for r in ctx] == ["tagger_env_build", "ctx_viewport", "ctx_fov25",
                                             "ctx_fov50", "ctx_fov90"]
     assert all(r["state"] == "COMPLETED" and r["est_cost_usd"] == 0.0 for r in ctx)

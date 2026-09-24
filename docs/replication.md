@@ -40,7 +40,11 @@ synthetic panos and on the 200 committed validation rows), the coverage input an
 result, and the sha256 of every crop the validation runs wrote, which proves a re-cut
 identical or not. What it cannot do is re-cut a crop or re-derive the similarity table.
 Publishing the crops that items 4 and 5 train on would close this for those experiments; that
-is a decision for those items, not done here.
+is a decision for those items, not done here. Item 4 ([`context_fov_86.md`](context_fov_86.md)
+§6) has not published its crops or checkpoints either: it commits the sha256 of every crop as
+trained, the cutter manifests and the transfer tar's sha256, so a copy can be proven identical,
+and every number it reports re-derives from committed predictions on CPU; re-training needs the
+crops.
 
 ### ✅ Resolved — the challenger detections are published
 
