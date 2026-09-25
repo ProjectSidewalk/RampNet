@@ -151,6 +151,10 @@ if has contrast; then
   WIDER=$(for A in $ARMS; do [ "$A" = viewport ] || printf '%s ' "$A"; done)
   $PY $S contrast --reference viewport --reference-pred $OUT/train_viewport_final_test_predictions.csv \
     --reference-labels $OUT/labels_viewport.csv --arms $WIDER --out $OUT/contrast_vs_viewport.json
+  # and on the leak-free rows (added in #180's final review; also independent of the control)
+  $PY $S contrast --reference viewport --reference-pred $OUT/train_viewport_final_test_predictions.csv \
+    --reference-labels $OUT/labels_viewport.csv --arms $WIDER --subset leak_free \
+    --out $OUT/contrast_vs_viewport_leak_free.json
 fi
 if has report; then
   $PY $S report --out-dir $OUT --control-scores $OUT/${CP}_scores.json --control-label "$CONTROL_LABEL" \

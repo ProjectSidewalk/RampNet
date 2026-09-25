@@ -123,6 +123,20 @@ mAP is 0.370:
 | fov90 − control | **−0.092 [−0.130, −0.052]** | **−0.063 [−0.089, −0.041]** | **−0.070 [−0.119, −0.025]** | missing-tactile −0.036, narrow −0.079, pooled-water −0.315, surface-problem −0.175 |
 
 The pattern is the full-set one, larger, with *pooled water* and *steep* also off 0 at 50°.
+Two of the fov50 marks are at the edge of detection and depend on the bootstrap draws: the
+micro-F1 upper end is −0.0009 with the committed seed (86) and −0.0004 / +0.0013 in the final
+review's own re-implementation of the bootstrap at seeds 20260924 / 7 (not a committed script;
+`contrast` has no seed flag), and *surface problem*'s is −0.012 with seed 86 and −0.0046 /
++0.0000 in that re-implementation. Read them as borderline, not as detected.
+
+Against `viewport` on the same leak-free rows (`contrast_vs_viewport_leak_free.json`, added in
+the final review; it does not read the control):
+
+| arm minus reference, leak-free rows | mAP | micro-F1 | macro-F1 | per-tag AP with an interval off 0 |
+|---|---:|---:|---:|---|
+| fov25 − viewport | +0.015 [−0.020, +0.047] | +0.011 [−0.009, +0.032] | −0.015 [−0.062, +0.031] | missing-tactile +0.013 [+0.002, +0.027] |
+| fov50 − viewport | −0.015 [−0.049, +0.011] | −0.012 [−0.035, +0.012] | −0.043 [−0.102, +0.015] | steep −0.064 [−0.226, −0.002] |
+| fov90 − viewport | **−0.067 [−0.105, −0.033]** | **−0.054 [−0.079, −0.030]** | **−0.094 [−0.150, −0.038]** | missing-tactile −0.030, narrow −0.076, pooled-water −0.205 |
 
 Reading, in the order the arms were built to be read:
 
@@ -139,12 +153,17 @@ Reading, in the order the arms were built to be read:
    detected mAP against the screenshots the benchmark was built on, with the loss bounded at
    about 0.031 mAP on all test rows and 0.051 on the leak-free rows; *surface problem* loses
    about 0.04 AP on all rows (interval through 0) and 0.09 on the leak-free rows (off 0).
-2. **Centring the ramp at the zoom-2 field of view changes nothing detectable.** `fov25`'s
-   point estimates are within 0.015 of both the control and `viewport` on mAP, micro-F1 and
-   macro-F1, every interval includes 0, and no tag's interval excludes 0, on all rows or on the
-   leak-free rows. *Points into traffic* is +0.017 [−0.031, +0.062] against the control and
-   +0.030 [−0.017, +0.076] against `viewport` (+0.046 [−0.026, +0.118] on the leak-free rows);
-   none of these is a detected gain.
+2. **Centring the ramp at the zoom-2 field of view changes nothing detectable on mAP.**
+   `fov25`'s point estimates are within 0.016 of both the control and `viewport` on mAP,
+   micro-F1 and macro-F1, on all rows and on the leak-free rows, and every one of those
+   intervals includes 0. Against the control no tag's interval excludes 0, on all rows or on the
+   leak-free rows. Against `viewport` none does on all rows, but on the leak-free rows *missing
+   tactile warning* gains +0.013 [+0.002, +0.027]: the interim control's leak-free hint (§4.1),
+   now against the re-cut. It is a tag visible on the ramp itself, so if it is real it is the
+   centring, not street context; one seed per arm cannot say. *Points into traffic* is +0.017
+   [−0.031, +0.062] against the control (+0.046 [−0.026, +0.118] on the leak-free rows) and
+   +0.030 [−0.017, +0.076] against `viewport` (+0.042 [−0.020, +0.107] leak-free); none of these
+   is a detected gain.
 3. **At a fixed 256 px input, widening the crop costs resolution faster than any tag gains from
    context.** Field of view and angular resolution move together in these arms (§2): at 50° the
    ramp gets about a quarter of the model pixels it had at 25°, at 90° about a twentieth. The
@@ -223,8 +242,8 @@ view past 25°, fov50 and fov90 still lose with intervals off 0 on mAP (−0.035
 
 The upper ends that bound an undetected street-tag gain moved too: about 0.09 on *points into
 traffic* and 0.10 on *not enough landing space* against the interim control, 0.06 and 0.09
-against the final one; *not level with street*, at most +0.048 against the interim control, is
-+0.057 against the final one.
+against the final one (fov arms, as in reading 3); *not level with street* moved from +0.045
+to +0.057 on the same basis (over all four arms, viewport included: +0.048 to +0.069).
 
 ## 5. Cost
 
@@ -331,7 +350,9 @@ allocation, so the arms ran one after another (14:20 UTC to 06:53 UTC the next d
   As run on 2026-09-24: `usage_log.jsonl` merged without a conflict (both blocks kept); the only
   conflict was `.gitignore`, where both branches carried the same `tag_benchmark_86` block, kept
   once with #178's `dead_run_2026-09-23/` exception. `test-only` printed 2182 rows, and the
-  stage took about 45 minutes, as estimated.
+  stage took about 45 minutes, as estimated. The final review added a fourth `contrast` call to
+  the stage, `contrast_vs_viewport_leak_free.json` (§4); it reads no control and was run once,
+  on its own, with the exact line now in `context_fov_86.sh`.
 
 - **Not reproducible from a clean clone: the pano store, the crops and the checkpoints are
   lab-local.** The crops are cut from the makelab2 pano store, which is unpublished
