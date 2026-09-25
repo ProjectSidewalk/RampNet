@@ -97,7 +97,8 @@ the splits are pooled:
    An earlier version of this page called RampNet the one strong model that is also stable,
    with a range of 0.053. That figure was published when the pool was seven cities, before
    `laurens_mapillary` was added on 2026-08-31. Quote 0.311 for the eight, not the earlier
-   figure. The two open-vocabulary detectors *are* flatter (0.028, 0.039) — because they are
+   figure. (Ranges are max minus min of the unrounded F1s, so they can differ from the
+   difference of the printed endpoints by 0.001.) The two open-vocabulary detectors *are* flatter (0.028, 0.039) — because they are
    pinned near zero everywhere, which is consistency of a kind nobody wants.
 3. **Precision is not the differentiator; recall is.** YOLO11x posts the highest precision on
    the board (0.967, above RampNet's 0.951) at **0.409 recall against RampNet's 0.686**. Every
