@@ -384,7 +384,8 @@ BEST_EPOCH = {"control": 89, "pano": 90, "cell": 91}
 #: The FIRST launch's epoch-4 snapshot (2026-09-23 01:58Z, killed by the makelab2 reboot), kept in
 #: analysis_out/tag_benchmark_86/dead_run_2026-09-23/ byte for byte as committed at 81e768f.
 DEAD_EP4_MAP = {"control": 0.3372, "pano": 0.3598, "cell": 0.3727}
-#: the checkpoints those predictions were made from, as quoted in doc §5 (no longer on makelab2)
+#: the checkpoints those predictions were made from, as quoted in doc §5 (unpublished; moved to
+#: nobackup/tagbench86/dead_2026-09-23/ on makelab2 before the relaunch, doc §5.3)
 DEAD_EP4_CKPT = {"control": "604432509a9420efad12f20fb16aed2d63426bb5da6928db2f877f265f045de9",
                  "pano": "4241acf12860b36693768733e02b83dc0a291d0250ada5652cbfd0de7dc34e1c",
                  "cell": "8e3d77ef28a41ffa0a9af38253a391c8409262e479b82b7fc2022e8cd5998437"}
