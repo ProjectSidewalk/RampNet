@@ -1,0 +1,77 @@
+{
+ "elapsed_s": 139.793145,
+ "host": "makelab2.cs.washington.edu",
+ "mAP_from_stats_json": 0.340778,
+ "per_tag": {
+  "missing-tactile-warning": {
+   "ap": 0.981776,
+   "n_pos": 872,
+   "pr_auc": 0.981818
+  },
+  "narrow": {
+   "ap": 0.284054,
+   "n_pos": 152,
+   "pr_auc": 0.281377
+  },
+  "not-enough-landing-space": {
+   "ap": 0.155674,
+   "n_pos": 84,
+   "pr_auc": 0.151213
+  },
+  "not-level-with-street": {
+   "ap": 0.161556,
+   "n_pos": 65,
+   "pr_auc": 0.151974
+  },
+  "parallel-lines": {
+   "ap": 0.0,
+   "n_pos": 0,
+   "pr_auc": 0.5
+  },
+  "points-into-traffic": {
+   "ap": 0.295291,
+   "n_pos": 297,
+   "pr_auc": 0.293085
+  },
+  "pooled-water": {
+   "ap": 0.175274,
+   "n_pos": 42,
+   "pr_auc": 0.167954
+  },
+  "steep": {
+   "ap": 0.049066,
+   "n_pos": 29,
+   "pr_auc": 0.044407
+  },
+  "surface-problem": {
+   "ap": 0.623531,
+   "n_pos": 267,
+   "pr_auc": 0.622812
+  },
+  "tactile-warning": {
+   "ap": 0.0,
+   "n_pos": 0,
+   "pr_auc": 0.5
+  }
+ },
+ "tagger_sha": "3b7405cd3206ece631cb7a65e22b1ab219df4b75",
+ "tags_averaged": [
+  "missing-tactile-warning",
+  "narrow",
+  "not-enough-landing-space",
+  "not-level-with-street",
+  "points-into-traffic",
+  "pooled-water",
+  "steep",
+  "surface-problem"
+ ],
+ "title_2dp": {
+  "mAP": 0.34,
+  "macro_f1": 0.31,
+  "manual_avg_f1": 0.31,
+  "micro_f1": 0.67,
+  "threshold": 0.3,
+  "weighted_f1": 0.62
+ },
+ "ts": "2026-09-23T01:47:02+00:00"
+}
