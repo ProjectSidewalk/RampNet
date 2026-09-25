@@ -943,8 +943,10 @@ def cmd_resplit(args):
 # ----------------------------------------------------------------------------- train
 
 #: Columns of a training table that are not tags. Every other column is a tag, in file order.
+#: ``affirmed`` (optional, 0/1) marks rows whose untagged cells are affirmed absences (the HF
+#: ASSETS'24 rows); ``--loss nnpu|soft`` treats them as ordinary BCE rows (see ``TagLoss``).
 NON_TAG_COLUMNS = ("split", "filename", "city", "label_id", "label_uid", "pano_id", "lat", "lng",
-                   "normalized_x", "normalized_y")
+                   "normalized_x", "normalized_y", "affirmed")
 #: Side of a prepared crop: IMAGE_DIMENSION padded up to the patch multiple (256 -> 266).
 PREP_SIDE = IMAGE_DIMENSION + (PATCH_MULTIPLE - IMAGE_DIMENSION % PATCH_MULTIPLE) % PATCH_MULTIPLE
 
@@ -1092,11 +1094,192 @@ def batch_pixels(X, idx):
     return X[idx]
 
 
+# ----------------------------------------------------------------------------- loss
+
+def load_mask(mask_csv, tr, tags):
+    """Per-cell loss mask for ``tr`` as an N x T float32 array (1 = the cell counts, 0 = excluded).
+
+    Convention: a CSV with a ``label_uid`` column and one 0/1 column per tag it masks, named as
+    the tag. A tag with no column is unmasked (all 1). Every training ``label_uid`` must have a
+    row (a missing row is an error, not a default), and a column that is not a tag is an error,
+    so a typo cannot silently unmask a tag. Built from the audit's deployment tag lists (plan
+    §2.3): a cell whose tag the label's deployment does not offer is 0.
+
+    Example: amsterdam hides points-into-traffic, so every amsterdam row has
+    ``points-into-traffic = 0``; its cells contribute no loss in any ``--loss`` mode."""
+    m = pd.read_csv(mask_csv)
+    extra = [c for c in m.columns if c != "label_uid" and c not in tags]
+    if "label_uid" not in m.columns or extra:
+        raise SystemExit(f"{mask_csv}: needs label_uid plus tag columns only (unknown: {extra})")
+    j = tr[["label_uid"]].merge(m, on="label_uid", how="left", validate="one_to_one", indicator=True)
+    if (j["_merge"] != "both").any():
+        raise SystemExit(f"{mask_csv}: {(j['_merge'] != 'both').sum()} training labels have no row")
+    out = np.ones((len(tr), len(tags)), np.float32)
+    for k, t in enumerate(tags):
+        if t in m.columns:
+            v = j[t].to_numpy()
+            if not np.isin(v, [0, 1]).all():
+                raise SystemExit(f"{mask_csv}: column {t} is not 0/1")
+            out[:, k] = v
+    return out
+
+
+def load_prior(prior_json, tags):
+    """``{tag: pi_t}`` from a JSON object; every tag needs a prior in [0, 1] and no key may be
+    a non-tag. pi_t = 0 is allowed and makes that tag's nnPU term exactly naive (pi' = o_t)."""
+    with open(prior_json, encoding="utf-8") as fh:
+        pr = json.load(fh)
+    missing, extra = [t for t in tags if t not in pr], [k for k in pr if k not in tags]
+    if missing or extra:
+        raise SystemExit(f"{prior_json}: missing priors for {missing}; unknown keys {extra}")
+    if not all(0.0 <= float(pr[t]) <= 1.0 for t in tags):
+        raise SystemExit(f"{prior_json}: priors must be in [0, 1]")
+    return np.array([float(pr[t]) for t in tags], np.float64)
+
+
+class TagLoss:
+    """The ``--loss`` switch: masked BCE (``bce``), non-negative PU risk (``nnpu``) or BCE toward a
+    soft target on unlabeled cells (``soft``); per (label, tag) cell, with an optional mask.
+
+    Construct once from the whole training table, call per batch as ``loss(out, yb, idx)`` with
+    the batch's logits (b x T), targets and row indices into the table. Returns
+    ``(objective, value, fired)``: ``objective`` is what is back-propagated, ``value`` the loss
+    that is logged, ``fired`` a length-T bool tensor (nnPU's per-tag gradient-ascent flag) or
+    None. ``cmd_train`` uses no ``TagLoss`` at all for ``--loss bce`` without a mask, so that
+    path is the recipe's ``nn.BCEWithLogitsLoss()`` call, unchanged.
+
+    Cells. ``mask`` (N x T, 0/1) removes a cell from every term. ``affirmed`` (N, 0/1) marks
+    rows whose absences are affirmed (the HF rows): their cells are ordinary BCE in every mode.
+    Every other row is a PU row. For tag t, over the whole table's unmasked PU cells:
+    n_P = cells tagged t, n_U = all cells (tagged or not; the case-control U* sample),
+    o = n_P / n_U, and pi' = max(pi_t, o) with pi_t from ``prior`` (plan §3.1: pi' = o makes the
+    tag exactly naive, and a prior below the observed rate would push tagged positives negative).
+
+    ``bce``  value = (1 / (b T)) * sum over unmasked cells of l(z, y); with no mask this is
+             BCEWithLogitsLoss's mean (up to float summation order).
+    ``soft`` the same, toward target 1 on a tagged cell, 0 on an affirmed untagged cell, and
+             pi_U = max(0, (pi' - o) / (1 - o)) on an untagged PU cell: P(t | untagged), plan §3.2.
+    ``nnpu`` the non-negative PU risk of Kiryo, Niu, du Plessis and Sugiyama, "Positive-Unlabeled
+             Learning with Non-Negative Risk Estimator", NeurIPS 2017, case-control form, with the
+             logistic loss l(z, +1) = log(1 + e^-z), l(z, -1) = log(1 + e^z) (the recipe's BCE; the
+             paper's experiments used the sigmoid loss), per tag:
+
+                 R_t = pi' E_P[l(z, +1)] + max(0, E_U[l(z, -1)] - pi' E_P[l(z, -1)])
+
+             Estimated with global normalisation so any batch is defined (plan §3.1): with N table
+             rows and batch size b, E_X[g] = (N / (b n_X)) * sum over the batch's unmasked PU cells
+             in X of g (0 if n_X = 0). The tag's term is (n_U / N) * R_t plus (1 / b) * the BCE sum
+             over the batch's unmasked affirmed cells; value = mean of the T terms. With pi' = o
+             this equals ``bce`` term for term. Algorithm 1 of the paper: when the bracket
+             B_t = E_U[l(z,-1)] - pi' E_P[l(z,-1)] < -beta, the step for that tag is gradient
+             *ascent* on B_t (the tag's objective term is (n_U / N) * (-gamma * B_t) plus its
+             affirmed BCE) instead of descent on R_t; ``value`` still reports R_t.
+
+    Example (one tag, no mask, no affirmed rows, table of N = 4 with 1 tagged row, so
+    n_P = 1, n_U = 4, o = 0.25; prior 0.5 -> pi' = 0.5; batch rows 0 (tagged, z0) and 1 (z1)):
+    E_P[l+] = 4/(2*1) l(z0,+1), E_U[l-] = 4/(2*4) (l(z0,-1) + l(z1,-1)),
+    value = (4/4) * (0.5 E_P[l+] + max(0, E_U[l-] - 0.5 * 4/(2*1) l(z0,-1))).
+    """
+
+    KINDS = ("bce", "nnpu", "soft")
+
+    def __init__(self, kind, Y, mask=None, affirmed=None, prior=None, beta=0.0, gamma=1.0):
+        import torch
+        if kind not in self.KINDS:
+            raise ValueError(kind)
+        if kind != "bce" and prior is None:
+            raise SystemExit(f"--loss {kind} needs --prior")
+        Y = np.asarray(Y, np.float64)
+        n, t = Y.shape
+        mask = np.ones((n, t)) if mask is None else np.asarray(mask, np.float64)
+        aff = np.zeros(n) if affirmed is None else np.asarray(affirmed, np.float64)
+        if not np.isin(aff, [0, 1]).all():
+            raise SystemExit("affirmed must be 0/1")
+        pu = mask * (1.0 - aff)[:, None]
+        self.kind, self.N, self.T, self.beta, self.gamma = kind, n, t, float(beta), float(gamma)
+        self.n_P = (pu * Y).sum(0)
+        self.n_U = pu.sum(0)
+        self.o = np.divide(self.n_P, self.n_U, out=np.zeros(t), where=self.n_U > 0)
+        self.prior = None if prior is None else np.asarray(prior, np.float64)
+        self.pi_prime = None if prior is None else np.maximum(self.prior, self.o)
+        self.pi_U = None if prior is None else np.divide(
+            np.maximum(self.pi_prime - self.o, 0.0), 1.0 - self.o, out=np.zeros(t), where=self.o < 1)
+        # nnPU coefficients (float64, fixed for the run): 1/n_P, 1/n_U (0 where the count is 0) and
+        # k_P = 1/n_U - pi'/n_P, set to exactly 0 where pi' = o (the naive case).
+        self.inv_n_P = np.divide(1.0, self.n_P, out=np.zeros(t), where=self.n_P > 0)
+        self.inv_n_U = np.divide(1.0, self.n_U, out=np.zeros(t), where=self.n_U > 0)
+        self.k_P = None if prior is None else np.where(
+            (self.pi_prime == self.o) | (self.n_P == 0), 0.0, self.inv_n_U - self.pi_prime * self.inv_n_P)
+        self.mask = torch.from_numpy(mask.astype(np.float32))
+        self.affirmed = torch.from_numpy(aff.astype(np.float32))
+
+    def summary(self):
+        """Per-tag counts and priors as run, for the run meta."""
+        d = {"loss": self.kind, "n_rows": self.N, "n_P": self.n_P.tolist(), "n_U": self.n_U.tolist(),
+             "o": self.o.tolist()}
+        if self.prior is not None:
+            d.update(prior=self.prior.tolist(), pi_prime=self.pi_prime.tolist(), pi_U=self.pi_U.tolist())
+        if self.kind == "nnpu":
+            d.update(nnpu_beta=self.beta, nnpu_gamma=self.gamma)
+        return d
+
+    def __call__(self, out, yb, idx):
+        import torch
+        import torch.nn.functional as F
+        dev, b = out.device, out.shape[0]
+        m = self.mask[idx].to(dev)
+        a = self.affirmed[idx].to(dev)[:, None]
+        if self.kind == "bce":
+            v = (m * F.binary_cross_entropy_with_logits(out, yb, reduction="none")).sum() / (b * self.T)
+            return v, v, None
+        if self.kind == "soft":
+            pi_u = torch.tensor(self.pi_U, dtype=out.dtype, device=dev)
+            target = yb + (1 - yb) * (1 - a) * pi_u
+            v = (m * F.binary_cross_entropy_with_logits(out, target, reduction="none")).sum() / (b * self.T)
+            return v, v, None
+
+        def f(x):
+            return torch.tensor(x, dtype=out.dtype, device=dev)
+        pu, hf = m * (1 - a), m * a
+        l_pos, l_neg = F.softplus(-out), F.softplus(out)               # l(z, +1), l(z, -1)
+        hf_term = (hf * F.binary_cross_entropy_with_logits(out, yb, reduction="none")).sum(0) / b
+        e_p_pos = (self.N / b) * f(self.inv_n_P) * (pu * yb * l_pos).sum(0)
+        # B_t = E_U[l-] - pi' E_P[l-], regrouped per cell so that pi' = o gives k_P = 0 exactly:
+        # (N / b) * (sum_untagged l- / n_U + (1 / n_U - pi' / n_P) * sum_tagged l-). Computed as the
+        # plain difference, float rounding made B_t = -1e-8 on an all-positive batch and fired the
+        # ascent step where the maths says B_t >= 0.
+        bracket = (self.N / b) * (f(self.inv_n_U) * (pu * (1 - yb) * l_neg).sum(0)
+                                  + f(self.k_P) * (pu * yb * l_neg).sum(0))
+        pi = f(self.pi_prime)
+        w = f(self.n_U) / self.N
+        risk = w * (pi * e_p_pos + bracket.clamp(min=0))
+        fired = bracket.detach() < -self.beta
+        obj = torch.where(fired, w * (-self.gamma * bracket), risk)
+        value = (risk + hf_term).sum() / self.T
+        objective = (obj + hf_term).sum() / self.T
+        return objective, value, fired.cpu()
+
+
+def make_loss(kind, tr, tags, mask_csv=None, prior_json=None, beta=0.0, gamma=1.0):
+    """The ``TagLoss`` for ``train``'s flags, or None for ``--loss bce`` with no ``--mask-csv``
+    (the recipe's own ``nn.BCEWithLogitsLoss()`` path, bit for bit)."""
+    if kind == "bce" and not mask_csv:
+        return None
+    mask = load_mask(mask_csv, tr, tags) if mask_csv else None
+    aff = tr["affirmed"].to_numpy() if "affirmed" in tr.columns else None
+    prior = load_prior(prior_json, tags) if prior_json else None
+    return TagLoss(kind, tr[tags].to_numpy(np.float32), mask=mask, affirmed=aff, prior=prior,
+                   beta=beta, gamma=gamma)
+
+
+# ----------------------------------------------------------------------------- train loop
+
 #: Written every epoch by ``train``; ``train --resume`` continues from it.
 CHECKPOINT_NAME = "checkpoint.pth"
 
 
-def run_training(model, X, Y, *, epochs, batch, lr, seed, out_dir, device, resume=False, fingerprint=None):
+def run_training(model, X, Y, *, epochs, batch, lr, seed, out_dir, device, resume=False, fingerprint=None,
+                 loss_fn=None, tags=None):
     """The recipe's training loop, factored out of ``cmd_train`` so a small stand-in model can be
     driven through it on CPU (``tests/test_tag_trainer_86.py``). Behaviour is the pre-factoring
     loop's, statement for statement: Adam(lr), a ``torch.Generator`` seeded with ``seed`` whose
@@ -1115,6 +1298,10 @@ def run_training(model, X, Y, *, epochs, batch, lr, seed, out_dir, device, resum
     next ``randperm``. ``fingerprint`` (a JSON-able dict of the settings a resume must not
     change) must match the checkpoint's or the resume is refused; ``epochs`` is deliberately
     not in it, so a finished run can be extended.
+
+    ``loss_fn`` None is the recipe's ``nn.BCEWithLogitsLoss()``; otherwise a ``TagLoss``, called
+    as ``loss_fn(logits, yb, idx)``. For nnPU the log row also carries, per tag in ``tags``, the
+    fraction of the epoch's steps on which the non-negative correction fired (``clamp:<tag>``).
 
     Returns ``(log_rows, resumed_from_epoch)``, the latter None for a fresh start.
 
@@ -1158,15 +1345,20 @@ def run_training(model, X, Y, *, epochs, batch, lr, seed, out_dir, device, resum
         model.train()
         te = time.time()
         perm = torch.randperm(len(X), generator=g)
-        losses, accs = [], []
+        losses, accs, fires = [], [], []
         for i in range(0, len(perm), batch):
             idx = perm[i:i + batch]
             xb = (batch_pixels(X, idx).to(dev).float() / 255.0 - mean) / std
             yb = Y[idx].to(dev)
             opt.zero_grad()
             out = model(xb).squeeze(dim=1)
-            loss = crit(out, yb)
-            loss.backward()
+            if loss_fn is None:
+                loss = objective = crit(out, yb)
+            else:
+                objective, loss, fired = loss_fn(out, yb, idx)
+                if fired is not None:
+                    fires.append(fired.numpy())
+            objective.backward()
             opt.step()
             losses.append(loss.item())
             pred = (torch.sigmoid(out) > 0.5).float()
@@ -1179,6 +1371,8 @@ def run_training(model, X, Y, *, epochs, batch, lr, seed, out_dir, device, resum
                        os.path.join(out_dir, "best.pth"))
             saved = "best"
         row = {"epoch": epoch, "loss": el, "train_exact_match_acc": ea, "epoch_s": time.time() - te, "saved": saved}
+        if fires:
+            row.update({f"clamp:{t}": float(v) for t, v in zip(tags, np.mean(fires, axis=0))})
         log_rows.append(row)
         print(json.dumps(_round(row, 5)), flush=True)
         write_csv(pd.DataFrame(log_rows), os.path.join(out_dir, "train_log.csv"))
@@ -1217,12 +1411,17 @@ def cmd_train(args):
     prep_s = time.time() - t0
     dev = torch.device("cuda")
     model = build_model(args.tagger_repo, len(tags), backbone=args.backbone).to(dev)
+    loss_fn = make_loss(args.loss, tr, tags, mask_csv=args.mask_csv, prior_json=args.prior,
+                        beta=args.nnpu_beta, gamma=args.nnpu_gamma)
     fingerprint = {"n_train": int(len(tr)), "tags": tags, "lr": args.lr, "batch": args.batch, "seed": args.seed,
-                   "label_uids_sha256": hashlib.sha256("\n".join(tr.label_uid.astype(str)).encode()).hexdigest()}
+                   "label_uids_sha256": hashlib.sha256("\n".join(tr.label_uid.astype(str)).encode()).hexdigest(),
+                   "loss": args.loss, "nnpu_beta": args.nnpu_beta, "nnpu_gamma": args.nnpu_gamma,
+                   "mask_sha256": sha256_file(args.mask_csv) if args.mask_csv else None,
+                   "prior_sha256": sha256_file(args.prior) if args.prior else None}
     t_train = time.time()
     log_rows, resumed_from = run_training(model, X, Y, epochs=args.epochs, batch=args.batch, lr=args.lr,
                                           seed=args.seed, out_dir=args.out_dir, device=dev,
-                                          resume=args.resume, fingerprint=fingerprint)
+                                          resume=args.resume, fingerprint=fingerprint, loss_fn=loss_fn, tags=tags)
     torch.save({"epoch": args.epochs - 1, "model_state_dict": model.state_dict()},
                os.path.join(args.out_dir, "last.pth"))
     meta = {"tagger_sha": sha, "n_train": int(len(tr)), "tags": tags, "epochs": args.epochs, "lr": args.lr,
@@ -1232,6 +1431,10 @@ def cmd_train(args):
             "host": socket.getfqdn(), "gpu": torch.cuda.get_device_name(0), "torch": torch.__version__,
             "split_csv": os.path.basename(args.split_csv) if args.split_csv else "hf test.csv/train.csv",
             "ts": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
+    if loss_fn is not None:
+        meta.update(loss_summary=loss_fn.summary(), mask_csv=os.path.basename(args.mask_csv) if args.mask_csv else None,
+                    mask_sha256=fingerprint["mask_sha256"], prior=os.path.basename(args.prior) if args.prior else None,
+                    prior_sha256=fingerprint["prior_sha256"])
     if args.resume:
         meta.update(resumed_from_epoch=resumed_from, train_s_all_epochs=float(sum(r["epoch_s"] for r in log_rows)))
     if prep_meta is not None:
@@ -1542,6 +1745,12 @@ def main(argv=None):
     p.add_argument("--verify-prep", action="store_true", help="re-hash the --prep array before training")
     p.add_argument("--resume", action="store_true",
                    help="continue from <out-dir>/checkpoint.pth if present (else start fresh)")
+    p.add_argument("--loss", default="bce", choices=TagLoss.KINDS,
+                   help="bce (the recipe), nnpu (Kiryo et al. 2017 non-negative PU risk) or soft")
+    p.add_argument("--mask-csv", default=None, help="label_uid + one 0/1 column per masked tag (0 = no loss)")
+    p.add_argument("--prior", default=None, help="JSON {tag: pi_t}, every tag; needed by nnpu and soft")
+    p.add_argument("--nnpu-beta", type=float, default=0.0, help="nnPU: ascend when the bracket < -beta")
+    p.add_argument("--nnpu-gamma", type=float, default=1.0, help="nnPU: gradient-ascent step scale")
     p.add_argument("--backbone", required=True, help="dinov2_vitb14_reg4_pretrain.pth")
     p.add_argument("--epochs", type=int, default=100)
     p.add_argument("--lr", type=float, default=1e-6)

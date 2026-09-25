@@ -511,6 +511,50 @@ hold on any clone):
 | `ep4_relaunch_minus_dead_run.json` | §5.3 relaunch minus first launch at epoch index 4 | re-derived by the tests (point estimates) |
 | `as_run/snap.sh`, `as_run/infer_snap.sh` | the helper scripts as they ran on makelab2 | provenance only |
 
+### 6.1 Trainer options (infrastructure for the PU plan; nothing here has run)
+
+`train` gained three options for the positive-unlabeled plan (PR #182, `docs/pu_training_86.md`
+§5.4 and §8 decision 9, which are PROPOSED, not decided). **No committed number changed**: no
+run in this document used them, and the default path (the commands above) trains exactly as
+before. `tests/test_tag_trainer_86.py` proves that on CPU with a tiny stand-in model:
+`test_factored_loop_is_the_old_loop` and
+`test_make_loss_is_none_for_plain_bce_and_that_path_is_the_old_loop` compare the refactored loop
+with a verbatim copy of the pre-change loop (same per-step losses, same weights), and
+`test_decode_crop_is_the_old_in_memory_decode` does the same for the crop decode.
+
+- **`prep` / `train --prep FILE.npy`.** `prep --labels … [--split-csv …] --images … --out
+  FILE.npy [--workers N]` decodes the split's training crops once (the same `Resize((256,256))`
+  and pad to 266 as the in-memory path, one shared function) into a uint8 N×3×266×266 `.npy`,
+  written row by row, with a sidecar `FILE.npy.meta.json` holding the row order (`label_uids`),
+  the sha256 of the labels and split files, the image dirs and the sha256 of the array's data
+  bytes. `train --prep` maps it read-only and reads each batch's rows only, in the same
+  `randperm` order; it refuses an array whose row order or labels sha256 is not this table's
+  (`--verify-prep` also re-hashes the array). Without `--prep`, `--images` decodes in memory as
+  before.
+- **`train --resume`.** `train` now also writes `<out-dir>/checkpoint.pth` after every epoch
+  (model, Adam state, the shuffle generator's state, torch RNG state, epoch, best accuracy and
+  loss, the log rows, a settings fingerprint), by temp file and rename. For the DINOv2-B recipe
+  that is about three times the 347 MB model (weights plus Adam's two moments, arithmetic), on
+  every run including the default one. `--resume` continues from it if present and starts fresh
+  if not, so a requeued Slurm job can always pass it; a checkpoint written under a different
+  lr, batch, seed, tag list, row order, loss, mask or prior is refused. 1 epoch + resume + 1
+  epoch gives the same weights as 2 straight epochs, bit for bit on CPU
+  (`test_resume_gives_the_straight_run_bit_for_bit`).
+- **`train --loss {bce,nnpu,soft}`, `--mask-csv`, `--prior`, `--nnpu-beta`, `--nnpu-gamma`.**
+  `bce` without a mask is the recipe's `nn.BCEWithLogitsLoss()` call, untouched. The mask CSV
+  has a `label_uid` column and one 0/1 column per masked tag, named as the tag (0 = that
+  (label, tag) cell contributes no loss in any mode; a tag without a column is unmasked; every
+  training label needs a row). An optional `affirmed` 0/1 column in the labels table marks rows
+  whose absences are affirmed (the HF rows); they stay ordinary BCE under `nnpu` and `soft`.
+  `--prior` is a JSON object `{tag: π_t}` covering every tag. `nnpu` is the non-negative PU
+  risk of Kiryo et al. (NeurIPS 2017), case-control form, logistic loss, π′ = max(π_t, o_t)
+  with o_t the tag's observed rate over the table's unmasked non-affirmed cells, global
+  normalisation per plan §3.1, and the paper's gradient-ascent step when the bracket falls
+  below −β (default β = 0, γ = 1); the log gains a per-tag `clamp:<tag>` column (fraction of
+  steps the correction fired). `soft` is BCE toward π_U = max(0, (π′ − o)/(1 − o)) on untagged
+  non-affirmed cells. Each is unit-tested against hand-computed values, including π′ = o
+  reducing `nnpu` to the masked BCE term for term.
+
 ## 7. Cost
 
 makelab2 (1x A40), no Slurm, so every run is a `paid: false` row in

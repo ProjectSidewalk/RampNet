@@ -12,6 +12,7 @@ CPU only, synthetic crops, no network, no checkpoint. What must hold:
 """
 import argparse
 import hashlib
+import math
 import json
 import os
 import sys
@@ -258,3 +259,192 @@ def test_resume_without_a_checkpoint_starts_fresh_and_refuses_other_settings(tmp
     with pytest.raises(SystemExit, match="lr"):
         tb.run_training(_model(), X, Y, epochs=2, out_dir=str(tmp_path / "r"), resume=True,
                         fingerprint={"lr": 0.02}, **KW)
+
+
+# --------------------------------------------------------------------------- #
+# 3. the loss / mask switch
+# --------------------------------------------------------------------------- #
+def lp(z):
+    """l(z, +1) = log(1 + e^-z), by hand."""
+    return math.log1p(math.exp(-z))
+
+
+def ln(z):
+    """l(z, -1) = log(1 + e^z), by hand."""
+    return math.log1p(math.exp(z))
+
+
+def sig(z):
+    return 1 / (1 + math.exp(-z))
+
+
+# Table of N = 4 rows, T = 2 tags. tag 0: n_P = 2, n_U = 4, o = 0.5; tag 1: n_P = 1, n_U = 4, o = 0.25.
+Y4 = np.array([[1, 0], [0, 1], [0, 0], [1, 0]], np.float32)
+IDX = torch.tensor([0, 2])                    # batch b = 2: row 0 (tag 0 positive) and row 2 (untagged)
+Z = [[0.3, -1.2], [-0.5, 0.8]]
+
+
+def _call(loss, z=Z, idx=IDX):
+    out = torch.tensor(z, dtype=torch.float32, requires_grad=True)
+    obj, val, fired = loss(out, torch.from_numpy(Y4)[idx], idx)
+    return out, obj, val, fired
+
+
+def test_make_loss_is_none_for_plain_bce_and_that_path_is_the_old_loop(tmp_path):
+    """--loss bce without --mask-csv must be the recipe's own path: make_loss returns None, and
+    run_training with loss_fn=None gives the pre-change loop's per-step losses exactly."""
+    pytest.importorskip("sklearn")
+    tr = pd.DataFrame({"label_uid": ["c:0", "c:1"], "a": [0, 1]})
+    assert tb.make_loss("bce", tr, ["a"]) is None
+    X, Y = _data()
+    m_old, m_new = _model(), _model()
+    _, old_steps = _old_loop(m_old, X, Y, epochs=2, batch=4, lr=1e-2, seed=86, out_dir=str(tmp_path / "o"))
+    steps = []
+    orig = torch.nn.BCEWithLogitsLoss.forward
+
+    def spy(self, a, b):
+        v = orig(self, a, b)
+        steps.append(v.item())
+        return v
+    torch.nn.BCEWithLogitsLoss.forward = spy
+    try:
+        tb.run_training(m_new, X, Y, epochs=2, out_dir=str(tmp_path / "n"), loss_fn=None, **KW)
+    finally:
+        torch.nn.BCEWithLogitsLoss.forward = orig
+    assert len(steps) == len(old_steps) == 6
+    assert steps == old_steps and _same_weights(m_old, m_new)
+
+
+def test_masked_bce_by_hand_and_unmasked_equals_the_recipe():
+    mask = np.ones((4, 2), np.float32)
+    mask[2, 0] = 0                                             # row 2, tag 0 excluded
+    loss = tb.TagLoss("bce", Y4, mask=mask)
+    out, obj, val, fired = _call(loss)
+    want = (lp(0.3) + ln(-1.2) + 0 + ln(0.8)) / (2 * 2)       # row 0: y=(1,0); row 2: (masked, 0)
+    assert val.item() == pytest.approx(want, abs=1e-6) and obj is val and fired is None
+    plain = tb.TagLoss("bce", Y4)
+    out = torch.tensor(Z)
+    ref = torch.nn.BCEWithLogitsLoss()(out, torch.from_numpy(Y4)[IDX])
+    assert plain(out, torch.from_numpy(Y4)[IDX], IDX)[1].item() == pytest.approx(ref.item(), abs=1e-7)
+
+
+def test_nnpu_by_hand_positive_unlabeled_and_clamp():
+    # tag 0: prior 0.7 > o 0.5; tag 1: prior 0.1 < o 0.25 -> pi' = 0.25
+    loss = tb.TagLoss("nnpu", Y4, prior=[0.7, 0.1])
+    assert loss.pi_prime.tolist() == pytest.approx([0.7, 0.25])
+    cP0, cU = 4 / (2 * 2), 4 / (2 * 4)                         # N / (b n_P), N / (b n_U)
+    e_p_pos, e_p_neg = cP0 * lp(0.3), cP0 * ln(0.3)             # tag 0's batch positive: row 0
+    e_u_neg0 = cU * (ln(0.3) + ln(-0.5))                        # U* = every PU cell, tagged or not
+    br0 = e_u_neg0 - 0.7 * e_p_neg
+    assert br0 > 0
+    r0 = 1.0 * (0.7 * e_p_pos + br0)                            # weight n_U / N = 1
+    r1 = 1.0 * (cU * (ln(-1.2) + ln(0.8)))                      # no tag-1 positive in the batch: E_P = 0
+    out, obj, val, fired = _call(loss)
+    assert val.item() == pytest.approx((r0 + r1) / 2, abs=1e-6)
+    assert obj.item() == pytest.approx(val.item(), abs=1e-7) and not fired.any()
+    # the censoring form (U = untagged only, prior pi_U = (pi - o) / (1 - o)) is the same risk
+    n_uu, pi_u = 2, (0.7 - 0.5) / (1 - 0.5)
+    cens = 0.7 * e_p_pos + (1 - 0.5) * max(0.0, 4 / (2 * n_uu) * ln(-0.5) - pi_u * e_p_neg)
+    assert cens == pytest.approx(r0, abs=1e-12)
+
+    # prior 0.9 on tag 0: the bracket goes negative -> clamped value, gradient ascent on the bracket
+    loss = tb.TagLoss("nnpu", Y4, prior=[0.9, 0.1])
+    br0 = e_u_neg0 - 0.9 * e_p_neg
+    assert br0 < 0
+    out, obj, val, fired = _call(loss)
+    assert fired.tolist() == [True, False]
+    assert val.item() == pytest.approx((0.9 * e_p_pos + r1) / 2, abs=1e-6)       # max(0, .) = 0
+    assert obj.item() == pytest.approx((-1.0 * br0 + r1) / 2, abs=1e-6)          # -gamma * bracket
+    obj.backward()
+    # d/dz of -B_0 / 2 at row 0 (a positive): -(cU - 0.9 cP) sigmoid(0.3) / 2; row 2: -cU sigmoid(-0.5) / 2
+    assert out.grad[0, 0].item() == pytest.approx(-(cU - 0.9 * cP0) * sig(0.3) / 2, abs=1e-6)
+    assert out.grad[1, 0].item() == pytest.approx(-cU * sig(-0.5) / 2, abs=1e-6)
+    # beta above |bracket|: no ascent, and the clamp holds the bracket's gradient at 0
+    loss = tb.TagLoss("nnpu", Y4, prior=[0.9, 0.1], beta=1.0)
+    out, obj, val, fired = _call(loss)
+    assert not fired.any() and obj.item() == pytest.approx(val.item(), abs=1e-7)
+    obj.backward()
+    assert out.grad[1, 0].item() == 0.0
+    assert out.grad[0, 0].item() == pytest.approx(-0.9 * cP0 * sig(-0.3) / 2, abs=1e-6)   # d l(z,+1) / dz
+
+
+def test_nnpu_with_pi_prime_equal_o_is_naive_with_mask_and_affirmed_rows():
+    """pi' = o (here: prior 0 everywhere, so pi' = max(0, o) = o) must give the naive masked BCE
+    term for term, on a random table with masked cells and affirmed rows."""
+    rng = np.random.default_rng(3)
+    Y = (rng.random((40, 3)) < 0.3).astype(np.float32)
+    mask = (rng.random((40, 3)) > 0.2).astype(np.float32)
+    aff = (rng.random(40) < 0.25).astype(np.float32)
+    naive = tb.TagLoss("bce", Y, mask=mask, affirmed=aff)
+    pu = tb.TagLoss("nnpu", Y, mask=mask, affirmed=aff, prior=[0.0, 0.0, 0.0])
+    assert np.allclose(pu.pi_prime, pu.o)
+    g = torch.Generator().manual_seed(0)
+    for _ in range(5):
+        idx = torch.randperm(40, generator=g)[:4]
+        z = torch.randn((4, 3), generator=g)
+        yb = torch.from_numpy(Y)[idx]
+        a = naive(z, yb, idx)[1].item()
+        obj, val, fired = pu(z, yb, idx)
+        assert val.item() == pytest.approx(a, abs=1e-6) and obj.item() == pytest.approx(a, abs=1e-6)
+        assert not fired.any()
+
+
+@pytest.mark.parametrize("kind", ["bce", "nnpu", "soft"])
+def test_a_masked_cell_contributes_nothing(kind):
+    mask = np.ones((4, 2), np.float32)
+    mask[2, 0] = 0
+    loss = tb.TagLoss(kind, Y4, mask=mask, prior=[0.7, 0.1])
+    out, obj, val, _ = _call(loss)
+    obj.backward()
+    assert out.grad[1, 0].item() == 0.0                         # row 2 is batch row 1
+    z2 = [list(Z[0]), [5.0, Z[1][1]]]
+    assert _call(loss, z=z2)[2].item() == pytest.approx(val.item(), abs=1e-7)
+
+
+def test_soft_target_by_hand():
+    loss = tb.TagLoss("soft", Y4, prior=[0.7, 0.1])
+    assert loss.pi_U.tolist() == pytest.approx([0.4, 0.0])      # (0.7 - 0.5) / (1 - 0.5); tag 1 clamped
+    out, obj, val, fired = _call(loss)
+
+    def bce(z, t):
+        return t * lp(z) + (1 - t) * ln(z)
+    want = (bce(0.3, 1) + bce(-1.2, 0) + bce(-0.5, 0.4) + bce(0.8, 0)) / 4
+    assert val.item() == pytest.approx(want, abs=1e-6) and fired is None
+    # an affirmed row's untagged cell is a hard 0, and affirmed rows leave o (PU cells only)
+    aff = np.array([0, 0, 1, 0], np.float32)
+    loss = tb.TagLoss("soft", Y4, affirmed=aff, prior=[0.7, 0.1])
+    assert loss.o.tolist() == pytest.approx([2 / 3, 1 / 3])
+    want = (bce(0.3, 1) + bce(-1.2, 0) + bce(-0.5, 0) + bce(0.8, 0)) / 4
+    assert _call(loss)[2].item() == pytest.approx(want, abs=1e-6)
+
+
+def test_mask_and_prior_files(tmp_path):
+    tr = pd.DataFrame({"label_uid": ["c:0", "c:1", "c:2"], "a": [1, 0, 0], "b": [0, 0, 1]})
+    p = tmp_path / "m.csv"
+    pd.DataFrame({"label_uid": ["c:2", "c:0", "c:1"], "a": [0, 1, 1]}).to_csv(p, index=False)
+    m = tb.load_mask(str(p), tr, ["a", "b"])
+    assert m.tolist() == [[1, 1], [1, 1], [0, 1]]                # joined on label_uid; b absent = unmasked
+    pd.DataFrame({"label_uid": ["c:0", "c:1"], "a": [1, 1]}).to_csv(p, index=False)
+    with pytest.raises(SystemExit, match="no row"):
+        tb.load_mask(str(p), tr, ["a", "b"])
+    pd.DataFrame({"label_uid": ["c:0", "c:1", "c:2"], "typo": [1, 1, 1]}).to_csv(p, index=False)
+    with pytest.raises(SystemExit, match="typo"):
+        tb.load_mask(str(p), tr, ["a", "b"])
+    q = tmp_path / "prior.json"
+    q.write_text(json.dumps({"a": 0.4}))
+    with pytest.raises(SystemExit, match="missing"):
+        tb.load_prior(str(q), ["a", "b"])
+    q.write_text(json.dumps({"a": 0.4, "b": 0.1}))
+    assert tb.load_prior(str(q), ["a", "b"]).tolist() == [0.4, 0.1]
+    with pytest.raises(SystemExit, match="--prior"):
+        tb.make_loss("nnpu", tr, ["a", "b"])
+
+
+def test_nnpu_through_the_loop_logs_the_clamp_rate(tmp_path):
+    pytest.importorskip("sklearn")
+    X, Y = _data()
+    loss = tb.TagLoss("nnpu", Y.numpy(), prior=[0.5, 0.5, 0.5])
+    rows, _ = tb.run_training(_model(), X, Y, epochs=2, out_dir=str(tmp_path), loss_fn=loss,
+                              tags=["a", "b", "c"], **KW)
+    assert all(0.0 <= r[f"clamp:{t}"] <= 1.0 for r in rows for t in "abc")
+    assert np.isfinite([r["loss"] for r in rows]).all()
