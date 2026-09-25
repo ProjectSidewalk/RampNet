@@ -581,3 +581,24 @@ def test_prod_pull_reaches_the_api():
     assert len(pulls) == 2 and all(p["sha256"] for p in pulls.values())
     assert all(r["user_id"] != trp.RATER_IDS["jonfroehlich"] for r in others)
     assert all(r["user_id"] == trp.RATER_IDS["jonfroehlich"] for r in edits + vals)
+
+
+def test_gallery_links_one_per_city_in_item_order_and_split_at_the_cap():
+    def row(item, city, lid, host):
+        return {"item_id": item, "city": city, "label_id": str(lid),
+                "editor_url": f"https://{host}/gallery?labelType=CurbRamp&labelId={lid}"}
+    rows = [row("tr0003", "b", 30, "hb"), row("tr0001", "b", 10, "hb"), row("tr0002", "a", 20, "ha"),
+            row("tr0005", "b", 50, "hb"), row("tr0004", "b", 40, "hb")]
+    links = trl.gallery_links(rows, max_ids=3)
+    assert [(g["city"], g["part"]) for g in links] == [("a", 1), ("b", 1), ("b", 2)]
+    assert links[1]["url"] == "https://hb/gallery?labelIds=10,30,40"
+    assert links[2]["item_ids"] == ["tr0005"]
+    with pytest.raises(ValueError):
+        trl.gallery_links(rows + [row("tr0006", "a", 60, "other")])
+
+
+def test_committed_list_fits_one_gallery_link_per_city():
+    rows = trl.read_list(LIST)
+    links = trl.gallery_links(rows)
+    assert all(g["part"] == 1 for g in links)
+    assert sum(len(g["label_ids"]) for g in links) == len(rows)

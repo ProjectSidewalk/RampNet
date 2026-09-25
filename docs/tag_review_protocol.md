@@ -23,11 +23,25 @@ describe how it would run, and the tooling for it stays built.
 
 ## The rater: on production
 
-For each row of the list, in `item_id` order:
+Each deployment is its own server, so the list is reviewed one city at a time. Print one gallery
+link per city with
 
-1. **Open `editor_url`** (`https://<host>/gallery?labelType=CurbRamp&labelId=<id>`) signed in as
-   an Owner or Administrator. `labelmap_url` opens the same label on the label map if the gallery
-   view is not enough.
+```bash
+python scripts/analysis/tag_review_list.py links
+```
+
+Each link is `https://<host>/gallery?labelIds=<id>,<id>,...` (SidewalkWebpage PR #5445, on
+production since 2026-09-24): exactly that city's items, in `item_id` order, as a queue in the
+normal gallery editor, with a **k of N** position chip in the expanded view. Ids the server cannot
+show (deleted, imagery gone with no crop) are listed above the grid; treat those items as not
+reviewed. The gallery shows label ids, not `item_id`s, so look up the `item_id` for a sidecar row by
+`label_uid` (`<city>:<label_id>`) in the list.
+
+For each item:
+
+1. **Open it** in the city's gallery link, signed in as an Owner or Administrator. `editor_url`
+   (`https://<host>/gallery?labelType=CurbRamp&labelId=<id>`) opens a single item on its own;
+   `labelmap_url` opens it on the label map if the gallery view is not enough.
 2. **Is it a curb ramp?** If not, vote **Disagree** and go to the next item.
 3. **If you cannot tell whether it is a curb ramp** (occluded, too far, dark, hidden under snow or
    ice), vote **Unsure** and go to the next item. If it is clearly a ramp but its tags cannot be
