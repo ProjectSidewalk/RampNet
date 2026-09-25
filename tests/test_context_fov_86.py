@@ -174,3 +174,41 @@ def test_crops_as_trained_listing_matches_the_labels_and_the_manifests():
             assert h != cut[name]["sha256"], name
         else:
             assert h == cut[name]["sha256"], name
+
+
+def test_matched_px_reproduces_the_docs_resolution_numbers():
+    """docs/context_fov_86.md section 2: 10.1 / 4.8 / 2.2 px per degree at the model's 256 px
+    input for 25 / 50 / 90 deg, and section 4's "a 25 deg view rendered at about 57 px"."""
+    assert round(cf.centre_px_per_deg(25, 256), 1) == 10.1
+    assert round(cf.centre_px_per_deg(50, 256), 1) == 4.8
+    assert round(cf.centre_px_per_deg(90, 256), 1) == 2.2
+    assert cf.matched_px(25, 90) == 57
+    assert cf.matched_px(25, 50) == 122
+    assert cf.matched_px(25, 25) == 256
+    assert cf.RES_ARMS == ("fov25px122", "fov25px57")
+
+
+def test_downsample_writes_px_crops_and_labels_and_is_resumable(tmp_path):
+    from PIL import Image
+    images = tmp_path / "crops"
+    images.mkdir()
+    rows = []
+    for city, lid in (("amsterdam", 10087), ("seattle", 5)):
+        name = cf.crop_name(city, lid, "fov25")
+        Image.new("RGB", (640, 640), (120, 80, 40)).save(images / name, quality=92)
+        rows.append({"label_uid": f"{city}:{lid}", "city": city, "label_id": lid, "split": "train",
+                     "filename": name, "missing tactile warning": 1})
+    lab = pd.DataFrame(rows)
+    t, summary, listing = cf.downsample_arm(lab, "fov25", "fov90", str(images))
+    assert list(t.filename) == ["amsterdam__10087__fov25px57.jpg", "seattle__5__fov25px57.jpg"]
+    assert summary["px"] == 57 and summary["written"] == 2 and summary["kept"] == 0
+    for name in t.filename:
+        with Image.open(images / name) as im:
+            assert im.size == (57, 57)
+    assert [n for n, _ in listing] == list(t.filename)
+    # the label columns other than filename are untouched
+    assert list(t["missing tactile warning"]) == [1, 1]
+    # a second pass keeps what is on disk
+    t2, summary2, _ = cf.downsample_arm(lab, "fov25", "fov90", str(images))
+    assert summary2["written"] == 0 and summary2["kept"] == 2
+    assert list(t2.filename) == list(t.filename)

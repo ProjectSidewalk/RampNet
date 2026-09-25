@@ -25,6 +25,16 @@
 #   contrast    CPU: every arm minus the control (all test rows, then leak-free rows only), and
 #               every wider arm minus viewport, paired on the same rows and pano draws
 #   report      CPU: the summary table
+# The resolution arms (fov25 downsampled to fov50's / fov90's centre resolution, the
+# "arm that separates resolution from context" of docs/context_fov_86.md section 4):
+#   downsample  klone, CPU (a Slurm CPU allocation, not a login node): from $WORK/crops's fov25
+#               crops -> the fov25px122 and fov25px57 crops beside them, labels_<arm>.csv,
+#               crops_as_trained_<arm>.sha256, downsample_<arm>.json
+#   train       with ARMS="fov25px122 fov25px57": one job per arm, as for the fov arms
+#   res-contrast CPU: each resolution arm minus fov25 (same scene, fewer pixels), minus the
+#               fov arm it matches (same pixels, less street: fov25px57 vs fov90, fov25px122 vs
+#               fov50), and minus the control; all rows and leak-free rows
+#   res-report  CPU: the summary table over all six arms (summary_res.{json,md})
 # CONTROL picks which control the last three stages read (default final):
 #   final    #178's 100-epoch control, analysis_out/tag_benchmark_86/train_control_final_test_predictions.csv
 #            (exists once `tag_benchmark_86.sh finish` has run and #178 is merged into this branch)
@@ -46,11 +56,12 @@ ARMS=${ARMS:-"viewport fov25 fov50 fov90"}
 STORE=${STORE:-/projects/makeabilitylab/sidewalk_panos/Panoramas}
 WORKERS=${WORKERS:-12}
 CONTROL=${CONTROL:-final}
+RES_ARMS=${RES_ARMS:-"fov25px122 fov25px57"}
 STAGES=${*:-}
-[ -n "$STAGES" ] || { echo "usage: $0 <stage...>  (cut-input cut labels pack unpack train interim-infer control contrast report)" >&2; exit 2; }
+[ -n "$STAGES" ] || { echo "usage: $0 <stage...>  (cut-input cut labels pack unpack train interim-infer control contrast report downsample res-contrast res-report)" >&2; exit 2; }
 has() { [[ " $STAGES " == *" $1 "* ]]; }
 
-for st in cut labels pack unpack train; do
+for st in cut labels pack unpack train downsample; do
   if has $st; then
     WORK=${WORK:?set WORK to a scratch directory (stage $st needs it)}
     mkdir -p "$WORK"
@@ -159,4 +170,27 @@ fi
 if has report; then
   $PY $S report --out-dir $OUT --control-scores $OUT/${CP}_scores.json --control-label "$CONTROL_LABEL" \
     --arms $ARMS --out-stem $STEM
+fi
+if has downsample; then
+  $PY $S downsample --labels $OUT/labels_fov25.csv --images "$WORK/crops" --out-dir $OUT
+fi
+if has res-contrast; then
+  for SUB in full leak_free; do
+    SFX=$([ "$SUB" = full ] && echo "" || echo "_leak_free")
+    # same scene, fewer pixels: each resolution arm minus fov25
+    $PY $S contrast --reference fov25 --reference-pred $OUT/train_fov25_final_test_predictions.csv \
+      --reference-labels $OUT/labels_fov25.csv --arms $RES_ARMS --subset $SUB --out $OUT/contrast_res_vs_fov25$SFX.json
+    # same pixels, less street: each resolution arm minus the fov arm whose centre resolution it matches
+    $PY $S contrast --reference fov90 --reference-pred $OUT/train_fov90_final_test_predictions.csv \
+      --reference-labels $OUT/labels_fov90.csv --arms fov25px57 --subset $SUB --out $OUT/contrast_fov25px57_vs_fov90$SFX.json
+    $PY $S contrast --reference fov50 --reference-pred $OUT/train_fov50_final_test_predictions.csv \
+      --reference-labels $OUT/labels_fov50.csv --arms fov25px122 --subset $SUB --out $OUT/contrast_fov25px122_vs_fov50$SFX.json
+    # and minus the control, as the fov arms were
+    $PY $S contrast --reference $CP --reference-pred $OUT/${CP}_test_predictions.csv \
+      --reference-labels $TBOUT/hf_curbramp_labels.csv --arms $RES_ARMS --subset $SUB --out $OUT/contrast_res_vs_${CP}$SFX.json
+  done
+fi
+if has res-report; then
+  $PY $S report --out-dir $OUT --control-scores $OUT/${CP}_scores.json --control-label "$CONTROL_LABEL" \
+    --arms $ARMS $RES_ARMS --out-stem ${STEM}_res
 fi
