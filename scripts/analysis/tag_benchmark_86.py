@@ -1092,6 +1092,106 @@ def batch_pixels(X, idx):
     return X[idx]
 
 
+#: Written every epoch by ``train``; ``train --resume`` continues from it.
+CHECKPOINT_NAME = "checkpoint.pth"
+
+
+def run_training(model, X, Y, *, epochs, batch, lr, seed, out_dir, device, resume=False, fingerprint=None):
+    """The recipe's training loop, factored out of ``cmd_train`` so a small stand-in model can be
+    driven through it on CPU (``tests/test_tag_trainer_86.py``). Behaviour is the pre-factoring
+    loop's, statement for statement: Adam(lr), a ``torch.Generator`` seeded with ``seed`` whose
+    ``randperm`` sets each epoch's order, batches of ``batch`` rows, pixels /255 then ImageNet
+    mean/std on ``device``, BCE-with-logits, ``best.pth`` kept by best training exact-match
+    accuracy (ties -> lower loss), ``train_log.csv`` rewritten every epoch.
+
+    Resume. After every epoch the loop also writes ``checkpoint.pth`` (to a temp name, then an
+    atomic rename): model and optimizer state, the shuffle generator's state, torch's global
+    CPU/CUDA RNG state, the last finished epoch, ``best_acc``/``best_loss``, the log rows and
+    ``fingerprint``. With ``resume=True`` and a checkpoint present, all of that is loaded and
+    the loop starts at the next epoch; without a checkpoint it starts fresh, so a requeued job
+    can always pass ``--resume``. Everything the next epoch depends on comes from the
+    checkpoint, never from the process (the rule ``docs/stage2_cosine_rung_135.md`` states for
+    the stateless LR schedule): there is no scheduler, and the epoch's order is the generator's
+    next ``randperm``. ``fingerprint`` (a JSON-able dict of the settings a resume must not
+    change) must match the checkpoint's or the resume is refused; ``epochs`` is deliberately
+    not in it, so a finished run can be extended.
+
+    Returns ``(log_rows, resumed_from_epoch)``, the latter None for a fresh start.
+
+    Usage (the resume test, abridged)::
+
+        run_training(m1, X, Y, epochs=2, ..., out_dir=a)                 # straight
+        run_training(m2, X, Y, epochs=1, ..., out_dir=b)                 # killed after epoch 0
+        run_training(m3, X, Y, epochs=2, ..., out_dir=b, resume=True)    # requeued
+        # m3's weights == m1's, bit for bit (CPU)
+    """
+    import torch
+    from torch import nn, optim
+    from sklearn.metrics import accuracy_score
+    dev = device
+    mean = torch.tensor([0.485, 0.456, 0.406], device=dev).view(1, 3, 1, 1)
+    std = torch.tensor([0.229, 0.224, 0.225], device=dev).view(1, 3, 1, 1)
+    opt = optim.Adam(model.parameters(), lr=lr)
+    crit = nn.BCEWithLogitsLoss()
+    os.makedirs(out_dir, exist_ok=True)
+    log_rows, best_acc, best_loss = [], 0.0, 100.0
+    g = torch.Generator().manual_seed(seed)
+    ckpt_path = os.path.join(out_dir, CHECKPOINT_NAME)
+    start, resumed_from = 0, None
+    if resume and os.path.exists(ckpt_path):
+        ck = torch.load(ckpt_path, map_location="cpu")
+        if ck["fingerprint"] != fingerprint:
+            diff = sorted(k for k in set(ck["fingerprint"] or {}) | set(fingerprint or {})
+                          if (ck["fingerprint"] or {}).get(k) != (fingerprint or {}).get(k))
+            raise SystemExit(f"{ckpt_path}: written under different settings ({', '.join(diff)}); "
+                             "refusing to resume")
+        model.load_state_dict(ck["model_state_dict"])
+        opt.load_state_dict(ck["optimizer_state_dict"])
+        g.set_state(ck["generator_state"])
+        torch.set_rng_state(ck["torch_rng_state"])
+        if ck.get("cuda_rng_state") is not None and torch.cuda.is_available():
+            torch.cuda.set_rng_state_all(ck["cuda_rng_state"])
+        log_rows, best_acc, best_loss = ck["log_rows"], ck["best_acc"], ck["best_loss"]
+        start = resumed_from = ck["epoch"] + 1
+        print(f"resuming at epoch {start} from {ckpt_path}", flush=True)
+    for epoch in range(start, epochs):
+        model.train()
+        te = time.time()
+        perm = torch.randperm(len(X), generator=g)
+        losses, accs = [], []
+        for i in range(0, len(perm), batch):
+            idx = perm[i:i + batch]
+            xb = (batch_pixels(X, idx).to(dev).float() / 255.0 - mean) / std
+            yb = Y[idx].to(dev)
+            opt.zero_grad()
+            out = model(xb).squeeze(dim=1)
+            loss = crit(out, yb)
+            loss.backward()
+            opt.step()
+            losses.append(loss.item())
+            pred = (torch.sigmoid(out) > 0.5).float()
+            accs.append(accuracy_score(yb.cpu().numpy(), pred.detach().cpu().numpy()))
+        el, ea = float(np.mean(losses)), float(np.mean(accs))
+        saved = ""
+        if ea > best_acc or (ea == best_acc and el < best_loss):
+            best_acc, best_loss = ea, el
+            torch.save({"epoch": epoch, "model_state_dict": model.state_dict(), "loss": el},
+                       os.path.join(out_dir, "best.pth"))
+            saved = "best"
+        row = {"epoch": epoch, "loss": el, "train_exact_match_acc": ea, "epoch_s": time.time() - te, "saved": saved}
+        log_rows.append(row)
+        print(json.dumps(_round(row, 5)), flush=True)
+        write_csv(pd.DataFrame(log_rows), os.path.join(out_dir, "train_log.csv"))
+        torch.save({"epoch": epoch, "model_state_dict": model.state_dict(),
+                    "optimizer_state_dict": opt.state_dict(), "generator_state": g.get_state(),
+                    "torch_rng_state": torch.get_rng_state(),
+                    "cuda_rng_state": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None,
+                    "best_acc": best_acc, "best_loss": best_loss, "log_rows": log_rows,
+                    "fingerprint": fingerprint}, ckpt_path + ".tmp")
+        os.replace(ckpt_path + ".tmp", ckpt_path)
+    return log_rows, resumed_from
+
+
 def cmd_train(args):
     """The tagger's DINOv2 recipe (notebooks/dino-trainer.ipynb at TAGGER_SHA): full
     fine-tune, Adam lr 1e-6, batch 4, shuffle, BCEWithLogitsLoss, 100 epochs, no
@@ -1100,8 +1200,6 @@ def cmd_train(args):
     deterministic preprocessing is computed once and cached in memory (identical tensors,
     much faster epochs). ``--prep`` maps a ``prep`` array instead of decoding (same bytes)."""
     import torch
-    from torch import nn, optim
-    from sklearn.metrics import accuracy_score
     sha = check_tagger(args.tagger_repo, args.tagger_sha)
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
@@ -1118,43 +1216,13 @@ def cmd_train(args):
     Y = torch.tensor(tr[tags].to_numpy(np.float32))
     prep_s = time.time() - t0
     dev = torch.device("cuda")
-    mean = torch.tensor([0.485, 0.456, 0.406], device=dev).view(1, 3, 1, 1)
-    std = torch.tensor([0.229, 0.224, 0.225], device=dev).view(1, 3, 1, 1)
     model = build_model(args.tagger_repo, len(tags), backbone=args.backbone).to(dev)
-    opt = optim.Adam(model.parameters(), lr=args.lr)
-    crit = nn.BCEWithLogitsLoss()
-    os.makedirs(args.out_dir, exist_ok=True)
-    log_rows, best_acc, best_loss = [], 0.0, 100.0
-    g = torch.Generator().manual_seed(args.seed)
+    fingerprint = {"n_train": int(len(tr)), "tags": tags, "lr": args.lr, "batch": args.batch, "seed": args.seed,
+                   "label_uids_sha256": hashlib.sha256("\n".join(tr.label_uid.astype(str)).encode()).hexdigest()}
     t_train = time.time()
-    for epoch in range(args.epochs):
-        model.train()
-        te = time.time()
-        perm = torch.randperm(len(X), generator=g)
-        losses, accs = [], []
-        for i in range(0, len(perm), args.batch):
-            idx = perm[i:i + args.batch]
-            xb = (batch_pixels(X, idx).to(dev).float() / 255.0 - mean) / std
-            yb = Y[idx].to(dev)
-            opt.zero_grad()
-            out = model(xb).squeeze(dim=1)
-            loss = crit(out, yb)
-            loss.backward()
-            opt.step()
-            losses.append(loss.item())
-            pred = (torch.sigmoid(out) > 0.5).float()
-            accs.append(accuracy_score(yb.cpu().numpy(), pred.detach().cpu().numpy()))
-        el, ea = float(np.mean(losses)), float(np.mean(accs))
-        saved = ""
-        if ea > best_acc or (ea == best_acc and el < best_loss):
-            best_acc, best_loss = ea, el
-            torch.save({"epoch": epoch, "model_state_dict": model.state_dict(), "loss": el},
-                       os.path.join(args.out_dir, "best.pth"))
-            saved = "best"
-        row = {"epoch": epoch, "loss": el, "train_exact_match_acc": ea, "epoch_s": time.time() - te, "saved": saved}
-        log_rows.append(row)
-        print(json.dumps(_round(row, 5)), flush=True)
-        write_csv(pd.DataFrame(log_rows), os.path.join(args.out_dir, "train_log.csv"))
+    log_rows, resumed_from = run_training(model, X, Y, epochs=args.epochs, batch=args.batch, lr=args.lr,
+                                          seed=args.seed, out_dir=args.out_dir, device=dev,
+                                          resume=args.resume, fingerprint=fingerprint)
     torch.save({"epoch": args.epochs - 1, "model_state_dict": model.state_dict()},
                os.path.join(args.out_dir, "last.pth"))
     meta = {"tagger_sha": sha, "n_train": int(len(tr)), "tags": tags, "epochs": args.epochs, "lr": args.lr,
@@ -1164,6 +1232,8 @@ def cmd_train(args):
             "host": socket.getfqdn(), "gpu": torch.cuda.get_device_name(0), "torch": torch.__version__,
             "split_csv": os.path.basename(args.split_csv) if args.split_csv else "hf test.csv/train.csv",
             "ts": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
+    if args.resume:
+        meta.update(resumed_from_epoch=resumed_from, train_s_all_epochs=float(sum(r["epoch_s"] for r in log_rows)))
     if prep_meta is not None:
         meta.update(prep=os.path.basename(args.prep), prep_array_sha256=prep_meta["array_sha256"],
                     prep_verified=bool(args.verify_prep))
@@ -1470,6 +1540,8 @@ def main(argv=None):
                    help="prepared crop dir(s), searched in order (decoded in memory; the default path)")
     p.add_argument("--prep", default=None, help="a `prep` .npy to map instead of decoding --images")
     p.add_argument("--verify-prep", action="store_true", help="re-hash the --prep array before training")
+    p.add_argument("--resume", action="store_true",
+                   help="continue from <out-dir>/checkpoint.pth if present (else start fresh)")
     p.add_argument("--backbone", required=True, help="dinov2_vitb14_reg4_pretrain.pth")
     p.add_argument("--epochs", type=int, default=100)
     p.add_argument("--lr", type=float, default=1e-6)

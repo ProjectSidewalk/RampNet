@@ -1,10 +1,14 @@
-"""Tests for the tag trainer's infrastructure (scripts/analysis/tag_benchmark_86.py ``prep`` and
-``train --prep``; #86, the trainer prerequisites of the PU plan, PR #182 decision 9).
+"""Tests for the tag trainer's infrastructure (scripts/analysis/tag_benchmark_86.py ``prep``,
+``train --prep``, ``train --resume``; #86, the trainer prerequisites of the PU plan, PR #182
+decision 9).
 
 CPU only, synthetic crops, no network, no checkpoint. What must hold:
 
 - the ``prep`` memmap holds exactly the bytes the in-memory decode holds, in the trainer's row
   order, and ``train --prep`` refuses an array prepared for a different table;
+- the factored training loop is the old loop, statement for statement (same losses, same
+  weights), and 1 epoch + resume + 1 epoch gives the same weights as 2 straight epochs. The real
+  backbone needs a GPU and a 350 MB checkpoint, so a tiny stand-in model goes through the loop;
 """
 import argparse
 import hashlib
@@ -123,3 +127,134 @@ def test_train_cli_keeps_images_as_the_default_path():
         tb.main(["train", "--tagger-repo", "x", "--images", "a", "b", "--backbone", "bb", "--out-dir", "o"])
     args = ct.call_args[0][0]
     assert args.images == ["a", "b"] and args.prep is None and not args.verify_prep
+
+
+# --------------------------------------------------------------------------- #
+# 2. the factored loop and resume
+# --------------------------------------------------------------------------- #
+class _Tiny(torch.nn.Module):
+    """A stand-in for the DINOv2 classifier: same input (normalised N x 3 x H x W), T logits."""
+    def __init__(self, nc):
+        super().__init__()
+        self.body = torch.nn.Sequential(torch.nn.Conv2d(3, 4, 3), torch.nn.ReLU(), torch.nn.AdaptiveAvgPool2d(1),
+                                        torch.nn.Flatten(), torch.nn.Linear(4, nc))
+
+    def forward(self, x):
+        return self.body(x)
+
+
+def _data(n=10, t=3, side=8, seed=0):
+    g = torch.Generator().manual_seed(seed)
+    X = torch.randint(0, 256, (n, 3, side, side), generator=g, dtype=torch.uint8)
+    Y = (torch.rand((n, t), generator=g) < 0.4).float()
+    return X, Y
+
+
+def _model(t=3, seed=86):
+    torch.manual_seed(seed)
+    return _Tiny(t)
+
+
+def _old_loop(model, X, Y, epochs, batch, lr, seed, out_dir):
+    """cmd_train's loop before it was factored into run_training, copied statement for statement
+    (dev = cpu; X[idx] on the in-memory tensor). Returns the per-step loss values."""
+    from torch import nn, optim
+    from sklearn.metrics import accuracy_score
+    dev = torch.device("cpu")
+    mean = torch.tensor([0.485, 0.456, 0.406], device=dev).view(1, 3, 1, 1)
+    std = torch.tensor([0.229, 0.224, 0.225], device=dev).view(1, 3, 1, 1)
+    opt = optim.Adam(model.parameters(), lr=lr)
+    crit = nn.BCEWithLogitsLoss()
+    os.makedirs(out_dir, exist_ok=True)
+    log_rows, best_acc, best_loss = [], 0.0, 100.0
+    g = torch.Generator().manual_seed(seed)
+    steps = []
+    for epoch in range(epochs):
+        model.train()
+        perm = torch.randperm(len(X), generator=g)
+        losses, accs = [], []
+        for i in range(0, len(perm), batch):
+            idx = perm[i:i + batch]
+            xb = (X[idx].to(dev).float() / 255.0 - mean) / std
+            yb = Y[idx].to(dev)
+            opt.zero_grad()
+            out = model(xb).squeeze(dim=1)
+            loss = crit(out, yb)
+            loss.backward()
+            opt.step()
+            losses.append(loss.item())
+            pred = (torch.sigmoid(out) > 0.5).float()
+            accs.append(accuracy_score(yb.cpu().numpy(), pred.detach().cpu().numpy()))
+        steps += losses
+        el, ea = float(np.mean(losses)), float(np.mean(accs))
+        if ea > best_acc or (ea == best_acc and el < best_loss):
+            best_acc, best_loss = ea, el
+        log_rows.append({"epoch": epoch, "loss": el, "train_exact_match_acc": ea})
+    return log_rows, steps
+
+
+KW = dict(batch=4, lr=1e-2, seed=86, device=torch.device("cpu"))
+
+
+def _same_weights(a, b):
+    sa, sb = a.state_dict(), b.state_dict()
+    return sa.keys() == sb.keys() and all(torch.equal(sa[k], sb[k]) for k in sa)
+
+
+def _strip(rows):
+    return [{k: v for k, v in r.items() if k != "epoch_s"} for r in rows]
+
+
+def test_factored_loop_is_the_old_loop(tmp_path):
+    pytest.importorskip("sklearn")
+    X, Y = _data()
+    m_old, m_new = _model(), _model()
+    old_rows, _ = _old_loop(m_old, X, Y, epochs=3, batch=4, lr=1e-2, seed=86, out_dir=str(tmp_path / "old"))
+    new_rows, resumed = tb.run_training(m_new, X, Y, epochs=3, out_dir=str(tmp_path / "new"), **KW)
+    assert resumed is None
+    assert _same_weights(m_old, m_new)
+    for o, n in zip(old_rows, new_rows):
+        assert o["loss"] == n["loss"] and o["train_exact_match_acc"] == n["train_exact_match_acc"]
+    assert os.path.exists(tmp_path / "new" / "best.pth") and os.path.exists(tmp_path / "new" / "checkpoint.pth")
+
+
+def test_resume_gives_the_straight_run_bit_for_bit(tmp_path):
+    pytest.importorskip("sklearn")
+    X, Y = _data()
+    fp = {"n_train": 10, "tags": ["a", "b", "c"]}
+    straight = _model()
+    rows_a, _ = tb.run_training(straight, X, Y, epochs=2, out_dir=str(tmp_path / "a"), fingerprint=fp, **KW)
+    first = _model()
+    tb.run_training(first, X, Y, epochs=1, out_dir=str(tmp_path / "b"), fingerprint=fp, **KW)
+    # a new process: different init and a disturbed global RNG, so all state must come from the checkpoint
+    torch.manual_seed(12345)
+    requeued = _Tiny(3)
+    rows_b, resumed = tb.run_training(requeued, X, Y, epochs=2, out_dir=str(tmp_path / "b"), resume=True,
+                                      fingerprint=fp, **KW)
+    assert resumed == 1
+    assert _same_weights(straight, requeued)
+    assert _strip(rows_a) == _strip(rows_b)
+    la = pd.read_csv(tmp_path / "a" / "train_log.csv").drop(columns="epoch_s")
+    lb = pd.read_csv(tmp_path / "b" / "train_log.csv").drop(columns="epoch_s")
+    pd.testing.assert_frame_equal(la, lb)
+    ca = torch.load(tmp_path / "a" / "best.pth")
+    cb = torch.load(tmp_path / "b" / "best.pth")
+    assert ca["epoch"] == cb["epoch"]
+    # resuming a finished run trains nothing and changes nothing
+    again = _Tiny(3)
+    rows_c, resumed = tb.run_training(again, X, Y, epochs=2, out_dir=str(tmp_path / "b"), resume=True,
+                                      fingerprint=fp, **KW)
+    assert resumed == 2 and _same_weights(straight, again) and _strip(rows_c) == _strip(rows_a)
+
+
+def test_resume_without_a_checkpoint_starts_fresh_and_refuses_other_settings(tmp_path):
+    pytest.importorskip("sklearn")
+    X, Y = _data()
+    fresh, plain = _model(), _model()
+    _, resumed = tb.run_training(fresh, X, Y, epochs=1, out_dir=str(tmp_path / "r"), resume=True,
+                                 fingerprint={"lr": 0.01}, **KW)
+    tb.run_training(plain, X, Y, epochs=1, out_dir=str(tmp_path / "p"), fingerprint={"lr": 0.01}, **KW)
+    assert resumed is None and _same_weights(fresh, plain)
+    with pytest.raises(SystemExit, match="lr"):
+        tb.run_training(_model(), X, Y, epochs=2, out_dir=str(tmp_path / "r"), resume=True,
+                        fingerprint={"lr": 0.02}, **KW)
