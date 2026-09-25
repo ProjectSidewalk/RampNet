@@ -142,12 +142,26 @@ def parse_filename(fn):
     return city.replace("_", "-"), int(label_id)
 
 
+#: The one list of columns that are never tags, shared by ``train`` (``train_table``), ``infer``
+#: (``tag_columns``), ``score`` / ``test-only`` (``load_labels``) and ``context_fov_86.py`` (which
+#: calls ``load_labels``). Every other column of a label table is a tag, in file order.
+#: ``affirmed`` (optional, 0/1) marks rows whose untagged cells are affirmed absences (the HF
+#: ASSETS'24 rows); ``train --loss nnpu|soft`` treats them as ordinary BCE rows (see ``TagLoss``).
+#: It is here so that no reader ever takes it for a tag. Example::
+#:
+#:     >>> [c for c in ["label_uid", "split", "steep", "affirmed"] if c not in NON_TAG_COLUMNS]
+#:     ['steep']
+NON_TAG_COLUMNS = ("split", "filename", "city", "label_id", "label_uid", "pano_id", "lat", "lng",
+                   "normalized_x", "normalized_y", "affirmed")
+
+
 def tag_columns(df):
     """The tag columns of a tagger CSV: everything after ``validated_by`` or ``normalized_y``,
-    the same rule as ``get_labels_ref_for_run`` in notebooks/evaluate.py."""
+    the same rule as ``get_labels_ref_for_run`` in notebooks/evaluate.py, less any
+    ``NON_TAG_COLUMNS`` (so a PU training table's ``affirmed`` is not read as a tag)."""
     cols = list(df.columns)
     anchor = "validated_by" if "validated_by" in cols else "normalized_y"
-    return cols[cols.index(anchor) + 1:]
+    return [c for c in cols[cols.index(anchor) + 1:] if c not in NON_TAG_COLUMNS]
 
 
 def check_tagger(repo, want_sha):
@@ -751,8 +765,8 @@ def score_subsets(pred, lab, tags, test_split="test", train_split="train", near_
     return out, per_label
 
 
-LABEL_META_COLS = ("split", "filename", "city", "label_id", "label_uid", "pano_id", "lat", "lng",
-                   "normalized_x", "normalized_y")
+#: Kept as a name for older callers; it is ``NON_TAG_COLUMNS``, not a second list.
+LABEL_META_COLS = NON_TAG_COLUMNS
 
 
 def load_labels(labels_path, split_csv=None):
@@ -761,7 +775,7 @@ def load_labels(labels_path, split_csv=None):
     if split_csv:
         sp = pd.read_csv(split_csv)[["label_uid", "split"]]
         lab = lab.drop(columns="split").merge(sp, on="label_uid", how="inner", validate="one_to_one")
-    return lab, [c for c in lab.columns if c not in LABEL_META_COLS]
+    return lab, [c for c in lab.columns if c not in NON_TAG_COLUMNS]
 
 
 def score_file(pred_path, labels_path, split_csv=None, fixed=None, n_boot=1000, near_m=10.0):
@@ -942,11 +956,6 @@ def cmd_resplit(args):
 
 # ----------------------------------------------------------------------------- train
 
-#: Columns of a training table that are not tags. Every other column is a tag, in file order.
-#: ``affirmed`` (optional, 0/1) marks rows whose untagged cells are affirmed absences (the HF
-#: ASSETS'24 rows); ``--loss nnpu|soft`` treats them as ordinary BCE rows (see ``TagLoss``).
-NON_TAG_COLUMNS = ("split", "filename", "city", "label_id", "label_uid", "pano_id", "lat", "lng",
-                   "normalized_x", "normalized_y", "affirmed")
 #: Side of a prepared crop: IMAGE_DIMENSION padded up to the patch multiple (256 -> 266).
 PREP_SIDE = IMAGE_DIMENSION + (PATCH_MULTIPLE - IMAGE_DIMENSION % PATCH_MULTIPLE) % PATCH_MULTIPLE
 
@@ -997,7 +1006,9 @@ def cmd_prep(args):
     (``train_table`` + ``decode_crop``). Rows are written one at a time into a memmap, so memory
     stays flat however large N is (tier 2, ~300k crops, is ~64 GB at 212,268 bytes per crop).
     The array is written to ``<out>.partial`` and renamed only when complete, and the sidecar
-    ``<out>.meta.json`` is written last, so a killed prep never looks finished. The sidecar
+    ``<out>.meta.json`` is written last, so a killed prep never looks finished; a re-run
+    deletes any existing sidecar before it starts, so an old sidecar can never describe a new
+    array. The sidecar
     carries the row order (``label_uids``), the labels and split files' sha256, the image dirs
     and the sha256 of the array's data bytes in row order (not of the ``.npy`` file, whose
     header is not data).
@@ -1015,6 +1026,11 @@ def cmd_prep(args):
     paths = [locate_crop(fn, args.images) for fn in tr.filename]   # fail before writing anything
     shape = (len(tr), 3, PREP_SIDE, PREP_SIDE)
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
+    # A re-run onto an existing --out: drop the old sidecar first, so a kill anywhere below
+    # leaves no sidecar at all (train --prep then refuses) rather than an old sidecar paired
+    # with a new array.
+    if os.path.exists(args.out + ".meta.json"):
+        os.remove(args.out + ".meta.json")
     partial = args.out + ".partial"
     arr = np.lib.format.open_memmap(partial, mode="w+", dtype=np.uint8, shape=shape)
     h = hashlib.sha256()
@@ -1041,6 +1057,10 @@ def cmd_prep(args):
     arr.flush()
     del arr                      # close the map before the rename (Windows refuses otherwise)
     os.replace(partial, args.out)
+    done = np.load(args.out, mmap_mode="r")         # the sidecar describes the finished file
+    if done.shape != shape or done.dtype != np.uint8:
+        raise SystemExit(f"{args.out}: finished array is {done.dtype} {done.shape}, expected uint8 {shape}")
+    del done
     meta = {"shape": list(shape), "dtype": "uint8", "array_sha256": h.hexdigest(),
             "label_uids": tr.label_uid.tolist(), "n": int(len(tr)), "tags": tags,
             "labels": os.path.basename(args.labels), "labels_sha256": sha256_file(args.labels),
@@ -1274,41 +1294,93 @@ def make_loss(kind, tr, tags, mask_csv=None, prior_json=None, beta=0.0, gamma=1.
 
 # ----------------------------------------------------------------------------- train loop
 
-#: Written every epoch by ``train``; ``train --resume`` continues from it.
+#: Written every epoch by ``train --resume`` (only then); a requeued ``--resume`` continues from it.
 CHECKPOINT_NAME = "checkpoint.pth"
+#: The recipe's kept checkpoint (best training exact-match accuracy, ties -> lower loss).
+BEST_NAME = "best.pth"
+
+
+def _restore_best(out_dir, ck):
+    """Make ``best.pth`` agree with the checkpoint a resume is about to continue from.
+
+    Under ``--resume`` an epoch's writes go in this order: the new best weights (if any) to
+    ``best.pth.pending``, then ``checkpoint.pth`` (temp file + rename; it records
+    ``best_epoch``), then ``best.pth.pending`` is renamed onto ``best.pth``. So after a kill at
+    any point, either the checkpoint is the previous epoch's and ``best.pth`` still agrees with
+    it (a leftover ``.pending`` is from the dead epoch and is deleted), or the checkpoint says
+    this epoch was the best and ``best.pth`` may still hold the older one. In that second case
+    the best weights ARE the checkpoint's model state, so ``best.pth`` is re-saved from it.
+    Any other disagreement (``best.pth`` copied in from elsewhere, or edited by hand) cannot be
+    repaired from the checkpoint and is refused.
+
+    Returns the epoch the stale ``best.pth`` held (None if nothing was restored).
+
+    Example: killed after epoch 5's checkpoint rename but before its ``best.pth`` rename ->
+    checkpoint ``epoch == best_epoch == 5``, ``best.pth`` says 3 -> ``best.pth`` becomes epoch
+    5's weights and the function returns 3."""
+    import torch
+    best_path = os.path.join(out_dir, BEST_NAME)
+    if os.path.exists(best_path + ".pending"):
+        os.remove(best_path + ".pending")
+    want = ck.get("best_epoch")
+    if want is None:
+        return None
+    have = torch.load(best_path, map_location="cpu")["epoch"] if os.path.exists(best_path) else None
+    if have == want:
+        return None
+    if want != ck["epoch"]:
+        raise SystemExit(f"{best_path} holds epoch {have} but {CHECKPOINT_NAME} (epoch {ck['epoch']}) "
+                         f"says the best is epoch {want}, whose weights it does not carry; "
+                         "refusing to resume (restore that best.pth or start a fresh --out-dir)")
+    torch.save({"epoch": want, "model_state_dict": ck["model_state_dict"], "loss": ck["best_loss"]},
+               best_path + ".pending")
+    os.replace(best_path + ".pending", best_path)
+    print(f"{best_path}: held epoch {have}, restored to epoch {want} from {CHECKPOINT_NAME}", flush=True)
+    return have
 
 
 def run_training(model, X, Y, *, epochs, batch, lr, seed, out_dir, device, resume=False, fingerprint=None,
-                 loss_fn=None, tags=None):
+                 loss_fn=None, tags=None, stats=None):
     """The recipe's training loop, factored out of ``cmd_train`` so a small stand-in model can be
     driven through it on CPU (``tests/test_tag_trainer_86.py``). Behaviour is the pre-factoring
     loop's, statement for statement: Adam(lr), a ``torch.Generator`` seeded with ``seed`` whose
     ``randperm`` sets each epoch's order, batches of ``batch`` rows, pixels /255 then ImageNet
     mean/std on ``device``, BCE-with-logits, ``best.pth`` kept by best training exact-match
-    accuracy (ties -> lower loss), ``train_log.csv`` rewritten every epoch.
+    accuracy (ties -> lower loss), ``train_log.csv`` rewritten every epoch. Without ``resume``
+    nothing else is written, exactly as before.
 
-    Resume. After every epoch the loop also writes ``checkpoint.pth`` (to a temp name, then an
-    atomic rename): model and optimizer state, the shuffle generator's state, torch's global
-    CPU/CUDA RNG state, the last finished epoch, ``best_acc``/``best_loss``, the log rows and
-    ``fingerprint``. With ``resume=True`` and a checkpoint present, all of that is loaded and
-    the loop starts at the next epoch; without a checkpoint it starts fresh, so a requeued job
-    can always pass ``--resume``. Everything the next epoch depends on comes from the
-    checkpoint, never from the process (the rule ``docs/stage2_cosine_rung_135.md`` states for
-    the stateless LR schedule): there is no scheduler, and the epoch's order is the generator's
-    next ``randperm``. ``fingerprint`` (a JSON-able dict of the settings a resume must not
-    change) must match the checkpoint's or the resume is refused; ``epochs`` is deliberately
-    not in it, so a finished run can be extended.
+    Resume. With ``resume=True`` the loop also writes ``checkpoint.pth`` after every epoch, to
+    a temp name and then an atomic rename, BEFORE the epoch's line is printed (so a watcher
+    that reacts to the line finds that epoch's checkpoint): model and optimizer state, the
+    shuffle generator's state, torch's global CPU/CUDA RNG state, the last finished epoch,
+    ``best_acc``/``best_loss``/``best_epoch``, the log rows and ``fingerprint``. If a checkpoint
+    is present, all of that is loaded and the loop starts at the next epoch; without one it
+    starts fresh, so a requeued job can always pass ``--resume``. Everything the next epoch
+    depends on comes from the checkpoint, never from the process (the rule
+    ``docs/stage2_cosine_rung_135.md`` states for the stateless LR schedule): there is no
+    scheduler, and the epoch's order is the generator's next ``randperm``.
+
+    A resume is refused when ``fingerprint`` (a JSON-able dict of the settings a resume must not
+    change; ``cmd_train`` builds it with ``train_fingerprint``) differs from the checkpoint's,
+    or when ``epochs`` is smaller than the number of epochs the checkpoint has finished.
+    ``epochs`` is deliberately not in the fingerprint, so a finished run can be extended.
+    ``best.pth`` is made consistent with the checkpoint first (``_restore_best``), and
+    ``train_log.csv`` is rewritten from the checkpoint's log rows.
 
     ``loss_fn`` None is the recipe's ``nn.BCEWithLogitsLoss()``; otherwise a ``TagLoss``, called
     as ``loss_fn(logits, yb, idx)``. For nnPU the log row also carries, per tag in ``tags``, the
     fraction of the epoch's steps on which the non-negative correction fired (``clamp:<tag>``).
+
+    ``stats``, if a dict, receives ``checkpoint_write_s`` (seconds this process spent writing
+    ``checkpoint.pth`` and renaming ``best.pth``; 0 without ``resume``; not in any ``epoch_s``)
+    and ``best_restored_from`` (``_restore_best``'s return).
 
     Returns ``(log_rows, resumed_from_epoch)``, the latter None for a fresh start.
 
     Usage (the resume test, abridged)::
 
         run_training(m1, X, Y, epochs=2, ..., out_dir=a)                 # straight
-        run_training(m2, X, Y, epochs=1, ..., out_dir=b)                 # killed after epoch 0
+        run_training(m2, X, Y, epochs=1, ..., out_dir=b, resume=True)    # killed after epoch 0
         run_training(m3, X, Y, epochs=2, ..., out_dir=b, resume=True)    # requeued
         # m3's weights == m1's, bit for bit (CPU)
     """
@@ -1324,7 +1396,8 @@ def run_training(model, X, Y, *, epochs, batch, lr, seed, out_dir, device, resum
     log_rows, best_acc, best_loss = [], 0.0, 100.0
     g = torch.Generator().manual_seed(seed)
     ckpt_path = os.path.join(out_dir, CHECKPOINT_NAME)
-    start, resumed_from = 0, None
+    best_path = os.path.join(out_dir, BEST_NAME)
+    start, resumed_from, best_epoch, ckpt_write_s, restored = 0, None, None, 0.0, None
     if resume and os.path.exists(ckpt_path):
         ck = torch.load(ckpt_path, map_location="cpu")
         if ck["fingerprint"] != fingerprint:
@@ -1332,6 +1405,10 @@ def run_training(model, X, Y, *, epochs, batch, lr, seed, out_dir, device, resum
                           if (ck["fingerprint"] or {}).get(k) != (fingerprint or {}).get(k))
             raise SystemExit(f"{ckpt_path}: written under different settings ({', '.join(diff)}); "
                              "refusing to resume")
+        if ck["epoch"] + 1 > epochs:
+            raise SystemExit(f"{ckpt_path}: {ck['epoch'] + 1} epochs already finished but --epochs is "
+                             f"{epochs}; pass --epochs {ck['epoch'] + 1} or more (or a fresh --out-dir)")
+        restored = _restore_best(out_dir, ck)
         model.load_state_dict(ck["model_state_dict"])
         opt.load_state_dict(ck["optimizer_state_dict"])
         g.set_state(ck["generator_state"])
@@ -1339,6 +1416,8 @@ def run_training(model, X, Y, *, epochs, batch, lr, seed, out_dir, device, resum
         if ck.get("cuda_rng_state") is not None and torch.cuda.is_available():
             torch.cuda.set_rng_state_all(ck["cuda_rng_state"])
         log_rows, best_acc, best_loss = ck["log_rows"], ck["best_acc"], ck["best_loss"]
+        best_epoch = ck.get("best_epoch")
+        write_csv(pd.DataFrame(log_rows), os.path.join(out_dir, "train_log.csv"))
         start = resumed_from = ck["epoch"] + 1
         print(f"resuming at epoch {start} from {ckpt_path}", flush=True)
     for epoch in range(start, epochs):
@@ -1366,24 +1445,93 @@ def run_training(model, X, Y, *, epochs, batch, lr, seed, out_dir, device, resum
         el, ea = float(np.mean(losses)), float(np.mean(accs))
         saved = ""
         if ea > best_acc or (ea == best_acc and el < best_loss):
-            best_acc, best_loss = ea, el
+            best_acc, best_loss, best_epoch = ea, el, epoch
+            # without --resume: best.pth directly, as before; with it: renamed after the checkpoint
             torch.save({"epoch": epoch, "model_state_dict": model.state_dict(), "loss": el},
-                       os.path.join(out_dir, "best.pth"))
+                       best_path + ".pending" if resume else best_path)
             saved = "best"
         row = {"epoch": epoch, "loss": el, "train_exact_match_acc": ea, "epoch_s": time.time() - te, "saved": saved}
         if fires:
             row.update({f"clamp:{t}": float(v) for t, v in zip(tags, np.mean(fires, axis=0))})
         log_rows.append(row)
+        if resume:
+            tc = time.time()
+            torch.save({"epoch": epoch, "model_state_dict": model.state_dict(),
+                        "optimizer_state_dict": opt.state_dict(), "generator_state": g.get_state(),
+                        "torch_rng_state": torch.get_rng_state(),
+                        "cuda_rng_state": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None,
+                        "best_acc": best_acc, "best_loss": best_loss, "best_epoch": best_epoch,
+                        "log_rows": log_rows, "fingerprint": fingerprint}, ckpt_path + ".tmp")
+            os.replace(ckpt_path + ".tmp", ckpt_path)
+            if saved:
+                os.replace(best_path + ".pending", best_path)
+            ckpt_write_s += time.time() - tc
         print(json.dumps(_round(row, 5)), flush=True)
         write_csv(pd.DataFrame(log_rows), os.path.join(out_dir, "train_log.csv"))
-        torch.save({"epoch": epoch, "model_state_dict": model.state_dict(),
-                    "optimizer_state_dict": opt.state_dict(), "generator_state": g.get_state(),
-                    "torch_rng_state": torch.get_rng_state(),
-                    "cuda_rng_state": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None,
-                    "best_acc": best_acc, "best_loss": best_loss, "log_rows": log_rows,
-                    "fingerprint": fingerprint}, ckpt_path + ".tmp")
-        os.replace(ckpt_path + ".tmp", ckpt_path)
+    if stats is not None:
+        stats.update(checkpoint_write_s=ckpt_write_s, best_restored_from=restored)
     return log_rows, resumed_from
+
+
+def check_train_flags(args):
+    """Refuse ``train`` flag combinations that would otherwise be silently ignored.
+
+    Example: ``--prep a.npy --images crops/`` -> SystemExit naming both flags, instead of
+    training on ``a.npy`` without saying so."""
+    errs = []
+    if args.prep and args.images:
+        errs.append("--prep and --images both given; pass one (--prep maps a prepared array, "
+                    "--images decodes in memory)")
+    if not args.prep and not args.images:
+        errs.append("train needs --images (decode in memory) or --prep (a prep array)")
+    if args.verify_prep and not args.prep:
+        errs.append("--verify-prep needs --prep")
+    if args.prior and args.loss == "bce":
+        errs.append("--prior is not used by --loss bce; drop it or pick --loss nnpu|soft")
+    if args.loss != "nnpu" and (args.nnpu_beta != 0.0 or args.nnpu_gamma != 1.0):
+        errs.append("--nnpu-beta / --nnpu-gamma are only used by --loss nnpu")
+    if errs:
+        raise SystemExit("train: " + "; ".join(errs))
+
+
+def train_fingerprint(args, tr, tags, tagger_sha, pixels_sha256):
+    """The settings a ``train --resume`` must not change, as a JSON-able dict.
+
+    ``cmd_train`` builds it with this function and stores it in ``checkpoint.pth``; a resume
+    whose fingerprint differs in any key is refused, naming the keys. It covers the row
+    identity (``label_uids_sha256``), the targets (``targets_sha256``: the tag matrix as
+    float32, row-major, in training order; ``affirmed_sha256``: the ``affirmed`` column, or
+    None if the table has none), the pixels (``pixels_sha256``: the uint8 crop array's data
+    bytes in row order -- the ``prep`` sidecar's ``array_sha256`` under ``--prep``, or the same
+    hash computed over the in-memory decode, so the two paths agree for the same bytes), the
+    model (``backbone_sha256`` of the ``--backbone`` file, ``tagger_sha``), the recipe (lr,
+    batch, seed) and the loss (``--loss``, β, γ, and the sha256 of the mask CSV and prior
+    JSON). Needs no GPU. ``--epochs`` is deliberately not in it (a run may be extended).
+
+    Example::
+
+        fp = train_fingerprint(args, tr, tags, "3b7405cd...", prep_meta["array_sha256"])
+        fp["targets_sha256"]   # changes if any tag value in tr flips
+    """
+    y = np.ascontiguousarray(tr[tags].to_numpy(np.float32))
+    aff = (np.ascontiguousarray(tr["affirmed"].to_numpy(np.float32)) if "affirmed" in tr.columns else None)
+    return {"n_train": int(len(tr)), "tags": list(tags), "lr": args.lr, "batch": args.batch, "seed": args.seed,
+            "label_uids_sha256": hashlib.sha256("\n".join(tr.label_uid.astype(str)).encode()).hexdigest(),
+            "targets_sha256": hashlib.sha256(y.tobytes()).hexdigest(),
+            "affirmed_sha256": hashlib.sha256(aff.tobytes()).hexdigest() if aff is not None else None,
+            "pixels_sha256": pixels_sha256,
+            "backbone_sha256": sha256_file(args.backbone), "tagger_sha": tagger_sha,
+            "loss": args.loss, "nnpu_beta": args.nnpu_beta, "nnpu_gamma": args.nnpu_gamma,
+            "mask_sha256": sha256_file(args.mask_csv) if args.mask_csv else None,
+            "prior_sha256": sha256_file(args.prior) if args.prior else None}
+
+
+#: Recorded in ``train_meta.json`` for any run with a ``TagLoss`` (plan §5.3): exact-match
+#: training accuracy counts masked cells and treats unlabeled cells as negatives, so it is not a
+#: selection rule there.
+PLACEHOLDER_BEST_RULE = ("placeholder: best.pth is kept by training exact-match accuracy, which is "
+                         "not a valid selection rule under --loss nnpu/soft or --mask-csv (plan 5.3); "
+                         "score last.pth or a retained checkpoint instead")
 
 
 def cmd_train(args):
@@ -1392,8 +1540,18 @@ def cmd_train(args):
     augmentation, checkpoint kept by best *training* exact-match accuracy (ties -> lower
     loss). Two deliberate differences, both stated in the doc: a fixed seed, and the
     deterministic preprocessing is computed once and cached in memory (identical tensors,
-    much faster epochs). ``--prep`` maps a ``prep`` array instead of decoding (same bytes)."""
+    much faster epochs). ``--prep`` maps a ``prep`` array instead of decoding (same bytes).
+
+    The steps that need CUDA (``torch.device("cuda")``, the model on the GPU,
+    ``get_device_name``) are not under the CPU test suite; ``run_training``,
+    ``train_fingerprint`` and ``check_train_flags`` are. ``train_meta.json`` timing fields:
+    ``prep_s``, ``train_s`` and ``elapsed_s`` cover this process only. With ``--resume`` it
+    also has ``resumed_from_epoch``, ``epoch_s_sum_all_runs`` (Σ ``epoch_s`` over every log
+    row, from every process that ran this out-dir; excludes checkpoint writes and any epoch
+    lost to a kill), ``checkpoint_write_s`` (this process's checkpoint writes, which ARE in its
+    ``train_s``) and ``timing_scope`` restating this."""
     import torch
+    check_train_flags(args)
     sha = check_tagger(args.tagger_repo, args.tagger_sha)
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
@@ -1403,8 +1561,6 @@ def cmd_train(args):
     if args.prep:
         X, prep_meta = load_prep(args.prep, tr, args.labels, verify=args.verify_prep)
     else:
-        if not args.images:
-            raise SystemExit("train needs --images (decode in memory) or --prep (a prep array)")
         # uint8 N,3,266,266 -- ToTensor is /255, pad pixels stay 0
         X = torch.stack([torch.from_numpy(decode_crop(locate_crop(fn, args.images))) for fn in tr.filename])
     Y = torch.tensor(tr[tags].to_numpy(np.float32))
@@ -1413,15 +1569,18 @@ def cmd_train(args):
     model = build_model(args.tagger_repo, len(tags), backbone=args.backbone).to(dev)
     loss_fn = make_loss(args.loss, tr, tags, mask_csv=args.mask_csv, prior_json=args.prior,
                         beta=args.nnpu_beta, gamma=args.nnpu_gamma)
-    fingerprint = {"n_train": int(len(tr)), "tags": tags, "lr": args.lr, "batch": args.batch, "seed": args.seed,
-                   "label_uids_sha256": hashlib.sha256("\n".join(tr.label_uid.astype(str)).encode()).hexdigest(),
-                   "loss": args.loss, "nnpu_beta": args.nnpu_beta, "nnpu_gamma": args.nnpu_gamma,
-                   "mask_sha256": sha256_file(args.mask_csv) if args.mask_csv else None,
-                   "prior_sha256": sha256_file(args.prior) if args.prior else None}
+    if loss_fn is not None:
+        print(f"note: {PLACEHOLDER_BEST_RULE}", flush=True)
+    fingerprint = None
+    if args.resume:        # hashing only when a checkpoint will carry it; no RNG is consumed
+        fingerprint = train_fingerprint(args, tr, tags, sha, prep_meta["array_sha256"] if prep_meta
+                                        else array_sha256(X.numpy()))
+    stats = {}
     t_train = time.time()
     log_rows, resumed_from = run_training(model, X, Y, epochs=args.epochs, batch=args.batch, lr=args.lr,
                                           seed=args.seed, out_dir=args.out_dir, device=dev,
-                                          resume=args.resume, fingerprint=fingerprint, loss_fn=loss_fn, tags=tags)
+                                          resume=args.resume, fingerprint=fingerprint, loss_fn=loss_fn, tags=tags,
+                                          stats=stats)
     torch.save({"epoch": args.epochs - 1, "model_state_dict": model.state_dict()},
                os.path.join(args.out_dir, "last.pth"))
     meta = {"tagger_sha": sha, "n_train": int(len(tr)), "tags": tags, "epochs": args.epochs, "lr": args.lr,
@@ -1433,10 +1592,19 @@ def cmd_train(args):
             "ts": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
     if loss_fn is not None:
         meta.update(loss_summary=loss_fn.summary(), mask_csv=os.path.basename(args.mask_csv) if args.mask_csv else None,
-                    mask_sha256=fingerprint["mask_sha256"], prior=os.path.basename(args.prior) if args.prior else None,
-                    prior_sha256=fingerprint["prior_sha256"])
+                    mask_sha256=sha256_file(args.mask_csv) if args.mask_csv else None,
+                    prior=os.path.basename(args.prior) if args.prior else None,
+                    prior_sha256=sha256_file(args.prior) if args.prior else None,
+                    best_pth_rule=PLACEHOLDER_BEST_RULE)
     if args.resume:
-        meta.update(resumed_from_epoch=resumed_from, train_s_all_epochs=float(sum(r["epoch_s"] for r in log_rows)))
+        meta.update(resumed_from_epoch=resumed_from,
+                    epoch_s_sum_all_runs=float(sum(r["epoch_s"] for r in log_rows)),
+                    checkpoint_write_s=stats["checkpoint_write_s"],
+                    best_pth_restored_from_epoch=stats["best_restored_from"], fingerprint=fingerprint,
+                    timing_scope="prep_s, train_s, elapsed_s, checkpoint_write_s: this process only "
+                                 "(train_s includes checkpoint_write_s); epoch_s_sum_all_runs: sum of "
+                                 "epoch_s over all log rows of every run, without checkpoint writes or "
+                                 "epochs lost to a kill")
     if prep_meta is not None:
         meta.update(prep=os.path.basename(args.prep), prep_array_sha256=prep_meta["array_sha256"],
                     prep_verified=bool(args.verify_prep))
