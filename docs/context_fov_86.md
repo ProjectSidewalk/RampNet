@@ -1,6 +1,8 @@
 # Context experiment: field of view vs curb-ramp tag accuracy (#86, RampNet 2.0 plan item 4)
 
-**Status: four arms scored against the final #178 control (2026-09-24).** Crops cut on makelab2
+**Status: four arms scored against the final #178 control (2026-09-24); two resolution arms
+added 2026-09-25 (§4.2), which separate resolution from context; a second seed of fov25 and
+fov90 is queued and not yet in this document.** Crops cut on makelab2
 (12 workers, 48 min; 32,544 of 32,559 label-centred crops and 10,848 of 10,853 viewport crops,
 the rest `missing_pano`, `cut_summary_*.json`); the four arms trained on klone's `gpu-l40s`
 allocation 2026-09-23/24 (§5). The control is #178's 100-epoch `train_control` (`best.pth`,
@@ -245,6 +247,83 @@ traffic* and 0.10 on *not enough landing space* against the interim control, 0.0
 against the final one (fov arms, as in reading 3); *not level with street* moved from +0.045
 to +0.057 on the same basis (over all four arms, viewport included: +0.048 to +0.069).
 
+### 4.2 Resolution arms: the wider arms lose to the added street, not only to the lost pixels (2026-09-25)
+
+Reading 3 above could not tell resolution from context, because every arm is resized to 256 px
+and a wider crop is also a coarser one. The separating arm it named is now run, twice: the
+fov25 crops downsampled to the centre resolution a wider arm has at the model's input, then
+trained with the same recipe on the same labels and scored on the same 2,182 common test rows
+(`context_fov_86.py downsample`, `context_fov_86.sh downsample`, `res-contrast`, `res-report`).
+
+| arm | what the model sees | side before the trainer's resize to 256 | centre px/deg at 256 px input |
+|---|---|---:|---:|
+| `fov25px122` | the fov25 scene at fov50's resolution | 122 px (LANCZOS from the 640 px fov25 crop, JPEG quality 92) | 4.8 |
+| `fov25px57` | the fov25 scene at fov90's resolution | 57 px | 2.2 |
+
+The side is derived, not chosen: the ratio of the gnomonic focal lengths at 256 px,
+`matched_px` in the script (`tests/test_context_fov_86.py` pins 122 and 57 and the 10.1 / 4.8 /
+2.2 px/deg of §2). Each pair then differs in one thing: `fov25px57` against fov25 is the same
+scene with fewer pixels; `fov25px57` against fov90 is the same pixels per degree with less
+street. Likewise `fov25px122` against fov25 and against fov50.
+
+**Scores on the common test rows** (`summary_res.md`; the first five rows are §4's):
+
+| arm | mAP | 95% CI | micro-F1 | macro-F1 | leak-free mAP | missing-tactile | narrow | landing | not-level | into-traffic | pooled-water | steep | surface |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| control (#178) | 0.354 | [0.336, 0.390] | 0.659 | 0.315 | 0.370 | 0.973 | 0.234 | 0.182 | 0.141 | 0.323 | 0.323 | 0.062 | 0.597 |
+| fov25 | 0.349 | [0.329, 0.381] | 0.659 | 0.317 | 0.361 | 0.976 | 0.265 | 0.149 | 0.126 | 0.341 | 0.320 | 0.053 | 0.565 |
+| fov50 | 0.319 | [0.302, 0.350] | 0.636 | 0.293 | 0.331 | 0.957 | 0.236 | 0.195 | 0.110 | 0.333 | 0.198 | 0.032 | 0.494 |
+| fov90 | 0.280 | [0.266, 0.310] | 0.595 | 0.250 | 0.279 | 0.929 | 0.177 | 0.153 | 0.099 | 0.296 | 0.115 | 0.048 | 0.426 |
+| `fov25px122` | 0.341 | [0.321, 0.374] | 0.650 | 0.328 | 0.362 | 0.962 | 0.286 | 0.163 | 0.114 | 0.335 | 0.262 | 0.059 | 0.548 |
+| `fov25px57` | 0.322 | [0.302, 0.355] | 0.621 | 0.310 | 0.332 | 0.939 | 0.245 | 0.156 | 0.132 | 0.311 | 0.258 | 0.039 | 0.498 |
+
+**Paired contrasts** (`contrast_res_vs_fov25.json`, `contrast_fov25px122_vs_fov50.json`,
+`contrast_fov25px57_vs_fov90.json`, `contrast_res_vs_control.json`, and `_leak_free` for each;
+same rows, same 1,000 pano resamples; per-tag differences whose interval excludes 0 listed):
+
+| contrast | what it isolates | mAP | micro-F1 | macro-F1 | per-tag AP off 0 |
+|---|---|---:|---:|---:|---|
+| `fov25px122` − fov25 | fov50's pixels, fov25's scene | −0.008 [−0.029, +0.017] | −0.009 [−0.024, +0.005] | +0.011 [−0.023, +0.044] | missing-tactile −0.014 |
+| `fov25px122` − fov50 | fov25's scene at fov50's pixels | +0.022 [−0.001, +0.046] | +0.014 [−0.002, +0.031] | +0.035 [−0.001, +0.071] | steep +0.027, surface-problem +0.053 |
+| `fov25px57` − fov25 | fov90's pixels, fov25's scene | **−0.027 [−0.053, −0.001]** | **−0.038 [−0.054, −0.022]** | −0.007 [−0.043, +0.030] | missing-tactile −0.036, surface-problem −0.067 |
+| `fov25px57` − fov90 | fov25's scene at fov90's pixels | **+0.042 [+0.019, +0.067]** | **+0.026 [+0.010, +0.043]** | **+0.059 [+0.025, +0.094]** | narrow +0.068, pooled-water +0.143, surface-problem +0.072 |
+| `fov25px122` − control | | −0.014 [−0.040, +0.014] | −0.010 [−0.026, +0.006] | +0.013 [−0.031, +0.054] | missing-tactile −0.011 |
+| `fov25px57` − control | | **−0.032 [−0.064, −0.005]** | **−0.038 [−0.057, −0.020]** | −0.005 [−0.048, +0.040] | missing-tactile −0.034, surface-problem −0.099 |
+
+On the 957 leak-free rows the same pattern, with wider intervals: `fov25px122` − fov25 +0.001
+[−0.028, +0.032], `fov25px122` − fov50 +0.031 [+0.006, +0.069], `fov25px57` − fov25 −0.029
+[−0.068, +0.007], `fov25px57` − fov90 +0.053 [+0.019, +0.088], `fov25px122` − control −0.009
+[−0.044, +0.030], `fov25px57` − control −0.038 [−0.083, +0.001].
+
+**What this says.**
+
+1. **Halving the resolution costs nothing measurable; quartering it costs about 0.03.** At
+   fov50's pixels per degree the fov25 scene scores as fov25 does (−0.008, interval through 0;
+   only *missing tactile warning* moves, −0.014). At fov90's it loses 0.027 [0.001, 0.053],
+   and the loss is on the two tags that need pixels on the ramp surface: *missing tactile
+   warning* and *surface problem*.
+2. **The rest of the wider arms' loss is the scene, not the pixels.** At the same pixels per
+   degree, the 25° scene beats the 90° scene by 0.042 [0.019, 0.067] on mAP and on both F1s,
+   and beats the 50° scene by 0.022 [−0.001, +0.046] (off 0 on the leak-free rows, +0.031
+   [+0.006, +0.069]). So fov90's 0.074 against the control decomposes into roughly 0.03 of
+   resolution and 0.04 of added street, and fov50's 0.035 is almost all added street. The tags
+   the street costs are *narrow*, *pooled water* and *surface problem* at 90°, *steep* and
+   *surface problem* at 50°: tags judged on the ramp, which the wider crop makes a smaller part
+   of the input.
+3. **No street-dependent tag gains from context at matched resolution either.** *Points into
+   traffic*, *not level with street* and *not enough landing space* are through 0 in every
+   contrast here, in both directions (the widest interval, *not level with street* at
+   `fov25px57` − fov90, is +0.033 [−0.034, +0.108]). The plan-item-4 question stays where §4
+   left it: a wider single crop at this input does not deliver context these tags can use, and
+   now that is known not to be a resolution artefact.
+
+**Caveat, unchanged: one seed per arm.** A 0.02–0.04 difference is the size a seed could
+plausibly move; the paired intervals here are for "these two arms on this test set", not for
+the recipe. A second seed (87) of fov25 and fov90 is queued behind these arms on the same
+allocation (klone jobs 40599943 / 40599944, `context_fov_86.slurm` with `SEED=87`, outputs
+`train_<arm>_s87*`), which will give the first seed-to-seed number for this benchmark; it is not
+in this document yet.
+
 ## 5. Cost
 
 All of it free: makelab2 (the lab's A40 box) and klone's `gpu-l40s-makelab` allocation. Every
@@ -262,14 +341,19 @@ Slurm jobs, from `docs/data/compute/sacct_klone_2026-09-24.txt`, see
 | `fov50` (job 40486693, g3100) | klone, 1x L40S | 3.98 h (train 3.14 h, prep 0.45 h) | 3.98 | 0 |
 | `fov90` (job 40486694, g3104) | klone, 1x L40S | 3.57 h (train 3.13 h) | 3.57 | 0 |
 | interim control inference (epoch-49 snapshot, 10,857 crops) | makelab2 A40, shared 4 ways (`gpu_share` 0.25) | 476 s | 0.03 | 0 |
-| **total** | | | **16.57** (klone 16.54 + makelab2 0.03) | **0** |
+| downsample, both resolution arms (job 40599892, n3194, §4.2) | klone `ckpt-all`, 4 CPUs | 11.9 min | 0 | 0 |
+| `fov25px57` (job 40599914, g3108) | klone, 1x L40S | 3.33 h (train 3.11 h, prep 103 s) | 3.33 | 0 |
+| `fov25px122` (job 40599915, g3108) | klone, 1x L40S | 3.35 h (train 3.11 h, prep 204 s) | 3.35 | 0 |
+| **total** | | | **23.25** (klone 23.22 + makelab2 0.03) | **0** |
 
 GPU-hours on the shared A40 are `elapsed_s × gpu_share` ([`tag_benchmark_86.md`](tag_benchmark_86.md)
 §7), so the interim inference is a quarter of its 476 s. The final control costs this
 experiment nothing further: its training and inference are #178's (`train-control` and
 `infer-train-control-final` in `usage_log.jsonl`, counted in
-[`tag_benchmark_86.md`](tag_benchmark_86.md) §7), and scoring it here is CPU. The klone figure is the sum of the four
-L40S rows in `compute_log.jsonl` (`tests/test_slurm_usage.py` pins 16.54).
+[`tag_benchmark_86.md`](tag_benchmark_86.md) §7), and scoring it here is CPU. The klone figure is the sum of the six
+L40S rows: the four in `compute_log.jsonl` (`tests/test_slurm_usage.py` pins 16.54) plus the
+two resolution arms of 2026-09-25 (sacct elapsed 03:20:05 and 03:20:54; their `compute_log`
+rows and the seed-87 pair's are added together once the pair finishes).
 Training itself is the same 3.1 h on every arm (100 epochs at 111–116 s on a dedicated
 L40S, `train_<arm>_train_meta.json`); the spread in job wall-clock is the one-off crop
 preparation on g3100 (fov25 2,634 s, fov50 1,603 s, against 349–369 s on the other two nodes;
@@ -379,14 +463,18 @@ allocation, so the arms ran one after another (14:20 UTC to 06:53 UTC the next d
   `crops_as_trained.sha256` describes the trained-on file. Re-training needs the crops, which
   means the store or the tar; publishing the tar (6.3 GB) and the four checkpoints (about
   350 MB each) to Hugging Face would close that, and is not done here.
-- **One seed per arm.** The benchmark's seed-variance is unmeasured; a difference between
+- **One seed per arm.** The benchmark's seed-variance is unmeasured (a seed-87 pair is queued,
+  §4.2); a difference between
   arms smaller than a seed's worth is not a result. The paired contrasts in §4 are the right
   interval for "A vs B on these test rows" (both arms scored on the same pano resample), not
   for "A's recipe vs B's recipe" (that needs seeds). The checkpoint rule (best training
   exact-match accuracy) picked epoch 81 / 77 / 41 / 93 for viewport / fov25 / fov50 / fov90,
   so the arms are not compared at one epoch either.
-- **Field of view and resolution are confounded** (§2, reading 3). Every arm is resized to
-  256×256, so a wider arm is also a coarser one. The separating arm is named in §4 and not run.
+- **Field of view and resolution were confounded** (§2, reading 3) in the four arms of §4.
+  The separating arms (§4.2, run 2026-09-25) split the wider arms' loss: about 0.03 mAP of
+  resolution at fov90's pixels per degree, none measurable at fov50's, and the rest the added
+  street. The converse arm (fov90 at a larger input so its centre resolution matches fov25's,
+  about 1,150 px) is still not run; it needs a different backbone input size.
 - **A second JPEG encode on the viewport arm.** The cutter writes JPEG at quality 92; the
   640 px box is then re-saved at quality 92. The fov arms are encoded once. The HF control is
   PNG throughout.

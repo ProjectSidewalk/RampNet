@@ -4,6 +4,112 @@
  "reference_pred": "train_fov25_final_test_predictions.csv",
  "rows": [
   {
+   "a": "train_fov25px122_final_test_predictions.csv",
+   "a_mAP": 0.340993,
+   "a_minus_b": {
+    "mAP": {
+     "ci95": [
+      -0.028761,
+      0.01693
+     ],
+     "point": -0.008428
+    },
+    "macro_f1": {
+     "ci95": [
+      -0.022517,
+      0.044295
+     ],
+     "point": 0.010646
+    },
+    "micro_f1": {
+     "ci95": [
+      -0.02413,
+      0.005332
+     ],
+     "point": -0.009079
+    }
+   },
+   "a_sha256": "107f6eee63c89ea9aaaccc20b8a5ae1f0e4b215a820dbd6d08d1d06194eeba56",
+   "arm": "fov25px122",
+   "b": "train_fov25_final_test_predictions.csv",
+   "b_mAP": 0.349421,
+   "b_sha256": "afe0e4dad10b89313169ce4f88724794950f4b7b29d75d4faca68c79733f7e4c",
+   "n": 2182,
+   "n_boot": 1000,
+   "n_panos": 1868,
+   "per_tag_ap_a_minus_b": {
+    "missing-tactile-warning": {
+     "ci95": [
+      -0.024834,
+      -0.004045
+     ],
+     "point": -0.013729
+    },
+    "narrow": {
+     "ci95": [
+      -0.034857,
+      0.080715
+     ],
+     "point": 0.020213
+    },
+    "not-enough-landing-space": {
+     "ci95": [
+      -0.035536,
+      0.063179
+     ],
+     "point": 0.014009
+    },
+    "not-level-with-street": {
+     "ci95": [
+      -0.085468,
+      0.041192
+     ],
+     "point": -0.012851
+    },
+    "points-into-traffic": {
+     "ci95": [
+      -0.053142,
+      0.043217
+     ],
+     "point": -0.006298
+    },
+    "pooled-water": {
+     "ci95": [
+      -0.163002,
+      0.082731
+     ],
+     "point": -0.057971
+    },
+    "steep": {
+     "ci95": [
+      -0.024156,
+      0.086631
+     ],
+     "point": 0.006334
+    },
+    "surface-problem": {
+     "ci95": [
+      -0.067917,
+      0.030718
+     ],
+     "point": -0.017131
+    }
+   },
+   "reference": "fov25",
+   "seed": 86,
+   "subset": "full",
+   "tags_fixed": [
+    "missing-tactile-warning",
+    "narrow",
+    "not-enough-landing-space",
+    "not-level-with-street",
+    "points-into-traffic",
+    "pooled-water",
+    "steep",
+    "surface-problem"
+   ]
+  },
+  {
    "a": "train_fov25px57_final_test_predictions.csv",
    "a_mAP": 0.322337,
    "a_minus_b": {
@@ -111,5 +217,5 @@
   }
  ],
  "subset": "full",
- "ts": "2026-09-25T18:39:30+00:00"
+ "ts": "2026-09-25T21:55:44+00:00"
 }
