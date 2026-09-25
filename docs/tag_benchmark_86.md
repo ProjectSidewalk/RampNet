@@ -27,9 +27,9 @@ tagger's rule); F1 is at the tagger's threshold of 0.3.
 
 **Not scored: expert-validate as a second test set** (2,432 labels, plan item 2's last clause).
 Those labels have no crop in the HF framing. PR #177's crop cutter has a `viewport` mode that
-reproduces that framing (median NCC 0.780 against 200 HF crops); the remaining step is to merge
-#177, cut those labels with `--fov viewport`, run `crop.py`'s 640 px box over them, and score
-them here (§8).
+reproduces that framing (median NCC 0.780 against 200 HF crops). #177 merged on 2026-09-24 and
+is on this branch; the remaining step is to cut those labels with `--fov viewport`, run
+`crop.py`'s 640 px box over them, and score them here (§8).
 
 - **The published numbers reproduce exactly.** The released checkpoint through the tagger's
   own `evaluate.py` prints mAP 0.34 / micro-F1 0.67 / macro-F1 0.31, and the per-tag AP from
@@ -193,11 +193,11 @@ Unpaired micro-F1 and macro-F1: pano − control +0.001 [−0.025, +0.025] and +
   the other way from a leak effect. The lower ends of the intervals bound how much lower a
   leak-free model could score: 0.014 mAP (pano, unpaired) and 0.006 (pano, paired on 425
   labels). The block-grouped paired interval is wide (−0.051) because 418 labels is a small set.
-- **The block arm's unpaired lead is a label-set effect, not a model effect.** On the 418 labels
-  both splits hold out, block − control is +0.002 mAP, against +0.058 unpaired. The block
-  split's test set is easier on average: for example "pooled water" scores AP 0.52 there
-  against 0.32 for the control on its own set (per-tag table below). So +0.058 does not show
-  that block-grouped training is better.
+- **The block arm's unpaired lead does not show that block-grouped training is better.** On the
+  418 labels both splits hold out, block − control is +0.002 mAP [−0.051, +0.088], against
+  +0.058 unpaired. That paired interval contains both 0 and +0.058, so it cannot distinguish a
+  model effect from a label-set effect (the two test sets hold different ramps with different
+  base rates); it only fails to confirm the unpaired lead.
 - **Inside the control arm, still no measurable inflation.** Full minus leak-free (paired, as in
   §1): mAP −0.016 [−0.046, +0.014], micro-F1 −0.016 [−0.034, +0.000], macro-F1 +0.011 [−0.018,
   +0.045]. Leaked minus leak-free (unpaired): mAP −0.012 [−0.064, +0.045], micro-F1 −0.032
@@ -212,8 +212,8 @@ Unpaired micro-F1 and macro-F1: pano − control +0.001 [−0.025, +0.025] and +
 - **Across these 18 intervals, expect about one to exclude zero by chance alone.** Three do, all
   favouring the block arm: block − control unpaired mAP (above), block − pano paired macro-F1
   +0.057 [+0.010, +0.096], and block − control unpaired macro-F1, whose lower end is +0.0001.
-  The first is explained by the label sets (next bullet up); treat the other two as leads for a
-  second seed, not results.
+  The first is not confirmed by the paired comparison (three bullets up); treat all three as
+  leads for a second seed, not results.
 
 **Caveats that travel with §5.1:**
 
@@ -413,7 +413,7 @@ snapshot not yet scored (epoch indices 9, 19 and 49; ~6 min each on a free A40),
 - copies `train_<arm>/train_log.csv` and `train_meta.json` as `train_<arm>_log.csv` and
   `train_<arm>_meta.json`, so the arms cannot overwrite each other;
 - appends usage rows: one per inference, the post-train one included, and the final training
-  row, which replaces the `in_progress` row because it carries the same `run_id`.
+  row, which replaces an `in_progress` row with the same `run_id` if the ledger holds one.
 
 `collect` is safe to re-run: outputs are rewritten and a re-written usage row replaces its
 predecessor. Then commit `analysis_out/`, move any overwritten earlier record aside (as §5.3 did
@@ -548,10 +548,10 @@ Totals, `elapsed_s × gpu_share` over `rampnet.ledger.latest_rows` of the `tagge
 | **total** | **31.08** (of which 13.37 is the failed first launch) |
 
 All `paid: false`; $0. The first launch's time is real GPU time spent and stays in the ledger
-as `status: failed` rows. Each training row carries a `run_id`; the in-progress rows written
-while the runs were going were replaced by the `failed` rows (first launch) and by `finish`'s
-final rows (relaunch), because `rampnet.ledger.latest_rows` (which every ledger total reads
-through) keeps only the last row per `run_id`.
+as `status: failed` rows. Each training row carries a `run_id`. The first launch's
+`in_progress` rows were replaced by its `failed` rows, because `rampnet.ledger.latest_rows`
+(which every ledger total reads through) keeps only the last row per `run_id`. The relaunch
+never had `in_progress` rows in the committed ledger; `finish` wrote its final rows directly.
 
 Plus CPU: the zip download (~16 min), hashing, extraction and cropping of 10,857 crops (~58 min on NFS),
 and `score` (~5.5 min per prediction file, dominated by the bootstrap).
@@ -569,8 +569,8 @@ and `score` (~5.5 min per prediction file, dominated by the bootstrap).
   for labels placed since 2023-10-12, served through a signed, referer-checked route, and those
   crops are framed by the auditor's view, not the 640 px box around the label point the
   checkpoint was evaluated on, so scoring them would test a different instrument. Item 2b's crop
-  cutter (PR #177, open) has a `viewport` mode that reproduces the HF framing (median NCC 0.780
+  cutter (PR #177, merged 2026-09-24, on this branch) has a `viewport` mode that reproduces the HF framing (median NCC 0.780
   against 200 HF crops; 99.95 % of HF CurbRamp labels have their pano in the makelab2 store).
-  What remains: merge #177, cut the 2,432 labels with `--fov viewport` at the HF crop size, run
+  What remains: cut the 2,432 labels with `--fov viewport` at the HF crop size, run
   `crop.py`'s 640 px box over them, then `infer` and `score` them here. Store coverage for those
   particular labels is not yet measured.

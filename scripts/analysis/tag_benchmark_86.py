@@ -816,7 +816,8 @@ def contrast_files(pred_a, split_a, pred_b, split_b, labels_path, fixed=None, n_
     keys = ("mAP", "micro_f1", "macro_f1")
     def rel(q):   # path under OUT_DIR, "/"-separated; a file elsewhere is named by its basename
         q = os.path.abspath(q)
-        inside = os.path.commonpath([q, os.path.abspath(OUT_DIR)]) == os.path.abspath(OUT_DIR)             if os.path.splitdrive(q)[0].lower() == os.path.splitdrive(os.path.abspath(OUT_DIR))[0].lower() else False
+        inside = os.path.commonpath([q, os.path.abspath(OUT_DIR)]) == os.path.abspath(OUT_DIR) \
+            if os.path.splitdrive(q)[0].lower() == os.path.splitdrive(os.path.abspath(OUT_DIR))[0].lower() else False
         return os.path.relpath(q, OUT_DIR).replace(os.sep, "/") if inside else os.path.basename(q)
     out = {"a": {"pred_file": rel(pred_a), "pred_sha256": sha256_file(pred_a), "n": int(len(ma))},
            "b": {"pred_file": rel(pred_b), "pred_sha256": sha256_file(pred_b), "n": int(len(mb))},
