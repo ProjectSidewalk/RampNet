@@ -1310,8 +1310,10 @@ def _restore_best(out_dir, ck):
     it (a leftover ``.pending`` is from the dead epoch and is deleted), or the checkpoint says
     this epoch was the best and ``best.pth`` may still hold the older one. In that second case
     the best weights ARE the checkpoint's model state, so ``best.pth`` is re-saved from it.
-    Any other disagreement (``best.pth`` copied in from elsewhere, or edited by hand) cannot be
-    repaired from the checkpoint and is refused.
+    That re-save keys on the checkpoint alone: whenever the checkpoint's own epoch is its
+    ``best_epoch`` and ``best.pth`` disagrees, ``best.pth`` is overwritten from the checkpoint,
+    a hand-copied ``best.pth`` included. A disagreement when the best epoch is an EARLIER one
+    cannot be repaired from the checkpoint and is refused.
 
     Returns the epoch the stale ``best.pth`` held (None if nothing was restored).
 

@@ -553,8 +553,9 @@ runs in the tests with only those calls stubbed.
   from). 1 epoch + resume + 1 epoch gives the same weights as 2 straight epochs, bit for bit on CPU
   (`test_resume_gives_the_straight_run_bit_for_bit`). A resume is refused when:
   - the settings fingerprint differs (`train_fingerprint`): row ids, the tag values (sha256 of the
-    float32 tag matrix), the `affirmed` column, the pixels (the `prep` array's sha256, or the same
-    hash of the in-memory decode, so `--images` and `--prep` of the same bytes agree), the
+    float32 tag matrix), the `affirmed` column, the pixels (the `prep` array's sha256 as recorded
+    in its sidecar, re-measured only with `--verify-prep`; or the same hash of the in-memory
+    decode, so `--images` and `--prep` of the same bytes agree), the
     `--backbone` file's sha256, the tagger sha, lr, batch, seed, `--loss`, β, γ, and the sha256 of
     the mask CSV and prior JSON. `--epochs` is not in it, so a finished run can be extended;
   - `--epochs` is smaller than the number of epochs the checkpoint has finished.
@@ -564,8 +565,10 @@ runs in the tests with only those calls stubbed.
   then is `best.pth.pending` renamed onto `best.pth`. On resume a leftover `.pending` is deleted;
   if `best.pth` does not hold the checkpoint's `best_epoch`, the only way that can happen is a kill
   between the two renames, when the best epoch *is* the checkpoint's epoch, so `best.pth` is
-  re-saved from the checkpoint's weights. Any other mismatch (a `best.pth` copied in by hand) is
-  refused. `train_log.csv` is rewritten from the checkpoint's log rows.
+  re-saved from the checkpoint's weights. The repair keys on the checkpoint alone: whenever its
+  own epoch is its `best_epoch` and `best.pth` disagrees, `best.pth` is overwritten from it, a
+  `best.pth` copied in by hand included. A mismatch when the best epoch is an earlier one cannot
+  be repaired and is refused. `train_log.csv` is rewritten from the checkpoint's log rows.
 
   Timing fields in `train_meta.json` after a resume: `prep_s`, `train_s` and `elapsed_s` cover
   **this process only**. `epoch_s_sum_all_runs` is Σ `epoch_s` over every log row, from every
