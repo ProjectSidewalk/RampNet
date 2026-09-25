@@ -1,0 +1,19 @@
+{
+ "arm": "fov25px122",
+ "centre_px_per_deg_at_model_input": {
+  "fov25": 10.077,
+  "fov50": 4.791
+ },
+ "jpeg_quality": 92,
+ "kept": 0,
+ "model_input_px": 256,
+ "n": 10848,
+ "px": 122,
+ "resample": "LANCZOS",
+ "source_arm": "fov25",
+ "source_labels": "labels_fov25.csv",
+ "source_labels_sha256": "f8e6a93039c480ff03864aaabc872d5b1dc22e35e8390d021a6ec44e1914c8c7",
+ "target_arm": "fov50",
+ "ts": "2026-09-25T15:00:39+00:00",
+ "written": 10848
+}
