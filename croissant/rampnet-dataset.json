@@ -183,8 +183,8 @@
       "@type": "cr:FileObject",
       "@id": "repo",
       "name": "repo",
-      "description": "The Hugging Face dataset repository at revision ee882e3f3c779dc13182f307bca616e50d9b8c5c (2025-08-15), the Hub's main at the time of writing; contentUrl pins that revision. Besides the Parquet shards it holds README.md (the dataset card) and .gitattributes. Per-file hashes are in the file_manifest record set.",
-      "contentUrl": "https://huggingface.co/datasets/projectsidewalk/rampnet-dataset/tree/ee882e3f3c779dc13182f307bca616e50d9b8c5c",
+      "description": "The Hugging Face dataset repository at revision ee882e3f3c779dc13182f307bca616e50d9b8c5c (2025-08-15), the Hub's main at the time of writing. contentUrl is the repository itself, which resolves to main: mlcroissant 1.1.0 cannot clone a URL pinned to a bare commit. The revision is pinned here and in file_manifest, and scripts/validate_croissant.py --hub fails once main moves past it. Besides the Parquet shards it holds README.md (the dataset card) and .gitattributes. Per-file hashes are in the file_manifest record set.",
+      "contentUrl": "https://huggingface.co/datasets/projectsidewalk/rampnet-dataset",
       "encodingFormat": "git+https",
       "sha256": "https://github.com/mlcommons/croissant/issues/80"
     },

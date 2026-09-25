@@ -220,8 +220,8 @@
       "@type": "cr:FileObject",
       "@id": "repo",
       "name": "repo",
-      "description": "The Hugging Face dataset repository at revision 63d5ffd0e4b6795702db40be89ea4d9672d91ab5 (2026-08-17), the Hub's main at the time of writing; contentUrl pins that revision. Besides the Parquet files it holds README.md (the dataset card), .gitattributes and build_manifest.json, which https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/scripts/export_benchmark.py writes to list the configs and splits it built, each config's total bytes, the git commit it ran from and the date. Per-file hashes are in the file_manifest record set.",
-      "contentUrl": "https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark/tree/63d5ffd0e4b6795702db40be89ea4d9672d91ab5",
+      "description": "The Hugging Face dataset repository at revision 63d5ffd0e4b6795702db40be89ea4d9672d91ab5 (2026-08-17), the Hub's main at the time of writing. contentUrl is the repository itself, which resolves to main: mlcroissant 1.1.0 cannot clone a URL pinned to a bare commit. The revision is pinned here and in file_manifest, and scripts/validate_croissant.py --hub fails once main moves past it. Besides the Parquet files it holds README.md (the dataset card), .gitattributes and build_manifest.json, which https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/scripts/export_benchmark.py writes to list the configs and splits it built, each config's total bytes, the git commit it ran from and the date. Per-file hashes are in the file_manifest record set.",
+      "contentUrl": "https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark",
       "encodingFormat": "git+https",
       "sha256": "https://github.com/mlcommons/croissant/issues/80"
     },

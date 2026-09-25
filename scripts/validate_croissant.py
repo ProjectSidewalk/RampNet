@@ -7,7 +7,9 @@ Levels, cheapest first. The default is offline and needs only the standard libra
   ``CONTEXT``), declares the three specs in ``conformsTo``, carries the required Croissant
   properties and the RAI / GeoCroissant keys this repo commits to, has unique ``@id`` values, and
   every field source points at a distribution that exists. The ``repo`` FileObject's
-  ``contentUrl`` must pin a 40-hex Hub revision.
+  ``contentUrl`` must be the bare Hub repository URL or a named ``tree/refs%2F...`` ref -- the only
+  forms mlcroissant 1.1.0 can clone -- and the 40-hex revision the file describes is named in the
+  ``repo`` and ``file_manifest`` descriptions.
 * **links** -- every link into this GitHub repository is pinned to a commit or a release tag, and
   no text cites a bare repo-relative path, which would not resolve once the file is on the Hub.
 * **derived numbers** -- the benchmark's ``split_extents`` record set (bounding box, capture-month
@@ -22,7 +24,8 @@ Levels, cheapest first. The default is offline and needs only the standard libra
 Optional levels:
 
 * ``--mlcroissant`` -- also run the MLCommons reference validator (``pip install mlcroissant``).
-* ``--hub`` -- also (a) fail if the Hub's current ``main`` is not the revision each file pins, and
+* ``--hub`` -- also (a) fail if the ref ``contentUrl`` resolves to on the Hub (``main``, or the named
+  ref) is not the revision each file pins, and
   (b) fetch the tree listing at the pinned revision and check that every Parquet file's size and
   sha256 equal the ``file_manifest`` record set (network).
 * ``--rebuild-records`` -- rebuild the benchmark's ``records`` config from the committed bundles
@@ -32,6 +35,10 @@ Optional levels:
 * ``--load`` -- load data through the Croissant files with ``mlcroissant``: the benchmark
   ``records`` record set from that rebuild, and the dataset ``panoramas`` record set from a
   one-row synthetic shard with the Hub's schema (needs ``mlcroissant``, ``pyarrow``, ``Pillow``).
+* ``--load-hub`` -- load the benchmark ``records`` record set exactly as a consumer would: no local
+  mapping, so mlcroissant clones the Hub repository (Git LFS pointers only) and fetches just the nine
+  ``records`` Parquet files (about 180 KB) into a temporary cache. Needs ``mlcroissant``,
+  ``gitpython`` and ``git lfs``; downloads no imagery.
 * ``--release`` -- the pre-upload gate: also fail on the DOI placeholder, on any "forthcoming" or
   "NOT-YET" text, and on an empty ``version``. The committed files fail it until the DOI is minted.
 
@@ -55,6 +62,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import urllib.parse
 import urllib.request
 import warnings
 from pathlib import Path
@@ -142,8 +150,12 @@ DOI_PLACEHOLDER = "DOI-NOT-YET-MINTED (issue #150): replace with the DataCite DO
 DOI_RE = re.compile(r"^https://doi\.org/10\.\d{4,9}/\S+$")
 UNRELEASED_RE = re.compile(r"forthcoming|NOT-YET", re.IGNORECASE)
 
-HUB_PIN_RE = re.compile(
-    r"^https://huggingface\.co/datasets/projectsidewalk/[\w.-]+/tree/([0-9a-f]{40})$")
+# mlcroissant 1.1.0's extract_git_info() understands a Hub URL only as the bare repository or as
+# `.../tree/refs%2F<ref>`; a `.../tree/<sha>` URL is passed to `git clone` verbatim and fails. So
+# contentUrl is one of those two forms, and the revision lives in the descriptions (REVISION_RE).
+CONTENT_URL_RE = re.compile(
+    r"^https://huggingface\.co/datasets/projectsidewalk/([\w.-]+)(?:/tree/refs%2F([\w.%-]+))?$")
+REVISION_RE = re.compile(r"revision ([0-9a-f]{40})")
 SOURCE_NAMES = {"launch": "Google Street View", "mapillary": "Mapillary"}
 
 # Links into this repository must name a commit or a release tag, never a branch.
@@ -261,15 +273,17 @@ def check_structure(doc):
         if dist.get("encodingFormat") not in ("git+https", "application/x-parquet"):
             problems.append("{} has unexpected encodingFormat {!r}".format(
                 dist.get("@id"), dist.get("encodingFormat")))
+    repo = next((d for d in doc.get("distribution", []) if d.get("@id") == "repo"), {})
+    if not CONTENT_URL_RE.match(repo.get("contentUrl", "")):
+        problems.append("repo contentUrl {!r} is neither the bare Hub repository URL nor a "
+                        ".../tree/refs%2F<ref> URL (mlcroissant cannot clone a bare sha)".format(
+                            repo.get("contentUrl")))
     rev = pinned_revision(doc)
     if rev is None:
-        problems.append("repo contentUrl does not pin a revision (.../tree/<40-hex sha>)")
+        problems.append("repo description names no single 40-hex revision")
     else:
-        repo = next(d for d in doc["distribution"] if d.get("@id") == "repo")
-        if rev not in repo.get("description", ""):
-            problems.append("repo description does not name the pinned revision {}".format(rev))
         manifest = record_set(doc, "file_manifest") or {}
-        if rev not in manifest.get("description", ""):
+        if REVISION_RE.findall(manifest.get("description", "")) != [rev]:
             problems.append("file_manifest description does not name the pinned revision {}".format(rev))
 
     field_ids = set()
@@ -486,10 +500,29 @@ def check_release(doc):
 
 
 def pinned_revision(doc):
-    """The 40-hex Hub revision the ``repo`` FileObject's ``contentUrl`` pins, or None."""
+    """The 40-hex Hub revision the ``repo`` FileObject's description names, or None."""
     repo = next((d for d in doc.get("distribution", []) if d.get("@id") == "repo"), {})
-    match = HUB_PIN_RE.match(repo.get("contentUrl", ""))
-    return match.group(1) if match else None
+    found = set(REVISION_RE.findall(repo.get("description", "")))
+    return found.pop() if len(found) == 1 else None
+
+
+def content_ref(doc):
+    """The git ref ``contentUrl`` resolves to: ``refs/heads/main`` for the bare repository URL, or
+    the named ``refs/...`` ref (e.g. ``refs/tags/v1.0.0``)."""
+    repo = next((d for d in doc.get("distribution", []) if d.get("@id") == "repo"), {})
+    match = CONTENT_URL_RE.match(repo.get("contentUrl", ""))
+    if not match:
+        return None
+    return "refs/" + urllib.parse.unquote(match.group(2)) if match.group(2) else "refs/heads/main"
+
+
+def resolve_ref(name, ref):
+    """The commit a Hub ref points at, from ``/api/datasets/<id>/refs``; None if it does not exist."""
+    refs = _get_json((HUB_API + "/refs").format(name))[0]
+    for entry in refs.get("branches", []) + refs.get("tags", []) + refs.get("converts", []):
+        if entry.get("ref") == ref:
+            return entry.get("targetCommit")
+    return None
 
 
 def _get_json(url):
@@ -512,16 +545,18 @@ def hub_tree(name, rev):
 
 
 def check_hub(name, doc):
-    """The pin is the Hub's current main, and ``file_manifest`` matches the tree at the pin."""
+    """The ref ``contentUrl`` names is the pinned revision, and ``file_manifest`` matches the tree
+    at the pin."""
     rev = pinned_revision(doc)
     if rev is None:
-        return ["repo contentUrl pins no revision"]
+        return ["repo description names no revision"]
     problems = []
-    main_sha = _get_json(HUB_API.format(name))[0].get("sha")
-    if main_sha != rev:
-        problems.append("Hub main of projectsidewalk/{} is {} but this file pins {}: the Hub has moved. "
-                        "Re-pin contentUrl, the repo and file_manifest descriptions, file_manifest rows "
-                        "and dateModified together.".format(name, main_sha, rev))
+    ref = content_ref(doc)
+    got = resolve_ref(name, ref) if ref else None
+    if got != rev:
+        problems.append("{} of projectsidewalk/{} is {} but this file describes {}: the Hub has moved. "
+                        "Re-pin the repo and file_manifest descriptions, the file_manifest rows and "
+                        "dateModified together.".format(ref, name, got, rev))
     tree = hub_tree(name, rev)
     hub = {e["path"]: (e["size"], (e.get("lfs") or {}).get("oid"))
            for e in tree if e.get("type") == "file" and e["path"].endswith(".parquet")}
@@ -582,6 +617,18 @@ def _posix_fullpaths(mlc):
         return pathlib.PurePosixPath(rel)
     mlc_filter.get_fullpath = get_fullpath
 
+    # download_git_lfs_file() finds the clone's working dir by splitting the OS path on the POSIX
+    # relative path, which never matches on Windows; compute it from the path parts instead.
+    from mlcroissant._src.core.optional import deps
+    from mlcroissant._src.operation_graph.operations import read as mlc_read
+
+    def download_git_lfs_file(file):
+        full = pathlib.PurePath(os.fspath(file.filepath))
+        rel = pathlib.PurePosixPath(os.fspath(file.fullpath))
+        working_dir = full.parents[len(rel.parts) - 1]
+        deps.git.Git(str(working_dir)).execute(["git", "lfs", "pull", "--include", str(rel)])
+    mlc_read.download_git_lfs_file = download_git_lfs_file
+
 
 def check_load_records(doc_path, out, benchmark=REPO / "benchmark"):
     """Load the benchmark ``records`` record set through the Croissant file from a local rebuild."""
@@ -616,6 +663,35 @@ def check_load_records(doc_path, out, benchmark=REPO / "benchmark"):
         problems.append("load: {} detections / {} missed, committed bundles give {} / {}".format(
             dets, missed, want_dets, want_missed))
     return problems, sum(per_split.values()), dets, missed
+
+
+def check_load_hub(doc_path, cache):
+    """Load ``records`` through the Croissant file with no mapping: mlcroissant clones the Hub repo
+    named by ``contentUrl`` itself. Only the nine small ``records`` files are fetched from LFS."""
+    import mlcroissant as mlc                      # optional dependency
+    from mlcroissant._src.core import constants
+    _posix_fullpaths(mlc)
+    constants.DOWNLOAD_PATH = Path(cache) / "download"     # a fresh clone, not a stale cache
+    doc = load(doc_path)
+    ds = mlc.Dataset(jsonld=str(doc_path))
+    per_split, dets, missed = {}, 0, 0
+    for row in ds.records("records"):
+        split = row["records/split"]
+        split = split.decode() if isinstance(split, bytes) else split
+        per_split[split] = per_split.get(split, 0) + 1
+        dets += len(row["records/detections"] or [])
+        missed += len(row["records/missed"] or [])
+    clones = [p for p in (Path(cache) / "download").glob("croissant-*") if (p / ".git").exists()]
+    head = subprocess.run(["git", "-C", str(clones[0]), "rev-parse", "HEAD"], capture_output=True,
+                          text=True).stdout.strip() if clones else None
+    want = {r["split_extents/split"]: r["split_extents/num_panoramas"]
+            for r in record_set(doc, "split_extents")["data"]}
+    problems = []
+    if head != pinned_revision(doc):
+        problems.append("load-hub: cloned HEAD {} is not the pinned revision".format(head))
+    if per_split != want:
+        problems.append("load-hub: records rows per split {} != split_extents {}".format(per_split, want))
+    return problems, sum(per_split.values()), dets, missed, head
 
 
 def write_synthetic_shard(out):
@@ -696,6 +772,8 @@ def main(argv=None):
                         help="rebuild the benchmark records config and compare sha256 (pyarrow)")
     parser.add_argument("--load", action="store_true",
                         help="load records / a synthetic dataset shard through mlcroissant")
+    parser.add_argument("--load-hub", action="store_true",
+                        help="load benchmark records by cloning the Hub repo (~180 KB of Parquet)")
     parser.add_argument("--release", action="store_true",
                         help="pre-upload gate: reject the DOI placeholder and 'forthcoming' text")
     args = parser.parse_args(argv)
@@ -719,6 +797,11 @@ def main(argv=None):
                         problems += more
                         notes.append("loaded {:,} records rows, {:,} detections, {:,} missed".format(
                             rows, dets, missed))
+                if args.load_hub:
+                    more, rows, dets, missed, head = check_load_hub(path, Path(tmp) / "cache")
+                    problems += more
+                    notes.append("loaded from the Hub (clone at {}): {:,} records rows, {:,} "
+                                 "detections, {:,} missed".format((head or "?")[:7], rows, dets, missed))
             else:
                 problems += check_dataset_boxes(doc)
                 if args.load:

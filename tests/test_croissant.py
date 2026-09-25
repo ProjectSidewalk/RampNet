@@ -60,6 +60,28 @@ def test_both_files_pin_a_hub_revision(named_doc):
     assert vc.pinned_revision(doc) is not None, name
 
 
+def test_content_url_is_cloneable_never_a_bare_sha(named_doc):
+    # mlcroissant 1.1.0 clones a Hub URL only as the bare repository or `.../tree/refs%2F<ref>`;
+    # `.../tree/<sha>` reaches `git clone` verbatim and fails (PR #190 re-review, R1).
+    name, doc = named_doc
+    repo = next(d for d in doc["distribution"] if d["@id"] == "repo")
+    base = "https://huggingface.co/datasets/projectsidewalk/" + name
+    url = repo["contentUrl"]
+    assert url == base or url.startswith(base + "/tree/refs%2F"), url
+    assert vc.content_ref(doc) == "refs/heads/main"
+
+    for good, ref in ((base, "refs/heads/main"),
+                      (base + "/tree/refs%2Ftags%2Fv1.0.0", "refs/tags/v1.0.0")):
+        ok = copy.deepcopy(doc)
+        next(d for d in ok["distribution"] if d["@id"] == "repo")["contentUrl"] = good
+        assert not any("contentUrl" in p for p in vc.check_structure(ok))
+        assert vc.content_ref(ok) == ref
+    bad = copy.deepcopy(doc)
+    next(d for d in bad["distribution"] if d["@id"] == "repo")["contentUrl"] = (
+        base + "/tree/" + vc.pinned_revision(doc))
+    assert any("contentUrl" in p for p in vc.check_structure(bad))
+
+
 def test_doi_is_an_obvious_placeholder_until_minted(named_doc):
     _, doc = named_doc
     assert doc["identifier"] == vc.DOI_PLACEHOLDER or vc.DOI_RE.match(doc["identifier"])
@@ -145,8 +167,9 @@ def test_hub_check_fails_on_drift_and_follows_pagination(monkeypatch):
     pages = {tree_url: (entries[:10], "page2"), "page2": (entries[10:], None)}
 
     def fake(url, main_sha):
-        if url == vc.HUB_API.format("rampnet-benchmark"):
-            return {"sha": main_sha}, None
+        if url == (vc.HUB_API + "/refs").format("rampnet-benchmark"):
+            return {"branches": [{"ref": "refs/heads/main", "targetCommit": main_sha}],
+                    "tags": [{"ref": "refs/tags/v1.0.0", "targetCommit": rev}]}, None
         return pages[url]
 
     monkeypatch.setattr(vc, "_get_json", lambda url: fake(url, rev))
@@ -154,6 +177,12 @@ def test_hub_check_fails_on_drift_and_follows_pagination(monkeypatch):
 
     monkeypatch.setattr(vc, "_get_json", lambda url: fake(url, "f" * 40))
     assert any("has moved" in p for p in vc.check_hub("rampnet-benchmark", doc))
+
+    # The tag route: contentUrl names a tag, and --hub resolves the tag, not main.
+    tagged = copy.deepcopy(doc)
+    next(d for d in tagged["distribution"] if d["@id"] == "repo")["contentUrl"] = (
+        "https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark/tree/refs%2Ftags%2Fv1.0.0")
+    assert vc.check_hub("rampnet-benchmark", tagged) == []
 
 
 def test_mlcroissant_reference_validator(named_doc):

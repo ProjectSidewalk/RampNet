@@ -105,10 +105,26 @@ within each split of the committed bundles (all 1,109 are unique across splits t
 GeoCroissant construct, and the same boxes appear in `spatialCoverage` as GeoShape boxes.
 `review_group` holds the literal strings `top`, `random` and `empty`.
 
-**Pinning.** The `repo` FileObject's `contentUrl` is the Hub tree at the pinned revision
-(`https://huggingface.co/datasets/projectsidewalk/<repo>/tree/<40-hex sha>`), the same `tree/<ref>`
-form the Hub's own Croissant export uses, so a consumer following it gets that revision and not
-whatever `main` is later. A Hugging Face repository is a git repository and has no single content
+**Pinning.** The `repo` FileObject's `contentUrl` is the bare repository URL
+(`https://huggingface.co/datasets/projectsidewalk/<repo>`), which resolves to `main`. The revision
+the file describes is named in the `repo` and `file_manifest` descriptions, and `--hub` fails as
+soon as `main` stops being that revision.
+
+A URL pinned to a commit (`.../tree/<40-hex sha>`), which commit ab55bcf of this PR introduced,
+does not work. `mlcroissant` 1.1.0's `extract_git_info()` understands a Hub URL only as the bare
+repository or as a named ref, `.../tree/refs%2F<ref>`. Any other URL is handed to `git clone`
+verbatim, and the clone fails (a 401 in the re-review; here `git ls-remote` on that URL hung), so the record could not be loaded at all. The
+Hub's own Croissant export uses the named-ref form, `tree/refs%2Fconvert%2Fparquet`, not a sha. The
+offline check and `test_content_url_is_cloneable_never_a_bare_sha` reject a bare-sha `contentUrl`.
+
+**Decision for Jon: tag the pinned revisions.** Neither Hub repository has a tag (`/refs` lists
+none), and none was created here. With a tag, `contentUrl` could be
+`.../tree/refs%2Ftags%2Fv1.0.0`. `mlcroissant` would clone that exact revision rather than whatever
+`main` is, and `--hub` already handles that form: it resolves the named ref through
+`/api/datasets/<id>/refs` and fails unless it points at the pinned sha. The tag name should follow
+whatever version is settled with the DOI.
+
+A Hugging Face repository is a git repository and has no single content
 hash, so `repo` carries the same placeholder `sha256` the Hub's own export uses (a link to
 [mlcommons/croissant#80](https://github.com/mlcommons/croissant/issues/80)); `mlcroissant` does not
 hash directories. The content pin is the `file_manifest` record set: every Parquet file's size and
@@ -195,15 +211,16 @@ commit sha256s of its own; `file_manifest` is the only committed record of them.
 ```bash
 python scripts/validate_croissant.py                      # offline: structure, links, re-derived numbers
 python scripts/validate_croissant.py --mlcroissant        # + MLCommons reference validator
-python scripts/validate_croissant.py --hub                # + pin == Hub main, file sizes and sha256 (network)
+python scripts/validate_croissant.py --hub                # + pin == Hub ref, file sizes and sha256 (network)
 python scripts/validate_croissant.py --rebuild-records    # + records config rebuilt byte for byte (pyarrow 25.0.0)
 python scripts/validate_croissant.py --load               # + load data through the files (mlcroissant)
+python scripts/validate_croissant.py --load-hub           # + load benchmark records from the Hub itself
 python scripts/validate_croissant.py --release --mlcroissant --hub   # the gate before any upload
 mlcroissant validate --jsonld croissant/rampnet-benchmark.json
 ```
 
 `pytest -q` runs `tests/test_croissant.py`, which needs no network. `requirements-dev.txt` carries
-`mlcroissant` (about 6 MB of pure-Python wheels beyond what the file already installs), so CI runs
+`mlcroissant>=1.1,<1.2` (about 6 MB of pure-Python wheels beyond what the file already installs), so CI runs
 the reference validator on every PR. The `--hub` drift and pagination logic is tested against
 canned responses; the live `--hub` call is not part of the suite.
 
@@ -219,11 +236,16 @@ rampnet-dataset      ok   3 record sets, 384 files in manifest, revision ee882e3
     loaded a synthetic one-row shard
 rampnet-benchmark    ok   7 record sets, 36 files in manifest, revision 63d5ffd, identifier: placeholder (DOI not minted)
     loaded 1,109 records rows, 2,061 detections, 1,191 missed
+$ python scripts/validate_croissant.py --load-hub         # + gitpython in the venv, and git lfs
+rampnet-dataset      ok   3 record sets, 384 files in manifest, revision ee882e3, identifier: placeholder (DOI not minted)
+rampnet-benchmark    ok   7 record sets, 36 files in manifest, revision 63d5ffd, identifier: placeholder (DOI not minted)
+    loaded from the Hub (clone at 63d5ffd): 1,109 records rows, 2,061 detections, 1,191 missed
 ```
 
-**`--hub` checks two things.** It resolves the Hub's current `main` and fails if it is not the
-revision in `contentUrl`, with a message to re-pin; a commit is immutable, so comparing hashes at
-the pinned revision alone would pass forever after the Hub moved. It then fetches the tree listing
+**`--hub` checks two things.** It resolves the ref `contentUrl` names (`main` for the bare URL, or
+the tag in a `refs%2Ftags%2F...` URL) through `/api/datasets/<id>/refs`, and fails if it is not the
+pinned revision, with a message to re-pin. A commit is immutable, so comparing hashes at the pinned
+revision alone would still pass after the Hub moved. It then fetches the tree listing
 at the pinned revision, following the listing's `Link: rel="next"` pagination, and compares every
 Parquet file's size and sha256 with `file_manifest`.
 
@@ -231,14 +253,22 @@ Parquet file's size and sha256 with `file_manifest`.
 from the `--rebuild-records` output (the `repo` FileObject mapped to the local rebuild), and checks
 the rows per split, detections and missed marks against the committed bundles. It loads the
 dataset `panoramas` record set from a one-row synthetic shard written with the Hub's schema, and
-checks that all eight fields parse, including the nested point arrays and the image. Loading the
-real dataset through `mlcroissant` clones the Hub repository, which for `rampnet-dataset` is 463 GB;
-that has not been done.
+checks that all eight fields parse, including the nested point arrays and the image.
+
+**`--load-hub` loads the record the way a consumer would.** It gives `mlcroissant` the benchmark
+file with no local mapping. `mlcroissant` then clones `contentUrl` itself, with Git LFS smudging
+off, so only pointers arrive, and `git lfs pull`s just the nine `records` Parquet files. It checks
+that the clone's HEAD is the pinned revision, and that the rows per split match `split_extents`. On
+2026-09-25 this used about 570 KB of disk, 208 KB of it LFS content, and downloaded no imagery. It
+needs network access, `gitpython` and `git lfs`, so it is not part of `pytest`. The same test for
+`rampnet-dataset` would mean the 463 GB repository, since every record set there reads the image
+shards, so it has not been run; the synthetic shard above is the stand-in.
 
 `mlcroissant` 1.1.0 on Windows builds FileSet-relative paths with backslashes, so an `includes`
 pattern such as `data/records/*.parquet` matches nothing and loading fails with "No objects to
-concatenate". Validation is unaffected. `--load` patches the one function involved to return POSIX
-paths when `os.sep` is not `/`; on Linux or macOS it changes nothing. During the synthetic-shard load
+concatenate". It also cannot find a clone's working directory when it runs `git lfs pull`.
+Validation is unaffected. `--load` and `--load-hub` patch those two functions when `os.sep` is not
+`/`; on Linux or macOS nothing is patched. During the synthetic-shard load
 `mlcroissant` also logs "Could not match ... in train", matching the `split` regex against the
 already-extracted value `train`. The value it returns is correct, and `--load` checks it.
 
@@ -250,10 +280,10 @@ already-extracted value `train`. The value it returns is correct, and `--load` c
   auto-converted `refs/convert/parquet` branch rather than the files on `main`.
 - On the dataset, the split directories are `train/`, `val/`, `test/`; `datasets` calls `val`
   `validation`. The Croissant `splits` record set uses the directory names.
-- If any Hub file changes, the revision in `contentUrl` and in the `repo` and `file_manifest`
-  descriptions, the `file_manifest` rows and `dateModified` must change together. `--hub` fails as
-  soon as the Hub's `main` moves past the pin, and the offline check fails if the three revision
-  mentions disagree.
+- If any Hub file changes, the revision in the `repo` and `file_manifest` descriptions, the
+  `file_manifest` rows and `dateModified` must change together (and the tag, if `contentUrl` ever
+  names one). `--hub` fails as soon as the Hub moves past the pin, and the offline check fails if
+  the two revision mentions disagree. Never put a bare sha in `contentUrl` (§1).
 - If a benchmark verdict is revised and re-exported, `split_extents` still holds unless reviewed
   panoramas were added or removed; the offline check catches that. The `records` sha256s in
   `file_manifest` change, and `--hub` catches that.

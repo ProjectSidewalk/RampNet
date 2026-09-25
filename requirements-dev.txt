@@ -59,4 +59,4 @@ scikit-learn
 # this file already pulls in (pandas, scipy, networkx, requests) it adds about 6 MB of wheels
 # (rdflib, etils, absl-py, jsonpath-rw, pandas-stubs). Validation reads no data and makes no
 # network call.
-mlcroissant
+mlcroissant>=1.1,<1.2
