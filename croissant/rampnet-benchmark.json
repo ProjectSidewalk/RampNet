@@ -1,0 +1,1544 @@
+{
+  "@context": {
+    "@language": "en",
+    "@vocab": "https://schema.org/",
+    "sc": "https://schema.org/",
+    "cr": "http://mlcommons.org/croissant/",
+    "rai": "http://mlcommons.org/croissant/RAI/",
+    "geocr": "http://mlcommons.org/croissant/geo/",
+    "dct": "http://purl.org/dc/terms/",
+    "annotation": "cr:annotation",
+    "arrayShape": "cr:arrayShape",
+    "citeAs": "cr:citeAs",
+    "column": "cr:column",
+    "conformsTo": "dct:conformsTo",
+    "containedIn": "cr:containedIn",
+    "data": {
+      "@id": "cr:data",
+      "@type": "@json"
+    },
+    "dataType": {
+      "@id": "cr:dataType",
+      "@type": "@vocab"
+    },
+    "equivalentProperty": "cr:equivalentProperty",
+    "examples": {
+      "@id": "cr:examples",
+      "@type": "@json"
+    },
+    "excludes": "cr:excludes",
+    "extract": "cr:extract",
+    "field": "cr:field",
+    "fileProperty": "cr:fileProperty",
+    "fileObject": "cr:fileObject",
+    "fileSet": "cr:fileSet",
+    "format": "cr:format",
+    "includes": "cr:includes",
+    "isArray": "cr:isArray",
+    "isLiveDataset": "cr:isLiveDataset",
+    "jsonPath": "cr:jsonPath",
+    "key": "cr:key",
+    "md5": "cr:md5",
+    "parentField": "cr:parentField",
+    "path": "cr:path",
+    "recordSet": "cr:recordSet",
+    "references": "cr:references",
+    "regex": "cr:regex",
+    "repeated": "cr:repeated",
+    "replace": "cr:replace",
+    "samplingRate": "cr:samplingRate",
+    "readLines": "cr:readLines",
+    "sdVersion": "cr:sdVersion",
+    "separator": "cr:separator",
+    "source": "cr:source",
+    "subField": "cr:subField",
+    "transform": "cr:transform",
+    "unArchive": "cr:unArchive",
+    "value": "cr:value"
+  },
+  "@type": "sc:Dataset",
+  "conformsTo": [
+    "http://mlcommons.org/croissant/1.1",
+    "http://mlcommons.org/croissant/RAI/1.0",
+    "http://mlcommons.org/croissant/geo/1.0"
+  ],
+  "name": "rampnet-benchmark",
+  "alternateName": [
+    "projectsidewalk/rampnet-benchmark",
+    "RampNet Benchmark Imagery"
+  ],
+  "description": "Post-publication, human-verified curb ramp detection benchmark for RampNet: 9 city splits (1,109 reviewed panoramas) across Google Street View and Mapillary imagery, including two non-US cities. Per panorama, every RampNet detection was judged by a reviewer and ramps the model missed were marked, so both precision and recall are measurable. This benchmark is NOT part of the RampNet paper: it was built 2026-07-22 to 2026-08-01, eleven months after publication, and its ground truth, cities and matching protocol differ, so its numbers are not comparable with the paper's.",
+  "url": "https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark",
+  "sameAs": [
+    "https://github.com/ProjectSidewalk/RampNet/tree/main/benchmark"
+  ],
+  "identifier": "DOI-NOT-YET-MINTED (issue #150): replace with the DataCite DOI once minted",
+  "creator": {
+    "@type": "sc:Organization",
+    "name": "Project Sidewalk",
+    "url": "https://huggingface.co/projectsidewalk"
+  },
+  "publisher": {
+    "@type": "sc:Organization",
+    "name": "Project Sidewalk",
+    "url": "https://huggingface.co/projectsidewalk"
+  },
+  "license": "https://spdx.org/licenses/MIT.html",
+  "datePublished": "2026-08-04",
+  "dateModified": "2026-08-17",
+  "version": "1.0.0",
+  "isLiveDataset": false,
+  "inLanguage": "en",
+  "keywords": [
+    "curb ramp",
+    "accessibility",
+    "streetscape",
+    "benchmark",
+    "evaluation",
+    "object detection",
+    "out-of-distribution",
+    "Mapillary",
+    "Google Street View"
+  ],
+  "citeAs": "@inproceedings{omeara2025rampnet,\n  author    = {John S. O'Meara and Jared Hwang and Zeyu Wang and Michael Saugstad and Jon E. Froehlich},\n  title     = {{RampNet: A Two-Stage Pipeline for Bootstrapping Curb Ramp Detection in Streetscape Images from Open Government Metadata}},\n  booktitle = {{ICCV'25 Workshop on Vision Foundation Models and Generative AI for Accessibility: Challenges and Opportunities (ICCV 2025 Workshop)}},\n  year      = {2025},\n  doi       = {https://doi.org/10.48550/arXiv.2508.09415},\n  url       = {https://cv4a11y.github.io/ICCV2025/index.html},\n  note      = {Dataset DOI: forthcoming}\n}",
+  "citation": [
+    "https://doi.org/10.48550/arXiv.2508.09415",
+    "https://github.com/ProjectSidewalk/RampNet#erratum-evaluation-metrics-july-2026"
+  ],
+  "isBasedOn": [
+    "https://huggingface.co/projectsidewalk/rampnet-model",
+    "https://github.com/ProjectSidewalk/RampNet/tree/main/benchmark"
+  ],
+  "spatialCoverage": [
+    {
+      "@type": "sc:Place",
+      "name": "Annapolis, MD, USA",
+      "description": "Split `annapolis`: extent of its reviewed panoramas.",
+      "geo": {
+        "@type": "sc:GeoShape",
+        "box": "38.94928 -76.53662 38.99324 -76.4751"
+      }
+    },
+    {
+      "@type": "sc:Place",
+      "name": "Bend, OR, USA",
+      "description": "Split `bend`: extent of its reviewed panoramas.",
+      "geo": {
+        "@type": "sc:GeoShape",
+        "box": "44.00807 -121.36906 44.11695 -121.25664"
+      }
+    },
+    {
+      "@type": "sc:Place",
+      "name": "Budapest District V, Hungary",
+      "description": "Split `budapest_district5`: extent of its reviewed panoramas.",
+      "geo": {
+        "@type": "sc:GeoShape",
+        "box": "47.48692 19.04517 47.51334 19.06054"
+      }
+    },
+    {
+      "@type": "sc:Place",
+      "name": "Clovis, NM, USA",
+      "description": "Split `clovis`: extent of its reviewed panoramas.",
+      "geo": {
+        "@type": "sc:GeoShape",
+        "box": "34.37576 -103.24868 34.46302 -103.16027"
+      }
+    },
+    {
+      "@type": "sc:Place",
+      "name": "Gainesville, FL, USA",
+      "description": "Split `gainesville`: extent of its reviewed panoramas.",
+      "geo": {
+        "@type": "sc:GeoShape",
+        "box": "29.60584 -82.37195 29.65941 -82.27685"
+      }
+    },
+    {
+      "@type": "sc:Place",
+      "name": "Morgantown, WV, USA",
+      "description": "Split `morgantown`: extent of its reviewed panoramas.",
+      "geo": {
+        "@type": "sc:GeoShape",
+        "box": "39.60628 -79.98238 39.66586 -79.92507"
+      }
+    },
+    {
+      "@type": "sc:Place",
+      "name": "Paterson, NJ, USA",
+      "description": "Split `paterson`: extent of its reviewed panoramas.",
+      "geo": {
+        "@type": "sc:GeoShape",
+        "box": "40.89019 -74.20431 40.93779 -74.13215"
+      }
+    },
+    {
+      "@type": "sc:Place",
+      "name": "Richmond, VA, USA",
+      "description": "Split `richmond`: extent of its reviewed panoramas.",
+      "geo": {
+        "@type": "sc:GeoShape",
+        "box": "37.53114 -77.44891 37.55108 -77.4292"
+      }
+    },
+    {
+      "@type": "sc:Place",
+      "name": "Sao Paulo, Brazil",
+      "description": "Split `sao_paulo`: extent of its reviewed panoramas.",
+      "geo": {
+        "@type": "sc:GeoShape",
+        "box": "-23.57569 -46.64986 -23.52025 -46.60618"
+      }
+    }
+  ],
+  "temporalCoverage": "2007-10/2026-07",
+  "geocr:coordinateReferenceSystem": "EPSG:4326",
+  "geocr:samplingStrategy": "Each city split is stratified: 5 top-detection panoramas, N random and M empty (no-detection) panoramas drawn from a run of the auto-labeler over the city (benchmark/README.md; bend samples 10 empty where the others take 25). The per-row `review_group` records the stratum; the unbiased subset is random + empty. Only reviewed panoramas are included.",
+  "geocr:spatialBias": "Nine splits: seven small US cities or districts and two non-US (Budapest District V, Sao Paulo). Five splits use Mapillary imagery (cameras: GoPro Fusion, GoPro Max, Trimble MX7, iSTAR Pulsar), four use Google Street View; imagery source and camera are confounded with city. Bend is one of the paper's three training cities.",
+  "rai:dataCollection": "For each city, the sidewalk-auto-labeler enumerated panoramas, ran the published RampNet model (`model_id` rampnet-model) and exported a native-resolution bundle; a stratified sample was reviewed in RampNet's ground-truth gallery (scripts/gt_gallery.py) at 4096x2048: every detection judged, and the whole panorama scanned for missed ramps. Reviews were exported between 2026-07-22 and 2026-08-01 (verdicts.json `exported_at`). Protocol: docs/adding_a_benchmark_city.md.",
+  "rai:dataCollectionType": [
+    "Manual Human Curation",
+    "Software Collection"
+  ],
+  "rai:dataCollectionRawData": "Street-level panoramas from Google Street View and Mapillary, fetched by ProjectSidewalk/sidewalk-auto-labeler; per-record provider attribution is in `copyright`. Pixel hashes pinned at review time are in benchmark/<city>/imagery_manifest.json.",
+  "rai:dataAnnotationProtocol": "benchmark/RUBRICS.md section 1: per detection one of correct / incorrect / unsure / duplicate; missed ramps marked with an optional unsure flag; a complete-scan attestation (`no_missed`). `unsure` is an ignore region for scoring. Scoring: scripts/score_validation.py and rampnet/detection_eval.py.",
+  "rai:dataAnnotationPlatform": "RampNet ground-truth gallery (scripts/gt_gallery.py), a static HTML page.",
+  "rai:annotationsPerItem": "One human review pass per panorama; no second rater has been run on any split yet (benchmark/README.md; a Budapest second rater is issue #74).",
+  "rai:dataBiases": "Model-anchored ground truth: reviewers judge RampNet's own detections and then add misses, so the ground truth is not independent of the model being evaluated (the 1,000-panorama manual gold set in rampnet-dataset is the un-anchored one). Imagery provider and camera vary by split and move precision (benchmark/README.md). Capture years span 2007-10 to 2026-07 and differ by split (split_extents record set). Budapest was reviewed at low self-rated confidence with a US-derived rubric.",
+  "rai:dataLimitations": "Not the paper's evaluation; do not compare its numbers with the paper's. Bend overlaps the training set by four panoramas (6WC0hdAYRsSAcluKSs5iRg, 9kW9cxpuj7q8DMzf-ClrQQ, DJ8Zp111zu6KnMZz-0PHgQ, VgWpqFkTwCIROvM0z-DkOw), unflagged in the published rows (issue #127); dropping them moves bend P/R 0.954/0.758 to 0.956/0.753. Reviewer notes and per-split confidence live in git (verdicts.json `review_notes`), not in the Parquet rows. Budapest is single-rater, low confidence, and should not be pooled with the US splits. The two Laurens, IA splits are in git but not yet on the Hub. About 110 to 125 panoramas per split, so per-split intervals are wide. Points only; the benchmark has no ramp extents.",
+  "rai:dataUseCases": "Intended: out-of-domain evaluation of curb ramp detectors (precision, recall, AP) across cities and imagery sources; score with scripts/score_validation.py. Not intended: training (the splits are small, and training on them removes the only held-out cities), or quoting as the RampNet paper's evaluation.",
+  "rai:personalSensitiveInformation": "Street-level panoramas can show people, vehicles, licence plates and private buildings; images are stored as the exact source bytes, with no redaction added by this release. The `copyright` field of Mapillary records names the contributing user account.",
+  "rai:dataReleaseMaintenancePlan": "Static release (isLiveDataset false) pinned at Hub revision 63d5ffd0e4b6795702db40be89ea4d9672d91ab5. Verdicts are revised in git and re-exported to the `records` config without touching image files. Proposed versioning (issue #150): major version on any data-file change, minor on metadata-only changes. Maintained by Project Sidewalk / the Makeability Lab, University of Washington, via https://github.com/ProjectSidewalk/RampNet/issues.",
+  "distribution": [
+    {
+      "@type": "cr:FileObject",
+      "@id": "repo",
+      "name": "repo",
+      "description": "The Hugging Face dataset repository. This description matches revision 63d5ffd0e4b6795702db40be89ea4d9672d91ab5 (2026-08-17); per-file hashes are in the file_manifest record set.",
+      "contentUrl": "https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark",
+      "encodingFormat": "git+https",
+      "sha256": "https://github.com/mlcommons/croissant/issues/80"
+    },
+    {
+      "@type": "cr:FileSet",
+      "@id": "parquet-records",
+      "name": "parquet-records",
+      "description": "`records` config, one Parquet file per city split. The ground truth: per-panorama metadata, model detections with their human verdict, and reviewer-marked missed ramps. Reviewed panoramas only.",
+      "containedIn": {
+        "@id": "repo"
+      },
+      "encodingFormat": "application/x-parquet",
+      "includes": "data/records/*.parquet"
+    },
+    {
+      "@type": "cr:FileSet",
+      "@id": "parquet-native",
+      "name": "parquet-native",
+      "description": "`native` config, one Parquet file per city split. The panoramas exactly as fetched, 4096 to 16384 px wide depending on city and imagery source.",
+      "containedIn": {
+        "@id": "repo"
+      },
+      "encodingFormat": "application/x-parquet",
+      "includes": "data/native/*.parquet"
+    },
+    {
+      "@type": "cr:FileSet",
+      "@id": "parquet-4096x2048",
+      "name": "parquet-4096x2048",
+      "description": "`4096x2048` config, one Parquet file per city split. The same panoramas at the model's input size; what ground-truth reviewers saw.",
+      "containedIn": {
+        "@id": "repo"
+      },
+      "encodingFormat": "application/x-parquet",
+      "includes": "data/4096x2048/*.parquet"
+    },
+    {
+      "@type": "cr:FileSet",
+      "@id": "parquet-galleries",
+      "name": "parquet-galleries",
+      "description": "`galleries` config, one Parquet file per city split. Crops of single detections shown in the operating-point A/B pass (314 crops).",
+      "containedIn": {
+        "@id": "repo"
+      },
+      "encodingFormat": "application/x-parquet",
+      "includes": "data/galleries/*.parquet"
+    }
+  ],
+  "recordSet": [
+    {
+      "@type": "cr:RecordSet",
+      "@id": "splits",
+      "name": "splits",
+      "dataType": "cr:Split",
+      "description": "One split per city. Every split is an evaluation split; none is for training.",
+      "key": {
+        "@id": "splits/name"
+      },
+      "field": [
+        {
+          "@type": "cr:Field",
+          "@id": "splits/name",
+          "name": "name",
+          "dataType": "sc:Text"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "splits/url",
+          "name": "url",
+          "dataType": [
+            "cr:Split",
+            "sc:URL"
+          ]
+        }
+      ],
+      "data": [
+        {
+          "splits/name": "annapolis",
+          "splits/url": "cr:TestSplit"
+        },
+        {
+          "splits/name": "bend",
+          "splits/url": "cr:TestSplit"
+        },
+        {
+          "splits/name": "budapest_district5",
+          "splits/url": "cr:TestSplit"
+        },
+        {
+          "splits/name": "clovis",
+          "splits/url": "cr:TestSplit"
+        },
+        {
+          "splits/name": "gainesville",
+          "splits/url": "cr:TestSplit"
+        },
+        {
+          "splits/name": "morgantown",
+          "splits/url": "cr:TestSplit"
+        },
+        {
+          "splits/name": "paterson",
+          "splits/url": "cr:TestSplit"
+        },
+        {
+          "splits/name": "richmond",
+          "splits/url": "cr:TestSplit"
+        },
+        {
+          "splits/name": "sao_paulo",
+          "splits/url": "cr:TestSplit"
+        }
+      ]
+    },
+    {
+      "@type": "cr:RecordSet",
+      "@id": "records",
+      "name": "records",
+      "description": "The ground truth: per-panorama metadata, model detections with their human verdict, and reviewer-marked missed ramps. Reviewed panoramas only. Regenerated from benchmark/<city>/records.jsonl + verdicts.json in git by scripts/export_benchmark.py; git is the source of truth.",
+      "field": [
+        {
+          "@type": "cr:Field",
+          "@id": "records/split",
+          "name": "split",
+          "dataType": "sc:Text",
+          "description": "Split name, parsed from the Parquet file's path in the repository.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-records"
+            },
+            "extract": {
+              "fileProperty": "fullpath"
+            },
+            "transform": {
+              "regex": "^data/records/(annapolis|bend|budapest_district5|clovis|gainesville|morgantown|paterson|richmond|sao_paulo)\\.parquet$"
+            }
+          },
+          "references": {
+            "field": {
+              "@id": "splits/name"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "records/pano_id",
+          "name": "pano_id",
+          "dataType": "sc:Text",
+          "description": "Panorama id. GSV and Mapillary ids are different id spaces; key on (city, pano_id) when mixing splits.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-records"
+            },
+            "extract": {
+              "column": "pano_id"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "records/city",
+          "name": "city",
+          "dataType": "sc:Text",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-records"
+            },
+            "extract": {
+              "column": "city"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "records/source",
+          "name": "source",
+          "dataType": "sc:Text",
+          "description": "Imagery source as recorded by the fetcher: `launch` (Google Street View) or `mapillary`.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-records"
+            },
+            "extract": {
+              "column": "source"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "records/capture_date",
+          "name": "capture_date",
+          "dataType": "sc:Text",
+          "description": "Capture month, YYYY-MM.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-records"
+            },
+            "extract": {
+              "column": "capture_date"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "records/width",
+          "name": "width",
+          "dataType": "cr:Int32",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-records"
+            },
+            "extract": {
+              "column": "width"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "records/height",
+          "name": "height",
+          "dataType": "cr:Int32",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-records"
+            },
+            "extract": {
+              "column": "height"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "records/lat",
+          "name": "lat",
+          "dataType": "cr:Float64",
+          "description": "Panorama latitude, WGS 84 (EPSG:4326).",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-records"
+            },
+            "extract": {
+              "column": "lat"
+            }
+          },
+          "equivalentProperty": "sc:latitude"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "records/lng",
+          "name": "lng",
+          "dataType": "cr:Float64",
+          "description": "Panorama longitude, WGS 84 (EPSG:4326).",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-records"
+            },
+            "extract": {
+              "column": "lng"
+            }
+          },
+          "equivalentProperty": "sc:longitude"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "records/camera_heading",
+          "name": "camera_heading",
+          "dataType": "cr:Float64",
+          "description": "Compass heading of the panorama's centre column, degrees clockwise from north, as reported by the imagery provider.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-records"
+            },
+            "extract": {
+              "column": "camera_heading"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "records/copyright",
+          "name": "copyright",
+          "dataType": "sc:Text",
+          "description": "Per-record source attribution string, as served with the imagery.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-records"
+            },
+            "extract": {
+              "column": "copyright"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "records/label_type",
+          "name": "label_type",
+          "dataType": "sc:Text",
+          "description": "Always `CurbRamp`.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-records"
+            },
+            "extract": {
+              "column": "label_type"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "records/model_id",
+          "name": "model_id",
+          "dataType": "sc:Text",
+          "description": "Model that produced `detections`.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-records"
+            },
+            "extract": {
+              "column": "model_id"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "records/model_training_date",
+          "name": "model_training_date",
+          "dataType": "sc:Text",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-records"
+            },
+            "extract": {
+              "column": "model_training_date"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "records/detections",
+          "name": "detections",
+          "description": "Model detections, each judged by a human reviewer. `verdict` is correct, incorrect, unsure (abstention; an ignore point) or duplicate (a second hit on an already-counted ramp). benchmark/RUBRICS.md section 1.",
+          "isArray": true,
+          "arrayShape": "-1",
+          "subField": [
+            {
+              "@type": "cr:Field",
+              "@id": "records/detections/x_normalized",
+              "name": "x_normalized",
+              "dataType": "cr:Float64",
+              "source": {
+                "fileSet": {
+                  "@id": "parquet-records"
+                },
+                "extract": {
+                  "column": "detections"
+                },
+                "transform": {
+                  "jsonPath": "x_normalized"
+                }
+              }
+            },
+            {
+              "@type": "cr:Field",
+              "@id": "records/detections/y_normalized",
+              "name": "y_normalized",
+              "dataType": "cr:Float64",
+              "source": {
+                "fileSet": {
+                  "@id": "parquet-records"
+                },
+                "extract": {
+                  "column": "detections"
+                },
+                "transform": {
+                  "jsonPath": "y_normalized"
+                }
+              }
+            },
+            {
+              "@type": "cr:Field",
+              "@id": "records/detections/confidence",
+              "name": "confidence",
+              "dataType": "cr:Float64",
+              "source": {
+                "fileSet": {
+                  "@id": "parquet-records"
+                },
+                "extract": {
+                  "column": "detections"
+                },
+                "transform": {
+                  "jsonPath": "confidence"
+                }
+              }
+            },
+            {
+              "@type": "cr:Field",
+              "@id": "records/detections/verdict",
+              "name": "verdict",
+              "dataType": "sc:Text",
+              "source": {
+                "fileSet": {
+                  "@id": "parquet-records"
+                },
+                "extract": {
+                  "column": "detections"
+                },
+                "transform": {
+                  "jsonPath": "verdict"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "records/missed",
+          "name": "missed",
+          "description": "Curb ramps the reviewer marked that the model did not detect.",
+          "isArray": true,
+          "arrayShape": "-1",
+          "subField": [
+            {
+              "@type": "cr:Field",
+              "@id": "records/missed/x_normalized",
+              "name": "x_normalized",
+              "dataType": "cr:Float64",
+              "source": {
+                "fileSet": {
+                  "@id": "parquet-records"
+                },
+                "extract": {
+                  "column": "missed"
+                },
+                "transform": {
+                  "jsonPath": "x_normalized"
+                }
+              }
+            },
+            {
+              "@type": "cr:Field",
+              "@id": "records/missed/y_normalized",
+              "name": "y_normalized",
+              "dataType": "cr:Float64",
+              "source": {
+                "fileSet": {
+                  "@id": "parquet-records"
+                },
+                "extract": {
+                  "column": "missed"
+                },
+                "transform": {
+                  "jsonPath": "y_normalized"
+                }
+              }
+            },
+            {
+              "@type": "cr:Field",
+              "@id": "records/missed/unsure",
+              "name": "unsure",
+              "dataType": "sc:Boolean",
+              "source": {
+                "fileSet": {
+                  "@id": "parquet-records"
+                },
+                "extract": {
+                  "column": "missed"
+                },
+                "transform": {
+                  "jsonPath": "unsure"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "records/no_missed",
+          "name": "no_missed",
+          "dataType": "sc:Boolean",
+          "description": "Reviewer attested that the whole panorama was scanned and nothing was missed.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-records"
+            },
+            "extract": {
+              "column": "no_missed"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "records/review_group",
+          "name": "review_group",
+          "dataType": "sc:Text",
+          "description": "Sampling stratum of the panorama (top-detection / random / empty); the unbiased subset is random + empty (benchmark/README.md).",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-records"
+            },
+            "extract": {
+              "column": "review_group"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "@type": "cr:RecordSet",
+      "@id": "native",
+      "name": "native",
+      "description": "`native` config. The panoramas exactly as fetched, 4096 to 16384 px wide depending on city and imagery source. Join to `records` on pano_id.",
+      "field": [
+        {
+          "@type": "cr:Field",
+          "@id": "native/split",
+          "name": "split",
+          "dataType": "sc:Text",
+          "description": "Split name, parsed from the Parquet file's path in the repository.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-native"
+            },
+            "extract": {
+              "fileProperty": "fullpath"
+            },
+            "transform": {
+              "regex": "^data/native/(annapolis|bend|budapest_district5|clovis|gainesville|morgantown|paterson|richmond|sao_paulo)\\.parquet$"
+            }
+          },
+          "references": {
+            "field": {
+              "@id": "splits/name"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "native/pano_id",
+          "name": "pano_id",
+          "dataType": "sc:Text",
+          "description": "Panorama id; join key to `records`.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-native"
+            },
+            "extract": {
+              "column": "pano_id"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "native/city",
+          "name": "city",
+          "dataType": "sc:Text",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-native"
+            },
+            "extract": {
+              "column": "city"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "native/image",
+          "name": "image",
+          "dataType": "sc:ImageObject",
+          "description": "The image, stored as the exact source bytes (not re-encoded on write).",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-native"
+            },
+            "extract": {
+              "column": "image"
+            },
+            "transform": {
+              "jsonPath": "bytes"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "native/width",
+          "name": "width",
+          "dataType": "cr:Int32",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-native"
+            },
+            "extract": {
+              "column": "width"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "native/height",
+          "name": "height",
+          "dataType": "cr:Int32",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-native"
+            },
+            "extract": {
+              "column": "height"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "native/sha256",
+          "name": "sha256",
+          "dataType": "sc:Text",
+          "description": "SHA-256 of the embedded image bytes; see benchmark/<city>/imagery_manifest.json.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-native"
+            },
+            "extract": {
+              "column": "sha256"
+            }
+          }
+        }
+      ],
+      "key": {
+        "@id": "native/pano_id"
+      }
+    },
+    {
+      "@type": "cr:RecordSet",
+      "@id": "px4096x2048",
+      "name": "px4096x2048",
+      "description": "`4096x2048` config. The same panoramas at the model's input size; what ground-truth reviewers saw. Join to `records` on pano_id.",
+      "field": [
+        {
+          "@type": "cr:Field",
+          "@id": "px4096x2048/split",
+          "name": "split",
+          "dataType": "sc:Text",
+          "description": "Split name, parsed from the Parquet file's path in the repository.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-4096x2048"
+            },
+            "extract": {
+              "fileProperty": "fullpath"
+            },
+            "transform": {
+              "regex": "^data/4096x2048/(annapolis|bend|budapest_district5|clovis|gainesville|morgantown|paterson|richmond|sao_paulo)\\.parquet$"
+            }
+          },
+          "references": {
+            "field": {
+              "@id": "splits/name"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "px4096x2048/pano_id",
+          "name": "pano_id",
+          "dataType": "sc:Text",
+          "description": "Panorama id; join key to `records`.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-4096x2048"
+            },
+            "extract": {
+              "column": "pano_id"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "px4096x2048/city",
+          "name": "city",
+          "dataType": "sc:Text",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-4096x2048"
+            },
+            "extract": {
+              "column": "city"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "px4096x2048/image",
+          "name": "image",
+          "dataType": "sc:ImageObject",
+          "description": "The image, stored as the exact source bytes (not re-encoded on write).",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-4096x2048"
+            },
+            "extract": {
+              "column": "image"
+            },
+            "transform": {
+              "jsonPath": "bytes"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "px4096x2048/width",
+          "name": "width",
+          "dataType": "cr:Int32",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-4096x2048"
+            },
+            "extract": {
+              "column": "width"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "px4096x2048/height",
+          "name": "height",
+          "dataType": "cr:Int32",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-4096x2048"
+            },
+            "extract": {
+              "column": "height"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "px4096x2048/sha256",
+          "name": "sha256",
+          "dataType": "sc:Text",
+          "description": "SHA-256 of the embedded image bytes; see benchmark/<city>/imagery_manifest.json.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-4096x2048"
+            },
+            "extract": {
+              "column": "sha256"
+            }
+          }
+        }
+      ],
+      "key": {
+        "@id": "px4096x2048/pano_id"
+      }
+    },
+    {
+      "@type": "cr:RecordSet",
+      "@id": "galleries",
+      "name": "galleries",
+      "description": "`galleries` config: crops of single detections from the operating-point A/B pass (314 crops). Join to `records` on pano_id.",
+      "field": [
+        {
+          "@type": "cr:Field",
+          "@id": "galleries/split",
+          "name": "split",
+          "dataType": "sc:Text",
+          "description": "Split name, parsed from the Parquet file's path in the repository.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-galleries"
+            },
+            "extract": {
+              "fileProperty": "fullpath"
+            },
+            "transform": {
+              "regex": "^data/galleries/(annapolis|bend|budapest_district5|clovis|gainesville|morgantown|paterson|richmond|sao_paulo)\\.parquet$"
+            }
+          },
+          "references": {
+            "field": {
+              "@id": "splits/name"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "galleries/crop_id",
+          "name": "crop_id",
+          "dataType": "sc:Text",
+          "description": "The crop's own id, `<pano_id>_<x>_<y>`; unique per detection.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-galleries"
+            },
+            "extract": {
+              "column": "crop_id"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "galleries/pano_id",
+          "name": "pano_id",
+          "dataType": "sc:Text",
+          "description": "Panorama id; join key to `records`.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-galleries"
+            },
+            "extract": {
+              "column": "pano_id"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "galleries/city",
+          "name": "city",
+          "dataType": "sc:Text",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-galleries"
+            },
+            "extract": {
+              "column": "city"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "galleries/image",
+          "name": "image",
+          "dataType": "sc:ImageObject",
+          "description": "The image, stored as the exact source bytes (not re-encoded on write).",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-galleries"
+            },
+            "extract": {
+              "column": "image"
+            },
+            "transform": {
+              "jsonPath": "bytes"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "galleries/width",
+          "name": "width",
+          "dataType": "cr:Int32",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-galleries"
+            },
+            "extract": {
+              "column": "width"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "galleries/height",
+          "name": "height",
+          "dataType": "cr:Int32",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-galleries"
+            },
+            "extract": {
+              "column": "height"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "galleries/sha256",
+          "name": "sha256",
+          "dataType": "sc:Text",
+          "description": "SHA-256 of the embedded image bytes; see benchmark/<city>/imagery_manifest.json.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-galleries"
+            },
+            "extract": {
+              "column": "sha256"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "galleries/x_normalized",
+          "name": "x_normalized",
+          "dataType": "cr:Float64",
+          "description": "Where in the panorama the detection sits (matches `records` detections).",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-galleries"
+            },
+            "extract": {
+              "column": "x_normalized"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "galleries/y_normalized",
+          "name": "y_normalized",
+          "dataType": "cr:Float64",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-galleries"
+            },
+            "extract": {
+              "column": "y_normalized"
+            }
+          }
+        }
+      ],
+      "key": {
+        "@id": "galleries/crop_id"
+      }
+    },
+    {
+      "@type": "cr:RecordSet",
+      "@id": "split_extents",
+      "name": "split_extents",
+      "description": "GeoCroissant record-level spatial and temporal extent of each published split, derived from the committed benchmark/<city>/records.jsonl restricted to reviewed panoramas (the filter export_benchmark.py applies). Re-derived and checked by `python scripts/validate_croissant.py`. Coordinates are WGS 84 degrees rounded to 5 decimals; dates are capture months.",
+      "key": {
+        "@id": "split_extents/split"
+      },
+      "field": [
+        {
+          "@type": "cr:Field",
+          "@id": "split_extents/split",
+          "name": "split",
+          "dataType": "sc:Text",
+          "references": {
+            "field": {
+              "@id": "splits/name"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "split_extents/place",
+          "name": "place",
+          "dataType": "sc:Text"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "split_extents/imagery_source",
+          "name": "imagery_source",
+          "dataType": "sc:Text"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "split_extents/num_panoramas",
+          "name": "num_panoramas",
+          "dataType": "cr:Int64"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "split_extents/min_lat",
+          "name": "min_lat",
+          "dataType": "cr:Float64"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "split_extents/min_lng",
+          "name": "min_lng",
+          "dataType": "cr:Float64"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "split_extents/max_lat",
+          "name": "max_lat",
+          "dataType": "cr:Float64"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "split_extents/max_lng",
+          "name": "max_lng",
+          "dataType": "cr:Float64"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "split_extents/capture_date_min",
+          "name": "capture_date_min",
+          "dataType": "sc:Text"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "split_extents/capture_date_max",
+          "name": "capture_date_max",
+          "dataType": "sc:Text"
+        }
+      ],
+      "data": [
+        {
+          "split_extents/split": "annapolis",
+          "split_extents/place": "Annapolis, MD, USA",
+          "split_extents/imagery_source": "Mapillary",
+          "split_extents/num_panoramas": 125,
+          "split_extents/min_lat": 38.94928,
+          "split_extents/min_lng": -76.53662,
+          "split_extents/max_lat": 38.99324,
+          "split_extents/max_lng": -76.4751,
+          "split_extents/capture_date_min": "2020-05",
+          "split_extents/capture_date_max": "2023-10"
+        },
+        {
+          "split_extents/split": "bend",
+          "split_extents/place": "Bend, OR, USA",
+          "split_extents/imagery_source": "Google Street View",
+          "split_extents/num_panoramas": 110,
+          "split_extents/min_lat": 44.00807,
+          "split_extents/min_lng": -121.36906,
+          "split_extents/max_lat": 44.11695,
+          "split_extents/max_lng": -121.25664,
+          "split_extents/capture_date_min": "2012-05",
+          "split_extents/capture_date_max": "2025-07"
+        },
+        {
+          "split_extents/split": "budapest_district5",
+          "split_extents/place": "Budapest District V, Hungary",
+          "split_extents/imagery_source": "Mapillary",
+          "split_extents/num_panoramas": 125,
+          "split_extents/min_lat": 47.48692,
+          "split_extents/min_lng": 19.04517,
+          "split_extents/max_lat": 47.51334,
+          "split_extents/max_lng": 19.06054,
+          "split_extents/capture_date_min": "2019-10",
+          "split_extents/capture_date_max": "2026-07"
+        },
+        {
+          "split_extents/split": "clovis",
+          "split_extents/place": "Clovis, NM, USA",
+          "split_extents/imagery_source": "Mapillary",
+          "split_extents/num_panoramas": 125,
+          "split_extents/min_lat": 34.37576,
+          "split_extents/min_lng": -103.24868,
+          "split_extents/max_lat": 34.46302,
+          "split_extents/max_lng": -103.16027,
+          "split_extents/capture_date_min": "2019-04",
+          "split_extents/capture_date_max": "2021-05"
+        },
+        {
+          "split_extents/split": "gainesville",
+          "split_extents/place": "Gainesville, FL, USA",
+          "split_extents/imagery_source": "Google Street View",
+          "split_extents/num_panoramas": 125,
+          "split_extents/min_lat": 29.60584,
+          "split_extents/min_lng": -82.37195,
+          "split_extents/max_lat": 29.65941,
+          "split_extents/max_lng": -82.27685,
+          "split_extents/capture_date_min": "2011-03",
+          "split_extents/capture_date_max": "2026-04"
+        },
+        {
+          "split_extents/split": "morgantown",
+          "split_extents/place": "Morgantown, WV, USA",
+          "split_extents/imagery_source": "Mapillary",
+          "split_extents/num_panoramas": 125,
+          "split_extents/min_lat": 39.60628,
+          "split_extents/min_lng": -79.98238,
+          "split_extents/max_lat": 39.66586,
+          "split_extents/max_lng": -79.92507,
+          "split_extents/capture_date_min": "2024-01",
+          "split_extents/capture_date_max": "2025-07"
+        },
+        {
+          "split_extents/split": "paterson",
+          "split_extents/place": "Paterson, NJ, USA",
+          "split_extents/imagery_source": "Google Street View",
+          "split_extents/num_panoramas": 125,
+          "split_extents/min_lat": 40.89019,
+          "split_extents/min_lng": -74.20431,
+          "split_extents/max_lat": 40.93779,
+          "split_extents/max_lng": -74.13215,
+          "split_extents/capture_date_min": "2007-10",
+          "split_extents/capture_date_max": "2025-11"
+        },
+        {
+          "split_extents/split": "richmond",
+          "split_extents/place": "Richmond, VA, USA",
+          "split_extents/imagery_source": "Mapillary",
+          "split_extents/num_panoramas": 124,
+          "split_extents/min_lat": 37.53114,
+          "split_extents/min_lng": -77.44891,
+          "split_extents/max_lat": 37.55108,
+          "split_extents/max_lng": -77.4292,
+          "split_extents/capture_date_min": "2024-07",
+          "split_extents/capture_date_max": "2025-09"
+        },
+        {
+          "split_extents/split": "sao_paulo",
+          "split_extents/place": "Sao Paulo, Brazil",
+          "split_extents/imagery_source": "Google Street View",
+          "split_extents/num_panoramas": 125,
+          "split_extents/min_lat": -23.57569,
+          "split_extents/min_lng": -46.64986,
+          "split_extents/max_lat": -23.52025,
+          "split_extents/max_lng": -46.60618,
+          "split_extents/capture_date_min": "2015-10",
+          "split_extents/capture_date_max": "2026-01"
+        }
+      ]
+    },
+    {
+      "@type": "cr:RecordSet",
+      "@id": "file_manifest",
+      "name": "file_manifest",
+      "description": "Every Parquet file at Hub revision 63d5ffd0e4b6795702db40be89ea4d9672d91ab5, with its size and content hash. Checked against the live listing by `python scripts/validate_croissant.py --hub`.",
+      "key": {
+        "@id": "file_manifest/path"
+      },
+      "field": [
+        {
+          "@type": "cr:Field",
+          "@id": "file_manifest/path",
+          "name": "path",
+          "dataType": "sc:Text",
+          "description": "Path of the file inside the Hugging Face repository."
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "file_manifest/bytes",
+          "name": "bytes",
+          "dataType": "cr:Int64",
+          "description": "File size in bytes, from the Hub's tree listing."
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "file_manifest/sha256",
+          "name": "sha256",
+          "dataType": "sc:Text",
+          "description": "SHA-256 of the file's content (the Git LFS object id reported by the Hub)."
+        }
+      ],
+      "data": [
+        {
+          "file_manifest/path": "data/4096x2048/annapolis.parquet",
+          "file_manifest/bytes": 99084657,
+          "file_manifest/sha256": "f3905ff52b922b97fbb699ce928c4a7c6fe2fc0a5367a7e7a7f03289ea363df4"
+        },
+        {
+          "file_manifest/path": "data/4096x2048/bend.parquet",
+          "file_manifest/bytes": 102896868,
+          "file_manifest/sha256": "cdaa75395eb8065392d4c663a11dbb705bb8443564bb61b4108143762f02d148"
+        },
+        {
+          "file_manifest/path": "data/4096x2048/budapest_district5.parquet",
+          "file_manifest/bytes": 135839789,
+          "file_manifest/sha256": "5e002e94dcc17487bf589128ac7b541fea2c4ebeb98b558795ff4000b1fb88e4"
+        },
+        {
+          "file_manifest/path": "data/4096x2048/clovis.parquet",
+          "file_manifest/bytes": 84219681,
+          "file_manifest/sha256": "a19cda128d217a7c5cdb54194f2060323687ec5a6756618dd19730e0716163b2"
+        },
+        {
+          "file_manifest/path": "data/4096x2048/gainesville.parquet",
+          "file_manifest/bytes": 134696892,
+          "file_manifest/sha256": "5eb38d9f1f199c8d56141513d23ff38feacfe8fe7fc9742cf007c225b928812e"
+        },
+        {
+          "file_manifest/path": "data/4096x2048/morgantown.parquet",
+          "file_manifest/bytes": 101114644,
+          "file_manifest/sha256": "d740595cd3150db0322aa9417ab3c2e467af1d7ed95b3bf7a5bd64037c77f941"
+        },
+        {
+          "file_manifest/path": "data/4096x2048/paterson.parquet",
+          "file_manifest/bytes": 119098118,
+          "file_manifest/sha256": "9d85969ed165baf734507e26cf8a4678b9c0853634cd73bb56960b99670e3588"
+        },
+        {
+          "file_manifest/path": "data/4096x2048/richmond.parquet",
+          "file_manifest/bytes": 96019339,
+          "file_manifest/sha256": "e631c4032981beceeb4af56fa49b08c821ce9a3946045716ac89f3fa8fe5aaf5"
+        },
+        {
+          "file_manifest/path": "data/4096x2048/sao_paulo.parquet",
+          "file_manifest/bytes": 131917353,
+          "file_manifest/sha256": "762036602a169e2ea1fd54629f885b35638e0f1c5fcd88d4fb96bd86e7f01c53"
+        },
+        {
+          "file_manifest/path": "data/galleries/annapolis.parquet",
+          "file_manifest/bytes": 36670632,
+          "file_manifest/sha256": "f1cfb888fe25e58c974c622f254735c3e6d41707c1e786981d52c7ada334e2f9"
+        },
+        {
+          "file_manifest/path": "data/galleries/bend.parquet",
+          "file_manifest/bytes": 36893658,
+          "file_manifest/sha256": "888289b7531dc50398f4614daa9ce358eb16aeadef97f3fc44c811f06bbd8b70"
+        },
+        {
+          "file_manifest/path": "data/galleries/budapest_district5.parquet",
+          "file_manifest/bytes": 99805181,
+          "file_manifest/sha256": "4a3690a34972abc22726074235e43ed15eb8115f37994c3764808b2ee5e8622c"
+        },
+        {
+          "file_manifest/path": "data/galleries/clovis.parquet",
+          "file_manifest/bytes": 29224029,
+          "file_manifest/sha256": "e113de5436abc27fccf3afeadcce6697336b1642e1d056b94930d2046625ee3c"
+        },
+        {
+          "file_manifest/path": "data/galleries/gainesville.parquet",
+          "file_manifest/bytes": 50884227,
+          "file_manifest/sha256": "5e3fc3b9563f35b2909399e7901d29e5f1c4b4ae920903c26ed3f9684d1148af"
+        },
+        {
+          "file_manifest/path": "data/galleries/morgantown.parquet",
+          "file_manifest/bytes": 23556856,
+          "file_manifest/sha256": "c2eb008d8c56a5967b71f4071016833a309358d5aed77e90b38dbb70a3a9c612"
+        },
+        {
+          "file_manifest/path": "data/galleries/paterson.parquet",
+          "file_manifest/bytes": 15575561,
+          "file_manifest/sha256": "1257aaff7c34c14bd902cc810e511232bc52ac2489da4d75d53f0573dc181fd3"
+        },
+        {
+          "file_manifest/path": "data/galleries/richmond.parquet",
+          "file_manifest/bytes": 30720361,
+          "file_manifest/sha256": "4dfeae8f289931047dbe501bee316ed864c6454f9283b354a01f9b5db8c4fdcd"
+        },
+        {
+          "file_manifest/path": "data/galleries/sao_paulo.parquet",
+          "file_manifest/bytes": 76248448,
+          "file_manifest/sha256": "e97123c2f57288acfad8fd8f7734247a57088f4eff8cc0bf0038d121e5f6430f"
+        },
+        {
+          "file_manifest/path": "data/native/annapolis.parquet",
+          "file_manifest/bytes": 344317807,
+          "file_manifest/sha256": "4dcffd45af6336258e9324b75bcb1fd05f652599e496b4b5534c1103c35dad71"
+        },
+        {
+          "file_manifest/path": "data/native/bend.parquet",
+          "file_manifest/bytes": 1604203174,
+          "file_manifest/sha256": "c9610d438bbd179ca210f231c7da817f06f9c492cf8fa037c275a560cf4a0a25"
+        },
+        {
+          "file_manifest/path": "data/native/budapest_district5.parquet",
+          "file_manifest/bytes": 215543934,
+          "file_manifest/sha256": "9c11efd4728ac96f2ec2d28acf4044f06cdc81da8a9c9cbd00b00ba0605ce998"
+        },
+        {
+          "file_manifest/path": "data/native/clovis.parquet",
+          "file_manifest/bytes": 1531082291,
+          "file_manifest/sha256": "13909494219d688e83c0d71c2d7a1e17b24ef5adcee4ede36c0a5df489f9e285"
+        },
+        {
+          "file_manifest/path": "data/native/gainesville.parquet",
+          "file_manifest/bytes": 2090047313,
+          "file_manifest/sha256": "9ef74b8af828ed2cff5aff64b98001f40ac53dfca0bbd3c29c833f0bae35841f"
+        },
+        {
+          "file_manifest/path": "data/native/morgantown.parquet",
+          "file_manifest/bytes": 94143464,
+          "file_manifest/sha256": "ffc85b7db1d7605994ad54f7ddf53c4b32d53c70eb8a2e781216421c6129627a"
+        },
+        {
+          "file_manifest/path": "data/native/paterson.parquet",
+          "file_manifest/bytes": 1825344374,
+          "file_manifest/sha256": "84c06f4f4e1f012fa6dc667ce01f0349838651fee0d738d0b411a2a7bf9c76a9"
+        },
+        {
+          "file_manifest/path": "data/native/richmond.parquet",
+          "file_manifest/bytes": 344764781,
+          "file_manifest/sha256": "140e480f04bae8d79fbe89e581846f44d238c7727c4cc87e8bfe2255ff8c7800"
+        },
+        {
+          "file_manifest/path": "data/native/sao_paulo.parquet",
+          "file_manifest/bytes": 1957971676,
+          "file_manifest/sha256": "1d83e45613c6a2c863d0498057578b91e36a562a1185e8d45fd56db1e33c7b36"
+        },
+        {
+          "file_manifest/path": "data/records/annapolis.parquet",
+          "file_manifest/bytes": 19232,
+          "file_manifest/sha256": "9fdcf258249b0131fb1f102f8123c6571db555370c5fe0c7262b62c1daf576a5"
+        },
+        {
+          "file_manifest/path": "data/records/bend.parquet",
+          "file_manifest/bytes": 20104,
+          "file_manifest/sha256": "ac991d5806ee6f6fd04f09edd26e92d8bc862b9b703871a744c72997265571a1"
+        },
+        {
+          "file_manifest/path": "data/records/budapest_district5.parquet",
+          "file_manifest/bytes": 20616,
+          "file_manifest/sha256": "ece73767ead28bafe7cf100635b24398f7fdd0cad61d4b0ae2f86b25e4f3a1ff"
+        },
+        {
+          "file_manifest/path": "data/records/clovis.parquet",
+          "file_manifest/bytes": 18089,
+          "file_manifest/sha256": "553425dea27e8567f3c4ae88354863c5aea1b65c65e76c4ce10dd42598c8f4c0"
+        },
+        {
+          "file_manifest/path": "data/records/gainesville.parquet",
+          "file_manifest/bytes": 19928,
+          "file_manifest/sha256": "0955f8531243de4d9e6aad363133a4abba7aceebb7687216d63b42c688bb1314"
+        },
+        {
+          "file_manifest/path": "data/records/morgantown.parquet",
+          "file_manifest/bytes": 18719,
+          "file_manifest/sha256": "2df35c29eb477223f39c0d640f4e3a0c0289358a5e545b81f99184812fc4147c"
+        },
+        {
+          "file_manifest/path": "data/records/paterson.parquet",
+          "file_manifest/bytes": 21495,
+          "file_manifest/sha256": "cf307d5c3598c3c93e5314cdc9858bdd6e02e5c55296bb463710585540f0085c"
+        },
+        {
+          "file_manifest/path": "data/records/richmond.parquet",
+          "file_manifest/bytes": 20383,
+          "file_manifest/sha256": "6ce70b0d4faf64f93188e744ed78ea2013ed69ad14ba16be9968fb20985297de"
+        },
+        {
+          "file_manifest/path": "data/records/sao_paulo.parquet",
+          "file_manifest/bytes": 20790,
+          "file_manifest/sha256": "b9d4dbb142f19f198608bcce35ef1fce3f9da0378b42af23cb6e7f21fb2b0136"
+        }
+      ]
+    }
+  ]
+}
