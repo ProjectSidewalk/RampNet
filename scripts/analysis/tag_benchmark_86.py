@@ -24,6 +24,8 @@ Subcommands, in run order (``docs/tag_benchmark_86.md`` has the exact commands):
              independent pano-clustered draws) and paired (the labels test in both splits,
              same draws).
 ``resplit``  CPU. A seeded, pano-grouped, per-city re-split of all 10,857 labels.
+``prep``     CPU. Optional: decode a split's training crops once into a uint8 ``.npy``
+             memmap that ``train --prep`` maps instead of decoding in memory.
 ``train``    GPU. The tagger's DINOv2 training recipe (``notebooks/dino-trainer.ipynb``),
              on a split CSV.
 
@@ -940,43 +942,179 @@ def cmd_resplit(args):
 
 # ----------------------------------------------------------------------------- train
 
+#: Columns of a training table that are not tags. Every other column is a tag, in file order.
+NON_TAG_COLUMNS = ("split", "filename", "city", "label_id", "label_uid", "pano_id", "lat", "lng",
+                   "normalized_x", "normalized_y")
+#: Side of a prepared crop: IMAGE_DIMENSION padded up to the patch multiple (256 -> 266).
+PREP_SIDE = IMAGE_DIMENSION + (PATCH_MULTIPLE - IMAGE_DIMENSION % PATCH_MULTIPLE) % PATCH_MULTIPLE
+
+
+def train_table(labels_path, split_csv=None):
+    """The rows ``train`` trains on, in the order it trains on them, and the tag columns.
+
+    ``split_csv`` (``label_uid``, ``split``) replaces the labels file's own ``split`` column.
+    ``prep`` and ``train`` both call this, so a prepared array's row order is the trainer's."""
+    lab = pd.read_csv(labels_path)
+    if split_csv:
+        sp = pd.read_csv(split_csv)[["label_uid", "split"]]
+        lab = lab.drop(columns="split").merge(sp, on="label_uid", how="inner", validate="one_to_one")
+    tags = [c for c in lab.columns if c not in NON_TAG_COLUMNS]
+    tr = lab[lab.split == "train"].reset_index(drop=True)
+    return tr, tags
+
+
+def locate_crop(fn, dirs):
+    """First ``dir/fn`` that exists, searching ``dirs`` in order."""
+    for d in dirs:
+        if os.path.exists(os.path.join(d, fn)):
+            return os.path.join(d, fn)
+    raise FileNotFoundError(fn)
+
+
+def decode_crop(path):
+    """One crop as the trainer sees it before normalisation: uint8, C-contiguous, 3 x 266 x 266.
+
+    The recipe's deterministic preprocessing: decode to RGB, ``Resize((256, 256))`` on the PIL
+    image, then zero-pad to the patch multiple (14), split as evenly as possible. ``ToTensor``'s
+    /255 and the mean/std normalisation happen per batch on the GPU, so pad pixels stay 0 here.
+    The in-memory path of ``train`` and the ``prep`` memmap both call this one function, so the
+    two hold the same bytes."""
+    from torchvision import io as tvio, transforms
+    tf = transforms.Compose([transforms.ToPILImage(), transforms.Resize((IMAGE_DIMENSION, IMAGE_DIMENSION))])
+    img = tf(tvio.read_image(path, mode=tvio.ImageReadMode.RGB))
+    pw = (PATCH_MULTIPLE - img.width % PATCH_MULTIPLE) % PATCH_MULTIPLE
+    ph = (PATCH_MULTIPLE - img.height % PATCH_MULTIPLE) % PATCH_MULTIPLE
+    img = transforms.Pad((pw // 2, ph // 2, pw - pw // 2, ph - ph // 2))(img)
+    return np.ascontiguousarray(np.asarray(img).transpose(2, 0, 1))
+
+
+def cmd_prep(args):
+    """Decode every training crop once into a uint8 ``.npy`` memmap (N x 3 x 266 x 266).
+
+    Same rows, same order and same bytes as the in-memory decode at the top of ``train``
+    (``train_table`` + ``decode_crop``). Rows are written one at a time into a memmap, so memory
+    stays flat however large N is (tier 2, ~300k crops, is ~64 GB at 212,268 bytes per crop).
+    The array is written to ``<out>.partial`` and renamed only when complete, and the sidecar
+    ``<out>.meta.json`` is written last, so a killed prep never looks finished. The sidecar
+    carries the row order (``label_uids``), the labels and split files' sha256, the image dirs
+    and the sha256 of the array's data bytes in row order (not of the ``.npy`` file, whose
+    header is not data).
+
+    Usage::
+
+        python scripts/analysis/tag_benchmark_86.py prep --labels L.csv --split-csv S.csv \\
+            --images /gscratch/.../crops --out /gscratch/.../train_fov25.npy --workers 8
+        python scripts/analysis/tag_benchmark_86.py train ... --prep /gscratch/.../train_fov25.npy
+    """
+    import torch
+    import torchvision
+    tr, tags = train_table(args.labels, args.split_csv)
+    t0 = time.time()
+    paths = [locate_crop(fn, args.images) for fn in tr.filename]   # fail before writing anything
+    shape = (len(tr), 3, PREP_SIDE, PREP_SIDE)
+    os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
+    partial = args.out + ".partial"
+    arr = np.lib.format.open_memmap(partial, mode="w+", dtype=np.uint8, shape=shape)
+    h = hashlib.sha256()
+    pool = None
+    if args.workers > 1:
+        import multiprocessing
+        pool = multiprocessing.Pool(args.workers)
+        rows = pool.imap(decode_crop, paths, chunksize=32)     # imap keeps input order
+    else:
+        rows = map(decode_crop, paths)
+    try:
+        for i, a in enumerate(rows):
+            if a.shape != shape[1:]:
+                raise SystemExit(f"{paths[i]}: decoded to {a.shape}, expected {shape[1:]}")
+            arr[i] = a
+            h.update(a.tobytes())
+            if (i + 1) % 10000 == 0:
+                arr.flush()
+                print(f"{i + 1}/{len(paths)} crops, {time.time() - t0:.0f} s", flush=True)
+    finally:
+        if pool is not None:
+            pool.close()
+            pool.join()
+    arr.flush()
+    del arr                      # close the map before the rename (Windows refuses otherwise)
+    os.replace(partial, args.out)
+    meta = {"shape": list(shape), "dtype": "uint8", "array_sha256": h.hexdigest(),
+            "label_uids": tr.label_uid.tolist(), "n": int(len(tr)), "tags": tags,
+            "labels": os.path.basename(args.labels), "labels_sha256": sha256_file(args.labels),
+            "split_csv": os.path.basename(args.split_csv) if args.split_csv else None,
+            "split_csv_sha256": sha256_file(args.split_csv) if args.split_csv else None,
+            "images": list(args.images), "workers": args.workers, "prep_s": time.time() - t0,
+            "host": socket.getfqdn(), "torch": torch.__version__, "torchvision": torchvision.__version__,
+            "ts": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
+    write_json(meta, args.out + ".meta.json")
+    print(json.dumps(_round({k: v for k, v in meta.items() if k != "label_uids"}, 3)))
+
+
+def array_sha256(X, chunk_rows=1024):
+    """sha256 of an array's data bytes in row order, read ``chunk_rows`` rows at a time."""
+    h = hashlib.sha256()
+    for i in range(0, len(X), chunk_rows):
+        h.update(np.ascontiguousarray(X[i:i + chunk_rows]).tobytes())
+    return h.hexdigest()
+
+
+def load_prep(prep_path, tr, labels_path, verify=False):
+    """Map a ``prep`` array read-only and check it is this training table's.
+
+    Refuses (SystemExit) if the sidecar's row order is not ``tr.label_uid``, the labels file's
+    sha256 differs from the one it was prepared from, or the shape is not N x 3 x 266 x 266.
+    ``verify`` also re-hashes the array (one full sequential read) against ``array_sha256``.
+    Returns ``(X, meta)``; ``X`` is an ``np.memmap``, so indexing it reads only those rows."""
+    with open(prep_path + ".meta.json", encoding="utf-8") as fh:
+        meta = json.load(fh)
+    if meta["label_uids"] != tr.label_uid.tolist():
+        raise SystemExit(f"{prep_path}: row order is not this training table's (prepared from "
+                         f"{meta['labels']} / {meta['split_csv']}); re-run prep")
+    if meta["labels_sha256"] != sha256_file(labels_path):
+        raise SystemExit(f"{prep_path}: prepared from a different {meta['labels']} (sha256 differs)")
+    X = np.load(prep_path, mmap_mode="r")
+    if X.dtype != np.uint8 or X.shape != (len(tr), 3, PREP_SIDE, PREP_SIDE):
+        raise SystemExit(f"{prep_path}: {X.dtype} {X.shape}, expected uint8 {(len(tr), 3, PREP_SIDE, PREP_SIDE)}")
+    if verify and array_sha256(X) != meta["array_sha256"]:
+        raise SystemExit(f"{prep_path}: array sha256 does not match its sidecar")
+    return X, meta
+
+
+def batch_pixels(X, idx):
+    """Rows ``idx`` (a LongTensor, any order) of the crop array as a uint8 tensor, in ``idx`` order.
+
+    ``X`` is either the in-memory uint8 tensor or a ``prep`` memmap; for the memmap only these
+    rows are read from disk (page cache), never the whole array."""
+    import torch
+    if isinstance(X, np.ndarray):
+        return torch.from_numpy(np.asarray(X[idx.numpy()]))
+    return X[idx]
+
+
 def cmd_train(args):
     """The tagger's DINOv2 recipe (notebooks/dino-trainer.ipynb at TAGGER_SHA): full
     fine-tune, Adam lr 1e-6, batch 4, shuffle, BCEWithLogitsLoss, 100 epochs, no
     augmentation, checkpoint kept by best *training* exact-match accuracy (ties -> lower
     loss). Two deliberate differences, both stated in the doc: a fixed seed, and the
     deterministic preprocessing is computed once and cached in memory (identical tensors,
-    much faster epochs)."""
+    much faster epochs). ``--prep`` maps a ``prep`` array instead of decoding (same bytes)."""
     import torch
     from torch import nn, optim
-    from torchvision import io as tvio, transforms
     from sklearn.metrics import accuracy_score
     sha = check_tagger(args.tagger_repo, args.tagger_sha)
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
-    lab = pd.read_csv(args.labels)
-    if args.split_csv:
-        sp = pd.read_csv(args.split_csv)[["label_uid", "split"]]
-        lab = lab.drop(columns="split").merge(sp, on="label_uid", how="inner", validate="one_to_one")
-    tags = [c for c in lab.columns if c not in ("split", "filename", "city", "label_id", "label_uid",
-                                                 "pano_id", "lat", "lng", "normalized_x", "normalized_y")]
-    tr = lab[lab.split == "train"].reset_index(drop=True)
-    tf = transforms.Compose([transforms.ToPILImage(), transforms.Resize((IMAGE_DIMENSION, IMAGE_DIMENSION))])
-    imgs = []
+    tr, tags = train_table(args.labels, args.split_csv)
     t0 = time.time()
-    def locate(fn):
-        for d in args.images:
-            if os.path.exists(os.path.join(d, fn)):
-                return os.path.join(d, fn)
-        raise FileNotFoundError(fn)
-
-    for fn in tr.filename:
-        img = tf(tvio.read_image(locate(fn), mode=tvio.ImageReadMode.RGB))
-        pw = (PATCH_MULTIPLE - img.width % PATCH_MULTIPLE) % PATCH_MULTIPLE
-        ph = (PATCH_MULTIPLE - img.height % PATCH_MULTIPLE) % PATCH_MULTIPLE
-        img = transforms.Pad((pw // 2, ph // 2, pw - pw // 2, ph - ph // 2))(img)
-        imgs.append(torch.from_numpy(np.asarray(img).copy()).permute(2, 0, 1))
-    X = torch.stack(imgs)  # uint8 N,3,266,266 -- ToTensor is /255, pad pixels stay 0
+    prep_meta = None
+    if args.prep:
+        X, prep_meta = load_prep(args.prep, tr, args.labels, verify=args.verify_prep)
+    else:
+        if not args.images:
+            raise SystemExit("train needs --images (decode in memory) or --prep (a prep array)")
+        # uint8 N,3,266,266 -- ToTensor is /255, pad pixels stay 0
+        X = torch.stack([torch.from_numpy(decode_crop(locate_crop(fn, args.images))) for fn in tr.filename])
     Y = torch.tensor(tr[tags].to_numpy(np.float32))
     prep_s = time.time() - t0
     dev = torch.device("cuda")
@@ -996,7 +1134,7 @@ def cmd_train(args):
         losses, accs = [], []
         for i in range(0, len(perm), args.batch):
             idx = perm[i:i + args.batch]
-            xb = (X[idx].to(dev).float() / 255.0 - mean) / std
+            xb = (batch_pixels(X, idx).to(dev).float() / 255.0 - mean) / std
             yb = Y[idx].to(dev)
             opt.zero_grad()
             out = model(xb).squeeze(dim=1)
@@ -1026,6 +1164,9 @@ def cmd_train(args):
             "host": socket.getfqdn(), "gpu": torch.cuda.get_device_name(0), "torch": torch.__version__,
             "split_csv": os.path.basename(args.split_csv) if args.split_csv else "hf test.csv/train.csv",
             "ts": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
+    if prep_meta is not None:
+        meta.update(prep=os.path.basename(args.prep), prep_array_sha256=prep_meta["array_sha256"],
+                    prep_verified=bool(args.verify_prep))
     write_json(meta, os.path.join(args.out_dir, "train_meta.json"))
     print(json.dumps(_round(meta, 3)))
 
@@ -1313,11 +1454,22 @@ def main(argv=None):
     p.add_argument("--out", default=os.path.join(OUT_DIR, "resplit_pano_grouped_seed86.csv"))
     p.set_defaults(func=cmd_resplit)
 
+    p = sub.add_parser("prep", help="decode the training crops once into a uint8 .npy memmap (CPU)")
+    p.add_argument("--labels", default=os.path.join(OUT_DIR, "hf_curbramp_labels.csv"))
+    p.add_argument("--split-csv", default=None)
+    p.add_argument("--images", required=True, nargs="+", help="prepared crop dir(s), searched in order")
+    p.add_argument("--workers", type=int, default=1, help="decode processes (row order is kept)")
+    p.add_argument("--out", required=True, help="the .npy to write; its sidecar is <out>.meta.json")
+    p.set_defaults(func=cmd_prep)
+
     p = sub.add_parser("train", help="the tagger's DINOv2 recipe on a split (GPU)")
     tagger(p)
     p.add_argument("--labels", default=os.path.join(OUT_DIR, "hf_curbramp_labels.csv"))
     p.add_argument("--split-csv", default=None)
-    p.add_argument("--images", required=True, nargs="+", help="prepared crop dir(s), searched in order")
+    p.add_argument("--images", nargs="+", default=None,
+                   help="prepared crop dir(s), searched in order (decoded in memory; the default path)")
+    p.add_argument("--prep", default=None, help="a `prep` .npy to map instead of decoding --images")
+    p.add_argument("--verify-prep", action="store_true", help="re-hash the --prep array before training")
     p.add_argument("--backbone", required=True, help="dinov2_vitb14_reg4_pretrain.pth")
     p.add_argument("--epochs", type=int, default=100)
     p.add_argument("--lr", type=float, default=1e-6)
