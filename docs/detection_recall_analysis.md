@@ -90,10 +90,13 @@ peak off zero for the remaining panos, but not near the mirrored mapping's zero 
 mapping scores best on 94 of 404 sky panos and 202 of 483 edge panos, at large shifts, which reads
 as noise rather than support for the mirror. Why those panos peak off zero was not measured.
 
-**Open question, not checked here.** The labeler's own `ground_range_at` uses the same stored ↔
-raw convention as the lookup this section stopped using. Whether the labeler's imagery shares
-these JPEGs' orientation or streetlevel's raster is a question for the labeler, and nothing in
-this document tests it. Checked 2026-09-25 and confirmed: the labeler's `ground_range_at` is mirrored for image-frame coordinates; production outputs are unaffected today; filed as [sidewalk-auto-labeler#80](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/80).
+**The labeler: checked there, not here.** The labeler's own `ground_range_at` uses the same
+stored ↔ raw convention as the lookup this section stopped using. Whether the labeler's imagery
+shares these JPEGs' orientation or streetlevel's raster is a question for the labeler, and
+nothing in this document tests it. It was checked in the labeler on 2026-09-25 and confirmed:
+the labeler's `ground_range_at` is mirrored for image-frame coordinates, and production outputs
+are unaffected today. Filed as
+[sidewalk-auto-labeler#80](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/80).
 
 **The rule.** Depth distance = horizontal range along the exact ray through the point to the
 payload plane under its pixel (the plane index is per pixel of a 512×256 grid; the intersection
@@ -397,9 +400,14 @@ records exactly; that was true of richmond only.
 
 The recall in every row below re-derives from `analysis_out/overlap.json`, the per-GT-ramp hits
 at all four thresholds written by `scripts/analysis/overlap_test.py` (same inference and peak
-extraction as `threshold_sweep.py`; committed 2026-09-25 from the local run of July 2026,
-sha256 `d0d8b4b0…`). Precision and F1 do not: that file holds hits per GT ramp, not false
-positives, and `threshold_sweep.py`'s own output was not kept.
+extraction as `threshold_sweep.py`). It was committed on 2026-09-25 as a byte copy of the
+gitignored `analysis_out/overlap.json` in the main checkout on Jon's Windows workstation
+(`jonfhome`), sha256
+`d0d8b4b0449d9f2f8008e9ce22770fd6d8620c4f419c3e43c92199d63a88dace`, which
+`tests/test_detection_recall_provenance.py` pins. When it was run rests only on that local
+file's mtime, 2026-07-26 18:33 −0700; no log of the run was kept. Precision and F1 do not
+re-derive: that file holds hits per GT ramp, not false positives, and `threshold_sweep.py`'s
+own output was not kept.
 
 | threshold | richmond P / R / F1 | bend P / R / F1 |
 |---|---|---|
@@ -444,14 +452,23 @@ panos are natively ~11000 px wide and Bend 16384 px, against a 4096 px model inp
 **The 0.55 column here is not §1's table (#171).** It comes from the §3 re-run
 (`overlap_test.py`, `analysis_out/overlap.json`), not from the committed records §1 reads, so
 it differs from §1 exactly where bend's re-run differs: 10 ramps, net −2 (485 against 487 hits).
-The bands are §1's DA3 bands with the same n. 25 m+ is §1's 25–40 m row, since §1's rows sum to
-637 and so hold no ramp beyond 40 m, and the 8–12 m row is not shown. Per band, the hit counts
+The bands are consistent with §1's DA3 bands and n: that is inferred from the arithmetic
+below, not read from code, because the code that made this table is not in the repo (see the
+end of this note). Read that way, 25 m+ is §1's 25–40 m row, since §1's rows sum to 637 and so
+hold no ramp beyond 40 m, and the 8–12 m row is not shown. Per band, the hit counts
 implied by n and the printed recall differ by one or two ramps: 0–8 m 110 against 112 of 133,
 12–18 m 161 against 160 of 197, 18–25 m 56 against 57 of 101, 25 m+ 5 against 6 of 33 (the
 omitted 8–12 m row is +1 by subtraction). The column is kept because the gain column needs all
 three thresholds from one inference path. For recall at the deployed operating point, quote §1.
-Like §1, the per-band values need the uncommitted DA3 depths and cannot be re-derived from the
-repo; the per-ramp hits behind them can.
+
+**This table cannot be re-derived from the repo, for two reasons.** The per-ramp hits behind
+it can (`analysis_out/overlap.json`), but (1) the DA3 depths, `gt_depth_da3.json`, are not
+committed (see §1), and (2) no committed script joins `overlap.json` to depth. Despite its
+docstring, `overlap_test.py` stops at writing `overlap.json`; it never reads the depth file.
+The only committed readers of `gt_depth_da3.json` are `depth_extract_da3.py`, which writes it,
+and `depth_analysis.py`, which bins the committed-records hit, not the re-run. So the 0.35,
+0.25 and 0.15 columns, the gain column, and "54% beyond 18 m" below all come from a join that
+was run and not kept. Re-deriving them needs both the depth file and that join.
 
 The threshold helps at *all* distances but most at range, so it competes with resolution for the
 same ramps. It does **not** solve far-field (25 m+ tops out at 0.364), and ramps still missed at

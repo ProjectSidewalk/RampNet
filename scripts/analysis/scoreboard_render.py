@@ -375,79 +375,219 @@ def word_number(word):
     return None
 
 
-_NUM = r"(\d+|[A-Za-z]+(?:-[A-Za-z]+)?)"   # "twenty-one" or "21"
+# A count is digits or a number word, and nothing else. An earlier version accepted any
+# word, so a later sentence such as "over all pooled cities" would have read "all" as the
+# count and failed with a confusing message. Now a phrase with a non-number where the count
+# goes does not match the rule at all.
+_NUMBER_WORDS = sorted(set(_UNITS) | set(_TENS)
+                       | {f"{t}-{u}" for t in _TENS for u in _UNITS[1:10]},
+                       key=len, reverse=True)
+_NUM = r"\b(\d+|(?i:" + "|".join(_NUMBER_WORDS) + r"))\b"   # "twenty-one" or "21"
+_DEC = r"(\d\.\d{3})"                                          # a three-decimal value
+
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+YOLO_GEOMETRY_DIR = os.path.join(REPO, "docs", "data", "yolo_geometry_51")
+
+
+def _yolo_tiles_splits():
+    """How many splits y11x_tiles was scored on: one ``<split>_tiles.txt`` report each."""
+    if not os.path.isdir(YOLO_GEOMETRY_DIR):
+        return None
+    return sum(1 for f in os.listdir(YOLO_GEOMETRY_DIR) if f.endswith("_tiles.txt"))
 
 
 def prose_facts(result):
-    """The counts the hand-written prose quotes, each read off the board."""
+    """The counts and values the hand-written prose quotes, each read off the board.
+
+    Ints are compared as counts (``word_number``), floats at three decimals, strings
+    exactly. ``yolo_tiles_splits`` is the one fact not on the board: it counts the committed
+    reports in ``docs/data/yolo_geometry_51/``.
+    """
     per = result["per_split"]
+    pooled = result["pooled_splits"]
     rampnet_top = sum(
         1 for s in result["all_splits"]
         if "rampnet" in per and s in per["rampnet"]
         and all(per["rampnet"][s]["f1"] >= cells[s]["f1"]
                 for cells in per.values() if s in cells))
-    return {
+
+    def f1s(key, splits):
+        return [per[key][s]["f1"] for s in splits]
+
+    def spread(key, splits):
+        values = f1s(key, splits)
+        return max(values) - min(values)
+
+    # Finding 2: RampNet's range over the pool, and over the pool without its worst split.
+    worst = min(pooled, key=lambda s: per["rampnet"][s]["f1"])
+    rest = [s for s in pooled if s != worst]
+    challengers = [m for m in result["models"] if m["complete"] and m["model"] != "rampnet"]
+    strong = [m["model"] for m in challengers if m["f1"] > 0.1]
+    open_vocab = [m["model"] for m in challengers if m["class"] == "open-vocab"]
+    best = max(challengers, key=lambda m: m["f1"])
+    rampnet = next(m for m in result["models"] if m["model"] == "rampnet")
+    curves = result.get("curves") or {}
+    splits = result["splits"]
+    city_gt = sum(splits[s]["n_gt"] for s in result["city_splits"])
+    gold_gt = splits[result["in_distribution_split"]]["n_gt"]
+
+    facts = {
         "legs": len(result["models"]),
         "splits": len(result["all_splits"]),
-        "pooled": len(result["pooled_splits"]),
+        "pooled": len(pooled),
+        "pooled_minus_one": len(pooled) - 1,
         "held_out": len(result["held_out"]),
         "complete": sum(1 for m in result["models"] if m["complete"]),
         "rampnet_top": rampnet_top,
+        "city_splits": len(result["city_splits"]),
+        "city_gt": city_gt,
+        "manual_gold_share": round(100 * gold_gt / (gold_gt + city_gt)),
+        "yolo_tiles_splits": _yolo_tiles_splits(),
+        # the headline lead, over the best challenger with full pooled coverage
+        "best_challenger": best["display"].split(" (")[0],
+        "lead": rampnet["f1"] - best["f1"],
+        # the two AP families (macro: the table's column; micro: the PR-curve legend)
+        "ap_gap_macro": rampnet["ap"] - max(m["ap"] for m in challengers
+                                            if m.get("ap") is not None),
+        "ap_gap_micro": curves["rampnet"]["ap"] - max(
+            c["ap"] for k, c in curves.items() if k != "rampnet"),
+        # Finding 2
+        "rampnet_min": min(f1s("rampnet", pooled)),
+        "rampnet_max": max(f1s("rampnet", pooled)),
+        "rampnet_range": spread("rampnet", pooled),
+        "rampnet_worst_split": worst,
+        "rampnet_worst_f1": per["rampnet"][worst]["f1"],
+        "worst_share": spread("rampnet", pooled) - spread("rampnet", rest),
+        "rest_min": min(f1s("rampnet", rest)),
+        "rest_max": max(f1s("rampnet", rest)),
+        "rest_range": spread("rampnet", rest),
+        "strong_range_min": min(spread(k, pooled) for k in strong),
+        "strong_range_max": max(spread(k, pooled) for k in strong),
+        "strong_rest_min": min(spread(k, rest) for k in strong),
+        "strong_rest_max": max(spread(k, rest) for k in strong),
     }
+    for i, key in enumerate(open_vocab):
+        facts[f"open_vocab_range_{i}"] = spread(key, pooled)
+    return facts
 
 
-# (name, regex, [fact per captured number word], required). ``required`` rules must match
-# at least once, so deleting or rewording the sentence cannot turn the check vacuous; the
-# others fire wherever the phrase occurs.
+def _agrees(word, value):
+    """Does the prose's ``word`` state the board's ``value``?"""
+    if isinstance(value, float):
+        return word == f"{value:.3f}"
+    if isinstance(value, int):
+        return word_number(word.replace(",", "")) == value
+    return word == value
+
+
+# (name, regex, [fact per captured group], required). Names are unique, one per sentence,
+# and matches are tracked per rule: a required rule is satisfied only by its own sentence,
+# so rewording that sentence reports it missing even when a similar sentence elsewhere
+# still matches a sibling rule. Unrequired rules fire wherever the phrase occurs, which is
+# what catches a stale sentence pasted back in from an older copy of the page.
 PROSE_RULES = (
-    ("leg count", _NUM + r" model legs\b", ["legs"], True),
-    ("split count", _NUM + r" splits \(" + _NUM + r" of them pooled\)",
+    # --- counts, each anchored to the one sentence that states it -----------------------
+    ("intro: legs", _NUM + r" model legs\b", ["legs"], True),
+    ("intro: splits and pooled", _NUM + r" splits \(" + _NUM + r" of them pooled\)",
      ["splits", "pooled"], True),
-    # "the other seven pooled splits" counts the pool minus one, so "other" is excluded.
-    ("pooled count", r"(?<!other )\b" + _NUM + r" pooled (?:US )?(?:city )?(?:splits|cities)\b",
+    ("board: pooled", r"\bMacro-mean over the " + _NUM + r" pooled US city splits\b",
      ["pooled"], True),
-    ("pooled count", r"\bover the " + _NUM + r" US (?:city )?splits\b", ["pooled"], False),
-    ("pooled count", r"\bThe pool is " + _NUM + r" cities\b", ["pooled"], True),
-    ("held-out count", r"\b" + _NUM + r" held-out splits\b", ["held_out"], True),
-    ("top-score count", r"\btop score in " + _NUM + r" of the " + _NUM + r" splits\b",
+    ("how to read: pool size",
+     r"\bThe pool is " + _NUM + r" cities, not all " + _NUM + r" splits\b",
+     ["pooled", "splits"], True),
+    ("how to read: held out", _NUM + r" held-out splits\b", ["held_out"], True),
+    ("matrix: top score", r"\btop score in " + _NUM + r" of the " + _NUM + r" splits\b",
      ["rampnet_top", "splits"], True),
-    ("complete-leg count", r"\bof the " + _NUM + r" models with full pooled coverage\b",
+    ("matrix: complete legs", r"\bof the " + _NUM + r" models with full pooled coverage\b",
      ["complete"], True),
-    # The retired forms, which no board can make true again as long as there are
-    # held-out splits.
-    ("stale form", r"\btop score in all " + _NUM + r" splits\b", [], False),
+    ("macro: manual_gold share",
+     r"\boutnumber all " + _NUM + r" city splits combined \(([\d,]+)\), so a count-pooled "
+     r"headline over all " + _NUM + r" would be (\d+)% one split\b",
+     ["city_splits", "city_gt", "splits", "manual_gold_share"], True),
+    ("missing: y11x_tiles scope",
+     r"\bscored on 2026-08-30 on the " + _NUM + r" splits registered then\b",
+     ["yolo_tiles_splits"], True),
+    # --- values, each anchored to the one sentence that states it -----------------------
+    ("headline: lead",
+     r"\bRampNet leads the best challenger with full pooled coverage \(([^)]+)\) by "
+     + _DEC + r" F1\b", ["best_challenger", "lead"], True),
+    ("finding 2: RampNet range",
+     r"\bOver the " + _NUM + r" its F1 spans " + _DEC + "–" + _DEC + r", a range of " + _DEC,
+     ["pooled", "rampnet_min", "rampnet_max", "rampnet_range"], True),
+    ("finding 2: challenger range",
+     r"\bevery challenger with full pooled coverage scoring above 0\.1 spans " + _DEC
+     + r" \([^)]+\) to " + _DEC + r" \(", ["strong_range_min", "strong_range_max"], True),
+    ("finding 2: worst split",
+     r"\bMost of its range \(" + _DEC + " of " + _DEC + r"\) is `(\w+)` \(" + _DEC + r"\)",
+     ["worst_share", "rampnet_range", "rampnet_worst_split", "rampnet_worst_f1"], True),
+    ("finding 2: without the worst split",
+     r"\bover the other " + _NUM + r" cities it spans " + _DEC + "–" + _DEC
+     + r", a range of " + _DEC + r", against " + _DEC + r" \([^)]+\) to " + _DEC + r" \(",
+     ["pooled_minus_one", "rest_min", "rest_max", "rest_range",
+      "strong_rest_min", "strong_rest_max"], True),
+    ("finding 2: open-vocab range",
+     r"\bThe two open-vocabulary detectors \*are\* flatter \(" + _DEC + ", " + _DEC + r"\)",
+     ["open_vocab_range_0", "open_vocab_range_1"], True),
+    ("AP: family gaps",
+     r"\bmacro-to-macro the gap is " + _DEC + r", micro-to-micro " + _DEC,
+     ["ap_gap_macro", "ap_gap_micro"], True),
+    # --- the same facts in any other sentence, including a restored older one -----------
+    # "the other seven pooled splits" counts the pool minus one, so "other" is excluded.
+    ("anywhere: N pooled splits",
+     r"(?<!other )" + _NUM + r" pooled (?:US )?(?:city )?(?:splits|cities)\b",
+     ["pooled"], False),
+    ("anywhere: over the N US splits", r"\bover the " + _NUM + r" US (?:city )?splits\b",
+     ["pooled"], False),
+    ("anywhere: across the N cities",
+     r"\bacross the " + _NUM + r" (?:pooled )?(?:US )?(?:city )?(?:cities|splits)\b",
+     ["pooled"], False),
+    ("anywhere: all N cities combined", r"\ball " + _NUM + r" cit(?:y splits|ies) combined\b",
+     ["city_splits"], False),
+    ("anywhere: RampNet wins by", r"\bRampNet wins by " + _DEC + r" F1\b", ["lead"], False),
+    ("anywhere: challengers above 0.1",
+     r"\bscoring above 0\.1 (?:spans|swings between) " + _DEC + r" \([^)]+\) (?:to|and) "
+     + _DEC + r" \(", ["strong_range_min", "strong_range_max"], False),
+    ("anywhere: macro-to-macro gap", r"\bmacro-to-macro the gap is " + _DEC,
+     ["ap_gap_macro"], False),
+    # --- retired forms. The first two cannot be true while there are held-out splits and
+    # y11x_tiles is off the board; the third is false as long as a strong challenger's range
+    # is narrower than RampNet's (0.182 against 0.311 on 2026-09-25).
+    ("retired: top score in all splits", r"\btop score in all " + _NUM + r" splits\b",
+     [], False),
+    ("retired: scored on all splits", r"\bscored on all " + _NUM + r" splits\b", [], False),
+    ("retired: only stable strong model",
+     r"\bthe only strong model that is also stable\b", [], False),
 )
+assert len({name for name, *_ in PROSE_RULES}) == len(PROSE_RULES), "rule names must be unique"
 
 
 def prose_problems(text, result):
-    """Every count in the hand-written prose that disagrees with the board, as messages.
+    """Every count or value in the hand-written prose that disagrees with the board.
 
     Generated blocks are stripped first (they are checked by the splice), and whitespace
-    is collapsed because the doc wraps at ~90 columns. Returns [] when the prose is current.
+    is collapsed because the doc wraps its prose. Returns [] when the prose is current.
 
     >>> prose_problems("Eighteen model legs, ten splits.", board)   # doctest: +SKIP
-    ['leg count: "Eighteen model legs" says 18, the board has 21', ...]
+    ['intro: legs: "Eighteen model legs" says Eighteen, the board has 21 (legs)', ...]
     """
     prose = re.sub(r"<!-- BEGIN GENERATED: (\S+) .*?<!-- END GENERATED: \1 -->", "",
                    text, flags=re.S)
     prose = re.sub(r"\s+", " ", prose)
     facts = prose_facts(result)
-    problems, matched = [], set()
+    problems = []
     for name, pattern, keys, required in PROSE_RULES:
         found = list(re.finditer(pattern, prose))
-        if found:
-            matched.add(name)
+        if required and not found:
+            problems.append(f"{name}: no sentence quotes it any more -- restore it, or "
+                            "drop the rule in scoreboard_render.PROSE_RULES")
         for m in found:
             if not keys:
                 problems.append(f'{name}: "{m.group(0)}" is no longer true of the board')
                 continue
             for word, key in zip(m.groups(), keys):
-                n = word_number(word)
-                if n != facts[key]:
+                if not _agrees(word, facts[key]):
+                    shown = (f"{facts[key]:.3f}" if isinstance(facts[key], float)
+                             else facts[key])
                     problems.append(f'{name}: "{m.group(0)}" says {word}, the board has '
-                                    f"{facts[key]} ({key})")
-    for name, _pattern, _keys, required in PROSE_RULES:
-        if required and name not in matched:
-            problems.append(f"{name}: no sentence quotes it any more -- restore one, or "
-                            "drop the rule in scoreboard_render.PROSE_RULES")
+                                    f"{shown} ({key})")
     return sorted(set(problems))

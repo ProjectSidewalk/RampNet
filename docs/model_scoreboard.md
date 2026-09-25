@@ -1,8 +1,8 @@
 # Scoreboard: every model, one table
 
-Twenty-one model legs, twelve splits (eight of them pooled), one page. This is the summary view of the curb-ramp benchmark —
-**rows are models, columns are metrics** — for the question "which model is best, and by how
-much".
+Twenty-one model legs, twelve splits (eight of them pooled), one page. This is the summary
+view of the curb-ramp benchmark — **rows are models, columns are metrics** — for the
+question "which model is best, and by how much".
 
 It is the companion to [`model_comparison.md`](model_comparison.md), not a replacement.
 That document is the comprehensive log: per-split tables in the order the splits were run,
@@ -15,9 +15,12 @@ Every number here is regenerated from committed data by
 [`scripts/analysis/scoreboard.py`](../scripts/analysis/scoreboard.py) — no GPU, no
 credentials, no network, no `.model_cache`. The tables below sit inside generated blocks and
 are replaced wholesale on each run, so this page cannot quietly drift out of step with the
-log it summarizes. `--check` turns that drift into a failure. It also checks the counts the
-prose quotes (legs, splits, pooled cities, held-out splits, the splits RampNet tops) against
-the board (#171); the rest of the prose is hand-written and is not checked.
+log it summarizes. `--check` turns that drift into a failure. It also checks some of the
+prose against the board (#171): the counts it quotes (legs, splits, pooled cities, held-out
+splits, the splits RampNet tops), the headline lead, the F1 ranges in finding 2, the two AP
+gaps and `manual_gold`'s share of the GT. Each of those sentences has its own rule in
+`scoreboard_render.PROSE_RULES`, so rewording one fails the check until the rule is updated.
+The rest of the prose is hand-written and is not checked.
 
 ---
 
@@ -33,7 +36,12 @@ model, and the reasons are in "How to read this" below.
 > `predict()` default that nobody selected. Give each model one uniform threshold picked
 > the same way, on a split the headline is never reported over, and the RampNet-vs-YOLO
 > residual falls from 0.252 to **0.039** — because parity is worth +0.018 F1 to RampNet
-> and +0.137 to the best YOLO leg. The measurement, its controls and its caveats are in
+> and +0.137 to the best YOLO leg. **Those three numbers are from the seven-city board,
+> before `laurens_mapillary` was added**, not from the table below: 0.252 is RampNet
+> against YOLO11x (pano) at their published operating points, macro-meaned over the seven.
+> On this board's eight cities the same difference is 0.222 (the ΔF1 column), and the
+> parity measurement has not been repeated over the eight.
+> The measurement, its controls and its caveats are in
 > [`operating_point_parity_51.md`](operating_point_parity_51.md); the geometry half of
 > the same question is in [`yolo_geometry_51.md`](yolo_geometry_51.md). **The rows below
 > are unchanged and still correct at the operating points they name** — what changes is
@@ -63,10 +71,16 @@ model, and the reasons are in "How to read this" below.
 
 ![Pooled F1 by model](figures/scoreboard_f1.png)
 
-**RampNet leads the best challenger (YOLO11l) by 0.193 F1** at the operating points in the
-table, and it leads on ground truth that never saw a RampNet review (`manual_gold`). How much
-of that lead survives giving every model a threshold chosen the same way is the subject of the
-note above. The four findings that only become visible once the splits are pooled:
+**RampNet leads the best challenger with full pooled coverage (YOLO11l) by 0.193 F1** at the
+operating points in the table. (Claude Fable 5 at low effort scores 0.611, but on one split
+only; see the partial table below.) RampNet also leads in F1 on ground truth that never saw a
+RampNet review (`manual_gold`, 0.908 against YOLO11x's 0.851), but only in F1 and only at
+these operating points: YOLO11x has the higher `manual_gold` AP (see "In-distribution vs
+deployed" below), and at matched operating points `y11x_tiles` leads RampNet there
+([`operating_point_parity_51.md`](operating_point_parity_51.md)). How much of the pooled
+lead survives giving every model a threshold chosen the same way is the subject of the note
+above, which was measured on seven cities. The four findings that only become visible once
+the splits are pooled:
 
 1. **The supervised baseline and the best zero-shot VLM are close.** YOLO11l trained on
    the RampNet dataset scores **0.599**; Gemini 3.1 Pro, zero-shot with an untuned prompt,
@@ -75,13 +89,16 @@ note above. The four findings that only become visible once the splits are poole
    threshold, buys a small lead over an off-the-shelf chat model, and the remaining 0.19 F1
    at these operating points is what the keypoint architecture adds.
 2. **RampNet is stable across seven of the eight pooled cities, not all eight.** Over the
-   eight its F1 spans 0.543–0.855, a range of 0.311, and every challenger scoring above 0.1
-   spans 0.182 (Molmo2-8B) to 0.384 (Gemini 3.7 Flash), so RampNet is not the most stable
-   strong model on this board. The whole of its range is `laurens_mapillary` (0.543): over
-   the other seven cities it spans 0.801–0.855, a range of 0.053, against 0.148 (Qwen-8B) to
-   0.313 (YOLO11x) for the challengers on the same seven. The two open-vocabulary detectors
-   *are* flatter (0.028, 0.039) — because they are pinned near zero everywhere, which is
-   consistency of a kind nobody wants.
+   eight its F1 spans 0.543–0.855, a range of 0.311, and every challenger with full pooled
+   coverage scoring above 0.1 spans 0.182 (Molmo2-8B) to 0.384 (Gemini 3.7 Flash), so RampNet
+   is not the most stable strong model on this board. Most of its range (0.258 of 0.311) is
+   `laurens_mapillary` (0.543): over the other seven cities it spans 0.801–0.855, a range of
+   0.053, against 0.148 (Qwen-8B) to 0.313 (YOLO11x) for the challengers on the same seven.
+   An earlier version of this page called RampNet the one strong model that is also stable,
+   with a range of 0.053. That figure was published when the pool was seven cities, before
+   `laurens_mapillary` was added on 2026-08-31. Quote 0.311 for the eight, not the earlier
+   figure. The two open-vocabulary detectors *are* flatter (0.028, 0.039) — because they are
+   pinned near zero everywhere, which is consistency of a kind nobody wants.
 3. **Precision is not the differentiator; recall is.** YOLO11x posts the highest precision on
    the board (0.967, above RampNet's 0.951) at **0.409 recall against RampNet's 0.686**. Every
    model here can be made precise. Finding the ramps is the hard part, which is why the
@@ -218,8 +235,11 @@ Three things this matrix settles that no single-number ranking can:
 - **RampNet has the top score in eleven of the twelve splits.** The exception is
   `laurens_mapillary`, where two YOLO pano arms at conf 0.25 beat it: YOLO26 0.574 and
   YOLO11l 0.563, against RampNet's 0.543. It is an operating-point result: read full-range,
-  RampNet's AP there (0.691, the provenance table below) is still the highest of the four
-  (`model_comparison.md`, laurens_mapillary finding 2). Every other split has RampNet on top.
+  RampNet's AP there is still the highest of the four, but only just: 0.691 against YOLO11l's
+  0.689, a margin of 0.002 (`model_comparison.md`, laurens_mapillary finding 2). The two come
+  from different files: RampNet's is read from `op_cache` at a 0.05 floor (the provenance
+  table below; its bundle AP there is 0.377), YOLO11l's from its bundle. Every other split
+  has RampNet on top.
 - **No single city is hardest for everyone.** `laurens_mapillary` is the worst pooled city
   for 7 of the 13 models with full pooled coverage, annapolis for 3 (the three YOLO arms),
   clovis (2018 GoPro Fusion) for 2 (the two open-vocabulary detectors), gainesville for 1
@@ -228,9 +248,10 @@ Three things this matrix settles that no single-number ranking can:
 - **budapest separates the US-trained models from the zero-shot ones, in the wrong direction.**
   The three YOLO arms fall to 0.221–0.277, *below all three Gemini legs* (0.336–0.381). A
   detector trained on US curb-ramp data loses to an off-the-shelf chat model the moment the
-  design vocabulary changes. RampNet drops too (0.792 pooled → 0.644) but keeps the lead. Read this
-  split with `benchmark/README.md`'s budapest caveat in hand — its GT is single-rater at low
-  reviewer confidence, which is exactly why it is held out of the pooled column.
+  design vocabulary changes. RampNet drops too (0.792 pooled → 0.644) but keeps the lead.
+  Read this split with `benchmark/README.md`'s budapest caveat in hand — its GT is
+  single-rater at low reviewer confidence, which is exactly why it is held out of the pooled
+  column.
 
 ---
 
@@ -338,8 +359,9 @@ page obeys that.
 
 **Macro, not micro.** Each city contributes equally. Pooling raw counts would weight paterson
 (395 GT ramps) twice as heavily as clovis (195), and folding in `manual_gold` would be far
-worse — its 3,919 GT points outnumber all eleven city splits combined (3,110), so a count-pooled
-headline over all twelve would be 56% one split that is in-distribution for exactly one model on the board.
+worse — its 3,919 GT points outnumber all eleven city splits combined (3,110), so a
+count-pooled headline over all twelve would be 56% one split that is in-distribution for
+exactly one model on the board.
 
 **Operating points differ by model class, and are inherited rather than chosen here.**
 
@@ -354,10 +376,10 @@ headline over all twelve would be 56% one split that is in-distribution for exac
 RampNet's detections only down to its deployed 0.55, because they *are* a production run and
 that is where production stops — so an AP computed from them integrates a curve cut off at
 the operating point. Read that way RampNet's pooled AP is **0.677**, which sits *below*
-YOLO11x's 0.723 and YOLO11l's 0.718 and is an artifact of the floor, not a result. `analysis_out/op_cache/` is
-the #54 re-extraction of the same panoramas down to 0.05 — the floor every other scored model
-is exported at — and RampNet's AP read from it is **0.829**. That is the number in the table,
-marked †.
+YOLO11x's 0.723 and YOLO11l's 0.718 and is an artifact of the floor, not a result.
+`analysis_out/op_cache/` is the #54 re-extraction of the same panoramas down to 0.05 — the
+floor every other scored model is exported at — and RampNet's AP read from it is **0.829**.
+That is the number in the table, marked †.
 
 The substitution is gated on *measured* truncation, not a list of split names: it applies
 only where the bundle floor sits more than 0.1 above the cache floor. `manual_gold`'s bundle
@@ -435,11 +457,12 @@ Omissions are content, so they are named rather than left as blanks:
   measured, and `standing` governs which roster tables a leg appears in, not whether its
   numbers are real.
 - **The YOLO tiles arms are absent from this board**, but they are no longer unmeasured:
-  `y11x_tiles` (ep44) was scored on 2026-08-30 on the ten splits registered then (every split
-  here except the two Laurens arms; one report per split in `docs/data/yolo_geometry_51/`),
-  and it is the best YOLO cell in that grid. See [`yolo_geometry_51.md`](yolo_geometry_51.md). It is absent here
-  because its detections are not published and it is not in `rampnet/roster.py`, not
-  because it is untested.
+  `y11x_tiles` (ep44) was scored on 2026-08-30 on the ten splits registered then (every
+  split here except the two Laurens arms; two reports per split in
+  `docs/data/yolo_geometry_51/`, `<split>_pano.txt` and `<split>_tiles.txt`), and it is the
+  best YOLO cell in that grid. See [`yolo_geometry_51.md`](yolo_geometry_51.md). It is
+  absent here because its detections are not published and it is not in
+  `rampnet/roster.py`, not because it is untested.
 - **`manual_gold` has no null-recall pass** (O(n²) in panos), so the open detectors' recall
   discount is unmeasured on that split.
 - **Eight legs have run one split each**, so they are in the partial table rather than the

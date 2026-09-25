@@ -694,6 +694,14 @@ def test_the_prose_counts_match_the_board(board):
     "RampNet has the top score in twelve of the twelve splits.",
     "RampNet is the top score in all ten splits, including the two it is weakest on.",
     "the worst pooled city for 7 of the 12 models with full pooled coverage",
+    # the #171 sentences the first version of the guard let through (#188 review, S3)
+    "`y11x_tiles` (ep44) was scored on all ten splits on 2026-08-30 and it is the best YOLO",
+    "**RampNet wins by 0.219 F1**, and the gap is not a threshold artifact",
+    "2. **RampNet is the only strong model that is also stable.** Its F1 spans 0.80–0.85",
+    "Its F1 spans 0.80–0.85 across the seven cities, a range of 0.053.",
+    "Every challenger scoring above 0.1 swings between 0.148 (Qwen-8B) and 0.313 (YOLO11x).",
+    "family: macro-to-macro the gap is 0.119, micro-to-micro 0.110.",
+    "worse — its 3,919 GT points outnumber all nine cities combined, so a pooled headline",
 ])
 def test_the_prose_guard_catches_each_171_sentence(board, stale):
     """Each sentence #171 found stale, or its current form with one count wrong, fails."""
@@ -702,10 +710,79 @@ def test_the_prose_guard_catches_each_171_sentence(board, stale):
     assert sr.prose_problems(doc + "\n" + stale + "\n", board), stale
 
 
+@pytest.mark.parametrize("old, new", [
+    # the two rewordings the first version passed, because three rules shared one name
+    ("The pool is eight cities, not all twelve splits.", "The pool has seven cities, not ten."),
+    ("Macro-mean over the eight pooled US city splits", "Macro-mean over the seven US cities"),
+    ("Macro-mean over the eight pooled US city splits",
+     "Macro-mean over the 7 pooled US city splits"),
+    ("The four held-out splits", "The three splits held out"),
+    ("scored on 2026-08-30 on the ten splits registered then",
+     "scored on all ten splits on 2026-08-30"),
+    ("scored on 2026-08-30 on the ten splits registered then",
+     "scored on 2026-08-30 on the eleven splits registered then"),
+    # values, not counts
+    ("(YOLO11l) by 0.193 F1", "(YOLO11l) by 0.219 F1"),
+    ("(YOLO11l) by 0.193 F1", "(Gemini 3.1 Pro) by 0.193 F1"),
+    ("0.543–0.855, a range of 0.311", "0.543–0.855, a range of 0.053"),
+    ("0.182 (Molmo2-8B)", "0.148 (Molmo2-8B)"),
+    ("Most of its range (0.258 of 0.311)", "The whole of its range (0.311)"),
+    ("Most of its range (0.258 of 0.311)", "Most of its range (0.311 of 0.311)"),
+    ("0.801–0.855, a range of 0.053", "0.80–0.85, a range of 0.053"),
+    ("0.148 (Qwen-8B) to 0.313 (YOLO11x)", "0.148 (Qwen-8B) to 0.384 (YOLO11x)"),
+    ("flatter (0.028, 0.039)", "flatter (0.028, 0.030)"),
+    ("macro-to-macro the gap is 0.106", "macro-to-macro the gap is 0.119"),
+    ("micro-to-micro 0.102", "micro-to-micro 0.110"),
+    ("all eleven city splits combined (3,110)", "all nine city splits combined (3,110)"),
+    ("all eleven city splits combined (3,110)", "all eleven city splits combined (3,119)"),
+    ("would be 56% one split", "would be 64% one split"),
+])
+def test_the_prose_guard_catches_a_reworded_sentence(board, old, new):
+    """Rewording one guarded sentence in the real doc fails, whatever its siblings say.
+
+    These are the mutations the #188 review tried, plus one per value rule. The first two
+    passed the first version of the guard: matches were tracked by rule name, three rules
+    were all called "pooled count", and one sibling matching satisfied the other two.
+    """
+    with open(sb.DEFAULT_DOC, encoding="utf-8", newline="") as fh:
+        doc = fh.read()
+    prose = re.sub(r"\s+", " ", doc)
+    assert prose.count(old) == 1, f"mutation target not found once in the doc: {old!r}"
+    # Apply the edit to the whitespace-collapsed doc: the guard collapses whitespace too,
+    # and it spares the test from matching the doc's line wrapping.
+    assert sr.prose_problems(prose.replace(old, new), board), (old, new)
+
+
+def test_every_required_rule_is_satisfied_only_by_its_own_sentence(board):
+    """Delete the one sentence a required rule matches, and that rule, by name, reports it."""
+    with open(sb.DEFAULT_DOC, encoding="utf-8", newline="") as fh:
+        prose = re.sub(r"\s+", " ", fh.read())
+    for name, pattern, _keys, required in sr.PROSE_RULES:
+        if not required:
+            continue
+        found = list(re.finditer(pattern, prose))
+        assert len(found) == 1, (name, [m.group(0) for m in found])
+        cut = prose[:found[0].start()] + prose[found[0].end():]
+        assert any(p.startswith(f"{name}: no sentence quotes it")
+                   for p in sr.prose_problems(cut, board)), name
+
+
+def test_the_prose_rules_have_unique_names():
+    names = [name for name, *_ in sr.PROSE_RULES]
+    assert len(names) == len(set(names))
+
+
 def test_the_prose_guard_is_not_vacuous(board):
     """A required rule whose sentence is deleted or reworded is reported, so the check
     cannot pass by having nothing left to check."""
     assert any("no sentence quotes it" in p for p in sr.prose_problems("just prose\n", board))
+
+
+def test_a_count_must_be_a_number():
+    """A non-number where a count goes is not a match, so ordinary prose cannot trip it."""
+    assert re.search(sr._NUM + " pooled cities", "over all pooled cities") is None
+    assert re.search(sr._NUM + " pooled cities", "over the eight pooled cities").group(1) == "eight"
+    assert re.search(sr._NUM + " model legs", "Twenty-one model legs").group(1) == "Twenty-one"
 
 
 def test_number_words_round_trip():

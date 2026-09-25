@@ -6,10 +6,12 @@ the committed deployment detections (``records.jsonl``), §5 reads a re-run of i
 tests pin that, from committed files, so the doc's statement of it cannot drift.
 
 The distance bands themselves need ``gt_depth_da3.json`` (Depth Anything 3 depths), which is
-not committed, so the per-band numbers are not checked here; the doc says so beside them.
+not committed, and §5's table also needs a join of overlap.json to it that is not committed
+either, so the per-band numbers are not checked here; the doc says so beside them.
 
 CPU only, no network, committed files only.
 """
+import hashlib
 import json
 import os
 import re
@@ -21,6 +23,8 @@ OVERLAP = os.path.join(REPO, "analysis_out", "overlap.json")
 DEPTH_112 = os.path.join(REPO, "analysis_out", "recall_by_depth_112.json")
 DOC = os.path.join(REPO, "docs", "detection_recall_analysis.md")
 THRESHOLDS = ("0.55", "0.35", "0.25", "0.15")
+# The digest the doc quotes for the committed byte copy of the July 2026 local run.
+OVERLAP_SHA256 = "d0d8b4b0449d9f2f8008e9ce22770fd6d8620c4f419c3e43c92199d63a88dace"
 
 
 @pytest.fixture(scope="module")
@@ -39,6 +43,15 @@ def records_points():
 
 def _key(city, pano, x, y):
     return (city, pano, round(x, 4), round(y, 4))
+
+
+def test_overlap_json_is_the_byte_copy_the_doc_quotes():
+    """The doc quotes overlap.json's full sha256; a regenerated or re-serialised file fails."""
+    with open(OVERLAP, "rb") as fh:
+        digest = hashlib.sha256(fh.read()).hexdigest()
+    assert digest == OVERLAP_SHA256
+    with open(DOC, encoding="utf-8") as fh:
+        assert OVERLAP_SHA256 in re.sub(r"\s+", "", fh.read())
 
 
 def test_section_1_population_is_the_committed_records(records_points):
@@ -84,4 +97,5 @@ def test_the_doc_states_the_resolution():
         prose = re.sub(r"\s+", " ", fh.read())
     assert "10 GT ramps change state (6 lost, 4 gained)" in prose
     assert "The 0.55 column here is not §1's table" in prose
+    assert "no committed script joins `overlap.json` to depth" in prose
     assert "reproduces the committed `records.jsonl` exactly." not in prose
