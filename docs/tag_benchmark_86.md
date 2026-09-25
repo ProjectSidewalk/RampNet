@@ -299,7 +299,8 @@ Nor does it say how far two runs have drifted apart by epoch 100.
 **A consumer of the first launch:** #180's interim control (`docs/context_fov_86.md` on its branch)
 is the first launch's `best_after_ep49.pth`, inferred on 2026-09-24 before the relaunch reached
 epoch 49. The relaunch's epoch-49 snapshot is a different checkpoint (control mAP 0.352 on its full
-test set here). #180 swapped to this section's final control per its own §6 (2026-09-24); its §4.1 keeps the interim read and lists what changed.
+test set here). #180 swapped to this section's final control per its own §6 (2026-09-24);
+its §4.1 keeps the interim read and lists what changed.
 
 ### 5.4 Superseded: the interim reading at epoch index 4 (first launch, 2026-09-23)
 
