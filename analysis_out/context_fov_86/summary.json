@@ -1,0 +1,140 @@
+{
+ "rows": [
+  {
+   "arm": "control (#178, HF crops)",
+   "file": "control_scores.json",
+   "leak_free_mAP": 0.370169,
+   "mAP": 0.354457,
+   "mAP_ci95": [
+    0.335961,
+    0.390158
+   ],
+   "macro_f1": 0.314775,
+   "micro_f1": 0.659443,
+   "n": 2182,
+   "per_tag_ap": {
+    "missing-tactile-warning": 0.973147,
+    "narrow": 0.234045,
+    "not-enough-landing-space": 0.182186,
+    "not-level-with-street": 0.14148,
+    "points-into-traffic": 0.323497,
+    "pooled-water": 0.322643,
+    "steep": 0.061803,
+    "surface-problem": 0.596853
+   },
+   "pred_sha256": "c721b614012649655d1eca9a35e459c10f3a3435d4c8be1a0ae2862b02a796ea",
+   "status": "ok"
+  },
+  {
+   "arm": "viewport",
+   "file": "train_viewport_final_scores.json",
+   "leak_free_mAP": 0.345576,
+   "mAP": 0.34552,
+   "mAP_ci95": [
+    0.324701,
+    0.381476
+   ],
+   "macro_f1": 0.330444,
+   "micro_f1": 0.649846,
+   "n": 2182,
+   "per_tag_ap": {
+    "missing-tactile-warning": 0.968464,
+    "narrow": 0.231801,
+    "not-enough-landing-space": 0.168128,
+    "not-level-with-street": 0.146125,
+    "points-into-traffic": 0.310496,
+    "pooled-water": 0.283679,
+    "steep": 0.0994,
+    "surface-problem": 0.556064
+   },
+   "pred_sha256": "01c39b6f5ec2b4e32db2387fd9f41ff129f1922cf90c0629714baa45a15026a6",
+   "status": "ok"
+  },
+  {
+   "arm": "fov25",
+   "file": "train_fov25_final_scores.json",
+   "leak_free_mAP": 0.36089,
+   "mAP": 0.349421,
+   "mAP_ci95": [
+    0.329042,
+    0.380949
+   ],
+   "macro_f1": 0.317025,
+   "micro_f1": 0.659049,
+   "n": 2182,
+   "per_tag_ap": {
+    "missing-tactile-warning": 0.975705,
+    "narrow": 0.26535,
+    "not-enough-landing-space": 0.14922,
+    "not-level-with-street": 0.126354,
+    "points-into-traffic": 0.34096,
+    "pooled-water": 0.320389,
+    "steep": 0.052735,
+    "surface-problem": 0.564656
+   },
+   "pred_sha256": "afe0e4dad10b89313169ce4f88724794950f4b7b29d75d4faca68c79733f7e4c",
+   "status": "ok"
+  },
+  {
+   "arm": "fov50",
+   "file": "train_fov50_final_scores.json",
+   "leak_free_mAP": 0.330696,
+   "mAP": 0.319403,
+   "mAP_ci95": [
+    0.301826,
+    0.349952
+   ],
+   "macro_f1": 0.292925,
+   "micro_f1": 0.635916,
+   "n": 2182,
+   "per_tag_ap": {
+    "missing-tactile-warning": 0.95675,
+    "narrow": 0.23562,
+    "not-enough-landing-space": 0.194907,
+    "not-level-with-street": 0.109686,
+    "points-into-traffic": 0.333181,
+    "pooled-water": 0.198252,
+    "steep": 0.032498,
+    "surface-problem": 0.494327
+   },
+   "pred_sha256": "5b780ed094429720927b3e6ac2edcf5d4f0dc045f4a4b4fb74bcaf0ac67e1080",
+   "status": "ok"
+  },
+  {
+   "arm": "fov90",
+   "file": "train_fov90_final_scores.json",
+   "leak_free_mAP": 0.278607,
+   "mAP": 0.280352,
+   "mAP_ci95": [
+    0.266088,
+    0.310021
+   ],
+   "macro_f1": 0.250445,
+   "micro_f1": 0.594697,
+   "n": 2182,
+   "per_tag_ap": {
+    "missing-tactile-warning": 0.928528,
+    "narrow": 0.177199,
+    "not-enough-landing-space": 0.15261,
+    "not-level-with-street": 0.099346,
+    "points-into-traffic": 0.296171,
+    "pooled-water": 0.115015,
+    "steep": 0.04813,
+    "surface-problem": 0.425815
+   },
+   "pred_sha256": "1a5026662a7d8f21117c9325e28199cac075abf3096f3396516d2084a19fd271",
+   "status": "ok"
+  }
+ ],
+ "tags": [
+  "missing-tactile-warning",
+  "narrow",
+  "not-enough-landing-space",
+  "not-level-with-street",
+  "points-into-traffic",
+  "pooled-water",
+  "steep",
+  "surface-problem"
+ ],
+ "ts": "2026-09-25T00:35:43+00:00"
+}
