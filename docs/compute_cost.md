@@ -204,6 +204,35 @@ its committed dumps and two experiments pulled the same day cannot re-record eac
 (A pull by date range would also have re-recorded the plan-item-4 arms running that day, which
 #180 records from its own dump.)
 
+## klone, 2026-09-24: the #86 context experiment, 16.5 GPU-hours, $0
+
+Five jobs: the four arms on the lab's `gpu-l40s` allocation (no preemption, so one incarnation
+each) and the CPU env build on `ckpt-all`. Pulled by job id on 2026-09-24 into
+`docs/data/compute/sacct_klone_2026-09-24.txt` (884 bytes, sha256
+`795acb09313778f441b5689c0060f34728c0cd6565637993be11774544b86241`) on a klone login node with
+the `--print-command` invocation plus `-j`:
+
+```bash
+sacct -X -D -P -n -u jfroehli -S 2026-07-01 \
+    --format=JobID,JobName%60,Cluster,Partition,QOS,State,Submit,Start,End,ElapsedRaw,AllocTRES,NNodes,ExitCode \
+    -j 40485927,40486691,40486692,40486693,40486694 > sacct_klone_2026-09-24.txt
+```
+
+The first two lines are what `slurm_usage.py --cluster klone --user jfroehli --print-command`
+prints. Re-running the command on 2026-09-24 reproduced the committed dump's sha256. Parsed with:
+
+```bash
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
+    --from-file docs/data/compute/sacct_klone_2026-09-24.txt \
+    --by-name
+```
+
+The pull is by job id rather than a date window, so that a window would not sweep in other jobs
+run on the account the same day (the #131 replication ran on klone that night and records its
+own). The ledger is rebuilt in append order: klone 2026-08-19, Tillicum 2026-09-21, the #131
+pull `sacct_klone_2026-09-24_sa131.txt` (above), then this file; `tests/test_slurm_usage.py`
+compares all four. What the five rows are is in [`context_fov_86.md`](context_fov_86.md) §5.
+
 ## Gaps, stated
 
 - **Tillicum is a snapshot as of 2026-09-21.** Nothing after that date is in the ledger; the

@@ -594,3 +594,18 @@ def test_collect_refuses_an_arm_that_did_not_exit_cleanly(tmp_path):
     with pytest.raises(SystemExit, match="EXIT 0"):
         tb.collect_arm("control", str(work), str(tmp_path / "u.jsonl"), epochs=(), final=True, n_boot=0,
                        out_dir=str(out))
+
+
+def test_log_usage_on_a_dedicated_gpu_writes_gpu_share_1(tmp_path, monkeypatch):
+    """--concurrent-with omitted means the run had the GPU to itself, and the row must say
+    so (gpu_share 1.0, concurrent_with []) rather than leave the fields out, or a total
+    that multiplies elapsed by share silently drops the run."""
+    import json
+    log = tmp_path / "usage_log.jsonl"
+    monkeypatch.setattr(sys, "argv", ["x"])
+    tb.main(["log-usage", "--label", "train-fov25", "--elapsed-s", "10", "--what", "t",
+             "--run-id", "context-fov-86:train-fov25:2026-09-23T18:22:29Z", "--ts", "2026-09-23T18:22:29Z",
+             "--host", "g3100.hyak.local", "--gpu", "NVIDIA L40S", "--log", str(log)])
+    row = json.loads(log.read_text().strip())
+    assert row["gpu_share"] == 1.0 and row["concurrent_with"] == []
+    assert row["hardware"] == {"host": "g3100.hyak.local", "gpus": ["NVIDIA L40S"]}

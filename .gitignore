@@ -231,6 +231,16 @@ analysis_out/ps_audit/*
 !analysis_out/ps_audit/*.csv
 !analysis_out/ps_audit/*.json
 analysis_out/ps_audit/hf_validated_curbramp_index.csv
+# #86 context experiment (docs/context_fov_86.md): the cutter input, per-arm label tables,
+# the common split, per-label predictions, scores and train logs are committed; the crops
+# (makelab2 / klone scratch) and checkpoints are not; the cutter manifests are, gzipped.
+!analysis_out/context_fov_86/
+analysis_out/context_fov_86/*
+!analysis_out/context_fov_86/*.csv
+!analysis_out/context_fov_86/*.json
+!analysis_out/context_fov_86/*.md
+!analysis_out/context_fov_86/*.sha256
+!analysis_out/context_fov_86/*.jsonl.gz
 
 # #112: the depth-axis re-measure; per-point rows so the tables re-derive without the payloads
 !analysis_out/recall_by_depth_112.json

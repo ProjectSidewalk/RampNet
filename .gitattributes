@@ -55,6 +55,10 @@ scripts/model_comparison/yolo_baseline/benchmark_eval/*/*.json text eol=lf
 # A core.autocrlf=true clone would check them out CRLF and every one of those hashes would
 # fail for files that are byte-correct. tag_benchmark_86.py writes them LF on every platform.
 analysis_out/tag_benchmark_86/** text eol=lf
+# The #86 context experiment (docs/context_fov_86.md) is scored the same way.
+analysis_out/context_fov_86/** text eol=lf
+# ...except the gzipped cutter manifests, which are bytes.
+analysis_out/context_fov_86/*.gz binary
 
 # The tag review pass (#86 item 3): the list's sha256 is quoted in docs/tag_rubric_draft.md
 # and carried inside every per-rater export, and the exports are written LF by

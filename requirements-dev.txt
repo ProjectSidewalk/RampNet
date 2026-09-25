@@ -49,3 +49,8 @@ pyarrow
 # Arrives transitively with datasets, but tests/test_ps_supervision_audit.py relies on
 # pd.to_datetime(format="ISO8601"), which pandas added in 2.0.
 pandas>=2.0
+# The #86 tag benchmark's metrics (scripts/analysis/tag_benchmark_86.py tagger_metrics: AP,
+# F1, PR curves) and so tests/test_tag_benchmark_86.py and tests/test_context_fov_86.py,
+# which re-derive committed scores and contrasts on CPU. Without it the first module
+# importorskips and the second fails.
+scikit-learn
