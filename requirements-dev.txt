@@ -54,3 +54,9 @@ pandas>=2.0
 # which re-derive committed scores and contrasts on CPU. Without it the first module
 # importorskips and the second fails.
 scikit-learn
+# The MLCommons Croissant reference validator, so tests/test_croissant.py checks the committed
+# croissant/*.json files (#150) with it on every PR instead of skipping. Pure Python; beyond what
+# this file already pulls in (pandas, scipy, networkx, requests) it adds about 6 MB of wheels
+# (rdflib, etils, absl-py, jsonpath-rw, pandas-stubs). Validation reads no data and makes no
+# network call.
+mlcroissant

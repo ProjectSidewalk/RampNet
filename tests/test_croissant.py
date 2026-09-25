@@ -2,8 +2,10 @@
 
 Offline and dependency-free: parses both files as JSON-LD documents, checks the required
 Croissant / RAI / GeoCroissant keys, and re-derives the benchmark's per-split extents from the
-committed bundles. The MLCommons reference validator runs only when ``mlcroissant`` is installed;
-the Hub hash check (``scripts/validate_croissant.py --hub``) needs the network and is not run here.
+committed bundles and the dataset's city boxes from the committed government inventories. The
+MLCommons reference validator runs when ``mlcroissant`` is installed (``requirements-dev.txt`` carries
+it, so CI runs it). The Hub check (``scripts/validate_croissant.py --hub``) needs the network and is
+not run here; its drift and pagination logic is tested below against canned responses.
 """
 import copy
 import importlib.util
@@ -77,6 +79,81 @@ def test_check_catches_planted_problems():
     shifted = copy.deepcopy(doc)
     vc.record_set(shifted, "split_extents")["data"][0]["split_extents/max_lat"] += 0.001
     assert any("max_lat" in p for p in vc.check_benchmark_extents(shifted))
+
+
+def test_dataset_boxes_match_committed_location_data():
+    doc = vc.load(vc.FILES["rampnet-dataset"])
+    assert vc.check_dataset_boxes(doc) == []
+
+    shifted = copy.deepcopy(doc)
+    shifted["spatialCoverage"][0]["geo"]["box"] = "40.5 -74.25478 40.91256 -73.70028"
+    shifted["geocr:spatialBias"] = shifted["geocr:spatialBias"].replace("78.8%", "78.2%")
+    problems = vc.check_dataset_boxes(shifted)
+    assert any("New York City" in p and "box" in p for p in problems)
+    assert any("geocr:spatialBias" in p for p in problems)
+
+
+def test_context_is_appendix_1_plus_geocr(named_doc):
+    _, doc = named_doc
+    assert doc["@context"] == vc.CONTEXT
+    broken = copy.deepcopy(doc)
+    broken["@context"]["samplingRate"] = "cr:samplingRate"
+    assert any("@context" in p and "samplingRate" in p for p in vc.check_structure(broken))
+
+
+def test_links_are_pinned_and_no_bare_repo_paths(named_doc):
+    _, doc = named_doc
+    assert vc.check_links(doc) == []
+    broken = copy.deepcopy(doc)
+    broken["rai:dataBiases"] += (" See https://github.com/ProjectSidewalk/RampNet/blob/main/docs/seam.md"
+                                 " and docs/data_provenance.md section 3.")
+    problems = vc.check_links(broken)
+    assert any("unpinned" in p and "'main'" in p for p in problems)
+    assert any("docs/data_provenance.md" in p for p in problems)
+
+
+def test_benchmark_record_sets_share_one_key_rule():
+    doc = vc.load(vc.FILES["rampnet-benchmark"])
+    broken = copy.deepcopy(doc)
+    vc.record_set(broken, "native")["key"] = {"@id": "native/pano_id"}
+    assert any("native is keyed" in p for p in vc.check_benchmark_extents(broken))
+
+
+def test_release_gate_rejects_placeholders(named_doc):
+    name, doc = named_doc
+    problems = vc.check_release(doc)            # not minted yet: must fail
+    assert any("identifier" in p for p in problems), name
+    assert any("NOT-YET" in p for p in problems), name
+
+    minted = copy.deepcopy(doc)
+    minted["identifier"] = "https://doi.org/10.57967/hf/0000000"
+    minted["citeAs"] = minted["citeAs"].replace(
+        "DOI: forthcoming", "DOI: 10.57967/hf/0000000").replace(
+        vc.DOI_PLACEHOLDER, "DOI: 10.57967/hf/0000000")
+    assert vc.check_release(minted) == []
+    minted["version"] = ""
+    assert any("version" in p for p in vc.check_release(minted))
+
+
+def test_hub_check_fails_on_drift_and_follows_pagination(monkeypatch):
+    doc = vc.load(vc.FILES["rampnet-benchmark"])
+    rev = vc.pinned_revision(doc)
+    rows = vc.record_set(doc, "file_manifest")["data"]
+    entries = [{"type": "file", "path": r["file_manifest/path"], "size": r["file_manifest/bytes"],
+                "lfs": {"oid": r["file_manifest/sha256"]}} for r in rows]
+    tree_url = (vc.HUB_API + "/tree/{}?recursive=true").format("rampnet-benchmark", rev)
+    pages = {tree_url: (entries[:10], "page2"), "page2": (entries[10:], None)}
+
+    def fake(url, main_sha):
+        if url == vc.HUB_API.format("rampnet-benchmark"):
+            return {"sha": main_sha}, None
+        return pages[url]
+
+    monkeypatch.setattr(vc, "_get_json", lambda url: fake(url, rev))
+    assert vc.check_hub("rampnet-benchmark", doc) == []            # needs both pages to pass
+
+    monkeypatch.setattr(vc, "_get_json", lambda url: fake(url, "f" * 40))
+    assert any("has moved" in p for p in vc.check_hub("rampnet-benchmark", doc))
 
 
 def test_mlcroissant_reference_validator(named_doc):

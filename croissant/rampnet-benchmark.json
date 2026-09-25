@@ -5,7 +5,6 @@
     "sc": "https://schema.org/",
     "cr": "http://mlcommons.org/croissant/",
     "rai": "http://mlcommons.org/croissant/RAI/",
-    "geocr": "http://mlcommons.org/croissant/geo/",
     "dct": "http://purl.org/dc/terms/",
     "annotation": "cr:annotation",
     "arrayShape": "cr:arrayShape",
@@ -40,13 +39,9 @@
     "key": "cr:key",
     "md5": "cr:md5",
     "parentField": "cr:parentField",
-    "path": "cr:path",
     "recordSet": "cr:recordSet",
     "references": "cr:references",
     "regex": "cr:regex",
-    "repeated": "cr:repeated",
-    "replace": "cr:replace",
-    "samplingRate": "cr:samplingRate",
     "readLines": "cr:readLines",
     "sdVersion": "cr:sdVersion",
     "separator": "cr:separator",
@@ -54,7 +49,8 @@
     "subField": "cr:subField",
     "transform": "cr:transform",
     "unArchive": "cr:unArchive",
-    "value": "cr:value"
+    "value": "cr:value",
+    "geocr": "http://mlcommons.org/croissant/geo/"
   },
   "@type": "sc:Dataset",
   "conformsTo": [
@@ -69,9 +65,6 @@
   ],
   "description": "Post-publication, human-verified curb ramp detection benchmark for RampNet: 9 city splits (1,109 reviewed panoramas) across Google Street View and Mapillary imagery, including two non-US cities. Per panorama, every RampNet detection was judged by a reviewer and ramps the model missed were marked, so both precision and recall are measurable. This benchmark is NOT part of the RampNet paper: it was built 2026-07-22 to 2026-08-01, eleven months after publication, and its ground truth, cities and matching protocol differ, so its numbers are not comparable with the paper's.",
   "url": "https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark",
-  "sameAs": [
-    "https://github.com/ProjectSidewalk/RampNet/tree/main/benchmark"
-  ],
   "identifier": "DOI-NOT-YET-MINTED (issue #150): replace with the DataCite DOI once minted",
   "creator": {
     "@type": "sc:Organization",
@@ -100,14 +93,21 @@
     "Mapillary",
     "Google Street View"
   ],
-  "citeAs": "@inproceedings{omeara2025rampnet,\n  author    = {John S. O'Meara and Jared Hwang and Zeyu Wang and Michael Saugstad and Jon E. Froehlich},\n  title     = {{RampNet: A Two-Stage Pipeline for Bootstrapping Curb Ramp Detection in Streetscape Images from Open Government Metadata}},\n  booktitle = {{ICCV'25 Workshop on Vision Foundation Models and Generative AI for Accessibility: Challenges and Opportunities (ICCV 2025 Workshop)}},\n  year      = {2025},\n  doi       = {https://doi.org/10.48550/arXiv.2508.09415},\n  url       = {https://cv4a11y.github.io/ICCV2025/index.html},\n  note      = {Dataset DOI: forthcoming}\n}",
+  "citeAs": "@misc{projectsidewalk2026rampnetbenchmark,\n  author       = {{Project Sidewalk}},\n  title        = {{rampnet-benchmark: a post-publication, human-verified curb ramp detection benchmark}},\n  year         = {2026},\n  publisher    = {Hugging Face},\n  howpublished = {\\url{https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark}},\n  note         = {Revision 63d5ffd0e4b6795702db40be89ea4d9672d91ab5. DOI-NOT-YET-MINTED (issue #150): replace with the DataCite DOI once minted}\n}",
   "citation": [
     "https://doi.org/10.48550/arXiv.2508.09415",
-    "https://github.com/ProjectSidewalk/RampNet#erratum-evaluation-metrics-july-2026"
+    "https://github.com/ProjectSidewalk/RampNet/releases/tag/v1.1-corrected-eval",
+    "https://github.com/ProjectSidewalk/RampNet/blob/v1.1-corrected-eval/README.md#erratum-evaluation-metrics-july-2026"
   ],
   "isBasedOn": [
     "https://huggingface.co/projectsidewalk/rampnet-model",
-    "https://github.com/ProjectSidewalk/RampNet/tree/main/benchmark"
+    "https://github.com/ProjectSidewalk/RampNet/tree/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/benchmark",
+    {
+      "@type": "sc:SoftwareSourceCode",
+      "name": "RampNet",
+      "description": "Code that built, reviewed, exported and scores this benchmark, and the RampNet model it evaluates.",
+      "codeRepository": "https://github.com/ProjectSidewalk/RampNet"
+    }
   ],
   "spatialCoverage": [
     {
@@ -194,20 +194,25 @@
   ],
   "temporalCoverage": "2007-10/2026-07",
   "geocr:coordinateReferenceSystem": "EPSG:4326",
-  "geocr:samplingStrategy": "Each city split is stratified: 5 top-detection panoramas, N random and M empty (no-detection) panoramas drawn from a run of the auto-labeler over the city (benchmark/README.md; bend samples 10 empty where the others take 25). The per-row `review_group` records the stratum; the unbiased subset is random + empty. Only reviewed panoramas are included.",
-  "geocr:spatialBias": "Nine splits: seven small US cities or districts and two non-US (Budapest District V, Sao Paulo). Five splits use Mapillary imagery (cameras: GoPro Fusion, GoPro Max, Trimble MX7, iSTAR Pulsar), four use Google Street View; imagery source and camera are confounded with city. Bend is one of the paper's three training cities.",
-  "rai:dataCollection": "For each city, the sidewalk-auto-labeler enumerated panoramas, ran the published RampNet model (`model_id` rampnet-model) and exported a native-resolution bundle; a stratified sample was reviewed in RampNet's ground-truth gallery (scripts/gt_gallery.py) at 4096x2048: every detection judged, and the whole panorama scanned for missed ramps. Reviews were exported between 2026-07-22 and 2026-08-01 (verdicts.json `exported_at`). Protocol: docs/adding_a_benchmark_city.md.",
+  "geocr:samplingStrategy": "Each city split is stratified: 5 top-detection panoramas, N random and M empty (no-detection) panoramas drawn from a run of the auto-labeler over the city (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/benchmark/README.md; bend samples 10 empty where the others take 25, and richmond has 94 random). The per-row `review_group` records the stratum as `top`, `random` or `empty`; the unbiased subset is random + empty. Only reviewed panoramas are included.",
+  "geocr:spatialBias": "Nine splits: seven US cities or districts and two non-US (Budapest District V, Sao Paulo). Five splits use Mapillary imagery, with camera_model values Trimble MX7 (annapolis), GoPro Max (budapest_district5, morgantown, richmond), LG-R105 (1 budapest_district5 panorama), GoPro Fusion (clovis), iSTAR Pulsar (richmond), and `none` (14 richmond panoramas); four use Google Street View, which records no camera model. Imagery source and camera are confounded with city. Bend is one of the paper's three training cities.",
+  "rai:dataCollection": "For each city, the sidewalk-auto-labeler enumerated panoramas, ran the published RampNet model (`model_id` rampnet-model) and exported a native-resolution bundle; a stratified sample was reviewed in RampNet's ground-truth gallery (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/scripts/gt_gallery.py) at 4096x2048: every detection judged, and the whole panorama scanned for missed ramps. Reviews were exported between 2026-07-22 and 2026-08-01 (verdicts.json `exported_at`), the dates in rai:dataCollectionTimeframe. Protocol: https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/adding_a_benchmark_city.md",
   "rai:dataCollectionType": [
     "Manual Human Curation",
     "Software Collection"
   ],
-  "rai:dataCollectionRawData": "Street-level panoramas from Google Street View and Mapillary, fetched by ProjectSidewalk/sidewalk-auto-labeler; per-record provider attribution is in `copyright`. Pixel hashes pinned at review time are in benchmark/<city>/imagery_manifest.json.",
-  "rai:dataAnnotationProtocol": "benchmark/RUBRICS.md section 1: per detection one of correct / incorrect / unsure / duplicate; missed ramps marked with an optional unsure flag; a complete-scan attestation (`no_missed`). `unsure` is an ignore region for scoring. Scoring: scripts/score_validation.py and rampnet/detection_eval.py.",
-  "rai:dataAnnotationPlatform": "RampNet ground-truth gallery (scripts/gt_gallery.py), a static HTML page.",
-  "rai:annotationsPerItem": "One human review pass per panorama; no second rater has been run on any split yet (benchmark/README.md; a Budapest second rater is issue #74).",
-  "rai:dataBiases": "Model-anchored ground truth: reviewers judge RampNet's own detections and then add misses, so the ground truth is not independent of the model being evaluated (the 1,000-panorama manual gold set in rampnet-dataset is the un-anchored one). Imagery provider and camera vary by split and move precision (benchmark/README.md). Capture years span 2007-10 to 2026-07 and differ by split (split_extents record set). Budapest was reviewed at low self-rated confidence with a US-derived rubric.",
+  "rai:dataCollectionTimeframe": [
+    "2026-07-22",
+    "2026-08-01"
+  ],
+  "rai:dataCollectionRawData": "Street-level panoramas from Google Street View and Mapillary, fetched by ProjectSidewalk/sidewalk-auto-labeler; per-record provider attribution is in `copyright`. Pixel hashes pinned at review time are in imagery_manifest.json in each split directory of https://github.com/ProjectSidewalk/RampNet/tree/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/benchmark",
+  "rai:dataCollectionMissingData": "Only reviewed panoramas are published; panoramas in a city's auto-labeler bundle that were not sampled for review are excluded, and the committed records.jsonl files hold them. Every published detection has a verdict (0 unjudged). Missed ramps exist only where the reviewer marked them; `no_missed` records the attestation that the whole panorama was scanned. Two splits are short of 125: bend has 110 (10 empty panoramas instead of 25) and richmond 124 (94 random). Reviewer notes and per-split confidence are in git (verdicts.json `review_notes`), not in the Parquet rows. The two Laurens, IA splits are in git but not on the Hub.",
+  "rai:dataAnnotationProtocol": "https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/benchmark/RUBRICS.md section 1: per detection one of correct / incorrect / unsure / duplicate; missed ramps marked with an optional unsure flag; a complete-scan attestation (`no_missed`). `unsure` is an ignore region for scoring. Scoring: https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/scripts/score_validation.py and https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/rampnet/detection_eval.py",
+  "rai:dataAnnotationPlatform": "RampNet ground-truth gallery (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/scripts/gt_gallery.py), a static HTML page.",
+  "rai:annotationsPerItem": "One human review pass per panorama; no second rater has been run on any split yet (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/benchmark/README.md; a Budapest second rater is issue #74).",
+  "rai:dataBiases": "Model-anchored ground truth: reviewers judge RampNet's own detections and then add misses, so the ground truth is not independent of the model being evaluated (the 1,000-panorama manual gold set in rampnet-dataset is the un-anchored one). Imagery provider and camera vary by split and move precision (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/benchmark/README.md). Capture years span 2007-10 to 2026-07 and differ by split (split_extents record set). Budapest was reviewed at low self-rated confidence with a US-derived rubric.",
   "rai:dataLimitations": "Not the paper's evaluation; do not compare its numbers with the paper's. Bend overlaps the training set by four panoramas (6WC0hdAYRsSAcluKSs5iRg, 9kW9cxpuj7q8DMzf-ClrQQ, DJ8Zp111zu6KnMZz-0PHgQ, VgWpqFkTwCIROvM0z-DkOw), unflagged in the published rows (issue #127); dropping them moves bend P/R 0.954/0.758 to 0.956/0.753. Reviewer notes and per-split confidence live in git (verdicts.json `review_notes`), not in the Parquet rows. Budapest is single-rater, low confidence, and should not be pooled with the US splits. The two Laurens, IA splits are in git but not yet on the Hub. About 110 to 125 panoramas per split, so per-split intervals are wide. Points only; the benchmark has no ramp extents.",
-  "rai:dataUseCases": "Intended: out-of-domain evaluation of curb ramp detectors (precision, recall, AP) across cities and imagery sources; score with scripts/score_validation.py. Not intended: training (the splits are small, and training on them removes the only held-out cities), or quoting as the RampNet paper's evaluation.",
+  "rai:dataUseCases": "Intended: out-of-domain evaluation of curb ramp detectors (precision, recall, AP) across cities and imagery sources; score with https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/scripts/score_validation.py. Not intended: training (the splits are small, and training on them removes the only held-out cities), or quoting as the RampNet paper's evaluation.",
   "rai:personalSensitiveInformation": "Street-level panoramas can show people, vehicles, licence plates and private buildings; images are stored as the exact source bytes, with no redaction added by this release. The `copyright` field of Mapillary records names the contributing user account.",
   "rai:dataReleaseMaintenancePlan": "Static release (isLiveDataset false) pinned at Hub revision 63d5ffd0e4b6795702db40be89ea4d9672d91ab5. Verdicts are revised in git and re-exported to the `records` config without touching image files. Proposed versioning (issue #150): major version on any data-file change, minor on metadata-only changes. Maintained by Project Sidewalk / the Makeability Lab, University of Washington, via https://github.com/ProjectSidewalk/RampNet/issues.",
   "distribution": [
@@ -215,8 +220,8 @@
       "@type": "cr:FileObject",
       "@id": "repo",
       "name": "repo",
-      "description": "The Hugging Face dataset repository. This description matches revision 63d5ffd0e4b6795702db40be89ea4d9672d91ab5 (2026-08-17); per-file hashes are in the file_manifest record set.",
-      "contentUrl": "https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark",
+      "description": "The Hugging Face dataset repository at revision 63d5ffd0e4b6795702db40be89ea4d9672d91ab5 (2026-08-17), the Hub's main at the time of writing; contentUrl pins that revision. Besides the Parquet files it holds README.md (the dataset card), .gitattributes and build_manifest.json, which https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/scripts/export_benchmark.py writes to list the configs and splits it built, each config's total bytes, the git commit it ran from and the date. Per-file hashes are in the file_manifest record set.",
+      "contentUrl": "https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark/tree/63d5ffd0e4b6795702db40be89ea4d9672d91ab5",
       "encodingFormat": "git+https",
       "sha256": "https://github.com/mlcommons/croissant/issues/80"
     },
@@ -257,7 +262,7 @@
       "@type": "cr:FileSet",
       "@id": "parquet-galleries",
       "name": "parquet-galleries",
-      "description": "`galleries` config, one Parquet file per city split. Crops of single detections shown in the operating-point A/B pass (314 crops).",
+      "description": "`galleries` config, one Parquet file per city split. Crops of single detections: the incremental false-positive crops shown in the operating-point A/B pass (314 crops).",
       "containedIn": {
         "@id": "repo"
       },
@@ -335,7 +340,15 @@
       "@type": "cr:RecordSet",
       "@id": "records",
       "name": "records",
-      "description": "The ground truth: per-panorama metadata, model detections with their human verdict, and reviewer-marked missed ramps. Reviewed panoramas only. Regenerated from benchmark/<city>/records.jsonl + verdicts.json in git by scripts/export_benchmark.py; git is the source of truth.",
+      "description": "The ground truth: per-panorama metadata, model detections with their human verdict, and reviewer-marked missed ramps. Reviewed panoramas only. Keyed on (split, pano_id), like the imagery configs. Regenerated from records.jsonl + verdicts.json in each split directory of https://github.com/ProjectSidewalk/RampNet/tree/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/benchmark by https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/scripts/export_benchmark.py; git is the source of truth.",
+      "key": [
+        {
+          "@id": "records/split"
+        },
+        {
+          "@id": "records/pano_id"
+        }
+      ],
       "field": [
         {
           "@type": "cr:Field",
@@ -365,7 +378,7 @@
           "@id": "records/pano_id",
           "name": "pano_id",
           "dataType": "sc:Text",
-          "description": "Panorama id. GSV and Mapillary ids are different id spaces; key on (city, pano_id) when mixing splits.",
+          "description": "Panorama id. GSV and Mapillary ids are different id spaces, so the key is (split, pano_id); within a split, pano_id is unique (checked by scripts/validate_croissant.py).",
           "source": {
             "fileSet": {
               "@id": "parquet-records"
@@ -557,7 +570,7 @@
           "@type": "cr:Field",
           "@id": "records/detections",
           "name": "detections",
-          "description": "Model detections, each judged by a human reviewer. `verdict` is correct, incorrect, unsure (abstention; an ignore point) or duplicate (a second hit on an already-counted ramp). benchmark/RUBRICS.md section 1.",
+          "description": "Model detections, each judged by a human reviewer. `verdict` is correct, incorrect, unsure (abstention; an ignore point) or duplicate (a second hit on an already-counted ramp). https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/benchmark/RUBRICS.md section 1.",
           "isArray": true,
           "arrayShape": "-1",
           "subField": [
@@ -712,7 +725,7 @@
           "@id": "records/review_group",
           "name": "review_group",
           "dataType": "sc:Text",
-          "description": "Sampling stratum of the panorama (top-detection / random / empty); the unbiased subset is random + empty (benchmark/README.md).",
+          "description": "Sampling stratum of the panorama, one of the strings `top` (top-detection), `random` or `empty` (no detection); the unbiased subset is random + empty (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/benchmark/README.md).",
           "source": {
             "fileSet": {
               "@id": "parquet-records"
@@ -728,7 +741,7 @@
       "@type": "cr:RecordSet",
       "@id": "native",
       "name": "native",
-      "description": "`native` config. The panoramas exactly as fetched, 4096 to 16384 px wide depending on city and imagery source. Join to `records` on pano_id.",
+      "description": "`native` config. The panoramas exactly as fetched, 4096 to 16384 px wide depending on city and imagery source. Join to `records` on (split, pano_id).",
       "field": [
         {
           "@type": "cr:Field",
@@ -833,7 +846,7 @@
           "@id": "native/sha256",
           "name": "sha256",
           "dataType": "sc:Text",
-          "description": "SHA-256 of the embedded image bytes; see benchmark/<city>/imagery_manifest.json.",
+          "description": "SHA-256 of the embedded image bytes; the hash pinned at review time is in imagery_manifest.json in each split directory of https://github.com/ProjectSidewalk/RampNet/tree/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/benchmark",
           "source": {
             "fileSet": {
               "@id": "parquet-native"
@@ -844,15 +857,20 @@
           }
         }
       ],
-      "key": {
-        "@id": "native/pano_id"
-      }
+      "key": [
+        {
+          "@id": "native/split"
+        },
+        {
+          "@id": "native/pano_id"
+        }
+      ]
     },
     {
       "@type": "cr:RecordSet",
       "@id": "px4096x2048",
       "name": "px4096x2048",
-      "description": "`4096x2048` config. The same panoramas at the model's input size; what ground-truth reviewers saw. Join to `records` on pano_id.",
+      "description": "`4096x2048` config. The same panoramas at the model's input size; what ground-truth reviewers saw. Join to `records` on (split, pano_id).",
       "field": [
         {
           "@type": "cr:Field",
@@ -957,7 +975,7 @@
           "@id": "px4096x2048/sha256",
           "name": "sha256",
           "dataType": "sc:Text",
-          "description": "SHA-256 of the embedded image bytes; see benchmark/<city>/imagery_manifest.json.",
+          "description": "SHA-256 of the embedded image bytes; the hash pinned at review time is in imagery_manifest.json in each split directory of https://github.com/ProjectSidewalk/RampNet/tree/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/benchmark",
           "source": {
             "fileSet": {
               "@id": "parquet-4096x2048"
@@ -968,15 +986,20 @@
           }
         }
       ],
-      "key": {
-        "@id": "px4096x2048/pano_id"
-      }
+      "key": [
+        {
+          "@id": "px4096x2048/split"
+        },
+        {
+          "@id": "px4096x2048/pano_id"
+        }
+      ]
     },
     {
       "@type": "cr:RecordSet",
       "@id": "galleries",
       "name": "galleries",
-      "description": "`galleries` config: crops of single detections from the operating-point A/B pass (314 crops). Join to `records` on pano_id.",
+      "description": "`galleries` config: crops of single detections, the incremental false-positive crops shown in the operating-point A/B pass (314 crops). Keyed on (split, crop_id); join to `records` on (split, pano_id).",
       "field": [
         {
           "@type": "cr:Field",
@@ -1096,7 +1119,7 @@
           "@id": "galleries/sha256",
           "name": "sha256",
           "dataType": "sc:Text",
-          "description": "SHA-256 of the embedded image bytes; see benchmark/<city>/imagery_manifest.json.",
+          "description": "SHA-256 of the embedded crop bytes, re-checked by the verify mode of https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/scripts/export_benchmark.py. Crops are not in imagery_manifest.json, which pins panoramas only.",
           "source": {
             "fileSet": {
               "@id": "parquet-galleries"
@@ -1136,15 +1159,20 @@
           }
         }
       ],
-      "key": {
-        "@id": "galleries/crop_id"
-      }
+      "key": [
+        {
+          "@id": "galleries/split"
+        },
+        {
+          "@id": "galleries/crop_id"
+        }
+      ]
     },
     {
       "@type": "cr:RecordSet",
       "@id": "split_extents",
       "name": "split_extents",
-      "description": "GeoCroissant record-level spatial and temporal extent of each published split, derived from the committed benchmark/<city>/records.jsonl restricted to reviewed panoramas (the filter export_benchmark.py applies). Re-derived and checked by `python scripts/validate_croissant.py`. Coordinates are WGS 84 degrees rounded to 5 decimals; dates are capture months.",
+      "description": "Spatial and temporal extent of each published split, in custom fields (min_lat ... max_lng, capture_date_min/max), not a GeoCroissant construct; the same boxes are in spatialCoverage as GeoShape boxes. Derived from the committed records.jsonl files in https://github.com/ProjectSidewalk/RampNet/tree/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/benchmark restricted to reviewed panoramas (the filter https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/scripts/export_benchmark.py applies), and re-derived and checked by scripts/validate_croissant.py. Coordinates are WGS 84 degrees rounded to 5 decimals; dates are capture months.",
       "key": {
         "@id": "split_extents/split"
       },
@@ -1330,7 +1358,7 @@
       "@type": "cr:RecordSet",
       "@id": "file_manifest",
       "name": "file_manifest",
-      "description": "Every Parquet file at Hub revision 63d5ffd0e4b6795702db40be89ea4d9672d91ab5, with its size and content hash. Checked against the live listing by `python scripts/validate_croissant.py --hub`.",
+      "description": "Every Parquet file at Hub revision 63d5ffd0e4b6795702db40be89ea4d9672d91ab5, with its size and content hash. Checked against the Hub's listing, and the revision against the Hub's current main, by scripts/validate_croissant.py --hub.",
       "key": {
         "@id": "file_manifest/path"
       },

@@ -5,7 +5,6 @@
     "sc": "https://schema.org/",
     "cr": "http://mlcommons.org/croissant/",
     "rai": "http://mlcommons.org/croissant/RAI/",
-    "geocr": "http://mlcommons.org/croissant/geo/",
     "dct": "http://purl.org/dc/terms/",
     "annotation": "cr:annotation",
     "arrayShape": "cr:arrayShape",
@@ -40,13 +39,9 @@
     "key": "cr:key",
     "md5": "cr:md5",
     "parentField": "cr:parentField",
-    "path": "cr:path",
     "recordSet": "cr:recordSet",
     "references": "cr:references",
     "regex": "cr:regex",
-    "repeated": "cr:repeated",
-    "replace": "cr:replace",
-    "samplingRate": "cr:samplingRate",
     "readLines": "cr:readLines",
     "sdVersion": "cr:sdVersion",
     "separator": "cr:separator",
@@ -54,7 +49,8 @@
     "subField": "cr:subField",
     "transform": "cr:transform",
     "unArchive": "cr:unArchive",
-    "value": "cr:value"
+    "value": "cr:value",
+    "geocr": "http://mlcommons.org/croissant/geo/"
   },
   "@type": "sc:Dataset",
   "conformsTo": [
@@ -67,10 +63,15 @@
     "projectsidewalk/rampnet-dataset",
     "RampNet Stage 1 Dataset"
   ],
-  "description": "The RampNet Stage 1 dataset: Google Street View panoramas with curb ramp locations as normalized pixel points, generated automatically by translating open-government curb ramp GPS records (New York City, Portland OR, Bend OR) onto panoramas with a crop-level keypoint model. It is the training data for the RampNet curb ramp detector described in the ICCV'25 workshop paper. The dataset card lists 214,376 panoramas and 849,895 labels; the Hub's dataset viewer counts 214,385 rows (150,066 train / 42,878 validation / 21,441 test), which matches the parquet scan in docs/seam.md.",
+  "description": "The RampNet Stage 1 dataset: Google Street View panoramas with curb ramp locations as normalized pixel points, generated automatically by translating open-government curb ramp GPS records (New York City, Portland OR, Bend OR) onto panoramas with a crop-level keypoint model. It is the training data for the RampNet curb ramp detector described in the ICCV'25 workshop paper. The dataset card lists 214,376 panoramas and 849,895 labels; the Hub's dataset viewer counts 214,385 rows (150,066 train / 42,878 validation / 21,441 test), which matches the Parquet scan in https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/seam.md (section 3). The 9-row difference from the card is recorded, not explained, in https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/rampnet1_findings.md (section 1).",
   "url": "https://huggingface.co/datasets/projectsidewalk/rampnet-dataset",
-  "sameAs": [
-    "https://github.com/ProjectSidewalk/RampNet"
+  "isBasedOn": [
+    {
+      "@type": "sc:SoftwareSourceCode",
+      "name": "RampNet",
+      "description": "Code that generated this dataset (Stage 1) and trains and evaluates the RampNet model.",
+      "codeRepository": "https://github.com/ProjectSidewalk/RampNet"
+    }
   ],
   "identifier": "DOI-NOT-YET-MINTED (issue #150): replace with the DataCite DOI once minted",
   "creator": [
@@ -117,12 +118,17 @@
     "panorama",
     "open government data"
   ],
-  "citeAs": "@inproceedings{omeara2025rampnet,\n  author    = {John S. O'Meara and Jared Hwang and Zeyu Wang and Michael Saugstad and Jon E. Froehlich},\n  title     = {{RampNet: A Two-Stage Pipeline for Bootstrapping Curb Ramp Detection in Streetscape Images from Open Government Metadata}},\n  booktitle = {{ICCV'25 Workshop on Vision Foundation Models and Generative AI for Accessibility: Challenges and Opportunities (ICCV 2025 Workshop)}},\n  year      = {2025},\n  doi       = {https://doi.org/10.48550/arXiv.2508.09415},\n  url       = {https://cv4a11y.github.io/ICCV2025/index.html},\n  note      = {Dataset DOI: forthcoming}\n}",
+  "citeAs": "@inproceedings{omeara2025rampnet,\n  author    = {John S. O'Meara and Jared Hwang and Zeyu Wang and Michael Saugstad and Jon E. Froehlich},\n  title     = {{RampNet: A Two-Stage Pipeline for Bootstrapping Curb Ramp Detection in Streetscape Images from Open Government Metadata}},\n  booktitle = {{ICCV'25 Workshop on Vision Foundation Models and Generative AI for Accessibility: Challenges and Opportunities (ICCV 2025 Workshop)}},\n  year      = {2025},\n  doi       = {10.48550/arXiv.2508.09415},\n  url       = {https://cv4a11y.github.io/ICCV2025/index.html},\n  note      = {DOI: forthcoming}\n}",
+  "citation": [
+    "https://doi.org/10.48550/arXiv.2508.09415",
+    "https://github.com/ProjectSidewalk/RampNet/releases/tag/v1.1-corrected-eval",
+    "https://github.com/ProjectSidewalk/RampNet/blob/v1.1-corrected-eval/README.md#erratum-evaluation-metrics-july-2026"
+  ],
   "spatialCoverage": [
     {
       "@type": "sc:Place",
       "name": "New York City, NY, USA",
-      "description": "Extent of the committed open-government curb ramp records for this city (stage_one/dataset_generation/location_data/). Panoramas were selected near these records, so panorama locations fall at or just beyond this box; negative panoramas were sampled along the city's street centrelines.",
+      "description": "Extent of the committed open-government curb ramp records for this city (https://github.com/ProjectSidewalk/RampNet/tree/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/stage_one/dataset_generation/location_data), re-derived by scripts/validate_croissant.py with the parsers in combine_location_data.py. Panoramas were selected near these records, so panorama locations fall at or just beyond this box; negative panoramas were sampled along the city's street centrelines.",
       "geo": {
         "@type": "sc:GeoShape",
         "box": "40.49902 -74.25478 40.91256 -73.70028"
@@ -131,7 +137,7 @@
     {
       "@type": "sc:Place",
       "name": "Portland, OR, USA",
-      "description": "Extent of the committed open-government curb ramp records for this city (stage_one/dataset_generation/location_data/). Panoramas were selected near these records, so panorama locations fall at or just beyond this box; negative panoramas were sampled along the city's street centrelines.",
+      "description": "Extent of the committed open-government curb ramp records for this city (https://github.com/ProjectSidewalk/RampNet/tree/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/stage_one/dataset_generation/location_data), re-derived by scripts/validate_croissant.py with the parsers in combine_location_data.py. Panoramas were selected near these records, so panorama locations fall at or just beyond this box; negative panoramas were sampled along the city's street centrelines.",
       "geo": {
         "@type": "sc:GeoShape",
         "box": "45.43283 -122.83011 45.63909 -122.46193"
@@ -140,7 +146,7 @@
     {
       "@type": "sc:Place",
       "name": "Bend, OR, USA",
-      "description": "Extent of the committed open-government curb ramp records for this city (stage_one/dataset_generation/location_data/). Panoramas were selected near these records, so panorama locations fall at or just beyond this box; negative panoramas were sampled along the city's street centrelines.",
+      "description": "Extent of the committed open-government curb ramp records for this city (https://github.com/ProjectSidewalk/RampNet/tree/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/stage_one/dataset_generation/location_data), re-derived by scripts/validate_croissant.py with the parsers in combine_location_data.py. Panoramas were selected near these records, so panorama locations fall at or just beyond this box; negative panoramas were sampled along the city's street centrelines.",
       "geo": {
         "@type": "sc:GeoShape",
         "box": "44.00123 -121.37468 44.11921 -121.24886"
@@ -148,21 +154,26 @@
     }
   ],
   "geocr:coordinateReferenceSystem": "EPSG:4326",
-  "geocr:samplingStrategy": "Positive panoramas: for each government curb ramp record, Street View panoramas within 10 m were discovered, and every record within 35 m of a panorama was attached to it (generate_dataset_meta.py, DISCOVERY_DISTANCE_THRESHOLD / INCLUSION_DISTANCE_THRESHOLD). A record was used only if its install date predates the panorama's capture month; the paper's run admitted undated records (docs/data_provenance.md section 3.2). Negative panoramas were sampled along street centrelines (generate_negative_panos.py); the paper used about 20% negatives. The panorama-level train/val/test split is random, not city-held-out, and the paper-era split was unseeded, so the Hub copy is the split of record (docs/data_provenance.md section 4).",
-  "geocr:spatialBias": "Three US cities only, and dominated by one: New York City supplies 78.2% of the government records (docs/rampnet1_findings.md). No rural area, no non-US city, and a single imagery provider (Google Street View). 43.23% of the 276,071 committed government records never became a training label, mostly because no panorama resolved or the install-date check failed (docs/data_provenance.md section 3.1), so coverage within each city is uneven.",
-  "rai:dataCollection": "Two-stage automatic generation, no human labelling of the training labels. Stage 1 takes open-government curb ramp inventories (GPS points), finds nearby Google Street View panoramas, fetches each panorama at 4096x2048, and for each government record renders a perspective crop toward the record's bearing; a crop-level keypoint model (trained on Project Sidewalk crowdsourced labels, then on a small manual crop set) places the ramp in the crop, and the peaks are projected back to the equirectangular panorama as normalized points. Generation finished 2025-06-17 (docs/stage1_generation_cost.md). Code: stage_one/dataset_generation/.",
+  "geocr:samplingStrategy": "Positive panoramas: for each government curb ramp record, Street View panoramas within 10 m were discovered, and every record within 35 m of a panorama was attached to it (DISCOVERY_DISTANCE_THRESHOLD / INCLUSION_DISTANCE_THRESHOLD in https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/stage_one/dataset_generation/generate_dataset_meta.py). A record was used only if its install date predates the panorama's capture month; the paper's run admitted undated records (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/data_provenance.md section 3.2). Negative panoramas were sampled along street centrelines (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/stage_one/dataset_generation/generate_negative_panos.py); the paper used about 20% negatives. The panorama-level train/val/test split is random, not city-held-out, and the paper-era split was unseeded, so the Hub copy is the split of record (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/data_provenance.md section 4).",
+  "geocr:spatialBias": "Three US cities only, and dominated by one: New York City supplies 217,679 of the 276,071 committed government records, 78.8% (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/data_provenance.md section 3). No rural area, no non-US city, and a single imagery provider (Google Street View). 43.23% of the 276,071 committed government records never became a training label, mostly because no panorama resolved or the install-date check failed (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/data_provenance.md section 3.1), so coverage within each city is uneven.",
+  "rai:dataCollection": "Two-stage automatic generation, no human labelling of the training labels. Stage 1 takes open-government curb ramp inventories (GPS points), finds nearby Google Street View panoramas, fetches each panorama at 4096x2048, and for each government record renders a perspective crop toward the record's bearing; a crop-level keypoint model (trained on Project Sidewalk crowdsourced labels, then on a small manual crop set) places the ramp in the crop, and the peaks are projected back to the equirectangular panorama as normalized points. Generation finished 2025-06-17 (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/stage1_generation_cost.md); no committed record gives the date it started, so rai:dataCollectionTimeframe carries the completion date only. Code: https://github.com/ProjectSidewalk/RampNet/tree/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/stage_one/dataset_generation",
   "rai:dataCollectionType": [
     "Secondary Data Analysis",
     "Software Collection"
   ],
-  "rai:dataCollectionRawData": "Government inventories: New York City (nyc.csv, 217,679 records), Portland OR (portland.geojson, 45,035), Bend OR (bend.geojson, 13,357), committed with sha256 in docs/data_provenance.md section 3; the paper's Table 1 gives 276,615, a 544-record difference reconciled in section 3.3 of the same document. Imagery: Google Street View panoramas fetched through undocumented tile endpoints (docs/data_provenance.md section 2).",
-  "rai:dataAnnotationProtocol": "Labels are machine-generated, not human-annotated. A label is a peak (skimage peak_local_max, min_distance 40 px, threshold 0.4) of the max-combined crop-model heatmaps for all government records attached to the panorama (stage_one/dataset_generation/download_dataset.py). Against the 1,000-panorama manual gold set the corrected Stage 1 label agreement is P 0.9152 / R 0.9275 (published P 0.9403 / R 0.9245; docs/rampnet1_findings.md section 1).",
+  "rai:dataCollectionTimeframe": [
+    "2025-06-17"
+  ],
+  "rai:dataCollectionRawData": "Government inventories: New York City (nyc.csv, 217,679 records), Portland OR (portland.geojson, 45,035), Bend OR (bend.geojson, 13,357), committed with sha256 in https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/data_provenance.md section 3; the paper's Table 1 gives 276,615, a 544-record difference reconciled in section 3.3 of the same document. Imagery: Google Street View panoramas fetched from the Google Street View tile server at zoom level 3 (32 tiles, stitched to 4096x2048), as https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/stage_one/dataset_generation/download_dataset.py does through fetch_panorama in https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/rampnet/gsv.py.",
+  "rai:dataCollectionMissingData": "Records without a label: 119,359 of the 276,071 committed government records (43.23%) never became a training label, mostly because no panorama resolved for them or the install date failed the predates-capture check (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/data_provenance.md section 3.1). Panoramas never written: 4,571 of the 219,170 intended (2.09%), 4,570 of them because the imagery server did not serve the panorama (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/stage1_generation_cost.md). Rows: 214,599 panoramas were written and 214,385 are on the Hub; that gap is recorded as open. Missing positives: a ramp with no government record, or whose record failed the install-date check, is unlabelled in every panorama that shows it. No per-panorama capture date is stored.",
+  "rai:dataAnnotationProtocol": "Labels are machine-generated, not human-annotated. A label is a peak (skimage peak_local_max, min_distance 40 px, threshold 0.4) of the max-combined crop-model heatmaps for all government records attached to the panorama (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/stage_one/dataset_generation/download_dataset.py). Against the 1,000-panorama manual gold set the corrected Stage 1 label agreement is P 0.9152 / R 0.9275 (published P 0.9403 / R 0.9245; https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/rampnet1_findings.md section 1).",
+  "rai:dataAnnotationAnalysis": "Stage 1 labels were checked against the 1,000-panorama manual gold set (https://github.com/ProjectSidewalk/RampNet/tree/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/manual_labels): corrected agreement P 0.9152 / R 0.9275; the published P 0.9403 / R 0.9245 used the matching rule withdrawn in the v1.1-corrected-eval erratum (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/rampnet1_findings.md section 1). No per-label uncertainty is stored.",
   "rai:machineAnnotationTools": [
     "RampNet crop-level keypoint model, round 2 (HF projectsidewalk/rampnet-crop-model)"
   ],
   "rai:annotationsPerItem": "One automatic label pass per panorama; zero or more curb ramp points per panorama. No human review of individual training labels.",
-  "rai:dataBiases": "City mix: New York City is 78.2% of the source records, with Portland and Bend the rest (docs/rampnet1_findings.md). Imagery provider: Google Street View only. Capture years: the dataset carries no per-panorama capture date, and the install-date filter admits only ramps built before capture, so newer ramps are under-represented. Selection: 43.23% of government records produced no label (docs/data_provenance.md section 3.1). The crop model that places every point was trained on Project Sidewalk labels from 12 other cities, so its errors are inherited by every label (docs/data_provenance.md section 1).",
-  "rai:dataLimitations": "Seam duplicates: 8,361 label pairs (0.98% of labels, 3.7% of panoramas) straddle the 360-degree seam and double-label one ramp; the 1.0 dataset is deliberately not being changed (docs/seam.md, docs/rampnet1_findings.md). `curb_ramp_points_normalized` and `curb_ramp_coords` are not parallel arrays and must not be index-paired (docs/seam.md). Row counts: the card says 214,376 panoramas / 849,895 labels, a parquet scan counts 214,385 / 849,904, and the generation log wrote 214,599 (docs/rampnet1_findings.md). Labels are points, not boxes or extents. Missing labels exist where a ramp has no government record or the record failed the install-date check. Any evaluation in New York City, Portland or Bend is contaminated by training (docs/data_provenance.md section 1); the 1,000-panorama gold set sits in this dataset's test split and is a label-quality check, not a geographically held-out one.",
+  "rai:dataBiases": "City mix: New York City is 78.8% of the 276,071 committed source records (217,679), with Portland and Bend the rest (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/data_provenance.md section 3). Imagery provider: Google Street View only. Capture years: the dataset carries no per-panorama capture date, and the install-date filter admits only ramps built before capture, so newer ramps are under-represented. Selection: 43.23% of government records produced no label (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/data_provenance.md section 3.1). The crop model that places every point was trained on Project Sidewalk labels from 12 other cities, so its errors are inherited by every label (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/data_provenance.md section 1).",
+  "rai:dataLimitations": "Seam duplicates: 8,361 label pairs (0.98% of labels, 3.7% of panoramas) straddle the 360-degree seam and double-label one ramp; the 1.0 dataset is deliberately not being changed (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/seam.md, https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/rampnet1_findings.md). `curb_ramp_points_normalized` and `curb_ramp_coords` are not parallel arrays and must not be index-paired (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/seam.md). Row counts: the card says 214,376 panoramas / 849,895 labels, a parquet scan counts 214,385 / 849,904, and the generation log wrote 214,599 (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/rampnet1_findings.md); neither gap is explained. Whether `pano_id` is unique across rows has not been checked, so this file declares no key for the panoramas record set. Labels are points, not boxes or extents. Missing labels exist where a ramp has no government record or the record failed the install-date check. Any evaluation in New York City, Portland or Bend is contaminated by training (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/data_provenance.md section 1); the 1,000-panorama gold set sits in this dataset's test split and is a label-quality check, not a geographically held-out one.",
   "rai:dataUseCases": "Intended: training and in-distribution evaluation of curb ramp detectors on street-level panoramas; research on bootstrapping accessibility datasets from open government data. Not intended: out-of-domain evaluation (use rampnet-benchmark), measuring ramp condition or compliance, or any use that identifies people.",
   "rai:dataSocialImpact": "Built to scale the mapping of curb ramps, which people who use wheelchairs, walkers and strollers depend on, and to support Project Sidewalk's sidewalk accessibility audits. Errors matter in both directions: a missed ramp understates accessibility, a false one overstates it.",
   "rai:personalSensitiveInformation": "Street-level panoramas can show people, vehicles, licence plates and private buildings. The dataset adds no personal attributes and labels only curb ramps; the images are as served by the imagery provider, and this release applies no further redaction.",
@@ -172,8 +183,8 @@
       "@type": "cr:FileObject",
       "@id": "repo",
       "name": "repo",
-      "description": "The Hugging Face dataset repository. This description matches revision ee882e3f3c779dc13182f307bca616e50d9b8c5c (2025-08-15); per-file hashes are in the file_manifest record set.",
-      "contentUrl": "https://huggingface.co/datasets/projectsidewalk/rampnet-dataset",
+      "description": "The Hugging Face dataset repository at revision ee882e3f3c779dc13182f307bca616e50d9b8c5c (2025-08-15), the Hub's main at the time of writing; contentUrl pins that revision. Besides the Parquet shards it holds README.md (the dataset card) and .gitattributes. Per-file hashes are in the file_manifest record set.",
+      "contentUrl": "https://huggingface.co/datasets/projectsidewalk/rampnet-dataset/tree/ee882e3f3c779dc13182f307bca616e50d9b8c5c",
       "encodingFormat": "git+https",
       "sha256": "https://github.com/mlcommons/croissant/issues/80"
     },
@@ -249,10 +260,7 @@
       "@type": "cr:RecordSet",
       "@id": "panoramas",
       "name": "panoramas",
-      "description": "One row per panorama.",
-      "key": {
-        "@id": "panoramas/pano_id"
-      },
+      "description": "One row per panorama. No key is declared: whether pano_id is unique across the 214,385 rows has not been checked, and no committed source can check it without the Parquet files.",
       "field": [
         {
           "@type": "cr:Field",
@@ -300,7 +308,7 @@
           "@id": "panoramas/pano_id",
           "name": "pano_id",
           "dataType": "sc:Text",
-          "description": "Google Street View panorama id; globally unique, the safe join key.",
+          "description": "Google Street View panorama id. GSV ids are globally unique, but whether each appears in only one row of this dataset is unverified.",
           "source": {
             "fileSet": {
               "@id": "parquet-shards"
@@ -364,7 +372,7 @@
           "@id": "panoramas/curb_ramp_coords",
           "name": "curb_ramp_coords",
           "dataType": "cr:Float64",
-          "description": "Government curb ramp records within 35 m of the panorama, each [latitude, longitude] in WGS 84. NOT index-aligned with curb_ramp_points_normalized (docs/seam.md).",
+          "description": "Government curb ramp records within 35 m of the panorama, each [latitude, longitude] in WGS 84. NOT index-aligned with curb_ramp_points_normalized (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/seam.md).",
           "source": {
             "fileSet": {
               "@id": "parquet-shards"
@@ -381,7 +389,7 @@
           "@id": "panoramas/pano_azimuth",
           "name": "pano_azimuth",
           "dataType": "cr:Float64",
-          "description": "Compass heading of the panorama's centre column, degrees clockwise from north, wrapped to [-180, 180) (rampnet/gsv.py heading_to_azimuth).",
+          "description": "Compass heading of the panorama's centre column, degrees clockwise from north, wrapped to [-180, 180) (heading_to_azimuth in https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/rampnet/gsv.py).",
           "source": {
             "fileSet": {
               "@id": "parquet-shards"
@@ -397,7 +405,7 @@
       "@type": "cr:RecordSet",
       "@id": "file_manifest",
       "name": "file_manifest",
-      "description": "Every Parquet shard at Hub revision ee882e3f3c779dc13182f307bca616e50d9b8c5c, with its size and content hash, so a downloaded copy can be proven identical to the one described here. Checked against the live listing by `python scripts/validate_croissant.py --hub`.",
+      "description": "Every Parquet shard at Hub revision ee882e3f3c779dc13182f307bca616e50d9b8c5c, with its size and content hash, so a downloaded copy can be proven identical to the one described here. Checked against the Hub's listing, and the revision against the Hub's current main, by scripts/validate_croissant.py --hub.",
       "key": {
         "@id": "file_manifest/path"
       },
