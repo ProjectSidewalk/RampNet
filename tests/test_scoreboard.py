@@ -669,6 +669,54 @@ def test_committed_doc_is_current(board):
 
 
 # --------------------------------------------------------------------------- #
+# the prose around the tables (#171)
+# --------------------------------------------------------------------------- #
+def test_the_prose_counts_match_the_board(board):
+    """The sentences outside the generated blocks quote counts the board decides.
+
+    They said "Eighteen model legs, ten splits" and "seven pooled US city splits" long
+    after the board had 21 legs, twelve splits and eight pooled cities, because
+    regeneration only rewrites the tables (#171). scoreboard.py --check runs the same
+    function, so this fails in CI and on the command line alike.
+    """
+    with open(sb.DEFAULT_DOC, encoding="utf-8", newline="") as fh:
+        doc = fh.read()
+    assert sr.prose_problems(doc, board) == []
+
+
+@pytest.mark.parametrize("stale", [
+    "Eighteen model legs, twelve splits (eight of them pooled), one page.",
+    "Twenty-one model legs, ten splits (eight of them pooled), one page.",
+    "Macro-mean over the seven pooled US city splits, each city weighted equally.",
+    "The pool is seven cities, not all twelve splits.",
+    "The three held-out splits carry their documented reasons.",
+    "RampNet has the top score in eleven of the ten splits.",
+    "RampNet has the top score in twelve of the twelve splits.",
+    "RampNet is the top score in all ten splits, including the two it is weakest on.",
+    "the worst pooled city for 7 of the 12 models with full pooled coverage",
+])
+def test_the_prose_guard_catches_each_171_sentence(board, stale):
+    """Each sentence #171 found stale, or its current form with one count wrong, fails."""
+    with open(sb.DEFAULT_DOC, encoding="utf-8", newline="") as fh:
+        doc = fh.read()
+    assert sr.prose_problems(doc + "\n" + stale + "\n", board), stale
+
+
+def test_the_prose_guard_is_not_vacuous(board):
+    """A required rule whose sentence is deleted or reworded is reported, so the check
+    cannot pass by having nothing left to check."""
+    assert any("no sentence quotes it" in p for p in sr.prose_problems("just prose\n", board))
+
+
+def test_number_words_round_trip():
+    for n in range(0, 50):
+        assert sr.word_number(sr.number_word(n)) == n
+    assert sr.number_word(21) == "twenty-one"
+    assert sr.word_number("Twenty-one") == 21 and sr.word_number("13") == 13
+    assert sr.word_number("pooled") is None
+
+
+# --------------------------------------------------------------------------- #
 # the committed JSON — the artifact nothing used to check
 # --------------------------------------------------------------------------- #
 def test_committed_json_is_current(board):
@@ -773,6 +821,18 @@ def test_check_fails_on_a_stale_json(tmp_path):
     done = _run_scoreboard("--check", "--json-out", str(stale))
     assert done.returncode != 0, "a falsified JSON passed --check"
     assert "stale" in done.stdout
+
+
+def test_check_fails_on_stale_prose(tmp_path):
+    """The tables can be current while a sentence beside them is not (#171)."""
+    with open(sb.DEFAULT_DOC, encoding="utf-8", newline="") as fh:
+        doc = fh.read()
+    doc = doc.replace("Twenty-one model legs", "Eighteen model legs", 1)
+    stale = tmp_path / "model_scoreboard.md"
+    stale.write_text(doc, encoding="utf-8", newline="")
+    done = _run_scoreboard("--check", "--doc", str(stale))
+    assert done.returncode != 0, "a stale leg count passed --check"
+    assert "prose is stale" in done.stdout and "Eighteen model legs" in done.stdout
 
 
 def test_a_models_subset_does_not_touch_the_committed_page(tmp_path):

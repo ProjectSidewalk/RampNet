@@ -68,6 +68,10 @@ analysis_out/op/*
 # size class, and it carries the per-bucket counts docs/curb_ramp_data_sourcing.md
 # quotes -- so the 3.8x correction is checkable without re-running anything.
 !analysis_out/miss_taxonomy.json
+# overlap_test.py's per-GT-ramp hits at four thresholds (#171). ~90 KB, image-free, and the
+# only record of the re-inference behind docs/detection_recall_analysis.md sections 3 and 5;
+# regenerating it needs a GPU and the native-res benchmark panos.
+!analysis_out/overlap.json
 # The FP-side taxonomy (#46). Larger than its siblings but still text, and it is the
 # only committed record of what the challengers' 60,000-strong FP floods are made of
 # -- .model_cache itself is gitignored, so without this the table is unreproducible

@@ -336,3 +336,118 @@ def write_json(path, result):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="") as fh:
         fh.write(json_payload(result))
+
+
+# --------------------------------------------------------------------------- #
+# the prose around the tables
+# --------------------------------------------------------------------------- #
+# The generated blocks cannot drift, but the sentences around them can, and did: the page
+# said "Eighteen model legs, ten splits" and "the seven pooled US city splits" for weeks
+# after the board had grown to 21 legs, twelve splits and eight pooled cities (#171). The
+# counts those sentences quote are all facts of the board, so they are checked against it
+# here, and scoreboard.py --check fails when one is wrong.
+
+_UNITS = ("zero one two three four five six seven eight nine ten eleven twelve thirteen "
+          "fourteen fifteen sixteen seventeen eighteen nineteen").split()
+_TENS = {"twenty": 20, "thirty": 30, "forty": 40}
+
+
+def number_word(n):
+    """0..49 as an English word, lower case: ``number_word(21) == "twenty-one"``."""
+    if n < 20:
+        return _UNITS[n]
+    tens = next(w for w, v in _TENS.items() if v == n - n % 10)
+    return tens if n % 10 == 0 else f"{tens}-{_UNITS[n % 10]}"
+
+
+def word_number(word):
+    """Inverse of :func:`number_word` (digits accepted too), or None for a non-number."""
+    if word.isdigit():
+        return int(word)
+    word = word.lower()
+    if word in _UNITS:
+        return _UNITS.index(word)
+    if word in _TENS:
+        return _TENS[word]
+    head, _, tail = word.partition("-")
+    if head in _TENS and tail in _UNITS[1:10]:
+        return _TENS[head] + _UNITS.index(tail)
+    return None
+
+
+_NUM = r"(\d+|[A-Za-z]+(?:-[A-Za-z]+)?)"   # "twenty-one" or "21"
+
+
+def prose_facts(result):
+    """The counts the hand-written prose quotes, each read off the board."""
+    per = result["per_split"]
+    rampnet_top = sum(
+        1 for s in result["all_splits"]
+        if "rampnet" in per and s in per["rampnet"]
+        and all(per["rampnet"][s]["f1"] >= cells[s]["f1"]
+                for cells in per.values() if s in cells))
+    return {
+        "legs": len(result["models"]),
+        "splits": len(result["all_splits"]),
+        "pooled": len(result["pooled_splits"]),
+        "held_out": len(result["held_out"]),
+        "complete": sum(1 for m in result["models"] if m["complete"]),
+        "rampnet_top": rampnet_top,
+    }
+
+
+# (name, regex, [fact per captured number word], required). ``required`` rules must match
+# at least once, so deleting or rewording the sentence cannot turn the check vacuous; the
+# others fire wherever the phrase occurs.
+PROSE_RULES = (
+    ("leg count", _NUM + r" model legs\b", ["legs"], True),
+    ("split count", _NUM + r" splits \(" + _NUM + r" of them pooled\)",
+     ["splits", "pooled"], True),
+    # "the other seven pooled splits" counts the pool minus one, so "other" is excluded.
+    ("pooled count", r"(?<!other )\b" + _NUM + r" pooled (?:US )?(?:city )?(?:splits|cities)\b",
+     ["pooled"], True),
+    ("pooled count", r"\bover the " + _NUM + r" US (?:city )?splits\b", ["pooled"], False),
+    ("pooled count", r"\bThe pool is " + _NUM + r" cities\b", ["pooled"], True),
+    ("held-out count", r"\b" + _NUM + r" held-out splits\b", ["held_out"], True),
+    ("top-score count", r"\btop score in " + _NUM + r" of the " + _NUM + r" splits\b",
+     ["rampnet_top", "splits"], True),
+    ("complete-leg count", r"\bof the " + _NUM + r" models with full pooled coverage\b",
+     ["complete"], True),
+    # The retired forms, which no board can make true again as long as there are
+    # held-out splits.
+    ("stale form", r"\btop score in all " + _NUM + r" splits\b", [], False),
+)
+
+
+def prose_problems(text, result):
+    """Every count in the hand-written prose that disagrees with the board, as messages.
+
+    Generated blocks are stripped first (they are checked by the splice), and whitespace
+    is collapsed because the doc wraps at ~90 columns. Returns [] when the prose is current.
+
+    >>> prose_problems("Eighteen model legs, ten splits.", board)   # doctest: +SKIP
+    ['leg count: "Eighteen model legs" says 18, the board has 21', ...]
+    """
+    prose = re.sub(r"<!-- BEGIN GENERATED: (\S+) .*?<!-- END GENERATED: \1 -->", "",
+                   text, flags=re.S)
+    prose = re.sub(r"\s+", " ", prose)
+    facts = prose_facts(result)
+    problems, matched = [], set()
+    for name, pattern, keys, required in PROSE_RULES:
+        found = list(re.finditer(pattern, prose))
+        if found:
+            matched.add(name)
+        for m in found:
+            if not keys:
+                problems.append(f'{name}: "{m.group(0)}" is no longer true of the board')
+                continue
+            for word, key in zip(m.groups(), keys):
+                n = word_number(word)
+                if n != facts[key]:
+                    problems.append(f'{name}: "{m.group(0)}" says {word}, the board has '
+                                    f"{facts[key]} ({key})")
+    for name, _pattern, _keys, required in PROSE_RULES:
+        if required and name not in matched:
+            problems.append(f"{name}: no sentence quotes it any more -- restore one, or "
+                            "drop the rule in scoreboard_render.PROSE_RULES")
+    return sorted(set(problems))

@@ -93,7 +93,7 @@ as noise rather than support for the mirror. Why those panos peak off zero was n
 **Open question, not checked here.** The labeler's own `ground_range_at` uses the same stored ↔
 raw convention as the lookup this section stopped using. Whether the labeler's imagery shares
 these JPEGs' orientation or streetlevel's raster is a question for the labeler, and nothing in
-this document tests it.
+this document tests it. Checked 2026-09-25 and confirmed: the labeler's `ground_range_at` is mirrored for image-frame coordinates; production outputs are unaffected today; filed as [sidewalk-auto-labeler#80](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/80).
 
 **The rule.** Depth distance = horizontal range along the exact ray through the point to the
 payload plane under its pixel (the plane index is per pixel of a 512×256 grid; the intersection
@@ -348,6 +348,18 @@ statement), `crop_window_eval.md` (flat-ground strata at 2.5 m), `rampnet1_findi
 | 25–40 m | 33 | **0.182** |
 | **all** | 637 | 0.765 |
 
+**Where these numbers come from, and why §5 differs (#171).** A hit here is a committed
+deployment detection (`benchmark/{richmond,bend}/records.jsonl`, peak threshold 0.55) matched
+to a GT ramp: 487 of 637 (richmond 238 of 310, bend 249 of 327). That total re-derives from the
+repo: it is `published_reproduction` in `analysis_out/recall_by_depth_112.json`. The distance
+bands are Depth Anything 3 metric depth, binned by `scripts/analysis/depth_analysis.py` from
+`gt_depth_da3.json`. That file is not committed, and it was not found on this workstation or in
+the makelab2 home directory on 2026-09-25, so the per-band n and recall in this table **cannot
+be re-derived from the repo**. §5's "thr 0.55" column uses the same bands but a different
+detection source (a re-run of inference), and this table is the one to quote for recall at the
+deployed operating point. Neither table is newer: both were added in the same commit
+(`846378c`, #37).
+
 By apparent size: 20–32 px → 0.189, 32–50 px → 0.671, 50–80 px → 0.825, 80 px+ → 0.876. There is
 simply not enough signal left in the pixels.
 
@@ -373,8 +385,21 @@ also means lowering the threshold at range is safe.
 
 ## 3. Lever A — the operating point (free)
 
-Inference was re-run on all 234 benchmark panos, byte-faithful to the deployment path
-(resize 2048×4096, no TTA); at `(0.55, 10)` it reproduces the committed `records.jsonl` exactly.
+Inference was re-run on all 234 benchmark panos (resize 2048×4096, no TTA). At `(0.55, 10)` it
+reproduces the committed `records.jsonl` recall on richmond exactly: the same 238 of 310 GT
+ramps are hit. On bend it does not. The re-run hits 247 of 327 and the committed records 249,
+and 10 GT ramps change state (6 lost, 4 gained). Bend is the one GSV split, and its production
+path fed the model a 4096×2048 intermediate rather than the native-res bundle pano
+(`scripts/analysis/README.md`, `low_floor_sweep.py parity`). So bend's recall at 0.55 below
+(0.755) is 0.006 under the committed 0.761, and the pooled re-run recall at 0.55 is 485 / 637 =
+0.761, against §1's 0.765. An earlier version of this paragraph said the re-run reproduced the
+records exactly; that was true of richmond only.
+
+The recall in every row below re-derives from `analysis_out/overlap.json`, the per-GT-ramp hits
+at all four thresholds written by `scripts/analysis/overlap_test.py` (same inference and peak
+extraction as `threshold_sweep.py`; committed 2026-09-25 from the local run of July 2026,
+sha256 `d0d8b4b0…`). Precision and F1 do not: that file holds hits per GT ramp, not false
+positives, and `threshold_sweep.py`'s own output was not kept.
 
 | threshold | richmond P / R / F1 | bend P / R / F1 |
 |---|---|---|
@@ -415,6 +440,18 @@ panos are natively ~11000 px wide and Bend 16384 px, against a 4096 px model inp
 | 12–18 m | 0.817 | 0.883 | 0.914 | +0.096 |
 | 18–25 m | 0.554 | 0.673 | 0.693 | **+0.139** |
 | 25 m+ | 0.152 | 0.303 | 0.364 | **+0.212** |
+
+**The 0.55 column here is not §1's table (#171).** It comes from the §3 re-run
+(`overlap_test.py`, `analysis_out/overlap.json`), not from the committed records §1 reads, so
+it differs from §1 exactly where bend's re-run differs: 10 ramps, net −2 (485 against 487 hits).
+The bands are §1's DA3 bands with the same n. 25 m+ is §1's 25–40 m row, since §1's rows sum to
+637 and so hold no ramp beyond 40 m, and the 8–12 m row is not shown. Per band, the hit counts
+implied by n and the printed recall differ by one or two ramps: 0–8 m 110 against 112 of 133,
+12–18 m 161 against 160 of 197, 18–25 m 56 against 57 of 101, 25 m+ 5 against 6 of 33 (the
+omitted 8–12 m row is +1 by subtraction). The column is kept because the gain column needs all
+three thresholds from one inference path. For recall at the deployed operating point, quote §1.
+Like §1, the per-band values need the uncommitted DA3 depths and cannot be re-derived from the
+repo; the per-ramp hits behind them can.
 
 The threshold helps at *all* distances but most at range, so it competes with resolution for the
 same ramps. It does **not** solve far-field (25 m+ tops out at 0.364), and ramps still missed at

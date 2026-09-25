@@ -17,7 +17,7 @@ Reads **only committed artifacts** — the benchmark bundles, the published dete
 credentials, no network, so a fresh clone reproduces every number here::
 
     python scripts/analysis/scoreboard.py                 # JSON + doc tables + figures
-    python scripts/analysis/scoreboard.py --check         # doc AND JSON current?
+    python scripts/analysis/scoreboard.py --check         # doc, its prose counts, JSON current?
     python scripts/analysis/scoreboard.py --no-figures    # tables only (no matplotlib)
 
 The scoring path needs **numpy and pillow only** -- not ``requirements-dev.txt``, which
@@ -573,8 +573,9 @@ def main():
                          "--doc/--json-out/--figure-dir explicitly. Default: every leg.")
     ap.add_argument("--no-figures", action="store_true", help="Skip matplotlib entirely.")
     ap.add_argument("--check", action="store_true",
-                    help="Verify the committed doc AND analysis_out/scoreboard.json match "
-                         "the committed data; write nothing and exit non-zero on drift.")
+                    help="Verify the committed doc (its tables and the leg/split counts "
+                         "its prose quotes) AND analysis_out/scoreboard.json match the "
+                         "committed data; write nothing and exit non-zero on drift.")
     args = ap.parse_args()
 
     models = [m.strip() for m in args.models.split(",")] if args.models else None
@@ -600,7 +601,7 @@ def main():
     result = build(models)
 
     from scoreboard_render import (  # noqa: E402
-        json_payload, render_tables, splice, write_json)
+        json_payload, prose_problems, render_tables, splice, write_json)
     tables = render_tables(result)
 
     if args.check:
@@ -613,6 +614,10 @@ def main():
             if splice(current, tables) != current:
                 problems.append(f"{args.doc}: generated tables are stale "
                                 "(re-run scripts/analysis/scoreboard.py)")
+            # The hand-written sentences quote counts (legs, splits, pooled cities) that
+            # regeneration cannot fix; they are checked against the board instead (#171).
+            problems.extend(f"{args.doc}: prose is stale -- {p}"
+                            for p in prose_problems(current, result))
         # The JSON is a committed artifact too, and nothing else checks it. Compared as
         # bytes, which also catches a CRLF flip that a value-level compare would miss.
         if not os.path.exists(args.json_out):
