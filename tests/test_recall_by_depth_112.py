@@ -260,9 +260,15 @@ LABELER = os.environ.get("LABELER_ROOT", r"D:\Git\sidewalk-auto-labeler")
 
 @pytest.mark.skipif(not os.path.exists(os.path.join(LABELER, "depth.py")),
                     reason="no sidewalk-auto-labeler checkout (LABELER_ROOT)")
-def test_image_x_is_the_labelers_stored_one_minus_x():
-    """The only difference from the labeler's lookup is the mirror: depth_ranges at image x
-    equals depth.ray_depth_at at stored 1 - x, on a tilted plane, away from column edges."""
+def test_image_x_is_the_labelers_image_x():
+    """Both lookups answer in the panorama JPEG's frame: depth_ranges at image x equals
+    depth.ray_depth_at at the same x, on a tilted plane, away from column edges.
+
+    Until sidewalk-auto-labeler#84 (merged 2026-09-26) the labeler answered range queries in
+    streetlevel's mirrored raster frame, and this test called it at 1 - x on purpose
+    (sidewalk-auto-labeler#80, RampNet #191). On a plane with nx != 0 the two frames give
+    different ranges, so the second assertion fails against a labeler checkout older than #84
+    instead of letting the two repos disagree silently."""
     depthlib = rbd.load_depthlib(LABELER)
     w, h, cam_h, roll = 512, 256, 2.0, math.radians(3.0)
     tilted = depthlib.Plane(math.sin(roll), 0.0, -math.cos(roll), cam_h)
@@ -270,4 +276,7 @@ def test_image_x_is_the_labelers_stored_one_minus_x():
     payload = depthlib.DepthPayload(w, h, [depthlib.Plane(0.0, 0.0, 0.0, 0.0), tilted], idx)
     for x in (0.1234, 0.3791, 0.6602, 0.9013):
         _, ray, _ = rbd.depth_ranges(payload, cam_h, x, 0.61)
-        assert ray == pytest.approx(depthlib.ray_depth_at(payload, 1.0 - x, 0.61), rel=1e-12)
+        assert ray == pytest.approx(depthlib.ray_depth_at(payload, x, 0.61), rel=1e-12)
+        assert abs(depthlib.ray_depth_at(payload, 1.0 - x, 0.61) / ray - 1) > 0.01, (
+            "the labeler still answers in the mirrored raster frame (older than "
+            "sidewalk-auto-labeler#84)")
