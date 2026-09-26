@@ -212,3 +212,9 @@ def test_downsample_writes_px_crops_and_labels_and_is_resumable(tmp_path):
     t2, summary2, _ = cf.downsample_arm(lab, "fov25", "fov90", str(images))
     assert summary2["written"] == 0 and summary2["kept"] == 2
     assert list(t2.filename) == list(t.filename)
+
+
+def test_a_second_seed_scores_against_the_first_seeds_labels():
+    assert cf.arm_labels_path("o", "fov90_s87").endswith("labels_fov90.csv")
+    assert cf.arm_labels_path("o", "fov25px57").endswith("labels_fov25px57.csv")
+    assert cf.arm_labels_path("o", "fov25").endswith("labels_fov25.csv")

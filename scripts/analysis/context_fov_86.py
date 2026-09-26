@@ -57,6 +57,7 @@ import datetime as dt
 import json
 import math
 import os
+import re
 import sys
 
 import pandas as pd
@@ -422,11 +423,23 @@ def paired_contrast(pred_a, labels_a, pred_b, labels_b, split_csv, tags_fixed=No
             "per_tag_ap_a_minus_b": {t: {"point": _pt(t), "ci95": tb._ci(per_tag[t])} for t in fixed}}
 
 
+def arm_labels_path(out_dir, arm):
+    """``labels_<arm>.csv``; a second seed of an arm (``<arm>_s<seed>``, ``context_fov_86.slurm``
+    with ``SEED``) trains on the first seed's table, so it scores against ``labels_<arm>.csv``.
+
+    >>> os.path.basename(arm_labels_path("x", "fov90_s87"))
+    'labels_fov90.csv'
+    """
+    m = re.fullmatch(r"(.+)_s(\d+)", arm)
+    base = m.group(1) if m else arm
+    return os.path.join(out_dir, f"labels_{base}.csv")
+
+
 def cmd_contrast(a):
     rows = []
     for arm in a.arms:
         pred = os.path.join(a.out_dir, f"train_{arm}_final_test_predictions.csv")
-        labels = os.path.join(a.out_dir, f"labels_{arm}.csv")
+        labels = arm_labels_path(a.out_dir, arm)
         if not os.path.exists(pred):
             print(f"{arm}: not run ({os.path.basename(pred)} missing)")
             continue
