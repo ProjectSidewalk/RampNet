@@ -67,11 +67,11 @@ them belongs to a registered leg:
 | the standing zero-shot roster, twelve splits each (two Gemini legs are absent on `manual_gold`) | 82 | the roster tables in [`model_comparison.md`](model_comparison.md) |
 | `gemini-3.7-flash`, twelve splits, published ahead of its write-up (#120) | 12 | §below |
 | the supervised YOLO pano trio, twelve splits each (#51) | 36 | [`model_comparison.md` §supervised baseline](model_comparison.md), and the [training record](../scripts/model_comparison/yolo_baseline/README.md) |
-| `claude-opus-5` at `low` effort, eleven splits (#122; the pool by #139, both Laurens arms by #151) | 11 | [`model_comparison.md` §Claude](model_comparison.md) |
-| the other three Vertex Claude legs, annapolis only (#122) | 3 | [`model_comparison.md` §Claude](model_comparison.md) |
-| the two Fable legs, annapolis only, served on Anthropic's first-party API (#156) | 2 | [`model_comparison.md` §Claude Fable on annapolis](model_comparison.md) |
-| the two Mapillary Vistas class-set arms, richmond only (#126) | 2 | [`model_comparison.md` §Vistas](model_comparison.md) |
-| the Vistas curb-cut arm at 1024×1024 input — the resolution-parity leg, richmond only (#126, #137; re-run and published under #163) | 1 | [`model_comparison.md` §Resolution parity](model_comparison.md) |
+| `claude-opus-5` at `low` effort, eleven splits (#122; the pool by #139, both Laurens arms by #151) | 11 | [`claude_legs_122.md`](claude_legs_122.md) |
+| the other three Vertex Claude legs, annapolis only (#122) | 3 | [`claude_legs_122.md`](claude_legs_122.md) |
+| the two Fable legs, annapolis only, served on Anthropic's first-party API (#156) | 2 | [`claude_legs_122.md` §Claude Fable on annapolis](claude_legs_122.md) |
+| the two Mapillary Vistas class-set arms, richmond only (#126) | 2 | [`vistas_transfer_126.md`](vistas_transfer_126.md) |
+| the Vistas curb-cut arm at 1024×1024 input — the resolution-parity leg, richmond only (#126, #137; re-run and published under #163) | 1 | [`vistas_transfer_126.md` §Resolution parity](vistas_transfer_126.md) |
 
 `rampnet` is a row in every results table and has no file here: it is read from each bundle's
 committed `records.jsonl` and carries no detector signature.
@@ -89,7 +89,7 @@ the very file it replicates, since the two share a signature — the exporter no
 registered files, and that each replicate file carries the same header as the file it
 replicates. The canonical-form and provenance checks below cover the replicate file too. The 1024 leg and the
 replicate were exported and `--verify`-ed against the cache that produced them on 2026-09-20;
-the exact commands are in [`model_comparison.md` §Resolution parity](model_comparison.md).
+the exact commands are in [`vistas_transfer_126.md` §Resolution parity](vistas_transfer_126.md).
 
 Every one of those files is in **canonical form** — byte-identical to what
 `export_model_cache.py` would write today — which is the difference between a corpus that
@@ -134,7 +134,7 @@ invocation against their own cache rather than by the default-roster one above �
 trio on makelab2 (30 files, identical to the producing cache; see the
 [training record](../scripts/model_comparison/yolo_baseline/README.md)) and the four Claude
 legs one at a time under `--publish-as` (see
-[`model_comparison.md`](model_comparison.md)). Re-running `--verify` on any of them needs the
+[`claude_legs_122.md`](claude_legs_122.md)). Re-running `--verify` on any of them needs the
 cache that produced it, which is machine-local by construction. What a clean clone can check
 without any cache is that each file's recorded signature still matches the leg the registry
 says it is: `test_each_published_file_names_the_leg_it_says_it_is`.
@@ -291,7 +291,7 @@ read back from `analysis_out/scoreboard.json`.
 
 **Known gap, partly recovered: the four legs' token counts were never written to
 `analysis_out/usage_log.jsonl`.** The $28.82 figure and the per-leg costs quoted in
-`docs/model_comparison.md` come from the runs' console output. A *re-run* cannot back-fill
+`docs/claude_legs_122.md` come from the runs' console output. A *re-run* cannot back-fill
 them, because it reads the detection cache, makes zero API calls and therefore has no usage
 to record. Only the 2026-08-18 single-panorama re-run ($0.03) is in the log.
 
@@ -306,7 +306,7 @@ daily alignment: the two Opus legs ran concurrently and separate at their change
 **$8.94 / $12.46** — 0.1%, from an independent source. **Sonnet does not separate**, and
 the script prints `NOT SEPARABLE` rather than a number: its high leg spent 17,820 thinking
 tokens to Opus's 127,227, so the signal this method reads is not there. Numbers, method and
-the exact commands are in `docs/model_comparison.md` §"Splitting a two-leg day by effort".
+the exact commands are in `docs/claude_legs_122.md` §"Splitting a two-leg day by effort".
 
 **Retention is ~6 weeks**, so all of this was recoverable only because someone looked within
 it; treat a missing usage record as having a deadline, not as paperwork. The 2026-08-15

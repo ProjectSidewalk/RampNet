@@ -200,7 +200,8 @@ def test_a_repeated_row_key_is_not_hidden_by_the_join(tmp_path, capsys):
 def _doc_activation_table():
     """The '| population | n | act q1 / med / q3 | act >= 0.01 |' table in 0c, parsed."""
     import re
-    doc = os.path.join(REPO_ROOT, "docs", "curb_ramp_data_sourcing.md")
+    # §0c moved verbatim out of curb_ramp_data_sourcing.md under #145.
+    doc = os.path.join(REPO_ROOT, "docs", "data_scaling_59.md")
     with open(doc, encoding="utf-8") as fh:
         text = fh.read()
     start = text.index("| population | n | act q1 / med / q3 |")

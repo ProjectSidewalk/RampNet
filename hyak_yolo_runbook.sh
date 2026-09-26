@@ -82,7 +82,7 @@ env)
   else
     echo "$ENVDIR already exists; skipping create"
   fi
-  # cu126 wheels — the lean-env path from docs/model_comparison.md, no CPU-fallback trap.
+  # cu126 wheels — the lean-env path from docs/running_model_comparison.md (Hyak runbook, step 2), no CPU-fallback trap.
   "$PYBIN" -m pip install --upgrade pip
   "$PYBIN" -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
   # ultralytics pulls numpy/pillow/opencv/pyyaml; datasets+hf_hub for download_dataset.py.
