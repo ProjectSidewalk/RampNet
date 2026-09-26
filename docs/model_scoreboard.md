@@ -174,7 +174,7 @@ numbers are directly above them in `model_comparison.md`:
   which had itself displaced gemini-3.1-pro (0.567) there. The two Fable legs ran on
   Anthropic's first-party API rather than the Vertex path every other Claude leg used,
   because Vertex gates that family; the path is pinned in each published file and the
-  caveat travels with the numbers in `model_comparison.md` (#156). They are annapolis-only:
+  caveat travels with the numbers in `claude_legs_122.md` (#156). They are annapolis-only:
   both clear the pre-registered expansion gate, and the expansion has not been taken.
 - **More thinking makes it worse.** Claude Opus 5 drops from 0.588 at low effort to 0.520 at
   high on annapolis, and the same direction holds for Sonnet 5 (0.463 → 0.456). Effort moves

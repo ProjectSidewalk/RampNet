@@ -27,7 +27,8 @@
 # bundle, so no timm and no model load), so a lean venv works — see the runbook.
 #
 # Detections land in .model_cache/, whose key contains nothing machine-specific —
-# rsync that directory back and score locally with no GPU (see docs/model_comparison.md).
+# rsync that directory back and score locally with no GPU (see docs/running_model_comparison.md,
+# "Running the open-weight models on Hyak", step 5).
 #SBATCH -p gpu-l40s
 #SBATCH --job-name=qwen_curb_ramp_compare
 #SBATCH --time=12:00:00

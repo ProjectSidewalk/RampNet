@@ -1,6 +1,7 @@
 """The published Claude numbers, re-derived from committed files (#122, #151).
 
-Every Claude figure in ``docs/model_comparison.md`` is recomputed here from
+Every Claude figure in ``docs/claude_legs_122.md`` (moved out of
+``docs/model_comparison.md`` under #145) is recomputed here from
 ``benchmark/model_detections/claude-*.json`` plus the committed bundles. No
 ``.model_cache``, no network, no API key, no GPU -- which is the whole point: these
 legs cost real money and nobody should have to spend it again to check the
@@ -228,14 +229,18 @@ def test_the_strongest_annapolis_claim_tracks_the_published_legs():
     published annapolis leg, or "X was the strongest ... until Y" when Y is -- but
     the leg it names has to agree with the files."""
     import re
-    with open(os.path.join(REPO, "docs", "model_comparison.md"), encoding="utf-8") as fh:
+    # The annapolis write-up moved verbatim to claude_legs_122.md under #145; the coverage
+    # paragraph ("Six Claude legs are off-roster") stayed at the top of the log.
+    with open(os.path.join(REPO, "docs", "claude_legs_122.md"), encoding="utf-8") as fh:
         doc = fh.read()
+    with open(os.path.join(REPO, "docs", "model_comparison.md"), encoding="utf-8") as fh:
+        log = fh.read()
     scored = {k: _score(*k, _ground_truths("annapolis"))
               for k in PUBLISHED_LEGS if k[3] == "annapolis"}
     best = max(scored, key=lambda k: scored[k][7])
     m = re.search(r"\*\*`([\w.-]+)` at `(\w+)` (is|was) the strongest general model "
                   r"measured on annapolis\*\*", doc)
-    assert m, "the strongest-general-model sentence is gone from model_comparison.md"
+    assert m, "the strongest-general-model sentence is gone from claude_legs_122.md"
     named, effort, verb = m.groups()
     if verb == "is":
         assert (named, effort) == best[:2], (
@@ -254,7 +259,7 @@ def test_the_strongest_annapolis_claim_tracks_the_published_legs():
         assert "**Both displace `claude-opus-5` at the top of this split**" in doc
     # The coverage paragraph at the top of the doc names every off-roster Claude leg
     # (not "annapolis only" any more: Opus-low has eleven splits since #139/#151).
-    assert "**Six Claude legs are off-roster.**" in doc
+    assert "**Six Claude legs are off-roster.**" in log
     assert len({k[:3] for k in scored}) == 6
 
 
@@ -262,7 +267,8 @@ def test_the_strongest_annapolis_claim_tracks_the_published_legs():
 # the Fable cost figures, re-derived from the ledger (#156)
 # --------------------------------------------------------------------------- #
 USAGE_LOG = os.path.join(REPO, "analysis_out", "usage_log.jsonl")
-DOC = os.path.join(REPO, "docs", "model_comparison.md")
+# The Fable section moved verbatim from model_comparison.md under #145.
+DOC = os.path.join(REPO, "docs", "claude_legs_122.md")
 
 
 def _fable_ledger():
