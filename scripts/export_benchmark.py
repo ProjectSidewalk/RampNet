@@ -141,8 +141,9 @@ RECORDS_SCHEMA = pa.schema([
     pa.field("no_missed", pa.bool_()),
     pa.field("review_group", pa.string()),
     # #127: the caveats travel with the rows. train_overlap is never null; the review_* columns
-    # are null for a split with no review_notes block -- null means "not recorded", and
-    # review_caveats is null rather than [] so it cannot read as "reviewed, no caveats".
+    # are null for a split with no review_notes block -- null means "not recorded". review_caveats
+    # is [] only when the block records an empty caveats list ("reviewed, no caveats") and null
+    # when the block or its caveats key is absent, so the two cannot be confused.
     pa.field("train_overlap", pa.bool_()),
     pa.field("note", pa.string()),
     pa.field("reviewer", pa.string()),
@@ -259,11 +260,16 @@ def write_parquet(dst, records, config):
     return n, dst.stat().st_size
 
 
+def reviewed_splits(benchmark):
+    """Allowlisted splits with both records.jsonl and verdicts.json -- what build_records exports."""
+    return [city for city in sorted(BENCHMARK_SPLITS)
+            if (Path(benchmark) / city / "records.jsonl").is_file()
+            and (Path(benchmark) / city / "verdicts.json").is_file()]
+
+
 def has_reviewed_splits(benchmark):
     """True when at least one allowlisted split has both records.jsonl and verdicts.json."""
-    return any((Path(benchmark) / city / "records.jsonl").is_file()
-               and (Path(benchmark) / city / "verdicts.json").is_file()
-               for city in BENCHMARK_SPLITS)
+    return bool(reviewed_splits(benchmark))
 
 
 def load_train_overlap(benchmark):
@@ -277,6 +283,26 @@ def load_train_overlap(benchmark):
     return dict((split, set(ids)) for split, ids in overlap.items())
 
 
+def check_train_overlap(benchmark):
+    """Refuse, before anything is cleared or written, if any reviewed split lacks an overlap entry.
+
+    build_records would refuse too, but only when its loop reached the uncovered split -- after
+    `build` had spent hours writing imagery and after data/records had been cleared, leaving a
+    partial config and no manifest. Both entry points call this first (#127 review). Returns the
+    same {split: set of ids} as load_train_overlap.
+    """
+    overlap = load_train_overlap(benchmark)
+    missing = [city for city in reviewed_splits(benchmark) if city not in overlap]
+    if missing:
+        path = Path(benchmark) / TRAIN_OVERLAP_NAME
+        sys.exit("error: {} {} no entry in {} -- run\n"
+                 "       python scripts/analysis/train_overlap_check.py --benchmark {} --out {}\n"
+                 "       and commit the result before exporting.".format(
+                     ", ".join(missing), "has" if len(missing) == 1 else "have", path,
+                     benchmark, path))
+    return overlap
+
+
 def build_records(benchmark, out):
     """Join records.jsonl + verdicts.json into one Parquet per city -- the ground truth itself.
 
@@ -288,7 +314,8 @@ def build_records(benchmark, out):
     Issue #127 adds what should be read alongside those labels. The audience is whoever calls
     `load_dataset(..., "records")` and never opens this repo, so the split's `review_notes` block
     (reviewer, date, confidence, summary, caveats) is flattened onto every row, the per-pano `note`
-    rides on its own row, and `train_overlap` flags panoramas that are also in rampnet-dataset's
+    rides on its own row (`review_caveats` is [] when the block records an empty list and null
+    when there is no block or no caveats key), and `train_overlap` flags panoramas that are also in rampnet-dataset's
     train/validation splits (from benchmark/train_overlap.json). A split with no entry in that file
     is refused: a new city is not published until its overlap has been checked.
 
@@ -299,8 +326,7 @@ def build_records(benchmark, out):
     """
     written = []
     schema = RECORDS_SCHEMA.with_metadata(hf_features_metadata(RECORDS_FEATURES))
-    overlap = load_train_overlap(benchmark)
-    overlap_path = Path(benchmark) / TRAIN_OVERLAP_NAME
+    overlap = check_train_overlap(benchmark)      # every split validated before the first write
     for records_path in sorted(Path(benchmark).glob("*/records.jsonl")):
         city = records_path.parent.name
         if city not in BENCHMARK_SPLITS:
@@ -308,12 +334,6 @@ def build_records(benchmark, out):
         verdicts_path = records_path.parent / "verdicts.json"
         if not verdicts_path.is_file():
             continue
-        if city not in overlap:
-            sys.exit("error: {} has no entry in {} -- run\n"
-                     "       python scripts/analysis/train_overlap_check.py --benchmark {} "
-                     "--out {}\n"
-                     "       and commit the result before exporting it.".format(
-                         city, overlap_path, benchmark, overlap_path))
         verdicts = json.loads(verdicts_path.read_text(encoding="utf-8"))
         judged = verdicts.get("panos", {})
         notes = verdicts.get("review_notes") or {}
@@ -366,7 +386,9 @@ def build_records(benchmark, out):
                 # verbatim: a sentinel such as "unrecorded" must travel as written, not as a level
                 "review_confidence": notes.get("confidence"),
                 "review_summary": notes.get("summary"),
-                "review_caveats": list(notes["caveats"]) if notes.get("caveats") else None,
+                # [] = reviewed, no caveats; null = no review_notes block or no caveats key
+                "review_caveats": (list(notes["caveats"]) if notes.get("caveats") is not None
+                                   else None),
             })
 
         if not rows:
@@ -610,6 +632,10 @@ def render_card(out, benchmark, repo_id, index):
 
 def build(args):
     out = Path(args.out)
+    # Before any imagery is written or any config cleared: an uncovered split must not cost the
+    # hours of imagery work, or data/records, that a mid-loop refusal would.
+    if has_reviewed_splits(args.benchmark):
+        check_train_overlap(args.benchmark)
     index = {}
     print("{:<12} {:<20} {:>6} {:>14} {:>14}".format("config", "city", "rows", "bytes in", "parquet"))
     print("-" * 72)
@@ -775,6 +801,7 @@ def records(args):
     out = Path(args.out)
     if not has_reviewed_splits(args.benchmark):
         sys.exit("error: no records.jsonl + verdicts.json pairs under {}".format(args.benchmark))
+    check_train_overlap(args.benchmark)          # refuse before data/records is cleared
     clear_build_dir(out, "data/{}".format(RECORDS))
     written = build_records(args.benchmark, out)
     if not written:

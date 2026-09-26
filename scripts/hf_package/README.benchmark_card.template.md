@@ -78,7 +78,7 @@ One row per reviewed panorama, joinable to any imagery config on `pano_id`:
 
 The last five columns come from the split's review notes and repeat on every row of that split.
 They are **null when no review notes were recorded for the split** — which means "not recorded",
-not "no caveats".
+not "no caveats". A split whose reviewer recorded notes but no caveats has `review_caveats == []`.
 
 `verdict` is one of **`correct`**, **`incorrect`**, **`unsure`**, **`duplicate`**. `unsure` is an
 abstention and `duplicate` marks a second detection of an already-matched ramp — both carry the

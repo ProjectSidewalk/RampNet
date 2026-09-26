@@ -92,7 +92,7 @@ Since #127 the reviewer's own commentary travels with the rows, for the audience
 `load_dataset` and never opens this repo. `scripts/export_benchmark.py` copies each split's
 `review_notes` block onto every `records` row (`reviewer`, `reviewed_at`, `review_confidence`
 verbatim, `review_summary`, `review_caveats`; all null for a split with no block, which means "not
-recorded", not "no caveats"), carries each per-pano `note`, and sets `train_overlap` from
+recorded", not "no caveats"; `review_caveats` is `[]` only when a block records an empty list), carries each per-pano `note`, and sets `train_overlap` from
 `benchmark/train_overlap.json` (below). It refuses to export a split that has no entry in that
 file. The copy on the Hub gains these columns at the next `records` push; until then it is the #21
 schema.

@@ -8,7 +8,7 @@ also in RampNet's training data -- both lived only in git. These tests pin:
   Bend's four, and LF/sorted bytes so a re-run can be diffed;
 - what `build_records` writes from the committed bundles: the review_notes columns per split, the
   per-pano notes, and `train_overlap`;
-- the refusal to export a split that has no overlap entry;
+- the refusal to export a split that has no overlap entry, before anything is cleared;
 - the four-row Bend table quoted in the card and benchmark/README.md, re-derived from the bundle.
 
 CPU only, no network: reads committed fixtures and writes to tmp_path.
@@ -159,6 +159,50 @@ def test_a_missing_overlap_file_is_refused(tmp_path):
     with pytest.raises(SystemExit) as excinfo:
         build_records(bench, tmp_path / "out")
     assert TRAIN_OVERLAP_NAME in str(excinfo.value)
+
+
+def _args(bench, out, **kw):
+    import argparse
+    base = dict(benchmark=str(bench), out=str(out), push=False, message="m",
+                repo_id="x/y", allow_partial=True, panos_4096=None, galleries=None)
+    base.update(kw)
+    return argparse.Namespace(**base)
+
+
+@pytest.mark.parametrize("mode", ["records", "build"])
+def test_a_refusal_leaves_data_records_untouched(tmp_path, mode):
+    """The refusal must fire before anything is cleared: build would otherwise have written hours
+    of imagery and then deleted data/records on reaching the uncovered split (#127 review)."""
+    import export_benchmark
+    bench = _minimal_benchmark(tmp_path, {"clovis": []})
+    out = tmp_path / "out"
+    old = out / "data" / RECORDS / "old.parquet"
+    old.parent.mkdir(parents=True)
+    old.write_bytes(b"earlier build")
+    with pytest.raises(SystemExit) as excinfo:
+        getattr(export_benchmark, mode)(_args(bench, out))
+    assert "bend" in str(excinfo.value)
+    assert old.read_bytes() == b"earlier build"
+
+
+def _with_notes(tmp_path, notes):
+    bench = _minimal_benchmark(tmp_path, {"bend": []})
+    path = bench / "bend" / "verdicts.json"
+    verdicts = json.loads(path.read_text(encoding="utf-8"))
+    verdicts["review_notes"] = notes
+    path.write_text(json.dumps(verdicts), encoding="utf-8")
+    build_records(bench, tmp_path / "out")
+    return pq.read_table(tmp_path / "out" / "data" / RECORDS / "bend.parquet").to_pylist()[0]
+
+
+def test_an_empty_caveats_list_exports_as_empty_not_null(tmp_path):
+    """[] = reviewed, no caveats; null = nothing recorded. The two must not collapse."""
+    assert _with_notes(tmp_path, {"reviewer": "r", "caveats": []})["review_caveats"] == []
+
+
+def test_a_block_without_caveats_exports_null(tmp_path):
+    row = _with_notes(tmp_path, {"reviewer": "r"})
+    assert row["reviewer"] == "r" and row["review_caveats"] is None
 
 
 def test_a_split_with_an_empty_entry_builds(tmp_path):
