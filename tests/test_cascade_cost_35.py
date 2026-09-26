@@ -171,7 +171,7 @@ def test_volatile_fields_are_not_in_the_payload(committed):
 def test_naive_union_both_conventions(fresh):
     u = fresh["naive_union"]
     c, a = u["complementarity"], u["aggregate"]
-    assert round(c["F1"], 3) == 0.549                       # docs/model_comparison.md
+    assert round(c["F1"], 3) == 0.549                       # docs/vistas_transfer_126.md
     assert (c["tp"], c["fp"], c["rampnet_fp"], c["challenger_fp"]) == (295, 470, 28, 442)
     assert round(a["F1"], 4) == 0.4632 and (a["tp"], a["fp"]) == (302, 692)
     # 0.30-point price of a recovered ramp, each convention against the same baseline
