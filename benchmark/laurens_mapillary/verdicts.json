@@ -3,6 +3,17 @@
   "run_name": "laurens",
   "source": "benchmark\\laurens\\records.jsonl",
   "exported_at": "2026-08-31T19:17:59.027Z",
+  "review_notes": {
+    "reviewer": "jonf",
+    "reviewed_at": "2026-08-31",
+    "confidence": "unrecorded — reviewer to fill in",
+    "summary": "Laurens is the benchmark's first rural split: 94 panos from a single November 2025 Mapillary upload run on a GoPro Max. Precision held at 0.898 (unbiased 0.863), but recall came in at 0.390 (unbiased 0.325), the lowest of any split by a factor of two. Two things stood out during the pass. Leaf litter covered ramp surfaces and the roadway on several panos, which is what November imagery looks like here. And a large share of the missed ramps were visible enough to mark but not resolvable enough to score, so they were marked unsure and abstained rather than forced into the denominator. The reviewer-rated confidence in this pass was not filled in at export time and is recorded here as unrecorded rather than guessed after the fact.",
+    "caveats": [
+      "Abstained misses. 38 of the 190 missed-ramp marks are unsure (20%), the largest abstention count of any split. Unsure marks are excluded from both precision and recall, so the 0.390 recall is measured against the 152 marks that were resolvable enough to score. The abstention rate is itself a signal about how legible this imagery is.",
+      "Leaf litter. Three panos carry a per-pano note about leaves - two about leaves covering the ground and one about a leaf in front of the camera. Reviewer impression, not a measurement; the distance and imagery analyses are what would quantify it.",
+      "Strata and sample size. The sample is 5 top / 64 random / 25 empty = 94 panos, not the usual 5 / 95 / 25 = 125: the 30 m spacing filter exhausted the 4,495-pano run before the random stratum filled. The unbiased column is 89 panos, so every interval on this split is wider than on the splits sampled at 125."
+    ]
+  },
   "panos": {
     "1824905744811261": {
       "group": "empty",
