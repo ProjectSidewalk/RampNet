@@ -363,7 +363,7 @@ def _eval_cascade(scorer, cands_by_pano, t_hi, t_lo, r_gate_sq, c_min, n_kept_by
 
 def run_pair(split, published, t_hi=T_HI, t_lo=T_LO, r_gate=R_GATE, c_min="auto",
              null="shift", null_shifts="all", seed=0, radius=RADIUS, gts=None,
-             peaks=None):
+             peaks=None, bootstrap=BOOTSTRAP):
     """Score the cascade grid, its controls and its null for one (split, leg)."""
     t0 = time.time()
     gts = load_gts(split) if gts is None else gts
@@ -493,11 +493,11 @@ def run_pair(split, published, t_hi=T_HI, t_lo=T_LO, r_gate=R_GATE, c_min="auto"
 
     boot = {}
     for lab, r in (("best_by_f1", best_f1), ("best_viable", best_viable), ("fixed", fixed)):
-        if r is not None:
+        if r is not None and bootstrap:
             boot[lab] = bootstrap_delta(
                 scorer, kept_idx,
                 _setting_indices(scorer, cands_by_pano, t_hi, r["t_lo"], r["r_gate"],
-                                 r["c_min"]), seed=seed)
+                                 r["c_min"]), n=bootstrap, seed=seed)
     at_p = [r for r in grid if r["P"] >= base["P"] and r["R"] > base["R"]]
     best_r = max(at_p, key=lambda r: (r["R"], r["F1"])) if at_p else None
     verdict = (verdict_of(base, thr, grid) if null_sets else None)
