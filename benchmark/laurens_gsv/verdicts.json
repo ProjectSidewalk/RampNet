@@ -6,7 +6,7 @@
   "review_notes": {
     "reviewer": "jonf",
     "reviewed_at": "2026-08-31",
-    "confidence": "unrecorded — reviewer to fill in",
+    "confidence": "unrecorded",
     "summary": "laurens_gsv is the Google Street View arm of the same Laurens, IA footprint that laurens_mapillary covers with Mapillary imagery: 86 reviewed panos, precision 0.925 and recall 0.505 over all of them (unbiased subset 0.904 / 0.459). This block records only what the bundle measures; the reviewer-rated confidence was not recorded at export time and is left unrecorded rather than guessed after the fact.",
     "caveats": [
       "Abstained misses. 19 of the 128 missed-ramp marks are unsure (15%). Unsure marks are excluded from both precision and recall, so the 0.505 recall is measured against the 109 marks that were resolvable enough to score.",

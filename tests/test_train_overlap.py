@@ -104,10 +104,10 @@ def test_build_records_carries_the_reviewer_caveats(built):
     assert all(r["review_summary"] for r in budapest)
     for split in ("gainesville", "paterson", "sao_paulo"):
         assert {r["review_confidence"] for r in tables[split].to_pylist()} == {"high"}, split
-    # The Laurens sentinel travels verbatim rather than being coerced to a level.
+    # The Laurens value travels verbatim rather than being coerced to a level. It is a plain
+    # vocabulary value: no instruction text ends up in a published column.
     for split in ("laurens_gsv", "laurens_mapillary"):
-        levels = {r["review_confidence"] for r in tables[split].to_pylist()}
-        assert len(levels) == 1 and levels.pop().startswith("unrecorded"), split
+        assert {r["review_confidence"] for r in tables[split].to_pylist()} == {"unrecorded"}, split
     # No block => null, never [] or "" -- "not recorded", not "no caveats".
     for split in ("annapolis", "bend", "clovis", "morgantown", "richmond"):
         for row in tables[split].to_pylist():

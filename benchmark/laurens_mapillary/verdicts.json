@@ -6,12 +6,12 @@
   "review_notes": {
     "reviewer": "jonf",
     "reviewed_at": "2026-08-31",
-    "confidence": "unrecorded — reviewer to fill in",
-    "summary": "Laurens is the benchmark's first rural split: 94 panos from a single November 2025 Mapillary upload run on a GoPro Max. Precision held at 0.898 (unbiased 0.863), but recall came in at 0.390 (unbiased 0.325), the lowest of any split by a factor of two. Two things stood out during the pass. Leaf litter covered ramp surfaces and the roadway on several panos, which is what November imagery looks like here. And a large share of the missed ramps were visible enough to mark but not resolvable enough to score, so they were marked unsure and abstained rather than forced into the denominator. The reviewer-rated confidence in this pass was not filled in at export time and is recorded here as unrecorded rather than guessed after the fact.",
+    "confidence": "unrecorded",
+    "summary": "laurens_mapillary is the Mapillary arm of the Laurens, IA footprint that laurens_gsv covers with Google Street View imagery: 94 reviewed panos, every one captured 2025-11 on a GoPro Max (records.jsonl), sampled from a 4,495-record run (sample.json). Precision is 0.898 and recall 0.390 over all reviewed panos (unbiased subset 0.863 / 0.325); 0.390 is the lowest recall of the 11 benchmark splits. This block records only what the bundle measures; the reviewer-rated confidence was not recorded at export time and is left unrecorded rather than guessed after the fact.",
     "caveats": [
-      "Abstained misses. 38 of the 190 missed-ramp marks are unsure (20%), the largest abstention count of any split. Unsure marks are excluded from both precision and recall, so the 0.390 recall is measured against the 152 marks that were resolvable enough to score. The abstention rate is itself a signal about how legible this imagery is.",
-      "Leaf litter. Three panos carry a per-pano note about leaves - two about leaves covering the ground and one about a leaf in front of the camera. Reviewer impression, not a measurement; the distance and imagery analyses are what would quantify it.",
-      "Strata and sample size. The sample is 5 top / 64 random / 25 empty = 94 panos, not the usual 5 / 95 / 25 = 125: the 30 m spacing filter exhausted the 4,495-pano run before the random stratum filled. The unbiased column is 89 panos, so every interval on this split is wider than on the splits sampled at 125."
+      "Abstained misses. 38 of the 190 missed-ramp marks are unsure (20%). Unsure marks are excluded from both precision and recall, so the 0.390 recall is measured against the 152 marks that were resolvable enough to score.",
+      "Leaf notes. Three panos carry a per-pano note about leaves: two about leaves on the ground and one about a leaf in front of the camera. These are notes on individual panos, not a measurement of how often leaves hide ramps.",
+      "Strata and sample size. The sample is 5 top / 64 random / 25 empty = 94 panos, not the usual 5 / 95 / 25 = 125: the 30 m spacing filter exhausted the 4,495-record run before the random stratum filled. The unbiased column is 89 panos, so every interval on this split is wider than on the splits sampled at 125."
     ]
   },
   "panos": {

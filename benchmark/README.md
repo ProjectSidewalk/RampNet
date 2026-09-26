@@ -493,12 +493,13 @@ reason is recorded in `HELD_OUT` (`scripts/analysis/miss_decomposition.py`) and 
 it.
 
 ⚠️ **Both arms now carry a `review_notes` block (#127), but with `confidence` recorded as
-`unrecorded — reviewer to fill in`.** The blocks hold what the bundles measure — abstained misses,
-strata, and for `laurens_gsv` the unpaired-arm caveat below — and the Mapillary block carries the
-leaf-litter observation behind its three per-pano notes. The "high confidence" rating quoted for
-both arms in `docs/model_comparison.md` is therefore still not in the artifact, where §1 of
-`RUBRICS.md` says it belongs; only the reviewer can write it in. `annapolis` still has no block;
-`budapest_district5`, `gainesville`, `paterson` and `sao_paulo` carry theirs. The comparison is also **unpaired** — different panorama sets with different ground truth
+`unrecorded`.** The blocks hold only what the bundles measure — abstained misses, strata, capture
+date and camera, and for `laurens_gsv` the unpaired-arm caveat below — and the Mapillary block
+points to its three per-pano leaf notes. The "high confidence" rating quoted for both arms in
+`docs/model_comparison.md` is therefore still not in the artifact, where §1 of `RUBRICS.md` says it
+belongs; only the reviewer can write it in. `annapolis`, `bend`, `clovis`, `morgantown` and
+`richmond` still have no block; `budapest_district5`, `gainesville`, `paterson` and `sao_paulo`
+carry theirs. The comparison is also **unpaired** — different panorama sets with different ground truth
 (249 ramps against 220) — so Δ between the arms compares two samples of one town, not the same
 corner twice. The ~51 corners within 20 m of each other are the paired subset that would turn this
 into a measurement rather than a strong signal; both arms' detections are committed, so that
