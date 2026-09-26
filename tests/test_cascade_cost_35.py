@@ -166,4 +166,7 @@ def test_pinned_null_and_verdict(committed):
     assert (bv["t_lo"], bv["r_gate"], bv["tp"], bv["fp"], bv["fn"]) == (0.05, 0.011, 269, 38, 41)
     assert bv["attributable_dR"] == pytest.approx(0.03572, abs=1e-6)
     assert committed["best_by_f1"]["attributable_dR"] == pytest.approx(0.017912, abs=1e-6)
-    assert committed["ceiling"]["promotable"] == 19
+    c = committed["ceiling"]
+    assert (c["promotable"], c["handoff_ge_t_hi"], c["no_peak_in_radius"]) == (19, 4, 15)
+    # every ramp the headline row gains is one of #126's 19 promotable sites
+    assert c["best_viable_gained_ramps"] == c["best_viable_gained_in_promotable"] == 12

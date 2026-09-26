@@ -262,6 +262,10 @@ def ceiling_for(split, t_hi):
                      and s["nearest_peak_score"] < art["rampnet_op_threshold"])
     handoff = sum(1 for s in c_only if s["peak_in_radius"]) - promotable
     return {"promotable": promotable, "handoff_ge_t_hi": handoff,
+            "_promotable_sites": [(s["pano"], s["x"], s["y"]) for s in c_only
+                                  if s["peak_in_radius"]
+                                  and s["nearest_peak_score"] is not None
+                                  and s["nearest_peak_score"] < art["rampnet_op_threshold"]],
             "no_peak_in_radius": len(c_only) - promotable - handoff,
             "challenger_only": len(c_only), "n_gt": art["n_sites"],
             "promotable_dR": round(promotable / art["n_sites"], 6),
@@ -502,6 +506,27 @@ def run_pair(split, published, t_hi=T_HI, t_lo=T_LO, r_gate=R_GATE, c_min="auto"
     best_r = max(at_p, key=lambda r: (r["R"], r["F1"])) if at_p else None
     verdict = (verdict_of(base, thr, grid) if null_sets else None)
 
+    ceiling = ceiling_for(split, t_hi)
+    if ceiling is not None:
+        sites = set(tuple(x) for x in ceiling.pop("_promotable_sites"))
+        for lab, r in (("best_viable", best_viable), ("best_by_f1", best_f1)):
+            if r is None:
+                continue
+            idx = _setting_indices(scorer, cands_by_pano, t_hi, r["t_lo"], r["r_gate"],
+                                   r["c_min"])
+            gained = []
+            for pid in pids:
+                gt = gts[pid]
+                if not gt.fn_confirmed:
+                    continue
+                pk = peaks.get(pid, [])
+                before = matched_gt([pk[i] for i in kept_idx[pid]], gt.gt_points, radius_sq)
+                after = matched_gt([pk[i] for i in idx[pid]], gt.gt_points, radius_sq)
+                gained += [(pid, gt.gt_points[g][0], gt.gt_points[g][1])
+                           for g in after - before]
+            ceiling[f"{lab}_gained_ramps"] = len(gained)
+            ceiling[f"{lab}_gained_in_promotable"] = sum(1 for g in gained if g in sites)
+
     missing_ch = [pid for pid in pids if pid not in cands_by_pano]
     missing_op = [pid for pid in pids if pid not in peaks]
     payload = {
@@ -522,7 +547,7 @@ def run_pair(split, published, t_hi=T_HI, t_lo=T_LO, r_gate=R_GATE, c_min="auto"
                                "chosen": "post hoc, from the primary pair's best viable row"},
         "bootstrap_vs_baseline": boot,
         "verdict": verdict, "min_attributable_dR": MIN_ATTRIBUTABLE_DR,
-        "ceiling": ceiling_for(split, t_hi),
+        "ceiling": ceiling,
         "elapsed_s": time.time() - t0, "host": platform.node(),
     }
     return payload
@@ -585,30 +610,67 @@ def summary(out_dir):
                 continue
             with open(path, encoding="utf-8") as f:
                 p = json.load(f)
-            b, bf, br = p["baseline"], p["best_by_f1"], p["best_recall_at_precision_ge_baseline"]
-            rows.append({
+            b, bf, bv, fx = (p["baseline"], p["best_by_f1"], p["best_viable"],
+                             p["fixed_setting"])
+            tb = p["threshold_only_best"]
+            row = {
                 "split": split, "challenger": name, "n_gt": p["n_gt_recall"],
                 "null_shifts": p["null"]["shifts"], "verdict": p["verdict"],
                 "base_F1": b["F1"], "base_R": b["R"],
+                "thr_best_t": tb["t"], "thr_best_F1": tb["F1"],
                 "union_F1": p["naive_union"]["aggregate"]["F1"],
                 "best_F1": bf["F1"], "best_F1_setting": [bf["t_lo"], bf["r_gate"], bf["c_min"]],
                 "best_F1_dR": bf["dR"], "best_F1_attr_dR": bf["attributable_dR"],
-                "best_F1_thr_only_F1": bf["threshold_only_F1"],
                 "max_attr_dR": max(r["attributable_dR"] for r in p["grid"]),
-                "best_R_at_P": br["R"] if br else None,
-                "best_R_at_P_attr_dR": br["attributable_dR"] if br else None,
-            })
-    out = {"rows": rows, "gaps": gaps}
-    write_json(os.path.join(out_dir, "summary.json"), out)
-    print("| split | challenger | verdict | base F1 | best cascade F1 (T_lo, r_gate, c_min) "
-          "| ΔR | attributable ΔR | thr-only F1 @T_lo | max attributable ΔR | union F1 |")
-    print("|---|---|---|---:|---|---:|---:|---:|---:|---:|")
+                "n_viable_rows": len(p["viable_rows"]),
+            }
+            for lab, r in (("viable", bv), ("fixed", fx)):
+                row[lab] = None if r is None else {
+                    "setting": [r["t_lo"], r["r_gate"], r["c_min"]], "F1": r["F1"],
+                    "dF1": r["dF1"], "dR": r["dR"], "attr_dR": r["attributable_dR"],
+                    "promoted_fp": r["promoted_fp"],
+                    "fp_per_attr_ramp": r["fp_per_attributable_ramp"],
+                    "thr_at_matched_R_F1": (r["threshold_only_at_matched_recall"] or {}).get("F1"),
+                    "boot": p["bootstrap_vs_baseline"].get(
+                        "best_viable" if lab == "viable" else "fixed")}
+            rows.append(row)
+    counts = {}
     for r in rows:
-        s = r["best_F1_setting"]
-        print(f"| {r['split']} | {r['challenger']} | {r['verdict']} | {r['base_F1']:.4f} | "
-              f"{r['best_F1']:.4f} ({s[0]:g}, {s[1]:g}, {s[2]:.3g}) | {r['best_F1_dR']:+.4f} | "
-              f"{r['best_F1_attr_dR']:+.4f} | {r['best_F1_thr_only_F1']:.4f} | "
-              f"{r['max_attr_dR']:+.4f} | {r['union_F1']:.4f} |")
+        counts[r["verdict"]] = counts.get(r["verdict"], 0) + 1
+    out = {"rows": rows, "gaps": gaps, "verdict_counts": counts,
+           "fixed_setting_rule": {"t_lo": FIXED_SETTING[0], "r_gate": FIXED_SETTING[1],
+                                  "c_min": FIXED_SETTING[2]}}
+    write_json(os.path.join(out_dir, "summary.json"), out)
+
+    def f(v, fmt):
+        return "-" if v is None else format(v, fmt)
+    print("| split | challenger | shifts | verdict | base F1 | best thr-only F1 (t) "
+          "| best viable (T_lo, r, c_min) | F1 | attr dR | FP / attr ramp | union F1 |")
+    print("|---|---|---:|---|---:|---:|---|---:|---:|---:|---:|")
+    for r in rows:
+        v = r["viable"] or {}
+        st = v.get("setting")
+        sts = "-" if not st else f"{st[0]:g}, {st[1]:g}, {st[2]:.3g}"
+        print(f"| {r['split']} | {r['challenger']} | {r['null_shifts']} | {r['verdict']} | "
+              f"{r['base_F1']:.4f} | {r['thr_best_F1']:.4f} ({r['thr_best_t']:g}) | {sts} | "
+              f"{f(v.get('F1'), '.4f')} | {f(v.get('attr_dR'), '+.4f')} | "
+              f"{f(v.get('fp_per_attr_ramp'), '.2f')} | {r['union_F1']:.4f} |")
+    print()
+    print(f"Fixed setting {FIXED_SETTING} on every pair (post hoc):" + chr(10))
+    print("| split | challenger | base F1 | fixed F1 | dF1 [95% CI] | dR | attr dR "
+          "| promoted FP | FP / attr ramp | thr-only F1 at matched R |")
+    print("|---|---|---:|---:|---|---:|---:|---:|---:|---:|")
+    for r in rows:
+        x = r["fixed"]
+        if x is None:
+            continue
+        ci = (x["boot"] or {}).get("dF1_ci95")
+        cis = f" [{ci[0]:+.3f}, {ci[1]:+.3f}]" if ci else ""
+        print(f"| {r['split']} | {r['challenger']} | {r['base_F1']:.4f} | {x['F1']:.4f} | "
+              f"{x['dF1']:+.4f}{cis} | {x['dR']:+.4f} | {f(x['attr_dR'], '+.4f')} | "
+              f"{x['promoted_fp']} | {f(x['fp_per_attr_ramp'], '.2f')} | "
+              f"{f(x['thr_at_matched_R_F1'], '.4f')} |")
+    print(chr(10) + f"verdicts: {counts}")
     print("\ngaps:")
     for g in gaps:
         print(" ", g)

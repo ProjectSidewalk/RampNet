@@ -151,6 +151,10 @@
   0.753448
  ],
  "ceiling": {
+  "best_by_f1_gained_in_promotable": 6,
+  "best_by_f1_gained_ramps": 6,
+  "best_viable_gained_in_promotable": 12,
+  "best_viable_gained_ramps": 12,
   "challenger": "mask2former-vistas-curb-cut",
   "challenger_only": 38,
   "handoff_ge_t_hi": 4,
@@ -250,7 +254,7 @@
    ]
   }
  },
- "elapsed_s": 7.605449,
+ "elapsed_s": 9.078947,
  "fixed_setting": {
   "F1": 0.871961,
   "P": 0.876221,
