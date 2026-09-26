@@ -1,0 +1,692 @@
+{
+ "annapolis__IDEA-Research__grounding-dino-base.json": {
+  "elapsed_s": 4.2,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "annapolis__Qwen__Qwen3-VL-32B-Instruct.json": {
+  "elapsed_s": 1.0,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "annapolis__Qwen__Qwen3-VL-8B-Instruct.json": {
+  "elapsed_s": 1.0,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "annapolis__allenai__Molmo2-8B.json": {
+  "elapsed_s": 1.0,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "annapolis__claude-fable-5-1-effort-low-anthropic.json": {
+  "elapsed_s": 1.3,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "annapolis__claude-fable-5-effort-low-anthropic.json": {
+  "elapsed_s": 1.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "annapolis__claude-opus-5-effort-high.json": {
+  "elapsed_s": 1.4,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "annapolis__claude-opus-5-effort-low.json": {
+  "elapsed_s": 1.0,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "annapolis__claude-sonnet-5-effort-high.json": {
+  "elapsed_s": 1.0,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "annapolis__claude-sonnet-5-effort-low.json": {
+  "elapsed_s": 0.9,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "annapolis__gemini-3.1-pro-preview.json": {
+  "elapsed_s": 1.3,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "annapolis__gemini-3.6-flash.json": {
+  "elapsed_s": 1.6,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "annapolis__gemini-3.7-flash.json": {
+  "elapsed_s": 1.0,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "annapolis__google__owlv2-large-patch14-ensemble.json": {
+  "elapsed_s": 3.7,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "annapolis__y11l_pano.json": {
+  "elapsed_s": 1.7,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "annapolis__y11x_pano_h200.json": {
+  "elapsed_s": 1.9,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "annapolis__y26_pano.json": {
+  "elapsed_s": 2.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "bend__IDEA-Research__grounding-dino-base.json": {
+  "elapsed_s": 3.4,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "bend__Qwen__Qwen3-VL-32B-Instruct.json": {
+  "elapsed_s": 0.9,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "bend__Qwen__Qwen3-VL-8B-Instruct.json": {
+  "elapsed_s": 1.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "bend__allenai__Molmo2-8B.json": {
+  "elapsed_s": 1.2,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "bend__claude-opus-5-effort-low.json": {
+  "elapsed_s": 1.0,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "bend__gemini-3.1-pro-preview.json": {
+  "elapsed_s": 2.5,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "bend__gemini-3.6-flash.json": {
+  "elapsed_s": 1.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "bend__gemini-3.7-flash.json": {
+  "elapsed_s": 1.0,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "bend__google__owlv2-large-patch14-ensemble.json": {
+  "elapsed_s": 3.8,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "bend__y11l_pano.json": {
+  "elapsed_s": 1.9,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "bend__y11x_pano_h200.json": {
+  "elapsed_s": 2.0,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "bend__y26_pano.json": {
+  "elapsed_s": 2.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "budapest_district5__IDEA-Research__grounding-dino-base.json": {
+  "elapsed_s": 10.2,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "budapest_district5__Qwen__Qwen3-VL-32B-Instruct.json": {
+  "elapsed_s": 1.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "budapest_district5__Qwen__Qwen3-VL-8B-Instruct.json": {
+  "elapsed_s": 1.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "budapest_district5__allenai__Molmo2-8B.json": {
+  "elapsed_s": 1.3,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "budapest_district5__claude-opus-5-effort-low.json": {
+  "elapsed_s": 1.2,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "budapest_district5__gemini-3.1-pro-preview.json": {
+  "elapsed_s": 1.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "budapest_district5__gemini-3.6-flash.json": {
+  "elapsed_s": 1.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "budapest_district5__gemini-3.7-flash.json": {
+  "elapsed_s": 1.2,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "budapest_district5__google__owlv2-large-patch14-ensemble.json": {
+  "elapsed_s": 7.6,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "budapest_district5__y11l_pano.json": {
+  "elapsed_s": 2.8,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "budapest_district5__y11x_pano_h200.json": {
+  "elapsed_s": 2.3,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "budapest_district5__y26_pano.json": {
+  "elapsed_s": 2.8,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "clovis__IDEA-Research__grounding-dino-base.json": {
+  "elapsed_s": 5.5,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "clovis__Qwen__Qwen3-VL-32B-Instruct.json": {
+  "elapsed_s": 1.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "clovis__Qwen__Qwen3-VL-8B-Instruct.json": {
+  "elapsed_s": 1.0,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "clovis__allenai__Molmo2-8B.json": {
+  "elapsed_s": 1.0,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "clovis__claude-opus-5-effort-low.json": {
+  "elapsed_s": 1.0,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "clovis__gemini-3.1-pro-preview.json": {
+  "elapsed_s": 1.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "clovis__gemini-3.6-flash.json": {
+  "elapsed_s": 1.0,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "clovis__gemini-3.7-flash.json": {
+  "elapsed_s": 1.4,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "clovis__google__owlv2-large-patch14-ensemble.json": {
+  "elapsed_s": 4.8,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "clovis__y11l_pano.json": {
+  "elapsed_s": 2.2,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "clovis__y11x_pano_h200.json": {
+  "elapsed_s": 2.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "clovis__y26_pano.json": {
+  "elapsed_s": 2.3,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "gainesville__IDEA-Research__grounding-dino-base.json": {
+  "elapsed_s": 7.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "gainesville__Qwen__Qwen3-VL-32B-Instruct.json": {
+  "elapsed_s": 1.2,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "gainesville__Qwen__Qwen3-VL-8B-Instruct.json": {
+  "elapsed_s": 1.9,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "gainesville__allenai__Molmo2-8B.json": {
+  "elapsed_s": 1.5,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "gainesville__claude-opus-5-effort-low.json": {
+  "elapsed_s": 1.6,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "gainesville__gemini-3.1-pro-preview.json": {
+  "elapsed_s": 1.6,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "gainesville__gemini-3.6-flash.json": {
+  "elapsed_s": 1.5,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "gainesville__gemini-3.7-flash.json": {
+  "elapsed_s": 1.8,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "gainesville__google__owlv2-large-patch14-ensemble.json": {
+  "elapsed_s": 5.2,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "gainesville__y11l_pano.json": {
+  "elapsed_s": 2.7,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "gainesville__y11x_pano_h200.json": {
+  "elapsed_s": 2.8,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "gainesville__y26_pano.json": {
+  "elapsed_s": 2.6,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "laurens_mapillary__IDEA-Research__grounding-dino-base.json": {
+  "elapsed_s": 6.4,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "laurens_mapillary__Qwen__Qwen3-VL-32B-Instruct.json": {
+  "elapsed_s": 0.9,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "laurens_mapillary__Qwen__Qwen3-VL-8B-Instruct.json": {
+  "elapsed_s": 1.2,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "laurens_mapillary__allenai__Molmo2-8B.json": {
+  "elapsed_s": 1.3,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "laurens_mapillary__claude-opus-5-effort-low.json": {
+  "elapsed_s": 1.2,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "laurens_mapillary__gemini-3.1-pro-preview.json": {
+  "elapsed_s": 1.3,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "laurens_mapillary__gemini-3.6-flash.json": {
+  "elapsed_s": 1.2,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "laurens_mapillary__gemini-3.7-flash.json": {
+  "elapsed_s": 1.4,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "laurens_mapillary__google__owlv2-large-patch14-ensemble.json": {
+  "elapsed_s": 6.2,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "laurens_mapillary__y11l_pano.json": {
+  "elapsed_s": 2.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "laurens_mapillary__y11x_pano_h200.json": {
+  "elapsed_s": 1.8,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "laurens_mapillary__y26_pano.json": {
+  "elapsed_s": 2.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "manual_gold__IDEA-Research__grounding-dino-base.json": {
+  "elapsed_s": 51.8,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "manual_gold__Qwen__Qwen3-VL-32B-Instruct.json": {
+  "elapsed_s": 10.4,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "manual_gold__Qwen__Qwen3-VL-8B-Instruct.json": {
+  "elapsed_s": 10.7,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "manual_gold__allenai__Molmo2-8B.json": {
+  "elapsed_s": 10.9,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "manual_gold__gemini-3.7-flash.json": {
+  "elapsed_s": 13.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "manual_gold__google__owlv2-large-patch14-ensemble.json": {
+  "elapsed_s": 73.2,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "manual_gold__y11l_pano.json": {
+  "elapsed_s": 28.4,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "manual_gold__y11x_pano_h200.json": {
+  "elapsed_s": 33.7,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "manual_gold__y26_pano.json": {
+  "elapsed_s": 39.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "morgantown__IDEA-Research__grounding-dino-base.json": {
+  "elapsed_s": 8.3,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "morgantown__Qwen__Qwen3-VL-32B-Instruct.json": {
+  "elapsed_s": 2.9,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "morgantown__Qwen__Qwen3-VL-8B-Instruct.json": {
+  "elapsed_s": 2.6,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "morgantown__allenai__Molmo2-8B.json": {
+  "elapsed_s": 4.3,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "morgantown__claude-opus-5-effort-low.json": {
+  "elapsed_s": 5.8,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "morgantown__gemini-3.1-pro-preview.json": {
+  "elapsed_s": 3.4,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "morgantown__gemini-3.6-flash.json": {
+  "elapsed_s": 4.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "morgantown__gemini-3.7-flash.json": {
+  "elapsed_s": 2.9,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "morgantown__google__owlv2-large-patch14-ensemble.json": {
+  "elapsed_s": 10.9,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "morgantown__y11l_pano.json": {
+  "elapsed_s": 2.9,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "morgantown__y11x_pano_h200.json": {
+  "elapsed_s": 7.5,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "morgantown__y26_pano.json": {
+  "elapsed_s": 6.7,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "paterson__IDEA-Research__grounding-dino-base.json": {
+  "elapsed_s": 5.5,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "paterson__Qwen__Qwen3-VL-32B-Instruct.json": {
+  "elapsed_s": 2.4,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "paterson__Qwen__Qwen3-VL-8B-Instruct.json": {
+  "elapsed_s": 3.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "paterson__allenai__Molmo2-8B.json": {
+  "elapsed_s": 2.9,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "paterson__claude-opus-5-effort-low.json": {
+  "elapsed_s": 1.7,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "paterson__gemini-3.1-pro-preview.json": {
+  "elapsed_s": 4.7,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "paterson__gemini-3.6-flash.json": {
+  "elapsed_s": 1.9,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "paterson__gemini-3.7-flash.json": {
+  "elapsed_s": 3.7,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "paterson__google__owlv2-large-patch14-ensemble.json": {
+  "elapsed_s": 5.3,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "paterson__y11l_pano.json": {
+  "elapsed_s": 2.7,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "paterson__y11x_pano_h200.json": {
+  "elapsed_s": 4.4,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "paterson__y26_pano.json": {
+  "elapsed_s": 4.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "richmond__IDEA-Research__grounding-dino-base.json": {
+  "elapsed_s": 43.0,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "richmond__Qwen__Qwen3-VL-32B-Instruct.json": {
+  "elapsed_s": 3.2,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "richmond__Qwen__Qwen3-VL-8B-Instruct.json": {
+  "elapsed_s": 3.5,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "richmond__allenai__Molmo2-8B.json": {
+  "elapsed_s": 3.4,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "richmond__claude-opus-5-effort-low.json": {
+  "elapsed_s": 2.5,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "richmond__gemini-3.1-pro-preview.json": {
+  "elapsed_s": 3.5,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "richmond__gemini-3.6-flash.json": {
+  "elapsed_s": 2.4,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "richmond__gemini-3.7-flash.json": {
+  "elapsed_s": 3.2,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "richmond__google__owlv2-large-patch14-ensemble.json": {
+  "elapsed_s": 29.3,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "richmond__mask2former-vistas-curb-cut-1024x1024.json": {
+  "elapsed_s": 10.7,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "richmond__mask2former-vistas-curb-cut-1024x1024__thi0.5519.json": {
+  "elapsed_s": 19.3,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "richmond__mask2former-vistas-curb-cut.json": {
+  "elapsed_s": 11.4,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "richmond__mask2former-vistas-curb-cut__curb.json": {
+  "elapsed_s": 15.3,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "richmond__y11l_pano.json": {
+  "elapsed_s": 7.9,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "richmond__y11x_pano_h200.json": {
+  "elapsed_s": 6.5,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "richmond__y26_pano.json": {
+  "elapsed_s": 8.4,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "sao_paulo__IDEA-Research__grounding-dino-base.json": {
+  "elapsed_s": 7.2,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "sao_paulo__Qwen__Qwen3-VL-32B-Instruct.json": {
+  "elapsed_s": 3.0,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "sao_paulo__Qwen__Qwen3-VL-8B-Instruct.json": {
+  "elapsed_s": 1.8,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "sao_paulo__allenai__Molmo2-8B.json": {
+  "elapsed_s": 1.9,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "sao_paulo__claude-opus-5-effort-low.json": {
+  "elapsed_s": 1.3,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "sao_paulo__gemini-3.1-pro-preview.json": {
+  "elapsed_s": 1.8,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "sao_paulo__gemini-3.6-flash.json": {
+  "elapsed_s": 1.4,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "sao_paulo__gemini-3.7-flash.json": {
+  "elapsed_s": 1.8,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "sao_paulo__google__owlv2-large-patch14-ensemble.json": {
+  "elapsed_s": 7.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "sao_paulo__y11l_pano.json": {
+  "elapsed_s": 3.7,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "sao_paulo__y11x_pano_h200.json": {
+  "elapsed_s": 4.6,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "sao_paulo__y26_pano.json": {
+  "elapsed_s": 3.1,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ }
+}
