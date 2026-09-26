@@ -42,6 +42,7 @@ The launcher ``input_res_sweep_25.sh`` runs extract(r2048) -> check -> extract(r
 report, so a failed check stops the run before any other arm is extracted.
 """
 import argparse
+import gc
 import json
 import math
 import os
@@ -470,7 +471,13 @@ def cmd_extract(args):
                     t0 = time.perf_counter()
                     size = arm_input_size(a, native, native_cap)
                     key = prep_key(a, native, native_cap)
+                    if size[0] * size[1] > 4096 * 8192:
+                        # the big arm runs after the smaller ones in the same process; hand
+                        # the allocator's cached blocks back so fragmentation is not the limit
+                        torch.cuda.empty_cache()
+                    retried_fp32 = False
                     while True:
+                        oom = False
                         try:
                             if (key, fp16[a]) not in feats:
                                 feats[(key, fp16[a])] = _forward_features(
@@ -479,8 +486,20 @@ def cmd_extract(args):
                                               feats[(key, fp16[a])], device, fp16[a])
                             break
                         except torch.cuda.OutOfMemoryError:
+                            oom = True
+                        # Recover OUTSIDE the except block: inside it the traceback still
+                        # pins the failed forward's activations, so empty_cache frees nothing
+                        # (the first full run died this way on bend: rnative OOMed in fp32
+                        # and then again under fp16 at a size the smoke test had fit).
+                        if oom:
                             feats.clear()
+                            gc.collect()
                             torch.cuda.empty_cache()
+                            if not fp16[a] and not retried_fp32:
+                                retried_fp32 = True
+                                print(f"  {a}: OOM at {size} on {pid} -> retry fp32 after "
+                                      "freeing the cache", flush=True)
+                                continue
                             if fp16[a] or args.fp16 == "off":
                                 raise SystemExit(
                                     f"{city}/{pid} arm {a} input {size}: OOM even with fp16 "

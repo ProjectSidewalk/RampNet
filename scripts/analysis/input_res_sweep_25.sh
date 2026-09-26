@@ -14,6 +14,8 @@ VENV=${2:-/homes/gws/jonf/RampNet/.venv/bin/activate}
 cd "$(dirname "$0")/../.."
 # shellcheck disable=SC1090
 source "$VENV"
+# less fragmentation when the 5500x11000 arm follows smaller ones in one process
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 OUT=analysis_out/input_res_sweep_25
 mkdir -p "$OUT"
 S=scripts/analysis/input_res_sweep_25.py
