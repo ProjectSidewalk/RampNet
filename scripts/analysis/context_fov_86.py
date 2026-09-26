@@ -48,7 +48,10 @@ pixels:
               cutter's quality) and their label tables, plus a sha256 listing of what trains
 
 If fov25px57 loses what fov90 loses, the fov90 loss is resolution; if it keeps fov25's
-scores, the loss is the added street.
+scores, the loss goes with the wider crop. That second term is two things at once: more street,
+and a smaller ramp at the model's input, since the trainer upsamples a 57 px crop to 256 px and
+the ramp then fills the frame, where inside fov90 the same central 25 deg is 57 of 256 px
+(docs/context_fov_86.md section 4.2).
 """
 from __future__ import annotations
 
@@ -242,13 +245,34 @@ def res_arm_name(src, target):
 RES_ARMS = tuple(res_arm_name(RES_SRC, t) for t in RES_TARGETS)  # ("fov25px122", "fov25px57")
 
 
+def _complete_image(path, size):
+    """True if ``path`` exists, decodes in full (``load()``, which raises on a truncated JPEG,
+    where ``Image.open`` reads only the header), and is ``size``."""
+    from PIL import Image
+    if not os.path.exists(path):
+        return False
+    try:
+        with Image.open(path) as im:
+            im.load()
+            return im.size == size
+    except (OSError, SyntaxError):  # PIL raises OSError on truncation, SyntaxError on some bad headers
+        return False
+
+
 def downsample_arm(lab, src, target, images, quality=92):
     """Write one resolution arm's crops beside the source arm's, from the source crops on
     disk, and return (label table with ``filename`` pointing at them, summary dict).
 
-    LANCZOS (antialiased) to px x px, saved as JPEG at ``quality``, the cutter's default, so
-    the second encode is comparable to the viewport arm's ``crop640``. Resumable: a crop
-    already on disk at the right size is kept.
+    LANCZOS (antialiased) to px x px, saved as JPEG at ``quality``, the cutter's default. This
+    is a second JPEG encode of the cutter's output, and it is not comparable to the viewport
+    arm's ``crop640``: that one is at 640 px and is shrunk 2.5x to the model's 256 px, while
+    these are enlarged to 256 px (4.5x at 57 px, 2.1x at 122 px), so their 8x8 compression
+    blocks reach the model enlarged, about 36 px and 17 px across (docs/context_fov_86.md
+    section 6). A lossless format would have avoided that at no cost.
+
+    Resumable: a crop already on disk is kept only if it decodes in full at the right size,
+    so one truncated by a killed job is written again. Each crop is written to a temporary
+    name and moved into place, so a kill leaves no partial file under the final name.
     """
     from PIL import Image
     px = matched_px(ARM_FOV[src], ARM_FOV[target])
@@ -258,16 +282,14 @@ def downsample_arm(lab, src, target, images, quality=92):
         assert fn.endswith(f"__{src}.jpg"), fn
         out_name = fn[: -len(f"__{src}.jpg")] + f"__{arm}.jpg"
         out_path = os.path.join(images, out_name)
-        done = False
-        if os.path.exists(out_path):
-            with Image.open(out_path) as im:
-                done = im.size == (px, px)
-        if done:
+        if _complete_image(out_path, (px, px)):
             kept += 1
         else:
             with Image.open(os.path.join(images, fn)) as im:
                 small = im.convert("RGB").resize((px, px), Image.LANCZOS)
-            small.save(out_path, quality=quality)
+            tmp_path = out_path + ".part"
+            small.save(tmp_path, format="JPEG", quality=quality)
+            os.replace(tmp_path, out_path)
             written += 1
         names.append(out_name)
         listing.append((out_name, tb.sha256_file(out_path)))
@@ -426,6 +448,8 @@ def paired_contrast(pred_a, labels_a, pred_b, labels_b, split_csv, tags_fixed=No
 def arm_labels_path(out_dir, arm):
     """``labels_<arm>.csv``; a second seed of an arm (``<arm>_s<seed>``, ``context_fov_86.slurm``
     with ``SEED``) trains on the first seed's table, so it scores against ``labels_<arm>.csv``.
+    Any name ending in ``_s<digits>`` is read as a seed run, so an arm's own name must never end
+    that way (none does: ``viewport``, ``fov25``, ``fov50``, ``fov90``, ``fov25px122``, ``fov25px57``).
 
     >>> os.path.basename(arm_labels_path("x", "fov90_s87"))
     'labels_fov90.csv'

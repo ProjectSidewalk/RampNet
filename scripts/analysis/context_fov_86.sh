@@ -16,7 +16,9 @@
 #               analysis_out/context_fov_86/crops_tar.sha256
 #   unpack      klone: the tar -> $WORK/crops, then the sha256 of every crop as trained ->
 #               analysis_out/context_fov_86/crops_as_trained.sha256
-#   train       klone: one Slurm job per arm on the lab's L40S allocation (context_fov_86.slurm)
+#   train       klone: one Slurm job per arm on the lab's L40S allocation (context_fov_86.slurm),
+#               named ctx_<arm>; with SEED (default 86) other than 86 it is ctx_<arm>_s<seed> and
+#               writes train_<arm>_s<seed>* beside the seed-86 files. SBATCH_ARGS adds sbatch flags.
 #   (the tar moves through a third machine: neither makelab nor klone holds a key for the other)
 #   interim-infer  makelab2, GPU: only for CONTROL=interim, the dead #178 control run's epoch-49
 #               snapshot over all 10,857 HF crops (TB_WORK = the #178 runbook's WORK), + ledger row
@@ -27,14 +29,39 @@
 #   report      CPU: the summary table
 # The resolution arms (fov25 downsampled to fov50's / fov90's centre resolution, the
 # "arm that separates resolution from context" of docs/context_fov_86.md section 4):
-#   downsample  klone, CPU (a Slurm CPU allocation, not a login node): from $WORK/crops's fov25
+#   downsample  klone, CPU (a Slurm CPU allocation, not a login node: submit
+#               context_fov_86_downsample.slurm, which runs this stage): from $WORK/crops's fov25
 #               crops -> the fov25px122 and fov25px57 crops beside them, labels_<arm>.csv,
 #               crops_as_trained_<arm>.sha256, downsample_<arm>.json
 #   train       with ARMS="fov25px122 fov25px57": one job per arm, as for the fov arms
 #   res-contrast CPU: each resolution arm minus fov25 (same scene, fewer pixels), minus the
-#               fov arm it matches (same pixels, less street: fov25px57 vs fov90, fov25px122 vs
-#               fov50), and minus the control; all rows and leak-free rows
+#               fov arm it matches (same pixels per degree; less street and, after the trainer's
+#               upsampling, a larger ramp at the input: fov25px57 vs fov90, fov25px122 vs fov50),
+#               and minus the control; all rows and leak-free rows
 #   res-report  CPU: the summary table over all six arms (summary_res.{json,md})
+# A second seed of fov25 and fov90 (docs/context_fov_86.md section 4.2, seed noise):
+#   train       with SEED=87 ARMS="fov25 fov90": jobs ctx_fov25_s87, ctx_fov90_s87
+#   seed-contrast CPU: seed 87 minus seed 86 of each arm (contrast_seed_<arm>), and fov90 minus
+#               fov25 at each seed (contrast_fov90_vs_fov25, contrast_fov90_s87_vs_fov25_s87);
+#               all rows and leak-free rows
+# The five klone jobs of 2026-09-25 as submitted (sacct SubmitLine), from the checkout
+# REPO=/gscratch/makelab/jonf/context_fov_86/RampNet, with WORK=/gscratch/makelab/jonf/context_fov_86
+# and PY=/gscratch/makelab/jonf/envs/tagger/bin/python, then the same through this script:
+#   40599892  sbatch /gscratch/makelab/jonf/context_fov_86/downsample.slurm
+#             (committed as scripts/analysis/context_fov_86_downsample.slurm)
+#   40599914  sbatch --dependency=afterok:40599892 --job-name=ctx_fov25px57 \
+#               --export=ALL,ARM=fov25px57,WORK=$WORK,PY=$PY,REPO=$REPO scripts/analysis/context_fov_86.slurm
+#   40599915  the same with fov25px122
+#   40599943  sbatch --nice=200 --dependency=afterany:40599915 --job-name=ctx_fov25_s87 \
+#               --export=ALL,ARM=fov25,SEED=87,WORK=$WORK,PY=$PY,REPO=$REPO scripts/analysis/context_fov_86.slurm
+#   40599944  the same with ARM=fov90 and --job-name=ctx_fov90_s87
+#   equivalently, from $REPO:
+#     sbatch scripts/analysis/context_fov_86_downsample.slurm      # prints the job id, J below
+#     SBATCH_ARGS="--dependency=afterok:$J" ARMS="fov25px57 fov25px122" WORK=... PY=... \
+#       bash scripts/analysis/context_fov_86.sh train
+#     SEED=87 SBATCH_ARGS="--nice=200 --dependency=afterany:<fov25px122 job>" ARMS="fov25 fov90" \
+#       WORK=... PY=... bash scripts/analysis/context_fov_86.sh train
+#   (this stage also exports SEED=86 to seed-86 jobs, which is the launcher's default anyway)
 # CONTROL picks which control the last three stages read (default final):
 #   final    #178's 100-epoch control, analysis_out/tag_benchmark_86/train_control_final_test_predictions.csv
 #            (exists once `tag_benchmark_86.sh finish` has run and #178 is merged into this branch)
@@ -57,8 +84,10 @@ STORE=${STORE:-/projects/makeabilitylab/sidewalk_panos/Panoramas}
 WORKERS=${WORKERS:-12}
 CONTROL=${CONTROL:-final}
 RES_ARMS=${RES_ARMS:-"fov25px122 fov25px57"}
+SEED=${SEED:-86}
+SBATCH_ARGS=${SBATCH_ARGS:-}
 STAGES=${*:-}
-[ -n "$STAGES" ] || { echo "usage: $0 <stage...>  (cut-input cut labels pack unpack train interim-infer control contrast report downsample res-contrast res-report)" >&2; exit 2; }
+[ -n "$STAGES" ] || { echo "usage: $0 <stage...>  (cut-input cut labels pack unpack train interim-infer control contrast report downsample res-contrast res-report seed-contrast)" >&2; exit 2; }
 has() { [[ " $STAGES " == *" $1 "* ]]; }
 
 for st in cut labels pack unpack train downsample; do
@@ -122,7 +151,10 @@ fi
 if has train; then
   mkdir -p logs
   for ARM in $ARMS; do
-    sbatch --job-name="ctx_$ARM" --export=ALL,ARM="$ARM",WORK="$WORK",PY="$PY",REPO="$(pwd)" \
+    NAME=ctx_$ARM; [ "$SEED" = 86 ] || NAME=ctx_${ARM}_s${SEED}
+    # SBATCH_ARGS is left unquoted on purpose: extra sbatch flags, e.g. "--nice=200 --dependency=afterany:<job>"
+    # shellcheck disable=SC2086
+    sbatch $SBATCH_ARGS --job-name="$NAME" --export=ALL,ARM="$ARM",SEED="$SEED",WORK="$WORK",PY="$PY",REPO="$(pwd)" \
       scripts/analysis/context_fov_86.slurm
   done
 fi
@@ -188,6 +220,18 @@ if has res-contrast; then
     # and minus the control, as the fov arms were
     $PY $S contrast --reference $CP --reference-pred $OUT/${CP}_test_predictions.csv \
       --reference-labels $TBOUT/hf_curbramp_labels.csv --arms $RES_ARMS --subset $SUB --out $OUT/contrast_res_vs_${CP}$SFX.json
+  done
+fi
+if has seed-contrast; then
+  for SUB in full leak_free; do
+    SFX=$([ "$SUB" = full ] && echo "" || echo "_leak_free")
+    # seed 87 minus seed 86 of the same arm, on the same labels_<arm>.csv (seed noise)
+    for A in fov25 fov90; do
+      $PY $S contrast --reference $A --reference-pred $OUT/train_${A}_final_test_predictions.csv         --reference-labels $OUT/labels_$A.csv --arms ${A}_s87 --subset $SUB --out $OUT/contrast_seed_$A$SFX.json
+    done
+    # fov90 minus fov25 at each seed: the widest arm's loss, once per seed
+    $PY $S contrast --reference fov25 --reference-pred $OUT/train_fov25_final_test_predictions.csv       --reference-labels $OUT/labels_fov25.csv --arms fov90 --subset $SUB --out $OUT/contrast_fov90_vs_fov25$SFX.json
+    $PY $S contrast --reference fov25_s87 --reference-pred $OUT/train_fov25_s87_final_test_predictions.csv       --reference-labels $OUT/labels_fov25.csv --arms fov90_s87 --subset $SUB       --out $OUT/contrast_fov90_s87_vs_fov25_s87$SFX.json
   done
 fi
 if has res-report; then
