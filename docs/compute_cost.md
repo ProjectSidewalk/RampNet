@@ -230,8 +230,35 @@ python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
 The pull is by job id rather than a date window, so that a window would not sweep in other jobs
 run on the account the same day (the #131 replication ran on klone that night and records its
 own). The ledger is rebuilt in append order: klone 2026-08-19, Tillicum 2026-09-21, the #131
-pull `sacct_klone_2026-09-24_sa131.txt` (above), then this file; `tests/test_slurm_usage.py`
-compares all four. What the five rows are is in [`context_fov_86.md`](context_fov_86.md) §5.
+pull `sacct_klone_2026-09-24_sa131.txt` (above), this file, then the 2026-09-26 pull below;
+`tests/test_slurm_usage.py` compares all five. What the five rows are is in
+[`context_fov_86.md`](context_fov_86.md) §5.
+
+## klone, 2026-09-26: the context experiment's resolution and seed arms, 13.6 GPU-hours, $0
+
+Five more jobs for the same experiment (PR #187): the CPU downsample on `ckpt-all` and four
+L40S jobs on the lab's allocation (the two resolution arms `fov25px57` / `fov25px122` and the
+seed-87 runs of fov25 and fov90), one incarnation each, all COMPLETED. Pulled by job id on
+2026-09-26 into `docs/data/compute/sacct_klone_2026-09-26.txt` (895 bytes, sha256
+`a7b0e91eb2ae29272ef8672a55d3e038147c7788400821565d43e170c07ded16`) on a klone login node:
+
+```bash
+sacct -X -D -P -n \
+    --format=JobID,JobName%60,Cluster,Partition,QOS,State,Submit,Start,End,ElapsedRaw,AllocTRES,NNodes,ExitCode \
+    -j 40599892,40599914,40599915,40599943,40599944 > sacct_klone_2026-09-26.txt
+```
+
+Parsed with:
+
+```bash
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
+    --from-file docs/data/compute/sacct_klone_2026-09-26.txt \
+    --out analysis_out/compute_log.jsonl --by-name
+```
+
+`tests/test_slurm_usage.py` pins the five rows' names, GPU counts and 13.61 GPU-hours, by job
+id. What each row is, with the per-arm training time, is in
+[`context_fov_86.md`](context_fov_86.md) §5.
 
 ## Gaps, stated
 

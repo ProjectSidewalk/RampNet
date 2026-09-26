@@ -2,7 +2,8 @@
 
 **Status: four arms scored against the final #178 control (2026-09-24); two resolution arms
 added 2026-09-25 (§4.2), which separate resolution from context; a second seed of fov25 and
-fov90 is queued and not yet in this document.** Crops cut on makelab2
+fov90 added 2026-09-26 (§4.2), the benchmark's first seed-to-seed numbers: 0.025 and 0.006
+mAP, so effects of that size in this document are within seed noise.** Crops cut on makelab2
 (12 workers, 48 min; 32,544 of 32,559 label-centred crops and 10,848 of 10,853 viewport crops,
 the rest `missing_pano`, `cut_summary_*.json`); the four arms trained on klone's `gpu-l40s`
 allocation 2026-09-23/24 (§5). The control is #178's 100-epoch `train_control` (`best.pth`,
@@ -317,12 +318,38 @@ On the 957 leak-free rows the same pattern, with wider intervals: `fov25px122` �
    left it: a wider single crop at this input does not deliver context these tags can use, and
    now that is known not to be a resolution artefact.
 
-**Caveat, unchanged: one seed per arm.** A 0.02–0.04 difference is the size a seed could
-plausibly move; the paired intervals here are for "these two arms on this test set", not for
-the recipe. A second seed (87) of fov25 and fov90 is queued behind these arms on the same
-allocation (klone jobs 40599943 / 40599944, `context_fov_86.slurm` with `SEED=87`, outputs
-`train_<arm>_s87*`), which will give the first seed-to-seed number for this benchmark; it is not
-in this document yet.
+**Seed noise, measured (2026-09-26).** A second seed (87) of fov25 and fov90 ran on the same
+crops, labels and rows (`context_fov_86.slurm` with `SEED=87`, outputs `train_<arm>_s87*`,
+klone jobs 40599943 / 40599944), the first seed-to-seed numbers for this benchmark
+(`contrast_seed_fov25.json`, `contrast_seed_fov90.json`, `contrast_fov90_s87_vs_fov25_s87.json`,
+and `_leak_free` for each):
+
+| contrast | mAP, all rows | mAP, leak-free | per-tag AP off 0 (all rows) |
+|---|---:|---:|---|
+| fov25 seed 87 − seed 86 | **−0.025 [−0.047, −0.000]** | −0.042 [−0.069, −0.005] | surface-problem −0.050 |
+| fov90 seed 87 − seed 86 | −0.006 [−0.025, +0.012] | −0.002 [−0.029, +0.026] | not-enough-landing-space −0.046 |
+| fov90 − fov25, both at seed 87 | **−0.050 [−0.074, −0.028]** | −0.042 [−0.082, −0.007] | missing-tactile −0.048, landing −0.047, surface-problem −0.098 |
+
+fov25 scores 0.349 at seed 86 and 0.324 at seed 87; fov90 0.280 and 0.274. Both seed-87 runs
+train to the same end state as their seed-86 twins (final training exact-match accuracy 0.997 /
+0.999 for fov25, best epoch 77 / 83; fov90 best epoch 93 / 47), so the fov25 move is
+checkpoint-to-checkpoint noise, not a failed run. Two consequences for everything above:
+
+- **A seed change alone can give a paired interval that excludes zero** (fov25, −0.025
+  [−0.047, −0.000]). The pano-clustered bootstrap answers "are these two checkpoints different
+  on this test set"; it does not cover training noise. So "interval off 0" in the contrast
+  tables of §4 and §4.2 is not "the recipe is different", and any effect of about 0.025 mAP
+  or less (the resolution term at fov90's pixels, −0.027; `fov25px122` − fov50, +0.022; fov50's
+  −0.035 against the control) is within one seed's reach. The two seed pairs put seed-to-seed
+  spread at 0.006–0.025 mAP; with n = 2 that is a range, not a standard deviation.
+- **The fov90 deficit replicates across seeds**: −0.069 at seed 86 (0.280 vs 0.349) and
+  −0.050 at seed 87 (0.274 vs 0.324), both with intervals well off 0, and the same tags lose
+  (*missing tactile warning*, *surface problem*, *pooled water*, *narrow*). The context term
+  (`fov25px57` − fov90, +0.042) is larger than either seed move but is itself one seed of
+  `fov25px57` against one of fov90. The decomposition "0.03 resolution + 0.04 street" is a
+  point estimate with about ±0.025 of seed noise on each term; the reading that survives is the
+  qualitative one, which holds in every arm, on both row subsets and at both seeds: widening the
+  crop at this input costs the ramp-surface tags, and no street-dependent tag gains from it.
 
 ## 5. Cost
 
@@ -344,16 +371,19 @@ Slurm jobs, from `docs/data/compute/sacct_klone_2026-09-24.txt`, see
 | downsample, both resolution arms (job 40599892, n3194, §4.2) | klone `ckpt-all`, 4 CPUs | 11.9 min | 0 | 0 |
 | `fov25px57` (job 40599914, g3108) | klone, 1x L40S | 3.33 h (train 3.11 h, prep 103 s) | 3.33 | 0 |
 | `fov25px122` (job 40599915, g3108) | klone, 1x L40S | 3.35 h (train 3.11 h, prep 204 s) | 3.35 | 0 |
-| **total** | | | **23.25** (klone 23.22 + makelab2 0.03) | **0** |
+| fov25 seed 87 (job 40599943, g3112, §4.2) | klone, 1x L40S | 3.53 h (train 3.13 h) | 3.53 | 0 |
+| fov90 seed 87 (job 40599944, g3100, §4.2) | klone, 1x L40S | 3.40 h (train 3.05 h, prep 400 s) | 3.40 | 0 |
+| **total** | | | **30.18** (klone 30.15 + makelab2 0.03) | **0** |
 
 GPU-hours on the shared A40 are `elapsed_s × gpu_share` ([`tag_benchmark_86.md`](tag_benchmark_86.md)
 §7), so the interim inference is a quarter of its 476 s. The final control costs this
 experiment nothing further: its training and inference are #178's (`train-control` and
 `infer-train-control-final` in `usage_log.jsonl`, counted in
-[`tag_benchmark_86.md`](tag_benchmark_86.md) §7), and scoring it here is CPU. The klone figure is the sum of the six
-L40S rows: the four in `compute_log.jsonl` (`tests/test_slurm_usage.py` pins 16.54) plus the
-two resolution arms of 2026-09-25 (sacct elapsed 03:20:05 and 03:20:54; their `compute_log`
-rows and the seed-87 pair's are added together once the pair finishes).
+[`tag_benchmark_86.md`](tag_benchmark_86.md) §7), and scoring it here is CPU. The klone figure is the sum of the eight
+L40S rows in `compute_log.jsonl`: the four of 2026-09-24 (`tests/test_slurm_usage.py` pins
+16.54) and the four of 2026-09-25/26 (two resolution arms, two seed-87 runs; the same test pins
+their 13.61 together with the downsample job, from
+`docs/data/compute/sacct_klone_2026-09-26.txt`, [`compute_cost.md`](compute_cost.md)).
 Training itself is the same 3.1 h on every arm (100 epochs at 111–116 s on a dedicated
 L40S, `train_<arm>_train_meta.json`); the spread in job wall-clock is the one-off crop
 preparation on g3100 (fov25 2,634 s, fov50 1,603 s, against 349–369 s on the other two nodes;
@@ -463,8 +493,10 @@ allocation, so the arms ran one after another (14:20 UTC to 06:53 UTC the next d
   `crops_as_trained.sha256` describes the trained-on file. Re-training needs the crops, which
   means the store or the tar; publishing the tar (6.3 GB) and the four checkpoints (about
   350 MB each) to Hugging Face would close that, and is not done here.
-- **One seed per arm.** The benchmark's seed-variance is unmeasured (a seed-87 pair is queued,
-  §4.2); a difference between
+- **One seed per arm, and seed noise is now measured at 0.006–0.025 mAP (§4.2, two pairs).**
+  A seed change alone produced a paired interval off 0 (fov25, −0.025 [−0.047, −0.000]), so
+  every "off 0" in this document is a statement about two checkpoints on this test set, not
+  about the recipe; a difference between
   arms smaller than a seed's worth is not a result. The paired contrasts in §4 are the right
   interval for "A vs B on these test rows" (both arms scored on the same pano resample), not
   for "A's recipe vs B's recipe" (that needs seeds). The checkpoint rule (best training
