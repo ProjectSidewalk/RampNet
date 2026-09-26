@@ -1,0 +1,2359 @@
+{
+  "@context": {
+    "@language": "en",
+    "@vocab": "https://schema.org/",
+    "sc": "https://schema.org/",
+    "cr": "http://mlcommons.org/croissant/",
+    "rai": "http://mlcommons.org/croissant/RAI/",
+    "dct": "http://purl.org/dc/terms/",
+    "annotation": "cr:annotation",
+    "arrayShape": "cr:arrayShape",
+    "citeAs": "cr:citeAs",
+    "column": "cr:column",
+    "conformsTo": "dct:conformsTo",
+    "containedIn": "cr:containedIn",
+    "data": {
+      "@id": "cr:data",
+      "@type": "@json"
+    },
+    "dataType": {
+      "@id": "cr:dataType",
+      "@type": "@vocab"
+    },
+    "equivalentProperty": "cr:equivalentProperty",
+    "examples": {
+      "@id": "cr:examples",
+      "@type": "@json"
+    },
+    "excludes": "cr:excludes",
+    "extract": "cr:extract",
+    "field": "cr:field",
+    "fileProperty": "cr:fileProperty",
+    "fileObject": "cr:fileObject",
+    "fileSet": "cr:fileSet",
+    "format": "cr:format",
+    "includes": "cr:includes",
+    "isArray": "cr:isArray",
+    "isLiveDataset": "cr:isLiveDataset",
+    "jsonPath": "cr:jsonPath",
+    "key": "cr:key",
+    "md5": "cr:md5",
+    "parentField": "cr:parentField",
+    "recordSet": "cr:recordSet",
+    "references": "cr:references",
+    "regex": "cr:regex",
+    "readLines": "cr:readLines",
+    "sdVersion": "cr:sdVersion",
+    "separator": "cr:separator",
+    "source": "cr:source",
+    "subField": "cr:subField",
+    "transform": "cr:transform",
+    "unArchive": "cr:unArchive",
+    "value": "cr:value",
+    "geocr": "http://mlcommons.org/croissant/geo/"
+  },
+  "@type": "sc:Dataset",
+  "conformsTo": [
+    "http://mlcommons.org/croissant/1.1",
+    "http://mlcommons.org/croissant/RAI/1.0",
+    "http://mlcommons.org/croissant/geo/1.0"
+  ],
+  "name": "rampnet-dataset",
+  "alternateName": [
+    "projectsidewalk/rampnet-dataset",
+    "RampNet Stage 1 Dataset"
+  ],
+  "description": "The RampNet Stage 1 dataset: Google Street View panoramas with curb ramp locations as normalized pixel points, generated automatically by translating open-government curb ramp GPS records (New York City, Portland OR, Bend OR) onto panoramas with a crop-level keypoint model. It is the training data for the RampNet curb ramp detector described in the ICCV'25 workshop paper. The dataset card lists 214,376 panoramas and 849,895 labels; the Hub's dataset viewer counts 214,385 rows (150,066 train / 42,878 validation / 21,441 test), which matches the Parquet scan in https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/seam.md (section 3). The 9-row difference from the card is recorded, not explained, in https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/rampnet1_findings.md (section 1).",
+  "url": "https://huggingface.co/datasets/projectsidewalk/rampnet-dataset",
+  "isBasedOn": [
+    {
+      "@type": "sc:SoftwareSourceCode",
+      "name": "RampNet",
+      "description": "Code that generated this dataset (Stage 1) and trains and evaluates the RampNet model.",
+      "codeRepository": "https://github.com/ProjectSidewalk/RampNet"
+    }
+  ],
+  "identifier": "DOI-NOT-YET-MINTED (issue #150): replace with the DataCite DOI once minted",
+  "creator": [
+    {
+      "@type": "sc:Person",
+      "name": "John S. O'Meara"
+    },
+    {
+      "@type": "sc:Person",
+      "name": "Jared Hwang"
+    },
+    {
+      "@type": "sc:Person",
+      "name": "Zeyu Wang"
+    },
+    {
+      "@type": "sc:Person",
+      "name": "Michael Saugstad"
+    },
+    {
+      "@type": "sc:Person",
+      "name": "Jon E. Froehlich"
+    }
+  ],
+  "publisher": {
+    "@type": "sc:Organization",
+    "name": "Project Sidewalk",
+    "url": "https://huggingface.co/projectsidewalk"
+  },
+  "license": "https://spdx.org/licenses/MIT.html",
+  "datePublished": "2025-07-15",
+  "dateCreated": "2025-07-12",
+  "dateModified": "2025-08-15",
+  "version": "1.0.0",
+  "isLiveDataset": false,
+  "inLanguage": "en",
+  "keywords": [
+    "curb ramp",
+    "accessibility",
+    "streetscape",
+    "street view",
+    "object detection",
+    "keypoint detection",
+    "panorama",
+    "open government data"
+  ],
+  "citeAs": "@inproceedings{omeara2025rampnet,\n  author    = {John S. O'Meara and Jared Hwang and Zeyu Wang and Michael Saugstad and Jon E. Froehlich},\n  title     = {{RampNet: A Two-Stage Pipeline for Bootstrapping Curb Ramp Detection in Streetscape Images from Open Government Metadata}},\n  booktitle = {{ICCV'25 Workshop on Vision Foundation Models and Generative AI for Accessibility: Challenges and Opportunities (ICCV 2025 Workshop)}},\n  year      = {2025},\n  doi       = {10.48550/arXiv.2508.09415},\n  url       = {https://cv4a11y.github.io/ICCV2025/index.html},\n  note      = {DOI: forthcoming}\n}",
+  "citation": [
+    "https://doi.org/10.48550/arXiv.2508.09415",
+    "https://github.com/ProjectSidewalk/RampNet/releases/tag/v1.1-corrected-eval",
+    "https://github.com/ProjectSidewalk/RampNet/blob/v1.1-corrected-eval/README.md#erratum-evaluation-metrics-july-2026"
+  ],
+  "spatialCoverage": [
+    {
+      "@type": "sc:Place",
+      "name": "New York City, NY, USA",
+      "description": "Extent of the committed open-government curb ramp records for this city (https://github.com/ProjectSidewalk/RampNet/tree/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/stage_one/dataset_generation/location_data), re-derived by scripts/validate_croissant.py with the parsers in combine_location_data.py. Panoramas were selected near these records, so panorama locations fall at or just beyond this box; negative panoramas were sampled along the city's street centrelines.",
+      "geo": {
+        "@type": "sc:GeoShape",
+        "box": "40.49902 -74.25478 40.91256 -73.70028"
+      }
+    },
+    {
+      "@type": "sc:Place",
+      "name": "Portland, OR, USA",
+      "description": "Extent of the committed open-government curb ramp records for this city (https://github.com/ProjectSidewalk/RampNet/tree/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/stage_one/dataset_generation/location_data), re-derived by scripts/validate_croissant.py with the parsers in combine_location_data.py. Panoramas were selected near these records, so panorama locations fall at or just beyond this box; negative panoramas were sampled along the city's street centrelines.",
+      "geo": {
+        "@type": "sc:GeoShape",
+        "box": "45.43283 -122.83011 45.63909 -122.46193"
+      }
+    },
+    {
+      "@type": "sc:Place",
+      "name": "Bend, OR, USA",
+      "description": "Extent of the committed open-government curb ramp records for this city (https://github.com/ProjectSidewalk/RampNet/tree/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/stage_one/dataset_generation/location_data), re-derived by scripts/validate_croissant.py with the parsers in combine_location_data.py. Panoramas were selected near these records, so panorama locations fall at or just beyond this box; negative panoramas were sampled along the city's street centrelines.",
+      "geo": {
+        "@type": "sc:GeoShape",
+        "box": "44.00123 -121.37468 44.11921 -121.24886"
+      }
+    }
+  ],
+  "geocr:coordinateReferenceSystem": "EPSG:4326",
+  "geocr:samplingStrategy": "Positive panoramas: for each government curb ramp record, Street View panoramas within 10 m were discovered, and every record within 35 m of a panorama was attached to it (DISCOVERY_DISTANCE_THRESHOLD / INCLUSION_DISTANCE_THRESHOLD in https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/stage_one/dataset_generation/generate_dataset_meta.py). A record was used only if its install date predates the panorama's capture month; the paper's run admitted undated records (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/data_provenance.md section 3.2). Negative panoramas were sampled along street centrelines (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/stage_one/dataset_generation/generate_negative_panos.py); the paper used about 20% negatives. The panorama-level train/val/test split is random, not city-held-out, and the paper-era split was unseeded, so the Hub copy is the split of record (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/data_provenance.md section 4).",
+  "geocr:spatialBias": "Three US cities only, and dominated by one: New York City supplies 217,679 of the 276,071 committed government records, 78.8% (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/data_provenance.md section 3). No rural area, no non-US city, and a single imagery provider (Google Street View). 43.23% of the 276,071 committed government records never became a training label, mostly because no panorama resolved or the install-date check failed (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/data_provenance.md section 3.1), so coverage within each city is uneven.",
+  "rai:dataCollection": "Two-stage automatic generation, no human labelling of the training labels. Stage 1 takes open-government curb ramp inventories (GPS points), finds nearby Google Street View panoramas, fetches each panorama at 4096x2048, and for each government record renders a perspective crop toward the record's bearing; a crop-level keypoint model (trained on Project Sidewalk crowdsourced labels, then on a small manual crop set) places the ramp in the crop, and the peaks are projected back to the equirectangular panorama as normalized points. Generation finished 2025-06-17 (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/stage1_generation_cost.md); no committed record gives the date it started, so rai:dataCollectionTimeframe carries the completion date only. Code: https://github.com/ProjectSidewalk/RampNet/tree/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/stage_one/dataset_generation",
+  "rai:dataCollectionType": [
+    "Secondary Data Analysis",
+    "Software Collection"
+  ],
+  "rai:dataCollectionTimeframe": [
+    "2025-06-17"
+  ],
+  "rai:dataCollectionRawData": "Government inventories: New York City (nyc.csv, 217,679 records), Portland OR (portland.geojson, 45,035), Bend OR (bend.geojson, 13,357), committed with sha256 in https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/data_provenance.md section 3; the paper's Table 1 gives 276,615, a 544-record difference reconciled in section 3.3 of the same document. Imagery: Google Street View panoramas fetched from the Google Street View tile server at zoom level 3 (32 tiles, stitched to 4096x2048), as https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/stage_one/dataset_generation/download_dataset.py does through fetch_panorama in https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/rampnet/gsv.py.",
+  "rai:dataCollectionMissingData": "Records without a label: 119,359 of the 276,071 committed government records (43.23%) never became a training label, mostly because no panorama resolved for them or the install date failed the predates-capture check (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/data_provenance.md section 3.1). Panoramas never written: 4,571 of the 219,170 intended (2.09%), 4,570 of them because the imagery server did not serve the panorama (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/stage1_generation_cost.md). Rows: 214,599 panoramas were written and 214,385 are on the Hub; that gap is recorded as open. Missing positives: a ramp with no government record, or whose record failed the install-date check, is unlabelled in every panorama that shows it. No per-panorama capture date is stored.",
+  "rai:dataAnnotationProtocol": "Labels are machine-generated, not human-annotated. A label is a peak (skimage peak_local_max, min_distance 40 px, threshold 0.4) of the max-combined crop-model heatmaps for all government records attached to the panorama (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/stage_one/dataset_generation/download_dataset.py). Against the 1,000-panorama manual gold set the corrected Stage 1 label agreement is P 0.9152 / R 0.9275 (published P 0.9403 / R 0.9245; https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/rampnet1_findings.md section 1).",
+  "rai:dataAnnotationAnalysis": "Stage 1 labels were checked against the 1,000-panorama manual gold set (https://github.com/ProjectSidewalk/RampNet/tree/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/manual_labels): corrected agreement P 0.9152 / R 0.9275; the published P 0.9403 / R 0.9245 used the matching rule withdrawn in the v1.1-corrected-eval erratum (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/rampnet1_findings.md section 1). No per-label uncertainty is stored.",
+  "rai:machineAnnotationTools": [
+    "RampNet crop-level keypoint model, round 2 (HF projectsidewalk/rampnet-crop-model)"
+  ],
+  "rai:annotationsPerItem": "One automatic label pass per panorama; zero or more curb ramp points per panorama. No human review of individual training labels.",
+  "rai:dataBiases": "City mix: New York City is 78.8% of the 276,071 committed source records (217,679), with Portland and Bend the rest (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/data_provenance.md section 3). Imagery provider: Google Street View only. Capture years: the dataset carries no per-panorama capture date, and the install-date filter admits only ramps built before capture, so newer ramps are under-represented. Selection: 43.23% of government records produced no label (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/data_provenance.md section 3.1). The crop model that places every point was trained on Project Sidewalk labels from 12 other cities, so its errors are inherited by every label (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/data_provenance.md section 1).",
+  "rai:dataLimitations": "Seam duplicates: 8,361 label pairs (0.98% of labels, 3.7% of panoramas) straddle the 360-degree seam and double-label one ramp; the 1.0 dataset is deliberately not being changed (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/seam.md, https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/rampnet1_findings.md). `curb_ramp_points_normalized` and `curb_ramp_coords` are not parallel arrays and must not be index-paired (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/seam.md). Row counts: the card says 214,376 panoramas / 849,895 labels, a parquet scan counts 214,385 / 849,904, and the generation log wrote 214,599 (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/rampnet1_findings.md); neither gap is explained. Whether `pano_id` is unique across rows has not been checked, so this file declares no key for the panoramas record set. Labels are points, not boxes or extents. Missing labels exist where a ramp has no government record or the record failed the install-date check. Any evaluation in New York City, Portland or Bend is contaminated by training (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/data_provenance.md section 1); the 1,000-panorama gold set sits in this dataset's test split and is a label-quality check, not a geographically held-out one.",
+  "rai:dataUseCases": "Intended: training and in-distribution evaluation of curb ramp detectors on street-level panoramas; research on bootstrapping accessibility datasets from open government data. Not intended: out-of-domain evaluation (use rampnet-benchmark), measuring ramp condition or compliance, or any use that identifies people.",
+  "rai:dataSocialImpact": "Built to scale the mapping of curb ramps, which people who use wheelchairs, walkers and strollers depend on, and to support Project Sidewalk's sidewalk accessibility audits. Errors matter in both directions: a missed ramp understates accessibility, a false one overstates it.",
+  "rai:personalSensitiveInformation": "Street-level panoramas can show people, vehicles, licence plates and private buildings. The dataset adds no personal attributes and labels only curb ramps; the images are as served by the imagery provider, and this release applies no further redaction.",
+  "rai:dataReleaseMaintenancePlan": "Static release (isLiveDataset false) pinned at Hub revision ee882e3f3c779dc13182f307bca616e50d9b8c5c. The 1.0 files will not be changed; known defects are documented instead, and fixes go into a RampNet 2.0 dataset. Proposed versioning (issue #150): major version on any data-file change, minor on metadata-only changes. Maintained by Project Sidewalk / the Makeability Lab, University of Washington, via https://github.com/ProjectSidewalk/RampNet/issues.",
+  "distribution": [
+    {
+      "@type": "cr:FileObject",
+      "@id": "repo",
+      "name": "repo",
+      "description": "The Hugging Face dataset repository at revision ee882e3f3c779dc13182f307bca616e50d9b8c5c (2025-08-15), the Hub's main at the time of writing. contentUrl is the repository itself, which resolves to main: mlcroissant 1.1.0 cannot clone a URL pinned to a bare commit. The revision is pinned here and in file_manifest, and scripts/validate_croissant.py --hub fails once main moves past it. Besides the Parquet shards it holds README.md (the dataset card) and .gitattributes. Per-file hashes are in the file_manifest record set.",
+      "contentUrl": "https://huggingface.co/datasets/projectsidewalk/rampnet-dataset",
+      "encodingFormat": "git+https",
+      "sha256": "https://github.com/mlcommons/croissant/issues/80"
+    },
+    {
+      "@type": "cr:FileSet",
+      "@id": "parquet-shards",
+      "name": "parquet-shards",
+      "description": "384 Parquet shards: 128 each under train/, val/ and test/.",
+      "containedIn": {
+        "@id": "repo"
+      },
+      "encodingFormat": "application/x-parquet",
+      "includes": [
+        "train/*.parquet",
+        "val/*.parquet",
+        "test/*.parquet"
+      ]
+    }
+  ],
+  "recordSet": [
+    {
+      "@type": "cr:RecordSet",
+      "@id": "splits",
+      "name": "splits",
+      "dataType": "cr:Split",
+      "description": "The random panorama-level split. Directory names on the Hub are train/val/test; `datasets` exposes val as `validation`.",
+      "key": {
+        "@id": "splits/name"
+      },
+      "field": [
+        {
+          "@type": "cr:Field",
+          "@id": "splits/name",
+          "name": "name",
+          "dataType": "sc:Text"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "splits/url",
+          "name": "url",
+          "dataType": [
+            "cr:Split",
+            "sc:URL"
+          ]
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "splits/num_rows",
+          "name": "num_rows",
+          "dataType": "cr:Int64",
+          "description": "Row count from the Hub dataset viewer (datasets-server /info), 2026-09-25."
+        }
+      ],
+      "data": [
+        {
+          "splits/name": "train",
+          "splits/url": "cr:TrainingSplit",
+          "splits/num_rows": 150066
+        },
+        {
+          "splits/name": "val",
+          "splits/url": "cr:ValidationSplit",
+          "splits/num_rows": 42878
+        },
+        {
+          "splits/name": "test",
+          "splits/url": "cr:TestSplit",
+          "splits/num_rows": 21441
+        }
+      ]
+    },
+    {
+      "@type": "cr:RecordSet",
+      "@id": "panoramas",
+      "name": "panoramas",
+      "description": "One row per panorama. No key is declared: whether pano_id is unique across the 214,385 rows has not been checked, and no committed source can check it without the Parquet files.",
+      "field": [
+        {
+          "@type": "cr:Field",
+          "@id": "panoramas/split",
+          "name": "split",
+          "dataType": "sc:Text",
+          "description": "Split name, parsed from the Parquet file's path in the repository.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-shards"
+            },
+            "extract": {
+              "fileProperty": "fullpath"
+            },
+            "transform": {
+              "regex": "^(train|val|test)/data-\\d{5}-of-\\d{5}\\.parquet$"
+            }
+          },
+          "references": {
+            "field": {
+              "@id": "splits/name"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "panoramas/image",
+          "name": "image",
+          "dataType": "sc:ImageObject",
+          "description": "The equirectangular panorama (JPEG bytes), 4096x2048.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-shards"
+            },
+            "extract": {
+              "column": "image"
+            },
+            "transform": {
+              "jsonPath": "bytes"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "panoramas/pano_id",
+          "name": "pano_id",
+          "dataType": "sc:Text",
+          "description": "Google Street View panorama id. GSV ids are globally unique, but whether each appears in only one row of this dataset is unverified.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-shards"
+            },
+            "extract": {
+              "column": "pano_id"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "panoramas/record_creation_time",
+          "name": "record_creation_time",
+          "dataType": "cr:Int64",
+          "description": "Unix time (seconds) at which the generator wrote this row. Not the capture date.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-shards"
+            },
+            "extract": {
+              "column": "record_creation_time"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "panoramas/curb_ramp_points_normalized",
+          "name": "curb_ramp_points_normalized",
+          "dataType": "cr:Float32",
+          "description": "Curb ramp points as [x, y], normalized to [0, 1] by image width and height. x = 0.5 is the panorama's heading (pano_azimuth); x maps to azimuth x*360 - 180 degrees relative to it.",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-shards"
+            },
+            "extract": {
+              "column": "curb_ramp_points_normalized"
+            }
+          },
+          "isArray": true,
+          "arrayShape": "-1,2"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "panoramas/pano_coord",
+          "name": "pano_coord",
+          "dataType": "cr:Float64",
+          "description": "Panorama location as [latitude, longitude], WGS 84 (EPSG:4326).",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-shards"
+            },
+            "extract": {
+              "column": "pano_coord"
+            }
+          },
+          "isArray": true,
+          "arrayShape": "2"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "panoramas/curb_ramp_coords",
+          "name": "curb_ramp_coords",
+          "dataType": "cr:Float64",
+          "description": "Government curb ramp records within 35 m of the panorama, each [latitude, longitude] in WGS 84. NOT index-aligned with curb_ramp_points_normalized (https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/docs/seam.md).",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-shards"
+            },
+            "extract": {
+              "column": "curb_ramp_coords"
+            }
+          },
+          "isArray": true,
+          "arrayShape": "-1,2"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "panoramas/pano_azimuth",
+          "name": "pano_azimuth",
+          "dataType": "cr:Float64",
+          "description": "Compass heading of the panorama's centre column, degrees clockwise from north, wrapped to [-180, 180) (heading_to_azimuth in https://github.com/ProjectSidewalk/RampNet/blob/8a59c1572a474eeef67b8d681fd6b36d3afe7d84/rampnet/gsv.py).",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-shards"
+            },
+            "extract": {
+              "column": "pano_azimuth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "@type": "cr:RecordSet",
+      "@id": "file_manifest",
+      "name": "file_manifest",
+      "description": "Every Parquet shard at Hub revision ee882e3f3c779dc13182f307bca616e50d9b8c5c, with its size and content hash, so a downloaded copy can be proven identical to the one described here. Checked against the Hub's listing, and the revision against the Hub's current main, by scripts/validate_croissant.py --hub.",
+      "key": {
+        "@id": "file_manifest/path"
+      },
+      "field": [
+        {
+          "@type": "cr:Field",
+          "@id": "file_manifest/path",
+          "name": "path",
+          "dataType": "sc:Text",
+          "description": "Path of the file inside the Hugging Face repository."
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "file_manifest/bytes",
+          "name": "bytes",
+          "dataType": "cr:Int64",
+          "description": "File size in bytes, from the Hub's tree listing."
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "file_manifest/sha256",
+          "name": "sha256",
+          "dataType": "sc:Text",
+          "description": "SHA-256 of the file's content (the Git LFS object id reported by the Hub)."
+        }
+      ],
+      "data": [
+        {
+          "file_manifest/path": "test/data-00000-of-00128.parquet",
+          "file_manifest/bytes": 344534643,
+          "file_manifest/sha256": "69e87f418a33792b2027c5fc85e805d40e666677f3adf998ba6eb6f2d3116c35"
+        },
+        {
+          "file_manifest/path": "test/data-00001-of-00128.parquet",
+          "file_manifest/bytes": 372162178,
+          "file_manifest/sha256": "584bb5de41ea0cea9ebb3621e77b8264e4d3a3cdda2e952f0dacdf282afd170b"
+        },
+        {
+          "file_manifest/path": "test/data-00002-of-00128.parquet",
+          "file_manifest/bytes": 355042285,
+          "file_manifest/sha256": "874e785919fa836ebfb33e5ded52244bf9384ecf3f21c95dec1398ac40bfb6e0"
+        },
+        {
+          "file_manifest/path": "test/data-00003-of-00128.parquet",
+          "file_manifest/bytes": 372278267,
+          "file_manifest/sha256": "ac5c5a3544011e2bfccf7e7c2bd5989081d457db3168f136964478a90082f7f2"
+        },
+        {
+          "file_manifest/path": "test/data-00004-of-00128.parquet",
+          "file_manifest/bytes": 350561182,
+          "file_manifest/sha256": "5b975b36014ed054944f53168fa1d2b6f9a15b3930e203b60c59cb34b2ef6394"
+        },
+        {
+          "file_manifest/path": "test/data-00005-of-00128.parquet",
+          "file_manifest/bytes": 365819409,
+          "file_manifest/sha256": "745ff844490402d831547f715034ceed275e0f21b0324b85da63b9b9eca3bd08"
+        },
+        {
+          "file_manifest/path": "test/data-00006-of-00128.parquet",
+          "file_manifest/bytes": 353599741,
+          "file_manifest/sha256": "1f3d495b4778fbcec8197d5fb6bbfc3598d952c91918d8a128c61924afe69221"
+        },
+        {
+          "file_manifest/path": "test/data-00007-of-00128.parquet",
+          "file_manifest/bytes": 366777148,
+          "file_manifest/sha256": "8c436b952f0a514786df00444edd443fc83a7164b756b332e098990d932d10f7"
+        },
+        {
+          "file_manifest/path": "test/data-00008-of-00128.parquet",
+          "file_manifest/bytes": 345725139,
+          "file_manifest/sha256": "d4162481a01914bb12de1854027736ac8f4fbaf84d76f34f5cf29fd9844073eb"
+        },
+        {
+          "file_manifest/path": "test/data-00009-of-00128.parquet",
+          "file_manifest/bytes": 351971565,
+          "file_manifest/sha256": "53c08c64abcd60d02250b3b6597b812c5c3026c8cb5019187a124417f4c4e8c9"
+        },
+        {
+          "file_manifest/path": "test/data-00010-of-00128.parquet",
+          "file_manifest/bytes": 361136029,
+          "file_manifest/sha256": "5d349f74484465f4c4d6b7617f5748769b039e18c8358d7a6f82169626bfba81"
+        },
+        {
+          "file_manifest/path": "test/data-00011-of-00128.parquet",
+          "file_manifest/bytes": 361990773,
+          "file_manifest/sha256": "b18504ffafb65e46dab8866b8b91edfbc631f1c5d0be7354b9cd4272bb16ef6b"
+        },
+        {
+          "file_manifest/path": "test/data-00012-of-00128.parquet",
+          "file_manifest/bytes": 368181239,
+          "file_manifest/sha256": "bad0f3eacfa76f1ab7fd6ee16714d33abaae6b232d9b6c266b9d3a74f341184f"
+        },
+        {
+          "file_manifest/path": "test/data-00013-of-00128.parquet",
+          "file_manifest/bytes": 363491467,
+          "file_manifest/sha256": "397345662538cb4645cffa38c4835aa472de30563b2c03011ea01abcb90d77ca"
+        },
+        {
+          "file_manifest/path": "test/data-00014-of-00128.parquet",
+          "file_manifest/bytes": 360336928,
+          "file_manifest/sha256": "9c94e71b14bc434a26fc2fbefbb0861e8d15b76c59efb1a7f7eb1cbbc919405d"
+        },
+        {
+          "file_manifest/path": "test/data-00015-of-00128.parquet",
+          "file_manifest/bytes": 347738665,
+          "file_manifest/sha256": "c92a0aa63e204a5de3b5cac1fd1ea5ab2d105600c4ade72e51cd3321cedddfa7"
+        },
+        {
+          "file_manifest/path": "test/data-00016-of-00128.parquet",
+          "file_manifest/bytes": 366207459,
+          "file_manifest/sha256": "566bd92ef28ee5b2bd79ea00ea81135c416b37766b91a354146efafdb7a6272d"
+        },
+        {
+          "file_manifest/path": "test/data-00017-of-00128.parquet",
+          "file_manifest/bytes": 366706445,
+          "file_manifest/sha256": "9d71d5d985c013785c3fad85b562e3e8c83333b6df9e578b4fc96634c186ec49"
+        },
+        {
+          "file_manifest/path": "test/data-00018-of-00128.parquet",
+          "file_manifest/bytes": 356733890,
+          "file_manifest/sha256": "1d43a9bf1d6a4f9c70693486865bc9fd72e66d6c89a942ad497c5ea88726572d"
+        },
+        {
+          "file_manifest/path": "test/data-00019-of-00128.parquet",
+          "file_manifest/bytes": 356703578,
+          "file_manifest/sha256": "0cf6e882bbca88692bc70d1062b996ea6a4b20ce7de27ea26ca256e6523182a3"
+        },
+        {
+          "file_manifest/path": "test/data-00020-of-00128.parquet",
+          "file_manifest/bytes": 375307462,
+          "file_manifest/sha256": "43547b60329557572466307b921abc154d9a9761b860439ba1df2fc8ef57bc9f"
+        },
+        {
+          "file_manifest/path": "test/data-00021-of-00128.parquet",
+          "file_manifest/bytes": 359712619,
+          "file_manifest/sha256": "9d3b98febfcbf4523add42e71bf57c97888f0e87d2e98c227b66b079c5137255"
+        },
+        {
+          "file_manifest/path": "test/data-00022-of-00128.parquet",
+          "file_manifest/bytes": 359046801,
+          "file_manifest/sha256": "4f9f36d1c0b38fd8a70389bd6ca5e2ce95959ca8d69990aadbe0a5389833f589"
+        },
+        {
+          "file_manifest/path": "test/data-00023-of-00128.parquet",
+          "file_manifest/bytes": 355179273,
+          "file_manifest/sha256": "c2e8029d04c14d6ca1037c6540f436d92d30bb1dc401b870ef536ec1b0b80460"
+        },
+        {
+          "file_manifest/path": "test/data-00024-of-00128.parquet",
+          "file_manifest/bytes": 355712995,
+          "file_manifest/sha256": "faa0ae328b2bea083c7400c4945f5072053fe90c340abb4c361938f98993d38d"
+        },
+        {
+          "file_manifest/path": "test/data-00025-of-00128.parquet",
+          "file_manifest/bytes": 369037907,
+          "file_manifest/sha256": "0461d319680f3afd85a6263cc7dc89c351476d003773056706ea9b010143c8a1"
+        },
+        {
+          "file_manifest/path": "test/data-00026-of-00128.parquet",
+          "file_manifest/bytes": 338698645,
+          "file_manifest/sha256": "756dd279ac4b4ebd5b9c9cfd5e95139ee35bc1bd7084988c86b9019cc9d9705c"
+        },
+        {
+          "file_manifest/path": "test/data-00027-of-00128.parquet",
+          "file_manifest/bytes": 363141437,
+          "file_manifest/sha256": "847a3fc2547a4f100860571a5507082de1ba8669c5bdc094b6bc4526219652bd"
+        },
+        {
+          "file_manifest/path": "test/data-00028-of-00128.parquet",
+          "file_manifest/bytes": 360626613,
+          "file_manifest/sha256": "77748c2de99aac41b7f8226c37e4503cddcb11a911930e5b18be443e96c603ee"
+        },
+        {
+          "file_manifest/path": "test/data-00029-of-00128.parquet",
+          "file_manifest/bytes": 360602744,
+          "file_manifest/sha256": "2efa6f3ea72e960374b6acbaabb0d2ff9aeb2957d88f84fa7a35f76ab7b5bf9b"
+        },
+        {
+          "file_manifest/path": "test/data-00030-of-00128.parquet",
+          "file_manifest/bytes": 356553698,
+          "file_manifest/sha256": "bd61d6d1129852ee320c7e97ebf4d3b585e9836a5123c8a798f030d12cb964ff"
+        },
+        {
+          "file_manifest/path": "test/data-00031-of-00128.parquet",
+          "file_manifest/bytes": 357067073,
+          "file_manifest/sha256": "9264ce2d7840d7b6717d4878878548e0b025f0a03f99649800ec67a3d364abd3"
+        },
+        {
+          "file_manifest/path": "test/data-00032-of-00128.parquet",
+          "file_manifest/bytes": 349895569,
+          "file_manifest/sha256": "dfd79d79281da8a80fcca8f97eed0bd705bb09e6c027786f3dcf005349220b33"
+        },
+        {
+          "file_manifest/path": "test/data-00033-of-00128.parquet",
+          "file_manifest/bytes": 365364365,
+          "file_manifest/sha256": "fafe9f5bf08a30920af4828925b0c84ea623f2079e1b3d34d5de6bb5962b8907"
+        },
+        {
+          "file_manifest/path": "test/data-00034-of-00128.parquet",
+          "file_manifest/bytes": 370835471,
+          "file_manifest/sha256": "1848295d69446d4d6b61b2932435d9fa8ccb23c5f6afd693742b93d13dfc9532"
+        },
+        {
+          "file_manifest/path": "test/data-00035-of-00128.parquet",
+          "file_manifest/bytes": 357249454,
+          "file_manifest/sha256": "8b3ab180af446a2ee510e2507f5329cfc1068690b3004497e505041e915d44b9"
+        },
+        {
+          "file_manifest/path": "test/data-00036-of-00128.parquet",
+          "file_manifest/bytes": 364022061,
+          "file_manifest/sha256": "c1c1e2f18db375e6232e7645b97d71309d07331741bd59fb9fe8d02ef9f1e5e2"
+        },
+        {
+          "file_manifest/path": "test/data-00037-of-00128.parquet",
+          "file_manifest/bytes": 359587219,
+          "file_manifest/sha256": "de59ad0359e88ce0feca23a65d18a2372fe12b94e56a3e74824576d2b957cceb"
+        },
+        {
+          "file_manifest/path": "test/data-00038-of-00128.parquet",
+          "file_manifest/bytes": 358028681,
+          "file_manifest/sha256": "3c2d989dc05d3ee612632497fa759ec4141713a62ba7575fae3cb0762faff6a3"
+        },
+        {
+          "file_manifest/path": "test/data-00039-of-00128.parquet",
+          "file_manifest/bytes": 357318329,
+          "file_manifest/sha256": "e02da9b726f138ca5e4c1e1a0bb4a82e3e77abe8ae3a9c1145d143378ad59411"
+        },
+        {
+          "file_manifest/path": "test/data-00040-of-00128.parquet",
+          "file_manifest/bytes": 351758439,
+          "file_manifest/sha256": "0449e4cfda4e56cd34db773c1a9b041c67aea5789bf8935cc8482314c6717759"
+        },
+        {
+          "file_manifest/path": "test/data-00041-of-00128.parquet",
+          "file_manifest/bytes": 359605888,
+          "file_manifest/sha256": "16519d2c0b9741ffe5b8da8fd3c53816b228572735fa03f176cebb476300a433"
+        },
+        {
+          "file_manifest/path": "test/data-00042-of-00128.parquet",
+          "file_manifest/bytes": 366110364,
+          "file_manifest/sha256": "46abb01076a262f6291024b0b786af7e6dd46f67924014ffa5cb30f7544d8295"
+        },
+        {
+          "file_manifest/path": "test/data-00043-of-00128.parquet",
+          "file_manifest/bytes": 369300442,
+          "file_manifest/sha256": "883d0d4657c9b6360d67f940ba349a79841c2a512cfce3acec11be97d1482ce6"
+        },
+        {
+          "file_manifest/path": "test/data-00044-of-00128.parquet",
+          "file_manifest/bytes": 347969281,
+          "file_manifest/sha256": "9195a21618549ffc0e4a39ea3c826fdf66227421f942e43c71d5bacf283858c5"
+        },
+        {
+          "file_manifest/path": "test/data-00045-of-00128.parquet",
+          "file_manifest/bytes": 359538074,
+          "file_manifest/sha256": "095e9c8ceea299b61e7a03f740679c5dfe7c35983b31d39909db1aa315eb8503"
+        },
+        {
+          "file_manifest/path": "test/data-00046-of-00128.parquet",
+          "file_manifest/bytes": 357648298,
+          "file_manifest/sha256": "6c5504b4b0067cfcd2d83e6f6ca55a28328d113815e9d88c1af58f660afda1c4"
+        },
+        {
+          "file_manifest/path": "test/data-00047-of-00128.parquet",
+          "file_manifest/bytes": 353603997,
+          "file_manifest/sha256": "d1a518ded6a91d13855b5ddfba8aef540f44fbcc8457c4f2c0b207c225f627bc"
+        },
+        {
+          "file_manifest/path": "test/data-00048-of-00128.parquet",
+          "file_manifest/bytes": 353450416,
+          "file_manifest/sha256": "41239688ba121ad7d89d781cd7e1eb6074a7f0db338fe226d3e1c08d1e783507"
+        },
+        {
+          "file_manifest/path": "test/data-00049-of-00128.parquet",
+          "file_manifest/bytes": 365199720,
+          "file_manifest/sha256": "e8e3ca372b02d79b2359e68c5bfe3c781cb0a9c91cfbf6d1b3b613cd584785f8"
+        },
+        {
+          "file_manifest/path": "test/data-00050-of-00128.parquet",
+          "file_manifest/bytes": 352458057,
+          "file_manifest/sha256": "75e2d26a788d1dc64875f6bf357ce78574d442d7af2db351ece0048ff1430b31"
+        },
+        {
+          "file_manifest/path": "test/data-00051-of-00128.parquet",
+          "file_manifest/bytes": 365320767,
+          "file_manifest/sha256": "fab4b4b2f457f9e40cef942eae7dd768a6ca10ecc95df33528a6e67e589f36e2"
+        },
+        {
+          "file_manifest/path": "test/data-00052-of-00128.parquet",
+          "file_manifest/bytes": 372359279,
+          "file_manifest/sha256": "7e41f5e994bc5cbf684ba21cf6a219ffffb78a1885a4b13b3f70b9097f18ee9f"
+        },
+        {
+          "file_manifest/path": "test/data-00053-of-00128.parquet",
+          "file_manifest/bytes": 355985052,
+          "file_manifest/sha256": "b27ddb3bc55896c53fb66138578cd4dcaba0619e4a652582ba17c3ce944c3dec"
+        },
+        {
+          "file_manifest/path": "test/data-00054-of-00128.parquet",
+          "file_manifest/bytes": 370197739,
+          "file_manifest/sha256": "135a11b8362ba84744f33ea68fdac2399e5ea8868e7adfaa01cf6a96504e80e2"
+        },
+        {
+          "file_manifest/path": "test/data-00055-of-00128.parquet",
+          "file_manifest/bytes": 359394087,
+          "file_manifest/sha256": "1eb46b4c650448875d16cb28c1d8810f7c6308629bdc20287ab083e29a8f86f0"
+        },
+        {
+          "file_manifest/path": "test/data-00056-of-00128.parquet",
+          "file_manifest/bytes": 370275043,
+          "file_manifest/sha256": "9d5e2744c17d7f971ea84cc25e8dee14b6a5ff5968d95c843a2a27461b4bda9c"
+        },
+        {
+          "file_manifest/path": "test/data-00057-of-00128.parquet",
+          "file_manifest/bytes": 358309630,
+          "file_manifest/sha256": "b1ba83e1e10222f1a4baa55d5f26f236abcbef076c1b48d26d8fe856b708d0f4"
+        },
+        {
+          "file_manifest/path": "test/data-00058-of-00128.parquet",
+          "file_manifest/bytes": 359984265,
+          "file_manifest/sha256": "8cd3944fd94c212a791cae850f4ec2282d88ddbfef581873b866e968bbc8765d"
+        },
+        {
+          "file_manifest/path": "test/data-00059-of-00128.parquet",
+          "file_manifest/bytes": 352435998,
+          "file_manifest/sha256": "88dc622ad730797f97b6f04358258f0cd926a15611452de2e62757b61549696b"
+        },
+        {
+          "file_manifest/path": "test/data-00060-of-00128.parquet",
+          "file_manifest/bytes": 350893591,
+          "file_manifest/sha256": "7d0f22a5d9e56710dbbd5a5ab750d51fb8578dad266c04ff5fd0bfb7ca14df0d"
+        },
+        {
+          "file_manifest/path": "test/data-00061-of-00128.parquet",
+          "file_manifest/bytes": 373869607,
+          "file_manifest/sha256": "d036dc1ea816dd4cd7ef91454278ee8b6dcbad31ecdcba70a356c34459867887"
+        },
+        {
+          "file_manifest/path": "test/data-00062-of-00128.parquet",
+          "file_manifest/bytes": 360999159,
+          "file_manifest/sha256": "564a2234d6694d51df0d5cafb235feb0bc333e0efed7ec884a20e36c2c7405f5"
+        },
+        {
+          "file_manifest/path": "test/data-00063-of-00128.parquet",
+          "file_manifest/bytes": 364471467,
+          "file_manifest/sha256": "8d19397860f7b8ce71a290cafe4f908c73b0b6d531ba9c98804b633076abcc79"
+        },
+        {
+          "file_manifest/path": "test/data-00064-of-00128.parquet",
+          "file_manifest/bytes": 357380042,
+          "file_manifest/sha256": "483e5f4d53e75cce662332cc97a9a8e895a0d705b80137fa0fe473cdf6f19e0e"
+        },
+        {
+          "file_manifest/path": "test/data-00065-of-00128.parquet",
+          "file_manifest/bytes": 344061104,
+          "file_manifest/sha256": "b480a1d9380494e89419cd3e2be9b4b21f701c4e5b432ae2b5ca61e698b5fc2d"
+        },
+        {
+          "file_manifest/path": "test/data-00066-of-00128.parquet",
+          "file_manifest/bytes": 355068889,
+          "file_manifest/sha256": "60c503e71a074caccce82fbc14f408efc512071b45b9b2642f97691479749750"
+        },
+        {
+          "file_manifest/path": "test/data-00067-of-00128.parquet",
+          "file_manifest/bytes": 356919216,
+          "file_manifest/sha256": "e58771f116f68900de445d3a0bb50256b59b58e67a5dd82e9a39e0bd57705e75"
+        },
+        {
+          "file_manifest/path": "test/data-00068-of-00128.parquet",
+          "file_manifest/bytes": 351401180,
+          "file_manifest/sha256": "433bc9aac38ad0fe69badd59a55fc4d740601a71f640d64541f4e000cb1507c6"
+        },
+        {
+          "file_manifest/path": "test/data-00069-of-00128.parquet",
+          "file_manifest/bytes": 358200636,
+          "file_manifest/sha256": "ab24794bf6be52d7274cb5ab32f1744c7efaa6e8614af442f887eefa58be503b"
+        },
+        {
+          "file_manifest/path": "test/data-00070-of-00128.parquet",
+          "file_manifest/bytes": 352074228,
+          "file_manifest/sha256": "aed7f5e1a05516e6e451186278a2e67fb44fcb51d09942f705d2c0561f7415d6"
+        },
+        {
+          "file_manifest/path": "test/data-00071-of-00128.parquet",
+          "file_manifest/bytes": 358731225,
+          "file_manifest/sha256": "4d6dd4a0cb51dd27b00bd947b1b8c4894a6a47a5f40753062dc096c1cd2fbe20"
+        },
+        {
+          "file_manifest/path": "test/data-00072-of-00128.parquet",
+          "file_manifest/bytes": 360726069,
+          "file_manifest/sha256": "ba9ac5e358bddcd4ff47f83836b9f4a06b477eb41ca012717b00b1826b664001"
+        },
+        {
+          "file_manifest/path": "test/data-00073-of-00128.parquet",
+          "file_manifest/bytes": 360027324,
+          "file_manifest/sha256": "abb27b2829206c54394f136aa186576a764704beb1c534278d9532495801d0e2"
+        },
+        {
+          "file_manifest/path": "test/data-00074-of-00128.parquet",
+          "file_manifest/bytes": 361796480,
+          "file_manifest/sha256": "a067ba9357b3eb064c22fd9c53a1b158a45268927c974a358b77a623b6412557"
+        },
+        {
+          "file_manifest/path": "test/data-00075-of-00128.parquet",
+          "file_manifest/bytes": 358452950,
+          "file_manifest/sha256": "09e882272548efdc4d5db4955dbbc54c39c8a9c04328a98ffadd7fb32815d7eb"
+        },
+        {
+          "file_manifest/path": "test/data-00076-of-00128.parquet",
+          "file_manifest/bytes": 358157908,
+          "file_manifest/sha256": "55a7ac289471bfa23842380cd86e5347f9894e8e70005200077c554b1c468b37"
+        },
+        {
+          "file_manifest/path": "test/data-00077-of-00128.parquet",
+          "file_manifest/bytes": 373046621,
+          "file_manifest/sha256": "371f0da29adb4f70c2b2224ee812fb0da4f162fed17b3c0cc6b66c65b654db5a"
+        },
+        {
+          "file_manifest/path": "test/data-00078-of-00128.parquet",
+          "file_manifest/bytes": 355851440,
+          "file_manifest/sha256": "0e483b11af77b0deea61b6cad16bdea41d1d6dc3a7b1b2c2f1ee26977101c762"
+        },
+        {
+          "file_manifest/path": "test/data-00079-of-00128.parquet",
+          "file_manifest/bytes": 368122439,
+          "file_manifest/sha256": "84fd8cf4c40153196c57454c12dede427ad6a796b469cdf4025ccb707768d0df"
+        },
+        {
+          "file_manifest/path": "test/data-00080-of-00128.parquet",
+          "file_manifest/bytes": 355309433,
+          "file_manifest/sha256": "649b64c0a4d91e15a9edfbe9270948e48b83d5387fdc4677054165c723cc9832"
+        },
+        {
+          "file_manifest/path": "test/data-00081-of-00128.parquet",
+          "file_manifest/bytes": 368278524,
+          "file_manifest/sha256": "cc5ee6d3bae1abaef295f433e56e7b92b33a462017c5bda8a9f3a032553ceec4"
+        },
+        {
+          "file_manifest/path": "test/data-00082-of-00128.parquet",
+          "file_manifest/bytes": 359474236,
+          "file_manifest/sha256": "99de5faf3d1e41ddee42274d45912623f7a6bffb81dce2b22fee39578a2b837b"
+        },
+        {
+          "file_manifest/path": "test/data-00083-of-00128.parquet",
+          "file_manifest/bytes": 349697830,
+          "file_manifest/sha256": "be2cad8d15c70ca5ad0d7891f4d9067e0898c15aad11b9f2ce6032f597456f36"
+        },
+        {
+          "file_manifest/path": "test/data-00084-of-00128.parquet",
+          "file_manifest/bytes": 352786283,
+          "file_manifest/sha256": "4fc75648dc1a3ab56df53eb197d3706eee87ad6a2a94dfe6c811979403e0c2dc"
+        },
+        {
+          "file_manifest/path": "test/data-00085-of-00128.parquet",
+          "file_manifest/bytes": 362051427,
+          "file_manifest/sha256": "35206b4a59e4e229420d25290bc782911f9b1155d44e2b4a1b221a66e2194083"
+        },
+        {
+          "file_manifest/path": "test/data-00086-of-00128.parquet",
+          "file_manifest/bytes": 358875090,
+          "file_manifest/sha256": "2ddb92980fbeafa02fe334f3f27b8034c8c88aed3cdec1fe348c4b5577d5a522"
+        },
+        {
+          "file_manifest/path": "test/data-00087-of-00128.parquet",
+          "file_manifest/bytes": 356113100,
+          "file_manifest/sha256": "880b0337949a57ef5b886d8ba056ca26d3ed8cf8678640a5821f3cdc2394fc30"
+        },
+        {
+          "file_manifest/path": "test/data-00088-of-00128.parquet",
+          "file_manifest/bytes": 353604152,
+          "file_manifest/sha256": "e8d7fc845df894dcdeae4d060ef88f7b8257d0af269e9e01663f35753737161a"
+        },
+        {
+          "file_manifest/path": "test/data-00089-of-00128.parquet",
+          "file_manifest/bytes": 360543229,
+          "file_manifest/sha256": "b821d2f1f35ff0b3b7ed4b6f3f47acaf45bc866a9eefe1a58d3d0ca48a9aa5c3"
+        },
+        {
+          "file_manifest/path": "test/data-00090-of-00128.parquet",
+          "file_manifest/bytes": 358578152,
+          "file_manifest/sha256": "0d592e7d5f0e90e10ad1fe4cd8d703053ec651079918f26a8c43abc07020a210"
+        },
+        {
+          "file_manifest/path": "test/data-00091-of-00128.parquet",
+          "file_manifest/bytes": 351426851,
+          "file_manifest/sha256": "d2368afebc1361b5338b792db1a374a0808df2a6301ceffa8e0aa18f4b1af297"
+        },
+        {
+          "file_manifest/path": "test/data-00092-of-00128.parquet",
+          "file_manifest/bytes": 355175526,
+          "file_manifest/sha256": "a997810bd68d4fd0fcce669bc3bc00e3197b5e5dbcc80847e88869f351ba05cb"
+        },
+        {
+          "file_manifest/path": "test/data-00093-of-00128.parquet",
+          "file_manifest/bytes": 376121207,
+          "file_manifest/sha256": "f89329f2f6ba123e5f93b751b01235bd323d7c45df28faf3002c6d17bd6c1caf"
+        },
+        {
+          "file_manifest/path": "test/data-00094-of-00128.parquet",
+          "file_manifest/bytes": 372802729,
+          "file_manifest/sha256": "fd7cfcfa6a3151cdceb151a471fe6a9e8039bdc69f7deee5bf48741b609b0fe2"
+        },
+        {
+          "file_manifest/path": "test/data-00095-of-00128.parquet",
+          "file_manifest/bytes": 354739539,
+          "file_manifest/sha256": "5117ee2ed31b9e1cd2dd9b20addec7a27130af761743d2fddf7883b96685f203"
+        },
+        {
+          "file_manifest/path": "test/data-00096-of-00128.parquet",
+          "file_manifest/bytes": 367717155,
+          "file_manifest/sha256": "7b390926225b68ae5a41205cf8bf15f62b744db9f7a4efd1eb4a84c7175fbad8"
+        },
+        {
+          "file_manifest/path": "test/data-00097-of-00128.parquet",
+          "file_manifest/bytes": 348531245,
+          "file_manifest/sha256": "322e51f85fd2118e15edbd54b2ff8a9ea5bb48daa6fe4c8d8b12606d281c0003"
+        },
+        {
+          "file_manifest/path": "test/data-00098-of-00128.parquet",
+          "file_manifest/bytes": 362414771,
+          "file_manifest/sha256": "d14fffea8996365b81c88c15a9d3082d5376a3956986af9e08e39d7d12798d57"
+        },
+        {
+          "file_manifest/path": "test/data-00099-of-00128.parquet",
+          "file_manifest/bytes": 356338147,
+          "file_manifest/sha256": "f53c442f4df795f06a4c8d0664649ab73e70b7337dc0c20ca8900efb0469301c"
+        },
+        {
+          "file_manifest/path": "test/data-00100-of-00128.parquet",
+          "file_manifest/bytes": 348017315,
+          "file_manifest/sha256": "67b47273d7b5fc848605c1bbda6d48e601d07378d4ec299f556360a5982fb74f"
+        },
+        {
+          "file_manifest/path": "test/data-00101-of-00128.parquet",
+          "file_manifest/bytes": 356387788,
+          "file_manifest/sha256": "2e78d1eca19134df6c3d15714832644e397d95df03c8811cda6afb0e70fb8970"
+        },
+        {
+          "file_manifest/path": "test/data-00102-of-00128.parquet",
+          "file_manifest/bytes": 354050638,
+          "file_manifest/sha256": "e0a0ec716e05f2a4530379ebc69b0c7897098dd5cec0208093965c91adb0e0b0"
+        },
+        {
+          "file_manifest/path": "test/data-00103-of-00128.parquet",
+          "file_manifest/bytes": 352368737,
+          "file_manifest/sha256": "94ce708179299b4538e344b1d32859db897f3dcbdfe1b19258044d69c56eee66"
+        },
+        {
+          "file_manifest/path": "test/data-00104-of-00128.parquet",
+          "file_manifest/bytes": 357502069,
+          "file_manifest/sha256": "4ee854d98485047dc15b24b5b763cde2a47a7b317834acd7dd894b29253192c6"
+        },
+        {
+          "file_manifest/path": "test/data-00105-of-00128.parquet",
+          "file_manifest/bytes": 358672558,
+          "file_manifest/sha256": "87d0a5ba17d4388484f3c026a89f048941942b725a502a03d0770eb88e52b171"
+        },
+        {
+          "file_manifest/path": "test/data-00106-of-00128.parquet",
+          "file_manifest/bytes": 346518147,
+          "file_manifest/sha256": "e26348a90f0fddce38e086a9423538aa537705eafaa11013aff4434a70e2d040"
+        },
+        {
+          "file_manifest/path": "test/data-00107-of-00128.parquet",
+          "file_manifest/bytes": 364862688,
+          "file_manifest/sha256": "3c480c86fff62cfaad2842ad27d03d855829d7a505cc0ebf06fe62d28f8f248a"
+        },
+        {
+          "file_manifest/path": "test/data-00108-of-00128.parquet",
+          "file_manifest/bytes": 367987130,
+          "file_manifest/sha256": "e151542c0245f5771688b26bba7f2b6ae309d05927aa7d5e40c4d6cde6069d16"
+        },
+        {
+          "file_manifest/path": "test/data-00109-of-00128.parquet",
+          "file_manifest/bytes": 356520468,
+          "file_manifest/sha256": "06ebd3db70fd3363fecf6cd5a6f8d7bcee323aa3d896bf92a5e4dc1d40c9c110"
+        },
+        {
+          "file_manifest/path": "test/data-00110-of-00128.parquet",
+          "file_manifest/bytes": 346707147,
+          "file_manifest/sha256": "c233fa860bc53d908774b22876337c2730fba5340dbfeaaf04c89fb106591f32"
+        },
+        {
+          "file_manifest/path": "test/data-00111-of-00128.parquet",
+          "file_manifest/bytes": 342971952,
+          "file_manifest/sha256": "09e282cc06632116bb03735670f6197c478674b446423d91bd000d6033d73400"
+        },
+        {
+          "file_manifest/path": "test/data-00112-of-00128.parquet",
+          "file_manifest/bytes": 354824869,
+          "file_manifest/sha256": "c26606ef7ae25416135e003cfd898ca69cc1d66ece4615c6aef1dc2e92a4d462"
+        },
+        {
+          "file_manifest/path": "test/data-00113-of-00128.parquet",
+          "file_manifest/bytes": 371652323,
+          "file_manifest/sha256": "848c26c4ded756d5012b255ad0b74c74275d255804d6ad1b60f95995fb837102"
+        },
+        {
+          "file_manifest/path": "test/data-00114-of-00128.parquet",
+          "file_manifest/bytes": 356345241,
+          "file_manifest/sha256": "29e905934e0b2622ed75baf0c167cac5d96d40601b530a857ef1eefb5e6734c2"
+        },
+        {
+          "file_manifest/path": "test/data-00115-of-00128.parquet",
+          "file_manifest/bytes": 346021777,
+          "file_manifest/sha256": "b2287d58bd4714baed27445ae75a50d37adbd64be76b39bc2daa9f760c5d5f00"
+        },
+        {
+          "file_manifest/path": "test/data-00116-of-00128.parquet",
+          "file_manifest/bytes": 349707735,
+          "file_manifest/sha256": "ae6b0a53574c4127ee361c7f88234ea66f4a6b3f82edf7e2a7fb1a722a59753a"
+        },
+        {
+          "file_manifest/path": "test/data-00117-of-00128.parquet",
+          "file_manifest/bytes": 353260530,
+          "file_manifest/sha256": "ea23f63624619c9266098672cd296f8fedfbd2d95f93cec1611d7b2d9ee01626"
+        },
+        {
+          "file_manifest/path": "test/data-00118-of-00128.parquet",
+          "file_manifest/bytes": 349677722,
+          "file_manifest/sha256": "3507d127ef246f10c6ed63705d0000de269acb51d1cb16fed132a388907863d3"
+        },
+        {
+          "file_manifest/path": "test/data-00119-of-00128.parquet",
+          "file_manifest/bytes": 352802415,
+          "file_manifest/sha256": "69f1f62de49ac2fc9ea5e26c8a94c56f7c78cf7170ce790e2e5d20452e75f54f"
+        },
+        {
+          "file_manifest/path": "test/data-00120-of-00128.parquet",
+          "file_manifest/bytes": 352079507,
+          "file_manifest/sha256": "e86e219fd6ad89acd8e958989ddf6a1cd0965b85dc8e8775b2ac1a31c3da3bc2"
+        },
+        {
+          "file_manifest/path": "test/data-00121-of-00128.parquet",
+          "file_manifest/bytes": 367901807,
+          "file_manifest/sha256": "cae8fd3f8e0291c20cd3d4860149a1c61f09d400e736dc960497222f28677347"
+        },
+        {
+          "file_manifest/path": "test/data-00122-of-00128.parquet",
+          "file_manifest/bytes": 367139984,
+          "file_manifest/sha256": "bf6b0c8ad5213b76c4af2eaa12973cf3db409f887e168a5e71362575ee4590b3"
+        },
+        {
+          "file_manifest/path": "test/data-00123-of-00128.parquet",
+          "file_manifest/bytes": 357460189,
+          "file_manifest/sha256": "79e7ec85768036c1db6aaadc081938929590f823452ee575e53ed73504afbe51"
+        },
+        {
+          "file_manifest/path": "test/data-00124-of-00128.parquet",
+          "file_manifest/bytes": 368150484,
+          "file_manifest/sha256": "ba34ca593b4c983aca1392701958a8941b84fad3c389d1f49b8c6e881272b8e4"
+        },
+        {
+          "file_manifest/path": "test/data-00125-of-00128.parquet",
+          "file_manifest/bytes": 359045182,
+          "file_manifest/sha256": "f60658146727a23533d2e4ed3fb6a3d29b18721fa58b35ce4c9cb479a30bac2d"
+        },
+        {
+          "file_manifest/path": "test/data-00126-of-00128.parquet",
+          "file_manifest/bytes": 359508339,
+          "file_manifest/sha256": "c33e4288a0d26050a9b5396906f613d3fa2aed3a56d22813a3674f4fa44685ff"
+        },
+        {
+          "file_manifest/path": "test/data-00127-of-00128.parquet",
+          "file_manifest/bytes": 360165456,
+          "file_manifest/sha256": "cf33c0673233da0a2aff27483eeac597867cd0f79be12637eb92e9cf20fbff2f"
+        },
+        {
+          "file_manifest/path": "train/data-00000-of-00128.parquet",
+          "file_manifest/bytes": 2519503657,
+          "file_manifest/sha256": "1dc541856a106202dc79bb067da8249306bc721543f8cfba721006174b489f87"
+        },
+        {
+          "file_manifest/path": "train/data-00001-of-00128.parquet",
+          "file_manifest/bytes": 2551721486,
+          "file_manifest/sha256": "26ad5e2815307790311383e79d69b94346ff627fab98ec949fc6f4ec7abd6e11"
+        },
+        {
+          "file_manifest/path": "train/data-00002-of-00128.parquet",
+          "file_manifest/bytes": 2520217209,
+          "file_manifest/sha256": "5458bd1f376bbca34919d8d187b4fda930a7f3617cc779fa1815cab75e5635c6"
+        },
+        {
+          "file_manifest/path": "train/data-00003-of-00128.parquet",
+          "file_manifest/bytes": 2524606670,
+          "file_manifest/sha256": "9f668703bb4cf1db362c9d566cfce68a2b55712010bbdc0e730ceb1b7e9bc5f8"
+        },
+        {
+          "file_manifest/path": "train/data-00004-of-00128.parquet",
+          "file_manifest/bytes": 2524964485,
+          "file_manifest/sha256": "3f9c81b571bcd5fc6d6b21329cfd0481bc5d437bf999be00a19beff4fa90e13f"
+        },
+        {
+          "file_manifest/path": "train/data-00005-of-00128.parquet",
+          "file_manifest/bytes": 2498513280,
+          "file_manifest/sha256": "5649cff695736fd6dae5881599ff4b51033c4cae3e07d65979b2e17839b1fce5"
+        },
+        {
+          "file_manifest/path": "train/data-00006-of-00128.parquet",
+          "file_manifest/bytes": 2463536100,
+          "file_manifest/sha256": "89318b3d505275cb5b64dd877ae77de840bcf3efb073589c3c728b219ff1d5a9"
+        },
+        {
+          "file_manifest/path": "train/data-00007-of-00128.parquet",
+          "file_manifest/bytes": 2541685003,
+          "file_manifest/sha256": "3e5f81104ccb04e0be13ca7f5bc68a51700871c6416f452aad31817e3ce513fe"
+        },
+        {
+          "file_manifest/path": "train/data-00008-of-00128.parquet",
+          "file_manifest/bytes": 2535567519,
+          "file_manifest/sha256": "62f7083549c24b86e72096b000f37fc4492daaf9aaf1dd91c3ff1ab5d5b84891"
+        },
+        {
+          "file_manifest/path": "train/data-00009-of-00128.parquet",
+          "file_manifest/bytes": 2543675999,
+          "file_manifest/sha256": "c88a10f4bf67b29b5414162ae828d5a2c7d0023e070681808ddc86b99a54c129"
+        },
+        {
+          "file_manifest/path": "train/data-00010-of-00128.parquet",
+          "file_manifest/bytes": 2519173765,
+          "file_manifest/sha256": "5912cefdbd21125c87d6e4c63e5851a6dc03c650f644b36a8e847f68ee7fce8a"
+        },
+        {
+          "file_manifest/path": "train/data-00011-of-00128.parquet",
+          "file_manifest/bytes": 2562141111,
+          "file_manifest/sha256": "70e471fcd9547fb1c027f5080eba79516e8ea9fec7607d1f25131c12cd5032a7"
+        },
+        {
+          "file_manifest/path": "train/data-00012-of-00128.parquet",
+          "file_manifest/bytes": 2525434127,
+          "file_manifest/sha256": "9e2bba3f932cb88777116f87d33a97bbd6d3489320a8858709f844814745b611"
+        },
+        {
+          "file_manifest/path": "train/data-00013-of-00128.parquet",
+          "file_manifest/bytes": 2532452620,
+          "file_manifest/sha256": "ce5c51ff110108a1cd10e93d45e24a899cbf2fbeb179dd3ec6fb19c3ddc2caa1"
+        },
+        {
+          "file_manifest/path": "train/data-00014-of-00128.parquet",
+          "file_manifest/bytes": 2522759098,
+          "file_manifest/sha256": "6f232e9f7e7fb06b3a5f364292ff0023005a64674b83cb7ee85e179449260ae5"
+        },
+        {
+          "file_manifest/path": "train/data-00015-of-00128.parquet",
+          "file_manifest/bytes": 2522372682,
+          "file_manifest/sha256": "f32bc4978f1dc79e6fb043c992410579a33341ba602f4d8b86abc627710d670f"
+        },
+        {
+          "file_manifest/path": "train/data-00016-of-00128.parquet",
+          "file_manifest/bytes": 2543826486,
+          "file_manifest/sha256": "cf809c027bfc8a45a5f9672eabf0d997a8a01fe26ba059160892a3dd773e94b7"
+        },
+        {
+          "file_manifest/path": "train/data-00017-of-00128.parquet",
+          "file_manifest/bytes": 2538285834,
+          "file_manifest/sha256": "45df4dc9105958087d6e018277d39ad9a7bec376927d5e324932e6a26d6663b6"
+        },
+        {
+          "file_manifest/path": "train/data-00018-of-00128.parquet",
+          "file_manifest/bytes": 2520183371,
+          "file_manifest/sha256": "a56c7121056f7b7bc005f75deaf3106650279e1d4b67ccd87993ed6b28212273"
+        },
+        {
+          "file_manifest/path": "train/data-00019-of-00128.parquet",
+          "file_manifest/bytes": 2519077714,
+          "file_manifest/sha256": "a220d45c225803bd8ed2ffb8355eba00ca50a3022937f9af9a6ff7bbb228a79e"
+        },
+        {
+          "file_manifest/path": "train/data-00020-of-00128.parquet",
+          "file_manifest/bytes": 2500898708,
+          "file_manifest/sha256": "18af3cc5df483ae3983e0720ef94b7e9e3bac3d3bdb14952ea164960e68931ad"
+        },
+        {
+          "file_manifest/path": "train/data-00021-of-00128.parquet",
+          "file_manifest/bytes": 2521597634,
+          "file_manifest/sha256": "318088126161830138a1034989232430764efc8f7d70b08ec7a27b5a7769c34a"
+        },
+        {
+          "file_manifest/path": "train/data-00022-of-00128.parquet",
+          "file_manifest/bytes": 2526126064,
+          "file_manifest/sha256": "f94ccf1cd6aae7331e352024e1a1da73f945cf115114e5cdf7ba070a4f35b661"
+        },
+        {
+          "file_manifest/path": "train/data-00023-of-00128.parquet",
+          "file_manifest/bytes": 2523159079,
+          "file_manifest/sha256": "6a4c579457f7ff4a4cdf6021c9a79acd942b65c42658b50429ad9019ca5243e2"
+        },
+        {
+          "file_manifest/path": "train/data-00024-of-00128.parquet",
+          "file_manifest/bytes": 2559193495,
+          "file_manifest/sha256": "85ff1a15baa138b7821540eeb19e452359806e8cbbb4fbf4b5cbf5e18be40c71"
+        },
+        {
+          "file_manifest/path": "train/data-00025-of-00128.parquet",
+          "file_manifest/bytes": 2527762201,
+          "file_manifest/sha256": "194c4af223b8ca41a304d714bfa6707923838793eca467ce2d04a582c65d461e"
+        },
+        {
+          "file_manifest/path": "train/data-00026-of-00128.parquet",
+          "file_manifest/bytes": 2542292967,
+          "file_manifest/sha256": "c0bb7d7a222d9117654d5848564e0ec5928ed376c7b77b020d2260fd14abffdd"
+        },
+        {
+          "file_manifest/path": "train/data-00027-of-00128.parquet",
+          "file_manifest/bytes": 2566890981,
+          "file_manifest/sha256": "d4805eb27f4007e34f7418c2c75d2cf10e3791df9cddf3fbde73993ecaa57acb"
+        },
+        {
+          "file_manifest/path": "train/data-00028-of-00128.parquet",
+          "file_manifest/bytes": 2552079874,
+          "file_manifest/sha256": "ee99a59e2bac1be65256429b7968e0951dc23fd61fe77d8d617e45ffee66679d"
+        },
+        {
+          "file_manifest/path": "train/data-00029-of-00128.parquet",
+          "file_manifest/bytes": 2536231816,
+          "file_manifest/sha256": "c115853e1c718f7d7098548f0e3b17e129d5e64c7adbb9b1355768977c29036e"
+        },
+        {
+          "file_manifest/path": "train/data-00030-of-00128.parquet",
+          "file_manifest/bytes": 2536423510,
+          "file_manifest/sha256": "6fb6f0077a4ceafb3b4dbd9e9cba3b8876b89863d7516ed78d8e0f7e66e89ea4"
+        },
+        {
+          "file_manifest/path": "train/data-00031-of-00128.parquet",
+          "file_manifest/bytes": 2531673726,
+          "file_manifest/sha256": "3c6b15f8cfb099ef82107065e9d29859d8e434449eb83845e993d0c4871b5585"
+        },
+        {
+          "file_manifest/path": "train/data-00032-of-00128.parquet",
+          "file_manifest/bytes": 2549530943,
+          "file_manifest/sha256": "a9f69d7600b871487f0a0ed236cce9948717b82d3b0f055c57c43d3682f28eef"
+        },
+        {
+          "file_manifest/path": "train/data-00033-of-00128.parquet",
+          "file_manifest/bytes": 2542476781,
+          "file_manifest/sha256": "6a16abc53ca26550009fedad39d74b9db7aa7405ac388b57f9f153e7ff7dde12"
+        },
+        {
+          "file_manifest/path": "train/data-00034-of-00128.parquet",
+          "file_manifest/bytes": 2511864436,
+          "file_manifest/sha256": "4ba38efd80fbec896218b259b6bdd434368af0b639e357497aa7142816f1cfa9"
+        },
+        {
+          "file_manifest/path": "train/data-00035-of-00128.parquet",
+          "file_manifest/bytes": 2543405385,
+          "file_manifest/sha256": "f1085a9133d54009db88f59e34a6cc0911ade4ea62c16994c73a8a92bda7a23f"
+        },
+        {
+          "file_manifest/path": "train/data-00036-of-00128.parquet",
+          "file_manifest/bytes": 2540359132,
+          "file_manifest/sha256": "8fd6d2cb6b986f859c5b5199561f68f1684b09bc542d77c1818e4f6793678744"
+        },
+        {
+          "file_manifest/path": "train/data-00037-of-00128.parquet",
+          "file_manifest/bytes": 2522083296,
+          "file_manifest/sha256": "f4c1d1632d74e8f70dbe8420cd6bf6a86534c90f35a0e43744607867d34d6968"
+        },
+        {
+          "file_manifest/path": "train/data-00038-of-00128.parquet",
+          "file_manifest/bytes": 2510128758,
+          "file_manifest/sha256": "6b45a25de6e0b04a67ef23677a1aaeafcbf48a25848cf04245d8972a86bb9298"
+        },
+        {
+          "file_manifest/path": "train/data-00039-of-00128.parquet",
+          "file_manifest/bytes": 2524072893,
+          "file_manifest/sha256": "c6b38eb4bdacb033eb624ee3f7088b2f56a327bc1ab683bcc68a2742dfee2c8f"
+        },
+        {
+          "file_manifest/path": "train/data-00040-of-00128.parquet",
+          "file_manifest/bytes": 2539580247,
+          "file_manifest/sha256": "191b4e1423436fcc0ddec6dce4cda9855f8c1ae23e747cddda209bb36451938f"
+        },
+        {
+          "file_manifest/path": "train/data-00041-of-00128.parquet",
+          "file_manifest/bytes": 2531318478,
+          "file_manifest/sha256": "9d8720c326e3b850eb523b5dcd9b7c426d6998434222e8788839e27ccf775548"
+        },
+        {
+          "file_manifest/path": "train/data-00042-of-00128.parquet",
+          "file_manifest/bytes": 2527559342,
+          "file_manifest/sha256": "e1d5df487ce81027f9b7e9a6248c4f80f2e70dec3d33994e94f5f8204506a998"
+        },
+        {
+          "file_manifest/path": "train/data-00043-of-00128.parquet",
+          "file_manifest/bytes": 2527981082,
+          "file_manifest/sha256": "61dfbba56d2f9f36c373708dc289f3a58e235803080a695078b560f5911b97c0"
+        },
+        {
+          "file_manifest/path": "train/data-00044-of-00128.parquet",
+          "file_manifest/bytes": 2535692483,
+          "file_manifest/sha256": "3a377b8960f45c495a0c6acfe0da0958d18e53081df0898b192ecbaa17599649"
+        },
+        {
+          "file_manifest/path": "train/data-00045-of-00128.parquet",
+          "file_manifest/bytes": 2549806608,
+          "file_manifest/sha256": "3161125432fc5858c5e01bac1ca72adb7dac689fb575ebdc41f5a3ccaafc2bcf"
+        },
+        {
+          "file_manifest/path": "train/data-00046-of-00128.parquet",
+          "file_manifest/bytes": 2515792480,
+          "file_manifest/sha256": "d9016b1b858d5e5b38529be54350922df4f21a5ed395792b20e7acc62a197c68"
+        },
+        {
+          "file_manifest/path": "train/data-00047-of-00128.parquet",
+          "file_manifest/bytes": 2555921554,
+          "file_manifest/sha256": "75e1fe998a34e450e854aebc8a2c284ff93d207713c46f8aa1a1e2190d2159ea"
+        },
+        {
+          "file_manifest/path": "train/data-00048-of-00128.parquet",
+          "file_manifest/bytes": 2545715856,
+          "file_manifest/sha256": "1abe105f566f208a77319be022b72428b426da7b90095ed1c106a0961852924f"
+        },
+        {
+          "file_manifest/path": "train/data-00049-of-00128.parquet",
+          "file_manifest/bytes": 2501362957,
+          "file_manifest/sha256": "d50b2b2a5d3df775d11edfdb6e8a1ef295f8243813dd9fb73592e4df0b961719"
+        },
+        {
+          "file_manifest/path": "train/data-00050-of-00128.parquet",
+          "file_manifest/bytes": 2520131234,
+          "file_manifest/sha256": "c077b3f8800f9d1aa5eed06a7828a7c432ef8b2c650babe59d8e0f899a39a227"
+        },
+        {
+          "file_manifest/path": "train/data-00051-of-00128.parquet",
+          "file_manifest/bytes": 2518883806,
+          "file_manifest/sha256": "cd4d8c3ba97ed29ebb34d76d9bcae30012ac727074b7fab482c3a45e827d89e1"
+        },
+        {
+          "file_manifest/path": "train/data-00052-of-00128.parquet",
+          "file_manifest/bytes": 2508551343,
+          "file_manifest/sha256": "c80fa95b5274b32de901308882d6647ae28fbda6a04c235becbeea682ef8db94"
+        },
+        {
+          "file_manifest/path": "train/data-00053-of-00128.parquet",
+          "file_manifest/bytes": 2532359849,
+          "file_manifest/sha256": "d0dab922315dfbe2dee4ddca4c44e33c8d6172cd13261b7c4d8347022790c20b"
+        },
+        {
+          "file_manifest/path": "train/data-00054-of-00128.parquet",
+          "file_manifest/bytes": 2525646801,
+          "file_manifest/sha256": "815605ebdc322c216410d4b821423b7f2c3b2f8e9e2508fe1e0e48882d8b75b3"
+        },
+        {
+          "file_manifest/path": "train/data-00055-of-00128.parquet",
+          "file_manifest/bytes": 2536065003,
+          "file_manifest/sha256": "5ec4e48f4f95729e56602269201156a64fde4fdb16468a61b9ec172e2fea7632"
+        },
+        {
+          "file_manifest/path": "train/data-00056-of-00128.parquet",
+          "file_manifest/bytes": 2498305992,
+          "file_manifest/sha256": "542884b9c49974d011d344e8a50424351fb8b42def9416083b159f559a6fd6d6"
+        },
+        {
+          "file_manifest/path": "train/data-00057-of-00128.parquet",
+          "file_manifest/bytes": 2535325233,
+          "file_manifest/sha256": "5afff298ef069cbd36d65ccd1be6187d4b6111af5910fe29f0e6941c4c598063"
+        },
+        {
+          "file_manifest/path": "train/data-00058-of-00128.parquet",
+          "file_manifest/bytes": 2524623014,
+          "file_manifest/sha256": "36b15544cb21950d56d9b111a013c1b7365a8566bd13dc07553c53050d2799bc"
+        },
+        {
+          "file_manifest/path": "train/data-00059-of-00128.parquet",
+          "file_manifest/bytes": 2526562655,
+          "file_manifest/sha256": "1c71efa201ab8cee152f3a7f05d28a9256b6d75215016ee159d8c0c445dcc6d4"
+        },
+        {
+          "file_manifest/path": "train/data-00060-of-00128.parquet",
+          "file_manifest/bytes": 2552963630,
+          "file_manifest/sha256": "50e67dd0d2f51c9aac17d63a6a317597c30f356972ef13292ddced5630eb0d45"
+        },
+        {
+          "file_manifest/path": "train/data-00061-of-00128.parquet",
+          "file_manifest/bytes": 2547428446,
+          "file_manifest/sha256": "4b0ca772e61d5993b038d96582748d8a61fdf81d39fa0dbae62570a00b4823ed"
+        },
+        {
+          "file_manifest/path": "train/data-00062-of-00128.parquet",
+          "file_manifest/bytes": 2512944157,
+          "file_manifest/sha256": "46e7340c0f2059ab960ef068cef1b3cae00bd1c136306740ba036cda043e1142"
+        },
+        {
+          "file_manifest/path": "train/data-00063-of-00128.parquet",
+          "file_manifest/bytes": 2500823666,
+          "file_manifest/sha256": "791eeeb6a46d8731dbc04c693ec3c2742c26c635ebe85775ca694e2bfed69fa8"
+        },
+        {
+          "file_manifest/path": "train/data-00064-of-00128.parquet",
+          "file_manifest/bytes": 2569093475,
+          "file_manifest/sha256": "1b05b3dfebea57c2414ed91e1d71973a84a2d501a93995be026a28d4aade60ed"
+        },
+        {
+          "file_manifest/path": "train/data-00065-of-00128.parquet",
+          "file_manifest/bytes": 2537768943,
+          "file_manifest/sha256": "29e42e370c2dc1007d6482a5d783a4f8c2f994703126e1d23910823bd360c663"
+        },
+        {
+          "file_manifest/path": "train/data-00066-of-00128.parquet",
+          "file_manifest/bytes": 2542326141,
+          "file_manifest/sha256": "8894613d4cba88d8ad9322d91bf273564f2526efcf87812ecbc94a57d448f542"
+        },
+        {
+          "file_manifest/path": "train/data-00067-of-00128.parquet",
+          "file_manifest/bytes": 2564171752,
+          "file_manifest/sha256": "1148e4986c61aaae80b3ae057112125d9c2c6809d8d0c04dc989620ff0d5216d"
+        },
+        {
+          "file_manifest/path": "train/data-00068-of-00128.parquet",
+          "file_manifest/bytes": 2513071827,
+          "file_manifest/sha256": "2f01c8dfe5149fef0d18a5627057c88f61aa2bec68ae47c2460589c4907ebd47"
+        },
+        {
+          "file_manifest/path": "train/data-00069-of-00128.parquet",
+          "file_manifest/bytes": 2518668324,
+          "file_manifest/sha256": "4294fa64dff63fa405b28e1e8a76600d834d67ee6c40bac164de72e4739b029d"
+        },
+        {
+          "file_manifest/path": "train/data-00070-of-00128.parquet",
+          "file_manifest/bytes": 2574131121,
+          "file_manifest/sha256": "8774bbf04666ec11fd3c227ba4e17d9beb922f95cc891f4032a9f2cc72680c5d"
+        },
+        {
+          "file_manifest/path": "train/data-00071-of-00128.parquet",
+          "file_manifest/bytes": 2537589052,
+          "file_manifest/sha256": "5acbbfe627c3baec1af73857b7a7556a76ae6d29b2c6e4cfc5bab62d0733e2c6"
+        },
+        {
+          "file_manifest/path": "train/data-00072-of-00128.parquet",
+          "file_manifest/bytes": 2528796527,
+          "file_manifest/sha256": "b0729b066e513ab1cf0da2711f04005a9aaf845f7b678f466153a6079c444156"
+        },
+        {
+          "file_manifest/path": "train/data-00073-of-00128.parquet",
+          "file_manifest/bytes": 2537916750,
+          "file_manifest/sha256": "af5162c2327bf74b43c230dfd435fbe304c981b5ada200d90bb6eaacf1bead26"
+        },
+        {
+          "file_manifest/path": "train/data-00074-of-00128.parquet",
+          "file_manifest/bytes": 2532100461,
+          "file_manifest/sha256": "f0917703d5eea9738b8df691717715d6e81b03424804a3157ed297386c942284"
+        },
+        {
+          "file_manifest/path": "train/data-00075-of-00128.parquet",
+          "file_manifest/bytes": 2514252682,
+          "file_manifest/sha256": "f979eeca6ecd125d0dba8fa0c475ec2388e6024b6d2093f23f0fe70bb546a3e8"
+        },
+        {
+          "file_manifest/path": "train/data-00076-of-00128.parquet",
+          "file_manifest/bytes": 2583657494,
+          "file_manifest/sha256": "203e5dfb1cd483c702194ffdf6caf0940b6afd0dbd7ad1befd386935a33b1973"
+        },
+        {
+          "file_manifest/path": "train/data-00077-of-00128.parquet",
+          "file_manifest/bytes": 2523652983,
+          "file_manifest/sha256": "e84c3af3d8f08908ef5d07cbfd974b484e31717015901ac36399e483fc27e9ed"
+        },
+        {
+          "file_manifest/path": "train/data-00078-of-00128.parquet",
+          "file_manifest/bytes": 2542973063,
+          "file_manifest/sha256": "db902e487b482b0436869b5e4c3b1e9d44c1800fd41c2b07302f2787593232e6"
+        },
+        {
+          "file_manifest/path": "train/data-00079-of-00128.parquet",
+          "file_manifest/bytes": 2529078991,
+          "file_manifest/sha256": "842758613d573c11fcc34540a8dc908ef81329fb4bf3edbc4365cb30227c87e9"
+        },
+        {
+          "file_manifest/path": "train/data-00080-of-00128.parquet",
+          "file_manifest/bytes": 2531313359,
+          "file_manifest/sha256": "fc375c108f8fd4a3296e6e76f41148117921e594cf7cc67da3b1d1973f58e2a9"
+        },
+        {
+          "file_manifest/path": "train/data-00081-of-00128.parquet",
+          "file_manifest/bytes": 2506393796,
+          "file_manifest/sha256": "6286ad0e9c5444dd7950e07cc93573f8a54ade3371c05e2a336e5c4fdb2d3dac"
+        },
+        {
+          "file_manifest/path": "train/data-00082-of-00128.parquet",
+          "file_manifest/bytes": 2514023256,
+          "file_manifest/sha256": "42a21fe81bf6abd4ee8780e963debfc211a4252614322bf3ebac2ed9469cf2da"
+        },
+        {
+          "file_manifest/path": "train/data-00083-of-00128.parquet",
+          "file_manifest/bytes": 2526329061,
+          "file_manifest/sha256": "9cfcfbbcf7351a109b3fd1b45c3d8ee888ec272c11b6fc9fe24e9a067701cddc"
+        },
+        {
+          "file_manifest/path": "train/data-00084-of-00128.parquet",
+          "file_manifest/bytes": 2512875809,
+          "file_manifest/sha256": "7f060ccebc5f0b4e5ad393367606d9c73ba57b95b3d87d6bb779fcc55ce76a51"
+        },
+        {
+          "file_manifest/path": "train/data-00085-of-00128.parquet",
+          "file_manifest/bytes": 2541810425,
+          "file_manifest/sha256": "1a0f42986022294cf3f26bc7930a980c66ef2da3ab2e2f991f4a04dac6c62ce6"
+        },
+        {
+          "file_manifest/path": "train/data-00086-of-00128.parquet",
+          "file_manifest/bytes": 2557469736,
+          "file_manifest/sha256": "0db96a17f5c107a351e99927c62a14bb0679be53648bccc7d15b37f76c5c35c6"
+        },
+        {
+          "file_manifest/path": "train/data-00087-of-00128.parquet",
+          "file_manifest/bytes": 2505039210,
+          "file_manifest/sha256": "17bbf74425a52a459410fb49bf93a17c2ea9525505c503a911f767edf52074b1"
+        },
+        {
+          "file_manifest/path": "train/data-00088-of-00128.parquet",
+          "file_manifest/bytes": 2533781257,
+          "file_manifest/sha256": "865e2c8da39ba16e1d4302d3f488d11237d365bbcedaf71a478912a805887a78"
+        },
+        {
+          "file_manifest/path": "train/data-00089-of-00128.parquet",
+          "file_manifest/bytes": 2515774109,
+          "file_manifest/sha256": "9be4d6feeb8b0eefdfc011863ed6684ea36a09a23d04853ef1d3ce55bcdd7903"
+        },
+        {
+          "file_manifest/path": "train/data-00090-of-00128.parquet",
+          "file_manifest/bytes": 2511807273,
+          "file_manifest/sha256": "d00f63948e01ef148c28a651f26bd83b9a845695d353d791c2a1155895b876fc"
+        },
+        {
+          "file_manifest/path": "train/data-00091-of-00128.parquet",
+          "file_manifest/bytes": 2540919440,
+          "file_manifest/sha256": "ab042170e11287d97e87a8f5fb5a190ebba5902740f5e0a8b82802df0bc35761"
+        },
+        {
+          "file_manifest/path": "train/data-00092-of-00128.parquet",
+          "file_manifest/bytes": 2560777162,
+          "file_manifest/sha256": "723236afa4faf1748828a8de89c860d05ee974687d462fea648498496d1c033d"
+        },
+        {
+          "file_manifest/path": "train/data-00093-of-00128.parquet",
+          "file_manifest/bytes": 2538925988,
+          "file_manifest/sha256": "bb566b2095854749f3c4e4afc80465b4c878094c40df3146c388fbd559f6c908"
+        },
+        {
+          "file_manifest/path": "train/data-00094-of-00128.parquet",
+          "file_manifest/bytes": 2551947944,
+          "file_manifest/sha256": "624ff3e8a013b2ff1a606e0b3010a59b4fe3a68eb4098c5d2f59e55141751216"
+        },
+        {
+          "file_manifest/path": "train/data-00095-of-00128.parquet",
+          "file_manifest/bytes": 2542097537,
+          "file_manifest/sha256": "5db541c1c836cb980d980e37214f0022d96107955a2536ab0af061fdfc7a6e28"
+        },
+        {
+          "file_manifest/path": "train/data-00096-of-00128.parquet",
+          "file_manifest/bytes": 2525252183,
+          "file_manifest/sha256": "ff8104362aede962d8eac9ab602387576b443fd5cf5c8fb646066cc0e64bdd79"
+        },
+        {
+          "file_manifest/path": "train/data-00097-of-00128.parquet",
+          "file_manifest/bytes": 2509234209,
+          "file_manifest/sha256": "b8376f21ad5bd367b2f9d8dc7777fde5b3a87507a4abf6dcd2cc3409f43f2d3e"
+        },
+        {
+          "file_manifest/path": "train/data-00098-of-00128.parquet",
+          "file_manifest/bytes": 2501078628,
+          "file_manifest/sha256": "34295d0b013b6a3cd78fffd3b92f1b1763cae75462f8217ba29a274fa41f4722"
+        },
+        {
+          "file_manifest/path": "train/data-00099-of-00128.parquet",
+          "file_manifest/bytes": 2539779241,
+          "file_manifest/sha256": "166e4166a25869f5dd2b9940abdb94e150a16e2e690b4969fa50f9e462e7cdb4"
+        },
+        {
+          "file_manifest/path": "train/data-00100-of-00128.parquet",
+          "file_manifest/bytes": 2519712028,
+          "file_manifest/sha256": "61f734787fda171546b13924d5693fe1eced630f21752a25edff6f2d34eba99e"
+        },
+        {
+          "file_manifest/path": "train/data-00101-of-00128.parquet",
+          "file_manifest/bytes": 2508247917,
+          "file_manifest/sha256": "138ad0e5fa2475908b403666d8c9d5f8fac3d56823038610594837bf2e9c8432"
+        },
+        {
+          "file_manifest/path": "train/data-00102-of-00128.parquet",
+          "file_manifest/bytes": 2570631257,
+          "file_manifest/sha256": "e0a1d1afc951a56467f73eb2a882979bcc318a5e29b500b6506f4fd605e2e663"
+        },
+        {
+          "file_manifest/path": "train/data-00103-of-00128.parquet",
+          "file_manifest/bytes": 2506728974,
+          "file_manifest/sha256": "5a2a226b2dd49a48b674bb3496d34d567170e35cb4d6727ede9a2448e70ab865"
+        },
+        {
+          "file_manifest/path": "train/data-00104-of-00128.parquet",
+          "file_manifest/bytes": 2504239913,
+          "file_manifest/sha256": "f68f9a5c99b530e0dfe9adb11f282d9fc82894c752e09fdf5c4598f064031f20"
+        },
+        {
+          "file_manifest/path": "train/data-00105-of-00128.parquet",
+          "file_manifest/bytes": 2506155407,
+          "file_manifest/sha256": "eb5490f4753c1279dc9bf65ee95d657fe036f36681c6c600ce650463e56e06eb"
+        },
+        {
+          "file_manifest/path": "train/data-00106-of-00128.parquet",
+          "file_manifest/bytes": 2551425511,
+          "file_manifest/sha256": "53b8483a47de3419f086fac6a385633d48fff29902f8f4bfc6f2ffb748b0f7eb"
+        },
+        {
+          "file_manifest/path": "train/data-00107-of-00128.parquet",
+          "file_manifest/bytes": 2531247819,
+          "file_manifest/sha256": "934c921aed8f01edac310d8528df51c12638eb7375e95f7dfb939091a7e7080f"
+        },
+        {
+          "file_manifest/path": "train/data-00108-of-00128.parquet",
+          "file_manifest/bytes": 2523985663,
+          "file_manifest/sha256": "338e0fefa365bf723e341a2383ae7429ca23b9bac7e566291c3390d57c02ed17"
+        },
+        {
+          "file_manifest/path": "train/data-00109-of-00128.parquet",
+          "file_manifest/bytes": 2535260324,
+          "file_manifest/sha256": "57d47acbd397041910885de3faf50645fdfe2d278fd537b6368392c584ded74e"
+        },
+        {
+          "file_manifest/path": "train/data-00110-of-00128.parquet",
+          "file_manifest/bytes": 2538705645,
+          "file_manifest/sha256": "41bc731933291bfe8a1f980e5c0e053ba9ae632612cbe5519ee469df455ee72f"
+        },
+        {
+          "file_manifest/path": "train/data-00111-of-00128.parquet",
+          "file_manifest/bytes": 2548992064,
+          "file_manifest/sha256": "1abb74fbc534bd68d3d7fa5015eb0d0542d3d1afd1221d5705540d6feabd3c5d"
+        },
+        {
+          "file_manifest/path": "train/data-00112-of-00128.parquet",
+          "file_manifest/bytes": 2525860227,
+          "file_manifest/sha256": "20c72b8d1dae685190a531aacdae7a481b88298c6f7ed81e687f2bf201b3eacc"
+        },
+        {
+          "file_manifest/path": "train/data-00113-of-00128.parquet",
+          "file_manifest/bytes": 2551929542,
+          "file_manifest/sha256": "dbe1315c051a6ffd559378cd4691c0106ec4c68ff878841a63073a8df9743ff2"
+        },
+        {
+          "file_manifest/path": "train/data-00114-of-00128.parquet",
+          "file_manifest/bytes": 2562033470,
+          "file_manifest/sha256": "a6d5ad7431cfbd7607e949e1f9ae1734804500a2992c831a9fa7070e760f5bb6"
+        },
+        {
+          "file_manifest/path": "train/data-00115-of-00128.parquet",
+          "file_manifest/bytes": 2511522322,
+          "file_manifest/sha256": "0c6dddf0f78849248c9402d3b6cecd9f1ffe735abdcbb1e2f7a6926dd23246ce"
+        },
+        {
+          "file_manifest/path": "train/data-00116-of-00128.parquet",
+          "file_manifest/bytes": 2527844743,
+          "file_manifest/sha256": "1d5ae7334eafab090ee04f2aeea32b008025eadfc347d74416ab256ad8507ccc"
+        },
+        {
+          "file_manifest/path": "train/data-00117-of-00128.parquet",
+          "file_manifest/bytes": 2551155802,
+          "file_manifest/sha256": "232f36c03d23ad851b8a38eb2a0ce78d2f4410a176e9f442da54e8d0a93ac6d4"
+        },
+        {
+          "file_manifest/path": "train/data-00118-of-00128.parquet",
+          "file_manifest/bytes": 2529735492,
+          "file_manifest/sha256": "4e624f3f8ccb8e425787acfc1d11323403dbdd75e9b49e3b77bfe8985356f1e8"
+        },
+        {
+          "file_manifest/path": "train/data-00119-of-00128.parquet",
+          "file_manifest/bytes": 2540637045,
+          "file_manifest/sha256": "0ce83998cc6a723bd0cb428c3b9c8a11a6bd3f678bb550575b9a3e8dafd82475"
+        },
+        {
+          "file_manifest/path": "train/data-00120-of-00128.parquet",
+          "file_manifest/bytes": 2551131359,
+          "file_manifest/sha256": "ce27f1e22fa84cb9dc7dd79c6f93b70b2469eeea77a14a3d52e9e33dad61707c"
+        },
+        {
+          "file_manifest/path": "train/data-00121-of-00128.parquet",
+          "file_manifest/bytes": 2526479512,
+          "file_manifest/sha256": "cfbcdf1ea5518219d07505d5c85d3f9b4a19e2237f4c5b2b79c73fd0801c2205"
+        },
+        {
+          "file_manifest/path": "train/data-00122-of-00128.parquet",
+          "file_manifest/bytes": 2535161415,
+          "file_manifest/sha256": "24b1843aecdac23fa245c847fb58b0140c60e481760d45778430c20298c024d5"
+        },
+        {
+          "file_manifest/path": "train/data-00123-of-00128.parquet",
+          "file_manifest/bytes": 2530016909,
+          "file_manifest/sha256": "77e7944d54bbad594825265887529d4864d1295b5c074a9655d7608d4683ade7"
+        },
+        {
+          "file_manifest/path": "train/data-00124-of-00128.parquet",
+          "file_manifest/bytes": 2554947510,
+          "file_manifest/sha256": "c5f4fe110460d56ecf9251b633794e93c805a27b694da935004181544344e05b"
+        },
+        {
+          "file_manifest/path": "train/data-00125-of-00128.parquet",
+          "file_manifest/bytes": 2522003943,
+          "file_manifest/sha256": "fd727fab8942558be194c3161d9c6eb68abceb509d8743533dde6a0dc2b5cb22"
+        },
+        {
+          "file_manifest/path": "train/data-00126-of-00128.parquet",
+          "file_manifest/bytes": 2559711218,
+          "file_manifest/sha256": "74f3b3aea688bd57689e5d182faa34ef3841dc42b5e27e699cc71cbfd465eac2"
+        },
+        {
+          "file_manifest/path": "train/data-00127-of-00128.parquet",
+          "file_manifest/bytes": 2535782890,
+          "file_manifest/sha256": "bb24e87da8ea27b5a3e5f97c0e11398be8d9cb2920f451cc3e85cc85f2fc65b7"
+        },
+        {
+          "file_manifest/path": "val/data-00000-of-00128.parquet",
+          "file_manifest/bytes": 715653520,
+          "file_manifest/sha256": "66066aa0084d01a270c4ab67f56428cae480ff77ea6b85ccaec594294d2265eb"
+        },
+        {
+          "file_manifest/path": "val/data-00001-of-00128.parquet",
+          "file_manifest/bytes": 736443201,
+          "file_manifest/sha256": "41a9a60cc47bfcbe7a41255afdfeece3df56ca9f4a49a153b15e7dd043376ba9"
+        },
+        {
+          "file_manifest/path": "val/data-00002-of-00128.parquet",
+          "file_manifest/bytes": 717224852,
+          "file_manifest/sha256": "a575cb9ff7a89baba9476a31c342bac960ce428f8fa0e22290b10db6ffb5fc50"
+        },
+        {
+          "file_manifest/path": "val/data-00003-of-00128.parquet",
+          "file_manifest/bytes": 721396575,
+          "file_manifest/sha256": "1c49f1ad564b7e7930f4f14a0d2fb873da9d5801526634e5747d4cb7015bf58d"
+        },
+        {
+          "file_manifest/path": "val/data-00004-of-00128.parquet",
+          "file_manifest/bytes": 717655681,
+          "file_manifest/sha256": "63bb083ef31124f07fe4c169b7b7bc02156b92f5e0616bdfe3a3d2877110cf59"
+        },
+        {
+          "file_manifest/path": "val/data-00005-of-00128.parquet",
+          "file_manifest/bytes": 738055117,
+          "file_manifest/sha256": "7280f00beb34980fdd0e159c5d64c03b07c4cb5d2937fa59fc13283dfb8e86a9"
+        },
+        {
+          "file_manifest/path": "val/data-00006-of-00128.parquet",
+          "file_manifest/bytes": 717482420,
+          "file_manifest/sha256": "882ee548b59edb05b8dd4152dabe37bb4f86d984fbc679b8767e349892c87519"
+        },
+        {
+          "file_manifest/path": "val/data-00007-of-00128.parquet",
+          "file_manifest/bytes": 723257904,
+          "file_manifest/sha256": "174c041f0a80a870e6d0bb3b0c7d6a93fdf579859c3aba5a400125be513a1b3f"
+        },
+        {
+          "file_manifest/path": "val/data-00008-of-00128.parquet",
+          "file_manifest/bytes": 714965266,
+          "file_manifest/sha256": "836bc7cae3eae54bbe38f355224cee26f938fe5f807ebeeb5425941ebbe73125"
+        },
+        {
+          "file_manifest/path": "val/data-00009-of-00128.parquet",
+          "file_manifest/bytes": 733023888,
+          "file_manifest/sha256": "76e45b1741738dc357efa835c70a9c3f12db03242821f0b391bbd52e917c46f6"
+        },
+        {
+          "file_manifest/path": "val/data-00010-of-00128.parquet",
+          "file_manifest/bytes": 713699720,
+          "file_manifest/sha256": "a1de42f5a6e46b093713fcaa2eadd215935e718805f452dde6f038e6f06c50ac"
+        },
+        {
+          "file_manifest/path": "val/data-00011-of-00128.parquet",
+          "file_manifest/bytes": 745197468,
+          "file_manifest/sha256": "07fc955a80f97579872826a113cde2190ad1ad027909a2be7536c686a37bd7c7"
+        },
+        {
+          "file_manifest/path": "val/data-00012-of-00128.parquet",
+          "file_manifest/bytes": 719937734,
+          "file_manifest/sha256": "b8eb24a9137e2a6c52015de7717e817a774b28c361c6f2483610c653b05a350e"
+        },
+        {
+          "file_manifest/path": "val/data-00013-of-00128.parquet",
+          "file_manifest/bytes": 722118288,
+          "file_manifest/sha256": "ca51b13b5b4446194d3c457cba455f88e5ee13a499f47d274c375c9e63527d1c"
+        },
+        {
+          "file_manifest/path": "val/data-00014-of-00128.parquet",
+          "file_manifest/bytes": 720994612,
+          "file_manifest/sha256": "ce83d98b541963dea761d02dbf7171dca15cef299162e2652a553393becae745"
+        },
+        {
+          "file_manifest/path": "val/data-00015-of-00128.parquet",
+          "file_manifest/bytes": 716731103,
+          "file_manifest/sha256": "975a2469a3e7e3f23ed88abc55bdf1cb692fe4d9f05ad1e099a241c4636feb8a"
+        },
+        {
+          "file_manifest/path": "val/data-00016-of-00128.parquet",
+          "file_manifest/bytes": 717941143,
+          "file_manifest/sha256": "78a8328d5f4841460c88c5efc42abc915b24e8a8f95cacee41feb58f50c30943"
+        },
+        {
+          "file_manifest/path": "val/data-00017-of-00128.parquet",
+          "file_manifest/bytes": 751852432,
+          "file_manifest/sha256": "919e8707856d0164b9f9cb228d2fddf19dfeb3396dac47b3072511b4931a11b7"
+        },
+        {
+          "file_manifest/path": "val/data-00018-of-00128.parquet",
+          "file_manifest/bytes": 727593880,
+          "file_manifest/sha256": "a21f2d6fea89094eae9981914b8e635a22203ed0cdaaacd9eb3dd243678e5386"
+        },
+        {
+          "file_manifest/path": "val/data-00019-of-00128.parquet",
+          "file_manifest/bytes": 714838723,
+          "file_manifest/sha256": "8c2de19faa6eed5f8d07cf0ccc8177b68ea78b26532fb7b03e9ace54a046bcab"
+        },
+        {
+          "file_manifest/path": "val/data-00020-of-00128.parquet",
+          "file_manifest/bytes": 719150630,
+          "file_manifest/sha256": "215f050522a819a85f94f257ba9bd2a897eeb6136274c36d725f48f7bb419b3c"
+        },
+        {
+          "file_manifest/path": "val/data-00021-of-00128.parquet",
+          "file_manifest/bytes": 732441696,
+          "file_manifest/sha256": "622701ab26a0177077f74b9c7ea4e4367ea1ff96133c11b15978a9a23dba7554"
+        },
+        {
+          "file_manifest/path": "val/data-00022-of-00128.parquet",
+          "file_manifest/bytes": 724218924,
+          "file_manifest/sha256": "3dd756e125168311ca164a76daf755a70dc2bff4ac5da9a420190b3a4689ef9a"
+        },
+        {
+          "file_manifest/path": "val/data-00023-of-00128.parquet",
+          "file_manifest/bytes": 721357286,
+          "file_manifest/sha256": "2a7189eb1015915fc9ee21803e454d86091521ceedcf095c644259e0281200f3"
+        },
+        {
+          "file_manifest/path": "val/data-00024-of-00128.parquet",
+          "file_manifest/bytes": 701915843,
+          "file_manifest/sha256": "f3b9932ae4b64fbef6326ba3f164ae59fc9ff1831bcbf8e74e8797b387f7d327"
+        },
+        {
+          "file_manifest/path": "val/data-00025-of-00128.parquet",
+          "file_manifest/bytes": 730399037,
+          "file_manifest/sha256": "665d96a8085e9f8c873859a0a850a9f22e2ca9fe2f6f7204703729a84510d201"
+        },
+        {
+          "file_manifest/path": "val/data-00026-of-00128.parquet",
+          "file_manifest/bytes": 723476045,
+          "file_manifest/sha256": "1b0be679240f090781428a0b6b6f034e80caa7288d872cd5af1f9821c0aa0be6"
+        },
+        {
+          "file_manifest/path": "val/data-00027-of-00128.parquet",
+          "file_manifest/bytes": 714298812,
+          "file_manifest/sha256": "2fc3c457927ca901e816f077f8786d3e56d829f40836190e3b880e68d93d674f"
+        },
+        {
+          "file_manifest/path": "val/data-00028-of-00128.parquet",
+          "file_manifest/bytes": 729698695,
+          "file_manifest/sha256": "5c3a9b8fda028244582032b3d4374e6b0e7eb1d8d4b92ba0fc8ff1dc220f19b0"
+        },
+        {
+          "file_manifest/path": "val/data-00029-of-00128.parquet",
+          "file_manifest/bytes": 714455822,
+          "file_manifest/sha256": "5f1e1086350f6a6e759271744c6ae29504e5f368f009c857d7ca6942ca56373c"
+        },
+        {
+          "file_manifest/path": "val/data-00030-of-00128.parquet",
+          "file_manifest/bytes": 730589261,
+          "file_manifest/sha256": "1a1e515d12fa279ebad1d30193164a956d82c5470075ebc6b0a43b89e8efc70f"
+        },
+        {
+          "file_manifest/path": "val/data-00031-of-00128.parquet",
+          "file_manifest/bytes": 699086236,
+          "file_manifest/sha256": "e309c84c047b29eb95f245cd5e2b2815c4085c4501a1a02df28d1cdc69f38e6f"
+        },
+        {
+          "file_manifest/path": "val/data-00032-of-00128.parquet",
+          "file_manifest/bytes": 736750416,
+          "file_manifest/sha256": "51c761443169758d455552163e0bce9fc8b81c1b43fdc79dfb762592e4d8d12c"
+        },
+        {
+          "file_manifest/path": "val/data-00033-of-00128.parquet",
+          "file_manifest/bytes": 713617861,
+          "file_manifest/sha256": "6bb696e08c867430e37842c4c7a88cd7b74e06d0ce63e5bc83518d1fd8dac752"
+        },
+        {
+          "file_manifest/path": "val/data-00034-of-00128.parquet",
+          "file_manifest/bytes": 739021331,
+          "file_manifest/sha256": "db42bde4cfc2a67a7254d598ccbfcf08bf29c137f0dcd7ce1e2c8b86b0c0183b"
+        },
+        {
+          "file_manifest/path": "val/data-00035-of-00128.parquet",
+          "file_manifest/bytes": 728617282,
+          "file_manifest/sha256": "a298f4014d5ee7320776f32613710f568e3b6492f39443eba0b15690beedf8a2"
+        },
+        {
+          "file_manifest/path": "val/data-00036-of-00128.parquet",
+          "file_manifest/bytes": 730027204,
+          "file_manifest/sha256": "6414a28ad7476419677b4d426ff30d41428979d2f5ebc01574e6a7393b91abbc"
+        },
+        {
+          "file_manifest/path": "val/data-00037-of-00128.parquet",
+          "file_manifest/bytes": 714387649,
+          "file_manifest/sha256": "df961e543c2bad24e9e9479b218ac67d7029e90023a338588bc9435091c5409d"
+        },
+        {
+          "file_manifest/path": "val/data-00038-of-00128.parquet",
+          "file_manifest/bytes": 730046740,
+          "file_manifest/sha256": "c98c38522d2af42e560018726e771efd42dfea8c8ab7ed3efb2893512516eea0"
+        },
+        {
+          "file_manifest/path": "val/data-00039-of-00128.parquet",
+          "file_manifest/bytes": 718473690,
+          "file_manifest/sha256": "f2fae6506382e0f5a45b27046af479c9ad25044eb63a8277f37b720832c4badd"
+        },
+        {
+          "file_manifest/path": "val/data-00040-of-00128.parquet",
+          "file_manifest/bytes": 717277965,
+          "file_manifest/sha256": "3c6afa9b0b0e25f25e75aee71f501f79add4e26dfde9aebaf2d4da1b7901b97d"
+        },
+        {
+          "file_manifest/path": "val/data-00041-of-00128.parquet",
+          "file_manifest/bytes": 720697660,
+          "file_manifest/sha256": "0d11c96d297b049c713185ed6101cf4be5cdb32158334dc1bbf06755b85c9ad8"
+        },
+        {
+          "file_manifest/path": "val/data-00042-of-00128.parquet",
+          "file_manifest/bytes": 714353824,
+          "file_manifest/sha256": "cb6b13a34688f14a476b904d82615c9298b1e6f5d7e7654bfecdb2f479a45f83"
+        },
+        {
+          "file_manifest/path": "val/data-00043-of-00128.parquet",
+          "file_manifest/bytes": 722207885,
+          "file_manifest/sha256": "7ee4f619fb4a70d9d4879bdc9bbd46ad25b619e6cd243bea42461b07de93cf38"
+        },
+        {
+          "file_manifest/path": "val/data-00044-of-00128.parquet",
+          "file_manifest/bytes": 722511385,
+          "file_manifest/sha256": "b8d0ded3597498f645f4d7f0ce67ce4f6eac60dc4f019b7d5fbd56119c7ce984"
+        },
+        {
+          "file_manifest/path": "val/data-00045-of-00128.parquet",
+          "file_manifest/bytes": 704379438,
+          "file_manifest/sha256": "a34d7c1fa88daa2d1c24490571e01ef5cd3485177e5191314a705567891be659"
+        },
+        {
+          "file_manifest/path": "val/data-00046-of-00128.parquet",
+          "file_manifest/bytes": 720238565,
+          "file_manifest/sha256": "fe9c36a65da4904e0727c57c0e11aa584fc61616e9f97851fb0a06af48016aa0"
+        },
+        {
+          "file_manifest/path": "val/data-00047-of-00128.parquet",
+          "file_manifest/bytes": 728051634,
+          "file_manifest/sha256": "193d50ce165d768844e8c4f4a1fc0778b52ef0781d2c99ee16b06abb89ebd8c2"
+        },
+        {
+          "file_manifest/path": "val/data-00048-of-00128.parquet",
+          "file_manifest/bytes": 738837688,
+          "file_manifest/sha256": "fa5cdec16e8364fd4e1306d2974e065f8fd3bd0adfe67bfb17bd473aaf18fba3"
+        },
+        {
+          "file_manifest/path": "val/data-00049-of-00128.parquet",
+          "file_manifest/bytes": 706887636,
+          "file_manifest/sha256": "3e76da7dad53d93c70c8215941a9b56c8ba8ff3bd2d273e3fa887531b03c8362"
+        },
+        {
+          "file_manifest/path": "val/data-00050-of-00128.parquet",
+          "file_manifest/bytes": 731208950,
+          "file_manifest/sha256": "29938d0b227dcdeea4aa4d73cd7a5bd29a19f02f7fdbe9906751b36aa11f1159"
+        },
+        {
+          "file_manifest/path": "val/data-00051-of-00128.parquet",
+          "file_manifest/bytes": 722719176,
+          "file_manifest/sha256": "a0018451aa327f079544c55fb88336877473002b30292f10a7903bd8cb5bab45"
+        },
+        {
+          "file_manifest/path": "val/data-00052-of-00128.parquet",
+          "file_manifest/bytes": 726928687,
+          "file_manifest/sha256": "22fc06c935c74386993f5df525f6c2f0b0f8718594d07b638a5edd204994cc5f"
+        },
+        {
+          "file_manifest/path": "val/data-00053-of-00128.parquet",
+          "file_manifest/bytes": 728199484,
+          "file_manifest/sha256": "c5815d1d128d6f6546eb20b4a94f67e854b7b57efb2d8124786594708f5e1a27"
+        },
+        {
+          "file_manifest/path": "val/data-00054-of-00128.parquet",
+          "file_manifest/bytes": 728082990,
+          "file_manifest/sha256": "76dc37ad52cd7e6e03aa39b459af51fa118066978e5dfc3e813fe6b6f9226ff3"
+        },
+        {
+          "file_manifest/path": "val/data-00055-of-00128.parquet",
+          "file_manifest/bytes": 723427136,
+          "file_manifest/sha256": "b9af9cc564cc792bd408f1e3af38280ac8294491750ad14a75a78f3e8d77ed24"
+        },
+        {
+          "file_manifest/path": "val/data-00056-of-00128.parquet",
+          "file_manifest/bytes": 720961487,
+          "file_manifest/sha256": "3a785567da01cc5f5397d35a2dd5292e8436503a5ffb2550a64b6db2fa6ff4db"
+        },
+        {
+          "file_manifest/path": "val/data-00057-of-00128.parquet",
+          "file_manifest/bytes": 724618802,
+          "file_manifest/sha256": "eae1db87fde6ca0dff2fb1752c12f335bfcf97eca21945bdde201eb32c9c3470"
+        },
+        {
+          "file_manifest/path": "val/data-00058-of-00128.parquet",
+          "file_manifest/bytes": 721076589,
+          "file_manifest/sha256": "739c49266d8ff9e5df14eee190eea8ba493a719da07b38d854003f8aa097510e"
+        },
+        {
+          "file_manifest/path": "val/data-00059-of-00128.parquet",
+          "file_manifest/bytes": 720170764,
+          "file_manifest/sha256": "75d7bff5994a5f0f0efc1172c66c1bae9388c8c9b4db86bab871412ab6758059"
+        },
+        {
+          "file_manifest/path": "val/data-00060-of-00128.parquet",
+          "file_manifest/bytes": 717155289,
+          "file_manifest/sha256": "97d7973ff11317a96b9aed1166d04da286016136db87cc2b494b299cb1be3709"
+        },
+        {
+          "file_manifest/path": "val/data-00061-of-00128.parquet",
+          "file_manifest/bytes": 715888024,
+          "file_manifest/sha256": "c00747992756151dbd8abd7ddddfc4694c5806f37af632459750a118f954ad9a"
+        },
+        {
+          "file_manifest/path": "val/data-00062-of-00128.parquet",
+          "file_manifest/bytes": 707985262,
+          "file_manifest/sha256": "65036743a2008dbb9854d5677ecd4cf141ac342f14695fa616609d5e92d49b59"
+        },
+        {
+          "file_manifest/path": "val/data-00063-of-00128.parquet",
+          "file_manifest/bytes": 710362718,
+          "file_manifest/sha256": "ecb6f9615ccbd9105b35cd1aa54d6bc36c852e4e09b974601aeacef16732e8a4"
+        },
+        {
+          "file_manifest/path": "val/data-00064-of-00128.parquet",
+          "file_manifest/bytes": 731163612,
+          "file_manifest/sha256": "7469a235a0a11ab281b3f188010ad381062b55d4713ecdd7476310a86db3a747"
+        },
+        {
+          "file_manifest/path": "val/data-00065-of-00128.parquet",
+          "file_manifest/bytes": 723497050,
+          "file_manifest/sha256": "3dbe29846e1da85dc510ba7e5756f73943c750cd7a5c6050d20d988cf883e59a"
+        },
+        {
+          "file_manifest/path": "val/data-00066-of-00128.parquet",
+          "file_manifest/bytes": 706899154,
+          "file_manifest/sha256": "40583035957d2e175239b4dd85a7e2e707c61331b29bf2980c9628bbee44344d"
+        },
+        {
+          "file_manifest/path": "val/data-00067-of-00128.parquet",
+          "file_manifest/bytes": 704388384,
+          "file_manifest/sha256": "10b00d44696ad22007529706a7b9175d91cb9f186e5b3c4fe3f65e35af74d54e"
+        },
+        {
+          "file_manifest/path": "val/data-00068-of-00128.parquet",
+          "file_manifest/bytes": 715956198,
+          "file_manifest/sha256": "4ef67b8d503587de7b239c45465f7519a45fc9e16f1572f531b624e3e0c0e77f"
+        },
+        {
+          "file_manifest/path": "val/data-00069-of-00128.parquet",
+          "file_manifest/bytes": 725011729,
+          "file_manifest/sha256": "43458d60f0330c0f60722e33103cb6c97aeaff58565f530feebe29e0f40143a3"
+        },
+        {
+          "file_manifest/path": "val/data-00070-of-00128.parquet",
+          "file_manifest/bytes": 737267039,
+          "file_manifest/sha256": "7c8c2db19afbf6132a0f3afcd55de26132ead23b0347437e9be4784e2ac2f2e2"
+        },
+        {
+          "file_manifest/path": "val/data-00071-of-00128.parquet",
+          "file_manifest/bytes": 724785949,
+          "file_manifest/sha256": "d97d382051f1a5494fa4d2c1c66dfbaca1c28353252895dca575b6c380b26adb"
+        },
+        {
+          "file_manifest/path": "val/data-00072-of-00128.parquet",
+          "file_manifest/bytes": 730331258,
+          "file_manifest/sha256": "94ac8f6dc02824a5a46e653e8b62a4ed2ad067e041190bbb48a9427ef02ced35"
+        },
+        {
+          "file_manifest/path": "val/data-00073-of-00128.parquet",
+          "file_manifest/bytes": 728269248,
+          "file_manifest/sha256": "8fd32fe645b13f9ddfc211c88174b26ba279dca2f8c27a786a2a9c1bd67c8ded"
+        },
+        {
+          "file_manifest/path": "val/data-00074-of-00128.parquet",
+          "file_manifest/bytes": 720648647,
+          "file_manifest/sha256": "d3f64e8c4f1eb5352882c87c351de91c6dec0532ef38d67633397c4956dbd001"
+        },
+        {
+          "file_manifest/path": "val/data-00075-of-00128.parquet",
+          "file_manifest/bytes": 731069548,
+          "file_manifest/sha256": "d6098f3d19d4359d8b83c0e33b5aa58ae05f1b8bb2c678b1383ea084bd1121df"
+        },
+        {
+          "file_manifest/path": "val/data-00076-of-00128.parquet",
+          "file_manifest/bytes": 714239743,
+          "file_manifest/sha256": "f33fc827877fd09f009bef8b07dc5fc48d223d41c95490186a44ec9d470e075a"
+        },
+        {
+          "file_manifest/path": "val/data-00077-of-00128.parquet",
+          "file_manifest/bytes": 718814946,
+          "file_manifest/sha256": "e18b55c86fabb15cd545e9899c975bfc819b1e93c4a67337cecaad74433a39b5"
+        },
+        {
+          "file_manifest/path": "val/data-00078-of-00128.parquet",
+          "file_manifest/bytes": 721520861,
+          "file_manifest/sha256": "80492b6cce46424a276df0c10efe9a6c4800a012e52fd44a8fee3385cab33ce3"
+        },
+        {
+          "file_manifest/path": "val/data-00079-of-00128.parquet",
+          "file_manifest/bytes": 711801718,
+          "file_manifest/sha256": "8a893de066d85a02968657f6708b49abd497d24f0e719e4b09d88722ceb632c8"
+        },
+        {
+          "file_manifest/path": "val/data-00080-of-00128.parquet",
+          "file_manifest/bytes": 725598480,
+          "file_manifest/sha256": "379a36e4f0f77d70632b02115f29aa839310c0d942e25fb47e3924e42ecb594e"
+        },
+        {
+          "file_manifest/path": "val/data-00081-of-00128.parquet",
+          "file_manifest/bytes": 727763736,
+          "file_manifest/sha256": "520520e7cda1044347260aba073e77c8479b7dfb74f972d6b26c9889009db6b9"
+        },
+        {
+          "file_manifest/path": "val/data-00082-of-00128.parquet",
+          "file_manifest/bytes": 726541402,
+          "file_manifest/sha256": "f11082668cf377914879cc8b8eb7b24227ad38add7d3a3120f1fd61f4663ad24"
+        },
+        {
+          "file_manifest/path": "val/data-00083-of-00128.parquet",
+          "file_manifest/bytes": 707790101,
+          "file_manifest/sha256": "d568a8743e99bd1b5a49493d1dcae169b9c68032da063732981de44995faf955"
+        },
+        {
+          "file_manifest/path": "val/data-00084-of-00128.parquet",
+          "file_manifest/bytes": 701925543,
+          "file_manifest/sha256": "9c7289538293b11730d8d3f5974d5ea025f40b22356d0f877fc121e20e508ebf"
+        },
+        {
+          "file_manifest/path": "val/data-00085-of-00128.parquet",
+          "file_manifest/bytes": 723841570,
+          "file_manifest/sha256": "765ead268cd542fa6aab530c554ee4cf0cebff54a2d919f2fbfaa6b8ca9978ef"
+        },
+        {
+          "file_manifest/path": "val/data-00086-of-00128.parquet",
+          "file_manifest/bytes": 721014737,
+          "file_manifest/sha256": "3f69739160722ddd4e5f79bd19e4c5132ddf77c33554185e70173d607d912b36"
+        },
+        {
+          "file_manifest/path": "val/data-00087-of-00128.parquet",
+          "file_manifest/bytes": 699124327,
+          "file_manifest/sha256": "8bba17406728ffb13f941fbde2c4b0118508682e9825da7d8bf1dc9f512489b9"
+        },
+        {
+          "file_manifest/path": "val/data-00088-of-00128.parquet",
+          "file_manifest/bytes": 724450175,
+          "file_manifest/sha256": "2bab7dfd42c00846f88ebe598cf03133e9c9dbbe2771d08854c6c13d928ec643"
+        },
+        {
+          "file_manifest/path": "val/data-00089-of-00128.parquet",
+          "file_manifest/bytes": 720297127,
+          "file_manifest/sha256": "4be1df911f2f87d3a3d4049563eade1f4a80fa2c3668d662d00765b313b97b5c"
+        },
+        {
+          "file_manifest/path": "val/data-00090-of-00128.parquet",
+          "file_manifest/bytes": 725388683,
+          "file_manifest/sha256": "71fe0befa1284e465577980b7028fdec4cdf17bbeeca0d9f565ecc1e8038e531"
+        },
+        {
+          "file_manifest/path": "val/data-00091-of-00128.parquet",
+          "file_manifest/bytes": 730354191,
+          "file_manifest/sha256": "9cfcb22224db4a7565e079be7cead6f80c7177f9926f7ecc514b60896b204d6b"
+        },
+        {
+          "file_manifest/path": "val/data-00092-of-00128.parquet",
+          "file_manifest/bytes": 725226780,
+          "file_manifest/sha256": "39f1f14775da00c72c013b8fc33a2c271e1f580818fed1fbe17c0cf28bd00a73"
+        },
+        {
+          "file_manifest/path": "val/data-00093-of-00128.parquet",
+          "file_manifest/bytes": 721377737,
+          "file_manifest/sha256": "9a26b939ce53a90d1344bc5015b1c9ab2fcded683c3bf29cc3457b7601a80d26"
+        },
+        {
+          "file_manifest/path": "val/data-00094-of-00128.parquet",
+          "file_manifest/bytes": 724597767,
+          "file_manifest/sha256": "157296196b2b26dd4a1e0562a2101223f80ad20d8e34fa07d5ea67135968fc2f"
+        },
+        {
+          "file_manifest/path": "val/data-00095-of-00128.parquet",
+          "file_manifest/bytes": 746094372,
+          "file_manifest/sha256": "27ff4584f95f087630e4e8381c9e407969a4a9bd137acad32344af395788d6c5"
+        },
+        {
+          "file_manifest/path": "val/data-00096-of-00128.parquet",
+          "file_manifest/bytes": 712883512,
+          "file_manifest/sha256": "ba4efa65c6eb557bbd8ae7bb4ad30b312314fea0c62e3b1b642c078028753926"
+        },
+        {
+          "file_manifest/path": "val/data-00097-of-00128.parquet",
+          "file_manifest/bytes": 727759760,
+          "file_manifest/sha256": "2de7ebffe6a2f1f818753cbb15d804512ce1762bab96874984faa5eaaf909c6f"
+        },
+        {
+          "file_manifest/path": "val/data-00098-of-00128.parquet",
+          "file_manifest/bytes": 704843347,
+          "file_manifest/sha256": "9e99aa9cfed825631d49e5e991dc468d77d2858ffa7b427b18bd71b32b0b45b7"
+        },
+        {
+          "file_manifest/path": "val/data-00099-of-00128.parquet",
+          "file_manifest/bytes": 729501887,
+          "file_manifest/sha256": "c15b11cfd3f8ffec139b8b38a93702aa42005820efa29bd126733e8927782a7d"
+        },
+        {
+          "file_manifest/path": "val/data-00100-of-00128.parquet",
+          "file_manifest/bytes": 730314720,
+          "file_manifest/sha256": "b0f2bc77ba38fda73ab28cbc533217b769db41d7326118dcab6ae70b1f02afbf"
+        },
+        {
+          "file_manifest/path": "val/data-00101-of-00128.parquet",
+          "file_manifest/bytes": 729050644,
+          "file_manifest/sha256": "0274214a79d05674cb5f79e7023ae3ebcae3d0f6e995931ce4f1d46c114d69b8"
+        },
+        {
+          "file_manifest/path": "val/data-00102-of-00128.parquet",
+          "file_manifest/bytes": 724353632,
+          "file_manifest/sha256": "863a654cbd6f0b55fd7cb1e3d7ff94a18231ef80a68557ca21bd66193fbdf7c9"
+        },
+        {
+          "file_manifest/path": "val/data-00103-of-00128.parquet",
+          "file_manifest/bytes": 704924868,
+          "file_manifest/sha256": "30fab56f3976f5ec163663f6b854cff9252adfc00ddafd6edd84d413d9c945c5"
+        },
+        {
+          "file_manifest/path": "val/data-00104-of-00128.parquet",
+          "file_manifest/bytes": 727819374,
+          "file_manifest/sha256": "939486f114f74008e766b39de0aa83b4221b5e60c2cc4f1cebb1fd3b0ed72f54"
+        },
+        {
+          "file_manifest/path": "val/data-00105-of-00128.parquet",
+          "file_manifest/bytes": 737842565,
+          "file_manifest/sha256": "01a8018a927f72d0b3750e788463b03ee98eb2f717ce3693a1ba29ac51e001f2"
+        },
+        {
+          "file_manifest/path": "val/data-00106-of-00128.parquet",
+          "file_manifest/bytes": 719777811,
+          "file_manifest/sha256": "cdc244485b4ecd5b6e4e367c0884639328ee9007c7ac2b93f71e3c4aaed4cd0b"
+        },
+        {
+          "file_manifest/path": "val/data-00107-of-00128.parquet",
+          "file_manifest/bytes": 718388705,
+          "file_manifest/sha256": "6f2f4db9524030e2bcf3b03f0e61c73f1d6ab03e431888d736bf706b803e01fc"
+        },
+        {
+          "file_manifest/path": "val/data-00108-of-00128.parquet",
+          "file_manifest/bytes": 701855283,
+          "file_manifest/sha256": "4666a995f56e2dbb7fe119e6dec76f49ce519ce80980ed7a723251f90ce9e08b"
+        },
+        {
+          "file_manifest/path": "val/data-00109-of-00128.parquet",
+          "file_manifest/bytes": 721959583,
+          "file_manifest/sha256": "1f1314230d0884186f671172b0786f977e5069af667c41d56d9df66c68ddf3dd"
+        },
+        {
+          "file_manifest/path": "val/data-00110-of-00128.parquet",
+          "file_manifest/bytes": 724076569,
+          "file_manifest/sha256": "25d3d570e02cccefb115a3420ec37802764bb9c46d9d82361ae613b0316957f5"
+        },
+        {
+          "file_manifest/path": "val/data-00111-of-00128.parquet",
+          "file_manifest/bytes": 739934818,
+          "file_manifest/sha256": "7c581cf2c359e42b5c1b5d9184ef1c8d77c410a56339bb811f848900d7338966"
+        },
+        {
+          "file_manifest/path": "val/data-00112-of-00128.parquet",
+          "file_manifest/bytes": 724446707,
+          "file_manifest/sha256": "99bbe21ba9d8434f3fa8924966a187ada863e3e3714fe281395190d36a5a7829"
+        },
+        {
+          "file_manifest/path": "val/data-00113-of-00128.parquet",
+          "file_manifest/bytes": 720136451,
+          "file_manifest/sha256": "0e7949656ec48622f429564f3f26c06fb8b046c5ae67fd1e7af246df441257a3"
+        },
+        {
+          "file_manifest/path": "val/data-00114-of-00128.parquet",
+          "file_manifest/bytes": 717145341,
+          "file_manifest/sha256": "b2eebdb828ee30a9e7395d6f08ec2bfc16270a6fe3e4000d5a59f57eb61c300d"
+        },
+        {
+          "file_manifest/path": "val/data-00115-of-00128.parquet",
+          "file_manifest/bytes": 723709321,
+          "file_manifest/sha256": "b90afd0e0bd2ebe80af0ed8aec6f1c9022f7dc35428fba36bc5613b014030492"
+        },
+        {
+          "file_manifest/path": "val/data-00116-of-00128.parquet",
+          "file_manifest/bytes": 735466293,
+          "file_manifest/sha256": "8c29cde10e0d9023aabd25f77aa61c584381165806c8cbb3cc99197ec7d57ea6"
+        },
+        {
+          "file_manifest/path": "val/data-00117-of-00128.parquet",
+          "file_manifest/bytes": 743125772,
+          "file_manifest/sha256": "a3b35d2f7f52c9ae0470b0395c1887195f319e02eeb1c4e81d307c20afbac857"
+        },
+        {
+          "file_manifest/path": "val/data-00118-of-00128.parquet",
+          "file_manifest/bytes": 736237678,
+          "file_manifest/sha256": "5b6dc9fd9168b324681ad5521114a26db33b557936a9a39d75962c49524906ab"
+        },
+        {
+          "file_manifest/path": "val/data-00119-of-00128.parquet",
+          "file_manifest/bytes": 743444588,
+          "file_manifest/sha256": "136a3947781514a520bd2d6ba0c8ff1436719c00b82948ef314565cf940f3f71"
+        },
+        {
+          "file_manifest/path": "val/data-00120-of-00128.parquet",
+          "file_manifest/bytes": 724076386,
+          "file_manifest/sha256": "f904f09c8d665b6d4a49bb47e4639db46a2b04edfaab3543edd6af2f0698b158"
+        },
+        {
+          "file_manifest/path": "val/data-00121-of-00128.parquet",
+          "file_manifest/bytes": 731848918,
+          "file_manifest/sha256": "e599e78a5c5e119128cb835ab10c00e4d005a071222a460aaf5662283888c555"
+        },
+        {
+          "file_manifest/path": "val/data-00122-of-00128.parquet",
+          "file_manifest/bytes": 717035291,
+          "file_manifest/sha256": "4620acc3860db82c0249be09a14f9a14653e6ce2de813d56a6bda53011c8674a"
+        },
+        {
+          "file_manifest/path": "val/data-00123-of-00128.parquet",
+          "file_manifest/bytes": 707625154,
+          "file_manifest/sha256": "ff02f67de331a99f73fa8e71c6bc4ec44426e88cb535d9beaa104903a06c0606"
+        },
+        {
+          "file_manifest/path": "val/data-00124-of-00128.parquet",
+          "file_manifest/bytes": 715117631,
+          "file_manifest/sha256": "e43ba02e638f399a2a3a8f119c9972bdcee45348a13d6beece5ac52951eeff24"
+        },
+        {
+          "file_manifest/path": "val/data-00125-of-00128.parquet",
+          "file_manifest/bytes": 706579554,
+          "file_manifest/sha256": "1f61e73570725c4c98f85a44a6d5c7d3a37519c52085cdc8859d033da01f513c"
+        },
+        {
+          "file_manifest/path": "val/data-00126-of-00128.parquet",
+          "file_manifest/bytes": 742078558,
+          "file_manifest/sha256": "82607538d37ca16e939e1bebd8845756e8c0f63b16fd6ef4e2abea711e6f9292"
+        },
+        {
+          "file_manifest/path": "val/data-00127-of-00128.parquet",
+          "file_manifest/bytes": 729331805,
+          "file_manifest/sha256": "ea2e2713b982ee0041f6dfe99a9a5c3bcf9bff5e8f3443d042f6564ebd48e092"
+        }
+      ]
+    }
+  ]
+}
