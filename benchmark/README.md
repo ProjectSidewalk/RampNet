@@ -82,13 +82,20 @@ Nine of the eleven splits are published, four configs each — `records`, `nativ
 `galleries` (#21, verified against the live repo 2026-08-17). **The two Laurens arms are in
 `BENCHMARK_SPLITS` but have not been pushed to the Hub yet** — they were built after that
 verification, so the exporter would include them on the next run and the live repo does not
-carry them today. That is a stated gap, not an omission. `scripts/build_benchmark_dataset.py` is the
-two-city predecessor and publishes nothing; don't run it.
+carry them today. That is a stated gap, not an omission. The next `records` push adds their ground
+truth to the `records` config only; their imagery stays unpublished until the imagery configs are
+rebuilt, and the dataset card names them as records-only. `scripts/build_benchmark_dataset.py`, the
+two-city predecessor, was removed in #127; the training-overlap list it carried now lives in
+`benchmark/train_overlap.json`.
 
-What the published copy still does not carry is the reviewer's own commentary: `review_notes` and
-per-pano `note` stay in git here rather than travelling into the parquet rows or the dataset card,
-and Bend's four training-overlap panoramas (below) are unflagged there. Both are tracked in #127 —
-the caveats should reach the audience that runs `load_dataset` and never opens this repo.
+Since #127 the reviewer's own commentary travels with the rows, for the audience that runs
+`load_dataset` and never opens this repo. `scripts/export_benchmark.py` copies each split's
+`review_notes` block onto every `records` row (`reviewer`, `reviewed_at`, `review_confidence`
+verbatim, `review_summary`, `review_caveats`; all null for a split with no block, which means "not
+recorded", not "no caveats"), carries each per-pano `note`, and sets `train_overlap` from
+`benchmark/train_overlap.json` (below). It refuses to export a split that has no entry in that
+file. The copy on the Hub gains these columns at the next `records` push; until then it is the #21
+schema.
 
 The GT gallery and scorer are **canonical in RampNet** (`scripts/gt_gallery.py`,
 `rampnet/validation.py` — decoupled from any imagery source, no network). The auto-labeler
@@ -165,9 +172,12 @@ paper's three training cities. An exact-id check on 2026-07-22 found `6WC0hdAYRs
 reviewed panos — in `rampnet-dataset`'s train/val splits. Dropping them (measured 2026-08-18 with
 `score_validation.py`) moves the headline **0.954 / 0.758 → 0.956 / 0.753** and the unbiased subset
 **0.972 / 0.738 → 0.976 / 0.731**: inside the Wilson intervals both ways, so nothing here rests on
-it. Bend is the only split where this can happen — the other three GSV splits are not training
-cities and Mapillary ids are a different id space — but that is a prediction, not a measurement,
-and the published dataset carries no `train_overlap` column to filter on yet (#127).
+it. `scripts/analysis/train_overlap_check.py` re-ran the exact-id check on 2026-09-26 for all eleven
+splits, the Mapillary ones included, and found the same four in bend and none in any other split
+(`benchmark/train_overlap.json`), so "only bend" is now a measurement rather than a prediction. The
+`records` config carries a `train_overlap` column to filter on (#127), and
+`python scripts/score_validation.py benchmark/bend --exclude-train-overlap` prints the numbers with
+the four dropped; `tests/test_train_overlap.py` pins all four rows above.
 
 **Precision tracks the camera across the US Mapillary splits**, now that every split carries
 `camera_make`/`camera_model`: clovis (100% GoPro Fusion, 2018) 0.914 → richmond (62% iSTAR Pulsar,
@@ -482,12 +492,13 @@ physical ramps. `laurens_gsv` is therefore held out of the pooled basis and the 
 reason is recorded in `HELD_OUT` (`scripts/analysis/miss_decomposition.py`) and the scorers print
 it.
 
-⚠️ **Neither arm carries a `review_notes` block**, so the "high confidence" rating quoted for both
-in `docs/model_comparison.md` lives only in that write-up — not in the artifact, where §1 of
-`RUBRICS.md` says it belongs and where `score_validation.py` looks for it. `annapolis` has the same
-gap; `sao_paulo`, `gainesville` and `budapest_district5` all carry theirs. Writing the three
-missing blocks is an open item, and until it is done the confidence rating for these splits is not
-reproducible from the bundle. The comparison is also **unpaired** — different panorama sets with different ground truth
+⚠️ **Both arms now carry a `review_notes` block (#127), but with `confidence` recorded as
+`unrecorded — reviewer to fill in`.** The blocks hold what the bundles measure — abstained misses,
+strata, and for `laurens_gsv` the unpaired-arm caveat below — and the Mapillary block carries the
+leaf-litter observation behind its three per-pano notes. The "high confidence" rating quoted for
+both arms in `docs/model_comparison.md` is therefore still not in the artifact, where §1 of
+`RUBRICS.md` says it belongs; only the reviewer can write it in. `annapolis` still has no block;
+`budapest_district5`, `gainesville`, `paterson` and `sao_paulo` carry theirs. The comparison is also **unpaired** — different panorama sets with different ground truth
 (249 ramps against 220) — so Δ between the arms compares two samples of one town, not the same
 corner twice. The ~51 corners within 20 m of each other are the paired subset that would turn this
 into a measurement rather than a strong signal; both arms' detections are committed, so that

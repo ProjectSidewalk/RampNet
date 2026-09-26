@@ -364,7 +364,8 @@ This was the last blocker: the imagery half of the benchmark existed only on lab
 `gt_gallery.py`, `miss_gallery.py`, `fp_gallery.py` and any re-rating were unobtainable by anyone
 else. It is now
 [`rampnet-benchmark`](https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark) — 11.41 GB,
-Parquet, **four** configs: `records` (the ground truth, 9 splits), `native` (9), `4096x2048` (9)
+Parquet, **four** configs: `records` (the ground truth, 9 splits on the Hub today, 11 after the
+#127 push adds the two Laurens arms), `native` (9), `4096x2048` (9)
 and `galleries` (**8** — Budapest was not part of the #55 A/B). Each config is one Parquet per
 split at `data/<config>/<city>.parquet`; `load_dataset` reads them by config name, so the paths are
 an implementation detail rather than something to navigate.
