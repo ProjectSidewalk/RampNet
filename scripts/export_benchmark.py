@@ -743,7 +743,7 @@ def verify_against_manifests(out, benchmark, allow_unpinned=False):
         matched, total, " ({} unpinned, allowed)".format(absent) if absent else ""))
 
 
-def card(args):
+def card(args, announce_push=True):
     """Re-render README.md from the template against an already-built package.
 
     Cards get revised far more often than 11 GB of Parquet does, and rebuilding the whole package
@@ -757,7 +757,8 @@ def card(args):
         out / "README.md", len(index), ", ".join(c for c in CONFIG_ORDER if c in index)))
 
     if not args.push:
-        print("Not pushed. Add --push to upload just the card.")
+        if announce_push:
+            print("Not pushed. Add --push to upload just the card.")
         return
     from huggingface_hub import HfApi
     HfApi().upload_file(path_or_fileobj=str(out / "README.md"), path_in_repo="README.md",
@@ -791,7 +792,7 @@ def records(args):
 
     save_index(out, {RECORDS: [row[0] for row in written]})
     wanted_push, args.push = args.push, False
-    card(args)                                   # re-render so the config lands in the YAML
+    card(args, announce_push=False)              # re-render so the config lands in the YAML
     args.push = wanted_push
     print("\nHub commit message: {!r}".format(args.message))
     if not args.push:
