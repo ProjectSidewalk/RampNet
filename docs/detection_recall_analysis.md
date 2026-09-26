@@ -335,7 +335,7 @@ Pooled over the four GSV splits on the depth axis (TP + FP, measured-ground pano
   table in this document.
 
 Other documents that quote the published metre labels, left as they are and pointing here:
-`curb_ramp_data_sourcing.md` §0a (the 18 m far/near boundary at 0.30 over seven splits, five of
+`data_scaling_59.md` §0a (the 18 m far/near boundary at 0.30 over seven splits, five of
 them Mapillary), `operating_point.md` (the near/mid/far bands, already stated as a rank
 statement), `crop_window_eval.md` (flat-ground strata at 2.5 m), `rampnet1_findings.md` and
 `rampnet1_report.md` §6.6 (the recall-by-distance row; its stretch figure is corrected).

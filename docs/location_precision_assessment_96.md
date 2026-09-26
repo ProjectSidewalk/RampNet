@@ -7,6 +7,22 @@ and one to §1–§4 or §6–§10 means `curb_ramp_data_sourcing.md`. This file
 design: it is one numbered assessment diary, and later sections read earlier sections' numbers
 (§5i's triangle reads §5f's), so it is not split further.
 
+> **Start here.**
+>
+> | you want | read |
+> |---|---|
+> | why this is the critical path | §5 |
+> | the temporal gate, and the six cities it has been applied to | §5a–§5c |
+> | per-ramp vs per-corner, without a reviewer | §5d |
+> | Denver: the automated gate, then measured precision | §5e, §5f |
+> | what Stage 1 actually tolerates (the tolerance curve, generated) | §5g |
+> | basemap calibration against the paper's scale | §5h |
+> | Seattle's offset: attributed, then confirmed | §5i, §5l |
+> | the pipeline's own registration error (bearing residual) | §5j |
+> | Charlotte, and the null-date rule that did not generalise | §5k, §5l |
+> | supply is not the constraint; assessment throughput is | §5m |
+> | the street-level review instrument and its pre-registered criteria (#103) | §5n, §5o |
+
 ## 5. The location-precision assessment (the critical path)
 
 The paper's method is **qualitative**: overlay coordinates on aerial imagery, judge alignment

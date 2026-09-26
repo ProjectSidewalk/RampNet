@@ -14,6 +14,19 @@ been run on any new city, and no retrain has been attempted. This is pre-work.
 > **Read §2 first.** The paper already assessed location precision for eight cities, and that
 > assessment — not inventory size — is the binding constraint on everything below.
 
+> **Start here.** Since #145 this document is the sourcing question only; the two long
+> investigations that grew inside it are their own files, with their section numbers kept:
+>
+> | you want | read |
+> |---|---|
+> | would more data buy recall at all: E1, the miss buckets, the far-field anomaly (§0–§0c) | [`data_scaling_59.md`](data_scaling_59.md) |
+> | the corpus today, and the paper's precision assessment (§1, §2) | below |
+> | candidate inventories and Deitz et al. (§3, §4) | below |
+> | the location-precision assessment, city by city (§5–§5o) | [`location_precision_assessment_96.md`](location_precision_assessment_96.md) |
+> | routes to 500k, retrain cost, selection rule (§6–§8) | below |
+> | the frozen inventories in `data/inventories/` (§9) | below |
+> | caveats (§10) | below |
+
 ## 0. E1 result: the harm hypothesis is NOT supported
 
 §0–§0c (E1, how much missing recall more data can reach, the miss buckets, the far-field `visible` anomaly) moved verbatim to [`data_scaling_59.md`](data_scaling_59.md), section numbers unchanged (#145).

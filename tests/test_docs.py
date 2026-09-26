@@ -285,7 +285,8 @@ def test_no_doc_still_hardcodes_the_old_roster_count():
     stale = STALE_ROSTER_PHRASES
     # #145 split the log and the sourcing doc; the moved parts are swept too.
     docs = ("model_comparison.md", "replication.md", "curb_ramp_data_sourcing.md",
-            "running_model_comparison.md", "vistas_transfer_126.md", "claude_legs_122.md")
+            "running_model_comparison.md", "vistas_transfer_126.md", "claude_legs_122.md",
+            "data_scaling_59.md", "location_precision_assessment_96.md")
     for name in docs:
         text = re.sub(r"\s+", " ", (REPO / "docs" / name).read_text("utf-8"))
         for phrase in stale:

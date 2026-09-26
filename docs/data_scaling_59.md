@@ -6,6 +6,16 @@ file name is updated. They answer #59's first question, whether more training da
 recall at all; the sourcing question (which cities, how much each would buy, what a retrain
 costs) stays in that document, and a bare § reference to §1–§10 below means it.
 
+> **Start here.**
+>
+> | you want | read |
+> |---|---|
+> | would scaling the pipeline make far/small misses worse? (E1: no) | §0 |
+> | how much missing recall more data could reach at all | §0a |
+> | which misses are a data problem, and which are not | §0b |
+> | the far-field `visible` misses and the pixel floor | §0c |
+> | what to source next and what it costs | [`curb_ramp_data_sourcing.md`](curb_ramp_data_sourcing.md) |
+
 ## 0. E1 result: the harm hypothesis is NOT supported
 
 Everything below prices out *sourcing*. #59 raised a prior objection — that scaling the same

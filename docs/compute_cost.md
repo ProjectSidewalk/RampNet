@@ -198,7 +198,7 @@ python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
 | 40546727 `sa131_phase1` | `silent_activation.py`, lab allocation | gpu-l40s, L40S on g3104 | 271 s | 0.075 |
 
 The two GPU jobs are the same run twice; both replicas are byte-identical
-([`curb_ramp_data_sourcing.md` §0c](curb_ramp_data_sourcing.md), #131). A pull by job id is the
+([`data_scaling_59.md` §0c](data_scaling_59.md), #131). A pull by job id is the
 right shape for a small experiment: it adds exactly its own rows, so the ledger stays the sum of
 its committed dumps and two experiments pulled the same day cannot re-record each other's jobs.
 (A pull by date range would also have re-recorded the plan-item-4 arms running that day, which
