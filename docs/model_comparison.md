@@ -111,7 +111,7 @@ the two Fable annapolis legs); the two Laurens files were exported with `n_uncac
 machine that ran #151, which never had a recorded `--verify`, and are re-scored from the
 committed detections by `tests/test_claude_published_legs.py` — a different guarantee,
 stated as such. The write-ups are the "Claude on Vertex" section and the "Claude Fable on
-annapolis" section further down, where every result table is re-derived from those files by
+annapolis" section of [`claude_legs_122.md`](claude_legs_122.md), where every result table is re-derived from those files by
 `tests/test_claude_published_legs.py`.
 
 Coverage is not uniform across the six, so it is stated per leg:
@@ -128,8 +128,8 @@ Coverage is not uniform across the six, so it is stated per leg:
   comprehensively would roughly double the bill to re-measure a result we already have,
   which is why it stays at one split. The two Fable legs are annapolis-only for a different
   reason: both clear the pre-registered expansion gate, and the expansion has not been
-  taken — `manual_gold` alone is ~$154–165 per id at their measured rates (§"Claude Fable
-  on annapolis" below).
+  taken — `manual_gold` alone is ~$154–165 per id at their measured rates
+  ([`claude_legs_122.md`](claude_legs_122.md) § "Claude Fable on annapolis").
 
 **The three `y*_pano` rows are the supervised YOLO baseline** (#51), the one part of the
 registry that is not zero-shot. They have run on all ten splits and are scored, but under the
