@@ -18,13 +18,17 @@ drift, naming the file::
 
 Deliberately NOT generated (the tables stay prose, see the #145 PR):
 
-- §5j's bearing-residual table. ``analysis_out/stage1_bearing_residual.json`` stores its
-  values at 4 dp, and two of the table's cells sit exactly on a rounding tie that the
-  published table resolved in opposite directions (Bend ``mean_deg`` 0.0355 printed
-  +0.036, Bend ``se_mean_deg`` 0.1055 printed 0.105) -- it was rendered from unrounded
-  values. No rounding rule reproduces both from the JSON, so generating it would change a
-  published number. TODO(#145): store the bearing-residual JSON at 6 dp on its next
-  re-run, then generate that table here too.
+- §5j's bearing-residual table. This note is the only place that says why: the table sits
+  inside text moved verbatim from ``curb_ramp_data_sourcing.md``, so no note was added
+  beside it. ``analysis_out/stage1_bearing_residual.json`` stores its values at 4 dp, and
+  two of Bend's cells sit exactly on a rounding tie that the published table (rendered
+  from unrounded values) resolved in opposite directions: ``mean_deg`` 0.0355 printed
+  +0.036, ``se_mean_deg`` 0.1055 printed 0.105. The s.e. is recoverable -- ``sd_deg /
+  sqrt(n_residuals)`` = 0.10548 -> 0.105 -- but ``mean_deg`` is not: no committed field
+  reproduces +0.036, so generating the table would change that one published number.
+  ``tests/test_sourcing_tables.py`` checks every other cell against the JSON. TODO(#145):
+  store the bearing-residual JSON at 6 dp on its next re-run, then generate that table
+  here too.
 - TODO(#145): §5f's Denver review table could be fed from the committed
   ``analysis_out/review_denver-co/summary.json``.
 - §1, §2, §3 (endpoint strings and notes are editorial), §5c, §6, §7.
@@ -81,10 +85,25 @@ def offset_tolerance_table(payload):
     return _table(["median offset", "labels lost"], rows, ["---:", "---:"])
 
 
+# Words that end in a period without ending a sentence. A token with a period inside it
+# ("U.S.", "e.g.") is treated the same way without being listed.
+_ABBREVIATIONS = {"approx", "ca", "cf", "etc", "st", "vs"}
+
+
 def _first_sentence(note):
+    """The manifest note up to its first sentence-ending period.
+
+    A period ends the sentence when it is followed by a space or the end of the note and
+    the word it closes is not an abbreviation ("U.S. Census data. Rest" -> "U.S. Census
+    data."). A heuristic, not a parser: an abbreviation missing from ``_ABBREVIATIONS``
+    still truncates, so check the rendered §9 block after adding a manifest.
+    """
     note = (note or "").strip()
     for i, ch in enumerate(note):
         if ch == "." and (i + 1 == len(note) or note[i + 1] == " "):
+            word = note[:i].rsplit(" ", 1)[-1]
+            if "." in word or word.lower() in _ABBREVIATIONS:
+                continue
             return note[:i + 1]
     return note
 
