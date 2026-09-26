@@ -159,13 +159,40 @@ class DetectionCache:
             json.dump({"points": [list(p) for p in points]}, f)
 
 
+#: A bundle that borrows its verdicts from another bundle instead of carrying a copy
+#: (#48). Its ``records.jsonl`` holds the judged panos of ``verdicts_from`` plus
+#: unjudged neighbours; only the judged ones are scored, and ``--detect-unjudged``
+#: runs the detector over the rest so their detections land in the cache.
+BUNDLE_SPEC = "bundle.json"
+
+
+def verdicts_from_spec(bundle_dir):
+    """The verdict panos a ``bundle.json`` bundle points at, read from that bundle.
+
+    Borrowing rather than copying keeps one verdicts.json per review, so the judged
+    panos cannot drift from the published split they came from."""
+    with open(os.path.join(bundle_dir, BUNDLE_SPEC), encoding="utf-8") as f:
+        spec = json.load(f)
+    src = spec.get("verdicts_from")
+    if not src:
+        raise SystemExit(f"{bundle_dir}/{BUNDLE_SPEC}: no 'verdicts_from'")
+    vpath = os.path.normpath(os.path.join(bundle_dir, src, "verdicts.json"))
+    if not os.path.exists(vpath):
+        raise SystemExit(f"{bundle_dir}/{BUNDLE_SPEC}: verdicts_from {src!r} has no "
+                         f"verdicts.json ({vpath})")
+    with open(vpath, encoding="utf-8") as f:
+        return json.load(f)["panos"]
+
+
 def load_bundle(bundle_dir):
     """Return (records_by_pid, verdicts_panos, panos_dir) for a benchmark bundle.
 
     ``verdicts_panos`` is None for a manual-GT bundle (``gt_source.json`` instead
     of ``verdicts.json`` — see ``load_manual_ground_truths``); the city bundles
-    always carry a verdict review. A directory with neither is rejected here so a
-    mistyped path fails with one clear message instead of a downstream KeyError.
+    always carry a verdict review. A ``bundle.json`` bundle (#48) borrows the
+    verdicts of another bundle (``verdicts_from_spec``). A directory with none of
+    the three is rejected here so a mistyped path fails with one clear message
+    instead of a downstream KeyError.
     """
     records = {}
     with open(os.path.join(bundle_dir, "records.jsonl"), encoding="utf-8") as f:
@@ -178,9 +205,11 @@ def load_bundle(bundle_dir):
     if os.path.exists(vpath):
         with open(vpath, encoding="utf-8") as f:
             verdicts = json.load(f)["panos"]
+    elif os.path.exists(os.path.join(bundle_dir, BUNDLE_SPEC)):
+        verdicts = verdicts_from_spec(bundle_dir)
     elif not os.path.exists(os.path.join(bundle_dir, "gt_source.json")):
-        raise SystemExit(f"{bundle_dir}: neither verdicts.json nor gt_source.json — "
-                         "not a benchmark bundle")
+        raise SystemExit(f"{bundle_dir}: neither verdicts.json, {BUNDLE_SPEC} nor "
+                         "gt_source.json — not a benchmark bundle")
     return records, verdicts, os.path.join(bundle_dir, "panos")
 
 
@@ -287,7 +316,7 @@ class UnrecordedSpend(Exception):
 
 def score_model(detector, records, gts, panos_dir, radius_sq, label, city, cache,
                 max_consecutive_failures=10, spend_needs_recording=False,
-                timing=None):
+                timing=None, detect_only=()):
     """Run one detector over every scored pano and aggregate the score.
 
     ``gts`` maps pano id -> GroundTruth (verdict-derived for city bundles,
@@ -308,7 +337,12 @@ def score_model(detector, records, gts, panos_dir, radius_sq, label, city, cache
     inference seconds, and how many panos actually reached the model. It is a
     caller-owned dict rather than a return value on purpose -- a leg that dies
     partway has still spent the time, and the caller reads it from a ``finally``
-    where there is no ModelRun to read (#143)."""
+    where there is no ModelRun to read (#143).
+
+    ``detect_only`` lists panos with no ground truth (#48's neighbourhood bundles):
+    after the scored panos, each is run through the detector and cached, and never
+    scored. It is skipped for a detector with no signature, which has no cache to
+    fill (the RampNet baseline replays its records)."""
     if timing is None:
         timing = {}
     # panos_called counts ATTEMPTS, not successes: a call that raised still spent
@@ -318,8 +352,9 @@ def score_model(detector, records, gts, panos_dir, radius_sq, label, city, cache
     timing.setdefault("detect_s", 0.0)
     timing.setdefault("panos_called", 0)
     sig = detector.signature() if hasattr(detector, "signature") else None
+    detect_only = [pid for pid in detect_only if pid not in gts] if sig is not None else []
     keys = {pid: (cache_key(label, sig, city, pid) if sig is not None else None)
-            for pid in gts}
+            for pid in list(gts) + detect_only}
     cached = {pid: (cache.get(k) if k else None) for pid, k in keys.items()}
     if not cached or any(p is None for p in cached.values()):
         # This leg WILL call the API. If it is a paid one and nothing is recording
@@ -372,6 +407,29 @@ def score_model(detector, records, gts, panos_dir, radius_sq, label, city, cache
                 cache.put(key, preds)
         scored.append((preds, gt))
         pano_scores.append(score_pano(preds, gt, radius_sq=radius_sq))
+    aborted = bool(failures) and failures[-1][0] == "<abort>"
+    for pid in ([] if aborted else detect_only):
+        if cached[pid] is not None:
+            continue
+        rec = records[pid]
+        sample = PanoSample(pano_id=pid, image_path=os.path.join(panos_dir, f"{pid}.jpg"),
+                            width=rec["pano"].get("width"),
+                            height=rec["pano"].get("height"), meta=rec["pano"])
+        t_pano = perf_counter()
+        try:
+            preds = detector.detect(sample)
+        except Exception as e:  # same isolation as the scored loop above
+            failures.append((pid, f"{type(e).__name__}: {str(e)[:120]}"))
+            consecutive += 1
+            if consecutive >= max_consecutive_failures:
+                failures.append(("<abort>", f"{consecutive} consecutive failures; stopped early"))
+                break
+            continue
+        finally:
+            timing["detect_s"] += perf_counter() - t_pano
+            timing["panos_called"] += 1
+        consecutive = 0
+        cache.put(keys[pid], preds)
     timing["detect_s"] = round(timing["detect_s"], 3)
     return ModelRun(aggregate(pano_scores), failures, scored)
 
@@ -845,6 +903,11 @@ def build_parser():
                                      "combined PNG when matplotlib is installed).")
     ap.add_argument("--limit", type=int,
                     help="Score at most N panos (smoke test / cost control for VLM runs).")
+    ap.add_argument("--detect-unjudged", action="store_true",
+                    help="Also run each model over the bundle's panos that have no verdicts "
+                         "and cache their detections, unscored (#48 neighbourhood bundles, "
+                         "whose bundle.json borrows another split's verdicts). With --limit, "
+                         "at most N of them too.")
     ap.add_argument("--cache-dir", default=str(REPO_ROOT / ".model_cache"),
                     help="Where to cache per-pano detections (keyed by model + rig + pano). "
                          "Re-runs reuse hits and don't re-pay the API.")
@@ -918,8 +981,14 @@ def main():
     # spend anything (a fully cached leg skips the model load and makes no calls).
     spend_needs_recording = usage_log is None and not args.allow_unrecorded_spend
 
-    print(f"Bundle: {args.bundle}  ({len(gts)} scored panos)  "
-          f"match radius {args.radius}  ground truth: {gt_desc}")
+    detect_only = []
+    if args.detect_unjudged:
+        detect_only = [pid for pid in records if pid not in gts]
+        if args.limit:
+            detect_only = detect_only[:args.limit]
+    print(f"Bundle: {args.bundle}  ({len(gts)} scored panos"
+          + (f", {len(detect_only)} unjudged detect-only" if args.detect_unjudged else "")
+          + f")  match radius {args.radius}  ground truth: {gt_desc}")
     print(f"Detection cache: {'off' if args.no_cache else args.cache_dir}\n")
 
     rows, runs = [], []
@@ -937,7 +1006,8 @@ def main():
         try:
             run = score_model(
                 detector, records, gts, panos_dir, radius_sq, label, city, cache,
-                spend_needs_recording=spend_needs_recording, timing=timing)
+                spend_needs_recording=spend_needs_recording, timing=timing,
+                detect_only=detect_only)
         except UnrecordedSpend:
             # Not a "this model is not runnable here" condition: it is a deliberate
             # refusal, and swallowing it would let the next paid leg in the list

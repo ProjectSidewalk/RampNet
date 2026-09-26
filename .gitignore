@@ -275,3 +275,18 @@ analysis_out/input_res_sweep_25/*
 analysis_out/input_res_sweep_25/cache/*
 !analysis_out/input_res_sweep_25/cache/*/
 !analysis_out/input_res_sweep_25/cache/*/*.json
+
+# #48 multi-view evidence (scripts/analysis/multiview_evidence_48.py and
+# multiview_challengers_48.py): the per-(ramp, capture) table, the result JSONs, the
+# empty-then-filled one-rater verdicts, and the challenger detections, fused sites and
+# scores, so every number in docs/multiview_48.md re-derives on CPU without the labeler
+# runs or a GPU. Crops for the gallery live under benchmark/multiview_residual_48/.
+!analysis_out/multiview_48/
+analysis_out/multiview_48/*
+!analysis_out/multiview_48/*.json
+!analysis_out/multiview_48/*.csv
+!analysis_out/multiview_48/challengers/
+analysis_out/multiview_48/challengers/*
+!analysis_out/multiview_48/challengers/*.json
+!analysis_out/multiview_48/challengers/*.jsonl
+!analysis_out/multiview_48/challengers/detections/

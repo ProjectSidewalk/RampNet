@@ -1,0 +1,22 @@
+{
+ "imagery": "native-res labeler archive on makelab2: /projects/makeabilitylab/sidewalk-auto-labeler/runs/richmond/panos/<pano_id>.jpg (linked into panos/ by multiview_challengers_48.sh)",
+ "issue": "ProjectSidewalk/RampNet#48",
+ "kind": "neighbourhood",
+ "labeler": {
+  "files": {
+   "depth.py": "fb1481eac5d3eb58b15a7fa0a64a739c7ebc138f683794ffda6ad87c58f8ab5b",
+   "detectors/__init__.py": "5209ca3fd523f4374cc0dbe4477d8586984668b2e72bea646f7b36e69e2bdf55",
+   "geo.py": "c60fe4bf3152df88297345bded4226ec5b40f83e1eb9a1391849a70158b3e919",
+   "scripts/eval_sites.py": "2ae4852c2dd5f2b390310d6b708cb6aea7f74e9c9ca3c85879f67e287dcb8110",
+   "scripts/fuse_sites.py": "f5924529d88fb1b437ea5e03a0e8e46b24af76d1cb608cbd5c4a4aa5e90cb924"
+  }
+ },
+ "labeler_results_sha256": "109e7645ebf5ab982d2cc1388b50e837f6d622a4ff14752c1895b194a5c0d88c",
+ "n_judged": 124,
+ "n_panos": 1560,
+ "pool_ramps": 253,
+ "radius_m": 20.0,
+ "records_sha256": "26c2ada303556056b74664b3ca81f4743a24decf54e8670fbad2c71c5bd641cd",
+ "rule": "every labeler-run pano whose camera is within 20 m of a world GT ramp in eval_sites' Richmond recall pool, plus every judged pano; judged records verbatim from benchmark/richmond",
+ "verdicts_from": "../richmond"
+}
