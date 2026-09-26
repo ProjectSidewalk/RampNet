@@ -3,11 +3,14 @@
 The Mapillary Vistas arms: the supervised-transfer baseline, its instrument checks, the
 richmond result, resolution parity, complementarity with RampNet, and the cascade gate.
 Moved verbatim from [`model_comparison.md`](model_comparison.md) under #145, where it sat under
-§ "What each model class buys you"; heading levels are unchanged, so the document starts at
-`###`. "Above" and "below" in the moved text refer to `model_comparison.md` when the thing
-they point at is not in this file. The "Result: richmond" table stays hand-maintained (it is a
+§ "What each model class buys you"; heading levels are unchanged, so the moved `###`
+sections sit under the one `##` below, added so the outline has no skipped level. "Above" and
+"below" in the moved text refer to `model_comparison.md` when the thing they point at is not
+in this file. The "Result: richmond" table stays hand-maintained (it is a
 cross-model table for one split); `tests/test_scoreboard.py` checks every row of it against the
 scorer.
+
+## The Vistas arms
 
 ### Supervised transfer: Mapillary Vistas (#126)
 
