@@ -1364,7 +1364,7 @@ fields cannot be mis-ordered without being obviously wrong. The convention is ex
 sizes give different normalized points — the guard against someone "simplifying" it to a
 fixed 1000 divisor.
 
-Because the tool cannot be marked `strict: True` (org policy, above), the schema is a hint
+Because the tool cannot be marked `strict: True` (org policy, [`running_model_comparison.md`](running_model_comparison.md) § "Claude on Vertex (#122)"), the schema is a hint
 rather than a contract, so the parser is total: a non-object item, a missing key, an
 unparseable number, `{"boxes": null}`, a bare array, or a prose refusal each yield no boxes
 instead of raising. `dump_detections.py` applies the same tolerance, so the mapping gate
