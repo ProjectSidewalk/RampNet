@@ -1,7 +1,7 @@
 """Are a city's ramp coordinates shifted relative to that city's OWN streets?
 
 The attribution half of the location-precision gate (issues #96, #59). See
-``docs/curb_ramp_data_sourcing.md`` §5i.
+``docs/location_precision_assessment_96.md`` §5i.
 
 Seattle's review sheet produced a **systematic** offset — mean vector 2.06 m of a
 2.37 m mean magnitude, 87% systematic, the ramp west of the published point in 9

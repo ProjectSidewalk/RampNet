@@ -56,7 +56,7 @@ with no cloud access at all, long after the metric has aged out.
         --from-series docs/data/vertex_minute_series/claude-opus-5_2026-08-15.json \\
         --per-pano-input 12186 --anchor-low-ratio 0.034908
 
-The numbers it produced are transcribed into ``docs/model_comparison.md`` section
+The numbers it produced are transcribed into ``docs/claude_legs_122.md`` section
 "Reproducing these four legs".
 """
 import argparse

@@ -149,14 +149,14 @@ would serve, and its labels agree with hand labels at 0.94 precision as publishe
 points count as false positives and matching claims the nearest unclaimed ramp (#172), and 0.93 recall. No other curb-ramp dataset of this size exists.
 The Stage 1 label recall, stratified by distance, is flatter than the detector's own recall (0.78
 at 25 to 40 m against the model's 0.49), so the labels are not the ceiling the detector is hitting
-(`curb_ramp_data_sourcing.md` §0). That is an in-distribution result: the gold set is drawn from
+(`data_scaling_59.md` §0). That is an in-distribution result: the gold set is drawn from
 the NYC/Portland/Bend test split, so it says nothing about the out-of-distribution failure
 vocabularies of §6.10.
 
 **Government coordinates as priors.** Stage 1 consumes the published coordinate only for its
 bearing from the panorama; range is computed and discarded. The tolerance is therefore angular,
 ±18.37°, and a coordinate error of 0.29 m (Denver) costs 0.25% of labels while 1.75 m (Seattle)
-costs 8.87% (`curb_ramp_data_sourcing.md` §5g for Denver's tolerance curve, §5l for Seattle's own
+costs 8.87% (`location_precision_assessment_96.md` §5g for Denver's tolerance curve, §5l for Seattle's own
 measured loss; §5g's curve read at 1.74 m gives 16.5%, because it scales Denver's distribution). That is why "location precision" was the paper's
 gate for admitting a city, and why it remains the gate for scaling (§6.10). It is also the
 advantage no zero-shot model has: RampNet's training labels come from a source that knows where
@@ -440,7 +440,7 @@ of 327 GT points), whose flat-axis recall differs from the excluded panoramas' b
 points.
 
 **Mechanism.** Of the 427 misses at 0.30 across the seven US splits
-(`curb_ramp_data_sourcing.md` §0a–§0c, [#46](https://github.com/ProjectSidewalk/RampNet/issues/46)):
+(`data_scaling_59.md` §0a–§0c, [#46](https://github.com/ProjectSidewalk/RampNet/issues/46)):
 
 | bucket | share | what it is |
 |---|--:|---|
@@ -488,7 +488,7 @@ were wrong and are recorded in §7.
 Mapillary Vistas' public Mask2Former checkpoint carries a `Curb Cut` class. Run on richmond at
 input parity (1024×1024 views), it reaches F1 0.534 (P 0.383 / R 0.884 / AP 0.649) against
 RampNet's 0.855; the published 384×384 run was 0.517, so the resolution handicap was real and was
-not the reason it does not compete (`model_comparison.md`, "Supervised transfer";
+not the reason it does not compete (`vistas_transfer_126.md`, "Supervised transfer";
 [#126](https://github.com/ProjectSidewalk/RampNet/issues/126)). Two things about it matter for
 2.0. It out-recalls RampNet (0.884 vs 0.768 at 0.55), and after re-basing RampNet at 0.30 and
 discounting chance it finds about 30 of the 53 ramps RampNet misses on that split. And a naive
@@ -622,7 +622,7 @@ Things this report states as caveats rather than resolves:
 - **`silent_activation.json` now has two provenances**: the RTX 3070 original and a klone L40S
   replica from the published inputs ([#131](https://github.com/ProjectSidewalk/RampNet/issues/131),
   2026-09-24). Every number §6.6's 8/62/30 split rests on reproduces; the raw activations differ
-  by at most 7 × 10⁻⁵ (`curb_ramp_data_sourcing.md` §0c).
+  by at most 7 × 10⁻⁵ (`data_scaling_59.md` §0c).
 - **The YOLO baseline is untuned**, so the 0.016 gap is against a lower bound; a tuned schedule
   is a different recipe with its own replicates
   ([#90](https://github.com/ProjectSidewalk/RampNet/issues/90) and
