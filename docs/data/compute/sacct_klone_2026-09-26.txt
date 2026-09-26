@@ -1,0 +1,5 @@
+40599892|ctx_downsample|klone|ckpt-all|ckpt|COMPLETED|2026-09-25T07:54:00|2026-09-25T07:54:06|2026-09-25T08:05:58|712|billing=4,cpu=4,mem=8G,node=1|1|0:0
+40599914|ctx_fov25px57|klone|gpu-l40s|normal|COMPLETED|2026-09-25T07:54:29|2026-09-25T08:06:07|2026-09-25T11:26:12|12005|billing=8,cpu=8,gres/gpu:l40s=1,gres/gpu=1,mem=48G,node=1|1|0:0
+40599915|ctx_fov25px122|klone|gpu-l40s|normal|COMPLETED|2026-09-25T07:54:29|2026-09-25T11:26:15|2026-09-25T14:47:09|12054|billing=8,cpu=8,gres/gpu:l40s=1,gres/gpu=1,mem=48G,node=1|1|0:0
+40599943|ctx_fov25_s87|klone|gpu-l40s|normal|COMPLETED|2026-09-25T07:58:08|2026-09-25T14:47:23|2026-09-25T18:19:08|12705|billing=8,cpu=8,gres/gpu:l40s=1,gres/gpu=1,mem=48G,node=1|1|0:0
+40599944|ctx_fov90_s87|klone|gpu-l40s|normal|COMPLETED|2026-09-25T07:58:08|2026-09-25T18:19:27|2026-09-25T21:43:12|12225|billing=8,cpu=8,gres/gpu:l40s=1,gres/gpu=1,mem=48G,node=1|1|0:0

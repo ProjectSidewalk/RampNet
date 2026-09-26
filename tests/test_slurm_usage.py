@@ -30,6 +30,7 @@ TILLICUM_DUMP = os.path.join(REPO_ROOT, "docs", "data", "compute",
 KLONE_DUMP_SA131 = os.path.join(REPO_ROOT, "docs", "data", "compute",
                                 "sacct_klone_2026-09-24_sa131.txt")
 KLONE_DUMP_CTX = os.path.join(REPO_ROOT, "docs", "data", "compute", "sacct_klone_2026-09-24.txt")
+KLONE_DUMP_CTX2 = os.path.join(REPO_ROOT, "docs", "data", "compute", "sacct_klone_2026-09-26.txt")
 HYAKUSAGE_REPORT = os.path.join(REPO_ROOT, "docs", "data", "compute",
                                 "hyakusage_tillicum_2026-09-21.txt")
 
@@ -352,14 +353,15 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
     for dump, cluster, stamp in ((KLONE_DUMP, "klone", "2026-08-19T"),
                                  (TILLICUM_DUMP, "tillicum", "2026-09-21T"),
                                  (KLONE_DUMP_SA131, "klone", "2026-09-24T"),
-                                 (KLONE_DUMP_CTX, "klone", "2026-09-24T")):
+                                 (KLONE_DUMP_CTX, "klone", "2026-09-24T"),
+                                 (KLONE_DUMP_CTX2, "klone", "2026-09-26T")):
         with open(dump, encoding="utf-8") as fh:
             rows = parse_sacct(fh.read(), cluster=cluster, user="jfroehli")
         parsed += rows
         stamps += [stamp] * len(rows)
     committed = ledger.read_rows(os.path.join(REPO_ROOT, "analysis_out",
                                               "compute_log.jsonl"))
-    assert len(committed) == len(parsed) == 3990 + 38 + 3 + 5
+    assert len(committed) == len(parsed) == 3990 + 38 + 3 + 5 + 5
     for have, want, stamp in zip(committed, parsed, stamps):
         have = dict(have)
         assert have.pop("recorded_at").startswith(stamp)
@@ -376,6 +378,16 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
     assert all(r["state"] == "COMPLETED" and r["est_cost_usd"] == 0.0 for r in ctx)
     assert [r["gpus"] for r in ctx] == [0, 1, 1, 1, 1]
     assert round(sum(r["gpu_hours"] for r in ctx), 2) == 16.54
+    # The context experiment's second pull (2026-09-26, PR #187): the CPU downsample on ckpt,
+    # the two resolution arms and the seed-87 pair, all on the lab's L40S allocation, all
+    # COMPLETED, free. 13.61 GPU-hours; docs/context_fov_86.md section 5 reads these rows.
+    ctx2 = [r for r in committed if r["cluster"] == "klone"
+            and r["job_id"] in {"40599892", "40599914", "40599915", "40599943", "40599944"}]
+    assert [r["job_name"] for r in ctx2] == ["ctx_downsample", "ctx_fov25px57", "ctx_fov25px122",
+                                             "ctx_fov25_s87", "ctx_fov90_s87"]
+    assert all(r["state"] == "COMPLETED" and r["est_cost_usd"] == 0.0 for r in ctx2)
+    assert [r["gpus"] for r in ctx2] == [0, 1, 1, 1, 1]
+    assert round(sum(r["gpu_hours"] for r in ctx2), 2) == 13.61
     # The #131 replication: a CPU unpack on ckpt plus the same GPU job twice, once on the
     # lab's L40S allocation and once as a ckpt copy, both COMPLETED, free. 0.22 GPU-hours.
     # Selected by job id, not by position: another PR appending its own dump after the
@@ -465,6 +477,12 @@ def test_from_file_prints_the_dump_hash_and_the_doc_pins_the_committed_one(
     assert hashlib.sha256(raw_c).hexdigest() in re.findall(r"sha256\s+`([0-9a-f]{64})`", doc)
     assert f"({len(raw_c):,} bytes" in doc
     assert raw_c.count(b"\r\n") == 0
+    # ...and the 2026-09-26 klone pull for the context experiment's resolution and seed arms.
+    with open(KLONE_DUMP_CTX2, "rb") as fh:
+        raw_c2 = fh.read()
+    assert hashlib.sha256(raw_c2).hexdigest() in re.findall(r"sha256\s+`([0-9a-f]{64})`", doc)
+    assert f"({len(raw_c2):,} bytes" in doc
+    assert raw_c2.count(b"\r\n") == 0
     # The pin only holds if git never normalises the dump's line endings: a
     # core.autocrlf=true clone checks it out CRLF and the hash above fails for a
     # file that is byte-correct. So .gitattributes must mark it -text (or binary),
