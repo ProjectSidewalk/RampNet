@@ -455,7 +455,9 @@ def cmd_extract(args):
         done_cities.append(city)
         print(f"{city} done; elapsed so far "
               + ", ".join(f"{a}={arm_stats[a]['elapsed_s']:.0f}s" for a in arms)
-              + f", decode={decode_s:.0f}s", flush=True)
+              + f", decode={decode_s:.0f}s"
+              + (f", peak GPU mem {torch.cuda.max_memory_allocated() / 2**30:.1f} GiB"
+                 if device.type == "cuda" else ""), flush=True)
 
     if args.usage_log.lower() != "none" and done_cities:
         rows = usage_rows({a: s for a, s in arm_stats.items() if s["panos_scored"]},
