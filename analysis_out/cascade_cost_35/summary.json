@@ -1,4 +1,11 @@
 {
+ "calibration": {
+  "expected_false_viable": 1.12439,
+  "max_false_viable_rate": 0.3,
+  "note": "sum over pairs of the per-pair false-VIABLE rate of wrong-pano challengers: the number of VIABLE verdicts expected if no challenger were aligned with the panos. Per-pair rates are not family-wise calibrated; this sum is the family-wise read.",
+  "pairs": 137,
+  "pairs_with_any_false_viable": 13
+ },
  "fixed_setting_rule": {
   "c_min": "q50",
   "r_gate": 0.011,
@@ -22,11 +29,14 @@
     0.022,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.6-flash",
    "fixed": {
     "F1": 0.855634,
     "attr_dR": 0.015816,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.008386,
       0.01375
@@ -35,6 +45,7 @@
       0.003401,
       0.032374
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -54,6 +65,21 @@
    "n_gt": 294,
    "n_viable_rows": 1,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.045413
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.023945
+    ],
+    "dR_ci95": [
+     0.0,
+     0.050676
+    ],
+    "viable_frac": 0.576
+   },
    "split": "annapolis",
    "thr_best_F1": 0.855596,
    "thr_best_t": 0.31,
@@ -63,6 +89,7 @@
     "F1": 0.86014,
     "attr_dR": 0.022959,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.008204,
       0.023367
@@ -71,6 +98,7 @@
       0.007246,
       0.050909
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -98,11 +126,14 @@
     0.022,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.1-pro-preview",
    "fixed": {
     "F1": 0.859155,
     "attr_dR": 0.018707,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.005602,
       0.019502
@@ -111,6 +142,7 @@
       0.003846,
       0.040134
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -130,6 +162,21 @@
    "n_gt": 294,
    "n_viable_rows": 1,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.048323
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.023984
+    ],
+    "dR_ci95": [
+     0.0,
+     0.055944
+    ],
+    "viable_frac": 0.684
+   },
    "split": "annapolis",
    "thr_best_F1": 0.855596,
    "thr_best_t": 0.31,
@@ -139,6 +186,7 @@
     "F1": 0.860627,
     "attr_dR": 0.02466,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.00727,
       0.024296
@@ -147,6 +195,7 @@
       0.010909,
       0.055363
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -174,11 +223,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "Qwen/Qwen3-VL-8B-Instruct",
    "fixed": {
     "F1": 0.84007,
     "attr_dR": 0.00102,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.024023,
       -0.002757
@@ -187,6 +239,7 @@
       0.0,
       0.010989
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -206,6 +259,21 @@
    "n_gt": 294,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.021082
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.000953
+    ],
+    "dR_ci95": [
+     0.0,
+     0.026119
+    ],
+    "viable_frac": 0.031
+   },
    "split": "annapolis",
    "thr_best_F1": 0.855596,
    "thr_best_t": 0.31,
@@ -224,11 +292,14 @@
     0.022,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "Qwen/Qwen3-VL-32B-Instruct",
    "fixed": {
     "F1": 0.848485,
     "attr_dR": -0.00068,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.01028,
       0.0
@@ -237,6 +308,7 @@
       0.0,
       0.0
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -256,6 +328,21 @@
    "n_gt": 294,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.021626
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.00846
+    ],
+    "dR_ci95": [
+     0.0,
+     0.027778
+    ],
+    "viable_frac": 0.0445
+   },
    "split": "annapolis",
    "thr_best_F1": 0.855596,
    "thr_best_t": 0.31,
@@ -274,11 +361,14 @@
     0.022,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "allenai/Molmo2-8B",
    "fixed": {
     "F1": 0.833333,
     "attr_dR": 0.005272,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.034551,
       -0.004897
@@ -287,6 +377,7 @@
       0.0,
       0.017606
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -306,6 +397,21 @@
    "n_gt": 294,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.027013
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.001687
+    ],
+    "dR_ci95": [
+     0.0,
+     0.034056
+    ],
+    "viable_frac": 0.037
+   },
    "split": "annapolis",
    "thr_best_F1": 0.855596,
    "thr_best_t": 0.31,
@@ -324,11 +430,14 @@
     0.011,
     0.181258
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.05,
    "challenger": "google/owlv2-large-patch14-ensemble",
    "fixed": {
     "F1": 0.825291,
     "attr_dR": 0.014626,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.04879,
       -0.006398
@@ -337,6 +446,7 @@
       0.016194,
       0.053872
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -356,6 +466,21 @@
    "n_gt": 294,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.034712
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.017857
+    ],
+    "dR_ci95": [
+     0.0,
+     0.057554
+    ],
+    "viable_frac": 0.487
+   },
    "split": "annapolis",
    "thr_best_F1": 0.855596,
    "thr_best_t": 0.31,
@@ -374,11 +499,14 @@
     0.044,
     0.173558
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "IDEA-Research/grounding-dino-base",
    "fixed": {
     "F1": 0.826891,
     "attr_dR": 0.014796,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.046174,
       -0.006449
@@ -387,6 +515,7 @@
       0.010453,
       0.045775
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -406,6 +535,21 @@
    "n_gt": 294,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.035959
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.015143
+    ],
+    "dR_ci95": [
+     0.0,
+     0.067857
+    ],
+    "viable_frac": 0.366
+   },
    "split": "annapolis",
    "thr_best_F1": 0.855596,
    "thr_best_t": 0.31,
@@ -424,11 +568,14 @@
     0.022,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.7-flash",
    "fixed": {
     "F1": 0.85968,
     "attr_dR": 0.012075,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.00101,
       0.01598
@@ -437,6 +584,7 @@
       0.003058,
       0.02847
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -456,6 +604,21 @@
    "n_gt": 294,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.035849
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.020697
+    ],
+    "dR_ci95": [
+     0.0,
+     0.041139
+    ],
+    "viable_frac": 0.3185
+   },
    "split": "annapolis",
    "thr_best_F1": 0.855596,
    "thr_best_t": 0.31,
@@ -474,11 +637,14 @@
     0.044,
     0.076899
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y11l_pano",
    "fixed": {
     "F1": 0.851064,
     "attr_dR": 0.006293,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.010032,
       0.006523
@@ -487,6 +653,7 @@
       0.0,
       0.017182
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -506,6 +673,21 @@
    "n_gt": 294,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.037745
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.018675
+    ],
+    "dR_ci95": [
+     0.0,
+     0.04321
+    ],
+    "viable_frac": 0.562
+   },
    "split": "annapolis",
    "thr_best_F1": 0.855596,
    "thr_best_t": 0.31,
@@ -524,11 +706,14 @@
     0.022,
     0.246225
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y11x_pano_h200",
    "fixed": {
     "F1": 0.852575,
     "attr_dR": 0.006122,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.007938,
       0.007351
@@ -537,6 +722,7 @@
       0.0,
       0.017182
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -556,6 +742,21 @@
    "n_gt": 294,
    "n_viable_rows": 6,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.044915
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.021699
+    ],
+    "dR_ci95": [
+     0.0,
+     0.05102
+    ],
+    "viable_frac": 0.774
+   },
    "split": "annapolis",
    "thr_best_F1": 0.855596,
    "thr_best_t": 0.31,
@@ -565,6 +766,7 @@
     "F1": 0.85913,
     "attr_dR": 0.02619,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.00809,
       0.019334
@@ -573,6 +775,7 @@
       0.012903,
       0.049669
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -600,11 +803,14 @@
     0.044,
     0.073655
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y26_pano",
    "fixed": {
     "F1": 0.845614,
     "attr_dR": 0.009354,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.019764,
       0.004159
@@ -613,6 +819,7 @@
       0.0,
       0.022581
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -632,6 +839,21 @@
    "n_gt": 294,
    "n_viable_rows": 2,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.038051
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.018938
+    ],
+    "dR_ci95": [
+     0.0,
+     0.048701
+    ],
+    "viable_frac": 0.591
+   },
    "split": "annapolis",
    "thr_best_F1": 0.855596,
    "thr_best_t": 0.31,
@@ -641,6 +863,7 @@
     "F1": 0.854167,
     "attr_dR": 0.020918,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.01283,
       0.014739
@@ -649,6 +872,7 @@
       0.010526,
       0.045752
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -676,11 +900,14 @@
     0.044,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "claude-opus-5-effort-low",
    "fixed": {
     "F1": 0.84965,
     "attr_dR": 0.015306,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.015422,
       0.008783
@@ -689,6 +916,7 @@
       0.003636,
       0.031847
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -708,6 +936,21 @@
    "n_gt": 294,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.052159
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.017601
+    ],
+    "dR_ci95": [
+     0.0,
+     0.069767
+    ],
+    "viable_frac": 0.597
+   },
    "split": "annapolis",
    "thr_best_F1": 0.855596,
    "thr_best_t": 0.31,
@@ -726,11 +969,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "claude-opus-5-effort-high",
    "fixed": {
     "F1": 0.843373,
     "attr_dR": 0.020918,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.026557,
       0.006132
@@ -739,6 +985,7 @@
       0.009404,
       0.039867
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -758,6 +1005,21 @@
    "n_gt": 294,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.037282
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.013484
+    ],
+    "dR_ci95": [
+     0.0,
+     0.050336
+    ],
+    "viable_frac": 0.4065
+   },
    "split": "annapolis",
    "thr_best_F1": 0.855596,
    "thr_best_t": 0.31,
@@ -776,11 +1038,14 @@
     0.044,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "claude-sonnet-5-effort-low",
    "fixed": {
     "F1": 0.850534,
     "attr_dR": 0.002721,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.009187,
       0.004175
@@ -789,6 +1054,7 @@
       0.0,
       0.010989
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -808,6 +1074,21 @@
    "n_gt": 294,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.028662
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.013941
+    ],
+    "dR_ci95": [
+     0.0,
+     0.0347
+    ],
+    "viable_frac": 0.195
+   },
    "split": "annapolis",
    "thr_best_F1": 0.855596,
    "thr_best_t": 0.31,
@@ -826,11 +1107,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "claude-sonnet-5-effort-high",
    "fixed": {
     "F1": 0.846561,
     "attr_dR": 0.005612,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.016353,
       0.00297
@@ -839,6 +1123,7 @@
       0.0,
       0.017301
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -858,6 +1143,21 @@
    "n_gt": 294,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.026568
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.008035
+    ],
+    "dR_ci95": [
+     0.0,
+     0.034364
+    ],
+    "viable_frac": 0.113
+   },
    "split": "annapolis",
    "thr_best_F1": 0.855596,
    "thr_best_t": 0.31,
@@ -876,11 +1176,14 @@
     0.044,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "claude-fable-5-1-effort-low-anthropic",
    "fixed": {
     "F1": 0.855652,
     "attr_dR": 0.02551,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.012044,
       0.017811
@@ -889,6 +1192,7 @@
       0.010381,
       0.047022
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -908,6 +1212,21 @@
    "n_gt": 294,
    "n_viable_rows": 4,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.050733
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.023832
+    ],
+    "dR_ci95": [
+     0.0,
+     0.063333
+    ],
+    "viable_frac": 0.8315
+   },
    "split": "annapolis",
    "thr_best_F1": 0.855596,
    "thr_best_t": 0.31,
@@ -917,6 +1236,7 @@
     "F1": 0.860627,
     "attr_dR": 0.022789,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.006507,
       0.0215
@@ -925,6 +1245,7 @@
       0.013514,
       0.049834
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -952,11 +1273,14 @@
     0.044,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "claude-fable-5-effort-low-anthropic",
    "fixed": {
     "F1": 0.847636,
     "attr_dR": 0.010714,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.017031,
       0.006414
@@ -965,6 +1289,7 @@
       0.003155,
       0.027682
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -984,6 +1309,21 @@
    "n_gt": 294,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.04139
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.018858
+    ],
+    "dR_ci95": [
+     0.0,
+     0.053892
+    ],
+    "viable_frac": 0.548
+   },
    "split": "annapolis",
    "thr_best_F1": 0.855596,
    "thr_best_t": 0.31,
@@ -1002,11 +1342,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.6-flash",
    "fixed": {
     "F1": 0.869427,
     "attr_dR": 0.010245,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.009674,
       0.007642
@@ -1015,6 +1358,7 @@
       0.002865,
       0.025
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -1034,6 +1378,21 @@
    "n_gt": 327,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.022491
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.006658
+    ],
+    "dR_ci95": [
+     0.0,
+     0.025478
+    ],
+    "viable_frac": 0.0585
+   },
    "split": "bend",
    "thr_best_F1": 0.872666,
    "thr_best_t": 0.5,
@@ -1052,11 +1411,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.1-pro-preview",
    "fixed": {
     "F1": 0.870813,
     "attr_dR": 0.010856,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.00797,
       0.00936
@@ -1065,6 +1427,7 @@
       0.002725,
       0.025723
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -1084,6 +1447,21 @@
    "n_gt": 327,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.027995
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.008945
+    ],
+    "dR_ci95": [
+     0.0,
+     0.032448
+    ],
+    "viable_frac": 0.194
+   },
    "split": "bend",
    "thr_best_F1": 0.872666,
    "thr_best_t": 0.5,
@@ -1102,11 +1480,14 @@
     0.022,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "Qwen/Qwen3-VL-8B-Instruct",
    "fixed": {
     "F1": 0.868167,
     "attr_dR": 0.002446,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.008543,
       0.003663
@@ -1115,6 +1496,7 @@
       0.0,
       0.009836
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -1134,6 +1516,21 @@
    "n_gt": 327,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.028308
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.013381
+    ],
+    "dR_ci95": [
+     0.0,
+     0.034483
+    ],
+    "viable_frac": 0.1655
+   },
    "split": "bend",
    "thr_best_F1": 0.872666,
    "thr_best_t": 0.5,
@@ -1152,11 +1549,14 @@
     0.044,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "Qwen/Qwen3-VL-32B-Instruct",
    "fixed": {
     "F1": 0.870968,
     "attr_dR": 0.002294,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.003903,
       0.00535
@@ -1165,6 +1565,7 @@
       0.0,
       0.009836
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -1184,6 +1585,21 @@
    "n_gt": 327,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.025487
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.012421
+    ],
+    "dR_ci95": [
+     0.0,
+     0.029412
+    ],
+    "viable_frac": 0.097
+   },
    "split": "bend",
    "thr_best_F1": 0.872666,
    "thr_best_t": 0.5,
@@ -1202,11 +1618,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "allenai/Molmo2-8B",
    "fixed": {
     "F1": 0.865385,
     "attr_dR": 0.002141,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.01369,
       0.00241
@@ -1215,6 +1634,7 @@
       0.0,
       0.009836
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -1234,6 +1654,21 @@
    "n_gt": 327,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.0
+    ],
+    "dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "viable_frac": 0.015
+   },
    "split": "bend",
    "thr_best_F1": 0.872666,
    "thr_best_t": 0.5,
@@ -1252,11 +1687,14 @@
     0.011,
     0.194286
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "google/owlv2-large-patch14-ensemble",
    "fixed": {
     "F1": 0.846271,
     "attr_dR": 0.018502,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.041201,
       -0.009042
@@ -1265,6 +1703,7 @@
       0.010563,
       0.04878
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -1284,6 +1723,21 @@
    "n_gt": 327,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.03003
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.011081
+    ],
+    "dR_ci95": [
+     0.0,
+     0.03681
+    ],
+    "viable_frac": 0.1845
+   },
    "split": "bend",
    "thr_best_F1": 0.872666,
    "thr_best_t": 0.5,
@@ -1302,11 +1756,14 @@
     0.022,
     0.100444
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "IDEA-Research/grounding-dino-base",
    "fixed": {
     "F1": 0.85446,
     "attr_dR": 0.006269,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.029979,
       -0.00349
@@ -1315,6 +1772,7 @@
       0.002933,
       0.02521
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -1334,6 +1792,21 @@
    "n_gt": 327,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.025719
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.016099
+    ],
+    "dR_ci95": [
+     0.0,
+     0.044872
+    ],
+    "viable_frac": 0.1695
+   },
    "split": "bend",
    "thr_best_F1": 0.872666,
    "thr_best_t": 0.5,
@@ -1352,11 +1825,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.7-flash",
    "fixed": {
     "F1": 0.869984,
     "attr_dR": 0.004893,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.00738,
       0.006945
@@ -1365,6 +1841,7 @@
       0.0,
       0.015974
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -1384,6 +1861,21 @@
    "n_gt": 327,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.036006
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.013779
+    ],
+    "dR_ci95": [
+     0.0,
+     0.044369
+    ],
+    "viable_frac": 0.344
+   },
    "split": "bend",
    "thr_best_F1": 0.872666,
    "thr_best_t": 0.5,
@@ -1402,11 +1894,14 @@
     0.044,
     0.374827
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y11l_pano",
    "fixed": {
     "F1": 0.870968,
     "attr_dR": 0.001988,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.00397,
       0.005669
@@ -1415,6 +1910,7 @@
       0.0,
       0.010239
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -1434,6 +1930,21 @@
    "n_gt": 327,
    "n_viable_rows": 3,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.041905
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.017479
+    ],
+    "dR_ci95": [
+     0.0,
+     0.047458
+    ],
+    "viable_frac": 0.6775
+   },
    "split": "bend",
    "thr_best_F1": 0.872666,
    "thr_best_t": 0.5,
@@ -1443,6 +1954,7 @@
     "F1": 0.872841,
     "attr_dR": 0.025229,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.01186,
       0.01567
@@ -1451,6 +1963,7 @@
       0.010178,
       0.047619
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -1478,11 +1991,14 @@
     0.011,
     0.098361
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y11x_pano_h200",
    "fixed": {
     "F1": 0.872375,
     "attr_dR": 0.001682,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.0,
       0.005911
@@ -1491,6 +2007,7 @@
       0.0,
       0.009901
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -1510,6 +2027,21 @@
    "n_gt": 327,
    "n_viable_rows": 2,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.036585
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.015749
+    ],
+    "dR_ci95": [
+     0.0,
+     0.044828
+    ],
+    "viable_frac": 0.668
+   },
    "split": "bend",
    "thr_best_F1": 0.872666,
    "thr_best_t": 0.5,
@@ -1519,6 +2051,7 @@
     "F1": 0.875197,
     "attr_dR": 0.022171,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.004277,
       0.015023
@@ -1527,6 +2060,7 @@
       0.009288,
       0.04127
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -1554,11 +2088,14 @@
     0.022,
     0.086968
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y26_pano",
    "fixed": {
     "F1": 0.872786,
     "attr_dR": 0.004281,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.002823,
       0.008586
@@ -1567,6 +2104,7 @@
       0.0,
       0.015924
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -1586,6 +2124,21 @@
    "n_gt": 327,
    "n_viable_rows": 2,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.041843
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.019162
+    ],
+    "dR_ci95": [
+     0.0,
+     0.047198
+    ],
+    "viable_frac": 0.7645
+   },
    "split": "bend",
    "thr_best_F1": 0.872666,
    "thr_best_t": 0.5,
@@ -1595,6 +2148,7 @@
     "F1": 0.876582,
     "attr_dR": 0.022018,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.004203,
       0.017116
@@ -1603,6 +2157,7 @@
       0.008499,
       0.043836
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -1630,11 +2185,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "claude-opus-5-effort-low",
    "fixed": {
     "F1": 0.863492,
     "attr_dR": 0.007492,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.017261,
       0.004294
@@ -1643,6 +2201,7 @@
       0.0,
       0.021538
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -1662,6 +2221,21 @@
    "n_gt": 327,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.0
+    ],
+    "dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "viable_frac": 0.0185
+   },
    "split": "bend",
    "thr_best_F1": 0.872666,
    "thr_best_t": 0.5,
@@ -1680,11 +2254,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.6-flash",
    "fixed": {
     "F1": 0.664395,
     "attr_dR": 0.006,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.019725,
       0.000632
@@ -1693,6 +2270,7 @@
       0.0,
       0.016892
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -1712,6 +2290,21 @@
    "n_gt": 300,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.046321
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.011395
+    ],
+    "dR_ci95": [
+     0.0,
+     0.059211
+    ],
+    "viable_frac": 0.2205
+   },
    "split": "budapest_district5",
    "thr_best_F1": 0.683919,
    "thr_best_t": 0.37,
@@ -1730,11 +2323,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.05,
    "challenger": "gemini-3.1-pro-preview",
    "fixed": {
     "F1": 0.675815,
     "attr_dR": 0.011167,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.00798,
       0.013656
@@ -1743,6 +2339,7 @@
       0.003155,
       0.026515
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -1762,6 +2359,21 @@
    "n_gt": 300,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.045066
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.017676
+    ],
+    "dR_ci95": [
+     0.0,
+     0.058824
+    ],
+    "viable_frac": 0.4705
+   },
    "split": "budapest_district5",
    "thr_best_F1": 0.683919,
    "thr_best_t": 0.37,
@@ -1780,11 +2392,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "Qwen/Qwen3-VL-8B-Instruct",
    "fixed": {
     "F1": 0.67128,
     "attr_dR": 0.003167,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.008575,
       0.004326
@@ -1793,6 +2408,7 @@
       0.0,
       0.010563
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -1812,6 +2428,21 @@
    "n_gt": 300,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.042857
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.013351
+    ],
+    "dR_ci95": [
+     0.0,
+     0.051095
+    ],
+    "viable_frac": 0.2515
+   },
    "split": "budapest_district5",
    "thr_best_F1": 0.683919,
    "thr_best_t": 0.37,
@@ -1830,11 +2461,14 @@
     0.044,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "Qwen/Qwen3-VL-32B-Instruct",
    "fixed": {
     "F1": 0.673647,
     "attr_dR": -0.000167,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.0,
       0.0
@@ -1843,6 +2477,7 @@
       0.0,
       0.0
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -1862,6 +2497,21 @@
    "n_gt": 300,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.0
+    ],
+    "dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "viable_frac": 0.0005
+   },
    "split": "budapest_district5",
    "thr_best_F1": 0.683919,
    "thr_best_t": 0.37,
@@ -1880,11 +2530,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "allenai/Molmo2-8B",
    "fixed": {
     "F1": 0.662139,
     "attr_dR": 0.006,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.022232,
       -0.000808
@@ -1893,6 +2546,7 @@
       0.0,
       0.016502
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -1912,6 +2566,21 @@
    "n_gt": 300,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.023582
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.003367
+    ],
+    "dR_ci95": [
+     0.0,
+     0.029197
+    ],
+    "viable_frac": 0.043
+   },
    "split": "budapest_district5",
    "thr_best_F1": 0.683919,
    "thr_best_t": 0.37,
@@ -1930,11 +2599,14 @@
     0.011,
     0.162182
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.05,
    "challenger": "google/owlv2-large-patch14-ensemble",
    "fixed": {
     "F1": 0.622901,
     "attr_dR": 0.023833,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.074665,
       -0.027412
@@ -1943,6 +2615,7 @@
       0.016447,
       0.058824
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -1962,6 +2635,21 @@
    "n_gt": 300,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.042736
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.014926
+    ],
+    "dR_ci95": [
+     0.0,
+     0.065015
+    ],
+    "viable_frac": 0.397
+   },
    "split": "budapest_district5",
    "thr_best_F1": 0.683919,
    "thr_best_t": 0.37,
@@ -1980,11 +2668,14 @@
     0.011,
     0.162156
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "IDEA-Research/grounding-dino-base",
    "fixed": {
     "F1": 0.644013,
     "attr_dR": 0.0095,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.047479,
       -0.013079
@@ -1993,6 +2684,7 @@
       0.006689,
       0.035971
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2012,6 +2704,21 @@
    "n_gt": 300,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.037055
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.012477
+    ],
+    "dR_ci95": [
+     0.0,
+     0.06
+    ],
+    "viable_frac": 0.2815
+   },
    "split": "budapest_district5",
    "thr_best_F1": 0.683919,
    "thr_best_t": 0.37,
@@ -2030,11 +2737,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.7-flash",
    "fixed": {
     "F1": 0.671256,
     "attr_dR": 0.0065,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.010573,
       0.006471
@@ -2043,6 +2753,7 @@
       0.0,
       0.017483
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2062,6 +2773,21 @@
    "n_gt": 300,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.022336
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.00386
+    ],
+    "dR_ci95": [
+     0.0,
+     0.023973
+    ],
+    "viable_frac": 0.042
+   },
    "split": "budapest_district5",
    "thr_best_F1": 0.683919,
    "thr_best_t": 0.37,
@@ -2080,11 +2806,14 @@
     0.044,
     0.161698
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y11l_pano",
    "fixed": {
     "F1": 0.667791,
     "attr_dR": 0.015833,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.01733,
       0.005969
@@ -2093,6 +2822,7 @@
       0.003077,
       0.034682
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2112,6 +2842,21 @@
    "n_gt": 300,
    "n_viable_rows": 1,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.042157
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.02285
+    ],
+    "dR_ci95": [
+     0.0,
+     0.050542
+    ],
+    "viable_frac": 0.7535
+   },
    "split": "budapest_district5",
    "thr_best_F1": 0.683919,
    "thr_best_t": 0.37,
@@ -2121,6 +2866,7 @@
     "F1": 0.676768,
     "attr_dR": 0.023333,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.01021,
       0.018105
@@ -2129,6 +2875,7 @@
       0.010381,
       0.044218
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2156,11 +2903,14 @@
     0.044,
     0.155773
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y11x_pano_h200",
    "fixed": {
     "F1": 0.666667,
     "attr_dR": 0.009667,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.017849,
       0.004465
@@ -2169,6 +2919,7 @@
       0.0,
       0.021505
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2188,6 +2939,21 @@
    "n_gt": 300,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.045171
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.011879
+    ],
+    "dR_ci95": [
+     0.0,
+     0.052308
+    ],
+    "viable_frac": 0.2785
+   },
    "split": "budapest_district5",
    "thr_best_F1": 0.683919,
    "thr_best_t": 0.37,
@@ -2206,11 +2972,14 @@
     0.022,
     0.06707
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y26_pano",
    "fixed": {
     "F1": 0.662207,
     "attr_dR": 0.015,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.023982,
       0.001902
@@ -2219,6 +2988,7 @@
       0.003623,
       0.031034
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2238,6 +3008,21 @@
    "n_gt": 300,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.049379
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.014117
+    ],
+    "dR_ci95": [
+     0.0,
+     0.057751
+    ],
+    "viable_frac": 0.446
+   },
    "split": "budapest_district5",
    "thr_best_F1": 0.683919,
    "thr_best_t": 0.37,
@@ -2256,11 +3041,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "claude-opus-5-effort-low",
    "fixed": {
     "F1": 0.666667,
     "attr_dR": 0.009,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.018344,
       0.004429
@@ -2269,6 +3057,7 @@
       0.0,
       0.021505
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2288,6 +3077,21 @@
    "n_gt": 300,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.050912
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.01736
+    ],
+    "dR_ci95": [
+     0.0,
+     0.063218
+    ],
+    "viable_frac": 0.4635
+   },
    "split": "budapest_district5",
    "thr_best_F1": 0.683919,
    "thr_best_t": 0.37,
@@ -2306,11 +3110,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.05,
    "challenger": "gemini-3.6-flash",
    "fixed": {
     "F1": 0.835052,
     "attr_dR": 0.008718,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.010886,
       0.011714
@@ -2319,6 +3126,7 @@
       0.0,
       0.026596
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2338,6 +3146,21 @@
    "n_gt": 195,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.028307
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.012509
+    ],
+    "dR_ci95": [
+     0.0,
+     0.037634
+    ],
+    "viable_frac": 0.1395
+   },
    "split": "clovis",
    "thr_best_F1": 0.841823,
    "thr_best_t": 0.35,
@@ -2356,11 +3179,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.1-pro-preview",
    "fixed": {
     "F1": 0.829897,
     "attr_dR": 0.003333,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.01684,
       0.004122
@@ -2369,6 +3195,7 @@
       0.0,
       0.016393
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2388,6 +3215,21 @@
    "n_gt": 195,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.031637
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.014965
+    ],
+    "dR_ci95": [
+     0.0,
+     0.041667
+    ],
+    "viable_frac": 0.2395
+   },
    "split": "clovis",
    "thr_best_F1": 0.841823,
    "thr_best_t": 0.35,
@@ -2406,11 +3248,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "Qwen/Qwen3-VL-8B-Instruct",
    "fixed": {
     "F1": 0.832041,
     "attr_dR": 0.00359,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.013645,
       0.005894
@@ -2419,6 +3264,7 @@
       0.0,
       0.016129
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2438,6 +3284,21 @@
    "n_gt": 195,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.0
+    ],
+    "dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "viable_frac": 0.006
+   },
    "split": "clovis",
    "thr_best_F1": 0.841823,
    "thr_best_t": 0.35,
@@ -2456,11 +3317,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "Qwen/Qwen3-VL-32B-Instruct",
    "fixed": {
     "F1": 0.835509,
     "attr_dR": -0.000256,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.0,
       0.0
@@ -2469,6 +3333,7 @@
       0.0,
       0.0
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2488,6 +3353,21 @@
    "n_gt": 195,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.0
+    ],
+    "dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "viable_frac": 0.0
+   },
    "split": "clovis",
    "thr_best_F1": 0.841823,
    "thr_best_t": 0.35,
@@ -2506,11 +3386,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "allenai/Molmo2-8B",
    "fixed": {
     "F1": 0.830769,
     "attr_dR": 0.007692,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.01836,
       0.007646
@@ -2519,6 +3402,7 @@
       0.0,
       0.02551
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2538,6 +3422,21 @@
    "n_gt": 195,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.033526
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.013718
+    ],
+    "dR_ci95": [
+     0.0,
+     0.041176
+    ],
+    "viable_frac": 0.2275
+   },
    "split": "clovis",
    "thr_best_F1": 0.841823,
    "thr_best_t": 0.35,
@@ -2556,11 +3455,14 @@
     0.011,
     0.071358
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.15,
    "challenger": "google/owlv2-large-patch14-ensemble",
    "fixed": {
     "F1": 0.806846,
     "attr_dR": 0.008205,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.054456,
       -0.004163
@@ -2569,6 +3471,7 @@
       0.004717,
       0.053476
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2588,6 +3491,21 @@
    "n_gt": 195,
    "n_viable_rows": 3,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.043122
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.029151
+    ],
+    "dR_ci95": [
+     0.0,
+     0.091787
+    ],
+    "viable_frac": 0.6625
+   },
    "split": "clovis",
    "thr_best_F1": 0.841823,
    "thr_best_t": 0.35,
@@ -2597,6 +3515,7 @@
     "F1": 0.843434,
     "attr_dR": 0.023846,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.010019,
       0.025747
@@ -2605,6 +3524,7 @@
       0.012658,
       0.060914
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2632,11 +3552,14 @@
     0.011,
     0.067671
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.05,
    "challenger": "IDEA-Research/grounding-dino-base",
    "fixed": {
     "F1": 0.803874,
     "attr_dR": 0.013846,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.055989,
       -0.008445
@@ -2645,6 +3568,7 @@
       0.006369,
       0.058201
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2664,6 +3588,21 @@
    "n_gt": 195,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.041827
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.02596
+    ],
+    "dR_ci95": [
+     0.0,
+     0.087629
+    ],
+    "viable_frac": 0.5865
+   },
    "split": "clovis",
    "thr_best_F1": 0.841823,
    "thr_best_t": 0.35,
@@ -2682,11 +3621,14 @@
     0.022,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.7-flash",
    "fixed": {
     "F1": 0.835052,
     "attr_dR": 0.009231,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.01109,
       0.011401
@@ -2695,6 +3637,7 @@
       0.0,
       0.026455
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2714,6 +3657,21 @@
    "n_gt": 195,
    "n_viable_rows": 1,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.047965
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.021819
+    ],
+    "dR_ci95": [
+     0.0,
+     0.055556
+    ],
+    "viable_frac": 0.5695
+   },
    "split": "clovis",
    "thr_best_F1": 0.841823,
    "thr_best_t": 0.35,
@@ -2723,6 +3681,7 @@
     "F1": 0.841837,
     "attr_dR": 0.021026,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.006521,
       0.021253
@@ -2731,6 +3690,7 @@
       0.005556,
       0.049451
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2758,11 +3718,14 @@
     0.011,
     0.074585
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y11l_pano",
    "fixed": {
     "F1": 0.810945,
     "attr_dR": 0.014359,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.050745,
       -0.002597
@@ -2771,6 +3734,7 @@
       0.0,
       0.034146
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2790,6 +3754,21 @@
    "n_gt": 195,
    "n_viable_rows": 5,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.070787
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.027636
+    ],
+    "dR_ci95": [
+     0.0,
+     0.072626
+    ],
+    "viable_frac": 0.6515
+   },
    "split": "clovis",
    "thr_best_F1": 0.841823,
    "thr_best_t": 0.35,
@@ -2799,6 +3778,7 @@
     "F1": 0.839196,
     "attr_dR": 0.034872,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.018669,
       0.024971
@@ -2807,6 +3787,7 @@
       0.010417,
       0.065116
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2834,11 +3815,14 @@
     0.011,
     0.144639
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y11x_pano_h200",
    "fixed": {
     "F1": 0.833333,
     "attr_dR": 0.024615,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.021598,
       0.015802
@@ -2847,6 +3831,7 @@
       0.005556,
       0.04712
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2866,6 +3851,21 @@
    "n_gt": 195,
    "n_viable_rows": 11,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.063702
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.025229
+    ],
+    "dR_ci95": [
+     0.0,
+     0.067039
+    ],
+    "viable_frac": 0.759
+   },
    "split": "clovis",
    "thr_best_F1": 0.841823,
    "thr_best_t": 0.35,
@@ -2875,6 +3875,7 @@
     "F1": 0.839196,
     "attr_dR": 0.034615,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.01365,
       0.021908
@@ -2883,6 +3884,7 @@
       0.012346,
       0.062201
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2910,11 +3912,14 @@
     0.011,
     0.074836
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.05,
    "challenger": "y26_pano",
    "fixed": {
     "F1": 0.825871,
     "attr_dR": 0.029487,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.037102,
       0.015645
@@ -2923,6 +3928,7 @@
       0.005814,
       0.059211
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2942,6 +3948,21 @@
    "n_gt": 195,
    "n_viable_rows": 14,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.079717
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.032766
+    ],
+    "dR_ci95": [
+     0.0,
+     0.088398
+    ],
+    "viable_frac": 0.827
+   },
    "split": "clovis",
    "thr_best_F1": 0.841823,
    "thr_best_t": 0.35,
@@ -2951,6 +3972,7 @@
     "F1": 0.842105,
     "attr_dR": 0.039744,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.014632,
       0.027554
@@ -2959,6 +3981,7 @@
       0.013761,
       0.072289
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -2986,11 +4009,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "claude-opus-5-effort-low",
    "fixed": {
     "F1": 0.835897,
     "attr_dR": 0.014103,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.014546,
       0.015263
@@ -2999,6 +4025,7 @@
       0.0,
       0.033981
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3018,6 +4045,21 @@
    "n_gt": 195,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.036957
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.016202
+    ],
+    "dR_ci95": [
+     0.0,
+     0.04321
+    ],
+    "viable_frac": 0.3215
+   },
    "split": "clovis",
    "thr_best_F1": 0.841823,
    "thr_best_t": 0.35,
@@ -3036,11 +4078,14 @@
     0.044,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.6-flash",
    "fixed": {
     "F1": 0.80597,
     "attr_dR": 0.019301,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.022758,
       0.0127
@@ -3049,6 +4094,7 @@
       0.006734,
       0.045139
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3068,6 +4114,21 @@
    "n_gt": 272,
    "n_viable_rows": 4,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.063021
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.027432
+    ],
+    "dR_ci95": [
+     0.0,
+     0.075758
+    ],
+    "viable_frac": 0.844
+   },
    "split": "gainesville",
    "thr_best_F1": 0.822355,
    "thr_best_t": 0.38,
@@ -3077,6 +4138,7 @@
     "F1": 0.817844,
     "attr_dR": 0.030882,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.011334,
       0.023339
@@ -3085,6 +4147,7 @@
       0.015094,
       0.060606
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3112,11 +4175,14 @@
     0.022,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.1-pro-preview",
    "fixed": {
     "F1": 0.812616,
     "attr_dR": 0.030882,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.016922,
       0.020082
@@ -3125,6 +4191,7 @@
       0.012295,
       0.058824
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3144,6 +4211,21 @@
    "n_gt": 272,
    "n_viable_rows": 6,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.063147
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.031722
+    ],
+    "dR_ci95": [
+     0.0,
+     0.068182
+    ],
+    "viable_frac": 0.921
+   },
    "split": "gainesville",
    "thr_best_F1": 0.822355,
    "thr_best_t": 0.38,
@@ -3153,6 +4235,7 @@
     "F1": 0.824627,
     "attr_dR": 0.036581,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.004004,
       0.031381
@@ -3161,6 +4244,7 @@
       0.017422,
       0.068548
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3188,11 +4272,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "Qwen/Qwen3-VL-8B-Instruct",
    "fixed": {
     "F1": 0.818868,
     "attr_dR": 0.024632,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.007617,
       0.023508
@@ -3201,6 +4288,7 @@
       0.007463,
       0.04947
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3220,6 +4308,21 @@
    "n_gt": 272,
    "n_viable_rows": 5,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.051923
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.030181
+    ],
+    "dR_ci95": [
+     0.0,
+     0.056667
+    ],
+    "viable_frac": 0.767
+   },
    "split": "gainesville",
    "thr_best_F1": 0.822355,
    "thr_best_t": 0.38,
@@ -3229,6 +4332,7 @@
     "F1": 0.825095,
     "attr_dR": 0.024816,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       3.8e-05,
       0.028615
@@ -3237,6 +4341,7 @@
       0.007463,
       0.04947
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3264,11 +4369,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "Qwen/Qwen3-VL-32B-Instruct",
    "fixed": {
     "F1": 0.815238,
     "attr_dR": 0.014338,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.007299,
       0.014737
@@ -3277,6 +4385,7 @@
       0.003401,
       0.029963
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3296,6 +4405,21 @@
    "n_gt": 272,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.02974
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.016591
+    ],
+    "dR_ci95": [
+     0.0,
+     0.02974
+    ],
+    "viable_frac": 0.213
+   },
    "split": "gainesville",
    "thr_best_F1": 0.822355,
    "thr_best_t": 0.38,
@@ -3314,11 +4438,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "allenai/Molmo2-8B",
    "fixed": {
     "F1": 0.808194,
     "attr_dR": 0.024081,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.018791,
       0.011154
@@ -3327,6 +4454,7 @@
       0.009967,
       0.045775
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3346,6 +4474,21 @@
    "n_gt": 272,
    "n_viable_rows": 3,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.048955
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.023773
+    ],
+    "dR_ci95": [
+     0.0,
+     0.057018
+    ],
+    "viable_frac": 0.763
+   },
    "split": "gainesville",
    "thr_best_F1": 0.822355,
    "thr_best_t": 0.38,
@@ -3355,6 +4498,7 @@
     "F1": 0.820416,
     "attr_dR": 0.024816,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.003436,
       0.021555
@@ -3363,6 +4507,7 @@
       0.009967,
       0.045775
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3390,11 +4535,14 @@
     0.022,
     0.193239
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.15,
    "challenger": "google/owlv2-large-patch14-ensemble",
    "fixed": {
     "F1": 0.784173,
     "attr_dR": 0.013787,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.048086,
       -0.008481
@@ -3403,6 +4551,7 @@
       0.010753,
       0.05
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3422,6 +4571,21 @@
    "n_gt": 272,
    "n_viable_rows": 2,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.054231
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.026992
+    ],
+    "dR_ci95": [
+     0.0,
+     0.096774
+    ],
+    "viable_frac": 0.7705
+   },
    "split": "gainesville",
    "thr_best_F1": 0.822355,
    "thr_best_t": 0.38,
@@ -3431,6 +4595,7 @@
     "F1": 0.815642,
     "attr_dR": 0.022794,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.012731,
       0.021046
@@ -3439,6 +4604,7 @@
       0.013333,
       0.056452
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3466,11 +4632,14 @@
     0.011,
     0.101245
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "IDEA-Research/grounding-dino-base",
    "fixed": {
     "F1": 0.802867,
     "attr_dR": 0.038051,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.032708,
       0.015979
@@ -3479,6 +4648,7 @@
       0.027491,
       0.078652
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3498,6 +4668,21 @@
    "n_gt": 272,
    "n_viable_rows": 7,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.05386
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.032507
+    ],
+    "dR_ci95": [
+     0.0,
+     0.073529
+    ],
+    "viable_frac": 0.932
+   },
    "split": "gainesville",
    "thr_best_F1": 0.822355,
    "thr_best_t": 0.38,
@@ -3507,6 +4692,7 @@
     "F1": 0.82397,
     "attr_dR": 0.028676,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.004686,
       0.028866
@@ -3515,6 +4701,7 @@
       0.016129,
       0.059937
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3542,11 +4729,14 @@
     0.022,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.7-flash",
    "fixed": {
     "F1": 0.813559,
     "attr_dR": 0.02114,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.011936,
       0.016233
@@ -3555,6 +4745,7 @@
       0.007092,
       0.040816
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3574,6 +4765,21 @@
    "n_gt": 272,
    "n_viable_rows": 5,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.051144
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.02547
+    ],
+    "dR_ci95": [
+     0.0,
+     0.055147
+    ],
+    "viable_frac": 0.6945
+   },
    "split": "gainesville",
    "thr_best_F1": 0.822355,
    "thr_best_t": 0.38,
@@ -3583,6 +4789,7 @@
     "F1": 0.819549,
     "attr_dR": 0.026471,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.007914,
       0.025544
@@ -3591,6 +4798,7 @@
       0.010453,
       0.053498
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3618,11 +4826,14 @@
     0.022,
     0.07577
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y11l_pano",
    "fixed": {
     "F1": 0.815789,
     "attr_dR": 0.024265,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.011965,
       0.019203
@@ -3631,6 +4842,7 @@
       0.008547,
       0.046154
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3650,6 +4862,21 @@
    "n_gt": 272,
    "n_viable_rows": 29,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.067366
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.030874
+    ],
+    "dR_ci95": [
+     0.0,
+     0.074906
+    ],
+    "viable_frac": 0.917
+   },
    "split": "gainesville",
    "thr_best_F1": 0.822355,
    "thr_best_t": 0.38,
@@ -3659,6 +4886,7 @@
     "F1": 0.820037,
     "attr_dR": 0.034743,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.009206,
       0.025755
@@ -3667,6 +4895,7 @@
       0.019231,
       0.065455
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3694,11 +4923,14 @@
     0.022,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y11x_pano_h200",
    "fixed": {
     "F1": 0.814394,
     "attr_dR": 0.017096,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.010926,
       0.015528
@@ -3707,6 +4939,7 @@
       0.003846,
       0.036496
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3726,6 +4959,21 @@
    "n_gt": 272,
    "n_viable_rows": 24,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.020172,
+     0.079057
+    ],
+    "dF1_ci95": [
+     0.000907,
+     0.036651
+    ],
+    "dR_ci95": [
+     0.021277,
+     0.085714
+    ],
+    "viable_frac": 0.977
+   },
    "split": "gainesville",
    "thr_best_F1": 0.822355,
    "thr_best_t": 0.38,
@@ -3735,6 +4983,7 @@
     "F1": 0.828729,
     "attr_dR": 0.049816,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.000712,
       0.034995
@@ -3743,6 +4992,7 @@
       0.02952,
       0.086022
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3770,11 +5020,14 @@
     0.022,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y26_pano",
    "fixed": {
     "F1": 0.81203,
     "attr_dR": 0.020956,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.014171,
       0.013287
@@ -3783,6 +5036,7 @@
       0.006993,
       0.041322
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3802,6 +5056,21 @@
    "n_gt": 272,
    "n_viable_rows": 21,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.068725
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.029505
+    ],
+    "dR_ci95": [
+     0.0,
+     0.077519
+    ],
+    "viable_frac": 0.916
+   },
    "split": "gainesville",
    "thr_best_F1": 0.822355,
    "thr_best_t": 0.38,
@@ -3811,6 +5080,7 @@
     "F1": 0.820702,
     "attr_dR": 0.038787,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.008694,
       0.02783
@@ -3819,6 +5089,7 @@
       0.022556,
       0.069959
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3846,11 +5117,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "claude-opus-5-effort-low",
    "fixed": {
     "F1": 0.8051,
     "attr_dR": 0.037132,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.026708,
       0.014594
@@ -3859,6 +5133,7 @@
       0.017241,
       0.06867
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3878,6 +5153,21 @@
    "n_gt": 272,
    "n_viable_rows": 5,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.065726
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.026129
+    ],
+    "dR_ci95": [
+     0.0,
+     0.070922
+    ],
+    "viable_frac": 0.762
+   },
    "split": "gainesville",
    "thr_best_F1": 0.822355,
    "thr_best_t": 0.38,
@@ -3887,6 +5177,7 @@
     "F1": 0.817844,
     "attr_dR": 0.034926,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.010853,
       0.025281
@@ -3895,6 +5186,7 @@
       0.015038,
       0.064286
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3922,11 +5214,14 @@
     0.044,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.6-flash",
    "fixed": {
     "F1": 0.661728,
     "attr_dR": 0.009639,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.013071,
       0.015255
@@ -3935,6 +5230,7 @@
       0.0,
       0.025862
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3954,6 +5250,21 @@
    "n_gt": 249,
    "n_viable_rows": 3,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.035115,
+     0.101556
+    ],
+    "dF1_ci95": [
+     0.023425,
+     0.086241
+    ],
+    "dR_ci95": [
+     0.053232,
+     0.122807
+    ],
+    "viable_frac": 0.996
+   },
    "split": "laurens_mapillary",
    "thr_best_F1": 0.708241,
    "thr_best_t": 0.16,
@@ -3963,6 +5274,7 @@
     "F1": 0.714953,
     "attr_dR": 0.068876,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.025855,
       0.087337
@@ -3971,6 +5283,7 @@
       0.056391,
       0.123552
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -3998,11 +5311,14 @@
     0.044,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.1-pro-preview",
    "fixed": {
     "F1": 0.674877,
     "attr_dR": 0.022088,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -4.3e-05,
       0.033523
@@ -4011,6 +5327,7 @@
       0.007968,
       0.044898
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4030,6 +5347,21 @@
    "n_gt": 249,
    "n_viable_rows": 4,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.039765,
+     0.128448
+    ],
+    "dF1_ci95": [
+     0.031953,
+     0.106233
+    ],
+    "dR_ci95": [
+     0.06,
+     0.151163
+    ],
+    "viable_frac": 0.999
+   },
    "split": "laurens_mapillary",
    "thr_best_F1": 0.708241,
    "thr_best_t": 0.16,
@@ -4039,6 +5371,7 @@
     "F1": 0.728538,
     "attr_dR": 0.082731,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.034483,
       0.107704
@@ -4047,6 +5380,7 @@
       0.063415,
       0.152074
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4074,11 +5408,14 @@
     0.044,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "Qwen/Qwen3-VL-8B-Instruct",
    "fixed": {
     "F1": 0.671569,
     "attr_dR": 0.019478,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.006378,
       0.033049
@@ -4087,6 +5424,7 @@
       0.004902,
       0.047619
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4106,6 +5444,21 @@
    "n_gt": 249,
    "n_viable_rows": 3,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.035903,
+     0.103755
+    ],
+    "dF1_ci95": [
+     0.019641,
+     0.094601
+    ],
+    "dR_ci95": [
+     0.064516,
+     0.144531
+    ],
+    "viable_frac": 0.9975
+   },
    "split": "laurens_mapillary",
    "thr_best_F1": 0.708241,
    "thr_best_t": 0.16,
@@ -4115,6 +5468,7 @@
     "F1": 0.716553,
     "attr_dR": 0.070884,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.020377,
       0.094035
@@ -4123,6 +5477,7 @@
       0.073593,
       0.143939
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4150,11 +5505,14 @@
     0.044,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "Qwen/Qwen3-VL-32B-Instruct",
    "fixed": {
     "F1": 0.65995,
     "attr_dR": -0.000602,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.0,
       0.0
@@ -4163,6 +5521,7 @@
       0.0,
       0.0
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4182,6 +5541,21 @@
    "n_gt": 249,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.031502
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.026513
+    ],
+    "dR_ci95": [
+     0.0,
+     0.036437
+    ],
+    "viable_frac": 0.1465
+   },
    "split": "laurens_mapillary",
    "thr_best_F1": 0.708241,
    "thr_best_t": 0.16,
@@ -4200,11 +5574,14 @@
     0.044,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "allenai/Molmo2-8B",
    "fixed": {
     "F1": 0.671569,
     "attr_dR": 0.019478,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.004631,
       0.02863
@@ -4213,6 +5590,7 @@
       0.008097,
       0.042254
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4232,6 +5610,21 @@
    "n_gt": 249,
    "n_viable_rows": 3,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.035768,
+     0.117829
+    ],
+    "dF1_ci95": [
+     0.025567,
+     0.098587
+    ],
+    "dR_ci95": [
+     0.058824,
+     0.163866
+    ],
+    "viable_frac": 1.0
+   },
    "split": "laurens_mapillary",
    "thr_best_F1": 0.708241,
    "thr_best_t": 0.16,
@@ -4241,6 +5634,7 @@
     "F1": 0.720358,
     "attr_dR": 0.080522,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.024242,
       0.101638
@@ -4249,6 +5643,7 @@
       0.082609,
       0.165877
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4276,11 +5671,14 @@
     0.044,
     0.10897
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.3,
    "challenger": "google/owlv2-large-patch14-ensemble",
    "fixed": {
     "F1": 0.685579,
     "attr_dR": 0.013655,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.000664,
       0.051058
@@ -4289,6 +5687,7 @@
       0.032258,
       0.082237
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4308,6 +5707,21 @@
    "n_gt": 249,
    "n_viable_rows": 20,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.020782,
+     0.08
+    ],
+    "dF1_ci95": [
+     0.041764,
+     0.131524
+    ],
+    "dR_ci95": [
+     0.081197,
+     0.292793
+    ],
+    "viable_frac": 1.0
+   },
    "split": "laurens_mapillary",
    "thr_best_F1": 0.708241,
    "thr_best_t": 0.16,
@@ -4317,6 +5731,7 @@
     "F1": 0.735632,
     "attr_dR": 0.033133,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.017103,
       0.129424
@@ -4325,6 +5740,7 @@
       0.193548,
       0.298701
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4352,11 +5768,14 @@
     0.044,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.2,
    "challenger": "IDEA-Research/grounding-dino-base",
    "fixed": {
     "F1": 0.666667,
     "attr_dR": 0.009438,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.019247,
       0.029861
@@ -4365,6 +5784,7 @@
       0.022901,
       0.067265
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4384,6 +5804,21 @@
    "n_gt": 249,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.051027
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.083894
+    ],
+    "dR_ci95": [
+     0.0,
+     0.272401
+    ],
+    "viable_frac": 0.8535
+   },
    "split": "laurens_mapillary",
    "thr_best_F1": 0.708241,
    "thr_best_t": 0.16,
@@ -4402,11 +5837,14 @@
     0.044,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.7-flash",
    "fixed": {
     "F1": 0.674938,
     "attr_dR": 0.018474,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.002148,
       0.030075
@@ -4415,6 +5853,7 @@
       0.004367,
       0.038462
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4434,6 +5873,21 @@
    "n_gt": 249,
    "n_viable_rows": 3,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.026923,
+     0.091729
+    ],
+    "dF1_ci95": [
+     0.023439,
+     0.082074
+    ],
+    "dR_ci95": [
+     0.039711,
+     0.106299
+    ],
+    "viable_frac": 0.992
+   },
    "split": "laurens_mapillary",
    "thr_best_F1": 0.708241,
    "thr_best_t": 0.16,
@@ -4443,6 +5897,7 @@
     "F1": 0.711217,
     "attr_dR": 0.058032,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.024892,
       0.080952
@@ -4451,6 +5906,7 @@
       0.04329,
       0.105691
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4478,11 +5934,14 @@
     0.022,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y11l_pano",
    "fixed": {
     "F1": 0.755245,
     "attr_dR": 0.122088,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.061217,
       0.130265
@@ -4491,6 +5950,7 @@
       0.082192,
       0.171756
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4510,6 +5970,21 @@
    "n_gt": 249,
    "n_viable_rows": 39,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.118388,
+     0.219458
+    ],
+    "dF1_ci95": [
+     0.085329,
+     0.169938
+    ],
+    "dR_ci95": [
+     0.135371,
+     0.241379
+    ],
+    "viable_frac": 1.0
+   },
    "split": "laurens_mapillary",
    "thr_best_F1": 0.708241,
    "thr_best_t": 0.16,
@@ -4519,6 +5994,7 @@
     "F1": 0.786813,
     "attr_dR": 0.172289,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.082354,
       0.167861
@@ -4527,6 +6003,7 @@
       0.142308,
       0.242424
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4554,11 +6031,14 @@
     0.022,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y11x_pano_h200",
    "fixed": {
     "F1": 0.728571,
     "attr_dR": 0.086948,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.037393,
       0.104847
@@ -4567,6 +6047,7 @@
       0.05098,
       0.136364
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4586,6 +6067,21 @@
    "n_gt": 249,
    "n_viable_rows": 34,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.109761,
+     0.198473
+    ],
+    "dF1_ci95": [
+     0.078556,
+     0.158918
+    ],
+    "dR_ci95": [
+     0.126316,
+     0.21875
+    ],
+    "viable_frac": 1.0
+   },
    "split": "laurens_mapillary",
    "thr_best_F1": 0.708241,
    "thr_best_t": 0.16,
@@ -4595,6 +6091,7 @@
     "F1": 0.780269,
     "attr_dR": 0.153414,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.078533,
       0.160041
@@ -4603,6 +6100,7 @@
       0.126016,
       0.221239
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4630,11 +6128,14 @@
     0.022,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y26_pano",
    "fixed": {
     "F1": 0.756381,
     "attr_dR": 0.126104,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.061433,
       0.133304
@@ -4643,6 +6144,7 @@
       0.085185,
       0.174216
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4662,6 +6164,21 @@
    "n_gt": 249,
    "n_viable_rows": 45,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.130446,
+     0.228642
+    ],
+    "dF1_ci95": [
+     0.095499,
+     0.185095
+    ],
+    "dR_ci95": [
+     0.148472,
+     0.253061
+    ],
+    "viable_frac": 1.0
+   },
    "split": "laurens_mapillary",
    "thr_best_F1": 0.708241,
    "thr_best_t": 0.16,
@@ -4671,6 +6188,7 @@
     "F1": 0.801762,
     "attr_dR": 0.182129,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.095482,
       0.186444
@@ -4679,6 +6197,7 @@
       0.154167,
       0.256098
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4706,11 +6225,14 @@
     0.044,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "claude-opus-5-effort-low",
    "fixed": {
     "F1": 0.695652,
     "attr_dR": 0.047791,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.015775,
       0.055975
@@ -4719,6 +6241,7 @@
       0.029536,
       0.07377
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4738,6 +6261,21 @@
    "n_gt": 249,
    "n_viable_rows": 8,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.080349,
+     0.146215
+    ],
+    "dF1_ci95": [
+     0.055547,
+     0.130597
+    ],
+    "dR_ci95": [
+     0.109434,
+     0.190813
+    ],
+    "viable_frac": 1.0
+   },
    "split": "laurens_mapillary",
    "thr_best_F1": 0.708241,
    "thr_best_t": 0.16,
@@ -4747,6 +6285,7 @@
     "F1": 0.752784,
     "attr_dR": 0.115663,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.055474,
       0.13262
@@ -4755,6 +6294,7 @@
       0.114155,
       0.192
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4782,11 +6322,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "Qwen/Qwen3-VL-8B-Instruct",
    "fixed": {
     "F1": 0.899563,
     "attr_dR": 0.001314,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.003588,
       -0.000951
@@ -4795,6 +6338,7 @@
       0.000503,
       0.002823
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4814,6 +6358,21 @@
    "n_gt": 3919,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.0
+    ],
+    "dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "viable_frac": 0.0
+   },
    "split": "manual_gold",
    "thr_best_F1": 0.9047,
    "thr_best_t": 0.36,
@@ -4832,11 +6391,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "Qwen/Qwen3-VL-32B-Instruct",
    "fixed": {
     "F1": 0.901263,
     "attr_dR": -0.000115,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.001157,
       -0.000116
@@ -4845,6 +6407,7 @@
       0.0,
       0.0
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4864,6 +6427,21 @@
    "n_gt": 3919,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.0
+    ],
+    "dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "viable_frac": 0.0
+   },
    "split": "manual_gold",
    "thr_best_F1": 0.9047,
    "thr_best_t": 0.36,
@@ -4882,11 +6460,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "allenai/Molmo2-8B",
    "fixed": {
     "F1": 0.898629,
     "attr_dR": 0.002143,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.005015,
       -0.00153
@@ -4895,6 +6476,7 @@
       0.001035,
       0.00435
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4914,6 +6496,21 @@
    "n_gt": 3919,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.0
+    ],
+    "dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "viable_frac": 0.0
+   },
    "split": "manual_gold",
    "thr_best_F1": 0.9047,
    "thr_best_t": 0.36,
@@ -4932,11 +6529,14 @@
     0.011,
     0.115981
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "google/owlv2-large-patch14-ensemble",
    "fixed": {
     "F1": 0.880398,
     "attr_dR": 0.006877,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.025657,
       -0.01764
@@ -4945,6 +6545,7 @@
       0.007019,
       0.014023
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -4964,6 +6565,21 @@
    "n_gt": 3919,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.0
+    ],
+    "dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "viable_frac": 0.0
+   },
    "split": "manual_gold",
    "thr_best_F1": 0.9047,
    "thr_best_t": 0.36,
@@ -4982,11 +6598,14 @@
     0.011,
     0.067176
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "IDEA-Research/grounding-dino-base",
    "fixed": {
     "F1": 0.883914,
     "attr_dR": 0.000982,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.021437,
       -0.014451
@@ -4995,6 +6614,7 @@
       0.002558,
       0.007004
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -5014,6 +6634,21 @@
    "n_gt": 3919,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.0
+    ],
+    "dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "viable_frac": 0.0
+   },
    "split": "manual_gold",
    "thr_best_F1": 0.9047,
    "thr_best_t": 0.36,
@@ -5032,11 +6667,14 @@
     0.022,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.7-flash",
    "fixed": {
     "F1": 0.90122,
     "attr_dR": 0.002666,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.00209,
       0.000729
@@ -5045,6 +6683,7 @@
       0.001464,
       0.004872
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -5064,6 +6703,21 @@
    "n_gt": 3919,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.0
+    ],
+    "dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "viable_frac": 0.0
+   },
    "split": "manual_gold",
    "thr_best_F1": 0.9047,
    "thr_best_t": 0.36,
@@ -5082,11 +6736,14 @@
     0.022,
     0.117443
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y11l_pano",
    "fixed": {
     "F1": 0.902339,
     "attr_dR": 0.003445,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.000831,
       0.001888
@@ -5095,6 +6752,7 @@
       0.002022,
       0.005857
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -5114,6 +6772,21 @@
    "n_gt": 3919,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.020307
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.000259
+    ],
+    "dR_ci95": [
+     0.0,
+     0.021751
+    ],
+    "viable_frac": 0.031
+   },
    "split": "manual_gold",
    "thr_best_F1": 0.9047,
    "thr_best_t": 0.36,
@@ -5132,11 +6805,14 @@
     0.011,
     0.113259
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y11x_pano_h200",
    "fixed": {
     "F1": 0.902571,
     "attr_dR": 0.003406,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.000513,
       0.002016
@@ -5145,6 +6821,7 @@
       0.002043,
       0.005839
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -5164,6 +6841,21 @@
    "n_gt": 3919,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.022336
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.002364
+    ],
+    "dR_ci95": [
+     0.0,
+     0.023372
+    ],
+    "viable_frac": 0.1375
+   },
    "split": "manual_gold",
    "thr_best_F1": 0.9047,
    "thr_best_t": 0.36,
@@ -5182,11 +6874,14 @@
     0.022,
     0.317452
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y26_pano",
    "fixed": {
     "F1": 0.902838,
     "attr_dR": 0.008076,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.000927,
       0.002908
@@ -5195,6 +6890,7 @@
       0.006286,
       0.011858
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -5214,6 +6910,21 @@
    "n_gt": 3919,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.022457
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.00203
+    ],
+    "dR_ci95": [
+     0.0,
+     0.024291
+    ],
+    "viable_frac": 0.129
+   },
    "split": "manual_gold",
    "thr_best_F1": 0.9047,
    "thr_best_t": 0.36,
@@ -5232,11 +6943,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.6-flash",
    "fixed": {
     "F1": 0.850575,
     "attr_dR": 0.024906,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.007482,
       0.01872
@@ -5245,6 +6959,7 @@
       0.008333,
       0.046025
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -5264,6 +6979,21 @@
    "n_gt": 267,
    "n_viable_rows": 2,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.055039
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.021434
+    ],
+    "dR_ci95": [
+     0.0,
+     0.061856
+    ],
+    "viable_frac": 0.727
+   },
    "split": "morgantown",
    "thr_best_F1": 0.851485,
    "thr_best_t": 0.32,
@@ -5273,6 +7003,7 @@
     "F1": 0.850575,
     "attr_dR": 0.024906,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.007482,
       0.01872
@@ -5281,6 +7012,7 @@
       0.008333,
       0.046025
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -5308,11 +7040,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.1-pro-preview",
    "fixed": {
     "F1": 0.846154,
     "attr_dR": 0.017041,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.011277,
       0.014765
@@ -5321,6 +7056,7 @@
       0.003953,
       0.035433
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -5340,6 +7076,21 @@
    "n_gt": 267,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.034252
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.015465
+    ],
+    "dR_ci95": [
+     0.0,
+     0.036
+    ],
+    "viable_frac": 0.311
+   },
    "split": "morgantown",
    "thr_best_F1": 0.851485,
    "thr_best_t": 0.32,
@@ -5358,11 +7109,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "Qwen/Qwen3-VL-8B-Instruct",
    "fixed": {
     "F1": 0.841699,
     "attr_dR": 0.009738,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.012298,
       0.007063
@@ -5371,6 +7125,7 @@
       0.0,
       0.026316
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -5390,6 +7145,21 @@
    "n_gt": 267,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.024717
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.00602
+    ],
+    "dR_ci95": [
+     0.0,
+     0.027451
+    ],
+    "viable_frac": 0.0715
+   },
    "split": "morgantown",
    "thr_best_F1": 0.851485,
    "thr_best_t": 0.32,
@@ -5408,11 +7178,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "Qwen/Qwen3-VL-32B-Instruct",
    "fixed": {
     "F1": 0.84375,
     "attr_dR": 0.002996,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.007328,
       0.005818
@@ -5421,6 +7194,7 @@
       0.0,
       0.012712
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -5440,6 +7214,21 @@
    "n_gt": 267,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.0
+    ],
+    "dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "viable_frac": 0.012
+   },
    "split": "morgantown",
    "thr_best_F1": 0.851485,
    "thr_best_t": 0.32,
@@ -5458,11 +7247,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "allenai/Molmo2-8B",
    "fixed": {
     "F1": 0.836224,
     "attr_dR": 0.005993,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.019454,
       0.002352
@@ -5471,6 +7263,7 @@
       0.0,
       0.019157
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -5490,6 +7283,21 @@
    "n_gt": 267,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.020109
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.000226
+    ],
+    "dR_ci95": [
+     0.0,
+     0.021053
+    ],
+    "viable_frac": 0.0255
+   },
    "split": "morgantown",
    "thr_best_F1": 0.851485,
    "thr_best_t": 0.32,
@@ -5508,11 +7316,14 @@
     0.011,
     0.107384
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "google/owlv2-large-patch14-ensemble",
    "fixed": {
     "F1": 0.807207,
     "attr_dR": 0.021536,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.058829,
       -0.017945
@@ -5521,6 +7332,7 @@
       0.014599,
       0.05597
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -5540,6 +7352,21 @@
    "n_gt": 267,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.0
+    ],
+    "dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "viable_frac": 0.008
+   },
    "split": "morgantown",
    "thr_best_F1": 0.851485,
    "thr_best_t": 0.32,
@@ -5558,11 +7385,14 @@
     0.011,
     0.172484
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "IDEA-Research/grounding-dino-base",
    "fixed": {
     "F1": 0.823748,
     "attr_dR": 0.016667,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.039113,
       -0.003505
@@ -5571,6 +7401,7 @@
       0.009615,
       0.045833
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -5590,6 +7421,21 @@
    "n_gt": 267,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.025357
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.011536
+    ],
+    "dR_ci95": [
+     0.0,
+     0.031802
+    ],
+    "viable_frac": 0.094
+   },
    "split": "morgantown",
    "thr_best_F1": 0.851485,
    "thr_best_t": 0.32,
@@ -5608,11 +7454,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.7-flash",
    "fixed": {
     "F1": 0.842718,
     "attr_dR": 0.006367,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.012859,
       0.00794
@@ -5621,6 +7470,7 @@
       0.0,
       0.018657
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -5640,6 +7490,21 @@
    "n_gt": 267,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.0364
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.011639
+    ],
+    "dR_ci95": [
+     0.0,
+     0.040741
+    ],
+    "viable_frac": 0.288
+   },
    "split": "morgantown",
    "thr_best_F1": 0.851485,
    "thr_best_t": 0.32,
@@ -5658,11 +7523,14 @@
     0.011,
     0.178122
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y11l_pano",
    "fixed": {
     "F1": 0.851064,
     "attr_dR": 0.017416,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.00577,
       0.018093
@@ -5671,6 +7539,7 @@
       0.004,
       0.035484
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -5690,6 +7559,21 @@
    "n_gt": 267,
    "n_viable_rows": 3,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.072157
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.02624
+    ],
+    "dR_ci95": [
+     0.0,
+     0.073913
+    ],
+    "viable_frac": 0.8365
+   },
    "split": "morgantown",
    "thr_best_F1": 0.851485,
    "thr_best_t": 0.32,
@@ -5699,6 +7583,7 @@
     "F1": 0.850095,
     "attr_dR": 0.031835,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.013042,
       0.022926
@@ -5707,6 +7592,7 @@
       0.012605,
       0.05618
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -5734,11 +7620,14 @@
     0.011,
     0.203038
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y11x_pano_h200",
    "fixed": {
     "F1": 0.851562,
     "attr_dR": 0.0103,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.0,
       0.01505
@@ -5747,6 +7636,7 @@
       0.0,
       0.02521
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -5766,6 +7656,21 @@
    "n_gt": 267,
    "n_viable_rows": 1,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.044784
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.018415
+    ],
+    "dR_ci95": [
+     0.0,
+     0.048507
+    ],
+    "viable_frac": 0.6265
+   },
    "split": "morgantown",
    "thr_best_F1": 0.851485,
    "thr_best_t": 0.32,
@@ -5775,6 +7680,7 @@
     "F1": 0.848369,
     "attr_dR": 0.021348,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.008084,
       0.016298
@@ -5783,6 +7689,7 @@
       0.007246,
       0.041152
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -5810,11 +7717,14 @@
     0.011,
     0.151321
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y26_pano",
    "fixed": {
     "F1": 0.854932,
     "attr_dR": 0.020225,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.001114,
       0.021303
@@ -5823,6 +7733,7 @@
       0.006944,
       0.03937
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -5842,6 +7753,21 @@
    "n_gt": 267,
    "n_viable_rows": 2,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.046154
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.022942
+    ],
+    "dR_ci95": [
+     0.0,
+     0.048327
+    ],
+    "viable_frac": 0.7555
+   },
    "split": "morgantown",
    "thr_best_F1": 0.851485,
    "thr_best_t": 0.32,
@@ -5851,6 +7777,7 @@
     "F1": 0.854932,
     "attr_dR": 0.020225,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.001114,
       0.021303
@@ -5859,6 +7786,7 @@
       0.006944,
       0.03937
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -5886,11 +7814,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "claude-opus-5-effort-low",
    "fixed": {
     "F1": 0.835878,
     "attr_dR": 0.013109,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.022682,
       0.004302
@@ -5899,6 +7830,7 @@
       0.0033,
       0.03125
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -5918,6 +7850,21 @@
    "n_gt": 267,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.060474
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.01485
+    ],
+    "dR_ci95": [
+     0.0,
+     0.065744
+    ],
+    "viable_frac": 0.368
+   },
    "split": "morgantown",
    "thr_best_F1": 0.851485,
    "thr_best_t": 0.32,
@@ -5936,11 +7883,14 @@
     0.044,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.6-flash",
    "fixed": {
     "F1": 0.822695,
     "attr_dR": 0.014937,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.004798,
       0.014621
@@ -5949,6 +7899,7 @@
       0.004926,
       0.028871
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -5968,6 +7919,21 @@
    "n_gt": 395,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.0297
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.020944
+    ],
+    "dR_ci95": [
+     0.0,
+     0.035616
+    ],
+    "viable_frac": 0.3715
+   },
    "split": "paterson",
    "thr_best_F1": 0.821173,
    "thr_best_t": 0.26,
@@ -5986,11 +7952,14 @@
     0.044,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.1-pro-preview",
    "fixed": {
     "F1": 0.822695,
     "attr_dR": 0.014557,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.00473,
       0.014514
@@ -5999,6 +7968,7 @@
       0.004751,
       0.029412
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -6018,6 +7988,21 @@
    "n_gt": 395,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.027792
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.01964
+    ],
+    "dR_ci95": [
+     0.0,
+     0.033419
+    ],
+    "viable_frac": 0.2515
+   },
    "split": "paterson",
    "thr_best_F1": 0.821173,
    "thr_best_t": 0.26,
@@ -6036,11 +8021,14 @@
     0.044,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "Qwen/Qwen3-VL-8B-Instruct",
    "fixed": {
     "F1": 0.819484,
     "attr_dR": 0.00481,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.004609,
       0.006932
@@ -6049,6 +8037,7 @@
       0.0,
       0.01292
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -6068,6 +8057,21 @@
    "n_gt": 395,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.0
+    ],
+    "dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "viable_frac": 0.007
+   },
    "split": "paterson",
    "thr_best_F1": 0.821173,
    "thr_best_t": 0.26,
@@ -6086,11 +8090,14 @@
     0.022,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "Qwen/Qwen3-VL-32B-Instruct",
    "fixed": {
     "F1": 0.821839,
     "attr_dR": 0.005063,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.0,
       0.008592
@@ -6099,6 +8106,7 @@
       0.0,
       0.01292
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -6118,6 +8126,21 @@
    "n_gt": 395,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.0
+    ],
+    "dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "viable_frac": 0.0065
+   },
    "split": "paterson",
    "thr_best_F1": 0.821173,
    "thr_best_t": 0.26,
@@ -6136,11 +8159,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "allenai/Molmo2-8B",
    "fixed": {
     "F1": 0.821683,
     "attr_dR": 0.009494,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.004209,
       0.011507
@@ -6149,6 +8175,7 @@
       0.002347,
       0.021108
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -6168,6 +8195,21 @@
    "n_gt": 395,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.020912
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.013176
+    ],
+    "dR_ci95": [
+     0.0,
+     0.021505
+    ],
+    "viable_frac": 0.0355
+   },
    "split": "paterson",
    "thr_best_F1": 0.821173,
    "thr_best_t": 0.26,
@@ -6186,11 +8228,14 @@
     0.011,
     0.122208
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "google/owlv2-large-patch14-ensemble",
    "fixed": {
     "F1": 0.801642,
     "attr_dR": 0.015949,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.034377,
       -0.002098
@@ -6199,6 +8244,7 @@
       0.009569,
       0.039157
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -6218,6 +8264,21 @@
    "n_gt": 395,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.02865
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.018616
+    ],
+    "dR_ci95": [
+     0.0,
+     0.050114
+    ],
+    "viable_frac": 0.3
+   },
    "split": "paterson",
    "thr_best_F1": 0.821173,
    "thr_best_t": 0.26,
@@ -6236,11 +8297,14 @@
     0.022,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "IDEA-Research/grounding-dino-base",
    "fixed": {
     "F1": 0.802228,
     "attr_dR": 0.005949,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.030563,
       -0.003455
@@ -6249,6 +8313,7 @@
       0.002315,
       0.021505
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -6268,6 +8333,21 @@
    "n_gt": 395,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.021239
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.008649
+    ],
+    "dR_ci95": [
+     0.0,
+     0.03252
+    ],
+    "viable_frac": 0.0395
+   },
    "split": "paterson",
    "thr_best_F1": 0.821173,
    "thr_best_t": 0.26,
@@ -6286,11 +8366,14 @@
     0.044,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.7-flash",
    "fixed": {
     "F1": 0.824034,
     "attr_dR": 0.010127,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.000734,
       0.013339
@@ -6299,6 +8382,7 @@
       0.002304,
       0.021277
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -6318,6 +8402,21 @@
    "n_gt": 395,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.021583
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.015714
+    ],
+    "dR_ci95": [
+     0.0,
+     0.024457
+    ],
+    "viable_frac": 0.05
+   },
    "split": "paterson",
    "thr_best_F1": 0.821173,
    "thr_best_t": 0.26,
@@ -6336,11 +8435,14 @@
     0.044,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y11l_pano",
    "fixed": {
     "F1": 0.816619,
     "attr_dR": 0.002152,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.008576,
       0.003895
@@ -6349,6 +8451,7 @@
       0.0,
       0.008523
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -6368,6 +8471,21 @@
    "n_gt": 395,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.029054
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.01612
+    ],
+    "dR_ci95": [
+     0.0,
+     0.036765
+    ],
+    "viable_frac": 0.302
+   },
    "split": "paterson",
    "thr_best_F1": 0.821173,
    "thr_best_t": 0.26,
@@ -6386,11 +8504,14 @@
     0.044,
     0.083828
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y11x_pano_h200",
    "fixed": {
     "F1": 0.819484,
     "attr_dR": 0.004304,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.004171,
       0.007252
@@ -6399,6 +8520,7 @@
       0.0,
       0.01292
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -6418,6 +8540,21 @@
    "n_gt": 395,
    "n_viable_rows": 1,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.035204
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.020859
+    ],
+    "dR_ci95": [
+     0.0,
+     0.044118
+    ],
+    "viable_frac": 0.575
+   },
    "split": "paterson",
    "thr_best_F1": 0.821173,
    "thr_best_t": 0.26,
@@ -6427,6 +8564,7 @@
     "F1": 0.822873,
     "attr_dR": 0.021392,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.008468,
       0.018214
@@ -6435,6 +8573,7 @@
       0.01292,
       0.045845
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -6462,11 +8601,14 @@
     0.044,
     0.076999
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y26_pano",
    "fixed": {
     "F1": 0.821173,
     "attr_dR": 0.006835,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.004877,
       0.01054
@@ -6475,6 +8617,7 @@
       0.0,
       0.017115
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -6494,6 +8637,21 @@
    "n_gt": 395,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.030916
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.019351
+    ],
+    "dR_ci95": [
+     0.0,
+     0.039312
+    ],
+    "viable_frac": 0.415
+   },
    "split": "paterson",
    "thr_best_F1": 0.821173,
    "thr_best_t": 0.26,
@@ -6512,11 +8670,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "claude-opus-5-effort-low",
    "fixed": {
     "F1": 0.823362,
     "attr_dR": 0.012532,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.003213,
       0.014102
@@ -6525,6 +8686,7 @@
       0.002611,
       0.025281
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -6544,6 +8706,21 @@
    "n_gt": 395,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.025
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.016276
+    ],
+    "dR_ci95": [
+     0.0,
+     0.028818
+    ],
+    "viable_frac": 0.1375
+   },
    "split": "paterson",
    "thr_best_F1": 0.821173,
    "thr_best_t": 0.26,
@@ -6562,11 +8739,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 123,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.6-flash",
    "fixed": {
     "F1": 0.863711,
     "attr_dR": 0.017912,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.011053,
       0.012022
@@ -6575,6 +8755,7 @@
       0.006042,
       0.035573
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -6594,6 +8775,21 @@
    "n_gt": 310,
    "n_viable_rows": 0,
    "null_shifts": 123,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.032577
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.013308
+    ],
+    "dR_ci95": [
+     0.0,
+     0.037037
+    ],
+    "viable_frac": 0.3915
+   },
    "split": "richmond",
    "thr_best_F1": 0.871186,
    "thr_best_t": 0.33,
@@ -6612,11 +8808,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 123,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.1-pro-preview",
    "fixed": {
     "F1": 0.859016,
     "attr_dR": 0.013926,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.017089,
       0.006777
@@ -6625,6 +8824,7 @@
       0.003448,
       0.030675
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -6644,6 +8844,21 @@
    "n_gt": 310,
    "n_viable_rows": 1,
    "null_shifts": 123,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.039263
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.017813
+    ],
+    "dR_ci95": [
+     0.0,
+     0.048951
+    ],
+    "viable_frac": 0.5165
+   },
    "split": "richmond",
    "thr_best_F1": 0.871186,
    "thr_best_t": 0.33,
@@ -6653,6 +8868,7 @@
     "F1": 0.866013,
     "attr_dR": 0.020063,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.011996,
       0.017688
@@ -6661,6 +8877,7 @@
       0.009091,
       0.047468
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -6688,11 +8905,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 123,
+   "calib_false_viable_rate": 0.0,
    "challenger": "Qwen/Qwen3-VL-8B-Instruct",
    "fixed": {
     "F1": 0.852893,
     "attr_dR": 0.001338,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.021724,
       -0.001889
@@ -6701,6 +8921,7 @@
       0.0,
       0.010381
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -6720,6 +8941,21 @@
    "n_gt": 310,
    "n_viable_rows": 0,
    "null_shifts": 123,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.029368
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.011914
+    ],
+    "dR_ci95": [
+     0.0,
+     0.039634
+    ],
+    "viable_frac": 0.1855
+   },
    "split": "richmond",
    "thr_best_F1": 0.871186,
    "thr_best_t": 0.33,
@@ -6738,11 +8974,14 @@
     0.022,
     0.0
    ],
+   "calib_challengers": 123,
+   "calib_false_viable_rate": 0.0,
    "challenger": "Qwen/Qwen3-VL-32B-Instruct",
    "fixed": {
     "F1": 0.862876,
     "attr_dR": 0.002859,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.006232,
       0.004604
@@ -6751,6 +8990,7 @@
       0.0,
       0.010417
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -6770,6 +9010,21 @@
    "n_gt": 310,
    "n_viable_rows": 0,
    "null_shifts": 123,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.0
+    ],
+    "dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "viable_frac": 0.019
+   },
    "split": "richmond",
    "thr_best_F1": 0.871186,
    "thr_best_t": 0.33,
@@ -6788,11 +9043,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 123,
+   "calib_false_viable_rate": 0.0,
    "challenger": "allenai/Molmo2-8B",
    "fixed": {
     "F1": 0.856672,
     "attr_dR": 0.007763,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.018306,
       0.00312
@@ -6801,6 +9059,7 @@
       0.0,
       0.021739
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -6820,6 +9079,21 @@
    "n_gt": 310,
    "n_viable_rows": 0,
    "null_shifts": 123,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.029087
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.014048
+    ],
+    "dR_ci95": [
+     0.0,
+     0.038961
+    ],
+    "viable_frac": 0.225
+   },
    "split": "richmond",
    "thr_best_F1": 0.871186,
    "thr_best_t": 0.33,
@@ -6838,11 +9112,14 @@
     0.011,
     0.077316
    ],
+   "calib_challengers": 123,
+   "calib_false_viable_rate": 0.0,
    "challenger": "google/owlv2-large-patch14-ensemble",
    "fixed": {
     "F1": 0.784547,
     "attr_dR": 0.009153,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.110114,
       -0.050513
@@ -6851,6 +9128,7 @@
       0.006289,
       0.041534
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -6870,6 +9148,21 @@
    "n_gt": 310,
    "n_viable_rows": 0,
    "null_shifts": 123,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.0
+    ],
+    "dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "viable_frac": 0.023
+   },
    "split": "richmond",
    "thr_best_F1": 0.871186,
    "thr_best_t": 0.33,
@@ -6888,11 +9181,14 @@
     0.011,
     0.099096
    ],
+   "calib_challengers": 123,
+   "calib_false_viable_rate": 0.0,
    "challenger": "IDEA-Research/grounding-dino-base",
    "fixed": {
     "F1": 0.817473,
     "attr_dR": 0.007842,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.066651,
       -0.026603
@@ -6901,6 +9197,7 @@
       0.003333,
       0.030675
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -6920,6 +9217,21 @@
    "n_gt": 310,
    "n_viable_rows": 0,
    "null_shifts": 123,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.02259
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.011754
+    ],
+    "dR_ci95": [
+     0.0,
+     0.037415
+    ],
+    "viable_frac": 0.076
+   },
    "split": "richmond",
    "thr_best_F1": 0.871186,
    "thr_best_t": 0.33,
@@ -6938,11 +9250,14 @@
     0.022,
     0.0
    ],
+   "calib_challengers": 123,
+   "calib_false_viable_rate": 0.0,
    "challenger": "mask2former-vistas-curb-cut",
    "fixed": {
     "F1": 0.850163,
     "attr_dR": 0.011146,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.029261,
       0.000764
@@ -6951,6 +9266,7 @@
       0.002915,
       0.027027
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -6970,6 +9286,21 @@
    "n_gt": 310,
    "n_viable_rows": 1,
    "null_shifts": 123,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.043048
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.021889
+    ],
+    "dR_ci95": [
+     0.0,
+     0.047273
+    ],
+    "viable_frac": 0.6045
+   },
    "split": "richmond",
    "thr_best_F1": 0.871186,
    "thr_best_t": 0.33,
@@ -6979,6 +9310,7 @@
     "F1": 0.871711,
     "attr_dR": 0.022974,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.004381,
       0.021678
@@ -6987,6 +9319,7 @@
       0.009091,
       0.047468
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -7014,11 +9347,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 123,
+   "calib_false_viable_rate": 0.00813,
    "challenger": "mask2former-vistas-curb-cut+curb",
    "fixed": {
     "F1": 0.834138,
     "attr_dR": 0.003698,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.044437,
       -0.017011
@@ -7027,6 +9363,7 @@
       0.0,
       0.016722
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -7046,6 +9383,21 @@
    "n_gt": 310,
    "n_viable_rows": 0,
    "null_shifts": 123,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.026912
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.010135
+    ],
+    "dR_ci95": [
+     0.0,
+     0.05
+    ],
+    "viable_frac": 0.142
+   },
    "split": "richmond",
    "thr_best_F1": 0.871186,
    "thr_best_t": 0.33,
@@ -7064,11 +9416,14 @@
     0.011,
     0.640738
    ],
+   "calib_challengers": 123,
+   "calib_false_viable_rate": 0.0,
    "challenger": "mask2former-vistas-curb-cut-1024x1024",
    "fixed": {
     "F1": 0.871961,
     "attr_dR": 0.03572,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.007851,
       0.025557
@@ -7077,6 +9432,7 @@
       0.017857,
       0.062718
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -7096,6 +9452,21 @@
    "n_gt": 310,
    "n_viable_rows": 4,
    "null_shifts": 123,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.058447
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.025432
+    ],
+    "dR_ci95": [
+     0.0,
+     0.062696
+    ],
+    "viable_frac": 0.904
+   },
    "split": "richmond",
    "thr_best_F1": 0.871186,
    "thr_best_t": 0.33,
@@ -7105,6 +9476,7 @@
     "F1": 0.871961,
     "attr_dR": 0.03572,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.007851,
       0.025557
@@ -7113,6 +9485,7 @@
       0.017857,
       0.062718
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -7140,11 +9513,14 @@
     0.022,
     0.0
    ],
+   "calib_challengers": 123,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.7-flash",
    "fixed": {
     "F1": 0.867672,
     "attr_dR": 0.005534,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.0,
       0.009704
@@ -7153,6 +9529,7 @@
       0.0,
       0.016502
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -7172,6 +9549,21 @@
    "n_gt": 310,
    "n_viable_rows": 0,
    "null_shifts": 123,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.030259
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.014473
+    ],
+    "dR_ci95": [
+     0.0,
+     0.03663
+    ],
+    "viable_frac": 0.227
+   },
    "split": "richmond",
    "thr_best_F1": 0.871186,
    "thr_best_t": 0.33,
@@ -7190,11 +9582,14 @@
     0.022,
     0.130591
    ],
+   "calib_challengers": 123,
+   "calib_false_viable_rate": 0.00813,
    "challenger": "y11l_pano",
    "fixed": {
     "F1": 0.865225,
     "attr_dR": 0.008156,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.006795,
       0.009738
@@ -7203,6 +9598,7 @@
       0.0,
       0.021429
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -7222,6 +9618,21 @@
    "n_gt": 310,
    "n_viable_rows": 0,
    "null_shifts": 123,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.028534
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.015186
+    ],
+    "dR_ci95": [
+     0.0,
+     0.035191
+    ],
+    "viable_frac": 0.264
+   },
    "split": "richmond",
    "thr_best_F1": 0.871186,
    "thr_best_t": 0.33,
@@ -7240,11 +9651,14 @@
     0.022,
     0.073876
    ],
+   "calib_challengers": 123,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y11x_pano_h200",
    "fixed": {
     "F1": 0.863787,
     "attr_dR": 0.008209,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.008764,
       0.008616
@@ -7253,6 +9667,7 @@
       0.0,
       0.021021
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -7272,6 +9687,21 @@
    "n_gt": 310,
    "n_viable_rows": 0,
    "null_shifts": 123,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.034978
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.017682
+    ],
+    "dR_ci95": [
+     0.0,
+     0.039711
+    ],
+    "viable_frac": 0.4215
+   },
    "split": "richmond",
    "thr_best_F1": 0.871186,
    "thr_best_t": 0.33,
@@ -7290,11 +9720,14 @@
     0.011,
     0.069176
    ],
+   "calib_challengers": 123,
+   "calib_false_viable_rate": 0.00813,
    "challenger": "y26_pano",
    "fixed": {
     "F1": 0.863262,
     "attr_dR": 0.014215,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.009728,
       0.008073
@@ -7303,6 +9736,7 @@
       0.003425,
       0.030201
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -7322,6 +9756,21 @@
    "n_gt": 310,
    "n_viable_rows": 0,
    "null_shifts": 123,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.037493
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.015642
+    ],
+    "dR_ci95": [
+     0.0,
+     0.040956
+    ],
+    "viable_frac": 0.588
+   },
    "split": "richmond",
    "thr_best_F1": 0.871186,
    "thr_best_t": 0.33,
@@ -7340,11 +9789,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 123,
+   "calib_false_viable_rate": 0.0,
    "challenger": "claude-opus-5-effort-low",
    "fixed": {
     "F1": 0.850649,
     "attr_dR": 0.013926,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.028221,
       0.001178
@@ -7353,6 +9805,7 @@
       0.003546,
       0.03003
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -7372,6 +9825,21 @@
    "n_gt": 310,
    "n_viable_rows": 0,
    "null_shifts": 123,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.037516
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.017982
+    ],
+    "dR_ci95": [
+     0.0,
+     0.048632
+    ],
+    "viable_frac": 0.513
+   },
    "split": "richmond",
    "thr_best_F1": 0.871186,
    "thr_best_t": 0.33,
@@ -7390,11 +9858,14 @@
     0.022,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.6-flash",
    "fixed": {
     "F1": 0.779487,
     "attr_dR": 0.013167,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.034725,
       -0.006714
@@ -7403,6 +9874,7 @@
       0.003175,
       0.030508
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -7422,6 +9894,21 @@
    "n_gt": 281,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.037593
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.016002
+    ],
+    "dR_ci95": [
+     0.0,
+     0.039735
+    ],
+    "viable_frac": 0.4725
+   },
    "split": "sao_paulo",
    "thr_best_F1": 0.8,
    "thr_best_t": 0.3,
@@ -7440,11 +9927,14 @@
     0.044,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.1-pro-preview",
    "fixed": {
     "F1": 0.785467,
     "attr_dR": 0.008541,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.027122,
       -0.00223
@@ -7453,6 +9943,7 @@
       0.0,
       0.02381
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -7472,6 +9963,21 @@
    "n_gt": 281,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.03774
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.011488
+    ],
+    "dR_ci95": [
+     0.0,
+     0.04878
+    ],
+    "viable_frac": 0.2745
+   },
    "split": "sao_paulo",
    "thr_best_F1": 0.8,
    "thr_best_t": 0.3,
@@ -7490,11 +9996,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "Qwen/Qwen3-VL-8B-Instruct",
    "fixed": {
     "F1": 0.795775,
     "attr_dR": 0.006584,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.013064,
       0.004696
@@ -7503,6 +10012,7 @@
       0.0,
       0.018248
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -7522,6 +10032,21 @@
    "n_gt": 281,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.0
+    ],
+    "dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "viable_frac": 0.0205
+   },
    "split": "sao_paulo",
    "thr_best_F1": 0.8,
    "thr_best_t": 0.3,
@@ -7540,11 +10065,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "Qwen/Qwen3-VL-32B-Instruct",
    "fixed": {
     "F1": 0.798574,
     "attr_dR": -0.000356,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.004597,
       0.0
@@ -7553,6 +10081,7 @@
       0.0,
       0.0
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -7572,6 +10101,21 @@
    "n_gt": 281,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.0
+    ],
+    "dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "viable_frac": 0.0
+   },
    "split": "sao_paulo",
    "thr_best_F1": 0.8,
    "thr_best_t": 0.3,
@@ -7590,11 +10134,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "allenai/Molmo2-8B",
    "fixed": {
     "F1": 0.784722,
     "attr_dR": 0.005694,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.026853,
       -0.004592
@@ -7603,6 +10150,7 @@
       0.0,
       0.018116
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -7622,6 +10170,21 @@
    "n_gt": 281,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.0
+    ],
+    "dR_ci95": [
+     0.0,
+     0.0
+    ],
+    "viable_frac": 0.002
+   },
    "split": "sao_paulo",
    "thr_best_F1": 0.8,
    "thr_best_t": 0.3,
@@ -7640,11 +10203,14 @@
     0.011,
     0.176725
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "google/owlv2-large-patch14-ensemble",
    "fixed": {
     "F1": 0.743222,
     "attr_dR": 0.021174,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.078195,
       -0.036003
@@ -7653,6 +10219,7 @@
       0.014085,
       0.054475
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -7672,6 +10239,21 @@
    "n_gt": 281,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.027473
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.007885
+    ],
+    "dR_ci95": [
+     0.0,
+     0.050167
+    ],
+    "viable_frac": 0.121
+   },
    "split": "sao_paulo",
    "thr_best_F1": 0.8,
    "thr_best_t": 0.3,
@@ -7690,11 +10272,14 @@
     0.011,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "IDEA-Research/grounding-dino-base",
    "fixed": {
     "F1": 0.761269,
     "attr_dR": 0.004093,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.056252,
       -0.023052
@@ -7703,6 +10288,7 @@
       0.002915,
       0.030651
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -7722,6 +10308,21 @@
    "n_gt": 281,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.021103
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.001996
+    ],
+    "dR_ci95": [
+     0.0,
+     0.030303
+    ],
+    "viable_frac": 0.0335
+   },
    "split": "sao_paulo",
    "thr_best_F1": 0.8,
    "thr_best_t": 0.3,
@@ -7740,11 +10341,14 @@
     0.022,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "gemini-3.7-flash",
    "fixed": {
     "F1": 0.79646,
     "attr_dR": 0.003381,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.010575,
       0.003491
@@ -7753,6 +10357,7 @@
       0.0,
       0.011494
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -7772,6 +10377,21 @@
    "n_gt": 281,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.028339
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.01087
+    ],
+    "dR_ci95": [
+     0.0,
+     0.029091
+    ],
+    "viable_frac": 0.138
+   },
    "split": "sao_paulo",
    "thr_best_F1": 0.8,
    "thr_best_t": 0.3,
@@ -7790,11 +10410,14 @@
     0.011,
     0.121202
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y11l_pano",
    "fixed": {
     "F1": 0.813913,
     "attr_dR": 0.034698,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.000612,
       0.032559
@@ -7803,6 +10426,7 @@
       0.0125,
       0.066116
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -7822,6 +10446,21 @@
    "n_gt": 281,
    "n_viable_rows": 18,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.068802
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.033239
+    ],
+    "dR_ci95": [
+     0.0,
+     0.071672
+    ],
+    "viable_frac": 0.9435
+   },
    "split": "sao_paulo",
    "thr_best_F1": 0.8,
    "thr_best_t": 0.3,
@@ -7831,6 +10470,7 @@
     "F1": 0.813913,
     "attr_dR": 0.034698,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.000612,
       0.032559
@@ -7839,6 +10479,7 @@
       0.0125,
       0.066116
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -7866,11 +10507,14 @@
     0.011,
     0.123348
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y11x_pano_h200",
    "fixed": {
     "F1": 0.810435,
     "attr_dR": 0.031139,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.002445,
       0.026757
@@ -7879,6 +10523,7 @@
       0.012,
       0.059322
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -7898,6 +10543,21 @@
    "n_gt": 281,
    "n_viable_rows": 14,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.061905
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.029305
+    ],
+    "dR_ci95": [
+     0.0,
+     0.065574
+    ],
+    "viable_frac": 0.918
+   },
    "split": "sao_paulo",
    "thr_best_F1": 0.8,
    "thr_best_t": 0.3,
@@ -7907,6 +10567,7 @@
     "F1": 0.813264,
     "attr_dR": 0.031139,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       0.000696,
       0.029908
@@ -7915,6 +10576,7 @@
       0.012,
       0.059322
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -7942,11 +10604,14 @@
     0.011,
     0.215164
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "y26_pano",
    "fixed": {
     "F1": 0.804836,
     "attr_dR": 0.030605,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.009372,
       0.021159
@@ -7955,6 +10620,7 @@
       0.013468,
       0.054852
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -7974,6 +10640,21 @@
    "n_gt": 281,
    "n_viable_rows": 19,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.057707
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.026366
+    ],
+    "dR_ci95": [
+     0.0,
+     0.064626
+    ],
+    "viable_frac": 0.8945
+   },
    "split": "sao_paulo",
    "thr_best_F1": 0.8,
    "thr_best_t": 0.3,
@@ -7983,6 +10664,7 @@
     "F1": 0.808436,
     "attr_dR": 0.020819,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.002533,
       0.020803
@@ -7991,6 +10673,7 @@
       0.006645,
       0.040486
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -8018,11 +10701,14 @@
     0.044,
     0.0
    ],
+   "calib_challengers": 20,
+   "calib_false_viable_rate": 0.0,
    "challenger": "claude-opus-5-effort-low",
    "fixed": {
     "F1": 0.790295,
     "attr_dR": 0.012811,
     "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
      "dF1_ci95": [
       -0.022522,
       0.003041
@@ -8031,6 +10717,7 @@
       0.003215,
       0.030201
      ],
+     "dR_kind": "raw (not attributable)",
      "resamples": 2000,
      "seed": 0,
      "unit": "pano"
@@ -8050,6 +10737,21 @@
    "n_gt": 281,
    "n_viable_rows": 0,
    "null_shifts": 20,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.037066
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.010995
+    ],
+    "dR_ci95": [
+     0.0,
+     0.044674
+    ],
+    "viable_frac": 0.279
+   },
    "split": "sao_paulo",
    "thr_best_F1": 0.8,
    "thr_best_t": 0.3,

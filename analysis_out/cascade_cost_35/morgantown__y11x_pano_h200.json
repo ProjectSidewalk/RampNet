@@ -1,4 +1,23 @@
 {
+ "args": {
+  "bootstrap": 2000,
+  "c_min": "auto",
+  "null": "shift",
+  "null_shifts": "20",
+  "r_gate": [
+   0.011,
+   0.022,
+   0.044
+  ],
+  "seed": 0,
+  "t_lo": [
+   0.05,
+   0.1,
+   0.15,
+   0.2,
+   0.25
+  ]
+ },
  "baseline": {
   "F1": 0.844794,
   "P": 0.88843,
@@ -66,16 +85,6 @@
   "r_gate": 0.011,
   "t_lo": 0.05,
   "threshold_only_F1": 0.650206,
-  "threshold_only_at_matched_recall": {
-   "F1": 0.822642,
-   "P": 0.828897,
-   "R": 0.816479,
-   "fn": 49,
-   "fp": 45,
-   "n_gt": 267,
-   "t": 0.22,
-   "tp": 218
-  },
   "tp": 218
  },
  "best_viable": {
@@ -113,8 +122,49 @@
   },
   "tp": 221
  },
+ "bootstrap_selection_aware": {
+  "attr_dR_ci95": [
+   0.0,
+   0.044784
+  ],
+  "dF1_ci95": [
+   0.0,
+   0.018415
+  ],
+  "dR_ci95": [
+   0.0,
+   0.048507
+  ],
+  "given_viable": {
+   "attr_dR_ci95": [
+    0.020185,
+    0.04802
+   ],
+   "dF1_ci95": [
+    0.000556,
+    0.01944
+   ],
+   "dR_ci95": [
+    0.021008,
+    0.051195
+   ]
+  },
+  "note": "the rule re-applied in every resample (null mean, controls, viability, best by (F1, attributable dR)); Delta = 0 in a resample with no viable setting, where the cascade is not deployed",
+  "resamples": 2000,
+  "rng": "numpy.default_rng",
+  "same_setting_frac": 0.266,
+  "seed": 0,
+  "unit": "pano",
+  "verdict_counts": {
+   "NOT VIABLE": 274,
+   "PARTIAL": 473,
+   "VIABLE": 1253
+  },
+  "viable_frac": 0.6265
+ },
  "bootstrap_vs_baseline": {
   "best_by_f1": {
+   "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
    "dF1_ci95": [
     0.0,
     0.01505
@@ -123,11 +173,13 @@
     0.0,
     0.02521
    ],
+   "dR_kind": "raw (not attributable)",
    "resamples": 2000,
    "seed": 0,
    "unit": "pano"
   },
   "best_viable": {
+   "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
    "dF1_ci95": [
     -0.008084,
     0.016298
@@ -136,11 +188,13 @@
     0.007246,
     0.041152
    ],
+   "dR_kind": "raw (not attributable)",
    "resamples": 2000,
    "seed": 0,
    "unit": "pano"
   },
   "fixed": {
+   "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
    "dF1_ci95": [
     0.0,
     0.01505
@@ -149,6 +203,7 @@
     0.0,
     0.02521
    ],
+   "dR_kind": "raw (not attributable)",
    "resamples": 2000,
    "seed": 0,
    "unit": "pano"
@@ -160,6 +215,21 @@
   0.203038,
   0.396571
  ],
+ "calibration": {
+  "challengers": 20,
+  "construction": "each shifted challenger run through the whole rule, its null = the true alignment plus the other evaluated shifts",
+  "exact": false,
+  "false_viable_rate": 0.0,
+  "max_attr_dR_max": 0.017603,
+  "max_attr_dR_median": 0.003371,
+  "real_max_attr_dR": 0.029401,
+  "verdicts": {
+   "NOT VIABLE": 20,
+   "PARTIAL": 0,
+   "VIABLE": 0
+  },
+  "wrong_at_or_above_real": 0
+ },
  "ceiling": null,
  "challenger": "y11x_pano_h200",
  "challenger_signature": {
@@ -182,7 +252,6 @@
    "weights_hash": "ce84201e26fbbd94d656f9d791cfe855cbf4bd4f"
   }
  },
- "elapsed_s": 2.7541,
  "fixed_setting": {
   "F1": 0.851562,
   "P": 0.889796,
@@ -274,16 +343,6 @@
    "r_gate": 0.011,
    "t_lo": 0.05,
    "threshold_only_F1": 0.650206,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.782456,
-    "P": 0.735974,
-    "R": 0.835206,
-    "fn": 44,
-    "fp": 80,
-    "n_gt": 267,
-    "t": 0.15,
-    "tp": 223
-   },
    "tp": 221
   },
   {
@@ -309,16 +368,6 @@
    "r_gate": 0.011,
    "t_lo": 0.05,
    "threshold_only_F1": 0.650206,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.822642,
-    "P": 0.828897,
-    "R": 0.816479,
-    "fn": 49,
-    "fp": 45,
-    "n_gt": 267,
-    "t": 0.22,
-    "tp": 218
-   },
    "tp": 218
   },
   {
@@ -1747,7 +1796,6 @@
    "tp": 215
   }
  ],
- "host": "jonfhome",
  "min_attributable_dR": 0.02,
  "n_gt_recall": 267,
  "n_panos": 125,
@@ -1758,6 +1806,7 @@
    "R": 0.902622,
    "fn": 26,
    "fp": 304,
+   "fp_per_recovered_ramp": 10.653846,
    "n_gt": 267,
    "tp": 241
   },
@@ -1768,6 +1817,7 @@
    "challenger_fp": 87,
    "fn": 29,
    "fp": 114,
+   "fp_per_recovered_ramp": 3.782609,
    "n_gt": 267,
    "rampnet_fp": 27,
    "tp": 238

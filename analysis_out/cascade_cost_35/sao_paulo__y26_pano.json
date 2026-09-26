@@ -1,4 +1,23 @@
 {
+ "args": {
+  "bootstrap": 2000,
+  "c_min": "auto",
+  "null": "shift",
+  "null_shifts": "20",
+  "r_gate": [
+   0.011,
+   0.022,
+   0.044
+  ],
+  "seed": 0,
+  "t_lo": [
+   0.05,
+   0.1,
+   0.15,
+   0.2,
+   0.25
+  ]
+ },
  "baseline": {
   "F1": 0.8,
   "P": 0.802867,
@@ -79,8 +98,49 @@
   },
   "tp": 230
  },
+ "bootstrap_selection_aware": {
+  "attr_dR_ci95": [
+   0.0,
+   0.057707
+  ],
+  "dF1_ci95": [
+   0.0,
+   0.026366
+  ],
+  "dR_ci95": [
+   0.0,
+   0.064626
+  ],
+  "given_viable": {
+   "attr_dR_ci95": [
+    0.020423,
+    0.058233
+   ],
+   "dF1_ci95": [
+    0.001471,
+    0.026944
+   ],
+   "dR_ci95": [
+    0.021084,
+    0.065116
+   ]
+  },
+  "note": "the rule re-applied in every resample (null mean, controls, viability, best by (F1, attributable dR)); Delta = 0 in a resample with no viable setting, where the cascade is not deployed",
+  "resamples": 2000,
+  "rng": "numpy.default_rng",
+  "same_setting_frac": 0.1065,
+  "seed": 0,
+  "unit": "pano",
+  "verdict_counts": {
+   "NOT VIABLE": 32,
+   "PARTIAL": 179,
+   "VIABLE": 1789
+  },
+  "viable_frac": 0.8945
+ },
  "bootstrap_vs_baseline": {
   "best_by_f1": {
+   "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
    "dF1_ci95": [
     -0.002533,
     0.020803
@@ -89,11 +149,13 @@
     0.006645,
     0.040486
    ],
+   "dR_kind": "raw (not attributable)",
    "resamples": 2000,
    "seed": 0,
    "unit": "pano"
   },
   "best_viable": {
+   "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
    "dF1_ci95": [
     -0.002533,
     0.020803
@@ -102,11 +164,13 @@
     0.006645,
     0.040486
    ],
+   "dR_kind": "raw (not attributable)",
    "resamples": 2000,
    "seed": 0,
    "unit": "pano"
   },
   "fixed": {
+   "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
    "dF1_ci95": [
     -0.009372,
     0.021159
@@ -115,6 +179,7 @@
     0.013468,
     0.054852
    ],
+   "dR_kind": "raw (not attributable)",
    "resamples": 2000,
    "seed": 0,
    "unit": "pano"
@@ -126,6 +191,21 @@
   0.118057,
   0.215164
  ],
+ "calibration": {
+  "challengers": 20,
+  "construction": "each shifted challenger run through the whole rule, its null = the true alignment plus the other evaluated shifts",
+  "exact": false,
+  "false_viable_rate": 0.0,
+  "max_attr_dR_max": 0.009786,
+  "max_attr_dR_median": 0.004626,
+  "real_max_attr_dR": 0.040036,
+  "verdicts": {
+   "NOT VIABLE": 20,
+   "PARTIAL": 0,
+   "VIABLE": 0
+  },
+  "wrong_at_or_above_real": 0
+ },
  "ceiling": null,
  "challenger": "y26_pano",
  "challenger_signature": {
@@ -148,7 +228,6 @@
    "weights_hash": "2571bbd27aba59506aabd3499234d3e37c42b405"
   }
  },
- "elapsed_s": 3.246747,
  "fixed_setting": {
   "F1": 0.804836,
   "P": 0.781879,
@@ -265,16 +344,6 @@
    "r_gate": 0.011,
    "t_lo": 0.05,
    "threshold_only_F1": 0.656797,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.78,
-    "P": 0.733542,
-    "R": 0.83274,
-    "fn": 47,
-    "fp": 85,
-    "n_gt": 281,
-    "t": 0.19,
-    "tp": 234
-   },
    "tp": 233
   },
   {
@@ -300,16 +369,6 @@
    "r_gate": 0.011,
    "t_lo": 0.05,
    "threshold_only_F1": 0.656797,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.785714,
-    "P": 0.752443,
-    "R": 0.822064,
-    "fn": 50,
-    "fp": 76,
-    "n_gt": 281,
-    "t": 0.21,
-    "tp": 231
-   },
    "tp": 230
   },
   {
@@ -385,16 +444,6 @@
    "r_gate": 0.022,
    "t_lo": 0.05,
    "threshold_only_F1": 0.656797,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.78,
-    "P": 0.733542,
-    "R": 0.83274,
-    "fn": 47,
-    "fp": 85,
-    "n_gt": 281,
-    "t": 0.19,
-    "tp": 234
-   },
    "tp": 234
   },
   {
@@ -570,16 +619,6 @@
    "r_gate": 0.011,
    "t_lo": 0.1,
    "threshold_only_F1": 0.720238,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.78,
-    "P": 0.733542,
-    "R": 0.83274,
-    "fn": 47,
-    "fp": 85,
-    "n_gt": 281,
-    "t": 0.19,
-    "tp": 234
-   },
    "tp": 234
   },
   {
@@ -605,16 +644,6 @@
    "r_gate": 0.011,
    "t_lo": 0.1,
    "threshold_only_F1": 0.720238,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.78,
-    "P": 0.733542,
-    "R": 0.83274,
-    "fn": 47,
-    "fp": 85,
-    "n_gt": 281,
-    "t": 0.19,
-    "tp": 234
-   },
    "tp": 233
   },
   {
@@ -640,16 +669,6 @@
    "r_gate": 0.011,
    "t_lo": 0.1,
    "threshold_only_F1": 0.720238,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.785714,
-    "P": 0.752443,
-    "R": 0.822064,
-    "fn": 50,
-    "fp": 76,
-    "n_gt": 281,
-    "t": 0.21,
-    "tp": 231
-   },
    "tp": 230
   },
   {
@@ -725,16 +744,6 @@
    "r_gate": 0.022,
    "t_lo": 0.1,
    "threshold_only_F1": 0.720238,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.78,
-    "P": 0.733542,
-    "R": 0.83274,
-    "fn": 47,
-    "fp": 85,
-    "n_gt": 281,
-    "t": 0.19,
-    "tp": 234
-   },
    "tp": 234
   },
   {
@@ -835,16 +844,6 @@
    "r_gate": 0.044,
    "t_lo": 0.1,
    "threshold_only_F1": 0.720238,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.76873,
-    "P": 0.708709,
-    "R": 0.839858,
-    "fn": 45,
-    "fp": 97,
-    "n_gt": 281,
-    "t": 0.17,
-    "tp": 236
-   },
    "tp": 236
   },
   {
@@ -870,16 +869,6 @@
    "r_gate": 0.044,
    "t_lo": 0.1,
    "threshold_only_F1": 0.720238,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.781145,
-    "P": 0.741214,
-    "R": 0.825623,
-    "fn": 49,
-    "fp": 81,
-    "n_gt": 281,
-    "t": 0.2,
-    "tp": 232
-   },
    "tp": 232
   },
   {
@@ -905,16 +894,6 @@
    "r_gate": 0.011,
    "t_lo": 0.15,
    "threshold_only_F1": 0.756757,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.78,
-    "P": 0.733542,
-    "R": 0.83274,
-    "fn": 47,
-    "fp": 85,
-    "n_gt": 281,
-    "t": 0.19,
-    "tp": 234
-   },
    "tp": 233
   },
   {
@@ -940,16 +919,6 @@
    "r_gate": 0.011,
    "t_lo": 0.15,
    "threshold_only_F1": 0.756757,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.78,
-    "P": 0.733542,
-    "R": 0.83274,
-    "fn": 47,
-    "fp": 85,
-    "n_gt": 281,
-    "t": 0.19,
-    "tp": 234
-   },
    "tp": 233
   },
   {
@@ -975,16 +944,6 @@
    "r_gate": 0.011,
    "t_lo": 0.15,
    "threshold_only_F1": 0.756757,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.781145,
-    "P": 0.741214,
-    "R": 0.825623,
-    "fn": 49,
-    "fp": 81,
-    "n_gt": 281,
-    "t": 0.2,
-    "tp": 232
-   },
    "tp": 232
   },
   {
@@ -1035,16 +994,6 @@
    "r_gate": 0.022,
    "t_lo": 0.15,
    "threshold_only_F1": 0.756757,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.78,
-    "P": 0.733542,
-    "R": 0.83274,
-    "fn": 47,
-    "fp": 85,
-    "n_gt": 281,
-    "t": 0.19,
-    "tp": 234
-   },
    "tp": 234
   },
   {
@@ -1070,16 +1019,6 @@
    "r_gate": 0.022,
    "t_lo": 0.15,
    "threshold_only_F1": 0.756757,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.78,
-    "P": 0.733542,
-    "R": 0.83274,
-    "fn": 47,
-    "fp": 85,
-    "n_gt": 281,
-    "t": 0.19,
-    "tp": 234
-   },
    "tp": 234
   },
   {
@@ -1105,16 +1044,6 @@
    "r_gate": 0.022,
    "t_lo": 0.15,
    "threshold_only_F1": 0.756757,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.78,
-    "P": 0.733542,
-    "R": 0.83274,
-    "fn": 47,
-    "fp": 85,
-    "n_gt": 281,
-    "t": 0.19,
-    "tp": 234
-   },
    "tp": 233
   },
   {
@@ -1215,16 +1144,6 @@
    "r_gate": 0.044,
    "t_lo": 0.15,
    "threshold_only_F1": 0.756757,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.78,
-    "P": 0.733542,
-    "R": 0.83274,
-    "fn": 47,
-    "fp": 85,
-    "n_gt": 281,
-    "t": 0.19,
-    "tp": 234
-   },
    "tp": 234
   },
   {
@@ -1275,16 +1194,6 @@
    "r_gate": 0.011,
    "t_lo": 0.2,
    "threshold_only_F1": 0.781145,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.785714,
-    "P": 0.752443,
-    "R": 0.822064,
-    "fn": 50,
-    "fp": 76,
-    "n_gt": 281,
-    "t": 0.21,
-    "tp": 231
-   },
    "tp": 230
   },
   {
@@ -1310,16 +1219,6 @@
    "r_gate": 0.011,
    "t_lo": 0.2,
    "threshold_only_F1": 0.781145,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.785714,
-    "P": 0.752443,
-    "R": 0.822064,
-    "fn": 50,
-    "fp": 76,
-    "n_gt": 281,
-    "t": 0.21,
-    "tp": 231
-   },
    "tp": 230
   },
   {
@@ -1345,16 +1244,6 @@
    "r_gate": 0.011,
    "t_lo": 0.2,
    "threshold_only_F1": 0.781145,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.785714,
-    "P": 0.752443,
-    "R": 0.822064,
-    "fn": 50,
-    "fp": 76,
-    "n_gt": 281,
-    "t": 0.21,
-    "tp": 231
-   },
    "tp": 230
   },
   {
@@ -1883,7 +1772,6 @@
    "tp": 226
   }
  ],
- "host": "jonfhome",
  "min_attributable_dR": 0.02,
  "n_gt_recall": 281,
  "n_panos": 125,
@@ -1894,6 +1782,7 @@
    "R": 0.921708,
    "fn": 22,
    "fp": 924,
+   "fp_per_recovered_ramp": 24.828571,
    "n_gt": 281,
    "tp": 259
   },
@@ -1904,6 +1793,7 @@
    "challenger_fp": 663,
    "fn": 23,
    "fp": 718,
+   "fp_per_recovered_ramp": 19.5,
    "n_gt": 281,
    "rampnet_fp": 55,
    "tp": 258

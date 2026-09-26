@@ -1,4 +1,23 @@
 {
+ "args": {
+  "bootstrap": 2000,
+  "c_min": "auto",
+  "null": "shift",
+  "null_shifts": "20",
+  "r_gate": [
+   0.011,
+   0.022,
+   0.044
+  ],
+  "seed": 0,
+  "t_lo": [
+   0.05,
+   0.1,
+   0.15,
+   0.2,
+   0.25
+  ]
+ },
  "baseline": {
   "F1": 0.812379,
   "P": 0.857143,
@@ -79,8 +98,49 @@
   },
   "tp": 218
  },
+ "bootstrap_selection_aware": {
+  "attr_dR_ci95": [
+   0.0,
+   0.051144
+  ],
+  "dF1_ci95": [
+   0.0,
+   0.02547
+  ],
+  "dR_ci95": [
+   0.0,
+   0.055147
+  ],
+  "given_viable": {
+   "attr_dR_ci95": [
+    0.020489,
+    0.053425
+   ],
+   "dF1_ci95": [
+    0.000977,
+    0.027005
+   ],
+   "dR_ci95": [
+    0.021978,
+    0.057377
+   ]
+  },
+  "note": "the rule re-applied in every resample (null mean, controls, viability, best by (F1, attributable dR)); Delta = 0 in a resample with no viable setting, where the cascade is not deployed",
+  "resamples": 2000,
+  "rng": "numpy.default_rng",
+  "same_setting_frac": 0.5055,
+  "seed": 0,
+  "unit": "pano",
+  "verdict_counts": {
+   "NOT VIABLE": 367,
+   "PARTIAL": 244,
+   "VIABLE": 1389
+  },
+  "viable_frac": 0.6945
+ },
  "bootstrap_vs_baseline": {
   "best_by_f1": {
+   "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
    "dF1_ci95": [
     -0.007914,
     0.025544
@@ -89,11 +149,13 @@
     0.010453,
     0.053498
    ],
+   "dR_kind": "raw (not attributable)",
    "resamples": 2000,
    "seed": 0,
    "unit": "pano"
   },
   "best_viable": {
+   "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
    "dF1_ci95": [
     -0.007914,
     0.025544
@@ -102,11 +164,13 @@
     0.010453,
     0.053498
    ],
+   "dR_kind": "raw (not attributable)",
    "resamples": 2000,
    "seed": 0,
    "unit": "pano"
   },
   "fixed": {
+   "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
    "dF1_ci95": [
     -0.011936,
     0.016233
@@ -115,6 +179,7 @@
     0.007092,
     0.040816
    ],
+   "dR_kind": "raw (not attributable)",
    "resamples": 2000,
    "seed": 0,
    "unit": "pano"
@@ -123,6 +188,21 @@
  "c_min_grid": [
   0.0
  ],
+ "calibration": {
+  "challengers": 20,
+  "construction": "each shifted challenger run through the whole rule, its null = the true alignment plus the other evaluated shifts",
+  "exact": false,
+  "false_viable_rate": 0.0,
+  "max_attr_dR_max": 0.014338,
+  "max_attr_dR_median": 0.002757,
+  "real_max_attr_dR": 0.029228,
+  "verdicts": {
+   "NOT VIABLE": 20,
+   "PARTIAL": 0,
+   "VIABLE": 0
+  },
+  "wrong_at_or_above_real": 0
+ },
  "ceiling": null,
  "challenger": "gemini-3.7-flash",
  "challenger_signature": {
@@ -190,7 +270,6 @@
    ]
   }
  },
- "elapsed_s": 1.342081,
  "fixed_setting": {
   "F1": 0.813559,
   "P": 0.833977,
@@ -257,16 +336,6 @@
    "r_gate": 0.011,
    "t_lo": 0.05,
    "threshold_only_F1": 0.706569,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.816327,
-    "P": 0.82397,
-    "R": 0.808824,
-    "fn": 52,
-    "fp": 47,
-    "n_gt": 272,
-    "t": 0.23,
-    "tp": 220
-   },
    "tp": 216
   },
   {
@@ -342,16 +411,6 @@
    "r_gate": 0.011,
    "t_lo": 0.1,
    "threshold_only_F1": 0.77377,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.816327,
-    "P": 0.82397,
-    "R": 0.808824,
-    "fn": 52,
-    "fp": 47,
-    "n_gt": 272,
-    "t": 0.23,
-    "tp": 220
-   },
    "tp": 216
   },
   {
@@ -377,16 +436,6 @@
    "r_gate": 0.022,
    "t_lo": 0.1,
    "threshold_only_F1": 0.77377,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.816327,
-    "P": 0.82397,
-    "R": 0.808824,
-    "fn": 52,
-    "fp": 47,
-    "n_gt": 272,
-    "t": 0.23,
-    "tp": 220
-   },
    "tp": 218
   },
   {
@@ -437,16 +486,6 @@
    "r_gate": 0.011,
    "t_lo": 0.15,
    "threshold_only_F1": 0.802792,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.816327,
-    "P": 0.82397,
-    "R": 0.808824,
-    "fn": 52,
-    "fp": 47,
-    "n_gt": 272,
-    "t": 0.23,
-    "tp": 220
-   },
    "tp": 216
   },
   {
@@ -472,16 +511,6 @@
    "r_gate": 0.022,
    "t_lo": 0.15,
    "threshold_only_F1": 0.802792,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.816327,
-    "P": 0.82397,
-    "R": 0.808824,
-    "fn": 52,
-    "fp": 47,
-    "n_gt": 272,
-    "t": 0.23,
-    "tp": 220
-   },
    "tp": 218
   },
   {
@@ -660,7 +689,6 @@
    "tp": 212
   }
  ],
- "host": "jonfhome",
  "min_attributable_dR": 0.02,
  "n_gt_recall": 272,
  "n_panos": 125,
@@ -671,6 +699,7 @@
    "R": 0.823529,
    "fn": 48,
    "fp": 237,
+   "fp_per_recovered_ramp": 14.428571,
    "n_gt": 272,
    "tp": 224
   },
@@ -681,6 +710,7 @@
    "challenger_fp": 107,
    "fn": 50,
    "fp": 142,
+   "fp_per_recovered_ramp": 8.916667,
    "n_gt": 272,
    "rampnet_fp": 35,
    "tp": 222

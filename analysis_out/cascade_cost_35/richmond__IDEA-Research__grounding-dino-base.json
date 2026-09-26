@@ -1,4 +1,23 @@
 {
+ "args": {
+  "bootstrap": 2000,
+  "c_min": "auto",
+  "null": "shift",
+  "null_shifts": "all",
+  "r_gate": [
+   0.011,
+   0.022,
+   0.044
+  ],
+  "seed": 0,
+  "t_lo": [
+   0.05,
+   0.1,
+   0.15,
+   0.2,
+   0.25
+  ]
+ },
  "baseline": {
   "F1": 0.863866,
   "P": 0.901754,
@@ -69,8 +88,49 @@
   "tp": 258
  },
  "best_viable": null,
+ "bootstrap_selection_aware": {
+  "attr_dR_ci95": [
+   0.0,
+   0.02259
+  ],
+  "dF1_ci95": [
+   0.0,
+   0.011754
+  ],
+  "dR_ci95": [
+   0.0,
+   0.037415
+  ],
+  "given_viable": {
+   "attr_dR_ci95": [
+    0.020008,
+    0.029952
+   ],
+   "dF1_ci95": [
+    0.000364,
+    0.020125
+   ],
+   "dR_ci95": [
+    0.024169,
+    0.051118
+   ]
+  },
+  "note": "the rule re-applied in every resample (null mean, controls, viability, best by (F1, attributable dR)); Delta = 0 in a resample with no viable setting, where the cascade is not deployed",
+  "resamples": 2000,
+  "rng": "numpy.default_rng",
+  "same_setting_frac": null,
+  "seed": 0,
+  "unit": "pano",
+  "verdict_counts": {
+   "NOT VIABLE": 975,
+   "PARTIAL": 873,
+   "VIABLE": 152
+  },
+  "viable_frac": 0.076
+ },
  "bootstrap_vs_baseline": {
   "best_by_f1": {
+   "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
    "dF1_ci95": [
     -0.005169,
     0.012517
@@ -79,11 +139,13 @@
     0.002941,
     0.02649
    ],
+   "dR_kind": "raw (not attributable)",
    "resamples": 2000,
    "seed": 0,
    "unit": "pano"
   },
   "fixed": {
+   "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
    "dF1_ci95": [
     -0.066651,
     -0.026603
@@ -92,6 +154,7 @@
     0.003333,
     0.030675
    ],
+   "dR_kind": "raw (not attributable)",
    "resamples": 2000,
    "seed": 0,
    "unit": "pano"
@@ -103,6 +166,21 @@
   0.099096,
   0.173725
  ],
+ "calibration": {
+  "challengers": 123,
+  "construction": "each shifted challenger run through the whole rule, its null = the true alignment plus the other evaluated shifts",
+  "exact": true,
+  "false_viable_rate": 0.0,
+  "max_attr_dR_max": 0.020168,
+  "max_attr_dR_median": 0.008628,
+  "real_max_attr_dR": 0.017703,
+  "verdicts": {
+   "NOT VIABLE": 122,
+   "PARTIAL": 1,
+   "VIABLE": 0
+  },
+  "wrong_at_or_above_real": 5
+ },
  "ceiling": null,
  "challenger": "IDEA-Research/grounding-dino-base",
  "challenger_signature": {
@@ -173,7 +251,6 @@
    ]
   }
  },
- "elapsed_s": 53.674324,
  "fixed_setting": {
   "F1": 0.817473,
   "P": 0.791541,
@@ -1190,16 +1267,6 @@
    "r_gate": 0.011,
    "t_lo": 0.2,
    "threshold_only_F1": 0.848485,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.854812,
-    "P": 0.864686,
-    "R": 0.845161,
-    "fn": 48,
-    "fp": 41,
-    "n_gt": 310,
-    "t": 0.24,
-    "tp": 262
-   },
    "tp": 261
   },
   {
@@ -1728,7 +1795,6 @@
    "tp": 259
   }
  ],
- "host": "jonfhome",
  "min_attributable_dR": 0.02,
  "n_gt_recall": 310,
  "n_panos": 124,
@@ -1739,6 +1805,7 @@
    "R": 0.96129,
    "fn": 12,
    "fp": 9566,
+   "fp_per_recovered_ramp": 232.634146,
    "n_gt": 310,
    "tp": 298
   },
@@ -1749,6 +1816,7 @@
    "challenger_fp": 9321,
    "fn": 14,
    "fp": 9349,
+   "fp_per_recovered_ramp": 239.0,
    "n_gt": 310,
    "rampnet_fp": 28,
    "tp": 296

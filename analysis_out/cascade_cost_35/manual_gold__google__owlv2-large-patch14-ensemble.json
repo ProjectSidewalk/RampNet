@@ -1,4 +1,23 @@
 {
+ "args": {
+  "bootstrap": 2000,
+  "c_min": "auto",
+  "null": "shift",
+  "null_shifts": "20",
+  "r_gate": [
+   0.011,
+   0.022,
+   0.044
+  ],
+  "seed": 0,
+  "t_lo": [
+   0.05,
+   0.1,
+   0.15,
+   0.2,
+   0.25
+  ]
+ },
  "baseline": {
   "F1": 0.901844,
   "P": 0.911841,
@@ -45,8 +64,36 @@
  },
  "best_recall_at_precision_ge_baseline": null,
  "best_viable": null,
+ "bootstrap_selection_aware": {
+  "attr_dR_ci95": [
+   0.0,
+   0.0
+  ],
+  "dF1_ci95": [
+   0.0,
+   0.0
+  ],
+  "dR_ci95": [
+   0.0,
+   0.0
+  ],
+  "given_viable": null,
+  "note": "the rule re-applied in every resample (null mean, controls, viability, best by (F1, attributable dR)); Delta = 0 in a resample with no viable setting, where the cascade is not deployed",
+  "resamples": 2000,
+  "rng": "numpy.default_rng",
+  "same_setting_frac": null,
+  "seed": 0,
+  "unit": "pano",
+  "verdict_counts": {
+   "NOT VIABLE": 2000,
+   "PARTIAL": 0,
+   "VIABLE": 0
+  },
+  "viable_frac": 0.0
+ },
  "bootstrap_vs_baseline": {
   "best_by_f1": {
+   "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
    "dF1_ci95": [
     -0.002062,
     0.000274
@@ -55,11 +102,13 @@
     0.000527,
     0.003143
    ],
+   "dR_kind": "raw (not attributable)",
    "resamples": 2000,
    "seed": 0,
    "unit": "pano"
   },
   "fixed": {
+   "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
    "dF1_ci95": [
     -0.025657,
     -0.01764
@@ -68,6 +117,7 @@
     0.007019,
     0.014023
    ],
+   "dR_kind": "raw (not attributable)",
    "resamples": 2000,
    "seed": 0,
    "unit": "pano"
@@ -79,6 +129,21 @@
   0.115981,
   0.176685
  ],
+ "calibration": {
+  "challengers": 20,
+  "construction": "each shifted challenger run through the whole rule, its null = the true alignment plus the other evaluated shifts",
+  "exact": false,
+  "false_viable_rate": 0.0,
+  "max_attr_dR_max": 0.003394,
+  "max_attr_dR_median": 0.001225,
+  "real_max_attr_dR": 0.007948,
+  "verdicts": {
+   "NOT VIABLE": 20,
+   "PARTIAL": 0,
+   "VIABLE": 0
+  },
+  "wrong_at_or_above_real": 0
+ },
  "ceiling": null,
  "challenger": "google/owlv2-large-patch14-ensemble",
  "challenger_signature": {
@@ -148,7 +213,6 @@
    ]
   }
  },
- "elapsed_s": 57.170503,
  "fixed_setting": {
   "F1": 0.880398,
   "P": 0.859329,
@@ -1465,16 +1529,6 @@
    "r_gate": 0.011,
    "t_lo": 0.25,
    "threshold_only_F1": 0.898991,
-   "threshold_only_at_matched_recall": {
-    "F1": 0.900321,
-    "P": 0.905315,
-    "R": 0.895381,
-    "fn": 410,
-    "fp": 367,
-    "n_gt": 3919,
-    "t": 0.27,
-    "tp": 3509
-   },
    "tp": 3503
   },
   {
@@ -1703,7 +1757,6 @@
    "tp": 3514
   }
  ],
- "host": "jonfhome",
  "min_attributable_dR": 0.02,
  "n_gt_recall": 3919,
  "n_panos": 1000,
@@ -1714,6 +1767,7 @@
    "R": 0.993621,
    "fn": 25,
    "fp": 76935,
+   "fp_per_recovered_ramp": 192.454774,
    "n_gt": 3919,
    "tp": 3894
   },
@@ -1724,6 +1778,7 @@
    "challenger_fp": 73441,
    "fn": 73,
    "fp": 73779,
+   "fp_per_recovered_ramp": 209.831429,
    "n_gt": 3919,
    "rampnet_fp": 338,
    "tp": 3846
