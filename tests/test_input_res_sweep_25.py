@@ -158,8 +158,33 @@ def test_verdict_rule():
 def test_check_compares_peak_sets():
     ref = {"panos": [{"pano": "a", "preds": [[0.1, 0.6, 0.9], [0.5, 0.7, 0.4]]}]}
     same = [{"pano": "a", "preds": [(0.5, 0.7, 0.40000004), (0.1, 0.6, 0.9)]}]
-    assert irs.compare_to_op_cache(same, ref)[0] == 0
+    assert irs.compare_to_op_cache(same, ref)["panos_mismatched"] == 0
     off = [{"pano": "a", "preds": [(0.5, 0.7, 0.41), (0.1, 0.6, 0.9)]}]
-    assert irs.compare_to_op_cache(off, ref)[0] == 1
+    assert irs.compare_to_op_cache(off, ref)["panos_mismatched"] == 1
     fewer = [{"pano": "a", "preds": [(0.1, 0.6, 0.9)]}]
-    assert irs.compare_to_op_cache(fewer, ref)[0] == 1
+    r = irs.compare_to_op_cache(fewer, ref)
+    assert r["panos_mismatched"] == 1 and r["missing"] == 1
+
+
+def test_border_band_is_what_exclude_border_drops():
+    """The pre-#132 op_caches were extracted with skimage's exclude_border=True; that is
+    exactly the exclude_border=False peak set minus the min_distance border band."""
+    from scipy.ndimage import gaussian_filter
+    from skimage.feature import peak_local_max
+    rng = np.random.default_rng(0)
+    for _ in range(5):
+        h = gaussian_filter(rng.random((512, 1024)), 4)
+        h = (h - h.min()) / (h.max() - h.min())
+        on = peak_local_max(h, min_distance=10, threshold_abs=0.05, exclude_border=True)
+        off = peak_local_max(h, min_distance=10, threshold_abs=0.05, exclude_border=False)
+        kept = {(int(r), int(c)) for r, c in off
+                if not irs.in_border_band(c / 1024, r / 512)}
+        assert kept == {(int(r), int(c)) for r, c in on}
+
+
+def test_border_peak_is_extra_not_missing():
+    ref = {"panos": [{"pano": "a", "preds": [[0.5, 0.7, 0.4]]}]}
+    mine = [{"pano": "a", "preds": [(0.5, 0.7, 0.4), (0.001953125, 0.6, 0.3)]}]
+    strict = irs.compare_to_op_cache(mine, ref)
+    assert strict["extra"] == strict["extra_in_border"] == 1
+    assert irs.compare_to_op_cache(mine, ref, drop_border=True)["panos_mismatched"] == 0
