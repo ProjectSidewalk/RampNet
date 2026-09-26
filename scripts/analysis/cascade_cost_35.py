@@ -28,18 +28,47 @@ Controls, same scorer, same panos, same run:
 * ``threshold_only[T_lo]`` -- every floor peak >= T_lo, no gate. This is what the gate
   must beat: if lowering the threshold everywhere buys the same F1, the challenger is
   doing nothing.
-* ``naive_union`` -- kept + every challenger box. Reported under two conventions:
-  ``aggregate``'s (one prediction list through ``score_pano``, all panos, a second hit
-  on a ramp is an FP) and ``complementarity.py``'s (recall-eligible panos only, oracle
-  union TP, the two models' FP bills added with no dedup), which is the published 0.549.
+* ``naive_union`` -- kept + every challenger box. Reported under two conventions that
+  differ in how a ramp hit by both models is counted. ``complementarity.py``'s (the
+  published 0.549) scores each model's list on its own and adds the two FP bills with
+  no dedup, and takes TP as the oracle union of the ramps either model matched.
+  ``aggregate``'s scores ONE merged list through ``score_pano``, so when a RampNet peak
+  and a challenger box land on the same ramp the second hit is an FP, and greedy
+  matching on the merged list can hand a box to a neighbouring ramp. On richmond x the
+  parity arm that is 692 FP against 470 (+222: 229 hits that were TPs when each list is
+  scored alone become 222 FPs and 7 ignored) and 302 TP against 295 (+7 by
+  reassignment). Both conventions use the same panos there: all 124 richmond panos are
+  ``fn_confirmed``. Each carries ``fp_per_recovered_ramp`` (extra FP over extra TP
+  against ``baseline``).
 
 **Null (deterministic).** For shift k = 1..n-1 over the sorted pano list, pano i gets
 the challenger boxes of pano (i + k) mod n -- the same boxes, density and clustering, on
 the wrong pano -- and the cascade is re-scored at every setting. ``attributable_dR`` is
 the real recall gain minus the mean shifted gain. This is ``complementarity``'s and
-``null_recall.py``'s construction; a random-position null is available
-(``--null random``) but is not the default, because a uniform draw destroys the
-challenger's real density and clustering.
+``null_recall.py``'s construction. ``--null random`` draws a random subset of those
+cyclic shifts (seeded) instead of evenly spaced ones; it is still a cyclic-shift null,
+not a random-position one (no mode here scatters boxes uniformly, which would destroy
+the challenger's density and clustering).
+
+**Calibration (``calibration``).** The same shifted challengers are also run through
+the WHOLE rule as if each were real: a wrong-pano challenger at shift k takes the other
+shifts plus the true alignment as its null, gets its own attributable ΔR on every
+setting, and gets a verdict from ``verdict_of``. The fraction reading VIABLE is the
+rule's false-VIABLE rate for that pair, max-over-grid selection included. With every
+shift (``--null-shifts all``) this is exact: the shifts of a shifted challenger are the
+original's shifts. With a subset it is the same construction over the subset.
+
+**Bootstrap.** ``bootstrap_vs_baseline`` is the pano-resampled interval for the chosen
+settings, *conditional on the in-sample selection* (the setting is picked once, on all
+panos, and held fixed), on raw ΔR and ΔF1. ``bootstrap_selection_aware`` repeats the
+selection inside every resample: the whole rule (null mean, controls, viability,
+best-by-(F1, attributable ΔR)) is re-applied to the resampled panos; when no setting is
+viable in a resample the cascade is not deployed and its Δ is 0. It also reports how
+often each verdict comes out.
+
+**Volatile fields.** Wall-clock and host are not in the per-pair JSON, so a re-run is
+byte-identical to the committed file (``--check`` proves it). They go to
+``runs.json`` in the same directory, keyed by file name.
 
 **Why the op_cache and not the bundle.** The bundle records are the shipped point --
 on richmond every one scores >= 0.5519 -- so they contain nothing below the threshold
@@ -65,6 +94,7 @@ Usage::
         --t-lo 0.05 0.10 0.15 0.20 0.25 0.30 0.40
     python scripts/analysis/cascade_cost_35.py --all-published --null-shifts 20
     python scripts/analysis/cascade_cost_35.py --summary
+    python scripts/analysis/cascade_cost_35.py --check      # regenerate + byte-compare
 """
 import argparse
 import json
@@ -73,6 +103,8 @@ import platform
 import random
 import sys
 import time
+
+import numpy as np
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT = os.environ.get("RAMPNET_ANALYSIS_OUT", os.path.join(REPO, "analysis_out"))
@@ -198,7 +230,10 @@ def verdict_of(baseline, threshold_only, grid, min_dr=MIN_ATTRIBUTABLE_DR):
     PARTIAL     otherwise: recall rises by >= min_dr and beats threshold-only, but F1
                 falls below baseline -- an operating-point dial, not a free lunch.
     """
-    raising = [r for r in grid if r["attributable_dR"] >= min_dr]
+    scored = [r for r in grid if r.get("attributable_dR") is not None]
+    if not scored:
+        return None                     # no null was run (--null none): no verdict
+    raising = [r for r in scored if r["attributable_dR"] >= min_dr]
     if not raising:
         return "NOT VIABLE"
     beats = [r for r in raising
@@ -356,27 +391,184 @@ def _setting_indices(scorer, cands_by_pano, t_hi, t_lo, r_gate, c_min):
                                t_hi, t_lo, rsq) for pid in scorer.gts}
 
 
-def _eval_cascade(scorer, cands_by_pano, t_hi, t_lo, r_gate_sq, c_min, n_kept_by_pano):
+def _fast_report(scores):
+    """``_report(aggregate(scores))`` without the AP/PR-curve work (same formulas, same
+    floats: P = tp/(tp+fp), R = recall tp/recall n_gt, F1 = 2PR/(P+R))."""
+    tp = sum(x.tp for x in scores)
+    fp = sum(x.fp for x in scores)
+    tpr = sum(x.tp for x in scores if x.fn_confirmed)
+    ngt = sum(x.n_gt for x in scores if x.fn_confirmed)
+    p = tp / (tp + fp) if tp + fp else 0.0
+    r = tpr / ngt if ngt else 0.0
+    f = 2 * p * r / (p + r) if (p + r) else 0.0
+    return {"tp": tp, "fp": fp, "fn": ngt - tpr, "n_gt": ngt, "P": p, "R": r, "F1": f}
+
+
+def _eval_cascade(scorer, filtered, t_hi, t_lo, r_gate_sq, n_kept_by_pano):
+    """``(report, n_promoted, per-pano scores)`` for one setting; ``filtered`` is the
+    challenger map already filtered by ``c_min`` (real or shifted)."""
     scores, n_prom = [], 0
     for pid in scorer.gts:
-        peaks = scorer.peaks.get(pid, [])
-        cands = filter_cands(cands_by_pano.get(pid, []), c_min)
-        idx = _gate_indices(peaks, cands, t_hi, t_lo, r_gate_sq)
+        idx = _gate_indices(scorer.peaks.get(pid, []), filtered.get(pid, []), t_hi, t_lo,
+                            r_gate_sq)
         n_prom += len(idx) - n_kept_by_pano[pid]
         scores.append(scorer.pano(pid, idx))
-    return _report(aggregate(scores)), n_prom
+    return _fast_report(scores), n_prom, scores
+
+
+def _counts(scores):
+    """``[m, 4]`` int64: ``(tp, fp, recall tp, recall n_gt)`` per pano (``aggregate``'s)."""
+    return np.array([_pano_counts(s) for s in scores], dtype=np.int64).reshape(-1, 4)
+
+
+def _prf(c):
+    """P, R, F1 arrays from summed ``(tp, fp, recall tp, recall n_gt)`` along the last axis."""
+    tp, fp, tpr, ngt = (c[..., i].astype(np.float64) for i in range(4))
+    p = np.divide(tp, tp + fp, out=np.zeros_like(tp), where=(tp + fp) > 0)
+    r = np.divide(tpr, ngt, out=np.zeros_like(tpr), where=ngt > 0)
+    f = np.divide(2 * p * r, p + r, out=np.zeros_like(p), where=(p + r) > 0)
+    return p, r, f
+
+
+def select_under_weights(W, base_c, thr_c, grid_c, null_tpr_sum, n_null, tlo_index,
+                         min_dr=MIN_ATTRIBUTABLE_DR):
+    """Apply the whole pre-stated rule to pano-weighted counts, one row of ``W`` at a time.
+
+    ``W`` is ``[B, m]`` pano multiplicities (a bootstrap resample, or all ones for the
+    in-sample run); ``base_c`` ``[m, 4]``, ``thr_c`` ``[T, m, 4]`` and ``grid_c``
+    ``[S, m, 4]`` are per-pano counts; ``null_tpr_sum`` ``[S, m]`` is the recall-TP
+    summed over the ``n_null`` shifted challengers, so the null mean recall of a
+    weighted set is ``(W @ null_tpr_sum.T) / (n_null * n_gt)``. Integer arithmetic up to
+    the final divisions, so the result is identical on every platform.
+
+    Returns a dict of ``[B]`` arrays: ``viable`` (any viable row), ``sel`` (the
+    best-by-(F1, attributable dR) viable row, first on ties, as ``max`` picks it),
+    ``dF1`` / ``dR`` / ``attr_dR`` of that row against the weighted baseline (0 where
+    nothing is viable: the cascade is not deployed), and ``verdict`` codes (0 VIABLE,
+    1 PARTIAL, 2 NOT VIABLE, resolved exactly as ``verdict_of``).
+    """
+    B = W @ base_c                                    # [B, 4]
+    G = np.einsum("bm,smk->bsk", W, grid_c)           # [B, S, 4]
+    T = np.einsum("bm,tmk->btk", W, thr_c)            # [B, T, 4]
+    NT = W @ null_tpr_sum.T                           # [B, S]
+    _, rb, fb = _prf(B)
+    _, rg, fg = _prf(G)
+    _, _, ft = _prf(T)
+    ngt = B[:, 3].astype(np.float64)
+    rnull = np.divide(NT.astype(np.float64), (n_null * ngt)[:, None],
+                      out=np.zeros(NT.shape), where=ngt[:, None] > 0)
+    att = (rg - rb[:, None]) - (rnull - rb[:, None])
+    ft_row = ft[:, tlo_index]                         # threshold-only F1 at each row's T_lo
+    raising = att >= min_dr
+    beats = raising & (fg > ft_row)
+    viable_rows = beats & (fg >= fb[:, None])
+    anyv = viable_rows.any(axis=1)
+    fmax = np.where(viable_rows, fg, -np.inf).max(axis=1)
+    tie = viable_rows & (fg == fmax[:, None])
+    sel = np.argmax(np.where(tie, att, -np.inf), axis=1)
+    rows = np.arange(W.shape[0])
+    verdict = np.where(anyv, 0, np.where(~raising.any(axis=1) | ~beats.any(axis=1), 2, 1))
+    return {"viable": anyv, "sel": np.where(anyv, sel, -1),
+            "dF1": np.where(anyv, fg[rows, sel] - fb, 0.0),
+            "dR": np.where(anyv, rg[rows, sel] - rb, 0.0),
+            "attr_dR": np.where(anyv, att[rows, sel], 0.0),
+            "verdict": verdict}
+
+
+def _ci95(v):
+    s = sorted(float(x) for x in v)
+    n = len(s)
+    return [s[int(0.025 * n)], s[int(0.975 * n) - 1]]
+
+
+def bootstrap_selection_aware(base_c, thr_c, grid_c, null_tpr_sum, n_null, tlo_index,
+                              chosen, verdict, n=BOOTSTRAP, seed=0):
+    """Pano bootstrap with the selection repeated inside every resample (#35 review item 4).
+
+    ``chosen`` is the grid index the in-sample run picked (or ``None``) and ``verdict``
+    its verdict. Before resampling, the vectorised rule is run once with every pano
+    weighted 1 and must reproduce both -- so the numpy rule cannot drift from
+    ``verdict_of`` and the ``max`` selection unnoticed. Deterministic:
+    ``numpy.random.default_rng(seed)``.
+    """
+    m = base_c.shape[0]
+    ins = select_under_weights(np.ones((1, m), dtype=np.int64), base_c, thr_c, grid_c,
+                               null_tpr_sum, n_null, tlo_index)
+    names = ("VIABLE", "PARTIAL", "NOT VIABLE")
+    assert int(ins["sel"][0]) == (-1 if chosen is None else chosen), (ins["sel"], chosen)
+    assert names[int(ins["verdict"][0])] == verdict, (ins["verdict"], verdict)
+    rng = np.random.default_rng(seed)
+    idx = rng.integers(0, m, size=(n, m))
+    W = np.stack([np.bincount(r, minlength=m) for r in idx]).astype(np.int64)
+    out = select_under_weights(W, base_c, thr_c, grid_c, null_tpr_sum, n_null, tlo_index)
+    return {"resamples": n, "seed": seed, "unit": "pano", "rng": "numpy.default_rng",
+            "viable_frac": float(out["viable"].mean()),
+            "verdict_counts": {names[i]: int((out["verdict"] == i).sum()) for i in range(3)},
+            "same_setting_frac": (float((out["sel"] == chosen).mean())
+                                  if chosen is not None else None),
+            "dF1_ci95": _ci95(out["dF1"]), "dR_ci95": _ci95(out["dR"]),
+            "attr_dR_ci95": _ci95(out["attr_dR"]),
+            "given_viable": ({"dF1_ci95": _ci95(out["dF1"][out["viable"]]),
+                              "dR_ci95": _ci95(out["dR"][out["viable"]]),
+                              "attr_dR_ci95": _ci95(out["attr_dR"][out["viable"]])}
+                             if out["viable"].any() else None),
+            "note": ("the rule re-applied in every resample (null mean, controls, "
+                     "viability, best by (F1, attributable dR)); Delta = 0 in a resample "
+                     "with no viable setting, where the cascade is not deployed")}
+
+
+def calibrate(base, thr, grid, null_dR, null_F1, ks, n_panos):
+    """The verdict rule applied to wrong-pano challengers (#35 review item 5).
+
+    ``null_dR[s][i]`` / ``null_F1[s][i]`` are grid row ``s`` scored with the challenger
+    shifted by ``ks[i]``. Wrong challenger ``i`` takes the true alignment plus every other
+    evaluated shift as its null (exactly the shifts of a shifted challenger when ``ks`` is
+    every k), gets attributable dR per row, and a verdict from ``verdict_of``.
+    """
+    if not ks:
+        return None
+    verdicts, max_att = [], []
+    for i in range(len(ks)):
+        rows = []
+        for s, r in enumerate(grid):
+            pool = [r["dR"]] + [null_dR[s][j] for j in range(len(ks)) if j != i]
+            rows.append({"t_lo": r["t_lo"], "F1": null_F1[s][i],
+                         "attributable_dR": null_dR[s][i] - sum(pool) / len(pool)})
+        verdicts.append(verdict_of(base, thr, rows))
+        max_att.append(max(x["attributable_dR"] for x in rows))
+    real_max = max(r["attributable_dR"] for r in grid)
+    srt = sorted(max_att)
+    return {"challengers": len(ks),
+            "exact": len(ks) == n_panos - 1,
+            "verdicts": {v: verdicts.count(v) for v in ("VIABLE", "PARTIAL", "NOT VIABLE")},
+            "false_viable_rate": verdicts.count("VIABLE") / len(ks),
+            "max_attr_dR_median": srt[len(srt) // 2], "max_attr_dR_max": srt[-1],
+            "real_max_attr_dR": real_max,
+            "wrong_at_or_above_real": sum(1 for v in max_att if v >= real_max),
+            "construction": ("each shifted challenger run through the whole rule, its null "
+                             "= the true alignment plus the other evaluated shifts")}
+
+
+#: Coordinate tolerance for matching a gained GT ramp to a #126 promotable site (the
+#: ceiling artifact stores the same GT coordinates, possibly rounded).
+SITE_TOL = 1e-4
 
 
 def run_pair(split, published, t_hi=T_HI, t_lo=T_LO, r_gate=R_GATE, c_min="auto",
              null="shift", null_shifts="all", seed=0, radius=RADIUS, gts=None,
              peaks=None, bootstrap=BOOTSTRAP):
-    """Score the cascade grid, its controls and its null for one (split, leg)."""
+    """Score the cascade grid, its controls and its null for one (split, leg).
+
+    Returns ``(payload, run)``: ``payload`` is fully determined by the committed inputs
+    and the arguments (it is what gets committed and byte-compared); ``run`` holds the
+    volatile wall-clock and host.
+    """
     t0 = time.time()
     gts = load_gts(split) if gts is None else gts
     peaks = load_floor_peaks(split) if peaks is None else peaks
     cands_by_pano, header = load_challenger(split, published)
     if cands_by_pano is None:
-        return None
+        return None, None
     pids = list(gts)
     radius_sq = radius_sq_for(radius)
     scorer = _Scorer(gts, peaks, radius_sq)
@@ -384,12 +576,14 @@ def run_pair(split, published, t_hi=T_HI, t_lo=T_LO, r_gate=R_GATE, c_min="auto"
                 for pid in pids}
     n_kept = {pid: len(v) for pid, v in kept_idx.items()}
 
-    base = _report(aggregate([scorer.pano(pid, kept_idx[pid]) for pid in pids]))
-    thr = {}
+    base_scores = [scorer.pano(pid, kept_idx[pid]) for pid in pids]
+    base = _report(aggregate(base_scores))
+    thr, thr_scores = {}, []
     for t in t_lo:
-        thr[_tkey(t)] = _report(aggregate([scorer.pano(
-            pid, tuple(i for i, p in enumerate(peaks.get(pid, [])) if p[2] >= t))
-            for pid in pids]))
+        sc = [scorer.pano(pid, tuple(i for i, p in enumerate(peaks.get(pid, [])) if p[2] >= t))
+              for pid in pids]
+        thr[_tkey(t)] = _report(aggregate(sc))
+        thr_scores.append(sc)
 
     # naive union, both conventions
     u_scores = [score_pano(union_preds([peaks.get(pid, [])[i] for i in kept_idx[pid]],
@@ -413,6 +607,9 @@ def run_pair(split, published, t_hi=T_HI, t_lo=T_LO, r_gate=R_GATE, c_min="auto"
     union_comp = {"tp": u_tp, "fp": r_fp + c_fp, "fn": u_n - u_tp, "n_gt": u_n,
                   "P": up, "R": ur, "F1": 2 * up * ur / (up + ur) if up + ur else 0.0,
                   "rampnet_fp": r_fp, "challenger_fp": c_fp}
+    for u in (union_agg, union_comp):
+        d_tp = u["tp"] - base["tp"]
+        u["fp_per_recovered_ramp"] = (u["fp"] - base["fp"]) / d_tp if d_tp > 0 else None
 
     cmins = c_min_grid(cands_by_pano) if c_min == "auto" else [float(v) for v in c_min]
     settings = [(tl, rg, cm) for tl in t_lo for rg in r_gate for cm in cmins]
@@ -432,28 +629,39 @@ def run_pair(split, published, t_hi=T_HI, t_lo=T_LO, r_gate=R_GATE, c_min="auto"
         ks = sorted({max(1, min(n - 1, round(1 + j * (n - 2) / max(1, m - 1))))
                      for j in range(m)})
     null_sets = [shifted(cands_by_pano, pids, k) for k in ks]
+    # c_min filtering done once per c_min; a shifted map reuses the filtered lists
+    filt = {cm: {pid: filter_cands(cs, cm) for pid, cs in cands_by_pano.items()}
+            for cm in cmins}
+    filt_null = {cm: [shifted(filt[cm], pids, k) for k in ks] for cm in cmins}
 
-    grid = []
+    grid, grid_c, null_tpr_sum, null_dR, null_F1 = [], [], [], [], []
     for tl, rg, cm in settings:
         rsq = radius_sq_for(rg)
-        rep, n_prom = _eval_cascade(scorer, cands_by_pano, t_hi, tl, rsq, cm, n_kept)
+        rep, n_prom, sc = _eval_cascade(scorer, filt[cm], t_hi, tl, rsq, n_kept)
+        grid_c.append(_counts(sc))
         row = {"t_lo": tl, "r_gate": rg, "c_min": cm, **rep, "n_promoted": n_prom,
                "promoted_tp": rep["tp"] - base["tp"], "promoted_fp": rep["fp"] - base["fp"],
                "promoted_ignored": n_prom - (rep["tp"] - base["tp"]) - (rep["fp"] - base["fp"]),
                "dR": rep["R"] - base["R"], "dP": rep["P"] - base["P"],
                "dF1": rep["F1"] - base["F1"],
                "threshold_only_F1": thr[_tkey(tl)]["F1"]}
+        tpr_sum = np.zeros(len(pids), dtype=np.int64)
         if null_sets:
-            dRs, dFPs = [], []
-            for cs in null_sets:
-                nrep, _ = _eval_cascade(scorer, cs, t_hi, tl, rsq, cm, n_kept)
+            dRs, dFPs, F1s = [], [], []
+            for cs in filt_null[cm]:
+                nrep, _, nsc = _eval_cascade(scorer, cs, t_hi, tl, rsq, n_kept)
                 dRs.append(nrep["R"] - base["R"])
                 dFPs.append(nrep["fp"] - base["fp"])
+                F1s.append(nrep["F1"])
+                tpr_sum += _counts(nsc)[:, 2]
             row["null_dR_mean"] = sum(dRs) / len(dRs)
             row["null_dR_max"] = max(dRs)
             row["null_dFP_mean"] = sum(dFPs) / len(dFPs)
+            null_dR.append(dRs)
+            null_F1.append(F1s)
         else:
             row["null_dR_mean"] = row["null_dR_max"] = row["null_dFP_mean"] = None
+        null_tpr_sum.append(tpr_sum)
         row["attributable_dR"] = (row["dR"] - row["null_dR_mean"]
                                   if row["null_dR_mean"] is not None else None)
         att_ramps = (row["attributable_dR"] * base["n_gt"]
@@ -462,11 +670,18 @@ def run_pair(split, published, t_hi=T_HI, t_lo=T_LO, r_gate=R_GATE, c_min="auto"
                                            if att_ramps and att_ramps > 0 else None)
         grid.append(row)
 
-    best_f1 = max(grid, key=lambda r: (r["F1"], r["R"], -r["fp"]))
-    viable = [r for r in grid if r["attributable_dR"] is not None
-              and r["attributable_dR"] >= MIN_ATTRIBUTABLE_DR
-              and r["F1"] >= base["F1"] and r["F1"] > r["threshold_only_F1"]]
-    best_viable = max(viable, key=lambda r: (r["F1"], r["attributable_dR"])) if viable else None
+    # Selected rows are COPIES, so annotating them never touches the grid rows (#35
+    # review item 9: which grid rows carried the annotation used to depend on the null).
+    best_f1_i = max(range(len(grid)), key=lambda i: (grid[i]["F1"], grid[i]["R"],
+                                                     -grid[i]["fp"]))
+    best_f1 = dict(grid[best_f1_i])
+    viable_i = [i for i, r in enumerate(grid) if r["attributable_dR"] is not None
+                and r["attributable_dR"] >= MIN_ATTRIBUTABLE_DR
+                and r["F1"] >= base["F1"] and r["F1"] > r["threshold_only_F1"]]
+    viable = [dict(grid[i]) for i in viable_i]
+    best_viable_i = (max(viable_i, key=lambda i: (grid[i]["F1"], grid[i]["attributable_dR"]))
+                     if viable_i else None)
+    best_viable = dict(grid[best_viable_i]) if best_viable_i is not None else None
 
     # the strongest no-challenger control: the best single threshold anywhere
     sweep = {}
@@ -493,7 +708,7 @@ def run_pair(split, published, t_hi=T_HI, t_lo=T_LO, r_gate=R_GATE, c_min="auto"
         t = max(ok, key=lambda t: (sweep[t]["F1"], t))
         return {"t": t, **sweep[t]}
 
-    for r in [best_f1, best_viable, fixed] + list(viable):
+    for r in [best_f1, best_viable, fixed] + viable:
         if r is not None:
             r["threshold_only_at_matched_recall"] = matched_recall(r)
 
@@ -504,13 +719,25 @@ def run_pair(split, published, t_hi=T_HI, t_lo=T_LO, r_gate=R_GATE, c_min="auto"
                 scorer, kept_idx,
                 _setting_indices(scorer, cands_by_pano, t_hi, r["t_lo"], r["r_gate"],
                                  r["c_min"]), n=bootstrap, seed=seed)
+            boot[lab]["conditioning"] = ("conditional on the in-sample selection: the "
+                                         "setting is held fixed across resamples")
+            boot[lab]["dR_kind"] = "raw (not attributable)"
+    verdict = verdict_of(base, thr, grid) if null_sets else None
+    sel_boot = None
+    if null_sets and bootstrap:
+        tl_pos = {t: i for i, t in enumerate(t_lo)}
+        sel_boot = bootstrap_selection_aware(
+            _counts(base_scores), np.stack([_counts(s) for s in thr_scores]),
+            np.stack(grid_c), np.stack(null_tpr_sum), len(null_sets),
+            np.array([tl_pos[r["t_lo"]] for r in grid]), best_viable_i, verdict,
+            n=bootstrap, seed=seed)
     at_p = [r for r in grid if r["P"] >= base["P"] and r["R"] > base["R"]]
-    best_r = max(at_p, key=lambda r: (r["R"], r["F1"])) if at_p else None
-    verdict = (verdict_of(base, thr, grid) if null_sets else None)
+    best_r = dict(max(at_p, key=lambda r: (r["R"], r["F1"]))) if at_p else None
+    calib = (calibrate(base, thr, grid, null_dR, null_F1, ks, n) if null_sets else None)
 
     ceiling = ceiling_for(split, t_hi, published)
     if ceiling is not None:
-        sites = set(tuple(x) for x in ceiling.pop("_promotable_sites"))
+        sites = ceiling.pop("_promotable_sites")
         for lab, r in (("best_viable", best_viable), ("best_by_f1", best_f1)):
             if r is None:
                 continue
@@ -526,8 +753,12 @@ def run_pair(split, published, t_hi=T_HI, t_lo=T_LO, r_gate=R_GATE, c_min="auto"
                 after = matched_gt([pk[i] for i in idx[pid]], gt.gt_points, radius_sq)
                 gained += [(pid, gt.gt_points[g][0], gt.gt_points[g][1])
                            for g in after - before]
+            in_prom = sum(1 for g in gained if any(
+                g[0] == s[0] and abs(g[1] - s[1]) <= SITE_TOL and abs(g[2] - s[2]) <= SITE_TOL
+                for s in sites))
+            assert in_prom <= len(gained)
             ceiling[f"{lab}_gained_ramps"] = len(gained)
-            ceiling[f"{lab}_gained_in_promotable"] = sum(1 for g in gained if g in sites)
+            ceiling[f"{lab}_gained_in_promotable"] = in_prom
 
     missing_ch = [pid for pid in pids if pid not in cands_by_pano]
     missing_op = [pid for pid in pids if pid not in peaks]
@@ -536,6 +767,9 @@ def run_pair(split, published, t_hi=T_HI, t_lo=T_LO, r_gate=R_GATE, c_min="auto"
         "t_hi": t_hi, "radius": radius, "op_cache_meta": op_cache_meta(split),
         "op_cache_commit_note": OP_CACHE_NOTE, "n_panos": n,
         "n_gt_recall": base["n_gt"],
+        "args": {"t_lo": list(t_lo), "r_gate": list(r_gate), "c_min": c_min,
+                 "null": null, "null_shifts": null_shifts, "seed": seed,
+                 "bootstrap": bootstrap},
         "panos_missing_challenger": missing_ch, "panos_missing_op_cache": missing_op,
         "null": {"mode": null, "shifts": ks if null == "random" else len(ks),
                  "seed": seed if null == "random" else None},
@@ -548,11 +782,14 @@ def run_pair(split, published, t_hi=T_HI, t_lo=T_LO, r_gate=R_GATE, c_min="auto"
         "fixed_setting_rule": {"t_lo": ft, "r_gate": fr, "c_min": fc,
                                "chosen": "post hoc, from the primary pair's best viable row"},
         "bootstrap_vs_baseline": boot,
+        "bootstrap_selection_aware": sel_boot,
         "verdict": verdict, "min_attributable_dR": MIN_ATTRIBUTABLE_DR,
+        "calibration": calib,
         "ceiling": ceiling,
-        "elapsed_s": time.time() - t0, "host": platform.node(),
     }
-    return payload
+    run = {"elapsed_s": round(time.time() - t0, 1), "host": platform.node(),
+           "python": platform.python_version()}
+    return payload, run
 
 
 # --------------------------------------------------------------------------- #
@@ -575,10 +812,61 @@ def out_name(split, published, t_hi):
     return stem + ".json"
 
 
+def dumps(payload):
+    """The committed serialisation: floats rounded to 6 dp, sorted keys, LF, trailing LF."""
+    return json.dumps(_round(payload), indent=1, sort_keys=True) + "\n"
+
+
 def write_json(path, payload):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="") as f:
-        f.write(json.dumps(_round(payload), indent=1, sort_keys=True) + "\n")
+        f.write(dumps(payload))
+
+
+RUNS = "runs.json"
+
+
+def record_run(out_dir, name, run):
+    """Wall-clock and host for ``name`` in ``<out_dir>/runs.json`` -- kept out of the
+    per-pair file so that file is byte-identical on every re-run."""
+    path = os.path.join(out_dir, RUNS)
+    runs = {}
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            runs = json.load(f)
+    runs[name] = run
+    write_json(path, runs)
+
+
+def pair_files(out_dir):
+    """Every per-pair JSON in ``out_dir`` (not ``summary.json`` / ``runs.json``)."""
+    return sorted(n for n in os.listdir(out_dir)
+                  if n.endswith(".json") and n not in ("summary.json", RUNS))
+
+
+def check(out_dir, names=None):
+    """Regenerate each committed per-pair file from its recorded ``args`` and compare
+    bytes. Returns the list of names that differ (empty = every file reproduced)."""
+    bad, cache = [], {}
+    for name in names or pair_files(out_dir):
+        with open(os.path.join(out_dir, name), encoding="utf-8", newline="") as f:
+            text = f.read()
+        old = json.loads(text)
+        a = old["args"]
+        split = old["split"]
+        if split not in cache:
+            cache = {split: (load_gts(split), load_floor_peaks(split))}
+        gts, peaks = cache[split]
+        t0 = time.time()
+        p, _ = run_pair(split, old["challenger"], t_hi=old["t_hi"], t_lo=tuple(a["t_lo"]),
+                        r_gate=tuple(a["r_gate"]), c_min=a["c_min"], null=a["null"],
+                        null_shifts=a["null_shifts"], seed=a["seed"],
+                        bootstrap=a["bootstrap"], radius=old["radius"], gts=gts, peaks=peaks)
+        same = p is not None and dumps(p) == text
+        print(f"{'same' if same else 'DIFF'}  {name}  ({time.time() - t0:.0f}s)", flush=True)
+        if not same:
+            bad.append(name)
+    return bad
 
 
 def splits_with_op_cache():
@@ -592,8 +880,13 @@ def all_benchmark_splits():
                   if os.path.exists(os.path.join(d, n, "records.jsonl")))
 
 
-def summary(out_dir):
-    """``summary.json`` over every per-pair file in ``out_dir``, plus markdown to stdout."""
+def summary(out_dir, out_path=None, quiet=False):
+    """``summary.json`` over every per-pair file in ``out_dir`` (written to ``out_path``,
+    default ``<out_dir>/summary.json``), plus markdown to stdout unless ``quiet``.
+
+    A pair run with ``--null none`` has no attributable dR and no verdict; it is listed
+    under ``gaps`` rather than counted.
+    """
     rows, gaps = [], []
     have_op = set(splits_with_op_cache())
     for split in all_benchmark_splits():
@@ -612,6 +905,10 @@ def summary(out_dir):
                 continue
             with open(path, encoding="utf-8") as f:
                 p = json.load(f)
+            if p["verdict"] is None:
+                gaps.append({"split": split, "challenger": name,
+                             "reason": "run without a null (--null none): no verdict"})
+                continue
             b, bf, bv, fx = (p["baseline"], p["best_by_f1"], p["best_viable"],
                              p["fixed_setting"])
             tb = p["threshold_only_best"]
@@ -623,8 +920,14 @@ def summary(out_dir):
                 "union_F1": p["naive_union"]["aggregate"]["F1"],
                 "best_F1": bf["F1"], "best_F1_setting": [bf["t_lo"], bf["r_gate"], bf["c_min"]],
                 "best_F1_dR": bf["dR"], "best_F1_attr_dR": bf["attributable_dR"],
-                "max_attr_dR": max(r["attributable_dR"] for r in p["grid"]),
+                "max_attr_dR": max(r["attributable_dR"] for r in p["grid"]
+                                   if r["attributable_dR"] is not None),
                 "n_viable_rows": len(p["viable_rows"]),
+                "calib_false_viable_rate": (p["calibration"] or {}).get("false_viable_rate"),
+                "calib_challengers": (p["calibration"] or {}).get("challengers"),
+                "selection_aware": None if p["bootstrap_selection_aware"] is None else {
+                    k: p["bootstrap_selection_aware"][k]
+                    for k in ("viable_frac", "dF1_ci95", "dR_ci95", "attr_dR_ci95")},
             }
             for lab, r in (("viable", bv), ("fixed", fx)):
                 row[lab] = None if r is None else {
@@ -639,10 +942,24 @@ def summary(out_dir):
     counts = {}
     for r in rows:
         counts[r["verdict"]] = counts.get(r["verdict"], 0) + 1
-    out = {"rows": rows, "gaps": gaps, "verdict_counts": counts,
+    rates = [r["calib_false_viable_rate"] for r in rows
+             if r["calib_false_viable_rate"] is not None]
+    calib = {
+        "pairs": len(rates),
+        "expected_false_viable": sum(rates),
+        "pairs_with_any_false_viable": sum(1 for x in rates if x > 0),
+        "max_false_viable_rate": max(rates) if rates else None,
+        "note": ("sum over pairs of the per-pair false-VIABLE rate of wrong-pano "
+                 "challengers: the number of VIABLE verdicts expected if no challenger "
+                 "were aligned with the panos. Per-pair rates are not family-wise "
+                 "calibrated; this sum is the family-wise read."),
+    }
+    out = {"rows": rows, "gaps": gaps, "verdict_counts": counts, "calibration": calib,
            "fixed_setting_rule": {"t_lo": FIXED_SETTING[0], "r_gate": FIXED_SETTING[1],
                                   "c_min": FIXED_SETTING[2]}}
-    write_json(os.path.join(out_dir, "summary.json"), out)
+    write_json(out_path or os.path.join(out_dir, "summary.json"), out)
+    if quiet:
+        return out
 
     def f(v, fmt):
         return "-" if v is None else format(v, fmt)
@@ -673,6 +990,9 @@ def summary(out_dir):
               f"{x['promoted_fp']} | {f(x['fp_per_attr_ramp'], '.2f')} | "
               f"{f(x['thr_at_matched_R_F1'], '.4f')} |")
     print(chr(10) + f"verdicts: {counts}")
+    print(f"calibration: {calib['pairs']} pairs, expected false VIABLE "
+          f"{calib['expected_false_viable']:.2f}, pairs with any "
+          f"{calib['pairs_with_any_false_viable']}, max rate {calib['max_false_viable_rate']}")
     print("\ngaps:")
     for g in gaps:
         print(" ", g)
@@ -690,21 +1010,32 @@ def main():
     ap.add_argument("--r-gate", type=float, nargs="+", default=list(R_GATE))
     ap.add_argument("--c-min", nargs="+", default=["auto"],
                     help="'auto' (0 and the challenger's score quartiles) or explicit values.")
-    ap.add_argument("--null", choices=["shift", "random", "none"], default="shift")
+    ap.add_argument("--null", choices=["shift", "random", "none"], default="shift",
+                    help="'shift': evenly spaced cyclic shifts (default); 'random': a "
+                         "seeded random subset of cyclic shifts (still a shift null, not "
+                         "random box positions); 'none': no null, no verdict.")
     ap.add_argument("--null-shifts", default="all",
                     help="'all' (every k = 1..n-1) or N evenly spaced shifts.")
-    ap.add_argument("--seed", type=int, default=0, help="Only for --null random.")
+    ap.add_argument("--seed", type=int, default=0,
+                    help="Random shift subset (--null random) and both bootstraps.")
     ap.add_argument("--out", default=DEFAULT_OUT)
     ap.add_argument("--all-published", action="store_true",
                     help="Every (split, leg) with published detections and an op_cache.")
     ap.add_argument("--splits", nargs="+", default=None)
     ap.add_argument("--skip-existing", action="store_true")
     ap.add_argument("--summary", action="store_true")
+    ap.add_argument("--check", action="store_true",
+                    help="Regenerate every per-pair file in --out from its recorded args "
+                         "and byte-compare; exit 1 on any difference. Writes nothing.")
     args = ap.parse_args()
 
     if args.summary:
         summary(args.out)
         return
+    if args.check:
+        bad = check(args.out)
+        print(f"{len(bad)} differ" + ("" if not bad else ": " + ", ".join(bad)))
+        sys.exit(1 if bad else 0)
     c_min = "auto" if args.c_min == ["auto"] else args.c_min
     kw = dict(t_hi=args.t_hi, t_lo=tuple(args.t_lo), r_gate=tuple(args.r_gate),
               c_min=c_min, null=args.null, null_shifts=args.null_shifts, seed=args.seed)
@@ -722,23 +1053,25 @@ def main():
                 path = os.path.join(args.out, out_name(split, name, args.t_hi))
                 if args.skip_existing and os.path.exists(path):
                     continue
-                p = run_pair(split, name, gts=gts, peaks=peaks, **kw)
+                p, run = run_pair(split, name, gts=gts, peaks=peaks, **kw)
                 if p is None:
                     continue
                 write_json(path, p)
+                record_run(args.out, os.path.basename(path), run)
                 print(f"{split:20s} {name:40s} {p['verdict']}  "
                       f"best F1 {p['best_by_f1']['F1']:.4f} (base {p['baseline']['F1']:.4f})"
-                      f"  {p['elapsed_s']:.0f}s")
+                      f"  {run['elapsed_s']:.0f}s", flush=True)
         return
 
     if args.challenger not in roster.BY_PUBLISHED:
         sys.exit(f"unknown published leg {args.challenger!r}; choose from:\n  "
                  + "\n  ".join(sorted(roster.BY_PUBLISHED)))
-    p = run_pair(args.split, args.challenger, **kw)
+    p, run = run_pair(args.split, args.challenger, **kw)
     if p is None:
         sys.exit(f"no published detections for {args.challenger} on {args.split}")
     path = os.path.join(args.out, out_name(args.split, args.challenger, args.t_hi))
     write_json(path, p)
+    record_run(args.out, os.path.basename(path), run)
     b = p["baseline"]
     print(f"{args.split} x {args.challenger} @T_hi {args.t_hi:g}: baseline "
           f"{b['tp']}/{b['fp']}/{b['fn']} P {b['P']:.4f} R {b['R']:.4f} F1 {b['F1']:.4f}")
@@ -755,7 +1088,16 @@ def main():
                   f"{r['tp']}/{r['fp']}/{r['fn']} P {r['P']:.4f} R {r['R']:.4f} "
                   f"F1 {r['F1']:.4f} dR {r['dR']:+.4f} attr {r['attributable_dR']} "
                   f"thr-only F1 {r['threshold_only_F1']:.4f}")
-    print(f"  verdict: {p['verdict']}   ({p['elapsed_s']:.0f}s on {p['host']})  -> {path}")
+    sa = p["bootstrap_selection_aware"]
+    if sa:
+        print(f"  selection-aware bootstrap: viable in {sa['viable_frac']:.3f} of resamples, "
+              f"dF1 {sa['dF1_ci95']}, dR {sa['dR_ci95']}, attr dR {sa['attr_dR_ci95']}")
+    c = p["calibration"]
+    if c:
+        print(f"  calibration: {c['challengers']} wrong-pano challengers, verdicts "
+              f"{c['verdicts']}, max attr dR {c['max_attr_dR_max']:.4f} "
+              f"(real {c['real_max_attr_dR']:.4f})")
+    print(f"  verdict: {p['verdict']}   ({run['elapsed_s']:.0f}s on {run['host']})  -> {path}")
 
 
 if __name__ == "__main__":
