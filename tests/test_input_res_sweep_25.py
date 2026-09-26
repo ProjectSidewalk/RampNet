@@ -32,9 +32,10 @@ def test_arm_sizes_and_resize_order():
 def test_rnative_is_native_floored_and_capped():
     assert irs.arm_input_size("rnative", (11000, 5500)) == (5500, 11000)
     assert irs.arm_input_size("rnative", (5660, 2830)) == (2830, 5660)
-    assert irs.arm_input_size("rnative", (16384, 8192)) == (6144, 12288)   # the cap
-    assert irs.arm_input_size("rnative", (13312, 6656)) == (6144, 12288)
-    assert irs.arm_input_size("rnative", (12288, 6144)) == (6144, 12288)
+    assert irs.arm_input_size("rnative", (16384, 8192)) == (5500, 11000)   # the cap
+    assert irs.arm_input_size("rnative", (13312, 6656)) == (5500, 11000)
+    assert irs.arm_input_size("rnative", (12288, 6144)) == (5500, 11000)
+    assert irs.arm_input_size("rnative", (16384, 8192), (6144, 12288)) == (6144, 12288)
     assert irs.arm_input_size("rnative", (3328, 1664)) == (2048, 4096)     # the floor
     assert irs.arm_input_size("rnative", (4096, 2048)) == (2048, 4096)
     assert irs.arm_input_size("rnative", (16384, 8192), (4096, 8192)) == (4096, 8192)

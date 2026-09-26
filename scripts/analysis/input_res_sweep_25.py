@@ -88,7 +88,11 @@ POOLS = {
 
 BASE_SIZE = (2048, 4096)          # (H, W) the model was trained at
 BASE_HEATMAP = (512, 1024)
-DEFAULT_NATIVE_CAP = (6144, 12288)
+# 6144x12288 OOMed on the A40 (with 8.8 GB held by another process) in fp32 AND under
+# fp16 autocast in the 2026-09-26 smoke test; 5500x11000 (richmond's dominant native
+# size) peaked at 28.4 GiB fp32. So the cap is richmond's native, and every rnative
+# pano runs fp32.
+DEFAULT_NATIVE_CAP = (5500, 11000)
 SCORE_FLOOR = 0.05
 THRESHOLDS = (0.30, 0.55)         # the #79 recommended operating point; the shipped one
 N_REPS = 2000
@@ -235,7 +239,8 @@ def read_arm_cache(path):
     return panos, payload.get("meta", {})
 
 
-def usage_rows(arm_stats, decode_s, host, gpus, cities, started, extra_note=None):
+def usage_rows(arm_stats, decode_s, host, gpus, cities, started, extra_note=None,
+               status="ok"):
     """One ``paid: false`` usage_log row per arm plus one for the shared JPEG decode.
 
     ``arm_stats`` = {arm: {"elapsed_s", "panos_scored", "fp16"}}. makelab2 has no Slurm,
@@ -251,7 +256,7 @@ def usage_rows(arm_stats, decode_s, host, gpus, cities, started, extra_note=None
             "provider": "rampnet", "model_id": "projectsidewalk/rampnet-model", "paid": False,
             "panos_scored": n, "elapsed_s": round(st["elapsed_s"], 3),
             "s_per_pano": round(st["elapsed_s"] / n, 4) if n else None,
-            "hardware": hw, "status": "ok",
+            "hardware": hw, "status": status,
             "what": (f"input_res_sweep_25.py extract, arm {arm} (resize + forward + peak "
                      f"extraction; native decode is the separate decode row), fp16="
                      f"{st['fp16']}"),
@@ -265,7 +270,7 @@ def usage_rows(arm_stats, decode_s, host, gpus, cities, started, extra_note=None
         "provider": "rampnet", "model_id": "projectsidewalk/rampnet-model", "paid": False,
         "panos_scored": n_total, "elapsed_s": round(decode_s, 3),
         "s_per_pano": round(decode_s / n_total, 4) if n_total else None,
-        "hardware": hw, "status": "ok",
+        "hardware": hw, "status": status,
         "what": ("input_res_sweep_25.py extract: native JPEG decode, done once per pano and "
                  "shared by every arm in the run (CPU, overlapped with GPU work by a "
                  "prefetch thread, so this is not additive wall-clock)"),
@@ -385,85 +390,91 @@ def cmd_extract(args):
     arm_stats = {a: {"elapsed_s": 0.0, "panos_scored": 0, "fp16": False} for a in arms}
     decode_s = 0.0
     done_cities = []
-    for city in cities:
-        todo = [a for a in arms
-                if args.force or not os.path.exists(cache_path(args.cache_root, a, city))]
-        if not todo:
-            print(f"{city}: every requested arm cached -> skip", flush=True)
-            continue
-        gts, _ = bundle_ground_truths(city)
-        panos_dir = os.path.join(args.panos_root, "benchmark", city, "panos")
-        recs = native_sizes_from_records(city)
-        pids = list(gts)
-        if args.limit:
-            pids = pids[:args.limit]
-        paths = [os.path.join(panos_dir, f"{pid}.jpg") for pid in pids]
-        results = {a: [] for a in todo}
-        for i, (pid, (path, img, dec_s, err)) in enumerate(zip(pids, _prefetch(paths)), 1):
-            if err is not None:
-                raise SystemExit(f"{path}: {err}")
-            decode_s += dec_s
-            native = img.size
-            if tuple(native) != recs[pid]:
-                print(f"  WARNING {city}/{pid}: jpg is {native}, records.jsonl says "
-                      f"{recs[pid]}", flush=True)
+    status = "failed"
+    try:
+        for city in cities:
+            todo = [a for a in arms
+                    if args.force or not os.path.exists(cache_path(args.cache_root, a, city))]
+            if not todo:
+                print(f"{city}: every requested arm cached -> skip", flush=True)
+                continue
+            gts, _ = bundle_ground_truths(city)
+            panos_dir = os.path.join(args.panos_root, "benchmark", city, "panos")
+            recs = native_sizes_from_records(city)
+            pids = list(gts)
+            if args.limit:
+                pids = pids[:args.limit]
+            paths = [os.path.join(panos_dir, f"{pid}.jpg") for pid in pids]
+            results = {a: [] for a in todo}
+            for i, (pid, (path, img, dec_s, err)) in enumerate(zip(pids, _prefetch(paths)), 1):
+                if err is not None:
+                    raise SystemExit(f"{path}: {err}")
+                decode_s += dec_s
+                native = img.size
+                if tuple(native) != recs[pid]:
+                    print(f"  WARNING {city}/{pid}: jpg is {native}, records.jsonl says "
+                          f"{recs[pid]}", flush=True)
+                for a in todo:
+                    spec = ARMS[a]
+                    t0 = time.perf_counter()
+                    size = arm_input_size(a, native, native_cap)
+                    model = models[tuple(spec["heatmap"])]
+                    while True:
+                        try:
+                            t = arm_tensor(img, a, native_cap)
+                            h = _forward(model, t, device, fp16[a])
+                            break
+                        except torch.cuda.OutOfMemoryError:
+                            if fp16[a] or args.fp16 == "off":
+                                raise SystemExit(
+                                    f"{city}/{pid} arm {a} input {size}: OOM even with fp16 "
+                                    "autocast -- lower --native-cap and record it (tiling is "
+                                    "deliberately not implemented: it changes context)")
+                            torch.cuda.empty_cache()
+                            fp16[a] = True
+                            print(f"  {a}: OOM at {size} -> fp16 autocast from here on",
+                                  flush=True)
+                    preds = ts.peaks_to_dets(h, SCORE_FLOOR, spec["min_distance"])
+                    arm_stats[a]["elapsed_s"] += time.perf_counter() - t0
+                    arm_stats[a]["panos_scored"] += 1
+                    arm_stats[a]["fp16"] = arm_stats[a]["fp16"] or fp16[a]
+                    results[a].append({"pano": pid, "preds": preds, "gt": gts[pid],
+                                       "native": native, "input": size, "fp16": fp16[a]})
+                    del t, h
+                del img
+                if i % 25 == 0:
+                    print(f"  {city}: {i}/{len(pids)}", flush=True)
             for a in todo:
-                spec = ARMS[a]
-                t0 = time.perf_counter()
-                size = arm_input_size(a, native, native_cap)
-                model = models[tuple(spec["heatmap"])]
-                while True:
-                    try:
-                        t = arm_tensor(img, a, native_cap)
-                        h = _forward(model, t, device, fp16[a])
-                        break
-                    except torch.cuda.OutOfMemoryError:
-                        if fp16[a] or args.fp16 == "off":
-                            raise SystemExit(
-                                f"{city}/{pid} arm {a} input {size}: OOM even with fp16 "
-                                "autocast -- lower --native-cap and record it (tiling is "
-                                "deliberately not implemented: it changes context)")
-                        torch.cuda.empty_cache()
-                        fp16[a] = True
-                        print(f"  {a}: OOM at {size} -> fp16 autocast from here on",
-                              flush=True)
-                preds = ts.peaks_to_dets(h, SCORE_FLOOR, spec["min_distance"])
-                arm_stats[a]["elapsed_s"] += time.perf_counter() - t0
-                arm_stats[a]["panos_scored"] += 1
-                arm_stats[a]["fp16"] = arm_stats[a]["fp16"] or fp16[a]
-                results[a].append({"pano": pid, "preds": preds, "gt": gts[pid],
-                                   "native": native, "input": size, "fp16": fp16[a]})
-                del t, h
-            del img
-            if i % 25 == 0:
-                print(f"  {city}: {i}/{len(pids)}", flush=True)
-        for a in todo:
-            ps = results[a]
-            meta = {"arm": a, "arm_spec": {k: (list(v) if isinstance(v, tuple) else v)
-                                           for k, v in ARMS[a].items()},
-                    "heatmap_size": list(ARMS[a]["heatmap"]),
-                    "score_floor": SCORE_FLOOR, "min_distance": ARMS[a]["min_distance"],
-                    "radius_normalized": 0.022, "native_cap": list(native_cap),
-                    "fp16": any(p["fp16"] for p in ps), "tta": False, "n_panos": len(ps),
-                    "model": "projectsidewalk/rampnet-model", "device": device.type,
-                    "gpus": gpus, "torch": torch.__version__}
-            write_arm_cache(cache_path(args.cache_root, a, city), city, ps, meta)
-            # sanity print at the two operating points
-            s30 = _score_at(ps, 0.30, rsq)
-            print(f"{city} {a}: {len(ps)} panos  P/R/F1@0.30 = {s30.precision:.3f}/"
-                  f"{s30.recall:.3f}/{s30.f1:.3f}", flush=True)
-        done_cities.append(city)
-        print(f"{city} done; elapsed so far "
-              + ", ".join(f"{a}={arm_stats[a]['elapsed_s']:.0f}s" for a in arms)
-              + f", decode={decode_s:.0f}s"
-              + (f", peak GPU mem {torch.cuda.max_memory_allocated() / 2**30:.1f} GiB"
-                 if device.type == "cuda" else ""), flush=True)
+                ps = results[a]
+                meta = {"arm": a, "arm_spec": {k: (list(v) if isinstance(v, tuple) else v)
+                                               for k, v in ARMS[a].items()},
+                        "heatmap_size": list(ARMS[a]["heatmap"]),
+                        "score_floor": SCORE_FLOOR, "min_distance": ARMS[a]["min_distance"],
+                        "radius_normalized": 0.022, "native_cap": list(native_cap),
+                        "fp16": any(p["fp16"] for p in ps), "tta": False, "n_panos": len(ps),
+                        "model": "projectsidewalk/rampnet-model", "device": device.type,
+                        "gpus": gpus, "torch": torch.__version__}
+                write_arm_cache(cache_path(args.cache_root, a, city), city, ps, meta)
+                # sanity print at the two operating points
+                s30 = _score_at(ps, 0.30, rsq)
+                print(f"{city} {a}: {len(ps)} panos  P/R/F1@0.30 = {s30.precision:.3f}/"
+                      f"{s30.recall:.3f}/{s30.f1:.3f}", flush=True)
+            done_cities.append(city)
+            print(f"{city} done; elapsed so far "
+                  + ", ".join(f"{a}={arm_stats[a]['elapsed_s']:.0f}s" for a in arms)
+                  + f", decode={decode_s:.0f}s"
+                  + (f", peak GPU mem {torch.cuda.max_memory_allocated() / 2**30:.1f} GiB"
+                     if device.type == "cuda" else ""), flush=True)
 
-    if args.usage_log.lower() != "none" and done_cities:
-        rows = usage_rows({a: s for a, s in arm_stats.items() if s["panos_scored"]},
-                          decode_s, host, gpus, done_cities, started, args.note)
-        ledger.append_rows(args.usage_log, rows)
-        print(f"usage_log: +{len(rows)} rows -> {args.usage_log}", flush=True)
+        status = "ok"
+    finally:
+        # Written even when a run dies (OOM, a bad jpg, Ctrl-C): the GPU time was spent.
+        if args.usage_log.lower() != "none" and any(s["panos_scored"] for s in arm_stats.values()):
+            rows = usage_rows({a: s for a, s in arm_stats.items() if s["panos_scored"]},
+                              decode_s, host, gpus, done_cities or cities, started, args.note,
+                              status=status)
+            ledger.append_rows(args.usage_log, rows)
+            print(f"usage_log: +{len(rows)} rows ({status}) -> {args.usage_log}", flush=True)
     print("extract done", flush=True)
 
 
