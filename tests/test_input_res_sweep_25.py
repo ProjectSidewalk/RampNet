@@ -228,3 +228,191 @@ def test_report_reproduces_committed_headline():
     assert got["recall"]["observed"] == -0.0714
     assert got["recall"]["ci_lo"] == -0.1237 and got["recall"]["ci_hi"] == -0.0196
     assert committed["verdicts"]["annapolis"]["r4096"]["verdict"] == "hurts"
+
+
+# review fixes (PR #196) ---------------------------------------------------------------
+def test_rnative_cap_honours_the_height():
+    """A pano (or a cap) that is not 2:1 is bounded on whichever side binds."""
+    # square native, default cap: the height binds (8000 > 5500), aspect kept
+    assert irs.arm_input_size("rnative", (8000, 8000)) == (5500, 5500)
+    # a tall user cap: the 5500 native height exceeds 4000, the width does not bind
+    assert irs.arm_input_size("rnative", (11000, 5500), (4000, 12000)) == (4000, 8000)
+    # width binds (the only case the committed 2:1 bundles hit)
+    assert irs.arm_input_size("rnative", (16384, 8192), (6000, 11000)) == (5500, 11000)
+    # inside the cap on both sides: native
+    assert irs.arm_input_size("rnative", (8000, 4000), (4000, 12000)) == (4000, 8000)
+
+
+def test_rnative_sizes_match_committed_caches():
+    """The cap_h fix changes no committed size: every bundle is 2:1, so the width branch
+    is the one taken, and each rnative cache's recorded input is what the fixed
+    arm_input_size returns for that pano's native size and the cache's own cap."""
+    n = 0
+    for city in irs.SPLITS:
+        panos, meta = irs.read_arm_cache(irs.cache_path(irs.CACHE_ROOT, "rnative", city))
+        cap = tuple(meta["native_cap"])
+        assert cap == irs.DEFAULT_NATIVE_CAP
+        for p in panos:
+            assert irs.arm_input_size("rnative", tuple(p["native"]), cap) == tuple(p["input"])
+            n += 1
+    assert n == 1289
+
+
+def test_rows_for_run_logs_a_failure_before_the_first_pano():
+    stats = {a: {"elapsed_s": 0.0, "panos_scored": 0, "fp16": False} for a in ("r4096",)}
+    wait = {"wait_s": 3.0, "cpu_s": 7.0}
+    kw = dict(host="h", gpus=["NVIDIA A40"], cities=["annapolis", "bend"],
+              started="2026-09-26T00:00:00Z")
+    rows = irs.rows_for_run(stats, wait, 42.0, attempted=["annapolis"], status="failed", **kw)
+    assert len(rows) == 1
+    r = rows[0]
+    assert r["panos_scored"] == 0 and r["elapsed_s"] == 42.0 and r["status"] == "failed"
+    assert r["paid"] is False and r["est_cost_usd"] == 0.0
+    assert r["bundle"] == "annapolis"
+    # a clean run with nothing to do logs nothing
+    assert irs.rows_for_run(stats, wait, 5.0, attempted=[], status="ok", **kw) == []
+
+
+def test_rows_for_run_names_the_city_it_died_in():
+    stats = {"r3072": {"elapsed_s": 10.0, "panos_scored": 126, "fp16": False},
+             "rnative": {"elapsed_s": 9.0, "panos_scored": 125, "fp16": False}}
+    rows = irs.rows_for_run(stats, {"wait_s": 1.0, "cpu_s": 2.0}, 21.0, host="h", gpus=[],
+                            attempted=["annapolis", "bend"], cities=list(irs.SPLITS),
+                            started="t", status="failed")
+    assert {r["bundle"] for r in rows} == {"annapolis,bend"}
+    assert [r["panos_scored"] for r in rows] == [126, 125, 126]
+
+
+def test_limit_refused_on_the_committed_cache_root(tmp_path):
+    with pytest.raises(SystemExit):
+        irs.refuse_limit_on_committed_caches(3, irs.CACHE_ROOT)
+    irs.refuse_limit_on_committed_caches(3, str(tmp_path))     # scratch root: fine
+    irs.refuse_limit_on_committed_caches(0, irs.CACHE_ROOT)    # no limit: fine
+
+
+def test_verdict_decides_on_unrounded_bounds():
+    """richmond r4096: dF1 CI upper bound -4.54e-5 rounds to -0.0. Judged on the rounded
+    copy it reads 'tolerates'; on the unrounded _raw copy it is 'hurts'."""
+    raw = _d((-0.0866, -0.1409, -0.0403), (0.0129, -0.0300, 0.0577),
+             (-0.0362, -0.0763, -4.543e-05))
+    rounded = _d((-0.0866, -0.1409, -0.0403), (0.0129, -0.0300, 0.0577),
+                 (-0.0362, -0.0763, -0.0))
+    assert irs.verdict(rounded, None)[0] == "tolerates"
+    assert irs.verdict({**rounded, "_raw": raw}, None)[0] == "hurts"
+
+
+def test_richmond_r4096_recomputes_as_hurts():
+    rep = irs.build_report(irs.CACHE_ROOT, arms=("r2048", "r4096", "u4096"),
+                           cities=("richmond",), verdicts_only=True)
+    assert rep["verdicts"]["richmond"]["r4096"]["verdict"] == "hurts"
+    raw = rep["per_split"]["richmond"]["vs_r2048"]["r4096"]["0.30"]["_raw"]["f1"]["ci_hi"]
+    assert -1e-4 < raw < 0
+    # the rounded copy is the one that would mislead
+    assert rep["per_split"]["richmond"]["vs_r2048"]["r4096"]["0.30"]["f1"]["ci_hi"] == 0.0
+
+
+def test_verdicts_block_matches_a_fresh_build():
+    """Drift guard: every committed verdict, per split and pooled, re-derives from the
+    committed caches (the 0.30 contrasts only; about half a minute)."""
+    with open(RESULTS, encoding="utf-8") as f:
+        committed = json.load(f)["verdicts"]
+    rep = irs._strip_private(irs.build_report(
+        irs.CACHE_ROOT, arms=("r2048", "r3072", "r4096", "rnative", "u4096"),
+        verdicts_only=True))
+    assert rep["verdicts"] == committed
+
+
+def test_paired_subset_recall():
+    # 3 panos; GT points: pano0 x2, pano1 x1, pano2 x1; the mask drops pano1's point
+    pano_of = np.array([0, 0, 1, 2])
+    mask = np.array([True, True, False, True])
+    hit_a = np.array([0.9, 0.9, 0.9, 0.9])   # arm finds every point
+    hit_b = np.array([0.9, 0.1, 0.1, 0.1])   # control finds only the first
+    ones = np.ones((1, 3))
+    # masked points: 3; a hits 3, b hits 1 -> +2/3
+    assert irs.paired_subset_recall(hit_a, hit_b, pano_of, mask, ones, 0.30)[0] == \
+        pytest.approx(2 / 3)
+    # a replicate that drops pano0 and doubles pano2: a 2/2, b 0/2 -> +1
+    w = np.array([[0.0, 1.0, 2.0]])
+    assert irs.paired_subset_recall(hit_a, hit_b, pano_of, mask, w, 0.30)[0] == 1.0
+    # a replicate with no masked point left is NaN, not a division error
+    w0 = np.array([[0.0, 5.0, 0.0]])
+    assert np.isnan(irs.paired_subset_recall(hit_a, hit_b, pano_of, mask, w0, 0.30)[0])
+
+
+def test_band_of_point():
+    import math
+    assert irs.band_of_point(0.5) == ("above horizon", "above horizon")
+    assert irs.band_of_point(0.3) == ("above horizon", "above horizon")
+    # 45 deg below the horizon: range = CAM_H = 2.5 m -> 0-8 m; ray 3.54 m -> ~221 px
+    assert irs.band_of_point(0.75) == ("0-8 m", "80 px+")
+    # a far point, 30 m out on flat ground: 1.2 m at a ~30.1 m ray, 4096 px per 2 pi
+    # -> ~26 px
+    y = 0.5 + math.atan(irs.CAM_H / 30.0) / math.pi
+    assert irs.band_of_point(y) == ("25-40 m", "20-32 px")
+
+
+def test_non_control_arms_resize_bilinear(monkeypatch):
+    """Every arm but u4096's second step resizes BILINEAR, the interpolation PRE uses."""
+    torch = pytest.importorskip("torch")
+    from PIL import Image
+    from torchvision import transforms
+    monkeypatch.setitem(irs.ARMS, "tiny", {"size": (32, 64), "via": None,
+                                          "heatmap": irs.BASE_HEATMAP, "min_distance": 10})
+    rng = np.random.default_rng(2)
+    img = Image.fromarray(rng.integers(0, 255, (100, 200, 3), dtype=np.uint8))
+    norm = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+
+    def via(mode):
+        return norm(transforms.ToTensor()(transforms.Resize((32, 64), interpolation=mode)(img)))
+    got = irs.arm_tensor(img, "tiny")
+    assert torch.equal(got, via(transforms.InterpolationMode.BILINEAR))
+    assert not torch.equal(got, via(transforms.InterpolationMode.BICUBIC))
+    for arm in ("r3072", "r4096", "rnative", "r4096_hm1024"):
+        assert [m for _, m in irs.resize_steps(arm, (11000, 5500))] == ["bilinear"]
+
+
+def test_seam_criterion_rejects_a_pole_peak():
+    """An extra peak in the top rows is in the border band but not the seam strip, so
+    check's criterion (c) -- every extra peak in the seam strip -- does not excuse it."""
+    ref = {"panos": [{"pano": "a", "preds": [[0.5, 0.7, 0.4]]}]}
+    pole = [{"pano": "a", "preds": [(0.5, 0.7, 0.4), (0.5, 0.005859375, 0.3)]}]
+    r = irs.compare_to_op_cache(pole, ref)
+    assert r["extra"] == r["extra_in_border"] == 1 and r["extra_at_seam"] == 0
+    corner = [{"pano": "a", "preds": [(0.5, 0.7, 0.4), (0.0, 0.005859375, 0.3)]}]
+    r = irs.compare_to_op_cache(corner, ref)
+    assert r["extra"] == r["extra_in_border"] == r["extra_at_seam"] == 1
+
+
+def test_committed_instrument_check_extras_are_all_at_the_seam():
+    with open(os.path.join(REPO, "analysis_out", "input_res_sweep_25",
+                           "instrument_check.json"), encoding="utf-8") as f:
+        chk = json.load(f)
+    assert chk["pass"] is True
+    checked = [c for c in chk["cities"] if c["checked"]]
+    assert len(checked) == 10
+    assert sum(c["strict"]["extra"] for c in checked) == 173
+    for c in checked:
+        assert c["strict"]["extra"] == c["strict"]["extra_at_seam"]
+        assert c["strict"]["missing"] == 0
+
+
+def test_sha256sums_cover_and_match_the_committed_outputs():
+    """Content hashes (CLAUDE.md): results.json/.md, instrument_check.json and all 66
+    caches are listed and match byte for byte."""
+    listed = irs.read_sums()
+    assert set(irs.HASHED) <= set(listed)
+    assert sum(k.startswith("cache/") for k in listed) == 66
+    assert irs.verify_sums() == []
+
+
+def test_sha256sums_catch_a_changed_byte(tmp_path):
+    (tmp_path / "results.json").write_bytes(b"{}\n")
+    sums = tmp_path / "SHA256SUMS"
+    assert irs.main(["sums", "--root", str(tmp_path), "--sums", str(sums), "--write"]) == 0
+    assert irs.verify_sums(str(tmp_path), str(sums)) == []
+    (tmp_path / "results.json").write_bytes(b"{} \n")
+    assert irs.verify_sums(str(tmp_path), str(sums)) != []
+    (tmp_path / "results.json").unlink()
+    assert irs.verify_sums(str(tmp_path), str(sums), require_all=False) == []
+    assert irs.verify_sums(str(tmp_path), str(sums)) != []

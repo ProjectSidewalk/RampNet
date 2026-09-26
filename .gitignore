@@ -257,12 +257,14 @@ analysis_out/context_fov_86/*
 !analysis_out/stage1_agreement_172/
 
 # #25 frozen-model input-size sweep: per-arm low-floor peak caches (op_cache schema, a few
-# MB in all) and the report are committed so every table re-derives on CPU; run.log is not.
+# MB in all), the report and their SHA256SUMS are committed so every table re-derives on
+# CPU; run.log is not.
 !analysis_out/input_res_sweep_25/
 analysis_out/input_res_sweep_25/*
 !analysis_out/input_res_sweep_25/results.json
 !analysis_out/input_res_sweep_25/results.md
 !analysis_out/input_res_sweep_25/instrument_check.json
+!analysis_out/input_res_sweep_25/SHA256SUMS
 !analysis_out/input_res_sweep_25/cache/
 analysis_out/input_res_sweep_25/cache/*
 !analysis_out/input_res_sweep_25/cache/*/

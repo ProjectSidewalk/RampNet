@@ -27,7 +27,8 @@ grid with the same ``min_distance`` in normalized units.
 Subcommands:
 
     # GPU (makelab2). Per-city/per-arm skip-if-exists; decode each native jpg once and
-    # run every missing arm on it. Appends one usage_log row per arm + one decode row.
+    # run every missing arm on it. Appends one usage_log row per arm + one cpu-wait row
+    # (or, if the run dies before scoring any pano, one panos_scored=0 row).
     python scripts/analysis/input_res_sweep_25.py extract --arms r2048 \
         --panos-root /homes/gws/jonf/RampNet
 
@@ -38,11 +39,19 @@ Subcommands:
     # CPU. Every table + the paired pano-level bootstrap -> results.json + results.md
     python scripts/analysis/input_res_sweep_25.py report
 
+    # CPU. Verify the committed outputs and caches against SHA256SUMS (--write to
+    # regenerate it; --root DIR --partial to compare a scratch report/check output)
+    python scripts/analysis/input_res_sweep_25.py sums
+
 The launcher ``input_res_sweep_25.sh`` runs extract(r2048) -> check -> extract(rest) ->
-report, so a failed check stops the run before any other arm is extracted.
+report, so a failed check stops the run before any other arm is extracted. ``--limit``
+(smoke test) is refused unless ``--cache-root`` points somewhere other than the
+committed caches.
 """
 import argparse
 import gc
+import glob
+import hashlib
 import json
 import math
 import os
@@ -91,8 +100,8 @@ BASE_SIZE = (2048, 4096)          # (H, W) the model was trained at
 BASE_HEATMAP = (512, 1024)
 # 6144x12288 OOMed on the A40 (with 8.8 GB held by another process) in fp32 AND under
 # fp16 autocast in the 2026-09-26 smoke test; 5500x11000 (richmond's dominant native
-# size) peaked at 28.4 GiB fp32. So the cap is richmond's native, and every rnative
-# pano runs fp32.
+# size): the full grid's peak allocation was 28.5 GiB fp32 (max_memory_allocated, in
+# its run log). So the cap is richmond's native, and every rnative pano runs fp32.
 DEFAULT_NATIVE_CAP = (5500, 11000)
 SCORE_FLOOR = 0.05
 THRESHOLDS = (0.30, 0.55)         # the #79 recommended operating point; the shipped one
@@ -139,7 +148,20 @@ def arm_input_size(arm, native_wh, native_cap=DEFAULT_NATIVE_CAP):
     ``rnative`` keeps the native size, never below the model's own 2048x4096 (two
     paterson panos are 3328 wide; feeding them smaller than the control would be a
     different question) and never above ``native_cap`` (a GPU-memory guard; the GSV
-    splits are 16384 wide). Aspect ratio is preserved when capping."""
+    splits are 16384 wide). Aspect ratio is preserved when capping: the pano is scaled
+    by ``min(cap_w / w, cap_h / h)`` when either side exceeds the cap, so a tall native
+    or a non-2:1 cap is bounded too.
+
+    Every committed bundle is 2:1, as is the default cap, so the width ratio is always
+    the binding one there (the ``<=`` sends exact ties down the width branch) and the
+    chosen sizes are the ones the committed rnative caches record -- asserted by
+    ``test_rnative_sizes_match_committed_caches``.
+
+    >>> arm_input_size("rnative", (16384, 8192))
+    (5500, 11000)
+    >>> arm_input_size("rnative", (11000, 5500), native_cap=(4000, 12000))
+    (4000, 8000)
+    """
     spec = ARMS[arm]
     if spec["size"] is not None:
         return tuple(spec["size"])
@@ -147,8 +169,10 @@ def arm_input_size(arm, native_wh, native_cap=DEFAULT_NATIVE_CAP):
     cap_h, cap_w = native_cap
     if w <= BASE_SIZE[1]:
         return BASE_SIZE
-    if w > cap_w:
-        return (int(round(h * cap_w / w)), cap_w)
+    if w > cap_w or h > cap_h:
+        if cap_w / w <= cap_h / h:
+            return (int(round(h * cap_w / w)), cap_w)
+        return (cap_h, int(round(w * cap_h / h)))
     return (h, w)
 
 
@@ -255,7 +279,11 @@ def usage_rows(arm_stats, wait, wall_s, host, gpus, cities, started, extra_note=
     and that worker's total CPU seconds (overlapped, so informational). The rows'
     ``elapsed_s`` therefore sum to about the run's wall-clock, which each row also
     carries as ``run_wall_s``. makelab2 has no Slurm, so this is the only ledger the GPU
-    time can go in (docs/compute_cost.md)."""
+    time can go in (docs/compute_cost.md).
+
+    If no arm scored a pano (``arm_stats`` empty) the run died before its first result;
+    the time was still spent, so one ``panos_scored: 0`` row carries the whole run's
+    wall-clock instead of the per-arm rows."""
     rows = []
     hw = {"host": host, "gpus": gpus}
     n_total = 0
@@ -266,6 +294,14 @@ def usage_rows(arm_stats, wait, wall_s, host, gpus, cities, started, extra_note=
               "issue": 25}
     if extra_note:
         common["note"] = extra_note
+    if not arm_stats:
+        return [{
+            "ts": started, "bundle": ",".join(cities), "label": "input-res-25:no-pano",
+            "panos_scored": 0, "elapsed_s": round(wall_s, 3), "s_per_pano": None,
+            "cpu_prep_s": round(wait["cpu_s"], 3),
+            "what": ("input_res_sweep_25.py extract died before scoring any pano: elapsed_s "
+                     "is the run's wall-clock after model load (decode + the failed forward)"),
+            "run_id": f"input-res-sweep-25:no-pano:{started}", **common}]
     for arm, st in arm_stats.items():
         n = st["panos_scored"]
         n_total = max(n_total, n)
@@ -288,6 +324,22 @@ def usage_rows(arm_stats, wait, wall_s, host, gpus, cities, started, extra_note=
                  "overlapped with GPU work)"),
         "run_id": f"input-res-sweep-25:cpu-wait:{started}", **common})
     return rows
+
+
+def rows_for_run(arm_stats, wait, wall_s, host, gpus, attempted, cities, started,
+                 note=None, status="ok"):
+    """The usage_log rows a finished (or dead) ``extract`` writes, or [] for none.
+
+    Arms that scored at least one pano get their rows. A run that scored nothing still
+    writes one ``panos_scored: 0`` row when it failed (the GPU was held); a clean run that
+    had nothing to do (every cache present) writes nothing. ``bundle`` names the cities
+    the run actually started (``attempted``), including the one it died in, not only the
+    ones it finished."""
+    scored = {a: s for a, s in arm_stats.items() if s["panos_scored"]}
+    if not scored and status == "ok":
+        return []
+    return usage_rows(scored, wait, wall_s, host, gpus, attempted or cities, started,
+                      note, status=status)
 
 
 # --------------------------------------------------------------------------- #
@@ -408,6 +460,14 @@ def _prefetch(paths, arms, native_cap):
         yield item
 
 
+def refuse_limit_on_committed_caches(limit, cache_root):
+    """A ``--limit`` smoke run writes truncated caches; never let it write them over the
+    committed ones in ``analysis_out/input_res_sweep_25/cache``."""
+    if limit and os.path.abspath(cache_root) == os.path.abspath(CACHE_ROOT):
+        raise SystemExit("--limit writes truncated caches: pass a scratch --cache-root "
+                         "(not the committed analysis_out/input_res_sweep_25/cache)")
+
+
 def cmd_extract(args):
     import torch
     import threshold_sweep as ts
@@ -421,6 +481,7 @@ def cmd_extract(args):
         raise SystemExit("--usage-log none drops the GPU-time record; pass "
                          "--allow-unrecorded-spend if that is really intended")
     native_cap = parse_hw(args.native_cap)
+    refuse_limit_on_committed_caches(args.limit, args.cache_root)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     models = load_models(device, arms)
@@ -437,7 +498,7 @@ def cmd_extract(args):
 
     arm_stats = {a: {"elapsed_s": 0.0, "panos_scored": 0, "fp16": False} for a in arms}
     wait = {"wait_s": 0.0, "cpu_s": 0.0}
-    done_cities = []
+    done_cities, attempted = [], []
     status = "failed"
     try:
         for city in cities:
@@ -446,6 +507,7 @@ def cmd_extract(args):
             if not todo:
                 print(f"{city}: every requested arm cached -> skip", flush=True)
                 continue
+            attempted.append(city)
             gts, _ = bundle_ground_truths(city)
             panos_dir = os.path.join(args.panos_root, "benchmark", city, "panos")
             recs = native_sizes_from_records(city)
@@ -492,7 +554,11 @@ def cmd_extract(args):
                         # (the first full run died this way on bend: rnative OOMed in fp32
                         # and then again under fp16 at a size the smoke test had fit).
                         if oom:
-                            feats.clear()
+                            # Drop only the failing arm's feature map (if the OOM came in the
+                            # head, it exists). Any other entry is one a later arm in this
+                            # pano reuses (r4096's, for r4096_hm1024) -- the loop below
+                            # already frees the rest -- so keeping it saves a backbone pass.
+                            feats.pop((key, fp16[a]), None)
                             gc.collect()
                             torch.cuda.empty_cache()
                             if not fp16[a] and not retried_fp32:
@@ -545,12 +611,11 @@ def cmd_extract(args):
                      if device.type == "cuda" else ""), flush=True)
         status = "ok"
     finally:
-        # Written even when a run dies (OOM, a bad jpg, Ctrl-C): the GPU time was spent.
-        if (args.usage_log.lower() != "none"
-                and any(s["panos_scored"] for s in arm_stats.values())):
-            rows = usage_rows({a: s for a, s in arm_stats.items() if s["panos_scored"]},
-                              wait, time.perf_counter() - t_start, host, gpus,
-                              done_cities or cities, started, args.note, status=status)
+        # Written even when a run dies (OOM, a bad jpg, Ctrl-C), including before its
+        # first scored pano: the GPU time was spent.
+        rows = rows_for_run(arm_stats, wait, time.perf_counter() - t_start, host, gpus,
+                            attempted, cities, started, args.note, status=status)
+        if args.usage_log.lower() != "none" and rows:
             ledger.append_rows(args.usage_log, rows)
             print(f"usage_log: +{len(rows)} rows ({status}) -> {args.usage_log}", flush=True)
     print("extract done", flush=True)
@@ -629,18 +694,20 @@ def cmd_check(args):
     """Two comparisons per split, both reported:
 
     - **strict**: every r2048 peak against the committed op_cache. Expected to fail
-      only by extra peaks in the border band (the op_cache predates the #132
-      exclude_border fix), and it is asserted that *every* extra peak is there.
+      only by extra peaks beside the 360 seam (the op_cache predates the #132
+      exclude_border fix), and it is asserted that *every* extra peak is in the seam
+      strip (``in_seam_strip``), not merely in the wider border band: the band also
+      covers the top/bottom rows, and an extra peak there alone would be unexplained.
     - **as-extracted**: the same, with the border band set aside, which reproduces how
       the op_cache was made. Must match exactly in peak position, within ``--tol`` in
       score, and give identical tp/fp/fn at 0.30 and 0.55.
 
     PASS needs the as-extracted comparison to match on every checked split, no
-    missing peak anywhere, and no extra peak outside the border band."""
+    missing peak anywhere, and no extra peak outside the seam strip."""
     rsq = radius_sq_for()
     ok = True
     rows = []
-    for city in SPLITS:
+    for city in _cities(args.cities):
         cp = cache_path(args.cache_root, CONTROL, city)
         op = os.path.join(args.op_cache, f"{city}.json")
         if not os.path.exists(cp):
@@ -679,14 +746,14 @@ def cmd_check(args):
         # Most op_caches predate #132 (border band missing); laurens_mapillary's was made
         # after it and carries the border peaks. Either reference mode is accepted, but
         # only in full: an exact strict match, or an exact as-extracted match with every
-        # extra peak in the border band.
+        # extra peak in the seam strip (a corner peak is in both the strip and the band).
         strict_match = strict["panos_mismatched"] == 0
         if strict_match:
             reference_mode = "exclude_border=False (post-f4c71c8)"
         else:
             reference_mode = "exclude_border=True (pre-f4c71c8)"
         asx_match = (asx["panos_mismatched"] == 0 and strict["missing"] == 0
-                     and strict["extra"] == strict["extra_in_border"])
+                     and strict["extra"] == strict["extra_at_seam"])
         prf_ok = all(tuple(v["as_extracted"] if not strict_match
                            else v["r2048_with_border_peaks"]) == tuple(v["op_cache"])
                      for v in prf.values())
@@ -852,8 +919,16 @@ def load_all(cache_root, arms, cities):
     return data
 
 
-def build_report(cache_root, arms=tuple(ARMS), cities=SPLITS):
+def build_report(cache_root, arms=tuple(ARMS), cities=SPLITS, verdicts_only=False):
+    """Every table in results.json, from the per-arm caches under ``cache_root``.
+
+    ``verdicts_only`` computes just what the ``verdicts`` block needs (the 0.30 contrasts
+    of the per-split and pooled entries; no 0.55, headroom or band tables). Each
+    contrast seeds its own generator, so those contrasts, and the verdicts, are the same
+    numbers a full build gives -- it exists so a test can pin the verdicts in half the
+    time."""
     rsq = radius_sq_for()
+    thresholds = (0.30,) if verdicts_only else THRESHOLDS
     data = load_all(cache_root, arms, cities)
     arms = [a for a in arms if any((a, c) in data for c in cities)]
     cities = [c for c in cities if (CONTROL, c) in data]
@@ -880,7 +955,7 @@ def build_report(cache_root, arms=tuple(ARMS), cities=SPLITS):
                 continue
             n = len(scored[(arm, city)].pids)
             ent["vs_r2048"][arm] = {f"{t:.2f}": _contrast(
-                scored[(arm, city)], scored[(CONTROL, city)], [n], t) for t in THRESHOLDS}
+                scored[(arm, city)], scored[(CONTROL, city)], [n], t) for t in thresholds}
             if arm in RESOLUTION_ARMS and (UPSAMPLE_CONTROL, city) in data:
                 ent["vs_u4096"][arm] = {"0.30": _contrast(
                     scored[(arm, city)], scored[(UPSAMPLE_CONTROL, city)], [n], 0.30)}
@@ -912,7 +987,7 @@ def build_report(cache_root, arms=tuple(ARMS), cities=SPLITS):
             if arm == CONTROL:
                 continue
             ent["vs_r2048"][arm] = {f"{t:.2f}": _contrast(stacked[arm], stacked[CONTROL],
-                                                          sizes, t) for t in THRESHOLDS}
+                                                          sizes, t) for t in thresholds}
             if arm in RESOLUTION_ARMS and UPSAMPLE_CONTROL in stacked:
                 ent["vs_u4096"][arm] = {"0.30": _contrast(
                     stacked[arm], stacked[UPSAMPLE_CONTROL], sizes, 0.30)}
@@ -923,6 +998,8 @@ def build_report(cache_root, arms=tuple(ARMS), cities=SPLITS):
                 lab, why = verdict(ent["vs_r2048"][arm]["0.30"],
                                    ent["vs_u4096"].get(arm, {}).get("0.30"))
                 rep["verdicts"][name][arm] = {"verdict": lab, "criteria": why}
+    if verdicts_only:
+        return rep
 
     # headroom classes (see headroom_class): every split pooled, per arm
     for arm in arms:
@@ -1103,7 +1180,7 @@ def markdown(rep):
 
 
 def cmd_report(args):
-    rep = _strip_private(build_report(args.cache_root))
+    rep = _strip_private(build_report(args.cache_root, cities=_cities(args.cities)))
     write_json(args.out, rep)
     md = markdown(rep)
     md_path = os.path.splitext(args.out)[0] + ".md"
@@ -1116,6 +1193,82 @@ def cmd_report(args):
     print(md)
     print(f"\n-> {args.out}\n-> {md_path}")
     return 0
+
+
+# --------------------------------------------------------------------------- #
+# sums: content hashes of the committed outputs
+# --------------------------------------------------------------------------- #
+SUMS = os.path.join(OUT_DIR, "SHA256SUMS")
+HASHED = ("results.json", "results.md", "instrument_check.json")
+
+
+def hashed_files(root=OUT_DIR):
+    """Relative (posix) paths under ``root`` that SHA256SUMS covers, sorted: the three
+    report/check outputs and every per-arm cache."""
+    rels = [f for f in HASHED if os.path.exists(os.path.join(root, f))]
+    rels += sorted(os.path.relpath(p, root).replace(os.sep, "/")
+                   for p in glob.glob(os.path.join(root, "cache", "*", "*.json")))
+    return rels
+
+
+def sha256_file(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def read_sums(path=SUMS):
+    """{relative path: sha256} from a ``sha256sum``-format file."""
+    out = {}
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            if line.strip():
+                digest, name = line.rstrip("\n").split(None, 1)
+                out[name.lstrip("*")] = digest
+    return out
+
+
+def verify_sums(root=OUT_DIR, sums=SUMS, require_all=True):
+    """Compare the files under ``root`` with SHA256SUMS. Returns a list of problems
+    (empty = OK). ``require_all=False`` checks only the listed files that exist under
+    ``root`` -- how a scratch ``report``/``check`` output is compared with the committed
+    one without a cache tree beside it."""
+    want = read_sums(sums)
+    bad = []
+    for rel, digest in want.items():
+        p = os.path.join(root, rel)
+        if not os.path.exists(p):
+            if require_all:
+                bad.append(f"{rel}: listed but absent")
+            continue
+        got = sha256_file(p)
+        if got != digest:
+            bad.append(f"{rel}: sha256 {got} != SHA256SUMS {digest}")
+    if require_all:
+        bad += [f"{rel}: present but not in SHA256SUMS" for rel in hashed_files(root)
+                if rel not in want]
+    return bad
+
+
+def cmd_sums(args):
+    if args.write:
+        with open(args.sums, "w", encoding="utf-8", newline="") as f:
+            for rel in hashed_files(args.root):
+                f.write(f"{sha256_file(os.path.join(args.root, rel))}  {rel}\n")
+        print(f"-> {args.sums}")
+        return 0
+    bad = verify_sums(args.root, args.sums, require_all=not args.partial)
+    for b in bad:
+        print(b)
+    n = len(read_sums(args.sums))
+    print(f"SHA256SUMS: {'FAIL' if bad else 'OK'} ({n} files listed, root {args.root})")
+    return 1 if bad else 0
+
+
+def _cities(s):
+    return tuple(c.strip() for c in s.split(",") if c.strip())
 
 
 def main(argv=None):
@@ -1131,26 +1284,40 @@ def main(argv=None):
                    help="H x W cap for the rnative arm (GPU-memory guard)")
     e.add_argument("--fp16", choices=("auto", "on", "off"), default="auto",
                    help="auto = fp32, switching to fp16 autocast per arm on OOM")
-    e.add_argument("--force", action="store_true")
-    e.add_argument("--limit", type=int, default=0, help="smoke test: first N panos/city")
+    e.add_argument("--force", action="store_true",
+                   help="re-extract even where a cache exists (overwrites it)")
+    e.add_argument("--limit", type=int, default=0,
+                   help="smoke test: first N panos/city; needs a scratch --cache-root")
     e.add_argument("--usage-log", default=USAGE_LOG,
                    help="ledger to append the paid:false GPU-time rows to; 'none' to skip")
     e.add_argument("--allow-unrecorded-spend", action="store_true")
     e.add_argument("--note", default=None, help="free-text note carried on usage rows")
     c = sub.add_parser("check", help="CPU: r2048 must reproduce analysis_out/op_cache")
     c.add_argument("--cache-root", default=CACHE_ROOT)
+    c.add_argument("--cities", default=",".join(SPLITS))
     c.add_argument("--op-cache", default=OP_CACHE)
     c.add_argument("--out", default=os.path.join(OUT_DIR, "instrument_check.json"))
     c.add_argument("--tol", type=float, default=CHECK_TOL,
                    help="max |score diff| on a matched peak")
     r = sub.add_parser("report", help="CPU: tables + paired bootstrap")
     r.add_argument("--cache-root", default=CACHE_ROOT)
+    r.add_argument("--cities", default=",".join(SPLITS))
     r.add_argument("--out", default=os.path.join(OUT_DIR, "results.json"))
+    h = sub.add_parser("sums", help="verify (default) or --write SHA256SUMS")
+    h.add_argument("--root", default=OUT_DIR,
+                   help="dir holding results.json etc. and cache/<arm>/<split>.json")
+    h.add_argument("--sums", default=SUMS)
+    h.add_argument("--partial", action="store_true",
+                   help="check only the listed files present under --root (a scratch "
+                        "report/check output)")
+    h.add_argument("--write", action="store_true")
     args = ap.parse_args(argv)
     if args.cmd == "extract":
         return cmd_extract(args) or 0
     if args.cmd == "check":
         return cmd_check(args)
+    if args.cmd == "sums":
+        return cmd_sums(args)
     return cmd_report(args)
 
 
