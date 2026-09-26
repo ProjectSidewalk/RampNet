@@ -717,8 +717,8 @@ def log_split_footnote(result, split):
     against the full zero-shot field, because the table's own lead is then the smaller
     field's. Example (annapolis, 2026-09-26)::
 
-        Against the whole zero-shot field RampNet's lead on this split is 0.227 F1
-        (over Claude Fable 5 (low, anthropic)), not the 0.270 over the table's best row.
+        Against the whole zero-shot field RampNet's lead on this split is 0.229 F1
+        (over Claude Fable 5 (low, anthropic)), not the 0.273 over the table's best row.
     """
     from scoreboard import RAMPNET
 
