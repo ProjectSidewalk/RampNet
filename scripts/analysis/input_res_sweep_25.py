@@ -239,46 +239,48 @@ def read_arm_cache(path):
     return panos, payload.get("meta", {})
 
 
-def usage_rows(arm_stats, decode_s, host, gpus, cities, started, extra_note=None,
+def usage_rows(arm_stats, wait, wall_s, host, gpus, cities, started, extra_note=None,
                status="ok"):
-    """One ``paid: false`` usage_log row per arm plus one for the shared JPEG decode.
+    """One ``paid: false`` usage_log row per arm plus one for time spent waiting on CPU.
 
-    ``arm_stats`` = {arm: {"elapsed_s", "panos_scored", "fp16"}}. makelab2 has no Slurm,
-    so this is the only ledger the GPU time can go in (docs/compute_cost.md)."""
+    ``arm_stats`` = {arm: {"elapsed_s", "panos_scored", "fp16"}}: each arm's GPU-side
+    main-thread seconds (host-to-device copy, forward, peak extraction). ``wait`` =
+    {"wait_s", "cpu_s"}: seconds the GPU loop sat waiting on the decode/resize worker,
+    and that worker's total CPU seconds (overlapped, so informational). The rows'
+    ``elapsed_s`` therefore sum to about the run's wall-clock, which each row also
+    carries as ``run_wall_s``. makelab2 has no Slurm, so this is the only ledger the GPU
+    time can go in (docs/compute_cost.md)."""
     rows = []
     hw = {"host": host, "gpus": gpus}
     n_total = 0
+    common = {"provider": "rampnet", "model_id": "projectsidewalk/rampnet-model",
+              "paid": False, "hardware": hw, "status": status, "est_cost_usd": 0.0,
+              "pricing": None, "concurrent_with": [], "gpu_share": 1.0,
+              "run_wall_s": round(wall_s, 3), "script": "scripts/analysis/input_res_sweep_25.py",
+              "issue": 25}
+    if extra_note:
+        common["note"] = extra_note
     for arm, st in arm_stats.items():
         n = st["panos_scored"]
         n_total = max(n_total, n)
+        shared = (" (shares r4096's backbone pass, so this is the head + peak extraction "
+                  "only)" if arm == "r4096_hm1024" else "")
         rows.append({
             "ts": started, "bundle": ",".join(cities), "label": f"input-res-25:{arm}",
-            "provider": "rampnet", "model_id": "projectsidewalk/rampnet-model", "paid": False,
             "panos_scored": n, "elapsed_s": round(st["elapsed_s"], 3),
             "s_per_pano": round(st["elapsed_s"] / n, 4) if n else None,
-            "hardware": hw, "status": status,
-            "what": (f"input_res_sweep_25.py extract, arm {arm} (resize + forward + peak "
-                     f"extraction; native decode is the separate decode row), fp16="
-                     f"{st['fp16']}"),
-            "est_cost_usd": 0.0, "pricing": None,
-            "run_id": f"input-res-sweep-25:{arm}:{started}",
-            "concurrent_with": [], "gpu_share": 1.0,
-            **({"note": extra_note} if extra_note else {}),
-        })
+            "what": (f"input_res_sweep_25.py extract, arm {arm}: GPU-side seconds "
+                     f"(copy + forward + peak extraction){shared}, fp16={st['fp16']}"),
+            "run_id": f"input-res-sweep-25:{arm}:{started}", **common})
     rows.append({
-        "ts": started, "bundle": ",".join(cities), "label": "input-res-25:decode",
-        "provider": "rampnet", "model_id": "projectsidewalk/rampnet-model", "paid": False,
-        "panos_scored": n_total, "elapsed_s": round(decode_s, 3),
-        "s_per_pano": round(decode_s / n_total, 4) if n_total else None,
-        "hardware": hw, "status": status,
-        "what": ("input_res_sweep_25.py extract: native JPEG decode, done once per pano and "
-                 "shared by every arm in the run (CPU, overlapped with GPU work by a "
-                 "prefetch thread, so this is not additive wall-clock)"),
-        "est_cost_usd": 0.0, "pricing": None,
-        "run_id": f"input-res-sweep-25:decode:{started}",
-        "concurrent_with": [], "gpu_share": 1.0,
-        **({"note": extra_note} if extra_note else {}),
-    })
+        "ts": started, "bundle": ",".join(cities), "label": "input-res-25:cpu-wait",
+        "panos_scored": n_total, "elapsed_s": round(wait["wait_s"], 3),
+        "s_per_pano": round(wait["wait_s"] / n_total, 4) if n_total else None,
+        "cpu_prep_s": round(wait["cpu_s"], 3),
+        "what": ("input_res_sweep_25.py extract: seconds the GPU loop waited on the native "
+                 "JPEG decode + per-arm resize worker (cpu_prep_s is that worker's total, "
+                 "overlapped with GPU work)"),
+        "run_id": f"input-res-sweep-25:cpu-wait:{started}", **common})
     return rows
 
 
@@ -325,34 +327,72 @@ def load_models(device, arms):
     return models
 
 
-def _forward(model, t, device, fp16):
+def _forward_features(model, t, device, fp16):
+    """Backbone only: the (1, C, H/32, W/32) feature map for one normalized input."""
     import torch
     t = t.unsqueeze(0).to(device)
     with torch.no_grad():
         if fp16 and device.type == "cuda":
             with torch.autocast("cuda", dtype=torch.float16):
-                h = model(t)
+                f = model.feature_extractor(t)
         else:
-            h = model(t)
+            f = model.feature_extractor(t)
+    del t
+    return f
+
+
+def _forward_head(model, feats, device, fp16):
+    """Head only -> (H, W) float32 numpy heatmap. ``model(x)`` is exactly
+    ``head(feature_extractor(x))``, so splitting the call changes no number; it lets
+    r4096 and r4096_hm1024 share one backbone pass (the two differ only in the head's
+    parameter-free Upsample target)."""
+    import torch
+    with torch.no_grad():
+        if fp16 and device.type == "cuda":
+            with torch.autocast("cuda", dtype=torch.float16):
+                h = model.head(feats)
+        else:
+            h = model.head(feats)
     out = h.squeeze().float().cpu().numpy()
-    del t, h
+    del h
     return out
 
 
-def _prefetch(paths):
-    """Decode native jpgs one ahead in a thread (PIL releases the GIL while decoding)."""
+def _forward(model, t, device, fp16):
+    """Full forward, (3, H, W) tensor -> numpy heatmap (used by tests and ad hoc runs)."""
+    return _forward_head(model, _forward_features(model, t, device, fp16), device, fp16)
+
+
+def prep_key(arm, native_wh, native_cap=DEFAULT_NATIVE_CAP):
+    """Arms with the same key see a byte-identical input tensor."""
+    if arm == CONTROL:
+        return "PRE"
+    return tuple(resize_steps(arm, native_wh, native_cap))
+
+
+def _prefetch(paths, arms, native_cap):
+    """Decode each native jpg and build every arm's input tensor in a worker thread, one
+    pano ahead of the GPU (PIL and torch release the GIL for the heavy parts).
+
+    Yields (path, native (w, h), {prep_key: tensor}, cpu_seconds, error)."""
     from PIL import Image
     Image.MAX_IMAGE_PIXELS = None   # 16384x8192 = 134 MP trips PIL's bomb guard
-    q = Queue(maxsize=2)
+    q = Queue(maxsize=1)
 
     def work():
         for p in paths:
             t0 = time.perf_counter()
             try:
                 img = Image.open(p).convert("RGB")
-                q.put((p, img, time.perf_counter() - t0, None))
+                tensors = {}
+                for a in arms:
+                    k = prep_key(a, img.size, native_cap)
+                    if k not in tensors:
+                        tensors[k] = arm_tensor(img, a, native_cap)
+                q.put((p, img.size, tensors, time.perf_counter() - t0, None))
+                del img
             except Exception as e:  # noqa: BLE001 -- surfaced to the caller
-                q.put((p, None, time.perf_counter() - t0, e))
+                q.put((p, None, None, time.perf_counter() - t0, e))
         q.put(None)
     threading.Thread(target=work, daemon=True).start()
     while True:
@@ -378,17 +418,19 @@ def cmd_extract(args):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     models = load_models(device, arms)
+    base = models[BASE_HEATMAP]
     gpus = ([torch.cuda.get_device_name(i) for i in range(torch.cuda.device_count())]
             if device.type == "cuda" else [])
     host = socket.getfqdn()
     started = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    t_start = time.perf_counter()
     fp16 = {a: args.fp16 == "on" for a in arms}
     rsq = radius_sq_for()
     print(f"device={device} gpus={gpus} arms={arms} native_cap={native_cap} "
           f"torch={torch.__version__}", flush=True)
 
     arm_stats = {a: {"elapsed_s": 0.0, "panos_scored": 0, "fp16": False} for a in arms}
-    decode_s = 0.0
+    wait = {"wait_s": 0.0, "cpu_s": 0.0}
     done_cities = []
     status = "failed"
     try:
@@ -406,31 +448,39 @@ def cmd_extract(args):
                 pids = pids[:args.limit]
             paths = [os.path.join(panos_dir, f"{pid}.jpg") for pid in pids]
             results = {a: [] for a in todo}
-            for i, (pid, (path, img, dec_s, err)) in enumerate(zip(pids, _prefetch(paths)), 1):
+            stream = _prefetch(paths, todo, native_cap)
+            for i, pid in enumerate(pids, 1):
+                t_wait = time.perf_counter()
+                path, native, tensors, cpu_s, err = next(stream)
+                wait["wait_s"] += time.perf_counter() - t_wait
+                wait["cpu_s"] += cpu_s
                 if err is not None:
                     raise SystemExit(f"{path}: {err}")
-                decode_s += dec_s
-                native = img.size
                 if tuple(native) != recs[pid]:
                     print(f"  WARNING {city}/{pid}: jpg is {native}, records.jsonl says "
                           f"{recs[pid]}", flush=True)
+                feats = {}
                 for a in todo:
                     spec = ARMS[a]
                     t0 = time.perf_counter()
                     size = arm_input_size(a, native, native_cap)
-                    model = models[tuple(spec["heatmap"])]
+                    key = prep_key(a, native, native_cap)
                     while True:
                         try:
-                            t = arm_tensor(img, a, native_cap)
-                            h = _forward(model, t, device, fp16[a])
+                            if (key, fp16[a]) not in feats:
+                                feats[(key, fp16[a])] = _forward_features(
+                                    base, tensors[key], device, fp16[a])
+                            h = _forward_head(models[tuple(spec["heatmap"])],
+                                              feats[(key, fp16[a])], device, fp16[a])
                             break
                         except torch.cuda.OutOfMemoryError:
+                            feats.clear()
+                            torch.cuda.empty_cache()
                             if fp16[a] or args.fp16 == "off":
                                 raise SystemExit(
                                     f"{city}/{pid} arm {a} input {size}: OOM even with fp16 "
                                     "autocast -- lower --native-cap and record it (tiling is "
                                     "deliberately not implemented: it changes context)")
-                            torch.cuda.empty_cache()
                             fp16[a] = True
                             print(f"  {a}: OOM at {size} -> fp16 autocast from here on",
                                   flush=True)
@@ -440,8 +490,12 @@ def cmd_extract(args):
                     arm_stats[a]["fp16"] = arm_stats[a]["fp16"] or fp16[a]
                     results[a].append({"pano": pid, "preds": preds, "gt": gts[pid],
                                        "native": native, "input": size, "fp16": fp16[a]})
-                    del t, h
-                del img
+                    del h
+                    # free a feature map no later arm in this pano needs
+                    rest = {prep_key(b, native, native_cap) for b in todo[todo.index(a) + 1:]}
+                    for k in [k for k in feats if k[0] not in rest]:
+                        del feats[k]
+                del tensors, feats
                 if i % 25 == 0:
                     print(f"  {city}: {i}/{len(pids)}", flush=True)
             for a in todo:
@@ -455,24 +509,24 @@ def cmd_extract(args):
                         "model": "projectsidewalk/rampnet-model", "device": device.type,
                         "gpus": gpus, "torch": torch.__version__}
                 write_arm_cache(cache_path(args.cache_root, a, city), city, ps, meta)
-                # sanity print at the two operating points
-                s30 = _score_at(ps, 0.30, rsq)
+                s30 = _score_at(ps, 0.30, rsq)   # sanity print at the recommended op
                 print(f"{city} {a}: {len(ps)} panos  P/R/F1@0.30 = {s30.precision:.3f}/"
                       f"{s30.recall:.3f}/{s30.f1:.3f}", flush=True)
             done_cities.append(city)
-            print(f"{city} done; elapsed so far "
-                  + ", ".join(f"{a}={arm_stats[a]['elapsed_s']:.0f}s" for a in arms)
-                  + f", decode={decode_s:.0f}s"
-                  + (f", peak GPU mem {torch.cuda.max_memory_allocated() / 2**30:.1f} GiB"
+            print(f"{city} done; GPU-side s so far "
+                  + ", ".join(f"{a}={arm_stats[a]['elapsed_s']:.0f}" for a in arms)
+                  + f"; waiting on CPU prep {wait['wait_s']:.0f}s (CPU prep total "
+                  f"{wait['cpu_s']:.0f}s, overlapped); wall {time.perf_counter() - t_start:.0f}s"
+                  + (f"; peak GPU mem {torch.cuda.max_memory_allocated() / 2**30:.1f} GiB"
                      if device.type == "cuda" else ""), flush=True)
-
         status = "ok"
     finally:
         # Written even when a run dies (OOM, a bad jpg, Ctrl-C): the GPU time was spent.
-        if args.usage_log.lower() != "none" and any(s["panos_scored"] for s in arm_stats.values()):
+        if (args.usage_log.lower() != "none"
+                and any(s["panos_scored"] for s in arm_stats.values())):
             rows = usage_rows({a: s for a, s in arm_stats.items() if s["panos_scored"]},
-                              decode_s, host, gpus, done_cities or cities, started, args.note,
-                              status=status)
+                              wait, time.perf_counter() - t_start, host, gpus,
+                              done_cities or cities, started, args.note, status=status)
             ledger.append_rows(args.usage_log, rows)
             print(f"usage_log: +{len(rows)} rows ({status}) -> {args.usage_log}", flush=True)
     print("extract done", flush=True)

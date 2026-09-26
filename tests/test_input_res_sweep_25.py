@@ -83,6 +83,20 @@ def test_hm1024_head_loads_512_state_dict_strictly():
         assert tuple(base.eval()(x).shape) == (1, 1, 512, 1024)
 
 
+def test_split_forward_equals_model_call():
+    """The extractor runs head(feature_extractor(x)) so r4096 and r4096_hm1024 can share
+    one backbone pass; that must be the same numbers as model(x)."""
+    torch = pytest.importorskip("torch")
+    from rampnet.model import KeypointModel
+    torch.manual_seed(0)
+    m = KeypointModel(pretrained_backbone=False).eval()
+    x = torch.randn(3, 64, 128)
+    with torch.no_grad():
+        want = m(x.unsqueeze(0)).squeeze().numpy()
+    got = irs._forward(m, x, torch.device("cpu"), False)
+    assert np.array_equal(got, want)
+
+
 # (c) headroom classes from the committed records ----------------------------------
 def test_headroom_class_from_records():
     rich = irs.native_sizes_from_records("richmond")
@@ -101,7 +115,8 @@ def test_headroom_class_from_records():
 # (e) usage rows --------------------------------------------------------------------
 def test_usage_rows_are_free_and_timed():
     rows = irs.usage_rows({"r4096": {"elapsed_s": 100.0, "panos_scored": 50, "fp16": False}},
-                          decode_s=40.0, host="makelab2.cs.washington.edu",
+                          wait={"wait_s": 40.0, "cpu_s": 300.0}, wall_s=141.0,
+                          host="makelab2.cs.washington.edu",
                           gpus=["NVIDIA A40"], cities=["annapolis"],
                           started="2026-09-26T00:00:00Z")
     assert len(rows) == 2
@@ -112,6 +127,7 @@ def test_usage_rows_are_free_and_timed():
         assert r["elapsed_s"] > 0
         assert r["run_id"].startswith("input-res-sweep-25:")
     assert rows[0]["s_per_pano"] == 2.0
+    assert rows[1]["cpu_prep_s"] == 300.0 and rows[1]["run_wall_s"] == 141.0
     assert len({r["run_id"] for r in rows}) == 2
 
 
