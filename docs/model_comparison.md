@@ -1920,7 +1920,8 @@ challenger candidates also promotes them wherever the challenger fires on a driv
 has a faint bump — and 442 of the challenger's 716 boxes are false positives. That cost is **not
 measured here**, so "+6.1 recall points" is a ceiling on the benefit with the cost still blank.
 The next step, if this is ever picked up, is to build the gate and score it, not to reason further
-about it.
+about it. That has since been done, CPU-only on the committed floor peaks, and the FP cost is now
+measured in [`cascade_cost_35.md`](cascade_cost_35.md) ([#35](https://github.com/ProjectSidewalk/RampNet/issues/35)).
 
 **Seam exposure: the two committed artifacts predate the #132 seam fixes, and the effect has now
 been measured rather than bounded.** This work branched at `5e20d11`, before `eccadda` (wrap the
