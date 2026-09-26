@@ -439,8 +439,8 @@ before the script wrote rows on failure, and a one-pano timing profile. The scri
 writes a `panos_scored: 0` row carrying the elapsed time when a run dies before its first scored
 pano (review fix, PR #196). The first grid attempt's six rows name `bundle: "annapolis,bend"`:
 it finished annapolis and died on bend's first rnative pano, and the r3072, r4096 and cpu-wait
-rows' `panos_scored: 126` include that bend pano (only that field was corrected after the run).
-The first smoke test's rows (14:11:06Z) come from an earlier script version (a `decode` row, no
+rows' `panos_scored: 126` include that bend pano (only `bundle` was edited after the run).
+The first *logged* smoke test's rows (14:11:06Z) come from an earlier script version (a `decode` row, no
 `run_wall_s`). The first grid attempt
 died because a retry after an out-of-memory error ran inside the `except` block, where the
 traceback still held the failed forward's activations. Recovery now happens outside it (commit
