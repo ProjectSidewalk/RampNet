@@ -324,8 +324,9 @@ On the 957 leak-free rows mAP shows the same pattern, with wider intervals: `fov
 −0.029 [−0.068, +0.007], `fov25px57` − fov90 +0.053 [+0.019, +0.088], `fov25px122` − control
 −0.009 [−0.044, +0.030], `fov25px57` − control −0.038 [−0.083, +0.001]. Per tag, the leak-free
 rows include one *gain* from lower resolution, *narrow* +0.091 [+0.010, +0.154] for
-`fov25px122` − fov25, which is no more than a seed's move on that subset (below) and reads as
-noise.
+`fov25px122` − fov25. That is larger than *narrow*'s own seed moves (−0.026 / +0.018, below) but
+smaller than the largest per-tag seed move on that subset (*pooled water*, −0.163), so it reads
+as noise rather than a gain.
 
 **What this says**, each reading with its seed caveat (the seed pair is below):
 
@@ -418,7 +419,9 @@ checkpoint-to-checkpoint noise, not a failed run. What that means for everything
   *missing tactile warning* and *surface problem*, and no street-dependent tag gains from it.
 
 **How the five klone jobs were submitted** (2026-09-25, from the checkout
-`/gscratch/makelab/jonf/context_fov_86/RampNet`; the lines are sacct's `SubmitLine`, with
+`/gscratch/makelab/jonf/context_fov_86/RampNet`; the lines are sacct's `SubmitLine` field, read
+on klone on 2026-09-26 and copied here by hand, since the committed dump
+`docs/data/compute/sacct_klone_2026-09-26.txt` does not carry that column; with
 `WORK=/gscratch/makelab/jonf/context_fov_86`, `PY=/gscratch/makelab/jonf/envs/tagger/bin/python`
 and `REPO` the checkout):
 
