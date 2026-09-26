@@ -3,6 +3,17 @@
   "run_name": "laurens_gsv",
   "source": "benchmark\\laurens_gsv\\records.jsonl",
   "exported_at": "2026-08-31T23:19:04.057Z",
+  "review_notes": {
+    "reviewer": "jonf",
+    "reviewed_at": "2026-08-31",
+    "confidence": "unrecorded",
+    "summary": "laurens_gsv is the Google Street View arm of the same Laurens, IA footprint that laurens_mapillary covers with Mapillary imagery: 86 reviewed panos, precision 0.925 and recall 0.505 over all of them (unbiased subset 0.904 / 0.459). This block records only what the bundle measures; the reviewer-rated confidence was not recorded at export time and is left unrecorded rather than guessed after the fact.",
+    "caveats": [
+      "Abstained misses. 19 of the 128 missed-ramp marks are unsure (15%). Unsure marks are excluded from both precision and recall, so the 0.505 recall is measured against the 109 marks that were resolvable enough to score.",
+      "Strata and sample size. The sample is 5 top / 56 random / 25 empty = 86 panos, not the usual 5 / 95 / 25 = 125: the 30 m spacing filter exhausted the 2,137-pano run (sample.json) before the random stratum filled. The unbiased column is 81 panos, so every interval on this split is wider than on the splits sampled at 125.",
+      "Unpaired arms. The two Laurens arms are different panorama sets with different ground truth (220 GT ramps here against 249 on laurens_mapillary), so a difference between the arms compares two samples of one town, not the same corners photographed twice."
+    ]
+  },
   "panos": {
     "0ZUGJVgVEQcal9rp6tuILA": {
       "group": "top",
