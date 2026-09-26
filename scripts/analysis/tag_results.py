@@ -212,7 +212,7 @@ def main(argv=None):
         print(f"{'-'*70}")
         print("ONE RATER — no agreement statistic is possible. A second pass on the")
         print("identical manifest is what would make these verdicts checkable; the")
-        print("run-book for it is in docs/curb_ramp_data_sourcing.md.")
+        print("run-book for it is in docs/data_scaling_59.md, section 0b.")
         print(f"{'-'*70}\n")
 
     # ---- the number ------------------------------------------------------- #
