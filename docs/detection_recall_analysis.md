@@ -440,6 +440,11 @@ panos are natively ~11000 px wide and Bend 16384 px, against a 4096 px model inp
 > **Caveat:** upscaling adds no information. An honest gain requires the **retrain-at-higher-res**
 > arm, not a frozen-model input-size sweep.
 
+> **The frozen-model sweep has since been run** ([#25](https://github.com/ProjectSidewalk/RampNet/issues/25) arm 1,
+> [`input_res_sweep_25.md`](input_res_sweep_25.md)): the released checkpoint does not gain from
+> more input pixels (2×: ΔF1 −0.071 pooled US at 0.30), and native pixels do no better than a
+> bicubic upsample of the 2048 image. The forecast above is for the retrain arm, which is still open.
+
 ## 5. The levers partially overlap
 
 | distance | thr 0.55 | thr 0.25 | thr 0.15 | gain |
