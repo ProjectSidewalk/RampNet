@@ -202,8 +202,8 @@ laurens_mapillary) beats every rule on F1 (context table in `results.md`).
 3. **FP per recovered ramp, and against the matched-recall baseline?** R2: 2.0 FP per recovered
    ramp on the US pool, 1.5 on GSV, 2.1 on the headline pool; the matched threshold costs 2.5
    (262 FPs for 105 ramps), 2.4 (209 for 86) and 1.3 (50 for 38) respectively. Without
-   paterson (post hoc) the GSV figures are 2.1 for R2 against 1.7 for the matched threshold (95
-   FPs for 55 ramps). R1: 8.9 (US). R3: 0.7 (US). The matched threshold is chosen in sample on the
+   paterson (post hoc) the GSV figures are 2.1 for R2 against 1.6 for the matched threshold (95
+   FPs for 59 ramps). R1: 8.9 (US). R3: 0.7 (US). The matched threshold is chosen in sample on the
    pool it is compared on, which favours it. Against the best single r2048 threshold (also in
    sample), R2 loses F1 on the US pool (−0.012 [−0.020, −0.004]) and ties on GSV (−0.001
    [−0.011, +0.009]).
@@ -310,9 +310,9 @@ split or pool, chosen in sample. Paired ΔF1, fused − that threshold (same boo
 | GSV pool | 0.30 | 0.818 | −0.011 [−0.022, −0.000] | −0.001 [−0.011, +0.009] | +0.003 [−0.001, +0.007] |
 | *GSV minus paterson* (post hoc) | 0.30 | 0.818 | −0.020 [−0.032, −0.007] | −0.012 [−0.024, −0.001] | −0.001 [−0.004, +0.003] |
 
-No rule beats the best single threshold on any pool; R2 loses to it on the US and headline pools.
+No rule beats the best single threshold on any pool with its CI above 0; R2 loses to it on the US and headline pools.
 Per split (`results.md`), only paterson's R2 (+0.031 [+0.013, +0.049]) and R3 (+0.011 [+0.002,
-+0.022]) beat it, and on both Laurens arms it beats every rule.
++0.022]) beat it with CIs above 0; on both Laurens arms the threshold beats every rule on the point estimate, though R2's CIs cross 0 there (laurens_gsv −0.026 [−0.056, +0.005], laurens_mapillary −0.033 [−0.071, +0.004]).
 
 ### Per split, the three rules
 
@@ -368,8 +368,8 @@ shifts), fused with the correct r2048 peaks by the same rule and scored the same
 A fifth to a third (22–33%) of R2's raw recall gain on each pool is what the shifted peaks buy by
 chance; the attributable gain on the US pool is +0.034, about 78 ramps. **The null is not
 density-matched**, so the attributable ΔR is a lower bound: after the dedupe, a shifted u4096
-pass leaves about nine times as many surviving peaks as the real one (null ΔFP +1,880 against
-+212 on the US pool), and each surviving peak is a chance to land on a ramp, so the null overstates
+pass adds about nine times as many false positives as the real one (null ΔFP +1,880 against
++212 on the US pool), so far more of its peaks survive, and each surviving peak is a chance to land on a ramp, so the null overstates
 what chance would buy at the real pass's density. On no split does the real ΔR fall
 inside the shifted range except laurens_mapillary (real +0.020, null max +0.036) and morgantown
 (real +0.011, null max +0.019), whose R2 gains are indistinguishable from chance (even by this
