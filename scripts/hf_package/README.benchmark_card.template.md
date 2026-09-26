@@ -23,7 +23,7 @@ configs:
 > [`rampnet-dataset`](https://huggingface.co/datasets/projectsidewalk/rampnet-dataset)), drawn from
 > the same three training cities.
 >
-> These {n_cities} city splits were built **eleven months later**, {split_date_range}, as
+> These {n_cities} splits were built **after publication**, {split_date_range}, as
 > post-publication work: to test the published model on cities and imagery sources it was never
 > trained on, and to compare it against VLM detectors.
 >
@@ -31,13 +31,16 @@ configs:
 > the cities, and the matching protocol all differ, so numbers measured here are not comparable
 > with the ones in the paper.
 
-The panoramas behind that benchmark — {n_cities} city splits, {total_gb} GB. Unlike the paper's
+The panoramas behind that benchmark — {n_cities} splits of ground truth, imagery for {n_imagery_splits}
+of them, {total_gb} GB. Unlike the paper's
 gold set, the splits deliberately include **non-US cities and a second imagery source** (Mapillary
 as well as Google Street View), which is the whole point: the paper's own evaluation was in-domain.
 
 It is self-contained: the `records` config carries the ground truth, so you can score a model
-against this benchmark without cloning anything. The **rubrics** those verdicts were made under,
-the per-split reviewer confidence, and the review notes stay in git at
+against this benchmark without cloning anything. It also carries, on every row, the reviewer's
+self-rated confidence and caveats for that split, any note the reviewer left on the panorama, and
+whether the panorama is also in RampNet's training data — see the two sections below. The
+**rubrics** the verdicts were made under stay in git at
 [`benchmark/`](https://github.com/ProjectSidewalk/RampNet/tree/main/benchmark) — read
 [`benchmark/RUBRICS.md`](https://github.com/ProjectSidewalk/RampNet/blob/main/benchmark/RUBRICS.md)
 before treating a verdict as self-explanatory, and `benchmark/README.md` before quoting a
@@ -50,8 +53,8 @@ precision figure, because several splits carry caveats the numbers alone do not 
 | **`records`** | **the ground truth** — per-panorama metadata, model detections with their human verdict, and reviewer-marked missed ramps | scoring any model against this benchmark |
 | `native` | the panoramas exactly as fetched — 4096 to 16384 px wide, depending on city and imagery source | the resolution experiment; any re-render at higher fidelity |
 | `4096x2048` | the same panoramas at the model's input size | **what ground-truth reviewers actually saw** — `gt_gallery.py` renders at 4096×2048 and never native, so this is the config a second rater needs |
-| `galleries` | the incremental false-positive crops shown in the operating-point A/B pass — 314 crops over the same 9 splits | redoing that A/B |
-
+| `galleries` | the incremental false-positive crops shown in the operating-point A/B pass — 314 crops over 9 splits | redoing that A/B |
+{records_only_note}
 ### The `records` config
 
 One row per reviewed panorama, joinable to any imagery config on `pano_id`:
@@ -65,6 +68,17 @@ One row per reviewed panorama, joinable to any imagery config on `pano_id`:
 | `missed` | ramps the reviewer marked that the model did not find, each with an `unsure` flag |
 | `no_missed` | reviewer confirmed they checked the whole panorama and found nothing missed |
 | `model_id`, `model_training_date`, `label_type` | which model produced the detections |
+| `review_group` | the sampling stratum: `top` (densest panoramas, always included), `random`, or `empty` |
+| **`train_overlap`** | `true` if this panorama is also in `rampnet-dataset`'s train or validation split (see "Training overlap"); never null |
+| `note` | the reviewer's note on this one panorama, if they left one; otherwise null |
+| `reviewer`, `reviewed_at` | who reviewed the split, and when |
+| **`review_confidence`** | the reviewer's own rating of the split's review, copied verbatim (`high`, `low`, or a note that it was not recorded) |
+| `review_summary` | the reviewer's summary of the split |
+| **`review_caveats`** | the reviewer's caveats for the split, one string each |
+
+The last five columns come from the split's review notes and repeat on every row of that split.
+They are **null when no review notes were recorded for the split** — which means "not recorded",
+not "no caveats".
 
 `verdict` is one of **`correct`**, **`incorrect`**, **`unsure`**, **`duplicate`**. `unsure` is an
 abstention and `duplicate` marks a second detection of an already-matched ramp — both carry the
@@ -83,6 +97,51 @@ later without replacing large blobs.
 Note that `4096x2048` is not uniformly smaller: for splits whose native imagery is already at or
 near model resolution it can be *larger*, because it carries an extra JPEG generation. It is a
 fidelity artifact — it reproduces what a reviewer's eyes were on — not a compression trick.
+
+## Reviewer caveats travel with the rows
+
+Each split's reviewer notes are copied onto its rows, so the caveat arrives with the number. As of
+this export:
+
+| split | `review_confidence` |
+| :--- | :--- |
+| `budapest_district5` | **`low`** — the reviewer rated their own pass low confidence and the rubric does not transfer cleanly; do not pool it with the US splits without reading `review_caveats` |
+| `gainesville`, `paterson`, `sao_paulo` | `high` |
+| `laurens_gsv`, `laurens_mapillary` | not recorded at export time; the value says so rather than guessing a level |
+| `annapolis`, `bend`, `clovis`, `morgantown`, `richmond` | null — no review notes were recorded for these splits |
+
+```python
+from datasets import load_dataset
+
+bp = load_dataset("{repo_id}", "records", split="budapest_district5")
+print(bp[0]["review_confidence"])        # "low"
+for caveat in bp[0]["review_caveats"]:
+    print("-", caveat)
+```
+
+## Training overlap
+
+Four reviewed `bend` panoramas are also in `rampnet-dataset`'s train/validation splits — Bend is
+one of the paper's three training cities: `6WC0hdAYRsSAcluKSs5iRg`, `9kW9cxpuj7q8DMzf-ClrQQ`,
+`DJ8Zp111zu6KnMZz-0PHgQ` and `VgWpqFkTwCIROvM0z-DkOw`. They are kept and flagged, not dropped,
+so the published numbers are unchanged. The exact-id check was first run on 2026-07-22 and re-run
+on {overlap_checked_at} for every split (`scripts/analysis/train_overlap_check.py`, result in
+[`benchmark/train_overlap.json`](https://github.com/ProjectSidewalk/RampNet/blob/main/benchmark/train_overlap.json)).
+**Every other split: 0.**
+
+Dropping the four moves Bend's numbers inside their Wilson intervals, in both directions:
+
+| Bend subset | panoramas | precision | recall |
+| :--- | ---: | ---: | ---: |
+| all reviewed | 110 | 0.954 | 0.758 |
+| all reviewed, overlap dropped | 106 | 0.956 | 0.753 |
+| unbiased (random + empty) | 105 | 0.972 | 0.738 |
+| unbiased, overlap dropped | 101 | 0.976 | 0.731 |
+
+```python
+bend = load_dataset("{repo_id}", "records", split="bend")
+unseen = bend.filter(lambda r: not r["train_overlap"])     # 106 rows
+```
 
 ## Usage
 
