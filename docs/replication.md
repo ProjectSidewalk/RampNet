@@ -366,7 +366,7 @@ else. It is now
 [`rampnet-benchmark`](https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark) — 11.41 GB,
 Parquet, **four** configs: `records` (the ground truth, 9 splits on the Hub today, 11 after the
 #127 push adds the two Laurens arms), `native` (9), `4096x2048` (9)
-and `galleries` (**8** — Budapest was not part of the #55 A/B). Each config is one Parquet per
+and `galleries` (9 — Budapest was tagged in the #55 A/B, 89 of the 314 crops, but is excluded from its pooled result for low-confidence GT). Each config is one Parquet per
 split at `data/<config>/<city>.parquet`; `load_dataset` reads them by config name, so the paths are
 an implementation detail rather than something to navigate.
 
@@ -421,7 +421,7 @@ someone else can **redo the pass**.
 | task | judgments | what the reviewer saw | redoable by someone else? |
 | :--- | :--- | :--- | :--- |
 | **GT verification** (9 splits) | `benchmark/<city>/verdicts.json` ✅ | whole panoramas at 4096×2048 via `scripts/gt_gallery.py` | ✅ **yes** — `rampnet-benchmark`, config `4096x2048` |
-| **#55 incremental-FP A/B** (8 splits) | `benchmark/<city>/incremental_fp_tags.json` ✅ | crops from `low_floor_sweep.py gallery` | ✅ **yes** — `rampnet-benchmark`, config `galleries` (the exact 314 crops) |
+| **#55 incremental-FP A/B** (9 splits; budapest tagged, not pooled) | `benchmark/<city>/incremental_fp_tags.json` ✅ | crops from `low_floor_sweep.py gallery` | ✅ **yes** — `rampnet-benchmark`, config `galleries` (the exact 314 crops) |
 | **#46 miss taxonomy** (1 split-set) | `benchmark/miss_taxonomy_46/silent__jonf.json` ✅ | **crops committed** (15 MB) | ✅ **yes, from git alone** |
 
 **All three human passes are now redoable by someone else.** That was not true this morning: two of
