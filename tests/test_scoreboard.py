@@ -249,16 +249,26 @@ _LOG_SPLIT_HEADING = re.compile(
     r"^(?:\*\*(\w+)\*\*|#+ Result: (\w+)) \(\d[\d,]* (?:reviewed )?panos")
 
 
+# The log's per-split tables, and the write-ups moved out of it verbatim under #145 that
+# still carry a table of this shape (the Vistas "#### Result: richmond" table).
+_LOG_DOCS = ("model_comparison.md", "vistas_transfer_126.md")
+
+
 def _parse_model_comparison():
-    """Every (split, model, P, R, F1, AP) row in docs/model_comparison.md's result tables.
+    """Every (split, model, P, R, F1, AP, location) row in the log's result tables.
 
-    Reads the log rather than a transcription of it, so this test cannot pass by agreeing
-    with a stale copy of the numbers it is supposed to be checking.
+    Reads the log (``_LOG_DOCS``) rather than a transcription of it, so this test cannot
+    pass by agreeing with a stale copy of the numbers it is supposed to be checking.
+    ``location`` is ``"<doc>:<line>"``.
     """
-    path = os.path.join(REPO, "docs", "model_comparison.md")
-    with open(path, encoding="utf-8") as fh:
-        lines = fh.read().split("\n")
+    rows = []
+    for doc in _LOG_DOCS:
+        with open(os.path.join(REPO, "docs", doc), encoding="utf-8") as fh:
+            rows += _parse_log_rows(doc, fh.read().split("\n"))
+    return rows
 
+
+def _parse_log_rows(doc, lines):
     def value(cell):
         cell = cell.replace("**", "").replace("*", "").strip()
         return None if cell in ("–", "-", "—", "") else float(cell)
@@ -282,10 +292,10 @@ def _parse_model_comparison():
         if set(label) <= set("-: "):
             continue
         assert label in _LOG_ROW_NAMES, (
-            f"docs/model_comparison.md:{lineno}: unrecognized model row {label!r}. Add it "
+            f"docs/{doc}:{lineno}: unrecognized model row {label!r}. Add it "
             f"to _LOG_ROW_NAMES so this row is checked rather than skipped.")
         rows.append((split, _LOG_ROW_NAMES[label], value(cells[1]), value(cells[2]),
-                     value(cells[3]), value(cells[4]), lineno))
+                     value(cells[3]), value(cells[4]), f"{doc}:{lineno}"))
     return rows
 
 
@@ -296,7 +306,7 @@ def test_the_log_parser_actually_finds_the_tables():
     changes, this fails loudly instead of the real test passing on an empty list.
     """
     rows = _parse_model_comparison()
-    assert len(rows) >= 85, f"only parsed {len(rows)} rows out of model_comparison.md"
+    assert len(rows) >= 85, f"only parsed {len(rows)} rows out of {_LOG_DOCS}"
     assert {s for s, *_ in rows} == set(lfs.ALL_SPLITS)
 
 
@@ -312,24 +322,24 @@ def test_every_number_matches_model_comparison(board):
     "RampNet's AP does not have to agree with anything".
     """
     mismatches = []
-    for split, model, P, R, F1, AP, lineno in _parse_model_comparison():
+    for split, model, P, R, F1, AP, loc in _parse_model_comparison():
         cell = board["per_split"].get(model, {}).get(split)
         if cell is None:
             if (model, split) in _LOG_ROWS_NOT_ON_THE_BOARD:
                 continue
-            mismatches.append(f"model_comparison.md:{lineno} {model}/{split}: in the log, "
+            mismatches.append(f"{loc} {model}/{split}: in the log, "
                               "absent from the scoreboard")
             continue
         for metric, want, have in (("P", P, cell["precision"]), ("R", R, cell["recall"]),
                                    ("F1", F1, cell["f1"])):
             if want is not None and abs(want - have) > 0.0006:
-                mismatches.append(f"model_comparison.md:{lineno} {model}/{split} {metric}: "
+                mismatches.append(f"{loc} {model}/{split} {metric}: "
                                   f"log {want} vs scoreboard {have:.4f}")
         if AP is not None:
             # The log always prints the bundle AP. So must ap_bundle -- including on the
             # rows where the page then substitutes the low-floor cache.
             if cell["ap_bundle"] is None or abs(AP - cell["ap_bundle"]) > 0.0011:
-                mismatches.append(f"model_comparison.md:{lineno} {model}/{split} AP: "
+                mismatches.append(f"{loc} {model}/{split} AP: "
                                   f"log {AP} vs bundle {cell['ap_bundle']}")
     assert not mismatches, "\n".join(mismatches)
 
