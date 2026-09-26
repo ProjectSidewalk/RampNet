@@ -1,0 +1,45 @@
+{
+  "checked_at": "2026-09-26",
+  "dataset": "projectsidewalk/rampnet-dataset",
+  "dataset_split_sizes": {
+    "train": 150066,
+    "validation": 42878
+  },
+  "dataset_splits_checked": [
+    "train",
+    "validation"
+  ],
+  "method": "exact panorama-id membership; pano_id column of every parquet shard read over HTTP range",
+  "overlap": {
+    "annapolis": [],
+    "bend": [
+      "6WC0hdAYRsSAcluKSs5iRg",
+      "9kW9cxpuj7q8DMzf-ClrQQ",
+      "DJ8Zp111zu6KnMZz-0PHgQ",
+      "VgWpqFkTwCIROvM0z-DkOw"
+    ],
+    "budapest_district5": [],
+    "clovis": [],
+    "gainesville": [],
+    "laurens_gsv": [],
+    "laurens_mapillary": [],
+    "morgantown": [],
+    "paterson": [],
+    "richmond": [],
+    "sao_paulo": []
+  },
+  "reviewed_counts": {
+    "annapolis": 125,
+    "bend": 110,
+    "budapest_district5": 125,
+    "clovis": 125,
+    "gainesville": 125,
+    "laurens_gsv": 86,
+    "laurens_mapillary": 94,
+    "morgantown": 125,
+    "paterson": 125,
+    "richmond": 124,
+    "sao_paulo": 125
+  },
+  "script": "scripts/analysis/train_overlap_check.py"
+}

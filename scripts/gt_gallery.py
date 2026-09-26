@@ -435,6 +435,7 @@ HTML_TEMPLATE = r"""<!doctype html>
         <option value="high">high</option>
         <option value="medium">medium</option>
         <option value="low">low</option>
+        <option value="unrecorded">unrecorded</option>
       </select></label>
   </div>
   <label>Summary &mdash; what a future reader must know before quoting these numbers
@@ -576,6 +577,13 @@ function saveNotes() {
   localStorage.setItem(NSTORE, JSON.stringify(reviewNotes));
   notesBadge();
 }
+// A <select> silently drops a value it has no <option> for (.value reads back ''), and the
+// export then deletes the key. So a confidence written outside this vocabulary gets its own
+// option rather than vanishing on the next export (#127 review).
+(function keepUnknownConfidence() {
+  const sel = document.getElementById('n_conf'), v = reviewNotes.confidence;
+  if (v && ![...sel.options].some(o => o.value === v)) sel.add(new Option(v, v));
+})();
 for (const k in NFIELDS) document.getElementById(NFIELDS[k]).value = reviewNotes[k] || '';
 document.getElementById('n_caveats').value = (reviewNotes.caveats || []).join('\n');
 document.querySelectorAll('#notes input, #notes textarea, #notes select')
