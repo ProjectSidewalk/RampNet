@@ -9,7 +9,14 @@ lowers near-field recall. This document tests the obvious combination: take near
 from the 1× pass (`r2048`) and far-field detections from the 2× upsampled pass (`u4096`), with no
 retraining.
 
-**Status: plan only (this section was committed before any fusion number was computed).**
+**Run date:** 2026-09-26. **Script:** `scripts/analysis/two_scale_197.py` (tests:
+`tests/test_two_scale_197.py`). **Outputs:** `analysis_out/two_scale_197/results.json` and
+`results.md`; every table below is pasted from `results.md`. **Compute:** CPU only, about 40 s on
+`jonfhome` (Windows desktop); no GPU, no panoramas, no network, no spend, so no ledger row.
+
+The sections "Inputs" through "Verdict rule" were committed in `a5c4a8f` before any fusion number
+was computed, and are unchanged below except where marked. The results start at
+[Result](#result).
 
 ## Inputs
 
@@ -96,3 +103,308 @@ the verdict.
 The precision caveat from #196 carries over unchanged and is stated beside every table: the GT is
 anchored to reviewed 2048-input detections, so a real ramp that only u4096 finds scores as a false
 positive. Every precision and F1 number for a fused rule is a lower bound in that sense.
+
+**Added after scoring (not in the plan): one gap in the verdict rule.** The rule does not say what
+happens when no r2048 threshold on the 0.05–0.95 grid reaches the fused recall, so there is no
+matched-recall baseline to beat. The script treats that as "not beaten", which is the conservative
+reading. It happens on paterson only (R1 and R2; the table marks it "unreachable"). Under the
+opposite reading paterson's R2 would read HELPS and its R1 RECALL LEVER. No pooled verdict is
+affected: every pool has a reachable matched threshold for R1, R2 and R3.
+
+## Result
+
+**Headline, the pre-stated primary (R1, range split at 18 m, US pool): HURTS.** Against r2048 at
+0.30 over the eight US splits (953 panos, 2,309 GT ramps): ΔR +0.006 [−0.006, +0.018], ΔP −0.048
+[−0.059, −0.037], ΔF1 −0.018 [−0.027, −0.009]. It recovers 13 ramps for 115 extra false positives.
+A threshold alone (r2048 at 0.28) reaches the same recall for 29 extra FPs, and beats R1 on F1 by
+0.017 [0.007, 0.025].
+
+**Why R1 fails: the far field is a few image rows, and a hard row cut throws away r2048's own
+far-field hits.** At a 2.5 m camera, 18–25 m is y 0.532–0.544 of the image height, about 6 rows of
+the 512-row heatmap, while the match radius is about 22 rows. Of the 85 US-pool ramps that r2048
+finds and R1 loses, **all 85** had their r2048 peak on the far side of the cut (so R1 discarded
+it); for 31 u4096 had no peak ≥ 0.30 within the match radius, and for 46 u4096's only peak was on
+the near side, which R1 also discards. The 18–25 m band carries the loss: recall 0.771 (r2048) →
+0.663 (R1), below u4096 alone (0.754). #196's band table already showed u4096 ahead of r2048 only
+from 25 m on, and the plan disclosed this before scoring; 18 m was kept because it was fixed a
+priori.
+
+**The union (R2, the peak-level max of the two passes) is the only rule that moves recall by a
+useful amount, and on the pre-stated rule it is no better than lowering the threshold on the US
+pool.** US pool: R 0.767 → 0.812, ΔR +0.045 [+0.037, +0.055], ΔP −0.077 [−0.088, −0.066], ΔF1
+−0.011 [−0.019, −0.003]; +105 ramps for +212 FPs, 2.0 FP per recovered ramp. The matched-recall
+threshold (r2048 at 0.16) pays +262 FPs for the same recall. R2 beats it on F1 by +0.009 [−0.000,
++0.018]; the unrounded lower bound is −0.00008, so the rule reads NO BETTER THAN A THRESHOLD by a
+margin that is nothing. On the **GSV pool** the same comparison clears: ΔR +0.057 [+0.045,
++0.069], ΔF1 −0.001 [−0.011, +0.009], +85 ramps for +126 FPs (1.5 per ramp), against +209 FPs for
+the matched threshold (0.13), fused − matched ΔF1 +0.022 [+0.010, +0.033]: **RECALL LEVER**. On the
+headline Mapillary pool it does not (fused − matched −0.014 [−0.029, +0.000]).
+
+**The leave-one-split-out rule (R3) chose the most conservative setting on the grid for every
+held-out split (D = 40 m, t_u = 0.40)**, and it buys little: US pool ΔR +0.010 [+0.006, +0.015],
+ΔF1 +0.003 [−0.000, +0.007], +24 ramps for +17 FPs, NO BETTER THAN A THRESHOLD (fused − matched
++0.004 [−0.001, +0.009]). On the other ten splits it beat "no fusion" by 0.001–0.003 F1 (with
+richmond held out, 0.7966 against 0.7954; with paterson held out, by under 0.0001), and it sits on the edge of the grid, so the F1-optimal
+far-field cutoff for this checkpoint may be beyond 40 m or at no fusion at all.
+
+**No rule reads HELPS on any pool.** Per split, one rule × split reads HELPS: paterson under R3
+(ΔR +0.023 [+0.009, +0.040], ΔF1 +0.014 [+0.004, +0.026], beats its matched threshold by +0.018
+[+0.005, +0.033]). paterson is also the one split where #196 found u4096 alone raises F1, so this
+is the same scale effect, not a new one. richmond is the only split where R2 reads RECALL LEVER;
+morgantown reads HURTS under all three rules.
+
+**Answers to the issue's four questions:**
+
+1. **Does a stated-in-advance rule beat 1× at 0.30 on recall and F1?** No. The a priori rule
+   (R1) loses F1 on the US pool and does not raise recall. The union (R2) raises recall on every
+   pool (CI above 0) and lowers or holds F1 (never with a CI above 0). The LOSO rule (R3) raises
+   recall by a point and holds F1.
+2. **How much of the far-field gain survives de-duplication?** For R2, all of u4096's far-band
+   gain and more: US-pool far-band (≥ 18 m, n = 728) ΔR +0.119 [+0.096, +0.142] against +0.077
+   [+0.047, +0.108] for u4096 alone, because R2 keeps r2048's own far hits too, and near-band
+   recall does not drop (+0.011 [+0.006, +0.016], n = 1,576). The dedupe removes 1,328 u4096 peaks
+   and 388 r2048 peaks on the US pool. Without it (the naive union) recall is 0.858 but precision
+   0.507 (+1,712 FPs); the naive union's extra recall over R2 is not recovered by a looser dedupe
+   (R2s below), so it comes from duplicate peaks that the greedy matcher hands to a second nearby
+   ramp, at about 8 FPs per ramp.
+3. **FP per recovered ramp, and against the matched-recall baseline?** R2: 2.0 FP per recovered
+   ramp on the US pool, 1.5 on GSV, 2.1 on the headline pool; the matched threshold costs 2.5
+   (262 FPs for 105 ramps), 2.4 (209 for 86) and 1.3 (50 for 38) respectively. R1: 8.9 (US). R3: 0.7 (US). The matched
+   threshold is chosen in sample on the pool it is compared on, which favours it.
+4. **Inference cost:** about **4.8× the 1× pass** in GPU time (below).
+
+**So: two-scale inference is a recall dial for the far field that costs about 2 FPs per ramp and
+about 4.8× the GPU time, and on the US pool it is not measurably better than lowering the
+threshold, which costs no extra compute.** It is a better dial than the threshold on the GSV pool
+and on richmond. It does not raise F1 at 0.30 anywhere pooled.
+
+## Tables
+
+Paired pano-level cluster bootstrap, stratified by split, 2,000 replicates, seed 197,
+`benchmark_power_135.observed_and_se`; the same weight matrix is applied to both lists. Δ is
+rule − r2048 at 0.30. Every fused list is final before scoring (thresholds and dedupe already
+applied) and is scored at threshold 0, which for r2048 alone reproduces #196's 0.30 row exactly
+(tested on richmond).
+
+### Pooled (from `results.md`)
+
+| pool | rule | P | R | F1 | ΔP | ΔR | ΔF1 | verdict |
+|---|---|---|---|---|---|---|---|---|
+| headline (3 Mapillary) | r2048 | 0.892 | 0.735 | 0.806 | — | — | — | |
+| headline | R1 | 0.840 | 0.740 | 0.787 | −0.052 [−0.068, −0.035] | +0.005 [−0.014, +0.023] | −0.019 [−0.033, −0.005] | HURTS |
+| headline | R2 | 0.814 | 0.776 | 0.795 | −0.078 [−0.097, −0.059] | +0.041 [+0.027, +0.057] | −0.011 [−0.025, +0.003] | NO BETTER THAN A THRESHOLD |
+| headline | R3 | 0.888 | 0.746 | 0.811 | −0.004 [−0.010, +0.002] | +0.011 [+0.001, +0.021] | +0.005 [−0.002, +0.012] | NO BETTER THAN A THRESHOLD |
+| headline | u4096 | 0.817 | 0.644 | 0.720 | −0.075 [−0.105, −0.046] | −0.091 [−0.125, −0.058] | −0.086 [−0.113, −0.060] | |
+| headline | naive union | 0.500 | 0.798 | 0.615 | −0.392 [−0.411, −0.371] | +0.063 [+0.045, +0.084] | −0.191 [−0.213, −0.169] | |
+| **US pool** (8) | r2048 | 0.892 | 0.767 | 0.825 | — | — | — | |
+| US pool | **R1** | 0.844 | 0.773 | 0.807 | −0.048 [−0.059, −0.037] | +0.006 [−0.006, +0.018] | −0.018 [−0.027, −0.009] | **HURTS** |
+| US pool | R2 | 0.815 | 0.812 | 0.814 | −0.077 [−0.088, −0.066] | +0.045 [+0.037, +0.055] | −0.011 [−0.019, −0.003] | NO BETTER THAN A THRESHOLD |
+| US pool | R3 | 0.886 | 0.777 | 0.828 | −0.006 [−0.011, −0.003] | +0.010 [+0.006, +0.015] | +0.003 [−0.000, +0.007] | NO BETTER THAN A THRESHOLD |
+| US pool | u4096 | 0.817 | 0.692 | 0.749 | −0.075 [−0.093, −0.059] | −0.075 [−0.095, −0.056] | −0.076 [−0.091, −0.061] | |
+| US pool | naive union | 0.507 | 0.858 | 0.638 | −0.385 [−0.397, −0.373] | +0.091 [+0.079, +0.105] | −0.187 [−0.202, −0.173] | |
+| **GSV pool** (5) | r2048 | 0.887 | 0.759 | 0.818 | — | — | — | |
+| GSV pool | R1 | 0.848 | 0.771 | 0.808 | −0.040 [−0.053, −0.027] | +0.012 [−0.004, +0.027] | −0.011 [−0.022, −0.000] | HURTS |
+| GSV pool | R2 | 0.819 | 0.816 | 0.817 | −0.069 [−0.082, −0.056] | +0.057 [+0.045, +0.069] | −0.001 [−0.011, +0.009] | RECALL LEVER |
+| GSV pool | R3 | 0.881 | 0.769 | 0.821 | −0.006 [−0.011, −0.002] | +0.010 [+0.005, +0.015] | +0.003 [−0.001, +0.007] | NO BETTER THAN A THRESHOLD |
+| GSV pool | u4096 | 0.817 | 0.698 | 0.752 | −0.071 [−0.090, −0.050] | −0.061 [−0.087, −0.035] | −0.066 [−0.084, −0.046] | |
+| GSV pool | naive union | 0.522 | 0.884 | 0.657 | −0.365 [−0.380, −0.349] | +0.125 [+0.107, +0.145] | −0.162 [−0.181, −0.141] | |
+
+The r2048 and u4096 rows equal #196's (`input_res_sweep_25.md`) to 3 dp. The GSV pool's R1 "HURTS"
+rests on an upper bound of −0.00004. The pools overlap: paterson is in both the US and GSV pools,
+bend and gainesville too.
+
+Caveats beside this table:
+
+- **Precision (and so F1) of every fused rule is a lower bound.** The GT is anchored to reviewed
+  2048-input detections plus the reviewer's missed marks, so a real ramp that only u4096 finds, and
+  that the reviewer did not mark, scores as an FP. This is the same caveat #196 carries, and it
+  bears harder here because every rule adds u4096 peaks. No gallery of the added FPs was reviewed.
+  If enough of R2's added FPs are real ramps, R2's ΔF1 moves up; the recall columns do not depend
+  on this.
+- **The matched-recall threshold is chosen in sample** on the split or pool it is compared on
+  (the highest grid threshold whose recall reaches the fused recall). This favours the baseline.
+- **One checkpoint, deterministic inference.** The bootstrap interval is the whole uncertainty for
+  this checkpoint; seed-to-seed movement of about 0.025 F1 was measured in #187.
+
+### Cost of the recovered ramps (pooled, from `results.md`)
+
+| pool | rule | ramps recovered | extra FP | FP / ramp | dedupe dropped (r2048 / u4096) | matched r2048 threshold | its extra FP | its F1 | fused − matched ΔF1 |
+|---|---|---|---|---|---|---|---|---|---|
+| headline | R1 | +4 | +44 | 11.00 | 1 / 2 | 0.29 | +6 | 0.806 | −0.019 [−0.034, −0.005] |
+| headline | R2 | +35 | +75 | 2.14 | 144 / 456 | 0.20 | +50 | 0.809 | −0.014 [−0.029, +0.000] |
+| headline | R3 | +9 | +4 | 0.44 | 11 / 7 | 0.27 | +16 | 0.808 | +0.002 [−0.006, +0.012] |
+| US pool | R1 | +13 | +115 | 8.85 | 2 / 14 | 0.28 | +29 | 0.823 | −0.017 [−0.025, −0.007] |
+| US pool | R2 | +105 | +212 | 2.02 | 388 / 1328 | 0.16 | +262 | 0.805 | +0.009 [−0.000, +0.018] |
+| US pool | R3 | +24 | +17 | 0.71 | 21 / 10 | 0.26 | +49 | 0.825 | +0.004 [−0.001, +0.009] |
+| GSV pool | R1 | +18 | +63 | 3.50 | 1 / 13 | 0.26 | +29 | 0.818 | −0.011 [−0.022, +0.001] |
+| GSV pool | R2 | +85 | +126 | 1.48 | 259 / 868 | 0.13 | +209 | 0.796 | +0.022 [+0.010, +0.033] |
+| GSV pool | R3 | +15 | +11 | 0.73 | 12 / 0 | 0.26 | +29 | 0.818 | +0.003 [−0.002, +0.009] |
+
+"Ramps recovered" is the net change in true positives on recall-confirmed panos; "extra FP" is
+over all panos, as `aggregate` counts them. FP per ramp is a ceiling for the same reason precision
+is a floor.
+
+### Per split, the three rules
+
+| split | r2048 P / R / F1 | rule | P / R / F1 | ΔR | ΔF1 | ramps / FP vs r2048 | matched thr: ΔF1 fused − matched | verdict |
+|---|---|---|---|---|---|---|---|---|
+| annapolis | 0.895 / 0.809 / 0.850 | R1 | 0.814 / 0.803 / 0.808 | −0.007 [−0.047, +0.032] | −0.042 [−0.070, −0.013] | −2 / +26 | 0.32: −0.044 [−0.071, −0.018] | HURTS |
+|  |  | R2 | 0.791 / 0.850 / 0.820 | +0.041 [+0.018, +0.067] | −0.030 [−0.055, −0.005] | +12 / +38 | 0.15: −0.016 [−0.040, +0.009] | NO BETTER THAN A THRESHOLD |
+|  |  | R3 | 0.893 / 0.823 / 0.857 | +0.014 [−0.004, +0.034] | +0.007 [−0.006, +0.020] | +4 / +1 | 0.27: +0.006 [−0.009, +0.022] | NULL |
+| bend | 0.915 / 0.829 / 0.870 | R1 | 0.858 / 0.829 / 0.843 | +0.000 [−0.032, +0.033] | −0.027 [−0.050, −0.004] | +0 / +20 | 0.30: −0.027 [−0.050, −0.004] | HURTS |
+|  |  | R2 | 0.836 / 0.872 / 0.853 | +0.043 [+0.021, +0.069] | −0.017 [−0.034, +0.001] | +14 / +31 | 0.08: +0.019 [−0.002, +0.042] | NO BETTER THAN A THRESHOLD |
+|  |  | R3 | 0.907 / 0.835 / 0.869 | +0.006 [+0.000, +0.016] | −0.001 [−0.007, +0.007] | +2 / +3 | 0.27: +0.001 [−0.007, +0.010] | NULL |
+| budapest_district5 | 0.680 / 0.643 / 0.661 | R1 | 0.622 / 0.613 / 0.617 | −0.030 [−0.067, +0.006] | −0.043 [−0.072, −0.017] | −9 / +21 | 0.37: −0.059 [−0.089, −0.029] | HURTS |
+|  |  | R2 | 0.590 / 0.680 / 0.632 | +0.037 [+0.017, +0.061] | −0.029 [−0.053, −0.007] | +11 / +51 | 0.19: +0.016 [−0.009, +0.040] | NO BETTER THAN A THRESHOLD |
+|  |  | R3 | 0.676 / 0.640 / 0.657 | −0.003 [−0.018, +0.010] | −0.003 [−0.016, +0.008] | −1 / +1 | 0.31: −0.007 [−0.020, +0.005] | NULL |
+| clovis | 0.838 / 0.821 / 0.829 | R1 | 0.816 / 0.821 / 0.818 | +0.000 [−0.034, +0.036] | −0.011 [−0.035, +0.015] | +0 / +5 | 0.30: −0.011 [−0.035, +0.015] | NULL |
+|  |  | R2 | 0.777 / 0.841 / 0.808 | +0.021 [+0.000, +0.048] | −0.021 [−0.045, +0.004] | +4 / +16 | 0.25: −0.014 [−0.041, +0.016] | NULL |
+|  |  | R3 | 0.833 / 0.821 / 0.827 | +0.000 [+0.000, +0.000] | −0.002 [−0.007, +0.000] | +0 / +1 | 0.30: −0.002 [−0.007, +0.000] | NULL |
+| gainesville | 0.854 / 0.772 / 0.811 | R1 | 0.810 / 0.768 / 0.789 | −0.004 [−0.043, +0.038] | −0.022 [−0.049, +0.008] | −1 / +13 | 0.32: −0.025 [−0.052, +0.007] | NULL |
+|  |  | R2 | 0.766 / 0.842 / 0.802 | +0.070 [+0.043, +0.100] | −0.009 [−0.034, +0.019] | +19 / +34 | 0.16: +0.004 [−0.022, +0.034] | NO BETTER THAN A THRESHOLD |
+|  |  | R3 | 0.846 / 0.787 / 0.815 | +0.015 [+0.003, +0.030] | +0.004 [−0.006, +0.016] | +4 / +3 | 0.26: +0.004 [−0.012, +0.019] | NO BETTER THAN A THRESHOLD |
+| laurens_gsv | 0.923 / 0.654 / 0.766 | R1 | 0.922 / 0.645 / 0.759 | −0.009 [−0.044, +0.027] | −0.007 [−0.032, +0.018] | −2 / +0 | 0.33: −0.002 [−0.029, +0.025] | NULL |
+|  |  | R2 | 0.905 / 0.691 / 0.783 | +0.036 [+0.013, +0.065] | +0.018 [+0.002, +0.037] | +8 / +4 | 0.25: −0.001 [−0.026, +0.025] | NO BETTER THAN A THRESHOLD |
+|  |  | R3 | 0.923 / 0.654 / 0.766 | +0.000 [+0.000, +0.000] | +0.000 [+0.000, +0.000] | +0 / +0 | 0.30: +0.000 [+0.000, +0.000] | NULL |
+| laurens_mapillary | 0.885 / 0.526 / 0.660 | R1 | 0.883 / 0.514 / 0.650 | −0.012 [−0.034, +0.006] | −0.010 [−0.030, +0.006] | −3 / +0 | 0.33: −0.003 [−0.027, +0.019] | NULL |
+|  |  | R2 | 0.883 / 0.546 / 0.675 | +0.020 [+0.004, +0.039] | +0.015 [+0.002, +0.030] | +5 / +1 | 0.27: −0.006 [−0.023, +0.011] | NO BETTER THAN A THRESHOLD |
+|  |  | R3 | 0.885 / 0.526 / 0.660 | +0.000 [+0.000, +0.000] | +0.000 [+0.000, +0.000] | +0 / +0 | 0.30: +0.000 [+0.000, +0.000] | NULL |
+| morgantown | 0.878 / 0.813 / 0.844 | R1 | 0.801 / 0.783 / 0.792 | −0.030 [−0.054, −0.007] | −0.053 [−0.075, −0.032] | −8 / +22 | 0.40: −0.060 [−0.089, −0.034] | HURTS |
+|  |  | R2 | 0.751 / 0.824 / 0.786 | +0.011 [+0.000, +0.026] | −0.059 [−0.080, −0.038] | +3 / +43 | 0.22: −0.037 [−0.056, −0.017] | HURTS |
+|  |  | R3 | 0.861 / 0.813 / 0.836 | +0.000 [+0.000, +0.000] | −0.008 [−0.018, −0.002] | +0 / +5 | 0.32: −0.015 [−0.026, −0.005] | HURTS |
+| paterson | 0.947 / 0.724 / 0.821 | R1 | 0.918 / 0.770 / 0.838 | +0.046 [+0.012, +0.079] | +0.017 [−0.007, +0.040] | +18 / +11 | unreachable | NO BETTER THAN A THRESHOLD |
+|  |  | R2 | 0.916 / 0.800 / 0.854 | +0.076 [+0.050, +0.103] | +0.033 [+0.015, +0.053] | +30 / +13 | unreachable | NO BETTER THAN A THRESHOLD |
+|  |  | R3 | 0.946 / 0.747 / 0.835 | +0.023 [+0.009, +0.040] | +0.014 [+0.004, +0.026] | +9 / +1 | 0.15: +0.018 [+0.005, +0.033] | HELPS |
+| richmond | 0.893 / 0.832 / 0.861 | R1 | 0.845 / 0.861 / 0.853 | +0.029 [+0.000, +0.060] | −0.008 [−0.031, +0.014] | +9 / +18 | 0.20: +0.008 [−0.016, +0.032] | NULL |
+|  |  | R2 | 0.805 / 0.890 / 0.845 | +0.058 [+0.030, +0.091] | −0.016 [−0.043, +0.010] | +18 / +36 | 0.08: +0.091 [+0.059, +0.126] | RECALL LEVER |
+|  |  | R3 | 0.885 / 0.848 / 0.867 | +0.016 [+0.000, +0.037] | +0.005 [−0.007, +0.019] | +5 / +3 | 0.24: +0.014 [−0.003, +0.033] | NULL |
+| sao_paulo | 0.803 / 0.797 / 0.800 | R1 | 0.754 / 0.808 / 0.780 | +0.011 [−0.015, +0.037] | −0.020 [−0.043, +0.004] | +3 / +19 | 0.25: −0.007 [−0.029, +0.017] | NULL |
+|  |  | R2 | 0.706 / 0.847 / 0.770 | +0.050 [+0.025, +0.079] | −0.030 [−0.055, −0.004] | +14 / +44 | 0.16: +0.009 [−0.019, +0.035] | NO BETTER THAN A THRESHOLD |
+|  |  | R3 | 0.791 / 0.797 / 0.794 | +0.000 [+0.000, +0.000] | −0.006 [−0.012, −0.001] | +0 / +4 | 0.30: −0.006 [−0.012, −0.001] | HURTS |
+
+`results.md` also carries each split's u4096, naive-union and R2s rows.
+
+### Wrong-pano control (R2)
+
+Cyclic shift of the u4096 peaks over the sorted pano list within each split (20 evenly spaced
+shifts), fused with the correct r2048 peaks by the same rule and scored the same way.
+
+| pool | real ΔR | null ΔR mean | null ΔR max | attributable ΔR | real ΔFP | null ΔFP mean |
+|---|---|---|---|---|---|---|
+| headline | +0.0410 | +0.0135 | +0.0246 | +0.0275 | +75 | +665.9 |
+| US pool | +0.0455 | +0.0118 | +0.0165 | +0.0337 | +212 | +1879.7 |
+| GSV pool | +0.0569 | +0.0127 | +0.0167 | +0.0441 | +126 | +1217.7 |
+
+A quarter to a third of R2's raw recall gain on each pool is what any extra peaks would buy by chance;
+the attributable gain on the US pool is +0.034, about 78 ramps. On no split does the real ΔR fall
+inside the shifted range except laurens_mapillary (real +0.020, null max +0.036) and morgantown
+(real +0.011, null max +0.019), whose R2 gains are indistinguishable from chance. A wrong-pano
+copy adds about nine times as many FPs as the real u4096 pass, because the real pass's extra peaks
+mostly land on ramps r2048 already found and are removed by the dedupe.
+
+**The same control is not informative for R1 and R3**, and their rows in `results.md` should not be
+read as evidence. Those rules *replace* r2048's far field with u4096's, so a wrong-pano u4096 far
+field loses r2048's far hits and its ΔR is strongly negative (US pool −0.184 for R1); the
+"attributable" figure then measures how much the far field contributes at all, not the gain.
+
+### Recall by flat-ground range, US pool, at 0.30 (from `results.md`)
+
+| band | n | r2048 | u4096 | naive union | R1 | R2 | R3 |
+|---|---|---|---|---|---|---|---|
+| 0-8 m | 516 | 0.841 | 0.620 | 0.845 | 0.841 | 0.841 | 0.841 |
+| 8-12 m | 594 | 0.827 | 0.680 | 0.879 | 0.827 | 0.837 | 0.827 |
+| 12-18 m | 466 | 0.805 | 0.740 | 0.878 | 0.794 | 0.828 | 0.805 |
+| 18-25 m | 419 | 0.771 | 0.754 | 0.890 | 0.663 | 0.821 | 0.768 |
+| 25-40 m | 232 | 0.543 | 0.720 | 0.823 | 0.716 | 0.728 | 0.578 |
+| 40 m+ | 77 | 0.273 | 0.558 | 0.636 | 0.558 | 0.571 | 0.480 |
+| above horizon | 5 | 0.200 | 0.400 | 0.400 | 0.400 | 0.400 | 0.400 |
+
+| rule | near < 18 m (n 1,576) | far ≥ 18 m (n 728) |
+|---|---|---|
+| u4096 | −0.147 [−0.169, −0.124] | +0.077 [+0.047, +0.108] |
+| R1 | −0.003 [−0.007, +0.000] | +0.023 [−0.012, +0.058] |
+| R2 | +0.011 [+0.006, +0.016] | +0.119 [+0.096, +0.142] |
+| R3 | +0.000 [+0.000, +0.000] | +0.032 [+0.017, +0.047] |
+
+The five above-horizon GT points are in neither band. The distance axis is flat-ground geometry at
+an assumed 2.5 m camera, the committed axis for these splits; band edges are approximate
+([`detection_recall_analysis.md` §0](detection_recall_analysis.md)). R1's 12–18 m loss (0.805 →
+0.794) is the same boundary effect as its 18–25 m loss, seen from the near side. The headline and
+GSV pools show the same pattern (`results.md`).
+
+### Post hoc: dedupe radius (R2s, not in the plan, no verdict)
+
+After the first results showed the naive union's recall well above R2's, R2 was re-run with the
+dedupe radius at the extractor's own `min_distance` (10 heatmap px) instead of the scorer's match
+radius (about 22.5 px), to see whether the dedupe was discarding real neighbouring ramps. On the US
+pool R2s gains 18 more ramps than R2 (R 0.820 against 0.812) for 71 more FPs, and F1 falls (0.806
+against 0.814; ΔF1 vs r2048 −0.019 [−0.028, −0.010]). The looser dedupe does not close the gap to
+the naive union, and is worse than R2 on F1 on all three pools. It does not change any
+reading above.
+
+## Inference cost (Q4)
+
+Estimated from the #196 rows in `analysis_out/usage_log.jsonl` (labels `input-res-25:r2048` and
+`input-res-25:u4096`, the full runs with more than 6 panos; makelab2, one NVIDIA A40, fp32).
+`inference_cost()` in the script re-derives these, and a test pins them. No new GPU work was run.
+
+| pass | panos | GPU-side s / pano |
+|---|---|---|
+| r2048 (1×, 2048×4096) | 1,289 | 0.610 |
+| u4096 (2× upsample, 4096×8192) | 1,289 | 2.344 |
+| **two-scale (both)** | | **2.953, 4.84× the 1× pass** |
+
+"GPU-side" is host-to-device copy, forward and peak extraction on the main thread, per #196's
+ledger convention. Caveats beside the number:
+
+- **The CPU cost of the upsample is not in it.** The bicubic resize to 4096×8192 ran in #196's
+  prefetch worker together with the JPEG decode and every other arm's resize, and the ledger's
+  `cpu-wait` rows are not split per arm, so the u4096 share of CPU time cannot be separated from
+  the committed rows. A deployment that upsamples on the GPU would move it there.
+- **One GPU, fp32, batch size 1.** The ratio is close to the 4× pixel ratio, as a convolutional
+  backbone's cost should be; it was not measured under fp16, batching, or on other hardware.
+- For scale: R2 on the US pool recovers 105 ramps over 953 panos at 2.34 extra GPU-seconds per
+  pano (about 37 extra GPU-minutes on this card); lowering the threshold to 0.16 recovers the same
+  number for no extra compute and 50 more FPs.
+
+## What this does not answer
+
+- **Soft or wider boundaries.** R1 fails at a hard row cut. A rule that takes the far field from
+  u4096 only beyond 40 m, or that keeps r2048 everywhere and adds only u4096 peaks with no r2048
+  peak nearby (which is what R2 does), are the two ends; nothing between them was scored, and
+  R3's grid ended at 40 m.
+- **Whether R2's added FPs are real ramps.** A reviewer pass over them would turn the precision
+  lower bound into a number. Until then R2's ΔF1 is a floor.
+- **r4096 instead of u4096.** #196 found them indistinguishable at 2×; u4096 was used because a
+  deployment has the 2048 image. The native pixels were not tried as the far pass.
+- **A retrained model.** A model trained with scale augmentation could make the second pass
+  unnecessary; that is #25's retrain arm and is still open.
+
+## Seam
+
+All inputs are #196's caches, extracted with `exclude_border=False` after the seam fix `f4c71c8`,
+so the peaks beside the 360° seam are present in both passes. No `analysis_out/op_cache` file is
+used here, so the pre-seam-fix caveat that #196 and #194 carry for op_cache numbers does not apply.
+The dedupe measures distance wrapped at the seam, as the scorer does.
+
+## Reproduction, from a clean clone
+
+```bash
+pip install -e . && pip install -r requirements-dev.txt
+
+# every table in this doc, from the committed #196 caches (~40 s, CPU)
+python scripts/analysis/two_scale_197.py report
+
+# prove the committed results.json and results.md reproduce byte for byte (writes nothing)
+python scripts/analysis/two_scale_197.py report --check
+
+# tests (~5 s): fusion helpers, verdict branches, richmond rows and the Q4 cost re-derived
+python -m pytest -q tests/test_two_scale_197.py
+```
+
+The inputs are `analysis_out/input_res_sweep_25/cache/{r2048,u4096}/*.json` (hashed in that
+directory's `SHA256SUMS`; `python scripts/analysis/input_res_sweep_25.py sums` verifies them) and
+`analysis_out/usage_log.jsonl`. `results.json` sha256 `a24c1f72c296…`, `results.md` sha256
+`ccefe46a1ceb…` as committed; `--check` compares the full bytes. `--cities` and `--n-shifts`
+change the inputs and the control and therefore the numbers; the committed files use the defaults
+(all 11 splits, 20 shifts).
