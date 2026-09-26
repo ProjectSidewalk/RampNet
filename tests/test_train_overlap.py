@@ -221,6 +221,57 @@ def test_records_only_splits_are_named_on_the_card():
     assert records_only_note([]) == ""
 
 
+def test_rendered_card_agrees_with_the_built_records(tmp_path):
+    """The card's confidence table, overlap listing and Bend row count are derived at render time;
+    this renders the card over the committed benchmark and checks each against build_records'
+    own rows, so the card cannot contradict the data it ships with (#127 review)."""
+    import re
+    from export_benchmark import load_index, render_card, save_index
+    out = tmp_path / "pkg"
+    written = build_records(BENCHMARK, out)
+    save_index(out, {RECORDS: [row[0] for row in written]})
+    render_card(out, BENCHMARK, "x/y", load_index(out, allow_partial=True))
+    card = (out / "README.md").read_text(encoding="utf-8")
+    assert not re.search(r"\{[a-z_]+\}", card)          # every placeholder substituted
+    tables = dict((city, pq.read_table(str(out / "data" / RECORDS / "{}.parquet".format(city))))
+                  for city, *_ in written)
+
+    # confidence table: every split appears exactly once, with its rows' value
+    header = "| split | `review_confidence` |"
+    body = card.split(header, 1)[1].split("\n\n", 1)[0].strip().splitlines()[1:]
+    in_card = {}
+    for line in body:
+        splits_cell, value_cell = [c.strip() for c in line.strip("|").split("|", 1)]
+        value = None if value_cell.startswith("null") else re.search(r"`([^`]+)`",
+                                                                     value_cell).group(1)
+        for split in re.findall(r"`([^`]+)`", splits_cell):
+            assert split not in in_card, split
+            in_card[split] = value
+    from_rows = dict((city, set(t.column("review_confidence").to_pylist()))
+                     for city, t in tables.items())
+    assert all(len(v) == 1 for v in from_rows.values())
+    assert in_card == dict((city, v.pop()) for city, v in from_rows.items())
+
+    # overlap listing: the flagged ids per split, and the count of clean splits
+    flagged = {}
+    for city, t in tables.items():
+        ids = {p for p, f in zip(t.column("pano_id").to_pylist(),
+                                 t.column("train_overlap").to_pylist()) if f}
+        if ids:
+            flagged[city] = ids
+    listed = dict((m.group(1), set(re.findall(r"`([^`]+)`", m.group(3))))
+                  for m in re.finditer(r"^- `([^`]+)`: (\d+) panoramas? — (.*)$", card, re.M))
+    assert listed == flagged
+    n_clean = len(tables) - len(flagged)
+    assert "- every other split ({}): 0".format(n_clean) in card
+
+    # the filter example's row count
+    bend = tables["bend"]
+    unseen = bend.num_rows - sum(bend.column("train_overlap").to_pylist())
+    assert "# {} rows".format(unseen) in card
+    assert '# "{}"'.format(in_card["budapest_district5"]) in card
+
+
 # -------------------------------------------------------- the Bend table, from the fixtures
 
 def _pr(panos, confs, exclude_top):

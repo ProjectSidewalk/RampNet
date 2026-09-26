@@ -24,8 +24,10 @@ configs:
 > the same three training cities.
 >
 > These {n_cities} splits were built **after publication**, {split_date_range}, as
-> post-publication work: to test the published model on cities and imagery sources it was never
-> trained on, and to compare it against VLM detectors.
+> post-publication work: to test the published model mostly on cities and imagery sources it was
+> never trained on, and to compare it against VLM detectors. The exception is `bend`, one of the
+> paper's training cities; its panoramas that are also in the training data are flagged (see
+> "Training overlap").
 >
 > **Use this to evaluate RampNet. Do not cite it as the paper's evaluation** — the ground truth,
 > the cities, and the matching protocol all differ, so numbers measured here are not comparable
@@ -103,33 +105,31 @@ fidelity artifact — it reproduces what a reviewer's eyes were on — not a com
 Each split's reviewer notes are copied onto its rows, so the caveat arrives with the number. As of
 this export:
 
-| split | `review_confidence` |
-| :--- | :--- |
-| `budapest_district5` | **`low`** — the reviewer rated their own pass low confidence and the rubric does not transfer cleanly; do not pool it with the US splits without reading `review_caveats` |
-| `gainesville`, `paterson`, `sao_paulo` | `high` |
-| `laurens_gsv`, `laurens_mapillary` | not recorded at export time; the value says so rather than guessing a level |
-| `annapolis`, `bend`, `clovis`, `morgantown`, `richmond` | null — no review notes were recorded for these splits |
+{confidence_table}
 
 ```python
 from datasets import load_dataset
 
 bp = load_dataset("{repo_id}", "records", split="budapest_district5")
-print(bp[0]["review_confidence"])        # "low"
+print(bp[0]["review_confidence"])        # "{budapest_confidence}"
 for caveat in bp[0]["review_caveats"]:
     print("-", caveat)
 ```
 
 ## Training overlap
 
-Four reviewed `bend` panoramas are also in `rampnet-dataset`'s train/validation splits — Bend is
-one of the paper's three training cities: `6WC0hdAYRsSAcluKSs5iRg`, `9kW9cxpuj7q8DMzf-ClrQQ`,
-`DJ8Zp111zu6KnMZz-0PHgQ` and `VgWpqFkTwCIROvM0z-DkOw`. They are kept and flagged, not dropped,
-so the published numbers are unchanged. The exact-id check was first run on 2026-07-22 and re-run
-on {overlap_checked_at} for every split (`scripts/analysis/train_overlap_check.py`, result in
-[`benchmark/train_overlap.json`](https://github.com/ProjectSidewalk/RampNet/blob/main/benchmark/train_overlap.json)).
-**Every other split: 0.**
+Reviewed panoramas that are also in `rampnet-dataset`'s train/validation splits, by split (Bend
+is one of the paper's three training cities):
 
-Dropping the four moves Bend's numbers inside their Wilson intervals, in both directions:
+{overlap_listing}
+
+They are kept and flagged (`train_overlap == true`), not dropped, so the published numbers are
+unchanged. The exact-id check was first run on 2026-07-22 and re-run on {overlap_checked_at} for
+every split (`scripts/analysis/train_overlap_check.py`, result in
+[`benchmark/train_overlap.json`](https://github.com/ProjectSidewalk/RampNet/blob/main/benchmark/train_overlap.json)).
+
+Dropping Bend's flagged panoramas moves its numbers inside their Wilson intervals, in both
+directions:
 
 | Bend subset | panoramas | precision | recall |
 | :--- | ---: | ---: | ---: |
@@ -140,7 +140,7 @@ Dropping the four moves Bend's numbers inside their Wilson intervals, in both di
 
 ```python
 bend = load_dataset("{repo_id}", "records", split="bend")
-unseen = bend.filter(lambda r: not r["train_overlap"])     # 106 rows
+unseen = bend.filter(lambda r: not r["train_overlap"])     # {bend_unseen_rows} rows
 ```
 
 ## Usage

@@ -608,12 +608,90 @@ def overlap_checked_at(benchmark):
     return json.loads(path.read_text(encoding="utf-8")).get("checked_at", "(date not recorded)")
 
 
+# The card's wording for each review_confidence value, in table order. A value not listed here is
+# shown verbatim after these; null (no review_notes block) always comes last.
+CONFIDENCE_WORDING = [
+    ("low", "**`low`** — the reviewer rated their own pass low confidence; do not pool it with the "
+            "other splits without reading `review_caveats`"),
+    ("medium", "`medium`"),
+    ("high", "`high`"),
+    ("unrecorded", "`unrecorded` — not recorded at export time; the value says so rather than "
+                   "guessing a level"),
+]
+
+
+def split_confidences(benchmark, cities):
+    """{split: review_notes.confidence or None}, read from each split's verdicts.json.
+
+    The same source build_records copies onto the rows, so the card's table cannot drift from them.
+    """
+    levels = {}
+    for city in cities:
+        path = Path(benchmark) / city / "verdicts.json"
+        notes = {}
+        if path.is_file():
+            notes = json.loads(path.read_text(encoding="utf-8")).get("review_notes") or {}
+        levels[city] = notes.get("confidence")
+    return levels
+
+
+def confidence_table(benchmark, cities):
+    """The card's `review_confidence` table, one row per value, derived from verdicts.json."""
+    by_value = {}
+    for city, level in split_confidences(benchmark, cities).items():
+        by_value.setdefault(level, []).append(city)
+    known = [value for value, _ in CONFIDENCE_WORDING]
+    order = ([v for v in known if v in by_value]
+             + sorted(v for v in by_value if v is not None and v not in known)
+             + ([None] if None in by_value else []))
+    wording = dict(CONFIDENCE_WORDING)
+    lines = ["| split | `review_confidence` |", "| :--- | :--- |"]
+    for value in order:
+        splits = ", ".join("`{}`".format(c) for c in sorted(by_value[value]))
+        if value is None:
+            text = "null — no review notes were recorded for these splits"
+        else:
+            text = wording.get(value, "`{}`".format(value))
+        lines.append("| {} | {} |".format(splits, text))
+    return "\n".join(lines)
+
+
+def overlap_listing(benchmark, cities):
+    """The card's list of flagged panoramas per split, from benchmark/train_overlap.json.
+
+    Returns (markdown, {split: n_flagged}) for the exported splits.
+    """
+    overlap = load_train_overlap(benchmark)
+    counts = dict((city, len(overlap.get(city, ()))) for city in cities)
+    lines = []
+    for city in cities:
+        ids = sorted(overlap.get(city, ()))
+        if ids:
+            lines.append("- `{}`: {} panorama{} — {}".format(
+                city, len(ids), "" if len(ids) == 1 else "s",
+                ", ".join("`{}`".format(i) for i in ids)))
+    clean = [c for c in cities if not counts[c]]
+    if clean:
+        lines.append("- every other split ({}): 0".format(len(clean)) if lines
+                     else "- every split: 0")
+    return "\n".join(lines), counts
+
+
+def reviewed_rows(benchmark, city):
+    """How many reviewed panoramas a split's verdicts.json holds (the rows build_records writes)."""
+    path = Path(benchmark) / city / "verdicts.json"
+    if not path.is_file():
+        return 0
+    return len(json.loads(path.read_text(encoding="utf-8")).get("panos", {}))
+
+
 def render_card(out, benchmark, repo_id, index):
     # A split counts once it has ground truth; imagery is counted separately, because the two
     # differ while any split is records-only (see records_only_splits).
     cities = sorted(index.get(RECORDS) or set(sum(index.values(), [])))
     imagery = sorted(set(sum((index.get(c, []) for c in IMAGERY_CONFIGS), [])))
     total = package_bytes(out, index)
+    overlap_md, overlap_counts = overlap_listing(benchmark, cities)
     card_text = TEMPLATE.read_text(encoding="utf-8").format(
         configs_yaml=configs_yaml(index),
         git_commit=git_commit(),
@@ -623,6 +701,11 @@ def render_card(out, benchmark, repo_id, index):
         n_imagery_splits=len(imagery),
         records_only_note=records_only_note(records_only_splits(index)),
         overlap_checked_at=overlap_checked_at(benchmark),
+        confidence_table=confidence_table(benchmark, cities),
+        budapest_confidence=split_confidences(benchmark, ["budapest_district5"])[
+            "budapest_district5"],
+        overlap_listing=overlap_md,
+        bend_unseen_rows=reviewed_rows(benchmark, "bend") - overlap_counts.get("bend", 0),
         split_date_range=split_date_range(benchmark, cities),
         total_gb="{:.2f}".format(total / 1e9),
     )
