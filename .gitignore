@@ -47,6 +47,12 @@ analysis_out/op/*
 !analysis_out/op/*.csv
 !analysis_out/op/*.json
 
+# The gated-cascade cost read (#35): one JSON per (split, challenger) plus summary.json,
+# all re-derivable on CPU from committed inputs by scripts/analysis/cascade_cost_35.py.
+!analysis_out/cascade_cost_35/
+analysis_out/cascade_cost_35/*
+!analysis_out/cascade_cost_35/*.json
+
 # Stage 1's coordinate-tolerance result (#96): a few KB, and it is what converts an
 # offset distribution into a decision. Re-derivable on CPU from the committed
 # benchmark bundles plus any verdicts file.
