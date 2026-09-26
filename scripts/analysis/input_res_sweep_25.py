@@ -805,8 +805,12 @@ def verdict(d_arm, d_up):
         label = "hurts"
     elif df["ci_lo"] is not None and df["ci_lo"] <= 0 <= df["ci_hi"]:
         label = "tolerates"
+    elif all(v for k, v in reasons.items() if k != "recall_gain_exceeds_u4096_ci"):
+        # The plan's rule has no branch for this: F1 rises with CI above 0, recall-led, but
+        # the upsample control (no new pixels) does as well -- object scale, not resolution.
+        label = "gains, object scale only"
     else:
-        label = "F1 up, rule not met"
+        label = "F1 up, not recall-led"
     return label, reasons
 
 

@@ -148,7 +148,12 @@ def test_verdict_rule():
     beats_up = _d((0, 0, 0), (0.03, 0.01, 0.05), (0, 0, 0))
     ties_up = _d((0, 0, 0), (0.01, -0.01, 0.03), (0, 0, 0))
     assert irs.verdict(helps, beats_up)[0] == "helps"
-    assert irs.verdict(helps, ties_up)[0] == "tolerates"     # object scale, not pixels
+    assert irs.verdict(helps, ties_up)[0] == "tolerates"     # dF1 CI covers 0
+    f1_up = _d((-0.01, -0.02, 0.0), (0.05, 0.02, 0.08), (0.03, 0.01, 0.05))
+    assert irs.verdict(f1_up, beats_up)[0] == "helps"
+    assert irs.verdict(f1_up, ties_up)[0] == "gains, object scale only"
+    prec_led = _d((0.05, 0.02, 0.08), (0.0, -0.01, 0.01), (0.03, 0.01, 0.05))
+    assert irs.verdict(prec_led, beats_up)[0] == "F1 up, not recall-led"
     hurts = _d((-0.1, -0.15, -0.05), (0.0, -0.02, 0.02), (-0.05, -0.08, -0.02))
     assert irs.verdict(hurts, beats_up)[0] == "hurts"
     flat = _d((0.0, -0.01, 0.01), (0.0, -0.01, 0.01), (0.0, -0.01, 0.01))
@@ -188,3 +193,37 @@ def test_border_peak_is_extra_not_missing():
     strict = irs.compare_to_op_cache(mine, ref)
     assert strict["extra"] == strict["extra_in_border"] == 1
     assert irs.compare_to_op_cache(mine, ref, drop_border=True)["panos_mismatched"] == 0
+
+
+# (d) the committed results --------------------------------------------------------------
+RESULTS = os.path.join(REPO, "analysis_out", "input_res_sweep_25", "results.json")
+
+
+def test_r2048_richmond_reproduces_op_cache_modulo_the_seam_strip():
+    """r2048 = committed op_cache once the pre-f4c71c8 seam strip is set aside; the three
+    seam-strip peaks at or above 0.30 move richmond by +1 tp / +3 fp."""
+    from rampnet.detection_eval import radius_sq_for
+    from operating_point_curve import _score_at, read_cache
+    rsq = radius_sq_for()
+    mine, _ = irs.read_arm_cache(irs.cache_path(irs.CACHE_ROOT, "r2048", "richmond"))
+    ref, _ = read_cache(os.path.join(REPO, "analysis_out", "op_cache", "richmond.json"))
+    inner = [{**p, "preds": [t for t in p["preds"] if not irs.in_seam_strip(t[0])]}
+             for p in mine]
+    for thr, full, op in ((0.30, (258, 31, 52), (257, 28, 53)),
+                          (0.55, (239, 11, 71), (238, 9, 72))):
+        a, b, c = (_score_at(mine, thr, rsq), _score_at(inner, thr, rsq),
+                   _score_at(ref, thr, rsq))
+        assert (a.tp, a.fp, a.fn) == full
+        assert (b.tp, b.fp, b.fn) == (c.tp, c.fp, c.fn) == op
+
+
+def test_report_reproduces_committed_headline():
+    """Re-derive annapolis r4096 vs r2048 from the committed caches; pinned to 4 dp."""
+    with open(RESULTS, encoding="utf-8") as f:
+        committed = json.load(f)
+    rep = irs.build_report(irs.CACHE_ROOT, arms=("r2048", "r4096"), cities=("annapolis",))
+    got = rep["per_split"]["annapolis"]["vs_r2048"]["r4096"]["0.30"]
+    assert got == committed["per_split"]["annapolis"]["vs_r2048"]["r4096"]["0.30"]
+    assert got["recall"]["observed"] == -0.0714
+    assert got["recall"]["ci_lo"] == -0.1237 and got["recall"]["ci_hi"] == -0.0196
+    assert committed["verdicts"]["annapolis"]["r4096"]["verdict"] == "hurts"
