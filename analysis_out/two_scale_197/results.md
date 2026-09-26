@@ -24,6 +24,18 @@
 | GSV z5 (bend+paterson+gainesville+sao_paulo+laurens_gsv) | naive_union | 0.522 | 0.884 | 0.657 | -0.365 [-0.380, -0.349] | +0.125 [+0.107, +0.145] | -0.162 [-0.181, -0.141] |  |
 | GSV z5 (bend+paterson+gainesville+sao_paulo+laurens_gsv) | R2s | 0.796 | 0.827 | 0.811 | -0.091 [-0.107, -0.076] | +0.068 [+0.056, +0.081] | -0.007 [-0.019, +0.004] |  |
 
+**Pooled, POST HOC (added after review, not in the plan; verdicts are context): each rule vs r2048 at 0.30 (paired 95% CI)**
+
+| split | rule | P | R | F1 | ΔP | ΔR | ΔF1 | verdict |
+|---|---|---|---|---|---|---|---|---|
+| GSV z5 minus paterson (post hoc) | r2048 | 0.869 | 0.772 | 0.818 | — | — | — | |
+| GSV z5 minus paterson (post hoc) | R1 | 0.825 | 0.772 | 0.798 | -0.044 [-0.061, -0.027] | +0.000 [-0.017, +0.016] | -0.020 [-0.032, -0.007] | HURTS |
+| GSV z5 minus paterson (post hoc) | R2 | 0.789 | 0.822 | 0.805 | -0.080 [-0.095, -0.064] | +0.050 [+0.038, +0.063] | -0.012 [-0.024, -0.001] | NO BETTER THAN A THRESHOLD |
+| GSV z5 minus paterson (post hoc) | R3 | 0.861 | 0.777 | 0.817 | -0.008 [-0.014, -0.003] | +0.005 [+0.002, +0.010] | -0.001 [-0.004, +0.003] | NO BETTER THAN A THRESHOLD |
+| GSV z5 minus paterson (post hoc) | u4096 | 0.780 | 0.658 | 0.714 | -0.089 [-0.112, -0.063] | -0.114 [-0.147, -0.082] | -0.103 [-0.127, -0.082] |  |
+| GSV z5 minus paterson (post hoc) | naive_union | 0.499 | 0.856 | 0.630 | -0.370 [-0.387, -0.351] | +0.085 [+0.067, +0.103] | -0.187 [-0.206, -0.166] |  |
+| GSV z5 minus paterson (post hoc) | R2s | 0.762 | 0.824 | 0.792 | -0.107 [-0.125, -0.089] | +0.052 [+0.040, +0.065] | -0.026 [-0.040, -0.013] |  |
+
 **Per split: each rule vs r2048 at 0.30 (paired 95% CI)**
 
 | split | rule | P | R | F1 | ΔP | ΔR | ΔF1 | verdict |
@@ -129,6 +141,17 @@
 | GSV z5 (bend+paterson+gainesville+sao_paulo+laurens_gsv) | naive_union | +187 | +1066 | 5.70 | 0 / 0 | unreachable | — | — | — |
 | GSV z5 (bend+paterson+gainesville+sao_paulo+laurens_gsv) | R2s | +101 | +172 | 1.70 | 241 / 815 | 0.10 | +277 | 0.785 | +0.027 [+0.013, +0.040] |
 
+**Pooled, POST HOC: cost of the recovered ramps, and the matched-recall threshold-only baseline**
+
+| split | rule | recovered ramps | extra FP | FP / recovered ramp | dedupe dropped (r2048 / u4096) | matched r2048 threshold | its extra FP | its F1 | fused − matched ΔF1 |
+|---|---|---|---|---|---|---|---|---|---|
+| GSV z5 minus paterson (post hoc) | R1 | +0 | +52 | — | 1 / 9 | 0.30 | +0 | 0.818 | -0.020 [-0.032, -0.007] |
+| GSV z5 minus paterson (post hoc) | R2 | +55 | +113 | 2.05 | 172 / 641 | 0.18 | +95 | 0.814 | -0.009 [-0.022, +0.004] |
+| GSV z5 minus paterson (post hoc) | R3 | +6 | +10 | 1.67 | 6 / 0 | 0.28 | +15 | 0.815 | +0.002 [-0.003, +0.007] |
+| GSV z5 minus paterson (post hoc) | u4096 | -125 | +76 | — | 0 / 0 | 0.53 | -82 | 0.778 | -0.064 [-0.090, -0.038] |
+| GSV z5 minus paterson (post hoc) | naive_union | +93 | +819 | 8.81 | 0 / 0 | 0.08 | +313 | 0.759 | -0.128 [-0.149, -0.107] |
+| GSV z5 minus paterson (post hoc) | R2s | +57 | +155 | 2.72 | 164 / 596 | 0.18 | +95 | 0.814 | -0.022 [-0.037, -0.008] |
+
 **Per split: cost of the recovered ramps, and the matched-recall threshold-only baseline**
 
 | split | rule | recovered ramps | extra FP | FP / recovered ramp | dedupe dropped (r2048 / u4096) | matched r2048 threshold | its extra FP | its F1 | fused − matched ΔF1 |
@@ -200,21 +223,129 @@
 | sao_paulo | naive_union | +30 | +250 | 8.33 | 0 / 0 | unreachable | — | — | — |
 | sao_paulo | R2s | +14 | +57 | 4.07 | 54 / 193 | 0.16 | +51 | 0.762 | -0.007 [-0.037, +0.022] |
 
-**Leave-one-split-out choice for R3 (D m, t_u; None = no fusion)**
+**Pooled: context, not the verdict. #194's matched-recall definition (best-F1 threshold reaching the fused recall) and the best single r2048 threshold (best F1 on the grid), both chosen in sample**
 
-| held-out split | D | t_u |
-|---|---|---|
-| annapolis | 40.0 | 0.4 |
-| bend | 40.0 | 0.4 |
-| budapest_district5 | 40.0 | 0.4 |
-| clovis | 40.0 | 0.4 |
-| gainesville | 40.0 | 0.4 |
-| laurens_gsv | 40.0 | 0.4 |
-| laurens_mapillary | 40.0 | 0.4 |
-| morgantown | 40.0 | 0.4 |
-| paterson | 40.0 | 0.4 |
-| richmond | 40.0 | 0.4 |
-| sao_paulo | 40.0 | 0.4 |
+| split | rule | fused F1 | plan matched thr | #194 matched thr | its F1 | fused − #194 matched ΔF1 | verdict if #194's were used | best single thr | its F1 | fused − best single ΔF1 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| headline (annapolis+richmond+laurens_mapillary) | R1 | 0.787 | 0.29 | 0.26 | 0.810 | -0.024 [-0.040, -0.008] | HURTS | 0.26 | 0.810 | -0.024 [-0.040, -0.008] |
+| headline (annapolis+richmond+laurens_mapillary) | R2 | 0.795 | 0.20 | 0.20 | 0.809 | -0.014 [-0.029, +0.000] | NO BETTER THAN A THRESHOLD | 0.26 | 0.810 | -0.016 [-0.030, -0.002] |
+| headline (annapolis+richmond+laurens_mapillary) | R3 | 0.811 | 0.27 | 0.26 | 0.810 | +0.000 [-0.009, +0.010] | NO BETTER THAN A THRESHOLD | 0.26 | 0.810 | +0.000 [-0.009, +0.010] |
+| headline (annapolis+richmond+laurens_mapillary) | u4096 | 0.720 | 0.55 | 0.26 | 0.810 | -0.090 [-0.118, -0.064] |  | 0.26 | 0.810 | -0.090 [-0.118, -0.064] |
+| headline (annapolis+richmond+laurens_mapillary) | naive_union | 0.615 | 0.15 | 0.15 | 0.794 | -0.179 [-0.200, -0.158] |  | 0.26 | 0.810 | -0.196 [-0.217, -0.175] |
+| headline (annapolis+richmond+laurens_mapillary) | R2s | 0.783 | 0.20 | 0.20 | 0.809 | -0.026 [-0.042, -0.010] |  | 0.26 | 0.810 | -0.028 [-0.043, -0.012] |
+| US pool (miss_decomposition.US_SPLITS) | R1 | 0.807 | 0.28 | 0.26 | 0.825 | -0.018 [-0.027, -0.008] | HURTS | 0.32 | 0.826 | -0.019 [-0.028, -0.009] |
+| US pool (miss_decomposition.US_SPLITS) | R2 | 0.814 | 0.16 | 0.16 | 0.805 | +0.009 [-0.000, +0.018] | NO BETTER THAN A THRESHOLD | 0.32 | 0.826 | -0.012 [-0.020, -0.004] |
+| US pool (miss_decomposition.US_SPLITS) | R3 | 0.828 | 0.26 | 0.26 | 0.825 | +0.004 [-0.001, +0.009] | NO BETTER THAN A THRESHOLD | 0.32 | 0.826 | +0.003 [-0.001, +0.007] |
+| US pool (miss_decomposition.US_SPLITS) | u4096 | 0.749 | 0.53 | 0.32 | 0.826 | -0.076 [-0.092, -0.062] |  | 0.32 | 0.826 | -0.076 [-0.092, -0.062] |
+| US pool (miss_decomposition.US_SPLITS) | naive_union | 0.638 | 0.06 | 0.06 | 0.732 | -0.094 [-0.111, -0.077] |  | 0.32 | 0.826 | -0.188 [-0.203, -0.173] |
+| US pool (miss_decomposition.US_SPLITS) | R2s | 0.806 | 0.14 | 0.14 | 0.798 | +0.008 [-0.002, +0.019] |  | 0.32 | 0.826 | -0.020 [-0.029, -0.011] |
+| GSV z5 (bend+paterson+gainesville+sao_paulo+laurens_gsv) | R1 | 0.808 | 0.26 | 0.26 | 0.818 | -0.011 [-0.022, +0.001] | HURTS | 0.30 | 0.818 | -0.011 [-0.022, -0.000] |
+| GSV z5 (bend+paterson+gainesville+sao_paulo+laurens_gsv) | R2 | 0.817 | 0.13 | 0.13 | 0.796 | +0.022 [+0.010, +0.033] | RECALL LEVER | 0.30 | 0.818 | -0.001 [-0.011, +0.009] |
+| GSV z5 (bend+paterson+gainesville+sao_paulo+laurens_gsv) | R3 | 0.821 | 0.26 | 0.26 | 0.818 | +0.003 [-0.002, +0.009] | NO BETTER THAN A THRESHOLD | 0.30 | 0.818 | +0.003 [-0.001, +0.007] |
+| GSV z5 (bend+paterson+gainesville+sao_paulo+laurens_gsv) | u4096 | 0.752 | 0.47 | 0.30 | 0.818 | -0.066 [-0.084, -0.046] |  | 0.30 | 0.818 | -0.066 [-0.084, -0.046] |
+| GSV z5 (bend+paterson+gainesville+sao_paulo+laurens_gsv) | naive_union | 0.657 | unreachable | unreachable | — | — | — | 0.30 | 0.818 | -0.162 [-0.181, -0.141] |
+| GSV z5 (bend+paterson+gainesville+sao_paulo+laurens_gsv) | R2s | 0.811 | 0.10 | 0.10 | 0.785 | +0.027 [+0.013, +0.040] |  | 0.30 | 0.818 | -0.007 [-0.019, +0.004] |
+| GSV z5 minus paterson (post hoc) | R1 | 0.798 | 0.30 | 0.30 | 0.818 | -0.020 [-0.032, -0.007] | HURTS | 0.30 | 0.818 | -0.020 [-0.032, -0.007] |
+| GSV z5 minus paterson (post hoc) | R2 | 0.805 | 0.18 | 0.18 | 0.814 | -0.009 [-0.022, +0.004] | NO BETTER THAN A THRESHOLD | 0.30 | 0.818 | -0.012 [-0.024, -0.001] |
+| GSV z5 minus paterson (post hoc) | R3 | 0.817 | 0.28 | 0.23 | 0.817 | +0.000 [-0.009, +0.009] | NO BETTER THAN A THRESHOLD | 0.30 | 0.818 | -0.001 [-0.004, +0.003] |
+| GSV z5 minus paterson (post hoc) | u4096 | 0.714 | 0.53 | 0.30 | 0.818 | -0.103 [-0.127, -0.082] |  | 0.30 | 0.818 | -0.103 [-0.127, -0.082] |
+| GSV z5 minus paterson (post hoc) | naive_union | 0.630 | 0.08 | 0.08 | 0.759 | -0.128 [-0.149, -0.107] |  | 0.30 | 0.818 | -0.187 [-0.206, -0.166] |
+| GSV z5 minus paterson (post hoc) | R2s | 0.792 | 0.18 | 0.18 | 0.814 | -0.022 [-0.037, -0.008] |  | 0.30 | 0.818 | -0.026 [-0.040, -0.013] |
+
+**Per split: context, not the verdict. #194's matched-recall definition (best-F1 threshold reaching the fused recall) and the best single r2048 threshold (best F1 on the grid), both chosen in sample**
+
+| split | rule | fused F1 | plan matched thr | #194 matched thr | its F1 | fused − #194 matched ΔF1 | verdict if #194's were used | best single thr | its F1 | fused − best single ΔF1 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| annapolis | R1 | 0.808 | 0.32 | 0.32 | 0.853 | -0.044 [-0.071, -0.018] | HURTS | 0.31 | 0.853 | -0.044 [-0.071, -0.018] |
+| annapolis | R2 | 0.820 | 0.15 | 0.15 | 0.835 | -0.016 [-0.040, +0.009] | NO BETTER THAN A THRESHOLD | 0.31 | 0.853 | -0.033 [-0.057, -0.009] |
+| annapolis | R3 | 0.857 | 0.27 | 0.26 | 0.851 | +0.005 [-0.011, +0.023] | NULL | 0.31 | 0.853 | +0.004 [-0.008, +0.017] |
+| annapolis | u4096 | 0.760 | 0.56 | 0.32 | 0.853 | -0.093 [-0.131, -0.054] |  | 0.31 | 0.853 | -0.093 [-0.131, -0.054] |
+| annapolis | naive_union | 0.617 | 0.10 | 0.10 | 0.817 | -0.200 [-0.236, -0.161] |  | 0.31 | 0.853 | -0.236 [-0.270, -0.197] |
+| annapolis | R2s | 0.802 | 0.15 | 0.15 | 0.835 | -0.033 [-0.060, -0.008] |  | 0.31 | 0.853 | -0.051 [-0.076, -0.026] |
+| bend | R1 | 0.843 | 0.30 | 0.30 | 0.870 | -0.027 [-0.050, -0.004] | HURTS | 0.50 | 0.872 | -0.029 [-0.059, +0.004] |
+| bend | R2 | 0.853 | 0.08 | 0.08 | 0.834 | +0.019 [-0.002, +0.042] | NO BETTER THAN A THRESHOLD | 0.50 | 0.872 | -0.019 [-0.043, +0.008] |
+| bend | R3 | 0.869 | 0.27 | 0.21 | 0.869 | +0.001 [-0.012, +0.013] | NULL | 0.50 | 0.872 | -0.003 [-0.020, +0.017] |
+| bend | u4096 | 0.785 | 0.56 | 0.50 | 0.872 | -0.087 [-0.124, -0.048] |  | 0.50 | 0.872 | -0.087 [-0.124, -0.048] |
+| bend | naive_union | 0.645 | unreachable | unreachable | — | — | — | 0.50 | 0.872 | -0.227 [-0.265, -0.185] |
+| bend | R2s | 0.838 | 0.07 | 0.07 | 0.828 | +0.010 [-0.016, +0.037] |  | 0.50 | 0.872 | -0.034 [-0.063, -0.002] |
+| budapest_district5 | R1 | 0.617 | 0.37 | 0.37 | 0.676 | -0.059 [-0.089, -0.029] | HURTS | 0.37 | 0.676 | -0.059 [-0.089, -0.029] |
+| budapest_district5 | R2 | 0.632 | 0.19 | 0.19 | 0.615 | +0.016 [-0.009, +0.040] | NO BETTER THAN A THRESHOLD | 0.37 | 0.676 | -0.045 [-0.076, -0.015] |
+| budapest_district5 | R3 | 0.657 | 0.31 | 0.31 | 0.664 | -0.007 [-0.020, +0.005] | NULL | 0.37 | 0.676 | -0.019 [-0.040, +0.003] |
+| budapest_district5 | u4096 | 0.495 | 0.59 | 0.37 | 0.676 | -0.181 [-0.235, -0.128] |  | 0.37 | 0.676 | -0.181 [-0.235, -0.128] |
+| budapest_district5 | naive_union | 0.538 | 0.13 | 0.13 | 0.603 | -0.065 [-0.101, -0.025] |  | 0.37 | 0.676 | -0.139 [-0.185, -0.092] |
+| budapest_district5 | R2s | 0.611 | 0.17 | 0.17 | 0.610 | +0.001 [-0.026, +0.028] |  | 0.37 | 0.676 | -0.065 [-0.100, -0.033] |
+| clovis | R1 | 0.818 | 0.30 | 0.30 | 0.829 | -0.011 [-0.035, +0.015] | NULL | 0.35 | 0.837 | -0.019 [-0.051, +0.012] |
+| clovis | R2 | 0.808 | 0.25 | 0.22 | 0.824 | -0.016 [-0.047, +0.015] | NULL | 0.35 | 0.837 | -0.029 [-0.061, +0.001] |
+| clovis | R3 | 0.827 | 0.30 | 0.30 | 0.829 | -0.002 [-0.007, +0.000] | NULL | 0.35 | 0.837 | -0.011 [-0.029, +0.009] |
+| clovis | u4096 | 0.718 | 0.62 | 0.35 | 0.837 | -0.120 [-0.173, -0.066] |  | 0.35 | 0.837 | -0.120 [-0.173, -0.066] |
+| clovis | naive_union | 0.606 | 0.24 | 0.22 | 0.824 | -0.219 [-0.253, -0.181] |  | 0.35 | 0.837 | -0.232 [-0.269, -0.191] |
+| clovis | R2s | 0.800 | 0.25 | 0.22 | 0.824 | -0.024 [-0.055, +0.007] |  | 0.35 | 0.837 | -0.037 [-0.070, -0.006] |
+| gainesville | R1 | 0.789 | 0.32 | 0.23 | 0.813 | -0.025 [-0.055, +0.008] | NULL | 0.38 | 0.821 | -0.032 [-0.062, +0.001] |
+| gainesville | R2 | 0.802 | 0.16 | 0.16 | 0.798 | +0.004 [-0.022, +0.034] | NO BETTER THAN A THRESHOLD | 0.38 | 0.821 | -0.019 [-0.051, +0.015] |
+| gainesville | R3 | 0.815 | 0.26 | 0.23 | 0.813 | +0.002 [-0.018, +0.021] | NO BETTER THAN A THRESHOLD | 0.38 | 0.821 | -0.005 [-0.025, +0.014] |
+| gainesville | u4096 | 0.694 | 0.57 | 0.38 | 0.821 | -0.126 [-0.175, -0.076] |  | 0.38 | 0.821 | -0.126 [-0.175, -0.076] |
+| gainesville | naive_union | 0.620 | 0.14 | 0.14 | 0.792 | -0.173 [-0.206, -0.136] |  | 0.38 | 0.821 | -0.201 [-0.239, -0.157] |
+| gainesville | R2s | 0.786 | 0.16 | 0.16 | 0.798 | -0.012 [-0.042, +0.020] |  | 0.38 | 0.821 | -0.035 [-0.072, +0.004] |
+| laurens_gsv | R1 | 0.759 | 0.33 | 0.19 | 0.810 | -0.050 [-0.089, -0.013] | NULL | 0.19 | 0.810 | -0.050 [-0.089, -0.013] |
+| laurens_gsv | R2 | 0.783 | 0.25 | 0.19 | 0.810 | -0.026 [-0.056, +0.005] | NO BETTER THAN A THRESHOLD | 0.19 | 0.810 | -0.026 [-0.056, +0.005] |
+| laurens_gsv | R3 | 0.766 | 0.30 | 0.19 | 0.810 | -0.044 [-0.075, -0.015] | NULL | 0.19 | 0.810 | -0.044 [-0.075, -0.015] |
+| laurens_gsv | u4096 | 0.577 | 0.59 | 0.19 | 0.810 | -0.233 [-0.306, -0.166] |  | 0.19 | 0.810 | -0.233 [-0.306, -0.166] |
+| laurens_gsv | naive_union | 0.664 | 0.21 | 0.19 | 0.810 | -0.146 [-0.194, -0.091] |  | 0.19 | 0.810 | -0.146 [-0.194, -0.091] |
+| laurens_gsv | R2s | 0.779 | 0.25 | 0.19 | 0.810 | -0.030 [-0.060, +0.001] |  | 0.19 | 0.810 | -0.030 [-0.060, +0.001] |
+| laurens_mapillary | R1 | 0.650 | 0.33 | 0.16 | 0.708 | -0.059 [-0.100, -0.017] | NULL | 0.16 | 0.708 | -0.059 [-0.100, -0.017] |
+| laurens_mapillary | R2 | 0.675 | 0.27 | 0.16 | 0.708 | -0.033 [-0.071, +0.004] | NO BETTER THAN A THRESHOLD | 0.16 | 0.708 | -0.033 [-0.071, +0.004] |
+| laurens_mapillary | R3 | 0.660 | 0.30 | 0.16 | 0.708 | -0.048 [-0.089, -0.009] | NULL | 0.16 | 0.708 | -0.048 [-0.089, -0.009] |
+| laurens_mapillary | u4096 | 0.464 | 0.65 | 0.16 | 0.708 | -0.244 [-0.321, -0.168] |  | 0.16 | 0.708 | -0.244 [-0.321, -0.168] |
+| laurens_mapillary | naive_union | 0.604 | 0.24 | 0.16 | 0.708 | -0.104 [-0.146, -0.059] |  | 0.16 | 0.708 | -0.104 [-0.146, -0.059] |
+| laurens_mapillary | R2s | 0.676 | 0.27 | 0.16 | 0.708 | -0.032 [-0.071, +0.008] |  | 0.16 | 0.708 | -0.032 [-0.071, +0.008] |
+| morgantown | R1 | 0.792 | 0.40 | 0.38 | 0.853 | -0.061 [-0.088, -0.035] | HURTS | 0.38 | 0.853 | -0.061 [-0.088, -0.035] |
+| morgantown | R2 | 0.786 | 0.22 | 0.22 | 0.822 | -0.037 [-0.056, -0.017] | HURTS | 0.38 | 0.853 | -0.067 [-0.094, -0.040] |
+| morgantown | R3 | 0.836 | 0.32 | 0.32 | 0.851 | -0.015 [-0.026, -0.005] | HURTS | 0.38 | 0.853 | -0.016 [-0.035, +0.002] |
+| morgantown | u4096 | 0.709 | 0.61 | 0.38 | 0.853 | -0.144 [-0.192, -0.100] |  | 0.38 | 0.853 | -0.144 [-0.192, -0.100] |
+| morgantown | naive_union | 0.606 | 0.12 | 0.12 | 0.756 | -0.149 [-0.183, -0.112] |  | 0.38 | 0.853 | -0.246 [-0.279, -0.209] |
+| morgantown | R2s | 0.775 | 0.22 | 0.22 | 0.822 | -0.048 [-0.069, -0.028] |  | 0.38 | 0.853 | -0.078 [-0.106, -0.050] |
+| paterson | R1 | 0.838 | unreachable | unreachable | — | — | — | 0.26 | 0.823 | +0.014 [-0.009, +0.036] |
+| paterson | R2 | 0.854 | unreachable | unreachable | — | — | — | 0.26 | 0.823 | +0.031 [+0.013, +0.049] |
+| paterson | R3 | 0.835 | 0.15 | 0.15 | 0.816 | +0.018 [+0.005, +0.033] | HELPS | 0.26 | 0.823 | +0.011 [+0.002, +0.021] |
+| paterson | u4096 | 0.858 | unreachable | unreachable | — | — | — | 0.26 | 0.823 | +0.034 [+0.010, +0.057] |
+| paterson | naive_union | 0.732 | unreachable | unreachable | — | — | — | 0.26 | 0.823 | -0.091 [-0.142, -0.039] |
+| paterson | R2s | 0.871 | unreachable | unreachable | — | — | — | 0.26 | 0.823 | +0.047 [+0.028, +0.066] |
+| richmond | R1 | 0.853 | 0.20 | 0.20 | 0.845 | +0.008 [-0.016, +0.032] | NULL | 0.33 | 0.869 | -0.016 [-0.040, +0.009] |
+| richmond | R2 | 0.845 | 0.08 | 0.08 | 0.754 | +0.091 [+0.059, +0.126] | RECALL LEVER | 0.33 | 0.869 | -0.023 [-0.051, +0.005] |
+| richmond | R3 | 0.867 | 0.24 | 0.24 | 0.853 | +0.014 [-0.003, +0.033] | NULL | 0.33 | 0.869 | -0.002 [-0.016, +0.012] |
+| richmond | u4096 | 0.820 | 0.34 | 0.33 | 0.869 | -0.049 [-0.088, -0.012] |  | 0.33 | 0.869 | -0.049 [-0.088, -0.012] |
+| richmond | naive_union | 0.619 | unreachable | unreachable | — | — | — | 0.33 | 0.869 | -0.250 [-0.281, -0.215] |
+| richmond | R2s | 0.830 | 0.08 | 0.08 | 0.754 | +0.076 [+0.043, +0.111] |  | 0.33 | 0.869 | -0.039 [-0.068, -0.009] |
+| sao_paulo | R1 | 0.780 | 0.25 | 0.25 | 0.787 | -0.007 [-0.029, +0.017] | NULL | 0.30 | 0.800 | -0.020 [-0.043, +0.004] |
+| sao_paulo | R2 | 0.770 | 0.16 | 0.16 | 0.762 | +0.009 [-0.019, +0.035] | NO BETTER THAN A THRESHOLD | 0.30 | 0.800 | -0.030 [-0.055, -0.004] |
+| sao_paulo | R3 | 0.794 | 0.30 | 0.30 | 0.800 | -0.006 [-0.012, -0.001] | HURTS | 0.30 | 0.800 | -0.006 [-0.012, -0.001] |
+| sao_paulo | u4096 | 0.731 | 0.43 | 0.31 | 0.800 | -0.069 [-0.107, -0.028] |  | 0.30 | 0.800 | -0.069 [-0.106, -0.028] |
+| sao_paulo | naive_union | 0.605 | unreachable | unreachable | — | — | — | 0.30 | 0.800 | -0.195 [-0.239, -0.143] |
+| sao_paulo | R2s | 0.754 | 0.16 | 0.16 | 0.762 | -0.007 [-0.037, +0.022] |  | 0.30 | 0.800 | -0.046 [-0.073, -0.018] |
+
+**Leave-one-split-out choice for R3 (D m, t_u; None = no fusion), and how far it beat no fusion on the other ten splits (unrounded F1)**
+
+| held-out split | D | t_u | F1 margin over no fusion |
+|---|---|---|---|
+| annapolis | 40.0 | 0.4 | 0.00115522 |
+| bend | 40.0 | 0.4 | 0.00195705 |
+| budapest_district5 | 40.0 | 0.4 | 0.00212156 |
+| clovis | 40.0 | 0.4 | 0.00197131 |
+| gainesville | 40.0 | 0.4 | 0.00141514 |
+| laurens_gsv | 40.0 | 0.4 | 0.00178518 |
+| laurens_mapillary | 40.0 | 0.4 | 0.00172680 |
+| morgantown | 40.0 | 0.4 | 0.00263586 |
+| paterson | 40.0 | 0.4 | 0.00000212 |
+| richmond | 40.0 | 0.4 | 0.00125100 |
+| sao_paulo | 40.0 | 0.4 | 0.00247405 |
+
+**R1 lost-ramp diagnostic (POST HOC, no verdict): ramps r2048 finds at 0.30 and R1 loses**
+
+| pool | lost | r2048 peak on far side | u4096: no peak ≥ 0.30 in radius | u4096: near-side peak only | u4096: far-side peak, still lost | GT on far side |
+|---|---|---|---|---|---|---|
+| headline (annapolis+richmond+laurens_mapillary) | 27 | 27 | 15 | 11 | 1 | 26 |
+| US pool (miss_decomposition.US_SPLITS) | 85 | 85 | 31 | 46 | 8 | 79 |
+| GSV z5 (bend+paterson+gainesville+sao_paulo+laurens_gsv) | 60 | 60 | 20 | 31 | 9 | 53 |
 
 **Wrong-pano control (20 cyclic shifts of the u4096 peaks within each split)**
 
@@ -234,6 +365,7 @@
 | R1 | headline (annapolis+richmond+laurens_mapillary) | +0.0047 | -0.1785 | -0.1723 | +0.1832 | +44 | +235.2 |
 | R1 | US pool (miss_decomposition.US_SPLITS) | +0.0056 | -0.1844 | -0.1776 | +0.1900 | +115 | +619.0 |
 | R1 | GSV z5 (bend+paterson+gainesville+sao_paulo+laurens_gsv) | +0.0120 | -0.1932 | -0.1860 | +0.2053 | +63 | +415.4 |
+| R1 | GSV z5 minus paterson (post hoc) | +0.0000 | -0.1793 | -0.1718 | +0.1793 | +52 | +283.8 |
 | R2 | annapolis | +0.0408 | +0.0121 | +0.0340 | +0.0287 | +38 | +261.1 |
 | R2 | bend | +0.0428 | +0.0124 | +0.0336 | +0.0304 | +31 | +286.1 |
 | R2 | budapest_district5 | +0.0367 | +0.0095 | +0.0267 | +0.0272 | +51 | +235.6 |
@@ -248,6 +380,7 @@
 | R2 | headline (annapolis+richmond+laurens_mapillary) | +0.0410 | +0.0135 | +0.0246 | +0.0275 | +75 | +665.9 |
 | R2 | US pool (miss_decomposition.US_SPLITS) | +0.0455 | +0.0118 | +0.0165 | +0.0337 | +212 | +1879.7 |
 | R2 | GSV z5 (bend+paterson+gainesville+sao_paulo+laurens_gsv) | +0.0569 | +0.0127 | +0.0167 | +0.0441 | +126 | +1217.7 |
+| R2 | GSV z5 minus paterson (post hoc) | +0.0500 | +0.0124 | +0.0209 | +0.0376 | +113 | +894.4 |
 | R3 | annapolis | +0.0136 | -0.0270 | -0.0170 | +0.0406 | +1 | +19.2 |
 | R3 | bend | +0.0061 | +0.0002 | +0.0031 | +0.0060 | +3 | +7.3 |
 | R3 | budapest_district5 | -0.0033 | -0.0285 | -0.0233 | +0.0252 | +1 | +15.8 |
@@ -262,6 +395,7 @@
 | R3 | headline (annapolis+richmond+laurens_mapillary) | +0.0106 | -0.0147 | -0.0129 | +0.0253 | +4 | +45.5 |
 | R3 | US pool (miss_decomposition.US_SPLITS) | +0.0104 | -0.0065 | -0.0052 | +0.0168 | +17 | +87.0 |
 | R3 | GSV z5 (bend+paterson+gainesville+sao_paulo+laurens_gsv) | +0.0100 | -0.0016 | +0.0007 | +0.0116 | +11 | +40.0 |
+| R3 | GSV z5 minus paterson (post hoc) | +0.0055 | -0.0010 | +0.0009 | +0.0065 | +10 | +25.1 |
 | R2s | annapolis | +0.0442 | +0.0145 | +0.0340 | +0.0298 | +53 | +274.1 |
 | R2s | bend | +0.0489 | +0.0156 | +0.0367 | +0.0333 | +46 | +301.9 |
 | R2s | budapest_district5 | +0.0433 | +0.0118 | +0.0267 | +0.0315 | +77 | +242.9 |
@@ -276,6 +410,7 @@
 | R2s | headline (annapolis+richmond+laurens_mapillary) | +0.0434 | +0.0160 | +0.0293 | +0.0274 | +103 | +698.0 |
 | R2s | US pool (miss_decomposition.US_SPLITS) | +0.0533 | +0.0165 | +0.0221 | +0.0368 | +283 | +1971.5 |
 | R2s | GSV z5 (bend+paterson+gainesville+sao_paulo+laurens_gsv) | +0.0676 | +0.0198 | +0.0254 | +0.0478 | +172 | +1281.5 |
+| R2s | GSV z5 minus paterson (post hoc) | +0.0518 | +0.0160 | +0.0218 | +0.0359 | +155 | +941.9 |
 
 **headline (annapolis+richmond+laurens_mapillary): recall at 0.30 by flat-ground range**
 

@@ -15,10 +15,14 @@ sys.path.insert(0, os.path.join(REPO, "scripts", "analysis"))
 sys.path.insert(0, REPO)
 
 import two_scale_197 as ts  # noqa: E402
-from rampnet.detection_eval import radius_sq_for  # noqa: E402
+from rampnet.detection_eval import GroundTruth, radius_sq_for  # noqa: E402
 
 RSQ = radius_sq_for()
 RESULTS = os.path.join(REPO, "analysis_out", "two_scale_197", "results.json")
+RESULTS_196 = os.path.join(REPO, "analysis_out", "input_res_sweep_25", "results.json")
+US = "US pool (miss_decomposition.US_SPLITS)"
+GSV = "GSV z5 (bend+paterson+gainesville+sao_paulo+laurens_gsv)"
+GSV_NO_PATERSON = "GSV z5 minus paterson (post hoc)"
 
 
 def test_cut_row_matches_flat_range():
@@ -84,8 +88,12 @@ def test_richmond_rows_reproduce_the_committed_results():
         assert got["metrics"][v] == committed["metrics"][v], v
     for v in ("u4096", "naive_union", "R1", "R2", "R2s"):
         assert got["rules"][v] == committed["rules"][v], v
-    # the control is #196's r2048 row
-    assert committed["metrics"]["r2048"]["F1"] == 0.8614
+    # the control and the reference are #196's own 0.30 rows, read from #196's results
+    with open(RESULTS_196, encoding="utf-8") as f:
+        m196 = json.load(f)["per_split"]["richmond"]["metrics"]
+    for arm in ("r2048", "u4096"):
+        for k in ("P", "R", "F1", "tp", "fp"):
+            assert committed["metrics"][arm][k] == m196[arm]["0.30"][k], (arm, k)
 
 
 def test_inference_cost_from_the_ledger():
@@ -97,6 +105,55 @@ def test_inference_cost_from_the_ledger():
     assert 4.5 < got["ratio_vs_r2048"] < 5.2
 
 
+def test_inference_cost_ignores_later_rows_and_refuses_missing_ones(tmp_path):
+    """The Q4 rows are pinned by (label, ts): a later full-size input-res-25 row must not
+    move the number, and a ledger without one of the pinned rows must fail loudly."""
+    with open(ts.USAGE_LOG, encoding="utf-8") as f:
+        lines = [ln for ln in f if '"input-res-25:' in ln]
+    extra = json.loads(next(ln for ln in lines if '"input-res-25:u4096"' in ln))
+    extra.update(ts="2027-01-01T00:00:00Z", panos_scored=1289, elapsed_s=1.0)
+    log = tmp_path / "usage_log.jsonl"
+    log.write_text("".join(lines) + json.dumps(extra) + "\n", encoding="utf-8")
+    assert ts.inference_cost(str(log)) == ts.inference_cost()
+    pinned_r = '"ts": "%s"' % ts.COST_ROWS[0][1]
+    log.write_text("".join(ln for ln in lines if pinned_r not in ln), encoding="utf-8")
+    with pytest.raises(AssertionError):
+        ts.inference_cost(str(log))
+
+
+def _toy_pairs(u_peaks):
+    """Three one-pano splits. Each has a near ramp that r2048 finds and a far ramp
+    (y 0.51, ~80 m at the 2.5 m camera) that r2048 misses; ``u_peaks`` is u4096's list."""
+    gt = GroundTruth(gt_points=[(0.2, 0.80), (0.6, 0.51)], ignore_points=[],
+                     fn_confirmed=True)
+    r = [(0.2, 0.80, 0.9)]
+    return {c: [(f"{c}_pano", gt, list(r), list(u_peaks))] for c in ("a", "b", "c")}
+
+
+def test_loso_settings_picks_the_first_strictly_better_setting():
+    """A u4096 peak at 0.35 on the far ramp: every setting with t_u <= 0.30 recovers it
+    and they tie, so the first on the grid (D 12 m, t_u 0.20) wins; t_u 0.40 does not."""
+    chosen, table, margin = ts.loso_settings(_toy_pairs([(0.6, 0.51, 0.35)]), RSQ)
+    assert set(chosen.values()) == {(12.0, 0.2)}
+    assert all(abs(m - (1.0 - 2 / 3)) < 1e-9 for m in margin.values())   # F1 1 vs 2/3
+    grid = {(e["D_m"], e["t_u"]): e["F1_other_splits"] for e in table["a"]}
+    assert grid[(None, None)] == round(2 / 3, 4) and grid[(40.0, 0.4)] == round(2 / 3, 4)
+
+
+def test_loso_settings_keeps_no_fusion_on_a_tie():
+    """No u4096 peaks at all: every setting scores the same, and "no fusion" (listed
+    first) is kept, with a margin of exactly 0."""
+    chosen, _, margin = ts.loso_settings(_toy_pairs([]), RSQ)
+    assert set(chosen.values()) == {(None, None)}
+    assert set(margin.values()) == {0.0}
+
+
+def test_report_check_reproduces_the_committed_outputs():
+    """Drift guard (about a minute, like #196's verdicts test): every committed number,
+    verdict, LOSO choice, control, band CI and diagnostic re-derives byte for byte."""
+    assert ts.main(["report", "--check"]) == 0
+
+
 @pytest.mark.parametrize("pool", ["US pool (miss_decomposition.US_SPLITS)"])
 def test_committed_verdicts(pool):
     with open(RESULTS, encoding="utf-8") as f:
@@ -106,3 +163,37 @@ def test_committed_verdicts(pool):
     assert rules["R2"]["verdict"] == "NO BETTER THAN A THRESHOLD"
     assert rules["R3"]["verdict"] == "NO BETTER THAN A THRESHOLD"
     assert all(e["chosen"] == {"D_m": 40.0, "t_u": 0.4} for e in rep["loso"].values())
+
+
+def test_gsv_recall_lever_rests_on_paterson():
+    """PR #199 review: the GSV pool's R2 RECALL LEVER does not survive dropping paterson
+    (post hoc pool), and paterson's R3 HELPS rests on a LOSO margin of ~2e-6 F1."""
+    with open(RESULTS, encoding="utf-8") as f:
+        rep = json.load(f)
+    assert rep["pooled"][GSV]["rules"]["R2"]["verdict"] == "RECALL LEVER"
+    post = rep["pooled_post_hoc"][GSV_NO_PATERSON]
+    assert post["members"] == ["bend", "gainesville", "sao_paulo", "laurens_gsv"]
+    assert post["rules"]["R2"]["verdict"] == "NO BETTER THAN A THRESHOLD"
+    assert post["rules"]["R2"]["matched_recall_baseline"]["fused_minus_matched"]["f1"][
+        "ci_hi"] > 0
+    assert rep["per_split"]["paterson"]["rules"]["R3"]["verdict"] == "HELPS"
+    assert 0 < rep["loso"]["paterson"]["F1_margin_over_no_fusion"] < 1e-5
+    others = [e["F1_margin_over_no_fusion"] for c, e in rep["loso"].items() if c != "paterson"]
+    assert min(others) > 0.001
+
+
+def test_194_matched_definition_changes_no_verdict():
+    """#194's matched-recall definition (best-F1 threshold reaching the recall) favours the
+    baseline at least as much as the plan's; on these data it changes no verdict."""
+    with open(RESULTS, encoding="utf-8") as f:
+        rep = json.load(f)
+    groups = list(rep["per_split"].values()) + list(rep["pooled"].values()) + list(
+        rep["pooled_post_hoc"].values())
+    for g in groups:
+        for v in ("R1", "R2", "R3"):
+            r = g["rules"][v]
+            m1, m2 = r["matched_recall_baseline"], r["matched_recall_194_definition"]
+            assert (m1 is None) == (m2 is None)
+            if m1 is not None:
+                assert m2["F1"] >= m1["F1"]
+                assert m2["verdict_if_used"] == r["verdict"]

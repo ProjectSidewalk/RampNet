@@ -62,10 +62,26 @@ SEED = 197
 N_SHIFTS = 20
 ND = 4
 #: Post hoc sensitivity (added after the first results, NOT in the plan and NOT given a
-#: verdict): dedupe at the extractor's own peak spacing, min_distance 10 heatmap px, instead
-#: of the scorer's match radius (~22.5 px). Within one pass two peaks can sit 10 px apart,
-#: so the match-radius dedupe is stricter across passes than peak_local_max is within one.
+#: verdict): dedupe within a Euclidean 10 heatmap px instead of the scorer's match radius
+#: (~22.5 px). ``peak_local_max(min_distance=10)`` suppresses within a square (Chebyshev)
+#: window, so two peaks of one pass are always more than 10 px apart in Euclidean distance
+#: too, but can sit 11-14 px apart on a diagonal; a Euclidean 10 px disc is therefore
+#: slightly looser than the extractor's own rule, and much looser than the match radius.
 MIN_DIST_RSQ = 10.0 ** 2
+#: Post hoc pools (added after review of PR #199, NOT in the plan). The GSV pool's R2
+#: "RECALL LEVER" was found to rest on paterson; this pool is the GSV pool without it.
+#: Its verdicts are computed by the same rule but are context, not pre-stated results.
+POST_HOC_POOLS = {
+    "GSV z5 minus paterson (post hoc)": tuple(c for c in irs.GSV_SPLITS if c != "paterson"),
+}
+#: The #196 ledger rows the Q4 cost is read from, pinned by (label, ts) so a later
+#: ``input-res-25:*`` row cannot change the number. r2048 ran alone in one invocation;
+#: u4096 ran inside two multi-arm invocations (the first failed after 125 panos).
+COST_ROWS = (
+    ("input-res-25:r2048", "2026-09-26T14:18:26Z"),
+    ("input-res-25:u4096", "2026-09-26T14:44:19Z"),
+    ("input-res-25:u4096", "2026-09-26T15:09:24Z"),
+)
 
 RULES = ("R1", "R2", "R3")
 RULE_NAMES = {
@@ -264,18 +280,22 @@ def loso_settings(pairs, rsq):
         for s in grid:
             panos, _, _ = variant_panos(rows, "R3", rsq, setting=s)
             table[(c, s)] = counts(panos, rsq)
-    chosen, scores = {}, {}
+    chosen, scores, margins = {}, {}, {}
     for held in pairs:
-        best, best_f = None, -1.0
+        best, best_f, f_none = None, -1.0, None
         per = []
         for s in grid:
             f = prf(add_counts(table[(c, s)] for c in pairs if c != held))[2]
             per.append({"D_m": s[0], "t_u": s[1], "F1_other_splits": rnd(f)})
+            if s == (None, None):
+                f_none = f
             if f > best_f + 1e-12:
                 best, best_f = s, f
         chosen[held] = best
         scores[held] = per
-    return chosen, scores
+        # how far the chosen setting beat "no fusion" on the other splits (0 if none chosen)
+        margins[held] = best_f - f_none
+    return chosen, scores, margins
 
 
 # --------------------------------------------------------------------------- #
@@ -299,7 +319,9 @@ def _metrics(c):
 
 
 def _matched_threshold(r2048_counts_by_t, target_recall):
-    """Highest threshold on MATCH_GRID whose r2048 recall reaches ``target_recall``."""
+    """Highest threshold on MATCH_GRID whose r2048 recall reaches ``target_recall``.
+
+    This is the plan's definition (pre-stated in docs/two_scale_197.md)."""
     best = None
     for t in MATCH_GRID:
         if prf(r2048_counts_by_t[t])[1] >= target_recall - 1e-12:
@@ -307,10 +329,33 @@ def _matched_threshold(r2048_counts_by_t, target_recall):
     return best
 
 
+def _matched_threshold_best_f1(r2048_counts_by_t, target_recall):
+    """#194's definition (context only): the best-F1 threshold on MATCH_GRID among those
+    whose r2048 recall reaches ``target_recall``; ties go to the higher threshold. It is
+    never worse on F1 than :func:`_matched_threshold`, so it favours the baseline more."""
+    best, best_f = None, -1.0
+    for t in MATCH_GRID:
+        c = r2048_counts_by_t[t]
+        if prf(c)[1] >= target_recall - 1e-12 and prf(c)[2] >= best_f - 1e-12:
+            best, best_f = t, prf(c)[2]
+    return best
+
+
+def _best_single_threshold(r2048_counts_by_t):
+    """#194's stronger control (context only): the r2048 threshold on MATCH_GRID with the
+    best F1 on the same split or pool, chosen in sample; ties go to the lower threshold."""
+    best, best_f = None, -1.0
+    for t in MATCH_GRID:
+        f = prf(r2048_counts_by_t[t])[2]
+        if f > best_f + 1e-12:
+            best, best_f = t, f
+    return best
+
+
 def build(cache_root=CACHE_ROOT, cities=SPLITS, n_shifts=N_SHIFTS):
     rsq = radius_sq_for()
     pairs = load_pairs(cache_root, cities)
-    chosen, loso_table = loso_settings(pairs, rsq)
+    chosen, loso_table, loso_margin = loso_settings(pairs, rsq)
 
     variants = ("r2048", "u4096", "naive_union") + RULES + ("R2s",)
     panos, drops, cnt, scored = {}, {}, {}, {}
@@ -325,6 +370,15 @@ def build(cache_root=CACHE_ROOT, cities=SPLITS, n_shifts=N_SHIFTS):
             ps, _, _ = variant_panos(rows, f"r2048@{t:.2f}", rsq)
             cnt[(f"r2048@{t:.2f}", c)] = counts(ps, rsq)
 
+    thr_scored = {}
+
+    def scored_at(t, members):
+        for c in members:
+            if (t, c) not in thr_scored:
+                thr_scored[(t, c)] = irs.scored_from_panos(
+                    c, variant_panos(pairs[c], f"r2048@{t:.2f}", rsq)[0], rsq)
+        return bp.stack([thr_scored[(t, c)] for c in members])
+
     def group(name, members):
         sizes = [len(pairs[c]) for c in members]
         ent = {"members": list(members), "n_panos": sum(sizes), "metrics": {}, "rules": {}}
@@ -333,6 +387,9 @@ def build(cache_root=CACHE_ROOT, cities=SPLITS, n_shifts=N_SHIFTS):
         base = add_counts(cnt[("r2048", c)] for c in members)
         by_t = {t: add_counts(cnt[(f"r2048@{t:.2f}", c)] for c in members) for t in MATCH_GRID}
         s_base = bp.stack([scored[("r2048", c)] for c in members])
+        t_best = _best_single_threshold(by_t)
+        s_best = scored_at(t_best, members)
+        ent["best_single_threshold"] = {"threshold": t_best, **_metrics(by_t[t_best])}
         for v in ("u4096", "naive_union") + RULES + ("R2s",):
             fc = add_counts(cnt[(v, c)] for c in members)
             s_v = bp.stack([scored[(v, c)] for c in members])
@@ -342,13 +399,21 @@ def build(cache_root=CACHE_ROOT, cities=SPLITS, n_shifts=N_SHIFTS):
             matched, d_m = None, None
             if t_m is not None:
                 mc = by_t[t_m]
-                s_m = bp.stack([irs.scored_from_panos(
-                    c, variant_panos(pairs[c], f"r2048@{t_m:.2f}", rsq)[0], rsq)
-                    for c in members])
+                s_m = scored_at(t_m, members)
                 d_m = _contrast(s_v, s_m, sizes)
                 matched = {"threshold": t_m, **_metrics(mc),
                            "extra_fp_vs_r2048": mc["fp"] - base["fp"],
                            "fused_minus_matched": _round_contrast(d_m)}
+            # context, not the verdict: #194's matched-recall definition, and the best
+            # single threshold on the same split or pool
+            t_m2 = _matched_threshold_best_f1(by_t, prf(fc)[1])
+            ctx194 = None
+            if t_m2 is not None:
+                d_m2 = d_m if t_m2 == t_m else _contrast(s_v, scored_at(t_m2, members), sizes)
+                ctx194 = {"threshold": t_m2, "F1": rnd(prf(by_t[t_m2])[2]),
+                          "fused_minus_matched_f1": _round_contrast(d_m2)["f1"],
+                          "verdict_if_used": verdict(d, d_m2) if v in RULES else None}
+            d_best = _contrast(s_v, s_best, sizes)
             dn = sum(drops[(v, c)][0] for c in members)
             dfar = sum(drops[(v, c)][1] for c in members)
             ent["rules"][v] = {
@@ -357,6 +422,8 @@ def build(cache_root=CACHE_ROOT, cities=SPLITS, n_shifts=N_SHIFTS):
                 "fp_per_recovered_ramp": rnd(d_fp / d_tp) if d_tp > 0 else None,
                 "dropped_by_dedupe": {"r2048": dn, "u4096": dfar},
                 "matched_recall_baseline": matched,
+                "matched_recall_194_definition": ctx194,
+                "fused_minus_best_single_f1": _round_contrast(d_best)["f1"],
                 "verdict": verdict(d, d_m) if v in RULES else None,
                 # the bounds the verdict was taken on, to 8 dp (the tables round to 3-4)
                 "verdict_bounds": {
@@ -375,17 +442,22 @@ def build(cache_root=CACHE_ROOT, cities=SPLITS, n_shifts=N_SHIFTS):
         "n_reps": N_REPS, "seed": SEED, "n_shifts": n_shifts,
         "radius_normalized": 0.022, "rule_names": RULE_NAMES},
         "loso": {c: {"chosen": {"D_m": chosen[c][0], "t_u": chosen[c][1]},
+                     "F1_margin_over_no_fusion": rnd(loso_margin[c], 8),
                      "grid": loso_table[c]} for c in pairs},
         "per_split": {c: group(c, [c]) for c in pairs},
         "pooled": {name: group(name, [c for c in m if c in pairs])
                    for name, m in POOLS.items() if any(c in pairs for c in m)},
+        "pooled_post_hoc": {name: group(name, [c for c in m if c in pairs])
+                            for name, m in POST_HOC_POOLS.items()
+                            if any(c in pairs for c in m)},
         "wrong_pano": {}, "bands": {}}
 
     # wrong-pano control: u4096 peaks shifted to other panos within each split
     for v in RULES + ("R2s",):
         ent = {}
         for name, members in [(c, [c]) for c in pairs] + [
-                (n, [c for c in m if c in pairs]) for n, m in POOLS.items()]:
+                (n, [c for c in m if c in pairs])
+                for n, m in list(POOLS.items()) + list(POST_HOC_POOLS.items())]:
             if not members:
                 continue
             base = add_counts(cnt[("r2048", c)] for c in members)
@@ -413,12 +485,13 @@ def build(cache_root=CACHE_ROOT, cities=SPLITS, n_shifts=N_SHIFTS):
                          "null_dFP_mean": rnd(float(np.mean(shifted_dfp)))}
         rep["wrong_pano"][v] = ent
 
-    # R1 diagnostic (post hoc): where do the ramps r2048 finds and R1 loses sit?
+    # R1 diagnostic (POST HOC, added after the first results, no verdict): where do the
+    # ramps r2048 finds and R1 loses sit?
     diag = {}
     for name, members in POOLS.items():
         members = [c for c in members if c in pairs]
         tally = {"lost": 0, "r2048_peak_far_side": 0, "u4096_peak_near_side_only": 0,
-                 "u4096_no_peak": 0, "gt_far_side": 0}
+                 "u4096_no_peak": 0, "u4096_far_side_peak_still_lost": 0, "gt_far_side": 0}
         for c in members:
             s_r, s_1 = scored[("r2048", c)], scored[("R1", c)]
             pts, _ = irs.gt_points_in_scored_order(panos[("r2048", c)])
@@ -440,6 +513,10 @@ def build(cache_root=CACHE_ROOT, cities=SPLITS, n_shifts=N_SHIFTS):
                     tally["u4096_no_peak"] += 1
                 elif not any(is_far(p[1], D_PRIOR) for p in u_of):
                     tally["u4096_peak_near_side_only"] += 1
+                else:
+                    # a far-side u4096 peak within the radius, and the ramp is still lost
+                    # (the dedupe or the greedy matcher gave that peak to something else)
+                    tally["u4096_far_side_peak_still_lost"] += 1
         diag[name] = tally
     rep["r1_lost_ramps"] = diag
 
@@ -535,18 +612,64 @@ def markdown(rep):
                          f"{fpr} | {dd['r2048']} / {dd['u4096']} | {mcols} |")
         L.append("")
 
+    def context_table(title, entries):
+        L.append(f"**{title}: context, not the verdict. #194's matched-recall definition "
+                 "(best-F1 threshold reaching the fused recall) and the best single r2048 "
+                 "threshold (best F1 on the grid), both chosen in sample**\n")
+        L.append("| split | rule | fused F1 | plan matched thr | #194 matched thr | its F1 | "
+                 "fused − #194 matched ΔF1 | verdict if #194's were used | best single thr | "
+                 "its F1 | fused − best single ΔF1 |")
+        L.append("|---|---|---|---|---|---|---|---|---|---|---|")
+        for name, ent in entries:
+            b = ent["best_single_threshold"]
+            for v in order:
+                r = ent["rules"][v]
+                mb = r["matched_recall_baseline"]
+                m2 = r["matched_recall_194_definition"]
+                plan_t = "unreachable" if mb is None else f"{mb['threshold']:.2f}"
+                if m2 is None:
+                    c194 = "unreachable | — | — | —"
+                else:
+                    c194 = (f"{m2['threshold']:.2f} | {m2['F1']:.3f} | "
+                            f"{_d(m2['fused_minus_matched_f1'])} | {m2['verdict_if_used'] or ''}")
+                L.append(f"| {name} | {v} | {ent['metrics'][v]['F1']:.3f} | {plan_t} | {c194} | "
+                         f"{b['threshold']:.2f} | {b['F1']:.3f} | "
+                         f"{_d(r['fused_minus_best_single_f1'])} |")
+        L.append("")
+
     pooled = list(rep["pooled"].items())
+    post = list(rep.get("pooled_post_hoc", {}).items())
     per = list(rep["per_split"].items())
     main_table("Pooled", pooled)
+    if post:
+        main_table("Pooled, POST HOC (added after review, not in the plan; verdicts are "
+                   "context)", post)
     main_table("Per split", per)
     cost_table("Pooled", pooled)
+    if post:
+        cost_table("Pooled, POST HOC", post)
     cost_table("Per split", per)
+    context_table("Pooled", pooled + post)
+    context_table("Per split", per)
 
-    L.append("**Leave-one-split-out choice for R3 (D m, t_u; None = no fusion)**\n")
-    L.append("| held-out split | D | t_u |")
-    L.append("|---|---|---|")
+    L.append("**Leave-one-split-out choice for R3 (D m, t_u; None = no fusion), and how far it "
+             "beat no fusion on the other ten splits (unrounded F1)**\n")
+    L.append("| held-out split | D | t_u | F1 margin over no fusion |")
+    L.append("|---|---|---|---|")
     for c, e in rep["loso"].items():
-        L.append(f"| {c} | {e['chosen']['D_m']} | {e['chosen']['t_u']} |")
+        L.append(f"| {c} | {e['chosen']['D_m']} | {e['chosen']['t_u']} | "
+                 f"{e['F1_margin_over_no_fusion']:.8f} |")
+    L.append("")
+
+    L.append("**R1 lost-ramp diagnostic (POST HOC, no verdict): ramps r2048 finds at 0.30 and "
+             "R1 loses**\n")
+    L.append("| pool | lost | r2048 peak on far side | u4096: no peak ≥ 0.30 in radius | "
+             "u4096: near-side peak only | u4096: far-side peak, still lost | GT on far side |")
+    L.append("|---|---|---|---|---|---|---|")
+    for name, t in rep["r1_lost_ramps"].items():
+        L.append(f"| {name} | {t['lost']} | {t['r2048_peak_far_side']} | {t['u4096_no_peak']} | "
+                 f"{t['u4096_peak_near_side_only']} | {t['u4096_far_side_peak_still_lost']} | "
+                 f"{t['gt_far_side']} |")
     L.append("")
 
     L.append(f"**Wrong-pano control ({rep['protocol']['n_shifts']} cyclic shifts of the u4096 "
@@ -587,26 +710,34 @@ def markdown(rep):
 # --------------------------------------------------------------------------- #
 # Q4: inference cost from the #196 ledger rows
 # --------------------------------------------------------------------------- #
-def inference_cost(usage_log=USAGE_LOG):
-    """GPU-side seconds per pano for r2048 and u4096 from the full #196 runs
-    (the 2026-09-26 rows with panos_scored > 6, i.e. not the smoke tests)."""
+def inference_cost(usage_log=USAGE_LOG, rows=COST_ROWS):
+    """GPU-side seconds per pano for r2048 and u4096 from the full #196 runs, read from
+    exactly the ledger rows in ``rows`` ((label, ts) pairs). Every pinned row must be
+    found exactly once, so a missing or duplicated row fails loudly."""
     tot = {"r2048": [0.0, 0], "u4096": [0.0, 0]}
+    want = set(rows)
+    seen = []
     with open(usage_log, encoding="utf-8") as f:
         for line in f:
             if '"input-res-25:' not in line:
                 continue
             r = json.loads(line)
+            if (r["label"], r["ts"]) not in want:
+                continue
+            seen.append((r["label"], r["ts"]))
             arm = r["label"].split(":", 1)[1]
-            if arm in tot and r["panos_scored"] > 6:
-                tot[arm][0] += r["elapsed_s"]
-                tot[arm][1] += r["panos_scored"]
+            tot[arm][0] += r["elapsed_s"]
+            tot[arm][1] += r["panos_scored"]
+    assert sorted(seen) == sorted(want), ("pinned ledger rows not found exactly once", seen)
     s = {a: v[0] / v[1] for a, v in tot.items()}
     return {"r2048_s_per_pano": rnd(s["r2048"]), "u4096_s_per_pano": rnd(s["u4096"]),
             "two_scale_s_per_pano": rnd(s["r2048"] + s["u4096"]),
             "ratio_vs_r2048": rnd((s["r2048"] + s["u4096"]) / s["r2048"], 2),
             "panos": {a: v[1] for a, v in tot.items()},
-            "source": "analysis_out/usage_log.jsonl rows input-res-25:{r2048,u4096}, "
-                      "makelab2 A40 fp32, GPU-side seconds (copy + forward + peaks)"}
+            "rows": [list(r) for r in rows],
+            "source": "analysis_out/usage_log.jsonl rows input-res-25:{r2048,u4096} pinned by "
+                      "ts, makelab2 A40 fp32, GPU-side seconds (copy + forward + peaks); r2048 "
+                      "and u4096 were timed in different invocations"}
 
 
 def _strip_nan(obj):
