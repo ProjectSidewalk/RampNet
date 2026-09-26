@@ -128,45 +128,148 @@ def test_c_min_grid(richmond):
 
 
 # --------------------------------------------------------------------------- #
-# the committed primary artifact
+# the committed primary artifact, re-derived in full
 # --------------------------------------------------------------------------- #
+# ``fresh`` is the primary pair exactly as committed: the full 60-setting grid, all 123
+# null shifts, both 2,000-resample bootstraps and the calibration -- about 10 s on the
+# Windows desktop. It is byte-compared against the committed file, so a regression in
+# the null loop, ``attributable_dR``, the union code, either bootstrap, the calibration,
+# the ceiling matching or ``verdict_of``'s wiring fails here, not silently.
+OUT_DIR = os.path.join(REPO, "analysis_out", "cascade_cost_35")
+
+
 @pytest.fixture(scope="module")
-def committed():
-    with open(PRIMARY, encoding="utf-8") as f:
-        return json.load(f)
+def committed_text():
+    with open(PRIMARY, encoding="utf-8", newline="") as f:
+        return f.read()
+
+
+@pytest.fixture(scope="module")
+def committed(committed_text):
+    return json.loads(committed_text)
 
 
 @pytest.fixture(scope="module")
 def fresh(richmond):
     gts, peaks, _ = richmond
-    return cc.run_pair("richmond", VISTAS, null="none", gts=gts, peaks=peaks,
-                       bootstrap=0)
+    payload, run = cc.run_pair("richmond", VISTAS, gts=gts, peaks=peaks)
+    assert set(run) == {"elapsed_s", "host", "python"}
+    return payload
 
 
-def test_naive_union_both_conventions(committed):
-    u = committed["naive_union"]
-    assert round(u["complementarity"]["F1"], 3) == 0.549     # docs/model_comparison.md
-    assert round(u["aggregate"]["F1"], 4) == 0.4632
+def test_primary_artifact_reproduces_byte_for_byte(committed_text, fresh):
+    assert cc.dumps(fresh) == committed_text
 
 
-def test_grid_does_not_drift(committed, fresh):
-    keys = ("t_lo", "r_gate", "c_min", "tp", "fp", "fn", "n_promoted", "promoted_tp",
-            "promoted_fp", "promoted_ignored")
-    assert [{k: r[k] for k in keys} for r in committed["grid"]] == \
-           [{k: (round(r[k], 6) if isinstance(r[k], float) else r[k]) for k in keys}
-            for r in fresh["grid"]]
-    assert committed["baseline"] == cc._round(fresh["baseline"])
-    assert committed["threshold_only_best"] == cc._round(fresh["threshold_only_best"])
+def test_volatile_fields_are_not_in_the_payload(committed):
+    assert "elapsed_s" not in committed and "host" not in committed
+    assert committed["args"] == {"t_lo": list(cc.T_LO), "r_gate": list(cc.R_GATE),
+                                 "c_min": "auto", "null": "shift", "null_shifts": "all",
+                                 "seed": 0, "bootstrap": cc.BOOTSTRAP}
 
 
-def test_pinned_null_and_verdict(committed):
-    assert committed["verdict"] == "VIABLE"
-    assert committed["null"] == {"mode": "shift", "shifts": 123, "seed": None}
-    bv = committed["best_viable"]
+def test_naive_union_both_conventions(fresh):
+    u = fresh["naive_union"]
+    c, a = u["complementarity"], u["aggregate"]
+    assert round(c["F1"], 3) == 0.549                       # docs/model_comparison.md
+    assert (c["tp"], c["fp"], c["rampnet_fp"], c["challenger_fp"]) == (295, 470, 28, 442)
+    assert round(a["F1"], 4) == 0.4632 and (a["tp"], a["fp"]) == (302, 692)
+    # 0.30-point price of a recovered ramp, each convention against the same baseline
+    assert c["fp_per_recovered_ramp"] == pytest.approx((470 - 28) / (295 - 257))
+    assert a["fp_per_recovered_ramp"] == pytest.approx((692 - 28) / (302 - 257))
+
+
+def test_union_gap_is_dedup_and_reassignment_not_pano_sets(richmond):
+    """Every richmond pano is fn_confirmed, so the two conventions see the same panos;
+    the gap is the merged list's second hits (+222 FP) and greedy reassignment (+7 TP)."""
+    gts, peaks, cands = richmond
+    assert all(g.fn_confirmed for g in gts.values()) and len(gts) == 124
+    assert sum(1 for g in gts.values() if g.gt_points) == 92
+    rsq = radius_sq_for(0.022)
+    kept = {p: cc.threshold_preds(peaks.get(p, []), 0.30) for p in gts}
+    sep_tp = sep_fp = sep_ig = mer_ig = 0
+    for p, g in gts.items():
+        r = cc.score_pano(kept[p], g, rsq)
+        c = cc.score_pano(list(cands.get(p, [])), g, rsq)
+        m = cc.score_pano(cc.union_preds(kept[p], cands.get(p, [])), g, rsq)
+        sep_tp += r.tp + c.tp
+        sep_fp += r.fp + c.fp
+        sep_ig += r.ignored + c.ignored
+        mer_ig += m.ignored
+    assert (sep_tp, sep_fp) == (257 + 274, 470)
+    # 531 separate hits -> 302 merged TPs: 229 lost, 222 of them to FP and 7 to ignored
+    assert 692 - sep_fp == 222 and mer_ig - sep_ig == 7
+
+
+def test_verdict_rederived_on_the_fresh_grid(fresh):
+    assert cc.verdict_of(fresh["baseline"], fresh["threshold_only"], fresh["grid"]) \
+        == fresh["verdict"] == "VIABLE"
+    assert fresh["null"] == {"mode": "shift", "shifts": 123, "seed": None}
+    bv = fresh["best_viable"]
     assert (bv["t_lo"], bv["r_gate"], bv["tp"], bv["fp"], bv["fn"]) == (0.05, 0.011, 269, 38, 41)
-    assert bv["attributable_dR"] == pytest.approx(0.03572, abs=1e-6)
-    assert committed["best_by_f1"]["attributable_dR"] == pytest.approx(0.017912, abs=1e-6)
-    c = committed["ceiling"]
+    assert bv["attributable_dR"] == pytest.approx(0.03572, abs=1e-5)
+    assert fresh["best_by_f1"]["attributable_dR"] == pytest.approx(0.017912, abs=1e-5)
+    assert len(fresh["viable_rows"]) == 4
+
+
+def test_selected_rows_are_copies(fresh):
+    """Annotating the selected rows must not write into the grid (review item 9)."""
+    assert not any("threshold_only_at_matched_recall" in r for r in fresh["grid"])
+    assert fresh["best_viable"]["threshold_only_at_matched_recall"]["t"] == 0.15
+
+
+def test_selection_aware_bootstrap(fresh):
+    """``bootstrap_selection_aware`` itself asserts that the vectorised rule with every
+    pano weighted once reproduces the in-sample pick and verdict; ``fresh`` ran it."""
+    sa = fresh["bootstrap_selection_aware"]
+    assert sa["resamples"] == cc.BOOTSTRAP and 0 < sa["viable_frac"] <= 1
+    assert sum(sa["verdict_counts"].values()) == cc.BOOTSTRAP
+    assert sa["dF1_ci95"][0] >= 0            # a viable row never has F1 below baseline
+    cond = fresh["bootstrap_vs_baseline"]["best_viable"]
+    assert cond["conditioning"].startswith("conditional on the in-sample selection")
+
+
+def test_calibration_wrong_pano_challengers(fresh):
+    c = fresh["calibration"]
+    assert c["challengers"] == 123 and c["exact"] is True
+    assert sum(c["verdicts"].values()) == 123
+    assert c["verdicts"]["VIABLE"] == 0 and c["false_viable_rate"] == 0.0
+    assert c["max_attr_dR_max"] < c["real_max_attr_dR"]
+
+
+def test_ceiling_crosscheck_recomputed(richmond, fresh):
+    gts, peaks, cands = richmond
+    c = fresh["ceiling"]
     assert (c["promotable"], c["handoff_ge_t_hi"], c["no_peak_in_radius"]) == (19, 4, 15)
-    # every ramp the headline row gains is one of #126's 19 promotable sites
-    assert c["best_viable_gained_ramps"] == c["best_viable_gained_in_promotable"] == 12
+    assert c["best_viable_gained_in_promotable"] <= c["best_viable_gained_ramps"]
+    # recount the gained ramps independently of run_pair
+    bv = fresh["best_viable"]
+    rsq = radius_sq_for(0.022)
+    gained = 0
+    for p, g in gts.items():
+        pk = peaks.get(p, [])
+        before = cc.matched_gt(cc.threshold_preds(pk, 0.30), g.gt_points, rsq)
+        preds, _ = cc.cascade_preds(pk, cc.filter_cands(cands.get(p, []), bv["c_min"]),
+                                    0.30, bv["t_lo"], radius_sq_for(bv["r_gate"]))
+        gained += len(cc.matched_gt(preds, g.gt_points, rsq) - before)
+    assert gained == c["best_viable_gained_ramps"] == c["best_viable_gained_in_promotable"] == 12
+
+
+def test_null_none_is_a_gap_not_a_crash(richmond, tmp_path):
+    gts, peaks, _ = richmond
+    p, _ = cc.run_pair("richmond", VISTAS, null="none", gts=gts, peaks=peaks, bootstrap=0)
+    assert p["verdict"] is None and p["calibration"] is None
+    assert p["bootstrap_selection_aware"] is None
+    assert cc.verdict_of(p["baseline"], p["threshold_only"], p["grid"]) is None
+    cc.write_json(str(tmp_path / cc.out_name("richmond", VISTAS, cc.T_HI)), p)
+    out = cc.summary(str(tmp_path), str(tmp_path / "summary.json"), quiet=True)
+    assert out["rows"] == [] and out["verdict_counts"] == {}
+    assert any(g.get("challenger") == VISTAS and "--null none" in g["reason"]
+               for g in out["gaps"])
+
+
+def test_summary_rederives_the_committed_summary(tmp_path):
+    out = tmp_path / "summary.json"
+    cc.summary(OUT_DIR, str(out), quiet=True)
+    with open(os.path.join(OUT_DIR, "summary.json"), encoding="utf-8", newline="") as f:
+        assert out.read_text(encoding="utf-8") == f.read()
