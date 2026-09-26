@@ -318,6 +318,13 @@ and checked by its `--check` (#145); each carries the standing roster the log ha
 printed, and its footnote names every other leg scored on that split. `manual_gold`'s table
 is hand-maintained, because two of its rows have no published detections to score.
 
+**Bold** in those tables marks, by rule: RampNet's row (label and F1, and its P when it is
+the largest, which it is on every split as of 2026-09-26); the best non-RampNet F1; the best open-weight VLM's
+F1 (Molmo or Qwen); and the largest R in the table. The footnote lists the zero-shot legs and
+the supervised arms (#71, #126) separately, flags any that beat RampNet on the split, and
+where a footnoted zero-shot leg beats the table's best row it gives RampNet's lead against
+that leg too.
+
 **The AP column is computed from each split's bundle**, which for RampNet means a curve
 truncated at its deployed 0.55 — the bundles *are* a production run, and that is where
 production stops. So RampNet's AP below is not comparable to the arms exported at 0.05, and
@@ -343,7 +350,7 @@ is the one untruncated RampNet AP here.
 | owlv2-large-patch14-ensemble | 0.033 | **0.971** | 0.064 | 0.104 | 301/8799/9 |
 | grounding-dino-base | 0.028 | 0.852 | 0.053 | 0.033 | 264/9321/46 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)): Gemini 3.7 Flash F1 0.664, Claude Opus 5 (low) F1 0.601, YOLO11l (pano) F1 0.595, YOLO11x (pano) F1 0.547, Mask2Former Vistas (curb cut, 1024) F1 0.534, Mask2Former Vistas (curb cut) F1 0.517, YOLO26 (pano) F1 0.491, Mask2Former Vistas (+curb) F1 0.210.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Gemini 3.7 Flash F1 0.664, Claude Opus 5 (low) F1 0.601. Supervised (#71 / #126 protocols, not comparable as 'challenger'): YOLO11l (pano) F1 0.595, YOLO11x (pano) F1 0.547, Mask2Former Vistas (curb cut, 1024) F1 0.534, Mask2Former Vistas (curb cut) F1 0.517, YOLO26 (pano) F1 0.491, Mask2Former Vistas (+curb) F1 0.210.
 
 <!-- END GENERATED: results:richmond -->
 
@@ -362,7 +369,9 @@ Also scored on this split, not in the standing table (see [`model_scoreboard.md`
 | grounding-dino-base | 0.038 | 0.850 | 0.073 | 0.049 | 278/6969/49 |
 | owlv2-large-patch14-ensemble | 0.037 | **0.954** | 0.071 | 0.093 | 312/8187/15 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)): YOLO11l (pano) F1 0.713, YOLO11x (pano) F1 0.710, Gemini 3.7 Flash F1 0.639, YOLO26 (pano) F1 0.637, Claude Opus 5 (low) F1 0.604.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Gemini 3.7 Flash F1 0.639, Claude Opus 5 (low) F1 0.604. Supervised (#71 protocol, not comparable as 'challenger'): YOLO11l (pano) F1 0.713, YOLO11x (pano) F1 0.710, YOLO26 (pano) F1 0.637.
+
+Against the whole zero-shot field RampNet's lead on this split is 0.211 F1 (over Gemini 3.7 Flash), not the 0.212 over the table's best row.
 
 <!-- END GENERATED: results:bend -->
 
@@ -382,7 +391,9 @@ three deployment cities
 | owlv2-large-patch14-ensemble | 0.025 | **0.913** | 0.049 | 0.067 | 178/6910/17 |
 | grounding-dino-base | 0.018 | 0.872 | 0.035 | 0.026 | 170/9432/25 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)): YOLO11l (pano) F1 0.600, YOLO26 (pano) F1 0.552, YOLO11x (pano) F1 0.551, Claude Opus 5 (low) F1 0.550, Gemini 3.7 Flash F1 0.504.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5 (low) F1 0.550, Gemini 3.7 Flash F1 0.504. Supervised (#71 protocol, not comparable as 'challenger'): YOLO11l (pano) F1 0.600, YOLO26 (pano) F1 0.552, YOLO11x (pano) F1 0.551.
+
+Against the whole zero-shot field RampNet's lead on this split is 0.251 F1 (over Claude Opus 5 (low)), not the 0.288 over the table's best row.
 
 <!-- END GENERATED: results:clovis -->
 
@@ -416,7 +427,9 @@ survey-grade camera in the benchmark
 | owlv2-large-patch14-ensemble | 0.032 | **0.959** | 0.063 | 0.126 | 282/8444/12 |
 | grounding-dino-base | 0.029 | 0.898 | 0.055 | 0.042 | 264/8992/30 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)): Claude Fable 5 (low, anthropic) F1 0.611, Claude Fable 5.1 (low, anthropic) F1 0.610, Claude Opus 5 (low) F1 0.588, Gemini 3.7 Flash F1 0.565, Claude Opus 5 (high) F1 0.520, YOLO11l (pano) F1 0.481, Claude Sonnet 5 (low) F1 0.463, Claude Sonnet 5 (high) F1 0.456, YOLO26 (pano) F1 0.450, YOLO11x (pano) F1 0.397.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Fable 5 (low, anthropic) F1 0.611, Claude Fable 5.1 (low, anthropic) F1 0.610, Claude Opus 5 (low) F1 0.588, Gemini 3.7 Flash F1 0.565, Claude Opus 5 (high) F1 0.520, Claude Sonnet 5 (low) F1 0.463, Claude Sonnet 5 (high) F1 0.456. Supervised (#71 protocol, not comparable as 'challenger'): YOLO11l (pano) F1 0.481, YOLO26 (pano) F1 0.450, YOLO11x (pano) F1 0.397.
+
+Against the whole zero-shot field RampNet's lead on this split is 0.229 F1 (over Claude Fable 5 (low, anthropic)), not the 0.273 over the table's best row.
 
 <!-- END GENERATED: results:annapolis -->
 
@@ -447,7 +460,9 @@ the benchmark and the control for everything below
 | owlv2-large-patch14-ensemble | 0.037 | **0.948** | 0.071 | 0.114 | 253/6613/14 |
 | grounding-dino-base | 0.022 | 0.831 | 0.042 | 0.028 | 222/9991/45 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)): YOLO11x (pano) F1 0.686, YOLO26 (pano) F1 0.681, YOLO11l (pano) F1 0.675, Claude Opus 5 (low) F1 0.649, Gemini 3.7 Flash F1 0.595.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5 (low) F1 0.649, Gemini 3.7 Flash F1 0.595. Supervised (#71 protocol, not comparable as 'challenger'): YOLO11x (pano) F1 0.686, YOLO26 (pano) F1 0.681, YOLO11l (pano) F1 0.675.
+
+Against the whole zero-shot field RampNet's lead on this split is 0.187 F1 (over Claude Opus 5 (low)), not the 0.192 over the table's best row.
 
 <!-- END GENERATED: results:morgantown -->
 
@@ -474,7 +489,7 @@ confidence HIGH; the split whose misses are structural (`benchmark/README.md`)
 | owlv2-large-patch14-ensemble | 0.040 | **0.894** | 0.077 | 0.116 | 353/8398/42 |
 | grounding-dino-base | 0.036 | 0.803 | 0.068 | 0.044 | 317/8551/78 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)): YOLO11l (pano) F1 0.647, Claude Opus 5 (low) F1 0.642, YOLO11x (pano) F1 0.635, Gemini 3.7 Flash F1 0.609, YOLO26 (pano) F1 0.591.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5 (low) F1 0.642, Gemini 3.7 Flash F1 0.609. Supervised (#71 protocol, not comparable as 'challenger'): YOLO11l (pano) F1 0.647, YOLO11x (pano) F1 0.635, YOLO26 (pano) F1 0.591.
 
 <!-- END GENERATED: results:paterson -->
 
@@ -526,7 +541,7 @@ reviewer confidence HIGH; the benchmark's freshest imagery (A-rate 35%, the high
 | owlv2-large-patch14-ensemble | 0.031 | **0.967** | 0.060 | 0.063 | 263/8185/9 |
 | grounding-dino-base | 0.028 | 0.893 | 0.055 | 0.040 | 243/8328/29 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)): YOLO11l (pano) F1 0.516, YOLO11x (pano) F1 0.499, Claude Opus 5 (low) F1 0.479, Gemini 3.7 Flash F1 0.456, YOLO26 (pano) F1 0.451.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5 (low) F1 0.479, Gemini 3.7 Flash F1 0.456. Supervised (#71 protocol, not comparable as 'challenger'): YOLO11l (pano) F1 0.516, YOLO11x (pano) F1 0.499, YOLO26 (pano) F1 0.451.
 
 <!-- END GENERATED: results:gainesville -->
 
@@ -584,7 +599,7 @@ of 1,264 people. The eighth US split, and the one RampNet does worst on by a fac
 | owlv2-large-patch14-ensemble | 0.032 | **0.851** | 0.062 | 0.054 | 212/6391/37 |
 | grounding-dino-base | 0.023 | 0.783 | 0.045 | 0.025 | 195/8162/54 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)): YOLO26 (pano) F1 0.574, YOLO11l (pano) F1 0.563, YOLO11x (pano) F1 0.529, Gemini 3.7 Flash F1 0.281.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Gemini 3.7 Flash F1 0.281. Supervised (#71 protocol, not comparable as 'challenger'): YOLO26 (pano) F1 0.574 (**beats RampNet's 0.543 here**), YOLO11l (pano) F1 0.563 (**beats RampNet's 0.543 here**), YOLO11x (pano) F1 0.529.
 
 <!-- END GENERATED: results:laurens_mapillary -->
 
@@ -643,7 +658,7 @@ Laurens hard because it is **rural**, or because of the **rig**?
 | grounding-dino-base | 0.028 | **0.882** | 0.054 | 0.038 | 194/6799/26 |
 | Qwen3-VL-32B-Instruct | 0.250 | 0.009 | 0.018 | – | 2/6/218 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)): YOLO11l (pano) F1 0.587, YOLO11x (pano) F1 0.568, YOLO26 (pano) F1 0.538, Gemini 3.7 Flash F1 0.261.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Gemini 3.7 Flash F1 0.261. Supervised (#71 protocol, not comparable as 'challenger'): YOLO11l (pano) F1 0.587, YOLO11x (pano) F1 0.568, YOLO26 (pano) F1 0.538.
 
 <!-- END GENERATED: results:laurens_gsv -->
 
@@ -727,7 +742,9 @@ bend/paterson/gainesville — see `benchmark/README.md` for what the split de-co
 | owlv2-large-patch14-ensemble | 0.027 | **0.922** | 0.052 | 0.050 | 259/9433/22 |
 | grounding-dino-base | 0.025 | 0.797 | 0.049 | 0.034 | 224/8676/57 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)): YOLO11l (pano) F1 0.662, YOLO11x (pano) F1 0.659, YOLO26 (pano) F1 0.605, Claude Opus 5 (low) F1 0.468, Gemini 3.7 Flash F1 0.358.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5 (low) F1 0.468, Gemini 3.7 Flash F1 0.358. Supervised (#71 protocol, not comparable as 'challenger'): YOLO11l (pano) F1 0.662, YOLO11x (pano) F1 0.659, YOLO26 (pano) F1 0.605.
+
+Against the whole zero-shot field RampNet's lead on this split is 0.308 F1 (over Claude Opus 5 (low)), not the 0.323 over the table's best row.
 
 <!-- END GENERATED: results:sao_paulo -->
 
@@ -783,7 +800,7 @@ Budapest section before quoting any of this.**
 | owlv2-large-patch14-ensemble | 0.032 | **0.930** | 0.062 | 0.089 | 279/8467/21 |
 | grounding-dino-base | 0.021 | 0.787 | 0.042 | 0.025 | 236/10755/64 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)): Claude Opus 5 (low) F1 0.378, Gemini 3.7 Flash F1 0.338, YOLO26 (pano) F1 0.277, YOLO11l (pano) F1 0.247, YOLO11x (pano) F1 0.221.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5 (low) F1 0.378, Gemini 3.7 Flash F1 0.338. Supervised (#71 protocol, not comparable as 'challenger'): YOLO26 (pano) F1 0.277, YOLO11l (pano) F1 0.247, YOLO11x (pano) F1 0.221.
 
 <!-- END GENERATED: results:budapest_district5 -->
 

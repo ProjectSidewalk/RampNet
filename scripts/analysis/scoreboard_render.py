@@ -665,8 +665,9 @@ def log_split_table(result, split):
     (``ap_bundle`` -- the log prints the bundle AP, truncated at 0.55 for RampNet; the
     scoreboard page is where the low-floor substitution lives), and tp/fp/fn.
 
-    Bolding is by rule: RampNet's label, P and F1; the best non-RampNet F1 (label and
-    F1); the best open-weight VLM's F1 (label and F1); the largest R in the table.
+    Bolding is by rule: RampNet's label and F1, and its P when it is the table's largest
+    (it is on every split as of 2026-09-26); the best non-RampNet F1 (label and F1); the
+    best open-weight VLM's F1 (label and F1); the largest R in the table.
     """
     from scoreboard import RAMPNET
 
@@ -682,6 +683,7 @@ def log_split_table(result, split):
     open_weight = [n for n in names if n in LOG_OPEN_WEIGHT]
     best_open = max(open_weight, key=lambda n: cells[n]["f1"]) if open_weight else None
     max_r = max(c["recall"] for c in cells.values())
+    max_p = max(c["precision"] for c in cells.values())
 
     rows = []
     for n in names:
@@ -689,7 +691,7 @@ def log_split_table(result, split):
         mark = n in (RAMPNET, best, best_open)
         rows.append([
             log_label(n, mark),
-            bold(num(c["precision"]), n == RAMPNET),
+            bold(num(c["precision"]), n == RAMPNET and c["precision"] == max_p),
             bold(num(c["recall"]), c["recall"] == max_r),
             bold(num(c["f1"]), mark),
             num(c["ap_bundle"]),
@@ -698,20 +700,73 @@ def log_split_table(result, split):
     return _table(["model", "P", "R", "F1", "AP", "tp/fp/fn"], rows)
 
 
+# How the footnote groups the legs a table leaves out, by the class scoreboard.py assigns
+# each roster provider (PROVIDER_CLASS). The standing tables are the zero-shot comparison;
+# a trained detector is a different question, so its F1 is never listed as if it were one
+# more challenger (#145 review). The protocol each supervised class is scored under:
+LOG_ZERO_SHOT_CLASSES = ("chat-vlm", "pointing", "open-vocab")
+LOG_SUPERVISED_PROTOCOL = {"supervised": "#71", "supervised-transfer": "#126"}
+
+
 def log_split_footnote(result, split):
-    """The legs scored on ``split`` that the table leaves out, so none is invisible."""
+    """The legs scored on ``split`` that the table leaves out, so none is invisible.
+
+    They are listed in two groups, zero-shot and supervised, each by F1 descending, and a
+    leg whose F1 beats this split's RampNet row says so. When the best zero-shot leg in the
+    footnote beats the table's best challenger, a closing line gives RampNet's lead
+    against the full zero-shot field, because the table's own lead is then the smaller
+    field's. Example (annapolis, 2026-09-26)::
+
+        Against the whole zero-shot field RampNet's lead on this split is 0.227 F1
+        (over Claude Fable 5 (low, anthropic)), not the 0.270 over the table's best row.
+    """
+    from scoreboard import RAMPNET
+
     shown = set(LOG_ROWS[split])
     per = result["per_split"]
     extra = [m for m in result["models"]
              if m["model"] not in shown and split in per.get(m["model"], {})]
-    extra.sort(key=lambda m: -per[m["model"]][split]["f1"])
     if not extra:
         return "Every leg scored on this split is in the table."
-    named = ", ".join(
-        f"{m['display']} F1 {num(result['per_split'][m['model']][split]['f1'])}"
-        for m in extra)
-    return ("Also scored on this split, not in the standing table (see "
-            f"[`model_scoreboard.md`](model_scoreboard.md)): {named}.")
+    f1 = {m["model"]: per[m["model"]][split]["f1"] for m in extra}
+    extra.sort(key=lambda m: -f1[m["model"]])
+    rampnet_f1 = per.get(RAMPNET, {}).get(split, {}).get("f1")
+
+    def named(group):
+        out = []
+        for m in group:
+            text = f"{m['display']} F1 {num(f1[m['model']])}"
+            if rampnet_f1 is not None and f1[m["model"]] > rampnet_f1:
+                text += f" (**beats RampNet's {num(rampnet_f1)} here**)"
+            out.append(text)
+        return ", ".join(out)
+
+    zero_shot = [m for m in extra if m["class"] in LOG_ZERO_SHOT_CLASSES]
+    supervised = [m for m in extra if m["class"] in LOG_SUPERVISED_PROTOCOL]
+    other = [m for m in extra if m not in zero_shot and m not in supervised]
+    parts = []
+    if zero_shot:
+        parts.append(f"zero-shot: {named(zero_shot)}.")
+    if supervised:
+        used = {m["class"] for m in supervised}
+        protocols = [p for k, p in LOG_SUPERVISED_PROTOCOL.items() if k in used]
+        parts.append(f"Supervised ({' / '.join(protocols)} "
+                     f"protocol{'s' if len(protocols) > 1 else ''}, not comparable as "
+                     f"'challenger'): {named(supervised)}.")
+    if other:
+        parts.append(f"Unclassified: {named(other)}.")
+    text = ("Also scored on this split, not in the standing table (see "
+            "[`model_scoreboard.md`](model_scoreboard.md)) — " + " ".join(parts))
+
+    in_table = [n for n in LOG_ROWS[split] if n != RAMPNET and split in per.get(n, {})]
+    if rampnet_f1 is not None and zero_shot and in_table:
+        top = zero_shot[0]
+        table_best = max(per[n][split]["f1"] for n in in_table)
+        if f1[top["model"]] > table_best:
+            text += ("\n\nAgainst the whole zero-shot field RampNet's lead on this split is "
+                     f"{num(rampnet_f1 - f1[top['model']])} F1 (over {top['display']}), "
+                     f"not the {num(rampnet_f1 - table_best)} over the table's best row.")
+    return text
 
 
 def log_tables(result):

@@ -398,6 +398,33 @@ def test_log_footnote_names_every_other_leg(board):
             assert f"{m['display']} F1 {f1:.3f}" in block, (split, m["model"])
 
 
+def test_log_footnote_keeps_supervised_legs_out_of_the_zero_shot_list(board):
+    """A trained detector is never listed as one more zero-shot challenger (#145 review).
+
+    The footnote's zero-shot group must hold only zero-shot classes and its supervised
+    group only supervised ones, and a leg that beats RampNet on the split must say so.
+    """
+    text = _log_text()
+    for split in sr.LOG_ROWS:
+        block = _log_block(text, split)
+        rampnet = board["per_split"]["rampnet"][split]["f1"]
+        for m in board["models"]:
+            if m["model"] in sr.LOG_ROWS[split] or split not in board["per_split"][m["model"]]:
+                continue
+            f1 = board["per_split"][m["model"]][split]["f1"]
+            entry = f"{m['display']} F1 {f1:.3f}"
+            at = block.index(entry)
+            zero = block.find("zero-shot: ")
+            sup = block.find("Supervised (")
+            if m["class"] in sr.LOG_SUPERVISED_PROTOCOL:
+                assert sup != -1 and at > sup, (split, m["model"])
+            else:
+                assert m["class"] in sr.LOG_ZERO_SHOT_CLASSES, (split, m["model"])
+                assert zero != -1 and at > zero and (sup == -1 or at < sup), (split, m["model"])
+            flagged = block[at + len(entry):].startswith(" (**beats RampNet's")
+            assert flagged == (f1 > rampnet), (split, m["model"])
+
+
 def test_only_rampnets_ap_is_allowed_to_differ_from_the_log(board):
     """Scope the exception: every other model's AP must be the bundle AP unchanged.
 
