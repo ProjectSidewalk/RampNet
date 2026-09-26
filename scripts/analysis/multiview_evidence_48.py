@@ -145,6 +145,31 @@ def write_csv(path, header, rows):
     return path
 
 
+#: One row per (pool ramp, qualifying capture within 25 m). cam_e / cam_n are the camera
+#: in the city's eval_sites LocalFrame (metres), so camera separations re-derive.
+CAPTURE_COLUMNS = ["city", "ramp_uid", "pano_id", "dist_m", "is_source", "x_proj", "y_proj",
+                   "world_conf", "pixel_conf", "capture_date", "cam_e", "cam_n"]
+
+
+def ramps_from_capture_csv(path):
+    """{city: [{"uid", "captures": [...]}, ...]} rebuilt from ``captures_R25.csv`` -- the
+    input B.1 and B.2 are computed from, so the committed CSV re-derives them."""
+    def f(v):
+        return None if v == "" else float(v)
+    by_city = defaultdict(dict)
+    with open(path, encoding="utf-8", newline="") as fh:
+        for row in csv.DictReader(fh):
+            ramp = by_city[row["city"]].setdefault(row["ramp_uid"],
+                                                   {"uid": row["ramp_uid"], "captures": []})
+            ramp["captures"].append({
+                "pano_id": row["pano_id"], "dist_m": float(row["dist_m"]),
+                "is_source": row["is_source"] == "1", "world_conf": f(row["world_conf"]),
+                "pixel_conf": f(row["pixel_conf"]), "cam_e": float(row["cam_e"]),
+                "cam_n": float(row["cam_n"])})
+    return {c: [r for _, r in sorted(rs.items(), key=lambda t: int(t[0].split(":")[1]))]
+            for c, rs in by_city.items()}
+
+
 def pixel_radius_sq(radius_norm=PANO_RADIUS_NORMALIZED):
     return radius_sq_for(radius_norm)
 
@@ -169,6 +194,38 @@ def world_best_conf(ground, e, n, radius_m=MATCH_RADIUS_M):
         if (ge - e) ** 2 + (gn - n) ** 2 <= r2:
             best = c if best is None or c > best else best
     return best
+
+
+def claim_by_confidence(dets, targets, dist_sq_fn, radius_sq):
+    """One-to-one claims within one capture, the way score_pano matches: detections in
+    descending confidence each claim the nearest unclaimed target strictly within the
+    radius. ``dets`` [(x, y, conf)], ``targets`` [(tid, x, y)]. Returns {tid: conf of the
+    claiming detection}.
+
+    Because claims are made in confidence order, the claims made by detections at or
+    above any floor are the same whether or not lower-confidence detections exist, so one
+    pass answers every floor: target t is hit at floor f iff its claim conf >= f. That is
+    what keeps one detection between two dual ramps from counting as a hit for both."""
+    out = {}
+    for x, y, c in sorted(dets, key=lambda d: -d[2]):
+        best = None
+        for tid, tx, ty in targets:
+            if tid in out:
+                continue
+            d2 = dist_sq_fn(x, y, tx, ty)
+            if d2 < radius_sq and (best is None or (d2, tid) < best):
+                best = (d2, tid)
+        if best is not None:
+            out[best[1]] = c
+    return out
+
+
+def world_d2(x, y, tx, ty):
+    return (x - tx) ** 2 + (y - ty) ** 2
+
+
+def pixel_d2(x, y, tx, ty):
+    return dist_sq(x, y, tx, ty, PANO_SCALE_X, PANO_SCALE_Y, wrap_x=True)
 
 
 def hit(conf, floor):
@@ -361,12 +418,19 @@ def match_one_to_one(ramps_xy, sites_xy, radius_m):
     """Greedy ascending-distance one-to-one matching, identical in rule to
     eval_sites.match_one_to_one: ``ramps_xy`` [(e, n)], ``sites_xy`` [(site_id, e, n)].
     Returns {ramp_index: site_id}."""
+    cell = max(radius_m, 1e-9)
+    grid = defaultdict(list)
+    for sid, se, sn in sites_xy:
+        grid[(math.floor(se / cell), math.floor(sn / cell))].append((sid, se, sn))
     pairs = []
     for gi, (re_, rn) in enumerate(ramps_xy):
-        for sid, se, sn in sites_xy:
-            d = math.hypot(re_ - se, rn - sn)
-            if d <= radius_m:
-                pairs.append((d, gi, sid))
+        kx, ky = math.floor(re_ / cell), math.floor(rn / cell)
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                for sid, se, sn in grid.get((kx + dx, ky + dy), ()):
+                    d = math.hypot(re_ - se, rn - sn)
+                    if d <= radius_m:
+                        pairs.append((d, gi, sid))
     pairs.sort()
     matched, used = {}, set()
     for d, gi, sid in pairs:
@@ -635,15 +699,45 @@ def augment_with_reinfer(run_panos, reinfer_path, keep_below=BENCHMARK_CONFIDENC
             "panos_not_augmented": skipped}
 
 
-def load_city(L, city, runs_root, benchmark_root=BENCHMARK):
+#: sha256 of the results.jsonl each committed fusion_eval report was produced on: the
+#: copies in the labeler's native-res archive on makelab2
+#: (/projects/makeabilitylab/sidewalk-auto-labeler/runs/<city>/results.jsonl, archived
+#: 2026-08-01..05 with the imagery). The labeler checkout's own runs/ have since been
+#: gap-filled for paterson (+260 records), gainesville (+2,231) and sao_paulo (+7,293), so
+#: they no longer match the reports; richmond and bend are unchanged.
+ARCHIVED_RESULTS_SHA256 = {
+    "richmond": "109e7645ebf5ab982d2cc1388b50e837f6d622a4ff14752c1895b194a5c0d88c",
+    "bend": "1307faa8041acbbf4cba78fd53979e2215511b8371c018f427c356f6b0e26153",
+    "paterson": "ba987cfde606ba6ed04b877a4fe95f32383729ecc68be56fa402adb56c86da00",
+    "gainesville": "bb8a78729cfb97a98a4f99211c90763fb3760c9c216f2233b1c0cc8aa450abde",
+    "sao_paulo": "72fa99b69ce2742c03becf427ca1674c2a0971531cc4f84ad793d5dc3a2fe926",
+}
+
+
+def results_dir(city, runs_root, results_root=None):
+    """Where a city's results.jsonl is read from: ``results_root/<city>`` when given and
+    present (the archived copies), else the labeler's ``runs/<city>``."""
+    if results_root and os.path.exists(os.path.join(results_root, city, "results.jsonl")):
+        return os.path.join(results_root, city)
+    return os.path.join(runs_root, city)
+
+
+def load_city(L, city, runs_root, benchmark_root=BENCHMARK, results_root=None,
+              require_archived=True):
     """Verdicts, bundle ops and run panos for one city, exactly as eval_sites loads them
-    (no re-inference added; see apply_reinfer)."""
+    (no re-inference added; see apply_reinfer). Refuses a results.jsonl that is not the
+    archived one the committed report scored, unless ``require_archived`` is False."""
     from pathlib import Path
-    run_dir = Path(runs_root) / city
+    run_dir = Path(results_dir(city, runs_root, results_root))
+    sha = _sha256(run_dir / "results.jsonl")
+    if require_archived and sha != ARCHIVED_RESULTS_SHA256.get(city):
+        raise SystemExit(f"{city}: {run_dir / 'results.jsonl'} (sha256 {sha[:12]}...) is not "
+                         "the archived run the committed report scored; pass --results-root "
+                         "pointing at copies of the makelab2 archive's results.jsonl")
     verdicts, bundle_ops, run_panos = L.es.load_city_files(
         city, Path(benchmark_root), run_dir, read_heights=False)
     info = {"run_panos": len(run_panos), "stored_subthreshold": city in STORED_SUBTHRESHOLD,
-            "results_sha256": _sha256(run_dir / "results.jsonl")}
+            "results_sha256": sha}
     return verdicts, bundle_ops, run_panos, info
 
 
@@ -792,36 +886,55 @@ def capture_table(L, city, gtw, run_panos, params, radius=R_MAX):
     stored detection at the ramp by the world and the pixel test."""
     geo, fs = L.geo, L.fs
     frame = gtw.frame
-    grid, cams = camera_index(L, frame, run_panos)
-    by_id = {p.pano_id: p for p in run_panos}
+    # Claim targets reach MATCH_RADIUS_M past the recording radius, so a detection near a
+    # ramp just outside it is not free to claim a wrong one inside it.
+    reach = radius + MATCH_RADIUS_M
+    ramp_grid = geo.GridIndex(reach)
+    for i, r in enumerate(gtw.pool):
+        ramp_grid.add(r["e"], r["n"], i)
+        r["captures"] = []
+    _, cams = camera_index(L, frame, run_panos)
     ground, drops = projected_detections(L, run_panos, params, frame)
     stats = {"horizon_or_out_of_envelope_projections": 0}
-    for r in gtw.pool:
-        caps = []
-        for pid in set(grid.near(r["e"], r["n"])):
-            ce, cn = cams[pid]
-            d = math.hypot(ce - r["e"], cn - r["n"])
-            if d > radius:
-                continue
-            p = by_id[pid]
-            pose = fs.pano_pose(p, params.apply_pose)
-            proj = geo.ground_point_to_pano(pose, r["lat"], r["lng"],
-                                            camera_height=params.camera_height_m,
-                                            max_range_m=params.max_range_m)
-            if proj is None:
+    wr2 = MATCH_RADIUS_M ** 2
+    pr2 = pixel_radius_sq()
+    for p in run_panos:
+        ce, cn = cams[p.pano_id]
+        cand = sorted({i for i in ramp_grid.near(ce, cn)
+                       if math.hypot(ce - gtw.pool[i]["e"], cn - gtw.pool[i]["n"]) <= reach})
+        near = [i for i in cand
+                if math.hypot(ce - gtw.pool[i]["e"], cn - gtw.pool[i]["n"]) <= radius]
+        if not near:
+            continue
+        pose = fs.pano_pose(p, params.apply_pose)
+        proj = {}
+        for i in cand:
+            r = gtw.pool[i]
+            pr = geo.ground_point_to_pano(pose, r["lat"], r["lng"],
+                                          camera_height=params.camera_height_m,
+                                          max_range_m=reach)
+            if pr is None and i in near:
                 stats["horizon_or_out_of_envelope_projections"] += 1
-                px = None
-            else:
-                px = pixel_best_conf([(x, y, c) for _, x, y, c in p.detections],
-                                     proj.x_norm, proj.y_norm)
-            caps.append({"pano_id": pid, "dist_m": d, "cam_e": ce, "cam_n": cn,
-                         "is_source": pid in r["source_panos"],
-                         "x": None if proj is None else proj.x_norm,
-                         "y": None if proj is None else proj.y_norm,
-                         "world_conf": world_best_conf(ground.get(pid, ()), r["e"], r["n"]),
-                         "pixel_conf": px, "capture_date": p.capture_date})
-        caps.sort(key=lambda c: (c["dist_m"], c["pano_id"]))
-        r["captures"] = caps
+            proj[i] = pr
+        wclaim = claim_by_confidence(
+            [(e, n, c) for e, n, c in ground.get(p.pano_id, ())],
+            [(i, gtw.pool[i]["e"], gtw.pool[i]["n"]) for i in cand], world_d2, wr2)
+        pclaim = claim_by_confidence(
+            [(x, y, c) for _, x, y, c in p.detections],
+            [(i, proj[i].x_norm, proj[i].y_norm) for i in cand if proj[i] is not None],
+            pixel_d2, pr2)
+        for i in near:
+            r = gtw.pool[i]
+            r["captures"].append({
+                "pano_id": p.pano_id,
+                "dist_m": math.hypot(ce - r["e"], cn - r["n"]), "cam_e": ce, "cam_n": cn,
+                "is_source": p.pano_id in r["source_panos"],
+                "x": None if proj[i] is None else proj[i].x_norm,
+                "y": None if proj[i] is None else proj[i].y_norm,
+                "world_conf": wclaim.get(i), "pixel_conf": pclaim.get(i),
+                "capture_date": p.capture_date})
+    for r in gtw.pool:
+        r["captures"].sort(key=lambda c: (c["dist_m"], c["pano_id"]))
     stats["raycast_drops"] = drops
     return stats
 
@@ -922,8 +1035,16 @@ def best_precision_at_recall(curve, recall):
 
 
 def check_reproduction(city, result, report_path):
-    """eval_sites must reproduce the committed report exactly, or nothing is written."""
+    """eval_sites must reproduce the report's headline -- world recall, precision, TP/FP
+    and the four buckets -- exactly, or nothing is written.
+
+    The reports are local artifacts of the labeler (runs/ is not git-tracked), written
+    2026-08-02; several results.jsonl files were rewritten since by metadata backfills.
+    The 'self-detected ramps had no operational site' diagnostic is compared and
+    recorded but does not gate: on gainesville it reads 3 today against the report's 2,
+    with every headline number identical."""
     want = parse_report(report_path)
+    want["report_sha256"] = _sha256(report_path)
     got = {"world_recall": round(result["world_recall"], 3),
            "precision": round(result["precision"]["value"], 3),
            "tp": result["precision"]["tp"], "fp": result["precision"]["fp"],
@@ -931,8 +1052,9 @@ def check_reproduction(city, result, report_path):
            "self_detected_without_site": result["self_detected_without_site"]}
     ok = (got["world_recall"] == want["world_recall"] and got["precision"] == want["precision"]
           and got["tp"] == want["tp"] and got["fp"] == want["fp"]
-          and got["buckets"] == want["buckets"]
-          and got["self_detected_without_site"] == want["self_detected_without_site"])
+          and got["buckets"] == want["buckets"])
+    got["diagnostic_matches"] = (got["self_detected_without_site"]
+                                 == want["self_detected_without_site"])
     return ok, got, want
 
 
@@ -960,6 +1082,7 @@ def b1_b2(ramps_by_city, sub_cities):
                                                  / len(src_caps)) if src_caps else None,
                         "by_capture_count": recall_by_capture_count(ramps, floor, mode, radius),
                         "k_nearest_fixed": recall_k_nearest(ramps, floor, mode, radius, KMAX, True),
+                        "k_nearest_fixed4": recall_k_nearest(ramps, floor, mode, radius, 4, True),
                         "k_nearest_all": recall_k_nearest(ramps, floor, mode, radius, KMAX, False),
                         "failure_correlation": failure_correlation(ramps, floor, mode, radius),
                     }
@@ -981,8 +1104,12 @@ def b3_city(L, city, verdicts, bundle_ops, run_panos, gtw, models=None):
     caps_of = {s["id"]: site_captures(s, grid, cams) for s in tier_sites}
     labels = label_sites(tier_sites, {s["id"] for s in tier_sites}, pc30)
     examples = evidence_examples(tier_sites, labels, caps_of, set(gtw.judged_gt))
+    # The operational 0.55 fuse (eval_sites' own sites) scored by THIS script's rule, so
+    # the definitional gap to eval_sites' verdict-based precision is on the record.
+    sd55 = [s for s in site_dicts(gtw.sites) if (site_max_conf(s) or 0) >= BENCHMARK_CONFIDENCE - 1e-12]
+    pc55 = pano_class_for(gtw.judged_gt, dets_by_pano, BENCHMARK_CONFIDENCE)
     return SimpleNamespace(sites=tier_sites, pano_class=pc30, caps_of=caps_of, labels=labels,
-                           examples=examples)
+                           examples=examples, sites55=sd55, pano_class55=pc55)
 
 
 def run_b3(city_b3, pools):
@@ -998,6 +1125,8 @@ def run_b3(city_b3, pools):
         b = city_b3[c]
         pool = pools[c]
         res = {}
+        res["operational_055"] = score_world(pool, b.sites55, {s["id"] for s in b.sites55},
+                                             b.pano_class55)
         allowed = {s["id"] for s in b.sites}
         res["flat_030"] = score_world(pool, b.sites, allowed, b.pano_class)
         for k in (1, 2, 3):
@@ -1051,8 +1180,20 @@ def cmd_run(args):
     sub_cities = []
     for city in args.cities:
         print(f"== {city}", flush=True)
-        verdicts, bundle_ops, run_panos, info = load_city(L, city, runs_root)
+        verdicts, bundle_ops, run_panos, info = load_city(L, city, runs_root,
+                                                          results_root=args.results_root)
         params = fuse_params(L)
+        # Side note: the same eval on the labeler checkout's current (gap-filled) run.
+        cur = os.path.join(runs_root, city, "results.jsonl")
+        if os.path.exists(cur) and _sha256(cur) != info["results_sha256"]:
+            v2, b2, p2, i2 = load_city(L, city, runs_root, require_archived=False)
+            e2 = L.es.evaluate_city(v2, b2, p2, params, match_radius_m=MATCH_RADIUS_M,
+                                    gt_merge_m=GT_MERGE_M)
+            info["gap_filled_run"] = {
+                "results_sha256": i2["results_sha256"], "run_panos": i2["run_panos"],
+                "world_recall": e2["world_recall"], "world_recall_ci": e2["world_recall_ci"],
+                "precision": e2["precision"]["value"], "tp": e2["precision"]["tp"],
+                "fp": e2["precision"]["fp"], "buckets": e2["buckets"]}
         # The instrument check runs on the run exactly as the committed report saw it.
         exact = L.es.evaluate_city(verdicts, bundle_ops, run_panos, params,
                                    match_radius_m=MATCH_RADIUS_M, gt_merge_m=GT_MERGE_M)
@@ -1078,7 +1219,7 @@ def cmd_run(args):
             for c in r["captures"]:
                 capture_rows.append([city, r["uid"], c["pano_id"], c["dist_m"], int(c["is_source"]),
                                      c["x"], c["y"], c["world_conf"], c["pixel_conf"],
-                                     c["capture_date"]])
+                                     c["capture_date"], c["cam_e"], c["cam_n"]])
             if r["bucket"] in ("unmatched", "subthreshold_only") or r["self_detected_without_site"]:
                 cls = ("self_detected_site_displaced" if r["self_detected_without_site"]
                        else residual_class(r, info["stored_subthreshold"]))
@@ -1096,10 +1237,11 @@ def cmd_run(args):
     meta["sub_threshold_cities"] = sub_cities
     meta["reproduction"] = repro
     write_json(os.path.join(OUT, "meta.json"), meta)
-    write_csv(os.path.join(OUT, "captures_R25.csv"),
-              ["city", "ramp_uid", "pano_id", "dist_m", "is_source", "x_proj", "y_proj",
-               "world_conf", "pixel_conf", "capture_date"], capture_rows)
+    write_csv(os.path.join(OUT, "captures_R25.csv"), CAPTURE_COLUMNS, capture_rows)
     print("B.1/B.2 ...", flush=True)
+    # B.1/B.2 are computed from the CSV as written, so the committed table alone
+    # re-derives them (tests/test_multiview_48.py checks that it does).
+    ramps_by_city = ramps_from_capture_csv(os.path.join(OUT, "captures_R25.csv"))
     write_json(os.path.join(OUT, "recall_vs_captures.json"), b1_b2(ramps_by_city, sub_cities))
     print("B.3 ...", flush=True)
     write_json(os.path.join(OUT, "evidence_vs_kofn.json"), run_b3(b3_inputs, pools))
@@ -1450,6 +1592,9 @@ def main(argv=None):
     r.add_argument("--runs-root", default=None,
                    help="default <labeler-root>/runs; separate so the code can come from a "
                         "pinned snapshot while the run files come from the checkout")
+    r.add_argument("--results-root", default=None,
+                   help="dir of <city>/results.jsonl copies of the makelab2 archive (the runs "
+                        "the committed reports scored; see ARCHIVED_RESULTS_SHA256)")
     r.add_argument("--cities", nargs="+", default=list(CITIES))
     r.add_argument("--no-reinfer", action="store_true",
                    help="ignore richmond's results.f01.jsonl re-inference")

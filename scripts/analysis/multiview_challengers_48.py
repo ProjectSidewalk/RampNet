@@ -255,18 +255,24 @@ def world_eval(L, panos, dets_by_pid, tier, floor, pool_ll, judged_gt, capture_r
     for d in dets:
         if d.conf >= tier_ - 1e-12:
             ground[d.pano_id].append((d.e, d.n, d.conf))
-    cams = {p.pano_id: frame.to_enu(p.lat, p.lng) for p in panos}
-    ramps = []
-    for r in pool:
-        caps = []
-        for pid, (ce, cn) in cams.items():
-            dd = math.hypot(ce - r["e"], cn - r["n"])
+    # the same one-to-one per-capture claims as multiview_evidence_48.capture_table
+    reach = mv.R_MAX + mv.MATCH_RADIUS_M
+    ramps = [{"captures": []} for _ in pool]
+    for p in panos:
+        ce, cn = frame.to_enu(p.lat, p.lng)
+        cand = [i for i, r in enumerate(pool) if math.hypot(ce - r["e"], cn - r["n"]) <= reach]
+        if not cand:
+            continue
+        claims = mv.claim_by_confidence(ground.get(p.pano_id, ()),
+                                        [(i, pool[i]["e"], pool[i]["n"]) for i in cand],
+                                        mv.world_d2, mv.MATCH_RADIUS_M ** 2)
+        for i in cand:
+            dd = math.hypot(ce - pool[i]["e"], cn - pool[i]["n"])
             if dd <= mv.R_MAX:
-                wc = mv.world_best_conf(ground.get(pid, ()), r["e"], r["n"])
-                caps.append({"pano_id": pid, "dist_m": dd, "cam_e": ce, "cam_n": cn,
-                             "is_source": pid in r["source_panos"], "world_conf": wc,
-                             "pixel_conf": None})
-        ramps.append({"captures": caps})
+                ramps[i]["captures"].append({
+                    "pano_id": p.pano_id, "dist_m": dd, "cam_e": ce, "cam_n": cn,
+                    "is_source": p.pano_id in pool[i]["source_panos"],
+                    "world_conf": claims.get(i), "pixel_conf": None})
     return {
         "per_pano": per_pano_score(dets_by_pid, judged_gt, tier),
         "world": {name: mv.pr_counts(res) for name, res in policies.items()},

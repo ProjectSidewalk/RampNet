@@ -1,0 +1,412 @@
+{
+ "camera_height_m": 2.6,
+ "cities": [
+  "richmond",
+  "paterson",
+  "gainesville",
+  "bend",
+  "sao_paulo"
+ ],
+ "city_info": {
+  "bend": {
+   "capture_stats": {
+    "horizon_or_out_of_envelope_projections": 0,
+    "raycast_drops": {
+     "below_floor": 0,
+     "horizon": 3,
+     "on_rig": 0,
+     "out_of_range": 1825
+    }
+   },
+   "gt_counts": {
+    "gt_panos": 110,
+    "judged": 110,
+    "no_pool": 0,
+    "partial": 0,
+    "placeable": 297,
+    "skipped": 0,
+    "unplaceable": 30,
+    "unsure_missed": 72
+   },
+   "pool_ramps": 296,
+   "results_sha256": "1307faa8041acbbf4cba78fd53979e2215511b8371c018f427c356f6b0e26153",
+   "run_panos": 78560,
+   "stored_subthreshold": false
+  },
+  "gainesville": {
+   "capture_stats": {
+    "horizon_or_out_of_envelope_projections": 0,
+    "raycast_drops": {
+     "below_floor": 0,
+     "horizon": 23,
+     "on_rig": 0,
+     "out_of_range": 6329
+    }
+   },
+   "gap_filled_run": {
+    "buckets": {
+     "recovered_other_view": 31,
+     "self_detected": 172,
+     "subthreshold_only": 13,
+     "unmatched": 3
+    },
+    "fp": 8,
+    "precision": 0.9558,
+    "results_sha256": "9f4a57f35d24715856d4464dbc0950febbf20de810ec9653432f339a5ab857e8",
+    "run_panos": 37435,
+    "tp": 173,
+    "world_recall": 0.9269,
+    "world_recall_ci": [
+     0.8846,
+     0.9545
+    ]
+   },
+   "gt_counts": {
+    "gt_panos": 125,
+    "judged": 125,
+    "no_pool": 0,
+    "partial": 0,
+    "placeable": 219,
+    "skipped": 0,
+    "unplaceable": 53,
+    "unsure_missed": 31
+   },
+   "pool_ramps": 219,
+   "results_sha256": "bb8a78729cfb97a98a4f99211c90763fb3760c9c216f2233b1c0cc8aa450abde",
+   "run_panos": 35204,
+   "stored_subthreshold": true
+  },
+  "paterson": {
+   "capture_stats": {
+    "horizon_or_out_of_envelope_projections": 0,
+    "raycast_drops": {
+     "below_floor": 0,
+     "horizon": 129,
+     "on_rig": 0,
+     "out_of_range": 9079
+    }
+   },
+   "gap_filled_run": {
+    "buckets": {
+     "recovered_other_view": 59,
+     "self_detected": 232,
+     "subthreshold_only": 1,
+     "unmatched": 12
+    },
+    "fp": 6,
+    "precision": 0.9749,
+    "results_sha256": "651226f9f1e66d60fc8504423e7400730aad649e20a4a448d25bd4e5c620a2a8",
+    "run_panos": 34687,
+    "tp": 233,
+    "world_recall": 0.9572,
+    "world_recall_ci": [
+     0.9282,
+     0.9748
+    ]
+   },
+   "gt_counts": {
+    "gt_panos": 125,
+    "judged": 125,
+    "no_pool": 0,
+    "partial": 0,
+    "placeable": 304,
+    "skipped": 0,
+    "unplaceable": 91,
+    "unsure_missed": 36
+   },
+   "pool_ramps": 304,
+   "results_sha256": "ba987cfde606ba6ed04b877a4fe95f32383729ecc68be56fa402adb56c86da00",
+   "run_panos": 34427,
+   "stored_subthreshold": true
+  },
+  "richmond": {
+   "capture_stats": {
+    "horizon_or_out_of_envelope_projections": 0,
+    "raycast_drops": {
+     "below_floor": 0,
+     "horizon": 913,
+     "on_rig": 0,
+     "out_of_range": 3645
+    }
+   },
+   "gt_counts": {
+    "gt_panos": 124,
+    "judged": 124,
+    "no_pool": 0,
+    "partial": 0,
+    "placeable": 253,
+    "skipped": 0,
+    "unplaceable": 57,
+    "unsure_missed": 78
+   },
+   "pool_ramps": 253,
+   "reinfer": {
+    "detections_added": 10421,
+    "panos_not_augmented": 2,
+    "reinfer_file": "results.f01.jsonl",
+    "sha256": "e81954f4c44d02131f2da4d5f1f9314aaf8dd957811dc1e6f49079f4fcfbe0bb"
+   },
+   "results_sha256": "109e7645ebf5ab982d2cc1388b50e837f6d622a4ff14752c1895b194a5c0d88c",
+   "run_panos": 9091,
+   "stored_subthreshold": true
+  },
+  "sao_paulo": {
+   "capture_stats": {
+    "horizon_or_out_of_envelope_projections": 0,
+    "raycast_drops": {
+     "below_floor": 0,
+     "horizon": 242,
+     "on_rig": 0,
+     "out_of_range": 3487
+    }
+   },
+   "gap_filled_run": {
+    "buckets": {
+     "recovered_other_view": 59,
+     "self_detected": 184,
+     "subthreshold_only": 9,
+     "unmatched": 3
+    },
+    "fp": 22,
+    "precision": 0.8932,
+    "results_sha256": "54348f367dfa3ecb9cde587d106d493d729fb5e5744687e3f38d1c9f1549bf7f",
+    "run_panos": 30034,
+    "tp": 184,
+    "world_recall": 0.9529,
+    "world_recall_ci": [
+     0.9196,
+     0.9729
+    ]
+   },
+   "gt_counts": {
+    "gt_panos": 125,
+    "judged": 125,
+    "no_pool": 0,
+    "partial": 0,
+    "placeable": 255,
+    "skipped": 0,
+    "unplaceable": 26,
+    "unsure_missed": 43
+   },
+   "pool_ramps": 255,
+   "results_sha256": "72fa99b69ce2742c03becf427ca1674c2a0971531cc4f84ad793d5dc3a2fe926",
+   "run_panos": 22741,
+   "stored_subthreshold": true
+  }
+ },
+ "gt_merge_m": 2.5,
+ "hit_floors": [
+  0.55,
+  0.3,
+  0.1
+ ],
+ "labeler": {
+  "files": {
+   "depth.py": "fb1481eac5d3eb58b15a7fa0a64a739c7ebc138f683794ffda6ad87c58f8ab5b",
+   "detectors/__init__.py": "5209ca3fd523f4374cc0dbe4477d8586984668b2e72bea646f7b36e69e2bdf55",
+   "geo.py": "c60fe4bf3152df88297345bded4226ec5b40f83e1eb9a1391849a70158b3e919",
+   "scripts/eval_sites.py": "2ae4852c2dd5f2b390310d6b708cb6aea7f74e9c9ca3c85879f67e287dcb8110",
+   "scripts/fuse_sites.py": "f5924529d88fb1b437ea5e03a0e8e46b24af76d1cb608cbd5c4a4aa5e90cb924"
+  }
+ },
+ "match_radius_m": 5.0,
+ "pixel_radius_normalized": 0.022,
+ "radius_sweep": [
+  12.0,
+  18.0,
+  25.0
+ ],
+ "reproduction": {
+  "bend": {
+   "buckets_as_analysed": {
+    "recovered_other_view": 41,
+    "self_detected": 242,
+    "subthreshold_only": 0,
+    "unmatched": 13
+   },
+   "committed_report": {
+    "buckets": {
+     "recovered_other_view": 41,
+     "self_detected": 242,
+     "subthreshold_only": 0,
+     "unmatched": 13
+    },
+    "fp": 11,
+    "precision": 0.957,
+    "report_sha256": "1191db083f0e99ae3717efe912a6d1a02dae511fb253a1d4008aa5f10e1da994",
+    "self_detected_without_site": 2,
+    "tp": 242,
+    "world_recall": 0.956
+   },
+   "got": {
+    "buckets": {
+     "recovered_other_view": 41,
+     "self_detected": 242,
+     "subthreshold_only": 0,
+     "unmatched": 13
+    },
+    "diagnostic_matches": true,
+    "fp": 11,
+    "precision": 0.957,
+    "self_detected_without_site": 2,
+    "tp": 242,
+    "world_recall": 0.956
+   },
+   "ok": true
+  },
+  "gainesville": {
+   "buckets_as_analysed": {
+    "recovered_other_view": 31,
+    "self_detected": 172,
+    "subthreshold_only": 13,
+    "unmatched": 3
+   },
+   "committed_report": {
+    "buckets": {
+     "recovered_other_view": 31,
+     "self_detected": 172,
+     "subthreshold_only": 13,
+     "unmatched": 3
+    },
+    "fp": 8,
+    "precision": 0.956,
+    "report_sha256": "bff577db8143931bc3d3376a0cb0792be60c6fafccc698814c281d6c796ba198",
+    "self_detected_without_site": 2,
+    "tp": 173,
+    "world_recall": 0.927
+   },
+   "got": {
+    "buckets": {
+     "recovered_other_view": 31,
+     "self_detected": 172,
+     "subthreshold_only": 13,
+     "unmatched": 3
+    },
+    "diagnostic_matches": true,
+    "fp": 8,
+    "precision": 0.956,
+    "self_detected_without_site": 2,
+    "tp": 173,
+    "world_recall": 0.927
+   },
+   "ok": true
+  },
+  "paterson": {
+   "buckets_as_analysed": {
+    "recovered_other_view": 59,
+    "self_detected": 232,
+    "subthreshold_only": 1,
+    "unmatched": 12
+   },
+   "committed_report": {
+    "buckets": {
+     "recovered_other_view": 59,
+     "self_detected": 232,
+     "subthreshold_only": 1,
+     "unmatched": 12
+    },
+    "fp": 6,
+    "precision": 0.975,
+    "report_sha256": "a06762608299323a180ffd36a80a58a3ebbd94be9c7946daed62ff624e8a8001",
+    "self_detected_without_site": 4,
+    "tp": 233,
+    "world_recall": 0.957
+   },
+   "got": {
+    "buckets": {
+     "recovered_other_view": 59,
+     "self_detected": 232,
+     "subthreshold_only": 1,
+     "unmatched": 12
+    },
+    "diagnostic_matches": true,
+    "fp": 6,
+    "precision": 0.975,
+    "self_detected_without_site": 4,
+    "tp": 233,
+    "world_recall": 0.957
+   },
+   "ok": true
+  },
+  "richmond": {
+   "buckets_as_analysed": {
+    "recovered_other_view": 28,
+    "self_detected": 210,
+    "subthreshold_only": 10,
+    "unmatched": 5
+   },
+   "committed_report": {
+    "buckets": {
+     "recovered_other_view": 28,
+     "self_detected": 210,
+     "subthreshold_only": 0,
+     "unmatched": 15
+    },
+    "fp": 9,
+    "precision": 0.959,
+    "report_sha256": "285b34f990f4d6c9fc7d556c02ad2ee3bc59273d6445f0dcdd2cb897ffaa897d",
+    "self_detected_without_site": 11,
+    "tp": 211,
+    "world_recall": 0.941
+   },
+   "got": {
+    "buckets": {
+     "recovered_other_view": 28,
+     "self_detected": 210,
+     "subthreshold_only": 0,
+     "unmatched": 15
+    },
+    "diagnostic_matches": true,
+    "fp": 9,
+    "precision": 0.959,
+    "self_detected_without_site": 11,
+    "tp": 211,
+    "world_recall": 0.941
+   },
+   "ok": true
+  },
+  "sao_paulo": {
+   "buckets_as_analysed": {
+    "recovered_other_view": 54,
+    "self_detected": 184,
+    "subthreshold_only": 12,
+    "unmatched": 5
+   },
+   "committed_report": {
+    "buckets": {
+     "recovered_other_view": 54,
+     "self_detected": 184,
+     "subthreshold_only": 12,
+     "unmatched": 5
+    },
+    "fp": 22,
+    "precision": 0.893,
+    "report_sha256": "cae2105f262891594131110295b6bfdcbb1feff0e59c121479bcacea04abc41f",
+    "self_detected_without_site": 4,
+    "tp": 184,
+    "world_recall": 0.933
+   },
+   "got": {
+    "buckets": {
+     "recovered_other_view": 54,
+     "self_detected": 184,
+     "subthreshold_only": 12,
+     "unmatched": 5
+    },
+    "diagnostic_matches": true,
+    "fp": 22,
+    "precision": 0.893,
+    "self_detected_without_site": 4,
+    "tp": 184,
+    "world_recall": 0.933
+   },
+   "ok": true
+  }
+ },
+ "sub_threshold_cities": [
+  "richmond",
+  "paterson",
+  "gainesville",
+  "sao_paulo"
+ ]
+}
