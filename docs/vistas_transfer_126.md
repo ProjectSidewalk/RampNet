@@ -5,7 +5,9 @@ richmond result, resolution parity, complementarity with RampNet, and the cascad
 Moved verbatim from [`model_comparison.md`](model_comparison.md) under #145, where it sat under
 § "What each model class buys you"; heading levels are unchanged, so the document starts at
 `###`. "Above" and "below" in the moved text refer to `model_comparison.md` when the thing
-they point at is not in this file.
+they point at is not in this file. The "Result: richmond" table stays hand-maintained (it is a
+cross-model table for one split); `tests/test_scoreboard.py` checks every row of it against the
+scorer.
 
 ### Supervised transfer: Mapillary Vistas (#126)
 

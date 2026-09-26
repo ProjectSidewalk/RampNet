@@ -647,6 +647,8 @@ def test_every_published_leg_is_named_in_the_ledger():
              if f.endswith(".json")}
     text = ""
     for rel in ("docs/replication.md", "docs/model_comparison.md",
+                # moved verbatim out of model_comparison.md under #145
+                "docs/vistas_transfer_126.md", "docs/claude_legs_122.md",
                 "scripts/model_comparison/yolo_baseline/README.md"):
         path = os.path.join(REPO, *rel.split("/"))
         if os.path.exists(path):

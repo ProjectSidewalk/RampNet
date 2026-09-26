@@ -1,6 +1,7 @@
 """The published Claude numbers, re-derived from committed files (#122, #151).
 
-Every Claude figure in ``docs/model_comparison.md`` is recomputed here from
+Every Claude figure in ``docs/claude_legs_122.md`` (moved out of
+``docs/model_comparison.md`` under #145) is recomputed here from
 ``benchmark/model_detections/claude-*.json`` plus the committed bundles. No
 ``.model_cache``, no network, no API key, no GPU -- which is the whole point: these
 legs cost real money and nobody should have to spend it again to check the

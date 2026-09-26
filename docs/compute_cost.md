@@ -282,5 +282,5 @@ id. What each row is, with the per-arm training time, is in
   append-only ledger the paid API legs use, as a `paid: false` row with the host, GPU and
   `elapsed_s`. The two #163 Vistas re-runs are the example: 237.153 s and 191.318 s on
   makelab2, recorded there and quoted, with the per-stage breakdown, in the cost paragraph of
-  [`model_comparison.md` §Resolution parity](model_comparison.md). At $0 it changes no total,
+  [`vistas_transfer_126.md` §Resolution parity](vistas_transfer_126.md). At $0 it changes no total,
   but a reader who starts here should not conclude the time went unrecorded.

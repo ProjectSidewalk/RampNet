@@ -15,6 +15,24 @@ model-agnostic, so new models (issues #20, #39) plug in the same way.
 > rather than the standing eight. It is generated from the committed detections by
 > `scripts/analysis/scoreboard.py`, and a test fails if it drifts from this log.
 
+> **Start here.** This file is the log: per-split results in run order, the mechanism behind each
+> number, the caveats, the negative results. It is long on purpose (#145: nothing is trimmed, caveats
+> stay beside their numbers); the operational and self-contained parts live in their own files:
+>
+> | you want | read |
+> |---|---|
+> | one table, every model, aggregated | [`model_scoreboard.md`](model_scoreboard.md) (generated) |
+> | how to run a leg, credentials, Hyak launchers, what is shipped, the file index | [`running_model_comparison.md`](running_model_comparison.md) |
+> | the Mapillary Vistas arms: parity, complementarity, the cascade gate (#126) | [`vistas_transfer_126.md`](vistas_transfer_126.md) |
+> | the Claude legs: effort, Fable, reproducing them, the two-leg cost split (#122, #156) | [`claude_legs_122.md`](claude_legs_122.md) |
+> | which split has which model, and why a split is held out | § "What has been run where" below |
+> | the per-split tables (generated, `scoreboard.py --check`) | § "Results" below |
+> | what each number does NOT mean | § "Caveats (read before quoting numbers)" |
+> | reprojection / box-mapping validation | § "Validating the reprojection", § "Validating the box mapping" |
+> | how much challenger recall is chance | § "How much of a detector's recall is real?" |
+> | what a paid run cost, and the ledger rules | § "Cost accounting" |
+> | the in-distribution 1k split | § "The manual_gold split" |
+
 ## What has been run where
 
 Every split in `benchmark/` appears here, including the ones with gaps — an omission below is
@@ -294,6 +312,11 @@ gemini-3.1-pro on clovis, F1 0.503 → 0.514.
 These tables are now checked against the scorer on every CI run
 (`tests/test_scoreboard.py::test_every_number_matches_model_comparison`), so a code change
 that moves a published number here fails the build instead of going unnoticed.
+
+The eleven city tables below are generated blocks, written by `scripts/analysis/scoreboard.py`
+and checked by its `--check` (#145); each carries the standing roster the log has always
+printed, and its footnote names every other leg scored on that split. `manual_gold`'s table
+is hand-maintained, because two of its rows have no published detections to score.
 
 **The AP column is computed from each split's bundle**, which for RampNet means a curve
 truncated at its deployed 0.55 — the bundles *are* a production run, and that is where
@@ -631,6 +654,9 @@ on both arms, so the imagery is the only thing that moves. (The four annapolis-o
 #122 are not scored rows; `claude-opus-5` at effort low was run on both arms specifically for this
 comparison and appears below.) ΔF1 is `laurens_gsv` minus
 `laurens_mapillary`:
+
+This table is hand-maintained (#145); every F1 in it also appears in one of the two generated
+tables above or in their footnotes.
 
 | model | Mapillary (GoPro Max) | GSV (zoom 5) | ΔF1 |
 |---|---|---|---|
@@ -1774,6 +1800,10 @@ Same protocol as the city tables: perspective tiling, match radius 0.022, box ce
 sides. RampNet is shown at its published 0.55 operating point (the same detections score
 P 0.723 / R 0.935 / F1 0.815 at the 0.05 export floor); open detectors are shown at their
 0.05 cache floor with tuned operating points noted below.
+
+This table is hand-maintained (#145): the two Gemini rows have no published detections, so
+`scoreboard.py` cannot generate it. Every other row is checked against the scorer by
+`tests/test_scoreboard.py::test_every_number_matches_model_comparison`.
 
 **manual_gold** (1,000 panos, 3,919 GT ramps, 207 negative panos — GT labeled with no model
 in the loop)
