@@ -725,8 +725,10 @@ random error direction, 200,000 trials:
 Scaling Denver's whole distribution up gives the reusable answer, so a future city needs no bespoke
 argument about whether its number is good enough:
 
+<!-- BEGIN GENERATED: offset-tolerance (scripts/analysis/sourcing_tables.py) -->
+
 | median offset | labels lost |
-| ---: | ---: |
+|---:|---:|
 | 0.29 m *(Denver)* | **0.25%** |
 | 0.58 m | 2.1% |
 | 0.87 m | 5.5% |
@@ -735,6 +737,8 @@ argument about whether its number is good enough:
 | 2.32 m | 22.9% |
 | 3.48 m | 32.5% |
 | 4.64 m | 39.7% |
+
+<!-- END GENERATED: offset-tolerance -->
 
 **§5f proposed "Good = ≥90% within 1 m" and that bar is much too high.** A city with a median
 offset near 1 m loses under 10% of its labels — and Stage 1 already trains on auto-labels with

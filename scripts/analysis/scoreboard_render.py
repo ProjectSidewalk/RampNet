@@ -262,19 +262,20 @@ def render_tables(result):
     }
 
 
-def splice(text, tables):
+def splice(text, tables, begin=BEGIN, end=END):
     """Replace each generated block in ``text``; leave everything else byte-identical.
 
     A block present in ``tables`` but absent from the doc is a silent no-op by design:
     the doc decides which tables it wants and where, the script only decides what they
-    say.
+    say. ``begin``/``end`` are the marker formats; another generator
+    (``sourcing_tables.py``) passes its own so each block names the script that owns it.
     """
     for name, body in tables.items():
         pattern = re.compile(
-            re.escape(BEGIN.format(name=name)) + r".*?" + re.escape(END.format(name=name)),
+            re.escape(begin.format(name=name)) + r".*?" + re.escape(end.format(name=name)),
             re.S)
-        replacement = (BEGIN.format(name=name) + "\n\n" + body + "\n\n"
-                       + END.format(name=name))
+        replacement = (begin.format(name=name) + "\n\n" + body + "\n\n"
+                       + end.format(name=name))
         text = pattern.sub(lambda _m: replacement, text)
     return text
 

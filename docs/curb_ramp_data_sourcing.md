@@ -369,6 +369,29 @@ every number in §5d/§5e/§5i is derived from a committed file.
 | `seattle-wa-centerlines-2026-07-31` | 34,484 | **Reference geometry**, not an inventory — SDOT SND |
 | `denver-co-centerlines-2026-07-31` | 7,866 | **Reference geometry** — Denver's control for §5i |
 
+Every snapshot in `data/inventories/` (generated; the table above is the 2026-07-31 subset the
+text discusses):
+
+<!-- BEGIN GENERATED: inventory-snapshots (scripts/analysis/sourcing_tables.py) -->
+
+| snapshot | records | declared count | sha256 (first 12) | note |
+|---|---:|---:|---|---|
+| `arlington-va-2026-07-31` | 10,342 | 10,342 | `0e2faa97871a` | Arlington VA Sidewalk ADA Ramps. |
+| `bend-or-2026-07-31` | 14,805 | 14,805 | `bbc78f4c2181` | Bend sCurbRamps, the source used for the ICCV paper's Bend half. |
+| `boston-ma-2026-07-31` | 24,022 | 24,022 | `c87a873e57d7` | Boston Pedestrian Ramp Inventory. |
+| `charlotte-nc-2026-07-31` | 40,600 | 40,601 | `3b6ff97b79f7` | Charlotte ADA self-evaluation. |
+| `denver-co-2026-07-31` | 72,770 | 72,770 | `98e8c1f22ee0` | Sidewalk ramps delineated from 2022 aerial imagery; native CRS EPSG:2877 (NAD83 / Colorado Central ftUS), server-reprojected to 4326. |
+| `denver-co-centerlines-2026-07-31` | 7,866 | 7,866 | `18fee0284839` | Denver street centrelines (geospatialDENVER ODC_TRANS_STREETROUTE_U), the same layer verify_chip_georeference.py already draws over the 2016 aerial. |
+| `minneapolis-mn-2026-07-31` | 18,453 | 18,457 | `3eab969d1f2f` | Minneapolis ADA Ped Ramps. |
+| `nyc-ny-2026-07-31` | 217,679 | – | `7050822b7055` | Pedestrian Ramp Locations (ufzp-rrqu), the source used for the ICCV paper's NYC half. |
+| `portland-or-2026-07-31` | 46,101 | 46,101 | `6f0f706c0df8` | PBOT Curb Ramps, the source used for the ICCV paper's Portland half. |
+| `seattle-wa-2026-07-31` | 38,364 | 38,498 | `404c07d38c89` | SDOT active curb ramps -- the publisher's own active filter, per 5c; Curb_Ramps_CDL carries 46,431 including retired. |
+| `seattle-wa-centerlines-2026-07-31` | 34,484 | 34,484 | `f386b657094f` | SDOT Street Network Database (SND) centrelines, native EPSG:2926, served as 4326 by the SAME server and org (ZOyb2t4B0UYuYNYH) as Curb_Ramps_(Active) -- which is the point: a datum/reprojection error would move both layers together, a bad ramp layer moves only one. |
+| `sf-ca-2026-07-31` | 50,096 | 50,096 | `abe8d1f6cc3e` | DataSF curb ramps, pulled weekly. |
+| `sioux-falls-sd-2026-07-31` | 19,991 | 19,991 | `68dc6f614949` | Sioux Falls. |
+
+<!-- END GENERATED: inventory-snapshots -->
+
 **Street centrelines are frozen on the same terms**, via `--geometry polyline`. They are not curb
 ramps and are never counted as supply; they are the independent reference §5i measures the ramp
 coordinates against, and an analysis that exonerates a city's coordinates must not depend on a live
