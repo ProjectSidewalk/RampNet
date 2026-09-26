@@ -591,3 +591,130 @@ def prose_problems(text, result):
                     problems.append(f'{name}: "{m.group(0)}" says {word}, the board has '
                                     f"{shown} ({key})")
     return sorted(set(problems))
+
+
+# --------------------------------------------------------------------------- #
+# the per-split tables in docs/model_comparison.md (#145)
+# --------------------------------------------------------------------------- #
+# The log's eleven city tables are generated too, into blocks named "results:<split>".
+# They are kept apart from render_tables() on purpose: that dict is the scoreboard page's,
+# this one is the log's, and --check names the doc that drifted.
+
+# How the log's tables label each published name: (name, suffix). The name is the part
+# that is bolded when a row is marked, so "molmo2-8B (points)" bolds as
+# "**molmo2-8B** (points)", the form the log has always used.
+# tests/test_scoreboard.py builds its label -> published-name map from this, so there is
+# one copy of it.
+LOG_LABEL = {
+    "rampnet": ("rampnet", ""),
+    "gemini-3.1-pro-preview": ("gemini-3.1-pro-preview", ""),
+    "gemini-3.6-flash": ("gemini-3.6-flash", ""),
+    "allenai/Molmo2-8B": ("molmo2-8B", " (points)"),
+    "Qwen/Qwen3-VL-32B-Instruct": ("Qwen3-VL-32B-Instruct", ""),
+    "Qwen/Qwen3-VL-8B-Instruct": ("Qwen3-VL-8B-Instruct", ""),
+    "google/owlv2-large-patch14-ensemble": ("owlv2-large-patch14-ensemble", ""),
+    "IDEA-Research/grounding-dino-base": ("grounding-dino-base", ""),
+    # Effort-pinned legs carry the effort in the row label, because one model id is two
+    # legs and the bare id would name whichever ran last (see roster.published_as).
+    "claude-opus-5-effort-low": ("claude-opus-5", " (effort low)"),
+}
+
+# The rows each per-split table carries: exactly the row set the log printed when these
+# tables were hand-maintained -- the standing zero-shot roster, plus claude-opus-5 at
+# effort low on the two Laurens arms (#151). Not every leg on the board: the prose beside
+# each table ("RampNet's lead over the best challenger is 0.27 F1", "Molmo best
+# open-weight") was written against this set, and adding rows would silently change what
+# it claims. Every other leg scored on a split is named in the block's footnote.
+LOG_STANDING = (
+    "rampnet", "gemini-3.1-pro-preview", "gemini-3.6-flash", "allenai/Molmo2-8B",
+    "Qwen/Qwen3-VL-32B-Instruct", "Qwen/Qwen3-VL-8B-Instruct",
+    "google/owlv2-large-patch14-ensemble", "IDEA-Research/grounding-dino-base",
+)
+LOG_ROWS = {
+    "richmond": LOG_STANDING,
+    "bend": LOG_STANDING,
+    "clovis": LOG_STANDING,
+    "morgantown": LOG_STANDING,
+    "annapolis": LOG_STANDING,
+    "paterson": LOG_STANDING,
+    "gainesville": LOG_STANDING,
+    "laurens_mapillary": LOG_STANDING + ("claude-opus-5-effort-low",),
+    "laurens_gsv": LOG_STANDING + ("claude-opus-5-effort-low",),
+    "budapest_district5": LOG_STANDING,
+    "sao_paulo": LOG_STANDING,
+}
+
+
+# The open-weight VLMs, whose best row the log has always marked ("Molmo best
+# open-weight"): the bold on a Molmo row meant that, not "best challenger".
+LOG_OPEN_WEIGHT = ("allenai/Molmo2-8B", "Qwen/Qwen3-VL-32B-Instruct",
+                   "Qwen/Qwen3-VL-8B-Instruct")
+
+
+def log_label(name, marked=False):
+    """The log's row label for a published name, with its name part bolded if marked."""
+    base, suffix = LOG_LABEL[name]
+    return bold(base, marked) + suffix
+
+
+def log_split_table(result, split):
+    """One per-split table in the log's format, rows sorted by F1 descending.
+
+    Columns are the log's: P, R, F1 at the model's operating point, the **bundle** AP
+    (``ap_bundle`` -- the log prints the bundle AP, truncated at 0.55 for RampNet; the
+    scoreboard page is where the low-floor substitution lives), and tp/fp/fn.
+
+    Bolding is by rule: RampNet's label, P and F1; the best non-RampNet F1 (label and
+    F1); the best open-weight VLM's F1 (label and F1); the largest R in the table.
+    """
+    from scoreboard import RAMPNET
+
+    per = result["per_split"]
+    names = [n for n in LOG_ROWS[split] if split in per.get(n, {})]
+    order = {n: i for i, n in enumerate(LOG_ROWS[split])}
+    if not names:  # a --models subset that ran none of them
+        return "*No leg of this table was scored in this run.*"
+    names.sort(key=lambda n: (-per[n][split]["f1"], order[n]))
+    cells = {n: per[n][split] for n in names}
+    challengers = [n for n in names if n != RAMPNET]
+    best = max(challengers, key=lambda n: cells[n]["f1"]) if challengers else None
+    open_weight = [n for n in names if n in LOG_OPEN_WEIGHT]
+    best_open = max(open_weight, key=lambda n: cells[n]["f1"]) if open_weight else None
+    max_r = max(c["recall"] for c in cells.values())
+
+    rows = []
+    for n in names:
+        c = cells[n]
+        mark = n in (RAMPNET, best, best_open)
+        rows.append([
+            log_label(n, mark),
+            bold(num(c["precision"]), n == RAMPNET),
+            bold(num(c["recall"]), c["recall"] == max_r),
+            bold(num(c["f1"]), mark),
+            num(c["ap_bundle"]),
+            f"{c['tp']}/{c['fp']}/{c['fn']}",
+        ])
+    return _table(["model", "P", "R", "F1", "AP", "tp/fp/fn"], rows)
+
+
+def log_split_footnote(result, split):
+    """The legs scored on ``split`` that the table leaves out, so none is invisible."""
+    shown = set(LOG_ROWS[split])
+    per = result["per_split"]
+    extra = [m for m in result["models"]
+             if m["model"] not in shown and split in per.get(m["model"], {})]
+    extra.sort(key=lambda m: -per[m["model"]][split]["f1"])
+    if not extra:
+        return "Every leg scored on this split is in the table."
+    named = ", ".join(
+        f"{m['display']} F1 {num(result['per_split'][m['model']][split]['f1'])}"
+        for m in extra)
+    return ("Also scored on this split, not in the standing table (see "
+            f"[`model_scoreboard.md`](model_scoreboard.md)): {named}.")
+
+
+def log_tables(result):
+    """Every generated block in docs/model_comparison.md, by block name."""
+    return {f"results:{split}": log_split_table(result, split) + "\n\n"
+            + log_split_footnote(result, split)
+            for split in LOG_ROWS}

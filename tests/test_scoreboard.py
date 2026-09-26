@@ -219,22 +219,16 @@ def test_only_score_carrying_models_get_a_curve(board):
 # --------------------------------------------------------------------------- #
 # model_comparison.md's row labels -> roster published names. Both documents score the
 # same committed detections, so a disagreement is a bug in one of them, never a choice.
+#
+# Built from scoreboard_render.LOG_LABEL -- the labels the generated per-split tables print
+# (#145) -- so there is one copy of the map, plus the rows only the hand-maintained tables
+# carry (manual_gold's "rampnet @0.55", the Vistas result table's two arms).
 _LOG_ROW_NAMES = {
-    "rampnet": "rampnet",
+    **{base + suffix: name for name, (base, suffix) in sr.LOG_LABEL.items()},
     "rampnet @0.55": "rampnet",
-    "gemini-3.1-pro-preview": "gemini-3.1-pro-preview",
-    "gemini-3.6-flash": "gemini-3.6-flash",
     "gemini-3.7-flash": "gemini-3.7-flash",
-    "molmo2-8B (points)": "allenai/Molmo2-8B",
-    "Qwen3-VL-32B-Instruct": "Qwen/Qwen3-VL-32B-Instruct",
-    "Qwen3-VL-8B-Instruct": "Qwen/Qwen3-VL-8B-Instruct",
-    "owlv2-large-patch14-ensemble": "google/owlv2-large-patch14-ensemble",
-    "grounding-dino-base": "IDEA-Research/grounding-dino-base",
     "mask2former-vistas-curb-cut": "mask2former-vistas-curb-cut",
     "mask2former-vistas-curb-cut+curb": "mask2former-vistas-curb-cut+curb",
-    # Effort-pinned legs carry the effort in the row label, because one model id is
-    # two legs and the bare id would name whichever ran last (see roster.published_as).
-    "claude-opus-5 (effort low)": "claude-opus-5-effort-low",
 }
 # (model, split) pairs the log prints and this page deliberately does not carry, each with
 # the reason. Anything else missing is a failure, not an exemption.
@@ -342,6 +336,66 @@ def test_every_number_matches_model_comparison(board):
                 mismatches.append(f"{loc} {model}/{split} AP: "
                                   f"log {AP} vs bundle {cell['ap_bundle']}")
     assert not mismatches, "\n".join(mismatches)
+
+
+# --------------------------------------------------------------------------- #
+# the log's per-split tables are generated (#145)
+# --------------------------------------------------------------------------- #
+def _log_text():
+    with open(sb.LOG_DOC, encoding="utf-8", newline="") as fh:
+        return fh.read()
+
+
+def _log_block(text, split):
+    name = f"results:{split}"
+    start = text.index(sr.BEGIN.format(name=name))
+    end = text.index(sr.END.format(name=name), start)
+    return text[start:end]
+
+
+def test_log_blocks_cover_every_city_split():
+    """One generated table per city split; manual_gold stays hand-maintained (two of its
+    rows have no published detections), so it must NOT be in the generated set."""
+    assert tuple(sr.LOG_ROWS) == tuple(lfs.CITY_SPLITS)
+    assert "manual_gold" not in sr.LOG_ROWS
+
+
+def test_committed_log_is_current(board):
+    """The committed log's per-split tables are what the scorer produces today, and every
+    block is actually in the doc -- splice() is a silent no-op for an absent block."""
+    text = _log_text()
+    tables = sr.log_tables(board)
+    for name in tables:
+        assert sr.BEGIN.format(name=name) in text, f"{name} block missing from the log"
+    assert sr.splice(text, tables) == text, \
+        "docs/model_comparison.md tables are stale: re-run scripts/analysis/scoreboard.py"
+
+
+def test_log_tables_carry_exactly_the_documented_rows(board):
+    """The row set is LOG_ROWS -- no leg added silently, none dropped silently."""
+    text = _log_text()
+    for split, names in sr.LOG_ROWS.items():
+        block = _log_block(text, split)
+        labels = {line.split("|")[1].replace("**", "").strip()
+                  for line in block.splitlines()
+                  if line.startswith("| ") and not line.startswith("| model |")}
+        want = {base + suffix for base, suffix in (sr.LOG_LABEL[n] for n in names)}
+        assert labels == want, f"{split}: {labels ^ want}"
+
+
+def test_log_footnote_names_every_other_leg(board):
+    """A leg scored on a split but left out of its table is named under it."""
+    text = _log_text()
+    for split in sr.LOG_ROWS:
+        block = _log_block(text, split)
+        others = [m for m in board["models"]
+                  if m["model"] not in sr.LOG_ROWS[split]
+                  and split in board["per_split"][m["model"]]]
+        if not others:
+            assert "Every leg scored on this split is in the table." in block
+        for m in others:
+            f1 = board["per_split"][m["model"]][split]["f1"]
+            assert f"{m['display']} F1 {f1:.3f}" in block, (split, m["model"])
 
 
 def test_only_rampnets_ap_is_allowed_to_differ_from_the_log(board):
@@ -930,11 +984,13 @@ def test_a_models_subset_does_not_touch_the_committed_page(tmp_path):
     signal inverted. It also crashed in the figures afterwards, half-written.
     """
     doc_before = open(sb.DEFAULT_DOC, "rb").read()
+    log_before = open(sb.LOG_DOC, "rb").read()
     json_before = open(sb.DEFAULT_JSON, "rb").read()
     done = _run_scoreboard("--models", "y11x_pano_h200", "--no-figures")
     assert done.returncode == 0, done.stdout + done.stderr
     assert "left alone" in done.stdout
     assert open(sb.DEFAULT_DOC, "rb").read() == doc_before
+    assert open(sb.LOG_DOC, "rb").read() == log_before
     assert open(sb.DEFAULT_JSON, "rb").read() == json_before
     # ...but naming a destination explicitly still writes a partial board there.
     out = tmp_path / "subset.json"

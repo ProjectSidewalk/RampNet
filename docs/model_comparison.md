@@ -307,10 +307,12 @@ is the one untruncated RampNet AP here.
 
 **richmond** (124 reviewed panos, 310 GT ramps)
 
+<!-- BEGIN GENERATED: results:richmond (scripts/analysis/scoreboard.py) -->
+
 | model | P | R | F1 | AP | tp/fp/fn |
 |---|---|---|---|---|---|
 | **rampnet** | **0.964** | 0.768 | **0.855** | 0.763 | 238/9/72 |
-| gemini-3.1-pro-preview | 0.634 | 0.703 | 0.667 | – | 218/126/92 |
+| **gemini-3.1-pro-preview** | 0.634 | 0.703 | **0.667** | – | 218/126/92 |
 | gemini-3.6-flash | 0.626 | 0.642 | 0.634 | – | 199/119/111 |
 | **molmo2-8B** (points) | 0.410 | 0.516 | **0.457** | – | 160/230/150 |
 | Qwen3-VL-32B-Instruct | 0.760 | 0.297 | 0.427 | – | 92/29/218 |
@@ -318,32 +320,48 @@ is the one untruncated RampNet AP here.
 | owlv2-large-patch14-ensemble | 0.033 | **0.971** | 0.064 | 0.104 | 301/8799/9 |
 | grounding-dino-base | 0.028 | 0.852 | 0.053 | 0.033 | 264/9321/46 |
 
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)): Gemini 3.7 Flash F1 0.664, Claude Opus 5 (low) F1 0.601, YOLO11l (pano) F1 0.595, YOLO11x (pano) F1 0.547, Mask2Former Vistas (curb cut, 1024) F1 0.534, Mask2Former Vistas (curb cut) F1 0.517, YOLO26 (pano) F1 0.491, Mask2Former Vistas (+curb) F1 0.210.
+
+<!-- END GENERATED: results:richmond -->
+
 **bend** (110 reviewed panos, 327 GT ramps)
+
+<!-- BEGIN GENERATED: results:bend (scripts/analysis/scoreboard.py) -->
 
 | model | P | R | F1 | AP | tp/fp/fn |
 |---|---|---|---|---|---|
 | **rampnet** | **0.961** | 0.761 | **0.850** | 0.754 | 249/10/78 |
-| gemini-3.1-pro-preview | 0.706 | 0.581 | 0.638 | – | 190/79/137 |
+| **gemini-3.1-pro-preview** | 0.706 | 0.581 | **0.638** | – | 190/79/137 |
 | gemini-3.6-flash | 0.608 | 0.587 | 0.597 | – | 192/124/135 |
 | **molmo2-8B** (points) | 0.510 | 0.401 | **0.449** | – | 131/126/196 |
 | Qwen3-VL-32B-Instruct | 0.706 | 0.294 | 0.415 | – | 96/40/231 |
 | Qwen3-VL-8B-Instruct | 0.381 | 0.339 | 0.359 | – | 111/180/216 |
-| owlv2-large-patch14-ensemble | 0.037 | 0.954 | 0.071 | 0.093 | 312/8187/15 |
 | grounding-dino-base | 0.038 | 0.850 | 0.073 | 0.049 | 278/6969/49 |
+| owlv2-large-patch14-ensemble | 0.037 | **0.954** | 0.071 | 0.093 | 312/8187/15 |
+
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)): YOLO11l (pano) F1 0.713, YOLO11x (pano) F1 0.710, Gemini 3.7 Flash F1 0.639, YOLO26 (pano) F1 0.637, Claude Opus 5 (low) F1 0.604.
+
+<!-- END GENERATED: results:bend -->
 
 **clovis** (125 reviewed panos, 195 GT ramps) — Mapillary GoPro Fusion 360s, the hardest of the
 three deployment cities
 
+<!-- BEGIN GENERATED: results:clovis (scripts/analysis/scoreboard.py) -->
+
 | model | P | R | F1 | AP | tp/fp/fn |
 |---|---|---|---|---|---|
 | **rampnet** | **0.914** | 0.713 | **0.801** | 0.688 | 139/13/56 |
-| gemini-3.1-pro-preview | 0.543 | 0.487 | 0.514 | – | 95/80/100 |
+| **gemini-3.1-pro-preview** | 0.543 | 0.487 | **0.514** | – | 95/80/100 |
 | gemini-3.6-flash | 0.464 | 0.503 | 0.483 | – | 98/113/97 |
 | **molmo2-8B** (points) | 0.335 | 0.441 | **0.381** | – | 86/171/109 |
 | Qwen3-VL-32B-Instruct | 0.696 | 0.200 | 0.311 | – | 39/17/156 |
 | Qwen3-VL-8B-Instruct | 0.226 | 0.297 | 0.257 | – | 58/199/137 |
 | owlv2-large-patch14-ensemble | 0.025 | **0.913** | 0.049 | 0.067 | 178/6910/17 |
 | grounding-dino-base | 0.018 | 0.872 | 0.035 | 0.026 | 170/9432/25 |
+
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)): YOLO11l (pano) F1 0.600, YOLO26 (pano) F1 0.552, YOLO11x (pano) F1 0.551, Claude Opus 5 (low) F1 0.550, Gemini 3.7 Flash F1 0.504.
+
+<!-- END GENERATED: results:clovis -->
 
 Clovis is 100% soft, 2018-era GoPro Fusion 360 imagery, so every model degrades relative to
 richmond/bend — RampNet's own P/R slips to 0.914/0.713 (from richmond's 0.964/0.768). But the
@@ -362,16 +380,22 @@ proposed 2 points where 4 ramps were visible, which shows up as its 150/196 fals
 **annapolis** (125 reviewed panos, 294 GT ramps) — Trimble MX7 vehicle survey rig, the first
 survey-grade camera in the benchmark
 
+<!-- BEGIN GENERATED: results:annapolis (scripts/analysis/scoreboard.py) -->
+
 | model | P | R | F1 | AP | tp/fp/fn |
 |---|---|---|---|---|---|
 | **rampnet** | **0.973** | 0.738 | **0.839** | 0.734 | 217/6/77 |
-| gemini-3.1-pro-preview | 0.613 | 0.527 | 0.567 | – | 155/98/139 |
+| **gemini-3.1-pro-preview** | 0.613 | 0.527 | **0.567** | – | 155/98/139 |
 | gemini-3.6-flash | 0.637 | 0.490 | 0.554 | – | 144/82/150 |
 | **molmo2-8B** (points) | 0.434 | 0.415 | **0.424** | – | 122/159/172 |
 | Qwen3-VL-32B-Instruct | 0.608 | 0.296 | 0.398 | – | 87/56/207 |
 | Qwen3-VL-8B-Instruct | 0.304 | 0.354 | 0.327 | – | 104/238/190 |
 | owlv2-large-patch14-ensemble | 0.032 | **0.959** | 0.063 | 0.126 | 282/8444/12 |
 | grounding-dino-base | 0.029 | 0.898 | 0.055 | 0.042 | 264/8992/30 |
+
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)): Claude Fable 5 (low, anthropic) F1 0.611, Claude Fable 5.1 (low, anthropic) F1 0.610, Claude Opus 5 (low) F1 0.588, Gemini 3.7 Flash F1 0.565, Claude Opus 5 (high) F1 0.520, YOLO11l (pano) F1 0.481, Claude Sonnet 5 (low) F1 0.463, Claude Sonnet 5 (high) F1 0.456, YOLO26 (pano) F1 0.450, YOLO11x (pano) F1 0.397.
+
+<!-- END GENERATED: results:annapolis -->
 
 Best sweep F1 for the open detectors: OWLv2 **0.208** (thr 0.25), Grounding DINO **0.091**
 (thr 0.15). The **ranking is identical for the fourth city running**, and every per-model
@@ -387,16 +411,22 @@ reproduced on every split that has challenger detections.
 **morgantown** (125 reviewed panos, 267 GT ramps) — 2024 GoPro Max, the cleanest imagery in
 the benchmark and the control for everything below
 
+<!-- BEGIN GENERATED: results:morgantown (scripts/analysis/scoreboard.py) -->
+
 | model | P | R | F1 | AP | tp/fp/fn |
 |---|---|---|---|---|---|
 | **rampnet** | **0.975** | 0.730 | **0.835** | 0.728 | 195/5/72 |
-| gemini-3.1-pro-preview | 0.679 | 0.610 | 0.643 | – | 163/77/104 |
+| **gemini-3.1-pro-preview** | 0.679 | 0.610 | **0.643** | – | 163/77/104 |
 | gemini-3.6-flash | 0.636 | 0.629 | 0.633 | – | 168/96/99 |
 | **molmo2-8B** (points) | 0.466 | 0.461 | **0.463** | – | 123/141/144 |
 | Qwen3-VL-32B-Instruct | 0.675 | 0.311 | 0.426 | – | 83/40/184 |
 | Qwen3-VL-8B-Instruct | 0.304 | 0.386 | 0.340 | – | 103/236/164 |
 | owlv2-large-patch14-ensemble | 0.037 | **0.948** | 0.071 | 0.114 | 253/6613/14 |
 | grounding-dino-base | 0.022 | 0.831 | 0.042 | 0.028 | 222/9991/45 |
+
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)): YOLO11x (pano) F1 0.686, YOLO26 (pano) F1 0.681, YOLO11l (pano) F1 0.675, Claude Opus 5 (low) F1 0.649, Gemini 3.7 Flash F1 0.595.
+
+<!-- END GENERATED: results:morgantown -->
 
 Best sweep F1: OWLv2 **0.196** (thr 0.25), Grounding DINO **0.068** (thr 0.15). This is the
 **canonical ordering, position for position**, and every model posts its best or near-best
@@ -408,16 +438,22 @@ is the right control to read budapest against.
 **paterson** (125 reviewed panos, 395 GT ramps) — the second GSV city (2026-07-29), reviewer
 confidence HIGH; the split whose misses are structural (`benchmark/README.md`)
 
+<!-- BEGIN GENERATED: results:paterson (scripts/analysis/scoreboard.py) -->
+
 | model | P | R | F1 | AP | tp/fp/fn |
 |---|---|---|---|---|---|
 | **rampnet** | **0.975** | 0.686 | **0.805** | 0.681 | 271/7/124 |
-| gemini-3.1-pro-preview | 0.852 | 0.567 | 0.681 | – | 224/39/171 |
+| **gemini-3.1-pro-preview** | 0.852 | 0.567 | **0.681** | – | 224/39/171 |
 | gemini-3.6-flash | 0.744 | 0.514 | 0.608 | – | 203/70/192 |
 | **molmo2-8B** (points) | 0.585 | 0.453 | **0.511** | – | 179/127/216 |
 | Qwen3-VL-8B-Instruct | 0.460 | 0.362 | 0.405 | – | 143/168/252 |
-| **Qwen3-VL-32B-Instruct** | 0.813 | **0.220** | **0.347** | – | 87/20/308 |
+| Qwen3-VL-32B-Instruct | 0.813 | 0.220 | 0.347 | – | 87/20/308 |
 | owlv2-large-patch14-ensemble | 0.040 | **0.894** | 0.077 | 0.116 | 353/8398/42 |
 | grounding-dino-base | 0.036 | 0.803 | 0.068 | 0.044 | 317/8551/78 |
+
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)): YOLO11l (pano) F1 0.647, Claude Opus 5 (low) F1 0.642, YOLO11x (pano) F1 0.635, Gemini 3.7 Flash F1 0.609, YOLO26 (pano) F1 0.591.
+
+<!-- END GENERATED: results:paterson -->
 
 Best sweep F1: OWLv2 **0.216** (thr 0.25), Grounding DINO **0.100** (thr 0.15).
 
@@ -454,16 +490,22 @@ Three things paterson adds to the comparison:
 reviewer confidence HIGH; the benchmark's freshest imagery (A-rate 35%, the highest — see
 `docs/operating_point.md`)
 
+<!-- BEGIN GENERATED: results:gainesville (scripts/analysis/scoreboard.py) -->
+
 | model | P | R | F1 | AP | tp/fp/fn |
 |---|---|---|---|---|---|
 | **rampnet** | **0.945** | 0.699 | **0.803** | 0.691 | 190/11/82 |
-| gemini-3.1-pro-preview | 0.564 | 0.533 | 0.548 | – | 145/112/127 |
+| **gemini-3.1-pro-preview** | 0.564 | 0.533 | **0.548** | – | 145/112/127 |
 | gemini-3.6-flash | 0.404 | 0.478 | 0.438 | – | 130/192/142 |
 | **molmo2-8B** (points) | 0.282 | 0.393 | **0.329** | – | 107/272/165 |
 | Qwen3-VL-8B-Instruct | 0.278 | 0.331 | 0.302 | – | 90/234/182 |
-| **Qwen3-VL-32B-Instruct** | 0.392 | **0.107** | **0.168** | – | 29/45/243 |
+| Qwen3-VL-32B-Instruct | 0.392 | 0.107 | 0.168 | – | 29/45/243 |
 | owlv2-large-patch14-ensemble | 0.031 | **0.967** | 0.060 | 0.063 | 263/8185/9 |
 | grounding-dino-base | 0.028 | 0.893 | 0.055 | 0.040 | 243/8328/29 |
+
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)): YOLO11l (pano) F1 0.516, YOLO11x (pano) F1 0.499, Claude Opus 5 (low) F1 0.479, Gemini 3.7 Flash F1 0.456, YOLO26 (pano) F1 0.451.
+
+<!-- END GENERATED: results:gainesville -->
 
 Best sweep F1: OWLv2 **0.121** (thr 0.25), Grounding DINO **0.084** (thr 0.15).
 
@@ -505,17 +547,23 @@ Three things gainesville adds:
 (2026-08-31), reviewer confidence HIGH; a consumer GoPro Max 360 rig over a 1.91 km² town
 of 1,264 people. The eighth US split, and the one RampNet does worst on by a factor of two.
 
+<!-- BEGIN GENERATED: results:laurens_mapillary (scripts/analysis/scoreboard.py) -->
+
 | model | P | R | F1 | AP | tp/fp/fn |
 |---|---|---|---|---|---|
 | **rampnet** | **0.898** | 0.390 | **0.543** | 0.377 | 97/11/152 |
 | **claude-opus-5** (effort low) | 0.485 | 0.386 | **0.430** | – | 96/102/153 |
 | gemini-3.1-pro-preview | 0.516 | 0.257 | 0.343 | – | 64/60/185 |
-| **molmo2-8B** (points) | 0.359 | **0.321** | 0.339 | – | 80/143/169 |
+| **molmo2-8B** (points) | 0.359 | 0.321 | **0.339** | – | 80/143/169 |
 | gemini-3.6-flash | 0.446 | 0.201 | 0.277 | – | 50/62/199 |
 | Qwen3-VL-8B-Instruct | 0.220 | 0.201 | 0.210 | – | 50/177/199 |
-| **Qwen3-VL-32B-Instruct** | 0.360 | **0.036** | **0.066** | – | 9/16/240 |
+| Qwen3-VL-32B-Instruct | 0.360 | 0.036 | 0.066 | – | 9/16/240 |
 | owlv2-large-patch14-ensemble | 0.032 | **0.851** | 0.062 | 0.054 | 212/6391/37 |
 | grounding-dino-base | 0.023 | 0.783 | 0.045 | 0.025 | 195/8162/54 |
+
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)): YOLO26 (pano) F1 0.574, YOLO11l (pano) F1 0.563, YOLO11x (pano) F1 0.529, Gemini 3.7 Flash F1 0.281.
+
+<!-- END GENERATED: results:laurens_mapillary -->
 
 Best sweep F1: OWLv2 **0.099** (thr 0.15), Grounding DINO **0.060** (thr 0.15).
 
@@ -558,17 +606,23 @@ would double-count them and break the independence the Wilson intervals assume. 
 out for non-independence, not for GT quality. It exists to answer one question (#151): is
 Laurens hard because it is **rural**, or because of the **rig**?
 
+<!-- BEGIN GENERATED: results:laurens_gsv (scripts/analysis/scoreboard.py) -->
+
 | model | P | R | F1 | AP | tp/fp/fn |
 |---|---|---|---|---|---|
-| **rampnet** | **0.933** | **0.509** | **0.659** | 0.494 | 112/8/108 |
+| **rampnet** | **0.933** | 0.509 | **0.659** | 0.494 | 112/8/108 |
 | **claude-opus-5** (effort low) | 0.489 | 0.395 | **0.437** | – | 87/91/133 |
 | **molmo2-8B** (points) | 0.332 | 0.286 | **0.307** | – | 63/127/157 |
 | gemini-3.1-pro-preview | 0.519 | 0.191 | 0.279 | – | 42/39/178 |
 | gemini-3.6-flash | 0.355 | 0.223 | 0.274 | – | 49/89/171 |
 | Qwen3-VL-8B-Instruct | 0.181 | 0.145 | 0.161 | – | 32/145/188 |
-| **Qwen3-VL-32B-Instruct** | 0.250 | **0.009** | **0.018** | – | 2/6/218 |
 | owlv2-large-patch14-ensemble | 0.028 | 0.855 | 0.055 | 0.035 | 188/6476/32 |
 | grounding-dino-base | 0.028 | **0.882** | 0.054 | 0.038 | 194/6799/26 |
+| Qwen3-VL-32B-Instruct | 0.250 | 0.009 | 0.018 | – | 2/6/218 |
+
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)): YOLO11l (pano) F1 0.587, YOLO11x (pano) F1 0.568, YOLO26 (pano) F1 0.538, Gemini 3.7 Flash F1 0.261.
+
+<!-- END GENERATED: results:laurens_gsv -->
 
 ### The rig, not the town (#151)
 
@@ -634,16 +688,22 @@ R columns are comparable — both arms are read at 0.55.
 reviewer confidence **HIGH**; NBR 9050 design vocabulary on GSV (the same imagery path as
 bend/paterson/gainesville — see `benchmark/README.md` for what the split de-confounds)
 
+<!-- BEGIN GENERATED: results:sao_paulo (scripts/analysis/scoreboard.py) -->
+
 | model | P | R | F1 | AP | tp/fp/fn |
 |---|---|---|---|---|---|
 | **rampnet** | **0.894** | 0.687 | **0.777** | 0.666 | 193/23/88 |
-| gemini-3.1-pro-preview | 0.463 | 0.445 | 0.454 | – | 125/145/156 |
+| **gemini-3.1-pro-preview** | 0.463 | 0.445 | **0.454** | – | 125/145/156 |
 | gemini-3.6-flash | 0.333 | 0.359 | 0.346 | – | 101/202/180 |
 | **molmo2-8B** (points) | 0.319 | 0.335 | **0.326** | – | 94/201/187 |
 | Qwen3-VL-8B-Instruct | 0.229 | 0.210 | 0.219 | – | 59/199/222 |
-| **Qwen3-VL-32B-Instruct** | **0.506** | **0.139** | 0.218 | – | 39/38/242 |
-| owlv2-large-patch14-ensemble | 0.027 | 0.922 | 0.052 | 0.050 | 259/9433/22 |
+| Qwen3-VL-32B-Instruct | 0.506 | 0.139 | 0.218 | – | 39/38/242 |
+| owlv2-large-patch14-ensemble | 0.027 | **0.922** | 0.052 | 0.050 | 259/9433/22 |
 | grounding-dino-base | 0.025 | 0.797 | 0.049 | 0.034 | 224/8676/57 |
+
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)): YOLO11l (pano) F1 0.662, YOLO11x (pano) F1 0.659, YOLO26 (pano) F1 0.605, Claude Opus 5 (low) F1 0.468, Gemini 3.7 Flash F1 0.358.
+
+<!-- END GENERATED: results:sao_paulo -->
 
 Best sweep F1: OWLv2 **0.096** (thr 0.15), Grounding DINO **0.081** (thr 0.20). (The live
 gemini-pro run isolated 1 pano failure; the retried pano is in the cache, and the table
@@ -684,16 +744,22 @@ Three things sao_paulo adds:
 ground truth is low-confidence by the reviewer's own rating; read `benchmark/README.md`'s
 Budapest section before quoting any of this.**
 
+<!-- BEGIN GENERATED: results:budapest_district5 (scripts/analysis/scoreboard.py) -->
+
 | model | P | R | F1 | AP | tp/fp/fn |
 |---|---|---|---|---|---|
 | **rampnet** | **0.874** | 0.510 | **0.644** | 0.478 | 153/22/147 |
-| gemini-3.1-pro-preview | 0.434 | 0.340 | 0.381 | – | 102/133/198 |
+| **gemini-3.1-pro-preview** | 0.434 | 0.340 | **0.381** | – | 102/133/198 |
 | gemini-3.6-flash | 0.353 | 0.320 | 0.336 | – | 96/176/204 |
 | **molmo2-8B** (points) | 0.260 | 0.290 | **0.274** | – | 87/247/213 |
 | Qwen3-VL-8B-Instruct | 0.184 | 0.157 | 0.169 | – | 47/209/253 |
-| **Qwen3-VL-32B-Instruct** | 0.433 | **0.043** | **0.079** | – | 13/17/287 |
+| Qwen3-VL-32B-Instruct | 0.433 | 0.043 | 0.079 | – | 13/17/287 |
 | owlv2-large-patch14-ensemble | 0.032 | **0.930** | 0.062 | 0.089 | 279/8467/21 |
 | grounding-dino-base | 0.021 | 0.787 | 0.042 | 0.025 | 236/10755/64 |
+
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)): Claude Opus 5 (low) F1 0.378, Gemini 3.7 Flash F1 0.338, YOLO26 (pano) F1 0.277, YOLO11l (pano) F1 0.247, YOLO11x (pano) F1 0.221.
+
+<!-- END GENERATED: results:budapest_district5 -->
 
 Best sweep F1: OWLv2 **0.157** (thr 0.25), Grounding DINO **0.058** (thr 0.25).
 
