@@ -147,3 +147,7 @@ def test_first_sentence_skips_abbreviations():
     assert st._first_sentence("One. Two.") == "One."
     assert st._first_sentence("no period") == "no period"
     assert st._first_sentence(None) == ""
+
+
+def test_pct_rounds_up_to_one_decimal_at_the_one_percent_boundary():
+    assert (st.pct(0.0099), st.pct(0.00996), st.pct(0.01)) == ("0.99%", "1.0%", "1.0%")

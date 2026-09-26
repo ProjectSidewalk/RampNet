@@ -696,6 +696,9 @@ def main():
             print(f"updated {args.log_doc}")
         else:
             print(f"{args.log_doc}: already current")
+    elif write_log:
+        print(f"{args.log_doc}: not found -- write the prose first, then re-run to fill "
+              "the generated blocks")
 
     if write_figs:
         import scoreboard_figures

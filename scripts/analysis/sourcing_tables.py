@@ -62,9 +62,14 @@ def _load(path):
 
 
 def pct(fraction):
-    """A share as the §5g table prints it: 2 dp below 1%, 1 dp at or above."""
+    """A share as the §5g table prints it: 2 dp below 1%, 1 dp at or above.
+
+    The branch is on the value as it would print at 2 dp, so a share just under 1% that
+    rounds up (0.996% -> "1.00") prints "1.0%" like every other share at or above 1%,
+    rather than a 2-dp "1.00%".
+    """
     p = 100 * fraction
-    return f"{p:.2f}%" if p < 1 else f"{p:.1f}%"
+    return f"{p:.2f}%" if float(f"{p:.2f}") < 1 else f"{p:.1f}%"
 
 
 def offset_tolerance_table(payload):
@@ -158,7 +163,7 @@ def main():
             if updated != current:
                 problems.append(f"{rel}: generated tables are stale "
                                 "(re-run scripts/analysis/sourcing_tables.py)")
-            else:
+            elif not missing:
                 print(f"{rel}: current")
         elif updated != current:
             with open(path, "w", encoding="utf-8", newline="") as fh:
