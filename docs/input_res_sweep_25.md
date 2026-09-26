@@ -225,8 +225,11 @@ Caveats beside this table:
   FPs is the obvious follow-up before any precision number, or any † verdict, from this sweep is
   quoted on its own.
 - **One checkpoint.** Inference is deterministic, so the bootstrap band is the whole uncertainty
-  for *this* checkpoint. It says nothing about another checkpoint of the same recipe; seed-to-seed
-  movement of about 0.025 F1 was measured in #187.
+  for *this* checkpoint. It says nothing about another checkpoint of the same recipe; the
+  seed-to-seed SD of the recipe's macro-mean US7 F1 is `s_B` = 0.0094 over nine retrained replicates
+  ([`seed_variance_51_135.md`](seed_variance_51_135.md), Amendment 2; corrected after the PR #199
+  review, which found the earlier "about 0.025 F1 ... in #187" was a paired mAP difference for the
+  crop tag classifier, not seed variance).
 - **laurens_mapillary is the split most sensitive to scale** (ΔR −0.249 at r4096), and it is
   also the split whose deficit was traced to the capture rig ([#151](https://github.com/ProjectSidewalk/RampNet/issues/151)).
   Its rnative is only 1.4× the control, which is why rnative hurts it much less than r4096 does.
