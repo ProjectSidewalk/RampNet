@@ -275,3 +275,9 @@ analysis_out/input_res_sweep_25/*
 analysis_out/input_res_sweep_25/cache/*
 !analysis_out/input_res_sweep_25/cache/*/
 !analysis_out/input_res_sweep_25/cache/*/*.json
+
+# Two-scale inference (#197): the report, re-derived by two_scale_197.py report --check
+!analysis_out/two_scale_197/
+analysis_out/two_scale_197/*
+!analysis_out/two_scale_197/results.json
+!analysis_out/two_scale_197/results.md
