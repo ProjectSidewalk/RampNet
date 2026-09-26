@@ -1275,7 +1275,7 @@ def cmd_figures(args):
             key = f"{g}|{floor}|world|R18"
             if key not in rv:
                 continue
-            rows = rv[key]["k_nearest_fixed"]
+            rows = rv[key]["k_nearest_fixed4"]
             ks = [r["k"] for r in rows]
             ys = [r["recall"] for r in rows]
             lo = [r["ci"][0] for r in rows]
@@ -1283,6 +1283,10 @@ def cmd_figures(args):
             ax.plot(ks, ys, marker="o", color=colors[g],
                     label=f"{g} (n={rows[0]['ramps']})")
             ax.fill_between(ks, lo, hi, color=colors[g], alpha=0.12, linewidth=0)
+            if g == "mapillary":
+                r8 = rv[key]["k_nearest_fixed"]
+                ax.plot([r["k"] for r in r8], [r["recall"] for r in r8], linestyle=":",
+                        color=colors[g], label=f"mapillary, >= 8 views (n={r8[0]['ramps']})")
         ax.set_title(f"other views only, detection >= {floor}", color=ink, fontsize=10)
         ax.set_xlabel("k nearest other captures used (within 18 m)", color=muted)
         ax.grid(alpha=0.3)
@@ -1290,29 +1294,42 @@ def cmd_figures(args):
     axes[0].set_ylabel("share of GT ramps seen by >= 1 of them", color=muted)
     axes[0].set_ylim(0, 1.02)
     fig.suptitle("Recall from other captures vs how many are used (fixed population: ramps "
-                 "with >= 8 other captures)", fontsize=10, color=ink)
+                 "with >= 4 other captures; dotted: >= 8)", fontsize=10, color=ink)
     fig.tight_layout()
     fig.savefig(os.path.join(FIG_DIR, "recall_k_nearest.png"), dpi=150)
     plt.close(fig)
 
-    # 2. recall by capture count
-    fig, ax = plt.subplots(figsize=(6.5, 3.8))
-    for g in ("gsv", "mapillary"):
-        key = f"{g}|0.55|world|R18"
-        rows = [r for r in rv[key]["by_capture_count"] if r["ramps"]]
-        ax.errorbar(range(len(rows)), [r["recall_other"] for r in rows],
-                    yerr=[[r["recall_other"] - r["recall_other_ci"][0] for r in rows],
-                          [r["recall_other_ci"][1] - r["recall_other"] for r in rows]],
-                    marker="o", capsize=3, color=colors[g], label=g)
-        ax.set_xticks(range(len(rows)))
-        ax.set_xticklabels([f"{r['n_bin']}\n(n={r['ramps']})" for r in rows], fontsize=7)
+    # 2. failure correlation: every-view-missed, observed vs independence, by capture count
+    fc = rv["pooled|0.55|world|R18"]["failure_correlation"]
+    rows = [r for r in fc["all_missed_by_n"] if r["ramps"]]
+    fig, axes = plt.subplots(1, 2, figsize=(9.5, 3.6))
+    ax = axes[0]
+    xs = range(len(rows))
+    ax.bar([x - 0.2 for x in xs], [r["observed"] for r in rows], width=0.4,
+           color=colors["pooled"], label="observed")
+    ax.bar([x + 0.2 for x in xs], [r["predicted_independent"] for r in rows], width=0.4,
+           color="#8c959f", label="if views failed independently")
+    ax.set_xticks(list(xs))
+    ax.set_xticklabels([f"{r['n_bin']}\n({r['ramps']} ramps)" for r in rows], fontsize=7)
     ax.set_xlabel("other captures within 18 m", color=muted)
-    ax.set_ylabel("recall from other views, >= 0.55", color=muted)
-    ax.set_ylim(0, 1.02)
+    ax.set_ylabel("ramps every other view missed", color=muted)
+    ax.legend(fontsize=8, frameon=False)
+    ax.grid(alpha=0.3, axis="y")
+    ax = axes[1]
+    seps = [r for r in fc["by_separation"] if r["pairs"]]
+    labels = [f"{r['bin'][0]:g}-{r['bin'][1]:g}" for r in seps]
+    ax.plot(labels, [r["p_miss_given_miss"] for r in seps], marker="o", color=colors["pooled"],
+            label="P(view j misses | view i missed)")
+    ax.plot(labels, [r["p_miss_marginal"] for r in seps], marker="o", color="#8c959f",
+            label="P(view j misses), range-matched")
+    ax.set_xlabel("distance between the two cameras (m)", color=muted)
+    ax.set_ylim(0, 1)
     ax.grid(alpha=0.3)
     ax.legend(fontsize=8, frameon=False)
+    fig.suptitle("Misses in different views of one ramp are correlated (5 cities, >= 0.55, "
+                 "world test)", fontsize=10, color=ink)
     fig.tight_layout()
-    fig.savefig(os.path.join(FIG_DIR, "recall_by_capture_count.png"), dpi=150)
+    fig.savefig(os.path.join(FIG_DIR, "failure_correlation.png"), dpi=150)
     plt.close(fig)
 
     # 3. evidence score vs k-of-n, pooled over sub-threshold cities
@@ -1324,7 +1341,8 @@ def cmd_figures(args):
             cur = d["score_curves"][variant]["all_sites"]
             ax.plot([r["recall"] for r in cur], [r["precision"] for r in cur], style,
                     color="#0969da", label=f"score ({variant})")
-        for name, mk in (("flat_030", "s"), ("kofn_2", "^"), ("kofn_3", "v")):
+        for name, mk in (("operational_055", "o"), ("flat_030", "s"), ("kofn_2", "^"),
+                         ("kofn_3", "v")):
             p = d["policies"][name]
             ax.plot(p["recall"], p["precision"], mk, color=ink, label=name)
         ax.set_title(city, fontsize=10, color=ink)
