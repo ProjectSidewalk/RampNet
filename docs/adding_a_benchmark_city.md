@@ -253,7 +253,7 @@ city or mislabelling it.
 | `low_floor_sweep.py` → `TTA_RECORD_SPLITS` | only if the committed detections used TTA |
 | `scripts/analysis/plot_operating_point.py` → `SERIES` | add a colour **from the validated palette, in slot order** — never a made-up hue. Past 8 slots, fold to "Other" or facet |
 | `scripts/export_benchmark.py` → `BENCHMARK_SPLITS` | **required** — the HF package is built from this allowlist, not from a glob, so a split missing here is silently absent from all four configs. A test keeps it in step with `scripts/analysis/miss_decomposition.py`. Republish with `build` → `verify` → `push` |
-| `benchmark/train_overlap.json` | **required** — the exporter refuses a split without an entry. Re-run `python scripts/analysis/train_overlap_check.py` (network read-only, minutes) and commit the result; it fills the `records` config's `train_overlap` column (#127) |
+| `benchmark/train_overlap.json` | **required** — the exporter refuses a split without an entry. Re-run `python scripts/analysis/train_overlap_check.py` (network read-only, about 10 minutes) and commit the result; it fills the `records` config's `train_overlap` column (#127) |
 
 ## Phase 6 — documentation (where a split actually becomes real)
 

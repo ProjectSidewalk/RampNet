@@ -18,8 +18,8 @@ has no entry there, so a new city cannot be published unchecked. `scripts/score_
 
 Method: exact panorama-id membership. Only the `pano_id` column of each parquet shard is read,
 over HTTP range requests (the same approach as `scripts/fetch_manual_gold.py --audit`), so the
-~460 GB dataset is checked in minutes without downloading imagery. Network read-only; it never
-writes to the Hub.
+~460 GB dataset is checked in about 10 minutes (11 m 05 s on 2026-09-26) without downloading
+imagery. Network read-only; it never writes to the Hub.
 
 Output is written with sorted keys, 2-space indent, LF line endings and a trailing newline, so a
 re-run that finds the same answer produces the same bytes (apart from `checked_at`).
