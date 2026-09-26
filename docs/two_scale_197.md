@@ -11,8 +11,13 @@ retraining.
 
 **Run date:** 2026-09-26. **Script:** `scripts/analysis/two_scale_197.py` (tests:
 `tests/test_two_scale_197.py`). **Outputs:** `analysis_out/two_scale_197/results.json` and
-`results.md`; every table below is pasted from `results.md`. **Compute:** CPU only, about 40 s on
+`results.md`; every table below is pasted from `results.md`. **Compute:** CPU only, about 55 s on
 `jonfhome` (Windows desktop); no GPU, no panoramas, no network, no spend, so no ledger row.
+
+**Revised 2026-09-26 after review** ([PR #199 review](https://github.com/ProjectSidewalk/RampNet/pull/199#issuecomment-5850348171)):
+the GSV pool's R2 "RECALL LEVER" is now reported beside a post hoc leave-paterson-out pool, where
+it does not hold; the best single r2048 threshold is added as context; the seed-variance
+citation is corrected. No pre-stated verdict changed.
 
 The sections "Inputs" through "Verdict rule" were committed in `a5c4a8f` before any fusion number
 was computed, and are unchanged below except where marked. The results start at
@@ -46,8 +51,10 @@ pass's list is already `peak_local_max` output with `min_distance` 10).
   or which lie at or above the horizon; then dedupe across the boundary. Range is
   `recall_by_depth_112.flat_range(y, CAM_H = 2.5 m)`, so the split is a single image row:
   y ≤ 0.54393 is far. 18 m is `FAR_M`, the far band of
-  [`detection_recall_analysis.md`](detection_recall_analysis.md) and #46 ("57.8% of misses at
-  0.30 are beyond 18 m"), defined before #196 existed. It is not tuned. **Disclosure:** #196's
+  [`detection_recall_analysis.md`](detection_recall_analysis.md) and #46, defined before #196
+  existed ("57.8% of misses at 0.30 are beyond 18 m" is from
+  [`data_scaling_59.md`](data_scaling_59.md), the far-field row of its miss table; the plan cited
+  the wrong file, corrected after review). It is not tuned. **Disclosure:** #196's
   pooled band table, on these same splits, shows u4096 ahead of r2048 only from 25 m on
   (18–25 m: r2048 0.771, u4096 0.754), so 18 m may be too near. That table was read before this
   plan; the cutoff is not moved because of it, and R3 exists to let the data choose without
@@ -76,6 +83,11 @@ GSV pool = bend + paterson + gainesville + sao_paulo + laurens_gsv):
    threshold-only baseline**: r2048 alone at the highest threshold on a 0.05–0.95 grid (step 0.01)
    whose recall reaches the fused rule's recall, chosen in sample on the same split or pool (which
    favours the baseline). Paired ΔF1 CI, fused minus that baseline.
+   *Added after review, context only:* this is not #194's matched-recall definition, which takes
+   the **best-F1** threshold among those that reach the recall (a lower threshold can have a
+   higher F1). #194's version favours the baseline at least as much. Both it and #194's stronger
+   control, the best single r2048 threshold on the grid, are reported beside the verdicts; neither
+   enters them.
 4. **Wrong-pano control.** Cyclic shift of the u4096 peaks over the sorted pano list within each
    split (pano i gets pano i + k's u4096 peaks, 20 evenly spaced k), fused with the correct r2048
    peaks by the same rule. Attributable ΔR = real ΔR − mean shifted ΔR, pooled.
@@ -121,10 +133,12 @@ A threshold alone (r2048 at 0.28) reaches the same recall for 29 extra FPs, and 
 
 **Why R1 fails: the far field is a few image rows, and a hard row cut throws away r2048's own
 far-field hits.** At a 2.5 m camera, 18–25 m is y 0.532–0.544 of the image height, about 6 rows of
-the 512-row heatmap, while the match radius is about 22 rows. Of the 85 US-pool ramps that r2048
-finds and R1 loses, **all 85** had their r2048 peak on the far side of the cut (so R1 discarded
-it); for 31 u4096 had no peak ≥ 0.30 within the match radius, and for 46 u4096's only peak was on
-the near side, which R1 also discards. The 18–25 m band carries the loss: recall 0.771 (r2048) →
+the 512-row heatmap, while the match radius is about 22 rows. A post hoc diagnostic (added after
+the first results, no verdict) counts the 85 US-pool ramps that r2048 finds and R1 loses: **all
+85** had their r2048 peak on the far side of the cut (so R1 discarded it); for 31 u4096 had no
+peak ≥ 0.30 within the match radius, for 46 u4096's only peak was on the near side, which R1
+also discards, and for the remaining 8 u4096 did have a far-side peak within the radius and the
+ramp was still lost (that peak went to another GT point or was removed by the dedupe). The 18–25 m band carries the loss: recall 0.771 (r2048) →
 0.663 (R1), below u4096 alone (0.754). #196's band table already showed u4096 ahead of r2048 only
 from 25 m on, and the plan disclosed this before scoring; 18 m was kept because it was fixed a
 priori.
@@ -137,46 +151,70 @@ threshold (r2048 at 0.16) pays +262 FPs for the same recall. R2 beats it on F1 b
 +0.018]; the unrounded lower bound is −0.00008, so the rule reads NO BETTER THAN A THRESHOLD by a
 margin that is nothing. On the **GSV pool** the same comparison clears: ΔR +0.057 [+0.045,
 +0.069], ΔF1 −0.001 [−0.011, +0.009], +85 ramps for +126 FPs (1.5 per ramp), against +209 FPs for
-the matched threshold (0.13), fused − matched ΔF1 +0.022 [+0.010, +0.033]: **RECALL LEVER**. On the
-headline Mapillary pool it does not (fused − matched −0.014 [−0.029, +0.000]).
+the matched threshold (0.13), fused − matched ΔF1 +0.022 [+0.010, +0.033]: **RECALL LEVER, driven
+by paterson.** paterson supplies 30 of the 85 recovered ramps, and it is the split where no r2048
+threshold on the grid reaches R2's recall and where u4096 alone raises F1. With paterson left out
+(post hoc, added after review; bend + gainesville + sao_paulo + laurens_gsv), R2 reads NO BETTER
+THAN A THRESHOLD: ΔR +0.050 [+0.038, +0.063], ΔF1 −0.012 [−0.024, −0.001], +55 ramps for +113 FPs
+(2.1 per ramp) against +95 FPs for the matched threshold (0.18), fused − matched −0.009 [−0.022,
++0.004]. So the GSV-pool reading is a paterson result, not a GSV one. On the headline Mapillary
+pool R2 does not clear either (fused − matched −0.014 [−0.029, +0.000]).
 
 **The leave-one-split-out rule (R3) chose the most conservative setting on the grid for every
 held-out split (D = 40 m, t_u = 0.40)**, and it buys little: US pool ΔR +0.010 [+0.006, +0.015],
 ΔF1 +0.003 [−0.000, +0.007], +24 ramps for +17 FPs, NO BETTER THAN A THRESHOLD (fused − matched
-+0.004 [−0.001, +0.009]). On the other ten splits it beat "no fusion" by 0.001–0.003 F1 (with
-richmond held out, 0.7966 against 0.7954; with paterson held out, by under 0.0001), and it sits on the edge of the grid, so the F1-optimal
-far-field cutoff for this checkpoint may be beyond 40 m or at no fusion at all.
++0.004 [−0.001, +0.009]). On the other ten splits it beat "no fusion" by 0.0012–0.0026 F1 for
+ten of the eleven held-out splits (with richmond held out, 0.7966 against 0.7954), and by
+0.000002 with paterson held out (0.7996894 against 0.7996873, in `results.md`'s LOSO table). It
+sits on the edge of the grid, so the F1-optimal far-field cutoff for this checkpoint may be beyond
+40 m or at no fusion at all. It also ties the best single r2048 threshold on the headline pool
+(F1 0.8107 against 0.8105 at 0.26) and is within noise of it on the US pool (0.8281 against 0.8256
+at 0.32, ΔF1 +0.003 [−0.001, +0.007]).
 
 **No rule reads HELPS on any pool.** Per split, one rule × split reads HELPS: paterson under R3
 (ΔR +0.023 [+0.009, +0.040], ΔF1 +0.014 [+0.004, +0.026], beats its matched threshold by +0.018
-[+0.005, +0.033]). paterson is also the one split where #196 found u4096 alone raises F1, so this
-is the same scale effect, not a new one. richmond is the only split where R2 reads RECALL LEVER;
-morgantown reads HURTS under all three rules.
+[+0.005, +0.033]). Two things have to be said beside it. **It rests on a near-tie in the LOSO
+choice:** with paterson held out, (40 m, 0.40) beat "no fusion" on the other ten splits by 0.000002
+F1; had "no fusion" been chosen, paterson's R3 would equal r2048 and read NULL. **And u4096 alone
+does better on paterson** (F1 0.8575 against R3's 0.8345; R2 0.8541). paterson is the one split
+where #196 found u4096 alone raises F1, so this is the same scale effect, not a new one.
+richmond is the only split where R2 reads RECALL LEVER; morgantown reads HURTS under all three
+rules. On both Laurens arms the best single r2048 threshold (0.19 on laurens_gsv, 0.16 on
+laurens_mapillary) beats every rule on F1 (context table in `results.md`).
 
 **Answers to the issue's four questions:**
 
 1. **Does a stated-in-advance rule beat 1× at 0.30 on recall and F1?** No. The a priori rule
    (R1) loses F1 on the US pool and does not raise recall. The union (R2) raises recall on every
    pool (CI above 0) and lowers or holds F1 (never with a CI above 0). The LOSO rule (R3) raises
-   recall by a point and holds F1.
+   recall by a point and holds F1, and ties the best single r2048 threshold.
 2. **How much of the far-field gain survives de-duplication?** For R2, all of u4096's far-band
    gain and more: US-pool far-band (≥ 18 m, n = 728) ΔR +0.119 [+0.096, +0.142] against +0.077
    [+0.047, +0.108] for u4096 alone, because R2 keeps r2048's own far hits too, and near-band
    recall does not drop (+0.011 [+0.006, +0.016], n = 1,576). The dedupe removes 1,328 u4096 peaks
    and 388 r2048 peaks on the US pool. Without it (the naive union) recall is 0.858 but precision
-   0.507 (+1,712 FPs); the naive union's extra recall over R2 is not recovered by a looser dedupe
-   (R2s below), so it comes from duplicate peaks that the greedy matcher hands to a second nearby
-   ramp, at about 8 FPs per ramp.
+   0.507 (+1,712 FPs). Most of the naive union's extra recall over R2 (106 ramps) is not
+   recovered by a looser dedupe: R2s (below) recovers 18 of them. The rest need a u4096 or r2048
+   peak within a Euclidean 10 heatmap px of a higher-scoring peak from the other pass. Whether
+   those are duplicate detections of one ramp that the greedy matcher hands to a second nearby GT
+   point, or genuine detections of an adjacent ramp, was **not measured**; either way they cost
+   about 8 FPs per ramp in the naive union.
 3. **FP per recovered ramp, and against the matched-recall baseline?** R2: 2.0 FP per recovered
    ramp on the US pool, 1.5 on GSV, 2.1 on the headline pool; the matched threshold costs 2.5
-   (262 FPs for 105 ramps), 2.4 (209 for 86) and 1.3 (50 for 38) respectively. R1: 8.9 (US). R3: 0.7 (US). The matched
-   threshold is chosen in sample on the pool it is compared on, which favours it.
+   (262 FPs for 105 ramps), 2.4 (209 for 86) and 1.3 (50 for 38) respectively. Without
+   paterson (post hoc) the GSV figures are 2.1 for R2 against 1.7 for the matched threshold (95
+   FPs for 55 ramps). R1: 8.9 (US). R3: 0.7 (US). The matched threshold is chosen in sample on the
+   pool it is compared on, which favours it. Against the best single r2048 threshold (also in
+   sample), R2 loses F1 on the US pool (−0.012 [−0.020, −0.004]) and ties on GSV (−0.001
+   [−0.011, +0.009]).
 4. **Inference cost:** about **4.8× the 1× pass** in GPU time (below).
 
 **So: two-scale inference is a recall dial for the far field that costs about 2 FPs per ramp and
 about 4.8× the GPU time, and on the US pool it is not measurably better than lowering the
-threshold, which costs no extra compute.** It is a better dial than the threshold on the GSV pool
-and on richmond. It does not raise F1 at 0.30 anywhere pooled.
+threshold, which costs no extra compute.** It reads as a better dial than the threshold on the
+GSV pool, but that reading is driven by paterson: without paterson (post hoc) it is no better
+than a threshold there either. Per split it is a better dial only on richmond (and on paterson,
+where no threshold reaches its recall at all). It does not raise F1 at 0.30 anywhere pooled.
 
 ## Tables
 
@@ -208,10 +246,17 @@ applied) and is scored at threshold 0, which for r2048 alone reproduces #196's 0
 | GSV pool | R3 | 0.881 | 0.769 | 0.821 | −0.006 [−0.011, −0.002] | +0.010 [+0.005, +0.015] | +0.003 [−0.001, +0.007] | NO BETTER THAN A THRESHOLD |
 | GSV pool | u4096 | 0.817 | 0.698 | 0.752 | −0.071 [−0.090, −0.050] | −0.061 [−0.087, −0.035] | −0.066 [−0.084, −0.046] | |
 | GSV pool | naive union | 0.522 | 0.884 | 0.657 | −0.365 [−0.380, −0.349] | +0.125 [+0.107, +0.145] | −0.162 [−0.181, −0.141] | |
+| *GSV pool minus paterson* (4, **post hoc**) | r2048 | 0.869 | 0.772 | 0.818 | — | — | — | |
+| *GSV minus paterson* | R1 | 0.825 | 0.772 | 0.798 | −0.044 [−0.061, −0.027] | +0.000 [−0.017, +0.016] | −0.020 [−0.032, −0.007] | *HURTS (post hoc)* |
+| *GSV minus paterson* | R2 | 0.789 | 0.822 | 0.805 | −0.080 [−0.095, −0.064] | +0.050 [+0.038, +0.063] | −0.012 [−0.024, −0.001] | *NO BETTER THAN A THRESHOLD (post hoc)* |
+| *GSV minus paterson* | R3 | 0.861 | 0.777 | 0.817 | −0.008 [−0.014, −0.003] | +0.005 [+0.002, +0.010] | −0.001 [−0.004, +0.003] | *NO BETTER THAN A THRESHOLD (post hoc)* |
 
 The r2048 and u4096 rows equal #196's (`input_res_sweep_25.md`) to 3 dp. The GSV pool's R1 "HURTS"
 rests on an upper bound of −0.00004. The pools overlap: paterson is in both the US and GSV pools,
-bend and gainesville too.
+bend and gainesville too. **The GSV pool's R2 RECALL LEVER is driven by paterson:** the
+leave-paterson-out rows (added after review, not in the plan, so their labels are context and not
+pre-stated verdicts) read NO BETTER THAN A THRESHOLD, and paterson supplies 30 of the GSV pool's
+85 recovered ramps.
 
 Caveats beside this table:
 
@@ -222,9 +267,15 @@ Caveats beside this table:
   If enough of R2's added FPs are real ramps, R2's ΔF1 moves up; the recall columns do not depend
   on this.
 - **The matched-recall threshold is chosen in sample** on the split or pool it is compared on
-  (the highest grid threshold whose recall reaches the fused recall). This favours the baseline.
+  (the highest grid threshold whose recall reaches the fused recall, the plan's definition). This
+  favours the baseline. #194 instead takes the best-F1 threshold among those that reach the
+  recall; that favours the baseline at least as much, and on these data it changes no verdict
+  (`results.md`, context table; tested).
 - **One checkpoint, deterministic inference.** The bootstrap interval is the whole uncertainty for
-  this checkpoint; seed-to-seed movement of about 0.025 F1 was measured in #187.
+  this checkpoint. It says nothing about another checkpoint of the same recipe: the seed-to-seed
+  SD of the recipe's macro-mean US7 F1 is `s_B` = 0.0094 over nine retrained replicates
+  ([`seed_variance_51_135.md`](seed_variance_51_135.md), Amendment 2), comparable to or larger
+  than most ΔF1s here.
 
 ### Cost of the recovered ramps (pooled, from `results.md`)
 
@@ -239,10 +290,29 @@ Caveats beside this table:
 | GSV pool | R1 | +18 | +63 | 3.50 | 1 / 13 | 0.26 | +29 | 0.818 | −0.011 [−0.022, +0.001] |
 | GSV pool | R2 | +85 | +126 | 1.48 | 259 / 868 | 0.13 | +209 | 0.796 | +0.022 [+0.010, +0.033] |
 | GSV pool | R3 | +15 | +11 | 0.73 | 12 / 0 | 0.26 | +29 | 0.818 | +0.003 [−0.002, +0.009] |
+| *GSV minus paterson* (post hoc) | R1 | +0 | +52 | — | 1 / 9 | 0.30 | +0 | 0.818 | −0.020 [−0.032, −0.007] |
+| *GSV minus paterson* (post hoc) | R2 | +55 | +113 | 2.05 | 172 / 641 | 0.18 | +95 | 0.814 | −0.009 [−0.022, +0.004] |
+| *GSV minus paterson* (post hoc) | R3 | +6 | +10 | 1.67 | 6 / 0 | 0.28 | +15 | 0.815 | +0.002 [−0.003, +0.007] |
 
 "Ramps recovered" is the net change in true positives on recall-confirmed panos; "extra FP" is
 over all panos, as `aggregate` counts them. FP per ramp is a ceiling for the same reason precision
 is a floor.
+
+### Context: the best single r2048 threshold (added after review, not a verdict input)
+
+#194's stronger control: the r2048 threshold on the 0.05–0.95 grid with the best F1 on the same
+split or pool, chosen in sample. Paired ΔF1, fused − that threshold (same bootstrap).
+
+| pool | best single thr | its F1 | R1: fused − best | R2: fused − best | R3: fused − best |
+|---|---|---|---|---|---|
+| headline | 0.26 | 0.810 | −0.024 [−0.040, −0.008] | −0.016 [−0.030, −0.002] | +0.000 [−0.009, +0.010] |
+| US pool | 0.32 | 0.826 | −0.019 [−0.028, −0.009] | −0.012 [−0.020, −0.004] | +0.003 [−0.001, +0.007] |
+| GSV pool | 0.30 | 0.818 | −0.011 [−0.022, −0.000] | −0.001 [−0.011, +0.009] | +0.003 [−0.001, +0.007] |
+| *GSV minus paterson* (post hoc) | 0.30 | 0.818 | −0.020 [−0.032, −0.007] | −0.012 [−0.024, −0.001] | −0.001 [−0.004, +0.003] |
+
+No rule beats the best single threshold on any pool; R2 loses to it on the US and headline pools.
+Per split (`results.md`), only paterson's R2 (+0.031 [+0.013, +0.049]) and R3 (+0.011 [+0.002,
++0.022]) beat it, and on both Laurens arms it beats every rule.
 
 ### Per split, the three rules
 
@@ -295,12 +365,18 @@ shifts), fused with the correct r2048 peaks by the same rule and scored the same
 | US pool | +0.0455 | +0.0118 | +0.0165 | +0.0337 | +212 | +1879.7 |
 | GSV pool | +0.0569 | +0.0127 | +0.0167 | +0.0441 | +126 | +1217.7 |
 
-A quarter to a third of R2's raw recall gain on each pool is what any extra peaks would buy by chance;
-the attributable gain on the US pool is +0.034, about 78 ramps. On no split does the real ΔR fall
+A fifth to a third (22–33%) of R2's raw recall gain on each pool is what the shifted peaks buy by
+chance; the attributable gain on the US pool is +0.034, about 78 ramps. **The null is not
+density-matched**, so the attributable ΔR is a lower bound: after the dedupe, a shifted u4096
+pass leaves about nine times as many surviving peaks as the real one (null ΔFP +1,880 against
++212 on the US pool), and each surviving peak is a chance to land on a ramp, so the null overstates
+what chance would buy at the real pass's density. On no split does the real ΔR fall
 inside the shifted range except laurens_mapillary (real +0.020, null max +0.036) and morgantown
-(real +0.011, null max +0.019), whose R2 gains are indistinguishable from chance. A wrong-pano
-copy adds about nine times as many FPs as the real u4096 pass, because the real pass's extra peaks
-mostly land on ramps r2048 already found and are removed by the dedupe.
+(real +0.011, null max +0.019), whose R2 gains are indistinguishable from chance (even by this
+conservative null). The wrong-pano copy's extra FPs are high because the real pass's extra peaks
+mostly land on ramps r2048 already found and are removed by the dedupe, while shifted peaks
+rarely coincide with an r2048 peak. Without paterson (post hoc) the attributable GSV ΔR is
++0.038 (real +0.050, null mean +0.012).
 
 **The same control is not informative for R1 and R3**, and their rows in `results.md` should not be
 read as evidence. Those rules *replace* r2048's far field with u4096's, so a wrong-pano u4096 far
@@ -335,8 +411,11 @@ GSV pools show the same pattern (`results.md`).
 ### Post hoc: dedupe radius (R2s, not in the plan, no verdict)
 
 After the first results showed the naive union's recall well above R2's, R2 was re-run with the
-dedupe radius at the extractor's own `min_distance` (10 heatmap px) instead of the scorer's match
-radius (about 22.5 px), to see whether the dedupe was discarding real neighbouring ramps. On the US
+dedupe radius at a Euclidean 10 heatmap px instead of the scorer's match radius (about 22.5 px),
+to see whether the dedupe was discarding real neighbouring ramps. 10 px is the extractor's
+`min_distance`, but `peak_local_max` applies it as a square (Chebyshev) window, so two peaks of
+one pass can sit 11–14 px apart on a diagonal; the Euclidean disc is slightly looser than the
+extractor's own rule. This is post hoc with no verdict, so the difference changes no reading. On the US
 pool R2s gains 18 more ramps than R2 (R 0.820 against 0.812) for 71 more FPs, and F1 falls (0.806
 against 0.814; ΔF1 vs r2048 −0.019 [−0.028, −0.010]). The looser dedupe does not close the gap to
 the naive union, and is worse than R2 on F1 on all three pools. It does not change any
@@ -344,9 +423,11 @@ reading above.
 
 ## Inference cost (Q4)
 
-Estimated from the #196 rows in `analysis_out/usage_log.jsonl` (labels `input-res-25:r2048` and
-`input-res-25:u4096`, the full runs with more than 6 panos; makelab2, one NVIDIA A40, fp32).
-`inference_cost()` in the script re-derives these, and a test pins them. No new GPU work was run.
+Estimated from three #196 rows in `analysis_out/usage_log.jsonl`, pinned by label and `ts` in
+`COST_ROWS` (`input-res-25:r2048` at 2026-09-26T14:18:26Z; `input-res-25:u4096` at
+2026-09-26T14:44:19Z, 125 panos, and 2026-09-26T15:09:24Z, 1,164 panos; makelab2, one NVIDIA A40,
+fp32). `inference_cost()` re-derives these, refuses a ledger that lacks one of them, and ignores
+any later `input-res-25:*` row (tested). No new GPU work was run.
 
 | pass | panos | GPU-side s / pano |
 |---|---|---|
@@ -363,6 +444,11 @@ ledger convention. Caveats beside the number:
   the committed rows. A deployment that upsamples on the GPU would move it there.
 - **One GPU, fp32, batch size 1.** The ratio is close to the 4× pixel ratio, as a convolutional
   backbone's cost should be; it was not measured under fp16, batching, or on other hardware.
+- **The two passes were timed in different invocations.** r2048 was timed in its own run (with
+  only the CPU-wait row beside it); u4096 in two multi-arm runs that interleaved r3072, r4096,
+  rnative and r4096_hm1024 on the same card, and the A40 is shared with other lab users (#196
+  records 8.8 GB held by another process during its smoke test). The ratio compares GPU-side
+  seconds from those different runs, not a paired timing of both passes on one pano.
 - For scale: R2 on the US pool recovers 105 ramps over 953 panos at 2.34 extra GPU-seconds per
   pano (about 37 extra GPU-minutes on this card); lowering the threshold to 0.16 recovers the same
   number for no extra compute and 50 more FPs.
@@ -392,19 +478,20 @@ The dedupe measures distance wrapped at the seam, as the scorer does.
 ```bash
 pip install -e . && pip install -r requirements-dev.txt
 
-# every table in this doc, from the committed #196 caches (~40 s, CPU)
+# every table in this doc, from the committed #196 caches (~55 s, CPU)
 python scripts/analysis/two_scale_197.py report
 
 # prove the committed results.json and results.md reproduce byte for byte (writes nothing)
 python scripts/analysis/two_scale_197.py report --check
 
-# tests (~5 s): fusion helpers, verdict branches, richmond rows and the Q4 cost re-derived
+# tests (~1 min, most of it the report --check drift guard): fusion helpers, verdict
+# branches, LOSO selection, richmond rows vs #196, the Q4 cost and the full report re-derived
 python -m pytest -q tests/test_two_scale_197.py
 ```
 
 The inputs are `analysis_out/input_res_sweep_25/cache/{r2048,u4096}/*.json` (hashed in that
 directory's `SHA256SUMS`; `python scripts/analysis/input_res_sweep_25.py sums` verifies them) and
-`analysis_out/usage_log.jsonl`. `results.json` sha256 `a24c1f72c296…`, `results.md` sha256
-`ccefe46a1ceb…` as committed; `--check` compares the full bytes. `--cities` and `--n-shifts`
+`analysis_out/usage_log.jsonl`. `results.json` sha256 `4e2153adba06…`, `results.md` sha256
+`cd1702c6b901…` as committed; `--check` compares the full bytes. `--cities` and `--n-shifts`
 change the inputs and the control and therefore the numbers; the committed files use the defaults
 (all 11 splits, 20 shifts).
