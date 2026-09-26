@@ -574,6 +574,14 @@ def in_border_band(x, y, md=10, hm=BASE_HEATMAP):
     return not (md <= r < H - md and md <= c < W - md)
 
 
+def in_seam_strip(x, md=10, w=BASE_HEATMAP[1]):
+    """True within ``md`` heatmap columns of x = 0 / 1: the ~3.5 deg strip beside the 360
+    seam that the pre-f4c71c8 op_caches cannot contain (docs/seam.md). The part of the
+    border band that matters; the top/bottom rows are the poles."""
+    c = int(round(x * w))
+    return c < md or c >= w - md
+
+
 def compare_to_op_cache(arm_panos, op_payload, tol=CHECK_TOL, drop_border=False):
     """Compare peak lists pano by pano.
 
@@ -586,7 +594,8 @@ def compare_to_op_cache(arm_panos, op_payload, tol=CHECK_TOL, drop_border=False)
     ``exclude_border=True``."""
     ref = {p["pano"]: [tuple(t) for t in p["preds"]] for p in op_payload["panos"]}
     out = {"panos_mismatched": 0, "max_abs_score_diff": 0.0, "n_over_1e4": 0,
-           "extra": 0, "extra_in_border": 0, "missing": 0, "details": []}
+           "extra": 0, "extra_in_border": 0, "extra_at_seam": 0, "missing": 0,
+           "details": []}
     if set(ref) != {p["pano"] for p in arm_panos}:
         out["panos_mismatched"] = len(ref)
         out["details"].append("pano sets differ")
@@ -604,6 +613,7 @@ def compare_to_op_cache(arm_panos, op_payload, tol=CHECK_TOL, drop_border=False)
         d = max(diffs, default=0.0)
         out["extra"] += len(extra)
         out["extra_in_border"] += sum(in_border_band(*k) for k in extra)
+        out["extra_at_seam"] += sum(in_seam_strip(k[0]) for k in extra)
         out["missing"] += len(missing)
         out["n_over_1e4"] += sum(x > 1e-4 for x in diffs)
         out["max_abs_score_diff"] = max(out["max_abs_score_diff"], d)
@@ -672,9 +682,9 @@ def cmd_check(args):
         # extra peak in the border band.
         strict_match = strict["panos_mismatched"] == 0
         if strict_match:
-            reference_mode = "exclude_border=False (post-#132)"
+            reference_mode = "exclude_border=False (post-f4c71c8)"
         else:
-            reference_mode = "exclude_border=True (pre-#132)"
+            reference_mode = "exclude_border=True (pre-f4c71c8)"
         asx_match = (asx["panos_mismatched"] == 0 and strict["missing"] == 0
                      and strict["extra"] == strict["extra_in_border"])
         prf_ok = all(tuple(v["as_extracted"] if not strict_match
@@ -689,7 +699,8 @@ def cmd_check(args):
                      "counts": prf})
         print(f"{city:>20}: {'PASS' if city_ok else 'FAIL'}  [{reference_mode}]  "
               f"strict: +{strict['extra']} "
-              f"peaks ({strict['extra_in_border']} in border band) / -{strict['missing']};"
+              f"peaks ({strict['extra_at_seam']} in the seam strip, "
+              f"{strict['extra_in_border']} in the border band) / -{strict['missing']};"
               f"  as-extracted: {asx['panos_mismatched']}/{len(panos)} panos differ, "
               f"max|score diff| {asx['max_abs_score_diff']:.2e} ({asx['n_over_1e4']} > 1e-4)  "
               + "  ".join(f"@{t}: {v['as_extracted']} vs {v['op_cache']} (with border "
