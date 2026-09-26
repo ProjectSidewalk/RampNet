@@ -103,20 +103,7 @@
   0.099096,
   0.173725
  ],
- "ceiling": {
-  "challenger": "mask2former-vistas-curb-cut",
-  "challenger_only": 38,
-  "handoff_ge_t_hi": 4,
-  "n_gt": 310,
-  "no_peak_in_radius": 15,
-  "promotable": 19,
-  "promotable_dR": 0.06129,
-  "source": "analysis_out/cascade_gate_op030.json",
-  "vistas_input_size": [
-   1024,
-   1024
-  ]
- },
+ "ceiling": null,
  "challenger": "IDEA-Research/grounding-dino-base",
  "challenger_signature": {
   "city": "richmond",
@@ -186,7 +173,7 @@
    ]
   }
  },
- "elapsed_s": 48.916853,
+ "elapsed_s": 53.674324,
  "fixed_setting": {
   "F1": 0.817473,
   "P": 0.791541,

@@ -76,20 +76,7 @@
  "c_min_grid": [
   0.0
  ],
- "ceiling": {
-  "challenger": "mask2former-vistas-curb-cut",
-  "challenger_only": 38,
-  "handoff_ge_t_hi": 4,
-  "n_gt": 310,
-  "no_peak_in_radius": 15,
-  "promotable": 19,
-  "promotable_dR": 0.06129,
-  "source": "analysis_out/cascade_gate_op030.json",
-  "vistas_input_size": [
-   1024,
-   1024
-  ]
- },
+ "ceiling": null,
  "challenger": "gemini-3.6-flash",
  "challenger_signature": {
   "city": "richmond",
@@ -156,7 +143,7 @@
    ]
   }
  },
- "elapsed_s": 1.972962,
+ "elapsed_s": 3.271978,
  "fixed_setting": {
   "F1": 0.863711,
   "P": 0.879599,

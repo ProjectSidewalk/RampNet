@@ -150,20 +150,7 @@
   0.60739,
   0.711747
  ],
- "ceiling": {
-  "challenger": "mask2former-vistas-curb-cut",
-  "challenger_only": 38,
-  "handoff_ge_t_hi": 4,
-  "n_gt": 310,
-  "no_peak_in_radius": 15,
-  "promotable": 19,
-  "promotable_dR": 0.06129,
-  "source": "analysis_out/cascade_gate_op030.json",
-  "vistas_input_size": [
-   1024,
-   1024
-  ]
- },
+ "ceiling": null,
  "challenger": "mask2former-vistas-curb-cut",
  "challenger_signature": {
   "city": "richmond",
@@ -240,7 +227,7 @@
    ]
   }
  },
- "elapsed_s": 7.976924,
+ "elapsed_s": 10.755034,
  "fixed_setting": {
   "F1": 0.850163,
   "P": 0.858553,

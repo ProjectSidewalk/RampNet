@@ -250,9 +250,11 @@ def load_challenger(split, published):
     return {pid: [tuple(c) for c in cs] for pid, cs in dets.items()}, header
 
 
-def ceiling_for(split, t_hi):
-    """The promotable-ramp ceiling from ``cascade_gate_op030.json`` (richmond @0.30 only)."""
-    if split != "richmond" or abs(t_hi - 0.30) > 1e-9 or not os.path.exists(CEILING_ARTIFACT):
+def ceiling_for(split, t_hi, published=PRIMARY[1]):
+    """#126's promotable-ramp ceiling (``cascade_gate_op030.json``): richmond, T_hi 0.30,
+    and only for the challenger that artifact was built from (the Vistas parity arm)."""
+    if (split != "richmond" or published != PRIMARY[1] or abs(t_hi - 0.30) > 1e-9
+            or not os.path.exists(CEILING_ARTIFACT)):
         return None
     with open(CEILING_ARTIFACT, encoding="utf-8") as f:
         art = json.load(f)
@@ -506,7 +508,7 @@ def run_pair(split, published, t_hi=T_HI, t_lo=T_LO, r_gate=R_GATE, c_min="auto"
     best_r = max(at_p, key=lambda r: (r["R"], r["F1"])) if at_p else None
     verdict = (verdict_of(base, thr, grid) if null_sets else None)
 
-    ceiling = ceiling_for(split, t_hi)
+    ceiling = ceiling_for(split, t_hi, published)
     if ceiling is not None:
         sites = set(tuple(x) for x in ceiling.pop("_promotable_sites"))
         for lab, r in (("best_viable", best_viable), ("best_by_f1", best_f1)):
