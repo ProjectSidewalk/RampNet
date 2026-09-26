@@ -782,15 +782,31 @@ def _ci(obs, draws):
 def _contrast(s_arm, s_ref, sizes, threshold):
     rng = np.random.default_rng(SEED)
     r = bp.observed_and_se(s_arm, sizes, threshold, rng, N_REPS, paired=s_ref)
-    return {k: {"observed": rnd(v["observed"]), "ci_lo": rnd(v["ci_lo"]),
-                "ci_hi": rnd(v["ci_hi"])} for k, v in r.items() if k != "max_f1"}
+    out = {k: {"observed": rnd(v["observed"]), "ci_lo": rnd(v["ci_lo"]),
+               "ci_hi": rnd(v["ci_hi"])} for k, v in r.items() if k != "max_f1"}
+    # Unrounded copy for verdict(): a bound like -0.00004 rounds to -0.0 and would flip
+    # a "hurts" into "tolerates" on the edge (richmond r4096 did). Stripped before writing.
+    out["_raw"] = {k: {"observed": v["observed"], "ci_lo": v["ci_lo"], "ci_hi": v["ci_hi"]}
+                   for k, v in r.items() if k != "max_f1"}
+    return out
+
+
+def _strip_private(obj):
+    if isinstance(obj, dict):
+        return {k: _strip_private(v) for k, v in obj.items() if not str(k).startswith("_")}
+    if isinstance(obj, list):
+        return [_strip_private(v) for v in obj]
+    return obj
 
 
 def verdict(d_arm, d_up):
     """Apply the pre-stated rule (plan section 1) to one split x arm at 0.30.
 
     ``d_arm`` = contrast arm - r2048; ``d_up`` = contrast arm - u4096 (None for u4096
-    itself). Returns (label, reasons)."""
+    itself). Decided on the unrounded bounds when the contrast carries them.
+    Returns (label, reasons)."""
+    d_arm = d_arm.get("_raw", d_arm)
+    d_up = d_up.get("_raw", d_up) if d_up is not None else None
     dr, dp, df = d_arm["recall"], d_arm["precision"], d_arm["f1"]
     reasons = {
         "recall_up_ci_excludes_0": dr["ci_lo"] is not None and dr["ci_lo"] > 0,
@@ -1087,7 +1103,7 @@ def markdown(rep):
 
 
 def cmd_report(args):
-    rep = build_report(args.cache_root)
+    rep = _strip_private(build_report(args.cache_root))
     write_json(args.out, rep)
     md = markdown(rep)
     md_path = os.path.splitext(args.out)[0] + ".md"

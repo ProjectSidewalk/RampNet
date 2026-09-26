@@ -221,7 +221,8 @@ def test_report_reproduces_committed_headline():
     """Re-derive annapolis r4096 vs r2048 from the committed caches; pinned to 4 dp."""
     with open(RESULTS, encoding="utf-8") as f:
         committed = json.load(f)
-    rep = irs.build_report(irs.CACHE_ROOT, arms=("r2048", "r4096"), cities=("annapolis",))
+    rep = irs._strip_private(irs.build_report(irs.CACHE_ROOT, arms=("r2048", "r4096"),
+                                              cities=("annapolis",)))
     got = rep["per_split"]["annapolis"]["vs_r2048"]["r4096"]["0.30"]
     assert got == committed["per_split"]["annapolis"]["vs_r2048"]["r4096"]["0.30"]
     assert got["recall"]["observed"] == -0.0714

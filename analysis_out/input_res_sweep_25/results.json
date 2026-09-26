@@ -7227,11 +7227,11 @@
     }
    },
    "r4096": {
-    "verdict": "tolerates",
+    "verdict": "hurts",
     "criteria": {
      "recall_up_ci_excludes_0": false,
      "precision_drop_not_larger_than_recall_gain": false,
-     "f1_ci_not_below_0": true,
+     "f1_ci_not_below_0": false,
      "recall_gain_exceeds_u4096_ci": false
     }
    },

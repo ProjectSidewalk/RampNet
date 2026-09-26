@@ -219,7 +219,7 @@
 | laurens_mapillary | hurts | hurts | hurts | hurts |
 | morgantown | hurts | hurts | tolerates | hurts |
 | paterson | gains, object scale only | gains, object scale only | tolerates | gains, object scale only |
-| richmond | tolerates | tolerates | hurts | hurts |
+| richmond | tolerates | hurts | hurts | hurts |
 | sao_paulo | hurts | hurts | hurts | hurts |
 | headline (annapolis+richmond+laurens_mapillary) | hurts | hurts | hurts | hurts |
 | US pool (miss_decomposition.US_SPLITS) | hurts | hurts | hurts | hurts |
