@@ -43,7 +43,7 @@ a run that hasn't happened, not a result being withheld.
 | richmond | ✅ | ✅ full roster | ✅ | ✅ 17% (5/29) | OOD deployment, Mapillary 360 |
 | bend | ✅ | ✅ full roster | ✅ | ✅ 29% (7/24) | in-domain GSV reference |
 | clovis | ✅ | ✅ full roster | ✅ | ✅ 30% (7/23) | hardest split — 2018 GoPro Fusion |
-| annapolis | ✅ | ✅ full roster | ✅ | ✅ 22% (6/27) | survey-grade Trimble MX7; far-field finding; **only split with a Claude leg** (#122) |
+| annapolis | ✅ | ✅ full roster | ✅ | ✅ 22% (6/27) | survey-grade Trimble MX7; far-field finding; **only split with all six Claude legs** (#122, #156; `claude-opus-5` low has run all eleven city splits) |
 | morgantown | ✅ | ✅ full roster | ✅ | ✅ 13% (4/30) | cleanest imagery; the control split |
 | paterson | ✅ | ✅ full roster | ✅ | ✅ 20% (2/10) | second GSV city; live PS deployment; narrowest RampNet lead (0.12); 2nd Qwen inversion |
 | gainesville | ✅ | ✅ full roster | ✅ | ✅ **35% (12/34) — highest measured** | third GSV city, first far-domain; same recall as paterson (0.647), opposite mechanism (ceiling 0.890); 3rd Qwen inversion |
@@ -610,7 +610,10 @@ Three things laurens adds:
 1. **RampNet's worst split still leads the best zero-shot challenger — by 0.113.** Its
    recall halves against every other US split (0.390 against clovis's next-worst 0.650), but
    the challengers fall further: `claude-opus-5` at effort low, added 2026-09-04 and the
-   strongest zero-shot model in the benchmark, lands at 0.430; gemini-pro at 0.343, its
+   strongest zero-shot model in the benchmark (qualified 2026-09-26: strongest on this split,
+   not overall — pooled over the eight US splits gemini-3.1-pro edges it, 0.575 vs 0.568, and
+   on annapolis both Fable legs do, 0.611 and 0.610 vs 0.588; see `model_scoreboard.md`),
+   lands at 0.430; gemini-pro at 0.343, its
    second-lowest US F1. **That lead was published as 0.200 against gemini-pro before the
    Claude leg existed — quote 0.113, not the earlier figure.** So the
    rural deficit is not RampNet-specific in the zero-shot field — whatever makes this town
