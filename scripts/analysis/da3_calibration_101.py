@@ -312,6 +312,14 @@ def rig_key(make, model):
     return f"{make or 'unknown'}/{' '.join(toks) or 'unknown'}"
 
 
+def normalized_sha256(path):
+    """sha256 of a text file with CRLF folded to LF, so a core.autocrlf=true checkout hashes the
+    same as the LF bytes this script writes (review B1). The files are also pinned LF in
+    .gitattributes; this makes the check true even where that pin has not been applied."""
+    with open(path, "rb") as fh:
+        return hashlib.sha256(fh.read().replace(b"\r\n", b"\n")).hexdigest()
+
+
 def _r(v, nd=ND):
     return None if v is None else round(float(v), nd)
 
@@ -1264,7 +1272,7 @@ def committed_files():
 def write_sums():
     lines = []
     for p in committed_files() + [RBD_JSON]:
-        lines.append(f"{sha256_of(p)}  {os.path.relpath(p, REPO).replace(os.sep, '/')}")
+        lines.append(f"{normalized_sha256(p)}  {os.path.relpath(p, REPO).replace(os.sep, '/')}")
     with open(SUMS, "w", encoding="utf-8", newline="") as fh:
         fh.write("\n".join(lines) + "\n")
 
@@ -1281,12 +1289,12 @@ def check(markdown_out=False):
     if fresh != stored["tables"]:
         raise SystemExit(f"{TABLES_JSON}: tables do not re-derive from the committed rows")
     with open(TABLES_MD, encoding="utf-8", newline="") as fh:
-        if fh.read() != markdown(fresh):
+        if fh.read().replace("\r\n", "\n") != markdown(fresh):
             raise SystemExit(f"{TABLES_MD} is not the markdown of the committed tables")
     with open(SUMS, encoding="utf-8") as fh:
         for line in fh:
             digest, rel = line.split()
-            if sha256_of(os.path.join(REPO, rel)) != digest:
+            if normalized_sha256(os.path.join(REPO, rel)) != digest:
                 raise SystemExit(f"SHA256SUMS: {rel} changed")
     print(f"ok: {len(panos)} panos, {len(points)} points; rows, tables, markdown and SHA256SUMS re-derive")
     if markdown_out:
@@ -1320,7 +1328,7 @@ def main(argv=None):
         write_jsonl(ROWS_PANOS, panos)
         write_jsonl(ROWS_POINTS, points)
         write_json(TABLES_JSON, {"labeler_laurens": labeler, "tables": t,
-                                 "inputs": {"recall_by_depth_112.json": sha256_of(RBD_JSON)}})
+                                 "inputs": {"recall_by_depth_112.json": normalized_sha256(RBD_JSON)}})
         with open(TABLES_MD, "w", encoding="utf-8", newline="") as fh:
             fh.write(markdown(t))
         write_sums()
