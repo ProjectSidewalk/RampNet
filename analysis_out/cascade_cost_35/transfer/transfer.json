@@ -1,0 +1,2837 @@
+{
+ "challenger": "mask2former-vistas-curb-cut-1024x1024",
+ "fixed_setting": {
+  "c_min": "median box score of the challenger on that split",
+  "r_gate": 0.011,
+  "t_hi": 0.3,
+  "t_lo": 0.05
+ },
+ "gsv_missing": [],
+ "gsv_passes": [
+  "gainesville"
+ ],
+ "gsv_splits": [
+  "bend",
+  "paterson",
+  "gainesville"
+ ],
+ "in_sample_grid": {
+  "annapolis": {
+   "best_by_f1": {
+    "F1": 0.868056,
+    "attributable_dR": 0.037991,
+    "c_min": 0.0,
+    "r_gate": 0.011,
+    "t_lo": 0.1
+   },
+   "best_viable": {
+    "F1": 0.868056,
+    "R": 0.85034,
+    "attributable_dR": 0.037991,
+    "c_min": 0.0,
+    "dR": 0.040816,
+    "fp_per_attributable_ramp": 0.537184,
+    "promoted_fp": 6,
+    "r_gate": 0.011,
+    "t_lo": 0.1
+   },
+   "calibration_false_viable_rate": 0.0,
+   "file": "analysis_out/cascade_cost_35/annapolis__mask2former-vistas-curb-cut-1024x1024.json",
+   "n_settings": 60,
+   "n_viable_rows": 18,
+   "naive_union_F1": 0.487091,
+   "null_shifts": 124,
+   "selection_aware_viable_frac": 0.9895,
+   "threshold_only_best": {
+    "F1": 0.855596,
+    "t": 0.31
+   },
+   "verdict": "VIABLE"
+  },
+  "bend": {
+   "best_by_f1": {
+    "F1": 0.88,
+    "attributable_dR": 0.017311,
+    "c_min": 0.0,
+    "r_gate": 0.011,
+    "t_lo": 0.2
+   },
+   "best_viable": {
+    "F1": 0.87619,
+    "R": 0.844037,
+    "attributable_dR": 0.0202,
+    "c_min": 0.0,
+    "dR": 0.021407,
+    "fp_per_attributable_ramp": 0.756944,
+    "promoted_fp": 5,
+    "r_gate": 0.011,
+    "t_lo": 0.15
+   },
+   "calibration_false_viable_rate": 0.0,
+   "file": "analysis_out/cascade_cost_35/bend__mask2former-vistas-curb-cut-1024x1024.json",
+   "n_settings": 60,
+   "n_viable_rows": 2,
+   "naive_union_F1": 0.456763,
+   "null_shifts": 109,
+   "selection_aware_viable_frac": 0.6925,
+   "threshold_only_best": {
+    "F1": 0.872666,
+    "t": 0.5
+   },
+   "verdict": "VIABLE"
+  },
+  "gainesville": {
+   "best_by_f1": {
+    "F1": 0.828096,
+    "attributable_dR": 0.042843,
+    "c_min": 0.50866,
+    "r_gate": 0.022,
+    "t_lo": 0.15
+   },
+   "best_viable": {
+    "F1": 0.828096,
+    "R": 0.823529,
+    "attributable_dR": 0.042843,
+    "c_min": 0.50866,
+    "dR": 0.051471,
+    "fp_per_attributable_ramp": 0.858131,
+    "promoted_fp": 10,
+    "r_gate": 0.022,
+    "t_lo": 0.15
+   },
+   "calibration_false_viable_rate": 0.016129,
+   "file": "analysis_out/cascade_cost_35/gainesville__mask2former-vistas-curb-cut-1024x1024.json",
+   "n_settings": 60,
+   "n_viable_rows": 28,
+   "naive_union_F1": 0.45781,
+   "null_shifts": 124,
+   "selection_aware_viable_frac": 0.99,
+   "threshold_only_best": {
+    "F1": 0.822355,
+    "t": 0.38
+   },
+   "verdict": "VIABLE"
+  },
+  "paterson": {
+   "best_by_f1": {
+    "F1": 0.827972,
+    "attributable_dR": 0.022887,
+    "c_min": 0.0,
+    "r_gate": 0.022,
+    "t_lo": 0.1
+   },
+   "best_viable": {
+    "F1": 0.827972,
+    "R": 0.749367,
+    "attributable_dR": 0.022887,
+    "c_min": 0.0,
+    "dR": 0.03038,
+    "fp_per_attributable_ramp": 0.99554,
+    "promoted_fp": 9,
+    "r_gate": 0.022,
+    "t_lo": 0.1
+   },
+   "calibration_false_viable_rate": 0.0,
+   "file": "analysis_out/cascade_cost_35/paterson__mask2former-vistas-curb-cut-1024x1024.json",
+   "n_settings": 60,
+   "n_viable_rows": 2,
+   "naive_union_F1": 0.554829,
+   "null_shifts": 124,
+   "selection_aware_viable_frac": 0.661,
+   "threshold_only_best": {
+    "F1": 0.821173,
+    "t": 0.26
+   },
+   "verdict": "VIABLE"
+  },
+  "richmond": {
+   "best_by_f1": {
+    "F1": 0.872305,
+    "attributable_dR": 0.017912,
+    "c_min": 0.640738,
+    "r_gate": 0.011,
+    "t_lo": 0.15
+   },
+   "best_viable": {
+    "F1": 0.871961,
+    "R": 0.867742,
+    "attributable_dR": 0.03572,
+    "c_min": 0.640738,
+    "dR": 0.03871,
+    "fp_per_attributable_ramp": 0.903084,
+    "promoted_fp": 10,
+    "r_gate": 0.011,
+    "t_lo": 0.05
+   },
+   "calibration_false_viable_rate": 0.0,
+   "file": "analysis_out/cascade_cost_35/richmond__mask2former-vistas-curb-cut-1024x1024.json",
+   "n_settings": 60,
+   "n_viable_rows": 4,
+   "naive_union_F1": 0.46319,
+   "null_shifts": 123,
+   "selection_aware_viable_frac": 0.904,
+   "threshold_only_best": {
+    "F1": 0.871186,
+    "t": 0.33
+   },
+   "verdict": "VIABLE"
+  }
+ },
+ "op_cache_commit_note": "op_cache written at c7098be (2026-07-28), before the seam fix f4c71c8: pre-f4c71c8 seam strip, peaks beside the seam can be missing, so any seam-side gain is under-stated",
+ "other_splits": [
+  "annapolis"
+ ],
+ "overall": "DOES NOT TRANSFER",
+ "primary": {
+  "annapolis": {
+   "baseline": {
+    "F1": 0.853047,
+    "P": 0.901515,
+    "R": 0.809524,
+    "fn": 56,
+    "fp": 26,
+    "n_gt": 294,
+    "tp": 238
+   },
+   "bootstrap": {
+    "attr_dR_ci95": [
+     0.009047,
+     0.051203
+    ],
+    "conditioning": "setting fixed before these splits were scored",
+    "dF1_ci95": [
+     -0.009565,
+     0.022623
+    ],
+    "dR_ci95": [
+     0.01083,
+     0.053571
+    ],
+    "resamples": 2000,
+    "rng": "numpy.default_rng",
+    "seed": 0,
+    "unit": "pano"
+   },
+   "c_min_quartiles": [
+    0.560454,
+    0.710216,
+    0.805405
+   ],
+   "calibration": {
+    "challengers": 124,
+    "false_viable_rate": 0.0,
+    "verdicts": {
+     "NOT VIABLE": 124,
+     "PARTIAL": 0,
+     "VIABLE": 0
+    }
+   },
+   "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "challenger_boxes": 623,
+   "challenger_signature": {
+    "checkpoint": "facebook/mask2former-swin-large-mapillary-vistas-semantic",
+    "class_ids": [
+     9
+    ],
+    "class_names": [
+     "curb-cut"
+    ],
+    "class_set": "curb-cut",
+    "dtype": "float16",
+    "input_size": [
+     1024,
+     1024
+    ],
+    "max_edge": 1536,
+    "min_area_px": 16,
+    "model_id": "mask2former-vistas-curb-cut",
+    "prompt": "vistas:curb-cut",
+    "provider": "vistas",
+    "source_max_edge": 4096,
+    "tile": true,
+    "views": [
+     [
+      0.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      60.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      120.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      180.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      240.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      300.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ]
+    ]
+   },
+   "criteria": {
+    "attr_dR_ci_above_0": true,
+    "fewer_fp_per_ramp_than_matched_threshold": true,
+    "viable": true
+   },
+   "criterion_3_note": null,
+   "fixed": {
+    "F1": 0.85913,
+    "P": 0.879004,
+    "R": 0.840136,
+    "attributable_dR": 0.028418,
+    "attributable_ramps": 8.354839,
+    "c_min": 0.710216,
+    "dF1": 0.006084,
+    "dR": 0.030612,
+    "dR_ramps": 9,
+    "fn": 47,
+    "fp": 34,
+    "fp_per_attributable_ramp": 0.957529,
+    "n_gt": 294,
+    "n_promoted": 17,
+    "null_dFP_mean": 2.637097,
+    "null_dR_max": 0.017007,
+    "null_dR_mean": 0.002194,
+    "promoted_fp": 8,
+    "promoted_tp": 9,
+    "r_gate": 0.011,
+    "t_lo": 0.05,
+    "threshold_only_F1": 0.759312,
+    "tp": 247
+   },
+   "n_gt_recall": 294,
+   "n_panos": 125,
+   "null": {
+    "mode": "shift",
+    "shifts": 124
+   },
+   "split": "annapolis",
+   "t_hi": 0.3,
+   "threshold_only_at_matched_recall": {
+    "F1": 0.844444,
+    "P": 0.848797,
+    "R": 0.840136,
+    "extra_fp": 18,
+    "extra_ramps": 9,
+    "fn": 47,
+    "fp": 44,
+    "fp_per_ramp": 2.0,
+    "n_gt": 294,
+    "t": 0.18,
+    "tp": 247
+   },
+   "threshold_only_at_t_lo": {
+    "F1": 0.759312,
+    "P": 0.655941,
+    "R": 0.901361,
+    "fn": 29,
+    "fp": 139,
+    "n_gt": 294,
+    "tp": 265
+   },
+   "threshold_only_best": {
+    "F1": 0.855596,
+    "P": 0.911538,
+    "R": 0.806122,
+    "fn": 57,
+    "fp": 23,
+    "n_gt": 294,
+    "t": 0.31,
+    "tp": 237
+   },
+   "transfers": true,
+   "verdict": "VIABLE"
+  },
+  "bend": {
+   "baseline": {
+    "F1": 0.87055,
+    "P": 0.924399,
+    "R": 0.82263,
+    "fn": 58,
+    "fp": 22,
+    "n_gt": 327,
+    "tp": 269
+   },
+   "bootstrap": {
+    "attr_dR_ci95": [
+     0.004403,
+     0.031729
+    ],
+    "conditioning": "setting fixed before these splits were scored",
+    "dF1_ci95": [
+     -0.011396,
+     0.008121
+    ],
+    "dR_ci95": [
+     0.005935,
+     0.033639
+    ],
+    "resamples": 2000,
+    "rng": "numpy.default_rng",
+    "seed": 0,
+    "unit": "pano"
+   },
+   "c_min_quartiles": [
+    0.52634,
+    0.674591,
+    0.794222
+   ],
+   "calibration": {
+    "challengers": 109,
+    "false_viable_rate": 0.0,
+    "verdicts": {
+     "NOT VIABLE": 109,
+     "PARTIAL": 0,
+     "VIABLE": 0
+    }
+   },
+   "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "challenger_boxes": 773,
+   "challenger_signature": {
+    "checkpoint": "facebook/mask2former-swin-large-mapillary-vistas-semantic",
+    "class_ids": [
+     9
+    ],
+    "class_names": [
+     "curb-cut"
+    ],
+    "class_set": "curb-cut",
+    "dtype": "float16",
+    "input_size": [
+     1024,
+     1024
+    ],
+    "max_edge": 1536,
+    "min_area_px": 16,
+    "model_id": "mask2former-vistas-curb-cut",
+    "prompt": "vistas:curb-cut",
+    "provider": "vistas",
+    "source_max_edge": 4096,
+    "tile": true,
+    "views": [
+     [
+      0.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      60.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      120.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      180.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      240.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      300.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ]
+    ]
+   },
+   "criteria": {
+    "attr_dR_ci_above_0": true,
+    "fewer_fp_per_ramp_than_matched_threshold": false,
+    "viable": false
+   },
+   "criterion_3_note": null,
+   "fixed": {
+    "F1": 0.868878,
+    "P": 0.898693,
+    "R": 0.840979,
+    "attributable_dR": 0.016749,
+    "attributable_ramps": 5.477064,
+    "c_min": 0.674591,
+    "dF1": -0.001672,
+    "dR": 0.018349,
+    "dR_ramps": 6,
+    "fn": 52,
+    "fp": 31,
+    "fp_per_attributable_ramp": 1.643216,
+    "n_gt": 327,
+    "n_promoted": 17,
+    "null_dFP_mean": 2.541284,
+    "null_dR_max": 0.009174,
+    "null_dR_mean": 0.001599,
+    "promoted_fp": 9,
+    "promoted_tp": 6,
+    "r_gate": 0.011,
+    "t_lo": 0.05,
+    "threshold_only_F1": 0.809524,
+    "tp": 275
+   },
+   "n_gt_recall": 327,
+   "n_panos": 110,
+   "null": {
+    "mode": "shift",
+    "shifts": 109
+   },
+   "split": "bend",
+   "t_hi": 0.3,
+   "threshold_only_at_matched_recall": {
+    "F1": 0.869291,
+    "P": 0.896104,
+    "R": 0.844037,
+    "extra_fp": 10,
+    "extra_ramps": 7,
+    "fn": 51,
+    "fp": 32,
+    "fp_per_ramp": 1.428571,
+    "n_gt": 327,
+    "t": 0.21,
+    "tp": 276
+   },
+   "threshold_only_at_t_lo": {
+    "F1": 0.809524,
+    "P": 0.74677,
+    "R": 0.883792,
+    "fn": 38,
+    "fp": 98,
+    "n_gt": 327,
+    "tp": 289
+   },
+   "threshold_only_best": {
+    "F1": 0.872666,
+    "P": 0.980916,
+    "R": 0.785933,
+    "fn": 70,
+    "fp": 5,
+    "n_gt": 327,
+    "t": 0.5,
+    "tp": 257
+   },
+   "transfers": false,
+   "verdict": "NOT VIABLE"
+  },
+  "gainesville": {
+   "baseline": {
+    "F1": 0.812379,
+    "P": 0.857143,
+    "R": 0.772059,
+    "fn": 62,
+    "fp": 35,
+    "n_gt": 272,
+    "tp": 210
+   },
+   "bootstrap": {
+    "attr_dR_ci95": [
+     0.013514,
+     0.055755
+    ],
+    "conditioning": "setting fixed before these splits were scored",
+    "dF1_ci95": [
+     -0.010403,
+     0.025146
+    ],
+    "dR_ci95": [
+     0.016529,
+     0.06
+    ],
+    "resamples": 2000,
+    "rng": "numpy.default_rng",
+    "seed": 0,
+    "unit": "pano"
+   },
+   "c_min_quartiles": [
+    0.50866,
+    0.625411,
+    0.743206
+   ],
+   "calibration": {
+    "challengers": 124,
+    "false_viable_rate": 0.0,
+    "verdicts": {
+     "NOT VIABLE": 124,
+     "PARTIAL": 0,
+     "VIABLE": 0
+    }
+   },
+   "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "challenger_boxes": 620,
+   "challenger_signature": {
+    "checkpoint": "facebook/mask2former-swin-large-mapillary-vistas-semantic",
+    "class_ids": [
+     9
+    ],
+    "class_names": [
+     "curb-cut"
+    ],
+    "class_set": "curb-cut",
+    "dtype": "float16",
+    "input_size": [
+     1024,
+     1024
+    ],
+    "max_edge": 1536,
+    "min_area_px": 16,
+    "model_id": "mask2former-vistas-curb-cut",
+    "prompt": "vistas:curb-cut",
+    "provider": "vistas",
+    "source_max_edge": 4096,
+    "tile": true,
+    "views": [
+     [
+      0.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      60.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      120.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      180.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      240.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      300.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ]
+    ]
+   },
+   "criteria": {
+    "attr_dR_ci_above_0": true,
+    "fewer_fp_per_ramp_than_matched_threshold": true,
+    "viable": true
+   },
+   "criterion_3_note": null,
+   "fixed": {
+    "F1": 0.819367,
+    "P": 0.830189,
+    "R": 0.808824,
+    "attributable_dR": 0.033207,
+    "attributable_ramps": 9.032258,
+    "c_min": 0.625411,
+    "dF1": 0.006988,
+    "dR": 0.036765,
+    "dR_ramps": 10,
+    "fn": 52,
+    "fp": 45,
+    "fp_per_attributable_ramp": 1.107143,
+    "n_gt": 272,
+    "n_promoted": 24,
+    "null_dFP_mean": 3.25,
+    "null_dR_max": 0.014706,
+    "null_dR_mean": 0.003558,
+    "promoted_fp": 10,
+    "promoted_tp": 10,
+    "r_gate": 0.011,
+    "t_lo": 0.05,
+    "threshold_only_F1": 0.706569,
+    "tp": 220
+   },
+   "n_gt_recall": 272,
+   "n_panos": 125,
+   "null": {
+    "mode": "shift",
+    "shifts": 124
+   },
+   "split": "gainesville",
+   "t_hi": 0.3,
+   "threshold_only_at_matched_recall": {
+    "F1": 0.816327,
+    "P": 0.82397,
+    "R": 0.808824,
+    "extra_fp": 12,
+    "extra_ramps": 10,
+    "fn": 52,
+    "fp": 47,
+    "fp_per_ramp": 1.2,
+    "n_gt": 272,
+    "t": 0.23,
+    "tp": 220
+   },
+   "threshold_only_at_t_lo": {
+    "F1": 0.706569,
+    "P": 0.585956,
+    "R": 0.889706,
+    "fn": 30,
+    "fp": 171,
+    "n_gt": 272,
+    "tp": 242
+   },
+   "threshold_only_best": {
+    "F1": 0.822355,
+    "P": 0.899563,
+    "R": 0.757353,
+    "fn": 66,
+    "fp": 23,
+    "n_gt": 272,
+    "t": 0.38,
+    "tp": 206
+   },
+   "transfers": true,
+   "verdict": "VIABLE"
+  },
+  "paterson": {
+   "baseline": {
+    "F1": 0.818444,
+    "P": 0.949833,
+    "R": 0.718987,
+    "fn": 111,
+    "fp": 15,
+    "n_gt": 395,
+    "tp": 284
+   },
+   "bootstrap": {
+    "attr_dR_ci95": [
+     -0.001194,
+     0.021838
+    ],
+    "conditioning": "setting fixed before these splits were scored",
+    "dF1_ci95": [
+     -0.024513,
+     0.001005
+    ],
+    "dR_ci95": [
+     0.0,
+     0.02439
+    ],
+    "resamples": 2000,
+    "rng": "numpy.default_rng",
+    "seed": 0,
+    "unit": "pano"
+   },
+   "c_min_quartiles": [
+    0.547742,
+    0.687044,
+    0.77815
+   ],
+   "calibration": {
+    "challengers": 124,
+    "false_viable_rate": 0.0,
+    "verdicts": {
+     "NOT VIABLE": 124,
+     "PARTIAL": 0,
+     "VIABLE": 0
+    }
+   },
+   "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "challenger_boxes": 708,
+   "challenger_signature": {
+    "checkpoint": "facebook/mask2former-swin-large-mapillary-vistas-semantic",
+    "class_ids": [
+     9
+    ],
+    "class_names": [
+     "curb-cut"
+    ],
+    "class_set": "curb-cut",
+    "dtype": "float16",
+    "input_size": [
+     1024,
+     1024
+    ],
+    "max_edge": 1536,
+    "min_area_px": 16,
+    "model_id": "mask2former-vistas-curb-cut",
+    "prompt": "vistas:curb-cut",
+    "provider": "vistas",
+    "source_max_edge": 4096,
+    "tile": true,
+    "views": [
+     [
+      0.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      60.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      120.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      180.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      240.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      300.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ]
+    ]
+   },
+   "criteria": {
+    "attr_dR_ci_above_0": false,
+    "fewer_fp_per_ramp_than_matched_threshold": false,
+    "viable": false
+   },
+   "criterion_3_note": null,
+   "fixed": {
+    "F1": 0.806723,
+    "P": 0.902821,
+    "R": 0.729114,
+    "attributable_dR": 0.008269,
+    "attributable_ramps": 3.266129,
+    "c_min": 0.687044,
+    "dF1": -0.011721,
+    "dR": 0.010127,
+    "dR_ramps": 4,
+    "fn": 107,
+    "fp": 31,
+    "fp_per_attributable_ramp": 4.898765,
+    "n_gt": 395,
+    "n_promoted": 24,
+    "null_dFP_mean": 2.282258,
+    "null_dR_max": 0.010127,
+    "null_dR_mean": 0.001858,
+    "promoted_fp": 16,
+    "promoted_tp": 4,
+    "r_gate": 0.011,
+    "t_lo": 0.05,
+    "threshold_only_F1": 0.781699,
+    "tp": 288
+   },
+   "n_gt_recall": 395,
+   "n_panos": 125,
+   "null": {
+    "mode": "shift",
+    "shifts": 124
+   },
+   "split": "paterson",
+   "t_hi": 0.3,
+   "threshold_only_at_matched_recall": {
+    "F1": 0.819346,
+    "P": 0.935065,
+    "R": 0.729114,
+    "extra_fp": 5,
+    "extra_ramps": 4,
+    "fn": 107,
+    "fp": 20,
+    "fp_per_ramp": 1.25,
+    "n_gt": 395,
+    "t": 0.23,
+    "tp": 288
+   },
+   "threshold_only_at_t_lo": {
+    "F1": 0.781699,
+    "P": 0.808108,
+    "R": 0.756962,
+    "fn": 96,
+    "fp": 71,
+    "n_gt": 395,
+    "tp": 299
+   },
+   "threshold_only_best": {
+    "F1": 0.821173,
+    "P": 0.944079,
+    "R": 0.726582,
+    "fn": 108,
+    "fp": 17,
+    "n_gt": 395,
+    "t": 0.26,
+    "tp": 287
+   },
+   "transfers": false,
+   "verdict": "NOT VIABLE"
+  },
+  "richmond": {
+   "baseline": {
+    "F1": 0.863866,
+    "P": 0.901754,
+    "R": 0.829032,
+    "fn": 53,
+    "fp": 28,
+    "n_gt": 310,
+    "tp": 257
+   },
+   "bootstrap": {
+    "attr_dR_ci95": [
+     0.016882,
+     0.059587
+    ],
+    "conditioning": "setting fixed before these splits were scored",
+    "dF1_ci95": [
+     -0.007727,
+     0.02537
+    ],
+    "dR_ci95": [
+     0.018868,
+     0.063197
+    ],
+    "resamples": 2000,
+    "rng": "numpy.default_rng",
+    "seed": 0,
+    "unit": "pano"
+   },
+   "c_min_quartiles": [
+    0.520138,
+    0.640738,
+    0.753448
+   ],
+   "calibration": {
+    "challengers": 123,
+    "false_viable_rate": 0.0,
+    "verdicts": {
+     "NOT VIABLE": 123,
+     "PARTIAL": 0,
+     "VIABLE": 0
+    }
+   },
+   "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "challenger_boxes": 772,
+   "challenger_signature": {
+    "checkpoint": "facebook/mask2former-swin-large-mapillary-vistas-semantic",
+    "class_ids": [
+     9
+    ],
+    "class_names": [
+     "curb-cut"
+    ],
+    "class_set": "curb-cut",
+    "dtype": "float16",
+    "input_size": [
+     1024,
+     1024
+    ],
+    "max_edge": 1536,
+    "min_area_px": 16,
+    "model_id": "mask2former-vistas-curb-cut",
+    "prompt": "vistas:curb-cut",
+    "provider": "vistas",
+    "source_max_edge": 4096,
+    "tile": true,
+    "views": [
+     [
+      0.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      60.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      120.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      180.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      240.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      300.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ]
+    ]
+   },
+   "criteria": {
+    "attr_dR_ci_above_0": true,
+    "fewer_fp_per_ramp_than_matched_threshold": true,
+    "viable": true
+   },
+   "criterion_3_note": null,
+   "fixed": {
+    "F1": 0.871961,
+    "P": 0.876221,
+    "R": 0.867742,
+    "attributable_dR": 0.03572,
+    "attributable_ramps": 11.073171,
+    "c_min": 0.640738,
+    "dF1": 0.008096,
+    "dR": 0.03871,
+    "dR_ramps": 12,
+    "fn": 41,
+    "fp": 38,
+    "fp_per_attributable_ramp": 0.903084,
+    "n_gt": 310,
+    "n_promoted": 29,
+    "null_dFP_mean": 3.471545,
+    "null_dR_max": 0.012903,
+    "null_dR_mean": 0.00299,
+    "promoted_fp": 10,
+    "promoted_tp": 12,
+    "r_gate": 0.011,
+    "t_lo": 0.05,
+    "threshold_only_F1": 0.709924,
+    "tp": 269
+   },
+   "n_gt_recall": 310,
+   "n_panos": 124,
+   "null": {
+    "mode": "shift",
+    "shifts": 123
+   },
+   "split": "richmond",
+   "t_hi": 0.3,
+   "threshold_only_at_matched_recall": {
+    "F1": 0.821374,
+    "P": 0.77971,
+    "R": 0.867742,
+    "extra_fp": 48,
+    "extra_ramps": 12,
+    "fn": 41,
+    "fp": 76,
+    "fp_per_ramp": 4.0,
+    "n_gt": 310,
+    "t": 0.15,
+    "tp": 269
+   },
+   "threshold_only_at_t_lo": {
+    "F1": 0.709924,
+    "P": 0.586134,
+    "R": 0.9,
+    "fn": 31,
+    "fp": 197,
+    "n_gt": 310,
+    "tp": 279
+   },
+   "threshold_only_best": {
+    "F1": 0.871186,
+    "P": 0.917857,
+    "R": 0.829032,
+    "fn": 53,
+    "fp": 23,
+    "n_gt": 310,
+    "t": 0.33,
+    "tp": 257
+   },
+   "transfers": true,
+   "verdict": "VIABLE"
+  }
+ },
+ "reference_split": "richmond",
+ "rule": {
+  "overall": "transfers on >= 2 of ['bend', 'paterson', 'gainesville']",
+  "per_split": [
+   "verdict_of on the fixed row reads VIABLE",
+   "attributable dR bootstrap 95% CI lower bound > 0",
+   "FP per attributable ramp < the matched-recall threshold's FP per ramp"
+  ],
+  "stated": "issue #35 plan comment, 2026-09-27, before scoring"
+ },
+ "sensitivity_post_seam_peaks": {
+  "note": "same checkpoint and input as the op_cache, extracted after the seam fix f4c71c8 (border peaks kept); not part of the rule",
+  "source": "analysis_out/input_res_sweep_25/cache/r2048/<split>.json",
+  "splits": {
+   "annapolis": {
+    "baseline": {
+     "F1": 0.85,
+     "P": 0.894737,
+     "R": 0.809524,
+     "fn": 56,
+     "fp": 28,
+     "n_gt": 294,
+     "tp": 238
+    },
+    "bootstrap": {
+     "attr_dR_ci95": [
+      0.009047,
+      0.051203
+     ],
+     "conditioning": "setting fixed before these splits were scored",
+     "dF1_ci95": [
+      -0.009339,
+      0.022647
+     ],
+     "dR_ci95": [
+      0.01083,
+      0.053571
+     ],
+     "resamples": 2000,
+     "rng": "numpy.default_rng",
+     "seed": 0,
+     "unit": "pano"
+    },
+    "calibration": {
+     "challengers": 124,
+     "false_viable_rate": 0.0,
+     "verdicts": {
+      "NOT VIABLE": 124,
+      "PARTIAL": 0,
+      "VIABLE": 0
+     }
+    },
+    "challenger": "mask2former-vistas-curb-cut-1024x1024",
+    "challenger_boxes": 623,
+    "challenger_signature": {
+     "checkpoint": "facebook/mask2former-swin-large-mapillary-vistas-semantic",
+     "class_ids": [
+      9
+     ],
+     "class_names": [
+      "curb-cut"
+     ],
+     "class_set": "curb-cut",
+     "dtype": "float16",
+     "input_size": [
+      1024,
+      1024
+     ],
+     "max_edge": 1536,
+     "min_area_px": 16,
+     "model_id": "mask2former-vistas-curb-cut",
+     "prompt": "vistas:curb-cut",
+     "provider": "vistas",
+     "source_max_edge": 4096,
+     "tile": true,
+     "views": [
+      [
+       0.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       60.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       120.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       180.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       240.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       300.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ]
+     ]
+    },
+    "criteria": {
+     "attr_dR_ci_above_0": true,
+     "fewer_fp_per_ramp_than_matched_threshold": true,
+     "viable": true
+    },
+    "criterion_3_note": null,
+    "fixed": {
+     "F1": 0.856153,
+     "P": 0.872792,
+     "R": 0.840136,
+     "attributable_dR": 0.028418,
+     "attributable_ramps": 8.354839,
+     "c_min": 0.710216,
+     "dF1": 0.006153,
+     "dR": 0.030612,
+     "dR_ramps": 9,
+     "fn": 47,
+     "fp": 36,
+     "fp_per_attributable_ramp": 0.957529,
+     "n_gt": 294,
+     "n_promoted": 17,
+     "null_dFP_mean": 2.653226,
+     "null_dR_max": 0.017007,
+     "null_dR_mean": 0.002194,
+     "promoted_fp": 8,
+     "promoted_tp": 9,
+     "r_gate": 0.011,
+     "t_lo": 0.05,
+     "threshold_only_F1": 0.751773,
+     "tp": 247
+    },
+    "n_gt_recall": 294,
+    "n_panos": 125,
+    "null": {
+     "mode": "shift",
+     "shifts": 124
+    },
+    "split": "annapolis",
+    "t_hi": 0.3,
+    "threshold_only_at_matched_recall": {
+     "F1": 0.841567,
+     "P": 0.843003,
+     "R": 0.840136,
+     "extra_fp": 18,
+     "extra_ramps": 9,
+     "fn": 47,
+     "fp": 46,
+     "fp_per_ramp": 2.0,
+     "n_gt": 294,
+     "t": 0.18,
+     "tp": 247
+    },
+    "threshold_only_at_t_lo": {
+     "F1": 0.751773,
+     "P": 0.644769,
+     "R": 0.901361,
+     "fn": 29,
+     "fp": 146,
+     "n_gt": 294,
+     "tp": 265
+    },
+    "threshold_only_best": {
+     "F1": 0.852518,
+     "P": 0.90458,
+     "R": 0.806122,
+     "fn": 57,
+     "fp": 25,
+     "n_gt": 294,
+     "t": 0.31,
+     "tp": 237
+    },
+    "transfers": true,
+    "verdict": "VIABLE"
+   },
+   "bend": {
+    "baseline": {
+     "F1": 0.869984,
+     "P": 0.915541,
+     "R": 0.828746,
+     "fn": 56,
+     "fp": 25,
+     "n_gt": 327,
+     "tp": 271
+    },
+    "bootstrap": {
+     "attr_dR_ci95": [
+      0.004403,
+      0.031729
+     ],
+     "conditioning": "setting fixed before these splits were scored",
+     "dF1_ci95": [
+      -0.012831,
+      0.00702
+     ],
+     "dR_ci95": [
+      0.005935,
+      0.033639
+     ],
+     "resamples": 2000,
+     "rng": "numpy.default_rng",
+     "seed": 0,
+     "unit": "pano"
+    },
+    "calibration": {
+     "challengers": 109,
+     "false_viable_rate": 0.0,
+     "verdicts": {
+      "NOT VIABLE": 109,
+      "PARTIAL": 0,
+      "VIABLE": 0
+     }
+    },
+    "challenger": "mask2former-vistas-curb-cut-1024x1024",
+    "challenger_boxes": 773,
+    "challenger_signature": {
+     "checkpoint": "facebook/mask2former-swin-large-mapillary-vistas-semantic",
+     "class_ids": [
+      9
+     ],
+     "class_names": [
+      "curb-cut"
+     ],
+     "class_set": "curb-cut",
+     "dtype": "float16",
+     "input_size": [
+      1024,
+      1024
+     ],
+     "max_edge": 1536,
+     "min_area_px": 16,
+     "model_id": "mask2former-vistas-curb-cut",
+     "prompt": "vistas:curb-cut",
+     "provider": "vistas",
+     "source_max_edge": 4096,
+     "tile": true,
+     "views": [
+      [
+       0.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       60.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       120.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       180.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       240.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       300.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ]
+     ]
+    },
+    "criteria": {
+     "attr_dR_ci_above_0": true,
+     "fewer_fp_per_ramp_than_matched_threshold": false,
+     "viable": false
+    },
+    "criterion_3_note": null,
+    "fixed": {
+     "F1": 0.86698,
+     "P": 0.887821,
+     "R": 0.847095,
+     "attributable_dR": 0.016749,
+     "attributable_ramps": 5.477064,
+     "c_min": 0.674591,
+     "dF1": -0.003004,
+     "dR": 0.018349,
+     "dR_ramps": 6,
+     "fn": 50,
+     "fp": 35,
+     "fp_per_attributable_ramp": 1.825796,
+     "n_gt": 327,
+     "n_promoted": 18,
+     "null_dFP_mean": 2.587156,
+     "null_dR_max": 0.009174,
+     "null_dR_mean": 0.001599,
+     "promoted_fp": 10,
+     "promoted_tp": 6,
+     "r_gate": 0.011,
+     "t_lo": 0.05,
+     "threshold_only_F1": 0.806094,
+     "tp": 277
+    },
+    "n_gt_recall": 327,
+    "n_panos": 110,
+    "null": {
+     "mode": "shift",
+     "shifts": 109
+    },
+    "split": "bend",
+    "t_hi": 0.3,
+    "threshold_only_at_matched_recall": {
+     "F1": 0.86875,
+     "P": 0.888179,
+     "R": 0.850153,
+     "extra_fp": 10,
+     "extra_ramps": 7,
+     "fn": 49,
+     "fp": 35,
+     "fp_per_ramp": 1.428571,
+     "n_gt": 327,
+     "t": 0.21,
+     "tp": 278
+    },
+    "threshold_only_at_t_lo": {
+     "F1": 0.806094,
+     "P": 0.736709,
+     "R": 0.889908,
+     "fn": 36,
+     "fp": 104,
+     "n_gt": 327,
+     "tp": 291
+    },
+    "threshold_only_best": {
+     "F1": 0.872054,
+     "P": 0.970037,
+     "R": 0.792049,
+     "fn": 68,
+     "fp": 8,
+     "n_gt": 327,
+     "t": 0.5,
+     "tp": 259
+    },
+    "transfers": false,
+    "verdict": "NOT VIABLE"
+   },
+   "gainesville": {
+    "baseline": {
+     "F1": 0.810811,
+     "P": 0.853659,
+     "R": 0.772059,
+     "fn": 62,
+     "fp": 36,
+     "n_gt": 272,
+     "tp": 210
+    },
+    "bootstrap": {
+     "attr_dR_ci95": [
+      0.013514,
+      0.055755
+     ],
+     "conditioning": "setting fixed before these splits were scored",
+     "dF1_ci95": [
+      -0.013544,
+      0.022473
+     ],
+     "dR_ci95": [
+      0.016529,
+      0.06
+     ],
+     "resamples": 2000,
+     "rng": "numpy.default_rng",
+     "seed": 0,
+     "unit": "pano"
+    },
+    "calibration": {
+     "challengers": 124,
+     "false_viable_rate": 0.0,
+     "verdicts": {
+      "NOT VIABLE": 124,
+      "PARTIAL": 0,
+      "VIABLE": 0
+     }
+    },
+    "challenger": "mask2former-vistas-curb-cut-1024x1024",
+    "challenger_boxes": 620,
+    "challenger_signature": {
+     "checkpoint": "facebook/mask2former-swin-large-mapillary-vistas-semantic",
+     "class_ids": [
+      9
+     ],
+     "class_names": [
+      "curb-cut"
+     ],
+     "class_set": "curb-cut",
+     "dtype": "float16",
+     "input_size": [
+      1024,
+      1024
+     ],
+     "max_edge": 1536,
+     "min_area_px": 16,
+     "model_id": "mask2former-vistas-curb-cut",
+     "prompt": "vistas:curb-cut",
+     "provider": "vistas",
+     "source_max_edge": 4096,
+     "tile": true,
+     "views": [
+      [
+       0.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       60.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       120.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       180.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       240.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       300.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ]
+     ]
+    },
+    "criteria": {
+     "attr_dR_ci_above_0": true,
+     "fewer_fp_per_ramp_than_matched_threshold": false,
+     "viable": true
+    },
+    "criterion_3_note": null,
+    "fixed": {
+     "F1": 0.814815,
+     "P": 0.820896,
+     "R": 0.808824,
+     "attributable_dR": 0.033207,
+     "attributable_ramps": 9.032258,
+     "c_min": 0.625411,
+     "dF1": 0.004004,
+     "dR": 0.036765,
+     "dR_ramps": 10,
+     "fn": 52,
+     "fp": 48,
+     "fp_per_attributable_ramp": 1.328571,
+     "n_gt": 272,
+     "n_promoted": 26,
+     "null_dFP_mean": 3.629032,
+     "null_dR_max": 0.014706,
+     "null_dR_mean": 0.003558,
+     "promoted_fp": 12,
+     "promoted_tp": 10,
+     "r_gate": 0.011,
+     "t_lo": 0.05,
+     "threshold_only_F1": 0.691429,
+     "tp": 220
+    },
+    "n_gt_recall": 272,
+    "n_panos": 125,
+    "null": {
+     "mode": "shift",
+     "shifts": 124
+    },
+    "split": "gainesville",
+    "t_hi": 0.3,
+    "threshold_only_at_matched_recall": {
+     "F1": 0.813309,
+     "P": 0.817844,
+     "R": 0.808824,
+     "extra_fp": 13,
+     "extra_ramps": 10,
+     "fn": 52,
+     "fp": 49,
+     "fp_per_ramp": 1.3,
+     "n_gt": 272,
+     "t": 0.23,
+     "tp": 220
+    },
+    "threshold_only_at_t_lo": {
+     "F1": 0.691429,
+     "P": 0.565421,
+     "R": 0.889706,
+     "fn": 30,
+     "fp": 186,
+     "n_gt": 272,
+     "tp": 242
+    },
+    "threshold_only_best": {
+     "F1": 0.820717,
+     "P": 0.895652,
+     "R": 0.757353,
+     "fn": 66,
+     "fp": 24,
+     "n_gt": 272,
+     "t": 0.38,
+     "tp": 206
+    },
+    "transfers": false,
+    "verdict": "VIABLE"
+   },
+   "paterson": {
+    "baseline": {
+     "F1": 0.82066,
+     "P": 0.94702,
+     "R": 0.724051,
+     "fn": 109,
+     "fp": 16,
+     "n_gt": 395,
+     "tp": 286
+    },
+    "bootstrap": {
+     "attr_dR_ci95": [
+      0.000493,
+      0.025193
+     ],
+     "conditioning": "setting fixed before these splits were scored",
+     "dF1_ci95": [
+      -0.023504,
+      0.003025
+     ],
+     "dR_ci95": [
+      0.002342,
+      0.02765
+     ],
+     "resamples": 2000,
+     "rng": "numpy.default_rng",
+     "seed": 0,
+     "unit": "pano"
+    },
+    "calibration": {
+     "challengers": 124,
+     "false_viable_rate": 0.0,
+     "verdicts": {
+      "NOT VIABLE": 124,
+      "PARTIAL": 0,
+      "VIABLE": 0
+     }
+    },
+    "challenger": "mask2former-vistas-curb-cut-1024x1024",
+    "challenger_boxes": 708,
+    "challenger_signature": {
+     "checkpoint": "facebook/mask2former-swin-large-mapillary-vistas-semantic",
+     "class_ids": [
+      9
+     ],
+     "class_names": [
+      "curb-cut"
+     ],
+     "class_set": "curb-cut",
+     "dtype": "float16",
+     "input_size": [
+      1024,
+      1024
+     ],
+     "max_edge": 1536,
+     "min_area_px": 16,
+     "model_id": "mask2former-vistas-curb-cut",
+     "prompt": "vistas:curb-cut",
+     "provider": "vistas",
+     "source_max_edge": 4096,
+     "tile": true,
+     "views": [
+      [
+       0.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       60.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       120.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       180.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       240.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       300.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ]
+     ]
+    },
+    "criteria": {
+     "attr_dR_ci_above_0": true,
+     "fewer_fp_per_ramp_than_matched_threshold": false,
+     "viable": false
+    },
+    "criterion_3_note": null,
+    "fixed": {
+     "F1": 0.810585,
+     "P": 0.900929,
+     "R": 0.736709,
+     "attributable_dR": 0.01078,
+     "attributable_ramps": 4.258065,
+     "c_min": 0.687044,
+     "dF1": -0.010075,
+     "dR": 0.012658,
+     "dR_ramps": 5,
+     "fn": 104,
+     "fp": 32,
+     "fp_per_attributable_ramp": 3.757576,
+     "n_gt": 395,
+     "n_promoted": 25,
+     "null_dFP_mean": 2.419355,
+     "null_dR_max": 0.010127,
+     "null_dR_mean": 0.001878,
+     "promoted_fp": 16,
+     "promoted_tp": 5,
+     "r_gate": 0.011,
+     "t_lo": 0.05,
+     "threshold_only_F1": 0.77635,
+     "tp": 291
+    },
+    "n_gt_recall": 395,
+    "n_panos": 125,
+    "null": {
+     "mode": "shift",
+     "shifts": 124
+    },
+    "split": "paterson",
+    "t_hi": 0.3,
+    "threshold_only_at_matched_recall": {
+     "F1": 0.816667,
+     "P": 0.904615,
+     "R": 0.744304,
+     "extra_fp": 15,
+     "extra_ramps": 8,
+     "fn": 101,
+     "fp": 31,
+     "fp_per_ramp": 1.875,
+     "n_gt": 395,
+     "t": 0.17,
+     "tp": 294
+    },
+    "threshold_only_at_t_lo": {
+     "F1": 0.77635,
+     "P": 0.788512,
+     "R": 0.764557,
+     "fn": 93,
+     "fp": 81,
+     "n_gt": 395,
+     "tp": 302
+    },
+    "threshold_only_best": {
+     "F1": 0.823362,
+     "P": 0.941368,
+     "R": 0.731646,
+     "fn": 106,
+     "fp": 18,
+     "n_gt": 395,
+     "t": 0.26,
+     "tp": 289
+    },
+    "transfers": false,
+    "verdict": "NOT VIABLE"
+   },
+   "richmond": {
+    "baseline": {
+     "F1": 0.861436,
+     "P": 0.892734,
+     "R": 0.832258,
+     "fn": 52,
+     "fp": 31,
+     "n_gt": 310,
+     "tp": 258
+    },
+    "bootstrap": {
+     "attr_dR_ci95": [
+      0.016882,
+      0.059587
+     ],
+     "conditioning": "setting fixed before these splits were scored",
+     "dF1_ci95": [
+      -0.009112,
+      0.024069
+     ],
+     "dR_ci95": [
+      0.018868,
+      0.063197
+     ],
+     "resamples": 2000,
+     "rng": "numpy.default_rng",
+     "seed": 0,
+     "unit": "pano"
+    },
+    "calibration": {
+     "challengers": 123,
+     "false_viable_rate": 0.0,
+     "verdicts": {
+      "NOT VIABLE": 123,
+      "PARTIAL": 0,
+      "VIABLE": 0
+     }
+    },
+    "challenger": "mask2former-vistas-curb-cut-1024x1024",
+    "challenger_boxes": 772,
+    "challenger_signature": {
+     "checkpoint": "facebook/mask2former-swin-large-mapillary-vistas-semantic",
+     "class_ids": [
+      9
+     ],
+     "class_names": [
+      "curb-cut"
+     ],
+     "class_set": "curb-cut",
+     "dtype": "float16",
+     "input_size": [
+      1024,
+      1024
+     ],
+     "max_edge": 1536,
+     "min_area_px": 16,
+     "model_id": "mask2former-vistas-curb-cut",
+     "prompt": "vistas:curb-cut",
+     "provider": "vistas",
+     "source_max_edge": 4096,
+     "tile": true,
+     "views": [
+      [
+       0.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       60.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       120.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       180.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       240.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       300.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ]
+     ]
+    },
+    "criteria": {
+     "attr_dR_ci_above_0": true,
+     "fewer_fp_per_ramp_than_matched_threshold": true,
+     "viable": true
+    },
+    "criterion_3_note": null,
+    "fixed": {
+     "F1": 0.868167,
+     "P": 0.865385,
+     "R": 0.870968,
+     "attributable_dR": 0.03572,
+     "attributable_ramps": 11.073171,
+     "c_min": 0.640738,
+     "dF1": 0.006731,
+     "dR": 0.03871,
+     "dR_ramps": 12,
+     "fn": 40,
+     "fp": 42,
+     "fp_per_attributable_ramp": 0.993392,
+     "n_gt": 310,
+     "n_promoted": 30,
+     "null_dFP_mean": 3.560976,
+     "null_dR_max": 0.012903,
+     "null_dR_mean": 0.00299,
+     "promoted_fp": 11,
+     "promoted_tp": 12,
+     "r_gate": 0.011,
+     "t_lo": 0.05,
+     "threshold_only_F1": 0.701754,
+     "tp": 270
+    },
+    "n_gt_recall": 310,
+    "n_panos": 124,
+    "null": {
+     "mode": "shift",
+     "shifts": 123
+    },
+    "split": "richmond",
+    "t_hi": 0.3,
+    "threshold_only_at_matched_recall": {
+     "F1": 0.816944,
+     "P": 0.769231,
+     "R": 0.870968,
+     "extra_fp": 50,
+     "extra_ramps": 12,
+     "fn": 40,
+     "fp": 81,
+     "fp_per_ramp": 4.166667,
+     "n_gt": 310,
+     "t": 0.15,
+     "tp": 270
+    },
+    "threshold_only_at_t_lo": {
+     "F1": 0.701754,
+     "P": 0.57377,
+     "R": 0.903226,
+     "fn": 30,
+     "fp": 208,
+     "n_gt": 310,
+     "tp": 280
+    },
+    "threshold_only_best": {
+     "F1": 0.868687,
+     "P": 0.908451,
+     "R": 0.832258,
+     "fn": 52,
+     "fp": 26,
+     "n_gt": 310,
+     "t": 0.33,
+     "tp": 258
+    },
+    "transfers": true,
+    "verdict": "VIABLE"
+   }
+  }
+ },
+ "sensitivity_richmond_c_min": {
+  "c_min": 0.640738,
+  "splits": {
+   "annapolis": {
+    "baseline": {
+     "F1": 0.853047,
+     "P": 0.901515,
+     "R": 0.809524,
+     "fn": 56,
+     "fp": 26,
+     "n_gt": 294,
+     "tp": 238
+    },
+    "bootstrap": {
+     "attr_dR_ci95": [
+      0.01708,
+      0.061857
+     ],
+     "conditioning": "setting fixed before these splits were scored",
+     "dF1_ci95": [
+      -0.016814,
+      0.020529
+     ],
+     "dR_ci95": [
+      0.019608,
+      0.065041
+     ],
+     "resamples": 2000,
+     "rng": "numpy.default_rng",
+     "seed": 0,
+     "unit": "pano"
+    },
+    "calibration": {
+     "challengers": 124,
+     "false_viable_rate": 0.0,
+     "verdicts": {
+      "NOT VIABLE": 124,
+      "PARTIAL": 0,
+      "VIABLE": 0
+     }
+    },
+    "challenger": "mask2former-vistas-curb-cut-1024x1024",
+    "challenger_boxes": 623,
+    "challenger_signature": {
+     "checkpoint": "facebook/mask2former-swin-large-mapillary-vistas-semantic",
+     "class_ids": [
+      9
+     ],
+     "class_names": [
+      "curb-cut"
+     ],
+     "class_set": "curb-cut",
+     "dtype": "float16",
+     "input_size": [
+      1024,
+      1024
+     ],
+     "max_edge": 1536,
+     "min_area_px": 16,
+     "model_id": "mask2former-vistas-curb-cut",
+     "prompt": "vistas:curb-cut",
+     "provider": "vistas",
+     "source_max_edge": 4096,
+     "tile": true,
+     "views": [
+      [
+       0.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       60.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       120.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       180.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       240.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       300.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ]
+     ]
+    },
+    "criteria": {
+     "attr_dR_ci_above_0": true,
+     "fewer_fp_per_ramp_than_matched_threshold": true,
+     "viable": true
+    },
+    "criterion_3_note": null,
+    "fixed": {
+     "F1": 0.854701,
+     "P": 0.859107,
+     "R": 0.85034,
+     "attributable_dR": 0.038046,
+     "attributable_ramps": 11.185484,
+     "c_min": 0.640738,
+     "dF1": 0.001654,
+     "dR": 0.040816,
+     "dR_ramps": 12,
+     "fn": 44,
+     "fp": 41,
+     "fp_per_attributable_ramp": 1.341024,
+     "n_gt": 294,
+     "n_promoted": 29,
+     "null_dFP_mean": 3.548387,
+     "null_dR_max": 0.017007,
+     "null_dR_mean": 0.00277,
+     "promoted_fp": 15,
+     "promoted_tp": 12,
+     "r_gate": 0.011,
+     "t_lo": 0.05,
+     "threshold_only_F1": 0.759312,
+     "tp": 250
+    },
+    "n_gt_recall": 294,
+    "n_panos": 125,
+    "null": {
+     "mode": "shift",
+     "shifts": 124
+    },
+    "split": "annapolis",
+    "t_hi": 0.3,
+    "threshold_only_at_matched_recall": {
+     "F1": 0.839465,
+     "P": 0.825658,
+     "R": 0.853741,
+     "extra_fp": 27,
+     "extra_ramps": 13,
+     "fn": 43,
+     "fp": 53,
+     "fp_per_ramp": 2.076923,
+     "n_gt": 294,
+     "t": 0.15,
+     "tp": 251
+    },
+    "threshold_only_at_t_lo": {
+     "F1": 0.759312,
+     "P": 0.655941,
+     "R": 0.901361,
+     "fn": 29,
+     "fp": 139,
+     "n_gt": 294,
+     "tp": 265
+    },
+    "threshold_only_best": {
+     "F1": 0.855596,
+     "P": 0.911538,
+     "R": 0.806122,
+     "fn": 57,
+     "fp": 23,
+     "n_gt": 294,
+     "t": 0.31,
+     "tp": 237
+    },
+    "transfers": true,
+    "verdict": "VIABLE"
+   },
+   "bend": {
+    "baseline": {
+     "F1": 0.87055,
+     "P": 0.924399,
+     "R": 0.82263,
+     "fn": 58,
+     "fp": 22,
+     "n_gt": 327,
+     "tp": 269
+    },
+    "bootstrap": {
+     "attr_dR_ci95": [
+      0.004559,
+      0.03709
+     ],
+     "conditioning": "setting fixed before these splits were scored",
+     "dF1_ci95": [
+      -0.01429,
+      0.009583
+     ],
+     "dR_ci95": [
+      0.00627,
+      0.039474
+     ],
+     "resamples": 2000,
+     "rng": "numpy.default_rng",
+     "seed": 0,
+     "unit": "pano"
+    },
+    "calibration": {
+     "challengers": 109,
+     "false_viable_rate": 0.0,
+     "verdicts": {
+      "NOT VIABLE": 109,
+      "PARTIAL": 0,
+      "VIABLE": 0
+     }
+    },
+    "challenger": "mask2former-vistas-curb-cut-1024x1024",
+    "challenger_boxes": 773,
+    "challenger_signature": {
+     "checkpoint": "facebook/mask2former-swin-large-mapillary-vistas-semantic",
+     "class_ids": [
+      9
+     ],
+     "class_names": [
+      "curb-cut"
+     ],
+     "class_set": "curb-cut",
+     "dtype": "float16",
+     "input_size": [
+      1024,
+      1024
+     ],
+     "max_edge": 1536,
+     "min_area_px": 16,
+     "model_id": "mask2former-vistas-curb-cut",
+     "prompt": "vistas:curb-cut",
+     "provider": "vistas",
+     "source_max_edge": 4096,
+     "tile": true,
+     "views": [
+      [
+       0.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       60.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       120.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       180.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       240.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       300.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ]
+     ]
+    },
+    "criteria": {
+     "attr_dR_ci_above_0": true,
+     "fewer_fp_per_ramp_than_matched_threshold": false,
+     "viable": false
+    },
+    "criterion_3_note": null,
+    "fixed": {
+     "F1": 0.867925,
+     "P": 0.893204,
+     "R": 0.844037,
+     "attributable_dR": 0.019499,
+     "attributable_ramps": 6.376147,
+     "c_min": 0.640738,
+     "dF1": -0.002626,
+     "dR": 0.021407,
+     "dR_ramps": 7,
+     "fn": 51,
+     "fp": 33,
+     "fp_per_attributable_ramp": 1.72518,
+     "n_gt": 327,
+     "n_promoted": 21,
+     "null_dFP_mean": 2.889908,
+     "null_dR_max": 0.009174,
+     "null_dR_mean": 0.001908,
+     "promoted_fp": 11,
+     "promoted_tp": 7,
+     "r_gate": 0.011,
+     "t_lo": 0.05,
+     "threshold_only_F1": 0.809524,
+     "tp": 276
+    },
+    "n_gt_recall": 327,
+    "n_panos": 110,
+    "null": {
+     "mode": "shift",
+     "shifts": 109
+    },
+    "split": "bend",
+    "t_hi": 0.3,
+    "threshold_only_at_matched_recall": {
+     "F1": 0.869291,
+     "P": 0.896104,
+     "R": 0.844037,
+     "extra_fp": 10,
+     "extra_ramps": 7,
+     "fn": 51,
+     "fp": 32,
+     "fp_per_ramp": 1.428571,
+     "n_gt": 327,
+     "t": 0.21,
+     "tp": 276
+    },
+    "threshold_only_at_t_lo": {
+     "F1": 0.809524,
+     "P": 0.74677,
+     "R": 0.883792,
+     "fn": 38,
+     "fp": 98,
+     "n_gt": 327,
+     "tp": 289
+    },
+    "threshold_only_best": {
+     "F1": 0.872666,
+     "P": 0.980916,
+     "R": 0.785933,
+     "fn": 70,
+     "fp": 5,
+     "n_gt": 327,
+     "t": 0.5,
+     "tp": 257
+    },
+    "transfers": false,
+    "verdict": "NOT VIABLE"
+   },
+   "gainesville": {
+    "baseline": {
+     "F1": 0.812379,
+     "P": 0.857143,
+     "R": 0.772059,
+     "fn": 62,
+     "fp": 35,
+     "n_gt": 272,
+     "tp": 210
+    },
+    "bootstrap": {
+     "attr_dR_ci95": [
+      0.013731,
+      0.055998
+     ],
+     "conditioning": "setting fixed before these splits were scored",
+     "dF1_ci95": [
+      -0.010403,
+      0.025146
+     ],
+     "dR_ci95": [
+      0.016529,
+      0.06
+     ],
+     "resamples": 2000,
+     "rng": "numpy.default_rng",
+     "seed": 0,
+     "unit": "pano"
+    },
+    "calibration": {
+     "challengers": 124,
+     "false_viable_rate": 0.0,
+     "verdicts": {
+      "NOT VIABLE": 124,
+      "PARTIAL": 0,
+      "VIABLE": 0
+     }
+    },
+    "challenger": "mask2former-vistas-curb-cut-1024x1024",
+    "challenger_boxes": 620,
+    "challenger_signature": {
+     "checkpoint": "facebook/mask2former-swin-large-mapillary-vistas-semantic",
+     "class_ids": [
+      9
+     ],
+     "class_names": [
+      "curb-cut"
+     ],
+     "class_set": "curb-cut",
+     "dtype": "float16",
+     "input_size": [
+      1024,
+      1024
+     ],
+     "max_edge": 1536,
+     "min_area_px": 16,
+     "model_id": "mask2former-vistas-curb-cut",
+     "prompt": "vistas:curb-cut",
+     "provider": "vistas",
+     "source_max_edge": 4096,
+     "tile": true,
+     "views": [
+      [
+       0.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       60.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       120.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       180.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       240.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       300.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ]
+     ]
+    },
+    "criteria": {
+     "attr_dR_ci_above_0": true,
+     "fewer_fp_per_ramp_than_matched_threshold": true,
+     "viable": true
+    },
+    "criterion_3_note": null,
+    "fixed": {
+     "F1": 0.819367,
+     "P": 0.830189,
+     "R": 0.808824,
+     "attributable_dR": 0.033385,
+     "attributable_ramps": 9.080645,
+     "c_min": 0.640738,
+     "dF1": 0.006988,
+     "dR": 0.036765,
+     "dR_ramps": 10,
+     "fn": 52,
+     "fp": 45,
+     "fp_per_attributable_ramp": 1.101243,
+     "n_gt": 272,
+     "n_promoted": 23,
+     "null_dFP_mean": 3.08871,
+     "null_dR_max": 0.014706,
+     "null_dR_mean": 0.00338,
+     "promoted_fp": 10,
+     "promoted_tp": 10,
+     "r_gate": 0.011,
+     "t_lo": 0.05,
+     "threshold_only_F1": 0.706569,
+     "tp": 220
+    },
+    "n_gt_recall": 272,
+    "n_panos": 125,
+    "null": {
+     "mode": "shift",
+     "shifts": 124
+    },
+    "split": "gainesville",
+    "t_hi": 0.3,
+    "threshold_only_at_matched_recall": {
+     "F1": 0.816327,
+     "P": 0.82397,
+     "R": 0.808824,
+     "extra_fp": 12,
+     "extra_ramps": 10,
+     "fn": 52,
+     "fp": 47,
+     "fp_per_ramp": 1.2,
+     "n_gt": 272,
+     "t": 0.23,
+     "tp": 220
+    },
+    "threshold_only_at_t_lo": {
+     "F1": 0.706569,
+     "P": 0.585956,
+     "R": 0.889706,
+     "fn": 30,
+     "fp": 171,
+     "n_gt": 272,
+     "tp": 242
+    },
+    "threshold_only_best": {
+     "F1": 0.822355,
+     "P": 0.899563,
+     "R": 0.757353,
+     "fn": 66,
+     "fp": 23,
+     "n_gt": 272,
+     "t": 0.38,
+     "tp": 206
+    },
+    "transfers": true,
+    "verdict": "VIABLE"
+   },
+   "paterson": {
+    "baseline": {
+     "F1": 0.818444,
+     "P": 0.949833,
+     "R": 0.718987,
+     "fn": 111,
+     "fp": 15,
+     "n_gt": 395,
+     "tp": 284
+    },
+    "bootstrap": {
+     "attr_dR_ci95": [
+      -9e-05,
+      0.025033
+     ],
+     "conditioning": "setting fixed before these splits were scored",
+     "dF1_ci95": [
+      -0.024632,
+      0.002281
+     ],
+     "dR_ci95": [
+      0.002342,
+      0.027933
+     ],
+     "resamples": 2000,
+     "rng": "numpy.default_rng",
+     "seed": 0,
+     "unit": "pano"
+    },
+    "calibration": {
+     "challengers": 124,
+     "false_viable_rate": 0.0,
+     "verdicts": {
+      "NOT VIABLE": 124,
+      "PARTIAL": 0,
+      "VIABLE": 0
+     }
+    },
+    "challenger": "mask2former-vistas-curb-cut-1024x1024",
+    "challenger_boxes": 708,
+    "challenger_signature": {
+     "checkpoint": "facebook/mask2former-swin-large-mapillary-vistas-semantic",
+     "class_ids": [
+      9
+     ],
+     "class_names": [
+      "curb-cut"
+     ],
+     "class_set": "curb-cut",
+     "dtype": "float16",
+     "input_size": [
+      1024,
+      1024
+     ],
+     "max_edge": 1536,
+     "min_area_px": 16,
+     "model_id": "mask2former-vistas-curb-cut",
+     "prompt": "vistas:curb-cut",
+     "provider": "vistas",
+     "source_max_edge": 4096,
+     "tile": true,
+     "views": [
+      [
+       0.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       60.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       120.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       180.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       240.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ],
+      [
+       300.0,
+       -30.0,
+       90.0,
+       90.0,
+       1024,
+       1024
+      ]
+     ]
+    },
+    "criteria": {
+     "attr_dR_ci_above_0": false,
+     "fewer_fp_per_ramp_than_matched_threshold": false,
+     "viable": false
+    },
+    "criterion_3_note": null,
+    "fixed": {
+     "F1": 0.807263,
+     "P": 0.900312,
+     "R": 0.731646,
+     "attributable_dR": 0.010412,
+     "attributable_ramps": 4.112903,
+     "c_min": 0.640738,
+     "dF1": -0.011181,
+     "dR": 0.012658,
+     "dR_ramps": 5,
+     "fn": 106,
+     "fp": 32,
+     "fp_per_attributable_ramp": 4.133333,
+     "n_gt": 395,
+     "n_promoted": 27,
+     "null_dFP_mean": 2.782258,
+     "null_dR_max": 0.010127,
+     "null_dR_mean": 0.002246,
+     "promoted_fp": 17,
+     "promoted_tp": 5,
+     "r_gate": 0.011,
+     "t_lo": 0.05,
+     "threshold_only_F1": 0.781699,
+     "tp": 289
+    },
+    "n_gt_recall": 395,
+    "n_panos": 125,
+    "null": {
+     "mode": "shift",
+     "shifts": 124
+    },
+    "split": "paterson",
+    "t_hi": 0.3,
+    "threshold_only_at_matched_recall": {
+     "F1": 0.815642,
+     "P": 0.909657,
+     "R": 0.739241,
+     "extra_fp": 14,
+     "extra_ramps": 8,
+     "fn": 103,
+     "fp": 29,
+     "fp_per_ramp": 1.75,
+     "n_gt": 395,
+     "t": 0.17,
+     "tp": 292
+    },
+    "threshold_only_at_t_lo": {
+     "F1": 0.781699,
+     "P": 0.808108,
+     "R": 0.756962,
+     "fn": 96,
+     "fp": 71,
+     "n_gt": 395,
+     "tp": 299
+    },
+    "threshold_only_best": {
+     "F1": 0.821173,
+     "P": 0.944079,
+     "R": 0.726582,
+     "fn": 108,
+     "fp": 17,
+     "n_gt": 395,
+     "t": 0.26,
+     "tp": 287
+    },
+    "transfers": false,
+    "verdict": "NOT VIABLE"
+   }
+  }
+ }
+}
