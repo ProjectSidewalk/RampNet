@@ -24,7 +24,7 @@ difference with an interval.
 | How many physical ramps does the rig cost? | On the ramps both arms' GT contain (matched in world space), RampNet at 0.55 finds **23 on GSV only and 16 on Mapillary only**, out of 86. At a tighter 3 m match, with fewer chance matches, it is **17 and 8** out of 54. |
 | Is the "near ramps are missed" signature real? | **Not on the paired corners.** The whole-arm deltas reproduce (Mapillary **+0.0038**, GSV **−0.0053**). On the paired panos both arms read about −0.001, with intervals that span zero on both sides. The Mapillary inversion comes from Mapillary panos outside the paired set. This supports the 2026-09-03 withdrawal. |
 | What camera height is Laurens's GSV rig? | **2.41 m** (median, 60 measured benchmark panos; 2.40 m over all 1,418 measured panos of the run). That is the older 2.3–2.4 m rig, not Google's 2025–26 one. The flat axis is about 4% long, so 18 m / 25 m read 17.4 m / 23.4 m. See `docs/detection_recall_analysis.md` §0. |
-| Can the GSV depth payload measure curb reveal? | **No.** At the 28 GT ramps within 8 m, where a curb face would span several payload rows, 24 windows hold one ground-like plane or none, and **none** shows a curb-sized step. The payload does not separate sidewalk from road at the ramps, so the curb-reveal measurement #151 asked for cannot come from it. The probe stops there, as planned. |
+| Can the GSV depth payload measure curb reveal? | **No.** At the 28 GT ramps within 8 m, where a 15 cm curb face spans about two payload rows, 24 windows hold one ground-like plane or none, and **none** shows a curb-sized step. The payload does not separate sidewalk from road at the ramps, so the curb-reveal measurement #151 asked for cannot come from it. The probe stops there, as planned. |
 
 ## How it was built
 
@@ -38,7 +38,7 @@ depth payloads (below).
    verdict review: verdict-true detections plus non-unsure missed marks) are placed on the ground
    with the labeler's flat-ground convention (`sidewalk-auto-labeler/scripts/eval_sites.py`, read
    only). The bearing is heading + (x − 0.5)·360°, and the range is h / tan(depression). Points
-   above 0.02 rad of depression or beyond 25 m are dropped as unplaceable. Within each pair the two
+   less than 0.02 rad below the horizon or beyond 25 m are dropped as unplaceable. Within each pair the two
    arms' points are matched one-to-one by ascending distance within 5 m (the labeler's
    `--match-radius-m`). Camera height is the GSV pano's measured depth-payload height where it has
    one, else the labeler's 2.6 m. Mapillary uses 2.6 m, because the labeler's GoPro Max estimate
@@ -75,8 +75,8 @@ depth payloads (below).
 
 The 20 m counts reproduce the radius table of the 2026-09-03 comment (51 GSV / 49 Mapillary
 panos). The one-to-one matching keeps 47 pairs. The minimum spacing within each arm (30.2 m GSV,
-26.2 m Mapillary) is larger than the 20 m pairing radius, and the matching is one-to-one, so no
-corner contributes two pairs.
+26.2 m Mapillary) is larger than the 20 m pairing radius, and the matching is one-to-one, so each
+pano is in at most one pair and no two pairs share a pano.
 
 ## 2. The physical ramps
 
@@ -179,9 +179,9 @@ The last column is the unpaired whole-arm ΔF1, which reproduces the 2026-09-03 
 
 On the same physical ramps, RampNet at 0.55 finds 7 more on GSV than on Mapillary out of 86, or 9
 more out of 54 at the 3 m match. Both counts lean the same way as the recall delta in §3. On these
-small counts the 2×2 is a description of the matched ramps, not a separate test. The 26 ramps
-(5 m) that neither arm finds are the part of the Laurens deficit that a better rig does not
-recover.
+small counts the 2×2 is a description of the matched ramps, not a separate test. About a third of
+the matched ramps are missed on both rigs (26 of 86 at 5 m, 15 of 54 at 3 m): that part of the
+Laurens deficit does not depend on the rig.
 
 ## 5. The near-miss delta, paired
 
