@@ -48,8 +48,13 @@ Every distance below is flat-ground geometry (or DA3, which agreed with it to 6.
 index, and the dominant ground plane's distance is the camera height — a per-panorama
 measurement, not a constant. The sidewalk-auto-labeler archived that payload for every panorama
 of its bend, paterson, gainesville and sao_paulo runs; the 485 benchmark panoramas of those four
-splits are all in it, sha256-verified against its `index.csv`. laurens_gsv was never harvested
-and richmond is Mapillary, so neither has a depth axis.
+splits are all in it, sha256-verified against its `index.csv`. richmond is Mapillary, so it has
+no depth axis. laurens_gsv was harvested on 2026-09-27 for #151 (all 2,137 panoramas of the
+labeler's `runs/laurens_gsv`, and all 86 benchmark panoramas, hash-verified). It has a depth axis
+but is **held out of every pooled row and rig row below**, for the same reason it is held out of
+the benchmark's pooled basis: 59% of its panoramas sit within 20 m of a `laurens_mapillary` one.
+Its rows are appended to the same artifact and tabulated on their own; adding them moved no
+pre-existing row or table (asserted by `recall_by_depth_112.py --only laurens_gsv`).
 
 `scripts/analysis/recall_by_depth_112.py` re-derives the axis. It parses the payloads and
 classifies the ground plane with the labeler's own `depth.py` (labeler commit `86bb909`, branch
@@ -119,6 +124,12 @@ and their GT points stay on the flat axis only:
 | paterson | 125 | 113 | 10 | 2 / 0 | 2.06 m (1.46–2.50) |
 | gainesville | 125 | 112 | 12 | 0 / 1 | 1.83 m (1.12–2.48) |
 | sao_paulo | 125 | 101 | 24 | 0 / 0 | 2.25 m (1.22–2.48) |
+| laurens_gsv (held out) | 86 | 60 | 26 | 0 / 0 | 2.41 m (1.99–2.49) |
+
+laurens_gsv's stand-in share is 30% (26 of 86), about twice the other four splits'. The
+labeler checkout that derived its rows (`29dc605`, main) first re-derived every committed row of
+the four pooled splits in memory and reproduced them byte for byte, so the parser moved commits
+without moving a number.
 
 The excluded panoramas skew old (bend's stand-ins are 2012–2018 imagery plus 11 from 2024).
 Their GT recall on the flat axis is lower than the included panoramas' on bend (0.699 vs 0.779,
@@ -132,7 +143,11 @@ not the whole split, and the `all` row of each table says which.
 triangulation. It finds that the depth frame runs **6–16% short** of the height the imagery
 implies, by city (bend ~1.06, paterson ~1.08, gainesville ~1.10, sao_paulo ~1.16), and cannot
 yet say whether that is a scale or an offset. Both readings are reported: the raw depth axis,
-and the depth axis multiplied by that per-city factor ("depth × scale").
+and the depth axis multiplied by that per-city factor ("depth × scale"). The study did not cover
+laurens_gsv, so it has no "depth × scale" column (its rows carry none; nothing is guessed).
+**Laurens's September-2024 GSV rig reads 2.41 m** (median over its 60 measured benchmark
+panoramas, 1.99–2.49 m; 2.40 m over all 1,418 measured panoramas of the run), which is the older
+2.3–2.4 m rig and not Google's 2025–26 one. On this axis Laurens is not a low-camera outlier.
 
 ### 0.1 How stretched the flat axis is, and what the thresholds become
 
@@ -149,6 +164,7 @@ issue tabulated, are beside it:
 | gainesville | 249 | 14.95 / 12.08 = 1.24 | 1.372 (1.05–1.93) | 13.8 m (103) | 19.7 m (66) | 15.2 m / 21.6 m |
 | sao_paulo | 237 | 11.46 / 11.13 = 1.03 | 1.083 (1.00–1.31) | 16.9 m (77) | 22.8 m (48) | 19.6 m / 26.4 m |
 | GSV pooled | 1,100 | 14.41 / 12.24 = 1.18 | 1.133 (1.00–1.61) | 16.2 m (414) | 21.7 m (253) | 17.4 m / 23.5 m |
+| laurens_gsv (held out, not pooled) | 151 | 13.95 / 12.45 = 1.12 | 1.041 (1.00–1.19) | 17.4 m (47) | 23.4 m (26) | – |
 
 **By capture year, which is the rig, and not by split.** A split mixes vintages, and paterson is
 under half new-rig imagery (166 of its 360 points). Rows are (split, capture year) with at least
@@ -169,6 +185,7 @@ under half new-rig imagery (166 of its 360 points). Rows are (split, capture yea
 | sao_paulo 2025 | 91 (23) | 2.25 m | 1.105 (1.00–1.32) | 1.15 | 17.7 m (34) | 23.5 m (18) |
 | 2025-26 rig (paterson 2025 + gainesville 2026) | 366 (112) | 1.83 m | 1.399 (1.16–1.90) | 1.45 | 13.1 m (139) | 18.7 m (97) |
 | older US vintages (bend, paterson, gainesville; the rest) | 497 (144) | 2.36 m | 1.063 (1.00–1.24) | 1.11 | 17.1 m (198) | 23.2 m (108) |
+| laurens_gsv 2024 | 151 (41) | 2.40 m | 1.041 (1.00–1.19) | 1.08 | 17.4 m (47) | 23.4 m (26) |
 
 The issue's own check reproduces on operational detections at the labeler's 2.6 m. The ratio of
 medians is 1.26 on paterson (issue: 1.29) and 1.38 on gainesville (issue: 1.35; the
@@ -238,6 +255,44 @@ more often than the flat axis made it look, because the flat axis had been dilut
 with nearer ramps. Read through §0.1's thresholds, the published "reliable to 18 m, blind past
 25 m" is **~13 m / ~19 m on the 2025–26 rig and ~17 m / ~23 m on the older 2.3–2.4 m rigs**.
 
+laurens_gsv (held out, measured-ground panoramas; 151 of its 220 GT points). Its own table,
+not pooled with anything above:
+
+| distance | n (flat 2.5 m) | recall (flat) | n (depth) | recall (depth) |
+|---|---:|---:|---:|---:|
+| 0–8 m | 26 | 0.615 | 28 | 0.607 |
+| 8–12 m | 46 | 0.500 | 46 | 0.478 |
+| 12–18 m | 31 | 0.581 | 37 | 0.622 |
+| 18–25 m | 25 | 0.560 | 22 | 0.455 |
+| 25–40 m | 20 | 0.100 | 18 | 0.056 |
+| 40 m+ | 3 | 0.000 | – | – |
+| all | 151 | 0.483 | 151 | 0.483 |
+
+Two things follow. Laurens's flat axis is close to right: the median-point ratio is 1.041 and
+18 m / 25 m read 17.4 m / 23.4 m. So its low recall is not an artifact of a stretched axis. And
+its recall is **low at every range, not only far away**: 0.607 at 0–8 m and 0.478 at 8–12 m on
+the depth axis, against bend's 0.885 and 0.922 in the same bands. The deficit is not a far-field
+effect. `docs/laurens_paired_151.md` tests it on the corners both Laurens rigs saw.
+
+**The image↔payload check is weaker on laurens_gsv, and says why.** Run separately
+(`depth_image_alignment_112.py --splits laurens_gsv`, committed to
+`analysis_out/depth_image_alignment_151_laurens_gsv.json`), it gives:
+
+| check | image column = raw column | image column = raw 511 − c |
+|---|---|---|
+| A. Sky, best within ±2 columns of zero (56 panos with sky) | 5 | 1 |
+| A. Sky, the 7 panos whose correlation peak is prominent (≥ 0.2 above its median): best within ±8 columns | 5 | – |
+| B. Plane under each GT point is ground-like (151 points) | **151** | 148 |
+| B. The same for true-positive detections (73) | **73** | 71 |
+| C. Edges: this mapping beats the mirror at zero shift | **56 of 86** panos | – |
+| D. Raw-space ray, ground/wall boundaries (5,132) | **median \|log ratio\| 0.053** | 0.336 |
+
+Check A is weak here because the upper half of a rural panorama is almost all sky (median 96%),
+so the sky mask has little structure to correlate with. The 7 panoramas that do constrain it
+peak within 8 columns of the unmirrored mapping in 5 cases. B and D favour it as they do in the
+other four splits. The mapping is the same one, and the imagery comes from the same GSV source
+and the same export, but the direct evidence on this split is thinner.
+
 ### 0.3 Apparent size and the resolution forecast
 
 bend, measured-ground (recall by apparent size of a 1.2 m ramp):
@@ -301,7 +356,8 @@ Pooled over the four GSV splits on the depth axis (TP + FP, measured-ground pano
 - **The payloads are an unpublished input.** They are Google-derived and mirrored from the
   labeler's archive (`makelab2:/projects/makeabilitylab/sidewalk-auto-labeler/runs/<city>/depth/`,
   local mirror `D:\Git\sidewalk-auto-labeler\runs\<city>\depth\`). Every file's sha256 and
-  each `index.csv`'s sha256 are in `analysis_out/recall_by_depth_112.json`, and publication is
+  each `index.csv`'s sha256 are in `analysis_out/recall_by_depth_112.json` (laurens_gsv's
+  included: 86 files, index `3e11306d…`), and publication is
   pending Jon's decision. The per-point rows are committed so every table here re-derives
   without them; only *new* points, and the alignment check, need the archive.
 - **The depth axis covers only measured-ground panoramas.** bend 254 of 327 GT points, paterson
@@ -319,8 +375,11 @@ Pooled over the four GSV splits on the depth axis (TP + FP, measured-ground pano
   heights are 6–16% short. The "depth × scale" columns apply that as a multiplicative factor per
   city, which is one of the two hypotheses its study cannot yet separate. Read the raw depth
   column as a lower bound on range and the scaled one as the current best estimate.
-- **Richmond and laurens_gsv keep the flat axis.** Mapillary serves no depth (richmond,
-  and everything in the Mapillary tier), and laurens_gsv was not harvested. Mapillary is exactly
+- **Richmond keeps the flat axis.** Mapillary serves no depth (richmond, and everything in the
+  Mapillary tier). laurens_gsv now has a depth axis (harvested 2026-09-27, #151), held out of
+  every pooled row. The harvest ran the labeler's `scripts/harvest_depth.py` through
+  `scripts/analysis/harvest_depth_launch_151.py`, because at labeler `29dc605` that script
+  refuses every GSV run (see that file). Mapillary is exactly
   where the flat axis is worst (§ *Why this needed depth*, ρ 0.81), and this measurement says
   nothing about it.
 - **DA3 was not regressed against GSV depth.** `gt_depth_da3.json` is not committed and needs a
