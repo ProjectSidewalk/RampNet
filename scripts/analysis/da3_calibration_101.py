@@ -96,6 +96,11 @@ MAPILLARY_SPLITS = ("richmond", "annapolis", "morgantown", "clovis", "laurens_ma
 ALL_SPLITS = GSV_DEPTH_SPLITS + GSV_OTHER_SPLITS + MAPILLARY_SPLITS
 
 MODEL_ID = "depth-anything/DA3METRIC-LARGE"
+# Pinned inputs of the GPU step (review of #203, M5). Both runs used exactly these: the weights
+# snapshot is the one in the run's HF cache (refs/main), the code the commit of its DA3 clone.
+# The runs predate the pin in code; extract now loads this revision and refuses other DA3 code.
+MODEL_REVISION = "4010e39f3634a45bc60553321fb49fb760bd594e"
+DA3_CODE_COMMIT = "3d835ec1a5802d64a8b8b15f817a1ab54809bfe4"
 PANO_MAX_EDGE = 4096          # depth_extract_da3.py's load_pano_image(path, 4096)
 PATCH_HALF = 3                # 7x7 median, depth_extract_da3.sample_depth
 GROUND_STRIDE = 4             # every 4th DA3 output pixel in each direction feeds the fit
@@ -393,9 +398,16 @@ def extract(args):
     logging.disable(logging.INFO)
     from depth_anything_3.api import DepthAnything3
 
+    try:
+        da3_commit = subprocess.run(["git", "-C", os.path.join(da3_src, ".."), "rev-parse", "HEAD"],
+                                    capture_output=True, text=True, check=True).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        da3_commit = None
+    if da3_commit != DA3_CODE_COMMIT and not args.allow_other_da3:
+        raise SystemExit(f"DA3 code at {da3_commit}, pinned {DA3_CODE_COMMIT} (pass --allow-other-da3 to run anyway)")
     dev = "cuda" if torch.cuda.is_available() else "cpu"
     t_load = time.time()
-    model = DepthAnything3.from_pretrained(MODEL_ID).to(dev).eval()
+    model = DepthAnything3.from_pretrained(MODEL_ID, revision=MODEL_REVISION).to(dev).eval()
     t_load = time.time() - t_load
     views = default_views()
     W0 = views[0].width
@@ -498,13 +510,14 @@ def extract(args):
     wall = time.time() - run_t0
     usage = {"ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
              "bundle": ",".join(s for s in args.splits if per_split.get(s, {}).get("panos")),
-             "label": "da3-calibration-101:extract", "panos_scored": total,
+             "label": args.label, "panos_scored": total,
              "elapsed_s": round(wall, 3), "s_per_pano": round(wall / total, 4) if total else None,
              "model_load_s": round(t_load, 3), "per_split": per_split,
              "what": "da3_calibration_101.py extract: 6 DA3METRIC-LARGE views per pano, point sampling + ground fits",
              "run_id": f"da3-calibration-101:{os.environ.get('SLURM_JOB_ID', 'local')}:"
                        f"{time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}",
              "provider": "depth-anything", "model_id": MODEL_ID, "paid": False,
+             "model_revision": MODEL_REVISION, "da3_code_commit": da3_commit,
              "hardware": {"host": os.uname().nodename if hasattr(os, "uname") else "unknown",
                           "gpus": [gpu], "slurm_job_id": os.environ.get("SLURM_JOB_ID")},
              "status": "ok", "est_cost_usd": 0.0, "pricing": None,
@@ -1422,6 +1435,10 @@ def main(argv=None):
     ap.add_argument("--out-dir", default=RAW_DIR, help="raw JSONL directory (extract)")
     ap.add_argument("--da3-src", help="Depth-Anything-3/src (default: $DA3_SRC)")
     ap.add_argument("--limit", type=int, default=0, help="extract: at most this many new panos per split")
+    ap.add_argument("--label", default="da3-calibration-101:extract",
+                    help="extract: the usage row's label (the committed rows were relabelled by hand; see the doc §9)")
+    ap.add_argument("--allow-other-da3", action="store_true",
+                    help="extract: run with DA3 code other than DA3_CODE_COMMIT")
     ap.add_argument("--labeler-root", default=os.environ.get("LABELER_ROOT"),
                     help="derive: a sidewalk-auto-labeler clone (or $LABELER_ROOT); read with git show at the pinned commit")
     a = ap.parse_args(argv)

@@ -7,11 +7,16 @@
 #   ROOT/env                      python venv (--system-site-packages over a sidewalkcv2 env)
 #                                 plus: omegaconf einops addict opencv-python-headless plyfile
 #                                 pycolmap trimesh evo  (scripts/analysis/README.md, DA3 setup)
-#   ROOT/src/Depth-Anything-3     git clone --depth 1 https://github.com/ByteDance-Seed/Depth-Anything-3.git
+#   ROOT/src/Depth-Anything-3     git clone https://github.com/ByteDance-Seed/Depth-Anything-3.git
+#                                 && git -C ... checkout 3d835ec1a5802d64a8b8b15f817a1ab54809bfe4
+#                                 (extract refuses other DA3 code; the weights revision is pinned in the script)
 #   ROOT/src/Depth-Anything-3/stubs/moviepy/{__init__,editor}.py   empty stubs
-#   PANOS_ROOT/<split>/panos/*.jpg  the benchmark panos (HF projectsidewalk/rampnet-benchmark);
-#                                 each is sha256-checked against the bundle's imagery_manifest.json
+#   PANOS_ROOT/<split>/panos/*.jpg  the benchmark panos, each sha256-checked against the bundle's
+#                                 imagery_manifest.json. HF projectsidewalk/rampnet-benchmark has nine of
+#                                 the eleven splits; laurens_gsv and laurens_mapillary are NOT on the Hub
+#                                 (scripts/unpack_benchmark_panos.py), so their panos are not public input.
 #
+#   mkdir -p logs   # the default log path below is relative to the submit directory; or pass --output=
 #   sbatch -A ckpt-makelab -p ckpt-all scripts/analysis/da3_calibration_101.slurm
 #   EXTRA="--splits bend --limit 3" sbatch ... (smoke test)
 #
@@ -26,7 +31,7 @@
 #SBATCH --ntasks=1
 #SBATCH --gpus-per-node=1
 #SBATCH --requeue
-#SBATCH --output=/gscratch/scrubbed/jfroehli/da3_101/logs/%x_%j.out
+#SBATCH --output=logs/%x_%j.out
 
 set -euo pipefail
 ROOT="${ROOT:-/gscratch/scrubbed/jfroehli/da3_101}"
@@ -39,4 +44,4 @@ cd "$ROOT/repo"
 echo "host $(hostname)  job ${SLURM_JOB_ID:-}  restart ${SLURM_RESTART_COUNT:-0}  commit $(git rev-parse HEAD)"
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader || true
 "$ROOT/env/bin/python" scripts/analysis/da3_calibration_101.py extract \
-    --panos-root "$PANOS_ROOT" --out-dir "$OUT" ${EXTRA:-}
+    --panos-root "$PANOS_ROOT" --out-dir "$OUT" ${LABEL:+--label "$LABEL"} ${EXTRA:-}
