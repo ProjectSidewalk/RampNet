@@ -814,6 +814,7 @@ def axis_values(p, pano, k_pt, k_h):
 
 
 AXES = ("flat_2p5", "da3_point", "da3_plane", "flat_da3_height")
+RECALL_GROUPS = MAPILLARY_SPLITS + ("mapillary_pooled",) + GSV_OTHER_SPLITS
 DA3_AXES = ("da3_point", "da3_plane", "flat_da3_height")
 
 
@@ -1100,7 +1101,8 @@ def markdown(t):
     L.append("\n## z-depth vs ray-depth reading (primary band, all panos)\n")
     L.append("| reading | panos fitted | fit ok | median inlier share | median residual (m) | median tilt (deg) |")
     L.append("|---|---:|---:|---:|---:|---:|")
-    for k, r in t["convention"].items():
+    for k in ("z", "ray"):   # fixed order: tables.json is written with sorted keys
+        r = t["convention"][k]
         L.append(f"| {k} | {r['n_panos']} | {r['fit_ok']} | {_f(r['median_inlier_share'])} | "
                  f"{_f(r['median_resid_m'])} | {_f(r['median_tilt_deg'], 2)} |")
     L.append(f"\nIntrinsics probe (DA3 output with / without the known intrinsics, first pano of each "
@@ -1154,7 +1156,8 @@ def markdown(t):
             if r.get("n"):
                 L.append(f"| {pop} | {a} | {r['n']} | {_f(r['median_ratio'])} ({_f(r['p10_ratio'], 2)}–{_f(r['p90_ratio'], 2)}) | "
                          f"{_f(r['median_abs_log_ratio'])} | {_f(r['share_within_10pct'])} |")
-    for s, rows in t["validation"]["by_split"].items():
+    for s in GSV_DEPTH_SPLITS:
+        rows = t["validation"]["by_split"][s]
         for a in AXES:
             r = rows[a]
             if r.get("n"):
@@ -1176,7 +1179,8 @@ def markdown(t):
             continue
         L.append(f"| {r['group']} | {r['n_panos']} | {_f(r['median_h_m'], 2)} ({_f(r['p25_h_m'], 2)}–{_f(r['p75_h_m'], 2)}) | "
                  f"{_f(r['min_h_m'], 2)}–{_f(r['max_h_m'], 2)} | {_f(r['median_tilt_deg'], 1)} |")
-    for name, tb in t["recall_distance"].items():
+    for name in RECALL_GROUPS:
+        tb = t["recall_distance"][name]
         L.append(f"\n## Recall by distance: {name} ({tb['n_gt']} fn-confirmed GT points)\n")
         L.append(rbd._side_by_side([(a, tb[a]) for a in AXES]))
         L.append("")
@@ -1233,7 +1237,7 @@ def check(markdown_out=False):
     if read_jsonl(ROWS_PANOS) != panos or read_jsonl(ROWS_POINTS) != points:
         raise SystemExit("rows do not re-derive from the committed raw files, bundles and #112 JSON")
     fresh = tables(panos, points, stored["labeler_laurens"])
-    fresh = json.loads(json.dumps(fresh))
+    fresh = json.loads(json.dumps(fresh, sort_keys=True))
     if fresh != stored["tables"]:
         raise SystemExit(f"{TABLES_JSON}: tables do not re-derive from the committed rows")
     with open(TABLES_MD, encoding="utf-8", newline="") as fh:
@@ -1271,7 +1275,8 @@ def main(argv=None):
     if a.stage == "derive":
         panos, points = derive_rows()
         labeler = read_labeler_laurens(a.labeler_root)
-        t = json.loads(json.dumps(tables(panos, points, labeler)))
+        # sorted keys, exactly as tables.json stores them, so markdown() sees one dict order
+        t = json.loads(json.dumps(tables(panos, points, labeler), sort_keys=True))
         write_jsonl(ROWS_PANOS, panos)
         write_jsonl(ROWS_POINTS, points)
         write_json(TABLES_JSON, {"labeler_laurens": labeler, "tables": t,

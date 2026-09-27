@@ -269,24 +269,6 @@ Constants fitted on the other three GSV splits. `pooled_common` = the locations 
 | da3_plane | 13.1 m (58) | 17.9 m (28) |
 | flat_da3_height | 13.5 m (58) | 19.0 m (28) |
 
-## Recall by distance: laurens_gsv (220 fn-confirmed GT points)
-
-| bucket | n (flat_2p5) | recall (flat_2p5) | n (da3_point) | recall (da3_point) | n (da3_plane) | recall (da3_plane) | n (flat_da3_height) | recall (flat_da3_height) |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| 0-8 m | 38 | 0.526 | 56 | 0.518 | 48 | 0.458 | 51 | 0.510 |
-| 8-12 m | 73 | 0.534 | 68 | 0.529 | 62 | 0.565 | 49 | 0.490 |
-| 12-18 m | 42 | 0.595 | 49 | 0.592 | 45 | 0.489 | 58 | 0.621 |
-| 18-25 m | 43 | 0.581 | 33 | 0.545 | 27 | 0.518 | 16 | 0.312 |
-| 25-40 m | 21 | 0.143 | 14 | 0.000 | 7 | 0.000 | 15 | 0.133 |
-| 40 m+ | 3 | 0.000 |  |  |  |  |  |  |
-| all | 220 | 0.509 | 220 | 0.509 | 189 | 0.492 | 189 | 0.492 |
-
-| axis | 18 m on flat becomes (window n) | 25 m on flat becomes (window n) |
-|---|---|---|
-| da3_point | 16.0 m (72) | 22.0 m (41) |
-| da3_plane | 15.3 m (65) | 21.3 m (37) |
-| flat_da3_height | 15.5 m (65) | 21.6 m (37) |
-
 ## Recall by distance: mapillary_pooled (1615 fn-confirmed GT points)
 
 | bucket | n (flat_2p5) | recall (flat_2p5) | n (da3_point) | recall (da3_point) | n (da3_plane) | recall (da3_plane) | n (flat_da3_height) | recall (flat_da3_height) |
@@ -305,9 +287,27 @@ Constants fitted on the other three GSV splits. `pooled_common` = the locations 
 | da3_plane | 15.5 m (369) | 20.9 m (194) |
 | flat_da3_height | 15.1 m (369) | 21.2 m (194) |
 
+## Recall by distance: laurens_gsv (220 fn-confirmed GT points)
+
+| bucket | n (flat_2p5) | recall (flat_2p5) | n (da3_point) | recall (da3_point) | n (da3_plane) | recall (da3_plane) | n (flat_da3_height) | recall (flat_da3_height) |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| 0-8 m | 38 | 0.526 | 56 | 0.518 | 48 | 0.458 | 51 | 0.510 |
+| 8-12 m | 73 | 0.534 | 68 | 0.529 | 62 | 0.565 | 49 | 0.490 |
+| 12-18 m | 42 | 0.595 | 49 | 0.592 | 45 | 0.489 | 58 | 0.621 |
+| 18-25 m | 43 | 0.581 | 33 | 0.545 | 27 | 0.518 | 16 | 0.312 |
+| 25-40 m | 21 | 0.143 | 14 | 0.000 | 7 | 0.000 | 15 | 0.133 |
+| 40 m+ | 3 | 0.000 |  |  |  |  |  |  |
+| all | 220 | 0.509 | 220 | 0.509 | 189 | 0.492 | 189 | 0.492 |
+
+| axis | 18 m on flat becomes (window n) | 25 m on flat becomes (window n) |
+|---|---|---|
+| da3_point | 16.0 m (72) | 22.0 m (41) |
+| da3_plane | 15.3 m (65) | 21.3 m (37) |
+| flat_da3_height | 15.5 m (65) | 21.6 m (37) |
+
 ## Laurens cross-read (labeler commit `29dc605bd64bc7b50b78ec25bfdaa45dcfc6169d`)
 
-GoPro Max rig: DA3 median 2.1288 m over 73 panos; labeler h_scale 2.949 [2.897, 3.0], h_bearing 4.314 [3.802, 4.841]; labeler verdict {'group': 'gopro/max', 'applied': False, 'height_m': 2.6, 'reason': 'fails identifiable (slope 0.723); agreement (A 4.314, B 2.949); SUSPECT: bearing height outside 1.0-3.5 m', 'gate_passes': False}. laurens_gsv (Google rig, same footprint): DA3 median 2.1443 m over 78 panos. Sequence-level Pearson r (DA3 vs h_scale) = -0.2766 over 16 sequences.
+GoPro Max rig: DA3 median 2.1288 m over 73 panos; labeler h_scale 2.949 [2.897, 3.0], h_bearing 4.314 [3.802, 4.841]; labeler verdict {'applied': False, 'gate_passes': False, 'group': 'gopro/max', 'height_m': 2.6, 'reason': 'fails identifiable (slope 0.723); agreement (A 4.314, B 2.949); SUSPECT: bearing height outside 1.0-3.5 m'}. laurens_gsv (Google rig, same footprint): DA3 median 2.1443 m over 78 panos. Sequence-level Pearson r (DA3 vs h_scale) = -0.2766 over 16 sequences.
 
 | sequence | panos | DA3 h (m) | labeler h_scale | labeler h_bearing |
 |---|---:|---:|---:|---:|
