@@ -74,3 +74,10 @@ analysis_out/silent_activation_replica*.json -text
 
 # #25 input-size sweep: SHA256SUMS pins these bytes (results, instrument check, caches)
 analysis_out/input_res_sweep_25/** text eol=lf
+
+# #35 cascade cost and transfer read: every per-pair file, summary.json and transfer/transfer.json
+# is byte-compared against a fresh re-derivation (cascade_cost_35.py --check, the tests), which
+# writes LF. An autocrlf=true clone would otherwise fail those checks for byte-correct files.
+analysis_out/cascade_cost_35/** text eol=lf
+# The transfer run's logs and records (docs/data/cascade_transfer_35/), kept as the job wrote them.
+docs/data/cascade_transfer_35/* -text
