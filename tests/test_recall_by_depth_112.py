@@ -145,6 +145,12 @@ def test_laurens_gsv_is_held_out_of_every_pooled_table(committed):
     assert prov["parity_splits"] == c["depth_splits"] and len(prov["labeler_commit"]) == 40
 
 
+def test_pre_existing_rows_and_tables_are_the_pre_151_content(committed):
+    """PR #201 review N1: the pooled splits' and richmond's rows and every non-held-out table
+    hash to what main held before laurens_gsv was added (origin/main 5a3efe3)."""
+    assert rbd.base_sha256(committed) == rbd.BASE_SHA256_PRE_151
+
+
 def test_laurens_gsv_alignment_evidence():
     """analysis_out/depth_image_alignment_151_laurens_gsv.json: weaker than the pooled four
     (open rural sky), but every check that constrains it favours the same mapping."""

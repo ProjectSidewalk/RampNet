@@ -99,6 +99,16 @@ FLAT_ONLY_SPLITS = ("richmond",)   # the doc's other city: Mapillary, no depth e
 # under tables["held_out"], and its rows are appended after every pre-existing row: adding
 # it moves no committed row and no pre-existing table (``--only laurens_gsv`` asserts both).
 HELD_OUT_DEPTH_SPLITS = ("laurens_gsv",)
+# sha256 of the pooled splits' + richmond's rows and of every non-held-out table, as they stood
+# on main before #151 added laurens_gsv (origin/main 5a3efe3; ``base_sha256``). ``--only`` and
+# the tests compare against this, so "no pre-existing row moved" is checked against the pre-PR
+# content itself, not against a copy of the artifact being modified (PR #201 review N1).
+BASE_SHA256_PRE_151 = {
+    "panos": "48020fbdb222ae9f1a8e6dc634d44e02821c395a1b02786793ac557d1875f700",
+    "points": "0bc0103d18c07896818a075d53ba0bc27d97bd7318cae4b5bfcb72e74e31c0b7",
+    "detections": "53c8e90948e40c6f211840bc8bafb8e04a11d032a2f8dbe80e7cbc7e947d72eb",
+    "tables": "18f9e4d5296f1d4b95f14d09bc409bcb8d91cb03cd6d88ee327ae550779685e4",
+}
 M_BUCKETS = [(0, 8), (8, 12), (12, 18), (18, 25), (25, 40), (40, 1e9)]
 PX_BUCKETS = [(0, 12), (12, 20), (20, 32), (32, 50), (50, 80), (80, 1e9)]
 RESOLUTION_FACTORS = (1.5, 2.0, 3.0)
@@ -520,6 +530,20 @@ def derive(labeler_root, splits, flat_only=FLAT_ONLY_SPLITS, held_out=()):
             "panos": panos, "points": points, "detections": dets}
 
 
+def base_sha256(data):
+    """Content hashes of everything that is not a held-out split: the pooled splits' and
+    richmond's rows, and every table but ``held_out``. Compact, key-sorted JSON, so the hash
+    does not depend on line endings or indentation."""
+    held = set(data["constants"].get("held_out_depth_splits", []))
+
+    def h(obj):
+        return hashlib.sha256(json.dumps(obj, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+
+    out = {k: h([r for r in data[k] if r["city"] not in held]) for k in ("panos", "points", "detections")}
+    out["tables"] = h({k: v for k, v in data["tables"].items() if k != "held_out"})
+    return out
+
+
 def _row_bytes(row):
     return json.dumps(row, sort_keys=True).encode("utf-8")
 
@@ -529,8 +553,10 @@ def add_held_out(committed, labeler_root, city):
 
     Asserts, rather than assumes, what "only the new rows" means:
 
-    1. every pre-existing panos/points/detections row is byte-identical afterwards, and so
-       is every pre-existing table;
+    1. the pooled splits' and richmond's rows, and every pre-existing table, hash to
+       ``BASE_SHA256_PRE_151`` -- the content as it stood on main before this split was
+       added -- both before and after (review N1: comparing the output to the input it was
+       built from could not fail);
     2. the labeler checkout doing the deriving still reproduces every pre-existing depth
        split's rows byte for byte (they are re-derived in memory and compared), so the new
        rows and the old ones come from a parser that agrees on the old payloads, even
@@ -540,6 +566,8 @@ def add_held_out(committed, labeler_root, city):
     ``held_out_provenance`` so the original ``labeler_commit`` keeps describing the rows it
     produced.
     """
+    if base_sha256(committed) != BASE_SHA256_PRE_151:
+        raise SystemExit("the committed pre-existing rows or tables differ from the pre-#151 content")
     old = {k: [_row_bytes(r) for r in committed[k] if r["city"] != city]
            for k in ("panos", "points", "detections")}
     splits = committed["constants"]["depth_splits"]
@@ -570,6 +598,8 @@ def add_held_out(committed, labeler_root, city):
     for k, v in committed["tables"].items():
         if k != "held_out" and out["tables"][k] != v:
             raise SystemExit(f"pre-existing table {k!r} changed")
+    if base_sha256(out) != BASE_SHA256_PRE_151:
+        raise SystemExit("the pre-existing rows or tables no longer hash to the pre-#151 content")
     return out
 
 
@@ -1033,8 +1063,9 @@ def main(argv=None):
     ap.add_argument("--splits", nargs="+", default=list(DEPTH_SPLITS))
     ap.add_argument("--only", choices=HELD_OUT_DEPTH_SPLITS,
                     help="derive only this held-out split and append its rows to the committed "
-                         "artifact, asserting every pre-existing row and table is unchanged and "
-                         "that this labeler checkout reproduces the pre-existing depth rows (#151)")
+                         "artifact, asserting the pre-existing rows and tables still hash to their "
+                         "pre-#151 content and that this labeler checkout reproduces the pooled "
+                         "splits' depth rows (#151)")
     ap.add_argument("--out", default=OUT_JSON)
     ap.add_argument("--md", default=OUT_MD)
     ap.add_argument("--check", action="store_true",
