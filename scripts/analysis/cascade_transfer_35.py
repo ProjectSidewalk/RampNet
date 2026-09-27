@@ -194,6 +194,14 @@ def read_setting(split, c_min, gts=None, peaks=None, bootstrap=BOOTSTRAP, seed=S
 
     criteria = {"viable": verdict == "VIABLE", "attr_dR_ci_above_0": att_ci[0] > 0,
                 "fewer_fp_per_ramp_than_matched_threshold": c3}
+    # Criterion 3 as stated divides the cascade's FPs by ATTRIBUTABLE ramps and the
+    # threshold's by RAW ramps (the threshold has no challenger, so no null). That is
+    # conservative against the cascade. The raw/raw read is recorded beside it (review N1,
+    # added after scoring); it is not part of the rule.
+    row["fp_per_raw_ramp"] = (promoted_fp / row["dR_ramps"]) if row["dR_ramps"] > 0 else None
+    raw_c3 = (None if matched is None or matched["fp_per_ramp"] is None
+              or row["fp_per_raw_ramp"] is None
+              else row["fp_per_raw_ramp"] < matched["fp_per_ramp"])
     return {
         "split": split, "challenger": CHALLENGER, "t_hi": t_hi, "n_panos": n,
         "n_gt_recall": base["n_gt"], "challenger_boxes": sum(len(v) for v in cands.values()),
@@ -208,6 +216,11 @@ def read_setting(split, c_min, gts=None, peaks=None, bootstrap=BOOTSTRAP, seed=S
                                                                  "NOT VIABLE")},
                         "false_viable_rate": calib.count("VIABLE") / len(calib)},
         "criteria": criteria, "transfers": all(criteria.values()),
+        "criterion_3_raw_vs_raw": {
+            "cheaper": raw_c3,
+            "note": ("cascade promoted FP / raw recall ramps gained against the matched-recall "
+                     "threshold's FP / raw ramps; not part of the rule (review N1, added after "
+                     "scoring)")},
     }
 
 

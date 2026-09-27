@@ -44,6 +44,8 @@ def test_richmond_reference_is_the_committed_fixed_row(committed):
     with open(os.path.join(cc.DEFAULT_OUT, cc.out_name("richmond", ct.CHALLENGER, cc.T_HI)),
               encoding="utf-8") as f:
         fixed = json.load(f)["fixed_setting"]
+    # the sensitivity row's hardcoded richmond c_min is the committed median (review N8)
+    assert ct.RICHMOND_C_MIN == fixed["c_min"]
     r = committed["primary"]["richmond"]["fixed"]
     for k in ("tp", "fp", "fn", "F1", "attributable_dR", "fp_per_attributable_ramp",
               "null_dR_mean", "promoted_fp", "c_min"):
@@ -89,6 +91,20 @@ PINNED = {
     "richmond": {"baseline": (257, 28, 53), "cascade": (269, 38, 41), "attr_dR": 0.0357,
                  "verdict": "VIABLE", "transfers": True},
 }
+
+
+def test_raw_vs_raw_criterion_3_flips_no_primary_verdict(committed):
+    """Criterion 3 divides the cascade's FPs by attributable ramps and the threshold's by
+    raw ramps (review N1). On the primary read the raw/raw comparison agrees on every split;
+    on the post-seam sensitivity it does not for gainesville (1.20 vs 1.30), which the doc
+    states."""
+    for split in ct.SPLITS:
+        p = committed["primary"][split]
+        assert (p["criterion_3_raw_vs_raw"]["cheaper"]
+                == p["criteria"]["fewer_fp_per_ramp_than_matched_threshold"]), split
+    g = committed["sensitivity_post_seam_peaks"]["splits"]["gainesville"]
+    assert g["criterion_3_raw_vs_raw"]["cheaper"] is True
+    assert g["criteria"]["fewer_fp_per_ramp_than_matched_threshold"] is False
 
 
 def test_overall_verdict_is_pinned(committed):

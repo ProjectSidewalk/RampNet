@@ -306,6 +306,10 @@
     "viable": true
    },
    "criterion_3_note": null,
+   "criterion_3_raw_vs_raw": {
+    "cheaper": true,
+    "note": "cascade promoted FP / raw recall ramps gained against the matched-recall threshold's FP / raw ramps; not part of the rule (review N1, added after scoring)"
+   },
    "fixed": {
     "F1": 0.85913,
     "P": 0.879004,
@@ -319,6 +323,7 @@
     "fn": 47,
     "fp": 34,
     "fp_per_attributable_ramp": 0.957529,
+    "fp_per_raw_ramp": 0.888889,
     "n_gt": 294,
     "n_promoted": 17,
     "null_dFP_mean": 2.637097,
@@ -497,6 +502,10 @@
     "viable": false
    },
    "criterion_3_note": null,
+   "criterion_3_raw_vs_raw": {
+    "cheaper": false,
+    "note": "cascade promoted FP / raw recall ramps gained against the matched-recall threshold's FP / raw ramps; not part of the rule (review N1, added after scoring)"
+   },
    "fixed": {
     "F1": 0.868878,
     "P": 0.898693,
@@ -510,6 +519,7 @@
     "fn": 52,
     "fp": 31,
     "fp_per_attributable_ramp": 1.643216,
+    "fp_per_raw_ramp": 1.5,
     "n_gt": 327,
     "n_promoted": 17,
     "null_dFP_mean": 2.541284,
@@ -688,6 +698,10 @@
     "viable": true
    },
    "criterion_3_note": null,
+   "criterion_3_raw_vs_raw": {
+    "cheaper": true,
+    "note": "cascade promoted FP / raw recall ramps gained against the matched-recall threshold's FP / raw ramps; not part of the rule (review N1, added after scoring)"
+   },
    "fixed": {
     "F1": 0.819367,
     "P": 0.830189,
@@ -701,6 +715,7 @@
     "fn": 52,
     "fp": 45,
     "fp_per_attributable_ramp": 1.107143,
+    "fp_per_raw_ramp": 1.0,
     "n_gt": 272,
     "n_promoted": 24,
     "null_dFP_mean": 3.25,
@@ -879,6 +894,10 @@
     "viable": false
    },
    "criterion_3_note": null,
+   "criterion_3_raw_vs_raw": {
+    "cheaper": false,
+    "note": "cascade promoted FP / raw recall ramps gained against the matched-recall threshold's FP / raw ramps; not part of the rule (review N1, added after scoring)"
+   },
    "fixed": {
     "F1": 0.806723,
     "P": 0.902821,
@@ -892,6 +911,7 @@
     "fn": 107,
     "fp": 31,
     "fp_per_attributable_ramp": 4.898765,
+    "fp_per_raw_ramp": 4.0,
     "n_gt": 395,
     "n_promoted": 24,
     "null_dFP_mean": 2.282258,
@@ -1070,6 +1090,10 @@
     "viable": true
    },
    "criterion_3_note": null,
+   "criterion_3_raw_vs_raw": {
+    "cheaper": true,
+    "note": "cascade promoted FP / raw recall ramps gained against the matched-recall threshold's FP / raw ramps; not part of the rule (review N1, added after scoring)"
+   },
    "fixed": {
     "F1": 0.871961,
     "P": 0.876221,
@@ -1083,6 +1107,7 @@
     "fn": 41,
     "fp": 38,
     "fp_per_attributable_ramp": 0.903084,
+    "fp_per_raw_ramp": 0.833333,
     "n_gt": 310,
     "n_promoted": 29,
     "null_dFP_mean": 3.471545,
@@ -1271,6 +1296,10 @@
      "viable": true
     },
     "criterion_3_note": null,
+    "criterion_3_raw_vs_raw": {
+     "cheaper": true,
+     "note": "cascade promoted FP / raw recall ramps gained against the matched-recall threshold's FP / raw ramps; not part of the rule (review N1, added after scoring)"
+    },
     "fixed": {
      "F1": 0.856153,
      "P": 0.872792,
@@ -1284,6 +1313,7 @@
      "fn": 47,
      "fp": 36,
      "fp_per_attributable_ramp": 0.957529,
+     "fp_per_raw_ramp": 0.888889,
      "n_gt": 294,
      "n_promoted": 17,
      "null_dFP_mean": 2.653226,
@@ -1457,6 +1487,10 @@
      "viable": false
     },
     "criterion_3_note": null,
+    "criterion_3_raw_vs_raw": {
+     "cheaper": false,
+     "note": "cascade promoted FP / raw recall ramps gained against the matched-recall threshold's FP / raw ramps; not part of the rule (review N1, added after scoring)"
+    },
     "fixed": {
      "F1": 0.86698,
      "P": 0.887821,
@@ -1470,6 +1504,7 @@
      "fn": 50,
      "fp": 35,
      "fp_per_attributable_ramp": 1.825796,
+     "fp_per_raw_ramp": 1.666667,
      "n_gt": 327,
      "n_promoted": 18,
      "null_dFP_mean": 2.587156,
@@ -1643,6 +1678,10 @@
      "viable": true
     },
     "criterion_3_note": null,
+    "criterion_3_raw_vs_raw": {
+     "cheaper": true,
+     "note": "cascade promoted FP / raw recall ramps gained against the matched-recall threshold's FP / raw ramps; not part of the rule (review N1, added after scoring)"
+    },
     "fixed": {
      "F1": 0.814815,
      "P": 0.820896,
@@ -1656,6 +1695,7 @@
      "fn": 52,
      "fp": 48,
      "fp_per_attributable_ramp": 1.328571,
+     "fp_per_raw_ramp": 1.2,
      "n_gt": 272,
      "n_promoted": 26,
      "null_dFP_mean": 3.629032,
@@ -1829,6 +1869,10 @@
      "viable": false
     },
     "criterion_3_note": null,
+    "criterion_3_raw_vs_raw": {
+     "cheaper": false,
+     "note": "cascade promoted FP / raw recall ramps gained against the matched-recall threshold's FP / raw ramps; not part of the rule (review N1, added after scoring)"
+    },
     "fixed": {
      "F1": 0.810585,
      "P": 0.900929,
@@ -1842,6 +1886,7 @@
      "fn": 104,
      "fp": 32,
      "fp_per_attributable_ramp": 3.757576,
+     "fp_per_raw_ramp": 3.2,
      "n_gt": 395,
      "n_promoted": 25,
      "null_dFP_mean": 2.419355,
@@ -2015,6 +2060,10 @@
      "viable": true
     },
     "criterion_3_note": null,
+    "criterion_3_raw_vs_raw": {
+     "cheaper": true,
+     "note": "cascade promoted FP / raw recall ramps gained against the matched-recall threshold's FP / raw ramps; not part of the rule (review N1, added after scoring)"
+    },
     "fixed": {
      "F1": 0.868167,
      "P": 0.865385,
@@ -2028,6 +2077,7 @@
      "fn": 40,
      "fp": 42,
      "fp_per_attributable_ramp": 0.993392,
+     "fp_per_raw_ramp": 0.916667,
      "n_gt": 310,
      "n_promoted": 30,
      "null_dFP_mean": 3.560976,
@@ -2206,6 +2256,10 @@
      "viable": true
     },
     "criterion_3_note": null,
+    "criterion_3_raw_vs_raw": {
+     "cheaper": true,
+     "note": "cascade promoted FP / raw recall ramps gained against the matched-recall threshold's FP / raw ramps; not part of the rule (review N1, added after scoring)"
+    },
     "fixed": {
      "F1": 0.854701,
      "P": 0.859107,
@@ -2219,6 +2273,7 @@
      "fn": 44,
      "fp": 41,
      "fp_per_attributable_ramp": 1.341024,
+     "fp_per_raw_ramp": 1.25,
      "n_gt": 294,
      "n_promoted": 29,
      "null_dFP_mean": 3.548387,
@@ -2392,6 +2447,10 @@
      "viable": false
     },
     "criterion_3_note": null,
+    "criterion_3_raw_vs_raw": {
+     "cheaper": false,
+     "note": "cascade promoted FP / raw recall ramps gained against the matched-recall threshold's FP / raw ramps; not part of the rule (review N1, added after scoring)"
+    },
     "fixed": {
      "F1": 0.867925,
      "P": 0.893204,
@@ -2405,6 +2464,7 @@
      "fn": 51,
      "fp": 33,
      "fp_per_attributable_ramp": 1.72518,
+     "fp_per_raw_ramp": 1.571429,
      "n_gt": 327,
      "n_promoted": 21,
      "null_dFP_mean": 2.889908,
@@ -2578,6 +2638,10 @@
      "viable": true
     },
     "criterion_3_note": null,
+    "criterion_3_raw_vs_raw": {
+     "cheaper": true,
+     "note": "cascade promoted FP / raw recall ramps gained against the matched-recall threshold's FP / raw ramps; not part of the rule (review N1, added after scoring)"
+    },
     "fixed": {
      "F1": 0.819367,
      "P": 0.830189,
@@ -2591,6 +2655,7 @@
      "fn": 52,
      "fp": 45,
      "fp_per_attributable_ramp": 1.101243,
+     "fp_per_raw_ramp": 1.0,
      "n_gt": 272,
      "n_promoted": 23,
      "null_dFP_mean": 3.08871,
@@ -2764,6 +2829,10 @@
      "viable": false
     },
     "criterion_3_note": null,
+    "criterion_3_raw_vs_raw": {
+     "cheaper": false,
+     "note": "cascade promoted FP / raw recall ramps gained against the matched-recall threshold's FP / raw ramps; not part of the rule (review N1, added after scoring)"
+    },
     "fixed": {
      "F1": 0.807263,
      "P": 0.900312,
@@ -2777,6 +2846,7 @@
      "fn": 106,
      "fp": 32,
      "fp_per_attributable_ramp": 4.133333,
+     "fp_per_raw_ramp": 3.4,
      "n_gt": 395,
      "n_promoted": 27,
      "null_dFP_mean": 2.782258,
