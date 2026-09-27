@@ -5,7 +5,7 @@
  "labeler_laurens": {
   "files": {
    "runs/laurens/camera_height/groups.csv": "0df9f76c6defc391b6a056b65220c50cd6fc9e235ba7d08543f2a769ccaf6625",
-   "runs/laurens/camera_heights.json": "824564fdd10f704e46199e39e9b73cabba7c30a0ab1df53b242bca4cd7314fe9"
+   "runs/laurens/camera_heights.json": "74900b62edf5bd9470e17c78c72c6a9c343455ce738086103b1d4252eb34c54d"
   },
   "groups": [
    {
@@ -249,13 +249,13 @@
     "slope": 0.739
    }
   ],
-  "labeler_commit": "29dc605bd64bc7b50b78ec25bfdaa45dcfc6169d",
+  "labeler_commit": "1cb24800e6668ee8263079c917e13002fbab11ae",
   "rig_verdict": {
    "applied": false,
    "gate_passes": false,
    "group": "gopro/max",
    "height_m": 2.6,
-   "reason": "fails identifiable (slope 0.723); agreement (A 4.314, B 2.949); SUSPECT: bearing height outside 1.0-3.5 m"
+   "reason": "fails identifiable (slope 0.723); agreement (b_unvalidated: no h*_B estimator passed rule V in this city; line 3.755, local 3.481); material (CI 3.80-4.84, h_g n/a); SUSPECT: bearing height outside 1.0-3.5 m"
   }
  },
  "tables": {
@@ -692,6 +692,190 @@
     "n_panos": 1289
    }
   },
+  "ground_fit_change": [
+   {
+    "group": "bend",
+    "now_lowest_is_dominant": 83,
+    "now_other": 0,
+    "now_pass": 94,
+    "now_roof": 0,
+    "now_same_as_run1_passing": 80,
+    "now_switched_plane": 11,
+    "now_threshold_only": 3,
+    "panos": 110,
+    "run1_pass_0p25": 110,
+    "run1_pass_0p25_roof": 0,
+    "run1_pass_0p5": 106
+   },
+   {
+    "group": "paterson",
+    "now_lowest_is_dominant": 88,
+    "now_other": 1,
+    "now_pass": 108,
+    "now_roof": 0,
+    "now_same_as_run1_passing": 74,
+    "now_switched_plane": 20,
+    "now_threshold_only": 13,
+    "panos": 125,
+    "run1_pass_0p25": 125,
+    "run1_pass_0p25_roof": 0,
+    "run1_pass_0p5": 95
+   },
+   {
+    "group": "gainesville",
+    "now_lowest_is_dominant": 78,
+    "now_other": 3,
+    "now_pass": 106,
+    "now_roof": 0,
+    "now_same_as_run1_passing": 70,
+    "now_switched_plane": 28,
+    "now_threshold_only": 5,
+    "panos": 125,
+    "run1_pass_0p25": 125,
+    "run1_pass_0p25_roof": 0,
+    "run1_pass_0p5": 116
+   },
+   {
+    "group": "sao_paulo",
+    "now_lowest_is_dominant": 78,
+    "now_other": 2,
+    "now_pass": 95,
+    "now_roof": 0,
+    "now_same_as_run1_passing": 60,
+    "now_switched_plane": 17,
+    "now_threshold_only": 16,
+    "panos": 125,
+    "run1_pass_0p25": 125,
+    "run1_pass_0p25_roof": 2,
+    "run1_pass_0p5": 86
+   },
+   {
+    "group": "laurens_gsv",
+    "now_lowest_is_dominant": 70,
+    "now_other": 1,
+    "now_pass": 78,
+    "now_roof": 0,
+    "now_same_as_run1_passing": 68,
+    "now_switched_plane": 8,
+    "now_threshold_only": 1,
+    "panos": 86,
+    "run1_pass_0p25": 86,
+    "run1_pass_0p25_roof": 0,
+    "run1_pass_0p5": 81
+   },
+   {
+    "group": "richmond",
+    "now_lowest_is_dominant": 78,
+    "now_other": 0,
+    "now_pass": 93,
+    "now_roof": 0,
+    "now_same_as_run1_passing": 60,
+    "now_switched_plane": 15,
+    "now_threshold_only": 18,
+    "panos": 124,
+    "run1_pass_0p25": 124,
+    "run1_pass_0p25_roof": 14,
+    "run1_pass_0p5": 99
+   },
+   {
+    "group": "annapolis",
+    "now_lowest_is_dominant": 96,
+    "now_other": 1,
+    "now_pass": 96,
+    "now_roof": 0,
+    "now_same_as_run1_passing": 82,
+    "now_switched_plane": 0,
+    "now_threshold_only": 13,
+    "panos": 125,
+    "run1_pass_0p25": 125,
+    "run1_pass_0p25_roof": 0,
+    "run1_pass_0p5": 96
+   },
+   {
+    "group": "morgantown",
+    "now_lowest_is_dominant": 77,
+    "now_other": 0,
+    "now_pass": 92,
+    "now_roof": 3,
+    "now_same_as_run1_passing": 15,
+    "now_switched_plane": 15,
+    "now_threshold_only": 62,
+    "panos": 125,
+    "run1_pass_0p25": 125,
+    "run1_pass_0p25_roof": 33,
+    "run1_pass_0p5": 23
+   },
+   {
+    "group": "clovis",
+    "now_lowest_is_dominant": 105,
+    "now_other": 2,
+    "now_pass": 112,
+    "now_roof": 0,
+    "now_same_as_run1_passing": 48,
+    "now_switched_plane": 7,
+    "now_threshold_only": 55,
+    "panos": 125,
+    "run1_pass_0p25": 125,
+    "run1_pass_0p25_roof": 12,
+    "run1_pass_0p5": 48
+   },
+   {
+    "group": "laurens_mapillary",
+    "now_lowest_is_dominant": 66,
+    "now_other": 0,
+    "now_pass": 73,
+    "now_roof": 0,
+    "now_same_as_run1_passing": 47,
+    "now_switched_plane": 7,
+    "now_threshold_only": 19,
+    "panos": 94,
+    "run1_pass_0p25": 94,
+    "run1_pass_0p25_roof": 0,
+    "run1_pass_0p5": 62
+   },
+   {
+    "group": "budapest_district5",
+    "now_lowest_is_dominant": 84,
+    "now_other": 0,
+    "now_pass": 96,
+    "now_roof": 1,
+    "now_same_as_run1_passing": 74,
+    "now_switched_plane": 12,
+    "now_threshold_only": 10,
+    "panos": 125,
+    "run1_pass_0p25": 124,
+    "run1_pass_0p25_roof": 10,
+    "run1_pass_0p5": 105
+   },
+   {
+    "group": "gsv_google_depth",
+    "now_lowest_is_dominant": 327,
+    "now_other": 6,
+    "now_pass": 403,
+    "now_roof": 0,
+    "now_same_as_run1_passing": 284,
+    "now_switched_plane": 76,
+    "now_threshold_only": 37,
+    "panos": 485,
+    "run1_pass_0p25": 485,
+    "run1_pass_0p25_roof": 2,
+    "run1_pass_0p5": 403
+   },
+   {
+    "group": "mapillary_all",
+    "now_lowest_is_dominant": 506,
+    "now_other": 3,
+    "now_pass": 562,
+    "now_roof": 4,
+    "now_same_as_run1_passing": 326,
+    "now_switched_plane": 56,
+    "now_threshold_only": 177,
+    "panos": 718,
+    "run1_pass_0p25": 717,
+    "run1_pass_0p25_roof": 69,
+    "run1_pass_0p5": 433
+   }
+  ],
   "headline_axis": "da3_point",
   "height_calibration": [
    {
@@ -1056,17 +1240,17 @@
    }
   ],
   "laurens_cross_read": {
-   "labeler_commit": "29dc605bd64bc7b50b78ec25bfdaa45dcfc6169d",
+   "labeler_commit": "1cb24800e6668ee8263079c917e13002fbab11ae",
    "labeler_files": {
     "runs/laurens/camera_height/groups.csv": "0df9f76c6defc391b6a056b65220c50cd6fc9e235ba7d08543f2a769ccaf6625",
-    "runs/laurens/camera_heights.json": "824564fdd10f704e46199e39e9b73cabba7c30a0ab1df53b242bca4cd7314fe9"
+    "runs/laurens/camera_heights.json": "74900b62edf5bd9470e17c78c72c6a9c343455ce738086103b1d4252eb34c54d"
    },
    "labeler_rig_verdict": {
     "applied": false,
     "gate_passes": false,
     "group": "gopro/max",
     "height_m": 2.6,
-    "reason": "fails identifiable (slope 0.723); agreement (A 4.314, B 2.949); SUSPECT: bearing height outside 1.0-3.5 m"
+    "reason": "fails identifiable (slope 0.723); agreement (b_unvalidated: no h*_B estimator passed rule V in this city; line 3.755, local 3.481); material (CI 3.80-4.84, h_g n/a); SUSPECT: bearing height outside 1.0-3.5 m"
    },
    "laurens_gsv_da3_median_h_m": 2.1443,
    "laurens_gsv_n_panos": 78,

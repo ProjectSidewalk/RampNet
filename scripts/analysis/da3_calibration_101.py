@@ -76,6 +76,13 @@ import recall_by_depth_112 as rbd  # noqa: E402
 
 OUT_DIR = os.path.join(REPO, "analysis_out", "da3_calibration_101")
 RAW_DIR = os.path.join(OUT_DIR, "raw")
+# The first full extraction (klone job 40774944, commit 4ab47a2): the single dominant plane of the
+# band, pass rule inlier share >= 0.5. Kept so the post-hoc ground-fit change can be attributed
+# to its two parts from committed rows (review of #203, M1 / B2).
+RAW_RUN1_DIR = os.path.join(OUT_DIR, "raw_run1")
+RUN1_FIT_MIN_INLIER_SHARE = 0.5
+SAME_PLANE_REL = 0.03         # two fitted heights within 3% are "the same plane"
+ROOF_BELOW_M = 1.3            # an uncalibrated fitted height below this is read as a vehicle roof
 ROWS_PANOS = os.path.join(OUT_DIR, "rows_panos.jsonl")
 ROWS_POINTS = os.path.join(OUT_DIR, "rows_points.jsonl")
 TABLES_JSON = os.path.join(OUT_DIR, "tables.json")
@@ -575,6 +582,7 @@ def derive_rows(raw_dir=RAW_DIR, splits=ALL_SPLITS):
     panos, points = [], []
     for split in splits:
         raw = read_raw(raw_dir, split)
+        raw1 = read_raw(RAW_RUN1_DIR, split)
         records, verdicts = rbd.load_bundle(split)
         for pid in sorted(verdicts):
             rec, entry = records[pid], verdicts[pid]
@@ -595,6 +603,10 @@ def derive_rows(raw_dir=RAW_DIR, splits=ALL_SPLITS):
                 for f in ("h", "n", "tilt_deg", "inlier_share", "resid_med", "n_points", "h_sin_median",
                           "dominant_h", "planes"):
                     prow[f"{key}_{f}"] = fit.get(f)
+            g1 = ((raw1.get(pid) or {}).get("ground") or {}).get(f"{DEPTH_CONVENTION}_{PRIMARY_BAND}") or {}
+            prow["run1_h"] = g1.get("h")
+            prow["run1_inlier_share"] = g1.get("inlier_share")
+            prow["run1_n_points"] = g1.get("n_points")
             panos.append(prow)
 
             gt, pts = pano_points(rec, entry)
@@ -1094,6 +1106,41 @@ def tables(panos, points, labeler):
                          "median_inlier_share_60": _r(st.median(p[f"{alt}_inlier_share"] for p in ps))})
     t["band_sensitivity"] = sens
 
+    # -- 8b. the post-hoc ground-fit change, split into its two parts (review of #203, M1):
+    # (a) the plane: the lowest of up to three supported planes instead of the dominant one;
+    # (b) the pass rule: inlier share >= 0.25 instead of >= 0.5. Heights here are uncalibrated.
+    def run1_ok(p, thr):
+        return (p["run1_h"] is not None and (p["run1_inlier_share"] or 0) >= thr
+                and (p["run1_n_points"] or 0) >= FIT_MIN_POINTS)
+
+    def same(a, b):
+        return a is not None and b is not None and abs(a / b - 1) < SAME_PLANE_REL
+
+    gfc = []
+    for name, members in [(s, (s,)) for s in ALL_SPLITS] + [("gsv_google_depth", GSV_DEPTH_SPLITS),
+                                                            ("mapillary_all", MAPILLARY_SPLITS)]:
+        ps = [p for p in panos if p["split"] in members]
+        now = [p for p in ps if fit_ok(p)]
+        lowest_is_dominant = [p for p in now if p[f"{key}_h"] == p[f"{key}_dominant_h"]]
+        gfc.append({
+            "group": name, "panos": len(ps),
+            "run1_pass_0p5": sum(1 for p in ps if run1_ok(p, RUN1_FIT_MIN_INLIER_SHARE)),
+            "run1_pass_0p25": sum(1 for p in ps if run1_ok(p, FIT_MIN_INLIER_SHARE)),
+            "run1_pass_0p25_roof": sum(1 for p in ps if run1_ok(p, FIT_MIN_INLIER_SHARE)
+                                       and p["run1_h"] < ROOF_BELOW_M),
+            "now_pass": len(now),
+            "now_roof": sum(1 for p in now if p[f"{key}_h"] < ROOF_BELOW_M),
+            "now_lowest_is_dominant": len(lowest_is_dominant),
+            "now_switched_plane": len(now) - len(lowest_is_dominant),
+            "now_same_as_run1_passing": sum(1 for p in lowest_is_dominant
+                                            if run1_ok(p, RUN1_FIT_MIN_INLIER_SHARE) and same(p[f"{key}_h"], p["run1_h"])),
+            "now_threshold_only": sum(1 for p in lowest_is_dominant
+                                      if not run1_ok(p, RUN1_FIT_MIN_INLIER_SHARE) and same(p[f"{key}_h"], p["run1_h"])),
+            "now_other": None})
+        r = gfc[-1]
+        r["now_other"] = r["now_lowest_is_dominant"] - r["now_same_as_run1_passing"] - r["now_threshold_only"]
+    t["ground_fit_change"] = gfc
+
     # -- 9. the published DA3 figures of detection_recall_analysis.md ("agree to within
     # 6.5-8.5%, Spearman 0.95 Bend / 0.81 Richmond"), re-derived: that script compared the raw
     # DA3 value (planar z-depth) with the flat horizontal range; here beside the ray-corrected
@@ -1251,6 +1298,17 @@ def markdown(t):
     for r in t["band_sensitivity"]:
         L.append(f"| {r['split']} | {r['n_panos']} | {_f(r['median_ratio_60_over_45'])} | "
                  f"{_f(r['median_inlier_share_45'])} | {_f(r['median_inlier_share_60'])} |")
+    L.append("\n## The ground-fit change, split into its two parts (uncalibrated heights)\n")
+    L.append("Run 1 = the first extraction's single dominant plane. `now` = lowest supported plane, pass at share >= 0.25. "
+             "Of today's passing fits: `same as run 1` = lowest plane is the dominant one, run 1 passed at 0.5, same height "
+             "within 3%; `threshold only` = the same, but run 1 failed the 0.5 rule; `switched` = lowest plane is not the "
+             "dominant one; `other` = lowest is dominant but its height moved > 3% from run 1 (run-to-run RANSAC/DA3 noise).\n")
+    L.append("| group | panos | run 1 pass @0.5 | run 1 plane pass @0.25 (of which < 1.3 m) | now pass (< 1.3 m) | same as run 1 | threshold only | switched plane | other |")
+    L.append("|---|---:|---:|---:|---:|---:|---:|---:|---:|")
+    for r in t["ground_fit_change"]:
+        L.append(f"| {r['group']} | {r['panos']} | {r['run1_pass_0p5']} | {r['run1_pass_0p25']} ({r['run1_pass_0p25_roof']}) | "
+                 f"{r['now_pass']} ({r['now_roof']}) | {r['now_same_as_run1_passing']} | {r['now_threshold_only']} | "
+                 f"{r['now_switched_plane']} | {r['now_other']} |")
     L.append("\n## The published DA3 agreement figures, re-derived (richmond + bend GT points)\n")
     L.append("| split | n | flat/DA3 raw value, median | Spearman | flat/DA3 horizontal range, median | Spearman | GT at/above horizon with DA3 |")
     L.append("|---|---:|---:|---:|---:|---:|---:|")
@@ -1265,7 +1323,7 @@ def markdown(t):
 # main
 
 def committed_files():
-    raws = [os.path.join(RAW_DIR, f"{s}.jsonl") for s in ALL_SPLITS]
+    raws = [os.path.join(d, f"{s}.jsonl") for d in (RAW_DIR, RAW_RUN1_DIR) for s in ALL_SPLITS]
     return raws + [ROWS_PANOS, ROWS_POINTS, TABLES_JSON, TABLES_MD]
 
 

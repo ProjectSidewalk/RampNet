@@ -305,9 +305,9 @@ Constants fitted on the other three GSV splits. `pooled_common` = the locations 
 | da3_plane | 15.3 m (65) | 21.3 m (37) |
 | flat_da3_height | 15.5 m (65) | 21.6 m (37) |
 
-## Laurens cross-read (labeler commit `29dc605bd64bc7b50b78ec25bfdaa45dcfc6169d`)
+## Laurens cross-read (labeler commit `1cb24800e6668ee8263079c917e13002fbab11ae`)
 
-GoPro Max rig: DA3 median 2.1288 m over 73 panos; labeler h_scale 2.949 [2.897, 3.0], h_bearing 4.314 [3.802, 4.841]; labeler verdict {'applied': False, 'gate_passes': False, 'group': 'gopro/max', 'height_m': 2.6, 'reason': 'fails identifiable (slope 0.723); agreement (A 4.314, B 2.949); SUSPECT: bearing height outside 1.0-3.5 m'}. laurens_gsv (Google rig, same footprint): DA3 median 2.1443 m over 78 panos. Sequence-level Pearson r (DA3 vs h_scale) = -0.2766 over 16 sequences.
+GoPro Max rig: DA3 median 2.1288 m over 73 panos; labeler h_scale 2.949 [2.897, 3.0], h_bearing 4.314 [3.802, 4.841]; labeler verdict {'applied': False, 'gate_passes': False, 'group': 'gopro/max', 'height_m': 2.6, 'reason': 'fails identifiable (slope 0.723); agreement (b_unvalidated: no h*_B estimator passed rule V in this city; line 3.755, local 3.481); material (CI 3.80-4.84, h_g n/a); SUSPECT: bearing height outside 1.0-3.5 m'}. laurens_gsv (Google rig, same footprint): DA3 median 2.1443 m over 78 panos. Sequence-level Pearson r (DA3 vs h_scale) = -0.2766 over 16 sequences.
 
 | sequence | panos | DA3 h (m) | labeler h_scale | labeler h_bearing |
 |---|---:|---:|---:|---:|
@@ -345,6 +345,26 @@ GoPro Max rig: DA3 median 2.1288 m over 73 panos; labeler h_scale 2.949 [2.897, 
 | clovis | 110 | 0.993 | 0.495 | 0.398 |
 | laurens_mapillary | 61 | 0.982 | 0.535 | 0.428 |
 | budapest_district5 | 84 | 0.999 | 0.668 | 0.570 |
+
+## The ground-fit change, split into its two parts (uncalibrated heights)
+
+Run 1 = the first extraction's single dominant plane. `now` = lowest supported plane, pass at share >= 0.25. Of today's passing fits: `same as run 1` = lowest plane is the dominant one, run 1 passed at 0.5, same height within 3%; `threshold only` = the same, but run 1 failed the 0.5 rule; `switched` = lowest plane is not the dominant one; `other` = lowest is dominant but its height moved > 3% from run 1 (run-to-run RANSAC/DA3 noise).
+
+| group | panos | run 1 pass @0.5 | run 1 plane pass @0.25 (of which < 1.3 m) | now pass (< 1.3 m) | same as run 1 | threshold only | switched plane | other |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| bend | 110 | 106 | 110 (0) | 94 (0) | 80 | 3 | 11 | 0 |
+| paterson | 125 | 95 | 125 (0) | 108 (0) | 74 | 13 | 20 | 1 |
+| gainesville | 125 | 116 | 125 (0) | 106 (0) | 70 | 5 | 28 | 3 |
+| sao_paulo | 125 | 86 | 125 (2) | 95 (0) | 60 | 16 | 17 | 2 |
+| laurens_gsv | 86 | 81 | 86 (0) | 78 (0) | 68 | 1 | 8 | 1 |
+| richmond | 124 | 99 | 124 (14) | 93 (0) | 60 | 18 | 15 | 0 |
+| annapolis | 125 | 96 | 125 (0) | 96 (0) | 82 | 13 | 0 | 1 |
+| morgantown | 125 | 23 | 125 (33) | 92 (3) | 15 | 62 | 15 | 0 |
+| clovis | 125 | 48 | 125 (12) | 112 (0) | 48 | 55 | 7 | 2 |
+| laurens_mapillary | 94 | 62 | 94 (0) | 73 (0) | 47 | 19 | 7 | 0 |
+| budapest_district5 | 125 | 105 | 124 (10) | 96 (1) | 74 | 10 | 12 | 0 |
+| gsv_google_depth | 485 | 403 | 485 (2) | 403 (0) | 284 | 37 | 76 | 6 |
+| mapillary_all | 718 | 433 | 717 (69) | 562 (4) | 326 | 177 | 56 | 3 |
 
 ## The published DA3 agreement figures, re-derived (richmond + bend GT points)
 
