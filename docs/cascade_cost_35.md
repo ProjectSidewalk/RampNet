@@ -289,6 +289,37 @@ extended to {0.05, …, 0.25, 0.30, 0.40}. Baseline 238 / 9 / 72, F1 0.8546 (the
   RampNet's threshold. The last comment on #35 argues for an arbiter that re-examines a crop around
   each candidate; that is a different design and this measurement does not test it.
 
+## Transfer: the richmond setting on four more splits (2026-09-27)
+
+**Plan:** [#35 comment of 2026-09-27](https://github.com/ProjectSidewalk/RampNet/issues/35#issuecomment-5858166216)
+(plan by Fable 5.1; implementation by Opus 5.5). **Script:** `scripts/analysis/cascade_transfer_35.py`
+(tests: `tests/test_cascade_transfer_35.py`). **Output:** `analysis_out/cascade_cost_35/transfer/transfer.json`.
+Everything above was measured on richmond, the only split the parity arm had been run on, at a setting
+chosen there in sample. This section runs the parity arm on four more splits and reads that setting
+on them unchanged.
+
+### The rule, stated before any transfer number existed
+
+The fixed setting is the richmond best viable row: **T_hi 0.30, T_lo 0.05, r_gate 0.011 (R/2), c_min =
+the parity arm's median box score on the split being scored** (a rank, as in table (d)). On each split
+the cascade *transfers* when all three hold:
+
+1. `verdict_of` applied to the fixed row alone reads **VIABLE** (attributable ΔR ≥ 0.020 after the
+   wrong-pano null with every cyclic shift, F1 ≥ the 0.30 baseline, F1 above threshold-only at 0.05);
+2. the pano-bootstrap 95% interval of the **attributable ΔR** lies above 0 (2,000 resamples, setting
+   held fixed; the null mean is recomputed inside each resample);
+3. it pays **fewer FPs per attributable ramp than the matched-recall threshold** pays per ramp (the
+   best-F1 single threshold reaching the cascade's recall; its price is extra FP over extra recall
+   ramps against the baseline). If no single threshold reaches that recall, criterion 3 holds.
+
+**The cascade transfers if it transfers on at least two of the three GSV splits** (bend, paterson,
+gainesville). annapolis (a second Mapillary rig) is scored the same way and reported, but not counted.
+The per-split 60-setting grid (`cascade_cost_35.py`, all shifts) is reported second, as an in-sample
+read. This rule and the script that applies it were committed (313e1e2) before any of the four splits
+had parity-arm detections.
+
+_Results: pending (klone job 40774146)._
+
 ## Reproduction
 
 From a clean clone, CPU only:
