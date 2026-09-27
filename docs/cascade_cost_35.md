@@ -445,7 +445,10 @@ The whole job took 1,780 s (0.494 GPU-hours), $0 (the lab's own L40S allocation;
   those runs is read from the committed bundle, as in every `compare.py` run.)
 - **Environment, and how it differs from richmond's run.** `/gscratch/makelab/jonf/envs/sidewalkcv2`:
   Python 3.10.20, torch 2.6.0 (CUDA 12.6), transformers 5.15.0, timm 1.0.28; checkpoint snapshot
-  `4772b6bf101d91f2534c106dc524d906aeb3c68a` of `facebook/mask2former-swin-large-mapillary-vistas-semantic`.
+  `4772b6bf101d91f2534c106dc524d906aeb3c68a` of `facebook/mask2former-swin-large-mapillary-vistas-semantic`
+  and `606a11956743f7eb328d9207769034752f6191f4` of `projectsidewalk/rampnet-model`, recorded in
+  `docs/data/cascade_transfer_35/checkpoints.json` and appended to that directory's `env.txt`
+  (read from the job's offline HF cache after the run; the launcher now writes them into `env.txt` itself).
   The richmond parity run used transformers 5.15.0 with torch 2.13.0 on an A40 and did not record a
   checkpoint revision. The transformers version is the same; the torch version and the GPU are not.
   On richmond a transformers major-version change moved the 384 arm by one detection in 523, so this
@@ -475,20 +478,58 @@ The whole job took 1,780 s (0.494 GPU-hours), $0 (the lab's own L40S allocation;
 
 ### Reproduction (transfer)
 
-GPU part, on klone (needs the native-resolution panoramas from `projectsidewalk/rampnet-benchmark`
-at `benchmark/<split>/panos` in the clone):
+**GPU part.** Any Slurm host with a GPU and network on the login node; the exact steps below are
+for klone. Nothing here assumes jfroehli's home or scratch: the scratch root is `$W`, the
+interpreter is `$PY`, and the launcher's defaults are documented at its top.
 
 ```bash
-# one L40S, ~30 min; writes $W/model_cache, $W/usage_log.jsonl, logs and the RampNet re-extraction
-REPO=$PWD W=/gscratch/scrubbed/$USER/cascade_35 sbatch --export=ALL scripts/analysis/cascade_transfer_35.slurm
-# publish the detections from that cache (then --verify with the same flags)
-python scripts/analysis/export_model_cache.py --cache-dir $W/model_cache --models vistas:curb-cut \
+# 0. a clone at the commit you want, and an env with torch, torchvision, transformers, timm,
+#    scikit-image and huggingface_hub (the run used Python 3.10, torch 2.6.0+cu126,
+#    transformers 5.15.0, timm 1.0.28; docs/data/cascade_transfer_35/env.txt)
+git clone https://github.com/ProjectSidewalk/RampNet.git && cd RampNet
+export W=/gscratch/scrubbed/$USER/cascade_35 PY=/path/to/env/bin/python
+mkdir -p "$W" logs
+
+# 1. the native-resolution panoramas, into this checkout's benchmark/<split>/panos. All four
+#    splits are on projectsidewalk/rampnet-benchmark (config "native"); the unpacker checks every
+#    file against the committed imagery_manifest.json and refuses a mismatch. ~7 GB.
+#    (Of the benchmark's splits, laurens_gsv and laurens_mapillary are NOT on the Hub yet and
+#    manual_gold is excluded by design -- see scripts/unpack_benchmark_panos.py; none of the
+#    three is needed here.)
+$PY scripts/unpack_benchmark_panos.py --out "$PWD" --cities bend,paterson,gainesville,annapolis
+
+# 2. the two checkpoints into $W/hf, on the login node (the job runs offline by default).
+#    The run resolved facebook/mask2former-swin-large-mapillary-vistas-semantic to
+#    4772b6bf101d91f2534c106dc524d906aeb3c68a and projectsidewalk/rampnet-model to
+#    606a11956743f7eb328d9207769034752f6191f4; the launcher writes what it resolved to $W/env.txt,
+#    so a drift of `main` since then shows up there rather than silently.
+HF_HOME=$W/hf $PY -c 'from huggingface_hub import snapshot_download as d
+d("facebook/mask2former-swin-large-mapillary-vistas-semantic"); d("projectsidewalk/rampnet-model")'
+
+# 3. one L40S, ~30 min. Writes $W/model_cache, $W/usage_log.jsonl, $W/env.txt, $W/logs/ and the
+#    RampNet re-extraction; the Slurm log goes to ./logs/. Account/partition are klone's lab
+#    allocation -- change the #SBATCH lines elsewhere. HF_OFFLINE=0 skips step 2 if the compute
+#    node has network.
+sbatch --export=ALL scripts/analysis/cascade_transfer_35.slurm
+
+# 4. publish the detections from that cache, and prove the files score identically to it
+$PY scripts/analysis/export_model_cache.py --cache-dir "$W/model_cache" --models vistas:curb-cut \
     --splits bend,paterson,gainesville,annapolis --vistas-input-size 1024 1024
-python scripts/analysis/export_model_cache.py --verify --cache-dir $W/model_cache --models vistas:curb-cut \
+$PY scripts/analysis/export_model_cache.py --verify --cache-dir "$W/model_cache" --models vistas:curb-cut \
     --splits bend,paterson,gainesville,annapolis --vistas-input-size 1024 1024
+
+# 5. the ledgers: append $W/usage_log.jsonl's rows to analysis_out/usage_log.jsonl, and pull the
+#    job's sacct row (docs/compute_cost.md, klone 2026-09-27)
 ```
 
-CPU part, from a clean clone (every input committed; under a minute):
+`--vistas-revision` is deliberately **not** passed: it enters the detection signature when set,
+so it would make a different leg from the published richmond file. The snapshot is pinned by
+record instead (`env.txt`). The committed run (job 40774146) used the launcher as it stood at
+84db34e, which hardcoded `W`, `PY` and the log path to jfroehli's scratch and had no snapshot
+lines in `env.txt`; its snapshot hashes were read from that scratch HF cache after the run and
+appended to the committed `env.txt`, marked as such. The steps it ran are the ones above.
+
+**CPU part**, from a clean clone (every input committed; under a minute):
 
 ```bash
 for s in bend paterson gainesville annapolis; do
