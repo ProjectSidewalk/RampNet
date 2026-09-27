@@ -673,6 +673,23 @@ def pearson(xs, ys):
     return sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / math.sqrt(sxx * syy)
 
 
+def spearman(xs, ys):
+    """Spearman rank correlation (average ranks for ties)."""
+    def ranks(v):
+        order = sorted(range(len(v)), key=lambda i: v[i])
+        r = [0.0] * len(v)
+        i = 0
+        while i < len(order):
+            j = i
+            while j + 1 < len(order) and v[order[j + 1]] == v[order[i]]:
+                j += 1
+            for k in range(i, j + 1):
+                r[order[k]] = (i + j) / 2.0
+            i = j + 1
+        return r
+    return pearson(ranks(xs), ranks(ys))
+
+
 def cluster_bootstrap(items, cluster_key, stat, n_boot=N_BOOT, seed=BOOT_SEED):
     """95% percentile CI of ``stat(items)`` resampling whole clusters (panos) with replacement."""
     clusters = {}
@@ -1068,6 +1085,22 @@ def tables(panos, points, labeler):
                          "median_inlier_share_45": _r(st.median(p[f"{key}_inlier_share"] for p in ps)),
                          "median_inlier_share_60": _r(st.median(p[f"{alt}_inlier_share"] for p in ps))})
     t["band_sensitivity"] = sens
+
+    # -- 9. the published DA3 figures of detection_recall_analysis.md ("agree to within
+    # 6.5-8.5%, Spearman 0.95 Bend / 0.81 Richmond"), re-derived: that script compared the raw
+    # DA3 value (planar z-depth) with the flat horizontal range; here beside the ray-corrected
+    # horizontal range this script uses
+    rep = []
+    for s in ("bend", "richmond"):
+        g = [p for p in points if p["split"] == s and p["kind"] == "gt" and p["flat_2p5"] and p["da3_value"]]
+        row = {"split": s, "n": len(g),
+               "n_at_or_above_horizon_with_da3": sum(1 for p in points if p["split"] == s and p["kind"] == "gt"
+                                                     and p["flat_2p5"] is None and p["da3_range"])}
+        for k in ("da3_value", "da3_range"):
+            row[k] = {"median_flat_over_da3": _r(st.median(p["flat_2p5"] / p[k] for p in g)),
+                      "spearman": _r(spearman([p[k] for p in g], [p["flat_2p5"] for p in g]))}
+        rep.append(row)
+    t["published_reproduction"] = rep
     return t
 
 
@@ -1210,6 +1243,13 @@ def markdown(t):
     for r in t["band_sensitivity"]:
         L.append(f"| {r['split']} | {r['n_panos']} | {_f(r['median_ratio_60_over_45'])} | "
                  f"{_f(r['median_inlier_share_45'])} | {_f(r['median_inlier_share_60'])} |")
+    L.append("\n## The published DA3 agreement figures, re-derived (richmond + bend GT points)\n")
+    L.append("| split | n | flat/DA3 raw value, median | Spearman | flat/DA3 horizontal range, median | Spearman | GT at/above horizon with DA3 |")
+    L.append("|---|---:|---:|---:|---:|---:|---:|")
+    for r in t["published_reproduction"]:
+        L.append(f"| {r['split']} | {r['n']} | {_f(r['da3_value']['median_flat_over_da3'])} | "
+                 f"{_f(r['da3_value']['spearman'])} | {_f(r['da3_range']['median_flat_over_da3'])} | "
+                 f"{_f(r['da3_range']['spearman'])} | {r['n_at_or_above_horizon_with_da3']} |")
     return "\n".join(L) + "\n"
 
 

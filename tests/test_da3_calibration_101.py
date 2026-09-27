@@ -205,3 +205,13 @@ def test_headline_numbers_are_pinned():
     assert pooled["n"] > 1000
     assert t["headline_axis"] in dc.DA3_AXES
     assert t["constants"]["depth_convention"] == dc.DEPTH_CONVENTION
+    # the numbers docs/da3_calibration_101.md leads with
+    assert pooled["median_ratio"] == 1.1059
+    assert t["constants"]["k_height"] == 1.038
+    lc = {r["split"]: r["da3_over_google_scaled"] for r in t["vs_labeler_frame_scale"]}
+    assert lc == {"bend": 0.9747, "paterson": 1.027, "gainesville": 0.995, "sao_paulo": 1.0176}
+    v = t["validation"]["pooled_common"]
+    assert (v["flat_2p5"]["share_within_10pct"], v["da3_point"]["share_within_10pct"]) == (0.4442, 0.6402)
+    rep = {r["split"]: r["da3_value"] for r in t["published_reproduction"]}
+    # detection_recall_analysis.md: "agree to within 6.5-8.5% (Spearman 0.95 Bend / 0.81 Richmond)"
+    assert (rep["bend"]["median_flat_over_da3"], rep["richmond"]["median_flat_over_da3"]) == (1.0653, 1.0858)

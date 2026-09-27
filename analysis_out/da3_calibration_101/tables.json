@@ -1418,6 +1418,34 @@
     "p90_ratio": 1.2896
    }
   ],
+  "published_reproduction": [
+   {
+    "da3_range": {
+     "median_flat_over_da3": 1.0145,
+     "spearman": 0.9608
+    },
+    "da3_value": {
+     "median_flat_over_da3": 1.0645,
+     "spearman": 0.9534
+    },
+    "n": 327,
+    "n_at_or_above_horizon_with_da3": 0,
+    "split": "bend"
+   },
+   {
+    "da3_range": {
+     "median_flat_over_da3": 1.0369,
+     "spearman": 0.8472
+    },
+    "da3_value": {
+     "median_flat_over_da3": 1.086,
+     "spearman": 0.8131
+    },
+    "n": 307,
+    "n_at_or_above_horizon_with_da3": 3,
+    "split": "richmond"
+   }
+  ],
   "ratio_by_google_range": [
    {
     "bucket": "0-8 m",

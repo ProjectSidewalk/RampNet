@@ -345,3 +345,10 @@ GoPro Max rig: DA3 median 2.1288 m over 73 panos; labeler h_scale 2.949 [2.897, 
 | clovis | 110 | 0.993 | 0.495 | 0.398 |
 | laurens_mapillary | 61 | 0.982 | 0.535 | 0.428 |
 | budapest_district5 | 84 | 0.999 | 0.668 | 0.570 |
+
+## The published DA3 agreement figures, re-derived (richmond + bend GT points)
+
+| split | n | flat/DA3 raw value, median | Spearman | flat/DA3 horizontal range, median | Spearman | GT at/above horizon with DA3 |
+|---|---:|---:|---:|---:|---:|---:|
+| bend | 327 | 1.065 | 0.953 | 1.014 | 0.961 | 0 |
+| richmond | 307 | 1.086 | 0.813 | 1.037 | 0.847 | 3 |
