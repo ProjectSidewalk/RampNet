@@ -281,3 +281,9 @@ analysis_out/input_res_sweep_25/cache/*
 analysis_out/two_scale_197/*
 !analysis_out/two_scale_197/results.json
 !analysis_out/two_scale_197/results.md
+
+# #151: the Laurens paired analysis (per-pano rows; tables re-derive by laurens_paired_151.py
+# --check) and the held-out GSV arm's image<->payload alignment check
+!analysis_out/depth_image_alignment_151_laurens_gsv.json
+!analysis_out/laurens_paired_151.json
+!analysis_out/laurens_paired_151.md
