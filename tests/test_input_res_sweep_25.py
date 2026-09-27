@@ -128,6 +128,7 @@ def test_usage_rows_are_free_and_timed():
         assert r["run_id"].startswith("input-res-sweep-25:")
     assert rows[0]["s_per_pano"] == 2.0
     assert rows[1]["cpu_prep_s"] == 300.0 and rows[1]["run_wall_s"] == 141.0
+    assert len({r["run_id"] for r in rows}) == 2
     assert {r["issue"] for r in rows} == {25}
 
 
@@ -137,7 +138,6 @@ def test_usage_rows_can_be_booked_to_another_issue():
                             {"wait_s": 1.0, "cpu_s": 2.0}, 12.0, host="h", gpus=[],
                             attempted=["bend"], cities=["bend"], started="t", issue=35)
     assert rows and {r["issue"] for r in rows} == {35}
-    assert len({r["run_id"] for r in rows}) == 2
 
 
 def test_extract_refuses_unrecorded_spend():
