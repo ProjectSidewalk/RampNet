@@ -408,5 +408,6 @@
   "paterson",
   "gainesville",
   "sao_paulo"
- ]
+ ],
+ "world_hit_radius_m": 5.0
 }

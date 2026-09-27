@@ -1,9 +1,9 @@
 {
  "bundle": {
   "n_judged": 124,
-  "n_panos": 1560,
+  "n_panos": 2867,
   "pool_ramps": 253,
-  "radius_m": 20.0
+  "radius_m": 30.0
  },
  "control": {
   "committed_report": {
@@ -60,7 +60,8 @@
        "out_of_range": 3645
       },
       "n_multi_pano": 1491,
-      "n_sites": 2140
+      "n_sites": 2140,
+      "n_sites_precision_scope": 303
      },
      "k_nearest_all": [
       {
@@ -284,13 +285,13 @@
      "world": {
       "kofn_1": {
        "accepted_sites": 2140,
-       "f1": 0.9334,
-       "fp": 25,
+       "f1": 0.951,
+       "fp": 10,
        "pool": 253,
-       "precision": 0.9008,
+       "precision": 0.9342,
        "precision_ci": [
-        0.8577,
-        0.9319
+        0.8831,
+        0.9639
        ],
        "recall": 0.9684,
        "recall_ci": [
@@ -299,18 +300,18 @@
        ],
        "recalled": 245,
        "self": 224,
-       "tp": 227,
-       "unsure_only": 25
+       "tp": 142,
+       "unsure_only": 9
       },
       "kofn_2": {
        "accepted_sites": 1491,
-       "f1": 0.9163,
-       "fp": 22,
+       "f1": 0.9342,
+       "fp": 8,
        "pool": 253,
-       "precision": 0.9079,
+       "precision": 0.9437,
        "precision_ci": [
-        0.8646,
-        0.9384
+        0.8928,
+        0.9712
        ],
        "recall": 0.9249,
        "recall_ci": [
@@ -319,18 +320,18 @@
        ],
        "recalled": 234,
        "self": 214,
-       "tp": 217,
-       "unsure_only": 25
+       "tp": 134,
+       "unsure_only": 9
       },
       "kofn_3": {
        "accepted_sites": 1191,
-       "f1": 0.8947,
-       "fp": 20,
+       "f1": 0.9111,
+       "fp": 7,
        "pool": 253,
-       "precision": 0.9127,
+       "precision": 0.9474,
        "precision_ci": [
-        0.869,
-        0.9428
+        0.8953,
+        0.9743
        ],
        "recall": 0.8775,
        "recall_ci": [
@@ -339,22 +340,23 @@
        ],
        "recalled": 222,
        "self": 206,
-       "tp": 209,
-       "unsure_only": 25
+       "tp": 126,
+       "unsure_only": 9
       }
      }
     },
     "0.30|neighbourhood": {
      "fused": {
-      "detections_projected": 5216,
+      "detections_projected": 7005,
       "drops": {
        "below_floor": 0,
-       "horizon": 245,
+       "horizon": 427,
        "on_rig": 0,
-       "out_of_range": 1094
+       "out_of_range": 1701
       },
-      "n_multi_pano": 533,
-      "n_sites": 698
+      "n_multi_pano": 675,
+      "n_sites": 929,
+      "n_sites_precision_scope": 303
      },
      "k_nearest_all": [
       {
@@ -577,78 +579,79 @@
      ],
      "world": {
       "kofn_1": {
-       "accepted_sites": 698,
-       "f1": 0.9297,
-       "fp": 25,
+       "accepted_sites": 929,
+       "f1": 0.951,
+       "fp": 10,
        "pool": 253,
-       "precision": 0.9008,
+       "precision": 0.9342,
        "precision_ci": [
-        0.8577,
-        0.9319
+        0.8831,
+        0.9639
        ],
-       "recall": 0.9605,
+       "recall": 0.9684,
        "recall_ci": [
-        0.9288,
-        0.9784
+        0.9389,
+        0.9839
        ],
-       "recalled": 243,
+       "recalled": 245,
        "self": 224,
-       "tp": 227,
-       "unsure_only": 25
+       "tp": 142,
+       "unsure_only": 9
       },
       "kofn_2": {
-       "accepted_sites": 533,
-       "f1": 0.9163,
-       "fp": 20,
+       "accepted_sites": 675,
+       "f1": 0.9342,
+       "fp": 8,
        "pool": 253,
-       "precision": 0.9156,
+       "precision": 0.9437,
        "precision_ci": [
-        0.8733,
-        0.9447
+        0.8928,
+        0.9712
        ],
-       "recall": 0.917,
+       "recall": 0.9249,
        "recall_ci": [
-        0.8764,
-        0.9451
+        0.8857,
+        0.9514
        ],
-       "recalled": 232,
+       "recalled": 234,
        "self": 214,
-       "tp": 217,
-       "unsure_only": 23
+       "tp": 134,
+       "unsure_only": 9
       },
       "kofn_3": {
-       "accepted_sites": 451,
-       "f1": 0.8984,
-       "fp": 17,
+       "accepted_sites": 548,
+       "f1": 0.9111,
+       "fp": 7,
        "pool": 253,
-       "precision": 0.9248,
+       "precision": 0.9474,
        "precision_ci": [
-        0.8828,
-        0.9525
+        0.8953,
+        0.9743
        ],
-       "recall": 0.8735,
+       "recall": 0.8775,
        "recall_ci": [
-        0.8269,
-        0.909
+        0.8313,
+        0.9123
        ],
-       "recalled": 221,
+       "recalled": 222,
        "self": 206,
-       "tp": 209,
-       "unsure_only": 22
+       "tp": 126,
+       "unsure_only": 9
       }
      }
     },
-    "0.40|neighbourhood": {
+    "0.40|full_run": {
      "fused": {
-      "detections_projected": 5216,
+      "detections_projected": 15389,
       "drops": {
        "below_floor": 0,
-       "horizon": 245,
+       "horizon": 913,
        "on_rig": 0,
-       "out_of_range": 1094
+       "out_of_range": 3645
       },
-      "n_multi_pano": 499,
-      "n_sites": 642
+      "n_multi_pano": 1328,
+      "n_sites": 1856,
+      "n_sites_precision_scope": 279
      },
      "k_nearest_all": [
       {
@@ -871,64 +874,359 @@
      ],
      "world": {
       "kofn_1": {
-       "accepted_sites": 642,
-       "f1": 0.9424,
-       "fp": 16,
+       "accepted_sites": 1856,
+       "f1": 0.9627,
+       "fp": 5,
        "pool": 253,
-       "precision": 0.9325,
+       "precision": 0.965,
        "precision_ci": [
-        0.8932,
-        0.958
+        0.9208,
+        0.985
        ],
-       "recall": 0.9526,
+       "recall": 0.9605,
        "recall_ci": [
-        0.9189,
-        0.9727
+        0.9288,
+        0.9784
        ],
-       "recalled": 241,
+       "recalled": 243,
        "self": 219,
-       "tp": 221,
-       "unsure_only": 20
+       "tp": 138,
+       "unsure_only": 7
       },
       "kofn_2": {
-       "accepted_sites": 499,
-       "f1": 0.9314,
-       "fp": 11,
+       "accepted_sites": 1328,
+       "f1": 0.945,
+       "fp": 4,
        "pool": 253,
-       "precision": 0.9505,
-       "precision_ci": [
-        0.9135,
-        0.9721
-       ],
-       "recall": 0.913,
-       "recall_ci": [
-        0.8719,
-        0.9419
-       ],
-       "recalled": 231,
-       "self": 209,
-       "tp": 211,
-       "unsure_only": 18
-      },
-      "kofn_3": {
-       "accepted_sites": 413,
-       "f1": 0.9089,
-       "fp": 8,
-       "pool": 253,
-       "precision": 0.9617,
+       "precision": 0.9704,
        "precision_ci": [
         0.9263,
-        0.9805
+        0.9884
        ],
-       "recall": 0.8617,
+       "recall": 0.9209,
        "recall_ci": [
-        0.8137,
-        0.8988
+        0.8811,
+        0.9482
        ],
-       "recalled": 218,
-       "self": 199,
-       "tp": 201,
-       "unsure_only": 16
+       "recalled": 233,
+       "self": 209,
+       "tp": 131,
+       "unsure_only": 7
+      },
+      "kofn_3": {
+       "accepted_sites": 1073,
+       "f1": 0.9233,
+       "fp": 2,
+       "pool": 253,
+       "precision": 0.984,
+       "precision_ci": [
+        0.9435,
+        0.9956
+       ],
+       "recall": 0.8696,
+       "recall_ci": [
+        0.8225,
+        0.9056
+       ],
+       "recalled": 220,
+       "self": 200,
+       "tp": 123,
+       "unsure_only": 7
+      }
+     }
+    },
+    "0.40|neighbourhood": {
+     "fused": {
+      "detections_projected": 7005,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 427,
+       "on_rig": 0,
+       "out_of_range": 1701
+      },
+      "n_multi_pano": 614,
+      "n_sites": 831,
+      "n_sites_precision_scope": 279
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.5657,
+        0.6854
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.6275
+      },
+      {
+       "ci": [
+        0.7128,
+        0.8174
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.7692
+      },
+      {
+       "ci": [
+        0.7693,
+        0.8645
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.8219
+      },
+      {
+       "ci": [
+        0.787,
+        0.8788
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.8381
+      },
+      {
+       "ci": [
+        0.7959,
+        0.8858
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.8462
+      },
+      {
+       "ci": [
+        0.8048,
+        0.8928
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.8543
+      },
+      {
+       "ci": [
+        0.8138,
+        0.8998
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.8623
+      },
+      {
+       "ci": [
+        0.8183,
+        0.9033
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.8664
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.5668,
+        0.7116
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.6424
+      },
+      {
+       "ci": [
+        0.7259,
+        0.8486
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.7939
+      },
+      {
+       "ci": [
+        0.7995,
+        0.9053
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.8606
+      },
+      {
+       "ci": [
+        0.8064,
+        0.9103
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.8667
+      },
+      {
+       "ci": [
+        0.8202,
+        0.9201
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.8788
+      },
+      {
+       "ci": [
+        0.8342,
+        0.9299
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.8909
+      },
+      {
+       "ci": [
+        0.8483,
+        0.9394
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.903
+      },
+      {
+       "ci": [
+        0.8554,
+        0.9441
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.9091
+      }
+     ],
+     "per_pano": {
+      "f1": 0.8651,
+      "fn": 60,
+      "fp": 18,
+      "n_panos": 124,
+      "precision": 0.9328,
+      "recall": 0.8065,
+      "tp": 250
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.1429,
+       "recall_other_ci": [
+        0.0257,
+        0.5131
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.5,
+       "recall_other_ci": [
+        0.1876,
+        0.8124
+       ],
+       "recall_union": 0.6667
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.8889,
+       "recall_other_ci": [
+        0.7194,
+        0.9615
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.8929,
+       "recall_other_ci": [
+        0.7853,
+        0.95
+       ],
+       "recall_union": 0.9464
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.9453,
+       "recall_other_ci": [
+        0.8914,
+        0.9733
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 0.913,
+       "recall_other_ci": [
+        0.732,
+        0.9758
+       ],
+       "recall_union": 0.9565
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 831,
+       "f1": 0.9627,
+       "fp": 5,
+       "pool": 253,
+       "precision": 0.965,
+       "precision_ci": [
+        0.9208,
+        0.985
+       ],
+       "recall": 0.9605,
+       "recall_ci": [
+        0.9288,
+        0.9784
+       ],
+       "recalled": 243,
+       "self": 219,
+       "tp": 138,
+       "unsure_only": 7
+      },
+      "kofn_2": {
+       "accepted_sites": 614,
+       "f1": 0.945,
+       "fp": 4,
+       "pool": 253,
+       "precision": 0.9704,
+       "precision_ci": [
+        0.9263,
+        0.9884
+       ],
+       "recall": 0.9209,
+       "recall_ci": [
+        0.8811,
+        0.9482
+       ],
+       "recalled": 233,
+       "self": 209,
+       "tp": 131,
+       "unsure_only": 7
+      },
+      "kofn_3": {
+       "accepted_sites": 502,
+       "f1": 0.9233,
+       "fp": 2,
+       "pool": 253,
+       "precision": 0.984,
+       "precision_ci": [
+        0.9435,
+        0.9956
+       ],
+       "recall": 0.8696,
+       "recall_ci": [
+        0.8225,
+        0.9056
+       ],
+       "recalled": 220,
+       "self": 200,
+       "tp": 123,
+       "unsure_only": 7
       }
      }
     },
@@ -942,7 +1240,8 @@
        "out_of_range": 3645
       },
       "n_multi_pano": 1183,
-      "n_sites": 1570
+      "n_sites": 1570,
+      "n_sites_precision_scope": 249
      },
      "k_nearest_all": [
       {
@@ -1166,13 +1465,13 @@
      "world": {
       "kofn_1": {
        "accepted_sites": 1570,
-       "f1": 0.9498,
-       "fp": 9,
+       "f1": 0.9554,
+       "fp": 4,
        "pool": 253,
-       "precision": 0.9591,
+       "precision": 0.9706,
        "precision_ci": [
-        0.9241,
-        0.9783
+        0.9268,
+        0.9885
        ],
        "recall": 0.9407,
        "recall_ci": [
@@ -1181,18 +1480,18 @@
        ],
        "recalled": 238,
        "self": 211,
-       "tp": 211,
-       "unsure_only": 14
+       "tp": 132,
+       "unsure_only": 5
       },
       "kofn_2": {
        "accepted_sites": 1183,
-       "f1": 0.9283,
-       "fp": 7,
+       "f1": 0.933,
+       "fp": 3,
        "pool": 253,
-       "precision": 0.9662,
+       "precision": 0.9764,
        "precision_ci": [
-        0.9319,
-        0.9835
+        0.9328,
+        0.9919
        ],
        "recall": 0.8933,
        "recall_ci": [
@@ -1201,18 +1500,18 @@
        ],
        "recalled": 226,
        "self": 200,
-       "tp": 200,
-       "unsure_only": 14
+       "tp": 124,
+       "unsure_only": 5
       },
       "kofn_3": {
        "accepted_sites": 945,
-       "f1": 0.9034,
-       "fp": 5,
+       "f1": 0.9106,
+       "fp": 1,
        "pool": 253,
-       "precision": 0.9745,
+       "precision": 0.9915,
        "precision_ci": [
-        0.9417,
-        0.9891
+        0.9536,
+        0.9985
        ],
        "recall": 0.8419,
        "recall_ci": [
@@ -1221,22 +1520,23 @@
        ],
        "recalled": 213,
        "self": 191,
-       "tp": 191,
-       "unsure_only": 11
+       "tp": 117,
+       "unsure_only": 3
       }
      }
     },
     "0.55|neighbourhood": {
      "fused": {
-      "detections_projected": 5216,
+      "detections_projected": 7005,
       "drops": {
        "below_floor": 0,
-       "horizon": 245,
+       "horizon": 427,
        "on_rig": 0,
-       "out_of_range": 1094
+       "out_of_range": 1701
       },
-      "n_multi_pano": 449,
-      "n_sites": 561
+      "n_multi_pano": 548,
+      "n_sites": 698,
+      "n_sites_precision_scope": 249
      },
      "k_nearest_all": [
       {
@@ -1459,14 +1759,14 @@
      ],
      "world": {
       "kofn_1": {
-       "accepted_sites": 561,
-       "f1": 0.9498,
-       "fp": 9,
+       "accepted_sites": 698,
+       "f1": 0.9554,
+       "fp": 4,
        "pool": 253,
-       "precision": 0.9591,
+       "precision": 0.9706,
        "precision_ci": [
-        0.9241,
-        0.9783
+        0.9268,
+        0.9885
        ],
        "recall": 0.9407,
        "recall_ci": [
@@ -1475,18 +1775,18 @@
        ],
        "recalled": 238,
        "self": 211,
-       "tp": 211,
-       "unsure_only": 14
+       "tp": 132,
+       "unsure_only": 5
       },
       "kofn_2": {
-       "accepted_sites": 449,
-       "f1": 0.9326,
-       "fp": 5,
+       "accepted_sites": 548,
+       "f1": 0.933,
+       "fp": 3,
        "pool": 253,
-       "precision": 0.9756,
+       "precision": 0.9764,
        "precision_ci": [
-        0.9442,
-        0.9895
+        0.9328,
+        0.9919
        ],
        "recall": 0.8933,
        "recall_ci": [
@@ -1495,42 +1795,43 @@
        ],
        "recalled": 226,
        "self": 200,
-       "tp": 200,
-       "unsure_only": 12
+       "tp": 124,
+       "unsure_only": 5
       },
       "kofn_3": {
-       "accepted_sites": 377,
-       "f1": 0.9053,
-       "fp": 3,
+       "accepted_sites": 447,
+       "f1": 0.9106,
+       "fp": 1,
        "pool": 253,
-       "precision": 0.9845,
+       "precision": 0.9915,
        "precision_ci": [
-        0.9553,
-        0.9947
+        0.9536,
+        0.9985
        ],
-       "recall": 0.8379,
+       "recall": 0.8419,
        "recall_ci": [
-        0.7875,
-        0.8782
+        0.7919,
+        0.8817
        ],
-       "recalled": 212,
-       "self": 190,
-       "tp": 190,
-       "unsure_only": 9
+       "recalled": 213,
+       "self": 191,
+       "tp": 117,
+       "unsure_only": 3
       }
      }
     },
-    "0.70|neighbourhood": {
+    "0.70|full_run": {
      "fused": {
-      "detections_projected": 5216,
+      "detections_projected": 15389,
       "drops": {
        "below_floor": 0,
-       "horizon": 245,
+       "horizon": 913,
        "on_rig": 0,
-       "out_of_range": 1094
+       "out_of_range": 3645
       },
-      "n_multi_pano": 401,
-      "n_sites": 503
+      "n_multi_pano": 1016,
+      "n_sites": 1367,
+      "n_sites_precision_scope": 217
      },
      "k_nearest_all": [
       {
@@ -1753,14 +2054,14 @@
      ],
      "world": {
       "kofn_1": {
-       "accepted_sites": 503,
-       "f1": 0.9494,
-       "fp": 3,
+       "accepted_sites": 1367,
+       "f1": 0.9489,
+       "fp": 2,
        "pool": 253,
-       "precision": 0.9841,
+       "precision": 0.9831,
        "precision_ci": [
-        0.9544,
-        0.9946
+        0.9403,
+        0.9953
        ],
        "recall": 0.917,
        "recall_ci": [
@@ -1769,18 +2070,18 @@
        ],
        "recalled": 232,
        "self": 186,
-       "tp": 186,
-       "unsure_only": 6
+       "tp": 116,
+       "unsure_only": 1
       },
       "kofn_2": {
-       "accepted_sites": 401,
-       "f1": 0.914,
-       "fp": 2,
+       "accepted_sites": 1016,
+       "f1": 0.9149,
+       "fp": 1,
        "pool": 253,
-       "precision": 0.9888,
+       "precision": 0.9909,
        "precision_ci": [
-        0.96,
-        0.9969
+        0.9503,
+        0.9984
        ],
        "recall": 0.8498,
        "recall_ci": [
@@ -1788,19 +2089,19 @@
         0.8886
        ],
        "recalled": 215,
-       "self": 176,
-       "tp": 176,
-       "unsure_only": 4
+       "self": 175,
+       "tp": 109,
+       "unsure_only": 1
       },
       "kofn_3": {
-       "accepted_sites": 353,
-       "f1": 0.8856,
-       "fp": 2,
+       "accepted_sites": 850,
+       "f1": 0.8865,
+       "fp": 1,
        "pool": 253,
-       "precision": 0.9882,
+       "precision": 0.9903,
        "precision_ci": [
-        0.9579,
-        0.9967
+        0.947,
+        0.9983
        ],
        "recall": 0.8024,
        "recall_ci": [
@@ -1809,8 +2110,303 @@
        ],
        "recalled": 203,
        "self": 167,
-       "tp": 167,
-       "unsure_only": 3
+       "tp": 102,
+       "unsure_only": 1
+      }
+     }
+    },
+    "0.70|neighbourhood": {
+     "fused": {
+      "detections_projected": 7005,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 427,
+       "on_rig": 0,
+       "out_of_range": 1701
+      },
+      "n_multi_pano": 480,
+      "n_sites": 613,
+      "n_sites_precision_scope": 217
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.4361,
+        0.5599
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.498
+      },
+      {
+       "ci": [
+        0.6113,
+        0.7276
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.6721
+      },
+      {
+       "ci": [
+        0.6701,
+        0.7804
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.7287
+      },
+      {
+       "ci": [
+        0.7085,
+        0.8137
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.7652
+      },
+      {
+       "ci": [
+        0.7301,
+        0.832
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.7854
+      },
+      {
+       "ci": [
+        0.7474,
+        0.8466
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.8016
+      },
+      {
+       "ci": [
+        0.7562,
+        0.8538
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.8097
+      },
+      {
+       "ci": [
+        0.7737,
+        0.8681
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.8259
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.4275,
+        0.5784
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.503
+      },
+      {
+       "ci": [
+        0.6167,
+        0.7564
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.6909
+      },
+      {
+       "ci": [
+        0.6998,
+        0.8274
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.7697
+      },
+      {
+       "ci": [
+        0.7391,
+        0.8591
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.8061
+      },
+      {
+       "ci": [
+        0.7657,
+        0.8799
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.8303
+      },
+      {
+       "ci": [
+        0.7927,
+        0.9003
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.8545
+      },
+      {
+       "ci": [
+        0.8064,
+        0.9103
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.8667
+      },
+      {
+       "ci": [
+        0.8342,
+        0.9299
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.8909
+      }
+     ],
+     "per_pano": {
+      "f1": 0.7962,
+      "fn": 103,
+      "fp": 3,
+      "n_panos": 124,
+      "precision": 0.9857,
+      "recall": 0.6677,
+      "tp": 207
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.1429,
+       "recall_other_ci": [
+        0.0257,
+        0.5131
+       ],
+       "recall_union": 0.7143
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.5,
+       "recall_other_ci": [
+        0.1876,
+        0.8124
+       ],
+       "recall_union": 0.5
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.7037,
+       "recall_other_ci": [
+        0.5152,
+        0.8415
+       ],
+       "recall_union": 0.8519
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.8571,
+       "recall_other_ci": [
+        0.7426,
+        0.9258
+       ],
+       "recall_union": 0.8929
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.9219,
+       "recall_other_ci": [
+        0.8622,
+        0.957
+       ],
+       "recall_union": 0.9766
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 0.913,
+       "recall_other_ci": [
+        0.732,
+        0.9758
+       ],
+       "recall_union": 0.9565
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 613,
+       "f1": 0.9489,
+       "fp": 2,
+       "pool": 253,
+       "precision": 0.9831,
+       "precision_ci": [
+        0.9403,
+        0.9953
+       ],
+       "recall": 0.917,
+       "recall_ci": [
+        0.8764,
+        0.9451
+       ],
+       "recalled": 232,
+       "self": 186,
+       "tp": 116,
+       "unsure_only": 1
+      },
+      "kofn_2": {
+       "accepted_sites": 480,
+       "f1": 0.9149,
+       "fp": 1,
+       "pool": 253,
+       "precision": 0.9909,
+       "precision_ci": [
+        0.9503,
+        0.9984
+       ],
+       "recall": 0.8498,
+       "recall_ci": [
+        0.8006,
+        0.8886
+       ],
+       "recalled": 215,
+       "self": 175,
+       "tp": 109,
+       "unsure_only": 1
+      },
+      "kofn_3": {
+       "accepted_sites": 413,
+       "f1": 0.8865,
+       "fp": 1,
+       "pool": 253,
+       "precision": 0.9903,
+       "precision_ci": [
+        0.947,
+        0.9983
+       ],
+       "recall": 0.8024,
+       "recall_ci": [
+        0.7489,
+        0.8468
+       ],
+       "recalled": 203,
+       "self": 167,
+       "tp": 102,
+       "unsure_only": 1
       }
      }
     }

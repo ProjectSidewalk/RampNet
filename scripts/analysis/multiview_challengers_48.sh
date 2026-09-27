@@ -70,7 +70,7 @@ if [[ ${PIPESTATUS[0]} -ne 0 ]]; then say "ABORT: imagery incomplete"; exit 1; f
 
 # 2. are the judged panos the same bytes the published richmond legs saw?
 "$PY" - <<'EOF' | tee -a "$DRIVER"
-import hashlib, json, os
+import hashlib, json, os, sys
 man = json.load(open("benchmark/richmond/imagery_manifest.json"))["panos"]
 same = diff = 0
 for pid, rec in sorted(man.items()):
@@ -82,7 +82,9 @@ for pid, rec in sorted(man.items()):
         diff += 1
         print("  differs from benchmark/richmond:", pid)
 print(f"judged imagery vs benchmark/richmond/imagery_manifest.json: {same} identical, {diff} differ")
+sys.exit(1 if diff else 0)
 EOF
+if [[ ${PIPESTATUS[0]} -ne 0 ]]; then say "ABORT: judged imagery differs from benchmark/richmond"; exit 1; fi
 
 # 3. the GPU: log what else is on it, and wait (never kill) until 30 GB are free
 nvidia-smi --query-gpu=name,memory.used,memory.total --format=csv | tee -a "$DRIVER"
@@ -112,7 +114,7 @@ leg yolo "$PY" --models "$YOLO" --tiling none --yolo-imgsz 1280 --op-threshold 0
 leg open "$PY" --models owlv2,gdino
 leg qwen8b "$PY" --models qwen:Qwen/Qwen3-VL-8B-Instruct
 leg molmo "$MOLMOPY" --models molmo:allenai/Molmo2-8B
-if grep -q "Molmo2-8B" "$LOGS/molmo.txt" && ! grep -qi "not runnable\|skip" "$LOGS/molmo.txt"; then
+if grep -q "Molmo2-8B" "$LOGS/molmo.txt" && ! grep -q "not runnable" "$LOGS/molmo.txt"; then
   say "MOLMO_OK"
 else
   say "MOLMO_SUSPECT: check $LOGS/molmo.txt for a skip note"

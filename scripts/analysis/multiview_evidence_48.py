@@ -165,7 +165,7 @@ def ramps_from_capture_csv(path):
                 "pano_id": row["pano_id"], "dist_m": float(row["dist_m"]),
                 "is_source": row["is_source"] == "1", "world_conf": f(row["world_conf"]),
                 "pixel_conf": f(row["pixel_conf"]), "cam_e": float(row["cam_e"]),
-                "cam_n": float(row["cam_n"])})
+                "cam_n": float(row["cam_n"]), "capture_date": row["capture_date"]})
     return {c: [r for _, r in sorted(rs.items(), key=lambda t: int(t[0].split(":")[1]))]
             for c, rs in by_city.items()}
 
@@ -300,32 +300,40 @@ def recall_k_nearest(ramps, floor, mode, radius, kmax=KMAX, fixed_population=Tru
     return rows
 
 
+def ramp_city(r):
+    return (r.get("uid") or "").split(":")[0]
+
+
 def failure_correlation(ramps, floor, mode, radius, range_bins=RANGE_BINS,
                         sep_bins=SEP_BINS):
     """Are misses in two qualifying (non-source) views of one ramp independent?
 
     The independence prediction for a pair is the product of the two views' marginal
-    miss rates *at their ranges* (range-binned over every capture in the population), so
-    'both views were far' is not counted as correlation. Returns the marginals, the
-    per-separation-bin and per-range-bin observed vs predicted joint-miss rates and
-    P(miss_j | miss_i), and the all-views-missed count against its prediction."""
+    miss rates *at their ranges and in their city* (miss rates are stratified by city x
+    range bin over every capture in the population), so neither 'both views were far' nor
+    'both views are in the city with the most captures' is counted as correlation.
+    Returns the marginals, the per-separation-bin, per-range-bin and same-vs-different
+    capture-month observed vs predicted joint-miss rates and P(miss_j | miss_i), and the
+    all-views-missed count against its prediction."""
     caps = [(r, [c for c in r["captures"] if not c["is_source"] and c["dist_m"] <= radius])
             for r in ramps]
     caps = [(r, cs) for r, cs in caps if len(cs) >= 2]
     tot = defaultdict(int)
     miss = defaultdict(int)
-    for _, cs in caps:
+    for r, cs in caps:
         for c in cs:
-            b = bin_of(c["dist_m"], range_bins)
+            b = (ramp_city(r), bin_of(c["dist_m"], range_bins))
             tot[b] += 1
             miss[b] += not capture_hit(c, floor, mode)
     p_miss = {b: (miss[b] / tot[b]) if tot[b] else None for b in tot}
+    city_of = {id(c): ramp_city(r) for r, cs in caps for c in cs}
 
     def pm(c):
-        return p_miss[bin_of(c["dist_m"], range_bins)]
+        return p_miss[(city_of[id(c)], bin_of(c["dist_m"], range_bins))]
 
     sep_acc = defaultdict(lambda: [0, 0.0, 0, 0, 0.0])   # pairs, pred_both, obs_both, obs_mi, pred_marg_j|i
     rng_acc = defaultdict(lambda: [0, 0.0, 0])
+    vin_acc = defaultdict(lambda: [0, 0.0, 0])
     for _, cs in caps:
         for i in range(len(cs)):
             for j in range(i + 1, len(cs)):
@@ -345,6 +353,12 @@ def failure_correlation(ramps, floor, mode, radius, range_bins=RANGE_BINS,
                 racc[0] += 1
                 racc[1] += pm(a) * pm(b)
                 racc[2] += ma and mb
+                da, db = (a.get("capture_date") or "")[:7], (b.get("capture_date") or "")[:7]
+                vk = "unknown" if not da or not db else "same_month" if da == db else "different_month"
+                vacc = vin_acc[vk]
+                vacc[0] += 1
+                vacc[1] += pm(a) * pm(b)
+                vacc[2] += ma and mb
 
     def sep_row(sb, acc):
         pairs, pred, obs, n_miss, pred_miss = acc
@@ -372,8 +386,20 @@ def failure_correlation(ramps, floor, mode, radius, range_bins=RANGE_BINS,
         by_n[nb][2] += pred
     return {
         "ramps": len(caps),
-        "marginal_miss_by_range": [{"bin": list(range_bins[b]), "captures": tot[b],
-                                    "p_miss": p_miss[b]} for b in sorted(tot, key=lambda x: (x is None, x))],
+        "marginal_miss_by_city_range": [
+            {"city": b[0], "bin": list(range_bins[b[1]]), "captures": tot[b], "p_miss": p_miss[b]}
+            for b in sorted(tot, key=lambda x: (x[0], x[1] is None, x[1]))],
+        "marginal_miss_by_range": [
+            {"bin": list(range_bins[rb]),
+             "captures": sum(v for k, v in tot.items() if k[1] == rb),
+             "p_miss": (sum(v for k, v in miss.items() if k[1] == rb)
+                        / sum(v for k, v in tot.items() if k[1] == rb))}
+            for rb in sorted({k[1] for k in tot if k[1] is not None})],
+        "by_vintage": [{"pairs": a[0], "months": k,
+                        "obs_both_miss": a[2] / a[0] if a[0] else None,
+                        "pred_both_miss": a[1] / a[0] if a[0] else None,
+                        "ratio": (a[2] / a[1]) if a[1] else None}
+                       for k, a in sorted(vin_acc.items())],
         "by_separation": [sep_row(sb, acc) for sb, acc in sorted(sep_acc.items(), key=lambda t: (t[0] is None, t[0]))],
         "by_range": [{"bin": None if rb is None else list(range_bins[rb]), "pairs": a[0],
                       "obs_both_miss": a[2] / a[0] if a[0] else None,
@@ -441,7 +467,8 @@ def match_one_to_one(ramps_xy, sites_xy, radius_m):
     return matched
 
 
-def score_world(pool, sites, accepted, pano_class, match_radius_m=MATCH_RADIUS_M):
+def score_world(pool, sites, accepted, pano_class, match_radius_m=MATCH_RADIUS_M,
+                precision_scope=None):
     """World-space P/R with eval_sites' definitions, generalized to any detector.
 
     ``pool``: [{"e", "n", "gt_refs": [(pano_id, gt_index), ...]}] -- the recall pool.
@@ -454,7 +481,10 @@ def score_world(pool, sites, accepted, pano_class, match_radius_m=MATCH_RADIUS_M
     by a detection whose site is accepted (eval_sites' ``self_detected``), or when an
     accepted site lies within ``match_radius_m`` under one-to-one matching. Precision:
     over accepted sites with a scored member in a judged pano -- TP if any such member
-    is a TP, FP if all decided members are FPs, excluded if only ignored."""
+    is a TP, FP if all decided members are FPs, excluded if only ignored.
+    ``precision_scope``, when given, restricts precision to those site ids (sites whose
+    whole capture neighbourhood was run; see multiview_challengers_48.covered_sites);
+    recall is unaffected."""
     site_of = {}
     for s in sites:
         for pid, key, _ in s["members"]:
@@ -470,6 +500,8 @@ def score_world(pool, sites, accepted, pano_class, match_radius_m=MATCH_RADIUS_M
     tp = fp = unsure = 0
     for s in sites:
         if s["id"] not in accepted:
+            continue
+        if precision_scope is not None and s["id"] not in precision_scope:
             continue
         cls = [pano_class[(pid, key)][0] for pid, key, _ in s["members"]
                if (pid, key) in pano_class]
@@ -880,7 +912,7 @@ def projected_detections(L, run_panos, params, frame):
     return out, drops
 
 
-def capture_table(L, city, gtw, run_panos, params, radius=R_MAX):
+def capture_table(L, city, gtw, run_panos, params, radius=R_MAX, hit_radius=MATCH_RADIUS_M):
     """Every (pool ramp, qualifying capture) pair within ``radius``: range, whether the
     capture is one of the ramp's GT-source panos, the ramp projected into it, and the best
     stored detection at the ramp by the world and the pixel test."""
@@ -888,7 +920,7 @@ def capture_table(L, city, gtw, run_panos, params, radius=R_MAX):
     frame = gtw.frame
     # Claim targets reach MATCH_RADIUS_M past the recording radius, so a detection near a
     # ramp just outside it is not free to claim a wrong one inside it.
-    reach = radius + MATCH_RADIUS_M
+    reach = radius + hit_radius
     ramp_grid = geo.GridIndex(reach)
     for i, r in enumerate(gtw.pool):
         ramp_grid.add(r["e"], r["n"], i)
@@ -896,7 +928,7 @@ def capture_table(L, city, gtw, run_panos, params, radius=R_MAX):
     _, cams = camera_index(L, frame, run_panos)
     ground, drops = projected_detections(L, run_panos, params, frame)
     stats = {"horizon_or_out_of_envelope_projections": 0}
-    wr2 = MATCH_RADIUS_M ** 2
+    wr2 = hit_radius ** 2
     pr2 = pixel_radius_sq()
     for p in run_panos:
         ce, cn = cams[p.pano_id]
@@ -1207,7 +1239,7 @@ def cmd_run(args):
             print(f"   + {info['reinfer']}", flush=True)
         gtw = world_gt(L, city, verdicts, bundle_ops, run_panos, params)
         repro[city]["buckets_as_analysed"] = gtw.result["buckets"]
-        stats = capture_table(L, city, gtw, run_panos, params)
+        stats = capture_table(L, city, gtw, run_panos, params, hit_radius=args.hit_radius)
         info.update({"gt_counts": gtw.counts, "pool_ramps": len(gtw.pool), "capture_stats": stats})
         meta["city_info"][city] = info
         ramps_by_city[city] = gtw.pool
@@ -1236,13 +1268,23 @@ def cmd_run(args):
                                             if c["pixel_conf"] is not None), default=None)})
     meta["sub_threshold_cities"] = sub_cities
     meta["reproduction"] = repro
-    write_json(os.path.join(OUT, "meta.json"), meta)
-    write_csv(os.path.join(OUT, "captures_R25.csv"), CAPTURE_COLUMNS, capture_rows)
+    meta["world_hit_radius_m"] = args.hit_radius
+    # A non-default world hit radius is a sensitivity arm (GT position error is shared by
+    # every view, so it can itself make world-test misses look correlated): it writes
+    # only its own capture table and recall tables, suffixed, and leaves the rest alone.
+    sfx = "" if args.hit_radius == MATCH_RADIUS_M else f"_hit{args.hit_radius:g}"
+    if not sfx:
+        write_json(os.path.join(OUT, "meta.json"), meta)
+    cap_csv = os.path.join(OUT, f"captures_R25{sfx}.csv")
+    write_csv(cap_csv, CAPTURE_COLUMNS, capture_rows)
     print("B.1/B.2 ...", flush=True)
     # B.1/B.2 are computed from the CSV as written, so the committed table alone
     # re-derives them (tests/test_multiview_48.py checks that it does).
-    ramps_by_city = ramps_from_capture_csv(os.path.join(OUT, "captures_R25.csv"))
-    write_json(os.path.join(OUT, "recall_vs_captures.json"), b1_b2(ramps_by_city, sub_cities))
+    ramps_by_city = ramps_from_capture_csv(cap_csv)
+    write_json(os.path.join(OUT, f"recall_vs_captures{sfx}.json"), b1_b2(ramps_by_city, sub_cities))
+    if sfx:
+        print(f"wrote the {sfx} sensitivity arm to {OUT}")
+        return
     print("B.3 ...", flush=True)
     write_json(os.path.join(OUT, "evidence_vs_kofn.json"), run_b3(b3_inputs, pools))
     by_class = defaultdict(lambda: defaultdict(int))
@@ -1614,6 +1656,9 @@ def main(argv=None):
                    help="dir of <city>/results.jsonl copies of the makelab2 archive (the runs "
                         "the committed reports scored; see ARCHIVED_RESULTS_SHA256)")
     r.add_argument("--cities", nargs="+", default=list(CITIES))
+    r.add_argument("--hit-radius", type=float, default=MATCH_RADIUS_M,
+                   help="world-test radius (m); a non-default value writes only the suffixed "
+                        "capture and recall tables, as a sensitivity arm")
     r.add_argument("--no-reinfer", action="store_true",
                    help="ignore richmond's results.f01.jsonl re-inference")
     sub.add_parser("figures")

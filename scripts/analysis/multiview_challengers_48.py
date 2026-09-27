@@ -48,6 +48,12 @@ CITY = "richmond"
 HOOD = "richmond_neighbourhood"
 HOOD_DIR = os.path.join(REPO, "benchmark", HOOD)
 HOOD_RADIUS_M = 20.0
+#: The 20 m ramp neighbourhood was widened (additively: the first 1,560 panos kept their
+#: cache) to every pano within 30 m -- the 25 m raycast envelope plus the 5 m match
+#: radius -- of a pool ramp OR of a judged camera, so the sites precision is scored on
+#: keep the captures that support or contradict them (review of PR 200). See
+#: covered_sites for the part of that problem a radius cannot close.
+HOOD_RADIUS_WIDE_M = 30.0
 OUT = os.path.join(mv.OUT, "challengers")
 DET_DIR = os.path.join(OUT, "detections")
 PUBLISHED = os.path.join(REPO, "benchmark", "model_detections")
@@ -85,14 +91,21 @@ KOFN = (1, 2, 3)
 # --------------------------------------------------------------------------- #
 
 
-def neighbourhood(pool, cams, judged, radius=HOOD_RADIUS_M):
+def neighbourhood(pool, cams, judged, radius=HOOD_RADIUS_M, judged_radius=None):
     """{pano_id: [ramp uids it qualifies for]} for panos within ``radius`` of a pool
-    ramp, plus every judged pano (with whatever ramps it qualifies for, maybe none)."""
+    ramp or within ``judged_radius`` of a judged pano's camera, plus every judged pano.
+    A pano qualifies for a ramp when it is within ``radius`` of it (maybe none)."""
     out = defaultdict(list)
     for r in pool:
         for pid, (ce, cn) in cams.items():
             if math.hypot(ce - r["e"], cn - r["n"]) <= radius:
                 out[pid].append(r["uid"])
+    if judged_radius:
+        for j in judged:
+            je, jn = cams[j]
+            for pid, (ce, cn) in cams.items():
+                if math.hypot(ce - je, cn - jn) <= judged_radius:
+                    out.setdefault(pid, [])
     for pid in judged:
         out.setdefault(pid, [])
     return {pid: sorted(v, key=lambda u: int(u.split(":")[1])) for pid, v in out.items()}
@@ -109,7 +122,8 @@ def cmd_bundle(args):
     if not ok:
         raise SystemExit(f"eval_sites does not reproduce the committed report: {got} vs {want}")
     _, cams = mv.camera_index(L, gtw.frame, run_panos)
-    hood = neighbourhood(gtw.pool, cams, set(gtw.judged_gt), args.radius)
+    hood = neighbourhood(gtw.pool, cams, set(gtw.judged_gt), args.radius, args.radius)
+    first_pass = neighbourhood(gtw.pool, cams, set(gtw.judged_gt), HOOD_RADIUS_M)
     judged_recs = mv.read_bundle_records(CITY)
     raw = {}
     with open(os.path.join(runs_root, CITY, "results.jsonl"), encoding="utf-8") as f:
@@ -130,9 +144,12 @@ def cmd_bundle(args):
     spec = {"kind": "neighbourhood", "verdicts_from": "../richmond",
             "issue": "ProjectSidewalk/RampNet#48",
             "rule": f"every labeler-run pano whose camera is within {args.radius:g} m of a "
-                    "world GT ramp in eval_sites' Richmond recall pool, plus every judged "
-                    "pano; judged records verbatim from benchmark/richmond",
+                    "world GT ramp in eval_sites' Richmond recall pool or of a judged pano's "
+                    "camera, plus every judged pano; judged records verbatim from "
+                    "benchmark/richmond",
             "radius_m": args.radius, "n_panos": len(hood),
+            "first_pass": {"radius_m": HOOD_RADIUS_M, "rule": "pool ramps only",
+                           "n_panos": len(first_pass)},
             "n_judged": sum(1 for p in hood if p in judged_recs),
             "pool_ramps": len(gtw.pool),
             "labeler_results_sha256": info["results_sha256"],
@@ -228,11 +245,43 @@ def per_pano_score(dets_by_pid, judged_gt, tier):
             "fp": rep.fp, "fn": rep.fn, "n_panos": rep.n_panos}
 
 
-def world_eval(L, panos, dets_by_pid, tier, floor, pool_ll, judged_gt, capture_radius=mv.R_DEFAULT):
+#: A detection reaches a site from a camera at most R_MAX from its ground point, and the
+#: point is at most max_match_m (8 m) from the site it joins.
+COVER_RADIUS_M = mv.R_MAX + 8.0
+
+
+def covered_sites(sites, frame, run_cams_ll, bundle_pids, radius=COVER_RADIUS_M):
+    """Site ids whose whole capture neighbourhood is in the bundle: every run pano (the
+    full run, not the bundle) with its camera within ``radius`` of the site. Only these
+    sites are scored for precision, so a site at the bundle's edge cannot look more (or
+    less) supported than it would with every capture run. ``run_cams_ll``:
+    [(pano_id, lat, lng)] over the full run."""
+    cell = radius
+    grid = defaultdict(list)
+    for pid, lat, lng in run_cams_ll:
+        e, n = frame.to_enu(lat, lng)
+        grid[(math.floor(e / cell), math.floor(n / cell))].append((pid, e, n))
+    out = set()
+    for s in sites:
+        kx, ky = math.floor(s["e"] / cell), math.floor(s["n"] / cell)
+        ok = True
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                for pid, e, n in grid.get((kx + dx, ky + dy), ()):
+                    if pid not in bundle_pids and math.hypot(e - s["e"], n - s["n"]) <= radius:
+                        ok = False
+        if ok:
+            out.add(s["id"])
+    return out
+
+
+def world_eval(L, panos, dets_by_pid, tier, floor, pool_ll, judged_gt, run_cams_ll,
+               bundle_pids, capture_radius=mv.R_DEFAULT):
     """Fuse one leg's detections over ``panos`` and score it in world space.
 
-    Returns per-policy P/R (flat and k-of-n at ``tier``), the per-pano score on the
-    judged panos at ``tier``, recall vs number of qualifying captures, and the sites."""
+    Returns per-policy P/R (flat and k-of-n at ``tier``; precision over covered_sites
+    only), the per-pano score on the judged panos at ``tier``, recall vs number of
+    qualifying captures, and the sites."""
     fs = L.fs
     tier_ = 0.0 if tier is None else tier
     params = mv.fuse_params(L, min_confidence=max(tier_, 1e-9), floor=min(floor, tier_) if tier else 0.0)
@@ -245,10 +294,11 @@ def world_eval(L, panos, dets_by_pid, tier, floor, pool_ll, judged_gt, capture_r
         pool.append({"e": e, "n": n, "gt_refs": r["gt_refs"], "uid": r["uid"],
                      "source_panos": r["source_panos"]})
     pc = mv.pano_class_for(judged_gt, {pid: dets_by_pid.get(pid, ()) for pid in judged_gt}, tier_)
+    scope = covered_sites(sd, frame, run_cams_ll, bundle_pids)
     policies = {}
     for k in KOFN:
         acc = {s["id"] for s in sd if mv.site_tier_panos(s, tier_) >= k}
-        policies[f"kofn_{k}"] = mv.score_world(pool, sd, acc, pc)
+        policies[f"kofn_{k}"] = mv.score_world(pool, sd, acc, pc, precision_scope=scope)
     # recall vs qualifying captures, world 5 m test at the tier, other views only
     ground = defaultdict(list)
     dets, _, _ = fs.project(mp, params)
@@ -276,7 +326,7 @@ def world_eval(L, panos, dets_by_pid, tier, floor, pool_ll, judged_gt, capture_r
     return {
         "per_pano": per_pano_score(dets_by_pid, judged_gt, tier),
         "world": {name: mv.pr_counts(res) for name, res in policies.items()},
-        "fused": {"n_sites": len(sd), "n_multi_pano": sum(1 for s in sd if mv.site_tier_panos(s, tier_) > 1),
+        "fused": {"n_sites": len(sd), "n_sites_precision_scope": len(scope), "n_multi_pano": sum(1 for s in sd if mv.site_tier_panos(s, tier_) > 1),
                   "detections_projected": stats["n_projected"], "drops": stats["drops"]},
         "recall_by_capture_count": mv.recall_by_capture_count(ramps, tier_, "world", capture_radius),
         "k_nearest_fixed": mv.recall_k_nearest(ramps, tier_, "world", capture_radius, mv.KMAX, True),
@@ -331,6 +381,7 @@ def cmd_score(args):
             if line.strip():
                 hood.add(json.loads(line)["pano"]["panorama_id"])
     hood_panos = [p for p in run_panos if p.pano_id in hood]
+    run_cams_ll = [(p.pano_id, p.lat, p.lng) for p in run_panos]
     judged = sorted(gtw.judged_gt)
     os.makedirs(OUT, exist_ok=True)
     out = {"control": {"eval_sites_full_run": got, "committed_report": want},
@@ -343,10 +394,8 @@ def cmd_score(args):
     leg_out = {"tiers": {}}
     for tier in RAMPNET["sweep"]:
         for scope, panos in (("neighbourhood", hood_panos), ("full_run", run_panos)):
-            if scope == "full_run" and tier not in (0.30, 0.55):
-                continue
             res, (sd, frame) = world_eval(L, panos, rn, tier, mv.STORAGE_FLOOR, gtw.pool,
-                                          gtw.judged_gt)
+                                          gtw.judged_gt, run_cams_ll, hood)
             leg_out["tiers"][f"{tier:.2f}|{scope}"] = res
             if scope == "neighbourhood" and tier in (0.30, 0.55):
                 write_sites(os.path.join(OUT, f"sites__rampnet__{tier:.2f}.jsonl"), sd, frame)
@@ -358,6 +407,11 @@ def cmd_score(args):
             print(f"[{leg['slug']}] no exported detections; skipped", flush=True)
             out["legs"][leg["slug"]] = {"missing": True}
             continue
+        if meta["n_uncached"] and not args.allow_partial:
+            raise SystemExit(f"[{leg['slug']}] {meta['n_uncached']} bundle panos have no "
+                             "detections in the export; a missing pano would read as 'no "
+                             "detections' and lower k-of-n support and recall. Finish the leg, "
+                             "or pass --allow-partial deliberately.")
         dets = {pid: as_dets(v) for pid, v in pts.items()}
         leg_out = {"n_panos": meta["n_panos"], "n_uncached": meta["n_uncached"],
                    "signature": meta["signature"], "tiers": {}}
@@ -370,7 +424,7 @@ def cmd_score(args):
         for tier in leg["sweep"]:
             floor = min(t for t in leg["sweep"] if t is not None) if tier is not None else 0.0
             res, (sd, frame) = world_eval(L, hood_panos, dets, tier, floor, gtw.pool,
-                                          gtw.judged_gt)
+                                          gtw.judged_gt, run_cams_ll, hood)
             leg_out["tiers"]["none" if tier is None else f"{tier:.2f}"] = res
             if tier == leg["headline"]:
                 write_sites(os.path.join(OUT, f"sites__{leg['slug']}__"
@@ -388,12 +442,14 @@ def main(argv=None):
     b = sub.add_parser("bundle")
     b.add_argument("--labeler-root", required=True)
     b.add_argument("--runs-root", default=None)
-    b.add_argument("--radius", type=float, default=HOOD_RADIUS_M)
+    b.add_argument("--radius", type=float, default=HOOD_RADIUS_WIDE_M)
     e = sub.add_parser("export")
     e.add_argument("--cache-dir", required=True)
     s = sub.add_parser("score")
     s.add_argument("--labeler-root", required=True)
     s.add_argument("--runs-root", default=None)
+    s.add_argument("--allow-partial", action="store_true",
+                   help="score a leg whose export is missing some bundle panos")
     args = ap.parse_args(argv)
     {"bundle": cmd_bundle, "export": cmd_export, "score": cmd_score}[args.cmd](args)
 

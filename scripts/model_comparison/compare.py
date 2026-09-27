@@ -941,6 +941,7 @@ def main():
     records, verdicts, panos_dir = load_bundle(args.bundle)
     # Fail fast on a broken bundle before any (paid) detector call, then reduce
     # both GT sources to the same {pid: GroundTruth} shape.
+    judged_all = set(verdicts) if verdicts is not None else set()
     if verdicts is not None:
         if args.limit:
             verdicts = dict(list(verdicts.items())[:args.limit])
@@ -983,7 +984,8 @@ def main():
 
     detect_only = []
     if args.detect_unjudged:
-        detect_only = [pid for pid in records if pid not in gts]
+        # judged panos cut by --limit are skipped, not run as if unjudged
+        detect_only = [pid for pid in records if pid not in gts and pid not in judged_all]
         if args.limit:
             detect_only = detect_only[:args.limit]
     print(f"Bundle: {args.bundle}  ({len(gts)} scored panos"
