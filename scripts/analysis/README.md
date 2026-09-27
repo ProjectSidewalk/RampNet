@@ -114,12 +114,16 @@ inference and will churn a working CUDA env. One import (`moviepy`, used only by
 video export) must be stubbed; create an empty `stubs/moviepy/__init__.py` + `editor.py` next to
 `$DA3_SRC/..` and it is picked up automatically.
 
-**Critical:** pass the *known* intrinsics. We synthesise the rectilinear views, so
-`focal = (W/2) / tan(fov_h/2)` exactly (512 px for the default 90° FOV, 1024 px views). With
-intrinsics supplied, `prediction.depth` is **already in metres** — do *not* apply the
-`× focal / 300` formula from the DA3 README, which is for the no-intrinsics path and over-corrects
-by ~1.65×. Intrinsics-naive models (e.g. Depth-Anything-V2 metric) come out ~3× long on these
-wide-FOV views.
+**Intrinsics: measured to make no difference for DA3METRIC-LARGE (#101).** We synthesise the
+rectilinear views, so `focal = (W/2) / tan(fov_h/2)` is known exactly (512 px for the default 90°
+FOV, 1024 px views), and the scripts pass it. But `da3_calibration_101.py` measured the model's
+output with and without it: identical (ratio 1.000 on 11 of 11 probes), so passing it changes
+nothing. The raw `prediction.depth` reads range 1.106× Google's own GSV depth pooled (1.03–1.18 by
+city; [`docs/da3_calibration_101.md`](../../docs/da3_calibration_101.md) §2), so it is in metres to
+about 10%, and no `× focal / 300` factor is applied: with the 512 px focal that factor is ×1.71,
+which would put DA3 at ~1.9× Google. Calibrate against a reference rather than trusting either.
+Intrinsics-naive models (e.g. Depth-Anything-V2 metric) come out ~3× long on these wide-FOV
+views.
 
 ## Not part of the recall analysis
 

@@ -25,28 +25,33 @@ Four stages, each a subcommand:
 
 Conventions, stated once:
 
-  * **Raw DA3 value.** ``prediction.depth`` with the synthetic views' exact intrinsics passed
-    (``focal = 512 px`` for the 1024-px, 90-deg views). The ``x focal / 300`` formula in DA3's
-    README is *not* applied (``scripts/analysis/README.md``, "Depth Anything 3 setup"). The
-    calibration against Google measures DA3's scale directly, so nothing downstream depends on
-    that choice being right; the doc reports what the scale turned out to be.
+  * **Raw DA3 value.** ``prediction.depth``, with the synthetic views' exact intrinsics passed
+    (``focal = 512 px``). Measured: DA3METRIC-LARGE's output is identical with and without them
+    (``probe_intrinsics_ratio`` = 1.000 on 11 of 11 probes), so they play no role. No
+    ``x focal / 300`` factor is applied; the calibration against Google measures the scale.
   * **z-depth vs ray depth.** DA3 is read as planar (z) depth along the view's optical axis:
     ray distance = z * |f + a r + b u| for the view basis (f, r, u) and the pixel's tangent-plane
     offsets (a, b). ``extract`` fits the ground plane under both readings and the doc reports
     which one gives a flat road (``DEPTH_CONVENTION`` is the one used).
   * **Frame.** The pano frame of ``equirect_tiling.py``: +y up, +z at pano x = 0.5. Horizontal
     range = ray * cos(latitude of the point), the same definition as #112's ``depth_range``.
-  * **Ground plane.** RANSAC (fixed seed per pano) for a plane with normal within 20 deg of
-    vertical, inliers within 0.10 m, then least-squares refit on the inliers. Height = the
-    plane's distance from the camera (the same quantity as Google's ground-plane distance).
-    The fit passes when inlier share >= 0.5 and >= 200 band pixels were fitted.
+  * **Ground plane.** Sequential RANSAC (fixed seed per pano; normal within 20 deg of vertical,
+    inliers within 0.10 m, least-squares refit) finds up to three planes that each hold >= 15%
+    of the band points; the ground is the LOWEST of them (``fit_lowest_plane``). Height = the
+    plane's distance from the camera (the same quantity as Google's ground-plane distance). The
+    fit passes when the selected plane holds >= 25% of >= 200 band points.
+  * **Two post-hoc changes.** The first full run (job 40774944; its raw rows are committed under
+    ``raw_run1/``) took the single dominant plane and passed it at share >= 0.5. After seeing
+    that plane land on the capture vehicle's roof on car-roof GoPro rigs, BOTH were changed: the
+    plane rule (lowest plane) and the pass rule (0.5 -> 0.25). ``tables()["ground_fit_change"]``
+    attributes each pano to one or the other.
 
     # 1. GPU (klone), see scripts/analysis/da3_calibration_101.slurm
     python scripts/analysis/da3_calibration_101.py extract --panos-root /path/to/rampnet_benchmark \\
         --out-dir analysis_out/da3_calibration_101/raw
 
-    # 2. CPU: rows + tables (reads the labeler's Laurens tables read-only for the cross-read)
-    python scripts/analysis/da3_calibration_101.py derive --labeler-root D:/Git/sidewalk-auto-labeler
+    # 2. CPU: rows + tables (reads the labeler's Laurens camera_heights.json at a pinned commit)
+    python scripts/analysis/da3_calibration_101.py derive --labeler-root /path/to/sidewalk-auto-labeler
 
     # 3. CPU, from a clean clone: everything re-derives, byte for byte
     python scripts/analysis/da3_calibration_101.py --check
