@@ -397,8 +397,9 @@ correlation over 16 sequences) could not be reproduced and have been removed.
   its pre-registered rule neither the line fixed point (max |mean error| 0.361 m) nor the local
   crossing (0.418 m) passes, and "at noise 1.0 both read +0.25 to +0.53 m high at h_true 1.8 m in
   every city and rig class". The group is not applied: the labeler keeps its 2.6 m default, and
-  its reason string reads "fails identifiable (slope 0.723); agreement (b_unvalidated …); SUSPECT:
-  bearing height outside 1.0-3.5 m".
+  its reason string reads, in full, "fails identifiable (slope 0.723); agreement (b_unvalidated: no
+  h*_B estimator passed rule V in this city; line 3.755, local 3.481); material (CI 3.80-4.84, h_g
+  n/a); SUSPECT: bearing height outside 1.0-3.5 m".
 
 So the ~0.8 m gap between DA3 (2.13 m) and the labeler's B value (2.98 m) sits beside the
 labeler's own finding that B reads high by up to about half a metre at DA3-like heights, and that A
@@ -542,10 +543,11 @@ $ROOT/env/bin/pip install omegaconf einops addict opencv-python-headless plyfile
 git clone --branch <this branch or main> https://github.com/ProjectSidewalk/RampNet.git $ROOT/repo
 
 # 1. GPU: DA3 at every point + ground fits -> $ROOT/out/raw/<split>.jsonl (~45-70 min, one GPU).
-#    The launcher logs to logs/ under the submit directory; pass --output= to put it elsewhere.
+#    The launcher logs to logs/%x_%j.out under the submit directory, which must exist before
+#    sbatch (Slurm does not create it, and a missing directory kills the job with no log). To log
+#    elsewhere, create that directory and pass --output=<dir>/%x_%j.out instead.
 cd $ROOT/repo && mkdir -p logs
-OUT=$ROOT/out/raw sbatch -A ckpt-makelab -p ckpt-all --output=$ROOT/logs/%x_%j.out \
-    scripts/analysis/da3_calibration_101.slurm
+OUT=$ROOT/out/raw sbatch -A ckpt-makelab -p ckpt-all scripts/analysis/da3_calibration_101.slurm
 #    copy $ROOT/out/raw/<split>.jsonl to analysis_out/da3_calibration_101/raw/
 
 # 2. CPU: rows, tables, markdown, SHA256SUMS (reads the labeler file with git show at the pin)

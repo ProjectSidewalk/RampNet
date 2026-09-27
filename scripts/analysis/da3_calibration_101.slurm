@@ -16,7 +16,9 @@
 #                                 the eleven splits; laurens_gsv and laurens_mapillary are NOT on the Hub
 #                                 (scripts/unpack_benchmark_panos.py), so their panos are not public input.
 #
-#   mkdir -p logs   # the default log path below is relative to the submit directory; or pass --output=
+#   mkdir -p logs   # the log path below is relative to the submit directory and must exist before
+#                   # sbatch (Slurm does not create it). To log elsewhere: mkdir <dir> and pass
+#                   # --output=<dir>/%x_%j.out
 #   sbatch -A ckpt-makelab -p ckpt-all scripts/analysis/da3_calibration_101.slurm
 #   EXTRA="--splits bend --limit 3" sbatch ... (smoke test)
 #
