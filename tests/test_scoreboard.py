@@ -604,7 +604,8 @@ def test_partial_coverage_is_reported_not_averaged_away(board):
 
 
 def test_single_split_legs_stay_out_of_the_pooled_tables(board):
-    """Vistas ran richmond only; three of the four Claude legs ran annapolis only.
+    """Two Vistas arms ran richmond only and the 1024 arm five of the eight pooled splits
+    (#163, #35); the other Claude legs ran annapolis only.
 
     claude-opus-5-effort-low is deliberately NOT in this set any more: #139 took it to
     nine splits and #151 to both Laurens arms, so it is a complete leg and belongs in
