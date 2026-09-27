@@ -464,7 +464,10 @@ def extract(args):
 def read_raw(raw_dir, split):
     """{pano: row} from one split's raw JSONL; the last line per pano wins (a requeue rewrite)."""
     out = {}
-    with open(os.path.join(raw_dir, f"{split}.jsonl"), encoding="utf-8") as fh:
+    path = os.path.join(raw_dir, f"{split}.jsonl")
+    if not os.path.exists(path):
+        return out   # every pano of the split then reads status "not_extracted"
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if line:
@@ -756,9 +759,9 @@ def axis_values(p, pano, k_pt, k_h):
     """The candidate distance axes at one point, given the two calibration constants."""
     key = f"{DEPTH_CONVENTION}_{PRIMARY_BAND}"
     out = {"flat_2p5": p["flat_2p5"],
-           "da3_point": (p["da3_range"] / k_pt) if p["da3_range"] else None,
+           "da3_point": (p["da3_range"] / k_pt) if (p["da3_range"] and k_pt) else None,
            "da3_plane": None, "flat_da3_height": None}
-    if fit_ok(pano):
+    if fit_ok(pano) and k_h:
         h = pano[f"{key}_h"] / k_h
         out["da3_plane"] = plane_range(pano[f"{key}_n"], h, p["x"], p["y"])
         out["flat_da3_height"] = rbd.flat_range(p["y"], h)
@@ -887,7 +890,7 @@ def tables(panos, points, labeler):
     t["validation"] = {"by_split": val_by_split,
                        "pooled": {a: agreement(val[a]) for a in AXES},
                        "pooled_common": {a: agreement([(ax[a], g) for ax, g in common]) for a in AXES}}
-    headline = min(DA3_AXES, key=lambda a: t["validation"]["pooled_common"][a]["median_abs_log_ratio"])
+    headline = min(DA3_AXES, key=lambda a: t["validation"]["pooled_common"][a].get("median_abs_log_ratio", math.inf))
     t["headline_axis"] = headline
 
     # -- 5. camera height per split and per rig (calibrated by k_height)
