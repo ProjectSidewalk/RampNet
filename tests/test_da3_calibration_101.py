@@ -214,4 +214,18 @@ def test_headline_numbers_are_pinned():
     assert (v["flat_2p5"]["share_within_10pct"], v["da3_point"]["share_within_10pct"]) == (0.4442, 0.6402)
     rep = {r["split"]: r["da3_value"] for r in t["published_reproduction"]}
     # detection_recall_analysis.md: "agree to within 6.5-8.5% (Spearman 0.95 Bend / 0.81 Richmond)"
-    assert (rep["bend"]["median_flat_over_da3"], rep["richmond"]["median_flat_over_da3"]) == (1.0645, 1.086)
+    assert (rep["bend"]["median_flat_over_da3"], rep["richmond"]["median_flat_over_da3"]) == (1.0645, 1.0849)
+    unusable = {r["split"]: (r["n_at_or_above_horizon"], r["n_unusable_flat"]) for r in t["published_reproduction"]}
+    assert unusable["richmond"] == (3, 4)   # the published "4 Richmond ramps": 3 above the horizon + 1 at >= 150 m
+    # review M1: the two parts of the ground-fit change, attributed from committed rows
+    gfc = {r["group"]: r for r in t["ground_fit_change"]}
+    assert (gfc["morgantown"]["now_pass"], gfc["morgantown"]["now_threshold_only"]) == (92, 62)
+    assert (gfc["clovis"]["now_pass"], gfc["clovis"]["now_threshold_only"]) == (112, 55)
+    assert (gfc["gsv_google_depth"]["now_switched_plane"], gfc["gsv_google_depth"]["now_pass"]) == (76, 403)
+    # review M4: the downstream method on GSV, DA3 axis vs Google's
+    th = {r["group"]: r for r in t["gsv_method_validation"]["thresholds"]}
+    assert (th["gsv_pooled"]["google"], th["gsv_pooled"]["da3_loso"]) == ([16.2, 21.7], [15.9, 21.3])
+    # review M2: the labeler input is pinned
+    lc = t["laurens_cross_read"]
+    assert lc["labeler_commit"] == dc.LABELER_COMMIT and lc["labeler_files"] == dc.LABELER_FILES
+    assert lc["labeler_rig"]["b_validated"] is False

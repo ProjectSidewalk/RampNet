@@ -654,6 +654,251 @@
     "run1_pass_0p5": 433
    }
   ],
+  "gsv_method_validation": {
+   "n_gt": 1101,
+   "recall": {
+    "da3_loso": [
+     {
+      "bucket": "0-8 m",
+      "hi": 8,
+      "hit": 230,
+      "lo": 0,
+      "n": 276,
+      "recall": 0.8333
+     },
+     {
+      "bucket": "8-12 m",
+      "hi": 12,
+      "hit": 187,
+      "lo": 8,
+      "n": 244,
+      "recall": 0.7664
+     },
+     {
+      "bucket": "12-18 m",
+      "hi": 18,
+      "hit": 215,
+      "lo": 12,
+      "n": 297,
+      "recall": 0.7239
+     },
+     {
+      "bucket": "18-25 m",
+      "hi": 25,
+      "hit": 121,
+      "lo": 18,
+      "n": 207,
+      "recall": 0.5845
+     },
+     {
+      "bucket": "25-40 m",
+      "hi": 40,
+      "hit": 21,
+      "lo": 25,
+      "n": 77,
+      "recall": 0.2727
+     },
+     {
+      "bucket": "all",
+      "hi": 1000000000.0,
+      "hit": 774,
+      "lo": 0,
+      "n": 1101,
+      "recall": 0.703
+     }
+    ],
+    "flat_2p5": [
+     {
+      "bucket": "0-8 m",
+      "hi": 8,
+      "hit": 179,
+      "lo": 0,
+      "n": 214,
+      "recall": 0.8364
+     },
+     {
+      "bucket": "8-12 m",
+      "hi": 12,
+      "hit": 194,
+      "lo": 8,
+      "n": 245,
+      "recall": 0.7918
+     },
+     {
+      "bucket": "12-18 m",
+      "hi": 18,
+      "hit": 171,
+      "lo": 12,
+      "n": 238,
+      "recall": 0.7185
+     },
+     {
+      "bucket": "18-25 m",
+      "hi": 25,
+      "hit": 165,
+      "lo": 18,
+      "n": 234,
+      "recall": 0.7051
+     },
+     {
+      "bucket": "25-40 m",
+      "hi": 40,
+      "hit": 60,
+      "lo": 25,
+      "n": 134,
+      "recall": 0.4478
+     },
+     {
+      "bucket": "40 m+",
+      "hi": 1000000000.0,
+      "hit": 4,
+      "lo": 40,
+      "n": 35,
+      "recall": 0.1143
+     },
+     {
+      "bucket": "all",
+      "hi": 1000000000.0,
+      "hit": 773,
+      "lo": 0,
+      "n": 1100,
+      "recall": 0.7027
+     }
+    ],
+    "google": [
+     {
+      "bucket": "0-8 m",
+      "hi": 8,
+      "hit": 226,
+      "lo": 0,
+      "n": 281,
+      "recall": 0.8043
+     },
+     {
+      "bucket": "8-12 m",
+      "hi": 12,
+      "hit": 201,
+      "lo": 8,
+      "n": 254,
+      "recall": 0.7913
+     },
+     {
+      "bucket": "12-18 m",
+      "hi": 18,
+      "hit": 205,
+      "lo": 12,
+      "n": 286,
+      "recall": 0.7168
+     },
+     {
+      "bucket": "18-25 m",
+      "hi": 25,
+      "hit": 116,
+      "lo": 18,
+      "n": 194,
+      "recall": 0.5979
+     },
+     {
+      "bucket": "25-40 m",
+      "hi": 40,
+      "hit": 25,
+      "lo": 25,
+      "n": 83,
+      "recall": 0.3012
+     },
+     {
+      "bucket": "40 m+",
+      "hi": 1000000000.0,
+      "hit": 0,
+      "lo": 40,
+      "n": 2,
+      "recall": 0.0
+     },
+     {
+      "bucket": "all",
+      "hi": 1000000000.0,
+      "hit": 773,
+      "lo": 0,
+      "n": 1100,
+      "recall": 0.7027
+     }
+    ]
+   },
+   "thresholds": [
+    {
+     "da3_loso": [
+      15.9,
+      21.3
+     ],
+     "google": [
+      16.2,
+      21.7
+     ],
+     "group": "gsv_pooled",
+     "n": 1101
+    },
+    {
+     "da3_loso": [
+      15.9,
+      21.2
+     ],
+     "google": [
+      16.9,
+      23.3
+     ],
+     "group": "bend",
+     "n": 254
+    },
+    {
+     "da3_loso": [
+      16.3,
+      21.8
+     ],
+     "google": [
+      15.9,
+      21.7
+     ],
+     "group": "paterson",
+     "n": 360
+    },
+    {
+     "da3_loso": [
+      13.1,
+      18.5
+     ],
+     "google": [
+      13.8,
+      19.7
+     ],
+     "group": "gainesville",
+     "n": 249
+    },
+    {
+     "da3_loso": [
+      17.8,
+      24.2
+     ],
+     "google": [
+      16.9,
+      22.8
+     ],
+     "group": "sao_paulo",
+     "n": 238
+    },
+    {
+     "da3_loso": [
+      13.3,
+      18.2
+     ],
+     "google": [
+      13.1,
+      18.7
+     ],
+     "group": "2025-26 rig",
+     "n": 366
+    }
+   ]
+  },
   "headline_axis": "da3_point",
   "height_calibration": [
    {
@@ -1268,20 +1513,22 @@
      "spearman": 0.9534
     },
     "n": 327,
-    "n_at_or_above_horizon_with_da3": 0,
+    "n_at_or_above_horizon": 0,
+    "n_unusable_flat": 0,
     "split": "bend"
    },
    {
     "da3_range": {
-     "median_flat_over_da3": 1.0369,
-     "spearman": 0.8472
+     "median_flat_over_da3": 1.0368,
+     "spearman": 0.8466
     },
     "da3_value": {
-     "median_flat_over_da3": 1.086,
-     "spearman": 0.8131
+     "median_flat_over_da3": 1.0849,
+     "spearman": 0.8125
     },
-    "n": 307,
-    "n_at_or_above_horizon_with_da3": 3,
+    "n": 306,
+    "n_at_or_above_horizon": 3,
+    "n_unusable_flat": 4,
     "split": "richmond"
    }
   ],
@@ -1325,6 +1572,98 @@
     "n": 88,
     "p10": 0.9474,
     "p90": 1.1981
+   }
+  ],
+  "ratio_by_google_range_by_group": [
+   {
+    "bucket": "0-8 m",
+    "group": "2025-26 rig",
+    "median_da3_over_google": 1.1437,
+    "n": 91
+   },
+   {
+    "bucket": "8-12 m",
+    "group": "2025-26 rig",
+    "median_da3_over_google": 1.1354,
+    "n": 101
+   },
+   {
+    "bucket": "12-18 m",
+    "group": "2025-26 rig",
+    "median_da3_over_google": 1.1105,
+    "n": 97
+   },
+   {
+    "bucket": "18-25 m",
+    "group": "2025-26 rig",
+    "median_da3_over_google": 1.0894,
+    "n": 63
+   },
+   {
+    "bucket": "25 m+",
+    "group": "2025-26 rig",
+    "median_da3_over_google": 1.0471,
+    "n": 33
+   },
+   {
+    "bucket": "0-8 m",
+    "group": "older US vintages",
+    "median_da3_over_google": 1.0277,
+    "n": 122
+   },
+   {
+    "bucket": "8-12 m",
+    "group": "older US vintages",
+    "median_da3_over_google": 1.0612,
+    "n": 113
+   },
+   {
+    "bucket": "12-18 m",
+    "group": "older US vintages",
+    "median_da3_over_google": 1.09,
+    "n": 141
+   },
+   {
+    "bucket": "18-25 m",
+    "group": "older US vintages",
+    "median_da3_over_google": 1.0787,
+    "n": 99
+   },
+   {
+    "bucket": "25 m+",
+    "group": "older US vintages",
+    "median_da3_over_google": 1.0487,
+    "n": 42
+   },
+   {
+    "bucket": "0-8 m",
+    "group": "sao_paulo",
+    "median_da3_over_google": 1.1441,
+    "n": 84
+   },
+   {
+    "bucket": "8-12 m",
+    "group": "sao_paulo",
+    "median_da3_over_google": 1.2075,
+    "n": 63
+   },
+   {
+    "bucket": "12-18 m",
+    "group": "sao_paulo",
+    "median_da3_over_google": 1.1984,
+    "n": 73
+   },
+   {
+    "bucket": "18-25 m",
+    "group": "sao_paulo",
+    "median_da3_over_google": 1.174,
+    "n": 53
+   },
+   {
+    "bucket": "25 m+",
+    "group": "sao_paulo",
+    "median_da3_over_google": 1.1932,
+    "n": 13
    }
   ],
   "recall_distance": {
@@ -3658,6 +3997,13 @@
      }
     ]
    }
+  },
+  "tilt_vs_google": {
+   "da3_median_deg": 2.1824,
+   "google_median_deg": 1.5284,
+   "median_abs_diff_deg": 1.1679,
+   "n_panos": 352,
+   "pearson_r": 0.3752
   },
   "validation": {
    "by_split": {

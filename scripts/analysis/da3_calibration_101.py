@@ -925,6 +925,16 @@ def tables(panos, points, labeler):
                               "p10": _r(_q(rr, 0.1)), "p90": _r(_q(rr, 0.9)),
                               "median_flat_over_google": _r(st.median(fr)) if fr else None})
     t["ratio_by_google_range"] = by_bucket
+    # the same, per capture-vintage group: on Google's 2025-26 rig the ratio falls with range
+    # (review of #203, M3), so "a scale" holds pooled, not on every rig
+    byg = []
+    for g in ("2025-26 rig", "older US vintages", "sao_paulo"):
+        for lo, hi in RATIO_BUCKETS:
+            b = [q for q in locs if q["group"] == g and lo <= q["google"] < hi]
+            if b:
+                byg.append({"group": g, "bucket": rbd.bucket_label(lo, hi, "m"), "n": len(b),
+                            "median_da3_over_google": _r(st.median(q["da3"] / q["google"] for q in b))})
+    t["ratio_by_google_range_by_group"] = byg
 
     # -- 2. DA3 camera height vs Google camera height, per pano
     hp = height_pairs(panos, GSV_DEPTH_SPLITS)
@@ -1021,6 +1031,30 @@ def tables(panos, points, labeler):
                        "pooled_common": {a: agreement([(ax[a], g) for ax, g in common]) for a in AXES}}
     headline = min(DA3_AXES, key=lambda a: t["validation"]["pooled_common"][a].get("median_abs_log_ratio", math.inf))
     t["headline_axis"] = headline
+
+    # -- 4b. the downstream method on GSV (review of #203, M4): recall by distance and the
+    # threshold mapping on Google's axis vs the DA3 axis (leave-one-split-out k_point) vs flat,
+    # fn-confirmed GT points on measured-ground panos
+    gv = []
+    for p in points:
+        if (p["split"] in GSV_DEPTH_SPLITS and p["kind"] == "gt" and p["fn_confirmed"]
+                and p["google_status"] == "measured"):
+            kp = t["constants"]["loso"][p["split"]]["k_point"]
+            gv.append({"split": p["split"], "hit": p["hit"], "flat_2p5": p["flat_2p5"],
+                       "google": p["google_range"],
+                       "da3_loso": (p["da3_range"] / kp) if p["da3_range"] else None,
+                       "group": rig_group(p["split"], _year(panos_by[(p["split"], p["pano"])]))})
+    mv = {"n_gt": len(gv),
+          "recall": {a: rbd.recall_table(gv, a, rbd.M_BUCKETS, "m") for a in ("google", "da3_loso", "flat_2p5")},
+          "thresholds": []}
+    for name, sel in [("gsv_pooled", gv)] + [(sp, [q for q in gv if q["split"] == sp]) for sp in GSV_DEPTH_SPLITS] \
+            + [("2025-26 rig", [q for q in gv if q["group"] == "2025-26 rig"])]:
+        row = {"group": name, "n": len(sel)}
+        for a in ("google", "da3_loso"):
+            row[a] = [rbd.window_threshold(sel, th, flat_key="flat_2p5", depth_key=a)["deflated_m"]
+                      for th in rbd.PUBLISHED_THRESHOLDS_M]
+        mv["thresholds"].append(row)
+    t["gsv_method_validation"] = mv
 
     # -- 5. camera height per split and per rig (calibrated by k_height)
     def hstats(label, ps):
@@ -1130,20 +1164,34 @@ def tables(panos, points, labeler):
     t["ground_fit_change"] = gfc
 
     # -- 9. the published DA3 figures of detection_recall_analysis.md ("agree to within
-    # 6.5-8.5%, Spearman 0.95 Bend / 0.81 Richmond"), re-derived: that script compared the raw
-    # DA3 value (planar z-depth) with the flat horizontal range; here beside the ray-corrected
-    # horizontal range this script uses
-    rep = []
-    for s in ("bend", "richmond"):
-        g = [p for p in points if p["split"] == s and p["kind"] == "gt" and p["flat_2p5"] and p["da3_value"]]
-        row = {"split": s, "n": len(g),
-               "n_at_or_above_horizon_with_da3": sum(1 for p in points if p["split"] == s and p["kind"] == "gt"
-                                                     and p["flat_2p5"] is None and p["da3_range"])}
+    # 6.5-8.5%, Spearman 0.95 Bend / 0.81 Richmond", "4 Richmond ramps above the horizon"),
+    # re-derived under depth_analysis.py's own filters: points with flat < 150 m, ratio over
+    # DA3 > 0.5 m, "unusable" = at/above the horizon or flat >= 150 m. That script compared the
+    # raw DA3 value (planar z-depth) with the flat horizontal range; the like-for-like column
+    # uses this script's horizontal range under the same filter.
+    rep_rows = []
+    for s_ in ("bend", "richmond"):
+        allg = [p for p in points if p["split"] == s_ and p["kind"] == "gt" and p["fn_confirmed"]]
+        fin = [p for p in allg if p["flat_2p5"] is not None and p["flat_2p5"] < 150 and p["da3_value"]]
+        row = {"split": s_, "n": len(fin),
+               "n_unusable_flat": sum(1 for p in allg if p["flat_2p5"] is None or p["flat_2p5"] >= 150),
+               "n_at_or_above_horizon": sum(1 for p in allg if p["flat_2p5"] is None)}
         for k in ("da3_value", "da3_range"):
-            row[k] = {"median_flat_over_da3": _r(st.median(p["flat_2p5"] / p[k] for p in g)),
-                      "spearman": _r(spearman([p[k] for p in g], [p["flat_2p5"] for p in g]))}
-        rep.append(row)
-    t["published_reproduction"] = rep
+            row[k] = {"median_flat_over_da3": _r(st.median(p["flat_2p5"] / p[k] for p in fin if p[k] > 0.5)),
+                      "spearman": _r(spearman([p["flat_2p5"] for p in fin], [p[k] for p in fin]))}
+        rep_rows.append(row)
+    t["published_reproduction"] = rep_rows
+
+    # -- 10. DA3 plane tilt vs Google ground-plane tilt, GSV measured panos (review N5): the noise
+    # floor under the consumer-rig tilts of the camera-height table
+    tp = [(p[f"{key}_tilt_deg"], p["google_tilt_deg"]) for p in panos
+          if p["split"] in GSV_DEPTH_SPLITS and fit_ok(p) and p["google_height_status"] == "measured"
+          and p["google_tilt_deg"] is not None]
+    t["tilt_vs_google"] = {"n_panos": len(tp),
+                           "da3_median_deg": _r(st.median(a for a, _ in tp)) if tp else None,
+                           "google_median_deg": _r(st.median(b for _, b in tp)) if tp else None,
+                           "pearson_r": _r(pearson([b for _, b in tp], [a for a, _ in tp])) if len(tp) >= 3 else None,
+                           "median_abs_diff_deg": _r(st.median(abs(a - b) for a, b in tp)) if tp else None}
     return t
 
 
@@ -1193,6 +1241,11 @@ def markdown(t):
                  f"{_f(r['p10_ratio'], 2)}–{_f(r['p90_ratio'], 2)} | {_f(r['ols_slope'])} {_ci(r['ols_slope_ci'])} | "
                  f"{_f(r['ols_intercept_m'], 2)} | {_f(r['loglog_exponent'])} {_ci(r['loglog_exponent_ci'])} | "
                  f"{_f(r['median_abs_log_ratio'])} |")
+    L.append("\n## DA3/Google by Google range, per capture-vintage group\n")
+    L.append("| group | Google range | n | DA3/Google median |")
+    L.append("|---|---|---:|---:|")
+    for r in t["ratio_by_google_range_by_group"]:
+        L.append(f"| {r['group']} | {r['bucket']} | {r['n']} | {_f(r['median_da3_over_google'])} |")
     L.append("\n## DA3/Google by Google range (pooled GSV)\n")
     L.append("| Google range | n | DA3/Google median (p10–p90) | flat 2.5 m / Google median |")
     L.append("|---|---:|---|---:|")
@@ -1239,6 +1292,17 @@ def markdown(t):
             if r.get("n"):
                 L.append(f"| {s} | {a} | {r['n']} | {_f(r['median_ratio'])} ({_f(r['p10_ratio'], 2)}–{_f(r['p90_ratio'], 2)}) | "
                          f"{_f(r['median_abs_log_ratio'])} | {_f(r['share_within_10pct'])} |")
+    mv = t["gsv_method_validation"]
+    L.append(f"\n## The downstream method on GSV: recall by distance on Google's axis vs the DA3 axis "
+             f"(leave-one-split-out) vs flat ({mv['n_gt']} fn-confirmed GT points, measured ground)\n")
+    L.append(rbd._side_by_side([(a, mv["recall"][a]) for a in ("google", "da3_loso", "flat_2p5")]))
+    L.append("\n| group | n | Google: 18 m / 25 m become | DA3 (LOSO): 18 m / 25 m become |")
+    L.append("|---|---:|---|---|")
+    for r in mv["thresholds"]:
+        L.append(f"| {r['group']} | {r['n']} | {r['google'][0]} / {r['google'][1]} m | {r['da3_loso'][0]} / {r['da3_loso'][1]} m |")
+    tv = t["tilt_vs_google"]
+    L.append(f"\nDA3 plane tilt vs Google ground-plane tilt, {tv['n_panos']} GSV panos: median {tv['da3_median_deg']} deg vs "
+             f"{tv['google_median_deg']} deg, Pearson r {tv['pearson_r']}, median |difference| {tv['median_abs_diff_deg']} deg.\n")
     L.append("\n## Camera height by split (DA3, calibrated by k_height)\n")
     L.append("| split | panos | fit ok | median h (p25–p75) | min–max | median tilt (deg) | Google h median |")
     L.append("|---|---:|---:|---|---|---:|---:|")
@@ -1294,13 +1358,14 @@ def markdown(t):
         L.append(f"| {r['group']} | {r['panos']} | {r['run1_pass_0p5']} | {r['run1_pass_0p25']} ({r['run1_pass_0p25_roof']}) | "
                  f"{r['now_pass']} ({r['now_roof']}) | {r['now_same_as_run1_passing']} | {r['now_threshold_only']} | "
                  f"{r['now_switched_plane']} | {r['now_other']} |")
-    L.append("\n## The published DA3 agreement figures, re-derived (richmond + bend GT points)\n")
-    L.append("| split | n | flat/DA3 raw value, median | Spearman | flat/DA3 horizontal range, median | Spearman | GT at/above horizon with DA3 |")
-    L.append("|---|---:|---:|---:|---:|---:|---:|")
+    L.append("\n## The published DA3 agreement figures, re-derived under depth_analysis.py's filters\n")
+    L.append("| split | n (flat < 150 m) | flat/DA3 raw value, median | Spearman | flat/DA3 horizontal range, median | Spearman | unusable on flat (at/above horizon + flat >= 150 m) |")
+    L.append("|---|---:|---:|---:|---:|---:|---|")
     for r in t["published_reproduction"]:
         L.append(f"| {r['split']} | {r['n']} | {_f(r['da3_value']['median_flat_over_da3'])} | "
                  f"{_f(r['da3_value']['spearman'])} | {_f(r['da3_range']['median_flat_over_da3'])} | "
-                 f"{_f(r['da3_range']['spearman'])} | {r['n_at_or_above_horizon_with_da3']} |")
+                 f"{_f(r['da3_range']['spearman'])} | {r['n_unusable_flat']} ({r['n_at_or_above_horizon']} + "
+                 f"{r['n_unusable_flat'] - r['n_at_or_above_horizon']}) |")
     return "\n".join(L) + "\n"
 
 

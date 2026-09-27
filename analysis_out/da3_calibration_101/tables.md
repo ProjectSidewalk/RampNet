@@ -42,6 +42,26 @@ Intrinsics probe (DA3 output with / without the known intrinsics, first pano of 
 | sao_paulo | 286 (88) | 1.180 [1.163, 1.199] | 1.04–1.36 | 1.173 [1.108, 1.238] | 0.29 | 1.013 [0.977, 1.050] | 0.166 |
 | gsv_pooled | 1188 (355) | 1.106 [1.094, 1.117] | 0.98–1.29 | 1.058 [1.027, 1.091] | 0.82 | 0.981 [0.959, 1.001] | 0.103 |
 
+## DA3/Google by Google range, per capture-vintage group
+
+| group | Google range | n | DA3/Google median |
+|---|---|---:|---:|
+| 2025-26 rig | 0-8 m | 91 | 1.144 |
+| 2025-26 rig | 8-12 m | 101 | 1.135 |
+| 2025-26 rig | 12-18 m | 97 | 1.111 |
+| 2025-26 rig | 18-25 m | 63 | 1.089 |
+| 2025-26 rig | 25 m+ | 33 | 1.047 |
+| older US vintages | 0-8 m | 122 | 1.028 |
+| older US vintages | 8-12 m | 113 | 1.061 |
+| older US vintages | 12-18 m | 141 | 1.090 |
+| older US vintages | 18-25 m | 99 | 1.079 |
+| older US vintages | 25 m+ | 42 | 1.049 |
+| sao_paulo | 0-8 m | 84 | 1.144 |
+| sao_paulo | 8-12 m | 63 | 1.208 |
+| sao_paulo | 12-18 m | 73 | 1.198 |
+| sao_paulo | 18-25 m | 53 | 1.174 |
+| sao_paulo | 25 m+ | 13 | 1.193 |
+
 ## DA3/Google by Google range (pooled GSV)
 
 | Google range | n | DA3/Google median (p10–p90) | flat 2.5 m / Google median |
@@ -124,6 +144,30 @@ Constants fitted on the other three GSV splits. `pooled_common` = the locations 
 | sao_paulo | da3_point | 286 | 1.085 (0.95–1.25) | 0.088 | 0.549 |
 | sao_paulo | da3_plane | 254 | 1.088 (0.88–1.37) | 0.123 | 0.413 |
 | sao_paulo | flat_da3_height | 258 | 1.061 (0.93–1.25) | 0.088 | 0.531 |
+
+## The downstream method on GSV: recall by distance on Google's axis vs the DA3 axis (leave-one-split-out) vs flat (1101 fn-confirmed GT points, measured ground)
+
+| bucket | n (google) | recall (google) | n (da3_loso) | recall (da3_loso) | n (flat_2p5) | recall (flat_2p5) |
+|---|---:|---:|---:|---:|---:|---:|
+| 0-8 m | 281 | 0.804 | 276 | 0.833 | 214 | 0.836 |
+| 8-12 m | 254 | 0.791 | 244 | 0.766 | 245 | 0.792 |
+| 12-18 m | 286 | 0.717 | 297 | 0.724 | 238 | 0.719 |
+| 18-25 m | 194 | 0.598 | 207 | 0.585 | 234 | 0.705 |
+| 25-40 m | 83 | 0.301 | 77 | 0.273 | 134 | 0.448 |
+| 40 m+ | 2 | 0.000 |  |  | 35 | 0.114 |
+| all | 1100 | 0.703 | 1101 | 0.703 | 1100 | 0.703 |
+
+| group | n | Google: 18 m / 25 m become | DA3 (LOSO): 18 m / 25 m become |
+|---|---:|---|---|
+| gsv_pooled | 1101 | 16.2 / 21.7 m | 15.9 / 21.3 m |
+| bend | 254 | 16.9 / 23.3 m | 15.9 / 21.2 m |
+| paterson | 360 | 15.9 / 21.7 m | 16.3 / 21.8 m |
+| gainesville | 249 | 13.8 / 19.7 m | 13.1 / 18.5 m |
+| sao_paulo | 238 | 16.9 / 22.8 m | 17.8 / 24.2 m |
+| 2025-26 rig | 366 | 13.1 / 18.7 m | 13.3 / 18.2 m |
+
+DA3 plane tilt vs Google ground-plane tilt, 352 GSV panos: median 2.1824 deg vs 1.5284 deg, Pearson r 0.3752, median |difference| 1.1679 deg.
+
 
 ## Camera height by split (DA3, calibrated by k_height)
 
@@ -346,9 +390,9 @@ Run 1 = the first extraction's single dominant plane. `now` = lowest supported p
 | gsv_google_depth | 485 | 403 | 485 (2) | 403 (0) | 284 | 37 | 76 | 6 |
 | mapillary_all | 718 | 433 | 717 (69) | 562 (4) | 326 | 177 | 56 | 3 |
 
-## The published DA3 agreement figures, re-derived (richmond + bend GT points)
+## The published DA3 agreement figures, re-derived under depth_analysis.py's filters
 
-| split | n | flat/DA3 raw value, median | Spearman | flat/DA3 horizontal range, median | Spearman | GT at/above horizon with DA3 |
-|---|---:|---:|---:|---:|---:|---:|
-| bend | 327 | 1.065 | 0.953 | 1.014 | 0.961 | 0 |
-| richmond | 307 | 1.086 | 0.813 | 1.037 | 0.847 | 3 |
+| split | n (flat < 150 m) | flat/DA3 raw value, median | Spearman | flat/DA3 horizontal range, median | Spearman | unusable on flat (at/above horizon + flat >= 150 m) |
+|---|---:|---:|---:|---:|---:|---|
+| bend | 327 | 1.065 | 0.953 | 1.014 | 0.961 | 0 (0 + 0) |
+| richmond | 306 | 1.085 | 0.812 | 1.037 | 0.847 | 4 (3 + 1) |
