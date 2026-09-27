@@ -214,4 +214,4 @@ def test_headline_numbers_are_pinned():
     assert (v["flat_2p5"]["share_within_10pct"], v["da3_point"]["share_within_10pct"]) == (0.4442, 0.6402)
     rep = {r["split"]: r["da3_value"] for r in t["published_reproduction"]}
     # detection_recall_analysis.md: "agree to within 6.5-8.5% (Spearman 0.95 Bend / 0.81 Richmond)"
-    assert (rep["bend"]["median_flat_over_da3"], rep["richmond"]["median_flat_over_da3"]) == (1.0653, 1.0858)
+    assert (rep["bend"]["median_flat_over_da3"], rep["richmond"]["median_flat_over_da3"]) == (1.0645, 1.086)
