@@ -26,8 +26,9 @@ All numbers below are from the labeler#27 thread and the labeler's
   pano and submits every operational detection, so a city already receives the union of
   views. Union coverage per ramp with no fusion: paterson 1.000, gainesville 0.945,
   sao_paulo 0.980, richmond 0.972, bend 0.983. Displaced-GT decoys at 30 m hit 0.02–0.11, so
-  the union coverage is real. Fused world recall is 0.927–0.957, so fusion *costs* 1.5–4.7
-  points of coverage against the raw union.
+  the union coverage is real. Fused world recall is 0.927–0.957, so fusion *costs* 1.8–4.7
+  points of coverage against the raw union (labeler#27's text says 1.5–4.7; its own two tables
+  give 1.8 for gainesville, 0.945 − 0.927).
 - **What fusion buys:** deduplication (2.33–6.07 operational labels per ramp become one site;
   richmond 6.07) and p90 placement 20–30% tighter than the best single view (the median is a
   wash). World precision is 0.893–0.975.
@@ -153,57 +154,84 @@ their k nearest other captures; a ramp with fewer than k uses all it has.
 
 | k nearest other captures | 1 | 2 | 3 | 4 | 5 | 6 | 8 |
 |---|---|---|---|---|---|---|---|
-| pooled, ≥ 0.55 (1,327 ramps) | 0.652 | 0.781 | 0.833 | 0.854 | 0.865 | 0.868 | 0.870 |
-| GSV, ≥ 0.55 (1,074) | 0.671 | 0.793 | 0.843 | 0.863 | 0.874 | 0.875 | 0.875 |
-| Mapillary (richmond), ≥ 0.55 (253) | 0.571 | 0.725 | 0.789 | 0.814 | 0.826 | 0.838 | 0.850 |
-| pooled, ≥ 0.30 (1,031; four cities) | 0.677 | 0.817 | 0.857 | 0.873 | 0.882 | 0.885 | 0.889 |
-| pooled, ≥ 0.10 (1,031; four cities) | 0.754 | 0.864 | 0.896 | 0.910 | 0.914 | 0.918 | 0.922 |
+| pooled, ≥ 0.55 (1,317 ramps) | 0.652 | 0.781 | 0.833 | 0.854 | 0.865 | 0.868 | 0.870 |
+| GSV, ≥ 0.55 (1,070) | 0.671 | 0.793 | 0.843 | 0.863 | 0.874 | 0.875 | 0.875 |
+| Mapillary (richmond), ≥ 0.55 (247) | 0.571 | 0.725 | 0.789 | 0.814 | 0.826 | 0.838 | 0.850 |
+| pooled, ≥ 0.30 (1,025; four cities) | 0.677 | 0.817 | 0.857 | 0.873 | 0.882 | 0.885 | 0.889 |
+| pooled, ≥ 0.10 (1,025; four cities) | 0.754 | 0.864 | 0.896 | 0.910 | 0.914 | 0.918 | 0.922 |
+
+The denominators are the pool ramps with at least one other capture within 18 m (10 of the
+1,327 have none).
 
 On a fixed population (the 1,036 ramps with ≥ 4 other captures, so every point is the same
-ramps), ≥ 0.55: k = 1 0.645 [0.615, 0.673] → k = 4 0.865 [0.843, 0.884]. Richmond's 165 ramps
-with ≥ 8 other captures reach 0.909 at k = 8. Figure: `docs/figures/multiview_48/recall_k_nearest.png`.
+ramps), ≥ 0.55: k = 1 0.645 [0.615, 0.673] → k = 4 0.865 [0.843, 0.884]. With ≥ 8 other
+captures: richmond's 165 ramps go 0.588 (k = 1) → 0.855 (k = 4) → 0.903 (k = 8); at R = 25 m,
+398 GSV ramps have ≥ 8 and go 0.601 → 0.842 → 0.902. Figure:
+`docs/figures/multiview_48/recall_k_nearest.png` (≥ 4 solid, richmond ≥ 8 dotted).
 
-**Reading.** Most of the gain comes from the first two or three other captures; the curve is
-flat by four or five. GSV reaches its plateau faster than Mapillary (GSV cities have a median
-of 5 captures within 18 m, richmond 11), and Mapillary's single other view is weaker (0.571
-vs 0.671). R = 12 m caps the pooled curve at 0.807 and R = 25 m lifts it to 0.888 at k = 8:
-views beyond 18 m still add a little. Since production already takes the union, this curve
-says where the union's recall comes from, not a new lever. The per-city union (source view or
-any other) is 0.93–0.99 for ramps with ≥ 3 other captures.
+**Reading.** Returns diminish: the first other capture recovers about two thirds of the ramps,
+the second adds about 13 points, the third about 5, and captures five to eight add a few points
+more (0.855 → 0.903 on richmond's ≥ 8 population). The all-ramps rows flatten sooner only
+because most GSV ramps have no fifth or sixth capture to add (median 5 captures within 18 m,
+source included; richmond 11). On populations with the same number of captures, GSV and
+Mapillary follow the same shape (≥ 8 captures: 0.902 and 0.903 at k = 8), so the lower
+Mapillary rows are about which ramps have how many captures, not about the imagery source.
+R = 12 m caps the pooled curve at 0.807 and R = 25 m lifts it to 0.888 at k = 8. Since
+production already takes the union, this curve says where the union's recall comes from, not
+a new lever. The per-city union (source view or any other) is 0.93–0.99 for ramps with ≥ 3
+other captures.
 
 **Caveats beside the numbers.** GT is one rater per city. Range is flat-ground at 2.6 m and
 rig-specific (labeler `docs/reprojection-residual.md`: the 2025–26 GSV rig and Mapillary rigs
 sit lower, range scale k ≈ 1.18–1.35), so R is approximate. Mapillary pose error is
 unmeasured. The world test can be satisfied by a detection of a real, non-GT ramp within 5 m;
-the one-to-one claims only stop it double-counting GT ramps.
+the one-to-one claims only stop it double-counting GT ramps. With an 8 m world test
+(`recall_vs_captures_hit8.json`) every number rises (pooled k = 8: 0.927), because GT positions
+carry their own placement error (p90 4.4 m).
 
 ## 5. B.2 Failure correlation (#38's open checkbox)
 
 For ramps with ≥ 2 other qualifying captures (1,298 at ≥ 0.55), are misses in two views of one
 ramp independent? The prediction for a pair is the product of the two views' marginal miss
-rates at their ranges, so "both views were far" is not counted as correlation. Marginal miss
-rate at ≥ 0.55 by range: 0–6 m 0.375, 6–12 m 0.370, 12–18 m 0.601.
+rates, each taken for its own city and range bin, so neither "both views were far" nor "both
+views are in the city with the most captures" counts as correlation (richmond contributes 63%
+of the pairs). Pooled marginal miss rate at ≥ 0.55 by range: 0–6 m 0.375, 6–12 m 0.370,
+12–18 m 0.601.
 
-| camera separation | pairs | P(miss j \| miss i) | P(miss j), range-matched | joint miss, observed / independent |
+| camera separation (pooled, ≥ 0.55) | pairs | P(miss j \| miss i) | P(miss j), city- and range-matched | joint miss, observed / independent |
 |---|---|---|---|---|
-| 0–3 m | 645 | 0.803 | 0.466 | 1.79 |
-| 3–6 m | 1,930 | 0.686 | 0.464 | 1.44 |
-| 6–12 m | 6,940 | 0.623 | 0.458 | 1.37 |
-| 12–25 m | 11,118 | 0.592 | 0.486 | 1.30 |
-| 25–51 m | 2,411 | 0.697 | 0.571 | 1.43 |
+| 0–3 m | 645 | 0.803 | 0.467 | 1.79 |
+| 3–6 m | 1,930 | 0.686 | 0.468 | 1.42 |
+| 6–12 m | 6,940 | 0.623 | 0.462 | 1.32 |
+| 12–25 m | 11,118 | 0.592 | 0.487 | 1.27 |
+| 25–51 m | 2,411 | 0.697 | 0.570 | 1.43 |
 
-**Every other view missed:** 153 ramps observed against 68.8 predicted under independence
-(2.2×). GSV 128 vs 62.7 (2.0×); Mapillary 25 vs 5.4 (4.6×). The excess grows with capture
-count: for ramps with 5–8 other captures, 66 observed vs 10.4 predicted. At ≥ 0.30 the pooled
-figure is 98 vs 37.1 (2.6×). Figure: `docs/figures/multiview_48/failure_correlation.png`.
+GSV alone the ratio is 1.09–1.33 by separation (6–12 m 1.29, 12–25 m 1.14); richmond alone
+1.34–1.80. (The P(miss j) column is the mean marginal; the exact independence conditional
+differs by < 0.01.)
 
-**Reading.** Misses are strongly correlated across views even when the cameras are 12–25 m
-apart: a ramp one view misses tends to be missed by the others. The misses that survive the
-union are properties of the ramp (its appearance, its setting), not of one pass (a parked car).
-That is why capture count stops helping after four or five, and it is the quantitative reason
-#48's "independent evidence" premise overstates what more captures can buy. Caveats as in §4;
-the 0–3 m bin is mostly richmond (627 of 645 pairs), where consecutive Mapillary frames can be
-under a metre apart.
+**Every other view missed:** 153 ramps observed against 76.5 predicted under independence
+(2.0×). GSV 128 vs 71.1 (1.8×); Mapillary 25 vs 5.4 (4.6×). The excess is concentrated in
+ramps with many captures: with 5–8 other captures, 66 observed vs 15.0 predicted; with 2, 15 vs
+19.0. At ≥ 0.30 the pooled figure is 98 vs 43.4 (2.3×). Figure:
+`docs/figures/multiview_48/failure_correlation.png`.
+
+**Not one pass.** Pairs of captures from different months are *more* correlated than pairs
+from the same month (joint-miss ratio 1.45 vs 1.24 pooled; GSV 1.25 vs 1.19; richmond 1.58 vs
+1.26). A transient cause in one drive (a parked car, glare) would show the opposite.
+
+**GT position is part of it, not all of it.** A GT position error is shared by every view and
+can make world-test misses look correlated. With an 8 m world test the all-missed count halves
+(153 → 83) but the ratio does not move (2.0×; GSV 1.8×, Mapillary 4.9×).
+
+**Reading.** Misses are correlated across views, moderately on GSV and strongly on Mapillary,
+and more so across dates than within one. The misses that survive the union look like
+properties of the ramp or its GT point (appearance, setting, or a GT position or verdict that
+is off), not of one pass. That is why adding captures gives diminishing returns (§4), and it
+is the quantitative reason #48's "independent evidence" premise overstates what more captures
+can buy. Caveats as in §4; the 0–3 m bin is mostly richmond (627 of 645 pairs), where
+consecutive Mapillary frames can be under a metre apart; wrong GT points (verdicts) are not
+separable from appearance here — the one-rater gallery (§8) is where that would show.
 
 ## 6. B.3 Evidence accumulation vs k-of-n at the 0.30 tier
 
@@ -250,16 +278,31 @@ rest):
 | sao_paulo, 2 | 0.809 (49) | 0.792 (55) | 0.798 (53) | 0.801 (52) | 0.801 (52) |
 | sao_paulo, 3 | 0.811 (48) | 0.792 (55) | 0.807 (50) | 0.803 (51) | 0.803 (51) |
 
-**Answer: no.** Counting misses-in-range does not buy precision at the 0.30 tier that k-of-n
-cannot. Out of sample (LOCO, keep-0.55) the score saves 2–3 FP sites on paterson and richmond
-and costs 3–7 on gainesville and sao_paulo; in-sample the gains are 0–3 FP sites where there
-are any. Every 0.30 policy trades
-precision for recall against the operational 0.55: flat 0.30 adds 2.5 points of recall
-(+63 TP sites) for +87 FP sites. Figure: `docs/figures/multiview_48/evidence_vs_kofn.png`.
+(paterson k = 3 is 0.952 (12) for k-of-n against 0.948 (13) / 0.941 (15) / 0.956 (11) /
+0.956 (11).)
+
+**No detectable gain.** Counting misses-in-range does not show a precision gain at the 0.30
+tier over k-of-n. Out of sample (LOCO, keep-0.55) the score saves 1–3 FP sites on paterson and
+richmond and costs 3–7 on gainesville and sao_paulo; in-sample (keep-0.55) it ranges from 3 FP
+sites better (richmond) to 3 worse (sao_paulo). These are differences of a few sites against
+15–59 false-class sites per city, and no confidence interval is computed for them; the honest
+reading is "not distinguishable from k-of-n here", not "worse".
+
+**What the 0.30 tier costs.** The two 0.55 rows differ because scoring at the 0.30 tier makes
+the judged panos' 0.30–0.55 detections scorable, not because more sites are submitted (1,570
+richmond sites in both). Against the like-for-like row (0.55 sites within the 0.30 fuse),
+flat 0.30 adds 1.9 points of recall (+19 TP sites) for +39 FP sites, k = 2 adds 1.1 points
+(+10 / +15), k = 3 adds 0.5 (+3 / +9). Figure: `docs/figures/multiview_48/evidence_vs_kofn.png`.
 
 **Caveats.** Only 15–59 FP sites per city label the false class, so the calibration is thin;
 the in-sample variant is exactly that, and the LOCO variant pools two GSV-heavy groups against
-one Mapillary city. **Below 0.55 precision is a lower bound**: the city GT was assembled from
+one Mapillary city. Calibration leaves out the captures of every judged pano (not only the
+one that labeled the site), while scoring uses all captures; the threshold curve samples 40
+quantiles of the scores, which can move a cell by one site. The GT gap below 0.55 hits hardest
+the sites an evidence score promotes (multi-view-supported sub-0.55 sites that are real but
+unlabelled count as FP), so this comparison is biased against promotion of any kind; a
+re-score with `benchmark/<city>/incremental_fp_tags.json` where it covers those detections is
+the proposed follow-up. **Below 0.55 precision is a lower bound**: the city GT was assembled from
 RampNet detections at ≥ 0.55, so a sub-threshold detection is credited only if a reviewer
 marked that ramp missed (`low_floor_sweep.py gtbias`; re-reviewing the sub-0.55 detections
 found real, unlabelled ramps at 12.5–35% per split, 17% on richmond; `docs/model_comparison.md`). Vintage is not modelled; labeler#27 argued a miss in an
@@ -271,22 +314,41 @@ older view should count less. Richmond's sub-threshold detections come from the 
 false-positive flood" and so narrow the RampNet-vs-VLM gap. Measured here for the free legs.
 
 **Bundle.** `benchmark/richmond_neighbourhood/`: every richmond run pano whose camera is within
-20 m of a pool ramp (1,514), plus the 46 judged panos not already in that set: 1,560 panos, 124
-judged. `bundle.json` borrows `benchmark/richmond/verdicts.json` (`compare.py` loads it with
-`verdicts_from`), so only the judged panos are scored and `--detect-unjudged` runs the rest
-detect-only. Records are copied from the labeler run (the judged ones verbatim from
-`benchmark/richmond/records.jsonl`) and tagged with the ramps each pano qualifies for. Imagery
-is linked from the native-res archive; the 124 judged panos are byte-identical to
-`benchmark/richmond/imagery_manifest.json`.
+30 m (the 25 m raycast envelope plus the 5 m match radius) of a pool ramp **or of a judged
+pano's camera**, plus the judged panos: 2,867 panos, 124 judged. It was built in two passes: a
+first 1,560-pano bundle (20 m of a pool ramp only) went to makelab2 first, and the PR review
+showed it would flatter k-of-n precision (a false site away from the ramps loses the captures
+that could support it). The widened bundle adds 1,307 panos; the first pass's detections stay
+in the cache, so only the new panos run. `bundle.json` borrows
+`benchmark/richmond/verdicts.json` (`compare.py` loads it with `verdicts_from`), so only the
+judged panos are scored and `--detect-unjudged` runs the rest detect-only. Records are copied
+from the labeler run (the judged ones verbatim from `benchmark/richmond/records.jsonl`) and
+tagged with the ramps each pano is within 30 m of. Imagery is linked from the native-res
+archive; the runbook refuses to run unless the 124 judged panos are byte-identical to
+`benchmark/richmond/imagery_manifest.json` (they are).
+
+**Precision scope.** No finite bundle holds every capture of every judged site, so world
+precision is scored only on **covered sites**: sites with every full-run pano within 33 m
+(25 m envelope + 8 m association cap) in the bundle (`covered_sites`). Recall is unaffected.
 
 **Control.** RampNet from its own run detections (≥ 0.55 from `results.jsonl`, below from the
-re-inference). eval_sites on the full run reproduces the report's 0.941 / 0.959; the
-generalized scorer gives the same 0.941 / 0.959 on the full run **and** on the neighbourhood
-bundle alone, and the per-pano row on the bundle reproduces richmond's published
-0.964 / 0.768 / 0.855. So restricting fusion to the neighbourhood loses nothing.
+re-inference). eval_sites on the full run reproduces the report's 0.941 / 0.959. The
+generalized scorer on the full run and on the bundle alone agree exactly at every tier
+(0.30 / 0.40 / 0.55 / 0.70) and every k (1–3), recall and covered precision both
+(`challengers/scores.json` → `legs.rampnet`), and the per-pano row on the bundle reproduces
+richmond's published 0.964 / 0.768 / 0.855. At 0.55, k = 1: world recall 0.941, covered
+precision 0.971 (132 TP / 4 FP sites; the covered scope keeps 136 of the 220 judged sites).
 
-**Results.** Pending: the legs are running on makelab2 (see the run-status comment on #48).
+**Results.** Pending: the legs are running on makelab2 (see the run-status comments on #48).
 This section is filled in when they finish.
+
+**Caveats that apply to every challenger row.** The fusion error model and gates were tuned on
+RampNet's heatmap peaks; challenger points come from boxes (the chat VLMs, OWLv2, Grounding
+DINO and YOLO emit a box centre, which sits above the ground contact point and raycasts long,
+roughly 0.7–1.2 m at 10–18 m), which penalizes their world recall and association and not
+RampNet's. The city GT is anchored to RampNet's review, so a challenger's real ramps that the
+review did not mark count as FP, and every fused site containing one inherits that. Qwen3-VL-32B
+is not run (it does not fit makelab2's A40 in bf16).
 
 ## 8. B.4 Residual misses
 
@@ -308,10 +370,12 @@ By city (`residual_misses.json`): richmond 6 / 9 / 0 / 11 (association / sub-thr
 displaced), paterson 9 / 2 / 2 / 4, gainesville 7 / 9 / 0 / 2, sao_paulo 9 / 8 / 0 / 4,
 bend 4 / 0 / 9 / 2.
 
-**Reading.** Only 11 of the 74 residual ramps show no candidate anywhere. The rest fired: at the
-operational tier in some view (35) or just below it (28). The residual is mostly an
-association / placement problem and a threshold problem, not a detection problem, which
-agrees with labeler#27's finding that fusion costs 1.5–4.7 points against the raw union. The
+**Reading.** 63 of the 74 residual ramps fired somewhere: at the operational tier in some view
+(35) or just below it (28). Of the other 11, 2 (paterson) show no candidate at any stored
+floor, and 9 are bend, where nothing below 0.55 is stored, so whether they fired lower is
+unknown. The residual is mostly an association / placement problem and a threshold problem,
+not a detection problem, which agrees with labeler#27's finding that fusion costs 1.8–4.7
+points against the raw union. The
 "association / placement" class is an upper bound: a claiming detection may be of an adjacent
 non-GT ramp.
 
@@ -326,9 +390,10 @@ it.
 
 ## 9. What this says about Tier 2 and Tier 3 (proposed, not decided)
 
-- **Capture count is not the constraint.** Recall from other views flattens after four or five
-  captures and misses are correlated across views (§4–5). More captures, or reconstruction that
-  uses more of them, cannot recover a ramp every view misses.
+- **More captures give diminishing returns.** Recall from other views rises most with the first
+  two or three captures and a few points more after that, and misses are correlated across
+  views, more so across dates (§4–5). More captures, or reconstruction that uses more of them,
+  cannot recover a ramp every view misses.
 - **The addressable residual is association and placement** (35 residual ramps plus 23 displaced
   sites, §8). That is what Tier 2 feed-forward geometry would improve, if it improves anything.
   Proposed next step, cheapest first: test SVII-3D-style geometry-only association on these 58
@@ -339,7 +404,9 @@ it.
   would be in, PanoVGGT's outdoor evaluation is synthetic, and UrbanVGGT is single-image.
   Proposed: if Tier 2 is tried, condition MapAnything (2509.13414) on the given poses rather than
   estimating them, and measure on the 58 cases first.
-- **Evidence scoring is not worth building** at the 0.30 tier (§6). Attaching a multi-view
+- **Evidence scoring showed no detectable gain over k-of-n** at the 0.30 tier (§6), on thin
+  false-class counts and a GT that under-credits promoted sites; proposed: do not build it
+  unless the tag-corrected re-score changes that. Attaching a multi-view
   support count to each submitted label, as labeler#27 closed on, costs nothing and keeps the
   option open for a server-side re-threshold.
 - **Tier 3 is not motivated by these data.** Nothing here points at a failure a 3D scene
@@ -354,7 +421,10 @@ checkout whose `geo.py`, `depth.py`, `detectors/__init__.py`, `scripts/fuse_site
 its `runs/<city>/` (for `fusion_eval/report.md` and richmond's `results.f01.jsonl`), and copies of
 the archived `results.jsonl` files from makelab2 (`--results-root`). The labeler's `runs/` and the
 archive are not published; they are the inputs that keep `run` from being replicable from this
-repo alone. **What is replicable from a clean clone:** every B.1 / B.2 table re-derives from the
+repo alone. **What would unblock it:** publishing, e.g. as a Hugging Face dataset config next to
+`projectsidewalk/rampnet-benchmark`, the five archived `results.jsonl` (richmond 13 MB, paterson
+43 MB, gainesville 42 MB, bend 75 MB, sao_paulo 41 MB; sha256s in `ARCHIVED_RESULTS_SHA256`),
+their `fusion_eval/report.md`, and richmond's `results.f01.jsonl` (14 MB, sha256 in `meta.json`). **What is replicable from a clean clone:** every B.1 / B.2 table re-derives from the
 committed `captures_R25.csv` (`tests/test_multiview_48.py` checks three keys), and the challenger
 scores re-derive from the committed detections under
 `analysis_out/multiview_48/challengers/detections/` plus the labeler inputs above.
@@ -367,7 +437,7 @@ mkdir labeler_main && tar -xf labeler_main.tar -C labeler_main
 for c in paterson gainesville sao_paulo; do mkdir -p runs_archive/$c; \
     scp makelab2:/projects/makeabilitylab/sidewalk-auto-labeler/runs/$c/results.jsonl runs_archive/$c/; done
 
-# 1. B.1-B.4 (CPU, ~5 min)
+# 1. B.1-B.4 (CPU, about 3-5 min); add --hit-radius 8 for the sensitivity arm
 python scripts/analysis/multiview_evidence_48.py run --labeler-root labeler_main \
     --runs-root ../sidewalk-auto-labeler/runs --results-root runs_archive
 python scripts/analysis/multiview_evidence_48.py figures
@@ -393,8 +463,8 @@ python scripts/analysis/multiview_challengers_48.py score --labeler-root labeler
 |---|---|---|---|---|
 | B.1–B.4 `run` | desktop CPU | ~3 min | 0 | 0 |
 | crop cutting (440 crops) | makelab2 CPU | 4 min 13 s | 0 | 0 |
-| challenger smoke (2 + 2 panos × 7 legs) | makelab2 A40 | 15 min | ~0.25 | 0 |
-| challenger legs (1,560 panos × 7 legs) | makelab2 A40 | pending | pending | 0 |
+| challenger smoke (2 + 2 panos × 7 legs) | makelab2 A40 | 15 min | 0.245 (sum of the 7 legs' elapsed, 882 s) | 0 |
+| challenger legs, pass 1 (1,560 panos) + pass 2 (1,307 more) | makelab2 A40 | pending (YOLO trio, pass 1: 37 min) | pending | 0 |
 
 makelab2 has no `sacct`, so per `docs/compute_cost.md` its GPU time goes in
 `analysis_out/usage_log.jsonl` as `paid: false` rows, one per leg, with wall-clock, s/pano and
