@@ -1,53 +1,63 @@
 # Depth Anything 3 calibrated against GSV depth, and carried to the Mapillary splits (#101)
 
-**Status: complete, 2026-09-27.** DA3METRIC-LARGE was run on every verdict-reviewed panorama of
-the eleven reviewed benchmark bundles (1,289 panos; `manual_gold` is out of scope), sampled at
-every GT point and every committed 0.55 RampNet detection (5,403 points), and a ground plane was
-fitted to each pano's road band. On the four GSV splits with Google depth (#112) DA3 was compared
-with Google's range at the same points and with Google's camera height per pano; the fitted
-calibration was then applied to the six Mapillary splits. Everything below re-derives on CPU from
-committed rows (`scripts/analysis/da3_calibration_101.py --check`). Implemented by an Opus 5.5
-agent from the plan in [#101](https://github.com/ProjectSidewalk/RampNet/issues/101#issuecomment-5858165792).
+**Status: complete, 2026-09-27; revised the same day after the review on
+[#203](https://github.com/ProjectSidewalk/RampNet/pull/203#issuecomment-5859733995).** DA3METRIC-LARGE was
+run on every verdict-reviewed panorama of the eleven reviewed benchmark bundles (1,289 panos;
+`manual_gold` is out of scope), sampled at every GT point and every committed 0.55 RampNet detection
+(5,403 points), and a ground plane was fitted to each pano's road band. On the four GSV splits with
+Google depth (#112) DA3 was compared with Google's range at the same points and with Google's camera
+height per pano; the fitted calibration was then applied to the six Mapillary splits. Everything
+below re-derives on CPU from committed rows (`scripts/analysis/da3_calibration_101.py --check`);
+every table not printed here is in `analysis_out/da3_calibration_101/tables.md`. Implemented by an
+Opus 5.5 agent from the plan in
+[#101](https://github.com/ProjectSidewalk/RampNet/issues/101#issuecomment-5858165792).
 
 ## Summary
 
-1. **DA3 reads range ~10.6% longer than Google's depth, and the difference is a scale.** At 1,188
-   GSV locations, DA3/Google has median **1.106** (pano-clustered 95% CI 1.094–1.117); the
-   log-log exponent is 0.981 (CI 0.959–1.001), and the ratio is 1.05–1.12 in every range bucket
-   from 0 to 25 m+. Per split it is 1.03 (bend) to 1.18 (sao_paulo) (§2).
-2. **The per-city part of that scale looks like Google's, not DA3's.** The labeler's
-   bearing-only triangulation found Google's depth frame running short of the imagery's own
-   geometry by 1.06 / 1.08 / 1.095 / 1.16 (bend / paterson / gainesville / sao_paulo). Divided by
-   those factors, DA3/Google becomes **0.975 / 1.027 / 0.995 / 1.018**. Two instruments that
-   share nothing agree on which cities Google reads short, and by how much (§2.2). The labeler's
-   factors are themselves approximate, so this is agreement, not proof.
+1. **DA3 reads range ~10.6% longer than Google's depth. Pooled, the difference is a scale; on
+   Google's 2025–26 rig it is not.** At 1,188 GSV locations, DA3/Google has median **1.106**
+   (pano-clustered 95% CI 1.094–1.117) and a log-log exponent of 0.981 (CI 0.959–1.001). On the
+   2025–26 rig (paterson 2025 + gainesville 2026, a ~1.8 m camera) the exponent is **0.919**
+   (CI 0.881–0.954) and the ratio falls with range, 1.144 at 0–8 m to 1.047 at 25 m+. That rig is
+   in the same camera-height class DA3 reads on the Mapillary rigs (1.8–2.1 m), so a single
+   constant is least safe exactly where it is carried (§2).
+2. **The per-city part of the ratio lines up with the labeler's estimate of Google's own frame
+   error, on four cities.** Divided by the labeler's per-city depth-frame factors (1.06 / 1.08 /
+   1.095 / 1.16, from bearing-only triangulation, which the labeler calls approximate),
+   DA3/Google becomes **0.975 / 1.027 / 0.995 / 1.018** (bend / paterson / gainesville /
+   sao_paulo). Both put sao_paulo shortest and bend least short; paterson and gainesville swap
+   rank. Four cities is agreement worth noting, not proof (§2.2).
 3. **As a distance axis, calibrated DA3 beats flat ground on GSV, except where flat ground is
-   already right.** With the scale fitted on three GSV splits and tested on the fourth, DA3's
-   range at the point is within 10% of Google's at **64%** of locations against **44%** for flat
-   ground at 2.5 m (median |ln ratio| 0.070 vs 0.118, same 1,031 locations). It wins by a wide
-   margin on paterson and gainesville (Google's 2025–26 rig at ~1.8 m), ties on sao_paulo, and
-   loses on bend, whose cameras sit near the assumed 2.4–2.5 m (§4).
-4. **DA3's fitted camera height separates rigs but not panoramas within a rig.** Pooled over
-   GSV, DA3 height / Google height is 1.038 (CI 1.026–1.056), r = 0.64; but within Google's
-   2025–26 rig r = 0.08 and within the older US vintages r = −0.13 (§3). So the per-pano height
-   that #112 reads off Google's payload is not something DA3 can supply per pano; per rig class
-   it can.
-5. **Carried to Mapillary, the far field shrinks.** On the calibrated DA3 axis the published
-   "18 m / 25 m" thresholds land at **14.5 m / 19.1 m** pooled over the six Mapillary splits
-   (per split 11.9–15.9 m / 16.1–22.2 m), and recall past 18 m is lower than the flat axis
-   shows: 0.470 at 18–25 m and 0.121 at 25–40 m (n = 181, 58), against 0.657 and 0.547 on the flat
-   axis (§5.2). The flat axis puts near ramps into the far buckets on these rigs, which
-   inflates far-field recall there.
+   already right.** With the scale fitted on three GSV splits and tested on the fourth, DA3's range
+   at the point is within 10% of Google's at **64%** of locations against **44%** for flat ground at
+   2.5 m (same 1,031 locations). It wins on paterson and gainesville, ties on sao_paulo, and loses on
+   bend, whose cameras sit near the assumed height (§4). **The downstream method also checks out on
+   GSV:** recall by distance and the threshold mapping on the DA3 axis track Google's axis (18 m /
+   25 m become 15.9 / 21.3 m on DA3 against 16.2 / 21.7 m on Google, pooled; per split within
+   about ±1–2 m), while the flat axis inflates far-field recall there too (§4.1).
+4. **DA3's fitted camera height separates rigs but not panoramas within a rig.** Pooled over GSV,
+   DA3 height / Google height is 1.038 (CI 1.026–1.056), r = 0.64; within Google's 2025–26 rig
+   r = 0.08, within the older US vintages r = −0.13 (§3).
+5. **Carried to Mapillary, the far field shrinks.** On the calibrated DA3 axis the published "18 m
+   / 25 m" thresholds land at **14.5 m / 19.1 m** pooled over the six Mapillary splits (11.9–15.9 m
+   / 16.1–22.2 m per split, each with the ±1–2 m error scale of §4.1). Recall past 18 m is lower
+   than the flat axis shows: 0.470 at 18–25 m and 0.121 at 25–40 m (n = 181, 58), against 0.657
+   and 0.547 on the flat axis (§5.2).
 6. **Mapillary camera heights by rig (calibrated DA3):** NCTech iStar Pulsar 2.47 m (richmond),
    Trimble MX7 2.12 m (annapolis), GoPro Fusion 2.02 m (clovis), GoPro Max 1.82–2.13 m by city,
    all below the 2.5 m this repo assumes and the 2.6 m the labeler assumes (§5.1).
-7. **Laurens: DA3 and the labeler's instrument disagree.** DA3 puts the Laurens GoPro Max at
-   2.13 m; the labeler's scale identity says 2.95 m (CI 2.90–3.00) and its bearing fixed point
-   4.31 m, and the labeler's own gate rejects that group as not identifiable. Unresolved (§6).
-8. **The published DA3 figures now re-derive.** `detection_recall_analysis.md`'s "agree to
-   within 6.5–8.5%, Spearman 0.95 Bend / 0.81 Richmond" reproduces from the committed rows
-   (1.065 / 1.086, ρ 0.953 / 0.813), and it turns out to compare DA3's *planar* depth with flat
-   *horizontal* range; on a like-for-like horizontal range the agreement is 1.4% / 3.7% (§7).
+7. **Laurens: DA3 and the labeler differ, and the labeler has since found its instrument B
+   unvalidated.** DA3 puts the Laurens GoPro Max at 2.13 m. The labeler's bearing fixed point reads
+   4.31 m and its scale identity at 2.6 m 2.98 m, but sidewalk-auto-labeler#89 found no validated
+   instrument-B estimator (both candidates read +0.25 to +0.53 m high at a true 1.8 m under its
+   noisier setting) and its gate rejects the group (§6).
+8. **The published DA3 figures now re-derive.** Under `depth_analysis.py`'s own filters,
+   `detection_recall_analysis.md`'s "agree to within 6.5–8.5%, ρ 0.95 / 0.81, 4 Richmond ramps above
+   the horizon" reproduces as 6.5% / 8.5%, ρ 0.953 / 0.812, 3 + 1. It compared DA3's *planar*
+   depth with flat *horizontal* range; like for like the agreement is 1.4% / 3.7% (§7).
+9. **The ground fit was changed after seeing the data, in two ways**: the lowest supported plane
+   instead of the dominant one, and a pass rule of 25% instead of 50%. Both runs are committed, and
+   §8 attributes every pano to one change or the other.
 
 Every number in §2–§4 depends on Google's depth, which reaches this repo only as the committed
 per-point rows of `analysis_out/recall_by_depth_112.json`; the depth payloads themselves are an
@@ -56,18 +66,19 @@ re-derive.
 
 ## 1. Method
 
-**Instrument.** `depth-anything/DA3METRIC-LARGE` (Hugging Face), DA3 code at
-`ByteDance-Seed/Depth-Anything-3` commit `3d835ec1a5802d64a8b8b15f817a1ab54809bfe4`, loaded
-from its `src/` as `scripts/analysis/README.md` §"Depth Anything 3 setup" describes. Each pano is
-downscaled to 4096 px wide and rendered into the six perspective views of
-`equirect_tiling.default_views()` (90° FOV, pitch −30°, 1024 px, yaws 0–300° every 60°), the
-same rendering `depth_extract_da3.py` used. DA3 runs once per view with the exact intrinsics
-(focal 512 px).
+**Instrument.** `depth-anything/DA3METRIC-LARGE` (Hugging Face, weights revision
+`4010e39f3634a45bc60553321fb49fb760bd594e`, the snapshot both runs loaded), DA3 code at
+`ByteDance-Seed/Depth-Anything-3` commit `3d835ec1a5802d64a8b8b15f817a1ab54809bfe4`, loaded from
+its `src/` as `scripts/analysis/README.md` §"Depth Anything 3 setup" describes. Both are now pinned
+in the script (`MODEL_REVISION`, `DA3_CODE_COMMIT`); the two runs predate that pin in code, and the
+values are the ones read from the run's HF cache and DA3 clone. Each pano is downscaled to 4096 px
+wide and rendered into the six perspective views of `equirect_tiling.default_views()` (90° FOV,
+pitch −30°, 1024 px, yaws 0–300° every 60°), the same rendering `depth_extract_da3.py` used. DA3
+runs once per view with the exact intrinsics (focal 512 px).
 
 - **Intrinsics make no difference to this model.** On the first pano of each split, DA3's output
   with the intrinsics divided by its output without them is exactly 1.000 (11 of 11). So the value
-  recorded is the network's raw output, and the `× focal / 300` question in DA3's README does not
-  arise: whatever DA3's absolute scale is, §2 measures it against Google.
+  recorded is the network's raw output, and §2 measures its scale against Google.
 - **Points.** Every GT point (`build_ground_truth` over `verdicts.json`) and every committed
   detection of `records.jsonl` is sampled in the view where it is most central (7×7 median at
   DA3's 504×504 output), as `depth_extract_da3.py` did. The value is read as planar (z) depth:
@@ -81,19 +92,20 @@ same rendering `depth_extract_da3.py` used. DA3 runs once per view with the exac
   20–45° below the pano horizon, within ±30° of the view's yaw (so the six views partition the
   ring). Sequential RANSAC (fixed seed per pano, inliers within 0.10 m, normal within 20° of
   vertical, least-squares refit) finds up to three planes that each hold ≥ 15% of the band; the
-  ground is the **lowest** of them (§8 says why). Height = the plane's distance from the camera,
-  the same quantity as Google's ground-plane distance. A fit counts when its plane holds ≥ 25% of
-  ≥ 200 band points: 1,043 of 1,289 panos. 20–60° is kept as a sensitivity band; the upper
-  limit is 45° because the Laurens GoPro Max's capture vehicle is visible from ~49° down
-  (labeler `runs/laurens/rig_labels.json`).
+  ground is the **lowest** of them. Height = the plane's distance from the camera, the same
+  quantity as Google's ground-plane distance. A fit counts when its plane holds ≥ **25%** of ≥ 200
+  band points: 1,043 of 1,289 panos. **Both the lowest-plane rule and the 25% pass rule were set
+  after the first run** (it used the dominant plane at ≥ 50%); §8 separates their effects. The
+  45° upper limit is because the Laurens GoPro Max's capture vehicle is visible from ~49° down
+  (labeler `runs/laurens/rig_labels.json`); 20–60° is kept as a sensitivity band (§5.1).
 - **Candidate distance axes** at a point: `flat_2p5` (the doc's 2.5 m / tan(depression));
   `da3_point` (DA3 range at the point / k_point); `da3_plane` (the ray to the fitted plane, height
   / k_height, tilt kept); `flat_da3_height` (flat ground at the pano's height / k_height).
   k_point = 1.1059 and k_height = 1.038 are the pooled GSV medians of DA3/Google (§2, §3).
 - **Statistics** are pure Python (medians, OLS, 1,000-replicate pano-clustered bootstrap, seed
   101), so every table is identical on every numpy build. Floats in committed rows are rounded to
-  4 decimals; files are LF; `analysis_out/da3_calibration_101/SHA256SUMS` hashes every one plus the
-  #112 JSON they join to.
+  4 decimals; files are LF and pinned LF in `.gitattributes`; `analysis_out/da3_calibration_101/SHA256SUMS`
+  hashes every one (CRLF folded to LF before hashing) plus the #112 JSON they join to.
 
 ## 2. DA3 range vs Google range at the same points
 
@@ -113,26 +125,29 @@ panos where Google's range comes from the plane under the pixel (`pixel_plane`):
 "2025-26 rig" is paterson 2025 + gainesville 2026 capture, as #112 grouped it; sao_paulo is its
 own group.
 
-### 2.1 By range
+### 2.1 By range, and by rig
 
-| Google range | n | DA3/Google median (p10–p90) | flat 2.5 m / Google median |
-|---|---:|---|---:|
-| 0-8 m | 297 | 1.098 (0.97–1.32) | 1.134 |
-| 8-12 m | 277 | 1.121 (0.98–1.30) | 1.147 |
-| 12-18 m | 311 | 1.122 (0.99–1.30) | 1.126 |
-| 18-25 m | 215 | 1.096 (0.99–1.22) | 1.100 |
-| 25 m+ | 88 | 1.054 (0.95–1.20) | 1.230 |
+| Google range | pooled n | pooled DA3/Google (p10–p90) | 2025-26 rig n / ratio | older US n / ratio | sao_paulo n / ratio | flat 2.5 m / Google, pooled |
+|---|---:|---|---|---|---|---:|
+| 0-8 m | 297 | 1.098 (0.97–1.32) | 91 / 1.144 | 122 / 1.028 | 84 / 1.144 | 1.134 |
+| 8-12 m | 277 | 1.121 (0.98–1.30) | 101 / 1.135 | 113 / 1.061 | 63 / 1.208 | 1.147 |
+| 12-18 m | 311 | 1.122 (0.99–1.30) | 97 / 1.111 | 141 / 1.090 | 73 / 1.198 | 1.126 |
+| 18-25 m | 215 | 1.096 (0.99–1.22) | 63 / 1.089 | 99 / 1.079 | 53 / 1.174 | 1.100 |
+| 25 m+ | 88 | 1.054 (0.95–1.20) | 33 / 1.047 | 42 / 1.049 | 13 / 1.193 | 1.230 |
 
-DA3's ratio is flat with range, which is what makes it a one-constant calibration. The exception
-is gainesville, whose exponent is 0.88 (CI 0.83–0.94): DA3 over-reads near points more than far
-ones there. gainesville is mostly Google's 2026 rig with a ~1.8 m camera, and that is what pulls
-the 2025–26 row's exponent to 0.92.
+Pooled, the ratio is nearly flat with range, and the log-log exponent's CI touches 1. The groups
+differ: on the 2025–26 rig the ratio falls steadily with range (1.144 → 1.047; exponent 0.919, CI
+excludes 1), on the older US vintages it rises then falls, and on sao_paulo it is high throughout.
+So **one pooled constant is a fair summary of the older rigs and a biased one for the 2025–26 rig**:
+divided by k_point = 1.106, that rig's near points (0–8 m) come out ~3% longer than Google's range
+and its far points (25 m+) ~5% shorter. The Mapillary rigs DA3 reads at 1.8–2.1 m are in that rig's height class; nothing
+here says whether they share its range dependence.
 
 ### 2.2 Against the labeler's corrected depth frame
 
 `recall_by_depth_112.py` carries the labeler's per-city estimate of how far Google's depth frame
-runs short of the imagery's own geometry (`DEPTH_FRAME_SCALE`, from bearing-only triangulation
-in the labeler's camera-height study; approximate, and whether it is a scale or an offset is open
+runs short of the imagery's own geometry (`DEPTH_FRAME_SCALE`, from bearing-only triangulation in
+the labeler's camera-height study; approximate, and whether it is a scale or an offset is open
 there):
 
 | split | locations | labeler scale | DA3/Google | DA3/(Google x scale) |
@@ -142,12 +157,13 @@ there):
 | gainesville | 264 | 1.095 | 1.089 | 0.995 |
 | sao_paulo | 286 | 1.16 | 1.180 | 1.018 |
 
-The per-city spread of DA3/Google (1.03–1.18) collapses to 0.975–1.027 once Google is corrected
-by the labeler's factors. DA3 is a monocular model and the labeler's instrument is multi-view
-geometry, and neither uses Google's depth. That both find sao_paulo's Google depth the shortest and
-bend's the least short is the strongest evidence here that **the per-city part of the DA3/Google
-ratio belongs to Google's frame, and DA3 behaves as a single-scale instrument across these four
-cities.**
+The per-city spread of DA3/Google (1.03–1.18) narrows to 0.975–1.027 once Google is corrected by
+the labeler's factors. DA3 is a monocular model and the labeler's instrument is multi-view
+geometry, and neither uses Google's depth. Both put sao_paulo's Google depth shortest and bend's
+least short; **paterson and gainesville swap rank** (labeler 1.08 < 1.095, DA3/Google 1.109 >
+1.089). This is **n = 4 cities**, against factors the labeler itself calls approximate. It is
+consistent with the per-city part of the DA3/Google ratio belonging to Google's frame, and it is
+not strong enough to rest a correction on.
 
 **What that means for the calibration.** k_point = 1.106 maps DA3 onto *Google's* frame, because
 that is the reference the plan chose and the one #112 reports in. If the labeler's factors are
@@ -169,12 +185,12 @@ Per pano, measured Google ground, DA3 fit passing:
 | older US vintages | 151 | 2.31 | 2.36 | 0.995 [0.976, 1.010] | 0.91–1.14 | -0.132 | -0.121 | 0.053 |
 | gsv_pooled | 352 | 2.24 | 2.22 | 1.038 [1.026, 1.056] | 0.93–1.22 | 0.635 | 0.599 | 0.070 |
 
-DA3 recovers the **rig-level** difference Google's payload shows (1.92 vs 2.31 m, against Google's
-1.83 vs 2.36 m) and places a typical pano's height within ~7% (median |ln ratio| 0.070). What it
-does not do is track panos *within* a rig: r is 0.08 and −0.13 inside the two US groups, so the
-pooled r = 0.64 comes from the difference between groups. paterson's r = 0.75 is the same effect
-inside one split, which mixes both rigs. **Read a DA3 height as a rig-class estimate, not a
-per-pano measurement.**
+DA3 recovers **about 74%** of the rig-level height difference Google's payload shows (0.39 m, 1.92
+vs 2.31, against Google's 0.53 m, 1.83 vs 2.36) and places a typical pano's height within ~7%
+(median |ln ratio| 0.070). It does not track panos *within* a rig: r is 0.08 and −0.13 inside the
+two US groups, so the pooled r = 0.64 comes from the difference between groups. paterson's r = 0.75
+is the same effect inside one split, which mixes both rigs. **Read a DA3 height as a rig-class
+estimate, not a per-pano measurement.**
 
 Three height readings, same panos:
 
@@ -184,10 +200,11 @@ Three height readings, same panos:
 | gsv_pooled | dominant_plane | 352 | 1.027 | 0.071 | 0.639 |
 | gsv_pooled | gt_points | 323 | 1.091 | 0.114 | 0.555 |
 
-(Per split in `analysis_out/da3_calibration_101/tables.md`.) On GSV the lowest and the dominant
-plane are almost always the same plane (Google's own vehicle is not in the imagery), so the §8
-change matters only on consumer rigs. `gt_points` is the median of DA3 ray × sin(depression) over
-a pano's GT points: it never looks at the nadir, but it reads ~5% higher than the plane and is
+On GSV the lowest plane is **not** always the dominant one: on **76 of the 403** fitted panos of the
+four Google-depth splits it is a different plane (gainesville 28 of 106), lying a median 9% lower
+than the dominant plane (p10–p90 1.4–25%; what those surfaces are was not inspected) (§8). Measured against Google's height the
+two readings end up close (1.038 vs 1.027). `gt_points` is the median of DA3 ray × sin(depression)
+over a pano's GT points: it never looks at the nadir, but it reads ~5% higher than the plane and is
 noisier, because ramps sit at or just above road level, often on a sidewalk.
 
 ## 4. Which axis reproduces Google's range: leave-one-split-out
@@ -211,16 +228,47 @@ every axis has a value (the plane axes need a passing fit):
 | sao_paulo | flat_2p5 | 286 | 1.082 (1.00–1.31) | 0.079 | 0.556 |
 | sao_paulo | da3_point | 286 | 1.085 (0.95–1.25) | 0.088 | 0.549 |
 
-(The plane axes per split are in `tables.md`.) The script picks the headline axis by rule, the
-DA3 axis with the lowest pooled_common median |ln ratio|: **`da3_point`**. The two plane-based
-axes are worse because DA3's per-pano height error (§3) enters every point on the pano, and a
-tilt error of a degree moves a near-horizon point a long way; reading DA3 at the point itself
-avoids both.
+The script picks the headline axis by rule, the DA3 axis with the lowest pooled_common median
+|ln ratio|: **`da3_point`**. The two plane-based axes are worse because DA3's per-pano height error
+(§3) enters every point on the pano, and a tilt error of a degree moves a near-horizon point a long
+way; reading DA3 at the point itself avoids both. The plane axes also moved between the two runs
+(§8): within 10%, `flat_da3_height` 0.553 → 0.517 and `da3_plane` 0.417 → 0.433; `da3_point`
+does not use the plane.
 
 On bend, where Google's camera is ~2.4 m and the flat axis is already close, DA3 loses: the
 held-out constant (fitted on the other three splits, 1.125) over-corrects bend, whose own ratio is
-1.03. That is the per-city spread of §2.2 again. On the evidence there, it is Google's frame
-that varies, so part of this loss is the reference moving, not DA3.
+1.03. That is the per-city spread of §2.2 again.
+
+### 4.1 The downstream method, checked on GSV
+
+§5.2 reads recall by distance and maps the published thresholds on the DA3 axis. On GSV the same
+computation can be run on Google's axis and compared. Fn-confirmed GT points on measured-ground
+panos (1,101), DA3 axis with the leave-one-split-out k_point:
+
+| bucket | n (Google) | recall (Google) | n (DA3) | recall (DA3) | n (flat 2.5 m) | recall (flat 2.5 m) |
+|---|---:|---:|---:|---:|---:|---:|
+| 0-8 m | 281 | 0.804 | 276 | 0.833 | 214 | 0.836 |
+| 8-12 m | 254 | 0.791 | 244 | 0.766 | 245 | 0.792 |
+| 12-18 m | 286 | 0.717 | 297 | 0.724 | 238 | 0.719 |
+| 18-25 m | 194 | 0.598 | 207 | 0.585 | 234 | 0.705 |
+| 25-40 m | 83 | 0.301 | 77 | 0.273 | 134 | 0.448 |
+| 40 m+ | 2 | 0.000 |  |  | 35 | 0.114 |
+
+| group | n | Google: 18 m / 25 m become | DA3: 18 m / 25 m become |
+|---|---:|---|---|
+| gsv_pooled | 1101 | 16.2 / 21.7 m | 15.9 / 21.3 m |
+| bend | 254 | 16.9 / 23.3 m | 15.9 / 21.2 m |
+| paterson | 360 | 15.9 / 21.7 m | 16.3 / 21.8 m |
+| gainesville | 249 | 13.8 / 19.7 m | 13.1 / 18.5 m |
+| sao_paulo | 238 | 16.9 / 22.8 m | 17.8 / 24.2 m |
+| 2025-26 rig | 366 | 13.1 / 18.7 m | 13.3 / 18.2 m |
+
+The DA3 axis reproduces Google's recall curve bucket by bucket, and the flat axis shows on GSV the
+same far-field inflation §5.2 finds on Mapillary (0.448 at 25–40 m against Google's 0.301). The
+thresholds agree pooled to 0.3–0.4 m; per split DA3 is off by −1.0 to +0.9 m at 18 m and −2.1 to
++1.4 m at 25 m. **That ±1–2 m is the error scale to read beside every per-split Mapillary threshold
+in §5.2.** This validates the method on GSV imagery; it does not validate the transfer of the
+calibration to GoPro or NCTech cameras.
 
 ## 5. Carried to Mapillary
 
@@ -261,15 +309,25 @@ Caveats that belong to these numbers:
 
 - **The calibration was fitted on Google's car rigs.** Nothing in this repo validates DA3 on a
   GoPro or an NCTech image directly. The heights are plausible (every Mapillary rig median lands
-  in 1.8–2.5 m, and DA3 reads the same Laurens footprint at 2.14 m on Google's rig and 2.13 m
-  on the GoPro Max), but "plausible" is not "measured".
+  in 1.8–2.5 m, and DA3 reads the same Laurens footprint at 2.14 m on Google's rig and 2.13 m on
+  the GoPro Max), but "plausible" is not "measured".
 - **Per-pano heights are rig-class estimates** (§3). The spread inside a rig here mixes real
   mounting differences with DA3's per-pano noise, and this measurement cannot separate them.
-- **Tilt is larger on the consumer rigs** (median 3.4–8.2° against ~2° on GSV). That is the
-  unleveled-rig effect the flat axis cannot see, and why a point near the horizon is where the
-  flat axis goes most wrong.
-- **4 of 1,043 fitted panos still read below 1.2 m** (morgantown 0.52, 0.68, 0.84; budapest
-  0.60): the roof-selection failure of §8 not fully removed. They are left in, not filtered.
+- **Tilt.** By split the Mapillary medians are 3.1–7.3° against 2.0–2.6° on GSV; by rig the NCTech
+  iStar Pulsar reads 2.1°, the same as Google's rigs, and richmond's GoPro Max 8.2°. The noise floor
+  under those numbers, measured on 352 GSV panos: DA3's plane tilt has median 2.18° where Google's
+  ground plane reads 1.53°, r = 0.375, median |difference| 1.17°. So DA3 tilts of ~2° are at the
+  floor, and only the budapest (7.3°) and GoPro-Max-in-richmond (8.2°) values stand clearly above it.
+- **Band sensitivity.** Fitting the 20–60° band instead of 20–45° changes the median fitted height
+  by 0.97–1.00× per split (bend 0.973, laurens_gsv 0.972, every Mapillary split 0.982–1.000) and
+  lowers the inlier share, so the choice of 45° moves heights by at most ~3%.
+- **4 of 1,043 fitted panos still read below 1.2 m** (morgantown 0.52, 0.68, 0.84; budapest 0.60):
+  the lowest-plane rule did not reach the road there. They are left in, not filtered.
+- **The Laurens panos are not a public input.** `laurens_gsv` and `laurens_mapillary` are not in
+  HF `projectsidewalk/rampnet-benchmark` (`scripts/unpack_benchmark_panos.py`), so the Laurens rows
+  here, their share of the Mapillary pool, and all of §6 cannot be re-extracted from public inputs.
+  Their committed DA3 rows re-derive every table; re-running the GPU step for them needs the panos
+  from the lab's mirror until those two splits are published.
 
 ### 5.2 Recall by distance on the calibrated axis
 
@@ -287,7 +345,8 @@ Fn-confirmed GT points, hits at the deployed 0.55 point, pooled over the six Map
 | all | 1598 | 0.648 | 1615 | 0.643 | 1277 | 0.640 | 1266 | 0.642 |
 
 Where the published thresholds land (median flat/axis ratio of the points within ±20% of the
-threshold on the flat axis, window n in brackets, as #112 computed it):
+threshold on the flat axis, window n in brackets, as #112 computed it). Read each per-split value
+with the ±1–2 m error scale measured on GSV in §4.1:
 
 | population | DA3 point: 18 m / 25 m become | DA3 plane | flat at DA3 height |
 |---|---|---|---|
@@ -302,73 +361,125 @@ threshold on the flat axis, window n in brackets, as #112 computed it):
 
 What this says, with its limits:
 
-- **On these rigs the flat axis overstates the far field.** 128 GT points are 25–40 m out on the
-  flat axis and only 58 on the DA3 axis; recall there is 0.547 on the flat axis and 0.121 on
-  DA3's. The flat axis is putting nearby ramps, which RampNet mostly finds, into the far buckets,
-  so "blind past 25 m" is if anything *understated* on Mapillary, and it starts nearer: recall on
-  the DA3 axis is 0.69 at 12–18 m and 0.47 at 18–25 m.
+- **On these rigs the flat axis overstates the far field**, as it does on GSV against Google
+  (§4.1). 128 GT points are 25–40 m out on the flat axis and only 58 on the DA3 axis; recall there
+  is 0.547 on the flat axis and 0.121 on DA3's. The flat axis is putting nearby ramps, which RampNet
+  mostly finds, into the far buckets, so "blind past 25 m" is if anything *understated* on
+  Mapillary, and it starts nearer: recall on the DA3 axis is 0.69 at 12–18 m and 0.47 at 18–25 m.
 - **The far buckets are small.** 58 points at 25–40 m on the DA3 axis, pooled over six cities;
   per split they are 2–22. Read the cliff, not the third decimal.
-- **The DA3 axis carries the §2.2 question.** It is in Google's frame. In the labeler's corrected
-  frame every DA3 distance here would be ~6–16% longer, and the thresholds would move up by the
-  same factor.
+- **The DA3 axis carries the §2 questions.** It is in Google's frame (§2.2), and on the rig class
+  closest to these cameras the pooled constant leaves far points ~5% short and near points ~3%
+  long (§2.1).
 - The flat and DA3 plane / height columns have fewer points than the DA3 point column: flat drops
   the 17 GT points at or above the horizon, and the plane axes need a passing fit (1,277 and
   1,266 of 1,615).
 
 ## 6. Laurens cross-read against the labeler's height instrument
 
-Read-only from `sidewalk-auto-labeler` at commit `29dc605bd64bc7b50b78ec25bfdaa45dcfc6169d`
-(`runs/laurens/camera_height/groups.csv` sha256 and `runs/laurens/camera_heights.json` sha256 are
-in `tables.json` → `labeler_laurens.files`). The labeler's Laurens run covers 4,495 panos; the
-benchmark's 94 laurens_mapillary panos are a subset of the same sequences.
+Read-only from sidewalk-auto-labeler's **tracked** `runs/laurens/camera_heights.json` at commit
+`2653a49c420465bd792d165ece5681ad6c2ace4a` (sha256 `74900b62…c54d`, pinned in the script; `derive`
+reads it with `git show` at that commit and refuses any other bytes, and `--check` refuses a
+`tables.json` whose labeler block names another commit or hash). 2653a49 is the re-issue after
+[sidewalk-auto-labeler#89](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/89)
+(its results commit `1d8127e`, 2026-09-27).
 
-- **Rig level (GoPro Max):** DA3 2.13 m (73 panos). The labeler: scale identity (instrument B)
-  **2.95 m** (CI 2.90–3.00), bearing fixed point (A) **4.31 m** (CI 3.80–4.84), slope 0.72. The
-  labeler's decision rule rejects the group ("fails identifiable (slope 0.723); agreement (A
-  4.314, B 2.949); SUSPECT: bearing height outside 1.0-3.5 m"), so its table keeps the 2.6 m
-  default and `applied: false`.
-- **Sequence level:** 16 sequences have both a DA3 median and a labeler h_scale; the correlation
-  is r = −0.28. DA3's sequence medians span 1.95–2.36 m, the labeler's 2.78–3.19 m. With 1–11
-  benchmark panos per sequence, and DA3's per-pano spread (§3), a correlation at this grain was
-  not expected to be resolvable either way.
-- **The same footprint on Google's rig** reads 2.14 m in DA3 (laurens_gsv, 78 panos; Google depth
-  was never harvested for laurens_gsv, so there is no Google height to check it against).
+The first version of this section read the labeler's working tree at `29dc605`, including
+`runs/laurens/camera_height/groups.csv`. That file is an untracked run output (`.gitignore:
+runs/**`) and is in no labeler commit, so the sequence-level rows it supplied (a DA3-vs-h_scale
+correlation over 16 sequences) could not be reproduced and have been removed.
 
-The two instruments disagree by ~0.8 m on the GoPro Max, and the labeler already distrusts its
-own number. DA3's number agrees with the other GoPro Max cities (1.82–2.07 m) and with the car-roof
-mounting the rig labels show. **This is recorded as a disagreement, not resolved.** A direct test
-would be a Laurens pano pair with a known ground distance (for example, a mapped curb-ramp pair
-on both arms).
+- **DA3:** GoPro Max 2.13 m (73 benchmark panos); the same footprint on Google's rig 2.14 m
+  (laurens_gsv, 78 panos; no Google depth was harvested for it).
+- **Labeler, gopro/max group (`n_panos` 644 in its table):** bearing fixed point
+  (instrument A) **4.31 m** (CI 3.80–4.84, slope 0.723); scale identity evaluated at 2.6 m
+  (instrument B) **2.98 m** (CI 2.93–3.03). #89 found **no validated instrument-B estimator**: under
+  its pre-registered rule neither the line fixed point (max |mean error| 0.361 m) nor the local
+  crossing (0.418 m) passes, and "at noise 1.0 both read +0.25 to +0.53 m high at h_true 1.8 m in
+  every city and rig class". The group is not applied: the labeler keeps its 2.6 m default, and
+  its reason string reads "fails identifiable (slope 0.723); agreement (b_unvalidated …); SUSPECT:
+  bearing height outside 1.0-3.5 m".
+
+So the ~0.8 m gap between DA3 (2.13 m) and the labeler's B value (2.98 m) sits beside the
+labeler's own finding that B reads high by up to about half a metre at DA3-like heights, and that A
+is outside its plausible range. Part of the gap is explained by that bias; how much cannot be said
+from here. **Recorded as a difference between one uncalibrated-on-this-rig instrument and one
+unvalidated one, not resolved.** A direct test would be a Laurens pano pair with a known ground
+distance (for example, a mapped curb-ramp pair on both arms).
 
 ## 7. The published DA3 figures, re-derived
 
 `detection_recall_analysis.md` reported DA3 and flat-ground geometry agreeing "to within
-6.5–8.5% (Spearman ρ = 0.95 Bend / 0.81 Richmond)" from `gt_depth_da3.json`, which was never
-committed. From this run's rows:
+6.5–8.5% (Spearman ρ = 0.95 Bend / 0.81 Richmond)" and "4 Richmond ramps that geometry placed above
+the horizon", from `gt_depth_da3.json`, which was never committed. Re-derived from this run's rows
+under `depth_analysis.py`'s own filters (points with flat < 150 m; ratio over DA3 > 0.5 m;
+"unusable" = at or above the horizon, or flat ≥ 150 m):
 
-| split | n | flat/DA3 raw value, median | Spearman | flat/DA3 horizontal range, median | Spearman | GT at/above horizon with DA3 |
-|---|---:|---:|---:|---:|---:|---:|
-| bend | 327 | 1.065 | 0.953 | 1.014 | 0.961 | 0 |
-| richmond | 307 | 1.086 | 0.813 | 1.037 | 0.847 | 3 |
+| split | n (flat < 150 m) | flat/DA3 raw value, median | Spearman | flat/DA3 horizontal range, median | Spearman | unusable on flat (above horizon + flat ≥ 150 m) |
+|---|---:|---:|---:|---:|---:|---|
+| bend | 327 | 1.065 | 0.953 | 1.014 | 0.961 | 0 (0 + 0) |
+| richmond | 306 | 1.085 | 0.812 | 1.037 | 0.847 | 4 (3 + 1) |
 
-The published numbers reproduce to the digit, which pins down what they measured: DA3's raw
-planar depth against the flat *horizontal* range. Those are different quantities (a point off the
-view's axis has planar depth shorter than its ray), and on a like-for-like horizontal range the
-agreement is closer, 1.4% on bend and 3.7% on richmond. The doc counted 4 Richmond GT ramps above
-the horizon rescued by DA3; this run finds 3 GT points at or above the horizon, all with a DA3
-value. The difference was not chased; `gt_depth_da3.json` does not exist to compare.
+The published numbers reproduce: 6.5% and 8.5%, ρ 0.95 / 0.81, and the "4 Richmond ramps" are 3
+at or above the horizon plus 1 below it at a flat range of 405 m. (Without the 150 m filter
+richmond reads 8.6%.) That pins down what they measured: DA3's raw planar depth against the flat
+*horizontal* range. Those are different quantities (a point off the view's axis has planar depth
+shorter than its ray), and on a like-for-like horizontal range the agreement is closer, 1.4% on
+bend and 3.7% on richmond.
 
-## 8. The ground-fit change, and what the first run said
+## 8. The ground-fit change: two parts, attributed
 
-The first full run (job `40774944`, committed at `4ab47a2`) took the ground as the single dominant
-plane of the band. On car-roof consumer rigs that plane is often the car's own roof, about 0.75 m
-under the camera: morgantown (GoPro Max) read heights down to 0.53 m and only 23 of 125 panos
-passed the fit, and richmond's GoPro Max panos read 1.50 m. The fit was changed to take the
-lowest of up to three well-supported planes and the extraction re-run (job `40777019`). **This is a
-change made after seeing the data**, so both readings are reported:
+The first full run (job `40774944`) took the ground as the **single dominant plane** of the band
+and passed it at **inlier share ≥ 0.5**. On car-roof consumer rigs that plane is often the car's own
+roof, about 0.75 m under the camera: morgantown (GoPro Max) read heights down to 0.53 m and passed
+only 23 of 125 panos. After seeing that, **two things were changed together** and the extraction
+re-run (job `40777019`): the ground became the **lowest** of up to three planes that each hold
+≥ 15% of the band, and the pass rule became **≥ 0.25** of the band on that plane. Both were set
+after seeing the data. The first run's raw rows are committed under
+`analysis_out/da3_calibration_101/raw_run1/`, and `tables()["ground_fit_change"]` attributes each
+pano, from committed rows, to one change or the other:
 
-| split | fit ok, first run | median h, first run | min h, first run | fit ok, now | median h, now | min h, now |
+| group | panos | run 1 pass @0.5 | run 1 plane pass @0.25 (of which < 1.3 m) | now pass (< 1.3 m) | same as run 1 | threshold only | switched plane | other |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| bend | 110 | 106 | 110 (0) | 94 (0) | 80 | 3 | 11 | 0 |
+| paterson | 125 | 95 | 125 (0) | 108 (0) | 74 | 13 | 20 | 1 |
+| gainesville | 125 | 116 | 125 (0) | 106 (0) | 70 | 5 | 28 | 3 |
+| sao_paulo | 125 | 86 | 125 (2) | 95 (0) | 60 | 16 | 17 | 2 |
+| laurens_gsv | 86 | 81 | 86 (0) | 78 (0) | 68 | 1 | 8 | 1 |
+| richmond | 124 | 99 | 124 (14) | 93 (0) | 60 | 18 | 15 | 0 |
+| annapolis | 125 | 96 | 125 (0) | 96 (0) | 82 | 13 | 0 | 1 |
+| morgantown | 125 | 23 | 125 (33) | 92 (3) | 15 | 62 | 15 | 0 |
+| clovis | 125 | 48 | 125 (12) | 112 (0) | 48 | 55 | 7 | 2 |
+| laurens_mapillary | 94 | 62 | 94 (0) | 73 (0) | 47 | 19 | 7 | 0 |
+| budapest_district5 | 125 | 105 | 124 (10) | 96 (1) | 74 | 10 | 12 | 0 |
+| gsv_google_depth | 485 | 403 | 485 (2) | 403 (0) | 284 | 37 | 76 | 6 |
+| mapillary_all | 718 | 433 | 717 (69) | 562 (4) | 326 | 177 | 56 | 3 |
+
+Heights uncalibrated. Of today's passing fits: *same as run 1* = the lowest plane is the dominant
+one, run 1 passed at 0.5, same height within 3%; *threshold only* = the same plane, which run 1
+failed only on the 0.5 rule; *switched plane* = the lowest plane is not the dominant one; *other* =
+lowest is dominant but its height moved > 3% from run 1 (run-to-run DA3 / RANSAC noise).
+
+What the two parts did:
+
+- **The pass rule did most of the fit-count change.** morgantown's 23 → 92 is 62 threshold-only
+  fits (run 1's own plane, which failed only the 0.5 rule) and 15 switched planes; clovis's 48 → 112
+  is 55 threshold-only and 7 switched.
+- **The two changes only make sense together.** Run 1's dominant plane under the 0.25 rule alone
+  would pass 125 of 125 morgantown panos, 33 of them below 1.3 m (roofs); 69 across the Mapillary
+  splits. The lowest-plane rule is what keeps those roofs out (4 remain).
+- **GSV is affected too.** The lowest plane differs from the dominant one on 76 of 403 fitted GSV
+  panos with Google depth (gainesville 28 of 106). §3's heights barely move (1.027 → 1.038 against
+  Google), but the plane-based axes of §4 do, in both directions (within 10%: `flat_da3_height`
+  0.553 → 0.517, `da3_plane` 0.417 → 0.433). The headline `da3_point` axis does not use the plane.
+
+The first run's own camera-height table is in its committed `tables.json`:
+`git show 4ab47a2:analysis_out/da3_calibration_101/tables.json` → `tables.camera_height_by_split`
+(k_height 1.022). `--check` does not pass at `4ab47a2` itself (a dict-order bug in the markdown
+check, fixed in `2c51a4a`), so that JSON, not a re-run of `--check` there, is the route. The table
+above re-derives from the committed first-run raw rows with the current code.
+
+| split | fit ok, run 1 | median h, run 1 | min h, run 1 | fit ok, now | median h, now | min h, now |
 |---|---:|---:|---:|---:|---:|---:|
 | bend | 106 | 2.23 | 1.88 | 94 | 2.21 | 1.92 |
 | paterson | 95 | 2.11 | 1.40 | 108 | 2.11 | 1.38 |
@@ -382,15 +493,10 @@ change made after seeing the data**, so both readings are reported:
 | laurens_mapillary | 62 | 2.11 | 1.64 | 73 | 2.13 | 1.85 |
 | budapest_district5 | 105 | 1.85 | 0.61 | 96 | 1.88 | 0.60 |
 
-(First run: pass rule inlier share ≥ 0.5 of the band on the single plane, k_height 1.022; now:
-≥ 0.25 on the selected plane, k_height 1.038. The first-run table re-derives by checking out
-`4ab47a2` and running `--check --markdown`.) The GSV splits barely move, which is the expected
-signature of a fix aimed at a vehicle roof Google's imagery does not contain. The point
-calibration (§2) does not use the plane at all. It is not bit-identical between the runs, because
-the two ran on different GPUs (A40, then Quadro RTX 6000) and DA3's output differs slightly: over
-5,402 points the run-to-run difference in the DA3 value has median 0.06%, p99 0.35%, max 0.82%.
-Pooled DA3/Google moved from 1.105 to 1.106. §4's plane-based axes and §5.1 moved; the headline
-axis did not.
+(Calibrated heights; each run by its own k_height.) The point calibration (§2) does not use the
+plane. It is not bit-identical between the runs because they ran on different GPUs (A40, then Quadro
+RTX 6000): over 5,402 points the run-to-run difference in the DA3 value has median 0.06%, p99 0.35%,
+max 0.82%, and pooled DA3/Google moved from 1.105 to 1.106.
 
 ## 9. Cost
 
@@ -405,33 +511,44 @@ script's own `paid: false` rows are in `analysis_out/usage_log.jsonl`:
 | `40774944` | first full run, 1,289 panos | A40 | 2,625 s | 2,502.6 s | 1.94 |
 | `40777019` | re-run with the lowest-plane fit | Quadro RTX 6000 | 4,208 s | 4,075.2 s | 3.16 |
 
-The re-run is slower for two reasons that were not separated: a slower GPU, and three sequential
-RANSAC fits per band instead of one (the fits run on the CPU inside the loop). Model load was
-12–21 s per job (20.8, 11.6, 13.2 s). The derive step (CPU, laptop) takes about 10 s; `--check` about the same.
+The script wrote every row with the label `da3-calibration-101:extract`. Two were **relabelled by
+hand** when appended to `usage_log.jsonl`: the smoke test's to `da3-calibration-101:extract-smoke`
+and the re-run's to `da3-calibration-101:extract-v2-lowest-plane`; the first full run kept the
+script's label. `extract` now takes `--label` (and the launcher `LABEL=`), so a future run needs no
+hand edit. The re-run is slower for two reasons that were not separated: a slower GPU, and three
+sequential RANSAC fits per band instead of one (the fits run on the CPU inside the loop). Model load
+was 12–21 s per job (20.8, 11.6, 13.2 s). The derive step (CPU, laptop) takes about 10 s;
+`--check` about the same.
 
 ## 10. How to reproduce
 
 Inputs: the committed bundles (`benchmark/<split>/{records.jsonl,verdicts.json,imagery_manifest.json}`),
 the committed #112 rows (`analysis_out/recall_by_depth_112.json`), the benchmark panos (Hugging
-Face `projectsidewalk/rampnet-benchmark`, sha256-checked against each manifest), DA3 weights
-`depth-anything/DA3METRIC-LARGE` and code commit `3d835ec1a5802d64a8b8b15f817a1ab54809bfe4`.
-Unpublished: Google's depth payloads (only their committed per-point rows are needed) and the
-labeler's Laurens tables (needed only by `derive`; their values are copied into `tables.json`).
+Face `projectsidewalk/rampnet-benchmark` for nine splits; **laurens_gsv and laurens_mapillary are
+not on the Hub**, see §5.1), sha256-checked against each manifest, DA3 weights
+`depth-anything/DA3METRIC-LARGE` at revision `4010e39f3634a45bc60553321fb49fb760bd594e` and code
+commit `3d835ec1a5802d64a8b8b15f817a1ab54809bfe4`. Unpublished: Google's depth payloads (only their
+committed per-point rows are needed) and the Laurens panos. The labeler file is public at the pinned
+commit and is needed only by `derive`; its values are copied into `tables.json`.
 
 ```bash
-# 0. environment on klone (paths are Jon's; any CUDA box works)
+# 0. environment (paths are Jon's klone layout; any CUDA box works)
 ROOT=/gscratch/scrubbed/jfroehli/da3_101
-git clone --depth 1 https://github.com/ByteDance-Seed/Depth-Anything-3.git $ROOT/src/Depth-Anything-3
+git clone https://github.com/ByteDance-Seed/Depth-Anything-3.git $ROOT/src/Depth-Anything-3
+git -C $ROOT/src/Depth-Anything-3 checkout 3d835ec1a5802d64a8b8b15f817a1ab54809bfe4
 mkdir -p $ROOT/src/Depth-Anything-3/stubs/moviepy && touch $ROOT/src/Depth-Anything-3/stubs/moviepy/{__init__,editor}.py
 python -m venv --system-site-packages $ROOT/env     # over a sidewalkcv2 env (torch 2.6, numpy 2.2)
 $ROOT/env/bin/pip install omegaconf einops addict opencv-python-headless plyfile pycolmap trimesh evo
 git clone --branch <this branch or main> https://github.com/ProjectSidewalk/RampNet.git $ROOT/repo
 
-# 1. GPU: DA3 at every point + ground fits -> $ROOT/out/raw/<split>.jsonl (~45-70 min, one GPU)
-cd $ROOT/repo && OUT=$ROOT/out/raw sbatch -A ckpt-makelab -p ckpt-all scripts/analysis/da3_calibration_101.slurm
+# 1. GPU: DA3 at every point + ground fits -> $ROOT/out/raw/<split>.jsonl (~45-70 min, one GPU).
+#    The launcher logs to logs/ under the submit directory; pass --output= to put it elsewhere.
+cd $ROOT/repo && mkdir -p logs
+OUT=$ROOT/out/raw sbatch -A ckpt-makelab -p ckpt-all --output=$ROOT/logs/%x_%j.out \
+    scripts/analysis/da3_calibration_101.slurm
 #    copy $ROOT/out/raw/<split>.jsonl to analysis_out/da3_calibration_101/raw/
 
-# 2. CPU: rows, tables, markdown, SHA256SUMS (reads the labeler's Laurens tables read-only)
+# 2. CPU: rows, tables, markdown, SHA256SUMS (reads the labeler file with git show at the pin)
 python scripts/analysis/da3_calibration_101.py derive --labeler-root /path/to/sidewalk-auto-labeler
 
 # 3. CPU, from a clean clone, no GPU, no panos, no payloads: everything re-derives
@@ -440,21 +557,21 @@ python scripts/analysis/da3_calibration_101.py --check --markdown   # every tabl
 ```
 
 `tests/test_da3_calibration_101.py` runs the `--check` path, pins the headline numbers of this
-document, and checks the geometry on synthetic scenes (level and tilted ground, a car-sized
-obstacle, a vehicle roof over a road).
+document (including the §8 attribution, the §4.1 thresholds and the pinned labeler input), and
+checks the geometry on synthetic scenes (level and tilted ground, a car-sized obstacle, a vehicle
+roof over a road).
 
 ## 11. Gaps, stated
 
 - **Not validated on Mapillary imagery.** Mapillary serves no depth, so the Mapillary numbers rest
-  on the GSV calibration transferring to other cameras. The one independent instrument available
-  (§6) disagrees, and distrusts itself.
+  on the GSV calibration transferring to other cameras. §4.1 validates the method on GSV only.
 - **Google is the reference, and Google is not ground truth** (§2.2). The calibrated axis is in
   Google's frame by design.
+- **A single pooled constant** is biased on Google's 2025–26 rig, −5% to +3% across range (§2.1);
+  no per-rig or range-dependent calibration was fitted.
 - **laurens_gsv** has DA3 but no Google depth (never harvested), so it is carried like a Mapillary
-  split, not validated.
-- **Per-pano heights and tilts are not trustworthy per pano** (§3); the tilt DA3 fits was not
-  compared with Google's plane tilt, which #112 has for every measured pano. That comparison is a
-  cheap follow-up from the committed rows.
+  split, not validated. **The Laurens panos are not published** (§5.1).
+- **Per-pano heights and tilts are not trustworthy per pano** (§3, §5.1).
 - **Apparent-size tables and the resolution forecast** of #112 were not re-issued on the DA3
   axis; only recall by distance was, as the plan specified.
 - **`manual_gold`** is out of scope (no verdict review, no depth, 1,000 panos).

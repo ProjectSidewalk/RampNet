@@ -284,7 +284,9 @@ python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
 ```
 
 The per-pano timings (the script's own `paid: false` rows in `analysis_out/usage_log.jsonl`) and
-what each run produced are in [`da3_calibration_101.md`](da3_calibration_101.md) §8.
+what each run produced are in [`da3_calibration_101.md`](da3_calibration_101.md) §9 (the
+ground-fit change between the two full runs is §8). Two of the three usage rows were relabelled by
+hand when appended; §9 says which.
 
 ## Gaps, stated
 
