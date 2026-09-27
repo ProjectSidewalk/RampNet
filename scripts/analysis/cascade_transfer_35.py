@@ -72,6 +72,20 @@ RICHMOND_C_MIN = 0.640738
 BOOTSTRAP = 2000
 SEED = 0
 OUT_PATH = os.path.join(cc.DEFAULT_OUT, "transfer", "transfer.json")
+#: Post-seam-fix floor peaks for the same checkpoint: the #25 sweep's r2048 control arm
+#: (committed, extracted 2026-09-26 on makelab2 with border peaks kept, i.e. after f4c71c8).
+#: It reproduces the op_cache exactly once the border band is dropped (input_res_sweep_25.py
+#: check), so the only difference is the seam/border peaks the op_cache lacks.
+POST_SEAM_DIR = os.path.join(cc.REPO, "analysis_out", "input_res_sweep_25", "cache", "r2048")
+
+
+def load_post_seam_peaks(split):
+    """``{pano_id: [(x, y, score), ...]}`` from the committed r2048 cache, or ``None``."""
+    path = os.path.join(POST_SEAM_DIR, f"{split}.json")
+    if not os.path.exists(path):
+        return None
+    with open(path, encoding="utf-8") as f:
+        return {p["pano"]: [tuple(x) for x in p["preds"]] for p in json.load(f)["panos"]}
 
 
 def _ramps(r, base):
@@ -201,7 +215,7 @@ def build(bootstrap=BOOTSTRAP, seed=SEED):
     """The whole transfer read: primary (median c_min per split), the richmond-c_min
     sensitivity, the in-sample grid verdict per split (from the committed per-pair files),
     and the overall verdict against the pre-stated count."""
-    primary, sensitivity, grid = {}, {}, {}
+    primary, sensitivity, post_seam, grid = {}, {}, {}, {}
     for split in SPLITS:
         gts, peaks = cc.load_gts(split), load_floor_peaks(split)
         cands, _ = cc.load_challenger(split, CHALLENGER)
@@ -211,6 +225,9 @@ def build(bootstrap=BOOTSTRAP, seed=SEED):
         q50 = cc.c_min_grid(cands)[2]
         primary[split] = read_setting(split, q50, gts, peaks, bootstrap, seed)
         primary[split]["c_min_quartiles"] = cc.c_min_grid(cands)[1:]
+        ps = load_post_seam_peaks(split)
+        post_seam[split] = (None if ps is None else
+                            read_setting(split, q50, gts, ps, bootstrap, seed))
         if split != REFERENCE:
             sensitivity[split] = read_setting(split, RICHMOND_C_MIN, gts, peaks, bootstrap, seed)
         path = os.path.join(cc.DEFAULT_OUT, cc.out_name(split, CHALLENGER, cc.T_HI))
@@ -253,6 +270,11 @@ def build(bootstrap=BOOTSTRAP, seed=SEED):
                     ("TRANSFERS" if len(passes) >= MIN_GSV_PASSES else "DOES NOT TRANSFER")),
         "primary": primary,
         "sensitivity_richmond_c_min": {"c_min": RICHMOND_C_MIN, "splits": sensitivity},
+        "sensitivity_post_seam_peaks": {
+            "source": "analysis_out/input_res_sweep_25/cache/r2048/<split>.json",
+            "note": ("same checkpoint and input as the op_cache, extracted after the seam "
+                     "fix f4c71c8 (border peaks kept); not part of the rule"),
+            "splits": post_seam},
         "in_sample_grid": grid,
         "op_cache_commit_note": cc.OP_CACHE_NOTE,
     }
@@ -297,6 +319,16 @@ def print_tables(out):
         r = p["fixed"]
         print(f"  {split}: {r['tp']}/{r['fp']}/{r['fn']} F1 {r['F1']:.4f} attr "
               f"{r['attributable_dR']:+.4f} CI {p['bootstrap']['attr_dR_ci95']} FP/attr "
+              f"{_f(r['fp_per_attributable_ramp'], '.2f')} verdict {p['verdict']} "
+              f"transfers {p['transfers']}")
+    print("\nsensitivity: post-seam-fix floor peaks (r2048 cache)")
+    for split, p in out["sensitivity_post_seam_peaks"]["splits"].items():
+        if p is None:
+            continue
+        r, b = p["fixed"], p["baseline"]
+        print(f"  {split}: base {b['tp']}/{b['fp']}/{b['fn']} F1 {b['F1']:.4f}; cascade "
+              f"{r['tp']}/{r['fp']}/{r['fn']} F1 {r['F1']:.4f} attr {r['attributable_dR']:+.4f} "
+              f"CI {p['bootstrap']['attr_dR_ci95']} FP/attr "
               f"{_f(r['fp_per_attributable_ramp'], '.2f')} verdict {p['verdict']} "
               f"transfers {p['transfers']}")
     print("\nin-sample grid (secondary):")
