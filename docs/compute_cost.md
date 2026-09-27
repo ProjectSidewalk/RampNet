@@ -279,6 +279,9 @@ python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
 
 The per-leg split of that time (model load, inference, s/pano) is in the job's eight `paid: false`
 rows in `analysis_out/usage_log.jsonl` and in [`cascade_cost_35.md` §Transfer](cascade_cost_35.md).
+The four RampNet rows (labels `input-res-25:*`, because the job reused the #25 sweep's `extract`)
+were written with `"issue": 25`; that field was corrected to 35 by hand after review, and nothing
+else in those rows changed. `extract` now takes `--issue`, which the launcher passes.
 
 ## Gaps, stated
 
