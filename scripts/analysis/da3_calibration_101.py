@@ -99,8 +99,10 @@ PRIMARY_BAND = "b20_45"       # 45 deg keeps clear of the capture vehicle, visib
 RANSAC_ITERS = 256
 RANSAC_THRESH_M = 0.10
 MAX_TILT_DEG = 20.0
-FIT_MIN_INLIER_SHARE = 0.5
+FIT_MIN_INLIER_SHARE = 0.25   # share of ALL band points on the selected (lowest) plane
 FIT_MIN_POINTS = 200
+MAX_PLANES = 3                # sequential RANSAC: up to this many near-horizontal planes...
+MIN_PLANE_SHARE = 0.15        # ...each holding at least this share of the band points
 DEPTH_CONVENTION = "z"        # see the module docstring; "ray" is kept as the alternative
 ND = 4
 N_BOOT = 1000
@@ -222,6 +224,46 @@ def fit_ground_plane(P, seed, thresh=RANSAC_THRESH_M, iters=RANSAC_ITERS, max_ti
                 "tilt_deg": math.degrees(math.acos(min(1.0, float(n[1])))),
                 "inlier_share": float(inl.mean()),
                 "resid_med": float(np.median(resid[inl])) if inl.any() else None})
+    return out
+
+
+def fit_lowest_plane(P, seed, max_planes=MAX_PLANES, min_share=MIN_PLANE_SHARE):
+    """The ground: the LOWEST well-supported near-horizontal plane in the road band.
+
+    Sequential RANSAC (``fit_ground_plane`` on what the previous planes left) finds up to
+    ``max_planes`` planes that each hold >= ``min_share`` of the band points, and returns the
+    one farthest below the camera. The first extraction took the single dominant plane, and on
+    car-roof consumer rigs (morgantown's GoPro Max most of all) that plane was the vehicle's
+    own roof ~0.75 m under the camera, not the road. The returned dict is
+    ``fit_ground_plane``'s, with ``inlier_share`` re-expressed as a share of ALL band points,
+    plus ``dominant_h`` (the first plane found) and ``planes`` ([h, share] of each plane).
+    """
+    import numpy as np
+    P = np.asarray(P, dtype=np.float64)
+    total = len(P)
+    remaining, planes = P, []
+    for k in range(max_planes):
+        fit = fit_ground_plane(remaining, seed + k)
+        if fit["h"] is None:
+            break
+        n = np.array(fit["n"])
+        inl = np.abs(remaining @ n + fit["h"]) < RANSAC_THRESH_M
+        share = float(inl.sum()) / total if total else 0.0
+        if share < min_share:
+            break
+        fit["inlier_share"] = share
+        planes.append(fit)
+        remaining = remaining[~inl]
+        if len(remaining) < 3:
+            break
+    if not planes:
+        out = fit_ground_plane(P[:0], seed)
+        out.update(n_points=int(total), dominant_h=None, planes=[])
+        return out
+    best = max(planes, key=lambda f: f["h"])
+    out = dict(best)
+    out.update(n_points=int(total), dominant_h=planes[0]["h"],
+               planes=[[round(f["h"], ND), round(f["inlier_share"], ND)] for f in planes])
     return out
 
 
@@ -419,8 +461,9 @@ def extract(args):
                         P = np.concatenate([band_points(d, vw, lo, hi, conv, az_half=az_half)
                                             for d, vw in zip(depths, views)])
                         hsin = float(np.median(-P[:, 1])) if len(P) else None
-                        fit = fit_ground_plane(P, pano_seed(pid))
+                        fit = fit_lowest_plane(P, pano_seed(pid))
                         ground[f"{conv}_{band}"] = {
+                            "dominant_h": _r(fit["dominant_h"]), "planes": fit["planes"],
                             "h": _r(fit["h"]), "n": [_r(c, 6) for c in fit["n"]] if fit["n"] else None,
                             "tilt_deg": _r(fit["tilt_deg"]), "inlier_share": _r(fit["inlier_share"]),
                             "resid_med": _r(fit["resid_med"]), "n_points": fit["n_points"],
@@ -541,7 +584,8 @@ def derive_rows(raw_dir=RAW_DIR, splits=ALL_SPLITS):
                     "google_tilt_deg": gp["ground_tilt_deg"] if gp else None,
                     "probe_intrinsics_ratio": r.get("probe_intrinsics_ratio")}
             for key, fit in sorted((r.get("ground") or {}).items()):
-                for f in ("h", "n", "tilt_deg", "inlier_share", "resid_med", "n_points", "h_sin_median"):
+                for f in ("h", "n", "tilt_deg", "inlier_share", "resid_med", "n_points", "h_sin_median",
+                          "dominant_h", "planes"):
                     prow[f"{key}_{f}"] = fit.get(f)
             panos.append(prow)
 
@@ -571,6 +615,7 @@ def derive_rows(raw_dir=RAW_DIR, splits=ALL_SPLITS):
                        "da3_value": value, "da3_view": q.get("view"),
                        "da3_ray": _r(ray), "da3_range": _r(range_),
                        "google_range": g["depth_range"] if g else None,
+                       "google_range_scaled": g["depth_range_scaled"] if g else None,
                        "google_ray": g["depth_ray"] if g else None,
                        "google_source": g["depth_source"] if g else None,
                        "google_status": g["camera_height_status"] if g else None}
@@ -847,6 +892,48 @@ def tables(panos, points, labeler):
     hrows.append(height_calib_row("gsv_pooled", hp))
     t["height_calibration"] = hrows
 
+    # -- 2b. three DA3 height readings against Google's, per GSV split: the lowest plane (used),
+    # the dominant plane (the first run's reading), and the height implied by the GT points
+    # themselves (median of DA3 ray x sin(depression) over the pano's GT points more than 3 deg
+    # below the horizon), which never looks at the nadir
+    pt_h = {}
+    for p in points:
+        if p["kind"] == "gt" and p["da3_ray"] and (p["y"] - 0.5) * math.pi > math.radians(3):
+            pt_h.setdefault((p["split"], p["pano"]), []).append(p["da3_ray"] * math.sin((p["y"] - 0.5) * math.pi))
+    est = []
+    for s in GSV_DEPTH_SPLITS + ("gsv_pooled",):
+        ps = [p for p in panos if (s == "gsv_pooled" or p["split"] == s) and p["split"] in GSV_DEPTH_SPLITS
+              and p["google_height_status"] == "measured" and p["status"] == "ok"]
+        row = {"split": s}
+        for name, get in (("lowest_plane", lambda p: p[f"{key}_h"] if fit_ok(p) else None),
+                          ("dominant_plane", lambda p: p.get(f"{key}_dominant_h") if fit_ok(p) else None),
+                          ("gt_points", lambda p: st.median(pt_h[(p["split"], p["pano"])])
+                           if pt_h.get((p["split"], p["pano"])) else None)):
+            pr = [(get(p), p["google_height_m"]) for p in ps]
+            pr = [(a, b) for a, b in pr if a]
+            row[name] = {"n_panos": len(pr),
+                         "median_ratio": _r(_median_ratio(pr)) if pr else None,
+                         "median_abs_log_ratio": _r(st.median(abs(math.log(a / b)) for a, b in pr)) if pr else None,
+                         "pearson_r": _r(pearson([b for _, b in pr], [a for a, _ in pr])) if len(pr) >= 3 else None}
+        est.append(row)
+    t["height_estimators"] = est
+
+    # -- 2c. DA3 against Google's range times the labeler's per-city depth-frame scale
+    # (recall_by_depth_112.DEPTH_FRAME_SCALE, from the labeler's bearing-only triangulation)
+    fs = []
+    for s in GSV_DEPTH_SPLITS:
+        pr = []
+        for q in locs:
+            if q["split"] != s:
+                continue
+            p = first_at[(q["split"], q["pano"], q["x"], q["y"])]
+            if p.get("google_range_scaled"):
+                pr.append((p["da3_range"], p["google_range_scaled"]))
+        fs.append({"split": s, "n": len(pr), "labeler_scale": rbd.DEPTH_FRAME_SCALE[s],
+                   "da3_over_google": next(r["median_ratio"] for r in t["point_calibration"] if r["group"] == s),
+                   "da3_over_google_scaled": _r(_median_ratio(pr)) if pr else None})
+    t["vs_labeler_frame_scale"] = fs
+
     # -- 3. constants: pooled, and leave-one-split-out
     def consts(splits):
         lp = [(q["da3"], q["google"]) for q in locs if q["split"] in splits]
@@ -1043,6 +1130,20 @@ def markdown(t):
         L.append(f"| {r['group']} | {r['n_panos']} | {_f(r['median_da3_h_m'], 2)} | {_f(r['median_google_h_m'], 2)} | "
                  f"{_f(r['median_ratio'])} {_ci(r['median_ratio_ci'])} | {_f(r['p10_ratio'], 2)}–{_f(r['p90_ratio'], 2)} | "
                  f"{_f(r['pearson_r'])} | {_f(r['ols_slope'])} | {_f(r['median_abs_log_ratio'])} |")
+    L.append("\n## Three DA3 height readings against Google's camera height (GSV, measured ground)\n")
+    L.append("| split | reading | panos | DA3/Google median | median abs ln ratio | Pearson r |")
+    L.append("|---|---|---:|---:|---:|---:|")
+    for r in t["height_estimators"]:
+        for name in ("lowest_plane", "dominant_plane", "gt_points"):
+            e = r[name]
+            L.append(f"| {r['split']} | {name} | {e['n_panos']} | {_f(e['median_ratio'])} | "
+                     f"{_f(e['median_abs_log_ratio'])} | {_f(e['pearson_r'])} |")
+    L.append("\n## DA3 against Google x the labeler's depth-frame scale (per city)\n")
+    L.append("| split | locations | labeler scale | DA3/Google | DA3/(Google x scale) |")
+    L.append("|---|---:|---:|---:|---:|")
+    for r in t["vs_labeler_frame_scale"]:
+        L.append(f"| {r['split']} | {r['n']} | {r['labeler_scale']} | {_f(r['da3_over_google'])} | "
+                 f"{_f(r['da3_over_google_scaled'])} |")
     L.append("\n## Leave-one-split-out validation: each axis against Google's range\n")
     L.append("Constants fitted on the other three GSV splits. `pooled_common` = the locations where every axis has a value.\n")
     L.append("| population | axis | n | median axis/Google (p10–p90) | median abs ln ratio | share within 10% |")

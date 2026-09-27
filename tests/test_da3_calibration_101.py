@@ -108,6 +108,32 @@ def test_ground_fit_ignores_an_obstacle():
     assert fit["inlier_share"] == pytest.approx(len(P) / (len(P) + len(clutter)), abs=0.02)
 
 
+def test_lowest_plane_skips_a_vehicle_roof():
+    # a car-roof rig: most of the band is the roof 0.75 m under the camera, the rest is road
+    # 2.1 m down. The single dominant plane is the roof; the ground is the lowest plane.
+    rng = np.random.default_rng(5)
+    xz_roof = rng.uniform(-1.2, 1.2, size=(3000, 2))
+    xz_road = rng.uniform(-8, 8, size=(1500, 2))
+    roof = np.column_stack([xz_roof[:, 0], np.full(3000, -0.75), xz_roof[:, 1]])
+    road = np.column_stack([xz_road[:, 0], np.full(1500, -2.1), xz_road[:, 1]])
+    P = np.concatenate([roof, road])
+    assert dc.fit_ground_plane(P, seed=2)["h"] == pytest.approx(0.75, abs=1e-6)
+    fit = dc.fit_lowest_plane(P, seed=2)
+    assert fit["h"] == pytest.approx(2.1, abs=1e-6)
+    assert fit["dominant_h"] == pytest.approx(0.75, abs=1e-6)
+    assert fit["inlier_share"] == pytest.approx(1500 / 4500, abs=1e-6)
+    assert [round(h, 2) for h, _ in fit["planes"]] == [0.75, 2.1]
+
+
+def test_lowest_plane_ignores_a_minor_low_plane():
+    # a sliver of a lower surface (5% of the band) is below the support floor and is not chosen
+    rng = np.random.default_rng(6)
+    road = np.column_stack([rng.uniform(-8, 8, 2000), np.full(2000, -2.0), rng.uniform(-8, 8, 2000)])
+    pit = np.column_stack([rng.uniform(-1, 1, 100), np.full(100, -2.6), rng.uniform(2, 3, 100)])
+    fit = dc.fit_lowest_plane(np.concatenate([road, pit]), seed=4)
+    assert fit["h"] == pytest.approx(2.0, abs=1e-6)
+
+
 def test_rig_key_normalizes_like_the_labeler():
     assert dc.rig_key("GoPro", "GoPro Fusion FS1.04.01.80.00") == "gopro/fusion"
     assert dc.rig_key("GoPro", "GoPro Max") == "gopro/max"
