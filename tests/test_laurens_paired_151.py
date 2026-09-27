@@ -176,10 +176,15 @@ def test_mcnemar_exact():
 def test_input_hashes_ignore_line_endings():
     """PR #201 review M5: a CRLF checkout must hash like the LF one."""
     import hashlib
-    raw = b'{"a": 1}\n{"b": 2}\n'
-    assert hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest() == \
-        hashlib.sha256(raw.replace(b"\n", b"\r\n").replace(b"\r\n", b"\n")).hexdigest()
+    path = os.path.join(REPO, "benchmark", "laurens_gsv", "verdicts.json")
+    with open(path, "rb") as fh:
+        lf = fh.read().replace(b"\r\n", b"\n")
+    crlf = lf.replace(b"\n", b"\r\n")
+    assert crlf != lf
     hashes = lp.input_hashes()
+    # the committed hash is the LF content's; a CRLF checkout of the same file must give it too
+    assert hashes["benchmark/laurens_gsv/verdicts.json"] == hashlib.sha256(lf).hexdigest()
+    assert lp.normalized_sha256(crlf) == lp.normalized_sha256(lf) == hashlib.sha256(lf).hexdigest()
     assert "analysis_out/recall_by_depth_112.json" not in hashes
     assert "analysis_out/recall_by_depth_112.json#panos[city=laurens_gsv]" in hashes
 
@@ -193,6 +198,14 @@ def test_near_miss_and_probe_numbers(committed):
     assert (cp["windows"], cp["one_ground_plane_or_none"], cp["curb_sized_step"]) == (28, 24, 0)
     far = t["curb_probe"]["by_range"][-1]
     assert far["band"] == "18 m+" and (far["gt"]["windows"], far["gt"]["curb_sized_step"]) == (40, 22)
+    assert (far["null"]["windows"], far["null"]["curb_sized_step"]) == (120, 24)
+    assert 5e-5 < far["fisher_p"] < 1e-4
+
+
+def test_fisher_exact():
+    # the classic lady-tasting-tea table: two-sided p = 0.4857
+    assert lp.fisher_exact(3, 1, 1, 3) == pytest.approx(0.48571, abs=1e-5)
+    assert lp.fisher_exact(2, 2, 2, 2) == pytest.approx(1.0)
 
 
 def test_rampnet_030_has_no_gsv_side(committed):

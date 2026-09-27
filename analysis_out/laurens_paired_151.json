@@ -49533,6 +49533,7 @@
    "by_range": [
     {
      "band": "0-8 m",
+     "fisher_p": 0.333823,
      "gt": {
       "curb_sized_step": 0,
       "depth_range_median_m": 6.5412,
@@ -49560,6 +49561,7 @@
     },
     {
      "band": "8-12 m",
+     "fisher_p": 0.247339,
      "gt": {
       "curb_sized_step": 2,
       "depth_range_median_m": 9.9225,
@@ -49587,6 +49589,7 @@
     },
     {
      "band": "12-18 m",
+     "fisher_p": 0.818737,
      "gt": {
       "curb_sized_step": 7,
       "depth_range_median_m": 14.4079,
@@ -49614,6 +49617,7 @@
     },
     {
      "band": "18 m+",
+     "fisher_p": 7.9e-05,
      "gt": {
       "curb_sized_step": 22,
       "depth_range_median_m": 22.9218,

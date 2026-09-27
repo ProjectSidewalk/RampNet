@@ -741,8 +741,9 @@ changes readings 1 and 3.
   three only for the deployed run, which reached RampNet by a different input path than the
   committed JPEGs the YOLO arms saw. On the same-input RampNet leg at 0.55, no difference clears
   zero (+0.047 [−0.037, +0.134], +0.076 [−0.020, +0.172], +0.095 [−0.008, +0.203]). On the
-  physical ramps both reviews contain, the YOLO arms gain about as many ramps as RampNet (net +5,
-  +5, +2 against +7; no exact McNemar p below 0.34 at 5 m). The intervals cover pano sampling,
+  physical ramps both reviews contain, the YOLO arms gain about as many ramps as RampNet at the
+  5 m match (net +5, +5, +2 against +7; no exact McNemar p below 0.34). At the tighter 3 m match
+  RampNet leans more (+9, p 0.11, against +5, +1, +1); nothing at either radius is significant. The intervals cover pano sampling,
   not training seeds. "Three to five times" is withdrawn.
 - **Reading 1 is narrowed.** No zero-shot leg gains F1 on the GSV arm of the same corners
   (largest +0.009). Both arms are the same town, so that compares rigs and cannot show the town

@@ -23,14 +23,14 @@ the rows below state what does.
 | question | answer on the paired corners |
 |---|---|
 | Does RampNet's own rig effect survive pairing? | **Yes.** ΔF1 (GSV minus Mapillary) **+0.112 [+0.033, +0.199]** on 47 pano pairs for the deployed run, against +0.115 on the whole arms. The effect is recall (ΔR +0.120 [+0.036, +0.211]); ΔP's interval spans zero (+0.007 [−0.038, +0.055]). On the same-input re-run of the committed JPEGs (`rampnet_r2048`) it is +0.076 [−0.005, +0.164] at 0.55 and **+0.095 [+0.040, +0.152] at 0.30**. |
-| Is RampNet more rig-sensitive than the YOLO pano arms? | **Not established.** With the deployed GSV run, RampNet minus YOLO clears zero against two of the three arms. With the same-input RampNet leg at 0.55, the leg that saw the same JPEGs the YOLO arms saw, **no difference clears zero**. At 0.30 two of three do. On the physical ramps both reviews contain, **the YOLO arms gain about as much as RampNet**: net GSV-only minus Mapillary-only is +7 for RampNet and +5, +5 and +2 for the YOLO arms, and no 2×2 asymmetry is significant (exact McNemar p 0.34 to 0.86). All of these intervals cover pano sampling only; each model is one training run. |
+| Is RampNet more rig-sensitive than the YOLO pano arms? | **Not established.** With the deployed GSV run, RampNet minus YOLO clears zero against two of the three arms. With the same-input RampNet leg at 0.55, the leg that saw the same JPEGs the YOLO arms saw, **no difference clears zero**. At 0.30 two of three do. On the physical ramps both reviews contain, **at the 5 m match the YOLO arms gain about as much as RampNet**: net GSV-only minus Mapillary-only is +7 for RampNet and +5, +5 and +2 for the YOLO arms (exact McNemar p 0.34 to 0.86). At the tighter 3 m match RampNet leans more, +9 (p 0.11) against +5, +1 and +1. No 2×2 asymmetry at either radius is significant. All of these intervals cover pano sampling only; each model is one training run. |
 | Is "3–5×" the right way to say it? | **No.** Two of the three YOLO paired deltas are zero or negative, so a ratio is undefined or negative, and the difference itself is not robust (above). |
 | What do the zero-shot models do on the same corners? | No zero-shot leg gains F1 on the GSV arm: the largest paired ΔF1 is +0.009 (`grounding-dino-base`). F1 barely moves for the open-vocabulary detectors, because their precision is about 0.04. `grounding-dino-base` does gain recall on GSV (ΔR +0.093 [+0.025, +0.161]). Both arms are the same town, so this compares rigs; **it does not test the town** (see §3.1). |
 | Is part of the Laurens deficit independent of the rig? | **Yes, on RampNet's home rig.** On the depth axis, `laurens_gsv` recall is 0.607 at 0–8 m and 0.478 at 8–12 m, against bend's 0.885 and 0.922. About a third of the matched physical ramps (26 of 86 at 5 m) are missed by RampNet on both rigs. |
 | How many physical ramps does the rig cost RampNet? | 23 found on GSV only and 16 on Mapillary only, out of 86 matched (**exact McNemar p 0.34**). At a tighter 3 m match it is 17 and 8, out of 54 (**p 0.11**). Neither asymmetry is significant. |
 | Is the "near ramps are missed" signature real? | **Pairing cannot say.** The whole-arm deltas reproduce (Mapillary **+0.0038**, GSV **−0.0053**). The paired Mapillary estimate is −0.0011 [−0.0099, +0.0198], and that interval includes both zero and the whole-arm +0.0038. It does exclude the −0.013 to −0.030 far-field tilt of the other nine splits. |
 | What camera height is Laurens's GSV rig? | **2.41 m** (median, 60 measured benchmark panos; 2.40 m over all 1,418 measured panos of the run). That is the older 2.3–2.4 m rig, not Google's 2025–26 one. The flat axis is about 4% long, so 18 m / 25 m read 17.4 m / 23.4 m. The image↔payload mapping on this split is carried over from the four pooled splits and is not independently confirmed; see `docs/detection_recall_analysis.md` §0. |
-| Can the GSV depth payload measure curb reveal? | **No.** At the 28 GT ramps within 8 m, where a 15 cm curb face spans about two payload rows, 24 windows hold one ground-like plane or none, and **none** shows a curb-sized step. The payload does not separate sidewalk from road at the ramps where it could, so the curb-reveal measurement #151 asked for cannot come from it. |
+| Can the GSV depth payload measure curb reveal? | **No.** At the 28 GT ramps within 8 m, where a 15 cm curb face spans about two payload rows, 24 windows hold one ground-like plane or none, and **none** shows a curb-sized step. The payload does not separate sidewalk from road at the ramps where it could, so the curb-reveal measurement #151 asked for cannot come from it. **Open observation:** beyond 18 m, 22 of 40 GT windows have a curb-sized step against 24 of 120 null windows on the same image rows (Fisher exact p 7.9e-5). At that range one payload row covers more than 20 cm of height, so this is not a resolved curb face (§6). |
 
 ## How it was built
 
@@ -197,10 +197,12 @@ The deployed GSV run came from the labeler's production pipeline. The YOLO arms 
 committed benchmark JPEGs (`source_max_edge 4096` in their signatures). So on GSV the deployed row
 compares the rig plus an input-path difference that only RampNet received. `rampnet_r2048` is
 RampNet on the same JPEGs. On that leg at 0.55, no RampNet-minus-YOLO interval clears zero; at
-0.30, two of the three do. Together with the 2×2 in §4, where the YOLO arms gain about as many
-physical ramps as RampNet, **the data do not establish that RampNet is more rig-sensitive than the
+0.30, two of the three do. Together with the 2×2 in §4, **the data do not establish that RampNet is more rig-sensitive than the
 YOLO arms trained on its data.** The 2026-09-03 reading ("three to five times larger") and the
-first version of this document ("survives pairing as a difference") are withdrawn.
+first version of this document ("survives pairing as a difference") are withdrawn. In the 2×2 the
+YOLO arms gain about as many physical ramps as RampNet at the 5 m match (+5, +5, +2 against +7).
+At the tighter 3 m match RampNet leans more (+9 against +5, +1, +1). Nothing at either radius is
+significant.
 
 ### 3.1 What the zero-shot rows show, and what they do not
 
@@ -281,12 +283,12 @@ far-field effect on either arm.
 "Median depth range" is the GT point's own range on the depth axis. The null windows share their
 GT point's image row, so they share its range.
 
-| depth range | GT windows | GT: curb-sized step | GT: largest step, median | null windows | null: curb-sized step | null: largest step, median |
-|---|---:|---:|---:|---:|---:|---:|
-| 0-8 m | 28 | 0 (0.000) | 0.025 m | 84 | 6 (0.071) | 0.050 m |
-| 8-12 m | 46 | 2 (0.043) | 0.046 m | 138 | 15 (0.109) | 0.043 m |
-| 12-18 m | 37 | 7 (0.189) | 0.035 m | 111 | 24 (0.216) | 0.055 m |
-| 18 m+ | 40 | 22 (0.550) | 0.090 m | 120 | 24 (0.200) | 0.074 m |
+| depth range | GT windows | GT: curb-sized step | GT: largest step, median | null windows | null: curb-sized step | null: largest step, median | Fisher exact p (GT vs null, curb-sized share) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 0-8 m | 28 | 0 (0.000) | 0.025 m | 84 | 6 (0.071) | 0.050 m | 0.33 |
+| 8-12 m | 46 | 2 (0.043) | 0.046 m | 138 | 15 (0.109) | 0.043 m | 0.25 |
+| 12-18 m | 37 | 7 (0.189) | 0.035 m | 111 | 24 (0.216) | 0.055 m | 0.82 |
+| 18 m+ | 40 | 22 (0.550) | 0.090 m | 120 | 24 (0.200) | 0.074 m | 7.9e-05 |
 
 The deciding rows are the near ones. One payload row is 0.70°, so a 15 cm curb face spans about
 two rows at 6.5 m (the median range of the 0–8 m group) and about one row at 12 m. The near
@@ -296,7 +298,8 @@ step. The null windows at the same range show some (6 of 84). The payload's grou
 small set of large planes, fitted per pano, and it does not separate sidewalk from road at the
 ramps where the resolution would allow it. So it cannot give a per-ramp curb-reveal measurement.
 
-**Beyond 18 m the GT windows show more curb-sized steps than the null** (22 of 40 against 24 of 120).
+**Beyond 18 m the GT windows show more curb-sized steps than the null** (22 of 40 against 24 of 120,
+Fisher exact p 7.9e-5; the other bands are not distinguishable from the null, p 0.25–0.82).
 At that range one payload row covers more than 20 cm of height, so a step there is a boundary
 between two large coarse planes near a corner, not a resolved curb face. It could be the payload
 marking a curb line at coarse scale, or planes breaking up at intersections. This probe cannot
@@ -336,6 +339,14 @@ measurement at the ramp: a crop-level estimate from the imagery, or survey data.
   `3e11306d…`). They are not published, for the same reason as the other four cities' archives
   (`docs/detection_recall_analysis.md` §0.5). Every row derived from them is committed, so the
   tables re-derive without them. Publishing the archive would unblock a from-scratch re-derivation.
+
+- **Unpublished input: the native Laurens panoramas.** The alignment check (Reproduce step 3,
+  `analysis_out/depth_image_alignment_151_laurens_gsv.json`) reads `benchmark/laurens_gsv/panos`,
+  and the Laurens splits are not on the Hub: `projectsidewalk/rampnet-benchmark` carries nine
+  splits (`scripts/unpack_benchmark_panos.py`). The committed `imagery_manifest.json` pins their
+  hashes. What would unblock it: uploading `laurens_gsv` and `laurens_mapillary` with
+  `export_benchmark.py`, which already lists both in `BENCHMARK_SPLITS`. No paired number in this
+  document depends on the panoramas; only the alignment check does.
 
 ## Left out, and why
 

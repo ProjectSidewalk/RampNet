@@ -152,8 +152,10 @@ def test_pre_existing_rows_and_tables_are_the_pre_151_content(committed):
 
 
 def test_laurens_gsv_alignment_evidence():
-    """analysis_out/depth_image_alignment_151_laurens_gsv.json: weaker than the pooled four
-    (open rural sky), but every check that constrains it favours the same mapping."""
+    """analysis_out/depth_image_alignment_151_laurens_gsv.json, pinned as the doc reports it: on
+    this split the mapping is carried over from the pooled four, not independently confirmed.
+    Check C (edges at zero shift) is the direct evidence for it; check A at zero shift goes the
+    other way (open rural sky); B barely discriminates; D is the ray formula, not alignment."""
     with open(os.path.join(REPO, "analysis_out", "depth_image_alignment_151_laurens_gsv.json"),
               encoding="utf-8") as fh:
         al = json.load(fh)
@@ -165,6 +167,7 @@ def test_laurens_gsv_alignment_evidence():
     diag = al["A_sky_diagnostics"]
     assert (diag["prominent_panos"], diag["prominent_raw_best_within_8"]) == (7, 5)
     assert al["C_edges"]["pooled"]["raw_beats_flip_at_zero_shift"] == 56
+    assert (al["A_sky"]["pooled"]["panos"], al["A_sky"]["pooled"]["raw_beats_flip_at_zero_shift"]) == (56, 23)
 
 
 def test_the_alignment_evidence_favours_the_mapping_the_script_uses():

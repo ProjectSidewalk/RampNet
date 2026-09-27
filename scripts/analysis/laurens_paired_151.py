@@ -203,6 +203,23 @@ def mcnemar_exact(b, c):
     return min(1.0, 2 * tail)
 
 
+def fisher_exact(a, b, c, d):
+    """Two-sided Fisher exact p for the 2x2 [[a, b], [c, d]]: the sum of the hypergeometric
+    probabilities of every table with the same margins that is no more probable than this one.
+
+    Example: ``fisher_exact(22, 18, 24, 96)`` (GT windows beyond 18 m with / without a
+    curb-sized step, against the null windows) is about 8e-5.
+    """
+    r1, c1, n = a + b, a + c, a + b + c + d
+
+    def prob(x):
+        return math.comb(c1, x) * math.comb(n - c1, r1 - x) / math.comb(n, r1)
+
+    p0 = prob(a)
+    lo, hi = max(0, r1 + c1 - n), min(r1, c1)
+    return min(1.0, sum(prob(x) for x in range(lo, hi + 1) if prob(x) <= p0 * (1 + 1e-9)))
+
+
 def ci(values):
     lo, hi = np.percentile(values, [2.5, 97.5])
     return [_r(lo), _r(hi)]
@@ -270,6 +287,11 @@ def at_op(preds, op):
     return [p for p in preds if prediction_confidence(p) is None or prediction_confidence(p) >= op]
 
 
+def normalized_sha256(raw):
+    """sha256 of bytes with CRLF normalized to LF (review M5)."""
+    return hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
+
+
 def input_hashes():
     """sha256 of every input, on LF-normalized bytes (review M5: a CRLF checkout under
     core.autocrlf must not change a hash when no content changed). From
@@ -289,7 +311,7 @@ def input_hashes():
     out = {}
     for rel in paths:
         with open(os.path.join(REPO, rel), "rb") as fh:
-            out[rel.replace(os.sep, "/")] = hashlib.sha256(fh.read().replace(b"\r\n", b"\n")).hexdigest()
+            out[rel.replace(os.sep, "/")] = normalized_sha256(fh.read())
     with open(DEPTH_ROWS, encoding="utf-8") as fh:
         rows = [p for p in json.load(fh)["panos"] if p["city"] == GSV]
     blob = json.dumps(rows, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -721,6 +743,12 @@ def tables(data):
                          for lo, hi in PROBE_RANGE_BANDS],
             "window_cells": [2 * PROBE_HALF_ROWS + 1, 2 * PROBE_HALF_COLS + 1],
             "curb_step_m": list(CURB_STEP_M)}
+    if probe:
+        # review R4: GT vs null share of windows with a curb-sized step, per range band
+        for b in t["curb_probe"]["by_range"]:
+            g, n_ = b["gt"], b["null"]
+            b["fisher_p"] = _r(fisher_exact(g["curb_sized_step"], g["windows"] - g["curb_sized_step"],
+                                            n_["curb_sized_step"], n_["windows"] - n_["curb_sized_step"]), 6)
     return t
 
 
@@ -817,13 +845,13 @@ def md_tables(t):
                      f"{c['with_boundary']} | {c['curb_sized_step']} ({_f(c['share_curb_sized'])}) | "
                      f"{_f(c['max_step_p25_m'], 3)} / {_f(c['max_step_median_m'], 3)} / {_f(c['max_step_p75_m'], 3)} m |")
         out["curb_probe"] = "\n".join(L)
-        L = ["| depth range | GT windows | GT: curb-sized step | GT: largest step, median | null windows | null: curb-sized step | null: largest step, median |",
-             "|---|---:|---:|---:|---:|---:|---:|"]
+        L = ["| depth range | GT windows | GT: curb-sized step | GT: largest step, median | null windows | null: curb-sized step | null: largest step, median | Fisher exact p (GT vs null, curb-sized share) |",
+             "|---|---:|---:|---:|---:|---:|---:|---:|"]
         for b in cp["by_range"]:
             g, n_ = b["gt"], b["null"]
             L.append(f"| {b['band']} | {g['windows']} | {g['curb_sized_step']} ({_f(g['share_curb_sized'])}) | "
                      f"{_f(g['max_step_median_m'])} m | {n_['windows']} | {n_['curb_sized_step']} ({_f(n_['share_curb_sized'])}) | "
-                     f"{_f(n_['max_step_median_m'])} m |")
+                     f"{_f(n_['max_step_median_m'])} m | {b['fisher_p']:.2g} |")
         out["curb_probe_by_range"] = "\n".join(L)
     return out
 
