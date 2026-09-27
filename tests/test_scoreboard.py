@@ -623,7 +623,8 @@ def test_single_split_legs_stay_out_of_the_pooled_tables(board):
     want_coverage = {
         "mask2former-vistas-curb-cut": "1/8",
         "mask2former-vistas-curb-cut+curb": "1/8",
-        "mask2former-vistas-curb-cut-1024x1024": "1/8",     # #163, richmond only
+        # #163 richmond, then bend/paterson/gainesville/annapolis for the #35 transfer read
+        "mask2former-vistas-curb-cut-1024x1024": "5/8",
         "claude-opus-5-effort-high": "1/8",
         "claude-sonnet-5-effort-low": "1/8",
         "claude-sonnet-5-effort-high": "1/8",
