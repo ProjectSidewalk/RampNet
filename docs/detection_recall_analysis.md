@@ -53,8 +53,10 @@ no depth axis. laurens_gsv was harvested on 2026-09-27 for #151 (all 2,137 panor
 labeler's `runs/laurens_gsv`, and all 86 benchmark panoramas, hash-verified). It has a depth axis
 but is **held out of every pooled row and rig row below**, for the same reason it is held out of
 the benchmark's pooled basis: 59% of its panoramas sit within 20 m of a `laurens_mapillary` one.
-Its rows are appended to the same artifact and tabulated on their own; adding them moved no
-pre-existing row or table (asserted by `recall_by_depth_112.py --only laurens_gsv`).
+Its rows are appended to the same artifact and tabulated on their own. The pre-existing rows
+and tables still hash to their content on main before #151 (`BASE_SHA256_PRE_151`, asserted by
+`recall_by_depth_112.py --only laurens_gsv` and by a test), and the labeler checkout that derived
+the new rows reproduces the pooled splits' rows byte for byte.
 
 `scripts/analysis/recall_by_depth_112.py` re-derives the axis. It parses the payloads and
 classifies the ground plane with the labeler's own `depth.py` (labeler commit `86bb909`, branch
@@ -274,24 +276,31 @@ its recall is **low at every range, not only far away**: 0.607 at 0–8 m and 0.
 the depth axis, against bend's 0.885 and 0.922 in the same bands. The deficit is not a far-field
 effect. `docs/laurens_paired_151.md` tests it on the corners both Laurens rigs saw.
 
-**The image↔payload check is weaker on laurens_gsv, and says why.** Run separately
+**On laurens_gsv the image↔payload mapping is carried over from the four pooled splits, not
+independently confirmed.** The same checks, run separately
 (`depth_image_alignment_112.py --splits laurens_gsv`, committed to
-`analysis_out/depth_image_alignment_151_laurens_gsv.json`), it gives:
+`analysis_out/depth_image_alignment_151_laurens_gsv.json`), give:
 
-| check | image column = raw column | image column = raw 511 − c |
+| check (laurens_gsv) | image column = raw column | image column = raw 511 − c |
 |---|---|---|
-| A. Sky, best within ±2 columns of zero (56 panos with sky) | 5 | 1 |
-| A. Sky, the 7 panos whose correlation peak is prominent (≥ 0.2 above its median): best within ±8 columns | 5 | – |
-| B. Plane under each GT point is ground-like (151 points) | **151** | 148 |
-| B. The same for true-positive detections (73) | **73** | 71 |
-| C. Edges: this mapping beats the mirror at zero shift | **56 of 86** panos | – |
-| D. Raw-space ray, ground/wall boundaries (5,132) | **median \|log ratio\| 0.053** | 0.336 |
+| A. Sky: this mapping beats the mirror at zero shift (56 panos with sky) | 23 | **33** |
+| A. Sky, best of both mappings × all shifts within ±2 columns of zero | 5 | 1 |
+| A. Sky, the 7 panos whose correlation peak is prominent (≥ 0.2 above its median; a threshold introduced for this split): best within ±8 columns | 5 | – |
+| B. Plane under each GT point is ground-like (151 points) | 151 | 148 |
+| B. The same for true-positive detections (73) | 73 | 71 |
+| C. Edges: this mapping beats the mirror at zero shift (86 panos) | **56** | 30 |
+| C. Edges, best within ±2 columns of zero | 3 | 1 |
 
-Check A is weak here because the upper half of a rural panorama is almost all sky (median 96%),
-so the sky mask has little structure to correlate with. The 7 panoramas that do constrain it
-peak within 8 columns of the unmirrored mapping in 5 cases. B and D favour it as they do in the
-other four splits. The mapping is the same one, and the imagery comes from the same GSV source
-and the same export, but the direct evidence on this split is thinner.
+Check D (the raw-space ray formula, no image involved) is not alignment evidence and is not in
+the table; on this split it reads a median \|log ratio\| of 0.053 against the mirrored formula's
+0.336, as in the other four. Check A goes the other way at zero shift (the mirror is at least as good on 33 of 56),
+because the upper half of a rural panorama is almost all sky (median 96%) and the sky mask has
+little structure to correlate with. Check B barely discriminates (151 against 148). The direct
+image evidence is check C, 56 of 86 at zero shift, with only 3 panos peaking within ±2 columns.
+The imagery comes from the same GSV source and the same export as the four pooled splits, where
+the mapping is well supported, so the same mapping is used. But on this split it is an
+assumption, and the laurens_gsv depth-axis tables here (and "low at every range" above) rest on
+it. A sensitivity re-derivation under the mirrored mapping was not run.
 
 ### 0.3 Apparent size and the resolution forecast
 

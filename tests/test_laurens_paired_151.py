@@ -86,6 +86,10 @@ def test_window_steps_reads_a_known_curb():
     assert n == 2 and steps and max(steps) == pytest.approx(0.15, abs=1e-9)
     n, steps = lp.window_steps(p, 0.25, 0.7, rbd.image_ray, rbd.intersect)
     assert n == 1 and steps == []
+    # review N6: a boundary one column right of the window's last column is not counted
+    x_edge = (256 - lp.PROBE_HALF_COLS - 1 + 0.5) / w   # the window's last column is raw 255
+    n, steps = lp.window_steps(p, x_edge, 0.7, rbd.image_ray, rbd.intersect)
+    assert n == 1 and steps == []
     assert lp.plane_z(road, 3.0, -1.0) == pytest.approx(2.40)
 
 
@@ -103,7 +107,7 @@ def test_committed_artifact_is_lf_rounded_and_hashed(committed):
         raw = fh.read()
     assert b"\r" not in raw and raw.endswith(b"}\n")
     assert lp.rows_sha256(committed) == committed["rows_sha256"]
-    assert committed["rows_sha256"] == "62817a16a5b05ec97fb23e7474b0a534df7934b8f852e84ab636ad644d867a49"
+    assert committed["rows_sha256"] == "034e84cd18277d6099a44d2639b29dacb165a1f68cb10b1e9913d48393739fed"
     for row in committed["gt"]:
         for key, v in row.items():
             if isinstance(v, float) and key not in ("x", "y"):
@@ -135,22 +139,65 @@ def test_headline_numbers(committed):
     assert t["pairing"]["within_radius_of_other_arm"] == {"laurens_gsv": 51, "laurens_mapillary": 49}
     rn = next(r for r in t["scores"] if r["leg"] == "rampnet@0.55")["delta"]
     assert rn["F1"] == 0.1121 and rn["F1_ci"] == [0.0333, 0.1989]
-    head = {h["yolo"]: h for h in t["headline"]}
-    assert [head[y]["yolo_dF1"] for y in lp.YOLO_PANO] == [0.0284, -0.0003, -0.0198]
-    assert head["y11l_pano"]["difference_ci"][0] > 0 and head["y26_pano"]["difference_ci"][0] > 0
-    assert head["y11x_pano_h200"]["share_draws_rampnet_larger"] == 0.973
+    head = {(h["rampnet_leg"], h["yolo"]): h for h in t["headline"]}
+    assert [head[("rampnet@0.55", y)]["yolo_dF1"] for y in lp.YOLO_PANO] == [0.0284, -0.0003, -0.0198]
+    assert head[("rampnet@0.55", "y11x_pano_h200")]["share_draws_rampnet_larger"] == 0.973
     assert t["ramps"]["matched"] == 86
-    assert t["two_by_two"]["rampnet@0.55"] == {
-        "both": 21, "gsv_only": 23, "mly_only": 16, "neither": 26, "n": 86,
-        "recall_gsv": 0.5116, "recall_mly": 0.4302}
+    two = t["two_by_two"]
+    assert {k: two["rampnet@0.55"][k] for k in ("both", "gsv_only", "mly_only", "neither", "n")} == {
+        "both": 21, "gsv_only": 23, "mly_only": 16, "neither": 26, "n": 86}
+    assert two["rampnet@0.55"]["mcnemar_p"] == 0.3368
+
+
+def test_b1_the_excess_over_yolo_does_not_survive_the_same_input_leg_or_the_2x2(committed):
+    """PR #201 review B1, pinned: on the same-input RampNet leg at 0.55 no RampNet-minus-YOLO
+    interval clears zero, and on the ramps both reviews contain the YOLO arms gain about as
+    much as RampNet with no 2x2 asymmetry significant."""
+    t = committed["tables"]
+    head = {(h["rampnet_leg"], h["yolo"]): h for h in t["headline"]}
+    assert [head[("rampnet@0.55", y)]["clears_zero"] for y in lp.YOLO_PANO] == [False, True, True]
+    assert [head[("rampnet_r2048@0.55", y)]["clears_zero"] for y in lp.YOLO_PANO] == [False, False, False]
+    assert [head[("rampnet_r2048@0.30", y)]["clears_zero"] for y in lp.YOLO_PANO] == [False, True, True]
+    assert head[("rampnet_r2048@0.55", "y11l_pano")]["difference_ci"] == [-0.02, 0.1716]
+    two = t["two_by_two"]
+    assert {y: (two[y]["gsv_only"], two[y]["mly_only"]) for y in lp.YOLO_PANO} == {
+        "y11x_pano_h200": (19, 14), "y11l_pano": (20, 15), "y26_pano": (18, 16)}
+    assert all(c["mcnemar_p"] > 0.05 for c in two.values())
+    assert two["rampnet@0.55 (3 m)"]["mcnemar_p"] == 0.1078
+
+
+def test_mcnemar_exact():
+    assert lp.mcnemar_exact(23, 16) == pytest.approx(0.3368, abs=1e-4)
+    assert lp.mcnemar_exact(5, 5) == 1.0
+    assert lp.mcnemar_exact(0, 0) == 1.0
+    assert lp.mcnemar_exact(0, 6) == pytest.approx(2 / 64)
+
+
+def test_input_hashes_ignore_line_endings():
+    """PR #201 review M5: a CRLF checkout must hash like the LF one."""
+    import hashlib
+    raw = b'{"a": 1}\n{"b": 2}\n'
+    assert hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest() == \
+        hashlib.sha256(raw.replace(b"\n", b"\r\n").replace(b"\r\n", b"\n")).hexdigest()
+    hashes = lp.input_hashes()
+    assert "analysis_out/recall_by_depth_112.json" not in hashes
+    assert "analysis_out/recall_by_depth_112.json#panos[city=laurens_gsv]" in hashes
+
+
+def test_near_miss_and_probe_numbers(committed):
+    t = committed["tables"]
     nm = t["near_miss"]
     assert nm["laurens_mapillary"]["verdict"]["whole_arm"]["delta"] == 0.0038
     assert nm["laurens_gsv"]["verdict"]["whole_arm"]["delta"] == -0.0053
     cp = t["curb_probe"]["gt_within_8m_depth"]
     assert (cp["windows"], cp["one_ground_plane_or_none"], cp["curb_sized_step"]) == (28, 24, 0)
+    far = t["curb_probe"]["by_range"][-1]
+    assert far["band"] == "18 m+" and (far["gt"]["windows"], far["gt"]["curb_sized_step"]) == (40, 22)
 
 
 def test_rampnet_030_has_no_gsv_side(committed):
+    """Documents a current gap, not a requirement: there is no laurens_gsv op_cache yet. When one
+    is produced, input_hashes() hashes it and this test should be updated with the new rows."""
     row = next(r for r in committed["tables"]["scores"] if r["leg"] == "rampnet@0.30")
     assert row["laurens_gsv"] is None and row["delta"] is None
     assert not os.path.exists(os.path.join(REPO, "analysis_out", "op_cache", "laurens_gsv.json"))
@@ -160,6 +207,6 @@ def test_the_doc_tables_are_the_committed_tables(committed):
     with open(DOC, encoding="utf-8") as fh:
         doc = fh.read().replace("\r\n", "\n")
     tabs = lp.md_tables(committed["tables"])
-    assert len(tabs) == 9
+    assert len(tabs) == 10
     for name, tab in tabs.items():
         assert tab in doc, f"table {name!r} in docs/laurens_paired_151.md does not match the rows"
