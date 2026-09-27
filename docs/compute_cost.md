@@ -260,6 +260,37 @@ python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
 id. What each row is, with the per-arm training time, is in
 [`context_fov_86.md`](context_fov_86.md) §5.
 
+## klone, 2026-09-27: the #48 pass-2 challenger offload, 9.26 GPU-hours, $0
+
+Ten jobs for #48 (PR #200): a CPU-only env build and model download on `ckpt-all`
+(`mv48-setup`), then three arrays on `ckpt-all`. The arrays ran Molmo2-8B in 4 shards,
+Qwen3-VL-8B in 3, and OWLv2 + Grounding DINO in 2, over the 1,307 panos the 30 m
+widening added to the Richmond neighbourhood bundle. Each shard took one GPU. The arrays
+were submitted for L40S and widened to any 40 GB+ GPU while pending, so they ran on 1 L40S,
+6 A40 and 2 A100. All incarnations COMPLETED with no requeues, so all are free. The per-leg
+wall-clock and s/pano rows are in `analysis_out/usage_log.jsonl`, 11 rows,
+one per leg per shard. The scripts and the runbook are in `scripts/analysis/multiview_48_klone/`.
+Pulled by job id on 2026-09-27 into `docs/data/compute/sacct_klone_2026-09-27_mv48.txt`
+(1,811 bytes, sha256
+`3000de53d4c0da2ce64a242a49adcfa9b8e8e9a19899fc2c9e9d77847aaffb76`) on a klone login node:
+
+```bash
+sacct -X -D -P -n \
+    --format=JobID,JobName%60,Cluster,Partition,QOS,State,Submit,Start,End,ElapsedRaw,AllocTRES,NNodes,ExitCode \
+    -j 40770073,40770191,40770192,40770193 > sacct_mv48.txt
+```
+
+Parsed with:
+
+```bash
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
+    --from-file docs/data/compute/sacct_klone_2026-09-27_mv48.txt \
+    --out analysis_out/compute_log.jsonl
+```
+
+`tests/test_slurm_usage.py` pins the dump's hash and includes its ten rows in the
+ledger-equals-dumps check.
+
 ## Gaps, stated
 
 - **Tillicum is a snapshot as of 2026-09-21.** Nothing after that date is in the ledger; the
