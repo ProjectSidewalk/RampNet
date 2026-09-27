@@ -690,8 +690,8 @@ def test_the_prose_beside_the_partial_table_agrees_with_it(board):
         # A breakdown, which has to add up. The first version of this test pinned
         # the total only, and the sentence said "six of them one split each"
         # beside a three-split leg: six plus one is seven.
-        want = (f"{_WORDS[len(partial)]} legs have not run the pooled splits — "
-                f"{_WORDS[len(one_split)].lower()} of them one split each")
+        want = (f"{_WORDS[len(partial)]} legs have not run every pooled split — "
+                f"{_WORDS[len(one_split)].lower()} of them only one")
     assert doc.count(want) == 2, (
         f"expected {want!r} twice in docs/model_scoreboard.md (the section opener and "
         f"the 'What is missing' bullet); the board has {len(partial)} partial legs, "

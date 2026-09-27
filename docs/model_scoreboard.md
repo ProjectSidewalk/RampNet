@@ -147,7 +147,7 @@ and F1 cannot tell you.
 
 ## Legs that have not run every pooled split
 
-Eight legs have not run the pooled splits — seven of them one split each — so they have no pooled mean to put in the table above —
+Eight legs have not run every pooled split — seven of them only one — so they have no pooled mean to put in the table above —
 a one-city average printed beside an eight-city one is exactly the comparison the coverage
 column exists to prevent. They are reported per split instead, at the split they ran on:
 
@@ -470,7 +470,7 @@ Omissions are content, so they are named rather than left as blanks:
   `rampnet/roster.py`, not because it is untested.
 - **`manual_gold` has no null-recall pass** (O(n²) in panos), so the open detectors' recall
   discount is unmeasured on that split.
-- **Eight legs have not run the pooled splits — seven of them one split each**, so they are in the partial table rather than the
+- **Eight legs have not run every pooled split — seven of them only one**, so they are in the partial table rather than the
   headline: the three Vistas arms (the 1024 row is the curb-cut arm at resolution parity,
   #126/#163, on richmond and, since the #35 transfer run, bend, paterson, gainesville and
   annapolis — five of the eight pooled splits; the other two on richmond only), and five Claude legs on annapolis — Claude Opus 5
