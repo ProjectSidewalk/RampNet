@@ -260,6 +260,26 @@ python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
 id. What each row is, with the per-arm training time, is in
 [`context_fov_86.md`](context_fov_86.md) §5.
 
+## klone, 2026-09-27: the #35 cascade transfer run, 0.49 GPU-hours, $0
+
+One L40S job on the lab's allocation (`gpu-l40s`, QOS normal, no preemption, one incarnation):
+the Vistas parity arm on four splits and RampNet's 1× pass timed on the same GPU. Pulled by job
+id on 2026-09-27 into `docs/data/compute/sacct_klone_2026-09-27_cascade35.txt` (189 bytes,
+sha256 `b2d52b30f955189e557cefde4209ee3977b0023c79dad5cbceede6e3d41679b8`) on a klone login node
+with the `--print-command` invocation plus `-j 40774146`, and parsed with:
+
+```bash
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
+    --from-file docs/data/compute/sacct_klone_2026-09-27_cascade35.txt --out analysis_out/compute_log.jsonl
+```
+
+| job | what | partition | elapsed | GPU-h |
+| :--- | :--- | :--- | ---: | ---: |
+| 40774146 `cascade35_transfer` | `scripts/analysis/cascade_transfer_35.slurm` | gpu-l40s, L40S on g3102 | 1,780 s | 0.494 |
+
+The per-leg split of that time (model load, inference, s/pano) is in the job's eight `paid: false`
+rows in `analysis_out/usage_log.jsonl` and in [`cascade_cost_35.md` §Transfer](cascade_cost_35.md).
+
 ## Gaps, stated
 
 - **Tillicum is a snapshot as of 2026-09-21.** Nothing after that date is in the ledger; the
