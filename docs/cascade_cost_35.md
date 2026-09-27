@@ -517,7 +517,7 @@ mkdir -p "$W" logs
 
 # 1. the native-resolution panoramas, into this checkout's benchmark/<split>/panos. All four
 #    splits are on projectsidewalk/rampnet-benchmark (config "native"); the unpacker checks every
-#    file against the committed imagery_manifest.json and refuses a mismatch. ~7 GB.
+#    file against the committed imagery_manifest.json and refuses a mismatch. About 6 GB to download (5.86 GB of Parquet), 6.5 GB of JPEGs on disk.
 #    (Of the benchmark's splits, laurens_gsv and laurens_mapillary are NOT on the Hub yet and
 #    manual_gold is excluded by design -- see scripts/unpack_benchmark_panos.py; none of the
 #    three is needed here.)
