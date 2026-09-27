@@ -211,10 +211,6 @@ def rnd(v, nd=ND):
     return irs.rnd(v, nd)
 
 
-def write_json(path, obj):
-    irs.write_json(path, obj)
-
-
 # --------------------------------------------------------------------------- #
 # data
 # --------------------------------------------------------------------------- #
@@ -458,6 +454,8 @@ def build(cache_root=CACHE_ROOT, cities=SPLITS, n_shifts=N_SHIFTS):
         for name, members in [(c, [c]) for c in pairs] + [
                 (n, [c for c in m if c in pairs])
                 for n, m in list(POOLS.items()) + list(POST_HOC_POOLS.items())]:
+            # a cyclic shift needs >=2 panos; a one-pano split has no wrong pano to use
+            members = [c for c in members if len(pairs[c]) >= 2]
             if not members:
                 continue
             base = add_counts(cnt[("r2048", c)] for c in members)
