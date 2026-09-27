@@ -53,7 +53,6 @@ Conventions, stated once:
     python scripts/analysis/da3_calibration_101.py --check --markdown
 """
 import argparse
-import csv
 import hashlib
 import json
 import math
@@ -534,41 +533,46 @@ def read_raw(raw_dir, split):
     return out
 
 
-def read_labeler_laurens(labeler_root):
-    """The labeler's Laurens camera-height tables, read only, with the commit and file hashes."""
-    base = os.path.join(labeler_root, "runs", "laurens")
-    groups_csv = os.path.join(base, "camera_height", "groups.csv")
-    heights_json = os.path.join(base, "camera_heights.json")
+# The labeler input, pinned (review of #203, M2). Only camera_heights.json is read: it is tracked
+# in sidewalk-auto-labeler (force-added under the ignored runs/), so `git show` at this commit
+# reproduces it. The first version also read runs/laurens/camera_height/groups.csv, which is an
+# untracked run output (.gitignore: runs/**) and so in no labeler commit; it is no longer read.
+# 2653a49 is the re-issue after sidewalk-auto-labeler#89 (1d8127e), which found no validated
+# instrument-B estimator.
+LABELER_COMMIT = "2653a49c420465bd792d165ece5681ad6c2ace4a"
+LABELER_FILES = {"runs/laurens/camera_heights.json":
+                 "74900b62edf5bd9470e17c78c72c6a9c343455ce738086103b1d4252eb34c54d"}
+
+
+def read_labeler_laurens(labeler_root, commit=LABELER_COMMIT):
+    """The labeler's Laurens rig table at a pinned commit, read with `git show` (never the working tree).
+
+    Refuses if the file's sha256 is not the pinned one, so a re-run of ``derive`` cannot silently
+    pick up a newer labeler state. Returns the values the tables use plus the commit and hash.
+    """
+    path = "runs/laurens/camera_heights.json"
     try:
-        commit = subprocess.run(["git", "-C", labeler_root, "rev-parse", "HEAD"], capture_output=True,
-                                text=True, check=True).stdout.strip()
-    except (OSError, subprocess.CalledProcessError):
-        commit = None
-    with open(groups_csv, newline="", encoding="utf-8") as fh:
-        rows = list(csv.DictReader(fh))
-    with open(heights_json, encoding="utf-8") as fh:
-        hj = json.load(fh)
-
-    def num(v):
-        return None if v in ("", None) else float(v)
-
-    keep = []
-    for r in rows:
-        if r["grouping"] not in ("rig", "sequence"):
-            continue
-        keep.append({"grouping": r["grouping"], "group": r["group"], "panos": num(r["panos"]),
-                     "h_bearing": num(r["h_bearing"]), "h_bearing_lo": num(r["h_bearing_lo"]),
-                     "h_bearing_hi": num(r["h_bearing_hi"]), "slope": num(r["slope"]),
-                     "h_scale": num(r["h_scale"]), "h_scale_lo": num(r["h_scale_lo"]),
-                     "h_scale_hi": num(r["h_scale_hi"])})
-    g = hj["groups"].get("gopro/max", {})
-    return {"labeler_commit": commit,
-            "files": {"runs/laurens/camera_height/groups.csv": sha256_of(groups_csv),
-                      "runs/laurens/camera_heights.json": sha256_of(heights_json)},
-            "rig_verdict": {"group": "gopro/max", "applied": g.get("applied"),
-                            "height_m": g.get("height_m"), "reason": g.get("reason"),
-                            "gate_passes": hj.get("gate", {}).get("passes")},
-            "groups": keep}
+        raw = subprocess.run(["git", "-C", labeler_root, "show", f"{commit}:{path}"],
+                             capture_output=True, check=True).stdout
+    except (OSError, subprocess.CalledProcessError) as e:
+        raise SystemExit(f"cannot read {path} at labeler commit {commit} from {labeler_root}: {e}")
+    digest = hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
+    if digest != LABELER_FILES[path]:
+        raise SystemExit(f"labeler {path} at {commit} has sha256 {digest}, pinned {LABELER_FILES[path]}")
+    hj = json.loads(raw.decode("utf-8"))
+    g = hj["groups"]["gopro/max"]
+    ib = g.get("instrument_b") or {}
+    ev = hj.get("estimator_validation") or {}
+    return {"labeler_commit": commit, "files": {path: digest},
+            "rig": {"group": "gopro/max", "n_panos": g.get("n_panos"), "applied": g.get("applied"),
+                    "height_m": g.get("height_m"), "reason": g.get("reason"),
+                    "h_bearing": g.get("h_bearing"), "h_bearing_ci": g.get("h_bearing_ci"),
+                    "h_scale": g.get("h_scale"), "h_scale_ci": g.get("h_scale_ci"), "slope": g.get("slope"),
+                    "b_validated": ib.get("validated"), "b_h_line": ib.get("h_line"), "b_h_local": ib.get("h_local")},
+            "gate_passes": hj.get("gate", {}).get("passes"),
+            "estimator_validation": {"validated": ev.get("validated"), "rule": ev.get("rule"),
+                                     "line_max_abs_mean_err_m": (ev.get("line") or {}).get("max_abs_mean_err_m"),
+                                     "local_max_abs_mean_err_m": (ev.get("local") or {}).get("max_abs_mean_err_m")}}
 
 
 def derive_rows(raw_dir=RAW_DIR, splits=ALL_SPLITS):
@@ -1066,33 +1070,17 @@ def tables(panos, points, labeler):
     t["recall_distance"] = rec
     t["thresholds"] = thr
 
-    # -- 7. Laurens cross-read: DA3 heights by sequence vs the labeler's instruments
+    # -- 7. Laurens cross-read: DA3's rig height vs the labeler's (pinned, read-only)
     lm = [p for p in panos if p["split"] == "laurens_mapillary" and fit_ok(p)]
     lg = [p for p in panos if p["split"] == "laurens_gsv" and fit_ok(p)]
-    lab = {g["group"]: g for g in labeler["groups"] if g["grouping"] == "sequence"}
-    seq_rows = []
-    for sq in sorted({p["sequence_id"] for p in lm}):
-        ps = [p for p in lm if p["sequence_id"] == sq]
-        lr = lab.get(sq, {})
-        seq_rows.append({"sequence_id": sq, "n_panos": len(ps),
-                         "da3_h_m": _r(st.median(p[f"{key}_h"] / k_h for p in ps)),
-                         "labeler_h_scale": lr.get("h_scale"), "labeler_h_bearing": lr.get("h_bearing")})
-    rig = next((g for g in labeler["groups"] if g["grouping"] == "rig" and g["group"] == "gopro/max"), {})
-    paired = [r for r in seq_rows if r["labeler_h_scale"] is not None]
     t["laurens_cross_read"] = {
         "labeler_commit": labeler["labeler_commit"], "labeler_files": labeler["files"],
-        "labeler_rig_verdict": labeler["rig_verdict"],
-        "rig": {"group": "gopro/max", "da3_n_panos": len(lm),
-                "da3_median_h_m": _r(st.median(p[f"{key}_h"] / k_h for p in lm)) if lm else None,
-                "labeler_h_scale": rig.get("h_scale"), "labeler_h_scale_ci": [rig.get("h_scale_lo"), rig.get("h_scale_hi")],
-                "labeler_h_bearing": rig.get("h_bearing"),
-                "labeler_h_bearing_ci": [rig.get("h_bearing_lo"), rig.get("h_bearing_hi")]},
+        "labeler_rig": labeler["rig"], "labeler_gate_passes": labeler["gate_passes"],
+        "labeler_estimator_validation": labeler["estimator_validation"],
+        "da3_n_panos": len(lm),
+        "da3_median_h_m": _r(st.median(p[f"{key}_h"] / k_h for p in lm)) if lm else None,
         "laurens_gsv_da3_median_h_m": _r(st.median(p[f"{key}_h"] / k_h for p in lg)) if lg else None,
-        "laurens_gsv_n_panos": len(lg),
-        "sequences": seq_rows,
-        "sequence_pearson_r_vs_h_scale": _r(pearson([r["labeler_h_scale"] for r in paired],
-                                                     [r["da3_h_m"] for r in paired])) if len(paired) >= 3 else None,
-        "n_sequences_paired": len(paired)}
+        "laurens_gsv_n_panos": len(lg)}
 
     # -- 8. the band sensitivity: 20-60 vs 20-45 heights on the same panos
     alt = f"{DEPTH_CONVENTION}_b20_60"
@@ -1279,19 +1267,16 @@ def markdown(t):
             w = th[a]
             L.append(f"| {a} | {rbd._thr(w[0])} | {rbd._thr(w[1])} |")
     lc = t["laurens_cross_read"]
-    L.append(f"\n## Laurens cross-read (labeler commit `{lc['labeler_commit']}`)\n")
-    r = lc["rig"]
-    L.append(f"GoPro Max rig: DA3 median {r['da3_median_h_m']} m over {r['da3_n_panos']} panos; labeler "
-             f"h_scale {r['labeler_h_scale']} {r['labeler_h_scale_ci']}, h_bearing {r['labeler_h_bearing']} "
-             f"{r['labeler_h_bearing_ci']}; labeler verdict {lc['labeler_rig_verdict']}. laurens_gsv (Google rig, "
-             f"same footprint): DA3 median {lc['laurens_gsv_da3_median_h_m']} m over {lc['laurens_gsv_n_panos']} panos. "
-             f"Sequence-level Pearson r (DA3 vs h_scale) = {lc['sequence_pearson_r_vs_h_scale']} over "
-             f"{lc['n_sequences_paired']} sequences.\n")
-    L.append("| sequence | panos | DA3 h (m) | labeler h_scale | labeler h_bearing |")
-    L.append("|---|---:|---:|---:|---:|")
-    for s in lc["sequences"]:
-        L.append(f"| {s['sequence_id']} | {s['n_panos']} | {_f(s['da3_h_m'], 2)} | {_f(s['labeler_h_scale'], 2)} | "
-                 f"{_f(s['labeler_h_bearing'], 2)} |")
+    r = lc["labeler_rig"]
+    ev = lc["labeler_estimator_validation"]
+    L.append(f"\n## Laurens cross-read (labeler commit `{lc['labeler_commit']}`, camera_heights.json only)\n")
+    L.append(f"GoPro Max rig: DA3 median {lc['da3_median_h_m']} m over {lc['da3_n_panos']} panos "
+             f"(laurens_gsv, Google rig, same footprint: {lc['laurens_gsv_da3_median_h_m']} m over "
+             f"{lc['laurens_gsv_n_panos']} panos). Labeler: bearing fixed point {r['h_bearing']} {r['h_bearing_ci']}, "
+             f"scale identity at 2.6 m {r['h_scale']} {r['h_scale_ci']}, instrument B validated: {r['b_validated']} "
+             f"(estimator validation: line max |mean error| {ev['line_max_abs_mean_err_m']} m, local "
+             f"{ev['local_max_abs_mean_err_m']} m, validated {ev['validated']}); applied {r['applied']}, height used "
+             f"{r['height_m']} m; reason: {r['reason']}\n")
     L.append("\n## Band sensitivity: fitted height, 20–60 deg band / 20–45 deg band\n")
     L.append("| split | panos | median ratio | inlier share 20–45 | inlier share 20–60 |")
     L.append("|---|---:|---:|---:|---:|")
@@ -1342,6 +1327,8 @@ def check(markdown_out=False):
     panos, points = derive_rows()
     if read_jsonl(ROWS_PANOS) != panos or read_jsonl(ROWS_POINTS) != points:
         raise SystemExit("rows do not re-derive from the committed raw files, bundles and #112 JSON")
+    if stored["labeler_laurens"]["files"] != LABELER_FILES or stored["labeler_laurens"]["labeler_commit"] != LABELER_COMMIT:
+        raise SystemExit("tables.json's labeler block is not the pinned labeler commit / file hash")
     fresh = tables(panos, points, stored["labeler_laurens"])
     fresh = json.loads(json.dumps(fresh, sort_keys=True))
     if fresh != stored["tables"]:
@@ -1370,7 +1357,8 @@ def main(argv=None):
     ap.add_argument("--out-dir", default=RAW_DIR, help="raw JSONL directory (extract)")
     ap.add_argument("--da3-src", help="Depth-Anything-3/src (default: $DA3_SRC)")
     ap.add_argument("--limit", type=int, default=0, help="extract: at most this many new panos per split")
-    ap.add_argument("--labeler-root", default=os.environ.get("LABELER_ROOT", r"D:\Git\sidewalk-auto-labeler"))
+    ap.add_argument("--labeler-root", default=os.environ.get("LABELER_ROOT"),
+                    help="derive: a sidewalk-auto-labeler clone (or $LABELER_ROOT); read with git show at the pinned commit")
     a = ap.parse_args(argv)
     if a.check:
         return check(a.markdown)
@@ -1380,6 +1368,8 @@ def main(argv=None):
         return extract(a)
     if a.stage == "derive":
         panos, points = derive_rows()
+        if not a.labeler_root:
+            ap.error("derive needs --labeler-root (or $LABELER_ROOT): a sidewalk-auto-labeler clone")
         labeler = read_labeler_laurens(a.labeler_root)
         # sorted keys, exactly as tables.json stores them, so markdown() sees one dict order
         t = json.loads(json.dumps(tables(panos, points, labeler), sort_keys=True))

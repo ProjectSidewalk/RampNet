@@ -3,259 +3,37 @@
   "recall_by_depth_112.json": "b2c6b195e4cb43d094b3c02a811cc0eb2a3e17429a97718dd62fa429f242f897"
  },
  "labeler_laurens": {
+  "estimator_validation": {
+   "line_max_abs_mean_err_m": 0.3612,
+   "local_max_abs_mean_err_m": 0.4181,
+   "rule": "rule V: over h_true [1.8, 2.2, 2.6, 3.0] x noise [0.5, 1.0], max |mean error over seeds| <= 0.1 m and no cell undefined or extrapolated; both valid -> line, one -> that one, neither -> b_unvalidated",
+   "validated": false
+  },
   "files": {
-   "runs/laurens/camera_height/groups.csv": "0df9f76c6defc391b6a056b65220c50cd6fc9e235ba7d08543f2a769ccaf6625",
    "runs/laurens/camera_heights.json": "74900b62edf5bd9470e17c78c72c6a9c343455ce738086103b1d4252eb34c54d"
   },
-  "groups": [
-   {
-    "group": "gopro/max",
-    "grouping": "rig",
-    "h_bearing": 4.314,
-    "h_bearing_hi": 4.841,
-    "h_bearing_lo": 3.802,
-    "h_scale": 2.949,
-    "h_scale_hi": 3.0,
-    "h_scale_lo": 2.897,
-    "panos": 4495.0,
-    "slope": 0.723
-   },
-   {
-    "group": "1vDiqGEpeuIsYb6AXo5y0Z",
-    "grouping": "sequence",
-    "h_bearing": 3.987,
-    "h_bearing_hi": 8.043,
-    "h_bearing_lo": 3.288,
-    "h_scale": 3.188,
-    "h_scale_hi": 3.325,
-    "h_scale_lo": 3.05,
-    "panos": 291.0,
-    "slope": 0.567
-   },
-   {
-    "group": "BkWj9PJOTmhN5KeQIsozwg",
-    "grouping": "sequence",
-    "h_bearing": 3.561,
-    "h_bearing_hi": 6.226,
-    "h_bearing_lo": 3.072,
-    "h_scale": 3.017,
-    "h_scale_hi": 3.206,
-    "h_scale_lo": 2.828,
-    "panos": 228.0,
-    "slope": 0.519
-   },
-   {
-    "group": "C6dwIBRe791hVFz8x2OWJY",
-    "grouping": "sequence",
-    "h_bearing": 3.332,
-    "h_bearing_hi": 6.648,
-    "h_bearing_lo": 2.832,
-    "h_scale": 3.019,
-    "h_scale_hi": 3.195,
-    "h_scale_lo": 2.842,
-    "panos": 118.0,
-    "slope": 0.639
-   },
-   {
-    "group": "C8rnZtapvRTc59YOBjAklG",
-    "grouping": "sequence",
-    "h_bearing": 3.532,
-    "h_bearing_hi": 4.281,
-    "h_bearing_lo": 2.863,
-    "h_scale": 2.855,
-    "h_scale_hi": 2.987,
-    "h_scale_lo": 2.724,
-    "panos": 248.0,
-    "slope": 0.653
-   },
-   {
-    "group": "Dq1MnGTap8j642PmRYXywt",
-    "grouping": "sequence",
-    "h_bearing": null,
-    "h_bearing_hi": null,
-    "h_bearing_lo": null,
-    "h_scale": 2.893,
-    "h_scale_hi": 3.128,
-    "h_scale_lo": 2.658,
-    "panos": 267.0,
-    "slope": 1.291
-   },
-   {
-    "group": "OIomhEn0VrPvSL7TxGi9NW",
-    "grouping": "sequence",
-    "h_bearing": 3.855,
-    "h_bearing_hi": 5.417,
-    "h_bearing_lo": 3.088,
-    "h_scale": 2.95,
-    "h_scale_hi": 3.114,
-    "h_scale_lo": 2.787,
-    "panos": 242.0,
-    "slope": 0.557
-   },
-   {
-    "group": "RbiQWPvZCdhHTA03w1rLql",
-    "grouping": "sequence",
-    "h_bearing": null,
-    "h_bearing_hi": null,
-    "h_bearing_lo": null,
-    "h_scale": 2.796,
-    "h_scale_hi": 3.049,
-    "h_scale_lo": 2.542,
-    "panos": 100.0,
-    "slope": 1.094
-   },
-   {
-    "group": "SpjgxY5nETrQRPuDqzwhoN",
-    "grouping": "sequence",
-    "h_bearing": 3.02,
-    "h_bearing_hi": 7.561,
-    "h_bearing_lo": 2.329,
-    "h_scale": null,
-    "h_scale_hi": null,
-    "h_scale_lo": null,
-    "panos": 304.0,
-    "slope": 0.312
-   },
-   {
-    "group": "XyPtf86jxEsdVoC1puIBhJ",
-    "grouping": "sequence",
-    "h_bearing": null,
-    "h_bearing_hi": null,
-    "h_bearing_lo": null,
-    "h_scale": 2.891,
-    "h_scale_hi": 3.119,
-    "h_scale_lo": 2.662,
-    "panos": 248.0,
-    "slope": 1.111
-   },
-   {
-    "group": "axZPXQLSm6hrvCoYd9f1cl",
-    "grouping": "sequence",
-    "h_bearing": 4.113,
-    "h_bearing_hi": 5.974,
-    "h_bearing_lo": 3.474,
-    "h_scale": 2.942,
-    "h_scale_hi": 3.071,
-    "h_scale_lo": 2.814,
-    "panos": 326.0,
-    "slope": 0.584
-   },
-   {
-    "group": "eTW2wxXc9iFHR8hQ0BZYDL",
-    "grouping": "sequence",
-    "h_bearing": 3.53,
-    "h_bearing_hi": 22.867,
-    "h_bearing_lo": 3.198,
-    "h_scale": null,
-    "h_scale_hi": null,
-    "h_scale_lo": null,
-    "panos": 189.0,
-    "slope": 0.207
-   },
-   {
-    "group": "fqZJNGcvt9HM3QxdhkXisB",
-    "grouping": "sequence",
-    "h_bearing": 3.584,
-    "h_bearing_hi": 6.104,
-    "h_bearing_lo": 2.992,
-    "h_scale": 2.778,
-    "h_scale_hi": 2.979,
-    "h_scale_lo": 2.577,
-    "panos": 287.0,
-    "slope": 0.645
-   },
-   {
-    "group": "ngTGPIQjmsxLf0uY8d4otC",
-    "grouping": "sequence",
-    "h_bearing": 13.517,
-    "h_bearing_hi": 52.333,
-    "h_bearing_lo": 3.888,
-    "h_scale": 2.905,
-    "h_scale_hi": 3.115,
-    "h_scale_lo": 2.694,
-    "panos": 283.0,
-    "slope": 0.952
-   },
-   {
-    "group": "other",
-    "grouping": "sequence",
-    "h_bearing": null,
-    "h_bearing_hi": null,
-    "h_bearing_lo": null,
-    "h_scale": 3.046,
-    "h_scale_hi": 3.634,
-    "h_scale_lo": 2.458,
-    "panos": null,
-    "slope": null
-   },
-   {
-    "group": "rF2x7s5zpZ9u1TDVHeXStC",
-    "grouping": "sequence",
-    "h_bearing": 2.979,
-    "h_bearing_hi": 3.44,
-    "h_bearing_lo": 2.795,
-    "h_scale": 2.973,
-    "h_scale_hi": 3.104,
-    "h_scale_lo": 2.842,
-    "panos": 221.0,
-    "slope": 0.33
-   },
-   {
-    "group": "sWgIuf2jYGaEJPXzVck8on",
-    "grouping": "sequence",
-    "h_bearing": 13.71,
-    "h_bearing_hi": 109.695,
-    "h_bearing_lo": 3.575,
-    "h_scale": 3.001,
-    "h_scale_hi": 3.251,
-    "h_scale_lo": 2.75,
-    "panos": 314.0,
-    "slope": 0.955
-   },
-   {
-    "group": "vngsVZuQaY9U4lF7zJ6dro",
-    "grouping": "sequence",
-    "h_bearing": 3.677,
-    "h_bearing_hi": 5.169,
-    "h_bearing_lo": 3.257,
-    "h_scale": 2.894,
-    "h_scale_hi": 3.001,
-    "h_scale_lo": 2.787,
-    "panos": 261.0,
-    "slope": 0.631
-   },
-   {
-    "group": "z0rwf2KqY6IS5XELmdtpyV",
-    "grouping": "sequence",
-    "h_bearing": 4.62,
-    "h_bearing_hi": 9.479,
-    "h_bearing_lo": 3.874,
-    "h_scale": 3.06,
-    "h_scale_hi": 3.149,
-    "h_scale_lo": 2.972,
-    "panos": 310.0,
-    "slope": 0.758
-   },
-   {
-    "group": "z2rS8wRVoXTeflg6sMIUj5",
-    "grouping": "sequence",
-    "h_bearing": 4.035,
-    "h_bearing_hi": 31.368,
-    "h_bearing_lo": 3.165,
-    "h_scale": 2.923,
-    "h_scale_hi": 3.07,
-    "h_scale_lo": 2.777,
-    "panos": 219.0,
-    "slope": 0.739
-   }
-  ],
-  "labeler_commit": "1cb24800e6668ee8263079c917e13002fbab11ae",
-  "rig_verdict": {
+  "gate_passes": false,
+  "labeler_commit": "2653a49c420465bd792d165ece5681ad6c2ace4a",
+  "rig": {
    "applied": false,
-   "gate_passes": false,
+   "b_h_line": 3.755,
+   "b_h_local": 3.481,
+   "b_validated": false,
    "group": "gopro/max",
+   "h_bearing": 4.314,
+   "h_bearing_ci": [
+    3.802,
+    4.841
+   ],
+   "h_scale": 2.977,
+   "h_scale_ci": [
+    2.925,
+    3.028
+   ],
    "height_m": 2.6,
-   "reason": "fails identifiable (slope 0.723); agreement (b_unvalidated: no h*_B estimator passed rule V in this city; line 3.755, local 3.481); material (CI 3.80-4.84, h_g n/a); SUSPECT: bearing height outside 1.0-3.5 m"
+   "n_panos": 644,
+   "reason": "fails identifiable (slope 0.723); agreement (b_unvalidated: no h*_B estimator passed rule V in this city; line 3.755, local 3.481); material (CI 3.80-4.84, h_g n/a); SUSPECT: bearing height outside 1.0-3.5 m",
+   "slope": 0.723
   }
  },
  "tables": {
@@ -1240,165 +1018,42 @@
    }
   ],
   "laurens_cross_read": {
-   "labeler_commit": "1cb24800e6668ee8263079c917e13002fbab11ae",
+   "da3_median_h_m": 2.1288,
+   "da3_n_panos": 73,
+   "labeler_commit": "2653a49c420465bd792d165ece5681ad6c2ace4a",
+   "labeler_estimator_validation": {
+    "line_max_abs_mean_err_m": 0.3612,
+    "local_max_abs_mean_err_m": 0.4181,
+    "rule": "rule V: over h_true [1.8, 2.2, 2.6, 3.0] x noise [0.5, 1.0], max |mean error over seeds| <= 0.1 m and no cell undefined or extrapolated; both valid -> line, one -> that one, neither -> b_unvalidated",
+    "validated": false
+   },
    "labeler_files": {
-    "runs/laurens/camera_height/groups.csv": "0df9f76c6defc391b6a056b65220c50cd6fc9e235ba7d08543f2a769ccaf6625",
     "runs/laurens/camera_heights.json": "74900b62edf5bd9470e17c78c72c6a9c343455ce738086103b1d4252eb34c54d"
    },
-   "labeler_rig_verdict": {
+   "labeler_gate_passes": false,
+   "labeler_rig": {
     "applied": false,
-    "gate_passes": false,
+    "b_h_line": 3.755,
+    "b_h_local": 3.481,
+    "b_validated": false,
     "group": "gopro/max",
-    "height_m": 2.6,
-    "reason": "fails identifiable (slope 0.723); agreement (b_unvalidated: no h*_B estimator passed rule V in this city; line 3.755, local 3.481); material (CI 3.80-4.84, h_g n/a); SUSPECT: bearing height outside 1.0-3.5 m"
-   },
-   "laurens_gsv_da3_median_h_m": 2.1443,
-   "laurens_gsv_n_panos": 78,
-   "n_sequences_paired": 16,
-   "rig": {
-    "da3_median_h_m": 2.1288,
-    "da3_n_panos": 73,
-    "group": "gopro/max",
-    "labeler_h_bearing": 4.314,
-    "labeler_h_bearing_ci": [
+    "h_bearing": 4.314,
+    "h_bearing_ci": [
      3.802,
      4.841
     ],
-    "labeler_h_scale": 2.949,
-    "labeler_h_scale_ci": [
-     2.897,
-     3.0
-    ]
+    "h_scale": 2.977,
+    "h_scale_ci": [
+     2.925,
+     3.028
+    ],
+    "height_m": 2.6,
+    "n_panos": 644,
+    "reason": "fails identifiable (slope 0.723); agreement (b_unvalidated: no h*_B estimator passed rule V in this city; line 3.755, local 3.481); material (CI 3.80-4.84, h_g n/a); SUSPECT: bearing height outside 1.0-3.5 m",
+    "slope": 0.723
    },
-   "sequence_pearson_r_vs_h_scale": -0.2766,
-   "sequences": [
-    {
-     "da3_h_m": 2.1018,
-     "labeler_h_bearing": 3.987,
-     "labeler_h_scale": 3.188,
-     "n_panos": 1,
-     "sequence_id": "1vDiqGEpeuIsYb6AXo5y0Z"
-    },
-    {
-     "da3_h_m": 2.1647,
-     "labeler_h_bearing": 3.561,
-     "labeler_h_scale": 3.017,
-     "n_panos": 4,
-     "sequence_id": "BkWj9PJOTmhN5KeQIsozwg"
-    },
-    {
-     "da3_h_m": 2.1653,
-     "labeler_h_bearing": 3.332,
-     "labeler_h_scale": 3.019,
-     "n_panos": 2,
-     "sequence_id": "C6dwIBRe791hVFz8x2OWJY"
-    },
-    {
-     "da3_h_m": 2.3318,
-     "labeler_h_bearing": 3.532,
-     "labeler_h_scale": 2.855,
-     "n_panos": 2,
-     "sequence_id": "C8rnZtapvRTc59YOBjAklG"
-    },
-    {
-     "da3_h_m": 2.0739,
-     "labeler_h_bearing": null,
-     "labeler_h_scale": 2.893,
-     "n_panos": 3,
-     "sequence_id": "Dq1MnGTap8j642PmRYXywt"
-    },
-    {
-     "da3_h_m": 2.1125,
-     "labeler_h_bearing": 3.855,
-     "labeler_h_scale": 2.95,
-     "n_panos": 1,
-     "sequence_id": "OIomhEn0VrPvSL7TxGi9NW"
-    },
-    {
-     "da3_h_m": 2.1141,
-     "labeler_h_bearing": null,
-     "labeler_h_scale": 2.796,
-     "n_panos": 1,
-     "sequence_id": "RbiQWPvZCdhHTA03w1rLql"
-    },
-    {
-     "da3_h_m": 2.0067,
-     "labeler_h_bearing": 3.02,
-     "labeler_h_scale": null,
-     "n_panos": 3,
-     "sequence_id": "SpjgxY5nETrQRPuDqzwhoN"
-    },
-    {
-     "da3_h_m": 1.9541,
-     "labeler_h_bearing": null,
-     "labeler_h_scale": 2.891,
-     "n_panos": 5,
-     "sequence_id": "XyPtf86jxEsdVoC1puIBhJ"
-    },
-    {
-     "da3_h_m": 2.1545,
-     "labeler_h_bearing": 4.113,
-     "labeler_h_scale": 2.942,
-     "n_panos": 9,
-     "sequence_id": "axZPXQLSm6hrvCoYd9f1cl"
-    },
-    {
-     "da3_h_m": 2.217,
-     "labeler_h_bearing": 3.53,
-     "labeler_h_scale": null,
-     "n_panos": 2,
-     "sequence_id": "eTW2wxXc9iFHR8hQ0BZYDL"
-    },
-    {
-     "da3_h_m": 2.1879,
-     "labeler_h_bearing": 3.584,
-     "labeler_h_scale": 2.778,
-     "n_panos": 5,
-     "sequence_id": "fqZJNGcvt9HM3QxdhkXisB"
-    },
-    {
-     "da3_h_m": 2.215,
-     "labeler_h_bearing": 13.517,
-     "labeler_h_scale": 2.905,
-     "n_panos": 5,
-     "sequence_id": "ngTGPIQjmsxLf0uY8d4otC"
-    },
-    {
-     "da3_h_m": 2.1432,
-     "labeler_h_bearing": 2.979,
-     "labeler_h_scale": 2.973,
-     "n_panos": 5,
-     "sequence_id": "rF2x7s5zpZ9u1TDVHeXStC"
-    },
-    {
-     "da3_h_m": 2.0474,
-     "labeler_h_bearing": 13.71,
-     "labeler_h_scale": 3.001,
-     "n_panos": 4,
-     "sequence_id": "sWgIuf2jYGaEJPXzVck8on"
-    },
-    {
-     "da3_h_m": 2.328,
-     "labeler_h_bearing": 3.677,
-     "labeler_h_scale": 2.894,
-     "n_panos": 8,
-     "sequence_id": "vngsVZuQaY9U4lF7zJ6dro"
-    },
-    {
-     "da3_h_m": 2.0429,
-     "labeler_h_bearing": 4.62,
-     "labeler_h_scale": 3.06,
-     "n_panos": 11,
-     "sequence_id": "z0rwf2KqY6IS5XELmdtpyV"
-    },
-    {
-     "da3_h_m": 2.3571,
-     "labeler_h_bearing": 4.035,
-     "labeler_h_scale": 2.923,
-     "n_panos": 2,
-     "sequence_id": "z2rS8wRVoXTeflg6sMIUj5"
-    }
-   ]
+   "laurens_gsv_da3_median_h_m": 2.1443,
+   "laurens_gsv_n_panos": 78
   },
   "point_calibration": [
    {

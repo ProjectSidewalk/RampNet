@@ -305,30 +305,10 @@ Constants fitted on the other three GSV splits. `pooled_common` = the locations 
 | da3_plane | 15.3 m (65) | 21.3 m (37) |
 | flat_da3_height | 15.5 m (65) | 21.6 m (37) |
 
-## Laurens cross-read (labeler commit `1cb24800e6668ee8263079c917e13002fbab11ae`)
+## Laurens cross-read (labeler commit `2653a49c420465bd792d165ece5681ad6c2ace4a`, camera_heights.json only)
 
-GoPro Max rig: DA3 median 2.1288 m over 73 panos; labeler h_scale 2.949 [2.897, 3.0], h_bearing 4.314 [3.802, 4.841]; labeler verdict {'applied': False, 'gate_passes': False, 'group': 'gopro/max', 'height_m': 2.6, 'reason': 'fails identifiable (slope 0.723); agreement (b_unvalidated: no h*_B estimator passed rule V in this city; line 3.755, local 3.481); material (CI 3.80-4.84, h_g n/a); SUSPECT: bearing height outside 1.0-3.5 m'}. laurens_gsv (Google rig, same footprint): DA3 median 2.1443 m over 78 panos. Sequence-level Pearson r (DA3 vs h_scale) = -0.2766 over 16 sequences.
+GoPro Max rig: DA3 median 2.1288 m over 73 panos (laurens_gsv, Google rig, same footprint: 2.1443 m over 78 panos). Labeler: bearing fixed point 4.314 [3.802, 4.841], scale identity at 2.6 m 2.977 [2.925, 3.028], instrument B validated: False (estimator validation: line max |mean error| 0.3612 m, local 0.4181 m, validated False); applied False, height used 2.6 m; reason: fails identifiable (slope 0.723); agreement (b_unvalidated: no h*_B estimator passed rule V in this city; line 3.755, local 3.481); material (CI 3.80-4.84, h_g n/a); SUSPECT: bearing height outside 1.0-3.5 m
 
-| sequence | panos | DA3 h (m) | labeler h_scale | labeler h_bearing |
-|---|---:|---:|---:|---:|
-| 1vDiqGEpeuIsYb6AXo5y0Z | 1 | 2.10 | 3.19 | 3.99 |
-| BkWj9PJOTmhN5KeQIsozwg | 4 | 2.16 | 3.02 | 3.56 |
-| C6dwIBRe791hVFz8x2OWJY | 2 | 2.17 | 3.02 | 3.33 |
-| C8rnZtapvRTc59YOBjAklG | 2 | 2.33 | 2.85 | 3.53 |
-| Dq1MnGTap8j642PmRYXywt | 3 | 2.07 | 2.89 | – |
-| OIomhEn0VrPvSL7TxGi9NW | 1 | 2.11 | 2.95 | 3.85 |
-| RbiQWPvZCdhHTA03w1rLql | 1 | 2.11 | 2.80 | – |
-| SpjgxY5nETrQRPuDqzwhoN | 3 | 2.01 | – | 3.02 |
-| XyPtf86jxEsdVoC1puIBhJ | 5 | 1.95 | 2.89 | – |
-| axZPXQLSm6hrvCoYd9f1cl | 9 | 2.15 | 2.94 | 4.11 |
-| eTW2wxXc9iFHR8hQ0BZYDL | 2 | 2.22 | – | 3.53 |
-| fqZJNGcvt9HM3QxdhkXisB | 5 | 2.19 | 2.78 | 3.58 |
-| ngTGPIQjmsxLf0uY8d4otC | 5 | 2.21 | 2.90 | 13.52 |
-| rF2x7s5zpZ9u1TDVHeXStC | 5 | 2.14 | 2.97 | 2.98 |
-| sWgIuf2jYGaEJPXzVck8on | 4 | 2.05 | 3.00 | 13.71 |
-| vngsVZuQaY9U4lF7zJ6dro | 8 | 2.33 | 2.89 | 3.68 |
-| z0rwf2KqY6IS5XELmdtpyV | 11 | 2.04 | 3.06 | 4.62 |
-| z2rS8wRVoXTeflg6sMIUj5 | 2 | 2.36 | 2.92 | 4.04 |
 
 ## Band sensitivity: fitted height, 20–60 deg band / 20–45 deg band
 
