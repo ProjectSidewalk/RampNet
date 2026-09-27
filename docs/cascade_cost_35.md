@@ -19,10 +19,14 @@ kept out of the per-pair JSON so that a re-run reproduces each committed file by
 
 **Update 2026-09-27 (§Transfer below): the richmond setting does not transfer.** Read unchanged on
 three GSV splits under a rule stated before scoring, it passes on gainesville only (bend and paterson
-fail; annapolis, a second Mapillary split, passes but is not counted), and on post-seam-fix peaks it
-passes on none. On the GSV splits a lower threshold buys the same recall for 1.2–1.4 FP per ramp,
-against 4.0 on richmond, so the gate has little to save. Running Mask2Former at 1024 costs about
-1.8× RampNet's own per-panorama time on GSV imagery (L40S). The paragraph below is the richmond
+fail; annapolis, a second Mapillary split, passes but is not counted), and on post-seam-fix peaks
+(a sensitivity read added after scoring) it passes on none. gainesville's pass and its post-seam
+failure each turn on **one false positive** in criterion 3, which carries no interval, so the per-split
+outcome there is fragile; the overall verdict is not (at most 1 of 3 in every read). On the GSV splits
+a lower threshold buys the same recall for 1.2–1.4 FP per ramp, against 4.0 on richmond: on bend and
+paterson the gate costs more per ramp than that, on gainesville slightly less (1.11 against 1.20).
+Running Mask2Former at 1024 costs about 1.8× RampNet's own per-panorama wall-clock on GSV imagery
+(same L40S node). The paragraph below is the richmond
 result as first written.
 
 **The gated cascade is VIABLE under the pre-stated rule, and what it buys is recall, not F1.** On richmond at the recommended 0.30 point, promoting RampNet's sub-threshold floor peaks (score ≥ 0.05) that sit within R/2 of a Vistas parity-arm box scoring at least that arm's median lifts recall **0.829 → 0.868 (+12 ramps, +0.036 attributable after the chance null, i.e. ~11 ramps)** for **10 extra FPs (0.9 FP per attributable ramp)**, F1 **0.8639 → 0.8720**. All 12 gained ramps are among the 19 #126 called promotable, so the cascade realises 63% of the ceiling it was bounded by. The naive union at the same 0.30 point pays **11.6** FP per recovered ramp under `complementarity.py`'s convention ((470 − 28) FP for 295 − 257 ramps) and **14.8** under `aggregate`'s (664 FP for 45 ramps); the ~8.2 quoted in #126 is the same union at the shipped 0.55 point, on raw rather than attributable ramps. But the F1 gain is **not** distinguishable from re-tuning the threshold: the best single threshold on the same split (0.33) already scores F1 0.8712, and the pano bootstrap, holding the chosen setting fixed, puts the cascade's ΔF1 at +0.008 [−0.008, +0.026]. The honest comparison is **matched recall**: reaching R 0.868 with a threshold alone costs 48 extra FPs and F1 0.821; the gate costs 10. The setting was chosen in sample from 60 on one split with no held-out split for this challenger, and the same setting does not transfer to the other richmond challengers. The rule itself is not easily fooled here: run on 123 wrong-pano copies of the same challenger (same boxes, shifted to other panos), it reads VIABLE on none. Across 137 (split, leg) pairs the rule reads 46 VIABLE / 36 PARTIAL / 55 NOT VIABLE, against about 1.1 VIABLE expected from wrong-pano challengers, with the only large gains on `laurens_mapillary`, the rig-shifted split, and none on `manual_gold`. Individual VIABLE verdicts for the dense detectors are weaker than that total suggests (OWLv2's wrong-pano copies read VIABLE 15–30% of the time on three splits). So: the cascade is a cheap recall dial with a measured price of about one FP per ramp at its best setting, not a free F1 improvement, and every number here inherits the pre-seam-fix op_cache caveat below.
@@ -239,15 +243,15 @@ Baseline F1 0.8639; best threshold-only F1 0.8712 at 0.33. Verdicts: 3 VIABLE, 6
 
 | split | legs | VIABLE / PARTIAL / NOT | baseline F1 @0.30 | best thr-only F1 (t) | best viable leg | its F1 | attributable ΔR | FP / attr ramp | viable legs above best thr-only F1 |
 |---|---:|---|---:|---:|---|---:|---:|---:|---:|
-| annapolis | 18 | 6 / 6 / 6 | 0.8530 | 0.8556 (0.31) | mask2former-vistas-curb-cut-1024x1024 ‡ | 0.8681 | +0.0380 | 0.54 | 5 of 6 |
-| bend | 13 | 4 / 2 / 7 | 0.8706 | 0.8727 (0.5) | y26_pano | 0.8766 | +0.0220 | 0.83 | 4 of 4 |
+| annapolis ‡ | 18 | 6 / 6 / 6 | 0.8530 | 0.8556 (0.31) | mask2former-vistas-curb-cut-1024x1024 | 0.8681 | +0.0380 | 0.54 | 5 of 6 |
+| bend ‡ | 13 | 4 / 2 / 7 | 0.8706 | 0.8727 (0.5) | y26_pano | 0.8766 | +0.0220 | 0.83 | 4 of 4 |
 | budapest_district5 | 12 | 1 / 8 / 3 | 0.6736 | 0.6839 (0.37) | y11l_pano | 0.6768 | +0.0233 | 1.86 | 0 of 1 |
 | clovis | 12 | 5 / 2 / 5 | 0.8355 | 0.8418 (0.35) | google/owlv2-large-patch14-ensemble † | 0.8434 | +0.0238 | 1.29 | 3 of 5 |
-| gainesville | 13 | 12 / 0 / 1 | 0.8124 | 0.8224 (0.38) | y11x_pano_h200 | 0.8287 | +0.0498 | 0.81 | 5 of 12 |
+| gainesville ‡ | 13 | 12 / 0 / 1 | 0.8124 | 0.8224 (0.38) | y11x_pano_h200 | 0.8287 | +0.0498 | 0.81 | 5 of 12 |
 | laurens_mapillary | 12 | 10 / 1 / 1 | 0.6600 | 0.7082 (0.16) | y26_pano | 0.8018 | +0.1821 | 0.13 | 10 of 10 |
 | manual_gold | 9 | 0 / 1 / 8 | 0.9018 | 0.9047 (0.36) | — | — | — | — | 0 of 0 |
 | morgantown | 12 | 4 / 6 / 2 | 0.8448 | 0.8515 (0.32) | y26_pano | 0.8549 | +0.0202 | 0.37 | 1 of 4 |
-| paterson | 13 | 2 / 0 / 11 | 0.8184 | 0.8212 (0.26) | mask2former-vistas-curb-cut-1024x1024 ‡ | 0.8280 | +0.0229 | 1.00 | 2 of 2 |
+| paterson ‡ | 13 | 2 / 0 / 11 | 0.8184 | 0.8212 (0.26) | mask2former-vistas-curb-cut-1024x1024 | 0.8280 | +0.0229 | 1.00 | 2 of 2 |
 | richmond | 15 | 3 / 6 / 6 | 0.8639 | 0.8712 (0.33) | mask2former-vistas-curb-cut-1024x1024 | 0.8720 | +0.0357 | 0.90 | 2 of 3 |
 | sao_paulo | 12 | 3 / 4 / 5 | 0.8000 | 0.8000 (0.3) | y11l_pano | 0.8139 | +0.0347 | 0.51 | 3 of 3 |
 
@@ -322,6 +326,12 @@ the cascade *transfers* when all three hold:
 3. it pays **fewer FPs per attributable ramp than the matched-recall threshold** pays per ramp (the
    best-F1 single threshold reaching the cascade's recall; its price is extra FP over extra recall
    ramps against the baseline). If no single threshold reaches that recall, criterion 3 holds.
+   *As stated, the two prices have different denominators: the cascade's FPs are divided by
+   attributable (null-subtracted) ramps, the threshold's by raw ramps, since a threshold has no
+   challenger and so no null. That is conservative against the cascade. Noted after review; the
+   raw/raw comparison is recorded in `transfer.json` (`criterion_3_raw_vs_raw`) and flips no
+   primary verdict: bend 1.50 against 1.43, paterson 4.00 against 1.25, gainesville 1.00 against
+   1.20, annapolis 0.89 against 2.00. It does flip one sensitivity cell (below).*
 
 **The cascade transfers if it transfers on at least two of the three GSV splits** (bend, paterson,
 gainesville). annapolis (a second Mapillary rig) is scored the same way and reported, but not counted.
@@ -337,11 +347,13 @@ under the 0.020 bar (+0.0167) and costs more per ramp than lowering the threshol
 FP per ramp). On paterson it fails all three. It does pass on annapolis, the second Mapillary split,
 which the rule reports but does not count.
 
-The reason is visible in the matched-recall column. On richmond the same recall bought with a
-lower threshold cost 4.0 FP per ramp, so a gate that paid 0.9 was a large saving. On the three GSV
-splits a lower threshold costs only 1.2–1.4 FP per ramp, and the gate's price (1.1–4.9) is about the
-same or worse. On every GSV split the cascade's F1 at the fixed setting is below the best single
-threshold on that split.
+A descriptive reading of the matched-recall column (each price rests on 4 to 12 ramps and has no
+interval): on richmond the same recall bought with a lower threshold cost 4.0 FP per ramp, so a gate
+that paid 0.9 was a large saving. On the three GSV splits a lower threshold costs only 1.2–1.4 FP per
+ramp. On bend and paterson the gate costs more than that (1.64, 4.90); on gainesville it costs slightly
+less (1.11 against 1.20), and that margin is **one false positive**: an 11th promoted FP would make it
+11 / 9.03 = 1.22 and fail. bend's criterion-3 miss is two FPs (9 against at most 7). On every GSV
+split the cascade's F1 at the fixed setting is below the best single threshold on that split.
 
 **(t1) The fixed setting on each split** (T_hi 0.30, T_lo 0.05, r_gate 0.011, c_min = the parity
 arm's median box score on that split; every cyclic shift as the null; 2,000 pano resamples).
@@ -365,17 +377,22 @@ paterson, 5.0 on gainesville, 5.0 on annapolis (6.2 on richmond).
 run through criterion 1 at the fixed setting reads VIABLE 0 times on every split (109 copies on
 bend, 124 on each of the others, 123 on richmond).
 
-**Two sensitivity reads, not part of the rule, and neither changes the verdict:**
+**Two sensitivity reads, not part of the rule, and neither changes the overall verdict.** The first
+was in the script committed before scoring; the second was **added after the primary result was
+known** (00b09e6, three minutes after d64dcec scored the transfer).
 
 - **richmond's absolute c_min (0.641) instead of each split's median:** bend NOT VIABLE (attributable
   +0.0195, 1.73 FP per ramp against the threshold's 1.43), paterson NOT VIABLE (+0.0104, CI reaches
   −0.0001), gainesville transfers (+0.0334, 1.10 against 1.20), annapolis transfers (+0.0380, 1.34
   against 2.08). Still 1 of 3 GSV splits.
-- **Post-seam-fix floor peaks.** The op_caches predate the seam fix f4c71c8. The #25 input-size
+- **Post-seam-fix floor peaks (added after scoring).** The op_caches predate the seam fix f4c71c8. The #25 input-size
   sweep committed a post-fix extraction of the same checkpoint at the same 2048×4096 input
   (`analysis_out/input_res_sweep_25/cache/r2048/`, which reproduces the op_cache exactly once the
   border band is dropped). Scored on those peaks, the fixed setting transfers on **0** of 3 GSV
-  splits: gainesville loses criterion 3 (1.33 FP per attributable ramp against the threshold's 1.30);
+  splits: gainesville loses criterion 3 (12 FP over 9.03 attributable ramps = 1.33, against the
+  threshold's 13 / 10 = 1.30), again by **one FP** (an 11th instead of a 12th would pass), and on the
+  raw/raw comparison it would pass (12 / 10 = 1.20 against 1.30), so this cell turns on the
+  denominator convention too;
   bend (+0.0167, 1.83 against 1.43) and paterson (+0.0108, 3.76 against 1.88) still fail. annapolis
   still transfers (0.96 against 2.00), and so does richmond (0.99 against 4.17).
 
@@ -417,13 +434,15 @@ allocated), the two models one after the other on the same 485 panoramas. Rows a
 
 **Per panorama, the second model costs about 1.8× RampNet's own pass on GSV imagery and 2.3× on
 annapolis's smaller panoramas, so running the cascade costs about 2.8–3.3× running RampNet alone.**
-At 1.42 s/pano, a million panoramas is about 400 extra L40S-hours. Two things make the ratio
-approximate. RampNet's timing overlaps JPEG decoding with the GPU in a second thread, and
+On GSV imagery (1.56–1.65 s/pano) a million panoramas is about 430–460 extra **node-hours** on an
+L40S node (wall-clock of a GPU node, not GPU compute: most of that time is CPU work; about 400 at the
+1.42 s pooled over all four splits, which includes the smaller Mapillary panoramas). Two things make
+the ratio approximate. RampNet's timing overlaps JPEG decoding with the GPU in a second thread, and
 `compare.py` does not, so the ratio is somewhat unfavourable to Mask2Former; in a deployment the two
-would also share one decode. And Mask2Former's GPU forward alone was not isolated here (on the A40
-in August it was 0.092 s per view, about 0.55 s per panorama), so most of its 1.4–1.6 s is
-reprojection and post-processing on the CPU, which could be optimised; RampNet's GPU work is 0.41
-s/pano. The fp16 RampNet pass is for the like-for-like precision only: its peaks differ from the
+would also share one decode. And Mask2Former's GPU forward alone was not isolated here. On the A40
+in August it was 0.092 s per view, about 0.55 s per panorama; if that carries over to the L40S, most
+of the 1.4–1.6 s is JPEG decode of a 16384×8192 panorama, reprojection and post-processing on the
+CPU, which could be optimised. RampNet's GPU work is 0.40–0.43 s/pano. The fp16 RampNet pass is for the like-for-like precision only: its peaks differ from the
 op_cache by up to 3×10⁻³ in score and move at most one detection per split at 0.30
 (`docs/data/cascade_transfer_35/rampnet_r2048_fp16_instrument_check.json`), so every cascade number
 uses the fp32 op_cache.
@@ -459,20 +478,26 @@ The whole job took 1,780 s (0.494 GPU-hours), $0 (the lab's own L40S allocation;
   1.1×10⁻⁴ (`rampnet_r2048_fp32_instrument_check.json`). So the committed op_caches are what this GPU
   produces, and the cascade scoring uses them unchanged.
 - **Detections published** with `export_model_cache.py` (below) and `--verify` reported all four
-  files scoring identically to the cache.
+  files scoring identically to the cache (output in `docs/data/cascade_transfer_35/export_verify.log`,
+  re-run 2026-09-27 after review against the same cache copied from the job).
 
 ### Caveats (each applies to every number in this section)
 
 - **Fused precision is a lower bound.** GT on these splits is anchored to RampNet's shipped
   detections and the reviewer's missed marks, so a promoted peak on a real ramp nobody marked scores
-  as an FP. That is also true of the threshold controls, so the comparisons between rows are fair;
-  the absolute precision is not.
+  as an FP. The same scorer is applied to the cascade and to the threshold controls; whether
+  unmarked ramps are hit equally often by gated peaks and by threshold-added peaks is **not
+  measured**. Gated peaks sit on Mask2Former curb-cut segments, so an unmarked real ramp is plausibly
+  more likely under a gated peak, which would bias criterion 3 against the cascade. At one-FP margins
+  that matters; the absolute precision is not reliable either.
 - **The op_caches predate the seam fix f4c71c8**, as for richmond. The post-fix sensitivity above
-  measures this directly on these splits: it lowers the count of transferring GSV splits from 1 to 0.
+  measures this directly on these splits (added after scoring): it lowers the count of transferring
+  GSV splits from 1 to 0, by one FP on gainesville.
 - **One challenger, one RampNet checkpoint, no seeds.** The rule is about this parity arm; nothing
   here measures seed variance of either model.
 - **Three GSV splits.** "Transfers on 2 of 3" is the rule as stated; with three splits the rule has
-  little resolution, and gainesville's pass is by a small margin on criterion 3 (1.11 against 1.20).
+  little resolution, and gainesville's pass is by **one FP** on criterion 3 (1.11 against 1.20),
+  which carries no interval.
 - **No held-out read of the in-sample grids** (t2): each grid's winner is picked on the split it is
   scored on.
 
