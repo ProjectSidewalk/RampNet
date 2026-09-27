@@ -98,6 +98,7 @@ ND = 4
 DEPLOYED = 0.55
 RECOMMENDED = 0.30
 YOLO_PANO = ("y11x_pano_h200", "y11l_pano", "y26_pano")
+HEADLINE_RAMPNET_LEGS = ("rampnet@0.55", "rampnet_r2048@0.55", "rampnet_r2048@0.30")
 R2048_DIR = os.path.join(REPO, "analysis_out", "input_res_sweep_25", "cache", "r2048")
 OP_CACHE_DIR = os.path.join(REPO, "analysis_out", "op_cache")
 DEPTH_ROWS = os.path.join(REPO, "analysis_out", "recall_by_depth_112.json")
@@ -108,6 +109,7 @@ PROBE_HALF_ROWS = 3
 PROBE_NULL_SHIFTS = (0.25, 0.5, 0.75)   # azimuth shifts of the null window, same image row
 CURB_STEP_M = (0.05, 0.30)              # a step in this range is "curb-sized"
 GROUND_MAX_TILT_DEG = 18.0              # recall_by_depth_112 / the labeler's depth.py
+PROBE_RANGE_BANDS = ((0, 8), (8, 12), (12, 18), (18, 1e9))
 
 
 def _r(v, nd=ND):
@@ -188,6 +190,19 @@ def bootstrap_weights(n, draws=DRAWS, seed=SEED):
     return w
 
 
+def mcnemar_exact(b, c):
+    """Exact two-sided McNemar p on the discordant counts b, c (binomial, p = 1/2).
+
+    Example: ``mcnemar_exact(23, 16)`` is 0.3368; ``mcnemar_exact(5, 5)`` is 1.0.
+    """
+    n = b + c
+    if n == 0:
+        return 1.0
+    k = min(b, c)
+    tail = sum(math.comb(n, i) for i in range(k + 1)) / 2 ** n
+    return min(1.0, 2 * tail)
+
+
 def ci(values):
     lo, hi = np.percentile(values, [2.5, 97.5])
     return [_r(lo), _r(hi)]
@@ -256,20 +271,29 @@ def at_op(preds, op):
 
 
 def input_hashes():
+    """sha256 of every input, on LF-normalized bytes (review M5: a CRLF checkout under
+    core.autocrlf must not change a hash when no content changed). From
+    recall_by_depth_112.json only the rows this script reads are hashed (laurens_gsv's
+    measured-ground ``panos`` rows), so adding another split there does not move it. An
+    op_cache is hashed for every arm that has one (review N8)."""
     paths = []
     for a in ARMS:
         for f in ("records.jsonl", "verdicts.json"):
             paths.append(os.path.join("benchmark", a, f))  # noqa: PERF401
         paths.append(os.path.join("analysis_out", "input_res_sweep_25", "cache", "r2048", f"{a}.json"))
-    paths.append(os.path.join("analysis_out", "op_cache", f"{MLY}.json"))
-    paths.append(os.path.join("analysis_out", "recall_by_depth_112.json"))
+        if os.path.exists(os.path.join(OP_CACHE_DIR, f"{a}.json")):
+            paths.append(os.path.join("analysis_out", "op_cache", f"{a}.json"))
     for name in sorted(os.listdir(os.path.join(REPO, "benchmark", "model_detections"))):
         if name.endswith(f"__{GSV}.json") or name.endswith(f"__{MLY}.json"):
             paths.append(os.path.join("benchmark", "model_detections", name))
     out = {}
     for rel in paths:
         with open(os.path.join(REPO, rel), "rb") as fh:
-            out[rel.replace(os.sep, "/")] = hashlib.sha256(fh.read()).hexdigest()
+            out[rel.replace(os.sep, "/")] = hashlib.sha256(fh.read().replace(b"\r\n", b"\n")).hexdigest()
+    with open(DEPTH_ROWS, encoding="utf-8") as fh:
+        rows = [p for p in json.load(fh)["panos"] if p["city"] == GSV]
+    blob = json.dumps(rows, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    out["analysis_out/recall_by_depth_112.json#panos[city=laurens_gsv]"] = hashlib.sha256(blob).hexdigest()
     return out
 
 
@@ -317,7 +341,10 @@ def derive_rows():
         n_true[a] = {pid: sum(1 for v in e["dets"] if v is True or v == "true") for pid, e in vp.items()}
     heights = camera_heights_gsv()
     all_legs = legs()
-    rn_legs = [(name, preds, op) for name, kind, preds, op, _ in all_legs if kind != "challenger"]
+    # per-GT hits for every RampNet leg and the three YOLO pano arms (review B1: the per-ramp
+    # 2x2 on ramps both reviews contain is the GT-completeness-robust comparison)
+    rn_legs = [(name, preds, op) for name, kind, preds, op, _ in all_legs
+               if kind != "challenger" or name in YOLO_PANO]
     gt_rows = []
     for a in ARMS:
         for pid in sorted(gts[a]):
@@ -390,6 +417,8 @@ def window_steps(payload, x, y, image_ray, intersect):
                                    (r + 1, c, (c + 0.5) / w, (r + 1) / h)):
                 if rb >= h or rb > r0 + PROBE_HALF_ROWS:
                     continue
+                if rb == r and dc == PROBE_HALF_COLS:   # the right neighbour is outside the window
+                    continue
                 j = idx[rb * w + cb]
                 if i == j or not (0 < i < n and 0 < j < n):
                     continue
@@ -443,6 +472,15 @@ def _pair_counts(data, leg, arm, pids):
         out[i] = (s["tp"], s["fp"], s["tp"] if s["fn_confirmed"] else 0,
                   s["n_gt"] if s["fn_confirmed"] else 0)
     return out
+
+
+def op_label(lm):
+    """The operating point as the scoreboard prints it (review N2): '0.05 floor' for the
+    open-vocabulary detectors, 'no score' for chat VLMs and pointers, a number otherwise."""
+    if lm["kind"] != "challenger":
+        return f"{lm['op']:.2f}"
+    import scoreboard as sb
+    return sb.OPERATING_POINT_NOTE.get(lm["note"], f"{lm['op']:.2f}")
 
 
 def _score(c):
@@ -534,9 +572,7 @@ def tables(data):
                 TIGHT_RADIUS_M: [{"g": g, "m": m, "d": d} for pr in pairs
                                  for g, m, d in match_pair(pr, radius=TIGHT_RADIUS_M)[4]]}
     for lm, rad in [(lm, rad) for rad in (MATCH_RADIUS_M, TIGHT_RADIUS_M) for lm in data["legs"]]:
-        if lm["kind"] == "challenger" or len(lm["arms"]) < 2:
-            continue
-        if rad != MATCH_RADIUS_M and lm["leg"] != "rampnet@0.55":
+        if (lm["kind"] == "challenger" and lm["leg"] not in YOLO_PANO) or len(lm["arms"]) < 2:
             continue
         cells = {"both": 0, "gsv_only": 0, "mly_only": 0, "neither": 0}
         for r in ramps_at[rad]:
@@ -546,14 +582,17 @@ def tables(data):
             cells["both" if hg and hm else "gsv_only" if hg else "mly_only" if hm else "neither"] += 1
         n = sum(cells.values())
         cells.update({"n": n, "recall_gsv": _r((cells["both"] + cells["gsv_only"]) / n) if n else None,
-                      "recall_mly": _r((cells["both"] + cells["mly_only"]) / n) if n else None})
+                      "recall_mly": _r((cells["both"] + cells["mly_only"]) / n) if n else None,
+                      "net": cells["gsv_only"] - cells["mly_only"], "radius_m": rad,
+                      "leg": lm["leg"],
+                      "mcnemar_p": _r(mcnemar_exact(cells["gsv_only"], cells["mly_only"]))})
         t["two_by_two"][lm["leg"] if rad == MATCH_RADIUS_M else f"{lm['leg']} ({rad:g} m)"] = cells
 
     # paired scores + bootstrap deltas
     t["scores"], draws_f1 = [], {}
     for lm in data["legs"]:
         leg = lm["leg"]
-        row = {"leg": leg, "kind": lm["kind"], "op": lm["op"]}
+        row = {"leg": leg, "kind": lm["kind"], "op": lm["op"], "op_label": op_label(lm)}
         cnt, whole = {}, {}
         for a, pids in ((GSV, gp), (MLY, mp)):
             if a not in lm["arms"]:
@@ -561,6 +600,9 @@ def tables(data):
                 continue
             cnt[a] = _pair_counts(data, leg, a, pids)
             row[a] = _score(cnt[a])
+            pset = set(pids)
+            row[a]["preds"] = sum(s["tp"] + s["fp"] + s["ignored"] for s in data["scores"]
+                                  if s["leg"] == leg and s["arm"] == a and s["pano"] in pset)
             allp = sorted({s["pano"] for s in data["scores"] if s["arm"] == a and s["leg"] == leg})
             wc = _pair_counts(data, leg, a, allp)
             row[a + "_whole_arm"] = _score(wc)
@@ -581,19 +623,26 @@ def tables(data):
             row["delta"] = None
         t["scores"].append(row)
 
-    # headline: RampNet's paired dF1 against each YOLO pano arm's, same bootstrap draws
+    # headline: each RampNet leg's paired dF1 against each YOLO pano arm's, same bootstrap
+    # draws. The deployed GSV run is not the same input path the YOLO arms saw; rampnet_r2048
+    # is (the committed JPEGs, review B1), so it is reported beside it at both thresholds.
     head = []
-    base = draws_f1.get("rampnet@0.55")
-    rd = next(r for r in t["scores"] if r["leg"] == "rampnet@0.55")["delta"]["F1"]
-    for y in YOLO_PANO:
-        if y not in draws_f1:
+    for rleg in HEADLINE_RAMPNET_LEGS:
+        if rleg not in draws_f1:
             continue
-        yd = next(r for r in t["scores"] if r["leg"] == y)["delta"]["F1"]
-        diff = base - draws_f1[y]
-        head.append({"yolo": y, "rampnet_dF1": rd, "yolo_dF1": yd,
-                     "difference": _r(rd - yd), "difference_ci": ci(diff),
-                     "share_draws_rampnet_larger": _r(float(np.mean(diff > 0))),
-                     "ratio_of_point_estimates": _r(rd / yd) if yd > 0 else None})
+        base = draws_f1[rleg]
+        rd = next(r for r in t["scores"] if r["leg"] == rleg)["delta"]["F1"]
+        for y in YOLO_PANO:
+            if y not in draws_f1:
+                continue
+            yd = next(r for r in t["scores"] if r["leg"] == y)["delta"]["F1"]
+            diff = base - draws_f1[y]
+            c = ci(diff)
+            head.append({"rampnet_leg": rleg, "yolo": y, "rampnet_dF1": rd, "yolo_dF1": yd,
+                         "difference": _r(rd - yd), "difference_ci": c,
+                         "clears_zero": bool(c[0] > 0 or c[1] < 0),
+                         "share_draws_rampnet_larger": _r(float(np.mean(diff > 0))),
+                         "ratio_of_point_estimates": _r(rd / yd) if yd > 0 else None})
     t["headline"] = head
 
     # near-miss delta: median y missed - median y detected, RampNet at 0.55
@@ -664,6 +713,12 @@ def tables(data):
             "gt_all": summ(g0),
             "null_same_row": summ(nul),
             "gt_within_8m_depth": summ(near),
+            "by_range": [{"band": f"{lo:g}-{hi:g} m" if hi < 1e8 else f"{lo:g} m+",
+                          "gt": summ([r for r in g0 if r["depth_range"] is not None
+                                      and lo <= r["depth_range"] < hi]),
+                          "null": summ([r for r in nul if r["depth_range"] is not None
+                                        and lo <= r["depth_range"] < hi])}
+                         for lo, hi in PROBE_RANGE_BANDS],
             "window_cells": [2 * PROBE_HALF_ROWS + 1, 2 * PROBE_HALF_COLS + 1],
             "curb_step_m": list(CURB_STEP_M)}
     return t
@@ -714,29 +769,31 @@ def md_tables(t):
          "|---:|---:|---:|---:|---:|"]
         + [f"| {w['radius_m']:g} m | {w['matched']} | {w['null_mean']:.1f} | {w['excess_over_null']:.1f} | "
            f"{_f(w['share_excess'], 2)} |" for w in r["radius_sweep"]])
-    L = ["| leg | op | GSV P / R / F1 | Mapillary P / R / F1 | ΔP [95% CI] | ΔR [95% CI] | **ΔF1 [95% CI]** | whole-arm ΔF1 |",
-         "|---|---:|---|---|---|---|---|---:|"]
+    L = ["| leg | op | predictions GSV / Mly | GSV P / R / F1 | Mapillary P / R / F1 | ΔP [95% CI] | ΔR [95% CI] | **ΔF1 [95% CI]** | whole-arm ΔF1 |",
+         "|---|---:|---:|---|---|---|---|---|---:|"]
     for s in t["scores"]:
         g, m, d = s[GSV], s[MLY], s["delta"]
         gs = "–" if g is None else f"{g['P']:.3f} / {g['R']:.3f} / {g['F1']:.3f}"
         ms = "–" if m is None else f"{m['P']:.3f} / {m['R']:.3f} / {m['F1']:.3f}"
+        npred = f"{'–' if g is None else g['preds']} / {'–' if m is None else m['preds']}"
         if d:
-            L.append(f"| {s['leg']} | {s['op']:.2f} | {gs} | {ms} | {d['P']:+.3f}{_ci(d['P_ci'])} | "
+            L.append(f"| {s['leg']} | {s['op_label']} | {npred} | {gs} | {ms} | {d['P']:+.3f}{_ci(d['P_ci'])} | "
                      f"{d['R']:+.3f}{_ci(d['R_ci'])} | **{d['F1']:+.3f}**{_ci(d['F1_ci'])} | {s['delta_whole_arm_F1']:+.3f} |")
         else:
-            L.append(f"| {s['leg']} | {s['op']:.2f} | {gs} | {ms} | – | – | – | – |")
+            L.append(f"| {s['leg']} | {s['op_label']} | {npred} | {gs} | {ms} | – | – | – | – |")
     out["scores"] = "\n".join(L)
-    L = ["| YOLO arm | RampNet ΔF1 (0.55) | YOLO ΔF1 (0.25) | RampNet minus YOLO [95% CI] | draws with RampNet larger | ratio of point estimates |",
-         "|---|---:|---:|---|---:|---:|"]
+    L = ["| RampNet leg | YOLO arm (0.25) | RampNet ΔF1 | YOLO ΔF1 | RampNet minus YOLO [95% CI] | draws with RampNet larger | ratio of point estimates |",
+         "|---|---|---:|---:|---|---:|---:|"]
     for h in t["headline"]:
-        L.append(f"| {h['yolo']} | {h['rampnet_dF1']:+.3f} | {h['yolo_dF1']:+.3f} | "
+        L.append(f"| {h['rampnet_leg']} | {h['yolo']} | {h['rampnet_dF1']:+.3f} | {h['yolo_dF1']:+.3f} | "
                  f"{h['difference']:+.3f}{_ci(h['difference_ci'])} | {h['share_draws_rampnet_larger']:.3f} | "
                  f"{_f(h['ratio_of_point_estimates'], 2)} |")
     out["headline"] = "\n".join(L)
-    L = ["| RampNet leg | matched ramps | hit on both | GSV only | Mapillary only | neither | recall GSV | recall Mapillary |",
-         "|---|---:|---:|---:|---:|---:|---:|---:|"]
-    for leg, c in t["two_by_two"].items():
-        L.append(f"| {leg} | {c['n']} | {c['both']} | {c['gsv_only']} | {c['mly_only']} | {c['neither']} | "
+    L = ["| match radius | leg | matched ramps | hit on both | GSV only | Mapillary only | neither | net (GSV − Mly) | exact McNemar p | recall GSV | recall Mapillary |",
+         "|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|"]
+    for c in sorted(t["two_by_two"].values(), key=lambda c: (-c["radius_m"], c["leg"])):
+        L.append(f"| {c['radius_m']:g} m | {c['leg']} | {c['n']} | {c['both']} | {c['gsv_only']} | {c['mly_only']} | "
+                 f"{c['neither']} | {c['net']:+d} | {c['mcnemar_p']:.2f} | "
                  f"{_f(c['recall_gsv'])} | {_f(c['recall_mly'])} |")
     out["two_by_two"] = "\n".join(L)
     L = ["| definition | arm | whole arm: delta (detected / missed) | paired panos: delta [95% CI] (detected / missed) |",
@@ -760,6 +817,14 @@ def md_tables(t):
                      f"{c['with_boundary']} | {c['curb_sized_step']} ({_f(c['share_curb_sized'])}) | "
                      f"{_f(c['max_step_p25_m'], 3)} / {_f(c['max_step_median_m'], 3)} / {_f(c['max_step_p75_m'], 3)} m |")
         out["curb_probe"] = "\n".join(L)
+        L = ["| depth range | GT windows | GT: curb-sized step | GT: largest step, median | null windows | null: curb-sized step | null: largest step, median |",
+             "|---|---:|---:|---:|---:|---:|---:|"]
+        for b in cp["by_range"]:
+            g, n_ = b["gt"], b["null"]
+            L.append(f"| {b['band']} | {g['windows']} | {g['curb_sized_step']} ({_f(g['share_curb_sized'])}) | "
+                     f"{_f(g['max_step_median_m'])} m | {n_['windows']} | {n_['curb_sized_step']} ({_f(n_['share_curb_sized'])}) | "
+                     f"{_f(n_['max_step_median_m'])} m |")
+        out["curb_probe_by_range"] = "\n".join(L)
     return out
 
 
