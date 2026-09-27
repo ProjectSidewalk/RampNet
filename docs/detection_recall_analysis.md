@@ -326,7 +326,11 @@ Pooled over the four GSV splits on the depth axis (TP + FP, measured-ground pano
 - **DA3 was not regressed against GSV depth.** `gt_depth_da3.json` is not committed and needs a
   GPU to regenerate, so the issue's "calibrate DA3 and carry it to Mapillary" item is untouched.
   The 6.5–8.5% DA3/flat agreement on bend is consistent with both sharing bend's ~6–7% bias, but
-  that is an inference, not a measurement.
+  that is an inference, not a measurement. *(Since done: [`da3_calibration_101.md`](da3_calibration_101.md)
+  (#101) re-ran DA3 on every GT point and detection of eleven splits with committed rows,
+  re-derives the 6.5–8.5% / ρ 0.95 / 0.81 figures from them, calibrates DA3 against the depth
+  axis here, and carries it to the Mapillary splits. The §1 and §5 tables still come from the
+  uncommitted `gt_depth_da3.json`.)*
 - **Occlusion was not partitioned, and the depth payload is not the instrument for it.** With the
   aligned lookup only 5 of 1,101 GT points sit under a non-ground plane. The 39 the first version
   reported were almost all the azimuth mirror, so the payload does not supply raw material for
