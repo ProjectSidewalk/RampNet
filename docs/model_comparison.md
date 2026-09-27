@@ -728,6 +728,15 @@ for RampNet**: `laurens_mapillary` has a 0.05-floor `op_cache` and `laurens_gsv`
 its 0.494 is truncated at the deployed 0.55 while the other arm's 0.691 is not. The F1, P and
 R columns are comparable — both arms are read at 0.55.
 
+**The paired version is done** (`docs/laurens_paired_151.md`, 2026-09-27). On the 47 pano pairs
+within 20 m, RampNet's ΔF1 is +0.112 [+0.033, +0.199] (pano-pair bootstrap, 10,000 draws, seed
+151), and it is all recall. The three YOLO pano arms read +0.028, −0.000 and −0.020, and every one
+of their intervals spans zero. RampNet minus YOLO is +0.084 [−0.001, +0.178], +0.112
+[+0.019, +0.211] and +0.132 [+0.026, +0.251]. So reading 3 above survives pairing as a
+difference; as a ratio ("three to five times") it does not, because two of the three YOLO deltas
+are zero or negative. No zero-shot challenger gains more than +0.009 on the paired corners, and
+`claude-opus-5` reads −0.046 [−0.134, +0.046], so reading 1 survives too.
+
 **sao_paulo** (125 reviewed panos, 281 GT ramps) — the second non-US split (2026-08-01),
 reviewer confidence **HIGH**; NBR 9050 design vocabulary on GSV (the same imagery path as
 bend/paterson/gainesville — see `benchmark/README.md` for what the split de-confounds)

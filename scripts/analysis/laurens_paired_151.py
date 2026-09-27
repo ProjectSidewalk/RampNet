@@ -554,7 +554,7 @@ def tables(data):
     for lm in data["legs"]:
         leg = lm["leg"]
         row = {"leg": leg, "kind": lm["kind"], "op": lm["op"]}
-        cnt = {}
+        cnt, whole = {}, {}
         for a, pids in ((GSV, gp), (MLY, mp)):
             if a not in lm["arms"]:
                 row[a] = None
@@ -562,16 +562,20 @@ def tables(data):
             cnt[a] = _pair_counts(data, leg, a, pids)
             row[a] = _score(cnt[a])
             allp = sorted({s["pano"] for s in data["scores"] if s["arm"] == a and s["leg"] == leg})
-            row[a + "_whole_arm"] = _score(_pair_counts(data, leg, a, allp))
+            wc = _pair_counts(data, leg, a, allp)
+            row[a + "_whole_arm"] = _score(wc)
+            whole[a] = prf(*wc.sum(0).tolist())
         if len(cnt) == 2:
             bg, bm = W @ cnt[GSV], W @ cnt[MLY]
             pg, rg, fg = prf_arrays(bg.astype(float))
             pm, rm, fm = prf_arrays(bm.astype(float))
+            # deltas from unrounded counts, never from the rounded cells above
+            g3, m3 = prf(*cnt[GSV].sum(0).tolist()), prf(*cnt[MLY].sum(0).tolist())
             row["delta"] = {
-                "P": _r(row[GSV]["P"] - row[MLY]["P"]), "P_ci": ci(pg - pm),
-                "R": _r(row[GSV]["R"] - row[MLY]["R"]), "R_ci": ci(rg - rm),
-                "F1": _r(row[GSV]["F1"] - row[MLY]["F1"]), "F1_ci": ci(fg - fm)}
-            row["delta_whole_arm_F1"] = _r(row[GSV + "_whole_arm"]["F1"] - row[MLY + "_whole_arm"]["F1"])
+                "P": _r(g3[0] - m3[0]), "P_ci": ci(pg - pm),
+                "R": _r(g3[1] - m3[1]), "R_ci": ci(rg - rm),
+                "F1": _r(g3[2] - m3[2]), "F1_ci": ci(fg - fm)}
+            row["delta_whole_arm_F1"] = _r(whole[GSV][2] - whole[MLY][2])
             draws_f1[leg] = fg - fm
         else:
             row["delta"] = None
