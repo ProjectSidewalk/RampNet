@@ -356,13 +356,41 @@ def write_sites(path, sites, frame):
 AGREE_TOL = 1e-4
 
 
+def _all_matched(a, b, tol):
+    """True when every point of ``a`` pairs one-to-one with a point of ``b`` within ``tol``.
+
+    ``a`` and ``b`` are equal-length lists of (x, y). Two points can pair when both
+    |dx| and |dy| are at most ``tol``. This is an exact maximum bipartite matching
+    (Kuhn's augmenting paths), so the answer does not depend on list order. Sorting both
+    lists and zipping them, as an earlier version did, fails when two detections in one
+    pano have x within the export rounding: the tie on x breaks differently on each side
+    and a detection is compared with its neighbour (review of PR 200).
+    """
+    ok = [[j for j, (bx, by) in enumerate(b) if abs(ax - bx) <= tol and abs(ay - by) <= tol]
+          for ax, ay in a]
+    owner = [None] * len(b)  # owner[j] = index in a currently matched to b[j]
+
+    def augment(i, seen):
+        for j in ok[i]:
+            if j in seen:
+                continue
+            seen.add(j)
+            if owner[j] is None or augment(owner[j], seen):
+                owner[j] = i
+                return True
+        return False
+
+    return all(augment(i, set()) for i in range(len(a)))
+
+
 def detection_agreement(mine, published, judged, tol=AGREE_TOL):
     """How closely a re-run leg reproduces the published richmond leg on the judged panos.
 
     Returns ``{"same_count": share of judged panos with the same number of detections,
-    "same_detections": share with the same count AND, after sorting both lists by (x, y),
-    every pair within ``tol`` in x and in y}``, or None when nothing is judged.
-    Confidence is not compared: only whether the same boxes were found.
+    "same_detections": share with the same count AND a one-to-one pairing of the two
+    lists in which every pair is within ``tol`` in x and in y}``, or None when nothing is
+    judged. The pairing is order-independent (see ``_all_matched``). Confidence is not
+    compared: only whether the same boxes were found.
 
     >>> detection_agreement({"a": [[0.123455, 0.5, 0.9]]},
     ...                     {"a": [[0.1234549, 0.5, 0.9]]}, ["a"])
@@ -372,13 +400,12 @@ def detection_agreement(mine, published, judged, tol=AGREE_TOL):
         return None
     same_count = same = 0
     for pid in judged:
-        a = sorted((p[0], p[1]) for p in mine.get(pid, []))
-        b = sorted((p[0], p[1]) for p in published.get(pid, []))
+        a = [(p[0], p[1]) for p in mine.get(pid, [])]
+        b = [(p[0], p[1]) for p in published.get(pid, [])]
         if len(a) != len(b):
             continue
         same_count += 1
-        same += all(abs(ax - bx) <= tol and abs(ay - by) <= tol
-                    for (ax, ay), (bx, by) in zip(a, b))
+        same += _all_matched(a, b, tol)
     n = len(judged)
     return {"same_count": same_count / n, "same_detections": same / n}
 

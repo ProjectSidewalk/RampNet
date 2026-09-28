@@ -42,7 +42,7 @@
    "published_richmond": {
     "judged_panos_agreement": {
      "same_count": 0.8952,
-     "same_detections": 0.7016
+     "same_detections": 0.7823
     },
     "per_pano_at_headline": {
      "f1": 0.0534,
@@ -2647,7 +2647,7 @@
    "published_richmond": {
     "judged_panos_agreement": {
      "same_count": 1.0,
-     "same_detections": 0.9677
+     "same_detections": 1.0
     },
     "per_pano_at_headline": {
      "f1": 0.064,
@@ -9880,7 +9880,7 @@
    "published_richmond": {
     "judged_panos_agreement": {
      "same_count": 1.0,
-     "same_detections": 0.9919
+     "same_detections": 1.0
     },
     "per_pano_at_headline": {
      "f1": 0.4907,

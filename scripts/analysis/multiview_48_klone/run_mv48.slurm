@@ -15,9 +15,10 @@
 # scripts/analysis/multiview_challengers_48.sh. Resumable: detections cache per pano.
 #   sbatch --array=0-3 --job-name=mv48-molmo run_mv48.slurm molmo
 # GPU: any one 40 GB+ GPU. The 2026-09-27 arrays were submitted with --gres=gpu:l40s:1 and
-# widened while pending, before 8 of the 9 tasks started, with
+# widened while pending, with
 #   scontrol update jobid=<id> gres=gpu:1 features="l40s|a40|l40|a100|h200"
-# so this file now requests what those 8 tasks ran under (1 L40S, 6 A40, 2 A100).
+# The 8 tasks that started after the widening ran on 6 A40 and 2 A100; the ninth had
+# already started on an L40S. This file now requests the widened set.
 # Paths: W below and --output above are Jon's scratch dir; --account is his lab's.
 set -uo pipefail
 LEG=$1

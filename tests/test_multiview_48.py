@@ -228,3 +228,19 @@ def test_agreement_separates_count_from_position():
     got = mc.detection_agreement(mine, pub, ["a", "b", "c"])
     assert got == {"same_count": pytest.approx(2 / 3), "same_detections": pytest.approx(1 / 3)}
     assert mc.detection_agreement(mine, pub, []) is None
+
+
+def test_agreement_pairs_detections_whose_x_ties_after_rounding():
+    # Two detections in one pano with x within the export rounding, as in OWLv2 pano
+    # 1051211967136526. Published order by x puts y=0.59123 first; after rounding both x
+    # to 0.26118 the tie breaks on y and puts y=0.53576 first. Sort-and-zip compared
+    # each detection with its neighbour and called the pano different.
+    import multiview_challengers_48 as mc
+    pub = {"a": [[0.2611799, 0.59123, 0.9], [0.2611802, 0.53576, 0.8]]}
+    mine = {"a": [[round(x, 5), y, c] for x, y, c in pub["a"]]}
+    assert sorted(p[:2] for p in mine["a"])[0][1] != sorted(p[:2] for p in pub["a"])[0][1]
+    assert mc.detection_agreement(mine, pub, ["a"]) == {"same_count": 1.0,
+                                                        "same_detections": 1.0}
+    # A real mismatch in the same shape still reads as different.
+    moved = {"a": [[0.26118, 0.53576, 0.9], [0.26118, 0.59123 + 2 * mc.AGREE_TOL, 0.8]]}
+    assert mc.detection_agreement(moved, pub, ["a"])["same_detections"] == 0.0

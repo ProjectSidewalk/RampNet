@@ -101,12 +101,13 @@ cd /gscratch/scrubbed/jfroehli/mv48
 mkdir -p panos && tar xf panos.tar -C panos && tar xf cache_seed.tar
 sbatch setup_mv48.slurm      # envs, RampNet clone at REF, HF snapshots; wait for SETUP_DONE in logs/setup_*.out
 python3 make_shards.py $PWD molmo:4 qwen8b:3 open:2
+# pre-check, before the arrays: the 124 judged panos must already be cache hits
+envs/molmo/bin/python keycheck.py molmo:allenai/Molmo2-8B
+envs/eval/bin/python keycheck.py qwen:Qwen/Qwen3-VL-8B-Instruct owlv2 gdino
 sbatch --array=0-3 --job-name=mv48-molmo run_mv48.slurm molmo
 sbatch --array=0-2 --job-name=mv48-qwen8b run_mv48.slurm qwen8b
 sbatch --array=0-1 --job-name=mv48-open run_mv48.slurm open
-# before the arrays: the judged panos are hits; after: the new ones are too
-envs/molmo/bin/python keycheck.py molmo:allenai/Molmo2-8B
-envs/eval/bin/python keycheck.py qwen:Qwen/Qwen3-VL-8B-Instruct owlv2 gdino
+# after the arrays drain, re-run the two keycheck lines: the new panos are hits too
 ```
 
 **4. Sync and finish on makelab2.** `sync_mv48.sh`, run in WSL, copies klone's cache into

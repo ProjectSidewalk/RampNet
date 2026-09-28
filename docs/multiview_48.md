@@ -338,7 +338,7 @@ generalized scorer on the full run and on the bundle alone agree exactly at ever
 (`challengers/scores.json` → `legs.rampnet`). The recall agreement is the informative half:
 covered sites are by definition those whose every full-run capture within 33 m is in the
 bundle, so both scopes fuse them from the same detections and their precision agrees almost
-by construction. The the per-pano row on the bundle reproduces
+by construction. The per-pano row on the bundle reproduces
 richmond's published 0.964 / 0.768 / 0.855. At 0.55, k = 1: world recall 0.941, covered
 precision 0.971 (132 TP / 4 FP sites; the covered scope keeps 136 of the 220 judged sites).
 
@@ -399,8 +399,10 @@ The full sweep (every tier, k = 1 to 3, with Wilson CIs) is in `scores.json`.
    0.686, 0.560 to 0.596), at a cost of 0.09 and 0.07 recall, and 57 and 69 false sites survive.
    That is a partial precision-by-agreement effect; [#48](https://github.com/ProjectSidewalk/RampNet/issues/48)'s "cross-capture agreement would kill
    much of the chat-VLMs' false-positive flood" overstates it on this data. For OWLv2 and
-   Grounding DINO precision is flat in k at every tier (OWLv2 at 0.20: 0.146 at k = 1, 0.151 at
-   k = 3): their false sites have as much multi-capture support as their true ones. This
+   Grounding DINO precision does not rise with k at any tier (OWLv2 at 0.20: 0.146 at k = 1,
+   0.151 at k = 3; Grounding DINO falls at 0.30, 0.048 to 0.038, and at 0.40, 0.043 to 0.026,
+   on 17 and 5 true sites at k = 1): their false sites have as much multi-capture support as
+   their true ones. This
    measurement does not say why. The detectors may fire on the same non-ramp objects from
    several captures (correlated errors, like the correlated misses in §5), or they may emit so
    many boxes per pano (OWLv2 at 0.05: 8,799 false detections on the 124 judged panos) that
@@ -413,14 +415,17 @@ The full sweep (every tier, k = 1 to 3, with Wilson CIs) is in `scores.json`.
 detections reproduce each leg's published richmond per-pano score at its headline: exactly for
 Molmo, OWLv2 and the YOLO trio; Qwen F1 0.371 vs 0.377; Grounding DINO 0.053 vs 0.053 (recall
 0.848 vs 0.852). Detection by detection (`published_richmond.judged_panos_agreement` in
-`scores.json`), the share of judged panos with the same detection count and every sorted pair
-within 1e-4 in x and y (20× the 5-dp export rounding, about 0.4 px) is 1.00 for y11l, y11x and
-Molmo, 0.99 for y26, 0.97 for OWLv2, 0.70 for Grounding DINO (same count on 0.90) and 0.03 for
-Qwen (same count on 0.90). So only Qwen differs throughout, and Grounding DINO partly; at the
-headline the differences move F1 by at most 0.006. An earlier version of this paragraph gave
-much lower shares (0 for both open-vocab detectors, 0.52–0.71 for YOLO). That comparison
-rounded both sides to 4 dp after the export had already rounded one side to 5 dp, so it
-measured rounding, not re-run drift (review of PR 200).
+`scores.json`), the share of judged panos with the same detection count and a one-to-one
+pairing of the two detection lists with every pair within 1e-4 in x and y (20× the 5-dp export
+rounding, about 0.4 px) is 1.00 for y11l, y11x, y26, Molmo and OWLv2, 0.78 for Grounding DINO
+(same count on 0.90) and 0.03 for Qwen (same count on 0.90). So only Qwen differs throughout,
+and Grounding DINO partly; at the headline the differences move F1 by at most 0.006. Earlier
+versions of this paragraph gave lower shares. The first (0 for both open-vocab detectors,
+0.52–0.71 for YOLO) rounded both sides to 4 dp after the export had already rounded one side
+to 5 dp, so it measured rounding, not re-run drift. The second (0.99 for y26, 0.97 for OWLv2,
+0.70 for Grounding DINO) sorted both lists by (x, y) and paired them in order; when two
+detections in a pano had x within the export rounding, the tie broke differently on each side
+and a detection was compared with its neighbour (both from the review of PR 200).
 
 **Where the published legs ran.** The YOLO trio's published richmond detections came from
 makelab2's A40 on 2026-08-14 (commit 3d7c7bf, per its message). OWLv2, Grounding DINO, Molmo
@@ -440,8 +445,8 @@ GPUs (commit 471e8b6, `scripts/analysis/multiview_48_klone/README.md`,
 mix hosts. The reproduction above compares makelab2 with the published legs, so for the YOLO
 trio it is a same-host re-run, and for the four other legs it compares makelab2's A40 with
 klone's L40S: the same kind of change the widening introduced, but not the same GPUs (the
-widening also used A40 and A100). Across that change OWLv2 and Molmo match on 0.97 and 1.00 of
-judged panos, Grounding DINO on 0.70 and Qwen on 0.03, and headline F1 moves by at most 0.006.
+widening also used A40 and A100). Across that change OWLv2 and Molmo match on 1.00 of
+judged panos, Grounding DINO on 0.78 and Qwen on 0.03, and headline F1 moves by at most 0.006.
 Every usage ledger row for this re-run records its host.
 
 **Caveats that apply to every challenger row.** The fusion error model and gates were tuned on
