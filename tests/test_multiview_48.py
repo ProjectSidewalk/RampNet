@@ -184,8 +184,8 @@ COMMITTED = ["meta.json", "recall_vs_captures.json", "evidence_vs_kofn.json",
 @pytest.mark.parametrize("name", COMMITTED)
 def test_committed_outputs_are_lf_pinned(name):
     path = os.path.join(OUT, name)
-    if not os.path.exists(path):
-        pytest.skip(f"{name} not committed yet")
+    # A committed artifact that has gone missing is a failure, not a skip.
+    assert os.path.exists(path), f"{name} is missing from analysis_out/multiview_48/"
     assert b"\r" not in open(path, "rb").read()
 
 
@@ -193,8 +193,8 @@ def test_recall_tables_rederive_from_the_committed_capture_table():
     csv_path = os.path.join(OUT, "captures_R25.csv")
     rv_path = os.path.join(OUT, "recall_vs_captures.json")
     meta_path = os.path.join(OUT, "meta.json")
-    if not all(os.path.exists(p) for p in (csv_path, rv_path, meta_path)):
-        pytest.skip("multiview_48 outputs not committed yet")
+    for p in (csv_path, rv_path, meta_path):
+        assert os.path.exists(p), f"{p} is missing (a committed #48 artifact)"
     meta = json.load(open(meta_path, encoding="utf-8"))
     ramps = mv.ramps_from_capture_csv(csv_path)
     for city, info in meta["city_info"].items():

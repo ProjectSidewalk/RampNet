@@ -283,9 +283,11 @@ analysis_out/input_res_sweep_25/cache/*
 # #48 multi-view evidence (scripts/analysis/multiview_evidence_48.py and
 # multiview_challengers_48.py): the per-(ramp, capture) table, the result JSONs, the
 # empty-then-filled one-rater verdicts, and the challenger detections, fused sites and
-# scores, so every number in docs/multiview_48.md re-derives on CPU without the labeler
-# runs or a GPU. The two open-vocab site files (8-10 MB each) are left untracked;
-# `score` re-derives them. Crops for the gallery live under benchmark/multiview_residual_48/.
+# scores. B.1/B.2 re-derive on CPU from the committed CSV alone; the challenger scores
+# re-derive on CPU from the committed detections; everything else needs the labeler
+# inputs listed in docs/multiview_48.md §10. The two open-vocab site files (8-10 MB each)
+# are ignored below; `score` re-derives them. Crops for the gallery live under
+# benchmark/multiview_residual_48/.
 !analysis_out/multiview_48/
 analysis_out/multiview_48/*
 !analysis_out/multiview_48/*.json
@@ -295,6 +297,8 @@ analysis_out/multiview_48/challengers/*
 !analysis_out/multiview_48/challengers/*.json
 !analysis_out/multiview_48/challengers/*.jsonl
 !analysis_out/multiview_48/challengers/detections/
+analysis_out/multiview_48/challengers/sites__google__owlv2-large-patch14-ensemble__0.05.jsonl
+analysis_out/multiview_48/challengers/sites__IDEA-Research__grounding-dino-base__0.05.jsonl
 
 # Two-scale inference (#197): the report, re-derived by two_scale_197.py report --check
 !analysis_out/two_scale_197/
