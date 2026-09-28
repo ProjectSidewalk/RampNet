@@ -350,9 +350,11 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
     """docs/compute_cost.md's numbers are claimed re-derivable from a clean clone.
     That is only true if the ledger is the dump's parse and nothing else: same
     rows, same order, differing only in the recorded_at stamp."""
-    # Dumps, appended in this order: klone on 2026-08-19, Tillicum on 2026-09-21, then two
-    # klone pulls by job id on 2026-09-24: the three jobs of the #131 Phase 1 replication
-    # (#185, merged first) and the five of the #86 context experiment (docs/context_fov_86.md).
+    # Seven dumps, appended in this order: klone on 2026-08-19; Tillicum on 2026-09-21; two
+    # klone pulls by job id on 2026-09-24, the three jobs of the #131 Phase 1 replication
+    # (#185, merged first) and the five of the #86 context experiment (docs/context_fov_86.md);
+    # the klone pull of 2026-09-26, the #86 resolution and seed arms (#187); and two klone pulls
+    # on 2026-09-27, the #35 cascade transfer job and the three #101 DA3 calibration jobs.
     parsed, stamps = [], []
     for dump, cluster, stamp in ((KLONE_DUMP, "klone", "2026-08-19T"),
                                  (TILLICUM_DUMP, "tillicum", "2026-09-21T"),

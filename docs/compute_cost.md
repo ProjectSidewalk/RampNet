@@ -231,7 +231,7 @@ The pull is by job id rather than a date window, so that a window would not swee
 run on the account the same day (the #131 replication ran on klone that night and records its
 own). The ledger is rebuilt in append order: klone 2026-08-19, Tillicum 2026-09-21, the #131
 pull `sacct_klone_2026-09-24_sa131.txt` (above), this file, then the 2026-09-26 and 2026-09-27 pulls below;
-`tests/test_slurm_usage.py` compares all six. What the five rows are is in
+`tests/test_slurm_usage.py` compares all seven. What the five rows are is in
 [`context_fov_86.md`](context_fov_86.md) §5.
 
 ## klone, 2026-09-26: the context experiment's resolution and seed arms, 13.6 GPU-hours, $0
