@@ -1,0 +1,9 @@
+{
+ "job": "40774146",
+ "recorded": "2026-09-27, after the run, from the job HF_HOME refs/main (the job ran with HF_HUB_OFFLINE=1, so each model loaded exactly this snapshot)",
+ "checkpoints": {
+  "facebook/mask2former-swin-large-mapillary-vistas-semantic": "4772b6bf101d91f2534c106dc524d906aeb3c68a",
+  "projectsidewalk/rampnet-model": "606a11956743f7eb328d9207769034752f6191f4"
+ },
+ "not_in_signature": "--vistas-revision was not passed: it enters the detection signature when set and would make a different leg from the published richmond file"
+}

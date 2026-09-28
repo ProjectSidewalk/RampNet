@@ -369,7 +369,7 @@ Also scored on this split, not in the standing table (see [`model_scoreboard.md`
 | grounding-dino-base | 0.038 | 0.850 | 0.073 | 0.049 | 278/6969/49 |
 | owlv2-large-patch14-ensemble | 0.037 | **0.954** | 0.071 | 0.093 | 312/8187/15 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Gemini 3.7 Flash F1 0.639, Claude Opus 5 (low) F1 0.604. Supervised (#71 protocol, not comparable as 'challenger'): YOLO11l (pano) F1 0.713, YOLO11x (pano) F1 0.710, YOLO26 (pano) F1 0.637.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Gemini 3.7 Flash F1 0.639, Claude Opus 5 (low) F1 0.604. Supervised (#71 / #126 protocols, not comparable as 'challenger'): YOLO11l (pano) F1 0.713, YOLO11x (pano) F1 0.710, YOLO26 (pano) F1 0.637, Mask2Former Vistas (curb cut, 1024) F1 0.509.
 
 Against the whole zero-shot field RampNet's lead on this split is 0.211 F1 (over Gemini 3.7 Flash), not the 0.212 over the table's best row.
 
@@ -427,7 +427,7 @@ survey-grade camera in the benchmark
 | owlv2-large-patch14-ensemble | 0.032 | **0.959** | 0.063 | 0.126 | 282/8444/12 |
 | grounding-dino-base | 0.029 | 0.898 | 0.055 | 0.042 | 264/8992/30 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Fable 5 (low, anthropic) F1 0.611, Claude Fable 5.1 (low, anthropic) F1 0.610, Claude Opus 5 (low) F1 0.588, Gemini 3.7 Flash F1 0.565, Claude Opus 5 (high) F1 0.520, Claude Sonnet 5 (low) F1 0.463, Claude Sonnet 5 (high) F1 0.456. Supervised (#71 protocol, not comparable as 'challenger'): YOLO11l (pano) F1 0.481, YOLO26 (pano) F1 0.450, YOLO11x (pano) F1 0.397.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Fable 5 (low, anthropic) F1 0.611, Claude Fable 5.1 (low, anthropic) F1 0.610, Claude Opus 5 (low) F1 0.588, Gemini 3.7 Flash F1 0.565, Claude Opus 5 (high) F1 0.520, Claude Sonnet 5 (low) F1 0.463, Claude Sonnet 5 (high) F1 0.456. Supervised (#71 / #126 protocols, not comparable as 'challenger'): Mask2Former Vistas (curb cut, 1024) F1 0.587, YOLO11l (pano) F1 0.481, YOLO26 (pano) F1 0.450, YOLO11x (pano) F1 0.397.
 
 Against the whole zero-shot field RampNet's lead on this split is 0.229 F1 (over Claude Fable 5 (low, anthropic)), not the 0.273 over the table's best row.
 
@@ -489,7 +489,7 @@ confidence HIGH; the split whose misses are structural (`benchmark/README.md`)
 | owlv2-large-patch14-ensemble | 0.040 | **0.894** | 0.077 | 0.116 | 353/8398/42 |
 | grounding-dino-base | 0.036 | 0.803 | 0.068 | 0.044 | 317/8551/78 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5 (low) F1 0.642, Gemini 3.7 Flash F1 0.609. Supervised (#71 protocol, not comparable as 'challenger'): YOLO11l (pano) F1 0.647, YOLO11x (pano) F1 0.635, YOLO26 (pano) F1 0.591.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5 (low) F1 0.642, Gemini 3.7 Flash F1 0.609. Supervised (#71 / #126 protocols, not comparable as 'challenger'): YOLO11l (pano) F1 0.647, YOLO11x (pano) F1 0.635, YOLO26 (pano) F1 0.591, Mask2Former Vistas (curb cut, 1024) F1 0.510.
 
 <!-- END GENERATED: results:paterson -->
 
@@ -541,7 +541,7 @@ reviewer confidence HIGH; the benchmark's freshest imagery (A-rate 35%, the high
 | owlv2-large-patch14-ensemble | 0.031 | **0.967** | 0.060 | 0.063 | 263/8185/9 |
 | grounding-dino-base | 0.028 | 0.893 | 0.055 | 0.040 | 243/8328/29 |
 
-Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5 (low) F1 0.479, Gemini 3.7 Flash F1 0.456. Supervised (#71 protocol, not comparable as 'challenger'): YOLO11l (pano) F1 0.516, YOLO11x (pano) F1 0.499, YOLO26 (pano) F1 0.451.
+Also scored on this split, not in the standing table (see [`model_scoreboard.md`](model_scoreboard.md)) — zero-shot: Claude Opus 5 (low) F1 0.479, Gemini 3.7 Flash F1 0.456. Supervised (#71 / #126 protocols, not comparable as 'challenger'): Mask2Former Vistas (curb cut, 1024) F1 0.527, YOLO11l (pano) F1 0.516, YOLO11x (pano) F1 0.499, YOLO26 (pano) F1 0.451.
 
 <!-- END GENERATED: results:gainesville -->
 
@@ -727,6 +727,29 @@ analysis needs no new inference. And **the AP column is not comparable across th
 for RampNet**: `laurens_mapillary` has a 0.05-floor `op_cache` and `laurens_gsv` does not, so
 its 0.494 is truncated at the deployed 0.55 while the other arm's 0.691 is not. The F1, P and
 R columns are comparable — both arms are read at 0.55.
+
+**The paired version is done** (`docs/laurens_paired_151.md`, 2026-09-27, corrected after
+[review](https://github.com/ProjectSidewalk/RampNet/pull/201#issuecomment-5858671681)), and it
+changes readings 1 and 3.
+
+- **What survives: RampNet's own rig effect.** On the 47 pano pairs within 20 m, RampNet's
+  ΔF1 is +0.112 [+0.033, +0.199] for the deployed run (pano-pair bootstrap, 10,000 draws, seed
+  151). The effect is recall; ΔP's interval spans zero. On the same-input re-run of the committed
+  JPEGs it is +0.095 [+0.040, +0.152] at 0.30.
+- **What does not: reading 3, a rig-sensitivity ordering against YOLO.** The YOLO pano arms'
+  paired ΔF1 are +0.028, −0.000 and −0.020. RampNet minus YOLO clears zero against two of the
+  three only for the deployed run, which reached RampNet by a different input path than the
+  committed JPEGs the YOLO arms saw. On the same-input RampNet leg at 0.55, no difference clears
+  zero (+0.047 [−0.037, +0.134], +0.076 [−0.020, +0.172], +0.095 [−0.008, +0.203]). On the
+  physical ramps both reviews contain, the YOLO arms gain about as many ramps as RampNet at the
+  5 m match (net +5, +5, +2 against +7; no exact McNemar p below 0.34). At the tighter 3 m match
+  RampNet leans more (+9, p 0.11, against +5, +1, +1); nothing at either radius is significant. The intervals cover pano sampling,
+  not training seeds. "Three to five times" is withdrawn.
+- **Reading 1 is narrowed.** No zero-shot leg gains F1 on the GSV arm of the same corners
+  (largest +0.009). Both arms are the same town, so that compares rigs and cannot show the town
+  is not a factor. Against it: `laurens_gsv` recall on the depth axis is 0.607 at 0–8 m (bend
+  0.885), a third of the matched ramps are missed on both rigs, and `grounding-dino-base` does
+  gain recall on GSV (ΔR +0.093 [+0.025, +0.161]).
 
 **sao_paulo** (125 reviewed panos, 281 GT ramps) — the second non-US split (2026-08-01),
 reviewer confidence **HIGH**; NBR 9050 design vocabulary on GSV (the same imagery path as

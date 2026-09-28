@@ -1,0 +1,45 @@
+                bend: FAIL  [exclude_border=True (pre-f4c71c8)]  strict: +14 peaks (10 in the seam strip, 10 in the border band) / -4;  as-extracted: 100/110 panos differ, max|score diff| 3.12e-03 (348 > 1e-4)  @0.30: [269, 22, 58] vs [269, 22, 58] (with border [271, 25, 56])  @0.55: [247, 5, 80] vs [247, 5, 80] (with border [249, 7, 78])
+                      0CvMs02xHlg3mCMHJdc6Xg: +0 / -0 peaks, max |score diff| 5.28e-04
+                      0FMaNGiSOoTGqLgh8jHfYQ: +0 / -0 peaks, max |score diff| 1.15e-03
+                      E15SCY6RTiDuNUu_trZk4Q: +0 / -0 peaks, max |score diff| 8.92e-04
+                      Kv2haiYlkJCiaO61RVWwQA: +0 / -0 peaks, max |score diff| 1.15e-03
+                      LN819vhVLLeYwzRsBh2zAg: +0 / -0 peaks, max |score diff| 1.16e-03
+                      5NVgLhChZXnD_D-z3SLZyQ: +0 / -0 peaks, max |score diff| 4.08e-04
+                      Noi7DhIT3xbCjA2Ip4QOyg: +0 / -0 peaks, max |score diff| 1.81e-03
+                      9DA1aapwjQcdUP2HEfrhfg: +0 / -0 peaks, max |score diff| 1.03e-03
+                      VMjtxZNqxl9E6oUXnsdI8Q: +0 / -0 peaks, max |score diff| 1.23e-03
+                      ZlXmdBYkhIpp-wNfPlSIFw: +0 / -0 peaks, max |score diff| 6.34e-04
+            paterson: FAIL  [exclude_border=True (pre-f4c71c8)]  strict: +19 peaks (13 in the seam strip, 13 in the border band) / -6;  as-extracted: 100/125 panos differ, max|score diff| 2.11e-03 (312 > 1e-4)  @0.30: [284, 16, 111] vs [284, 15, 111] (with border [286, 17, 109])  @0.55: [268, 8, 127] vs [269, 8, 126] (with border [269, 9, 126])
+                      Q5D74UJFt5D2PVhGxRh1sw: +0 / -0 peaks, max |score diff| 5.77e-04
+                      21Gw_VuYrSK42PCF32UGUw: +0 / -0 peaks, max |score diff| 5.65e-04
+                      hMx_5PxQtlixa9LRSNnKFQ: +0 / -0 peaks, max |score diff| 4.31e-04
+                      y8Q6XDfEoPt5K6ONqi406w: +0 / -0 peaks, max |score diff| 5.40e-04
+                      zzWJ9LWjpfDZLBT7W8o8zw: +0 / -0 peaks, max |score diff| 6.93e-04
+                      3Tw1W-lv133l2efDeoEAYQ: +0 / -0 peaks, max |score diff| 3.78e-04
+                      fGd6JE4qvoG1uOVvOjBBmg: +0 / -0 peaks, max |score diff| 4.42e-04
+                      kpvi-7jlODMmozIBUAUD_A: +0 / -0 peaks, max |score diff| 3.97e-04
+                      BvnpSlTjHxKyBiX5tQ02Mg: +0 / -0 peaks, max |score diff| 1.47e-03
+                      L8lyOJwUI8j3Mk_cV-R80Q: +0 / -0 peaks, max |score diff| 2.55e-04
+         gainesville: FAIL  [exclude_border=True (pre-f4c71c8)]  strict: +25 peaks (15 in the seam strip, 15 in the border band) / -11;  as-extracted: 97/125 panos differ, max|score diff| 1.94e-03 (331 > 1e-4)  @0.30: [210, 35, 62] vs [210, 35, 62] (with border [210, 36, 62])  @0.55: [183, 10, 89] vs [183, 10, 89] (with border [183, 11, 89])
+                      vbW2W3-AE2tr1NJYHCuHgw: +0 / -1 peaks, max |score diff| 8.21e-04
+                      q2yX7pwQF7_3SFGxEqlDHQ: +0 / -0 peaks, max |score diff| 8.13e-04
+                      9QF3VpTsXpZei70YvA-H6w: +0 / -0 peaks, max |score diff| 1.63e-03
+                      xMY6EkmbN9OZqwHeC_S7Zg: +1 / -1 peaks, max |score diff| 3.99e-04
+                      -FMeOe5iGG-5JFxSF0lxaQ: +0 / -0 peaks, max |score diff| 1.74e-03
+                      21qHYEKoNSGw9O3wF_dvBg: +1 / -1 peaks, max |score diff| 7.82e-04
+                      VYsAOBkJ-7hdoDBIOhr-nQ: +0 / -0 peaks, max |score diff| 4.92e-04
+                      89lilp2BlhppxL-oQ0gLNg: +0 / -0 peaks, max |score diff| 1.22e-03
+                      4My9h4mmpjE82U1up3jWOA: +0 / -0 peaks, max |score diff| 1.05e-03
+                      g7ZWUQeOp1Kl0LrWi0qrWw: +0 / -0 peaks, max |score diff| 4.46e-04
+           annapolis: FAIL  [exclude_border=True (pre-f4c71c8)]  strict: +14 peaks (7 in the seam strip, 7 in the border band) / -7;  as-extracted: 104/125 panos differ, max|score diff| 2.43e-03 (335 > 1e-4)  @0.30: [238, 25, 56] vs [238, 26, 56] (with border [238, 27, 56])  @0.55: [216, 6, 78] vs [217, 6, 77] (with border [216, 7, 78])
+                      371650204319915: +0 / -0 peaks, max |score diff| 5.48e-04
+                      340722771792916: +0 / -0 peaks, max |score diff| 6.96e-04
+                      653812816884043: +0 / -0 peaks, max |score diff| 9.86e-04
+                      1554822665323668: +0 / -0 peaks, max |score diff| 9.27e-04
+                      272909839049970: +0 / -0 peaks, max |score diff| 1.03e-03
+                      1040516234061456: +0 / -0 peaks, max |score diff| 7.26e-04
+                      928118321383655: +0 / -0 peaks, max |score diff| 1.16e-03
+                      1005430537402761: +0 / -0 peaks, max |score diff| 3.57e-04
+                      1027083038026430: +0 / -0 peaks, max |score diff| 7.11e-04
+                      1424988461692696: +0 / -0 peaks, max |score diff| 1.82e-03
+INSTRUMENT CHECK: FAIL

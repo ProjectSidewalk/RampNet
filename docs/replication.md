@@ -21,7 +21,7 @@ lives on one machine.
 | `benchmark/miss_taxonomy_46/*.json` (human verdicts) | small | **committed** | ✅ |
 | RampNet model weights | — | HF `projectsidewalk/rampnet-model` | ✅ |
 | Stage 1 dataset | **463 GB** (test split ~44 GB) | HF `projectsidewalk/rampnet-dataset` | ✅ |
-| `benchmark/model_detections/` (challenger detections) | 25.3 MB (149 files) + one replicate under `replicates/` | **committed** ✅ | ✅ |
+| `benchmark/model_detections/` (challenger detections) | 25.5 MB (153 files) + one replicate under `replicates/` | **committed** ✅ | ✅ |
 | **`location_data/` (the paper's government inventories)** | 71.8 MB | **committed** ✅ | ✅ |
 | **`street_data/` derivative (what the pipeline actually reads)** | 18.7 MB | **committed** ✅ | ✅ |
 | `street_data/` raw downloads (NY file alone is 669 MB) | 801 MB | git-ignored; HF #21 pending | ⚠️ superseded by the derivative |
@@ -59,7 +59,7 @@ in this sentence — the list here was one of the things that drifted.
 single-panorama shards keyed by an opaque SHA-1 of (label, signature, city, pano), unreadable
 without reconstructing detector signatures. `scripts/analysis/export_model_cache.py` consolidates
 it into human-readable files, one per (model, split), keyed by panorama id with the detector
-signature recorded inside. As of 2026-09-20 that is **149 files, 25.3 MB**, and every one of
+signature recorded inside. As of 2026-09-27 that is **153 files, 25.5 MB**, and every one of
 them belongs to a registered leg:
 
 | what | files | where it is written up |
@@ -71,7 +71,7 @@ them belongs to a registered leg:
 | the other three Vertex Claude legs, annapolis only (#122) | 3 | [`claude_legs_122.md`](claude_legs_122.md) |
 | the two Fable legs, annapolis only, served on Anthropic's first-party API (#156) | 2 | [`claude_legs_122.md` §Claude Fable on annapolis](claude_legs_122.md) |
 | the two Mapillary Vistas class-set arms, richmond only (#126) | 2 | [`vistas_transfer_126.md`](vistas_transfer_126.md) |
-| the Vistas curb-cut arm at 1024×1024 input — the resolution-parity leg, richmond only (#126, #137; re-run and published under #163) | 1 | [`vistas_transfer_126.md` §Resolution parity](vistas_transfer_126.md) |
+| the Vistas curb-cut arm at 1024×1024 input — the resolution-parity leg: richmond (#126, #137; re-run and published under #163), and bend, paterson, gainesville, annapolis for the #35 cascade transfer read (klone job 40774146, 2026-09-27) | 5 | [`vistas_transfer_126.md` §Resolution parity](vistas_transfer_126.md); the four transfer splits in [`cascade_cost_35.md` §Transfer](cascade_cost_35.md) |
 
 `rampnet` is a row in every results table and has no file here: it is read from each bundle's
 committed `records.jsonl` and carries no detector signature.

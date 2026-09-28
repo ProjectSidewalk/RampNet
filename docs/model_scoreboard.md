@@ -147,7 +147,7 @@ and F1 cannot tell you.
 
 ## Legs that have not run every pooled split
 
-Eight legs have run one split each, so they have no pooled mean to put in the table above —
+Eight legs have not run every pooled split — seven of them only one — so they have no pooled mean to put in the table above —
 a one-city average printed beside an eight-city one is exactly the comparison the coverage
 column exists to prevent. They are reported per split instead, at the split they ran on:
 
@@ -156,6 +156,10 @@ column exists to prevent. They are reported per split instead, at the split they
 | model | class | split | P | R | F1 | AP | FP/pano | tp/fp/fn |
 |---|---|---|--:|--:|--:|--:|--:|--:|
 | Mask2Former Vistas (curb cut, 1024) | supervised transfer | `richmond` | 0.383 | 0.884 | 0.534 | 0.649 | 3.6 | 274/442/36 |
+| Mask2Former Vistas (curb cut, 1024) | supervised transfer | `bend` | 0.367 | 0.832 | 0.509 | 0.425 | 4.3 | 272/469/55 |
+| Mask2Former Vistas (curb cut, 1024) | supervised transfer | `annapolis` | 0.436 | 0.898 | 0.587 | 0.526 | 2.7 | 264/342/30 |
+| Mask2Former Vistas (curb cut, 1024) | supervised transfer | `paterson` | 0.401 | 0.701 | 0.510 | 0.430 | 3.3 | 277/414/118 |
+| Mask2Former Vistas (curb cut, 1024) | supervised transfer | `gainesville` | 0.383 | 0.846 | 0.527 | 0.521 | 3.0 | 230/371/42 |
 | Mask2Former Vistas (curb cut) | supervised transfer | `richmond` | 0.411 | 0.697 | 0.517 | 0.513 | 2.5 | 216/309/94 |
 | Mask2Former Vistas (+curb) | supervised transfer | `richmond` | 0.126 | 0.648 | 0.210 | 0.089 | 11.3 | 201/1399/109 |
 | Claude Fable 5 (low, anthropic) | chat VLM | `annapolis` | 0.579 | 0.646 | 0.611 | – | 1.1 | 190/138/104 |
@@ -215,7 +219,7 @@ numbers are directly above them in `model_comparison.md`:
 | Molmo2-8B | 0.457 | 0.449 | 0.381 | 0.463 | 0.424 | 0.511 | 0.329 | 0.339 | 0.419 | 0.307 | 0.274 | 0.326 | 0.422 |
 | OWLv2-large | 0.064 | 0.071 | 0.049 | 0.071 | 0.063 | 0.077 | 0.060 | 0.062 | 0.065 | 0.055 | 0.062 | 0.052 | 0.088 |
 | Grounding DINO | 0.053 | 0.073 | 0.035 | 0.042 | 0.055 | 0.068 | 0.055 | 0.045 | 0.053 | 0.054 | 0.042 | 0.049 | 0.082 |
-| Mask2Former Vistas (curb cut, 1024) | 0.534 | – | – | – | – | – | – | – | – | – | – | – | – |
+| Mask2Former Vistas (curb cut, 1024) | 0.534 | 0.509 | – | – | 0.587 | 0.510 | 0.527 | – | – | – | – | – | – |
 | Mask2Former Vistas (curb cut) | 0.517 | – | – | – | – | – | – | – | – | – | – | – | – |
 | Mask2Former Vistas (+curb) | 0.210 | – | – | – | – | – | – | – | – | – | – | – | – |
 | Claude Fable 5 (low, anthropic) | – | – | – | – | 0.611 | – | – | – | – | – | – | – | – |
@@ -466,9 +470,10 @@ Omissions are content, so they are named rather than left as blanks:
   `rampnet/roster.py`, not because it is untested.
 - **`manual_gold` has no null-recall pass** (O(n²) in panos), so the open detectors' recall
   discount is unmeasured on that split.
-- **Eight legs have run one split each**, so they are in the partial table rather than the
-  headline: the three Vistas arms (richmond; the 1024 row is the curb-cut arm at resolution
-  parity, #126/#163), and five Claude legs on annapolis — Claude Opus 5
+- **Eight legs have not run every pooled split — seven of them only one**, so they are in the partial table rather than the
+  headline: the three Vistas arms (the 1024 row is the curb-cut arm at resolution parity,
+  #126/#163, on richmond and, since the #35 transfer run, bend, paterson, gainesville and
+  annapolis — five of the eight pooled splits; the other two on richmond only), and five Claude legs on annapolis — Claude Opus 5
   (high), both Sonnet 5 legs, and both Fable legs. Extending any of them to the full pool is
   a run, not a code change.
 - **`claude-opus-5-effort-low` is scored here but is not a standing roster entry.** It has

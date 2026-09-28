@@ -2,6 +2,10 @@
 
 The Mapillary Vistas arms: the supervised-transfer baseline, its instrument checks, the
 richmond result, resolution parity, complementarity with RampNet, and the cascade gate.
+**Since 2026-09-27 the 1024 parity arm also has detections on bend, paterson, gainesville and
+annapolis** (klone, one L40S; solo scores in [`model_scoreboard.md`](model_scoreboard.md), the
+cascade read in [`cascade_cost_35.md` §Transfer](cascade_cost_35.md)). Everything below is
+richmond, as written.
 Moved verbatim from [`model_comparison.md`](model_comparison.md) under #145, where it sat under
 § "What each model class buys you"; heading levels are unchanged, so the moved `###`
 sections sit under the one `##` below, added so the outline has no skipped level. "Above" and
