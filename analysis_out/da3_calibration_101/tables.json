@@ -1374,6 +1374,43 @@
    "capture_years": [
     "2024"
    ],
+   "frame_corrected": {
+    "depth_frame_scale": {
+     "bend": 1.06,
+     "gainesville": 1.095,
+     "paterson": 1.08,
+     "sao_paulo": 1.16
+    },
+    "height": {
+     "fitted_splits": {
+      "bend": 0.9044,
+      "gainesville": 0.9629,
+      "paterson": 0.9551,
+      "sao_paulo": 0.9556
+     },
+     "held_out_inside_range": true,
+     "held_out_uncorrected": 0.9252,
+     "range": [
+      0.9044,
+      0.9629
+     ]
+    },
+    "held_out_frame_scale": null,
+    "point": {
+     "fitted_splits": {
+      "bend": 0.9747,
+      "gainesville": 0.995,
+      "paterson": 1.027,
+      "sao_paulo": 1.0176
+     },
+     "held_out_inside_range": true,
+     "held_out_uncorrected": 1.0152,
+     "range": [
+      0.9747,
+      1.027
+     ]
+    }
+   },
    "height": {
     "group": "laurens_gsv",
     "median_abs_log_ratio": 0.0805,
@@ -1435,12 +1472,20 @@
       0.9587,
       1.1085
      ],
+     "fitted_split_range_over_predicted": [
+      0.9236,
+      1.0679
+     ],
      "fitted_splits": {
       "bend": 0.9587,
       "gainesville": 1.0544,
       "paterson": 1.0315,
       "sao_paulo": 1.1085
      },
+     "fitted_splits_outside_predicted_ci": [
+      "bend",
+      "sao_paulo"
+     ],
      "held_out_over_pooled_ci": [
       0.8748,
       0.9116
@@ -1473,12 +1518,21 @@
       1.0332,
       1.1804
      ],
+     "fitted_split_range_over_predicted": [
+      0.9343,
+      1.0674
+     ],
      "fitted_splits": {
       "bend": 1.0332,
       "gainesville": 1.0895,
       "paterson": 1.1092,
       "sao_paulo": 1.1804
      },
+     "fitted_splits_outside_predicted_ci": [
+      "bend",
+      "gainesville",
+      "sao_paulo"
+     ],
      "held_out_over_pooled_ci": [
       0.8974,
       0.9466
@@ -1578,6 +1632,32 @@
     "da3_n_panos": 78,
     "google_median_h_m": 2.4094,
     "google_n_panos": 60
+   },
+   "vs_bend": {
+    "height": {
+     "bend": 0.9587,
+     "bend_ci": [
+      0.9485,
+      0.9771
+     ],
+     "held_out": 0.9252,
+     "ratio_ci": [
+      0.9448,
+      0.9872
+     ]
+    },
+    "point": {
+     "bend": 1.0332,
+     "bend_ci": [
+      1.0098,
+      1.0579
+     ],
+     "held_out": 1.0152,
+     "ratio_ci": [
+      0.9537,
+      1.016
+     ]
+    }
    }
   },
   "point_calibration": [

@@ -177,7 +177,7 @@ DA3 plane tilt vs Google ground-plane tilt, 352 GSV panos: median 2.1824 deg vs 
 | paterson | 125 | 108 | 2.11 (1.90–2.39) | 1.38–2.87 | 2.2 | 2.05 |
 | gainesville | 125 | 106 | 1.89 (1.79–2.10) | 1.60–2.79 | 2.0 | 1.83 |
 | sao_paulo | 125 | 95 | 2.46 (2.27–2.54) | 1.34–2.78 | 2.6 | 2.26 |
-| laurens_gsv | 86 | 78 | 2.14 (2.09–2.19) | 1.82–2.59 | 2.1 | – |
+| laurens_gsv | 86 | 78 | 2.14 (2.09–2.19) | 1.82–2.59 | 2.1 | 2.41 (held out, 60 panos) |
 | richmond | 124 | 93 | 2.38 (2.06–2.50) | 1.33–2.78 | 3.1 | – |
 | annapolis | 125 | 96 | 2.12 (2.05–2.21) | 1.89–2.41 | 3.6 | – |
 | morgantown | 125 | 92 | 2.07 (1.94–2.20) | 0.52–2.63 | 3.4 | – |
@@ -407,6 +407,22 @@ Unpaired (different pano sets): calibrated DA3 height 2.14 m over 78 panos, Goog
 |---|---|---|---|---|---|---|
 | point range | 156 (45 panos) | 1.015 [0.997, 1.046] | 1.106 [1.094, 1.117] | 1.033–1.180 | 0.918 [0.897, 0.947] | older US vintages: 1.066 [1.050, 1.082] |
 | camera height | 53 panos | 0.925 [0.920, 0.942] | 1.038 [1.026, 1.056] | 0.959–1.109 | 0.891 [0.875, 0.912] | older US vintages: 0.995 [0.976, 1.010] |
+
+point: fitted splits span 0.934–1.067 of the pooled value; outside the pooled CI in sample: 3 of 4 (bend, gainesville, sao_paulo).
+
+height: fitted splits span 0.924–1.068 of the pooled value; outside the pooled CI in sample: 2 of 4 (bend, sao_paulo).
+
+| read | laurens_gsv | bend [CI] | laurens_gsv / bend [95% CI] |
+|---|---|---|---|
+| point | 1.015 | 1.033 [1.010, 1.058] | [0.954, 1.016] |
+| height | 0.925 | 0.959 [0.949, 0.977] | [0.945, 0.987] |
+
+Fitted splits' DA3/Google divided by the labeler's Google depth-frame factor (section 2.2), beside the held-out split's uncorrected ratio (laurens_gsv: the labeler has no factor for it):
+
+| read | bend | paterson | gainesville | sao_paulo | corrected range | held out, uncorrected | inside |
+|---|---:|---:|---:|---:|---|---:|---|
+| point | 0.975 | 1.027 | 0.995 | 1.018 | 0.975–1.027 | 1.015 | True |
+| height | 0.904 | 0.955 | 0.963 | 0.956 | 0.904–0.963 | 0.925 | True |
 
 Points: log-log exponent 1.015 [0.982, 1.042] (pooled 0.981 [0.959, 1.001]), OLS slope 1.008 [0.950, 1.065], intercept 0.32 m, p10–p90 0.94–1.12, median abs ln ratio 0.047.
 Heights (paired): DA3 raw 2.23 m, calibrated 2.14 m, Google 2.41 m; p10–p90 0.87–1.02, Pearson r -0.007, median abs ln ratio 0.081.

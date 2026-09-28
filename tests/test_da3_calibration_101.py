@@ -316,3 +316,48 @@ def test_held_out_numbers_are_pinned():
     # held out means held out: the pooled constants and LOSO set are the four fitted splits'
     assert set(t["constants"]["loso"]) == set(dc.GSV_DEPTH_SPLITS)
     assert all(r["group"] != "laurens_gsv" for r in t["point_calibration"] + t["height_calibration"])
+
+
+def test_held_out_join_takes_the_first_passing_row_at_a_location():
+    # review of #208, N4: as calib_locations does, a failing GT row does not block a passing
+    # detection at the same coordinates
+    google = {"panos": {}, "gt": {("a", 0.1, 0.6): {"camera_height_status": "synthetic_ground",
+                                                     "depth_source": None, "depth_range": None}},
+              "det": {("a", 0.1, 0.6): {"camera_height_status": "measured", "depth_source": "pixel_plane",
+                                         "depth_range": 10.0}}}
+    pts = [{"split": "laurens_gsv", "pano": "a", "kind": "gt", "x": 0.1, "y": 0.6, "da3_range": 11.0, "flat_2p5": 7.7},
+           {"split": "laurens_gsv", "pano": "a", "kind": "det", "x": 0.1, "y": 0.6, "da3_range": 11.0, "flat_2p5": 7.7}]
+    locs, n = dc.held_out_locations(pts, google)
+    assert [(q["da3"], q["google"]) for q in locs] == [(11.0, 10.0)]
+    assert (n["unique_locations"], n["locations_measured_pixel_plane"]) == (1, 1)
+
+
+@needs_artifacts
+def test_held_out_review_numbers_are_pinned():
+    # review of #208, N5 / M1 / M2 / N3: the values the doc's reading rests on
+    with open(dc.TABLES_JSON, encoding="utf-8") as fh:
+        b = json.load(fh)["tables"]["laurens_gsv_held_out"]
+    p, h = b["prediction"]["point"], b["prediction"]["height"]
+    assert p["fitted_split_range"] == [1.0332, 1.1804] and h["fitted_split_range"] == [0.9587, 1.1085]
+    assert p["fitted_split_range_over_predicted"] == [0.9343, 1.0674]
+    assert h["fitted_split_range_over_predicted"] == [0.9236, 1.0679]
+    # the pooled-CI test fails in sample too
+    assert p["fitted_splits_outside_predicted_ci"] == ["bend", "gainesville", "sao_paulo"]
+    assert h["fitted_splits_outside_predicted_ci"] == ["bend", "sao_paulo"]
+    # medians behind the unpaired 0.890 and the paired 0.891
+    assert (b["unpaired"]["da3_calibrated_median_h_m"], b["unpaired"]["google_median_h_m"],
+            b["unpaired"]["calibrated_over_google"]) == (2.1443, 2.4094, 0.89)
+    assert (b["height"]["median_da3_calibrated_h_m"], b["height"]["median_google_h_m"]) == (2.1445, 2.4141)
+    # against bend: within noise at points, not in height
+    vb = b["vs_bend"]
+    assert vb["point"]["ratio_ci"] == [0.9537, 1.016] and vb["height"]["ratio_ci"] == [0.9448, 0.9872]
+    # frame-corrected bands of the fitted splits contain laurens_gsv's uncorrected ratios
+    fc = b["frame_corrected"]
+    assert fc["point"]["fitted_splits"] == {"bend": 0.9747, "paterson": 1.027, "gainesville": 0.995, "sao_paulo": 1.0176}
+    assert fc["height"]["fitted_splits"] == {"bend": 0.9044, "paterson": 0.9551, "gainesville": 0.9629, "sao_paulo": 0.9556}
+    assert fc["point"]["held_out_inside_range"] and fc["height"]["held_out_inside_range"]
+    assert fc["held_out_frame_scale"] is None
+    # the one hand-carried cell in the doc's section 5.1 table matches the held-out block
+    with open(os.path.join(REPO, "docs", "da3_calibration_101.md"), encoding="utf-8") as fh:
+        row = next(line for line in fh if line.startswith("| laurens_gsv | 86 | 78 |"))
+    assert row.rstrip().endswith(f"| {b['unpaired']['google_median_h_m']:.2f}¹ |")

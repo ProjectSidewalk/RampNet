@@ -915,7 +915,9 @@ def held_out_locations(points, google, split=HELD_OUT_SPLIT):
     ``counts`` gives n at every step: point rows, rows joined to a Google row, unique locations,
     and the locations that pass the measured / pixel-plane / both-ranges filter.
     """
-    seen, out = set(), []
+    # as in calib_locations, a location is taken by the FIRST row there that passes the filter
+    # (review of #208, N4): a failing GT row does not block a passing detection at its coordinates
+    joined, seen, out = set(), set(), []
     n_rows = n_joined = 0
     for p in points:
         if p["split"] != split:
@@ -926,14 +928,15 @@ def held_out_locations(points, google, split=HELD_OUT_SPLIT):
             continue
         n_joined += 1
         key = (p["pano"], p["x"], p["y"])
+        joined.add(key)
         if key in seen:
             continue
-        seen.add(key)
         if (g["camera_height_status"] == "measured" and g["depth_source"] == "pixel_plane"
                 and g["depth_range"] and p["da3_range"]):
+            seen.add(key)
             out.append({"split": split, "pano": p["pano"], "x": p["x"], "y": p["y"],
                         "da3": p["da3_range"], "google": g["depth_range"], "flat_2p5": p["flat_2p5"]})
-    counts = {"point_rows": n_rows, "point_rows_joined": n_joined, "unique_locations": len(seen),
+    counts = {"point_rows": n_rows, "point_rows_joined": n_joined, "unique_locations": len(joined),
               "locations_measured_pixel_plane": len(out), "location_panos": len({q["pano"] for q in out})}
     return out, counts
 
@@ -994,6 +997,7 @@ def prediction_read(observed, observed_ci, predicted, predicted_ci, reference):
             "cis_overlap": (observed_ci is not None
                             and observed_ci[0] <= predicted_ci[1] and predicted_ci[0] <= observed_ci[1]),
             "fitted_split_range": [lo, hi], "inside_fitted_split_range": lo <= observed <= hi,
+            "fitted_split_range_over_predicted": [_r(lo / predicted), _r(hi / predicted)],
             "fitted_splits": dict(sorted(reference.items()))}
 
 
@@ -1091,7 +1095,41 @@ def held_out_block(panos, points, google, locs, hp, k_pt, k_h, point_rows, heigh
         pred["height"]["held_out_over_pooled_ci"] = two_sample_ratio_ci(pairs, lambda q: q["pano"], hp, ptk, ratio_stat)
         pred["height"]["rig_group"] = ({"group": group, "median_ratio": hr[group]["median_ratio"],
                                         "median_ratio_ci": hr[group]["median_ratio_ci"]} if group in hr else None)
+    # the same pooled-CI test applied to the fitted splits themselves (review of #208, M2): a
+    # split outside the pooled median's CI is the rule in sample, not a sign of an unusual split
+    for name, rows in (("point", pr), ("height", hr)):
+        if name in pred:
+            ci = pred[name]["predicted_ci"]
+            pred[name]["fitted_splits_outside_predicted_ci"] = sorted(
+                s for s in GSV_DEPTH_SPLITS if not ci[0] <= rows[s]["median_ratio"] <= ci[1])
     b["prediction"] = pred
+
+    # laurens_gsv against bend, the fitted split closest to it in capture year and Google camera
+    # height (review of #208, M2): two-sample CI of laurens_gsv / bend
+    near = "bend"
+    b["vs_" + near] = {
+        "point": {"held_out": b["point"].get("median_ratio"), near: pr[near]["median_ratio"],
+                  near + "_ci": pr[near]["median_ratio_ci"],
+                  "ratio_ci": two_sample_ratio_ci(hl, lambda q: q["pano"], [q for q in locs if q["split"] == near],
+                                                  ptk, ratio_stat)},
+        "height": {"held_out": hrow.get("median_ratio"), near: hr[near]["median_ratio"],
+                   near + "_ci": hr[near]["median_ratio_ci"],
+                   "ratio_ci": two_sample_ratio_ci(pairs, lambda q: q["pano"], [q for q in hp if q["split"] == near],
+                                                   ptk, ratio_stat)}}
+
+    # the second explanation (review of #208, M1): the fitted splits' DA3/Google divided by the
+    # labeler's Google depth-frame factor (§2.2), beside laurens_gsv's UNCORRECTED ratio. The
+    # labeler has no factor for Laurens. If laurens_gsv's uncorrected ratio sits inside the
+    # corrected band, "Google's frame is short in the fitted cities and not in Laurens" fits the data.
+    fc = {}
+    for name, rows, obs in (("point", pr, b["point"].get("median_ratio")), ("height", hr, hrow.get("median_ratio"))):
+        vals = {s: _r(rows[s]["median_ratio"] / rbd.DEPTH_FRAME_SCALE[s]) for s in GSV_DEPTH_SPLITS}
+        fc[name] = {"fitted_splits": vals, "range": [min(vals.values()), max(vals.values())],
+                    "held_out_uncorrected": obs,
+                    "held_out_inside_range": obs is not None and min(vals.values()) <= obs <= max(vals.values())}
+    fc["depth_frame_scale"] = dict(rbd.DEPTH_FRAME_SCALE)
+    fc["held_out_frame_scale"] = rbd.DEPTH_FRAME_SCALE.get(split)
+    b["frame_corrected"] = fc
     return b
 
 
@@ -1539,11 +1577,17 @@ def markdown(t):
     L.append("\n## Camera height by split (DA3, calibrated by k_height)\n")
     L.append("| split | panos | fit ok | median h (p25–p75) | min–max | median tilt (deg) | Google h median |")
     L.append("|---|---:|---:|---|---|---:|---:|")
+    ho = t["laurens_gsv_held_out"]
     for r in t["camera_height_by_split"]:
         if not r["n_panos"]:
             continue
+        gcell = _f(r["median_google_h_m"], 2)
+        if r["group"] == ho["split"] and r["median_google_h_m"] is None:
+            # the held-out split's Google median, from the held-out block over ITS pano set (the
+            # measured-ground panos, not this row's fit-ok ones); the pinned row itself carries none
+            gcell = f"{_f(ho['unpaired']['google_median_h_m'], 2)} (held out, {ho['unpaired']['google_n_panos']} panos)"
         L.append(f"| {r['group']} | {r['panos']} | {r['n_panos']} | {_f(r['median_h_m'], 2)} ({_f(r['p25_h_m'], 2)}–{_f(r['p75_h_m'], 2)}) | "
-                 f"{_f(r['min_h_m'], 2)}–{_f(r['max_h_m'], 2)} | {_f(r['median_tilt_deg'], 1)} | {_f(r['median_google_h_m'], 2)} |")
+                 f"{_f(r['min_h_m'], 2)}–{_f(r['max_h_m'], 2)} | {_f(r['median_tilt_deg'], 1)} | {gcell} |")
     L.append("\n## Camera height by Mapillary rig (make/model)\n")
     L.append("| split / rig | panos | median h (p25–p75) | min–max | median tilt (deg) |")
     L.append("|---|---:|---|---|---:|")
@@ -1626,6 +1670,32 @@ def markdown_held_out(b):
         L.append(f"| {name} | {nn} | {_f(p['observed'])} {_ci(p['observed_ci'])} | {_f(p['predicted'])} {_ci(p['predicted_ci'])} | "
                  f"{_f(p['fitted_split_range'][0])}–{_f(p['fitted_split_range'][1])} | {_f(p['observed_over_predicted'])} "
                  f"{_ci(p['held_out_over_pooled_ci'])} | {rg.get('group', '–')}: {_f(rg.get('median_ratio'))} {_ci(rg.get('median_ratio_ci'))} |")
+    for name in ("point", "height"):
+        p = b["prediction"].get(name)
+        if p:
+            o = p["fitted_split_range_over_predicted"]
+            L.append(f"\n{name}: fitted splits span {_f(o[0])}–{_f(o[1])} of the pooled value; outside the pooled CI in sample: "
+                     f"{len(p['fitted_splits_outside_predicted_ci'])} of {len(p['fitted_splits'])} "
+                     f"({', '.join(p['fitted_splits_outside_predicted_ci']) or 'none'}).")
+    vb = b.get("vs_bend")
+    if vb:
+        L.append("\n| read | laurens_gsv | bend [CI] | laurens_gsv / bend [95% CI] |")
+        L.append("|---|---|---|---|")
+        for name in ("point", "height"):
+            r = vb[name]
+            L.append(f"| {name} | {_f(r['held_out'])} | {_f(r['bend'])} {_ci(r['bend_ci'])} | {_ci(r['ratio_ci'])} |")
+    fc = b.get("frame_corrected")
+    if fc:
+        has = (f"the labeler's factor is {fc['held_out_frame_scale']}" if fc["held_out_frame_scale"]
+               else "the labeler has no factor for it")
+        L.append("\nFitted splits' DA3/Google divided by the labeler's Google depth-frame factor (section 2.2), beside the "
+                 f"held-out split's uncorrected ratio ({b['split']}: {has}):\n")
+        L.append("| read | " + " | ".join(GSV_DEPTH_SPLITS) + " | corrected range | held out, uncorrected | inside |")
+        L.append("|---|" + "---:|" * len(GSV_DEPTH_SPLITS) + "---|---:|---|")
+        for name in ("point", "height"):
+            r = fc[name]
+            L.append(f"| {name} | " + " | ".join(_f(r["fitted_splits"][s]) for s in GSV_DEPTH_SPLITS)
+                     + f" | {_f(r['range'][0])}–{_f(r['range'][1])} | {_f(r['held_out_uncorrected'])} | {r['held_out_inside_range']} |")
     pt, h = b["point"], b["height"]
     if pt.get("median_ratio") is not None:
         L.append(f"\nPoints: log-log exponent {_f(pt['loglog_exponent'])} {_ci(pt['loglog_exponent_ci'])} (pooled "
