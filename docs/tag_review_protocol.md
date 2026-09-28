@@ -17,9 +17,14 @@ describe how it would run, and the tooling for it stays built.
    If the rubric changes partway through, record where. Add a sidecar row for the first item
    judged under the new version, with `rubric <new version> from here` in `note`. Key the row by
    that item's `label_uid` (`<city>:<label_id>`, from the open gallery) or its `item_id` (from the
-   `links` pairs), as described below; a bare label id is not enough. The export's `judged_at`
-   then gives the split point in time. On the production route the pass runs city by city, so a
-   mid-pass change also splits the pass by city. Say so beside any number that uses both halves.
+   `links` pairs), as described below; a bare label id is not enough. If that item already has a
+   sidecar row, append `rubric <new version> from here` to that row's `note` instead of adding a
+   second row; the pull stops on two rows for one item. Pick an item you then judge fully,
+   including the Agree / Disagree / Unsure vote: that item's export `judged_at` gives the split
+   point in time only if the item ends up reviewed. The pull stops if a sidecar row is on an item
+   left unreviewed, so the marker is never dropped silently. On the production route the pass
+   runs city by city, so a mid-pass change also splits the pass by city. Say so beside any number
+   that uses both halves.
 2. Note the pass start time in UTC. The production pull only counts edits and votes after it, so
    an older expert-validate of the same label is not mistaken for this pass.
 3. Create an empty sidecar file, `benchmark/tag_review/<rater>__sidecar.csv`, with the header
@@ -47,14 +52,19 @@ drift up with the alphabet. Within a city `item_id` order is the list's shuffle,
 distance band stay interleaved. The review sheet has no such blocks (see the asymmetry table).
 
 Ids the server cannot show are listed above the grid; treat those items as not reviewed. The
-by-id query (`getGalleryLabelsByIdQuery` in SidewalkWebpage's `app/models/label/LabelTable.scala`)
-applies none of the gallery's quality filters, but it still drops, for example: deleted labels,
+by-id query (`getGalleryLabelsByIdQuery` in SidewalkWebpage's `app/models/label/LabelTable.scala`,
+read at `develop`
+[d84ecbb](https://github.com/ProjectSidewalk/SidewalkWebpage/blob/d84ecbbcaa2292863eb36084846c3d6143c2cb31/app/models/label/LabelTable.scala)
+on 2026-09-28) applies none of the gallery's quality filters, but it still drops, for example: deleted labels,
 tutorial labels, labels from excluded contributors, labels on a panorama from another viewer than
 the deployment's, and labels with no latitude and longitude. The list is not exhaustive, since the
 query also inner-joins the label's street region and its user's stats. The query does not check
 imagery, so a label whose panorama is gone can still come back with nothing to judge; treat that
 item as not reviewed too. On 2026-09-26 the server returned all 500
-listed labels, with an empty `unavailableLabelIds` on all 35 deployments (#186 review).
+listed labels, with an empty `unavailableLabelIds` on all 35 deployments (#186 review). Do not
+put an item you could not review in the sidecar: an item with no edit or vote exports as not
+reviewed, and the pull stops on a sidecar row it would drop (below). List those items by
+`label_uid` in the pass's issue comment instead.
 
 The gallery shows label ids, not `item_id`s, and a label id alone does not name an item: 12 label
 ids in the committed list occur in two or more cities (label 24930 is `danville-il:24930`,
@@ -67,7 +77,12 @@ ids in the committed list occur in two or more cities (label 24930 is `danville-
 The pull checks every sidecar row against the list and stops on an `item_id` or `label_uid` the
 list does not have, on a row whose two keys name different items, and on two rows for one item.
 Before this check, a wrong but valid `item_id` put the note on another city's item, and a typo was
-dropped silently.
+dropped silently. The `prod` pull also stops when a sidecar row is on an item that exports as not
+reviewed (no edit or vote from the rater inside `--since` / `--until`), because that row's note and
+`cannot_judge` would be dropped. It names the items. The usual causes are a `--since` set too late
+or a missing Agree vote (step 6 below). `--allow-unreviewed-sidecar` exports anyway, with a
+warning, and the rows are then lost. A row that is blank in every field is skipped, and a header
+with neither `item_id` nor `label_uid` stops the pull at line 1.
 
 For each item:
 

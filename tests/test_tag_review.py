@@ -738,3 +738,50 @@ def test_committed_links_are_in_the_seeded_city_order():
     perm = np.random.default_rng(trl.CITY_ORDER_SEED).permutation(len(cities))
     assert got == [cities[k] for k in perm] and got != cities
     assert trl.CITY_ORDER_SEED == tr.read_json(META)["params"]["seed"]    # the list's build seed
+
+
+# ----------------------------------------------------------------------------- re-review R1, R6
+
+def _prod_setup(tmp_path, monkeypatch, vals=()):
+    rows = [_row(1), _row(2)]
+    lst = tmp_path / "list.csv"
+    _write_list(lst, rows)
+    side = _sidecar(tmp_path / "side.csv", "item_id,label_uid,cannot_judge,cannot_judge_tags,note",
+                    "tr0001,,1,,unavailable in the gallery")
+    monkeypatch.setattr(trp, "fetch_rater_rows", lambda rows, user_id: ([], list(vals), [], {}))
+    return ["prod", "--rater", "jonfroehlich", "--list", str(lst), "--since", "2026-09-23T00:00:00Z",
+            "--sidecar", side, "--out", str(tmp_path / "out.json")]
+
+
+def test_prod_stops_on_a_sidecar_row_for_an_unreviewed_item(tmp_path, monkeypatch, capsys):
+    argv = _prod_setup(tmp_path, monkeypatch)
+    with pytest.raises(SystemExit, match="tr0001"):
+        trp.main(argv)
+    assert not (tmp_path / "out.json").exists()
+    trp.main(argv + ["--allow-unreviewed-sidecar"])   # the escape hatch exports, and says so
+    assert "WARNING: 1 sidecar row(s)" in capsys.readouterr().out
+    assert (tmp_path / "out.json").exists()
+
+
+def test_prod_keeps_the_sidecar_of_a_reviewed_item(tmp_path, monkeypatch):
+    vote = {"city": "alpha", "label_id": "101", "label_validation_id": "7", "validation_result": "Agree",
+            "end_timestamp": "2026-09-23T12:00:00Z", "source": "GalleryExpanded"}
+    argv = _prod_setup(tmp_path, monkeypatch, vals=[vote])
+    trp.main(argv)
+    items = {it["item_id"]: it for it in tr.read_json(tmp_path / "out.json")["items"]}
+    assert items["tr0001"]["note"] == "unavailable in the gallery" and items["tr0001"]["cannot_judge"] is True
+    assert trp.unreviewed_sidecar_items(list(items.values()), {"tr0002": {}}) == ["tr0002"]
+
+
+def test_read_sidecar_skips_blank_rows_and_checks_the_header_once(tmp_path):
+    rows = [_row(1)]
+    p = _sidecar(tmp_path / "s.csv", "item_id,label_uid,cannot_judge,cannot_judge_tags,note",
+                 ",,,,", "tr0001,,1,,x", " , ,,,")
+    assert set(trp.read_sidecar(p, rows)) == {"tr0001"}
+    q = _sidecar(tmp_path / "q.csv", "itemid,cannot_judge,note", "tr0001,1,x")
+    with pytest.raises(SystemExit, match=r"q\.csv:1: sidecar header"):
+        trp.read_sidecar(q, rows)
+    empty = tmp_path / "e.csv"
+    empty.write_text("", encoding="utf-8")
+    with pytest.raises(SystemExit, match="header"):
+        trp.read_sidecar(str(empty), rows)

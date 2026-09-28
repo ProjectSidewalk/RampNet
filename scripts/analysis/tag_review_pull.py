@@ -21,7 +21,8 @@ Unsure vote are all retrievable per label and per user. Two things are not: a pe
 go in a small per-rater sidecar CSV (``item_id,label_uid,cannot_judge,cannot_judge_tags,note``;
 each row needs ``item_id`` or ``label_uid``), which this script merges, failing on a key that
 is not in the list. An item with no edit and no vote from the rater inside ``--since`` /
-``--until`` is exported as ``reviewed: false`` and drops out of every rate.
+``--until`` is exported as ``reviewed: false`` and drops out of every rate. A sidecar row on such an
+item would be lost, so ``prod`` stops and names it unless ``--allow-unreviewed-sidecar``.
 
 The pulled API files' sha256 values are recorded in the export (``pulls``), so a later
 re-pull can be checked against the one the committed export came from.
@@ -154,10 +155,19 @@ def read_sidecar(path, rows):
     item, and a typo would drop it silently."""
     if not path:
         return {}
+    with open(path, encoding="utf-8-sig", newline="") as fh:
+        reader = csv.DictReader(fh)
+        header = [h.strip() for h in (reader.fieldnames or [])]
+        if "item_id" not in header and "label_uid" not in header:
+            raise SystemExit(f"{path}:1: sidecar header has neither item_id nor label_uid "
+                             f"(got {','.join(header) or 'nothing'})")
+        srows = list(reader)
     by_uid = {r["label_uid"]: r["item_id"] for r in rows}
     items = set(by_uid.values())
     out = {}
-    for n, r in enumerate(read_csv_rows(path), start=2):   # line 1 is the header
+    for n, r in enumerate(srows, start=2):   # line 1 is the header
+        if not any((v or "").strip() for v in r.values() if isinstance(v, str)):
+            continue   # an all-blank row, as a spreadsheet leaves after cells are cleared
         item = (r.get("item_id") or "").strip()
         uid = (r.get("label_uid") or "").strip()
         if not item and not uid:
@@ -178,6 +188,11 @@ def read_sidecar(path, rows):
     return out
 
 
+def unreviewed_sidecar_items(items, sidecar):
+    """Sidecar item_ids whose item exported as ``reviewed: false``: their row would be lost."""
+    return sorted(it["item_id"] for it in items if not it["reviewed"] and it["item_id"] in sidecar)
+
+
 def _export(args, rows, items, method, window=None, extra=None, user_id=None):
     rubric = tr.load_rubric(args.rubric)
     obj = tr.make_export(rater=args.rater, rater_user_id=user_id, items=items, rubric=rubric,
@@ -195,10 +210,20 @@ def cmd_prod(args):
     user_id = args.user_id or RATER_IDS.get(args.rater)
     if not user_id:
         raise SystemExit(f"no user id for {args.rater!r}; pass --user-id")
+    sidecar = read_sidecar(args.sidecar, rows)   # before the network, so a bad key fails fast
     edits, vals, others, pulls = fetch_rater_rows(rows, user_id)
     items = tr.items_from_prod(rows, edits, vals, since=args.since, until=args.until,
-                               sidecar=read_sidecar(args.sidecar, rows), other_edits=others,
+                               sidecar=sidecar, other_edits=others,
                                list_fetched_at=list_fetched_at(args.list))
+    lost = unreviewed_sidecar_items(items, sidecar)
+    if lost:
+        msg = (f"{len(lost)} sidecar row(s) are on items with no edit or vote from the rater inside "
+               f"--since/--until, so they export as reviewed: false and the sidecar's note and "
+               f"cannot_judge are dropped: {', '.join(lost[:20])}")
+        if not args.allow_unreviewed_sidecar:
+            raise SystemExit(f"{msg}\nCheck --since/--until and the Agree vote (protocol step 6), "
+                             "or pass --allow-unreviewed-sidecar to export anyway.")
+        print(f"WARNING: {msg}")
     flagged = [it["item_id"] for it in items if it["edited_by_others"]]
     if flagged:
         print(f"WARNING: {len(flagged)} reviewed item(s) were edited by someone else between the list's "
@@ -249,6 +274,9 @@ def main(argv=None):
     p.add_argument("--since", required=True, help="pass start, ISO time (UTC if no offset)")
     p.add_argument("--until", default=None)
     p.add_argument("--sidecar", default=None, help="item_id,label_uid,cannot_judge,cannot_judge_tags,note CSV (item_id or label_uid per row)")
+    p.add_argument("--allow-unreviewed-sidecar", action="store_true",
+                   help="export even if a sidecar row is on an item left reviewed: false "
+                        "(its note and cannot_judge are then dropped, with a warning)")
     p.set_defaults(func=cmd_prod)
     s = sub.add_parser("sheet", help="offline: a filled review sheet -> export")
     common(s)
