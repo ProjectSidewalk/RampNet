@@ -335,7 +335,10 @@ precision is scored only on **covered sites**: sites with every full-run pano wi
 re-inference). eval_sites on the full run reproduces the report's 0.941 / 0.959. The
 generalized scorer on the full run and on the bundle alone agree exactly at every tier
 (0.30 / 0.40 / 0.55 / 0.70) and every k (1–3), recall and covered precision both
-(`challengers/scores.json` → `legs.rampnet`), and the per-pano row on the bundle reproduces
+(`challengers/scores.json` → `legs.rampnet`). The recall agreement is the informative half:
+covered sites are by definition those whose every full-run capture within 33 m is in the
+bundle, so both scopes fuse them from the same detections and their precision agrees almost
+by construction. The the per-pano row on the bundle reproduces
 richmond's published 0.964 / 0.768 / 0.855. At 0.55, k = 1: world recall 0.941, covered
 precision 0.971 (132 TP / 4 FP sites; the covered scope keeps 136 of the 220 judged sites).
 
@@ -359,31 +362,49 @@ accepted.
 
 The full sweep (every tier, k = 1 to 3, with Wilson CIs) is in `scores.json`.
 
-1. **The ranking does not change.** The order is identical per pano, in world space at k = 1,
-   and at k = 3. On Richmond, "best single-image model" and "best model in a multi-view system"
-   are the same model. #48's conjecture that they could differ is not borne out for the free
-   challengers.
+1. **RampNet first and the open-vocab detectors last are robust; the middle order is not
+   resolved.** At the scoreboard operating points the point estimates keep one order per pano,
+   in world space at k = 1 and at k = 3. The ends hold across the whole sweep: RampNet's world
+   F1 at every swept tier is above every challenger row at the same k (its lowest, 0.949 at
+   0.70, k = 1, against the best challenger row, y11x at 0.10, 0.913), and the open-vocab
+   detectors' best world F1 (OWLv2 0.307 at 0.30, k = 1) is below every other leg's headline
+   row. The neighbours in between are not separated. y11l vs y11x flips with the operating
+   point: at 0.10 y11x beats y11l per pano (F1 0.777 vs 0.737) and in world space at k = 1
+   (0.913 vs 0.850). y26 and Molmo at k = 3 are 0.692 vs 0.686. So #48's conjecture that "best
+   single-image model" and "best model in a multi-view system" could differ is not borne out
+   for the top model on Richmond; among the challengers these data cannot say.
 2. **The gap narrows, and the narrowing is recall by disjunction, not precision by agreement.**
-   RampNet's F1 lead over the best challenger (y11l) is 0.260 per pano and 0.065 in world space
-   at k = 1. The YOLO arms miss many ramps in any one capture and find them in another: y11l's
-   world recall is 0.842 from 136 self-detected ramps plus 77 recovered from other views, while
-   RampNet's 0.941 is 211 plus 27. The per-pano and world figures have different denominators
-   (instances on 124 judged panos vs. 253 ramps within 25 m), so compare the gap within a column,
-   not a model's recall across columns.
+   Like for like, on the same 253-ramp pool: own-view recall (a pool ramp whose judged-pano GT
+   point is matched by that pano's own detection, with the detection's fused site accepted;
+   `self` in `scores.json`) is 211 / 253 = 0.834 for RampNet and 136 / 253 = 0.538 for y11l, a
+   gap of 0.296. Fused world recall at k = 1 is 0.941 vs 0.842, a gap of 0.099: y11l recovers
+   77 ramps from other views, RampNet 27. The F1 leads point the same way, 0.259 per pano
+   (0.8546 − 0.5952) and 0.065 in world space at k = 1 (0.955 − 0.890), but they compare
+   different denominators (310 GT instances on 124 judged panos vs 253 ramps within 25 m), so
+   read them as secondary and do not compare a model's recall across those two columns.
+   RampNet's 211 + 27 differs from the labeler report's 210 + 28 by one ramp because the two
+   define "self" differently: eval_sites' `self_detected` counts a ramp whose GT point came
+   from a reviewed RampNet detection, whether or not its site is accepted, and this scorer uses
+   the definition above, which also applies to a challenger. The recalled totals agree (238).
 3. **In world space a YOLO arm can match RampNet's recall or its precision, but not both.**
    Taking the best tier from the sweep, y11x at 0.10 matches RampNet's world recall (0.945, CI
-   0.909–0.967, vs 0.941) at precision 0.884 (0.820–0.927) against 0.971 (0.927–0.989); world F1
-   0.913 vs 0.955. At 0.25 it matches the precision (0.973) and falls to recall 0.794. The tier
-   was chosen on the same data, which flatters every row, RampNet's sweep included (its best is
-   0.963 at 0.40).
-4. **k-of-n agreement does not remove the chat VLMs' false positives.** Going from k = 1 to
-   k = 3 raises Molmo's precision from 0.528 to 0.593 and Qwen's from 0.423 to 0.489, and costs
-   0.09 and 0.07 recall. 57 and 69 false sites survive. For OWLv2 and Grounding DINO precision is
-   flat in k at every tier (OWLv2 at 0.20: 0.146 at k = 1, 0.151 at k = 3), so their false sites
-   have as much multi-capture support as their true ones: they fire on the same non-ramp objects
-   from every capture. This is the claim in #48 that "cross-capture agreement would kill much of
-   the chat-VLMs' false-positive flood". On this data it does not. It is consistent with the
-   correlated failures in §5.
+   0.909–0.967, vs 0.941) at precision 0.884 (0.820–0.927) against 0.971 (0.927–0.989); the
+   precision CIs just touch at 0.927. World F1 is 0.913 vs 0.955. At 0.25 it matches the
+   precision (0.973) and falls to recall 0.794. The tier was chosen on the same data, which
+   flatters every row, RampNet's sweep included (its best is 0.963 at 0.40).
+4. **k-of-n agreement removes part of the chat VLMs' false positives, not most of them.** From
+   k = 1 to k = 3, Molmo's false sites fall from 84 to 57 (−32%) while its true sites fall from
+   94 to 83 (−12%); Qwen's fall from 101 to 69 (−32%) and from 74 to 66 (−11%). Precision rises
+   (Molmo 0.528 to 0.593, Qwen 0.423 to 0.489; the Wilson CIs overlap) and so does F1 (0.666 to
+   0.686, 0.560 to 0.596), at a cost of 0.09 and 0.07 recall, and 57 and 69 false sites survive.
+   That is a partial precision-by-agreement effect; #48's "cross-capture agreement would kill
+   much of the chat-VLMs' false-positive flood" overstates it on this data. For OWLv2 and
+   Grounding DINO precision is flat in k at every tier (OWLv2 at 0.20: 0.146 at k = 1, 0.151 at
+   k = 3): their false sites have as much multi-capture support as their true ones. This
+   measurement does not say why. The detectors may fire on the same non-ramp objects from
+   several captures (correlated errors, like the correlated misses in §5), or they may emit so
+   many boxes per pano (OWLv2 at 0.05: 8,799 false detections on the 124 judged panos) that
+   unrelated boxes from different captures land within the 8 m association gate by chance.
 5. **k-of-n does not help RampNet's F1 either.** RampNet's F1 falls from k = 1 to k = 3 at every
    tier (0.955 to 0.911 at 0.55): the precision it buys (0.971 to 0.992) is smaller than the recall
    it costs (0.099). This matches §6.
@@ -391,20 +412,37 @@ The full sweep (every tier, k = 1 to 3, with Wilson CIs) is in `scores.json`.
 **Reproduction of the published per-pano rows.** On the 124 judged panos the exported
 detections reproduce each leg's published richmond per-pano score at its headline: exactly for
 Molmo, OWLv2 and the YOLO trio; Qwen F1 0.371 vs 0.377; Grounding DINO 0.053 vs 0.053 (recall
-0.848 vs 0.852). The detections themselves are not bit-identical to the published legs. The share
-of judged panos whose detection coordinates match to 1e-4 is 0.76 for Molmo, 0.52–0.71 for YOLO,
-0.03 for Qwen and 0 for both open-vocab detectors. These are re-runs on different hardware and
-library builds, and at the headline the differences move F1 by at most 0.006.
+0.848 vs 0.852). Detection by detection (`published_richmond.judged_panos_agreement` in
+`scores.json`), the share of judged panos with the same detection count and every sorted pair
+within 1e-4 in x and y (20× the 5-dp export rounding, about 0.4 px) is 1.00 for y11l, y11x and
+Molmo, 0.99 for y26, 0.97 for OWLv2, 0.70 for Grounding DINO (same count on 0.90) and 0.03 for
+Qwen (same count on 0.90). So only Qwen differs throughout, and Grounding DINO partly; at the
+headline the differences move F1 by at most 0.006. An earlier version of this paragraph gave
+much lower shares (0 for both open-vocab detectors, 0.52–0.71 for YOLO). That comparison
+rounded both sides to 4 dp after the export had already rounded one side to 5 dp, so it
+measured rounding, not re-run drift (review of PR 200).
 
-**Mixed hardware.** The detections do not all come from one GPU. makelab2's A40 produced every
-YOLO detection and all four other legs on the first 1,560 panos, which include all 124 judged
-panos; Molmo ran partly on the CPU there. The four non-YOLO legs on the 1,307 panos the 30 m
-widening added ran on klone's `ckpt-all` in nine tasks on L40S, A40 and A100 GPUs (commit
-471e8b6, `scripts/analysis/multiview_48_klone/README.md`, `docs/compute_cost.md`). The per-pano
-column is therefore single-host, and the world columns mix hosts. The reproduction above bounds
-how far a re-run on different hardware moves a score at about 0.006 F1, but that bound was
-measured between makelab2 and the published legs, not between makelab2 and klone. Every usage
-and compute ledger row records its host.
+**Where the published legs ran.** The YOLO trio's published richmond detections came from
+makelab2's A40 on 2026-08-14 (commit 3d7c7bf, per its message). OWLv2, Grounding DINO, Molmo
+and Qwen3-VL-8B ran on klone's `gpu-l40s` partition (one L40S; `docs/model_comparison.md`,
+"Run on Hyak (L40S)") and were published in commit 2811f73. `analysis_out/compute_log.jsonl`
+holds the matching klone jobs of 2026-07-23: `open_rich` (37604867), `molmo_rich` (37606420)
+and the `qwen_curb_ramp_compare` jobs from 37596141 on. Neither the published files'
+signatures nor the usage ledger records a host for those four legs, so the job-to-leg mapping
+rests on the job names.
+
+**Mixed hardware.** The re-run detections do not all come from one GPU. makelab2's A40
+produced every YOLO detection and all four other legs on the first 1,560 panos, which include
+all 124 judged panos; Molmo ran partly on the CPU there. The four non-YOLO legs on the 1,307
+panos the 30 m widening added ran on klone's `ckpt-all` in nine tasks on L40S, A40 and A100
+GPUs (commit 471e8b6, `scripts/analysis/multiview_48_klone/README.md`,
+`docs/compute_cost.md`). The per-pano column is therefore single-host, and the world columns
+mix hosts. The reproduction above compares makelab2 with the published legs, so for the YOLO
+trio it is a same-host re-run, and for the four other legs it compares makelab2's A40 with
+klone's L40S: the same kind of change the widening introduced, but not the same GPUs (the
+widening also used A40 and A100). Across that change OWLv2 and Molmo match on 0.97 and 1.00 of
+judged panos, Grounding DINO on 0.70 and Qwen on 0.03, and headline F1 moves by at most 0.006.
+Every usage ledger row for this re-run records its host.
 
 **Caveats that apply to every challenger row.** The fusion error model and gates were tuned on
 RampNet's heatmap peaks; challenger points come from boxes (the chat VLMs, OWLv2, Grounding
@@ -475,9 +513,14 @@ it.
   option open for a server-side re-threshold.
 - **Tier 3 is not motivated by these data.** Nothing here points at a failure a 3D scene
   representation would fix that association would not.
-- **Multi-view does not re-rank the challengers (§7).** It narrows RampNet's lead over YOLO
-  from 0.260 to 0.065 F1 through recall, but k-of-n agreement does not clean up the VLMs' or
-  open-vocab detectors' false positives. It is not a route to making a weaker detector competitive.
+- **Multi-view does not change who is first or last among the challengers (§7)**; the middle
+  order is not resolved. Like for like on the 253-ramp pool, it narrows RampNet's recall lead
+  over y11l from 0.296 (own view) to 0.099 (fused), through recall by disjunction. k-of-n
+  agreement removes about a third of Molmo's and Qwen's false sites and does not raise the
+  open-vocab detectors' precision. At its best swept tier (0.10) y11x matches RampNet's world
+  recall, and the precision CIs just touch (0.927), so on this one city a YOLO arm in a
+  multi-view system comes close to RampNet; the tier was chosen on the same data, so that is an
+  upper bound.
 - Proposed follow-up: Jon's one-rater pass on the gallery.
 
 ## 10. Reproduction
