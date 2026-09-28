@@ -1,0 +1,30 @@
+device=cuda gpus=['NVIDIA L40S'] arms=['r2048'] native_cap=(5500, 11000) torch=2.6.0
+  bend: 25/110
+  bend: 50/110
+  bend: 75/110
+  bend: 100/110
+bend r2048: 110 panos  P/R/F1@0.30 = 0.916/0.829/0.870
+bend done; GPU-side s so far r2048=47; waiting on CPU prep 52s (CPU prep total 97s, overlapped); wall 100s; peak GPU mem 4.2 GiB
+  paterson: 25/125
+  paterson: 50/125
+  paterson: 75/125
+  paterson: 100/125
+  paterson: 125/125
+paterson r2048: 125 panos  P/R/F1@0.30 = 0.947/0.724/0.821
+paterson done; GPU-side s so far r2048=97; waiting on CPU prep 112s (CPU prep total 207s, overlapped); wall 210s; peak GPU mem 4.2 GiB
+  gainesville: 25/125
+  gainesville: 50/125
+  gainesville: 75/125
+  gainesville: 100/125
+  gainesville: 125/125
+gainesville r2048: 125 panos  P/R/F1@0.30 = 0.854/0.772/0.811
+gainesville done; GPU-side s so far r2048=147; waiting on CPU prep 174s (CPU prep total 319s, overlapped); wall 322s; peak GPU mem 4.2 GiB
+  annapolis: 25/125
+  annapolis: 50/125
+  annapolis: 75/125
+  annapolis: 100/125
+  annapolis: 125/125
+annapolis r2048: 125 panos  P/R/F1@0.30 = 0.895/0.810/0.850
+annapolis done; GPU-side s so far r2048=197; waiting on CPU prep 175s (CPU prep total 358s, overlapped); wall 372s; peak GPU mem 4.2 GiB
+usage_log: +2 rows (ok) -> /gscratch/scrubbed/jfroehli/cascade_35/usage_log.jsonl
+extract done

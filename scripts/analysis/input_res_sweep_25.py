@@ -270,7 +270,7 @@ def read_arm_cache(path):
 
 
 def usage_rows(arm_stats, wait, wall_s, host, gpus, cities, started, extra_note=None,
-               status="ok"):
+               status="ok", issue=25):
     """One ``paid: false`` usage_log row per arm plus one for time spent waiting on CPU.
 
     ``arm_stats`` = {arm: {"elapsed_s", "panos_scored", "fp16"}}: each arm's GPU-side
@@ -291,7 +291,7 @@ def usage_rows(arm_stats, wait, wall_s, host, gpus, cities, started, extra_note=
               "paid": False, "hardware": hw, "status": status, "est_cost_usd": 0.0,
               "pricing": None, "concurrent_with": [], "gpu_share": 1.0,
               "run_wall_s": round(wall_s, 3), "script": "scripts/analysis/input_res_sweep_25.py",
-              "issue": 25}
+              "issue": issue}
     if extra_note:
         common["note"] = extra_note
     if not arm_stats:
@@ -327,7 +327,7 @@ def usage_rows(arm_stats, wait, wall_s, host, gpus, cities, started, extra_note=
 
 
 def rows_for_run(arm_stats, wait, wall_s, host, gpus, attempted, cities, started,
-                 note=None, status="ok"):
+                 note=None, status="ok", issue=25):
     """The usage_log rows a finished (or dead) ``extract`` writes, or [] for none.
 
     Arms that scored at least one pano get their rows. A run that scored nothing still
@@ -339,7 +339,7 @@ def rows_for_run(arm_stats, wait, wall_s, host, gpus, attempted, cities, started
     if not scored and status == "ok":
         return []
     return usage_rows(scored, wait, wall_s, host, gpus, attempted or cities, started,
-                      note, status=status)
+                      note, status=status, issue=issue)
 
 
 # --------------------------------------------------------------------------- #
@@ -614,7 +614,8 @@ def cmd_extract(args):
         # Written even when a run dies (OOM, a bad jpg, Ctrl-C), including before its
         # first scored pano: the GPU time was spent.
         rows = rows_for_run(arm_stats, wait, time.perf_counter() - t_start, host, gpus,
-                            attempted, cities, started, args.note, status=status)
+                            attempted, cities, started, args.note, status=status,
+                            issue=args.issue)
         if args.usage_log.lower() != "none" and rows:
             ledger.append_rows(args.usage_log, rows)
             print(f"usage_log: +{len(rows)} rows ({status}) -> {args.usage_log}", flush=True)
@@ -1292,6 +1293,9 @@ def main(argv=None):
                    help="ledger to append the paid:false GPU-time rows to; 'none' to skip")
     e.add_argument("--allow-unrecorded-spend", action="store_true")
     e.add_argument("--note", default=None, help="free-text note carried on usage rows")
+    e.add_argument("--issue", type=int, default=25,
+                   help="issue the usage rows are booked to (default 25, this sweep's; "
+                        "another experiment reusing extract passes its own, e.g. 35)")
     c = sub.add_parser("check", help="CPU: r2048 must reproduce analysis_out/op_cache")
     c.add_argument("--cache-root", default=CACHE_ROOT)
     c.add_argument("--cities", default=",".join(SPLITS))

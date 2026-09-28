@@ -604,7 +604,8 @@ def test_partial_coverage_is_reported_not_averaged_away(board):
 
 
 def test_single_split_legs_stay_out_of_the_pooled_tables(board):
-    """Vistas ran richmond only; three of the four Claude legs ran annapolis only.
+    """Two Vistas arms ran richmond only and the 1024 arm five of the eight pooled splits
+    (#163, #35); the other Claude legs ran annapolis only.
 
     claude-opus-5-effort-low is deliberately NOT in this set any more: #139 took it to
     nine splits and #151 to both Laurens arms, so it is a complete leg and belongs in
@@ -623,7 +624,8 @@ def test_single_split_legs_stay_out_of_the_pooled_tables(board):
     want_coverage = {
         "mask2former-vistas-curb-cut": "1/8",
         "mask2former-vistas-curb-cut+curb": "1/8",
-        "mask2former-vistas-curb-cut-1024x1024": "1/8",     # #163, richmond only
+        # #163 richmond, then bend/paterson/gainesville/annapolis for the #35 transfer read
+        "mask2former-vistas-curb-cut-1024x1024": "5/8",
         "claude-opus-5-effort-high": "1/8",
         "claude-sonnet-5-effort-low": "1/8",
         "claude-sonnet-5-effort-high": "1/8",
@@ -688,8 +690,8 @@ def test_the_prose_beside_the_partial_table_agrees_with_it(board):
         # A breakdown, which has to add up. The first version of this test pinned
         # the total only, and the sentence said "six of them one split each"
         # beside a three-split leg: six plus one is seven.
-        want = (f"{_WORDS[len(partial)]} legs have not run the pooled splits — "
-                f"{_WORDS[len(one_split)].lower()} of them one split each")
+        want = (f"{_WORDS[len(partial)]} legs have not run every pooled split — "
+                f"{_WORDS[len(one_split)].lower()} of them only one")
     assert doc.count(want) == 2, (
         f"expected {want!r} twice in docs/model_scoreboard.md (the section opener and "
         f"the 'What is missing' bullet); the board has {len(partial)} partial legs, "

@@ -74,3 +74,16 @@ analysis_out/silent_activation_replica*.json -text
 
 # #25 input-size sweep: SHA256SUMS pins these bytes (results, instrument check, caches)
 analysis_out/input_res_sweep_25/** text eol=lf
+
+# #35 cascade cost and transfer read: every per-pair file, summary.json and transfer/transfer.json
+# is byte-compared against a fresh re-derivation (cascade_cost_35.py --check, the tests), which
+# writes LF. An autocrlf=true clone would otherwise fail those checks for byte-correct files.
+analysis_out/cascade_cost_35/** text eol=lf
+# The transfer run's logs and records (docs/data/cascade_transfer_35/), kept as the job wrote them.
+docs/data/cascade_transfer_35/* -text
+# #101 DA3 calibration: SHA256SUMS pins these bytes and --check compares tables.md to the
+# rendered tables. An autocrlf=true clone would otherwise check them out CRLF (review of #203, B1).
+analysis_out/da3_calibration_101/** text eol=lf
+# #112's rows, which #101 joins to and hashes: written LF by recall_by_depth_112.py.
+analysis_out/recall_by_depth_112.json text eol=lf
+analysis_out/recall_by_depth_112.md text eol=lf
