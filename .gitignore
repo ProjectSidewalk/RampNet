@@ -52,6 +52,10 @@ analysis_out/op/*
 !analysis_out/cascade_cost_35/
 analysis_out/cascade_cost_35/*
 !analysis_out/cascade_cost_35/*.json
+# the #35 transfer read (cascade_transfer_35.py)
+!analysis_out/cascade_cost_35/transfer/
+analysis_out/cascade_cost_35/transfer/*
+!analysis_out/cascade_cost_35/transfer/*.json
 
 # Stage 1's coordinate-tolerance result (#96): a few KB, and it is what converts an
 # offset distribution into a decision. Re-derivable on CPU from the committed
