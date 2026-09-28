@@ -40,8 +40,8 @@ Code: `scripts/analysis/multiview_evidence_48.py` (B.1–B.4) and
   RampNet's recall lead over y11l falls from 0.296 in single views to 0.099 fused; k-of-n
   removes about a third of the chat VLMs' false sites and does nothing for the open-vocab ones.
 - **Next step:** merging belongs to the labeler's clustering work (§9); the 58 merging failures
-  are handed over as a test set, provisional until the one-rater gallery pass (§8) says which
-  are GT errors. Tier 2 and Tier 3 reconstruction are not motivated by these data.
+  are handed over as a test set, provisional until the one-rater GT check (§8: is there a curb
+  ramp at the GT point in its source view?) says which are GT errors. Tier 2 and Tier 3 reconstruction are not motivated by these data.
 
 ## 1. What [labeler#27](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/27) already answered
 
@@ -257,7 +257,7 @@ is off), not of one pass. That is why adding captures gives diminishing returns 
 is the quantitative reason [#48](https://github.com/ProjectSidewalk/RampNet/issues/48)'s "independent evidence" premise overstates what more captures
 can buy. Caveats as in §4; the 0–3 m bin is mostly richmond (627 of 645 pairs), where
 consecutive Mapillary frames can be under a metre apart; wrong GT points (verdicts) are not
-separable from appearance here — the one-rater gallery (§8) is where that would show.
+separable from appearance here — the one-rater GT check (§8) is where that would show.
 
 ## 6. B.3 Evidence accumulation vs k-of-n at the 0.30 tier
 
@@ -512,14 +512,92 @@ points against the raw union. The
 "association / placement" class is an upper bound: a claiming detection may be of an adjacent
 non-GT ramp.
 
-**One-rater gallery.** `benchmark/multiview_residual_48/gallery.html`: one card per ramp with
-the GT-source view and up to four nearest other captures (440 crops, 36° × 24° equirect windows
-cut on makelab2 from the native-res archive, ring at the GT point or its projection). The
-rubric (occluded / flush-minimal-reveal ([#151](https://github.com/ProjectSidewalk/RampNet/issues/151)) / far / construction-changed / gt-error / other,
-plus unclear) travels in `analysis_out/multiview_48/residual_taxonomy__jonf.json`, which is
-committed with **empty verdicts**: this pass is Jon's. The page exports that file's format;
-the item list and manifest digest (`d03e2546f74df4c3`) are fixed so a second rater can repeat
-it.
+**One-rater GT check.** `benchmark/multiview_residual_gt_check_48/gallery.html`, one card per
+residual ramp (97 cards, 440 crops: 36° × 24° equirect windows cut on makelab2 from the native-res
+archive). Each card asks one question, answered from the source view only:
+
+> In the source view, is there a curb ramp at the ring? Yes / No / Can't tell, plus an optional
+> note.
+
+| answer | definition |
+|---|---|
+| Yes | A curb ramp is at the ring or touching it. It may be partly hidden or faint, as long as it is visibly a ramp. |
+| No | No curb ramp at that spot: the ring is on plain curb, sidewalk, street or something else, and the nearest ramp (if any) is more than roughly one ramp width away. The GT point is wrong or misplaced. |
+| Can't tell | The source view does not let you decide (dark, blocked, far, blurry). Excluded from every rate. |
+
+The GT-error rate is No / (Yes + No), reported overall and for the 58 merging cases
+(`association_placement` + `self_detected_site_displaced`) with 95% Wilson intervals:
+`python scripts/analysis/residual_gt_check_48.py rates <rater file> [<second rater file>]`, which
+also reports percent agreement and Cohen's kappa (all three answers, and Yes/No only) when given
+two files made on the same gallery. The rubric, the rules, the fixed item list, each item's class
+and the manifest digest (`e614a42fa7ef0d94`, over the item list and every crop's sha256 in
+`benchmark/multiview_residual_gt_check_48/manifest.json`) travel in
+`analysis_out/multiview_48/residual_gt_check__jonf.json`, committed with **empty verdicts**: this
+pass is Jon's. The page's Export button writes that file's format under that name.
+
+*The ring in the source view* is the reviewer's own click in that pano (`build_ground_truth` over
+the committed `benchmark/<city>/records.jsonl` and `verdicts.json`), not a projection. Every one of
+the 97 residual ramps has exactly one GT point and one source pano, so the 2.5 m cross-pano merge
+never moved any of them, and the first gallery's source ring (the merged world point projected back
+into its own pano) was already within 0.019° of the click (median 0.010°; at most 0.2 crop px).
+The plan now takes the click directly, so the ring no longer depends on that round trip. The 97
+re-cut source crops came out byte-identical to the first gallery's.
+
+*Other views* are shown without a ring, captioned as unmarked context, and nothing is rated from
+them. Each window is still centred on the flat-ground projection of the GT point, so the ramp is
+usually in frame but can be off centre.
+
+**Why the first gallery was replaced (2026-09-28, before any verdicts).** The first gallery
+(`benchmark/multiview_residual_48/gallery.html`, rubric in `residual_taxonomy__jonf.json`, digest
+`d03e2546f74df4c3`) had two problems Jon found on opening it:
+
+1. In the other views its ring was the GT world point projected with a flat-ground 2.6 m camera.
+   GT placement error is p50 1.9 m / p90 4.4 m (§1), Mapillary rigs sit lower than 2.6 m and pose
+   error is unmeasured, so at 12–18 m the ring often lands on plain curb beside the ramp. On
+   richmond:3 the ring is on the ramp in the source view and on plain curb in both other views. A
+   rater judges what is under the ring, so the pass would have counted projection error as GT
+   error.
+2. Its one question ("why was this ramp missed?", seven options) mixed a fact (is there a ramp at
+   the GT point?) with a diagnosis. For the 58 merging cases the model did detect the ramp, so
+   options like occluded or far do not describe those failures.
+
+The first gallery is kept, with a "superseded" banner, and its rubric file carries a `superseded`
+block; no verdicts were made on either. Both galleries come from the same `crop_plan` and
+`cut_one`, which now takes a `ring` flag; the first plan has no flag and cuts exactly as before.
+
+**Instrument check (2026-09-28, 17 cards: all five cities, every class, including bend's one
+coverage-gap ramp).** Before handing the page over I looked at each card's source crop and other
+views:
+
+| card | class | source ring | other views |
+|---|---|---|---|
+| richmond:3 | sub-threshold | on the edge of a paver ramp at the curb; plausible | usable, corner visible |
+| richmond:46 | association | between bollards on an island; the tactile ramp is about a ramp width left, so a real Yes/No call | usable |
+| richmond:15 | displaced | on a yellow tactile pad at the curb | usable; some face along the sidewalk |
+| paterson:3 | association | on the ramp at the crosswalk | usable |
+| paterson:33 | never fired | touching the red tactile ramp | usable |
+| paterson:24 | displaced | on the red tactile at the crosswalk | mostly blocked by parked cars |
+| paterson:118 | sub-threshold | on the edge of a red tactile ramp | the 2.3 m view is blank (camera almost overhead) |
+| gainesville:17 | association | at the far crosswalk end, small at that range; plausible location | usable |
+| gainesville:11 | displaced | on the red tactile strip at the crosswalk | usable |
+| gainesville:61 | sub-threshold | on a red paver inlay at an alley mouth; may not be a ramp (a No candidate) | the 3.3 m view is blank |
+| bend:46 | association | at a median island's crosswalk edge; plausible | usable |
+| bend:51 | never fired, unknown below 0.55 | where a sidewalk meets a hotel driveway; possibly a driveway (a No candidate) | usable |
+| bend:100 | displaced | on the grass strip just above a yellow tactile ramp; a borderline "touching" call | usable |
+| bend:228 | coverage gap | on parking-lot asphalt beside a planter, no ramp visible (a No candidate) | none within 18 m |
+| sao_paulo:4 | association | at the crosswalk end by a hydrant, lowered curb | usable |
+| sao_paulo:112 | displaced | on a broad sidewalk corner at the crosswalk; plausible | usable |
+| sao_paulo:75 | sub-threshold | click is 2.2 m from the camera, so the crop looks almost straight down at asphalt; hard to judge from the source view alone | usable; one shows the ramp clearly |
+
+In none of the 17 is the source ring misdrawn: each sits on the click, and each click is on or next
+to a curb ramp, crosswalk end or corner, which is what the question is meant to sort. Some look
+like genuine No answers (gainesville:61, bend:51, bend:228) and some are borderline (richmond:46,
+bend:100); that is what the pass should measure. Two limits remain, neither of which changes what
+is rated: (a) 2 of the 97 source clicks are within 3.5 m of the camera (sao_paulo:75,
+gainesville:191), where the source crop looks almost straight down and Can't tell is the likely
+answer; a wider source window would help there. (b) 18 of the 343 other-view crops come from
+cameras within 4 m, where the window points at the car or the blurred nadir and shows nothing
+useful.
 
 ## 9. What this says about Tier 2 and Tier 3 (proposed, not decided)
 
@@ -539,7 +617,7 @@ it.
   `association_placement` and `self_detected_site_displaced` rows of
   `analysis_out/multiview_48/residual_misses.json` (ramp uid, position, GT source panos). Two
   caveats travel with them: they are defined against `fuse_sites` at 0.55, not the server's
-  clustering, and they are provisional until the one-rater gallery pass says which are GT errors,
+  clustering, and they are provisional until the one-rater GT check (§8) says which are GT errors,
   since a method that "recovers" a wrong GT point is rewarded for the wrong thing. 17 of the 58 are
   Richmond (6 association, 11 displaced), the one city both evaluations cover. The 28
   sub-threshold ramps are a threshold question (§6), not a merging one.
@@ -563,8 +641,8 @@ it.
   recall, and the precision CIs just touch (0.927), so on this one city a YOLO arm in a
   multi-view system comes close to RampNet; the tier was chosen on the same data, so that is an
   upper bound.
-- Proposed follow-up: Jon's one-rater pass on the gallery, before anyone tunes a merging method
-  against the 58 cases.
+- Proposed follow-up: Jon's one-rater GT check (§8), before anyone tunes a merging method
+  against the 58 cases; `residual_gt_check_48.py rates` gives the GT-error rate on those 58.
 
 ## 10. Reproduction
 
@@ -625,11 +703,14 @@ python scripts/analysis/multiview_evidence_48.py run --labeler-root labeler_main
 python scripts/analysis/multiview_evidence_48.py figures
 python scripts/analysis/multiview_evidence_48.py crop-plan
 
-# 2. the gallery: cut on makelab2, render locally
+# 2. the GT-check gallery: plan (local, committed files only), cut on makelab2, render locally
+python scripts/analysis/residual_gt_check_48.py plan
 python scripts/analysis/multiview_evidence_48.py cut-crops \
-    analysis_out/multiview_48/residual_crop_plan.json \
+    analysis_out/multiview_48/residual_gt_check_plan.json \
     --archive-root /projects/makeabilitylab/sidewalk-auto-labeler/runs --out crops   # makelab2
-python scripts/analysis/multiview_evidence_48.py gallery --crops crops
+python scripts/analysis/residual_gt_check_48.py gallery --crops crops
+python scripts/analysis/residual_gt_check_48.py rates analysis_out/multiview_48/residual_gt_check__jonf.json
+# (superseded first gallery: cut-crops on residual_crop_plan.json, then multiview_evidence_48.py gallery)
 
 # 3. C: bundle (local); legs + export (makelab2, one script; export is its step 4); score (local)
 python scripts/analysis/multiview_challengers_48.py bundle --labeler-root labeler_main \
@@ -646,7 +727,8 @@ python scripts/analysis/multiview_challengers_48.py score --labeler-root labeler
 | step | where | wall-clock | GPU-h | $ |
 |---|---|---|---|---|
 | B.1–B.4 `run` | desktop CPU | ~3 min | 0 | 0 |
-| crop cutting (440 crops) | makelab2 CPU | 4 min 13 s | 0 | 0 |
+| crop cutting (440 crops, first gallery) | makelab2 CPU | 4 min 13 s | 0 | 0 |
+| crop cutting (440 crops, GT check) | makelab2 CPU | 4 min 35 s | 0 | 0 |
 | challenger smoke (2 + 2 panos × 7 legs) | makelab2 A40 | 15 min | 0.245 (sum of the 7 legs' elapsed, 882 s) | 0 |
 | challenger legs, pass 1 (1,560 panos, 7 legs; 1,556 called, 4 cached by the smoke run) + pass 2 YOLO trio (1,307 panos) | makelab2 A40 (shared; Molmo partly on CPU, 46.4 s/pano) | 28 h 2 min, legs in sequence (2026-09-26 23:24Z to 09-28 03:27Z) | 28.0 (sum of the 10 legs' elapsed, 100,811 s; Molmo alone 20.1) | 0 |
 | challenger legs, pass 2, Molmo / Qwen / OWLv2 / Grounding DINO (1,307 panos) | klone `ckpt-all`, 9 tasks, L40S / A40 / A100 | 80 min (2026-09-27 08:40 to 10:00 PT) | 9.26 (`compute_log.jsonl`) | 0 |
