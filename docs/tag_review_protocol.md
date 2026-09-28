@@ -18,8 +18,9 @@ describe how it would run, and the tooling for it stays built.
 2. Note the pass start time in UTC. The production pull only counts edits and votes after it, so
    an older expert-validate of the same label is not mistaken for this pass.
 3. Create an empty sidecar file, `benchmark/tag_review/<rater>__sidecar.csv`, with the header
-   `item_id,cannot_judge,cannot_judge_tags,note`. Production has no field for a per-tag "cannot
-   judge" or a note, so they go here (decision D12).
+   `item_id,label_uid,cannot_judge,cannot_judge_tags,note`. Production has no field for a per-tag
+   "cannot judge" or a note, so they go here (decision D12). Each row needs `item_id` or
+   `label_uid`; fill in whichever is at hand.
 
 ## The rater: on production
 
@@ -34,8 +35,20 @@ Each link is `https://<host>/gallery?labelIds=<id>,<id>,...` (SidewalkWebpage PR
 production since 2026-09-24): exactly that city's items, in `item_id` order, as a queue in the
 normal gallery editor, with a **k of N** position chip in the expanded view. Ids the server cannot
 show (deleted, imagery gone with no crop) are listed above the grid; treat those items as not
-reviewed. The gallery shows label ids, not `item_id`s, so look up the `item_id` for a sidecar row by
-`label_uid` (`<city>:<label_id>`) in the list.
+reviewed.
+
+The gallery shows label ids, not `item_id`s, and a label id alone does not name an item: 12 label
+ids in the committed list occur in two or more cities (label 24930 is `danville-il:24930`,
+`maywood-nj:24930` and `santiago-chile:24930`). So a sidecar row names its item one of two ways:
+
+- by `label_uid`, which is `<city>:<label_id>` for the city whose gallery is open, with no lookup;
+- by `item_id`, read off the `label_id=item_id` pairs that `links` prints under each city's link
+  (`--format tsv` gives the same pairs as `item_ids` and `label_ids` columns, in URL order).
+
+The pull checks every sidecar row against the list and stops on an `item_id` or `label_uid` the
+list does not have, on a row whose two keys name different items, and on two rows for one item.
+Before this check, a wrong but valid `item_id` put the note on another city's item, and a typo was
+dropped silently.
 
 For each item:
 

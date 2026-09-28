@@ -602,3 +602,67 @@ def test_committed_list_fits_one_gallery_link_per_city():
     links = trl.gallery_links(rows)
     assert all(g["part"] == 1 for g in links)
     assert sum(len(g["label_ids"]) for g in links) == len(rows)
+
+
+# ----------------------------------------------------------------------------- sidecar keys (#186 review S1)
+
+def _sidecar(path, header, *lines):
+    path.write_text("\n".join([header, *lines]) + "\n", encoding="utf-8")
+    return str(path)
+
+
+def test_read_sidecar_accepts_item_id_or_label_uid_and_keys_by_item(tmp_path):
+    # one label id in two cities: the case where a bare label id would be ambiguous
+    rows = [_row(1, city="alpha"), _row(2, city="beta")]
+    rows[1]["label_id"], rows[1]["label_uid"] = rows[0]["label_id"], f"beta:{rows[0]['label_id']}"
+    p = _sidecar(tmp_path / "s.csv", "item_id,label_uid,cannot_judge,cannot_judge_tags,note",
+                 "tr0001,,1,,by item", ",beta:101,,steep,by uid")
+    got = trp.read_sidecar(p, rows)
+    assert set(got) == {"tr0001", "tr0002"}
+    assert got["tr0001"]["note"] == "by item" and got["tr0002"]["note"] == "by uid"
+    assert got["tr0002"]["item_id"] == "tr0002"
+    # the original header, with no label_uid column, still reads
+    q = _sidecar(tmp_path / "q.csv", "item_id,cannot_judge,cannot_judge_tags,note", "tr0002,,,x")
+    assert set(trp.read_sidecar(q, rows)) == {"tr0002"}
+    assert trp.read_sidecar(None, rows) == {}
+
+
+@pytest.mark.parametrize("line", [
+    "tr9999,,1,,",             # item_id not in the list (a typo used to be dropped silently)
+    ",alpha:999,1,,",          # label_uid not in the list
+    ",101,1,,",                # a bare label id is not a label_uid
+    "tr0001,beta:102,1,,",     # the two keys name different items
+    ",,1,,",                   # neither key
+])
+def test_read_sidecar_fails_on_a_key_not_in_the_list(tmp_path, line):
+    rows = [_row(1, city="alpha"), _row(2, city="beta")]
+    p = _sidecar(tmp_path / "s.csv", "item_id,label_uid,cannot_judge,cannot_judge_tags,note", line)
+    with pytest.raises(SystemExit):
+        trp.read_sidecar(p, rows)
+
+
+def test_read_sidecar_fails_on_two_rows_for_one_item(tmp_path):
+    rows = [_row(1)]
+    p = _sidecar(tmp_path / "s.csv", "item_id,label_uid,cannot_judge,cannot_judge_tags,note",
+                 "tr0001,,1,,", ",alpha:101,,,again")
+    with pytest.raises(SystemExit):
+        trp.read_sidecar(p, rows)
+
+
+def test_links_prints_label_id_to_item_id_per_city(tmp_path, capsys):
+    rows = [_row(2, city="alpha"), _row(1, city="alpha"), _row(3, city="beta")]
+    rows[2]["label_id"] = rows[0]["label_id"]   # label 102 in both cities
+    for r in rows:
+        r["editor_url"] = f"https://sidewalk-{r['city']}.example.edu/gallery?labelType=CurbRamp&labelId={r['label_id']}"
+    lst = tmp_path / "list.csv"
+    _write_list(lst, rows)
+    trl.main(["links", "--list", str(lst), "--format", "tsv"])
+    out = capsys.readouterr().out.splitlines()
+    assert out[0].split("\t") == ["city", "part", "n", "item_ids", "label_ids", "url"]
+    got = {f[0]: f for f in (line.split("\t") for line in out[1:])}
+    assert got["alpha"][3:5] == ["tr0001,tr0002", "101,102"]
+    assert got["alpha"][5].endswith("labelIds=101,102")
+    assert got["beta"][3:5] == ["tr0003", "102"]
+    trl.main(["links", "--list", str(lst)])
+    text = capsys.readouterr().out
+    assert "101=tr0001  102=tr0002" in text and "102=tr0003" in text

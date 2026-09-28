@@ -18,8 +18,9 @@ steps are ``docs/tag_review_protocol.md``. Three subcommands:
 **What production can and cannot give back.** Tags, severity and the Agree / Disagree /
 Unsure vote are all retrievable per label and per user. Two things are not: a per-tag
 "cannot judge" and a free-text note (no API returns validation or gallery comments). Those
-go in a small per-rater sidecar CSV (``item_id,cannot_judge,cannot_judge_tags,note``), which
-this script merges. An item with no edit and no vote from the rater inside ``--since`` /
+go in a small per-rater sidecar CSV (``item_id,label_uid,cannot_judge,cannot_judge_tags,note``;
+each row needs ``item_id`` or ``label_uid``), which this script merges, failing on a key that
+is not in the list. An item with no edit and no vote from the rater inside ``--since`` /
 ``--until`` is exported as ``reviewed: false`` and drops out of every rate.
 
 The pulled API files' sha256 values are recorded in the export (``pulls``), so a later
@@ -142,10 +143,39 @@ def fetch_rater_rows(rows, user_id, timeout=300):
     return edits, vals, others, pulls
 
 
-def read_sidecar(path):
+def read_sidecar(path, rows):
+    """``{item_id: sidecar row}``, checked against the list ``rows``.
+
+    A row names its item by ``item_id``, by ``label_uid`` (``<city>:<label_id>``, what the
+    gallery shows), or both. Label ids repeat across cities (12 of them in the committed list),
+    so a bare label id is not accepted. The read fails on an ``item_id`` or ``label_uid`` that
+    is not in the list, on a row whose two keys name different items, and on two rows for one
+    item: a wrong but valid key would otherwise put the note or "cannot judge" on another
+    item, and a typo would drop it silently."""
     if not path:
         return {}
-    return {r["item_id"]: r for r in read_csv_rows(path)}
+    by_uid = {r["label_uid"]: r["item_id"] for r in rows}
+    items = set(by_uid.values())
+    out = {}
+    for n, r in enumerate(read_csv_rows(path), start=2):   # line 1 is the header
+        item = (r.get("item_id") or "").strip()
+        uid = (r.get("label_uid") or "").strip()
+        if not item and not uid:
+            raise SystemExit(f"{path}:{n}: sidecar row has neither item_id nor label_uid")
+        if item and item not in items:
+            raise SystemExit(f"{path}:{n}: item_id {item!r} is not in the review list")
+        if uid:
+            if uid not in by_uid:
+                raise SystemExit(f"{path}:{n}: label_uid {uid!r} is not in the review list "
+                                 "(it is <city>:<label_id>)")
+            if item and by_uid[uid] != item:
+                raise SystemExit(f"{path}:{n}: item_id {item} and label_uid {uid} "
+                                 f"({by_uid[uid]}) name different items")
+            item = by_uid[uid]
+        if item in out:
+            raise SystemExit(f"{path}:{n}: a second sidecar row for {item}")
+        out[item] = dict(r, item_id=item)
+    return out
 
 
 def _export(args, rows, items, method, window=None, extra=None, user_id=None):
@@ -167,7 +197,7 @@ def cmd_prod(args):
         raise SystemExit(f"no user id for {args.rater!r}; pass --user-id")
     edits, vals, others, pulls = fetch_rater_rows(rows, user_id)
     items = tr.items_from_prod(rows, edits, vals, since=args.since, until=args.until,
-                               sidecar=read_sidecar(args.sidecar), other_edits=others,
+                               sidecar=read_sidecar(args.sidecar, rows), other_edits=others,
                                list_fetched_at=list_fetched_at(args.list))
     flagged = [it["item_id"] for it in items if it["edited_by_others"]]
     if flagged:
@@ -218,7 +248,7 @@ def main(argv=None):
     common(p)
     p.add_argument("--since", required=True, help="pass start, ISO time (UTC if no offset)")
     p.add_argument("--until", default=None)
-    p.add_argument("--sidecar", default=None, help="item_id,cannot_judge,cannot_judge_tags,note CSV")
+    p.add_argument("--sidecar", default=None, help="item_id,label_uid,cannot_judge,cannot_judge_tags,note CSV (item_id or label_uid per row)")
     p.set_defaults(func=cmd_prod)
     s = sub.add_parser("sheet", help="offline: a filled review sheet -> export")
     common(s)

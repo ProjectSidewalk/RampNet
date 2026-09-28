@@ -27,7 +27,8 @@ reproduces it byte for byte only from a cache whose hashes match
     # CurbRamp edits in the 30 days before the fetch (the protocol's known-limit figure)
     python scripts/analysis/tag_review_list.py recent-edits --cache analysis_out/ps_audit/raw
 
-    # one production gallery link per deployment, the city's items in item_id order
+    # one production gallery link per deployment, the city's items in item_id order,
+    # each with its label_id=item_id pairs for the sidecar (--format tsv for a table)
     python scripts/analysis/tag_review_list.py links
 
 Strata (full definitions in the rubric doc, section "The review list"):
@@ -651,17 +652,25 @@ def composition(rows):
 
 
 def cmd_links(args):
+    """Print the links, each with its ``label_id -> item_id`` pairs: the gallery shows label ids,
+    and label ids repeat across cities, so the sidecar lookup has to be per city."""
     links = gallery_links(read_list(args.list))
     if args.format == "tsv":
-        print("city\tpart\tn\turl")
+        # item_ids and label_ids are comma-joined in the same order as the ids in the url
+        print("\t".join(("city", "part", "n", "item_ids", "label_ids", "url")))
         for g in links:
-            print(f"{g['city']}\t{g['part']}\t{len(g['label_ids'])}\t{g['url']}")
+            print("\t".join((g["city"], str(g["part"]), str(len(g["label_ids"])),
+                             ",".join(g["item_ids"]), ",".join(g["label_ids"]), g["url"])))
         return
     width = max(len(g["city"]) for g in links)
     for g in links:
         name = g["city"] if g["part"] == 1 else f"{g['city']} ({g['part']})"
         print(f"{name:<{width}}  {len(g['label_ids']):>3}  {g['url']}")
-    print(f"\n{sum(len(g['label_ids']) for g in links)} items in {len(links)} links")
+        pairs = [f"{lid}={item}" for lid, item in zip(g["label_ids"], g["item_ids"])]
+        for i in range(0, len(pairs), 6):
+            print("    " + "  ".join(pairs[i:i + 6]))
+    print(f"\n{sum(len(g['label_ids']) for g in links)} items in {len(links)} links "
+          "(label_id=item_id under each link)")
 
 
 def cmd_build(args):
