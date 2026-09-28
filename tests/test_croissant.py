@@ -82,6 +82,39 @@ def test_content_url_is_cloneable_never_a_bare_sha(named_doc):
     assert any("contentUrl" in p for p in vc.check_structure(bad))
 
 
+def test_records_fields_differ_from_the_exporter_by_exactly_the_127_columns():
+    # V1: the records fields describe the rows on the Hub at the pin, which the exporter at the
+    # linked commit wrote. #127 (3d6314c) added seven columns to the working tree's exporter that
+    # are not on the Hub yet. Any other difference, or these seven reaching the Croissant file
+    # (after the #127 push and a regeneration), fails here, so RECORDS_COLUMNS_NOT_ON_HUB is
+    # updated in the same change.
+    pytest.importorskip("pyarrow")
+    pytest.importorskip("PIL")
+    doc = vc.load(vc.FILES["rampnet-benchmark"])
+    fields = vc.record_set(doc, "records")["field"]
+    assert len(fields) == 18
+    extra, missing = vc.records_schema_drift(doc, vc.load_exporter())
+    assert missing == [], "records documents fields the exporter no longer writes: {}".format(missing)
+    assert tuple(extra) == vc.RECORDS_COLUMNS_NOT_ON_HUB, (
+        "the working tree's exporter writes {} beyond the 18 documented records fields; expected "
+        "exactly RECORDS_COLUMNS_NOT_ON_HUB. If #127's columns were pushed to the Hub, regenerate "
+        "the records fields, the records rows of file_manifest, the rai:dataCollectionMissingData "
+        "sentence and the pin together, then empty RECORDS_COLUMNS_NOT_ON_HUB".format(extra))
+
+
+def test_records_fields_are_the_pinned_exporters_schema(tmp_path):
+    # The exporter --rebuild-records uses: the commit the records description links. It needs that
+    # commit in the local clone; CI's depth-1 checkout does not have it, so there this skips.
+    pytest.importorskip("pyarrow")
+    pytest.importorskip("PIL")
+    doc = vc.load(vc.FILES["rampnet-benchmark"])
+    rev = vc.records_exporter_rev(doc)
+    assert rev is not None
+    if vc._pinned_path_exists(rev, vc.EXPORTER) is None:
+        pytest.skip("commit {} is not in this clone (shallow checkout)".format(rev[:7]))
+    assert vc.records_schema_drift(doc, vc.load_exporter(rev, tmp_path)) == ([], [])
+
+
 def test_doi_is_an_obvious_placeholder_until_minted(named_doc):
     _, doc = named_doc
     assert doc["identifier"] == vc.DOI_PLACEHOLDER or vc.DOI_RE.match(doc["identifier"])

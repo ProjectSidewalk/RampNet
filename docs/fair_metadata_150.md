@@ -2,7 +2,8 @@
 
 **Status: written 2026-09-25 for the third checkbox of
 [#150](https://github.com/ProjectSidewalk/RampNet/issues/150); revised the same day after the
-review on [#190](https://github.com/ProjectSidewalk/RampNet/pull/190).** Two files, written by hand
+review on [#190](https://github.com/ProjectSidewalk/RampNet/pull/190), and again on 2026-09-28 after
+the verification review (V1 to V6), with `main` merged in.** Two files, written by hand
 and validated with `mlcroissant`:
 
 | file | describes | Hub revision it pins |
@@ -173,12 +174,38 @@ from the Hub's commit history.
 
 **The published `records` config matches git, and the check is re-runnable.**
 `python scripts/validate_croissant.py --rebuild-records` rebuilds the config from the committed
-bundles with `scripts/export_benchmark.py`'s own `build_records`, drops the two Laurens splits
-(in git, not on the Hub), and compares each file's sha256 with the `file_manifest` rows, which are
-the Hub's own hashes at `63d5ffd`. On 2026-09-25 all nine matched byte for byte **with pyarrow
-25.0.0**. With pyarrow 25.0.1 all nine differ, because Parquet bytes depend on the writer version,
-so a mismatch under another pyarrow says nothing about the ground truth. The exporter does not
-commit sha256s of its own; `file_manifest` is the only committed record of them.
+bundles with `build_records` from `scripts/export_benchmark.py` **at commit `8a59c15`**, the commit
+the `records` description links. It reads that copy (and that commit's `hf_export_common.py`) with
+`git show` into a temporary directory, so it needs a clone with full history. It drops the two
+Laurens splits (in git, not on the Hub), and compares each file's sha256 with the `file_manifest`
+rows, which are the Hub's own hashes at `63d5ffd`. On 2026-09-25 (branch tip) and again on
+2026-09-28 (with `main` merged in) all nine matched byte for byte **with pyarrow 25.0.0**. With
+pyarrow 25.0.1 all nine differ, because Parquet bytes depend on the writer version, so a mismatch
+under another pyarrow says nothing about the ground truth. The exporter does not commit sha256s of
+its own; `file_manifest` is the only committed record of them.
+
+**Why the exporter is pinned: #127 changed the records schema, and the Hub does not have it yet.**
+#127 (commit `3d6314c`, merged in #193) added seven columns to every row the exporter writes:
+`train_overlap`, `note`, `reviewer`, `reviewed_at`, `review_confidence`, `review_summary` and
+`review_caveats`. The Hub is still at `63d5ffd` (2026-08-17), whose rows have the 17 columns the
+`records` fields describe (18 fields, with `split` parsed from the path). With the working tree's
+exporter, all nine rebuilt files differ from `file_manifest` (checked 2026-09-28), for a reason
+that says nothing about the ground truth. Pinning the exporter keeps the byte-for-byte claim true
+and re-derivable whatever `main` does to the exporter. `--rebuild-records` also prints the columns
+the working tree's exporter writes beyond the documented fields, and
+`test_records_fields_differ_from_the_exporter_by_exactly_the_127_columns` fails on any difference
+other than exactly those seven (`RECORDS_COLUMNS_NOT_ON_HUB` in the validator), in either
+direction. `test_records_fields_are_the_pinned_exporters_schema` checks that the 18 fields are what
+the exporter at `8a59c15` writes; it skips on CI's depth-1 checkout, which lacks that commit.
+
+**When #127's columns are pushed to the Hub, these change together, in one commit:** the 18
+`records` fields (seven more), the nine `records` rows of `file_manifest` (sizes and sha256 from the
+new tree), the sentence in `rai:dataCollectionMissingData` that says reviewer notes are "not in the
+Parquet rows at this revision", the `records` description (its exporter link moves to the commit
+that built the push, and its #127 sentences go), every "revision" mention and `dateModified`
+(§5), and `RECORDS_COLUMNS_NOT_ON_HUB`, which becomes empty. `--hub` fails as soon as the push
+lands, so the stale state cannot go unnoticed. Whether the Croissant upload goes before or after
+that push is a decision for Jon (§6).
 
 ## 3. What is left blank, and why
 
@@ -212,7 +239,7 @@ commit sha256s of its own; `file_manifest` is the only committed record of them.
 python scripts/validate_croissant.py                      # offline: structure, links, re-derived numbers
 python scripts/validate_croissant.py --mlcroissant        # + MLCommons reference validator
 python scripts/validate_croissant.py --hub                # + pin == Hub ref, file sizes and sha256 (network)
-python scripts/validate_croissant.py --rebuild-records    # + records config rebuilt byte for byte (pyarrow 25.0.0)
+python scripts/validate_croissant.py --rebuild-records    # + records rebuilt byte for byte with the exporter at 8a59c15 (pyarrow 25.0.0)
 python scripts/validate_croissant.py --load               # + load data through the files (mlcroissant)
 python scripts/validate_croissant.py --load-hub           # + load benchmark records from the Hub itself
 python scripts/validate_croissant.py --release --mlcroissant --hub   # the gate before any upload
@@ -241,6 +268,14 @@ rampnet-dataset      ok   3 record sets, 384 files in manifest, revision ee882e3
 rampnet-benchmark    ok   7 record sets, 36 files in manifest, revision 63d5ffd, identifier: placeholder (DOI not minted)
     loaded from the Hub (clone at 63d5ffd): 1,109 records rows, 2,061 detections, 1,191 missed
 ```
+
+On 2026-09-28, with `main` merged in, `--rebuild-records` printed the same `ok` lines plus
+`rebuilt records with scripts/export_benchmark.py at 8a59c15; the working tree's exporter writes 7
+column(s) the Hub lacks: train_overlap, note, reviewer, reviewed_at, review_confidence,
+review_summary, review_caveats`. The `--load-hub` line now also prints the records bytes from
+`file_manifest` and the clone's size on disk (see below). On 2026-09-28 (git 2.38.1, git-lfs 3.2.0,
+Windows) it took 73 s and printed `loaded from the Hub (clone at 63d5ffd): 1,109 records rows, 2,061
+detections, 1,191 missed; records Parquet 179,356 B per file_manifest, clone 428,376 B on disk`.
 
 **`--hub` checks two things.** It resolves the ref `contentUrl` names (`main` for the bare URL, or
 the tag in a `refs%2Ftags%2F...` URL) through `/api/datasets/<id>/refs`, and fails if it is not the

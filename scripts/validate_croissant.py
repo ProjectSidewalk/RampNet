@@ -29,9 +29,12 @@ Optional levels:
   (b) fetch the tree listing at the pinned revision and check that every Parquet file's size and
   sha256 equal the ``file_manifest`` record set (network).
 * ``--rebuild-records`` -- rebuild the benchmark's ``records`` config from the committed bundles
-  with ``scripts/export_benchmark.py``'s own ``build_records`` into a temporary directory and
-  compare each file's sha256 with ``file_manifest`` (needs ``pyarrow``; Parquet bytes depend on
-  the pyarrow version, see ``docs/fair_metadata_150.md`` section 4).
+  with ``build_records`` from ``scripts/export_benchmark.py`` **at the commit the ``records``
+  description links** (read with ``git show``, so it needs full history), not the working tree's,
+  into a temporary directory, and compare each file's sha256 with ``file_manifest`` (needs
+  ``pyarrow``; Parquet bytes depend on the pyarrow version, see ``docs/fair_metadata_150.md``
+  section 4). It also reports the columns the working tree's exporter writes that the Hub's rows
+  lack (``RECORDS_COLUMNS_NOT_ON_HUB``).
 * ``--load`` -- load data through the Croissant files with ``mlcroissant``: the benchmark
   ``records`` record set from that rebuild, and the dataset ``panoramas`` record set from a
   one-row synthetic shard with the Hub's schema (needs ``mlcroissant``, ``pyarrow``, ``Pillow``).
@@ -568,28 +571,92 @@ def check_hub(name, doc):
     return problems
 
 
-def rebuild_records(doc, out, benchmark=REPO / "benchmark"):
-    """Build the ``records`` config into ``out`` with the exporter's own ``build_records``.
+# scripts/export_benchmark.py's records columns that are in git but not in the Hub's records rows
+# at the pinned revision. #127 (commit 3d6314c, merged in #193) added them to every records row;
+# the Hub was last pushed before that (63d5ffd, 2026-08-17). When they are pushed, the Croissant
+# `records` fields, the `records` rows of `file_manifest`, the "not in the Parquet rows" sentence of
+# rai:dataCollectionMissingData and the pinned revision must be regenerated together, and this
+# tuple emptied. tests/test_croissant.py fails on any other difference, in either direction.
+RECORDS_COLUMNS_NOT_ON_HUB = ("train_overlap", "note", "reviewer", "reviewed_at", "review_confidence",
+                              "review_summary", "review_caveats")
+EXPORTER = "scripts/export_benchmark.py"
+EXPORTER_LINK_RE = re.compile(
+    r"https://github\.com/ProjectSidewalk/RampNet/blob/([0-9a-f]{40})/" + re.escape(EXPORTER))
 
-    The exporter also builds splits that are in git but not on the Hub (the two Laurens arms);
-    those files are removed so the rebuild holds exactly the splits ``doc`` declares.
-    """
-    sys.path.insert(0, str(REPO / "scripts"))
+
+def records_exporter_rev(doc):
+    """The commit of ``scripts/export_benchmark.py`` the ``records`` description links to, or None.
+
+    That is the exporter whose output the ``records`` fields describe, so ``--rebuild-records``
+    rebuilds with it rather than with whatever the working tree holds."""
+    found = set(EXPORTER_LINK_RE.findall((record_set(doc, "records") or {}).get("description", "")))
+    return found.pop() if len(found) == 1 else None
+
+
+def load_exporter(rev=None, tmp=None):
+    """Import ``scripts/export_benchmark.py``: the working tree's, or, with ``rev``, the copy at that
+    commit (with that commit's ``hf_export_common.py``), read with ``git show`` into ``tmp``."""
+    src = REPO / "scripts"
+    if rev is not None:
+        src = Path(tmp) / "exporter_{}".format(rev[:7])
+        src.mkdir(parents=True, exist_ok=True)
+        for name in ("export_benchmark.py", "hf_export_common.py"):
+            got = subprocess.run(["git", "-C", str(REPO), "show", "{}:scripts/{}".format(rev, name)],
+                                 capture_output=True)
+            if got.returncode != 0:
+                raise RuntimeError("git cannot read scripts/{} at {} (a shallow clone? run "
+                                   "`git fetch --unshallow`): {}".format(
+                                       name, rev, got.stderr.decode(errors="replace").strip()))
+            (src / name).write_bytes(got.stdout)
+    saved = sys.modules.pop("hf_export_common", None)      # the exporter's own sibling, not a cached one
+    sys.path.insert(0, str(src))
     try:
-        exporter = _import("export_benchmark", REPO / "scripts" / "export_benchmark.py")
+        return _import("export_benchmark", src / "export_benchmark.py")
     finally:
         sys.path.pop(0)
+        sys.modules.pop("hf_export_common", None)
+        if saved is not None:
+            sys.modules["hf_export_common"] = saved
+
+
+def records_schema_drift(doc, exporter):
+    """(columns the exporter writes that ``records`` lacks, fields ``records`` has that it does not).
+
+    ``split`` is left out: it is parsed from the file path, not a column."""
+    rs = record_set(doc, "records") or {}
+    documented = [f["source"]["extract"]["column"] for f in rs.get("field", [])
+                  if "column" in (f.get("source", {}).get("extract") or {})]
+    documented += [f["@id"].split("/", 1)[1] for f in rs.get("field", []) if f.get("subField")]
+    written = list(exporter.RECORDS_SCHEMA.names)
+    return ([c for c in written if c not in documented], [c for c in documented if c not in written])
+
+
+def rebuild_records(doc, out, benchmark=REPO / "benchmark"):
+    """Build the ``records`` config into ``out`` with ``build_records`` from the exporter at the commit
+    the ``records`` description pins (``records_exporter_rev``), not the working tree's.
+
+    The working tree's exporter may write columns the Hub does not have yet
+    (``RECORDS_COLUMNS_NOT_ON_HUB``), and its bytes would then differ from ``file_manifest`` for a
+    reason that says nothing about the ground truth. The exporter also builds splits that are in git
+    but not on the Hub (the two Laurens arms); those files are removed so the rebuild holds exactly
+    the splits ``doc`` declares. Returns the exporter commit used.
+    """
+    rev = records_exporter_rev(doc)
+    if rev is None:
+        raise RuntimeError("the records description links {} at no single commit".format(EXPORTER))
+    exporter = load_exporter(rev, Path(out).parent)
     exporter.build_records(Path(benchmark), Path(out))
     published = {r["splits/name"] for r in record_set(doc, "splits")["data"]}
     for path in (Path(out) / "data" / "records").glob("*.parquet"):
         if path.stem not in published:
             path.unlink()
+    return rev
 
 
 def check_rebuild_records(doc, out):
     """sha256 of each rebuilt ``data/records/<split>.parquet`` against ``file_manifest``."""
     import pyarrow                                 # optional dependency
-    rebuild_records(doc, out)
+    rev = rebuild_records(doc, out)
     ours = {r["file_manifest/path"]: r["file_manifest/sha256"]
             for r in record_set(doc, "file_manifest")["data"]
             if r["file_manifest/path"].startswith("data/records/")}
@@ -598,9 +665,9 @@ def check_rebuild_records(doc, out):
         built = Path(out) / path
         got = hashlib.sha256(built.read_bytes()).hexdigest() if built.is_file() else None
         if got != want:
-            problems.append("rebuild (pyarrow {}): {} sha256 {} != file_manifest {}".format(
-                pyarrow.__version__, path, got, want))
-    return problems
+            problems.append("rebuild (pyarrow {}, exporter at {}): {} sha256 {} != file_manifest {}"
+                            .format(pyarrow.__version__, rev[:7], path, got, want))
+    return problems, rev
 
 
 def _posix_fullpaths(mlc):
@@ -789,7 +856,14 @@ def main(argv=None):
                 if args.rebuild_records or args.load:
                     records_out = Path(tmp) / "benchmark"
                     if args.rebuild_records:
-                        problems += check_rebuild_records(doc, records_out)
+                        more, rev = check_rebuild_records(doc, records_out)
+                        problems += more
+                        extra, missing = records_schema_drift(doc, load_exporter())
+                        notes.append("rebuilt records with {} at {}; the working tree's exporter "
+                                     "writes {} column(s) the Hub lacks{}{}".format(
+                                         EXPORTER, rev[:7], len(extra),
+                                         ": " + ", ".join(extra) if extra else "",
+                                         " and lacks {}".format(missing) if missing else ""))
                     else:
                         rebuild_records(doc, records_out)
                     if args.load:
