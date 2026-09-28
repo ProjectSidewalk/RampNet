@@ -282,6 +282,7 @@ rows in `analysis_out/usage_log.jsonl` and in [`cascade_cost_35.md` §Transfer](
 The four RampNet rows (labels `input-res-25:*`, because the job reused the #25 sweep's `extract`)
 were written with `"issue": 25`; that field was corrected to 35 by hand after review, and nothing
 else in those rows changed. `extract` now takes `--issue`, which the launcher passes.
+
 ## klone, 2026-09-27: the DA3 calibration (#101), 1.94 GPU-hours, $0
 
 Three jobs of `scripts/analysis/da3_calibration_101.slurm`, all on `ckpt-all`, one incarnation

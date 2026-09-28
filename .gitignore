@@ -291,6 +291,7 @@ analysis_out/two_scale_197/*
 !analysis_out/depth_image_alignment_151_laurens_gsv.json
 !analysis_out/laurens_paired_151.json
 !analysis_out/laurens_paired_151.md
+
 # DA3 calibration against GSV depth (#101): raw per-pano DA3 rows from the klone run, the
 # derived rows and tables, and their SHA256SUMS. --check re-derives everything from them.
 !analysis_out/da3_calibration_101/
