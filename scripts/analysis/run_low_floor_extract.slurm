@@ -32,7 +32,7 @@
 # its row is a TTA delta rather than a drift check.
 #
 # PYTHON is the interpreter to run with; default is whatever `python` resolves to
-# after the env is activated (see the runbook in docs/model_comparison.md). Needs
+# after the env is activated (see the runbook in docs/running_model_comparison.md). Needs
 # timm + scikit-image + huggingface_hub (the model is loaded from the HF hub).
 #SBATCH -p gpu-l40s
 #SBATCH --job-name=low_floor_extract

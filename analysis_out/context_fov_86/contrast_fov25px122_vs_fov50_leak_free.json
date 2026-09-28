@@ -1,0 +1,115 @@
+{
+ "reference": "fov50",
+ "reference_labels": "labels_fov50.csv",
+ "reference_pred": "train_fov50_final_test_predictions.csv",
+ "rows": [
+  {
+   "a": "train_fov25px122_final_test_predictions.csv",
+   "a_mAP": 0.361638,
+   "a_minus_b": {
+    "mAP": {
+     "ci95": [
+      0.005496,
+      0.068856
+     ],
+     "point": 0.030943
+    },
+    "macro_f1": {
+     "ci95": [
+      -0.00707,
+      0.083329
+     ],
+     "point": 0.036751
+    },
+    "micro_f1": {
+     "ci95": [
+      -0.004626,
+      0.039168
+     ],
+     "point": 0.017288
+    }
+   },
+   "a_sha256": "107f6eee63c89ea9aaaccc20b8a5ae1f0e4b215a820dbd6d08d1d06194eeba56",
+   "arm": "fov25px122",
+   "b": "train_fov50_final_test_predictions.csv",
+   "b_mAP": 0.330696,
+   "b_sha256": "5b780ed094429720927b3e6ac2edcf5d4f0dc045f4a4b4fb74bcaf0ac67e1080",
+   "n": 957,
+   "n_boot": 1000,
+   "n_panos": 889,
+   "per_tag_ap_a_minus_b": {
+    "missing-tactile-warning": {
+     "ci95": [
+      -0.003565,
+      0.020442
+     ],
+     "point": 0.008478
+    },
+    "narrow": {
+     "ci95": [
+      -0.017301,
+      0.10221
+     ],
+     "point": 0.043434
+    },
+    "not-enough-landing-space": {
+     "ci95": [
+      -0.137938,
+      0.014493
+     ],
+     "point": -0.068835
+    },
+    "not-level-with-street": {
+     "ci95": [
+      -0.019825,
+      0.132306
+     ],
+     "point": 0.053585
+    },
+    "points-into-traffic": {
+     "ci95": [
+      -0.037276,
+      0.104992
+     ],
+     "point": 0.031115
+    },
+    "pooled-water": {
+     "ci95": [
+      -0.016747,
+      0.267305
+     ],
+     "point": 0.128652
+    },
+    "steep": {
+     "ci95": [
+      0.000718,
+      0.190227
+     ],
+     "point": 0.057474
+    },
+    "surface-problem": {
+     "ci95": [
+      -0.088449,
+      0.083073
+     ],
+     "point": -0.006359
+    }
+   },
+   "reference": "fov50",
+   "seed": 86,
+   "subset": "leak_free",
+   "tags_fixed": [
+    "missing-tactile-warning",
+    "narrow",
+    "not-enough-landing-space",
+    "not-level-with-street",
+    "points-into-traffic",
+    "pooled-water",
+    "steep",
+    "surface-problem"
+   ]
+  }
+ ],
+ "subset": "leak_free",
+ "ts": "2026-09-25T22:05:30+00:00"
+}

@@ -71,3 +71,6 @@ benchmark/tag_review/*.json text eol=lf
 # byte for byte. An autocrlf=true clone would check them out CRLF and the recorded hash
 # would stop matching a file that is byte-correct.
 analysis_out/silent_activation_replica*.json -text
+
+# #25 input-size sweep: SHA256SUMS pins these bytes (results, instrument check, caches)
+analysis_out/input_res_sweep_25/** text eol=lf

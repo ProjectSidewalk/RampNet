@@ -1,7 +1,7 @@
 """Build the aerial-overlay review sheet for an inventory's positional precision.
 
 The half of the location-precision gate that needs a human (issues #96, #59). See
-``docs/curb_ramp_data_sourcing.md`` §5.
+``docs/location_precision_assessment_96.md`` §5.
 
 The paper's method (§3.1, Fig. 2) is to **overlay curb-ramp coordinates on aerial
 imagery and judge whether they land on the physical ramp**, bucketing a city
@@ -1321,7 +1321,7 @@ def main(argv=None):
     # per-corner quantity the reviewer reads off the imagery, taken from the
     # other side. Differencing the two is what settles whether a low
     # records-per-corner ratio is under-recording or ramp-design vocabulary
-    # (docs/curb_ramp_data_sourcing.md §5d). Counted against the WHOLE inventory,
+    # (docs/location_precision_assessment_96.md §5d). Counted against the WHOLE inventory,
     # not the sample frame.
     all_pts = [(r["lon"], r["lat"]) for r in rows if r.get("lon") is not None]
     targets = [(c["lon"], c["lat"]) for c in chips]

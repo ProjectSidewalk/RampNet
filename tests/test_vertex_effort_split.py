@@ -190,7 +190,7 @@ def test_rate_anchor_and_tail_anchor_bracket_the_published_opus_split():
 # --- the committed minute series (F1) ---------------------------------------
 #
 # Cloud Monitoring keeps this metric about six weeks, so every figure in
-# docs/model_comparison.md section "Splitting a two-leg day by effort" was, until these
+# docs/claude_legs_122.md section "Splitting a two-leg day by effort" was, until these
 # files were committed, derivable only from one cloud project inside one month. These
 # replay the committed series and pin the published answers to them, which is what makes
 # that section reproducible from a clean clone with no credentials.
@@ -303,7 +303,7 @@ def test_every_committed_series_round_trips_through_save_and_load(tmp_path):
 
 
 def test_the_daily_snapshot_backs_the_published_cost_table(tmp_path):
-    """S4: the four Claude rows in docs/model_comparison.md's recovery table -- $21.47,
+    """S4: the four Claude rows in docs/claude_legs_122.md's recovery table -- $21.47,
     $7.79, $70.41 and the $0.03 re-run -- come from the committed daily snapshot, and
     until this test nothing opened that file. The rows are pinned, priced through
     pricing.py to the published figures, and round-tripped through write_json (the

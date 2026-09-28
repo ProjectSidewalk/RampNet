@@ -29,7 +29,7 @@ boxes per pano: at high density a share of "hits" are what the match radius hand
 out for free, and that share inflates the complementary set too.
 
 Usage -- the positional form is the one three call sites in
-``docs/model_comparison.md`` use, and it still means what it did:
+``docs/vistas_transfer_126.md`` use, and it still means what it did:
 
     python scripts/analysis/complementarity.py                       # gemini-3.6-flash, richmond
     python scripts/analysis/complementarity.py gemini-3.1-pro-preview paterson
@@ -176,7 +176,7 @@ def matched_gt(preds, gt_points, radius_sq):
     at >= 0.5519, >= 0.30 and >= 0.05, and zero on the published Vistas 384 arm
     (richmond); the paterson #35 gate reproduces unchanged. The parity 1024 arm could
     not be re-checked -- its detections are not published (see the note beside the
-    parity table in ``docs/model_comparison.md``) -- so the bound there is the doc's
+    parity table in ``docs/vistas_transfer_126.md``) -- so the bound there is the doc's
     own seam count, 1 site in 38.
     """
     confs = [prediction_confidence(p) for p in preds]
