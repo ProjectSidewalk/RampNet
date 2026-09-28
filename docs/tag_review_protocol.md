@@ -51,6 +51,18 @@ chicago-il first and waltham-ma, west-chester and zurich last in every pass, lin
 drift up with the alphabet. Within a city `item_id` order is the list's shuffle, so tag state and
 distance band stay interleaved. The review sheet has no such blocks (see the asymmetry table).
 
+The default order, 35 cities, from seed 86 on the committed list (numpy 2.5.1, 2026-09-28; the
+test suite pins it, so a numpy change that reorders it fails CI):
+
+columbia, hackensack-nj, cdmx, sao-paulo-brazil, chicago-il, walla-walla, gainesville-fl,
+madison-wi, newberg-or, waltham-ma, pittsburgh-pa, niagara-falls-ny, keelung, west-chester,
+tucson-az, st-louis-mo, new-taipei, teaneck-nj, kaohsiung, maywood-nj, zurich, danville-il,
+oradell-nj, seattle-wa, taipei, paterson-nj, knox-oh, cliffside-park-nj, fort-wayne-in,
+santiago-chile, detroit-mi, rancagua-chile, columbus-oh, mendota-il, burnaby.
+
+If a pass departs from this order (another `--seed`, or cities out of order), record the order
+actually used in the pass's issue comment.
+
 Ids the server cannot show are listed above the grid; treat those items as not reviewed. The
 by-id query (`getGalleryLabelsByIdQuery` in SidewalkWebpage's `app/models/label/LabelTable.scala`,
 read at `develop`

@@ -731,13 +731,28 @@ def test_gallery_links_city_order_is_a_seeded_shuffle_not_alphabetical():
     assert [g["city"] for g in trl.gallery_links(rows, seed=None)] == cities
 
 
+#: The review order of the city blocks, as seed 86 gives it (numpy 2.5.1, 2026-09-28). A literal
+#: on purpose: numpy guarantees the bit streams across versions (NEP 19), not the output of
+#: Generator.permutation, so recomputing the order here could not notice it change. The
+#: protocol doc records the same order.
+COMMITTED_CITY_ORDER = [
+    "columbia", "hackensack-nj", "cdmx", "sao-paulo-brazil", "chicago-il", "walla-walla",
+    "gainesville-fl", "madison-wi", "newberg-or", "waltham-ma", "pittsburgh-pa",
+    "niagara-falls-ny", "keelung", "west-chester", "tucson-az", "st-louis-mo", "new-taipei",
+    "teaneck-nj", "kaohsiung", "maywood-nj", "zurich", "danville-il", "oradell-nj", "seattle-wa",
+    "taipei", "paterson-nj", "knox-oh", "cliffside-park-nj", "fort-wayne-in", "santiago-chile",
+    "detroit-mi", "rancagua-chile", "columbus-oh", "mendota-il", "burnaby",
+]
+
+
 def test_committed_links_are_in_the_seeded_city_order():
     rows = trl.read_list(LIST)
-    cities = sorted({r["city"] for r in rows})
     got = [g["city"] for g in trl.gallery_links(rows)]
-    perm = np.random.default_rng(trl.CITY_ORDER_SEED).permutation(len(cities))
-    assert got == [cities[k] for k in perm] and got != cities
+    assert got == COMMITTED_CITY_ORDER, "the city order changed: a later pass would run in another order"
+    assert sorted(got) == sorted({r["city"] for r in rows}) and got != sorted(got)
     assert trl.CITY_ORDER_SEED == tr.read_json(META)["params"]["seed"]    # the list's build seed
+    doc = (REPO / "docs" / "tag_review_protocol.md").read_text(encoding="utf-8")
+    assert ", ".join(COMMITTED_CITY_ORDER) in " ".join(doc.split()), "update the order in the protocol doc"
 
 
 # ----------------------------------------------------------------------------- re-review R1, R6
