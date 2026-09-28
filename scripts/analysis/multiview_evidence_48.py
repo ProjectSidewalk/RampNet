@@ -1461,10 +1461,11 @@ def cmd_crop_plan(args):
           f"{os.path.join(OUT, 'residual_crop_plan.json')}")
 
 
-def cut_one(img, x, y, fov_h=CROP_FOV_H, fov_v=CROP_FOV_V, size=CROP_PX):
+def cut_one(img, x, y, fov_h=CROP_FOV_H, fov_v=CROP_FOV_V, size=CROP_PX, ring=True):
     """An equirect window centred on (x, y), wrapped at the seam, with a ring at the
-    target. Plain equirect (no reprojection): a 36 x 24 degree window near the horizon
-    is close to rectilinear, and it keeps the cut exact and dependency-free."""
+    target when ``ring`` is True (``ring=False`` gives the same window, unmarked). Plain
+    equirect (no reprojection): a 36 x 24 degree window near the horizon is close to
+    rectilinear, and it keeps the cut exact and dependency-free."""
     from PIL import Image, ImageDraw
     W, H = img.size
     w = int(round(W * fov_h / 360.0))
@@ -1480,6 +1481,8 @@ def cut_one(img, x, y, fov_h=CROP_FOV_H, fov_v=CROP_FOV_V, size=CROP_PX):
     if first < w:
         out.paste(img.crop((0, top, w - first, top + h)), (first, 0))
     out = out.resize(size)
+    if not ring:
+        return out
     d = ImageDraw.Draw(out)
     tx = (cx - left) / w * size[0]
     ty = (cy - top) / h * size[1]
@@ -1490,7 +1493,8 @@ def cut_one(img, x, y, fov_h=CROP_FOV_H, fov_v=CROP_FOV_V, size=CROP_PX):
 
 def cmd_cut_crops(args):
     """Runs where the native-res archive lives (makelab2). Reads the plan, writes one JPEG
-    per item into --out; never touches a pano it does not need."""
+    per item into --out; never touches a pano it does not need. An item's ``ring`` flag
+    (default True, which is how the first plan was cut) says whether to draw the ring."""
     from PIL import Image
     Image.MAX_IMAGE_PIXELS = None
     plan = json.load(open(args.plan, encoding="utf-8"))["items"]
@@ -1507,7 +1511,7 @@ def cmd_cut_crops(args):
         with Image.open(path) as im:
             im = im.convert("RGB")
             for it in items:
-                cut_one(im, it["x"], it["y"]).save(os.path.join(args.out, crop_name(it)),
+                cut_one(im, it["x"], it["y"], ring=it.get("ring", True)).save(os.path.join(args.out, crop_name(it)),
                                                    quality=82)
     print(f"cut {sum(len(v) for v in by_pano.values()) - len(missing)} crops; "
           f"{len(missing)} panos missing")
@@ -1589,6 +1593,11 @@ button {{ font:inherit; padding:6px 12px; }}
 dt {{ font-weight:600; }} dd {{ margin:0 0 6px 16px; color:var(--muted); }}
 </style></head><body>
 <h1>Residual misses (#48): one-rater pass</h1>
+<p role="note"><strong>Superseded before any verdicts (2026-09-28).</strong> Do not rate this page.
+Rings in the other views are the GT point projected with a flat-ground 2.6 m camera and often
+land beside the ramp, and the one question mixed a fact with a diagnosis. Use
+<code>benchmark/multiview_residual_gt_check_48/gallery.html</code> instead; see
+<code>docs/multiview_48.md</code> section 8.</p>
 <p>Each card is a GT curb ramp that no operational fused site recovered (or a self-detected
 ramp whose site landed more than 5 m away). The ring marks the GT point in its source view
 and the same ground point projected into the nearest other captures (projection error is
