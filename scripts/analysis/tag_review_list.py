@@ -27,6 +27,10 @@ reproduces it byte for byte only from a cache whose hashes match
     # CurbRamp edits in the 30 days before the fetch (the protocol's known-limit figure)
     python scripts/analysis/tag_review_list.py recent-edits --cache analysis_out/ps_audit/raw
 
+    # one production gallery link per deployment, in a seeded city order, the city's items in item_id order,
+    # each with its label_id=item_id pairs for the sidecar (--format tsv for a table)
+    python scripts/analysis/tag_review_list.py links
+
 Strata (full definitions in the rubric doc, section "The review list"):
 
 - **tag state**, precedence top down: ``affirmed_empty`` (no tags now, and a tag-review
@@ -54,8 +58,12 @@ power 1.5), where ``f`` is the frequency of the label's rarest tag *within that 
 candidates*, so the rare tags reach enough positives for a per-tag kappa; within a (state,
 city) cell the draw rotates through the distance bands. At most one label per (city, pano)
 and none within ``--min-sep-m`` of an already-drawn label in the same city, so two labels of
-one physical ramp (plan §2.5) are not two items. Item order is a seeded shuffle, so a rater
-never sees a block of one stratum.
+one physical ramp (plan §2.5) are not two items. ``item_id`` order is a seeded shuffle, so the
+review sheet never shows a block of one stratum. The production route is different: each
+deployment is its own server, so ``links`` gives one gallery queue per city and city comes in
+blocks. Within a block the order is ``item_id`` order, so tag state and band stay interleaved,
+and the order of the blocks is itself a seeded shuffle (``--seed``, default the list's 86), so
+position in the pass is not tied to the city's name.
 
 Flags, never filters: per-rater prior contact (``prior_contact_<rater>``: the rater placed,
 validated or edited the label before the list was built) and proximity to a
@@ -72,6 +80,7 @@ import json
 import math
 import os
 import sys
+import urllib.parse
 
 import numpy as np
 import pandas as pd
@@ -554,6 +563,67 @@ def read_list(path):
         return list(csv.DictReader(fh))
 
 
+# SidewalkWebpage's GalleryController.MaxLabelIds: a longer `?labelIds=` list is truncated.
+GALLERY_MAX_LABEL_IDS = 500
+#: Seed for the order of the city blocks in ``links``: the committed list's build seed.
+CITY_ORDER_SEED = 86
+
+
+def gallery_links(rows, max_ids=GALLERY_MAX_LABEL_IDS, seed=CITY_ORDER_SEED):
+    """One production ``/gallery?labelIds=`` URL per deployment, for reviewing a city's items
+    as a queue instead of one ``editor_url`` tab each (SidewalkWebpage PR #5445).
+
+    Each deployment is its own server, so the list cannot be one link. Within a city the ids
+    keep ``item_id`` order, which is the list's seeded shuffle, so the strata stay interleaved.
+    The host is read off each row's ``editor_url``, so no API cache is needed. A city with more
+    than ``max_ids`` items is split into consecutive parts rather than silently truncated.
+
+    Cities come in a seeded shuffle (``seed``; ``None`` sorts them by name), so that fatigue
+    and drift over the pass are not lined up with the alphabet: with one city per queue, city
+    is blocked on this route whatever the order, and alphabetical order would put the same
+    cities first and last in every pass. The shuffle is of the sorted city names, so it does
+    not depend on row order. The parts of a split city stay consecutive.
+
+    Returns a list of dicts ``{city, part, item_ids, label_ids, url}`` in review order.
+
+    >>> rows = [{"item_id": "tr0002", "city": "a", "label_id": "7",
+    ...          "editor_url": "https://h/gallery?labelType=CurbRamp&labelId=7"},
+    ...         {"item_id": "tr0001", "city": "a", "label_id": "3",
+    ...          "editor_url": "https://h/gallery?labelType=CurbRamp&labelId=3"}]
+    >>> gallery_links(rows, seed=None)[0]["url"]
+    'https://h/gallery?labelIds=3,7'
+    """
+    if not 1 <= max_ids <= GALLERY_MAX_LABEL_IDS:
+        # above the cap the server truncates the id list: the silent loss the split prevents
+        raise ValueError(f"max_ids must be 1..{GALLERY_MAX_LABEL_IDS}, got {max_ids}")
+    by_city = {}
+    for r in sorted(rows, key=lambda r: r["item_id"]):
+        u = urllib.parse.urlsplit(r["editor_url"])
+        host = f"{u.scheme}://{u.netloc}"
+        entry = by_city.setdefault(r["city"], {"host": host, "rows": []})
+        if entry["host"] != host:
+            raise ValueError(f"{r['city']}: two hosts in editor_url ({entry['host']}, {host})")
+        entry["rows"].append(r)
+    # and the reverse: two city keys on one host would put two cities' ids on one server's queue
+    owner = {}
+    for city in sorted(by_city):
+        other = owner.setdefault(by_city[city]["host"], city)
+        if other != city:
+            raise ValueError(f"{by_city[city]['host']}: host of two cities ({other}, {city})")
+    cities = sorted(by_city)
+    if seed is not None:
+        cities = [cities[k] for k in np.random.default_rng(seed).permutation(len(cities))]
+    out = []
+    for city in cities:
+        host, crows = by_city[city]["host"], by_city[city]["rows"]
+        for part, i in enumerate(range(0, len(crows), max_ids), start=1):
+            chunk = crows[i:i + max_ids]
+            ids = [r["label_id"] for r in chunk]
+            out.append({"city": city, "part": part, "item_ids": [r["item_id"] for r in chunk],
+                        "label_ids": ids, "url": f"{host}/gallery?labelIds={','.join(ids)}"})
+    return out
+
+
 def composition(rows):
     """Tables the doc and the PR quote: state x band, per city, per-tag list-time positives."""
     df = pd.DataFrame(rows)
@@ -603,6 +673,38 @@ def composition(rows):
         "by_deployment_visibility": {k or "?": int(v) for k, v in vis.value_counts().sort_index().items()},
         "private_deployments_in_list": sorted(set(df.city[vis == "private"])),
     }
+
+
+def cmd_links(args):
+    """Print the links, each with its ``label_id -> item_id`` pairs: the gallery shows label ids,
+    and label ids repeat across cities, so the sidecar lookup has to be per city."""
+    rows = read_list(args.list)
+    try:
+        links = gallery_links(rows, max_ids=args.max_ids, seed=args.seed)
+    except ValueError as e:
+        raise SystemExit(f"links: {e}")
+    if args.format == "tsv":
+        # item_ids and label_ids are comma-joined in the same order as the ids in the url
+        print("\t".join(("city", "part", "n", "item_ids", "label_ids", "url")))
+        for g in links:
+            print("\t".join((g["city"], str(g["part"]), str(len(g["label_ids"])),
+                             ",".join(g["item_ids"]), ",".join(g["label_ids"]), g["url"])))
+        return
+    if not rows:
+        print("0 items in 0 links (the list is empty)")
+        return
+
+    def name(g):
+        return g["city"] if g["part"] == 1 else f"{g['city']} ({g['part']})"
+
+    width = max(len(name(g)) for g in links)
+    for g in links:
+        print(f"{name(g):<{width}}  {len(g['label_ids']):>3}  {g['url']}")
+        pairs = [f"{lid}={item}" for lid, item in zip(g["label_ids"], g["item_ids"])]
+        for i in range(0, len(pairs), 6):
+            print("    " + "  ".join(pairs[i:i + 6]))
+    print(f"\n{sum(len(g['label_ids']) for g in links)} items in {len(links)} links "
+          "(label_id=item_id under each link)")
 
 
 def cmd_build(args):
@@ -781,6 +883,14 @@ def main(argv=None):
     r.add_argument("--since", default="2026-08-23", help="UTC, inclusive (30 days before the fetch)")
     r.add_argument("--until", default="2026-09-22T20:03:07", help="UTC, exclusive (the list's fetch time)")
     r.set_defaults(func=cmd_recent_edits)
+    k = sub.add_parser("links", help="one production gallery link per deployment (?labelIds=)")
+    k.add_argument("--list", default=DEFAULT_OUT, help="review list CSV")
+    k.add_argument("--format", choices=["text", "tsv"], default="text")
+    k.add_argument("--seed", type=int, default=CITY_ORDER_SEED,
+                   help="seed for the order of the city blocks (default: the list's build seed)")
+    k.add_argument("--max-ids", type=int, default=GALLERY_MAX_LABEL_IDS,
+                   help="ids per link; a longer city is split into parts (default: the server's cap)")
+    k.set_defaults(func=cmd_links)
     p = sub.add_parser("power", help="kappa CI half-width vs list size and positives")
     p.add_argument("--ns", type=int, nargs="+", default=[300, 500, 800])
     p.add_argument("--positives", type=int, nargs="+", default=[10, 20, 30, 50, 80])

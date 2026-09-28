@@ -581,3 +581,247 @@ def test_prod_pull_reaches_the_api():
     assert len(pulls) == 2 and all(p["sha256"] for p in pulls.values())
     assert all(r["user_id"] != trp.RATER_IDS["jonfroehlich"] for r in others)
     assert all(r["user_id"] == trp.RATER_IDS["jonfroehlich"] for r in edits + vals)
+
+
+def test_gallery_links_one_per_city_in_item_order_and_split_at_the_cap():
+    def row(item, city, lid, host):
+        return {"item_id": item, "city": city, "label_id": str(lid),
+                "editor_url": f"https://{host}/gallery?labelType=CurbRamp&labelId={lid}"}
+    rows = [row("tr0003", "b", 30, "hb"), row("tr0001", "b", 10, "hb"), row("tr0002", "a", 20, "ha"),
+            row("tr0005", "b", 50, "hb"), row("tr0004", "b", 40, "hb")]
+    links = trl.gallery_links(rows, max_ids=3, seed=None)
+    assert [(g["city"], g["part"]) for g in links] == [("a", 1), ("b", 1), ("b", 2)]
+    assert links[1]["url"] == "https://hb/gallery?labelIds=10,30,40"
+    assert links[2]["item_ids"] == ["tr0005"]
+    with pytest.raises(ValueError):
+        trl.gallery_links(rows + [row("tr0006", "a", 60, "other")])
+
+
+def test_committed_list_fits_one_gallery_link_per_city():
+    rows = trl.read_list(LIST)
+    links = trl.gallery_links(rows)
+    assert all(g["part"] == 1 for g in links)          # no city reaches the 500-id cap
+    assert len(links) == len({r["city"] for r in rows})
+    # coverage, by content rather than by count: the (city, label id) pairs the links carry are
+    # exactly the list's label_uids, and every url carries its own ids, so reading the wrong
+    # column would fail here
+    got = [f"{g['city']}:{lid}" for g in links for lid in g["label_ids"]]
+    assert len(got) == len(set(got)) and set(got) == {r["label_uid"] for r in rows}
+    uid_of = {r["item_id"]: r["label_uid"] for r in rows}
+    for g in links:
+        assert [uid_of[i] for i in g["item_ids"]] == [f"{g['city']}:{lid}" for lid in g["label_ids"]]
+        assert g["url"].endswith("?labelIds=" + ",".join(g["label_ids"]))
+
+
+def test_gallery_links_rejects_two_cities_on_one_host():
+    rows = _link_rows(["a", "b"], host="shared")
+    with pytest.raises(ValueError, match="host of two cities"):
+        trl.gallery_links(rows)
+
+
+def test_gallery_links_cap_boundary():
+    rows = _link_rows(["a"], per_city=3)
+    assert [len(g["label_ids"]) for g in trl.gallery_links(rows, max_ids=3)] == [3]       # exactly the cap
+    assert [len(g["label_ids"]) for g in trl.gallery_links(rows, max_ids=2)] == [2, 1]    # one over
+
+
+def test_links_text_output_empty_list_and_split_part_alignment(tmp_path, capsys):
+    lst = tmp_path / "empty.csv"
+    lst.write_text("item_id,city,label_id,editor_url\n", encoding="utf-8")
+    trl.main(["links", "--list", str(lst)])
+    assert capsys.readouterr().out.startswith("0 items in 0 links")
+    trl.main(["links", "--list", str(lst), "--format", "tsv"])
+    assert capsys.readouterr().out.splitlines() == ["\t".join(("city", "part", "n", "item_ids", "label_ids", "url"))]
+    full = tmp_path / "list.csv"
+    _write_list(full, _link_rows(["a", "bb"], per_city=2))
+    # split both cities so "bb (2)" is the widest name; every url must start in one column
+    trl.main(["links", "--list", str(full), "--max-ids", "1"])
+    heads = [line for line in capsys.readouterr().out.splitlines() if "https://" in line]
+    assert len(heads) == 4 and len({line.index("https://") for line in heads}) == 1
+
+
+# ----------------------------------------------------------------------------- sidecar keys (#186 review S1)
+
+def _sidecar(path, header, *lines):
+    path.write_text("\n".join([header, *lines]) + "\n", encoding="utf-8")
+    return str(path)
+
+
+def test_read_sidecar_accepts_item_id_or_label_uid_and_keys_by_item(tmp_path):
+    # one label id in two cities: the case where a bare label id would be ambiguous
+    rows = [_row(1, city="alpha"), _row(2, city="beta")]
+    rows[1]["label_id"], rows[1]["label_uid"] = rows[0]["label_id"], f"beta:{rows[0]['label_id']}"
+    p = _sidecar(tmp_path / "s.csv", "item_id,label_uid,cannot_judge,cannot_judge_tags,note",
+                 "tr0001,,1,,by item", ",beta:101,,steep,by uid")
+    got = trp.read_sidecar(p, rows)
+    assert set(got) == {"tr0001", "tr0002"}
+    assert got["tr0001"]["note"] == "by item" and got["tr0002"]["note"] == "by uid"
+    assert got["tr0002"]["item_id"] == "tr0002"
+    # the original header, with no label_uid column, still reads
+    q = _sidecar(tmp_path / "q.csv", "item_id,cannot_judge,cannot_judge_tags,note", "tr0002,,,x")
+    assert set(trp.read_sidecar(q, rows)) == {"tr0002"}
+    assert trp.read_sidecar(None, rows) == {}
+
+
+@pytest.mark.parametrize("line", [
+    "tr9999,,1,,",             # item_id not in the list (a typo used to be dropped silently)
+    ",alpha:999,1,,",          # label_uid not in the list
+    ",101,1,,",                # a bare label id is not a label_uid
+    "tr0001,beta:102,1,,",     # the two keys name different items
+    ",,1,,",                   # neither key
+])
+def test_read_sidecar_fails_on_a_key_not_in_the_list(tmp_path, line):
+    rows = [_row(1, city="alpha"), _row(2, city="beta")]
+    p = _sidecar(tmp_path / "s.csv", "item_id,label_uid,cannot_judge,cannot_judge_tags,note", line)
+    with pytest.raises(SystemExit):
+        trp.read_sidecar(p, rows)
+
+
+def test_read_sidecar_fails_on_two_rows_for_one_item(tmp_path):
+    rows = [_row(1)]
+    p = _sidecar(tmp_path / "s.csv", "item_id,label_uid,cannot_judge,cannot_judge_tags,note",
+                 "tr0001,,1,,", ",alpha:101,,,again")
+    with pytest.raises(SystemExit):
+        trp.read_sidecar(p, rows)
+
+
+def test_links_prints_label_id_to_item_id_per_city(tmp_path, capsys):
+    rows = [_row(2, city="alpha"), _row(1, city="alpha"), _row(3, city="beta")]
+    rows[2]["label_id"] = rows[0]["label_id"]   # label 102 in both cities
+    for r in rows:
+        r["editor_url"] = f"https://sidewalk-{r['city']}.example.edu/gallery?labelType=CurbRamp&labelId={r['label_id']}"
+    lst = tmp_path / "list.csv"
+    _write_list(lst, rows)
+    trl.main(["links", "--list", str(lst), "--format", "tsv"])
+    out = capsys.readouterr().out.splitlines()
+    assert out[0].split("\t") == ["city", "part", "n", "item_ids", "label_ids", "url"]
+    got = {f[0]: f for f in (line.split("\t") for line in out[1:])}
+    assert got["alpha"][3:5] == ["tr0001,tr0002", "101,102"]
+    assert got["alpha"][5].endswith("labelIds=101,102")
+    assert got["beta"][3:5] == ["tr0003", "102"]
+    trl.main(["links", "--list", str(lst)])
+    text = capsys.readouterr().out
+    assert "101=tr0001  102=tr0002" in text and "102=tr0003" in text
+
+
+# ----------------------------------------------------------------------------- city order (#186 review S2)
+
+def _link_rows(cities, per_city=2, host=None):
+    rows, i = [], 0
+    for c in cities:
+        for _ in range(per_city):
+            i += 1
+            rows.append({"item_id": f"tr{i:04d}", "city": c, "label_id": str(i),
+                         "editor_url": f"https://{host or c}/gallery?labelType=CurbRamp&labelId={i}"})
+    return rows
+
+
+def test_gallery_links_city_order_is_a_seeded_shuffle_not_alphabetical():
+    cities = [f"c{k:02d}" for k in range(20)]
+    rows = _link_rows(cities, per_city=4)
+    order = [g["city"] for g in trl.gallery_links(rows, max_ids=3)]
+    blocks = list(dict.fromkeys(order))
+    assert sorted(blocks) == cities and blocks != cities          # a permutation, not the sort
+    assert order == [g["city"] for g in trl.gallery_links(rows[::-1], max_ids=3)]   # row order is irrelevant
+    assert blocks != list(dict.fromkeys(g["city"] for g in trl.gallery_links(rows, max_ids=3, seed=1)))
+    # a split city's parts stay consecutive and in part order
+    for c in cities:
+        at = [k for k, g in enumerate(trl.gallery_links(rows, max_ids=3)) if g["city"] == c]
+        assert at == list(range(at[0], at[0] + 2))
+    assert [g["city"] for g in trl.gallery_links(rows, seed=None)] == cities
+
+
+#: The review order of the city blocks, as seed 86 gives it (numpy 2.5.1, 2026-09-28). A literal
+#: on purpose: numpy guarantees the bit streams across versions (NEP 19), not the output of
+#: Generator.permutation, so recomputing the order here could not notice it change. The
+#: protocol doc records the same order.
+COMMITTED_CITY_ORDER = [
+    "columbia", "hackensack-nj", "cdmx", "sao-paulo-brazil", "chicago-il", "walla-walla",
+    "gainesville-fl", "madison-wi", "newberg-or", "waltham-ma", "pittsburgh-pa",
+    "niagara-falls-ny", "keelung", "west-chester", "tucson-az", "st-louis-mo", "new-taipei",
+    "teaneck-nj", "kaohsiung", "maywood-nj", "zurich", "danville-il", "oradell-nj", "seattle-wa",
+    "taipei", "paterson-nj", "knox-oh", "cliffside-park-nj", "fort-wayne-in", "santiago-chile",
+    "detroit-mi", "rancagua-chile", "columbus-oh", "mendota-il", "burnaby",
+]
+
+
+def test_committed_links_are_in_the_seeded_city_order():
+    rows = trl.read_list(LIST)
+    got = [g["city"] for g in trl.gallery_links(rows)]
+    assert got == COMMITTED_CITY_ORDER, "the city order changed: a later pass would run in another order"
+    assert sorted(got) == sorted({r["city"] for r in rows}) and got != sorted(got)
+    assert trl.CITY_ORDER_SEED == tr.read_json(META)["params"]["seed"]    # the list's build seed
+    doc = (REPO / "docs" / "tag_review_protocol.md").read_text(encoding="utf-8")
+    assert ", ".join(COMMITTED_CITY_ORDER) in " ".join(doc.split()), "update the order in the protocol doc"
+
+
+# ----------------------------------------------------------------------------- re-review R1, R6
+
+def _prod_setup(tmp_path, monkeypatch, vals=()):
+    rows = [_row(1), _row(2)]
+    lst = tmp_path / "list.csv"
+    _write_list(lst, rows)
+    side = _sidecar(tmp_path / "side.csv", "item_id,label_uid,cannot_judge,cannot_judge_tags,note",
+                    "tr0001,,1,,unavailable in the gallery")
+    monkeypatch.setattr(trp, "fetch_rater_rows", lambda rows, user_id: ([], list(vals), [], {}))
+    return ["prod", "--rater", "jonfroehlich", "--list", str(lst), "--since", "2026-09-23T00:00:00Z",
+            "--sidecar", side, "--out", str(tmp_path / "out.json")]
+
+
+def test_prod_stops_on_a_sidecar_row_for_an_unreviewed_item(tmp_path, monkeypatch, capsys):
+    argv = _prod_setup(tmp_path, monkeypatch)
+    with pytest.raises(SystemExit, match="tr0001"):
+        trp.main(argv)
+    assert not (tmp_path / "out.json").exists()
+    trp.main(argv + ["--allow-unreviewed-sidecar"])   # the escape hatch exports, and says so
+    assert "WARNING: 1 sidecar row(s)" in capsys.readouterr().out
+    assert (tmp_path / "out.json").exists()
+
+
+def test_prod_keeps_the_sidecar_of_a_reviewed_item(tmp_path, monkeypatch):
+    vote = {"city": "alpha", "label_id": "101", "label_validation_id": "7", "validation_result": "Agree",
+            "end_timestamp": "2026-09-23T12:00:00Z", "source": "GalleryExpanded"}
+    argv = _prod_setup(tmp_path, monkeypatch, vals=[vote])
+    trp.main(argv)
+    items = {it["item_id"]: it for it in tr.read_json(tmp_path / "out.json")["items"]}
+    assert items["tr0001"]["note"] == "unavailable in the gallery" and items["tr0001"]["cannot_judge"] is True
+    assert trp.unreviewed_sidecar_items(list(items.values()), {"tr0002": {}}) == ["tr0002"]
+
+
+def test_read_sidecar_skips_blank_rows_and_checks_the_header_once(tmp_path):
+    rows = [_row(1)]
+    p = _sidecar(tmp_path / "s.csv", "item_id,label_uid,cannot_judge,cannot_judge_tags,note",
+                 ",,,,", "tr0001,,1,,x", " , ,,,")
+    assert set(trp.read_sidecar(p, rows)) == {"tr0001"}
+    q = _sidecar(tmp_path / "q.csv", "itemid,cannot_judge,note", "tr0001,1,x")
+    with pytest.raises(SystemExit, match=r"q\.csv:1: sidecar header"):
+        trp.read_sidecar(q, rows)
+    empty = tmp_path / "e.csv"
+    empty.write_text("", encoding="utf-8")
+    with pytest.raises(SystemExit, match="header"):
+        trp.read_sidecar(str(empty), rows)
+    # F2: a padded header ("item_id ") keys the rows after stripping, instead of failing on line 2
+    padded = _sidecar(tmp_path / "p.csv", "item_id ,cannot_judge,note", "tr0001,1,x")
+    assert set(trp.read_sidecar(padded, rows)) == {"tr0001"}
+
+
+def test_unreviewed_sidecar_message_counts_the_items_past_twenty():
+    lost = [f"tr{i:04d}" for i in range(1, 26)]
+    msg = trp.unreviewed_sidecar_message(lost)
+    assert msg.startswith("25 sidecar row(s)") and "tr0020" in msg and "tr0021" not in msg
+    assert msg.endswith("and 5 more")
+    assert trp.unreviewed_sidecar_message(lost[:20]).endswith("tr0020")
+
+
+# ----------------------------------------------------------------------------- re-review R3
+
+@pytest.mark.parametrize("bad", [-1, 0, trl.GALLERY_MAX_LABEL_IDS + 1])
+def test_gallery_links_max_ids_out_of_range(bad, tmp_path):
+    rows = _link_rows(["a"], per_city=3)
+    with pytest.raises(ValueError, match="max_ids"):
+        trl.gallery_links(rows, max_ids=bad)
+    lst = tmp_path / "list.csv"
+    _write_list(lst, rows)
+    with pytest.raises(SystemExit, match="max_ids"):   # not "0 items ... the list is empty"
+        trl.main(["links", "--list", str(lst), "--max-ids", str(bad)])
+    assert len(trl.gallery_links(rows, max_ids=trl.GALLERY_MAX_LABEL_IDS)) == 1
