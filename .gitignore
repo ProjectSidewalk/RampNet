@@ -280,7 +280,8 @@ analysis_out/input_res_sweep_25/cache/*
 # multiview_challengers_48.py): the per-(ramp, capture) table, the result JSONs, the
 # empty-then-filled one-rater verdicts, and the challenger detections, fused sites and
 # scores, so every number in docs/multiview_48.md re-derives on CPU without the labeler
-# runs or a GPU. Crops for the gallery live under benchmark/multiview_residual_48/.
+# runs or a GPU. The two open-vocab site files (8-10 MB each) are left untracked;
+# `score` re-derives them. Crops for the gallery live under benchmark/multiview_residual_48/.
 !analysis_out/multiview_48/
 analysis_out/multiview_48/*
 !analysis_out/multiview_48/*.json
@@ -290,3 +291,9 @@ analysis_out/multiview_48/challengers/*
 !analysis_out/multiview_48/challengers/*.json
 !analysis_out/multiview_48/challengers/*.jsonl
 !analysis_out/multiview_48/challengers/detections/
+
+# Two-scale inference (#197): the report, re-derived by two_scale_197.py report --check
+!analysis_out/two_scale_197/
+analysis_out/two_scale_197/*
+!analysis_out/two_scale_197/results.json
+!analysis_out/two_scale_197/results.md
