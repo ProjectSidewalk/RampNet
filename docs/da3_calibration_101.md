@@ -307,7 +307,7 @@ Rig = camera make/model from the bundle records, normalized as the labeler's `ri
 
 ¹ laurens_gsv now has Google depth. It was harvested on 2026-09-27 for #151 and merged in #201.
 It is held out in `analysis_out/recall_by_depth_112.json` under `tables["held_out"]`. Google's
-camera height there is **2.41 m** (1.99–2.49), the median over the 60 of 86 benchmark panos with
+camera height there is **2.41 m** (min–max 1.99–2.49), the median over the 60 of 86 benchmark panos with
 measured ground ([`detection_recall_analysis.md`](detection_recall_analysis.md) §0). The cell
 stays "–" because `derive` does not join laurens_gsv's Google rows. Filling it would change the
 committed rows and their hashes. It would also give a median over a different pano set (the
