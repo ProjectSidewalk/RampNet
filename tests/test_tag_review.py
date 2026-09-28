@@ -800,6 +800,17 @@ def test_read_sidecar_skips_blank_rows_and_checks_the_header_once(tmp_path):
     empty.write_text("", encoding="utf-8")
     with pytest.raises(SystemExit, match="header"):
         trp.read_sidecar(str(empty), rows)
+    # F2: a padded header ("item_id ") keys the rows after stripping, instead of failing on line 2
+    padded = _sidecar(tmp_path / "p.csv", "item_id ,cannot_judge,note", "tr0001,1,x")
+    assert set(trp.read_sidecar(padded, rows)) == {"tr0001"}
+
+
+def test_unreviewed_sidecar_message_counts_the_items_past_twenty():
+    lost = [f"tr{i:04d}" for i in range(1, 26)]
+    msg = trp.unreviewed_sidecar_message(lost)
+    assert msg.startswith("25 sidecar row(s)") and "tr0020" in msg and "tr0021" not in msg
+    assert msg.endswith("and 5 more")
+    assert trp.unreviewed_sidecar_message(lost[:20]).endswith("tr0020")
 
 
 # ----------------------------------------------------------------------------- re-review R3

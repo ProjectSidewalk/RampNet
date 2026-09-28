@@ -158,6 +158,7 @@ def read_sidecar(path, rows):
     with open(path, encoding="utf-8-sig", newline="") as fh:
         reader = csv.DictReader(fh)
         header = [h.strip() for h in (reader.fieldnames or [])]
+        reader.fieldnames = header   # so a padded header ("item_id ") still keys the rows
         if "item_id" not in header and "label_uid" not in header:
             raise SystemExit(f"{path}:1: sidecar header has neither item_id nor label_uid "
                              f"(got {','.join(header) or 'nothing'})")
@@ -186,6 +187,14 @@ def read_sidecar(path, rows):
             raise SystemExit(f"{path}:{n}: a second sidecar row for {item}")
         out[item] = dict(r, item_id=item)
     return out
+
+
+def unreviewed_sidecar_message(lost, show=20):
+    """The R1 stop/warning text: names the first ``show`` items and counts the rest."""
+    more = f" and {len(lost) - show} more" if len(lost) > show else ""
+    return (f"{len(lost)} sidecar row(s) are on items with no edit or vote from the rater inside "
+            f"--since/--until, so they export as reviewed: false and the sidecar's note and "
+            f"cannot_judge are dropped: {', '.join(lost[:show])}{more}")
 
 
 def unreviewed_sidecar_items(items, sidecar):
@@ -217,9 +226,7 @@ def cmd_prod(args):
                                list_fetched_at=list_fetched_at(args.list))
     lost = unreviewed_sidecar_items(items, sidecar)
     if lost:
-        msg = (f"{len(lost)} sidecar row(s) are on items with no edit or vote from the rater inside "
-               f"--since/--until, so they export as reviewed: false and the sidecar's note and "
-               f"cannot_judge are dropped: {', '.join(lost[:20])}")
+        msg = unreviewed_sidecar_message(lost)
         if not args.allow_unreviewed_sidecar:
             raise SystemExit(f"{msg}\nCheck --since/--until and the Agree vote (protocol step 6), "
                              "or pass --allow-unreviewed-sidecar to export anyway.")
