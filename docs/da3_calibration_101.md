@@ -1,7 +1,8 @@
 # Depth Anything 3 calibrated against GSV depth, and carried to the Mapillary splits (#101)
 
 **Status: complete, 2026-09-27; revised the same day after the review on
-[#203](https://github.com/ProjectSidewalk/RampNet/pull/203#issuecomment-5859733995).** DA3METRIC-LARGE was
+[#203](https://github.com/ProjectSidewalk/RampNet/pull/203#issuecomment-5859733995). Held-out check on
+laurens_gsv added 2026-09-28 (§5.3).** DA3METRIC-LARGE was
 run on every verdict-reviewed panorama of the eleven reviewed benchmark bundles (1,289 panos;
 `manual_gold` is out of scope), sampled at every GT point and every committed 0.55 RampNet detection
 (5,403 points), and a ground plane was fitted to each pano's road band. On the four GSV splits with
@@ -58,6 +59,19 @@ Opus 5.5 agent from the plan in
 9. **The ground fit was changed after seeing the data, in two ways**: the lowest supported plane
    instead of the dominant one, and a pass rule of 25% instead of 50%. Both runs are committed, and
    §8 attributes every pano to one change or the other.
+10. **Held out, laurens_gsv lands at the low edge of the fitted splits' spread.** laurens_gsv has
+    Google depth (#201) but was never in the fit. At its 156 locations (45 panos) DA3/Google is
+    **1.015** (CI 0.997–1.046), 0.918× the pooled 1.106. Paired on its 53 panos, DA3's camera height
+    / Google's is **0.925** (CI 0.920–0.942), 0.891× the pooled 1.038. The four fitted splits already
+    span −6.6% to +6.7% (points) and −7.6% to +6.8% (height) of the pooled values; laurens_gsv
+    widens the low end to −8.2% and −10.9%. It is below bend beyond noise in height, not at points.
+    The shape holds: the log-log exponent is 1.015 (CI 0.982–1.042). What this means for Mapillary
+    depends on an open question. If DA3's scale varies by city, calibrated Mapillary values carry
+    that observed spread, consistent with §4.1's ±1–2 m. If Google's frame varies instead, DA3's
+    own spread is about ±3% and the Mapillary axis carries a common bias (§2.2). laurens_gsv's
+    uncorrected ratios sit inside the fitted splits' frame-corrected bands, which fits the second
+    reading. A third reading, a DA3 bias specific to Google's 2024 imagery or rig, would not carry
+    to the GoPro Max at all. A Laurens frame factor from the labeler would decide it (§5.3, §11).
 
 Every number in §2–§4 depends on Google's depth, which reaches this repo only as the committed
 per-point rows of `analysis_out/recall_by_depth_112.json`; the depth payloads themselves are an
@@ -282,7 +296,7 @@ Calibrated DA3 height (lowest plane / k_height):
 | paterson | 125 | 108 | 2.11 (1.90–2.39) | 1.38–2.87 | 2.2 | 2.05 |
 | gainesville | 125 | 106 | 1.89 (1.79–2.10) | 1.60–2.79 | 2.0 | 1.83 |
 | sao_paulo | 125 | 95 | 2.46 (2.27–2.54) | 1.34–2.78 | 2.6 | 2.26 |
-| laurens_gsv | 86 | 78 | 2.14 (2.09–2.19) | 1.82–2.59 | 2.1 | –¹ |
+| laurens_gsv | 86 | 78 | 2.14 (2.09–2.19) | 1.82–2.59 | 2.1 | 2.41¹ |
 | richmond | 124 | 93 | 2.38 (2.06–2.50) | 1.33–2.78 | 3.1 | – |
 | annapolis | 125 | 96 | 2.12 (2.05–2.21) | 1.89–2.41 | 3.6 | – |
 | morgantown | 125 | 92 | 2.07 (1.94–2.20) | 0.52–2.63 | 3.4 | – |
@@ -305,22 +319,24 @@ Calibrated DA3 height (lowest plane / k_height):
 Rig = camera make/model from the bundle records, normalized as the labeler's `rig_key` does
 (one budapest pano on an LG R105 is left out of this table; it is in `tables.md`).
 
-¹ laurens_gsv now has Google depth. It was harvested on 2026-09-27 for #151 and merged in #201.
-It is held out in `analysis_out/recall_by_depth_112.json` under `tables["held_out"]`. Google's
-camera height there is **2.41 m** (min–max 1.99–2.49), the median over the 60 of 86 benchmark panos with
-measured ground ([`detection_recall_analysis.md`](detection_recall_analysis.md) §0). The cell
-stays "–" because `derive` does not join laurens_gsv's Google rows. Filling it would change the
-committed rows and their hashes. It would also give a median over a different pano set (the
-fit-ok panos with measured ground) than the 2.41 m above. That join is the held-out check §11
-says was not run.
+¹ laurens_gsv has Google depth since #201 (harvested 2026-09-27 for #151). This cell does not come
+from the table the other rows come from. `tables.md`'s camera-height-by-split table still prints
+"–" here, because that table is pinned and laurens_gsv's Google rows are not joined into the
+committed rows. The value is from `tables()["laurens_gsv_held_out"]` (§5.3). It is the median over
+the 60 of 86 benchmark panos with measured Google ground (min–max 1.99–2.49 m). The DA3 columns are
+over the 78 fit-ok panos, a different set. On the 53 panos in both sets, DA3 reads 2.14 m calibrated
+and Google 2.41 m, the same medians (§5.3).
 
 Caveats that belong to these numbers:
 
 - **The calibration was fitted on Google's car rigs.** Nothing in this repo validates DA3 on a
   GoPro or an NCTech image directly. The heights are plausible (every Mapillary rig median lands
   in 1.8–2.5 m, and DA3 reads the same Laurens footprint at 2.14 m on Google's rig and 2.13 m on
-  the GoPro Max), but "plausible" is not "measured". Google's own depth reads that Laurens GSV rig
-  at 2.41 m (footnote ¹), so the 2.14 m may be low. That gap is a flag, not a measurement (§11).
+  the GoPro Max), but "plausible" is not "measured". On the one GSV split held out of the fit,
+  paired against Google on the same 53 panos, calibrated DA3 reads 0.891× Google's height (CI
+  0.875–0.912, §5.3). Google's frame in Laurens is uncorrected, because the labeler has no factor
+  for it, so this is a reading against Google, not against the imagery's geometry. Whether any of
+  it applies to the GoPro Max on that footprint depends on which of §5.3's three explanations holds.
 - **Per-pano heights are rig-class estimates** (§3). The spread inside a rig here mixes real
   mounting differences with DA3's per-pano noise, and this measurement cannot separate them.
 - **Tilt.** By split the Mapillary medians are 3.1–7.3° against 2.0–2.6° on GSV; by rig the NCTech
@@ -367,7 +383,7 @@ with the ±1–2 m error scale measured on GSV in §4.1:
 | clovis | 13.1 m (68) / 17.6 m (28) | 14.8 m (64) / 18.8 m (28) | 14.6 m (64) / 20.0 m (28) |
 | laurens_mapillary | 15.9 m (40) / 22.2 m (24) | 16.1 m (35) / 23.8 m (21) | 16.4 m (35) / 23.6 m (21) |
 | budapest_district5 | 11.9 m (68) / 16.1 m (39) | 13.1 m (58) / 17.9 m (28) | 13.5 m (58) / 19.0 m (28) |
-| laurens_gsv (GSV; its Google depth is not used here, §11) | 16.0 m (72) / 22.0 m (41) | 15.3 m (65) / 21.3 m (37) | 15.5 m (65) / 21.6 m (37) |
+| laurens_gsv (GSV; held out of the fit, checked against Google in §5.3) | 16.0 m (72) / 22.0 m (41) | 15.3 m (65) / 21.3 m (37) | 15.5 m (65) / 21.6 m (37) |
 
 What this says, with its limits:
 
@@ -385,6 +401,153 @@ What this says, with its limits:
   the 17 GT points at or above the horizon, and the plane axes need a passing fit (1,277 and
   1,266 of 1,615).
 
+### 5.3 Held-out check: laurens_gsv against Google depth
+
+laurens_gsv is a GSV split with Google depth (#201) that the calibration never saw. It enters no
+pooled statistic and no leave-one-split-out set, and its committed rows carry no Google fields.
+`tables()["laurens_gsv_held_out"]` joins its DA3 rows to #201's committed per-pano and per-point
+Google rows in `analysis_out/recall_by_depth_112.json`, and nothing else. The pooled constants of
+§2 and §3 are the prediction.
+
+**n at every step.** 86 benchmark panos. DA3's ground fit passes on 78. Google has measured ground
+on 60. Both hold on **53**, and the height comparison uses those. For points, all 341 DA3 point
+rows join a Google row (230 unique locations). Of those, **156 locations on 45 panos** have
+measured ground and a pixel-plane Google range, the same filter as §2.
+
+| read | n | laurens_gsv DA3/Google [95% CI] | pooled prediction [95% CI] | four fitted splits | laurens_gsv / pooled [95% CI] | older US vintages [CI] |
+|---|---|---|---|---|---|---|
+| range at the point | 156 locations (45 panos) | 1.015 [0.997, 1.046] | 1.106 [1.094, 1.117] | 1.033–1.180 | **0.918** [0.897, 0.947] | 1.066 [1.050, 1.082] |
+| camera height, paired | 53 panos | 0.925 [0.920, 0.942] | 1.038 [1.026, 1.056] | 0.959–1.109 | **0.891** [0.875, 0.912] | 0.995 [0.976, 1.010] |
+
+The CIs are pano-clustered, 1,000 replicates, seed 101, as in §2 and §3. The "laurens_gsv /
+pooled" CI resamples both samples' panos, so it carries the pooled constant's uncertainty too.
+"Older US vintages" is the rig group laurens_gsv's 2024 capture would join under #112's grouping;
+it is a second reference, not the prediction.
+
+By Google range, laid out as §2.1:
+
+| Google range | n (panos) | laurens_gsv DA3/Google (p10–p90) | 2025-26 rig | older US | sao_paulo | flat 2.5 m / Google, laurens_gsv |
+|---|---|---|---:|---:|---:|---:|
+| 0-8 m | 28 (19) | 0.993 (0.92–1.07) | 1.144 | 1.028 | 1.144 | 1.053 |
+| 8-12 m | 47 (26) | 1.032 (0.95–1.13) | 1.135 | 1.061 | 1.208 | 1.025 |
+| 12-18 m | 40 (26) | 1.010 (0.94–1.12) | 1.111 | 1.090 | 1.198 | 1.040 |
+| 18-25 m | 23 (17) | 1.084 (0.97–1.19) | 1.089 | 1.079 | 1.174 | 1.027 |
+| 25 m+ | 18 (7) | 1.015 (0.86–1.06) | 1.047 | 1.049 | 1.193 | 1.074 |
+
+The log-log exponent is 1.015 (CI 0.982–1.042), against 0.981 (CI 0.959–1.001) pooled and 0.919 on
+the 2025–26 rig. The OLS slope is 1.008 (CI 0.950–1.065) with a 0.32 m intercept.
+
+Calibrated with the pooled constants, each axis against Google's range at the 132 locations where
+every axis has a value:
+
+| axis | median axis/Google (p10–p90) | median abs ln ratio | share within 10% |
+|---|---|---:|---:|
+| flat_2p5 | 1.034 (1.00–1.16) | 0.034 | **0.742** |
+| da3_point | 0.925 (0.85–1.02) | 0.089 | 0.591 |
+| da3_plane | 0.899 (0.72–1.05) | 0.127 | 0.439 |
+| flat_da3_height | 0.899 (0.84–1.01) | 0.108 | 0.462 |
+
+**Where laurens_gsv falls against the fitted splits.** The pooled CI states how well the pooled
+median is known, not how far a split can land from it. Fitted splits fall outside it too:
+
+| read | fitted splits / pooled | fitted splits outside the pooled CI | laurens_gsv / pooled | laurens_gsv / bend [95% CI] |
+|---|---|---|---|---|
+| range at the point | 0.934–1.067 | 3 of 4 (bend, gainesville, sao_paulo) | 0.918 | [0.954, 1.016] |
+| camera height, paired | 0.924–1.068 | 2 of 4 (bend, sao_paulo) | 0.891 | [0.945, 0.987] |
+
+bend is the fitted split closest to laurens_gsv: mostly 2024 capture, with Google cameras at 2.38 m
+and 2.41 m. The laurens_gsv / bend CI is two-sample and pano-clustered, like the pooled one.
+
+**The second explanation, in numbers.** §2.2 divides each fitted city's DA3/Google by the labeler's
+estimate of how far Google's depth frame runs short there. The labeler has no such factor for
+Laurens. The fitted splits' frame-corrected values, beside laurens_gsv's uncorrected ones:
+
+| read | bend | paterson | gainesville | sao_paulo | corrected range | laurens_gsv, uncorrected |
+|---|---:|---:|---:|---:|---|---:|
+| range at the point | 0.975 | 1.027 | 0.995 | 1.018 | 0.975–1.027 | 1.015 (inside) |
+| camera height | 0.904 | 0.955 | 0.963 | 0.956 | 0.904–0.963 | 0.925 (inside) |
+
+**What the check shows.**
+
+- **laurens_gsv lands at the low edge of the fitted splits' spread, and past it.** Against the
+  pooled constants the four fitted splits span −6.6% to +6.7% at points and −7.6% to +6.8% in
+  height. laurens_gsv is at −8.2% and −10.9%. That widens the low end by 1.6 points at points and
+  3.3 points in height. Its CIs do not overlap the pooled CIs, but that alone says little: by the
+  same CI-overlap test 2 of 4 fitted splits fail at points (bend, sao_paulo) and 2 of 4 in height,
+  and by point estimate outside the pooled CI (the table above) 3 of 4 and 2 of 4.
+- **Against bend, the contrast holds in height only.** At points laurens_gsv's CI (0.997–1.046)
+  contains bend's 1.033, and the laurens_gsv / bend CI (0.954–1.016) contains 1. In height the
+  laurens_gsv / bend CI is 0.945–0.987 and excludes 1. So "below all four fitted splits" is true of
+  the point estimates. It is supported beyond noise only in height.
+- **The two reads agree with each other.** Points and heights both put DA3 about 8–11% shorter
+  relative to Google than the pooled fit does. The paired height ratio (0.891×) matches the
+  unpaired read that raised the flag (2.14 m over 78 panos against 2.41 m over 60, 0.890×). So the
+  flag was not an artifact of comparing different pano sets.
+- **The shape transfers.** On laurens_gsv the ratio is flat with range (exponent CI contains 1;
+  0.99–1.08 by bucket). What differs is the constant, not a range dependence like the 2025–26
+  rig's.
+- **On this split the flat axis beats calibrated DA3.** Flat at 2.5 m is within 10% of Google at
+  74% of locations, calibrated DA3 at 59%. Google puts this rig at 2.41 m, close to the 2.5 m the
+  flat axis assumes, as on bend (§4). Calibrated DA3 reads 8% short of Google. So its published
+  thresholds on laurens_gsv (16.0 / 22.0 m, §5.2) sit about 1.4 m below #112's thresholds on
+  Google's axis (17.4 / 23.4 m, [`detection_recall_analysis.md`](detection_recall_analysis.md)
+  §0.1). That is inside §4.1's ±1–2 m leave-one-split-out error scale.
+
+**What it means for carrying the calibration.** Three explanations fit the data, and the committed
+inputs cannot separate them.
+
+1. **DA3's per-city scale varies.** DA3 reads Laurens short because of its scenes (rural streets,
+   a mostly-sky upper half), and Google's frame is equally good everywhere.
+2. **Google's frame varies by city, and DA3 does not.** Google's depth runs short in the four fitted
+   cities, as the labeler estimates (§2.2), but not in Laurens, an older 2.41 m rig. The pooled
+   constant has absorbed the fitted cities' shortfall. laurens_gsv's uncorrected ratios sit inside
+   the fitted splits' frame-corrected bands, so this reading fits the data with no DA3 shortfall at
+   all.
+3. **DA3 has a bias specific to Google's 2024 imagery or rig.** It would be neither a scene effect
+   nor Google's frame, and it would not carry to the GoPro Max.
+
+The consequence for the Mapillary tables differs by reading:
+
+- **Under reading 1**, the spread is DA3's. Every calibrated Mapillary distance and threshold in
+  §5.2 carries a split-level spread about as wide as the observed range, −8% to +7%, and every
+  height in §5.1 −11% to +7%. That range comes from five GSV splits, four of them in the fit. It is
+  an observed range, not an interval with stated coverage. At 18 m, −8% is 1.4 m. That is consistent
+  with §4.1's ±1–2 m, which already carried most of it: the four fitted splits alone spanned about
+  ±7%. The rig-level ordering of §5.1 can change only where rigs differ by less than about 0.2 m.
+- **Under reading 2**, the spread is Google's. DA3's own city-to-city spread, once Google is
+  corrected, is about ±3% (0.975–1.027 at points, 0.904–0.963 in height). Mapillary has no Google
+  frame, so what remains is a **common bias** of the Google-calibrated axis against the imagery's
+  own geometry. That is §2.2's caveat: raw DA3 is closer to the imagery than calibrated DA3, by
+  roughly 6–16% depending on city. Every calibrated Mapillary distance and height would then be
+  short by about the same factor, and the per-split thresholds would not scatter by ±8%.
+- **Under reading 3**, laurens_gsv says nothing about the Mapillary rigs.
+- **laurens_mapillary in particular.** It shares laurens_gsv's footprint. Under reading 1 the GoPro
+  Max reads low by about the same amount, 2.13 m / 0.891 ≈ 2.39 m. Under reading 2 the GoPro's
+  2.13 m is low against the imagery's geometry by about k_height divided by the Laurens frame
+  factor, which is not known. Under reading 3 no correction applies. **laurens_mapillary's 2.13 m
+  is not corrected.**
+- **The deciding measurement** is the labeler's depth-frame factor for Laurens (§11). A factor near
+  1.0 would favour reading 2. A factor near the fitted cities' 1.06–1.16 would favour reading 1 or 3.
+
+Caveats, beside the numbers:
+
+- **Different pano sets.** The height comparison uses the 53 panos in both sets, not the 78 or
+  the 60. The point comparison uses 45 panos. Both are smaller than any fitted split's (78–97 panos
+  for heights, 83–92 for points).
+- **Google's depth is an unpublished input.** Only its committed per-pano and per-point rows are
+  used, as for the four fitted splits. `--check` re-derives the block from a clean clone without
+  payloads.
+- **The image-to-payload column mapping is assumed on laurens_gsv, not confirmed**
+  ([`detection_recall_analysis.md`](detection_recall_analysis.md) §0.2: the edge check prefers it
+  on 56 of 86 panos). The point comparison rests on that mapping. The height comparison does not,
+  because Google's camera height is a per-pano ground-plane distance. It reads the same way.
+- **The frame-corrected bands use factors the labeler calls approximate** (§2.2), over four
+  cities. That laurens_gsv falls inside them is consistent with reading 2. It does not establish it.
+- **One 2024 rig in one small town.** This is one held-out split. It widens the observed spread by
+  1.6 points at points and 3.3 points in height. It does not measure that spread well.
+- **The Laurens panos are not published** (§5.1), so DA3 cannot be re-extracted for this split from
+  public inputs. Its committed DA3 rows re-derive the block.
+
 ## 6. Laurens cross-read against the labeler's height instrument
 
 Read-only from sidewalk-auto-labeler's **tracked** `runs/laurens/camera_heights.json` at commit
@@ -401,7 +564,9 @@ correlation over 16 sequences) could not be reproduced and have been removed.
 
 - **DA3:** GoPro Max 2.13 m (73 benchmark panos); the same footprint on Google's rig 2.14 m
   (laurens_gsv, 78 panos). Google's depth reads that rig at 2.41 m over 60 panos (§5.1, footnote ¹).
-  That gap is not reconciled (§11).
+  Held out and paired on 53 panos, calibrated DA3 reads the GSV rig 0.891× Google's height, in
+  Google's uncorrected Laurens frame (§5.3). Whether the GoPro Max reading shares that shortfall
+  is not known (§5.3).
 - **Labeler, gopro/max group (`n_panos` 644 in its table):** bearing fixed point
   (instrument A) **4.31 m** (CI 3.80–4.84, slope 0.723); scale identity evaluated at 2.6 m
   (instrument B) **2.98 m** (CI 2.93–3.03). #89 found **no validated instrument-B estimator**: under
@@ -570,9 +735,12 @@ python scripts/analysis/da3_calibration_101.py --check --markdown   # every tabl
 ```
 
 `tests/test_da3_calibration_101.py` runs the `--check` path, pins the headline numbers of this
-document (including the §8 attribution, the §4.1 thresholds and the pinned labeler input), and
-checks the geometry on synthetic scenes (level and tilted ground, a car-sized obstacle, a vehicle
-roof over a road).
+document (including the §8 attribution, the §4.1 thresholds, the pinned labeler input, and the
+§5.3 held-out n, ratios, CIs and verdict flags), and checks the geometry on synthetic scenes (level
+and tilted ground, a car-sized obstacle, a vehicle roof over a road). The held-out join, the
+two-sample bootstrap and the prediction flags are unit-tested on synthetic data. §5.3 needs no
+extra input: its Google rows are the held-out split's rows already committed in
+`analysis_out/recall_by_depth_112.json`, which `SHA256SUMS` already hashes.
 
 ## 11. Gaps, stated
 
@@ -582,16 +750,19 @@ roof over a road).
   Google's frame by design.
 - **A single pooled constant** is biased on Google's 2025–26 rig, −5% to +3% across range (§2.1);
   no per-rig or range-dependent calibration was fitted.
-- **laurens_gsv was not run as a held-out DA3-vs-Google check.** It has had Google depth since
-  #201, held out in `analysis_out/recall_by_depth_112.json` under `tables["held_out"]`. It was not
-  in the calibration fit, and `derive` does not join its Google rows. So it is still carried like a
-  Mapillary split, not validated. The comparison was designed before #201 landed. The two pano
-  sets also differ: DA3's height is over the 78 fit-ok panos, and Google's over the 60 panos with
-  measured ground. The raw gap reads DA3 2.14 m against Google 2.41 m, about 0.89x. The pooled
-  DA3/Google height ratio on the four fitted splits is 1.038 [1.026, 1.056] (§3). So on the one
-  extra GSV split, DA3 reads about 11% low where the pooled fit reads about 4% high. This is a
-  flag, not a measurement: the pano sets are not paired and no CI was computed. Pairing the panos
-  would turn it into a held-out check. **The Laurens panos are not published** (§5.1).
+- **One held-out split, at the low edge of the fitted spread** (§5.3). laurens_gsv was held out of
+  the fit and checked against Google on the same panos and points: DA3/Google 0.918× the pooled
+  constant at points (CI 0.897–0.947, 156 locations on 45 panos) and 0.891× in height (CI
+  0.875–0.912, 53 panos). The four fitted splits spanned −6.6% to +6.7% and −7.6% to +6.8%; this
+  split widens the low end by 1.6 and 3.3 points. No per-split or per-city calibration was fitted
+  in response. laurens_gsv was not added to the fit, the leave-one-split-out set or any pooled
+  number, so every earlier table is unchanged.
+- **Not measured: the labeler's Google depth-frame factor for Laurens.** It is the measurement that
+  decides between §5.3's explanations. Without it, "DA3 reads Laurens short" and "Google's frame is
+  short in the fitted cities but not in Laurens" fit the committed numbers equally well, and they
+  lead to different Mapillary error models (a split-level spread against a common bias). The
+  labeler's camera-height study did not cover laurens_gsv. Running its bearing-only triangulation
+  on the laurens_gsv run would unblock it. **The Laurens panos are not published** (§5.1).
 - **Per-pano heights and tilts are not trustworthy per pano** (§3, §5.1).
 - **Apparent-size tables and the resolution forecast** of #112 were not re-issued on the DA3
   axis; only recall by distance was, as the plan specified.

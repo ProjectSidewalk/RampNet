@@ -177,7 +177,7 @@ DA3 plane tilt vs Google ground-plane tilt, 352 GSV panos: median 2.1824 deg vs 
 | paterson | 125 | 108 | 2.11 (1.90–2.39) | 1.38–2.87 | 2.2 | 2.05 |
 | gainesville | 125 | 106 | 1.89 (1.79–2.10) | 1.60–2.79 | 2.0 | 1.83 |
 | sao_paulo | 125 | 95 | 2.46 (2.27–2.54) | 1.34–2.78 | 2.6 | 2.26 |
-| laurens_gsv | 86 | 78 | 2.14 (2.09–2.19) | 1.82–2.59 | 2.1 | – |
+| laurens_gsv | 86 | 78 | 2.14 (2.09–2.19) | 1.82–2.59 | 2.1 | 2.41 (held out, 60 panos) |
 | richmond | 124 | 93 | 2.38 (2.06–2.50) | 1.33–2.78 | 3.1 | – |
 | annapolis | 125 | 96 | 2.12 (2.05–2.21) | 1.89–2.41 | 3.6 | – |
 | morgantown | 125 | 92 | 2.07 (1.94–2.20) | 0.52–2.63 | 3.4 | – |
@@ -396,3 +396,54 @@ Run 1 = the first extraction's single dominant plane. `now` = lowest supported p
 |---|---:|---:|---:|---:|---:|---|
 | bend | 327 | 1.065 | 0.953 | 1.014 | 0.961 | 0 (0 + 0) |
 | richmond | 306 | 1.085 | 0.812 | 1.037 | 0.847 | 4 (3 + 1) |
+
+## Held-out check: laurens_gsv against Google depth (not in any pooled statistic)
+
+Capture years 2024 (rig group `older US vintages`). Panos 86; DA3 fit ok 78; Google measured ground 60; both 53. Point rows 341, joined to a Google row 341, unique locations 230, of which measured-ground pixel-plane 156 on 45 panos.
+
+Unpaired (different pano sets): calibrated DA3 height 2.14 m over 78 panos, Google 2.41 m over 60 panos, ratio 0.890.
+
+| read | n | held out: DA3/Google median [95% CI] | pooled prediction [95% CI] | fitted splits' range | held out / pooled [95% CI] | rig group median [CI] |
+|---|---|---|---|---|---|---|
+| point range | 156 (45 panos) | 1.015 [0.997, 1.046] | 1.106 [1.094, 1.117] | 1.033–1.180 | 0.918 [0.897, 0.947] | older US vintages: 1.066 [1.050, 1.082] |
+| camera height | 53 panos | 0.925 [0.920, 0.942] | 1.038 [1.026, 1.056] | 0.959–1.109 | 0.891 [0.875, 0.912] | older US vintages: 0.995 [0.976, 1.010] |
+
+point: fitted splits span 0.934–1.067 of the pooled value; outside the pooled CI in sample: 3 of 4 (bend, gainesville, sao_paulo).
+
+height: fitted splits span 0.924–1.068 of the pooled value; outside the pooled CI in sample: 2 of 4 (bend, sao_paulo).
+
+| read | laurens_gsv | bend [CI] | laurens_gsv / bend [95% CI] |
+|---|---|---|---|
+| point | 1.015 | 1.033 [1.010, 1.058] | [0.954, 1.016] |
+| height | 0.925 | 0.959 [0.949, 0.977] | [0.945, 0.987] |
+
+Fitted splits' DA3/Google divided by the labeler's Google depth-frame factor (section 2.2), beside the held-out split's uncorrected ratio (laurens_gsv: the labeler has no factor for it):
+
+| read | bend | paterson | gainesville | sao_paulo | corrected range | held out, uncorrected | inside |
+|---|---:|---:|---:|---:|---|---:|---|
+| point | 0.975 | 1.027 | 0.995 | 1.018 | 0.975–1.027 | 1.015 | True |
+| height | 0.904 | 0.955 | 0.963 | 0.956 | 0.904–0.963 | 0.925 | True |
+
+Points: log-log exponent 1.015 [0.982, 1.042] (pooled 0.981 [0.959, 1.001]), OLS slope 1.008 [0.950, 1.065], intercept 0.32 m, p10–p90 0.94–1.12, median abs ln ratio 0.047.
+Heights (paired): DA3 raw 2.23 m, calibrated 2.14 m, Google 2.41 m; p10–p90 0.87–1.02, Pearson r -0.007, median abs ln ratio 0.081.
+
+| group | Google range | n (panos) | DA3/Google median (p10–p90) | flat 2.5 m / Google median |
+|---|---|---|---|---:|
+| laurens_gsv (held out) | 0-8 m | 28 (19) | 0.993 (0.92–1.07) | 1.053 |
+| laurens_gsv (held out) | 8-12 m | 47 (26) | 1.032 (0.95–1.13) | 1.025 |
+| laurens_gsv (held out) | 12-18 m | 40 (26) | 1.010 (0.94–1.12) | 1.040 |
+| laurens_gsv (held out) | 18-25 m | 23 (17) | 1.084 (0.97–1.19) | 1.027 |
+| laurens_gsv (held out) | 25 m+ | 18 (7) | 1.015 (0.86–1.06) | 1.074 |
+
+Each axis against Google's range on the held-out locations, pooled constants (`common` = every axis has a value):
+
+| population | axis | n | median axis/Google (p10–p90) | median abs ln ratio | share within 10% |
+|---|---|---:|---|---:|---:|
+| common | flat_2p5 | 132 | 1.034 (1.00–1.16) | 0.034 | 0.742 |
+| common | da3_point | 132 | 0.925 (0.85–1.02) | 0.089 | 0.591 |
+| common | da3_plane | 132 | 0.899 (0.72–1.05) | 0.127 | 0.439 |
+| common | flat_da3_height | 132 | 0.899 (0.84–1.01) | 0.108 | 0.462 |
+| all | flat_2p5 | 156 | 1.040 (1.00–1.19) | 0.039 | 0.724 |
+| all | da3_point | 156 | 0.918 (0.85–1.02) | 0.092 | 0.577 |
+| all | da3_plane | 132 | 0.899 (0.72–1.05) | 0.127 | 0.439 |
+| all | flat_da3_height | 132 | 0.899 (0.84–1.01) | 0.108 | 0.462 |
