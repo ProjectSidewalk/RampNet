@@ -1,5 +1,5 @@
 import os, sys, json
-W = "/gscratch/scrubbed/jfroehli/mv48"
+W = os.environ.get("W", "/gscratch/scrubbed/jfroehli/mv48")
 sys.path.insert(0, os.path.join(W, "RampNet", "scripts", "model_comparison"))
 os.chdir(os.path.join(W, "RampNet"))
 import compare as C

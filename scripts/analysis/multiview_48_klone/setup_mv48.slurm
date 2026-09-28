@@ -7,14 +7,20 @@
 #SBATCH --time=03:00:00
 #SBATCH --output=/gscratch/scrubbed/jfroehli/mv48/logs/setup_%j.out
 # #48 klone offload: build the two envs from makelab2's exact freezes (torch from the
-# cu126 wheel index), clone the branch, and pull the four HF models. Runs on a compute
+# cu126 wheel index), clone RampNet at REF, and pull the four HF models. Runs on a compute
 # node so nothing heavy lands on a login node.
+# REF defaults to 4cef05c, the commit the 2026-09-27 run used (its logs print it). It has
+# the same compare.py and benchmark/richmond_neighbourhood as later commits on this PR.
+# Override with: REF=<commit> sbatch setup_mv48.slurm
+# Paths: W, UV and --output are Jon's; --account is his lab's. Change them for your own.
 set -euo pipefail
-W=/gscratch/scrubbed/jfroehli/mv48
+W=${W:-/gscratch/scrubbed/jfroehli/mv48}
+REF=${REF:-4cef05c}
 export UV_CACHE_DIR=$W/uv_cache UV_LINK_MODE=copy HF_HOME=$W/hf
-UV=/mmfs1/home/jfroehli/.local/bin/uv
+UV=${UV:-/mmfs1/home/jfroehli/.local/bin/uv}
 cd $W
-[ -d RampNet ] || git clone -q --branch analysis/multiview-48 https://github.com/ProjectSidewalk/RampNet.git
+[ -d RampNet ] || git clone -q https://github.com/ProjectSidewalk/RampNet.git
+git -C RampNet checkout -q "$REF"
 git -C RampNet log --oneline -1
 IDX="--extra-index-url https://download.pytorch.org/whl/cu126 --index-strategy unsafe-best-match"
 [ -x envs/eval/bin/python ] || { $UV venv -q --python 3.12.13 envs/eval && $UV pip install -q --python envs/eval/bin/python $IDX -r req_eval_cu126.txt; }

@@ -1,4 +1,4 @@
-# Multi-view evidence per physical ramp (#48, Phase 1)
+# Multi-view evidence per physical ramp ([#48](https://github.com/ProjectSidewalk/RampNet/issues/48), Phase 1)
 
 [#48](https://github.com/ProjectSidewalk/RampNet/issues/48) proposed treating repeated
 captures of one curb ramp as independent evidence: recall by disjunction across views,
@@ -17,9 +17,9 @@ Code: `scripts/analysis/multiview_evidence_48.py` (B.1–B.4) and
 `scripts/analysis/multiview_challengers_48.py` + `multiview_challengers_48.sh` (C). Outputs:
 `analysis_out/multiview_48/`. Figures: `docs/figures/multiview_48/`.
 
-## 1. What labeler#27 already answered
+## 1. What [labeler#27](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/27) already answered
 
-All numbers below are from the labeler#27 thread and the labeler's
+All numbers below are from the [labeler#27](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/27) thread and the labeler's
 `runs/<city>/fusion_eval/report.md` files, re-read for this document.
 
 - **Recall by disjunction is already realized in production.** The labeler processes every
@@ -27,7 +27,7 @@ All numbers below are from the labeler#27 thread and the labeler's
   views. Union coverage per ramp with no fusion: paterson 1.000, gainesville 0.945,
   sao_paulo 0.980, richmond 0.972, bend 0.983. Displaced-GT decoys at 30 m hit 0.02–0.11, so
   the union coverage is real. Fused world recall is 0.927–0.957, so fusion *costs* 1.8–4.7
-  points of coverage against the raw union (labeler#27's text says 1.5–4.7; its own two tables
+  points of coverage against the raw union ([labeler#27](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/27)'s text says 1.5–4.7; its own two tables
   give 1.8 for gainesville, 0.945 − 0.927).
 - **What fusion buys:** deduplication (2.33–6.07 operational labels per ramp become one site;
   richmond 6.07) and p90 placement 20–30% tighter than the best single view (the median is a
@@ -42,7 +42,7 @@ All numbers below are from the labeler#27 thread and the labeler's
   ([#101](https://github.com/ProjectSidewalk/RampNet/issues/101)).
 - **Dual ramps:** same-pano GT pairs under 5 m apart are kept separate 77–83% of the time.
 
-So the "big win" #48 expected from disjunction is already in the production numbers. Two
+So the "big win" [#48](https://github.com/ProjectSidewalk/RampNet/issues/48) expected from disjunction is already in the production numbers. Two
 RampNet-side numbers bound what is left: the pooled per-pano recall ceiling is 0.849 at the
 0.10 storage floor (`docs/operating_point.md`, "The storage floor and the recall ceiling"),
 and 57.8% of misses are far-field, ≥ 18 m (`scripts/analysis/miss_decomposition.py`).
@@ -69,7 +69,7 @@ V = read in full or the relevant section, S = snippet or abstract only, as recor
 | 13 | Toso et al., "Maps from Motion", arXiv 2411.12620 | object-layout registration; COLMAP fails on 80% of sparse, viewpoint-varying sequences | V (abstract) |
 | 14 | VGGT, CVPR 2025, arXiv 2503.11651 | feed-forward pose + depth + point maps | V |
 | 15a | MapAnything (Keetha et al., Meta/CMU), **arXiv 2509.13414** | factored output with one global metric scale; can be conditioned on given poses and intrinsics | V |
-| 15b | Carnot et al., "MapAnything: Evaluating Monocular Metric Depth Models for 3D Urban Asset Localization", arXiv 2509.14839 | sign error 3.0–3.7 m under 10 m range, 5.7 m beyond 20 m; ≤ 10 m match, 3 m dedup. **#48's text cites this ID for the Meta model above; they are different papers** | V |
+| 15b | Carnot et al., "MapAnything: Evaluating Monocular Metric Depth Models for 3D Urban Asset Localization", arXiv 2509.14839 | sign error 3.0–3.7 m under 10 m range, 5.7 m beyond 20 m; ≤ 10 m match, 3 m dedup. **[#48](https://github.com/ProjectSidewalk/RampNet/issues/48)'s text cites this ID for the Meta model above; they are different papers** | V |
 | 16 | π³, ICLR 2026, arXiv 2507.13347, `yyfz/Pi3` | feed-forward reconstruction with no reference view | V |
 | 17 | Depth Anything 3, arXiv 2511.10647 | monocular / multi-view depth | V (abstract) |
 | 18 | PanoVGGT, CVPR 2026, arXiv 2603.17571 | equirect input, but its outdoor data is synthetic (UE5/AirSim) with sufficient overlap; no GSV, Mapillary or multi-date evaluation | V |
@@ -189,7 +189,7 @@ the one-to-one claims only stop it double-counting GT ramps. With an 8 m world t
 (`recall_vs_captures_hit8.json`) every number rises (pooled k = 8: 0.927), because GT positions
 carry their own placement error (p90 4.4 m).
 
-## 5. B.2 Failure correlation (#38's open checkbox)
+## 5. B.2 Failure correlation ([#38](https://github.com/ProjectSidewalk/RampNet/issues/38)'s open checkbox)
 
 For ramps with ≥ 2 other qualifying captures (1,298 at ≥ 0.55), are misses in two views of one
 ramp independent? The prediction for a pair is the product of the two views' marginal miss
@@ -228,7 +228,7 @@ can make world-test misses look correlated. With an 8 m world test the all-misse
 and more so across dates than within one. The misses that survive the union look like
 properties of the ramp or its GT point (appearance, setting, or a GT position or verdict that
 is off), not of one pass. That is why adding captures gives diminishing returns (§4), and it
-is the quantitative reason #48's "independent evidence" premise overstates what more captures
+is the quantitative reason [#48](https://github.com/ProjectSidewalk/RampNet/issues/48)'s "independent evidence" premise overstates what more captures
 can buy. Caveats as in §4; the 0–3 m bin is mostly richmond (627 of 645 pairs), where
 consecutive Mapillary frames can be under a metre apart; wrong GT points (verdicts) are not
 separable from appearance here — the one-rater gallery (§8) is where that would show.
@@ -305,12 +305,12 @@ re-score with `benchmark/<city>/incremental_fp_tags.json` where it covers those 
 the proposed follow-up. **Below 0.55 precision is a lower bound**: the city GT was assembled from
 RampNet detections at ≥ 0.55, so a sub-threshold detection is credited only if a reviewer
 marked that ramp missed (`low_floor_sweep.py gtbias`; re-reviewing the sub-0.55 detections
-found real, unlabelled ramps at 12.5–35% per split, 17% on richmond; `docs/model_comparison.md`). Vintage is not modelled; labeler#27 argued a miss in an
+found real, unlabelled ramps at 12.5–35% per split, 17% on richmond; `docs/model_comparison.md`). Vintage is not modelled; [labeler#27](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/27) argued a miss in an
 older view should count less. Richmond's sub-threshold detections come from the re-inference.
 
 ## 7. C. Challengers in world space (Richmond, free models)
 
-**Question.** #48 claims cross-capture agreement "would kill much of the chat-VLMs'
+**Question.** [#48](https://github.com/ProjectSidewalk/RampNet/issues/48) claims cross-capture agreement "would kill much of the chat-VLMs'
 false-positive flood" and so narrow the RampNet-vs-VLM gap. Measured here for the free legs.
 
 **Bundle.** `benchmark/richmond_neighbourhood/`: every richmond run pano whose camera is within
@@ -370,7 +370,7 @@ The full sweep (every tier, k = 1 to 3, with Wilson CIs) is in `scores.json`.
    detectors' best world F1 (OWLv2 0.307 at 0.30, k = 1) is below every other leg's headline
    row. The neighbours in between are not separated. y11l vs y11x flips with the operating
    point: at 0.10 y11x beats y11l per pano (F1 0.777 vs 0.737) and in world space at k = 1
-   (0.913 vs 0.850). y26 and Molmo at k = 3 are 0.692 vs 0.686. So #48's conjecture that "best
+   (0.913 vs 0.850). y26 and Molmo at k = 3 are 0.692 vs 0.686. So [#48](https://github.com/ProjectSidewalk/RampNet/issues/48)'s conjecture that "best
    single-image model" and "best model in a multi-view system" could differ is not borne out
    for the top model on Richmond; among the challengers these data cannot say.
 2. **The gap narrows, and the narrowing is recall by disjunction, not precision by agreement.**
@@ -397,7 +397,7 @@ The full sweep (every tier, k = 1 to 3, with Wilson CIs) is in `scores.json`.
    94 to 83 (−12%); Qwen's fall from 101 to 69 (−32%) and from 74 to 66 (−11%). Precision rises
    (Molmo 0.528 to 0.593, Qwen 0.423 to 0.489; the Wilson CIs overlap) and so does F1 (0.666 to
    0.686, 0.560 to 0.596), at a cost of 0.09 and 0.07 recall, and 57 and 69 false sites survive.
-   That is a partial precision-by-agreement effect; #48's "cross-capture agreement would kill
+   That is a partial precision-by-agreement effect; [#48](https://github.com/ProjectSidewalk/RampNet/issues/48)'s "cross-capture agreement would kill
    much of the chat-VLMs' false-positive flood" overstates it on this data. For OWLv2 and
    Grounding DINO precision is flat in k at every tier (OWLv2 at 0.20: 0.146 at k = 1, 0.151 at
    k = 3): their false sites have as much multi-capture support as their true ones. This
@@ -476,7 +476,7 @@ bend 4 / 0 / 9 / 2.
 (35) or just below it (28). Of the other 11, 2 (paterson) show no candidate at any stored
 floor, and 9 are bend, where nothing below 0.55 is stored, so whether they fired lower is
 unknown. The residual is mostly an association / placement problem and a threshold problem,
-not a detection problem, which agrees with labeler#27's finding that fusion costs 1.8–4.7
+not a detection problem, which agrees with [labeler#27](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/27)'s finding that fusion costs 1.8–4.7
 points against the raw union. The
 "association / placement" class is an upper bound: a claiming detection may be of an adjacent
 non-GT ramp.
@@ -484,7 +484,7 @@ non-GT ramp.
 **One-rater gallery.** `benchmark/multiview_residual_48/gallery.html`: one card per ramp with
 the GT-source view and up to four nearest other captures (440 crops, 36° × 24° equirect windows
 cut on makelab2 from the native-res archive, ring at the GT point or its projection). The
-rubric (occluded / flush-minimal-reveal (#151) / far / construction-changed / gt-error / other,
+rubric (occluded / flush-minimal-reveal ([#151](https://github.com/ProjectSidewalk/RampNet/issues/151)) / far / construction-changed / gt-error / other,
 plus unclear) travels in `analysis_out/multiview_48/residual_taxonomy__jonf.json`, which is
 committed with **empty verdicts**: this pass is Jon's. The page exports that file's format;
 the item list and manifest digest (`d03e2546f74df4c3`) are fixed so a second rater can repeat
@@ -509,7 +509,7 @@ it.
 - **Evidence scoring showed no detectable gain over k-of-n** at the 0.30 tier (§6), on thin
   false-class counts and a GT that under-credits promoted sites; proposed: do not build it
   unless the tag-corrected re-score changes that. Attaching a multi-view
-  support count to each submitted label, as labeler#27 closed on, costs nothing and keeps the
+  support count to each submitted label, as [labeler#27](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/27) closed on, costs nothing and keeps the
   option open for a server-side re-threshold.
 - **Tier 3 is not motivated by these data.** Nothing here points at a failure a 3D scene
   representation would fix that association would not.
@@ -534,10 +534,39 @@ archive are not published; they are the inputs that keep `run` from being replic
 repo alone. **What would unblock it:** publishing, e.g. as a Hugging Face dataset config next to
 `projectsidewalk/rampnet-benchmark`, the five archived `results.jsonl` (richmond 13 MB, paterson
 43 MB, gainesville 42 MB, bend 75 MB, sao_paulo 41 MB; sha256s in `ARCHIVED_RESULTS_SHA256`),
-their `fusion_eval/report.md`, and richmond's `results.f01.jsonl` (14 MB, sha256 in `meta.json`). **What is replicable from a clean clone:** every B.1 / B.2 table re-derives from the
+their `fusion_eval/report.md`, and richmond's `results.f01.jsonl` (14 MB, sha256 in `meta.json`).
+
+The challenger legs (§7) have one more unpublished input: the labeler's native-res Richmond
+archive on makelab2 (`ARCHIVE` in `scripts/analysis/multiview_challengers_48.sh`, default
+`/projects/makeabilitylab/sidewalk-auto-labeler/runs/richmond/panos`, one `<pano_id>.jpg` per
+pano). The bundle `benchmark/richmond_neighbourhood/records.jsonl` has 2,867 panos. The 124
+judged ones are the `benchmark/richmond` benchmark imagery, and the `.sh` checks their sha256s
+against `benchmark/richmond/imagery_manifest.json` before any leg runs. The other 2,743 exist
+only in that archive. **What would unblock it:** publishing those 2,743 JPEGs to Hugging Face
+beside the benchmark (e.g. a `richmond_neighbourhood` config of
+`projectsidewalk/rampnet-benchmark`), with a sha256 manifest like `imagery_manifest.json`.
+
+**What is replicable from a clean clone:** every B.1 / B.2 table re-derives from the
 committed `captures_R25.csv` (`tests/test_multiview_48.py` checks three keys), and the challenger
 scores re-derive from the committed detections under
 `analysis_out/multiview_48/challengers/detections/` plus the labeler inputs above.
+
+**Where the legs ran.** Step 3 below is a makelab2-only path: `multiview_challengers_48.sh` runs
+all seven legs in sequence on one A40, then runs `multiview_challengers_48.py export` as its
+last step (step 4 in the script), which writes the committed `detections/` files from the
+detection cache. That is how pass 1 ran. Pass 2, after the 30 m widening added 1,307 panos,
+offloaded the four slow legs (Molmo2-8B, Qwen3-VL-8B, OWLv2, Grounding DINO) to klone's free
+`ckpt-all` partition, following `scripts/analysis/multiview_48_klone/README.md`.
+`sync_mv48.sh` copied klone's detection cache into makelab2's with `rsync --ignore-existing`,
+so no entry makelab2 had already written was replaced. The `.sh` then re-ran on makelab2: it
+found those four legs' detections in the cache, computed only the YOLO trio for the new panos,
+and exported. Either path fills the same cache. `compare.cache_key` hashes the leg label, the
+detector signature (config only: model id, prompt, thresholds; no host, GPU or path), the
+bundle directory's basename and the pano id. The basename must be `richmond_neighbourhood`,
+which is why each klone shard is a directory of that name; `keycheck.py` in the klone
+directory confirms the keys match. The detections are the same up to floating-point
+differences across GPUs (L40S, A40, A100 on klone; A40 on makelab2); every usage row names
+its host.
 
 ```bash
 # 0. snapshot the labeler code at main (read-only) and copy the archived runs
@@ -559,9 +588,11 @@ python scripts/analysis/multiview_evidence_48.py cut-crops \
     --archive-root /projects/makeabilitylab/sidewalk-auto-labeler/runs --out crops   # makelab2
 python scripts/analysis/multiview_evidence_48.py gallery --crops crops
 
-# 3. C: bundle (local), legs (makelab2), export (makelab2), score (local)
+# 3. C: bundle (local); legs + export (makelab2, one script; export is its step 4); score (local)
 python scripts/analysis/multiview_challengers_48.py bundle --labeler-root labeler_main \
     --runs-root ../sidewalk-auto-labeler/runs
+# optional: offload Molmo/Qwen/OWLv2/GDINO to klone first, per
+# scripts/analysis/multiview_48_klone/README.md, then sync its cache into makelab2's
 bash scripts/analysis/multiview_challengers_48.sh          # makelab2; --smoke first
 python scripts/analysis/multiview_challengers_48.py score --labeler-root labeler_main \
     --runs-root ../sidewalk-auto-labeler/runs
