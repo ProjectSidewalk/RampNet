@@ -52,11 +52,11 @@ scp -3 makelab2:.../panos.tar makelab2:.../cache_seed.tar klone:/gscratch/scrubb
 mkdir -p panos && tar xf panos.tar -C panos && tar xf cache_seed.tar
 sbatch setup_mv48.slurm                      # envs, branch clone, HF snapshots
 python3 make_shards.py $PWD molmo:4 qwen8b:3 open:2
-sbatch --array=0-3 --job-name=mv48-molmo  run_mv48.slurm molmo
+sbatch --array=0-3 --job-name=mv48-molmo run_mv48.slurm molmo
 sbatch --array=0-2 --job-name=mv48-qwen8b run_mv48.slurm qwen8b
-sbatch --array=0-1 --job-name=mv48-open   run_mv48.slurm open
+sbatch --array=0-1 --job-name=mv48-open run_mv48.slurm open
 envs/molmo/bin/python keycheck.py molmo:allenai/Molmo2-8B
-envs/eval/bin/python  keycheck.py qwen:Qwen/Qwen3-VL-8B-Instruct owlv2 gdino
+envs/eval/bin/python keycheck.py qwen:Qwen/Qwen3-VL-8B-Instruct owlv2 gdino
 ```
 
 `sync_mv48.sh`, run in WSL, copies klone's cache into makelab2's every 20 min with

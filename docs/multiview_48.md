@@ -339,8 +339,72 @@ generalized scorer on the full run and on the bundle alone agree exactly at ever
 richmond's published 0.964 / 0.768 / 0.855. At 0.55, k = 1: world recall 0.941, covered
 precision 0.971 (132 TP / 4 FP sites; the covered scope keeps 136 of the 220 judged sites).
 
-**Results.** Pending: the legs are running on makelab2 (see the run-status comments on #48).
-This section is filled in when they finish.
+**Results.** All seven legs scored all 2,867 bundle panos with none missing
+(`challengers/scores.json`). The table uses each model's pre-set operating point from the
+scoreboard. The per-pano column is the usual score on the 124 judged panos. The world columns
+are eval_sites' recall over the 253 pool ramps and precision over covered sites (TP / FP site
+counts in brackets). k is the minimum number of captures a fused site needs before it is
+accepted.
+
+| model | tier | per-pano P / R / F1 | world k=1 P (TP/FP) / R / F1 | world k=3 P (TP/FP) / R / F1 |
+|---|---|---|---|---|
+| RampNet | 0.55 | 0.964 / 0.768 / 0.855 | 0.971 (132/4) / 0.941 / 0.955 | 0.992 (117/1) / 0.842 / 0.911 |
+| y11l_pano | 0.25 | 0.925 / 0.439 / 0.595 | 0.944 (84/5) / 0.842 / 0.890 | 0.971 (67/2) / 0.668 / 0.791 |
+| y11x_pano_h200 | 0.25 | 0.952 / 0.384 / 0.547 | 0.973 (73/2) / 0.794 / 0.875 | 0.984 (62/1) / 0.625 / 0.764 |
+| y26_pano | 0.25 | 0.680 / 0.384 / 0.491 | 0.724 (76/29) / 0.846 / 0.780 | 0.743 (52/18) / 0.648 / 0.692 |
+| Molmo2-8B | none | 0.410 / 0.516 / 0.457 | 0.528 (94/84) / 0.901 / 0.666 | 0.593 (83/57) / 0.814 / 0.686 |
+| Qwen3-VL-8B | none | 0.319 / 0.445 / 0.371 | 0.423 (74/101) / 0.830 / 0.560 | 0.489 (66/69) / 0.763 / 0.596 |
+| OWLv2 | 0.05 | 0.033 / 0.971 / 0.064 | 0.044 (131/2869) / 0.992 / 0.084 | 0.046 (123/2562) / 0.961 / 0.087 |
+| Grounding DINO | 0.05 | 0.028 / 0.848 / 0.053 | 0.035 (115/3128) / 0.992 / 0.069 | 0.037 (104/2709) / 0.961 / 0.071 |
+
+The full sweep (every tier, k = 1 to 3, with Wilson CIs) is in `scores.json`.
+
+1. **The ranking does not change.** The order is identical per pano, in world space at k = 1,
+   and at k = 3. On Richmond, "best single-image model" and "best model in a multi-view system"
+   are the same model. #48's conjecture that they could differ is not borne out for the free
+   challengers.
+2. **The gap narrows, and the narrowing is recall by disjunction, not precision by agreement.**
+   RampNet's F1 lead over the best challenger (y11l) is 0.260 per pano and 0.065 in world space
+   at k = 1. The YOLO arms miss many ramps in any one capture and find them in another: y11l's
+   world recall is 0.842 from 136 self-detected ramps plus 77 recovered from other views, while
+   RampNet's 0.941 is 211 plus 27. The per-pano and world figures have different denominators
+   (instances on 124 judged panos vs. 253 ramps within 25 m), so compare the gap within a column,
+   not a model's recall across columns.
+3. **In world space a YOLO arm can match RampNet's recall or its precision, but not both.**
+   Taking the best tier from the sweep, y11x at 0.10 matches RampNet's world recall (0.945, CI
+   0.909–0.967, vs 0.941) at precision 0.884 (0.820–0.927) against 0.971 (0.927–0.989); world F1
+   0.913 vs 0.955. At 0.25 it matches the precision (0.973) and falls to recall 0.794. The tier
+   was chosen on the same data, which flatters every row, RampNet's sweep included (its best is
+   0.963 at 0.40).
+4. **k-of-n agreement does not remove the chat VLMs' false positives.** Going from k = 1 to
+   k = 3 raises Molmo's precision from 0.528 to 0.593 and Qwen's from 0.423 to 0.489, and costs
+   0.09 and 0.07 recall. 57 and 69 false sites survive. For OWLv2 and Grounding DINO precision is
+   flat in k at every tier (OWLv2 at 0.20: 0.146 at k = 1, 0.151 at k = 3), so their false sites
+   have as much multi-capture support as their true ones: they fire on the same non-ramp objects
+   from every capture. This is the claim in #48 that "cross-capture agreement would kill much of
+   the chat-VLMs' false-positive flood". On this data it does not. It is consistent with the
+   correlated failures in §5.
+5. **k-of-n does not help RampNet's F1 either.** RampNet's F1 falls from k = 1 to k = 3 at every
+   tier (0.955 to 0.911 at 0.55): the precision it buys (0.971 to 0.992) is smaller than the recall
+   it costs (0.099). This matches §6.
+
+**Reproduction of the published per-pano rows.** On the 124 judged panos the exported
+detections reproduce each leg's published richmond per-pano score at its headline: exactly for
+Molmo, OWLv2 and the YOLO trio; Qwen F1 0.371 vs 0.377; Grounding DINO 0.053 vs 0.053 (recall
+0.848 vs 0.852). The detections themselves are not bit-identical to the published legs. The share
+of judged panos whose detection coordinates match to 1e-4 is 0.76 for Molmo, 0.52–0.71 for YOLO,
+0.03 for Qwen and 0 for both open-vocab detectors. These are re-runs on different hardware and
+library builds, and at the headline the differences move F1 by at most 0.006.
+
+**Mixed hardware.** The detections do not all come from one GPU. makelab2's A40 produced every
+YOLO detection and all four other legs on the first 1,560 panos, which include all 124 judged
+panos; Molmo ran partly on the CPU there. The four non-YOLO legs on the 1,307 panos the 30 m
+widening added ran on klone's `ckpt-all` in nine tasks on L40S, A40 and A100 GPUs (commit
+471e8b6, `scripts/analysis/multiview_48_klone/README.md`, `docs/compute_cost.md`). The per-pano
+column is therefore single-host, and the world columns mix hosts. The reproduction above bounds
+how far a re-run on different hardware moves a score at about 0.006 F1, but that bound was
+measured between makelab2 and the published legs, not between makelab2 and klone. Every usage
+and compute ledger row records its host.
 
 **Caveats that apply to every challenger row.** The fusion error model and gates were tuned on
 RampNet's heatmap peaks; challenger points come from boxes (the chat VLMs, OWLv2, Grounding
@@ -411,7 +475,10 @@ it.
   option open for a server-side re-threshold.
 - **Tier 3 is not motivated by these data.** Nothing here points at a failure a 3D scene
   representation would fix that association would not.
-- Proposed follow-ups: Jon's one-rater pass on the gallery; §7's challenger read.
+- **Multi-view does not re-rank the challengers (§7).** It narrows RampNet's lead over YOLO
+  from 0.260 to 0.065 F1 through recall, but k-of-n agreement does not clean up the VLMs' or
+  open-vocab detectors' false positives. It is not a route to making a weaker detector competitive.
+- Proposed follow-up: Jon's one-rater pass on the gallery.
 
 ## 10. Reproduction
 
@@ -464,7 +531,9 @@ python scripts/analysis/multiview_challengers_48.py score --labeler-root labeler
 | B.1–B.4 `run` | desktop CPU | ~3 min | 0 | 0 |
 | crop cutting (440 crops) | makelab2 CPU | 4 min 13 s | 0 | 0 |
 | challenger smoke (2 + 2 panos × 7 legs) | makelab2 A40 | 15 min | 0.245 (sum of the 7 legs' elapsed, 882 s) | 0 |
-| challenger legs, pass 1 (1,560 panos) + pass 2 (1,307 more) | makelab2 A40 | pending (YOLO trio, pass 1: 37 min) | pending | 0 |
+| challenger legs, pass 1 (1,560 panos, 7 legs; 1,556 called, 4 cached by the smoke run) + pass 2 YOLO trio (1,307 panos) | makelab2 A40 (shared; Molmo partly on CPU, 46.4 s/pano) | 28 h 2 min, legs in sequence (2026-09-26 23:24Z to 09-28 03:27Z) | 28.0 (sum of the 10 legs' elapsed, 100,811 s; Molmo alone 20.1) | 0 |
+| challenger legs, pass 2, Molmo / Qwen / OWLv2 / Grounding DINO (1,307 panos) | klone `ckpt-all`, 9 tasks, L40S / A40 / A100 | 80 min (2026-09-27 08:40 to 10:00 PT) | 9.26 (`compute_log.jsonl`) | 0 |
+| challenger scoring (`score`) | desktop CPU | 3 min | 0 | 0 |
 
 makelab2 has no `sacct`, so per `docs/compute_cost.md` its GPU time goes in
 `analysis_out/usage_log.jsonl` as `paid: false` rows, one per leg, with wall-clock, s/pano and

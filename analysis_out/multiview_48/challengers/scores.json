@@ -37,16 +37,4448 @@
  },
  "legs": {
   "IDEA-Research__grounding-dino-base": {
-   "missing": true
+   "n_panos": 2867,
+   "n_uncached": 0,
+   "published_richmond": {
+    "judged_panos_identical_detections": 0.0,
+    "per_pano_at_headline": {
+     "f1": 0.0534,
+     "fn": 46,
+     "fp": 9321,
+     "n_panos": 124,
+     "precision": 0.0275,
+     "recall": 0.8516,
+     "tp": 264
+    }
+   },
+   "signature": {
+    "max_edge": 1536,
+    "model_id": "IDEA-Research/grounding-dino-base",
+    "prompt": "curb ramp.",
+    "provider": "gdino",
+    "query": "curb ramp.",
+    "score_threshold": 0.05,
+    "source_max_edge": 4096,
+    "text_threshold": 0.2,
+    "tile": true,
+    "views": [
+     [
+      0.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      60.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      120.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      180.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      240.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      300.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ]
+    ]
+   },
+   "tiers": {
+    "0.05": {
+     "fused": {
+      "detections_projected": 188391,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 14295,
+       "on_rig": 0,
+       "out_of_range": 18242
+      },
+      "n_multi_pano": 39913,
+      "n_sites": 46372,
+      "n_sites_precision_scope": 7823
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.9591,
+        0.9937
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.9838
+      },
+      {
+       "ci": [
+        0.9649,
+        0.9959
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.9879
+      },
+      {
+       "ci": [
+        0.971,
+        0.9978
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.9919
+      },
+      {
+       "ci": [
+        0.971,
+        0.9978
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.9919
+      },
+      {
+       "ci": [
+        0.971,
+        0.9978
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.9919
+      },
+      {
+       "ci": [
+        0.971,
+        0.9978
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.9919
+      },
+      {
+       "ci": [
+        0.971,
+        0.9978
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.9919
+      },
+      {
+       "ci": [
+        0.971,
+        0.9978
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.9919
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.9569,
+        0.9967
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.9879
+      },
+      {
+       "ci": [
+        0.9665,
+        0.9989
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.9939
+      },
+      {
+       "ci": [
+        0.9772,
+        1.0
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 1.0
+      },
+      {
+       "ci": [
+        0.9772,
+        1.0
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 1.0
+      },
+      {
+       "ci": [
+        0.9772,
+        1.0
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 1.0
+      },
+      {
+       "ci": [
+        0.9772,
+        1.0
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 1.0
+      },
+      {
+       "ci": [
+        0.9772,
+        1.0
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 1.0
+      },
+      {
+       "ci": [
+        0.9772,
+        1.0
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 1.0
+      }
+     ],
+     "per_pano": {
+      "f1": 0.0532,
+      "fn": 47,
+      "fp": 9316,
+      "n_panos": 124,
+      "precision": 0.0275,
+      "recall": 0.8484,
+      "tp": 263
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.8571,
+       "recall_other_ci": [
+        0.4869,
+        0.9743
+       ],
+       "recall_union": 0.8571
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.8333,
+       "recall_other_ci": [
+        0.4365,
+        0.9699
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.8754,
+        1.0
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.9358,
+        1.0
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.9709,
+        1.0
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.8569,
+        1.0
+       ],
+       "recall_union": 1.0
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 46372,
+       "f1": 0.0685,
+       "fp": 3128,
+       "pool": 253,
+       "precision": 0.0355,
+       "precision_ci": [
+        0.0296,
+        0.0424
+       ],
+       "recall": 0.9921,
+       "recall_ci": [
+        0.9716,
+        0.9978
+       ],
+       "recalled": 251,
+       "self": 187,
+       "tp": 115,
+       "unsure_only": 13
+      },
+      "kofn_2": {
+       "accepted_sites": 39913,
+       "f1": 0.0694,
+       "fp": 2973,
+       "pool": 253,
+       "precision": 0.036,
+       "precision_ci": [
+        0.03,
+        0.0432
+       ],
+       "recall": 0.9842,
+       "recall_ci": [
+        0.9601,
+        0.9938
+       ],
+       "recalled": 249,
+       "self": 183,
+       "tp": 111,
+       "unsure_only": 12
+      },
+      "kofn_3": {
+       "accepted_sites": 31447,
+       "f1": 0.0712,
+       "fp": 2709,
+       "pool": 253,
+       "precision": 0.037,
+       "precision_ci": [
+        0.0306,
+        0.0446
+       ],
+       "recall": 0.9605,
+       "recall_ci": [
+        0.9288,
+        0.9784
+       ],
+       "recalled": 243,
+       "self": 176,
+       "tp": 104,
+       "unsure_only": 12
+      }
+     }
+    },
+    "0.10": {
+     "fused": {
+      "detections_projected": 188391,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 14295,
+       "on_rig": 0,
+       "out_of_range": 18242
+      },
+      "n_multi_pano": 21579,
+      "n_sites": 25939,
+      "n_sites_precision_scope": 4377
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.917,
+        0.972
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.9514
+      },
+      {
+       "ci": [
+        0.9374,
+        0.9835
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.9676
+      },
+      {
+       "ci": [
+        0.9535,
+        0.9913
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.9798
+      },
+      {
+       "ci": [
+        0.9535,
+        0.9913
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.9798
+      },
+      {
+       "ci": [
+        0.9535,
+        0.9913
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.9798
+      },
+      {
+       "ci": [
+        0.9591,
+        0.9937
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.9838
+      },
+      {
+       "ci": [
+        0.9591,
+        0.9937
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.9838
+      },
+      {
+       "ci": [
+        0.9591,
+        0.9937
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.9838
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.931,
+        0.987
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.9697
+      },
+      {
+       "ci": [
+        0.9479,
+        0.9938
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.9818
+      },
+      {
+       "ci": [
+        0.9569,
+        0.9967
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.9879
+      },
+      {
+       "ci": [
+        0.9569,
+        0.9967
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.9879
+      },
+      {
+       "ci": [
+        0.9569,
+        0.9967
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.9879
+      },
+      {
+       "ci": [
+        0.9665,
+        0.9989
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.9939
+      },
+      {
+       "ci": [
+        0.9665,
+        0.9989
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.9939
+      },
+      {
+       "ci": [
+        0.9665,
+        0.9989
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.9939
+      }
+     ],
+     "per_pano": {
+      "f1": 0.0685,
+      "fn": 137,
+      "fp": 4565,
+      "n_panos": 124,
+      "precision": 0.0365,
+      "recall": 0.5581,
+      "tp": 173
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.8571,
+       "recall_other_ci": [
+        0.4869,
+        0.9743
+       ],
+       "recall_union": 0.8571
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.8333,
+       "recall_other_ci": [
+        0.4365,
+        0.9699
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.963,
+       "recall_other_ci": [
+        0.8172,
+        0.9934
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.9358,
+        1.0
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.9709,
+        1.0
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.8569,
+        1.0
+       ],
+       "recall_union": 1.0
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 25939,
+       "f1": 0.0867,
+       "fp": 1578,
+       "pool": 253,
+       "precision": 0.0454,
+       "precision_ci": [
+        0.0363,
+        0.0565
+       ],
+       "recall": 0.9684,
+       "recall_ci": [
+        0.9389,
+        0.9839
+       ],
+       "recalled": 245,
+       "self": 132,
+       "tp": 75,
+       "unsure_only": 7
+      },
+      "kofn_2": {
+       "accepted_sites": 21579,
+       "f1": 0.0846,
+       "fp": 1490,
+       "pool": 253,
+       "precision": 0.0443,
+       "precision_ci": [
+        0.0351,
+        0.0556
+       ],
+       "recall": 0.9526,
+       "recall_ci": [
+        0.9189,
+        0.9727
+       ],
+       "recalled": 241,
+       "self": 126,
+       "tp": 69,
+       "unsure_only": 7
+      },
+      "kofn_3": {
+       "accepted_sites": 16415,
+       "f1": 0.0861,
+       "fp": 1310,
+       "pool": 253,
+       "precision": 0.0452,
+       "precision_ci": [
+        0.0354,
+        0.0575
+       ],
+       "recall": 0.917,
+       "recall_ci": [
+        0.8764,
+        0.9451
+       ],
+       "recalled": 232,
+       "self": 119,
+       "tp": 62,
+       "unsure_only": 7
+      }
+     }
+    },
+    "0.20": {
+     "fused": {
+      "detections_projected": 188391,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 14295,
+       "on_rig": 0,
+       "out_of_range": 18242
+      },
+      "n_multi_pano": 9902,
+      "n_sites": 12503,
+      "n_sites_precision_scope": 2135
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.8365,
+        0.917
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.8826
+      },
+      {
+       "ci": [
+        0.8926,
+        0.9566
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.9312
+      },
+      {
+       "ci": [
+        0.9071,
+        0.9659
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.9433
+      },
+      {
+       "ci": [
+        0.917,
+        0.972
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.9514
+      },
+      {
+       "ci": [
+        0.917,
+        0.972
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.9514
+      },
+      {
+       "ci": [
+        0.917,
+        0.972
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.9514
+      },
+      {
+       "ci": [
+        0.917,
+        0.972
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.9514
+      },
+      {
+       "ci": [
+        0.917,
+        0.972
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.9514
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.8846,
+        0.9624
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.9333
+      },
+      {
+       "ci": [
+        0.9393,
+        0.9905
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.9758
+      },
+      {
+       "ci": [
+        0.9393,
+        0.9905
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.9758
+      },
+      {
+       "ci": [
+        0.9479,
+        0.9938
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.9818
+      },
+      {
+       "ci": [
+        0.9479,
+        0.9938
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.9818
+      },
+      {
+       "ci": [
+        0.9479,
+        0.9938
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.9818
+      },
+      {
+       "ci": [
+        0.9479,
+        0.9938
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.9818
+      },
+      {
+       "ci": [
+        0.9479,
+        0.9938
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.9818
+      }
+     ],
+     "per_pano": {
+      "f1": 0.064,
+      "fn": 237,
+      "fp": 1897,
+      "n_panos": 124,
+      "precision": 0.0371,
+      "recall": 0.2355,
+      "tp": 73
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.7143,
+       "recall_other_ci": [
+        0.3589,
+        0.9178
+       ],
+       "recall_union": 0.7143
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.6667,
+       "recall_other_ci": [
+        0.3,
+        0.9032
+       ],
+       "recall_union": 0.8333
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.8519,
+       "recall_other_ci": [
+        0.6752,
+        0.9408
+       ],
+       "recall_union": 0.963
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.9821,
+       "recall_other_ci": [
+        0.9055,
+        0.9968
+       ],
+       "recall_union": 0.9821
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.9844,
+       "recall_other_ci": [
+        0.9448,
+        0.9957
+       ],
+       "recall_union": 0.9844
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.8569,
+        1.0
+       ],
+       "recall_union": 1.0
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 12503,
+       "f1": 0.0916,
+       "fp": 690,
+       "pool": 253,
+       "precision": 0.0483,
+       "precision_ci": [
+        0.0349,
+        0.0664
+       ],
+       "recall": 0.8933,
+       "recall_ci": [
+        0.8492,
+        0.9256
+       ],
+       "recalled": 226,
+       "self": 59,
+       "tp": 35,
+       "unsure_only": 1
+      },
+      "kofn_2": {
+       "accepted_sites": 9902,
+       "f1": 0.0969,
+       "fp": 629,
+       "pool": 253,
+       "precision": 0.0513,
+       "precision_ci": [
+        0.0369,
+        0.0708
+       ],
+       "recall": 0.8814,
+       "recall_ci": [
+        0.8358,
+        0.9157
+       ],
+       "recalled": 223,
+       "self": 58,
+       "tp": 34,
+       "unsure_only": 1
+      },
+      "kofn_3": {
+       "accepted_sites": 7172,
+       "f1": 0.0891,
+       "fp": 545,
+       "pool": 253,
+       "precision": 0.0472,
+       "precision_ci": [
+        0.0326,
+        0.0678
+       ],
+       "recall": 0.7945,
+       "recall_ci": [
+        0.7404,
+        0.8397
+       ],
+       "recalled": 201,
+       "self": 49,
+       "tp": 27,
+       "unsure_only": 1
+      }
+     }
+    },
+    "0.30": {
+     "fused": {
+      "detections_projected": 188391,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 14295,
+       "on_rig": 0,
+       "out_of_range": 18242
+      },
+      "n_multi_pano": 4974,
+      "n_sites": 6585,
+      "n_sites_precision_scope": 1154
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.6871,
+        0.7953
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.7449
+      },
+      {
+       "ci": [
+        0.7737,
+        0.8681
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.8259
+      },
+      {
+       "ci": [
+        0.7959,
+        0.8858
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.8462
+      },
+      {
+       "ci": [
+        0.8138,
+        0.8998
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.8623
+      },
+      {
+       "ci": [
+        0.8183,
+        0.9033
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.8664
+      },
+      {
+       "ci": [
+        0.8183,
+        0.9033
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.8664
+      },
+      {
+       "ci": [
+        0.8183,
+        0.9033
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.8664
+      },
+      {
+       "ci": [
+        0.8183,
+        0.9033
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.8664
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.759,
+        0.8747
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.8242
+      },
+      {
+       "ci": [
+        0.8412,
+        0.9347
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.897
+      },
+      {
+       "ci": [
+        0.8554,
+        0.9441
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.9091
+      },
+      {
+       "ci": [
+        0.8699,
+        0.9534
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.9212
+      },
+      {
+       "ci": [
+        0.8772,
+        0.9579
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.9273
+      },
+      {
+       "ci": [
+        0.8772,
+        0.9579
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.9273
+      },
+      {
+       "ci": [
+        0.8772,
+        0.9579
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.9273
+      },
+      {
+       "ci": [
+        0.8772,
+        0.9579
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.9273
+      }
+     ],
+     "per_pano": {
+      "f1": 0.0453,
+      "fn": 282,
+      "fp": 898,
+      "n_panos": 124,
+      "precision": 0.0302,
+      "recall": 0.0903,
+      "tp": 28
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.7143,
+       "recall_other_ci": [
+        0.3589,
+        0.9178
+       ],
+       "recall_union": 0.7143
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.6667,
+       "recall_other_ci": [
+        0.3,
+        0.9032
+       ],
+       "recall_union": 0.8333
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.6296,
+       "recall_other_ci": [
+        0.4423,
+        0.7847
+       ],
+       "recall_union": 0.7778
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.8393,
+       "recall_other_ci": [
+        0.7219,
+        0.9131
+       ],
+       "recall_union": 0.8393
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.9297,
+       "recall_other_ci": [
+        0.8718,
+        0.9626
+       ],
+       "recall_union": 0.9375
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.8569,
+        1.0
+       ],
+       "recall_union": 1.0
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 6585,
+       "f1": 0.0896,
+       "fp": 340,
+       "pool": 253,
+       "precision": 0.0476,
+       "precision_ci": [
+        0.0299,
+        0.0749
+       ],
+       "recall": 0.7589,
+       "recall_ci": [
+        0.7026,
+        0.8075
+       ],
+       "recalled": 192,
+       "self": 25,
+       "tp": 17,
+       "unsure_only": 1
+      },
+      "kofn_2": {
+       "accepted_sites": 4974,
+       "f1": 0.0897,
+       "fp": 298,
+       "pool": 253,
+       "precision": 0.0479,
+       "precision_ci": [
+        0.0293,
+        0.0776
+       ],
+       "recall": 0.6996,
+       "recall_ci": [
+        0.6405,
+        0.7528
+       ],
+       "recalled": 177,
+       "self": 23,
+       "tp": 15,
+       "unsure_only": 1
+      },
+      "kofn_3": {
+       "accepted_sites": 3466,
+       "f1": 0.0711,
+       "fp": 254,
+       "pool": 253,
+       "precision": 0.0379,
+       "precision_ci": [
+        0.0207,
+        0.0683
+       ],
+       "recall": 0.581,
+       "recall_ci": [
+        0.5195,
+        0.6402
+       ],
+       "recalled": 147,
+       "self": 17,
+       "tp": 10,
+       "unsure_only": 0
+      }
+     }
+    },
+    "0.40": {
+     "fused": {
+      "detections_projected": 188391,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 14295,
+       "on_rig": 0,
+       "out_of_range": 18242
+      },
+      "n_multi_pano": 1861,
+      "n_sites": 2765,
+      "n_sites_precision_scope": 486
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.2915,
+        0.4095
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.3482
+      },
+      {
+       "ci": [
+        0.3886,
+        0.5117
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.4494
+      },
+      {
+       "ci": [
+        0.4321,
+        0.5559
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.4939
+      },
+      {
+       "ci": [
+        0.4441,
+        0.5679
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.5061
+      },
+      {
+       "ci": [
+        0.4601,
+        0.5837
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.5223
+      },
+      {
+       "ci": [
+        0.4722,
+        0.5956
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.5344
+      },
+      {
+       "ci": [
+        0.4722,
+        0.5956
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.5344
+      },
+      {
+       "ci": [
+        0.4722,
+        0.5956
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.5344
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.3341,
+        0.4823
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.4061
+      },
+      {
+       "ci": [
+        0.4573,
+        0.6078
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.5333
+      },
+      {
+       "ci": [
+        0.5116,
+        0.6602
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.5879
+      },
+      {
+       "ci": [
+        0.5299,
+        0.6774
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.6061
+      },
+      {
+       "ci": [
+        0.5545,
+        0.7002
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.6303
+      },
+      {
+       "ci": [
+        0.573,
+        0.7172
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.6485
+      },
+      {
+       "ci": [
+        0.573,
+        0.7172
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.6485
+      },
+      {
+       "ci": [
+        0.573,
+        0.7172
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.6485
+      }
+     ],
+     "per_pano": {
+      "f1": 0.0224,
+      "fn": 303,
+      "fp": 309,
+      "n_panos": 124,
+      "precision": 0.0222,
+      "recall": 0.0226,
+      "tp": 7
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.4286,
+       "recall_other_ci": [
+        0.1582,
+        0.7495
+       ],
+       "recall_union": 0.4286
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.3333,
+       "recall_other_ci": [
+        0.0968,
+        0.7
+       ],
+       "recall_union": 0.3333
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.1111,
+       "recall_other_ci": [
+        0.0385,
+        0.2806
+       ],
+       "recall_union": 0.1481
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.4286,
+       "recall_other_ci": [
+        0.3077,
+        0.5586
+       ],
+       "recall_union": 0.4643
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.6641,
+       "recall_other_ci": [
+        0.5785,
+        0.74
+       ],
+       "recall_union": 0.6797
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 0.8261,
+       "recall_other_ci": [
+        0.6286,
+        0.9302
+       ],
+       "recall_union": 0.8696
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 2765,
+       "f1": 0.0786,
+       "fp": 110,
+       "pool": 253,
+       "precision": 0.0435,
+       "precision_ci": [
+        0.0187,
+        0.0978
+       ],
+       "recall": 0.4111,
+       "recall_ci": [
+        0.3522,
+        0.4726
+       ],
+       "recalled": 104,
+       "self": 7,
+       "tp": 5,
+       "unsure_only": 0
+      },
+      "kofn_2": {
+       "accepted_sites": 1861,
+       "f1": 0.0719,
+       "fp": 95,
+       "pool": 253,
+       "precision": 0.0404,
+       "precision_ci": [
+        0.0158,
+        0.0993
+       ],
+       "recall": 0.3241,
+       "recall_ci": [
+        0.2694,
+        0.384
+       ],
+       "recalled": 82,
+       "self": 6,
+       "tp": 4,
+       "unsure_only": 0
+      },
+      "kofn_3": {
+       "accepted_sites": 1098,
+       "f1": 0.0476,
+       "fp": 74,
+       "pool": 253,
+       "precision": 0.0263,
+       "precision_ci": [
+        0.0072,
+        0.091
+       ],
+       "recall": 0.249,
+       "recall_ci": [
+        0.1997,
+        0.3058
+       ],
+       "recalled": 63,
+       "self": 4,
+       "tp": 2,
+       "unsure_only": 0
+      }
+     }
+    },
+    "0.50": {
+     "fused": {
+      "detections_projected": 188391,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 14295,
+       "on_rig": 0,
+       "out_of_range": 18242
+      },
+      "n_multi_pano": 281,
+      "n_sites": 661,
+      "n_sites_precision_scope": 103
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.0371,
+        0.0978
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.0607
+      },
+      {
+       "ci": [
+        0.0596,
+        0.1312
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.0891
+      },
+      {
+       "ci": [
+        0.0629,
+        0.1358
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.0931
+      },
+      {
+       "ci": [
+        0.0662,
+        0.1405
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.0972
+      },
+      {
+       "ci": [
+        0.0729,
+        0.1498
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.1053
+      },
+      {
+       "ci": [
+        0.0762,
+        0.1544
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.1093
+      },
+      {
+       "ci": [
+        0.083,
+        0.1635
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.1174
+      },
+      {
+       "ci": [
+        0.083,
+        0.1635
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.1174
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.0376,
+        0.1154
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.0667
+      },
+      {
+       "ci": [
+        0.0559,
+        0.1446
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.0909
+      },
+      {
+       "ci": [
+        0.0606,
+        0.1517
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.097
+      },
+      {
+       "ci": [
+        0.0653,
+        0.1588
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.103
+      },
+      {
+       "ci": [
+        0.075,
+        0.1728
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.1152
+      },
+      {
+       "ci": [
+        0.0799,
+        0.1798
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.1212
+      },
+      {
+       "ci": [
+        0.0897,
+        0.1936
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.1333
+      },
+      {
+       "ci": [
+        0.0897,
+        0.1936
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.1333
+      }
+     ],
+     "per_pano": {
+      "f1": 0.0056,
+      "fn": 309,
+      "fp": 44,
+      "n_panos": 124,
+      "precision": 0.0222,
+      "recall": 0.0032,
+      "tp": 1
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.1429,
+       "recall_other_ci": [
+        0.0257,
+        0.5131
+       ],
+       "recall_union": 0.1429
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.1667,
+       "recall_other_ci": [
+        0.0301,
+        0.5635
+       ],
+       "recall_union": 0.1667
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.037,
+       "recall_other_ci": [
+        0.0066,
+        0.1828
+       ],
+       "recall_union": 0.037
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.0714,
+       "recall_other_ci": [
+        0.0281,
+        0.1698
+       ],
+       "recall_union": 0.0714
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.125,
+       "recall_other_ci": [
+        0.0784,
+        0.1934
+       ],
+       "recall_union": 0.1406
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 0.2609,
+       "recall_other_ci": [
+        0.1255,
+        0.4647
+       ],
+       "recall_union": 0.2609
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 661,
+       "f1": 0.058,
+       "fp": 22,
+       "pool": 253,
+       "precision": 0.0435,
+       "precision_ci": [
+        0.0077,
+        0.2099
+       ],
+       "recall": 0.087,
+       "recall_ci": [
+        0.0581,
+        0.1281
+       ],
+       "recalled": 22,
+       "self": 1,
+       "tp": 1,
+       "unsure_only": 0
+      },
+      "kofn_2": {
+       "accepted_sites": 281,
+       "f1": null,
+       "fp": 12,
+       "pool": 253,
+       "precision": 0.0,
+       "precision_ci": [
+        0.0,
+        0.2425
+       ],
+       "recall": 0.0198,
+       "recall_ci": [
+        0.0085,
+        0.0454
+       ],
+       "recalled": 5,
+       "self": 0,
+       "tp": 0,
+       "unsure_only": 0
+      },
+      "kofn_3": {
+       "accepted_sites": 125,
+       "f1": null,
+       "fp": 7,
+       "pool": 253,
+       "precision": 0.0,
+       "precision_ci": [
+        0.0,
+        0.3543
+       ],
+       "recall": 0.0079,
+       "recall_ci": [
+        0.0022,
+        0.0284
+       ],
+       "recalled": 2,
+       "self": 0,
+       "tp": 0,
+       "unsure_only": 0
+      }
+     }
+    }
+   }
   },
   "Qwen__Qwen3-VL-8B-Instruct": {
-   "missing": true
+   "n_panos": 2867,
+   "n_uncached": 0,
+   "published_richmond": {
+    "judged_panos_identical_detections": 0.0323,
+    "per_pano_at_headline": {
+     "f1": 0.3769,
+     "fn": 170,
+     "fp": 293,
+     "n_panos": 124,
+     "precision": 0.3233,
+     "recall": 0.4516,
+     "tp": 140
+    }
+   },
+   "signature": {
+    "coord_space": "norm1000",
+    "max_edge": 2048,
+    "max_new_tokens": 1024,
+    "model_id": "Qwen/Qwen3-VL-8B-Instruct",
+    "prompt": "Detect every curb ramp in this street-level image. A curb ramp (curb cut) is the short sloped ramp cut into a sidewalk curb at a street corner or crossing that lets a wheelchair or stroller roll from sidewalk to street. Return one tight bounding box per curb ramp. Do not box driveways, stairs, or crosswalk paint. If there are no curb ramps, return an empty list. Respond with JSON only: a list of {\"bbox_2d\": [x1, y1, x2, y2], \"label\": \"curb ramp\"}.",
+    "provider": "qwen",
+    "source_max_edge": 4096,
+    "tile": true,
+    "views": [
+     [
+      0.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      60.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      120.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      180.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      240.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      300.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ]
+    ]
+   },
+   "tiers": {
+    "none": {
+     "fused": {
+      "detections_projected": 8485,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 283,
+       "on_rig": 0,
+       "out_of_range": 1204
+      },
+      "n_multi_pano": 1829,
+      "n_sites": 2547,
+      "n_sites_precision_scope": 522
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.649,
+        0.7616
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.7085
+      },
+      {
+       "ci": [
+        0.7474,
+        0.8466
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.8016
+      },
+      {
+       "ci": [
+        0.8004,
+        0.8893
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.8502
+      },
+      {
+       "ci": [
+        0.8365,
+        0.917
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.8826
+      },
+      {
+       "ci": [
+        0.8502,
+        0.9271
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.8947
+      },
+      {
+       "ci": [
+        0.8549,
+        0.9305
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.8988
+      },
+      {
+       "ci": [
+        0.8549,
+        0.9305
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.8988
+      },
+      {
+       "ci": [
+        0.8595,
+        0.9338
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.9028
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.7063,
+        0.8327
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.7758
+      },
+      {
+       "ci": [
+        0.7859,
+        0.8952
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.8485
+      },
+      {
+       "ci": [
+        0.8202,
+        0.9201
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.8788
+      },
+      {
+       "ci": [
+        0.8626,
+        0.9488
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.9152
+      },
+      {
+       "ci": [
+        0.8846,
+        0.9624
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.9333
+      },
+      {
+       "ci": [
+        0.892,
+        0.9668
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.9394
+      },
+      {
+       "ci": [
+        0.892,
+        0.9668
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.9394
+      },
+      {
+       "ci": [
+        0.8996,
+        0.971
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.9455
+      }
+     ],
+     "per_pano": {
+      "f1": 0.3715,
+      "fn": 172,
+      "fp": 295,
+      "n_panos": 124,
+      "precision": 0.3187,
+      "recall": 0.4452,
+      "tp": 138
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.1429,
+       "recall_other_ci": [
+        0.0257,
+        0.5131
+       ],
+       "recall_union": 0.4286
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.6667,
+       "recall_other_ci": [
+        0.3,
+        0.9032
+       ],
+       "recall_union": 0.6667
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.8519,
+       "recall_other_ci": [
+        0.6752,
+        0.9408
+       ],
+       "recall_union": 0.8519
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.9464,
+       "recall_other_ci": [
+        0.8539,
+        0.9816
+       ],
+       "recall_union": 0.9464
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.9688,
+       "recall_other_ci": [
+        0.9224,
+        0.9878
+       ],
+       "recall_union": 0.9688
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.8569,
+        1.0
+       ],
+       "recall_union": 1.0
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 2547,
+       "f1": 0.5603,
+       "fp": 101,
+       "pool": 253,
+       "precision": 0.4229,
+       "precision_ci": [
+        0.3521,
+        0.4969
+       ],
+       "recall": 0.83,
+       "recall_ci": [
+        0.7789,
+        0.8713
+       ],
+       "recalled": 210,
+       "self": 121,
+       "tp": 74,
+       "unsure_only": 5
+      },
+      "kofn_2": {
+       "accepted_sites": 1829,
+       "f1": 0.5933,
+       "fp": 85,
+       "pool": 253,
+       "precision": 0.4654,
+       "precision_ci": [
+        0.3896,
+        0.5428
+       ],
+       "recall": 0.8182,
+       "recall_ci": [
+        0.766,
+        0.8608
+       ],
+       "recalled": 207,
+       "self": 121,
+       "tp": 74,
+       "unsure_only": 5
+      },
+      "kofn_3": {
+       "accepted_sites": 1263,
+       "f1": 0.5959,
+       "fp": 69,
+       "pool": 253,
+       "precision": 0.4889,
+       "precision_ci": [
+        0.406,
+        0.5723
+       ],
+       "recall": 0.7628,
+       "recall_ci": [
+        0.7067,
+        0.8111
+       ],
+       "recalled": 193,
+       "self": 111,
+       "tp": 66,
+       "unsure_only": 4
+      }
+     }
+    }
+   }
   },
   "allenai__Molmo2-8B": {
-   "missing": true
+   "n_panos": 2867,
+   "n_uncached": 0,
+   "published_richmond": {
+    "judged_panos_identical_detections": 0.7581,
+    "per_pano_at_headline": {
+     "f1": 0.4571,
+     "fn": 150,
+     "fp": 230,
+     "n_panos": 124,
+     "precision": 0.4103,
+     "recall": 0.5161,
+     "tp": 160
+    }
+   },
+   "signature": {
+    "coord_scale": null,
+    "max_edge": 2048,
+    "max_new_tokens": 512,
+    "mode": "xml",
+    "model_id": "allenai/Molmo2-8B",
+    "prompt": "Point to every curb ramp in this street-level image. A curb ramp (curb cut) is the short sloped ramp cut into a sidewalk curb at a street corner or crossing that lets a wheelchair or stroller roll from sidewalk to street. Put one point at the center of each curb ramp. Do not point at driveways, stairs, or crosswalk paint. If there are no curb ramps, say so.",
+    "provider": "molmo",
+    "source_max_edge": 4096,
+    "tile": true,
+    "views": [
+     [
+      0.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      60.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      120.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      180.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      240.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      300.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ]
+    ]
+   },
+   "tiers": {
+    "none": {
+     "fused": {
+      "detections_projected": 7771,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 344,
+       "on_rig": 0,
+       "out_of_range": 975
+      },
+      "n_multi_pano": 1553,
+      "n_sites": 2306,
+      "n_sites_precision_scope": 531
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.6364,
+        0.7503
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.6964
+      },
+      {
+       "ci": [
+        0.7737,
+        0.8681
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.8259
+      },
+      {
+       "ci": [
+        0.8138,
+        0.8998
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.8623
+      },
+      {
+       "ci": [
+        0.8274,
+        0.9102
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.8745
+      },
+      {
+       "ci": [
+        0.841,
+        0.9204
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.8866
+      },
+      {
+       "ci": [
+        0.8502,
+        0.9271
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.8947
+      },
+      {
+       "ci": [
+        0.8642,
+        0.9371
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.9069
+      },
+      {
+       "ci": [
+        0.8642,
+        0.9371
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.9069
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.6868,
+        0.8166
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.7576
+      },
+      {
+       "ci": [
+        0.8133,
+        0.9152
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.8727
+      },
+      {
+       "ci": [
+        0.8554,
+        0.9441
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.9091
+      },
+      {
+       "ci": [
+        0.8626,
+        0.9488
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.9152
+      },
+      {
+       "ci": [
+        0.8846,
+        0.9624
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.9333
+      },
+      {
+       "ci": [
+        0.8996,
+        0.971
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.9455
+      },
+      {
+       "ci": [
+        0.9229,
+        0.9832
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.9636
+      },
+      {
+       "ci": [
+        0.9229,
+        0.9832
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.9636
+      }
+     ],
+     "per_pano": {
+      "f1": 0.4571,
+      "fn": 150,
+      "fp": 230,
+      "n_panos": 124,
+      "precision": 0.4103,
+      "recall": 0.5161,
+      "tp": 160
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.1429,
+       "recall_other_ci": [
+        0.0257,
+        0.5131
+       ],
+       "recall_union": 0.5714
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.5,
+       "recall_other_ci": [
+        0.1876,
+        0.8124
+       ],
+       "recall_union": 0.8333
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.8148,
+       "recall_other_ci": [
+        0.633,
+        0.9182
+       ],
+       "recall_union": 0.9259
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.9464,
+       "recall_other_ci": [
+        0.8539,
+        0.9816
+       ],
+       "recall_union": 0.9464
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.9844,
+       "recall_other_ci": [
+        0.9448,
+        0.9957
+       ],
+       "recall_union": 0.9922
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.8569,
+        1.0
+       ],
+       "recall_union": 1.0
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 2306,
+       "f1": 0.6659,
+       "fp": 84,
+       "pool": 253,
+       "precision": 0.5281,
+       "precision_ci": [
+        0.4549,
+        0.6001
+       ],
+       "recall": 0.9012,
+       "recall_ci": [
+        0.8582,
+        0.9322
+       ],
+       "recalled": 228,
+       "self": 144,
+       "tp": 94,
+       "unsure_only": 2
+      },
+      "kofn_2": {
+       "accepted_sites": 1553,
+       "f1": 0.664,
+       "fp": 74,
+       "pool": 253,
+       "precision": 0.5432,
+       "precision_ci": [
+        0.4664,
+        0.618
+       ],
+       "recall": 0.8538,
+       "recall_ci": [
+        0.8049,
+        0.892
+       ],
+       "recalled": 216,
+       "self": 137,
+       "tp": 88,
+       "unsure_only": 2
+      },
+      "kofn_3": {
+       "accepted_sites": 1097,
+       "f1": 0.6861,
+       "fp": 57,
+       "pool": 253,
+       "precision": 0.5929,
+       "precision_ci": [
+        0.51,
+        0.6707
+       ],
+       "recall": 0.8142,
+       "recall_ci": [
+        0.7617,
+        0.8573
+       ],
+       "recalled": 206,
+       "self": 132,
+       "tp": 83,
+       "unsure_only": 2
+      }
+     }
+    }
+   }
   },
   "google__owlv2-large-patch14-ensemble": {
-   "missing": true
+   "n_panos": 2867,
+   "n_uncached": 0,
+   "published_richmond": {
+    "judged_panos_identical_detections": 0.0,
+    "per_pano_at_headline": {
+     "f1": 0.064,
+     "fn": 9,
+     "fp": 8799,
+     "n_panos": 124,
+     "precision": 0.0331,
+     "recall": 0.971,
+     "tp": 301
+    }
+   },
+   "signature": {
+    "max_edge": 1536,
+    "model_id": "google/owlv2-large-patch14-ensemble",
+    "prompt": "a photo of a curb ramp",
+    "provider": "owlv2",
+    "query": "a photo of a curb ramp",
+    "score_threshold": 0.05,
+    "source_max_edge": 4096,
+    "tile": true,
+    "views": [
+     [
+      0.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      60.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      120.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      180.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      240.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ],
+     [
+      300.0,
+      -30.0,
+      90.0,
+      90.0,
+      1024,
+      1024
+     ]
+    ]
+   },
+   "tiers": {
+    "0.05": {
+     "fused": {
+      "detections_projected": 170070,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 11673,
+       "on_rig": 0,
+       "out_of_range": 27207
+      },
+      "n_multi_pano": 32978,
+      "n_sites": 38099,
+      "n_sites_precision_scope": 6490
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.9591,
+        0.9937
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.9838
+      },
+      {
+       "ci": [
+        0.9649,
+        0.9959
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.9879
+      },
+      {
+       "ci": [
+        0.971,
+        0.9978
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.9919
+      },
+      {
+       "ci": [
+        0.971,
+        0.9978
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.9919
+      },
+      {
+       "ci": [
+        0.971,
+        0.9978
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.9919
+      },
+      {
+       "ci": [
+        0.971,
+        0.9978
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.9919
+      },
+      {
+       "ci": [
+        0.971,
+        0.9978
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.9919
+      },
+      {
+       "ci": [
+        0.971,
+        0.9978
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.9919
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.9665,
+        0.9989
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.9939
+      },
+      {
+       "ci": [
+        0.9665,
+        0.9989
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.9939
+      },
+      {
+       "ci": [
+        0.9772,
+        1.0
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 1.0
+      },
+      {
+       "ci": [
+        0.9772,
+        1.0
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 1.0
+      },
+      {
+       "ci": [
+        0.9772,
+        1.0
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 1.0
+      },
+      {
+       "ci": [
+        0.9772,
+        1.0
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 1.0
+      },
+      {
+       "ci": [
+        0.9772,
+        1.0
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 1.0
+      },
+      {
+       "ci": [
+        0.9772,
+        1.0
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 1.0
+      }
+     ],
+     "per_pano": {
+      "f1": 0.064,
+      "fn": 9,
+      "fp": 8799,
+      "n_panos": 124,
+      "precision": 0.0331,
+      "recall": 0.971,
+      "tp": 301
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.7143,
+       "recall_other_ci": [
+        0.3589,
+        0.9178
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.6097,
+        1.0
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.8754,
+        1.0
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.9358,
+        1.0
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.9709,
+        1.0
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.8569,
+        1.0
+       ],
+       "recall_union": 1.0
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 38099,
+       "f1": 0.0837,
+       "fp": 2869,
+       "pool": 253,
+       "precision": 0.0437,
+       "precision_ci": [
+        0.0369,
+        0.0516
+       ],
+       "recall": 0.9921,
+       "recall_ci": [
+        0.9716,
+        0.9978
+       ],
+       "recalled": 251,
+       "self": 216,
+       "tp": 131,
+       "unsure_only": 17
+      },
+      "kofn_2": {
+       "accepted_sites": 32978,
+       "f1": 0.0839,
+       "fp": 2793,
+       "pool": 253,
+       "precision": 0.0438,
+       "precision_ci": [
+        0.037,
+        0.0519
+       ],
+       "recall": 0.9842,
+       "recall_ci": [
+        0.9601,
+        0.9938
+       ],
+       "recalled": 249,
+       "self": 213,
+       "tp": 128,
+       "unsure_only": 17
+      },
+      "kofn_3": {
+       "accepted_sites": 26709,
+       "f1": 0.0874,
+       "fp": 2562,
+       "pool": 253,
+       "precision": 0.0458,
+       "precision_ci": [
+        0.0385,
+        0.0544
+       ],
+       "recall": 0.9605,
+       "recall_ci": [
+        0.9288,
+        0.9784
+       ],
+       "recalled": 243,
+       "self": 208,
+       "tp": 123,
+       "unsure_only": 17
+      }
+     }
+    },
+    "0.10": {
+     "fused": {
+      "detections_projected": 170070,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 11673,
+       "on_rig": 0,
+       "out_of_range": 27207
+      },
+      "n_multi_pano": 19185,
+      "n_sites": 22758,
+      "n_sites_precision_scope": 3954
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.9322,
+        0.9807
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.9636
+      },
+      {
+       "ci": [
+        0.9591,
+        0.9937
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.9838
+      },
+      {
+       "ci": [
+        0.9649,
+        0.9959
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.9879
+      },
+      {
+       "ci": [
+        0.9649,
+        0.9959
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.9879
+      },
+      {
+       "ci": [
+        0.9649,
+        0.9959
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.9879
+      },
+      {
+       "ci": [
+        0.9649,
+        0.9959
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.9879
+      },
+      {
+       "ci": [
+        0.971,
+        0.9978
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.9919
+      },
+      {
+       "ci": [
+        0.971,
+        0.9978
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.9919
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.9393,
+        0.9905
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.9758
+      },
+      {
+       "ci": [
+        0.9665,
+        0.9989
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.9939
+      },
+      {
+       "ci": [
+        0.9665,
+        0.9989
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.9939
+      },
+      {
+       "ci": [
+        0.9665,
+        0.9989
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.9939
+      },
+      {
+       "ci": [
+        0.9665,
+        0.9989
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.9939
+      },
+      {
+       "ci": [
+        0.9665,
+        0.9989
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.9939
+      },
+      {
+       "ci": [
+        0.9772,
+        1.0
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 1.0
+      },
+      {
+       "ci": [
+        0.9772,
+        1.0
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 1.0
+      }
+     ],
+     "per_pano": {
+      "f1": 0.0955,
+      "fn": 35,
+      "fp": 5174,
+      "n_panos": 124,
+      "precision": 0.0505,
+      "recall": 0.8871,
+      "tp": 275
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.7143,
+       "recall_other_ci": [
+        0.3589,
+        0.9178
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.6097,
+        1.0
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.8754,
+        1.0
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.9358,
+        1.0
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.9709,
+        1.0
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.8569,
+        1.0
+       ],
+       "recall_union": 1.0
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 22758,
+       "f1": 0.1215,
+       "fp": 1633,
+       "pool": 253,
+       "precision": 0.0647,
+       "precision_ci": [
+        0.0541,
+        0.0772
+       ],
+       "recall": 0.9921,
+       "recall_ci": [
+        0.9716,
+        0.9978
+       ],
+       "recalled": 251,
+       "self": 196,
+       "tp": 113,
+       "unsure_only": 15
+      },
+      "kofn_2": {
+       "accepted_sites": 19185,
+       "f1": 0.122,
+       "fp": 1581,
+       "pool": 253,
+       "precision": 0.0651,
+       "precision_ci": [
+        0.0543,
+        0.0778
+       ],
+       "recall": 0.9842,
+       "recall_ci": [
+        0.9601,
+        0.9938
+       ],
+       "recalled": 249,
+       "self": 193,
+       "tp": 110,
+       "unsure_only": 15
+      },
+      "kofn_3": {
+       "accepted_sites": 15264,
+       "f1": 0.1267,
+       "fp": 1443,
+       "pool": 253,
+       "precision": 0.0678,
+       "precision_ci": [
+        0.0563,
+        0.0815
+       ],
+       "recall": 0.9565,
+       "recall_ci": [
+        0.9238,
+        0.9756
+       ],
+       "recalled": 242,
+       "self": 188,
+       "tp": 105,
+       "unsure_only": 15
+      }
+     }
+    },
+    "0.20": {
+     "fused": {
+      "detections_projected": 170070,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 11673,
+       "on_rig": 0,
+       "out_of_range": 27207
+      },
+      "n_multi_pano": 5779,
+      "n_sites": 7466,
+      "n_sites_precision_scope": 1335
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.7649,
+        0.861
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.8178
+      },
+      {
+       "ci": [
+        0.8642,
+        0.9371
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.9069
+      },
+      {
+       "ci": [
+        0.9071,
+        0.9659
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.9433
+      },
+      {
+       "ci": [
+        0.922,
+        0.975
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.9555
+      },
+      {
+       "ci": [
+        0.922,
+        0.975
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.9555
+      },
+      {
+       "ci": [
+        0.922,
+        0.975
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.9555
+      },
+      {
+       "ci": [
+        0.9271,
+        0.9779
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.9595
+      },
+      {
+       "ci": [
+        0.9271,
+        0.9779
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.9595
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.7859,
+        0.8952
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.8485
+      },
+      {
+       "ci": [
+        0.8996,
+        0.971
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.9455
+      },
+      {
+       "ci": [
+        0.9569,
+        0.9967
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.9879
+      },
+      {
+       "ci": [
+        0.9665,
+        0.9989
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.9939
+      },
+      {
+       "ci": [
+        0.9665,
+        0.9989
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.9939
+      },
+      {
+       "ci": [
+        0.9665,
+        0.9989
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.9939
+      },
+      {
+       "ci": [
+        0.9772,
+        1.0
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 1.0
+      },
+      {
+       "ci": [
+        0.9772,
+        1.0
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 1.0
+      }
+     ],
+     "per_pano": {
+      "f1": 0.1711,
+      "fn": 140,
+      "fp": 1507,
+      "n_panos": 124,
+      "precision": 0.1014,
+      "recall": 0.5484,
+      "tp": 170
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.4286,
+       "recall_other_ci": [
+        0.1582,
+        0.7495
+       ],
+       "recall_union": 0.7143
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.6097,
+        1.0
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.8889,
+       "recall_other_ci": [
+        0.7194,
+        0.9615
+       ],
+       "recall_union": 0.9259
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.9464,
+       "recall_other_ci": [
+        0.8539,
+        0.9816
+       ],
+       "recall_union": 0.9643
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.9709,
+        1.0
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 1.0,
+       "recall_other_ci": [
+        0.8569,
+        1.0
+       ],
+       "recall_union": 1.0
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 7466,
+       "f1": 0.2532,
+       "fp": 428,
+       "pool": 253,
+       "precision": 0.1457,
+       "precision_ci": [
+        0.1175,
+        0.1793
+       ],
+       "recall": 0.9644,
+       "recall_ci": [
+        0.9338,
+        0.9812
+       ],
+       "recalled": 244,
+       "self": 123,
+       "tp": 73,
+       "unsure_only": 6
+      },
+      "kofn_2": {
+       "accepted_sites": 5779,
+       "f1": 0.2492,
+       "fp": 399,
+       "pool": 253,
+       "precision": 0.1438,
+       "precision_ci": [
+        0.1148,
+        0.1785
+       ],
+       "recall": 0.9328,
+       "recall_ci": [
+        0.895,
+        0.9576
+       ],
+       "recalled": 236,
+       "self": 117,
+       "tp": 67,
+       "unsure_only": 6
+      },
+      "kofn_3": {
+       "accepted_sites": 4294,
+       "f1": 0.2579,
+       "fp": 349,
+       "pool": 253,
+       "precision": 0.1509,
+       "precision_ci": [
+        0.1195,
+        0.1887
+       ],
+       "recall": 0.8893,
+       "recall_ci": [
+        0.8447,
+        0.9223
+       ],
+       "recalled": 225,
+       "self": 110,
+       "tp": 62,
+       "unsure_only": 6
+      }
+     }
+    },
+    "0.30": {
+     "fused": {
+      "detections_projected": 170070,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 11673,
+       "on_rig": 0,
+       "out_of_range": 27207
+      },
+      "n_multi_pano": 1085,
+      "n_sites": 1789,
+      "n_sites_precision_scope": 339
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.2497,
+        0.3636
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.3036
+      },
+      {
+       "ci": [
+        0.4083,
+        0.5319
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.4696
+      },
+      {
+       "ci": [
+        0.5044,
+        0.6271
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.5668
+      },
+      {
+       "ci": [
+        0.574,
+        0.6931
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.6356
+      },
+      {
+       "ci": [
+        0.6029,
+        0.72
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.664
+      },
+      {
+       "ci": [
+        0.6406,
+        0.7541
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.7004
+      },
+      {
+       "ci": [
+        0.6574,
+        0.7691
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.7166
+      },
+      {
+       "ci": [
+        0.6574,
+        0.7691
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.7166
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.2715,
+        0.4146
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.3394
+      },
+      {
+       "ci": [
+        0.4513,
+        0.602
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.5273
+      },
+      {
+       "ci": [
+        0.5545,
+        0.7002
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.6303
+      },
+      {
+       "ci": [
+        0.6293,
+        0.7675
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.703
+      },
+      {
+       "ci": [
+        0.6675,
+        0.8004
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.7394
+      },
+      {
+       "ci": [
+        0.7259,
+        0.8486
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.7939
+      },
+      {
+       "ci": [
+        0.7523,
+        0.8696
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.8182
+      },
+      {
+       "ci": [
+        0.7523,
+        0.8696
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.8182
+      }
+     ],
+     "per_pano": {
+      "f1": 0.1252,
+      "fn": 276,
+      "fp": 199,
+      "n_panos": 124,
+      "precision": 0.1459,
+      "recall": 0.1097,
+      "tp": 34
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.1429,
+       "recall_other_ci": [
+        0.0257,
+        0.5131
+       ],
+       "recall_union": 0.1429
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.1667,
+       "recall_other_ci": [
+        0.0301,
+        0.5635
+       ],
+       "recall_union": 0.3333
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.5926,
+       "recall_other_ci": [
+        0.4073,
+        0.7549
+       ],
+       "recall_union": 0.7037
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.625,
+       "recall_other_ci": [
+        0.4941,
+        0.7399
+       ],
+       "recall_union": 0.6429
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.8594,
+       "recall_other_ci": [
+        0.7886,
+        0.9092
+       ],
+       "recall_union": 0.8594
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 0.8696,
+       "recall_other_ci": [
+        0.6787,
+        0.9546
+       ],
+       "recall_union": 0.9565
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 1789,
+       "f1": 0.307,
+       "fp": 56,
+       "pool": 253,
+       "precision": 0.2,
+       "precision_ci": [
+        0.123,
+        0.3082
+       ],
+       "recall": 0.6601,
+       "recall_ci": [
+        0.5997,
+        0.7157
+       ],
+       "recalled": 167,
+       "self": 25,
+       "tp": 14,
+       "unsure_only": 1
+      },
+      "kofn_2": {
+       "accepted_sites": 1085,
+       "f1": 0.2826,
+       "fp": 52,
+       "pool": 253,
+       "precision": 0.1875,
+       "precision_ci": [
+        0.1106,
+        0.2997
+       ],
+       "recall": 0.5731,
+       "recall_ci": [
+        0.5115,
+        0.6325
+       ],
+       "recalled": 145,
+       "self": 23,
+       "tp": 12,
+       "unsure_only": 1
+      },
+      "kofn_3": {
+       "accepted_sites": 650,
+       "f1": 0.2806,
+       "fp": 43,
+       "pool": 253,
+       "precision": 0.2037,
+       "precision_ci": [
+        0.1177,
+        0.329
+       ],
+       "recall": 0.4506,
+       "recall_ci": [
+        0.3905,
+        0.5122
+       ],
+       "recalled": 114,
+       "self": 21,
+       "tp": 11,
+       "unsure_only": 1
+      }
+     }
+    },
+    "0.40": {
+     "fused": {
+      "detections_projected": 170070,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 11673,
+       "on_rig": 0,
+       "out_of_range": 27207
+      },
+      "n_multi_pano": 35,
+      "n_sites": 158,
+      "n_sites_precision_scope": 35
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.0063,
+        0.0409
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.0162
+      },
+      {
+       "ci": [
+        0.0165,
+        0.0626
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.0324
+      },
+      {
+       "ci": [
+        0.025,
+        0.078
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.0445
+      },
+      {
+       "ci": [
+        0.031,
+        0.088
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.0526
+      },
+      {
+       "ci": [
+        0.031,
+        0.088
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.0526
+      },
+      {
+       "ci": [
+        0.0341,
+        0.0929
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.0567
+      },
+      {
+       "ci": [
+        0.0371,
+        0.0978
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.0607
+      },
+      {
+       "ci": [
+        0.0371,
+        0.0978
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.0607
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.0095,
+        0.0607
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.0242
+      },
+      {
+       "ci": [
+        0.0168,
+        0.0771
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.0364
+      },
+      {
+       "ci": [
+        0.0248,
+        0.0927
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.0485
+      },
+      {
+       "ci": [
+        0.0332,
+        0.108
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.0606
+      },
+      {
+       "ci": [
+        0.0332,
+        0.108
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.0606
+      },
+      {
+       "ci": [
+        0.0376,
+        0.1154
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.0667
+      },
+      {
+       "ci": [
+        0.0421,
+        0.1228
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.0727
+      },
+      {
+       "ci": [
+        0.0421,
+        0.1228
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.0727
+      }
+     ],
+     "per_pano": {
+      "f1": 0.0,
+      "fn": 310,
+      "fp": 11,
+      "n_panos": 124,
+      "precision": 0.0,
+      "recall": 0.0,
+      "tp": 0
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.0,
+       "recall_other_ci": [
+        0.0,
+        0.3543
+       ],
+       "recall_union": 0.0
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.0,
+       "recall_other_ci": [
+        0.0,
+        0.3903
+       ],
+       "recall_union": 0.0
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.0,
+       "recall_other_ci": [
+        0.0,
+        0.1246
+       ],
+       "recall_union": 0.037
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.0536,
+       "recall_other_ci": [
+        0.0184,
+        0.1461
+       ],
+       "recall_union": 0.0536
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.1094,
+       "recall_other_ci": [
+        0.0663,
+        0.1752
+       ],
+       "recall_union": 0.1094
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 0.1304,
+       "recall_other_ci": [
+        0.0454,
+        0.3213
+       ],
+       "recall_union": 0.1304
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 158,
+       "f1": null,
+       "fp": 4,
+       "pool": 253,
+       "precision": 0.0,
+       "precision_ci": [
+        0.0,
+        0.4899
+       ],
+       "recall": 0.083,
+       "recall_ci": [
+        0.0549,
+        0.1236
+       ],
+       "recalled": 21,
+       "self": 0,
+       "tp": 0,
+       "unsure_only": 0
+      },
+      "kofn_2": {
+       "accepted_sites": 35,
+       "f1": null,
+       "fp": 1,
+       "pool": 253,
+       "precision": 0.0,
+       "precision_ci": [
+        0.0,
+        0.7935
+       ],
+       "recall": 0.0158,
+       "recall_ci": [
+        0.0062,
+        0.0399
+       ],
+       "recalled": 4,
+       "self": 0,
+       "tp": 0,
+       "unsure_only": 0
+      },
+      "kofn_3": {
+       "accepted_sites": 11,
+       "f1": null,
+       "fp": 1,
+       "pool": 253,
+       "precision": 0.0,
+       "precision_ci": [
+        0.0,
+        0.7935
+       ],
+       "recall": 0.0079,
+       "recall_ci": [
+        0.0022,
+        0.0284
+       ],
+       "recalled": 2,
+       "self": 0,
+       "tp": 0,
+       "unsure_only": 0
+      }
+     }
+    },
+    "0.50": {
+     "fused": {
+      "detections_projected": 170070,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 11673,
+       "on_rig": 0,
+       "out_of_range": 27207
+      },
+      "n_multi_pano": 0,
+      "n_sites": 0,
+      "n_sites_precision_scope": 0
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.0,
+        0.0153
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.0
+      },
+      {
+       "ci": [
+        0.0,
+        0.0153
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.0
+      },
+      {
+       "ci": [
+        0.0,
+        0.0153
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.0
+      },
+      {
+       "ci": [
+        0.0,
+        0.0153
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.0
+      },
+      {
+       "ci": [
+        0.0,
+        0.0153
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.0
+      },
+      {
+       "ci": [
+        0.0,
+        0.0153
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.0
+      },
+      {
+       "ci": [
+        0.0,
+        0.0153
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.0
+      },
+      {
+       "ci": [
+        0.0,
+        0.0153
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.0
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.0,
+        0.0228
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.0
+      },
+      {
+       "ci": [
+        0.0,
+        0.0228
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.0
+      },
+      {
+       "ci": [
+        0.0,
+        0.0228
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.0
+      },
+      {
+       "ci": [
+        0.0,
+        0.0228
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.0
+      },
+      {
+       "ci": [
+        0.0,
+        0.0228
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.0
+      },
+      {
+       "ci": [
+        0.0,
+        0.0228
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.0
+      },
+      {
+       "ci": [
+        0.0,
+        0.0228
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.0
+      },
+      {
+       "ci": [
+        0.0,
+        0.0228
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.0
+      }
+     ],
+     "per_pano": {
+      "f1": 0.0,
+      "fn": 310,
+      "fp": 0,
+      "n_panos": 124,
+      "precision": 0.0,
+      "recall": 0.0,
+      "tp": 0
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.0,
+       "recall_other_ci": [
+        0.0,
+        0.3543
+       ],
+       "recall_union": 0.0
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.0,
+       "recall_other_ci": [
+        0.0,
+        0.3903
+       ],
+       "recall_union": 0.0
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.0,
+       "recall_other_ci": [
+        0.0,
+        0.1246
+       ],
+       "recall_union": 0.0
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.0,
+       "recall_other_ci": [
+        0.0,
+        0.0642
+       ],
+       "recall_union": 0.0
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.0,
+       "recall_other_ci": [
+        0.0,
+        0.0291
+       ],
+       "recall_union": 0.0
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 0.0,
+       "recall_other_ci": [
+        0.0,
+        0.1431
+       ],
+       "recall_union": 0.0
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 0,
+       "f1": null,
+       "fp": 0,
+       "pool": 253,
+       "precision": null,
+       "precision_ci": [
+        0.0,
+        1.0
+       ],
+       "recall": 0.0,
+       "recall_ci": [
+        0.0,
+        0.015
+       ],
+       "recalled": 0,
+       "self": 0,
+       "tp": 0,
+       "unsure_only": 0
+      },
+      "kofn_2": {
+       "accepted_sites": 0,
+       "f1": null,
+       "fp": 0,
+       "pool": 253,
+       "precision": null,
+       "precision_ci": [
+        0.0,
+        1.0
+       ],
+       "recall": 0.0,
+       "recall_ci": [
+        0.0,
+        0.015
+       ],
+       "recalled": 0,
+       "self": 0,
+       "tp": 0,
+       "unsure_only": 0
+      },
+      "kofn_3": {
+       "accepted_sites": 0,
+       "f1": null,
+       "fp": 0,
+       "pool": 253,
+       "precision": null,
+       "precision_ci": [
+        0.0,
+        1.0
+       ],
+       "recall": 0.0,
+       "recall_ci": [
+        0.0,
+        0.015
+       ],
+       "recalled": 0,
+       "self": 0,
+       "tp": 0,
+       "unsure_only": 0
+      }
+     }
+    }
+   }
   },
   "rampnet": {
    "tiers": {
@@ -2413,13 +6845,4522 @@
    }
   },
   "y11l_pano": {
-   "missing": true
+   "n_panos": 2867,
+   "n_uncached": 0,
+   "published_richmond": {
+    "judged_panos_identical_detections": 0.6774,
+    "per_pano_at_headline": {
+     "f1": 0.5952,
+     "fn": 174,
+     "fp": 11,
+     "n_panos": 124,
+     "precision": 0.9252,
+     "recall": 0.4387,
+     "tp": 136
+    }
+   },
+   "signature": {
+    "conf": 0.05,
+    "imgsz": 1280,
+    "iou": 0.5,
+    "max_edge": 1536,
+    "model_id": "y11l_pano",
+    "prompt": null,
+    "provider": "yolo",
+    "source_max_edge": 4096,
+    "tile": false,
+    "views": null,
+    "weights_hash": "fd2a8bd331ce4ca8ff2730698651d9a44094e738"
+   },
+   "tiers": {
+    "0.05": {
+     "fused": {
+      "detections_projected": 7781,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 484,
+       "on_rig": 0,
+       "out_of_range": 1531
+      },
+      "n_multi_pano": 1217,
+      "n_sites": 1688,
+      "n_sites_precision_scope": 569
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.6532,
+        0.7654
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.7126
+      },
+      {
+       "ci": [
+        0.7693,
+        0.8645
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.8219
+      },
+      {
+       "ci": [
+        0.7959,
+        0.8858
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.8462
+      },
+      {
+       "ci": [
+        0.8138,
+        0.8998
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.8623
+      },
+      {
+       "ci": [
+        0.8228,
+        0.9067
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.8704
+      },
+      {
+       "ci": [
+        0.8228,
+        0.9067
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.8704
+      },
+      {
+       "ci": [
+        0.8274,
+        0.9102
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.8745
+      },
+      {
+       "ci": [
+        0.8319,
+        0.9136
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.8785
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.6933,
+        0.822
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.7636
+      },
+      {
+       "ci": [
+        0.8133,
+        0.9152
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.8727
+      },
+      {
+       "ci": [
+        0.8412,
+        0.9347
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.897
+      },
+      {
+       "ci": [
+        0.8554,
+        0.9441
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.9091
+      },
+      {
+       "ci": [
+        0.8699,
+        0.9534
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.9212
+      },
+      {
+       "ci": [
+        0.8699,
+        0.9534
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.9212
+      },
+      {
+       "ci": [
+        0.8772,
+        0.9579
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.9273
+      },
+      {
+       "ci": [
+        0.8846,
+        0.9624
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.9333
+      }
+     ],
+     "per_pano": {
+      "f1": 0.6597,
+      "fn": 56,
+      "fp": 206,
+      "n_panos": 124,
+      "precision": 0.5522,
+      "recall": 0.8194,
+      "tp": 254
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.2857,
+       "recall_other_ci": [
+        0.0822,
+        0.6411
+       ],
+       "recall_union": 0.7143
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.3333,
+       "recall_other_ci": [
+        0.0968,
+        0.7
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.8148,
+       "recall_other_ci": [
+        0.633,
+        0.9182
+       ],
+       "recall_union": 0.963
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.9107,
+       "recall_other_ci": [
+        0.8074,
+        0.9613
+       ],
+       "recall_union": 0.9643
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.9688,
+       "recall_other_ci": [
+        0.9224,
+        0.9878
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 0.9565,
+       "recall_other_ci": [
+        0.7901,
+        0.9923
+       ],
+       "recall_union": 1.0
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 1688,
+       "f1": 0.738,
+       "fp": 92,
+       "pool": 253,
+       "precision": 0.5947,
+       "precision_ci": [
+        0.5298,
+        0.6565
+       ],
+       "recall": 0.9723,
+       "recall_ci": [
+        0.944,
+        0.9865
+       ],
+       "recalled": 246,
+       "self": 219,
+       "tp": 135,
+       "unsure_only": 9
+      },
+      "kofn_2": {
+       "accepted_sites": 1217,
+       "f1": 0.7338,
+       "fp": 80,
+       "pool": 253,
+       "precision": 0.6117,
+       "precision_ci": [
+        0.5436,
+        0.6756
+       ],
+       "recall": 0.917,
+       "recall_ci": [
+        0.8764,
+        0.9451
+       ],
+       "recalled": 232,
+       "self": 209,
+       "tp": 126,
+       "unsure_only": 9
+      },
+      "kofn_3": {
+       "accepted_sites": 960,
+       "f1": 0.7305,
+       "fp": 73,
+       "pool": 253,
+       "precision": 0.6218,
+       "precision_ci": [
+        0.5516,
+        0.6872
+       ],
+       "recall": 0.8854,
+       "recall_ci": [
+        0.8402,
+        0.919
+       ],
+       "recalled": 224,
+       "self": 200,
+       "tp": 120,
+       "unsure_only": 8
+      }
+     }
+    },
+    "0.10": {
+     "fused": {
+      "detections_projected": 7781,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 484,
+       "on_rig": 0,
+       "out_of_range": 1531
+      },
+      "n_multi_pano": 762,
+      "n_sites": 1030,
+      "n_sites_precision_scope": 386
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.6238,
+        0.739
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.6842
+      },
+      {
+       "ci": [
+        0.7387,
+        0.8393
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.7935
+      },
+      {
+       "ci": [
+        0.7737,
+        0.8681
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.8259
+      },
+      {
+       "ci": [
+        0.787,
+        0.8788
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.8381
+      },
+      {
+       "ci": [
+        0.7959,
+        0.8858
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.8462
+      },
+      {
+       "ci": [
+        0.8004,
+        0.8893
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.8502
+      },
+      {
+       "ci": [
+        0.8048,
+        0.8928
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.8543
+      },
+      {
+       "ci": [
+        0.8093,
+        0.8963
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.8583
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.6547,
+        0.7895
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.7273
+      },
+      {
+       "ci": [
+        0.7791,
+        0.8901
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.8424
+      },
+      {
+       "ci": [
+        0.8202,
+        0.9201
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.8788
+      },
+      {
+       "ci": [
+        0.8342,
+        0.9299
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.8909
+      },
+      {
+       "ci": [
+        0.8483,
+        0.9394
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.903
+      },
+      {
+       "ci": [
+        0.8554,
+        0.9441
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.9091
+      },
+      {
+       "ci": [
+        0.8626,
+        0.9488
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.9152
+      },
+      {
+       "ci": [
+        0.8699,
+        0.9534
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.9212
+      }
+     ],
+     "per_pano": {
+      "f1": 0.7365,
+      "fn": 85,
+      "fp": 76,
+      "n_panos": 124,
+      "precision": 0.7475,
+      "recall": 0.7258,
+      "tp": 225
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.1429,
+       "recall_other_ci": [
+        0.0257,
+        0.5131
+       ],
+       "recall_union": 0.5714
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.3333,
+       "recall_other_ci": [
+        0.0968,
+        0.7
+       ],
+       "recall_union": 0.8333
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.7778,
+       "recall_other_ci": [
+        0.5924,
+        0.8939
+       ],
+       "recall_union": 0.8889
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.8929,
+       "recall_other_ci": [
+        0.7853,
+        0.95
+       ],
+       "recall_union": 0.9464
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.9531,
+       "recall_other_ci": [
+        0.9015,
+        0.9783
+       ],
+       "recall_union": 0.9922
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 0.913,
+       "recall_other_ci": [
+        0.732,
+        0.9758
+       ],
+       "recall_union": 0.9565
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 1030,
+       "f1": 0.8503,
+       "fp": 37,
+       "pool": 253,
+       "precision": 0.773,
+       "precision_ci": [
+        0.7028,
+        0.8306
+       ],
+       "recall": 0.9447,
+       "recall_ci": [
+        0.9093,
+        0.9668
+       ],
+       "recalled": 239,
+       "self": 203,
+       "tp": 126,
+       "unsure_only": 5
+      },
+      "kofn_2": {
+       "accepted_sites": 762,
+       "f1": 0.8436,
+       "fp": 28,
+       "pool": 253,
+       "precision": 0.8056,
+       "precision_ci": [
+        0.7333,
+        0.8619
+       ],
+       "recall": 0.8854,
+       "recall_ci": [
+        0.8402,
+        0.919
+       ],
+       "recalled": 224,
+       "self": 192,
+       "tp": 116,
+       "unsure_only": 4
+      },
+      "kofn_3": {
+       "accepted_sites": 603,
+       "f1": 0.8231,
+       "fp": 27,
+       "pool": 253,
+       "precision": 0.8015,
+       "precision_ci": [
+        0.7266,
+        0.8598
+       ],
+       "recall": 0.8458,
+       "recall_ci": [
+        0.7962,
+        0.8851
+       ],
+       "recalled": 214,
+       "self": 182,
+       "tp": 109,
+       "unsure_only": 4
+      }
+     }
+    },
+    "0.25": {
+     "fused": {
+      "detections_projected": 7781,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 484,
+       "on_rig": 0,
+       "out_of_range": 1531
+      },
+      "n_multi_pano": 399,
+      "n_sites": 548,
+      "n_sites_precision_scope": 207
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.5452,
+        0.6661
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.6073
+      },
+      {
+       "ci": [
+        0.6574,
+        0.7691
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.7166
+      },
+      {
+       "ci": [
+        0.7128,
+        0.8174
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.7692
+      },
+      {
+       "ci": [
+        0.7301,
+        0.832
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.7854
+      },
+      {
+       "ci": [
+        0.7301,
+        0.832
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.7854
+      },
+      {
+       "ci": [
+        0.7301,
+        0.832
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.7854
+      },
+      {
+       "ci": [
+        0.7344,
+        0.8357
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.7895
+      },
+      {
+       "ci": [
+        0.7431,
+        0.8429
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.7976
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.5792,
+        0.7228
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.6545
+      },
+      {
+       "ci": [
+        0.7063,
+        0.8327
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.7758
+      },
+      {
+       "ci": [
+        0.7657,
+        0.8799
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.8303
+      },
+      {
+       "ci": [
+        0.7927,
+        0.9003
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.8545
+      },
+      {
+       "ci": [
+        0.7927,
+        0.9003
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.8545
+      },
+      {
+       "ci": [
+        0.7927,
+        0.9003
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.8545
+      },
+      {
+       "ci": [
+        0.7995,
+        0.9053
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.8606
+      },
+      {
+       "ci": [
+        0.8133,
+        0.9152
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.8727
+      }
+     ],
+     "per_pano": {
+      "f1": 0.5952,
+      "fn": 174,
+      "fp": 11,
+      "n_panos": 124,
+      "precision": 0.9252,
+      "recall": 0.4387,
+      "tp": 136
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.1429,
+       "recall_other_ci": [
+        0.0257,
+        0.5131
+       ],
+       "recall_union": 0.4286
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.1667,
+       "recall_other_ci": [
+        0.0301,
+        0.5635
+       ],
+       "recall_union": 0.3333
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.7407,
+       "recall_other_ci": [
+        0.5532,
+        0.8683
+       ],
+       "recall_union": 0.8148
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.8036,
+       "recall_other_ci": [
+        0.6816,
+        0.8866
+       ],
+       "recall_union": 0.8214
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.9141,
+       "recall_other_ci": [
+        0.8527,
+        0.9513
+       ],
+       "recall_union": 0.9609
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 0.8261,
+       "recall_other_ci": [
+        0.6286,
+        0.9302
+       ],
+       "recall_union": 0.8696
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 548,
+       "f1": 0.89,
+       "fp": 5,
+       "pool": 253,
+       "precision": 0.9438,
+       "precision_ci": [
+        0.8751,
+        0.9758
+       ],
+       "recall": 0.8419,
+       "recall_ci": [
+        0.7919,
+        0.8817
+       ],
+       "recalled": 213,
+       "self": 136,
+       "tp": 84,
+       "unsure_only": 3
+      },
+      "kofn_2": {
+       "accepted_sites": 399,
+       "f1": 0.8339,
+       "fp": 4,
+       "pool": 253,
+       "precision": 0.95,
+       "precision_ci": [
+        0.8784,
+        0.9804
+       ],
+       "recall": 0.7431,
+       "recall_ci": [
+        0.6859,
+        0.793
+       ],
+       "recalled": 188,
+       "self": 124,
+       "tp": 76,
+       "unsure_only": 2
+      },
+      "kofn_3": {
+       "accepted_sites": 334,
+       "f1": 0.7915,
+       "fp": 2,
+       "pool": 253,
+       "precision": 0.971,
+       "precision_ci": [
+        0.9003,
+        0.992
+       ],
+       "recall": 0.668,
+       "recall_ci": [
+        0.6078,
+        0.7231
+       ],
+       "recalled": 169,
+       "self": 114,
+       "tp": 67,
+       "unsure_only": 1
+      }
+     }
+    },
+    "0.40": {
+     "fused": {
+      "detections_projected": 7781,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 484,
+       "on_rig": 0,
+       "out_of_range": 1531
+      },
+      "n_multi_pano": 239,
+      "n_sites": 366,
+      "n_sites_precision_scope": 148
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.4083,
+        0.5319
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.4696
+      },
+      {
+       "ci": [
+        0.5329,
+        0.6544
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.5951
+      },
+      {
+       "ci": [
+        0.5822,
+        0.7008
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.6437
+      },
+      {
+       "ci": [
+        0.5988,
+        0.7161
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.6599
+      },
+      {
+       "ci": [
+        0.6071,
+        0.7238
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.668
+      },
+      {
+       "ci": [
+        0.6071,
+        0.7238
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.668
+      },
+      {
+       "ci": [
+        0.6071,
+        0.7238
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.668
+      },
+      {
+       "ci": [
+        0.6071,
+        0.7238
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.668
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.4394,
+        0.5902
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.5152
+      },
+      {
+       "ci": [
+        0.5792,
+        0.7228
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.6545
+      },
+      {
+       "ci": [
+        0.6484,
+        0.784
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.7212
+      },
+      {
+       "ci": [
+        0.6739,
+        0.8058
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.7455
+      },
+      {
+       "ci": [
+        0.6868,
+        0.8166
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.7576
+      },
+      {
+       "ci": [
+        0.6868,
+        0.8166
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.7576
+      },
+      {
+       "ci": [
+        0.6868,
+        0.8166
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.7576
+      },
+      {
+       "ci": [
+        0.6868,
+        0.8166
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.7576
+      }
+     ],
+     "per_pano": {
+      "f1": 0.2965,
+      "fn": 255,
+      "fp": 6,
+      "n_panos": 124,
+      "precision": 0.9016,
+      "recall": 0.1774,
+      "tp": 55
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.0,
+       "recall_other_ci": [
+        0.0,
+        0.3543
+       ],
+       "recall_union": 0.0
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.0,
+       "recall_other_ci": [
+        0.0,
+        0.3903
+       ],
+       "recall_union": 0.0
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.4815,
+       "recall_other_ci": [
+        0.3074,
+        0.6601
+       ],
+       "recall_union": 0.5556
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.625,
+       "recall_other_ci": [
+        0.4941,
+        0.7399
+       ],
+       "recall_union": 0.625
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.7891,
+       "recall_other_ci": [
+        0.7105,
+        0.8508
+       ],
+       "recall_union": 0.8125
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 0.7391,
+       "recall_other_ci": [
+        0.5353,
+        0.8745
+       ],
+       "recall_union": 0.8261
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 366,
+       "f1": 0.7546,
+       "fp": 3,
+       "pool": 253,
+       "precision": 0.9268,
+       "precision_ci": [
+        0.8057,
+        0.9748
+       ],
+       "recall": 0.6364,
+       "recall_ci": [
+        0.5755,
+        0.6932
+       ],
+       "recalled": 161,
+       "self": 55,
+       "tp": 38,
+       "unsure_only": 2
+      },
+      "kofn_2": {
+       "accepted_sites": 239,
+       "f1": 0.6583,
+       "fp": 1,
+       "pool": 253,
+       "precision": 0.9706,
+       "precision_ci": [
+        0.8508,
+        0.9948
+       ],
+       "recall": 0.498,
+       "recall_ci": [
+        0.4369,
+        0.5592
+       ],
+       "recalled": 126,
+       "self": 49,
+       "tp": 33,
+       "unsure_only": 1
+      },
+      "kofn_3": {
+       "accepted_sites": 167,
+       "f1": 0.5104,
+       "fp": 1,
+       "pool": 253,
+       "precision": 0.9583,
+       "precision_ci": [
+        0.7976,
+        0.9926
+       ],
+       "recall": 0.3478,
+       "recall_ci": [
+        0.2918,
+        0.4084
+       ],
+       "recalled": 88,
+       "self": 37,
+       "tp": 23,
+       "unsure_only": 1
+      }
+     }
+    },
+    "0.55": {
+     "fused": {
+      "detections_projected": 7781,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 484,
+       "on_rig": 0,
+       "out_of_range": 1531
+      },
+      "n_multi_pano": 140,
+      "n_sites": 246,
+      "n_sites_precision_scope": 106
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.2686,
+        0.3846
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.3239
+      },
+      {
+       "ci": [
+        0.3729,
+        0.4956
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.4332
+      },
+      {
+       "ci": [
+        0.3965,
+        0.5198
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.4575
+      },
+      {
+       "ci": [
+        0.4083,
+        0.5319
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.4696
+      },
+      {
+       "ci": [
+        0.4202,
+        0.5439
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.4818
+      },
+      {
+       "ci": [
+        0.4202,
+        0.5439
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.4818
+      },
+      {
+       "ci": [
+        0.4202,
+        0.5439
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.4818
+      },
+      {
+       "ci": [
+        0.4202,
+        0.5439
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.4818
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.2941,
+        0.4394
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.3636
+      },
+      {
+       "ci": [
+        0.4275,
+        0.5784
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.503
+      },
+      {
+       "ci": [
+        0.4573,
+        0.6078
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.5333
+      },
+      {
+       "ci": [
+        0.4753,
+        0.6254
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.5515
+      },
+      {
+       "ci": [
+        0.4934,
+        0.6428
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.5697
+      },
+      {
+       "ci": [
+        0.4934,
+        0.6428
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.5697
+      },
+      {
+       "ci": [
+        0.4934,
+        0.6428
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.5697
+      },
+      {
+       "ci": [
+        0.4934,
+        0.6428
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.5697
+      }
+     ],
+     "per_pano": {
+      "f1": 0.1488,
+      "fn": 285,
+      "fp": 1,
+      "n_panos": 124,
+      "precision": 0.9615,
+      "recall": 0.0806,
+      "tp": 25
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.0,
+       "recall_other_ci": [
+        0.0,
+        0.3543
+       ],
+       "recall_union": 0.0
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.0,
+       "recall_other_ci": [
+        0.0,
+        0.3903
+       ],
+       "recall_union": 0.0
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.2593,
+       "recall_other_ci": [
+        0.1317,
+        0.4468
+       ],
+       "recall_union": 0.3333
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.4107,
+       "recall_other_ci": [
+        0.2917,
+        0.5412
+       ],
+       "recall_union": 0.4286
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.5938,
+       "recall_other_ci": [
+        0.5071,
+        0.6749
+       ],
+       "recall_union": 0.625
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 0.5652,
+       "recall_other_ci": [
+        0.3681,
+        0.7437
+       ],
+       "recall_union": 0.6522
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 246,
+       "f1": 0.6471,
+       "fp": 0,
+       "pool": 253,
+       "precision": 1.0,
+       "precision_ci": [
+        0.8157,
+        1.0
+       ],
+       "recall": 0.4783,
+       "recall_ci": [
+        0.4175,
+        0.5397
+       ],
+       "recalled": 121,
+       "self": 25,
+       "tp": 17,
+       "unsure_only": 2
+      },
+      "kofn_2": {
+       "accepted_sites": 140,
+       "f1": 0.4334,
+       "fp": 0,
+       "pool": 253,
+       "precision": 1.0,
+       "precision_ci": [
+        0.7412,
+        1.0
+       ],
+       "recall": 0.2767,
+       "recall_ci": [
+        0.2252,
+        0.3348
+       ],
+       "recalled": 70,
+       "self": 15,
+       "tp": 11,
+       "unsure_only": 1
+      },
+      "kofn_3": {
+       "accepted_sites": 81,
+       "f1": 0.2905,
+       "fp": 0,
+       "pool": 253,
+       "precision": 1.0,
+       "precision_ci": [
+        0.6457,
+        1.0
+       ],
+       "recall": 0.17,
+       "recall_ci": [
+        0.1287,
+        0.2211
+       ],
+       "recalled": 43,
+       "self": 9,
+       "tp": 7,
+       "unsure_only": 1
+      }
+     }
+    }
+   }
   },
   "y11x_pano_h200": {
-   "missing": true
+   "n_panos": 2867,
+   "n_uncached": 0,
+   "published_richmond": {
+    "judged_panos_identical_detections": 0.7097,
+    "per_pano_at_headline": {
+     "f1": 0.5471,
+     "fn": 191,
+     "fp": 6,
+     "n_panos": 124,
+     "precision": 0.952,
+     "recall": 0.3839,
+     "tp": 119
+    }
+   },
+   "signature": {
+    "conf": 0.05,
+    "imgsz": 1280,
+    "iou": 0.5,
+    "max_edge": 1536,
+    "model_id": "y11x_pano_h200",
+    "prompt": null,
+    "provider": "yolo",
+    "source_max_edge": 4096,
+    "tile": false,
+    "views": null,
+    "weights_hash": "ce84201e26fbbd94d656f9d791cfe855cbf4bd4f"
+   },
+   "tiers": {
+    "0.05": {
+     "fused": {
+      "detections_projected": 6730,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 464,
+       "on_rig": 0,
+       "out_of_range": 1568
+      },
+      "n_multi_pano": 1029,
+      "n_sites": 1392,
+      "n_sites_precision_scope": 484
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.6659,
+        0.7766
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.7247
+      },
+      {
+       "ci": [
+        0.7649,
+        0.861
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.8178
+      },
+      {
+       "ci": [
+        0.7914,
+        0.8823
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.8421
+      },
+      {
+       "ci": [
+        0.8138,
+        0.8998
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.8623
+      },
+      {
+       "ci": [
+        0.8228,
+        0.9067
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.8704
+      },
+      {
+       "ci": [
+        0.8228,
+        0.9067
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.8704
+      },
+      {
+       "ci": [
+        0.8319,
+        0.9136
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.8785
+      },
+      {
+       "ci": [
+        0.8365,
+        0.917
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.8826
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.6804,
+        0.8112
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.7515
+      },
+      {
+       "ci": [
+        0.7927,
+        0.9003
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.8545
+      },
+      {
+       "ci": [
+        0.8272,
+        0.925
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.8848
+      },
+      {
+       "ci": [
+        0.8483,
+        0.9394
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.903
+      },
+      {
+       "ci": [
+        0.8626,
+        0.9488
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.9152
+      },
+      {
+       "ci": [
+        0.8626,
+        0.9488
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.9152
+      },
+      {
+       "ci": [
+        0.8772,
+        0.9579
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.9273
+      },
+      {
+       "ci": [
+        0.8846,
+        0.9624
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.9333
+      }
+     ],
+     "per_pano": {
+      "f1": 0.7004,
+      "fn": 61,
+      "fp": 152,
+      "n_panos": 124,
+      "precision": 0.6209,
+      "recall": 0.8032,
+      "tp": 249
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.1429,
+       "recall_other_ci": [
+        0.0257,
+        0.5131
+       ],
+       "recall_union": 0.8571
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.5,
+       "recall_other_ci": [
+        0.1876,
+        0.8124
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.8519,
+       "recall_other_ci": [
+        0.6752,
+        0.9408
+       ],
+       "recall_union": 0.963
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.9107,
+       "recall_other_ci": [
+        0.8074,
+        0.9613
+       ],
+       "recall_union": 0.9643
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.9688,
+       "recall_other_ci": [
+        0.9224,
+        0.9878
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 0.913,
+       "recall_other_ci": [
+        0.732,
+        0.9758
+       ],
+       "recall_union": 0.9565
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 1392,
+       "f1": 0.7991,
+       "fp": 63,
+       "pool": 253,
+       "precision": 0.6802,
+       "precision_ci": [
+        0.6122,
+        0.7414
+       ],
+       "recall": 0.9684,
+       "recall_ci": [
+        0.9389,
+        0.9839
+       ],
+       "recalled": 245,
+       "self": 211,
+       "tp": 134,
+       "unsure_only": 9
+      },
+      "kofn_2": {
+       "accepted_sites": 1029,
+       "f1": 0.7816,
+       "fp": 59,
+       "pool": 253,
+       "precision": 0.6811,
+       "precision_ci": [
+        0.6108,
+        0.744
+       ],
+       "recall": 0.917,
+       "recall_ci": [
+        0.8764,
+        0.9451
+       ],
+       "recalled": 232,
+       "self": 203,
+       "tp": 126,
+       "unsure_only": 8
+      },
+      "kofn_3": {
+       "accepted_sites": 820,
+       "f1": 0.7791,
+       "fp": 49,
+       "pool": 253,
+       "precision": 0.7083,
+       "precision_ci": [
+        0.6356,
+        0.7718
+       ],
+       "recall": 0.8656,
+       "recall_ci": [
+        0.8181,
+        0.9022
+       ],
+       "recalled": 219,
+       "self": 193,
+       "tp": 119,
+       "unsure_only": 7
+      }
+     }
+    },
+    "0.10": {
+     "fused": {
+      "detections_projected": 6730,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 464,
+       "on_rig": 0,
+       "out_of_range": 1568
+      },
+      "n_multi_pano": 581,
+      "n_sites": 790,
+      "n_sites_precision_scope": 277
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.6238,
+        0.739
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.6842
+      },
+      {
+       "ci": [
+        0.7344,
+        0.8357
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.7895
+      },
+      {
+       "ci": [
+        0.7649,
+        0.861
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.8178
+      },
+      {
+       "ci": [
+        0.7914,
+        0.8823
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.8421
+      },
+      {
+       "ci": [
+        0.7959,
+        0.8858
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.8462
+      },
+      {
+       "ci": [
+        0.8004,
+        0.8893
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.8502
+      },
+      {
+       "ci": [
+        0.8048,
+        0.8928
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.8543
+      },
+      {
+       "ci": [
+        0.8048,
+        0.8928
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.8543
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.6484,
+        0.784
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.7212
+      },
+      {
+       "ci": [
+        0.7724,
+        0.885
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.8364
+      },
+      {
+       "ci": [
+        0.8133,
+        0.9152
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.8727
+      },
+      {
+       "ci": [
+        0.8412,
+        0.9347
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.897
+      },
+      {
+       "ci": [
+        0.8483,
+        0.9394
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.903
+      },
+      {
+       "ci": [
+        0.8554,
+        0.9441
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.9091
+      },
+      {
+       "ci": [
+        0.8626,
+        0.9488
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.9152
+      },
+      {
+       "ci": [
+        0.8626,
+        0.9488
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.9152
+      }
+     ],
+     "per_pano": {
+      "f1": 0.7766,
+      "fn": 91,
+      "fp": 35,
+      "n_panos": 124,
+      "precision": 0.8622,
+      "recall": 0.7065,
+      "tp": 219
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.1429,
+       "recall_other_ci": [
+        0.0257,
+        0.5131
+       ],
+       "recall_union": 0.7143
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.3333,
+       "recall_other_ci": [
+        0.0968,
+        0.7
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.8148,
+       "recall_other_ci": [
+        0.633,
+        0.9182
+       ],
+       "recall_union": 0.9259
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.875,
+       "recall_other_ci": [
+        0.7637,
+        0.9381
+       ],
+       "recall_union": 0.9464
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.9531,
+       "recall_other_ci": [
+        0.9015,
+        0.9783
+       ],
+       "recall_union": 0.9766
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 0.913,
+       "recall_other_ci": [
+        0.732,
+        0.9758
+       ],
+       "recall_union": 0.9565
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 790,
+       "f1": 0.9134,
+       "fp": 16,
+       "pool": 253,
+       "precision": 0.8841,
+       "precision_ci": [
+        0.82,
+        0.9274
+       ],
+       "recall": 0.9447,
+       "recall_ci": [
+        0.9093,
+        0.9668
+       ],
+       "recalled": 239,
+       "self": 197,
+       "tp": 122,
+       "unsure_only": 5
+      },
+      "kofn_2": {
+       "accepted_sites": 581,
+       "f1": 0.8891,
+       "fp": 14,
+       "pool": 253,
+       "precision": 0.8889,
+       "precision_ci": [
+        0.8221,
+        0.9327
+       ],
+       "recall": 0.8893,
+       "recall_ci": [
+        0.8447,
+        0.9223
+       ],
+       "recalled": 225,
+       "self": 186,
+       "tp": 112,
+       "unsure_only": 5
+      },
+      "kofn_3": {
+       "accepted_sites": 479,
+       "f1": 0.8641,
+       "fp": 12,
+       "pool": 253,
+       "precision": 0.8966,
+       "precision_ci": [
+        0.8279,
+        0.9398
+       ],
+       "recall": 0.834,
+       "recall_ci": [
+        0.7832,
+        0.8748
+       ],
+       "recalled": 211,
+       "self": 175,
+       "tp": 104,
+       "unsure_only": 4
+      }
+     }
+    },
+    "0.25": {
+     "fused": {
+      "detections_projected": 6730,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 464,
+       "on_rig": 0,
+       "out_of_range": 1568
+      },
+      "n_multi_pano": 375,
+      "n_sites": 490,
+      "n_sites_precision_scope": 184
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.5085,
+        0.631
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.5709
+      },
+      {
+       "ci": [
+        0.6238,
+        0.739
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.6842
+      },
+      {
+       "ci": [
+        0.6744,
+        0.7841
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.7328
+      },
+      {
+       "ci": [
+        0.7128,
+        0.8174
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.7692
+      },
+      {
+       "ci": [
+        0.7171,
+        0.8211
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.7733
+      },
+      {
+       "ci": [
+        0.7257,
+        0.8284
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.7814
+      },
+      {
+       "ci": [
+        0.7301,
+        0.832
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.7854
+      },
+      {
+       "ci": [
+        0.7344,
+        0.8357
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.7895
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.5299,
+        0.6774
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.6061
+      },
+      {
+       "ci": [
+        0.6675,
+        0.8004
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.7394
+      },
+      {
+       "ci": [
+        0.7325,
+        0.8539
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.8
+      },
+      {
+       "ci": [
+        0.7791,
+        0.8901
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.8424
+      },
+      {
+       "ci": [
+        0.7859,
+        0.8952
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.8485
+      },
+      {
+       "ci": [
+        0.7995,
+        0.9053
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.8606
+      },
+      {
+       "ci": [
+        0.8064,
+        0.9103
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.8667
+      },
+      {
+       "ci": [
+        0.8133,
+        0.9152
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.8727
+      }
+     ],
+     "per_pano": {
+      "f1": 0.5471,
+      "fn": 191,
+      "fp": 6,
+      "n_panos": 124,
+      "precision": 0.952,
+      "recall": 0.3839,
+      "tp": 119
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.1429,
+       "recall_other_ci": [
+        0.0257,
+        0.5131
+       ],
+       "recall_union": 0.2857
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.1667,
+       "recall_other_ci": [
+        0.0301,
+        0.5635
+       ],
+       "recall_union": 0.5
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.6296,
+       "recall_other_ci": [
+        0.4423,
+        0.7847
+       ],
+       "recall_union": 0.7407
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.8214,
+       "recall_other_ci": [
+        0.7016,
+        0.9
+       ],
+       "recall_union": 0.8214
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.8984,
+       "recall_other_ci": [
+        0.834,
+        0.9397
+       ],
+       "recall_union": 0.9453
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 0.8261,
+       "recall_other_ci": [
+        0.6286,
+        0.9302
+       ],
+       "recall_union": 0.8261
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 490,
+       "f1": 0.8749,
+       "fp": 2,
+       "pool": 253,
+       "precision": 0.9733,
+       "precision_ci": [
+        0.9079,
+        0.9927
+       ],
+       "recall": 0.7945,
+       "recall_ci": [
+        0.7404,
+        0.8397
+       ],
+       "recalled": 201,
+       "self": 119,
+       "tp": 73,
+       "unsure_only": 3
+      },
+      "kofn_2": {
+       "accepted_sites": 375,
+       "f1": 0.8211,
+       "fp": 1,
+       "pool": 253,
+       "precision": 0.9859,
+       "precision_ci": [
+        0.9244,
+        0.9975
+       ],
+       "recall": 0.7036,
+       "recall_ci": [
+        0.6446,
+        0.7564
+       ],
+       "recalled": 178,
+       "self": 113,
+       "tp": 70,
+       "unsure_only": 3
+      },
+      "kofn_3": {
+       "accepted_sites": 305,
+       "f1": 0.7641,
+       "fp": 1,
+       "pool": 253,
+       "precision": 0.9841,
+       "precision_ci": [
+        0.9154,
+        0.9972
+       ],
+       "recall": 0.6245,
+       "recall_ci": [
+        0.5634,
+        0.6819
+       ],
+       "recalled": 158,
+       "self": 103,
+       "tp": 62,
+       "unsure_only": 2
+      }
+     }
+    },
+    "0.40": {
+     "fused": {
+      "detections_projected": 6730,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 464,
+       "on_rig": 0,
+       "out_of_range": 1568
+      },
+      "n_multi_pano": 213,
+      "n_sites": 303,
+      "n_sites_precision_scope": 120
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.3847,
+        0.5077
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.4453
+      },
+      {
+       "ci": [
+        0.4681,
+        0.5917
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.5304
+      },
+      {
+       "ci": [
+        0.4923,
+        0.6153
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.5547
+      },
+      {
+       "ci": [
+        0.5044,
+        0.6271
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.5668
+      },
+      {
+       "ci": [
+        0.5085,
+        0.631
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.5709
+      },
+      {
+       "ci": [
+        0.5126,
+        0.6349
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.5749
+      },
+      {
+       "ci": [
+        0.5126,
+        0.6349
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.5749
+      },
+      {
+       "ci": [
+        0.5126,
+        0.6349
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.5749
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.3863,
+        0.5367
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.4606
+      },
+      {
+       "ci": [
+        0.4934,
+        0.6428
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.5697
+      },
+      {
+       "ci": [
+        0.5299,
+        0.6774
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.6061
+      },
+      {
+       "ci": [
+        0.5483,
+        0.6945
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.6242
+      },
+      {
+       "ci": [
+        0.5545,
+        0.7002
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.6303
+      },
+      {
+       "ci": [
+        0.5545,
+        0.7002
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.6303
+      },
+      {
+       "ci": [
+        0.5545,
+        0.7002
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.6303
+      },
+      {
+       "ci": [
+        0.5545,
+        0.7002
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.6303
+      }
+     ],
+     "per_pano": {
+      "f1": 0.2409,
+      "fn": 267,
+      "fp": 4,
+      "n_panos": 124,
+      "precision": 0.9149,
+      "recall": 0.1387,
+      "tp": 43
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.0,
+       "recall_other_ci": [
+        0.0,
+        0.3543
+       ],
+       "recall_union": 0.0
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.0,
+       "recall_other_ci": [
+        0.0,
+        0.3903
+       ],
+       "recall_union": 0.0
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.4815,
+       "recall_other_ci": [
+        0.3074,
+        0.6601
+       ],
+       "recall_union": 0.5185
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.5714,
+       "recall_other_ci": [
+        0.4414,
+        0.6923
+       ],
+       "recall_union": 0.5893
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.6562,
+       "recall_other_ci": [
+        0.5705,
+        0.7329
+       ],
+       "recall_union": 0.7109
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 0.6522,
+       "recall_other_ci": [
+        0.4489,
+        0.8119
+       ],
+       "recall_union": 0.6957
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 303,
+       "f1": 0.7139,
+       "fp": 1,
+       "pool": 253,
+       "precision": 0.9688,
+       "precision_ci": [
+        0.8426,
+        0.9945
+       ],
+       "recall": 0.5652,
+       "recall_ci": [
+        0.5036,
+        0.6249
+       ],
+       "recalled": 143,
+       "self": 43,
+       "tp": 31,
+       "unsure_only": 2
+      },
+      "kofn_2": {
+       "accepted_sites": 213,
+       "f1": 0.6136,
+       "fp": 1,
+       "pool": 253,
+       "precision": 0.9615,
+       "precision_ci": [
+        0.8111,
+        0.9932
+       ],
+       "recall": 0.4506,
+       "recall_ci": [
+        0.3905,
+        0.5122
+       ],
+       "recalled": 114,
+       "self": 35,
+       "tp": 25,
+       "unsure_only": 1
+      },
+      "kofn_3": {
+       "accepted_sites": 148,
+       "f1": 0.4655,
+       "fp": 1,
+       "pool": 253,
+       "precision": 0.95,
+       "precision_ci": [
+        0.7639,
+        0.9911
+       ],
+       "recall": 0.3083,
+       "recall_ci": [
+        0.2546,
+        0.3677
+       ],
+       "recalled": 78,
+       "self": 28,
+       "tp": 19,
+       "unsure_only": 1
+      }
+     }
+    },
+    "0.55": {
+     "fused": {
+      "detections_projected": 6730,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 464,
+       "on_rig": 0,
+       "out_of_range": 1568
+      },
+      "n_multi_pano": 117,
+      "n_sites": 206,
+      "n_sites_precision_scope": 89
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.2497,
+        0.3636
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.3036
+      },
+      {
+       "ci": [
+        0.303,
+        0.4219
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.3603
+      },
+      {
+       "ci": [
+        0.33,
+        0.4507
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.3887
+      },
+      {
+       "ci": [
+        0.3417,
+        0.463
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.4008
+      },
+      {
+       "ci": [
+        0.3494,
+        0.4712
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.4089
+      },
+      {
+       "ci": [
+        0.3494,
+        0.4712
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.4089
+      },
+      {
+       "ci": [
+        0.3494,
+        0.4712
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.4089
+      },
+      {
+       "ci": [
+        0.3494,
+        0.4712
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.4089
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.2659,
+        0.4083
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.3333
+      },
+      {
+       "ci": [
+        0.3283,
+        0.4762
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.4
+      },
+      {
+       "ci": [
+        0.3688,
+        0.5187
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.4424
+      },
+      {
+       "ci": [
+        0.3863,
+        0.5367
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.4606
+      },
+      {
+       "ci": [
+        0.398,
+        0.5487
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.4727
+      },
+      {
+       "ci": [
+        0.398,
+        0.5487
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.4727
+      },
+      {
+       "ci": [
+        0.398,
+        0.5487
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.4727
+      },
+      {
+       "ci": [
+        0.398,
+        0.5487
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.4727
+      }
+     ],
+     "per_pano": {
+      "f1": 0.0805,
+      "fn": 297,
+      "fp": 0,
+      "n_panos": 124,
+      "precision": 1.0,
+      "recall": 0.0419,
+      "tp": 13
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.0,
+       "recall_other_ci": [
+        0.0,
+        0.3543
+       ],
+       "recall_union": 0.0
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.0,
+       "recall_other_ci": [
+        0.0,
+        0.3903
+       ],
+       "recall_union": 0.0
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.2963,
+       "recall_other_ci": [
+        0.1585,
+        0.4848
+       ],
+       "recall_union": 0.2963
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.3571,
+       "recall_other_ci": [
+        0.2446,
+        0.4881
+       ],
+       "recall_union": 0.3929
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.4922,
+       "recall_other_ci": [
+        0.4071,
+        0.5778
+       ],
+       "recall_union": 0.5156
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 0.4783,
+       "recall_other_ci": [
+        0.2924,
+        0.6704
+       ],
+       "recall_union": 0.5217
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 206,
+       "f1": 0.5866,
+       "fp": 0,
+       "pool": 253,
+       "precision": 1.0,
+       "precision_ci": [
+        0.6457,
+        1.0
+       ],
+       "recall": 0.415,
+       "recall_ci": [
+        0.356,
+        0.4766
+       ],
+       "recalled": 105,
+       "self": 13,
+       "tp": 7,
+       "unsure_only": 1
+      },
+      "kofn_2": {
+       "accepted_sites": 117,
+       "f1": 0.3885,
+       "fp": 0,
+       "pool": 253,
+       "precision": 1.0,
+       "precision_ci": [
+        0.5655,
+        1.0
+       ],
+       "recall": 0.2411,
+       "recall_ci": [
+        0.1925,
+        0.2974
+       ],
+       "recalled": 61,
+       "self": 8,
+       "tp": 5,
+       "unsure_only": 0
+      },
+      "kofn_3": {
+       "accepted_sites": 57,
+       "f1": 0.2308,
+       "fp": 0,
+       "pool": 253,
+       "precision": 1.0,
+       "precision_ci": [
+        0.5101,
+        1.0
+       ],
+       "recall": 0.1304,
+       "recall_ci": [
+        0.0944,
+        0.1775
+       ],
+       "recalled": 33,
+       "self": 6,
+       "tp": 4,
+       "unsure_only": 0
+      }
+     }
+    }
+   }
   },
   "y26_pano": {
-   "missing": true
+   "n_panos": 2867,
+   "n_uncached": 0,
+   "published_richmond": {
+    "judged_panos_identical_detections": 0.5161,
+    "per_pano_at_headline": {
+     "f1": 0.4907,
+     "fn": 191,
+     "fp": 56,
+     "n_panos": 124,
+     "precision": 0.68,
+     "recall": 0.3839,
+     "tp": 119
+    }
+   },
+   "signature": {
+    "conf": 0.05,
+    "imgsz": 1280,
+    "iou": 0.5,
+    "max_edge": 1536,
+    "model_id": "y26_pano",
+    "prompt": null,
+    "provider": "yolo",
+    "source_max_edge": 4096,
+    "tile": false,
+    "views": null,
+    "weights_hash": "2571bbd27aba59506aabd3499234d3e37c42b405"
+   },
+   "tiers": {
+    "0.05": {
+     "fused": {
+      "detections_projected": 15539,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 525,
+       "on_rig": 0,
+       "out_of_range": 2563
+      },
+      "n_multi_pano": 2540,
+      "n_sites": 3352,
+      "n_sites_precision_scope": 1159
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.6616,
+        0.7729
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.7206
+      },
+      {
+       "ci": [
+        0.787,
+        0.8788
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.8381
+      },
+      {
+       "ci": [
+        0.8138,
+        0.8998
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.8623
+      },
+      {
+       "ci": [
+        0.8365,
+        0.917
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.8826
+      },
+      {
+       "ci": [
+        0.8456,
+        0.9238
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.8907
+      },
+      {
+       "ci": [
+        0.8502,
+        0.9271
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.8947
+      },
+      {
+       "ci": [
+        0.8595,
+        0.9338
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.9028
+      },
+      {
+       "ci": [
+        0.8595,
+        0.9338
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.9028
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.6933,
+        0.822
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.7636
+      },
+      {
+       "ci": [
+        0.8202,
+        0.9201
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.8788
+      },
+      {
+       "ci": [
+        0.8483,
+        0.9394
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.903
+      },
+      {
+       "ci": [
+        0.8626,
+        0.9488
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.9152
+      },
+      {
+       "ci": [
+        0.8772,
+        0.9579
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.9273
+      },
+      {
+       "ci": [
+        0.8846,
+        0.9624
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.9333
+      },
+      {
+       "ci": [
+        0.8996,
+        0.971
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.9455
+      },
+      {
+       "ci": [
+        0.8996,
+        0.971
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.9455
+      }
+     ],
+     "per_pano": {
+      "f1": 0.4112,
+      "fn": 54,
+      "fp": 679,
+      "n_panos": 124,
+      "precision": 0.2738,
+      "recall": 0.8258,
+      "tp": 256
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.2857,
+       "recall_other_ci": [
+        0.0822,
+        0.6411
+       ],
+       "recall_union": 0.8571
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.3333,
+       "recall_other_ci": [
+        0.0968,
+        0.7
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.8519,
+       "recall_other_ci": [
+        0.6752,
+        0.9408
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.9643,
+       "recall_other_ci": [
+        0.8788,
+        0.9902
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.9688,
+       "recall_other_ci": [
+        0.9224,
+        0.9878
+       ],
+       "recall_union": 0.9922
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 0.9565,
+       "recall_other_ci": [
+        0.7901,
+        0.9923
+       ],
+       "recall_union": 1.0
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 3352,
+       "f1": 0.4301,
+       "fp": 353,
+       "pool": 253,
+       "precision": 0.2752,
+       "precision_ci": [
+        0.2374,
+        0.3165
+       ],
+       "recall": 0.9842,
+       "recall_ci": [
+        0.9601,
+        0.9938
+       ],
+       "recalled": 249,
+       "self": 215,
+       "tp": 134,
+       "unsure_only": 24
+      },
+      "kofn_2": {
+       "accepted_sites": 2540,
+       "f1": 0.4396,
+       "fp": 308,
+       "pool": 253,
+       "precision": 0.2887,
+       "precision_ci": [
+        0.248,
+        0.3331
+       ],
+       "recall": 0.9209,
+       "recall_ci": [
+        0.8811,
+        0.9482
+       ],
+       "recalled": 233,
+       "self": 204,
+       "tp": 125,
+       "unsure_only": 24
+      },
+      "kofn_3": {
+       "accepted_sites": 2065,
+       "f1": 0.4429,
+       "fp": 284,
+       "pool": 253,
+       "precision": 0.2953,
+       "precision_ci": [
+        0.2528,
+        0.3416
+       ],
+       "recall": 0.8854,
+       "recall_ci": [
+        0.8402,
+        0.919
+       ],
+       "recalled": 224,
+       "self": 195,
+       "tp": 119,
+       "unsure_only": 21
+      }
+     }
+    },
+    "0.10": {
+     "fused": {
+      "detections_projected": 15539,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 525,
+       "on_rig": 0,
+       "out_of_range": 2563
+      },
+      "n_multi_pano": 1435,
+      "n_sites": 1921,
+      "n_sites_precision_scope": 683
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.6322,
+        0.7466
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.6923
+      },
+      {
+       "ci": [
+        0.7562,
+        0.8538
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.8097
+      },
+      {
+       "ci": [
+        0.7781,
+        0.8717
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.83
+      },
+      {
+       "ci": [
+        0.8004,
+        0.8893
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.8502
+      },
+      {
+       "ci": [
+        0.8093,
+        0.8963
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.8583
+      },
+      {
+       "ci": [
+        0.8093,
+        0.8963
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.8583
+      },
+      {
+       "ci": [
+        0.8138,
+        0.8998
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.8623
+      },
+      {
+       "ci": [
+        0.8183,
+        0.9033
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.8664
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.6611,
+        0.7949
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.7333
+      },
+      {
+       "ci": [
+        0.8064,
+        0.9103
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.8667
+      },
+      {
+       "ci": [
+        0.8342,
+        0.9299
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.8909
+      },
+      {
+       "ci": [
+        0.8483,
+        0.9394
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.903
+      },
+      {
+       "ci": [
+        0.8626,
+        0.9488
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.9152
+      },
+      {
+       "ci": [
+        0.8626,
+        0.9488
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.9152
+      },
+      {
+       "ci": [
+        0.8699,
+        0.9534
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.9212
+      },
+      {
+       "ci": [
+        0.8772,
+        0.9579
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.9273
+      }
+     ],
+     "per_pano": {
+      "f1": 0.5006,
+      "fn": 105,
+      "fp": 304,
+      "n_panos": 124,
+      "precision": 0.4028,
+      "recall": 0.6613,
+      "tp": 205
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.1429,
+       "recall_other_ci": [
+        0.0257,
+        0.5131
+       ],
+       "recall_union": 0.7143
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.3333,
+       "recall_other_ci": [
+        0.0968,
+        0.7
+       ],
+       "recall_union": 1.0
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.8148,
+       "recall_other_ci": [
+        0.633,
+        0.9182
+       ],
+       "recall_union": 0.9259
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.8929,
+       "recall_other_ci": [
+        0.7853,
+        0.95
+       ],
+       "recall_union": 0.9286
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.9531,
+       "recall_other_ci": [
+        0.9015,
+        0.9783
+       ],
+       "recall_union": 0.9766
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 0.9565,
+       "recall_other_ci": [
+        0.7901,
+        0.9923
+       ],
+       "recall_union": 1.0
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 1921,
+       "f1": 0.5627,
+       "fp": 176,
+       "pool": 253,
+       "precision": 0.3993,
+       "precision_ci": [
+        0.3449,
+        0.4564
+       ],
+       "recall": 0.9526,
+       "recall_ci": [
+        0.9189,
+        0.9727
+       ],
+       "recalled": 241,
+       "self": 189,
+       "tp": 117,
+       "unsure_only": 6
+      },
+      "kofn_2": {
+       "accepted_sites": 1435,
+       "f1": 0.5637,
+       "fp": 151,
+       "pool": 253,
+       "precision": 0.417,
+       "precision_ci": [
+        0.3586,
+        0.4778
+       ],
+       "recall": 0.8696,
+       "recall_ci": [
+        0.8225,
+        0.9056
+       ],
+       "recalled": 220,
+       "self": 177,
+       "tp": 108,
+       "unsure_only": 6
+      },
+      "kofn_3": {
+       "accepted_sites": 1145,
+       "f1": 0.5675,
+       "fp": 139,
+       "pool": 253,
+       "precision": 0.428,
+       "precision_ci": [
+        0.3674,
+        0.4908
+       ],
+       "recall": 0.8419,
+       "recall_ci": [
+        0.7919,
+        0.8817
+       ],
+       "recalled": 213,
+       "self": 171,
+       "tp": 104,
+       "unsure_only": 5
+      }
+     }
+    },
+    "0.25": {
+     "fused": {
+      "detections_projected": 15539,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 525,
+       "on_rig": 0,
+       "out_of_range": 2563
+      },
+      "n_multi_pano": 566,
+      "n_sites": 820,
+      "n_sites_precision_scope": 307
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.5288,
+        0.6506
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.5911
+      },
+      {
+       "ci": [
+        0.6406,
+        0.7541
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.7004
+      },
+      {
+       "ci": [
+        0.6829,
+        0.7915
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.7409
+      },
+      {
+       "ci": [
+        0.7128,
+        0.8174
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.7692
+      },
+      {
+       "ci": [
+        0.7301,
+        0.832
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.7854
+      },
+      {
+       "ci": [
+        0.7344,
+        0.8357
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.7895
+      },
+      {
+       "ci": [
+        0.7474,
+        0.8466
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.8016
+      },
+      {
+       "ci": [
+        0.7474,
+        0.8466
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.8016
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.5606,
+        0.7059
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.6364
+      },
+      {
+       "ci": [
+        0.6933,
+        0.822
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.7636
+      },
+      {
+       "ci": [
+        0.7457,
+        0.8644
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.8121
+      },
+      {
+       "ci": [
+        0.7657,
+        0.8799
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.8303
+      },
+      {
+       "ci": [
+        0.7927,
+        0.9003
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.8545
+      },
+      {
+       "ci": [
+        0.7995,
+        0.9053
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.8606
+      },
+      {
+       "ci": [
+        0.8202,
+        0.9201
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.8788
+      },
+      {
+       "ci": [
+        0.8202,
+        0.9201
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.8788
+      }
+     ],
+     "per_pano": {
+      "f1": 0.4907,
+      "fn": 191,
+      "fp": 56,
+      "n_panos": 124,
+      "precision": 0.68,
+      "recall": 0.3839,
+      "tp": 119
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.1429,
+       "recall_other_ci": [
+        0.0257,
+        0.5131
+       ],
+       "recall_union": 0.5714
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.1667,
+       "recall_other_ci": [
+        0.0301,
+        0.5635
+       ],
+       "recall_union": 0.3333
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.7407,
+       "recall_other_ci": [
+        0.5532,
+        0.8683
+       ],
+       "recall_union": 0.8519
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.8036,
+       "recall_other_ci": [
+        0.6816,
+        0.8866
+       ],
+       "recall_union": 0.8393
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.9062,
+       "recall_other_ci": [
+        0.8433,
+        0.9456
+       ],
+       "recall_union": 0.9453
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 0.8261,
+       "recall_other_ci": [
+        0.6286,
+        0.9302
+       ],
+       "recall_union": 0.8696
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 820,
+       "f1": 0.7801,
+       "fp": 29,
+       "pool": 253,
+       "precision": 0.7238,
+       "precision_ci": [
+        0.6315,
+        0.8003
+       ],
+       "recall": 0.8458,
+       "recall_ci": [
+        0.7962,
+        0.8851
+       ],
+       "recalled": 214,
+       "self": 118,
+       "tp": 76,
+       "unsure_only": 4
+      },
+      "kofn_2": {
+       "accepted_sites": 566,
+       "f1": 0.7479,
+       "fp": 22,
+       "pool": 253,
+       "precision": 0.7528,
+       "precision_ci": [
+        0.654,
+        0.8307
+       ],
+       "recall": 0.7431,
+       "recall_ci": [
+        0.6859,
+        0.793
+       ],
+       "recalled": 188,
+       "self": 105,
+       "tp": 67,
+       "unsure_only": 3
+      },
+      "kofn_3": {
+       "accepted_sites": 420,
+       "f1": 0.6923,
+       "fp": 18,
+       "pool": 253,
+       "precision": 0.7429,
+       "precision_ci": [
+        0.6297,
+        0.8307
+       ],
+       "recall": 0.6482,
+       "recall_ci": [
+        0.5876,
+        0.7044
+       ],
+       "recalled": 164,
+       "self": 86,
+       "tp": 52,
+       "unsure_only": 2
+      }
+     }
+    },
+    "0.40": {
+     "fused": {
+      "detections_projected": 15539,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 525,
+       "on_rig": 0,
+       "out_of_range": 2563
+      },
+      "n_multi_pano": 265,
+      "n_sites": 391,
+      "n_sites_precision_scope": 151
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.4321,
+        0.5559
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.4939
+      },
+      {
+       "ci": [
+        0.5207,
+        0.6428
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.583
+      },
+      {
+       "ci": [
+        0.5575,
+        0.6777
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.6194
+      },
+      {
+       "ci": [
+        0.5616,
+        0.6816
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.6235
+      },
+      {
+       "ci": [
+        0.574,
+        0.6931
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.6356
+      },
+      {
+       "ci": [
+        0.5781,
+        0.697
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.6397
+      },
+      {
+       "ci": [
+        0.5864,
+        0.7047
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.6478
+      },
+      {
+       "ci": [
+        0.5864,
+        0.7047
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.6478
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.4633,
+        0.6137
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.5394
+      },
+      {
+       "ci": [
+        0.5792,
+        0.7228
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.6545
+      },
+      {
+       "ci": [
+        0.6293,
+        0.7675
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.703
+      },
+      {
+       "ci": [
+        0.6293,
+        0.7675
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.703
+      },
+      {
+       "ci": [
+        0.6484,
+        0.784
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.7212
+      },
+      {
+       "ci": [
+        0.6547,
+        0.7895
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.7273
+      },
+      {
+       "ci": [
+        0.6675,
+        0.8004
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.7394
+      },
+      {
+       "ci": [
+        0.6675,
+        0.8004
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.7394
+      }
+     ],
+     "per_pano": {
+      "f1": 0.2764,
+      "fn": 259,
+      "fp": 8,
+      "n_panos": 124,
+      "precision": 0.8644,
+      "recall": 0.1645,
+      "tp": 51
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.0,
+       "recall_other_ci": [
+        0.0,
+        0.3543
+       ],
+       "recall_union": 0.0
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.0,
+       "recall_other_ci": [
+        0.0,
+        0.3903
+       ],
+       "recall_union": 0.0
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.5185,
+       "recall_other_ci": [
+        0.3399,
+        0.6926
+       ],
+       "recall_union": 0.5556
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.5714,
+       "recall_other_ci": [
+        0.4414,
+        0.6923
+       ],
+       "recall_union": 0.5893
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.7656,
+       "recall_other_ci": [
+        0.6852,
+        0.8306
+       ],
+       "recall_union": 0.7891
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 0.6957,
+       "recall_other_ci": [
+        0.4913,
+        0.844
+       ],
+       "recall_union": 0.7391
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 391,
+       "f1": 0.7365,
+       "fp": 4,
+       "pool": 253,
+       "precision": 0.8974,
+       "precision_ci": [
+        0.7642,
+        0.9594
+       ],
+       "recall": 0.6245,
+       "recall_ci": [
+        0.5634,
+        0.6819
+       ],
+       "recalled": 158,
+       "self": 51,
+       "tp": 35,
+       "unsure_only": 1
+      },
+      "kofn_2": {
+       "accepted_sites": 265,
+       "f1": 0.6456,
+       "fp": 4,
+       "pool": 253,
+       "precision": 0.8919,
+       "precision_ci": [
+        0.7529,
+        0.9571
+       ],
+       "recall": 0.5059,
+       "recall_ci": [
+        0.4447,
+        0.567
+       ],
+       "recalled": 128,
+       "self": 47,
+       "tp": 33,
+       "unsure_only": 1
+      },
+      "kofn_3": {
+       "accepted_sites": 175,
+       "f1": 0.5181,
+       "fp": 2,
+       "pool": 253,
+       "precision": 0.9259,
+       "precision_ci": [
+        0.7663,
+        0.9794
+       ],
+       "recall": 0.3597,
+       "recall_ci": [
+        0.3031,
+        0.4205
+       ],
+       "recalled": 91,
+       "self": 36,
+       "tp": 25,
+       "unsure_only": 0
+      }
+     }
+    },
+    "0.55": {
+     "fused": {
+      "detections_projected": 15539,
+      "drops": {
+       "below_floor": 0,
+       "horizon": 525,
+       "on_rig": 0,
+       "out_of_range": 2563
+      },
+      "n_multi_pano": 177,
+      "n_sites": 281,
+      "n_sites_precision_scope": 112
+     },
+     "k_nearest_all": [
+      {
+       "ci": [
+        0.3262,
+        0.4466
+       ],
+       "k": 1,
+       "ramps": 247,
+       "recall": 0.3846
+      },
+      {
+       "ci": [
+        0.4004,
+        0.5238
+       ],
+       "k": 2,
+       "ramps": 247,
+       "recall": 0.4615
+      },
+      {
+       "ci": [
+        0.4321,
+        0.5559
+       ],
+       "k": 3,
+       "ramps": 247,
+       "recall": 0.4939
+      },
+      {
+       "ci": [
+        0.4481,
+        0.5718
+       ],
+       "k": 4,
+       "ramps": 247,
+       "recall": 0.5101
+      },
+      {
+       "ci": [
+        0.4601,
+        0.5837
+       ],
+       "k": 5,
+       "ramps": 247,
+       "recall": 0.5223
+      },
+      {
+       "ci": [
+        0.4681,
+        0.5917
+       ],
+       "k": 6,
+       "ramps": 247,
+       "recall": 0.5304
+      },
+      {
+       "ci": [
+        0.4681,
+        0.5917
+       ],
+       "k": 7,
+       "ramps": 247,
+       "recall": 0.5304
+      },
+      {
+       "ci": [
+        0.4681,
+        0.5917
+       ],
+       "k": 8,
+       "ramps": 247,
+       "recall": 0.5304
+      }
+     ],
+     "k_nearest_fixed": [
+      {
+       "ci": [
+        0.3398,
+        0.4884
+       ],
+       "k": 1,
+       "ramps": 165,
+       "recall": 0.4121
+      },
+      {
+       "ci": [
+        0.4394,
+        0.5902
+       ],
+       "k": 2,
+       "ramps": 165,
+       "recall": 0.5152
+      },
+      {
+       "ci": [
+        0.4813,
+        0.6312
+       ],
+       "k": 3,
+       "ramps": 165,
+       "recall": 0.5576
+      },
+      {
+       "ci": [
+        0.5055,
+        0.6544
+       ],
+       "k": 4,
+       "ramps": 165,
+       "recall": 0.5818
+      },
+      {
+       "ci": [
+        0.5238,
+        0.6717
+       ],
+       "k": 5,
+       "ramps": 165,
+       "recall": 0.6
+      },
+      {
+       "ci": [
+        0.536,
+        0.6831
+       ],
+       "k": 6,
+       "ramps": 165,
+       "recall": 0.6121
+      },
+      {
+       "ci": [
+        0.536,
+        0.6831
+       ],
+       "k": 7,
+       "ramps": 165,
+       "recall": 0.6121
+      },
+      {
+       "ci": [
+        0.536,
+        0.6831
+       ],
+       "k": 8,
+       "ramps": 165,
+       "recall": 0.6121
+      }
+     ],
+     "per_pano": {
+      "f1": 0.1744,
+      "fn": 280,
+      "fp": 4,
+      "n_panos": 124,
+      "precision": 0.8824,
+      "recall": 0.0968,
+      "tp": 30
+     },
+     "recall_by_capture_count": [
+      {
+       "n_bin": "1",
+       "ramps": 7,
+       "recall_other": 0.0,
+       "recall_other_ci": [
+        0.0,
+        0.3543
+       ],
+       "recall_union": 0.0
+      },
+      {
+       "n_bin": "2",
+       "ramps": 6,
+       "recall_other": 0.0,
+       "recall_other_ci": [
+        0.0,
+        0.3903
+       ],
+       "recall_union": 0.0
+      },
+      {
+       "n_bin": "3-4",
+       "ramps": 27,
+       "recall_other": 0.3333,
+       "recall_other_ci": [
+        0.1864,
+        0.5218
+       ],
+       "recall_union": 0.3333
+      },
+      {
+       "n_bin": "5-8",
+       "ramps": 56,
+       "recall_other": 0.4643,
+       "recall_other_ci": [
+        0.3402,
+        0.593
+       ],
+       "recall_union": 0.5
+      },
+      {
+       "n_bin": "9-16",
+       "ramps": 128,
+       "recall_other": 0.625,
+       "recall_other_ci": [
+        0.5386,
+        0.7041
+       ],
+       "recall_union": 0.6484
+      },
+      {
+       "n_bin": "17+",
+       "ramps": 23,
+       "recall_other": 0.6957,
+       "recall_other_ci": [
+        0.4913,
+        0.844
+       ],
+       "recall_union": 0.7391
+      }
+     ],
+     "world": {
+      "kofn_1": {
+       "accepted_sites": 281,
+       "f1": 0.6435,
+       "fp": 2,
+       "pool": 253,
+       "precision": 0.9091,
+       "precision_ci": [
+        0.7218,
+        0.9747
+       ],
+       "recall": 0.498,
+       "recall_ci": [
+        0.4369,
+        0.5592
+       ],
+       "recalled": 126,
+       "self": 30,
+       "tp": 20,
+       "unsure_only": 2
+      },
+      "kofn_2": {
+       "accepted_sites": 177,
+       "f1": 0.5176,
+       "fp": 1,
+       "pool": 253,
+       "precision": 0.95,
+       "precision_ci": [
+        0.7639,
+        0.9911
+       ],
+       "recall": 0.3557,
+       "recall_ci": [
+        0.2993,
+        0.4165
+       ],
+       "recalled": 90,
+       "self": 27,
+       "tp": 19,
+       "unsure_only": 2
+      },
+      "kofn_3": {
+       "accepted_sites": 107,
+       "f1": 0.3732,
+       "fp": 1,
+       "pool": 253,
+       "precision": 0.9333,
+       "precision_ci": [
+        0.7018,
+        0.9881
+       ],
+       "recall": 0.2332,
+       "recall_ci": [
+        0.1853,
+        0.2891
+       ],
+       "recalled": 59,
+       "self": 19,
+       "tp": 14,
+       "unsure_only": 1
+      }
+     }
+    }
+   }
   }
  }
 }
