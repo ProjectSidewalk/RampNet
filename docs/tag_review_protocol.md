@@ -14,20 +14,93 @@ describe how it would run, and the tooling for it stays built.
 
 1. Read the rubric block of `docs/tag_rubric_draft.md` (between the `rubric:begin` and
    `rubric:end` markers) and note its version (`tag-rubric-v1.1-draft` at the time of writing).
-   If the rubric changes partway through, note the item where it changed.
+   If the rubric changes partway through, record where. Add a sidecar row for the first item
+   judged under the new version, with `rubric <new version> from here` in `note`. Key the row by
+   that item's `label_uid` (`<city>:<label_id>`, from the open gallery) or its `item_id` (from the
+   `links` pairs), as described below; a bare label id is not enough. If that item already has a
+   sidecar row, append `rubric <new version> from here` to that row's `note` instead of adding a
+   second row; the pull stops on two rows for one item. Pick an item you then judge fully,
+   including the Agree / Disagree / Unsure vote: that item's export `judged_at` gives the split
+   point in time only if the item ends up reviewed. The pull stops if a sidecar row is on an item
+   left unreviewed, so the marker is never dropped silently. On the production route the pass
+   runs city by city, so a mid-pass change also splits the pass by city. Say so beside any number
+   that uses both halves.
 2. Note the pass start time in UTC. The production pull only counts edits and votes after it, so
    an older expert-validate of the same label is not mistaken for this pass.
 3. Create an empty sidecar file, `benchmark/tag_review/<rater>__sidecar.csv`, with the header
-   `item_id,cannot_judge,cannot_judge_tags,note`. Production has no field for a per-tag "cannot
-   judge" or a note, so they go here (decision D12).
+   `item_id,label_uid,cannot_judge,cannot_judge_tags,note`. Production has no field for a per-tag
+   "cannot judge" or a note, so they go here (decision D12). Each row needs `item_id` or
+   `label_uid`; fill in whichever is at hand.
 
 ## The rater: on production
 
-For each row of the list, in `item_id` order:
+Each deployment is its own server, so the list is reviewed one city at a time. Print one gallery
+link per city, in review order, with
 
-1. **Open `editor_url`** (`https://<host>/gallery?labelType=CurbRamp&labelId=<id>`) signed in as
-   an Owner or Administrator. `labelmap_url` opens the same label on the label map if the gallery
-   view is not enough.
+```bash
+python scripts/analysis/tag_review_list.py links
+```
+
+Each link is `https://<host>/gallery?labelIds=<id>,<id>,...` (SidewalkWebpage PR #5445, on
+production since 2026-09-24): exactly that city's items, in `item_id` order, as a queue in the
+normal gallery editor, with a **k of N** position chip in the expanded view. Work through the
+links in the order printed. That order is a seeded shuffle of the cities (`--seed`, default 86,
+the list's build seed), not alphabetical. City is one of the three strata, and one queue per city
+makes it a block on this route whatever the order; alphabetical order would put burnaby, cdmx and
+chicago-il first and waltham-ma, west-chester and zurich last in every pass, lining fatigue and
+drift up with the alphabet. Within a city `item_id` order is the list's shuffle, so tag state and
+distance band stay interleaved. The review sheet has no such blocks (see the asymmetry table).
+
+The default order, 35 cities, from seed 86 on the committed list (numpy 2.5.1, 2026-09-28; the
+test suite pins it, so a numpy change that reorders it fails CI):
+
+columbia, hackensack-nj, cdmx, sao-paulo-brazil, chicago-il, walla-walla, gainesville-fl,
+madison-wi, newberg-or, waltham-ma, pittsburgh-pa, niagara-falls-ny, keelung, west-chester,
+tucson-az, st-louis-mo, new-taipei, teaneck-nj, kaohsiung, maywood-nj, zurich, danville-il,
+oradell-nj, seattle-wa, taipei, paterson-nj, knox-oh, cliffside-park-nj, fort-wayne-in,
+santiago-chile, detroit-mi, rancagua-chile, columbus-oh, mendota-il, burnaby.
+
+If a pass departs from this order (another `--seed`, or cities out of order), record the order
+actually used in the pass's issue comment.
+
+Ids the server cannot show are listed above the grid; treat those items as not reviewed. The
+by-id query (`getGalleryLabelsByIdQuery` in SidewalkWebpage's `app/models/label/LabelTable.scala`,
+read at `develop`
+[d84ecbb](https://github.com/ProjectSidewalk/SidewalkWebpage/blob/d84ecbbcaa2292863eb36084846c3d6143c2cb31/app/models/label/LabelTable.scala)
+on 2026-09-28) applies none of the gallery's quality filters, but it still drops, for example: deleted labels,
+tutorial labels, labels from excluded contributors, labels on a panorama from another viewer than
+the deployment's, and labels with no latitude and longitude. The list is not exhaustive, since the
+query also inner-joins the label's street region and its user's stats. The query does not check
+imagery, so a label whose panorama is gone can still come back with nothing to judge; treat that
+item as not reviewed too. On 2026-09-26 the server returned all 500
+listed labels, with an empty `unavailableLabelIds` on all 35 deployments (#186 review). Do not
+put an item you could not review in the sidecar: an item with no edit or vote exports as not
+reviewed, and the pull stops on a sidecar row it would drop (below). List those items by
+`label_uid` in the pass's issue comment instead.
+
+The gallery shows label ids, not `item_id`s, and a label id alone does not name an item: 12 label
+ids in the committed list occur in two or more cities (label 24930 is `danville-il:24930`,
+`maywood-nj:24930` and `santiago-chile:24930`). So a sidecar row names its item one of two ways:
+
+- by `label_uid`, which is `<city>:<label_id>` for the city whose gallery is open, with no lookup;
+- by `item_id`, read off the `label_id=item_id` pairs that `links` prints under each city's link
+  (`--format tsv` gives the same pairs as `item_ids` and `label_ids` columns, in URL order).
+
+The pull checks every sidecar row against the list and stops on an `item_id` or `label_uid` the
+list does not have, on a row whose two keys name different items, and on two rows for one item.
+Before this check, a wrong but valid `item_id` put the note on another city's item, and a typo was
+dropped silently. The `prod` pull also stops when a sidecar row is on an item that exports as not
+reviewed (no edit or vote from the rater inside `--since` / `--until`), because that row's note and
+`cannot_judge` would be dropped. It names the items. The usual causes are a `--since` set too late
+or a missing Agree vote (step 6 below). `--allow-unreviewed-sidecar` exports anyway, with a
+warning, and the rows are then lost. A row that is blank in every field is skipped, and a header
+with neither `item_id` nor `label_uid` stops the pull at line 1.
+
+For each item:
+
+1. **Open it** in the city's gallery link, signed in as an Owner or Administrator. `editor_url`
+   (`https://<host>/gallery?labelType=CurbRamp&labelId=<id>`) opens a single item on its own;
+   `labelmap_url` opens it on the label map if the gallery view is not enough.
 2. **Is it a curb ramp?** If not, vote **Disagree** and go to the next item.
 3. **If you cannot tell whether it is a curb ramp** (occluded, too far, dark, hidden under snow or
    ice), vote **Unsure** and go to the next item. If it is clearly a ramp but its tags cannot be
@@ -80,6 +153,7 @@ it does, the two raters do not see the same thing, and κ is measured across two
 | severity anchor | the current severity | the list-time severity, pre-filled |
 | where the judgment is written | production (edits and an Agree / Disagree / Unsure vote), plus the sidecar | the sheet only |
 | export `method` | `prod_pull` | `review_sheet` |
+| item order | city by city, one gallery queue each; cities in a seeded shuffle (`links --seed`, default 86), `item_id` order within a city | global `item_id` order (the list's seeded shuffle), cities interleaved |
 
 The tags and severity anchors match only if nobody else edits a listed label between the list's
 fetch and Jon's pass; the production pull flags any item where someone did

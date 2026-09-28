@@ -52,6 +52,10 @@ analysis_out/op/*
 !analysis_out/cascade_cost_35/
 analysis_out/cascade_cost_35/*
 !analysis_out/cascade_cost_35/*.json
+# the #35 transfer read (cascade_transfer_35.py)
+!analysis_out/cascade_cost_35/transfer/
+analysis_out/cascade_cost_35/transfer/*
+!analysis_out/cascade_cost_35/transfer/*.json
 
 # Stage 1's coordinate-tolerance result (#96): a few KB, and it is what converts an
 # offset distribution into a decision. Re-derivable on CPU from the committed
@@ -297,3 +301,13 @@ analysis_out/multiview_48/challengers/*
 analysis_out/two_scale_197/*
 !analysis_out/two_scale_197/results.json
 !analysis_out/two_scale_197/results.md
+
+# #151: the Laurens paired analysis (per-pano rows; tables re-derive by laurens_paired_151.py
+# --check) and the held-out GSV arm's image<->payload alignment check
+!analysis_out/depth_image_alignment_151_laurens_gsv.json
+!analysis_out/laurens_paired_151.json
+!analysis_out/laurens_paired_151.md
+
+# DA3 calibration against GSV depth (#101): raw per-pano DA3 rows from the klone run, the
+# derived rows and tables, and their SHA256SUMS. --check re-derives everything from them.
+!analysis_out/da3_calibration_101/

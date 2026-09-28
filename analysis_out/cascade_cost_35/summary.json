@@ -1,10 +1,10 @@
 {
  "calibration": {
-  "expected_false_viable": 1.12439,
+  "expected_false_viable": 1.140519,
   "max_false_viable_rate": 0.3,
   "note": "sum over pairs of the per-pair false-VIABLE rate of wrong-pano challengers: the number of VIABLE verdicts expected if no challenger were aligned with the panos. Per-pair rates are not family-wise calibrated; this sum is the family-wise read.",
-  "pairs": 137,
-  "pairs_with_any_false_viable": 13
+  "pairs": 141,
+  "pairs_with_any_false_viable": 14
  },
  "fixed_setting_rule": {
   "c_min": "q50",
@@ -556,6 +556,103 @@
    "union_F1": 0.057912,
    "verdict": "PARTIAL",
    "viable": null
+  },
+  {
+   "base_F1": 0.853047,
+   "base_R": 0.809524,
+   "best_F1": 0.868056,
+   "best_F1_attr_dR": 0.037991,
+   "best_F1_dR": 0.040816,
+   "best_F1_setting": [
+    0.1,
+    0.011,
+    0.0
+   ],
+   "calib_challengers": 124,
+   "calib_false_viable_rate": 0.0,
+   "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "fixed": {
+    "F1": 0.85913,
+    "attr_dR": 0.028418,
+    "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
+     "dF1_ci95": [
+      -0.008735,
+      0.023096
+     ],
+     "dR_ci95": [
+      0.011583,
+      0.053957
+     ],
+     "dR_kind": "raw (not attributable)",
+     "resamples": 2000,
+     "seed": 0,
+     "unit": "pano"
+    },
+    "dF1": 0.006084,
+    "dR": 0.030612,
+    "fp_per_attr_ramp": 0.957529,
+    "promoted_fp": 8,
+    "setting": [
+     0.05,
+     0.011,
+     0.710216
+    ],
+    "thr_at_matched_R_F1": 0.844444
+   },
+   "max_attr_dR": 0.061965,
+   "n_gt": 294,
+   "n_viable_rows": 18,
+   "null_shifts": 124,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.020667,
+     0.068453
+    ],
+    "dF1_ci95": [
+     0.00429,
+     0.032293
+    ],
+    "dR_ci95": [
+     0.02381,
+     0.076923
+    ],
+    "viable_frac": 0.9895
+   },
+   "split": "annapolis",
+   "thr_best_F1": 0.855596,
+   "thr_best_t": 0.31,
+   "union_F1": 0.487091,
+   "verdict": "VIABLE",
+   "viable": {
+    "F1": 0.868056,
+    "attr_dR": 0.037991,
+    "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
+     "dF1_ci95": [
+      0.000506,
+      0.030614
+     ],
+     "dR_ci95": [
+      0.021127,
+      0.062731
+     ],
+     "dR_kind": "raw (not attributable)",
+     "resamples": 2000,
+     "seed": 0,
+     "unit": "pano"
+    },
+    "dF1": 0.015009,
+    "dR": 0.040816,
+    "fp_per_attr_ramp": 0.537184,
+    "promoted_fp": 6,
+    "setting": [
+     0.1,
+     0.011,
+     0.0
+    ],
+    "thr_at_matched_R_F1": 0.839465
+   }
   },
   {
    "base_F1": 0.853047,
@@ -1813,6 +1910,103 @@
    "union_F1": 0.080387,
    "verdict": "NOT VIABLE",
    "viable": null
+  },
+  {
+   "base_F1": 0.87055,
+   "base_R": 0.82263,
+   "best_F1": 0.88,
+   "best_F1_attr_dR": 0.017311,
+   "best_F1_dR": 0.018349,
+   "best_F1_setting": [
+    0.2,
+    0.011,
+    0.0
+   ],
+   "calib_challengers": 109,
+   "calib_false_viable_rate": 0.0,
+   "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "fixed": {
+    "F1": 0.868878,
+    "attr_dR": 0.016749,
+    "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
+     "dF1_ci95": [
+      -0.011334,
+      0.008346
+     ],
+     "dR_ci95": [
+      0.0059,
+      0.033333
+     ],
+     "dR_kind": "raw (not attributable)",
+     "resamples": 2000,
+     "seed": 0,
+     "unit": "pano"
+    },
+    "dF1": -0.001672,
+    "dR": 0.018349,
+    "fp_per_attr_ramp": 1.643216,
+    "promoted_fp": 9,
+    "setting": [
+     0.05,
+     0.011,
+     0.674591
+    ],
+    "thr_at_matched_R_F1": 0.869291
+   },
+   "max_attr_dR": 0.036501,
+   "n_gt": 327,
+   "n_viable_rows": 2,
+   "null_shifts": 109,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.040343
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.019775
+    ],
+    "dR_ci95": [
+     0.0,
+     0.043077
+    ],
+    "viable_frac": 0.6925
+   },
+   "split": "bend",
+   "thr_best_F1": 0.872666,
+   "thr_best_t": 0.5,
+   "union_F1": 0.456763,
+   "verdict": "VIABLE",
+   "viable": {
+    "F1": 0.87619,
+    "attr_dR": 0.0202,
+    "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
+     "dF1_ci95": [
+      -0.003344,
+      0.015954
+     ],
+     "dR_ci95": [
+      0.006329,
+      0.040541
+     ],
+     "dR_kind": "raw (not attributable)",
+     "resamples": 2000,
+     "seed": 0,
+     "unit": "pano"
+    },
+    "dF1": 0.00564,
+    "dR": 0.021407,
+    "fp_per_attr_ramp": 0.756944,
+    "promoted_fp": 5,
+    "setting": [
+     0.15,
+     0.011,
+     0.0
+    ],
+    "thr_at_matched_R_F1": 0.869291
+   }
   },
   {
    "base_F1": 0.87055,
@@ -4716,6 +4910,103 @@
      0.101245
     ],
     "thr_at_matched_R_F1": 0.816327
+   }
+  },
+  {
+   "base_F1": 0.812379,
+   "base_R": 0.772059,
+   "best_F1": 0.828096,
+   "best_F1_attr_dR": 0.042843,
+   "best_F1_dR": 0.051471,
+   "best_F1_setting": [
+    0.15,
+    0.022,
+    0.50866
+   ],
+   "calib_challengers": 124,
+   "calib_false_viable_rate": 0.016129,
+   "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "fixed": {
+    "F1": 0.819367,
+    "attr_dR": 0.033207,
+    "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
+     "dF1_ci95": [
+      -0.010021,
+      0.024476
+     ],
+     "dR_ci95": [
+      0.016181,
+      0.061151
+     ],
+     "dR_kind": "raw (not attributable)",
+     "resamples": 2000,
+     "seed": 0,
+     "unit": "pano"
+    },
+    "dF1": 0.006988,
+    "dR": 0.036765,
+    "fp_per_attr_ramp": 1.107143,
+    "promoted_fp": 10,
+    "setting": [
+     0.05,
+     0.011,
+     0.625411
+    ],
+    "thr_at_matched_R_F1": 0.816327
+   },
+   "max_attr_dR": 0.074982,
+   "n_gt": 272,
+   "n_viable_rows": 28,
+   "null_shifts": 124,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.021146,
+     0.080774
+    ],
+    "dF1_ci95": [
+     0.003517,
+     0.039096
+    ],
+    "dR_ci95": [
+     0.024476,
+     0.100334
+    ],
+    "viable_frac": 0.99
+   },
+   "split": "gainesville",
+   "thr_best_F1": 0.822355,
+   "thr_best_t": 0.38,
+   "union_F1": 0.45781,
+   "verdict": "VIABLE",
+   "viable": {
+    "F1": 0.828096,
+    "attr_dR": 0.042843,
+    "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
+     "dF1_ci95": [
+      -0.001839,
+      0.035087
+     ],
+     "dR_ci95": [
+      0.027344,
+      0.07874
+     ],
+     "dR_kind": "raw (not attributable)",
+     "resamples": 2000,
+     "seed": 0,
+     "unit": "pano"
+    },
+    "dF1": 0.015717,
+    "dR": 0.051471,
+    "fp_per_attr_ramp": 0.858131,
+    "promoted_fp": 10,
+    "setting": [
+     0.15,
+     0.022,
+     0.50866
+    ],
+    "thr_at_matched_R_F1": 0.810127
    }
   },
   {
@@ -8358,6 +8649,103 @@
   {
    "base_F1": 0.818444,
    "base_R": 0.718987,
+   "best_F1": 0.827972,
+   "best_F1_attr_dR": 0.022887,
+   "best_F1_dR": 0.03038,
+   "best_F1_setting": [
+    0.1,
+    0.022,
+    0.0
+   ],
+   "calib_challengers": 124,
+   "calib_false_viable_rate": 0.0,
+   "challenger": "mask2former-vistas-curb-cut-1024x1024",
+   "fixed": {
+    "F1": 0.806723,
+    "attr_dR": 0.008269,
+    "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
+     "dF1_ci95": [
+      -0.025159,
+      0.001451
+     ],
+     "dR_ci95": [
+      0.0,
+      0.025455
+     ],
+     "dR_kind": "raw (not attributable)",
+     "resamples": 2000,
+     "seed": 0,
+     "unit": "pano"
+    },
+    "dF1": -0.011721,
+    "dR": 0.010127,
+    "fp_per_attr_ramp": 4.898765,
+    "promoted_fp": 16,
+    "setting": [
+     0.05,
+     0.011,
+     0.687044
+    ],
+    "thr_at_matched_R_F1": 0.819346
+   },
+   "max_attr_dR": 0.024745,
+   "n_gt": 395,
+   "n_viable_rows": 2,
+   "null_shifts": 124,
+   "selection_aware": {
+    "attr_dR_ci95": [
+     0.0,
+     0.039043
+    ],
+    "dF1_ci95": [
+     0.0,
+     0.025189
+    ],
+    "dR_ci95": [
+     0.0,
+     0.052198
+    ],
+    "viable_frac": 0.661
+   },
+   "split": "paterson",
+   "thr_best_F1": 0.821173,
+   "thr_best_t": 0.26,
+   "union_F1": 0.554829,
+   "verdict": "VIABLE",
+   "viable": {
+    "F1": 0.827972,
+    "attr_dR": 0.022887,
+    "boot": {
+     "conditioning": "conditional on the in-sample selection: the setting is held fixed across resamples",
+     "dF1_ci95": [
+      -0.004375,
+      0.025841
+     ],
+     "dR_ci95": [
+      0.013393,
+      0.052478
+     ],
+     "dR_kind": "raw (not attributable)",
+     "resamples": 2000,
+     "seed": 0,
+     "unit": "pano"
+    },
+    "dF1": 0.009528,
+    "dR": 0.03038,
+    "fp_per_attr_ramp": 0.99554,
+    "promoted_fp": 9,
+    "setting": [
+     0.1,
+     0.022,
+     0.0
+    ],
+    "thr_at_matched_R_F1": 0.815321
+   }
+  },
+  {
+   "base_F1": 0.818444,
+   "base_R": 0.718987,
    "best_F1": 0.825714,
    "best_F1_attr_dR": 0.009114,
    "best_F1_dR": 0.012658,
@@ -10763,6 +11151,6 @@
  "verdict_counts": {
   "NOT VIABLE": 55,
   "PARTIAL": 36,
-  "VIABLE": 46
+  "VIABLE": 50
  }
 }

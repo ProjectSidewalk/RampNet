@@ -21,7 +21,7 @@ lives on one machine.
 | `benchmark/miss_taxonomy_46/*.json` (human verdicts) | small | **committed** | ✅ |
 | RampNet model weights | — | HF `projectsidewalk/rampnet-model` | ✅ |
 | Stage 1 dataset | **463 GB** (test split ~44 GB) | HF `projectsidewalk/rampnet-dataset` | ✅ |
-| `benchmark/model_detections/` (challenger detections) | 25.3 MB (149 files) + one replicate under `replicates/` | **committed** ✅ | ✅ |
+| `benchmark/model_detections/` (challenger detections) | 25.5 MB (153 files) + one replicate under `replicates/` | **committed** ✅ | ✅ |
 | **`location_data/` (the paper's government inventories)** | 71.8 MB | **committed** ✅ | ✅ |
 | **`street_data/` derivative (what the pipeline actually reads)** | 18.7 MB | **committed** ✅ | ✅ |
 | `street_data/` raw downloads (NY file alone is 669 MB) | 801 MB | git-ignored; HF #21 pending | ⚠️ superseded by the derivative |
@@ -29,7 +29,7 @@ lives on one machine.
 | **Crop-model checkpoints** (rounds 1 + 2) | 720.7 MB | HF [`rampnet-crop-model`](https://huggingface.co/projectsidewalk/rampnet-crop-model) | ✅ |
 | Round-1 crop training set (Project Sidewalk crops) | 13.4 GB | [`rampnet-crop-model-dataset-round1`](https://huggingface.co/datasets/projectsidewalk/rampnet-crop-model-dataset-round1) | ✅ published 2026-08-05 (§4) |
 | **`benchmark/*/panos/` (benchmark panoramas)** | 11.41 GB | HF [`rampnet-benchmark`](https://huggingface.co/datasets/projectsidewalk/rampnet-benchmark) | ✅ |
-| GSV depth payloads for the 485 benchmark panos of bend / paterson / gainesville / sao_paulo (#112) | ~2.5 MB (gzipped) | labeler archive `makelab2:/projects/makeabilitylab/sidewalk-auto-labeler/runs/<city>/depth/` + local mirror; per-file sha256 in `analysis_out/recall_by_depth_112.json` | ⚠️ unpublished (Google-derived; publication pending Jon's decision). Every table in `detection_recall_analysis.md` §0 re-derives from the committed per-point rows without them. Re-deriving the rows, or re-running the image↔payload alignment check (`scripts/analysis/depth_image_alignment_112.py` → `analysis_out/depth_image_alignment_112.json`, which also needs the benchmark panos), needs the payloads |
+| GSV depth payloads for the 485 benchmark panos of bend / paterson / gainesville / sao_paulo (#112), plus the 86 benchmark panos of laurens_gsv (#151, held out; index sha256 `3e11306de0882173c3c723a62a496df17dc4e298d531a48f8c23539b7a738a2d`; that pin is the index as harvested on 2026-09-27, and the local mirror's `index.csv` was rewritten later that day by a labeler re-harvest that adds two stand-in columns, so it now hashes to `74e56eb5…`; all 86 payload files still match their per-file sha256, and whether makelab2's copy still carries the pinned index has not been checked) | ~2.5 MB (gzipped) for the four #112 splits; 252,757 bytes (gzipped) for laurens_gsv's 86, measured on the local mirror on 2026-09-28 | labeler archive `makelab2:/projects/makeabilitylab/sidewalk-auto-labeler/runs/<city>/depth/` + local mirror; per-file sha256 in `analysis_out/recall_by_depth_112.json` (laurens_gsv's under `tables["held_out"]` and `panos`) | ⚠️ unpublished (Google-derived; publication pending Jon's decision). This covers laurens_gsv's 86 payloads too. Every table in `detection_recall_analysis.md` §0 re-derives from the committed per-point rows without them. Re-deriving the rows, or re-running the image↔payload alignment check (`scripts/analysis/depth_image_alignment_112.py` → `analysis_out/depth_image_alignment_112.json`, and `--splits laurens_gsv` → `analysis_out/depth_image_alignment_151_laurens_gsv.json`, which also need the benchmark panos), needs the payloads |
 | makelab2 pano store (`/projects/makeabilitylab/sidewalk_panos/Panoramas`, the Project Sidewalk scraper's equirect archive; input to the crop cutter, #86 item 2b) | not measured; 55 city directories | makelab2 only, **unpublished** | ❌ the crops and the HF-similarity numbers in [`crop_cutter.md`](crop_cutter.md) cannot be re-cut outside the lab; the geometry tests, the coverage input/result and every crop's sha256 are committed (see below) |
 
 ### ❌ Open — the makelab2 pano store (crop cutter, #86 item 2b)
@@ -59,7 +59,7 @@ in this sentence — the list here was one of the things that drifted.
 single-panorama shards keyed by an opaque SHA-1 of (label, signature, city, pano), unreadable
 without reconstructing detector signatures. `scripts/analysis/export_model_cache.py` consolidates
 it into human-readable files, one per (model, split), keyed by panorama id with the detector
-signature recorded inside. As of 2026-09-20 that is **149 files, 25.3 MB**, and every one of
+signature recorded inside. As of 2026-09-27 that is **153 files, 25.5 MB**, and every one of
 them belongs to a registered leg:
 
 | what | files | where it is written up |
@@ -71,7 +71,7 @@ them belongs to a registered leg:
 | the other three Vertex Claude legs, annapolis only (#122) | 3 | [`claude_legs_122.md`](claude_legs_122.md) |
 | the two Fable legs, annapolis only, served on Anthropic's first-party API (#156) | 2 | [`claude_legs_122.md` §Claude Fable on annapolis](claude_legs_122.md) |
 | the two Mapillary Vistas class-set arms, richmond only (#126) | 2 | [`vistas_transfer_126.md`](vistas_transfer_126.md) |
-| the Vistas curb-cut arm at 1024×1024 input — the resolution-parity leg, richmond only (#126, #137; re-run and published under #163) | 1 | [`vistas_transfer_126.md` §Resolution parity](vistas_transfer_126.md) |
+| the Vistas curb-cut arm at 1024×1024 input — the resolution-parity leg: richmond (#126, #137; re-run and published under #163), and bend, paterson, gainesville, annapolis for the #35 cascade transfer read (klone job 40774146, 2026-09-27) | 5 | [`vistas_transfer_126.md` §Resolution parity](vistas_transfer_126.md); the four transfer splits in [`cascade_cost_35.md` §Transfer](cascade_cost_35.md) |
 
 `rampnet` is a row in every results table and has no file here: it is read from each bundle's
 committed `records.jsonl` and carries no detector signature.

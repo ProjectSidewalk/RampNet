@@ -69,6 +69,11 @@
   "host": "jonfhome",
   "python": "3.12.10"
  },
+ "annapolis__mask2former-vistas-curb-cut-1024x1024.json": {
+  "elapsed_s": 5.0,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
  "annapolis__y11l_pano.json": {
   "elapsed_s": 1.7,
   "host": "jonfhome",
@@ -126,6 +131,11 @@
  },
  "bend__google__owlv2-large-patch14-ensemble.json": {
   "elapsed_s": 3.8,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "bend__mask2former-vistas-curb-cut-1024x1024.json": {
+  "elapsed_s": 4.8,
   "host": "jonfhome",
   "python": "3.12.10"
  },
@@ -306,6 +316,11 @@
  },
  "gainesville__google__owlv2-large-patch14-ensemble.json": {
   "elapsed_s": 5.2,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "gainesville__mask2former-vistas-curb-cut-1024x1024.json": {
+  "elapsed_s": 6.0,
   "host": "jonfhome",
   "python": "3.12.10"
  },
@@ -531,6 +546,11 @@
  },
  "paterson__google__owlv2-large-patch14-ensemble.json": {
   "elapsed_s": 5.3,
+  "host": "jonfhome",
+  "python": "3.12.10"
+ },
+ "paterson__mask2former-vistas-curb-cut-1024x1024.json": {
+  "elapsed_s": 5.4,
   "host": "jonfhome",
   "python": "3.12.10"
  },

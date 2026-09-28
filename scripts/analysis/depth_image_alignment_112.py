@@ -57,6 +57,9 @@ import recall_by_depth_112 as rbd  # noqa: E402
 OUT = os.path.join(REPO, "analysis_out", "depth_image_alignment_112.json")
 SPLITS = rbd.DEPTH_SPLITS
 WALL_MIN_TILT_DEG = 60.0
+# A sky correlation whose peak stands this far above its median is one the image actually
+# constrains; under an open sky (upper half ~96% sky, rural laurens_gsv) most peaks do not.
+SKY_PROMINENT = 0.2
 
 
 def load_index(depthlib, labeler_root, city, pid):
@@ -107,7 +110,11 @@ def main(argv=None):
     ap.add_argument("--labeler-root", default=os.environ.get("LABELER_ROOT", r"D:\Git\sidewalk-auto-labeler"))
     ap.add_argument("--panos-root", default=REPO, help="checkout holding benchmark/<split>/panos/*.jpg")
     ap.add_argument("--out", default=OUT)
+    ap.add_argument("--splits", nargs="+", default=list(SPLITS),
+                    help="depth splits to check (default: the four pooled GSV splits, whose result "
+                         "is the committed OUT; a held-out split goes to its own --out, #151)")
     a = ap.parse_args(argv)
+    splits = list(a.splits)
     warnings.simplefilter("ignore", Image.DecompressionBombWarning)
     Image.MAX_IMAGE_PIXELS = None
 
@@ -116,10 +123,11 @@ def main(argv=None):
         rows = json.load(fh)
     measured = {(p["city"], p["pano"]) for p in rows["panos"] if p["camera_height_status"] == "measured"}
 
-    sky = {c: empty_counts() for c in SPLITS}
-    edge = {c: empty_counts() for c in SPLITS}
+    sky = {c: empty_counts() for c in splits}
+    edge = {c: empty_counts() for c in splits}
     ground = {k: {"n": 0, "raw": 0, "flip": 0} for k in ("gt_points", "tp_detections")}
     seam = {"raw_formula": [], "mirrored_formula": []}
+    sky_diag = []   # per pano, reported for a non-default --splits only (#151: open rural sky)
     pts = {}
     for p in rows["points"]:
         pts.setdefault((p["city"], p["pano"]), []).append(("gt_points", p["x"], p["y"]))
@@ -127,7 +135,7 @@ def main(argv=None):
         if d["kind"] == "TP":
             pts.setdefault((d["city"], d["pano"]), []).append(("tp_detections", d["x"], d["y"]))
 
-    for city in SPLITS:
+    for city in splits:
         for pano in sorted(p["pano"] for p in rows["panos"] if p["city"] == city):
             payload, idx = load_index(depthlib, a.labeler_root, city, pano)
             if payload is None:
@@ -172,7 +180,12 @@ def main(argv=None):
             mask = (idx[up] == rbd.SKY).astype(float)
             if 0.03 < mask.mean() < 0.97:
                 score = (R_ + G_ + B_)[up] / 3 + 2 * (B_ - R_)[up]
-                tally(sky[city], xcorr(score, mask), xcorr(score, mask[:, ::-1]), w)
+                cr_sky = xcorr(score, mask)
+                tally(sky[city], cr_sky, xcorr(score, mask[:, ::-1]), w)
+                k = int(np.argmax(cr_sky))
+                sky_diag.append({"pano": pano, "sky_fraction_upper_half": round(float(mask.mean()), 4),
+                                 "raw_best_shift": k if k <= w // 2 else k - w,
+                                 "raw_peak_prominence": round(float(cr_sky.max() - np.median(cr_sky)), 4)})
             band = slice(int(0.30 * h), int(0.60 * h))
             lum = (R_ + G_ + B_)[band] / 3
             grad = np.abs(np.roll(lum, -1, axis=1) - lum).sum(0)
@@ -188,6 +201,7 @@ def main(argv=None):
 
     result = {
         "labeler_commit": rbd.labeler_commit(a.labeler_root),
+        **({} if splits == list(SPLITS) else {"splits": splits}),
         "hypotheses": {"raw": "image column c = raw payload column c",
                        "flip": "image column c = raw payload column width-1-c (depth.py _raw_column)"},
         "A_sky": pooled(sky),
@@ -199,6 +213,15 @@ def main(argv=None):
                                   "share_below_0p1": round(float(np.mean(np.array(v) < 0.1)), 4)}
                               for k, v in seam.items()},
     }
+    if splits != list(SPLITS):
+        prom = [d for d in sky_diag if d["raw_peak_prominence"] >= SKY_PROMINENT]
+        result["A_sky_diagnostics"] = {
+            "median_sky_fraction_upper_half": round(float(np.median(
+                [d["sky_fraction_upper_half"] for d in sky_diag])), 4) if sky_diag else None,
+            "prominence_threshold": SKY_PROMINENT,
+            "prominent_panos": len(prom),
+            "prominent_raw_best_within_8": sum(1 for d in prom if abs(d["raw_best_shift"]) <= 8),
+            "per_pano": sky_diag}
     rbd.write_json(a.out, result)
     print(json.dumps(result, indent=1))
     return 0

@@ -6,8 +6,9 @@
 GSV serves a metric depth payload with every panorama -- a list of planes plus a per-pixel
 plane index -- and the dominant ground plane's distance *is* the camera height. This script
 re-derives the distance axis from that payload for every GSV benchmark split that has one
-archived (bend, paterson, gainesville, sao_paulo; laurens_gsv was never harvested) and
-re-issues the doc's tables on both axes, side by side.
+archived (bend, paterson, gainesville, sao_paulo) and re-issues the doc's tables on both axes,
+side by side. laurens_gsv, harvested for #151, has depth rows too but is held out of every pooled
+table and rig row (``HELD_OUT_DEPTH_SPLITS``); its tables are under ``tables["held_out"]``.
 
 The payloads and the parser come from the sidewalk-auto-labeler repo (``depth.py`` at its
 root, stdlib only; ``runs/<city>/depth/<pano_id>.json.gz`` + ``index.csv`` written by its
@@ -53,6 +54,10 @@ Ground truth and hits are exactly the doc's: ``build_ground_truth`` over each sp
     # derive (needs the labeler checkout with its depth archive; ~10 s on CPU)
     python scripts/analysis/recall_by_depth_112.py --labeler-root D:/Git/sidewalk-auto-labeler
 
+    # append a held-out split's rows only, asserting no pre-existing row or table moves and
+    # that this labeler checkout reproduces the pre-existing depth rows byte for byte (#151)
+    python scripts/analysis/recall_by_depth_112.py --only laurens_gsv --labeler-root D:/Git/sidewalk-auto-labeler
+
     # re-derive every table from the committed rows, no payloads, and fail on drift
     python scripts/analysis/recall_by_depth_112.py --check
 
@@ -88,6 +93,22 @@ PX_PER_RAD = 4096.0 / (2 * math.pi)
 R = math.sqrt(radius_sq_for())
 DEPTH_SPLITS = ("bend", "paterson", "gainesville", "sao_paulo")   # GSV, harvested
 FLAT_ONLY_SPLITS = ("richmond",)   # the doc's other city: Mapillary, no depth exists
+# GSV splits with a depth axis that stay OUT of every pooled table and rig row (#151).
+# laurens_gsv is held out of the benchmark's pooled basis for non-independence (59% of its
+# panos sit within 20 m of a laurens_mapillary one), so it is tabulated on its own here,
+# under tables["held_out"], and its rows are appended after every pre-existing row: adding
+# it moves no committed row and no pre-existing table (``--only laurens_gsv`` asserts both).
+HELD_OUT_DEPTH_SPLITS = ("laurens_gsv",)
+# sha256 of the pooled splits' + richmond's rows and of every non-held-out table, as they stood
+# on main before #151 added laurens_gsv (origin/main 5a3efe3; ``base_sha256``). ``--only`` and
+# the tests compare against this, so "no pre-existing row moved" is checked against the pre-PR
+# content itself, not against a copy of the artifact being modified (PR #201 review N1).
+BASE_SHA256_PRE_151 = {
+    "panos": "48020fbdb222ae9f1a8e6dc634d44e02821c395a1b02786793ac557d1875f700",
+    "points": "0bc0103d18c07896818a075d53ba0bc27d97bd7318cae4b5bfcb72e74e31c0b7",
+    "detections": "53c8e90948e40c6f211840bc8bafb8e04a11d032a2f8dbe80e7cbc7e947d72eb",
+    "tables": "18f9e4d5296f1d4b95f14d09bc409bcb8d91cb03cd6d88ee327ae550779685e4",
+}
 M_BUCKETS = [(0, 8), (8, 12), (12, 18), (18, 25), (25, 40), (40, 1e9)]
 PX_BUCKETS = [(0, 12), (12, 20), (20, 32), (32, 50), (50, 80), (80, 1e9)]
 RESOLUTION_FACTORS = (1.5, 2.0, 3.0)
@@ -424,15 +445,21 @@ def match(preds, gt):
     return hit, kinds
 
 
-def derive(labeler_root, splits):
+def derive(labeler_root, splits, flat_only=FLAT_ONLY_SPLITS, held_out=()):
+    """Rows for ``splits`` (pooled), then ``flat_only``, then ``held_out`` (depth, not pooled).
+
+    That order is the committed row order, so a held-out split's rows always come after every
+    pre-existing row. ``derive(root, (), (), ("laurens_gsv",))`` derives that split alone.
+    """
     depthlib = load_depthlib(labeler_root)
     if depthlib.GROUND_MAX_TILT_DEG != GROUND_MAX_TILT_DEG or depthlib.SKY != SKY:
         raise SystemExit("the labeler's ground-tilt / sky constants changed; update this script's copies")
     points, dets, panos, index_sha = [], [], [], {}
-    for city in list(splits) + list(FLAT_ONLY_SPLITS):
+    with_depth = set(splits) | set(held_out)
+    for city in list(splits) + list(flat_only) + list(held_out):
         records, verdicts = load_bundle(city)
         depth_dir = os.path.join(labeler_root, "runs", city, "depth")
-        index = read_index(depth_dir) if city in splits else {}
+        index = read_index(depth_dir) if city in with_depth else {}
         index_sha[city] = sha256_of(os.path.join(depth_dir, "index.csv")) if index else None
         for pid in sorted(verdicts):
             entry = verdicts[pid]
@@ -443,7 +470,7 @@ def derive(labeler_root, splits):
                      for d in rec["detections"]]
             hit, kinds = match(preds, gt)
             status, ground, sha, payload = "no_archive", None, None, None
-            if city in splits:
+            if city in with_depth:
                 payload, sha = load_payload(depthlib, depth_dir, pid)
                 if payload is None:
                     status = "not_archived"
@@ -474,9 +501,12 @@ def derive(labeler_root, splits):
                     row["depth_range"], row["depth_ray"], row["depth_source"] = _r(rng), _r(ray), src
                     if ray:
                         row["apparent_px_depth"] = _r(apparent_px(ray))
-                        k = DEPTH_FRAME_SCALE[city]
-                        row["depth_range_scaled"], row["depth_ray_scaled"] = _r(rng * k), _r(ray * k)
-                        row["apparent_px_depth_scaled"] = _r(apparent_px(ray * k))
+                        # no measured depth-frame scale for a city means no scaled column
+                        # (laurens_gsv: the labeler's study never covered it), never a guess
+                        k = DEPTH_FRAME_SCALE.get(city)
+                        if k is not None:
+                            row["depth_range_scaled"], row["depth_ray_scaled"] = _r(rng * k), _r(ray * k)
+                            row["apparent_px_depth_scaled"] = _r(apparent_px(ray * k))
                 return row
 
             if gt.fn_confirmed and gt.gt_points:
@@ -489,12 +519,88 @@ def derive(labeler_root, splits):
                 dets.append({"city": city, "pano": pid, "x": x, "y": y,
                              "confidence": round(conf, 6), "kind": kinds[i],
                              "camera_height_status": status, **geom(x, y)})
+    constants = {"depth_frame_scale": DEPTH_FRAME_SCALE, "cam_h": CAM_H, "cam_h_labeler": CAM_H_LABELER, "ramp_w": RAMP_W,
+                 "radius_px": round(R, ND), "operating_point": 0.55,
+                 "depth_splits": list(splits), "flat_only_splits": list(flat_only)}
+    if held_out:
+        constants["held_out_depth_splits"] = list(held_out)
     return {"labeler_commit": labeler_commit(labeler_root),
             "index_sha256": index_sha,
-            "constants": {"depth_frame_scale": DEPTH_FRAME_SCALE, "cam_h": CAM_H, "cam_h_labeler": CAM_H_LABELER, "ramp_w": RAMP_W,
-                          "radius_px": round(R, ND), "operating_point": 0.55,
-                          "depth_splits": list(splits), "flat_only_splits": list(FLAT_ONLY_SPLITS)},
+            "constants": constants,
             "panos": panos, "points": points, "detections": dets}
+
+
+def base_sha256(data):
+    """Content hashes of everything that is not a held-out split: the pooled splits' and
+    richmond's rows, and every table but ``held_out``. Compact, key-sorted JSON, so the hash
+    does not depend on line endings or indentation."""
+    held = set(data["constants"].get("held_out_depth_splits", []))
+
+    def h(obj):
+        return hashlib.sha256(json.dumps(obj, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+
+    out = {k: h([r for r in data[k] if r["city"] not in held]) for k in ("panos", "points", "detections")}
+    out["tables"] = h({k: v for k, v in data["tables"].items() if k != "held_out"})
+    return out
+
+
+def _row_bytes(row):
+    return json.dumps(row, sort_keys=True).encode("utf-8")
+
+
+def add_held_out(committed, labeler_root, city):
+    """The committed artifact plus ``city``'s rows, derived alone and appended (#151).
+
+    Asserts, rather than assumes, what "only the new rows" means:
+
+    1. the pooled splits' and richmond's rows, and every pre-existing table, hash to
+       ``BASE_SHA256_PRE_151`` -- the content as it stood on main before this split was
+       added -- both before and after (review N1: comparing the output to the input it was
+       built from could not fail);
+    2. the labeler checkout doing the deriving still reproduces every pre-existing depth
+       split's rows byte for byte (they are re-derived in memory and compared), so the new
+       rows and the old ones come from a parser that agrees on the old payloads, even
+       though ``labeler_commit`` has moved since.
+
+    The new split's labeler commit and index hash are recorded under
+    ``held_out_provenance`` so the original ``labeler_commit`` keeps describing the rows it
+    produced.
+    """
+    if base_sha256(committed) != BASE_SHA256_PRE_151:
+        raise SystemExit("the committed pre-existing rows or tables differ from the pre-#151 content")
+    old = {k: [_row_bytes(r) for r in committed[k] if r["city"] != city]
+           for k in ("panos", "points", "detections")}
+    splits = committed["constants"]["depth_splits"]
+    parity = derive(labeler_root, splits, flat_only=())
+    for k in ("panos", "points", "detections"):
+        want = [_row_bytes(r) for r in committed[k] if r["city"] in splits]
+        got = [_row_bytes(r) for r in parity[k]]
+        if got != want:
+            raise SystemExit(f"parity: the labeler at {parity['labeler_commit']} does not reproduce "
+                             f"the committed {k} rows of {splits}; not adding {city}")
+    new = derive(labeler_root, (), flat_only=(), held_out=(city,))
+    out = {k: v for k, v in committed.items() if k != "tables"}
+    for k in ("panos", "points", "detections"):
+        out[k] = [r for r in committed[k] if r["city"] != city] + new[k]
+    out["constants"] = dict(committed["constants"])
+    held = [c for c in out["constants"].get("held_out_depth_splits", []) if c != city] + [city]
+    out["constants"]["held_out_depth_splits"] = held
+    out["index_sha256"] = dict(committed["index_sha256"], **{city: new["index_sha256"][city]})
+    prov = dict(committed.get("held_out_provenance", {}))
+    prov[city] = {"labeler_commit": new["labeler_commit"],
+                  "parity_labeler_commit": parity["labeler_commit"],
+                  "parity_splits": list(splits)}
+    out["held_out_provenance"] = prov
+    out["tables"] = tables(out)
+    for k in ("panos", "points", "detections"):
+        if [_row_bytes(r) for r in out[k] if r["city"] != city] != old[k]:
+            raise SystemExit(f"a pre-existing {k} row changed")
+    for k, v in committed["tables"].items():
+        if k != "held_out" and out["tables"][k] != v:
+            raise SystemExit(f"pre-existing table {k!r} changed")
+    if base_sha256(out) != BASE_SHA256_PRE_151:
+        raise SystemExit("the pre-existing rows or tables no longer hash to the pre-#151 content")
+    return out
 
 
 def _r(v):
@@ -505,8 +611,14 @@ def _r(v):
 # tables from rows (no payloads)
 
 def tables(data):
-    pts, dets, panos = data["points"], data["detections"], data["panos"]
     splits = data["constants"]["depth_splits"]
+    held_out = data["constants"].get("held_out_depth_splits", [])
+    # Every pre-existing table is computed over the pooled splits and richmond only, so a
+    # held-out split's rows can never leak into a pooled figure or a rig row (#151).
+    base = set(splits) | set(data["constants"]["flat_only_splits"])
+    pts = [p for p in data["points"] if p["city"] in base]
+    dets = [d for d in data["detections"] if d["city"] in base]
+    panos = [p for p in data["panos"] if p["city"] in base]
     measured = [p for p in pts if p["camera_height_status"] == "measured"]
     t = {"inventory": [], "issue_check": [], "deflation": {}, "deflation_scaled": {}, "thresholds": {},
          "recall_distance": {}, "recall_size": {}, "forecast": {}, "precision_distance": {},
@@ -629,7 +741,84 @@ def tables(data):
         "flat_2p5_richmond_bend": recall_table(doc, "flat_2p5", M_BUCKETS, "m"),
         "flat_2p5_richmond": recall_table([p for p in doc if p["city"] == "richmond"], "flat_2p5", M_BUCKETS, "m"),
         "size_flat_richmond_bend": recall_table(doc, "apparent_px_flat", PX_BUCKETS, "px")}
+    if held_out:
+        t["held_out"] = {city: held_out_tables(data, city) for city in held_out}
     return t
+
+
+def held_out_tables(data, city):
+    """The per-split tables for one held-out depth split, computed from its rows alone.
+
+    Same functions and same rules as the pooled splits' tables; no depth × scale column
+    unless the city has a measured depth-frame scale (the rows then carry None and the
+    scaled tables come out empty rather than guessed).
+    """
+    cp = [p for p in data["panos"] if p["city"] == city]
+    pts = [p for p in data["points"] if p["city"] == city]
+    dets = [d for d in data["detections"] if d["city"] == city]
+    year = {p["pano"]: (p.get("capture_date") or "")[:4] for p in cp}
+    g = [p for p in pts if p["camera_height_status"] == "measured"]
+    counts = {}
+    for p in cp:
+        counts[p["camera_height_status"]] = counts.get(p["camera_height_status"], 0) + 1
+    heights = sorted(p["camera_height_m"] for p in cp if p["camera_height_m"] is not None)
+    h = {"inventory": {
+        "city": city, "panos": len(cp), "status": dict(sorted(counts.items())),
+        "sha256_verified": sum(1 for p in cp if p["sha256_matches_index"]),
+        "sha256_mismatch": sum(1 for p in cp if p["sha256_matches_index"] is False),
+        "index_sha256": data.get("index_sha256", {}).get(city),
+        "camera_height_median_m": round(st.median(heights), ND) if heights else None,
+        "camera_height_min_m": heights[0] if heights else None,
+        "camera_height_max_m": heights[-1] if heights else None}}
+    cd = [d for d in dets if d["camera_height_status"] == "measured" and d["kind"] != "IGN"]
+    ratio = deflation(cd, "flat_2p6", "depth_range")
+    pairs = [(d["flat_h"], d["depth_range"]) for d in cd
+             if d.get("flat_h") is not None and d.get("depth_range")]
+    h["issue_check"] = None if ratio is None else {
+        "city": city, "n_detections": ratio["n"], "n_panos": len({d["pano"] for d in cd}),
+        "median_flat_2p6": ratio["median_flat"], "median_depth_range": ratio["median_depth"],
+        "median_depth_ray": round(st.median(d["depth_ray"] for d in cd if d.get("depth_ray")), ND),
+        "ratio_of_medians": ratio["ratio_of_medians"], "median_ratio": ratio["median_ratio"],
+        "ratio_after_height_only": round(st.median(f / d for f, d in pairs), ND) if pairs else None}
+    dfl = deflation(g)
+    h["deflation"] = dfl
+    h["thresholds"] = None if not dfl else {
+        "published_m": list(PUBLISHED_THRESHOLDS_M),
+        "median_point_m": deflated_thresholds(dfl["median_ratio"]),
+        "window": [window_threshold(g, th) for th in PUBLISHED_THRESHOLDS_M]}
+    h["recall_distance"] = {"flat_2p5": recall_table(g, "flat_2p5", M_BUCKETS, "m"),
+                            "depth": recall_table(g, "depth_range", M_BUCKETS, "m")}
+    h["recall_size"] = {"flat_2p5": recall_table(g, "apparent_px_flat", PX_BUCKETS, "px"),
+                        "depth": recall_table(g, "apparent_px_depth", PX_BUCKETS, "px")}
+    h["forecast"] = {"flat_2p5": resolution_forecast(g, "apparent_px_flat"),
+                     "depth": resolution_forecast(g, "apparent_px_depth")}
+    md = [d for d in dets if d["camera_height_status"] == "measured"]
+    h["precision_distance"] = {"flat_2p5": precision_table(md, "flat_2p5", M_BUCKETS, "m"),
+                               "depth": precision_table(md, "depth_range", M_BUCKETS, "m")}
+    src = {}
+    for p in g:
+        src[p["depth_source"]] = src.get(p["depth_source"], 0) + 1
+    h["depth_source"] = dict(sorted(src.items(), key=lambda kv: str(kv[0])))
+    ex = [p for p in pts if p["camera_height_status"] != "measured"]
+    h["excluded"] = {"n": len(ex), "hit": sum(1 for p in ex if p["hit"]),
+                     "recall_flat_2p5": round(sum(1 for p in ex if p["hit"]) / len(ex), ND) if ex else None,
+                     "included_recall_flat_2p5": recall_table(g, "flat_2p5", M_BUCKETS, "m")[-1]["recall"]}
+    rows = []
+    for y in sorted({year[p["pano"]] for p in g}):
+        gy = [p for p in g if year[p["pano"]] == y]
+        if len(gy) < MIN_YEAR_N:
+            continue
+        keys = {p["pano"] for p in gy}
+        hs = sorted(p["camera_height_m"] for p in cp if p["pano"] in keys)
+        d1, d26 = deflation(gy), deflation(gy, "flat_2p6", "depth_range")
+        rows.append({"group": f"{city} {y}", "n": len(gy), "n_panos": len(hs),
+                     "camera_height_median_m": round(st.median(hs), ND) if hs else None,
+                     "median_ratio": d1 and d1["median_ratio"],
+                     "p10_ratio": d1 and d1["p10_ratio"], "p90_ratio": d1 and d1["p90_ratio"],
+                     "median_ratio_flat_2p6": d26 and d26["median_ratio"],
+                     "window": [window_threshold(gy, th) for th in PUBLISHED_THRESHOLDS_M]})
+    h["by_capture_year"] = rows
+    return h
 
 
 # ---------------------------------------------------------------------------
@@ -693,6 +882,12 @@ def doc_tables(data, t):
         L.append(f"| {r['city']} | {r['panos']} | {s_.get('measured', 0)} | {s_.get('synthetic_ground', 0)} | "
                  f"{s_.get('degenerate', 0)} / {s_.get('implausible', 0)} | "
                  f"{r['camera_height_median_m']:.2f} m ({r['camera_height_min_m']:.2f}–{r['camera_height_max_m']:.2f}) |")
+    held = t.get("held_out", {})
+    for city, h in held.items():   # held out of every pooled row (#151), marked as such
+        r, s_ = h["inventory"], h["inventory"]["status"]
+        L.append(f"| {city} (held out) | {r['panos']} | {s_.get('measured', 0)} | {s_.get('synthetic_ground', 0)} | "
+                 f"{s_.get('degenerate', 0)} / {s_.get('implausible', 0)} | "
+                 f"{r['camera_height_median_m']:.2f} m ({r['camera_height_min_m']:.2f}–{r['camera_height_max_m']:.2f}) |")
     out["inventory"] = "\n".join(L)
 
     label = {"bend": "**bend** (this document's GSV city)", "gsv_pooled": "GSV pooled"}
@@ -707,11 +902,18 @@ def doc_tables(data, t):
                  f"{d['ratio_of_medians']:.2f} | {d['median_ratio']:.3f} ({d['p10_ratio']:.2f}–{d['p90_ratio']:.2f}) | "
                  f"{_thr(th['window'][0])} | {_thr(th['window'][1])} | "
                  f"{ws[0]['deflated_m']} m / {ws[1]['deflated_m']} m |")
+    for city, h in held.items():   # no measured depth-frame scale for a held-out city: "–"
+        d, th = h["deflation"], h["thresholds"]
+        if not d:
+            continue
+        L.append(f"| {city} (held out, not pooled) | {_n(d['n'])} | {d['median_flat']:.2f} / {d['median_depth']:.2f} = "
+                 f"{d['ratio_of_medians']:.2f} | {d['median_ratio']:.3f} ({d['p10_ratio']:.2f}–{d['p90_ratio']:.2f}) | "
+                 f"{_thr(th['window'][0])} | {_thr(th['window'][1])} | – |")
     out["deflation"] = "\n".join(L)
 
     L = ["| capture vintage | GT points (panos) | camera height, median | flat 2.5 m / depth, median point (p10–p90) | flat 2.6 m / depth | 18 m becomes (window n) | 25 m becomes (window n) |",
          "|---|---:|---:|---|---:|---|---|"]
-    for r in t["by_capture_year"]:
+    for r in t["by_capture_year"] + [r for h in held.values() for r in h["by_capture_year"]]:
         L.append(f"| {r['group']} | {r['n']} ({r['n_panos']}) | {r['camera_height_median_m']:.2f} m | "
                  f"{r['median_ratio']:.3f} ({r['p10_ratio']:.2f}–{r['p90_ratio']:.2f}) | {r['median_ratio_flat_2p6']:.2f} | "
                  f"{_thr(r['window'][0])} | {_thr(r['window'][1])} |")
@@ -720,8 +922,9 @@ def doc_tables(data, t):
     heads = {"flat_2p5": ("flat 2.5 m", "recall (flat)"), "depth": ("depth", "recall (depth)"),
              "depth_scaled": ("depth × scale", "recall")}
 
-    def side(name, keys, which, first):
-        tabs = [t[which][name][k] for k in keys]
+    def side(name, keys, which, first, tabs_from=None):
+        src = t[which][name] if tabs_from is None else tabs_from[name][which]
+        tabs = [src[k] for k in keys]
         h = [first]
         for k in keys:
             h += [f"n ({heads[k][0]})", heads[k][1]]
@@ -757,6 +960,9 @@ def doc_tables(data, t):
     for r in t["precision_distance"]["gsv_pooled"]["depth"]:
         L.append(f"| {_band(r['bucket'])} | {_n(r['n'])} | {r['precision']:.3f} |")
     out["pooled_precision"] = "\n".join(L)
+    for city in held:   # the held-out split's own recall by distance, flat vs depth (#151)
+        out[f"{city}_distance"] = side(city, ("flat_2p5", "depth"), "recall_distance", "distance",
+                                       tabs_from=held)
     return out
 
 
@@ -812,6 +1018,33 @@ def markdown(data, t):
         L.append(f"\nExcluded from the depth axis (non-measured ground): {ex['n']} GT points, recall on the flat "
                  f"axis {_fmt(ex['recall_flat_2p5'])} vs {_fmt(ex['included_recall_flat_2p5'])} for the included. "
                  f"Depth source of the included points: {t['depth_source'][name]}.\n")
+    hcols = (("flat 2.5 m", "flat_2p5"), ("depth", "depth"))
+    for city, h in t.get("held_out", {}).items():
+        prov = data.get("held_out_provenance", {}).get(city, {})
+        r = h["inventory"]
+        L.append(f"\n## {city} (held out of every pooled row; #151)\n")
+        L.append(f"Labeler parser at `{prov.get('labeler_commit')}`; the same checkout reproduced every "
+                 f"committed row of {prov.get('parity_splits')} byte for byte before these rows were added. "
+                 f"No depth-frame scale was measured for this city, so there is no depth × scale column.\n")
+        L.append(f"Inventory: {r['panos']} panos, {r['status']}, sha256 verified {r['sha256_verified']}, "
+                 f"index.csv sha256 {r['index_sha256']}; camera height median / min / max "
+                 f"{_fmt(r['camera_height_median_m'])} / {_fmt(r['camera_height_min_m'])} / "
+                 f"{_fmt(r['camera_height_max_m'])} m.\n")
+        ic = h["issue_check"]
+        if ic:
+            L.append(f"Issue check (operational detections, flat @ 2.6 m vs depth): {ic['n_detections']} detections "
+                     f"on {ic['n_panos']} panos, ratio of medians {ic['ratio_of_medians']}, median per-detection "
+                     f"ratio {ic['median_ratio']}, after height only {ic['ratio_after_height_only']}.\n")
+        L.append(f"\n### {city}: recall by distance\n")
+        L.append(_side_by_side([(lab, h["recall_distance"][k]) for lab, k in hcols]))
+        L.append(f"\n### {city}: recall by apparent size\n")
+        L.append(_side_by_side([(lab, h["recall_size"][k]) for lab, k in hcols]))
+        L.append(f"\n### {city}: precision by distance (measured panos, TP+FP)\n")
+        L.append(_side_by_side([(lab, h["precision_distance"][k]) for lab, k in hcols], "precision"))
+        ex = h["excluded"]
+        L.append(f"\nExcluded from the depth axis (non-measured ground): {ex['n']} GT points, recall on the flat "
+                 f"axis {_fmt(ex['recall_flat_2p5'])} vs {_fmt(ex['included_recall_flat_2p5'])} for the included. "
+                 f"Depth source of the included points: {h['depth_source']}.\n")
     return "\n".join(L) + "\n"
 
 
@@ -828,6 +1061,11 @@ def main(argv=None):
     ap.add_argument("--labeler-root", default=os.environ.get("LABELER_ROOT", r"D:\Git\sidewalk-auto-labeler"),
                     help="sidewalk-auto-labeler checkout holding depth.py and runs/<city>/depth")
     ap.add_argument("--splits", nargs="+", default=list(DEPTH_SPLITS))
+    ap.add_argument("--only", choices=HELD_OUT_DEPTH_SPLITS,
+                    help="derive only this held-out split and append its rows to the committed "
+                         "artifact, asserting the pre-existing rows and tables still hash to their "
+                         "pre-#151 content and that this labeler checkout reproduces the pooled "
+                         "splits' depth rows (#151)")
     ap.add_argument("--out", default=OUT_JSON)
     ap.add_argument("--md", default=OUT_MD)
     ap.add_argument("--check", action="store_true",
@@ -852,8 +1090,16 @@ def main(argv=None):
                 print(f"<!-- {name} -->\n{tab}\n")
         return 0
 
-    data = derive(a.labeler_root, a.splits)
-    data["tables"] = tables(data)
+    if a.only:
+        with open(a.out, encoding="utf-8") as fh:
+            data = add_held_out(json.load(fh), a.labeler_root, a.only)
+    else:
+        data = derive(a.labeler_root, a.splits, held_out=HELD_OUT_DEPTH_SPLITS)
+        data["held_out_provenance"] = {c: {"labeler_commit": data["labeler_commit"],
+                                           "parity_labeler_commit": data["labeler_commit"],
+                                           "parity_splits": list(a.splits)}
+                                       for c in HELD_OUT_DEPTH_SPLITS}
+        data["tables"] = tables(data)
     write_json(a.out, data)
     md = markdown(data, data["tables"])
     with open(a.md, "w", encoding="utf-8", newline="\n") as fh:
