@@ -10,6 +10,7 @@ not run here; its drift and pagination logic is tested below against canned resp
 import copy
 import importlib.util
 import pathlib
+import urllib.parse
 
 import pytest
 
@@ -68,7 +69,9 @@ def test_content_url_is_cloneable_never_a_bare_sha(named_doc):
     base = "https://huggingface.co/datasets/projectsidewalk/" + name
     url = repo["contentUrl"]
     assert url == base or url.startswith(base + "/tree/refs%2F"), url
-    assert vc.content_ref(doc) == "refs/heads/main"
+    want = ("refs/heads/main" if url == base
+            else "refs/" + urllib.parse.unquote(url[len(base + "/tree/refs%2F"):]))
+    assert vc.content_ref(doc) == want
 
     for good, ref in ((base, "refs/heads/main"),
                       (base + "/tree/refs%2Ftags%2Fv1.0.0", "refs/tags/v1.0.0")):
@@ -80,6 +83,37 @@ def test_content_url_is_cloneable_never_a_bare_sha(named_doc):
     next(d for d in bad["distribution"] if d["@id"] == "repo")["contentUrl"] = (
         base + "/tree/" + vc.pinned_revision(doc))
     assert any("contentUrl" in p for p in vc.check_structure(bad))
+
+
+def test_content_url_names_the_files_own_repository(named_doc):
+    # PR #190 verification review, V5: a benchmark file whose contentUrl names rampnet-dataset used
+    # to pass check_structure, and --hub then checked the benchmark repo by file name and passed too.
+    name, doc = named_doc
+    other = "rampnet-dataset" if name == "rampnet-benchmark" else "rampnet-benchmark"
+    bad = copy.deepcopy(doc)
+    next(d for d in bad["distribution"] if d["@id"] == "repo")["contentUrl"] = (
+        "https://huggingface.co/datasets/projectsidewalk/" + other)
+    problems = vc.check_structure(bad, name)
+    assert any("contentUrl names projectsidewalk/" + other in p for p in problems), problems
+
+
+def test_every_revision_mention_is_the_pin(named_doc):
+    # V2: citeAs and rai:dataReleaseMaintenancePlan name the Hub revision too, and "Revision" is
+    # capitalised in the benchmark's citeAs. A re-pin must not leave any of them on the old commit.
+    name, doc = named_doc
+    rev = vc.pinned_revision(doc)
+    wrong = "0" * 40
+    places = ["rai:dataReleaseMaintenancePlan", "citeAs"] if name == "rampnet-benchmark" else [
+        "rai:dataReleaseMaintenancePlan"]
+    for key in places:
+        assert rev in doc[key], (name, key)
+        bad = copy.deepcopy(doc)
+        bad[key] = bad[key].replace(rev, wrong)
+        problems = vc.check_structure(bad, name)
+        assert any(wrong in p and "besides the pinned" in p for p in problems), (name, key, problems)
+    upper = copy.deepcopy(doc)
+    upper["description"] += " Revision " + wrong.replace("0", "a") + "."
+    assert any("besides the pinned" in p for p in vc.check_structure(upper, name))
 
 
 def test_records_fields_differ_from_the_exporter_by_exactly_the_127_columns():

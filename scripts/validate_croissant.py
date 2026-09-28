@@ -8,8 +8,10 @@ Levels, cheapest first. The default is offline and needs only the standard libra
   properties and the RAI / GeoCroissant keys this repo commits to, has unique ``@id`` values, and
   every field source points at a distribution that exists. The ``repo`` FileObject's
   ``contentUrl`` must be the bare Hub repository URL or a named ``tree/refs%2F...`` ref -- the only
-  forms mlcroissant 1.1.0 can clone -- and the 40-hex revision the file describes is named in the
-  ``repo`` and ``file_manifest`` descriptions.
+  forms mlcroissant 1.1.0 can clone -- and must name the file's own repository. The 40-hex
+  revision the file describes is named in the ``repo`` and ``file_manifest`` descriptions, and
+  every other "revision <40-hex>" in the file (``citeAs``, ``rai:dataReleaseMaintenancePlan``, any
+  description; any case) must be that same revision.
 * **links** -- every link into this GitHub repository is pinned to a commit or a release tag, and
   no text cites a bare repo-relative path, which would not resolve once the file is on the Hub.
 * **derived numbers** -- the benchmark's ``split_extents`` record set (bounding box, capture-month
@@ -156,9 +158,11 @@ UNRELEASED_RE = re.compile(r"forthcoming|NOT-YET", re.IGNORECASE)
 # mlcroissant 1.1.0's extract_git_info() understands a Hub URL only as the bare repository or as
 # `.../tree/refs%2F<ref>`; a `.../tree/<sha>` URL is passed to `git clone` verbatim and fails. So
 # contentUrl is one of those two forms, and the revision lives in the descriptions (REVISION_RE).
+# Every "revision <40-hex>" in a file, in any case ("Revision" in the benchmark's citeAs), must be the
+# pin, so a re-pin cannot leave the citation or the maintenance plan naming the old commit.
 CONTENT_URL_RE = re.compile(
     r"^https://huggingface\.co/datasets/projectsidewalk/([\w.-]+)(?:/tree/refs%2F([\w.%-]+))?$")
-REVISION_RE = re.compile(r"revision ([0-9a-f]{40})")
+REVISION_RE = re.compile(r"revision ([0-9a-f]{40})", re.IGNORECASE)
 SOURCE_NAMES = {"launch": "Google Street View", "mapillary": "Mapillary"}
 
 # Links into this repository must name a commit or a release tag, never a branch.
@@ -233,9 +237,16 @@ def _keys(record_set):
     return [k.get("@id") for k in key]
 
 
-def check_structure(doc):
-    """Return a list of problems with one parsed Croissant document (empty when fine)."""
+def check_structure(doc, name=None):
+    """Return a list of problems with one parsed Croissant document (empty when fine).
+
+    ``name`` is the Hub repository the file describes (its ``FILES`` key); it defaults to the
+    document's own ``name``, and ``contentUrl`` must name that repository."""
     problems = []
+    name = name or doc.get("name")
+    if doc.get("name") != name:
+        problems.append("name {!r} is not the repository this file describes, {!r}".format(
+            doc.get("name"), name))
     for key in REQUIRED + REQUIRED_RAI:
         if key not in doc or doc[key] in (None, "", []):
             problems.append("missing required key {!r}".format(key))
@@ -277,10 +288,14 @@ def check_structure(doc):
             problems.append("{} has unexpected encodingFormat {!r}".format(
                 dist.get("@id"), dist.get("encodingFormat")))
     repo = next((d for d in doc.get("distribution", []) if d.get("@id") == "repo"), {})
-    if not CONTENT_URL_RE.match(repo.get("contentUrl", "")):
+    url_match = CONTENT_URL_RE.match(repo.get("contentUrl", ""))
+    if not url_match:
         problems.append("repo contentUrl {!r} is neither the bare Hub repository URL nor a "
                         ".../tree/refs%2F<ref> URL (mlcroissant cannot clone a bare sha)".format(
                             repo.get("contentUrl")))
+    elif url_match.group(1) != name:
+        problems.append("repo contentUrl names projectsidewalk/{}, but this file describes "
+                        "projectsidewalk/{}".format(url_match.group(1), name))
     rev = pinned_revision(doc)
     if rev is None:
         problems.append("repo description names no single 40-hex revision")
@@ -288,6 +303,12 @@ def check_structure(doc):
         manifest = record_set(doc, "file_manifest") or {}
         if REVISION_RE.findall(manifest.get("description", "")) != [rev]:
             problems.append("file_manifest description does not name the pinned revision {}".format(rev))
+        stray = sorted({r.lower() for r in REVISION_RE.findall(json.dumps(doc, ensure_ascii=False))}
+                       - {rev})
+        if stray:
+            problems.append("the file names revision {} besides the pinned {} (citeAs, "
+                            "rai:dataReleaseMaintenancePlan and every description must name the "
+                            "pin)".format(", ".join(stray), rev))
 
     field_ids = set()
     for rs in doc.get("recordSet", []):
@@ -505,7 +526,7 @@ def check_release(doc):
 def pinned_revision(doc):
     """The 40-hex Hub revision the ``repo`` FileObject's description names, or None."""
     repo = next((d for d in doc.get("distribution", []) if d.get("@id") == "repo"), {})
-    found = set(REVISION_RE.findall(repo.get("description", "")))
+    found = {r.lower() for r in REVISION_RE.findall(repo.get("description", ""))}
     return found.pop() if len(found) == 1 else None
 
 
@@ -849,7 +870,7 @@ def main(argv=None):
     with tempfile.TemporaryDirectory() as tmp:
         for name, path in FILES.items():
             doc = load(path)
-            problems = check_structure(doc) + check_links(doc)
+            problems = check_structure(doc, name) + check_links(doc)
             notes = []
             if name == "rampnet-benchmark":
                 problems += check_benchmark_extents(doc)

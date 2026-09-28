@@ -123,7 +123,13 @@ none), and none was created here. With a tag, `contentUrl` could be
 `.../tree/refs%2Ftags%2Fv1.0.0`. `mlcroissant` would clone that exact revision rather than whatever
 `main` is, and `--hub` already handles that form: it resolves the named ref through
 `/api/datasets/<id>/refs` and fails unless it points at the pinned sha. The tag name should follow
-whatever version is settled with the DOI.
+whatever version is settled with the DOI. Switching to a tag means editing only `contentUrl` in the
+JSON: `test_content_url_is_cloneable_never_a_bare_sha` derives the ref it expects from `contentUrl`
+rather than hard-coding `main`.
+
+The offline check also requires the repository named in `contentUrl` to be the file's own
+(`rampnet-dataset.json` must point at `projectsidewalk/rampnet-dataset`), because `--hub` looks the
+repository up by file name and would otherwise check the wrong one.
 
 A Hugging Face repository is a git repository and has no single content
 hash, so `repo` carries the same placeholder `sha256` the Hub's own export uses (a link to
@@ -315,10 +321,16 @@ already-extracted value `train`. The value it returns is correct, and `--load` c
   auto-converted `refs/convert/parquet` branch rather than the files on `main`.
 - On the dataset, the split directories are `train/`, `val/`, `test/`; `datasets` calls `val`
   `validation`. The Croissant `splits` record set uses the directory names.
-- If any Hub file changes, the revision in the `repo` and `file_manifest` descriptions, the
-  `file_manifest` rows and `dateModified` must change together (and the tag, if `contentUrl` ever
-  names one). `--hub` fails as soon as the Hub moves past the pin, and the offline check fails if
-  the two revision mentions disagree. Never put a bare sha in `contentUrl` (§1).
+- If any Hub file changes, every "revision <40-hex>" mention, the `file_manifest` rows and
+  `dateModified` must change together (and the tag, if `contentUrl` ever names one). The
+  revision is named in the `repo` and `file_manifest` descriptions, in
+  `rai:dataReleaseMaintenancePlan` in both files, and in the benchmark's `citeAs` note ("Revision
+  ..."), which is the BibTeX people copy. `--hub` fails as soon as the Hub moves past the pin. The
+  offline check fails if any "revision <40-hex>" in a file, in any case, is not the revision the
+  `repo` description names, and `test_every_revision_mention_is_the_pin` plants a wrong sha in
+  `citeAs` and in the maintenance plan to prove it. Never put a bare sha in `contentUrl` (§1).
+- If the Hub's `records` rows change schema (the #127 push), see §2 for everything that moves with
+  them.
 - If a benchmark verdict is revised and re-exported, `split_extents` still holds unless reviewed
   panoramas were added or removed; the offline check catches that. The `records` sha256s in
   `file_manifest` change, and `--hub` catches that.
