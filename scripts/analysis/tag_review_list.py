@@ -593,6 +593,9 @@ def gallery_links(rows, max_ids=GALLERY_MAX_LABEL_IDS, seed=CITY_ORDER_SEED):
     >>> gallery_links(rows, seed=None)[0]["url"]
     'https://h/gallery?labelIds=3,7'
     """
+    if not 1 <= max_ids <= GALLERY_MAX_LABEL_IDS:
+        # above the cap the server truncates the id list: the silent loss the split prevents
+        raise ValueError(f"max_ids must be 1..{GALLERY_MAX_LABEL_IDS}, got {max_ids}")
     by_city = {}
     for r in sorted(rows, key=lambda r: r["item_id"]):
         u = urllib.parse.urlsplit(r["editor_url"])
@@ -675,7 +678,11 @@ def composition(rows):
 def cmd_links(args):
     """Print the links, each with its ``label_id -> item_id`` pairs: the gallery shows label ids,
     and label ids repeat across cities, so the sidecar lookup has to be per city."""
-    links = gallery_links(read_list(args.list), max_ids=args.max_ids, seed=args.seed)
+    rows = read_list(args.list)
+    try:
+        links = gallery_links(rows, max_ids=args.max_ids, seed=args.seed)
+    except ValueError as e:
+        raise SystemExit(f"links: {e}")
     if args.format == "tsv":
         # item_ids and label_ids are comma-joined in the same order as the ids in the url
         print("\t".join(("city", "part", "n", "item_ids", "label_ids", "url")))
@@ -683,7 +690,7 @@ def cmd_links(args):
             print("\t".join((g["city"], str(g["part"]), str(len(g["label_ids"])),
                              ",".join(g["item_ids"]), ",".join(g["label_ids"]), g["url"])))
         return
-    if not links:
+    if not rows:
         print("0 items in 0 links (the list is empty)")
         return
 

@@ -785,3 +785,17 @@ def test_read_sidecar_skips_blank_rows_and_checks_the_header_once(tmp_path):
     empty.write_text("", encoding="utf-8")
     with pytest.raises(SystemExit, match="header"):
         trp.read_sidecar(str(empty), rows)
+
+
+# ----------------------------------------------------------------------------- re-review R3
+
+@pytest.mark.parametrize("bad", [-1, 0, trl.GALLERY_MAX_LABEL_IDS + 1])
+def test_gallery_links_max_ids_out_of_range(bad, tmp_path):
+    rows = _link_rows(["a"], per_city=3)
+    with pytest.raises(ValueError, match="max_ids"):
+        trl.gallery_links(rows, max_ids=bad)
+    lst = tmp_path / "list.csv"
+    _write_list(lst, rows)
+    with pytest.raises(SystemExit, match="max_ids"):   # not "0 items ... the list is empty"
+        trl.main(["links", "--list", str(lst), "--max-ids", str(bad)])
+    assert len(trl.gallery_links(rows, max_ids=trl.GALLERY_MAX_LABEL_IDS)) == 1
