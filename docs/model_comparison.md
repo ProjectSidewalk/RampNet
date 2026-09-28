@@ -728,6 +728,29 @@ for RampNet**: `laurens_mapillary` has a 0.05-floor `op_cache` and `laurens_gsv`
 its 0.494 is truncated at the deployed 0.55 while the other arm's 0.691 is not. The F1, P and
 R columns are comparable — both arms are read at 0.55.
 
+**The paired version is done** (`docs/laurens_paired_151.md`, 2026-09-27, corrected after
+[review](https://github.com/ProjectSidewalk/RampNet/pull/201#issuecomment-5858671681)), and it
+changes readings 1 and 3.
+
+- **What survives: RampNet's own rig effect.** On the 47 pano pairs within 20 m, RampNet's
+  ΔF1 is +0.112 [+0.033, +0.199] for the deployed run (pano-pair bootstrap, 10,000 draws, seed
+  151). The effect is recall; ΔP's interval spans zero. On the same-input re-run of the committed
+  JPEGs it is +0.095 [+0.040, +0.152] at 0.30.
+- **What does not: reading 3, a rig-sensitivity ordering against YOLO.** The YOLO pano arms'
+  paired ΔF1 are +0.028, −0.000 and −0.020. RampNet minus YOLO clears zero against two of the
+  three only for the deployed run, which reached RampNet by a different input path than the
+  committed JPEGs the YOLO arms saw. On the same-input RampNet leg at 0.55, no difference clears
+  zero (+0.047 [−0.037, +0.134], +0.076 [−0.020, +0.172], +0.095 [−0.008, +0.203]). On the
+  physical ramps both reviews contain, the YOLO arms gain about as many ramps as RampNet at the
+  5 m match (net +5, +5, +2 against +7; no exact McNemar p below 0.34). At the tighter 3 m match
+  RampNet leans more (+9, p 0.11, against +5, +1, +1); nothing at either radius is significant. The intervals cover pano sampling,
+  not training seeds. "Three to five times" is withdrawn.
+- **Reading 1 is narrowed.** No zero-shot leg gains F1 on the GSV arm of the same corners
+  (largest +0.009). Both arms are the same town, so that compares rigs and cannot show the town
+  is not a factor. Against it: `laurens_gsv` recall on the depth axis is 0.607 at 0–8 m (bend
+  0.885), a third of the matched ramps are missed on both rigs, and `grounding-dino-base` does
+  gain recall on GSV (ΔR +0.093 [+0.025, +0.161]).
+
 **sao_paulo** (125 reviewed panos, 281 GT ramps) — the second non-US split (2026-08-01),
 reviewer confidence **HIGH**; NBR 9050 design vocabulary on GSV (the same imagery path as
 bend/paterson/gainesville — see `benchmark/README.md` for what the split de-confounds)
