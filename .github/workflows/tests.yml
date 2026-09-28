@@ -24,7 +24,13 @@ jobs:
         python-version: ["3.10", "3.12"]
 
     steps:
+      # Full history, not the default depth of 1: some checks read a file as it
+      # was at a pinned commit (`git show <sha>:path`), e.g. the Croissant
+      # pinned-exporter rebuild and check_links' path-exists check (#205). In a
+      # shallow clone they skip, so a green run would not prove them.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:

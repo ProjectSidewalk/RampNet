@@ -371,7 +371,15 @@ Pooled over the four GSV splits on the depth axis (TP + FP, measured-ground pano
   local mirror `D:\Git\sidewalk-auto-labeler\runs\<city>\depth\`). Every file's sha256 and
   each `index.csv`'s sha256 are in `analysis_out/recall_by_depth_112.json` (laurens_gsv's
   included: 86 files, index `3e11306d…`), and publication is
-  pending Jon's decision. The per-point rows are committed so every table here re-derives
+  pending Jon's decision. Two provenance caveats for laurens_gsv, checked 2026-09-28: its
+  `depth/` archive exists only on the local mirror (the harvest ran on the desktop for #151, and
+  makelab2's `runs/laurens_gsv/` has no `depth/` directory), so it is a single copy; and its
+  `index.csv` was rewritten on 2026-09-27 by a labeler re-harvest under
+  sidewalk-auto-labeler#47 (two stand-in columns added), so the file now hashes to
+  `74e56eb5…`, and the pinned `3e11306d…` index cannot be reconstructed (dropping the two
+  columns does not restore it, so values changed too). The pin records the index the committed
+  rows were read from; all 86 payload files still match their per-file sha256, and the 86
+  committed camera heights agree with the rewritten index. The per-point rows are committed so every table here re-derives
   without them; only *new* points, and the alignment check, need the archive.
 - **The depth axis covers only measured-ground panoramas.** bend 254 of 327 GT points, paterson
   360 of 395, gainesville 249 of 272, sao_paulo 237 of 280. On the flat axis, the excluded points'

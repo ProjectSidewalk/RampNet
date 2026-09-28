@@ -337,7 +337,10 @@ measurement at the ramp: a crop-level estimate from the imagery, or survey data.
   the curb probe (§6) and the laurens_gsv depth axis come from Google-derived depth payloads
   archived in the labeler (`runs/laurens_gsv/depth/`, 2,137 files, `index.csv` sha256
   `3e11306d…`). They are not published, for the same reason as the other four cities' archives
-  (`docs/detection_recall_analysis.md` §0.5). Every row derived from them is committed, so the
+  (`docs/detection_recall_analysis.md` §0.5). That archive is a single copy on the local mirror
+  (makelab2 has none, checked 2026-09-28), and its `index.csv` was rewritten on 2026-09-27 by a
+  labeler re-harvest, so it now hashes to `74e56eb5…`; the per-file sha256s still verify
+  (`detection_recall_analysis.md` §0.5 has the detail). Every row derived from them is committed, so the
   tables re-derive without them. Publishing the archive would unblock a from-scratch re-derivation.
 
 - **Unpublished input: the native Laurens panoramas.** The alignment check (Reproduce step 3,
