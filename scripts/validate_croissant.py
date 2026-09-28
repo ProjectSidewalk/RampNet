@@ -42,7 +42,7 @@ Optional levels:
   one-row synthetic shard with the Hub's schema (needs ``mlcroissant``, ``pyarrow``, ``Pillow``).
 * ``--load-hub`` -- load the benchmark ``records`` record set exactly as a consumer would: no local
   mapping, so mlcroissant clones the Hub repository (Git LFS pointers only) and fetches just the nine
-  ``records`` Parquet files (about 180 KB) into a temporary cache. Needs ``mlcroissant``,
+  ``records`` Parquet files (179,356 bytes per ``file_manifest``) into a temporary cache. Needs ``mlcroissant``,
   ``gitpython`` and ``git lfs``; downloads no imagery.
 * ``--release`` -- the pre-upload gate: also fail on the DOI placeholder, on any "forthcoming" or
   "NOT-YET" text, and on an empty ``version``. The committed files fail it until the DOI is minted.
@@ -576,10 +576,12 @@ def check_hub(name, doc):
         return ["repo description names no revision"]
     problems = []
     ref = content_ref(doc)
-    got = resolve_ref(name, ref) if ref else None
-    if got != rev:
+    if ref is None:
+        problems.append("repo contentUrl does not parse as a Hub repository URL, so the ref it names "
+                        "cannot be resolved (the offline check says why)")
+    elif (got := resolve_ref(name, ref)) != rev:
         problems.append("{} of projectsidewalk/{} is {} but this file describes {}: the Hub has moved. "
-                        "Re-pin the repo and file_manifest descriptions, the file_manifest rows and "
+                        "Re-pin every 'revision <sha>' mention, the file_manifest rows and "
                         "dateModified together.".format(ref, name, got, rev))
     tree = hub_tree(name, rev)
     hub = {e["path"]: (e["size"], (e.get("lfs") or {}).get("oid"))
@@ -714,15 +716,20 @@ def _posix_fullpaths(mlc):
         full = pathlib.PurePath(os.fspath(file.filepath))
         rel = pathlib.PurePosixPath(os.fspath(file.fullpath))
         working_dir = full.parents[len(rel.parts) - 1]
-        deps.git.Git(str(working_dir)).execute(["git", "lfs", "pull", "--include", str(rel)])
+        try:
+            deps.git.Git(str(working_dir)).execute(["git", "lfs", "pull", "--include", str(rel)])
+        except deps.git.exc.GitCommandError as ex:     # upstream's message, kept verbatim
+            raise RuntimeError(
+                "Problem when launching `git lfs`. "
+                "Possible problems: Have you installed git lfs "
+                f"locally? Is '{rel}' a valid `git lfs` "
+                "repository?"
+            ) from ex
     mlc_read.download_git_lfs_file = download_git_lfs_file
 
 
-def check_load_records(doc_path, out, benchmark=REPO / "benchmark"):
-    """Load the benchmark ``records`` record set through the Croissant file from a local rebuild."""
-    import mlcroissant as mlc                      # optional dependency
-    _posix_fullpaths(mlc)
-    ds = mlc.Dataset(jsonld=str(doc_path), mapping={"repo": str(out)})
+def _count_records(ds):
+    """Rows per split, detections and missed marks in a loaded ``records`` record set."""
     per_split, dets, missed = {}, 0, 0
     for row in ds.records("records"):
         split = row["records/split"]
@@ -885,7 +892,8 @@ def main(argv=None):
     parser.add_argument("--load", action="store_true",
                         help="load records / a synthetic dataset shard through mlcroissant")
     parser.add_argument("--load-hub", action="store_true",
-                        help="load benchmark records by cloning the Hub repo (~180 KB of Parquet)")
+                        help="load benchmark records by cloning the Hub repo (179,356 B of records "
+                             "Parquet per file_manifest)")
     parser.add_argument("--release", action="store_true",
                         help="pre-upload gate: reject the DOI placeholder and 'forthcoming' text")
     args = parser.parse_args(argv)

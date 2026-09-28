@@ -405,7 +405,7 @@
       "@type": "cr:RecordSet",
       "@id": "file_manifest",
       "name": "file_manifest",
-      "description": "Every Parquet shard at Hub revision ee882e3f3c779dc13182f307bca616e50d9b8c5c, with its size and content hash, so a downloaded copy can be proven identical to the one described here. Checked against the Hub's listing, and the revision against the Hub's current main, by scripts/validate_croissant.py --hub.",
+      "description": "Every Parquet shard at Hub revision ee882e3f3c779dc13182f307bca616e50d9b8c5c, with its size and content hash, so a downloaded copy can be proven identical to the one described here. Checked against the Hub's listing, and the revision against the ref that contentUrl names (main for the bare repository URL, or the named tag), by scripts/validate_croissant.py --hub.",
       "key": {
         "@id": "file_manifest/path"
       },

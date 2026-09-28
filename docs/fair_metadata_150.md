@@ -313,9 +313,12 @@ shards, so it has not been run; the synthetic shard above is the stand-in.
 pattern such as `data/records/*.parquet` matches nothing and loading fails with "No objects to
 concatenate". It also cannot find a clone's working directory when it runs `git lfs pull`.
 Validation is unaffected. `--load` and `--load-hub` patch those two functions when `os.sep` is not
-`/`; on Linux or macOS nothing is patched. During the synthetic-shard load
-`mlcroissant` also logs "Could not match ... in train", matching the `split` regex against the
-already-extracted value `train`. The value it returns is correct, and `--load` checks it.
+`/`; on Linux or macOS nothing is patched. The replacement for `git lfs pull` keeps upstream's
+error ("Problem when launching `git lfs`. Possible problems: Have you installed git lfs
+locally? ..."), so a missing `git lfs` still says so. `mlcroissant` also logs "Could not match
+... in <split>" once per row, matching the `split` regex against the already-extracted value: once
+during the synthetic-shard load, and 1,109 times during `--load` and `--load-hub` (one per
+`records` row). The value it returns is correct, and the row counts per split are checked.
 
 ## 5. Notes for whoever edits these next
 
@@ -354,11 +357,24 @@ already-extracted value `train`. The value it returns is correct, and `--load` c
   card fixes surfaced by this work, for Jon to decide (the cards were not edited here):
   - The published benchmark card's `records` table says `source` is `gsv` or `mapillary`; the data
     holds `launch` or `mapillary` (the template is
-    `scripts/hf_package/README.benchmark_card.template.md`, line 61).
+    `scripts/hf_package/README.benchmark_card.template.md`, the `source` row of its `records`
+    table).
   - The card's BibTeX has `doi = {https://doi.org/…}`, a URL in a field that takes a bare DOI, and
     the benchmark card's entry has no `url`.
 - **Evaluation protocol as code and the leaderboard:** not started in this PR.
-- **#127:** the Bend overlap flag and review notes are in `rai:dataLimitations` here, but not yet
-  in the published rows or card.
+- **#127:** the Bend overlap flag and review notes are in `rai:dataLimitations` here. In git they
+  are now columns of every `records` row (§2), but they are not yet in the published rows or card.
+
+**Decisions for Jon** (the reason #190 stays a draft):
+
+- Mint the DOIs, then replace the placeholder in `identifier` and in both `citeAs` notes
+  (`--release` enforces this).
+- The version label, settled with the DOI.
+- Whether to tag the Hub revisions and switch `contentUrl` to `tree/refs%2Ftags%2F<version>` (§1).
+- Who is listed as the benchmark `creator` (§3).
+- The two card fixes above.
+- Whether the Croissant upload goes before or after the #127 records push. Before: the files
+  describe the Hub as it is now, and must be regenerated and re-uploaded after the push. After:
+  regenerate once (§2), then upload.
 - **Laurens:** once pushed, add the two splits to `splits`, `split_extents`, `spatialCoverage`,
   `temporalCoverage`, the FileSet split regexes and `file_manifest`.
