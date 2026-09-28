@@ -228,6 +228,8 @@ def render_gallery(ramps, plan, digest):
                        "rules": RULES, "items": [r["uid"] for r in ramps],
                        "item_class": {r["uid"]: r["class"] for r in ramps},
                        "manifest_digest": digest, "gallery": GALLERY_REL})
+    # A JSON island is raw text to the parser: only "</" needs escaping, as "<" + "\" + "/".
+    meta_js = meta.replace("</", "<" + chr(92) + "/")
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -277,7 +279,7 @@ Answers are saved in this browser as you go; Export writes them to a file.</p>
 <button type="button" id="next">Next unanswered</button>
 <span id="count" aria-live="polite"></span></div>
 {"".join(cards)}
-<script id="meta" type="application/json">{html.escape(meta, quote=False)}</script>
+<script id="meta" type="application/json">{meta_js}</script>
 <script>
 const META = JSON.parse(document.getElementById('meta').textContent);
 const KEY = "mv48_gtcheck_" + META.manifest_digest;
