@@ -230,8 +230,8 @@ python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
 The pull is by job id rather than a date window, so that a window would not sweep in other jobs
 run on the account the same day (the #131 replication ran on klone that night and records its
 own). The ledger is rebuilt in append order: klone 2026-08-19, Tillicum 2026-09-21, the #131
-pull `sacct_klone_2026-09-24_sa131.txt` (above), this file, then the 2026-09-26 pull below;
-`tests/test_slurm_usage.py` compares all five. What the five rows are is in
+pull `sacct_klone_2026-09-24_sa131.txt` (above), this file, then the 2026-09-26 and 2026-09-27 pulls below;
+`tests/test_slurm_usage.py` compares all six. What the five rows are is in
 [`context_fov_86.md`](context_fov_86.md) §5.
 
 ## klone, 2026-09-26: the context experiment's resolution and seed arms, 13.6 GPU-hours, $0
@@ -259,6 +259,34 @@ python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
 `tests/test_slurm_usage.py` pins the five rows' names, GPU counts and 13.61 GPU-hours, by job
 id. What each row is, with the per-arm training time, is in
 [`context_fov_86.md`](context_fov_86.md) §5.
+
+## klone, 2026-09-27: the DA3 calibration (#101), 1.94 GPU-hours, $0
+
+Three jobs of `scripts/analysis/da3_calibration_101.slurm`, all on `ckpt-all`, one incarnation
+each, all COMPLETED (none preempted): the smoke test `40774578` (A40, 159 s), the first full
+extraction `40774944` (A40, 2,625 s) and the re-extraction with the lowest-plane ground fit
+`40777019` (Quadro RTX 6000, 4,208 s). Pulled by job id on 2026-09-27 into
+`docs/data/compute/sacct_klone_2026-09-27_da3_101.txt` (556 bytes, sha256
+`245b344601738e7a0ec1954ad64aa13f93dcb2d8df75c750bf3ff6a685773774`) on a klone login node:
+
+```bash
+sacct -X -D -P -n -u jfroehli \
+    --format=JobID,JobName%60,Cluster,Partition,QOS,State,Submit,Start,End,ElapsedRaw,AllocTRES,NNodes,ExitCode \
+    -j 40774578,40774944,40777019 > sacct_klone_2026-09-27_da3_101.txt
+```
+
+Parsed with:
+
+```bash
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
+    --from-file docs/data/compute/sacct_klone_2026-09-27_da3_101.txt \
+    --out analysis_out/compute_log.jsonl --by-name
+```
+
+The per-pano timings (the script's own `paid: false` rows in `analysis_out/usage_log.jsonl`) and
+what each run produced are in [`da3_calibration_101.md`](da3_calibration_101.md) §9 (the
+ground-fit change between the two full runs is §8). Two of the three usage rows were relabelled by
+hand when appended; §9 says which.
 
 ## Gaps, stated
 

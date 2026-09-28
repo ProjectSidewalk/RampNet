@@ -32,7 +32,10 @@ used:
 2. **Depth Anything 3 (metric)** run on the perspective-reprojected views from
    `scripts/model_comparison/equirect_tiling.py`, with our exactly-known intrinsics.
 
-They agree to within **6.5–8.5%** (Spearman ρ = 0.95 Bend / 0.81 Richmond). Depth additionally
+They agree to within **6.5–8.5%** (Spearman ρ = 0.95 Bend / 0.81 Richmond). *(#101 re-derived
+these figures and found they compare DA3's planar depth with flat **horizontal** range; on a
+like-for-like horizontal range the agreement is 1.4% on bend and 3.7% on richmond, ρ 0.96 / 0.85;
+[`da3_calibration_101.md`](da3_calibration_101.md) §7.)* Depth additionally
 rescues 4 Richmond ramps that geometry placed *above the horizon* — geometrically impossible for a
 ground ramp, and a direct symptom of unleveled consumer rigs / hills. That ρ gap is itself
 informative: geometry degrades exactly where the camera rig varies (Mapillary), which is the OOD
@@ -43,7 +46,8 @@ Apparent size then follows from distance: a ramp of real width `W` at distance `
 
 ## 0. The distance axis, re-measured on GSV depth (#112)
 
-Every distance below is flat-ground geometry (or DA3, which agreed with it to 6.5–8.5%) at an
+Every distance below is flat-ground geometry (or DA3, which agreed with it to 6.5–8.5%, a
+planar-vs-horizontal comparison; 1.4–3.7% like for like, #101) at an
 *assumed* 2.5 m camera height. GSV's depth payload is a list of planes plus a per-pixel plane
 index, and the dominant ground plane's distance is the camera height — a per-panorama
 measurement, not a constant. The sidewalk-auto-labeler archived that payload for every panorama
@@ -323,10 +327,14 @@ Pooled over the four GSV splits on the depth axis (TP + FP, measured-ground pano
   and everything in the Mapillary tier), and laurens_gsv was not harvested. Mapillary is exactly
   where the flat axis is worst (§ *Why this needed depth*, ρ 0.81), and this measurement says
   nothing about it.
-- **DA3 was not regressed against GSV depth.** `gt_depth_da3.json` is not committed and needs a
-  GPU to regenerate, so the issue's "calibrate DA3 and carry it to Mapillary" item is untouched.
-  The 6.5–8.5% DA3/flat agreement on bend is consistent with both sharing bend's ~6–7% bias, but
-  that is an inference, not a measurement.
+- **DA3 against GSV depth: done in #101, not here.** [`da3_calibration_101.md`](da3_calibration_101.md)
+  re-ran DA3 on every GT point and detection of eleven splits with committed rows and regressed it
+  against the depth axis of this section: DA3 reads range 1.106× Google's pooled (1.033× on bend),
+  and carries the calibrated axis to the Mapillary splits. It also re-derives the 6.5–8.5% /
+  ρ 0.95 / 0.81 figures and shows they were a planar-vs-horizontal comparison. This section's
+  earlier guess, that the 6.5–8.5% agreement meant DA3 and the flat axis share bend's bias, is
+  superseded by that measurement. The §1 and §5 tables still come from the uncommitted
+  `gt_depth_da3.json`.
 - **Occlusion was not partitioned, and the depth payload is not the instrument for it.** With the
   aligned lookup only 5 of 1,101 GT points sit under a non-ground plane. The 39 the first version
   reported were almost all the azimuth mirror, so the payload does not supply raw material for
