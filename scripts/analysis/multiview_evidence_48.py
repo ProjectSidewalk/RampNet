@@ -23,8 +23,9 @@ code, so every number ties back to ``runs/<city>/fusion_eval/report.md``:
    of 0.30-tier sites, and a per-site log-likelihood score that also counts
    misses-in-range as negative evidence (calibrated in-sample, and leave-one-city-out).
 4. **Residual-miss taxonomy**: the pool ramps no operational site recovered, classified
-   mechanically, plus a crop gallery for a one-rater qualitative pass
-   (``residual_taxonomy__jonf.json``; verdicts empty until a human fills them).
+   mechanically, plus a crop gallery for a one-rater qualitative pass. The first gallery
+   (``gallery``, rubric ``residual_taxonomy__jonf.json``) was superseded before any
+   verdicts by ``residual_gt_check_48.py``, which reuses ``crop_plan`` and ``cut_one``.
 
 Nothing here needs a GPU or the network. It needs the labeler checkout (read-only; its
 ``geo``, ``fuse_sites`` and ``eval_sites`` are imported by path, never copied) and its
