@@ -299,8 +299,12 @@ checks that all eight fields parse, including the nested point arrays and the im
 **`--load-hub` loads the record the way a consumer would.** It gives `mlcroissant` the benchmark
 file with no local mapping. `mlcroissant` then clones `contentUrl` itself, with Git LFS smudging
 off, so only pointers arrive, and `git lfs pull`s just the nine `records` Parquet files. It checks
-that the clone's HEAD is the pinned revision, and that the rows per split match `split_extents`. On
-2026-09-25 this used about 570 KB of disk, 208 KB of it LFS content, and downloaded no imagery. It
+that the clone's HEAD is the pinned revision, that the rows per split match `split_extents`, and
+that the detection and missed-mark totals match the committed bundles (2,061 and 1,191), as
+`--load` does. The nine `records` files total 179,356 bytes, the sum of their `file_manifest`
+rows. The rest of the clone is Git LFS pointers, the card and `.git`; `--load-hub` prints the
+clone's total size on disk, and no imagery is downloaded. (The 570 KB and 208 KB in an earlier
+revision of this section were a one-off `du` on 2026-09-25 that no committed code printed.) It
 needs network access, `gitpython` and `git lfs`, so it is not part of `pytest`. The same test for
 `rampnet-dataset` would mean the 463 GB repository, since every record set there reads the image
 shards, so it has not been run; the synthetic shard above is the stand-in.

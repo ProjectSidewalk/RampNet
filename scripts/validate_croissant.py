@@ -730,8 +730,14 @@ def check_load_records(doc_path, out, benchmark=REPO / "benchmark"):
         per_split[split] = per_split.get(split, 0) + 1
         dets += len(row["records/detections"] or [])
         missed += len(row["records/missed"] or [])
+    return per_split, dets, missed
+
+
+def committed_record_counts(doc, benchmark=REPO / "benchmark"):
+    """Rows per split, detections and missed marks the committed bundles give for the splits
+    ``doc`` publishes (reviewed panoramas only, the exporter's filter)."""
     want_split, want_dets, want_missed = {}, 0, 0
-    published = [r["splits/name"] for r in record_set(load(doc_path), "splits")["data"]]
+    published = [r["splits/name"] for r in record_set(doc, "splits")["data"]]
     for bundle in sorted(Path(benchmark).glob("*/verdicts.json")):
         split = bundle.parent.name
         if split not in published:
@@ -744,6 +750,16 @@ def check_load_records(doc_path, out, benchmark=REPO / "benchmark"):
                 rec = json.loads(line)
                 if rec.get("pano", {}).get("panorama_id") in judged:
                     want_dets += len(rec.get("detections", []))
+    return want_split, want_dets, want_missed
+
+
+def check_load_records(doc_path, out, benchmark=REPO / "benchmark"):
+    """Load the benchmark ``records`` record set through the Croissant file from a local rebuild."""
+    import mlcroissant as mlc                      # optional dependency
+    _posix_fullpaths(mlc)
+    ds = mlc.Dataset(jsonld=str(doc_path), mapping={"repo": str(out)})
+    per_split, dets, missed = _count_records(ds)
+    want_split, want_dets, want_missed = committed_record_counts(load(doc_path), benchmark)
     problems = []
     if per_split != want_split:
         problems.append("load: records rows per split {} != committed {}".format(per_split, want_split))
@@ -753,22 +769,19 @@ def check_load_records(doc_path, out, benchmark=REPO / "benchmark"):
     return problems, sum(per_split.values()), dets, missed
 
 
-def check_load_hub(doc_path, cache):
+def check_load_hub(doc_path, cache, benchmark=REPO / "benchmark"):
     """Load ``records`` through the Croissant file with no mapping: mlcroissant clones the Hub repo
-    named by ``contentUrl`` itself. Only the nine small ``records`` files are fetched from LFS."""
+    named by ``contentUrl`` itself. Only the nine small ``records`` files are fetched from LFS.
+
+    Checks the clone's HEAD against the pin, rows per split against ``split_extents``, and the
+    detection and missed-mark totals against the committed bundles, as ``--load`` does."""
     import mlcroissant as mlc                      # optional dependency
     from mlcroissant._src.core import constants
     _posix_fullpaths(mlc)
     constants.DOWNLOAD_PATH = Path(cache) / "download"     # a fresh clone, not a stale cache
     doc = load(doc_path)
     ds = mlc.Dataset(jsonld=str(doc_path))
-    per_split, dets, missed = {}, 0, 0
-    for row in ds.records("records"):
-        split = row["records/split"]
-        split = split.decode() if isinstance(split, bytes) else split
-        per_split[split] = per_split.get(split, 0) + 1
-        dets += len(row["records/detections"] or [])
-        missed += len(row["records/missed"] or [])
+    per_split, dets, missed = _count_records(ds)
     clones = [p for p in (Path(cache) / "download").glob("croissant-*") if (p / ".git").exists()]
     head = subprocess.run(["git", "-C", str(clones[0]), "rev-parse", "HEAD"], capture_output=True,
                           text=True).stdout.strip() if clones else None
@@ -779,7 +792,18 @@ def check_load_hub(doc_path, cache):
         problems.append("load-hub: cloned HEAD {} is not the pinned revision".format(head))
     if per_split != want:
         problems.append("load-hub: records rows per split {} != split_extents {}".format(per_split, want))
-    return problems, sum(per_split.values()), dets, missed, head
+    _, want_dets, want_missed = committed_record_counts(doc, benchmark)
+    if (dets, missed) != (want_dets, want_missed):
+        problems.append("load-hub: {} detections / {} missed, committed bundles give {} / {}".format(
+            dets, missed, want_dets, want_missed))
+    disk = sum(f.stat().st_size for f in clones[0].rglob("*") if f.is_file()) if clones else 0
+    return problems, sum(per_split.values()), dets, missed, head, disk
+
+
+def records_bytes(doc):
+    """Total size of the ``records`` Parquet files, from ``file_manifest``."""
+    return sum(r["file_manifest/bytes"] for r in record_set(doc, "file_manifest")["data"]
+               if r["file_manifest/path"].startswith("data/records/"))
 
 
 def write_synthetic_shard(out):
@@ -893,10 +917,12 @@ def main(argv=None):
                         notes.append("loaded {:,} records rows, {:,} detections, {:,} missed".format(
                             rows, dets, missed))
                 if args.load_hub:
-                    more, rows, dets, missed, head = check_load_hub(path, Path(tmp) / "cache")
+                    more, rows, dets, missed, head, disk = check_load_hub(path, Path(tmp) / "cache")
                     problems += more
                     notes.append("loaded from the Hub (clone at {}): {:,} records rows, {:,} "
-                                 "detections, {:,} missed".format((head or "?")[:7], rows, dets, missed))
+                                 "detections, {:,} missed; records Parquet {:,} B per file_manifest, "
+                                 "clone {:,} B on disk".format((head or "?")[:7], rows, dets, missed,
+                                                              records_bytes(doc), disk))
             else:
                 problems += check_dataset_boxes(doc)
                 if args.load:
