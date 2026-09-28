@@ -105,6 +105,12 @@ def _titles(ax, title, subtitle):
             color=INK_SECONDARY, va="bottom")
 
 
+def _n_pooled(result):
+    """The pooled-split count as a word ("eight"), read off the board rather than typed (#171)."""
+    from scoreboard_render import number_word
+    return number_word(len(result["pooled_splits"]))
+
+
 def _style(ax):
     """Recessive chrome: hairline solid grid, no top/right spines, muted ticks."""
     ax.set_facecolor(SURFACE)
@@ -167,7 +173,7 @@ def fig_headline(result, path, plt):
 
     ax.set_xlim(0, 1.0)
     ax.set_ylim(-0.7, len(models) - 0.3)
-    ax.set_xlabel("F1, macro-mean over the seven pooled US city splits",
+    ax.set_xlabel(f"F1, macro-mean over the {_n_pooled(result)} pooled US city splits",
                   fontsize=9.5, color=INK_SECONDARY)
 
     # The lead goes in the subtitle rather than into an annotated arrow: the gap between
@@ -183,7 +189,7 @@ def fig_headline(result, path, plt):
         subtitle = (f"+{ref_f1 - runner_up['f1']:.3f} F1 clear of the best challenger "
                     f"({runner_up['display']}, {runner_up['f1']:.3f}).")
     else:
-        subtitle = "Macro-mean over the seven pooled US city splits."
+        subtitle = f"Macro-mean over the {_n_pooled(result)} pooled US city splits."
     _titles(ax, "RampNet leads every off-the-shelf and supervised baseline tested",
             subtitle)
     # Two lines: at 7.4pt one line of this runs past the right edge and gets clipped.
@@ -250,7 +256,8 @@ def fig_precision_recall(result, path, plt):
     ax.set_xlabel("recall", fontsize=9.5, color=INK_SECONDARY)
     ax.set_ylabel("precision", fontsize=9.5, color=INK_SECONDARY)
     _titles(ax, "The same F1 hides opposite failures",
-            "Macro-mean over the seven pooled US city splits. Marker shape is model class.")
+            f"Macro-mean over the {_n_pooled(result)} pooled US city splits. "
+            "Marker shape is model class.")
 
     seen, handles = set(), []
     for m in models:
@@ -346,14 +353,15 @@ def fig_by_split(result, path, plt):
     ref = next((m for m in models if m["model"] == "rampnet"), None)
     if ref is not None and ref["f1_max"] is not None and spreads:
         subtitle = (f"RampNet varies by {ref['f1_max'] - ref['f1_min']:.2f} across the "
-                    f"seven pooled cities; every challenger above F1 0.1 varies by "
+                    f"{_n_pooled(result)} pooled cities; every challenger above F1 0.1 varies by "
                     f"{min(spreads):.2f}–{max(spreads):.2f}.")
     else:
         subtitle = "F1 per (model, split). Held-out splits sit right of the gutter."
     _titles(ax, "F1 by model and split", subtitle)
     fig.text(0.008, 0.012,
-             "† held out of the pooled headline: budapest (single-rater GT at low reviewer "
-             "confidence), sao_paulo (non-US), manual_gold (in-distribution reference).",
+             "† held out of the pooled headline: laurens_gsv (second imagery arm of pooled "
+             "laurens), budapest (single-rater GT at low reviewer confidence), sao_paulo "
+             "(non-US), manual_gold (in-distribution reference).",
              fontsize=7.4, color=INK_MUTED, ha="left", va="bottom")
     fig.tight_layout(rect=(0, 0.03, 1, 1))
     fig.savefig(path, dpi=170, facecolor=fig.get_facecolor())
@@ -407,7 +415,7 @@ def fig_generalization(result, path, plt):
     ax.set_ylim(0, 1.04)
     ax.set_xlabel("in-distribution F1  (manual_gold, 1,000 GSV panoramas)",
                   fontsize=9.5, color=INK_SECONDARY)
-    ax.set_ylabel("deployed F1  (macro-mean, seven US cities)",
+    ax.set_ylabel(f"deployed F1  (macro-mean, {_n_pooled(result)} US cities)",
                   fontsize=9.5, color=INK_SECONDARY)
     _titles(ax, "The drop from in-distribution to deployed is what generalization costs",
             "Labels give deployed F1 minus in-distribution F1. Marker shape is model class.")
@@ -462,7 +470,7 @@ def _decimate(xs, ys, keep=1500):
 
 
 def fig_pr_curves(result, path, plt):
-    """The trade-off curve, pooled over the seven US splits — how to choose a threshold.
+    """The trade-off curve, pooled over the US splits — how to choose a threshold.
 
     The headline table reports one point per model. This is the surface that point sits on,
     which is what a threshold decision actually needs: a model with a calibrated score can
@@ -535,7 +543,7 @@ def fig_pr_curves(result, path, plt):
     ax.set_xlabel("recall", fontsize=9.5, color=INK_SECONDARY)
     ax.set_ylabel("precision", fontsize=9.5, color=INK_SECONDARY)
     _titles(ax, "A calibrated score is a dial; a chat VLM is a dot",
-            "Pooled over the seven US splits, micro — every panorama counts once, dots "
+            f"Pooled over the {_n_pooled(result)} US splits, micro — every panorama counts once, dots "
             "included. Grey dots emit no confidence and cannot be moved.")
     # Mid-left: the lower-left corner is where the two open-detector curves live, and a
     # legend there sits on top of them.

@@ -1,7 +1,7 @@
 """Is a curb-ramp inventory recorded per *ramp* or per *corner*?
 
 The automatable half of the location-precision gate (issues #96, #59). See
-``docs/curb_ramp_data_sourcing.md`` §5.
+``docs/location_precision_assessment_96.md`` §5.
 
 Positional offset — *is the coordinate on the ramp?* — needs aerial imagery and a
 human, and this script does not attempt it. But one of §5's six checks is pure

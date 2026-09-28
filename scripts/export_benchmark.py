@@ -23,6 +23,12 @@ the exact source bytes with no re-encode, and each row also carries the `sha256`
 `verify` reads every Parquet back and re-hashes, so "the round trip preserved the pixels" is
 checked rather than assumed -- which is the whole point of publishing what reviewers saw.
 
+The `records` config also carries what a reviewer wants read alongside the numbers (#127): the
+split's `review_notes` block (reviewer, date, self-rated confidence, summary, caveats) flattened
+onto every row, any per-pano `note`, and a `train_overlap` flag from the committed
+`benchmark/train_overlap.json`. The exporter refuses to build a split that has no entry in that
+file, so a new city cannot be published without its training-overlap check.
+
 Labels are deliberately NOT in the imagery configs. `records.jsonl` and `verdicts.json` live in
 git, where they can be revised; imagery is immutable once fetched, which is what makes this repo
 safe to grow one city at a time.
@@ -38,6 +44,14 @@ Verify, then push:
     python scripts/export_benchmark.py verify --out dist/rampnet-benchmark
     python scripts/export_benchmark.py push   --out dist/rampnet-benchmark \
         --repo-id projectsidewalk/rampnet-benchmark
+
+A label-only change (a verdict fix, a review_notes edit, a new train_overlap.json) re-pushes just
+`records` plus the card, a few hundred KB. `adopt` first, so the card still declares the imagery
+configs that are on the Hub but not on this disk:
+
+    python scripts/export_benchmark.py adopt   --out dist/rampnet-benchmark
+    python scripts/export_benchmark.py records --out dist/rampnet-benchmark            # inspect
+    python scripts/export_benchmark.py records --out dist/rampnet-benchmark --push --message "..."
 """
 
 import argparse
@@ -68,6 +82,10 @@ ROWS_PER_BATCH = 4                     # large images: keep the writer's working
 # What `build` records about itself, so `card` does not have to re-derive the published config set
 # from whatever happens to be on the local disk. See load_index().
 MANIFEST_NAME = "build_manifest.json"
+
+# benchmark/<this>: which reviewed panoramas are also in rampnet-dataset's train/validation splits.
+# Written by scripts/analysis/train_overlap_check.py; required for every exported split (#127).
+TRAIN_OVERLAP_NAME = "train_overlap.json"
 
 # `panos/` is populated by the fetchers and is not in git, so a directory listing is not a
 # statement of intent. `benchmark/manual_gold/panos` holds the paper's 1,000-panorama gold set --
@@ -122,6 +140,17 @@ RECORDS_SCHEMA = pa.schema([
     ]))),
     pa.field("no_missed", pa.bool_()),
     pa.field("review_group", pa.string()),
+    # #127: the caveats travel with the rows. train_overlap is never null; the review_* columns
+    # are null for a split with no review_notes block -- null means "not recorded". review_caveats
+    # is [] only when the block records an empty caveats list ("reviewed, no caveats") and null
+    # when the block or its caveats key is absent, so the two cannot be confused.
+    pa.field("train_overlap", pa.bool_()),
+    pa.field("note", pa.string()),
+    pa.field("reviewer", pa.string()),
+    pa.field("reviewed_at", pa.string()),
+    pa.field("review_confidence", pa.string()),
+    pa.field("review_summary", pa.string()),
+    pa.field("review_caveats", pa.list_(pa.string())),
 ])
 
 RECORDS_FEATURES = {
@@ -136,6 +165,10 @@ RECORDS_FEATURES = {
     "missed": [{"x_normalized": hf_value("float64"), "y_normalized": hf_value("float64"),
                 "unsure": hf_value("bool")}],
     "no_missed": hf_value("bool"), "review_group": hf_value("string"),
+    "train_overlap": hf_value("bool"), "note": hf_value("string"),
+    "reviewer": hf_value("string"), "reviewed_at": hf_value("string"),
+    "review_confidence": hf_value("string"), "review_summary": hf_value("string"),
+    "review_caveats": [hf_value("string")],
 }
 
 SCHEMA = pa.schema([
@@ -227,11 +260,47 @@ def write_parquet(dst, records, config):
     return n, dst.stat().st_size
 
 
+def reviewed_splits(benchmark):
+    """Allowlisted splits with both records.jsonl and verdicts.json -- what build_records exports."""
+    return [city for city in sorted(BENCHMARK_SPLITS)
+            if (Path(benchmark) / city / "records.jsonl").is_file()
+            and (Path(benchmark) / city / "verdicts.json").is_file()]
+
+
 def has_reviewed_splits(benchmark):
     """True when at least one allowlisted split has both records.jsonl and verdicts.json."""
-    return any((Path(benchmark) / city / "records.jsonl").is_file()
-               and (Path(benchmark) / city / "verdicts.json").is_file()
-               for city in BENCHMARK_SPLITS)
+    return bool(reviewed_splits(benchmark))
+
+
+def load_train_overlap(benchmark):
+    """{split: set of pano ids} from benchmark/train_overlap.json; exits if the file is missing."""
+    path = Path(benchmark) / TRAIN_OVERLAP_NAME
+    if not path.is_file():
+        sys.exit("error: {} is missing -- run\n"
+                 "       python scripts/analysis/train_overlap_check.py --benchmark {} --out {}"
+                 .format(path, benchmark, path))
+    overlap = json.loads(path.read_text(encoding="utf-8")).get("overlap", {})
+    return dict((split, set(ids)) for split, ids in overlap.items())
+
+
+def check_train_overlap(benchmark):
+    """Refuse, before anything is cleared or written, if any reviewed split lacks an overlap entry.
+
+    build_records would refuse too, but only when its loop reached the uncovered split -- after
+    `build` had spent hours writing imagery and after data/records had been cleared, leaving a
+    partial config and no manifest. Both entry points call this first (#127 review). Returns the
+    same {split: set of ids} as load_train_overlap.
+    """
+    overlap = load_train_overlap(benchmark)
+    missing = [city for city in reviewed_splits(benchmark) if city not in overlap]
+    if missing:
+        path = Path(benchmark) / TRAIN_OVERLAP_NAME
+        sys.exit("error: {} {} no entry in {} -- run\n"
+                 "       python scripts/analysis/train_overlap_check.py --benchmark {} --out {}\n"
+                 "       and commit the result before exporting.".format(
+                     ", ".join(missing), "has" if len(missing) == 1 else "have", path,
+                     benchmark, path))
+    return overlap
 
 
 def build_records(benchmark, out):
@@ -242,11 +311,22 @@ def build_records(benchmark, out):
     committed files; this only reshapes them, so git stays the source of truth and the config is
     regenerable rather than a second original.
 
+    Issue #127 adds what should be read alongside those labels. The audience is whoever calls
+    `load_dataset(..., "records")` and never opens this repo, so the split's `review_notes` block
+    (reviewer, date, confidence, summary, caveats) is flattened onto every row, the per-pano `note`
+    rides on its own row (`review_caveats` is [] when the block records an empty list and null
+    when there is no block or no caveats key), and `train_overlap` flags panoramas that are also in rampnet-dataset's
+    train/validation splits (from benchmark/train_overlap.json). A split with no entry in that file
+    is refused: a new city is not published until its overlap has been checked.
+
     Kept as its own config on purpose: it is a few MB against 11.41 GB of imagery, so labels can be
     corrected -- and verdicts do get revised -- without replacing a single image blob.
+
+    Returns [(city, n_panos, n_detections, n_missed, n_overlap, parquet_bytes), ...].
     """
     written = []
     schema = RECORDS_SCHEMA.with_metadata(hf_features_metadata(RECORDS_FEATURES))
+    overlap = check_train_overlap(benchmark)      # every split validated before the first write
     for records_path in sorted(Path(benchmark).glob("*/records.jsonl")):
         city = records_path.parent.name
         if city not in BENCHMARK_SPLITS:
@@ -254,7 +334,10 @@ def build_records(benchmark, out):
         verdicts_path = records_path.parent / "verdicts.json"
         if not verdicts_path.is_file():
             continue
-        judged = json.loads(verdicts_path.read_text(encoding="utf-8")).get("panos", {})
+        verdicts = json.loads(verdicts_path.read_text(encoding="utf-8"))
+        judged = verdicts.get("panos", {})
+        notes = verdicts.get("review_notes") or {}
+        overlapping = overlap[city]
 
         rows = []
         for line in records_path.read_text(encoding="utf-8").splitlines():
@@ -296,6 +379,16 @@ def build_records(benchmark, out):
                 } for m in verdict.get("missed", [])],
                 "no_missed": bool(verdict.get("no_missed", False)),
                 "review_group": verdict.get("group"),
+                "train_overlap": pano_id in overlapping,
+                "note": verdict.get("note") or None,
+                "reviewer": notes.get("reviewer"),
+                "reviewed_at": notes.get("reviewed_at"),
+                # verbatim: a sentinel such as "unrecorded" must travel as written, not as a level
+                "review_confidence": notes.get("confidence"),
+                "review_summary": notes.get("summary"),
+                # [] = reviewed, no caveats; null = no review_notes block or no caveats key
+                "review_caveats": (list(notes["caveats"]) if notes.get("caveats") is not None
+                                   else None),
             })
 
         if not rows:
@@ -305,7 +398,8 @@ def build_records(benchmark, out):
         pq.write_table(pa.Table.from_pylist(rows, schema=schema), str(dst), compression="zstd")
         n_det = sum(len(r["detections"]) for r in rows)
         n_missed = sum(len(r["missed"]) for r in rows)
-        written.append((city, len(rows), n_det, n_missed, dst.stat().st_size))
+        n_overlap = sum(r["train_overlap"] for r in rows)
+        written.append((city, len(rows), n_det, n_missed, n_overlap, dst.stat().st_size))
     return written
 
 
@@ -485,15 +579,133 @@ def split_date_range(benchmark, cities):
     return "between {} and {}".format(min(dates), max(dates))
 
 
+def records_only_splits(index):
+    """Splits whose ground truth is in `records` but whose imagery no imagery config carries.
+
+    The Laurens arms were added to BENCHMARK_SPLITS after the imagery was pushed, so a `records`
+    rebuild publishes their labels while `native` / `4096x2048` / `galleries` stay at nine. The
+    card has to say so, or `load_dataset(..., "native", split="laurens_gsv")` fails with no hint.
+    """
+    imagery = set()
+    for config in IMAGERY_CONFIGS:
+        imagery.update(index.get(config, []))
+    return sorted(set(index.get(RECORDS, [])) - imagery)
+
+
+def records_only_note(names):
+    """The sentence under the Configs table, or '' when every records split has imagery."""
+    if not names:
+        return ""
+    return ("\n`records` also carries **{}** (ground truth only); their imagery is not yet "
+            "published.\n".format(", ".join("`{}`".format(n) for n in names)))
+
+
+def overlap_checked_at(benchmark):
+    """`checked_at` from benchmark/train_overlap.json, for the card's Training overlap section."""
+    path = Path(benchmark) / TRAIN_OVERLAP_NAME
+    if not path.is_file():
+        return "(no check on record)"
+    return json.loads(path.read_text(encoding="utf-8")).get("checked_at", "(date not recorded)")
+
+
+# The card's wording for each review_confidence value, in table order. A value not listed here is
+# shown verbatim after these; null (no review_notes block) always comes last.
+CONFIDENCE_WORDING = [
+    ("low", "**`low`** — the reviewer rated their own pass low confidence; do not pool it with the "
+            "other splits without reading `review_caveats`"),
+    ("medium", "`medium`"),
+    ("high", "`high`"),
+    ("unrecorded", "`unrecorded` — not recorded at export time; the value says so rather than "
+                   "guessing a level"),
+]
+
+
+def split_confidences(benchmark, cities):
+    """{split: review_notes.confidence or None}, read from each split's verdicts.json.
+
+    The same source build_records copies onto the rows, so the card's table cannot drift from them.
+    """
+    levels = {}
+    for city in cities:
+        path = Path(benchmark) / city / "verdicts.json"
+        notes = {}
+        if path.is_file():
+            notes = json.loads(path.read_text(encoding="utf-8")).get("review_notes") or {}
+        levels[city] = notes.get("confidence")
+    return levels
+
+
+def confidence_table(benchmark, cities):
+    """The card's `review_confidence` table, one row per value, derived from verdicts.json."""
+    by_value = {}
+    for city, level in split_confidences(benchmark, cities).items():
+        by_value.setdefault(level, []).append(city)
+    known = [value for value, _ in CONFIDENCE_WORDING]
+    order = ([v for v in known if v in by_value]
+             + sorted(v for v in by_value if v is not None and v not in known)
+             + ([None] if None in by_value else []))
+    wording = dict(CONFIDENCE_WORDING)
+    lines = ["| split | `review_confidence` |", "| :--- | :--- |"]
+    for value in order:
+        splits = ", ".join("`{}`".format(c) for c in sorted(by_value[value]))
+        if value is None:
+            text = "null — no review notes were recorded for these splits"
+        else:
+            text = wording.get(value, "`{}`".format(value))
+        lines.append("| {} | {} |".format(splits, text))
+    return "\n".join(lines)
+
+
+def overlap_listing(benchmark, cities):
+    """The card's list of flagged panoramas per split, from benchmark/train_overlap.json.
+
+    Returns (markdown, {split: n_flagged}) for the exported splits.
+    """
+    overlap = load_train_overlap(benchmark)
+    counts = dict((city, len(overlap.get(city, ()))) for city in cities)
+    lines = []
+    for city in cities:
+        ids = sorted(overlap.get(city, ()))
+        if ids:
+            lines.append("- `{}`: {} panorama{} — {}".format(
+                city, len(ids), "" if len(ids) == 1 else "s",
+                ", ".join("`{}`".format(i) for i in ids)))
+    clean = [c for c in cities if not counts[c]]
+    if clean:
+        lines.append("- every other split ({}): 0".format(len(clean)) if lines
+                     else "- every split: 0")
+    return "\n".join(lines), counts
+
+
+def reviewed_rows(benchmark, city):
+    """How many reviewed panoramas a split's verdicts.json holds (the rows build_records writes)."""
+    path = Path(benchmark) / city / "verdicts.json"
+    if not path.is_file():
+        return 0
+    return len(json.loads(path.read_text(encoding="utf-8")).get("panos", {}))
+
+
 def render_card(out, benchmark, repo_id, index):
-    cities = sorted(set(sum(index.values(), [])))
+    # A split counts once it has ground truth; imagery is counted separately, because the two
+    # differ while any split is records-only (see records_only_splits).
+    cities = sorted(index.get(RECORDS) or set(sum(index.values(), [])))
+    imagery = sorted(set(sum((index.get(c, []) for c in IMAGERY_CONFIGS), [])))
     total = package_bytes(out, index)
+    overlap_md, overlap_counts = overlap_listing(benchmark, cities)
     card_text = TEMPLATE.read_text(encoding="utf-8").format(
         configs_yaml=configs_yaml(index),
         git_commit=git_commit(),
         export_date=datetime.date.today().isoformat(),
         repo_id=repo_id,
         n_cities=len(cities),
+        n_imagery_splits=len(imagery),
+        records_only_note=records_only_note(records_only_splits(index)),
+        overlap_checked_at=overlap_checked_at(benchmark),
+        confidence_table=confidence_table(benchmark, cities),
+        budapest_confidence=split_confidences(benchmark, ["budapest_district5"])[
+            "budapest_district5"],
+        overlap_listing=overlap_md,
+        bend_unseen_rows=reviewed_rows(benchmark, "bend") - overlap_counts.get("bend", 0),
         split_date_range=split_date_range(benchmark, cities),
         total_gb="{:.2f}".format(total / 1e9),
     )
@@ -503,6 +715,10 @@ def render_card(out, benchmark, repo_id, index):
 
 def build(args):
     out = Path(args.out)
+    # Before any imagery is written or any config cleared: an uncovered split must not cost the
+    # hours of imagery work, or data/records, that a mid-loop refusal would.
+    if has_reviewed_splits(args.benchmark):
+        check_train_overlap(args.benchmark)
     index = {}
     print("{:<12} {:<20} {:>6} {:>14} {:>14}".format("config", "city", "rows", "bytes in", "parquet"))
     print("-" * 72)
@@ -523,10 +739,11 @@ def build(args):
     # no reviewed splits must not silently delete a records config an earlier run produced.
     if has_reviewed_splits(args.benchmark):
         clear_build_dir(out, "data/{}".format(RECORDS))
-    for city, n_panos, n_det, n_missed, size in build_records(args.benchmark, out):
+    for city, n_panos, n_det, n_missed, n_overlap, size in build_records(args.benchmark, out):
         index.setdefault(RECORDS, []).append(city)
         print("{:<12} {:<20} {:>6,} {:>14} {:>14,}".format(
-            RECORDS, city, n_panos, "{} det/{} miss".format(n_det, n_missed), size))
+            RECORDS, city, n_panos,
+            "{} det/{} miss/{} overlap".format(n_det, n_missed, n_overlap), size))
 
     if not index:
         sys.exit("error: nothing found to package -- check --benchmark / --panos-4096 paths")
@@ -635,7 +852,7 @@ def verify_against_manifests(out, benchmark, allow_unpinned=False):
         matched, total, " ({} unpinned, allowed)".format(absent) if absent else ""))
 
 
-def card(args):
+def card(args, announce_push=True):
     """Re-render README.md from the template against an already-built package.
 
     Cards get revised far more often than 11 GB of Parquet does, and rebuilding the whole package
@@ -649,12 +866,12 @@ def card(args):
         out / "README.md", len(index), ", ".join(c for c in CONFIG_ORDER if c in index)))
 
     if not args.push:
-        print("Not pushed. Add --push to upload just the card.")
+        if announce_push:
+            print("Not pushed. Add --push to upload just the card.")
         return
     from huggingface_hub import HfApi
     HfApi().upload_file(path_or_fileobj=str(out / "README.md"), path_in_repo="README.md",
-                        repo_id=args.repo_id, repo_type="dataset",
-                        commit_message="Clarify that this benchmark is post-publication, not the paper's evaluation")
+                        repo_id=args.repo_id, repo_type="dataset", commit_message=args.message)
     print("Card updated: https://huggingface.co/datasets/{}".format(args.repo_id))
 
 
@@ -667,32 +884,36 @@ def records(args):
     out = Path(args.out)
     if not has_reviewed_splits(args.benchmark):
         sys.exit("error: no records.jsonl + verdicts.json pairs under {}".format(args.benchmark))
+    check_train_overlap(args.benchmark)          # refuse before data/records is cleared
     clear_build_dir(out, "data/{}".format(RECORDS))
     written = build_records(args.benchmark, out)
     if not written:
         sys.exit("error: no records.jsonl + verdicts.json pairs under {}".format(args.benchmark))
-    print("{:<20} {:>7} {:>7} {:>7} {:>12}".format("city", "panos", "dets", "missed", "parquet"))
-    print("-" * 58)
-    tot = [0, 0, 0, 0]
-    for city, n_panos, n_det, n_missed, size in written:
-        print("{:<20} {:>7,} {:>7,} {:>7,} {:>12,}".format(city, n_panos, n_det, n_missed, size))
-        tot = [a + b for a, b in zip(tot, (n_panos, n_det, n_missed, size))]
-    print("-" * 58)
-    print("{:<20} {:>7,} {:>7,} {:>7,} {:>12,}".format("TOTAL", *tot))
+    print("{:<20} {:>7} {:>7} {:>7} {:>7} {:>12}".format(
+        "city", "panos", "dets", "missed", "overlap", "parquet"))
+    print("-" * 66)
+    tot = [0, 0, 0, 0, 0]
+    for city, n_panos, n_det, n_missed, n_overlap, size in written:
+        print("{:<20} {:>7,} {:>7,} {:>7,} {:>7,} {:>12,}".format(
+            city, n_panos, n_det, n_missed, n_overlap, size))
+        tot = [a + b for a, b in zip(tot, (n_panos, n_det, n_missed, n_overlap, size))]
+    print("-" * 66)
+    print("{:<20} {:>7,} {:>7,} {:>7,} {:>7,} {:>12,}".format("TOTAL", *tot))
 
-    save_index(out, {RECORDS: [city for city, _, _, _, _ in written]})
+    save_index(out, {RECORDS: [row[0] for row in written]})
     wanted_push, args.push = args.push, False
-    card(args)                                   # re-render so the config lands in the YAML
+    card(args, announce_push=False)              # re-render so the config lands in the YAML
     args.push = wanted_push
+    print("\nHub commit message: {!r}".format(args.message))
     if not args.push:
-        print("\nNot pushed. Add --push to upload the records config and the card.")
+        print("Not pushed. Add --push to upload the records config and the card.")
         return
 
     from huggingface_hub import HfApi
     api = HfApi()
     api.upload_folder(repo_id=args.repo_id, repo_type="dataset", folder_path=str(out),
                       allow_patterns=["data/{}/*".format(RECORDS), "README.md"],
-                      commit_message="Add the `records` config: ground truth, per-pano metadata and attribution (#21)")
+                      commit_message=args.message)
     print("Pushed: https://huggingface.co/datasets/{}".format(args.repo_id))
 
 
@@ -761,8 +982,9 @@ def main():
                         help="directory holding <city>_incremental_fp/ PNG crops")
     parser.add_argument("--repo-id", default="projectsidewalk/rampnet-benchmark")
     parser.add_argument("--private", action="store_true")
-    parser.add_argument("--message", default="Add benchmark panoramas (native + 4096x2048) and A/B galleries",
-                        help="push: the Hub commit message; say what this push carried")
+    parser.add_argument("--message", default="Update the benchmark package",
+                        help="push / records --push / card --push: the Hub commit message; "
+                             "say what this push carried")
     parser.add_argument("--push", action="store_true",
                         help="with `card`: upload only README.md")
     parser.add_argument("--allow-partial", action="store_true",

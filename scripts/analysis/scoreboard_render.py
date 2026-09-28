@@ -262,19 +262,20 @@ def render_tables(result):
     }
 
 
-def splice(text, tables):
+def splice(text, tables, begin=BEGIN, end=END):
     """Replace each generated block in ``text``; leave everything else byte-identical.
 
     A block present in ``tables`` but absent from the doc is a silent no-op by design:
     the doc decides which tables it wants and where, the script only decides what they
-    say.
+    say. ``begin``/``end`` are the marker formats; another generator
+    (``sourcing_tables.py``) passes its own so each block names the script that owns it.
     """
     for name, body in tables.items():
         pattern = re.compile(
-            re.escape(BEGIN.format(name=name)) + r".*?" + re.escape(END.format(name=name)),
+            re.escape(begin.format(name=name)) + r".*?" + re.escape(end.format(name=name)),
             re.S)
-        replacement = (BEGIN.format(name=name) + "\n\n" + body + "\n\n"
-                       + END.format(name=name))
+        replacement = (begin.format(name=name) + "\n\n" + body + "\n\n"
+                       + end.format(name=name))
         text = pattern.sub(lambda _m: replacement, text)
     return text
 
@@ -336,3 +337,440 @@ def write_json(path, result):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="") as fh:
         fh.write(json_payload(result))
+
+
+# --------------------------------------------------------------------------- #
+# the prose around the tables
+# --------------------------------------------------------------------------- #
+# The generated blocks cannot drift, but the sentences around them can, and did: the page
+# said "Eighteen model legs, ten splits" and "the seven pooled US city splits" for weeks
+# after the board had grown to 21 legs, twelve splits and eight pooled cities (#171). The
+# counts those sentences quote are all facts of the board, so they are checked against it
+# here, and scoreboard.py --check fails when one is wrong.
+
+_UNITS = ("zero one two three four five six seven eight nine ten eleven twelve thirteen "
+          "fourteen fifteen sixteen seventeen eighteen nineteen").split()
+_TENS = {"twenty": 20, "thirty": 30, "forty": 40}
+
+
+def number_word(n):
+    """0..49 as an English word, lower case: ``number_word(21) == "twenty-one"``."""
+    if n < 20:
+        return _UNITS[n]
+    tens = next(w for w, v in _TENS.items() if v == n - n % 10)
+    return tens if n % 10 == 0 else f"{tens}-{_UNITS[n % 10]}"
+
+
+def word_number(word):
+    """Inverse of :func:`number_word` (digits accepted too), or None for a non-number."""
+    if word.isdigit():
+        return int(word)
+    word = word.lower()
+    if word in _UNITS:
+        return _UNITS.index(word)
+    if word in _TENS:
+        return _TENS[word]
+    head, _, tail = word.partition("-")
+    if head in _TENS and tail in _UNITS[1:10]:
+        return _TENS[head] + _UNITS.index(tail)
+    return None
+
+
+# A count is digits or a number word, and nothing else. An earlier version accepted any
+# word, so a later sentence such as "over all pooled cities" would have read "all" as the
+# count and failed with a confusing message. Now a phrase with a non-number where the count
+# goes does not match the rule at all.
+_NUMBER_WORDS = sorted(set(_UNITS) | set(_TENS)
+                       | {f"{t}-{u}" for t in _TENS for u in _UNITS[1:10]},
+                       key=len, reverse=True)
+_NUM = r"\b(\d+|(?i:" + "|".join(_NUMBER_WORDS) + r"))\b"   # "twenty-one" or "21"
+_DEC = r"(\d\.\d{3})"                                          # a three-decimal value
+
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+YOLO_GEOMETRY_DIR = os.path.join(REPO, "docs", "data", "yolo_geometry_51")
+
+
+def _yolo_tiles_splits():
+    """How many splits y11x_tiles was scored on: one ``<split>_tiles.txt`` report each."""
+    if not os.path.isdir(YOLO_GEOMETRY_DIR):
+        return None
+    return sum(1 for f in os.listdir(YOLO_GEOMETRY_DIR) if f.endswith("_tiles.txt"))
+
+
+def prose_facts(result):
+    """The counts and values the hand-written prose quotes, each read off the board.
+
+    Ints are compared as counts (``word_number``), floats at three decimals, strings
+    exactly. ``yolo_tiles_splits`` is the one fact not on the board: it counts the committed
+    reports in ``docs/data/yolo_geometry_51/``.
+    """
+    per = result["per_split"]
+    pooled = result["pooled_splits"]
+    rampnet_top = sum(
+        1 for s in result["all_splits"]
+        if "rampnet" in per and s in per["rampnet"]
+        and all(per["rampnet"][s]["f1"] >= cells[s]["f1"]
+                for cells in per.values() if s in cells))
+
+    def f1s(key, splits):
+        return [per[key][s]["f1"] for s in splits]
+
+    def spread(key, splits):
+        values = f1s(key, splits)
+        return max(values) - min(values)
+
+    # Finding 2: RampNet's range over the pool, and over the pool without its worst split.
+    worst = min(pooled, key=lambda s: per["rampnet"][s]["f1"])
+    rest = [s for s in pooled if s != worst]
+    challengers = [m for m in result["models"] if m["complete"] and m["model"] != "rampnet"]
+    strong = [m["model"] for m in challengers if m["f1"] > 0.1]
+    open_vocab = [m["model"] for m in challengers if m["class"] == "open-vocab"]
+    best = max(challengers, key=lambda m: m["f1"])
+    rampnet = next(m for m in result["models"] if m["model"] == "rampnet")
+    curves = result.get("curves") or {}
+    splits = result["splits"]
+    city_gt = sum(splits[s]["n_gt"] for s in result["city_splits"])
+    gold_gt = splits[result["in_distribution_split"]]["n_gt"]
+
+    facts = {
+        "legs": len(result["models"]),
+        "splits": len(result["all_splits"]),
+        "pooled": len(pooled),
+        "pooled_minus_one": len(pooled) - 1,
+        "held_out": len(result["held_out"]),
+        "complete": sum(1 for m in result["models"] if m["complete"]),
+        "rampnet_top": rampnet_top,
+        "city_splits": len(result["city_splits"]),
+        "city_gt": city_gt,
+        "manual_gold_share": round(100 * gold_gt / (gold_gt + city_gt)),
+        "yolo_tiles_splits": _yolo_tiles_splits(),
+        # the headline lead, over the best challenger with full pooled coverage
+        "best_challenger": best["display"].split(" (")[0],
+        "lead": rampnet["f1"] - best["f1"],
+        # the two AP families (macro: the table's column; micro: the PR-curve legend)
+        "ap_gap_macro": rampnet["ap"] - max(m["ap"] for m in challengers
+                                            if m.get("ap") is not None),
+        "ap_gap_micro": curves["rampnet"]["ap"] - max(
+            c["ap"] for k, c in curves.items() if k != "rampnet"),
+        # Finding 2
+        "rampnet_min": min(f1s("rampnet", pooled)),
+        "rampnet_max": max(f1s("rampnet", pooled)),
+        "rampnet_range": spread("rampnet", pooled),
+        "rampnet_worst_split": worst,
+        "rampnet_worst_f1": per["rampnet"][worst]["f1"],
+        "worst_share": spread("rampnet", pooled) - spread("rampnet", rest),
+        "rest_min": min(f1s("rampnet", rest)),
+        "rest_max": max(f1s("rampnet", rest)),
+        "rest_range": spread("rampnet", rest),
+        "strong_range_min": min(spread(k, pooled) for k in strong),
+        "strong_range_max": max(spread(k, pooled) for k in strong),
+        "strong_rest_min": min(spread(k, rest) for k in strong),
+        "strong_rest_max": max(spread(k, rest) for k in strong),
+    }
+    for i, key in enumerate(open_vocab):
+        facts[f"open_vocab_range_{i}"] = spread(key, pooled)
+    return facts
+
+
+def _agrees(word, value):
+    """Does the prose's ``word`` state the board's ``value``?"""
+    if isinstance(value, float):
+        return word == f"{value:.3f}"
+    if isinstance(value, int):
+        return word_number(word.replace(",", "")) == value
+    return word == value
+
+
+# (name, regex, [fact per captured group], required). Names are unique, one per sentence,
+# and matches are tracked per rule: a required rule is satisfied only by its own sentence,
+# so rewording that sentence reports it missing even when a similar sentence elsewhere
+# still matches a sibling rule. Unrequired rules fire wherever the phrase occurs, which is
+# what catches a stale sentence pasted back in from an older copy of the page.
+PROSE_RULES = (
+    # --- counts, each anchored to the one sentence that states it -----------------------
+    ("intro: legs", _NUM + r" model legs\b", ["legs"], True),
+    ("intro: splits and pooled", _NUM + r" splits \(" + _NUM + r" of them pooled\)",
+     ["splits", "pooled"], True),
+    ("board: pooled", r"\bMacro-mean over the " + _NUM + r" pooled US city splits\b",
+     ["pooled"], True),
+    ("how to read: pool size",
+     r"\bThe pool is " + _NUM + r" cities, not all " + _NUM + r" splits\b",
+     ["pooled", "splits"], True),
+    ("how to read: held out", _NUM + r" held-out splits\b", ["held_out"], True),
+    ("matrix: top score", r"\btop score in " + _NUM + r" of the " + _NUM + r" splits\b",
+     ["rampnet_top", "splits"], True),
+    ("matrix: complete legs", r"\bof the " + _NUM + r" models with full pooled coverage\b",
+     ["complete"], True),
+    ("macro: manual_gold share",
+     r"\boutnumber all " + _NUM + r" city splits combined \(([\d,]+)\), so a count-pooled "
+     r"headline over all " + _NUM + r" would be (\d+)% one split\b",
+     ["city_splits", "city_gt", "splits", "manual_gold_share"], True),
+    ("missing: y11x_tiles scope",
+     r"\bscored on 2026-08-30 on the " + _NUM + r" splits registered then\b",
+     ["yolo_tiles_splits"], True),
+    # --- values, each anchored to the one sentence that states it -----------------------
+    ("headline: lead",
+     r"\bRampNet leads the best challenger with full pooled coverage \(([^)]+)\) by "
+     + _DEC + r" F1\b", ["best_challenger", "lead"], True),
+    ("finding 2: RampNet range",
+     r"\bOver the " + _NUM + r" its F1 spans " + _DEC + "–" + _DEC + r", a range of " + _DEC,
+     ["pooled", "rampnet_min", "rampnet_max", "rampnet_range"], True),
+    ("finding 2: challenger range",
+     r"\bevery challenger with full pooled coverage scoring above 0\.1 spans " + _DEC
+     + r" \([^)]+\) to " + _DEC + r" \(", ["strong_range_min", "strong_range_max"], True),
+    ("finding 2: worst split",
+     r"\bMost of its range \(" + _DEC + " of " + _DEC + r"\) is `(\w+)` \(" + _DEC + r"\)",
+     ["worst_share", "rampnet_range", "rampnet_worst_split", "rampnet_worst_f1"], True),
+    ("finding 2: without the worst split",
+     r"\bover the other " + _NUM + r" cities it spans " + _DEC + "–" + _DEC
+     + r", a range of " + _DEC + r", against " + _DEC + r" \([^)]+\) to " + _DEC + r" \(",
+     ["pooled_minus_one", "rest_min", "rest_max", "rest_range",
+      "strong_rest_min", "strong_rest_max"], True),
+    ("finding 2: open-vocab range",
+     r"\bThe two open-vocabulary detectors \*are\* flatter \(" + _DEC + ", " + _DEC + r"\)",
+     ["open_vocab_range_0", "open_vocab_range_1"], True),
+    ("AP: family gaps",
+     r"\bmacro-to-macro the gap is " + _DEC + r", micro-to-micro " + _DEC,
+     ["ap_gap_macro", "ap_gap_micro"], True),
+    # --- the same facts in any other sentence, including a restored older one -----------
+    # "the other seven pooled splits" counts the pool minus one, so "other" is excluded.
+    ("anywhere: N pooled splits",
+     r"(?<!other )" + _NUM + r" pooled (?:US )?(?:city )?(?:splits|cities)\b",
+     ["pooled"], False),
+    ("anywhere: over the N US splits", r"\bover the " + _NUM + r" US (?:city )?splits\b",
+     ["pooled"], False),
+    ("anywhere: across the N cities",
+     r"\bacross the " + _NUM + r" (?:pooled )?(?:US )?(?:city )?(?:cities|splits)\b",
+     ["pooled"], False),
+    ("anywhere: all N cities combined", r"\ball " + _NUM + r" cit(?:y splits|ies) combined\b",
+     ["city_splits"], False),
+    ("anywhere: RampNet wins by", r"\bRampNet wins by " + _DEC + r" F1\b", ["lead"], False),
+    ("anywhere: challengers above 0.1",
+     r"\bscoring above 0\.1 (?:spans|swings between) " + _DEC + r" \([^)]+\) (?:to|and) "
+     + _DEC + r" \(", ["strong_range_min", "strong_range_max"], False),
+    ("anywhere: macro-to-macro gap", r"\bmacro-to-macro the gap is " + _DEC,
+     ["ap_gap_macro"], False),
+    # --- retired forms. The first two cannot be true while there are held-out splits and
+    # y11x_tiles is off the board; the third is false as long as a strong challenger's range
+    # is narrower than RampNet's (0.182 against 0.311 on 2026-09-25).
+    ("retired: top score in all splits", r"\btop score in all " + _NUM + r" splits\b",
+     [], False),
+    ("retired: scored on all splits", r"\bscored on all " + _NUM + r" splits\b", [], False),
+    ("retired: only stable strong model",
+     r"\bthe only strong model that is also stable\b", [], False),
+)
+assert len({name for name, *_ in PROSE_RULES}) == len(PROSE_RULES), "rule names must be unique"
+
+
+def prose_problems(text, result):
+    """Every count or value in the hand-written prose that disagrees with the board.
+
+    Generated blocks are stripped first (they are checked by the splice), and whitespace
+    is collapsed because the doc wraps its prose. Returns [] when the prose is current.
+
+    >>> prose_problems("Eighteen model legs, ten splits.", board)   # doctest: +SKIP
+    ['intro: legs: "Eighteen model legs" says Eighteen, the board has 21 (legs)', ...]
+    """
+    prose = re.sub(r"<!-- BEGIN GENERATED: (\S+) .*?<!-- END GENERATED: \1 -->", "",
+                   text, flags=re.S)
+    prose = re.sub(r"\s+", " ", prose)
+    facts = prose_facts(result)
+    problems = []
+    for name, pattern, keys, required in PROSE_RULES:
+        found = list(re.finditer(pattern, prose))
+        if required and not found:
+            problems.append(f"{name}: no sentence quotes it any more -- restore it, or "
+                            "drop the rule in scoreboard_render.PROSE_RULES")
+        for m in found:
+            if not keys:
+                problems.append(f'{name}: "{m.group(0)}" is no longer true of the board')
+                continue
+            for word, key in zip(m.groups(), keys):
+                if not _agrees(word, facts[key]):
+                    shown = (f"{facts[key]:.3f}" if isinstance(facts[key], float)
+                             else facts[key])
+                    problems.append(f'{name}: "{m.group(0)}" says {word}, the board has '
+                                    f"{shown} ({key})")
+    return sorted(set(problems))
+
+
+# --------------------------------------------------------------------------- #
+# the per-split tables in docs/model_comparison.md (#145)
+# --------------------------------------------------------------------------- #
+# The log's eleven city tables are generated too, into blocks named "results:<split>".
+# They are kept apart from render_tables() on purpose: that dict is the scoreboard page's,
+# this one is the log's, and --check names the doc that drifted.
+
+# How the log's tables label each published name: (name, suffix). The name is the part
+# that is bolded when a row is marked, so "molmo2-8B (points)" bolds as
+# "**molmo2-8B** (points)", the form the log has always used.
+# tests/test_scoreboard.py builds its label -> published-name map from this, so there is
+# one copy of it.
+LOG_LABEL = {
+    "rampnet": ("rampnet", ""),
+    "gemini-3.1-pro-preview": ("gemini-3.1-pro-preview", ""),
+    "gemini-3.6-flash": ("gemini-3.6-flash", ""),
+    "allenai/Molmo2-8B": ("molmo2-8B", " (points)"),
+    "Qwen/Qwen3-VL-32B-Instruct": ("Qwen3-VL-32B-Instruct", ""),
+    "Qwen/Qwen3-VL-8B-Instruct": ("Qwen3-VL-8B-Instruct", ""),
+    "google/owlv2-large-patch14-ensemble": ("owlv2-large-patch14-ensemble", ""),
+    "IDEA-Research/grounding-dino-base": ("grounding-dino-base", ""),
+    # Effort-pinned legs carry the effort in the row label, because one model id is two
+    # legs and the bare id would name whichever ran last (see roster.published_as).
+    "claude-opus-5-effort-low": ("claude-opus-5", " (effort low)"),
+}
+
+# The rows each per-split table carries: exactly the row set the log printed when these
+# tables were hand-maintained -- the standing zero-shot roster, plus claude-opus-5 at
+# effort low on the two Laurens arms (#151). Not every leg on the board: the prose beside
+# each table ("RampNet's lead over the best challenger is 0.27 F1", "Molmo best
+# open-weight") was written against this set, and adding rows would silently change what
+# it claims. Every other leg scored on a split is named in the block's footnote.
+LOG_STANDING = (
+    "rampnet", "gemini-3.1-pro-preview", "gemini-3.6-flash", "allenai/Molmo2-8B",
+    "Qwen/Qwen3-VL-32B-Instruct", "Qwen/Qwen3-VL-8B-Instruct",
+    "google/owlv2-large-patch14-ensemble", "IDEA-Research/grounding-dino-base",
+)
+LOG_ROWS = {
+    "richmond": LOG_STANDING,
+    "bend": LOG_STANDING,
+    "clovis": LOG_STANDING,
+    "morgantown": LOG_STANDING,
+    "annapolis": LOG_STANDING,
+    "paterson": LOG_STANDING,
+    "gainesville": LOG_STANDING,
+    "laurens_mapillary": LOG_STANDING + ("claude-opus-5-effort-low",),
+    "laurens_gsv": LOG_STANDING + ("claude-opus-5-effort-low",),
+    "budapest_district5": LOG_STANDING,
+    "sao_paulo": LOG_STANDING,
+}
+
+
+# The open-weight VLMs, whose best row the log has always marked ("Molmo best
+# open-weight"): the bold on a Molmo row meant that, not "best challenger".
+LOG_OPEN_WEIGHT = ("allenai/Molmo2-8B", "Qwen/Qwen3-VL-32B-Instruct",
+                   "Qwen/Qwen3-VL-8B-Instruct")
+
+
+def log_label(name, marked=False):
+    """The log's row label for a published name, with its name part bolded if marked."""
+    base, suffix = LOG_LABEL[name]
+    return bold(base, marked) + suffix
+
+
+def log_split_table(result, split):
+    """One per-split table in the log's format, rows sorted by F1 descending.
+
+    Columns are the log's: P, R, F1 at the model's operating point, the **bundle** AP
+    (``ap_bundle`` -- the log prints the bundle AP, truncated at 0.55 for RampNet; the
+    scoreboard page is where the low-floor substitution lives), and tp/fp/fn.
+
+    Bolding is by rule: RampNet's label and F1, and its P when it is the table's largest
+    (it is on every split as of 2026-09-26); the best non-RampNet F1 (label and F1); the
+    best open-weight VLM's F1 (label and F1); the largest R in the table.
+    """
+    from scoreboard import RAMPNET
+
+    per = result["per_split"]
+    names = [n for n in LOG_ROWS[split] if split in per.get(n, {})]
+    order = {n: i for i, n in enumerate(LOG_ROWS[split])}
+    if not names:  # a --models subset that ran none of them
+        return "*No leg of this table was scored in this run.*"
+    names.sort(key=lambda n: (-per[n][split]["f1"], order[n]))
+    cells = {n: per[n][split] for n in names}
+    challengers = [n for n in names if n != RAMPNET]
+    best = max(challengers, key=lambda n: cells[n]["f1"]) if challengers else None
+    open_weight = [n for n in names if n in LOG_OPEN_WEIGHT]
+    best_open = max(open_weight, key=lambda n: cells[n]["f1"]) if open_weight else None
+    max_r = max(c["recall"] for c in cells.values())
+    max_p = max(c["precision"] for c in cells.values())
+
+    rows = []
+    for n in names:
+        c = cells[n]
+        mark = n in (RAMPNET, best, best_open)
+        rows.append([
+            log_label(n, mark),
+            bold(num(c["precision"]), n == RAMPNET and c["precision"] == max_p),
+            bold(num(c["recall"]), c["recall"] == max_r),
+            bold(num(c["f1"]), mark),
+            num(c["ap_bundle"]),
+            f"{c['tp']}/{c['fp']}/{c['fn']}",
+        ])
+    return _table(["model", "P", "R", "F1", "AP", "tp/fp/fn"], rows)
+
+
+# How the footnote groups the legs a table leaves out, by the class scoreboard.py assigns
+# each roster provider (PROVIDER_CLASS). The standing tables are the zero-shot comparison;
+# a trained detector is a different question, so its F1 is never listed as if it were one
+# more challenger (#145 review). The protocol each supervised class is scored under:
+LOG_ZERO_SHOT_CLASSES = ("chat-vlm", "pointing", "open-vocab")
+LOG_SUPERVISED_PROTOCOL = {"supervised": "#71", "supervised-transfer": "#126"}
+
+
+def log_split_footnote(result, split):
+    """The legs scored on ``split`` that the table leaves out, so none is invisible.
+
+    They are listed in two groups, zero-shot and supervised, each by F1 descending, and a
+    leg whose F1 beats this split's RampNet row says so. When the best zero-shot leg in the
+    footnote beats the table's best challenger, a closing line gives RampNet's lead
+    against the full zero-shot field, because the table's own lead is then the smaller
+    field's. Example (annapolis, 2026-09-26)::
+
+        Against the whole zero-shot field RampNet's lead on this split is 0.229 F1
+        (over Claude Fable 5 (low, anthropic)), not the 0.273 over the table's best row.
+    """
+    from scoreboard import RAMPNET
+
+    shown = set(LOG_ROWS[split])
+    per = result["per_split"]
+    extra = [m for m in result["models"]
+             if m["model"] not in shown and split in per.get(m["model"], {})]
+    if not extra:
+        return "Every leg scored on this split is in the table."
+    f1 = {m["model"]: per[m["model"]][split]["f1"] for m in extra}
+    extra.sort(key=lambda m: -f1[m["model"]])
+    rampnet_f1 = per.get(RAMPNET, {}).get(split, {}).get("f1")
+
+    def named(group):
+        out = []
+        for m in group:
+            text = f"{m['display']} F1 {num(f1[m['model']])}"
+            if rampnet_f1 is not None and f1[m["model"]] > rampnet_f1:
+                text += f" (**beats RampNet's {num(rampnet_f1)} here**)"
+            out.append(text)
+        return ", ".join(out)
+
+    zero_shot = [m for m in extra if m["class"] in LOG_ZERO_SHOT_CLASSES]
+    supervised = [m for m in extra if m["class"] in LOG_SUPERVISED_PROTOCOL]
+    other = [m for m in extra if m not in zero_shot and m not in supervised]
+    parts = []
+    if zero_shot:
+        parts.append(f"zero-shot: {named(zero_shot)}.")
+    if supervised:
+        used = {m["class"] for m in supervised}
+        protocols = [p for k, p in LOG_SUPERVISED_PROTOCOL.items() if k in used]
+        parts.append(f"Supervised ({' / '.join(protocols)} "
+                     f"protocol{'s' if len(protocols) > 1 else ''}, not comparable as "
+                     f"'challenger'): {named(supervised)}.")
+    if other:
+        parts.append(f"Unclassified: {named(other)}.")
+    text = ("Also scored on this split, not in the standing table (see "
+            "[`model_scoreboard.md`](model_scoreboard.md)) — " + " ".join(parts))
+
+    in_table = [n for n in LOG_ROWS[split] if n != RAMPNET and split in per.get(n, {})]
+    if rampnet_f1 is not None and zero_shot and in_table:
+        top = zero_shot[0]
+        table_best = max(per[n][split]["f1"] for n in in_table)
+        if f1[top["model"]] > table_best:
+            text += ("\n\nAgainst the whole zero-shot field RampNet's lead on this split is "
+                     f"{num(rampnet_f1 - f1[top['model']])} F1 (over {top['display']}), "
+                     f"not the {num(rampnet_f1 - table_best)} over the table's best row.")
+    return text
+
+
+def log_tables(result):
+    """Every generated block in docs/model_comparison.md, by block name."""
+    return {f"results:{split}": log_split_table(result, split) + "\n\n"
+            + log_split_footnote(result, split)
+            for split in LOG_ROWS}

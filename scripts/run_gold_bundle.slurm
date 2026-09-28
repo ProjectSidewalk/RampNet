@@ -24,7 +24,7 @@
 # HF_HOME on scratch as the runbook does.
 #
 # PYTHON is the interpreter to run with; default is whatever `python` resolves
-# to after the env is activated (see the runbook in docs/model_comparison.md).
+# to after the env is activated (see the runbook in docs/running_model_comparison.md).
 # On top of the runbook's lean comparison env this needs timm + scikit-image
 # (the export loads the model) and datasets (the fetch reads the HF parquet).
 #SBATCH -p gpu-l40s

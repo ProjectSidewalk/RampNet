@@ -19,7 +19,7 @@ What they protect:
   Same silent failure. Checked against the signature recorded inside the published
   export rather than against a copy of the defaults.
 * **``complementary_null``** is the discount every attributable-gain number in
-  ``docs/model_comparison.md`` is quoted after, so it is checked against cases whose
+  ``docs/vistas_transfer_126.md`` is quoted after, so it is checked against cases whose
   answer is arithmetic rather than measurement.
 * **``partition_cells``** is the one loop behind this script's table, the cascade
   gate's partition and the regression tests below — the tests call it rather than
@@ -333,7 +333,7 @@ def _published_cells(tmp_path, rampnet_op_threshold=None, path=PUBLISHED, **over
 
 
 def test_the_published_384_column_reproduces(tmp_path):
-    # docs/model_comparison.md, "Complementarity" table, the vistas @384 column.
+    # docs/vistas_transfer_126.md, "Complementarity" table, the vistas @384 column.
     # RampNet's side is the bundle's shipped detections (>= 0.5519 on richmond).
     assert _published_cells(tmp_path) == {"both": 194, "rampnet_only": 44,
                                           "challenger_only": 22, "neither": 50}
@@ -349,7 +349,7 @@ def test_the_384_column_adds_up_to_richmond_s_recall_eligible_ground_truth(tmp_p
 
 
 def test_the_384_column_at_the_two_op_cache_thresholds_reproduces(tmp_path):
-    # docs/model_comparison.md, the seam-exposure table: the published 384 arm with
+    # docs/vistas_transfer_126.md, the seam-exposure table: the published 384 arm with
     # RampNet re-sourced from analysis_out/op_cache/richmond.json at the recommended
     # 0.30 and at the 0.05 floor. Both sides committed, so a clean clone checks them.
     assert _published_cells(tmp_path, 0.30) == {"both": 202, "rampnet_only": 55,
@@ -370,7 +370,7 @@ def _parity_cells(tmp_path, rampnet_op_threshold=None):
 
 
 def test_the_parity_1024_column_reproduces(tmp_path):
-    # docs/model_comparison.md, "Complementarity" table, the vistas @1024 column, and
+    # docs/vistas_transfer_126.md, "Complementarity" table, the vistas @1024 column, and
     # the cells of analysis_out/cascade_gate.json. Until #163 this column rested on
     # the table alone; the detections are published now, so a clean clone checks it.
     assert _parity_cells(tmp_path) == {"both": 220, "rampnet_only": 18,
@@ -393,7 +393,7 @@ def test_the_parity_column_adds_up_to_its_published_row(tmp_path):
 
 
 def test_the_same_env_384_control_reproduces_its_column(tmp_path):
-    """docs/model_comparison.md, "Complementarity": the makelab2 A40 re-run of the
+    """docs/vistas_transfer_126.md, "Complementarity": the makelab2 A40 re-run of the
     384 arm reads 194 / 44 / 21 / 51 -- the known one-ramp shift against the
     published 194 / 44 / 22 / 50 -- and it is addressed with NO pin, because a
     replicate has the published file's signature (#163). Pinned here so the

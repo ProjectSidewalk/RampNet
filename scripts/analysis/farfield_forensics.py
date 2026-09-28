@@ -4,7 +4,7 @@ The reviewer pass over the silent misses (``benchmark/miss_taxonomy_46/silent__j
 rated **34 of 36** rateable far-field crops ``visible`` — the ramp's own pixels present
 and carrying its appearance *in the model-resolution panel*. At face value that
 contradicts the pixel-starvation framing E1 attached to the far field
-(``docs/curb_ramp_data_sourcing.md`` §0a: "a 1.2 m ramp at 30 m is ~25 px — more
+(``docs/data_scaling_59.md`` §0a: "a 1.2 m ramp at 30 m is ~25 px — more
 examples do not add pixels"), which is the assumption the 18 m far/near split — and
 through it the sourcing bracket and the multi-view sizing — stands on.
 

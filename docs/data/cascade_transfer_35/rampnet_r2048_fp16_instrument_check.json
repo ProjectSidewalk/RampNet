@@ -1,0 +1,294 @@
+{
+ "score_tolerance": 0.0002,
+ "pass": false,
+ "cities": [
+  {
+   "city": "bend",
+   "checked": true,
+   "ok": false,
+   "reference_mode": "exclude_border=True (pre-f4c71c8)",
+   "strict": {
+    "panos_mismatched": 101,
+    "max_abs_score_diff": 0.0031186,
+    "n_over_1e4": 348,
+    "extra": 14,
+    "extra_in_border": 10,
+    "extra_at_seam": 10,
+    "missing": 4
+   },
+   "as_extracted": {
+    "panos_mismatched": 100,
+    "max_abs_score_diff": 0.0031186,
+    "n_over_1e4": 348,
+    "extra": 4,
+    "extra_in_border": 0,
+    "extra_at_seam": 0,
+    "missing": 4
+   },
+   "counts": {
+    "0.30": {
+     "op_cache": [
+      269,
+      22,
+      58
+     ],
+     "as_extracted": [
+      269,
+      22,
+      58
+     ],
+     "r2048_with_border_peaks": [
+      271,
+      25,
+      56
+     ],
+     "P": 0.9155,
+     "R": 0.8287,
+     "F1": 0.87,
+     "P_op_cache": 0.9244,
+     "R_op_cache": 0.8226,
+     "F1_op_cache": 0.8706
+    },
+    "0.55": {
+     "op_cache": [
+      247,
+      5,
+      80
+     ],
+     "as_extracted": [
+      247,
+      5,
+      80
+     ],
+     "r2048_with_border_peaks": [
+      249,
+      7,
+      78
+     ],
+     "P": 0.9727,
+     "R": 0.7615,
+     "F1": 0.8542,
+     "P_op_cache": 0.9802,
+     "R_op_cache": 0.7554,
+     "F1_op_cache": 0.8532
+    }
+   }
+  },
+  {
+   "city": "paterson",
+   "checked": true,
+   "ok": false,
+   "reference_mode": "exclude_border=True (pre-f4c71c8)",
+   "strict": {
+    "panos_mismatched": 101,
+    "max_abs_score_diff": 0.00211369,
+    "n_over_1e4": 312,
+    "extra": 19,
+    "extra_in_border": 13,
+    "extra_at_seam": 13,
+    "missing": 6
+   },
+   "as_extracted": {
+    "panos_mismatched": 100,
+    "max_abs_score_diff": 0.00211369,
+    "n_over_1e4": 312,
+    "extra": 6,
+    "extra_in_border": 0,
+    "extra_at_seam": 0,
+    "missing": 6
+   },
+   "counts": {
+    "0.30": {
+     "op_cache": [
+      284,
+      15,
+      111
+     ],
+     "as_extracted": [
+      284,
+      16,
+      111
+     ],
+     "r2048_with_border_peaks": [
+      286,
+      17,
+      109
+     ],
+     "P": 0.9439,
+     "R": 0.7241,
+     "F1": 0.8195,
+     "P_op_cache": 0.9498,
+     "R_op_cache": 0.719,
+     "F1_op_cache": 0.8184
+    },
+    "0.55": {
+     "op_cache": [
+      269,
+      8,
+      126
+     ],
+     "as_extracted": [
+      268,
+      8,
+      127
+     ],
+     "r2048_with_border_peaks": [
+      269,
+      9,
+      126
+     ],
+     "P": 0.9676,
+     "R": 0.681,
+     "F1": 0.7994,
+     "P_op_cache": 0.9711,
+     "R_op_cache": 0.681,
+     "F1_op_cache": 0.8006
+    }
+   }
+  },
+  {
+   "city": "gainesville",
+   "checked": true,
+   "ok": false,
+   "reference_mode": "exclude_border=True (pre-f4c71c8)",
+   "strict": {
+    "panos_mismatched": 97,
+    "max_abs_score_diff": 0.00193722,
+    "n_over_1e4": 331,
+    "extra": 25,
+    "extra_in_border": 15,
+    "extra_at_seam": 15,
+    "missing": 11
+   },
+   "as_extracted": {
+    "panos_mismatched": 97,
+    "max_abs_score_diff": 0.00193722,
+    "n_over_1e4": 331,
+    "extra": 10,
+    "extra_in_border": 0,
+    "extra_at_seam": 0,
+    "missing": 11
+   },
+   "counts": {
+    "0.30": {
+     "op_cache": [
+      210,
+      35,
+      62
+     ],
+     "as_extracted": [
+      210,
+      35,
+      62
+     ],
+     "r2048_with_border_peaks": [
+      210,
+      36,
+      62
+     ],
+     "P": 0.8537,
+     "R": 0.7721,
+     "F1": 0.8108,
+     "P_op_cache": 0.8571,
+     "R_op_cache": 0.7721,
+     "F1_op_cache": 0.8124
+    },
+    "0.55": {
+     "op_cache": [
+      183,
+      10,
+      89
+     ],
+     "as_extracted": [
+      183,
+      10,
+      89
+     ],
+     "r2048_with_border_peaks": [
+      183,
+      11,
+      89
+     ],
+     "P": 0.9433,
+     "R": 0.6728,
+     "F1": 0.7854,
+     "P_op_cache": 0.9482,
+     "R_op_cache": 0.6728,
+     "F1_op_cache": 0.7871
+    }
+   }
+  },
+  {
+   "city": "annapolis",
+   "checked": true,
+   "ok": false,
+   "reference_mode": "exclude_border=True (pre-f4c71c8)",
+   "strict": {
+    "panos_mismatched": 104,
+    "max_abs_score_diff": 0.00243493,
+    "n_over_1e4": 335,
+    "extra": 14,
+    "extra_in_border": 7,
+    "extra_at_seam": 7,
+    "missing": 7
+   },
+   "as_extracted": {
+    "panos_mismatched": 104,
+    "max_abs_score_diff": 0.00243493,
+    "n_over_1e4": 335,
+    "extra": 7,
+    "extra_in_border": 0,
+    "extra_at_seam": 0,
+    "missing": 7
+   },
+   "counts": {
+    "0.30": {
+     "op_cache": [
+      238,
+      26,
+      56
+     ],
+     "as_extracted": [
+      238,
+      25,
+      56
+     ],
+     "r2048_with_border_peaks": [
+      238,
+      27,
+      56
+     ],
+     "P": 0.8981,
+     "R": 0.8095,
+     "F1": 0.8515,
+     "P_op_cache": 0.9015,
+     "R_op_cache": 0.8095,
+     "F1_op_cache": 0.853
+    },
+    "0.55": {
+     "op_cache": [
+      217,
+      6,
+      77
+     ],
+     "as_extracted": [
+      216,
+      6,
+      78
+     ],
+     "r2048_with_border_peaks": [
+      216,
+      7,
+      78
+     ],
+     "P": 0.9686,
+     "R": 0.7347,
+     "F1": 0.8356,
+     "P_op_cache": 0.9731,
+     "R_op_cache": 0.7381,
+     "F1_op_cache": 0.8395
+    }
+   }
+  }
+ ]
+}

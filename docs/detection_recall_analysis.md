@@ -32,7 +32,10 @@ used:
 2. **Depth Anything 3 (metric)** run on the perspective-reprojected views from
    `scripts/model_comparison/equirect_tiling.py`, with our exactly-known intrinsics.
 
-They agree to within **6.5–8.5%** (Spearman ρ = 0.95 Bend / 0.81 Richmond). Depth additionally
+They agree to within **6.5–8.5%** (Spearman ρ = 0.95 Bend / 0.81 Richmond). *(#101 re-derived
+these figures and found they compare DA3's planar depth with flat **horizontal** range; on a
+like-for-like horizontal range the agreement is 1.4% on bend and 3.7% on richmond, ρ 0.96 / 0.85;
+[`da3_calibration_101.md`](da3_calibration_101.md) §7.)* Depth additionally
 rescues 4 Richmond ramps that geometry placed *above the horizon* — geometrically impossible for a
 ground ramp, and a direct symptom of unleveled consumer rigs / hills. That ρ gap is itself
 informative: geometry degrades exactly where the camera rig varies (Mapillary), which is the OOD
@@ -43,7 +46,8 @@ Apparent size then follows from distance: a ramp of real width `W` at distance `
 
 ## 0. The distance axis, re-measured on GSV depth (#112)
 
-Every distance below is flat-ground geometry (or DA3, which agreed with it to 6.5–8.5%) at an
+Every distance below is flat-ground geometry (or DA3, which agreed with it to 6.5–8.5%, a
+planar-vs-horizontal comparison; 1.4–3.7% like for like, #101) at an
 *assumed* 2.5 m camera height. GSV's depth payload is a list of planes plus a per-pixel plane
 index, and the dominant ground plane's distance is the camera height — a per-panorama
 measurement, not a constant. The sidewalk-auto-labeler archived that payload for every panorama
@@ -90,10 +94,13 @@ peak off zero for the remaining panos, but not near the mirrored mapping's zero 
 mapping scores best on 94 of 404 sky panos and 202 of 483 edge panos, at large shifts, which reads
 as noise rather than support for the mirror. Why those panos peak off zero was not measured.
 
-**Open question, not checked here.** The labeler's own `ground_range_at` uses the same stored ↔
-raw convention as the lookup this section stopped using. Whether the labeler's imagery shares
-these JPEGs' orientation or streetlevel's raster is a question for the labeler, and nothing in
-this document tests it.
+**The labeler: checked there, not here.** The labeler's own `ground_range_at` uses the same
+stored ↔ raw convention as the lookup this section stopped using. Whether the labeler's imagery
+shares these JPEGs' orientation or streetlevel's raster is a question for the labeler, and
+nothing in this document tests it. It was checked in the labeler on 2026-09-25 and confirmed:
+the labeler's `ground_range_at` is mirrored for image-frame coordinates, and production outputs
+are unaffected today. Filed as
+[sidewalk-auto-labeler#80](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/80).
 
 **The rule.** Depth distance = horizontal range along the exact ray through the point to the
 payload plane under its pixel (the plane index is per pixel of a 512×256 grid; the intersection
@@ -320,10 +327,14 @@ Pooled over the four GSV splits on the depth axis (TP + FP, measured-ground pano
   and everything in the Mapillary tier), and laurens_gsv was not harvested. Mapillary is exactly
   where the flat axis is worst (§ *Why this needed depth*, ρ 0.81), and this measurement says
   nothing about it.
-- **DA3 was not regressed against GSV depth.** `gt_depth_da3.json` is not committed and needs a
-  GPU to regenerate, so the issue's "calibrate DA3 and carry it to Mapillary" item is untouched.
-  The 6.5–8.5% DA3/flat agreement on bend is consistent with both sharing bend's ~6–7% bias, but
-  that is an inference, not a measurement.
+- **DA3 against GSV depth: done in #101, not here.** [`da3_calibration_101.md`](da3_calibration_101.md)
+  re-ran DA3 on every GT point and detection of eleven splits with committed rows and regressed it
+  against the depth axis of this section: DA3 reads range 1.106× Google's pooled (1.033× on bend),
+  and carries the calibrated axis to the Mapillary splits. It also re-derives the 6.5–8.5% /
+  ρ 0.95 / 0.81 figures and shows they were a planar-vs-horizontal comparison. This section's
+  earlier guess, that the 6.5–8.5% agreement meant DA3 and the flat axis share bend's bias, is
+  superseded by that measurement. The §1 and §5 tables still come from the uncommitted
+  `gt_depth_da3.json`.
 - **Occlusion was not partitioned, and the depth payload is not the instrument for it.** With the
   aligned lookup only 5 of 1,101 GT points sit under a non-ground plane. The 39 the first version
   reported were almost all the azimuth mirror, so the payload does not supply raw material for
@@ -332,7 +343,7 @@ Pooled over the four GSV splits on the depth axis (TP + FP, measured-ground pano
   table in this document.
 
 Other documents that quote the published metre labels, left as they are and pointing here:
-`curb_ramp_data_sourcing.md` §0a (the 18 m far/near boundary at 0.30 over seven splits, five of
+`data_scaling_59.md` §0a (the 18 m far/near boundary at 0.30 over seven splits, five of
 them Mapillary), `operating_point.md` (the near/mid/far bands, already stated as a rank
 statement), `crop_window_eval.md` (flat-ground strata at 2.5 m), `rampnet1_findings.md` and
 `rampnet1_report.md` §6.6 (the recall-by-distance row; its stretch figure is corrected).
@@ -347,6 +358,18 @@ statement), `crop_window_eval.md` (flat-ground strata at 2.5 m), `rampnet1_findi
 | 18–25 m | 101 | **0.564** |
 | 25–40 m | 33 | **0.182** |
 | **all** | 637 | 0.765 |
+
+**Where these numbers come from, and why §5 differs (#171).** A hit here is a committed
+deployment detection (`benchmark/{richmond,bend}/records.jsonl`, peak threshold 0.55) matched
+to a GT ramp: 487 of 637 (richmond 238 of 310, bend 249 of 327). That total re-derives from the
+repo: it is `published_reproduction` in `analysis_out/recall_by_depth_112.json`. The distance
+bands are Depth Anything 3 metric depth, binned by `scripts/analysis/depth_analysis.py` from
+`gt_depth_da3.json`. That file is not committed, and it was not found on this workstation or in
+the makelab2 home directory on 2026-09-25, so the per-band n and recall in this table **cannot
+be re-derived from the repo**. §5's "thr 0.55" column uses the same bands but a different
+detection source (a re-run of inference), and this table is the one to quote for recall at the
+deployed operating point. Neither table is newer: both were added in the same commit
+(`846378c`, #37).
 
 By apparent size: 20–32 px → 0.189, 32–50 px → 0.671, 50–80 px → 0.825, 80 px+ → 0.876. There is
 simply not enough signal left in the pixels.
@@ -373,8 +396,26 @@ also means lowering the threshold at range is safe.
 
 ## 3. Lever A — the operating point (free)
 
-Inference was re-run on all 234 benchmark panos, byte-faithful to the deployment path
-(resize 2048×4096, no TTA); at `(0.55, 10)` it reproduces the committed `records.jsonl` exactly.
+Inference was re-run on all 234 benchmark panos (resize 2048×4096, no TTA). At `(0.55, 10)` it
+reproduces the committed `records.jsonl` recall on richmond exactly: the same 238 of 310 GT
+ramps are hit. On bend it does not. The re-run hits 247 of 327 and the committed records 249,
+and 10 GT ramps change state (6 lost, 4 gained). Bend is the one GSV split, and its production
+path fed the model a 4096×2048 intermediate rather than the native-res bundle pano
+(`scripts/analysis/README.md`, `low_floor_sweep.py parity`). So bend's recall at 0.55 below
+(0.755) is 0.006 under the committed 0.761, and the pooled re-run recall at 0.55 is 485 / 637 =
+0.761, against §1's 0.765. An earlier version of this paragraph said the re-run reproduced the
+records exactly; that was true of richmond only.
+
+The recall in every row below re-derives from `analysis_out/overlap.json`, the per-GT-ramp hits
+at all four thresholds written by `scripts/analysis/overlap_test.py` (same inference and peak
+extraction as `threshold_sweep.py`). It was committed on 2026-09-25 as a byte copy of the
+gitignored `analysis_out/overlap.json` in the main checkout on Jon's Windows workstation
+(`jonfhome`), sha256
+`d0d8b4b0449d9f2f8008e9ce22770fd6d8620c4f419c3e43c92199d63a88dace`, which
+`tests/test_detection_recall_provenance.py` pins. When it was run rests only on that local
+file's mtime, 2026-07-26 18:33 −0700; no log of the run was kept. Precision and F1 do not
+re-derive: that file holds hits per GT ramp, not false positives, and `threshold_sweep.py`'s
+own output was not kept.
 
 | threshold | richmond P / R / F1 | bend P / R / F1 |
 |---|---|---|
@@ -407,6 +448,11 @@ panos are natively ~11000 px wide and Bend 16384 px, against a 4096 px model inp
 > **Caveat:** upscaling adds no information. An honest gain requires the **retrain-at-higher-res**
 > arm, not a frozen-model input-size sweep.
 
+> **The frozen-model sweep has since been run** ([#25](https://github.com/ProjectSidewalk/RampNet/issues/25) arm 1,
+> [`input_res_sweep_25.md`](input_res_sweep_25.md)): the released checkpoint does not gain from
+> more input pixels (2×: ΔF1 −0.071 pooled US at 0.30), and native pixels do no better than a
+> bicubic upsample of the 2048 image. The forecast above is for the retrain arm, which is still open.
+
 ## 5. The levers partially overlap
 
 | distance | thr 0.55 | thr 0.25 | thr 0.15 | gain |
@@ -415,6 +461,27 @@ panos are natively ~11000 px wide and Bend 16384 px, against a 4096 px model inp
 | 12–18 m | 0.817 | 0.883 | 0.914 | +0.096 |
 | 18–25 m | 0.554 | 0.673 | 0.693 | **+0.139** |
 | 25 m+ | 0.152 | 0.303 | 0.364 | **+0.212** |
+
+**The 0.55 column here is not §1's table (#171).** It comes from the §3 re-run
+(`overlap_test.py`, `analysis_out/overlap.json`), not from the committed records §1 reads, so
+it differs from §1 exactly where bend's re-run differs: 10 ramps, net −2 (485 against 487 hits).
+The bands are consistent with §1's DA3 bands and n: that is inferred from the arithmetic
+below, not read from code, because the code that made this table is not in the repo (see the
+end of this note). Read that way, 25 m+ is §1's 25–40 m row, since §1's rows sum to 637 and so
+hold no ramp beyond 40 m, and the 8–12 m row is not shown. Per band, the hit counts
+implied by n and the printed recall differ by one or two ramps: 0–8 m 110 against 112 of 133,
+12–18 m 161 against 160 of 197, 18–25 m 56 against 57 of 101, 25 m+ 5 against 6 of 33 (the
+omitted 8–12 m row is +1 by subtraction). The column is kept because the gain column needs all
+three thresholds from one inference path. For recall at the deployed operating point, quote §1.
+
+**This table cannot be re-derived from the repo, for two reasons.** The per-ramp hits behind
+it can (`analysis_out/overlap.json`), but (1) the DA3 depths, `gt_depth_da3.json`, are not
+committed (see §1), and (2) no committed script joins `overlap.json` to depth. Despite its
+docstring, `overlap_test.py` stops at writing `overlap.json`; it never reads the depth file.
+The only committed readers of `gt_depth_da3.json` are `depth_extract_da3.py`, which writes it,
+and `depth_analysis.py`, which bins the committed-records hit, not the re-run. So the 0.35,
+0.25 and 0.15 columns, the gain column, and "54% beyond 18 m" below all come from a join that
+was run and not kept. Re-deriving them needs both the depth file and that join.
 
 The threshold helps at *all* distances but most at range, so it competes with resolution for the
 same ramps. It does **not** solve far-field (25 m+ tops out at 0.364), and ramps still missed at

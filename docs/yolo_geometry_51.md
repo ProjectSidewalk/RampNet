@@ -103,7 +103,7 @@ budget. Split on the pano lineage, where only budget moves:
 So the equirect handicap is **real and roughly half the recoverable difference** — worth about
 0.044 F1, not the whole 0.092 and certainly not the whole 0.252.
 
-**The geometry half is recall**, as the [Vistas parity arm](model_comparison.md) also found:
+**The geometry half is recall**, as the [Vistas parity arm](vistas_transfer_126.md) also found:
 R 0.474 → 0.520 (**+0.045**) at essentially unchanged precision (0.942 → 0.945). Perspective
 views find ramps the equirect view loses; they do not make the detector more careful.
 

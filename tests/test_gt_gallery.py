@@ -71,3 +71,31 @@ def test_build_html_embeds_notes_and_leaves_no_placeholders(tmp_path):
 def test_build_html_without_notes_embeds_empty_object():
     html = build_html([], {}, "k", "n", "records.jsonl")
     assert "const INITIAL_NOTES = {};" in html
+
+
+def _confidence_options(html):
+    import re
+    select = re.search(r'<select id="n_conf">(.*?)</select>', html, re.S).group(1)
+    return set(re.findall(r'<option value="([^"]*)"', select))
+
+
+def test_every_committed_confidence_value_is_a_gallery_option():
+    """A value the <select> has no option for reads back '' and the export drops the key, so
+    re-exporting a split without touching the dropdown would delete its confidence (#127)."""
+    import glob
+    options = _confidence_options(build_html([], {}, "k", "n", "records.jsonl"))
+    assert {"", "high", "medium", "low", "unrecorded"} <= options
+    used = set()
+    for path in glob.glob(os.path.join(REPO_ROOT, "benchmark", "*", "verdicts.json")):
+        with open(path, encoding="utf-8") as f:
+            conf = (json.load(f).get("review_notes") or {}).get("confidence")
+        if conf:
+            used.add(conf)
+    assert "unrecorded" in used          # the Laurens arms
+    assert used <= options, used - options
+
+
+def test_unknown_confidence_gets_its_own_option_at_load():
+    html = build_html([], {}, "k", "n", "records.jsonl", {"confidence": "medium-high"})
+    assert "keepUnknownConfidence" in html
+    assert '"medium-high"' in html       # embedded in INITIAL_NOTES, added as an option at load

@@ -17,8 +17,13 @@ Reads **only committed artifacts** — the benchmark bundles, the published dete
 credentials, no network, so a fresh clone reproduces every number here::
 
     python scripts/analysis/scoreboard.py                 # JSON + doc tables + figures
-    python scripts/analysis/scoreboard.py --check         # doc AND JSON current?
+    python scripts/analysis/scoreboard.py --check         # doc, its prose counts, JSON current?
     python scripts/analysis/scoreboard.py --no-figures    # tables only (no matplotlib)
+
+It also generates the eleven per-split city tables in ``docs/model_comparison.md``
+(blocks named ``results:<split>``, #145), with the log's own columns and row set, and
+``--check`` covers them. ``manual_gold``'s table there stays hand-maintained: two of its
+rows have no published detections to score.
 
 The scoring path needs **numpy and pillow only** -- not ``requirements-dev.txt``, which
 pulls the whole training stack for the rest of the suite.
@@ -207,6 +212,8 @@ DISPLAY = {
 
 DEFAULT_JSON = os.path.join(REPO, "analysis_out", "scoreboard.json")
 DEFAULT_DOC = os.path.join(REPO, "docs", "model_scoreboard.md")
+# The log whose per-split city tables this script also generates (#145).
+LOG_DOC = os.path.join(REPO, "docs", "model_comparison.md")
 FIGURE_DIR = os.path.join(REPO, "docs", "figures")
 
 
@@ -565,6 +572,9 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--json-out", default=DEFAULT_JSON)
     ap.add_argument("--doc", default=DEFAULT_DOC)
+    ap.add_argument("--log-doc", default=LOG_DOC,
+                    help="The log whose per-split tables are generated too "
+                         "(default docs/model_comparison.md).")
     ap.add_argument("--figure-dir", default=FIGURE_DIR)
     ap.add_argument("--models",
                     help="Comma-separated PUBLISHED names (roster.published_name), e.g. "
@@ -573,8 +583,9 @@ def main():
                          "--doc/--json-out/--figure-dir explicitly. Default: every leg.")
     ap.add_argument("--no-figures", action="store_true", help="Skip matplotlib entirely.")
     ap.add_argument("--check", action="store_true",
-                    help="Verify the committed doc AND analysis_out/scoreboard.json match "
-                         "the committed data; write nothing and exit non-zero on drift.")
+                    help="Verify the committed doc (its tables and the leg/split counts "
+                         "its prose quotes) AND analysis_out/scoreboard.json match the "
+                         "committed data; write nothing and exit non-zero on drift.")
     args = ap.parse_args()
 
     models = [m.strip() for m in args.models.split(",")] if args.models else None
@@ -594,14 +605,16 @@ def main():
     explicit = {a.split("=")[0] for a in sys.argv[1:]}
     subset_guard = bool(models) and not args.check
     write_doc = not subset_guard or "--doc" in explicit
+    write_log = not subset_guard or "--log-doc" in explicit
     write_json_out = not subset_guard or "--json-out" in explicit
     write_figs = not args.no_figures and (not subset_guard or "--figure-dir" in explicit)
 
     result = build(models)
 
     from scoreboard_render import (  # noqa: E402
-        json_payload, render_tables, splice, write_json)
+        BEGIN, json_payload, log_tables, prose_problems, render_tables, splice, write_json)
     tables = render_tables(result)
+    log_blocks = log_tables(result)
 
     if args.check:
         problems = []
@@ -612,6 +625,24 @@ def main():
                 current = fh.read()
             if splice(current, tables) != current:
                 problems.append(f"{args.doc}: generated tables are stale "
+                                "(re-run scripts/analysis/scoreboard.py)")
+            # The hand-written sentences quote counts (legs, splits, pooled cities) that
+            # regeneration cannot fix; they are checked against the board instead (#171).
+            problems.extend(f"{args.doc}: prose is stale -- {p}"
+                            for p in prose_problems(current, result))
+        # The log's per-split tables (#145). A block the doc does not contain would make
+        # splice a silent no-op, so a missing marker is a problem in its own right.
+        if not os.path.exists(args.log_doc):
+            problems.append(f"{args.log_doc}: missing")
+        else:
+            with open(args.log_doc, encoding="utf-8", newline="") as fh:
+                current_log = fh.read()
+            absent = [n for n in log_blocks if BEGIN.format(name=n) not in current_log]
+            if absent:
+                problems.append(f"{args.log_doc}: generated blocks missing: "
+                                + ", ".join(absent))
+            if splice(current_log, log_blocks) != current_log:
+                problems.append(f"{args.log_doc}: generated tables are stale "
                                 "(re-run scripts/analysis/scoreboard.py)")
         # The JSON is a committed artifact too, and nothing else checks it. Compared as
         # bytes, which also catches a CRLF flip that a value-level compare would miss.
@@ -627,12 +658,14 @@ def main():
             print("\n".join(problems))
             raise SystemExit(1)
         print(f"{args.doc}: current")
+        print(f"{args.log_doc}: current")
         print(f"{args.json_out}: current")
         return
 
     if subset_guard:
         print(f"--models given ({', '.join(models)}): scoring a subset, so the committed "
-              "doc, JSON and figures are left alone.\nPass --doc/--json-out/--figure-dir "
+              "docs, JSON and figures are left alone.\nPass --doc/--log-doc/--json-out/"
+              "--figure-dir "
               "to write a partial board somewhere else.")
 
     if write_json_out:
@@ -651,6 +684,20 @@ def main():
             print(f"{args.doc}: already current")
     elif write_doc:
         print(f"{args.doc}: not found -- write the prose first, then re-run to fill "
+              "the generated blocks")
+
+    if write_log and os.path.exists(args.log_doc):
+        with open(args.log_doc, encoding="utf-8", newline="") as fh:
+            current = fh.read()
+        updated = splice(current, log_blocks)
+        if updated != current:
+            with open(args.log_doc, "w", encoding="utf-8", newline="") as fh:
+                fh.write(updated)
+            print(f"updated {args.log_doc}")
+        else:
+            print(f"{args.log_doc}: already current")
+    elif write_log:
+        print(f"{args.log_doc}: not found -- write the prose first, then re-run to fill "
               "the generated blocks")
 
     if write_figs:

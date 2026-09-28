@@ -47,6 +47,16 @@ analysis_out/op/*
 !analysis_out/op/*.csv
 !analysis_out/op/*.json
 
+# The gated-cascade cost read (#35): one JSON per (split, challenger) plus summary.json,
+# all re-derivable on CPU from committed inputs by scripts/analysis/cascade_cost_35.py.
+!analysis_out/cascade_cost_35/
+analysis_out/cascade_cost_35/*
+!analysis_out/cascade_cost_35/*.json
+# the #35 transfer read (cascade_transfer_35.py)
+!analysis_out/cascade_cost_35/transfer/
+analysis_out/cascade_cost_35/transfer/*
+!analysis_out/cascade_cost_35/transfer/*.json
+
 # Stage 1's coordinate-tolerance result (#96): a few KB, and it is what converts an
 # offset distribution into a decision. Re-derivable on CPU from the committed
 # benchmark bundles plus any verdicts file.
@@ -68,6 +78,10 @@ analysis_out/op/*
 # size class, and it carries the per-bucket counts docs/curb_ramp_data_sourcing.md
 # quotes -- so the 3.8x correction is checkable without re-running anything.
 !analysis_out/miss_taxonomy.json
+# overlap_test.py's per-GT-ramp hits at four thresholds (#171). ~90 KB, image-free, and the
+# only record of the re-inference behind docs/detection_recall_analysis.md sections 3 and 5;
+# regenerating it needs a GPU and the native-res benchmark panos.
+!analysis_out/overlap.json
 # The FP-side taxonomy (#46). Larger than its siblings but still text, and it is the
 # only committed record of what the challengers' 60,000-strong FP floods are made of
 # -- .model_cache itself is gitignored, so without this the table is unreproducible
@@ -251,3 +265,26 @@ analysis_out/context_fov_86/*
 # the corrected P/R re-derives on CPU and tests/test_stage1_agreement_172.py checks it byte for byte.
 !analysis_out/stage1_agreement_172.json
 !analysis_out/stage1_agreement_172/
+
+# #25 frozen-model input-size sweep: per-arm low-floor peak caches (op_cache schema, a few
+# MB in all), the report and their SHA256SUMS are committed so every table re-derives on
+# CPU; run.log is not.
+!analysis_out/input_res_sweep_25/
+analysis_out/input_res_sweep_25/*
+!analysis_out/input_res_sweep_25/results.json
+!analysis_out/input_res_sweep_25/results.md
+!analysis_out/input_res_sweep_25/instrument_check.json
+!analysis_out/input_res_sweep_25/SHA256SUMS
+!analysis_out/input_res_sweep_25/cache/
+analysis_out/input_res_sweep_25/cache/*
+!analysis_out/input_res_sweep_25/cache/*/
+!analysis_out/input_res_sweep_25/cache/*/*.json
+
+# Two-scale inference (#197): the report, re-derived by two_scale_197.py report --check
+!analysis_out/two_scale_197/
+analysis_out/two_scale_197/*
+!analysis_out/two_scale_197/results.json
+!analysis_out/two_scale_197/results.md
+# DA3 calibration against GSV depth (#101): raw per-pano DA3 rows from the klone run, the
+# derived rows and tables, and their SHA256SUMS. --check re-derives everything from them.
+!analysis_out/da3_calibration_101/

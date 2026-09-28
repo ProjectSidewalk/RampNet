@@ -198,7 +198,7 @@ python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
 | 40546727 `sa131_phase1` | `silent_activation.py`, lab allocation | gpu-l40s, L40S on g3104 | 271 s | 0.075 |
 
 The two GPU jobs are the same run twice; both replicas are byte-identical
-([`curb_ramp_data_sourcing.md` §0c](curb_ramp_data_sourcing.md), #131). A pull by job id is the
+([`data_scaling_59.md` §0c](data_scaling_59.md), #131). A pull by job id is the
 right shape for a small experiment: it adds exactly its own rows, so the ledger stays the sum of
 its committed dumps and two experiments pulled the same day cannot re-record each other's jobs.
 (A pull by date range would also have re-recorded the plan-item-4 arms running that day, which
@@ -230,8 +230,85 @@ python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
 The pull is by job id rather than a date window, so that a window would not sweep in other jobs
 run on the account the same day (the #131 replication ran on klone that night and records its
 own). The ledger is rebuilt in append order: klone 2026-08-19, Tillicum 2026-09-21, the #131
-pull `sacct_klone_2026-09-24_sa131.txt` (above), then this file; `tests/test_slurm_usage.py`
-compares all four. What the five rows are is in [`context_fov_86.md`](context_fov_86.md) §5.
+pull `sacct_klone_2026-09-24_sa131.txt` (above), this file, then the 2026-09-26 and 2026-09-27 pulls below;
+`tests/test_slurm_usage.py` compares all six. What the five rows are is in
+[`context_fov_86.md`](context_fov_86.md) §5.
+
+## klone, 2026-09-26: the context experiment's resolution and seed arms, 13.6 GPU-hours, $0
+
+Five more jobs for the same experiment (PR #187): the CPU downsample on `ckpt-all` and four
+L40S jobs on the lab's allocation (the two resolution arms `fov25px57` / `fov25px122` and the
+seed-87 runs of fov25 and fov90), one incarnation each, all COMPLETED. Pulled by job id on
+2026-09-26 into `docs/data/compute/sacct_klone_2026-09-26.txt` (895 bytes, sha256
+`a7b0e91eb2ae29272ef8672a55d3e038147c7788400821565d43e170c07ded16`) on a klone login node:
+
+```bash
+sacct -X -D -P -n \
+    --format=JobID,JobName%60,Cluster,Partition,QOS,State,Submit,Start,End,ElapsedRaw,AllocTRES,NNodes,ExitCode \
+    -j 40599892,40599914,40599915,40599943,40599944 > sacct_klone_2026-09-26.txt
+```
+
+Parsed with:
+
+```bash
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
+    --from-file docs/data/compute/sacct_klone_2026-09-26.txt \
+    --out analysis_out/compute_log.jsonl --by-name
+```
+
+`tests/test_slurm_usage.py` pins the five rows' names, GPU counts and 13.61 GPU-hours, by job
+id. What each row is, with the per-arm training time, is in
+[`context_fov_86.md`](context_fov_86.md) §5.
+
+## klone, 2026-09-27: the #35 cascade transfer run, 0.49 GPU-hours, $0
+
+One L40S job on the lab's allocation (`gpu-l40s`, QOS normal, no preemption, one incarnation):
+the Vistas parity arm on four splits and RampNet's 1× pass timed on the same GPU. Pulled by job
+id on 2026-09-27 into `docs/data/compute/sacct_klone_2026-09-27_cascade35.txt` (189 bytes,
+sha256 `b2d52b30f955189e557cefde4209ee3977b0023c79dad5cbceede6e3d41679b8`) on a klone login node
+with the `--print-command` invocation plus `-j 40774146`, and parsed with:
+
+```bash
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
+    --from-file docs/data/compute/sacct_klone_2026-09-27_cascade35.txt --out analysis_out/compute_log.jsonl
+```
+
+| job | what | partition | elapsed | GPU-h |
+| :--- | :--- | :--- | ---: | ---: |
+| 40774146 `cascade35_transfer` | `scripts/analysis/cascade_transfer_35.slurm` | gpu-l40s, L40S on g3102 | 1,780 s | 0.494 |
+
+The per-leg split of that time (model load, inference, s/pano) is in the job's eight `paid: false`
+rows in `analysis_out/usage_log.jsonl` and in [`cascade_cost_35.md` §Transfer](cascade_cost_35.md).
+The four RampNet rows (labels `input-res-25:*`, because the job reused the #25 sweep's `extract`)
+were written with `"issue": 25`; that field was corrected to 35 by hand after review, and nothing
+else in those rows changed. `extract` now takes `--issue`, which the launcher passes.
+## klone, 2026-09-27: the DA3 calibration (#101), 1.94 GPU-hours, $0
+
+Three jobs of `scripts/analysis/da3_calibration_101.slurm`, all on `ckpt-all`, one incarnation
+each, all COMPLETED (none preempted): the smoke test `40774578` (A40, 159 s), the first full
+extraction `40774944` (A40, 2,625 s) and the re-extraction with the lowest-plane ground fit
+`40777019` (Quadro RTX 6000, 4,208 s). Pulled by job id on 2026-09-27 into
+`docs/data/compute/sacct_klone_2026-09-27_da3_101.txt` (556 bytes, sha256
+`245b344601738e7a0ec1954ad64aa13f93dcb2d8df75c750bf3ff6a685773774`) on a klone login node:
+
+```bash
+sacct -X -D -P -n -u jfroehli \
+    --format=JobID,JobName%60,Cluster,Partition,QOS,State,Submit,Start,End,ElapsedRaw,AllocTRES,NNodes,ExitCode \
+    -j 40774578,40774944,40777019 > sacct_klone_2026-09-27_da3_101.txt
+```
+
+Parsed with:
+
+```bash
+python scripts/analysis/slurm_usage.py --cluster klone --user jfroehli \
+    --from-file docs/data/compute/sacct_klone_2026-09-27_da3_101.txt \
+    --out analysis_out/compute_log.jsonl --by-name
+```
+
+The per-pano timings (the script's own `paid: false` rows in `analysis_out/usage_log.jsonl`) and
+what each run produced are in [`da3_calibration_101.md`](da3_calibration_101.md) §9 (the
+ground-fit change between the two full runs is §8). Two of the three usage rows were relabelled by
+hand when appended; §9 says which.
 
 ## Gaps, stated
 
@@ -255,5 +332,5 @@ compares all four. What the five rows are is in [`context_fov_86.md`](context_fo
   append-only ledger the paid API legs use, as a `paid: false` row with the host, GPU and
   `elapsed_s`. The two #163 Vistas re-runs are the example: 237.153 s and 191.318 s on
   makelab2, recorded there and quoted, with the per-stage breakdown, in the cost paragraph of
-  [`model_comparison.md` §Resolution parity](model_comparison.md). At $0 it changes no total,
+  [`vistas_transfer_126.md` §Resolution parity](vistas_transfer_126.md). At $0 it changes no total,
   but a reader who starts here should not conclude the time went unrecorded.

@@ -169,7 +169,7 @@ def no_peak_profile(rows, cell, radius_px):
     none inside the radius.
 
     The cell summary's medians are over the whole cell; the table row in
-    ``docs/model_comparison.md`` is about this subset, and what it says the subset
+    ``docs/vistas_transfer_126.md`` is about this subset, and what it says the subset
     *is* turns on these columns: a nearest peak 1-2 R away with the in-window
     maximum on the window edge is a neighbour's shoulder (``tail``), not mass the
     extractor overlooked. ``argmax_on_edge`` counts rows whose maximum is within

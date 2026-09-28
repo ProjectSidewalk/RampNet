@@ -80,7 +80,7 @@ extent" items; 11 of those are excluded, 299 + 11 = all 310 adjudicated). Headli
   nothing below it; Richmond's lowest is 0.5519). Production's recommended operating point is 0.30
   ([`operating_point.md`](operating_point.md)). So arm 3 is conditioned on a confident, correct
   detection. The 72 `missed:` ramps are the ones the shipped threshold never prompts at all
-  (RampNet still misses 53 of Richmond's ramps at 0.30, `model_comparison.md`, so 0.30 would add
+  (RampNet still misses 53 of Richmond's ramps at 0.30, `vistas_transfer_126.md`, so 0.30 would add
   about 19 low-confidence prompts). On `missed:` items the recorded point is a reviewer's click,
   not a detection; those rows are in the CSV and the summary (`subsets`), not in this table.
   **End to end**, over all 299 boxed ramps, the 16% (point only) and 37% (with the prior) at
