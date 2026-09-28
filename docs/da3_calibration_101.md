@@ -282,7 +282,7 @@ Calibrated DA3 height (lowest plane / k_height):
 | paterson | 125 | 108 | 2.11 (1.90–2.39) | 1.38–2.87 | 2.2 | 2.05 |
 | gainesville | 125 | 106 | 1.89 (1.79–2.10) | 1.60–2.79 | 2.0 | 1.83 |
 | sao_paulo | 125 | 95 | 2.46 (2.27–2.54) | 1.34–2.78 | 2.6 | 2.26 |
-| laurens_gsv | 86 | 78 | 2.14 (2.09–2.19) | 1.82–2.59 | 2.1 | – |
+| laurens_gsv | 86 | 78 | 2.14 (2.09–2.19) | 1.82–2.59 | 2.1 | –¹ |
 | richmond | 124 | 93 | 2.38 (2.06–2.50) | 1.33–2.78 | 3.1 | – |
 | annapolis | 125 | 96 | 2.12 (2.05–2.21) | 1.89–2.41 | 3.6 | – |
 | morgantown | 125 | 92 | 2.07 (1.94–2.20) | 0.52–2.63 | 3.4 | – |
@@ -305,12 +305,22 @@ Calibrated DA3 height (lowest plane / k_height):
 Rig = camera make/model from the bundle records, normalized as the labeler's `rig_key` does
 (one budapest pano on an LG R105 is left out of this table; it is in `tables.md`).
 
+¹ laurens_gsv now has Google depth. It was harvested on 2026-09-27 for #151 and merged in #201.
+It is held out in `analysis_out/recall_by_depth_112.json` under `tables["held_out"]`. Google's
+camera height there is **2.41 m** (1.99–2.49), the median over the 60 of 86 benchmark panos with
+measured ground ([`detection_recall_analysis.md`](detection_recall_analysis.md) §0). The cell
+stays "–" because `derive` does not join laurens_gsv's Google rows. Filling it would change the
+committed rows and their hashes. It would also give a median over a different pano set (the
+fit-ok panos with measured ground) than the 2.41 m above. That join is the held-out check §11
+says was not run.
+
 Caveats that belong to these numbers:
 
 - **The calibration was fitted on Google's car rigs.** Nothing in this repo validates DA3 on a
   GoPro or an NCTech image directly. The heights are plausible (every Mapillary rig median lands
   in 1.8–2.5 m, and DA3 reads the same Laurens footprint at 2.14 m on Google's rig and 2.13 m on
-  the GoPro Max), but "plausible" is not "measured".
+  the GoPro Max), but "plausible" is not "measured". Google's own depth reads that Laurens GSV rig
+  at 2.41 m (footnote ¹), so the 2.14 m may be low. That gap is a flag, not a measurement (§11).
 - **Per-pano heights are rig-class estimates** (§3). The spread inside a rig here mixes real
   mounting differences with DA3's per-pano noise, and this measurement cannot separate them.
 - **Tilt.** By split the Mapillary medians are 3.1–7.3° against 2.0–2.6° on GSV; by rig the NCTech
@@ -357,7 +367,7 @@ with the ±1–2 m error scale measured on GSV in §4.1:
 | clovis | 13.1 m (68) / 17.6 m (28) | 14.8 m (64) / 18.8 m (28) | 14.6 m (64) / 20.0 m (28) |
 | laurens_mapillary | 15.9 m (40) / 22.2 m (24) | 16.1 m (35) / 23.8 m (21) | 16.4 m (35) / 23.6 m (21) |
 | budapest_district5 | 11.9 m (68) / 16.1 m (39) | 13.1 m (58) / 17.9 m (28) | 13.5 m (58) / 19.0 m (28) |
-| laurens_gsv (GSV, no Google depth) | 16.0 m (72) / 22.0 m (41) | 15.3 m (65) / 21.3 m (37) | 15.5 m (65) / 21.6 m (37) |
+| laurens_gsv (GSV; its Google depth is not used here, §11) | 16.0 m (72) / 22.0 m (41) | 15.3 m (65) / 21.3 m (37) | 15.5 m (65) / 21.6 m (37) |
 
 What this says, with its limits:
 
@@ -390,7 +400,8 @@ runs/**`) and is in no labeler commit, so the sequence-level rows it supplied (a
 correlation over 16 sequences) could not be reproduced and have been removed.
 
 - **DA3:** GoPro Max 2.13 m (73 benchmark panos); the same footprint on Google's rig 2.14 m
-  (laurens_gsv, 78 panos; no Google depth was harvested for it).
+  (laurens_gsv, 78 panos). Google's depth reads that rig at 2.41 m over 60 panos (§5.1, footnote ¹).
+  That gap is not reconciled (§11).
 - **Labeler, gopro/max group (`n_panos` 644 in its table):** bearing fixed point
   (instrument A) **4.31 m** (CI 3.80–4.84, slope 0.723); scale identity evaluated at 2.6 m
   (instrument B) **2.98 m** (CI 2.93–3.03). #89 found **no validated instrument-B estimator**: under
@@ -571,8 +582,16 @@ roof over a road).
   Google's frame by design.
 - **A single pooled constant** is biased on Google's 2025–26 rig, −5% to +3% across range (§2.1);
   no per-rig or range-dependent calibration was fitted.
-- **laurens_gsv** has DA3 but no Google depth (never harvested), so it is carried like a Mapillary
-  split, not validated. **The Laurens panos are not published** (§5.1).
+- **laurens_gsv was not run as a held-out DA3-vs-Google check.** It has had Google depth since
+  #201, held out in `analysis_out/recall_by_depth_112.json` under `tables["held_out"]`. It was not
+  in the calibration fit, and `derive` does not join its Google rows. So it is still carried like a
+  Mapillary split, not validated. The comparison was designed before #201 landed. The two pano
+  sets also differ: DA3's height is over the 78 fit-ok panos, and Google's over the 60 panos with
+  measured ground. The raw gap reads DA3 2.14 m against Google 2.41 m, about 0.89x. The pooled
+  DA3/Google height ratio on the four fitted splits is 1.038 [1.026, 1.056] (§3). So on the one
+  extra GSV split, DA3 reads about 11% low where the pooled fit reads about 4% high. This is a
+  flag, not a measurement: the pano sets are not paired and no CI was computed. Pairing the panos
+  would turn it into a held-out check. **The Laurens panos are not published** (§5.1).
 - **Per-pano heights and tilts are not trustworthy per pano** (§3, §5.1).
 - **Apparent-size tables and the resolution forecast** of #112 were not re-issued on the DA3
   axis; only recall by distance was, as the plan specified.

@@ -95,7 +95,10 @@ SUMS = os.path.join(OUT_DIR, "SHA256SUMS")
 RBD_JSON = rbd.OUT_JSON
 
 GSV_DEPTH_SPLITS = ("bend", "paterson", "gainesville", "sao_paulo")   # Google depth in #112
-GSV_OTHER_SPLITS = ("laurens_gsv",)                                  # GSV, never harvested
+# laurens_gsv has had Google depth since #201 (held out in recall_by_depth_112.json under
+# tables["held_out"]). This script does not join it: laurens_gsv is not in the calibration fit
+# and is not a held-out check here (docs/da3_calibration_101.md, section 11).
+GSV_OTHER_SPLITS = ("laurens_gsv",)
 MAPILLARY_SPLITS = ("richmond", "annapolis", "morgantown", "clovis", "laurens_mapillary",
                     "budapest_district5")
 ALL_SPLITS = GSV_DEPTH_SPLITS + GSV_OTHER_SPLITS + MAPILLARY_SPLITS
