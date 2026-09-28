@@ -203,3 +203,28 @@ def test_recall_tables_rederive_from_the_committed_capture_table():
     want = json.load(open(rv_path, encoding="utf-8"))
     for key in ("pooled|0.55|world|R18", "gsv|0.30|world|R18", "mapillary|0.10|either|R12"):
         assert got[key] == want[key], key
+
+
+# --------------------------------------------------------------------------- #
+# re-run vs published agreement (multiview_challengers_48.detection_agreement)
+# --------------------------------------------------------------------------- #
+def test_agreement_is_not_fooled_by_export_rounding_across_a_4dp_boundary():
+    import multiview_challengers_48 as mc
+    published = 0.12344996                  # full precision, as benchmark/model_detections keeps it
+    exported = round(published, 5)          # 0.12345, as ``export`` writes it
+    assert round(published, 4) != round(exported, 4)   # the old 4-dp buckets split these
+    mine = {"a": [[exported, 0.5, 0.9]], "b": []}
+    pub = {"a": [[published, 0.5, 0.9]], "b": []}
+    assert mc.detection_agreement(mine, pub, ["a", "b"]) == {"same_count": 1.0,
+                                                             "same_detections": 1.0}
+
+
+def test_agreement_separates_count_from_position():
+    import multiview_challengers_48 as mc
+    pub = {"a": [[0.10, 0.5]], "b": [[0.30, 0.5]], "c": [[0.7, 0.5]]}
+    mine = {"a": [[0.10, 0.5]],                       # same
+            "b": [[0.30 + 2 * mc.AGREE_TOL, 0.5]],    # same count, moved box
+            "c": [[0.7, 0.5], [0.9, 0.5]]}            # extra box
+    got = mc.detection_agreement(mine, pub, ["a", "b", "c"])
+    assert got == {"same_count": pytest.approx(2 / 3), "same_detections": pytest.approx(1 / 3)}
+    assert mc.detection_agreement(mine, pub, []) is None

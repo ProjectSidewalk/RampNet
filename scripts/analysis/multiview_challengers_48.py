@@ -346,15 +346,41 @@ def write_sites(path, sites, frame):
         f.write("\n".join(rows) + ("\n" if rows else ""))
 
 
-def detection_agreement(mine, published, judged):
-    """Share of judged panos whose detections match the published richmond leg (to 1e-4
-    in x, y), and the per-pano score of the published leg on the same panos."""
-    same = 0
+#: Largest |dx| or |dy| (pano-normalized) at which a re-run detection counts as the same
+#: detection as the published one. ``export`` rounds x, y to 5 dp (error <= 5e-6), and the
+#: published files keep full precision, so identical detections differ by at most 5e-6.
+#: 1e-4 is 20x that and about 0.4 px on a 4096-px-wide pano: rounding can never exceed
+#: it, and a real re-run change (a moved box) almost always does. An earlier version
+#: compared both sides rounded to 4 dp, so a value on either side of a 4-dp boundary read
+#: as "different" and the share measured rounding, not re-run drift (review of PR 200).
+AGREE_TOL = 1e-4
+
+
+def detection_agreement(mine, published, judged, tol=AGREE_TOL):
+    """How closely a re-run leg reproduces the published richmond leg on the judged panos.
+
+    Returns ``{"same_count": share of judged panos with the same number of detections,
+    "same_detections": share with the same count AND, after sorting both lists by (x, y),
+    every pair within ``tol`` in x and in y}``, or None when nothing is judged.
+    Confidence is not compared: only whether the same boxes were found.
+
+    >>> detection_agreement({"a": [[0.123455, 0.5, 0.9]]},
+    ...                     {"a": [[0.1234549, 0.5, 0.9]]}, ["a"])
+    {'same_count': 1.0, 'same_detections': 1.0}
+    """
+    if not judged:
+        return None
+    same_count = same = 0
     for pid in judged:
-        a = sorted((round(p[0], 4), round(p[1], 4)) for p in mine.get(pid, []))
-        b = sorted((round(p[0], 4), round(p[1], 4)) for p in published.get(pid, []))
-        same += a == b
-    return same / len(judged) if judged else None
+        a = sorted((p[0], p[1]) for p in mine.get(pid, []))
+        b = sorted((p[0], p[1]) for p in published.get(pid, []))
+        if len(a) != len(b):
+            continue
+        same_count += 1
+        same += all(abs(ax - bx) <= tol and abs(ay - by) <= tol
+                    for (ax, ay), (bx, by) in zip(a, b))
+    n = len(judged)
+    return {"same_count": same_count / n, "same_detections": same / n}
 
 
 def cmd_score(args):
@@ -420,7 +446,7 @@ def cmd_score(args):
             pdets = {pid: as_dets(v) for pid, v in pub.items()}
             leg_out["published_richmond"] = {
                 "per_pano_at_headline": per_pano_score(pdets, gtw.judged_gt, leg["headline"]),
-                "judged_panos_identical_detections": detection_agreement(pts, pub, judged)}
+                "judged_panos_agreement": detection_agreement(pts, pub, judged)}
         for tier in leg["sweep"]:
             floor = min(t for t in leg["sweep"] if t is not None) if tier is not None else 0.0
             res, (sd, frame) = world_eval(L, hood_panos, dets, tier, floor, gtw.pool,

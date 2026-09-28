@@ -40,7 +40,10 @@
    "n_panos": 2867,
    "n_uncached": 0,
    "published_richmond": {
-    "judged_panos_identical_detections": 0.0,
+    "judged_panos_agreement": {
+     "same_count": 0.8952,
+     "same_detections": 0.7016
+    },
     "per_pano_at_headline": {
      "f1": 0.0534,
      "fn": 46,
@@ -1889,7 +1892,10 @@
    "n_panos": 2867,
    "n_uncached": 0,
    "published_richmond": {
-    "judged_panos_identical_detections": 0.0323,
+    "judged_panos_agreement": {
+     "same_count": 0.8952,
+     "same_detections": 0.0323
+    },
     "per_pano_at_headline": {
      "f1": 0.3769,
      "fn": 170,
@@ -2262,7 +2268,10 @@
    "n_panos": 2867,
    "n_uncached": 0,
    "published_richmond": {
-    "judged_panos_identical_detections": 0.7581,
+    "judged_panos_agreement": {
+     "same_count": 1.0,
+     "same_detections": 1.0
+    },
     "per_pano_at_headline": {
      "f1": 0.4571,
      "fn": 150,
@@ -2636,7 +2645,10 @@
    "n_panos": 2867,
    "n_uncached": 0,
    "published_richmond": {
-    "judged_panos_identical_detections": 0.0,
+    "judged_panos_agreement": {
+     "same_count": 1.0,
+     "same_detections": 0.9677
+    },
     "per_pano_at_headline": {
      "f1": 0.064,
      "fn": 9,
@@ -6848,7 +6860,10 @@
    "n_panos": 2867,
    "n_uncached": 0,
    "published_richmond": {
-    "judged_panos_identical_detections": 0.6774,
+    "judged_panos_agreement": {
+     "same_count": 1.0,
+     "same_detections": 1.0
+    },
     "per_pano_at_headline": {
      "f1": 0.5952,
      "fn": 174,
@@ -8354,7 +8369,10 @@
    "n_panos": 2867,
    "n_uncached": 0,
    "published_richmond": {
-    "judged_panos_identical_detections": 0.7097,
+    "judged_panos_agreement": {
+     "same_count": 1.0,
+     "same_detections": 1.0
+    },
     "per_pano_at_headline": {
      "f1": 0.5471,
      "fn": 191,
@@ -9860,7 +9878,10 @@
    "n_panos": 2867,
    "n_uncached": 0,
    "published_richmond": {
-    "judged_panos_identical_detections": 0.5161,
+    "judged_panos_agreement": {
+     "same_count": 1.0,
+     "same_detections": 0.9919
+    },
     "per_pano_at_headline": {
      "f1": 0.4907,
      "fn": 191,
