@@ -1300,6 +1300,286 @@
    "laurens_gsv_da3_median_h_m": 2.1443,
    "laurens_gsv_n_panos": 78
   },
+  "laurens_gsv_held_out": {
+   "axis_agreement": {
+    "all": {
+     "da3_plane": {
+      "median_abs_log_ratio": 0.1272,
+      "median_ratio": 0.899,
+      "n": 132,
+      "p10_ratio": 0.7214,
+      "p90_ratio": 1.0471,
+      "share_within_10pct": 0.4394
+     },
+     "da3_point": {
+      "median_abs_log_ratio": 0.0923,
+      "median_ratio": 0.918,
+      "n": 156,
+      "p10_ratio": 0.8507,
+      "p90_ratio": 1.017,
+      "share_within_10pct": 0.5769
+     },
+     "flat_2p5": {
+      "median_abs_log_ratio": 0.0394,
+      "median_ratio": 1.0401,
+      "n": 156,
+      "p10_ratio": 1.0,
+      "p90_ratio": 1.188,
+      "share_within_10pct": 0.7244
+     },
+     "flat_da3_height": {
+      "median_abs_log_ratio": 0.1077,
+      "median_ratio": 0.8992,
+      "n": 132,
+      "p10_ratio": 0.8443,
+      "p90_ratio": 1.0058,
+      "share_within_10pct": 0.4621
+     }
+    },
+    "common": {
+     "da3_plane": {
+      "median_abs_log_ratio": 0.1272,
+      "median_ratio": 0.899,
+      "n": 132,
+      "p10_ratio": 0.7214,
+      "p90_ratio": 1.0471,
+      "share_within_10pct": 0.4394
+     },
+     "da3_point": {
+      "median_abs_log_ratio": 0.0889,
+      "median_ratio": 0.9248,
+      "n": 132,
+      "p10_ratio": 0.8549,
+      "p90_ratio": 1.017,
+      "share_within_10pct": 0.5909
+     },
+     "flat_2p5": {
+      "median_abs_log_ratio": 0.0337,
+      "median_ratio": 1.0342,
+      "n": 132,
+      "p10_ratio": 1.0,
+      "p90_ratio": 1.1639,
+      "share_within_10pct": 0.7424
+     },
+     "flat_da3_height": {
+      "median_abs_log_ratio": 0.1077,
+      "median_ratio": 0.8992,
+      "n": 132,
+      "p10_ratio": 0.8443,
+      "p90_ratio": 1.0058,
+      "share_within_10pct": 0.4621
+     }
+    }
+   },
+   "capture_years": [
+    "2024"
+   ],
+   "height": {
+    "group": "laurens_gsv",
+    "median_abs_log_ratio": 0.0805,
+    "median_da3_calibrated_h_m": 2.1445,
+    "median_da3_h_m": 2.2259,
+    "median_google_h_m": 2.4141,
+    "median_ratio": 0.9252,
+    "median_ratio_ci": [
+     0.9197,
+     0.9416
+    ],
+    "n_panos": 53,
+    "ols_intercept_m": 2.2524,
+    "ols_slope": -0.0074,
+    "p10_ratio": 0.8706,
+    "p90_ratio": 1.0198,
+    "pearson_r": -0.007
+   },
+   "n": {
+    "da3_fit_ok": 78,
+    "fit_ok_and_measured": 53,
+    "google_measured": 60,
+    "location_panos": 45,
+    "locations_measured_pixel_plane": 156,
+    "panos": 86,
+    "point_rows": 341,
+    "point_rows_joined": 341,
+    "unique_locations": 230
+   },
+   "point": {
+    "group": "laurens_gsv",
+    "loglog_exponent": 1.0147,
+    "loglog_exponent_ci": [
+     0.9818,
+     1.0415
+    ],
+    "median_abs_log_ratio": 0.0474,
+    "median_google_m": 12.6688,
+    "median_ratio": 1.0152,
+    "median_ratio_ci": [
+     0.997,
+     1.046
+    ],
+    "n": 156,
+    "n_panos": 45,
+    "ols_intercept_m": 0.3235,
+    "ols_slope": 1.008,
+    "ols_slope_ci": [
+     0.9503,
+     1.0655
+    ],
+    "p10_ratio": 0.9407,
+    "p90_ratio": 1.1247
+   },
+   "prediction": {
+    "height": {
+     "cis_overlap": false,
+     "fitted_split_range": [
+      0.9587,
+      1.1085
+     ],
+     "fitted_splits": {
+      "bend": 0.9587,
+      "gainesville": 1.0544,
+      "paterson": 1.0315,
+      "sao_paulo": 1.1085
+     },
+     "held_out_over_pooled_ci": [
+      0.8748,
+      0.9116
+     ],
+     "inside_fitted_split_range": false,
+     "inside_predicted_ci": false,
+     "observed": 0.9252,
+     "observed_ci": [
+      0.9197,
+      0.9416
+     ],
+     "observed_over_predicted": 0.8913,
+     "predicted": 1.038,
+     "predicted_ci": [
+      1.0255,
+      1.0556
+     ],
+     "rig_group": {
+      "group": "older US vintages",
+      "median_ratio": 0.9945,
+      "median_ratio_ci": [
+       0.9762,
+       1.0098
+      ]
+     }
+    },
+    "point": {
+     "cis_overlap": false,
+     "fitted_split_range": [
+      1.0332,
+      1.1804
+     ],
+     "fitted_splits": {
+      "bend": 1.0332,
+      "gainesville": 1.0895,
+      "paterson": 1.1092,
+      "sao_paulo": 1.1804
+     },
+     "held_out_over_pooled_ci": [
+      0.8974,
+      0.9466
+     ],
+     "inside_fitted_split_range": false,
+     "inside_predicted_ci": false,
+     "loglog_exponent": {
+      "observed": 1.0147,
+      "observed_ci": [
+       0.9818,
+       1.0415
+      ],
+      "pooled": 0.9806,
+      "pooled_ci": [
+       0.9588,
+       1.0009
+      ]
+     },
+     "observed": 1.0152,
+     "observed_ci": [
+      0.997,
+      1.046
+     ],
+     "observed_over_predicted": 0.918,
+     "predicted": 1.1059,
+     "predicted_ci": [
+      1.0936,
+      1.1171
+     ],
+     "rig_group": {
+      "group": "older US vintages",
+      "median_ratio": 1.0664,
+      "median_ratio_ci": [
+       1.0499,
+       1.0824
+      ]
+     }
+    }
+   },
+   "ratio_by_google_range": [
+    {
+     "bucket": "0-8 m",
+     "group": "laurens_gsv (held out)",
+     "median_da3_over_google": 0.9927,
+     "median_flat_over_google": 1.0526,
+     "n": 28,
+     "n_panos": 19,
+     "p10": 0.915,
+     "p90": 1.0669
+    },
+    {
+     "bucket": "8-12 m",
+     "group": "laurens_gsv (held out)",
+     "median_da3_over_google": 1.0316,
+     "median_flat_over_google": 1.0253,
+     "n": 47,
+     "n_panos": 26,
+     "p10": 0.9501,
+     "p90": 1.1303
+    },
+    {
+     "bucket": "12-18 m",
+     "group": "laurens_gsv (held out)",
+     "median_da3_over_google": 1.0096,
+     "median_flat_over_google": 1.0402,
+     "n": 40,
+     "n_panos": 26,
+     "p10": 0.9407,
+     "p90": 1.1192
+    },
+    {
+     "bucket": "18-25 m",
+     "group": "laurens_gsv (held out)",
+     "median_da3_over_google": 1.0836,
+     "median_flat_over_google": 1.0271,
+     "n": 23,
+     "n_panos": 17,
+     "p10": 0.9712,
+     "p90": 1.1882
+    },
+    {
+     "bucket": "25 m+",
+     "group": "laurens_gsv (held out)",
+     "median_da3_over_google": 1.0146,
+     "median_flat_over_google": 1.0738,
+     "n": 18,
+     "n_panos": 7,
+     "p10": 0.8554,
+     "p90": 1.0591
+    }
+   ],
+   "rig_group": "older US vintages",
+   "split": "laurens_gsv",
+   "unpaired": {
+    "calibrated_over_google": 0.89,
+    "da3_calibrated_median_h_m": 2.1443,
+    "da3_n_panos": 78,
+    "google_median_h_m": 2.4094,
+    "google_n_panos": 60
+   }
+  },
   "point_calibration": [
    {
     "group": "bend",

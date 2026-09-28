@@ -396,3 +396,38 @@ Run 1 = the first extraction's single dominant plane. `now` = lowest supported p
 |---|---:|---:|---:|---:|---:|---|
 | bend | 327 | 1.065 | 0.953 | 1.014 | 0.961 | 0 (0 + 0) |
 | richmond | 306 | 1.085 | 0.812 | 1.037 | 0.847 | 4 (3 + 1) |
+
+## Held-out check: laurens_gsv against Google depth (not in any pooled statistic)
+
+Capture years 2024 (rig group `older US vintages`). Panos 86; DA3 fit ok 78; Google measured ground 60; both 53. Point rows 341, joined to a Google row 341, unique locations 230, of which measured-ground pixel-plane 156 on 45 panos.
+
+Unpaired (different pano sets): calibrated DA3 height 2.14 m over 78 panos, Google 2.41 m over 60 panos, ratio 0.890.
+
+| read | n | held out: DA3/Google median [95% CI] | pooled prediction [95% CI] | fitted splits' range | held out / pooled [95% CI] | rig group median [CI] |
+|---|---|---|---|---|---|---|
+| point range | 156 (45 panos) | 1.015 [0.997, 1.046] | 1.106 [1.094, 1.117] | 1.033–1.180 | 0.918 [0.897, 0.947] | older US vintages: 1.066 [1.050, 1.082] |
+| camera height | 53 panos | 0.925 [0.920, 0.942] | 1.038 [1.026, 1.056] | 0.959–1.109 | 0.891 [0.875, 0.912] | older US vintages: 0.995 [0.976, 1.010] |
+
+Points: log-log exponent 1.015 [0.982, 1.042] (pooled 0.981 [0.959, 1.001]), OLS slope 1.008 [0.950, 1.065], intercept 0.32 m, p10–p90 0.94–1.12, median abs ln ratio 0.047.
+Heights (paired): DA3 raw 2.23 m, calibrated 2.14 m, Google 2.41 m; p10–p90 0.87–1.02, Pearson r -0.007, median abs ln ratio 0.081.
+
+| group | Google range | n (panos) | DA3/Google median (p10–p90) | flat 2.5 m / Google median |
+|---|---|---|---|---:|
+| laurens_gsv (held out) | 0-8 m | 28 (19) | 0.993 (0.92–1.07) | 1.053 |
+| laurens_gsv (held out) | 8-12 m | 47 (26) | 1.032 (0.95–1.13) | 1.025 |
+| laurens_gsv (held out) | 12-18 m | 40 (26) | 1.010 (0.94–1.12) | 1.040 |
+| laurens_gsv (held out) | 18-25 m | 23 (17) | 1.084 (0.97–1.19) | 1.027 |
+| laurens_gsv (held out) | 25 m+ | 18 (7) | 1.015 (0.86–1.06) | 1.074 |
+
+Each axis against Google's range on the held-out locations, pooled constants (`common` = every axis has a value):
+
+| population | axis | n | median axis/Google (p10–p90) | median abs ln ratio | share within 10% |
+|---|---|---:|---|---:|---:|
+| common | flat_2p5 | 132 | 1.034 (1.00–1.16) | 0.034 | 0.742 |
+| common | da3_point | 132 | 0.925 (0.85–1.02) | 0.089 | 0.591 |
+| common | da3_plane | 132 | 0.899 (0.72–1.05) | 0.127 | 0.439 |
+| common | flat_da3_height | 132 | 0.899 (0.84–1.01) | 0.108 | 0.462 |
+| all | flat_2p5 | 156 | 1.040 (1.00–1.19) | 0.039 | 0.724 |
+| all | da3_point | 156 | 0.918 (0.85–1.02) | 0.092 | 0.577 |
+| all | da3_plane | 132 | 0.899 (0.72–1.05) | 0.127 | 0.439 |
+| all | flat_da3_height | 132 | 0.899 (0.84–1.01) | 0.108 | 0.462 |
