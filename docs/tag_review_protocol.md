@@ -46,8 +46,15 @@ chicago-il first and waltham-ma, west-chester and zurich last in every pass, lin
 drift up with the alphabet. Within a city `item_id` order is the list's shuffle, so tag state and
 distance band stay interleaved. The review sheet has no such blocks (see the asymmetry table).
 
-Ids the server cannot show (deleted, imagery gone with no crop) are listed above the grid; treat
-those items as not reviewed.
+Ids the server cannot show are listed above the grid; treat those items as not reviewed. The
+by-id query (`getGalleryLabelsByIdQuery` in SidewalkWebpage's `app/models/label/LabelTable.scala`)
+applies none of the gallery's quality filters, but it still drops, for example: deleted labels,
+tutorial labels, labels from excluded contributors, labels on a panorama from another viewer than
+the deployment's, and labels with no latitude and longitude. The list is not exhaustive, since the
+query also inner-joins the label's street region and its user's stats. The query does not check
+imagery, so a label whose panorama is gone can still come back with nothing to judge; treat that
+item as not reviewed too. On 2026-09-26 the server returned all 500
+listed labels, with an empty `unavailableLabelIds` on all 35 deployments (#186 review).
 
 The gallery shows label ids, not `item_id`s, and a label id alone does not name an item: 12 label
 ids in the committed list occur in two or more cities (label 24930 is `danville-il:24930`,

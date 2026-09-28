@@ -600,8 +600,44 @@ def test_gallery_links_one_per_city_in_item_order_and_split_at_the_cap():
 def test_committed_list_fits_one_gallery_link_per_city():
     rows = trl.read_list(LIST)
     links = trl.gallery_links(rows)
-    assert all(g["part"] == 1 for g in links)
-    assert sum(len(g["label_ids"]) for g in links) == len(rows)
+    assert all(g["part"] == 1 for g in links)          # no city reaches the 500-id cap
+    assert len(links) == len({r["city"] for r in rows})
+    # coverage, by content rather than by count: the (city, label id) pairs the links carry are
+    # exactly the list's label_uids, and every url carries its own ids, so reading the wrong
+    # column would fail here
+    got = [f"{g['city']}:{lid}" for g in links for lid in g["label_ids"]]
+    assert len(got) == len(set(got)) and set(got) == {r["label_uid"] for r in rows}
+    uid_of = {r["item_id"]: r["label_uid"] for r in rows}
+    for g in links:
+        assert [uid_of[i] for i in g["item_ids"]] == [f"{g['city']}:{lid}" for lid in g["label_ids"]]
+        assert g["url"].endswith("?labelIds=" + ",".join(g["label_ids"]))
+
+
+def test_gallery_links_rejects_two_cities_on_one_host():
+    rows = _link_rows(["a", "b"], host="shared")
+    with pytest.raises(ValueError, match="host of two cities"):
+        trl.gallery_links(rows)
+
+
+def test_gallery_links_cap_boundary():
+    rows = _link_rows(["a"], per_city=3)
+    assert [len(g["label_ids"]) for g in trl.gallery_links(rows, max_ids=3)] == [3]       # exactly the cap
+    assert [len(g["label_ids"]) for g in trl.gallery_links(rows, max_ids=2)] == [2, 1]    # one over
+
+
+def test_links_text_output_empty_list_and_split_part_alignment(tmp_path, capsys):
+    lst = tmp_path / "empty.csv"
+    lst.write_text("item_id,city,label_id,editor_url\n", encoding="utf-8")
+    trl.main(["links", "--list", str(lst)])
+    assert capsys.readouterr().out.startswith("0 items in 0 links")
+    trl.main(["links", "--list", str(lst), "--format", "tsv"])
+    assert capsys.readouterr().out.splitlines() == ["\t".join(("city", "part", "n", "item_ids", "label_ids", "url"))]
+    full = tmp_path / "list.csv"
+    _write_list(full, _link_rows(["a", "bb"], per_city=2))
+    # split both cities so "bb (2)" is the widest name; every url must start in one column
+    trl.main(["links", "--list", str(full), "--max-ids", "1"])
+    heads = [line for line in capsys.readouterr().out.splitlines() if "https://" in line]
+    assert len(heads) == 4 and len({line.index("https://") for line in heads}) == 1
 
 
 # ----------------------------------------------------------------------------- sidecar keys (#186 review S1)

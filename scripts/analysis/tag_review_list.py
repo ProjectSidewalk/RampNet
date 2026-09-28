@@ -601,6 +601,12 @@ def gallery_links(rows, max_ids=GALLERY_MAX_LABEL_IDS, seed=CITY_ORDER_SEED):
         if entry["host"] != host:
             raise ValueError(f"{r['city']}: two hosts in editor_url ({entry['host']}, {host})")
         entry["rows"].append(r)
+    # and the reverse: two city keys on one host would put two cities' ids on one server's queue
+    owner = {}
+    for city in sorted(by_city):
+        other = owner.setdefault(by_city[city]["host"], city)
+        if other != city:
+            raise ValueError(f"{by_city[city]['host']}: host of two cities ({other}, {city})")
     cities = sorted(by_city)
     if seed is not None:
         cities = [cities[k] for k in np.random.default_rng(seed).permutation(len(cities))]
@@ -669,7 +675,7 @@ def composition(rows):
 def cmd_links(args):
     """Print the links, each with its ``label_id -> item_id`` pairs: the gallery shows label ids,
     and label ids repeat across cities, so the sidecar lookup has to be per city."""
-    links = gallery_links(read_list(args.list), seed=args.seed)
+    links = gallery_links(read_list(args.list), max_ids=args.max_ids, seed=args.seed)
     if args.format == "tsv":
         # item_ids and label_ids are comma-joined in the same order as the ids in the url
         print("\t".join(("city", "part", "n", "item_ids", "label_ids", "url")))
@@ -677,10 +683,16 @@ def cmd_links(args):
             print("\t".join((g["city"], str(g["part"]), str(len(g["label_ids"])),
                              ",".join(g["item_ids"]), ",".join(g["label_ids"]), g["url"])))
         return
-    width = max(len(g["city"]) for g in links)
+    if not links:
+        print("0 items in 0 links (the list is empty)")
+        return
+
+    def name(g):
+        return g["city"] if g["part"] == 1 else f"{g['city']} ({g['part']})"
+
+    width = max(len(name(g)) for g in links)
     for g in links:
-        name = g["city"] if g["part"] == 1 else f"{g['city']} ({g['part']})"
-        print(f"{name:<{width}}  {len(g['label_ids']):>3}  {g['url']}")
+        print(f"{name(g):<{width}}  {len(g['label_ids']):>3}  {g['url']}")
         pairs = [f"{lid}={item}" for lid, item in zip(g["label_ids"], g["item_ids"])]
         for i in range(0, len(pairs), 6):
             print("    " + "  ".join(pairs[i:i + 6]))
@@ -869,6 +881,8 @@ def main(argv=None):
     k.add_argument("--format", choices=["text", "tsv"], default="text")
     k.add_argument("--seed", type=int, default=CITY_ORDER_SEED,
                    help="seed for the order of the city blocks (default: the list's build seed)")
+    k.add_argument("--max-ids", type=int, default=GALLERY_MAX_LABEL_IDS,
+                   help="ids per link; a longer city is split into parts (default: the server's cap)")
     k.set_defaults(func=cmd_links)
     p = sub.add_parser("power", help="kappa CI half-width vs list size and positives")
     p.add_argument("--ns", type=int, nargs="+", default=[300, 500, 800])
