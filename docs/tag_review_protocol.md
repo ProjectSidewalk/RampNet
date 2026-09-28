@@ -14,7 +14,12 @@ describe how it would run, and the tooling for it stays built.
 
 1. Read the rubric block of `docs/tag_rubric_draft.md` (between the `rubric:begin` and
    `rubric:end` markers) and note its version (`tag-rubric-v1.1-draft` at the time of writing).
-   If the rubric changes partway through, note the item where it changed.
+   If the rubric changes partway through, record where. Add a sidecar row for the first item
+   judged under the new version, with `rubric <new version> from here` in `note`. Key the row by
+   that item's `label_uid` (`<city>:<label_id>`, from the open gallery) or its `item_id` (from the
+   `links` pairs), as described below; a bare label id is not enough. The export's `judged_at`
+   then gives the split point in time. On the production route the pass runs city by city, so a
+   mid-pass change also splits the pass by city. Say so beside any number that uses both halves.
 2. Note the pass start time in UTC. The production pull only counts edits and votes after it, so
    an older expert-validate of the same label is not mistaken for this pass.
 3. Create an empty sidecar file, `benchmark/tag_review/<rater>__sidecar.csv`, with the header
@@ -25,7 +30,7 @@ describe how it would run, and the tooling for it stays built.
 ## The rater: on production
 
 Each deployment is its own server, so the list is reviewed one city at a time. Print one gallery
-link per city with
+link per city, in review order, with
 
 ```bash
 python scripts/analysis/tag_review_list.py links
@@ -33,9 +38,16 @@ python scripts/analysis/tag_review_list.py links
 
 Each link is `https://<host>/gallery?labelIds=<id>,<id>,...` (SidewalkWebpage PR #5445, on
 production since 2026-09-24): exactly that city's items, in `item_id` order, as a queue in the
-normal gallery editor, with a **k of N** position chip in the expanded view. Ids the server cannot
-show (deleted, imagery gone with no crop) are listed above the grid; treat those items as not
-reviewed.
+normal gallery editor, with a **k of N** position chip in the expanded view. Work through the
+links in the order printed. That order is a seeded shuffle of the cities (`--seed`, default 86,
+the list's build seed), not alphabetical. City is one of the three strata, and one queue per city
+makes it a block on this route whatever the order; alphabetical order would put burnaby, cdmx and
+chicago-il first and waltham-ma, west-chester and zurich last in every pass, lining fatigue and
+drift up with the alphabet. Within a city `item_id` order is the list's shuffle, so tag state and
+distance band stay interleaved. The review sheet has no such blocks (see the asymmetry table).
+
+Ids the server cannot show (deleted, imagery gone with no crop) are listed above the grid; treat
+those items as not reviewed.
 
 The gallery shows label ids, not `item_id`s, and a label id alone does not name an item: 12 label
 ids in the committed list occur in two or more cities (label 24930 is `danville-il:24930`,
@@ -107,6 +119,7 @@ it does, the two raters do not see the same thing, and κ is measured across two
 | severity anchor | the current severity | the list-time severity, pre-filled |
 | where the judgment is written | production (edits and an Agree / Disagree / Unsure vote), plus the sidecar | the sheet only |
 | export `method` | `prod_pull` | `review_sheet` |
+| item order | city by city, one gallery queue each; cities in a seeded shuffle (`links --seed`, default 86), `item_id` order within a city | global `item_id` order (the list's seeded shuffle), cities interleaved |
 
 The tags and severity anchors match only if nobody else edits a listed label between the list's
 fetch and Jon's pass; the production pull flags any item where someone did

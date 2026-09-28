@@ -27,7 +27,7 @@ reproduces it byte for byte only from a cache whose hashes match
     # CurbRamp edits in the 30 days before the fetch (the protocol's known-limit figure)
     python scripts/analysis/tag_review_list.py recent-edits --cache analysis_out/ps_audit/raw
 
-    # one production gallery link per deployment, the city's items in item_id order,
+    # one production gallery link per deployment, in a seeded city order, the city's items in item_id order,
     # each with its label_id=item_id pairs for the sidecar (--format tsv for a table)
     python scripts/analysis/tag_review_list.py links
 
@@ -58,8 +58,12 @@ power 1.5), where ``f`` is the frequency of the label's rarest tag *within that 
 candidates*, so the rare tags reach enough positives for a per-tag kappa; within a (state,
 city) cell the draw rotates through the distance bands. At most one label per (city, pano)
 and none within ``--min-sep-m`` of an already-drawn label in the same city, so two labels of
-one physical ramp (plan §2.5) are not two items. Item order is a seeded shuffle, so a rater
-never sees a block of one stratum.
+one physical ramp (plan §2.5) are not two items. ``item_id`` order is a seeded shuffle, so the
+review sheet never shows a block of one stratum. The production route is different: each
+deployment is its own server, so ``links`` gives one gallery queue per city and city comes in
+blocks. Within a block the order is ``item_id`` order, so tag state and band stay interleaved,
+and the order of the blocks is itself a seeded shuffle (``--seed``, default the list's 86), so
+position in the pass is not tied to the city's name.
 
 Flags, never filters: per-rater prior contact (``prior_contact_<rater>``: the rater placed,
 validated or edited the label before the list was built) and proximity to a
@@ -561,9 +565,11 @@ def read_list(path):
 
 # SidewalkWebpage's GalleryController.MaxLabelIds: a longer `?labelIds=` list is truncated.
 GALLERY_MAX_LABEL_IDS = 500
+#: Seed for the order of the city blocks in ``links``: the committed list's build seed.
+CITY_ORDER_SEED = 86
 
 
-def gallery_links(rows, max_ids=GALLERY_MAX_LABEL_IDS):
+def gallery_links(rows, max_ids=GALLERY_MAX_LABEL_IDS, seed=CITY_ORDER_SEED):
     """One production ``/gallery?labelIds=`` URL per deployment, for reviewing a city's items
     as a queue instead of one ``editor_url`` tab each (SidewalkWebpage PR #5445).
 
@@ -572,13 +578,19 @@ def gallery_links(rows, max_ids=GALLERY_MAX_LABEL_IDS):
     The host is read off each row's ``editor_url``, so no API cache is needed. A city with more
     than ``max_ids`` items is split into consecutive parts rather than silently truncated.
 
-    Returns a list of dicts ``{city, part, item_ids, label_ids, url}``, cities sorted by name.
+    Cities come in a seeded shuffle (``seed``; ``None`` sorts them by name), so that fatigue
+    and drift over the pass are not lined up with the alphabet: with one city per queue, city
+    is blocked on this route whatever the order, and alphabetical order would put the same
+    cities first and last in every pass. The shuffle is of the sorted city names, so it does
+    not depend on row order. The parts of a split city stay consecutive.
+
+    Returns a list of dicts ``{city, part, item_ids, label_ids, url}`` in review order.
 
     >>> rows = [{"item_id": "tr0002", "city": "a", "label_id": "7",
     ...          "editor_url": "https://h/gallery?labelType=CurbRamp&labelId=7"},
     ...         {"item_id": "tr0001", "city": "a", "label_id": "3",
     ...          "editor_url": "https://h/gallery?labelType=CurbRamp&labelId=3"}]
-    >>> gallery_links(rows)[0]["url"]
+    >>> gallery_links(rows, seed=None)[0]["url"]
     'https://h/gallery?labelIds=3,7'
     """
     by_city = {}
@@ -589,8 +601,11 @@ def gallery_links(rows, max_ids=GALLERY_MAX_LABEL_IDS):
         if entry["host"] != host:
             raise ValueError(f"{r['city']}: two hosts in editor_url ({entry['host']}, {host})")
         entry["rows"].append(r)
+    cities = sorted(by_city)
+    if seed is not None:
+        cities = [cities[k] for k in np.random.default_rng(seed).permutation(len(cities))]
     out = []
-    for city in sorted(by_city):
+    for city in cities:
         host, crows = by_city[city]["host"], by_city[city]["rows"]
         for part, i in enumerate(range(0, len(crows), max_ids), start=1):
             chunk = crows[i:i + max_ids]
@@ -654,7 +669,7 @@ def composition(rows):
 def cmd_links(args):
     """Print the links, each with its ``label_id -> item_id`` pairs: the gallery shows label ids,
     and label ids repeat across cities, so the sidecar lookup has to be per city."""
-    links = gallery_links(read_list(args.list))
+    links = gallery_links(read_list(args.list), seed=args.seed)
     if args.format == "tsv":
         # item_ids and label_ids are comma-joined in the same order as the ids in the url
         print("\t".join(("city", "part", "n", "item_ids", "label_ids", "url")))
@@ -852,6 +867,8 @@ def main(argv=None):
     k = sub.add_parser("links", help="one production gallery link per deployment (?labelIds=)")
     k.add_argument("--list", default=DEFAULT_OUT, help="review list CSV")
     k.add_argument("--format", choices=["text", "tsv"], default="text")
+    k.add_argument("--seed", type=int, default=CITY_ORDER_SEED,
+                   help="seed for the order of the city blocks (default: the list's build seed)")
     k.set_defaults(func=cmd_links)
     p = sub.add_parser("power", help="kappa CI half-width vs list size and positives")
     p.add_argument("--ns", type=int, nargs="+", default=[300, 500, 800])

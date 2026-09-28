@@ -589,7 +589,7 @@ def test_gallery_links_one_per_city_in_item_order_and_split_at_the_cap():
                 "editor_url": f"https://{host}/gallery?labelType=CurbRamp&labelId={lid}"}
     rows = [row("tr0003", "b", 30, "hb"), row("tr0001", "b", 10, "hb"), row("tr0002", "a", 20, "ha"),
             row("tr0005", "b", 50, "hb"), row("tr0004", "b", 40, "hb")]
-    links = trl.gallery_links(rows, max_ids=3)
+    links = trl.gallery_links(rows, max_ids=3, seed=None)
     assert [(g["city"], g["part"]) for g in links] == [("a", 1), ("b", 1), ("b", 2)]
     assert links[1]["url"] == "https://hb/gallery?labelIds=10,30,40"
     assert links[2]["item_ids"] == ["tr0005"]
@@ -666,3 +666,39 @@ def test_links_prints_label_id_to_item_id_per_city(tmp_path, capsys):
     trl.main(["links", "--list", str(lst)])
     text = capsys.readouterr().out
     assert "101=tr0001  102=tr0002" in text and "102=tr0003" in text
+
+
+# ----------------------------------------------------------------------------- city order (#186 review S2)
+
+def _link_rows(cities, per_city=2, host=None):
+    rows, i = [], 0
+    for c in cities:
+        for _ in range(per_city):
+            i += 1
+            rows.append({"item_id": f"tr{i:04d}", "city": c, "label_id": str(i),
+                         "editor_url": f"https://{host or c}/gallery?labelType=CurbRamp&labelId={i}"})
+    return rows
+
+
+def test_gallery_links_city_order_is_a_seeded_shuffle_not_alphabetical():
+    cities = [f"c{k:02d}" for k in range(20)]
+    rows = _link_rows(cities, per_city=4)
+    order = [g["city"] for g in trl.gallery_links(rows, max_ids=3)]
+    blocks = list(dict.fromkeys(order))
+    assert sorted(blocks) == cities and blocks != cities          # a permutation, not the sort
+    assert order == [g["city"] for g in trl.gallery_links(rows[::-1], max_ids=3)]   # row order is irrelevant
+    assert blocks != list(dict.fromkeys(g["city"] for g in trl.gallery_links(rows, max_ids=3, seed=1)))
+    # a split city's parts stay consecutive and in part order
+    for c in cities:
+        at = [k for k, g in enumerate(trl.gallery_links(rows, max_ids=3)) if g["city"] == c]
+        assert at == list(range(at[0], at[0] + 2))
+    assert [g["city"] for g in trl.gallery_links(rows, seed=None)] == cities
+
+
+def test_committed_links_are_in_the_seeded_city_order():
+    rows = trl.read_list(LIST)
+    cities = sorted({r["city"] for r in rows})
+    got = [g["city"] for g in trl.gallery_links(rows)]
+    perm = np.random.default_rng(trl.CITY_ORDER_SEED).permutation(len(cities))
+    assert got == [cities[k] for k in perm] and got != cities
+    assert trl.CITY_ORDER_SEED == tr.read_json(META)["params"]["seed"]    # the list's build seed
