@@ -70,7 +70,8 @@ Opus 5.5 agent from the plan in
     that observed spread, consistent with §4.1's ±1–2 m. If Google's frame varies instead, DA3's
     own spread is about ±3% and the Mapillary axis carries a common bias (§2.2). laurens_gsv's
     uncorrected ratios sit inside the fitted splits' frame-corrected bands, which fits the second
-    reading. A Laurens frame factor from the labeler would decide it (§5.3, §11).
+    reading. A third reading, a DA3 bias specific to Google's 2024 imagery or rig, would not carry
+    to the GoPro Max at all. A Laurens frame factor from the labeler would decide it (§5.3, §11).
 
 Every number in §2–§4 depends on Google's depth, which reaches this repo only as the committed
 per-point rows of `analysis_out/recall_by_depth_112.json`; the depth payloads themselves are an
@@ -471,8 +472,9 @@ Laurens. The fitted splits' frame-corrected values, beside laurens_gsv's uncorre
 - **laurens_gsv lands at the low edge of the fitted splits' spread, and past it.** Against the
   pooled constants the four fitted splits span −6.6% to +6.7% at points and −7.6% to +6.8% in
   height. laurens_gsv is at −8.2% and −10.9%. That widens the low end by 1.6 points at points and
-  3.3 points in height. Its CIs do not overlap the pooled CIs, but that alone says little, because
-  3 of 4 fitted splits fail the same test at points and 2 of 4 in height.
+  3.3 points in height. Its CIs do not overlap the pooled CIs, but that alone says little: by the
+  same CI-overlap test 2 of 4 fitted splits fail at points (bend, sao_paulo) and 2 of 4 in height,
+  and by point estimate outside the pooled CI (the table above) 3 of 4 and 2 of 4.
 - **Against bend, the contrast holds in height only.** At points laurens_gsv's CI (0.997–1.046)
   contains bend's 1.033, and the laurens_gsv / bend CI (0.954–1.016) contains 1. In height the
   laurens_gsv / bend CI is 0.945–0.987 and excludes 1. So "below all four fitted splits" is true of
