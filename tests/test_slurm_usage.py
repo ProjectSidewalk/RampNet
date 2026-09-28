@@ -33,6 +33,8 @@ KLONE_DUMP_CTX = os.path.join(REPO_ROOT, "docs", "data", "compute", "sacct_klone
 KLONE_DUMP_CTX2 = os.path.join(REPO_ROOT, "docs", "data", "compute", "sacct_klone_2026-09-26.txt")
 KLONE_DUMP_C35 = os.path.join(REPO_ROOT, "docs", "data", "compute",
                               "sacct_klone_2026-09-27_cascade35.txt")
+KLONE_DUMP_DA3 = os.path.join(REPO_ROOT, "docs", "data", "compute",
+                              "sacct_klone_2026-09-27_da3_101.txt")
 HYAKUSAGE_REPORT = os.path.join(REPO_ROOT, "docs", "data", "compute",
                                 "hyakusage_tillicum_2026-09-21.txt")
 
@@ -357,14 +359,15 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
                                  (KLONE_DUMP_SA131, "klone", "2026-09-24T"),
                                  (KLONE_DUMP_CTX, "klone", "2026-09-24T"),
                                  (KLONE_DUMP_CTX2, "klone", "2026-09-26T"),
-                                 (KLONE_DUMP_C35, "klone", "2026-09-27T")):
+                                 (KLONE_DUMP_C35, "klone", "2026-09-27T"),
+                                 (KLONE_DUMP_DA3, "klone", "2026-09-27T")):
         with open(dump, encoding="utf-8") as fh:
             rows = parse_sacct(fh.read(), cluster=cluster, user="jfroehli")
         parsed += rows
         stamps += [stamp] * len(rows)
     committed = ledger.read_rows(os.path.join(REPO_ROOT, "analysis_out",
                                               "compute_log.jsonl"))
-    assert len(committed) == len(parsed) == 3990 + 38 + 3 + 5 + 5 + 1
+    assert len(committed) == len(parsed) == 3990 + 38 + 3 + 5 + 5 + 1 + 3
     for have, want, stamp in zip(committed, parsed, stamps):
         have = dict(have)
         assert have.pop("recorded_at").startswith(stamp)
@@ -498,6 +501,12 @@ def test_from_file_prints_the_dump_hash_and_the_doc_pins_the_committed_one(
     assert hashlib.sha256(raw_c35).hexdigest() in re.findall(r"sha256\s+`([0-9a-f]{64})`", doc)
     assert f"({len(raw_c35):,} bytes" in doc
     assert raw_c35.count(b"\r\n") == 0
+    # ...and the 2026-09-27 klone pull for the DA3 calibration (#101).
+    with open(KLONE_DUMP_DA3, "rb") as fh:
+        raw_d = fh.read()
+    assert hashlib.sha256(raw_d).hexdigest() in re.findall(r"sha256\s+`([0-9a-f]{64})`", doc)
+    assert f"({len(raw_d):,} bytes" in doc
+    assert raw_d.count(b"\r\n") == 0
     # The pin only holds if git never normalises the dump's line endings: a
     # core.autocrlf=true clone checks it out CRLF and the hash above fails for a
     # file that is byte-correct. So .gitattributes must mark it -text (or binary),
