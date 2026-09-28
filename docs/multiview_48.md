@@ -17,6 +17,32 @@ Code: `scripts/analysis/multiview_evidence_48.py` (B.1–B.4) and
 `scripts/analysis/multiview_challengers_48.py` + `multiview_challengers_48.sh` (C). Outputs:
 `analysis_out/multiview_48/`. Figures: `docs/figures/multiview_48/`.
 
+## Takeaways
+
+- **Multi-view recall is already in production.** The labeler submits every operational
+  detection, so a city already gets the union of views: 0.945–1.000 of ramps per city
+  ([labeler#27](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/27), §1).
+  Fusing views into one site per ramp costs 2–5 points of that and buys deduplication and
+  tighter placement.
+- **Extra captures give diminishing returns** (§4). The first other view recovers about two
+  thirds of ramps, the second about 13 points more, the third about 5.
+- **Misses are correlated across views, not independent** (§5). Ramps missed by every other
+  view: 153 observed against 76.5 expected under independence (2.0×; Mapillary 4.6×). Views
+  from different months are more correlated than views from one drive, so persistent misses
+  are a property of the ramp or its GT point, not of one pass.
+- **Evidence scoring did not beat k-of-n** at the 0.30 tier (§6), on thin false-class counts.
+  Promoting sub-0.55 sites buys 0.5–1.9 points of recall for 9–39 more false sites.
+- **What is left is merging and threshold, not detection** (§8). Of the 74 ramps no site
+  recovered, 63 fired somewhere: 35 at the operational tier in some view, 28 just below it.
+  With the 23 self-detected ramps whose site landed more than 5 m away, 58 are merging failures.
+- **Multi-view narrows the gap to weaker detectors but does not resolve the middle of the
+  ranking** (§7, Richmond, free models). RampNet stays first and the open-vocab detectors last.
+  RampNet's recall lead over y11l falls from 0.296 in single views to 0.099 fused; k-of-n
+  removes about a third of the chat VLMs' false sites and does nothing for the open-vocab ones.
+- **Next step:** merging belongs to the labeler's clustering work (§9); the 58 merging failures
+  are handed over as a test set, provisional until the one-rater gallery pass (§8) says which
+  are GT errors. Tier 2 and Tier 3 reconstruction are not motivated by these data.
+
 ## 1. What [labeler#27](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/27) already answered
 
 All numbers below are from the [labeler#27](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/27) thread and the labeler's
@@ -502,10 +528,21 @@ it.
   views, more so across dates (§4–5). More captures, or reconstruction that uses more of them,
   cannot recover a ramp every view misses.
 - **The addressable residual is association and placement** (35 residual ramps plus 23 displaced
-  sites, §8). That is what Tier 2 feed-forward geometry would improve, if it improves anything.
-  Proposed next step, cheapest first: test SVII-3D-style geometry-only association on these 58
-  cases against the current chi-square associator, scored with the GT-anchored placement
-  instrument (labeler `docs/reprojection-residual.md`), before any dense reconstruction.
+  sites, §8), and merging is already being worked on in the labeler: the clustering evaluation in
+  [labeler#56](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/56), the
+  server-data-only fusion arm in
+  [labeler PR #105](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/pull/105), and aerial
+  anchors in [labeler#104](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/104).
+  Production submits every detection unmerged, so the server's clustering is the production merge
+  step and `fuse_sites` is the alternative that work compares it against. This phase therefore does
+  not propose separate merging work. It hands the 58 cases over as a test set: the
+  `association_placement` and `self_detected_site_displaced` rows of
+  `analysis_out/multiview_48/residual_misses.json` (ramp uid, position, GT source panos). Two
+  caveats travel with them: they are defined against `fuse_sites` at 0.55, not the server's
+  clustering, and they are provisional until the one-rater gallery pass says which are GT errors,
+  since a method that "recovers" a wrong GT point is rewarded for the wrong thing. 17 of the 58 are
+  Richmond (6 association, 11 displaced), the one city both evaluations cover. The 28
+  sub-threshold ramps are a threshold question (§6), not a merging one.
 - **Feed-forward 3D on our input is unproven.** Our captures are sparse, wide-baseline and
   multi-date; "When Wider Views Fail" and "Maps from Motion" both report the failure regime we
   would be in, PanoVGGT's outdoor evaluation is synthetic, and UrbanVGGT is single-image.
@@ -526,7 +563,8 @@ it.
   recall, and the precision CIs just touch (0.927), so on this one city a YOLO arm in a
   multi-view system comes close to RampNet; the tier was chosen on the same data, so that is an
   upper bound.
-- Proposed follow-up: Jon's one-rater pass on the gallery.
+- Proposed follow-up: Jon's one-rater pass on the gallery, before anyone tunes a merging method
+  against the 58 cases.
 
 ## 10. Reproduction
 
