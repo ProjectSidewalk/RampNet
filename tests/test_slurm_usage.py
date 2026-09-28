@@ -31,6 +31,8 @@ KLONE_DUMP_SA131 = os.path.join(REPO_ROOT, "docs", "data", "compute",
                                 "sacct_klone_2026-09-24_sa131.txt")
 KLONE_DUMP_CTX = os.path.join(REPO_ROOT, "docs", "data", "compute", "sacct_klone_2026-09-24.txt")
 KLONE_DUMP_CTX2 = os.path.join(REPO_ROOT, "docs", "data", "compute", "sacct_klone_2026-09-26.txt")
+KLONE_DUMP_MV48 = os.path.join(REPO_ROOT, "docs", "data", "compute",
+                               "sacct_klone_2026-09-27_mv48.txt")
 KLONE_DUMP_C35 = os.path.join(REPO_ROOT, "docs", "data", "compute",
                               "sacct_klone_2026-09-27_cascade35.txt")
 KLONE_DUMP_DA3 = os.path.join(REPO_ROOT, "docs", "data", "compute",
@@ -350,17 +352,19 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
     """docs/compute_cost.md's numbers are claimed re-derivable from a clean clone.
     That is only true if the ledger is the dump's parse and nothing else: same
     rows, same order, differing only in the recorded_at stamp."""
-    # Seven dumps, appended in this order: klone on 2026-08-19; Tillicum on 2026-09-21; two
+    # Eight dumps, appended in this order: klone on 2026-08-19; Tillicum on 2026-09-21; two
     # klone pulls by job id on 2026-09-24, the three jobs of the #131 Phase 1 replication
     # (#185, merged first) and the five of the #86 context experiment (docs/context_fov_86.md);
-    # the klone pull of 2026-09-26, the #86 resolution and seed arms (#187); and two klone pulls
-    # on 2026-09-27, the #35 cascade transfer job and the three #101 DA3 calibration jobs.
+    # the klone pull of 2026-09-26, the #86 resolution and seed arms (#187); and three klone
+    # pulls on 2026-09-27, the ten jobs of the #48 pass-2 offload (#200), the #35 cascade
+    # transfer job and the three #101 DA3 calibration jobs.
     parsed, stamps = [], []
     for dump, cluster, stamp in ((KLONE_DUMP, "klone", "2026-08-19T"),
                                  (TILLICUM_DUMP, "tillicum", "2026-09-21T"),
                                  (KLONE_DUMP_SA131, "klone", "2026-09-24T"),
                                  (KLONE_DUMP_CTX, "klone", "2026-09-24T"),
                                  (KLONE_DUMP_CTX2, "klone", "2026-09-26T"),
+                                 (KLONE_DUMP_MV48, "klone", "2026-09-27T"),
                                  (KLONE_DUMP_C35, "klone", "2026-09-27T"),
                                  (KLONE_DUMP_DA3, "klone", "2026-09-27T")):
         with open(dump, encoding="utf-8") as fh:
@@ -369,7 +373,7 @@ def test_the_committed_ledger_is_exactly_what_the_committed_dump_parses_to():
         stamps += [stamp] * len(rows)
     committed = ledger.read_rows(os.path.join(REPO_ROOT, "analysis_out",
                                               "compute_log.jsonl"))
-    assert len(committed) == len(parsed) == 3990 + 38 + 3 + 5 + 5 + 1 + 3
+    assert len(committed) == len(parsed) == 3990 + 38 + 3 + 5 + 5 + 10 + 1 + 3
     for have, want, stamp in zip(committed, parsed, stamps):
         have = dict(have)
         assert have.pop("recorded_at").startswith(stamp)
@@ -497,6 +501,12 @@ def test_from_file_prints_the_dump_hash_and_the_doc_pins_the_committed_one(
     assert hashlib.sha256(raw_c2).hexdigest() in re.findall(r"sha256\s+`([0-9a-f]{64})`", doc)
     assert f"({len(raw_c2):,} bytes" in doc
     assert raw_c2.count(b"\r\n") == 0
+    # ...and the 2026-09-27 klone pull for the #48 pass-2 offload (setup + three arrays).
+    with open(KLONE_DUMP_MV48, "rb") as fh:
+        raw_m = fh.read()
+    assert hashlib.sha256(raw_m).hexdigest() in re.findall(r"sha256\s+`([0-9a-f]{64})`", doc)
+    assert f"({len(raw_m):,} bytes" in doc
+    assert raw_m.count(b"\r\n") == 0
     # ...and the 2026-09-27 klone pull for the #35 cascade transfer run.
     with open(KLONE_DUMP_C35, "rb") as fh:
         raw_c35 = fh.read()

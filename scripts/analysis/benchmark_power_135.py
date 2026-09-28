@@ -132,8 +132,10 @@ def protocol_threshold(model):
 def discover_splits(repo):
     """Every committed benchmark bundle, in sorted order."""
     bench = Path(repo) / "benchmark"
+    # A bundle.json bundle (#48's neighbourhood bundles) borrows another split's
+    # verdicts; counting it would score those judged panos twice.
     return sorted(d.name for d in bench.iterdir()
-                  if (d / "records.jsonl").exists())
+                  if (d / "records.jsonl").exists() and not (d / "bundle.json").exists())
 
 
 def load_split(repo, split):

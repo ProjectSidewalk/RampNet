@@ -875,9 +875,12 @@ def splits_with_op_cache():
 
 
 def all_benchmark_splits():
+    # A bundle.json bundle (#48's neighbourhood bundles) borrows another split's
+    # verdicts and adds unjudged panos: it is a detection input, not a split.
     d = os.path.join(REPO, "benchmark")
     return sorted(n for n in os.listdir(d)
-                  if os.path.exists(os.path.join(d, n, "records.jsonl")))
+                  if os.path.exists(os.path.join(d, n, "records.jsonl"))
+                  and not os.path.exists(os.path.join(d, n, "bundle.json")))
 
 
 def summary(out_dir, out_path=None, quiet=False):

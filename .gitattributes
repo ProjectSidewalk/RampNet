@@ -87,3 +87,13 @@ analysis_out/da3_calibration_101/** text eol=lf
 # #112's rows, which #101 joins to and hashes: written LF by recall_by_depth_112.py.
 analysis_out/recall_by_depth_112.json text eol=lf
 analysis_out/recall_by_depth_112.md text eol=lf
+# #48 multi-view evidence and challenger outputs: written LF by multiview_evidence_48.py and
+# multiview_challengers_48.py, and tests/test_multiview_48.py checks they are LF and that
+# `score` re-derives them byte for byte. An autocrlf=true clone would otherwise check them out
+# CRLF and fail both checks for files that are byte-correct (review of #200, should-fix 4).
+analysis_out/multiview_48/** text eol=lf
+# The Richmond neighbourhood bundle's records, whose sha256 is pinned in its bundle.json:
+# kept exactly as written, like the sacct dumps above.
+benchmark/richmond_neighbourhood/records.jsonl -text
+# The klone offload's pano list, read by make_shards.py on Linux.
+scripts/analysis/multiview_48_klone/new_panos.txt text eol=lf
