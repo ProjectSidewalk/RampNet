@@ -255,6 +255,49 @@ fallback rate matches `results.json`; the Richmond cells of the flat arms match
   on fresh pairs from the 1,423 eligible pairs (`eligible_pairs.csv`) not in the 300,
   preferring ramps not among the 174 already used.
 
+## Fresh-pair confirmation (follow-up 1)
+
+Re-tests the three MapAnything arms that survived the 83-arm Bonferroni screen on pairs no
+arm had been scored on. Code: `scripts/analysis/crossview_fresh_48.py`; outputs:
+`analysis_out/crossview_align_48/fresh/`. The 300-pair files (`pairs.csv`, `predictions/`,
+`results.json`) are not touched.
+
+### Fixed before running (committed and pushed before any prediction, 2026-09-29)
+
+- **Pairs.** Every pair of the committed `eligible_pairs.csv` that is not in the frozen 300,
+  drawn by the §2 rule (`sample_pairs`: per city, ramps in seeded order, at most 2 other
+  views per ramp; seed `48:fresh`), with **no per-city cap**: 807 pairs on 477 ramps
+  (Richmond 259, Paterson 127, Gainesville 119, Bend 211, São Paulo 91). 686 of them are on
+  the 395 ramps that are not among the 174 used by the 300 (Richmond 209, Paterson 108,
+  Gainesville 109, Bend 189, São Paulo 71). `fresh/pairs.csv` sha256 `4ae009bf…d51e9f7a`
+  (`FRESH_PAIRS_SHA256`); ids `f000`–`f806`.
+- **Why all of them.** The MapAnything arms cost about 0.3 s (pair) to 1 s (12-view corner)
+  per pair on the A40 (their committed 300-pair metas: 91–313 s), so all 807 pairs is under
+  half an A40-hour for the three arms. The per-ramp cap, not cost, is what limits the set;
+  every city clears 60 new-ramp pairs. Without a per-city cap, Richmond is 30% of the new-ramp
+  pairs (20% in the 300), so the "all" stratum weights Mapillary more than the 300 did; the
+  GSV and Mapillary strata are the comparable reads.
+- **Arms.** `mapa_posed_pair`, `mapa_posed_corner`, `mapa_k_pair`, settings unchanged from
+  their committed 300-pair runs (same code, weights `facebook/map-anything@a1d87e9`, same
+  makelab2 env), plus the baselines `projection` and `proj_height_auto`. Views and the corner
+  manifest are built for the fresh pairs by the same code (`cut-views`, `_mv3d.py manifest` /
+  `render`) under `CROSSVIEW48_PAIR_SET=fresh`.
+- **Primary metric.** Each arm's paired median gain over `proj_height_auto` (a fallback is
+  scored at the 2.6 m projection, the harness rule), with a ramp-bootstrap 95% CI, tested
+  one-sided (gain > 0) at α = 0.05 / 3, Bonferroni over the three arms (20,000 ramp
+  resamples, seed 48, one draw shared by the arms). Reported for all pairs, GSV and Mapillary;
+  each stratum is tested on its own. An arm is **confirmed** in a stratum when its Bonferroni
+  lower bound is above zero. As a sensitivity read, the bound at α / 9 (3 arms × 3 strata) is
+  also reported.
+- **Primary analysis:** the 686 pairs whose ramp is not among the 174 already used.
+  **Secondary:** all 807 fresh pairs (the other 121 share a ramp, and so a source point, with
+  the 300).
+- The test is `crossview_fresh_48.py score` → `fresh/confirmation.json`.
+
+### Result
+
+Not yet run.
+
 ## 1. Why
 
 `multiview_evidence_48.py` projects a world GT point into other captures. Three things move
