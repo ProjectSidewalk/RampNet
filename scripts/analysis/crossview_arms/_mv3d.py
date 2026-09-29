@@ -315,6 +315,36 @@ def select_views(corner, pair, max_views):
     return chosen if max_views is None else chosen[:max_views]
 
 
+def poseonly_transfer(R_s, C_s, R_o, C_o, vs, vo, u=H.VIEW_W / 2.0, v=H.VIEW_H / 2.0):
+    """Today's flat-ground transfer with only the other camera re-posed by a reconstruction.
+
+    ``(R_s, C_s)``, ``(R_o, C_o)``: camera-to-world rotation and centre of the source and
+    other view in ANY reconstruction frame (scale-free). The source camera keeps its prior
+    pose; the other camera gets the reconstruction's relative rotation and baseline
+    direction, with the prior's baseline length. The click is raycast onto flat ground at
+    the source's 'auto' height and projected into the re-posed other camera. Isolates what a
+    reconstruction's POSE is worth, independent of its depth. Returns the arm dict or None.
+    """
+    Rsp, Csp = cam_pose_world(vs)
+    Rop, Cop = cam_pose_world(vo)
+    R_new = Rsp @ R_s.T @ R_o
+    b = R_s.T @ (C_o - C_s)
+    nb = np.linalg.norm(b)
+    if nb < 1e-12:
+        return None
+    C_new = Csp + np.linalg.norm(Cop - Csp) * (Rsp @ (b / nb))
+    ray = Rsp @ np.linalg.solve(intrinsics(), np.array([u, v, 1.0]))
+    if ray[2] >= -1e-9:
+        return None
+    X = Csp + (Csp[2] / -ray[2]) * ray
+    uv = project_cam(R_new, C_new, intrinsics(), X)
+    if uv is None:
+        return None
+    x, y = view_pixel_to_pano(vo, *uv)
+    return {"x": x, "y": y, "u": uv[0], "v": uv[1],
+            "oth_shift_m": float(np.linalg.norm(C_new - Cop))}
+
+
 def pixel_in_view(u, v, margin=0):
     return margin <= u < H.VIEW_W - margin and margin <= v < H.VIEW_H - margin
 

@@ -7,10 +7,13 @@ verifies the matches and runs incremental mapping with the known pinhole intrins
 fixed. If the source view and the pair's other view are both registered in one model, the
 source click is lifted to 3D and projected into the other view:
 
-* **lift:** the reconstructed points observed in the source view within ``SUPPORT_PX`` of
-  the click (the click is the view centre); a RANSAC plane through them, intersected with
-  the click's ray. With fewer than ``MIN_SUPPORT`` points there is no geometry at the click
-  and the arm falls back.
+* **lift:** the click's ray meets a ground plane perpendicular to gravity. Gravity in the
+  model's frame comes from the source camera (its view was cut from a level pano, so its
+  down axis is known); the ground's level is the mode of the reconstructed points the
+  source view observes below the horizon within ``SUPPORT_PX`` of the click (the click is
+  the view centre). Fewer than ``MIN_SUPPORT`` such points: no geometry at the click, fall
+  back. (The pilot's first lift, a free RANSAC plane through the same neighbourhood, locked
+  onto background structure and is recorded in the doc, not kept.)
 * **project:** into the other view's reconstructed camera, then back to the equirect.
 
 Arms (all fall back to the projection when the source or the other view is not registered,
@@ -22,10 +25,11 @@ or there is no support at the click; the reason is kept in the row):
   image's pose prior is its camera centre in the corner's ENU frame (GSV / Mapillary
   position, the labeler's 'auto' height), with a 3 m horizontal / 1 m vertical sigma. The
   model comes out metric, in the ENU frame. Same lift and project.
-* ``sfm_prior_poseonly`` -- the same prior reconstruction, but only its two camera poses
-  are used: the click is raycast onto flat ground (z = 0) from the refined source camera
-  and projected into the refined other camera. Against ``sfm_colmap_prior`` this isolates
-  pose from ground geometry.
+* ``sfm_poseonly`` -- the no-prior reconstruction's POSE only: the source camera keeps
+  its prior pose, the other camera gets the model's relative rotation and baseline
+  direction (baseline length from the priors), and the click goes through today's
+  flat-ground transfer at the 'auto' height (``_mv3d.poseonly_transfer``). Against
+  ``sfm_colmap`` this separates pose from ground geometry.
 
 Heading has no prior: COLMAP position priors constrain the camera centre only.
 """
@@ -42,7 +46,8 @@ from crossview_arms._registry import register
 
 SUPPORT_PX = 120.0
 MIN_SUPPORT = 3
-PLANE_TOL_FRAC = 0.02       # plane inlier distance, as a fraction of the median point depth
+GROUND_TOL_FRAC = 0.05      # ground-level mode tolerance, a fraction of the level
+GROUND_MIN_DEPRESSION_DEG = 2.0   # support points must be this far below the horizon
 MIN_TWO_VIEW_INLIERS = 15
 PRIOR_SIGMA_H_M = 3.0
 PRIOR_SIGMA_V_M = 1.0
@@ -51,7 +56,9 @@ MAX_VIEWS = None            # every capture within 25 m
 SFM_CONFIG = {"features": "ALIKED aliked-n16 + LightGlue (kornia 0.8.3), all view pairs",
               "mapper": "pycolmap incremental_mapping, PINHOLE intrinsics fixed",
               "support_px": SUPPORT_PX, "min_support": MIN_SUPPORT,
-              "plane_tol_frac_of_depth": PLANE_TOL_FRAC,
+              "lift": "gravity-perpendicular ground at the mode of the support points' level",
+              "ground_tol_frac": GROUND_TOL_FRAC,
+              "ground_min_depression_deg": GROUND_MIN_DEPRESSION_DEG,
               "min_two_view_inliers": MIN_TWO_VIEW_INLIERS, "max_views": MAX_VIEWS,
               "views": "harness src / oth views plus every capture within 25 m, 1024x768 75 deg"}
 
@@ -215,59 +222,45 @@ def _cam(im):
     return Rm.T, -Rm.T @ t
 
 
-def lift_click(rec, src_im, u=H.VIEW_W / 2.0, v=H.VIEW_H / 2.0):
-    """3D point where the click's ray meets a RANSAC plane through the reconstructed points
-    the source view observes within SUPPORT_PX of the click. (X, diag) or (None, diag)."""
+def lift_click(rec, src_im, src_view, u=H.VIEW_W / 2.0, v=H.VIEW_H / 2.0):
+    """The click's 3D point: its ray from the source camera meets a ground plane
+    perpendicular to gravity, at the height the reconstructed ground points give. Gravity
+    in the reconstruction's frame comes from the source camera itself -- the view was
+    rendered from a level pano, so its down axis in the pano frame is known. The ground
+    height is the densest level (mode, tolerance ``GROUND_TOL_FRAC`` of the level) among
+    the points the source view observes below the horizon within ``SUPPORT_PX`` of the
+    click. (X, diag) or (None, diag)."""
     R_cw, C = _cam(src_im)
-    K = M.intrinsics()
+    g = R_cw @ H.view_rotation(src_view["cx"], src_view["cy"]).T @ np.array([0.0, 1.0, 0.0])
     pts = []
     for p2 in src_im.points2D:
-        if p2.has_point3D() and np.hypot(p2.xy[0] - u, p2.xy[1] - v) < SUPPORT_PX:
+        if not p2.has_point3D() or np.hypot(p2.xy[0] - u, p2.xy[1] - v) >= SUPPORT_PX:
+            continue
+        _, y = H.view_to_pano(p2.xy[0], p2.xy[1], src_view["cx"], src_view["cy"])
+        if H.elevation_deg(y) < -GROUND_MIN_DEPRESSION_DEG:
             pts.append(np.asarray(rec.point3D(p2.point3D_id).xyz))
     diag = {"n_support": len(pts)}
     if len(pts) < MIN_SUPPORT:
         return None, diag
-    P = np.array(pts)
-    ray = R_cw @ np.linalg.solve(K, np.array([u, v, 1.0]))
-    ray /= np.linalg.norm(ray)
-    depth = np.median((P - C) @ ray)
-    X = _plane_hit(P, C, ray, PLANE_TOL_FRAC * abs(depth))
-    if X is None:
-        X = C + depth * ray
-        diag["lift"] = "median_depth"
-    else:
-        diag["lift"] = "plane"
-    if (X - C) @ ray <= 0:
+    h = (np.array(pts) - C) @ g                   # how far below the camera, along gravity
+    h = h[h > 0]
+    if len(h) < MIN_SUPPORT:
         return None, diag
-    diag["click_depth"] = float((X - C) @ ray)
+    counts = [(np.sum(np.abs(h - hi) < GROUND_TOL_FRAC * hi), hi) for hi in h]
+    n_best, h0 = max(counts)
+    inl = h[np.abs(h - h0) < GROUND_TOL_FRAC * h0]
+    diag["n_ground"] = int(len(inl))
+    if len(inl) < MIN_SUPPORT:
+        return None, diag
+    hg = float(np.median(inl))
+    ray = R_cw @ np.linalg.solve(M.intrinsics(), np.array([u, v, 1.0]))
+    ray /= np.linalg.norm(ray)
+    if ray @ g <= 1e-6:
+        return None, diag
+    X = C + (hg / (ray @ g)) * ray
+    diag["click_depth"] = float(hg / (ray @ g))
+    diag["ground_below_cam"] = hg
     return X, diag
-
-
-def _plane_hit(P, C, ray, tol, iters=200, seed=H.SEED):
-    """Intersect the ray with a RANSAC plane through P (None if degenerate)."""
-    if len(P) < 3:
-        return None
-    rng = np.random.default_rng(seed)
-    best, best_n = None, 0
-    for _ in range(iters):
-        a, b, c = P[rng.choice(len(P), 3, replace=False)]
-        n = np.cross(b - a, c - a)
-        if np.linalg.norm(n) < 1e-9:
-            continue
-        n /= np.linalg.norm(n)
-        inl = np.abs((P - a) @ n) < tol
-        if inl.sum() > best_n:
-            best_n, best = inl.sum(), inl
-    if best is None or best_n < 3:
-        return None
-    Q = P[best]
-    cen = Q.mean(0)
-    n = np.linalg.svd(Q - cen)[2][-1]
-    den = ray @ n
-    if abs(den) < 1e-6:
-        return None
-    t = ((cen - C) @ n) / den
-    return None if t <= 0 else C + t * ray
 
 
 def _to_pano(rec_oth_im, X, oth_view):
@@ -313,7 +306,7 @@ def _transfer(pair, ctx, priors):
         return out
     s, o = _image(rec, names[0]), _image(rec, names[1])
     out.update(rel_pose_agreement(*_cam(s), *_cam(o), views[0], views[1]))
-    X, d2 = lift_click(rec, s)
+    X, d2 = lift_click(rec, s, views[0])
     out.update(d2)
     if X is None:
         out["reason"] = "no_support"
@@ -341,26 +334,24 @@ def sfm_colmap_prior(pair, ctx):
     return _transfer(pair, ctx, priors=True)
 
 
-@register("sfm_prior_poseonly", needs=("views",),
-          config={**SFM_CONFIG, "priors": "as sfm_colmap_prior",
-                  "ground": "flat z = 0 in the ENU prior frame (cameras at their 'auto' height)"},
-          description="COLMAP prior poses only: flat-ground raycast between the refined cameras")
-def sfm_prior_poseonly(pair, ctx):
-    rec, names, diag, views = _recon_for(ctx, pair, True)
+@register("sfm_poseonly", needs=("views",),
+          config={**SFM_CONFIG, "priors": "none (as sfm_colmap)",
+                  "transfer": "prior source camera + the reconstruction's src->oth relative "
+                              "rotation and baseline direction (baseline length from the "
+                              "priors); flat ground at the 'auto' height"},
+          description="SfM relative pose only: today's flat-ground transfer with the other "
+                      "camera re-posed by the reconstruction")
+def sfm_poseonly(pair, ctx):
+    rec, names, diag, views = _recon_for(ctx, pair, False)
     out = {"x": None, "y": None, **diag}
     if rec is None:
         out["reason"] = "not_co_registered"
         return out
-    R_s, C_s = _cam(_image(rec, names[0]))
-    ray = R_s @ np.linalg.solve(M.intrinsics(), np.array([H.VIEW_W / 2.0, H.VIEW_H / 2.0, 1.0]))
-    if ray[2] >= -1e-9 or C_s[2] <= 0:
-        out["reason"] = "no_ground_hit"
-        return out
-    X = C_s + (C_s[2] / -ray[2]) * ray
-    out["refined_src_height"] = float(C_s[2])
-    r = _to_pano(_image(rec, names[1]), X, views[1])
+    s, o = _image(rec, names[0]), _image(rec, names[1])
+    out.update(rel_pose_agreement(*_cam(s), *_cam(o), views[0], views[1]))
+    r = M.poseonly_transfer(*_cam(s), *_cam(o), views[0], views[1])
     if r is None:
-        out["reason"] = "behind_other"
+        out["reason"] = "no_ground_hit"
         return out
     out.update(r)
     return out
