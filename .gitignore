@@ -326,3 +326,5 @@ analysis_out/crossview_align_48/*
 analysis_out/crossview_align_48/predictions/*
 !analysis_out/crossview_align_48/predictions/*.jsonl
 !analysis_out/crossview_align_48/predictions/*.json
+# Cross-view #48 depth arms: per-click monocular depth rows and their summaries.
+!analysis_out/crossview_align_48/depth/
