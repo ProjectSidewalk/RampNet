@@ -609,5 +609,381 @@
    "n_pairs": 259,
    "n_ramps": 138
   }
+ },
+ "sensitivity": {
+  "drop_any_shared_pano": {
+   "all": {
+    "mapa_k_pair": {
+     "bonferroni_lower": 0.2701,
+     "confirmed": true,
+     "fallback_rate": 0.0262,
+     "gain_ci": [
+      0.2929,
+      1.0781
+     ],
+     "gain_vs_auto": 0.7611,
+     "median_deg": 3.2687,
+     "share_resamples_le_0": 0.0
+    },
+    "mapa_posed_corner": {
+     "bonferroni_lower": 0.3321,
+     "confirmed": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.3707,
+      1.0199
+     ],
+     "gain_vs_auto": 0.6535,
+     "median_deg": 3.5601,
+     "share_resamples_le_0": 0.0
+    },
+    "mapa_posed_pair": {
+     "bonferroni_lower": 0.3514,
+     "confirmed": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.3746,
+      1.1179
+     ],
+     "gain_vs_auto": 0.6957,
+     "median_deg": 3.4137,
+     "share_resamples_le_0": 0.0
+    },
+    "n_pairs": 496,
+    "n_ramps": 283
+   },
+   "gsv": {
+    "mapa_k_pair": {
+     "bonferroni_lower": -0.0477,
+     "confirmed": false,
+     "fallback_rate": 0.0354,
+     "gain_ci": [
+      -0.0361,
+      0.7368
+     ],
+     "gain_vs_auto": 0.2681,
+     "median_deg": 3.5076,
+     "share_resamples_le_0": 0.0296
+    },
+    "mapa_posed_corner": {
+     "bonferroni_lower": 0.1984,
+     "confirmed": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.2088,
+      0.8747
+     ],
+     "gain_vs_auto": 0.4562,
+     "median_deg": 3.4802,
+     "share_resamples_le_0": 0.0
+    },
+    "mapa_posed_pair": {
+     "bonferroni_lower": 0.1055,
+     "confirmed": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.1088,
+      0.7679
+     ],
+     "gain_vs_auto": 0.3746,
+     "median_deg": 3.4163,
+     "share_resamples_le_0": 0.0018
+    },
+    "n_pairs": 339,
+    "n_ramps": 200
+   },
+   "mapillary": {
+    "mapa_k_pair": {
+     "bonferroni_lower": 1.0039,
+     "confirmed": true,
+     "fallback_rate": 0.0064,
+     "gain_ci": [
+      1.0924,
+      3.2507
+     ],
+     "gain_vs_auto": 1.9942,
+     "median_deg": 2.5377,
+     "share_resamples_le_0": 0.0
+    },
+    "mapa_posed_corner": {
+     "bonferroni_lower": 0.5948,
+     "confirmed": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.6156,
+      2.7157
+     ],
+     "gain_vs_auto": 1.4801,
+     "median_deg": 3.8608,
+     "share_resamples_le_0": 0.0
+    },
+    "mapa_posed_pair": {
+     "bonferroni_lower": 0.7827,
+     "confirmed": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.7855,
+      3.0067
+     ],
+     "gain_vs_auto": 1.5877,
+     "median_deg": 3.2267,
+     "share_resamples_le_0": 0.0
+    },
+    "n_pairs": 157,
+    "n_ramps": 83
+   }
+  },
+  "drop_identical_pano_pair": {
+   "all": {
+    "mapa_k_pair": {
+     "bonferroni_lower": 0.2855,
+     "confirmed": true,
+     "fallback_rate": 0.0269,
+     "gain_ci": [
+      0.2988,
+      0.9415
+     ],
+     "gain_vs_auto": 0.683,
+     "median_deg": 3.095,
+     "share_resamples_le_0": 0.0
+    },
+    "mapa_posed_corner": {
+     "bonferroni_lower": 0.354,
+     "confirmed": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.3581,
+      0.9356
+     ],
+     "gain_vs_auto": 0.6253,
+     "median_deg": 3.3315,
+     "share_resamples_le_0": 0.0
+    },
+    "mapa_posed_pair": {
+     "bonferroni_lower": 0.3182,
+     "confirmed": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.3422,
+      0.91
+     ],
+     "gain_vs_auto": 0.5812,
+     "median_deg": 3.2689,
+     "share_resamples_le_0": 0.0
+    },
+    "n_pairs": 631,
+    "n_ramps": 379
+   },
+   "gsv": {
+    "mapa_k_pair": {
+     "bonferroni_lower": -0.0091,
+     "confirmed": false,
+     "fallback_rate": 0.0371,
+     "gain_ci": [
+      0.0456,
+      0.5712
+     ],
+     "gain_vs_auto": 0.2681,
+     "median_deg": 3.347,
+     "share_resamples_le_0": 0.019
+    },
+    "mapa_posed_corner": {
+     "bonferroni_lower": 0.1999,
+     "confirmed": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.2148,
+      0.6822
+     ],
+     "gain_vs_auto": 0.4024,
+     "median_deg": 3.2724,
+     "share_resamples_le_0": 0.0
+    },
+    "mapa_posed_pair": {
+     "bonferroni_lower": 0.1088,
+     "confirmed": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.1127,
+      0.6251
+     ],
+     "gain_vs_auto": 0.339,
+     "median_deg": 3.2998,
+     "share_resamples_le_0": 0.0001
+    },
+    "n_pairs": 431,
+    "n_ramps": 270
+   },
+   "mapillary": {
+    "mapa_k_pair": {
+     "bonferroni_lower": 1.0039,
+     "confirmed": true,
+     "fallback_rate": 0.005,
+     "gain_ci": [
+      1.0782,
+      2.9075
+     ],
+     "gain_vs_auto": 1.8614,
+     "median_deg": 2.4824,
+     "share_resamples_le_0": 0.0
+    },
+    "mapa_posed_corner": {
+     "bonferroni_lower": 0.5923,
+     "confirmed": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.6156,
+      2.2506
+     ],
+     "gain_vs_auto": 1.0462,
+     "median_deg": 3.5483,
+     "share_resamples_le_0": 0.0
+    },
+    "mapa_posed_pair": {
+     "bonferroni_lower": 0.6886,
+     "confirmed": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.7268,
+      2.5485
+     ],
+     "gain_vs_auto": 1.4254,
+     "median_deg": 3.1995,
+     "share_resamples_le_0": 0.0
+    },
+    "n_pairs": 200,
+    "n_ramps": 109
+   }
+  },
+  "fallback_as_auto": {
+   "all": {
+    "mapa_k_pair": {
+     "bonferroni_lower": 0.2701,
+     "confirmed": true,
+     "fallback_rate": 0.0292,
+     "gain_ci": [
+      0.2922,
+      0.8938
+     ],
+     "gain_vs_auto": 0.6463,
+     "median_deg": 3.0327,
+     "share_resamples_le_0": 0.0
+    },
+    "mapa_posed_corner": {
+     "bonferroni_lower": 0.3473,
+     "confirmed": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.3581,
+      0.9138
+     ],
+     "gain_vs_auto": 0.5923,
+     "median_deg": 3.2767,
+     "share_resamples_le_0": 0.0
+    },
+    "mapa_posed_pair": {
+     "bonferroni_lower": 0.3432,
+     "confirmed": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.365,
+      0.8563
+     ],
+     "gain_vs_auto": 0.5684,
+     "median_deg": 3.2641,
+     "share_resamples_le_0": 0.0
+    },
+    "n_pairs": 686,
+    "n_ramps": 395
+   },
+   "gsv": {
+    "mapa_k_pair": {
+     "bonferroni_lower": 0.0,
+     "confirmed": false,
+     "fallback_rate": 0.0398,
+     "gain_ci": [
+      0.0203,
+      0.5528
+     ],
+     "gain_vs_auto": 0.2472,
+     "median_deg": 3.2688,
+     "share_resamples_le_0": 0.022
+    },
+    "mapa_posed_corner": {
+     "bonferroni_lower": 0.2136,
+     "confirmed": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.2241,
+      0.6506
+     ],
+     "gain_vs_auto": 0.3895,
+     "median_deg": 3.1837,
+     "share_resamples_le_0": 0.0
+    },
+    "mapa_posed_pair": {
+     "bonferroni_lower": 0.1113,
+     "confirmed": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.1129,
+      0.5862
+     ],
+     "gain_vs_auto": 0.3514,
+     "median_deg": 3.2689,
+     "share_resamples_le_0": 0.0001
+    },
+    "n_pairs": 477,
+    "n_ramps": 284
+   },
+   "mapillary": {
+    "mapa_k_pair": {
+     "bonferroni_lower": 1.0782,
+     "confirmed": true,
+     "fallback_rate": 0.0048,
+     "gain_ci": [
+      1.1515,
+      2.9075
+     ],
+     "gain_vs_auto": 1.8927,
+     "median_deg": 2.4451,
+     "share_resamples_le_0": 0.0
+    },
+    "mapa_posed_corner": {
+     "bonferroni_lower": 0.5948,
+     "confirmed": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.601,
+      2.232
+     ],
+     "gain_vs_auto": 1.0044,
+     "median_deg": 3.5431,
+     "share_resamples_le_0": 0.0
+    },
+    "mapa_posed_pair": {
+     "bonferroni_lower": 0.6824,
+     "confirmed": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.726,
+      2.3417
+     ],
+     "gain_vs_auto": 1.3177,
+     "median_deg": 3.2056,
+     "share_resamples_le_0": 0.0
+    },
+    "n_pairs": 209,
+    "n_ramps": 111
+   }
+  },
+  "note": "post hoc (review of #220); the pre-specified verdicts are 'primary' and 'secondary', unchanged",
+  "primary_pairs_any_shared_pano": 190,
+  "primary_pairs_identical_pano_pair": 55,
+  "rules": {
+   "drop_any_shared_pano": "primary pairs with any pano (src or oth) that appears anywhere in the frozen 300 are removed",
+   "drop_identical_pano_pair": "primary pairs whose (src, oth) pano pair, in either order, is also a pair of the frozen 300 are removed",
+   "fallback_as_auto": "a fallback is scored as proj_height_auto's point instead of the 2.6 m projection (combined_table.json's else_auto rule)"
+  }
  }
 }

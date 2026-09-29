@@ -51,6 +51,11 @@ ALPHA = 0.05
 BONF_N_BOOT = 20000
 CONFIRMATION_JSON = os.path.join(H.FRESH_DIR, "confirmation.json")
 FRESH_META_JSON = os.path.join(H.FRESH_DIR, "pairs_meta.json")
+#: sha256 of confirmation.json as first written by the pre-specified test (commit 0da7360),
+#: before the post hoc ``sensitivity`` key was added. The committed file with that key removed
+#: and re-serialized by ``H.write_json`` must hash to this: the sensitivity reads cannot have
+#: moved a pre-specified number (tests/test_crossview_fresh_48.py).
+PRESPECIFIED_CONFIRMATION_SHA256 = "bb8ead92ef995a957000d7c4ed4b7a730bf877aaa13041fd28b459b74a62d06a"
 
 
 def _sha(path):
@@ -157,8 +162,14 @@ def confirm(pairs, idx, errs, n_boot=BONF_N_BOOT, alpha=ALPHA, seed=H.SEED):
     return out
 
 
+STRATA = (("all", lambda p: True),
+          ("gsv", lambda p: p["imagery"] == "gsv"),
+          ("mapillary", lambda p: p["imagery"] == "mapillary"))
+
+
 def score_fresh():
-    """{"config", "primary", "secondary", "per_city"} from the committed fresh predictions."""
+    """{"config", "primary", "secondary", "per_city", "sensitivity"} from the committed fresh
+    predictions. "sensitivity" is post hoc (review of #220) and does not change the verdicts."""
     prev = H.use_pair_set("fresh")
     try:
         pairs = H.read_frozen_pairs()
@@ -182,9 +193,7 @@ def score_fresh():
         "secondary": "every fresh pair"}}
     for name, idx in (("primary", new_idx), ("secondary", all_idx)):
         res[name] = {}
-        for stratum, keep in (("all", lambda p: True),
-                              ("gsv", lambda p: p["imagery"] == "gsv"),
-                              ("mapillary", lambda p: p["imagery"] == "mapillary")):
+        for stratum, keep in STRATA:
             sub = [i for i in idx if keep(pairs[i])]
             res[name][stratum] = confirm(pairs, sub, errs)
     res["per_city"] = {}
@@ -193,7 +202,68 @@ def score_fresh():
         res["per_city"][c] = {"n_pairs": len(sub), **{
             a: float(np.median([errs[a][i][0] for i in sub]))
             for a in ("projection", BASELINE) + FRESH_ARMS}}
+    res["sensitivity"] = sensitivity(pairs, errs, new_idx)
     return res
+
+
+#: post hoc sensitivity reads, added 2026-09-29 after the review of #220 (not part of the
+#: pre-specified test above, whose verdicts they do not change). Each re-runs ``confirm`` on
+#: the primary pairs under one alternative rule; see the ``sensitivity`` key of
+#: confirmation.json and "Sensitivity reads" in docs/crossview_align_48.md.
+SENSITIVITY_READS = {
+    "fallback_as_auto": "a fallback is scored as proj_height_auto's point instead of the 2.6 m "
+                        "projection (combined_table.json's else_auto rule)",
+    "drop_identical_pano_pair": "primary pairs whose (src, oth) pano pair, in either order, is "
+                                "also a pair of the frozen 300 are removed",
+    "drop_any_shared_pano": "primary pairs with any pano (src or oth) that appears anywhere in "
+                            "the frozen 300 are removed",
+}
+
+
+def errs_fallback_as_auto(errs):
+    """``errs`` with every FRESH_ARMS fallback rescored as BASELINE's error on that pair (the
+    fallback flag is kept), i.e. ``crossview_combined_48.else_auto``."""
+    base = errs[BASELINE]
+    out = dict(errs)
+    for arm in FRESH_ARMS:
+        out[arm] = [(base[i][0], base[i][1], base[i][2], r[3]) if r[3] else r
+                    for i, r in enumerate(errs[arm])]
+    return out
+
+
+def frozen300_panos():
+    """(set of unordered pano pairs, set of panos) of the frozen 300."""
+    rows = H.read_rows(os.path.join(H.OUT, "pairs.csv"))
+    return ({frozenset((r["src_pano"], r["oth_pano"])) for r in rows},
+            {r["src_pano"] for r in rows} | {r["oth_pano"] for r in rows})
+
+
+def sensitivity(pairs, errs, new_idx):
+    """The post hoc reads of SENSITIVITY_READS on the primary pairs, per stratum: the same
+    ``confirm`` (seed, resamples, alpha / 3 bound) with one rule changed."""
+    pair_set, panos = frozen300_panos()
+    same = {i for i in new_idx
+            if frozenset((pairs[i]["src_pano"], pairs[i]["oth_pano"])) in pair_set}
+    shared = {i for i in new_idx if pairs[i]["src_pano"] in panos or pairs[i]["oth_pano"] in panos}
+    reads = {"fallback_as_auto": (new_idx, errs_fallback_as_auto(errs)),
+             "drop_identical_pano_pair": ([i for i in new_idx if i not in same], errs),
+             "drop_any_shared_pano": ([i for i in new_idx if i not in shared], errs)}
+    out = {"note": "post hoc (review of #220); the pre-specified verdicts are 'primary' and "
+                   "'secondary', unchanged",
+           "rules": SENSITIVITY_READS,
+           "primary_pairs_identical_pano_pair": len(same),
+           "primary_pairs_any_shared_pano": len(shared)}
+    for name, (idx, e) in reads.items():
+        out[name] = {}
+        for stratum, keep in STRATA:
+            sub = [i for i in idx if keep(pairs[i])]
+            res = confirm(pairs, sub, e)
+            out[name][stratum] = {"n_pairs": res["n_pairs"], "n_ramps": res["n_ramps"], **{
+                a: {k: res["arms"][a][k] for k in
+                    ("median_deg", "fallback_rate", "gain_vs_auto", "gain_ci",
+                     "share_resamples_le_0", "bonferroni_lower", "confirmed")}
+                for a in FRESH_ARMS}}
+    return out
 
 
 def fmt_ci(c):
@@ -220,6 +290,24 @@ def markdown(res, which="primary"):
     return "\n".join(lines)
 
 
+def sensitivity_markdown(res):
+    """One row per arm and stratum: the pre-specified alpha / 3 bound, then each read's."""
+    sens = res["sensitivity"]
+    names = list(SENSITIVITY_READS)
+    lines = ["| arm | stratum | pre-specified | " + " | ".join(names) + " |",
+             "|---|---|---" + "|---" * len(names) + "|"]
+    for arm in FRESH_ARMS:
+        for stratum, _ in STRATA:
+            pre = res["primary"][stratum]["arms"][arm]
+            cells = [f"{pre['bonferroni_lower']:+.3f} (n {res['primary'][stratum]['n_pairs']})"]
+            for n in names:
+                a = sens[n][stratum][arm]
+                cells.append(f"{a['bonferroni_lower']:+.3f} [{a['gain_vs_auto']:+.2f}] "
+                             f"(n {sens[n][stratum]['n_pairs']})")
+            lines.append(f"| `{arm}` | {stratum} | " + " | ".join(cells) + " |")
+    return "\n".join(lines)
+
+
 def cmd_score(args):
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")   # the table prints Greek alpha and degrees
@@ -232,6 +320,8 @@ def cmd_score(args):
     for c, v in res["per_city"].items():
         print(f"  {c:12s} n={v['n_pairs']:3d} " + " ".join(
             f"{a}={v[a]:.2f}" for a in ("projection", BASELINE) + FRESH_ARMS))
+    print("\n### sensitivity (post hoc, primary pairs): alpha/3 lower bound [gain]\n")
+    print(sensitivity_markdown(res))
     print(f"-> {args.out}")
 
 
