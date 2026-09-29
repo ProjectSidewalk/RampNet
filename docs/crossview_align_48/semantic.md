@@ -9,6 +9,15 @@ its texture. Code: `scripts/analysis/crossview_arms/semantic.py`. Scored on the 
 
 ## Summary
 
+> **Multiplicity (added 2026-09-29, review of
+> [#210](https://github.com/ProjectSidewalk/RampNet/pull/210)).** "CI-clear" in this doc
+> means the arm's own uncorrected 95% ramp-bootstrap CI excludes zero. 83 arms were scored
+> on the same 300 pairs, so some CI-clear gains are expected by selection alone. A
+> one-sided Bonferroni screen over all 83 arms (`docs/crossview_align_48.md`, "Combined
+> comparison") keeps only `mapa_posed_pair` and `mapa_posed_corner` on GSV, and those two
+> plus `mapa_k_pair` and `mapa_posed_poseonly` over all 300 pairs. The Mapillary stratum was
+> not screened. `mapa_posed_pair` is itself post hoc.
+
 - **Best arm: `sem_chamfer_auto`.** Vistas curb and marking edges from both views are put
   on flat ground at the labeler's 'auto' camera heights. A translation is then fitted that
   lays the other view's structure over the source's, and the GT point is moved by it.
@@ -29,9 +38,11 @@ its texture. Code: `scripts/analysis/crossview_arms/semantic.py`. Scored on the 
   semantic arm's gain.
 - **Snapping to the nearest curb does not help** beyond the height fix (`sem_snap_auto`
   −0.00°, `sem_curb_shift_auto` −0.01° vs `proj_height_auto`).
-- **Verdict (proposed, not decided):** `sem_chamfer_auto` is the first arm that improves
-  on `proj_height_auto` with a CI clear of zero while almost never falling back. It is a
-  candidate base placement for gallery rings, with `lg` preferred where `lg` aligns (that
+- **Verdict (proposed, not decided):** `sem_chamfer_auto` improves on `proj_height_auto`
+  with an uncorrected CI clear of zero while almost never falling back. That gain does
+  **not** survive the 83-arm Bonferroni screen on GSV (lower bound −0.12°), and a leakage
+  path through the relabelled Curb Cut pixels is disclosed but not measured (§4). It is a
+  candidate base placement for gallery rings, pending the ignore-mask re-run (§4), with `lg` preferred where `lg` aligns (that
   combination is not scored here). The gain is modest (0.4° median, about 5 px on a
   4096-wide pano), and it needs a GPU segmentation pass per view.
 
@@ -205,11 +216,30 @@ Every number is in `results_semantic.json` → `arms.<arm>.<stratum>`.
   detector, and scoring it against a ramp detector's peak would be circular. The class-9
   channel is removed before the argmax, so the label maps contain no curb-cut class. The
   suppressed pixel count per view is in `semantic_seg_manifest.json`.
-  - **One residual path remains, and it is disclosed rather than ruled out.** The model's
+  - **One residual path remains, and it is disclosed but not measured.** The model's
     internal features were trained with that class. The pixels it would have called curb
-    cut become sidewalk, road or curb, which could shape the curb edge right at the ramp.
+    cut are relabelled to their next-best class, mostly sidewalk or road. Either way the
+    ramp's outline then enters the curb-edge channel: as a notch in the sidewalk/road
+    boundary, or as a shift of it. So the chamfer can register the ramp's shape in one view
+    to its shape in the other, and the reference is a ramp detection in the other view.
+    This is a weaker form of the circularity the suppression was meant to remove.
+  - **It is not rare.** Per `semantic_seg_manifest.json`, Curb Cut would have won pixels in
+    **298 of 300 other views and 296 of 300 source views**: a median of about 2,000 px per
+    view, up to 51,697 px in an other view and 122,859 px (16% of the view) in a source view.
     The chamfer uses every structure cell within 10 m of W, of which the ramp is a small
-    part, so a large effect is unlikely. It is not measured.
+    part, so the effect may be small. That is a guess, not a measurement.
+  - **This matters for the headline of this family.** `sem_chamfer_auto` is one of five arms
+    with an uncorrected CI-clear GSV gain over auto (+0.34° [0.02, 0.56]), and its lower
+    bound is close to zero. It does **not** survive the Bonferroni screen over all 83 arms
+    in `docs/crossview_align_48.md` (lower bound −0.12°). Quote it as a candidate, with this
+    leakage caveat beside it.
+  - **Follow-up, not run:** have `Segmenter` also write the unsuppressed Curb Cut mask, map
+    those pixels (dilated a few px) to an ignore label in neither `RAISED` nor `ROADLIKE`,
+    and re-run as a new arm `sem_chamfer_auto_ccmask`. About 3 min on the A40 plus CPU time.
+    That turns this disclosure into a measurement.
+  - `label_map` now refuses a map whose sha256 does not match the seg manifest, and asserts
+    that no map contains the Curb Cut class, so a stale or unsuppressed `seg_dir` cannot be
+    read silently (added 2026-09-29; the committed runs predate the check).
 - **A detector-guided arm** would snap to a ramp detection in the other view: RampNet's,
   Vistas' Curb Cut blob, or an open-vocabulary detector's. It would need a reference that
   is not a detector: human clicks on the ramp in both views of each pair. The natural

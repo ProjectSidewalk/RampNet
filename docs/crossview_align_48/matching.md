@@ -14,6 +14,15 @@ losing its accuracy. The pilot's `lg` is ALIKED + LightGlue with a ground homogr
 
 ## Summary
 
+> **Multiplicity (added 2026-09-29, review of
+> [#210](https://github.com/ProjectSidewalk/RampNet/pull/210)).** "CI-clear" in this doc
+> means the arm's own uncorrected 95% ramp-bootstrap CI excludes zero. 83 arms were scored
+> on the same 300 pairs, so some CI-clear gains are expected by selection alone. A
+> one-sided Bonferroni screen over all 83 arms (`docs/crossview_align_48.md`, "Combined
+> comparison") keeps only `mapa_posed_pair` and `mapa_posed_corner` on GSV, and those two
+> plus `mapa_k_pair` and `mapa_posed_poseonly` over all 300 pairs. The Mapillary stratum was
+> not screened. `mapa_posed_pair` is itself post hoc.
+
 - **The fallback problem is a matcher problem, and RoMa solves it.** RoMa (dense, outdoor
   weights) with the pilot's own estimator (`roma`: RANSAC ground homography, ≥ 15 inliers,
   mapped point inside the view) falls back on **7%** of pairs. `lg` falls back on 70%. On
@@ -35,13 +44,24 @@ losing its accuracy. The pilot's `lg` is ALIKED + LightGlue with a ground homogr
     only with the 2.6 m projection (4.30° there).
 - **Reading RoMa's dense warp at the GT point beats reading its homography.** This arm
   (`roma_warp`) assumes no plane.
-  - It aligns 58% of pairs and falls back below RoMa's own certainty threshold of 0.05.
+  - It aligns 58% of pairs and falls back where RoMa's certainty at the point is below
+    0.05 (romatch's default `sample_thresh`, borrowed as a cutoff; §1).
   - Where it aligns: **2.11° vs 3.48°** for auto height, a paired gain of **0.58°
-    [0.35, 1.21]**. On GSV alone: 2.17° vs 2.97°, 0.37° [−0.03, 0.57].
+    [0.35, 1.21]**. On GSV alone: 2.17° vs 2.97°, 0.37° [−0.03, 0.57], which spans zero;
+    the pooled CI-clear gain comes from Mapillary (2.85° [1.44, 3.50]).
+  - The aligned subset is selected by RoMa's own certainty, the same kind of easy-pair
+    selection this doc points out for `lg`: on those pairs auto is 3.48°, against 4.06°
+    overall. The paired gain mostly absorbs this, but not entirely.
   - With auto height as the fallback (`roma_warp_hyb`) it never falls back. Results: all
     pairs 3.11° [2.75, 3.93] vs auto 4.06° [3.66, 4.56]; GSV 3.58° [2.82, 4.28] vs 3.92°;
-    Mapillary 2.58°. It has the lowest harm rate of any arm that moves points: 10% of pairs
-    are more than 2° worse than auto, and 20% are more than 2° better.
+    Mapillary 2.58°. Its harm rate (10% of pairs more than 2° worse than auto, 20% more
+    than 2° better) is lower than `roma_warp`'s only because of dilution: it is the same 29
+    harmed and 59 helped pairs, divided by all 300 instead of the 174 the warp moved. The
+    126 pairs copied from auto can never be harmed. On the pairs it moves it is exactly
+    `roma_warp`.
+  - It reports 0% fallback, but 126 of its 300 answers (42%) are the auto prior. The
+    combined table's common-rule columns score every arm that way; there `roma_warp` and
+    `roma_warp_hyb` are identical (3.11°).
   - Caveat: `roma_local` and `roma_warp` were added **after** seeing `roma`'s scores (§4).
 - **Why `lg` falls back** (211 pairs, §3):
   - In 122 the matches exist but are not on the ground.
@@ -58,10 +78,12 @@ losing its accuracy. The pilot's `lg` is ALIKED + LightGlue with a ground homogr
 - **Verdict (proposed, not decided):**
   - Mapillary: use `roma_local` (or `roma`) in place of the projection. This is the one
     place image matching clearly pays.
-  - GSV: keep `proj_height_auto` as the base. `roma_warp_hyb` is the only matching arm with
-    a CI-clear gain over auto height on the pairs it aligns. Its all-pairs median CI still
-    overlaps auto's, so it is a candidate, not a replacement, until it is re-tested with
-    pre-specified settings on fresh pairs.
+  - GSV: keep `proj_height_auto` as the base. **On GSV no matching arm has a CI-clear gain
+    over auto height**, not even where it aligns: `roma_warp`'s aligned GSV gain is 0.37°
+    [−0.03, 0.57]. (An earlier version of this bullet said `roma_warp_hyb` was CI-clear on
+    GSV; the 0.58° [0.35, 1.21] it quoted is the pooled aligned gain, driven by Mapillary.
+    Corrected after the review of [#210](https://github.com/ProjectSidewalk/RampNet/pull/210).)
+    `roma_warp` / `roma_warp_hyb` are post hoc (§4) and remain hypotheses for fresh pairs.
   - Drop the sparse-matcher and LoFTR arms.
 
 ## 1. Arms
@@ -87,7 +109,7 @@ pilot's ground band: 5° below the horizon and above the rig at −70°. Arm nam
 | `_epi` | Essential matrix from **all** matches (known pinhole focal length, MAGSAC, 1 px). The GT point's epipolar line in the other view; the `proj_height_auto` point moved to its nearest point on that line | < 15 E-inliers, or the snapped point leaves the view |
 | `_hyb` | homography, else `_epi`, else the `proj_height_auto` point | never |
 | `roma_local` | RoMa ground homography fitted only to matches within 160 px of the GT point (`lg_local`'s radius and ≥ 12 minimum) | fewer than 12 near matches, or as above |
-| `roma_warp` | RoMa's dense A→B warp, bilinearly read at the GT point; no planar model | certainty there < 0.05 (romatch's `sample_thresh`) |
+| `roma_warp` | RoMa's dense A→B warp, bilinearly read at the GT point; no planar model | certainty there < 0.05. This is romatch's default `sample_thresh`, borrowed as a cutoff. In romatch 0.1.2 it is a saturation threshold (`sample()` sets certainty above it to 1, and lower-certainty pixels can still be sampled), not romatch's definition of a usable match |
 | `roma_warp_hyb` | `roma_warp`, else the `proj_height_auto` point | never |
 
 **The auto-height prior** is the committed `proj_height_auto` prediction: GSV at the
@@ -244,10 +266,16 @@ The 5° band is itself post hoc in the pilot (`lg_band0.5` is its pre-specified 
 
 **Post hoc: `roma_local`, `roma_warp` and `roma_warp_hyb`.** They were added after `roma`
 was scored and found not to beat auto height on GSV. Their parameters were not tuned: they
-are `lg_local`'s radius and minimum, and romatch's own 0.05 certainty threshold. The
+are `lg_local`'s radius and minimum, and romatch's default 0.05 `sample_thresh`, borrowed
+as a certainty cutoff. The
 choice to try them, however, followed a look at the results. Treat their gains as
 hypotheses for the next pair set, not as established. No constant in this file was
 changed after scoring, so there is no separate "tuned" row.
+
+Their committed `.meta.json` files recorded `"pre_specified": true`, inherited from the
+family's shared `BASE_CONFIG` / `WARP_CONFIG`. That flag was wrong. The as-run config is
+left unchanged, and each file now carries a top-level `provenance_correction` marking the
+arm post hoc; the code records `false` for any future run.
 
 ## 5. Negative and null results
 

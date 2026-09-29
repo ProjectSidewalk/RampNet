@@ -9,9 +9,17 @@ A pilot, and the shared harness for comparing techniques. Code:
 
 - **All five arm families, combined (2026-09-29):** the best single arm is MapAnything on the
   pair with the pose priors (`mapa_posed_pair`), median 2.80° [2.49, 3.07] with no fallback
-  and a CI-clear gain over `proj_height_auto` on GSV and Mapillary alike. See
+  and a CI-clear gain over `proj_height_auto` on GSV and Mapillary alike. It is one of only
+  two arms whose GSV gain survives a Bonferroni correction over all 83 arms.
+  **It is a post hoc arm.** It was registered after `mapa_posed_corner`'s 300-pair result
+  had been seen, and it never had a pilot. So 2.80° is an in-sample result on the pairs that
+  suggested it. It needs confirmation, with its settings fixed in advance, on fresh pairs
+  drawn from the 1,423 eligible pairs not in the 300 before anyone adopts it. That re-test
+  has not been run. See
   [Combined comparison across all arm families](#combined-comparison-across-all-arm-families)
-  for the table and its caveats. The bullets below are the pilot (13 arms).
+  for the table and its caveats.
+- **The rest of this Summary, and §4–§8, are the pilot (13 arms, 2026-09-28).** Where the
+  pilot's readings are superseded by the combined table, the bullet says so.
 - **Question.** A GT ramp point is carried from its source pano into another capture of the
   same ramp. Can we place it closer to the ramp than today's flat-ground projection? That
   projection raycasts at 2.6 m and places the point with the labeler's
@@ -29,8 +37,9 @@ A pilot, and the shared harness for comparing techniques. Code:
 - **Image alignment (ALIKED + LightGlue, `lg`) wins where it works, and it mostly does not
   work.** It aligns 30% of pairs. On those it cuts the error from 4.40° to **2.41°
   [1.91, 2.87]** (paired gain 0.88° [0.35, 2.12]). The other 70% fall back to the projection.
-  It is the only arm that helps Richmond: 3.05° vs 4.56° over all 60 Mapillary pairs, and
-  2.10° vs 4.54° on the 31 it aligns.
+  Among the pilot's 13 arms it was the only one that helped Richmond: 3.05° vs 4.56° over all
+  60 Mapillary pairs, and 2.10° vs 4.54° on the 31 it aligns. *Superseded:* in the combined
+  table 18 arms have a lower Mapillary median than `lg`, from 1.93° (`mast3r_pair`) to 2.68°.
 - **These did not help:**
   - Mapillary SfM pitch/roll (`proj_mly_gravity`, `proj_mly_road`): no gain.
   - Per-pano measured GSV heights (`proj_height_perpano`) and GSV depth-map range
@@ -40,9 +49,10 @@ A pilot, and the shared harness for comparing techniques. Code:
 - **The Richmond run already uses SfM.** Its positions are Mapillary's SfM
   `computed_geometry` and its headings are `computed_compass_angle`. Raw GPS makes it worse
   (`proj_mly_rawgps`, paired gain −0.52° [−1.36, −0.06]).
-- **Verdict (proposed, not decided):**
+- **Pilot verdict (proposed, not decided; superseded by the combined takeaways):**
   - For gallery rings, use `proj_height_auto` everywhere. Where LightGlue aligns, use its
-    point instead, and mark which ring is which.
+    point instead, and mark which ring is which. The combined comparison replaces this with
+    `mapa_posed_pair` as the candidate, pending its fresh-pair re-test.
   - As an association signal for the labeler's clustering
     ([labeler#56](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/56)),
     image alignment is too often silent to be the primary signal, and it is untested as a
@@ -69,20 +79,46 @@ with the full arm list, method and caveats:
 
 **Takeaways (proposed, not decided).**
 
-- **Best single arm: MapAnything on the pair, given the pose priors (`mapa_posed_pair`).**
-  Median 2.80° [2.49, 3.07] over all 300 pairs, against 4.06° for `proj_height_auto` and
-  5.62° for today's projection. It never falls back. Its paired gain over auto is CI-clear on
-  both imageries: +0.63° [0.28, 0.93] on GSV and +1.73° [0.83, 2.77] on Mapillary.
-- **On GSV, only MapAnything and the semantic chamfer beat auto with a CI clear of zero.**
-  Screening every one of the 83 shared arms: `mapa_posed_pair` +0.63°, `mapa_posed_corner`
-  +0.51°, `mapa_k_pair` +0.33°, `sem_chamfer_auto` +0.34°, and `mapa_posed_poseonly` by a
-  negligible +0.05° (`combined_table.json` → `gsv_ci_clear_vs_auto`). Every matching arm,
-  every depth arm and per-corner COLMAP ties or loses to the free per-rig height on GSV.
-- **On Mapillary (Richmond), almost any method that sees both views roughly halves the
-  error:** 1.9–2.7° for the multi-view 3D arms, RoMa and per-corner SfM, against 4.56° for
-  the projection (auto is the projection there). The flat Mapillary images add nothing to
-  per-corner SfM: `flat_sfm` 2.53° vs the no-flat control `noflat_sfm` 2.62°, paired
-  +0.00° [−0.01, 0.05] (`flat_mapillary_3d.md` §5).
+- **Best single arm: MapAnything on the pair, given the pose priors (`mapa_posed_pair`), and
+  it is post hoc.** Median 2.80° [2.49, 3.07] over all 300 pairs, against 4.06° for
+  `proj_height_auto` and 5.62° for today's projection. It never falls back. Its paired gain
+  over auto is CI-clear on both imageries: +0.63° [0.28, 0.93] on GSV and +1.73°
+  [0.83, 2.77] on Mapillary, and the GSV and all-pairs gains survive the Bonferroni screen
+  below (the Mapillary stratum was not screened). It was added after its sibling `mapa_posed_corner` (2.86°, not
+  post hoc) had been scored on these pairs (commit `0428bb7`), so its numbers are in-sample.
+  `mapa_posed_corner` is the pre-specified arm closest to it. Both need the fresh-pair
+  re-test before adoption.
+- **On GSV, only the two posed MapAnything arms beat auto once the 83-arm multiplicity is
+  applied.** Without correction, five of the 83 shared arms have a GSV gain whose 95% CI
+  clears zero (`combined_table.json` → `gsv_ci_clear_vs_auto`): `mapa_posed_pair` +0.63°,
+  `mapa_posed_corner` +0.51°, `mapa_k_pair` +0.33°, `sem_chamfer_auto` +0.34°, and
+  `mapa_posed_poseonly` by a negligible +0.05°. A one-sided Bonferroni screen over all 83
+  arms (20,000 ramp resamples, seed 48; `combined_table.json` → `multiplicity`) keeps only
+  `mapa_posed_pair` (lower bound +0.16°) and `mapa_posed_corner` (+0.08°). `mapa_k_pair`
+  (−0.13°), `sem_chamfer_auto` (−0.12°) and `mapa_posed_poseonly` (−0.01°) do not survive:
+  gains of their size are what selection alone would produce. Bonferroni ignores the strong
+  correlation between arms, so it is conservative, and a non-survivor is not shown to be
+  null. Over all 300 pairs the survivors are those two plus `mapa_k_pair` (+0.14°) and
+  `mapa_posed_poseonly` (+0.02°). Every matching arm, every depth arm and per-corner COLMAP
+  ties or loses to the free per-rig height on GSV.
+- **`sem_chamfer_auto` is demoted to a candidate, and it carries a leakage path that has not
+  been measured.** Vistas' Curb Cut class is suppressed before the argmax, but the pixels it
+  would have won are relabelled to the next-best class, mostly sidewalk or road. So the
+  ramp's outline still shapes the curb-edge channel the chamfer aligns. Curb Cut would have
+  won pixels in 298 of 300 other views and 296 of 300 source views (median about 2,000 px per
+  view, up to 16% of a view; `semantic_seg_manifest.json`). The reference is a ramp detection,
+  so this is a weaker form of the circularity the suppression was meant to remove.
+  **Follow-up, not run:** re-run as `sem_chamfer_auto_ccmask`, with the unsuppressed Curb
+  Cut mask (dilated a few px) mapped to an ignore label in neither `RAISED` nor `ROADLIKE`
+  (about 3 min on the A40). See `crossview_align_48/semantic.md` §4.
+- **On Mapillary (Richmond), the methods that reconstruct or densely match both views roughly
+  halve the error:** 1.9–2.7° for the multi-view 3D arms, RoMa and per-corner SfM, against
+  4.56° for the projection (auto is the projection there). Most sparse pairwise matchers do
+  not: `lg` 3.05°, `sp_lg` 3.41°, `disk_lg` and `siftlg` 3.97°, `lg_epi` 4.30°, `sift`
+  4.56°, `loftr` 4.65°, `ncc` 11.54°. The flat Mapillary images add nothing to per-corner
+  SfM: `flat_sfm` 2.53° vs the no-flat control `noflat_sfm` 2.62°, paired +0.00°
+  [−0.01, 0.05] over all 60 pairs, and +0.02° [−0.04, 0.13] over the 47 pairs whose corner
+  has flat images (`flat_mapillary_3d.md` §5).
 - **Negatives that hold across families:** the learned relative pose alone
   (`mast3r_poseonly`), one view alone (`mapa_mono_depthonly`), raw Depth Pro range, raw line
   segments without semantics (`lsd_chamfer`), LoFTR, and dense depth read from a splat
@@ -94,62 +130,92 @@ with the full arm list, method and caveats:
   a CI over 2,000 resamples of ramps. On Mapillary auto equals the projection, so there it
   is also the gain over today's projection.
 - An arm that returns nothing falls back to the 2.6 m projection (harness §3), so a high
-  fallback rate dilutes its all-pairs numbers. The last column shows the arm on the pairs
-  where it answered. The `_hyb` and `_else_auto` composites fall back to auto instead, so
-  their median gain is 0.00 by construction wherever at least half the pairs used auto; read
-  their component (`roma_warp`, `mv3d_consensus`) in the last column.
+  fallback rate dilutes its all-pairs numbers. The "where it answers" column shows the arm on
+  the pairs where it answered.
+- **Two gain definitions are in use.** The gain columns here are over **all** pairs of the
+  stratum, with a fallback scored as the projection. The family docs (e.g.
+  `multiview_3d.md`) usually quote the gain on the pairs the arm answered, which is this
+  table's "where it answers" column. So `mapa_k_pair` is +0.72 [0.28, 1.07] here and
+  +0.73 [0.30, 1.09] in its family doc, and `mast3r_pair` +0.45 here and +0.57 there.
+- **One common fallback rule.** The `_hyb` and `_else_auto` composites use auto's point
+  instead of falling back, so they report 0% fallback while 42–43% of their answers are
+  auto. The last two columns put every arm on one rule: a fallback is scored at
+  `proj_height_auto`'s point, and the last column is the share of pairs scored at the auto
+  prior (fallbacks plus a hybrid's own auto answers). Under that rule `roma_warp` and
+  `roma_warp_hyb` are identical (3.11°, share 0.42), and `lg` goes from 4.79° to 3.79°.
+- The composites' median gain over auto is +0.00 because the pairs where they used auto
+  (a gain of exactly zero) straddle the median. That is an empirical outcome, not a matter
+  of construction: they used auto on 42% (`roma_warp_hyb`) and 43%
+  (`mv3d_consensus_else_auto`) of pairs, under half, but neither the positive nor the
+  negative share exceeds 50%. Read their component (`roma_warp`, `mv3d_consensus`) in the
+  "where it answers" column.
 - **Subset arms are not ranked on 300 pairs.** The flat-Mapillary arms run only on the 60
   Richmond pairs and return null elsewhere. The harness would count those 240 as fallbacks
   and report an all-pairs median as if they had run everywhere. They are therefore scored on
   the Richmond stratum only (`flat_mapillary_48.py score` → `results_richmond.json`) and
   their all-pairs and GSV cells are empty. They are kept out of the shared `results.json`,
   which reads only `crossview_align_48/predictions/`.
-- "post hoc" marks an arm, or a setting of it, that was added after seeing scores on these
-  same 300 pairs, as each family doc records it: `lg`'s 5° ground band; `sem_snap_auto`;
-  `roma_local`, `roma_warp`, `roma_warp_hyb`; `mono_unidepth_point` as the Mapillary pick from
-  17 depth arms; the two `mv3d_consensus` composites. The flat family's post hoc `_gsmed` arms
-  are not in this table.
+- "post hoc" marks an arm, or a setting of it, that was added, or picked for this table,
+  after scores on these same 300 pairs (or a subset of them, such as a 30-pair pilot) had
+  been seen. Corrected 2026-09-29 by checking each arm against git history (review of
+  [#210](https://github.com/ProjectSidewalk/RampNet/pull/210)):
+  - `lg`'s 5° ground band; `sem_snap_auto`;
+  - `roma_local`, `roma_warp`, `roma_warp_hyb`: added after `roma` did not beat auto on GSV.
+    Their committed `meta.json` recorded `pre_specified: true` (inherited from the family's
+    shared config); a top-level `provenance_correction` now supersedes it;
+  - `mono_da3_hcal` and `mono_unidepth_point`: each picked from the 17 depth arms;
+  - **`mapa_posed_pair`** and `mapa_posed_poseonly`: registered in `0428bb7`, whose commit
+    message quotes `mapa_posed_corner`'s 300-pair result; neither had a pilot;
+  - `mapa_mono_depthonly`: registered later still (`c84dc74`);
+  - `sfm_colmap`: its gravity-level ground lift replaced the plane lift after the 30-pair
+    pilot, whose pairs are a subset of the 300;
+  - the two `mv3d_consensus` composites.
 
-Built by `scripts/analysis/crossview_combined_48.py` (CPU, committed inputs only, about a
-minute) → `analysis_out/crossview_align_48/combined_table.json`. Every all-pairs median and
+  `combined_table.json` → `rows[].post_hoc_why` gives the reason for each, and each such
+  arm's `meta.json` carries the same correction. No prediction changed. The flat family's
+  post hoc `_gsmed` arms are not in this table.
+
+Built by `scripts/analysis/crossview_combined_48.py` (CPU, committed inputs only, about
+2.5 minutes with the 20,000-resample Bonferroni screen) →
+`analysis_out/crossview_align_48/combined_table.json`. Every all-pairs median and
 fallback rate matches `results.json`; the Richmond cells of the flat arms match
 `results_richmond.json`.
 
-| arm | family | post hoc | all 300: median ° [CI] | fallback | paired gain vs auto, all [CI] | GSV (240): median ° [CI] | GSV gain vs auto [CI] | Mapillary (60): median ° [CI] | Mapillary gain vs auto [CI] | where it answers: n, arm vs auto °, gain vs auto [CI] |
-|---|---|---|---|---|---|---|---|---|---|---|
-| `projection` | baseline |  | 5.62 [4.53, 6.56] | 0.00 | -0.00 [-0.43, 0.00] | 6.09 [4.53, 7.03] | -0.67 [-1.20, -0.25] | 4.56 [3.87, 5.57] | +0.00 [0.00, 0.00] | (never falls back) |
-| `proj_height_auto` | baseline |  | 4.06 [3.66, 4.56] | 0.00 | – | 3.92 [3.53, 4.36] | – | 4.56 [3.87, 5.57] | – | – |
-| `proj_gsv_depth` | geometry (pilot) |  | 4.82 [4.50, 5.65] | 0.20 | -0.13 [-0.68, -0.00] | 4.96 [4.55, 5.89] | -0.84 [-1.26, -0.36] | 4.56 [3.87, 5.57] | +0.00 [0.00, 0.00] | 240: 4.96 vs 3.92, -0.84 [-1.26, -0.36] |
-| `lg` | matching (pilot) | yes | 4.79 [3.51, 6.01] | 0.70 | -0.00 [-0.44, 0.00] | 5.91 [4.15, 6.68] | -0.52 [-1.20, -0.11] | 3.05 [2.39, 4.33] | +0.00 [0.00, 0.47] | 89: 2.41 vs 2.99, +0.45 [-0.26, 0.93] |
-| `sem_chamfer_auto` | semantic |  | 3.30 [2.95, 4.11] | 0.01 | +0.42 [0.14, 0.71] | 3.23 [2.81, 4.12] | +0.34 [0.02, 0.56] | 3.84 [2.73, 4.24] | +0.75 [0.38, 1.68] | 297: 3.28 vs 4.05, +0.43 [0.15, 0.71] |
-| `lsd_chamfer` | semantic |  | 4.92 [4.28, 6.04] | 0.04 | -0.45 [-0.74, -0.13] | 5.31 [4.38, 6.69] | -0.70 [-1.51, -0.32] | 3.71 [2.93, 5.44] | +0.31 [0.00, 1.10] | 289: 4.89 vs 4.06, -0.46 [-0.74, -0.12] |
-| `sem_snap_auto` | semantic | yes | 3.83 [3.44, 4.36] | 0.05 | -0.00 [-0.23, 0.16] | 3.86 [3.44, 4.41] | -0.18 [-0.40, 0.12] | 3.60 [2.92, 5.24] | +0.15 [-0.00, 0.45] | 284: 3.78 vs 3.96, -0.08 [-0.27, 0.19] |
-| `roma` | matching |  | 3.51 [2.92, 4.70] | 0.07 | +0.03 [-0.22, 0.43] | 4.41 [3.26, 5.79] | -0.19 [-0.91, 0.12] | 2.58 [2.16, 3.38] | +1.75 [0.83, 2.77] | 279: 3.51 vs 4.05, +0.12 [-0.19, 0.48] |
-| `roma_local` | matching | yes | 3.29 [2.92, 4.21] | 0.06 | +0.30 [-0.10, 0.66] | 4.06 [3.19, 5.18] | -0.07 [-0.48, 0.34] | 2.37 [1.83, 2.94] | +1.87 [0.98, 2.88] | 283: 3.23 vs 4.03, +0.34 [-0.03, 0.67] |
-| `roma_warp` | matching | yes | 3.25 [2.73, 4.43] | 0.42 | +0.12 [-0.00, 0.54] | 3.99 [2.79, 5.70] | +0.03 [-0.36, 0.43] | 2.58 [1.71, 3.33] | +1.22 [0.00, 2.74] | 174: 2.11 vs 3.48, +0.58 [0.35, 1.21] |
-| `roma_warp_hyb` | matching | yes | 3.11 [2.75, 3.93] | 0.00 | +0.00 [0.00, 0.00] | 3.58 [2.82, 4.28] | +0.00 [0.00, 0.00] | 2.58 [1.71, 3.33] | +1.22 [0.00, 2.74] | (never falls back) |
-| `sp_lg` | matching |  | 4.98 [3.81, 6.18] | 0.74 | -0.07 [-0.46, 0.00] | 6.02 [4.55, 6.91] | -0.62 [-1.20, -0.22] | 3.41 [2.86, 3.92] | +0.00 [0.00, 0.00] | 78: 2.56 vs 2.90, +0.15 [-0.21, 0.94] |
-| `loftr` | matching |  | 6.03 [4.98, 6.96] | 0.86 | -0.33 [-0.79, -0.00] | 6.53 [5.35, 7.67] | -0.79 [-1.63, -0.35] | 4.65 [3.50, 5.87] | +0.00 [-0.00, 0.00] | 42: 6.30 vs 3.58, -2.70 [-5.05, -0.19] |
-| `mono_da3_hcal` | depth |  | 3.75 [3.24, 4.57] | 0.10 | +0.16 [-0.03, 0.47] | 3.58 [3.08, 4.57] | +0.08 [-0.25, 0.40] | 4.19 [3.24, 5.23] | +0.39 [0.00, 1.04] | 269: 4.04 vs 4.19, +0.22 [-0.04, 0.61] |
-| `mono_unidepth_point` | depth | yes | 4.04 [3.48, 4.73] | 0.00 | +0.18 [-0.15, 0.47] | 4.18 [3.59, 4.98] | -0.01 [-0.46, 0.37] | 3.44 [2.71, 4.56] | +0.86 [0.47, 1.31] | (never falls back) |
-| `mono_depthpro_point` | depth |  | 19.23 [17.57, 22.51] | 0.00 | -14.43 [-16.76, -12.72] | 20.81 [18.65, 24.66] | -15.39 [-18.54, -13.24] | 16.55 [13.87, 19.50] | -10.78 [-14.70, -8.44] | (never falls back) |
-| `mapa_posed_pair` | multi-view 3D |  | 2.80 [2.49, 3.07] | 0.00 | +0.72 [0.42, 1.01] | 2.85 [2.58, 3.39] | +0.63 [0.28, 0.93] | 2.26 [1.89, 3.01] | +1.73 [0.83, 2.77] | (never falls back) |
-| `mapa_posed_corner` | multi-view 3D |  | 2.86 [2.56, 3.31] | 0.00 | +0.61 [0.36, 0.88] | 3.00 [2.58, 3.39] | +0.51 [0.23, 0.84] | 2.68 [1.95, 3.71] | +0.94 [0.42, 2.44] | (never falls back) |
-| `mapa_k_pair` | multi-view 3D |  | 2.99 [2.42, 3.67] | 0.01 | +0.72 [0.28, 1.07] | 3.28 [2.61, 3.96] | +0.33 [0.12, 0.77] | 2.16 [1.47, 2.90] | +2.60 [1.09, 3.23] | 297: 2.96 vs 4.05, +0.73 [0.30, 1.09] |
-| `mast3r_pair` | multi-view 3D |  | 3.20 [2.66, 3.78] | 0.11 | +0.45 [0.06, 0.74] | 3.66 [2.88, 4.29] | +0.12 [-0.25, 0.47] | 1.93 [1.57, 3.19] | +2.22 [1.07, 3.06] | 268: 2.96 vs 4.00, +0.57 [0.18, 1.02] |
-| `dust3r_pair` | multi-view 3D |  | 3.08 [2.59, 3.59] | 0.02 | +0.47 [0.16, 0.79] | 3.30 [2.93, 4.04] | +0.24 [-0.07, 0.48] | 2.11 [1.55, 2.75] | +2.60 [1.28, 3.07] | 294: 3.07 vs 4.04, +0.47 [0.17, 0.83] |
-| `vggt_pair` | multi-view 3D |  | 3.51 [2.92, 4.73] | 0.15 | +0.41 [-0.06, 0.77] | 4.44 [3.34, 5.67] | +0.10 [-0.55, 0.44] | 2.06 [1.52, 2.96] | +1.97 [1.30, 3.26] | 256: 3.35 vs 4.01, +0.41 [-0.16, 0.88] |
-| `mv3d_consensus` | multi-view 3D | yes | 3.11 [2.69, 4.16] | 0.43 | +0.32 [-0.00, 0.64] | 3.93 [2.95, 5.27] | +0.01 [-0.49, 0.41] | 1.98 [1.45, 2.82] | +1.77 [0.87, 2.97] | 172: 2.11 vs 3.48, +0.84 [0.42, 1.24] |
-| `mv3d_consensus_else_auto` | multi-view 3D | yes | 3.03 [2.58, 3.72] | 0.00 | +0.00 [0.00, 0.00] | 3.54 [2.86, 4.13] | +0.00 [0.00, 0.00] | 1.98 [1.45, 2.82] | +1.77 [0.87, 2.97] | (never falls back) |
-| `mapa_posed_poseonly` | multi-view 3D |  | 3.90 [3.45, 4.40] | 0.00 | +0.07 [0.03, 0.10] | 3.80 [3.27, 4.37] | +0.05 [0.02, 0.09] | 4.14 [3.72, 5.45] | +0.17 [0.07, 0.25] | (never falls back) |
-| `mast3r_poseonly` | multi-view 3D |  | 4.43 [3.69, 5.71] | 0.08 | -0.24 [-0.47, -0.02] | 4.81 [3.69, 5.96] | -0.45 [-0.70, -0.15] | 4.08 [3.15, 5.08] | +0.59 [0.28, 1.26] | 277: 4.36 vs 4.05, -0.19 [-0.44, 0.01] |
-| `mapa_mono_depthonly` | multi-view 3D |  | 4.94 [4.37, 5.53] | 0.00 | -0.50 [-1.03, -0.04] | 4.95 [4.31, 5.68] | -0.54 [-1.39, -0.04] | 4.81 [3.39, 6.36] | -0.42 [-1.11, 0.66] | (never falls back) |
-| `sfm_colmap` | multi-view 3D |  | 4.90 [3.81, 6.22] | 0.29 | -0.30 [-0.76, 0.02] | 5.86 [4.39, 7.38] | -0.67 [-1.51, -0.24] | 2.52 [2.06, 3.73] | +1.70 [0.25, 2.81] | 212: 4.99 vs 4.33, -0.30 [-0.84, 0.07] |
-| `flat_sfm` | flat Mapillary (Richmond only) |  | not run (Richmond only) | 0.00 (Richmond) | – | n/a | n/a | 2.53 [1.79, 3.97] | +1.74 [0.62, 2.71] | (never falls back) |
-| `noflat_sfm` | flat Mapillary (Richmond only) |  | not run (Richmond only) | 0.00 (Richmond) | – | n/a | n/a | 2.62 [2.18, 3.52] | +1.69 [0.54, 2.55] | (never falls back) |
-| `mlypano_sfm` | flat Mapillary (Richmond only) |  | not run (Richmond only) | 0.00 (Richmond) | – | n/a | n/a | 2.70 [2.18, 3.30] | +1.65 [0.55, 2.63] | (never falls back) |
-| `flat_mvs` | flat Mapillary (Richmond only) |  | not run (Richmond only) | 0.05 (Richmond) | – | n/a | n/a | 3.95 [2.65, 7.26] | +0.26 [-1.40, 2.07] | 57: 4.44 vs 4.61, +0.66 [-2.02, 2.22] |
-| `flat_gs` | flat Mapillary (Richmond only) |  | not run (Richmond only) | 0.02 (Richmond) | – | n/a | n/a | 10.48 [5.22, 21.21] | -7.33 [-12.57, -0.33] | 59: 10.71 vs 4.57, -7.39 [-13.70, -0.77] |
+| arm | family | post hoc | all 300: median ° [CI] | fallback | paired gain vs auto, all [CI] | GSV (240): median ° [CI] | GSV gain vs auto [CI] | Mapillary (60): median ° [CI] | Mapillary gain vs auto [CI] | where it answers: n, arm vs auto °, gain vs auto [CI] | common rule (fallback → auto), all 300: median °, gain vs auto [CI] | share scored at the auto prior |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `projection` | baseline |  | 5.62 [4.53, 6.56] | 0.00 | -0.00 [-0.43, 0.00] | 6.09 [4.53, 7.03] | -0.67 [-1.20, -0.25] | 4.56 [3.87, 5.57] | +0.00 [0.00, 0.00] | (never falls back) | 5.62, -0.00 [-0.43, 0.00] | 0.00 |
+| `proj_height_auto` | baseline |  | 4.06 [3.66, 4.56] | 0.00 | – | 3.92 [3.53, 4.36] | – | 4.56 [3.87, 5.57] | – | – | – | – |
+| `proj_gsv_depth` | geometry (pilot) |  | 4.82 [4.50, 5.65] | 0.20 | -0.13 [-0.68, -0.00] | 4.96 [4.55, 5.89] | -0.84 [-1.26, -0.36] | 4.56 [3.87, 5.57] | +0.00 [0.00, 0.00] | 240: 4.96 vs 3.92, -0.84 [-1.26, -0.36] | 4.82, -0.13 [-0.68, 0.00] | 0.20 |
+| `lg` | matching (pilot) | yes | 4.79 [3.51, 6.01] | 0.70 | -0.00 [-0.44, 0.00] | 5.91 [4.15, 6.68] | -0.52 [-1.20, -0.11] | 3.05 [2.39, 4.33] | +0.00 [0.00, 0.47] | 89: 2.41 vs 2.99, +0.45 [-0.26, 0.93] | 3.79, +0.00 [0.00, 0.00] | 0.70 |
+| `sem_chamfer_auto` | semantic |  | 3.30 [2.95, 4.11] | 0.01 | +0.42 [0.14, 0.71] | 3.23 [2.81, 4.12] | +0.34 [0.02, 0.56] | 3.84 [2.73, 4.24] | +0.75 [0.38, 1.68] | 297: 3.28 vs 4.05, +0.43 [0.15, 0.71] | 3.30, +0.40 [0.14, 0.70] | 0.01 |
+| `lsd_chamfer` | semantic |  | 4.92 [4.28, 6.04] | 0.04 | -0.45 [-0.74, -0.13] | 5.31 [4.38, 6.69] | -0.70 [-1.51, -0.32] | 3.71 [2.93, 5.44] | +0.31 [0.00, 1.10] | 289: 4.89 vs 4.06, -0.46 [-0.74, -0.12] | 4.88, -0.30 [-0.69, -0.01] | 0.04 |
+| `sem_snap_auto` | semantic | yes | 3.83 [3.44, 4.36] | 0.05 | -0.00 [-0.23, 0.16] | 3.86 [3.44, 4.41] | -0.18 [-0.40, 0.12] | 3.60 [2.92, 5.24] | +0.15 [-0.00, 0.45] | 284: 3.78 vs 3.96, -0.08 [-0.27, 0.19] | 3.82, +0.00 [-0.22, 0.09] | 0.05 |
+| `roma` | matching |  | 3.51 [2.92, 4.70] | 0.07 | +0.03 [-0.22, 0.43] | 4.41 [3.26, 5.79] | -0.19 [-0.91, 0.12] | 2.58 [2.16, 3.38] | +1.75 [0.83, 2.77] | 279: 3.51 vs 4.05, +0.12 [-0.19, 0.48] | 3.54, +0.00 [-0.07, 0.26] | 0.07 |
+| `roma_local` | matching | yes | 3.29 [2.92, 4.21] | 0.06 | +0.30 [-0.10, 0.66] | 4.06 [3.19, 5.18] | -0.07 [-0.48, 0.34] | 2.37 [1.83, 2.94] | +1.87 [0.98, 2.88] | 283: 3.23 vs 4.03, +0.34 [-0.03, 0.67] | 3.29, +0.21 [0.00, 0.47] | 0.06 |
+| `roma_warp` | matching | yes | 3.25 [2.73, 4.43] | 0.42 | +0.12 [-0.00, 0.54] | 3.99 [2.79, 5.70] | +0.03 [-0.36, 0.43] | 2.58 [1.71, 3.33] | +1.22 [0.00, 2.74] | 174: 2.11 vs 3.48, +0.58 [0.35, 1.21] | 3.11, +0.00 [0.00, 0.00] | 0.42 |
+| `roma_warp_hyb` | matching | yes | 3.11 [2.75, 3.93] | 0.00 | +0.00 [0.00, 0.00] | 3.58 [2.82, 4.28] | +0.00 [0.00, 0.00] | 2.58 [1.71, 3.33] | +1.22 [0.00, 2.74] | (never falls back) | 3.11, +0.00 [0.00, 0.00] | 0.42 |
+| `sp_lg` | matching |  | 4.98 [3.81, 6.18] | 0.74 | -0.07 [-0.46, 0.00] | 6.02 [4.55, 6.91] | -0.62 [-1.20, -0.22] | 3.41 [2.86, 3.92] | +0.00 [0.00, 0.00] | 78: 2.56 vs 2.90, +0.15 [-0.21, 0.94] | 3.79, +0.00 [0.00, 0.00] | 0.74 |
+| `loftr` | matching |  | 6.03 [4.98, 6.96] | 0.86 | -0.33 [-0.79, -0.00] | 6.53 [5.35, 7.67] | -0.79 [-1.63, -0.35] | 4.65 [3.50, 5.87] | +0.00 [-0.00, 0.00] | 42: 6.30 vs 3.58, -2.70 [-5.05, -0.19] | 4.28, +0.00 [0.00, 0.00] | 0.86 |
+| `mono_da3_hcal` | depth | yes | 3.75 [3.24, 4.57] | 0.10 | +0.16 [-0.03, 0.47] | 3.58 [3.08, 4.57] | +0.08 [-0.25, 0.40] | 4.19 [3.24, 5.23] | +0.39 [0.00, 1.04] | 269: 4.04 vs 4.19, +0.22 [-0.04, 0.61] | 3.75, +0.03 [0.00, 0.29] | 0.10 |
+| `mono_unidepth_point` | depth | yes | 4.04 [3.48, 4.73] | 0.00 | +0.18 [-0.15, 0.47] | 4.18 [3.59, 4.98] | -0.01 [-0.46, 0.37] | 3.44 [2.71, 4.56] | +0.86 [0.47, 1.31] | (never falls back) | 4.04, +0.18 [-0.15, 0.47] | 0.00 |
+| `mono_depthpro_point` | depth |  | 19.23 [17.57, 22.51] | 0.00 | -14.43 [-16.76, -12.72] | 20.81 [18.65, 24.66] | -15.39 [-18.54, -13.24] | 16.55 [13.87, 19.50] | -10.78 [-14.70, -8.44] | (never falls back) | 19.23, -14.43 [-16.76, -12.72] | 0.00 |
+| `mapa_posed_pair` | multi-view 3D | yes | 2.80 [2.49, 3.07] | 0.00 | +0.72 [0.42, 1.01] | 2.85 [2.58, 3.39] | +0.63 [0.28, 0.93] | 2.26 [1.89, 3.01] | +1.73 [0.83, 2.77] | (never falls back) | 2.80, +0.72 [0.42, 1.01] | 0.00 |
+| `mapa_posed_corner` | multi-view 3D |  | 2.86 [2.56, 3.31] | 0.00 | +0.61 [0.36, 0.88] | 3.00 [2.58, 3.39] | +0.51 [0.23, 0.84] | 2.68 [1.95, 3.71] | +0.94 [0.42, 2.44] | (never falls back) | 2.86, +0.61 [0.36, 0.88] | 0.00 |
+| `mapa_k_pair` | multi-view 3D |  | 2.99 [2.42, 3.67] | 0.01 | +0.72 [0.28, 1.07] | 3.28 [2.61, 3.96] | +0.33 [0.12, 0.77] | 2.16 [1.47, 2.90] | +2.60 [1.09, 3.23] | 297: 2.96 vs 4.05, +0.73 [0.30, 1.09] | 2.99, +0.72 [0.26, 1.07] | 0.01 |
+| `mast3r_pair` | multi-view 3D |  | 3.20 [2.66, 3.78] | 0.11 | +0.45 [0.06, 0.74] | 3.66 [2.88, 4.29] | +0.12 [-0.25, 0.47] | 1.93 [1.57, 3.19] | +2.22 [1.07, 3.06] | 268: 2.96 vs 4.00, +0.57 [0.18, 1.02] | 3.09, +0.32 [0.00, 0.61] | 0.11 |
+| `dust3r_pair` | multi-view 3D |  | 3.08 [2.59, 3.59] | 0.02 | +0.47 [0.16, 0.79] | 3.30 [2.93, 4.04] | +0.24 [-0.07, 0.48] | 2.11 [1.55, 2.75] | +2.60 [1.28, 3.07] | 294: 3.07 vs 4.04, +0.47 [0.17, 0.83] | 3.07, +0.44 [0.12, 0.79] | 0.02 |
+| `vggt_pair` | multi-view 3D |  | 3.51 [2.92, 4.73] | 0.15 | +0.41 [-0.06, 0.77] | 4.44 [3.34, 5.67] | +0.10 [-0.55, 0.44] | 2.06 [1.52, 2.96] | +1.97 [1.30, 3.26] | 256: 3.35 vs 4.01, +0.41 [-0.16, 0.88] | 3.61, +0.00 [0.00, 0.26] | 0.15 |
+| `mv3d_consensus` | multi-view 3D | yes | 3.11 [2.69, 4.16] | 0.43 | +0.32 [-0.00, 0.64] | 3.93 [2.95, 5.27] | +0.01 [-0.49, 0.41] | 1.98 [1.45, 2.82] | +1.77 [0.87, 2.97] | 172: 2.11 vs 3.48, +0.84 [0.42, 1.24] | 3.03, +0.00 [0.00, 0.00] | 0.43 |
+| `mv3d_consensus_else_auto` | multi-view 3D | yes | 3.03 [2.58, 3.72] | 0.00 | +0.00 [0.00, 0.00] | 3.54 [2.86, 4.13] | +0.00 [0.00, 0.00] | 1.98 [1.45, 2.82] | +1.77 [0.87, 2.97] | (never falls back) | 3.03, +0.00 [0.00, 0.00] | 0.43 |
+| `mapa_posed_poseonly` | multi-view 3D | yes | 3.90 [3.45, 4.40] | 0.00 | +0.07 [0.03, 0.10] | 3.80 [3.27, 4.37] | +0.05 [0.02, 0.09] | 4.14 [3.72, 5.45] | +0.17 [0.07, 0.25] | (never falls back) | 3.90, +0.07 [0.03, 0.10] | 0.00 |
+| `mast3r_poseonly` | multi-view 3D |  | 4.43 [3.69, 5.71] | 0.08 | -0.24 [-0.47, -0.02] | 4.81 [3.69, 5.96] | -0.45 [-0.70, -0.15] | 4.08 [3.15, 5.08] | +0.59 [0.28, 1.26] | 277: 4.36 vs 4.05, -0.19 [-0.44, 0.01] | 4.38, -0.07 [-0.31, 0.00] | 0.08 |
+| `mapa_mono_depthonly` | multi-view 3D | yes | 4.94 [4.37, 5.53] | 0.00 | -0.50 [-1.03, -0.04] | 4.95 [4.31, 5.68] | -0.54 [-1.39, -0.04] | 4.81 [3.39, 6.36] | -0.42 [-1.11, 0.66] | (never falls back) | 4.94, -0.50 [-1.03, -0.04] | 0.00 |
+| `sfm_colmap` | multi-view 3D | yes | 4.90 [3.81, 6.22] | 0.29 | -0.30 [-0.76, 0.02] | 5.86 [4.39, 7.38] | -0.67 [-1.51, -0.24] | 2.52 [2.06, 3.73] | +1.70 [0.25, 2.81] | 212: 4.99 vs 4.33, -0.30 [-0.84, 0.07] | 4.14, +0.00 [0.00, 0.00] | 0.29 |
+| `flat_sfm` | flat Mapillary (Richmond only) |  | not run (Richmond only) | 0.00 (Richmond) | – | n/a | n/a | 2.53 [1.79, 3.97] | +1.74 [0.62, 2.71] | (never falls back) | 2.53, +1.74 [0.62, 2.71] (Richmond) | 0.00 |
+| `noflat_sfm` | flat Mapillary (Richmond only) |  | not run (Richmond only) | 0.00 (Richmond) | – | n/a | n/a | 2.62 [2.18, 3.52] | +1.69 [0.54, 2.55] | (never falls back) | 2.62, +1.69 [0.54, 2.55] (Richmond) | 0.00 |
+| `mlypano_sfm` | flat Mapillary (Richmond only) |  | not run (Richmond only) | 0.00 (Richmond) | – | n/a | n/a | 2.70 [2.18, 3.30] | +1.65 [0.55, 2.63] | (never falls back) | 2.70, +1.65 [0.55, 2.63] (Richmond) | 0.00 |
+| `flat_mvs` | flat Mapillary (Richmond only) |  | not run (Richmond only) | 0.05 (Richmond) | – | n/a | n/a | 3.95 [2.65, 7.26] | +0.26 [-1.40, 2.07] | 57: 4.44 vs 4.61, +0.66 [-2.02, 2.22] | 3.95, +0.26 [-1.40, 2.07] (Richmond) | 0.05 |
+| `flat_gs` | flat Mapillary (Richmond only) |  | not run (Richmond only) | 0.02 (Richmond) | – | n/a | n/a | 10.48 [5.22, 21.21] | -7.33 [-12.57, -0.33] | 59: 10.71 vs 4.57, -7.39 [-13.70, -0.77] | 10.48, -7.33 [-12.57, -0.33] (Richmond) | 0.02 |
 
 **Caveats that travel with this table.**
 
@@ -160,16 +226,22 @@ fallback rate matches `results.json`; the Richmond cells of the flat arms match
   here.
 - **Pair selection truncates the projection's error.** A pair qualifies only if the reference
   raycasts within 5 m of the source point at a flat 2.6 m (§2). The worst projection failures
-  are not scored, so gains over the projection, and less so over auto, are conservative.
+  are not scored, so gains over the projection, and less so over auto, are *likely*
+  conservative. That is an inference, not a measurement: the excluded pairs have larger
+  projection errors, but no arm's error on them is known, and an arm may also fail more
+  often on geometrically hard pairs.
 - **No negative pairs.** Every pair is a true match. Nothing here tests whether an arm can
   tell this ramp from a different ramp nearby, which is what an association signal for
   [labeler#56](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/56) needs (§7).
 - **Mapillary is one city:** Richmond, 60 pairs on 31 ramps. Every Mapillary conclusion,
   including the flat-imagery negative, is a Richmond result.
-- **Many arms were scored on the same 300 pairs, and some were added post hoc.** Across
-  roughly 100 arm readings, a few CI-clear gains are expected by selection alone. The best
-  arms should be re-tested with settings fixed in advance on fresh pairs before they are
-  adopted; that re-test has not been run.
+- **Many arms were scored on the same 300 pairs, and some were added post hoc, including the
+  headline arm.** Across 83 shared arms, a few CI-clear gains are expected by selection
+  alone; the Bonferroni screen above says which survive it. Neither the correction nor the
+  CIs account for arms being *added* after results were seen. **Follow-up, not run:** re-test
+  `mapa_posed_pair`, `mapa_posed_corner` and `mapa_k_pair`, with settings fixed in advance,
+  on fresh pairs from the 1,423 eligible pairs (`eligible_pairs.csv`) not in the 300,
+  preferring ramps not among the 174 already used.
 
 ## 1. Why
 
@@ -197,7 +269,9 @@ Ramps where two views **each** have a verdict-true detection of one merged ramp 
   claims in confidence order, as in `capture_table`. **That detection's pixel is the
   reference.**
 - **Ambiguity filters:** drop a ramp with another pool ramp within 6 m. Drop a pair whose
-  other view has a second ≥ 0.55 detection landing within 8 m.
+  other view has a second ≥ 0.55 detection landing within 8 m. That 8 m is measured from
+  the **pool ramp's** position, while the 5 m world test (`ref_world_gap_m`) and the 18 m
+  range are measured from the source view's own 2.6 m raycast.
 - **Sample:** 1,723 eligible pairs, 60 sampled per city with seed 48, at most 2 other views
   per ramp. `eligible_pairs.csv` re-derives `pairs.csv` (tested).
 - **Frozen:** `PAIRS_SHA256` in the script pins `pairs.csv`. `pairs` refuses to overwrite it
@@ -222,8 +296,9 @@ The sampled pairs:
 - **The world test truncates the projection's error.** A pair qualifies only if the
   reference detection raycasts within 5 m of the source point: median gap 2.2 m, p90 4.2 m.
   That test raycasts at the same flat 2.6 m. So the set leans toward pairs where 2.6 m
-  geometry already roughly works, and the projection numbers are optimistic. That makes
-  every arm's gain over projection conservative, and more so for the geometry arms.
+  geometry already roughly works, and the projection numbers are optimistic. That likely
+  makes every arm's gain over projection conservative, and more so for the geometry arms.
+  This is an inference: no arm's error on the excluded pairs is known.
 - **Reference noise.** The reference and the source point are both detection peaks. On
   manual_gold, peaks at ≥ 0.55 sit a median **1.51°** (p90 3.04°, n = 3,420) from the human
   box centre they match (`reference_noise.json`). That is a rough scale, not a bound. With a
@@ -323,7 +398,10 @@ back):
 Stratum CIs rest on as few as 5 pairs; read them as direction, not size. Every number is in
 `results.json` → `arms.<arm>.<stratum>`.
 
-## 5. Reading
+## 5. Reading (pilot, 13 arms)
+
+This is the pilot's reading, written before the four other arm families ran. Where the
+combined table changes it, the bullet says so.
 
 - **Camera height is the cheapest lever, and the labeler already has it.** Moving GSV from
   2.6 m to its per-year rig height (2.0 or 2.5 m) lowers the projected point toward where
@@ -341,8 +419,9 @@ Stratum CIs rest on as few as 5 pairs; read them as direction, not size. Every n
 - **Mapillary pitch/roll does not help this placement.** Neither the gravity frame nor the
   road-relative frame moves the median or the paired gain; both CIs span zero. The SfM
   position is doing its job: raw GPS is measurably worse.
-- **Image alignment is the only thing that helps Mapillary,** and it is where alignment
-  succeeds most often (fallback 48% vs 76% on GSV). On the pairs it aligns it is near the
+- **Among the pilot's arms, image alignment is the only thing that helps Mapillary,** and it
+  is where alignment succeeds most often (fallback 48% vs 76% on GSV). *Superseded:* in the
+  combined table 18 arms beat `lg` on Mapillary, led by the multi-view 3D arms and RoMa. On the pairs it aligns it is near the
   reference-noise floor (§2). Most GSV pairs have no usable ground correspondence. The
   median pair has 13 m of baseline, and ramps are often seen from opposite sides of an
   intersection, across parked cars, or on bare asphalt.
@@ -385,6 +464,12 @@ Stratum CIs rest on as few as 5 pairs; read them as direction, not size. Every n
 
 2. What an arm gets:
    - `pair` is a row of the frozen `pairs.csv` **with the answer columns (`ref_*`) removed**.
+     This is enforced, not a convention: `ctx.pairs` holds the same stripped rows, and the
+     SlimPanos from `ctx.slim` and `geometry.at_height` have their `detections` emptied,
+     because the reference is one of the other view's detections. A test plants an arm
+     that tries to read the reference through `ctx.pairs` and requires it to fail. (Until
+     2026-09-29 `ctx.pairs` still held `ref_*`; a grep of every arm found no read of it, and
+     re-running `mv3d_consensus` through the new Context reproduces its predictions.)
    - `ctx` (`crossview_align_48.Context`) lazily provides:
      - `view(pair, "src"|"oth")` and `view_centre(pair, which)`;
      - `labeler()`, the labeler's `geo` / `fuse_sites` / `eval_sites`;
@@ -402,6 +487,7 @@ Stratum CIs rest on as few as 5 pairs; read them as direction, not size. Every n
        [--labeler-root ../sidewalk-auto-labeler --runs-root ../sidewalk-auto-labeler/runs \
         --results-root RUNS_ARCHIVE]
    python scripts/analysis/crossview_align_48.py score        # every predictions/*.jsonl
+   python scripts/analysis/crossview_combined_48.py           # the combined table + screens
    pytest -q tests/test_crossview_align_48.py                 # results.json re-derives
    ```
 
@@ -410,6 +496,11 @@ Stratum CIs rest on as few as 5 pairs; read them as direction, not size. Every n
    Commit both and `results.json`. If it used a GPU, add a `paid: false` row to
    `analysis_out/usage_log.jsonl` as below. `score` took about 3 minutes for 13 arms and 20 minutes for
    the 83 arms after the family merges (desktop CPU, 2026-09-29).
+   **`score` with no `--arms` takes every `predictions/*.jsonl`.** An exploratory file left
+   there joins `results.json` and the multiplicity screen, which silently grows the number
+   of arms being compared. `score` names any arm that is new since the committed
+   `results.json`, and the rederive test fails until `results.json` lists it. Delete
+   exploratory predictions rather than leaving them there.
 4. `VIEWS` is the directory `cut-views` wrote. On makelab2 it is
    `/homes/gws/jonf/crossview48/views` (600 JPEGs, 162 MB). A different view size or FOV
    means cutting new views, keyed by their own centre and FOV; say so in the arm's config.
@@ -429,7 +520,12 @@ Stratum CIs rest on as few as 5 pairs; read them as direction, not size. Every n
   A fixed lower height for Mapillary was not tried: it would be a tuned constant, and this
   set is too small to tune on and test on at once.
 
-## 8. Verdict (proposed, not decided)
+## 8. Pilot verdict (proposed, not decided; superseded)
+
+**Superseded by the combined takeaways**
+([Combined comparison](#combined-comparison-across-all-arm-families)), which propose
+`mapa_posed_pair` as the candidate placement, pending its fresh-pair re-test. The pilot's
+verdict is kept below as the record of what the 13 pilot arms supported.
 
 - **Gallery rings:**
   - Use `proj_height_auto` as the base placement everywhere. It is free, never falls back,
@@ -514,6 +610,7 @@ file covers the frozen pairs, and that every arm's headline median and fallback 
 | geometry arms (7) | desktop CPU | 22 s | 0 | 0 |
 | `score`, `noise` | desktop CPU | ~3 min + seconds | 0 | 0 |
 | `score` over all 83 arms after the family merges; `crossview_combined_48.py`; Richmond re-score (`flat_mapillary_48.py score`) | desktop CPU | 20 min 20 s; ~1 min; 2 min 40 s | 0 | 0 |
+| `crossview_combined_48.py` with the Bonferroni screen and common-rule column (review fixes) | desktop CPU | 2 min 21 s | 0 | 0 |
 
 No makelab2 GPU, no klone, no Tillicum, no paid API. GPU runs have `paid: false` rows in
 `analysis_out/usage_log.jsonl`: the two pre-harness `match` runs and the three LightGlue

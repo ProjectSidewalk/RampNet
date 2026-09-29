@@ -15,6 +15,15 @@ Code: `scripts/analysis/crossview_depth_48.py` (GPU extract, summary, instrument
 
 ## Summary
 
+> **Multiplicity (added 2026-09-29, review of
+> [#210](https://github.com/ProjectSidewalk/RampNet/pull/210)).** "CI-clear" in this doc
+> means the arm's own uncorrected 95% ramp-bootstrap CI excludes zero. 83 arms were scored
+> on the same 300 pairs, so some CI-clear gains are expected by selection alone. A
+> one-sided Bonferroni screen over all 83 arms (`docs/crossview_align_48.md`, "Combined
+> comparison") keeps only `mapa_posed_pair` and `mapa_posed_corner` on GSV, and those two
+> plus `mapa_k_pair` and `mapa_posed_poseonly` over all 300 pairs. The Mapillary stratum was
+> not screened. `mapa_posed_pair` is itself post hoc.
+
 - **On GSV, no depth arm beats `proj_height_auto`.** The best is DA3 rescaled to the known
   camera height (`mono_da3_hcal`): paired gain vs auto **+0.22° [−0.03, 0.61]** over the 269 pairs
   it applies to, and +0.09° [−0.25, 0.48] on GSV alone. Every other GSV gain vs auto is within
@@ -71,7 +80,15 @@ raycast (the `proj_gsv_depth` construction); the world point is placed in the ot
 failed ring fit (c) falls back to the projection, as the harness requires.
 
 **Models** (code commits and weights revisions are in each `depth/<m>.meta.json` and in the usage
-rows):
+rows). **Only DA3 was pinned when these runs were made.** Depth Pro, UniDepth and Metric3D
+ran from code cloned at HEAD and weights fetched without a revision; the commits and HF
+revisions in the table are the HEAD-resolved values **recorded at run time** (the HF
+revision was looked up separately from the download, so it is what HEAD was, not a proof of
+which file was loaded). Since 2026-09-29 `crossview_depth_48.py` pins all four to these
+recorded values and the setup script checks out the recorded commits; Metric3D's hubconf
+fetches its checkpoint by URL, so the extract refuses when that repo's HEAD has moved. The
+committed runs were not re-run under the pins (**follow-up, not run:** re-extract Depth Pro,
+UniDepth and Metric3D at the pinned revisions and check the depth rows reproduce).
 
 | model | code | weights | notes |
 |---|---|---|---|
@@ -189,7 +206,9 @@ under `lg`, not a replacement for it; that combination is not tested here.
 ## 4. Caveats (beside the numbers above)
 
 - **Richmond is one city and one rig** (NCTech iStar Pulsar per #101), 60 pairs on 31 ramps. The
-  UniDepth and DA3 Mapillary gains were found by looking across 17 arms and two imagery strata;
+  UniDepth and DA3 Mapillary gains, and `mono_da3_hcal` as the best GSV arm, were found by looking
+  across 17 arms and two imagery strata, so the combined table marks both `mono_unidepth_point` and
+  `mono_da3_hcal` post hoc;
   with that many looks, one CI-clear stratum could be chance. Against that, the direction agrees
   across DA3, UniDepth and (hcal) Metric3D. Replicate on a second Mapillary city before use.
 - **The set is selected at 2.6 m** (harness §2): the reference detection must raycast within 5 m of

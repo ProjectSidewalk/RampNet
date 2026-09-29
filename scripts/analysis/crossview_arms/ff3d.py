@@ -438,6 +438,11 @@ def _mapa_core(ctx, pair, name, corner_mode, posed):
     T1 = got[1]["camera_poses"] if len(got) > 1 else None
     diag["click_depth"] = float((T0[:3, :3].T @ (X - T0[:3, 3]))[2])
     if posed:
+        # NOT a pose shift, despite the name (kept: it is in the committed rows). MapAnything's
+        # output frame is re-centred on the first view, so this is the distance between the
+        # model's output camera centre and the ENU prior centre in two DIFFERENT frames:
+        # src_pose_shift_m is ~ the camera height (1.99-2.61 m), oth_pose_shift_m mixes the
+        # re-centring with the baseline (1.7-52.5 m). rel_rot_vs_prior_deg is the real check.
         for i, nm in ((0, "src"), (1, "oth"))[:len(got)]:
             _, C = M.cam_pose_world(views[i])
             diag[f"{nm}_pose_shift_m"] = float(np.linalg.norm(got[i]["camera_poses"][:3, 3] - C))

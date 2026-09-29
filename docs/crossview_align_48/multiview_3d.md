@@ -19,21 +19,35 @@ Code, all in `scripts/analysis/crossview_arms/`:
 Tests are in `tests/test_crossview_mv3d.py`. Tables come from
 `analysis_out/crossview_align_48/mv3d_results.json` (`_mv3d.py report`, scored against
 both baselines). `mv3d_scores.json` is the harness's own `score` over these arms, with city,
-range and date strata. The shared `results.json` was **not** regenerated (§10).
+range and date strata. The shared `results.json` has since been regenerated over all 83
+arms after the family merges (`docs/crossview_align_48.md` §9); see §11.
 
 ## Summary
+
+> **Multiplicity (added 2026-09-29, review of
+> [#210](https://github.com/ProjectSidewalk/RampNet/pull/210)).** "CI-clear" in this doc
+> means the arm's own uncorrected 95% ramp-bootstrap CI excludes zero. 83 arms were scored
+> on the same 300 pairs, so some CI-clear gains are expected by selection alone. A
+> one-sided Bonferroni screen over all 83 arms (`docs/crossview_align_48.md`, "Combined
+> comparison") keeps only `mapa_posed_pair` and `mapa_posed_corner` on GSV, and those two
+> plus `mapa_k_pair` and `mapa_posed_poseonly` over all 300 pairs. The Mapillary stratum was
+> not screened. `mapa_posed_pair` is itself post hoc.
 
 - **The baseline to beat is `proj_height_auto`**, not today's projection. It puts flat
   ground at the labeler's per-rig 'auto' height: median 4.06° over all 300 pairs, against
   5.62° for the projection.
 - **Feed-forward 3D beats it and does not fall back.** MapAnything run on just the source and
-  the other view:
+  the other view. **`mapa_posed_pair` is post hoc:** it (and `mapa_posed_poseonly`) was
+  registered in commit `0428bb7`, after `mapa_posed_corner`'s 300-pair result had been seen,
+  and neither had a pilot. `mapa_mono_depthonly` came later still (`c84dc74`). Their numbers
+  are in-sample; they need a re-test on fresh pairs with settings fixed in advance:
   - given the pose priors and intrinsics (`mapa_posed_pair`): median **2.80° [2.49, 3.07]**,
     0% fallback. Paired gain over auto is **0.72° [0.42, 1.01]**, closer on 68% of pairs;
   - given only the intrinsics (`mapa_k_pair`, no GPS, no heading): 2.99° [2.42, 3.67],
     1% fallback, paired gain over auto 0.73° [0.30, 1.09].
 - **Other models also beat auto.** Paired gains over auto, where each arm answers:
-  - CI-clear: MASt3R 0.57° [0.18, 1.02] (11% fallback) and DUSt3R 0.47° [0.17, 0.83] (2%);
+  - CI-clear before correction: MASt3R 0.57° [0.18, 1.02] (11% fallback) and DUSt3R 0.47°
+    [0.17, 0.83] (2%); neither survives the 83-arm Bonferroni screen;
   - not CI-clear: VGGT 0.34–0.41°.
 - **Where the ramp is in 3D is the lever. The camera poses are not.** Each model run was read
   two more ways:
@@ -69,7 +83,10 @@ range and date strata. The shared `results.json` was **not** regenerated (§10).
   *behind* auto by 0.2–0.8°. The same predictions beat auto on all 300 (§3).
 - **Verdict (proposed, not decided):** MapAnything on the pair with the pose priors
   (`mapa_posed_pair`) is this family's best single arm. It never falls back, its gain over
-  auto is CI-clear on both imagery sources, and it takes about 0.35 s per pair on an A40.
+  auto is CI-clear on both imagery sources (and survives the 83-arm Bonferroni screen on GSV
+  and over all 300 pairs), and it takes about 0.35 s per pair on an A40. It is post hoc (see
+  above), so these are in-sample numbers; `mapa_posed_corner` is the pre-specified arm
+  closest to it.
   Keep the GPS / compass poses; drop per-corner SfM and splatting for GSV.
 
 ## 1. What was tested
@@ -178,7 +195,8 @@ What the pilot decided, and what it got wrong:
   - The first SfM lift was a free RANSAC plane through the points near the click. It locked
     onto background structure and put the click about 20% too far
     (`sfm_colmap__planelift`, `sfm_colmap_prior__planelift`). It was replaced by the
-    gravity-level ground lift, post hoc.
+    gravity-level ground lift, post hoc. The pilot's 30 pairs are a subset of the 300, so
+    `sfm_colmap` as committed is a post hoc arm (marked so in the combined table).
   - The first `mapa_posed_depthonly` read the point in MapAnything's output frame. That
     frame is re-centred on the first view (the source's "pose shift" was exactly its camera
     height), not the prior's frame (`__frame_bug`).
@@ -302,6 +320,12 @@ are paired medians (baseline minus arm), so positive means the arm is closer.
   - MapAnything given the priors keeps them, to a median 0.3°.
   - Every prediction row carries these diagnostics as `rel_rot_vs_prior_deg` and
     `baseline_dir_vs_prior_deg`.
+  - The posed MapAnything rows also carry `src_pose_shift_m` and `oth_pose_shift_m`. **They
+    are misnamed and are not pose shifts.** They compare the model's output camera centre,
+    in an output frame re-centred on the first view, with the ENU prior centre, in a
+    different frame. `src_pose_shift_m` is therefore about the camera height (1.99–2.61 m)
+    and `oth_pose_shift_m` runs 1.7–52.5 m. The names are kept because they are in the
+    committed rows; do not read them as pose error.
 - **The depth comes from the second view.** The same model, given only the source view, is
   worse than flat ground. Its depth only helps when it has the other view to triangulate
   against. So a monocular metric-depth model is not a substitute here; the monocular-depth
@@ -506,7 +530,10 @@ repo's env.
 
 - Main env (`/homes/gws/jonf/crossview48_sfm/venv`):
   - torch 2.6.0+cu124, torchvision 0.21.0, numpy 2.5.2;
-  - pycolmap 4.2.0, kornia 0.8.3, opencv-python-headless 4.10.0.84;
+  - pycolmap 4.2.0, kornia 0.8.3, OpenCV **5.0.0** (`cv2.__version__` as recorded in every
+    multi-view `predictions/*.meta.json`; an earlier version of this list said
+    opencv-python-headless 4.10.0.84, which is not what ran; the exact wheel build was not
+    recorded);
   - VGGT (facebookresearch/vggt `a288dd0`);
   - MapAnything (facebookresearch/map-anything `3d10cf7`, uniception 0.1.7);
   - MASt3R (`Nik-V9/mast3r@6b9f163`, the MapAnything-packaged fork);
@@ -518,9 +545,17 @@ repo's env.
   - `naver/DUSt3R_ViTLarge_BaseDecoder_512_dpt@61c5744`.
 - Splat env (`venv_splat`): the same torch, plus InstantSplat `b951567` with its
   `simple-knn`, `diff-gaussian-rasterization` and `fused-ssim` built with CUDA 12.8 for
-  sm_86. Its MASt3R checkpoint sha256 is `e28f91b4…6eb2`, loaded with
-  `TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1`.
+  sm_86. Its MASt3R checkpoint was loaded with `TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1`. Only
+  a truncated sha256 was written down (`e28f91b4…6eb2`); the full hash is not recorded in
+  any committed file, so it cannot verify a checkpoint. Record the full hash on the next
+  build.
 - None of these packages are in `requirements.txt` or `environment.yml`.
+- **Setup script: `scripts/analysis/crossview_mv3d_setup.sh`** (`main`, `splat` or `both`).
+  It was written after the runs from the versions above and the meta files. **It has not
+  been rebuilt or verified:** the original envs were built by hand and their install
+  commands were not recorded, so the install order and editable/`--no-deps` choices are a
+  reconstruction. **Follow-up, not run:** rebuild from it on makelab2 and re-predict one
+  arm (e.g. `mapa_posed_pair`) to check it reproduces the committed rows.
 
 **Reproduction.** Every prediction's `.meta.json` records the host, GPU, wall-clock, config
 and pairs hash. The `predict-many` metas also record the manifest hash.
@@ -574,12 +609,11 @@ python scripts/analysis/crossview_arms/_scenes.py points --scenes scenes
 - **The first pilots ran from an older manifest.** They used a 4-decimal manifest and views
   cut from it (0.036° centre rounding). Every full run used the committed 8-decimal manifest
   and views re-cut from it.
-- **`results.json` was not regenerated.** Per the harness's shared-file rule, these arms'
-  predictions are committed but the shared `results.json` is not. Until someone re-runs
-  `crossview_align_48.py score` over every arm,
+- **`results.json` has been regenerated.** On this family's own branch it was not, and the
+  rederive test failed there. After the five families were merged,
+  `crossview_align_48.py score` was re-run over all 83 arms (2026-09-29), and
   `tests/test_crossview_align_48.py::test_committed_results_rederive_from_committed_predictions`
-  fails on this branch because it finds predictions that `results.json` does not list. Every
-  other test passes (2,351).
+  now passes.
 
 **Content hashes** (sha256):
 

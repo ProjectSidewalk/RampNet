@@ -27,7 +27,9 @@ compute only (desktop, makelab2 A40).
   - The sparse lift of the click onto the reconstructed ground is 2.53° [1.79, 3.97] with
     flat images, against 4.56° for the projection.
   - Without the flat images it is 2.62°; with 30 more Mapillary panos, 2.70°.
-  - Paired, flat vs no flat: +0.00° [−0.01, 0.05]; 60 pairs, 31 ramps.
+  - Paired, flat vs no flat: +0.00° [−0.01, 0.05]; 60 pairs, 31 ramps. On the 47 pairs
+    whose corner actually has flat images: +0.02° [−0.04, 0.13], 24 ramps. The 60-pair
+    figure is diluted toward zero by 13 pairs with no treatment (§4).
   - It ties the 360-only SfM on `crossview-sfm-48` (`sfm_colmap`, 2.52°), is slightly
     behind RoMa (2.40°), and is behind MASt3R pair (1.93°; paired −0.56° [−0.77, −0.16]) (§5).
 - **The dense lifts are negative results.** Reading the click's depth from the Gaussian splat
@@ -130,7 +132,7 @@ aim, never the reference. The per-corner image list is `manifest.json`
 | variant | images | median input images per corner |
 |---|---|---|
 | `noflat` (control) | harness views + run pano views | 20 |
-| `flat` | + flat images (0–34 per corner; 7 corners have none, so there `flat` = `noflat`) | 24 |
+| `flat` | + flat images (0–34 per corner; 7 corners have none, so there `flat` has the same inputs as `noflat`, but it is a separate reconstruction, §4) | 24 |
 | `mlypano` | + up to 30 un-thinned Mapillary panos | 54 |
 
 **SfM.**
@@ -183,12 +185,50 @@ full run, which re-ran the pilot corners with the final code.
 **Caveats beside this table:**
 - **"Registered" is not "correct."** A view can register with a wrong pose, and nothing
   here checks poses against an independent answer. The harness error in §5 is the check.
-- **Flat cameras disagree with their Mapillary positions.** With flat images in the model,
-  the median camera-to-prior disagreement grows from 0.37 m to 2.01 m, and a few corners
-  have p90 disagreements of tens of metres (`corners/*.json` →
-  `model.prior_residual_h_m_p90`). Either Mapillary's positions for the older flat drives
-  are off, or some flat images register wrongly under the robust prior. Which it is was
-  not resolved.
+- **Adding flat images moves the pano cameras too, not only the flat ones.** With flat
+  images in the model, the median camera-to-prior disagreement grows from 0.37 m to 2.01 m,
+  and a few corners have p90 disagreements of tens of metres (`corners/*.json` →
+  `model.prior_residual_h_m_p90`). Broken down by camera kind (median horizontal distance
+  of `cameras[].C` from `prior_enu`, over all cameras of that kind):
+
+  | camera kind | noflat | flat | mlypano |
+  |---|---|---|---|
+  | `pano_src` | 0.41 m | 1.09 m | 0.63 m |
+  | `pano_oth` | 0.36 m | 1.54 m | 0.79 m |
+  | `pano_extra` | 0.44 m | 1.55 m | 0.78 m |
+  | flat | – | 3.37 m (p90 14.4) | 4.49 m (p90 31.2) |
+
+  In several corners the mean offsets of the flat and the pano cameras point in roughly
+  opposite directions: `richmond:0` flat (+4.5, −4.4) m against pano about (−3.4, +3.7) m;
+  `richmond:145`, `:25` and `:30` show the same pattern in the east component, and `:29`
+  does not clearly. In `richmond:96` the pano
+  cameras sit 11–21 m east of their priors (mean by kind). That looks like the robust
+  position prior splitting a conflict between two sets of Mapillary positions (the flat
+  drives' and the pano drives'), more than a few flat images registering wrongly. It is not
+  resolved.
+  - **Effect on the arms: none expected**, because the lift and the projection happen
+    inside one model, in one frame.
+  - **Effect on absolute use: real.** The viewer bundles' "approximately east-north-up"
+    frame (§7) and any absolute use of these models inherit metre-scale offsets, up to
+    about 20 m at `richmond:96`, in the `flat` and `mlypano` variants.
+- **Reconstructions are not repeatable run to run, and the size of that noise is measured.**
+  For the 13 pairs on the 7 corners with no flat images, `flat` and `noflat` had identical
+  inputs but are separate reconstructions. Their per-pair |error(flat) − error(noflat)|
+  (`results_richmond.json` → `per_pair`) is run-to-run noise:
+
+  | lift | median | max |
+  |---|---|---|
+  | sparse (`_sfm`) | 0.006° | 0.76° (p020) |
+  | `_gs` | 1.77° | 3.73° |
+  | `_gsmed` | 0.33° | 11.5° |
+  | `_mvs` | 0.13° | 41.0° (p020) |
+
+  So the sparse lift repeats well; the dense lifts do not. The cross-variant `_gs` medians
+  in §5 (10.48 / 10.08 / 12.56°) differ by less than this noise.
+- Both tables above, and the 47-pair flat-vs-noflat comparison in the Summary, come from
+  `python scripts/analysis/flat3d/noise_and_offsets.py` (committed files only, under a
+  second; added 2026-09-29 after the review of
+  [#210](https://github.com/ProjectSidewalk/RampNet/pull/210)).
 - **PSNR is on the training views.** There are too few views per corner to hold any out,
   so it measures fit, not novel-view quality.
 
@@ -306,7 +346,10 @@ Each bundle has:
 - `README.md`: the frame.
 
 **The frame** is the SfM model's frame: metric and approximately east-north-up (x east,
-y north, z up, metres) about the corner origin.
+y north, z up, metres) about the corner origin. "Approximately" hides metre-scale offsets:
+with flat images in the model, even the pano cameras sit a median 1.1–1.5 m from their
+Mapillary positions, and up to about 20 m at `richmond:96` (§4). Do not read absolute
+positions off these bundles.
 
 **The splats** (`splat.ply`, standard 3DGS format, SH degree 0, 9–13 MB each, 67 MB for
 the six) are not committed. They are on makelab2 at
@@ -352,8 +395,9 @@ bash scripts/analysis/flat3d/setup_colmap_cuda.sh   # micromamba env: COLMAP 3.1
 bash scripts/analysis/flat3d/full_makelab2.sh       # 93 reconstructions, 3.6 h on an A40
 python scripts/analysis/flat3d/gs_median_depth.py --corners-root $B/corners
 # copy $B/corners/<tag>/result.json to analysis_out/flat_mapillary_3d/corners/<tag>.json, then:
-git fetch origin && bash scripts/analysis/flat3d/predict_all.sh
+bash scripts/analysis/flat3d/predict_all.sh
 python scripts/analysis/flat3d/summarize.py
+python scripts/analysis/flat3d/noise_and_offsets.py   # §4 noise and offset tables
 python scripts/analysis/flat3d/viewer_bundle.py --corners-root SCENES --corner richmond:191 ... \
     --out analysis_out/flat_mapillary_3d/scenes --max-mb 1
 pytest -q tests/test_flat_mapillary_3d.py
@@ -366,8 +410,10 @@ pytest -q tests/test_flat_mapillary_3d.py
   2026-09-28.
 - **The harness views and native-res panos,** as in `docs/crossview_align_48.md` §9.
 - **The reconstruction is not bit-reproducible.** pycolmap seeds are fixed (48), but GPU
-  feature extraction, multithreaded mapping and splat training are not deterministic. A
-  re-run will give slightly different numbers.
+  feature extraction, multithreaded mapping and splat training are not deterministic. The
+  13 identical-input pairs in §4 measure how much a re-run moves: a median 0.006° (max
+  0.76°) for the sparse lift, but a median 1.77° for the splat lift and up to 41° for MVS.
+  Expect the dense-lift numbers to move by that much on a re-run.
 
 ## 10. Cost and time
 
