@@ -65,13 +65,35 @@ candidates:
   `mapa_k_pair` is confirmed as pre-specified but borderline on GSV: under #220's review and
   [sensitivity reads](https://github.com/ProjectSidewalk/RampNet/issues/48#issuecomment-5896570175)
   its GSV lower bound is 0.000 / −0.009 / −0.048, so that cell is not confirmed under any of
-  them. `mapa_k_pair` was best on Mapillary (+1.89°); it was not run here. `roma` and
+  them. `mapa_k_pair` was best on Mapillary (+1.89°); it was not run in phase 2 (step 3 runs it; see below). `roma` and
   `roma_local` were **not** in that re-test. In #48 no matching arm beats auto on GSV, and
   their Mapillary gains come from a stratum #48 did not screen for multiplicity. `roma_local` is post hoc there. `roma`
   inherits `lg`'s post hoc 5° ground band, so it is not fully pre-specified either.
 - **For step 3.** On a dense corner, the 5 m nearest-point world match cannot tell the mined
   ramp from a neighbour. Any later `already_detected` gain should carry the own / other
   attribution beside it.
+
+## Step 3 ([#222](https://github.com/ProjectSidewalk/RampNet/pull/222))
+
+Step 3 of #158 (peak-anchored targets) is in the labeler:
+[sidewalk-auto-labeler#112](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/pull/112),
+`docs/mined-precision.md` § Step 3. On the RampNet side it adds two things:
+
+- **`mapa_k_pair` on the same 127 mined pairs.** It was named as an arm before scoring. It
+  fell back on 1 pair and took 50 s on the makelab2 A40.
+  - Under the rubric, richmond reads 11 fixed / 0 broken. All 11 become `already_detected`,
+    so, as with `roma_local`, they are not shown to land on the mined ramp.
+  - Its #48 status is confirmed as pre-specified but borderline on GSV (above).
+- **`paid: false` ledger rows** for that run and for the labeler's richmond and bend floor
+  passes. The bend pass failed its instrument gate and was not used. The likely cause, found
+  after the review of #222 and #112, is the pixel source: bend's production run fed the model
+  Google's zoom-3 rendition, while the floor pass read the archive's max-zoom JPEGs (labeler
+  doc, step 3 "Post hoc").
+- **`mapa_k_pair.meta.json` provenance.** As written by the run, it says
+  `"pre_specified_for_158": false`, because `PLANNED_ARMS` then listed only the phase-2 arms.
+  The step-3 plan named the arm before the run and before scoring, so the file now also
+  carries `"pre_specified_in": "step 3"` and a dated `provenance_correction`. `PLANNED_ARMS`
+  records the plan per arm, and new metas write `pre_specified_in`. No prediction changed.
 
 ## Cost
 
@@ -81,17 +103,22 @@ candidates:
 | cut-views (254 views, 211 panos) | makelab2 CPU | 40 s | 0 |
 | `mapa_posed_pair` | makelab2 A40 (shared, free memory checked first) | 134 s | 0.037 |
 | `roma` + `roma_local` | desktop RTX 3070 | 204 s | 0.057 |
+| step 3: `mapa_k_pair` (ended 18:13:07Z) | makelab2 A40 (shared, free memory checked first) | 50 s | 0.014 |
+| step 3: labeler floor passes, richmond + bend | makelab2 A40 | 214 s + 245 s | 0.059 + 0.068 |
 
-Both GPU runs have `paid: false` rows in `analysis_out/usage_log.jsonl`; the RoMa row
-(`mined-placement-158:roma+roma_local`) covers both RoMa arms. Nothing ran on
-Tillicum and no paid API was called.
+Every GPU run has a `paid: false` row in `analysis_out/usage_log.jsonl`; the RoMa row
+(`mined-placement-158:roma+roma_local`) covers both RoMa arms. The two floor-pass rows'
+`ts` are the end of each pass rounded to the minute, so they are approximate. Nothing ran
+on Tillicum and no paid API was called.
 
 ## Reproduce
 
 The commands are in the labeler doc, "Reproduce (phase 2)". Environments are as in #48:
 
 - MapAnything used makelab2's `crossview48_sfm/venv`, with `HF_HOME` / `TORCH_HOME` from
-  `crossview48_sfm`.
+  `crossview48_sfm`. That holds for step 3's `mapa_k_pair` too: its meta records torch
+  2.6.0+cu124, which is that venv's, and its log reads the DINOv2 weights from
+  `crossview48_sfm/torch_home`. The command is in the labeler doc, "Reproduce (step 3)".
 - RoMa ran on the desktop RTX 3070 against RampNet's `.venv` (torch 2.6.0+cu126, numpy
   2.5.1, opencv 5.0.0, python 3.12.10), plus these packages, installed `--no-deps` into a
   scratch directory put first on `PYTHONPATH`:
