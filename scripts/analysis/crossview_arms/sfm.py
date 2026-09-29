@@ -291,6 +291,20 @@ def _recon_for(ctx, pair, priors):
     return ctx.cache[key]
 
 
+def rel_pose_agreement(Rs, Cs, Ro, Co, vs, vo):
+    """Diagnostics: how far a reconstruction's src->oth relative pose is from the pose
+    prior's -- relative rotation angle and baseline-direction angle, degrees."""
+    Rs_p, Cs_p = M.cam_pose_world(vs)
+    Ro_p, Co_p = M.cam_pose_world(vo)
+    rel_est, rel_pri = Ro.T @ Rs, Ro_p.T @ Rs_p
+    c = (np.trace(rel_est.T @ rel_pri) - 1.0) / 2.0
+    rot = float(np.degrees(np.arccos(np.clip(c, -1.0, 1.0))))
+    b_est, b_pri = Rs.T @ (Co - Cs), Rs_p.T @ (Co_p - Cs_p)
+    cb = b_est @ b_pri / (np.linalg.norm(b_est) * np.linalg.norm(b_pri) + 1e-12)
+    return {"rel_rot_vs_prior_deg": rot,
+            "baseline_dir_vs_prior_deg": float(np.degrees(np.arccos(np.clip(cb, -1, 1))))}
+
+
 def _transfer(pair, ctx, priors):
     rec, names, diag, views = _recon_for(ctx, pair, priors)
     out = {"x": None, "y": None, **diag}
@@ -298,6 +312,7 @@ def _transfer(pair, ctx, priors):
         out["reason"] = "not_co_registered"
         return out
     s, o = _image(rec, names[0]), _image(rec, names[1])
+    out.update(rel_pose_agreement(*_cam(s), *_cam(o), views[0], views[1]))
     X, d2 = lift_click(rec, s)
     out.update(d2)
     if X is None:
