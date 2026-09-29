@@ -221,6 +221,8 @@ def markdown(res, which="primary"):
 
 
 def cmd_score(args):
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")   # the table prints Greek alpha and degrees
     res = score_fresh()
     H.write_json(args.out, res)
     for which in ("primary", "secondary"):

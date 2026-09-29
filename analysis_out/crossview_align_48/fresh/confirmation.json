@@ -1,0 +1,613 @@
+{
+ "config": {
+  "alpha": 0.05,
+  "arms": [
+   "mapa_posed_pair",
+   "mapa_posed_corner",
+   "mapa_k_pair"
+  ],
+  "baseline": "proj_height_auto",
+  "fallback": "scored at the 2.6 m projection (harness rule)",
+  "frozen300_sha256": "a85a11bceb57e7d4db4bc5914c35cb17b5fdaf9bc8c9189957574a13260db388",
+  "n_boot": 20000,
+  "pairs_sha256": "4ae009bfc4a767c3a176c7707cbace77a09932d69e44792bdc3adc97d51e9f7a",
+  "primary": "pairs whose ramp is not one of the 174 ramps of the frozen 300",
+  "resample": "ramps with replacement, one draw per stratum shared by all arms",
+  "secondary": "every fresh pair",
+  "seed": 48,
+  "sensitivity": "bonferroni9_lower: alpha / 9 (3 arms x 3 strata)",
+  "test": "one-sided (gain > 0), Bonferroni over the 3 arms within each stratum"
+ },
+ "per_city": {
+  "bend": {
+   "mapa_k_pair": 3.0368,
+   "mapa_posed_corner": 3.006,
+   "mapa_posed_pair": 2.9835,
+   "n_pairs": 189,
+   "proj_height_auto": 4.027,
+   "projection": 4.0425
+  },
+  "gainesville": {
+   "mapa_k_pair": 3.5725,
+   "mapa_posed_corner": 3.5189,
+   "mapa_posed_pair": 3.5409,
+   "n_pairs": 109,
+   "proj_height_auto": 3.7498,
+   "projection": 6.4919
+  },
+  "paterson": {
+   "mapa_k_pair": 3.2513,
+   "mapa_posed_corner": 2.9394,
+   "mapa_posed_pair": 3.4216,
+   "n_pairs": 108,
+   "proj_height_auto": 3.7937,
+   "projection": 6.1951
+  },
+  "richmond": {
+   "mapa_k_pair": 2.4451,
+   "mapa_posed_corner": 3.5431,
+   "mapa_posed_pair": 3.2056,
+   "n_pairs": 209,
+   "proj_height_auto": 5.291,
+   "projection": 5.2911
+  },
+  "sao_paulo": {
+   "mapa_k_pair": 3.9313,
+   "mapa_posed_corner": 3.6271,
+   "mapa_posed_pair": 3.7375,
+   "n_pairs": 71,
+   "proj_height_auto": 4.6964,
+   "projection": 3.5074
+  }
+ },
+ "primary": {
+  "all": {
+   "arms": {
+    "mapa_k_pair": {
+     "bonferroni9_lower": 0.2681,
+     "bonferroni_lower": 0.3015,
+     "closer_than_auto": 0.6093,
+     "confirmed": true,
+     "confirmed_at_9": true,
+     "fallback_rate": 0.0292,
+     "gain_ci": [
+      0.3232,
+      0.9162
+     ],
+     "gain_vs_auto": 0.6866,
+     "median_ci": [
+      2.7493,
+      3.347
+     ],
+     "median_deg": 3.0503,
+     "share_resamples_le_0": 0.0,
+     "within_2deg": 0.344
+    },
+    "mapa_posed_corner": {
+     "bonferroni9_lower": 0.3178,
+     "bonferroni_lower": 0.3473,
+     "closer_than_auto": 0.6399,
+     "confirmed": true,
+     "confirmed_at_9": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.3581,
+      0.9138
+     ],
+     "gain_vs_auto": 0.5923,
+     "median_ci": [
+      2.9805,
+      3.6435
+     ],
+     "median_deg": 3.2767,
+     "share_resamples_le_0": 0.0,
+     "within_2deg": 0.2988
+    },
+    "mapa_posed_pair": {
+     "bonferroni9_lower": 0.295,
+     "bonferroni_lower": 0.3432,
+     "closer_than_auto": 0.6429,
+     "confirmed": true,
+     "confirmed_at_9": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.365,
+      0.8563
+     ],
+     "gain_vs_auto": 0.5684,
+     "median_ci": [
+      2.9753,
+      3.5338
+     ],
+     "median_deg": 3.2641,
+     "share_resamples_le_0": 0.0,
+     "within_2deg": 0.3163
+    },
+    "proj_height_auto": {
+     "fallback_rate": 0.0,
+     "median_ci": [
+      3.8676,
+      4.8219
+     ],
+     "median_deg": 4.2196,
+     "within_2deg": 0.2376
+    },
+    "projection": {
+     "closer_than_auto": 0.4286,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      -0.0003,
+      0.0
+     ],
+     "gain_vs_auto": -0.0,
+     "median_ci": [
+      4.3947,
+      5.5266
+     ],
+     "median_deg": 5.0046,
+     "share_resamples_le_0": 0.9988,
+     "within_2deg": 0.1953
+    }
+   },
+   "n_pairs": 686,
+   "n_ramps": 395
+  },
+  "gsv": {
+   "arms": {
+    "mapa_k_pair": {
+     "bonferroni9_lower": 0.0219,
+     "bonferroni_lower": 0.1112,
+     "closer_than_auto": 0.5639,
+     "confirmed": true,
+     "confirmed_at_9": true,
+     "fallback_rate": 0.0398,
+     "gain_ci": [
+      0.1163,
+      0.5716
+     ],
+     "gain_vs_auto": 0.2857,
+     "median_ci": [
+      3.0067,
+      3.5773
+     ],
+     "median_deg": 3.2813,
+     "share_resamples_le_0": 0.0036,
+     "within_2deg": 0.3145
+    },
+    "mapa_posed_corner": {
+     "bonferroni9_lower": 0.1421,
+     "bonferroni_lower": 0.2136,
+     "closer_than_auto": 0.6164,
+     "confirmed": true,
+     "confirmed_at_9": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.2241,
+      0.6506
+     ],
+     "gain_vs_auto": 0.3895,
+     "median_ci": [
+      2.8427,
+      3.5959
+     ],
+     "median_deg": 3.1837,
+     "share_resamples_le_0": 0.0,
+     "within_2deg": 0.3061
+    },
+    "mapa_posed_pair": {
+     "bonferroni9_lower": 0.1036,
+     "bonferroni_lower": 0.1113,
+     "closer_than_auto": 0.5954,
+     "confirmed": true,
+     "confirmed_at_9": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.1129,
+      0.5862
+     ],
+     "gain_vs_auto": 0.3514,
+     "median_ci": [
+      2.9585,
+      3.5886
+     ],
+     "median_deg": 3.2689,
+     "share_resamples_le_0": 0.0001,
+     "within_2deg": 0.3166
+    },
+    "proj_height_auto": {
+     "fallback_rate": 0.0,
+     "median_ci": [
+      3.4528,
+      4.4752
+     ],
+     "median_deg": 3.9487,
+     "within_2deg": 0.2725
+    },
+    "projection": {
+     "closer_than_auto": 0.4256,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      -0.8468,
+      -0.1432
+     ],
+     "gain_vs_auto": -0.482,
+     "median_ci": [
+      4.0791,
+      5.5143
+     ],
+     "median_deg": 4.8228,
+     "share_resamples_le_0": 0.9971,
+     "within_2deg": 0.2117
+    }
+   },
+   "n_pairs": 477,
+   "n_ramps": 284
+  },
+  "mapillary": {
+   "arms": {
+    "mapa_k_pair": {
+     "bonferroni9_lower": 0.9133,
+     "bonferroni_lower": 1.0782,
+     "closer_than_auto": 0.7129,
+     "confirmed": true,
+     "confirmed_at_9": true,
+     "fallback_rate": 0.0048,
+     "gain_ci": [
+      1.1515,
+      2.9075
+     ],
+     "gain_vs_auto": 1.8927,
+     "median_ci": [
+      2.048,
+      2.9519
+     ],
+     "median_deg": 2.4451,
+     "share_resamples_le_0": 0.0,
+     "within_2deg": 0.4115
+    },
+    "mapa_posed_corner": {
+     "bonferroni9_lower": 0.5088,
+     "bonferroni_lower": 0.5948,
+     "closer_than_auto": 0.6938,
+     "confirmed": true,
+     "confirmed_at_9": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.601,
+      2.232
+     ],
+     "gain_vs_auto": 1.0044,
+     "median_ci": [
+      3.0325,
+      4.1126
+     ],
+     "median_deg": 3.5431,
+     "share_resamples_le_0": 0.0,
+     "within_2deg": 0.2823
+    },
+    "mapa_posed_pair": {
+     "bonferroni9_lower": 0.6069,
+     "bonferroni_lower": 0.6824,
+     "closer_than_auto": 0.7512,
+     "confirmed": true,
+     "confirmed_at_9": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.726,
+      2.3417
+     ],
+     "gain_vs_auto": 1.3177,
+     "median_ci": [
+      2.615,
+      3.647
+     ],
+     "median_deg": 3.2056,
+     "share_resamples_le_0": 0.0,
+     "within_2deg": 0.3158
+    },
+    "proj_height_auto": {
+     "fallback_rate": 0.0,
+     "median_ci": [
+      4.2806,
+      7.1105
+     ],
+     "median_deg": 5.291,
+     "within_2deg": 0.1579
+    },
+    "projection": {
+     "closer_than_auto": 0.4354,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.0,
+      0.0
+     ],
+     "gain_vs_auto": 0.0,
+     "median_ci": [
+      4.2809,
+      7.1102
+     ],
+     "median_deg": 5.2911,
+     "share_resamples_le_0": 0.9357,
+     "within_2deg": 0.1579
+    }
+   },
+   "n_pairs": 209,
+   "n_ramps": 111
+  }
+ },
+ "secondary": {
+  "all": {
+   "arms": {
+    "mapa_k_pair": {
+     "bonferroni9_lower": 0.3286,
+     "bonferroni_lower": 0.4395,
+     "closer_than_auto": 0.6196,
+     "confirmed": true,
+     "confirmed_at_9": true,
+     "fallback_rate": 0.0273,
+     "gain_ci": [
+      0.4715,
+      0.9536
+     ],
+     "gain_vs_auto": 0.7049,
+     "median_ci": [
+      2.7146,
+      3.2633
+     ],
+     "median_deg": 3.0129,
+     "share_resamples_le_0": 0.0,
+     "within_2deg": 0.3457
+    },
+    "mapa_posed_corner": {
+     "bonferroni9_lower": 0.3581,
+     "bonferroni_lower": 0.4096,
+     "closer_than_auto": 0.6506,
+     "confirmed": true,
+     "confirmed_at_9": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.4207,
+      0.9356
+     ],
+     "gain_vs_auto": 0.6328,
+     "median_ci": [
+      2.9262,
+      3.5189
+     ],
+     "median_deg": 3.197,
+     "share_resamples_le_0": 0.0,
+     "within_2deg": 0.3024
+    },
+    "mapa_posed_pair": {
+     "bonferroni9_lower": 0.3653,
+     "bonferroni_lower": 0.3906,
+     "closer_than_auto": 0.6493,
+     "confirmed": true,
+     "confirmed_at_9": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.4093,
+      0.8676
+     ],
+     "gain_vs_auto": 0.6335,
+     "median_ci": [
+      2.9456,
+      3.4543
+     ],
+     "median_deg": 3.2267,
+     "share_resamples_le_0": 0.0,
+     "within_2deg": 0.3209
+    },
+    "proj_height_auto": {
+     "fallback_rate": 0.0,
+     "median_ci": [
+      3.9326,
+      4.7876
+     ],
+     "median_deg": 4.2148,
+     "within_2deg": 0.2268
+    },
+    "projection": {
+     "closer_than_auto": 0.43,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      -0.0002,
+      0.0
+     ],
+     "gain_vs_auto": 0.0,
+     "median_ci": [
+      4.3634,
+      5.352
+     ],
+     "median_deg": 4.8491,
+     "share_resamples_le_0": 0.9998,
+     "within_2deg": 0.1921
+    }
+   },
+   "n_pairs": 807,
+   "n_ramps": 477
+  },
+  "gsv": {
+   "arms": {
+    "mapa_k_pair": {
+     "bonferroni9_lower": 0.1118,
+     "bonferroni_lower": 0.131,
+     "closer_than_auto": 0.5712,
+     "confirmed": true,
+     "confirmed_at_9": true,
+     "fallback_rate": 0.0383,
+     "gain_ci": [
+      0.1425,
+      0.6267
+     ],
+     "gain_vs_auto": 0.3232,
+     "median_ci": [
+      2.9762,
+      3.5051
+     ],
+     "median_deg": 3.233,
+     "share_resamples_le_0": 0.0008,
+     "within_2deg": 0.3157
+    },
+    "mapa_posed_corner": {
+     "bonferroni9_lower": 0.215,
+     "bonferroni_lower": 0.2375,
+     "closer_than_auto": 0.6259,
+     "confirmed": true,
+     "confirmed_at_9": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.2446,
+      0.6687
+     ],
+     "gain_vs_auto": 0.4376,
+     "median_ci": [
+      2.8188,
+      3.4647
+     ],
+     "median_deg": 3.0738,
+     "share_resamples_le_0": 0.0,
+     "within_2deg": 0.312
+    },
+    "mapa_posed_pair": {
+     "bonferroni9_lower": 0.1275,
+     "bonferroni_lower": 0.1506,
+     "closer_than_auto": 0.6077,
+     "confirmed": true,
+     "confirmed_at_9": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.174,
+      0.6362
+     ],
+     "gain_vs_auto": 0.3838,
+     "median_ci": [
+      2.8495,
+      3.5201
+     ],
+     "median_deg": 3.2246,
+     "share_resamples_le_0": 0.0,
+     "within_2deg": 0.3248
+    },
+    "proj_height_auto": {
+     "fallback_rate": 0.0,
+     "median_ci": [
+      3.4342,
+      4.3294
+     ],
+     "median_deg": 3.9106,
+     "within_2deg": 0.2591
+    },
+    "projection": {
+     "closer_than_auto": 0.438,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      -0.7668,
+      -0.107
+     ],
+     "gain_vs_auto": -0.3991,
+     "median_ci": [
+      4.0577,
+      5.2401
+     ],
+     "median_deg": 4.6005,
+     "share_resamples_le_0": 0.9933,
+     "within_2deg": 0.208
+    }
+   },
+   "n_pairs": 548,
+   "n_ramps": 339
+  },
+  "mapillary": {
+   "arms": {
+    "mapa_k_pair": {
+     "bonferroni9_lower": 1.0308,
+     "bonferroni_lower": 1.154,
+     "closer_than_auto": 0.722,
+     "confirmed": true,
+     "confirmed_at_9": true,
+     "fallback_rate": 0.0039,
+     "gain_ci": [
+      1.19,
+      2.6003
+     ],
+     "gain_vs_auto": 1.851,
+     "median_ci": [
+      2.0551,
+      2.9086
+     ],
+     "median_deg": 2.4244,
+     "share_resamples_le_0": 0.0,
+     "within_2deg": 0.4093
+    },
+    "mapa_posed_corner": {
+     "bonferroni9_lower": 0.5755,
+     "bonferroni_lower": 0.6083,
+     "closer_than_auto": 0.7027,
+     "confirmed": true,
+     "confirmed_at_9": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.6366,
+      2.0135
+     ],
+     "gain_vs_auto": 1.0881,
+     "median_ci": [
+      3.0296,
+      4.0526
+     ],
+     "median_deg": 3.5369,
+     "share_resamples_le_0": 0.0,
+     "within_2deg": 0.2819
+    },
+    "mapa_posed_pair": {
+     "bonferroni9_lower": 0.6738,
+     "bonferroni_lower": 0.7276,
+     "closer_than_auto": 0.7375,
+     "confirmed": true,
+     "confirmed_at_9": true,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.7611,
+      2.1127
+     ],
+     "gain_vs_auto": 1.3118,
+     "median_ci": [
+      2.6532,
+      3.6203
+     ],
+     "median_deg": 3.2267,
+     "share_resamples_le_0": 0.0,
+     "within_2deg": 0.3127
+    },
+    "proj_height_auto": {
+     "fallback_rate": 0.0,
+     "median_ci": [
+      4.3528,
+      6.7903
+     ],
+     "median_deg": 5.2126,
+     "within_2deg": 0.1583
+    },
+    "projection": {
+     "closer_than_auto": 0.4131,
+     "fallback_rate": 0.0,
+     "gain_ci": [
+      0.0,
+      0.0
+     ],
+     "gain_vs_auto": 0.0,
+     "median_ci": [
+      4.3528,
+      6.7904
+     ],
+     "median_deg": 5.2127,
+     "share_resamples_le_0": 0.9899,
+     "within_2deg": 0.1583
+    }
+   },
+   "n_pairs": 259,
+   "n_ramps": 138
+  }
+ }
+}
