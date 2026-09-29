@@ -326,3 +326,11 @@ analysis_out/crossview_align_48/*
 analysis_out/crossview_align_48/predictions/*
 !analysis_out/crossview_align_48/predictions/*.jsonl
 !analysis_out/crossview_align_48/predictions/*.json
+# ... and the 3D viewer bundles: their JSON is committed; the scene .ply files live on
+# makelab2 (/homes/gws/jonf/crossview48/scenes/), pinned by sha256 in scenes_manifest.json
+!analysis_out/crossview_align_48/scenes/
+analysis_out/crossview_align_48/scenes/*
+!analysis_out/crossview_align_48/scenes/*.json
+!analysis_out/crossview_align_48/scenes/*/
+analysis_out/crossview_align_48/scenes/*/*
+!analysis_out/crossview_align_48/scenes/*/*.json
