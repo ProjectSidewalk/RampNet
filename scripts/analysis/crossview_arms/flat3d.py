@@ -105,6 +105,28 @@ def mlypano_gs(pair, ctx):
     return _arm(pair, ctx, "gs", "mlypano")
 
 
+_GSMED = {**_CFG, "lift": "3DGS median depth along the click ray (post hoc, "
+                          "scripts/analysis/flat3d/gs_median_depth.py)"}
+
+
+@register("flat_gsmed", config=_GSMED,
+          description="flat model, splat MEDIAN depth at the click (post hoc)")
+def flat_gsmed(pair, ctx):
+    return _arm(pair, ctx, "gs_median")
+
+
+@register("noflat_gsmed", config={**_GSMED, "control": "pano views only"},
+          description="control: splat median depth with the flat images left out (post hoc)")
+def noflat_gsmed(pair, ctx):
+    return _arm(pair, ctx, "gs_median", "noflat")
+
+
+@register("mlypano_gsmed", config={**_GSMED, "images": "as mlypano_sfm"},
+          description="flat + run + Mapillary pano model, splat median depth (post hoc)")
+def mlypano_gsmed(pair, ctx):
+    return _arm(pair, ctx, "gs_median", "mlypano")
+
+
 @register("mlypano_mvs", config={**_CFG, "lift": "MVS depth", "images": "as mlypano_sfm"},
           description="MVS depth on the flat + run + un-thinned Mapillary pano model")
 def mlypano_mvs(pair, ctx):
