@@ -697,6 +697,10 @@ def cmd_fetch(args):
 # --------------------------------------------------------------------------- #
 
 RESULTS = os.path.join(OUT, "results_richmond.json")
+#: this experiment's arm predictions. ``crossview_align_48.py predict`` writes into the
+#: shared predictions/ directory; predict_all.sh moves them here, so the shared
+#: results.json (not updated by this branch) keeps re-deriving from the shared directory.
+PRED_DIR = os.path.join(OUT, "predictions")
 
 
 def _git(*a):
@@ -709,6 +713,13 @@ def read_preds_any(name, ref=None):
     """An arm's predictions from this checkout, or read straight out of another branch
     (``ref``) with ``git show`` -- nothing from the other branch is written to disk."""
     if ref is None:
+        own = os.path.join(PRED_DIR, f"{name}.jsonl")
+        if os.path.exists(own):
+            meta = json.load(open(own[:-len(".jsonl")] + ".meta.json", encoding="utf-8"))
+            if meta.get("pairs_sha256") != H.PAIRS_SHA256:
+                raise SystemExit(f"{own} was predicted on a different pair list")
+            with open(own, encoding="utf-8") as f:
+                return {r["pair_id"]: r for r in map(json.loads, filter(str.strip, f))}, None
         return H.read_predictions(name), None
     base = "analysis_out/crossview_align_48/predictions"
     meta = json.loads(_git("show", f"{ref}:{base}/{name}.meta.json"))

@@ -338,3 +338,4 @@ analysis_out/flat_mapillary_3d/*
 !analysis_out/flat_mapillary_3d/corners/
 !analysis_out/flat_mapillary_3d/scenes/
 analysis_out/flat_mapillary_3d/raw_api_cache/
+!analysis_out/flat_mapillary_3d/predictions/
