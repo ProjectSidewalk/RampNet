@@ -407,6 +407,36 @@ def cmd_pilot(args):
     print(f"-> {path}")
 
 
+def cmd_pilot_report(args):
+    """Table of every committed pilot (mv3d_pilot_<name>.jsonl) on its 30 pairs: median over
+    all pilot pairs (fallback = projection), and on the pairs it did not fall back on the
+    arm vs proj_height_auto vs projection, plus the paired median gains. No CIs: n = 30."""
+    pairs = H.read_frozen_pairs()
+    sub = pilot_pairs(pairs)
+    e_proj = H.arm_errors(sub, None)
+    e_auto = H.arm_errors(sub, H.read_predictions("proj_height_auto"))
+    names = sorted(f[len("mv3d_pilot_"):-len(".jsonl")] for f in os.listdir(H.OUT)
+                   if f.startswith("mv3d_pilot_") and f.endswith(".jsonl"))
+    print("| pilot | fallback | median, 30 pairs | n used | used: arm vs auto vs projection | "
+          "used: gain vs projection | used: gain vs auto | used: closer than auto |")
+    print("|---|---|---|---|---|---|---|---|")
+    med = lambda e, ii: float(np.median([e[i][0] for i in ii]))  # noqa: E731
+    for n in names:
+        with open(os.path.join(H.OUT, f"mv3d_pilot_{n}.jsonl"), encoding="utf-8") as f:
+            preds = {r["pair_id"]: r for r in map(json.loads, f) if r}
+        e = H.arm_errors(sub, preds)
+        used = [i for i in range(len(sub)) if not e[i][3]]
+        row = f"| {n} | {1 - len(used) / len(sub):.2f} | {med(e, range(len(sub))):.2f} | {len(used)}"
+        if used:
+            row += (f" | {med(e, used):.2f} vs {med(e_auto, used):.2f} vs {med(e_proj, used):.2f}"
+                    f" | {np.median([e_proj[i][0] - e[i][0] for i in used]):+.2f}"
+                    f" | {np.median([e_auto[i][0] - e[i][0] for i in used]):+.2f}"
+                    f" | {np.mean([e[i][0] < e_auto[i][0] for i in used]):.2f} |")
+        print(row)
+    print(f"\nreference on the same 30 pairs: projection {med(e_proj, range(len(sub))):.2f}, "
+          f"proj_height_auto {med(e_auto, range(len(sub))):.2f}")
+
+
 def cmd_predict_many(args):
     """``crossview_align_48.py predict`` for several arms in ONE process with one shared
     Context, so arms that are different readings of the same model run (e.g. mast3r_pair
@@ -571,6 +601,8 @@ def main(argv=None):
     p.add_argument("--runs-root")
     p.add_argument("--results-root")
     p.set_defaults(fn=cmd_pilot)
+    p = sub.add_parser("pilot-report", help="table of the committed pilots")
+    p.set_defaults(fn=cmd_pilot_report)
     p = sub.add_parser("predict-many", help="several arms, one process, shared model runs")
     p.add_argument("--arms", required=True)
     p.add_argument("--views", required=True)
