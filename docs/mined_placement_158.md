@@ -95,6 +95,28 @@ Step 3 of #158 (peak-anchored targets) is in the labeler:
   carries `"pre_specified_in": "step 3"` and a dated `provenance_correction`. `PLANNED_ARMS`
   records the plan per arm, and new metas write `pre_specified_in`. No prediction changed.
 
+## Step 4 (#158): the mined-label gallery
+
+`scripts/analysis/mined_label_check_158.py` builds the gallery Jon will rate. It reads the
+labeler's city-wide miner output (`sidewalk-auto-labeler` `docs/figures/mined-precision/data/step4/`),
+uses the rule fixed there before any crop was cut, and reuses this repo's #48 GT-check
+machinery (rater ids, manifest digest, integrity checks, `agreement`, the page) and its
+cutter.
+
+- **Sample.** 100 of the 557 labels emitted off the benchmark panos, allocated by band
+  (0–8 m 18, 8–12 m 37, 12–15 m 45) with seed 158.
+- **Instrument items.** 10 cards (8 with a known Yes, 2 with a known No) are flagged only in
+  `items.json`.
+- **Cards.** 110 cards with 220 crops.
+- **Files:**
+  - page: `benchmark/mined_label_check_158/gallery.html` (open it locally);
+  - rater file: `analysis_out/mined_label_check_158/mined_label_check__jonf.json`,
+    verdicts empty;
+  - `manifest.json` holds each crop's sha256 (digest `bf3c00686e50e0da`).
+- **Scoring:** `python scripts/analysis/mined_label_check_158.py rates <file> [<file2>]`.
+  It reports precision (Yes / (Yes + No), Wilson) pooled and per band, read against #158's
+  rule, plus agreement on the instrument items and between two raters.
+
 ## Cost
 
 | step | where | wall-clock | GPU-h |
