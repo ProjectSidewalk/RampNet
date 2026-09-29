@@ -109,14 +109,21 @@ def prepare_images(corner, args, img_dir):
             shutil.copyfile(src, dst)
             w, h = H.VIEW_W, H.VIEW_H
             params = [fview, w / 2.0, h / 2.0, 0.0, 0.0]
-        elif im["kind"] == "pano_extra":
-            p = os.path.join(args.archive_root, "richmond", "panos", f"{im['id']}.jpg")
+        elif im["kind"] in ("pano_extra", "mly_pano"):
+            if im["kind"] == "mly_pano" and not args.mly_panos:
+                continue
+            p = (os.path.join(args.archive_root, "richmond", "panos", f"{im['id']}.jpg")
+                 if im["kind"] == "pano_extra" else os.path.join(args.mly_pano_dir,
+                                                                 f"{im['id']}.jpg"))
             if im["id"] not in equi_cache:
                 e = cv2.imread(p, cv2.IMREAD_COLOR)
                 if e is None:
                     log("missing pano", p)
                     continue
                 tw = int(round(360.0 / H.HFOV_DEG * H.VIEW_W))
+                if e.shape[1] != 2 * e.shape[0]:
+                    log("not a 2:1 equirect, skipped", p)
+                    continue
                 equi_cache[im["id"]] = cv2.resize(e, (tw, tw // 2), interpolation=cv2.INTER_AREA)
             cv2.imwrite(dst, H.render_view(equi_cache[im["id"]], im["cx"], im["cy"]),
                         [cv2.IMWRITE_JPEG_QUALITY, 95])
@@ -383,11 +390,17 @@ def read_colmap_array(path):
     return np.transpose(a, (1, 0, 2)).squeeze()
 
 
-def run_mvs(dense, colmap_bin, max_size):
+def run_mvs(dense, colmap_bin, max_size, ref_name):
+    """Photometric patch-match depth for the source view only (its 20 best source images,
+    COLMAP's __auto__ choice). Every view with geometric consistency took over 25 min per
+    corner in the pilot; the click needs one depth map."""
     t0 = time.time()
+    cfg = os.path.join(dense, "stereo", "patch-match.cfg")
+    with open(cfg, "w") as f:
+        f.write(f"{ref_name}\n__auto__, 20\n")
     cmd = colmap_bin + ["patch_match_stereo", "--workspace_path", dense,
                         "--workspace_format", "COLMAP", "--PatchMatchStereo.geom_consistency",
-                        "true", "--PatchMatchStereo.max_image_size", str(max_size)]
+                        "false", "--PatchMatchStereo.max_image_size", str(max_size)]
     r = subprocess.run(cmd, capture_output=True, text=True)
     if r.returncode != 0:
         log("MVS failed:", r.stderr[-500:])
@@ -553,9 +566,20 @@ def export_points_ply(rec, path, max_points=200000):
 # --------------------------------------------------------------------------- #
 
 
+def variant_name(args):
+    """flat (flat + run panos), noflat (run panos only), mlypano (flat + run panos + the
+    un-thinned Mapillary panos)."""
+    return "mlypano" if args.mly_panos else ("noflat" if args.no_flat else "flat")
+
+
+def variant_suffix(args):
+    v = variant_name(args)
+    return "" if v == "flat" else f"_{v}"
+
+
 def run_corner(corner, args, matcher):
     uid = corner["ramp_uid"]
-    tag = uid.replace(":", "_") + ("_noflat" if args.no_flat else "")
+    tag = uid.replace(":", "_") + variant_suffix(args)
     work = os.path.join(args.out, tag)
     os.makedirs(work, exist_ok=True)
     img_dir = os.path.join(work, "images")
@@ -564,7 +588,7 @@ def run_corner(corner, args, matcher):
     kept = prepare_images(corner, args, img_dir)
     by_name = {k["name"]: k for k in kept}
     src = next(k for k in kept if k["kind"] == "pano_src")
-    result = {"ramp_uid": uid, "variant": "noflat" if args.no_flat else "flat",
+    result = {"ramp_uid": uid, "variant": variant_name(args),
               "config": CONFIG, "n_images_by_kind": {}, "pairs": {}}
     for k in kept:
         result["n_images_by_kind"][k["kind"]] = result["n_images_by_kind"].get(k["kind"], 0) + 1
@@ -620,8 +644,8 @@ def run_corner(corner, args, matcher):
     if not args.no_gs or args.colmap:
         undistort(rec_dir, img_dir, dense)
     if args.colmap:
-        t_mvs = run_mvs(dense, args.colmap.split(), args.mvs_max_size)
-        dm = os.path.join(dense, "stereo", "depth_maps", src["name"] + ".geometric.bin")
+        t_mvs = run_mvs(dense, args.colmap.split(), args.mvs_max_size, src["name"])
+        dm = os.path.join(dense, "stereo", "depth_maps", src["name"] + ".photometric.bin")
         dd = {"t_mvs_s": t_mvs}
         if t_mvs is not None and os.path.exists(dm):
             D = read_colmap_array(dm)
@@ -674,6 +698,9 @@ def main(argv=None):
     ap.add_argument("--archive-root", required=True, help="labeler runs with full-res panos")
     ap.add_argument("--out", required=True)
     ap.add_argument("--no-flat", action="store_true", help="control: pano views only")
+    ap.add_argument("--mly-panos", action="store_true",
+                    help="variant: also the un-thinned Mapillary panos (kind mly_pano)")
+    ap.add_argument("--mly-pano-dir", default="", help="full-res Mapillary panos")
     ap.add_argument("--no-gs", action="store_true")
     ap.add_argument("--colmap", default="", help="command for CUDA COLMAP (enables MVS)")
     ap.add_argument("--mvs-max-size", type=int, default=1600)
@@ -689,10 +716,10 @@ def main(argv=None):
             import traceback
             traceback.print_exc()
             work = os.path.join(args.out, c["ramp_uid"].replace(":", "_") +
-                                ("_noflat" if args.no_flat else ""))
+                                variant_suffix(args))
             os.makedirs(work, exist_ok=True)
             finish({"ramp_uid": c["ramp_uid"], "status": f"error: {type(e).__name__}: {e}",
-                    "variant": "noflat" if args.no_flat else "flat", "pairs": {}},
+                    "variant": variant_name(args), "pairs": {}},
                    work, time.time())
 
 

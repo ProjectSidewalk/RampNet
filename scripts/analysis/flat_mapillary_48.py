@@ -433,6 +433,8 @@ FOV_MARGIN_DEG = 15.0         # a flat image is kept if the corner is inside hfo
 DEFAULT_FOCAL_NORM = 0.85     # OpenSfM's default when an image has no camera_parameters
 MAX_FLAT = 150                # cap per corner, nearest first (recorded per corner)
 PANO_Z_PRIOR_M, FLAT_Z_PRIOR_M = 2.6, 1.5
+MLY_PANO_RADIUS_M = 25.0      # un-thinned Mapillary panos (not in the labeler run)
+MAX_MLY_PANO = 30
 
 
 def rodrigues(rvec):
@@ -553,6 +555,34 @@ def cmd_select(args):
         cand.sort(key=lambda x: (x["dist_m"], x["id"]))
         flat = cand[:MAX_FLAT]
         imgs.extend(flat)
+        # un-thinned Mapillary panos not in the run, within MLY_PANO_RADIUS_M, nearest
+        # MAX_MLY_PANO; used only by the "mlypano" variant (reconstruct.py --mly-panos)
+        run_ids = {i["id"] for i in imgs if i["kind"].startswith("pano")}
+        mp = []
+        for iid, r in images.items():
+            if r["is_pano"] != "1" or iid in run_ids or r["has_computed_geometry"] != "1" \
+                    or r["computed_compass_angle"] == "":
+                continue
+            e, n = enu(lat0, lng0, float(r["lat"]), float(r["lng"]))
+            d = math.hypot(e, n)
+            if d > MLY_PANO_RADIUS_M:
+                continue
+            hd = float(r["computed_compass_angle"])
+            bearing = math.degrees(math.atan2(-e, -n))
+            cx = (0.5 + ((bearing - hd + 180.0) % 360.0 - 180.0) / 360.0) % 1.0
+            cy = 0.5 + math.degrees(math.atan2(AIM_HEIGHT_M, max(d, 0.5))) / 180.0
+            mp.append({"name": f"{uid.replace(':', '_')}_mly_{iid}.jpg", "kind": "mly_pano",
+                       "id": iid, "e": round(e, 3), "n": round(n, 3),
+                       "z_prior": PANO_Z_PRIOR_M, "heading": hd,
+                       "rotvec": json.loads(r["computed_rotation"])
+                       if r["computed_rotation"] else None, "cx": round(cx, 6),
+                       "cy": round(cy, 6), "date": r["capture_date"],
+                       "sequence": r["sequence"], "dist_m": round(d, 2), "make": r["make"],
+                       "model": r["model"], "width": int(r["width"] or 0),
+                       "height": int(r["height"] or 0)})
+        mp.sort(key=lambda x: (x["dist_m"], x["id"]))
+        n_mly_pano = len(mp)
+        imgs.extend(mp[:MAX_MLY_PANO])
         corners.append({
             "ramp_uid": uid, "origin": [round(lat0, 9), round(lng0, 9)],
             "origin_is": "source click raycast at 2.6 m from the source pano",
@@ -561,12 +591,15 @@ def cmd_select(args):
                                          "proj_x", "proj_y", "src_range_m", "oth_range_m",
                                          "baseline_m")} for p in ps],
             "n_flat_within_radius": n_flat_radius, "n_flat_facing": len(cand),
-            "n_flat_kept": len(flat), "images": imgs})
-        print(f"{uid}: {len(ps)} pairs, panos {sum(i['kind'] != 'flat' for i in imgs)}, flat "
+            "n_flat_kept": len(flat), "n_mly_pano_within": n_mly_pano,
+            "n_mly_pano_kept": min(n_mly_pano, MAX_MLY_PANO), "images": imgs})
+        print(f"{uid}: {len(ps)} pairs, run panos "
+              f"{sum(i['kind'].startswith('pano') for i in imgs)}, mly panos {n_mly_pano}, flat "
               f"{n_flat_radius} within {SELECT_RADIUS_M:g} m, {len(cand)} facing, "
               f"{len(flat)} kept", flush=True)
     H.write_json(MANIFEST, {"pairs_sha256": H.PAIRS_SHA256, "radius_m": SELECT_RADIUS_M,
                             "fov_margin_deg": FOV_MARGIN_DEG, "max_flat": MAX_FLAT,
+                            "mly_pano_radius_m": MLY_PANO_RADIUS_M, "max_mly_pano": MAX_MLY_PANO,
                             "z_prior_m": {"pano": PANO_Z_PRIOR_M, "flat": FLAT_Z_PRIOR_M},
                             "frame": "per corner ENU metres about 'origin' (labeler "
                                      "LocalFrame linearisation); z up",
@@ -597,10 +630,12 @@ def cmd_fetch(args):
     from PIL import Image
     m = load_manifest()
     corners = [c for c in m["corners"] if not args.corners or c["ramp_uid"] in args.corners]
-    ids = sorted({i["id"] for c in corners for i in c["images"] if i["kind"] == "flat"})
+    ids = sorted({i["id"] for c in corners for i in c["images"] if i["kind"] == args.kind})
+    field = THUMB_FIELD if args.kind == "flat" else "thumb_original_url"
     os.makedirs(args.out, exist_ok=True)
     todo = [i for i in ids if not os.path.exists(os.path.join(args.out, f"{i}.jpg"))]
-    print(f"{len(ids)} flat images for {len(corners)} corners; {len(todo)} to fetch", flush=True)
+    print(f"{len(ids)} {args.kind} images for {len(corners)} corners; {len(todo)} to fetch",
+          flush=True)
     token = read_token(args.env)
     g = Graph(token)
     del token
@@ -610,13 +645,13 @@ def cmd_fetch(args):
     for k in range(0, len(todo), URL_BATCH):
         batch = todo[k:k + URL_BATCH]
         js = g.get("https://graph.mapillary.com/", {"ids": ",".join(batch),
-                                                    "fields": THUMB_FIELD}, attempts=3) or {}
+                                                    "fields": field}, attempts=3) or {}
         for i in batch:
-            url = (js.get(i) or {}).get(THUMB_FIELD)
+            url = (js.get(i) or {}).get(field)
             if not url:
-                one = g.get(f"https://graph.mapillary.com/{i}", {"fields": THUMB_FIELD},
+                one = g.get(f"https://graph.mapillary.com/{i}", {"fields": field},
                             attempts=3) or {}
-                url = one.get(THUMB_FIELD)
+                url = one.get(field)
             if not url:
                 failed.append(i)
                 continue
@@ -633,20 +668,25 @@ def cmd_fetch(args):
     prev = {}
     if os.path.exists(FETCHED_CSV):
         prev = {r["image_id"]: r for r in csv.DictReader(open(FETCHED_CSV, encoding="utf-8"))}
-    for i in ids:
+    ids_all = sorted(set(ids) | set(prev))
+    for i in ids_all:
         p = os.path.join(args.out, f"{i}.jpg")
         if not os.path.exists(p):
+            if i in prev:
+                rows.append(dict(prev[i], kind=prev[i].get("kind") or "flat"))
             continue
         data = open(p, "rb").read()
         w, h = Image.open(p).size
         rows.append({"image_id": i, "bytes": len(data), "width": w, "height": h,
                      "sha256": hashlib.sha256(data).hexdigest(),
+                     "kind": prev.get(i, {}).get("kind") or args.kind,
                      "fetched": prev.get(i, {}).get("fetched") or time.strftime("%Y-%m-%d")})
-    write_csv(FETCHED_CSV, rows, ["image_id", "bytes", "width", "height", "sha256", "fetched"])
+    write_csv(FETCHED_CSV, rows, ["image_id", "kind", "bytes", "width", "height", "sha256",
+                                  "fetched"])
     log = {"step": "fetch", "date": time.strftime("%Y-%m-%d"), "corners": len(corners),
            "requested": len(todo), "failed": len(failed), "api_calls": g.calls,
            "api_retries": g.retries, "cdn_bytes": n_bytes,
-           "elapsed_s": round(time.time() - t0, 1), "thumb": THUMB_FIELD}
+           "elapsed_s": round(time.time() - t0, 1), "thumb": field, "kind": args.kind}
     with open(os.path.join(OUT, "api_log.jsonl"), "a", encoding="utf-8", newline="\n") as f:
         f.write(json.dumps(log, sort_keys=True) + "\n")
     print(json.dumps(log))
@@ -730,6 +770,8 @@ def main(argv=None):
     a.add_argument("--env", required=True, help=".env file holding MAPILLARY_ACCESS_TOKEN")
     a.add_argument("--out", required=True, help="image directory (NOT in the repo)")
     a.add_argument("--corners", nargs="*", default=[], help="ramp uids (default: all)")
+    a.add_argument("--kind", default="flat", choices=("flat", "mly_pano"),
+                   help="flat: 2048 thumbnails; mly_pano: full-resolution originals")
     a.set_defaults(fn=cmd_fetch)
     a = sub.add_parser("score")
     a.add_argument("--arms", nargs="+", required=True,

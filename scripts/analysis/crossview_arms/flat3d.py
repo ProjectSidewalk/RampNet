@@ -25,7 +25,7 @@ CORNERS = os.path.join(H.OUT_ROOT, "flat_mapillary_3d", "corners")
 def _corner(ctx, uid, variant):
     key = ("flat3d", uid, variant)
     if key not in ctx.cache:
-        name = uid.replace(":", "_") + ("_noflat" if variant == "noflat" else "") + ".json"
+        name = uid.replace(":", "_") + ("" if variant == "flat" else f"_{variant}") + ".json"
         path = os.path.join(CORNERS, name)
         ctx.cache[key] = json.load(open(path, encoding="utf-8")) if os.path.exists(path) else None
     return ctx.cache[key]
@@ -84,3 +84,28 @@ def noflat_sfm(pair, ctx):
           description="control: GS depth with the flat images left out")
 def noflat_gs(pair, ctx):
     return _arm(pair, ctx, "gs", "noflat")
+
+
+@register("noflat_mvs", config={**_CFG, "lift": "MVS depth", "control": "pano views only"},
+          description="control: MVS depth with the flat images left out")
+def noflat_mvs(pair, ctx):
+    return _arm(pair, ctx, "mvs", "noflat")
+
+
+@register("mlypano_sfm", config={**_CFG, "lift": "sparse", "images": "flat + run panos + up "
+                                 "to 30 un-thinned Mapillary panos within 25 m"},
+          description="flat_sfm plus the un-thinned Mapillary panos near the corner")
+def mlypano_sfm(pair, ctx):
+    return _arm(pair, ctx, "sparse", "mlypano")
+
+
+@register("mlypano_gs", config={**_CFG, "lift": "3DGS depth", "images": "as mlypano_sfm"},
+          description="GS depth on the flat + run + un-thinned Mapillary pano model")
+def mlypano_gs(pair, ctx):
+    return _arm(pair, ctx, "gs", "mlypano")
+
+
+@register("mlypano_mvs", config={**_CFG, "lift": "MVS depth", "images": "as mlypano_sfm"},
+          description="MVS depth on the flat + run + un-thinned Mapillary pano model")
+def mlypano_mvs(pair, ctx):
+    return _arm(pair, ctx, "mvs", "mlypano")
