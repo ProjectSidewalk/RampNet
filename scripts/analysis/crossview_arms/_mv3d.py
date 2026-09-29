@@ -319,6 +319,61 @@ def pixel_in_view(u, v, margin=0):
     return margin <= u < H.VIEW_W - margin and margin <= v < H.VIEW_H - margin
 
 
+PILOT_PER_CITY = 6
+
+
+def pilot_pairs(pairs, per_city=PILOT_PER_CITY):
+    """The pilot subset: the first ``per_city`` pairs of each city in pair-id order (30)."""
+    out, seen = [], defaultdict(int)
+    for p in sorted(pairs, key=lambda p: p["pair_id"]):
+        if seen[p["city"]] < per_city:
+            out.append(p)
+            seen[p["city"]] += 1
+    return out
+
+
+def cmd_pilot(args):
+    """Run one arm on the pilot subset (answers hidden, as in `predict`), write
+    mv3d_pilot_<arm>.jsonl, then score it against the reference next to the projection and
+    the committed proj_height_auto. A pilot decides whether an arm is worth all 300."""
+    import platform
+    registry = H.load_arms()
+    arm = registry[args.arm]
+    pairs = H.read_frozen_pairs()
+    sub = pilot_pairs(pairs, args.per_city)
+    ctx = H.Context(args, pairs)
+    t0 = time.time()
+    rows, errors = H.run_arm(arm, sub, ctx)
+    el = time.time() - t0
+    path = os.path.join(H.OUT, f"mv3d_pilot_{args.arm}.jsonl")
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        for r in rows:
+            f.write(json.dumps(H.rnd(r, 6), sort_keys=True) + "\n")
+    preds = {r["pair_id"]: r for r in rows}
+    e_arm = H.arm_errors(sub, preds)
+    e_proj = H.arm_errors(sub, None)
+    auto = H.arm_errors(sub, H.read_predictions("proj_height_auto"))
+    used = [i for i, e in enumerate(e_arm) if not e[3]]
+    med = lambda e, ii: float(np.median([e[i][0] for i in ii])) if ii else float("nan")  # noqa
+    print(f"{args.arm}: {len(sub)} pilot pairs in {el:.1f} s on {platform.node()}, "
+          f"fallback {len(sub) - len(used)}, missing inputs {errors}")
+    print(f"  all: arm {med(e_arm, range(len(sub))):.2f}  projection "
+          f"{med(e_proj, range(len(sub))):.2f}  auto {med(auto, range(len(sub))):.2f}")
+    if used:
+        g = [e_proj[i][0] - e_arm[i][0] for i in used]
+        ga = [auto[i][0] - e_arm[i][0] for i in used]
+        print(f"  non-fallback n={len(used)}: arm {med(e_arm, used):.2f} projection "
+              f"{med(e_proj, used):.2f} auto {med(auto, used):.2f}; paired gain vs proj "
+              f"{np.median(g):.2f}, vs auto {np.median(ga):.2f}; closer than proj "
+              f"{np.mean([x > 0 for x in g]):.2f}")
+    reasons = defaultdict(int)
+    for r in rows:
+        if r["x"] is None:
+            reasons[r.get("reason") or r.get("error") or "none"] += 1
+    print("  fallback reasons:", dict(reasons))
+    print(f"-> {path}")
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description="multi-view 3D arms: manifest and corner views")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -334,6 +389,16 @@ def main(argv=None):
     p.add_argument("--out", required=True)
     p.add_argument("--workers", type=int, default=8)
     p.set_defaults(fn=cmd_render)
+    p = sub.add_parser("pilot", help="run an arm on the 30-pair pilot subset and score it")
+    p.add_argument("--arm", required=True)
+    p.add_argument("--views", required=True)
+    p.add_argument("--per-city", type=int, default=PILOT_PER_CITY)
+    p.add_argument("--extra", action="append", default=[])
+    p.add_argument("--cpu", action="store_true")
+    p.add_argument("--labeler-root")
+    p.add_argument("--runs-root")
+    p.add_argument("--results-root")
+    p.set_defaults(fn=cmd_pilot)
     args = ap.parse_args(argv)
     args.fn(args)
 
