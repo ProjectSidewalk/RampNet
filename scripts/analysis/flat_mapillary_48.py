@@ -522,7 +522,10 @@ def cmd_select(args):
         cand = []
         n_flat_radius = 0
         for iid, r in images.items():
-            if r["is_pano"] == "1" or not r["has_computed_geometry"] == "1":
+            # fisheye frames (69 of 1,422 in the census) would need a fisheye camera model;
+            # left out rather than mis-modelled as RADIAL
+            if r["is_pano"] == "1" or not r["has_computed_geometry"] == "1" or \
+                    r["camera_type"] not in ("perspective", ""):
                 continue
             e, n = enu(lat0, lng0, float(r["lat"]), float(r["lng"]))
             d = math.hypot(e, n)
@@ -649,6 +652,65 @@ def cmd_fetch(args):
     print(json.dumps(log))
 
 
+# --------------------------------------------------------------------------- #
+# score: the harness's own scoring, on the 60 Richmond pairs only
+# --------------------------------------------------------------------------- #
+
+RESULTS = os.path.join(OUT, "results_richmond.json")
+
+
+def _git(*a):
+    import subprocess
+    return subprocess.run(["git", *a], cwd=REPO, capture_output=True, text=True,
+                          check=True).stdout
+
+
+def read_preds_any(name, ref=None):
+    """An arm's predictions from this checkout, or read straight out of another branch
+    (``ref``) with ``git show`` -- nothing from the other branch is written to disk."""
+    if ref is None:
+        return H.read_predictions(name), None
+    base = "analysis_out/crossview_align_48/predictions"
+    meta = json.loads(_git("show", f"{ref}:{base}/{name}.meta.json"))
+    if meta.get("pairs_sha256") != H.PAIRS_SHA256:
+        raise SystemExit(f"{ref}:{name} was predicted on a different pair list")
+    out = {}
+    for line in _git("show", f"{ref}:{base}/{name}.jsonl").splitlines():
+        if line.strip():
+            r = json.loads(line)
+            out[r["pair_id"]] = r
+    return out, _git("rev-parse", ref).strip()
+
+
+def cmd_score(args):
+    pairs = [p for p in H.read_frozen_pairs() if p["city"] == CITY]
+    preds, prov = {}, {}
+    for spec in args.arms:
+        name, _, ref = spec.partition("@")
+        preds[name], sha = read_preds_any(name, ref or None)
+        prov[name] = {"branch": ref, "commit": sha} if ref else {"branch": "this"}
+    res = H.score(pairs, preds)
+    res["config"] = {"pairs_sha256": H.PAIRS_SHA256, "pairs": "the 60 Richmond (Mapillary) "
+                     "pairs only", "n_boot": H.N_BOOT, "seed": H.SEED,
+                     "ci": "2.5-97.5 percentile, ramps resampled", "sources": prov}
+    H.write_json(RESULTS, res)
+    print(f"{'arm':22s} {'median [CI]':>22s} {'within2':>7s} {'fb':>5s} "
+          f"{'n used':>6s} {'used: arm vs proj, gain [CI]':>36s}")
+    for name, s in res["arms"].items():
+        a = s["all"]
+        ci = a["median_ci"]
+        line = (f"{name:22s} {a['median_deg']:6.2f} [{ci[0]:.2f}, {ci[1]:.2f}]   "
+                f"{a['within_2deg']:6.2f} {a['fallback_rate']:5.2f}")
+        o = a.get("aligned_only")
+        if o and o["n_pairs"]:
+            g = o["median_gain_ci"] or [float("nan")] * 2
+            line += (f" {o['n_pairs']:6d}  {o['median_deg']:.2f} vs "
+                     f"{o['projection_median_deg']:.2f}, {o['median_gain_deg']:.2f} "
+                     f"[{g[0]:.2f}, {g[1]:.2f}]")
+        print(line)
+    print(f"-> {RESULTS}")
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -669,6 +731,11 @@ def main(argv=None):
     a.add_argument("--out", required=True, help="image directory (NOT in the repo)")
     a.add_argument("--corners", nargs="*", default=[], help="ramp uids (default: all)")
     a.set_defaults(fn=cmd_fetch)
+    a = sub.add_parser("score")
+    a.add_argument("--arms", nargs="+", required=True,
+                   help="arm names; 'arm@origin/branch' reads that branch's committed "
+                        "predictions without checking them out")
+    a.set_defaults(fn=cmd_score)
     args = ap.parse_args(argv)
     args.fn(args)
 

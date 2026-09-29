@@ -365,7 +365,7 @@ def undistort(rec_dir, img_dir, dense):
     opts = pycolmap.UndistortCameraOptions()
     opts.max_image_size = GS_MAX_SIDE * 2
     pycolmap.undistort_images(dense, rec_dir, img_dir, output_type="COLMAP",
-                              undistort_options=opts)
+                              num_patch_match_src_images=20, undistort_options=opts)
 
 
 def read_colmap_array(path):
