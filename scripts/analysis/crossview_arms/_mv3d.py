@@ -437,6 +437,46 @@ def cmd_pilot_report(args):
           f"proj_height_auto {med(e_auto, range(len(sub))):.2f}")
 
 
+def cmd_agreement(args):
+    """Do independent 3D arms agree with EACH OTHER where they disagree with the reference?
+
+    For arms A and B (different models, so their errors are not shared), on the pairs both
+    placed: how often they land within ``--agree`` degrees of each other, and of those, how
+    often both are more than ``--far`` degrees from the reference. A large share would mean
+    the residual is in the reference (a detection peak on another part of an extended ramp,
+    or another ramp) rather than in the transfer. Read as a diagnostic, not a correction:
+    two models can share a bias (both lift the same pixel)."""
+    pairs = H.read_frozen_pairs()
+    a, b = args.arms.split(",")
+    pa, pb = H.read_predictions(a), H.read_predictions(b)
+    auto = H.read_predictions("proj_height_auto")
+    both = [p for p in pairs if pa[p["pair_id"]]["x"] is not None and pb[p["pair_id"]]["x"] is not None]
+    rows = []
+    for p in both:
+        ra, rb, rc = pa[p["pair_id"]], pb[p["pair_id"]], auto[p["pair_id"]]
+        ab = float(H.angular_error_deg(ra["x"], ra["y"], rb["x"], rb["y"]))
+        ea = float(H.angular_error_deg(ra["x"], ra["y"], p["ref_x"], p["ref_y"]))
+        eb = float(H.angular_error_deg(rb["x"], rb["y"], p["ref_x"], p["ref_y"]))
+        ec = float(H.angular_error_deg(rc["x"], rc["y"], p["ref_x"], p["ref_y"]))
+        rows.append((ab, ea, eb, ec))
+    r = np.array(rows)
+    agree = r[:, 0] <= args.agree
+    far = (r[:, 1] > args.far) & (r[:, 2] > args.far)
+    out = {"arms": [a, b], "n_both_placed": len(rows), "agree_deg": args.agree, "far_deg": args.far,
+           "median_inter_arm_deg": float(np.median(r[:, 0])),
+           "share_agree": float(agree.mean()),
+           "agree_and_both_far": int((agree & far).sum()),
+           "agree_and_both_far_share_of_agree": float((agree & far).sum() / max(agree.sum(), 1)),
+           "median_ref_error_when_agree": float(np.median(np.minimum(r[agree, 1], r[agree, 2])))
+           if agree.any() else None,
+           "median_ref_error_when_disagree": float(np.median(np.minimum(r[~agree, 1], r[~agree, 2])))
+           if (~agree).any() else None,
+           "auto_median_when_agree": float(np.median(r[agree, 3])) if agree.any() else None,
+           "auto_median_when_disagree": float(np.median(r[~agree, 3])) if (~agree).any() else None}
+    print(json.dumps(H.rnd(out, 3), indent=1))
+    return out
+
+
 def cmd_predict_many(args):
     """``crossview_align_48.py predict`` for several arms in ONE process with one shared
     Context, so arms that are different readings of the same model run (e.g. mast3r_pair
@@ -601,6 +641,11 @@ def main(argv=None):
     p.add_argument("--runs-root")
     p.add_argument("--results-root")
     p.set_defaults(fn=cmd_pilot)
+    p = sub.add_parser("agreement", help="do two 3D arms agree where both miss the reference?")
+    p.add_argument("--arms", required=True, help="A,B")
+    p.add_argument("--agree", type=float, default=1.5)
+    p.add_argument("--far", type=float, default=5.0)
+    p.set_defaults(fn=cmd_agreement)
     p = sub.add_parser("pilot-report", help="table of the committed pilots")
     p.set_defaults(fn=cmd_pilot_report)
     p = sub.add_parser("predict-many", help="several arms, one process, shared model runs")
