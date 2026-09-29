@@ -97,3 +97,9 @@ analysis_out/multiview_48/** text eol=lf
 benchmark/richmond_neighbourhood/records.jsonl -text
 # The klone offload's pano list, read by make_shards.py on Linux.
 scripts/analysis/multiview_48_klone/new_panos.txt text eol=lf
+# #48 cross-view placement harness: pairs.csv and fresh/pairs.csv are sha256-pinned
+# (PAIRS_SHA256, FRESH_PAIRS_SHA256) and read_frozen_pairs refuses any other bytes; every
+# prediction meta, results.json and fresh/confirmation.json are re-derived byte for byte by
+# the tests. All are written LF. An autocrlf=true clone would otherwise check them out CRLF
+# and fail those checks for files that are byte-correct (review of #220).
+analysis_out/crossview_align_48/** text eol=lf

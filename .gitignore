@@ -326,6 +326,20 @@ analysis_out/crossview_align_48/*
 analysis_out/crossview_align_48/predictions/*
 !analysis_out/crossview_align_48/predictions/*.jsonl
 !analysis_out/crossview_align_48/predictions/*.json
+# ... and the fresh-pair confirmation set (follow-up 1): its pair list, manifest, results and
+# predictions, kept apart from the 300-pair files
+!analysis_out/crossview_align_48/fresh/
+analysis_out/crossview_align_48/fresh/*
+!analysis_out/crossview_align_48/fresh/*.csv
+!analysis_out/crossview_align_48/fresh/*.json
+!analysis_out/crossview_align_48/fresh/predictions/
+analysis_out/crossview_align_48/fresh/predictions/*
+!analysis_out/crossview_align_48/fresh/predictions/*.jsonl
+!analysis_out/crossview_align_48/fresh/predictions/*.json
+# the GPU chain's timing log, copied from makelab2 (review of #220)
+!analysis_out/crossview_align_48/fresh/logs/
+analysis_out/crossview_align_48/fresh/logs/*
+!analysis_out/crossview_align_48/fresh/logs/gpu_times.txt
 # Cross-view #48 depth arms: per-click monocular depth rows and their summaries.
 !analysis_out/crossview_align_48/depth/
 # ... and the 3D viewer bundles: their JSON is committed; the scene .ply files live on
