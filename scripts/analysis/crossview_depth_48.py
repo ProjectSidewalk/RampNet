@@ -200,10 +200,14 @@ def load_model(name, src_root, dev):
                                                                   precision=torch.half)
         model.eval()
 
+        probes = prov.setdefault("probe_estimated_focal_px", [])
+
         def infer(img, focal):
             x = transform(np.asarray(img))
             with torch.no_grad():
                 pred = model.infer(x, f_px=torch.tensor(float(focal), device=dev))
+                if len(probes) < 12:     # what focal would Depth Pro have estimated itself?
+                    probes.append(round(float(model.infer(x)["focallength_px"]), 1))
             return pred["depth"].float().cpu().numpy().astype(np.float32)
         return infer, prov
 
