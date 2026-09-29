@@ -53,7 +53,9 @@ def at_height(ctx, city, camera_height):
             Path(ctx._results_path(city)), camera_height,
             depth_index=idx if idx.exists() else None)
         want = {p for r in ctx.pairs if r["city"] == city for p in (r["src_pano"], r["oth_pano"])}
-        ctx.cache[key] = ({p.pano_id: p for p in panos if p.pano_id in want}, height, auto)
+        # detections withheld: the reference is one of them (crossview_align_48.Context)
+        ctx.cache[key] = ({p.pano_id: H.without_detections(p) for p in panos
+                           if p.pano_id in want}, height, auto)
     return ctx.cache[key]
 
 

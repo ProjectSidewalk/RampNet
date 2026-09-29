@@ -122,6 +122,74 @@ def test_run_arm_hides_the_answer_and_normalizes_fallbacks():
     assert rows[1] == {"pair_id": "b", "x": None, "y": None, "why": "half"}
 
 
+def test_a_planted_arm_cannot_read_the_reference_through_ctx_pairs():
+    """Review of #210 (A3/C5): run_arm stripped the answer from ``pair`` only, and an arm that
+    looked itself up in ``ctx.pairs`` scored 0.00 deg. Context now stores stripped rows."""
+    pairs = [{"pair_id": "a", "city": "x", "src_pano": "s", "oth_pano": "o", "proj_x": 0.5,
+              "proj_y": 0.6, "ref_x": 0.1, "ref_y": 0.7, "ref_conf": 0.9,
+              "ref_world_gap_m": 1.0}]
+    ctx = cv.Context(SimpleNamespace(), pairs)
+
+    def cheat(pair, ctx):
+        mine = next(r for r in ctx.pairs if r["pair_id"] == pair["pair_id"])
+        return {"x": mine["ref_x"], "y": mine["ref_y"]}
+
+    with pytest.raises(KeyError):
+        cv.run_arm(Arm("cheat", cheat), pairs, ctx)
+    assert all(not (set(r) & set(ANSWER_KEYS)) for r in ctx.pairs)
+    assert "ref_x" in pairs[0], "the caller's rows must not be mutated"
+
+
+def test_slim_panos_reach_arms_without_detections():
+    """The reference is one of the other view's detections, so SlimPanos handed to arms
+    (ctx.slim, geometry.at_height) carry none."""
+    from dataclasses import dataclass
+
+    @dataclass
+    class Slim:
+        pano_id: str
+        detections: list
+
+    p = Slim("o", [(0, 0.1, 0.7, 0.9)])
+    q = cv.without_detections(p)
+    assert q.detections == [] and q.pano_id == "o" and p.detections, "copy, not in place"
+    import inspect
+    from crossview_arms import geometry
+    assert "without_detections" in inspect.getsource(geometry.at_height)
+    assert "without_detections" in inspect.getsource(cv.Context.slim)
+
+
+def test_arm_modules_never_read_answer_columns():
+    """Grep guard: no prediction module under crossview_arms/ names a ref_* column. The
+    post-scoring diagnostics that legitimately read the reference are listed here."""
+    import glob
+    import re
+    allowed = {"_registry.py", "_mv3d.py", "_scenes.py"}   # registry docs; agreement; viewer
+    arms_dir = os.path.join(os.path.dirname(cv.__file__), "crossview_arms")
+    for path in glob.glob(os.path.join(arms_dir, "*.py")):
+        if os.path.basename(path) in allowed:
+            continue
+        with open(path, encoding="utf-8") as f:
+            src = f.read()
+        assert not re.search(r"ref_(x|y|conf|world_gap_m)", src), path
+        assert ".detections" not in src, path
+
+
+def test_rerunning_a_cpu_arm_through_the_hidden_context_reproduces_its_predictions():
+    """mv3d_consensus reads only committed predictions, so it re-runs on CPU in seconds. With
+    answers now hidden in Context, it must still reproduce its committed rows exactly."""
+    pairs = cv.read_frozen_pairs()
+    arms = cv.load_arms()
+    for name in ("mv3d_consensus", "mv3d_consensus_else_auto"):
+        ctx = cv.Context(SimpleNamespace(), pairs)
+        rows, missing = cv.run_arm(arms[name], pairs, ctx)
+        assert missing == 0
+        committed = cv.read_predictions(name)
+        for r in rows:
+            got = json.loads(json.dumps(cv.rnd(r, 6), sort_keys=True))
+            assert got == committed[r["pair_id"]], (name, r["pair_id"])
+
+
 def test_arm_errors_fall_back_to_the_projection():
     p = [{"pair_id": "a", "proj_x": 0.5, "proj_y": 0.6, "ref_x": 0.5 + 2 / 360.0, "ref_y": 0.6}]
     proj = cv.arm_errors(p, None)

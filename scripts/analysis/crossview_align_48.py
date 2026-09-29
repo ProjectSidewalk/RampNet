@@ -511,11 +511,19 @@ class Context:
       --results-root as for ``pairs``). Only the panos in the pair list are kept.
     * ``cache``: a dict arms may use to keep models between pairs.
     * ``args``: the parsed CLI args (for arm-specific inputs, e.g. ``--extra``).
+
+    **Answer hiding is enforced here, not left to convention.** ``pairs`` is stored with the
+    answer columns (``ANSWER_KEYS``: ``ref_*``) removed, and ``slim()`` hands out SlimPanos
+    with ``detections`` emptied: the reference IS one of the other view's detections, and the
+    ambiguity filter guarantees it is the only >= 0.55 one near the projection, so "nearest
+    detection" would be close to an oracle. ``crossview_arms.geometry.at_height`` does the
+    same. Scoring and post-scoring diagnostics read the answers from ``read_frozen_pairs()``
+    directly, never through a Context.
     """
 
     def __init__(self, args, pairs):
         self.args = args
-        self.pairs = pairs
+        self.pairs = [strip_answers(p) for p in pairs]
         self.cache = {}
         self._panos = {}
         self._slim = {}
@@ -572,8 +580,22 @@ class Context:
             panos = L.fs.load_results(Path(self._results_path(city)), **load_kw)
             want = {p for r in self.pairs if r["city"] == city
                     for p in (r["src_pano"], r["oth_pano"])}
-            self._slim[key] = {p.pano_id: p for p in panos if p.pano_id in want}
+            self._slim[key] = {p.pano_id: without_detections(p) for p in panos
+                               if p.pano_id in want}
         return self._slim[key][pano_id]
+
+
+def strip_answers(pair):
+    """A copy of one pairs.csv row without the answer columns (``ANSWER_KEYS``)."""
+    from crossview_arms._registry import ANSWER_KEYS
+    return {k: v for k, v in pair.items() if k not in ANSWER_KEYS}
+
+
+def without_detections(slim_pano):
+    """A copy of a labeler SlimPano with its RampNet detections removed. Arms get pose and
+    height from a SlimPano; its detections include the reference, so they are withheld."""
+    import dataclasses
+    return dataclasses.replace(slim_pano, detections=[])
 
 
 def prediction_paths(name):
@@ -584,12 +606,11 @@ def prediction_paths(name):
 def run_arm(arm, pairs, ctx):
     """Apply ``arm`` to every pair, hiding the answer columns. Returns (rows, n_missing):
     one {"pair_id", "x", "y", ...} per pair, x / y None for a fallback."""
-    from crossview_arms._registry import ANSWER_KEYS
     random.seed(SEED)
     np.random.seed(SEED)
     rows, errors = [], 0
     for p in pairs:
-        visible = {k: v for k, v in p.items() if k not in ANSWER_KEYS}
+        visible = strip_answers(p)
         try:
             out = arm.fn(visible, ctx)
         except FileNotFoundError as e:

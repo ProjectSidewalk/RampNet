@@ -14,15 +14,18 @@ parallel work free of merge conflicts)::
 
 ``pair`` is one row of the frozen ``pairs.csv`` (floats already parsed): the source pano
 and GT pixel (src_pano, src_x, src_y), the other pano (oth_pano), today's projection
-(proj_x, proj_y), ranges, dates and ids. **It also carries the reference (ref_x, ref_y,
-ref_conf, ref_world_gap_m): an arm must never read those** -- they are the answer.
+(proj_x, proj_y), ranges, dates and ids. The reference columns (ref_x, ref_y, ref_conf,
+ref_world_gap_m) are the answer and are **removed** before an arm sees the row, both from
+``pair`` and from ``ctx.pairs``; ``ctx.slim`` / ``geometry.at_height`` withhold each pano's
+detections for the same reason (the reference is one of them). ``tests/test_crossview_align_48.py``
+plants an arm that tries to read them.
 ``needs`` is documentation plus a guard: "views", "labeler", "panos".
 """
 from dataclasses import dataclass, field
 
 ARMS = {}
 
-#: pair-row keys that hold the answer; Context hands arms a copy without them
+#: pair-row keys that hold the answer; run_arm and Context hand arms copies without them
 ANSWER_KEYS = ("ref_x", "ref_y", "ref_conf", "ref_world_gap_m")
 
 
