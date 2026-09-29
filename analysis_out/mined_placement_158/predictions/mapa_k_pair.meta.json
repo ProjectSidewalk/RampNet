@@ -1,0 +1,39 @@
+{
+ "arm": "mapa_k_pair",
+ "cities": [
+  "richmond",
+  "paterson",
+  "gainesville",
+  "bend",
+  "sao_paulo"
+ ],
+ "config": {
+  "amp": "bf16",
+  "given": "intrinsics",
+  "input": [
+   518,
+   392
+  ],
+  "masking": "off",
+  "model": "facebook/map-anything",
+  "views": 2
+ },
+ "description": "MapAnything on the pair, given intrinsics; its cameras and pointmap",
+ "elapsed_s": 48.57,
+ "fallback": 1,
+ "gpu_visible": "NVIDIA A40",
+ "host": "makelab2.cs.washington.edu",
+ "manifest_sha256": "ed9108cdeb8bba0d212ffe2f334db0443e3cd401c83d19c56c6b203c61f9d86a",
+ "missing_inputs": 0,
+ "pairs": 127,
+ "pairs_sha256": "aebe29cf6dd78ddad1914a2f9fd2cabf4f649de5da408f9b4bc35924268199c5",
+ "pre_specified_for_158": false,
+ "ts": "2026-09-29T18:13:07Z",
+ "versions": {
+  "cv2": "5.0.0",
+  "kornia": "0.8.3",
+  "numpy": "2.5.2",
+  "python": "3.12.13",
+  "torch": "2.6.0+cu124"
+ }
+}
