@@ -39,12 +39,17 @@ Code: `scripts/analysis/multiview_evidence_48.py` (B.1–B.4) and
   ranking** (§7, Richmond, free models). RampNet stays first and the open-vocab detectors last.
   RampNet's recall lead over y11l falls from 0.296 in single views to 0.099 fused; k-of-n
   removes about a third of the chat VLMs' false sites and does nothing for the open-vocab ones.
-- **The residual GT holds up** (§8). In a one-rater check of all 97 residual ramps, every
-  source-view GT point is on a curb ramp: 0 of 97 are GT errors (95% Wilson upper bound 3.8%;
-  0 of 58 merging cases, upper bound 6.2%). The rater is the reviewer who made the clicks, so
-  this is a re-check, not an independent one.
-- **Next step:** merging belongs to the labeler's clustering work (§9); the 58 merging failures
-  are handed over as a test set, and the GT check (§8) removes none of them. Tier 2 and Tier 3 reconstruction are not motivated by these data.
+- **Every residual GT click is on a curb ramp** (§8). In a one-rater check of all 97 residual
+  ramps, the reviewer's click in the source view is on or touching a ramp in 97 of 97 (0 wrong
+  labels; 95% Wilson upper bound 3.8%, 6.2% on the 58 merging cases). This tests the click, not
+  the GT *world* point the residual classes are defined against. That point is a flat-ground
+  2.6 m raycast of the click, with its own placement error (p50 1.9 m / p90 4.4 m against a
+  5 m match radius), so GT placement error is still a possible cause of the 58 merging
+  cases (association / placement and displaced sites). The rater is the reviewer who made the clicks, so this is a re-check, not
+  an independent one.
+- **Next step:** merging belongs to the labeler's clustering work (§9). The 58 merging cases go
+  over as a provisional test set: no wrong label was found, but their world GT points have not
+  been re-placed. Tier 2 and Tier 3 reconstruction are not motivated by these data.
 
 ## 1. What [labeler#27](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/27) already answered
 
@@ -536,8 +541,18 @@ two files made on the same gallery. The rubric, the rules, the fixed item list, 
 and the manifest digest (`e614a42fa7ef0d94`, over the item list and every crop's sha256 in
 `benchmark/multiview_residual_gt_check_48/manifest.json`) travel in
 `analysis_out/multiview_48/residual_gt_check__jonf.json`, first committed with empty verdicts and
-now holding Jon's pass (2026-09-29). The page's Export button writes that file's format under that
-name.
+now holding Jon's pass (2026-09-29). Each rater has one file, `residual_gt_check__<rater>.json`: the
+page asks for a rater id (or takes `?rater=<id>` from its address), keeps each rater's answers in
+the browser under a separate key, and exports under that name with that id. `rates` refuses a file
+whose manifest digest, item list or item classes differ from the committed `manifest.json` and
+`residual_misses.json`, whose question, rubric or rules differ from the script's, or whose name does
+not match its rater id; it takes the classes from `residual_misses.json`, not from the file.
+`agreement` refuses two files with the same rater id.
+
+**Kappa will be degenerate for a second rater.** Jon answered Yes to all 97, so a second rater who
+disagrees once gets kappa 0.0 at 99.0% raw agreement, and one who also answers all Yes gets no
+kappa at all (chance agreement is 1). That is the prevalence paradox, not a bug. Read the percent
+agreement and the list of disagreements; `rates` flags the case as `kappa_degenerate`.
 
 *The ring in the source view* is the reviewer's own click in that pano (`build_ground_truth` over
 the committed `benchmark/<city>/records.jsonl` and `verdicts.json`), not a projection. Every one of
@@ -596,21 +611,26 @@ views:
 In none of the 17 is the source ring misdrawn: each sits on the click, and each click is on or next
 to a curb ramp, crosswalk end or corner, which is what the question is meant to sort. Some look
 like genuine No answers (gainesville:61, bend:51, bend:228) and some are borderline (richmond:46,
-bend:100); that is what the pass should measure. Two limits remain, neither of which changes what
+bend:100); that is what the pass should measure. Three limits remain, none of which changes what
 is rated: (a) 2 of the 97 source clicks are within 3.5 m of the camera (sao_paulo:75,
 gainesville:191), where the source crop looks almost straight down and Can't tell is the likely
 answer; a wider source window would help there. (b) 18 of the 343 other-view crops come from
 cameras within 4 m, where the window points at the car or the blurred nadir and shows nothing
-useful.
+useful. (c) The ring is baked into the crop as 2 px pure green, which is weak on red tactile paving
+(paterson, gainesville) for a red-green colour-blind rater. Re-cutting needs the unpublished
+archive (§10), so the crops were not re-cut; since 2026-09-29 the page draws a dark outline inside
+and outside the green ring as an SVG overlay at the same centre. Jon's pass was made before the
+outline was added; the ring's position is unchanged.
 
 **Result (Jon, 2026-09-29, one rater, all 97 answered).** Every card is Yes: in its source view,
-each residual GT point is on or touching a curb ramp.
+each residual GT click is on or touching a curb ramp.
 
 | items | Yes | No | Can't tell | GT-error rate [95% Wilson] |
 |---|---|---|---|---|
 | all 97 residual ramps | 97 | 0 | 0 | 0.000 [0.000, 0.038] |
 | 58 merging cases (35 association / placement + 23 site displaced) | 58 | 0 | 0 | 0.000 [0.000, 0.062] |
 | 28 sub-threshold only | 28 | 0 | 0 | 0.000 [0.000, 0.121] |
+| other 11 (2 never fired, 8 bend never fired / unknown below 0.55, 1 bend coverage gap) | 11 | 0 | 0 | 0.000 [0.000, 0.259] |
 
 Re-derive with `python scripts/analysis/residual_gt_check_48.py rates
 analysis_out/multiview_48/residual_gt_check__jonf.json`. Two cards carry notes: paterson:195 (lens
@@ -618,9 +638,28 @@ blur, perhaps rain, but the point is on the ramp) and sao_paulo:75 (very close r
 tactile tiles are damaged).
 
 **Reading.**
-- The residual is real. None of the 97 misses is explained by a misplaced or wrong GT point, so
-  §8's classes stand as model and fusion failures, and the 58 merging cases go to
-  [labeler#56](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/56) unchanged.
+- **What the check establishes:** no residual comes from a click that is not on a ramp. All 97
+  source-view clicks are on or touching a curb ramp (0 of 97 wrong labels; 95% Wilson upper bound
+  3.8%, 6.2% on the 58 merging cases).
+- **What it does not test:** the GT *world* point. The residual classes are defined in world
+  space: `association_placement` means no operational site within 5 m of the ramp's world
+  position, and `self_detected_site_displaced` means the fused site is more than 5 m from it.
+  That world position is the flat-ground 2.6 m raycast of the click (§3, World GT), whose own
+  placement error is p50 1.9 m / p90 4.4 m (§1) against a 5 m match radius. A click can sit on
+  the ramp while its world point lands several metres away, so GT world-placement error remains
+  a live explanation for the 58 merging and displaced cases, and a Yes here cannot rule it out.
+  The other 39 (28 sub-threshold, 11 never fired or unknown) do not involve a fused site, but
+  their per-capture hit tests (§3) are also made against the raycast world point, so the same
+  caveat applies to them.
+- **What would test it:** re-place each residual GT world point with a better lift and re-run the
+  residual classification. The #48 cross-view sweep (draft PRs, not merged) found better lifts
+  than flat 2.6 m: the labeler's per-rig camera height cut median cross-view error from 5.62° to
+  4.06° ([PR #210](https://github.com/ProjectSidewalk/RampNet/pull/210)), and MapAnything with
+  pose priors to 2.80° ([PR #215](https://github.com/ProjectSidewalk/RampNet/pull/215)). Those
+  are angular errors in other views, not metres on the ground, so the size of the effect on the
+  58 is unmeasured. Until that re-run, the 58 go to
+  [labeler#56](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/56) as a
+  provisional test set with this caveat, not as a clean one.
 - **This is not an independent check.** The rater is the benchmark reviewer who made these clicks,
   so it measures whether the clicks survive a second look by the same person. A shared blind spot
   would not show up. A second rater's file drops in beside this one and `rates` reports agreement.
@@ -648,8 +687,11 @@ tactile tiles are damaged).
   `association_placement` and `self_detected_site_displaced` rows of
   `analysis_out/multiview_48/residual_misses.json` (ramp uid, position, GT source panos). Two
   caveats travel with them: they are defined against `fuse_sites` at 0.55, not the server's
-  clustering, and they are provisional until the one-rater GT check (§8) says which are GT errors,
-  since a method that "recovers" a wrong GT point is rewarded for the wrong thing. 17 of the 58 are
+  clustering, and they remain provisional. The one-rater GT check (§8) found no wrong label (every
+  click is on a ramp), but it does not test the raycast world GT point the 5 m classes are defined
+  against, and a method that "recovers" a misplaced GT point is rewarded for the wrong thing.
+  Re-placing those points with a better lift and re-running the classification (§8, Reading) is
+  what would settle it. 17 of the 58 are
   Richmond (6 association, 11 displaced), the one city both evaluations cover. The 28
   sub-threshold ramps are a threshold question (§6), not a merging one.
 - **Feed-forward 3D on our input is unproven.** Our captures are sparse, wide-baseline and
@@ -672,8 +714,11 @@ tactile tiles are damaged).
   recall, and the precision CIs just touch (0.927), so on this one city a YOLO arm in a
   multi-view system comes close to RampNet; the tier was chosen on the same data, so that is an
   upper bound.
-- Proposed follow-up: Jon's one-rater GT check (§8), before anyone tunes a merging method
-  against the 58 cases; `residual_gt_check_48.py rates` gives the GT-error rate on those 58.
+- Done: Jon's one-rater GT check (§8), 0 of 97 clicks off a ramp (0 of 58 merging cases).
+  Proposed follow-up, before anyone tunes a merging method against the 58: re-place their GT
+  world points with a better lift than flat 2.6 m and re-run the residual classification, since
+  the check does not test world placement. A second rater's file would make the label check
+  independent.
 
 ## 10. Reproduction
 
@@ -697,6 +742,13 @@ against `benchmark/richmond/imagery_manifest.json` before any leg runs. The othe
 only in that archive. **What would unblock it:** publishing those 2,743 JPEGs to Hugging Face
 beside the benchmark (e.g. a `richmond_neighbourhood` config of
 `projectsidewalk/rampnet-benchmark`), with a sha256 manifest like `imagery_manifest.json`.
+
+The GT-check crops (§8) have the same kind of input: re-cutting the 440 crops needs the labeler's
+native-res archive for all five cities on makelab2 (`--archive-root` in step 2 below), not only the
+Richmond one. The cut crops themselves are committed under
+`benchmark/multiview_residual_gt_check_48/crops/` with their sha256s in `manifest.json`, so the
+plan, `manifest.json` and `gallery.html` rebuild byte-identical from a clean clone (`plan`, then
+`gallery --crops benchmark/multiview_residual_gt_check_48/crops`), and `rates` needs nothing else.
 
 **What is replicable from a clean clone:** every B.1 / B.2 table re-derives from the
 committed `captures_R25.csv` (`tests/test_multiview_48.py` checks three keys), and the challenger

@@ -63,7 +63,7 @@ def test_agreement_and_kappa():
     assert ag["n_both_yes_no"] == 3
     assert ag["disagreements"] == [{"uid": "b", "r1": "no", "r2": "yes"}]
     # identical files agree perfectly
-    assert gc.agreement(d1, d1)["kappa"] == pytest.approx(1.0)
+    assert gc.agreement(d1, dict(d1, rater="r2"))["kappa"] == pytest.approx(1.0)
     # kappa is undefined when both raters used one category throughout
     assert gc.cohen_kappa([("yes", "yes")] * 3, gc.ANSWERS) is None
 
@@ -73,11 +73,125 @@ def test_agreement_refuses_files_from_different_galleries():
         gc.agreement(_file({}), _file({}, digest="y"))
 
 
+def test_agreement_refuses_two_files_with_the_same_rater():
+    # A second rater who kept the first one's id: the disagreement row is keyed by rater,
+    # so one of the two answers would silently vanish.
+    d1 = _file({"a": "yes", "b": "yes"}, rater="jonf")
+    d2 = _file({"a": "yes", "b": "no"}, rater="jonf")
+    with pytest.raises(ValueError, match="two different rater ids"):
+        gc.agreement(d1, d2)
+
+
+def test_agreement_refuses_different_item_lists():
+    with pytest.raises(ValueError, match="different items"):
+        gc.agreement(_file({}), _file({}, items=("a", "b"), rater="r2"))
+
+
+def test_kappa_is_flagged_degenerate_against_a_constant_rater():
+    d1 = _file({"a": "yes", "b": "yes", "c": "yes", "d": "yes"})
+    d2 = _file({"a": "yes", "b": "no", "c": "yes", "d": "yes"}, rater="r2")
+    ag = gc.agreement(d1, d2)
+    assert ag["percent_agreement"] == 0.75 and ag["kappa"] == pytest.approx(0.0)
+    assert ag["kappa_degenerate"] is True
+    assert ag["disagreements"] == [{"uid": "b", "r1": "yes", "r2": "no"}]
+    mixed = gc.agreement(_file({"a": "yes", "b": "no"}), _file({"a": "yes", "b": "no"},
+                                                             rater="r2"))
+    assert mixed["kappa_degenerate"] is False
+
+
+def test_verdicts_path_rejects_unsafe_rater_ids():
+    assert gc.verdicts_path("rater2").endswith("residual_gt_check__rater2.json")
+    for bad in ("", "Jon F", "../x", "a/b", "x" * 40):
+        with pytest.raises(ValueError):
+            gc.verdicts_path(bad)
+
+
+def _toy_reference():
+    d = _file({})
+    return {"manifest_digest": d["manifest_digest"], "items": d["items"],
+            "item_class": d["item_class"]}
+
+
+def _toy_rubric(d):
+    d.update(question=gc.QUESTION, rules=gc.RULES,
+             rubric=[{"key": k, "label": lab, "definition": x} for k, lab, x in gc.RUBRIC])
+    return d
+
+
 def test_load_verdicts_rejects_an_answer_outside_the_rubric(tmp_path):
-    p = tmp_path / "v.json"
-    p.write_text(json.dumps(_file({"a": "gt-error"})), encoding="utf-8")
+    p = tmp_path / "residual_gt_check__r1.json"
+    p.write_text(json.dumps(_toy_rubric(_file({"a": "gt-error"}))), encoding="utf-8")
+    with pytest.raises(ValueError, match="not in"):
+        gc.load_verdicts(str(p), _toy_reference())
+
+
+# --------------------------------------------------------------------------- #
+# a verdict file is checked against the committed gallery before it is scored
+# --------------------------------------------------------------------------- #
+def _planted(tmp_path, edit, rater="jonf"):
+    """A copy of Jon's committed file, edited by ``edit`` and written under its rater name."""
+    d = json.loads(open(gc.VERDICTS_PATH, encoding="utf-8").read())
+    edit(d)
+    p = tmp_path / f"residual_gt_check__{rater}.json"
+    p.write_text(json.dumps(d), encoding="utf-8")
+    return str(p)
+
+
+def test_committed_file_passes_the_checks_and_scores_97_of_97(tmp_path):
+    ref = gc.committed_reference()
+    d = gc.load_verdicts(gc.VERDICTS_PATH, ref)
+    assert d["rater"] == "jonf" and d["manifest_digest"] == ref["manifest_digest"]
+    assert gc.load_verdicts(_planted(tmp_path, lambda d: None), ref) == d
+    r = gc.rates(d, ref["item_class"])
+    assert (r["overall"]["yes"], r["overall"]["no"], r["overall"]["cant_tell"]) == (97, 0, 0)
+    assert r["merging_cases"]["n_items"] == 58 and r["merging_cases"]["yes"] == 58
+
+
+def test_load_verdicts_refuses_a_wrong_digest(tmp_path):
+    p = _planted(tmp_path, lambda d: d.update(manifest_digest="deadbeefdeadbeef"))
+    with pytest.raises(ValueError, match="made on gallery deadbeefdeadbeef"):
+        gc.load_verdicts(p)
+
+
+def test_load_verdicts_refuses_a_dropped_item(tmp_path):
+    def drop(d):
+        u = d["items"].pop(0)
+        d["item_class"].pop(u)
+        d["verdicts"].pop(u, None)
+    with pytest.raises(ValueError, match="item list differs"):
+        gc.load_verdicts(_planted(tmp_path, drop))
+
+
+def test_load_verdicts_refuses_relabelled_classes(tmp_path):
+    def relabel(d):
+        for u in [u for u, c in d["item_class"].items() if c in gc.MERGING_CLASSES][:10]:
+            d["item_class"][u] = "sub_threshold_only"
+    with pytest.raises(ValueError, match="item classes differ .* for 10 items"):
+        gc.load_verdicts(_planted(tmp_path, relabel))
+
+
+def test_load_verdicts_refuses_a_changed_rubric(tmp_path):
+    p = _planted(tmp_path, lambda d: d["rubric"][1].update(definition="anything goes"))
+    with pytest.raises(ValueError, match="rubric"):
+        gc.load_verdicts(p)
+
+
+def test_load_verdicts_refuses_a_file_name_that_does_not_match_its_rater(tmp_path):
+    # Jon's file saved as a second rater's: same answers under another name.
+    with pytest.raises(ValueError, match="file name does not match"):
+        gc.load_verdicts(_planted(tmp_path, lambda d: None, rater="rater2"))
+
+
+def test_rates_cli_refuses_a_planted_file(tmp_path, capsys):
+    p = _planted(tmp_path, lambda d: d.update(manifest_digest="deadbeefdeadbeef"))
     with pytest.raises(ValueError):
-        gc.load_verdicts(str(p))
+        gc.main(["rates", p])
+
+
+def test_rates_cli_refuses_the_same_rater_twice(tmp_path):
+    flipped = _planted(tmp_path, lambda d: d["verdicts"]["richmond:3"].update(answer="no"))
+    with pytest.raises(ValueError, match="two different rater ids"):
+        gc.main(["rates", gc.VERDICTS_PATH, flipped])
 
 
 def test_cut_one_ring_flag():
@@ -134,5 +248,11 @@ def test_crop_manifest_matches_the_crops_and_the_verdict_file():
         with open(os.path.join(gc.GALLERY_DIR, "crops", name), "rb") as f:
             assert hashlib.sha256(f.read()).hexdigest() == sha, name
     page = open(os.path.join(gc.GALLERY_DIR, "gallery.html"), encoding="utf-8").read()
-    assert man["manifest_digest"] in page and gc.EXPORT_NAME in page
+    assert man["manifest_digest"] in page and gc.EXPORT_PREFIX in page
     assert "mv48_residual_" not in page  # not the old gallery's storage key
+    # the rater id is asked for, not hard-coded: it names the export and the storage key
+    assert 'rater: "jonf"' not in page and "residual_gt_check__jonf" not in page
+    assert 'id="rater"' in page and '"__" + rater' in page
+    # one dark halo per ringed (source) crop, none on the unmarked context views
+    assert page.count('class="halo"') == sum(it["ring"] for it in plan) == 97
+    assert "color-scheme:light dark" in page
