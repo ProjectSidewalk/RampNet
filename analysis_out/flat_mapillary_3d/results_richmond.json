@@ -9606,8 +9606,7 @@
     "branch": "this"
    },
    "mast3r_pair": {
-    "branch": "origin/analysis/crossview-sfm-48",
-    "commit": "9fd71bb36c8cf186950236f91793f4133846f26f"
+    "branch": "this"
    },
    "mlypano_gs": {
     "branch": "this"
@@ -9622,8 +9621,7 @@
     "branch": "this"
    },
    "mv3d_consensus": {
-    "branch": "origin/analysis/crossview-sfm-48",
-    "commit": "9fd71bb36c8cf186950236f91793f4133846f26f"
+    "branch": "this"
    },
    "noflat_gs": {
     "branch": "this"
@@ -9641,28 +9639,22 @@
     "branch": "this"
    },
    "roma": {
-    "branch": "origin/analysis/crossview-matching-48",
-    "commit": "a6b39086aee762fc5e894c4f44e7dd7c7285577a"
+    "branch": "this"
    },
    "roma_hyb": {
-    "branch": "origin/analysis/crossview-matching-48",
-    "commit": "a6b39086aee762fc5e894c4f44e7dd7c7285577a"
+    "branch": "this"
    },
    "roma_magsac": {
-    "branch": "origin/analysis/crossview-matching-48",
-    "commit": "a6b39086aee762fc5e894c4f44e7dd7c7285577a"
+    "branch": "this"
    },
    "sfm_colmap": {
-    "branch": "origin/analysis/crossview-sfm-48",
-    "commit": "9fd71bb36c8cf186950236f91793f4133846f26f"
+    "branch": "this"
    },
    "sfm_colmap_prior": {
-    "branch": "origin/analysis/crossview-sfm-48",
-    "commit": "9fd71bb36c8cf186950236f91793f4133846f26f"
+    "branch": "this"
    },
    "vggt_corner": {
-    "branch": "origin/analysis/crossview-sfm-48",
-    "commit": "9fd71bb36c8cf186950236f91793f4133846f26f"
+    "branch": "this"
    }
   }
  },

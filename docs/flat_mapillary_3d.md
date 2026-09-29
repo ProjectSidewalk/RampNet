@@ -199,8 +199,10 @@ only. CIs resample ramps (31).
 - `lg` is on the harness branch.
 - `roma*` come from `analysis/crossview-matching-48`, and `sfm_colmap*`, `mast3r_pair`,
   `vggt_corner` and `mv3d_consensus` from `analysis/crossview-sfm-48`.
-- Those files are read in place with `git show` and not committed here. The commit each was
-  read from is recorded in `results_richmond.json` → `config.sources`.
+- Those files were first read in place with `git show` from their branches. Since all the
+  family branches were merged into `analysis/crossview-align-48`, they are committed beside
+  this one and the score reads them locally (`predict_all.sh`). The re-score was identical
+  in every number; only `config.sources` changed.
 
 | arm | median ° [CI] | p90 ° | within 2° | fallback | paired gain vs projection [CI] | closer than projection |
 |---|---|---|---|---|---|---|
