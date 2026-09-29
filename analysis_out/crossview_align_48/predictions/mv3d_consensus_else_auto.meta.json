@@ -1,0 +1,29 @@
+{
+ "arm": "mv3d_consensus_else_auto",
+ "config": {
+  "agree_deg": 1.5,
+  "arms": [
+   "mapa_k_pair",
+   "mast3r_pair"
+  ],
+  "note": "POST HOC composite, defined after both arms were scored; reads their committed predictions (no answer columns)",
+  "otherwise": "proj_height_auto's point",
+  "point": "spherical midpoint of the two"
+ },
+ "description": "mv3d_consensus where the two agree, proj_height_auto elsewhere (post hoc)",
+ "elapsed_s": 0.0486,
+ "fallback": 0,
+ "gpu_visible": "NVIDIA GeForce RTX 3070",
+ "host": "jonfhome",
+ "missing_inputs": 0,
+ "needs": [],
+ "pairs": 300,
+ "pairs_sha256": "a85a11bceb57e7d4db4bc5914c35cb17b5fdaf9bc8c9189957574a13260db388",
+ "ts": "2026-09-29T02:06:21Z",
+ "versions": {
+  "cv2": "5.0.0",
+  "numpy": "2.5.1",
+  "python": "3.12.10",
+  "torch": "2.6.0+cu126"
+ }
+}
