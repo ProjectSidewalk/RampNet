@@ -480,6 +480,39 @@ def summarize_cmd(args):
     print(f"-> {args.out}")
 
 
+def flatcheck(args):
+    """Instrument check for the arms' placement path: feed them a synthetic depth row whose
+    range is the flat-ground range at the 'auto' height, and require that the point and hcal
+    arms reproduce the committed proj_height_auto predictions. Needs the labeler inputs."""
+    import crossview_arms.depth_mono as M
+    registry = H.load_arms()
+    pairs = H.read_frozen_pairs()
+    ctx = H.Context(args, pairs)
+    rows = {}
+    for p in pairs:
+        h = M._h_auto(ctx, p)
+        dep = (p["src_y"] - 0.5) * math.pi
+        rows[p["pair_id"]] = {"status": "ok", "range_point_m": h / math.tan(dep), "range_plane_m": None,
+                              "ground": {"h": h, "ok": True}, "local": {"ok": False}}
+    ctx.cache[("mono_rows", "da3")] = rows
+    auto = H.read_predictions("proj_height_auto")
+    from crossview_arms._registry import ANSWER_KEYS
+    worst, fb = 0.0, 0
+    for p in pairs:
+        visible = {k: v for k, v in p.items() if k not in ANSWER_KEYS}
+        a = auto[p["pair_id"]]
+        for name in ("mono_da3_point", "mono_da3_hcal"):
+            o = registry[name].fn(visible, ctx)
+            if o["x"] is None:
+                fb += 1
+                continue
+            worst = max(worst, float(H.angular_error_deg(o["x"], o["y"], a["x"], a["y"])))
+    print(f"flatcheck: max {worst:.6f} deg from proj_height_auto over {2 * len(pairs)} placements, "
+          f"{fb} fallbacks")
+    if worst > 0.01 or fb:
+        raise SystemExit("flatcheck FAILED")
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -493,8 +526,15 @@ def main(argv=None):
     s = sub.add_parser("summarize")
     s.add_argument("--arms", help="comma-separated; default: every predictions/mono_*.jsonl")
     s.add_argument("--out", default=SUMMARY_JSON)
+    fc = sub.add_parser("flatcheck")
+    fc.add_argument("--labeler-root", required=True)
+    fc.add_argument("--runs-root")
+    fc.add_argument("--results-root")
     args = ap.parse_args(argv)
-    if args.cmd == "extract":
+    if args.cmd == "flatcheck":
+        args.views, args.extra = None, []
+        flatcheck(args)
+    elif args.cmd == "extract":
         extract(args)
     elif args.cmd == "summarize":
         summarize_cmd(args)
