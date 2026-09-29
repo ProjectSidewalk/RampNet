@@ -169,8 +169,11 @@ def _fit_K(rays, size):
 
 
 def _views_for(ctx, pair, corner_mode):
+    """[source, other, ...]: the corner (``True``), the pair (``False``) or, for
+    ``"mono"``, still [source, other] -- the other view is needed for the reading, but a mono
+    core runs the model on the source view alone."""
     corner = M.corner_for(ctx, pair)
-    return M.select_views(corner, pair, CORNER_VIEWS if corner_mode else 2)
+    return M.select_views(corner, pair, CORNER_VIEWS if corner_mode is True else 2)
 
 
 def _rel_diag(T_src, T_oth, views):
@@ -242,7 +245,8 @@ def _read(core, how="full"):
 
 def _core_out(views, size, X, T_src, T_oth, K_oth, diag):
     diag = dict(diag)
-    diag.update(_rel_diag(T_src, T_oth, views))
+    if T_oth is not None:
+        diag.update(_rel_diag(T_src, T_oth, views))
     diag["n_views"] = len(views)
     return {"views": views, "size": size, "X": X, "T_src": T_src, "T_oth": T_oth,
             "K_oth": K_oth, "diag": diag}
@@ -402,8 +406,9 @@ def _mapa_core(ctx, pair, name, corner_mode, posed):
     size = SIZES["mapanything"]
     views = _views_for(ctx, pair, corner_mode)
     K = torch.from_numpy(_K_at(size)).float()
+    run_views = views[:1] if corner_mode == "mono" else views
     inputs = []
-    for v in views:
+    for v in run_views:
         d = {"img": torch.from_numpy((_rgb(ctx, v, size) * 255.0)).float(), "intrinsics": K}
         if posed:
             Rm, C = M.cam_pose_world(v)
@@ -429,13 +434,15 @@ def _mapa_core(ctx, pair, name, corner_mode, posed):
     u, v = CLICK[0] * sx, CLICK[1] * sy
     X = _bilinear(got[0]["pts3d"], u, v)
     diag["click_conf"] = float(_bilinear(got[0]["conf"][..., None], u, v)[0])
-    T0, T1 = got[0]["camera_poses"], got[1]["camera_poses"]
+    T0 = got[0]["camera_poses"]
+    T1 = got[1]["camera_poses"] if len(got) > 1 else None
     diag["click_depth"] = float((T0[:3, :3].T @ (X - T0[:3, 3]))[2])
     if posed:
-        for i, nm in ((0, "src"), (1, "oth")):
+        for i, nm in ((0, "src"), (1, "oth"))[:len(got)]:
             _, C = M.cam_pose_world(views[i])
             diag[f"{nm}_pose_shift_m"] = float(np.linalg.norm(got[i]["camera_poses"][:3, 3] - C))
-    return _core_out(views, size, X, T0, T1, got[1]["intrinsics"], diag)
+    return _core_out(views, size, X, T0, T1, got[1]["intrinsics"] if T1 is not None else None,
+                     diag)
 
 
 MAPA_CONFIG = {"model": MODEL_IDS["mapanything"], "input": SIZES["mapanything"],
@@ -480,6 +487,16 @@ def mapa_posed_pair(pair, ctx):
           description="MapAnything posed run, relative pose only, today's flat-ground transfer")
 def mapa_posed_poseonly(pair, ctx):
     return _read(_core(ctx, pair, "mapanything", corner_mode=True, posed=True), "poseonly")
+
+
+@register("mapa_mono_depthonly", needs=("views",),
+          config={**MAPA_CONFIG, "views": 1, "given": POSED + " (source view only)",
+                  "projection": "the other view's PRIOR camera; the model never sees the other "
+                                "view (monocular control for mapa_posed_depthonly)"},
+          description="MapAnything on the source view alone (metric, posed); its 3D point at the "
+                      "click projected with the other view's prior camera")
+def mapa_mono_depthonly(pair, ctx):
+    return _read(_core(ctx, pair, "mapanything", corner_mode="mono", posed=True), "depthonly")
 
 
 @register("mapa_posed_depthonly", needs=("views",),
