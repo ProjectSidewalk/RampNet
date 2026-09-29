@@ -1,0 +1,33 @@
+{
+ "arm": "roma_warp_hyb",
+ "config": {
+  "cert_min": 0.05,
+  "matcher": "RoMa outdoor (romatch 0.1.2), dense warp at the GT point",
+  "pre_specified": true,
+  "prior": "proj_height_auto",
+  "view": [
+   1024,
+   768,
+   75.0
+  ]
+ },
+ "description": "roma_warp, else the auto-height prior",
+ "elapsed_s": 0.1968,
+ "fallback": 0,
+ "gpu_visible": "NVIDIA GeForce RTX 3070",
+ "host": "jonfhome",
+ "missing_inputs": 0,
+ "needs": [
+  "views"
+ ],
+ "pairs": 300,
+ "pairs_sha256": "a85a11bceb57e7d4db4bc5914c35cb17b5fdaf9bc8c9189957574a13260db388",
+ "ts": "2026-09-29T01:24:58Z",
+ "versions": {
+  "cv2": "5.0.0",
+  "kornia": "0.8.3",
+  "numpy": "2.5.1",
+  "python": "3.12.10",
+  "torch": "2.6.0+cu126"
+ }
+}

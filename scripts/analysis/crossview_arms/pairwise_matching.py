@@ -141,6 +141,27 @@ class RoMa:
             k1, k2 = self.model.to_pixel_coordinates(m, H.VIEW_H, H.VIEW_W, H.VIEW_H, H.VIEW_W)
         return k1.cpu().numpy(), k2.cpu().numpy()
 
+    def centre(self, c1, c2):
+        """RoMa's dense A->B warp read at the source view's centre (the GT point), by
+        bilinear interpolation of the warp grid, plus the certainty there. Returns
+        (u, v, certainty) in other-view pixels. No planar assumption."""
+        from PIL import Image
+        import torch.nn.functional as F
+        torch = self.torch
+        a = Image.fromarray(c1[:, :, ::-1].copy())
+        b = Image.fromarray(c2[:, :, ::-1].copy())
+        with torch.inference_mode():
+            warp, cert = self.model.match(a, b, device=self.device)
+            if warp.dim() == 4:                       # batched (1, H, W, 4)
+                warp, cert = warp[0], cert[0]
+            ws = warp.shape[1] // 2 if self.model.symmetric else warp.shape[1]
+            ab = warp[:, :ws, 2:].permute(2, 0, 1)[None].float()          # 1x2xHxW
+            cc = cert[:, :ws][None, None].float()
+            g = torch.zeros(1, 1, 1, 2, device=ab.device)                # A's centre
+            xy = F.grid_sample(ab, g, align_corners=False)[0, :, 0, 0].cpu().numpy()
+            c = float(F.grid_sample(cc, g, align_corners=False)[0, 0, 0, 0])
+        return float((xy[0] + 1.0) / 2.0 * H.VIEW_W), float((xy[1] + 1.0) / 2.0 * H.VIEW_H), c
+
 
 class KorniaAliked:
     """The pilot's own ALIKED + LightGlue (crossview_arms.matching.LightGlue), so ``lg_*``
@@ -192,6 +213,23 @@ def matches(pair, ctx, matcher):
         os.makedirs(os.path.dirname(path), exist_ok=True)
         np.savez_compressed(path, k1=k1, k2=k2)
     return k1, k2
+
+
+def roma_centre(pair, ctx):
+    """(u, v, certainty) of RoMa's dense warp at the GT point; cached like ``matches`` in
+    its own subdirectory, so the ``roma`` sample cache is untouched."""
+    cache_dir = _extra(ctx, "match_cache")
+    path = os.path.join(cache_dir, "roma_centre", f"{pair['pair_id']}.npz") if cache_dir else None
+    if path and os.path.exists(path):
+        return tuple(float(x) for x in np.load(path)["uvc"])
+    key = ("pm_matcher", "roma")
+    if key not in ctx.cache:
+        ctx.cache[key] = RoMa(_device(ctx))
+    uvc = ctx.cache[key].centre(ctx.view(pair, "src"), ctx.view(pair, "oth"))
+    if path:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        np.savez_compressed(path, uvc=np.array(uvc))
+    return uvc
 
 
 # --------------------------------------------------------------------------- #
@@ -359,3 +397,65 @@ for _m in MATCHERS:
     for _e in EST_DESC:
         if (_m, _e) != ("lg", "ransac"):      # that one is the pilot's committed `lg`
             _register(_m, _e)
+
+
+# --------------------------------------------------------------------------- #
+# RoMa-only arms: a local homography, and the dense warp read at the GT point
+# --------------------------------------------------------------------------- #
+
+ROMA_CERT_MIN = 0.05     # romatch's own sample_thresh: its definition of a usable match
+LOCAL_RADIUS_PX = 160.0  # inherited from lg_local
+LOCAL_MIN = 12
+
+
+@register("roma_local", needs=("views",),
+          config={**BASE_CONFIG, "matcher": MATCHER_DESC["roma"], "roma_samples": ROMA_SAMPLES,
+                  "local_radius_px": LOCAL_RADIUS_PX, "local_min": LOCAL_MIN,
+                  "estimator": "ground homography from matches within 160 px of the GT point"},
+          description="RoMa; ground homography fitted only to matches within 160 px of the GT "
+                      "point (as lg_local)")
+def roma_local(pair, ctx):
+    k1, k2 = matches(pair, ctx, "roma")
+    a, b = filter_ground(k1, k2, ctx.view_centre(pair, "src"), ctx.view_centre(pair, "oth"),
+                         GROUND_MARGIN_DEG)
+    if len(a):
+        near = np.hypot(a[:, 0] - CENTRE[0], a[:, 1] - CENTRE[1]) < LOCAL_RADIUS_PX
+    else:
+        near = np.zeros(0, bool)
+    diag = {"n_matches": int(len(k1)), "n_ground": int(len(a)), "n_near": int(near.sum())}
+    if near.sum() < LOCAL_MIN:
+        return {"x": None, "y": None, **diag, "why": "few_near_matches"}
+    out, d = ground_homography(pair, ctx, a[near], b[near])
+    diag["inliers"] = d.get("inliers")
+    return {**diag, **out} if out else {"x": None, "y": None, **diag, "why": d.get("why")}
+
+
+def _warp(pair, ctx, hybrid):
+    u, v, c = roma_centre(pair, ctx)
+    diag = {"certainty": c, "u": u, "v": v}
+    if c >= ROMA_CERT_MIN and 0 <= u < H.VIEW_W and 0 <= v < H.VIEW_H:
+        x, y = H.view_to_pano(u, v, *ctx.view_centre(pair, "oth"))
+        return {**diag, "x": float(x), "y": float(y), "via": "warp"}
+    why = "low_certainty" if c < ROMA_CERT_MIN else "warp_outside_view"
+    if hybrid:
+        x, y = auto_prior(pair, ctx)
+        return {**diag, "x": x, "y": y, "via": "auto_prior", "why": why}
+    return {**diag, "x": None, "y": None, "why": why}
+
+
+WARP_CONFIG = {"matcher": "RoMa outdoor (romatch 0.1.2), dense warp at the GT point",
+               "cert_min": ROMA_CERT_MIN, "view": [H.VIEW_W, H.VIEW_H, H.HFOV_DEG],
+               "pre_specified": True}
+
+
+@register("roma_warp", needs=("views",), config=WARP_CONFIG,
+          description="RoMa dense warp read at the GT point (no plane); falls back below "
+                      "certainty 0.05")
+def roma_warp(pair, ctx):
+    return _warp(pair, ctx, hybrid=False)
+
+
+@register("roma_warp_hyb", needs=("views",), config={**WARP_CONFIG, "prior": AUTO_ARM},
+          description="roma_warp, else the auto-height prior")
+def roma_warp_hyb(pair, ctx):
+    return _warp(pair, ctx, hybrid=True)
