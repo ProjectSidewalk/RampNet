@@ -1,42 +1,47 @@
-"""Cross-view image alignment of a GT curb-ramp point (#48 pilot).
+"""Cross-view alignment of a GT curb-ramp point: a harness for scoring "arms" (#48).
 
 ``multiview_evidence_48.py`` carries a world GT point into other captures by raycasting
 it from its source view onto flat ground at 2.6 m and projecting it back with the
 labeler's ``geo.ground_point_to_pano``. GT placement error (p50 1.9 m / p90 4.4 m), camera
 height and pose error all move that projected point, so at 12-18 m it can land beside the
-ramp. This pilot asks whether aligning the two images places the point better.
+ramp. This harness scores techniques ("arms") that try to place it better, all on one
+frozen known-answer pair list, with the same metrics.
 
-Known-answer set: the source point is a verdict-true operational detection (a GT point
-that is itself a detection peak); the other view is a non-source capture within 18 m whose
-own >= 0.55 detection claims the ramp by the world test (raycast within 5 m, one-to-one in
-confidence order, as in ``multiview_evidence_48.capture_table``). That detection's pixel is
-the reference. Pairs that could be ambiguous (another GT ramp within 6 m, or another
->= 0.55 detection in the other view landing within 8 m) are dropped.
+Known-answer set (``pairs.csv``, frozen by PAIRS_SHA256): the source point is a
+verdict-true operational detection (a GT point that is itself a detection peak); the other
+view is a non-source capture within 18 m whose own >= 0.55 detection claims the ramp by the
+world test (raycast within 5 m, one-to-one in confidence order, as in
+``multiview_evidence_48.capture_table``). That detection's pixel is the reference. Pairs
+that could be ambiguous (another GT ramp within 6 m, or another >= 0.55 detection in the
+other view landing within 8 m) are dropped.
 
-Arms, all scored against the reference by angular error:
-
-* ``projection`` -- today's flat-ground projection;
-* ``lg`` -- ALIKED + LightGlue (kornia) on rectilinear views, matches restricted to below
-  the horizon, RANSAC homography, source point mapped through it; falls back to the
-  projection under ``--min-inliers`` inliers (the primary arm, chosen before scoring);
-* ``lg_local`` -- the same matches, homography fitted only to those near the source point;
-* ``sift`` -- OpenCV SIFT + ratio test + the same RANSAC (cheap baseline);
-* ``ncc`` -- scale-corrected normalized cross-correlation template search (cheaper still).
+**An arm** is one function ``fn(pair, ctx) -> {"x": .., "y": .., ...} | None`` registered
+with ``@register(name, needs=..., description=..., config=...)`` in any module under
+``scripts/analysis/crossview_arms/`` (see ``crossview_arms/_registry.py``). It returns the
+predicted equirect (x_norm, y_norm) of the ramp in the OTHER pano, or None to fall back to
+the projection. Extra keys are kept as diagnostics. ``ctx`` (``Context``) gives lazy access
+to the rectilinear views, the labeler's code and the raw pano records. The ``projection``
+arm is built in (the pair row's proj_x / proj_y).
 
 Subcommands, in order:
 
-    # 1. pair list (desktop CPU; needs the labeler checkout and runs, like multiview_evidence_48 run)
+    # 1. pair list (desktop CPU; needs the labeler checkout and runs, like
+    #    multiview_evidence_48 run). FROZEN: refuses to overwrite pairs.csv without --force.
     python scripts/analysis/crossview_align_48.py pairs --labeler-root LABELER \\
         --runs-root LABELER/runs --results-root RUNS_ARCHIVE
     # 2. rectilinear views (makelab2 CPU, where the native-res panos are)
     python scripts/analysis/crossview_align_48.py cut-views \\
         --archive-root /projects/makeabilitylab/sidewalk-auto-labeler/runs --out VIEWS
-    # 3. matching (GPU for LightGlue; CPU works, slowly)
-    python scripts/analysis/crossview_align_48.py match --views VIEWS
-    # 4. scoring (CPU, committed inputs only)
+    # 3. one arm -> predictions/<arm>.jsonl (+ .meta.json with wall-clock and host)
+    python scripts/analysis/crossview_align_48.py predict --arm lg --views VIEWS
+    python scripts/analysis/crossview_align_48.py predict --arm proj_height_auto \\
+        --labeler-root LABELER --runs-root LABELER/runs --results-root RUNS_ARCHIVE
+    # 4. score every arm with predictions (CPU, committed inputs only) -> results.json
     python scripts/analysis/crossview_align_48.py score
     # reference-noise estimate from manual_gold (CPU, committed inputs only)
     python scripts/analysis/crossview_align_48.py noise
+    # list registered arms
+    python scripts/analysis/crossview_align_48.py arms
 
 Outputs go to ``analysis_out/crossview_align_48/``. ``score`` and ``noise`` read only
 committed files, so their JSON re-derives from a clean clone.
@@ -62,14 +67,11 @@ OUT_ROOT = os.environ.get("RAMPNET_ANALYSIS_OUT", os.path.join(REPO, "analysis_o
 OUT = os.path.join(OUT_ROOT, "crossview_align_48")
 ELIGIBLE_CSV = os.path.join(OUT, "eligible_pairs.csv")
 PAIRS_CSV = os.path.join(OUT, "pairs.csv")
-
-
-def variant_paths(margin):
-    """(matches.jsonl, results.json, match_meta.json) for one ground band."""
-    tag = f"m{margin:g}"
-    return (os.path.join(OUT, f"matches_{tag}.jsonl"), os.path.join(OUT, f"results_{tag}.json"),
-            os.path.join(OUT, f"match_meta_{tag}.json"))
-
+#: sha256 of the frozen pairs.csv. Every arm is scored on exactly these pairs; `pairs`
+#: refuses to overwrite the file, and predict / score refuse any other bytes.
+PAIRS_SHA256 = "a85a11bceb57e7d4db4bc5914c35cb17b5fdaf9bc8c9189957574a13260db388"
+REF_WIDTH_PX = 4096       # pixel errors are reported on a 4096 x 2048 equirect
+RESULTS_JSON = os.path.join(OUT, "results.json")
 NOISE_JSON = os.path.join(OUT, "reference_noise.json")
 
 CITIES = ("richmond", "paterson", "gainesville", "bend", "sao_paulo")
@@ -94,24 +96,10 @@ HFOV_DEG = 75.0
 # homography is close to a pure rotation and does not transfer to a ramp 5-18 m away (see
 # docs/crossview_align_48.md). v2 (post hoc, after looking at failures): 5 deg, i.e. flat
 # ground within ~30 m of a 2.6 m camera. Both are reported.
-HORIZON_MARGINS = (0.5, 5.0)
 HORIZON_MARGIN_DEG = 5.0
 RIG_LIMIT_DEG = -70.0      # ... and above this (the capture vehicle / rig)
 
-# Matching and fallback (fixed before scoring; the sweep is reported as sensitivity)
-RANSAC_PX = 4.0
-MIN_INLIERS = 15
-INLIER_SWEEP = (8, 15, 30, 60)
-LOCAL_RADIUS_PX = 160.0
-LOCAL_MIN = 12
-NCC_TEMPLATE_PX = 64
-NCC_MIN = 0.5
-NCC_WINDOW_PX = 200        # search +-200 px (~+-16 deg) around the projected point
-# ALIKED keeps its own top-k; do not truncate its output, which is in raster order (a
-# [:N] slice silently drops the bottom of the view, i.e. the ground -- a bug in the first run).
-
 RANGE_BINS = ((0.0, 6.0), (6.0, 12.0), (12.0, 18.0))
-ARMS = ("projection", "lg", "lg_local", "sift", "ncc")
 N_BOOT = 2000
 
 
@@ -305,6 +293,9 @@ def sample_pairs(eligible, per_city=PAIRS_PER_CITY, per_ramp=MAX_PAIRS_PER_RAMP,
 
 def cmd_pairs(args):
     import multiview_evidence_48 as mv
+    if os.path.exists(PAIRS_CSV) and not args.force:
+        raise SystemExit(f"{PAIRS_CSV} is frozen (PAIRS_SHA256); pass --force to rebuild it, "
+                         "and expect every committed prediction to be invalidated")
     L = mv.import_labeler(args.labeler_root)
     runs_root = args.runs_root or os.path.join(args.labeler_root, "runs")
     geo = L.geo
@@ -473,172 +464,192 @@ def cmd_cut_views(args):
 
 
 # --------------------------------------------------------------------------- #
-# 3. match
+# 3. arms: registry, context, predict
 # --------------------------------------------------------------------------- #
 
 
-def fit_homography(p_src, p_oth, seed=SEED):
-    import cv2
-    if len(p_src) < 4:
-        return None, 0, None
-    cv2.setRNGSeed(seed)
-    H, m = cv2.findHomography(np.float32(p_src), np.float32(p_oth), cv2.RANSAC, RANSAC_PX,
-                              maxIters=5000, confidence=0.999)
-    if H is None or m is None:
-        return None, 0, None
-    return H, int(m.sum()), m.ravel().astype(bool)
+def pairs_sha256(path=None):
+    import hashlib
+    with open(path or PAIRS_CSV, "rb") as f:
+        return hashlib.sha256(f.read()).hexdigest()
 
 
-def align(p_src, p_oth, src_centre, oth_view, seed=SEED):
-    """Global and local homographies for ground-filtered matches; each maps the source
-    view centre (the GT point) into the other view and on to the pano."""
-    out = {"n_matches": int(len(p_src))}
-    H, n_in, _ = fit_homography(p_src, p_oth, seed)
-    m = map_point(H, *src_centre)
-    out["global"] = {"inliers": n_in, "uv": m}
-    if len(p_src):
-        d = np.hypot(p_src[:, 0] - src_centre[0], p_src[:, 1] - src_centre[1])
-        sel = d < LOCAL_RADIUS_PX
-    else:
-        sel = np.zeros(0, bool)
-    if sel.sum() >= LOCAL_MIN:
-        Hl, nl, _ = fit_homography(p_src[sel], p_oth[sel], seed)
-        out["local"] = {"inliers": nl, "n_near": int(sel.sum()), "uv": map_point(Hl, *src_centre)}
-    else:
-        out["local"] = {"inliers": 0, "n_near": int(sel.sum()), "uv": None}
-    for k in ("global", "local"):
-        uv = out[k]["uv"]
-        if uv is not None:
-            x, y = view_to_pano(uv[0], uv[1], *oth_view)
-            out[k]["xy"] = (float(x), float(y))
-        else:
-            out[k]["xy"] = None
-    return out
+def read_frozen_pairs(path=None):
+    """The frozen pair list, refused unless its bytes hash to PAIRS_SHA256, so every arm is
+    scored on identical pairs."""
+    path = path or PAIRS_CSV
+    got = pairs_sha256(path)
+    if got != PAIRS_SHA256:
+        raise SystemExit(f"{path}: sha256 {got[:12]}... is not the frozen pair list "
+                         f"({PAIRS_SHA256[:12]}...). Arms are only comparable on identical pairs.")
+    return read_rows(path)
 
 
-class LightGlueArm:
-    def __init__(self, device):
-        import kornia.feature as KF
-        import torch
-        self.torch, self.KF, self.device = torch, KF, device
-        self.extractor = KF.ALIKED.from_pretrained("aliked-n16", device=device).eval()
-        self.matcher = KF.LightGlueMatcher("aliked").to(device).eval()
-
-    def features(self, gray):
-        t = self.torch.from_numpy(gray).float()[None, None].to(self.device) / 255.0
-        t = t.repeat(1, 3, 1, 1)
-        with self.torch.inference_mode():
-            f = self.extractor(t)[0]
-        return f.keypoints, f.descriptors
-
-    def match(self, g1, g2):
-        KF, torch = self.KF, self.torch
-        k1, d1 = self.features(g1)
-        k2, d2 = self.features(g2)
-        lafs1 = KF.laf_from_center_scale_ori(k1[None], torch.ones(1, len(k1), 1, 1, device=self.device))
-        lafs2 = KF.laf_from_center_scale_ori(k2[None], torch.ones(1, len(k2), 1, 1, device=self.device))
-        with torch.inference_mode():
-            _, idx = self.matcher(d1, d2, lafs1, lafs2, hw1=g1.shape[:2], hw2=g2.shape[:2])
-        idx = idx.cpu().numpy()
-        return k1.cpu().numpy()[idx[:, 0]], k2.cpu().numpy()[idx[:, 1]]
+def load_arms():
+    """Import every module in scripts/analysis/crossview_arms/ so its @register calls run;
+    returns the registry {name: Arm}."""
+    import importlib
+    import pkgutil
+    import crossview_arms
+    from crossview_arms._registry import ARMS as registry
+    for m in pkgutil.iter_modules(crossview_arms.__path__):
+        if not m.name.startswith("_"):
+            importlib.import_module(f"crossview_arms.{m.name}")
+    return registry
 
 
-def sift_match(g1, g2):
-    import cv2
-    sift = cv2.SIFT_create(nfeatures=4000)
-    k1, d1 = sift.detectAndCompute(g1, None)
-    k2, d2 = sift.detectAndCompute(g2, None)
-    if d1 is None or d2 is None or len(k1) < 2 or len(k2) < 2:
-        return np.zeros((0, 2)), np.zeros((0, 2))
-    pairs = cv2.BFMatcher(cv2.NORM_L2).knnMatch(d1, d2, k=2)
-    good = [m for m, n in (p for p in pairs if len(p) == 2) if m.distance < 0.8 * n.distance]
-    a = np.float32([k1[m.queryIdx].pt for m in good]).reshape(-1, 2)
-    b = np.float32([k2[m.trainIdx].pt for m in good]).reshape(-1, 2)
-    return a, b
+class Context:
+    """What an arm may use besides its pair. Everything is loaded lazily and cached, so an
+    arm that needs only the committed pair row never touches imagery or the labeler.
+
+    * ``view(pair, "src"|"oth")``: the rectilinear view as a BGR uint8 array (needs --views);
+      ``view_centre(pair, which)``: the equirect (x, y) it is centred on. Convert with
+      ``view_to_pano`` / ``pano_to_view``.
+    * ``labeler()``: the labeler's geo / fuse_sites / eval_sites (needs --labeler-root).
+    * ``pano(city, pano_id)``: that pano's raw results.jsonl ``pano`` block (dict), and
+      ``slim(city, pano_id)``: the labeler's SlimPano for it (needs --runs-root /
+      --results-root as for ``pairs``). Only the panos in the pair list are kept.
+    * ``cache``: a dict arms may use to keep models between pairs.
+    * ``args``: the parsed CLI args (for arm-specific inputs, e.g. ``--extra``).
+    """
+
+    def __init__(self, args, pairs):
+        self.args = args
+        self.pairs = pairs
+        self.cache = {}
+        self._panos = {}
+        self._slim = {}
+
+    def view_centre(self, pair, which):
+        return ((pair["src_x"], pair["src_y"]) if which == "src"
+                else (pair["proj_x"], pair["proj_y"]))
+
+    def view(self, pair, which, flags=None):
+        import cv2
+        if not getattr(self.args, "views", None):
+            raise SystemExit("this arm needs --views (the directory cut-views wrote)")
+        path = os.path.join(self.args.views, f"{pair['pair_id']}_{which}.jpg")
+        img = cv2.imread(path, cv2.IMREAD_COLOR if flags is None else flags)
+        if img is None:
+            raise FileNotFoundError(path)
+        return img
+
+    def labeler(self):
+        if "L" not in self.cache:
+            if not getattr(self.args, "labeler_root", None):
+                raise SystemExit("this arm needs --labeler-root")
+            import multiview_evidence_48 as mv
+            self.cache["L"] = mv.import_labeler(self.args.labeler_root)
+        return self.cache["L"]
+
+    def _results_path(self, city):
+        import multiview_evidence_48 as mv
+        runs_root = self.args.runs_root or os.path.join(self.args.labeler_root, "runs")
+        return os.path.join(mv.results_dir(city, runs_root, self.args.results_root),
+                            "results.jsonl")
+
+    def pano(self, city, pano_id):
+        if city not in self._panos:
+            want = {p for r in self.pairs if r["city"] == city
+                    for p in (r["src_pano"], r["oth_pano"])}
+            got = {}
+            with open(self._results_path(city), encoding="utf-8") as f:
+                for line in f:
+                    if not line.strip():
+                        continue
+                    rec = json.loads(line)
+                    pid = rec["pano"]["panorama_id"]
+                    if pid in want:
+                        got[pid] = rec["pano"]
+            self._panos[city] = got
+        return self._panos[city][pano_id]
+
+    def slim(self, city, pano_id, **load_kw):
+        key = (city, tuple(sorted(load_kw.items())))
+        if key not in self._slim:
+            L = self.labeler()
+            from pathlib import Path
+            panos = L.fs.load_results(Path(self._results_path(city)), **load_kw)
+            want = {p for r in self.pairs if r["city"] == city
+                    for p in (r["src_pano"], r["oth_pano"])}
+            self._slim[key] = {p.pano_id: p for p in panos if p.pano_id in want}
+        return self._slim[key][pano_id]
 
 
-def ncc_search(g1, g2, scale):
-    """Template of the source view's centre, rescaled by the range ratio, searched in a
-    window of +-NCC_WINDOW_PX around the other view's centre (the projected point), i.e.
-    inside the projection's uncertainty. Returns ((u, v) in the full view, peak score)."""
-    import cv2
-    t = NCC_TEMPLATE_PX
-    c1 = (g1.shape[1] // 2, g1.shape[0] // 2)
-    tpl = g1[c1[1] - t // 2:c1[1] + t // 2, c1[0] - t // 2:c1[0] + t // 2]
-    s = float(np.clip(scale, 0.25, 4.0))
-    size = max(8, int(round(t * s)))
-    tpl = cv2.resize(tpl, (size, size), interpolation=cv2.INTER_AREA if s < 1 else cv2.INTER_LINEAR)
-    c2 = (g2.shape[1] // 2, g2.shape[0] // 2)
-    x0 = max(0, c2[0] - NCC_WINDOW_PX - size // 2)
-    y0 = max(0, c2[1] - NCC_WINDOW_PX - size // 2)
-    win = g2[y0:c2[1] + NCC_WINDOW_PX + size // 2, x0:c2[0] + NCC_WINDOW_PX + size // 2]
-    if tpl.shape[0] >= win.shape[0] or tpl.shape[1] >= win.shape[1]:
-        return None, 0.0
-    res = cv2.matchTemplate(win, tpl, cv2.TM_CCOEFF_NORMED)
-    _, mx, _, loc = cv2.minMaxLoc(res)
-    return (x0 + loc[0] + size / 2.0, y0 + loc[1] + size / 2.0), float(mx)
+def prediction_paths(name):
+    d = os.path.join(OUT, "predictions")
+    return os.path.join(d, f"{name}.jsonl"), os.path.join(d, f"{name}.meta.json")
 
 
-def filter_ground(a, b, src_view, oth_view, margin=HORIZON_MARGIN_DEG):
-    if len(a) == 0:
-        return a, b
-    keep = ground_mask(a[:, 0], a[:, 1], *src_view, margin=margin) & \
-        ground_mask(b[:, 0], b[:, 1], *oth_view, margin=margin)
-    return a[keep], b[keep]
+def run_arm(arm, pairs, ctx):
+    """Apply ``arm`` to every pair, hiding the answer columns. Returns (rows, n_missing):
+    one {"pair_id", "x", "y", ...} per pair, x / y None for a fallback."""
+    from crossview_arms._registry import ANSWER_KEYS
+    random.seed(SEED)
+    np.random.seed(SEED)
+    rows, errors = [], 0
+    for p in pairs:
+        visible = {k: v for k, v in p.items() if k not in ANSWER_KEYS}
+        try:
+            out = arm.fn(visible, ctx)
+        except FileNotFoundError as e:
+            out, errors = {"x": None, "y": None, "error": f"missing input: {e}"}, errors + 1
+        out = dict(out or {})
+        out.setdefault("x", None)
+        out.setdefault("y", None)
+        if out["x"] is None or out["y"] is None:
+            out["x"] = out["y"] = None
+        rows.append({"pair_id": p["pair_id"], **out})
+    return rows, errors
 
 
-def cmd_match(args):
-    import cv2
-    import torch
-    torch.manual_seed(SEED)
-    pairs = read_rows(args.pairs)
-    device = "cuda" if torch.cuda.is_available() and not args.cpu else "cpu"
-    lg = LightGlueArm(device)
-    centre = (VIEW_W / 2.0, VIEW_H / 2.0)
-    out, t0, t_lg = [], time.time(), 0.0
-    for r in pairs:
-        f1 = os.path.join(args.views, f"{r['pair_id']}_src.jpg")
-        f2 = os.path.join(args.views, f"{r['pair_id']}_oth.jpg")
-        g1 = cv2.imread(f1, cv2.IMREAD_GRAYSCALE)
-        g2 = cv2.imread(f2, cv2.IMREAD_GRAYSCALE)
-        if g1 is None or g2 is None:
-            out.append({"pair_id": r["pair_id"], "status": "views_missing"})
-            continue
-        sv = (r["src_x"], r["src_y"])
-        ov = (r["proj_x"], r["proj_y"])
-        rec = {"pair_id": r["pair_id"], "status": "ok"}
-        t = time.time()
-        a, b = lg.match(g1, g2)
-        t_lg += time.time() - t
-        rec["lg_raw_matches"] = int(len(a))
-        a, b = filter_ground(a, b, sv, ov, args.horizon_margin)
-        rec["lg"] = align(a, b, centre, ov)
-        a, b = sift_match(g1, g2)
-        rec["sift_raw_matches"] = int(len(a))
-        a, b = filter_ground(a, b, sv, ov, args.horizon_margin)
-        rec["sift"] = align(a, b, centre, ov)
-        uv, score = ncc_search(g1, g2, r["src_range_m"] / max(r["oth_range_m"], 0.5))
-        rec["ncc"] = {"score": score, "uv": uv,
-                      "xy": None if uv is None else tuple(float(q) for q in view_to_pano(uv[0], uv[1], *ov))}
-        out.append(rec)
+def cmd_predict(args):
+    """Run one registered arm over the frozen pairs; write predictions/<arm>.jsonl (one row
+    per pair: x, y, or null for fallback, plus the arm's diagnostics) and <arm>.meta.json
+    (wall-clock, host, device, versions, the pair list's hash)."""
+    import platform
+    registry = load_arms()
+    if args.arm not in registry:
+        raise SystemExit(f"unknown arm {args.arm!r}; registered: {', '.join(sorted(registry))}")
+    arm = registry[args.arm]
+    pairs = read_frozen_pairs()
+    ctx = Context(args, pairs)
+    t0 = time.time()
+    rows, errors = run_arm(arm, pairs, ctx)
     elapsed = time.time() - t0
-    os.makedirs(OUT, exist_ok=True)
-    matches_path, _, meta_path = variant_paths(args.horizon_margin)
-    with open(matches_path, "w", encoding="utf-8", newline="") as f:
-        for rec in out:
-            f.write(json.dumps(rnd(rec, 6), sort_keys=True) + "\n")
-    meta = {"device": device, "gpu": torch.cuda.get_device_name(0) if device == "cuda" else None,
-            "elapsed_s": elapsed, "lightglue_s": t_lg, "pairs": len(pairs),
-            "versions": {"torch": torch.__version__, "cv2": cv2.__version__,
-                         "kornia": __import__("kornia").__version__, "numpy": np.__version__},
-            "matching": {"extractor": "ALIKED aliked-n16", "matcher": "LightGlue (kornia)",
-                         "max_keypoints": "ALIKED aliked-n16 default, untruncated", "ransac_px": RANSAC_PX,
-                         "local_radius_px": LOCAL_RADIUS_PX, "local_min": LOCAL_MIN,
-                         "ncc_template_px": NCC_TEMPLATE_PX, "ncc_window_px": NCC_WINDOW_PX, "sift_ratio": 0.8,
-                         "view": [VIEW_W, VIEW_H, HFOV_DEG],
-                         "ground": [args.horizon_margin, RIG_LIMIT_DEG]}}
+    pred_path, meta_path = prediction_paths(args.arm)
+    os.makedirs(os.path.dirname(pred_path), exist_ok=True)
+    with open(pred_path, "w", encoding="utf-8", newline="") as f:
+        for r in rows:
+            f.write(json.dumps(rnd(r, 6), sort_keys=True) + "\n")
+    gpu = None
+    try:
+        import torch
+        if torch.cuda.is_available():
+            gpu = torch.cuda.get_device_name(0)
+    except ImportError:
+        pass
+    meta = {"arm": args.arm, "description": arm.description, "needs": list(arm.needs),
+            "pairs_sha256": PAIRS_SHA256, "pairs": len(pairs), "elapsed_s": elapsed,
+            "host": platform.node(), "gpu_visible": gpu, "missing_inputs": errors,
+            "fallback": sum(1 for r in rows if r["x"] is None),
+            "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "config": arm.config, "versions": _versions()}
+    if "L" in ctx.cache:
+        meta["labeler"] = ctx.cache["L"].prov
     write_json(meta_path, meta)
-    print(f"matched {len(pairs)} pairs in {elapsed:.1f} s (LightGlue {t_lg:.1f} s on {device})")
+    print(f"{args.arm}: {len(rows)} pairs in {elapsed:.1f} s, fallback {meta['fallback']}, "
+          f"missing inputs {errors} -> {pred_path}")
+
+
+def _versions():
+    out = {"numpy": np.__version__, "python": sys.version.split()[0]}
+    for mod in ("cv2", "torch", "kornia"):
+        try:
+            out[mod] = __import__(mod).__version__
+        except ImportError:
+            pass
+    return out
 
 
 # --------------------------------------------------------------------------- #
@@ -646,39 +657,44 @@ def cmd_match(args):
 # --------------------------------------------------------------------------- #
 
 
-def estimate(arm, pair, rec, min_inliers=MIN_INLIERS):
-    """(x, y, fell_back) for one arm on one pair."""
-    proj = (pair["proj_x"], pair["proj_y"], False)
-    if arm == "projection":
-        return proj
-    if rec is None or rec.get("status") != "ok":
-        return pair["proj_x"], pair["proj_y"], True
-    if arm in ("lg", "lg_local", "sift"):
-        key = "lg" if arm.startswith("lg") else "sift"
-        part = rec[key]["local" if arm == "lg_local" else "global"]
-        ok = part["xy"] is not None and part["inliers"] >= min_inliers and \
-            part["uv"] is not None and 0 <= part["uv"][0] < VIEW_W and 0 <= part["uv"][1] < VIEW_H
-    elif arm == "ncc":
-        part = rec["ncc"]
-        ok = part["xy"] is not None and part["score"] >= NCC_MIN
-    else:
-        raise ValueError(arm)
-    if not ok:
-        return pair["proj_x"], pair["proj_y"], True
-    return part["xy"][0], part["xy"][1], False
+def equirect_px_error(x1, y1, x2, y2, width=REF_WIDTH_PX):
+    """Seam-wrapped pixel distance on a width x width/2 equirect (4096 x 2048 by default,
+    the benchmark's frame). Angular error is the primary metric; this is for readers who
+    think in pixels."""
+    dx = (np.asarray(x1) - np.asarray(x2) + 0.5) % 1.0 - 0.5
+    dy = np.asarray(y1) - np.asarray(y2)
+    return np.hypot(dx * width, dy * width / 2.0)
 
 
-def pair_errors(pairs, recs, min_inliers=MIN_INLIERS):
-    """{arm: [(err_deg, within_radius, fell_back), ...]} aligned with ``pairs``."""
+def read_predictions(name):
+    pred_path, meta_path = prediction_paths(name)
+    with open(meta_path, encoding="utf-8") as f:
+        meta = json.load(f)
+    if meta.get("pairs_sha256") != PAIRS_SHA256:
+        raise SystemExit(f"{pred_path} was predicted on a different pair list")
     out = {}
-    for arm in ARMS:
-        rows = []
-        for p in pairs:
-            x, y, fb = estimate(arm, p, recs.get(p["pair_id"]), min_inliers)
-            e = float(angular_error_deg(x, y, p["ref_x"], p["ref_y"]))
-            rows.append((e, bool(within_benchmark_radius(x, y, p["ref_x"], p["ref_y"])), fb))
-        out[arm] = rows
+    with open(pred_path, encoding="utf-8") as f:
+        for line in f:
+            if line.strip():
+                r = json.loads(line)
+                out[r["pair_id"]] = r
     return out
+
+
+def arm_errors(pairs, preds):
+    """[(angle_deg, px_err, within_0022, fell_back), ...] aligned with ``pairs``; a missing
+    or null prediction falls back to the projection. ``preds`` None = the projection."""
+    rows = []
+    for p in pairs:
+        r = None if preds is None else preds.get(p["pair_id"])
+        if r is None or r.get("x") is None or r.get("y") is None:
+            x, y, fb = p["proj_x"], p["proj_y"], preds is not None
+        else:
+            x, y, fb = float(r["x"]) % 1.0, float(r["y"]), False
+        rows.append((float(angular_error_deg(x, y, p["ref_x"], p["ref_y"])),
+                     float(equirect_px_error(x, y, p["ref_x"], p["ref_y"])),
+                     bool(within_benchmark_radius(x, y, p["ref_x"], p["ref_y"])), fb))
+    return rows
 
 
 def cluster_bootstrap(groups, stat, n_boot=None, seed=SEED):
@@ -696,105 +712,118 @@ def cluster_bootstrap(groups, stat, n_boot=None, seed=SEED):
     return [float(np.percentile(vals, 2.5)), float(np.percentile(vals, 97.5))]
 
 
-def summarize(pairs, errs, idx):
-    """Per-arm summary on the pairs ``idx`` (indices into ``pairs``)."""
+def summarize(pairs, errs, idx, proj):
+    """One arm's summary on the pairs ``idx``. ``errs`` / ``proj``: arm_errors rows for the
+    arm and for the projection."""
     by_ramp = defaultdict(list)
     for i in idx:
         by_ramp[pairs[i]["ramp_uid"]].append(i)
     groups = [v for _, v in sorted(by_ramp.items())]
-    res = {"n_pairs": len(idx), "n_ramps": len(groups)}
-    proj = errs["projection"]
-    for arm in ARMS:
-        e = errs[arm]
+    e = errs
 
-        def med(ii, e=e):
-            return float(np.median([e[i][0] for i in ii])) if ii else float("nan")
+    def med(ii):
+        return float(np.median([e[i][0] for i in ii])) if ii else float("nan")
 
-        def p90(ii, e=e):
-            return float(np.percentile([e[i][0] for i in ii], 90)) if ii else float("nan")
+    def med_px(ii):
+        return float(np.median([e[i][1] for i in ii])) if ii else float("nan")
 
-        def within(ii, e=e):
-            return float(np.mean([e[i][1] for i in ii])) if ii else float("nan")
+    def p90(ii):
+        return float(np.percentile([e[i][0] for i in ii], 90)) if ii else float("nan")
 
-        def within2(ii, e=e):
-            return float(np.mean([e[i][0] <= 2.0 for i in ii])) if ii else float("nan")
+    def within2(ii):
+        return float(np.mean([e[i][0] <= 2.0 for i in ii])) if ii else float("nan")
 
-        def gain(ii, e=e):
-            return float(np.median([proj[i][0] - e[i][0] for i in ii])) if ii else float("nan")
+    def gain(ii):
+        return float(np.median([proj[i][0] - e[i][0] for i in ii])) if ii else float("nan")
 
-        row = {"median_deg": med(idx), "median_ci": cluster_bootstrap(groups, med),
-               "p90_deg": p90(idx), "p90_ci": cluster_bootstrap(groups, p90),
-               "within_0022": within(idx), "within_0022_ci": cluster_bootstrap(groups, within),
-               "within_2deg": within2(idx), "within_2deg_ci": cluster_bootstrap(groups, within2),
-               "fallback_rate": float(np.mean([e[i][2] for i in idx])) if idx else None}
-        if arm != "projection":
-            used = [i for i in idx if not e[i][2]]
-            ug = [v for v in ([i for i in g if not e[i][2]] for g in groups) if v]
-            row["median_gain_vs_projection_deg"] = gain(idx)
-            row["median_gain_ci"] = cluster_bootstrap(groups, gain)
-            row["better_than_projection"] = float(np.mean(
-                [e[i][0] < proj[i][0] - 1e-9 for i in used])) if used else None
-            row["aligned_only"] = {
-                "n_pairs": len(used),
-                "median_deg": med(used), "median_ci": cluster_bootstrap(ug, med) if ug else None,
-                "projection_median_deg": float(np.median([proj[i][0] for i in used])) if used else None,
-                "projection_median_ci": cluster_bootstrap(
-                    ug, lambda ii: float(np.median([proj[i][0] for i in ii]))) if ug else None,
-                "median_gain_deg": gain(used),
-                "median_gain_ci": cluster_bootstrap(ug, gain) if ug else None,
-                "within_2deg": within2(used), "projection_within_2deg": float(np.mean(
-                    [proj[i][0] <= 2.0 for i in used])) if used else None}
-        res[arm] = row
-    return res
+    def pmed(ii):
+        return float(np.median([proj[i][0] for i in ii])) if ii else float("nan")
+
+    row = {"n_pairs": len(idx), "n_ramps": len(groups),
+           "median_deg": med(idx), "median_ci": cluster_bootstrap(groups, med),
+           "median_px": med_px(idx), "median_px_ci": cluster_bootstrap(groups, med_px),
+           "p90_deg": p90(idx), "p90_ci": cluster_bootstrap(groups, p90),
+           "within_2deg": within2(idx), "within_2deg_ci": cluster_bootstrap(groups, within2),
+           "within_0022": float(np.mean([e[i][2] for i in idx])) if idx else None,
+           "fallback_rate": float(np.mean([e[i][3] for i in idx])) if idx else None}
+    if e is not proj:
+        used = [i for i in idx if not e[i][3]]
+        ug = [v for v in ([i for i in g if not e[i][3]] for g in groups) if v]
+        row["median_gain_deg"] = gain(idx)
+        row["median_gain_ci"] = cluster_bootstrap(groups, gain)
+        row["aligned_only"] = {
+            "n_pairs": len(used),
+            "median_deg": med(used) if used else None,
+            "median_ci": cluster_bootstrap(ug, med) if ug else None,
+            "median_px": med_px(used) if used else None,
+            "projection_median_deg": pmed(used) if used else None,
+            "projection_median_ci": cluster_bootstrap(ug, pmed) if ug else None,
+            "median_gain_deg": gain(used) if used else None,
+            "median_gain_ci": cluster_bootstrap(ug, gain) if ug else None,
+            "within_2deg": within2(used) if used else None,
+            "projection_within_2deg": float(np.mean([proj[i][0] <= 2.0 for i in used]))
+            if used else None,
+            "closer_than_projection": float(np.mean([e[i][0] < proj[i][0] - 1e-9 for i in used]))
+            if used else None}
+    return row
 
 
-def score(pairs, recs):
-    errs = pair_errors(pairs, recs)
-    allidx = list(range(len(pairs)))
-    strata = {"all": allidx}
+def strata_of(pairs):
+    strata = {"all": list(range(len(pairs)))}
     for key, fn in (("imagery", lambda p: p["imagery"]), ("city", lambda p: p["city"]),
                     ("range", lambda p: range_bin(p["oth_range_m"])),
                     ("date", lambda p: "same_month" if p["same_date"] else "different_month")):
         for i, p in enumerate(pairs):
             strata.setdefault(f"{key}={fn(p)}", []).append(i)
-    out = {"strata": {k: summarize(pairs, errs, v) for k, v in sorted(strata.items())}}
-    sweep = {}
-    for m in INLIER_SWEEP:
-        e2 = pair_errors(pairs, recs, min_inliers=m)
-        sweep[str(m)] = {arm: {"median_deg": float(np.median([x[0] for x in e2[arm]])),
-                               "fallback_rate": float(np.mean([x[2] for x in e2[arm]])),
-                               "within_2deg": float(np.mean([x[0] <= 2.0 for x in e2[arm]]))}
-                         for arm in ("lg", "lg_local", "sift")}
-    out["inlier_sweep"] = sweep
-    out["per_pair"] = [{"pair_id": p["pair_id"], **{a: round(errs[a][i][0], 3) for a in ARMS},
-                        **{f"{a}_fb": int(errs[a][i][2]) for a in ARMS if a != "projection"}}
+    return dict(sorted(strata.items()))
+
+
+def score(pairs, preds_by_arm):
+    """{"arms": {arm: {stratum: summary}}, "per_pair": [...]} for the projection plus every
+    arm in ``preds_by_arm`` ({arm: {pair_id: prediction}})."""
+    proj = arm_errors(pairs, None)
+    errs = {"projection": proj}
+    for name, preds in sorted(preds_by_arm.items()):
+        errs[name] = arm_errors(pairs, preds)
+    strata = strata_of(pairs)
+    out = {"arms": {name: {k: summarize(pairs, e, idx, proj) for k, idx in strata.items()}
+                    for name, e in errs.items()}}
+    out["per_pair"] = [{"pair_id": p["pair_id"],
+                        **{a: round(errs[a][i][0], 3) for a in errs},
+                        **{f"{a}_fb": int(errs[a][i][3]) for a in errs if a != "projection"}}
                        for i, p in enumerate(pairs)]
     return out
 
 
-def read_matches(path):
-    recs = {}
-    with open(path, encoding="utf-8") as f:
-        for line in f:
-            if line.strip():
-                r = json.loads(line)
-                recs[r["pair_id"]] = r
-    return recs
+def available_predictions():
+    d = os.path.join(OUT, "predictions")
+    if not os.path.isdir(d):
+        return []
+    return sorted(f[:-len(".jsonl")] for f in os.listdir(d) if f.endswith(".jsonl"))
 
 
 def cmd_score(args):
-    pairs = read_rows(args.pairs)
-    matches_path, results_path, _ = variant_paths(args.horizon_margin)
-    recs = read_matches(args.matches or matches_path)
-    res = score(pairs, recs)
-    res["config"] = {"horizon_margin_deg": args.horizon_margin, "min_inliers": MIN_INLIERS, "ncc_min": NCC_MIN, "n_boot": N_BOOT,
-                     "seed": SEED, "ci": "2.5-97.5 percentile, ramps resampled",
-                     "error": "great-circle angle to the reference detection, degrees"}
-    write_json(args.out or results_path, res)
-    a = res["strata"]["all"]
-    for arm in ARMS:
-        print(f"{arm:10s} median {a[arm]['median_deg']:.2f} {a[arm]['median_ci']}  "
-              f"fallback {a[arm]['fallback_rate']}")
+    pairs = read_frozen_pairs()
+    names = args.arms.split(",") if args.arms else available_predictions()
+    res = score(pairs, {n: read_predictions(n) for n in names})
+    res["config"] = {"pairs_sha256": PAIRS_SHA256, "n_boot": N_BOOT, "seed": SEED,
+                     "ci": "2.5-97.5 percentile, ramps resampled",
+                     "error": "great-circle angle to the reference detection, degrees; px on a "
+                              f"{REF_WIDTH_PX}x{REF_WIDTH_PX // 2} equirect",
+                     "arms": ["projection"] + sorted(names)}
+    write_json(args.out, res)
+    print(f"{'arm':22s} {'median deg [CI]':>26s} {'px':>6s} {'fallback':>8s} "
+          f"{'aligned n':>9s} {'aligned vs proj':>16s}")
+    for name, s in res["arms"].items():
+        a = s["all"]
+        ci = a["median_ci"]
+        line = (f"{name:22s} {a['median_deg']:8.2f} [{ci[0]:.2f}, {ci[1]:.2f}]"
+                f"{'':>6s} {a['median_px']:6.1f} {a['fallback_rate']:8.2f}")
+        if "aligned_only" in a and a["aligned_only"]["n_pairs"]:
+            o = a["aligned_only"]
+            line += f" {o['n_pairs']:9d} {o['median_deg']:6.2f} vs {o['projection_median_deg']:.2f}"
+        print(line)
+    print(f"-> {args.out}")
 
 
 # --------------------------------------------------------------------------- #
@@ -860,13 +889,23 @@ def cmd_noise(args):
 # --------------------------------------------------------------------------- #
 
 
+def cmd_arms(args):
+    for name, a in sorted(load_arms().items()):
+        print(f"{name:22s} needs={','.join(a.needs) or '-':18s} {a.description}")
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
+
+    def inputs(p):
+        p.add_argument("--labeler-root", help="labeler checkout (read-only)")
+        p.add_argument("--runs-root", help="default: <labeler-root>/runs")
+        p.add_argument("--results-root", help="archived results.jsonl copies (per city)")
+
     p = sub.add_parser("pairs")
-    p.add_argument("--labeler-root", required=True)
-    p.add_argument("--runs-root")
-    p.add_argument("--results-root")
+    inputs(p)
+    p.add_argument("--force", action="store_true", help="rebuild the frozen pair list")
     p.set_defaults(fn=cmd_pairs)
     p = sub.add_parser("cut-views")
     p.add_argument("--pairs", default=PAIRS_CSV)
@@ -874,21 +913,23 @@ def main(argv=None):
     p.add_argument("--out", required=True)
     p.add_argument("--workers", type=int, default=8)
     p.set_defaults(fn=cmd_cut_views)
-    p = sub.add_parser("match")
-    p.add_argument("--pairs", default=PAIRS_CSV)
-    p.add_argument("--views", required=True)
+    p = sub.add_parser("predict", help="run one registered arm over the frozen pairs")
+    p.add_argument("--arm", required=True)
+    p.add_argument("--views", help="directory cut-views wrote")
+    inputs(p)
+    p.add_argument("--extra", action="append", default=[],
+                   help="KEY=VALUE for arm-specific inputs (read from ctx.args.extra)")
     p.add_argument("--cpu", action="store_true")
-    p.add_argument("--horizon-margin", type=float, default=HORIZON_MARGIN_DEG)
-    p.set_defaults(fn=cmd_match)
+    p.set_defaults(fn=cmd_predict)
     p = sub.add_parser("score")
-    p.add_argument("--pairs", default=PAIRS_CSV)
-    p.add_argument("--horizon-margin", type=float, default=HORIZON_MARGIN_DEG)
-    p.add_argument("--matches", help="default: matches_m<margin>.jsonl")
-    p.add_argument("--out", help="default: results_m<margin>.json")
+    p.add_argument("--arms", help="comma-separated; default: every predictions/*.jsonl")
+    p.add_argument("--out", default=RESULTS_JSON)
     p.set_defaults(fn=cmd_score)
     p = sub.add_parser("noise")
     p.add_argument("--out", default=NOISE_JSON)
     p.set_defaults(fn=cmd_noise)
+    p = sub.add_parser("arms")
+    p.set_defaults(fn=cmd_arms)
     args = ap.parse_args(argv)
     args.fn(args)
 

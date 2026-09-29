@@ -322,3 +322,7 @@ analysis_out/crossview_align_48/*
 !analysis_out/crossview_align_48/*.csv
 !analysis_out/crossview_align_48/*.json
 !analysis_out/crossview_align_48/*.jsonl
+!analysis_out/crossview_align_48/predictions/
+analysis_out/crossview_align_48/predictions/*
+!analysis_out/crossview_align_48/predictions/*.jsonl
+!analysis_out/crossview_align_48/predictions/*.json
