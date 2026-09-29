@@ -39,8 +39,10 @@ arms after the family merges (`docs/crossview_align_48.md` §9); see §11.
 - **Feed-forward 3D beats it and does not fall back.** MapAnything run on just the source and
   the other view. **`mapa_posed_pair` is post hoc:** it (and `mapa_posed_poseonly`) was
   registered in commit `0428bb7`, after `mapa_posed_corner`'s 300-pair result had been seen,
-  and neither had a pilot. `mapa_mono_depthonly` came later still (`c84dc74`). Their numbers
-  are in-sample; they need a re-test on fresh pairs with settings fixed in advance:
+  and neither had a pilot. `mapa_mono_depthonly` came later still (`c84dc74`). Also post hoc
+  (§4 lists them): `sfm_colmap` / `sfm_colmap_prior`, `sfm_poseonly`,
+  `vggt_corner_poseonly`, `mast3r_poseonly` and the two consensus arms. Their numbers are
+  in-sample; the headline ones need a re-test on fresh pairs with settings fixed in advance:
   - given the pose priors and intrinsics (`mapa_posed_pair`): median **2.80° [2.49, 3.07]**,
     0% fallback. Paired gain over auto is **0.72° [0.42, 1.01]**, closer on 68% of pairs;
   - given only the intrinsics (`mapa_k_pair`, no GPS, no heading): 2.99° [2.42, 3.67],
@@ -242,6 +244,26 @@ are paired medians (baseline minus arm), so positive means the arm is closer.
 | `sfm_poseonly` | 0.16 | 6.00 [4.91, 6.91] | 0.18 | 253 | 5.68 vs 4.09 vs 5.49 | −0.10 [−0.50, +0.43] | −0.18 [−0.41, +0.02] | 0.43 |
 | `mv3d_consensus` (post hoc) | 0.43 | 3.11 [2.69, 4.16] | 0.33 | 172 | 2.11 vs 3.48 vs 4.19 | +1.25 [+0.85, +2.47] | +0.84 [+0.42, +1.24] | 0.67 |
 | `mv3d_consensus_else_auto` (post hoc) | 0.00 | 3.03 [2.58, 3.72] | 0.34 | 300 | 3.03 vs 4.06 vs 5.62 | +1.09 [+0.61, +1.69] | +0.00 [+0.00, +0.00] | 0.39 |
+
+**Post hoc arms in this table** (added, or a setting changed, after scores on these pairs or
+the 30-pair pilot subset had been seen; checked against git history in the reviews of
+[#210](https://github.com/ProjectSidewalk/RampNet/pull/210)). Each `meta.json` carries a
+`provenance_correction` giving the reason:
+
+- `mapa_posed_pair`, `mapa_posed_poseonly`: registered in `0428bb7`, after
+  `mapa_posed_corner`'s 300-pair result; `mapa_mono_depthonly`: `c84dc74`, later still;
+- `sfm_colmap`, `sfm_colmap_prior`: the gravity-level lift replaced the plane lift after the
+  pilot (`0214816`);
+- `sfm_poseonly`: registered in `0214816`, whose message quotes the pilot's scores;
+- `vggt_corner_poseonly`: registered in `6695b4f`, whose message quotes the pilot's
+  `mapa_posed_depthonly`;
+- `mast3r_poseonly`: registered in `bb6cd3c`, three minutes after `0214816` quoted the
+  pilot's scores. For this one arm the order is **inferred from commit times**, not stated;
+- `mv3d_consensus`, `mv3d_consensus_else_auto`: defined after both components were scored.
+
+`mapa_posed_depthonly` is not marked: its reading was fixed after the pilot (`6695b4f`), but
+the fix corrects a frame bug (§3, kept as `__frame_bug`) rather than choosing between
+working designs. That is a judgment call; read it as borderline.
 
 - **All-pairs medians.** A fallback counts at the projection's error, so a high-fallback
   arm's all-pairs median is pulled toward 5.62°. The "used" columns show what the arm does

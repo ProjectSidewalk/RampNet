@@ -21,6 +21,12 @@
  ],
  "pairs": 300,
  "pairs_sha256": "a85a11bceb57e7d4db4bc5914c35cb17b5fdaf9bc8c9189957574a13260db388",
+ "provenance_correction": {
+  "date": "2026-09-29",
+  "post_hoc": true,
+  "source": "final re-review of PR #210 (N4, git history); docs/crossview_align_48.md 'post hoc'",
+  "why": "registered in bb6cd3c at 18:18, three minutes after 0214816 quoted the 30-pair pilot's scores (a subset of these pairs); that the pilot was seen first is inferred from commit times, not stated in a commit message"
+ },
  "shared_context_with": [
   "mast3r_pair",
   "mast3r_poseonly"

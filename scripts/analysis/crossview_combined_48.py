@@ -47,6 +47,9 @@ AUTO = "proj_height_auto"
 #: on these same 300 pairs (or a subset of them, e.g. a 30-pair pilot) had been seen. Corrected
 #: 2026-09-29 after the review of #210 checked each arm against git history: the headline
 #: ``mapa_posed_pair`` is post hoc (see ``docs/crossview_align_48.md``, "post hoc" bullet).
+#: ``mast3r_poseonly`` was added by the final re-review (N4); its evidence is commit times
+#: only, so its reason says "inferred". Every post hoc arm here and in POST_HOC_NOT_IN_TABLE
+#: carries the same reason in its meta.json ``provenance_correction`` (tested).
 ROWS = [
     ("projection", "baseline", False, "today's 2.6 m flat-ground projection"),
     ("proj_height_auto", "baseline", False, "labeler 'auto' per-rig camera height"),
@@ -87,7 +90,11 @@ ROWS = [
     ("mapa_posed_poseonly", "multi-view 3D",
      "registered in 0428bb7, after mapa_posed_corner's 300-pair result was seen",
      "MapAnything's relative pose only"),
-    ("mast3r_poseonly", "multi-view 3D", False, "negative: learned pose only"),
+    ("mast3r_poseonly", "multi-view 3D",
+     "registered in bb6cd3c at 18:18, three minutes after 0214816 quoted the 30-pair pilot's "
+     "scores (a subset of these pairs); that the pilot was seen first is inferred from commit "
+     "times, not stated in a commit message",
+     "negative: learned pose only"),
     ("mapa_mono_depthonly", "multi-view 3D",
      "registered in c84dc74, after the posed MapAnything results were seen",
      "negative: source view only"),
@@ -101,6 +108,34 @@ ROWS = [
     ("flat_gs", "flat Mapillary (Richmond only)", False, "negative: splat depth lift"),
 ]
 RICHMOND_ONLY = {"flat_sfm", "noflat_sfm", "mlypano_sfm", "flat_mvs", "flat_gs"}
+
+#: Post hoc arms that are not rows of the table, by the same rule as ROWS' ``post_hoc``
+#: (final re-review of #210, N4, checked against git history). Their meta.json files carry
+#: the same ``provenance_correction``. Not listed: every matching-family arm inherits
+#: ``lg``'s 5 deg ground band, which was chosen post hoc in the pilot (matching.md §4).
+POST_HOC_NOT_IN_TABLE = {
+    "sfm_colmap_prior": "gravity-level ground lift chosen after the 30-pair pilot (0214816; a "
+                        "subset of these pairs), as for sfm_colmap",
+    "sfm_poseonly": "registered in 0214816, whose commit message quotes the 30-pair pilot's "
+                    "scores (a subset of these pairs)",
+    "vggt_corner_poseonly": "registered in 6695b4f, whose commit message quotes the pilot's "
+                            "mapa_posed_depthonly result (a subset of these pairs)",
+    "sem_curb_shift_auto": "added after the 2.6 m snap scores were seen (semantic.md §1)",
+    "flat_gsmed": "median-depth splat lift chosen after the _gs lift failed "
+                  "(flat_mapillary_3d.md)",
+    "noflat_gsmed": "median-depth splat lift chosen after the _gs lift failed "
+                    "(flat_mapillary_3d.md)",
+    "mlypano_gsmed": "median-depth splat lift chosen after the _gs lift failed "
+                     "(flat_mapillary_3d.md)",
+}
+
+
+def meta_path(name):
+    """The committed meta.json of an arm (the flat family's live beside its own jsonl)."""
+    p = H.prediction_paths(name)[1]
+    if os.path.exists(p):
+        return p
+    return os.path.join(H.OUT_ROOT, "flat_mapillary_3d", "predictions", f"{name}.meta.json")
 
 
 def load(name):

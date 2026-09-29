@@ -159,7 +159,8 @@ with the full arm list, method and caveats:
   after scores on these same 300 pairs (or a subset of them, such as a 30-pair pilot) had
   been seen. Corrected 2026-09-29 by checking each arm against git history (review of
   [#210](https://github.com/ProjectSidewalk/RampNet/pull/210)):
-  - `lg`'s 5° ground band; `sem_snap_auto`;
+  - `lg`'s 5° ground band, which every matching-family arm inherits (`matching.md` §4);
+    `sem_snap_auto`;
   - `roma_local`, `roma_warp`, `roma_warp_hyb`: added after `roma` did not beat auto on GSV.
     Their committed `meta.json` recorded `pre_specified: true` (inherited from the family's
     shared config); a top-level `provenance_correction` now supersedes it;
@@ -169,11 +170,22 @@ with the full arm list, method and caveats:
   - `mapa_mono_depthonly`: registered later still (`c84dc74`);
   - `sfm_colmap`: its gravity-level ground lift replaced the plane lift after the 30-pair
     pilot, whose pairs are a subset of the 300;
+  - `mast3r_poseonly`: registered in `bb6cd3c` at 18:18, three minutes after `0214816`
+    quoted the pilot's scores. That the pilot was seen first is **inferred from commit
+    times**; no commit message says so;
   - the two `mv3d_consensus` composites.
 
-  `combined_table.json` → `rows[].post_hoc_why` gives the reason for each, and each such
-  arm's `meta.json` carries the same correction. No prediction changed. The flat family's
-  post hoc `_gsmed` arms are not in this table.
+  Post hoc by the same rule but not rows of this table (final re-review of #210, N4):
+  `sfm_colmap_prior` (the same lift change as `sfm_colmap`, `0214816`); `sfm_poseonly`
+  (registered in `0214816`, whose message quotes the pilot's scores); `vggt_corner_poseonly`
+  (registered in `6695b4f`, whose message quotes the pilot's `mapa_posed_depthonly`);
+  `sem_curb_shift_auto` (`semantic.md` §1); and the flat family's three `_gsmed` arms. None
+  survives either screen, and all are negatives or non-headline, so no conclusion changes.
+
+  `combined_table.json` → `rows[].post_hoc_why` gives the reason for each table row, and
+  `crossview_combined_48.POST_HOC_NOT_IN_TABLE` for the rest. Every one of these arms'
+  `meta.json` carries a top-level `provenance_correction` with the same reason (a test checks
+  this). No prediction `.jsonl` changed.
 
 Built by `scripts/analysis/crossview_combined_48.py` (CPU, committed inputs only, about
 2.5 minutes with the 20,000-resample Bonferroni screen) →
@@ -208,7 +220,7 @@ fallback rate matches `results.json`; the Richmond cells of the flat arms match
 | `mv3d_consensus` | multi-view 3D | yes | 3.11 [2.69, 4.16] | 0.43 | +0.32 [-0.00, 0.64] | 3.93 [2.95, 5.27] | +0.01 [-0.49, 0.41] | 1.98 [1.45, 2.82] | +1.77 [0.87, 2.97] | 172: 2.11 vs 3.48, +0.84 [0.42, 1.24] | 3.03, +0.00 [0.00, 0.00] | 0.43 |
 | `mv3d_consensus_else_auto` | multi-view 3D | yes | 3.03 [2.58, 3.72] | 0.00 | +0.00 [0.00, 0.00] | 3.54 [2.86, 4.13] | +0.00 [0.00, 0.00] | 1.98 [1.45, 2.82] | +1.77 [0.87, 2.97] | (never falls back) | 3.03, +0.00 [0.00, 0.00] | 0.43 |
 | `mapa_posed_poseonly` | multi-view 3D | yes | 3.90 [3.45, 4.40] | 0.00 | +0.07 [0.03, 0.10] | 3.80 [3.27, 4.37] | +0.05 [0.02, 0.09] | 4.14 [3.72, 5.45] | +0.17 [0.07, 0.25] | (never falls back) | 3.90, +0.07 [0.03, 0.10] | 0.00 |
-| `mast3r_poseonly` | multi-view 3D |  | 4.43 [3.69, 5.71] | 0.08 | -0.24 [-0.47, -0.02] | 4.81 [3.69, 5.96] | -0.45 [-0.70, -0.15] | 4.08 [3.15, 5.08] | +0.59 [0.28, 1.26] | 277: 4.36 vs 4.05, -0.19 [-0.44, 0.01] | 4.38, -0.07 [-0.31, 0.00] | 0.08 |
+| `mast3r_poseonly` | multi-view 3D | yes | 4.43 [3.69, 5.71] | 0.08 | -0.24 [-0.47, -0.02] | 4.81 [3.69, 5.96] | -0.45 [-0.70, -0.15] | 4.08 [3.15, 5.08] | +0.59 [0.28, 1.26] | 277: 4.36 vs 4.05, -0.19 [-0.44, 0.01] | 4.38, -0.07 [-0.31, 0.00] | 0.08 |
 | `mapa_mono_depthonly` | multi-view 3D | yes | 4.94 [4.37, 5.53] | 0.00 | -0.50 [-1.03, -0.04] | 4.95 [4.31, 5.68] | -0.54 [-1.39, -0.04] | 4.81 [3.39, 6.36] | -0.42 [-1.11, 0.66] | (never falls back) | 4.94, -0.50 [-1.03, -0.04] | 0.00 |
 | `sfm_colmap` | multi-view 3D | yes | 4.90 [3.81, 6.22] | 0.29 | -0.30 [-0.76, 0.02] | 5.86 [4.39, 7.38] | -0.67 [-1.51, -0.24] | 2.52 [2.06, 3.73] | +1.70 [0.25, 2.81] | 212: 4.99 vs 4.33, -0.30 [-0.84, 0.07] | 4.14, +0.00 [0.00, 0.00] | 0.29 |
 | `flat_sfm` | flat Mapillary (Richmond only) |  | not run (Richmond only) | 0.00 (Richmond) | – | n/a | n/a | 2.53 [1.79, 3.97] | +1.74 [0.62, 2.71] | (never falls back) | 2.53, +1.74 [0.62, 2.71] (Richmond) | 0.00 |

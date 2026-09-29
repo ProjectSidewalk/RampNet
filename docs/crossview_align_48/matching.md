@@ -77,7 +77,8 @@ losing its accuracy. The pilot's `lg` is ALIKED + LightGlue with a ground homogr
   - LoFTR is worse than the projection where it aligns.
 - **Verdict (proposed, not decided):**
   - Mapillary: use `roma_local` (or `roma`) in place of the projection. This is the one
-    place image matching clearly pays.
+    place image matching clearly pays. But `roma_local` is post hoc (§4), and the Mapillary
+    numbers are not Bonferroni-screened (the screen covers GSV and all 300 pairs only).
   - GSV: keep `proj_height_auto` as the base. **On GSV no matching arm has a CI-clear gain
     over auto height**, not even where it aligns: `roma_warp`'s aligned GSV gain is 0.37°
     [−0.03, 0.57]. (An earlier version of this bullet said `roma_warp_hyb` was CI-clear on
@@ -255,14 +256,19 @@ reference too, so it is post hoc and is description, not measurement.
 
 ## 4. Pre-specified vs post hoc
 
-**Pre-specified.** These were fixed before any arm in this family was scored:
+**Pre-specified within this family.** These were fixed before any arm in this family was
+scored:
 
 - the matchers and their native settings (LoFTR 0.5, RoMa 5,000 samples);
 - the four estimators;
 - all thresholds, which are inherited from the pilot and not re-tuned: the 5° band, 4 px,
   15 inliers, and the 1 px essential-matrix threshold (OpenCV's default).
 
-The 5° band is itself post hoc in the pilot (`lg_band0.5` is its pre-specified row there).
+**But the 5° band is post hoc at the pilot level,** and every arm in this family inherits
+it. It was chosen for `lg` after the pre-specified 0.5° band failed (`lg_band0.5` is that
+row), on pilot pairs that are a subset of these 300. `lg` is marked post hoc for it in the
+combined table and in its `meta.json`. The other matching arms are not marked one by one,
+but read every number in this file as conditional on that one post hoc choice.
 
 **Post hoc: `roma_local`, `roma_warp` and `roma_warp_hyb`.** They were added after `roma`
 was scored and found not to beat auto height on GSV. Their parameters were not tuned: they

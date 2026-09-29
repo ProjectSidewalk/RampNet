@@ -120,8 +120,31 @@ def test_post_hoc_column_matches_the_roster():
         assert row["post_hoc_why"] == (post_hoc or None), arm
     # found post hoc from git history by the review of #210; must not silently revert
     must = {"mapa_posed_pair", "mapa_posed_poseonly", "mapa_mono_depthonly", "sfm_colmap",
-            "mono_da3_hcal", "mono_unidepth_point", "roma_local", "roma_warp", "roma_warp_hyb"}
+            "mono_da3_hcal", "mono_unidepth_point", "roma_local", "roma_warp", "roma_warp_hyb",
+            "mast3r_poseonly"}
     assert must <= {r["arm"] for r in tab["rows"] if r["post_hoc"]}
+
+
+def test_every_post_hoc_arm_carries_the_correction_in_its_meta():
+    """Final re-review of #210 (N4): the doc says every post hoc arm's meta.json carries the
+    correction; 4 of the table's 13 did not, and 4 more arms were never marked. Table rows
+    and POST_HOC_NOT_IN_TABLE alike must carry the same reason, and no pre-specified table
+    row may carry one."""
+    todo = {a: why for a, _, why, _ in C.ROWS if why}
+    assert not set(todo) & set(C.POST_HOC_NOT_IN_TABLE)
+    todo.update(C.POST_HOC_NOT_IN_TABLE)
+    assert {"lg", "sem_snap_auto", "mv3d_consensus", "mv3d_consensus_else_auto",
+            "sfm_colmap_prior", "sfm_poseonly", "vggt_corner_poseonly",
+            "mast3r_poseonly"} <= set(todo)
+    for arm, why in todo.items():
+        with open(C.meta_path(arm), encoding="utf-8") as f:
+            corr = json.load(f).get("provenance_correction")
+        assert corr and corr["post_hoc"] is True and corr["why"] == why, arm
+    for arm, *_ in C.ROWS:
+        if arm in todo or arm == "projection":
+            continue
+        with open(C.meta_path(arm), encoding="utf-8") as f:
+            assert "provenance_correction" not in json.load(f), arm
 
 
 def test_gsv_screen_entries_rederive():

@@ -5117,8 +5117,8 @@
     "projection_median_deg": 4.5636,
     "within_2deg": 0.2
    },
-   "post_hoc": false,
-   "post_hoc_why": null,
+   "post_hoc": true,
+   "post_hoc_why": "registered in bb6cd3c at 18:18, three minutes after 0214816 quoted the 30-pair pilot's scores (a subset of these pairs); that the pilot was seen first is inferred from commit times, not stated in a commit message",
    "richmond_only": false,
    "role": "negative: learned pose only"
   },
