@@ -219,6 +219,25 @@ def load_manifest():
     return m
 
 
+# Matcher packages installed --no-deps beside .venv (docs/crossview_align_48/matching.md §7)
+# are not in H._versions(); record them when importable, by distribution metadata, since
+# romatch has no __version__. Added after the #219 review: the committed roma / roma_local
+# meta predate it and name romatch 0.1.2 only inside `config`.
+EXTRA_DISTS = ("romatch", "loguru", "lightglue")
+
+
+def versions():
+    """H._versions() plus the installed version of each EXTRA_DISTS package."""
+    from importlib import metadata
+    out = H._versions()
+    for dist in EXTRA_DISTS:
+        try:
+            out[dist] = metadata.version(dist)
+        except metadata.PackageNotFoundError:
+            pass
+    return out
+
+
 def cmd_predict(args):
     """Run one registered #48 arm over the mined pairs; write predictions/<arm>.jsonl (one
     row per candidate, keyed by city / site_id / pano_id, x / y null on fallback) and
@@ -260,7 +279,8 @@ def cmd_predict(args):
             "elapsed_s": round(elapsed, 2), "host": platform.node(), "gpu_visible": gpu,
             "missing_inputs": errors, "fallback": sum(1 for r in rows if r["x"] is None),
             "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "versions": H._versions(), "pre_specified_for_158": args.arm in PLANNED_ARMS}
+            "versions": versions(), "extra": list(args.extra),
+            "pre_specified_for_158": args.arm in PLANNED_ARMS}
     H.write_json(pred.replace(".jsonl", ".meta.json"), meta)
     print(f"{name}: {len(rows)} pairs in {elapsed:.1f} s, fallback {meta['fallback']}, "
           f"missing inputs {errors} -> {pred}")

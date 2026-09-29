@@ -49,11 +49,23 @@ def test_committed_outputs_are_consistent():
     m = MP.load_manifest()                                  # pins pairs.csv by sha256
     assert {c["ramp_uid"] for c in m["corners"]} == {p["ramp_uid"] for p in pairs}
     want = {(k["city"], int(k["site_id"]), k["pano_id"]) for k in keys}
+    assert len(want) == len(keys)                           # no duplicate candidate
+    # pair_id -> candidate must agree between keys.csv and pairs.csv (ramp_uid)...
+    by_pid = {k["pair_id"]: k for k in keys}
+    for p in pairs:
+        k = by_pid[p["pair_id"]]
+        assert p["ramp_uid"] == f"{k['city']}:{k['site_id']}:{k['pano_id']}", p["pair_id"]
     for name in os.listdir(MP.PRED_DIR):
         if not name.endswith(".jsonl"):
             continue
         with open(os.path.join(MP.PRED_DIR, name), encoding="utf-8") as f:
             rows = [json.loads(line) for line in f if line.strip()]
+        assert len(rows) == len(keys), name                 # a duplicated row fails here
         assert {(r["city"], r["site_id"], r["pano_id"]) for r in rows} == want, name
+        # ...and in every prediction row, so a swapped mapping cannot pass as a set
+        for r in rows:
+            k = by_pid[r["pair_id"]]
+            assert (r["city"], r["site_id"], r["pano_id"]) == \
+                (k["city"], int(k["site_id"]), k["pano_id"]), (name, r["pair_id"])
         meta = json.load(open(os.path.join(MP.PRED_DIR, name[:-6] + ".meta.json")))
         assert meta["pairs_sha256"] == m["pairs_sha256"]
