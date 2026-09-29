@@ -20,11 +20,15 @@ prediction was made:
   for all pairs, GSV and Mapillary, each stratum tested separately.
 * **Primary analysis**: the pairs whose ramp is NOT one of the 174 ramps in the frozen 300.
   **Secondary**: every fresh pair.
+* **Sensitivity** (post hoc, added after the review of #220; NOT part of the test above and
+  does not change its verdicts): SENSITIVITY_READS on the primary pairs, written under
+  confirmation.json's sensitivity key.
 
 Subcommands:
 
-    # 1. the fresh pair list (desktop CPU, committed inputs only). Frozen once written.
-    python scripts/analysis/crossview_fresh_48.py pairs
+    # 1. the fresh pair list (desktop CPU, committed inputs only). Frozen once written;
+    #    on a clone, `pairs --check` re-derives it and compares byte for byte.
+    python scripts/analysis/crossview_fresh_48.py pairs --check
     # 2. everything else runs through the harness with CROSSVIEW48_PAIR_SET=fresh
     #    (cut-views, _mv3d.py manifest / render / predict-many, predict proj_height_auto)
     # 3. the pre-specified test (CPU, committed predictions only) -> fresh/confirmation.json
@@ -58,6 +62,40 @@ FRESH_META_JSON = os.path.join(H.FRESH_DIR, "pairs_meta.json")
 PRESPECIFIED_CONFIRMATION_SHA256 = "bb8ead92ef995a957000d7c4ed4b7a730bf877aaa13041fd28b459b74a62d06a"
 
 
+def code_fingerprint(source):
+    """sha256 of Python ``source`` with comments, docstrings and blank lines removed and
+    trailing whitespace stripped: a change to what the code *does* changes it, a comment or
+    docstring edit does not. Text-based (tokenize for comments, ast only for docstring line
+    ranges), so it is the same on every Python version the tests run on.
+
+    Example: ``code_fingerprint(open("ff3d.py").read())`` equals the fingerprint of
+    ``git show c84dc74:scripts/analysis/crossview_arms/ff3d.py``."""
+    import ast
+    import hashlib
+    import io
+    import tokenize
+    lines = source.splitlines()
+    drop = set()
+    for node in ast.walk(ast.parse(source)):
+        body = getattr(node, "body", None)
+        if (isinstance(body, list) and body and isinstance(body[0], ast.Expr)
+                and isinstance(body[0].value, ast.Constant)
+                and isinstance(body[0].value.value, str)):
+            drop.update(range(body[0].lineno - 1, body[0].end_lineno))
+    cut = {}
+    for tok in tokenize.generate_tokens(io.StringIO(source).readline):
+        if tok.type == tokenize.COMMENT:
+            cut[tok.start[0] - 1] = tok.start[1]
+    kept = []
+    for i, line in enumerate(lines):
+        if i in drop:
+            continue
+        line = line[:cut[i]] if i in cut else line
+        if line.strip():
+            kept.append(line.rstrip())
+    return hashlib.sha256("\n".join(kept).encode("utf-8")).hexdigest()
+
+
 def _sha(path):
     import hashlib
     with open(path, "rb") as f:
@@ -73,10 +111,9 @@ def draw_fresh(eligible, frozen):
                           id_prefix="f")
 
 
-def cmd_pairs(args):
-    fresh_csv = os.path.join(H.FRESH_DIR, "pairs.csv")
-    if os.path.exists(fresh_csv) and not args.force:
-        raise SystemExit(f"{fresh_csv} is frozen (FRESH_PAIRS_SHA256); pass --force to rebuild")
+def build_fresh(fresh_csv, meta_json):
+    """Draw the fresh pairs from the committed lists and write them to ``fresh_csv`` and
+    their per-city summary to ``meta_json``. Returns the summary."""
     if _sha(H.ELIGIBLE_CSV) != H.ELIGIBLE_SHA256:
         raise SystemExit(f"{H.ELIGIBLE_CSV} is not the committed eligible list")
     prev = H.use_pair_set("frozen300")
@@ -96,13 +133,39 @@ def cmd_pairs(args):
                        "new_ramps": len({r["ramp_uid"] for r in rc if r["ramp_uid"] not in old}),
                        "eligible_not_in_300": sum(1 for r in eligible if r["city"] == c) -
                        sum(1 for r in frozen if r["city"] == c)}
-    H.write_json(FRESH_META_JSON, {
+    meta = {
         "eligible_sha256": H.ELIGIBLE_SHA256, "frozen300_sha256": PAIRS_SHA256_FROZEN,
         "seed": FRESH_SEED, "max_pairs_per_ramp": H.MAX_PAIRS_PER_RAMP, "per_city_cap": None,
         "pairs": len(rows), "pairs_on_new_ramps": sum(r["ramp_uid"] not in old for r in rows),
-        "per_city": per_city, "pairs_sha256": _sha(fresh_csv)})
-    print(json.dumps(per_city, indent=1))
-    print(f"{len(rows)} fresh pairs -> {fresh_csv}  sha256 {_sha(fresh_csv)}")
+        "per_city": per_city, "pairs_sha256": _sha(fresh_csv)}
+    H.write_json(meta_json, meta)
+    return meta
+
+
+def cmd_pairs(args):
+    """Write the fresh pair list, or with ``--check`` re-derive it into a temporary directory
+    and compare it byte for byte with the committed pairs.csv and pairs_meta.json (the
+    clean-clone reproduction check; exits 1 on any difference)."""
+    fresh_csv = os.path.join(H.FRESH_DIR, "pairs.csv")
+    if args.check:
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            meta = build_fresh(os.path.join(d, "pairs.csv"), os.path.join(d, "pairs_meta.json"))
+            same_csv = (_sha(os.path.join(d, "pairs.csv")) == _sha(fresh_csv)
+                        == H.FRESH_PAIRS_SHA256)
+            same_meta = _sha(os.path.join(d, "pairs_meta.json")) == _sha(FRESH_META_JSON)
+        print(f"pairs.csv {'identical' if same_csv else 'DIFFERS'} "
+              f"(sha256 {meta['pairs_sha256']}); pairs_meta.json "
+              f"{'identical' if same_meta else 'DIFFERS'}")
+        if not (same_csv and same_meta):
+            raise SystemExit(1)
+        return
+    if os.path.exists(fresh_csv) and not args.force:
+        raise SystemExit(f"{fresh_csv} is frozen (FRESH_PAIRS_SHA256); pass --check to verify "
+                         "it re-derives, or --force to rebuild")
+    meta = build_fresh(fresh_csv, FRESH_META_JSON)
+    print(json.dumps(meta["per_city"], indent=1))
+    print(f"{meta['pairs']} fresh pairs -> {fresh_csv}  sha256 {meta['pairs_sha256']}")
 
 
 PAIRS_SHA256_FROZEN = H.PAIR_SETS["frozen300"]["pairs_sha256"]
@@ -329,7 +392,10 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("pairs", help="draw the fresh pair list (frozen once written)")
-    p.add_argument("--force", action="store_true")
+    g = p.add_mutually_exclusive_group()
+    g.add_argument("--force", action="store_true", help="overwrite the frozen fresh pair list")
+    g.add_argument("--check", action="store_true",
+                   help="re-derive into a temp dir and compare with the committed files")
     p.set_defaults(fn=cmd_pairs)
     p = sub.add_parser("score", help="the pre-specified test -> fresh/confirmation.json")
     p.add_argument("--out", default=CONFIRMATION_JSON)

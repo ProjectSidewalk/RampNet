@@ -83,8 +83,9 @@ ELIGIBLE_SHA256 = "9ec142e39503733c345ec195c06446975820a3d13f563546d06885908abbd
 #: ``fresh`` is the fresh-pair confirmation set (#48 follow-up 1, 2026-09-29): every eligible
 #: pair NOT in pairs.csv, drawn by the same rule (seeded per city, at most 2 other views per
 #: ramp) with no per-city cap; see crossview_fresh_48.py. Each set has its own pair file,
-#: hash, predictions/ directory, results.json and corner manifest, so the two can never mix:
-#: every prediction's meta records the hash and read_predictions refuses a mismatch.
+#: hash, predictions/ directory, results.json and corner manifest, and every prediction's
+#: meta records the hash and read_predictions refuses a mismatch, so scoring cannot mix them.
+#: Not every path follows the set: see use_pair_set.
 #: Select a set with ``use_pair_set(name)``, or for the CLIs with the environment variable
 #: ``CROSSVIEW48_PAIR_SET`` (default frozen300), e.g.
 #: ``CROSSVIEW48_PAIR_SET=fresh python scripts/analysis/crossview_arms/_mv3d.py predict-many ...``
@@ -99,9 +100,19 @@ PAIR_SET = "frozen300"
 
 def use_pair_set(name):
     """Point the harness at pair set ``name`` (``PAIR_SETS``): rebinds PAIRS_CSV,
-    PAIRS_SHA256, PRED_DIR, RESULTS_JSON and MV3D_MANIFEST. Every module that reads them as
-    ``H.<NAME>`` at call time (the arms, _mv3d, the family scripts) follows. Returns the
-    previous set's name, so a caller can restore it."""
+    PAIRS_SHA256, PRED_DIR, RESULTS_JSON and MV3D_MANIFEST. Returns the previous set's name,
+    so a caller can restore it.
+
+    What follows the set: this harness (pairs, predict, score, read_predictions) and
+    ``_mv3d``'s manifest, render and predict-many, which read these names as ``H.<NAME>`` at
+    call time. What does NOT follow: paths bound off ``H.OUT`` at import time, which stay on
+    the frozen 300's files whatever the set -- ``_mv3d``'s pilot files and ``REPORT_JSON``,
+    ``depth_mono.DEPTH_DIR``, ``semantic.COMMITTED_SEG_MANIFEST``, ``crossview_depth_48``
+    (``OUT_DIR`` and its listing of ``predictions/``) and the family report JSONs
+    (``crossview_combined_48``, ``crossview_matching_48``). Under ``fresh`` an arm reading
+    one of those per-pair artifacts finds no ``f###`` rows and falls back rather than mixing,
+    and scoring is still protected by read_predictions' hash check. Only proj_height_auto
+    and the three MapAnything arms have been run under ``fresh`` (review of #220)."""
     global PAIR_SET, PAIRS_CSV, PAIRS_SHA256, PRED_DIR, RESULTS_JSON, MV3D_MANIFEST
     if name not in PAIR_SETS:
         raise SystemExit(f"unknown pair set {name!r}; known: {', '.join(PAIR_SETS)}")
@@ -336,6 +347,13 @@ def sample_pairs(eligible, per_city=PAIRS_PER_CITY, per_ramp=MAX_PAIRS_PER_RAMP,
 
 
 def cmd_pairs(args):
+    if PAIR_SET != "frozen300":
+        # this builds the frozen 300 (and writes eligible_pairs.csv and pairs_meta.json under
+        # OUT whatever the set): under another set it would overwrite that set's pinned pairs
+        # with a 60-per-city draw. The fresh set has its own builder (review of #220).
+        raise SystemExit(f"pairs builds the frozen300 set only; the current set is {PAIR_SET!r} "
+                         "(unset CROSSVIEW48_PAIR_SET; for fresh use crossview_fresh_48.py "
+                         "pairs)")
     import multiview_evidence_48 as mv
     if os.path.exists(PAIRS_CSV) and not args.force:
         raise SystemExit(f"{PAIRS_CSV} is frozen (PAIRS_SHA256); pass --force to rebuild it, "

@@ -336,6 +336,10 @@ analysis_out/crossview_align_48/fresh/*
 analysis_out/crossview_align_48/fresh/predictions/*
 !analysis_out/crossview_align_48/fresh/predictions/*.jsonl
 !analysis_out/crossview_align_48/fresh/predictions/*.json
+# the GPU chain's timing log, copied from makelab2 (review of #220)
+!analysis_out/crossview_align_48/fresh/logs/
+analysis_out/crossview_align_48/fresh/logs/*
+!analysis_out/crossview_align_48/fresh/logs/gpu_times.txt
 # Cross-view #48 depth arms: per-click monocular depth rows and their summaries.
 !analysis_out/crossview_align_48/depth/
 # ... and the 3D viewer bundles: their JSON is committed; the scene .ply files live on

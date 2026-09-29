@@ -527,12 +527,42 @@ def _sha256(path):
         return hashlib.sha256(f.read()).hexdigest()
 
 
+def _package_version(mod, m):
+    """The best version string for an imported module: ``__version__``, else its installed
+    distribution's version, else ``"installed"``; plus ``@<commit>`` when it is imported from
+    a git checkout (an editable install such as map-anything's). Added after the review of
+    #220, whose fresh metas recorded only "installed" and needed a hand-added env block."""
+    import subprocess
+    ver = getattr(m, "__version__", None)
+    if ver is None:
+        try:
+            from importlib import metadata
+            dists = metadata.packages_distributions().get(mod, [])
+            ver = metadata.version(dists[0]) if dists else None
+        except Exception:   # noqa: BLE001 -- best effort; never fail a run over provenance
+            ver = None
+    ver = ver or "installed"
+    src = os.path.dirname(os.path.abspath(getattr(m, "__file__", "") or "."))
+    try:
+        top = subprocess.run(["git", "-C", src, "rev-parse", "--show-toplevel"],
+                             capture_output=True, text=True, timeout=10)
+        if top.returncode == 0 and "site-packages" not in src:
+            head = subprocess.run(["git", "-C", src, "rev-parse", "--short", "HEAD"],
+                                  capture_output=True, text=True, timeout=10)
+            if head.returncode == 0:
+                ver = f"{ver} @{head.stdout.strip()}"
+    except (OSError, subprocess.SubprocessError):
+        pass
+    return ver
+
+
 def _versions():
     v = H._versions()
-    for mod in ("pycolmap", "vggt", "mapanything", "mast3r", "dust3r"):
+    for mod in ("pycolmap", "vggt", "mapanything", "mast3r", "dust3r", "uniception",
+                "huggingface_hub"):
         try:
             m = __import__(mod)
-            v[mod] = getattr(m, "__version__", "installed")
+            v[mod] = _package_version(mod, m)
         except ImportError:
             pass
     return v

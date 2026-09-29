@@ -19,14 +19,20 @@ from crossview_arms import _mv3d as M  # noqa: E402
 
 FRESH_CSV = os.path.join(H.FRESH_DIR, "pairs.csv")
 FRESH_PRED_DIR = os.path.join(H.FRESH_DIR, "predictions")
-#: the GPU arms' predictions come back from makelab2 after the plan commit; until they are
-#: committed, only the tests that read them skip (named, not a blanket skip)
-_MISSING_ARMS = [a for a in F.FRESH_ARMS
-                 if not os.path.exists(os.path.join(FRESH_PRED_DIR, f"{a}.jsonl"))]
-needs_fresh_predictions = pytest.mark.skipif(
-    bool(_MISSING_ARMS), reason=f"fresh predictions not committed yet: {_MISSING_ARMS}")
-needs_confirmation = pytest.mark.skipif(
-    not os.path.exists(F.CONFIRMATION_JSON), reason="fresh/confirmation.json not committed yet")
+# The fresh predictions and confirmation.json are committed (0f820f9, 0da7360), so a missing
+# file is a failure, not a skip: the skipif markers these tests carried while the GPU runs
+# were in flight were removed after the review of #220, which showed that moving
+# mapa_k_pair.jsonl aside left the suite green (3 passed, 3 skipped).
+
+#: code_fingerprint of crossview_arms/ff3d.py, the code of all three MapAnything arms, at
+#: c84dc74 -- the commit whose code produced the 300's mapa_posed_pair predictions, and the
+#: code cd06387's mapa_k_pair predictions ran (same fingerprint). Equal at every commit since.
+#: mapa_posed_corner's 300 predictions (0428bb7) predate two code edits, both no-ops for it:
+#: 8cdf52f passes revision=MODEL_REVISIONS[...] (the snapshot that run had loaded) and
+#: c84dc74 adds a "mono" branch that corner_mode=True never takes; see the doc's
+#: "Settings and code unchanged".
+FF3D_FINGERPRINT_300 = "43958e582f4041c3ff70d652d2eff63749dd2dd84e5eef60575d2092d8b37b19"
+MAPANYTHING_WEIGHTS = "a1d87e9086706fb9974f3be5a3e3a0ca5401c5aa"
 
 
 def _sha(path):
@@ -69,7 +75,6 @@ def test_fresh_pairs_rederive_from_eligible_pairs(tmp_path):
     assert _sha(out) == H.FRESH_PAIRS_SHA256
 
 
-@needs_fresh_predictions
 def test_fresh_manifest_and_predictions_belong_to_the_fresh_set(fresh):
     m = M.load_manifest()
     assert m["pairs_sha256"] == H.FRESH_PAIRS_SHA256
@@ -84,21 +89,101 @@ def test_fresh_manifest_and_predictions_belong_to_the_fresh_set(fresh):
         assert meta["pair_set"] == "fresh" and meta["pairs"] == 807, arm
 
 
-@needs_fresh_predictions
-def test_fresh_arms_use_their_committed_300_pair_settings(fresh):
+def test_fresh_arms_ran_the_300s_code_settings_and_weights(fresh):
+    """Settings AND code unchanged since the 300 (review of #220): the registered config,
+    description and inputs match the 300-pair metas; ff3d.py's code (comments and docstrings
+    ignored) is the code the 300 ran; the weights pin is the one both runs loaded; and each
+    fresh meta names the committed fresh corner manifest."""
     frozen_dir = os.path.join(H.OUT, "predictions")
+    with open(M.__file__.replace("_mv3d.py", "ff3d.py"), encoding="utf-8") as f:
+        assert F.code_fingerprint(f.read()) == FF3D_FINGERPRINT_300
+    from crossview_arms import ff3d
+    assert ff3d.MODEL_REVISIONS["mapanything"] == MAPANYTHING_WEIGHTS
+    manifest_sha = _sha(os.path.join(H.FRESH_DIR, "mv3d_corners.json"))
     for arm in F.FRESH_ARMS:
         with open(H.prediction_paths(arm)[1], encoding="utf-8") as f:
             new = json.load(f)
         with open(os.path.join(frozen_dir, f"{arm}.meta.json"), encoding="utf-8") as f:
             old = json.load(f)
-        assert new["config"] == old["config"], arm
+        for key in ("config", "description", "needs"):
+            assert new[key] == old[key], (arm, key)
+        assert new["manifest_sha256"] == manifest_sha, arm
 
 
-@needs_fresh_predictions
-@needs_confirmation
+def test_code_fingerprint_ignores_comments_and_docstrings_only():
+    base = 'def f(x):\n    """Doc."""\n    return x + 1  # add\n'
+    assert F.code_fingerprint(base) == F.code_fingerprint(
+        '# header\n\ndef f(x):\n    """Other\n    doc."""\n    return x + 1\n')
+    assert F.code_fingerprint(base) != F.code_fingerprint(base.replace("x + 1", "x + 2"))
+
+
+def test_harness_pairs_refuses_under_the_fresh_set():
+    """crossview_align_48.py pairs builds the frozen 300 and writes eligible_pairs.csv and
+    pairs_meta.json under OUT; under the fresh set it must refuse before touching anything."""
+    import argparse
+    before = {p: _sha(p) for p in (FRESH_CSV, H.ELIGIBLE_CSV, os.path.join(H.OUT, "pairs_meta.json"))}
+    prev = H.use_pair_set("fresh")
+    try:
+        with pytest.raises(SystemExit, match="frozen300 set only"):
+            H.cmd_pairs(argparse.Namespace(force=True, labeler_root="unused", runs_root=None,
+                                           results_root=None))
+    finally:
+        H.use_pair_set(prev)
+    assert before == {p: _sha(p) for p in before}
+
+
+def test_fresh_pairs_check_mode_passes_and_writes_nothing(capsys):
+    before = (_sha(FRESH_CSV), _sha(F.FRESH_META_JSON))
+    F.main(["pairs", "--check"])
+    assert "pairs.csv identical" in capsys.readouterr().out
+    assert before == (_sha(FRESH_CSV), _sha(F.FRESH_META_JSON))
+
+
+def test_confirmation_prespecified_part_is_the_original_bytes():
+    """The post hoc ``sensitivity`` key was added after the pre-specified test ran. Removing
+    it and re-serializing must give the original file (sha bb8ead92...), so no pre-specified
+    number moved."""
+    with open(F.CONFIRMATION_JSON, encoding="utf-8") as f:
+        committed = json.load(f)
+    assert set(committed) == {"config", "primary", "secondary", "per_city", "sensitivity"}
+    committed.pop("sensitivity")
+    body = json.dumps(H.rnd(committed), indent=1, sort_keys=True) + "\n"
+    assert hashlib.sha256(body.encode("utf-8")).hexdigest() == F.PRESPECIFIED_CONFIRMATION_SHA256
+
+
+def test_sensitivity_counts_and_the_fragile_cell():
+    """The post hoc reads (review of #220): 55 primary pairs repeat a 300 pano pair, 190 share
+    a pano with the 300; mapa_k_pair on GSV is the only cell any read takes to <= 0."""
+    with open(F.CONFIRMATION_JSON, encoding="utf-8") as f:
+        sens = json.load(f)["sensitivity"]
+    assert sens["primary_pairs_identical_pano_pair"] == 55
+    assert sens["primary_pairs_any_shared_pano"] == 190
+    for read in F.SENSITIVITY_READS:
+        for stratum in ("all", "gsv", "mapillary"):
+            for arm in F.FRESH_ARMS:
+                cell = sens[read][stratum][arm]
+                fragile = (arm, stratum) == ("mapa_k_pair", "gsv")
+                assert cell["confirmed"] is not fragile, (read, stratum, arm)
+                if not fragile:
+                    assert cell["bonferroni_lower"] >= 0.105, (read, stratum, arm)
+
+
 def test_confirmation_rederives_from_committed_predictions():
     with open(F.CONFIRMATION_JSON, encoding="utf-8") as f:
         committed = json.load(f)
     got = json.loads(json.dumps(H.rnd(F.score_fresh())))
     assert got == committed
+
+
+#: sha256 of the doc's "### Fixed before running" subsection, as committed in the plan commit
+#: cd65024 before any prediction: the plan must never be edited after the fact.
+PLAN_SECTION_SHA256 = "80f1cb32c95a548428a98c69f5b203cf77229966a7832cc4a846db2e3e04e90f"
+
+
+def test_plan_section_is_byte_identical_to_the_plan_commit():
+    doc = os.path.join(os.path.dirname(HERE), "docs", "crossview_align_48.md")
+    with open(doc, "rb") as f:
+        text = f.read().decode("utf-8").replace("\r\n", "\n")
+    a = text.index("### Fixed before running")
+    b = text.index("### Result", a)
+    assert hashlib.sha256(text[a:b].encode("utf-8")).hexdigest() == PLAN_SECTION_SHA256
