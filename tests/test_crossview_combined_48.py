@@ -160,3 +160,37 @@ def test_doc_table_is_the_committed_table():
     doc = os.path.join(os.path.dirname(HERE), "docs", "crossview_align_48.md")
     with open(doc, encoding="utf-8") as f:
         assert C.markdown(_table()) in f.read()
+
+
+# --------------------------------------------------------------------------- #
+# Final re-review of #210 (N2): the Bonferroni screen is a headline claim, so it is
+# re-derived in full rather than checked for internal consistency only. Planting
+# sem_chamfer_auto as a GSV survivor, or deleting it from the uncorrected screen, fails here.
+# About 30 s: one shared draw of 20,000 ramp resamples per stratum.
+# --------------------------------------------------------------------------- #
+@pytest.mark.parametrize("stratum", ["gsv", "all"])
+def test_bonferroni_screen_rederives(stratum):
+    mt = _table()["multiplicity"]
+    pairs, auto, strata = _setup()
+    cfg, got = C.multiplicity_screen(pairs, strata[stratum], auto)
+    for k, v in cfg.items():
+        assert mt["config"][k] == (pytest.approx(v, abs=1e-4) if isinstance(v, float) else v), k
+    assert set(mt[stratum]) == set(got), "screened arms (positive point gain) differ"
+    for arm, v in got.items():
+        w = mt[stratum][arm]
+        assert w["bonferroni_lower"] == pytest.approx(v["bonferroni_lower"], abs=1e-4), arm
+        assert w["share_resamples_le_0"] == pytest.approx(v["share_resamples_le_0"], abs=1e-4), arm
+        assert w["gain_vs_auto"] == pytest.approx(v["gain_vs_auto"], abs=1e-4), arm
+        assert w["survives"] is v["survives"], arm
+    assert mt[f"{stratum}_survivors"] == sorted(a for a, v in got.items() if v["survives"])
+
+
+def test_uncorrected_gsv_screen_rederives():
+    tab = _table()
+    pairs, auto, strata = _setup()
+    got = C.gsv_screen(pairs, strata["gsv"], auto)
+    assert set(tab["gsv_ci_clear_vs_auto"]) == set(got)
+    for arm, v in got.items():
+        w = tab["gsv_ci_clear_vs_auto"][arm]
+        assert w["gain_vs_auto"] == pytest.approx(v["gain_vs_auto"], abs=1e-4), arm
+        assert w["ci"] == pytest.approx(v["ci"], abs=1e-4), arm
