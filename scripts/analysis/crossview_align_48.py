@@ -698,6 +698,13 @@ def read_predictions(name):
         for line in f:
             if line.strip():
                 r = json.loads(line)
+                if r.get("x") is not None and r.get("y") is not None:
+                    x, y = float(r["x"]), float(r["y"])
+                    # arm_errors wraps x but not y: a y outside [0, 1] would be scored as
+                    # a point past the pole instead of being refused (review of #210)
+                    if not (math.isfinite(x) and math.isfinite(y) and 0.0 <= y <= 1.0):
+                        raise SystemExit(f"{pred_path}: {r['pair_id']} has x={x}, y={y}; "
+                                         "y must be finite and in [0, 1]")
                 out[r["pair_id"]] = r
     return out
 
@@ -824,8 +831,19 @@ def available_predictions():
 
 
 def cmd_score(args):
+    """Score arms into results.json. With no --arms it takes EVERY predictions/*.jsonl, so an
+    exploratory file left there joins the results and the multiplicity screen
+    (crossview_combined_48.py) silently; the arms new since the committed results.json are
+    named here, and the rederive test fails until results.json and the docs catch up."""
     pairs = read_frozen_pairs()
     names = args.arms.split(",") if args.arms else available_predictions()
+    if not args.arms and os.path.exists(RESULTS_JSON):
+        with open(RESULTS_JSON, encoding="utf-8") as f:
+            before = set(json.load(f)["config"]["arms"])
+        new = sorted(set(names) - before)
+        if new:
+            print(f"NOTE: {len(new)} arm(s) not in the committed results.json join the scored "
+                  f"set, which grows the multiplicity to {len(names)} arms: {', '.join(new)}")
     res = score(pairs, {n: read_predictions(n) for n in names})
     res["config"] = {"pairs_sha256": PAIRS_SHA256, "n_boot": N_BOOT, "seed": SEED,
                      "ci": "2.5-97.5 percentile, ramps resampled",

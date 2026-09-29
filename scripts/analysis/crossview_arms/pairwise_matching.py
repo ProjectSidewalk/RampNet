@@ -403,7 +403,11 @@ for _m in MATCHERS:
 # RoMa-only arms: a local homography, and the dense warp read at the GT point
 # --------------------------------------------------------------------------- #
 
-ROMA_CERT_MIN = 0.05     # romatch's own sample_thresh: its definition of a usable match
+#: romatch's default ``sample_thresh`` (0.05), borrowed as a certainty cutoff, not tuned. In
+#: romatch 0.1.2 it is a SATURATION threshold: ``sample()`` sets certainty above it to 1, and
+#: pixels below it can still be sampled in proportion to their certainty. So it is not
+#: romatch's "definition of a usable match"; it is a reasonable cutoff (review of #210).
+ROMA_CERT_MIN = 0.05
 LOCAL_RADIUS_PX = 160.0  # inherited from lg_local
 LOCAL_MIN = 12
 
@@ -411,7 +415,10 @@ LOCAL_MIN = 12
 @register("roma_local", needs=("views",),
           config={**BASE_CONFIG, "matcher": MATCHER_DESC["roma"], "roma_samples": ROMA_SAMPLES,
                   "local_radius_px": LOCAL_RADIUS_PX, "local_min": LOCAL_MIN,
-                  "estimator": "ground homography from matches within 160 px of the GT point"},
+                  "estimator": "ground homography from matches within 160 px of the GT point",
+                  # post hoc (matching.md section 4). The committed run recorded True,
+                  # inherited from BASE_CONFIG; its meta.json carries provenance_correction.
+                  "pre_specified": False},
           description="RoMa; ground homography fitted only to matches within 160 px of the GT "
                       "point (as lg_local)")
 def roma_local(pair, ctx):
@@ -445,7 +452,9 @@ def _warp(pair, ctx, hybrid):
 
 WARP_CONFIG = {"matcher": "RoMa outdoor (romatch 0.1.2), dense warp at the GT point",
                "cert_min": ROMA_CERT_MIN, "view": [H.VIEW_W, H.VIEW_H, H.HFOV_DEG],
-               "pre_specified": True}
+               # post hoc (matching.md section 4). The committed roma_warp / roma_warp_hyb runs
+               # recorded True; their meta.json files carry provenance_correction.
+               "pre_specified": False}
 
 
 @register("roma_warp", needs=("views",), config=WARP_CONFIG,

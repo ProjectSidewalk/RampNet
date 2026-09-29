@@ -171,7 +171,7 @@ def test_arm_modules_never_read_answer_columns():
             continue
         with open(path, encoding="utf-8") as f:
             src = f.read()
-        assert not re.search(r"ref_(x|y|conf|world_gap_m)", src), path
+        assert not re.search(r"\bref_(x|y|conf|world_gap_m)\b", src), path
         assert ".detections" not in src, path
 
 
@@ -276,13 +276,48 @@ def test_committed_results_rederive_from_committed_predictions():
     assert res["config"]["pairs_sha256"] == cv.PAIRS_SHA256
     names = ["projection"] + cv.available_predictions()
     assert sorted(res["arms"]) == sorted(names)
+    assert res["config"]["arms"] == names, "score's arm list is the committed roster"
+    strata = cv.strata_of(pairs)
+    proj = cv.arm_errors(pairs, None)
     for name in names:
         errs = cv.arm_errors(pairs, None if name == "projection" else cv.read_predictions(name))
-        want = res["arms"][name]["all"]
-        assert round(float(np.median([e[0] for e in errs])), 4) == \
-            pytest.approx(want["median_deg"], abs=1e-4), name
-        assert round(float(np.mean([e[3] for e in errs])), 4) == \
-            pytest.approx(want["fallback_rate"], abs=1e-4), name
+        assert sorted(res["arms"][name]) == sorted(strata), name
+        # every stratum, not only "all" (review of #210, A7): median, fallback, paired gain
+        for s, idx in strata.items():
+            want = res["arms"][name][s]
+            assert want["n_pairs"] == len(idx)
+            assert round(float(np.median([errs[i][0] for i in idx])), 4) == \
+                pytest.approx(want["median_deg"], abs=1e-4), (name, s)
+            assert round(float(np.mean([errs[i][3] for i in idx])), 4) == \
+                pytest.approx(want["fallback_rate"], abs=1e-4), (name, s)
+            if name == "projection":
+                continue
+            assert float(np.median([proj[i][0] - errs[i][0] for i in idx])) == \
+                pytest.approx(want["median_gain_deg"], abs=1e-4), (name, s)
+            used = [i for i in idx if not errs[i][3]]
+            assert want["aligned_only"]["n_pairs"] == len(used), (name, s)
+            if used:
+                assert float(np.median([proj[i][0] - errs[i][0] for i in used])) == \
+                    pytest.approx(want["aligned_only"]["median_gain_deg"], abs=1e-4), (name, s)
+
+
+def test_committed_predictions_are_in_range():
+    """read_predictions refuses a non-finite x / y or a y outside [0, 1]; every committed
+    file passes (arm_errors would otherwise score y > 1 as a point past the nadir)."""
+    for arm in cv.available_predictions():
+        for r in cv.read_predictions(arm).values():
+            if r["x"] is not None:
+                assert 0.0 <= float(r["y"]) <= 1.0, arm
+
+
+def test_read_predictions_refuses_an_out_of_range_y(tmp_path, monkeypatch):
+    d = tmp_path / "crossview_align_48" / "predictions"
+    d.mkdir(parents=True)
+    (d / "bad.meta.json").write_text(json.dumps({"pairs_sha256": cv.PAIRS_SHA256}))
+    (d / "bad.jsonl").write_text(json.dumps({"pair_id": "a", "x": 0.2, "y": 1.3}) + "\n")
+    monkeypatch.setattr(cv, "OUT", str(tmp_path / "crossview_align_48"))
+    with pytest.raises(SystemExit):
+        cv.read_predictions("bad")
 
 
 def test_flat_check_arm_reproduces_the_committed_projection():

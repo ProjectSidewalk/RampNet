@@ -1,7 +1,9 @@
 {
  "config": {
+  "aligned": "the family docs' definition: the pairs the arm did not fall back on only",
   "ci": "2.5-97.5 percentile, ramps resampled",
-  "gain": "median per-pair (proj_height_auto error - arm error), deg",
+  "else_auto": "the same, but a fallback is scored as proj_height_auto's point: one common rule for every arm",
+  "gain": "median per-pair (proj_height_auto error - arm error), deg, over all pairs of the stratum; a fallback is scored as the 2.6 m projection",
   "n_boot": 2000,
   "pairs_sha256": "a85a11bceb57e7d4db4bc5914c35cb17b5fdaf9bc8c9189957574a13260db388",
   "richmond_only": [
@@ -49,6 +51,278 @@
    ],
    "gain_vs_auto": 0.3383
   }
+ },
+ "multiplicity": {
+  "all": {
+   "dust3r_pair": {
+    "bonferroni_lower": -0.0529,
+    "gain_vs_auto": 0.4682,
+    "share_resamples_le_0": 0.0021,
+    "survives": false
+   },
+   "mapa_k_corner": {
+    "bonferroni_lower": -0.0714,
+    "gain_vs_auto": 0.5656,
+    "share_resamples_le_0": 0.0016,
+    "survives": false
+   },
+   "mapa_k_pair": {
+    "bonferroni_lower": 0.1346,
+    "gain_vs_auto": 0.7199,
+    "share_resamples_le_0": 0.0001,
+    "survives": true
+   },
+   "mapa_posed_corner": {
+    "bonferroni_lower": 0.1566,
+    "gain_vs_auto": 0.6053,
+    "share_resamples_le_0": 0.0,
+    "survives": true
+   },
+   "mapa_posed_depthonly": {
+    "bonferroni_lower": -0.0386,
+    "gain_vs_auto": 0.3759,
+    "share_resamples_le_0": 0.0129,
+    "survives": false
+   },
+   "mapa_posed_pair": {
+    "bonferroni_lower": 0.2705,
+    "gain_vs_auto": 0.723,
+    "share_resamples_le_0": 0.0,
+    "survives": true
+   },
+   "mapa_posed_poseonly": {
+    "bonferroni_lower": 0.0212,
+    "gain_vs_auto": 0.0714,
+    "share_resamples_le_0": 0.0,
+    "survives": true
+   },
+   "mast3r_pair": {
+    "bonferroni_lower": -0.167,
+    "gain_vs_auto": 0.4487,
+    "share_resamples_le_0": 0.014,
+    "survives": false
+   },
+   "mono_da3_hcal": {
+    "bonferroni_lower": -0.2433,
+    "gain_vs_auto": 0.1587,
+    "share_resamples_le_0": 0.0679,
+    "survives": false
+   },
+   "mono_da3_plane": {
+    "bonferroni_lower": -0.4571,
+    "gain_vs_auto": 0.1009,
+    "share_resamples_le_0": 0.2203,
+    "survives": false
+   },
+   "mono_da3_plane_hcal": {
+    "bonferroni_lower": -0.2765,
+    "gain_vs_auto": 0.0918,
+    "share_resamples_le_0": 0.1618,
+    "survives": false
+   },
+   "mono_da3_point": {
+    "bonferroni_lower": -0.4303,
+    "gain_vs_auto": 0.0715,
+    "share_resamples_le_0": 0.2217,
+    "survives": false
+   },
+   "mono_unidepth_plane": {
+    "bonferroni_lower": -0.3927,
+    "gain_vs_auto": 0.2872,
+    "share_resamples_le_0": 0.0541,
+    "survives": false
+   },
+   "mono_unidepth_point": {
+    "bonferroni_lower": -0.4462,
+    "gain_vs_auto": 0.1833,
+    "share_resamples_le_0": 0.1432,
+    "survives": false
+   },
+   "mv3d_consensus": {
+    "bonferroni_lower": -0.3023,
+    "gain_vs_auto": 0.3242,
+    "share_resamples_le_0": 0.0642,
+    "survives": false
+   },
+   "roma": {
+    "bonferroni_lower": -0.5912,
+    "gain_vs_auto": 0.0332,
+    "share_resamples_le_0": 0.3403,
+    "survives": false
+   },
+   "roma_epi": {
+    "bonferroni_lower": -0.0153,
+    "gain_vs_auto": 0.0242,
+    "share_resamples_le_0": 0.0175,
+    "survives": false
+   },
+   "roma_local": {
+    "bonferroni_lower": -0.3241,
+    "gain_vs_auto": 0.2988,
+    "share_resamples_le_0": 0.0432,
+    "survives": false
+   },
+   "roma_magsac": {
+    "bonferroni_lower": -0.7464,
+    "gain_vs_auto": 0.0907,
+    "share_resamples_le_0": 0.3045,
+    "survives": false
+   },
+   "roma_warp": {
+    "bonferroni_lower": -0.1666,
+    "gain_vs_auto": 0.1212,
+    "share_resamples_le_0": 0.0857,
+    "survives": false
+   },
+   "sem_chamfer": {
+    "bonferroni_lower": -0.3848,
+    "gain_vs_auto": 0.0739,
+    "share_resamples_le_0": 0.3423,
+    "survives": false
+   },
+   "sem_chamfer_auto": {
+    "bonferroni_lower": -0.0119,
+    "gain_vs_auto": 0.4203,
+    "share_resamples_le_0": 0.0009,
+    "survives": false
+   },
+   "sem_chamfer_curb": {
+    "bonferroni_lower": -0.6342,
+    "gain_vs_auto": 0.0586,
+    "share_resamples_le_0": 0.3331,
+    "survives": false
+   },
+   "vggt_corner": {
+    "bonferroni_lower": -0.4323,
+    "gain_vs_auto": 0.2635,
+    "share_resamples_le_0": 0.058,
+    "survives": false
+   },
+   "vggt_pair": {
+    "bonferroni_lower": -0.4711,
+    "gain_vs_auto": 0.4069,
+    "share_resamples_le_0": 0.0254,
+    "survives": false
+   }
+  },
+  "all_survivors": [
+   "mapa_k_pair",
+   "mapa_posed_corner",
+   "mapa_posed_pair",
+   "mapa_posed_poseonly"
+  ],
+  "config": {
+   "alpha": 0.05,
+   "correction": "Bonferroni over n_arms",
+   "n_arms": 83,
+   "n_boot": 20000,
+   "percentile": 0.0602,
+   "resample": "ramps with replacement, one draw shared by all arms",
+   "seed": 48,
+   "sided": "one (gain > 0)"
+  },
+  "gsv": {
+   "dust3r_pair": {
+    "bonferroni_lower": -0.3033,
+    "gain_vs_auto": 0.2416,
+    "share_resamples_le_0": 0.0795,
+    "survives": false
+   },
+   "mapa_k_corner": {
+    "bonferroni_lower": -0.3495,
+    "gain_vs_auto": 0.2738,
+    "share_resamples_le_0": 0.0673,
+    "survives": false
+   },
+   "mapa_k_pair": {
+    "bonferroni_lower": -0.1264,
+    "gain_vs_auto": 0.3348,
+    "share_resamples_le_0": 0.004,
+    "survives": false
+   },
+   "mapa_posed_corner": {
+    "bonferroni_lower": 0.0779,
+    "gain_vs_auto": 0.5087,
+    "share_resamples_le_0": 0.0001,
+    "survives": true
+   },
+   "mapa_posed_depthonly": {
+    "bonferroni_lower": -0.1445,
+    "gain_vs_auto": 0.3759,
+    "share_resamples_le_0": 0.0593,
+    "survives": false
+   },
+   "mapa_posed_pair": {
+    "bonferroni_lower": 0.1589,
+    "gain_vs_auto": 0.6328,
+    "share_resamples_le_0": 0.0,
+    "survives": true
+   },
+   "mapa_posed_poseonly": {
+    "bonferroni_lower": -0.0069,
+    "gain_vs_auto": 0.0492,
+    "share_resamples_le_0": 0.0017,
+    "survives": false
+   },
+   "mast3r_pair": {
+    "bonferroni_lower": -0.5681,
+    "gain_vs_auto": 0.1249,
+    "share_resamples_le_0": 0.2401,
+    "survives": false
+   },
+   "mono_da3_hcal": {
+    "bonferroni_lower": -0.4793,
+    "gain_vs_auto": 0.0753,
+    "share_resamples_le_0": 0.293,
+    "survives": false
+   },
+   "mono_da3_plane_hcal": {
+    "bonferroni_lower": -0.4824,
+    "gain_vs_auto": 0.0005,
+    "share_resamples_le_0": 0.4626,
+    "survives": false
+   },
+   "mono_unidepth_plane": {
+    "bonferroni_lower": -0.7951,
+    "gain_vs_auto": 0.0826,
+    "share_resamples_le_0": 0.3679,
+    "survives": false
+   },
+   "mv3d_consensus": {
+    "bonferroni_lower": -0.789,
+    "gain_vs_auto": 0.0121,
+    "share_resamples_le_0": 0.4885,
+    "survives": false
+   },
+   "roma_epi": {
+    "bonferroni_lower": -0.1079,
+    "gain_vs_auto": 0.0036,
+    "share_resamples_le_0": 0.3916,
+    "survives": false
+   },
+   "roma_warp": {
+    "bonferroni_lower": -0.6118,
+    "gain_vs_auto": 0.0313,
+    "share_resamples_le_0": 0.4464,
+    "survives": false
+   },
+   "sem_chamfer_auto": {
+    "bonferroni_lower": -0.1147,
+    "gain_vs_auto": 0.3383,
+    "share_resamples_le_0": 0.0107,
+    "survives": false
+   },
+   "vggt_pair": {
+    "bonferroni_lower": -0.9608,
+    "gain_vs_auto": 0.1042,
+    "share_resamples_le_0": 0.2919,
+    "survives": false
+   }
+  },
+  "gsv_survivors": [
+   "mapa_posed_corner",
+   "mapa_posed_pair"
+  ]
  },
  "rows": [
   {
@@ -99,6 +373,47 @@
     "within_2deg": 0.19
    },
    "arm": "projection",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": -0.0004,
+     "gain_vs_auto_ci": [
+      -0.433,
+      0.0
+     ],
+     "median_ci": [
+      4.525,
+      6.56
+     ],
+     "median_deg": 5.6229
+    },
+    "gsv": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": -0.6749,
+     "gain_vs_auto_ci": [
+      -1.199,
+      -0.25
+     ],
+     "median_ci": [
+      4.525,
+      7.033
+     ],
+     "median_deg": 6.0939
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.868,
+      5.574
+     ],
+     "median_deg": 4.5636
+    }
+   },
    "family": "baseline",
    "gsv": {
     "aligned": {
@@ -193,6 +508,7 @@
     "within_2deg": 0.1
    },
    "post_hoc": false,
+   "post_hoc_why": null,
    "richmond_only": false,
    "role": "today's 2.6 m flat-ground projection"
   },
@@ -338,6 +654,7 @@
     "within_2deg": 0.1
    },
    "post_hoc": false,
+   "post_hoc_why": null,
    "richmond_only": false,
    "role": "labeler 'auto' per-rig camera height"
   },
@@ -389,6 +706,47 @@
     "within_2deg": 0.13
    },
    "arm": "proj_gsv_depth",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.2,
+     "gain_vs_auto": -0.1281,
+     "gain_vs_auto_ci": [
+      -0.682,
+      0.0
+     ],
+     "median_ci": [
+      4.5,
+      5.648
+     ],
+     "median_deg": 4.8178
+    },
+    "gsv": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": -0.8432,
+     "gain_vs_auto_ci": [
+      -1.256,
+      -0.359
+     ],
+     "median_ci": [
+      4.549,
+      5.888
+     ],
+     "median_deg": 4.9572
+    },
+    "mapillary": {
+     "auto_prior_share": 1.0,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.868,
+      5.574
+     ],
+     "median_deg": 4.5636
+    }
+   },
    "family": "geometry (pilot)",
    "gsv": {
     "aligned": {
@@ -459,6 +817,7 @@
     "within_2deg": 0.1
    },
    "post_hoc": false,
+   "post_hoc_why": null,
    "richmond_only": false,
    "role": "negative"
   },
@@ -510,6 +869,47 @@
     "within_2deg": 0.2467
    },
    "arm": "lg",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.7033,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.418,
+      4.306
+     ],
+     "median_deg": 3.7858
+    },
+    "gsv": {
+     "auto_prior_share": 0.7583,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.567,
+      4.566
+     ],
+     "median_deg": 3.9966
+    },
+    "mapillary": {
+     "auto_prior_share": 0.4833,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.474
+     ],
+     "median_ci": [
+      2.388,
+      4.335
+     ],
+     "median_deg": 3.0541
+    }
+   },
    "family": "matching (pilot)",
    "gsv": {
     "aligned": {
@@ -604,6 +1004,7 @@
     "within_2deg": 0.3
    },
    "post_hoc": true,
+   "post_hoc_why": "5 deg ground band chosen after the 0.5 deg band's failures",
    "richmond_only": false,
    "role": "ALIKED+LightGlue homography; 5 deg ground band post hoc"
   },
@@ -655,6 +1056,47 @@
     "within_2deg": 0.2533
    },
    "arm": "sem_chamfer_auto",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.01,
+     "gain_vs_auto": 0.4028,
+     "gain_vs_auto_ci": [
+      0.137,
+      0.705
+     ],
+     "median_ci": [
+      2.95,
+      4.048
+     ],
+     "median_deg": 3.3017
+    },
+    "gsv": {
+     "auto_prior_share": 0.0125,
+     "gain_vs_auto": 0.3201,
+     "gain_vs_auto_ci": [
+      0.015,
+      0.539
+     ],
+     "median_ci": [
+      2.813,
+      3.95
+     ],
+     "median_deg": 3.2259
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.7482,
+     "gain_vs_auto_ci": [
+      0.383,
+      1.684
+     ],
+     "median_ci": [
+      2.731,
+      4.239
+     ],
+     "median_deg": 3.8371
+    }
+   },
    "family": "semantic",
    "gsv": {
     "aligned": {
@@ -749,6 +1191,7 @@
     "within_2deg": 0.2167
    },
    "post_hoc": false,
+   "post_hoc_why": null,
    "richmond_only": false,
    "role": "best of family"
   },
@@ -800,6 +1243,47 @@
     "within_2deg": 0.18
    },
    "arm": "lsd_chamfer",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.0367,
+     "gain_vs_auto": -0.2979,
+     "gain_vs_auto_ci": [
+      -0.69,
+      -0.008
+     ],
+     "median_ci": [
+      4.264,
+      5.952
+     ],
+     "median_deg": 4.8832
+    },
+    "gsv": {
+     "auto_prior_share": 0.0333,
+     "gain_vs_auto": -0.6325,
+     "gain_vs_auto_ci": [
+      -1.207,
+      -0.241
+     ],
+     "median_ci": [
+      4.357,
+      6.663
+     ],
+     "median_deg": 5.1003
+    },
+    "mapillary": {
+     "auto_prior_share": 0.05,
+     "gain_vs_auto": 0.3112,
+     "gain_vs_auto_ci": [
+      0.0,
+      1.098
+     ],
+     "median_ci": [
+      2.932,
+      5.44
+     ],
+     "median_deg": 3.7069
+    }
+   },
    "family": "semantic",
    "gsv": {
     "aligned": {
@@ -894,6 +1378,7 @@
     "within_2deg": 0.1667
    },
    "post_hoc": false,
+   "post_hoc_why": null,
    "richmond_only": false,
    "role": "negative: raw line segments"
   },
@@ -945,6 +1430,47 @@
     "within_2deg": 0.21
    },
    "arm": "sem_snap_auto",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.0533,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      -0.216,
+      0.087
+     ],
+     "median_ci": [
+      3.458,
+      4.361
+     ],
+     "median_deg": 3.8187
+    },
+    "gsv": {
+     "auto_prior_share": 0.0458,
+     "gain_vs_auto": -0.1405,
+     "gain_vs_auto_ci": [
+      -0.379,
+      0.0
+     ],
+     "median_ci": [
+      3.458,
+      4.408
+     ],
+     "median_deg": 3.8552
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0833,
+     "gain_vs_auto": 0.1475,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.449
+     ],
+     "median_ci": [
+      2.918,
+      5.244
+     ],
+     "median_deg": 3.5992
+    }
+   },
    "family": "semantic",
    "gsv": {
     "aligned": {
@@ -1039,6 +1565,7 @@
     "within_2deg": 0.1333
    },
    "post_hoc": true,
+   "post_hoc_why": "added after the first semantic arms were scored",
    "richmond_only": false,
    "role": "negative: snap to curb"
   },
@@ -1090,6 +1617,47 @@
     "within_2deg": 0.3233
    },
    "arm": "roma",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.07,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      -0.071,
+      0.256
+     ],
+     "median_ci": [
+      2.924,
+      4.624
+     ],
+     "median_deg": 3.5416
+    },
+    "gsv": {
+     "auto_prior_share": 0.0792,
+     "gain_vs_auto": -0.0281,
+     "gain_vs_auto_ci": [
+      -0.416,
+      0.0
+     ],
+     "median_ci": [
+      3.233,
+      5.681
+     ],
+     "median_deg": 4.1766
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0333,
+     "gain_vs_auto": 1.7515,
+     "gain_vs_auto_ci": [
+      0.826,
+      2.772
+     ],
+     "median_ci": [
+      2.158,
+      3.38
+     ],
+     "median_deg": 2.5824
+    }
+   },
    "family": "matching",
    "gsv": {
     "aligned": {
@@ -1184,6 +1752,7 @@
     "within_2deg": 0.35
    },
    "post_hoc": false,
+   "post_hoc_why": null,
    "richmond_only": false,
    "role": "RoMa + ground homography"
   },
@@ -1235,6 +1804,47 @@
     "within_2deg": 0.3133
    },
    "arm": "roma_local",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.0567,
+     "gain_vs_auto": 0.2135,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.468
+     ],
+     "median_ci": [
+      2.873,
+      4.149
+     ],
+     "median_deg": 3.2904
+    },
+    "gsv": {
+     "auto_prior_share": 0.0625,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      -0.242,
+      0.219
+     ],
+     "median_ci": [
+      3.195,
+      4.958
+     ],
+     "median_deg": 3.9761
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0333,
+     "gain_vs_auto": 1.8682,
+     "gain_vs_auto_ci": [
+      0.976,
+      2.884
+     ],
+     "median_ci": [
+      1.832,
+      2.944
+     ],
+     "median_deg": 2.3682
+    }
+   },
    "family": "matching",
    "gsv": {
     "aligned": {
@@ -1329,6 +1939,7 @@
     "within_2deg": 0.4
    },
    "post_hoc": true,
+   "post_hoc_why": "added after `roma` was scored and did not beat auto on GSV",
    "richmond_only": false,
    "role": "best Mapillary matcher"
   },
@@ -1380,6 +1991,47 @@
     "within_2deg": 0.34
    },
    "arm": "roma_warp",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.42,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      2.749,
+      3.931
+     ],
+     "median_deg": 3.1101
+    },
+    "gsv": {
+     "auto_prior_share": 0.4542,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      2.816,
+      4.284
+     ],
+     "median_deg": 3.578
+    },
+    "mapillary": {
+     "auto_prior_share": 0.2833,
+     "gain_vs_auto": 1.222,
+     "gain_vs_auto_ci": [
+      0.0,
+      2.741
+     ],
+     "median_ci": [
+      1.708,
+      3.327
+     ],
+     "median_deg": 2.584
+    }
+   },
    "family": "matching",
    "gsv": {
     "aligned": {
@@ -1474,6 +2126,7 @@
     "within_2deg": 0.4167
    },
    "post_hoc": true,
+   "post_hoc_why": "added after `roma` was scored and did not beat auto on GSV",
    "richmond_only": false,
    "role": "RoMa dense warp read at the GT point"
   },
@@ -1525,6 +2178,47 @@
     "within_2deg": 0.3467
    },
    "arm": "roma_warp_hyb",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.42,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      2.749,
+      3.931
+     ],
+     "median_deg": 3.1101
+    },
+    "gsv": {
+     "auto_prior_share": 0.4542,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      2.816,
+      4.284
+     ],
+     "median_deg": 3.578
+    },
+    "mapillary": {
+     "auto_prior_share": 0.2833,
+     "gain_vs_auto": 1.222,
+     "gain_vs_auto_ci": [
+      0.0,
+      2.741
+     ],
+     "median_ci": [
+      1.708,
+      3.327
+     ],
+     "median_deg": 2.584
+    }
+   },
    "family": "matching",
    "gsv": {
     "aligned": {
@@ -1619,6 +2313,7 @@
     "within_2deg": 0.4167
    },
    "post_hoc": true,
+   "post_hoc_why": "added after `roma` was scored and did not beat auto on GSV",
    "richmond_only": false,
    "role": "RoMa dense warp, else auto"
   },
@@ -1670,6 +2365,47 @@
     "within_2deg": 0.2267
    },
    "arm": "sp_lg",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.74,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.548,
+      4.284
+     ],
+     "median_deg": 3.7858
+    },
+    "gsv": {
+     "auto_prior_share": 0.8,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.586,
+      4.581
+     ],
+     "median_deg": 4.0625
+    },
+    "mapillary": {
+     "auto_prior_share": 0.5,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      2.859,
+      3.919
+     ],
+     "median_deg": 3.4081
+    }
+   },
    "family": "matching",
    "gsv": {
     "aligned": {
@@ -1764,6 +2500,7 @@
     "within_2deg": 0.2667
    },
    "post_hoc": false,
+   "post_hoc_why": null,
    "richmond_only": false,
    "role": "negative: SuperPoint+LightGlue"
   },
@@ -1815,6 +2552,47 @@
     "within_2deg": 0.1833
    },
    "arm": "loftr",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.86,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.787,
+      5.137
+     ],
+     "median_deg": 4.2812
+    },
+    "gsv": {
+     "auto_prior_share": 0.9167,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.71,
+      5.126
+     ],
+     "median_deg": 4.219
+    },
+    "mapillary": {
+     "auto_prior_share": 0.6333,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.501,
+      5.872
+     ],
+     "median_deg": 4.6548
+    }
+   },
    "family": "matching",
    "gsv": {
     "aligned": {
@@ -1909,6 +2687,7 @@
     "within_2deg": 0.1333
    },
    "post_hoc": false,
+   "post_hoc_why": null,
    "richmond_only": false,
    "role": "negative"
   },
@@ -1960,6 +2739,47 @@
     "within_2deg": 0.2433
    },
    "arm": "mono_da3_hcal",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.1033,
+     "gain_vs_auto": 0.0304,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.292
+     ],
+     "median_ci": [
+      3.243,
+      4.547
+     ],
+     "median_deg": 3.7483
+    },
+    "gsv": {
+     "auto_prior_share": 0.1083,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.179
+     ],
+     "median_ci": [
+      3.149,
+      4.556
+     ],
+     "median_deg": 3.6633
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0833,
+     "gain_vs_auto": 0.3949,
+     "gain_vs_auto_ci": [
+      0.002,
+      1.037
+     ],
+     "median_ci": [
+      3.244,
+      5.227
+     ],
+     "median_deg": 4.1857
+    }
+   },
    "family": "depth",
    "gsv": {
     "aligned": {
@@ -2053,9 +2873,10 @@
     "projection_median_deg": 4.5636,
     "within_2deg": 0.2
    },
-   "post_hoc": false,
+   "post_hoc": true,
+   "post_hoc_why": "picked for this table from 17 depth arms scored on these pairs",
    "richmond_only": false,
-   "role": "best GSV depth arm"
+   "role": "best GSV depth arm (picked from 17)"
   },
   {
    "all": {
@@ -2105,6 +2926,47 @@
     "within_2deg": 0.2133
    },
    "arm": "mono_unidepth_point",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.1833,
+     "gain_vs_auto_ci": [
+      -0.151,
+      0.475
+     ],
+     "median_ci": [
+      3.481,
+      4.728
+     ],
+     "median_deg": 4.0443
+    },
+    "gsv": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": -0.0148,
+     "gain_vs_auto_ci": [
+      -0.459,
+      0.369
+     ],
+     "median_ci": [
+      3.593,
+      4.978
+     ],
+     "median_deg": 4.1778
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.8585,
+     "gain_vs_auto_ci": [
+      0.471,
+      1.309
+     ],
+     "median_ci": [
+      2.715,
+      4.557
+     ],
+     "median_deg": 3.4411
+    }
+   },
    "family": "depth",
    "gsv": {
     "aligned": {
@@ -2199,6 +3061,7 @@
     "within_2deg": 0.25
    },
    "post_hoc": true,
+   "post_hoc_why": "picked for this table from 17 depth arms scored on these pairs",
    "richmond_only": false,
    "role": "best Mapillary depth arm (picked from 17)"
   },
@@ -2250,6 +3113,47 @@
     "within_2deg": 0.0067
    },
    "arm": "mono_depthpro_point",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": -14.4279,
+     "gain_vs_auto_ci": [
+      -16.763,
+      -12.716
+     ],
+     "median_ci": [
+      17.569,
+      22.507
+     ],
+     "median_deg": 19.2323
+    },
+    "gsv": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": -15.3906,
+     "gain_vs_auto_ci": [
+      -18.544,
+      -13.245
+     ],
+     "median_ci": [
+      18.648,
+      24.658
+     ],
+     "median_deg": 20.8099
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": -10.7815,
+     "gain_vs_auto_ci": [
+      -14.7,
+      -8.443
+     ],
+     "median_ci": [
+      13.873,
+      19.501
+     ],
+     "median_deg": 16.5504
+    }
+   },
    "family": "depth",
    "gsv": {
     "aligned": {
@@ -2344,6 +3248,7 @@
     "within_2deg": 0.0
    },
    "post_hoc": false,
+   "post_hoc_why": null,
    "richmond_only": false,
    "role": "negative"
   },
@@ -2395,6 +3300,47 @@
     "within_2deg": 0.3233
    },
    "arm": "mapa_posed_pair",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.723,
+     "gain_vs_auto_ci": [
+      0.416,
+      1.014
+     ],
+     "median_ci": [
+      2.49,
+      3.07
+     ],
+     "median_deg": 2.8018
+    },
+    "gsv": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.6328,
+     "gain_vs_auto_ci": [
+      0.282,
+      0.925
+     ],
+     "median_ci": [
+      2.579,
+      3.392
+     ],
+     "median_deg": 2.8532
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 1.7325,
+     "gain_vs_auto_ci": [
+      0.83,
+      2.768
+     ],
+     "median_ci": [
+      1.891,
+      3.008
+     ],
+     "median_deg": 2.2648
+    }
+   },
    "family": "multi-view 3D",
    "gsv": {
     "aligned": {
@@ -2488,9 +3434,10 @@
     "projection_median_deg": 4.5636,
     "within_2deg": 0.3833
    },
-   "post_hoc": false,
+   "post_hoc": true,
+   "post_hoc_why": "registered in 0428bb7, after mapa_posed_corner's 300-pair result was seen; no pilot",
    "richmond_only": false,
-   "role": "best of family"
+   "role": "best of family (post hoc: needs the fresh-pair re-test)"
   },
   {
    "all": {
@@ -2540,6 +3487,47 @@
     "within_2deg": 0.35
    },
    "arm": "mapa_posed_corner",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.6053,
+     "gain_vs_auto_ci": [
+      0.358,
+      0.883
+     ],
+     "median_ci": [
+      2.561,
+      3.307
+     ],
+     "median_deg": 2.8596
+    },
+    "gsv": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.5087,
+     "gain_vs_auto_ci": [
+      0.231,
+      0.844
+     ],
+     "median_ci": [
+      2.575,
+      3.392
+     ],
+     "median_deg": 3.0035
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.9386,
+     "gain_vs_auto_ci": [
+      0.424,
+      2.438
+     ],
+     "median_ci": [
+      1.946,
+      3.715
+     ],
+     "median_deg": 2.6802
+    }
+   },
    "family": "multi-view 3D",
    "gsv": {
     "aligned": {
@@ -2634,6 +3622,7 @@
     "within_2deg": 0.3833
    },
    "post_hoc": false,
+   "post_hoc_why": null,
    "richmond_only": false,
    "role": "with pose priors, up to 12 corner views"
   },
@@ -2685,6 +3674,47 @@
     "within_2deg": 0.3367
    },
    "arm": "mapa_k_pair",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.01,
+     "gain_vs_auto": 0.7199,
+     "gain_vs_auto_ci": [
+      0.257,
+      1.073
+     ],
+     "median_ci": [
+      2.426,
+      3.665
+     ],
+     "median_deg": 2.9865
+    },
+    "gsv": {
+     "auto_prior_share": 0.0125,
+     "gain_vs_auto": 0.3348,
+     "gain_vs_auto_ci": [
+      0.097,
+      0.774
+     ],
+     "median_ci": [
+      2.614,
+      3.961
+     ],
+     "median_deg": 3.2783
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 2.5958,
+     "gain_vs_auto_ci": [
+      1.087,
+      3.228
+     ],
+     "median_ci": [
+      1.471,
+      2.903
+     ],
+     "median_deg": 2.1587
+    }
+   },
    "family": "multi-view 3D",
    "gsv": {
     "aligned": {
@@ -2779,6 +3809,7 @@
     "within_2deg": 0.45
    },
    "post_hoc": false,
+   "post_hoc_why": null,
    "richmond_only": false,
    "role": "no pose priors"
   },
@@ -2830,6 +3861,47 @@
     "within_2deg": 0.3367
    },
    "arm": "mast3r_pair",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.1067,
+     "gain_vs_auto": 0.3178,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.614
+     ],
+     "median_ci": [
+      2.642,
+      3.754
+     ],
+     "median_deg": 3.0877
+    },
+    "gsv": {
+     "auto_prior_share": 0.125,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.362
+     ],
+     "median_ci": [
+      2.76,
+      4.125
+     ],
+     "median_deg": 3.5957
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0333,
+     "gain_vs_auto": 2.2223,
+     "gain_vs_auto_ci": [
+      1.072,
+      3.063
+     ],
+     "median_ci": [
+      1.571,
+      3.195
+     ],
+     "median_deg": 1.9341
+    }
+   },
    "family": "multi-view 3D",
    "gsv": {
     "aligned": {
@@ -2924,6 +3996,7 @@
     "within_2deg": 0.5
    },
    "post_hoc": false,
+   "post_hoc_why": null,
    "richmond_only": false,
    "role": ""
   },
@@ -2975,6 +4048,47 @@
     "within_2deg": 0.3433
    },
    "arm": "dust3r_pair",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.02,
+     "gain_vs_auto": 0.4359,
+     "gain_vs_auto_ci": [
+      0.12,
+      0.785
+     ],
+     "median_ci": [
+      2.583,
+      3.502
+     ],
+     "median_deg": 3.0727
+    },
+    "gsv": {
+     "auto_prior_share": 0.025,
+     "gain_vs_auto": 0.1722,
+     "gain_vs_auto_ci": [
+      -0.029,
+      0.472
+     ],
+     "median_ci": [
+      2.911,
+      4.021
+     ],
+     "median_deg": 3.2907
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 2.6033,
+     "gain_vs_auto_ci": [
+      1.28,
+      3.069
+     ],
+     "median_ci": [
+      1.555,
+      2.748
+     ],
+     "median_deg": 2.109
+    }
+   },
    "family": "multi-view 3D",
    "gsv": {
     "aligned": {
@@ -3069,6 +4183,7 @@
     "within_2deg": 0.4667
    },
    "post_hoc": false,
+   "post_hoc_why": null,
    "richmond_only": false,
    "role": ""
   },
@@ -3120,6 +4235,47 @@
     "within_2deg": 0.3067
    },
    "arm": "vggt_pair",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.1467,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.263
+     ],
+     "median_ci": [
+      3.008,
+      4.291
+     ],
+     "median_deg": 3.6111
+    },
+    "gsv": {
+     "auto_prior_share": 0.1792,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.405,
+      5.16
+     ],
+     "median_deg": 4.1841
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0167,
+     "gain_vs_auto": 1.9733,
+     "gain_vs_auto_ci": [
+      1.297,
+      3.257
+     ],
+     "median_ci": [
+      1.516,
+      2.963
+     ],
+     "median_deg": 2.0615
+    }
+   },
    "family": "multi-view 3D",
    "gsv": {
     "aligned": {
@@ -3214,6 +4370,7 @@
     "within_2deg": 0.5
    },
    "post_hoc": false,
+   "post_hoc_why": null,
    "richmond_only": false,
    "role": ""
   },
@@ -3265,6 +4422,47 @@
     "within_2deg": 0.33
    },
    "arm": "mv3d_consensus",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.4267,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      2.578,
+      3.721
+     ],
+     "median_deg": 3.026
+    },
+    "gsv": {
+     "auto_prior_share": 0.4958,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      2.859,
+      4.132
+     ],
+     "median_deg": 3.5397
+    },
+    "mapillary": {
+     "auto_prior_share": 0.15,
+     "gain_vs_auto": 1.7695,
+     "gain_vs_auto_ci": [
+      0.869,
+      2.971
+     ],
+     "median_ci": [
+      1.448,
+      2.822
+     ],
+     "median_deg": 1.9802
+    }
+   },
    "family": "multi-view 3D",
    "gsv": {
     "aligned": {
@@ -3359,6 +4557,7 @@
     "within_2deg": 0.5
    },
    "post_hoc": true,
+   "post_hoc_why": "defined after both components were scored",
    "richmond_only": false,
    "role": "MapAnything+MASt3R midpoint where they agree"
   },
@@ -3410,6 +4609,47 @@
     "within_2deg": 0.3433
    },
    "arm": "mv3d_consensus_else_auto",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.4267,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      2.578,
+      3.721
+     ],
+     "median_deg": 3.026
+    },
+    "gsv": {
+     "auto_prior_share": 0.4958,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      2.859,
+      4.132
+     ],
+     "median_deg": 3.5397
+    },
+    "mapillary": {
+     "auto_prior_share": 0.15,
+     "gain_vs_auto": 1.7695,
+     "gain_vs_auto_ci": [
+      0.869,
+      2.971
+     ],
+     "median_ci": [
+      1.448,
+      2.822
+     ],
+     "median_deg": 1.9802
+    }
+   },
    "family": "multi-view 3D",
    "gsv": {
     "aligned": {
@@ -3504,6 +4744,7 @@
     "within_2deg": 0.5
    },
    "post_hoc": true,
+   "post_hoc_why": "defined after both components were scored",
    "richmond_only": false,
    "role": "MapAnything+MASt3R agreement, else auto"
   },
@@ -3555,6 +4796,47 @@
     "within_2deg": 0.25
    },
    "arm": "mapa_posed_poseonly",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.0714,
+     "gain_vs_auto_ci": [
+      0.034,
+      0.103
+     ],
+     "median_ci": [
+      3.449,
+      4.397
+     ],
+     "median_deg": 3.8985
+    },
+    "gsv": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.0492,
+     "gain_vs_auto_ci": [
+      0.018,
+      0.088
+     ],
+     "median_ci": [
+      3.268,
+      4.366
+     ],
+     "median_deg": 3.8
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 0.173,
+     "gain_vs_auto_ci": [
+      0.065,
+      0.254
+     ],
+     "median_ci": [
+      3.717,
+      5.448
+     ],
+     "median_deg": 4.1401
+    }
+   },
    "family": "multi-view 3D",
    "gsv": {
     "aligned": {
@@ -3648,7 +4930,8 @@
     "projection_median_deg": 4.5636,
     "within_2deg": 0.1333
    },
-   "post_hoc": false,
+   "post_hoc": true,
+   "post_hoc_why": "registered in 0428bb7, after mapa_posed_corner's 300-pair result was seen",
    "richmond_only": false,
    "role": "MapAnything's relative pose only"
   },
@@ -3700,6 +4983,47 @@
     "within_2deg": 0.2267
    },
    "arm": "mast3r_poseonly",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.0767,
+     "gain_vs_auto": -0.0725,
+     "gain_vs_auto_ci": [
+      -0.306,
+      0.0
+     ],
+     "median_ci": [
+      3.673,
+      5.345
+     ],
+     "median_deg": 4.3763
+    },
+    "gsv": {
+     "auto_prior_share": 0.0875,
+     "gain_vs_auto": -0.2721,
+     "gain_vs_auto_ci": [
+      -0.473,
+      -0.043
+     ],
+     "median_ci": [
+      3.652,
+      5.869
+     ],
+     "median_deg": 4.6509
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0333,
+     "gain_vs_auto": 0.5912,
+     "gain_vs_auto_ci": [
+      0.285,
+      1.263
+     ],
+     "median_ci": [
+      3.15,
+      5.08
+     ],
+     "median_deg": 4.0757
+    }
+   },
    "family": "multi-view 3D",
    "gsv": {
     "aligned": {
@@ -3794,6 +5118,7 @@
     "within_2deg": 0.2
    },
    "post_hoc": false,
+   "post_hoc_why": null,
    "richmond_only": false,
    "role": "negative: learned pose only"
   },
@@ -3845,6 +5170,47 @@
     "within_2deg": 0.17
    },
    "arm": "mapa_mono_depthonly",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": -0.5038,
+     "gain_vs_auto_ci": [
+      -1.027,
+      -0.037
+     ],
+     "median_ci": [
+      4.374,
+      5.528
+     ],
+     "median_deg": 4.9359
+    },
+    "gsv": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": -0.5447,
+     "gain_vs_auto_ci": [
+      -1.392,
+      -0.037
+     ],
+     "median_ci": [
+      4.314,
+      5.68
+     ],
+     "median_deg": 4.9486
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": -0.4202,
+     "gain_vs_auto_ci": [
+      -1.115,
+      0.662
+     ],
+     "median_ci": [
+      3.392,
+      6.363
+     ],
+     "median_deg": 4.807
+    }
+   },
    "family": "multi-view 3D",
    "gsv": {
     "aligned": {
@@ -3938,7 +5304,8 @@
     "projection_median_deg": 4.5636,
     "within_2deg": 0.1667
    },
-   "post_hoc": false,
+   "post_hoc": true,
+   "post_hoc_why": "registered in c84dc74, after the posed MapAnything results were seen",
    "richmond_only": false,
    "role": "negative: source view only"
   },
@@ -3990,6 +5357,47 @@
     "within_2deg": 0.24
    },
    "arm": "sfm_colmap",
+   "else_auto": {
+    "all": {
+     "auto_prior_share": 0.2933,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.648,
+      5.08
+     ],
+     "median_deg": 4.1389
+    },
+    "gsv": {
+     "auto_prior_share": 0.3667,
+     "gain_vs_auto": 0.0,
+     "gain_vs_auto_ci": [
+      0.0,
+      0.0
+     ],
+     "median_ci": [
+      3.938,
+      5.815
+     ],
+     "median_deg": 4.5176
+    },
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 1.7025,
+     "gain_vs_auto_ci": [
+      0.246,
+      2.811
+     ],
+     "median_ci": [
+      2.06,
+      3.725
+     ],
+     "median_deg": 2.519
+    }
+   },
    "family": "multi-view 3D",
    "gsv": {
     "aligned": {
@@ -4083,12 +5491,28 @@
     "projection_median_deg": 4.5636,
     "within_2deg": 0.35
    },
-   "post_hoc": false,
+   "post_hoc": true,
+   "post_hoc_why": "gravity-level ground lift chosen after the 30-pair pilot (a subset of these pairs)",
    "richmond_only": false,
    "role": "negative on GSV: per-corner COLMAP"
   },
   {
    "arm": "flat_sfm",
+   "else_auto": {
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 1.7353,
+     "gain_vs_auto_ci": [
+      0.62,
+      2.705
+     ],
+     "median_ci": [
+      1.786,
+      3.97
+     ],
+     "median_deg": 2.5341
+    }
+   },
    "family": "flat Mapillary (Richmond only)",
    "mapillary": {
     "aligned": {
@@ -4137,11 +5561,27 @@
     "within_2deg": 0.3833
    },
    "post_hoc": false,
+   "post_hoc_why": null,
    "richmond_only": true,
    "role": "SfM with flat images, sparse lift"
   },
   {
    "arm": "noflat_sfm",
+   "else_auto": {
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 1.6921,
+     "gain_vs_auto_ci": [
+      0.54,
+      2.55
+     ],
+     "median_ci": [
+      2.18,
+      3.518
+     ],
+     "median_deg": 2.6186
+    }
+   },
    "family": "flat Mapillary (Richmond only)",
    "mapillary": {
     "aligned": {
@@ -4190,11 +5630,27 @@
     "within_2deg": 0.35
    },
    "post_hoc": false,
+   "post_hoc_why": null,
    "richmond_only": true,
    "role": "control: same SfM, 360 panos only"
   },
   {
    "arm": "mlypano_sfm",
+   "else_auto": {
+    "mapillary": {
+     "auto_prior_share": 0.0,
+     "gain_vs_auto": 1.6547,
+     "gain_vs_auto_ci": [
+      0.554,
+      2.63
+     ],
+     "median_ci": [
+      2.177,
+      3.299
+     ],
+     "median_deg": 2.7003
+    }
+   },
    "family": "flat Mapillary (Richmond only)",
    "mapillary": {
     "aligned": {
@@ -4243,11 +5699,27 @@
     "within_2deg": 0.3333
    },
    "post_hoc": false,
+   "post_hoc_why": null,
    "richmond_only": true,
    "role": "+ un-thinned Mapillary panos"
   },
   {
    "arm": "flat_mvs",
+   "else_auto": {
+    "mapillary": {
+     "auto_prior_share": 0.05,
+     "gain_vs_auto": 0.2608,
+     "gain_vs_auto_ci": [
+      -1.397,
+      2.074
+     ],
+     "median_ci": [
+      2.652,
+      7.259
+     ],
+     "median_deg": 3.9497
+    }
+   },
    "family": "flat Mapillary (Richmond only)",
    "mapillary": {
     "aligned": {
@@ -4296,11 +5768,27 @@
     "within_2deg": 0.3167
    },
    "post_hoc": false,
+   "post_hoc_why": null,
    "richmond_only": true,
    "role": "negative: MVS depth lift"
   },
   {
    "arm": "flat_gs",
+   "else_auto": {
+    "mapillary": {
+     "auto_prior_share": 0.0167,
+     "gain_vs_auto": -7.33,
+     "gain_vs_auto_ci": [
+      -12.566,
+      -0.333
+     ],
+     "median_ci": [
+      5.216,
+      21.212
+     ],
+     "median_deg": 10.4777
+    }
+   },
    "family": "flat Mapillary (Richmond only)",
    "mapillary": {
     "aligned": {
@@ -4349,6 +5837,7 @@
     "within_2deg": 0.1167
    },
    "post_hoc": false,
+   "post_hoc_why": null,
    "richmond_only": true,
    "role": "negative: splat depth lift"
   }
