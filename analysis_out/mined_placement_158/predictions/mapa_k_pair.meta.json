@@ -28,6 +28,8 @@
  "pairs": 127,
  "pairs_sha256": "aebe29cf6dd78ddad1914a2f9fd2cabf4f649de5da408f9b4bc35924268199c5",
  "pre_specified_for_158": false,
+ "pre_specified_in": "step 3",
+ "provenance_correction": "Added 2026-09-29 after the review of RampNet#222; no prediction changed. As written by the run, pre_specified_for_158 is false because PLANNED_ARMS then listed only the phase-2 arms. The step-3 plan named mapa_k_pair before this run and before any scoring: labeler 7e1f391 (committed 2026-09-29T17:59:08Z) and RampNet#158 comment 5895808813 (posted 18:03:33Z); this run ended 18:13:07Z. PLANNED_ARMS now records the plan per arm, and new metas write pre_specified_in.",
  "ts": "2026-09-29T18:13:07Z",
  "versions": {
   "cv2": "5.0.0",

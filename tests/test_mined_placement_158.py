@@ -107,3 +107,11 @@ def test_predict_meta_records_versions_and_extra(tmp_path, monkeypatch):
     assert meta["versions"] == {"romatch": "9.9.9"}
     assert meta["extra"] == ["match_cache=C", "k=v"]
     assert meta["fallback"] == 2 and meta["pre_specified_for_158"] is False
+    assert meta["pre_specified_in"] is None
+
+
+def test_planned_arms_name_the_plan_that_fixed_each_arm():
+    # step 3's plan named mapa_k_pair before it ran (review of #222: the committed meta
+    # said false because this list used to hold only the phase-2 arms)
+    assert MP.PLANNED_ARMS == {"mapa_posed_pair": "phase 2", "roma": "phase 2",
+                               "roma_local": "phase 2", "mapa_k_pair": "step 3"}
