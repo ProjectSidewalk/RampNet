@@ -39,9 +39,12 @@ Code: `scripts/analysis/multiview_evidence_48.py` (B.1–B.4) and
   ranking** (§7, Richmond, free models). RampNet stays first and the open-vocab detectors last.
   RampNet's recall lead over y11l falls from 0.296 in single views to 0.099 fused; k-of-n
   removes about a third of the chat VLMs' false sites and does nothing for the open-vocab ones.
+- **The residual GT holds up** (§8). In a one-rater check of all 97 residual ramps, every
+  source-view GT point is on a curb ramp: 0 of 97 are GT errors (95% Wilson upper bound 3.8%;
+  0 of 58 merging cases, upper bound 6.2%). The rater is the reviewer who made the clicks, so
+  this is a re-check, not an independent one.
 - **Next step:** merging belongs to the labeler's clustering work (§9); the 58 merging failures
-  are handed over as a test set, provisional until the one-rater GT check (§8: is there a curb
-  ramp at the GT point in its source view?) says which are GT errors. Tier 2 and Tier 3 reconstruction are not motivated by these data.
+  are handed over as a test set, and the GT check (§8) removes none of them. Tier 2 and Tier 3 reconstruction are not motivated by these data.
 
 ## 1. What [labeler#27](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/27) already answered
 
@@ -532,8 +535,9 @@ also reports percent agreement and Cohen's kappa (all three answers, and Yes/No 
 two files made on the same gallery. The rubric, the rules, the fixed item list, each item's class
 and the manifest digest (`e614a42fa7ef0d94`, over the item list and every crop's sha256 in
 `benchmark/multiview_residual_gt_check_48/manifest.json`) travel in
-`analysis_out/multiview_48/residual_gt_check__jonf.json`, committed with **empty verdicts**: this
-pass is Jon's. The page's Export button writes that file's format under that name.
+`analysis_out/multiview_48/residual_gt_check__jonf.json`, first committed with empty verdicts and
+now holding Jon's pass (2026-09-29). The page's Export button writes that file's format under that
+name.
 
 *The ring in the source view* is the reviewer's own click in that pano (`build_ground_truth` over
 the committed `benchmark/<city>/records.jsonl` and `verdicts.json`), not a projection. Every one of
@@ -598,6 +602,33 @@ gainesville:191), where the source crop looks almost straight down and Can't tel
 answer; a wider source window would help there. (b) 18 of the 343 other-view crops come from
 cameras within 4 m, where the window points at the car or the blurred nadir and shows nothing
 useful.
+
+**Result (Jon, 2026-09-29, one rater, all 97 answered).** Every card is Yes: in its source view,
+each residual GT point is on or touching a curb ramp.
+
+| items | Yes | No | Can't tell | GT-error rate [95% Wilson] |
+|---|---|---|---|---|
+| all 97 residual ramps | 97 | 0 | 0 | 0.000 [0.000, 0.038] |
+| 58 merging cases (35 association / placement + 23 site displaced) | 58 | 0 | 0 | 0.000 [0.000, 0.062] |
+| 28 sub-threshold only | 28 | 0 | 0 | 0.000 [0.000, 0.121] |
+
+Re-derive with `python scripts/analysis/residual_gt_check_48.py rates
+analysis_out/multiview_48/residual_gt_check__jonf.json`. Two cards carry notes: paterson:195 (lens
+blur, perhaps rain, but the point is on the ramp) and sao_paulo:75 (very close range; the ramp's
+tactile tiles are damaged).
+
+**Reading.**
+- The residual is real. None of the 97 misses is explained by a misplaced or wrong GT point, so
+  §8's classes stand as model and fusion failures, and the 58 merging cases go to
+  [labeler#56](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/56) unchanged.
+- **This is not an independent check.** The rater is the benchmark reviewer who made these clicks,
+  so it measures whether the clicks survive a second look by the same person. A shared blind spot
+  would not show up. A second rater's file drops in beside this one and `rates` reports agreement.
+- The pre-pass instrument check above guessed three possible No answers (gainesville:61, bend:51,
+  bend:228) and one likely Can't tell (sao_paulo:75). The rater answered Yes to all four. That
+  guess came from looking at crops, not from a rubric pass, and the rater's answer is the record.
+- The question tests the point, not the ramp's identity: it does not check that the other views
+  show the same ramp, which is the merging question itself.
 
 ## 9. What this says about Tier 2 and Tier 3 (proposed, not decided)
 
