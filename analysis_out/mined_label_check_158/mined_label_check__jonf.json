@@ -1,5 +1,29 @@
 {
- "gallery": "benchmark/mined_label_check_158/gallery.html",
+ "task": "RampNet #158 step 4, mined-label check: Is there a curb ramp at the ring?",
+ "question": "Is there a curb ramp at the ring?",
+ "rubric": [
+  {
+   "key": "yes",
+   "label": "Yes",
+   "definition": "A curb ramp is at the ring or touching it. It may be partly hidden or faint, as long as you can see it is a ramp."
+  },
+  {
+   "key": "no",
+   "label": "No",
+   "definition": "There is no curb ramp at that spot: the ring is on plain curb, a driveway, sidewalk, street or something else, and the nearest ramp (if any) is more than roughly one ramp width away."
+  },
+  {
+   "key": "cant_tell",
+   "label": "Can't tell",
+   "definition": "The view does not let you decide (too dark, blocked, too far, too blurry). Excluded from every rate."
+  }
+ ],
+ "rules": [
+  "Answer from the ringed view only. The second view is unmarked context and is not rated.",
+  "Judge the spot under the ring, not whether a ramp exists somewhere in the crop.",
+  "Add a note for anything worth recording, e.g. 'ramp 1 m left of ring' or 'ring on a driveway'."
+ ],
+ "rater": "jonf",
  "items": [
   "cb28474e6",
   "cb7e678b7",
@@ -113,32 +137,450 @@
   "ca0864201"
  ],
  "manifest_digest": "bf3c00686e50e0da",
- "n_answered": 0,
  "n_items": 110,
- "question": "Is there a curb ramp at the ring?",
- "rater": "jonf",
- "rubric": [
-  {
-   "definition": "A curb ramp is at the ring or touching it. It may be partly hidden or faint, as long as you can see it is a ramp.",
-   "key": "yes",
-   "label": "Yes"
+ "n_answered": 110,
+ "gallery": "benchmark/mined_label_check_158/gallery.html",
+ "exported_at": "2026-09-29T23:31:40.336Z",
+ "verdicts": {
+  "cb28474e6": {
+   "answer": "yes",
+   "note": ""
   },
-  {
-   "definition": "There is no curb ramp at that spot: the ring is on plain curb, a driveway, sidewalk, street or something else, and the nearest ramp (if any) is more than roughly one ramp width away.",
-   "key": "no",
-   "label": "No"
+  "cb7e678b7": {
+   "answer": "yes",
+   "note": ""
   },
-  {
-   "definition": "The view does not let you decide (too dark, blocked, too far, too blurry). Excluded from every rate.",
-   "key": "cant_tell",
-   "label": "Can't tell"
+  "c56bf7daa": {
+   "answer": "cant_tell",
+   "note": "It's very washed out. I believe there is likely a ramp here. If I had image shadow, brightness, and saturation controls, I could probably tell for sure"
+  },
+  "c680e7c83": {
+   "answer": "yes",
+   "note": ""
+  },
+  "cab443812": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c3308718a": {
+   "answer": "yes",
+   "note": ""
+  },
+  "ceb84543d": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c301e7660": {
+   "answer": "cant_tell",
+   "note": "I'm pretty sure there is a ramp here but it's so washed out, it's hard to tell. If I had image shadow, brightness, and saturation controls, I could probably tell for sure"
+  },
+  "cc2fceae1": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c93a1fb65": {
+   "answer": "cant_tell",
+   "note": "From this angle with this lighting, too hard to tell"
+  },
+  "c4c718ab4": {
+   "answer": "cant_tell",
+   "note": "From this angle, it's just too hard to tell"
+  },
+  "c5dd53f92": {
+   "answer": "yes",
+   "note": ""
+  },
+  "ca95cca46": {
+   "answer": "yes",
+   "note": "The curb ramp is more to the left of the ring but intersects with it here just a bit"
+  },
+  "c095c37b7": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c7da22a7d": {
+   "answer": "cant_tell",
+   "note": ""
+  },
+  "cb1b24868": {
+   "answer": "cant_tell",
+   "note": ""
+  },
+  "ca6f200c2": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c6f5d7ff7": {
+   "answer": "yes",
+   "note": "It's pretty hard to tell due to washout and debris..."
+  },
+  "c9e1da236": {
+   "answer": "yes",
+   "note": "This is an unusual ramp. Very large and going into a driveway of the same type of material (red brick)"
+  },
+  "c2684a120": {
+   "answer": "no",
+   "note": "There is no curb ramp here"
+  },
+  "c9571cf24": {
+   "answer": "yes",
+   "note": ""
+  },
+  "cfa18a5d8": {
+   "answer": "cant_tell",
+   "note": "Way too washed out to tell"
+  },
+  "ce3d174f9": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c39e973d9": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c8b49b29a": {
+   "answer": "yes",
+   "note": ""
+  },
+  "ceff8e8f5": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c6180263e": {
+   "answer": "no",
+   "note": "I don't think so. Maybe to the right of the ring?"
+  },
+  "c64a17ef8": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c7e619782": {
+   "answer": "yes",
+   "note": "The ring should really be moved over a full diameter to the right to be better over the ramp"
+  },
+  "cb634a4ae": {
+   "answer": "yes",
+   "note": "From this view, the ramp has a fire hydrant partially occluding it but it's actually pretty spot on"
+  },
+  "c80f324a8": {
+   "answer": "cant_tell",
+   "note": "I would say that for this to be accurate, it would have to move to the right about a full ring diameter"
+  },
+  "c3b63b0a0": {
+   "answer": "yes",
+   "note": "A bit hard to tell because the ring itself sort of occludes important pixel information from me"
+  },
+  "c755d38a2": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c6f21a662": {
+   "answer": "yes",
+   "note": "Pretty hard to tell from this angle but I would say probably..."
+  },
+  "cf923fecb": {
+   "answer": "cant_tell",
+   "note": "Too washed out to tell"
+  },
+  "cf2b7d1d2": {
+   "answer": "yes",
+   "note": ""
+  },
+  "cf5639457": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c2e89cb06": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c42b587ce": {
+   "answer": "no",
+   "note": "Just bollards and no ramp here. The ramp is actually further up about 3 ring diameters."
+  },
+  "c8ecc0cac": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c1e52b2ce": {
+   "answer": "cant_tell",
+   "note": "Really hard to tell from this distance and angle"
+  },
+  "cf1ff3da0": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c10dd8bbb": {
+   "answer": "cant_tell",
+   "note": "Hard to tell from this angle and washed out"
+  },
+  "c9f0e9a33": {
+   "answer": "cant_tell",
+   "note": "It's blurry and the ring would need to be moved to the right about 3-4 ring diameters"
+  },
+  "ce6828e81": {
+   "answer": "no",
+   "note": "I don't think this is a ramp... looks like yellow brick on the corner"
+  },
+  "cbe6a1b45": {
+   "answer": "cant_tell",
+   "note": "Just too washed out here to tell"
+  },
+  "cda19644b": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c4355c7f1": {
+   "answer": "cant_tell",
+   "note": "Just can't tell from this angle. If I had to guess, I'd say no..."
+  },
+  "cd2080b87": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c8bbd25a4": {
+   "answer": "yes",
+   "note": "It's very washed out. There is definitely a ramp here but the ring feels too far to the left (would need to be moved 1.5-2 ring diameters over to the right to be perfectly aligned)"
+  },
+  "c96405a60": {
+   "answer": "yes",
+   "note": ""
+  },
+  "cdfe1dcc3": {
+   "answer": "cant_tell",
+   "note": "Definitely cannot tell if there is a ramp here from this angle"
+  },
+  "c0445e8a0": {
+   "answer": "cant_tell",
+   "note": "There are two ramps at this corner but this ring falls right between them so it's not clear which it is supposed to be associated with"
+  },
+  "ca3883760": {
+   "answer": "yes",
+   "note": "Hard to tell but I lean yes"
+  },
+  "cee03db29": {
+   "answer": "yes",
+   "note": "Kinda looks like a driveway from this washed out view"
+  },
+  "c42904dcc": {
+   "answer": "cant_tell",
+   "note": "Just can't tell in this lighting/washed out"
+  },
+  "cd88002bf": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c0b708fdf": {
+   "answer": "yes",
+   "note": "Hard to tell from this distance but can just make it out"
+  },
+  "cbe9243c2": {
+   "answer": "cant_tell",
+   "note": "I'm almost certain there is no ramp under the ring but there is also a solar flare and just not great image quality"
+  },
+  "c14e8f6cf": {
+   "answer": "cant_tell",
+   "note": "Can't tell from this angle"
+  },
+  "c53c14b8e": {
+   "answer": "no",
+   "note": "This one is tough because it relates to what defines a curb ramp. We have a seam between a brick sidewalk and a brick driveway... not sure there is a need for a curb ramp at that seam. There is a curb ramp visible in this picture but it is about 4 ring diameters to the right and 1 ring ring diameter up"
+  },
+  "c9394d456": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c58959fc7": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c26bdc981": {
+   "answer": "yes",
+   "note": ""
+  },
+  "cacfb48e9": {
+   "answer": "cant_tell",
+   "note": "Just cannot tell from this distance and angle"
+  },
+  "ca0ddf18b": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c9ff175d7": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c2332d731": {
+   "answer": "yes",
+   "note": ""
+  },
+  "ca5980e4a": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c76483cea": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c54f47ff6": {
+   "answer": "no",
+   "note": "The curb ramp is actually to the right of this ring about 4 ring diameters to the right and maybe one ring diameter up"
+  },
+  "c33415826": {
+   "answer": "cant_tell",
+   "note": "Hard to tell from this angle"
+  },
+  "c7e116011": {
+   "answer": "cant_tell",
+   "note": "Can't tell. Just too washed out. With image controls, I bet I could figure it out"
+  },
+  "cddcd109f": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c699cd929": {
+   "answer": "no",
+   "note": "The curb ramp is to the left of the ring (move the ring left by 2 diameters and one diameter up)"
+  },
+  "ca58981b0": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c7f2ec048": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c778bd5a8": {
+   "answer": "cant_tell",
+   "note": "Too washed out to tell"
+  },
+  "cc6ae3eb0": {
+   "answer": "cant_tell",
+   "note": "Too washed out to tell"
+  },
+  "c1894b276": {
+   "answer": "no",
+   "note": "I think this is a utility panel and the curb ramp is to the right of this by like 5 diameters over"
+  },
+  "c35a42a01": {
+   "answer": "yes",
+   "note": "To be properly centered, move the ring to the left 2 diameters"
+  },
+  "c5a1a7f16": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c85efc0ec": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c75f12335": {
+   "answer": "yes",
+   "note": "The ring is over part of the curb ramp but it should be moved to the right 4-5 diameters to be more centered"
+  },
+  "ccc5b1f60": {
+   "answer": "yes",
+   "note": ""
+  },
+  "cb72c4cd1": {
+   "answer": "yes",
+   "note": "The ring just nicks the curb ramp. Needs to move to the left 2 diameters and 1 diameter down."
+  },
+  "c1b3c4595": {
+   "answer": "no",
+   "note": "This looks squarely on top of a utility panel or sewage cover"
+  },
+  "c442707f9": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c48ac7f31": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c9e09e456": {
+   "answer": "yes",
+   "note": ""
+  },
+  "cc84b46b9": {
+   "answer": "yes",
+   "note": ""
+  },
+  "ce8ff1a5c": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c92d1c4d6": {
+   "answer": "yes",
+   "note": ""
+  },
+  "ce2fd063b": {
+   "answer": "cant_tell",
+   "note": "Too hard to tell from this angle but I would guess no"
+  },
+  "c04849abb": {
+   "answer": "cant_tell",
+   "note": "Too hard to tell from this angle with washed out lighting"
+  },
+  "c8b8a016c": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c4b71982e": {
+   "answer": "yes",
+   "note": "Lots of heavy debris/water on this curb ramp but there is certainly one here"
+  },
+  "c1736d7ae": {
+   "answer": "cant_tell",
+   "note": "There might be a ramp here but the angle, distance, and graininess make it hard to tell. There is defintely a ramp going upwards but not sure if there is one going leftwards under the circle"
+  },
+  "c38107a98": {
+   "answer": "yes",
+   "note": "Yes, wow, found a ramp even though only partially visible (occluded by newspaper box)"
+  },
+  "cea5a7e21": {
+   "answer": "yes",
+   "note": "Very washed out but I can just make out a yellow tactle surface indicator and can tell the curb slopes down like a curb ramp"
+  },
+  "c6a9314d0": {
+   "answer": "yes",
+   "note": ""
+  },
+  "c6370536b": {
+   "answer": "cant_tell",
+   "note": "Can't tell from this angle"
+  },
+  "cf8ca4449": {
+   "answer": "yes",
+   "note": ""
+  },
+  "cfff8e804": {
+   "answer": "cant_tell",
+   "note": "Can't really tell due to a car occlusion"
+  },
+  "ca6c2d58e": {
+   "answer": "cant_tell",
+   "note": "Can't tell because of the angle and lighting"
+  },
+  "cac0fc9b0": {
+   "answer": "cant_tell",
+   "note": "So, the ring clearly is not over a curb ramp but it might just be at the edge of one. There might be a curb ramp if you move the ring 4-5 diameters to the left"
+  },
+  "c51f191dd": {
+   "answer": "no",
+   "note": "You'd need to move the ring over to the left 3-4 diameters and one diameter up"
+  },
+  "ca7ee8f77": {
+   "answer": "cant_tell",
+   "note": "There are two curb ramps at this corner and the ring is squarely between the two and not really over the curb ramp. Instead, you'd have to move it to the right ~3-4 diameters and down 1 diameter to be centered on one of the curb ramps"
+  },
+  "c553b56a2": {
+   "answer": "yes",
+   "note": ""
+  },
+  "ca0864201": {
+   "answer": "no",
+   "note": ""
   }
- ],
- "rules": [
-  "Answer from the ringed view only. The second view is unmarked context and is not rated.",
-  "Judge the spot under the ring, not whether a ramp exists somewhere in the crop.",
-  "Add a note for anything worth recording, e.g. 'ramp 1 m left of ring' or 'ring on a driveway'."
- ],
- "task": "RampNet #158 step 4, mined-label check: Is there a curb ramp at the ring?",
- "verdicts": {}
+ }
 }
