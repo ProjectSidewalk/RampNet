@@ -337,7 +337,7 @@ Keyboard: Tab moves between cards' controls; arrow keys change the answer within
 Y, N or C to answer the card that has focus or, when focus is outside every card (for example
 after clicking an image), the topmost card on screen. The keys do nothing inside a text field.</p>
 <div class="bar"><label for="rater">Rater id</label>
-<input id="rater" type="text" size="10" autocomplete="off" spellcheck="false">
+<input id="rater" type="text" size="10" autocomplete="off" spellcheck="false" aria-describedby="msg">
 <button type="button" id="export">Export verdicts JSON</button>
 <button type="button" id="next">Next unanswered</button>
 <span id="count" aria-live="polite"></span> <span id="msg" role="status"></span></div>
@@ -384,7 +384,15 @@ function render() {{
 }}
 raterInput.addEventListener('change', () => {{
   const v = raterInput.value.trim().toLowerCase();
-  if (!RATER_RE.test(v)) {{ say("Rater id: lower-case letters, digits, _ or -, up to 32 characters."); return; }}
+  if (!RATER_RE.test(v)) {{
+    // Refuse visibly and put the box back to the id actually in use, so the box, the
+    // count, the storage key and the export name never disagree. The message is in the
+    // status region the box is described by, so a screen reader announces it.
+    raterInput.value = rater;
+    say("Rater id " + JSON.stringify(v) + " refused: use lower-case letters, digits, _ or -, " +
+        "up to 32 characters. " + (rater ? "Still rating as " + rater + "." : "No rater id set."));
+    return;
+  }}
   rater = v; raterInput.value = v; setItem(LAST_RATER, v);
   load(); render(); say("Rating as " + v + ".");
 }});
@@ -456,7 +464,11 @@ def cmd_gallery(args):
     """Copy the crops into GALLERY_DIR, write their sha256 manifest and the page, and,
     with ``--init-rater ID``, an empty verdict file for that rater (only if absent).
     Existing verdict files whose digest no longer matches are named on stderr: ``rates``
-    will refuse them, because they were made on different images."""
+    will refuse them, because they were made on different images; so are files that are
+    not readable JSON objects. A bad ``--init-rater`` is refused before anything is written."""
+    if args.init_rater is not None and not RATER_RE.match(args.init_rater):
+        raise SystemExit(f"--init-rater {args.init_rater!r}: a rater id is lower-case letters, "
+                         f"digits, '_' or '-', up to 32 characters ({RATER_RE.pattern})")
     res = json.load(open(RESIDUAL_PATH, encoding="utf-8"))
     plan = json.load(open(PLAN_PATH, encoding="utf-8"))["items"]
     ramps = res["ramps"]
@@ -492,8 +504,16 @@ def cmd_gallery(args):
         if not os.path.exists(path):
             mv.write_json(path, empty_verdicts(items, classes, digest, args.init_rater))
     for path in existing_verdict_files():
-        with open(path, encoding="utf-8") as f:
-            old = json.load(f).get("manifest_digest")
+        try:
+            with open(path, encoding="utf-8") as f:
+                d = json.load(f)
+            if not isinstance(d, dict):
+                raise ValueError(f"top level is a {type(d).__name__}, not an object")
+        except (OSError, ValueError) as e:  # JSONDecodeError is a ValueError
+            print(f"WARNING: {path} is not a readable verdict file ({e}); `rates` will "
+                  "refuse it", file=sys.stderr)
+            continue
+        old = d.get("manifest_digest")
         if old != digest:
             print(f"WARNING: {path} was made on gallery {old}, not {digest}; `rates` will "
                   "refuse it", file=sys.stderr)

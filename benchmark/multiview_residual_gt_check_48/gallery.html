@@ -51,7 +51,7 @@ Keyboard: Tab moves between cards' controls; arrow keys change the answer within
 Y, N or C to answer the card that has focus or, when focus is outside every card (for example
 after clicking an image), the topmost card on screen. The keys do nothing inside a text field.</p>
 <div class="bar"><label for="rater">Rater id</label>
-<input id="rater" type="text" size="10" autocomplete="off" spellcheck="false">
+<input id="rater" type="text" size="10" autocomplete="off" spellcheck="false" aria-describedby="msg">
 <button type="button" id="export">Export verdicts JSON</button>
 <button type="button" id="next">Next unanswered</button>
 <span id="count" aria-live="polite"></span> <span id="msg" role="status"></span></div>
@@ -98,7 +98,15 @@ function render() {
 }
 raterInput.addEventListener('change', () => {
   const v = raterInput.value.trim().toLowerCase();
-  if (!RATER_RE.test(v)) { say("Rater id: lower-case letters, digits, _ or -, up to 32 characters."); return; }
+  if (!RATER_RE.test(v)) {
+    // Refuse visibly and put the box back to the id actually in use, so the box, the
+    // count, the storage key and the export name never disagree. The message is in the
+    // status region the box is described by, so a screen reader announces it.
+    raterInput.value = rater;
+    say("Rater id " + JSON.stringify(v) + " refused: use lower-case letters, digits, _ or -, " +
+        "up to 32 characters. " + (rater ? "Still rating as " + rater + "." : "No rater id set."));
+    return;
+  }
   rater = v; raterInput.value = v; setItem(LAST_RATER, v);
   load(); render(); say("Rating as " + v + ".");
 });

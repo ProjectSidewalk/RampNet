@@ -45,8 +45,8 @@ Code: `scripts/analysis/multiview_evidence_48.py` (B.1–B.4) and
   the GT *world* point the residual classes are defined against. That point is a flat-ground
   2.6 m raycast of the click, with its own placement error (p50 1.9 m / p90 4.4 m against a
   5 m match radius), so GT placement error is still a possible cause of the 58 merging
-  cases (association / placement and displaced sites). The rater is the reviewer who made the clicks, so this is a re-check, not
-  an independent one.
+  cases (association / placement and displaced sites). The rater is the reviewer who made the
+  clicks, so this is a re-check, not an independent one.
 - **Next step:** merging belongs to the labeler's clustering work (§9). The 58 merging cases go
   over as a provisional test set: no wrong label was found, but their world GT points have not
   been re-placed. Tier 2 and Tier 3 reconstruction are not motivated by these data.
@@ -547,7 +547,9 @@ the browser under a separate key, and exports under that name with that id. `rat
 whose manifest digest, item list or item classes differ from the committed `manifest.json` and
 `residual_misses.json`, whose question, rubric or rules differ from the script's, or whose name does
 not match its rater id; it takes the classes from `residual_misses.json`, not from the file.
-`agreement` refuses two files with the same rater id.
+`agreement` refuses two files with the same rater id. Jon's pass was made before the page keyed
+answers by rater, so his browser copy sits under the old key and the page will not show it; the
+committed `residual_gt_check__jonf.json` is the record.
 
 **Kappa will be degenerate for a second rater.** Jon answered Yes to all 97, so a second rater who
 disagrees once gets kappa 0.0 at 99.0% raw agreement, and one who also answers all Yes gets no

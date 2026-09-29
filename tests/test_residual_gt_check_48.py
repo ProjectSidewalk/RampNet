@@ -203,6 +203,32 @@ def test_cut_one_ring_flag():
     assert ringed.getpixel((plain.size[0] // 2 + 14, plain.size[1] // 2)) != (40, 40, 40)
 
 
+@pytest.mark.parametrize("x,y", [(0.5, 0.5), (0.3, 0.97), (0.7, 0.93), (0.2, 0.02),
+                                 (0.999, 0.6)])
+def test_halo_is_centred_on_the_baked_ring(x, y):
+    """The SVG outline must sit on the ring ``cut_one`` burns into the crop, including
+    where the window is clamped at the nadir or zenith and across the seam. Measured as
+    the centroid of the ring's pixels on a blank pano, against the circle centre that
+    ``_halo`` actually writes into the page."""
+    import re
+    Image = pytest.importorskip("PIL.Image")
+    img = Image.new("RGB", (3600, 1800), (0, 0, 0))
+    crop = gc.mv.cut_one(img, x, y)
+    w, h = crop.size
+    assert (w, h) == gc.mv.CROP_PX
+    px = crop.load()
+    pts = [(i, j) for j in range(h) for i in range(w) if px[i, j][1] > 128]
+    assert pts, "no ring drawn"
+    rx = sum(p[0] for p in pts) / len(pts)
+    ry = sum(p[1] for p in pts) / len(pts)
+    svg = gc._halo({"x": x, "y": y})
+    centres = set(re.findall(r'cx="([-\d.]+)" cy="([-\d.]+)"', svg))
+    assert len(centres) == 1
+    (cx, cy), = centres
+    # PIL's outline pixels sit up to half a pixel off its bounding-box centre
+    assert abs(float(cx) - rx) <= 1.0 and abs(float(cy) - ry) <= 1.0, (cx, cy, rx, ry)
+
+
 # --------------------------------------------------------------------------- #
 # committed artifacts
 # --------------------------------------------------------------------------- #
@@ -256,3 +282,37 @@ def test_crop_manifest_matches_the_crops_and_the_verdict_file():
     # one dark halo per ringed (source) crop, none on the unmarked context views
     assert page.count('class="halo"') == sum(it["ring"] for it in plan) == 97
     assert "color-scheme:light dark" in page
+
+
+def test_gallery_refuses_a_bad_init_rater_before_writing(tmp_path, monkeypatch):
+    monkeypatch.setattr(gc, "GALLERY_DIR", str(tmp_path / "g"))
+    with pytest.raises(SystemExit, match="--init-rater"):
+        gc.cmd_gallery(gc.argparse.Namespace(crops=str(tmp_path), init_rater="Bad Id"))
+    assert not (tmp_path / "g").exists()
+
+
+def test_gallery_warns_on_a_malformed_verdict_file(tmp_path, monkeypatch, capsys):
+    out = tmp_path / "g"
+    bad = tmp_path / "residual_gt_check__broken.json"
+    bad.write_text("{not json", encoding="utf-8")
+    lst = tmp_path / "residual_gt_check__alist.json"
+    lst.write_text("[]\n", encoding="utf-8")
+    monkeypatch.setattr(gc, "GALLERY_DIR", str(out))
+    monkeypatch.setattr(gc, "existing_verdict_files", lambda: [str(bad), str(lst)])
+    gc.cmd_gallery(gc.argparse.Namespace(
+        crops=os.path.join(REPO, "benchmark", "multiview_residual_gt_check_48", "crops"),
+        init_rater=None))
+    err = capsys.readouterr().err
+    assert f"{bad} is not a readable verdict file" in err
+    assert f"{lst} is not a readable verdict file" in err and "not an object" in err
+    committed = os.path.join(REPO, "benchmark", "multiview_residual_gt_check_48")
+    for name in ("gallery.html", "manifest.json"):  # same page and digest as committed
+        with open(out / name, "rb") as a, open(os.path.join(committed, name), "rb") as b:
+            assert a.read() == b.read(), name
+
+
+def test_page_puts_a_refused_rater_id_back():
+    page = open(os.path.join(gc.GALLERY_DIR, "gallery.html"), encoding="utf-8").read()
+    assert 'aria-describedby="msg"' in page and 'id="msg" role="status"' in page
+    refuse = page[page.index("if (!RATER_RE.test(v))"):page.index("rater = v;")]
+    assert "raterInput.value = rater;" in refuse and "refused" in refuse and "return;" in refuse
