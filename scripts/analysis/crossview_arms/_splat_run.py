@@ -55,8 +55,11 @@ def corner_views(corner):
 
 
 def run(cmd, cwd, log):
+    # InstantSplat's MASt3R checkpoint is a full pickle (argparse.Namespace inside), which
+    # torch >= 2.6 refuses under its new weights_only default; it is the published file
+    env = dict(os.environ, TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD="1")
     with open(log, "w") as f:
-        r = subprocess.run(cmd, cwd=cwd, stdout=f, stderr=subprocess.STDOUT)
+        r = subprocess.run(cmd, cwd=cwd, stdout=f, stderr=subprocess.STDOUT, env=env)
     return r.returncode
 
 
