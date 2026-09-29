@@ -320,8 +320,8 @@ def _transfer(pair, ctx, priors):
 
 
 @register("sfm_colmap", needs=("views",), config={**SFM_CONFIG, "priors": "none"},
-          description="per-corner COLMAP SfM (no priors); click lifted by a local plane, "
-                      "projected into the other view")
+          description="per-corner COLMAP SfM (no priors); click lifted onto the gravity-level "
+                      "ground of its points, projected into the other view")
 def sfm_colmap(pair, ctx):
     return _transfer(pair, ctx, priors=False)
 
@@ -329,7 +329,7 @@ def sfm_colmap(pair, ctx):
 @register("sfm_colmap_prior", needs=("views",),
           config={**SFM_CONFIG, "priors": f"position, sigma {PRIOR_SIGMA_H_M} m horizontal / "
                                            f"{PRIOR_SIGMA_V_M} m vertical, robust"},
-          description="per-corner COLMAP SfM with GPS position priors; local-plane lift")
+          description="per-corner COLMAP SfM with GPS position priors; gravity-level ground lift")
 def sfm_colmap_prior(pair, ctx):
     return _transfer(pair, ctx, priors=True)
 
