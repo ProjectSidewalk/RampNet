@@ -336,3 +336,16 @@ analysis_out/crossview_align_48/scenes/*
 !analysis_out/crossview_align_48/scenes/*/
 analysis_out/crossview_align_48/scenes/*/*
 !analysis_out/crossview_align_48/scenes/*/*.json
+# Flat Mapillary 3D (#214): census tables, manifest, per-corner result JSON and the viewer
+# bundle's JSON. Images, raw API responses and large scene files are never committed.
+!analysis_out/flat_mapillary_3d/
+analysis_out/flat_mapillary_3d/*
+!analysis_out/flat_mapillary_3d/*.csv
+!analysis_out/flat_mapillary_3d/*.json
+!analysis_out/flat_mapillary_3d/*.jsonl
+!analysis_out/flat_mapillary_3d/*.md
+!analysis_out/flat_mapillary_3d/census/
+!analysis_out/flat_mapillary_3d/corners/
+!analysis_out/flat_mapillary_3d/scenes/
+analysis_out/flat_mapillary_3d/raw_api_cache/
+!analysis_out/flat_mapillary_3d/predictions/
