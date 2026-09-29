@@ -233,6 +233,8 @@ def load_model(name, src_root, dev):
 
     if name == "metric3d":
         from huggingface_hub import HfApi
+        # mmcv stub (re-exports mmengine.Config), see docs/crossview_align_48/depth.md
+        sys.path.insert(0, os.path.join(src_root, "stubs"))
         model = torch.hub.load(code, "metric3d_vit_large", pretrain=True, source="local").to(dev).eval()
         try:
             prov["hf_revision"] = HfApi().model_info(spec["hf"]).sha
@@ -389,6 +391,91 @@ def extract(args):
           flush=True)
 
 
+# --------------------------------------------------------------------------- #
+# summarize (CPU, committed inputs only)
+# --------------------------------------------------------------------------- #
+
+SUMMARY_JSON = os.path.join(OUT_DIR, "summary.json")
+BASE_ARMS = ("proj_height_auto",)
+
+
+def _range_check(pairs, preds, key):
+    """Per unique GSV source click with Google range: the arm's range vs Google's."""
+    import numpy as np
+    seen, rat = set(), []
+    for p in pairs:
+        r = preds.get(p["pair_id"]) or {}
+        g, d = r.get("range_google_m"), r.get(key)
+        k = (p["src_pano"], p["src_x"], p["src_y"])
+        if p["imagery"] != "gsv" or k in seen or not g or not d or g <= 0 or d <= 0:
+            continue
+        seen.add(k)
+        rat.append(d / g)
+    if not rat:
+        return None
+    a = np.array(rat)
+    return {"n_clicks": len(a), "median_ratio": float(np.median(a)),
+            "p10_p90": [float(np.percentile(a, 10)), float(np.percentile(a, 90))],
+            "median_abs_ln": float(np.median(np.abs(np.log(a)))),
+            "within_10pct": float(np.mean(np.abs(a - 1) <= 0.10))}
+
+
+def summarize_cmd(args):
+    """Scores the depth arms against the projection AND against proj_height_auto (paired, same
+    ramp bootstrap as the harness), a composite 'depth where it applies, else auto', and the
+    range check against Google's depth at the click. Writes depth/summary.json."""
+    import numpy as np
+    names = args.arms.split(",") if args.arms else sorted(
+        f[:-6] for f in os.listdir(os.path.join(H.OUT, "predictions"))
+        if f.startswith("mono_") and f.endswith(".jsonl"))
+    pairs = H.read_frozen_pairs()
+    proj = H.arm_errors(pairs, None)
+    auto_preds = H.read_predictions("proj_height_auto")
+    auto = H.arm_errors(pairs, auto_preds)
+    strata = {k: v for k, v in H.strata_of(pairs).items()
+              if k == "all" or k.startswith("imagery=") or k.startswith("range=")}
+    out = {"arms": {}, "config": {"pairs_sha256": H.PAIRS_SHA256, "n_boot": H.N_BOOT,
+                                  "seed": H.SEED, "baselines": ["projection", "proj_height_auto"]}}
+    # flat 'auto' range vs Google, from any depth arm's diagnostics (same for all)
+    any_preds = H.read_predictions(names[0]) if names else {}
+    out["range_check_flat_auto"] = _range_check(pairs, any_preds, "range_flat_auto_m")
+    for n in names:
+        preds = H.read_predictions(n)
+        e = H.arm_errors(pairs, preds)
+        comp = [(c[0], c[1], c[2], False) for c in (a if x[3] else x for x, a in zip(e, auto))]
+        row = {}
+        for k, idx in strata.items():
+            row[k] = {"vs_projection": H.summarize(pairs, e, idx, proj),
+                      "vs_auto": H.summarize(pairs, e, idx, auto),
+                      "composite_else_auto_vs_auto": H.summarize(pairs, comp, idx, auto)}
+        row["range_check"] = _range_check(pairs, preds, "range_used_m")
+        out["arms"][n] = row
+    out["auto_vs_projection"] = {k: H.summarize(pairs, auto, idx, proj) for k, idx in strata.items()}
+    H.write_json(args.out, out)
+
+    def ci(c):
+        return f"[{c[0]:.2f}, {c[1]:.2f}]" if c else "-"
+    print("| arm | fallback | all: median ° [CI] | applied n: arm vs auto °, paired gain vs auto [CI] "
+          "| vs projection, applied: gain [CI] | composite (else auto) median °, gain vs auto [CI] "
+          "| range/Google median (within 10%) |")
+    print("|---|---|---|---|---|---|---|")
+    a0 = out["auto_vs_projection"]["all"]
+    print(f"| proj_height_auto | 0 | {a0['median_deg']:.2f} {ci(a0['median_ci'])} | - | - | - | "
+          + (lambda r: f"{r['median_ratio']:.3f} ({r['within_10pct']:.2f})" if r else "-")(
+              out["range_check_flat_auto"]) + " |")
+    for n, row in out["arms"].items():
+        va, vp, cm = row["all"]["vs_auto"], row["all"]["vs_projection"], row["all"]["composite_else_auto_vs_auto"]
+        ao, po = va["aligned_only"], vp["aligned_only"]
+        rc = row["range_check"]
+        print(f"| {n} | {va['fallback_rate']:.2f} | {vp['median_deg']:.2f} {ci(vp['median_ci'])} | "
+              f"{ao['n_pairs']}: {ao['median_deg'] or float('nan'):.2f} vs {ao['projection_median_deg'] or float('nan'):.2f}, "
+              f"{ao['median_gain_deg'] or float('nan'):.2f} {ci(ao['median_gain_ci'])} | "
+              f"{po['median_gain_deg'] or float('nan'):.2f} {ci(po['median_gain_ci'])} | "
+              f"{cm['median_deg']:.2f}, {cm['median_gain_deg']:.2f} {ci(cm['median_gain_ci'])} | "
+              + (f"{rc['median_ratio']:.3f} ({rc['within_10pct']:.2f})" if rc else "-") + " |")
+    print(f"-> {args.out}")
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -399,9 +486,14 @@ def main(argv=None):
     p.add_argument("--out-dir", default=OUT_DIR)
     p.add_argument("--limit", type=int, default=0, help="first N source panos (smoke test)")
     p.add_argument("--allow-other-code", action="store_true")
+    s = sub.add_parser("summarize")
+    s.add_argument("--arms", help="comma-separated; default: every predictions/mono_*.jsonl")
+    s.add_argument("--out", default=SUMMARY_JSON)
     args = ap.parse_args(argv)
     if args.cmd == "extract":
         extract(args)
+    elif args.cmd == "summarize":
+        summarize_cmd(args)
 
 
 if __name__ == "__main__":
