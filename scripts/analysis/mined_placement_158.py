@@ -64,8 +64,11 @@ MANIFEST = os.path.join(OUT, "corners.json")
 PRED_DIR = os.path.join(OUT, "predictions")
 #: the harness's pair columns without the answer ones (there is no answer here)
 COLUMNS = [c for c in H.PAIR_COLUMNS if not c.startswith("ref_")]
-#: arms this script is meant to drive; any registered arm runs, these are the pre-stated ones
-PLANNED_ARMS = ("mapa_posed_pair", "roma", "roma_local")
+#: arms this script is meant to drive; any registered arm runs, these are the pre-stated
+#: ones, each with the #158 plan that named it before it was scored: phase 2's plan
+#: (issue comment 5894832666) and step 3's (comment 5895808813, labeler 7e1f391).
+PLANNED_ARMS = {"mapa_posed_pair": "phase 2", "roma": "phase 2", "roma_local": "phase 2",
+                "mapa_k_pair": "step 3"}
 
 
 def _sha256(path):
@@ -280,7 +283,8 @@ def cmd_predict(args):
             "missing_inputs": errors, "fallback": sum(1 for r in rows if r["x"] is None),
             "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "versions": versions(), "extra": list(args.extra),
-            "pre_specified_for_158": args.arm in PLANNED_ARMS}
+            "pre_specified_for_158": args.arm in PLANNED_ARMS,
+            "pre_specified_in": PLANNED_ARMS.get(args.arm)}
     H.write_json(pred.replace(".jsonl", ".meta.json"), meta)
     print(f"{name}: {len(rows)} pairs in {elapsed:.1f} s, fallback {meta['fallback']}, "
           f"missing inputs {errors} -> {pred}")

@@ -85,7 +85,15 @@ Step 3 of #158 (peak-anchored targets) is in the labeler:
     so, as with `roma_local`, they are not shown to land on the mined ramp.
   - Its #48 status is confirmed as pre-specified but borderline on GSV (above).
 - **`paid: false` ledger rows** for that run and for the labeler's richmond and bend floor
-  passes. The bend pass failed its instrument gate and was not used.
+  passes. The bend pass failed its instrument gate and was not used. The likely cause, found
+  after the review of #222 and #112, is the pixel source: bend's production run fed the model
+  Google's zoom-3 rendition, while the floor pass read the archive's max-zoom JPEGs (labeler
+  doc, step 3 "Post hoc").
+- **`mapa_k_pair.meta.json` provenance.** As written by the run, it says
+  `"pre_specified_for_158": false`, because `PLANNED_ARMS` then listed only the phase-2 arms.
+  The step-3 plan named the arm before the run and before scoring, so the file now also
+  carries `"pre_specified_in": "step 3"` and a dated `provenance_correction`. `PLANNED_ARMS`
+  records the plan per arm, and new metas write `pre_specified_in`. No prediction changed.
 
 ## Cost
 
@@ -95,17 +103,22 @@ Step 3 of #158 (peak-anchored targets) is in the labeler:
 | cut-views (254 views, 211 panos) | makelab2 CPU | 40 s | 0 |
 | `mapa_posed_pair` | makelab2 A40 (shared, free memory checked first) | 134 s | 0.037 |
 | `roma` + `roma_local` | desktop RTX 3070 | 204 s | 0.057 |
+| step 3: `mapa_k_pair` (ended 18:13:07Z) | makelab2 A40 (shared, free memory checked first) | 50 s | 0.014 |
+| step 3: labeler floor passes, richmond + bend | makelab2 A40 | 214 s + 245 s | 0.059 + 0.068 |
 
-Both GPU runs have `paid: false` rows in `analysis_out/usage_log.jsonl`; the RoMa row
-(`mined-placement-158:roma+roma_local`) covers both RoMa arms. Nothing ran on
-Tillicum and no paid API was called.
+Every GPU run has a `paid: false` row in `analysis_out/usage_log.jsonl`; the RoMa row
+(`mined-placement-158:roma+roma_local`) covers both RoMa arms. The two floor-pass rows'
+`ts` are the end of each pass rounded to the minute, so they are approximate. Nothing ran
+on Tillicum and no paid API was called.
 
 ## Reproduce
 
 The commands are in the labeler doc, "Reproduce (phase 2)". Environments are as in #48:
 
 - MapAnything used makelab2's `crossview48_sfm/venv`, with `HF_HOME` / `TORCH_HOME` from
-  `crossview48_sfm`.
+  `crossview48_sfm`. That holds for step 3's `mapa_k_pair` too: its meta records torch
+  2.6.0+cu124, which is that venv's, and its log reads the DINOv2 weights from
+  `crossview48_sfm/torch_home`. The command is in the labeler doc, "Reproduce (step 3)".
 - RoMa ran on the desktop RTX 3070 against RampNet's `.venv` (torch 2.6.0+cu126, numpy
   2.5.1, opencv 5.0.0, python 3.12.10), plus these packages, installed `--no-deps` into a
   scratch directory put first on `PYTHONPATH`:
