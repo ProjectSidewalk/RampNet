@@ -407,6 +407,65 @@ def cmd_pilot(args):
     print(f"-> {path}")
 
 
+def cmd_predict_many(args):
+    """``crossview_align_48.py predict`` for several arms in ONE process with one shared
+    Context, so arms that are different readings of the same model run (e.g. mast3r_pair
+    and mast3r_poseonly) run the model once. Writes the same predictions/<arm>.jsonl and
+    .meta.json as ``predict``; each meta's elapsed_s is that arm's own wall-clock, so the
+    first arm of a group carries the model cost and the rest only their reading, and
+    ``shared_context_with`` names the group."""
+    import platform
+    registry = H.load_arms()
+    names = args.arms.split(",")
+    pairs = H.read_frozen_pairs()
+    ctx = H.Context(args, pairs)
+    for name in names:
+        arm = registry[name]
+        t0 = time.time()
+        rows, errors = H.run_arm(arm, pairs, ctx)
+        elapsed = time.time() - t0
+        pred_path, meta_path = H.prediction_paths(name)
+        os.makedirs(os.path.dirname(pred_path), exist_ok=True)
+        with open(pred_path, "w", encoding="utf-8", newline="") as f:
+            for r in rows:
+                f.write(json.dumps(H.rnd(r, 6), sort_keys=True) + "\n")
+        gpu = None
+        try:
+            import torch
+            if torch.cuda.is_available():
+                gpu = torch.cuda.get_device_name(0)
+        except ImportError:
+            pass
+        meta = {"arm": name, "description": arm.description, "needs": list(arm.needs),
+                "pairs_sha256": H.PAIRS_SHA256, "pairs": len(pairs), "elapsed_s": elapsed,
+                "host": platform.node(), "gpu_visible": gpu, "missing_inputs": errors,
+                "fallback": sum(1 for r in rows if r["x"] is None),
+                "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                "config": arm.config, "versions": _versions(),
+                "shared_context_with": names,
+                "manifest_sha256": _sha256(extra(ctx, "manifest") or MANIFEST)}
+        H.write_json(meta_path, meta)
+        print(f"{name}: {len(rows)} pairs in {elapsed:.1f} s, fallback {meta['fallback']}, "
+              f"missing inputs {errors} -> {pred_path}", flush=True)
+
+
+def _sha256(path):
+    import hashlib
+    with open(path, "rb") as f:
+        return hashlib.sha256(f.read()).hexdigest()
+
+
+def _versions():
+    v = H._versions()
+    for mod in ("pycolmap", "vggt", "mapanything", "mast3r", "dust3r"):
+        try:
+            m = __import__(mod)
+            v[mod] = getattr(m, "__version__", "installed")
+        except ImportError:
+            pass
+    return v
+
+
 REPORT_JSON = os.path.join(H.OUT, "mv3d_results.json")
 BASELINES = ("projection", "proj_height_auto")
 
@@ -512,6 +571,15 @@ def main(argv=None):
     p.add_argument("--runs-root")
     p.add_argument("--results-root")
     p.set_defaults(fn=cmd_pilot)
+    p = sub.add_parser("predict-many", help="several arms, one process, shared model runs")
+    p.add_argument("--arms", required=True)
+    p.add_argument("--views", required=True)
+    p.add_argument("--extra", action="append", default=[])
+    p.add_argument("--cpu", action="store_true")
+    p.add_argument("--labeler-root")
+    p.add_argument("--runs-root")
+    p.add_argument("--results-root")
+    p.set_defaults(fn=cmd_predict_many)
     p = sub.add_parser("report", help="score arms against projection AND proj_height_auto")
     p.add_argument("--arms", required=True, help="comma-separated committed predictions")
     p.add_argument("--out", default=REPORT_JSON)

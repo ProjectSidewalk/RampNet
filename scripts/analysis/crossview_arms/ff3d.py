@@ -213,10 +213,15 @@ def _read(core, how="full"):
         out.update(r)
         return out
     if how == "depthonly":
-        Rm, C = M.cam_pose_world(views[1])
-        T_prior = np.eye(4)
-        T_prior[:3, :3], T_prior[:3, 3] = Rm, C
-        return _finish(out, core["X"], T_prior, _K_at(size), views[1], size)
+        # the model's output frame is its own (MapAnything re-centres on the first view),
+        # so carry the point into the prior frame through the SOURCE camera: the click's
+        # position relative to the source camera is all that is kept from the model
+        T_src_prior, T_oth_prior = np.eye(4), np.eye(4)
+        T_src_prior[:3, :3], T_src_prior[:3, 3] = M.cam_pose_world(views[0])
+        T_oth_prior[:3, :3], T_oth_prior[:3, 3] = M.cam_pose_world(views[1])
+        Xh = T_src_prior @ np.linalg.inv(core["T_src"]) @ np.append(core["X"], 1.0)
+        out["click_range_m"] = float(np.linalg.norm(Xh[:3] - T_src_prior[:3, 3]))
+        return _finish(out, Xh[:3], T_oth_prior, _K_at(size), views[1], size)
     raise ValueError(how)
 
 
@@ -361,6 +366,14 @@ def vggt_pair(pair, ctx):
           description=f"VGGT on up to {CORNER_VIEWS} captures of the corner")
 def vggt_corner(pair, ctx):
     return _read(_core(ctx, pair, "vggt", corner_mode=True))
+
+
+@register("vggt_corner_poseonly", needs=("views",),
+          config={**VGGT_CONFIG, "views": CORNER_VIEWS,
+                  "transfer": "VGGT relative pose only, flat ground at the 'auto' height"},
+          description="VGGT (corner) relative pose only, through today's flat-ground transfer")
+def vggt_corner_poseonly(pair, ctx):
+    return _read(_core(ctx, pair, "vggt", corner_mode=True), "poseonly")
 
 
 # --------------------------------------------------------------------------- #
