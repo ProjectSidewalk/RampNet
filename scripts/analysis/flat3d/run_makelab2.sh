@@ -11,6 +11,6 @@ cd "$B/RampNet"
 exec "$B/venv/bin/python" scripts/analysis/flat3d/reconstruct.py \
     --flat-dir "$B/flat" --views /homes/gws/jonf/crossview48/views \
     --archive-root /projects/makeabilitylab/sidewalk-auto-labeler/runs \
-    --out "$B/corners" --mly-pano-dir "$B/mly_panos" \
+    --out "$B/corners" --mly-pano-dir "$B/mly_panos_all" \
     --colmap "env MAMBA_ROOT_PREFIX=$B/mamba $B/bin/micromamba run -n colmap313 colmap" \
     "$@"

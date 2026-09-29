@@ -332,6 +332,7 @@ def lift_sparse(rec, im, src):
 def lift_from_depth(R_cw, C, K, depth_z, diag):
     """X from a z-depth at the click pixel."""
     if depth_z is None or not np.isfinite(depth_z) or depth_z <= 0:
+        diag["reason"] = "no_depth_at_click"
         return None, diag
     r = np.linalg.solve(K, np.array([H.VIEW_W / 2.0, H.VIEW_H / 2.0, 1.0]))
     X = C + R_cw @ (r * depth_z)
