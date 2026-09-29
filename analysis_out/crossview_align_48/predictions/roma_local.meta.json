@@ -1,0 +1,39 @@
+{
+ "arm": "roma_local",
+ "config": {
+  "estimator": "ground homography from matches within 160 px of the GT point",
+  "ground_margin_deg": 5.0,
+  "local_min": 12,
+  "local_radius_px": 160.0,
+  "matcher": "RoMa outdoor (romatch 0.1.2), 5000 samples",
+  "min_inliers": 15,
+  "pre_specified": true,
+  "ransac_px": 4.0,
+  "rig_limit_deg": -70.0,
+  "roma_samples": 5000,
+  "view": [
+   1024,
+   768,
+   75.0
+  ]
+ },
+ "description": "RoMa; ground homography fitted only to matches within 160 px of the GT point (as lg_local)",
+ "elapsed_s": 19.4996,
+ "fallback": 17,
+ "gpu_visible": "NVIDIA GeForce RTX 3070",
+ "host": "jonfhome",
+ "missing_inputs": 0,
+ "needs": [
+  "views"
+ ],
+ "pairs": 300,
+ "pairs_sha256": "a85a11bceb57e7d4db4bc5914c35cb17b5fdaf9bc8c9189957574a13260db388",
+ "ts": "2026-09-29T01:19:02Z",
+ "versions": {
+  "cv2": "5.0.0",
+  "kornia": "0.8.3",
+  "numpy": "2.5.1",
+  "python": "3.12.10",
+  "torch": "2.6.0+cu126"
+ }
+}
