@@ -363,3 +363,13 @@ analysis_out/flat_mapillary_3d/*
 !analysis_out/flat_mapillary_3d/scenes/
 analysis_out/flat_mapillary_3d/raw_api_cache/
 !analysis_out/flat_mapillary_3d/predictions/
+# #158 phase 2: image-based placement of mined targets (scripts/analysis/mined_placement_158.py).
+# Pair list, key map, corner manifest and per-arm predictions + meta; no imagery.
+!analysis_out/mined_placement_158/
+analysis_out/mined_placement_158/*
+!analysis_out/mined_placement_158/*.csv
+!analysis_out/mined_placement_158/*.json
+!analysis_out/mined_placement_158/predictions/
+analysis_out/mined_placement_158/predictions/*
+!analysis_out/mined_placement_158/predictions/*.jsonl
+!analysis_out/mined_placement_158/predictions/*.json

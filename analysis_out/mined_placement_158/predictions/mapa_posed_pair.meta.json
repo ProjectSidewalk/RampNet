@@ -1,0 +1,40 @@
+{
+ "arm": "mapa_posed_pair",
+ "cities": [
+  "richmond",
+  "paterson",
+  "gainesville",
+  "bend",
+  "sao_paulo"
+ ],
+ "config": {
+  "amp": "bf16",
+  "given": "intrinsics + pose priors (metric ENU, flat, 'auto' height)",
+  "input": [
+   518,
+   392
+  ],
+  "masking": "off",
+  "model": "facebook/map-anything",
+  "projection": "MapAnything's output camera for the other view",
+  "views": 2
+ },
+ "description": "MapAnything on the pair only, given intrinsics and pose priors",
+ "elapsed_s": 130.69,
+ "fallback": 0,
+ "gpu_visible": "NVIDIA A40",
+ "host": "makelab2.cs.washington.edu",
+ "manifest_sha256": "ed9108cdeb8bba0d212ffe2f334db0443e3cd401c83d19c56c6b203c61f9d86a",
+ "missing_inputs": 0,
+ "pairs": 127,
+ "pairs_sha256": "aebe29cf6dd78ddad1914a2f9fd2cabf4f649de5da408f9b4bc35924268199c5",
+ "pre_specified_for_158": true,
+ "ts": "2026-09-29T17:06:31Z",
+ "versions": {
+  "cv2": "5.0.0",
+  "kornia": "0.8.3",
+  "numpy": "2.5.2",
+  "python": "3.12.13",
+  "torch": "2.6.0+cu124"
+ }
+}

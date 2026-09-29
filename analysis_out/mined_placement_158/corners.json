@@ -1,0 +1,5644 @@
+{
+ "cities": {
+  "bend": {
+   "auto": "gsv-per-rig",
+   "height": "per-rig",
+   "results_sha256": "1307faa8041acbbf4cba78fd53979e2215511b8371c018f427c356f6b0e26153"
+  },
+  "gainesville": {
+   "auto": "gsv-per-rig",
+   "height": "per-rig",
+   "results_sha256": "bb8a78729cfb97a98a4f99211c90763fb3760c9c216f2233b1c0cc8aa450abde"
+  },
+  "paterson": {
+   "auto": "gsv-per-rig",
+   "height": "per-rig",
+   "results_sha256": "651226f9f1e66d60fc8504423e7400730aad649e20a4a448d25bd4e5c620a2a8"
+  },
+  "richmond": {
+   "auto": 2.6,
+   "height": "2.6",
+   "results_sha256": "109e7645ebf5ab982d2cc1388b50e837f6d622a4ff14752c1895b194a5c0d88c"
+  },
+  "sao_paulo": {
+   "auto": "gsv-per-rig",
+   "height": "per-rig",
+   "results_sha256": "72fa99b69ce2742c03becf427ca1674c2a0971531cc4f84ad793d5dc3a2fe926"
+  }
+ },
+ "corners": [
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.5444535,
+    -77.44019624
+   ],
+   "pairs": [
+    "m000"
+   ],
+   "ramp_uid": "richmond:23:1294684158910702",
+   "src_pano": "740304831968826",
+   "src_x": 0.901367,
+   "src_y": 0.554688,
+   "views": [
+    {
+     "cx": 0.901367,
+     "cy": 0.554688,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 157.61405127,
+     "n": 0.0,
+     "pano": "740304831968826",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m000_src.jpg"
+    },
+    {
+     "cx": 0.844081,
+     "cy": 0.558445,
+     "date": "2025-08",
+     "e": -8.50980287,
+     "h": 2.6,
+     "heading": -127.55395966,
+     "n": -6.98884649,
+     "pair_id": "m000",
+     "pano": "1294684158910702",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m000_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54218659,
+    -77.43824576
+   ],
+   "pairs": [
+    "m001"
+   ],
+   "ramp_uid": "richmond:24:1050503583329955",
+   "src_pano": "1380192499872798",
+   "src_x": 0.558594,
+   "src_y": 0.554688,
+   "views": [
+    {
+     "cx": 0.558594,
+     "cy": 0.554688,
+     "date": "2024-11",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -140.52387808,
+     "n": 0.0,
+     "pano": "1380192499872798",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m001_src.jpg"
+    },
+    {
+     "cx": 0.547382,
+     "cy": 0.555104,
+     "date": "2024-11",
+     "e": 0.5527685,
+     "h": 2.6,
+     "heading": -140.79911826,
+     "n": 0.44019279,
+     "pair_id": "m001",
+     "pano": "1050503583329955",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m001_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54440768,
+    -77.44026457
+   ],
+   "pairs": [
+    "m002"
+   ],
+   "ramp_uid": "richmond:41:1294684158910702",
+   "src_pano": "1308841637509808",
+   "src_x": 0.09668,
+   "src_y": 0.585938,
+   "views": [
+    {
+     "cx": 0.09668,
+     "cy": 0.585938,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -150.49956934,
+     "n": 0.0,
+     "pano": "1308841637509808",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m002_src.jpg"
+    },
+    {
+     "cx": 0.011582,
+     "cy": 0.568017,
+     "date": "2025-08",
+     "e": -2.47877173,
+     "h": 2.6,
+     "heading": -127.55395966,
+     "n": -1.88810754,
+     "pair_id": "m002",
+     "pano": "1294684158910702",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m002_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.53874518,
+    -77.43573825
+   ],
+   "pairs": [
+    "m003"
+   ],
+   "ramp_uid": "richmond:61:780391337668333",
+   "src_pano": "1575036853463491",
+   "src_x": 0.963867,
+   "src_y": 0.583984,
+   "views": [
+    {
+     "cx": 0.963867,
+     "cy": 0.583984,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 77.32100364,
+     "n": 0.0,
+     "pano": "1575036853463491",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m003_src.jpg"
+    },
+    {
+     "cx": 0.893183,
+     "cy": 0.563003,
+     "date": "2025-08",
+     "e": 4.91273984,
+     "h": 2.6,
+     "heading": 121.85839221,
+     "n": -4.12097278,
+     "pair_id": "m003",
+     "pano": "780391337668333",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m003_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.53413567,
+    -77.43262196
+   ],
+   "pairs": [
+    "m004"
+   ],
+   "ramp_uid": "richmond:62:822353906794602",
+   "src_pano": "1293184908955733",
+   "src_x": 0.916992,
+   "src_y": 0.646484,
+   "views": [
+    {
+     "cx": 0.916992,
+     "cy": 0.646484,
+     "date": "2025-09",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 160.86434353,
+     "n": 0.0,
+     "pano": "1293184908955733",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m004_src.jpg"
+    },
+    {
+     "cx": 0.786631,
+     "cy": 0.790149,
+     "date": "2025-09",
+     "e": -1.87765565,
+     "h": 2.6,
+     "heading": 143.55028387,
+     "n": 4.04205146,
+     "pair_id": "m004",
+     "pano": "822353906794602",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m004_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54802504,
+    -77.44364122
+   ],
+   "pairs": [
+    "m005"
+   ],
+   "ramp_uid": "richmond:104:1589004208714002",
+   "src_pano": "1098777051787430",
+   "src_x": 0.894531,
+   "src_y": 0.570312,
+   "views": [
+    {
+     "cx": 0.894531,
+     "cy": 0.570312,
+     "date": "2024-09",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 125.54484714,
+     "n": 0.0,
+     "pano": "1098777051787430",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m005_src.jpg"
+    },
+    {
+     "cx": 0.940854,
+     "cy": 0.557228,
+     "date": "2024-09",
+     "e": -0.3958727,
+     "h": 2.6,
+     "heading": 125.54888177,
+     "n": -3.53278985,
+     "pair_id": "m005",
+     "pano": "1589004208714002",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m005_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54222505,
+    -77.44082491
+   ],
+   "pairs": [
+    "m006"
+   ],
+   "ramp_uid": "richmond:127:1315788070079167",
+   "src_pano": "1434509560573195",
+   "src_x": 0.276367,
+   "src_y": 0.539062,
+   "views": [
+    {
+     "cx": 0.276367,
+     "cy": 0.539062,
+     "date": "2024-08",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 126.49524534,
+     "n": 0.0,
+     "pano": "1434509560573195",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m006_src.jpg"
+    },
+    {
+     "cx": 0.666878,
+     "cy": 0.591956,
+     "date": "2025-01",
+     "e": 11.35922641,
+     "h": 2.6,
+     "heading": -66.38484657,
+     "n": 3.84333558,
+     "pair_id": "m006",
+     "pano": "1315788070079167",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m006_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54169296,
+    -77.44424806
+   ],
+   "pairs": [
+    "m007"
+   ],
+   "ramp_uid": "richmond:154:1483585545954157",
+   "src_pano": "1089600363088792",
+   "src_x": 0.808594,
+   "src_y": 0.601562,
+   "views": [
+    {
+     "cx": 0.808594,
+     "cy": 0.601562,
+     "date": "2024-11",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -158.46661264,
+     "n": 0.0,
+     "pano": "1089600363088792",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m007_src.jpg"
+    },
+    {
+     "cx": 0.866204,
+     "cy": 0.577571,
+     "date": "2024-11",
+     "e": 0.1749125,
+     "h": 2.6,
+     "heading": -167.80675289,
+     "n": -1.64865299,
+     "pair_id": "m007",
+     "pano": "1483585545954157",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m007_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.53477579,
+    -77.43557734
+   ],
+   "pairs": [
+    "m008"
+   ],
+   "ramp_uid": "richmond:171:1828524234403425",
+   "src_pano": "1690959064927412",
+   "src_x": 0.44043,
+   "src_y": 0.537109,
+   "views": [
+    {
+     "cx": 0.44043,
+     "cy": 0.537109,
+     "date": "2025-09",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 48.82327416,
+     "n": 0.0,
+     "pano": "1690959064927412",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m008_src.jpg"
+    },
+    {
+     "cx": 0.336013,
+     "cy": 0.557604,
+     "date": "2025-09",
+     "e": 9.06117843,
+     "h": 2.6,
+     "heading": 70.68136893,
+     "n": 4.82001095,
+     "pair_id": "m008",
+     "pano": "1828524234403425",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m008_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54885494,
+    -77.44306092
+   ],
+   "pairs": [
+    "m009"
+   ],
+   "ramp_uid": "richmond:181:3956582084664486",
+   "src_pano": "578934204698082",
+   "src_x": 0.605469,
+   "src_y": 0.617188,
+   "views": [
+    {
+     "cx": 0.605469,
+     "cy": 0.617188,
+     "date": "2024-09",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 40.58519625,
+     "n": 0.0,
+     "pano": "578934204698082",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m009_src.jpg"
+    },
+    {
+     "cx": 0.573909,
+     "cy": 0.558009,
+     "date": "2024-09",
+     "e": -5.26592203,
+     "h": 2.6,
+     "heading": 38.54841194,
+     "n": -6.15423425,
+     "pair_id": "m009",
+     "pano": "3956582084664486",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m009_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54423567,
+    -77.42923734
+   ],
+   "pairs": [
+    "m010"
+   ],
+   "ramp_uid": "richmond:232:681333794968062",
+   "src_pano": "747787444888100",
+   "src_x": 0.620117,
+   "src_y": 0.539062,
+   "views": [
+    {
+     "cx": 0.620117,
+     "cy": 0.539062,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 35.346141,
+     "n": 0.0,
+     "pano": "747787444888100",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m010_src.jpg"
+    },
+    {
+     "cx": 0.681314,
+     "cy": 0.576207,
+     "date": "2025-08",
+     "e": 3.47370256,
+     "h": 2.6,
+     "heading": 31.11916456,
+     "n": 4.92473335,
+     "pair_id": "m010",
+     "pano": "681333794968062",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m010_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.53967339,
+    -77.43640705
+   ],
+   "pairs": [
+    "m011"
+   ],
+   "ramp_uid": "richmond:312:522346373509256",
+   "src_pano": "776671785313475",
+   "src_x": 0.768555,
+   "src_y": 0.742188,
+   "views": [
+    {
+     "cx": 0.768555,
+     "cy": 0.742188,
+     "date": "2025-01",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -57.51147759,
+     "n": 0.0,
+     "pano": "776671785313475",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m011_src.jpg"
+    },
+    {
+     "cx": 0.939371,
+     "cy": 0.56607,
+     "date": "2024-08",
+     "e": -3.42549527,
+     "h": 2.6,
+     "heading": -143.10568026,
+     "n": -6.67435424,
+     "pair_id": "m011",
+     "pano": "522346373509256",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m011_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54631607,
+    -77.44540031
+   ],
+   "pairs": [
+    "m012"
+   ],
+   "ramp_uid": "richmond:319:1288163659019705",
+   "src_pano": "525362433768808",
+   "src_x": 0.214844,
+   "src_y": 0.632812,
+   "views": [
+    {
+     "cx": 0.214844,
+     "cy": 0.632812,
+     "date": "2024-09",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 35.34030453,
+     "n": 0.0,
+     "pano": "525362433768808",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m012_src.jpg"
+    },
+    {
+     "cx": 0.270329,
+     "cy": 0.63722,
+     "date": "2024-09",
+     "e": -1.95768921,
+     "h": 2.6,
+     "heading": 35.08610843,
+     "n": -2.70473046,
+     "pair_id": "m012",
+     "pano": "1288163659019705",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m012_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54473095,
+    -77.44279986
+   ],
+   "pairs": [
+    "m013"
+   ],
+   "ramp_uid": "richmond:321:3980741912187626",
+   "src_pano": "1243019807188630",
+   "src_x": 0.745117,
+   "src_y": 0.630859,
+   "views": [
+    {
+     "cx": 0.745117,
+     "cy": 0.630859,
+     "date": "2024-11",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 36.91754492,
+     "n": 0.0,
+     "pano": "1243019807188630",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m013_src.jpg"
+    },
+    {
+     "cx": 0.590194,
+     "cy": 0.584878,
+     "date": "2024-11",
+     "e": -4.26916393,
+     "h": 2.6,
+     "heading": 38.19241591,
+     "n": -5.24123537,
+     "pair_id": "m013",
+     "pano": "3980741912187626",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m013_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54799154,
+    -77.44109359
+   ],
+   "pairs": [
+    "m014"
+   ],
+   "ramp_uid": "richmond:336:552315380916113",
+   "src_pano": "521185194350223",
+   "src_x": 0.143555,
+   "src_y": 0.583984,
+   "views": [
+    {
+     "cx": 0.143555,
+     "cy": 0.583984,
+     "date": "2024-11",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 35.55971603,
+     "n": 0.0,
+     "pano": "521185194350223",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m014_src.jpg"
+    },
+    {
+     "cx": 0.541528,
+     "cy": 0.565531,
+     "date": "2024-11",
+     "e": -0.20296524,
+     "h": 2.6,
+     "heading": -142.50266252,
+     "n": 6.368868,
+     "pair_id": "m014",
+     "pano": "552315380916113",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m014_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54182727,
+    -77.44005949
+   ],
+   "pairs": [
+    "m015"
+   ],
+   "ramp_uid": "richmond:350:723487737079243",
+   "src_pano": "1288239169380781",
+   "src_x": 0.463867,
+   "src_y": 0.583984,
+   "views": [
+    {
+     "cx": 0.463867,
+     "cy": 0.583984,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -146.61393855,
+     "n": 0.0,
+     "pano": "1288239169380781",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m015_src.jpg"
+    },
+    {
+     "cx": 0.828377,
+     "cy": 0.557224,
+     "date": "2024-11",
+     "e": 9.45372793,
+     "h": 2.6,
+     "heading": 112.38889312,
+     "n": -1.70872827,
+     "pair_id": "m015",
+     "pano": "723487737079243",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m015_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54916741,
+    -77.44551095
+   ],
+   "pairs": [
+    "m016"
+   ],
+   "ramp_uid": "richmond:355:27724402107145083",
+   "src_pano": "1746121472813182",
+   "src_x": 0.316406,
+   "src_y": 0.585938,
+   "views": [
+    {
+     "cx": 0.316406,
+     "cy": 0.585938,
+     "date": "2024-09",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 128.62529643,
+     "n": 0.0,
+     "pano": "1746121472813182",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m016_src.jpg"
+    },
+    {
+     "cx": 0.366074,
+     "cy": 0.563093,
+     "date": "2024-09",
+     "e": -6.78241388,
+     "h": 2.6,
+     "heading": 126.0416052,
+     "n": 0.39303018,
+     "pair_id": "m016",
+     "pano": "27724402107145083",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m016_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54306655,
+    -77.43312412
+   ],
+   "pairs": [
+    "m017"
+   ],
+   "ramp_uid": "richmond:372:1263975528308076",
+   "src_pano": "522142636872918",
+   "src_x": 0.354492,
+   "src_y": 0.539062,
+   "views": [
+    {
+     "cx": 0.354492,
+     "cy": 0.539062,
+     "date": "2024-11",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -140.56960112,
+     "n": 0.0,
+     "pano": "522142636872918",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m017_src.jpg"
+    },
+    {
+     "cx": 0.344853,
+     "cy": 0.556585,
+     "date": "2024-08",
+     "e": -0.4012291,
+     "h": 2.6,
+     "heading": -144.5831202,
+     "n": -1.1376589,
+     "pair_id": "m017",
+     "pano": "1263975528308076",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m017_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.53972136,
+    -77.44321914
+   ],
+   "pairs": [
+    "m018"
+   ],
+   "ramp_uid": "richmond:384:700668799338315",
+   "src_pano": "743865564845373",
+   "src_x": 0.698242,
+   "src_y": 0.648438,
+   "views": [
+    {
+     "cx": 0.698242,
+     "cy": 0.648438,
+     "date": "2024-11",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -50.45706292,
+     "n": 0.0,
+     "pano": "743865564845373",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m018_src.jpg"
+    },
+    {
+     "cx": 0.54214,
+     "cy": 0.56662,
+     "date": "2024-11",
+     "e": 8.02405208,
+     "h": 2.6,
+     "heading": -50.43772006,
+     "n": -6.14995667,
+     "pair_id": "m018",
+     "pano": "700668799338315",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m018_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54865231,
+    -77.4425073
+   ],
+   "pairs": [
+    "m019"
+   ],
+   "ramp_uid": "richmond:387:1260990361757674",
+   "src_pano": "1713547182536128",
+   "src_x": 0.87793,
+   "src_y": 0.570312,
+   "views": [
+    {
+     "cx": 0.87793,
+     "cy": 0.570312,
+     "date": "2024-11",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -51.19987168,
+     "n": 0.0,
+     "pano": "1713547182536128",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m019_src.jpg"
+    },
+    {
+     "cx": 0.888055,
+     "cy": 0.56303,
+     "date": "2024-09",
+     "e": 2.09763163,
+     "h": 2.6,
+     "heading": -52.94115757,
+     "n": -0.97056112,
+     "pair_id": "m019",
+     "pano": "1260990361757674",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m019_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54921651,
+    -77.44560358
+   ],
+   "pairs": [
+    "m020"
+   ],
+   "ramp_uid": "richmond:393:27724402107145083",
+   "src_pano": "1207945663765557",
+   "src_x": 0.574219,
+   "src_y": 0.552734,
+   "views": [
+    {
+     "cx": 0.574219,
+     "cy": 0.552734,
+     "date": "2024-09",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 126.29364201,
+     "n": 0.0,
+     "pano": "1207945663765557",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m020_src.jpg"
+    },
+    {
+     "cx": 0.58456,
+     "cy": 0.575562,
+     "date": "2024-09",
+     "e": 1.39301186,
+     "h": 2.6,
+     "heading": 126.0416052,
+     "n": -5.07187423,
+     "pair_id": "m020",
+     "pano": "27724402107145083",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m020_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.53960234,
+    -77.44084221
+   ],
+   "pairs": [
+    "m021"
+   ],
+   "ramp_uid": "richmond:493:1327023138707493",
+   "src_pano": "1018552496889141",
+   "src_x": 0.198242,
+   "src_y": 0.617188,
+   "views": [
+    {
+     "cx": 0.198242,
+     "cy": 0.617188,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -62.71905914,
+     "n": 0.0,
+     "pano": "1018552496889141",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m021_src.jpg"
+    },
+    {
+     "cx": 0.56841,
+     "cy": 0.558413,
+     "date": "2024-11",
+     "e": -4.99348555,
+     "h": 2.6,
+     "heading": 128.96720907,
+     "n": 4.50511762,
+     "pair_id": "m021",
+     "pano": "1327023138707493",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m021_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.53745517,
+    -77.43719087
+   ],
+   "pairs": [
+    "m022"
+   ],
+   "ramp_uid": "richmond:496:1309093164014619",
+   "src_pano": "1125382389138426",
+   "src_x": 0.097656,
+   "src_y": 0.554688,
+   "views": [
+    {
+     "cx": 0.097656,
+     "cy": 0.554688,
+     "date": "2025-09",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 35.94966908,
+     "n": 0.0,
+     "pano": "1125382389138426",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m022_src.jpg"
+    },
+    {
+     "cx": 0.152697,
+     "cy": 0.555484,
+     "date": "2025-09",
+     "e": -3.28851658,
+     "h": 2.6,
+     "heading": 36.41133188,
+     "n": -4.56259069,
+     "pair_id": "m022",
+     "pano": "1309093164014619",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m022_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.5346243,
+    -77.43259235
+   ],
+   "pairs": [
+    "m023"
+   ],
+   "ramp_uid": "richmond:500:1185319949364085",
+   "src_pano": "1232302118131810",
+   "src_x": 0.354492,
+   "src_y": 0.552734,
+   "views": [
+    {
+     "cx": 0.354492,
+     "cy": 0.552734,
+     "date": "2024-07",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 131.48083695,
+     "n": 0.0,
+     "pano": "1232302118131810",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m023_src.jpg"
+    },
+    {
+     "cx": 0.396985,
+     "cy": 0.557959,
+     "date": "2024-07",
+     "e": -4.2836187,
+     "h": 2.6,
+     "heading": 132.05478788,
+     "n": 3.35906831,
+     "pair_id": "m023",
+     "pano": "1185319949364085",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m023_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54390164,
+    -77.44358453
+   ],
+   "pairs": [
+    "m024"
+   ],
+   "ramp_uid": "richmond:509:1107064934776754",
+   "src_pano": "1032927758564396",
+   "src_x": 0.597656,
+   "src_y": 0.554688,
+   "views": [
+    {
+     "cx": 0.597656,
+     "cy": 0.554688,
+     "date": "2024-08",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 127.38093677,
+     "n": 0.0,
+     "pano": "1032927758564396",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m024_src.jpg"
+    },
+    {
+     "cx": 0.862136,
+     "cy": 0.564089,
+     "date": "2024-11",
+     "e": 2.31682968,
+     "h": 2.6,
+     "heading": 38.64443802,
+     "n": -0.44056972,
+     "pair_id": "m024",
+     "pano": "1107064934776754",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m024_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.53894135,
+    -77.44403747
+   ],
+   "pairs": [
+    "m025"
+   ],
+   "ramp_uid": "richmond:533:775828278323576",
+   "src_pano": "1071857445075226",
+   "src_x": 0.143555,
+   "src_y": 0.630859,
+   "views": [
+    {
+     "cx": 0.143555,
+     "cy": 0.630859,
+     "date": "2025-01",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -104.41723076,
+     "n": 0.0,
+     "pano": "1071857445075226",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m025_src.jpg"
+    },
+    {
+     "cx": 0.423843,
+     "cy": 0.579497,
+     "date": "2025-01",
+     "e": 4.47763616,
+     "h": 2.6,
+     "heading": -148.64669094,
+     "n": 5.72737281,
+     "pair_id": "m025",
+     "pano": "775828278323576",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m025_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54376016,
+    -77.43125428
+   ],
+   "pairs": [
+    "m026"
+   ],
+   "ramp_uid": "richmond:535:1110314244387816",
+   "src_pano": "1339270107826625",
+   "src_x": 0.269531,
+   "src_y": 0.646484,
+   "views": [
+    {
+     "cx": 0.269531,
+     "cy": 0.646484,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 102.97486032,
+     "n": 0.0,
+     "pano": "1339270107826625",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m026_src.jpg"
+    },
+    {
+     "cx": 0.333946,
+     "cy": 0.679009,
+     "date": "2025-08",
+     "e": -2.74988685,
+     "h": 2.6,
+     "heading": 103.81093641,
+     "n": 1.17893145,
+     "pair_id": "m026",
+     "pano": "1110314244387816",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m026_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54984604,
+    -77.43665836
+   ],
+   "pairs": [
+    "m027"
+   ],
+   "ramp_uid": "richmond:549:4102292636718018",
+   "src_pano": "1287246493113404",
+   "src_x": 0.206055,
+   "src_y": 0.552734,
+   "views": [
+    {
+     "cx": 0.206055,
+     "cy": 0.552734,
+     "date": "2024-11",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 154.60512368,
+     "n": 0.0,
+     "pano": "1287246493113404",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m027_src.jpg"
+    },
+    {
+     "cx": 0.323801,
+     "cy": 0.56285,
+     "date": "2024-11",
+     "e": -2.52707935,
+     "h": 2.6,
+     "heading": 132.17282885,
+     "n": 3.75555998,
+     "pair_id": "m027",
+     "pano": "4102292636718018",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m027_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.53965859,
+    -77.44093641
+   ],
+   "pairs": [
+    "m028"
+   ],
+   "ramp_uid": "richmond:581:1327023138707493",
+   "src_pano": "774125851652219",
+   "src_x": 0.941406,
+   "src_y": 0.539062,
+   "views": [
+    {
+     "cx": 0.941406,
+     "cy": 0.539062,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -53.4931374,
+     "n": 0.0,
+     "pano": "774125851652219",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m028_src.jpg"
+    },
+    {
+     "cx": 0.413735,
+     "cy": 0.567123,
+     "date": "2024-11",
+     "e": 3.32161197,
+     "h": 2.6,
+     "heading": 128.96720907,
+     "n": -1.75692104,
+     "pair_id": "m028",
+     "pano": "1327023138707493",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m028_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54400951,
+    -77.42944501
+   ],
+   "pairs": [
+    "m029"
+   ],
+   "ramp_uid": "richmond:596:593421160518191",
+   "src_pano": "2157386338088556",
+   "src_x": 0.292969,
+   "src_y": 0.648438,
+   "views": [
+    {
+     "cx": 0.292969,
+     "cy": 0.648438,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 37.56134607,
+     "n": 0.0,
+     "pano": "2157386338088556",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m029_src.jpg"
+    },
+    {
+     "cx": 0.180823,
+     "cy": 0.624557,
+     "date": "2025-08",
+     "e": 2.02749901,
+     "h": 2.6,
+     "heading": 34.01457026,
+     "n": 2.74200029,
+     "pair_id": "m029",
+     "pano": "593421160518191",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m029_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54162596,
+    -77.44423356
+   ],
+   "pairs": [
+    "m030"
+   ],
+   "ramp_uid": "richmond:601:1483585545954157",
+   "src_pano": "781666977544974",
+   "src_x": 0.207031,
+   "src_y": 0.664062,
+   "views": [
+    {
+     "cx": 0.207031,
+     "cy": 0.664062,
+     "date": "2024-11",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 155.75673972,
+     "n": 0.0,
+     "pano": "781666977544974",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m030_src.jpg"
+    },
+    {
+     "cx": 0.262085,
+     "cy": 0.652156,
+     "date": "2024-11",
+     "e": -1.10414037,
+     "h": 2.6,
+     "heading": -167.80675289,
+     "n": 5.80940864,
+     "pair_id": "m030",
+     "pano": "1483585545954157",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m030_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.53424956,
+    -77.43267684
+   ],
+   "pairs": [
+    "m031"
+   ],
+   "ramp_uid": "richmond:609:822353906794602",
+   "src_pano": "26782214954702966",
+   "src_x": 0.22168,
+   "src_y": 0.537109,
+   "views": [
+    {
+     "cx": 0.22168,
+     "cy": 0.537109,
+     "date": "2024-08",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -94.21409368,
+     "n": 0.0,
+     "pano": "26782214954702966",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m031_src.jpg"
+    },
+    {
+     "cx": 0.574654,
+     "cy": 0.604757,
+     "date": "2025-09",
+     "e": 2.96663105,
+     "h": 2.6,
+     "heading": 143.55028387,
+     "n": -8.63648301,
+     "pair_id": "m031",
+     "pano": "822353906794602",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m031_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.5391446,
+    -77.43545243
+   ],
+   "pairs": [
+    "m032"
+   ],
+   "ramp_uid": "richmond:610:1701172050581812",
+   "src_pano": "1517109633003410",
+   "src_x": 0.066406,
+   "src_y": 0.585938,
+   "views": [
+    {
+     "cx": 0.066406,
+     "cy": 0.585938,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -152.88014169,
+     "n": 0.0,
+     "pano": "1517109633003410",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m032_src.jpg"
+    },
+    {
+     "cx": 0.574014,
+     "cy": 0.633711,
+     "date": "2025-09",
+     "e": 2.28391333,
+     "h": 2.6,
+     "heading": 38.39178828,
+     "n": 4.05154227,
+     "pair_id": "m032",
+     "pano": "1701172050581812",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m032_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.53779014,
+    -77.43546267
+   ],
+   "pairs": [
+    "m033"
+   ],
+   "ramp_uid": "richmond:696:2067733823644753",
+   "src_pano": "4081975025383965",
+   "src_x": 0.113281,
+   "src_y": 0.554688,
+   "views": [
+    {
+     "cx": 0.113281,
+     "cy": 0.554688,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -157.79138118,
+     "n": 0.0,
+     "pano": "4081975025383965",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m033_src.jpg"
+    },
+    {
+     "cx": 0.826527,
+     "cy": 0.555041,
+     "date": "2024-09",
+     "e": -1.46518341,
+     "h": 2.6,
+     "heading": -56.3834705,
+     "n": -1.14108922,
+     "pair_id": "m033",
+     "pano": "2067733823644753",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m033_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54322476,
+    -77.44013264
+   ],
+   "pairs": [
+    "m034"
+   ],
+   "ramp_uid": "richmond:699:1085890173202735",
+   "src_pano": "1033906904936104",
+   "src_x": 0.198242,
+   "src_y": 0.554688,
+   "views": [
+    {
+     "cx": 0.198242,
+     "cy": 0.554688,
+     "date": "2024-08",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -53.94498889,
+     "n": 0.0,
+     "pano": "1033906904936104",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m034_src.jpg"
+    },
+    {
+     "cx": 0.175628,
+     "cy": 0.894396,
+     "date": "2025-08",
+     "e": -3.72924976,
+     "h": 2.6,
+     "heading": -12.55881288,
+     "n": -10.25094539,
+     "pair_id": "m034",
+     "pano": "1085890173202735",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m034_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54402329,
+    -77.42941659
+   ],
+   "pairs": [
+    "m035"
+   ],
+   "ramp_uid": "richmond:732:593421160518191",
+   "src_pano": "1478772743308961",
+   "src_x": 0.479492,
+   "src_y": 0.599609,
+   "views": [
+    {
+     "cx": 0.479492,
+     "cy": 0.599609,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -146.62979335,
+     "n": 0.0,
+     "pano": "1478772743308961",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m035_src.jpg"
+    },
+    {
+     "cx": 0.920911,
+     "cy": 0.589945,
+     "date": "2025-08",
+     "e": -0.48045104,
+     "h": 2.6,
+     "heading": 34.01457026,
+     "n": 1.20817088,
+     "pair_id": "m035",
+     "pano": "593421160518191",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m035_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54181304,
+    -77.43994126
+   ],
+   "pairs": [
+    "m036"
+   ],
+   "ramp_uid": "richmond:733:723487737079243",
+   "src_pano": "1483287146427537",
+   "src_x": 0.980469,
+   "src_y": 0.648438,
+   "views": [
+    {
+     "cx": 0.980469,
+     "cy": 0.648438,
+     "date": "2025-01",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -65.2036003,
+     "n": 0.0,
+     "pano": "1483287146427537",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m036_src.jpg"
+    },
+    {
+     "cx": 0.476203,
+     "cy": 0.601385,
+     "date": "2024-11",
+     "e": -0.98223275,
+     "h": 2.6,
+     "heading": 112.38889312,
+     "n": -0.12506457,
+     "pair_id": "m036",
+     "pano": "723487737079243",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m036_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.5341141,
+    -77.43248919
+   ],
+   "pairs": [
+    "m037"
+   ],
+   "ramp_uid": "richmond:751:822353906794602",
+   "src_pano": "884851116930295",
+   "src_x": 0.291992,
+   "src_y": 0.568359,
+   "views": [
+    {
+     "cx": 0.291992,
+     "cy": 0.568359,
+     "date": "2024-09",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 9.23132106,
+     "n": 0.0,
+     "pano": "884851116930295",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m037_src.jpg"
+    },
+    {
+     "cx": 0.334123,
+     "cy": 0.712983,
+     "date": "2025-09",
+     "e": -13.59871835,
+     "h": 2.6,
+     "heading": 143.55028387,
+     "n": 6.44358666,
+     "pair_id": "m037",
+     "pano": "822353906794602",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m037_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54723317,
+    -77.43486407
+   ],
+   "pairs": [
+    "m038"
+   ],
+   "ramp_uid": "richmond:761:1427673368387929",
+   "src_pano": "922393146690365",
+   "src_x": 0.847656,
+   "src_y": 0.615234,
+   "views": [
+    {
+     "cx": 0.847656,
+     "cy": 0.615234,
+     "date": "2024-11",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 5.27007256,
+     "n": 0.0,
+     "pano": "922393146690365",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m038_src.jpg"
+    },
+    {
+     "cx": 0.7327,
+     "cy": 0.608284,
+     "date": "2024-11",
+     "e": -0.46236817,
+     "h": 2.6,
+     "heading": 21.48637,
+     "n": -4.17685475,
+     "pair_id": "m038",
+     "pano": "1427673368387929",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m038_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.53873475,
+    -77.44144968
+   ],
+   "pairs": [
+    "m039"
+   ],
+   "ramp_uid": "richmond:762:1092133469495462",
+   "src_pano": "774779251909652",
+   "src_x": 0.963867,
+   "src_y": 0.710938,
+   "views": [
+    {
+     "cx": 0.963867,
+     "cy": 0.710938,
+     "date": "2025-01",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 26.56077634,
+     "n": 0.0,
+     "pano": "774779251909652",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m039_src.jpg"
+    },
+    {
+     "cx": 0.320677,
+     "cy": 0.602122,
+     "date": "2024-11",
+     "e": -4.88070619,
+     "h": 2.6,
+     "heading": -140.27000936,
+     "n": 2.71601486,
+     "pair_id": "m039",
+     "pano": "1092133469495462",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m039_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54469373,
+    -77.44282258
+   ],
+   "pairs": [
+    "m040"
+   ],
+   "ramp_uid": "richmond:791:3980741912187626",
+   "src_pano": "3750602321904495",
+   "src_x": 0.666992,
+   "src_y": 0.646484,
+   "views": [
+    {
+     "cx": 0.666992,
+     "cy": 0.646484,
+     "date": "2024-11",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 39.57120902,
+     "n": 0.0,
+     "pano": "3750602321904495",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m040_src.jpg"
+    },
+    {
+     "cx": 0.598491,
+     "cy": 0.605603,
+     "date": "2024-11",
+     "e": -2.26347035,
+     "h": 2.6,
+     "heading": 38.19241591,
+     "n": -1.09753672,
+     "pair_id": "m040",
+     "pano": "3980741912187626",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m040_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.53745517,
+    -77.43719087
+   ],
+   "pairs": [
+    "m041"
+   ],
+   "ramp_uid": "richmond:836:1309093164014619",
+   "src_pano": "1125382389138426",
+   "src_x": 0.135742,
+   "src_y": 0.554688,
+   "views": [
+    {
+     "cx": 0.135742,
+     "cy": 0.554688,
+     "date": "2025-09",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 35.94966908,
+     "n": 0.0,
+     "pano": "1125382389138426",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m041_src.jpg"
+    },
+    {
+     "cx": 0.18994,
+     "cy": 0.568711,
+     "date": "2025-09",
+     "e": -3.28851658,
+     "h": 2.6,
+     "heading": 36.41133188,
+     "n": -4.56259069,
+     "pair_id": "m041",
+     "pano": "1309093164014619",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m041_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54965705,
+    -77.44033773
+   ],
+   "pairs": [
+    "m042"
+   ],
+   "ramp_uid": "richmond:866:3901547360084831",
+   "src_pano": "1150587863128577",
+   "src_x": 0.729492,
+   "src_y": 0.630859,
+   "views": [
+    {
+     "cx": 0.729492,
+     "cy": 0.630859,
+     "date": "2024-11",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 171.90363745,
+     "n": 0.0,
+     "pano": "1150587863128577",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m042_src.jpg"
+    },
+    {
+     "cx": 0.617251,
+     "cy": 0.582365,
+     "date": "2024-11",
+     "e": -1.14444848,
+     "h": 2.6,
+     "heading": 169.91326348,
+     "n": 5.76262607,
+     "pair_id": "m042",
+     "pano": "3901547360084831",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m042_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.53413567,
+    -77.43262196
+   ],
+   "pairs": [
+    "m043"
+   ],
+   "ramp_uid": "richmond:880:822353906794602",
+   "src_pano": "1293184908955733",
+   "src_x": 0.042969,
+   "src_y": 0.554688,
+   "views": [
+    {
+     "cx": 0.042969,
+     "cy": 0.554688,
+     "date": "2025-09",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 160.86434353,
+     "n": 0.0,
+     "pano": "1293184908955733",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m043_src.jpg"
+    },
+    {
+     "cx": 0.136306,
+     "cy": 0.561928,
+     "date": "2025-09",
+     "e": -1.87765565,
+     "h": 2.6,
+     "heading": 143.55028387,
+     "n": 4.04205146,
+     "pair_id": "m043",
+     "pano": "822353906794602",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m043_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.55064912,
+    -77.44051027
+   ],
+   "pairs": [
+    "m044"
+   ],
+   "ramp_uid": "richmond:973:1187483045673326",
+   "src_pano": "489062384265183",
+   "src_x": 0.894531,
+   "src_y": 0.585938,
+   "views": [
+    {
+     "cx": 0.894531,
+     "cy": 0.585938,
+     "date": "2024-11",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -7.91779584,
+     "n": 0.0,
+     "pano": "489062384265183",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m044_src.jpg"
+    },
+    {
+     "cx": 0.865464,
+     "cy": 0.634555,
+     "date": "2024-09",
+     "e": 1.56703672,
+     "h": 2.6,
+     "heading": -12.95309143,
+     "n": -4.63588934,
+     "pair_id": "m044",
+     "pano": "1187483045673326",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m044_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.53432937,
+    -77.43319876
+   ],
+   "pairs": [
+    "m045"
+   ],
+   "ramp_uid": "richmond:1054:1119718896242677",
+   "src_pano": "690601574068115",
+   "src_x": 0.12793,
+   "src_y": 0.552734,
+   "views": [
+    {
+     "cx": 0.12793,
+     "cy": 0.552734,
+     "date": "2025-09",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -169.45525196,
+     "n": 0.0,
+     "pano": "690601574068115",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m045_src.jpg"
+    },
+    {
+     "cx": 0.197573,
+     "cy": 0.570009,
+     "date": "2024-09",
+     "e": -2.80655929,
+     "h": 2.6,
+     "heading": -166.31854843,
+     "n": 2.41391787,
+     "pair_id": "m045",
+     "pano": "1119718896242677",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m045_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.55020773,
+    -77.43986666
+   ],
+   "pairs": [
+    "m046"
+   ],
+   "ramp_uid": "richmond:1060:1237376427883773",
+   "src_pano": "1467609757582865",
+   "src_x": 0.94043,
+   "src_y": 0.617188,
+   "views": [
+    {
+     "cx": 0.94043,
+     "cy": 0.617188,
+     "date": "2024-11",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -50.30031871,
+     "n": 0.0,
+     "pano": "1467609757582865",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m046_src.jpg"
+    },
+    {
+     "cx": 0.597767,
+     "cy": 0.680772,
+     "date": "2024-11",
+     "e": 6.77028877,
+     "h": 2.6,
+     "heading": -50.61038594,
+     "n": -5.12703474,
+     "pair_id": "m046",
+     "pano": "1237376427883773",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m046_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54169296,
+    -77.44424806
+   ],
+   "pairs": [
+    "m047"
+   ],
+   "ramp_uid": "richmond:1095:1483585545954157",
+   "src_pano": "1089600363088792",
+   "src_x": 0.323242,
+   "src_y": 0.601562,
+   "views": [
+    {
+     "cx": 0.323242,
+     "cy": 0.601562,
+     "date": "2024-11",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -158.46661264,
+     "n": 0.0,
+     "pano": "1089600363088792",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m047_src.jpg"
+    },
+    {
+     "cx": 0.340494,
+     "cy": 0.645107,
+     "date": "2024-11",
+     "e": 0.1749125,
+     "h": 2.6,
+     "heading": -167.80675289,
+     "n": -1.64865299,
+     "pair_id": "m047",
+     "pano": "1483585545954157",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m047_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54400951,
+    -77.42944501
+   ],
+   "pairs": [
+    "m048"
+   ],
+   "ramp_uid": "richmond:1100:593421160518191",
+   "src_pano": "2157386338088556",
+   "src_x": 0.604492,
+   "src_y": 0.554688,
+   "views": [
+    {
+     "cx": 0.604492,
+     "cy": 0.554688,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 37.56134607,
+     "n": 0.0,
+     "pano": "2157386338088556",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m048_src.jpg"
+    },
+    {
+     "cx": 0.63424,
+     "cy": 0.572424,
+     "date": "2025-08",
+     "e": 2.02749901,
+     "h": 2.6,
+     "heading": 34.01457026,
+     "n": 2.74200029,
+     "pair_id": "m048",
+     "pano": "593421160518191",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m048_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54328861,
+    -77.43016587
+   ],
+   "pairs": [
+    "m049"
+   ],
+   "ramp_uid": "richmond:1187:4116269558691031",
+   "src_pano": "1206060780815720",
+   "src_x": 0.707031,
+   "src_y": 0.646484,
+   "views": [
+    {
+     "cx": 0.707031,
+     "cy": 0.646484,
+     "date": "2024-08",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -115.49479307,
+     "n": 0.0,
+     "pano": "1206060780815720",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m049_src.jpg"
+    },
+    {
+     "cx": 0.352598,
+     "cy": 0.767874,
+     "date": "2025-08",
+     "e": -6.22975145,
+     "h": 2.6,
+     "heading": 91.35189014,
+     "n": 0.09046253,
+     "pair_id": "m049",
+     "pano": "4116269558691031",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m049_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54162596,
+    -77.44423356
+   ],
+   "pairs": [
+    "m050"
+   ],
+   "ramp_uid": "richmond:1189:1483585545954157",
+   "src_pano": "781666977544974",
+   "src_x": 0.128906,
+   "src_y": 0.617188,
+   "views": [
+    {
+     "cx": 0.128906,
+     "cy": 0.617188,
+     "date": "2024-11",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 155.75673972,
+     "n": 0.0,
+     "pano": "781666977544974",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m050_src.jpg"
+    },
+    {
+     "cx": 0.13174,
+     "cy": 0.687516,
+     "date": "2024-11",
+     "e": -1.10414037,
+     "h": 2.6,
+     "heading": -167.80675289,
+     "n": 5.80940864,
+     "pair_id": "m050",
+     "pano": "1483585545954157",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m050_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.5462826,
+    -77.44283309
+   ],
+   "pairs": [
+    "m051"
+   ],
+   "ramp_uid": "richmond:1199:1130501775077894",
+   "src_pano": "415775934748328",
+   "src_x": 0.674805,
+   "src_y": 0.585938,
+   "views": [
+    {
+     "cx": 0.674805,
+     "cy": 0.585938,
+     "date": "2024-09",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -139.65625407,
+     "n": 0.0,
+     "pano": "415775934748328",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m051_src.jpg"
+    },
+    {
+     "cx": 0.76431,
+     "cy": 0.584892,
+     "date": "2024-09",
+     "e": -3.47840348,
+     "h": 2.6,
+     "heading": -144.28575863,
+     "n": -4.50127875,
+     "pair_id": "m051",
+     "pano": "1130501775077894",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m051_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54469373,
+    -77.44282258
+   ],
+   "pairs": [
+    "m052"
+   ],
+   "ramp_uid": "richmond:1271:3980741912187626",
+   "src_pano": "3750602321904495",
+   "src_x": 0.347656,
+   "src_y": 0.585938,
+   "views": [
+    {
+     "cx": 0.347656,
+     "cy": 0.585938,
+     "date": "2024-11",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 39.57120902,
+     "n": 0.0,
+     "pano": "3750602321904495",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m052_src.jpg"
+    },
+    {
+     "cx": 0.375022,
+     "cy": 0.59121,
+     "date": "2024-11",
+     "e": -2.26347035,
+     "h": 2.6,
+     "heading": 38.19241591,
+     "n": -1.09753672,
+     "pair_id": "m052",
+     "pano": "3980741912187626",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m052_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54186607,
+    -77.44002364
+   ],
+   "pairs": [
+    "m053"
+   ],
+   "ramp_uid": "richmond:1287:723487737079243",
+   "src_pano": "2965822660266034",
+   "src_x": 0.425781,
+   "src_y": 0.585938,
+   "views": [
+    {
+     "cx": 0.425781,
+     "cy": 0.585938,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -130.33072269,
+     "n": 0.0,
+     "pano": "2965822660266034",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m053_src.jpg"
+    },
+    {
+     "cx": 0.863972,
+     "cy": 0.563598,
+     "date": "2024-11",
+     "e": 6.28894527,
+     "h": 2.6,
+     "heading": 112.38889312,
+     "n": -6.02838009,
+     "pair_id": "m053",
+     "pano": "723487737079243",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m053_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.53745517,
+    -77.43719087
+   ],
+   "pairs": [
+    "m054"
+   ],
+   "ramp_uid": "richmond:1296:1309093164014619",
+   "src_pano": "1125382389138426",
+   "src_x": 0.917969,
+   "src_y": 0.570312,
+   "views": [
+    {
+     "cx": 0.917969,
+     "cy": 0.570312,
+     "date": "2025-09",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 35.94966908,
+     "n": 0.0,
+     "pano": "1125382389138426",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m054_src.jpg"
+    },
+    {
+     "cx": 0.885258,
+     "cy": 0.602812,
+     "date": "2025-09",
+     "e": -3.28851658,
+     "h": 2.6,
+     "heading": 36.41133188,
+     "n": -4.56259069,
+     "pair_id": "m054",
+     "pano": "1309093164014619",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m054_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54374513,
+    -77.43131385
+   ],
+   "pairs": [
+    "m055"
+   ],
+   "ramp_uid": "richmond:1302:1110314244387816",
+   "src_pano": "718534601211488",
+   "src_x": 0.769531,
+   "src_y": 0.552734,
+   "views": [
+    {
+     "cx": 0.769531,
+     "cy": 0.552734,
+     "date": "2025-09",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -19.65871798,
+     "n": 0.0,
+     "pano": "718534601211488",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m055_src.jpg"
+    },
+    {
+     "cx": 0.454761,
+     "cy": 0.558461,
+     "date": "2025-08",
+     "e": 2.50795506,
+     "h": 2.6,
+     "heading": 103.81093641,
+     "n": 2.85262944,
+     "pair_id": "m055",
+     "pano": "1110314244387816",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m055_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54473095,
+    -77.44279986
+   ],
+   "pairs": [
+    "m056"
+   ],
+   "ramp_uid": "richmond:1360:3980741912187626",
+   "src_pano": "1243019807188630",
+   "src_x": 0.199219,
+   "src_y": 0.630859,
+   "views": [
+    {
+     "cx": 0.199219,
+     "cy": 0.630859,
+     "date": "2024-11",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 36.91754492,
+     "n": 0.0,
+     "pano": "1243019807188630",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m056_src.jpg"
+    },
+    {
+     "cx": 0.384864,
+     "cy": 0.602792,
+     "date": "2024-11",
+     "e": -4.26916393,
+     "h": 2.6,
+     "heading": 38.19241591,
+     "n": -5.24123537,
+     "pair_id": "m056",
+     "pano": "3980741912187626",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m056_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54383694,
+    -77.43666769
+   ],
+   "pairs": [
+    "m057"
+   ],
+   "ramp_uid": "richmond:1365:2111278956050786",
+   "src_pano": "26291425290506295",
+   "src_x": 0.386719,
+   "src_y": 0.554688,
+   "views": [
+    {
+     "cx": 0.386719,
+     "cy": 0.554688,
+     "date": "2024-08",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": 128.00117687,
+     "n": 0.0,
+     "pano": "26291425290506295",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m057_src.jpg"
+    },
+    {
+     "cx": 0.344972,
+     "cy": 0.58374,
+     "date": "2024-11",
+     "e": 11.35589351,
+     "h": 2.6,
+     "heading": -139.23212344,
+     "n": 9.53625441,
+     "pair_id": "m057",
+     "pano": "2111278956050786",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m057_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "richmond",
+   "imagery": "mapillary",
+   "origin": [
+    37.54209469,
+    -77.43835086
+   ],
+   "pairs": [
+    "m058"
+   ],
+   "ramp_uid": "richmond:1404:1050503583329955",
+   "src_pano": "797017049306822",
+   "src_x": 0.666992,
+   "src_y": 0.570312,
+   "views": [
+    {
+     "cx": 0.666992,
+     "cy": 0.570312,
+     "date": "2024-08",
+     "e": 0.0,
+     "h": 2.6,
+     "heading": -54.4742167,
+     "n": 0.0,
+     "pano": "797017049306822",
+     "role": "src",
+     "source": "mapillary",
+     "view": "m058_src.jpg"
+    },
+    {
+     "cx": 0.602286,
+     "cy": 0.582254,
+     "date": "2024-11",
+     "e": 9.82954906,
+     "h": 2.6,
+     "heading": -140.79911826,
+     "n": 10.6703829,
+     "pair_id": "m058",
+     "pano": "1050503583329955",
+     "role": "oth",
+     "source": "mapillary",
+     "view": "m058_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.92101461,
+    -74.13936506
+   ],
+   "pairs": [
+    "m059"
+   ],
+   "ramp_uid": "paterson:954:3dq9TqRXzopD0yvztHg8rg",
+   "src_pano": "933p1UBAj2aYR1SBHS3Q5A",
+   "src_x": 0.963867,
+   "src_y": 0.537109,
+   "views": [
+    {
+     "cx": 0.963867,
+     "cy": 0.537109,
+     "date": "2020-11",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": 9.02038479,
+     "n": 0.0,
+     "pano": "933p1UBAj2aYR1SBHS3Q5A",
+     "role": "src",
+     "source": "launch",
+     "view": "m059_src.jpg"
+    },
+    {
+     "cx": 0.936796,
+     "cy": 0.579345,
+     "date": "2020-11",
+     "e": -1.53748758,
+     "h": 2.5,
+     "heading": 1.82128024,
+     "n": -11.4837218,
+     "pair_id": "m059",
+     "pano": "3dq9TqRXzopD0yvztHg8rg",
+     "role": "oth",
+     "source": "launch",
+     "view": "m059_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.92309824,
+    -74.18703599
+   ],
+   "pairs": [
+    "m060"
+   ],
+   "ramp_uid": "paterson:1264:e2tMNl4AQvYcYtzyd9aTOg",
+   "src_pano": "0XCktqtzolxTgK6Y2m76wA",
+   "src_x": 0.863281,
+   "src_y": 0.677734,
+   "views": [
+    {
+     "cx": 0.863281,
+     "cy": 0.677734,
+     "date": "2018-06",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": 112.16751862,
+     "n": 0.0,
+     "pano": "0XCktqtzolxTgK6Y2m76wA",
+     "role": "src",
+     "source": "launch",
+     "view": "m060_src.jpg"
+    },
+    {
+     "cx": 0.937822,
+     "cy": 0.560982,
+     "date": "2012-07",
+     "e": 8.02428076,
+     "h": 2.5,
+     "heading": 138.11950684,
+     "n": -7.24867172,
+     "pair_id": "m060",
+     "pano": "e2tMNl4AQvYcYtzyd9aTOg",
+     "role": "oth",
+     "source": "launch",
+     "view": "m060_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.92444268,
+    -74.17136882
+   ],
+   "pairs": [
+    "m061"
+   ],
+   "ramp_uid": "paterson:1348:zB7_9mtLQuVbRyZrttlMXg",
+   "src_pano": "_LQEKU_YwtFt4Z2XDvTdJA",
+   "src_x": 0.268555,
+   "src_y": 0.599609,
+   "views": [
+    {
+     "cx": 0.268555,
+     "cy": 0.599609,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": -89.75643921,
+     "n": 0.0,
+     "pano": "_LQEKU_YwtFt4Z2XDvTdJA",
+     "role": "src",
+     "source": "launch",
+     "view": "m061_src.jpg"
+    },
+    {
+     "cx": 0.073527,
+     "cy": 0.532525,
+     "date": "2025-08",
+     "e": -12.70403459,
+     "h": 2.0,
+     "heading": -149.56542969,
+     "n": -13.52976364,
+     "pair_id": "m061",
+     "pano": "zB7_9mtLQuVbRyZrttlMXg",
+     "role": "oth",
+     "source": "launch",
+     "view": "m061_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.91991661,
+    -74.18174684
+   ],
+   "pairs": [
+    "m062"
+   ],
+   "ramp_uid": "paterson:1959:Zu314hB3XfshUEt2hsd0RQ",
+   "src_pano": "_B41GATWBSG0TFTk1SLVNg",
+   "src_x": 0.94043,
+   "src_y": 0.554688,
+   "views": [
+    {
+     "cx": 0.94043,
+     "cy": 0.554688,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": 135.00717163,
+     "n": 0.0,
+     "pano": "_B41GATWBSG0TFTk1SLVNg",
+     "role": "src",
+     "source": "launch",
+     "view": "m062_src.jpg"
+    },
+    {
+     "cx": 0.913555,
+     "cy": 0.604444,
+     "date": "2025-08",
+     "e": -6.01301816,
+     "h": 2.0,
+     "heading": 102.28170776,
+     "n": 6.61653127,
+     "pair_id": "m062",
+     "pano": "Zu314hB3XfshUEt2hsd0RQ",
+     "role": "oth",
+     "source": "launch",
+     "view": "m062_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.92040977,
+    -74.17184058
+   ],
+   "pairs": [
+    "m063"
+   ],
+   "ramp_uid": "paterson:2413:UOMaPWpm2CRHbfqMgY_hbQ",
+   "src_pano": "58pr-VHSQWsYAtM9OMLF_w",
+   "src_x": 0.870117,
+   "src_y": 0.615234,
+   "views": [
+    {
+     "cx": 0.870117,
+     "cy": 0.615234,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": 148.74452209,
+     "n": 0.0,
+     "pano": "58pr-VHSQWsYAtM9OMLF_w",
+     "role": "src",
+     "source": "launch",
+     "view": "m063_src.jpg"
+    },
+    {
+     "cx": 0.919589,
+     "cy": 0.542989,
+     "date": "2025-08",
+     "e": 1.23581521,
+     "h": 2.0,
+     "heading": 179.89575195,
+     "n": -10.56903115,
+     "pair_id": "m063",
+     "pano": "UOMaPWpm2CRHbfqMgY_hbQ",
+     "role": "oth",
+     "source": "launch",
+     "view": "m063_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.92019657,
+    -74.15017688
+   ],
+   "pairs": [
+    "m064"
+   ],
+   "ramp_uid": "paterson:2447:RGAxlzGeyK3ncjFZ9VXpBA",
+   "src_pano": "NS8cGZYKhnuG97beZPdNqw",
+   "src_x": 0.644531,
+   "src_y": 0.583984,
+   "views": [
+    {
+     "cx": 0.644531,
+     "cy": 0.583984,
+     "date": "2025-10",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": 99.57556915,
+     "n": 0.0,
+     "pano": "NS8cGZYKhnuG97beZPdNqw",
+     "role": "src",
+     "source": "launch",
+     "view": "m064_src.jpg"
+    },
+    {
+     "cx": 0.929865,
+     "cy": 0.551606,
+     "date": "2025-10",
+     "e": 7.71723512,
+     "h": 2.0,
+     "heading": -175.67985535,
+     "n": -16.46208685,
+     "pair_id": "m064",
+     "pano": "RGAxlzGeyK3ncjFZ9VXpBA",
+     "role": "oth",
+     "source": "launch",
+     "view": "m064_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.91533881,
+    -74.16348377
+   ],
+   "pairs": [
+    "m065"
+   ],
+   "ramp_uid": "paterson:2575:fSQ5B3z1vT-Ym1-siL8iOA",
+   "src_pano": "L2nnLpqeddFloHAgy2ygDg",
+   "src_x": 0.339844,
+   "src_y": 0.630859,
+   "views": [
+    {
+     "cx": 0.339844,
+     "cy": 0.630859,
+     "date": "2024-11",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": -89.3291626,
+     "n": 0.0,
+     "pano": "L2nnLpqeddFloHAgy2ygDg",
+     "role": "src",
+     "source": "launch",
+     "view": "m065_src.jpg"
+    },
+    {
+     "cx": 0.84759,
+     "cy": 0.626958,
+     "date": "2025-10",
+     "e": -6.86563656,
+     "h": 2.0,
+     "heading": 0.05530415,
+     "n": -1.78887447,
+     "pair_id": "m065",
+     "pano": "fSQ5B3z1vT-Ym1-siL8iOA",
+     "role": "oth",
+     "source": "launch",
+     "view": "m065_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.92439724,
+    -74.17145491
+   ],
+   "pairs": [
+    "m066"
+   ],
+   "ramp_uid": "paterson:2579:zB7_9mtLQuVbRyZrttlMXg",
+   "src_pano": "OsAeMqg7HD-I8eXMhDemiA",
+   "src_x": 0.167969,
+   "src_y": 0.617188,
+   "views": [
+    {
+     "cx": 0.167969,
+     "cy": 0.617188,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": -137.86099243,
+     "n": 0.0,
+     "pano": "OsAeMqg7HD-I8eXMhDemiA",
+     "role": "src",
+     "source": "launch",
+     "view": "m066_src.jpg"
+    },
+    {
+     "cx": 0.0585,
+     "cy": 0.533601,
+     "date": "2025-08",
+     "e": -5.46288806,
+     "h": 2.0,
+     "heading": -149.56542969,
+     "n": -8.47037373,
+     "pair_id": "m066",
+     "pano": "zB7_9mtLQuVbRyZrttlMXg",
+     "role": "oth",
+     "source": "launch",
+     "view": "m066_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.92239676,
+    -74.15358101
+   ],
+   "pairs": [
+    "m067"
+   ],
+   "ramp_uid": "paterson:2633:0s94i47Wdggc9cHmBjEe8w",
+   "src_pano": "1XfNrTK9-SyKHYjY6rK17g",
+   "src_x": 0.222656,
+   "src_y": 0.617188,
+   "views": [
+    {
+     "cx": 0.222656,
+     "cy": 0.617188,
+     "date": "2019-08",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": -167.44564819,
+     "n": 0.0,
+     "pano": "1XfNrTK9-SyKHYjY6rK17g",
+     "role": "src",
+     "source": "launch",
+     "view": "m067_src.jpg"
+    },
+    {
+     "cx": 0.082287,
+     "cy": 0.557971,
+     "date": "2019-08",
+     "e": -2.38890293,
+     "h": 2.5,
+     "heading": -167.03308105,
+     "n": -10.43019112,
+     "pair_id": "m067",
+     "pano": "0s94i47Wdggc9cHmBjEe8w",
+     "role": "oth",
+     "source": "launch",
+     "view": "m067_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.9287202,
+    -74.16831494
+   ],
+   "pairs": [
+    "m068"
+   ],
+   "ramp_uid": "paterson:3553:nqA7oH-86S2CmsGA9hyVtA",
+   "src_pano": "q80Puan2oox6aX4jKL6Zgg",
+   "src_x": 0.393555,
+   "src_y": 0.568359,
+   "views": [
+    {
+     "cx": 0.393555,
+     "cy": 0.568359,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": -52.71395874,
+     "n": 0.0,
+     "pano": "q80Puan2oox6aX4jKL6Zgg",
+     "role": "src",
+     "source": "launch",
+     "view": "m068_src.jpg"
+    },
+    {
+     "cx": 0.684335,
+     "cy": 0.583233,
+     "date": "2019-08",
+     "e": -3.29264339,
+     "h": 2.5,
+     "heading": -108.90551758,
+     "n": -7.28198238,
+     "pair_id": "m068",
+     "pano": "nqA7oH-86S2CmsGA9hyVtA",
+     "role": "oth",
+     "source": "launch",
+     "view": "m068_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.90978285,
+    -74.19699698
+   ],
+   "pairs": [
+    "m069"
+   ],
+   "ramp_uid": "paterson:4027:3BTAarqIRrxbpFHUFJhtSQ",
+   "src_pano": "uTIGHw8z6F7ukotJJV_Kjw",
+   "src_x": 0.902344,
+   "src_y": 0.615234,
+   "views": [
+    {
+     "cx": 0.902344,
+     "cy": 0.615234,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": 98.53128815,
+     "n": 0.0,
+     "pano": "uTIGHw8z6F7ukotJJV_Kjw",
+     "role": "src",
+     "source": "launch",
+     "view": "m069_src.jpg"
+    },
+    {
+     "cx": 0.810299,
+     "cy": 0.687188,
+     "date": "2025-08",
+     "e": -3.70753731,
+     "h": 2.0,
+     "heading": 75.50543213,
+     "n": 0.26846319,
+     "pair_id": "m069",
+     "pano": "3BTAarqIRrxbpFHUFJhtSQ",
+     "role": "oth",
+     "source": "launch",
+     "view": "m069_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.91625349,
+    -74.1930064
+   ],
+   "pairs": [
+    "m070"
+   ],
+   "ramp_uid": "paterson:4725:XRsv_X3jYvAM1BPI-oQJUg",
+   "src_pano": "07FQZ8pbcb1Hw7NrfWkdOg",
+   "src_x": 0.291992,
+   "src_y": 0.599609,
+   "views": [
+    {
+     "cx": 0.291992,
+     "cy": 0.599609,
+     "date": "2020-11",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": 12.57650661,
+     "n": 0.0,
+     "pano": "07FQZ8pbcb1Hw7NrfWkdOg",
+     "role": "src",
+     "source": "launch",
+     "view": "m070_src.jpg"
+    },
+    {
+     "cx": 0.899665,
+     "cy": 0.544842,
+     "date": "2025-08",
+     "e": -11.42316351,
+     "h": 2.0,
+     "heading": -127.60800171,
+     "n": -8.96812715,
+     "pair_id": "m070",
+     "pano": "XRsv_X3jYvAM1BPI-oQJUg",
+     "role": "oth",
+     "source": "launch",
+     "view": "m070_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.93441054,
+    -74.15176504
+   ],
+   "pairs": [
+    "m071"
+   ],
+   "ramp_uid": "paterson:4800:Z929dNP7sDp8cU6sjIeKAw",
+   "src_pano": "gyvSTS7Q_W6DjvGA9ZRocw",
+   "src_x": 0.87793,
+   "src_y": 0.568359,
+   "views": [
+    {
+     "cx": 0.87793,
+     "cy": 0.568359,
+     "date": "2025-10",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": 103.72718811,
+     "n": 0.0,
+     "pano": "gyvSTS7Q_W6DjvGA9ZRocw",
+     "role": "src",
+     "source": "launch",
+     "view": "m071_src.jpg"
+    },
+    {
+     "cx": 0.324729,
+     "cy": 0.582133,
+     "date": "2024-11",
+     "e": -1.79325265,
+     "h": 2.5,
+     "heading": 13.99249363,
+     "n": -9.27468408,
+     "pair_id": "m071",
+     "pano": "Z929dNP7sDp8cU6sjIeKAw",
+     "role": "oth",
+     "source": "launch",
+     "view": "m071_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.9155737,
+    -74.16822948
+   ],
+   "pairs": [
+    "m072"
+   ],
+   "ramp_uid": "paterson:4854:PM92O1ji0i42GTuhT_ll5A",
+   "src_pano": "M3aO3GyEmuuhrVAeBIGjfQ",
+   "src_x": 0.707031,
+   "src_y": 0.632812,
+   "views": [
+    {
+     "cx": 0.707031,
+     "cy": 0.632812,
+     "date": "2019-07",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": -17.86245728,
+     "n": 0.0,
+     "pano": "M3aO3GyEmuuhrVAeBIGjfQ",
+     "role": "src",
+     "source": "launch",
+     "view": "m072_src.jpg"
+    },
+    {
+     "cx": 0.623228,
+     "cy": 0.552539,
+     "date": "2024-11",
+     "e": -0.67825405,
+     "h": 2.5,
+     "heading": -18.80664062,
+     "n": -8.36395855,
+     "pair_id": "m072",
+     "pano": "PM92O1ji0i42GTuhT_ll5A",
+     "role": "oth",
+     "source": "launch",
+     "view": "m072_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.92024452,
+    -74.16446234
+   ],
+   "pairs": [
+    "m073"
+   ],
+   "ramp_uid": "paterson:4993:ixm9RoZTI443YB7QoJ6nLQ",
+   "src_pano": "LZfSI5ukP-OUj4wUA9LOTg",
+   "src_x": 0.308594,
+   "src_y": 0.599609,
+   "views": [
+    {
+     "cx": 0.308594,
+     "cy": 0.599609,
+     "date": "2025-10",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": 175.1837616,
+     "n": 0.0,
+     "pano": "LZfSI5ukP-OUj4wUA9LOTg",
+     "role": "src",
+     "source": "launch",
+     "view": "m073_src.jpg"
+    },
+    {
+     "cx": 0.423762,
+     "cy": 0.547234,
+     "date": "2025-10",
+     "e": 0.21100174,
+     "h": 2.0,
+     "heading": -177.05984497,
+     "n": 9.94849562,
+     "pair_id": "m073",
+     "pano": "ixm9RoZTI443YB7QoJ6nLQ",
+     "role": "oth",
+     "source": "launch",
+     "view": "m073_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.92013859,
+    -74.15008585
+   ],
+   "pairs": [
+    "m074"
+   ],
+   "ramp_uid": "paterson:5009:RGAxlzGeyK3ncjFZ9VXpBA",
+   "src_pano": "4nrqVX7SlcjB9ENSojG7xA",
+   "src_x": 0.332031,
+   "src_y": 0.554688,
+   "views": [
+    {
+     "cx": 0.332031,
+     "cy": 0.554688,
+     "date": "2025-10",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": 160.74514771,
+     "n": 0.0,
+     "pano": "4nrqVX7SlcjB9ENSojG7xA",
+     "role": "src",
+     "source": "launch",
+     "view": "m074_src.jpg"
+    },
+    {
+     "cx": 0.115854,
+     "cy": 0.547162,
+     "date": "2025-10",
+     "e": 0.06029097,
+     "h": 2.0,
+     "heading": -175.67985535,
+     "n": -10.00686304,
+     "pair_id": "m074",
+     "pano": "RGAxlzGeyK3ncjFZ9VXpBA",
+     "role": "oth",
+     "source": "launch",
+     "view": "m074_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.91839091,
+    -74.20422613
+   ],
+   "pairs": [
+    "m075"
+   ],
+   "ramp_uid": "paterson:5037:BjV06xLkvfHDCTJMA5WK6Q",
+   "src_pano": "dkLZLzdA0pSuserxRYu46w",
+   "src_x": 0.831055,
+   "src_y": 0.583984,
+   "views": [
+    {
+     "cx": 0.831055,
+     "cy": 0.583984,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": -130.35697937,
+     "n": 0.0,
+     "pano": "dkLZLzdA0pSuserxRYu46w",
+     "role": "src",
+     "source": "launch",
+     "view": "m075_src.jpg"
+    },
+    {
+     "cx": 0.917232,
+     "cy": 0.53902,
+     "date": "2025-08",
+     "e": -6.75079377,
+     "h": 2.0,
+     "heading": -130.39094543,
+     "n": -5.82454354,
+     "pair_id": "m075",
+     "pano": "BjV06xLkvfHDCTJMA5WK6Q",
+     "role": "oth",
+     "source": "launch",
+     "view": "m075_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.92239676,
+    -74.15358101
+   ],
+   "pairs": [
+    "m076"
+   ],
+   "ramp_uid": "paterson:5079:0s94i47Wdggc9cHmBjEe8w",
+   "src_pano": "1XfNrTK9-SyKHYjY6rK17g",
+   "src_x": 0.753906,
+   "src_y": 0.648438,
+   "views": [
+    {
+     "cx": 0.753906,
+     "cy": 0.648438,
+     "date": "2019-08",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": -167.44564819,
+     "n": 0.0,
+     "pano": "1XfNrTK9-SyKHYjY6rK17g",
+     "role": "src",
+     "source": "launch",
+     "view": "m076_src.jpg"
+    },
+    {
+     "cx": 0.942443,
+     "cy": 0.56482,
+     "date": "2019-08",
+     "e": -2.38890293,
+     "h": 2.5,
+     "heading": -167.03308105,
+     "n": -10.43019112,
+     "pair_id": "m076",
+     "pano": "0s94i47Wdggc9cHmBjEe8w",
+     "role": "oth",
+     "source": "launch",
+     "view": "m076_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.92885416,
+    -74.17978377
+   ],
+   "pairs": [
+    "m077"
+   ],
+   "ramp_uid": "paterson:5100:0-zmUwLwl5ENJgqxheDklQ",
+   "src_pano": "6zNIt81jPlHnSAkVz8DbFw",
+   "src_x": 0.800781,
+   "src_y": 0.632812,
+   "views": [
+    {
+     "cx": 0.800781,
+     "cy": 0.632812,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": -41.32623291,
+     "n": 0.0,
+     "pano": "6zNIt81jPlHnSAkVz8DbFw",
+     "role": "src",
+     "source": "launch",
+     "view": "m077_src.jpg"
+    },
+    {
+     "cx": 0.120819,
+     "cy": 0.552903,
+     "date": "2024-11",
+     "e": 17.17038923,
+     "h": 2.5,
+     "heading": 47.75151062,
+     "n": 0.87260176,
+     "pair_id": "m077",
+     "pano": "0-zmUwLwl5ENJgqxheDklQ",
+     "role": "oth",
+     "source": "launch",
+     "view": "m077_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.8982462,
+    -74.15318295
+   ],
+   "pairs": [
+    "m078"
+   ],
+   "ramp_uid": "paterson:5390:as5xCAJAYMT35sgs0rx2_w",
+   "src_pano": "jL1xdVR_Wn11viZyTmdDHw",
+   "src_x": 0.838867,
+   "src_y": 0.583984,
+   "views": [
+    {
+     "cx": 0.838867,
+     "cy": 0.583984,
+     "date": "2025-10",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": -102.34811401,
+     "n": 0.0,
+     "pano": "jL1xdVR_Wn11viZyTmdDHw",
+     "role": "src",
+     "source": "launch",
+     "view": "m078_src.jpg"
+    },
+    {
+     "cx": 0.625728,
+     "cy": 0.577709,
+     "date": "2021-10",
+     "e": 10.19992006,
+     "h": 2.5,
+     "heading": -103.15045166,
+     "n": 2.83617002,
+     "pair_id": "m078",
+     "pano": "as5xCAJAYMT35sgs0rx2_w",
+     "role": "oth",
+     "source": "launch",
+     "view": "m078_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.91985287,
+    -74.18217458
+   ],
+   "pairs": [
+    "m079"
+   ],
+   "ramp_uid": "paterson:5418:aZxwqPZnkC3sv5dTZOEomA",
+   "src_pano": "oyadHcmcubIWzWZkDnIzYw",
+   "src_x": 0.855469,
+   "src_y": 0.693359,
+   "views": [
+    {
+     "cx": 0.855469,
+     "cy": 0.693359,
+     "date": "2015-11",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": -170.16421509,
+     "n": 0.0,
+     "pano": "oyadHcmcubIWzWZkDnIzYw",
+     "role": "src",
+     "source": "launch",
+     "view": "m079_src.jpg"
+    },
+    {
+     "cx": 0.39209,
+     "cy": 0.544495,
+     "date": "2025-08",
+     "e": -4.64915711,
+     "h": 2.0,
+     "heading": 49.2532959,
+     "n": -10.30612443,
+     "pair_id": "m079",
+     "pano": "aZxwqPZnkC3sv5dTZOEomA",
+     "role": "oth",
+     "source": "launch",
+     "view": "m079_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.91398244,
+    -74.14747871
+   ],
+   "pairs": [
+    "m080"
+   ],
+   "ramp_uid": "paterson:5695:k3ipUDBk_fu7EXSVSNGaig",
+   "src_pano": "jS53wAhMMcnbfGAkUuDp0g",
+   "src_x": 0.84668,
+   "src_y": 0.601562,
+   "views": [
+    {
+     "cx": 0.84668,
+     "cy": 0.601562,
+     "date": "2025-10",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": -80.94506836,
+     "n": 0.0,
+     "pano": "jS53wAhMMcnbfGAkUuDp0g",
+     "role": "src",
+     "source": "launch",
+     "view": "m080_src.jpg"
+    },
+    {
+     "cx": 0.646405,
+     "cy": 0.593701,
+     "date": "2025-10",
+     "e": 7.16785809,
+     "h": 2.0,
+     "heading": -81.06213379,
+     "n": -1.09861038,
+     "pair_id": "m080",
+     "pano": "k3ipUDBk_fu7EXSVSNGaig",
+     "role": "oth",
+     "source": "launch",
+     "view": "m080_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.91279481,
+    -74.14775395
+   ],
+   "pairs": [
+    "m081"
+   ],
+   "ramp_uid": "paterson:5748:eIw8Y1zl7qgUW6bTPzk3gA",
+   "src_pano": "zhH8WcjixvXuESYovliHXg",
+   "src_x": 0.058594,
+   "src_y": 0.539062,
+   "views": [
+    {
+     "cx": 0.058594,
+     "cy": 0.539062,
+     "date": "2021-10",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": 11.04526806,
+     "n": 0.0,
+     "pano": "zhH8WcjixvXuESYovliHXg",
+     "role": "src",
+     "source": "launch",
+     "view": "m081_src.jpg"
+    },
+    {
+     "cx": 0.084083,
+     "cy": 0.554971,
+     "date": "2021-10",
+     "e": -1.75619137,
+     "h": 2.5,
+     "heading": 14.56257725,
+     "n": -8.14645295,
+     "pair_id": "m081",
+     "pano": "eIw8Y1zl7qgUW6bTPzk3gA",
+     "role": "oth",
+     "source": "launch",
+     "view": "m081_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.92828236,
+    -74.14588595
+   ],
+   "pairs": [
+    "m082"
+   ],
+   "ramp_uid": "paterson:5848:21Gw_VuYrSK42PCF32UGUw",
+   "src_pano": "dahWDSNC6T1XtYqgxt6Rag",
+   "src_x": 0.854492,
+   "src_y": 0.617188,
+   "views": [
+    {
+     "cx": 0.854492,
+     "cy": 0.617188,
+     "date": "2024-11",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": -163.55082703,
+     "n": 0.0,
+     "pano": "dahWDSNC6T1XtYqgxt6Rag",
+     "role": "src",
+     "source": "launch",
+     "view": "m082_src.jpg"
+    },
+    {
+     "cx": 0.523159,
+     "cy": 0.539002,
+     "date": "2025-10",
+     "e": 9.27634116,
+     "h": 2.0,
+     "heading": -69.35308838,
+     "n": -2.46242482,
+     "pair_id": "m082",
+     "pano": "21Gw_VuYrSK42PCF32UGUw",
+     "role": "oth",
+     "source": "launch",
+     "view": "m082_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.91398244,
+    -74.14747871
+   ],
+   "pairs": [
+    "m083"
+   ],
+   "ramp_uid": "paterson:5917:k3ipUDBk_fu7EXSVSNGaig",
+   "src_pano": "jS53wAhMMcnbfGAkUuDp0g",
+   "src_x": 0.183594,
+   "src_y": 0.570312,
+   "views": [
+    {
+     "cx": 0.183594,
+     "cy": 0.570312,
+     "date": "2025-10",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": -80.94506836,
+     "n": 0.0,
+     "pano": "jS53wAhMMcnbfGAkUuDp0g",
+     "role": "src",
+     "source": "launch",
+     "view": "m083_src.jpg"
+    },
+    {
+     "cx": 0.331549,
+     "cy": 0.562183,
+     "date": "2025-10",
+     "e": 7.16785809,
+     "h": 2.0,
+     "heading": -81.06213379,
+     "n": -1.09861038,
+     "pair_id": "m083",
+     "pano": "k3ipUDBk_fu7EXSVSNGaig",
+     "role": "oth",
+     "source": "launch",
+     "view": "m083_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.91733922,
+    -74.16468667
+   ],
+   "pairs": [
+    "m084"
+   ],
+   "ramp_uid": "paterson:6561:ZcGyifqcyvUwLtCYGTr3oA",
+   "src_pano": "wAad5aonhaPbJwz6WgGkYA",
+   "src_x": 0.417969,
+   "src_y": 0.554688,
+   "views": [
+    {
+     "cx": 0.417969,
+     "cy": 0.554688,
+     "date": "2025-10",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": 93.10896301,
+     "n": 0.0,
+     "pano": "wAad5aonhaPbJwz6WgGkYA",
+     "role": "src",
+     "source": "launch",
+     "view": "m084_src.jpg"
+    },
+    {
+     "cx": 0.84599,
+     "cy": 0.585421,
+     "date": "2020-11",
+     "e": 3.9865967,
+     "h": 2.5,
+     "heading": 10.83758926,
+     "n": 10.53694218,
+     "pair_id": "m084",
+     "pano": "ZcGyifqcyvUwLtCYGTr3oA",
+     "role": "oth",
+     "source": "launch",
+     "view": "m084_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "paterson",
+   "imagery": "gsv",
+   "origin": [
+    40.90979188,
+    -74.1799589
+   ],
+   "pairs": [
+    "m085"
+   ],
+   "ramp_uid": "paterson:6885:y8Q6XDfEoPt5K6ONqi406w",
+   "src_pano": "wZDFR_PxMJc91ZqEBjE-Ug",
+   "src_x": 0.902344,
+   "src_y": 0.615234,
+   "views": [
+    {
+     "cx": 0.902344,
+     "cy": 0.615234,
+     "date": "2025-08",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": -101.31854248,
+     "n": 0.0,
+     "pano": "wZDFR_PxMJc91ZqEBjE-Ug",
+     "role": "src",
+     "source": "launch",
+     "view": "m085_src.jpg"
+    },
+    {
+     "cx": 0.610966,
+     "cy": 0.609604,
+     "date": "2025-08",
+     "e": 8.10156626,
+     "h": 2.0,
+     "heading": -107.96746826,
+     "n": 2.08907482,
+     "pair_id": "m085",
+     "pano": "y8Q6XDfEoPt5K6ONqi406w",
+     "role": "oth",
+     "source": "launch",
+     "view": "m085_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "gainesville",
+   "imagery": "gsv",
+   "origin": [
+    29.65220472,
+    -82.35366689
+   ],
+   "pairs": [
+    "m086"
+   ],
+   "ramp_uid": "gainesville:63:xExZyWexGcwGNf5LNhQBRg",
+   "src_pano": "BmmtYk_Zn2t5Cz8CAOO1BA",
+   "src_x": 0.667969,
+   "src_y": 0.570312,
+   "views": [
+    {
+     "cx": 0.667969,
+     "cy": 0.570312,
+     "date": "2026-02",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": -172.10491943,
+     "n": 0.0,
+     "pano": "BmmtYk_Zn2t5Cz8CAOO1BA",
+     "role": "src",
+     "source": "launch",
+     "view": "m086_src.jpg"
+    },
+    {
+     "cx": 0.5882,
+     "cy": 0.539879,
+     "date": "2026-02",
+     "e": 0.76874282,
+     "h": 2.0,
+     "heading": -179.92678833,
+     "n": 9.98642732,
+     "pair_id": "m086",
+     "pano": "xExZyWexGcwGNf5LNhQBRg",
+     "role": "oth",
+     "source": "launch",
+     "view": "m086_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "gainesville",
+   "imagery": "gsv",
+   "origin": [
+    29.64781361,
+    -82.32304875
+   ],
+   "pairs": [
+    "m087"
+   ],
+   "ramp_uid": "gainesville:523:82y6sIvPm-_shG58klusgw",
+   "src_pano": "UrIIaN0_GatdGEaYZMmRYg",
+   "src_x": 0.207031,
+   "src_y": 0.585938,
+   "views": [
+    {
+     "cx": 0.207031,
+     "cy": 0.585938,
+     "date": "2026-04",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": -5.20251465,
+     "n": 0.0,
+     "pano": "UrIIaN0_GatdGEaYZMmRYg",
+     "role": "src",
+     "source": "launch",
+     "view": "m087_src.jpg"
+    },
+    {
+     "cx": 0.080175,
+     "cy": 0.536219,
+     "date": "2026-04",
+     "e": -0.70502008,
+     "h": 2.0,
+     "heading": -3.33477783,
+     "n": 9.96691765,
+     "pair_id": "m087",
+     "pano": "82y6sIvPm-_shG58klusgw",
+     "role": "oth",
+     "source": "launch",
+     "view": "m087_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "gainesville",
+   "imagery": "gsv",
+   "origin": [
+    29.65560978,
+    -82.33499643
+   ],
+   "pairs": [
+    "m088"
+   ],
+   "ramp_uid": "gainesville:599:rFa5e9WO2AombOfKxw1GzA",
+   "src_pano": "Z1AHEzkDFibdnflhaxuC8g",
+   "src_x": 0.527344,
+   "src_y": 0.537109,
+   "views": [
+    {
+     "cx": 0.527344,
+     "cy": 0.537109,
+     "date": "2026-02",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": -0.67303467,
+     "n": 0.0,
+     "pano": "Z1AHEzkDFibdnflhaxuC8g",
+     "role": "src",
+     "source": "launch",
+     "view": "m088_src.jpg"
+    },
+    {
+     "cx": 0.259943,
+     "cy": 0.538873,
+     "date": "2026-02",
+     "e": 2.2426897,
+     "h": 2.0,
+     "heading": 90.67082214,
+     "n": 7.48108615,
+     "pair_id": "m088",
+     "pano": "rFa5e9WO2AombOfKxw1GzA",
+     "role": "oth",
+     "source": "launch",
+     "view": "m088_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "gainesville",
+   "imagery": "gsv",
+   "origin": [
+    29.65380364,
+    -82.31481658
+   ],
+   "pairs": [
+    "m089"
+   ],
+   "ramp_uid": "gainesville:1682:dVrNCxUTFAfeyVNMXQ1LTw",
+   "src_pano": "BkzVGOx7XYHeDEQD8uDEUQ",
+   "src_x": 0.791992,
+   "src_y": 0.601562,
+   "views": [
+    {
+     "cx": 0.791992,
+     "cy": 0.601562,
+     "date": "2011-03",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": 91.53355408,
+     "n": 0.0,
+     "pano": "BkzVGOx7XYHeDEQD8uDEUQ",
+     "role": "src",
+     "source": "launch",
+     "view": "m089_src.jpg"
+    },
+    {
+     "cx": 0.606583,
+     "cy": 0.650084,
+     "date": "2026-03",
+     "e": 0.34451844,
+     "h": 2.0,
+     "heading": -171.42811584,
+     "n": -5.89244718,
+     "pair_id": "m089",
+     "pano": "dVrNCxUTFAfeyVNMXQ1LTw",
+     "role": "oth",
+     "source": "launch",
+     "view": "m089_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "gainesville",
+   "imagery": "gsv",
+   "origin": [
+    29.65564499,
+    -82.33714819
+   ],
+   "pairs": [
+    "m090"
+   ],
+   "ramp_uid": "gainesville:1897:9D-oOS00uSg18nvfm8t9zQ",
+   "src_pano": "dwpq20fCYuYpc4APrYtNSw",
+   "src_x": 0.862305,
+   "src_y": 0.630859,
+   "views": [
+    {
+     "cx": 0.862305,
+     "cy": 0.630859,
+     "date": "2026-02",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": 158.07568359,
+     "n": 0.0,
+     "pano": "dwpq20fCYuYpc4APrYtNSw",
+     "role": "src",
+     "source": "launch",
+     "view": "m090_src.jpg"
+    },
+    {
+     "cx": 0.937603,
+     "cy": 0.534236,
+     "date": "2026-02",
+     "e": 6.93610555,
+     "h": 2.0,
+     "heading": 89.79717255,
+     "n": 6.58174716,
+     "pair_id": "m090",
+     "pano": "9D-oOS00uSg18nvfm8t9zQ",
+     "role": "oth",
+     "source": "launch",
+     "view": "m090_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "gainesville",
+   "imagery": "gsv",
+   "origin": [
+    29.65570374,
+    -82.33718081
+   ],
+   "pairs": [
+    "m091"
+   ],
+   "ramp_uid": "gainesville:2641:9D-oOS00uSg18nvfm8t9zQ",
+   "src_pano": "df4VaRV_FV0bivWby0fD_Q",
+   "src_x": 0.386719,
+   "src_y": 0.552734,
+   "views": [
+    {
+     "cx": 0.386719,
+     "cy": 0.552734,
+     "date": "2026-02",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": 89.75257111,
+     "n": 0.0,
+     "pano": "df4VaRV_FV0bivWby0fD_Q",
+     "role": "src",
+     "source": "launch",
+     "view": "m091_src.jpg"
+    },
+    {
+     "cx": 0.226813,
+     "cy": 0.546447,
+     "date": "2026-02",
+     "e": 10.09178505,
+     "h": 2.0,
+     "heading": 89.79717255,
+     "n": 0.04230801,
+     "pair_id": "m091",
+     "pano": "9D-oOS00uSg18nvfm8t9zQ",
+     "role": "oth",
+     "source": "launch",
+     "view": "m091_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "gainesville",
+   "imagery": "gsv",
+   "origin": [
+    29.65253664,
+    -82.32160849
+   ],
+   "pairs": [
+    "m092"
+   ],
+   "ramp_uid": "gainesville:3136:pM_zjaOL4jt8_niIC0EU2Q",
+   "src_pano": "W-1KCLgkGcaId-sLTtF6jQ",
+   "src_x": 0.542969,
+   "src_y": 0.539062,
+   "views": [
+    {
+     "cx": 0.542969,
+     "cy": 0.539062,
+     "date": "2026-02",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": -1.43441772,
+     "n": 0.0,
+     "pano": "W-1KCLgkGcaId-sLTtF6jQ",
+     "role": "src",
+     "source": "launch",
+     "view": "m092_src.jpg"
+    },
+    {
+     "cx": 0.633793,
+     "cy": 0.595925,
+     "date": "2026-02",
+     "e": -0.10414795,
+     "h": 2.0,
+     "heading": -0.43917847,
+     "n": 10.3765016,
+     "pair_id": "m092",
+     "pano": "pM_zjaOL4jt8_niIC0EU2Q",
+     "role": "oth",
+     "source": "launch",
+     "view": "m092_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "gainesville",
+   "imagery": "gsv",
+   "origin": [
+    29.65190224,
+    -82.32661
+   ],
+   "pairs": [
+    "m093"
+   ],
+   "ramp_uid": "gainesville:3202:HoOapW5g53qbEFjLA7yv3Q",
+   "src_pano": "3lAocsa4U-Uu3s4JuVxWaw",
+   "src_x": 0.285156,
+   "src_y": 0.615234,
+   "views": [
+    {
+     "cx": 0.285156,
+     "cy": 0.615234,
+     "date": "2026-02",
+     "e": 0.0,
+     "h": 2.0,
+     "heading": -1.55239868,
+     "n": 0.0,
+     "pano": "3lAocsa4U-Uu3s4JuVxWaw",
+     "role": "src",
+     "source": "launch",
+     "view": "m093_src.jpg"
+    },
+    {
+     "cx": 0.438318,
+     "cy": 0.547219,
+     "date": "2026-02",
+     "e": -0.08010859,
+     "h": 2.0,
+     "heading": -2.4135437,
+     "n": -10.41326514,
+     "pair_id": "m093",
+     "pano": "HoOapW5g53qbEFjLA7yv3Q",
+     "role": "oth",
+     "source": "launch",
+     "view": "m093_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "bend",
+   "imagery": "gsv",
+   "origin": [
+    44.02759528,
+    -121.33011108
+   ],
+   "pairs": [
+    "m094"
+   ],
+   "ramp_uid": "bend:114:62TiKmlmxt_xn_68w1lgAw",
+   "src_pano": "Jo8xZnH0BfZgy4IGndC6qA",
+   "src_x": 0.776367,
+   "src_y": 0.599609,
+   "views": [
+    {
+     "cx": 0.776367,
+     "cy": 0.599609,
+     "date": "2024-08",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": 89.28846741,
+     "n": 0.0,
+     "pano": "Jo8xZnH0BfZgy4IGndC6qA",
+     "role": "src",
+     "source": "launch",
+     "view": "m094_src.jpg"
+    },
+    {
+     "cx": 0.614337,
+     "cy": 0.560972,
+     "date": "2024-08",
+     "e": -10.16652276,
+     "h": 2.5,
+     "heading": 89.41003418,
+     "n": -0.07356068,
+     "pair_id": "m094",
+     "pano": "62TiKmlmxt_xn_68w1lgAw",
+     "role": "oth",
+     "source": "launch",
+     "view": "m094_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "bend",
+   "imagery": "gsv",
+   "origin": [
+    44.03628227,
+    -121.28777512
+   ],
+   "pairs": [
+    "m095"
+   ],
+   "ramp_uid": "bend:410:PX5zU_2KkKO0Gr4FiSe9aw",
+   "src_pano": "pOomUPRWAG5gDTjDigrkmg",
+   "src_x": 0.12793,
+   "src_y": 0.539062,
+   "views": [
+    {
+     "cx": 0.12793,
+     "cy": 0.539062,
+     "date": "2024-08",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": -56.63598633,
+     "n": 0.0,
+     "pano": "pOomUPRWAG5gDTjDigrkmg",
+     "role": "src",
+     "source": "launch",
+     "view": "m095_src.jpg"
+    },
+    {
+     "cx": 0.317268,
+     "cy": 0.554458,
+     "date": "2024-08",
+     "e": 8.84316015,
+     "h": 2.5,
+     "heading": -85.6880188,
+     "n": -2.49399406,
+     "pair_id": "m095",
+     "pano": "PX5zU_2KkKO0Gr4FiSe9aw",
+     "role": "oth",
+     "source": "launch",
+     "view": "m095_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "bend",
+   "imagery": "gsv",
+   "origin": [
+    44.01599629,
+    -121.33397622
+   ],
+   "pairs": [
+    "m096"
+   ],
+   "ramp_uid": "bend:1390:dUy9p1NputrGH7SFDmbCpg",
+   "src_pano": "rYRV7bPKeOO4pzS-3no2CQ",
+   "src_x": 0.838867,
+   "src_y": 0.632812,
+   "views": [
+    {
+     "cx": 0.838867,
+     "cy": 0.632812,
+     "date": "2024-08",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": 66.60501099,
+     "n": 0.0,
+     "pano": "rYRV7bPKeOO4pzS-3no2CQ",
+     "role": "src",
+     "source": "launch",
+     "view": "m096_src.jpg"
+    },
+    {
+     "cx": 0.582391,
+     "cy": 0.563898,
+     "date": "2024-08",
+     "e": -10.88058018,
+     "h": 2.5,
+     "heading": 80.57566071,
+     "n": -1.50579695,
+     "pair_id": "m096",
+     "pano": "dUy9p1NputrGH7SFDmbCpg",
+     "role": "oth",
+     "source": "launch",
+     "view": "m096_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "bend",
+   "imagery": "gsv",
+   "origin": [
+    44.05889798,
+    -121.35448811
+   ],
+   "pairs": [
+    "m097"
+   ],
+   "ramp_uid": "bend:2464:yJmMJeV6PD3UZlAmm4cmWg",
+   "src_pano": "_29RoORpbxv2mH8wsNSXQQ",
+   "src_x": 0.300781,
+   "src_y": 0.615234,
+   "views": [
+    {
+     "cx": 0.300781,
+     "cy": 0.615234,
+     "date": "2024-09",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": -90.33596802,
+     "n": 0.0,
+     "pano": "_29RoORpbxv2mH8wsNSXQQ",
+     "role": "src",
+     "source": "launch",
+     "view": "m097_src.jpg"
+    },
+    {
+     "cx": 0.521175,
+     "cy": 0.556578,
+     "date": "2018-05",
+     "e": 3.79328046,
+     "h": 2.5,
+     "heading": -163.61402893,
+     "n": 6.55817479,
+     "pair_id": "m097",
+     "pano": "yJmMJeV6PD3UZlAmm4cmWg",
+     "role": "oth",
+     "source": "launch",
+     "view": "m097_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "bend",
+   "imagery": "gsv",
+   "origin": [
+    44.02543129,
+    -121.31348677
+   ],
+   "pairs": [
+    "m098"
+   ],
+   "ramp_uid": "bend:4202:ukV9s59lkyu-xEjUdK7CmQ",
+   "src_pano": "gjzddXj5CW_RCMsk88DlKw",
+   "src_x": 0.549805,
+   "src_y": 0.552734,
+   "views": [
+    {
+     "cx": 0.549805,
+     "cy": 0.552734,
+     "date": "2019-07",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": -179.24295044,
+     "n": 0.0,
+     "pano": "gjzddXj5CW_RCMsk88DlKw",
+     "role": "src",
+     "source": "launch",
+     "view": "m098_src.jpg"
+    },
+    {
+     "cx": 0.158581,
+     "cy": 0.557898,
+     "date": "2015-11",
+     "e": -10.10034674,
+     "h": 2.5,
+     "heading": -82.70791626,
+     "n": 1.22306724,
+     "pair_id": "m098",
+     "pano": "ukV9s59lkyu-xEjUdK7CmQ",
+     "role": "oth",
+     "source": "launch",
+     "view": "m098_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "bend",
+   "imagery": "gsv",
+   "origin": [
+    44.06159997,
+    -121.35682401
+   ],
+   "pairs": [
+    "m099"
+   ],
+   "ramp_uid": "bend:4631:BfLStXTTg1-0FjTrZcvYWg",
+   "src_pano": "K8hiVvmY6R3YoLVhk-G22A",
+   "src_x": 0.84668,
+   "src_y": 0.568359,
+   "views": [
+    {
+     "cx": 0.84668,
+     "cy": 0.568359,
+     "date": "2019-07",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": -10.7935791,
+     "n": 0.0,
+     "pano": "K8hiVvmY6R3YoLVhk-G22A",
+     "role": "src",
+     "source": "launch",
+     "view": "m099_src.jpg"
+    },
+    {
+     "cx": 0.68404,
+     "cy": 0.56642,
+     "date": "2019-07",
+     "e": 1.8497995,
+     "h": 2.5,
+     "heading": -11.19934082,
+     "n": -9.66692554,
+     "pair_id": "m099",
+     "pano": "BfLStXTTg1-0FjTrZcvYWg",
+     "role": "oth",
+     "source": "launch",
+     "view": "m099_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "bend",
+   "imagery": "gsv",
+   "origin": [
+    44.09430998,
+    -121.28446449
+   ],
+   "pairs": [
+    "m100"
+   ],
+   "ramp_uid": "bend:7316:Noi7DhIT3xbCjA2Ip4QOyg",
+   "src_pano": "6Y5aU-ypdtiaL_kAlyoRZQ",
+   "src_x": 0.073242,
+   "src_y": 0.583984,
+   "views": [
+    {
+     "cx": 0.073242,
+     "cy": 0.583984,
+     "date": "2024-09",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": -111.89193726,
+     "n": 0.0,
+     "pano": "6Y5aU-ypdtiaL_kAlyoRZQ",
+     "role": "src",
+     "source": "launch",
+     "view": "m100_src.jpg"
+    },
+    {
+     "cx": 0.619006,
+     "cy": 0.564671,
+     "date": "2024-09",
+     "e": 5.93578537,
+     "h": 2.5,
+     "heading": -21.04818726,
+     "n": -10.29172663,
+     "pair_id": "m100",
+     "pano": "Noi7DhIT3xbCjA2Ip4QOyg",
+     "role": "oth",
+     "source": "launch",
+     "view": "m100_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "bend",
+   "imagery": "gsv",
+   "origin": [
+    44.05430819,
+    -121.3361647
+   ],
+   "pairs": [
+    "m101"
+   ],
+   "ramp_uid": "bend:8401:rQtHh0Wai-D1FvbvqBlWdw",
+   "src_pano": "sCDHDiAdzJ3peUTUF64sIA",
+   "src_x": 0.941406,
+   "src_y": 0.601562,
+   "views": [
+    {
+     "cx": 0.941406,
+     "cy": 0.601562,
+     "date": "2024-09",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": 53.01581192,
+     "n": 0.0,
+     "pano": "sCDHDiAdzJ3peUTUF64sIA",
+     "role": "src",
+     "source": "launch",
+     "view": "m101_src.jpg"
+    },
+    {
+     "cx": 0.999488,
+     "cy": 0.552572,
+     "date": "2024-09",
+     "e": 8.80374496,
+     "h": 2.5,
+     "heading": 64.71620941,
+     "n": -0.58021326,
+     "pair_id": "m101",
+     "pano": "rQtHh0Wai-D1FvbvqBlWdw",
+     "role": "oth",
+     "source": "launch",
+     "view": "m101_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "bend",
+   "imagery": "gsv",
+   "origin": [
+    44.05430819,
+    -121.3361647
+   ],
+   "pairs": [
+    "m102"
+   ],
+   "ramp_uid": "bend:8966:rQtHh0Wai-D1FvbvqBlWdw",
+   "src_pano": "sCDHDiAdzJ3peUTUF64sIA",
+   "src_x": 0.503906,
+   "src_y": 0.583984,
+   "views": [
+    {
+     "cx": 0.503906,
+     "cy": 0.583984,
+     "date": "2024-09",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": 53.01581192,
+     "n": 0.0,
+     "pano": "sCDHDiAdzJ3peUTUF64sIA",
+     "role": "src",
+     "source": "launch",
+     "view": "m102_src.jpg"
+    },
+    {
+     "cx": 0.308493,
+     "cy": 0.607768,
+     "date": "2024-09",
+     "e": 8.80374496,
+     "h": 2.5,
+     "heading": 64.71620941,
+     "n": -0.58021326,
+     "pair_id": "m102",
+     "pano": "rQtHh0Wai-D1FvbvqBlWdw",
+     "role": "oth",
+     "source": "launch",
+     "view": "m102_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "bend",
+   "imagery": "gsv",
+   "origin": [
+    44.05430819,
+    -121.3361647
+   ],
+   "pairs": [
+    "m103"
+   ],
+   "ramp_uid": "bend:9356:rQtHh0Wai-D1FvbvqBlWdw",
+   "src_pano": "sCDHDiAdzJ3peUTUF64sIA",
+   "src_x": 0.260742,
+   "src_y": 0.601562,
+   "views": [
+    {
+     "cx": 0.260742,
+     "cy": 0.601562,
+     "date": "2024-09",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": 53.01581192,
+     "n": 0.0,
+     "pano": "sCDHDiAdzJ3peUTUF64sIA",
+     "role": "src",
+     "source": "launch",
+     "view": "m103_src.jpg"
+    },
+    {
+     "cx": 0.148413,
+     "cy": 0.549856,
+     "date": "2024-09",
+     "e": 8.80374496,
+     "h": 2.5,
+     "heading": 64.71620941,
+     "n": -0.58021326,
+     "pair_id": "m103",
+     "pano": "rQtHh0Wai-D1FvbvqBlWdw",
+     "role": "oth",
+     "source": "launch",
+     "view": "m103_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "bend",
+   "imagery": "gsv",
+   "origin": [
+    44.02369804,
+    -121.33554503
+   ],
+   "pairs": [
+    "m104"
+   ],
+   "ramp_uid": "bend:10167:cqb7v_2KGHMeSy8VpvkcDQ",
+   "src_pano": "6vgSbkZDZDG5EZUfIlUFeg",
+   "src_x": 0.682617,
+   "src_y": 0.646484,
+   "views": [
+    {
+     "cx": 0.682617,
+     "cy": 0.646484,
+     "date": "2024-08",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": -90.54394531,
+     "n": 0.0,
+     "pano": "6vgSbkZDZDG5EZUfIlUFeg",
+     "role": "src",
+     "source": "launch",
+     "view": "m104_src.jpg"
+    },
+    {
+     "cx": 0.562275,
+     "cy": 0.565031,
+     "date": "2024-08",
+     "e": 8.26588911,
+     "h": 2.5,
+     "heading": -90.19268799,
+     "n": 0.03178693,
+     "pair_id": "m104",
+     "pano": "cqb7v_2KGHMeSy8VpvkcDQ",
+     "role": "oth",
+     "source": "launch",
+     "view": "m104_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "bend",
+   "imagery": "gsv",
+   "origin": [
+    44.09143357,
+    -121.28104015
+   ],
+   "pairs": [
+    "m105"
+   ],
+   "ramp_uid": "bend:10987:X3HUl4G0JyP3fwNYcFAXVw",
+   "src_pano": "pk8yhK20ZPJtFdLYEbnEIA",
+   "src_x": 0.94043,
+   "src_y": 0.568359,
+   "views": [
+    {
+     "cx": 0.94043,
+     "cy": 0.568359,
+     "date": "2024-11",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": -6.11856079,
+     "n": 0.0,
+     "pano": "pk8yhK20ZPJtFdLYEbnEIA",
+     "role": "src",
+     "source": "launch",
+     "view": "m105_src.jpg"
+    },
+    {
+     "cx": 0.74027,
+     "cy": 0.659501,
+     "date": "2024-11",
+     "e": 1.75603518,
+     "h": 2.5,
+     "heading": -16.25744629,
+     "n": -10.55005092,
+     "pair_id": "m105",
+     "pano": "X3HUl4G0JyP3fwNYcFAXVw",
+     "role": "oth",
+     "source": "launch",
+     "view": "m105_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "sao_paulo",
+   "imagery": "gsv",
+   "origin": [
+    -23.54946515,
+    -46.63280813
+   ],
+   "pairs": [
+    "m106"
+   ],
+   "ramp_uid": "sao_paulo:71:iXAvtzzMg2Vh5aZPuGIk_Q",
+   "src_pano": "ZFDwklX2BEprRNhoJHmtmQ",
+   "src_x": 0.191406,
+   "src_y": 0.585938,
+   "views": [
+    {
+     "cx": 0.191406,
+     "cy": 0.585938,
+     "date": "2024-02",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": -96.58148193,
+     "n": 0.0,
+     "pano": "ZFDwklX2BEprRNhoJHmtmQ",
+     "role": "src",
+     "source": "launch",
+     "view": "m106_src.jpg"
+    },
+    {
+     "cx": 0.122827,
+     "cy": 0.588492,
+     "date": "2021-03",
+     "e": -2.65206457,
+     "h": 2.0,
+     "heading": -174.7961731,
+     "n": -13.02117459,
+     "pair_id": "m106",
+     "pano": "iXAvtzzMg2Vh5aZPuGIk_Q",
+     "role": "oth",
+     "source": "launch",
+     "view": "m106_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "sao_paulo",
+   "imagery": "gsv",
+   "origin": [
+    -23.54118728,
+    -46.62453235
+   ],
+   "pairs": [
+    "m107"
+   ],
+   "ramp_uid": "sao_paulo:108:S2IuBk3pE9q76j1Z4hQC8A",
+   "src_pano": "7VsTD7bcMrpldsiYgzI_AA",
+   "src_x": 0.018555,
+   "src_y": 0.554688,
+   "views": [
+    {
+     "cx": 0.018555,
+     "cy": 0.554688,
+     "date": "2024-07",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": 137.33296204,
+     "n": 0.0,
+     "pano": "7VsTD7bcMrpldsiYgzI_AA",
+     "role": "src",
+     "source": "launch",
+     "view": "m107_src.jpg"
+    },
+    {
+     "cx": 0.411485,
+     "cy": 0.552826,
+     "date": "2024-07",
+     "e": -17.6686192,
+     "h": 2.5,
+     "heading": 71.27919769,
+     "n": 1.02941362,
+     "pair_id": "m107",
+     "pano": "S2IuBk3pE9q76j1Z4hQC8A",
+     "role": "oth",
+     "source": "launch",
+     "view": "m107_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "sao_paulo",
+   "imagery": "gsv",
+   "origin": [
+    -23.52863395,
+    -46.63468212
+   ],
+   "pairs": [
+    "m108"
+   ],
+   "ramp_uid": "sao_paulo:234:2vVoZEbjn1wxGCCvCmgeUQ",
+   "src_pano": "kOCYAnJL9EJMnEKXJzkMbw",
+   "src_x": 0.120117,
+   "src_y": 0.585938,
+   "views": [
+    {
+     "cx": 0.120117,
+     "cy": 0.585938,
+     "date": "2024-04",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": -34.05834961,
+     "n": 0.0,
+     "pano": "kOCYAnJL9EJMnEKXJzkMbw",
+     "role": "src",
+     "source": "launch",
+     "view": "m108_src.jpg"
+    },
+    {
+     "cx": 0.388663,
+     "cy": 0.576012,
+     "date": "2024-04",
+     "e": 7.54445318,
+     "h": 2.5,
+     "heading": -69.94488525,
+     "n": -5.86514374,
+     "pair_id": "m108",
+     "pano": "2vVoZEbjn1wxGCCvCmgeUQ",
+     "role": "oth",
+     "source": "launch",
+     "view": "m108_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "sao_paulo",
+   "imagery": "gsv",
+   "origin": [
+    -23.54068444,
+    -46.61301421
+   ],
+   "pairs": [
+    "m109"
+   ],
+   "ramp_uid": "sao_paulo:395:a70PDmeTUAplnAAszg96rQ",
+   "src_pano": "XWxEJYy12yZMpkLmhcfC1g",
+   "src_x": 0.160156,
+   "src_y": 0.570312,
+   "views": [
+    {
+     "cx": 0.160156,
+     "cy": 0.570312,
+     "date": "2024-07",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": -97.98474121,
+     "n": 0.0,
+     "pano": "XWxEJYy12yZMpkLmhcfC1g",
+     "role": "src",
+     "source": "launch",
+     "view": "m109_src.jpg"
+    },
+    {
+     "cx": 0.709635,
+     "cy": 0.613521,
+     "date": "2024-07",
+     "e": 2.62114559,
+     "h": 2.5,
+     "heading": 54.64284515,
+     "n": -6.77133422,
+     "pair_id": "m109",
+     "pano": "a70PDmeTUAplnAAszg96rQ",
+     "role": "oth",
+     "source": "launch",
+     "view": "m109_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "sao_paulo",
+   "imagery": "gsv",
+   "origin": [
+    -23.52575558,
+    -46.63770321
+   ],
+   "pairs": [
+    "m110"
+   ],
+   "ramp_uid": "sao_paulo:577:MO1IiuyyjHfY4uBuEsgoeg",
+   "src_pano": "WrBfV1yPjvjjvJV_nWxSng",
+   "src_x": 0.863281,
+   "src_y": 0.617188,
+   "views": [
+    {
+     "cx": 0.863281,
+     "cy": 0.617188,
+     "date": "2023-01",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": 127.10955048,
+     "n": 0.0,
+     "pano": "WrBfV1yPjvjjvJV_nWxSng",
+     "role": "src",
+     "source": "launch",
+     "view": "m110_src.jpg"
+    },
+    {
+     "cx": 0.950297,
+     "cy": 0.550713,
+     "date": "2024-07",
+     "e": 2.78807189,
+     "h": 2.5,
+     "heading": 62.61895752,
+     "n": 8.91926202,
+     "pair_id": "m110",
+     "pano": "MO1IiuyyjHfY4uBuEsgoeg",
+     "role": "oth",
+     "source": "launch",
+     "view": "m110_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "sao_paulo",
+   "imagery": "gsv",
+   "origin": [
+    -23.56453942,
+    -46.61717327
+   ],
+   "pairs": [
+    "m111"
+   ],
+   "ramp_uid": "sao_paulo:584:r0oKhyEUSiK2FMKwXE7Z4g",
+   "src_pano": "kqhhA4sS7WaiuCN03Kecqw",
+   "src_x": 0.964844,
+   "src_y": 0.537109,
+   "views": [
+    {
+     "cx": 0.964844,
+     "cy": 0.537109,
+     "date": "2025-01",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": -66.40539551,
+     "n": 0.0,
+     "pano": "kqhhA4sS7WaiuCN03Kecqw",
+     "role": "src",
+     "source": "launch",
+     "view": "m111_src.jpg"
+    },
+    {
+     "cx": 0.932518,
+     "cy": 0.55244,
+     "date": "2025-01",
+     "e": 16.01818966,
+     "h": 2.5,
+     "heading": 23.36949348,
+     "n": 9.04656262,
+     "pair_id": "m111",
+     "pano": "r0oKhyEUSiK2FMKwXE7Z4g",
+     "role": "oth",
+     "source": "launch",
+     "view": "m111_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "sao_paulo",
+   "imagery": "gsv",
+   "origin": [
+    -23.56911144,
+    -46.6235873
+   ],
+   "pairs": [
+    "m112"
+   ],
+   "ramp_uid": "sao_paulo:599:-pcHlrGDC4hPPRHVxU3W3Q",
+   "src_pano": "h0kXgVL8PMMEiGTudjnZXQ",
+   "src_x": 0.12793,
+   "src_y": 0.570312,
+   "views": [
+    {
+     "cx": 0.12793,
+     "cy": 0.570312,
+     "date": "2025-01",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": -168.88647461,
+     "n": 0.0,
+     "pano": "h0kXgVL8PMMEiGTudjnZXQ",
+     "role": "src",
+     "source": "launch",
+     "view": "m112_src.jpg"
+    },
+    {
+     "cx": 0.238002,
+     "cy": 0.603609,
+     "date": "2025-01",
+     "e": 9.30539772,
+     "h": 2.5,
+     "heading": 100.93258667,
+     "n": -0.42590882,
+     "pair_id": "m112",
+     "pano": "-pcHlrGDC4hPPRHVxU3W3Q",
+     "role": "oth",
+     "source": "launch",
+     "view": "m112_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "sao_paulo",
+   "imagery": "gsv",
+   "origin": [
+    -23.57180843,
+    -46.62258831
+   ],
+   "pairs": [
+    "m113"
+   ],
+   "ramp_uid": "sao_paulo:674:H2cEJygbNd56-362PsICjA",
+   "src_pano": "GY9YJTEwd-x9zpD6NOHKoQ",
+   "src_x": 0.394531,
+   "src_y": 0.570312,
+   "views": [
+    {
+     "cx": 0.394531,
+     "cy": 0.570312,
+     "date": "2022-08",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": 10.22218895,
+     "n": 0.0,
+     "pano": "GY9YJTEwd-x9zpD6NOHKoQ",
+     "role": "src",
+     "source": "launch",
+     "view": "m113_src.jpg"
+    },
+    {
+     "cx": 0.373102,
+     "cy": 0.543833,
+     "date": "2022-02",
+     "e": -15.89142164,
+     "h": 2.5,
+     "heading": 100.99685669,
+     "n": 2.29919342,
+     "pair_id": "m113",
+     "pano": "H2cEJygbNd56-362PsICjA",
+     "role": "oth",
+     "source": "launch",
+     "view": "m113_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "sao_paulo",
+   "imagery": "gsv",
+   "origin": [
+    -23.53119687,
+    -46.62737645
+   ],
+   "pairs": [
+    "m114"
+   ],
+   "ramp_uid": "sao_paulo:820:n-DwmldMs-ZZVYS1gF_qYQ",
+   "src_pano": "75vTMsqFR-NqCNXyrZ4LBw",
+   "src_x": 0.980469,
+   "src_y": 0.568359,
+   "views": [
+    {
+     "cx": 0.980469,
+     "cy": 0.568359,
+     "date": "2022-03",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": -30.68377686,
+     "n": 0.0,
+     "pano": "75vTMsqFR-NqCNXyrZ4LBw",
+     "role": "src",
+     "source": "launch",
+     "view": "m114_src.jpg"
+    },
+    {
+     "cx": 0.460332,
+     "cy": 0.577651,
+     "date": "2023-01",
+     "e": 12.41171545,
+     "h": 2.5,
+     "heading": -114.54519653,
+     "n": -2.89437346,
+     "pair_id": "m114",
+     "pano": "n-DwmldMs-ZZVYS1gF_qYQ",
+     "role": "oth",
+     "source": "launch",
+     "view": "m114_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "sao_paulo",
+   "imagery": "gsv",
+   "origin": [
+    -23.57180843,
+    -46.62258831
+   ],
+   "pairs": [
+    "m115"
+   ],
+   "ramp_uid": "sao_paulo:999:H2cEJygbNd56-362PsICjA",
+   "src_pano": "GY9YJTEwd-x9zpD6NOHKoQ",
+   "src_x": 0.174805,
+   "src_y": 0.585938,
+   "views": [
+    {
+     "cx": 0.174805,
+     "cy": 0.585938,
+     "date": "2022-08",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": 10.22218895,
+     "n": 0.0,
+     "pano": "GY9YJTEwd-x9zpD6NOHKoQ",
+     "role": "src",
+     "source": "launch",
+     "view": "m115_src.jpg"
+    },
+    {
+     "cx": 0.572197,
+     "cy": 0.566367,
+     "date": "2022-02",
+     "e": -15.89142164,
+     "h": 2.5,
+     "heading": 100.99685669,
+     "n": 2.29919342,
+     "pair_id": "m115",
+     "pano": "H2cEJygbNd56-362PsICjA",
+     "role": "oth",
+     "source": "launch",
+     "view": "m115_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "sao_paulo",
+   "imagery": "gsv",
+   "origin": [
+    -23.5554733,
+    -46.62773974
+   ],
+   "pairs": [
+    "m116"
+   ],
+   "ramp_uid": "sao_paulo:1079:8qkdHYilRAI7Vrdpg2XuDw",
+   "src_pano": "nAVcsuAD1f6da76EohZaHw",
+   "src_x": 0.808594,
+   "src_y": 0.554688,
+   "views": [
+    {
+     "cx": 0.808594,
+     "cy": 0.554688,
+     "date": "2025-01",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": -128.8963623,
+     "n": 0.0,
+     "pano": "nAVcsuAD1f6da76EohZaHw",
+     "role": "src",
+     "source": "launch",
+     "view": "m116_src.jpg"
+    },
+    {
+     "cx": 0.807048,
+     "cy": 0.562065,
+     "date": "2025-10",
+     "e": 4.59723295,
+     "h": 2.5,
+     "heading": -149.38375854,
+     "n": 1.5576241,
+     "pair_id": "m116",
+     "pano": "8qkdHYilRAI7Vrdpg2XuDw",
+     "role": "oth",
+     "source": "launch",
+     "view": "m116_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "sao_paulo",
+   "imagery": "gsv",
+   "origin": [
+    -23.54427702,
+    -46.62167472
+   ],
+   "pairs": [
+    "m117"
+   ],
+   "ramp_uid": "sao_paulo:1130:lASBXjG5VnksPRJajz2FKw",
+   "src_pano": "IsfpM-tnDFJZZazFhO4ZWQ",
+   "src_x": 0.635742,
+   "src_y": 0.601562,
+   "views": [
+    {
+     "cx": 0.635742,
+     "cy": 0.601562,
+     "date": "2024-01",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": -175.91722107,
+     "n": 0.0,
+     "pano": "IsfpM-tnDFJZZazFhO4ZWQ",
+     "role": "src",
+     "source": "launch",
+     "view": "m117_src.jpg"
+    },
+    {
+     "cx": 0.344546,
+     "cy": 0.55375,
+     "date": "2024-07",
+     "e": -5.33320178,
+     "h": 2.5,
+     "heading": -125.10894775,
+     "n": 7.94188676,
+     "pair_id": "m117",
+     "pano": "lASBXjG5VnksPRJajz2FKw",
+     "role": "oth",
+     "source": "launch",
+     "view": "m117_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "sao_paulo",
+   "imagery": "gsv",
+   "origin": [
+    -23.54421371,
+    -46.63151161
+   ],
+   "pairs": [
+    "m118"
+   ],
+   "ramp_uid": "sao_paulo:1476:NiIR-hk3d6gP7qp4s1BM4w",
+   "src_pano": "wWCSSlhoGjTxfTjCAYlWzQ",
+   "src_x": 0.604492,
+   "src_y": 0.583984,
+   "views": [
+    {
+     "cx": 0.604492,
+     "cy": 0.583984,
+     "date": "2024-07",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": 85.8159256,
+     "n": 0.0,
+     "pano": "wWCSSlhoGjTxfTjCAYlWzQ",
+     "role": "src",
+     "source": "launch",
+     "view": "m118_src.jpg"
+    },
+    {
+     "cx": 0.894226,
+     "cy": 0.580253,
+     "date": "2024-07",
+     "e": 12.2612561,
+     "h": 2.5,
+     "heading": 76.66075897,
+     "n": 0.47416477,
+     "pair_id": "m118",
+     "pano": "NiIR-hk3d6gP7qp4s1BM4w",
+     "role": "oth",
+     "source": "launch",
+     "view": "m118_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "sao_paulo",
+   "imagery": "gsv",
+   "origin": [
+    -23.55499008,
+    -46.62940711
+   ],
+   "pairs": [
+    "m119"
+   ],
+   "ramp_uid": "sao_paulo:1567:I0LGgFwBsGIYNbIsIaLgpQ",
+   "src_pano": "JERzQ19N8pw1oy6Yj7fC5g",
+   "src_x": 0.53418,
+   "src_y": 0.537109,
+   "views": [
+    {
+     "cx": 0.53418,
+     "cy": 0.537109,
+     "date": "2025-01",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": 27.27131844,
+     "n": 0.0,
+     "pano": "JERzQ19N8pw1oy6Yj7fC5g",
+     "role": "src",
+     "source": "launch",
+     "view": "m119_src.jpg"
+    },
+    {
+     "cx": 0.567559,
+     "cy": 0.562395,
+     "date": "2025-01",
+     "e": 4.26687144,
+     "h": 2.5,
+     "heading": 24.01254272,
+     "n": 8.78227338,
+     "pair_id": "m119",
+     "pano": "I0LGgFwBsGIYNbIsIaLgpQ",
+     "role": "oth",
+     "source": "launch",
+     "view": "m119_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "sao_paulo",
+   "imagery": "gsv",
+   "origin": [
+    -23.5564795,
+    -46.62276298
+   ],
+   "pairs": [
+    "m120"
+   ],
+   "ramp_uid": "sao_paulo:1696:9e52qBoSx6RlPRP2VHBTqA",
+   "src_pano": "Q8oItkV_PldP2yJ1BMB8Lw",
+   "src_x": 0.863281,
+   "src_y": 0.648438,
+   "views": [
+    {
+     "cx": 0.863281,
+     "cy": 0.648438,
+     "date": "2025-01",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": 158.52313232,
+     "n": 0.0,
+     "pano": "Q8oItkV_PldP2yJ1BMB8Lw",
+     "role": "src",
+     "source": "launch",
+     "view": "m120_src.jpg"
+    },
+    {
+     "cx": 0.686726,
+     "cy": 0.541448,
+     "date": "2025-12",
+     "e": -9.53148647,
+     "h": 2.5,
+     "heading": 82.90478516,
+     "n": 12.3692433,
+     "pair_id": "m120",
+     "pano": "9e52qBoSx6RlPRP2VHBTqA",
+     "role": "oth",
+     "source": "launch",
+     "view": "m120_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "sao_paulo",
+   "imagery": "gsv",
+   "origin": [
+    -23.54118728,
+    -46.62453235
+   ],
+   "pairs": [
+    "m121"
+   ],
+   "ramp_uid": "sao_paulo:1789:S2IuBk3pE9q76j1Z4hQC8A",
+   "src_pano": "7VsTD7bcMrpldsiYgzI_AA",
+   "src_x": 0.855469,
+   "src_y": 0.617188,
+   "views": [
+    {
+     "cx": 0.855469,
+     "cy": 0.617188,
+     "date": "2024-07",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": 137.33296204,
+     "n": 0.0,
+     "pano": "7VsTD7bcMrpldsiYgzI_AA",
+     "role": "src",
+     "source": "launch",
+     "view": "m121_src.jpg"
+    },
+    {
+     "cx": 0.541358,
+     "cy": 0.563445,
+     "date": "2024-07",
+     "e": -17.6686192,
+     "h": 2.5,
+     "heading": 71.27919769,
+     "n": 1.02941362,
+     "pair_id": "m121",
+     "pano": "S2IuBk3pE9q76j1Z4hQC8A",
+     "role": "oth",
+     "source": "launch",
+     "view": "m121_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "sao_paulo",
+   "imagery": "gsv",
+   "origin": [
+    -23.53786251,
+    -46.61736308
+   ],
+   "pairs": [
+    "m122"
+   ],
+   "ramp_uid": "sao_paulo:2270:74L65cpBc6Sv_D15h1n4Rw",
+   "src_pano": "95OXOPLXqiyyvzf5VbrXUQ",
+   "src_x": 0.956055,
+   "src_y": 0.539062,
+   "views": [
+    {
+     "cx": 0.956055,
+     "cy": 0.539062,
+     "date": "2024-07",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": 84.38248444,
+     "n": 0.0,
+     "pano": "95OXOPLXqiyyvzf5VbrXUQ",
+     "role": "src",
+     "source": "launch",
+     "view": "m122_src.jpg"
+    },
+    {
+     "cx": 0.94855,
+     "cy": 0.558598,
+     "date": "2024-07",
+     "e": -10.1026607,
+     "h": 2.5,
+     "heading": 75.08494568,
+     "n": -1.89490325,
+     "pair_id": "m122",
+     "pano": "74L65cpBc6Sv_D15h1n4Rw",
+     "role": "oth",
+     "source": "launch",
+     "view": "m122_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "sao_paulo",
+   "imagery": "gsv",
+   "origin": [
+    -23.55350715,
+    -46.62261341
+   ],
+   "pairs": [
+    "m123"
+   ],
+   "ramp_uid": "sao_paulo:2306:E2-oeApmq0sW_GDdLFbnCQ",
+   "src_pano": "W9WLvNvPaQuEu-FHb8MrJQ",
+   "src_x": 0.362305,
+   "src_y": 0.585938,
+   "views": [
+    {
+     "cx": 0.362305,
+     "cy": 0.585938,
+     "date": "2025-01",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": -80.74957275,
+     "n": 0.0,
+     "pano": "W9WLvNvPaQuEu-FHb8MrJQ",
+     "role": "src",
+     "source": "launch",
+     "view": "m123_src.jpg"
+    },
+    {
+     "cx": 0.334745,
+     "cy": 0.567253,
+     "date": "2025-01",
+     "e": 3.95086965,
+     "h": 2.5,
+     "heading": -6.831604,
+     "n": -9.51542624,
+     "pair_id": "m123",
+     "pano": "E2-oeApmq0sW_GDdLFbnCQ",
+     "role": "oth",
+     "source": "launch",
+     "view": "m123_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "sao_paulo",
+   "imagery": "gsv",
+   "origin": [
+    -23.55290103,
+    -46.63308223
+   ],
+   "pairs": [
+    "m124"
+   ],
+   "ramp_uid": "sao_paulo:2428:NoadtY-SJzlUAlm7E74VLw",
+   "src_pano": "TiM3ZMtfW8VWuasNRnWP1g",
+   "src_x": 0.37793,
+   "src_y": 0.552734,
+   "views": [
+    {
+     "cx": 0.37793,
+     "cy": 0.552734,
+     "date": "2025-05",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": 21.32515144,
+     "n": 0.0,
+     "pano": "TiM3ZMtfW8VWuasNRnWP1g",
+     "role": "src",
+     "source": "launch",
+     "view": "m124_src.jpg"
+    },
+    {
+     "cx": 0.143773,
+     "cy": 0.542149,
+     "date": "2025-05",
+     "e": 7.64799794,
+     "h": 2.5,
+     "heading": 22.5147686,
+     "n": 18.60619329,
+     "pair_id": "m124",
+     "pano": "NoadtY-SJzlUAlm7E74VLw",
+     "role": "oth",
+     "source": "launch",
+     "view": "m124_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "sao_paulo",
+   "imagery": "gsv",
+   "origin": [
+    -23.55440252,
+    -46.63550752
+   ],
+   "pairs": [
+    "m125"
+   ],
+   "ramp_uid": "sao_paulo:2773:M5mjc-BAtPFJppa9npq4xA",
+   "src_pano": "dD-JlZZkXNQwtCzqBCJiGw",
+   "src_x": 0.152344,
+   "src_y": 0.583984,
+   "views": [
+    {
+     "cx": 0.152344,
+     "cy": 0.583984,
+     "date": "2023-03",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": 103.57900238,
+     "n": 0.0,
+     "pano": "dD-JlZZkXNQwtCzqBCJiGw",
+     "role": "src",
+     "source": "launch",
+     "view": "m125_src.jpg"
+    },
+    {
+     "cx": 0.260949,
+     "cy": 0.587376,
+     "date": "2023-03",
+     "e": -9.6467695,
+     "h": 2.5,
+     "heading": 129.25556946,
+     "n": 4.46182719,
+     "pair_id": "m125",
+     "pano": "M5mjc-BAtPFJppa9npq4xA",
+     "role": "oth",
+     "source": "launch",
+     "view": "m125_oth.jpg"
+    }
+   ]
+  },
+  {
+   "city": "sao_paulo",
+   "imagery": "gsv",
+   "origin": [
+    -23.52230106,
+    -46.63042633
+   ],
+   "pairs": [
+    "m126"
+   ],
+   "ramp_uid": "sao_paulo:3904:Sg0GiqhXxeFwuhRVQZGWfw",
+   "src_pano": "Y9n7VDvHwPwoTioqCHBA2g",
+   "src_x": 0.69043,
+   "src_y": 0.554688,
+   "views": [
+    {
+     "cx": 0.69043,
+     "cy": 0.554688,
+     "date": "2024-11",
+     "e": 0.0,
+     "h": 2.5,
+     "heading": 6.85431528,
+     "n": 0.0,
+     "pano": "Y9n7VDvHwPwoTioqCHBA2g",
+     "role": "src",
+     "source": "launch",
+     "view": "m126_src.jpg"
+    },
+    {
+     "cx": 0.347859,
+     "cy": 0.567648,
+     "date": "2026-01",
+     "e": 21.58051135,
+     "h": 2.5,
+     "heading": 6.58001947,
+     "n": -2.85576184,
+     "pair_id": "m126",
+     "pano": "Sg0GiqhXxeFwuhRVQZGWfw",
+     "role": "oth",
+     "source": "launch",
+     "view": "m126_oth.jpg"
+    }
+   ]
+  }
+ ],
+ "labeler": {
+  "files": {
+   "depth.py": "a9e6f5d4e517efc5c2929d75666cc7f045052265e5ba9a33a8e14e329c67ee6b",
+   "detectors/__init__.py": "5209ca3fd523f4374cc0dbe4477d8586984668b2e72bea646f7b36e69e2bdf55",
+   "geo.py": "c60fe4bf3152df88297345bded4226ec5b40f83e1eb9a1391849a70158b3e919",
+   "scripts/eval_sites.py": "4e82f22cf3bcfffb4305bc98e5b2d0b7cbf5ce3985acb4b44c8f4c2927c24b00",
+   "scripts/fuse_sites.py": "cc454530fffe9202a98b5ead67b4173c3e273405bd7e9e1444c0bc70383f4200"
+  },
+  "git_commit": "44784ef46fa19c714f737c214feadfe818eb07fe",
+  "git_dirty_files": []
+ },
+ "pairs_sha256": "aebe29cf6dd78ddad1914a2f9fd2cabf4f649de5da408f9b4bc35924268199c5",
+ "pose_prior": "fuse_sites.pano_pose(p, 'off'); height by HEIGHT_AUTO",
+ "sources": {
+  "bend": "5c90abf69a7a50076e2e31b2b51d34ebebb0e2ad846db32a2715a1de8ce45742",
+  "gainesville": "61abe5eee6efff754ed8cea9ffec680234f63bf3eb67c8a5a50c8930793faadc",
+  "paterson": "a26cbe57dc752763d491f776ed3d180c0e24bbfacf9d533c2032d944b21afd50",
+  "richmond": "b466e52a732b5f1887deeba9f5ab0827faac6534ba286ae6379c1e760dd4dd06",
+  "sao_paulo": "37ea4cabd28c71998645d67d2fb147df19ceb6342e87f55158f5853d4ecadd60"
+ },
+ "view": [
+  1024,
+  768,
+  75.0
+ ]
+}
