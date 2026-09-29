@@ -230,6 +230,77 @@ def cmd_points(args):
     print(json.dumps(manifest, indent=1)[:2000])
 
 
+def _rot_to_quat(R):
+    """Rotation matrix -> (w, x, y, z)."""
+    w = np.sqrt(max(0.0, 1.0 + R[0, 0] + R[1, 1] + R[2, 2])) / 2.0
+    x = np.sqrt(max(0.0, 1.0 + R[0, 0] - R[1, 1] - R[2, 2])) / 2.0
+    y = np.sqrt(max(0.0, 1.0 - R[0, 0] + R[1, 1] - R[2, 2])) / 2.0
+    z = np.sqrt(max(0.0, 1.0 - R[0, 0] - R[1, 1] + R[2, 2])) / 2.0
+    x = np.copysign(x, R[2, 1] - R[1, 2])
+    y = np.copysign(y, R[0, 2] - R[2, 0])
+    z = np.copysign(z, R[1, 0] - R[0, 1])
+    return np.array([w, x, y, z])
+
+
+def _quat_mul(a, b):
+    w1, x1, y1, z1 = a
+    w2, x2, y2, z2 = b.T
+    return np.stack([w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2, w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2,
+                     w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2, w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2], 1)
+
+
+def cmd_splat(args):
+    """An InstantSplat pilot splat, pruned to the ``--keep`` most opaque Gaussians and carried
+    into the corner frame by a similarity fitted to the cameras: rotation from the cameras'
+    orientations (the centres alone are near-collinear along a street), then scale and
+    translation from the centres. Writes <scene>/splat.ply (standard 3DGS layout)."""
+    from plyfile import PlyData, PlyElement
+    run = json.load(open(args.splat_json, encoding="utf-8"))
+    st = run["final"]
+    corner = next(c for c in M.load_manifest()["corners"] if c["ramp_uid"] == run["ramp_uid"])
+    byview = {v["view"]: v for v in corner["views"]}
+    Rs, Rp, Cs, Cp = [], [], [], []
+    for i, nm in enumerate(st["names"]):
+        v = byview[next(o["view"] for o in run["views"] if o["name"] == nm)]
+        c2w = np.linalg.inv(np.asarray(st["w2c"][i]))
+        R, C = M.cam_pose_world(v)
+        Rs.append(c2w[:3, :3]), Cs.append(c2w[:3, 3]), Rp.append(R), Cp.append(C)
+    U, _, Vt = np.linalg.svd(sum(rp @ rs.T for rp, rs in zip(Rp, Rs)))
+    Ralign = U @ np.diag([1, 1, np.linalg.det(U @ Vt)]) @ Vt
+    Cs, Cp = np.array(Cs), np.array(Cp)
+    a, b = (Cs - Cs.mean(0)) @ Ralign.T, Cp - Cp.mean(0)
+    s = float((a * b).sum() / (a * a).sum())
+    t = Cp.mean(0) - s * Ralign @ Cs.mean(0)
+    resid = np.linalg.norm(s * Cs @ Ralign.T + t - Cp, axis=1)
+    ply = PlyData.read(args.splat_ply)
+    el = ply["vertex"].data
+    op = np.asarray(el["opacity"])
+    keep = np.argsort(-op)[:args.keep]
+    el = el[keep].copy()
+    xyz = np.stack([el["x"], el["y"], el["z"]], 1) @ (s * Ralign).T + t
+    el["x"], el["y"], el["z"] = xyz[:, 0], xyz[:, 1], xyz[:, 2]
+    for k in ("scale_0", "scale_1", "scale_2"):
+        el[k] = el[k] + np.log(s)
+    q = _quat_mul(_rot_to_quat(Ralign), np.stack([el[f"rot_{i}"] for i in range(4)], 1))
+    for i in range(4):
+        el[f"rot_{i}"] = q[:, i]
+    # view-dependent colour is left in the splat's own frame (SH bands are not rotated)
+    out = os.path.join(scene_dir(args.out, run["ramp_uid"]), "splat.ply")
+    PlyData([PlyElement.describe(el, "vertex")], text=False).write(out)
+    info = {"file": "splat.ply", "source": "InstantSplat pilot (NVlabs b951567), 1000 iterations",
+            "gaussians_kept": int(len(keep)), "gaussians_total": int(len(op)),
+            "kept": "most opaque", "similarity_scale": s,
+            "camera_centre_residual_m": [round(float(r), 3) for r in resid],
+            "note": "pilot splat; it overfits its training views (docs/crossview_align_48/"
+                    "multiview_3d.md); SH bands beyond DC are not rotated into this frame"}
+    pj = os.path.join(scene_dir(args.out, run["ramp_uid"]), "cameras.json")
+    cams = json.load(open(pj, encoding="utf-8"))
+    cams["splat"] = info
+    with open(pj, "w", encoding="utf-8", newline="") as f:
+        f.write(json.dumps(H.rnd(cams, 6), indent=1) + "\n")
+    print(json.dumps(info, indent=1))
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -245,6 +316,12 @@ def main(argv=None):
     p.add_argument("--out", required=True)
     p.add_argument("--cpu", action="store_true")
     p.set_defaults(fn=cmd_export)
+    p = sub.add_parser("splat")
+    p.add_argument("--splat-json", required=True, help="_splat_run.py output for the corner")
+    p.add_argument("--splat-ply", required=True, help="its trained point_cloud.ply")
+    p.add_argument("--keep", type=int, default=100_000)
+    p.add_argument("--out", required=True)
+    p.set_defaults(fn=cmd_splat)
     p = sub.add_parser("points")
     p.add_argument("--scenes", required=True)
     p.set_defaults(fn=cmd_points)
