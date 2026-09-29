@@ -38,8 +38,12 @@ detector's output in either view -- RampNet, or Vistas' own "Curb Cut" class.
 
 Inputs: ``--views`` (as for ``lg``), the labeler (``--labeler-root`` etc., as for the
 geometry arms: poses and heights), and ``--extra seg_dir=DIR`` for the ``sem_*`` arms:
-the label maps ``segment`` writes. A missing label map is computed on the fly (slow on
-CPU), so ``predict`` alone reproduces them; ``segment`` is the batch GPU path::
+the label maps ``segment`` writes. Every map read from seg_dir must hash to its entry in
+the COMMITTED manifest (``semantic_seg_manifest.json``), not to seg_dir's own
+``manifest.json``; a new segmentation (e.g. the ``_ccmask`` follow-up) is used only by
+naming its manifest with ``--extra seg_manifest=PATH``. A missing label map is computed on
+the fly (slow on CPU, and not bit-identical to the committed one), so ``predict`` alone can
+reproduce them approximately; ``segment`` is the batch GPU path::
 
     python scripts/analysis/crossview_arms/semantic.py segment --views VIEWS --out SEG_DIR
     python scripts/analysis/crossview_align_48.py predict --arm sem_chamfer --views VIEWS \\
@@ -153,14 +157,20 @@ class Segmenter:
         return res
 
 
-def _seg_dir(ctx):
-    """--extra seg_dir=DIR. Other --extra entries, with or without '=', are ignored (a bare
-    entry used to raise inside dict())."""
-    d = None
+def _extra(ctx, key):
+    """--extra KEY=VALUE (the last one wins), or None. Other --extra entries, with or without
+    '=', are ignored (a bare entry used to raise inside dict())."""
+    out = None
     for kv in getattr(ctx.args, "extra", None) or []:
         k, _, v = kv.partition("=")
-        if k == "seg_dir":
-            d = v
+        if k == key:
+            out = v
+    return out
+
+
+def _seg_dir(ctx):
+    """--extra seg_dir=DIR."""
+    d = _extra(ctx, "seg_dir")
     if not d:
         raise SystemExit("sem_* arms need --extra seg_dir=DIR (see `semantic.py segment`)")
     return d
@@ -169,26 +179,53 @@ def _seg_dir(ctx):
 #: the committed manifest of the label maps the committed sem_* predictions read
 COMMITTED_SEG_MANIFEST = os.path.join(H.OUT, "semantic_seg_manifest.json")
 
+#: seg_dir/REGENERATED lists the maps label_map computed on a miss, {view name: sha256}
+REGENERATED = "regenerated.json"
 
-def _seg_manifest(ctx, d):
-    """{view name: sha256} from seg_dir/manifest.json, else the committed manifest."""
-    key = ("seg_manifest", d)
+
+def _seg_manifest(ctx):
+    """(path, {view name: sha256}) of the manifest label maps are checked against: the
+    committed one, unless ``--extra seg_manifest=PATH`` names another. seg_dir's own
+    manifest.json is never used implicitly: a foreign map shipped with its own manifest
+    would pass (final re-review of #210, N3)."""
+    path = _extra(ctx, "seg_manifest") or COMMITTED_SEG_MANIFEST
+    key = ("seg_manifest", path)
     if key not in ctx.cache:
-        path = os.path.join(d, "manifest.json")
-        path = path if os.path.exists(path) else COMMITTED_SEG_MANIFEST
         with open(path, encoding="utf-8") as f:
             ctx.cache[key] = {k: v["sha256"] for k, v in json.load(f)["maps"].items()}
-    return ctx.cache[key]
+    return path, ctx.cache[key]
+
+
+def _note_regenerated(d, name, sha):
+    path = os.path.join(d, REGENERATED)
+    got = {}
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            got = json.load(f)
+    got[name] = sha
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        f.write(json.dumps(got, indent=1, sort_keys=True) + "\n")
+
+
+def _regenerated_sha(d, name):
+    path = os.path.join(d, REGENERATED)
+    if not os.path.exists(path):
+        return None
+    with open(path, encoding="utf-8") as f:
+        return json.load(f).get(name)
 
 
 def label_map(pair, which, ctx):
     """The curb-cut-suppressed Vistas label map of a view, from seg_dir, computed and
     written there if missing.
 
-    A map read from seg_dir must hash to its manifest entry, and no map may contain the
-    Curb Cut class: the no-leakage guarantee depends on how seg_dir was produced, so it is
-    checked at read time (review of #210, B7). A map regenerated here (e.g. on CPU) is not
-    bit-identical to the manifest's; it is used, and counted in ctx.cache["seg_regenerated"].
+    A map read from seg_dir must hash to its entry in the committed manifest (or the one
+    ``--extra seg_manifest=`` names), and no map may contain the Curb Cut class: the
+    no-leakage guarantee depends on how seg_dir was produced, so it is checked at read time
+    (review of #210, B7; final re-review, N3). A map regenerated here (e.g. on CPU) is not
+    bit-identical to the manifest's; it is used in this run, counted in
+    ctx.cache["seg_regenerated"], and listed in seg_dir/regenerated.json, so a later run
+    that finds it says so instead of calling it foreign.
     """
     import cv2
     d = _seg_dir(ctx)
@@ -201,15 +238,28 @@ def label_map(pair, which, ctx):
         lab, _ = ctx.cache["segmenter"]([ctx.view(pair, which)])[0]
         os.makedirs(d, exist_ok=True)
         cv2.imwrite(path, lab)
+        with open(path, "rb") as f:
+            _note_regenerated(d, name, hashlib.sha256(f.read()).hexdigest())
         ctx.cache["seg_regenerated"] = ctx.cache.get("seg_regenerated", 0) + 1
     else:
-        want = _seg_manifest(ctx, d).get(name)
+        manifest, maps = _seg_manifest(ctx)
+        want = maps.get(name)
         with open(path, "rb") as f:
             got = hashlib.sha256(f.read()).hexdigest()
         if want != got:
-            raise SystemExit(f"{path}: sha256 {got[:12]}... does not match the seg manifest "
-                             f"({(want or 'no entry')[:12]}...); stale or foreign label maps")
-    assert not (lab == CURB_CUT).any(), f"{path} contains the suppressed Curb Cut class"
+            where = (f"has no entry in {manifest}" if want is None else
+                     f"does not match {manifest} ({want[:12]}...)")
+            if _regenerated_sha(d, name) == got:
+                why = ("label_map regenerated this map on an earlier miss, and a regenerated "
+                       "map is not bit-identical to the manifest's. Delete it to regenerate "
+                       "it again, or restore the manifest's map")
+            else:
+                why = ("the map is stale or foreign. Restore the manifest's map, or name the "
+                       "manifest of a new segmentation with --extra seg_manifest=PATH")
+            raise SystemExit(f"{path}: sha256 {got[:12]}... {where}: {why}")
+    if (lab == CURB_CUT).any():             # not an assert: python -O strips those
+        raise SystemExit(f"{path} contains the suppressed Curb Cut class ({CURB_CUT}); "
+                         "the sem_* arms must not see a ramp detector's output")
     return lab
 
 

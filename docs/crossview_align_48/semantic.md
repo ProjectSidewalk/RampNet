@@ -237,9 +237,14 @@ Every number is in `results_semantic.json` → `arms.<arm>.<stratum>`.
     those pixels (dilated a few px) to an ignore label in neither `RAISED` nor `ROADLIKE`,
     and re-run as a new arm `sem_chamfer_auto_ccmask`. About 3 min on the A40 plus CPU time.
     That turns this disclosure into a measurement.
-  - `label_map` now refuses a map whose sha256 does not match the seg manifest, and asserts
-    that no map contains the Curb Cut class, so a stale or unsuppressed `seg_dir` cannot be
-    read silently (added 2026-09-29; the committed runs predate the check).
+  - `label_map` now refuses a map whose sha256 does not match the **committed** manifest
+    (`semantic_seg_manifest.json`), or the one named by `--extra seg_manifest=PATH` for a new
+    segmentation such as `_ccmask`. It never trusts `seg_dir`'s own `manifest.json`, which a
+    foreign map could ship with. It also refuses, with an explicit error rather than an
+    `assert`, any map that contains the Curb Cut class. So a stale, foreign or unsuppressed
+    `seg_dir` cannot be read silently. A map regenerated on a miss is listed in
+    `seg_dir/regenerated.json`, and a later run that finds it says it was regenerated rather
+    than calling it foreign. Added 2026-09-29; the committed runs predate the check.
 - **A detector-guided arm** would snap to a ramp detection in the other view: RampNet's,
   Vistas' Curb Cut blob, or an open-vocabulary detector's. It would need a reference that
   is not a detector: human clicks on the ramp in both views of each pair. The natural
