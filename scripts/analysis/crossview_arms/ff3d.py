@@ -14,12 +14,18 @@ the other view with the model's own camera for it, and mapped back to the equire
   with the other camera.
 * ``mapa_k_pair`` / ``mapa_k_corner`` -- MapAnything, given the known intrinsics; its
   metric pointmap and cameras.
-* ``mapa_posed_corner`` -- MapAnything given the known intrinsics AND the pose priors
-  (position, heading, 'auto' height, flat) for every view, metric. The lifted point is
-  projected with MapAnything's output camera for the other view.
-* ``mapa_posed_depthonly`` -- the same run, but the lifted point is projected with the
-  other view's *prior* camera: only MapAnything's depth at the click is used (the ground
-  geometry half of the question).
+* ``mapa_posed_corner`` / ``mapa_posed_pair`` -- MapAnything given the known intrinsics
+  AND the pose priors (position, heading, 'auto' height, flat) for every view, metric. The
+  lifted point is projected with MapAnything's output camera for the other view.
+
+Readings that split pose from ground geometry (same model run, different use of it):
+
+* ``*_poseonly`` (``mast3r_poseonly``, ``vggt_corner_poseonly``, ``mapa_posed_poseonly``)
+  -- only the model's src -> oth relative pose is used: today's flat-ground transfer at the
+  'auto' height with the other camera re-posed (``_mv3d.poseonly_transfer``).
+* ``mapa_posed_depthonly`` -- only the model's 3D point at the click is used, carried into
+  the prior frame through the source camera and projected with the other view's PRIOR
+  camera.
 
 Views are the harness's 1024 x 768, 75 deg views, resized to the model's input size
 without cropping (the pixel scale is applied per axis), so the click and the intrinsics map
@@ -44,6 +50,14 @@ MODEL_IDS = {
     "mapanything": "facebook/map-anything",
     "mast3r": "naver/MASt3R_ViTLarge_BaseDecoder_512_catmlpdpt_metric",
     "dust3r": "naver/DUSt3R_ViTLarge_BaseDecoder_512_dpt",
+}
+#: Hugging Face snapshots every committed run loaded (recorded 2026-09-28 from the makelab2
+#: cache); pinned so a re-run loads the same weights
+MODEL_REVISIONS = {
+    "vggt": "860abec7937da0a4c03c41d3c269c366e82abdf9",
+    "mapanything": "a1d87e9086706fb9974f3be5a3e3a0ca5401c5aa",
+    "mast3r": "06e7259f34c3060f322df5cb0c7b9094f57e41fc",
+    "dust3r": "61c57447d7b0adc8a1a30b2b0adec7a8935aa2a3",
 }
 SIZES = {"vggt": (518, 392), "mapanything": (518, 392), "mast3r": (512, 384),
          "dust3r": (512, 384)}
@@ -70,16 +84,17 @@ def _model(ctx, name):
     dev = _device(ctx)
     if name == "vggt":
         from vggt.models.vggt import VGGT
-        m = VGGT.from_pretrained(MODEL_IDS[name])
+        m = VGGT.from_pretrained(MODEL_IDS[name], revision=MODEL_REVISIONS[name])
     elif name == "mapanything":
         from mapanything.models import MapAnything
-        m = MapAnything.from_pretrained(MODEL_IDS[name])
+        m = MapAnything.from_pretrained(MODEL_IDS[name], revision=MODEL_REVISIONS[name])
     elif name == "mast3r":
         from mast3r.model import AsymmetricMASt3R
-        m = AsymmetricMASt3R.from_pretrained(MODEL_IDS[name])
+        m = AsymmetricMASt3R.from_pretrained(MODEL_IDS[name], revision=MODEL_REVISIONS[name])
     elif name == "dust3r":
         from dust3r.model import AsymmetricCroCo3DStereo
-        m = AsymmetricCroCo3DStereo.from_pretrained(MODEL_IDS[name])
+        m = AsymmetricCroCo3DStereo.from_pretrained(MODEL_IDS[name],
+                                                    revision=MODEL_REVISIONS[name])
     else:
         raise ValueError(name)
     m = m.to(dev).eval()
