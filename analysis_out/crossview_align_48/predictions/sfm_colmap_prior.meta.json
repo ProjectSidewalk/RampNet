@@ -1,0 +1,44 @@
+{
+ "arm": "sfm_colmap_prior",
+ "config": {
+  "features": "ALIKED aliked-n16 + LightGlue (kornia 0.8.3), all view pairs",
+  "ground_min_depression_deg": 2.0,
+  "ground_tol_frac": 0.05,
+  "lift": "gravity-perpendicular ground at the mode of the support points' level",
+  "mapper": "pycolmap incremental_mapping, PINHOLE intrinsics fixed",
+  "max_views": null,
+  "min_support": 3,
+  "min_two_view_inliers": 15,
+  "priors": "position, sigma 3.0 m horizontal / 1.0 m vertical, robust",
+  "support_px": 120.0,
+  "views": "harness src / oth views plus every capture within 25 m, 1024x768 75 deg"
+ },
+ "description": "per-corner COLMAP SfM with GPS position priors; gravity-level ground lift",
+ "elapsed_s": 1310.5351,
+ "fallback": 101,
+ "gpu_visible": "NVIDIA A40",
+ "host": "makelab2.cs.washington.edu",
+ "manifest_sha256": "92d25502f7d8bdeed83c4ea727a2ee3250e3485a22c74435ffeb5fdd9e53e5fc",
+ "missing_inputs": 0,
+ "needs": [
+  "views"
+ ],
+ "pairs": 300,
+ "pairs_sha256": "a85a11bceb57e7d4db4bc5914c35cb17b5fdaf9bc8c9189957574a13260db388",
+ "shared_context_with": [
+  "sfm_colmap_prior"
+ ],
+ "ts": "2026-09-29T02:25:59Z",
+ "versions": {
+  "cv2": "5.0.0",
+  "dust3r": "installed",
+  "kornia": "0.8.3",
+  "mapanything": "installed",
+  "mast3r": "installed",
+  "numpy": "2.5.2",
+  "pycolmap": "4.2.0",
+  "python": "3.12.13",
+  "torch": "2.6.0+cu124",
+  "vggt": "installed"
+ }
+}
