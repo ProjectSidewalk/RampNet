@@ -407,6 +407,86 @@ def cmd_pilot(args):
     print(f"-> {path}")
 
 
+REPORT_JSON = os.path.join(H.OUT, "mv3d_results.json")
+BASELINES = ("projection", "proj_height_auto")
+
+
+def _summ(pairs, e, idx, base):
+    """Median [CI], within-2 deg, fallback, and the paired median gain over each baseline
+    [CI] on pairs ``idx``; CIs resample ramps (the harness's cluster bootstrap)."""
+    by_ramp = defaultdict(list)
+    for i in idx:
+        by_ramp[pairs[i]["ramp_uid"]].append(i)
+    groups = [v for _, v in sorted(by_ramp.items())]
+
+    def med(ii):
+        return float(np.median([e[i][0] for i in ii])) if ii else float("nan")
+
+    out = {"n_pairs": len(idx), "n_ramps": len(groups), "median_deg": med(idx),
+           "median_ci": H.cluster_bootstrap(groups, med) if idx else None,
+           "within_2deg": float(np.mean([e[i][0] <= 2.0 for i in idx])) if idx else None,
+           "fallback_rate": float(np.mean([e[i][3] for i in idx])) if idx else None}
+    for b, eb in base.items():
+        def gain(ii, eb=eb):
+            return float(np.median([eb[i][0] - e[i][0] for i in ii])) if ii else float("nan")
+
+        def closer(ii, eb=eb):
+            return float(np.mean([e[i][0] < eb[i][0] - 1e-9 for i in ii])) if ii else float("nan")
+
+        out[f"gain_vs_{b}"] = gain(idx)
+        out[f"gain_vs_{b}_ci"] = H.cluster_bootstrap(groups, gain) if idx else None
+        out[f"closer_than_{b}"] = closer(idx)
+        out[f"{b}_median_deg"] = float(np.median([eb[i][0] for i in idx])) if idx else None
+    return out
+
+
+def cmd_report(args):
+    """Score the multi-view 3D arms against BOTH baselines -- today's projection and the
+    labeler's 'auto' height (proj_height_auto), the cheapest known improvement -- on all
+    pairs and on the pairs each arm did not fall back on, overall and by imagery.
+    Reads committed predictions only; writes mv3d_results.json."""
+    pairs = H.read_frozen_pairs()
+    base = {"projection": H.arm_errors(pairs, None),
+            "proj_height_auto": H.arm_errors(pairs, H.read_predictions("proj_height_auto"))}
+    res = {"config": {"pairs_sha256": H.PAIRS_SHA256, "n_boot": H.N_BOOT, "seed": H.SEED,
+                      "ci": "2.5-97.5 percentile, ramps resampled",
+                      "baselines": list(BASELINES)}, "arms": {}}
+    strata = {"all": list(range(len(pairs)))}
+    for i, p in enumerate(pairs):
+        strata.setdefault(f"imagery={p['imagery']}", []).append(i)
+    for name in ["proj_height_auto"] + args.arms.split(","):
+        e = base["proj_height_auto"] if name == "proj_height_auto" else \
+            H.arm_errors(pairs, H.read_predictions(name))
+        res["arms"][name] = {}
+        for sk, idx in strata.items():
+            used = [i for i in idx if not e[i][3]]
+            res["arms"][name][sk] = {"all_pairs": _summ(pairs, e, idx, base),
+                                     "not_fallen_back": _summ(pairs, e, used, base)}
+    with open(args.out, "w", encoding="utf-8", newline="") as f:
+        f.write(json.dumps(H.rnd(res, 4), indent=1, sort_keys=True) + "\n")
+    fmt = lambda v, ci: f"{v:.2f} [{ci[0]:.2f}, {ci[1]:.2f}]" if ci else f"{v:.2f}"  # noqa
+    for sk in strata:
+        print(f"\n### {sk}\n")
+        print("| arm | fallback | median deg, all pairs [CI] | within 2 deg | n used | used: arm "
+              "vs auto vs projection | used: paired gain vs projection [CI] | used: paired "
+              "gain vs auto [CI] | used: closer than auto |")
+        print("|---|---|---|---|---|---|---|---|---|")
+        for name, r in res["arms"].items():
+            a, u = r[sk]["all_pairs"], r[sk]["not_fallen_back"]
+            if u["n_pairs"]:
+                used = (f"{u['n_pairs']} | {u['median_deg']:.2f} vs "
+                        f"{u['proj_height_auto_median_deg']:.2f} vs "
+                        f"{u['projection_median_deg']:.2f} | "
+                        f"{fmt(u['gain_vs_projection'], u['gain_vs_projection_ci'])} | "
+                        f"{fmt(u['gain_vs_proj_height_auto'], u['gain_vs_proj_height_auto_ci'])}"
+                        f" | {u['closer_than_proj_height_auto']:.2f}")
+            else:
+                used = "0 | - | - | - | -"
+            print(f"| {name} | {a['fallback_rate']:.2f} | {fmt(a['median_deg'], a['median_ci'])}"
+                  f" | {a['within_2deg']:.2f} | {used} |")
+    print(f"\n-> {args.out}")
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description="multi-view 3D arms: manifest and corner views")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -432,6 +512,10 @@ def main(argv=None):
     p.add_argument("--runs-root")
     p.add_argument("--results-root")
     p.set_defaults(fn=cmd_pilot)
+    p = sub.add_parser("report", help="score arms against projection AND proj_height_auto")
+    p.add_argument("--arms", required=True, help="comma-separated committed predictions")
+    p.add_argument("--out", default=REPORT_JSON)
+    p.set_defaults(fn=cmd_report)
     args = ap.parse_args(argv)
     args.fn(args)
 
