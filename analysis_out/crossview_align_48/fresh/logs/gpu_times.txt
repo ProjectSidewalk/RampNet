@@ -1,0 +1,9 @@
+mapa_posed_pair start 2026-09-29T17:16:55Z
+8817 MiB, 46068 MiB
+mapa_posed_pair end 2026-09-29T17:19:48Z exit 0
+mapa_k_pair start 2026-09-29T17:19:48Z
+8817 MiB, 46068 MiB
+mapa_k_pair end 2026-09-29T17:22:31Z exit 0
+mapa_posed_corner start 2026-09-29T17:22:31Z
+8817 MiB, 46068 MiB
+mapa_posed_corner end 2026-09-29T17:31:39Z exit 0

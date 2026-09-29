@@ -514,7 +514,7 @@ def test_read_predictions_refuses_an_out_of_range_y(tmp_path, monkeypatch):
     d.mkdir(parents=True)
     (d / "bad.meta.json").write_text(json.dumps({"pairs_sha256": cv.PAIRS_SHA256}))
     (d / "bad.jsonl").write_text(json.dumps({"pair_id": "a", "x": 0.2, "y": 1.3}) + "\n")
-    monkeypatch.setattr(cv, "OUT", str(tmp_path / "crossview_align_48"))
+    monkeypatch.setattr(cv, "PRED_DIR", str(d))
     with pytest.raises(SystemExit):
         cv.read_predictions("bad")
 

@@ -14,8 +14,19 @@ A pilot, and the shared harness for comparing techniques. Code:
   **It is a post hoc arm.** It was registered after `mapa_posed_corner`'s 300-pair result
   had been seen, and it never had a pilot. So 2.80° is an in-sample result on the pairs that
   suggested it. It needs confirmation, with its settings fixed in advance, on fresh pairs
-  drawn from the 1,423 eligible pairs not in the 300 before anyone adopts it. That re-test
-  has not been run. See
+  drawn from the 1,423 eligible pairs not in the 300 before anyone adopts it.
+  **Fresh-pair re-test done (2026-09-29): confirmed, but smaller.** On 686 pairs over 395
+  ramps the 300 never used, it is 3.26° [2.98, 3.53] against auto's 4.22°. Its paired gain
+  over auto is +0.35° [0.11, 0.59] on GSV and +1.32° [0.73, 2.34] on Mapillary, and it
+  passes a one-sided Bonferroni test over the three re-tested arms in every stratum.
+  `mapa_posed_corner` and `mapa_k_pair` are confirmed too. The 300's ranking did not hold:
+  the three tie on GSV (3.18–3.28°), and `mapa_k_pair` is best on Mapillary (2.45°).
+  **`mapa_k_pair`'s GSV confirmation is fragile.** It holds only under the pre-specified
+  rules. It flips under each of three post hoc sensitivity reads: scoring its fallbacks as
+  auto, or dropping the primary pairs that reuse the 300's imagery (two variants). Its GSV
+  gain also did not survive the 300's 83-arm screen. The two posed arms stay at an α/3 lower
+  bound of at least +0.105° on GSV under every read. Quote the fresh numbers, not the 300's; see
+  [Fresh-pair confirmation](#fresh-pair-confirmation-follow-up-1). See
   [Combined comparison across all arm families](#combined-comparison-across-all-arm-families)
   for the table and its caveats.
 - **The rest of this Summary, and §4–§8, are the pilot (13 arms, 2026-09-28).** Where the
@@ -52,7 +63,8 @@ A pilot, and the shared harness for comparing techniques. Code:
 - **Pilot verdict (proposed, not decided; superseded by the combined takeaways):**
   - For gallery rings, use `proj_height_auto` everywhere. Where LightGlue aligns, use its
     point instead, and mark which ring is which. The combined comparison replaces this with
-    `mapa_posed_pair` as the candidate, pending its fresh-pair re-test.
+    `mapa_posed_pair` as the candidate. The fresh-pair re-test has since confirmed it and its
+    two siblings.
   - As an association signal for the labeler's clustering
     ([labeler#56](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/56)),
     image alignment is too often silent to be the primary signal, and it is untested as a
@@ -86,8 +98,9 @@ with the full arm list, method and caveats:
   [0.83, 2.77] on Mapillary, and the GSV and all-pairs gains survive the Bonferroni screen
   below (the Mapillary stratum was not screened). It was added after its sibling `mapa_posed_corner` (2.86°, not
   post hoc) had been scored on these pairs (commit `0428bb7`), so its numbers are in-sample.
-  `mapa_posed_corner` is the pre-specified arm closest to it. Both need the fresh-pair
-  re-test before adoption.
+  `mapa_posed_corner` is the pre-specified arm closest to it. Both are confirmed on fresh
+  pairs, with smaller gains and without the ranking
+  ([Fresh-pair confirmation](#fresh-pair-confirmation-follow-up-1)).
 - **On GSV, only the two posed MapAnything arms beat auto once the 83-arm multiplicity is
   applied.** Without correction, five of the 83 shared arms have a GSV gain whose 95% CI
   clears zero (`combined_table.json` → `gsv_ci_clear_vs_auto`): `mapa_posed_pair` +0.63°,
@@ -250,10 +263,362 @@ fallback rate matches `results.json`; the Richmond cells of the flat arms match
 - **Many arms were scored on the same 300 pairs, and some were added post hoc, including the
   headline arm.** Across 83 shared arms, a few CI-clear gains are expected by selection
   alone; the Bonferroni screen above says which survive it. Neither the correction nor the
-  CIs account for arms being *added* after results were seen. **Follow-up, not run:** re-test
-  `mapa_posed_pair`, `mapa_posed_corner` and `mapa_k_pair`, with settings fixed in advance,
-  on fresh pairs from the 1,423 eligible pairs (`eligible_pairs.csv`) not in the 300,
-  preferring ramps not among the 174 already used.
+  CIs account for arms being *added* after results were seen. **Follow-up, done 2026-09-29:** `mapa_posed_pair`, `mapa_posed_corner` and `mapa_k_pair`
+  were re-tested with their settings fixed in advance, on 807 fresh pairs. The primary
+  analysis is the 686 of them on ramps not among the 174. All three are confirmed, with
+  smaller gains. `mapa_k_pair`'s GSV cell holds only under the pre-specified rules; see
+  [Fresh-pair confirmation](#fresh-pair-confirmation-follow-up-1).
+
+## Fresh-pair confirmation (follow-up 1)
+
+Re-tests three of the four MapAnything arms that survived the 83-arm Bonferroni screen over
+all 300 pairs, on pairs no arm had been scored on. Code:
+`scripts/analysis/crossview_fresh_48.py`; outputs: `analysis_out/crossview_align_48/fresh/`.
+The 300-pair files (`pairs.csv`, `predictions/`, `results.json`) are not touched.
+
+*Which arms, corrected after the review of
+[#220](https://github.com/ProjectSidewalk/RampNet/pull/220).* The plan below, and this
+section's first version, said "the three MapAnything arms that survived" the screen. Four
+survived over all 300 pairs (`combined_table.json` → `multiplicity.all_survivors`):
+`mapa_posed_pair`, `mapa_posed_corner`, `mapa_k_pair` and `mapa_posed_poseonly` (lower
+bound +0.02°, gain +0.07°). On GSV only the two posed arms survived. Leaving out
+`mapa_posed_poseonly` was an omission, not a recorded decision. The plan commit (`cd65024`)
+gives no reason, and the same doc already listed it as a survivor. A plausible reason is
+that its gain is negligible, and that it is a diagnostic reading (the model's relative pose
+only) rather than a placement candidate. That is a reconstruction after the fact. It was
+not re-tested, and testing it now would be post hoc.
+
+### Fixed before running (committed and pushed before any prediction, 2026-09-29)
+
+- **Pairs.** Every pair of the committed `eligible_pairs.csv` that is not in the frozen 300,
+  drawn by the §2 rule (`sample_pairs`: per city, ramps in seeded order, at most 2 other
+  views per ramp; seed `48:fresh`), with **no per-city cap**: 807 pairs on 477 ramps
+  (Richmond 259, Paterson 127, Gainesville 119, Bend 211, São Paulo 91). 686 of them are on
+  the 395 ramps that are not among the 174 used by the 300 (Richmond 209, Paterson 108,
+  Gainesville 109, Bend 189, São Paulo 71). `fresh/pairs.csv` sha256 `4ae009bf…d51e9f7a`
+  (`FRESH_PAIRS_SHA256`); ids `f000`–`f806`.
+- **Why all of them.** The MapAnything arms cost about 0.3 s (pair) to 1 s (12-view corner)
+  per pair on the A40 (their committed 300-pair metas: 91–313 s), so all 807 pairs is under
+  half an A40-hour for the three arms. The per-ramp cap, not cost, is what limits the set;
+  every city clears 60 new-ramp pairs. Without a per-city cap, Richmond is 30% of the new-ramp
+  pairs (20% in the 300), so the "all" stratum weights Mapillary more than the 300 did; the
+  GSV and Mapillary strata are the comparable reads.
+- **Arms.** `mapa_posed_pair`, `mapa_posed_corner`, `mapa_k_pair`, settings unchanged from
+  their committed 300-pair runs (same code, weights `facebook/map-anything@a1d87e9`, same
+  makelab2 env), plus the baselines `projection` and `proj_height_auto`. Views and the corner
+  manifest are built for the fresh pairs by the same code (`cut-views`, `_mv3d.py manifest` /
+  `render`) under `CROSSVIEW48_PAIR_SET=fresh`.
+- **Primary metric.** Each arm's paired median gain over `proj_height_auto` (a fallback is
+  scored at the 2.6 m projection, the harness rule), with a ramp-bootstrap 95% CI, tested
+  one-sided (gain > 0) at α = 0.05 / 3, Bonferroni over the three arms (20,000 ramp
+  resamples, seed 48, one draw shared by the arms). Reported for all pairs, GSV and Mapillary;
+  each stratum is tested on its own. An arm is **confirmed** in a stratum when its Bonferroni
+  lower bound is above zero. As a sensitivity read, the bound at α / 9 (3 arms × 3 strata) is
+  also reported.
+- **Primary analysis:** the 686 pairs whose ramp is not among the 174 already used.
+  **Secondary:** all 807 fresh pairs (the other 121 share a ramp, and so a source point, with
+  the 300).
+- The test is `crossview_fresh_48.py score` → `fresh/confirmation.json`.
+
+### Result (2026-09-29)
+
+**All three arms are confirmed in every stratum, in both analyses. The gains are real, but
+smaller than the 300 pairs suggested, and the 300's ranking of the three arms did not
+hold.** The Bonferroni lower bounds also stay above zero at α / 9 in every cell. The
+tightest is `mapa_k_pair` on GSV (primary), at +0.02°.
+
+**`mapa_k_pair` on GSV is the fragile cell (added after the review of
+[#220](https://github.com/ProjectSidewalk/RampNet/pull/220)).** Its confirmation holds only
+under the pre-specified rules. It flips under each of three post hoc sensitivity reads:
+
+- scoring its fallbacks as auto (20 primary pairs, 19 of them on GSV);
+- dropping the 55 primary pairs that repeat a pano pair of the 300;
+- dropping the 190 that share any pano with the 300.
+
+Its GSV gain also did not survive the 300's 83-arm screen (lower bound −0.13°). The two
+posed arms stay at an α/3 lower bound of at least +0.105° on GSV under every read. See
+[Sensitivity reads](#sensitivity-reads-post-hoc-added-after-the-review-of-220). The
+pre-specified verdicts in the tables below are unchanged.
+
+The primary analysis is the 686 pairs on the 395 ramps the 300 did not use. **Of those 686
+pairs, 190 (28%) use a source pano that is also in the 300, so "ramps the 300 never used" is
+not "imagery the 300 never used".** 55 of them are the identical pano pair as a 300 pair,
+aimed at a different ramp. MapAnything reconstructs the same two captures there (for the
+pair arms the view crops differ, because they are aimed at the ramp). The shared pano is
+always the source pano; no primary pair shares only its other pano.
+
+`fresh/confirmation.json` had sha256 `bb8ead92…4a62d06a` as the pre-specified test wrote it.
+It now also carries the post hoc `sensitivity` key (sha256 `738c7b1c…a8f34438`). With that
+key removed and the file re-serialized, it hashes to `bb8ead92…` again, so no pre-specified
+number moved. `PRESPECIFIED_CONFIRMATION_SHA256` pins this, and a test checks it.
+
+| arm | stratum | n pairs (ramps) | median ° [CI] | within 2° | fallback | paired gain vs auto [95% CI] | Bonferroni lower (α/3) | verdict | 300 pairs: median °, gain vs auto |
+|---|---|---|---|---|---|---|---|---|---|
+| `projection` | all | 686 (395) | 5.00 [4.39, 5.53] | 0.20 | 0.00 | -0.00 [-0.00, 0.00] | | | 5.62 |
+| `proj_height_auto` | all | 686 (395) | 4.22 [3.87, 4.82] | 0.24 | 0.00 | – | | | 4.06 |
+| `mapa_posed_pair` | all | 686 (395) | 3.26 [2.98, 3.53] | 0.32 | 0.00 | +0.57 [0.37, 0.86] | +0.34 | confirmed | 2.80, +0.72 |
+| `mapa_posed_corner` | all | 686 (395) | 3.28 [2.98, 3.64] | 0.30 | 0.00 | +0.59 [0.36, 0.91] | +0.35 | confirmed | 2.86, +0.61 |
+| `mapa_k_pair` | all | 686 (395) | 3.05 [2.75, 3.35] | 0.34 | 0.03 | +0.69 [0.32, 0.92] | +0.30 | confirmed | 2.99, +0.72 |
+| `projection` | GSV | 477 (284) | 4.82 [4.08, 5.51] | 0.21 | 0.00 | -0.48 [-0.85, -0.14] | | | 6.09 |
+| `proj_height_auto` | GSV | 477 (284) | 3.95 [3.45, 4.48] | 0.27 | 0.00 | – | | | 3.92 |
+| `mapa_posed_pair` | GSV | 477 (284) | 3.27 [2.96, 3.59] | 0.32 | 0.00 | +0.35 [0.11, 0.59] | +0.11 | confirmed | 2.85, +0.63 |
+| `mapa_posed_corner` | GSV | 477 (284) | 3.18 [2.84, 3.60] | 0.31 | 0.00 | +0.39 [0.22, 0.65] | +0.21 | confirmed | 3.00, +0.51 |
+| `mapa_k_pair` | GSV | 477 (284) | 3.28 [3.01, 3.58] | 0.31 | 0.04 | +0.29 [0.12, 0.57] | +0.11 | confirmed | 3.28, +0.33 |
+| `projection` = `proj_height_auto` | Mapillary | 209 (111) | 5.29 [4.28, 7.11] | 0.16 | 0.00 | – | | | 4.56 |
+| `mapa_posed_pair` | Mapillary | 209 (111) | 3.21 [2.61, 3.65] | 0.32 | 0.00 | +1.32 [0.73, 2.34] | +0.68 | confirmed | 2.26, +1.73 |
+| `mapa_posed_corner` | Mapillary | 209 (111) | 3.54 [3.03, 4.11] | 0.28 | 0.00 | +1.00 [0.60, 2.23] | +0.59 | confirmed | 2.68, +0.94 |
+| `mapa_k_pair` | Mapillary | 209 (111) | 2.45 [2.05, 2.95] | 0.41 | 0.00 | +1.89 [1.15, 2.91] | +1.08 | confirmed | 2.16, +2.60 |
+
+The last column is the 300-pair result from the combined table. It is there for comparison
+only and is not part of the test.
+
+**Secondary analysis (all 807 fresh pairs).** The verdicts are the same, and every
+Bonferroni lower bound is at least +0.13 (`confirmation.json` → `secondary`). Paired gains
+over auto:
+
+| arm | all | GSV | Mapillary |
+|---|---|---|---|
+| `mapa_posed_pair` | +0.63 [0.41, 0.87] | +0.38 | +1.31 |
+| `mapa_posed_corner` | +0.63 [0.42, 0.94] | +0.44 | +1.09 |
+| `mapa_k_pair` | +0.70 [0.47, 0.95] | +0.32 | +1.85 |
+
+**Per-city medians** (°, primary pairs; descriptive, not tested):
+
+| city | n | projection | auto | posed pair | posed corner | k pair |
+|---|---|---|---|---|---|---|
+| Richmond | 209 | 5.29 | 5.29 | 3.21 | 3.54 | 2.45 |
+| Paterson | 108 | 6.20 | 3.79 | 3.42 | 2.94 | 3.25 |
+| Gainesville | 109 | 6.49 | 3.75 | 3.54 | 3.52 | 3.57 |
+| Bend | 189 | 4.04 | 4.03 | 2.98 | 3.01 | 3.04 |
+| São Paulo | 71 | 3.51 | 4.70 | 3.74 | 3.63 | 3.93 |
+
+#### Sensitivity reads (post hoc, added after the review of #220)
+
+These reads are **not part of the pre-specified test, and they do not change its
+verdicts.** The review of [#220](https://github.com/ProjectSidewalk/RampNet/pull/220) asked
+for them. Each read re-runs the same `confirm()` on the primary pairs, with the same seed 48,
+20,000 ramp resamples and α/3 bound, and changes one rule:
+
+- **(a) fallback as auto.** A fallback is scored as `proj_height_auto`'s point, not the 2.6 m
+  projection. This is `combined_table.json`'s `else_auto` rule ("one common rule for every
+  arm"), and it is what a deployment would do. Only `mapa_k_pair` falls back: 20 primary
+  pairs (19 on GSV, 1 in Richmond), 22 over all 807 fresh pairs. So the posed arms' numbers
+  are unchanged.
+- **(b) drop identical pano pairs.** The 55 primary pairs whose (src, oth) pano pair, in
+  either order, is also a pair of the 300 are removed.
+- **(c) drop any shared pano.** The 190 primary pairs with any pano that appears anywhere in
+  the 300 are removed.
+
+`confirmation.json` → `sensitivity`; `crossview_fresh_48.py score` prints the table.
+
+The table gives the α/3 Bonferroni lower bound (°), then the paired gain over auto in
+brackets. Pairs per read: all 686 / 686 / 631 / 496; GSV 477 / 477 / 431 / 339; Mapillary
+209 / 209 / 200 / 157.
+
+| arm | stratum | pre-specified | (a) fallback as auto | (b) drop identical pano pair | (c) drop any shared pano |
+|---|---|---|---|---|---|
+| `mapa_posed_pair` | all | +0.343 [+0.57] | +0.343 [+0.57] | +0.318 [+0.58] | +0.351 [+0.70] |
+| `mapa_posed_pair` | GSV | +0.111 [+0.35] | +0.111 [+0.35] | +0.109 [+0.34] | +0.105 [+0.37] |
+| `mapa_posed_pair` | Mapillary | +0.682 [+1.32] | +0.682 [+1.32] | +0.689 [+1.43] | +0.783 [+1.59] |
+| `mapa_posed_corner` | all | +0.347 [+0.59] | +0.347 [+0.59] | +0.354 [+0.63] | +0.332 [+0.65] |
+| `mapa_posed_corner` | GSV | +0.214 [+0.39] | +0.214 [+0.39] | +0.200 [+0.40] | +0.198 [+0.46] |
+| `mapa_posed_corner` | Mapillary | +0.595 [+1.00] | +0.595 [+1.00] | +0.592 [+1.05] | +0.595 [+1.48] |
+| `mapa_k_pair` | all | +0.302 [+0.69] | +0.270 [+0.65] | +0.285 [+0.68] | +0.270 [+0.76] |
+| `mapa_k_pair` | **GSV** | +0.111 [+0.29] | **+0.000 [+0.25]** | **−0.009 [+0.27]** | **−0.048 [+0.27]** |
+| `mapa_k_pair` | Mapillary | +1.078 [+1.89] | +1.078 [+1.89] | +1.004 [+1.86] | +1.004 [+1.99] |
+
+- **`mapa_k_pair` on GSV is not confirmed under any of the three reads.** Under (a), 2.2% of
+  resamples have a gain ≤ 0, against the α/3 cutoff of 1.67%. The bound rounds to +0.000.
+  Under (b) and (c) the share is 1.9% and 3.0%. Its point gain stays at +0.25 to +0.27°. So
+  this is a borderline cell, not a null one.
+- **Every other cell stays confirmed under every read.** The lowest bound is +0.105°
+  (`mapa_posed_pair`, GSV, read c).
+- **Of the three arms, only the two posed ones are robust on GSV.** That fits "the choice
+  rests on cost and robustness" below. `mapa_k_pair`'s GSV gain also did not survive the
+  300's 83-arm screen (lower bound −0.13°).
+
+**Reading.**
+
+- **Confirmed: all three MapAnything arms beat the free per-rig height on fresh ramps,** on
+  GSV and on Mapillary, under the pre-specified rules. On the 300, the headline arm was
+  added post hoc and was one of 83 arms compared. That selection does not explain the gains
+  away. `mapa_k_pair`'s GSV cell is the exception to "robust": it holds only under the
+  pre-specified rules (sensitivity reads above).
+- **The in-sample number shrank.**
+  - `mapa_posed_pair`'s all-pairs median is 3.26° here, against 2.80° on the 300.
+  - Its GSV gain over auto is +0.35° [0.11, 0.59] here, against +0.63° on the 300. That is
+    consistent with selection, which is what one expects for a post hoc arm. But the
+    shrinkage is not only selection:
+    - the pre-specified `mapa_posed_corner` shrank too (GSV +0.51° → +0.39°);
+    - the fresh sample differs from the 300. On GSV the projection went from 6.09° to 4.82°,
+      while auto stayed at 3.92° vs 3.95°.
+
+    These data cannot separate the two causes.
+  - Quote the fresh numbers.
+- **No single arm is "the winner".**
+  - On GSV the three arms are within 0.1° of each other (3.18–3.28°).
+  - On Mapillary, `mapa_k_pair` is best by about 0.8° (2.45° vs 3.21°). It gets intrinsics
+    only, with no pose priors.
+  - The 300 put `mapa_posed_pair` first on both, and that ranking did not replicate.
+  - Differences *between* the arms were not part of the pre-specified test and are not
+    tested here.
+  - The choice among them therefore rests on cost and robustness. The pair arms take about
+    0.2 s per pair against 0.7 s for the 12-view corner arm. `mapa_k_pair` falls back on
+    3–4% of GSV pairs; the posed arms never fall back.
+- **São Paulo breaks the pattern that auto helps on GSV.**
+  - Auto's median there (4.70°) is worse than the projection's (3.51°).
+  - No arm beats the projection's median in São Paulo (3.63–3.93°).
+  - The city was not a pre-specified stratum. At 71 pairs it is reported here, not tested.
+
+**Caveats beside these numbers.**
+
+- **The reference is still a RampNet detection, with a floor of about 2°.** On manual_gold a
+  peak sits a median 1.51° from the human box centre (§2). Every arm's median here is
+  2.4–3.5°, so the gains are above that floor, but between-arm differences of a few tenths
+  of a degree cannot be resolved.
+- **The world-test pair selection still applies.** Fresh pairs come from the same
+  `eligible_pairs.csv`, so every reference detection raycasts within 5 m of the source point
+  at a flat 2.6 m. The worst projection failures are still not scored.
+- **There are no negative pairs.** This confirms placement. It does not test telling one
+  ramp from another nearby (§7).
+- **Mapillary is still one city.** It is Richmond, now 209 pairs on 111 ramps, none of them
+  among the 300's ramps.
+- **The pool and the source detections are the same as the 300's.** The fresh pairs are new
+  pairs, and in the primary analysis new ramps. They come from the same five cities, the
+  same labeler runs and the same eligibility rule. So this is a held-out test within those
+  cities, not a transfer test to new ones.
+- **New ramps are not new imagery.** 190 of the 686 primary pairs (28%) use a source pano
+  that is also in the 300. 55 of them are the identical pano pair as a 300 pair, aimed at a
+  different ramp. They are not independent of the data that selected the arms. The effect
+  is small for the posed arms and decisive for `mapa_k_pair` on GSV (sensitivity reads b
+  and c).
+- **"All" weights Mapillary at 30%**, against 20% in the 300. Compare the GSV and Mapillary
+  rows with the 300, not the "all" rows.
+
+**Cost.**
+
+| step | where | wall-clock | GPU-h | $ |
+|---|---|---|---|---|
+| fresh pair list, manifest, `proj_height_auto`, instrument checks | desktop CPU | ~1 min | 0 | 0 |
+| `cut-views` (1,614 views from 1,020 panos) | makelab2 CPU, 8 workers | 189 s | 0 | 0 |
+| corner views (`_mv3d.py render`, 3,965 views from 2,821 panos) | makelab2 CPU, 8 workers | 598 s | 0 | 0 |
+| `mapa_posed_pair` | makelab2 A40 | 170 s | 0.05 | 0 |
+| `mapa_k_pair` | makelab2 A40 | 161 s | 0.04 | 0 |
+| `mapa_posed_corner` | makelab2 A40 | 547 s | 0.15 | 0 |
+| `crossview_fresh_48.py score` | desktop CPU | 40 s (112 s with the sensitivity reads) | 0 | 0 |
+
+The GPU total is 0.24 A40-hours, counted as wall-clock per arm including model load. The
+A40 is shared; the only other process on it held 8.8 GB and was idle. The runs have
+`paid: false` rows in `analysis_out/usage_log.jsonl`.
+
+The ledger's `elapsed_s` and GPU-hours are each meta's own `elapsed_s`: 170.4, 160.7 and
+547.0 s. Each ledger row's `what` gives a longer chain window: 173 s, 163 s and 548 s,
+from `fresh/logs/gpu_times.txt`. The meta's timer runs around `run_arm` only. The model loads
+lazily inside it, on the first pair, so "incl. model load" is true of both figures. The
+chain window adds the interpreter start, the imports, and reading the pairs and views before
+the timer starts, plus the `nvidia-smi` query: 1–3 s per arm, about 6 s or 0.002 GPU-h in
+total. The ledger rows are left as written.
+
+**Versions.**
+
+- The env is the one #215 used, `makelab2:/homes/gws/jonf/crossview48_sfm/venv`; it was not
+  rebuilt.
+- torch 2.6.0+cu124, numpy 2.5.2, cv2 5.0.0, map-anything `3d10cf7`, uniception 0.1.7,
+  huggingface-hub 1.33.0.
+- Weights: `facebook/map-anything@a1d87e9`.
+- These are recorded in each fresh `.meta.json` under `env`. **That block was added by
+  hand after the run**, as its `added` field says. The code-written `versions` field recorded
+  only `"mapanything": "installed"`.
+  - The package versions (map-anything, uniception, huggingface-hub) were **hand-transcribed
+    from `logs/freeze_main.txt`, which is not committed**. It is on makelab2 at
+    `/homes/gws/jonf/crossview48_fresh/logs/freeze_main.txt`.
+  - The GPU-memory line and the chain windows come from `logs/gpu_times.txt`, which **is**
+    committed, as `fresh/logs/gpu_times.txt`: a copy taken from makelab2 during the run
+    session. Its `exit 0` fields are not the predictor's exit status. In
+    `echo "... $(date) exit $?"`, `$?` is read after the `$(date)` substitution, so it
+    records `date`'s status. That each arm completed is shown instead by its 807 prediction
+    rows and its meta.
+  - The 300-pair metas have no `env` block. "Same env, same weights as the 300" rests on
+    the in-code `MODEL_REVISIONS` pin, on the env path, and on the code check below. It does
+    not rest on a recorded side-by-side of package versions.
+  - Going forward, `_mv3d._versions()` records each package's `__version__`, else its
+    installed distribution's version, plus `@<commit>` when it is imported from a git
+    checkout (map-anything is an editable install). It also records uniception and
+    huggingface_hub. The next run needs no hand edit.
+- The corner manifest is `fresh/mv3d_corners.json`, sha256 `06ea2e42…a928d4509`.
+
+**Instrument checks before predicting.** With the same inputs (labeler `39afcd4` and the
+five archived `results.jsonl`, sha-verified), I rebuilt the 300-pair manifest and
+re-predicted `proj_height_auto` on the 300. Both came out byte-identical to the committed
+files.
+
+**Settings and code unchanged (checked after the review of
+[#220](https://github.com/ProjectSidewalk/RampNet/pull/220)).** Before the review, the only
+test compared the two copies of each arm's registered `config` dict, and that cannot see a
+change to the code. `test_fresh_arms_ran_the_300s_code_settings_and_weights` now asserts
+four things:
+
+- `crossview_arms/ff3d.py`, the code of all three arms, has the same `code_fingerprint` as
+  at `c84dc74` (comments, docstrings and blank lines ignored). `c84dc74` is the commit the
+  300's `mapa_posed_pair` predictions were committed with; the run itself is timestamped
+  slightly earlier, and the code diffs in between are no-ops for these arms (below).
+  `mapa_k_pair`'s (`cd06387`) ran the same code. The fingerprint is equal at every commit from `c84dc74` to this one.
+- `config`, `description` and `needs` match the 300-pair metas.
+- `MODEL_REVISIONS["mapanything"]` is `a1d87e9…`.
+- Each fresh meta's `manifest_sha256` is the committed fresh manifest's.
+
+`mapa_posed_corner`'s 300 predictions (committed with `0428bb7`) predate two edits to `ff3d.py`. Both were
+read line by line and are no-ops for that arm:
+
+- `8cdf52f` passes `revision=MODEL_REVISIONS[...]`, the snapshot that run had already loaded
+  from the makelab2 cache.
+- `c84dc74` adds a `"mono"` branch (`run_views = views[:1]`, `T1 = None`) that
+  `corner_mode=True` never takes.
+
+`_mv3d.py` is not fingerprinted, because this PR edits it. The diffs since the 300 are:
+
+- `8cdf52f`→`c84dc74`: a new `agreement` subcommand.
+- `cd65024`: paths follow the pair set, and the meta gains `pair_set`.
+- This fix: `_versions()`.
+
+The harness (`crossview_align_48.py`) also changed after `c84dc74`: `9ea05f5` and `e48c0d3`
+moved answer hiding into `run_arm`/`Context` (answer columns and other-view detections
+stripped, labeler result loaders withheld from arms). The MapAnything arms read neither, and
+every CPU arm's 300-pair predictions re-ran byte-identical through the changed harness in
+[#210](https://github.com/ProjectSidewalk/RampNet/pull/210)'s fix rounds.
+
+None of these touches how an arm places a point. This was checked by hand, as the
+reviewer also did.
+
+**Reproduction.**
+
+```bash
+# desktop: pair list (committed inputs only), then manifest and auto (labeler + runs)
+python scripts/analysis/crossview_fresh_48.py pairs --check   # re-derives, compares bytes
+# (pairs without --check refuses: the list is frozen. --force rebuilds it, which is only
+#  ever right before a plan is fixed.)
+export CROSSVIEW48_PAIR_SET=fresh
+python scripts/analysis/crossview_arms/_mv3d.py manifest --labeler-root ../sidewalk-auto-labeler \
+    --runs-root ../sidewalk-auto-labeler/runs --results-root runs_archive
+python scripts/analysis/crossview_align_48.py predict --arm proj_height_auto \
+    --labeler-root ../sidewalk-auto-labeler --runs-root ../sidewalk-auto-labeler/runs \
+    --results-root runs_archive
+# makelab2 (same env var): views, corner views, the three arms
+python scripts/analysis/crossview_align_48.py cut-views \
+    --archive-root /projects/makeabilitylab/sidewalk-auto-labeler/runs --out views
+python scripts/analysis/crossview_arms/_mv3d.py render \
+    --archive-root /projects/makeabilitylab/sidewalk-auto-labeler/runs --out corner_views
+for a in mapa_posed_pair mapa_k_pair mapa_posed_corner; do
+  python scripts/analysis/crossview_arms/_mv3d.py predict-many --arms $a --views views \
+      --extra corner_views=corner_views; done
+# desktop: the pre-specified test (committed predictions only)
+python scripts/analysis/crossview_fresh_48.py score
+pytest -q tests/test_crossview_fresh_48.py
+```
+
+The unpublished inputs are the same as for the 300 (§9): the labeler runs and the native-res
+archive. The fresh views (1,614 harness and 3,965 corner) are on makelab2 under
+`/homes/gws/jonf/crossview48_fresh/`. They are not published.
 
 ## 1. Why
 
@@ -557,7 +922,8 @@ combined table changes it, the bullet says so.
 
 **Superseded by the combined takeaways**
 ([Combined comparison](#combined-comparison-across-all-arm-families)), which propose
-`mapa_posed_pair` as the candidate placement, pending its fresh-pair re-test. The pilot's
+`mapa_posed_pair` as the candidate placement (confirmed on fresh pairs, with its two
+siblings, in the Fresh-pair confirmation section). The pilot's
 verdict is kept below as the record of what the 13 pilot arms supported.
 
 - **Gallery rings:**

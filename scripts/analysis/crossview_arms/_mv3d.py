@@ -55,6 +55,7 @@ import crossview_align_48 as H  # noqa: E402
 
 R_CORNER_M = 25.0               # captures_R25.csv's radius
 AIM_HEIGHT_M = 2.6              # the harness's projection height, used only to aim views
+#: the frozen 300-pair set's manifest; the current pair set's is ``H.MV3D_MANIFEST``
 MANIFEST = os.path.join(H.OUT, "mv3d_corners.json")
 CAPTURES_CSV = os.path.join(H.OUT_ROOT, "multiview_48", "captures_R25.csv")
 
@@ -146,6 +147,7 @@ def build_manifest(args):
     from pathlib import Path
     L = mv.import_labeler(args.labeler_root)
     runs_root = args.runs_root or os.path.join(args.labeler_root, "runs")
+    args.out = args.out or H.MV3D_MANIFEST
     pairs = _pairs_without_answers()
     by_ramp = defaultdict(list)
     for p in pairs:
@@ -234,7 +236,7 @@ def build_manifest(args):
 
 
 def load_manifest(path=None):
-    with open(path or MANIFEST, encoding="utf-8") as f:
+    with open(path or H.MV3D_MANIFEST, encoding="utf-8") as f:
         m = json.load(f)
     if m.get("pairs_sha256") != H.PAIRS_SHA256:
         raise SystemExit("corner manifest was built on a different pair list")
@@ -512,8 +514,8 @@ def cmd_predict_many(args):
                 "fallback": sum(1 for r in rows if r["x"] is None),
                 "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                 "config": arm.config, "versions": _versions(),
-                "shared_context_with": names,
-                "manifest_sha256": _sha256(extra(ctx, "manifest") or MANIFEST)}
+                "shared_context_with": names, "pair_set": H.PAIR_SET,
+                "manifest_sha256": _sha256(extra(ctx, "manifest") or H.MV3D_MANIFEST)}
         H.write_json(meta_path, meta)
         print(f"{name}: {len(rows)} pairs in {elapsed:.1f} s, fallback {meta['fallback']}, "
               f"missing inputs {errors} -> {pred_path}", flush=True)
@@ -525,12 +527,47 @@ def _sha256(path):
         return hashlib.sha256(f.read()).hexdigest()
 
 
+def _package_version(mod, m):
+    """The best version string for an imported module: ``__version__``, else its installed
+    distribution's version, else ``"installed"``; plus ``@<commit>`` when it is imported from
+    a git checkout (an editable install such as map-anything's). Added after the review of
+    #220, whose fresh metas recorded only "installed" and needed a hand-added env block."""
+    import subprocess
+    ver = getattr(m, "__version__", None)
+    if ver is None:
+        try:
+            from importlib import metadata
+            dists = metadata.packages_distributions().get(mod, [])
+            ver = metadata.version(dists[0]) if dists else None
+        except Exception:   # noqa: BLE001 -- best effort; never fail a run over provenance
+            ver = None
+    ver = ver or "installed"
+    mod_file = getattr(m, "__file__", None)
+    if not mod_file:
+        # No file (namespace or built-in module): never guess a checkout from the cwd.
+        return ver
+    src = os.path.dirname(os.path.abspath(mod_file))
+    try:
+        top = subprocess.run(["git", "-C", src, "rev-parse", "--show-toplevel"],
+                             capture_output=True, text=True, timeout=10)
+        if top.returncode == 0 and "site-packages" not in src:
+            head = subprocess.run(["git", "-C", src, "describe", "--always", "--dirty",
+                                   "--abbrev=7"],
+                                  capture_output=True, text=True, timeout=10)
+            if head.returncode == 0:
+                ver = f"{ver} @{head.stdout.strip()}"
+    except (OSError, subprocess.SubprocessError):
+        pass
+    return ver
+
+
 def _versions():
     v = H._versions()
-    for mod in ("pycolmap", "vggt", "mapanything", "mast3r", "dust3r"):
+    for mod in ("pycolmap", "vggt", "mapanything", "mast3r", "dust3r", "uniception",
+                "huggingface_hub"):
         try:
             m = __import__(mod)
-            v[mod] = getattr(m, "__version__", "installed")
+            v[mod] = _package_version(mod, m)
         except ImportError:
             pass
     return v
@@ -623,10 +660,10 @@ def main(argv=None):
     p.add_argument("--labeler-root", required=True)
     p.add_argument("--runs-root")
     p.add_argument("--results-root")
-    p.add_argument("--out", default=MANIFEST)
+    p.add_argument("--out", help="default: the current pair set's mv3d_corners.json")
     p.set_defaults(fn=build_manifest)
     p = sub.add_parser("render")
-    p.add_argument("--manifest", default=MANIFEST)
+    p.add_argument("--manifest", help="default: the current pair set's mv3d_corners.json")
     p.add_argument("--archive-root", required=True)
     p.add_argument("--out", required=True)
     p.add_argument("--workers", type=int, default=8)
