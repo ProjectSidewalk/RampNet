@@ -174,14 +174,70 @@ def _finish(out, X, T_oth, K_oth, oth_view, size):
 
 
 # --------------------------------------------------------------------------- #
+# cores: one model run per (model, pair, views, posed), cached; the arms below are
+# different READINGS of the same run
+# --------------------------------------------------------------------------- #
+
+
+def _core(ctx, pair, model, corner_mode=False, posed=False):
+    key = ("ff3d_core", model, pair["pair_id"], corner_mode, posed)
+    if key not in ctx.cache:
+        fn = {"mast3r": _croco_core, "dust3r": _croco_core, "vggt": _vggt_core,
+              "mapanything": _mapa_core}[model]
+        ctx.cache[key] = fn(ctx, pair, model, corner_mode, posed)
+    return ctx.cache[key]
+
+
+def _read(core, how="full"):
+    """An arm's output from a core. ``how``:
+
+    * ``full`` -- the click's 3D point projected with the model's camera for the other view;
+    * ``poseonly`` -- the model's relative pose only, through today's flat-ground transfer
+      at the 'auto' height (``_mv3d.poseonly_transfer``);
+    * ``depthonly`` -- the click's 3D point projected with the other view's PRIOR camera
+      (only meaningful for a run in the prior's metric frame, i.e. posed).
+    """
+    out = {"x": None, "y": None, **core["diag"]}
+    if core.get("reason"):
+        out["reason"] = core["reason"]
+        return out
+    views, size = core["views"], core["size"]
+    if how == "full":
+        return _finish(out, core["X"], core["T_oth"], core["K_oth"], views[1], size)
+    if how == "poseonly":
+        Ts, To = core["T_src"], core["T_oth"]
+        r = M.poseonly_transfer(Ts[:3, :3], Ts[:3, 3], To[:3, :3], To[:3, 3], views[0], views[1])
+        if r is None:
+            out["reason"] = "no_ground_hit"
+            return out
+        out.update(r)
+        return out
+    if how == "depthonly":
+        Rm, C = M.cam_pose_world(views[1])
+        T_prior = np.eye(4)
+        T_prior[:3, :3], T_prior[:3, 3] = Rm, C
+        return _finish(out, core["X"], T_prior, _K_at(size), views[1], size)
+    raise ValueError(how)
+
+
+def _core_out(views, size, X, T_src, T_oth, K_oth, diag):
+    diag = dict(diag)
+    diag.update(_rel_diag(T_src, T_oth, views))
+    diag["n_views"] = len(views)
+    return {"views": views, "size": size, "X": X, "T_src": T_src, "T_oth": T_oth,
+            "K_oth": K_oth, "diag": diag}
+
+
+# --------------------------------------------------------------------------- #
 # MASt3R / DUSt3R (pairwise)
 # --------------------------------------------------------------------------- #
 
 
-def _croco_pair(ctx, pair, name):
+def _croco_core(ctx, pair, name, corner_mode, posed):
     import cv2
     import torch
     from dust3r.inference import inference
+    assert not corner_mode and not posed
     size = SIZES[name]
     views = _views_for(ctx, pair, False)
     ims = []
@@ -196,11 +252,11 @@ def _croco_pair(ctx, pair, name):
     p2 = res["pred2"]["pts3d_in_other_view"][0].float().cpu().numpy()
     c1 = res["pred1"]["conf"][0].float().cpu().numpy()
     c2 = res["pred2"]["conf"][0].float().cpu().numpy()
-    out = {"x": None, "y": None, "infer_s": round(time.time() - t0, 3)}
+    diag = {"infer_s": round(time.time() - t0, 3)}
     sx, sy = _scale(size)
     X = _bilinear(p1, CLICK[0] * sx, CLICK[1] * sy)
-    out["click_conf"] = float(_bilinear(c1[..., None], CLICK[0] * sx, CLICK[1] * sy)[0])
-    out["click_depth"] = float(X[2])
+    diag["click_conf"] = float(_bilinear(c1[..., None], CLICK[0] * sx, CLICK[1] * sy)[0])
+    diag["click_depth"] = float(X[2])
     # the other camera, by PnP from its pointmap (in the source camera's frame)
     uu, vv = _pixels(size)
     keep = c2 > np.percentile(c2, 50)
@@ -210,33 +266,40 @@ def _croco_pair(ctx, pair, name):
     ok, rvec, tvec, inl = cv2.solvePnPRansac(obj, img, K2, None, iterationsCount=200,
                                              reprojectionError=3.0, flags=cv2.SOLVEPNP_EPNP)
     if not ok or inl is None or len(inl) < 50:
-        out["reason"] = "pnp_failed"
-        return out
+        return {"diag": diag, "reason": "pnp_failed"}
     Rw2c, _ = cv2.Rodrigues(rvec)
     T_oth = np.eye(4)
     T_oth[:3, :3] = Rw2c.T
     T_oth[:3, 3] = (-Rw2c.T @ tvec).ravel()
-    out["pnp_inliers"] = int(len(inl))
-    out.update(_rel_diag(np.eye(4), T_oth, views))
-    return _finish(out, X, T_oth, K2, views[1], size)
+    diag["pnp_inliers"] = int(len(inl))
+    return _core_out(views, size, X, np.eye(4), T_oth, K2, diag)
 
 
-@register("mast3r_pair", needs=("views",),
-          config={"model": MODEL_IDS["mast3r"], "input": SIZES["mast3r"],
-                  "other_camera": "PnP-RANSAC on its pointmap, known K, top-50% confidence"},
+CROCO_CONFIG = {"input": SIZES["mast3r"],
+                "other_camera": "PnP-RANSAC (EPnP, 3 px) on its pointmap, known K, "
+                                "top-50% confidence"}
+
+
+@register("mast3r_pair", needs=("views",), config={"model": MODEL_IDS["mast3r"], **CROCO_CONFIG},
           description="MASt3R pairwise pointmap; click lifted in the source frame, other "
                       "camera by PnP")
 def mast3r_pair(pair, ctx):
-    return _croco_pair(ctx, pair, "mast3r")
+    return _read(_core(ctx, pair, "mast3r"))
 
 
-@register("dust3r_pair", needs=("views",),
-          config={"model": MODEL_IDS["dust3r"], "input": SIZES["dust3r"],
-                  "other_camera": "PnP-RANSAC on its pointmap, known K, top-50% confidence"},
+@register("mast3r_poseonly", needs=("views",),
+          config={"model": MODEL_IDS["mast3r"], **CROCO_CONFIG,
+                  "transfer": "MASt3R relative pose only, flat ground at the 'auto' height"},
+          description="MASt3R relative pose only, through today's flat-ground transfer")
+def mast3r_poseonly(pair, ctx):
+    return _read(_core(ctx, pair, "mast3r"), "poseonly")
+
+
+@register("dust3r_pair", needs=("views",), config={"model": MODEL_IDS["dust3r"], **CROCO_CONFIG},
           description="DUSt3R pairwise pointmap; click lifted in the source frame, other "
                       "camera by PnP")
 def dust3r_pair(pair, ctx):
-    return _croco_pair(ctx, pair, "dust3r")
+    return _read(_core(ctx, pair, "dust3r"))
 
 
 # --------------------------------------------------------------------------- #
@@ -244,9 +307,10 @@ def dust3r_pair(pair, ctx):
 # --------------------------------------------------------------------------- #
 
 
-def _vggt(ctx, pair, corner_mode):
+def _vggt_core(ctx, pair, name, corner_mode, posed):
     import torch
     from vggt.utils.pose_enc import pose_encoding_to_extri_intri
+    assert not posed
     size = SIZES["vggt"]
     views = _views_for(ctx, pair, corner_mode)
     imgs = torch.stack([torch.from_numpy(_rgb(ctx, v, size)).permute(2, 0, 1) for v in views])
@@ -262,7 +326,7 @@ def _vggt(ctx, pair, corner_mode):
     intr = intr[0].float().cpu().numpy()
     depth = pred["depth"][0, 0, ..., 0].float().cpu().numpy()
     dconf = pred["depth_conf"][0, 0].float().cpu().numpy()
-    out = {"x": None, "y": None, "n_views": len(views), "infer_s": round(time.time() - t0, 3)}
+    diag = {"infer_s": round(time.time() - t0, 3)}
 
     def T(i):
         Tm = np.eye(4)
@@ -273,16 +337,14 @@ def _vggt(ctx, pair, corner_mode):
     sx, sy = _scale(size)
     u, v = CLICK[0] * sx, CLICK[1] * sy
     d = float(_bilinear(depth[..., None], u, v)[0])
-    out["click_depth"] = d
-    out["click_conf"] = float(_bilinear(dconf[..., None], u, v)[0])
+    diag["click_depth"] = d
+    diag["click_conf"] = float(_bilinear(dconf[..., None], u, v)[0])
     if not d > 0:
-        out["reason"] = "no_depth"
-        return out
+        return {"diag": diag, "reason": "no_depth"}
     p_cam = d * np.linalg.solve(intr[0], np.array([u, v, 1.0]))
     T0 = T(0)
     X = T0[:3, :3] @ p_cam + T0[:3, 3]
-    out.update(_rel_diag(T0, T(1), views))
-    return _finish(out, X, T(1), intr[1], views[1], size)
+    return _core_out(views, size, X, T0, T(1), intr[1], diag)
 
 
 VGGT_CONFIG = {"model": MODEL_IDS["vggt"], "input": SIZES["vggt"], "dtype": "bf16",
@@ -292,13 +354,13 @@ VGGT_CONFIG = {"model": MODEL_IDS["vggt"], "input": SIZES["vggt"], "dtype": "bf1
 @register("vggt_pair", needs=("views",), config={**VGGT_CONFIG, "views": 2},
           description="VGGT on the source and other view; depth lift, predicted cameras")
 def vggt_pair(pair, ctx):
-    return _vggt(ctx, pair, False)
+    return _read(_core(ctx, pair, "vggt"))
 
 
 @register("vggt_corner", needs=("views",), config={**VGGT_CONFIG, "views": CORNER_VIEWS},
           description=f"VGGT on up to {CORNER_VIEWS} captures of the corner")
 def vggt_corner(pair, ctx):
-    return _vggt(ctx, pair, True)
+    return _read(_core(ctx, pair, "vggt", corner_mode=True))
 
 
 # --------------------------------------------------------------------------- #
@@ -306,10 +368,7 @@ def vggt_corner(pair, ctx):
 # --------------------------------------------------------------------------- #
 
 
-def _mapa_run(ctx, pair, corner_mode, posed):
-    key = ("mapa", pair["pair_id"], corner_mode, posed)
-    if key in ctx.cache:
-        return ctx.cache[key]
+def _mapa_core(ctx, pair, name, corner_mode, posed):
     import torch
     from mapanything.utils.image import preprocess_inputs
     size = SIZES["mapanything"]
@@ -332,74 +391,56 @@ def _mapa_run(ctx, pair, corner_mode, posed):
         preds = model.infer(proc, memory_efficient_inference=False, use_amp=True,
                             amp_dtype="bf16", apply_mask=False, mask_edges=False,
                             apply_confidence_mask=False)
-    got = []
-    for p in preds:
-        got.append({k: p[k][0].float().cpu().numpy() for k in
-                    ("pts3d", "camera_poses", "intrinsics", "conf")})
+    got = [{k: p[k][0].float().cpu().numpy() for k in
+            ("pts3d", "camera_poses", "intrinsics", "conf")} for p in preds]
+    diag = {"infer_s": round(time.time() - t0, 3)}
     shape = got[0]["pts3d"].shape[:2]
-    res = (views, got, round(time.time() - t0, 3), (shape[1], shape[0]))
-    ctx.cache[key] = res
-    return res
-
-
-def _mapa(ctx, pair, corner_mode, posed, prior_projection=False):
-    views, got, dt, shape = _mapa_run(ctx, pair, corner_mode, posed)
-    size = SIZES["mapanything"]
-    out = {"x": None, "y": None, "n_views": len(views), "infer_s": dt}
-    if tuple(shape) != tuple(size):
-        out["reason"] = f"unexpected_output_size_{shape[0]}x{shape[1]}"
-        return out
+    if (shape[1], shape[0]) != tuple(size):
+        return {"diag": diag, "reason": f"unexpected_output_size_{shape[1]}x{shape[0]}"}
     sx, sy = _scale(size)
     u, v = CLICK[0] * sx, CLICK[1] * sy
     X = _bilinear(got[0]["pts3d"], u, v)
-    out["click_conf"] = float(_bilinear(got[0]["conf"][..., None], u, v)[0])
+    diag["click_conf"] = float(_bilinear(got[0]["conf"][..., None], u, v)[0])
     T0, T1 = got[0]["camera_poses"], got[1]["camera_poses"]
-    out["click_depth"] = float((T0[:3, :3].T @ (X - T0[:3, 3]))[2])
-    out.update(_rel_diag(T0, T1, views))
+    diag["click_depth"] = float((T0[:3, :3].T @ (X - T0[:3, 3]))[2])
     if posed:
-        for i, name in ((0, "src"), (1, "oth")):
-            Rm, C = M.cam_pose_world(views[i])
-            out[f"{name}_pose_shift_m"] = float(np.linalg.norm(got[i]["camera_poses"][:3, 3] - C))
-    if prior_projection:
-        Rm, C = M.cam_pose_world(views[1])
-        T_prior = np.eye(4)
-        T_prior[:3, :3], T_prior[:3, 3] = Rm, C
-        return _finish(out, X, T_prior, _K_at(size), views[1], size)
-    return _finish(out, X, T1, got[1]["intrinsics"], views[1], size)
+        for i, nm in ((0, "src"), (1, "oth")):
+            _, C = M.cam_pose_world(views[i])
+            diag[f"{nm}_pose_shift_m"] = float(np.linalg.norm(got[i]["camera_poses"][:3, 3] - C))
+    return _core_out(views, size, X, T0, T1, got[1]["intrinsics"], diag)
 
 
 MAPA_CONFIG = {"model": MODEL_IDS["mapanything"], "input": SIZES["mapanything"],
                "amp": "bf16", "masking": "off"}
+POSED = "intrinsics + pose priors (metric ENU, flat, 'auto' height)"
 
 
 @register("mapa_k_pair", needs=("views",),
           config={**MAPA_CONFIG, "views": 2, "given": "intrinsics"},
           description="MapAnything on the pair, given intrinsics; its cameras and pointmap")
 def mapa_k_pair(pair, ctx):
-    return _mapa(ctx, pair, False, False)
+    return _read(_core(ctx, pair, "mapanything"))
 
 
 @register("mapa_k_corner", needs=("views",),
           config={**MAPA_CONFIG, "views": CORNER_VIEWS, "given": "intrinsics"},
           description=f"MapAnything on up to {CORNER_VIEWS} captures, given intrinsics")
 def mapa_k_corner(pair, ctx):
-    return _mapa(ctx, pair, True, False)
+    return _read(_core(ctx, pair, "mapanything", corner_mode=True))
 
 
 @register("mapa_posed_corner", needs=("views",),
-          config={**MAPA_CONFIG, "views": CORNER_VIEWS,
-                  "given": "intrinsics + pose priors (metric ENU, flat, 'auto' height)",
+          config={**MAPA_CONFIG, "views": CORNER_VIEWS, "given": POSED,
                   "projection": "MapAnything's output camera for the other view"},
           description="MapAnything given intrinsics and pose priors; its output cameras")
 def mapa_posed_corner(pair, ctx):
-    return _mapa(ctx, pair, True, True)
+    return _read(_core(ctx, pair, "mapanything", corner_mode=True, posed=True))
 
 
 @register("mapa_posed_depthonly", needs=("views",),
-          config={**MAPA_CONFIG, "views": CORNER_VIEWS,
-                  "given": "intrinsics + pose priors (metric ENU, flat, 'auto' height)",
+          config={**MAPA_CONFIG, "views": CORNER_VIEWS, "given": POSED,
                   "projection": "the other view's PRIOR camera (only MapAnything's 3D point "
                                 "at the click is used)"},
           description="MapAnything posed run, click's 3D point projected with the prior camera")
 def mapa_posed_depthonly(pair, ctx):
-    return _mapa(ctx, pair, True, True, prior_projection=True)
+    return _read(_core(ctx, pair, "mapanything", corner_mode=True, posed=True), "depthonly")

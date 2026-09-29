@@ -226,7 +226,10 @@ def build_manifest(args):
     out = {"pairs_sha256": H.PAIRS_SHA256, "radius_m": R_CORNER_M, "aim_height_m": AIM_HEIGHT_M,
            "view": [H.VIEW_W, H.VIEW_H, H.HFOV_DEG], "labeler": L.prov, "cities": prov,
            "instrument_check_worst_deg": worst, "corners": corners}
-    H.write_json(args.out, out)
+    # 8 decimals, not write_json's 4: a 1e-4 rounding of a pixel coordinate is 0.036 deg,
+    # which at grazing depression moves a flat-ground transfer by up to ~0.3 deg
+    with open(args.out, "w", encoding="utf-8", newline="") as f:
+        f.write(json.dumps(H.rnd(out, 8), indent=1, sort_keys=True) + "\n")
     print(f"{len(corners)} corners, {sum(len(c['views']) for c in corners)} views -> {args.out}")
 
 
