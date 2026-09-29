@@ -1,0 +1,40 @@
+{
+ "clicks": 174,
+ "constants": {
+  "BAND": [
+   20.0,
+   45.0
+  ],
+  "BAND_MIN_POINTS": 200,
+  "BAND_MIN_SHARE": 0.25,
+  "GRID": 504,
+  "LOCAL_MIN_DEP_DEG": 2.0,
+  "LOCAL_MIN_POINTS": 50,
+  "LOCAL_MIN_SHARE": 0.3,
+  "LOCAL_RADIUS_M": 2.5,
+  "LOCAL_STRIDE": 2,
+  "PANO_MAX_EDGE": 4096,
+  "views": "default_views() 6 x 90deg, pitch -30"
+ },
+ "elapsed_s": 948.38,
+ "gpu": "NVIDIA A40",
+ "host": "makelab2.cs.washington.edu",
+ "label": "Metric3D v2 ViT-L",
+ "model": "metric3d",
+ "model_load_s": 25.69,
+ "model_s": 778.07,
+ "pairs_sha256": "a85a11bceb57e7d4db4bc5914c35cb17b5fdaf9bc8c9189957574a13260db388",
+ "panos": 144,
+ "prov": {
+  "code": "Metric3D",
+  "code_commit": "eb5b6fac0dc155e4e52f576e304fbf11655ff339",
+  "hf": "JUGGHM/Metric3D",
+  "hf_revision": "80d2d1410afb4b23cd9d18c6be9144483d4b70b6"
+ },
+ "ts": "2026-09-29T01:55:48Z",
+ "versions": {
+  "numpy": "2.5.3",
+  "python": "3.12.13",
+  "torch": "2.13.0+cu130"
+ }
+}

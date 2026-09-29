@@ -315,3 +315,37 @@ analysis_out/two_scale_197/*
 # DA3 calibration against GSV depth (#101): raw per-pano DA3 rows from the klone run, the
 # derived rows and tables, and their SHA256SUMS. --check re-derives everything from them.
 !analysis_out/da3_calibration_101/
+# Cross-view alignment pilot (#48): the pair lists, per-pair match results and summaries
+# are committed; the rectilinear views cut from the native-res archive are not.
+!analysis_out/crossview_align_48/
+analysis_out/crossview_align_48/*
+!analysis_out/crossview_align_48/*.csv
+!analysis_out/crossview_align_48/*.json
+!analysis_out/crossview_align_48/*.jsonl
+!analysis_out/crossview_align_48/predictions/
+analysis_out/crossview_align_48/predictions/*
+!analysis_out/crossview_align_48/predictions/*.jsonl
+!analysis_out/crossview_align_48/predictions/*.json
+# Cross-view #48 depth arms: per-click monocular depth rows and their summaries.
+!analysis_out/crossview_align_48/depth/
+# ... and the 3D viewer bundles: their JSON is committed; the scene .ply files live on
+# makelab2 (/homes/gws/jonf/crossview48/scenes/), pinned by sha256 in scenes_manifest.json
+!analysis_out/crossview_align_48/scenes/
+analysis_out/crossview_align_48/scenes/*
+!analysis_out/crossview_align_48/scenes/*.json
+!analysis_out/crossview_align_48/scenes/*/
+analysis_out/crossview_align_48/scenes/*/*
+!analysis_out/crossview_align_48/scenes/*/*.json
+# Flat Mapillary 3D (#214): census tables, manifest, per-corner result JSON and the viewer
+# bundle's JSON. Images, raw API responses and large scene files are never committed.
+!analysis_out/flat_mapillary_3d/
+analysis_out/flat_mapillary_3d/*
+!analysis_out/flat_mapillary_3d/*.csv
+!analysis_out/flat_mapillary_3d/*.json
+!analysis_out/flat_mapillary_3d/*.jsonl
+!analysis_out/flat_mapillary_3d/*.md
+!analysis_out/flat_mapillary_3d/census/
+!analysis_out/flat_mapillary_3d/corners/
+!analysis_out/flat_mapillary_3d/scenes/
+analysis_out/flat_mapillary_3d/raw_api_cache/
+!analysis_out/flat_mapillary_3d/predictions/

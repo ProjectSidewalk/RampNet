@@ -1,0 +1,222 @@
+{
+ "paired": {
+  "flat_gsmed_vs_flat_gs": {
+   "a_closer": 0.6667,
+   "ci": [
+    0.127,
+    1.736
+   ],
+   "median_gain_deg": 0.5585,
+   "n": 60,
+   "sign": "> 0 means flat_gsmed is closer to the reference than flat_gs"
+  },
+  "flat_gsmed_vs_flat_sfm": {
+   "a_closer": 0.3,
+   "ci": [
+    -12.887,
+    -0.414
+   ],
+   "median_gain_deg": -1.311,
+   "n": 60,
+   "sign": "> 0 means flat_gsmed is closer to the reference than flat_sfm"
+  },
+  "flat_mvs_vs_flat_sfm": {
+   "a_closer": 0.45,
+   "ci": [
+    -0.4505,
+    0.197
+   ],
+   "median_gain_deg": -0.156,
+   "n": 60,
+   "sign": "> 0 means flat_mvs is closer to the reference than flat_sfm"
+  },
+  "flat_sfm_vs_mast3r_pair": {
+   "a_closer": 0.35,
+   "ci": [
+    -0.7725,
+    -0.163
+   ],
+   "median_gain_deg": -0.562,
+   "n": 60,
+   "sign": "> 0 means flat_sfm is closer to the reference than mast3r_pair"
+  },
+  "flat_sfm_vs_noflat_sfm": {
+   "a_closer": 0.5167,
+   "ci": [
+    -0.011,
+    0.0495
+   ],
+   "median_gain_deg": 0.001,
+   "n": 60,
+   "sign": "> 0 means flat_sfm is closer to the reference than noflat_sfm"
+  },
+  "flat_sfm_vs_roma_magsac": {
+   "a_closer": 0.3333,
+   "ci": [
+    -0.284,
+    -0.011
+   ],
+   "median_gain_deg": -0.1335,
+   "n": 60,
+   "sign": "> 0 means flat_sfm is closer to the reference than roma_magsac"
+  },
+  "flat_sfm_vs_sfm_colmap": {
+   "a_closer": 0.5833,
+   "ci": [
+    -0.0125,
+    0.079
+   ],
+   "median_gain_deg": 0.0105,
+   "n": 60,
+   "sign": "> 0 means flat_sfm is closer to the reference than sfm_colmap"
+  },
+  "mlypano_sfm_vs_flat_sfm": {
+   "a_closer": 0.55,
+   "ci": [
+    -0.065,
+    0.182
+   ],
+   "median_gain_deg": 0.032,
+   "n": 60,
+   "sign": "> 0 means mlypano_sfm is closer to the reference than flat_sfm"
+  },
+  "mlypano_sfm_vs_noflat_sfm": {
+   "a_closer": 0.6,
+   "ci": [
+    -0.033,
+    0.198
+   ],
+   "median_gain_deg": 0.081,
+   "n": 60,
+   "sign": "> 0 means mlypano_sfm is closer to the reference than noflat_sfm"
+  }
+ },
+ "reconstruction": {
+  "flat": {
+   "corners": 31,
+   "elapsed_s_total": 3804.9,
+   "gs_gaussians_median": 165382.0,
+   "gs_ply_mb_median": 11.2464,
+   "gs_psnr_median": 27.72,
+   "images_in_median": 24.0,
+   "mean_reproj_px_median": 0.991,
+   "mean_reproj_px_range": [
+    0.835,
+    1.136
+   ],
+   "ok": 31,
+   "pairs": 60,
+   "pairs_co_registered": 60,
+   "points3d_median": 5357.0,
+   "prior_residual_h_m_median_of_medians": 2.01,
+   "registered_by_kind": {
+    "flat": {
+     "input": 216,
+     "registered": 205
+    },
+    "pano_extra": {
+     "input": 480,
+     "registered": 467
+    },
+    "pano_oth": {
+     "input": 60,
+     "registered": 60
+    },
+    "pano_src": {
+     "input": 31,
+     "registered": 31
+    }
+   },
+   "registered_median": 23.0,
+   "registered_range": [
+    7,
+    53
+   ],
+   "src_and_all_oth_registered": 31
+  },
+  "mlypano": {
+   "corners": 31,
+   "elapsed_s_total": 5873.4,
+   "gs_gaussians_median": 183703.0,
+   "gs_ply_mb_median": 12.4922,
+   "gs_psnr_median": 27.08,
+   "images_in_median": 54.0,
+   "mean_reproj_px_median": 0.963,
+   "mean_reproj_px_range": [
+    0.71,
+    1.079
+   ],
+   "ok": 31,
+   "pairs": 60,
+   "pairs_co_registered": 60,
+   "points3d_median": 9138.0,
+   "prior_residual_h_m_median_of_medians": 0.76,
+   "registered_by_kind": {
+    "flat": {
+     "input": 216,
+     "registered": 211
+    },
+    "mly_pano": {
+     "input": 803,
+     "registered": 801
+    },
+    "pano_extra": {
+     "input": 480,
+     "registered": 470
+    },
+    "pano_oth": {
+     "input": 60,
+     "registered": 60
+    },
+    "pano_src": {
+     "input": 31,
+     "registered": 31
+    }
+   },
+   "registered_median": 52.0,
+   "registered_range": [
+    12,
+    84
+   ],
+   "src_and_all_oth_registered": 31
+  },
+  "noflat": {
+   "corners": 31,
+   "elapsed_s_total": 3184.7,
+   "gs_gaussians_median": 151469.0,
+   "gs_ply_mb_median": 10.3003,
+   "gs_psnr_median": 29.73,
+   "images_in_median": 20.0,
+   "mean_reproj_px_median": 0.996,
+   "mean_reproj_px_range": [
+    0.781,
+    1.16
+   ],
+   "ok": 31,
+   "pairs": 60,
+   "pairs_co_registered": 60,
+   "points3d_median": 4475.0,
+   "prior_residual_h_m_median_of_medians": 0.37,
+   "registered_by_kind": {
+    "pano_extra": {
+     "input": 480,
+     "registered": 467
+    },
+    "pano_oth": {
+     "input": 60,
+     "registered": 60
+    },
+    "pano_src": {
+     "input": 31,
+     "registered": 31
+    }
+   },
+   "registered_median": 19.0,
+   "registered_range": [
+    5,
+    31
+   ],
+   "src_and_all_oth_registered": 31
+  }
+ }
+}
