@@ -785,7 +785,8 @@ def cmd_predict(args):
     except ImportError:
         pass
     meta = {"arm": args.arm, "description": arm.description, "needs": list(arm.needs),
-            "pairs_sha256": PAIRS_SHA256, "pairs": len(pairs), "elapsed_s": elapsed,
+            "pairs_sha256": PAIRS_SHA256, "pair_set": PAIR_SET, "pairs": len(pairs),
+            "elapsed_s": elapsed,
             "host": platform.node(), "gpu_visible": gpu, "missing_inputs": errors,
             "fallback": sum(1 for r in rows if r["x"] is None),
             "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
