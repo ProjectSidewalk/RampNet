@@ -74,6 +74,56 @@ PAIRS_SHA256 = "a85a11bceb57e7d4db4bc5914c35cb17b5fdaf9bc8c9189957574a13260db388
 REF_WIDTH_PX = 4096       # pixel errors are reported on a 4096 x 2048 equirect
 RESULTS_JSON = os.path.join(OUT, "results.json")
 NOISE_JSON = os.path.join(OUT, "reference_noise.json")
+PRED_DIR = os.path.join(OUT, "predictions")
+MV3D_MANIFEST = os.path.join(OUT, "mv3d_corners.json")
+#: sha256 of the committed eligible_pairs.csv, which both pair sets are drawn from
+ELIGIBLE_SHA256 = "9ec142e39503733c345ec195c06446975820a3d13f563546d06885908abbd134"
+
+#: Pair sets. ``frozen300`` is the original known-answer set (pairs.csv, 2026-09-28).
+#: ``fresh`` is the fresh-pair confirmation set (#48 follow-up 1, 2026-09-29): every eligible
+#: pair NOT in pairs.csv, drawn by the same rule (seeded per city, at most 2 other views per
+#: ramp) with no per-city cap; see crossview_fresh_48.py. Each set has its own pair file,
+#: hash, predictions/ directory, results.json and corner manifest, and every prediction's
+#: meta records the hash and read_predictions refuses a mismatch, so scoring cannot mix them.
+#: Not every path follows the set: see use_pair_set.
+#: Select a set with ``use_pair_set(name)``, or for the CLIs with the environment variable
+#: ``CROSSVIEW48_PAIR_SET`` (default frozen300), e.g.
+#: ``CROSSVIEW48_PAIR_SET=fresh python scripts/analysis/crossview_arms/_mv3d.py predict-many ...``
+FRESH_DIR = os.path.join(OUT, "fresh")
+FRESH_PAIRS_SHA256 = "4ae009bfc4a767c3a176c7707cbace77a09932d69e44792bdc3adc97d51e9f7a"
+PAIR_SETS = {
+    "frozen300": {"dir": OUT, "pairs_sha256": PAIRS_SHA256},
+    "fresh": {"dir": FRESH_DIR, "pairs_sha256": FRESH_PAIRS_SHA256},
+}
+PAIR_SET = "frozen300"
+
+
+def use_pair_set(name):
+    """Point the harness at pair set ``name`` (``PAIR_SETS``): rebinds PAIRS_CSV,
+    PAIRS_SHA256, PRED_DIR, RESULTS_JSON and MV3D_MANIFEST. Returns the previous set's name,
+    so a caller can restore it.
+
+    What follows the set: this harness (pairs, predict, score, read_predictions) and
+    ``_mv3d``'s manifest, render and predict-many, which read these names as ``H.<NAME>`` at
+    call time. What does NOT follow: paths bound off ``H.OUT`` at import time, which stay on
+    the frozen 300's files whatever the set -- ``_mv3d``'s pilot files and ``REPORT_JSON``,
+    ``depth_mono.DEPTH_DIR``, ``semantic.COMMITTED_SEG_MANIFEST``, ``crossview_depth_48``
+    (``OUT_DIR`` and its listing of ``predictions/``) and the family report JSONs
+    (``crossview_combined_48``, ``crossview_matching_48``). Under ``fresh`` an arm reading
+    one of those per-pair artifacts finds no ``f###`` rows and falls back rather than mixing,
+    and scoring is still protected by read_predictions' hash check. Only proj_height_auto
+    and the three MapAnything arms have been run under ``fresh`` (review of #220)."""
+    global PAIR_SET, PAIRS_CSV, PAIRS_SHA256, PRED_DIR, RESULTS_JSON, MV3D_MANIFEST
+    if name not in PAIR_SETS:
+        raise SystemExit(f"unknown pair set {name!r}; known: {', '.join(PAIR_SETS)}")
+    prev, d = PAIR_SET, PAIR_SETS[name]["dir"]
+    PAIR_SET = name
+    PAIRS_CSV = os.path.join(d, "pairs.csv")
+    PAIRS_SHA256 = PAIR_SETS[name]["pairs_sha256"]
+    PRED_DIR = os.path.join(d, "predictions")
+    RESULTS_JSON = os.path.join(d, "results.json")
+    MV3D_MANIFEST = os.path.join(d, "mv3d_corners.json")
+    return prev
 
 CITIES = ("richmond", "paterson", "gainesville", "bend", "sao_paulo")
 IMAGERY = {"richmond": "mapillary", "paterson": "gsv", "gainesville": "gsv",
@@ -262,9 +312,11 @@ def read_rows(path):
     return rows
 
 
-def sample_pairs(eligible, per_city=PAIRS_PER_CITY, per_ramp=MAX_PAIRS_PER_RAMP, seed=SEED):
+def sample_pairs(eligible, per_city=PAIRS_PER_CITY, per_ramp=MAX_PAIRS_PER_RAMP, seed=SEED,
+                 id_prefix="p"):
     """Deterministic sample: per city, ramps in seeded random order, up to ``per_ramp``
-    of each ramp's other views (seeded), until ``per_city`` pairs."""
+    of each ramp's other views (seeded), until ``per_city`` pairs (``None``: no cap, every
+    ramp contributes up to ``per_ramp``). Pair ids are ``<id_prefix><index:03d>``."""
     by_city = defaultdict(lambda: defaultdict(list))
     for r in eligible:
         by_city[r["city"]][r["ramp_uid"]].append(r)
@@ -279,13 +331,13 @@ def sample_pairs(eligible, per_city=PAIRS_PER_CITY, per_ramp=MAX_PAIRS_PER_RAMP,
             views = sorted(ramps[u], key=lambda r: r["oth_pano"])
             rng.shuffle(views)
             for r in views[:per_ramp]:
-                if len(taken) < per_city:
+                if per_city is None or len(taken) < per_city:
                     taken.append(r)
-            if len(taken) >= per_city:
+            if per_city is not None and len(taken) >= per_city:
                 break
         out.extend(taken)
     for i, r in enumerate(out):
-        r["pair_id"] = f"p{i:03d}"
+        r["pair_id"] = f"{id_prefix}{i:03d}"
     return out
 
 
@@ -295,6 +347,13 @@ def sample_pairs(eligible, per_city=PAIRS_PER_CITY, per_ramp=MAX_PAIRS_PER_RAMP,
 
 
 def cmd_pairs(args):
+    if PAIR_SET != "frozen300":
+        # this builds the frozen 300 (and writes eligible_pairs.csv and pairs_meta.json under
+        # OUT whatever the set): under another set it would overwrite that set's pinned pairs
+        # with a 60-per-city draw. The fresh set has its own builder (review of #220).
+        raise SystemExit(f"pairs builds the frozen300 set only; the current set is {PAIR_SET!r} "
+                         "(unset CROSSVIEW48_PAIR_SET; for fresh use crossview_fresh_48.py "
+                         "pairs)")
     import multiview_evidence_48 as mv
     if os.path.exists(PAIRS_CSV) and not args.force:
         raise SystemExit(f"{PAIRS_CSV} is frozen (PAIRS_SHA256); pass --force to rebuild it, "
@@ -448,7 +507,7 @@ def _cut_pano(job):
 
 def cmd_cut_views(args):
     from multiprocessing import Pool
-    pairs = read_rows(args.pairs)
+    pairs = read_rows(args.pairs or PAIRS_CSV)
     os.makedirs(args.out, exist_ok=True)
     jobs = defaultdict(list)
     for r in pairs:
@@ -490,8 +549,8 @@ def _refuse_inside_arm(what):
 
 
 def read_frozen_pairs(path=None):
-    """The frozen pair list, refused unless its bytes hash to PAIRS_SHA256, so every arm is
-    scored on identical pairs. It includes the answer columns, so it refuses to run from
+    """The current pair set's frozen pair list (``use_pair_set``), refused unless its bytes
+    hash to PAIRS_SHA256, so every arm is scored on identical pairs. It includes the answer columns, so it refuses to run from
     inside an arm (``_IN_ARM``)."""
     _refuse_inside_arm("read_frozen_pairs()")
     path = path or PAIRS_CSV
@@ -688,7 +747,7 @@ def without_detections(slim_pano):
 
 
 def prediction_paths(name):
-    d = os.path.join(OUT, "predictions")
+    d = PRED_DIR
     return os.path.join(d, f"{name}.jsonl"), os.path.join(d, f"{name}.meta.json")
 
 
@@ -744,7 +803,8 @@ def cmd_predict(args):
     except ImportError:
         pass
     meta = {"arm": args.arm, "description": arm.description, "needs": list(arm.needs),
-            "pairs_sha256": PAIRS_SHA256, "pairs": len(pairs), "elapsed_s": elapsed,
+            "pairs_sha256": PAIRS_SHA256, "pair_set": PAIR_SET, "pairs": len(pairs),
+            "elapsed_s": elapsed,
             "host": platform.node(), "gpu_visible": gpu, "missing_inputs": errors,
             "fallback": sum(1 for r in rows if r["x"] is None),
             "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -922,7 +982,7 @@ def score(pairs, preds_by_arm):
 
 
 def available_predictions():
-    d = os.path.join(OUT, "predictions")
+    d = PRED_DIR
     if not os.path.isdir(d):
         return []
     return sorted(f[:-len(".jsonl")] for f in os.listdir(d) if f.endswith(".jsonl"))
@@ -942,6 +1002,7 @@ def cmd_score(args):
         if new:
             print(f"NOTE: {len(new)} arm(s) not in the committed results.json join the scored "
                   f"set, which grows the multiplicity to {len(names)} arms: {', '.join(new)}")
+    args.out = args.out or RESULTS_JSON
     res = score(pairs, {n: read_predictions(n) for n in names})
     res["config"] = {"pairs_sha256": PAIRS_SHA256, "n_boot": N_BOOT, "seed": SEED,
                      "ci": "2.5-97.5 percentile, ramps resampled",
@@ -1045,7 +1106,7 @@ def main(argv=None):
     p.add_argument("--force", action="store_true", help="rebuild the frozen pair list")
     p.set_defaults(fn=cmd_pairs)
     p = sub.add_parser("cut-views")
-    p.add_argument("--pairs", default=PAIRS_CSV)
+    p.add_argument("--pairs", help="default: the current pair set's pairs.csv")
     p.add_argument("--archive-root", required=True)
     p.add_argument("--out", required=True)
     p.add_argument("--workers", type=int, default=8)
@@ -1060,7 +1121,7 @@ def main(argv=None):
     p.set_defaults(fn=cmd_predict)
     p = sub.add_parser("score")
     p.add_argument("--arms", help="comma-separated; default: every predictions/*.jsonl")
-    p.add_argument("--out", default=RESULTS_JSON)
+    p.add_argument("--out", help="default: the current pair set's results.json")
     p.set_defaults(fn=cmd_score)
     p = sub.add_parser("noise")
     p.add_argument("--out", default=NOISE_JSON)
@@ -1070,6 +1131,8 @@ def main(argv=None):
     args = ap.parse_args(argv)
     args.fn(args)
 
+
+use_pair_set(os.environ.get("CROSSVIEW48_PAIR_SET", "frozen300"))
 
 if __name__ == "__main__":
     main()
