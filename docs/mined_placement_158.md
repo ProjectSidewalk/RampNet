@@ -47,9 +47,11 @@ candidates:
   on singleton sites whose identity is undetermined. An earlier version of this doc (and the
   #158 comment) said `roma_local` "fixes" richmond's placement; **that is retracted**. What
   holds: the all-mined numbers, under the rubric, where a label on any real ramp within 5 m
-  is correct. Read as "placed on the mined ramp", the paired count lies between 3 / 0
-  (p = 0.25) and 7 / 0 (p = 0.016). The labeler's
-  `scripts/mined_placement_attribution.py` produces the per-candidate table.
+  is correct. Read as "placed on the mined ramp", the paired count lies between 0 / 0
+  (no discordant pair, so the sign test is undefined) and 7 / 0 (p = 0.016). It is 3 / 0
+  (p = 0.25) only if the 3 singleton landings, 8.1 m from the site and of undetermined
+  identity, are *taken* to be the mined ramp; that is a reading, not a lower bound. The
+  labeler's `scripts/mined_placement_attribution.py` produces the per-candidate table.
 - **Pooled.** all-mined 0.605 → 0.702 [0.61, 0.78] and hard-only 0.483 → 0.534 with
   `roma_local`. But pooled `tp` falls 42 → 39. On GSV the same pull turns 7 true hard
   positives into `already_detected`. In 5 of the 7 the landed detection belongs to a site
@@ -57,11 +59,15 @@ candidates:
 - **GSV.** No arm helps.
 - **Where the arms stand in #48.** [#220](https://github.com/ProjectSidewalk/RampNet/pull/220)
   (open; [results](https://github.com/ProjectSidewalk/RampNet/issues/48#issuecomment-5895553631))
-  has **confirmed** all three MapAnything arms against `proj_height_auto` on fresh pairs,
-  Mapillary included (`mapa_posed_pair` +1.32° [0.73, 2.34]). There `mapa_k_pair` was best on
-  Mapillary (+1.89°); it was not run here. `roma` and `roma_local` were **not** in that
-  re-test. In #48 no matching arm beats auto on GSV, and their Mapillary gains come from a
-  stratum #48 did not screen for multiplicity. `roma_local` is post hoc there. `roma`
+  re-tested the MapAnything arms against `proj_height_auto` on fresh pairs. It confirmed
+  `mapa_posed_pair`, the arm run here, which stays robust under #220's sensitivity reads
+  (GSV α/3 lower bound ≥ +0.105°; Mapillary +1.32° [0.73, 2.34]), and `mapa_posed_corner`.
+  `mapa_k_pair` is confirmed as pre-specified but borderline on GSV: under #220's review and
+  [sensitivity reads](https://github.com/ProjectSidewalk/RampNet/issues/48#issuecomment-5896570175)
+  its GSV lower bound is 0.000 / −0.009 / −0.048, so that cell is not confirmed under any of
+  them. `mapa_k_pair` was best on Mapillary (+1.89°); it was not run here. `roma` and
+  `roma_local` were **not** in that re-test. In #48 no matching arm beats auto on GSV, and
+  their Mapillary gains come from a stratum #48 did not screen for multiplicity. `roma_local` is post hoc there. `roma`
   inherits `lg`'s post hoc 5° ground band, so it is not fully pre-specified either.
 - **For step 3.** On a dense corner, the 5 m nearest-point world match cannot tell the mined
   ramp from a neighbour. Any later `already_detected` gain should carry the own / other
@@ -94,7 +100,13 @@ The commands are in the labeler doc, "Reproduce (phase 2)". Environments are as 
   - `loguru==0.7.3`
   - `win32_setctime` 1.2.0 (Windows only)
 
-  These are the install lines in `docs/crossview_align_48/matching.md` §7. The scratch
+  As one command (Windows; drop `win32_setctime` elsewhere):
+
+  ```bash
+  pip install --no-deps --target <dir> romatch==0.1.2 kornia==0.8.3 kornia_rs==0.2.0 loguru==0.7.3 win32_setctime==1.2.0
+  ```
+
+  `docs/crossview_align_48/matching.md` §7 lists the same packages but not `kornia_rs`. The scratch
   directory was a Claude Code session scratchpad (`%TEMP%\claude\...\scratchpad\pkgs`). It is
   not durable, so reinstall from those lines.
 - **Match cache.** `roma` ran first with `--extra match_cache=CACHE`. It filled `CACHE/roma/`

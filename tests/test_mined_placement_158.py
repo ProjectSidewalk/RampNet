@@ -69,3 +69,41 @@ def test_committed_outputs_are_consistent():
                 (k["city"], int(k["site_id"]), k["pano_id"]), (name, r["pair_id"])
         meta = json.load(open(os.path.join(MP.PRED_DIR, name[:-6] + ".meta.json")))
         assert meta["pairs_sha256"] == m["pairs_sha256"]
+
+
+def test_versions_is_a_superset_of_the_harness_and_adds_installed_extras(monkeypatch):
+    """versions() keeps every key H._versions() records and adds each EXTRA_DISTS package
+    that is installed (and only those), so a new meta never records less than the harness."""
+    from importlib import metadata
+
+    def fake_version(dist):
+        if dist == "romatch":
+            return "0.1.2"
+        raise metadata.PackageNotFoundError(dist)
+
+    monkeypatch.setattr(metadata, "version", fake_version)
+    base = MP.H._versions()
+    got = MP.versions()
+    assert {k: got[k] for k in base} == base
+    assert set(got) - set(base) == {"romatch"} and got["romatch"] == "0.1.2"
+
+
+def test_predict_meta_records_versions_and_extra(tmp_path, monkeypatch):
+    """cmd_predict writes versions() and the --extra arguments into <arm>.meta.json."""
+    from types import SimpleNamespace
+    pairs = MP.read_pairs()[:2]
+    monkeypatch.setattr(MP, "PRED_DIR", str(tmp_path))
+    monkeypatch.setattr(MP, "read_pairs", lambda: pairs)
+    monkeypatch.setattr(MP.H, "load_arms",
+                        lambda: {"fake": SimpleNamespace(description="d", config={})})
+    monkeypatch.setattr(MP.H, "Context", lambda args, p: SimpleNamespace(cache={}))
+    monkeypatch.setattr(MP.H, "run_arm", lambda arm, p, ctx: (
+        [{"pair_id": q["pair_id"], "x": None, "y": None} for q in p], 0))
+    monkeypatch.setattr(MP, "versions", lambda: {"romatch": "9.9.9"})
+    MP.main(["predict", "--arm", "fake", "--views", str(tmp_path),
+             "--extra", "match_cache=C", "--extra", "k=v"])
+    with open(tmp_path / "fake.meta.json", encoding="utf-8") as f:
+        meta = json.load(f)
+    assert meta["versions"] == {"romatch": "9.9.9"}
+    assert meta["extra"] == ["match_cache=C", "k=v"]
+    assert meta["fallback"] == 2 and meta["pre_specified_for_158"] is False
