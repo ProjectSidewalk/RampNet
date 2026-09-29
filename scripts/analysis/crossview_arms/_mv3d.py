@@ -542,12 +542,17 @@ def _package_version(mod, m):
         except Exception:   # noqa: BLE001 -- best effort; never fail a run over provenance
             ver = None
     ver = ver or "installed"
-    src = os.path.dirname(os.path.abspath(getattr(m, "__file__", "") or "."))
+    mod_file = getattr(m, "__file__", None)
+    if not mod_file:
+        # No file (namespace or built-in module): never guess a checkout from the cwd.
+        return ver
+    src = os.path.dirname(os.path.abspath(mod_file))
     try:
         top = subprocess.run(["git", "-C", src, "rev-parse", "--show-toplevel"],
                              capture_output=True, text=True, timeout=10)
         if top.returncode == 0 and "site-packages" not in src:
-            head = subprocess.run(["git", "-C", src, "rev-parse", "--short", "HEAD"],
+            head = subprocess.run(["git", "-C", src, "describe", "--always", "--dirty",
+                                   "--abbrev=7"],
                                   capture_output=True, text=True, timeout=10)
             if head.returncode == 0:
                 ver = f"{ver} @{head.stdout.strip()}"

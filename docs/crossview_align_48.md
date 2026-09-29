@@ -559,14 +559,15 @@ change to the code. `test_fresh_arms_ran_the_300s_code_settings_and_weights` now
 four things:
 
 - `crossview_arms/ff3d.py`, the code of all three arms, has the same `code_fingerprint` as
-  at `c84dc74` (comments, docstrings and blank lines ignored). `c84dc74` is the commit whose
-  code produced the 300's `mapa_posed_pair` predictions; `mapa_k_pair`'s (`cd06387`) ran the
-  same code. The fingerprint is equal at every commit from `c84dc74` to this one.
+  at `c84dc74` (comments, docstrings and blank lines ignored). `c84dc74` is the commit the
+  300's `mapa_posed_pair` predictions were committed with; the run itself is timestamped
+  slightly earlier, and the code diffs in between are no-ops for these arms (below).
+  `mapa_k_pair`'s (`cd06387`) ran the same code. The fingerprint is equal at every commit from `c84dc74` to this one.
 - `config`, `description` and `needs` match the 300-pair metas.
 - `MODEL_REVISIONS["mapanything"]` is `a1d87e9…`.
 - Each fresh meta's `manifest_sha256` is the committed fresh manifest's.
 
-`mapa_posed_corner`'s 300 predictions (`0428bb7`) predate two edits to `ff3d.py`. Both were
+`mapa_posed_corner`'s 300 predictions (committed with `0428bb7`) predate two edits to `ff3d.py`. Both were
 read line by line and are no-ops for that arm:
 
 - `8cdf52f` passes `revision=MODEL_REVISIONS[...]`, the snapshot that run had already loaded
@@ -579,6 +580,12 @@ read line by line and are no-ops for that arm:
 - `8cdf52f`→`c84dc74`: a new `agreement` subcommand.
 - `cd65024`: paths follow the pair set, and the meta gains `pair_set`.
 - This fix: `_versions()`.
+
+The harness (`crossview_align_48.py`) also changed after `c84dc74`: `9ea05f5` and `e48c0d3`
+moved answer hiding into `run_arm`/`Context` (answer columns and other-view detections
+stripped, labeler result loaders withheld from arms). The MapAnything arms read neither, and
+every CPU arm's 300-pair predictions re-ran byte-identical through the changed harness in
+[#210](https://github.com/ProjectSidewalk/RampNet/pull/210)'s fix rounds.
 
 None of these touches how an arm places a point. This was checked by hand, as the
 reviewer also did.

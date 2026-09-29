@@ -25,9 +25,10 @@ FRESH_PRED_DIR = os.path.join(H.FRESH_DIR, "predictions")
 # mapa_k_pair.jsonl aside left the suite green (3 passed, 3 skipped).
 
 #: code_fingerprint of crossview_arms/ff3d.py, the code of all three MapAnything arms, at
-#: c84dc74 -- the commit whose code produced the 300's mapa_posed_pair predictions, and the
-#: code cd06387's mapa_k_pair predictions ran (same fingerprint). Equal at every commit since.
-#: mapa_posed_corner's 300 predictions (0428bb7) predate two code edits, both no-ops for it:
+#: c84dc74 -- the commit the 300's mapa_posed_pair predictions were committed with (the run is
+#: timestamped slightly earlier; the diffs in between are no-ops for these arms), and the code
+#: cd06387's mapa_k_pair predictions ran (same fingerprint). Equal at every commit since.
+#: mapa_posed_corner's 300 predictions (committed with 0428bb7) predate two code edits, both no-ops for it:
 #: 8cdf52f passes revision=MODEL_REVISIONS[...] (the snapshot that run had loaded) and
 #: c84dc74 adds a "mono" branch that corner_mode=True never takes; see the doc's
 #: "Settings and code unchanged".
@@ -187,3 +188,12 @@ def test_plan_section_is_byte_identical_to_the_plan_commit():
     a = text.index("### Fixed before running")
     b = text.index("### Result", a)
     assert hashlib.sha256(text[a:b].encode("utf-8")).hexdigest() == PLAN_SECTION_SHA256
+
+
+def test_package_version_never_guesses_a_checkout_for_a_module_without_a_file():
+    """A module with no ``__file__`` must not pick up the git HEAD of the current directory
+    (re-review of #220, N3): it records only its version."""
+    import types
+    fake = types.ModuleType("fake_no_file")
+    fake.__version__ = "9.9"
+    assert M._package_version("fake_no_file", fake) == "9.9"
