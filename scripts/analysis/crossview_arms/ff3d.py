@@ -450,6 +450,23 @@ def mapa_posed_corner(pair, ctx):
     return _read(_core(ctx, pair, "mapanything", corner_mode=True, posed=True))
 
 
+@register("mapa_posed_pair", needs=("views",),
+          config={**MAPA_CONFIG, "views": 2, "given": POSED,
+                  "projection": "MapAnything's output camera for the other view"},
+          description="MapAnything on the pair only, given intrinsics and pose priors")
+def mapa_posed_pair(pair, ctx):
+    return _read(_core(ctx, pair, "mapanything", corner_mode=False, posed=True))
+
+
+@register("mapa_posed_poseonly", needs=("views",),
+          config={**MAPA_CONFIG, "views": CORNER_VIEWS, "given": POSED,
+                  "transfer": "MapAnything's relative pose only, flat ground at the 'auto' "
+                              "height (its depth is not used)"},
+          description="MapAnything posed run, relative pose only, today's flat-ground transfer")
+def mapa_posed_poseonly(pair, ctx):
+    return _read(_core(ctx, pair, "mapanything", corner_mode=True, posed=True), "poseonly")
+
+
 @register("mapa_posed_depthonly", needs=("views",),
           config={**MAPA_CONFIG, "views": CORNER_VIEWS, "given": POSED,
                   "projection": "the other view's PRIOR camera (only MapAnything's 3D point "
