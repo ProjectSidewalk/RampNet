@@ -1,0 +1,11 @@
+{
+ "mean_deg": 1.7033,
+ "mean_elevation_offset_deg": -0.3265,
+ "median_abs_azimuth_deg": 1.0137,
+ "median_abs_elevation_deg": 0.7393,
+ "median_deg": 1.508,
+ "n_matched": 3420,
+ "note": "a rough scale for peak noise, not a bound: a box centre is not the ramp point the peak is trained on, and the 0.022 radius truncates the tail",
+ "p90_deg": 3.0399,
+ "source": "benchmark/manual_gold detections >= 0.55 vs manual_labels box centres, greedy one-to-one within the 0.022 radius"
+}

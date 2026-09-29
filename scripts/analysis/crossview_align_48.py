@@ -62,8 +62,14 @@ OUT_ROOT = os.environ.get("RAMPNET_ANALYSIS_OUT", os.path.join(REPO, "analysis_o
 OUT = os.path.join(OUT_ROOT, "crossview_align_48")
 ELIGIBLE_CSV = os.path.join(OUT, "eligible_pairs.csv")
 PAIRS_CSV = os.path.join(OUT, "pairs.csv")
-MATCHES_JSONL = os.path.join(OUT, "matches.jsonl")
-RESULTS_JSON = os.path.join(OUT, "results.json")
+
+
+def variant_paths(margin):
+    """(matches.jsonl, results.json, match_meta.json) for one ground band."""
+    tag = f"m{margin:g}"
+    return (os.path.join(OUT, f"matches_{tag}.jsonl"), os.path.join(OUT, f"results_{tag}.json"),
+            os.path.join(OUT, f"match_meta_{tag}.json"))
+
 NOISE_JSON = os.path.join(OUT, "reference_noise.json")
 
 CITIES = ("richmond", "paterson", "gainesville", "bend", "sao_paulo")
@@ -83,7 +89,13 @@ SEED = 48
 # Views
 VIEW_W, VIEW_H = 1024, 768
 HFOV_DEG = 75.0
-HORIZON_MARGIN_DEG = 0.5   # keypoints must sit this far below the pano-frame horizon ...
+# Keypoints must sit this far below the pano-frame horizon (in both views) ...
+# v1 (pre-specified): 0.5 deg. It admitted far-field points just under the horizon, whose
+# homography is close to a pure rotation and does not transfer to a ramp 5-18 m away (see
+# docs/crossview_align_48.md). v2 (post hoc, after looking at failures): 5 deg, i.e. flat
+# ground within ~30 m of a 2.6 m camera. Both are reported.
+HORIZON_MARGINS = (0.5, 5.0)
+HORIZON_MARGIN_DEG = 5.0
 RIG_LIMIT_DEG = -70.0      # ... and above this (the capture vehicle / rig)
 
 # Matching and fallback (fixed before scoring; the sweep is reported as sensitivity)
@@ -94,7 +106,9 @@ LOCAL_RADIUS_PX = 160.0
 LOCAL_MIN = 12
 NCC_TEMPLATE_PX = 64
 NCC_MIN = 0.5
-MAX_KEYPOINTS = 2048
+NCC_WINDOW_PX = 200        # search +-200 px (~+-16 deg) around the projected point
+# ALIKED keeps its own top-k; do not truncate its output, which is in raster order (a
+# [:N] slice silently drops the bottom of the view, i.e. the ground -- a bug in the first run).
 
 RANGE_BINS = ((0.0, 6.0), (6.0, 12.0), (12.0, 18.0))
 ARMS = ("projection", "lg", "lg_local", "sift", "ncc")
@@ -186,11 +200,11 @@ def map_point(H, u, v):
     return float(p[0] / p[2]), float(p[1] / p[2])
 
 
-def ground_mask(u, v, cx_norm, cy_norm):
-    """Keypoints below the pano-frame horizon and above the rig."""
+def ground_mask(u, v, cx_norm, cy_norm, margin=HORIZON_MARGIN_DEG):
+    """Keypoints at least ``margin`` degrees below the pano-frame horizon and above the rig."""
     _, y = view_to_pano(u, v, cx_norm, cy_norm)
     el = elevation_deg(y)
-    return (el < -HORIZON_MARGIN_DEG) & (el > RIG_LIMIT_DEG)
+    return (el < -margin) & (el > RIG_LIMIT_DEG)
 
 
 def range_bin(d, bins=RANGE_BINS):
@@ -521,7 +535,6 @@ class LightGlueArm:
         KF, torch = self.KF, self.torch
         k1, d1 = self.features(g1)
         k2, d2 = self.features(g2)
-        k1, d1, k2, d2 = k1[:MAX_KEYPOINTS], d1[:MAX_KEYPOINTS], k2[:MAX_KEYPOINTS], d2[:MAX_KEYPOINTS]
         lafs1 = KF.laf_from_center_scale_ori(k1[None], torch.ones(1, len(k1), 1, 1, device=self.device))
         lafs2 = KF.laf_from_center_scale_ori(k2[None], torch.ones(1, len(k2), 1, 1, device=self.device))
         with torch.inference_mode():
@@ -545,8 +558,9 @@ def sift_match(g1, g2):
 
 
 def ncc_search(g1, g2, scale):
-    """Template of the source view's centre, rescaled by the range ratio, searched over
-    the whole other view. Returns ((u, v), peak score)."""
+    """Template of the source view's centre, rescaled by the range ratio, searched in a
+    window of +-NCC_WINDOW_PX around the other view's centre (the projected point), i.e.
+    inside the projection's uncertainty. Returns ((u, v) in the full view, peak score)."""
     import cv2
     t = NCC_TEMPLATE_PX
     c1 = (g1.shape[1] // 2, g1.shape[0] // 2)
@@ -554,17 +568,22 @@ def ncc_search(g1, g2, scale):
     s = float(np.clip(scale, 0.25, 4.0))
     size = max(8, int(round(t * s)))
     tpl = cv2.resize(tpl, (size, size), interpolation=cv2.INTER_AREA if s < 1 else cv2.INTER_LINEAR)
-    if tpl.shape[0] >= g2.shape[0] or tpl.shape[1] >= g2.shape[1]:
+    c2 = (g2.shape[1] // 2, g2.shape[0] // 2)
+    x0 = max(0, c2[0] - NCC_WINDOW_PX - size // 2)
+    y0 = max(0, c2[1] - NCC_WINDOW_PX - size // 2)
+    win = g2[y0:c2[1] + NCC_WINDOW_PX + size // 2, x0:c2[0] + NCC_WINDOW_PX + size // 2]
+    if tpl.shape[0] >= win.shape[0] or tpl.shape[1] >= win.shape[1]:
         return None, 0.0
-    res = cv2.matchTemplate(g2, tpl, cv2.TM_CCOEFF_NORMED)
+    res = cv2.matchTemplate(win, tpl, cv2.TM_CCOEFF_NORMED)
     _, mx, _, loc = cv2.minMaxLoc(res)
-    return (loc[0] + size / 2.0, loc[1] + size / 2.0), float(mx)
+    return (x0 + loc[0] + size / 2.0, y0 + loc[1] + size / 2.0), float(mx)
 
 
-def filter_ground(a, b, src_view, oth_view):
+def filter_ground(a, b, src_view, oth_view, margin=HORIZON_MARGIN_DEG):
     if len(a) == 0:
         return a, b
-    keep = ground_mask(a[:, 0], a[:, 1], *src_view) & ground_mask(b[:, 0], b[:, 1], *oth_view)
+    keep = ground_mask(a[:, 0], a[:, 1], *src_view, margin=margin) & \
+        ground_mask(b[:, 0], b[:, 1], *oth_view, margin=margin)
     return a[keep], b[keep]
 
 
@@ -592,11 +611,11 @@ def cmd_match(args):
         a, b = lg.match(g1, g2)
         t_lg += time.time() - t
         rec["lg_raw_matches"] = int(len(a))
-        a, b = filter_ground(a, b, sv, ov)
+        a, b = filter_ground(a, b, sv, ov, args.horizon_margin)
         rec["lg"] = align(a, b, centre, ov)
         a, b = sift_match(g1, g2)
         rec["sift_raw_matches"] = int(len(a))
-        a, b = filter_ground(a, b, sv, ov)
+        a, b = filter_ground(a, b, sv, ov, args.horizon_margin)
         rec["sift"] = align(a, b, centre, ov)
         uv, score = ncc_search(g1, g2, r["src_range_m"] / max(r["oth_range_m"], 0.5))
         rec["ncc"] = {"score": score, "uv": uv,
@@ -604,7 +623,8 @@ def cmd_match(args):
         out.append(rec)
     elapsed = time.time() - t0
     os.makedirs(OUT, exist_ok=True)
-    with open(MATCHES_JSONL, "w", encoding="utf-8", newline="") as f:
+    matches_path, _, meta_path = variant_paths(args.horizon_margin)
+    with open(matches_path, "w", encoding="utf-8", newline="") as f:
         for rec in out:
             f.write(json.dumps(rnd(rec, 6), sort_keys=True) + "\n")
     meta = {"device": device, "gpu": torch.cuda.get_device_name(0) if device == "cuda" else None,
@@ -612,12 +632,12 @@ def cmd_match(args):
             "versions": {"torch": torch.__version__, "cv2": cv2.__version__,
                          "kornia": __import__("kornia").__version__, "numpy": np.__version__},
             "matching": {"extractor": "ALIKED aliked-n16", "matcher": "LightGlue (kornia)",
-                         "max_keypoints": MAX_KEYPOINTS, "ransac_px": RANSAC_PX,
+                         "max_keypoints": "ALIKED aliked-n16 default, untruncated", "ransac_px": RANSAC_PX,
                          "local_radius_px": LOCAL_RADIUS_PX, "local_min": LOCAL_MIN,
-                         "ncc_template_px": NCC_TEMPLATE_PX, "sift_ratio": 0.8,
+                         "ncc_template_px": NCC_TEMPLATE_PX, "ncc_window_px": NCC_WINDOW_PX, "sift_ratio": 0.8,
                          "view": [VIEW_W, VIEW_H, HFOV_DEG],
-                         "ground": [HORIZON_MARGIN_DEG, RIG_LIMIT_DEG]}}
-    write_json(os.path.join(OUT, "match_meta.json"), meta)
+                         "ground": [args.horizon_margin, RIG_LIMIT_DEG]}}
+    write_json(meta_path, meta)
     print(f"matched {len(pairs)} pairs in {elapsed:.1f} s (LightGlue {t_lg:.1f} s on {device})")
 
 
@@ -661,7 +681,7 @@ def pair_errors(pairs, recs, min_inliers=MIN_INLIERS):
     return out
 
 
-def cluster_bootstrap(groups, stat, n_boot=N_BOOT, seed=SEED):
+def cluster_bootstrap(groups, stat, n_boot=None, seed=SEED):
     """Percentile CI of ``stat`` over ramps resampled with replacement.
     ``groups`` is a list of per-ramp lists of items; ``stat`` takes a flat list."""
     rng = np.random.default_rng(seed)
@@ -669,7 +689,7 @@ def cluster_bootstrap(groups, stat, n_boot=N_BOOT, seed=SEED):
     if k == 0:
         return None
     vals = []
-    for _ in range(n_boot):
+    for _ in range(N_BOOT if n_boot is None else n_boot):
         pick = rng.integers(0, k, k)
         flat = [x for i in pick for x in groups[i]]
         vals.append(stat(flat))
@@ -720,6 +740,8 @@ def summarize(pairs, errs, idx):
                 "projection_median_deg": float(np.median([proj[i][0] for i in used])) if used else None,
                 "projection_median_ci": cluster_bootstrap(
                     ug, lambda ii: float(np.median([proj[i][0] for i in ii]))) if ug else None,
+                "median_gain_deg": gain(used),
+                "median_gain_ci": cluster_bootstrap(ug, gain) if ug else None,
                 "within_2deg": within2(used), "projection_within_2deg": float(np.mean(
                     [proj[i][0] <= 2.0 for i in used])) if used else None}
         res[arm] = row
@@ -750,7 +772,7 @@ def score(pairs, recs):
     return out
 
 
-def read_matches(path=MATCHES_JSONL):
+def read_matches(path):
     recs = {}
     with open(path, encoding="utf-8") as f:
         for line in f:
@@ -762,12 +784,13 @@ def read_matches(path=MATCHES_JSONL):
 
 def cmd_score(args):
     pairs = read_rows(args.pairs)
-    recs = read_matches(args.matches)
+    matches_path, results_path, _ = variant_paths(args.horizon_margin)
+    recs = read_matches(args.matches or matches_path)
     res = score(pairs, recs)
-    res["config"] = {"min_inliers": MIN_INLIERS, "ncc_min": NCC_MIN, "n_boot": N_BOOT,
+    res["config"] = {"horizon_margin_deg": args.horizon_margin, "min_inliers": MIN_INLIERS, "ncc_min": NCC_MIN, "n_boot": N_BOOT,
                      "seed": SEED, "ci": "2.5-97.5 percentile, ramps resampled",
                      "error": "great-circle angle to the reference detection, degrees"}
-    write_json(args.out, res)
+    write_json(args.out or results_path, res)
     a = res["strata"]["all"]
     for arm in ARMS:
         print(f"{arm:10s} median {a[arm]['median_deg']:.2f} {a[arm]['median_ci']}  "
@@ -828,7 +851,7 @@ def cmd_noise(args):
            "median_abs_azimuth_deg": float(np.median(np.abs(dx))),
            "median_abs_elevation_deg": float(np.median(np.abs(dy))),
            "mean_elevation_offset_deg": float(np.mean(dy)),
-           "note": "an upper bound on peak noise: a box centre is not the ramp point the peak "
+           "note": "a rough scale for peak noise, not a bound: a box centre is not the ramp point the peak "
                    "is trained on, and the 0.022 radius truncates the tail"}
     write_json(args.out, res)
     print(json.dumps(rnd(res), indent=1))
@@ -855,11 +878,13 @@ def main(argv=None):
     p.add_argument("--pairs", default=PAIRS_CSV)
     p.add_argument("--views", required=True)
     p.add_argument("--cpu", action="store_true")
+    p.add_argument("--horizon-margin", type=float, default=HORIZON_MARGIN_DEG)
     p.set_defaults(fn=cmd_match)
     p = sub.add_parser("score")
     p.add_argument("--pairs", default=PAIRS_CSV)
-    p.add_argument("--matches", default=MATCHES_JSONL)
-    p.add_argument("--out", default=RESULTS_JSON)
+    p.add_argument("--horizon-margin", type=float, default=HORIZON_MARGIN_DEG)
+    p.add_argument("--matches", help="default: matches_m<margin>.jsonl")
+    p.add_argument("--out", help="default: results_m<margin>.json")
     p.set_defaults(fn=cmd_score)
     p = sub.add_parser("noise")
     p.add_argument("--out", default=NOISE_JSON)
