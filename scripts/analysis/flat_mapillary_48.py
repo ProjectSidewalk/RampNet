@@ -719,7 +719,9 @@ def read_preds_any(name, ref=None):
             if meta.get("pairs_sha256") != H.PAIRS_SHA256:
                 raise SystemExit(f"{own} was predicted on a different pair list")
             with open(own, encoding="utf-8") as f:
-                return {r["pair_id"]: r for r in map(json.loads, filter(str.strip, f))}, None
+                # the same x / y check as H.read_predictions (final re-review of #210, N5)
+                return {r["pair_id"]: H.check_prediction_row(r, own)
+                        for r in map(json.loads, filter(str.strip, f))}, None
         return H.read_predictions(name), None
     base = "analysis_out/crossview_align_48/predictions"
     meta = json.loads(_git("show", f"{ref}:{base}/{name}.meta.json"))
@@ -728,7 +730,7 @@ def read_preds_any(name, ref=None):
     out = {}
     for line in _git("show", f"{ref}:{base}/{name}.jsonl").splitlines():
         if line.strip():
-            r = json.loads(line)
+            r = H.check_prediction_row(json.loads(line), f"{ref}:{base}/{name}.jsonl")
             out[r["pair_id"]] = r
     return out, _git("rev-parse", ref).strip()
 

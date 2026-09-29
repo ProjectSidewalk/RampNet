@@ -63,3 +63,15 @@ def test_median_depth_of_a_single_opaque_gaussian():
     op = np.array([0.99])
     t, n = G.median_depth(np.zeros(3), np.array([0.0, 0.0, 1.0]), mu, s, q, op)
     assert n == 1 and t == pytest.approx(5.0, abs=1e-6)
+
+
+def test_read_preds_any_refuses_an_out_of_range_y(tmp_path, monkeypatch):
+    """Final re-review of #210 (N5): the flat family read its own jsonl without the y-range
+    check H.read_predictions has, and it feeds results_richmond.json and the combined table."""
+    (tmp_path / "bad.meta.json").write_text(json.dumps({"pairs_sha256": H.PAIRS_SHA256}))
+    (tmp_path / "bad.jsonl").write_text(json.dumps({"pair_id": "a", "x": 0.2, "y": 1.3}) + "\n")
+    monkeypatch.setattr(F, "PRED_DIR", str(tmp_path))
+    with pytest.raises(SystemExit, match="must be finite"):
+        F.read_preds_any("bad")
+    (tmp_path / "bad.jsonl").write_text(json.dumps({"pair_id": "a", "x": 0.2, "y": 0.6}) + "\n")
+    assert F.read_preds_any("bad")[0]["a"]["y"] == 0.6

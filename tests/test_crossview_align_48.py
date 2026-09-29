@@ -7,6 +7,7 @@ plumbing are checked on toy inputs, and the committed artifacts under
 hash, and re-derived where they can be (the sample from the eligible list, and every arm's
 headline median and fallback rate from its committed predictions).
 """
+import ast
 import json
 import math
 import os
@@ -142,7 +143,7 @@ def test_a_planted_arm_cannot_read_the_reference_through_ctx_pairs():
 
 def test_slim_panos_reach_arms_without_detections():
     """The reference is one of the other view's detections, so SlimPanos handed to arms
-    (ctx.slim, geometry.at_height) carry none."""
+    (ctx.slim, ctx.at_height, geometry.at_height) carry none."""
     from dataclasses import dataclass
 
     @dataclass
@@ -155,24 +156,222 @@ def test_slim_panos_reach_arms_without_detections():
     assert q.detections == [] and q.pano_id == "o" and p.detections, "copy, not in place"
     import inspect
     from crossview_arms import geometry
-    assert "without_detections" in inspect.getsource(geometry.at_height)
+    assert "ctx.at_height(" in inspect.getsource(geometry.at_height)
+    assert "without_detections" in inspect.getsource(cv.Context.at_height)
     assert "without_detections" in inspect.getsource(cv.Context.slim)
 
 
-def test_arm_modules_never_read_answer_columns():
-    """Grep guard: no prediction module under crossview_arms/ names a ref_* column. The
-    post-scoring diagnostics that legitimately read the reference are listed here."""
-    import glob
+# --------------------------------------------------------------------------- #
+# answer hiding: planted arms, one per route (final re-review of #210, N1)
+# --------------------------------------------------------------------------- #
+_PLANT_PAIRS = [{"pair_id": "a", "city": "x", "src_pano": "s", "oth_pano": "o", "proj_x": 0.5,
+                 "proj_y": 0.6, "ref_x": 0.1, "ref_y": 0.7, "ref_conf": 0.9,
+                 "ref_world_gap_m": 1.0}]
+
+
+def test_a_planted_arm_cannot_read_the_frozen_pair_list():
+    """read_frozen_pairs() returns the answer columns; an arm that calls it and builds the
+    key at run time ("ref_" + "x") scored 0.00 deg before. It now raises inside an arm, and
+    the flag is cleared again after the arm raises."""
+    def cheat(pair, ctx):
+        mine = next(r for r in cv.read_frozen_pairs() if r["pair_id"] == pair["pair_id"])
+        return {"x": mine["ref_" + "x"], "y": mine["ref_" + "y"]}
+
+    with pytest.raises(RuntimeError, match="inside an arm"):
+        cv.run_arm(Arm("cheat", cheat), _PLANT_PAIRS, cv.Context(SimpleNamespace(), _PLANT_PAIRS))
+    assert cv._IN_ARM == 0
+    assert cv.read_frozen_pairs(), "outside an arm the scorer still reads it"
+
+
+@pytest.mark.parametrize("name", ["pairs.csv", "eligible_pairs.csv"])
+def test_a_planted_arm_cannot_read_a_pair_csv_through_read_rows(name):
+    def cheat(pair, ctx):
+        rows = cv.read_rows(os.path.join(cv.OUT, name))
+        return {"x": rows[0]["ref_" + "x"], "y": rows[0]["ref_" + "y"]}
+
+    with pytest.raises(RuntimeError, match="inside an arm"):
+        cv.run_arm(Arm("cheat", cheat), _PLANT_PAIRS, cv.Context(SimpleNamespace(), _PLANT_PAIRS))
+    assert cv._IN_ARM == 0
+
+
+def _fake_labeler_ctx():
+    """A Context whose full labeler is a stand-in: its loaders return panos WITH the
+    reference as a detection, as the real fuse_sites does."""
+    from dataclasses import dataclass
+
+    @dataclass
+    class Slim:
+        pano_id: str
+        detections: list
+
+    def load(*a, **k):
+        return [Slim("o", [(0, 0.1, 0.7, 0.9)]), Slim("s", [])]
+
+    fs = SimpleNamespace(HEIGHT_AUTO="auto", pano_pose=lambda pano, mode: ("pose", pano.pano_id),
+                         load_results=load,
+                         load_at_height=lambda *a, **k: (load(), None, 2.5, {"resolved": 2.5}))
+    full = SimpleNamespace(geo=SimpleNamespace(PER_PANO="per-pano"), fs=fs,
+                           es=SimpleNamespace(load=load), prov={"git_commit": "fake"})
+    ctx = cv.Context(SimpleNamespace(labeler_root="unused", runs_root="unused",
+                                     results_root=None), _PLANT_PAIRS)
+    ctx._full_labeler = full
+    ctx._results_path = lambda city: "unused/results.jsonl"
+    return ctx
+
+
+@pytest.mark.parametrize("route", [
+    lambda L: L.fs.load_results("results.jsonl"),
+    lambda L: L.fs.load_at_height("results.jsonl", "auto"),
+    lambda L: L.es.load(),
+])
+def test_a_planted_arm_cannot_load_detections_through_ctx_labeler(route):
+    """ctx.labeler() used to be the full labeler, so fs.load_results(ctx._results_path(city))
+    returned SlimPanos WITH detections. Arms now get only ARM_FS_NAMES of fuse_sites."""
+    ctx = _fake_labeler_ctx()
+
+    def cheat(pair, ctx):
+        panos = route(ctx.labeler())
+        return {"x": panos[0].detections[0][1], "y": panos[0].detections[0][2]}
+
+    with pytest.raises(AttributeError, match="withheld from arms"):
+        cv.run_arm(Arm("cheat", cheat), _PLANT_PAIRS, ctx)
+
+
+def test_the_arm_facing_labeler_holds_only_what_arms_use():
+    ctx = _fake_labeler_ctx()
+    L = ctx.labeler()
+    assert set(vars(L.fs)) - {"_label"} == set(cv.ARM_FS_NAMES)
+    assert set(vars(L)) - {"_label"} == {"geo", "fs", "prov"}
+    assert L.fs.pano_pose(SimpleNamespace(pano_id="s"), "off") == ("pose", "s")
+    assert all(v is not ctx._full_labeler for v in ctx.cache.values())
+    slims, height, _ = ctx.at_height("x", "auto")
+    assert height == 2.5 and slims["o"].detections == [], "Context loads, then withholds"
+    assert ctx.slim("x", "o").detections == []
+    assert ctx.labeler_prov() == {"git_commit": "fake"}
+
+
+#: What an arm module may not name outside the CLI subcommands exempted below. Docstrings
+#: and comments are dropped first (ast.unparse), so prose may mention these.
+_FORBIDDEN = {
+    "answer column": r"\bref_(x|y|conf|world_gap_m)\b",
+    "detections": r"\.detections\b",
+    "pair-list reader": r"\b(read_frozen_pairs|read_rows|PAIRS_CSV)\b|pairs\.csv|eligible_pairs",
+    "labeler loader": (r"\b(load_results|load_at_height|import_labeler|fuse_sites|eval_sites|"
+                       r"multiview_evidence_48)\b|results\.jsonl"),
+    "private harness state": r"\bctx\._|\b_IN_ARM\b|_full_labeler|__globals__|\bsys\.modules\b",
+}
+
+#: Top-level definitions that legitimately read the answer or the full labeler. Each is a
+#: CLI step run before or after prediction, never from inside an arm: every other ``cmd_*``
+#: function of a module is exempt too, unless it is itself a registered arm.
+_EXEMPT = {
+    ("_registry.py", "ANSWER_KEYS"): "the list of answer columns itself",
+    ("_mv3d.py", "build_manifest"): "the corner manifest step; strips answers before use",
+    ("_mv3d.py", "_pairs_without_answers"): "build_manifest's answer-stripped pair list",
+    ("_mv3d.py", "main"): "CLI dispatch",
+    ("_scenes.py", "main"): "CLI dispatch",
+    ("semantic.py", "main"): "CLI dispatch",
+}
+
+
+def _exempt(module, node):
+    name = getattr(node, "name", None) or (
+        isinstance(node, ast.Assign) and getattr(node.targets[0], "id", None))
+    if (module, name) in _EXEMPT:
+        return True
+    if isinstance(node, ast.FunctionDef) and node.name.startswith("cmd_"):
+        return not any("register" in ast.unparse(d) for d in node.decorator_list)
+    return False
+
+
+def _parse_without_docstrings(src):
+    tree = ast.parse(src)
+    for n in list(ast.walk(tree)):
+        if isinstance(n, (ast.Module, ast.FunctionDef, ast.ClassDef)) and n.body and \
+                isinstance(n.body[0], ast.Expr) and isinstance(n.body[0].value, ast.Constant) \
+                and isinstance(n.body[0].value.value, str):
+            n.body = n.body[1:] or [ast.Pass()]
+    return tree
+
+
+def _exempt_names(module, src):
+    """Names of the exempt definitions in one module (``main`` aside: nothing calls it)."""
+    tree = _parse_without_docstrings(src)
+    return {getattr(n, "name", None) for n in tree.body if _exempt(module, n)} - {None, "main"}
+
+
+def _forbidden_hits(module, src, exempt_elsewhere=()):
+    """[(definition, rule, match)] for the non-exempt code of one arm module, plus every
+    exempt definition (of this module, or ``exempt_elsewhere``) that non-exempt code names:
+    an arm could route through it."""
     import re
-    allowed = {"_registry.py", "_mv3d.py", "_scenes.py"}   # registry docs; agreement; viewer
-    arms_dir = os.path.join(os.path.dirname(cv.__file__), "crossview_arms")
-    for path in glob.glob(os.path.join(arms_dir, "*.py")):
-        if os.path.basename(path) in allowed:
+    tree = _parse_without_docstrings(src)
+    exempt = [n for n in tree.body if _exempt(module, n)]
+    exempt_names = _exempt_names(module, src) | set(exempt_elsewhere)
+    hits = []
+    for node in tree.body:
+        if node in exempt:
             continue
+        code = ast.unparse(node)
+        label = getattr(node, "name", type(node).__name__)
+        for rule, pat in _FORBIDDEN.items():
+            hits += [(label, rule, m.group()) for m in re.finditer(pat, code)]
+        hits += [(label, "calls an exempt definition", e) for e in sorted(exempt_names)
+                 if re.search(rf"\b{re.escape(e)}\b", code)]
+    return hits
+
+
+def test_arm_modules_never_reach_the_answer():
+    """Grep guard for the routes Context cannot close at run time (an arm opening a file
+    itself, importing fuse_sites, poking private state). Final re-review of #210 (N1): the
+    guard used to exempt whole files, including _mv3d.py's prediction-path helpers
+    (corner_for, select_views, poseonly_transfer); it is now per definition."""
+    import glob
+    arms_dir = os.path.join(os.path.dirname(cv.__file__), "crossview_arms")
+    srcs = {}
+    for path in sorted(glob.glob(os.path.join(arms_dir, "*.py"))):
         with open(path, encoding="utf-8") as f:
-            src = f.read()
-        assert not re.search(r"\bref_(x|y|conf|world_gap_m)\b", src), path
-        assert ".detections" not in src, path
+            srcs[os.path.basename(path)] = f.read()
+    everywhere = set().union(*(_exempt_names(m, s) for m, s in srcs.items()))
+    assert {"build_manifest", "cmd_agreement", "cmd_compare"} <= everywhere
+    hits = [(m,) + h for m, s in srcs.items() for h in _forbidden_hits(m, s, everywhere)]
+    assert not hits, hits
+
+
+@pytest.mark.parametrize("body", [
+    'return H.read_frozen_pairs()[0]["ref_" + "x"]',
+    'return H.read_rows(os.path.join(H.OUT, "pairs.csv"))',
+    'return open(os.path.join(H.OUT, "eligible_pairs.csv")).read()',
+    'return ctx.labeler().fs.load_results(ctx._results_path(pair["city"]))',
+    'import fuse_sites\n    return fuse_sites.load_at_height',
+    'return open(os.path.join(ctx.args.runs_root, "x", "results.jsonl")).read()',
+    'return ctx._labeler()',
+    'return ctx.slim(pair["city"], pair["oth_pano"]).detections',
+    'return pair["ref_x"]',
+    'return ctx.labeler().fs.pano_pose.__globals__["load_results"]',
+    'return _pairs_without_answers()',
+    'return M.build_manifest(ctx.args)',
+])
+def test_the_grep_guard_catches_each_planted_route(body):
+    src = "@register('cheat')\ndef cheat(pair, ctx):\n    " + body + "\n"
+    assert _forbidden_hits("ff3d.py", src, {"build_manifest", "_pairs_without_answers"}), body
+    # the same exempt helper is fine where it is defined, and caught once an arm calls it
+    helper = "def _pairs_without_answers():\n    return H.read_frozen_pairs()\n"
+    assert not _forbidden_hits("_mv3d.py", helper)
+    assert _forbidden_hits("_mv3d.py", helper + "\n\n" + src, {"build_manifest"}), body
+
+
+def test_the_grep_guard_passes_a_clean_arm():
+    src = ("@register('ok')\ndef ok(pair, ctx):\n"
+           "    s, _, _ = ctx.at_height(pair['city'], 'auto')\n"
+           "    return {'x': pair['proj_x'], 'y': pair['proj_y']}\n")
+    assert not _forbidden_hits("ff3d.py", src, {"build_manifest"})
+
+
+def test_the_grep_guard_does_not_exempt_a_registered_cmd_function():
+    src = "@register('cmd_x')\ndef cmd_x(pair, ctx):\n    return pair['ref_x']\n"
+    assert _forbidden_hits("_mv3d.py", src)
+    assert not _forbidden_hits("_mv3d.py", "def cmd_x(args):\n    return H.read_frozen_pairs()\n")
 
 
 def test_rerunning_a_cpu_arm_through_the_hidden_context_reproduces_its_predictions():

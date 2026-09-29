@@ -464,17 +464,38 @@ combined table changes it, the bullet says so.
 
 2. What an arm gets:
    - `pair` is a row of the frozen `pairs.csv` **with the answer columns (`ref_*`) removed**.
-     This is enforced, not a convention: `ctx.pairs` holds the same stripped rows, and the
-     SlimPanos from `ctx.slim` and `geometry.at_height` have their `detections` emptied,
-     because the reference is one of the other view's detections. A test plants an arm
-     that tries to read the reference through `ctx.pairs` and requires it to fail. (Until
-     2026-09-29 `ctx.pairs` still held `ref_*`; a grep of every arm found no read of it, and
-     re-running `mv3d_consensus` through the new Context reproduces its predictions.)
+     What is enforced at run time, and what is not:
+     - **Enforced for everything the harness hands an arm.** `ctx.pairs` holds the same
+       stripped rows. The SlimPanos from `ctx.slim`, `ctx.at_height` and
+       `geometry.at_height` have their `detections` emptied, because the reference is one
+       of the other view's detections. `ctx.labeler()` exposes `geo` and only
+       `HEIGHT_AUTO` / `pano_pose` of `fuse_sites` (`ARM_FS_NAMES`): its loaders
+       (`load_results`, `load_at_height`, which return detections) and `eval_sites` are
+       withheld. While an arm runs, `read_frozen_pairs()` and `read_rows()` raise, so an
+       arm cannot fetch the pair list through the harness and build `"ref_" + "x"` at run
+       time. Planted-arm tests cover each of these routes.
+     - **Not enforced at run time, grep guard only.** An arm can still `open()`
+       `pairs.csv`, `eligible_pairs.csv` or a `results.jsonl` itself (the paths follow from
+       `H.OUT` and `ctx.args`), import `fuse_sites` directly, or reach private harness
+       state. `test_arm_modules_never_reach_the_answer` fails on any of those names in an
+       arm module, per definition rather than per file: only the CLI subcommands that run
+       before or after prediction (`cmd_*`, `_mv3d.build_manifest`) are exempt, and no arm
+       may call one. A name assembled at run time (for example `"pairs" + ".csv"`) would
+       evade the grep, so this half is a guard against accidents, not against a determined
+       cheat.
+     - History: until 2026-09-29 `ctx.pairs` still held `ref_*`, and `ctx.labeler()` was the
+       full labeler. A grep of every arm found no read of either. The 39 arms that run on
+       CPU from committed inputs (the 7 geometry arms, `sem_geom_check`, the 17 `mono_*`
+       arms, the 12 `flat_*` / `noflat_*` / `mlypano_*` arms and both `mv3d_consensus`
+       arms) were re-predicted through the changed Context, with the labeler at `39afcd4`,
+       and every one is byte-identical to its committed `.jsonl`. The GPU and imagery arms
+       were not re-run.
    - `ctx` (`crossview_align_48.Context`) lazily provides:
      - `view(pair, "src"|"oth")` and `view_centre(pair, which)`;
-     - `labeler()`, the labeler's `geo` / `fuse_sites` / `eval_sites`;
+     - `labeler()`, the labeler's `geo`, and `pano_pose` / `HEIGHT_AUTO` of `fuse_sites`;
      - `pano(city, id)`, the raw results.jsonl pano block, including `source_metadata`;
-     - `slim(city, id)`, the labeler's SlimPano;
+     - `slim(city, id)`, the labeler's SlimPano, and `at_height(city, height)`, the pair
+       list's SlimPanos through the labeler's height resolver (both without detections);
      - `cache` for models, and `args`, including repeatable `--extra KEY=VALUE`.
    - `crossview_arms/geometry.py` has `forward` / `inverse` (the labeler's raycast and
      its inverse, with a numeric solve for posed cameras) and `at_height` (the labeler's

@@ -55,6 +55,7 @@ import random
 import sys
 import time
 from collections import defaultdict
+from types import SimpleNamespace
 
 import numpy as np
 
@@ -250,6 +251,8 @@ FLOAT_COLS = {"src_x", "src_y", "src_range_m", "oth_range_m", "baseline_m", "pro
 
 
 def read_rows(path):
+    # every pair CSV here (pairs.csv, eligible_pairs.csv) carries the answer columns
+    _refuse_inside_arm("read_rows()")
     with open(path, encoding="utf-8", newline="") as f:
         rows = list(csv.DictReader(f))
     for r in rows:
@@ -474,9 +477,23 @@ def pairs_sha256(path=None):
         return hashlib.sha256(f.read()).hexdigest()
 
 
+#: > 0 while run_arm is inside an arm's function. The readers that return the answer
+#: (read_frozen_pairs, read_rows) refuse to run then; see Context for the rest.
+_IN_ARM = 0
+
+
+def _refuse_inside_arm(what):
+    if _IN_ARM:
+        raise RuntimeError(f"{what} was called from inside an arm. The pair lists on disk carry "
+                           "the answer columns (ANSWER_KEYS); an arm gets its own pair from "
+                           "run_arm and the others from ctx.pairs, both without them.")
+
+
 def read_frozen_pairs(path=None):
     """The frozen pair list, refused unless its bytes hash to PAIRS_SHA256, so every arm is
-    scored on identical pairs."""
+    scored on identical pairs. It includes the answer columns, so it refuses to run from
+    inside an arm (``_IN_ARM``)."""
+    _refuse_inside_arm("read_frozen_pairs()")
     path = path or PAIRS_CSV
     got = pairs_sha256(path)
     if got != PAIRS_SHA256:
@@ -505,20 +522,34 @@ class Context:
     * ``view(pair, "src"|"oth")``: the rectilinear view as a BGR uint8 array (needs --views);
       ``view_centre(pair, which)``: the equirect (x, y) it is centred on. Convert with
       ``view_to_pano`` / ``pano_to_view``.
-    * ``labeler()``: the labeler's geo / fuse_sites / eval_sites (needs --labeler-root).
+    * ``labeler()``: an arm-facing view of the labeler (needs --labeler-root): all of ``geo``,
+      ``prov``, and only ``ARM_FS_NAMES`` of fuse_sites. ``eval_sites`` and fuse_sites'
+      loaders are withheld (see below).
     * ``pano(city, pano_id)``: that pano's raw results.jsonl ``pano`` block (dict), and
       ``slim(city, pano_id)``: the labeler's SlimPano for it (needs --runs-root /
       --results-root as for ``pairs``). Only the panos in the pair list are kept.
+    * ``at_height(city, camera_height)``: ({pano_id: SlimPano}, height, auto) through the
+      labeler's one height resolver, fuse_sites.load_at_height (``geometry.at_height``).
     * ``cache``: a dict arms may use to keep models between pairs.
     * ``args``: the parsed CLI args (for arm-specific inputs, e.g. ``--extra``).
 
-    **Answer hiding is enforced here, not left to convention.** ``pairs`` is stored with the
-    answer columns (``ANSWER_KEYS``: ``ref_*``) removed, and ``slim()`` hands out SlimPanos
-    with ``detections`` emptied: the reference IS one of the other view's detections, and the
-    ambiguity filter guarantees it is the only >= 0.55 one near the projection, so "nearest
-    detection" would be close to an oracle. ``crossview_arms.geometry.at_height`` does the
-    same. Scoring and post-scoring diagnostics read the answers from ``read_frozen_pairs()``
-    directly, never through a Context.
+    **Answer hiding.** What a Context hands out never carries the answer:
+
+    * ``pairs`` is stored with the answer columns (``ANSWER_KEYS``: ``ref_*``) removed;
+    * ``slim()`` and ``at_height()`` hand out SlimPanos with ``detections`` emptied: the
+      reference IS one of the other view's detections, and the ambiguity filter guarantees
+      it is the only >= 0.55 one near the projection, so "nearest detection" would be close
+      to an oracle;
+    * ``labeler()`` does not expose fuse_sites.load_results / load_at_height (they return
+      SlimPanos WITH detections) or eval_sites; the full labeler is kept private;
+    * while an arm runs, ``read_frozen_pairs()`` and ``read_rows()`` raise (``_IN_ARM``).
+
+    What is NOT enforced at run time: an arm that opens pairs.csv, eligible_pairs.csv or a
+    results.jsonl itself (the paths follow from ``OUT`` and ``args``), imports fuse_sites
+    directly, or reaches a private attribute. Those are caught only by the grep guard in
+    tests/test_crossview_align_48.py, which a name built at run time would evade.
+    Scoring and post-scoring diagnostics read the answers from ``read_frozen_pairs()``
+    outside any arm.
     """
 
     def __init__(self, args, pairs):
@@ -527,6 +558,8 @@ class Context:
         self.cache = {}
         self._panos = {}
         self._slim = {}
+        self._at_height = {}
+        self._full_labeler = None
 
     def view_centre(self, pair, which):
         return ((pair["src_x"], pair["src_y"]) if which == "src"
@@ -542,19 +575,39 @@ class Context:
             raise FileNotFoundError(path)
         return img
 
-    def labeler(self):
-        if "L" not in self.cache:
+    def _labeler(self):
+        """The full labeler (geo / fuse_sites / eval_sites). Harness-internal: it can load
+        detections, so arms get ``labeler()`` instead."""
+        if self._full_labeler is None:
             if not getattr(self.args, "labeler_root", None):
                 raise SystemExit("this arm needs --labeler-root")
             import multiview_evidence_48 as mv
-            self.cache["L"] = mv.import_labeler(self.args.labeler_root)
-        return self.cache["L"]
+            self._full_labeler = mv.import_labeler(self.args.labeler_root)
+        return self._full_labeler
+
+    def labeler(self):
+        """The arm-facing labeler: ``geo``, ``prov`` and ``fs`` with only ARM_FS_NAMES."""
+        if "arm_labeler" not in self.cache:
+            L = self._labeler()
+            fs = _ArmView("fuse_sites", **{n: getattr(L.fs, n) for n in ARM_FS_NAMES})
+            self.cache["arm_labeler"] = _ArmView("labeler", geo=L.geo, fs=fs, prov=L.prov)
+        return self.cache["arm_labeler"]
+
+    def labeler_prov(self):
+        """The imported labeler's provenance, or None if no arm asked for the labeler."""
+        return None if self._full_labeler is None else self._full_labeler.prov
+
+    def _runs_root(self):
+        return self.args.runs_root or os.path.join(self.args.labeler_root, "runs")
 
     def _results_path(self, city):
         import multiview_evidence_48 as mv
-        runs_root = self.args.runs_root or os.path.join(self.args.labeler_root, "runs")
-        return os.path.join(mv.results_dir(city, runs_root, self.args.results_root),
+        return os.path.join(mv.results_dir(city, self._runs_root(), self.args.results_root),
                             "results.jsonl")
+
+    def _want(self, city):
+        return {p for r in self.pairs if r["city"] == city
+                for p in (r["src_pano"], r["oth_pano"])}
 
     def pano(self, city, pano_id):
         if city not in self._panos:
@@ -575,14 +628,50 @@ class Context:
     def slim(self, city, pano_id, **load_kw):
         key = (city, tuple(sorted(load_kw.items())))
         if key not in self._slim:
-            L = self.labeler()
+            L = self._labeler()
             from pathlib import Path
             panos = L.fs.load_results(Path(self._results_path(city)), **load_kw)
-            want = {p for r in self.pairs if r["city"] == city
-                    for p in (r["src_pano"], r["oth_pano"])}
+            want = self._want(city)
             self._slim[key] = {p.pano_id: without_detections(p) for p in panos
                                if p.pano_id in want}
         return self._slim[key][pano_id]
+
+    def at_height(self, city, camera_height):
+        """({pano_id: SlimPano}, height, auto) for the pair list's panos, loaded through the
+        labeler's one height resolver (fuse_sites.load_at_height), so 'per-pano' / 'auto'
+        mean what they mean in the labeler. The depth index is <runs-root>/<city>/depth.
+        Detections withheld, as in ``slim``."""
+        key = (city, camera_height)
+        if key not in self._at_height:
+            from pathlib import Path
+            L = self._labeler()
+            idx = Path(self._runs_root()) / city / "depth" / "index.csv"
+            panos, _, height, auto = L.fs.load_at_height(
+                Path(self._results_path(city)), camera_height,
+                depth_index=idx if idx.exists() else None)
+            want = self._want(city)
+            self._at_height[key] = ({p.pano_id: without_detections(p) for p in panos
+                                     if p.pano_id in want}, height, auto)
+        return self._at_height[key]
+
+
+#: fuse_sites names an arm may reach through ``ctx.labeler().fs``. Everything else is
+#: withheld, notably load_results / load_at_height, which return SlimPanos WITH detections;
+#: arms get those panos from ``ctx.slim`` / ``ctx.at_height``, detections emptied.
+ARM_FS_NAMES = ("HEIGHT_AUTO", "pano_pose")
+
+
+class _ArmView(SimpleNamespace):
+    """A namespace holding only the names it was built with (no reference to the module
+    they came from), and saying why a missing one is missing."""
+
+    def __init__(self, label, **names):
+        super().__init__(**names)
+        object.__setattr__(self, "_label", label)
+
+    def __getattr__(self, name):          # only called for names that were not set
+        raise AttributeError(f"{self._label}.{name} is withheld from arms (it can load "
+                             "detections or answers); see crossview_align_48.Context")
 
 
 def strip_answers(pair):
@@ -609,12 +698,16 @@ def run_arm(arm, pairs, ctx):
     random.seed(SEED)
     np.random.seed(SEED)
     rows, errors = [], 0
+    global _IN_ARM
     for p in pairs:
         visible = strip_answers(p)
+        _IN_ARM += 1
         try:
             out = arm.fn(visible, ctx)
         except FileNotFoundError as e:
             out, errors = {"x": None, "y": None, "error": f"missing input: {e}"}, errors + 1
+        finally:
+            _IN_ARM -= 1
         out = dict(out or {})
         out.setdefault("x", None)
         out.setdefault("y", None)
@@ -656,8 +749,8 @@ def cmd_predict(args):
             "fallback": sum(1 for r in rows if r["x"] is None),
             "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "config": arm.config, "versions": _versions()}
-    if "L" in ctx.cache:
-        meta["labeler"] = ctx.cache["L"].prov
+    if ctx.labeler_prov() is not None:
+        meta["labeler"] = ctx.labeler_prov()
     write_json(meta_path, meta)
     print(f"{args.arm}: {len(rows)} pairs in {elapsed:.1f} s, fallback {meta['fallback']}, "
           f"missing inputs {errors} -> {pred_path}")
@@ -687,6 +780,18 @@ def equirect_px_error(x1, y1, x2, y2, width=REF_WIDTH_PX):
     return np.hypot(dx * width, dy * width / 2.0)
 
 
+def check_prediction_row(r, where):
+    """Refuse a prediction row whose non-null x / y is non-finite or whose y is outside
+    [0, 1]. arm_errors wraps x but not y, so such a y would be scored as a point past the
+    pole instead of being refused (review of #210). Returns ``r``."""
+    if r.get("x") is not None and r.get("y") is not None:
+        x, y = float(r["x"]), float(r["y"])
+        if not (math.isfinite(x) and math.isfinite(y) and 0.0 <= y <= 1.0):
+            raise SystemExit(f"{where}: {r['pair_id']} has x={x}, y={y}; "
+                             "y must be finite and in [0, 1]")
+    return r
+
+
 def read_predictions(name):
     pred_path, meta_path = prediction_paths(name)
     with open(meta_path, encoding="utf-8") as f:
@@ -697,14 +802,7 @@ def read_predictions(name):
     with open(pred_path, encoding="utf-8") as f:
         for line in f:
             if line.strip():
-                r = json.loads(line)
-                if r.get("x") is not None and r.get("y") is not None:
-                    x, y = float(r["x"]), float(r["y"])
-                    # arm_errors wraps x but not y: a y outside [0, 1] would be scored as
-                    # a point past the pole instead of being refused (review of #210)
-                    if not (math.isfinite(x) and math.isfinite(y) and 0.0 <= y <= 1.0):
-                        raise SystemExit(f"{pred_path}: {r['pair_id']} has x={x}, y={y}; "
-                                         "y must be finite and in [0, 1]")
+                r = check_prediction_row(json.loads(line), pred_path)
                 out[r["pair_id"]] = r
     return out
 

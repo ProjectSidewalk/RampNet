@@ -41,22 +41,12 @@ def _runs_root(ctx):
 
 
 def at_height(ctx, city, camera_height):
-    """({pano_id: SlimPano}, height) for the pair list's panos, loaded through the labeler's
-    one height resolver (fuse_sites.load_at_height), so 'per-pano' / 'auto' mean what they
-    mean in the labeler. The depth index is the labeler checkout's runs/<city>/depth."""
-    key = ("at_height", city, camera_height)
-    if key not in ctx.cache:
-        from pathlib import Path
-        L = ctx.labeler()
-        idx = Path(_runs_root(ctx)) / city / "depth" / "index.csv"
-        panos, _, height, auto = L.fs.load_at_height(
-            Path(ctx._results_path(city)), camera_height,
-            depth_index=idx if idx.exists() else None)
-        want = {p for r in ctx.pairs if r["city"] == city for p in (r["src_pano"], r["oth_pano"])}
-        # detections withheld: the reference is one of them (crossview_align_48.Context)
-        ctx.cache[key] = ({p.pano_id: H.without_detections(p) for p in panos
-                           if p.pano_id in want}, height, auto)
-    return ctx.cache[key]
+    """({pano_id: SlimPano}, height, auto) for the pair list's panos, loaded through the
+    labeler's one height resolver (fuse_sites.load_at_height), so 'per-pano' / 'auto' mean
+    what they mean in the labeler. The depth index is the labeler checkout's
+    runs/<city>/depth. The load lives in ``Context.at_height``, which withholds detections
+    (the reference is one of them) and keeps the loader itself away from arms."""
+    return ctx.at_height(city, camera_height)
 
 
 def forward(L, pose, x, y, height, apply_pose=False):
