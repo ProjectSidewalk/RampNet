@@ -15,9 +15,14 @@ mkdir -p src && cd src
 [ -d Depth-Anything-3 ] || git clone -q https://github.com/ByteDance-Seed/Depth-Anything-3.git
 git -C Depth-Anything-3 checkout -q 3d835ec1a5802d64a8b8b15f817a1ab54809bfe4
 mkdir -p Depth-Anything-3/stubs/moviepy && touch Depth-Anything-3/stubs/moviepy/__init__.py Depth-Anything-3/stubs/moviepy/editor.py
+# The committed runs cloned these three at HEAD; the checkouts below are the commits those
+# runs recorded (depth/<model>.meta.json -> prov.code_commit), pinned afterwards (#210 review).
 [ -d ml-depth-pro ] || git clone -q https://github.com/apple/ml-depth-pro.git
+git -C ml-depth-pro checkout -q 9e65e4dbe9568d23c546fcec53302b10445e109e
 [ -d UniDepth ] || git clone -q https://github.com/lpiccinelli-eth/UniDepth.git
+git -C UniDepth checkout -q 8d8cfe4c7ee15297099983607febf0d4f32eb3d6
 [ -d Metric3D ] || git clone -q https://github.com/YvanYin/Metric3D.git
+git -C Metric3D checkout -q eb5b6fac0dc155e4e52f576e304fbf11655ff339
 for d in Depth-Anything-3 ml-depth-pro UniDepth Metric3D; do echo "COMMIT $d $(git -C $d rev-parse HEAD)"; done
 cd $R
 $UV pip install --python venv/bin/python omegaconf addict einops plyfile trimesh pillow-heif mmengine 2>&1 | tail -5

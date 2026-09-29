@@ -154,19 +154,46 @@ class Segmenter:
 
 
 def _seg_dir(ctx):
-    extra = dict(e.split("=", 1) for e in getattr(ctx.args, "extra", []) or [])
-    d = extra.get("seg_dir")
+    """--extra seg_dir=DIR. Other --extra entries, with or without '=', are ignored (a bare
+    entry used to raise inside dict())."""
+    d = None
+    for kv in getattr(ctx.args, "extra", None) or []:
+        k, _, v = kv.partition("=")
+        if k == "seg_dir":
+            d = v
     if not d:
         raise SystemExit("sem_* arms need --extra seg_dir=DIR (see `semantic.py segment`)")
     return d
 
 
+#: the committed manifest of the label maps the committed sem_* predictions read
+COMMITTED_SEG_MANIFEST = os.path.join(H.OUT, "semantic_seg_manifest.json")
+
+
+def _seg_manifest(ctx, d):
+    """{view name: sha256} from seg_dir/manifest.json, else the committed manifest."""
+    key = ("seg_manifest", d)
+    if key not in ctx.cache:
+        path = os.path.join(d, "manifest.json")
+        path = path if os.path.exists(path) else COMMITTED_SEG_MANIFEST
+        with open(path, encoding="utf-8") as f:
+            ctx.cache[key] = {k: v["sha256"] for k, v in json.load(f)["maps"].items()}
+    return ctx.cache[key]
+
+
 def label_map(pair, which, ctx):
     """The curb-cut-suppressed Vistas label map of a view, from seg_dir, computed and
-    written there if missing."""
+    written there if missing.
+
+    A map read from seg_dir must hash to its manifest entry, and no map may contain the
+    Curb Cut class: the no-leakage guarantee depends on how seg_dir was produced, so it is
+    checked at read time (review of #210, B7). A map regenerated here (e.g. on CPU) is not
+    bit-identical to the manifest's; it is used, and counted in ctx.cache["seg_regenerated"].
+    """
     import cv2
     d = _seg_dir(ctx)
-    path = os.path.join(d, f"{pair['pair_id']}_{which}.png")
+    name = f"{pair['pair_id']}_{which}"
+    path = os.path.join(d, name + ".png")
     lab = cv2.imread(path, cv2.IMREAD_UNCHANGED)
     if lab is None:
         if "segmenter" not in ctx.cache:
@@ -174,6 +201,15 @@ def label_map(pair, which, ctx):
         lab, _ = ctx.cache["segmenter"]([ctx.view(pair, which)])[0]
         os.makedirs(d, exist_ok=True)
         cv2.imwrite(path, lab)
+        ctx.cache["seg_regenerated"] = ctx.cache.get("seg_regenerated", 0) + 1
+    else:
+        want = _seg_manifest(ctx, d).get(name)
+        with open(path, "rb") as f:
+            got = hashlib.sha256(f.read()).hexdigest()
+        if want != got:
+            raise SystemExit(f"{path}: sha256 {got[:12]}... does not match the seg manifest "
+                             f"({(want or 'no entry')[:12]}...); stale or foreign label maps")
+    assert not (lab == CURB_CUT).any(), f"{path} contains the suppressed Curb Cut class"
     return lab
 
 

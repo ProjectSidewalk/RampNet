@@ -70,18 +70,30 @@ BAND_MIN_SHARE = 0.25         # (c): #101's pass rule
 BAND_MIN_POINTS = 200
 ND = 5
 
-#: pinned model code and weights (the extract refuses other code unless --allow-other-code)
+#: pinned model code and weights (the extract refuses other code unless --allow-other-code).
+#: Only DA3 was pinned when the committed runs were made (2026-09-28). Depth Pro, UniDepth and
+#: Metric3D ran from code cloned at HEAD and weights fetched at HEAD; the commits and HF
+#: revisions below are the ones those runs RECORDED in depth/<model>.meta.json (``prov``), and
+#: were added as pins afterwards (review of #210, B6). They are not re-run under the pins.
 MODELS = {
     "da3": {"label": "Depth Anything 3 (DA3METRIC-LARGE)",
             "hf": "depth-anything/DA3METRIC-LARGE",
             "hf_revision": "4010e39f3634a45bc60553321fb49fb760bd594e",
             "code": "Depth-Anything-3", "commit": "3d835ec1a5802d64a8b8b15f817a1ab54809bfe4"},
     "depthpro": {"label": "Depth Pro (apple/DepthPro)", "hf": "apple/DepthPro",
-                 "hf_file": "depth_pro.pt", "code": "ml-depth-pro"},
+                 "hf_file": "depth_pro.pt",
+                 "hf_revision": "ccd1350a774eb2248bcdfb3be430e38f1d3087ef",
+                 "code": "ml-depth-pro", "commit": "9e65e4dbe9568d23c546fcec53302b10445e109e"},
     "unidepth": {"label": "UniDepth v2 ViT-L", "hf": "lpiccinelli/unidepth-v2-vitl14",
-                 "code": "UniDepth"},
+                 "hf_revision": "52b349b514bd8b47642f67ac78cb7b5dc5c51dd9",
+                 "code": "UniDepth", "commit": "8d8cfe4c7ee15297099983607febf0d4f32eb3d6"},
+    # Metric3D's hubconf downloads its checkpoint by URL (the HF repo's main branch), so the
+    # revision cannot be passed; the extract instead refuses when the repo's HEAD is no longer
+    # the recorded revision (see _check_revision).
     "metric3d": {"label": "Metric3D v2 ViT-L", "hf": "JUGGHM/Metric3D",
-                 "hf_file": "metric_depth_vit_large_800k.pth", "code": "Metric3D"},
+                 "hf_file": "metric_depth_vit_large_800k.pth",
+                 "hf_revision": "80d2d1410afb4b23cd9d18c6be9144483d4b70b6",
+                 "code": "Metric3D", "commit": "eb5b6fac0dc155e4e52f576e304fbf11655ff339"},
 }
 
 
@@ -163,6 +175,10 @@ def _git_commit(path):
         return None
 
 
+#: set from --allow-other-code before load_model runs (Metric3D's weight check)
+ALLOW_OTHER_WEIGHTS = [False]
+
+
 def load_model(name, src_root, dev):
     """(infer(pil_view, focal_px) -> np.ndarray, provenance dict)."""
     import numpy as np
@@ -190,8 +206,9 @@ def load_model(name, src_root, dev):
 
     if name == "depthpro":
         from huggingface_hub import hf_hub_download, HfApi
-        ckpt = hf_hub_download(spec["hf"], spec["hf_file"])
-        prov["hf_revision"] = HfApi().model_info(spec["hf"]).sha
+        ckpt = hf_hub_download(spec["hf"], spec["hf_file"], revision=spec["hf_revision"])
+        prov["hf_revision"] = spec["hf_revision"]
+        prov["hf_head_at_run"] = HfApi().model_info(spec["hf"]).sha
         import depth_pro
         from depth_pro.depth_pro import DEFAULT_MONODEPTH_CONFIG_DICT
         import dataclasses
@@ -214,12 +231,9 @@ def load_model(name, src_root, dev):
     if name == "unidepth":
         sys.path.insert(0, code)
         from unidepth.models import UniDepthV2
-        model = UniDepthV2.from_pretrained(spec["hf"]).to(dev).eval()
-        try:
-            from huggingface_hub import HfApi
-            prov["hf_revision"] = HfApi().model_info(spec["hf"]).sha
-        except Exception as e:  # provenance only
-            prov["hf_revision_error"] = str(e)
+        # PyTorchModelHubMixin.from_pretrained takes the HF revision
+        model = UniDepthV2.from_pretrained(spec["hf"], revision=spec["hf_revision"]).to(dev).eval()
+        prov["hf_revision"] = spec["hf_revision"]
         try:
             from unidepth.utils.camera import Pinhole
         except ImportError:
@@ -239,11 +253,13 @@ def load_model(name, src_root, dev):
         from huggingface_hub import HfApi
         # mmcv stub (re-exports mmengine.Config), see docs/crossview_align_48/depth.md
         sys.path.insert(0, os.path.join(src_root, "stubs"))
+        head = HfApi().model_info(spec["hf"]).sha
+        if head != spec["hf_revision"] and not ALLOW_OTHER_WEIGHTS[0]:
+            raise SystemExit(f"{spec['hf']} HEAD is {head}, pinned {spec['hf_revision']}: "
+                             "Metric3D's hubconf fetches HEAD by URL, so the pinned weights "
+                             "cannot be requested (--allow-other-code to run anyway)")
         model = torch.hub.load(code, "metric3d_vit_large", pretrain=True, source="local").to(dev).eval()
-        try:
-            prov["hf_revision"] = HfApi().model_info(spec["hf"]).sha
-        except Exception as e:
-            prov["hf_revision_error"] = str(e)
+        prov["hf_revision"] = head
         import cv2
         mean = torch.tensor([123.675, 116.28, 103.53]).float()[:, None, None]
         std = torch.tensor([58.395, 57.12, 57.375]).float()[:, None, None]
@@ -292,6 +308,7 @@ def extract(args):
     dev = "cuda" if torch.cuda.is_available() else "cpu"
     gpu = torch.cuda.get_device_name(0) if dev == "cuda" else "cpu"
     t_load = time.time()
+    ALLOW_OTHER_WEIGHTS[0] = bool(args.allow_other_code)
     infer, prov = load_model(args.model, args.src_root, dev)
     t_load = time.time() - t_load
     spec = MODELS[args.model]
