@@ -120,6 +120,7 @@ def reconstruct(ctx, corner, pair, priors):
         ro = pycolmap.ImageReaderOptions()
         ro.camera_model = "PINHOLE"
         ro.camera_params = f"{K[0, 0]},{K[1, 1]},{K[0, 2]},{K[1, 2]}"
+        pycolmap.Database.open(db_path).close()          # creates the schema
         pycolmap.import_images(db_path, img_dir, pycolmap.CameraMode.SINGLE, options=ro)
         db = pycolmap.Database.open(db_path)
         ids = {im.name: im.image_id for im in db.read_all_images()}
