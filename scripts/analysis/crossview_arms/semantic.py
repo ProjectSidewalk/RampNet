@@ -407,8 +407,8 @@ def _nearest(P, W, r):
     return P[i] if d[i] <= r else None
 
 
-def _snap_arm(pair, ctx, shift):
-    s = _setup(pair, ctx, "flat")
+def _snap_arm(pair, ctx, shift, height_mode="flat"):
+    s = _setup(pair, ctx, height_mode)
     if s is None:
         return {"x": None, "y": None, "no_geometry": True}
     cs, co, W = s
@@ -499,6 +499,20 @@ def sem_snap(pair, ctx):
           description="shift W by (source's nearest curb point - other's nearest curb point)")
 def sem_curb_shift(pair, ctx):
     return _snap_arm(pair, ctx, shift=True)
+
+
+@register("sem_snap_auto", needs=NEEDS,
+          config={**SEM_CONFIG, "snap_m": SNAP_M, "camera_height": "auto (as proj_height_auto)"},
+          description="sem_snap on the labeler's 'auto' camera heights")
+def sem_snap_auto(pair, ctx):
+    return _snap_arm(pair, ctx, shift=False, height_mode="auto")
+
+
+@register("sem_curb_shift_auto", needs=NEEDS,
+          config={**SEM_CONFIG, "snap_m": SNAP_M, "camera_height": "auto (as proj_height_auto)"},
+          description="sem_curb_shift on the labeler's 'auto' camera heights")
+def sem_curb_shift_auto(pair, ctx):
+    return _snap_arm(pair, ctx, shift=True, height_mode="auto")
 
 
 # --------------------------------------------------------------------------- #
