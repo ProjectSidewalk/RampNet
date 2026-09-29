@@ -133,6 +133,12 @@
    "Cannot tell from these crops (excluded from every rate)"
   ]
  ],
+ "superseded": {
+  "by": "analysis_out/multiview_48/residual_gt_check__jonf.json",
+  "date": "2026-09-28",
+  "verdicts_made": 0,
+  "why": "Superseded before any verdicts. (1) In the other views the ring is the GT world point projected with a flat-ground 2.6 m camera; with GT placement error p50 1.9 m / p90 4.4 m, Mapillary rigs lower than 2.6 m and unmeasured pose error, it often lands on plain curb beside the ramp (e.g. richmond:3), so a rater would read projection error as GT error. (2) The one question mixed a fact (is there a ramp at the GT point?) with a diagnosis, and for the 58 merging cases the model did detect the ramp. See docs/multiview_48.md section 8."
+ },
  "task": "RampNet #48 residual misses: why did multi-view fusion not deliver this ramp?",
  "verdicts": {}
 }
