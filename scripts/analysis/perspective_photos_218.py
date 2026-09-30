@@ -268,7 +268,7 @@ def canvas_size(arm):
     return P.CANVAS_H * s, P.CANVAS_W * s
 
 
-def build_canvas_tensor(img, cam, M, H, W):
+def build_canvas_tensor(img, cam, M, H, W, device=None):
     """PIL photo -> normalised (3, H, W) float tensor of the canvas, plus the (u, v)
     sampling maps (in the ORIGINAL photo's pixels). Outside the photo the tensor is 0,
     i.e. the ImageNet mean colour."""
@@ -293,6 +293,8 @@ def build_canvas_tensor(img, cam, M, H, W):
     gx = np.where(np.isfinite(gx), gx, -3.0).astype(np.float32)
     gy = np.where(np.isfinite(gy), gy, -3.0).astype(np.float32)
     grid = torch.from_numpy(np.stack([gx, gy], axis=-1))[None]
+    if device is not None:        # sampling on the GPU; bilinear either way
+        t, grid = t.to(device), grid.to(device)
     out = TF.grid_sample(t[None], grid, mode="bilinear", padding_mode="zeros",
                          align_corners=False)[0]
     return out, np.isfinite(u)
@@ -332,7 +334,7 @@ def run_arm(model, device, img, cam, arm, M):
         inside = None
     else:
         H, W = canvas_size(arm)
-        t, inside = build_canvas_tensor(img, cam, M, H, W)
+        t, inside = build_canvas_tensor(img, cam, M, H, W, device)
     with torch.no_grad():
         hm = model(t[None].to(device)).squeeze().float().cpu().numpy()
     raw = peaks(hm)
@@ -357,8 +359,52 @@ def run_arm(model, device, img, cam, arm, M):
 # --------------------------------------------------------------------------- #
 # infer
 # --------------------------------------------------------------------------- #
-def dets_path(arm, out=OUT):
-    return os.path.join(out, f"dets_{arm}.jsonl")
+def dets_path(arm, out=OUT, shard=None):
+    suffix = f".shard{shard[0]}of{shard[1]}" if shard else ""
+    return os.path.join(out, f"dets_{arm}{suffix}.jsonl")
+
+
+def parse_shard(s):
+    """'2/4' -> (2, 4): this process takes rows[2::4]."""
+    if not s:
+        return None
+    k, n = (int(x) for x in s.split("/"))
+    if not 0 <= k < n:
+        raise SystemExit(f"--shard {s}: need 0 <= k < n")
+    return k, n
+
+
+def cmd_merge(args):
+    """Concatenate the shard files of each arm into dets_<arm>.jsonl (sorted by image id)
+    and one meta; the shard files are removed."""
+    import glob
+    out = args.out or OUT
+    for a in args.arms.split(","):
+        parts = sorted(glob.glob(os.path.join(out, f"dets_{a}.shard*of*.jsonl")))
+        if not parts:
+            continue
+        recs, metas = [], []
+        for pth in parts:
+            with open(pth, encoding="utf-8") as f:
+                recs += [json.loads(x) for x in f if x.strip()]
+            metas.append(json.load(open(pth[:-len(".jsonl")] + ".meta.json", encoding="utf-8")))
+        ids = [r["image_id"] for r in recs]
+        if len(ids) != len(set(ids)):
+            raise SystemExit(f"{a}: duplicate images across shards")
+        recs.sort(key=lambda r: r["image_id"])
+        with open(dets_path(a, out), "w", encoding="utf-8", newline="") as f:
+            for r in recs:
+                f.write(json.dumps(r, sort_keys=True) + "\n")
+        meta = dict(metas[0])
+        meta.update({"n_images": len(recs), "shards": len(parts),
+                     "elapsed_s": round(sum(m["elapsed_s"] for m in metas), 3),
+                     "sha256_mismatch": sum(m["sha256_mismatch"] for m in metas),
+                     "started": min(m["started"] for m in metas)})
+        write_json(dets_path(a, out)[:-len(".jsonl")] + ".meta.json", meta)
+        for pth in parts:
+            os.remove(pth)
+            os.remove(pth[:-len(".jsonl")] + ".meta.json")
+        print(f"{a}: {len(parts)} shards, {len(recs)} images -> {dets_path(a, out)}")
 
 
 def usage_row(label, n, elapsed_s, started, host, gpus, what, issue=218,
@@ -387,6 +433,9 @@ def cmd_infer(args):
     fetched = {r["image_id"]: r for r in read_csv(FETCHED_CSV)}
     if args.limit:
         rows = rows[:args.limit]
+    shard = parse_shard(args.shard)
+    if shard:
+        rows = rows[shard[0]::shard[1]]
     out = args.out or OUT
     model = load_model(device)
     host = socket.gethostname().split(".")[0]
@@ -417,7 +466,7 @@ def cmd_infer(args):
         if k % 50 == 0:
             print(f"  {k}/{len(rows)} {time.time() - t_all:.0f} s", flush=True)
     for a in arms:
-        path = dets_path(a, out)
+        path = dets_path(a, out, shard)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w", encoding="utf-8", newline="") as f:
             for rec in recs[a]:
@@ -426,13 +475,14 @@ def cmd_infer(args):
                 "min_distance": MIN_DISTANCE, "host": host, "gpus": gpus,
                 "device": device.type, "fp16": False, "started": started,
                 "elapsed_s": round(t_arm[a], 3), "sha256_mismatch": n_bad,
-                "torch": torch.__version__}
+                "torch": torch.__version__, "shard": args.shard or None}
         write_json(path[:-len(".jsonl")] + ".meta.json", meta)
         print(f"{a}: {len(recs[a])} images, {t_arm[a]:.0f} s -> {path}")
     if args.usage_log != "none" and not args.limit:
         ul = args.usage_log or os.path.join(ledger.canonical_repo_root(REPO) or REPO,
                                             "analysis_out", "usage_log.jsonl")
-        rows_u = [usage_row(f"perspective-218:richmond:{a}", len(recs[a]), t_arm[a], started,
+        tag = f":shard{shard[0]}of{shard[1]}" if shard else ""
+        rows_u = [usage_row(f"perspective-218:richmond:{a}{tag}", len(recs[a]), t_arm[a], started,
                             host, gpus,
                             f"perspective_photos_218.py infer, arm {a}: per-image seconds "
                             f"(canvas build + forward + peaks), fp32, run wall "
@@ -836,6 +886,20 @@ def cmd_score(args):
             res["paired"][f"{a}-pano@{thr}"] = {
                 "ramp_mean_hit_diff": cluster_rate(diff, both, u, dr),
                 "n_ramps": len(both)}
+            if thr == 0.55:
+                # like for like: the pano side under the same bearing test
+                pbr = {}
+                for x in pb:
+                    if x["ramp"] in fr:
+                        pbr.setdefault(x["ramp"], []).append(x["bearing_hit"])
+                both2 = sorted(set(fr) & set(pbr))
+                diff2 = [np.mean(fr[r]) - np.mean(pbr[r]) for r in both2]
+                u2, dr2 = boot_indices(both2, seed=SEED + 6)
+                res["paired"][f"{a}-pano_bearing@{thr}"] = {
+                    "ramp_mean_hit_diff": cluster_rate(diff2, both2, u2, dr2),
+                    "n_ramps": len(both2),
+                    "flat_ramp_mean": rnd(np.mean([np.mean(fr[r]) for r in both2])),
+                    "pano_ramp_mean": rnd(np.mean([np.mean(pbr[r]) for r in both2]))}
     res = _round(res)
     write_json(os.path.join(res_dir, "results.json"), res)
     with open(os.path.join(res_dir, "images_scored.csv"), "w", encoding="utf-8", newline="") as f:
@@ -1058,18 +1122,22 @@ def main(argv=None):
     i.add_argument("--out", default=None)
     i.add_argument("--limit", type=int, default=0)
     i.add_argument("--verify-sha", action="store_true")
+    i.add_argument("--shard", default=None, help="k/n: run rows[k::n] (parallel processes)")
     i.add_argument("--usage-log", default=None,
                    help="default: the main checkout's analysis_out/usage_log.jsonl; 'none' skips")
     s = sub.add_parser("score")
     s.add_argument("--arms", default="canvas_level,canvas_sfm,stretch")
     s.add_argument("--dets-dir", default=None, help="default analysis_out/perspective_photos_218")
     s.add_argument("--results-dir", default=None, help="default analysis_out/perspective_photos_218")
+    mg = sub.add_parser("merge")
+    mg.add_argument("--arms", default="canvas_level,canvas_sfm,stretch")
+    mg.add_argument("--out", default=None)
     g = sub.add_parser("gallery")
     g.add_argument("--images", required=True)
     g.add_argument("--arm", default="canvas_level")
     args = ap.parse_args(argv)
     {"select": cmd_select, "fetch": cmd_fetch, "infer": cmd_infer, "score": cmd_score,
-     "gallery": cmd_gallery}[args.cmd](args)
+     "gallery": cmd_gallery, "merge": cmd_merge}[args.cmd](args)
 
 
 if __name__ == "__main__":

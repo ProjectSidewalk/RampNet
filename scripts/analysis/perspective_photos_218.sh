@@ -19,8 +19,17 @@ source "$VENV"
   echo "=== $(date -u +%FT%TZ) $(hostname) $(git rev-parse HEAD)"
   nvidia-smi --query-gpu=name,memory.used,memory.total --format=csv
   if [[ $RICH != - ]]; then
-    python scripts/analysis/perspective_photos_218.py infer --images "$RICH" \
-      --arms "${ARMS:-canvas_level,canvas_sfm,stretch}" --verify-sha --usage-log "$UL"
+    # NSHARD processes share the GPU (~5.7 GB each); the canvas build is CPU-bound, so
+    # this is what makes the run minutes rather than hours
+    N=${NSHARD:-4}
+    for k in $(seq 0 $((N - 1))); do
+      python scripts/analysis/perspective_photos_218.py infer --images "$RICH" \
+        --arms "${ARMS:-canvas_level,canvas_sfm,stretch}" --verify-sha --usage-log "$UL" \
+        --shard "$k/$N" &
+    done
+    wait
+    python scripts/analysis/perspective_photos_218.py merge \
+      --arms "${ARMS:-canvas_level,canvas_sfm,stretch}"
   fi
   if [[ $SEOUL != - ]]; then
     python scripts/analysis/seoul_photos_218.py infer --images "$SEOUL" --verify-sha \
