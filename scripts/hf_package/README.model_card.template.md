@@ -31,7 +31,7 @@ from the 3x3 coarse neighbourhood of each peak, with no retraining: see `rampnet
 `docs/subcell_decode_221.md` in the GitHub repo. On the 1,000-panorama gold set, a Gaussian
 (log-parabola) refinement cuts the mean distance from a matched peak to the human box centre
 from 5.08 to 4.35 heatmap pixels (1.73 to 1.47 degrees), and the number of matched detections
-moves by at most one per benchmark split. Any
+moves by at most one on each of the five benchmark splits measured. Any
 localization figure quoted for this model with the plain argmax decode includes this
 quantization.
 

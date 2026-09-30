@@ -70,7 +70,7 @@ detector, differing only in `heatmap_size`.
 | effective heatmap resolution | 32 x 11 | 64 x 128 |
 
 Both heatmap sizes are nominal. The head bilinearly upsamples the stride-32 feature map by 8 before
-a linear 1x1 conv, so peaks are quantized to an 8-pixel grid (issue #221 in the GitHub repo). For
+a linear 1x1 conv, so peaks are quantized to an 8-pixel grid (https://github.com/ProjectSidewalk/RampNet/issues/221). For
 the Stage 2 detector, a sub-cell decode (`rampnet/subcell.py`) recovers most of that. It has not
 been measured on this crop model.
 
