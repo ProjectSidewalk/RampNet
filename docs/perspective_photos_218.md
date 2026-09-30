@@ -9,6 +9,8 @@ Code:
   `rates`;
 - `scripts/analysis/rating_page_218.py`: the shared one-question rating page, and the
   checks `rates` runs on a rater's export;
+- `scripts/analysis/perspective_figures_218.py`: the example figures (`candidates`,
+  `render`);
 - `tests/test_perspective_218.py`: geometry, chance-floor and rating-path tests.
 
 Outputs are in `analysis_out/perspective_photos_218/` (Richmond) and
@@ -73,6 +75,66 @@ from the revised `score`; the corrections are listed at the end of §4.
   panoramas. Dashcam and phone frames differ in mount height, field of view and context,
   and image quality. A frozen-model fix is not on offer here, so Seoul would need more than
   an input arm.
+
+## Examples
+
+Drawn by `scripts/analysis/perspective_figures_218.py` from the committed detections;
+every pair is scored as `score` scores it (canvas_level @ 0.30, bearing test). **Selection
+rule:** the two highest-scoring canvas hits (one per ramp and image); the first two misses
+by eye in a fixed candidate order (6–12 m, central half of the frame, missed by every flat
+arm, hit in a 360 pano); gallery card `d001` (already viewed, so no other card is
+unblinded); the highest-scoring stretch hit that no canvas arm has; four Seoul photos by
+canvas max-score rank (1, 2, median of those that fired, one seeded draw from those that
+did not). The full rule, the 15 miss candidates looked at and what each showed are in the
+script's docstring and `docs/figures/perspective_photos_218/figures.json`.
+
+Every Richmond row is: the flat photo with the canvas arm's detections, the canvas
+input itself (a crop of the 2048×4096 equirect), and a crop of a 360 pano of the same
+ramp with RampNet's detections ≥ 0.55. The dotted line is where the pool ramp would sit
+for any camera height from 0.5 to 4 m, i.e. where the bearing test accepts a detection.
+Imagery: Mapillary contributors, CC BY-SA.
+
+![Two canvas-arm hits on HERO11 frames beside the same ramps in 360 panos](figures/perspective_photos_218/richmond_hits.jpg)
+
+*Hits.* Both are GoPro HERO11 frames, the one camera whose matches clearly exceed
+chance (§4).
+
+![Two misses with a ramp visible in the photo](figures/perspective_photos_218/richmond_misses.jpg)
+
+*Misses.* In both, a ramp is plainly visible but sits 27–30° from the pool ramp's
+projected bearing, near the right edge of the frame, and the projected bearing itself
+points at the middle of the road. The model does fire there: 0.54 (above the operating
+point) on the tactile-paved ramp in the first, 0.27 (below it) in the second. The first
+photo's SfM pose also puts that peak above the horizon, although the camera is plainly
+pitched down. So these are misses of the scorer's geometry as much as of the model.
+
+![An unmatched detection and a stretch-only hit](figures/perspective_photos_218/richmond_unmatched_stretch.jpg)
+
+*Top:* gallery card `d001`, a canvas detection that matches no pool ramp; **unmatched,
+not yet rated.** *Bottom:* the stretch arm's highest hit that no canvas arm has. The
+stretch fires 0.88 on the ramp at the left corner, 19° from the pool ramp's bearing and
+inside the ±25° window; the canvas arm has only a 0.18 peak on the signal.
+
+**What the misses look like, from one look (not a rating).** Of the first 15 miss
+candidates in the order above, the pool ramp's projected bearing lands in the roadway or on a
+porch in 8, the ramp is occluded or the frame is a blurred night shot in 2, 2 are
+unclear, and in 3 a ramp is plainly visible off to the side, at the frame edge. None
+showed a ramp sitting on the projected bearing with the model silent. Ordering by
+|bearing − heading| favours pose and GT error, because a ramp 10 m dead ahead of a car
+is in the road; so this says the geometric in-view set holds many pairs the photo cannot
+show (§5, "In view is geometric, not visual"), not what share of misses that is.
+
+![Four Seoul photos with canvas-arm detections](figures/perspective_photos_218/seoul_strip.jpg)
+
+*Seoul*, canvas arm at the assumed 70° FOV, detections ≥ 0.30 ringed and captioned with
+the max score only. These photos have not been rated, so nothing here says whether a
+ramp is present. Photos: Seoul Sidewalk Accessibility Image Dataset (Lieu et al.), CC0.
+
+![Where a 70° photo lands in the 360×180 canvas](figures/perspective_photos_218/canvas_geometry.jpg)
+
+*Canvas geometry.* A level 70° × 55° photo covers 796 of the canvas's 4,096 columns; the
+p5 and p95 FOVs (48°, 103°) are dashed. The canvas keeps the trained 11.4 px per degree
+at the photo's centre.
 
 ## 1. Question and design
 
@@ -536,6 +598,10 @@ NSHARD=4 bash scripts/analysis/perspective_photos_218.sh IMG -
 python scripts/analysis/perspective_photos_218.py score
 # CPU: the detection gallery (needs IMG)
 python scripts/analysis/perspective_photos_218.py gallery --images IMG
+# CPU: the example figures (IMG, the benchmark/richmond_neighbourhood panos, and the
+# Seoul display copies that seoul_photos_218.py gallery writes)
+python scripts/analysis/perspective_figures_218.py render --flat-dir IMG \
+  --pano-dir PANOS --seoul-dir benchmark/seoul_presence_218/img
 # after a rating pass (several files -> agreement too):
 python scripts/analysis/perspective_photos_218.py rates --verdicts benchmark/richmond_flat_fp_218/richmond_flat_fp__<rater>.json
 
@@ -552,6 +618,10 @@ pytest -q tests/test_perspective_218.py
 ```
 
 **Inputs that are not in the repo.**
+- **Richmond 360 panos (figures only).** The five pano crops in the Examples come from the
+  labeler's archive that `benchmark/richmond_neighbourhood/bundle.json` names
+  (makelab2 `/projects/makeabilitylab/sidewalk-auto-labeler/runs/richmond/panos/`); they
+  are Mapillary images and can be re-fetched by pano id. No number depends on them.
 - **Richmond thumbnails.** They are re-fetched by image id; `fetched.csv` has every sha256,
   and `infer --verify-sha` refuses a mismatch. Mapillary may re-encode or remove images, so
   a later re-fetch can differ. The set was complete on 2026-09-30 (1,353 of 1,353).
