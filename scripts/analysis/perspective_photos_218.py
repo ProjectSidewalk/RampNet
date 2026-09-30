@@ -87,6 +87,7 @@ CANDIDATE_MAX = 30.0                   # ramps a detection may claim
 NEG_RANGE = 40.0                       # "pool-negative": no pool ramp this close ...
 NEG_MARGIN_DEG = 10.0                  # ... within the FOV widened by this much each side
 LATERAL_M = 5.0                        # eval_sites' match radius
+LATERAL_LOOSE_M = 10.0                 # sensitivity: how much could pose error explain?
 H_MIN, H_MAX = 0.5, 4.0                # heights the bearing test accepts
 WORLD_HEIGHTS = (1.5, 2.6)             # flat-ground raycast sensitivity (2.6 = labeler's)
 N_REPS = 2000
@@ -550,7 +551,7 @@ def det_world(dets, cam, R_wc):
     return b, dep, w
 
 
-def claim_bearing(dets, b, dep, near, thr):
+def claim_bearing(dets, b, dep, near, thr, lateral=LATERAL_M):
     """Greedy one-to-one claims in descending score: each detection >= thr claims the
     unclaimed candidate ramp (range <= CANDIDATE_MAX) with the smallest bearing error that
     passes ``bearing_hit``. Returns {ramp uid: det index}."""
@@ -562,7 +563,7 @@ def claim_bearing(dets, b, dep, near, thr):
         for r in near:
             if r["uid"] in claimed:
                 continue
-            if not P.bearing_hit(b[i], dep[i], r["bearing"], r["range"], LATERAL_M,
+            if not P.bearing_hit(b[i], dep[i], r["bearing"], r["range"], lateral,
                                  H_MIN, H_MAX):
                 continue
             err = abs(float(P.wrap_deg(b[i] - r["bearing"])))
@@ -646,12 +647,14 @@ def per_image_table(arm_recs, rows, ramps, thresholds=THRESHOLDS):
                 im[f"implied_h@{thr}"] = [
                     rng_of[u] * math.tan(math.radians(dep[i])) for u, i in cl.items()]
                 wcl = {h: claim_world(dets, w, g["near"], thr, h) for h in WORLD_HEIGHTS}
+                cl_loose = claim_bearing(dets, b, dep, g["near"], thr, LATERAL_LOOSE_M)
                 for r in g["near"]:
                     if not r["in_view"]:
                         continue
                     pairs.append({"arm": arm, "image_id": iid, "ramp": r["uid"],
                                   "range": r["range"], "bin": range_bin(r["range"]),
                                   "thr": thr, "hit_bearing": r["uid"] in cl,
+                                  "hit_bearing_loose": r["uid"] in cl_loose,
                                   **{f"hit_world_{h}": r["uid"] in wcl[h]
                                      for h in WORLD_HEIGHTS}})
             images.append(im)
@@ -770,7 +773,7 @@ def cmd_score(args):
                       "range": [RANGE_MIN, RANGE_MAX], "bins": [list(b) for b in RANGE_BINS],
                       "edge_margin_frac": EDGE_MARGIN_FRAC, "view_h": VIEW_H,
                       "neg_range": NEG_RANGE, "neg_margin_deg": NEG_MARGIN_DEG,
-                      "lateral_m": LATERAL_M, "h_accept": [H_MIN, H_MAX],
+                      "lateral_m": LATERAL_M, "lateral_loose_m": LATERAL_LOOSE_M, "h_accept": [H_MIN, H_MAX],
                       "world_heights": list(WORLD_HEIGHTS), "n_reps": N_REPS, "seed": SEED},
            "counts": {}, "presence": {}, "points": {}, "paired": {}, "pano_reference": {},
            "fill_peaks": {}}
@@ -826,7 +829,8 @@ def cmd_score(args):
         for thr in THRESHOLDS:
             rows_a = [pa[(a, thr, k)] for k in order]
             ent = {}
-            for test in ["hit_bearing"] + [f"hit_world_{h}" for h in WORLD_HEIGHTS]:
+            for test in (["hit_bearing", "hit_bearing_loose"]
+                         + [f"hit_world_{h}" for h in WORLD_HEIGHTS]):
                 ent[test] = cluster_rate([r[test] for r in rows_a], cl, upr, dpr)
             for lo, hi in RANGE_BINS:
                 b = f"{lo:g}-{hi:g}"
@@ -952,13 +956,14 @@ def markdown(res, arms):
                      f"{fmt_ci(e['localized_recall'])} | {fmt_ci(e['fire_rate_pool_negative'])} | "
                      f"{e['dets_per_image_all']:.2f} | {e['matched_frac_of_dets']:.3f} |")
     L += ["", "## Point hits (in-view image-ramp pairs)", "",
-          "| arm @ thr | bearing test | world 1.5 m | world 2.6 m | "
+          "| arm @ thr | bearing test | bearing, 10 m lateral | world 1.5 m | world 2.6 m | "
           + " | ".join(f"bearing {lo:g}-{hi:g} m" for lo, hi in RANGE_BINS) + " |",
-          "|---|---|---|---|" + "---|" * len(RANGE_BINS)]
+          "|---|---|---|---|---|" + "---|" * len(RANGE_BINS)]
     for a in arms:
         for thr in THRESHOLDS:
             e = res["points"][f"{a}@{thr}"]
             L.append(f"| {a} @ {thr} | {fmt_ci(e['hit_bearing'])} | "
+                     f"{fmt_ci(e['hit_bearing_loose'])} | "
                      f"{fmt_ci(e['hit_world_1.5'])} | {fmt_ci(e['hit_world_2.6'])} | "
                      + " | ".join(f"{fmt_ci(e[f'hit_bearing[{lo:g}-{hi:g}]'])} "
                                   f"(n={e[f'hit_bearing[{lo:g}-{hi:g}]'][3]})"
@@ -1045,6 +1050,7 @@ def gallery_items(arm, thr=PRIMARY_THR, seed=SEED):
                   "matched_ramp": claimed_idx.get(i), "pool_negative": g["pool_negative"]}
             (matched if i in claimed_idx else unmatched).append(it)
     rng = np.random.default_rng(seed)
+    totals = {"unmatched_total": len(unmatched), "matched_total": len(matched)}
     if len(unmatched) > FP_MAX_UNMATCHED:
         unmatched = [unmatched[k] for k in sorted(rng.choice(len(unmatched), FP_MAX_UNMATCHED,
                                                              replace=False))]
@@ -1055,7 +1061,8 @@ def gallery_items(arm, thr=PRIMARY_THR, seed=SEED):
     items = [items[k] for k in order]
     for k, it in enumerate(items, 1):
         it["item"] = f"d{k:03d}"
-    return items, {"unmatched_total": len(unmatched), "matched_total": len(matched)}
+    totals.update({"unmatched_rated": len(unmatched), "matched_rated": len(ctrl)})
+    return items, totals
 
 
 def crop_box(u, v, w, h, cw=CROP_W, ch=CROP_H):
