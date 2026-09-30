@@ -710,8 +710,9 @@ def cmd_score(args):
     arms = args.arms.split(",")
     rows = read_csv(IMAGES_CSV)
     ramps = ramp_table()
-    arm_recs = {a: load_dets(a) for a in arms}
+    arm_recs = {a: load_dets(a, args.dets_dir or OUT) for a in arms}
     images, pairs = per_image_table(arm_recs, rows, ramps)
+    res_dir = args.results_dir or OUT
     res = {"config": {"arms": arms, "thresholds": list(THRESHOLDS), "floor": FLOOR,
                       "range": [RANGE_MIN, RANGE_MAX], "bins": [list(b) for b in RANGE_BINS],
                       "edge_margin_frac": EDGE_MARGIN_FRAC, "view_h": VIEW_H,
@@ -836,15 +837,15 @@ def cmd_score(args):
                 "ramp_mean_hit_diff": cluster_rate(diff, both, u, dr),
                 "n_ramps": len(both)}
     res = _round(res)
-    write_json(os.path.join(OUT, "results.json"), res)
-    with open(os.path.join(OUT, "images_scored.csv"), "w", encoding="utf-8", newline="") as f:
+    write_json(os.path.join(res_dir, "results.json"), res)
+    with open(os.path.join(res_dir, "images_scored.csv"), "w", encoding="utf-8", newline="") as f:
         cols = sorted(images[0])
         w = csv.DictWriter(f, fieldnames=cols, lineterminator="\n")
         w.writeheader()
         for i in images:
             w.writerow(i)
     md = markdown(res, arms)
-    with open(os.path.join(OUT, "results.md"), "w", encoding="utf-8", newline="") as f:
+    with open(os.path.join(res_dir, "results.md"), "w", encoding="utf-8", newline="") as f:
         f.write(md)
     print(md)
 
@@ -1061,6 +1062,8 @@ def main(argv=None):
                    help="default: the main checkout's analysis_out/usage_log.jsonl; 'none' skips")
     s = sub.add_parser("score")
     s.add_argument("--arms", default="canvas_level,canvas_sfm,stretch")
+    s.add_argument("--dets-dir", default=None, help="default analysis_out/perspective_photos_218")
+    s.add_argument("--results-dir", default=None, help="default analysis_out/perspective_photos_218")
     g = sub.add_parser("gallery")
     g.add_argument("--images", required=True)
     g.add_argument("--arm", default="canvas_level")
