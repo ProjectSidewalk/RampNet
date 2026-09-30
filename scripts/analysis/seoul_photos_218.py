@@ -486,6 +486,33 @@ def cmd_rates(args):
     print(json.dumps(res, indent=1))
 
 
+def cmd_summary(args):
+    """Unscored description of the model's output on Seoul (no labels exist yet):
+    per arm, the share of photos with a detection >= each threshold, detections per photo,
+    the HFOV used, and the canvas fill peaks -> seoul/summary.json."""
+    out = {}
+    for a in ARMS:
+        recs = []
+        with open(os.path.join(OUT, f"dets_{a}.jsonl"), encoding="utf-8") as f:
+            recs = [json.loads(x) for x in f if x.strip()]
+        e = {"n_images": len(recs),
+             "hfov_deg_p10_p50_p90": [PP.rnd(x) for x in np.percentile(
+                 [r["hfov_deg"] for r in recs], [10, 50, 90])],
+             "n_with_exif_f35": sum(r["f35"] is not None for r in recs),
+             "fill_peaks": sum(r["n_fill_peaks"] for r in recs)}
+        for thr in PP.THRESHOLDS:
+            e[f"share_fired@{thr}"] = PP.rnd(np.mean([r["max_score"] >= thr for r in recs]))
+            e[f"dets_per_image@{thr}"] = PP.rnd(np.mean(
+                [sum(d["score"] >= thr for d in r["dets"]) for r in recs]))
+            fw = [d["forward_m"] for r in recs for d in r["dets"]
+                  if d["score"] >= thr and d["forward_m"] is not None]
+            e[f"forward_m_at_1m_p10_p50_p90@{thr}"] = (
+                [PP.rnd(x) for x in np.percentile(fw, [10, 50, 90])] if fw else None)
+        out[a] = e
+    PP.write_json(os.path.join(OUT, "summary.json"), out)
+    print(json.dumps(out, indent=1))
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -501,11 +528,12 @@ def main(argv=None):
     i.add_argument("--usage-log", default=None)
     g = sub.add_parser("gallery")
     g.add_argument("--images", default=None)
+    sub.add_parser("summary")
     r = sub.add_parser("rates")
     r.add_argument("--verdicts", required=True)
     args = ap.parse_args(argv)
     {"manifest": cmd_manifest, "fetch": cmd_fetch, "infer": cmd_infer, "gallery": cmd_gallery,
-     "rates": cmd_rates}[args.cmd](args)
+     "rates": cmd_rates, "summary": cmd_summary}[args.cmd](args)
 
 
 if __name__ == "__main__":
