@@ -30,6 +30,35 @@ peak-to-box distance falls from 1.510 to **1.197 degrees** (-0.314 [-0.344, -0.2
 ([sidewalk-auto-labeler#111](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/111)).
 It needs no retraining and about 60 lines of numpy.
 
+## Examples
+
+Six manual_gold ramps, chosen by a fixed rule from the 3,517 matched pairs: the two largest
+improvements, the two closest to the median |d|, the one where the decode moved furthest away
+from the box centre (all five from peaks with score <= 1, not climbed, not at the seam), and
+one clipped plateau (score > 1, argmax off the 8i+3 / 8i+4 grid, d nearest that group's
+median). d is the change in distance to the box centre, Gaussian minus argmax.
+
+![Six manual_gold crops with argmax, Gaussian decode and human box](figures/subcell_decode_221/examples_contact_sheet.jpg)
+
+- Many manual_gold "boxes" are only a few pixels across, so they read as a point label, and
+  the box is often hidden under its centre mark.
+- In the "moved away" example (`hjGc_EK1u9NfwcU5eciW1g`), the decode moves the peak up and
+  left, further onto the tactile pad. The human mark sits lower, on the kerb line at the
+  pad's front edge, and the argmax happened to fall between them (4.4 px to 8.8 px). The
+  model's peak and the labeller disagree about *which point* of the ramp to mark. That is the
+  concept offset in section 5, not a decode error.
+
+The mechanism panel uses the first "typical" example. Its heatmap is the released model's
+output on that pano, re-run on a desktop RTX 3070. It agrees with the bilinear upsample of
+the committed coarse map to 2.0e-5, which is cross-GPU fp32 noise. The two histograms are
+the manual_gold columns of the section 4.3 table.
+
+![Heatmap crop vs coarse-map crop, 1-D profile, and mod-8 histograms](figures/subcell_decode_221/mechanism_panel.png)
+
+Both figures come from `scripts/analysis/subcell_decode_221_figures.py` (command in
+section 8). The crops are small documentation extracts of the manual_gold panos in the HF
+`projectsidewalk/rampnet-dataset` test split.
+
 ## 2. Mechanism, verified
 
 The head is `Conv2d(3x3) -> ReLU -> Upsample(512x1024, bilinear, align_corners=False) ->
@@ -397,6 +426,12 @@ python scripts/analysis/subcell_decode_221.py extract --panos-root . \
 # CPU, ~1 min: every number in this doc, from YOUR detections
 python scripts/analysis/subcell_decode_221.py report --detections /tmp/sc221/detections.json \
     --out /tmp/sc221/results.json
+
+# the Examples figures (selection is CPU-only and prints with --select-only; the coarse map
+# of the mechanism pano is checked against the sha256 in detections.json; --heatmap-source
+# model runs the checkpoint on that one pano, `coarse` draws the upsample instead, CPU)
+python scripts/analysis/subcell_decode_221_figures.py --panos-root . \
+    --coarse-dir /tmp/sc221/coarse --heatmap-source model --out-dir /tmp/sc221/figures
 
 # compare with the committed report: every number, ignoring only the top-level "inputs"
 python scripts/analysis/subcell_decode_221.py compare \
