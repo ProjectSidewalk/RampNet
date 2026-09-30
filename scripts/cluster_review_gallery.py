@@ -136,7 +136,8 @@ function seedUnit(u) {
     labels[lab.key] = map[lab.seed];
   }
   return {seed_arm: u.seed_arm, labels: labels, ramps: ramps, uncovered: [],
-          complete: false, elapsed_s: 0, note: '', seen: false, nextRamp: n + 1};
+          complete: false, cant_judge: false, cant_judge_reason: '',
+          elapsed_s: 0, note: '', seen: false, nextRamp: n + 1};
 }
 function fromFile(f) {
   const ramps = {};
@@ -148,7 +149,9 @@ function fromFile(f) {
   }
   return {seed_arm: f.seed_arm, labels: Object.assign({}, f.labels || {}), ramps: ramps,
           uncovered: (f.uncovered || []).map(p => Object.assign({}, p)),
-          complete: !!f.complete, elapsed_s: f.elapsed_s || 0, note: f.note || '',
+          complete: !!f.complete, cant_judge: !!f.cant_judge,
+          cant_judge_reason: f.cant_judge_reason || '',
+          elapsed_s: f.elapsed_s || 0, note: f.note || '',
           inventory_seen: !!f.inventory_seen,
           edited_after_inventory: !!f.edited_after_inventory,
           seen: true, nextRamp: mx + 1};
@@ -163,7 +166,7 @@ function bootstrapState(INITIAL, local, UNITS, SNAPSHOT) {
       const s = state[cid], f = INITIAL.corners[cid];
       if (s && (s.seen || s.complete)) {
         const same = JSON.stringify(s.labels) === JSON.stringify(f.labels || {}) &&
-                     !!s.complete === !!f.complete &&
+                     !!s.complete === !!f.complete && !!s.cant_judge === !!f.cant_judge &&
                      (s.uncovered || []).length === (f.uncovered || []).length;
         if (!same) conflicts.push(cid);
         continue;
@@ -198,6 +201,7 @@ HTML_TEMPLATE = r"""<!doctype html>
   .badge{font-size:12px;padding:2px 8px;border-radius:10px;background:#eee;color:#444}
   .badge.done{background:#1a9c3e;color:#fff}
   .badge.todo{background:#fff3bf;color:#7a6000}
+  .badge.cj{background:#6c757d;color:#fff}
   #notice{display:none;background:#fff2df;border:1px solid #ff9f1c;border-radius:8px;
           padding:8px 14px;margin:0 0 10px;font-size:13px}
   #rulebar{font-size:12px;color:#666;margin:0 0 6px}
@@ -295,7 +299,8 @@ HTML_TEMPLATE = r"""<!doctype html>
 
 <div class="bar">
   <button id="prev">&#8592; Prev</button><button id="next">Next &#8594;</button>
-  <button id="nexttodo">Next incomplete</button>
+  <button id="nexttodo">Next to do</button>
+  <button id="cantjudge" title="the unit cannot be judged (e.g. hidden by trees, construction, no imagery); needs a reason">Can't judge…</button>
   <select id="unitsel" title="jump to a unit"></select>
   <span id="progress" class="meta"></span>
   <span style="flex:1"></span>
@@ -353,7 +358,9 @@ HTML_TEMPLATE = r"""<!doctype html>
   shift-click = remove<br>
   <kbd>p</kbd> place the selected group's ramp point (next aerial click) · <kbd>P</kbd> reset
   it to the mean<br>
-  <kbd>c</kbd> complete / reopen · <kbd>&#8592;</kbd>/<kbd>&#8594;</kbd>
+  <kbd>c</kbd> complete / reopen · <b>Can't judge…</b> (button): the unit cannot be judged at all
+  (hidden by trees, construction, no imagery), with a required reason; excluded from scoring and
+  listed; never for a unit that is merely hard · <kbd>&#8592;</kbd>/<kbd>&#8594;</kbd>
   units · <kbd>?</kbd> this help
 </div>
 
@@ -440,7 +447,7 @@ function groupsOf(u) {           // ramp groups in display order (by first label
   return order;
 }
 function unassigned(u) { const s = state[u.id]; return u.labels.filter(l => !s.labels[l.key]).length; }
-const UNDO_FIELDS = ['labels', 'ramps', 'uncovered', 'complete'];   // never elapsed_s or note
+const UNDO_FIELDS = ['labels', 'ramps', 'uncovered', 'complete', 'cant_judge', 'cant_judge_reason'];   // never elapsed_s or note
 function push() {                // snapshot for undo, before an edit
   const id = cur().id, s = state[id], snap = {};
   for (const f of UNDO_FIELDS) snap[f] = s[f];
@@ -550,9 +557,23 @@ function merge() {
 }
 function toggleComplete() {
   const u = cur(), s = S();
+  if (!s.complete && s.cant_judge) { alert('This unit is marked can\'t judge. Clear that first (Can\'t judge… button).'); return; }
   if (!s.complete && unassigned(u)) { alert(unassigned(u) + ' label(s) are still on the shelf: give each a group, not ramp or unsure first.'); return; }
   push(); s.complete = !s.complete; edited();
 }
+function toggleCantJudge() {
+  const s = S();
+  if (s.cant_judge) {
+    if (!confirm('Clear "can\'t judge" for this unit? (reason: ' + s.cant_judge_reason + ')')) return;
+    push(); s.cant_judge = false; s.cant_judge_reason = ''; edited(); return;
+  }
+  const r = prompt('Why can\'t this unit be judged? (required; e.g. "ramps hidden by trees on the aerial and in every crop")\n' +
+                   'Not for a unit that is merely hard: that one still gets reviewed.', '');
+  if (r === null) return;
+  if (!r.trim()) { alert('A reason is required.'); return; }
+  push(); s.cant_judge = true; s.cant_judge_reason = r.trim(); s.complete = false; edited();
+}
+function done(x) { const t = state[x.id]; return t.complete || t.cant_judge; }
 function prune(u) {              // drop ramp entries no label uses
   const s = state[u.id], used = new Set(Object.values(s.labels));
   for (const g in s.ramps) if (!used.has(g)) delete s.ramps[g];
@@ -925,13 +946,15 @@ document.getElementById('right').addEventListener('click', ev => {
 function render() {
   if (!UNITS.length) { document.getElementById('title').textContent = 'No units to review.'; return; }
   const u = cur(), s = S();
-  const done = UNITS.filter(x => state[x.id].complete).length;
+  const nDone = UNITS.filter(x => state[x.id].complete).length, nCj = UNITS.filter(x => state[x.id].cant_judge).length;
   document.getElementById('unitsel').innerHTML = UNITS.map((x, i) => '<option value="' + i + '"' + (i === idx ? ' selected' : '') + '>' +
     (i + 1) + '. ' + x.id.replace(CITY + ':', '') + ' · ' + x.type + ' · ' + x.labels.length + ' labels' +
-    (state[x.id].complete ? ' ✓' : '') + '</option>').join('');
-  document.getElementById('progress').textContent = (idx + 1) + ' / ' + UNITS.length + ' · ' + done + ' complete';
+    (state[x.id].complete ? ' ✓' : state[x.id].cant_judge ? " ✗ can't judge" : '') + '</option>').join('');
+  document.getElementById('progress').textContent = (idx + 1) + ' / ' + UNITS.length + ' · ' + nDone + ' complete' + (nCj ? ' · ' + nCj + " can't judge" : '');
   document.getElementById('title').innerHTML = u.id + ' <span class="badge">' + u.type + '</span> ' +
-    '<span class="badge ' + (s.complete ? 'done' : 'todo') + '">' + (s.complete ? 'complete' : 'to do') + '</span> ' +
+    (s.cant_judge ? '<span class="badge cj" title="' + s.cant_judge_reason.replace(/"/g, '&quot;') + '">can\'t judge: ' +
+       s.cant_judge_reason.replace(/</g, '&lt;') + '</span> ' :
+       '<span class="badge ' + (s.complete ? 'done' : 'todo') + '">' + (s.complete ? 'complete' : 'to do') + '</span> ') +
     '<span class="meta">' + u.labels.length + ' labels · seed ' + s.seed_arm + (u.pilot ? ' · pilot' : '') +
     ' · ' + s.uncovered.length + ' uncovered' + (s.inventory_seen ? ' · <b>inventory seen' + (s.edited_after_inventory ? ', edited after' : '') + '</b>' : '') + ' · on screen <span id="elapsed">' + Math.round(s.elapsed_s) + ' s</span></span>';
   const img = document.getElementById('aerial');
@@ -955,9 +978,10 @@ document.getElementById('unitsel').onchange = ev => { go(+ev.target.value - idx)
 document.getElementById('prev').onclick = () => go(-1);
 document.getElementById('next').onclick = () => go(1);
 document.getElementById('nexttodo').onclick = () => {
-  for (let k = 1; k <= UNITS.length; k++) { const j = (idx + k) % UNITS.length; if (!state[UNITS[j].id].complete) { go(j - idx); return; } }
-  alert('Every unit is complete. Export when ready.');
+  for (let k = 1; k <= UNITS.length; k++) { const j = (idx + k) % UNITS.length; if (!done(UNITS[j])) { go(j - idx); return; } }
+  alert("Every unit is complete or marked can't judge. Export when ready.");
 };
+document.getElementById('cantjudge').onclick = ev => { ev.target.blur(); toggleCantJudge(); };
 document.getElementById('unitnote').addEventListener('input', ev => { S().note = ev.target.value; save(); });
 document.addEventListener('keydown', ev => {
   const t = ev.target.tagName;
@@ -1012,6 +1036,7 @@ function exportUnit(u, s) {
   }
   return {seed_arm: s.seed_arm, stratum: {city: CITY, type: u.type, has_labels: u.has_labels},
           labels: labels, ramps: ramps, uncovered: s.uncovered, complete: !!s.complete,
+          cant_judge: !!s.cant_judge, cant_judge_reason: s.cant_judge ? (s.cant_judge_reason || '').trim() : '',
           elapsed_s: Math.round(s.elapsed_s * 10) / 10, note: (s.note || '').trim(),
           inventory_seen: !!s.inventory_seen, edited_after_inventory: !!s.edited_after_inventory};
 }
@@ -1020,7 +1045,7 @@ document.getElementById('export').onclick = () => {
   if (bad.length) { alert('Export refused: ' + bad.length + ' complete unit(s) have unassigned labels, e.g. ' + bad[0].id + '.'); return; }
   const onRamp = UNITS.filter(u => state[u.id].complete && state[u.id].uncovered.some(q => nearRamp(u, q.lat, q.lng)));
   if (onRamp.length) { alert('Export refused: ' + onRamp.length + ' complete unit(s) have an uncovered mark within ' + MIN_SEP_M + ' m of a ramp point, e.g. ' + onRamp[0].id + '. Remove or move it.'); return; }
-  const open = UNITS.filter(u => state[u.id].seen && !state[u.id].complete).length;
+  const open = UNITS.filter(u => state[u.id].seen && !done(u)).length;
   if (open && !confirm(open + ' unit(s) were opened but are not complete; the scorer ignores them. Export anyway?')) return;
   saveNotes();
   const out = {schema: 'rampnet.cluster_review/1', city: CITY, snapshot_sha256: SNAPSHOT,
@@ -1032,7 +1057,7 @@ document.getElementById('export').onclick = () => {
   out.review_notes = rn;
   out.corners = {};
   const known = new Set(UNITS.map(u => u.id));
-  for (const u of UNITS) { const s = state[u.id]; if (s.seen || s.complete) out.corners[u.id] = exportUnit(u, s); }
+  for (const u of UNITS) { const s = state[u.id]; if (s.seen || s.complete || s.cant_judge) out.corners[u.id] = exportUnit(u, s); }
   // units not rendered this session (another filter) round-trip from the prefill verbatim
   if (INITIAL && !boot.initialIgnored) for (const cid in (INITIAL.corners || {})) if (!known.has(cid)) out.corners[cid] = INITIAL.corners[cid];
   const arms = new Set(Object.values(out.corners).map(c => c.seed_arm));
