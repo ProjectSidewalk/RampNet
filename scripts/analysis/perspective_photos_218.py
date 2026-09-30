@@ -720,19 +720,34 @@ def transplant(dets, w_from, h_from, w_to, h_to):
                  v=(d["v"] + 0.5) / h_from * h_to - 0.5) for d in dets]
 
 
-def swap_donors(ids, clusters, n_null=N_NULL, seed=SEED):
+def count_bucket(n):
+    """Detection-count bucket for the count-matched swap null: 0 / 1 / 2 / 3+."""
+    return min(int(n), 3)
+
+
+def swap_donors(ids, clusters, n_null=N_NULL, seed=SEED, buckets=None):
     """For each draw, a donor for every image in ``ids``: an image drawn uniformly (with
     replacement) from ``ids`` whose cluster (nearest pool ramp) differs from the
-    receiver's, so a donor never shows the receiver's own corner. Same donors for every
-    arm and threshold, so the null is paired across arms."""
-    rng = np.random.default_rng(seed + 7)
+    receiver's, so a donor never shows the receiver's own corner. Without ``buckets`` the
+    donors are the same for every arm and threshold, so the null is paired across arms.
+
+    With ``buckets`` ({image: bucket}, e.g. ``count_bucket`` of its detections >= 0.30)
+    the donor must also share the receiver's bucket: the count-matched null, which keeps
+    how often and how much the model fires on the receiving image and randomises only
+    where. If no donor shares both, the bucket condition is dropped for that receiver.
+    Seeded separately (``seed + 8``) so the unmatched null is unchanged by it."""
+    rng = np.random.default_rng(seed + (8 if buckets is not None else 7))
     ids = list(ids)
     cl = np.array([clusters[i] for i in ids])
+    bk = np.array([buckets[i] for i in ids]) if buckets is not None else None
     out = []
     for _ in range(n_null):
         dr = {}
         for k, i in enumerate(ids):
-            pool = np.nonzero(cl != cl[k])[0]
+            ok = cl != cl[k]
+            if bk is not None and np.any(ok & (bk == bk[k])):
+                ok = ok & (bk == bk[k])
+            pool = np.nonzero(ok)[0]
             dr[i] = ids[int(pool[rng.integers(0, len(pool))])]
         out.append(dr)
     return out
@@ -747,6 +762,9 @@ def per_image_table(arm_recs, rows, ramps, thresholds=THRESHOLDS, n_null=N_NULL)
       image's own detections are replaced by those of an unrelated positive image (a
       different nearest pool ramp) at the same normalised pixel positions, projected
       through THIS image's camera and SfM pose;
+    - ``null_swapc_<test>``: the same with count-matched donors (``swap_donors`` with
+      ``buckets``): the donor also has the receiver's number of detections >= 0.30
+      (0 / 1 / 2 / 3+), per arm;
     - ``null_mirror_<test>``: whether it is hit when every candidate ramp's bearing is
       mirrored about the camera heading.
     ``matches`` lists every bearing-test claim (real and swap-null) with the camera height
@@ -760,6 +778,13 @@ def per_image_table(arm_recs, rows, ramps, thresholds=THRESHOLDS, n_null=N_NULL)
     pos_ids = [i for i in ids if geo[i]["positive"]]
     donors = swap_donors(pos_ids, {i: by_id[i]["nearest_ramp"] for i in pos_ids}, n_null) \
         if n_null else []
+    # count-matched swap null (S6 of the PR #227 re-review): per arm, donors from the same
+    # detections->=PRIMARY_THR bucket as the receiver
+    donors_c = {arm: swap_donors(
+        pos_ids, {i: by_id[i]["nearest_ramp"] for i in pos_ids}, n_null,
+        buckets={i: count_bucket(sum(d["score"] >= PRIMARY_THR for d in recs[i]["dets"]))
+                 for i in pos_ids}) if n_null else []
+        for arm, recs in arm_recs.items()}
     for iid in ids:
         row = by_id[iid]
         g = geo[iid]
@@ -775,14 +800,15 @@ def per_image_table(arm_recs, rows, ramps, thresholds=THRESHOLDS, n_null=N_NULL)
                   "pool_negative": g["pool_negative"], "max_score": rec["max_score"],
                   "n_in_view": sum(r["in_view"] for r in g["near"]),
                   "n_folded": sum(r["folded"] for r in g["near"])}
-            swap = []
+            swap, swapc = [], []
             if g["positive"]:
-                for dr in donors:
-                    dd = recs[dr[iid]]
-                    sd = transplant(dd["dets"], dd["width"], dd["height"], rec["width"],
-                                    rec["height"])
-                    sb, sdep, _ = det_world(sd, g["cam"], g["R_wc"])
-                    swap.append((sd, sb, sdep))
+                for dlist, out in ((donors, swap), (donors_c[arm], swapc)):
+                    for dr in dlist:
+                        dd = recs[dr[iid]]
+                        sd = transplant(dd["dets"], dd["width"], dd["height"], rec["width"],
+                                        rec["height"])
+                        sb, sdep, _ = det_world(sd, g["cam"], g["R_wc"])
+                        out.append((sd, sb, sdep))
             in_view_uids = {r["uid"] for r in g["near"] if r["in_view"]}
             rng_of = {r["uid"]: r["range"] for r in g["near"]}
             for thr in thresholds:
@@ -800,8 +826,12 @@ def per_image_table(arm_recs, rows, ramps, thresholds=THRESHOLDS, n_null=N_NULL)
                                     "camera": cam_model, "ramp": u,
                                     "h": rng_of[u] * math.tan(math.radians(dep[i]))})
                 wcl = {h: claim_world(dets, w, g["near"], thr, h) for h in WORLD_HEIGHTS}
-                null_m, null_s = {}, []
+                null_m, null_s, null_c = {}, [], []
                 if g["positive"]:
+                    null_c = [bearing_claims(sd, sb, sdep, g["near"], thr)
+                              for sd, sb, sdep in swapc]
+                    im[f"null_swapc_loc_hit@{thr}"] = [
+                        bool(in_view_uids & set(sc["hit_bearing"])) for sc in null_c]
                     null_m = bearing_claims(dets, b, dep, near_m, thr)
                     for k, (sd, sb, sdep) in enumerate(swap):
                         sc = bearing_claims(sd, sb, sdep, g["near"], thr)
@@ -825,6 +855,7 @@ def per_image_table(arm_recs, rows, ramps, thresholds=THRESHOLDS, n_null=N_NULL)
                     for t in NULL_TESTS:
                         pr[f"null_mirror_{t}"] = r["uid"] in null_m[t]
                         pr[f"null_swap_{t}"] = [r["uid"] in sc[t] for sc in null_s]
+                        pr[f"null_swapc_{t}"] = [r["uid"] in sc[t] for sc in null_c]
                     pairs.append(pr)
             images.append(im)
     return images, pairs, matches
@@ -947,15 +978,39 @@ def null_draw_rates(rows, key):
             "p95": float(np.percentile(per_draw, 95)), "n_draws": int(m.shape[1])}
 
 
-def above_chance(rows, test, clusters, uniq, draws):
+def above_chance(rows, test, clusters, uniq, draws, kind="swap"):
     """Real hit minus its per-row swap-null expectation (mean over draws), cluster
     bootstrap CI. The null mean is treated as fixed: the spread across draws is reported
-    separately (``null_draw_rates``)."""
-    if not rows or not rows[0][f"null_swap_{test}"]:
+    separately (``null_draw_rates``). ``kind``: "swap" or "swapc" (count-matched)."""
+    if not rows or not rows[0][f"null_{kind}_{test}"]:
         return None
     return paired_diff([r[test] for r in rows],
-                       [float(np.mean(r[f"null_swap_{test}"])) for r in rows],
+                       [float(np.mean(r[f"null_{kind}_{test}"])) for r in rows],
                        clusters, uniq, draws)
+
+
+def covisible_components(pairs):
+    """{ramp uid: component label}: ramps joined whenever they are in view of the same
+    photo (union-find). Pairs from one photo share one detection set, so clustering the
+    bootstrap by component instead of by ramp is the conservative choice (N9 of the
+    PR #227 re-review)."""
+    parent = {}
+
+    def find(x):
+        parent.setdefault(x, x)
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+    by_img = {}
+    for p in pairs:
+        by_img.setdefault(p["image_id"], []).append(p["ramp"])
+    for rs in by_img.values():
+        for r in rs:
+            find(r)
+        for r in rs[1:]:
+            parent[find(r)] = find(rs[0])
+    return {r: find(r) for r in parent}
 
 
 def camera_scale(row, width, height):
@@ -1076,6 +1131,12 @@ def cmd_score(args):
                     [x[f"loc_hit@{thr}"] for x in P_],
                     [float(np.mean(x[f"null_swap_loc_hit@{thr}"])) for x in P_],
                     [x["cluster"] for x in P_], upos, dpos)
+                ent["localized_recall_null_swapc"] = null_draw_rates(
+                    P_, f"null_swapc_loc_hit@{thr}")
+                ent["localized_recall_above_swapc"] = paired_diff(
+                    [x[f"loc_hit@{thr}"] for x in P_],
+                    [float(np.mean(x[f"null_swapc_loc_hit@{thr}"])) for x in P_],
+                    [x["cluster"] for x in P_], upos, dpos)
             res["presence"][f"{a}@{thr}"] = ent
     # --- point-level (in-view image-ramp pairs), cluster = ramp
     p0 = [p for p in pairs if p["arm"] == a0 and p["thr"] == THRESHOLDS[0]]
@@ -1084,6 +1145,10 @@ def cmd_score(args):
     pa = {(p["arm"], p["thr"], key(p)): p for p in pairs}
     order = [key(p) for p in p0]
     cl = [p["ramp"] for p in p0]
+    comp = covisible_components(p0)
+    clc = [comp[r] for r in cl]
+    ucc, dcc = boot_indices(clc, seed=SEED + 9)
+    res["counts"]["covisible_components"] = len(ucc)
     for a in arms:
         for thr in THRESHOLDS:
             rows_a = [pa[(a, thr, k)] for k in order]
@@ -1096,6 +1161,15 @@ def cmd_score(args):
                     ent[f"{test}__null_mirror"] = float(np.mean(
                         [r[f"null_mirror_{test}"] for r in rows_a]))
                     ent[f"{test}__above_swap"] = above_chance(rows_a, test, cl, upr, dpr)
+                    ent[f"{test}__null_swapc"] = null_draw_rates(rows_a, f"null_swapc_{test}")
+                    ent[f"{test}__above_swapc"] = above_chance(rows_a, test, cl, upr, dpr,
+                                                               "swapc")
+                # clustering sensitivity: pairs clustered by co-visible component
+                ent["hit_bearing__by_component"] = cluster_rate(
+                    [r["hit_bearing"] for r in rows_a], clc, ucc, dcc)
+                for kind in ("swap", "swapc"):
+                    ent[f"hit_bearing__above_{kind}__by_component"] = above_chance(
+                        rows_a, "hit_bearing", clc, ucc, dcc, kind)
             for lo, hi in RANGE_BINS:
                 b = f"{lo:g}-{hi:g}"
                 sel = [i for i, r in enumerate(rows_a) if r["bin"] == b]
@@ -1107,6 +1181,10 @@ def cmd_score(args):
                         rb, "null_swap_hit_bearing")
                     ent[f"hit_bearing[{b}]__above_swap"] = above_chance(
                         rb, "hit_bearing", cb, upr, dpr)
+                    ent[f"hit_bearing[{b}]__null_swapc"] = null_draw_rates(
+                        rb, "null_swapc_hit_bearing")
+                    ent[f"hit_bearing[{b}]__above_swapc"] = above_chance(
+                        rb, "hit_bearing", cb, upr, dpr, "swapc")
             res["points"][f"{a}@{thr}"] = ent
     # --- paired contrasts vs canvas_level
     ref = "canvas_level" if "canvas_level" in arms else a0
@@ -1134,6 +1212,10 @@ def cmd_score(args):
                 ent["point_hit_bearing_above_swap"] = paired_diff(
                     [x["hit_bearing"] - np.mean(x["null_swap_hit_bearing"]) for x in ra],
                     [x["hit_bearing"] - np.mean(x["null_swap_hit_bearing"]) for x in rr],
+                    cl, upr, dpr)
+                ent["point_hit_bearing_above_swapc"] = paired_diff(
+                    [x["hit_bearing"] - np.mean(x["null_swapc_hit_bearing"]) for x in ra],
+                    [x["hit_bearing"] - np.mean(x["null_swapc_hit_bearing"]) for x in rr],
                     cl, upr, dpr)
             res["paired"][f"{a}-{ref}@{thr}"] = ent
     # --- pano reference on the same ramps
@@ -1193,13 +1275,15 @@ def cmd_score(args):
     # hit rate, over ramps that have both
     for a in arms:
         for thr in THRESHOLDS:
-            fr, frn, pr_ = {}, {}, {}
+            fr, frn, frc, pr_ = {}, {}, {}, {}
             for k in order:
                 p = pa[(a, thr, k)]
                 fr.setdefault(p["ramp"], []).append(p["hit_bearing"])
                 if args.n_null:
                     frn.setdefault(p["ramp"], []).append(
                         p["hit_bearing"] - np.mean(p["null_swap_hit_bearing"]))
+                    frc.setdefault(p["ramp"], []).append(
+                        p["hit_bearing"] - np.mean(p["null_swapc_hit_bearing"]))
             for x in pr:
                 if x["same_ramps"]:
                     pr_.setdefault(x["ramp"], []).append(x["world_conf"] >= thr)
@@ -1234,7 +1318,12 @@ def cmd_score(args):
                         "flat_above_chance_ramp_mean": rnd(np.mean([np.mean(frn[r])
                                                                     for r in both2])),
                         "pano_above_chance_ramp_mean": rnd(np.mean([np.mean(pbrn[r])
-                                                                    for r in both2]))})
+                                                                    for r in both2])),
+                        "above_chance_diff_count_matched": cluster_rate(
+                            [np.mean(frc[r]) - np.mean(pbrn[r]) for r in both2], both2, u2,
+                            dr2),
+                        "flat_above_count_matched_ramp_mean": rnd(np.mean(
+                            [np.mean(frc[r]) for r in both2]))})
                 res["paired"][f"{a}-pano_bearing@{thr}"] = ent
     # --- angular sampling by camera model (S2 / S5)
     by_cam = {}
@@ -1323,15 +1412,17 @@ def markdown(res, arms):
          "95% CIs: cluster bootstrap (images clustered by nearest pool ramp; pairs by ramp), "
          f"{N_REPS} reps. Chance floors: swap null = the image's detections replaced by an "
          f"unrelated positive image's, {res['config']['n_null']} draws, mean (p5-p95 over "
-         "draws); mirror null = candidate ramp bearings mirrored about the camera heading; "
+         "draws); count-matched swap null = the same with the donor's number of detections "
+         ">= 0.30 in the receiver's bucket (0/1/2/3+); mirror null = candidate ramp bearings mirrored about the camera heading; "
          "pano rotation null = detections rotated 90/180/270 deg. 'Above chance' = real minus "
          "the per-pair swap-null mean, paired cluster bootstrap.", "", "## Counts", ""]
     for k, v in res["counts"].items():
         L.append(f"- {k}: {v}")
     L += ["", "## Image level", "",
           "| arm @ thr | presence recall | localized recall | localized, swap null | "
-          "localized, above chance | fire rate, pool-negative | dets / image | "
-          "matched fraction |", "|---|---|---|---|---|---|---|---|"]
+          "localized, above chance | localized, above count-matched | "
+          "fire rate, pool-negative | dets / image | matched fraction |",
+          "|---|---|---|---|---|---|---|---|---|"]
     for a in arms:
         for thr in THRESHOLDS:
             e = res["presence"][f"{a}@{thr}"]
@@ -1339,6 +1430,7 @@ def markdown(res, arms):
                      f"{fmt_ci(e['localized_recall'])} | "
                      f"{fmt_null(e.get('localized_recall_null_swap'))} | "
                      f"{fmt_ci(e['localized_recall_above_swap']) if e.get('localized_recall_above_swap') else 'n/a'} | "
+                     f"{fmt_ci(e['localized_recall_above_swapc']) if e.get('localized_recall_above_swapc') else 'n/a'} | "
                      f"{fmt_ci(e['fire_rate_pool_negative'])} | "
                      f"{e['dets_per_image_all']:.2f} | {e['matched_frac_of_dets']:.3f} |")
     L += ["", "## Point hits (in-view image-ramp pairs)", "",
@@ -1358,16 +1450,31 @@ def markdown(res, arms):
     if res["config"]["n_null"]:
         L += ["", "## Chance floor of the bearing tests (point hits)", "",
               "| arm @ thr | test | real | swap null (p5-p95) | mirror null | above chance "
-              "(real - swap null) |", "|---|---|---|---|---|---|"]
+              "(real - swap null) | count-matched swap null | above count-matched |",
+              "|---|---|---|---|---|---|---|---|"]
         for a in arms:
             for thr in THRESHOLDS:
                 e = res["points"][f"{a}@{thr}"]
                 for t in NULL_TESTS:
                     L.append(f"| {a} @ {thr} | {t} | {e[t][0]:.3f} | "
                              f"{fmt_null(e[f'{t}__null_swap'])} | {e[f'{t}__null_mirror']:.3f} | "
-                             f"{fmt_ci(e[f'{t}__above_swap'])} |")
+                             f"{fmt_ci(e[f'{t}__above_swap'])} | "
+                             f"{fmt_null(e[f'{t}__null_swapc'])} | "
+                             f"{fmt_ci(e[f'{t}__above_swapc'])} |")
+        L += ["", "Clustering sensitivity (bearing test): pairs clustered by co-visible "
+              f"component ({res['counts'].get('covisible_components')} components) instead "
+              "of by ramp:", "",
+              "| arm @ thr | real | above swap null | above count-matched swap null |",
+              "|---|---|---|---|"]
+        for a in arms:
+            for thr in THRESHOLDS:
+                e = res["points"][f"{a}@{thr}"]
+                L.append(f"| {a} @ {thr} | {fmt_ci(e['hit_bearing__by_component'])} | "
+                         f"{fmt_ci(e['hit_bearing__above_swap__by_component'])} | "
+                         f"{fmt_ci(e['hit_bearing__above_swapc__by_component'])} |")
         L += ["", "By range (bearing test):", "",
-              "| arm @ thr | " + " | ".join(f"{lo:g}-{hi:g} m: real / swap null / above"
+              "| arm @ thr | " + " | ".join(f"{lo:g}-{hi:g} m: real / swap null / above / "
+                                            "count-matched null, above"
                                             for lo, hi in RANGE_BINS) + " |",
               "|---|" + "---|" * len(RANGE_BINS)]
         for a in arms:
@@ -1377,7 +1484,9 @@ def markdown(res, arms):
                 for lo, hi in RANGE_BINS:
                     b = f"hit_bearing[{lo:g}-{hi:g}]"
                     cells.append(f"{e[b][0]:.3f} (n={e[b][3]}) / {fmt_null(e[b + '__null_swap'])}"
-                                 f" / {fmt_ci(e[b + '__above_swap'])}")
+                                 f" / {fmt_ci(e[b + '__above_swap'])} / count-matched "
+                                 f"{fmt_null(e[b + '__null_swapc'])}, "
+                                 f"{fmt_ci(e[b + '__above_swapc'])}")
                 L.append(f"| {a} @ {thr} | " + " | ".join(cells) + " |")
     L += ["", "## 360 pano reference (world test, non-source captures, 3-18 m)", ""]
     for scope, e in res["pano_reference"].items():

@@ -18,7 +18,9 @@ Outputs are in `analysis_out/perspective_photos_218/` (Richmond) and
 Run 2026-09-30 on free compute (makelab2 A40, desktop for fetches and CPU scoring).
 Revised the same day after the review of PR #227
 (https://github.com/ProjectSidewalk/RampNet/pull/227#pullrequestreview-5371717851): a
-chance floor for the bearing test, and a fix to the in-view rule. Every number below is
+chance floor for the bearing test, and a fix to the in-view rule. The re-review
+(https://github.com/ProjectSidewalk/RampNet/pull/227#pullrequestreview-5372192810) added
+a count-matched floor and a co-visibility clustering sensitivity. Every number below is
 from the revised `score`; the corrections are listed at the end of §4.
 
 ## Summary
@@ -29,13 +31,19 @@ from the revised `score`; the corrections are listed at the end of §4.
   **Detections taken from an unrelated photo hit 0.093 of the same pairs.** So the rate
   above chance is **0.106 [0.027, 0.194]**. At 0.55 it is 0.147 against 0.065, 0.083
   [0.022, 0.153] above chance.
+  - **Against the stricter count-matched floor** (the donor photo also has as many
+    detections as this one), the floor is 0.138 and the rate above it **0.061 [0.016,
+    0.110]** at 0.30; 0.050 [0.013, 0.089] at 0.55. Either way it is above chance, and
+    somewhere between half and two thirds of the 0.199 is chance.
 - **The same ramps from Richmond's 360 panos** are hit 0.681 of the time under the same
   test at 0.55, against a chance floor of about 0.22 (detections rotated 90° / 180° /
   270°). **Above chance, per ramp, that is 0.097 for the flat photos vs 0.458 for the
-  panos: −0.361 [−0.435, −0.281]** (105 ramps). Without the floors the gap is −0.515.
+  panos: −0.361 [−0.435, −0.281]** (105 ramps). Against the count-matched flat floor it is
+  0.061 vs 0.458, −0.397 [−0.464, −0.329]. Without the floors the gap is −0.515.
 - **Canvas embed vs naive stretch: no difference in ramps found.** Both rates are close to
   their floors, and the stretch's floor is higher because it fires more.
-  - Above each arm's own floor, stretch − canvas is −0.009 [−0.061, 0.040] at 0.30.
+  - Above each arm's own floor, stretch − canvas is −0.009 [−0.061, 0.040] at 0.30
+    (+0.013 [−0.030, 0.059] above the count-matched floors).
     Without the floors it is +0.024 [−0.026, 0.074].
   - The stretch fires much more on images with no pool ramp in view: 0.175 vs 0.072 at
     0.30, paired +0.103 [0.049, 0.163]. So its higher presence recall (0.422 vs 0.293) is
@@ -187,6 +195,17 @@ bearing number beside it:
   positions, projected through the receiving image's own camera and SfM pose. 20 draws
   (donors drawn with replacement, seeded), the same donors for every arm and threshold.
   Reported as the mean over draws with its p5–p95.
+- **Count-matched swap null (flat, sensitivity).** The same, but the donor must also have
+  the receiving image's number of detections ≥ 0.30 (bucketed 0 / 1 / 2 / 3+, per arm;
+  seeded separately, 20 draws). **It is the more conservative floor for a localisation
+  claim.** Images with more ramps in view also carry more detections (the re-review
+  measured 0.63 vs 0.47 per image, pair-weighted), so the unmatched null gives each pair
+  fewer chances to be hit by chance than the real detections had. Firing more where more
+  ramps are is real presence skill, but not localisation. The count-matched null keeps how much the model fires on
+  each image and randomises only where. The unmatched null stays the primary label
+  "above chance" in this doc because it is the one the first revision reported; both are
+  given for every headline number. The pano rotation null keeps each pano's own
+  detections, so it is count-matched by construction.
 - **Mirror null (flat).** Every candidate ramp's bearing is reflected about the camera
   heading. It runs higher than the swap null, probably because intersections put real
   ramps at mirror positions.
@@ -229,7 +248,11 @@ re-inference included).
 - *Point recall*: the share of (image, in-view ramp) pairs that are hit, overall and by range.
 
 **CIs.** 95% percentile cluster bootstrap, 2,000 reps, seed 218.
-- Images cluster by their nearest pool ramp; pairs cluster by ramp.
+- Images cluster by their nearest pool ramp; pairs cluster by ramp. Ramps seen in the
+  same photo share one detection set, so clustering pairs by ramp is slightly optimistic.
+  Clustering them instead by co-visible component (79 groups of ramps linked through a
+  shared photo) widens canvas_level @ 0.30 to 0.199 [0.111, 0.300], above chance 0.106
+  [0.016, 0.211] (count-matched 0.061 [0.017, 0.111]); every arm is in `results.md`.
 - Arm contrasts are paired: the same resampled clusters for both arms.
 - The flat-vs-pano contrast is per ramp: the ramp's flat pair-hit rate minus its pano
   capture hit rate, over ramps with both, resampling ramps. The above-chance version
@@ -255,17 +278,18 @@ re-inference included).
 
 **Point hits, bearing test, beside its chance floor** (292 in-view pairs, clustered by ramp):
 
-| arm @ thr | real | swap null (p5–p95) | mirror null | above chance |
-|---|---|---|---|---|
-| canvas_level @ 0.30 | 0.199 [0.123, 0.285] | 0.093 (0.068–0.114) | 0.127 | **0.106 [0.027, 0.194]** |
-| canvas_sfm @ 0.30 | 0.212 [0.134, 0.301] | 0.092 (0.061–0.111) | 0.130 | 0.120 [0.040, 0.209] |
-| stretch @ 0.30 | 0.223 [0.147, 0.307] | 0.126 (0.098–0.158) | 0.171 | 0.096 [0.016, 0.185] |
-| canvas_level @ 0.55 | 0.147 [0.086, 0.218] | 0.065 (0.044–0.089) | 0.082 | **0.083 [0.022, 0.153]** |
-| canvas_sfm @ 0.55 | 0.158 [0.093, 0.233] | 0.067 (0.044–0.096) | 0.079 | 0.090 [0.027, 0.165] |
-| stretch @ 0.55 | 0.144 [0.083, 0.215] | 0.072 (0.044–0.093) | 0.096 | 0.072 [0.012, 0.144] |
+| arm @ thr | real | swap null (p5–p95) | mirror null | above chance | count-matched swap null (p5–p95) | above count-matched |
+|---|---|---|---|---|---|---|
+| canvas_level @ 0.30 | 0.199 [0.123, 0.285] | 0.093 (0.068–0.114) | 0.127 | **0.106 [0.027, 0.194]** | 0.138 (0.113–0.154) | **0.061 [0.016, 0.110]** |
+| canvas_sfm @ 0.30 | 0.212 [0.134, 0.301] | 0.092 (0.061–0.111) | 0.130 | 0.120 [0.040, 0.209] | 0.143 (0.120–0.161) | 0.069 [0.025, 0.119] |
+| stretch @ 0.30 | 0.223 [0.147, 0.307] | 0.126 (0.098–0.158) | 0.171 | 0.096 [0.016, 0.185] | 0.148 (0.133–0.165) | 0.074 [0.022, 0.128] |
+| canvas_level @ 0.55 | 0.147 [0.086, 0.218] | 0.065 (0.044–0.089) | 0.082 | **0.083 [0.022, 0.153]** | 0.098 (0.075–0.117) | **0.050 [0.013, 0.089]** |
+| canvas_sfm @ 0.55 | 0.158 [0.093, 0.233] | 0.067 (0.044–0.096) | 0.079 | 0.090 [0.027, 0.165] | 0.104 (0.082–0.124) | 0.053 [0.017, 0.094] |
+| stretch @ 0.55 | 0.144 [0.083, 0.215] | 0.072 (0.044–0.093) | 0.096 | 0.072 [0.012, 0.144] | 0.089 (0.068–0.110) | 0.054 [0.009, 0.104] |
 
 Against the mirror null, which runs higher, the canvas arm is 0.07 above chance at 0.30
-and 0.065 at 0.55. So the flat photos are **about 6–11 points above chance**, depending on the null and the threshold.
+and 0.065 at 0.55; against the count-matched null, 0.061 and 0.050. So the flat photos
+are **about 5–11 points above chance**, depending on the null and the threshold.
 
 **By range** (bearing test, canvas_level @ 0.30):
 
@@ -274,6 +298,8 @@ and 0.065 at 0.55. So the flat photos are **about 6–11 points above chance**, 
 | real | 0.133 | 0.194 | 0.207 |
 | swap null | 0.083 (0.000–0.200) | 0.119 (0.077–0.157) | 0.078 (0.046–0.121) |
 | above chance | 0.050 [−0.121, 0.288] | 0.075 [−0.019, 0.210] | 0.129 [0.047, 0.220] |
+| count-matched null | 0.100 (0.000–0.203) | 0.152 (0.117–0.186) | 0.132 (0.103–0.161) |
+| above count-matched | 0.033 [−0.104, 0.225] | 0.042 [−0.003, 0.102] | 0.075 [0.018, 0.136] |
 | panos, bearing test @ 0.55, same ramps | 0.778 | 0.753 | 0.615 |
 
 The near bin has 15 pairs (2 hits). The other arms and 0.55 are in `results.md`.
@@ -308,11 +334,13 @@ unweighted.
 | canvas_sfm − canvas_level, point hits | +0.014 [0.000, 0.031] | +0.010 [0.000, 0.023] |
 | stretch − canvas_level, point hits | +0.024 [−0.026, 0.074] | −0.003 [−0.042, 0.034] |
 | stretch − canvas_level, point hits, each above its own floor | −0.009 [−0.061, 0.040] | −0.011 [−0.052, 0.026] |
+| stretch − canvas_level, point hits, each above its own count-matched floor | +0.013 [−0.030, 0.059] | +0.005 [−0.032, 0.042] |
 | stretch − canvas_level, presence recall | +0.129 [0.056, 0.205] | +0.048 [−0.005, 0.109] |
 | stretch − canvas_level, fire rate on pool-negative | +0.103 [0.049, 0.163] | +0.037 [0.006, 0.073] |
 | canvas_level (bearing) − pano (world), per ramp | −0.400 [−0.484, −0.312] | −0.397 [−0.479, −0.314] |
 | canvas_level − pano, both bearing, per ramp | – | −0.515 [−0.595, −0.433] (0.166 vs 0.681) |
 | **canvas_level − pano, both bearing, each above its floor, per ramp** | – | **−0.361 [−0.435, −0.281]** (0.097 vs 0.458) |
+| canvas_level − pano, both bearing, flat above its count-matched floor, per ramp | – | −0.397 [−0.464, −0.329] (0.061 vs 0.458) |
 | stretch − pano, both bearing, each above its floor, per ramp | – | −0.378 [−0.451, −0.299] |
 
 **Camera height implied by the matched detections: not evidence for a camera height.**
@@ -353,13 +381,16 @@ the fold check or the new chance floors, not from new detections):
   0.194 → 0.212; stretch @ 0.30 0.204 → 0.223;
 - flat − pano, both bearing, per ramp −0.519 → −0.515 (0.150 vs 0.669 → 0.166 vs 0.681);
 - the implied-height diagnostic is withdrawn as evidence for a camera height;
-- new: every bearing number's chance floor and above-chance difference.
+- new: every bearing number's chance floor and above-chance difference;
+- new after the re-review: the count-matched swap null, and the co-visible-component
+  clustering sensitivity.
 
 ## 5. Reading, with the caveats beside it
 
-- **The flat photos are 6–11 points above chance; the panos about 40.** The canvas arm's
-  0.199 at 0.30 is about half chance: 0.093 of it would be scored for detections taken
-  from an unrelated photo. Any flat number here should be read against its floor.
+- **The flat photos are 5–11 points above chance; the panos about 40.** Between half and
+  two thirds of the canvas arm's 0.199 at 0.30 is chance: 0.093 of it would be scored for
+  detections taken from an unrelated photo, and 0.138 for detections from an unrelated
+  photo on which the model fired as often. Any flat number here should be read against its floor.
 - **Input mapping is not the lever.** The canvas and the stretch find the same ramps above
   chance, and both are near their floors. The stretch mostly adds detections away from
   known ramps. The pose-true canvas adds at most about 3 points (CI touches zero).
@@ -500,7 +531,7 @@ python scripts/analysis/perspective_photos_218.py select
 python scripts/analysis/perspective_photos_218.py fetch --env ../sidewalk-auto-labeler/.env --out IMG
 # GPU (makelab2 A40; ~50 min with 4 shards sharing the GPU). Checks every sha256 first.
 NSHARD=4 bash scripts/analysis/perspective_photos_218.sh IMG -
-# CPU (about 40 s on a desktop; 10 s with --n-null 0, which skips the chance floors):
+# CPU (about 1 min on a desktop; 10 s with --n-null 0, which skips the chance floors):
 # every table in section 4 -> results.json / results.md / images_scored.csv
 python scripts/analysis/perspective_photos_218.py score
 # CPU: the detection gallery (needs IMG)

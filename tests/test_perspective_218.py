@@ -341,3 +341,32 @@ def test_committed_rating_references_rederive():
     man, ref = PP.fp_reference()
     assert ref["manifest_digest"] == man["manifest_digest"] and len(ref["items"]) == 190
     assert S.committed_reference()["manifest_digest"] == "a1484360ce2df9a6"
+
+
+def test_count_matched_swap_donors():
+    """S6: count-matched donors share the receiver's bucket and differ in cluster; the
+    unmatched donors are unchanged by the option."""
+    import perspective_photos_218 as PP
+    ids = [f"i{k}" for k in range(24)]
+    clusters = {i: f"c{k % 4}" for k, i in enumerate(ids)}
+    buckets = {i: PP.count_bucket(k % 5) for k, i in enumerate(ids)}
+    assert PP.count_bucket(7) == 3 and PP.count_bucket(0) == 0
+    a = PP.swap_donors(ids, clusters, n_null=6, buckets=buckets)
+    assert a == PP.swap_donors(ids, clusters, n_null=6, buckets=buckets)
+    for dr in a:
+        for i in ids:
+            assert clusters[dr[i]] != clusters[i] and buckets[dr[i]] == buckets[i]
+    # a receiver whose bucket has no other-cluster donor falls back to any other cluster
+    lone = {**buckets, "i0": 99}
+    for dr in PP.swap_donors(ids, clusters, n_null=3, buckets=lone):
+        assert clusters[dr["i0"]] != clusters["i0"]
+
+
+def test_covisible_components():
+    """N9: ramps seen in the same photo share a component, transitively."""
+    import perspective_photos_218 as PP
+    pairs = [{"image_id": "a", "ramp": "r1"}, {"image_id": "a", "ramp": "r2"},
+             {"image_id": "b", "ramp": "r2"}, {"image_id": "b", "ramp": "r3"},
+             {"image_id": "c", "ramp": "r4"}]
+    comp = PP.covisible_components(pairs)
+    assert comp["r1"] == comp["r2"] == comp["r3"] != comp["r4"]
