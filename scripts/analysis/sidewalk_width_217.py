@@ -24,7 +24,7 @@ Three stages::
         --out analysis_out/sidewalk_width_217/results.json
 
 Geometry (``backproject``): pinhole camera, principal point at the image centre, focal
-length from EXIF ``FocalLengthIn35mmFilm`` (diagonal convention, 43.27 mm), camera
+length from the 35 mm equivalent (``F35_MM``; diagonal convention, 43.27 mm), camera
 ``h`` metres above a flat ground plane, pitched down by ``pitch`` radians, no roll.
 Image u right, v down. World: X right, Z forward (horizontal), camera foot at origin.
 
@@ -59,6 +59,12 @@ VISTAS_REVISION = "4772b6bf101d91f2534c106dc524d906aeb3c68a"   # as crossview_ar
 WORK_W = 1440               # label maps are written at this width (aspect kept)
 SEG_INPUT_HW = (768, 1024)  # Mask2Former input (h, w) for 4:3 landscape; transposed for portrait
 CAMERA_H_M = 1.0            # the Seoul capture protocol
+#: The Zenodo JPEGs carry NO EXIF (checked on all 514, 2026-09-30), so the focal length
+#: cannot be read per image. The paper names two phones, an iPhone 17 (26 mm equivalent)
+#: and an iPhone 16 Pro (24 mm equivalent), without saying which photo came from which.
+#: 25 mm is the midpoint; either phone is then off by 4%, and width scales with focal
+#: length, so that is a +-4% width error per image that nothing here can remove.
+F35_MM = 25.0
 DIAG_35MM = math.hypot(36.0, 24.0)
 EXPECTED_LABELS = {2: "Curb", 7: "Bike Lane", 9: "Curb Cut", 11: "Pedestrian Area",
                    15: "Sidewalk", 19: "Person", 30: "Vegetation", 45: "Pole"}
@@ -73,18 +79,22 @@ FURNITURE = (5, 32, 33, 34, 35, 37, 38, 39, 40, 42, 44, 45, 46, 47, 48, 49, 50, 
 #: fixed obstacles: street furniture (+ barrier/bollard), optionally vegetation + terrain
 #: (tree pits, planters); where they are not obstacles they are boundaries
 OBSTACLE_SETS = {"furn": FURNITURE, "furn_veg": FURNITURE + (29, 30)}
+#: Lane Marking - Crosswalk / - General. Seoul's yellow tactile paving strip, which runs
+#: down many sidewalks, can be labelled a lane marking; as a boundary it cuts the span in
+#: two. "surface" makes markings passable (still trimmed off the span ends).
+MARK_SETS = {"boundary": (), "surface": (23, 24)}
 
 BORDER_PX = 3               # a span end this close to the frame is truncated, row dropped
 Z_MAX_M = 15.0              # rows farther than this are never used
 PITCH_SENS_DEG = (-2.0, 2.0)
-VP_MAX_PITCH_DEG = 10.0
+VP_MAX_PITCH_DEG = 15.0
 YAW_MAX_DEG = 30.0
 
 #: the tuning grid (stage 3 picks one cell per measure on half A)
 BAND_ZMIN = (1.5, 2.5, 4.0)  # band starts at the first valid row at or beyond this depth
 BAND_LEN = (1.0, 3.0)        # ... and is this long (m)
 STATS = ("median", "p10")    # near-band width, or the 10th percentile ("min over the band")
-HORIZONS = ("level", "vp")
+HORIZONS = ("level", "vp", "vp_prior")
 
 SPLIT_SEED = 217
 GROUP_CELL_DEG = 0.001       # ~100 m lat/lon cells: neighbouring photos share a cell and a half
@@ -340,79 +350,130 @@ def _read_gt(path=GT_CSV):
         return {r["filename"]: r for r in csv.DictReader(f)}
 
 
-def measure_image(lab, f, h=CAMERA_H_M):
-    """Every configuration's widths for one label map. Yields dict rows (no image id)."""
-    Hh, Ww = lab.shape
-    cx, cy = (Ww - 1) / 2.0, (Hh - 1) / 2.0
+def image_spans(lab):
+    """{(walk, obst, mark, measure): (left, right)} border-trimmed spans for one label map."""
+    Ww = lab.shape[1]
+    cx = (Ww - 1) / 2.0
+    out = {}
     for wname, walk in WALK_SETS.items():
         for oname, obst in OBSTACLE_SETS.items():
-            spans = {"total": row_spans(lab, cx, walk, obst + TRANSIENT),
-                     "clear": row_spans(lab, cx, walk, TRANSIENT)}
-            spans = {k: exclude_border(l, r, Ww) for k, (l, r) in spans.items()}
-            # horizon: level, or the edges' vanishing point (total spans: the physical edges)
-            lt, rt = spans["total"]
-            # rows within Z_MAX_M of a level camera: nearer the horizon the edges are noise
-            below = np.arange(int(math.ceil(cy + f * h / Z_MAX_M)), Hh)
-            rows = below[(lt[below] >= 0)]
-            p_vp = vp_pitch(lt, rt, rows, f, cy) if rows.size else None
-            for hname in HORIZONS:
-                base = 0.0 if hname == "level" else p_vp
+            for mname, mark in MARK_SETS.items():
+                for meas, passable in (("total", obst + TRANSIENT + mark),
+                                       ("clear", TRANSIENT + mark)):
+                    l, r = row_spans(lab, cx, walk, passable)
+                    out[(wname, oname, mname, meas)] = exclude_border(l, r, Ww)
+    return out
+
+
+def image_vp(spans, f, shape, h=CAMERA_H_M):
+    """{(walk, obst, mark): VP pitch or None}, from the total spans (the physical edges)."""
+    Hh = shape[0]
+    cy = (Hh - 1) / 2.0
+    # rows within Z_MAX_M of a level camera: nearer the horizon the edges are noise
+    below = np.arange(int(math.ceil(cy + f * h / Z_MAX_M)), Hh)
+    out = {}
+    for (w, o, m, meas), (l, r) in spans.items():
+        if meas != "total":
+            continue
+        rows = below[l[below] >= 0]
+        out[(w, o, m)] = vp_pitch(l, r, rows, f, cy) if rows.size else None
+    return out
+
+
+def image_rows(spans, vps, prior, f, shape, h=CAMERA_H_M):
+    """Wide rows: one per (walk, obst, mark, horizon, dpitch, measure), a column per band cell.
+
+    Horizons: ``level`` (pitch 0), ``vp`` (the edges' vanishing point; no estimate when it
+    is not found), ``vp_prior`` (the VP, else ``prior[(walk, obst, mark)]``, the median VP
+    pitch over half A)."""
+    Hh, Ww = shape
+    cx, cy = (Ww - 1) / 2.0, (Hh - 1) / 2.0
+    for (w, o, m, meas), (l, r) in spans.items():
+        p_vp = vps[(w, o, m)]
+        for hname in HORIZONS:
+            if hname == "level":
+                base = 0.0
+            elif hname == "vp":
+                base = p_vp
+            else:
+                base = p_vp if p_vp is not None else prior[(w, o, m)]
+            for dp in (0.0,) + PITCH_SENS_DEG:
+                row = {"walk": w, "obst": o, "mark": m, "horizon": hname,
+                       "vp_found": int(p_vp is not None), "dpitch": dp, "measure": meas}
                 if base is None:
-                    base, fell_back = 0.0, True
-                else:
-                    fell_back = False
-                for dp in (0.0,) + PITCH_SENS_DEG:
-                    pitch = base + math.radians(dp)
-                    for mname, (l, r) in spans.items():
-                        Z, Wd, yaw = ground_widths(l, r, f, cx, cy, h, pitch)
-                        for zmin in BAND_ZMIN:
-                            for ln in BAND_LEN:
-                                for st in STATS:
-                                    yield {"walk": wname, "obst": oname, "horizon": hname,
-                                           "vp_fallback": int(fell_back),
-                                           "pitch_deg": round(math.degrees(pitch), 3),
-                                           "dpitch": dp, "measure": mname, "zmin": zmin,
-                                           "band": ln, "stat": st,
-                                           "yaw_deg": round(math.degrees(yaw), 2),
-                                           "width": band_stat(Z, Wd, zmin, ln, st)}
+                    row.update(pitch_deg="", yaw_deg="")
+                    row.update({c: "" for c in BAND_COLS})
+                    yield row
+                    continue
+                pitch = base + math.radians(dp)
+                Z, Wd, yaw = ground_widths(l, r, f, cx, cy, h, pitch)
+                row.update(pitch_deg=f"{math.degrees(pitch):.3f}",
+                           yaw_deg=f"{math.degrees(yaw):.2f}")
+                for zmin, ln, st in BAND_CELLS:
+                    wv = band_stat(Z, Wd, zmin, ln, st)
+                    row[band_col(zmin, ln, st)] = "" if not np.isfinite(wv) else f"{wv:.3f}"
+                yield row
 
 
-FIELDS = ["filename", "walk", "obst", "horizon", "vp_fallback", "pitch_deg", "dpitch",
-          "measure", "zmin", "band", "stat", "yaw_deg", "width"]
+def band_col(zmin, ln, st):
+    return f"w_z{zmin:g}_l{ln:g}_{st}"
+
+
+BAND_CELLS = [(z, ln, st) for z in BAND_ZMIN for ln in BAND_LEN for st in STATS]
+BAND_COLS = [band_col(*c) for c in BAND_CELLS]
+FIELDS = (["filename", "walk", "obst", "mark", "horizon", "vp_found", "dpitch", "measure",
+           "pitch_deg", "yaw_deg"] + BAND_COLS)
 
 
 def measure(args):
+    """Two passes: VP pitches for every image (the prior is their median over half A),
+    then every configuration's widths."""
     from PIL import Image
     t0 = time.time()
     with open(os.path.join(args.seg, "meta.json"), encoding="utf-8") as f:
         meta = json.load(f)["images"]
     gt = _read_gt()
-    out_rows = []
-    for n in sorted(gt):
-        m = meta.get(n)
-        if m is None:
-            continue
+    half, _ = split_groups(gt)
+    names = [n for n in sorted(gt) if n in meta]
+    if len(names) != len(gt) and not args.allow_partial:
+        sys.exit(f"label maps for {len(names)} of {len(gt)} GT images")
+    cache = {}
+    for n in names:
+        m = meta[n]
         lab = np.array(Image.open(os.path.join(args.seg, os.path.splitext(n)[0] + ".png")))
-        if m.get("f35_mm"):
-            f = focal_px(m["f35_mm"], m["work_w"], m["work_h"])
-        else:
-            sys.exit(f"{n}: no FocalLengthIn35mmFilm in EXIF")
-        for row in measure_image(lab, f):
+        f35 = m.get("f35_mm") or args.f35     # EXIF when present (it is not, on Seoul)
+        f = focal_px(f35, m["work_w"], m["work_h"])
+        spans = image_spans(lab)
+        cache[n] = (spans, image_vp(spans, f, lab.shape), f, lab.shape)
+    keys = list(next(iter(cache.values()))[1])
+    prior = {}
+    for k in keys:
+        vals = [cache[n][1][k] for n in names if half[n] == "A" and cache[n][1][k] is not None]
+        prior[k] = float(np.median(vals)) if vals else 0.0
+    out_rows = []
+    for n in names:
+        spans, vps, f, shape = cache[n]
+        for row in image_rows(spans, vps, prior, f, shape):
             row["filename"] = n
-            w = row["width"]
-            row["width"] = "" if not np.isfinite(w) else f"{w:.3f}"
             out_rows.append(row)
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     buf = io.StringIO(newline="")
     wr = csv.DictWriter(buf, fieldnames=FIELDS, lineterminator="\n")
     wr.writeheader()
     wr.writerows(out_rows)
-    # mtime=0: the gzip bytes depend only on the content
+    # mtime=0 and no filename: the gzip bytes depend only on the content
     with open(args.out, "wb") as raw, gzip.GzipFile(fileobj=raw, mode="wb", mtime=0,
                                                     filename="") as g:
         g.write(buf.getvalue().encode("utf-8"))
-    print(f"{len(out_rows)} rows for {len({r['filename'] for r in out_rows})} images "
-          f"in {time.time() - t0:.0f} s -> {args.out}")
+    side = os.path.splitext(os.path.splitext(args.out)[0])[0] + "_prior.json"
+    with open(side, "w", encoding="utf-8", newline="") as fh:
+        json.dump({"f35_mm": args.f35, "n_images": len(names),
+                   "vp_prior_pitch_deg_from_half_A":
+                   {"|".join(k): round(math.degrees(v), 3) for k, v in prior.items()},
+                   "elapsed_s": round(time.time() - t0, 1)}, fh, indent=1, sort_keys=True)
+        fh.write("\n")
+    print(f"{len(out_rows)} rows for {len(names)} images in {time.time() - t0:.0f} s "
+          f"-> {args.out}")
 
 
 # --------------------------------------------------------------------------- #
@@ -490,52 +551,83 @@ def bootstrap(est, gt, grp, keys, n_boot=N_BOOT, seed=SPLIT_SEED):
             for k, v in draws.items()}
 
 
-def _load_widths(path):
+CFG_KEYS = ("walk", "obst", "mark", "horizon", "zmin", "band", "stat")
+
+
+def load_table(path):
+    """{(measure, dpitch, walk, obst, mark, horizon, zmin, band, stat): {filename: width}}
+    plus {(walk, obst, mark): {filename: vp_found}} from the wide widths CSV."""
+    table, vp = {}, {}
     with gzip.open(path, "rt", encoding="utf-8", newline="") as f:
-        return list(csv.DictReader(f))
+        for r in csv.DictReader(f):
+            vp.setdefault((r["walk"], r["obst"], r["mark"]), {})[r["filename"]] = \
+                int(r["vp_found"])
+            head = (r["measure"], float(r["dpitch"]), r["walk"], r["obst"], r["mark"],
+                    r["horizon"])
+            for (zmin, ln, st), col in zip(BAND_CELLS, BAND_COLS):
+                table.setdefault(head + (zmin, ln, st), {})[r["filename"]] = (
+                    float(r[col]) if r[col] else np.nan)
+    return table, vp
+
+
+def _clean(o):
+    if isinstance(o, (bool, np.bool_)):
+        return bool(o)
+    if isinstance(o, (int, np.integer)):
+        return int(o)
+    if isinstance(o, (float, np.floating)):
+        o = float(o)
+        return None if not math.isfinite(o) else round(o, 4)
+    if isinstance(o, dict):
+        return {str(k): _clean(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)):
+        return [_clean(v) for v in o]
+    return o
+
+
+def series(n):
+    """Filename series (IMG_4xxx / IMG_6xxx / IMG_8xxx-9xxx): a proxy for capture session."""
+    return n[4] if n[4] in "46" else "8-9"
 
 
 def score(args):
     gt = _read_gt()
     half, groups = split_groups(gt)
-    rows = _load_widths(args.widths)
-    cfg_keys = ("walk", "obst", "horizon", "zmin", "band", "stat")
-    table = {}
-    for r in rows:
-        k = (r["measure"], float(r["dpitch"])) + tuple(r[c] for c in cfg_keys)
-        table.setdefault(k, {})[r["filename"]] = (float(r["width"]) if r["width"] else np.nan)
+    table, vp = load_table(args.widths)
     names = sorted(gt)
     G = np.array([float(gt[n]["width"]) for n in names])
     H = np.array([half[n] for n in names])
     GR = np.array([groups[n] for n in names])
+    SE = np.array([series(n) for n in names])
     A, B = H == "A", H == "B"
 
     def arr(k):
         d = table[k]
         return np.array([d.get(n, np.nan) for n in names])
 
-    boot_keys = ["mae", "bias_mean", "bias_median", "recall_lt_1_2", "precision_lt_1_2",
-                 "acc3", "coverage"]
+    boot_keys = ["mae", "bias_mean", "bias_median", "rel_mae", "recall_lt_1_2",
+                 "precision_lt_1_2", "acc3", "coverage"]
     res = {"split": {"seed": SPLIT_SEED, "group_cell_deg": GROUP_CELL_DEG,
                      "n_A": int(A.sum()), "n_B": int(B.sum()),
-                     "groups_A": int(len(set(GR[A]))), "groups_B": int(len(set(GR[B]))),
+                     "groups_A": len(set(GR[A])), "groups_B": len(set(GR[B])),
                      "narrow_A": int((G[A] < 1.2).sum()), "narrow_B": int((G[B] < 1.2).sum())},
            "gt": {"n": len(names), "mean": float(G.mean()), "min": float(G.min()),
                   "max": float(G.max()), "n_lt_1_2": int((G < 1.2).sum()),
                   "n_lt_1_5": int((G < 1.5).sum())},
+           "tuning_rule": "lowest MAE on half A among configurations that estimate at least "
+                          f"{args.min_coverage:.0%} of half A",
            "measures": {}}
     for meas in ("clear", "total"):
-        cands = [k for k in table if k[0] == meas and k[1] == 0.0]
-        # tuning rule: lowest MAE on half A among configs covering >= 90% of half A
         scored = []
-        for k in cands:
-            e = arr(k)
-            mA = metrics(e[A], G[A])
-            if mA["coverage"] >= 0.9:
+        for k in table:
+            if k[0] != meas or k[1] != 0.0:
+                continue
+            mA = metrics(arr(k)[A], G[A])
+            if mA["coverage"] >= args.min_coverage:
                 scored.append((mA["mae"], k, mA))
-        scored.sort(key=lambda t: t[0])
+        scored.sort(key=lambda t: (t[0], str(t[1])))
         best_mae, best, mA = scored[0]
-        cfg = dict(zip(cfg_keys, best[2:]))
+        cfg = dict(zip(CFG_KEYS, best[2:]))
         e = arr(best)
         mB = metrics(e[B], G[B])
         ciB = bootstrap(e[B], G[B], GR[B], boot_keys, n_boot=args.n_boot)
@@ -543,59 +635,56 @@ def score(args):
         for dp in PITCH_SENS_DEG:
             es = arr((meas, dp) + best[2:])
             ok = np.isfinite(es[B]) & np.isfinite(e[B])
+            mm = metrics(es[B], G[B])
             sens[f"{dp:+.0f}deg"] = {
                 "median_rel_change": float(np.median(es[B][ok] / e[B][ok] - 1)),
-                "mae_B": metrics(es[B], G[B]).get("mae"),
-                "bias_mean_B": metrics(es[B], G[B]).get("bias_mean")}
-        # bias-corrected (calibration fit on A only: median ratio), reported beside raw
+                "mae_B": mm.get("mae"), "bias_mean_B": mm.get("bias_mean")}
+        # a single scale fitted on half A (median GT/estimate), applied to B -- reported
+        # beside the raw number, because it absorbs the unknown focal length and height
         okA = np.isfinite(e[A])
         ratio = float(np.median(G[A][okA] / e[A][okA]))
         mBcal = metrics(e[B] * ratio, G[B])
         ciBcal = bootstrap(e[B] * ratio, G[B], GR[B], boot_keys, n_boot=args.n_boot)
-        # the same config on the whole set, for context only (it was tuned on A)
+        # the matching level-horizon configuration: what the VP buys
+        lvl = (meas, 0.0) + best[2:5] + ("level",) + best[6:]
+        mBlvl = metrics(arr(lvl)[B], G[B])
+        by_series = {s_: metrics(e[B & (SE == s_)], G[B & (SE == s_)])
+                     for s_ in sorted(set(SE))}
+        vpd = vp[best[2:5]]
         res["measures"][meas] = {
             "config": cfg, "tuning_mae_A": best_mae, "metrics_A": mA,
             "n_configs_considered": len(scored),
-            "top5_A": [{"mae_A": s[0], "config": dict(zip(cfg_keys, s[1][2:]))}
-                       for s in scored[:5]],
+            "top5_A": [{"mae_A": t[0], "coverage_A": t[2]["coverage"],
+                        "config": dict(zip(CFG_KEYS, t[1][2:]))} for t in scored[:5]],
             "metrics_B": mB, "ci95_B": ciB, "confusion_B": confusion(e[B], G[B]),
             "pitch_sensitivity_B": sens,
+            "level_horizon_same_config_B": mBlvl,
             "calibrated_B": {"scale_from_A": ratio, "metrics": mBcal, "ci95": ciBcal,
                              "confusion": confusion(e[B] * ratio, G[B])},
+            "by_series_B": by_series,
+            "vp_found_rate": {"A": float(np.mean([vpd[n] for n in names if half[n] == "A"])),
+                              "B": float(np.mean([vpd[n] for n in names if half[n] == "B"]))},
             "per_image": {n: (None if not np.isfinite(x) else round(float(x), 3))
                           for n, x in zip(names, e)}}
-        # the VP variant's fallback rate, for the chosen walk/obst
-        fb = [int(r["vp_fallback"]) for r in rows
-              if r["measure"] == meas and r["horizon"] == "vp" and float(r["dpitch"]) == 0
-              and r["walk"] == cfg["walk"] and r["obst"] == cfg["obst"]
-              and r["zmin"] == cfg["zmin"] and r["band"] == cfg["band"]
-              and r["stat"] == cfg["stat"]]
-        res["measures"][meas]["vp_fallback_rate"] = float(np.mean(fb)) if fb else None
+    res["half"] = {n: half[n] for n in names}
     res["confusion_layout"] = ("rows: GT <1.2, 1.2-1.5, >=1.5; cols: estimate <1.2, "
                                "1.2-1.5, >=1.5, no estimate")
-    res["widths_sha256"] = hashlib.sha256(open(args.widths, "rb").read()).hexdigest()
+    with open(args.widths, "rb") as fh:
+        res["widths_sha256"] = hashlib.sha256(fh.read()).hexdigest()
     res["n_boot"] = args.n_boot
-
-    def _clean(o):
-        if isinstance(o, float):
-            return None if not math.isfinite(o) else round(o, 4)
-        if isinstance(o, dict):
-            return {k: _clean(v) for k, v in o.items()}
-        if isinstance(o, (list, tuple)):
-            return [_clean(v) for v in o]
-        if isinstance(o, np.integer):
-            return int(o)
-        if isinstance(o, np.floating):
-            return _clean(float(o))
-        return o
     res = _clean(res)
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     with open(args.out, "w", encoding="utf-8", newline="") as f:
         json.dump(res, f, indent=1, sort_keys=True)
         f.write("\n")
     for meas, r in res["measures"].items():
-        print(meas, r["config"], "B:", {k: r["metrics_B"].get(k) for k in boot_keys},
-              "CI:", r["ci95_B"])
+        print(meas, r["config"])
+        print("  A mae", r["tuning_mae_A"], " B:", {k: r["metrics_B"].get(k) for k in boot_keys})
+        print("  B CI:", r["ci95_B"])
+        print("  B calibrated x%.3f:" % r["calibrated_B"]["scale_from_A"],
+              {k: r["calibrated_B"]["metrics"].get(k) for k in boot_keys})
+        print("  level horizon B mae", r["level_horizon_same_config_B"].get("mae"),
+              "vp found", r["vp_found_rate"])
 
 
 def main():
@@ -608,10 +697,15 @@ def main():
     p = sub.add_parser("measure")
     p.add_argument("--seg", required=True)
     p.add_argument("--out", required=True)
+    p.add_argument("--f35", type=float, default=F35_MM,
+                   help="35 mm-equivalent focal length when EXIF has none")
+    p.add_argument("--allow-partial", action="store_true",
+                   help="debugging only: measure whatever label maps exist")
     p = sub.add_parser("score")
     p.add_argument("--widths", required=True)
     p.add_argument("--out", required=True)
     p.add_argument("--n-boot", type=int, default=N_BOOT)
+    p.add_argument("--min-coverage", type=float, default=0.9)
     args = ap.parse_args()
     {"segment": segment, "measure": measure, "score": score}[args.cmd](args)
 
