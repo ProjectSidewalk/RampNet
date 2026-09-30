@@ -31,10 +31,10 @@
   }
  },
  "osm": {
-  "query": "[out:json][timeout:180];(way[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|living_street)(_link)?$\"](45.574389,-122.777563,45.701004,-122.46156);node[\"highway\"=\"traffic_signals\"](45.574389,-122.777563,45.701004,-122.46156);node[\"crossing\"=\"traffic_signals\"](45.574389,-122.777563,45.701004,-122.46156););out geom;",
+  "query": "[out:json][timeout:180];(way[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|living_street)(_link)?$\"](45.574389,-122.777563,45.701004,-122.46156);node[\"highway\"=\"traffic_signals\"](45.574389,-122.777563,45.701004,-122.46156);node[\"crossing\"=\"traffic_signals\"](45.574389,-122.777563,45.701004,-122.46156);way[\"bridge\"][\"bridge\"!=\"no\"](45.574389,-122.777563,45.701004,-122.46156);way[\"covered\"][\"covered\"!=\"no\"](45.574389,-122.777563,45.701004,-122.46156);way[\"layer\"~\"^[+]?[1-9]\"](45.574389,-122.777563,45.701004,-122.46156););out geom;",
   "endpoint": "https://overpass-api.de/api/interpreter",
-  "fetched_at": "2026-09-30T04:55:33+00:00",
-  "sha256": "5c7fbd7473ab1b3f321b3df5b808e048a7f972c120c8c9dd16e6a1d4fd087a82",
+  "fetched_at": "2026-09-30T15:18:35+00:00",
+  "sha256": "58ce83ffa4b8eea199d7017b53fe125079e2cfa2f3d5181f9e22d61bc0c2a030",
   "n_ways": 16588,
   "n_signal_nodes": 2447
  },
@@ -76,7 +76,11 @@
    "mid_block": 7
   },
   "double_rate_share": 0.2,
-  "rule_version": 1,
+  "rule_version": 2,
+  "grade_separation": {
+   "rule": "exclude a candidate whose 30 m window touches any OSM way tagged bridge!=no, covered!=no or layer>=1, or a street way (STREET_HIGHWAY_RE) tagged tunnel!=no or layer<=-1",
+   "window_m": 30.0
+  },
   "candidates": {
    "street_ways": 16588,
    "intersection_nodes": 10492,
@@ -85,17 +89,30 @@
    "midblock_points": 46835,
    "outside_area": 28437,
    "off_ps_street": 6144,
+   "grade_separated": 422,
+   "grade_separated_by_stratum": {
+    "signalised": 19,
+    "arterial": 35,
+    "residential": 4,
+    "mid_block": 364
+   },
+   "grade_separated_ways": {
+    "bridge": 466,
+    "layer_above": 196,
+    "street_tunnel": 6,
+    "covered": 235
+   },
    "eligible": {
-    "signalised": 303,
-    "arterial": 1532,
-    "residential": 2652,
-    "mid_block": 17276
+    "signalised": 284,
+    "arterial": 1497,
+    "residential": 2648,
+    "mid_block": 16912
    }
   },
   "draw": {
    "signalised": {
-    "candidates": 303,
-    "candidates_empty": 6,
+    "candidates": 284,
+    "candidates_empty": 4,
     "labelled_target": 17,
     "labelled_drawn": 17,
     "labelled_spacing_rejected": 0,
@@ -104,8 +121,8 @@
     "empty_spacing_rejected": 0
    },
    "arterial": {
-    "candidates": 1532,
-    "candidates_empty": 433,
+    "candidates": 1497,
+    "candidates_empty": 415,
     "labelled_target": 17,
     "labelled_drawn": 17,
     "labelled_spacing_rejected": 0,
@@ -114,8 +131,8 @@
     "empty_spacing_rejected": 0
    },
    "residential": {
-    "candidates": 2652,
-    "candidates_empty": 1098,
+    "candidates": 2648,
+    "candidates_empty": 1096,
     "labelled_target": 17,
     "labelled_drawn": 17,
     "labelled_spacing_rejected": 0,
@@ -124,19 +141,19 @@
     "empty_spacing_rejected": 0
    },
    "mid_block": {
-    "candidates": 17276,
-    "candidates_empty": 14692,
+    "candidates": 16912,
+    "candidates_empty": 14379,
     "labelled_target": 17,
     "labelled_drawn": 17,
-    "labelled_spacing_rejected": 0,
+    "labelled_spacing_rejected": 2,
     "empty_target": 3,
     "empty_drawn": 3,
     "empty_spacing_rejected": 0
    }
   }
  },
- "exported_at": "2026-09-30T04:57:29+00:00",
- "exporter": "sidewalk-auto-labeler scripts/export_cluster_review.py@d86cbd483bc9f82d8a06b4793659f95e40b84a26",
+ "exported_at": "2026-09-30T15:18:49+00:00",
+ "exporter": "sidewalk-auto-labeler scripts/export_cluster_review.py@5b21cd9b00d9b00a2b8f9ab5345591eb599182b2",
  "inventory": {
   "path_in_run": "inventory_oracle/inventory.geojson",
   "url": "https://services.arcgis.com/oNvpY90qsPDizwkN/arcgis/rest/services/COV_TransCurbRamp/FeatureServer/0",

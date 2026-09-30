@@ -1,6 +1,6 @@
 # Corner-level cluster review: pre-registered protocol (issue #224)
 
-**Status (2026-09-30): pre-registered, no review done; single rater (Amendment 2).** Written before any unit was reviewed and
+**Status (2026-09-30): pre-registered, no review done; single rater (Amendment 2); sampling rule v2 and can't-judge (Amendment 3).** Written before any unit was reviewed and
 before any assignment-based number existed. The rubric is [`benchmark/RUBRICS.md` §6](../benchmark/RUBRICS.md)
 (`rubric_version: 1`). Nothing in this document may be changed after the pilot is read except where
 it says so (the pilot pass/fail rule may be revised, once, before the full pass, as rubric v2).
@@ -36,7 +36,7 @@ benchmark/<city>/cluster_review/
   crops/  aerial/  gallery/   pixels and the rendered tool (git-ignored)
 ```
 
-## Sampling rule (rule_version 1)
+## Sampling rule (rule_version 2)
 
 1. **Streets and nodes from OSM**: one Overpass query over the run's area bbox (padded 0.003°):
    `way["highway"~STREET_HIGHWAY_RE]` (the auto-labeler's `position_check.STREET_HIGHWAY_RE`:
@@ -56,6 +56,14 @@ benchmark/<city>/cluster_review/
    centre must lie inside the run's area polygon and within **20 m** of an *open* street of the
    city's Project Sidewalk street network (the network the deployment labelled over). Without it
    an empty unit could be a place no imagery was ever looked at.
+   **6b. Grade separation** (rule_version 2, Amendment 3): a candidate is excluded when its
+   30 m window touches (a) any OSM way — street, railway, footway, anything — tagged
+   `bridge` ≠ `no`, `covered` ≠ `no`, or `layer` ≥ 1, or (b) a street way
+   (`STREET_HIGHWAY_RE`) tagged `tunnel` ≠ `no` or `layer` ≤ −1. The Overpass query of rule 1
+   also fetches `way["bridge"]["bridge"!="no"]`, `way["covered"]["covered"!="no"]` and
+   `way["layer"~"^[+]?[1-9]"]` (the street ways of rule 1 already carry their `tunnel` / `layer`
+   tags for (b)); the street filter of rules 2–5 is unchanged. Excluded candidates are counted (`grade_separated`, overall and per stratum) in
+   `snapshot.json` and `report.md`.
 7. **Window**: radius **30 m** about the centre. A label is in a unit when its **server** lat/lng
    is within 30 m. `has_labels` = at least one label.
 8. **Draw**: candidates are shuffled with `random.Random(seed)` (seed **224**) once per stratum,
@@ -108,7 +116,8 @@ existing `corners.jsonl`.
  "sampling": {"seed": 224, "per_stratum": 20, "empty_share": 0.15, "window_m": 30, "spacing_m": 60,
               "merge_nodes_m": 25, "signal_radius_m": 30, "midblock_min_m": 60, "midblock_step_m": 20,
               "eligible_street_m": 20, "pilot_quota": {"signalised": 8, "arterial": 7,
-              "residential": 8, "mid_block": 7}, "double_rate_share": 0.2, "rule_version": 1},
+              "residential": 8, "mid_block": 7}, "double_rate_share": 0.2, "rule_version": 2,
+              "grade_separation": {"rule": "...", "window_m": 30}},
  "exported_at": "...", "exporter": "sidewalk-auto-labeler scripts/export_cluster_review.py@<git sha>"}
 ```
 
@@ -146,17 +155,22 @@ latitude). `inventory` is present only for cities with one and is shown only aft
     "ramps": {"r1": {"lat": 0, "lng": 0, "placed": false}},
     "uncovered": [{"lat": 0, "lng": 0, "unsure": false}],
     "complete": true, "elapsed_s": 47.2, "note": "",
-    "inventory_seen": false, "edited_after_inventory": false}}}
+    "inventory_seen": false, "edited_after_inventory": false,
+    "cant_judge": false, "cant_judge_reason": ""}}}
 ```
 `inventory_seen` is set (sticky) the first time the tool reveals the city inventory on the unit
 (on completion); `edited_after_inventory` is set by any later edit, including reopening. Both are
-booleans; `edited_after_inventory` without `inventory_seen` is invalid.
+booleans; `edited_after_inventory` without `inventory_seen` is invalid. `cant_judge` (a boolean;
+absent = false) marks a unit the reviewer could not judge (Amendment 3); it requires a non-empty
+`cant_judge_reason` and is never `complete` at the same time. Its labels may be partly assigned;
+they are ignored.
 `validate()` refuses: a wrong `schema`; a `snapshot_sha256` other than the bundle's; a complete
 unit with a label missing from `labels`; a label key not in the unit; a ramp key referenced by a
 label that is not in `ramps`, or a ramp with no label; an uncovered point outside the window or
 within 1 m of an assigned ramp's position (the tool refuses such a click, and refuses Export
 while one exists in a complete unit); a negative `elapsed_s`; a non-boolean inventory flag. The
-auto-labeler's scorer additionally refuses any label value other than `^r\d+$`, `not_ramp` or
+refusals also cover `cant_judge`: a non-boolean, together with `complete`, or without a
+reason. The auto-labeler's scorer additionally refuses any label value other than `^r\d+$`, `not_ramp` or
 `unsure`, and any `rubric_version` other than 1.
 
 ## Metrics (`inventory_clustering.assignment_metrics`)
@@ -169,7 +183,9 @@ that arm. Coverage is therefore arm-independent by construction; only split, mer
 differ between arms.
 
 An **arm** maps each label key to the set of clusters holding it (one cluster normally; a stale
-deployed pull can hold a label twice). Only **complete** units count; within a unit only its own labels are read (a cluster's
+deployed pull can hold a label twice). Only **complete** units count (a `cant_judge` unit never
+does: it is excluded from every metric, counted overall and per stratum, and listed with its reason
+in the report); within a unit only its own labels are read (a cluster's
 labels outside the window are ignored). `unsure` labels are removed from everything; `not_ramp`
 labels count only for validity.
 
@@ -299,3 +315,26 @@ There is one rater (Jon). No second person rates any unit for now. Wherever this
    rater. It carries more weight than it did before, and it is reported next to the decision.
 7. **If a second rater joins later**, the original rules apply to them unchanged, as an
    additional file. The self-re-review remains a separate, labelled result.
+
+## Amendment 3 (2026-09-30, before any unit was reviewed)
+
+No unit had been reviewed and no assignments file existed when this was made. `rubric_version`
+stays **1**: nothing was ever rated under the rubric as it stood, so there is no earlier file for
+the change to split from.
+
+1. **Grade separation (rule 6b, sampling `rule_version` 2).** Windows touching an overhead
+   structure (a bridge, a covered way, anything at `layer` ≥ 1) or a street below grade are
+   excluded before the draw. Why: the aerial is how a reviewer confirms a unit — what is under a
+   deck cannot be seen from above, and a corner of a street in a tunnel is a corner nobody stands
+   at. The first pilot unit opened (`vancouver:sig:000012`, under a motorway ramp) showed it.
+   The rule is objective and applied before anyone looks at a unit, so it cannot bias the sample
+   toward easy corners; it narrows the study to corners at grade, by the share `report.md`
+   states (measured on the old cached OSM, street ways only: 305 of 21,765 eligible candidates,
+   1.4%). The Vancouver bundle was re-drawn under it; the v1 draw was never reviewed.
+2. **Can't judge.** A unit may be marked `cant_judge` with a required free-text
+   `cant_judge_reason`. Such a unit counts in no metric; every one is counted (overall and per
+   stratum) and listed with its reason in the scorer's report, and the agreement report counts
+   them for both passes, including units one pass completed and the other could not judge. It is
+   for surprises the rule misses — tree cover or shadow hiding the corner, construction, imagery
+   missing or unusable for the window — **never for a unit that is merely hard** (many labels,
+   confusing geometry): a hard unit is exactly what the review is for.

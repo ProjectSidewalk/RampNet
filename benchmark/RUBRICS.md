@@ -225,6 +225,7 @@ the same answer without placing anything.
 | A ramp that no label covers (visible on the aerial or in a crop)? | One **`uncovered`** point, clicked *at the ramp* on the aerial. Only ramps inside the window. |
 | A label on something that is not a curb ramp (fire hydrant, crosswalk paint, driveway, car)? | `not_ramp`. |
 | Cannot tell which ramp a label is on, or whether it is one? | `unsure` — it **abstains**: excluded from every metric, never coerced. |
+| Cannot judge the unit at all (trees or shadow hide the corner on the aerial, construction, imagery missing or unusable for the window)? | Mark the unit **can't judge** and write why (`cant_judge_reason`, required). It counts in no metric and is listed with its reason. **Not** for a unit that is merely hard — many labels or confusing geometry is what this review is for. Windows over bridges, covered ways or streets below grade are already excluded from the sample (protocol rule 6b). |
 
 ### Label classes and group keys
 
