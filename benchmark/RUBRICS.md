@@ -255,6 +255,9 @@ A reviewer shown the deployed grouping is more likely to accept it than a review
 arm's. So the second-rater subset is re-seeded: half of the double-rated units open with the
 **fusion** grouping instead (`rater_b_seed` on the unit), and inter-rater agreement is reported
 split by whether the two raters saw the same seed. A seed effect is a finding, not noise.
+With one rater (protocol, Amendment 2), the double-rated units are the same rater's re-review,
+≥ 7 days later. That agreement is intra-rater, and the seed split measures anchoring within one
+person.
 
 ### City inventories are hidden until complete
 

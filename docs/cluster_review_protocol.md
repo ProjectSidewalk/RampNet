@@ -1,6 +1,6 @@
 # Corner-level cluster review: pre-registered protocol (issue #224)
 
-**Status (2026-09-29): pre-registered, no review done.** Written before any unit was reviewed and
+**Status (2026-09-30): pre-registered, no review done; single rater (Amendment 2).** Written before any unit was reviewed and
 before any assignment-based number existed. The rubric is [`benchmark/RUBRICS.md` §6](../benchmark/RUBRICS.md)
 (`rubric_version: 1`). Nothing in this document may be changed after the pilot is read except where
 it says so (the pilot pass/fail rule may be revised, once, before the full pass, as rubric v2).
@@ -32,7 +32,7 @@ benchmark/<city>/cluster_review/
   crops_missing.csv    labels whose crop could not be cut (tracked)
   report.md            the exporter's counts, provenance and timing (tracked)
   assignments.json     THE GT, rater A (tracked; written only by the gallery's Export)
-  assignments__<rater>.json   a second rater (tracked)
+  assignments__<rater>.json   another pass: today the rater's delayed re-review (Amendment 2) (tracked)
   crops/  aerial/  gallery/   pixels and the rendered tool (git-ignored)
 ```
 
@@ -268,3 +268,34 @@ No unit had been reviewed and no assignments file existed when these were made.
    `corners.jsonl` sha256; `--role b` requires `--rater`, and a rater's existing export made under
    the other role is refused; a prefilled file wins over state the browser merely seeded (local
    work wins only on units seen or completed, and those conflicts are listed).
+
+## Amendment 2 (2026-09-30, single rater, before any unit was reviewed)
+
+No unit had been reviewed and no assignments file existed when this was made.
+
+There is one rater (Jon). No second person rates any unit for now. Wherever this document or
+`RUBRICS.md` §6 says "rater B" or "second rater", read **the same rater's delayed re-review**:
+
+1. **Same sampling.** `double_rate` and `rater_b_seed` are unchanged. The 30 pilot units and the
+   10 double-rated non-pilot units are re-reviewed, and each re-review opens with its
+   `rater_b_seed`, so half open with fusion and half with deployed.
+2. **Washout.** A unit's re-review starts **≥ 7 days** after that unit was completed in the first
+   pass. The first pass is not reopened or consulted during the re-review. The re-review is a
+   separate gallery build (`--role b --rater <name>-retest --seed-arm auto`), exported as
+   `assignments__<name>-retest.json`, so the first pass's browser state and file are never read.
+3. **What it measures.** The agreement statistics are computed unchanged, but they are
+   **intra-rater (test-retest) consistency, not inter-rater reliability**. They cannot show that
+   a second person would read the rubric the same way. The report and every quote of them say
+   "intra-rater". The `same_seed` / `different_seed` split still measures the seed effect, now
+   within one person. It is weaker here because a unit can be remembered across the washout.
+4. **Pilot gate.** The thresholds are unchanged (pairwise ≥ 0.90, κ ≥ 0.6). Self-agreement is
+   expected to run higher than agreement between two people, so passing the gate is a weaker
+   result than the original rule intended, and it is reported as such.
+5. **Seed direction.** The first pass is seeded with `deployed` (PS's own clustering, close to
+   `ps @ 7.5 m`). Any anchoring therefore pulls the scores toward the baseline arm, not toward
+   `fusion_server+attach`. A PASS is conservative with respect to that bias; a NOT ESTABLISHED may
+   partly be anchoring. The `different_seed` agreement is how large that effect could be.
+6. **External check.** Only the Vancouver inventory calibration (above) is independent of the
+   rater. It carries more weight than it did before, and it is reported next to the decision.
+7. **If a second rater joins later**, the original rules apply to them unchanged, as an
+   additional file. The self-re-review remains a separate, labelled result.
