@@ -373,3 +373,20 @@ analysis_out/mined_placement_158/*
 analysis_out/mined_placement_158/predictions/*
 !analysis_out/mined_placement_158/predictions/*.jsonl
 !analysis_out/mined_placement_158/predictions/*.json
+
+# RampNet on perspective photos (#218): detections, image lists, sha256 manifests and result
+# tables are committed; images never are (Mapillary thumbnails and the Seoul photos are
+# re-fetched by id / filename and checked against the committed sha256).
+!analysis_out/perspective_photos_218/
+analysis_out/perspective_photos_218/*
+!analysis_out/perspective_photos_218/*.csv
+!analysis_out/perspective_photos_218/*.json
+!analysis_out/perspective_photos_218/*.jsonl
+!analysis_out/perspective_photos_218/*.md
+!analysis_out/perspective_photos_218/seoul/
+analysis_out/perspective_photos_218/seoul/*
+!analysis_out/perspective_photos_218/seoul/*.csv
+!analysis_out/perspective_photos_218/seoul/*.json
+!analysis_out/perspective_photos_218/seoul/*.jsonl
+benchmark/seoul_presence_218/img/
+benchmark/richmond_flat_fp_218/img/
