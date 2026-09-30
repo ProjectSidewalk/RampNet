@@ -274,11 +274,13 @@ def segment(args):
             raise RuntimeError(f"class {cid} is {got!r}, expected {name!r}")
     os.makedirs(args.out, exist_ok=True)
     gt = _read_gt()
+    # the CSV says IMG_8956.JPG, the archives hold IMG_8956.jpg: match case-insensitively
+    by_lower = {n.lower(): n for n in gt}
     paths = {}
     for dirpath, _, names in os.walk(args.images):
         for n in names:
-            if n in gt and not n.startswith("._"):
-                paths[n] = os.path.join(dirpath, n)
+            if n.lower() in by_lower and not n.startswith("._"):
+                paths[by_lower[n.lower()]] = os.path.join(dirpath, n)
     missing = sorted(set(gt) - set(paths))
     if missing:
         sys.exit(f"{len(missing)} GT images not found under {args.images}: {missing[:5]}")
