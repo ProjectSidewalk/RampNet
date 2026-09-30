@@ -234,6 +234,30 @@ while this estimator answers 96% of half B**, with MAE and bias computed without
 photos that got no estimate. A half-A scale calibration (×0.98) changes nothing material
 (clear MAE 0.75 m).
 
+## Examples
+
+Eight half-B photos (CC0), chosen by a fixed rule on the clear-width signed error: smallest
+|error|, closest to the median error, largest over- and under-estimate, the median-|error| true
+<1.2 m flag, the widest-GT false <1.2 m flag, the first no-estimate photo by filename, and the
+second-largest over-estimate (`sidewalk_width_217_figures.py`, docstring). The overlays are
+recomputed from the label maps with the scoring code, and each recomputed width is asserted
+equal to the committed per-image estimate.
+
+![Eight half-B photos with the walkable mask, clear-span edges, measurement band and VP horizon](figures/sidewalk_width_217/examples_contact_sheet.jpg)
+
+![Estimated vs GT clear width on half B, and MAE per GT-width bin for clear and total width](figures/sidewalk_width_217/diagnostics.jpg)
+
+What the examples show. The two worst over-estimates (IMG_6839, +9.6 m; IMG_6451, +6.0 m)
+fail the same way: the walkable span touches the frame edge in every near row, so those rows
+are dropped, and the first usable rows lie 10–14 m out, just below the horizon, where one
+pixel spans decimetres and the measured span reaches past the sidewalk. The worst
+under-estimate (IMG_6398, −5.5 m) is a clear span cut short by a bollard and pole in the
+middle of a 6.9 m sidewalk. The false <1.2 m flag (IMG_6694) is a sidewalk mostly
+hidden by a parked truck and car. The no-estimate photo (IMG_4500) has a row of street trees
+down the middle of the sidewalk, and the right-edge fit follows the trees, so no vanishing
+point is found. The band starts at the first valid row at or beyond 1.5 m, so on the good
+photos it sits at 1.9–2.9 m or 2.7–3.7 m rather than exactly 1.5–2.5 m.
+
 ## Caveats (they apply to every number above)
 
 - **Easy geometry.** The camera stood on the sidewalk facing along it, so width is lateral and
@@ -329,7 +353,18 @@ python scripts/analysis/sidewalk_width_217.py score \
     --widths analysis_out/sidewalk_width_217/widths.csv.gz \
     --out analysis_out/sidewalk_width_217/results.json \
     --sensitivity-out analysis_out/sidewalk_width_217/sensitivity.json
+# 4. example figures (CPU; ~10 s). `select` lists the eight photos from committed files;
+#    render needs only those photos and their label maps
+python scripts/analysis/sidewalk_width_217_figures.py select
+python scripts/analysis/sidewalk_width_217_figures.py render --images $SEOUL/images --seg $SEG
 ```
+
+The committed figures (matplotlib 3.11.1, Pillow 12.3.0) have sha256
+`8afe8879693e290733da56573230dc9d228cf8ddb2637ecc3455360ca7b5e94b`
+(`examples_contact_sheet.jpg`) and
+`fccb4fc37ef79e4730fe6b8b58b5a777fa1263c1957d835b8f1519e03a772680` (`diagnostics.jpg`); other
+matplotlib or JPEG-encoder versions will not match byte-for-byte, and the widths drawn are
+asserted against `results.json` either way.
 
 Step 3 needs only committed files. Steps 1–2 need the label maps, which exist only on makelab2;
 someone without access regenerates them with step 1 and checks them with `verify-seg`. The
