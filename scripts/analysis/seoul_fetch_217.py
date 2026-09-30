@@ -17,7 +17,8 @@ Usage::
     # check every image against the committed manifest
     python scripts/analysis/seoul_fetch_217.py fetch --dest /homes/gws/jonf/seoul_sidewalk
 
-    # an existing copy (someone else's, or an old one): check it against the manifest
+    # an existing copy (someone else's, or an old one): check it against the manifest,
+    # and the committed summary_attributes.csv against Zenodo's md5
     python scripts/analysis/seoul_fetch_217.py verify --dest /homes/gws/jonf/seoul_sidewalk
 
     # (first fetch only) write the manifest that later verifies check against
@@ -40,6 +41,7 @@ API = f"https://zenodo.org/api/records/{RECORD}"
 IMAGE_EXT = (".jpg", ".jpeg", ".png", ".heic")
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DEFAULT_MANIFEST = os.path.join(REPO, "data", "seoul_sidewalk_217", "manifest.json")
+COMMITTED_CSV = os.path.join(REPO, "data", "seoul_sidewalk_217", "summary_attributes.csv")
 
 
 def _hash(path, algo):
@@ -110,7 +112,21 @@ def fetch(args):
         verify(args)
 
 
+def verify_committed_csv(manifest=DEFAULT_MANIFEST, csv_path=COMMITTED_CSV):
+    """md5 of the committed GT table against the Zenodo md5 recorded in the manifest.
+    Returns (ok, got, want)."""
+    with open(manifest, encoding="utf-8") as f:
+        want = json.load(f)["archives"]["summary_attributes.csv"]["md5"]
+    got = _hash(csv_path, "md5")
+    return got == want, got, want
+
+
 def verify(args):
+    ok, got, want_md5 = verify_committed_csv(args.manifest)
+    print(f"committed summary_attributes.csv md5 {got} "
+          f"{'==' if ok else '!='} Zenodo's {want_md5}")
+    if not ok:
+        sys.exit("FAILED: the committed GT table is not the Zenodo file")
     with open(args.manifest, encoding="utf-8") as f:
         want = json.load(f)["images"]
     have = dict(_images(args.dest))

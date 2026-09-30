@@ -167,3 +167,62 @@ def test_committed_headline_recomputes_from_per_image():
         assert m["mae"] == pytest.approx(r["metrics_B"]["mae"], abs=1e-3)
         assert m["tp"] == r["metrics_B"]["tp"]
         assert m["n_flagged"] == r["metrics_B"]["n_flagged"]
+
+
+def test_every_class_id_used_is_checked():
+    """#225 review N4: every Vistas id in a class group is in EXPECTED_LABELS, so a
+    checkpoint whose ids differ fails at load time."""
+    used = set(S.TRANSIENT)
+    for group in (S.WALK_SETS, S.OBSTACLE_SETS, S.MARK_SETS):
+        for ids in group.values():
+            used |= set(ids)
+    assert used <= set(S.EXPECTED_LABELS), sorted(used - set(S.EXPECTED_LABELS))
+
+
+def test_committed_gt_csv_is_the_zenodo_file():
+    """#225 review N5: the committed GT table's md5 is Zenodo's, as recorded in the manifest."""
+    import seoul_fetch_217 as F
+    ok, got, want = F.verify_committed_csv()
+    assert ok, (got, want)
+
+
+def test_score_reproduces_committed_results(tmp_path):
+    """#225 review N7: re-scoring the committed widths CSV picks the committed configurations
+    and reproduces the committed half-B metrics and sensitivity reads (bootstrap draws cut to
+    200: the point metrics and the sensitivity block do not depend on them)."""
+    import argparse
+    import json
+    d = os.path.join(REPO, "analysis_out", "sidewalk_width_217")
+    out, sens = tmp_path / "results.json", tmp_path / "sensitivity.json"
+    S.score(argparse.Namespace(widths=os.path.join(d, "widths.csv.gz"), out=str(out),
+                               n_boot=200, min_coverage=0.9, sensitivity_out=str(sens)))
+    with open(os.path.join(d, "results.json"), encoding="utf-8") as f:
+        want = json.load(f)
+    got = json.loads(out.read_text(encoding="utf-8"))
+    for meas in ("clear", "total"):
+        assert got["measures"][meas]["config"] == want["measures"][meas]["config"]
+        assert got["measures"][meas]["metrics_B"] == want["measures"][meas]["metrics_B"]
+        assert got["measures"][meas]["per_image"] == want["measures"][meas]["per_image"]
+    with open(os.path.join(d, "sensitivity.json"), encoding="utf-8") as f:
+        assert json.loads(sens.read_text(encoding="utf-8")) == json.load(f)
+
+
+@pytest.mark.parametrize("width,pitch_deg", [(1.2, 0.0), (1.2, -3.4), (3.0, -3.4), (3.0, 3.0)])
+def test_focal_error_barely_moves_width(width, pitch_deg):
+    """#225 review S2: with the horizon row taken from the image (the edges' vanishing point,
+    recomputed with the WRONG focal length, as the pipeline would), a +-10% focal-length
+    error moves width by well under 1%. Pitch, not focal length, is the dominant term."""
+    lab, f, cx, cy = render(width, pitch_deg=pitch_deg, yaw_deg=5.0)
+    l, r = S.row_spans(lab, cx, S.WALK_SETS["base"], ())
+    l, r = S.exclude_border(l, r, lab.shape[1])
+    rows = np.flatnonzero(l >= 0)
+    out = {}
+    for k in (0.9, 1.0, 1.1):
+        fk = f * k
+        p = S.vp_pitch(l, r, rows, fk, cy)
+        assert p is not None
+        Z, Wd, _ = S.ground_widths(l, r, fk, cx, cy, 1.0, p)
+        out[k] = S.band_stat(Z, Wd, 1.5, 1.0, "median")
+    assert out[1.0] == pytest.approx(width, rel=0.03)
+    for k in (0.9, 1.1):
+        assert abs(out[k] / out[1.0] - 1) < 0.005, (k, out)

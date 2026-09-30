@@ -10,9 +10,13 @@ centre of the walking path, with laser-measured effective (unobstructed) width.
 
 Three stages::
 
-    # 1. GPU: label maps (makelab2 A40, ~10 min). Not committed; sha256 manifest is.
+    # 1. GPU: label maps (makelab2 A40, ~10 min). Not committed; the committed run's maps
+    #    are at makelab2:/homes/gws/jonf/sw217_seg and their sha256s in seg_meta.json.
+    #    Env: NOT environment.yml -- see docs/sidewalk_width_217.md (torch 2.8.0+cu128,
+    #    transformers 4.57.6, Python 3.9).
     python scripts/analysis/sidewalk_width_217.py segment \
         --images /homes/gws/jonf/seoul_sidewalk/images --out SEGDIR
+    python scripts/analysis/sidewalk_width_217.py verify-seg --seg SEGDIR
 
     # 2. CPU: every configuration's width for every image -> one committed CSV
     python scripts/analysis/sidewalk_width_217.py measure --seg SEGDIR \
@@ -21,7 +25,8 @@ Three stages::
     # 3. CPU, from the committed CSV alone: tune on half A, report on half B
     python scripts/analysis/sidewalk_width_217.py score \
         --widths analysis_out/sidewalk_width_217/widths.csv.gz \
-        --out analysis_out/sidewalk_width_217/results.json
+        --out analysis_out/sidewalk_width_217/results.json \
+        --sensitivity-out analysis_out/sidewalk_width_217/sensitivity.json
 
 Geometry (``backproject``): pinhole camera, principal point at the image centre, focal
 length from the 35 mm equivalent (``F35_MM``; diagonal convention, 43.27 mm), camera
@@ -62,12 +67,27 @@ CAMERA_H_M = 1.0            # the Seoul capture protocol
 #: The Zenodo JPEGs carry NO EXIF (checked on all 514, 2026-09-30), so the focal length
 #: cannot be read per image. The paper names two phones, an iPhone 17 (26 mm equivalent)
 #: and an iPhone 16 Pro (24 mm equivalent), without saying which photo came from which.
-#: 25 mm is the midpoint; either phone is then off by 4%, and width scales with focal
-#: length, so that is a +-4% width error per image that nothing here can remove.
+#: 25 mm is the midpoint; either phone is then off by 4%. With the horizon row taken from
+#: the image (the VP), width barely depends on f: a ground point's lateral offset is
+#: X = h (u - cx) / (cos p (v - v_h)), so f enters only through cos p and through which
+#: rows fall in the depth band (Z scales with f). On synthetic sidewalks f x0.9-1.1 changes
+#: width by < 0.1% (tests/test_sidewalk_width_217.py::test_focal_error_barely_moves_width).
 F35_MM = 25.0
 DIAG_35MM = math.hypot(36.0, 24.0)
-EXPECTED_LABELS = {2: "Curb", 7: "Bike Lane", 9: "Curb Cut", 11: "Pedestrian Area",
-                   15: "Sidewalk", 19: "Person", 30: "Vegetation", 45: "Pole"}
+#: Every Vistas v1.2 class id this script relies on, checked against the checkpoint's
+#: id2label at load time (verified against config.json at VISTAS_REVISION, 2026-09-30), so a
+#: checkpoint whose ids differ fails loudly instead of silently re-meaning a class group.
+EXPECTED_LABELS = {
+    0: "Bird", 1: "Ground Animal", 2: "Curb", 5: "Barrier", 7: "Bike Lane", 9: "Curb Cut",
+    11: "Pedestrian Area", 15: "Sidewalk", 19: "Person", 20: "Bicyclist",
+    21: "Motorcyclist", 22: "Other Rider", 23: "Lane Marking - Crosswalk",
+    24: "Lane Marking - General", 29: "Terrain", 30: "Vegetation", 32: "Banner",
+    33: "Bench", 34: "Bike Rack", 35: "Billboard", 36: "Catch Basin", 37: "CCTV Camera",
+    38: "Fire Hydrant", 39: "Junction Box", 40: "Mailbox", 41: "Manhole",
+    42: "Phone Booth", 43: "Pothole", 44: "Street Light", 45: "Pole",
+    46: "Traffic Sign Frame", 47: "Utility Pole", 48: "Traffic Light",
+    49: "Traffic Sign (Back)", 50: "Traffic Sign (Front)", 51: "Trash Can", 52: "Bicycle",
+    57: "Motorcycle", 62: "Wheeled Slow"}
 
 #: Vistas v1.2 class groups. Every class not named here is a BOUNDARY: a span stops at it.
 WALK_BASE = (15, 11, 9, 41, 36, 43)       # sidewalk, pedestrian area, curb cut, manhole,
@@ -77,7 +97,11 @@ WALK_SETS = {"base": WALK_BASE, "bike": WALK_BASE + (7,)}          # + Bike Lane
 TRANSIENT = (0, 1, 19, 20, 21, 22, 52, 57, 62)
 FURNITURE = (5, 32, 33, 34, 35, 37, 38, 39, 40, 42, 44, 45, 46, 47, 48, 49, 50, 51)
 #: fixed obstacles: street furniture (+ barrier/bollard), optionally vegetation + terrain
-#: (tree pits, planters); where they are not obstacles they are boundaries
+#: (tree pits, planters); where they are not obstacles they are boundaries.
+#: These only change the TOTAL span. The clear span's passable set is TRANSIENT + markings,
+#: so in clear mode every obstacle class (vegetation and terrain included) always ends the
+#: span; for clear width the ``obst`` key only chooses which total spans the vanishing
+#: point is read from (``image_vp``), i.e. it is a VP-source knob, not an obstacle rule.
 OBSTACLE_SETS = {"furn": FURNITURE, "furn_veg": FURNITURE + (29, 30)}
 #: Lane Marking - Crosswalk / - General. Seoul's yellow tactile paving strip, which runs
 #: down many sidewalks, can be labelled a lane marking; as a boundary it cuts the span in
@@ -425,6 +449,31 @@ FIELDS = (["filename", "walk", "obst", "mark", "horizon", "vp_found", "dpitch", 
            "pitch_deg", "yaw_deg"] + BAND_COLS)
 
 
+SEG_META = os.path.join(REPO, "analysis_out", "sidewalk_width_217", "seg_meta.json")
+
+
+def verify_seg(args):
+    """Check a directory of label maps against the committed sha256 values (seg_meta.json).
+    A re-run of ``segment`` on other hardware may differ (GPU nondeterminism); this says how
+    many maps did, so a drifted widths CSV is explained rather than silently different."""
+    with open(args.ref, encoding="utf-8") as f:
+        want = json.load(f)["images"]
+    missing, bad = [], []
+    for n, m in sorted(want.items()):
+        p = os.path.join(args.seg, os.path.splitext(n)[0] + ".png")
+        if not os.path.exists(p):
+            missing.append(n)
+            continue
+        with open(p, "rb") as fh:
+            if hashlib.sha256(fh.read()).hexdigest() != m["label_png_sha256"]:
+                bad.append(n)
+    print(f"{len(want)} label maps in {args.ref}: missing {len(missing)}, "
+          f"sha256 mismatch {len(bad)} {bad[:5]}")
+    if missing or bad:
+        sys.exit(1)
+    print("label maps identical to the committed run")
+
+
 def measure(args):
     """Two passes: VP pitches for every image (the prior is their median over half A),
     then every configuration's widths."""
@@ -527,7 +576,11 @@ def metrics(est, gt):
                recall_lt_1_2=tp / narrow_gt.sum() if narrow_gt.sum() else np.nan,
                precision_lt_1_2=tp / flagged.sum() if flagged.sum() else np.nan)
     if ok.sum():
+        # acc3 is over estimated photos only; acc3_all counts "no estimate" as wrong, the
+        # same denominator as recall and precision
         out["acc3"] = float((cls3(e) == cls3(g)).mean())
+    if len(gt):
+        out["acc3_all"] = float((ok & (cls3(np.nan_to_num(est, nan=99)) == cls3(gt))).mean())
     return out
 
 
@@ -567,10 +620,13 @@ def by_gt_bin(est, gt):
         m = (gt >= lo) & (gt < hi)
         ok = m & np.isfinite(est)
         err = est[ok] - gt[ok]
+        rel = err / gt[ok]
         out[f"{lo:g}-{hi:g}m"] = {"n": int(m.sum()), "n_estimated": int(ok.sum()),
                                   "mae": float(np.abs(err).mean()) if ok.any() else None,
                                   "bias_mean": float(err.mean()) if ok.any() else None,
-                                  "rel_bias_median": float(np.median(err / gt[ok]))
+                                  "rel_mae": float(np.abs(rel).mean()) if ok.any() else None,
+                                  "rel_bias_mean": float(rel.mean()) if ok.any() else None,
+                                  "rel_bias_median": float(np.median(rel))
                                   if ok.any() else None}
     return out
 
@@ -639,6 +695,21 @@ def series(n):
     return n[4] if n[4] in "46" else "8-9"
 
 
+def tune(table, meas, names, A, G, min_coverage):
+    """Every dpitch-0 configuration of ``meas`` that estimates at least ``min_coverage`` of
+    half A, as (mae_A, key, metrics_A), best first (ties broken by the key's text)."""
+    scored = []
+    for k, d in table.items():
+        if k[0] != meas or k[1] != 0.0:
+            continue
+        e = np.array([d.get(n, np.nan) for n in names])
+        mA = metrics(e[A], G[A])
+        if "mae" in mA and mA["coverage"] >= min_coverage:
+            scored.append((mA["mae"], k, mA))
+    scored.sort(key=lambda t: (t[0], str(t[1])))
+    return scored
+
+
 def score(args):
     gt = _read_gt()
     half, groups = split_groups(gt)
@@ -655,7 +726,7 @@ def score(args):
         return np.array([d.get(n, np.nan) for n in names])
 
     boot_keys = ["mae", "bias_mean", "bias_median", "rel_mae", "recall_lt_1_2",
-                 "precision_lt_1_2", "acc3", "coverage", "abs_err_q90"]
+                 "precision_lt_1_2", "acc3", "acc3_all", "coverage", "abs_err_q90"]
     res = {"split": {"seed": SPLIT_SEED, "group_cell_deg": GROUP_CELL_DEG,
                      "n_A": int(A.sum()), "n_B": int(B.sum()),
                      "groups_A": len(set(GR[A])), "groups_B": len(set(GR[B])),
@@ -667,14 +738,7 @@ def score(args):
                           f"{args.min_coverage:.0%} of half A",
            "measures": {}}
     for meas in ("clear", "total"):
-        scored = []
-        for k in table:
-            if k[0] != meas or k[1] != 0.0:
-                continue
-            mA = metrics(arr(k)[A], G[A])
-            if mA["coverage"] >= args.min_coverage:
-                scored.append((mA["mae"], k, mA))
-        scored.sort(key=lambda t: (t[0], str(t[1])))
+        scored = tune(table, meas, names, A, G, args.min_coverage)
         best_mae, best, mA = scored[0]
         cfg = dict(zip(CFG_KEYS, best[2:]))
         e = arr(best)
@@ -738,6 +802,202 @@ def score(args):
               {k: r["calibrated_B"]["metrics"].get(k) for k in boot_keys})
         print("  level horizon B mae", r["level_horizon_same_config_B"].get("mae"),
               "vp found", r["vp_found_rate"])
+    if args.sensitivity_out:
+        sens = sensitivity(table, args.widths, gt, half, groups, names,
+                           {m: res["measures"][m]["config"] for m in res["measures"]},
+                           args.min_coverage)
+        with open(args.sensitivity_out, "w", encoding="utf-8", newline="") as f:
+            json.dump(_clean(sens), f, indent=1, sort_keys=True)
+            f.write("\n")
+        print("sensitivity ->", args.sensitivity_out)
+
+
+# --------------------------------------------------------------------------- #
+# sensitivity reads (#225 review S1, S4, S5, S6; N2): disclosed beside the headline,
+# never used to choose anything. All from the committed widths CSV + GT table.
+# --------------------------------------------------------------------------- #
+
+#: Development contact before scoring: per-image output was printed for the half-B photos
+#: IMG_4293-IMG_4335 while debugging (docs/sidewalk_width_217.md, caveats).
+CONTACT_B_RANGE = (4293, 4335)
+#: The VP pitch cap before that contact; it was raised to VP_MAX_PITCH_DEG by hand.
+PRE_CONTACT_VP_CAP_DEG = 10.0
+LEAK_RADII_M = (10.0, 20.0, 30.0)
+N_BOOT_SENS = 2000
+
+
+def img_number(n):
+    """IMG_4293.HEIC -> 4293."""
+    return int(os.path.splitext(n)[0].split("_")[1])
+
+
+def haversine_m(lat1, lon1, lat2, lon2):
+    """Great-circle distance in metres (broadcasts)."""
+    p1, p2 = np.radians(lat1), np.radians(lat2)
+    a = (np.sin((p2 - p1) / 2) ** 2
+         + np.cos(p1) * np.cos(p2) * np.sin(np.radians(lon2 - lon1) / 2) ** 2)
+    return 2 * 6371008.8 * np.arcsin(np.sqrt(a))
+
+
+def load_vp_pitch(path):
+    """{(walk, obst, mark): {filename: VP pitch in degrees, NaN when no VP}} (pitch > 0 is
+    down), read from the ``vp`` horizon rows at dpitch 0."""
+    out = {}
+    with gzip.open(path, "rt", encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            if r["horizon"] == "vp" and float(r["dpitch"]) == 0.0 and r["measure"] == "total":
+                out.setdefault((r["walk"], r["obst"], r["mark"]), {})[r["filename"]] = (
+                    float(r["pitch_deg"]) if r["pitch_deg"] else np.nan)
+    return out
+
+
+def _spearman(x, y):
+    rx = np.argsort(np.argsort(x)).astype(float)
+    ry = np.argsort(np.argsort(y)).astype(float)
+    return float(np.corrcoef(rx, ry)[0, 1])
+
+
+def _brief(m):
+    keys = ("n", "n_estimated", "coverage", "mae", "bias_mean", "rel_mae", "acc3",
+            "acc3_all", "tp", "n_narrow_gt", "n_flagged", "recall_lt_1_2", "precision_lt_1_2")
+    return {k: m.get(k) for k in keys}
+
+
+def sensitivity(table, widths_path, gt, half, groups, names, chosen, min_coverage):
+    """Counterfactual and leak reads for the doc's sensitivity table. Nothing here feeds
+    back into the tuned configuration or the headline."""
+    G = np.array([float(gt[n]["width"]) for n in names])
+    A = np.array([half[n] == "A" for n in names])
+    B = ~A
+    GR = np.array([groups[n] for n in names])
+    num = np.array([img_number(n) for n in names])
+    lat = np.array([float(gt[n]["latitude"]) for n in names])
+    lon = np.array([float(gt[n]["longitude"]) for n in names])
+    vpp = load_vp_pitch(widths_path)
+
+    def arr(k, tab=table):
+        return np.array([tab[k].get(n, np.nan) for n in names])
+
+    def key(meas, cfg, **over):
+        c = dict(cfg, **over)
+        return (meas, 0.0) + tuple(c[k] for k in CFG_KEYS)
+
+    contact = B & (num >= CONTACT_B_RANGE[0]) & (num <= CONTACT_B_RANGE[1])
+    contact_cells = sorted(set(GR[contact]))
+    run = (num >= CONTACT_B_RANGE[0]) & (num <= CONTACT_B_RANGE[1])
+    out = {"contact_B": {"range": list(CONTACT_B_RANGE), "n_photos": int(contact.sum()),
+                         "cells_B": contact_cells,
+                         "run_cells_by_half": {g: sorted({str(h) for h in
+                                                          np.where(A, "A", "B")[run & (GR == g)]})
+                                               for g in sorted(set(GR[run]))},
+                         "run_photos_in_A": [n for n, r_, a in zip(names, run, A) if r_ and a]},
+           "measures": {}}
+
+    # S4: how close is each half-B photo to the nearest half-A photo?
+    d = haversine_m(lat[B][:, None], lon[B][:, None], lat[A][None, :], lon[A][None, :])
+    nn = d.min(1)
+    out["leak_B_to_A"] = {"n_B": int(B.sum()),
+                          "nearest_A_m_median": float(np.median(nn)),
+                          **{f"within_{r:g}m": int((nn <= r).sum()) for r in LEAK_RADII_M}}
+    in10 = np.zeros(len(names), bool)
+    in10[np.flatnonzero(B)[nn <= LEAK_RADII_M[0]]] = True
+
+    for meas, cfg in chosen.items():
+        k0 = key(meas, cfg)
+        e = arr(k0)
+        vk = (cfg["walk"], cfg["obst"], cfg["mark"])
+        pv = np.array([vpp[vk].get(n, np.nan) for n in names])
+        prior = float(np.nanmedian(pv[A]))
+        r = {"published_B": _brief(metrics(e[B], G[B]))}
+
+        # S6: the same cell with the vp_prior horizon (VP, else half-A median pitch)
+        r["vp_prior_same_cell_B"] = _brief(metrics(arr(key(meas, cfg, horizon="vp_prior"))[B],
+                                                   G[B]))
+
+        # S5a: the pre-contact 10 deg VP cap, re-tuned on A by the same rule. A photo whose
+        # VP implies more than 10 deg gets no estimate under the vp horizon. Under vp_prior it
+        # would fall back to the prior pitch, but those widths are not in the CSV, so they
+        # are dropped here too: this is conservative for coverage, and the prior itself (a
+        # median over half A) moves by at most the few photos above the cap.
+        capped = {}
+        for k, dct in table.items():
+            if k[0] != meas or k[1] != 0.0:
+                continue
+            if k[5] in ("vp", "vp_prior"):
+                pk = vpp[k[2:5]]
+                dct = {n: (np.nan if abs(pk.get(n, np.nan)) > PRE_CONTACT_VP_CAP_DEG else w)
+                       for n, w in dct.items()}
+            capped[k] = dct
+        sc = tune(capped, meas, names, A, G, min_coverage)
+        kc = sc[0][1]
+        over = np.abs(pv) > PRE_CONTACT_VP_CAP_DEG
+        r["cap10_retuned"] = {
+            "config": dict(zip(CFG_KEYS, kc[2:])), "mae_A": sc[0][0],
+            "metrics_B": _brief(metrics(arr(kc, capped)[B], G[B])),
+            "n_vp_over_cap_A": int((over & A).sum()), "n_vp_over_cap_B": int((over & B).sum()),
+            "n_vp_over_cap_B_contacted": int((over & contact).sum())}
+
+        # S5b: markings as a boundary, same cell otherwise, and the best such cell overall
+        kb = key(meas, cfg, mark="boundary")
+        eb = arr(kb)
+        best_b = [t for t in tune(table, meas, names, A, G, 0.0) if t[1][4] == "boundary"]
+        best_b_ok = [t for t in best_b if t[2]["coverage"] >= min_coverage]
+        r["markings_boundary"] = {
+            "same_cell": {"coverage_A": metrics(eb[A], G[A])["coverage"],
+                          "mae_A": metrics(eb[A], G[A]).get("mae"),
+                          "metrics_B": _brief(metrics(eb[B], G[B]))},
+            "max_coverage_A_any_boundary_cell": max(t[2]["coverage"] for t in best_b),
+            "n_boundary_cells_passing_coverage": len(best_b_ok),
+            "best_passing_boundary_cell": None if not best_b_ok else {
+                "config": dict(zip(CFG_KEYS, best_b_ok[0][1][2:])), "mae_A": best_b_ok[0][0],
+                "coverage_A": best_b_ok[0][2]["coverage"],
+                "metrics_B": _brief(metrics(arr(best_b_ok[0][1])[B], G[B]))}}
+
+        # S5c: half B without the cells that held the contacted photos; and those photos
+        keep = B & ~np.isin(GR, contact_cells)
+        r["drop_contacted_cells_B"] = _brief(metrics(e[keep], G[keep]))
+        r["contacted_photos_B"] = _brief(metrics(e[contact], G[contact]))
+        r["contacted_photos_B"]["gt_min"] = float(G[contact].min())
+        # S4: half B without the photos that have a half-A photo within 10 m
+        keep10 = B & ~in10
+        r["drop_B_within_10m_of_A"] = _brief(metrics(e[keep10], G[keep10]))
+
+        # S1: is per-image error explained by pitch? |relative error| against how far the
+        # photo's VP pitch is from the half-A median (a proxy for how wrong a fixed-pitch
+        # model would be, and for VP-fit trouble). Estimated half-B photos with a VP.
+        ok = B & np.isfinite(e) & np.isfinite(pv)
+        x = np.abs(pv[ok] - prior)
+        y = np.abs(e[ok] - G[ok]) / G[ok]
+        rho = _spearman(x, y)
+        rng = np.random.default_rng(SPLIT_SEED)
+        grp = GR[ok]
+        ug = np.unique(grp)
+        idx = {g: np.flatnonzero(grp == g) for g in ug}
+        draws = []
+        for _ in range(N_BOOT_SENS):
+            pick = np.concatenate([idx[g] for g in rng.choice(ug, size=len(ug), replace=True)])
+            draws.append(_spearman(x[pick], y[pick]))
+        q = np.quantile(x, [1 / 3, 2 / 3])
+        terc = np.digitize(x, q)
+        r["pitch_vs_error_B"] = {
+            "n": int(ok.sum()), "prior_pitch_deg": prior, "spearman_rho": rho,
+            "spearman_rho_ci95": [float(np.nanpercentile(draws, 2.5)),
+                                  float(np.nanpercentile(draws, 97.5))],
+            "tercile_edges_deg": [float(v) for v in q],
+            "median_abs_rel_err_by_tercile": [float(np.median(y[terc == t])) for t in range(3)],
+            "mean_abs_rel_err_by_tercile": [float(np.mean(y[terc == t])) for t in range(3)]}
+
+        # N2: the VP pitch distribution by half (negative = camera tilted up)
+        def dist(mask):
+            v = pv[mask & np.isfinite(pv)]
+            nm = np.array(names)[mask & np.isfinite(pv)]
+            return {"n": int(v.size), "median_deg": float(np.median(v)),
+                    "n_up_beyond_8deg": int((v < -8).sum()),
+                    "n_abs_over_10deg": int((np.abs(v) > 10).sum()),
+                    "max_up_deg": float(-v.min()), "max_up_image": str(nm[np.argmin(v)])}
+        r["vp_pitch_by_half"] = {"A": dist(A), "B": dist(B)}
+        out["measures"][meas] = r
+    return out
 
 
 def main():
@@ -747,6 +1007,9 @@ def main():
     p.add_argument("--images", required=True)
     p.add_argument("--out", required=True)
     p.add_argument("--limit", type=int, default=None)
+    p = sub.add_parser("verify-seg")
+    p.add_argument("--seg", required=True)
+    p.add_argument("--ref", default=SEG_META)
     p = sub.add_parser("measure")
     p.add_argument("--seg", required=True)
     p.add_argument("--out", required=True)
@@ -759,8 +1022,12 @@ def main():
     p.add_argument("--out", required=True)
     p.add_argument("--n-boot", type=int, default=N_BOOT)
     p.add_argument("--min-coverage", type=float, default=0.9)
+    p.add_argument("--sensitivity-out", default=None,
+                   help="also write the disclosed sensitivity reads (10-deg VP cap re-tune, "
+                        "contacted cells dropped, split leak, pitch vs error) to this JSON")
     args = ap.parse_args()
-    {"segment": segment, "measure": measure, "score": score}[args.cmd](args)
+    {"segment": segment, "verify-seg": verify_seg, "measure": measure,
+     "score": score}[args.cmd](args)
 
 
 if __name__ == "__main__":
