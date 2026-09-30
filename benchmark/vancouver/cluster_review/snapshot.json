@@ -1,0 +1,147 @@
+{
+ "schema": "rampnet.cluster_review.snapshot/1",
+ "city": "vancouver",
+ "labels": {
+  "kind": "server_pull",
+  "path_in_run": "provenance_gate/raw_labels.geojson",
+  "url": "https://sidewalk-vancouver.cs.washington.edu/v3/api/rawLabels?labelType=CurbRamp&filetype=geojson",
+  "fetched_at": "2026-09-28T23:01:58+00:00",
+  "sha256": "57c31c73dc75a6139b2694fdc5e7c0823bf0d0504348f1e1f38d3681b713098d",
+  "n_features": 64847,
+  "ai_user_id": "51b0b927-3c8a-45b2-93de-bd878d1e5cf4",
+  "tier": 0.55,
+  "n_ai": 64814,
+  "n_human": 33
+ },
+ "seed_arms": {
+  "deployed": {
+   "path_in_run": "ps_clustering_eval/clusters.geojson",
+   "url": "https://sidewalk-vancouver.cs.washington.edu/v3/api/labelClusters?labelType=CurbRamp&includeRawLabels=true&filetype=geojson",
+   "fetched_at": "2026-09-30T01:39:55+00:00",
+   "sha256": "d8a1e7065e2cf97ff7da0ab50eba7e754b2ac67c4286ecbc8d528f8ff6bec1c3",
+   "n_features": 18684
+  },
+  "fusion": {
+   "definition": "fusion_server+attach, auto frame, inventory_clustering.server_arms (= score_server_arms)",
+   "results_sha256": "7fdf4005824f3edbebb93c6f365d25c54d1c61384b801b0213aaafa97ef79f28",
+   "n_clusters": 16101,
+   "n_attached": 2274,
+   "height": "per-rig",
+   "cross_check": "identical partitions (deployed, ps @ 7.5 m, fusion+attach)"
+  }
+ },
+ "osm": {
+  "query": "[out:json][timeout:180];(way[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|living_street)(_link)?$\"](45.574389,-122.777563,45.701004,-122.46156);node[\"highway\"=\"traffic_signals\"](45.574389,-122.777563,45.701004,-122.46156);node[\"crossing\"=\"traffic_signals\"](45.574389,-122.777563,45.701004,-122.46156););out geom;",
+  "endpoint": "https://overpass-api.de/api/interpreter",
+  "fetched_at": "2026-09-30T04:55:33+00:00",
+  "sha256": "5c7fbd7473ab1b3f321b3df5b808e048a7f972c120c8c9dd16e6a1d4fd087a82",
+  "n_ways": 16588,
+  "n_signal_nodes": 2447
+ },
+ "ps_streets": {
+  "path_in_run": "ps_clustering_eval/streets.geojson",
+  "url": "https://sidewalk-vancouver.cs.washington.edu/v3/api/streets?filetype=geojson",
+  "fetched_at": "2026-09-30T01:39:49+00:00",
+  "sha256": "0d7ce79794a28146e811e2161c2019e2d96f3c8ec76d5b12b95183970d45f8b4"
+ },
+ "aerial": {
+  "source": "Esri World Imagery",
+  "url_template": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+  "zoom": 20,
+  "half_m": 35.0,
+  "px": 512,
+  "attribution": "Imagery: Esri, Maxar, Earthstar Geographics, and the GIS User Community"
+ },
+ "crops": {
+  "fov_deg": 45,
+  "px": 512,
+  "resolution": "model (4096x2048-equivalent): native crop resampled to 512 px; JPEG draft decode never below 4096 px",
+  "store": "makelab2 /projects/makeabilitylab/sidewalk_panos/Panoramas/vancouver-wa"
+ },
+ "sampling": {
+  "seed": 224,
+  "per_stratum": 20,
+  "empty_share": 0.15,
+  "window_m": 30.0,
+  "spacing_m": 60.0,
+  "merge_nodes_m": 25.0,
+  "signal_radius_m": 30.0,
+  "midblock_min_m": 60.0,
+  "midblock_step_m": 20.0,
+  "eligible_street_m": 20.0,
+  "pilot_quota": {
+   "signalised": 8,
+   "arterial": 7,
+   "residential": 8,
+   "mid_block": 7
+  },
+  "double_rate_share": 0.2,
+  "rule_version": 1,
+  "candidates": {
+   "street_ways": 16588,
+   "intersection_nodes": 10492,
+   "intersection_units": 9509,
+   "signal_nodes": 2447,
+   "midblock_points": 46835,
+   "outside_area": 28437,
+   "off_ps_street": 6144,
+   "eligible": {
+    "signalised": 303,
+    "arterial": 1532,
+    "residential": 2652,
+    "mid_block": 17276
+   }
+  },
+  "draw": {
+   "signalised": {
+    "candidates": 303,
+    "candidates_empty": 6,
+    "labelled_target": 17,
+    "labelled_drawn": 17,
+    "labelled_spacing_rejected": 0,
+    "empty_target": 3,
+    "empty_drawn": 3,
+    "empty_spacing_rejected": 0
+   },
+   "arterial": {
+    "candidates": 1532,
+    "candidates_empty": 433,
+    "labelled_target": 17,
+    "labelled_drawn": 17,
+    "labelled_spacing_rejected": 0,
+    "empty_target": 3,
+    "empty_drawn": 3,
+    "empty_spacing_rejected": 0
+   },
+   "residential": {
+    "candidates": 2652,
+    "candidates_empty": 1098,
+    "labelled_target": 17,
+    "labelled_drawn": 17,
+    "labelled_spacing_rejected": 0,
+    "empty_target": 3,
+    "empty_drawn": 3,
+    "empty_spacing_rejected": 0
+   },
+   "mid_block": {
+    "candidates": 17276,
+    "candidates_empty": 14692,
+    "labelled_target": 17,
+    "labelled_drawn": 17,
+    "labelled_spacing_rejected": 0,
+    "empty_target": 3,
+    "empty_drawn": 3,
+    "empty_spacing_rejected": 0
+   }
+  }
+ },
+ "exported_at": "2026-09-30T04:57:29+00:00",
+ "exporter": "sidewalk-auto-labeler scripts/export_cluster_review.py@d86cbd483bc9f82d8a06b4793659f95e40b84a26",
+ "inventory": {
+  "path_in_run": "inventory_oracle/inventory.geojson",
+  "url": "https://services.arcgis.com/oNvpY90qsPDizwkN/arcgis/rest/services/COV_TransCurbRamp/FeatureServer/0",
+  "sha256": "c4d2497995f7b6261333c3859a668348cd62a36367593cef2dfdfa6b7e020d87",
+  "fetched_at": "2026-09-28T23:11:26+00:00",
+  "n_kept": 11355
+ }
+}

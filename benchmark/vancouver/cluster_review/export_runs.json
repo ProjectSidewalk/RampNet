@@ -1,0 +1,41 @@
+[
+ {
+  "started_at": "2026-09-30T04:56:33+00:00",
+  "argv": [
+   "vancouver",
+   "--run-dir",
+   "D:/Git/sal-vancouver/runs/vancouver",
+   "--bundle",
+   "D:/Git/RampNet/benchmark/vancouver/cluster_review",
+   "--workers",
+   "16"
+  ],
+  "steps": [
+   {
+    "step": "arms",
+    "seconds": 41.975826025009155,
+    "note": "64847 labels; fusion+attach 16101 clusters"
+   },
+   {
+    "step": "overpass",
+    "seconds": 0.18048405647277832,
+    "note": "cached"
+   },
+   {
+    "step": "sample",
+    "seconds": 12.339020252227783,
+    "note": "21763 eligible candidates -> 80 units"
+   },
+   {
+    "step": "aerial",
+    "seconds": 360.6962082386017,
+    "note": "80 made, 1050 tiles fetched"
+   },
+   {
+    "step": "crops",
+    "seconds": 55.90146994590759,
+    "note": "1406 requested, 41 missing, from makelab2:/projects/makeabilitylab/sidewalk_panos/Panoramas/vancouver-wa"
+   }
+  ]
+ }
+]
