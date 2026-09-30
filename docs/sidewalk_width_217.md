@@ -13,13 +13,20 @@ On the held-out half of the Seoul set (254 photos, tuned on the other 260), the 
 gets **clear width to a mean absolute error of 0.77 m (95% CI 0.50–1.06)**, with a mean bias of
 +0.29 m (0.08–0.55) and a median bias of +0.13 m (−0.02 to 0.28). It flags **all 9 of the 9
 photos with GT below 1.2 m** (exact 95% CI on recall 0.66–1.00) at a precision of 9/22 = 0.41
-(0.21–0.64). The median bias is smaller than any of the paper's four VLMs (+0.40 to +1.05 m),
-**but the tails are worse**: 90% of errors are within 2.05 m (1.06–2.93), against the paper's
-best calibrated 90% interval of ±1.0 m. The large errors are on sidewalks wider than 3 m,
-where the segmenter's extent of "sidewalk" and the surveyor's passage differ (shop-frontage
-paving counted, near edges out of frame); the median relative bias is under 10% at every
-width, so the geometry itself is not scaling wrong. **This is the easy geometry** (the camera stands on the
-sidewalk, width is lateral); it says nothing yet about width seen from the street.
+(0.21–0.64). MAE and bias are over the 244 photos (96%) that got an estimate; the VLMs answer
+every photo. The median bias is smaller than any of the paper's four VLMs (+0.40 to +1.05 m),
+**but the tails are heavier than all four**: our 5th–95th percentile error range is −1.39 to
++2.50 m, 3.89 m wide, against calibrated 90% intervals about 2.0–3.1 m wide (half-widths ±1.0
+to ±1.54 m). The absolute errors are largest on sidewalks wider than 3 m, but *relative* error
+is roughly flat across widths (19–30% relative MAE per bin), which is what a per-image
+scale error (from pitch) would produce as much as an extent mismatch. The median scale is
+unbiased (median relative bias under 10% in every bin); how much of the per-image error is
+pitch and how much is extent is not measured. The half-B held-out claim survives the two
+tested development-contact counterfactuals, which move MAE by at most 0.06 m (the one change
+made by hand, the VP pitch cap, made it worse), and dropping the half-B photos within 10 m of
+a half-A photo moves it by 0.01 m (sensitivity table below).
+**This is the easy geometry** (the camera stands on the sidewalk, width is lateral); it says
+nothing yet about width seen from the street.
 
 ## Data
 
@@ -43,8 +50,11 @@ sidewalk, width is lateral); it says nothing yet about width seen from the stree
     are 4032×3024, all landscape.
   - The paper does not say where along the sidewalk the width was taken relative to the
     photo, or how the phone was aimed. **The phones were not held level**: the vanishing point
-    of the sidewalk edges puts the median pitch at **3.4° up** (half A), and single photos
-    reach 10° up (see below).
+    of the sidewalk edges puts the median pitch at **3.4° up** in half A and 4.4° up in half B
+    (clear configuration's VP source). Single photos reach 13.2° up in half A (IMG_6734) and
+    14.9° up in half B (IMG_4335); 14 half-A and 38 half-B photos are tilted more than 8° up.
+    Half B is tilted more than half A, which matters because `vp_prior` falls back to the
+    half-A median (`vp_pitch_by_half` in `sensitivity.json`).
 - The shared copy is at `makelab2:/homes/gws/jonf/seoul_sidewalk/` (README there), also used by
   #218.
 
@@ -56,9 +66,16 @@ stages.
 1. **segment** (GPU). `facebook/mask2former-swin-large-mapillary-vistas-semantic` at revision
    `4772b6bf101d91f2534c106dc524d906aeb3c68a` (the revision `crossview_arms/semantic.py`
    pins), each photo resized to 1440 px wide, 768×1024 model input, full 65-class argmax.
-   Label maps are not committed; their sha256 values are in
+   The 514 label maps (uint8 PNG, one class id per pixel, 11 MB in all) are at
+   `makelab2:/homes/gws/jonf/sw217_seg/`; they are not committed or published. Their sha256
+   values are committed in
    [`analysis_out/sidewalk_width_217/seg_meta.json`](../analysis_out/sidewalk_width_217/seg_meta.json)
-   together with the environment (torch 2.8.0+cu128, transformers 4.57.6, NVIDIA A40).
+   (byte-identical to that directory's `meta.json`; all 514 maps matched it on 2026-09-30), and
+   `sidewalk_width_217.py verify-seg --seg DIR` checks any copy or re-run against them.
+   **Environment for this step is not `environment.yml`.** It ran in the `sidewalk-auto-labeler`
+   venv on makelab2 (`/homes/gws/jonf/sidewalk-auto-labeler/.venv`): Python 3.9.25,
+   torch 2.8.0+cu128 (CUDA 12.8), torchvision 0.23.0, transformers 4.57.6, tokenizers 0.22.2,
+   safetensors 0.7.0, timm 1.0.27, Pillow 11.3.0, numpy 2.0.2, on an NVIDIA A40.
 2. **measure** (CPU). For each image row, the **span of walkable pixels connected to the
    walking line** (the image centre column, since the camera stood on the path's centre).
    Walkable = Sidewalk, Pedestrian Area, Curb Cut, and the manholes / catch basins / potholes
@@ -66,7 +83,8 @@ stages.
    - **total**: people, bicycles and fixed obstacles are passable (the span runs through them
      and is trimmed back to walkable pixels at its ends);
    - **clear**: only people and bicycles are passable; a pole, bench, sign, bollard, etc. ends
-     the span.
+     the span, and so do vegetation and terrain, always. The obstacle-set option below does
+     not change the clear span at all.
    A row whose span touches the frame edge (3 px) is dropped: the true edge is out of view.
    Both span ends are back-projected onto a flat ground plane 1.0 m below the camera (pinhole,
    principal point at the centre, focal length from 25 mm equivalent, no roll). The path
@@ -82,11 +100,13 @@ nominal level phone), `vp` (the horizon through the vanishing point of the two f
 lines; no estimate if it is not found or implies more than 15° of pitch), and `vp_prior` (the
 VP, else the median VP pitch of half A).
 
-**Tuning grid** (240 configurations per measure): walkable set with/without Bike Lane × which
-fixed classes are obstacles (furniture only, or furniture + vegetation + terrain) × lane
-markings as boundary or surface × 3 horizons × `zmin` ∈ {1.5, 2.5, 4} m × `band` ∈ {1, 3} m ×
-{median, p10}. **Rule:** lowest MAE on half A among configurations that estimate at least 90%
-of half A.
+**Tuning grid** (2 × 2 × 2 × 3 × 12 = **288 configurations per measure**, of which 240 pass the
+coverage rule on half A for each measure): walkable set with/without Bike Lane × which fixed
+classes are passable in the *total* span (furniture only, or furniture + vegetation + terrain)
+× lane markings as boundary or surface × 3 horizons × `zmin` ∈ {1.5, 2.5, 4} m × `band` ∈
+{1, 3} m × {median, p10}. For clear width the second option only chooses which total spans the
+vanishing point is read from (`image_vp`); it is a VP-source knob there, not an obstacle rule.
+**Rule:** lowest MAE on half A among configurations that estimate at least 90% of half A.
 
 **Split.** ~100 m lat/lon cells (0.001°), so repeat photos of one sidewalk stay in one half;
 cells stratified by whether they contain a GT < 1.2 m photo, then halved by a seeded shuffle
@@ -95,12 +115,24 @@ below 1.2 m. **CIs** are 95% cluster-bootstrap percentiles over half-B cells (10
 seed 217), plus exact Clopper–Pearson intervals for recall and precision of the < 1.2 m flag
 (the bootstrap one degenerates to [1, 1] with 9 positives).
 
+**The cells do not isolate sidewalk runs.** 28 of the 254 half-B photos have a half-A photo
+within 10 m, 63 within 20 m and 91 within 30 m (median distance to the nearest half-A photo
+35 m). The run IMG_4293–IMG_4335 spans four cells: three in B, one in A (IMG_4323 and
+IMG_4325). Nothing is trained and one configuration is selected on A, so the leak can only act
+through that choice; dropping the 28 photos changes clear MAE from 0.774 to 0.768 m, and
+recall on the rest is 6/6. The split was not re-drawn after seeing B (sensitivity table below).
+
 ### What was chosen on half A
 
-| measure | walkable | obstacles | markings | horizon | band | stat | MAE A |
+| measure | walkable | passable in total span (`obst`) | markings | horizon | band | stat | MAE A |
 |---|---|---|---|---|---|---|---|
-| clear | base | furniture | surface | vp | 1.5–2.5 m | median | 0.62 m |
-| total | base | furniture + vegetation | surface | vp | 4–5 m | p10 | 0.55 m |
+| clear | base | furniture (VP source only; see below) | surface | vp | 1.5–2.5 m | median | 0.62 m |
+| total | base | furniture + vegetation + terrain | surface | vp | 4–5 m | p10 | 0.55 m |
+
+For clear width, `obst = furniture` means only that the vanishing point was read from the
+total spans with furniture passable. The clear span itself ends at every fixed obstacle,
+vegetation and terrain included; at the level horizon (no VP) the two `obst` values give
+identical clear widths.
 
 The clear pick is the literal "nearest point" of the issue: the first metre of valid ground.
 All top-5 half-A configurations for both measures use the VP horizon and markings as surface,
@@ -118,12 +150,18 @@ and they differ from the winner by at most 0.02 m of MAE, so the choice is not a
 | error, 5th–95th pct | −1.39 to +2.50 m | −1.08 to +2.69 m |
 | 90th pct of \|error\| | 2.05 m [1.06, 2.93] | 1.73 m [1.00, 3.42] |
 | within 0.3 m / 0.5 m | 45% / 63% | 46% / 66% |
-| 3-class accuracy (<1.2, 1.2–1.5, ≥1.5) | 0.87 [0.80, 0.93] | 0.88 [0.81, 0.94] |
+| 3-class accuracy (<1.2, 1.2–1.5, ≥1.5), of estimated | 0.87 [0.80, 0.93] | 0.88 [0.81, 0.94] |
+| 3-class accuracy, all 254 ("none" = wrong) | **0.84** [0.77, 0.90] | 0.85 [0.78, 0.91] |
 | **recall, GT < 1.2 m** | **9/9 = 1.00** [0.66, 1.00] | 8/9 = 0.89 [0.52, 1.00] |
 | **precision, flagged < 1.2 m** | **9/22 = 0.41** [0.21, 0.64] | 8/18 = 0.44 [0.22, 0.69] |
 
-Brackets are 95% CIs (bootstrap; exact for recall and precision). A photo with no estimate is
-never flagged, so it counts against recall.
+Brackets are 95% CIs (bootstrap; exact for recall and precision). Denominators differ by row:
+MAE, bias, the error quantiles, "within" and the first 3-class row are over the photos with
+an estimate (244 clear, 246 total); recall, precision and the second 3-class row are over all
+254, where a photo with no estimate is never flagged and counts as wrong. All 10 clear-width
+"none" photos have GT ≥ 1.5 m. The full-coverage `vp_prior` horizon in the same cell gives
+clear MAE 0.78 m at coverage 0.98, recall 9/9, 23 flagged, so the headline does not depend on
+leaving hard photos out.
 
 **Confusion, clear width** (rows GT, columns estimate):
 
@@ -137,22 +175,32 @@ The flag's false positives are mostly sidewalks just above the line: 10 of the 1
 
 ### Where the error is
 
-| GT width | n | MAE clear | mean bias clear |
-|---|---|---|---|
-| < 1.5 m | 38 | 0.37 m | +0.17 m |
-| 1.5–3 m | 91 | 0.36 m | +0.16 m |
-| 3–5 m | 109 | 1.16 m | +0.58 m |
-| ≥ 5 m | 16 | 1.59 m | −0.72 m |
+| GT width | n | MAE clear | mean bias clear | relative MAE | mean rel. bias | median rel. bias |
+|---|---|---|---|---|---|---|
+| < 1.5 m | 38 | 0.37 m | +0.17 m | 28% | +12% | −5% |
+| 1.5–3 m | 91 | 0.36 m | +0.16 m | 19% | +9% | +5% |
+| 3–5 m | 109 | 1.16 m | +0.58 m | 30% | +16% | +8% |
+| ≥ 5 m | 16 | 1.59 m | −0.72 m | 26% | −10% | 0% |
 
 and by filename series (a proxy for capture session; the paper gives no photo-to-site map):
-IMG_4xxx MAE 0.44 m (n = 68), IMG_6xxx 1.02 m (n = 157), IMG_89xx–90xx 0.24 m (n = 29). The
-median *relative* bias is under 10% in every width bin, so the geometry is not scaling wrong;
-the large absolute errors are on wide sidewalks where the segmenter's sidewalk and the
-surveyor's passage are different extents. Two half-A examples (half B was not inspected
-after scoring): IMG_6754, GT 4.17 m, estimate 9.78 m — the paved shop-frontage apron is
-labelled Sidewalk and counted; IMG_6387, GT 5.02 m, estimate 2.15 m — the near rows run off the
-left of the frame and the first in-frame rows are cut by a row of parked share-bikes and a
-planter.
+IMG_4xxx MAE 0.44 m (n = 68), IMG_6xxx 1.02 m (n = 157), IMG_89xx–90xx 0.24 m (n = 29). Width
+bin and series are confounded: 101 of the 125 half-B photos with GT ≥ 3 m are IMG_6xxx.
+
+**What this does and does not show.** The median relative bias is under 10% in every bin, so
+the *median* scale is unbiased. It does not show that per-image scale is right. Relative MAE is
+roughly flat across widths (19–30%), which is what per-image scale error gives, and ±2° of
+pitch alone is ±10–16% of width (below). So the large absolute errors on wide sidewalks are at
+least partly what any per-image scale error would give on a wide sidewalk. **How much of the
+per-image error is pitch and how much is extent is not measured.** One cheap proxy was tried:
+|relative error| against how far a photo's VP pitch is from the half-A median. There is no
+relation (Spearman ρ = −0.07, cluster-bootstrap 95% CI −0.25 to 0.09, n = 244; median
+|relative error| 17% / 12% / 12% by tercile of pitch deviation, lowest first). That argues
+against VP failures on unusually tilted photos, but it cannot measure the VP's per-image error,
+which would need known pitch. Extent errors do exist; two half-A examples (half B was not
+inspected after scoring): IMG_6754, GT 4.17 m, estimate 9.78 m — the paved shop-frontage apron
+is labelled Sidewalk and counted; IMG_6387, GT 5.02 m, estimate 2.15 m — the near rows run off
+the left of the frame and the first in-frame rows are cut by a row of parked share-bikes and a
+planter. Two anecdotes show extent errors happen, not that they dominate.
 
 ### What the vanishing point buys, and pitch sensitivity
 
@@ -164,19 +212,27 @@ the VP removes most of that. Found on 96% (A) and 98% (B) of photos.
 Measured sensitivity on half B, shifting the pitch used by ±2° from the VP estimate: median
 width change −10% (+2°, down) and +12% (−2°, up) for clear width (−16% / +16% for total, whose
 band is farther out). So the ±2° the issue asked about is worth ±10–16% of width: about
-±0.3 m on a 3 m sidewalk. Pitch, not focal length or camera height, is the dominant geometric
-error term here.
+±0.3–0.5 m on a 3 m sidewalk. Pitch, not focal length or camera height, is the dominant
+geometric error term here (focal length is nearly irrelevant once the horizon comes from the
+image; see caveats).
 
 ### Against the paper's VLMs
 
-The paper reports, on all 514 photos, median width bias +0.40 m (GPT-5.2) to +1.05 m
-(InternVL3.5-8B), and a best calibrated 90% interval half-width of ±1.0 m (GPT-5.2, coverage
-0.91). Here, on half B: median bias +0.13 m [−0.02, 0.28], i.e. below every VLM; but the 90th
-percentile of |error| is 2.05 m [1.06, 2.93], wider than GPT-5.2's ±1.0 m interval. The two are
-not the same statistic (theirs is a conformal prediction interval, ours an empirical error
-quantile), and they are on different subsets (all 514 vs half B), so this is a rough
-comparison: **less bias, heavier tails.** A half-A scale calibration (×0.98) changes nothing
-material (clear MAE 0.75 m).
+The paper reports, on all 514 photos, median width bias +0.40 m (GPT-5.2), +0.75 m
+(Gemini-3-Flash), +0.90 m (Qwen3-VL-8B) and +1.05 m (InternVL3.5-8B), and calibrated 90%
+interval half-widths of ±1.0, ±1.14, ±1.38 and ±1.54 m (coverage 0.91–0.915). Their intervals
+are asymmetric; full widths are about 2.0 m (GPT-5.2) to 3.1 m (InternVL3.5-8B). Here, on half
+B: median bias +0.13 m [−0.02, 0.28], below every VLM; but the 5th–95th percentile error range
+is −1.39 to +2.50 m, **3.89 m wide, wider than all four VLM intervals**, and the 90th
+percentile of |error| is 2.05 m [1.06, 2.93]. **Less bias, heavier tails than every VLM.**
+
+Like for like: GT is effective width in both, and bias is prediction minus field value in
+both. Not like for like: each VLM prediction is the median of 30 samples; their intervals are
+conformal, averaged over 200 random 50/50 calibration/test splits, while ours is an empirical
+error range on one cluster split (half B, not all 514); and **the VLMs answer every photo,
+while this estimator answers 96% of half B**, with MAE and bias computed without the 10
+photos that got no estimate. A half-A scale calibration (×0.98) changes nothing material
+(clear MAE 0.75 m).
 
 ## Caveats (they apply to every number above)
 
@@ -188,8 +244,14 @@ material (clear MAE 0.75 m).
   knows the surveyor's rule about frontage zones, planting strips or where the passage ends.
   That total beats clear slightly on MAE (0.72 vs 0.77 m, well inside each other's CIs) says the
   obstacle subtraction is not yet adding information.
-- **Focal length is ±4% unknown.** No EXIF; 25 mm equivalent is the midpoint of the two phones.
-  Every width carries up to ±4% from this alone.
+- **Focal length is unknown to ±4%** (no EXIF; 25 mm equivalent is the midpoint of the two
+  phones), **but it barely moves width.** With the horizon row taken from the image, a ground
+  point's lateral offset is X = h·(u − cx) / (cos p · (v − v_h)), so f enters only through
+  cos p and through which rows fall in the depth band. On synthetic sidewalks (1.2 and 3.0 m;
+  pitch 0, −3.4°, +3°; yaw 5°), estimating with f ×0.9 to ×1.1 and the VP recomputed from the
+  wrong f changes width by under 0.1%
+  (`tests/test_sidewalk_width_217.py::test_focal_error_barely_moves_width`). The earlier
+  version of this caveat said ±4% of width; that was wrong.
 - **Camera height is taken as exactly 1.0 m** (the stated protocol); a 5 cm error is a 5%
   width error. Roll is assumed zero; the ground is assumed flat. GT running and cross slopes
   have medians of 1.1° and 1.2° but reach 11.8° and 9.7°; a running slope shifts the edges'
@@ -202,9 +264,47 @@ material (clear MAE 0.75 m).
   viewed (and one half-A photo, IMG_4284). That output motivated three options: markings as surface, the `vp_prior` horizon,
   and raising the VP pitch cap from 10° to 15°. The first two went into the tuning grid and
   were chosen on half A by the rule above, not fixed by hand; the cap was changed directly.
-  After scoring, only half-A images were inspected.
-- The group split is by 0.001° cells; a sidewalk run that crosses a cell boundary can still
-  have photos in both halves.
+  After scoring, only half-A images were inspected. **Half B is therefore not strictly
+  untouched; the two tested counterfactuals move MAE by ≤ 0.06 m** (the cap change by −0.06 m,
+  i.e. it made the headline worse; the contacted photos by +0.02 m; sensitivity table below).
+- **The split leaks at the scale of one sidewalk run**: 28 of 254 half-B photos have a half-A
+  photo within 10 m (see Split above). Dropping them moves clear MAE by 0.01 m.
+
+### Sensitivity of the half-B headline (disclosed, not used to choose anything)
+
+From the committed widths CSV by `score --sensitivity-out` →
+[`analysis_out/sidewalk_width_217/sensitivity.json`](../analysis_out/sidewalk_width_217/sensitivity.json).
+Added after the independent review of PR #225; the split and the tuned configurations are
+unchanged, and none of these reads was used to pick anything.
+
+| read (clear width, half B) | n | coverage | MAE | recall < 1.2 | flagged |
+|---|---|---|---|---|---|
+| **published** | 254 | 0.961 | **0.77 m** | 9/9 | 22 |
+| pre-contact 10° VP cap, re-tuned on A (picks `obst` furn_veg, `zmin` 2.5) | 254 | 0.917 | 0.72 m | 9/9 | 22 |
+| markings as boundary, same cell (half-A coverage 0.78, fails the 90% rule) | 254 | 0.764 | 0.78 m | 9/9 | 26 |
+| best markings-as-boundary cell passing the rule on A (`vp_prior`, MAE A 0.89) | 254 | 0.992 | 1.07 m | 9/9 | 45 |
+| without the 3 cells holding the contacted photos | 232 | 0.957 | 0.79 m | 9/9 | 22 |
+| the 19 contacted photos only (GT ≥ 2.23 m) | 19 | 1.000 | 0.54 m | — | 0 |
+| without the 28 photos within 10 m of a half-A photo | 226 | 0.956 | 0.77 m | 6/6 | 15 |
+| same cell, `vp_prior` horizon (full coverage) | 254 | 0.980 | 0.78 m | 9/9 | 23 |
+
+Total width, same reads: published 0.72 m at 0.969; 10° cap re-tuned 0.65 m at 0.921 (8/9);
+without the contacted cells 0.75 m (8/9); without the 10 m photos 0.71 m (5/6).
+
+- **The 10°→15° cap (the one change made by hand)** bought coverage and made MAE *worse*,
+  not better: 12 half-B photos have |VP pitch| > 10°, 6 of them in the contacted run
+  (IMG_4315–IMG_4335); half A has 5. Under the 10° cap, photos whose VP exceeds it get no
+  estimate under `vp_prior` too, because their prior-pitch widths are not in the CSV; this is
+  conservative for coverage.
+- **Markings as surface** was chosen on A by the coverage rule: with markings as a boundary
+  the same cell covers only 78% of half A, and its half-B MAE is similar (0.78 m).
+- **The contacted subset was easier than the rest** (MAE 0.54 m, no GT below 2.23 m), so
+  removing it makes the headline slightly worse (0.79 m), not better.
+- Net: the two development-contact counterfactuals move clear MAE by at most 0.06 m. The
+  hand-made cap change made the headline *worse* by 0.06 m; the contacted photos flatter it by
+  0.02 m. Clear-width recall stays 9/9 in every read. Markings-as-surface does matter (the best
+  boundary cell that passes the rule is 0.29 m worse on B), but that choice was made on half A
+  by the rule, and half A ranks it the same way (MAE A 0.62 vs 0.89 m).
 
 ## Reproduce
 
@@ -212,25 +312,34 @@ material (clear MAE 0.75 m).
 # 0. images (≈4.6 GB; about 10 min on makelab2 with three parallel curl downloads)
 python scripts/analysis/seoul_fetch_217.py fetch --dest $SEOUL        # md5 vs Zenodo, then
                                                                       # sha256 vs the manifest
-# 1. label maps (GPU; 490 s on a shared A40)
+# 1. label maps (GPU; 490 s on a shared A40). Our run: $SEG = makelab2:/homes/gws/jonf/sw217_seg
+#    Needs its own env, not environment.yml (Python 3.9 as used; CUDA 12.8 wheels):
+#    pip install torch==2.8.0 torchvision==0.23.0 --index-url https://download.pytorch.org/whl/cu128
+#    pip install transformers==4.57.6 tokenizers==0.22.2 safetensors==0.7.0 timm==1.0.27 \
+#        pillow==11.3.0 numpy==2.0.2
 python scripts/analysis/sidewalk_width_217.py segment --images $SEOUL/images --out $SEG
+python scripts/analysis/sidewalk_width_217.py verify-seg --seg $SEG   # vs committed sha256s
 # 2. widths for every configuration (CPU; 264 s)
 python scripts/analysis/sidewalk_width_217.py measure --seg $SEG \
     --out analysis_out/sidewalk_width_217/widths.csv.gz
-# 3. tune on A, report on B (CPU; ~20 s)
+# 3. tune on A, report on B, plus the disclosed sensitivity reads (CPU; ~20 s)
 python scripts/analysis/sidewalk_width_217.py score \
     --widths analysis_out/sidewalk_width_217/widths.csv.gz \
-    --out analysis_out/sidewalk_width_217/results.json
+    --out analysis_out/sidewalk_width_217/results.json \
+    --sensitivity-out analysis_out/sidewalk_width_217/sensitivity.json
 ```
 
-Step 3 needs only committed files. The committed `widths.csv.gz` has sha256
+Step 3 needs only committed files. Steps 1–2 need the label maps, which exist only on makelab2;
+someone without access regenerates them with step 1 and checks them with `verify-seg`. The committed `widths.csv.gz` has sha256
 `877304c5a4611d28f6d6edc43fd7d995b903e38e08e98248eeabac233971c825` (recorded in
 `results.json`). A re-run of step 1 on other hardware may not reproduce the label maps
 byte-for-byte (GPU nondeterminism); compare against `seg_meta.json` and expect the widths CSV
 to differ slightly if they do. `tests/test_sidewalk_width_217.py` checks the geometry on
 synthetic label maps of known width (level, pitched, yawed, off-centre, truncated by the
-frame, with obstacles) and that the committed half-B headline recomputes from the committed
-per-image estimates.
+frame, with obstacles), that a ±10% focal error barely moves width, that every class id used
+is checked against the checkpoint, that the committed GT table has Zenodo's md5, and that
+`score` re-run on the committed widths CSV reproduces the committed configurations, half-B
+metrics, per-image estimates and `sensitivity.json` (about 3 s, CPU).
 
 ## Cost
 
@@ -260,7 +369,7 @@ the two are not the same quantity.
 
 | City | Dataset | URL | Geometry | Width field | Verified | Notes |
 |---|---|---|---|---|---|---|
-| **São Paulo** | GeoSampa `geoportal:calcada` (Calçadas) | WFS `http://wfs.geosampa.prefeitura.sp.gov.br/geoserver/ows?service=wfs&version=1.0.0&request=DescribeFeatureType&typeName=geoportal:calcada` (GetFeature with `outputFormat=application/json` works) | **Polygon**, one per block face, EPSG:31983 | `qt_largura_minima_trecho` / `_maxima_` / `_media_`, metres (sample 1.66 / 2.44 / 2.05); also area and slope min/max/mean. Total vs clear unknown | Yes, schema + 2 features | 491,383 polygons. No update date in the WFS; news items date the release to 2019 |
+| **São Paulo** | GeoSampa `geoportal:calcada` (Calçadas) | WFS `http://wfs.geosampa.prefeitura.sp.gov.br/geoserver/ows?service=wfs&version=1.0.0&request=DescribeFeatureType&typeName=geoportal:calcada` (GetFeature with `outputFormat=application/json` works) | **Polygon**, one per block face, EPSG:31983 | `qt_largura_minima_trecho` / `_maxima_` / `_media_`, metres (sample 1.66 / 2.44 / 2.05); also area and slope min/max/mean. Total vs clear unknown | Yes, schema + 2 features | 491,383 polygons. No layer-level update date. Per-feature `dt_inicio` / `dt_termino` exist but are filled on only 6,872 polygons (both or neither); in a 5,000-row sample of those, `dt_inicio` falls in 2019–2024. They look like per-feature validity dates, not a survey date. News items date the release to 2019 |
 | **Bend OR** | City of Bend "Sidewalk" | REST `https://services5.arcgis.com/JisFYcK2mIVg9ueP/arcgis/rest/services/Sidewalk/FeatureServer/0` (item `013ed9a6e2054947b6c787e5064cee8d`) | Line | `SWWidth` is a coded bin (MIN3/4/5/6/8/10, Multi-Use, OTHER), "the minimum width of the sidewalk, in feet". `ClearWidth` is a YES/NO/Pending flag, not a number | Yes | 19,983 rows, 16,477 PRESENT; SWWidth filled on 14,390 (MIN5 9,820; MIN6 1,984; MIN4 1,499; MIN8 544; MIN10 300). Last edit 2026-09-30. Deschutes County: nothing |
 | **Richmond VA** | (a) City "Transportation Surfaces", SubType 8 = Sidewalk | REST `https://services1.arcgis.com/k3vhq11XkBNeeOfM/arcgis/rest/services/Transportation_Surface/FeatureServer/0` | **Polygon** (planimetric) | none (derivable from geometry) | Yes | 113,870 sidewalk polygons; last edit 2023-12-08 |
 | | (b) VDOT Virginia Statewide Sidewalk Inventory | REST `https://services.arcgis.com/p5v98VHDX9Atv3l7/arcgis/rest/services/Virginia_Statewide_Sidewalk_Inventory/FeatureServer/0` | Line (digitised from aerials) | `width`, feet, integer. Total vs clear unknown | Yes | Richmond City 18,511 rows; 6,091 have width 0 (missing); then 3 ft 4,635, 4 ft 4,359, 5 ft 1,661, 6–9 ft. Also Henrico, Chesterfield. Item modified 2026-08-18 |
