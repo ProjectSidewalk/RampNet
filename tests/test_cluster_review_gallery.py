@@ -17,8 +17,8 @@ import pytest
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO_ROOT, "scripts"))
 from cluster_review_gallery import (  # noqa: E402
-    STATE_BOOTSTRAP_JS, build_html, load_prefill, main, select_units, unit_seed_arm,
-    viewer_unit)
+    STATE_BOOTSTRAP_JS, build_html, load_prefill, main, role_problem, select_units,
+    unit_seed_arm, viewer_unit)
 
 SHA = "f" * 64
 SNAP = {"schema": "rampnet.cluster_review.snapshot/1", "city": "testville",
@@ -165,6 +165,25 @@ def test_bootstrap_local_wins_per_unit_and_prefill_fills_the_rest(tmp_path):
     assert st["t:res:000002"]["complete"] is True and st["t:res:000002"]["elapsed_s"] == 12
     assert "t:res:000099" in st                           # not rendered: kept for round trip
     assert out["prefilled"] == 2 and out["reopened"] == 0
+    assert out["conflicts"] == ["t:res:000001"]           # local work shadows the file: reported
+
+
+def test_bootstrap_file_beats_merely_seeded_local_state(tmp_path):
+    # Review fix: opening the gallery seeds every unit into localStorage (seen: false); an
+    # assignments file placed in the bundle afterwards must still prefill those units, not
+    # be silently shadowed by the seed grouping.
+    seeded = _boot(tmp_path, None, {}, _units())["state"]
+    assert seeded["t:res:000002"]["seen"] is False
+    initial = {"snapshot_sha256": SHA, "corners": {
+        "t:res:000002": {"seed_arm": "deployed", "labels": {"1": "not_ramp", "2": "r1",
+                                                            "3": "r1"},
+                         "ramps": {"r1": {"lat": 0, "lng": 0}}, "uncovered": [],
+                         "complete": True, "elapsed_s": 12, "inventory_seen": True}}}
+    out = _boot(tmp_path, initial, seeded, _units())
+    s = out["state"]["t:res:000002"]
+    assert s["labels"]["1"] == "not_ramp" and s["complete"] is True
+    assert s["inventory_seen"] is True
+    assert out["prefilled"] == 1 and out["conflicts"] == []
 
 
 def test_bootstrap_ignores_a_prefill_from_another_snapshot(tmp_path):
@@ -190,3 +209,29 @@ def test_bootstrap_reopens_a_unit_whose_labels_changed(tmp_path):
     assert s1["complete"] is False and s1["elapsed_s"] == 50
     assert s2["labels"]["3"] is None and s2["complete"] is False       # new label: unassigned
     assert out["reopened"] == 2
+
+
+def test_role_b_needs_a_rater_and_roles_do_not_cross(tmp_path):
+    assert "--rater" in role_problem(tmp_path, None, "b")
+    assert role_problem(tmp_path, None, "a") is None
+    assert role_problem(tmp_path, "mikey", "b") is None
+    (tmp_path / "assignments__mikey.json").write_text(json.dumps({"role": "b"}), encoding="utf-8")
+    assert role_problem(tmp_path, "mikey", "b") is None
+    assert "role b" in role_problem(tmp_path, "mikey", "a")
+    (tmp_path / "assignments.json").write_text(json.dumps({"role": "a"}), encoding="utf-8")
+    assert role_problem(tmp_path, None, "a") is None
+
+
+def test_main_refuses_role_b_without_rater(tmp_path):
+    b = tmp_path / "cluster_review"
+    b.mkdir()
+    (b / "snapshot.json").write_text(json.dumps(SNAP), encoding="utf-8")
+    (b / "corners.jsonl").write_text("".join(json.dumps(c) + "\n" for c in CORNERS),
+                                     encoding="utf-8")
+    with pytest.raises(SystemExit, match="--rater"):
+        main([str(b), "--role", "b"])
+    assert main([str(b), "--role", "b", "--rater", "mikey"]) == 0
+    html = (b / "gallery" / "index.html").read_text(encoding="utf-8")
+    assert "__CORNERS_SHA__" not in html
+    import hashlib
+    assert hashlib.sha256((b / "corners.jsonl").read_bytes()).hexdigest() in html

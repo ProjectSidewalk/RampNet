@@ -260,7 +260,17 @@ split by whether the two raters saw the same seed. A seed effect is a finding, n
 
 Where a city publishes a curb-ramp inventory, its points appear on the aerial **only after** the
 unit is marked complete, so the reviewer's ramp count is independent of it (the calibration in the
-protocol depends on that).
+protocol depends on that). The first reveal sets a sticky `inventory_seen`; reopening or editing the
+unit afterwards sets `edited_after_inventory`, and such units are dropped from the inventory
+calibration. Correct a unit after the reveal only if you are sure the correction does not come from
+the inventory, and say so in the unit's note.
+
+### What is scored
+
+Human labels in a window are reviewed like any other, but they are **excluded from scoring** in
+every arm, and a label an arm does not hold counts as that arm's singleton cluster, so every arm is
+scored on the same labels (protocol, "Metrics"). An uncovered point within 1 m of a ramp point is
+refused by the tool: it is that ramp.
 
 ### Notes
 
@@ -269,6 +279,7 @@ caveats) round-trip through the tool as in §1. Nothing scores them.
 
 ### Timing
 
-The tool records `elapsed_s` per unit: seconds the unit was on screen with the tab visible (idle
-time on screen included; each 1 s tick is capped, so a sleeping laptop does not add hours). The
+The tool records `elapsed_s` per unit: seconds the unit was on screen with the tab visible and
+with keyboard or mouse input in the last 60 s (1 s ticks, each capped at 2 s; after 60 s without
+input the clock pauses). The
 issue's "about a minute a unit" is a **guess**; the pilot measures it.

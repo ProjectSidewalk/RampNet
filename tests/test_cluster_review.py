@@ -73,6 +73,9 @@ def test_load_bundle_round_trip(tmp_path):
     (lambda a: a["corners"]["c:sig:000001"]["uncovered"].append(
         {"lat": LAT, "lng": LNG + 0.0002, "unsure": False}), "sits on ramp"),
     (lambda a: a["corners"]["c:sig:000001"].update(elapsed_s=-1), "elapsed_s"),
+    (lambda a: a["corners"]["c:sig:000001"].update(inventory_seen="yes"), "not a boolean"),
+    (lambda a: a["corners"]["c:sig:000001"].update(edited_after_inventory=True),
+     "without inventory_seen"),
 ])
 def test_validate_refuses(mutate, needle):
     a = assignments({"c:sig:000001": json.loads(json.dumps(GOOD))})

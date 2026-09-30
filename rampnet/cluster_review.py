@@ -132,6 +132,11 @@ def validate(assignments, corners, snapshot):
                 q = ramps[r]
                 if haversine_m(p["lat"], p["lng"], q["lat"], q["lng"]) < UNCOVERED_MIN_SEP_M:
                     problems.append(f"{cid}: uncovered point {k} sits on ramp {r}")
+        for flag in ("inventory_seen", "edited_after_inventory"):
+            if flag in u and not isinstance(u[flag], bool):
+                problems.append(f"{cid}: {flag} {u[flag]!r} is not a boolean")
+        if u.get("edited_after_inventory") and not u.get("inventory_seen"):
+            problems.append(f"{cid}: edited_after_inventory without inventory_seen")
         e = u.get("elapsed_s", 0)
         if not isinstance(e, (int, float)) or e < 0:
             problems.append(f"{cid}: elapsed_s {e!r}")

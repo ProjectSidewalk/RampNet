@@ -145,22 +145,35 @@ latitude). `inventory` is present only for cities with one and is shown only aft
     "labels": {"<key>": "r1" | "not_ramp" | "unsure"},
     "ramps": {"r1": {"lat": 0, "lng": 0, "placed": false}},
     "uncovered": [{"lat": 0, "lng": 0, "unsure": false}],
-    "complete": true, "elapsed_s": 47.2, "note": ""}}}
+    "complete": true, "elapsed_s": 47.2, "note": "",
+    "inventory_seen": false, "edited_after_inventory": false}}}
 ```
+`inventory_seen` is set (sticky) the first time the tool reveals the city inventory on the unit
+(on completion); `edited_after_inventory` is set by any later edit, including reopening. Both are
+booleans; `edited_after_inventory` without `inventory_seen` is invalid.
 `validate()` refuses: a wrong `schema`; a `snapshot_sha256` other than the bundle's; a complete
 unit with a label missing from `labels`; a label key not in the unit; a ramp key referenced by a
 label that is not in `ramps`, or a ramp with no label; an uncovered point outside the window or
-within 1 m of an assigned ramp's position; a negative `elapsed_s`.
+within 1 m of an assigned ramp's position (the tool refuses such a click, and refuses Export
+while one exists in a complete unit); a negative `elapsed_s`; a non-boolean inventory flag. The
+auto-labeler's scorer additionally refuses any label value other than `^r\d+$`, `not_ramp` or
+`unsure`, and any `rubric_version` other than 1.
 
 ## Metrics (`inventory_clustering.assignment_metrics`)
 
+**Every arm clusters the same label set** (amended before any review, see "Amendment"):
+(a) human labels (`user_kind: human`) are excluded from scoring in every arm, and their count is
+reported; (b) a snapshot label an arm does not hold (`ps @ t` holds no human label; fusion drops
+labels on unplaceable panos — 34 in the Vancouver bundle) is scored as a **singleton cluster** of
+that arm. Coverage is therefore arm-independent by construction; only split, merge and validity
+differ between arms.
+
 An **arm** maps each label key to the set of clusters holding it (one cluster normally; a stale
-deployed pull can hold a label twice; empty when the arm does not hold the label — e.g. human labels
-in `ps @ t`). Only **complete** units count; within a unit only its own labels are read (a cluster's
+deployed pull can hold a label twice). Only **complete** units count; within a unit only its own labels are read (a cluster's
 labels outside the window are ignored). `unsure` labels are removed from everything; `not_ramp`
 labels count only for validity.
 
-- **Per GT ramp r** (a ramp key with ≥ 1 label the arm holds): `clusters(r)` = distinct clusters
+- **Per GT ramp r** (a ramp key with ≥ 1 scored label): `clusters(r)` = distinct clusters
   holding any of its labels. **covered** = |clusters(r)| ≥ 1; **split** = ≥ 2.
   `split_rate = split / covered` (Wilson 95% CI). The per-ramp cluster count is kept so two arms
   are compared **paired** on the ramps both cover: fixed (A ≥ 2, B = 1), broken (A = 1, B ≥ 2),
@@ -171,8 +184,8 @@ labels count only for validity.
   ramp-assigned labels.
 - **Validity**: clusters whose in-window labels are all `not_ramp` / clusters touching the unit
   (with ≥ 1 non-unsure label); and `not_ramp` labels / non-unsure labels the arm holds.
-- **Coverage of the ramp population**: ramps with ≥ 1 label the arm holds / (all ramp keys + sure
-  `uncovered` points).
+- **Coverage of the ramp population**: ramps with ≥ 1 scored label / (all ramp keys + sure
+  `uncovered` points) — identical for every arm under rule (b).
 - Pooled overall, and by stratum type; per city.
 
 **Decision rule (pre-registered; the thresholds are `inventory_clustering.RULE_*`).** On the same
@@ -205,7 +218,9 @@ agreement ≥ **0.90** AND κ(not_ramp) ≥ **0.6** → proceed to the full pass
   ramps at their positions + sure uncovered points) vs inventory points within the window, matched
   one-to-one within 5 m (greedy by distance), reported both directions; and
   `assignment_metrics` vs `inventory_metrics` on the same units, which measures how much of the
-  #56 frame dependence was placement.
+  #56 frame dependence was placement. Units with `edited_after_inventory` are **dropped** from this
+  calibration (and counted in the report): their answer may have been changed by the inventory.
+  They stay in every other table.
 - **Against `verdicts.json`** (`rampnet.cluster_review.verdict_consistency`): where a label maps
   pixel-exactly to a judged detection of a RampNet bundle, a `True` verdict should not be
   `not_ramp` and a `False` one should be; disagreements are listed. Vancouver has no bundle, so
@@ -229,4 +244,27 @@ agreement ≥ **0.90** AND κ(not_ramp) ≥ **0.6** → proceed to the full pass
 | Eligibility (rule 6) | Added: inside the area and ≤ 20 m from an open PS street. |
 | A label in two served clusters | Seed = lower cluster id; all listed in `seed_group_all`. |
 | File names | `:` in ids becomes `_` in `aerial/` and `crops/` names (Windows). |
-| Who is rater B | The gallery's `--role b` shows only double-rated units and, with `--seed-arm auto`, seeds each with its `rater_b_seed`. |
+| Who is rater B | The gallery's `--role b` (which requires `--rater`) shows only double-rated units and, with `--seed-arm auto`, seeds each with its `rater_b_seed`. |
+
+## Amendment (2026-09-29, after an independent code review, before any unit was reviewed)
+
+No unit had been reviewed and no assignments file existed when these were made.
+
+1. **Same label set in every arm** (rule (a)/(b) under "Metrics"): human labels are excluded from
+   every arm; labels an arm does not hold are that arm's singletons. Before, a label missing from
+   an arm lowered only that arm's coverage (fusion lost 34 labels, ps @ t all human labels), so
+   the coverage leg of the decision rule compared different label sets.
+2. **Inventory reveal is recorded**: `inventory_seen` / `edited_after_inventory` (schema above);
+   edited-after units leave the inventory calibration.
+3. **Timing**: `elapsed_s` accrues in 1 s ticks (each capped at 2 s) only while the unit is on
+   screen, the tab is visible, and there has been keyboard or mouse input within the last
+   **60 s**; state is saved on `pagehide` and when the tab is hidden. The pilot's time numbers are
+   read under this rule.
+4. **Scorer input binding**: `cluster_review_score.py` refuses to rebuild arms from deployed
+   clusters or a `results.jsonl` whose sha256 differs from `snapshot.json`'s (an explicit
+   `--allow-arm-mismatch` overrides and is written into the report); it refuses malformed label
+   values and a rubric version other than 1.
+5. **Tool storage and roles**: the browser storage key is city + rater + label-snapshot sha256 +
+   `corners.jsonl` sha256; `--role b` requires `--rater`, and a rater's existing export made under
+   the other role is refused; a prefilled file wins over state the browser merely seeded (local
+   work wins only on units seen or completed, and those conflicts are listed).

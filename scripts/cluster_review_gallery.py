@@ -18,16 +18,18 @@ each camera as a small triangle with a thin ray to its label, the 30 m window, n
         toggle unsure, shift-click to remove     p   place the selected group's ramp point
     c   unit complete (refused with an unassigned label)     z   undo     <-/->  units   ?  help
 
-City inventory points appear only after the unit is marked complete. Each unit's
-``elapsed_s`` accumulates while it is on screen and the tab is visible (1 s ticks, each
-capped at 2 s so a sleeping laptop adds nothing). State autosaves to localStorage keyed by
+City inventory points appear only after the unit is marked complete; the first reveal
+sets a sticky ``inventory_seen`` and any later edit ``edited_after_inventory`` (both
+exported; the scorer's inventory calibration drops the latter). Each unit's ``elapsed_s``
+accumulates while it is on screen, the tab is visible and there has been keyboard/mouse
+input in the last 60 s (1 s ticks, each capped at 2 s). State autosaves to localStorage keyed by
 bundle + rater + label-snapshot sha256; Export downloads the assignments file; an existing
 file prefills for revision.
 
     python scripts/cluster_review_gallery.py benchmark/vancouver/cluster_review --pilot
         # rater A: deployed seed, exports assignments.json
     python scripts/cluster_review_gallery.py benchmark/vancouver/cluster_review --pilot \\
-        --rater mikey --role b --out benchmark/vancouver/cluster_review/gallery_mikey
+        --rater mikey --role b --out benchmark/vancouver/cluster_review/gallery/mikey
         # rater B: only double-rated units, each seeded with its rater_b_seed,
         # exports assignments__mikey.json
 """
@@ -77,6 +79,25 @@ def viewer_unit(c, arm, rel):
                        for lab in c['labels']]}
 
 
+def role_problem(bundle, rater, role):
+    """Why this rater/role pair must not run, or None. Rater B must be named (else it would
+    share rater A's storage, prefill from A's file and export over it), and a named rater's
+    existing export must have been made under the same role."""
+    if role == 'b' and not rater:
+        return ('--role b needs --rater NAME: without it the gallery would use rater A\'s '
+                'storage, prefill from assignments.json and export over it')
+    path = Path(bundle) / cr.rater_file_name(rater)
+    if path.exists():
+        got = json.loads(path.read_text(encoding='utf-8')).get('role') or 'a'
+        if got != role:
+            return f'{path.name} was exported under --role {got}; refusing to open it as role {role}'
+    return None
+
+
+def corners_sha256(bundle):
+    return hashlib.sha256((Path(bundle) / 'corners.jsonl').read_bytes()).hexdigest()
+
+
 def load_prefill(bundle, rater, snapshot):
     """(assignments or None, message). A file made on another label snapshot is not
     loaded: its keys could name different labels."""
@@ -95,7 +116,10 @@ def load_prefill(bundle, rater, snapshot):
 # (tests/test_cluster_review_gallery.py), as box_gallery.STATE_BOOTSTRAP_JS is: it is the
 # one piece of viewer JS that can destroy review work. Its rules:
 #   * a prefill from another label snapshot is ignored whole (keys may name other labels);
-#   * local state wins per UNIT, the prefill fills units the browser has no state for;
+#   * local state wins per UNIT only when the reviewer has worked on it in this browser
+#     (seen or complete); a unit the browser merely seeded takes the file's state (review
+#     fix: a later-placed assignments file used to be silently shadowed by seeded state),
+#     and every unit where local work shadows a differing file entry is reported;
 #   * every rendered unit is reconciled against its current label keys -- a key that left
 #     the unit is dropped, a new key is added unassigned, and either reopens the unit
 #     (complete = false) rather than silently keeping an attestation that no longer holds;
@@ -125,16 +149,26 @@ function fromFile(f) {
   return {seed_arm: f.seed_arm, labels: Object.assign({}, f.labels || {}), ramps: ramps,
           uncovered: (f.uncovered || []).map(p => Object.assign({}, p)),
           complete: !!f.complete, elapsed_s: f.elapsed_s || 0, note: f.note || '',
+          inventory_seen: !!f.inventory_seen,
+          edited_after_inventory: !!f.edited_after_inventory,
           seen: true, nextRamp: mx + 1};
 }
 function bootstrapState(INITIAL, local, UNITS, SNAPSHOT) {
   const state = local || {};
   let prefilled = 0, reopened = 0, initialIgnored = false;
+  const conflicts = [];
   if (INITIAL && INITIAL.snapshot_sha256 !== SNAPSHOT) initialIgnored = true;
   else if (INITIAL) {
     for (const cid in (INITIAL.corners || {})) {
-      if (state[cid]) continue;
-      state[cid] = fromFile(INITIAL.corners[cid]);
+      const s = state[cid], f = INITIAL.corners[cid];
+      if (s && (s.seen || s.complete)) {
+        const same = JSON.stringify(s.labels) === JSON.stringify(f.labels || {}) &&
+                     !!s.complete === !!f.complete &&
+                     (s.uncovered || []).length === (f.uncovered || []).length;
+        if (!same) conflicts.push(cid);
+        continue;
+      }
+      state[cid] = fromFile(f);
       prefilled++;
     }
   }
@@ -147,7 +181,8 @@ function bootstrapState(INITIAL, local, UNITS, SNAPSHOT) {
     for (const k of keys) if (!(k in s.labels)) { s.labels[k] = null; changed = true; }
     if (changed) { if (s.complete) reopened++; s.complete = false; }
   }
-  return {state: state, prefilled: prefilled, reopened: reopened, initialIgnored: initialIgnored};
+  return {state: state, prefilled: prefilled, reopened: reopened, initialIgnored: initialIgnored,
+          conflicts: conflicts};
 }
 """
 
@@ -263,8 +298,9 @@ const RUBRIC_VERSION = __RUBRIC_V__;
 const INITIAL = __INITIAL__;            // an existing assignments file, or null
 const ATTRIBUTION = __ATTRIBUTION__;
 const FILE_NAME = __FILE_NAME__;
-const STORE = 'clusterreview:' + CITY + ':' + (RATER || 'A') + ':' + SNAPSHOT;
-const NSTORE = 'clusterreviewnotes:' + CITY + ':' + (RATER || 'A') + ':' + SNAPSHOT;
+const CORNERS_SHA = __CORNERS_SHA__;    // sha256 of corners.jsonl: another sample never collides
+const STORE = 'clusterreview:' + CITY + ':' + (RATER || 'A') + ':' + SNAPSHOT + ':' + CORNERS_SHA;
+const NSTORE = 'clusterreviewnotes:' + CITY + ':' + (RATER || 'A') + ':' + SNAPSHOT + ':' + CORNERS_SHA;
 const COLORS = ['#e6194b','#3cb44b','#4363d8','#f58231','#911eb4','#42d4f4','#f032e6',
                 '#bfef45','#fabed4','#469990','#dcbeff','#9a6324','#fffac8','#800000',
                 '#aaffc3','#808000','#ffd8b1','#000075'];
@@ -279,6 +315,7 @@ function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } ca
   const bits = [];
   if (boot.initialIgnored) bits.push('<b>The assignments file was made on another label snapshot and was NOT loaded.</b>');
   if (boot.prefilled) bits.push(boot.prefilled + ' unit(s) prefilled from the assignments file.');
+  if (boot.conflicts.length) bits.push('<b>' + boot.conflicts.length + ' unit(s) kept this browser&#39;s work over a different entry in the assignments file</b>: ' + boot.conflicts.join(', ') + '. Clear this page&#39;s site data to take the file instead.');
   if (boot.reopened) bits.push('<b>' + boot.reopened + ' complete unit(s) reopened</b>: their label set changed since they were reviewed.');
   if (bits.length) { const n = document.getElementById('notice'); n.style.display = ''; n.innerHTML = bits.join('<br>'); }
 })();
@@ -334,26 +371,37 @@ function groupsOf(u) {           // ramp groups in display order (by first label
   return order;
 }
 function unassigned(u) { const s = state[u.id]; return u.labels.filter(l => !s.labels[l.key]).length; }
+const UNDO_FIELDS = ['labels', 'ramps', 'uncovered', 'complete'];   // never elapsed_s or note
 function push() {                // snapshot for undo, before an edit
-  const id = cur().id;
-  (undo[id] = undo[id] || []).push(JSON.stringify(state[id]));
+  const id = cur().id, s = state[id], snap = {};
+  for (const f of UNDO_FIELDS) snap[f] = s[f];
+  (undo[id] = undo[id] || []).push(JSON.stringify(snap));
   if (undo[id].length > 100) undo[id].shift();
+  if (s.inventory_seen) s.edited_after_inventory = true;   // an edit after the inventory showed
 }
 function edited() { S().seen = true; save(); render(); }
 
 // --- timing: elapsed_s while shown and visible ------------------------------------------
-let lastTick = performance.now(), sinceSave = 0;
+const IDLE_S = 60;                // no keyboard/mouse input for this long pauses the clock
+let lastTick = performance.now(), sinceSave = 0, lastInput = performance.now();
+for (const ev of ['keydown', 'mousedown', 'mousemove', 'wheel', 'scroll', 'touchstart'])
+  window.addEventListener(ev, () => { lastInput = performance.now(); }, {passive: true, capture: true});
 setInterval(() => {
   const now = performance.now(), dt = Math.min((now - lastTick) / 1000, 2);
   lastTick = now;
   if (document.visibilityState !== 'visible' || !UNITS.length) return;
+  if (now - lastInput > IDLE_S * 1000) return;
   const s = S();
   s.elapsed_s = Math.round((s.elapsed_s + dt) * 10) / 10;
   s.seen = true;
   if (++sinceSave >= 5) { sinceSave = 0; save(); }
   document.getElementById('elapsed') && (document.getElementById('elapsed').textContent = Math.round(s.elapsed_s) + ' s');
 }, 1000);
-document.addEventListener('visibilitychange', () => { lastTick = performance.now(); save(); });
+document.addEventListener('visibilitychange', () => {
+  lastTick = performance.now();
+  if (document.visibilityState === 'hidden') save();
+});
+window.addEventListener('pagehide', () => save());
 
 // --- edits ---------------------------------------------------------------------------
 function selectedKeys() { return [...sel]; }
@@ -402,6 +450,11 @@ function rampPos(u, g) {
   return {lat: ls.reduce((a, l) => a + l.lat, 0) / ls.length,
           lng: ls.reduce((a, l) => a + l.lng, 0) / ls.length, placed: false};
 }
+const MIN_SEP_M = 1.0;           // rampnet.cluster_review.UNCOVERED_MIN_SEP_M
+function nearRamp(u, lat, lng) {
+  for (const g of groupsOf(u)) { const r = rampPos(u, g); if (r && haversine(r.lat, r.lng, lat, lng) < MIN_SEP_M) return g; }
+  return null;
+}
 function colorOf(u, g) { const i = groupsOf(u).indexOf(g); return i < 0 ? '#999' : COLORS[i % COLORS.length]; }
 function drawPlan() {
   const u = cur(), s = S(), svg = document.getElementById('plan'), out = [];
@@ -415,6 +468,7 @@ function drawPlan() {
     const h = cam.heading_deg || 0;
     out.push('<path d="M' + q[0] + ',' + (q[1] - 6) + ' l-4,9 l8,0 z" fill="#fff" stroke="#000" stroke-width=".6" transform="rotate(' + h + ' ' + q[0] + ' ' + q[1] + ')"><title>camera ' + lab.pano_id + '</title></path>');
   }
+  if (s.complete && (u.inventory || []).length && !s.inventory_seen) { s.inventory_seen = true; save(); }
   if (s.complete) for (const p of u.inventory || []) {
     const q = toImg(u, p.lat, p.lng);
     out.push('<rect x="' + (q[0] - 6) + '" y="' + (q[1] - 6) + '" width="12" height="12" fill="none" stroke="#fff" stroke-width="2"><title>inventory ' + (p.unit_id || '') + '</title></rect>');
@@ -454,10 +508,14 @@ document.getElementById('plan').addEventListener('click', ev => {
     if (ev.shiftKey) return;
     const p = fromImg(u, x, y);
     if (haversine(p.lat, p.lng, u.centre.lat, u.centre.lng) > u.window_m) { alert('That point is outside the 30 m window.'); return; }
+    const near = nearRamp(u, p.lat, p.lng);
+    if (near) { alert('That point is within ' + MIN_SEP_M + ' m of ramp ' + near + ': it is that ramp, not an uncovered one. Not added.'); return; }
     push(); s.uncovered.push({lat: p.lat, lng: p.lng, unsure: false}); edited(); return;
   }
   if (mode === 'place') {
     const g = [...gsel][0]; const p = fromImg(u, x, y);
+    const clash = s.uncovered.findIndex(q => haversine(q.lat, q.lng, p.lat, p.lng) < MIN_SEP_M);
+    if (clash >= 0) { alert('That point is within ' + MIN_SEP_M + ' m of an uncovered mark; remove the mark first (a, then shift-click).'); mode = null; render(); return; }
     push(); s.ramps[g] = {placed: true, lat: p.lat, lng: p.lng}; mode = null; edited(); return;
   }
   const dot = ev.target.closest('[data-key]');
@@ -506,7 +564,7 @@ function render() {
   document.getElementById('title').innerHTML = u.id + ' <span class="badge">' + u.type + '</span> ' +
     '<span class="badge ' + (s.complete ? 'done' : 'todo') + '">' + (s.complete ? 'complete' : 'to do') + '</span> ' +
     '<span class="meta">' + u.labels.length + ' labels · seed ' + s.seed_arm + (u.pilot ? ' · pilot' : '') +
-    ' · ' + s.uncovered.length + ' uncovered · on screen <span id="elapsed">' + Math.round(s.elapsed_s) + ' s</span></span>';
+    ' · ' + s.uncovered.length + ' uncovered' + (s.inventory_seen ? ' · <b>inventory seen' + (s.edited_after_inventory ? ', edited after' : '') + '</b>' : '') + ' · on screen <span id="elapsed">' + Math.round(s.elapsed_s) + ' s</span></span>';
   const img = document.getElementById('aerial');
   if (img.getAttribute('src') !== u.aerial.file) img.src = u.aerial.file;
   const w = document.getElementById('aerialwrap');
@@ -542,7 +600,15 @@ document.addEventListener('keydown', ev => {
   else if (k === 'p') { if (gsel.size !== 1) { alert('Select exactly one group (click its header) first.'); return; } mode = 'place'; render(); }
   else if (k === 'P') { if (gsel.size !== 1) return; push(); S().ramps[[...gsel][0]] = {placed: false}; edited(); }
   else if (k === 'c') toggleComplete();
-  else if (k === 'z') { const st = undo[u.id]; if (st && st.length) { state[u.id] = JSON.parse(st.pop()); save(); render(); } }
+  else if (k === 'z') {
+    const st = undo[u.id];
+    if (st && st.length) {
+      const snap = JSON.parse(st.pop()), s = state[u.id];
+      for (const f of UNDO_FIELDS) s[f] = snap[f];
+      if (s.inventory_seen) s.edited_after_inventory = true;
+      save(); render();
+    }
+  }
   else if (k === 'Escape') { sel.clear(); gsel.clear(); mode = null; render(); }
   else if (k === '?') { const h = document.getElementById('help'); h.style.display = h.style.display === 'block' ? 'none' : 'block'; }
   else return;
@@ -561,11 +627,14 @@ function exportUnit(u, s) {
   }
   return {seed_arm: s.seed_arm, stratum: {city: CITY, type: u.type, has_labels: u.has_labels},
           labels: labels, ramps: ramps, uncovered: s.uncovered, complete: !!s.complete,
-          elapsed_s: Math.round(s.elapsed_s * 10) / 10, note: (s.note || '').trim()};
+          elapsed_s: Math.round(s.elapsed_s * 10) / 10, note: (s.note || '').trim(),
+          inventory_seen: !!s.inventory_seen, edited_after_inventory: !!s.edited_after_inventory};
 }
 document.getElementById('export').onclick = () => {
   const bad = UNITS.filter(u => state[u.id].complete && unassigned(u));
   if (bad.length) { alert('Export refused: ' + bad.length + ' complete unit(s) have unassigned labels, e.g. ' + bad[0].id + '.'); return; }
+  const onRamp = UNITS.filter(u => state[u.id].complete && state[u.id].uncovered.some(q => nearRamp(u, q.lat, q.lng)));
+  if (onRamp.length) { alert('Export refused: ' + onRamp.length + ' complete unit(s) have an uncovered mark within ' + MIN_SEP_M + ' m of a ramp point, e.g. ' + onRamp[0].id + '. Remove or move it.'); return; }
   const open = UNITS.filter(u => state[u.id].seen && !state[u.id].complete).length;
   if (open && !confirm(open + ' unit(s) were opened but are not complete; the scorer ignores them. Export anyway?')) return;
   saveNotes();
@@ -594,7 +663,7 @@ render();
 """
 
 
-def build_html(units, snapshot, city, rater, role, initial, file_name):
+def build_html(units, snapshot, city, rater, role, initial, file_name, corners_sha=''):
     return (HTML_TEMPLATE
             .replace('__STATE_BOOTSTRAP__', STATE_BOOTSTRAP_JS)
             .replace('__UNITS__', json.dumps(units))
@@ -606,7 +675,8 @@ def build_html(units, snapshot, city, rater, role, initial, file_name):
             .replace('__INITIAL__', json.dumps(initial))
             .replace('__ATTRIBUTION__', json.dumps((snapshot.get('aerial') or {})
                                                    .get('attribution', '')))
-            .replace('__FILE_NAME__', json.dumps(file_name)))
+            .replace('__FILE_NAME__', json.dumps(file_name))
+            .replace('__CORNERS_SHA__', json.dumps(corners_sha)))
 
 
 def main(argv=None):
@@ -625,6 +695,9 @@ def main(argv=None):
                     help='accepted for parity with gt_gallery; this tool only ever writes HTML')
     args = ap.parse_args(argv)
 
+    problem = role_problem(args.bundle, args.rater, args.role)
+    if problem:
+        raise SystemExit(problem)
     snapshot, corners, _files = cr.load_bundle(args.bundle)
     city = snapshot['city']
     out = (args.out or args.bundle / 'gallery')
@@ -637,7 +710,8 @@ def main(argv=None):
         print(msg)
     file_name = cr.rater_file_name(args.rater)
     (out / 'index.html').write_text(build_html(view, snapshot, city, args.rater, args.role,
-                                               initial, file_name), encoding='utf-8')
+                                               initial, file_name, corners_sha256(args.bundle)),
+                                    encoding='utf-8')
     arms = {}
     for v in view:
         arms[v['seed_arm']] = arms.get(v['seed_arm'], 0) + 1
