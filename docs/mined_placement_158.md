@@ -149,8 +149,9 @@ scored apart):
 
 Pass 1 was rated without image controls. Pass 2 shows the 32 pass-1 Can't tell cards (30
 sample + 2 instrument) again, in the same crops under the same digest, with brightness,
-contrast and saturation sliders that apply to every crop; the setting in force is saved
-with each answer (`image`) so the re-rating is reproducible. It is the same rater's second
+contrast and saturation sliders under each ringed view; they apply to that card only, and
+the setting is saved with the card's answer (`image`, slider units, 100 = unchanged) so the
+re-rating is reproducible. It is the same rater's second
 look, not a second rater. Rubric and question are unchanged; Can't tell stays valid.
 
 - `python scripts/analysis/mined_label_check_158.py gallery --pass2-from

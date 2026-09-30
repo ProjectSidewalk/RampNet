@@ -239,39 +239,66 @@ def pass2_items(pass1, ref):
             if (pass1["verdicts"].get(u) or {}).get("answer") == PASS2_SUBSET]
 
 
-#: Sliders applied to every crop as a CSS filter; the setting in force is recorded with each
-#: answer (`image`) and in the page's own storage, so a re-rating can be reproduced.
+#: Per-card sliders applied to that card's crops as a CSS filter. The setting is saved with
+#: the card's answer (`image`, in slider units, 100 = unchanged) and exported, so a
+#: re-rating can be reproduced. Both views of a card get the same setting.
 IMAGE_CONTROLS_CSS = (
     ".card img { filter: brightness(var(--br,1)) contrast(var(--ct,1)) saturate(var(--sa,1)); }\n"
-    ".imgctl { display:flex; flex-wrap:wrap; gap:4px 12px; align-items:center; margin-left:auto; }\n"
+    ".imgctl { display:flex; flex-wrap:wrap; gap:2px 12px; align-items:center; margin:6px 0 0; }\n"
     ".imgctl label { font-size:13px; color:var(--muted); }\n"
-    ".imgctl input[type=range] { vertical-align:middle; width:110px; }\n")
-IMAGE_CONTROLS_HTML = (
-    '<span class="imgctl" role="group" aria-label="Image controls, applied to every crop">'
-    '<label>Brightness <input type="range" id="img_br" min="40" max="250" value="100"></label>'
-    '<label>Contrast <input type="range" id="img_ct" min="40" max="250" value="100"></label>'
-    '<label>Saturation <input type="range" id="img_sa" min="0" max="300" value="100"></label>'
-    '<button type="button" id="img_reset">Reset image</button></span>')
+    ".imgctl input[type=range] { vertical-align:middle; width:110px; }\n"
+    ".imgctl button { padding:2px 8px; font-size:13px; }\n")
+IMAGE_RANGES = (("br", "Brightness", 40, 250), ("ct", "Contrast", 40, 250),
+                ("sa", "Saturation", 0, 300))
+
+
+def image_controls_html(uid):
+    sliders = "".join(
+        f'<label>{lab} <input type="range" data-img="{k}" min="{lo}" max="{hi}" value="100" '
+        f'aria-label="{lab} for card {uid}"></label>' for k, lab, lo, hi in IMAGE_RANGES)
+    return (f'<div class="imgctl" role="group" aria-label="Image controls for card {uid}">'
+            f'{sliders}<button type="button" class="img_reset">Reset image</button></div>')
+
+
 IMAGE_CONTROLS_JS = """
-const IMG = {br: 'img_br', ct: 'img_ct', sa: 'img_sa'};
-const IMG_KEY = "mlc158_img_" + META.manifest_digest;
-function imgState() { const s = {}; for (const k in IMG) s[k] = +document.getElementById(IMG[k]).value; return s; }
-function applyImg() {
-  const s = imgState(), r = document.documentElement.style;
-  r.setProperty('--br', s.br / 100); r.setProperty('--ct', s.ct / 100); r.setProperty('--sa', s.sa / 100);
-  setItem(IMG_KEY, JSON.stringify(s));
+function imgState(card) {
+  const s = {};
+  card.querySelectorAll('.imgctl input[data-img]').forEach(inp => { s[inp.dataset.img] = +inp.value; });
+  return s;
 }
-(function () {
-  let s = null;
-  try { s = JSON.parse(getItem(IMG_KEY) || "null"); } catch (e) { s = null; }
-  if (s) for (const k in IMG) if (s[k] != null) document.getElementById(IMG[k]).value = s[k];
-  applyImg();
-})();
-for (const k in IMG) document.getElementById(IMG[k]).addEventListener('input', applyImg);
-document.getElementById('img_reset').addEventListener('click', () => {
-  for (const k in IMG) document.getElementById(IMG[k]).value = 100;
-  applyImg();
+function applyImg(card) {
+  const s = imgState(card);
+  card.style.setProperty('--br', (s.br == null ? 100 : s.br) / 100);
+  card.style.setProperty('--ct', (s.ct == null ? 100 : s.ct) / 100);
+  card.style.setProperty('--sa', (s.sa == null ? 100 : s.sa) / 100);
+}
+function renderImg() {
+  CARDS.forEach(card => {
+    const s = (saved[card.dataset.uid] || {}).image || {};
+    card.querySelectorAll('.imgctl input[data-img]').forEach(inp => { inp.value = s[inp.dataset.img] == null ? 100 : s[inp.dataset.img]; });
+    applyImg(card);
+  });
+}
+CARDS.forEach(card => {
+  const uid = card.dataset.uid;
+  card.querySelectorAll('.imgctl input[data-img]').forEach(inp => {
+    inp.addEventListener('input', () => {
+      applyImg(card);
+      if (!rater) return;
+      saved[uid] = Object.assign(saved[uid] || {}, {image: imgState(card)});
+      persist();
+    });
+  });
+  card.querySelector('.img_reset').addEventListener('click', () => {
+    card.querySelectorAll('.imgctl input[data-img]').forEach(inp => { inp.value = 100; });
+    applyImg(card);
+    if (!rater) return;
+    saved[uid] = Object.assign(saved[uid] || {}, {image: imgState(card)});
+    persist();
+  });
 });
+renderImg();
+raterInput.addEventListener('change', renderImg);
 """
 
 
@@ -315,6 +342,7 @@ def render_gallery(cards, crops, digest, pass2=None):
             f'<section class="card" data-uid="{uid}" aria-labelledby="h_{uid}">'
             f'<h2 id="h_{uid}">{n}. {uid}</h2>'
             f'<div class="row"><div class="rate">{"".join(_figure(it, uid, 540) for it in tgt)}'
+            f'{image_controls_html(uid)}'
             f'<fieldset><legend>{html.escape(QUESTION)}</legend><div class="opts">{radios}</div>'
             f'<label class="note">Note (optional) <textarea rows="2" name="n_{uid}">'
             f'</textarea></label></fieldset></div>'
@@ -353,17 +381,16 @@ def _PAGE(cards_html, meta):
         'view on the right is another capture of the same corner, shown only as context, '
         'without a ring.</p>'
         + ('<p><strong>Pass 2.</strong> These are the cards answered &ldquo;Can\'t tell&rdquo; '
-           'in pass 1, shown again with brightness, contrast and saturation sliders (top bar; '
-           'they apply to every crop, and the setting in force is saved with each answer). '
+           'in pass 1, shown again with brightness, contrast and saturation sliders under '
+           'each ringed view (they apply to that card only, and the setting is saved with the '
+           'answer). '
            'Rate each card afresh under the same rubric; &ldquo;Can\'t tell&rdquo; is still a '
            'valid answer. Use a new rater id, e.g. <code>jonf-p2</code>.</p>' if pass2 else
-           '<p>The sliders in the top bar adjust brightness, contrast and saturation of every '
-           'crop; the setting in force is saved with each answer.</p>')
+           "<p>The sliders under each ringed view adjust that card's brightness, contrast and "
+           'saturation; the setting is saved with the answer.</p>')
         + '</div>')
     head = re.sub(r'<div class="intro">.*?</div>', lambda _m: intro, head, count=1, flags=re.S)
     head = head.replace("</style>", IMAGE_CONTROLS_CSS + "</style>", 1)
-    head = head.replace('<span id="count" aria-live="polite"></span>',
-                        IMAGE_CONTROLS_HTML + '<span id="count" aria-live="polite"></span>', 1)
     rubric_html = "".join(f"<dt>{html.escape(lab)}</dt><dd>{html.escape(d)}</dd>"
                           for _, lab, d in RUBRIC)
     rules_html = "".join(f"<li>{html.escape(x)}</li>" for x in RULES)
@@ -381,11 +408,7 @@ def _PAGE(cards_html, meta):
                   tail, count=1, flags=re.S)
     tail = re.sub(r'\s*supersedes: "[^"]*",', '', tail, count=1)
     tail = tail.replace(R.EXPORT_PREFIX, EXPORT_PREFIX)
-    # Record the image setting in force with each answer, and carry it into the export.
-    n = tail.count("{answer: inp.value}")
-    if n != 1:
-        raise RuntimeError(f"gallery template drifted: {n} answer-save sites, expected 1")
-    tail = tail.replace("{answer: inp.value}", "{answer: inp.value, image: imgState()}")
+    # Carry each card's image setting into the export.
     n = tail.count('note: (v.note || "").trim()}')
     if n != 1:
         raise RuntimeError(f"gallery template drifted: {n} export sites, expected 1")

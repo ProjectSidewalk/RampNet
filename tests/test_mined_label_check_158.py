@@ -146,10 +146,11 @@ def test_pass2_page_has_image_controls_and_records_the_setting():
     meta = {"pass": 2, "subset": "cant_tell", "image_controls": True,
             "gallery": M.GALLERY2_REL, "from_file": "f", "from_sha256": "0" * 64}
     h = M.render_gallery(cards, crops, "0" * 16, pass2=meta)
-    for s in ('id="img_br"', 'id="img_ct"', 'id="img_sa"', "image: imgState()",
+    for s in ('data-img="br"', 'data-img="ct"', 'data-img="sa"', "image: imgState(card)",
               "image: v.image || null", "...(META.pass2 || {})", "mlc158_p2_", "Pass 2"):
         assert s in h
+    assert h.count('class="imgctl"') == 1                 # one set of sliders per card
     for word in ("instrument", "known_answer", "peak_conf"):
         assert word not in h
     h1 = M.render_gallery(cards, crops, "0" * 16)
-    assert 'id="img_br"' in h1 and "mlc158_p2_" not in h1 and "Pass 2" not in h1
+    assert 'data-img="br"' in h1 and "mlc158_p2_" not in h1 and "Pass 2" not in h1
