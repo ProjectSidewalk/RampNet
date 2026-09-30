@@ -5,7 +5,8 @@ else can reproduce — a second rater would have to read source to learn what th
 These rubrics were extracted from the tools that produced them so they sit **beside the data they
 describe**, and so a rating pass can be repeated without reverse-engineering it.
 
-Four human passes exist, and a fifth is drafted (§5). Each is defined below, with the tool that
+Four human passes exist, a fifth is drafted (§5), and a sixth — corner-level cluster review (§6) —
+is pre-registered with no review done yet. Each is defined below, with the tool that
 renders it and the file its judgments land in.
 
 ---
@@ -191,3 +192,83 @@ nothing yet for the rest.
 
 Like §3, the rubric travels inside every rater file: its version, its sha256 and its full text,
 and the agreement script refuses two files rated under different text. No rater file exists yet.
+
+---
+
+## 6. Corner-level cluster review — `benchmark/<city>/cluster_review/assignments.json`
+
+**Rubric version:** `1` (`rubric_version` in every file; files made under different versions must
+not be compared or pooled — `rampnet.cluster_review.agreement` refuses them).
+**Tool:** `python scripts/cluster_review_gallery.py benchmark/<city>/cluster_review` → open
+`gallery/index.html` → Export.
+**Loader / validation / agreement:** `rampnet/cluster_review.py`, `scripts/cluster_review_agreement.py`.
+**Scored by:** the auto-labeler's `scripts/cluster_review_score.py` (reads the file as data).
+**Protocol (pre-registered sampling, schemas, metrics, decision rule):**
+[`docs/cluster_review_protocol.md`](../docs/cluster_review_protocol.md). **Issue:** #224.
+
+**The question.** For one review unit — an intersection window (all its corners, 30 m radius) or a
+30 m mid-block window — *which of these labels are the same physical curb ramp?* Every label in the
+window is shown as a pano crop and as a dot on an aerial image; it opens grouped the way one
+clustering arm (the **seed**) grouped it, and the reviewer corrects the grouping. The output is a
+label → ramp assignment on a frozen label snapshot, so every clustering rule can be scored against
+the same answer without placing anything.
+
+### What is one ramp
+
+| question | rule |
+| :--- | :--- |
+| A dual-direction corner apron (one wide apron serving two crossings)? | **Two ramps**, one per direction of travel — the same rule as the #116 box rubric (§ box rule line 4). |
+| Two ramps at one corner a few metres apart? | **Two ramps.** Nearness is not identity; that is the error this pass exists to see. |
+| A driveway apron? | **Not a ramp** (§4's rule). Its labels are `not_ramp`. |
+| A median cut-through / refuge-island ramp? | **A ramp**, one per curb face the path crosses. |
+| The same ramp seen from several panos? | **One ramp.** Put every label of it in one group, whatever the seed did. |
+| A ramp that no label covers (visible on the aerial or in a crop)? | One **`uncovered`** point, clicked *at the ramp* on the aerial. Only ramps inside the window. |
+| A label on something that is not a curb ramp (fire hydrant, crosswalk paint, driveway, car)? | `not_ramp`. |
+| Cannot tell which ramp a label is on, or whether it is one? | `unsure` — it **abstains**: excluded from every metric, never coerced. |
+
+### Label classes and group keys
+
+Each label of a complete unit gets exactly one of: a ramp key (`r1`, `r2`, … — the group it is in),
+`not_ramp`, or `unsure`. Ramp keys are local to the unit and carry a position (`ramps[r].lat/lng`):
+the mean of the group's labels' server positions unless the reviewer placed the ramp point by hand.
+Positions are used only for the inventory calibration, never for split/merge.
+
+### The complete attestation
+
+A unit counts only when marked **`complete`**: the reviewer asserts every label in it is assigned
+and every ramp in the window that no label covers has an `uncovered` point. Like `no_missed` in §1,
+silence is not a negative; an incomplete unit contributes nothing. Export refuses a complete unit
+with an unassigned label.
+
+### Resolution
+
+Crops are cut at **45° field of view and saved at 512 px**, i.e. sampled at the model's
+4096×2048-equivalent resolution (a native-resolution crop resampled to that scale), so crops are
+comparable across the 16384 / 13312 / 3328-wide rigs. The question is identity, not detection, so
+the #26 fairness rule binds less here; the scale is fixed so a rig's resolution cannot change the
+answer. The aerial is a north-up ±35 m mosaic whose source and attribution are recorded per bundle
+(`snapshot.json`) and per unit.
+
+### The seed biases toward itself
+
+A reviewer shown the deployed grouping is more likely to accept it than a reviewer shown another
+arm's. So the second-rater subset is re-seeded: half of the double-rated units open with the
+**fusion** grouping instead (`rater_b_seed` on the unit), and inter-rater agreement is reported
+split by whether the two raters saw the same seed. A seed effect is a finding, not noise.
+
+### City inventories are hidden until complete
+
+Where a city publishes a curb-ramp inventory, its points appear on the aerial **only after** the
+unit is marked complete, so the reviewer's ramp count is independent of it (the calibration in the
+protocol depends on that).
+
+### Notes
+
+A per-unit `note` and a file-level `review_notes` block (reviewer, date, confidence, summary,
+caveats) round-trip through the tool as in §1. Nothing scores them.
+
+### Timing
+
+The tool records `elapsed_s` per unit: seconds the unit was on screen with the tab visible (idle
+time on screen included; each 1 s tick is capped, so a sleeping laptop does not add hours). The
+issue's "about a minute a unit" is a **guess**; the pilot measures it.
