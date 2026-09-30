@@ -642,6 +642,9 @@ def per_image_table(arm_recs, rows, ramps, thresholds=THRESHOLDS):
                 im[f"n_dets@{thr}"] = sum(d["score"] >= thr for d in dets)
                 im[f"n_matched@{thr}"] = len(cl)
                 im[f"loc_hit@{thr}"] = bool(in_view_uids & set(cl))
+                rng_of = {r["uid"]: r["range"] for r in g["near"]}
+                im[f"implied_h@{thr}"] = [
+                    rng_of[u] * math.tan(math.radians(dep[i])) for u, i in cl.items()]
                 wcl = {h: claim_world(dets, w, g["near"], thr, h) for h in WORLD_HEIGHTS}
                 for r in g["near"]:
                     if not r["in_view"]:
@@ -783,6 +786,10 @@ def cmd_score(args):
                      "clusters_positive": len({i["cluster"] for i in im0 if i["positive"]})}
     for a in arms:
         recs = arm_recs[a].values()
+        hs = [h for i in images if i["arm"] == a for h in i[f"implied_h@{PRIMARY_THR}"]]
+        res.setdefault("implied_height", {})[a] = {
+            "n": len(hs), "p10_p50_p90": [rnd(x) for x in np.percentile(hs, [10, 50, 90])]
+            if hs else None}
         res["fill_peaks"][a] = {"images_with_fill_peaks": sum(r["n_fill_peaks"] > 0 for r in recs),
                                 "fill_peaks": sum(r["n_fill_peaks"] for r in recs)}
     # --- image-level
@@ -903,11 +910,11 @@ def cmd_score(args):
     res = _round(res)
     write_json(os.path.join(res_dir, "results.json"), res)
     with open(os.path.join(res_dir, "images_scored.csv"), "w", encoding="utf-8", newline="") as f:
-        cols = sorted(images[0])
+        cols = sorted(k for k in images[0] if not k.startswith("implied_h"))
         w = csv.DictWriter(f, fieldnames=cols, lineterminator="\n")
         w.writeheader()
         for i in images:
-            w.writerow(i)
+            w.writerow({k: i[k] for k in cols})
     md = markdown(res, arms)
     with open(os.path.join(res_dir, "results.md"), "w", encoding="utf-8", newline="") as f:
         f.write(md)
@@ -972,6 +979,9 @@ def markdown(res, arms):
     for k, e in res["paired"].items():
         L.append(f"- {k}: " + "; ".join(f"{m} {fmt_ci(v) if isinstance(v, list) else v}"
                                          for m, v in e.items()))
+    L += ["", "## Camera height implied by bearing-matched detections @ 0.3 (range x tan depression)", ""]
+    for a, e in res.get("implied_height", {}).items():
+        L.append(f"- {a}: n={e['n']}, p10/p50/p90 = {e['p10_p50_p90']} m")
     L += ["", "## Peaks in the canvas fill (dropped)", ""]
     for a, e in res["fill_peaks"].items():
         L.append(f"- {a}: {e}")
