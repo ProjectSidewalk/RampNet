@@ -806,7 +806,7 @@ def markdown(rep):
     ic = rep["inputs"].get("imagery_check")
     if ic:
         L.append(f"Imagery vs committed `imagery_manifest.json` (`{ic['file']}`, panos root "
-                 f"`{ic['panos_root']}`): **{ic['status']}** — " + ", ".join(
+                 f"`{ic['panos_root']}`): **{ic['status']}**; " + ", ".join(
                      f"{s} {r['match']}/{r['panos']}" for s, r in ic["splits"].items()) + ".")
     else:
         L.append("Imagery check: not run (no `imagery_check.json`).")
