@@ -267,7 +267,6 @@ def test_bearing_claims_only_near_the_ramp_bearing():
     assert all(v == {"a": 0} for v in cl.values())
 
 
-
 def test_usage_row_gpu_share():
     import perspective_photos_218 as PP
     r = PP.usage_row("x:shard1of4", 338, 996.614, "2026-09-30T19:00:50Z", "makelab2",
@@ -278,3 +277,67 @@ def test_usage_row_gpu_share():
     r1 = PP.usage_row("x", 10, 3600.0, "t", "h", [], "w")
     assert r1["gpu_hours"] == 1.0 and "gpu_share" not in r1 and "concurrent_with" not in r1
 
+
+def _reference():
+    return {"manifest_digest": "abc", "items": ["d001", "d002"], "question": "Q?",
+            "rubric": [{"key": "yes", "label": "Yes", "definition": "y"},
+                       {"key": "no", "label": "No", "definition": "n"}],
+            "rules": ["r"]}
+
+
+def _export(tmp_path, name="richmond_flat_fp__jon.json", **over):
+    import json
+    ref = _reference()
+    d = {"rater": "jon", "manifest_digest": ref["manifest_digest"], "items": ref["items"],
+         "question": ref["question"], "rubric": ref["rubric"], "rules": ref["rules"],
+         "verdicts": {"d001": {"answer": "yes"}, "d002": {"answer": None}}}
+    d.update(over)
+    p = tmp_path / name
+    p.write_text(json.dumps(d), encoding="utf-8")
+    return str(p)
+
+
+def test_load_verdicts_refuses_another_rubric_or_rater_mismatch(tmp_path):
+    import rating_page_218 as RP
+    pre = "richmond_flat_fp__"
+    assert RP.load_verdicts(_export(tmp_path), _reference(), pre)["rater"] == "jon"
+    with pytest.raises(ValueError, match="rubric"):
+        RP.load_verdicts(_export(tmp_path, rubric=_reference()["rubric"][:1]), _reference(), pre)
+    with pytest.raises(ValueError, match="file name"):
+        RP.load_verdicts(_export(tmp_path, name=pre + "bob.json"), _reference(), pre)
+    with pytest.raises(ValueError, match="rater id"):
+        RP.load_verdicts(_export(tmp_path, name=pre + "Bad.json", rater="Bad"), _reference(), pre)
+    with pytest.raises(ValueError, match="answer"):
+        RP.load_verdicts(_export(tmp_path, verdicts={"d001": {"answer": "maybe"}}),
+                         _reference(), pre)
+
+
+def test_agreement_kappa():
+    import rating_page_218 as RP
+    va = {"a": {"answer": "yes"}, "b": {"answer": "no"}, "c": {"answer": "yes"},
+          "d": {"answer": "no"}}
+    assert RP.agreement(va, va, list(va))["kappa"] == pytest.approx(1.0)
+    vb = {"a": {"answer": "no"}, "b": {"answer": "yes"}, "c": {"answer": "no"},
+          "d": {"answer": "yes"}}
+    assert RP.agreement(va, vb, list(va))["kappa"] == pytest.approx(-1.0)
+
+
+def test_fp_precision_weights_the_strata_back():
+    import perspective_photos_218 as PP
+    man = {"totals": {"unmatched_total": 300, "matched_total": 100},
+           "items": [{"item": "u1", "matched_ramp": None}, {"item": "u2", "matched_ramp": None},
+                     {"item": "m1", "matched_ramp": "richmond:1"}]}
+    v = {"u1": {"answer": "yes"}, "u2": {"answer": "no"}, "m1": {"answer": "yes"}}
+    out = PP.fp_precision(v, man, n_reps=50)
+    assert out["unmatched"]["precision"] == 0.5 and out["matched"]["precision"] == 1.0
+    assert out["weighted"][0] == pytest.approx((300 * 0.5 + 100 * 1.0) / 400)
+
+
+def test_committed_rating_references_rederive():
+    """The committed galleries' manifests re-derive their digests and match this code's
+    rubric, so ``rates`` will accept an export made on them."""
+    import perspective_photos_218 as PP
+    import seoul_photos_218 as S
+    man, ref = PP.fp_reference()
+    assert ref["manifest_digest"] == man["manifest_digest"] and len(ref["items"]) == 190
+    assert S.committed_reference()["manifest_digest"] == "a1484360ce2df9a6"

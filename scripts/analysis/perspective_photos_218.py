@@ -36,6 +36,11 @@ Subcommands::
     python scripts/analysis/perspective_photos_218.py score
     # CPU: the precision gallery for a human rater (needs IMGDIR)
     python scripts/analysis/perspective_photos_218.py gallery --images IMGDIR
+    # after a rating pass: precision (strata weighted back), agreement for 2+ raters
+    python scripts/analysis/perspective_photos_218.py rates \\
+        --verdicts benchmark/richmond_flat_fp_218/richmond_flat_fp__<rater>.json
+    # ledger rows from the rows infer wrote (see docs section 9)
+    python scripts/analysis/perspective_photos_218.py reledger --raw RAW --replace-in LEDGER
 
 See docs/perspective_photos_218.md for the method, the numbers and the caveats.
 """
@@ -1564,6 +1569,81 @@ def cmd_gallery(args):
     print(f"{len(items)} cards ({totals}), digest {digest} -> {FP_DIR}/gallery.html")
 
 
+FP_EXPORT_PREFIX = "richmond_flat_fp__"
+FP_ANSWERS = ("yes", "no", "cant_tell")
+
+
+def fp_reference():
+    """What a Richmond verdict file must match: the committed manifest, with its digest
+    re-derived from its items (so a hand-edited digest is caught), and this module's
+    question, rubric and rules (so a manifest built under an older rubric is caught)."""
+    with open(os.path.join(FP_DIR, "manifest.json"), encoding="utf-8") as f:
+        man = json.load(f)
+    digest = hashlib.sha256("\n".join(
+        f"{it['item']} {it['image_id']} {man['image_sha256'][it['image_id']]} {it['crop_box']}"
+        for it in man["items"]).encode()).hexdigest()[:16]
+    if digest != man["manifest_digest"]:
+        raise SystemExit(f"manifest.json: digest {man['manifest_digest']} does not re-derive "
+                         f"from its items ({digest})")
+    rubric = [{"key": k, "label": lab, "definition": d} for k, lab, d in FP_RUBRIC]
+    if (man["question"], man["rubric"], man["rules"]) != (FP_QUESTION, rubric, FP_RULES):
+        raise SystemExit("manifest.json: question/rubric/rules differ from this module's")
+    return man, {"manifest_digest": digest, "items": [it["item"] for it in man["items"]],
+                 "question": FP_QUESTION, "rubric": rubric, "rules": FP_RULES}
+
+
+def fp_precision(verdicts, man, n_reps=N_REPS, seed=SEED):
+    """Precision of the gallery's arm at its threshold from one rater's verdicts.
+
+    The gallery is stratified: ``unmatched_rated`` of the ``unmatched_total`` detections no
+    pool ramp claimed, and ``matched_rated`` of the ``matched_total`` claimed ones (the
+    blind control). Each stratum's precision is Yes / (Yes + No) (Can't tell and
+    unanswered excluded, and counted); the overall precision weights the two by their
+    totals, with a stratified bootstrap CI (items resampled within each stratum)."""
+    tot = man["totals"]
+    strata = {"unmatched": [it for it in man["items"] if it["matched_ramp"] is None],
+              "matched": [it for it in man["items"] if it["matched_ramp"] is not None]}
+    w = {"unmatched": tot["unmatched_total"], "matched": tot["matched_total"]}
+    out, ys = {}, {}
+    for k, its in strata.items():
+        ans = [((verdicts.get(it["item"]) or {}).get("answer")) for it in its]
+        y = np.array([a == "yes" for a in ans if a in ("yes", "no")], dtype=float)
+        ys[k] = y
+        out[k] = {"n_items": len(its), "yes": int(y.sum()), "no": int(len(y) - y.sum()),
+                  "cant_tell": sum(a == "cant_tell" for a in ans),
+                  "unanswered": sum(a is None for a in ans),
+                  "precision": float(y.mean()) if len(y) else None,
+                  "of_total": w[k]}
+    if all(len(y) for y in ys.values()):
+        est = sum(w[k] * ys[k].mean() for k in ys) / sum(w.values())
+        rng = np.random.default_rng(seed)
+        reps = [sum(w[k] * rng.choice(ys[k], len(ys[k])).mean() for k in ys) / sum(w.values())
+                for _ in range(n_reps)]
+        out["weighted"] = [float(est), *[float(x) for x in np.percentile(reps, [2.5, 97.5])],
+                           int(sum(len(y) for y in ys.values()))]
+    else:
+        out["weighted"] = None
+    return out
+
+
+def cmd_rates(args):
+    """Richmond flat-photo detection precision from rater exports
+    (``benchmark/richmond_flat_fp_218/richmond_flat_fp__<rater>.json``); with two or more,
+    also pairwise agreement (Cohen's kappa, Can't tell excluded)."""
+    import rating_page_218 as RP
+    man, ref = fp_reference()
+    files = [RP.load_verdicts(p, ref, FP_EXPORT_PREFIX) for p in args.verdicts]
+    res = {"arm": man["arm"], "threshold": man["threshold"], "totals": man["totals"]}
+    for v in files:
+        res[v["rater"]] = fp_precision(v["verdicts"], man)
+    for i in range(len(files)):
+        for j in range(i + 1, len(files)):
+            res[f"agreement:{files[i]['rater']}-{files[j]['rater']}"] = RP.agreement(
+                files[i]["verdicts"], files[j]["verdicts"], ref["items"],
+                lambda a: a if a in ("yes", "no") else None)
+    print(json.dumps(_round(res), indent=1))
+
+
 def html_escape(s):
     import html
     return html.escape(s)
@@ -1605,9 +1685,13 @@ def main(argv=None):
     g = sub.add_parser("gallery")
     g.add_argument("--images", required=True)
     g.add_argument("--arm", default="canvas_level")
+    rt = sub.add_parser("rates")
+    rt.add_argument("--verdicts", required=True, nargs="+",
+                    help="benchmark/richmond_flat_fp_218/richmond_flat_fp__<rater>.json")
     args = ap.parse_args(argv)
     {"select": cmd_select, "fetch": cmd_fetch, "infer": cmd_infer, "score": cmd_score,
-     "gallery": cmd_gallery, "merge": cmd_merge, "reledger": cmd_reledger}[args.cmd](args)
+     "gallery": cmd_gallery, "merge": cmd_merge, "reledger": cmd_reledger,
+     "rates": cmd_rates}[args.cmd](args)
 
 
 if __name__ == "__main__":

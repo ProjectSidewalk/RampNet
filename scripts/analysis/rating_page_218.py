@@ -4,6 +4,7 @@ kept per rater in the browser, and an Export that writes a per-rater JSON carryi
 question, rubric and rules, keyed to a manifest digest of the images rated."""
 import html
 import json
+import os
 import re
 
 RATER_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,31}$")
@@ -201,3 +202,72 @@ document.getElementById('export').addEventListener('click', () => {{
 }});
 </script></body></html>
 """
+
+
+# --------------------------------------------------------------------------- #
+# reading a rater's export back (for ``rates``)
+# --------------------------------------------------------------------------- #
+def load_verdicts(path, reference, export_prefix):
+    """A rater's export, refused unless it was made on the committed gallery under the
+    current rubric (the pattern of ``residual_gt_check_48.load_verdicts``):
+
+    - the file is named ``<export_prefix><rater>.json`` for its own, valid ``rater``;
+    - its ``manifest_digest`` and item list (in order) equal ``reference``'s;
+    - its ``question``, ``rubric`` and ``rules`` equal ``reference``'s, so a verdict made
+      under an older rubric cannot be mixed in silently;
+    - every verdict is for a listed item, with a rubric answer or null.
+
+    ``reference``: {"manifest_digest", "items", "question", "rubric" (list of
+    {key, label, definition}), "rules"} -- the committed gallery, re-derived by the caller.
+    """
+    with open(path, encoding="utf-8") as f:
+        d = json.load(f)
+    rater = d.get("rater")
+    if not isinstance(rater, str) or not RATER_RE.match(rater):
+        raise ValueError(f"{path}: rater id {rater!r} is missing or not a valid id")
+    if os.path.basename(path) != f"{export_prefix}{rater}.json":
+        raise ValueError(f"{path}: file name does not match its rater id {rater!r} "
+                         f"(expected {export_prefix}{rater}.json)")
+    if d.get("manifest_digest") != reference["manifest_digest"]:
+        raise ValueError(f"{path}: made on gallery {d.get('manifest_digest')}, but the "
+                         f"committed gallery is {reference['manifest_digest']}")
+    if d.get("items") != reference["items"]:
+        raise ValueError(f"{path}: item list differs from the committed manifest")
+    for k in ("question", "rubric", "rules"):
+        if d.get(k) != reference[k]:
+            raise ValueError(f"{path}: {k} differs from the committed gallery's; a verdict "
+                             "made under another rubric is not comparable")
+    answers = {r["key"] for r in reference["rubric"]}
+    items = set(reference["items"])
+    for uid, v in (d.get("verdicts") or {}).items():
+        if uid not in items:
+            raise ValueError(f"{path}: {uid} is not in the item list")
+        if (v or {}).get("answer") not in answers | {None}:
+            raise ValueError(f"{path}: {uid} has answer {v.get('answer')!r}, not in "
+                             f"{sorted(answers)}")
+    return d
+
+
+def agreement(va, vb, items, label=lambda a: a):
+    """Two raters on the same items: raw agreement and Cohen's kappa over the items both
+    decided (``label(answer)`` not None).
+
+    >>> va = {"a": {"answer": "yes"}, "b": {"answer": "no"}, "c": {"answer": "yes"}}
+    >>> vb = {"a": {"answer": "yes"}, "b": {"answer": "yes"}, "c": {"answer": "yes"}}
+    >>> agreement(va, vb, ["a", "b", "c"])["n"]
+    3
+    """
+    pairs = []
+    for u in items:
+        a = label(((va.get(u) or {}).get("answer")))
+        b = label(((vb.get(u) or {}).get("answer")))
+        if a is not None and b is not None:
+            pairs.append((a, b))
+    n = len(pairs)
+    if not n:
+        return {"n": 0, "agreement": None, "kappa": None}
+    po = sum(a == b for a, b in pairs) / n
+    cats = sorted({x for p in pairs for x in p}, key=str)
+    pe = sum((sum(a == c for a, _ in pairs) / n) * (sum(b == c for _, b in pairs) / n)
+             for c in cats)
+    return {"n": n, "agreement": po, "kappa": (po - pe) / (1 - pe) if pe < 1 else None}

@@ -24,7 +24,7 @@ Subcommands::
     python scripts/analysis/seoul_photos_218.py fetch --out DIR      # all 514 (or --names a,b)
     python scripts/analysis/seoul_photos_218.py infer --images DIR   # GPU; arms canvas_level, stretch
     python scripts/analysis/seoul_photos_218.py gallery --images DIR # blind presence gallery
-    python scripts/analysis/seoul_photos_218.py rates --verdicts FILE  # after rating (not run yet)
+    python scripts/analysis/seoul_photos_218.py rates --verdicts FILE [FILE2]  # after rating
 """
 import argparse
 import csv
@@ -404,7 +404,7 @@ def render_gallery(items, digest):
         "task": "RampNet #218 Seoul photos, presence: " + QUESTION,
         "export_prefix": EXPORT_PREFIX, "storage_prefix": "seoul218_",
         "gallery_rel": GALLERY_REL,
-        "commit_dir": "analysis_out/perspective_photos_218/seoul/"})
+        "commit_dir": "benchmark/seoul_presence_218/"})
 
 
 def cmd_gallery(args):
@@ -456,34 +456,70 @@ def presence_label(answer, flush_counts=False):
     return None
 
 
+def committed_reference():
+    """What a Seoul verdict file must match: the committed gallery's manifest, with its
+    digest re-derived from the listed photos' sha256s (so a hand-edited digest is caught),
+    and the question, rubric and rules of this module (so an old manifest is caught)."""
+    with open(os.path.join(GALLERY_DIR, "manifest.json"), encoding="utf-8") as f:
+        man = json.load(f)
+    digest = manifest_digest(man["items"], man["sha256"])
+    if digest != man["manifest_digest"]:
+        raise SystemExit(f"manifest.json: digest {man['manifest_digest']} does not re-derive "
+                         f"from its sha256s ({digest})")
+    rubric = [{"key": k, "label": lab, "definition": d} for k, lab, d in RUBRIC]
+    if (man["question"], man["rubric"], man["rules"]) != (QUESTION, rubric, RULES):
+        raise SystemExit("manifest.json: question/rubric/rules differ from this module's; "
+                         "rebuild the gallery")
+    return {"manifest_digest": digest, "items": man["items"], "question": QUESTION,
+            "rubric": rubric, "rules": RULES}
+
+
 def cmd_rates(args):
-    v = json.load(open(args.verdicts, encoding="utf-8"))
-    man = json.load(open(os.path.join(GALLERY_DIR, "manifest.json"), encoding="utf-8"))
-    if v["manifest_digest"] != man["manifest_digest"]:
-        raise SystemExit("verdicts were made on a different image set")
+    """Presence precision/recall of each arm against a rater's verdicts (primary: flush
+    crossings count as no ramp; ``+flush``: they count as a ramp). With two or more files,
+    also the raters' pairwise agreement (Cohen's kappa) under both readings."""
+    ref = committed_reference()
+    files = [RP.load_verdicts(p, ref, EXPORT_PREFIX) for p in args.verdicts]
     res = {}
+    recs_by_arm = {}
     for a in ARMS:
         recs = {}
         with open(os.path.join(OUT, f"dets_{a}.jsonl"), encoding="utf-8") as f:
             for line in f:
-                r = json.loads(line)
-                recs[r["filename"]] = r
-        for flush in (False, True):
-            for thr in PP.THRESHOLDS:
-                tp = fp = fn = tn = 0
-                for name, ans in v["verdicts"].items():
-                    y = presence_label(ans.get("answer"), flush)
-                    if y is None or name not in recs:
-                        continue
-                    pred = recs[name]["max_score"] >= thr
-                    tp += y and pred
-                    fp += (not y) and pred
-                    fn += y and not pred
-                    tn += (not y) and not pred
-                res[f"{a}@{thr}{'+flush' if flush else ''}"] = {
-                    "tp": tp, "fp": fp, "fn": fn, "tn": tn,
-                    "precision": PP.rnd(tp / (tp + fp)) if tp + fp else None,
-                    "recall": PP.rnd(tp / (tp + fn)) if tp + fn else None}
+                if line.strip():
+                    r = json.loads(line)
+                    recs[r["filename"]] = r
+        recs_by_arm[a] = recs
+    for v in files:
+        out = {}
+        for a in ARMS:
+            recs = recs_by_arm[a]
+            for flush in (False, True):
+                for thr in PP.THRESHOLDS:
+                    tp = fp = fn = tn = 0
+                    for name, ans in v["verdicts"].items():
+                        y = presence_label((ans or {}).get("answer"), flush)
+                        if y is None or name not in recs:
+                            continue
+                        pred = recs[name]["max_score"] >= thr
+                        tp += y and pred
+                        fp += (not y) and pred
+                        fn += y and not pred
+                        tn += (not y) and not pred
+                    out[f"{a}@{thr}{'+flush' if flush else ''}"] = {
+                        "tp": tp, "fp": fp, "fn": fn, "tn": tn,
+                        "precision": PP.rnd(tp / (tp + fp)) if tp + fp else None,
+                        "recall": PP.rnd(tp / (tp + fn)) if tp + fn else None}
+        res[v["rater"]] = out
+    if len(files) > 1:
+        for i in range(len(files)):
+            for j in range(i + 1, len(files)):
+                a, b = files[i], files[j]
+                res[f"agreement:{a['rater']}-{b['rater']}"] = {
+                    ("flush_as_ramp" if fl else "primary"): RP.agreement(
+                        a["verdicts"], b["verdicts"], ref["items"],
+                        lambda x, fl=fl: presence_label(x, fl))
+                    for fl in (False, True)}
     print(json.dumps(res, indent=1))
 
 
@@ -533,7 +569,8 @@ def main(argv=None):
     g.add_argument("--images", default=None)
     sub.add_parser("summary")
     r = sub.add_parser("rates")
-    r.add_argument("--verdicts", required=True)
+    r.add_argument("--verdicts", required=True, nargs="+",
+                   help="benchmark/seoul_presence_218/seoul_presence__<rater>.json (one or more)")
     args = ap.parse_args(argv)
     {"manifest": cmd_manifest, "fetch": cmd_fetch, "infer": cmd_infer, "gallery": cmd_gallery,
      "rates": cmd_rates, "summary": cmd_summary}[args.cmd](args)
