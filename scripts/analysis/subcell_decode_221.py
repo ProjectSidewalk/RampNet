@@ -6,9 +6,11 @@ peak sits on an 8-px grid. ``rampnet/subcell.py`` refines each peak from the 3x3
 neighbourhood. This script measures whether that refinement moves detections toward
 human-drawn box centres.
 
-Two subcommands:
+Three subcommands:
 
-    # GPU (makelab2 A40, ~0.3 s/pano). Runs the released checkpoint once per pano,
+    # GPU (makelab2 A40, shared: 1.2 s/pano forward, 1.72 s/pano wall-clock including
+    # single-threaded JPEG decode of the native panos). Runs the released checkpoint,
+    # pinned by --model-revision, once per pano,
     # captures the pre-upsample 64x128 map from the head, checks the head output is its
     # bilinear upsample, extracts peaks exactly as analysis_out/op_cache does
     # (threshold_sweep.peaks_to_dets: clip [0,1], min_distance 10, exclude_border=False)
@@ -16,8 +18,16 @@ Two subcommands:
     # analysis_out/subcell_decode_221/detections.json. Usage rows go to --usage-out
     # (appended to analysis_out/usage_log.jsonl by hand in the main checkout, because
     # the GPU host's clone is not the ledger's home).
+    # The committed detections.json was made with (from /homes/gws/jonf/wt-subcell221
+    # on makelab2, panos from Jon's makelab checkout, model at Hub main = MODEL_REVISION):
     python scripts/analysis/subcell_decode_221.py extract \
         --panos-root /homes/gws/jonf/RampNet --cache-dir /homes/gws/jonf/subcell221_cache
+
+    # CPU: sha256 every pano the extraction reads against the committed
+    # benchmark/<split>/imagery_manifest.json, and write imagery_check.json. extract also
+    # runs this and records the result in detections.json's meta (runs after 2026-09-30).
+    python scripts/analysis/subcell_decode_221.py verify-imagery \
+        --panos-root /homes/gws/jonf/RampNet
 
     # CPU, no model, no images: decode every committed neighbourhood with
     # rampnet.subcell, match to GT, and write results.json + results.md.
@@ -73,6 +83,23 @@ ND = 4
 DEG_PER_PX = 360.0 / HM[1]        # 0.3516; the same in y (180 / 512)
 METHODS = [m for m in sc.METHODS]
 CHECK_TOL = 2e-4                  # input_res_sweep_25.CHECK_TOL: cross-machine fp32 noise
+MODEL_REPO = "projectsidewalk/rampnet-model"
+#: Hub commit of MODEL_REPO the committed detections.json was extracted with. Hub ``main``
+#: has pointed here since 2026-07-24 (``model_info().last_modified``), and makelab2's HF
+#: cache ``refs/main`` held it on the run date; model.safetensors sha256 is
+#: MODEL_WEIGHTS_SHA256.
+MODEL_REVISION = "606a11956743f7eb328d9207769034752f6191f4"
+MODEL_WEIGHTS_SHA256 = "f2119e3becb0b551fa1470f7b7ba85b82122a3f73a6ed2a85609dd57617866b5"
+IMAGERY_CHECK = os.path.join(OUT_DIR, "imagery_check.json")
+#: Row bands (argmax row, hi-res px, half-open) for the y-profile read of section 4.3.
+#: Row 256 is the horizon; 256-290 is the far-field band just below it.
+Y_BANDS = (256, 290, 330)
+#: Uniform-quantization variance models, px^2 per axis, for an 8-px cell (S2 of the #226
+#: review). Snapping to the coarse centre leaves u ~ U[-4, 4]: 64/12. The argmax already
+#: leans 0.5 px toward the true side, a = 0.5 sign(u): E[(u - a)^2] = 64/12 - 2(0.5)E|u|
+#: + 0.25 with E|u| = 2, i.e. 64/12 - 1.75.
+QVAR_CENTRE = 64.0 / 12.0
+QVAR_ARGMAX = QVAR_CENTRE - 1.75
 
 
 def rnd(v, nd=ND):
@@ -165,21 +192,102 @@ def pano_record(h, coarse):
     return dets
 
 
+def verify_imagery(panos_root, splits, limit=0):
+    """sha256 of every pano ``extract`` reads, against ``benchmark/<split>/imagery_manifest.json``.
+
+    Checks exactly the ids ``extract`` iterates (``records.jsonl``), at
+    ``<panos_root>/benchmark/<split>/panos/<id>.jpg``, against the manifest committed in
+    *this* checkout (not the one under ``panos_root``, which may be older). Returns a
+    JSON-able dict with a per-split status; ``ok`` needs every pano present and equal.
+    """
+    import imagery_manifest as im
+    out = {"panos_root": panos_root, "splits": {}}
+    for split in splits:
+        pids = split_pano_ids(split)[:limit or None]
+        man = im.load(split)
+        if man is None:
+            out["splits"][split] = {"status": "NO MANIFEST", "panos": len(pids)}
+            continue
+        pdir = os.path.join(panos_root, "benchmark", split, "panos")
+        got, missing, changed, unlisted = {}, [], [], []
+        for pid in pids:
+            path = os.path.join(pdir, f"{pid}.jpg")
+            if not os.path.exists(path):
+                missing.append(pid)
+                continue
+            got[pid] = {"sha256": sha256_file(path)}
+            want = man["panos"].get(pid)
+            if want is None:
+                unlisted.append(pid)
+            elif want["sha256"] != got[pid]["sha256"]:
+                changed.append(pid)
+        ok = not (missing or changed or unlisted)
+        out["splits"][split] = {
+            "status": "ok" if ok else "MISMATCH", "panos": len(pids), "hashed": len(got),
+            "match": len(got) - len(changed) - len(unlisted), "missing": missing,
+            "changed": changed, "not_in_manifest": unlisted,
+            "manifest_digest": man["digest"], "manifest_n": man["n"],
+            "digest_of_panos_read": im.digest_of(got)}
+    out["status"] = ("ok" if all(s["status"] == "ok" for s in out["splits"].values())
+                     else "MISMATCH")
+    return out
+
+
+def cmd_verify_imagery(args):
+    splits = [s for s in args.splits.split(",") if s]
+    rep = verify_imagery(args.panos_root, splits, args.limit)
+    rep["checked"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    rep["host"] = socket.getfqdn()
+    write_json(args.out, rep)
+    for s, r in rep["splits"].items():
+        print(f"{s:>12}: {r['status']} ({r.get('match', 0)}/{r['panos']} match)")
+    print(f"-> {args.out}")
+    return 0 if rep["status"] == "ok" else 1
+
+
+def load_model_at(revision):
+    """``threshold_sweep.load_model``, pinned to a Hub commit. Returns the model, the
+    resolved commit and the sha256 of the weights file actually loaded."""
+    import safetensors.torch as st
+    from huggingface_hub import hf_hub_download
+    from rampnet.model import KeypointModel
+    path = hf_hub_download(MODEL_REPO, "model.safetensors", revision=revision)
+    sd = st.load_file(path)
+    sd = {k[len("model."):] if k.startswith("model.") else k: v for k, v in sd.items()}
+    m = KeypointModel()
+    m.load_state_dict(sd)
+    # the HF cache stores files at .../snapshots/<commit>/<file>
+    commit = os.path.basename(os.path.dirname(path))
+    return m.eval(), commit, sha256_file(path)
+
+
 def cmd_extract(args):
     import torch
     from PIL import Image
     import threshold_sweep as ts
     Image.MAX_IMAGE_PIXELS = None
 
+    splits_req = [s for s in args.splits.split(",") if s]
+    imagery = verify_imagery(args.panos_root, splits_req, args.limit)
+    if imagery["status"] != "ok" and not args.allow_imagery_mismatch:
+        raise SystemExit(f"imagery does not match the committed manifests: "
+                         f"{ {s: r['status'] for s, r in imagery['splits'].items()} } "
+                         f"(--allow-imagery-mismatch to run anyway)")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = ts.load_model().to(device).eval()
+    model, model_commit, weights_sha = load_model_at(args.model_revision)
+    model = model.to(device).eval()
     head = model.head
     gpus = ([torch.cuda.get_device_name(i) for i in range(torch.cuda.device_count())]
             if device.type == "cuda" else [])
     started = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     t_run = time.perf_counter()
-    splits = [s for s in args.splits.split(",") if s]
-    out = {"meta": {"model": "projectsidewalk/rampnet-model", "floor": FLOOR,
+    splits = splits_req
+    out = {"meta": {"model": MODEL_REPO, "model_revision": model_commit,
+                    "model_weights_sha256": weights_sha,
+                    "imagery_check": {s: {k: r.get(k) for k in
+                                          ("status", "panos", "match", "digest_of_panos_read")}
+                                      for s, r in imagery["splits"].items()},
+                    "floor": FLOOR,
                     "min_distance": MIN_DISTANCE, "heatmap": list(HM), "coarse": list(COARSE),
                     "preprocess": "threshold_sweep.PRE (resize to 2048x4096 bilinear)",
                     "fp16": False, "tta": False, "device": device.type, "gpus": gpus,
@@ -240,7 +348,8 @@ def cmd_extract(args):
                     "coarse map captured from the head, peaks >= 0.30; elapsed_s is the "
                     "run's wall-clock after model load (JPEG decode not overlapped)"),
            "run_id": f"subcell-decode-221:extract:{started}",
-           "provider": "rampnet", "model_id": "projectsidewalk/rampnet-model", "paid": False,
+           "provider": "rampnet", "model_id": MODEL_REPO, "model_revision": model_commit,
+           "paid": False,
            "hardware": {"host": socket.getfqdn(), "gpus": gpus}, "status": "ok",
            "est_cost_usd": 0.0, "pricing": None, "gpu_share": 1.0,
            "script": "scripts/analysis/subcell_decode_221.py", "issue": 221}
@@ -377,8 +486,10 @@ def instrument_check(split, recs):
     skimage's default ``exclude_border=True``, the #132 defect; production and this
     script pass False). Peaks in that band are counted, not compared. Outside it, a peak
     agrees if the op_cache has one at the same pixel or 1 px away (Chebyshev): a near-tie
-    between the two pixels flanking a coarse centre (8i+3 vs 8i+4) flips on
-    cross-machine fp32 noise, which is the #221 mechanism itself. Peaks within
+    between the two pixels flanking one coarse centre (8i+3 vs 8i+4) flips on
+    cross-machine fp32 noise. Both pixels lie in the same coarse cell, so every refined
+    decode places such a peak identically. (That 1-px tie is not #221's 7-px flip, which
+    is a change in *which* coarse cell is the maximum, 8i+4 -> 8(i+1)+3.) Peaks within
     ``CHECK_TOL`` of the 0.30 floor may be on either side of it in either run and are
     not counted."""
     path = os.path.join(OP_CACHE, f"{split}.json")
@@ -462,7 +573,7 @@ def floor_read(recs, gts, wrap_x, rng, n_reps):
     return out
 
 
-def build_report(dets_path=DETS, wrap_x=False, n_reps=N_REPS):
+def build_report(dets_path=DETS, wrap_x=False, n_reps=N_REPS, y_bands=Y_BANDS):
     with open(dets_path, encoding="utf-8") as f:
         D = json.load(f)
     rsq = radius_sq_for()
@@ -476,8 +587,19 @@ def build_report(dets_path=DETS, wrap_x=False, n_reps=N_REPS):
            "protocol": {"floor": FLOOR, "radius_normalized": 0.022, "wrap_x_decode": wrap_x,
                         "pairs": "fixed on argmax positions, greedy by confidence",
                         "bootstrap": f"pano-cluster, {n_reps} reps, seed {SEED}",
-                        "deg_per_px": DEG_PER_PX},
+                        "deg_per_px": DEG_PER_PX, "y_bands": list(y_bands)},
            "mechanism": {}, "instrument_check": {}, "splits": {}}
+    if os.path.exists(IMAGERY_CHECK):
+        with open(IMAGERY_CHECK, encoding="utf-8") as f:
+            ic = json.load(f)
+        rep["inputs"]["imagery_check"] = {
+            "file": os.path.relpath(IMAGERY_CHECK, REPO).replace(os.sep, "/"),
+            "status": ic["status"], "panos_root": ic["panos_root"],
+            "splits": {s: {"status": r["status"], "match": r.get("match"),
+                           "panos": r["panos"]} for s, r in ic["splits"].items()}}
+    rep["inputs"]["model_revision_as_run"] = MODEL_REVISION
+    rep["inputs"]["model_weights_sha256"] = MODEL_WEIGHTS_SHA256
+    recon = {}
     pooled_rows = {"boxes4": [], "all5": []}
     for split in SPLITS:
         recs = D["panos"].get(split)
@@ -499,9 +621,18 @@ def build_report(dets_path=DETS, wrap_x=False, n_reps=N_REPS):
             "off_grid_other_than_plateau_or_col0": sum(
                 (d[1] % 8 not in (3, 4) or d[0] % 8 not in (3, 4)) and d[2] <= 1 and d[1] != 0
                 for d in alld),
-            "recon_max_abs_torch": max(r["recon_max_abs"] for r in recs.values()),
-            "recon_max_abs_numpy": max(r["numpy_recon_max_abs"] for r in recs.values()),
+            # climb census (#226 review S4): clipped peaks never needed it here; every
+            # climb was an on-grid peak pulled into the next cell by a diagonal neighbour
+            "climbed_and_score_over_1": sum(d[5] > 0 and d[2] > 1 for d in alld),
+            "climbed_on_grid": sum(d[5] > 0 and d[1] % 8 in (3, 4) and d[0] % 8 in (3, 4)
+                                   for d in alld),
             "peak_score_max": max((d[2] for d in alld), default=None)}
+        # fp32-scale values: kept out of rnd(), which would print them as 0 (review S1)
+        recon[split] = {
+            "recon_max_abs_torch": max(r["recon_max_abs"] for r in recs.values()),
+            "recon_min_abs_torch": min(r["recon_max_abs"] for r in recs.values()),
+            "recon_max_abs_numpy": max(r["numpy_recon_max_abs"] for r in recs.values()),
+            "recon_panos_exactly_zero": sum(r["recon_max_abs"] == 0 for r in recs.values())}
         rep["instrument_check"][split] = instrument_check(split, recs)
         gts = ground_truth(split)
         rows = build_pairs(recs, gts, rsq)
@@ -514,7 +645,109 @@ def build_report(dets_path=DETS, wrap_x=False, n_reps=N_REPS):
             rep["crossview_floor"] = floor_read(recs, gts, wrap_x, rng, n_reps)
     for name, rows in pooled_rows.items():
         rep["splits"][f"pooled:{name}"] = summarize(rows, None, wrap_x, rng, n_reps)
-    return rnd(rep)
+    # Deterministic extras added after the #226 review. They draw no random numbers, so
+    # every bootstrap above is unchanged by their presence.
+    for split in SPLITS:
+        recs = D["panos"].get(split)
+        if not recs:
+            continue
+        rows = build_pairs(recs, ground_truth(split), rsq)
+        s = rep["splits"][split]
+        s["quantization_variance"] = quantization_variance(s["methods"])
+        s["climbed_pairs"] = climbed_pairs(rows, wrap_x)
+        if split == "manual_gold" and y_bands:
+            s["y_profile"] = y_profile(rows, y_bands, wrap_x)
+    for name in pooled_rows:
+        s = rep["splits"][f"pooled:{name}"]
+        s["quantization_variance"] = quantization_variance(s["methods"])
+    rep = rnd(rep)
+    for split, v in recon.items():
+        rep["mechanism"][split].update({k: float(f"{x:.3g}") if isinstance(x, float) else x
+                                        for k, x in v.items()})
+    return rep
+
+
+def quantization_variance(methods):
+    """Per-axis variance removed by the Gaussian decode, against both quantization models.
+
+    ``methods`` is a split's per-decode ``stats`` (SDs are bias-removed). The measured
+    ``centre - argmax`` variance is the check on the argmax model: it predicts
+    ``QVAR_CENTRE - QVAR_ARGMAX`` = 1.75 px^2 per axis."""
+    out = {"model_centre_snap_px2": QVAR_CENTRE, "model_argmax_px2": QVAR_ARGMAX,
+           "model_centre_minus_argmax_px2": QVAR_CENTRE - QVAR_ARGMAX}
+    for ax in ("x", "y"):
+        v = {m: methods[m][f"sd_{ax}_px"] ** 2 for m in ("argmax", "centre", "gaussian")}
+        removed = v["argmax"] - v["gaussian"]
+        out[ax] = {"var_argmax_px2": v["argmax"], "var_centre_px2": v["centre"],
+                   "var_gaussian_px2": v["gaussian"],
+                   "measured_centre_minus_argmax_px2": v["centre"] - v["argmax"],
+                   "removed_vs_argmax_px2": removed,
+                   "removed_frac_of_argmax_model": removed / QVAR_ARGMAX,
+                   "removed_vs_centre_px2": v["centre"] - v["gaussian"],
+                   "removed_frac_of_centre_model": (v["centre"] - v["gaussian"]) / QVAR_CENTRE}
+    return out
+
+
+def _euclid(rows, method, wrap_x):
+    dx, dy, _ = residuals(rows, method, wrap_x)
+    return np.hypot(dx, dy)
+
+
+def climbed_pairs(rows, wrap_x):
+    """Pairs whose peak was climbed to a neighbouring coarse cell: count, and the mean
+    residual under argmax (the pixel peak_local_max returned) and under gaussian."""
+    sel = [r for r in rows if r[1][5] > 0]
+    if not sel:
+        return {"pairs": 0}
+    return {"pairs": len(sel), "argmax_mean_px": float(_euclid(sel, "argmax", wrap_x).mean()),
+            "gaussian_mean_px": float(_euclid(sel, "gaussian", wrap_x).mean())}
+
+
+def y_profile(rows, bands, wrap_x):
+    """Where the non-uniform decoded-y mod-8 histogram (doc section 4.3) comes from.
+
+    Per argmax-row band ``[lo, hi)``: pair count, decoded-y mod-8 histogram, the mean
+    offset from the coarse centre (cells) of the gaussian decode and of the GT, and the
+    mean |y residual| under argmax and gaussian. Plus the shape of the coarse profile over
+    all pairs (share of peaks whose lower / right neighbour is the higher one, median
+    log-curvature per axis; sigma 1.25 cells gives -1/1.25^2 = -0.64) and a calibration
+    table: GT offset by decoded-offset bin."""
+    r_arg = np.array([d[0] for _, d, _, _ in rows], dtype=float)
+    cen = sc.FACTOR * np.array([d[3] for _, d, _, _ in rows]) + (sc.FACTOR - 1) / 2
+    y_dec = np.array([decode(d, "gaussian", wrap_x)[1] for _, d, _, _ in rows]) * HM[0]
+    y_gt = np.array([gy for _, _, _, gy in rows]) * HM[0]
+    off_dec, off_gt = (y_dec - cen) / sc.FACTOR, (y_gt - cen) / sc.FACTOR
+    edges = [0] + list(bands) + [HM[0]]
+    out = {"band_on": "argmax row, hi-res px, [lo, hi)", "bands": []}
+    for lo, hi in zip(edges[:-1], edges[1:]):
+        m = (r_arg >= lo) & (r_arg < hi)
+        b = {"rows": [lo, hi], "pairs": int(m.sum())}
+        if m.any():
+            b.update({"mod8_gaussian": mod8_hist(y_dec[m]),
+                      "mean_offset_decoded_cells": float(off_dec[m].mean()),
+                      "mean_offset_gt_cells": float(off_gt[m].mean()),
+                      "mean_abs_dy_argmax_px": float(np.abs(y_gt - r_arg)[m].mean()),
+                      "mean_abs_dy_gaussian_px": float(np.abs(y_gt - y_dec)[m].mean())})
+        out["bands"].append(b)
+    nb = np.array([[np.nan if v is None else v for v in d[6]] for _, d, _, _ in rows])
+    L = np.log(np.clip(nb, 1e-6, None))
+    out["shape"] = {"lower_neighbour_higher": float(np.mean(nb[:, 7] > nb[:, 1])),
+                    "right_neighbour_higher": float(np.mean(nb[:, 5] > nb[:, 3])),
+                    "median_log_curvature_y": float(np.nanmedian(L[:, 7] - 2 * L[:, 4] + L[:, 1])),
+                    "median_log_curvature_x": float(np.nanmedian(L[:, 5] - 2 * L[:, 4] + L[:, 3])),
+                    "sd_offset_decoded_cells": float(off_dec.std()),
+                    "sd_offset_gt_cells": float(off_gt.std())}
+    cal = []
+    e = np.linspace(-0.5, 0.5, 6)
+    for k, (lo, hi) in enumerate(zip(e[:-1], e[1:])):
+        m = (off_dec >= lo) & ((off_dec <= hi) if k == len(e) - 2 else (off_dec < hi))
+        if m.any():
+            cal.append({"decoded_offset_bin": [round(float(lo), 2), round(float(hi), 2)],
+                        "pairs": int(m.sum()),
+                        "mean_decoded": float(off_dec[m].mean()),
+                        "mean_gt": float(off_gt[m].mean())})
+    out["calibration"] = cal
+    return out
 
 
 def tp_by_method(recs, gts, rsq, wrap_x, methods=("argmax", "gaussian")):
@@ -568,14 +801,30 @@ def markdown(rep):
          f"Pairs: {rep['protocol']['pairs']}; floor {rep['protocol']['floor']}; radius "
          f"{rep['protocol']['radius_normalized']}; bootstrap {rep['protocol']['bootstrap']}. "
          f"1 px = {DEG_PER_PX:.4f} deg on the 512x1024 grid.", "",
-         "## Mechanism", "",
-         "| split | panos | peaks >= 0.30 | col mod 8 in {3,4} | row mod 8 in {3,4} | "
-         "peaks > 1 (clipped plateau) | climbed | max abs(head - upsample(coarse)), torch / "
-         "numpy |", "|---|---:|---:|---:|---:|---:|---:|---|"]
+         f"Model `{MODEL_REPO}` at commit `{rep['inputs']['model_revision_as_run'][:12]}` "
+         f"(weights sha256 `{rep['inputs']['model_weights_sha256'][:16]}`)."]
+    ic = rep["inputs"].get("imagery_check")
+    if ic:
+        L.append(f"Imagery vs committed `imagery_manifest.json` (`{ic['file']}`, panos root "
+                 f"`{ic['panos_root']}`): **{ic['status']}** — " + ", ".join(
+                     f"{s} {r['match']}/{r['panos']}" for s, r in ic["splits"].items()) + ".")
+    else:
+        L.append("Imagery check: not run (no `imagery_check.json`).")
+    L += ["", "## Mechanism", "",
+          "| split | panos | peaks >= 0.30 | col mod 8 in {3,4} | row mod 8 in {3,4} | "
+          "peaks > 1 (clipped plateau) | climbed (on-grid / score > 1) | "
+          "max abs(head - upsample(coarse)), torch / numpy |",
+          "|---|---:|---:|---:|---:|---:|---|---|"]
     for s, m in rep["mechanism"].items():
         L.append(f"| {s} | {m['panos']} | {m['peaks']} | {m['col_mod8_in_34']} | "
-                 f"{m['row_mod8_in_34']} | {m['score_over_1']} | {m['climbed']} | "
+                 f"{m['row_mod8_in_34']} | {m['score_over_1']} | {m['climbed']} "
+                 f"({m['climbed_on_grid']} / {m['climbed_and_score_over_1']}) | "
                  f"{m['recon_max_abs_torch']:.2g} / {m['recon_max_abs_numpy']:.2g} |")
+    L += ["", "The reconstruction difference is non-zero on "
+          + ", ".join(f"{s} {m['panos'] - m['recon_panos_exactly_zero']}/{m['panos']}"
+                      for s, m in rep["mechanism"].items())
+          + " panos, at fp32 rounding scale (torch min "
+          + f"{min(m['recon_min_abs_torch'] for m in rep['mechanism'].values()):.2g})."]
     L += ["", "## Instrument check (argmax peaks vs analysis_out/op_cache)", "",
           "Outside the 10-px border band the op_caches drop (`exclude_border`, #132), and "
           "excluding peaks within 2e-4 of the 0.30 floor:", "",
@@ -640,6 +889,56 @@ def markdown(rep):
             fmt = lambda v: "--" if v is None else f"{v:.3f}"  # noqa: E731
             L.append(f"| {m} | {fmt(fx['slope'])} | {fmt(fx['pearson_r'])} | "
                      f"{fmt(fy['slope'])} | {fmt(fy['pearson_r'])} |")
+        q = r.get("quantization_variance")
+        if q:
+            L += ["", f"Variance removed by `gaussian` (bias-removed SDs, px^2). Models: "
+                  f"centre snap {q['model_centre_snap_px2']:.2f}, argmax "
+                  f"{q['model_argmax_px2']:.2f}, so centre - argmax is predicted at "
+                  f"{q['model_centre_minus_argmax_px2']:.2f}:", "",
+                  "| axis | var argmax | var centre | var gaussian | centre - argmax "
+                  "(measured) | removed vs argmax | / argmax model | removed vs centre | "
+                  "/ centre model |", "|---|---:|---:|---:|---:|---:|---:|---:|---:|"]
+            for ax in ("x", "y"):
+                a = q[ax]
+                L.append(f"| {ax} | {a['var_argmax_px2']:.2f} | {a['var_centre_px2']:.2f} | "
+                         f"{a['var_gaussian_px2']:.2f} | "
+                         f"{a['measured_centre_minus_argmax_px2']:.2f} | "
+                         f"{a['removed_vs_argmax_px2']:.2f} | "
+                         f"{a['removed_frac_of_argmax_model']:.0%} | "
+                         f"{a['removed_vs_centre_px2']:.2f} | "
+                         f"{a['removed_frac_of_centre_model']:.0%} |")
+        cp = r.get("climbed_pairs")
+        if cp and cp.get("pairs"):
+            L += ["", f"Climbed pairs (peak re-anchored to a neighbouring coarse cell): "
+                  f"{cp['pairs']}, mean residual argmax {cp['argmax_mean_px']:.2f} px -> "
+                  f"gaussian {cp['gaussian_mean_px']:.2f} px."]
+        yp = r.get("y_profile")
+        if yp:
+            L += ["", f"y profile by band ({yp['band_on']}):", "",
+                  "| rows | pairs | mean decoded offset (cells) | mean GT offset (cells) | "
+                  "mean abs dy argmax px | mean abs dy gaussian px | decoded y mod 8 |",
+                  "|---|---:|---:|---:|---:|---:|---|"]
+            for b in yp["bands"]:
+                if not b["pairs"]:
+                    L.append(f"| {b['rows'][0]}-{b['rows'][1]} | 0 | | | | | |")
+                    continue
+                L.append(f"| {b['rows'][0]}-{b['rows'][1]} | {b['pairs']} | "
+                         f"{b['mean_offset_decoded_cells']:+.3f} | "
+                         f"{b['mean_offset_gt_cells']:+.3f} | {b['mean_abs_dy_argmax_px']:.3f} | "
+                         f"{b['mean_abs_dy_gaussian_px']:.3f} | {b['mod8_gaussian']} |")
+            sh = yp["shape"]
+            L += ["", f"Coarse profile shape: lower neighbour higher in "
+                  f"{sh['lower_neighbour_higher']:.1%} of pairs, right neighbour in "
+                  f"{sh['right_neighbour_higher']:.1%}; median log-curvature y "
+                  f"{sh['median_log_curvature_y']:.3f}, x {sh['median_log_curvature_x']:.3f} "
+                  f"(sigma 1.25 cells: -0.640); SD of offset decoded "
+                  f"{sh['sd_offset_decoded_cells']:.3f} vs GT {sh['sd_offset_gt_cells']:.3f} "
+                  f"cells.", "", "| decoded y offset bin (cells) | pairs | mean decoded | "
+                  "mean GT |", "|---|---:|---:|---:|"]
+            for c in yp["calibration"]:
+                L.append(f"| [{c['decoded_offset_bin'][0]:+.1f}, "
+                         f"{c['decoded_offset_bin'][1]:+.1f}) | {c['pairs']} | "
+                         f"{c['mean_decoded']:+.3f} | {c['mean_gt']:+.3f} |")
         L += ["", "Position mod 8 (hi-res px, bins 0..7):", ""]
         for ax in ("x", "y"):
             for m, h in r["mod8"][ax].items():
@@ -648,7 +947,8 @@ def markdown(rep):
 
 
 def cmd_report(args):
-    rep = build_report(args.detections, wrap_x=args.wrap_x, n_reps=args.reps)
+    bands = tuple(int(v) for v in args.y_bands.split(",") if v.strip())
+    rep = build_report(args.detections, wrap_x=args.wrap_x, n_reps=args.reps, y_bands=bands)
     write_json(args.out, rep)
     md = os.path.splitext(args.out)[0] + ".md"
     with open(md, "w", encoding="utf-8", newline="") as f:
@@ -673,16 +973,32 @@ def main(argv=None):
     e.add_argument("--usage-out", default=os.path.join(OUT_DIR, "usage_row.json"))
     e.add_argument("--limit", type=int, default=0, help="smoke test: panos per split")
     e.add_argument("--note", default="")
+    e.add_argument("--model-revision", default=MODEL_REVISION,
+                   help="Hub commit of projectsidewalk/rampnet-model (default: the one the "
+                        "committed detections.json used)")
+    e.add_argument("--allow-imagery-mismatch", action="store_true",
+                   help="run even if a pano's sha256 differs from imagery_manifest.json")
+    v = sub.add_parser("verify-imagery")
+    v.add_argument("--panos-root", required=True,
+                   help="dir holding benchmark/<split>/panos/*.jpg")
+    v.add_argument("--splits", default=",".join(SPLITS))
+    v.add_argument("--limit", type=int, default=0)
+    v.add_argument("--out", default=IMAGERY_CHECK)
     r = sub.add_parser("report")
     r.add_argument("--detections", default=DETS)
     r.add_argument("--out", default=os.path.join(OUT_DIR, "results.json"))
     r.add_argument("--wrap-x", action="store_true",
                    help="use the neighbour across the 360 seam at coarse cols 0 / 127")
     r.add_argument("--reps", type=int, default=N_REPS)
+    r.add_argument("--y-bands", default=",".join(str(v) for v in Y_BANDS),
+                   help="argmax-row band edges for the manual_gold y-profile read "
+                        "(doc section 4.3); empty string to skip it")
     a = ap.parse_args(argv)
     if a.cmd == "extract":
         cmd_extract(a)
         return 0
+    if a.cmd == "verify-imagery":
+        return cmd_verify_imagery(a)
     return cmd_report(a)
 
 
