@@ -144,9 +144,10 @@ def cmd_select(args):
     """Every perspective flat image of the #216 census, upright only.
 
     The census holds every Mapillary image within 30 m of a Richmond pool ramp. Fisheye
-    frames are dropped (69; a different camera model) and so are the 38 with EXIF
-    orientation 3 (upside-down capture; the thumbnail's pixel frame vs the SfM pose was
-    not checked for them)."""
+    frames are dropped (69; a different camera model), and so would be any image with an
+    EXIF orientation other than 1 (the thumbnail's pixel frame vs the SfM pose was not
+    checked for those; on 2026-09-30 all 38 such images were fisheye, so this drops
+    nothing further)."""
     ims = read_csv(os.path.join(CENSUS, "images.csv"))
     ramps = read_csv(os.path.join(CENSUS, "ramps.csv"))
     rl = np.array([[float(r["lat"]), float(r["lng"])] for r in ramps])
@@ -660,6 +661,51 @@ def pano_reference(ramps_in_view):
     return out
 
 
+def pano_bearing_check(thr=0.55):
+    """Test comparability: the flat photos' bearing test applied to the same pano captures
+    whose world test is in ``pano_reference``. Only detections >= 0.55 are stored in the
+    neighbourhood records, so this runs at 0.55 only. The ramp's bearing in the pano is
+    its projected column (``x_proj``); the detection's depression is read off a level
+    equirect, ``(y - 0.5) * 180``. Returns per-capture rows with both tests."""
+    dets = {}
+    with open(NEIGHBOURHOOD, encoding="utf-8") as f:
+        for line in f:
+            if line.strip():
+                r = json.loads(line)
+                dets[r["pano"]["panorama_id"]] = [
+                    d for d in r["detections"] if d["confidence"] >= thr]
+    rows = []
+    by_pano = {}
+    for r in read_csv(CAPTURES):
+        if r["city"] != "richmond" or r["is_source"] != "0":
+            continue
+        d = float(r["dist_m"])
+        if not (RANGE_MIN <= d <= RANGE_MAX) or r["pano_id"] not in dets:
+            continue
+        by_pano.setdefault(r["pano_id"], []).append(r)
+    for pid, caps in by_pano.items():
+        ds = sorted(dets[pid], key=lambda x: -x["confidence"])
+        claimed = set()
+        hits = {}
+        for dd in ds:
+            best, be = None, None
+            for c in caps:
+                if c["ramp_uid"] in claimed:
+                    continue
+                db = float(P.wrap_deg((dd["x_normalized"] - float(c["x_proj"])) * 360.0))
+                dep = (dd["y_normalized"] - 0.5) * 180.0
+                if P.bearing_hit(db, dep, 0.0, float(c["dist_m"]), LATERAL_M, H_MIN, H_MAX):
+                    if best is None or abs(db) < be:
+                        best, be = c["ramp_uid"], abs(db)
+            if best:
+                claimed.add(best)
+        for c in caps:
+            wc = float(c["world_conf"]) if c["world_conf"] not in ("", "nan") else 0.0
+            rows.append({"ramp": c["ramp_uid"], "bearing_hit": c["ramp_uid"] in claimed,
+                         "world_hit": wc >= thr})
+    return rows
+
+
 def cmd_score(args):
     arms = args.arms.split(",")
     rows = read_csv(IMAGES_CSV)
@@ -765,6 +811,13 @@ def cmd_score(args):
                 ent[f"hit@{thr}[{b}]"] = cluster_rate([x["world_conf"] >= thr for x in s2],
                                                       [x["ramp"] for x in s2], u, dr)
         res["pano_reference"][scope] = ent
+    pb = pano_bearing_check()
+    u, dr = boot_indices([x["ramp"] for x in pb], seed=SEED + 5)
+    res["pano_reference"]["test_check@0.55"] = {
+        "n_captures": len(pb), "n_ramps": len(u),
+        "bearing_test": cluster_rate([x["bearing_hit"] for x in pb], [x["ramp"] for x in pb], u, dr),
+        "world_test": cluster_rate([x["world_hit"] for x in pb], [x["ramp"] for x in pb], u, dr),
+        "agree": rnd(np.mean([x["bearing_hit"] == x["world_hit"] for x in pb]))}
     # --- flat vs pano, ramp-level paired: per ramp, flat pair-hit rate minus pano capture
     # hit rate, over ramps that have both
     for a in arms:
@@ -840,6 +893,11 @@ def markdown(res, arms):
                                   for lo, hi in RANGE_BINS) + " |")
     L += ["", "## 360 pano reference (world test, non-source captures, 3-18 m)", ""]
     for scope, e in res["pano_reference"].items():
+        if scope.startswith("test_check"):
+            L.append(f"- {scope} (same captures, both tests): {e['n_captures']} captures of "
+                     f"{e['n_ramps']} ramps; bearing test {fmt_ci(e['bearing_test'])}, world "
+                     f"test {fmt_ci(e['world_test'])}, per-capture agreement {e['agree']}")
+            continue
         L.append(f"- {scope}: {e['n_captures']} captures of {e['n_ramps']} ramps")
         for thr in THRESHOLDS:
             L.append(f"  - @ {thr}: {fmt_ci(e[f'hit@{thr}'])}; "
@@ -853,6 +911,136 @@ def markdown(res, arms):
     for a, e in res["fill_peaks"].items():
         L.append(f"- {a}: {e}")
     return "\n".join(L) + "\n"
+
+
+# --------------------------------------------------------------------------- #
+# gallery: detections for a human rater (precision; nothing is rated here)
+# --------------------------------------------------------------------------- #
+FP_DIR = os.path.join(REPO, "benchmark", "richmond_flat_fp_218")
+FP_REL = "benchmark/richmond_flat_fp_218/gallery.html"
+FP_QUESTION = "Is there a curb ramp at the ring?"
+FP_RUBRIC = [
+    ("yes", "Yes",
+     "A curb ramp is at the ring or touching it: a sloped section that takes the sidewalk "
+     "down through the curb to street level (Project Sidewalk: 'a curb ramp connecting "
+     "sidewalk to street'). It may be partly hidden or far away, as long as you can see "
+     "that it is a ramp."),
+    ("no", "No",
+     "No curb ramp at the ring: plain curb, sidewalk, street, a driveway (Project Sidewalk "
+     "puts no Curb Ramp label on driveways), a level crossing with no curb, or something "
+     "else; and the nearest ramp, if any, is more than roughly one ramp width away."),
+    ("cant_tell", "Can't tell",
+     "The crop does not let you decide (too dark, blocked, too blurry, too far). Excluded "
+     "from every rate."),
+]
+FP_RULES = [
+    "Judge the spot under the ring, not whether a ramp exists somewhere in the crop.",
+    "The cards are shuffled and mix detections that matched a known ramp with ones that did "
+    "not; nothing on the card says which.",
+    "Add a note for anything worth recording, e.g. 'ramp 1 m left of ring'.",
+]
+FP_MAX_UNMATCHED = 150
+FP_MATCHED_CONTROL = 40
+CROP_W, CROP_H = 720, 480
+
+
+def gallery_items(arm, thr=PRIMARY_THR, seed=SEED):
+    """The detections to rate: every ``arm`` detection >= thr that no pool ramp claimed
+    under the bearing test (a random FP_MAX_UNMATCHED if there are more), plus a random
+    FP_MATCHED_CONTROL of the claimed ones as a blind control. Shuffled."""
+    rows = read_csv(IMAGES_CSV)
+    by_id = {r["image_id"]: r for r in rows}
+    ramps = ramp_table()
+    recs = load_dets(arm)
+    unmatched, matched = [], []
+    for iid in sorted(recs):
+        rec = recs[iid]
+        dets = rec["dets"]
+        if not any(d["score"] >= thr for d in dets):
+            continue
+        g = image_geometry(by_id[iid], rec["width"], rec["height"], ramps)
+        b, dep, _ = det_world(dets, g["cam"], g["R_wc"])
+        cl = claim_bearing(dets, b, dep, g["near"], thr)
+        claimed_idx = {i: u for u, i in cl.items()}
+        for i, d in enumerate(dets):
+            if d["score"] < thr:
+                continue
+            it = {"image_id": iid, "det": i, "u": d["u"], "v": d["v"], "score": d["score"],
+                  "width": rec["width"], "height": rec["height"],
+                  "matched_ramp": claimed_idx.get(i), "pool_negative": g["pool_negative"]}
+            (matched if i in claimed_idx else unmatched).append(it)
+    rng = np.random.default_rng(seed)
+    if len(unmatched) > FP_MAX_UNMATCHED:
+        unmatched = [unmatched[k] for k in sorted(rng.choice(len(unmatched), FP_MAX_UNMATCHED,
+                                                             replace=False))]
+    ctrl = [matched[k] for k in sorted(rng.choice(len(matched), min(FP_MATCHED_CONTROL,
+                                                                   len(matched)), replace=False))]
+    items = unmatched + ctrl
+    order = rng.permutation(len(items))
+    items = [items[k] for k in order]
+    for k, it in enumerate(items, 1):
+        it["item"] = f"d{k:03d}"
+    return items, {"unmatched_total": len(unmatched), "matched_total": len(matched)}
+
+
+def crop_box(u, v, w, h, cw=CROP_W, ch=CROP_H):
+    """A cw x ch box centred on (u, v), shifted to stay inside a w x h image (smaller if
+    the image is)."""
+    cw, ch = min(cw, w), min(ch, h)
+    x0 = int(round(min(max(u - cw / 2, 0), w - cw)))
+    y0 = int(round(min(max(v - ch / 2, 0), h - ch)))
+    return x0, y0, x0 + cw, y0 + ch
+
+
+def cmd_gallery(args):
+    from PIL import Image
+    import rating_page_218 as RP
+    items, totals = gallery_items(args.arm)
+    fetched = {r["image_id"]: r for r in read_csv(FETCHED_CSV)}
+    img_dir = os.path.join(FP_DIR, "img")
+    os.makedirs(img_dir, exist_ok=True)
+    cards = []
+    for it in items:
+        box = crop_box(it["u"], it["v"], it["width"], it["height"])
+        dst = os.path.join(img_dir, f"{it['item']}.jpg")
+        src = os.path.join(args.images, f"{it['image_id']}.jpg")
+        if sha256_file(src) != fetched[it["image_id"]]["sha256"]:
+            raise SystemExit(f"{src}: sha256 differs from fetched.csv")
+        Image.open(src).convert("RGB").crop(box).save(dst, quality=90)
+        it["crop_box"] = list(box)
+        w, h = box[2] - box[0], box[3] - box[1]
+        cards.append({"name": it["item"], "img": f"img/{it['item']}.jpg", "w": w, "h": h,
+                      "ring": ((it["u"] - box[0]) / w, (it["v"] - box[1]) / h),
+                      "alt": f"Crop of a Richmond flat photo, ring on detection {it['item']}"})
+    digest = hashlib.sha256("\n".join(
+        f"{it['item']} {it['image_id']} {fetched[it['image_id']]['sha256']} {it['crop_box']}"
+        for it in items).encode()).hexdigest()[:16]
+    write_json(os.path.join(FP_DIR, "manifest.json"), {
+        "arm": args.arm, "threshold": PRIMARY_THR, "items": items, "totals": totals,
+        "manifest_digest": digest, "question": FP_QUESTION,
+        "rubric": [{"key": k, "label": lab, "definition": d} for k, lab, d in FP_RUBRIC],
+        "rules": FP_RULES, "image_sha256": {it["image_id"]: fetched[it["image_id"]]["sha256"]
+                                            for it in items},
+        "note": "img/ is not committed; `perspective_photos_218.py fetch` then `gallery` "
+                "rebuilds it byte-for-byte from the sha256-checked thumbnails"})
+    page = RP.render(cards, digest, {
+        "title": "Richmond flat detections", "h1": "Richmond flat photos (#218): detections",
+        "intro": ("<p>Each card is a crop of one Richmond flat (non-360) Mapillary photo, with a "
+                  "ring on a RampNet detection (canvas-embed arm, score at least 0.30). Answer "
+                  f"one question: <strong>{html_escape(FP_QUESTION)}</strong></p>"),
+        "question": FP_QUESTION, "rubric": FP_RUBRIC, "rules": FP_RULES,
+        "keys": {"y": "yes", "n": "no", "c": "cant_tell"},
+        "task": "RampNet #218 Richmond flat photos, detections: " + FP_QUESTION,
+        "export_prefix": "richmond_flat_fp__", "storage_prefix": "rflat218_",
+        "gallery_rel": FP_REL, "commit_dir": "benchmark/richmond_flat_fp_218/"})
+    with open(os.path.join(FP_DIR, "gallery.html"), "w", encoding="utf-8", newline="") as f:
+        f.write(page)
+    print(f"{len(items)} cards ({totals}), digest {digest} -> {FP_DIR}/gallery.html")
+
+
+def html_escape(s):
+    import html
+    return html.escape(s)
 
 
 # --------------------------------------------------------------------------- #
@@ -873,8 +1061,12 @@ def main(argv=None):
                    help="default: the main checkout's analysis_out/usage_log.jsonl; 'none' skips")
     s = sub.add_parser("score")
     s.add_argument("--arms", default="canvas_level,canvas_sfm,stretch")
+    g = sub.add_parser("gallery")
+    g.add_argument("--images", required=True)
+    g.add_argument("--arm", default="canvas_level")
     args = ap.parse_args(argv)
-    {"select": cmd_select, "fetch": cmd_fetch, "infer": cmd_infer, "score": cmd_score}[args.cmd](args)
+    {"select": cmd_select, "fetch": cmd_fetch, "infer": cmd_infer, "score": cmd_score,
+     "gallery": cmd_gallery}[args.cmd](args)
 
 
 if __name__ == "__main__":
