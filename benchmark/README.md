@@ -27,6 +27,14 @@ benchmark/<city>/
   verdicts.json   human verdicts (crop judgments + missed-ramp marks), self-contained
 ```
 
+`benchmark/<city>/cluster_review/` (issue #224, Vancouver only so far) is a separate, optional
+pass: corner-level review of label *clustering* -- which labels are the same physical ramp --
+written by the auto-labeler's `export_cluster_review.py`, reviewed in
+`scripts/cluster_review_gallery.py`, and scored by the auto-labeler. Rubric in
+[`RUBRICS.md`](RUBRICS.md) §6, protocol in
+[`docs/cluster_review_protocol.md`](../docs/cluster_review_protocol.md). Its `assignments.json`
+judges groupings, not detections, and feeds no precision/recall number here.
+
 `verdicts.json` also carries the reviewer's **notes**, which nothing scores: a top-level
 `review_notes` block about the review itself (what fought the rubric, how confident the
 reviewer is in their own pass) and an optional per-pano `note`. Write them in the gallery's

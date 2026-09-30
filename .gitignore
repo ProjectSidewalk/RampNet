@@ -315,3 +315,9 @@ analysis_out/two_scale_197/*
 # DA3 calibration against GSV depth (#101): raw per-pano DA3 rows from the klone run, the
 # derived rows and tables, and their SHA256SUMS. --check re-derives everything from them.
 !analysis_out/da3_calibration_101/
+# Corner-level cluster review (#224): the bundle's text (snapshot.json, corners.jsonl,
+# crops_missing.csv, report.md, export_runs.json, assignments*.json) is tracked; the pixels
+# and the rendered tool are not -- the auto-labeler's exporter re-cuts them.
+benchmark/*/cluster_review/crops/
+benchmark/*/cluster_review/aerial/
+benchmark/*/cluster_review/gallery/

@@ -144,6 +144,10 @@ Three things that are easy to get wrong:
 
 Deliverable: `benchmark/<city>/verdicts.json` — committed, image-free, self-contained.
 
+*Optional, for cities with live AI labels:* a corner-level cluster-review bundle (`cluster_review/`,
+issue #224) can be exported and reviewed after the verdict pass; it scores label clustering, not the
+model, and follows its own protocol ([`cluster_review_protocol.md`](cluster_review_protocol.md)).
+
 ## Phase 3 — score and sanity-check
 
 ```bash
