@@ -204,7 +204,11 @@ cannot say whether the x-axis null is the imagery or the sample.
   Gaussian decode removes 25.46 - 22.04 = 3.42 px^2 in x (**95%**) and 10.62 - 6.88 = 3.74 px^2
   in y (**104%**). Against the centre snap it removes 96% and 102%. y above 100% means the
   uniform-quantization model, with the remaining error independent of it, does not hold exactly
-  in y. An earlier version of this doc divided by the 5.33 px^2 centre-snap variance and reported
+  in y. The mechanism: with shift q = gaussian position - argmax position, the removed variance
+  is var(q) + 2 cov(gaussian residual, q). On manual_gold that is 3.505 - 0.086 = 3.419 px^2 in x
+  and **3.910** - 0.170 = 3.740 px^2 in y (`results.md`, the line under "Variance removed"). The
+  decode really moves peaks by more than the uniform model's 3.58 px^2 in y, because decoded rows
+  pile up at 5-6 mod 8, away from the argmax's 3-4: the same non-uniformity as section 4.3. An earlier version of this doc divided by the 5.33 px^2 centre-snap variance and reported
   64% / 70%, which understated the result.
 
 ### 4.3 Position mod 8, manual_gold
@@ -337,8 +341,13 @@ makelab checkout, not fetched for this run:
 
 ```bash
 python scripts/analysis/subcell_decode_221.py extract \
-    --panos-root /homes/gws/jonf/RampNet --cache-dir /homes/gws/jonf/subcell221_cache
+    --panos-root /homes/gws/jonf/RampNet --cache-dir /homes/gws/jonf/subcell221_cache \
+    --out analysis_out/subcell_decode_221/detections.json \
+    --usage-out analysis_out/subcell_decode_221/usage_row.json
 ```
+
+(`--out` and `--usage-out` were defaults then. They are required now, so a replication cannot
+overwrite the committed files.)
 
 The model was `projectsidewalk/rampnet-model` at Hub `main`, which has been commit
 `606a11956743f7eb328d9207769034752f6191f4` since 2026-07-24 (`model_info().last_modified`);
@@ -351,7 +360,8 @@ sha256 `f2119e3becb0b551fa1470f7b7ba85b82122a3f73a6ed2a85609dd57617866b5`. `dete
 committed `benchmark/<split>/imagery_manifest.json`:
 
 ```bash
-python scripts/analysis/subcell_decode_221.py verify-imagery --panos-root /homes/gws/jonf/RampNet
+python scripts/analysis/subcell_decode_221.py verify-imagery --panos-root /homes/gws/jonf/RampNet \
+    --out analysis_out/subcell_decode_221/imagery_check.json
 ```
 
 All 1,499 match (manual_gold 1,000, annapolis 125, paterson 125, richmond 124, sao_paulo 125;
@@ -361,7 +371,8 @@ run read. `extract` now runs the same check first and refuses mismatched imagery
 `--allow-imagery-mismatch`.
 
 **From a clean clone** (inputs: the Hub model, the Hub imagery, and the committed labels and
-boxes):
+boxes). Every output goes to a scratch directory (`/tmp/sc221` below), so nothing committed is
+overwritten:
 
 ```bash
 # imagery: manual_gold from the rampnet-dataset test split (checked against its
@@ -372,17 +383,37 @@ python scripts/fetch_manual_gold.py --images-only
 python scripts/unpack_benchmark_panos.py --out . --cities annapolis,paterson,richmond,sao_paulo \
     --revision 63d5ffd0e4b6795702db40be89ea4d9672d91ab5
 
-# CPU: prove the imagery is the imagery the run used
-python scripts/analysis/subcell_decode_221.py verify-imagery --panos-root .
+# CPU: prove the imagery is the imagery the run used (exit 1 on any mismatch)
+python scripts/analysis/subcell_decode_221.py verify-imagery --panos-root . \
+    --out /tmp/sc221/imagery_check.json
 
 # GPU: 43 min wall-clock on one (shared) A40 for 1,499 panos; native JPEG decode is not overlapped.
-# --model-revision defaults to the commit above; the imagery check runs first.
+# --model-revision defaults to the commit above. The imagery check runs again first, and its
+# result, the model commit and the weights hash go into the new detections.json's meta.
 python scripts/analysis/subcell_decode_221.py extract --panos-root . \
-    --cache-dir /path/to/coarse_cache --out /tmp/detections.json
+    --cache-dir /tmp/sc221/coarse --out /tmp/sc221/detections.json \
+    --usage-out /tmp/sc221/usage_row.json
 
-# CPU, ~1 min: every number in this doc (defaults: --reps 2000, --y-bands 256,290,330)
-python scripts/analysis/subcell_decode_221.py report
+# CPU, ~1 min: every number in this doc, from YOUR detections
+python scripts/analysis/subcell_decode_221.py report --detections /tmp/sc221/detections.json \
+    --out /tmp/sc221/results.json
+
+# compare with the committed report: every number, ignoring only the top-level "inputs"
+python scripts/analysis/subcell_decode_221.py compare \
+    analysis_out/subcell_decode_221/results.json /tmp/sc221/results.json
 ```
+
+**What must match and what may differ.** `compare` ignores only the top-level `inputs` block:
+the detections path and sha256, the model commit, the imagery-check path and panos root, and where
+each of those came from. Those differ in any replication, and `results.md`'s header lines, which
+print them, differ with them. Everything else is a measured number and is compared exactly.
+On the same software stack (torch 2.6.0+cu124 on an A40) the extraction is expected to be
+bit-identical, so `compare` should report 0 differences. Across machines, fp32 noise of about 1e-4
+in peak scores (section 3) can flip a within-cell 1-px tie or move a peak across the 0.30 floor,
+so a few counts and the last printed digit of some means may move. Use `compare --tol` to see
+the size of the differences. A change in any paired difference beyond its last digit, or in a CI
+beyond noise, is a real discrepancy. `report` alone, run on the committed `detections.json` with
+default arguments, reproduces the committed `results.json` and `results.md` byte for byte.
 
 `detections.json` (sha256 `57cfb968c5106a833a214aeea7801d20f8fb228cb3c28bdaf7a3474074cd72b1`)
 holds every peak >= 0.30 with its 3x3 coarse neighbourhood (6 decimals), so `report` needs neither
@@ -396,7 +427,7 @@ noise of about 1e-4 is expected (section 3).
 
 | step | where | wall-clock | GPU-hours | $ |
 |---|---|---:|---:|---:|
-| `extract`, 1,499 panos (manual_gold 1,000 + 4 x ~125) | makelab2, 1x A40 (shared for part of the run: #218's perspective shards started at 19:00:50Z, before this run ended at ~19:18Z) | 2,579 s (43 min) | 0.72 | 0 |
+| `extract`, 1,499 panos (manual_gold 1,000 + 4 x ~125) | makelab2, 1x A40 (shared for part of the run: #217's segment-vistas at 18:53:48Z and #218's perspective shards from 19:00:50Z both ran on it before this run ended at ~19:18Z) | 2,579 s (43 min) | 0.72 | 0 |
 | `report` | desktop CPU | ~1 min | 0 | 0 |
 | smoke test (15 panos) | desktop RTX 3070 | 32 s | ~0.01 | 0 |
 
