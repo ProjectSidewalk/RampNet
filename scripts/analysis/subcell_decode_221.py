@@ -365,29 +365,101 @@ def mod8_hist(vals_px):
     return np.bincount(np.floor(np.asarray(vals_px)).astype(int) % 8, minlength=8).tolist()
 
 
+def in_border_band(r, c, md=MIN_DISTANCE):
+    """Within ``md`` px of the heatmap edge: the band ``exclude_border=True`` drops."""
+    return r < md or c < md or r > HM[0] - 1 - md or c > HM[1] - 1 - md
+
+
 def instrument_check(split, recs):
-    """Our argmax peaks >= 0.30 vs the committed analysis_out/op_cache/<split>.json."""
+    """Our argmax peaks >= 0.30 vs the committed analysis_out/op_cache/<split>.json.
+
+    The op_caches hold no peak within 10 px of the heatmap edge (they were extracted with
+    skimage's default ``exclude_border=True``, the #132 defect; production and this
+    script pass False). Peaks in that band are counted, not compared. Outside it, a peak
+    agrees if the op_cache has one at the same pixel or 1 px away (Chebyshev): a near-tie
+    between the two pixels flanking a coarse centre (8i+3 vs 8i+4) flips on
+    cross-machine fp32 noise, which is the #221 mechanism itself. Peaks within
+    ``CHECK_TOL`` of the 0.30 floor may be on either side of it in either run and are
+    not counted."""
     path = os.path.join(OP_CACHE, f"{split}.json")
     if not os.path.exists(path):
         return {"status": "no op_cache"}
     with open(path, encoding="utf-8") as f:
         op = {p["pano"]: p["preds"] for p in json.load(f)["panos"]}
-    n_ours = n_op = n_same = 0
+    n_ours = n_op = n_exact = n_1px = n_band_ours = n_band_op = 0
     max_d = 0.0
+    keep = lambda k, v: not in_border_band(*k) and v >= FLOOR + CHECK_TOL  # noqa: E731
     for pid, rec in recs.items():
-        ours = {(d[1], d[0]): d[2] for d in rec["dets"]}
-        theirs = {(round(x * HM[1]), round(y * HM[0])): s
+        ours = {(d[0], d[1]): d[2] for d in rec["dets"]}
+        theirs = {(round(y * HM[0]), round(x * HM[1])): s
                   for x, y, s in op.get(pid, []) if s >= FLOOR}
+        n_band_ours += sum(in_border_band(*k) for k in ours)
+        n_band_op += sum(in_border_band(*k) for k in theirs)
+        ours = {k: v for k, v in ours.items() if keep(k, v)}
+        theirs = {k: v for k, v in theirs.items() if keep(k, v)}
         n_ours += len(ours)
         n_op += len(theirs)
-        for k in set(ours) & set(theirs):
-            n_same += 1
-            max_d = max(max_d, abs(ours[k] - theirs[k]))
-    near = sum(1 for rec in recs.values() for d in rec["dets"] if abs(d[2] - FLOOR) < CHECK_TOL)
-    ok = n_same == n_ours == n_op and max_d <= CHECK_TOL
+        for (r, c), v in ours.items():
+            if (r, c) in theirs:
+                n_exact += 1
+                max_d = max(max_d, abs(v - theirs[(r, c)]))
+                continue
+            near = [theirs[(r + a, c + b)] for a in (-1, 0, 1) for b in (-1, 0, 1)
+                    if (r + a, c + b) in theirs]
+            if near:
+                n_1px += 1
+                max_d = max(max_d, min(abs(v - t) for t in near))
+    ok = n_exact + n_1px == n_ours == n_op and max_d <= CHECK_TOL
     return {"status": "ok" if ok else "MISMATCH", "peaks_ours": n_ours, "peaks_op_cache": n_op,
-            "same_position": n_same, "max_score_diff": max_d,
-            "ours_within_tol_of_floor": near}
+            "same_position": n_exact, "within_1px": n_1px, "max_score_diff": max_d,
+            "border_band_ours": n_band_ours, "border_band_op_cache": n_band_op}
+
+
+NOISE_JSON = os.path.join(REPO, "analysis_out", "crossview_align_48", "reference_noise.json")
+OPERATIONAL = 0.55
+
+
+def floor_read(recs, gts, wrap_x, rng, n_reps):
+    """The #48 cross-view harness's reference-noise floor, re-read per decode.
+
+    ``crossview_align_48.py noise`` measures how far a manual_gold detection >= 0.55 sits
+    from the box centre it matches (median 1.51 deg, committed in reference_noise.json);
+    docs/crossview_align_48.md calls ~2 deg the floor its placement errors can resolve.
+    Same protocol here (>= 0.55, greedy one-to-one within 0.022, great-circle degrees),
+    matched once on argmax. One difference: the committed file read
+    ``benchmark/manual_gold/records.jsonl``, which was exported with flip TTA
+    (``detections_meta.json``: ``"tta": true``), and TTA raises scores, so more peaks
+    clear 0.55 there. This extraction is single-pass (the deployed decode), so the argmax
+    row is expected to land near, not on, the committed numbers; both are reported."""
+    rsq = radius_sq_for()
+    hi = {pid: {"dets": [d for d in r["dets"] if d[2] >= OPERATIONAL]} for pid, r in recs.items()}
+    rows = build_pairs(hi, gts, rsq)
+    _, pano_idx = np.unique([p for p, _, _, _ in rows], return_inverse=True)
+    groups = [np.flatnonzero(pano_idx == u) for u in range(pano_idx.max() + 1)]
+    gc = {m: residuals(rows, m, wrap_x)[2] for m in METHODS}
+    out = {"n_matched": len(rows), "methods": {}}
+    for m in METHODS:
+        e = gc[m]
+        out["methods"][m] = {"median_deg": float(np.median(e)),
+                             "p90_deg": float(np.percentile(e, 90)), "mean_deg": float(e.mean())}
+        if m == "argmax":
+            continue
+        draws = np.empty(n_reps)
+        for k in range(n_reps):
+            ix = np.concatenate([groups[p] for p in rng.integers(0, len(groups), len(groups))])
+            draws[k] = np.median(e[ix]) - np.median(gc["argmax"][ix])
+        out["methods"][m]["d_median_deg_vs_argmax"] = {
+            "obs": float(np.median(e) - np.median(gc["argmax"])),
+            "ci95": [float(v) for v in np.percentile(draws, [2.5, 97.5])]}
+    if os.path.exists(NOISE_JSON):
+        with open(NOISE_JSON, encoding="utf-8") as f:
+            ref = json.load(f)
+        a = out["methods"]["argmax"]
+        out["committed_reference_noise"] = {
+            "n_matched": ref["n_matched"], "median_deg": ref["median_deg"],
+            "p90_deg": ref["p90_deg"], "mean_deg": ref["mean_deg"],
+            "input": "records.jsonl, flip TTA", "argmax_here_median_deg": a["median_deg"]}
+    return out
 
 
 def build_report(dets_path=DETS, wrap_x=False, n_reps=N_REPS):
@@ -418,6 +490,10 @@ def build_report(dets_path=DETS, wrap_x=False, n_reps=N_REPS):
             "col_mod8_in_34": sum(d[1] % 8 in (3, 4) for d in alld),
             "row_mod8_in_34": sum(d[0] % 8 in (3, 4) for d in alld),
             "climbed": sum(d[5] > 0 for d in alld),
+            "score_over_1": sum(d[2] > 1 for d in alld),
+            "off_grid_and_score_over_1": sum((d[1] % 8 not in (3, 4) or d[0] % 8 not in (3, 4))
+                                             and d[2] > 1 for d in alld),
+            "off_grid": sum(d[1] % 8 not in (3, 4) or d[0] % 8 not in (3, 4) for d in alld),
             "recon_max_abs_torch": max(r["recon_max_abs"] for r in recs.values()),
             "recon_max_abs_numpy": max(r["numpy_recon_max_abs"] for r in recs.values()),
             "peak_score_max": max((d[2] for d in alld), default=None)}
@@ -428,9 +504,30 @@ def build_report(dets_path=DETS, wrap_x=False, n_reps=N_REPS):
         if split in BOX_SPLITS:
             pooled_rows["boxes4"] += [(f"{split}/{p}", d, gx, gy) for p, d, gx, gy in rows]
         rep["splits"][split] = summarize(rows, gts, wrap_x, rng, n_reps)
+        rep["splits"][split]["tp_at_floor"] = tp_by_method(recs, gts, rsq, wrap_x)
+        if split == "manual_gold":
+            rep["crossview_floor"] = floor_read(recs, gts, wrap_x, rng, n_reps)
     for name, rows in pooled_rows.items():
         rep["splits"][f"pooled:{name}"] = summarize(rows, None, wrap_x, rng, n_reps)
     return rnd(rep)
+
+
+def tp_by_method(recs, gts, rsq, wrap_x, methods=("argmax", "gaussian")):
+    """Matched detections >= 0.30 when each decode's positions are matched afresh.
+
+    The benchmark radius (0.022, ~22.5 px) is wide next to a <= 4 px move, so this is
+    expected to barely change; it is here so that "the decode does not move detection
+    metrics" is a measured statement. Box splits count only scored (boxed) GT."""
+    out = {}
+    for m in methods:
+        tp = 0
+        for pid, (pts, scored) in gts.items():
+            dets = recs.get(pid, {"dets": []})["dets"]
+            pred = [decode(d, m, wrap_x) for d in dets]
+            tp += sum(g >= 0 and scored[g]
+                      for g, _ in greedy_match(pred, pts, rsq, HM[1], HM[0], True))
+        out[m] = tp
+    return out
 
 
 def summarize(rows, gts, wrap_x, rng, n_reps):
@@ -468,23 +565,49 @@ def markdown(rep):
          f"1 px = {DEG_PER_PX:.4f} deg on the 512x1024 grid.", "",
          "## Mechanism", "",
          "| split | panos | peaks >= 0.30 | col mod 8 in {3,4} | row mod 8 in {3,4} | "
-         "climbed | max abs(head - upsample(coarse)) |", "|---|---:|---:|---:|---:|---:|---:|"]
+         "peaks > 1 (clipped plateau) | climbed | max abs(head - upsample(coarse)), torch / "
+         "numpy |", "|---|---:|---:|---:|---:|---:|---:|---|"]
     for s, m in rep["mechanism"].items():
         L.append(f"| {s} | {m['panos']} | {m['peaks']} | {m['col_mod8_in_34']} | "
-                 f"{m['row_mod8_in_34']} | {m['climbed']} | {m['recon_max_abs_torch']:.2g} |")
+                 f"{m['row_mod8_in_34']} | {m['score_over_1']} | {m['climbed']} | "
+                 f"{m['recon_max_abs_torch']:.2g} / {m['recon_max_abs_numpy']:.2g} |")
     L += ["", "## Instrument check (argmax peaks vs analysis_out/op_cache)", "",
-          "| split | status | ours | op_cache | same position | max score diff |",
-          "|---|---|---:|---:|---:|---:|"]
+          "Outside the 10-px border band the op_caches drop (`exclude_border`, #132), and "
+          "excluding peaks within 2e-4 of the 0.30 floor:", "",
+          "| split | status | ours | op_cache | same pixel | 1 px away | max score diff | "
+          "border-band peaks ours / op_cache |",
+          "|---|---|---:|---:|---:|---:|---:|---|"]
     for s, c in rep["instrument_check"].items():
         if "peaks_ours" in c:
             L.append(f"| {s} | {c['status']} | {c['peaks_ours']} | {c['peaks_op_cache']} | "
-                     f"{c['same_position']} | {c['max_score_diff']:.2g} |")
+                     f"{c['same_position']} | {c['within_1px']} | {c['max_score_diff']:.2g} | "
+                     f"{c['border_band_ours']} / {c['border_band_op_cache']} |")
         else:
-            L.append(f"| {s} | {c['status']} | | | | |")
+            L.append(f"| {s} | {c['status']} | | | | | | |")
+    fl = rep.get("crossview_floor")
+    if fl:
+        ck = fl.get("committed_reference_noise", {})
+        L += ["", "## The #48 cross-view reference floor, re-read (manual_gold, >= 0.55)", "",
+              f"{fl['n_matched']} matched detections (single pass). The committed "
+              f"`analysis_out/crossview_align_48/reference_noise.json` read the flip-TTA "
+              f"records: n {ck.get('n_matched')}, median {ck.get('median_deg')} deg, p90 "
+              f"{ck.get('p90_deg')} deg.", "",
+              "| decode | median deg | p90 deg | mean deg | d median vs argmax [95% CI] |",
+              "|---|---:|---:|---:|---|"]
+        for m, st in fl["methods"].items():
+            d = st.get("d_median_deg_vs_argmax")
+            ds = ("--" if d is None else
+                  f"{d['obs']:+.3f} [{d['ci95'][0]:+.3f}, {d['ci95'][1]:+.3f}]")
+            L.append(f"| {m} | {st['median_deg']:.3f} | {st['p90_deg']:.3f} | "
+                     f"{st['mean_deg']:.3f} | {ds} |")
     for s, r in rep["splits"].items():
         if not r.get("pairs"):
             continue
-        L += ["", f"## {s}: {r['pairs']} matched pairs in {r['panos_with_pairs']} panos", "",
+        L += ["", f"## {s}: {r['pairs']} matched pairs in {r['panos_with_pairs']} panos", ""]
+        if "tp_at_floor" in r:
+            L += ["Matched detections >= 0.30 when each decode is matched afresh: " + ", ".join(
+                f"{m} {v}" for m, v in r["tp_at_floor"].items()) + ".", ""]
+        L += [
               "| decode | mean px | median px | mean deg | bias x | bias y | SD x | SD y | "
               "d mean px vs argmax [95% CI] | d SD x | d SD y |",
               "|---|---:|---:|---:|---:|---:|---:|---:|---|---|---|"]
