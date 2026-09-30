@@ -89,7 +89,9 @@ def validate(assignments, corners, snapshot):
     rubric_version; every corner id known; every label key in its unit; every value a
     ramp key, ``not_ramp`` or ``unsure``; every label of a COMPLETE unit assigned; every
     ramp key used by a label present in ``ramps`` and every ramp holding a label; every
-    uncovered point inside the window and >= 1 m from an assigned ramp; elapsed_s >= 0.
+    uncovered point inside the window and >= 1 m from an assigned ramp; elapsed_s >= 0;
+    ``cant_judge`` a boolean, never together with ``complete``, and only with a non-empty
+    ``cant_judge_reason`` (protocol, Amendment 3).
     """
     problems = []
     if assignments.get("schema") != SCHEMA:
@@ -140,6 +142,17 @@ def validate(assignments, corners, snapshot):
         e = u.get("elapsed_s", 0)
         if not isinstance(e, (int, float)) or e < 0:
             problems.append(f"{cid}: elapsed_s {e!r}")
+        cj = u.get("cant_judge", False)
+        reason = u.get("cant_judge_reason", "")
+        if not isinstance(cj, bool):
+            problems.append(f"{cid}: cant_judge {cj!r} is not a boolean")
+        elif cj:
+            if u.get("complete"):
+                problems.append(f"{cid}: cant_judge and complete together")
+            if not isinstance(reason, str) or not reason.strip():
+                problems.append(f"{cid}: cant_judge without a cant_judge_reason")
+        if "cant_judge_reason" in u and not isinstance(reason, str):
+            problems.append(f"{cid}: cant_judge_reason {reason!r} is not a string")
     return problems
 
 
@@ -152,7 +165,15 @@ def require_valid(assignments, corners, snapshot):
 # ----------------------------------------------------------------------------- reading
 
 def complete_units(assignments):
-    return {cid: u for cid, u in (assignments.get("corners") or {}).items() if u.get("complete")}
+    """Units that count: attested complete (a can't-judge unit never is -- validate())."""
+    return {cid: u for cid, u in (assignments.get("corners") or {}).items()
+            if u.get("complete") and not u.get("cant_judge")}
+
+
+def cant_judge_units(assignments):
+    """{corner_id: reason} for units the reviewer marked can't judge (Amendment 3)."""
+    return {cid: (u.get("cant_judge_reason") or "").strip()
+            for cid, u in (assignments.get("corners") or {}).items() if u.get("cant_judge") is True}
 
 
 def is_ramp(v):
@@ -186,7 +207,13 @@ def summary(assignments):
     if el:
         m = len(el) // 2
         med = el[m] if len(el) % 2 else (el[m - 1] + el[m]) / 2
+    cj = cant_judge_units(assignments)
+    cj_by_type = {}
+    for cid in cj:
+        t = ((units[cid].get("stratum") or {}).get("type")) or "?"
+        cj_by_type[t] = cj_by_type.get(t, 0) + 1
     return {"units": len(units), "complete": len(done), "complete_by_type": by_type,
+            "cant_judge": len(cj), "cant_judge_by_type": cj_by_type,
             "labels": cls, "ramps": ramps, "uncovered_sure": unc_sure,
             "uncovered_unsure": unc_unsure, "elapsed_s_median": med,
             "elapsed_s_total": sum(el) if el else 0.0,
@@ -217,6 +244,7 @@ def agreement(a, b, corners=None):
     unsure, and the uncovered-point counts. ``pilot`` applies the pre-registered rule."""
     check_comparable(a, b)
     ca, cb = complete_units(a), complete_units(b)
+    ja, jb = cant_judge_units(a), cant_judge_units(b)
     common = sorted(set(ca) & set(cb))
     tot = {"all": [0, 0], "same_seed": [0, 0], "different_seed": [0, 0]}
     kx, ky = [], []
@@ -259,6 +287,11 @@ def agreement(a, b, corners=None):
     return {"rater_a": a.get("rater"), "rater_b": b.get("rater"),
             "rubric_version": a.get("rubric_version"),
             "units": {"complete_a": len(ca), "complete_b": len(cb), "both": len(common)},
+            "cant_judge": {"a": len(ja), "b": len(jb), "either": len(set(ja) | set(jb)),
+                           "both": len(set(ja) & set(jb)),
+                           # one pass completed the unit, the other said it could not be judged
+                           "complete_a_cant_judge_b": sorted(set(ca) & set(jb)),
+                           "cant_judge_a_complete_b": sorted(set(ja) & set(cb))},
             "pairwise": pw, "pairwise_same_seed": rate("same_seed"),
             "pairwise_different_seed": rate("different_seed"),
             "not_ramp_kappa": {"labels": len(kx), "not_ramp_a": sum(kx),

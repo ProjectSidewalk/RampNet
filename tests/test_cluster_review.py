@@ -151,3 +151,45 @@ def test_verdict_consistency_flags_disagreements():
     out = cr.verdict_consistency(a, corners, verdicts, records)
     assert out["checked"] == 2
     assert [d["key"] for d in out["disagree"]] == ["4"]     # judged a ramp, reviewed not_ramp
+
+
+# --- can't judge (protocol, Amendment 3) ------------------------------------------------
+
+def cj_unit(reason="under an overpass; the aerial shows the deck", complete=False, cj=True):
+    u = unit({"1": "r1"}, complete=complete)
+    u["cant_judge"], u["cant_judge_reason"] = cj, reason
+    return u
+
+
+def test_cant_judge_valid_with_a_reason_and_partial_labels():
+    assert cr.validate(assignments({"c:sig:000001": cj_unit()}), [corner()], SNAP) == []
+
+
+@pytest.mark.parametrize("u, needle", [
+    (cj_unit(complete=True), "cant_judge and complete"),
+    (cj_unit(reason="   "), "without a cant_judge_reason"),
+    (cj_unit(reason=""), "without a cant_judge_reason"),
+    (cj_unit(cj="yes"), "is not a boolean"),
+])
+def test_cant_judge_refusals(u, needle):
+    problems = cr.validate(assignments({"c:sig:000001": u}), [corner()], SNAP)
+    assert any(needle in p for p in problems), problems
+
+
+def test_cant_judge_is_not_counted_and_is_reported():
+    a = assignments({"c:sig:000001": GOOD, "c:sig:000002": cj_unit()})
+    assert list(cr.complete_units(a)) == ["c:sig:000001"]
+    s = cr.summary(a)
+    assert s["complete"] == 1 and s["cant_judge"] == 1 and s["cant_judge_by_type"] == {"signalised": 1}
+    assert cr.cant_judge_units(a) == {"c:sig:000002": "under an overpass; the aerial shows the deck"}
+
+
+def test_agreement_counts_cant_judge_disagreements():
+    a = assignments({"c:sig:000001": GOOD, "c:sig:000002": cj_unit(), "c:sig:000003": cj_unit()})
+    b = assignments({"c:sig:000001": cj_unit(), "c:sig:000002": GOOD, "c:sig:000003": cj_unit()},
+                    rater="retest")
+    r = cr.agreement(a, b)
+    assert r["units"]["both"] == 0
+    assert r["cant_judge"] == {"a": 2, "b": 2, "either": 3, "both": 1,
+                               "complete_a_cant_judge_b": ["c:sig:000001"],
+                               "cant_judge_a_complete_b": ["c:sig:000002"]}

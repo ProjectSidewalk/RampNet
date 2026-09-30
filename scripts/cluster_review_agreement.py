@@ -63,6 +63,10 @@ def main(argv=None):
               f"(not_ramp A {k['not_ramp_a']}, B {k['not_ramp_b']})")
         print(f"   uncovered: A {report['uncovered']['total_a']}, B {report['uncovered']['total_b']}, "
               f"|diff| per unit {report['uncovered']['abs_diff_per_unit']}")
+        cj = report["cant_judge"]
+        print(f"   can't judge: A {cj['a']}, B {cj['b']}, either {cj['either']}, both {cj['both']}; "
+              f"complete in A but can't-judge in B {cj['complete_a_cant_judge_b']}, "
+              f"the reverse {cj['cant_judge_a_complete_b']}")
         print(f"   pilot rule ({report['pilot']['rule']}): {report['pilot']['pass']}")
     if args.json:
         args.json.write_text(json.dumps({"files": {n: cr.summary(only(a, ids)) for n, a in files.items()},
