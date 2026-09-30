@@ -195,12 +195,15 @@ def ray_to_canvas_norm(ray):
     return (lam + math.pi) / (2 * math.pi), (math.pi / 2 - phi) / math.pi
 
 
-def canvas_sample_maps(cam, M_cam_level, H=CANVAS_H, W=CANVAS_W):
+def canvas_sample_maps(cam, M_cam_level, H=CANVAS_H, W=CANVAS_W, window=True):
     """For every canvas pixel centre, the photo pixel (u, v) it samples, as float32
     (H, W) arrays; NaN where the ray misses the photo. ``M_cam_level`` is
     ``cam_from_level(...)``."""
-    lam = ((np.arange(W) + 0.5) / W) * 2 * math.pi - math.pi
-    phi = math.pi / 2 - ((np.arange(H) + 0.5) / H) * math.pi
+    u_full = np.full((H, W), np.nan, dtype=np.float32)
+    v_full = np.full((H, W), np.nan, dtype=np.float32)
+    r0, r1, c0, c1 = canvas_footprint(cam, M_cam_level, H, W) if window else (0, H, 0, W)
+    lam = ((np.arange(c0, c1) + 0.5) / W) * 2 * math.pi - math.pi
+    phi = math.pi / 2 - ((np.arange(r0, r1) + 0.5) / H) * math.pi
     L, P = np.meshgrid(lam, phi)
     rays = level_ray(L, P) @ np.asarray(M_cam_level).T
     u, v = project_cam(cam, rays)
@@ -212,9 +215,36 @@ def canvas_sample_maps(cam, M_cam_level, H=CANVAS_H, W=CANVAS_W):
     lim_x = 0.5 * cam.width / cam.size / cam.focal * 1.25
     lim_y = 0.5 * cam.height / cam.size / cam.focal * 1.25
     inside &= (np.abs(xn) <= lim_x) & (np.abs(yn) <= lim_y)
-    u = np.where(inside, u, np.nan).astype(np.float32)
-    v = np.where(inside, v, np.nan).astype(np.float32)
-    return u, v
+    u_full[r0:r1, c0:c1] = np.where(inside, u, np.nan)
+    v_full[r0:r1, c0:c1] = np.where(inside, v, np.nan)
+    return u_full, v_full
+
+
+def canvas_footprint(cam, M_cam_level, H=CANVAS_H, W=CANVAS_W, pad=8):
+    """(r0, r1, c0, c1): a canvas window that contains every pixel the photo can land
+    on, from the photo's border mapped into the canvas, padded. Only a speed-up: pixels
+    outside it would have been NaN anyway (asserted in tests). Falls back to the whole
+    canvas when the border reaches behind the camera's hemisphere edge."""
+    n = 256
+    t = np.linspace(-0.5, 1, n)
+    wu, hv = cam.width - 0.5, cam.height - 0.5
+    us = np.concatenate([t * 0 - 0.5, t * 0 + wu, t * (cam.width) - 0.5, t * (cam.width) - 0.5])
+    vs = np.concatenate([t * (cam.height) - 0.5, t * (cam.height) - 0.5, t * 0 - 0.5, t * 0 + hv])
+    us = np.clip(us, -0.5, wu)
+    vs = np.clip(vs, -0.5, hv)
+    rays = unproject_cam(cam, us, vs) @ np.asarray(M_cam_level)   # cam -> level (M^T r)
+    x, y = ray_to_canvas_norm(rays)
+    if np.any(np.abs(np.arctan2(rays[:, 0], rays[:, 2])) > math.radians(170)):
+        return 0, H, 0, W
+    # the undistorted-FOV window used by canvas_sample_maps can reach 1.25x beyond the
+    # border, so widen the window by the same factor about its centre
+    cx, cy = (x.min() + x.max()) / 2, (y.min() + y.max()) / 2
+    hx, hy = (x.max() - x.min()) / 2 * 1.3, (y.max() - y.min()) / 2 * 1.3
+    c0 = max(0, int(math.floor((cx - hx) * W)) - pad)
+    c1 = min(W, int(math.ceil((cx + hx) * W)) + pad)
+    r0 = max(0, int(math.floor((cy - hy) * H)) - pad)
+    r1 = min(H, int(math.ceil((cy + hy) * H)) + pad)
+    return r0, r1, c0, c1
 
 
 def canvas_norm_to_cam_ray(x_norm, y_norm, M_cam_level):
