@@ -514,7 +514,12 @@ def metrics(est, gt):
                    bias_median=float(np.median(err)),
                    rel_mae=float((np.abs(err) / g).mean()),
                    within_0_3=float((np.abs(err) <= 0.3).mean()),
-                   within_0_5=float((np.abs(err) <= 0.5).mean()))
+                   within_0_5=float((np.abs(err) <= 0.5).mean()),
+                   # the paper's VLMs are judged by interval width: the error quantiles
+                   # give the empirical 90% band of this estimator for comparison
+                   err_q05=float(np.percentile(err, 5)),
+                   err_q95=float(np.percentile(err, 95)),
+                   abs_err_q90=float(np.percentile(np.abs(err), 90)))
     narrow_gt = gt < THRESH_M[0]
     flagged = ok & (np.nan_to_num(est, nan=np.inf) < THRESH_M[0])
     tp = int((flagged & narrow_gt).sum())
@@ -523,6 +528,50 @@ def metrics(est, gt):
                precision_lt_1_2=tp / flagged.sum() if flagged.sum() else np.nan)
     if ok.sum():
         out["acc3"] = float((cls3(e) == cls3(g)).mean())
+    return out
+
+
+def clopper_pearson(k, n, alpha=0.05):
+    """Exact binomial CI for k of n, by bisection on the binomial tail (no scipy).
+
+    >>> [round(x, 3) for x in clopper_pearson(9, 9)]
+    [0.664, 1.0]
+    """
+    if n == 0:
+        return [float("nan"), float("nan")]
+
+    def tail_ge(p):   # P(X >= k)
+        return sum(math.comb(n, i) * p ** i * (1 - p) ** (n - i) for i in range(k, n + 1))
+
+    def tail_le(p):   # P(X <= k)
+        return sum(math.comb(n, i) * p ** i * (1 - p) ** (n - i) for i in range(0, k + 1))
+
+    def solve(fn, target, increasing):
+        lo, hi = 0.0, 1.0
+        for _ in range(60):
+            mid = (lo + hi) / 2
+            if (fn(mid) < target) == increasing:
+                lo = mid
+            else:
+                hi = mid
+        return (lo + hi) / 2
+    lower = 0.0 if k == 0 else solve(tail_ge, alpha / 2, True)
+    upper = 1.0 if k == n else solve(tail_le, alpha / 2, False)
+    return [lower, upper]
+
+
+def by_gt_bin(est, gt):
+    """MAE and bias by GT width bin: where the error comes from."""
+    out = {}
+    for lo, hi in ((0, 1.5), (1.5, 3.0), (3.0, 5.0), (5.0, 99.0)):
+        m = (gt >= lo) & (gt < hi)
+        ok = m & np.isfinite(est)
+        err = est[ok] - gt[ok]
+        out[f"{lo:g}-{hi:g}m"] = {"n": int(m.sum()), "n_estimated": int(ok.sum()),
+                                  "mae": float(np.abs(err).mean()) if ok.any() else None,
+                                  "bias_mean": float(err.mean()) if ok.any() else None,
+                                  "rel_bias_median": float(np.median(err / gt[ok]))
+                                  if ok.any() else None}
     return out
 
 
@@ -606,7 +655,7 @@ def score(args):
         return np.array([d.get(n, np.nan) for n in names])
 
     boot_keys = ["mae", "bias_mean", "bias_median", "rel_mae", "recall_lt_1_2",
-                 "precision_lt_1_2", "acc3", "coverage"]
+                 "precision_lt_1_2", "acc3", "coverage", "abs_err_q90"]
     res = {"split": {"seed": SPLIT_SEED, "group_cell_deg": GROUP_CELL_DEG,
                      "n_A": int(A.sum()), "n_B": int(B.sum()),
                      "groups_A": len(set(GR[A])), "groups_B": len(set(GR[B])),
@@ -657,6 +706,10 @@ def score(args):
             "top5_A": [{"mae_A": t[0], "coverage_A": t[2]["coverage"],
                         "config": dict(zip(CFG_KEYS, t[1][2:]))} for t in scored[:5]],
             "metrics_B": mB, "ci95_B": ciB, "confusion_B": confusion(e[B], G[B]),
+            "exact_ci95_B": {
+                "recall_lt_1_2": clopper_pearson(mB["tp"], mB["n_narrow_gt"]),
+                "precision_lt_1_2": clopper_pearson(mB["tp"], mB["n_flagged"])},
+            "by_gt_bin_B": by_gt_bin(e[B], G[B]),
             "pitch_sensitivity_B": sens,
             "level_horizon_same_config_B": mBlvl,
             "calibrated_B": {"scale_from_A": ratio, "metrics": mBcal, "ci95": ciBcal,

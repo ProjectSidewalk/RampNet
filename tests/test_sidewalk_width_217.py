@@ -147,3 +147,23 @@ def test_metrics_flags_and_failures():
     assert m["n_estimated"] == 3 and m["n_narrow_gt"] == 3  # the NaN one is narrow: a miss
     assert m["tp"] == 1 and m["n_flagged"] == 2
     assert m["recall_lt_1_2"] == pytest.approx(1 / 3) and m["precision_lt_1_2"] == 0.5
+
+
+def test_committed_headline_recomputes_from_per_image():
+    """results.json's half-B headline is what its own per-image estimates give against
+    the committed GT table (a cheap check; the full re-score is in the doc)."""
+    import json
+    with open(os.path.join(REPO, "analysis_out", "sidewalk_width_217", "results.json"),
+              encoding="utf-8") as f:
+        res = json.load(f)
+    gt = S._read_gt()
+    for meas in ("clear", "total"):
+        r = res["measures"][meas]
+        names = sorted(n for n in gt if res["half"][n] == "B")
+        est = np.array([np.nan if r["per_image"][n] is None else r["per_image"][n]
+                        for n in names])
+        g = np.array([float(gt[n]["width"]) for n in names])
+        m = S.metrics(est, g)
+        assert m["mae"] == pytest.approx(r["metrics_B"]["mae"], abs=1e-3)
+        assert m["tp"] == r["metrics_B"]["tp"]
+        assert m["n_flagged"] == r["metrics_B"]["n_flagged"]

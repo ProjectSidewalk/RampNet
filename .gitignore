@@ -373,3 +373,10 @@ analysis_out/mined_placement_158/*
 analysis_out/mined_placement_158/predictions/*
 !analysis_out/mined_placement_158/predictions/*.jsonl
 !analysis_out/mined_placement_158/predictions/*.json
+
+# #217 sidewalk width (Seoul): the widths table every number is scored from, the scored
+# results, and the label-map sha256 manifest. The label maps themselves are not committed.
+!analysis_out/sidewalk_width_217/
+analysis_out/sidewalk_width_217/*
+!analysis_out/sidewalk_width_217/*.json
+!analysis_out/sidewalk_width_217/widths.csv.gz
