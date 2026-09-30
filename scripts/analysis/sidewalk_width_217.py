@@ -851,10 +851,27 @@ def load_vp_pitch(path):
     return out
 
 
+def _rank_avg(a):
+    """Ranks with ties given their average rank (as scipy.stats.rankdata). Bootstrap
+    resamples always repeat rows, so tie handling must not depend on the sort algorithm:
+    an argsort-of-argsort rank did, and the CI's last digit moved between numpy builds.
+
+    >>> _rank_avg([3.0, 1.0, 3.0, 2.0]).tolist()
+    [2.5, 0.0, 2.5, 1.0]
+    """
+    a = np.asarray(a, float)
+    order = np.argsort(a, kind="stable")
+    s = a[order]
+    new = np.r_[True, s[1:] != s[:-1]]
+    first = np.flatnonzero(new)
+    counts = np.diff(np.r_[first, len(s)])
+    r = np.empty(len(a))
+    r[order] = (first + (counts - 1) / 2.0)[np.cumsum(new) - 1]
+    return r
+
+
 def _spearman(x, y):
-    rx = np.argsort(np.argsort(x)).astype(float)
-    ry = np.argsort(np.argsort(y)).astype(float)
-    return float(np.corrcoef(rx, ry)[0, 1])
+    return float(np.corrcoef(_rank_avg(x), _rank_avg(y))[0, 1])
 
 
 def _brief(m):

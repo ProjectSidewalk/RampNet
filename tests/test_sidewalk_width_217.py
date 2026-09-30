@@ -204,7 +204,24 @@ def test_score_reproduces_committed_results(tmp_path):
         assert got["measures"][meas]["metrics_B"] == want["measures"][meas]["metrics_B"]
         assert got["measures"][meas]["per_image"] == want["measures"][meas]["per_image"]
     with open(os.path.join(d, "sensitivity.json"), encoding="utf-8") as f:
-        assert json.loads(sens.read_text(encoding="utf-8")) == json.load(f)
+        _assert_same(json.loads(sens.read_text(encoding="utf-8")), json.load(f))
+
+
+def _assert_same(got, want, path="", boot=False):
+    """Exact equality, except bootstrap intervals (keys ending ``_ci95``), which may move in
+    the last rounded digit between numpy builds: those match to 5e-4."""
+    if isinstance(want, dict):
+        assert isinstance(got, dict) and set(got) == set(want), path
+        for k in want:
+            _assert_same(got[k], want[k], f"{path}/{k}", boot or k.endswith("_ci95"))
+    elif isinstance(want, list):
+        assert isinstance(got, list) and len(got) == len(want), path
+        for i, (g, w) in enumerate(zip(got, want)):
+            _assert_same(g, w, f"{path}[{i}]", boot)
+    elif boot and isinstance(want, float):
+        assert got == pytest.approx(want, abs=5e-4), path
+    else:
+        assert got == want, path
 
 
 @pytest.mark.parametrize("width,pitch_deg", [(1.2, 0.0), (1.2, -3.4), (3.0, -3.4), (3.0, 3.0)])

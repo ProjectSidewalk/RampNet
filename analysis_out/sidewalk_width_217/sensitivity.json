@@ -380,8 +380,8 @@
     "prior_pitch_deg": -3.313,
     "spearman_rho": -0.0197,
     "spearman_rho_ci95": [
-     -0.1861,
-     0.1596
+     -0.1862,
+     0.1597
     ],
     "tercile_edges_deg": [
      1.668,

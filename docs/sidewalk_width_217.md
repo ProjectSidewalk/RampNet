@@ -261,8 +261,8 @@ photos that got no estimate. A half-A scale calibration (×0.98) changes nothing
   sidewalk; some of the error is the two measuring different cross-sections.
 - **Development contact with half B.** While debugging, per-image output was printed for 38
   label maps, 19 of them in half B (IMG_4293–IMG_4335), and one half-B photo (IMG_4315) was
-  viewed (and one half-A photo, IMG_4284). That output motivated three options: markings as surface, the `vp_prior` horizon,
-  and raising the VP pitch cap from 10° to 15°. The first two went into the tuning grid and
+  viewed (and one half-A photo, IMG_4284). That output motivated three options: markings as
+  surface, the `vp_prior` horizon, and raising the VP pitch cap from 10° to 15°. The first two went into the tuning grid and
   were chosen on half A by the rule above, not fixed by hand; the cap was changed directly.
   After scoring, only half-A images were inspected. **Half B is therefore not strictly
   untouched; the two tested counterfactuals move MAE by ≤ 0.06 m** (the cap change by −0.06 m,
@@ -294,8 +294,10 @@ without the contacted cells 0.75 m (8/9); without the 10 m photos 0.71 m (5/6).
 - **The 10°→15° cap (the one change made by hand)** bought coverage and made MAE *worse*,
   not better: 12 half-B photos have |VP pitch| > 10°, 6 of them in the contacted run
   (IMG_4315–IMG_4335); half A has 5. Under the 10° cap, photos whose VP exceeds it get no
-  estimate under `vp_prior` too, because their prior-pitch widths are not in the CSV; this is
-  conservative for coverage.
+  estimate under `vp_prior` too, instead of falling back to the prior pitch as the pipeline
+  would, because their prior-pitch widths are not in the CSV. This does not change the result:
+  the re-tuned cell is a `vp` cell (for both measures), where an over-cap photo gets no
+  estimate either way.
 - **Markings as surface** was chosen on A by the coverage rule: with markings as a boundary
   the same cell covers only 78% of half A, and its half-B MAE is similar (0.78 m).
 - **The contacted subset was easier than the rest** (MAE 0.54 m, no GT below 2.23 m), so
@@ -330,7 +332,8 @@ python scripts/analysis/sidewalk_width_217.py score \
 ```
 
 Step 3 needs only committed files. Steps 1–2 need the label maps, which exist only on makelab2;
-someone without access regenerates them with step 1 and checks them with `verify-seg`. The committed `widths.csv.gz` has sha256
+someone without access regenerates them with step 1 and checks them with `verify-seg`. The
+committed `widths.csv.gz` has sha256
 `877304c5a4611d28f6d6edc43fd7d995b903e38e08e98248eeabac233971c825` (recorded in
 `results.json`). A re-run of step 1 on other hardware may not reproduce the label maps
 byte-for-byte (GPU nondeterminism); compare against `seg_meta.json` and expect the widths CSV
