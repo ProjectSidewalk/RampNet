@@ -132,3 +132,137 @@ def test_stretch_mapping_is_linear():
     assert (u, v) == pytest.approx((1023.75, (1024.5) * 1536 / 2048 - 0.5), abs=1e-9)
     u0, _ = PP.stretch_det_to_photo(0.0, 0.0, cam)
     assert u0 == pytest.approx(-0.25)
+
+
+# --------------------------------------------------------------------------- #
+# review fixes (PR #227): fold guard, chance-floor helpers, pose round trip, rating path
+# --------------------------------------------------------------------------- #
+def _rotvec_of(R):
+    """Rotation matrix -> angle-axis (not for angles near 180 deg)."""
+    th = math.acos(max(-1.0, min(1.0, (np.trace(R) - 1) / 2)))
+    if th < 1e-12:
+        return [0.0, 0.0, 0.0]
+    k = np.array([R[2, 1] - R[1, 2], R[0, 2] - R[2, 0], R[1, 0] - R[0, 1]]) / (2 * math.sin(th))
+    return list(k * th)
+
+
+def _synthetic_row(cam_params, heading=0.0, lat=37.55, lng=-77.45):
+    import json
+    R_wc = P.level_to_world(heading).T          # a level camera looking along ``heading``
+    assert np.allclose(P.rotvec_to_matrix(_rotvec_of(R_wc)), R_wc, atol=1e-12)
+    return {"camera_parameters": json.dumps(cam_params),
+            "computed_rotation": json.dumps(_rotvec_of(R_wc)),
+            "computed_compass_angle": str(heading), "lat": str(lat), "lng": str(lng)}
+
+
+def _ramp_at(lat0, lng0, bearing_deg, rng_m, uid):
+    e = rng_m * math.sin(math.radians(bearing_deg))
+    n = rng_m * math.cos(math.radians(bearing_deg))
+    lat = lat0 + math.degrees(n / P.EARTH_R)
+    lng = lng0 + math.degrees(e / (P.EARTH_R * math.cos(math.radians(lat0))))
+    return (uid, lat, lng)
+
+
+def test_fold_radius_matches_the_turning_point_of_r_d_r():
+    cam = P.Camera(2048, 1536, 0.688, k1=-0.05, k2=-0.034)
+    rf = P.fold_radius(cam)
+    r = np.linspace(0, 3, 300001)
+    rd = r * (1 + cam.k1 * r ** 2 + cam.k2 * r ** 4)
+    assert rf == pytest.approx(r[np.argmax(rd)], abs=1e-4)
+    assert P.fold_radius(P.Camera(100, 100, 0.5, k1=0.1, k2=0.01)) == math.inf
+
+
+def test_negative_k2_camera_off_axis_ramp_is_not_in_view():
+    """B2: with k2 < 0 a ramp 66 deg off-axis, far outside a 72 deg lens, projects back
+    into the frame. The in-view rule must reject it; a ramp 20 deg off-axis stays in."""
+    import perspective_photos_218 as PP
+    row = _synthetic_row([0.688, 0.0, -0.034])
+    lat0, lng0 = float(row["lat"]), float(row["lng"])
+    ramps = [_ramp_at(lat0, lng0, 66.0, 10.0, "richmond:far"),
+             _ramp_at(lat0, lng0, 20.0, 10.0, "richmond:near")]
+    cam = PP.camera_of(row, 2048, 1536)
+    assert cam.hfov_deg() / 2 == pytest.approx(36.0, abs=0.1)
+    # the fold: the far ramp's ground point projects inside the frame
+    pc = P.level_to_world(0.0).T @ np.array([10 * math.sin(math.radians(66)),
+                                             10 * math.cos(math.radians(66)), -PP.VIEW_H])
+    u, v = P.project_cam(cam, pc)
+    assert 0 <= float(u) < cam.width and 0 <= float(v) < cam.height
+    assert not P.in_distortion_domain(cam, pc)
+    g = PP.image_geometry(row, 2048, 1536, ramps)
+    by = {r["uid"]: r for r in g["near"]}
+    assert by["richmond:far"]["folded"] and not by["richmond:far"]["in_view"]
+    assert by["richmond:near"]["in_view"] and not by["richmond:near"]["folded"]
+
+
+def test_unproject_is_nan_where_the_model_cannot_invert():
+    cam = P.Camera(2048, 1536, 0.45, k1=0.0, k2=-0.2)   # corners beyond the fold
+    ray = P.unproject_cam(cam, [1023.5, 0.0], [767.5, 0.0])
+    assert np.all(np.isfinite(ray[0])) and np.all(np.isnan(ray[1]))
+    u, v = P.project_cam(cam, ray[0])                  # where it can, it round-trips
+    assert (float(u), float(v)) == pytest.approx((1023.5, 767.5), abs=1e-3)
+
+
+def test_footprint_falls_back_to_full_canvas_when_the_border_does_not_invert():
+    cam = P.Camera(2048, 1536, 0.45, k1=0.0, k2=-0.2)
+    assert P.canvas_footprint(cam, np.eye(3)) == (0, P.CANVAS_H, 0, P.CANVAS_W)
+
+
+def test_pose_round_trip_world_photo_canvas_sfm():
+    """N4: a world direction -> photo pixel (SfM pose, distorted camera) -> both the
+    scorer's photo->world path and the canvas_sfm embed give back the true bearing and
+    depression. R_wc is built independently of cam_from_level: level_to_world(heading),
+    then pitch about the level x axis, then roll about the camera z axis."""
+    import perspective_photos_218 as PP
+    rng = np.random.default_rng(218)
+    cam = P.Camera(2048, 1536, 0.62, k1=-0.05, k2=0.0)
+    for _ in range(200):
+        head = rng.uniform(0, 360)
+        pitch, roll = math.radians(rng.uniform(-12, 10)), math.radians(rng.uniform(-8, 6))
+        c, s = math.cos(pitch), math.sin(pitch)
+        Rx = np.array([[1, 0, 0], [0, c, s], [0, -s, c]])          # level -> pitched
+        c, s = math.cos(roll), math.sin(roll)
+        Rz = np.array([[c, s, 0], [-s, c, 0], [0, 0, 1]])          # roll about camera z
+        R_wc = Rz @ Rx @ P.level_to_world(head).T
+        h_rec, p_rec, _ = P.heading_pitch_roll(R_wc)
+        assert float(P.wrap_deg(h_rec - head)) == pytest.approx(0, abs=1e-9)
+        assert p_rec == pytest.approx(math.degrees(pitch), abs=1e-9)
+        bear = head + rng.uniform(-20, 20)
+        dep = rng.uniform(2, 15)
+        w = np.array([math.sin(math.radians(bear)) * math.cos(math.radians(dep)),
+                      math.cos(math.radians(bear)) * math.cos(math.radians(dep)),
+                      -math.sin(math.radians(dep))])
+        u, v = P.project_cam(cam, R_wc @ w)
+        b2, d2, _ = PP.det_world([{"u": float(u), "v": float(v)}], cam, R_wc)
+        assert float(P.wrap_deg(b2[0] - bear)) == pytest.approx(0, abs=1e-6)
+        assert float(d2[0]) == pytest.approx(dep, abs=1e-6)
+        lvl = P.unproject_cam(cam, u, v) @ P.cam_from_level(R_wc, head)
+        x, y = P.ray_to_canvas_norm(lvl)
+        assert float(P.wrap_deg(x * 360 - 180 - (bear - head))) == pytest.approx(0, abs=1e-6)
+        assert (float(y) - 0.5) * 180 == pytest.approx(dep, abs=1e-6)
+
+
+def test_chance_floor_helpers():
+    import perspective_photos_218 as PP
+    d = [{"u": 99.5, "v": 49.5, "score": 0.4}]
+    t = PP.transplant(d, 200, 100, 400, 300)[0]
+    assert ((t["u"] + 0.5) / 400, (t["v"] + 0.5) / 300) == pytest.approx((0.5, 0.5))
+    near = [{"uid": "a", "bearing": 30.0, "dbear": 20.0}]
+    assert PP.mirrored(near, 10.0)[0]["bearing"] == pytest.approx(350.0)
+    ids = [f"i{k}" for k in range(12)]
+    clusters = {i: f"c{k % 3}" for k, i in enumerate(ids)}
+    a = PP.swap_donors(ids, clusters, n_null=5)
+    assert a == PP.swap_donors(ids, clusters, n_null=5)            # seeded
+    assert all(clusters[dr[i]] != clusters[i] for dr in a for i in ids)
+
+
+def test_bearing_claims_only_near_the_ramp_bearing():
+    """What a null draw can score: a detection 90 deg off never claims; 1 deg off does,
+    under every bearing-family test."""
+    import perspective_photos_218 as PP
+    near = [{"uid": "a", "bearing": 0.0, "range": 10.0, "dbear": 0.0}]
+    dets = [{"score": 0.9}]
+    cl = PP.bearing_claims(dets, np.array([90.0]), np.array([8.0]), near, 0.3)
+    assert all(not v for v in cl.values())
+    cl = PP.bearing_claims(dets, np.array([1.0]), np.array([8.0]), near, 0.3)
+    assert all(v == {"a": 0} for v in cl.values())
+

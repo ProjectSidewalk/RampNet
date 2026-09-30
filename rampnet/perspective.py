@@ -101,20 +101,66 @@ def project_cam(cam, rays):
     return u, v
 
 
-def unproject_cam(cam, u, v, iters=20):
+def fold_radius(cam):
+    """Undistorted radius ``r = |(X/Z, Y/Z)|`` at which the Brown model folds back.
+
+    The distorted radius ``r d(r) = r + k1 r^3 + k2 r^5`` is monotonic only up to the first
+    positive root of its derivative ``1 + 3 k1 r^2 + 5 k2 r^4``. Beyond it (reached within
+    the lens's field of view for some Mapillary cameras with k2 < 0) rays far outside the
+    photo project back INTO the frame, so ``project_cam`` is only trustworthy for
+    ``r < fold_radius``. ``inf`` when the model never folds.
+
+    >>> fold_radius(Camera(100, 100, 0.5))
+    inf
+    >>> round(fold_radius(Camera(100, 100, 0.5, k1=0.0, k2=-0.2)), 4)   # (1/(5*0.2))**0.25
+    1.0
+    """
+    a, b = 5.0 * cam.k2, 3.0 * cam.k1          # a s^2 + b s + 1 = 0, s = r^2
+    if abs(a) < 1e-15:
+        roots = [-1.0 / b] if abs(b) > 1e-15 else []
+    else:
+        disc = b * b - 4 * a
+        roots = [] if disc < 0 else [(-b - math.sqrt(disc)) / (2 * a),
+                                     (-b + math.sqrt(disc)) / (2 * a)]
+    pos = [x for x in roots if x > 0]
+    return math.sqrt(min(pos)) if pos else math.inf
+
+
+def in_distortion_domain(cam, rays):
+    """True where a camera-frame ray is in front of the camera and inside the monotonic
+    range of the distortion model (``fold_radius``), i.e. where ``project_cam`` gives the
+    pixel the lens would actually image it at."""
+    rays = np.asarray(rays, dtype=np.float64)
+    X, Y, Z = rays[..., 0], rays[..., 1], rays[..., 2]
+    with np.errstate(divide="ignore", invalid="ignore"):
+        r = np.where(Z > 1e-9, np.hypot(X, Y) / np.where(Z > 1e-9, Z, 1.0), np.inf)
+    return (Z > 1e-9) & (r < fold_radius(cam))
+
+
+def unproject_cam(cam, u, v, iters=200, tol_px=1e-3):
     """Pixel (u, v) -> unit camera-frame ray (..., 3). Inverts the radial distortion by
-    fixed-point iteration (converges for the |k| seen on Mapillary cameras)."""
+    fixed-point iteration (200 steps: near the border of GoPro Max and VIRB frames 20 are
+    too few to reach 1e-3 px). This converges inside the frame for most cameras but
+    NOT everywhere: near the border of strongly distorted ones (on the Richmond set, 45
+    GoPro HERO11 and 2 VIRB images, whose corners lie beyond the model's fold) it diverges.
+    Pixels that do not round-trip to within ``tol_px`` through ``project_cam``, or whose
+    solution lies beyond ``fold_radius``, come back as NaN rays."""
     u = np.asarray(u, dtype=np.float64)
     v = np.asarray(v, dtype=np.float64)
     xd = (u + 0.5 - cam.width / 2.0) / (cam.size * cam.focal)
     yd = (v + 0.5 - cam.height / 2.0) / (cam.size * cam.focal)
     xn, yn = xd.copy(), yd.copy()
-    for _ in range(iters):
-        r2 = xn * xn + yn * yn
-        d = 1 + cam.k1 * r2 + cam.k2 * r2 * r2
-        xn, yn = xd / d, yd / d
-    ray = np.stack([xn, yn, np.ones_like(xn)], axis=-1)
-    return ray / np.linalg.norm(ray, axis=-1, keepdims=True)
+    with np.errstate(over="ignore", invalid="ignore"):
+        for _ in range(iters):
+            r2 = xn * xn + yn * yn
+            d = 1 + cam.k1 * r2 + cam.k2 * r2 * r2
+            xn, yn = xd / d, yd / d
+        ray = np.stack([xn, yn, np.ones_like(xn)], axis=-1)
+        ray = ray / np.linalg.norm(ray, axis=-1, keepdims=True)
+        u2, v2 = project_cam(cam, ray)
+        ok = ((np.abs(u2 - u) <= tol_px) & (np.abs(v2 - v) <= tol_px)
+              & in_distortion_domain(cam, ray))
+    return np.where(ok[..., None], ray, np.nan)
 
 
 # --------------------------------------------------------------------------- #
@@ -224,15 +270,19 @@ def canvas_footprint(cam, M_cam_level, H=CANVAS_H, W=CANVAS_W, pad=8):
     """(r0, r1, c0, c1): a canvas window that contains every pixel the photo can land
     on, from the photo's border mapped into the canvas, padded. Only a speed-up: pixels
     outside it would have been NaN anyway (asserted in tests). Falls back to the whole
-    canvas when the border reaches behind the camera's hemisphere edge."""
+    canvas when the border reaches behind the camera's hemisphere edge, or when a border
+    pixel does not invert through the distortion model."""
     n = 256
-    t = np.linspace(-0.5, 1, n)
+    t = np.linspace(0, 1, n)
     wu, hv = cam.width - 0.5, cam.height - 0.5
     us = np.concatenate([t * 0 - 0.5, t * 0 + wu, t * (cam.width) - 0.5, t * (cam.width) - 0.5])
     vs = np.concatenate([t * (cam.height) - 0.5, t * (cam.height) - 0.5, t * 0 - 0.5, t * 0 + hv])
     us = np.clip(us, -0.5, wu)
     vs = np.clip(vs, -0.5, hv)
     rays = unproject_cam(cam, us, vs) @ np.asarray(M_cam_level)   # cam -> level (M^T r)
+    if not np.all(np.isfinite(rays)):
+        # the border does not invert (distortion fold, see unproject_cam): no safe window
+        return 0, H, 0, W
     x, y = ray_to_canvas_norm(rays)
     if np.any(np.abs(np.arctan2(rays[:, 0], rays[:, 2])) > math.radians(170)):
         return 0, H, 0, W
@@ -296,9 +346,9 @@ def bearing_hit(det_bearing, det_depression, ramp_bearing, ramp_range, lateral_m
     - it is below the horizon at a depression that puts the ramp on flat ground for some
       camera height in ``[h_min, h_max]`` m: ``h = range * tan(depression)``.
 
-    >>> bearing_hit(10.0, 8.0, 12.0, 10.0)   # 2 deg off at 10 m; h = 1.41 m
+    >>> bool(bearing_hit(10.0, 8.0, 12.0, 10.0))   # 2 deg off at 10 m; h = 1.41 m
     True
-    >>> bearing_hit(10.0, 8.0, 50.0, 10.0)
+    >>> bool(bearing_hit(10.0, 8.0, 50.0, 10.0))
     False
     """
     tol = np.degrees(np.arctan2(lateral_m, ramp_range))

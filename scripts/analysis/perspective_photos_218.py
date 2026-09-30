@@ -90,6 +90,10 @@ LATERAL_M = 5.0                        # eval_sites' match radius
 LATERAL_LOOSE_M = 10.0                 # sensitivity: how much could pose error explain?
 H_MIN, H_MAX = 0.5, 4.0                # heights the bearing test accepts
 WORLD_HEIGHTS = (1.5, 2.6)             # flat-ground raycast sensitivity (2.6 = labeler's)
+# chance floor of the bearing test (docs section 3, "Chance floor")
+N_NULL = 20                            # swap-null draws
+NULL_TESTS = ("hit_bearing", "hit_bearing_loose", "hit_bearing_no_hgate")
+PANO_NULL_SHIFTS = (0.25, 0.5, 0.75)   # pano rotation null: 90 / 180 / 270 deg
 N_REPS = 2000
 SEED = 218
 ND = 4
@@ -506,8 +510,11 @@ def image_geometry(row, width, height, ramps):
     """Per image: the pool ramps near it with range, bearing, and whether each is in view.
 
     In view means: horizontal range in [RANGE_MIN, RANGE_MAX]; a flat-ground point at the
-    ramp, seen from VIEW_H m with the SfM pose, projects inside the frame at least
+    ramp, seen from VIEW_H m with the SfM pose, is inside the distortion model's monotonic
+    range (``P.in_distortion_domain``) and projects inside the frame at least
     EDGE_MARGIN_FRAC of the width from the left/right edges and above the bottom edge.
+    Without the domain check, cameras with k2 < 0 fold rays from 60-70 deg off-axis back
+    into the frame; those pairs are flagged ``folded`` and are not in view.
     ``pool_negative`` is True when no pool ramp within NEG_RANGE has a bearing inside the
     horizontal FOV widened by NEG_MARGIN_DEG on each side."""
     cam = camera_of(row, width, height)
@@ -526,17 +533,19 @@ def image_geometry(row, width, height, ramps):
         dbear = float(P.wrap_deg(bearing[i] - heading))
         if d[i] <= NEG_RANGE and abs(dbear) <= half + NEG_MARGIN_DEG:
             neg = False
-        in_view = False
+        in_view = folded = False
         if RANGE_MIN <= d[i] <= RANGE_MAX:
             pc = R_wc @ np.array([e[i], n[i], -VIEW_H])
             if pc[2] > 0:
                 u, v = P.project_cam(cam, pc)
                 m = EDGE_MARGIN_FRAC * cam.width
-                in_view = bool(m <= u <= cam.width - 1 - m and v <= cam.height - 1)
+                in_frame = bool(m <= u <= cam.width - 1 - m and v <= cam.height - 1)
+                folded = in_frame and not bool(P.in_distortion_domain(cam, pc))
+                in_view = in_frame and not folded
         if d[i] <= CANDIDATE_MAX:
             near.append({"uid": uids[i], "range": float(d[i]), "bearing": float(bearing[i]),
                          "dbear": dbear, "e": float(e[i]), "n": float(n[i]),
-                         "in_view": in_view})
+                         "in_view": in_view, "folded": folded})
     return {"cam": cam, "R_wc": R_wc, "near": near, "pool_negative": neg,
             "positive": any(r["in_view"] for r in near)}
 
@@ -551,10 +560,11 @@ def det_world(dets, cam, R_wc):
     return b, dep, w
 
 
-def claim_bearing(dets, b, dep, near, thr, lateral=LATERAL_M):
+def claim_bearing(dets, b, dep, near, thr, lateral=LATERAL_M, h_min=H_MIN, h_max=H_MAX):
     """Greedy one-to-one claims in descending score: each detection >= thr claims the
     unclaimed candidate ramp (range <= CANDIDATE_MAX) with the smallest bearing error that
-    passes ``bearing_hit``. Returns {ramp uid: det index}."""
+    passes ``bearing_hit``. Returns {ramp uid: det index}. ``h_min=0, h_max=inf`` drops the
+    height gate (the detection need only be below the horizon)."""
     order = sorted((i for i, d in enumerate(dets) if d["score"] >= thr),
                    key=lambda i: -dets[i]["score"])
     claimed = {}
@@ -564,7 +574,7 @@ def claim_bearing(dets, b, dep, near, thr, lateral=LATERAL_M):
             if r["uid"] in claimed:
                 continue
             if not P.bearing_hit(b[i], dep[i], r["bearing"], r["range"], lateral,
-                                 H_MIN, H_MAX):
+                                 h_min, h_max):
                 continue
             err = abs(float(P.wrap_deg(b[i] - r["bearing"])))
             if best is None or err < best_err:
@@ -618,47 +628,135 @@ def load_dets(arm, out=OUT):
     return recs
 
 
-def per_image_table(arm_recs, rows, ramps, thresholds=THRESHOLDS):
+def bearing_claims(dets, b, dep, near, thr):
+    """The bearing-family claims: {test name: {ramp uid: det index}}."""
+    return {"hit_bearing": claim_bearing(dets, b, dep, near, thr),
+            "hit_bearing_loose": claim_bearing(dets, b, dep, near, thr, LATERAL_LOOSE_M),
+            "hit_bearing_no_hgate": claim_bearing(dets, b, dep, near, thr, LATERAL_M,
+                                                  0.0, math.inf)}
+
+
+def mirrored(near, heading):
+    """Chance-floor helper: every candidate ramp's bearing reflected about the camera
+    heading (a ramp 20 deg right of the heading moves to 20 deg left)."""
+    return [dict(r, bearing=float((heading - r["dbear"]) % 360)) for r in near]
+
+
+def transplant(dets, w_from, h_from, w_to, h_to):
+    """Chance-floor helper: detections moved to another image at the same normalised pixel
+    position (u / width, v / height)."""
+    return [dict(d, u=(d["u"] + 0.5) / w_from * w_to - 0.5,
+                 v=(d["v"] + 0.5) / h_from * h_to - 0.5) for d in dets]
+
+
+def swap_donors(ids, clusters, n_null=N_NULL, seed=SEED):
+    """For each draw, a donor for every image in ``ids``: an image drawn uniformly (with
+    replacement) from ``ids`` whose cluster (nearest pool ramp) differs from the
+    receiver's, so a donor never shows the receiver's own corner. Same donors for every
+    arm and threshold, so the null is paired across arms."""
+    rng = np.random.default_rng(seed + 7)
+    ids = list(ids)
+    cl = np.array([clusters[i] for i in ids])
+    out = []
+    for _ in range(n_null):
+        dr = {}
+        for k, i in enumerate(ids):
+            pool = np.nonzero(cl != cl[k])[0]
+            dr[i] = ids[int(pool[rng.integers(0, len(pool))])]
+        out.append(dr)
+    return out
+
+
+def per_image_table(arm_recs, rows, ramps, thresholds=THRESHOLDS, n_null=N_NULL):
     """Per (arm, image): positive / pool_negative / fired, and per (arm, image, in-view
-    ramp): hit under each test. Returns (images, pairs) lists of dicts."""
-    images, pairs = [], []
+    ramp): hit under each test. Returns (images, pairs, matches) lists of dicts.
+
+    Chance floor (docs section 3): on positive images every pair also carries
+    - ``null_swap_<test>``: per draw (``n_null`` of them), whether the ramp is hit when the
+      image's own detections are replaced by those of an unrelated positive image (a
+      different nearest pool ramp) at the same normalised pixel positions, projected
+      through THIS image's camera and SfM pose;
+    - ``null_mirror_<test>``: whether it is hit when every candidate ramp's bearing is
+      mirrored about the camera heading.
+    ``matches`` lists every bearing-test claim (real and swap-null) with the camera height
+    it implies, for the height diagnostic."""
+    images, pairs, matches = [], [], []
     by_id = {r["image_id"]: r for r in rows}
     ids = sorted(set.intersection(*[set(v) for v in arm_recs.values()]))
+    any_recs = next(iter(arm_recs.values()))
+    geo = {iid: image_geometry(by_id[iid], any_recs[iid]["width"], any_recs[iid]["height"],
+                               ramps) for iid in ids}
+    pos_ids = [i for i in ids if geo[i]["positive"]]
+    donors = swap_donors(pos_ids, {i: by_id[i]["nearest_ramp"] for i in pos_ids}, n_null) \
+        if n_null else []
     for iid in ids:
         row = by_id[iid]
-        any_rec = next(iter(arm_recs.values()))[iid]
-        g = image_geometry(row, any_rec["width"], any_rec["height"], ramps)
+        g = geo[iid]
         cluster = row["nearest_ramp"]
+        heading = float(row["computed_compass_angle"])
+        near_m = mirrored(g["near"], heading)
+        cam_model = f'{row["make"]} {row["model"]}'.strip()
         for arm, recs in arm_recs.items():
             rec = recs[iid]
             dets = rec["dets"]
             b, dep, w = det_world(dets, g["cam"], g["R_wc"])
             im = {"arm": arm, "image_id": iid, "cluster": cluster, "positive": g["positive"],
                   "pool_negative": g["pool_negative"], "max_score": rec["max_score"],
-                  "n_in_view": sum(r["in_view"] for r in g["near"])}
+                  "n_in_view": sum(r["in_view"] for r in g["near"]),
+                  "n_folded": sum(r["folded"] for r in g["near"])}
+            swap = []
+            if g["positive"]:
+                for dr in donors:
+                    dd = recs[dr[iid]]
+                    sd = transplant(dd["dets"], dd["width"], dd["height"], rec["width"],
+                                    rec["height"])
+                    sb, sdep, _ = det_world(sd, g["cam"], g["R_wc"])
+                    swap.append((sd, sb, sdep))
+            in_view_uids = {r["uid"] for r in g["near"] if r["in_view"]}
+            rng_of = {r["uid"]: r["range"] for r in g["near"]}
             for thr in thresholds:
-                cl = claim_bearing(dets, b, dep, g["near"], thr)
-                in_view_uids = {r["uid"] for r in g["near"] if r["in_view"]}
+                bc = bearing_claims(dets, b, dep, g["near"], thr)
+                cl = bc["hit_bearing"]
                 im[f"fired@{thr}"] = any(d["score"] >= thr for d in dets)
                 im[f"n_dets@{thr}"] = sum(d["score"] >= thr for d in dets)
                 im[f"n_matched@{thr}"] = len(cl)
                 im[f"loc_hit@{thr}"] = bool(in_view_uids & set(cl))
-                rng_of = {r["uid"]: r["range"] for r in g["near"]}
                 im[f"implied_h@{thr}"] = [
                     rng_of[u] * math.tan(math.radians(dep[i])) for u, i in cl.items()]
+                for u, i in cl.items():
+                    matches.append({"arm": arm, "thr": thr, "kind": "real", "draw": None,
+                                    "image_id": iid, "sequence": row["sequence"],
+                                    "camera": cam_model, "ramp": u,
+                                    "h": rng_of[u] * math.tan(math.radians(dep[i]))})
                 wcl = {h: claim_world(dets, w, g["near"], thr, h) for h in WORLD_HEIGHTS}
-                cl_loose = claim_bearing(dets, b, dep, g["near"], thr, LATERAL_LOOSE_M)
+                null_m, null_s = {}, []
+                if g["positive"]:
+                    null_m = bearing_claims(dets, b, dep, near_m, thr)
+                    for k, (sd, sb, sdep) in enumerate(swap):
+                        sc = bearing_claims(sd, sb, sdep, g["near"], thr)
+                        null_s.append(sc)
+                        for u, i in sc["hit_bearing"].items():
+                            matches.append({"arm": arm, "thr": thr, "kind": "swap", "draw": k,
+                                            "image_id": iid, "sequence": row["sequence"],
+                                            "camera": cam_model, "ramp": u,
+                                            "h": rng_of[u] * math.tan(math.radians(sdep[i]))})
+                    im[f"null_swap_loc_hit@{thr}"] = [bool(in_view_uids & set(sc["hit_bearing"]))
+                                                      for sc in null_s]
+                    im[f"null_mirror_loc_hit@{thr}"] = bool(
+                        in_view_uids & set(null_m["hit_bearing"]))
                 for r in g["near"]:
                     if not r["in_view"]:
                         continue
-                    pairs.append({"arm": arm, "image_id": iid, "ramp": r["uid"],
-                                  "range": r["range"], "bin": range_bin(r["range"]),
-                                  "thr": thr, "hit_bearing": r["uid"] in cl,
-                                  "hit_bearing_loose": r["uid"] in cl_loose,
-                                  **{f"hit_world_{h}": r["uid"] in wcl[h]
-                                     for h in WORLD_HEIGHTS}})
+                    pr = {"arm": arm, "image_id": iid, "ramp": r["uid"], "camera": cam_model,
+                          "range": r["range"], "bin": range_bin(r["range"]), "thr": thr,
+                          **{t: r["uid"] in bc[t] for t in NULL_TESTS},
+                          **{f"hit_world_{h}": r["uid"] in wcl[h] for h in WORLD_HEIGHTS}}
+                    for t in NULL_TESTS:
+                        pr[f"null_mirror_{t}"] = r["uid"] in null_m[t]
+                        pr[f"null_swap_{t}"] = [r["uid"] in sc[t] for sc in null_s]
+                    pairs.append(pr)
             images.append(im)
-    return images, pairs
+    return images, pairs, matches
 
 
 def boot_indices(clusters, n_reps=N_REPS, seed=SEED):
@@ -717,12 +815,15 @@ def pano_reference(ramps_in_view):
     return out
 
 
-def pano_bearing_check(thr=0.55):
+def pano_bearing_check(thr=0.55, shift=0.0):
     """Test comparability: the flat photos' bearing test applied to the same pano captures
     whose world test is in ``pano_reference``. Only detections >= 0.55 are stored in the
     neighbourhood records, so this runs at 0.55 only. The ramp's bearing in the pano is
     its projected column (``x_proj``); the detection's depression is read off a level
-    equirect, ``(y - 0.5) * 180``. Returns per-capture rows with both tests."""
+    equirect, ``(y - 0.5) * 180``. Returns per-capture rows with both tests.
+
+    ``shift`` (a fraction of 360 deg) rotates every detection's column before matching:
+    the chance floor of the bearing test on the panos (0.25 / 0.5 / 0.75)."""
     dets = {}
     with open(NEIGHBOURHOOD, encoding="utf-8") as f:
         for line in f:
@@ -748,7 +849,8 @@ def pano_bearing_check(thr=0.55):
             for c in caps:
                 if c["ramp_uid"] in claimed:
                     continue
-                db = float(P.wrap_deg((dd["x_normalized"] - float(c["x_proj"])) * 360.0))
+                db = float(P.wrap_deg((dd["x_normalized"] + shift - float(c["x_proj"]))
+                                      * 360.0))
                 dep = (dd["y_normalized"] - 0.5) * 180.0
                 if P.bearing_hit(db, dep, 0.0, float(c["dist_m"]), LATERAL_M, H_MIN, H_MAX):
                     if best is None or abs(db) < be:
@@ -757,24 +859,70 @@ def pano_bearing_check(thr=0.55):
                 claimed.add(best)
         for c in caps:
             wc = float(c["world_conf"]) if c["world_conf"] not in ("", "nan") else 0.0
-            rows.append({"ramp": c["ramp_uid"], "bearing_hit": c["ramp_uid"] in claimed,
-                         "world_hit": wc >= thr})
+            rows.append({"ramp": c["ramp_uid"], "pano_id": pid, "range": float(c["dist_m"]),
+                         "bin": range_bin(float(c["dist_m"])),
+                         "bearing_hit": c["ramp_uid"] in claimed, "world_hit": wc >= thr})
     return rows
+
+
+def null_draw_rates(rows, key):
+    """Per swap-null draw, the mean of ``key`` (a per-row list of per-draw hits) over
+    ``rows``. Returns {mean, p5, p95, n_draws}; None without draws."""
+    if not rows or not rows[0][key]:
+        return None
+    m = np.array([r[key] for r in rows], dtype=float)      # rows x draws
+    per_draw = m.mean(axis=0)
+    return {"mean": float(per_draw.mean()), "p5": float(np.percentile(per_draw, 5)),
+            "p95": float(np.percentile(per_draw, 95)), "n_draws": int(m.shape[1])}
+
+
+def above_chance(rows, test, clusters, uniq, draws):
+    """Real hit minus its per-row swap-null expectation (mean over draws), cluster
+    bootstrap CI. The null mean is treated as fixed: the spread across draws is reported
+    separately (``null_draw_rates``)."""
+    if not rows or not rows[0][f"null_swap_{test}"]:
+        return None
+    return paired_diff([r[test] for r in rows],
+                       [float(np.mean(r[f"null_swap_{test}"])) for r in rows],
+                       clusters, uniq, draws)
+
+
+def camera_scale(row, width, height):
+    """Angular sampling of one photo (docs section 2, S5): px/deg at the thumbnail's
+    centre; how much faster the photo is sampled at the horizontal edge than at its centre
+    (the canvas downsamples the edge by this factor more than the centre, with no
+    antialiasing: ``(1 + 3 k1 t^2 + 5 k2 t^4)(1 + t^2)`` at ``t = tan(edge angle)``, None
+    where the edge does not invert); and the stretch arm's px/deg across and down (nominal
+    FOV) against the canvas's 4096 / 360."""
+    cam = camera_of(row, width, height)
+    ray = P.unproject_cam(cam, cam.width - 0.5, (cam.height - 1) / 2.0)
+    t = float(ray[0] / ray[2]) if np.all(np.isfinite(ray)) else None
+    edge = ((1 + 3 * cam.k1 * t * t + 5 * cam.k2 * t ** 4) * (1 + t * t)) if t is not None \
+        else None
+    return {"hfov": cam.hfov_deg(), "centre_px_per_deg": cam.focal * cam.size * math.pi / 180,
+            "edge_over_centre": edge,
+            "stretch_px_per_deg_x": P.CANVAS_W / cam.hfov_deg(),
+            "stretch_px_per_deg_y": P.CANVAS_H / cam.vfov_deg()}
 
 
 def cmd_score(args):
     arms = args.arms.split(",")
     rows = read_csv(IMAGES_CSV)
+    by_id = {r["image_id"]: r for r in rows}
     ramps = ramp_table()
     arm_recs = {a: load_dets(a, args.dets_dir or OUT) for a in arms}
-    images, pairs = per_image_table(arm_recs, rows, ramps)
+    images, pairs, matches = per_image_table(arm_recs, rows, ramps, n_null=args.n_null)
     res_dir = args.results_dir or OUT
     res = {"config": {"arms": arms, "thresholds": list(THRESHOLDS), "floor": FLOOR,
                       "range": [RANGE_MIN, RANGE_MAX], "bins": [list(b) for b in RANGE_BINS],
                       "edge_margin_frac": EDGE_MARGIN_FRAC, "view_h": VIEW_H,
                       "neg_range": NEG_RANGE, "neg_margin_deg": NEG_MARGIN_DEG,
-                      "lateral_m": LATERAL_M, "lateral_loose_m": LATERAL_LOOSE_M, "h_accept": [H_MIN, H_MAX],
-                      "world_heights": list(WORLD_HEIGHTS), "n_reps": N_REPS, "seed": SEED},
+                      "lateral_m": LATERAL_M, "lateral_loose_m": LATERAL_LOOSE_M,
+                      "h_accept": [H_MIN, H_MAX], "world_heights": list(WORLD_HEIGHTS),
+                      "n_null": args.n_null, "pano_null_shifts": list(PANO_NULL_SHIFTS),
+                      "in_view_rule": "in frame and inside the distortion model's monotonic "
+                                      "range (fold guard)",
+                      "n_reps": N_REPS, "seed": SEED},
            "counts": {}, "presence": {}, "points": {}, "paired": {}, "pano_reference": {},
            "fill_peaks": {}}
     a0 = arms[0]
@@ -786,7 +934,8 @@ def cmd_score(args):
                      "in_view_pairs": sum(1 for p in pairs if p["arm"] == a0
                                           and p["thr"] == THRESHOLDS[0]),
                      "in_view_ramps": len({p["ramp"] for p in pairs if p["arm"] == a0}),
-                     "clusters_positive": len({i["cluster"] for i in im0 if i["positive"]})}
+                     "clusters_positive": len({i["cluster"] for i in im0 if i["positive"]}),
+                     "pairs_excluded_by_fold_guard": sum(i["n_folded"] for i in im0)}
     for a in arms:
         recs = arm_recs[a].values()
         hs = [h for i in images if i["arm"] == a for h in i[f"implied_h@{PRIMARY_THR}"]]
@@ -795,6 +944,35 @@ def cmd_score(args):
             if hs else None}
         res["fill_peaks"][a] = {"images_with_fill_peaks": sum(r["n_fill_peaks"] > 0 for r in recs),
                                 "fill_peaks": sum(r["n_fill_peaks"] for r in recs)}
+    # --- implied camera height by camera model (S1): real matches vs swap-null matches
+    for a in arms:
+        real = [m for m in matches if m["arm"] == a and m["thr"] == PRIMARY_THR
+                and m["kind"] == "real"]
+        null = [m for m in matches if m["arm"] == a and m["thr"] == PRIMARY_THR
+                and m["kind"] == "swap"]
+        # a chance-level match is only defined on positive images, where the null ran
+        pos_ids = {i["image_id"] for i in im0 if i["positive"]}
+        by_cam = {}
+        for cam_name in sorted({m["camera"] for m in real}):
+            rc = [m for m in real if m["camera"] == cam_name]
+            rcp = [m for m in rc if m["image_id"] in pos_ids]
+            nc = [m for m in null if m["camera"] == cam_name]
+            by_cam[cam_name] = {
+                "n_matches": len(rc), "n_sequences": len({m["sequence"] for m in rc}),
+                "h_p50": float(np.median([m["h"] for m in rc])),
+                "n_matches_positive_images": len(rcp),
+                "null_matches_per_draw": len(nc) / max(1, args.n_null),
+                "null_h_p50": float(np.median([m["h"] for m in nc])) if nc else None}
+        seq_med = {}
+        for m in real:
+            seq_med.setdefault(m["sequence"], []).append(m["h"])
+        res["implied_height"][a].update({
+            "n_sequences": len(seq_med),
+            "sequences_median_below_2.2m": sum(np.median(v) < 2.2 for v in seq_med.values()),
+            "null_swap": {"matches_per_draw": len(null) / max(1, args.n_null),
+                          "h_p10_p50_p90": [float(x) for x in np.percentile(
+                              [m["h"] for m in null], [10, 50, 90])] if null else None},
+            "by_camera": by_cam})
     # --- image-level
     pos = [i for i in im0 if i["positive"]]
     neg = [i for i in im0 if i["pool_negative"]]
@@ -805,7 +983,7 @@ def cmd_score(args):
         for thr in THRESHOLDS:
             P_ = [ia[i["image_id"]] for i in pos]
             N_ = [ia[i["image_id"]] for i in neg]
-            res["presence"][f"{a}@{thr}"] = {
+            ent = {
                 "presence_recall": cluster_rate([x[f"fired@{thr}"] for x in P_],
                                                 [x["cluster"] for x in P_], upos, dpos),
                 "localized_recall": cluster_rate([x[f"loc_hit@{thr}"] for x in P_],
@@ -818,6 +996,16 @@ def cmd_score(args):
                                          / max(1, sum(ia[i["image_id"]][f"n_dets@{thr}"]
                                                       for i in im0))),
             }
+            if args.n_null:
+                ent["localized_recall_null_swap"] = null_draw_rates(
+                    P_, f"null_swap_loc_hit@{thr}")
+                ent["localized_recall_null_mirror"] = float(np.mean(
+                    [x[f"null_mirror_loc_hit@{thr}"] for x in P_]))
+                ent["localized_recall_above_swap"] = paired_diff(
+                    [x[f"loc_hit@{thr}"] for x in P_],
+                    [float(np.mean(x[f"null_swap_loc_hit@{thr}"])) for x in P_],
+                    [x["cluster"] for x in P_], upos, dpos)
+            res["presence"][f"{a}@{thr}"] = ent
     # --- point-level (in-view image-ramp pairs), cluster = ramp
     p0 = [p for p in pairs if p["arm"] == a0 and p["thr"] == THRESHOLDS[0]]
     upr, dpr = boot_indices([p["ramp"] for p in p0], seed=SEED + 2)
@@ -829,14 +1017,25 @@ def cmd_score(args):
         for thr in THRESHOLDS:
             rows_a = [pa[(a, thr, k)] for k in order]
             ent = {}
-            for test in (["hit_bearing", "hit_bearing_loose"]
-                         + [f"hit_world_{h}" for h in WORLD_HEIGHTS]):
+            for test in list(NULL_TESTS) + [f"hit_world_{h}" for h in WORLD_HEIGHTS]:
                 ent[test] = cluster_rate([r[test] for r in rows_a], cl, upr, dpr)
+            if args.n_null:
+                for test in NULL_TESTS:
+                    ent[f"{test}__null_swap"] = null_draw_rates(rows_a, f"null_swap_{test}")
+                    ent[f"{test}__null_mirror"] = float(np.mean(
+                        [r[f"null_mirror_{test}"] for r in rows_a]))
+                    ent[f"{test}__above_swap"] = above_chance(rows_a, test, cl, upr, dpr)
             for lo, hi in RANGE_BINS:
                 b = f"{lo:g}-{hi:g}"
                 sel = [i for i, r in enumerate(rows_a) if r["bin"] == b]
-                ent[f"hit_bearing[{b}]"] = cluster_rate([rows_a[i]["hit_bearing"] for i in sel],
-                                                        [cl[i] for i in sel], upr, dpr)
+                rb, cb = [rows_a[i] for i in sel], [cl[i] for i in sel]
+                ent[f"hit_bearing[{b}]"] = cluster_rate([r["hit_bearing"] for r in rb],
+                                                        cb, upr, dpr)
+                if args.n_null:
+                    ent[f"hit_bearing[{b}]__null_swap"] = null_draw_rates(
+                        rb, "null_swap_hit_bearing")
+                    ent[f"hit_bearing[{b}]__above_swap"] = above_chance(
+                        rb, "hit_bearing", cb, upr, dpr)
             res["points"][f"{a}@{thr}"] = ent
     # --- paired contrasts vs canvas_level
     ref = "canvas_level" if "canvas_level" in arms else a0
@@ -844,12 +1043,13 @@ def cmd_score(args):
         if a == ref:
             continue
         for thr in THRESHOLDS:
-            ra = [pa[(a, thr, k)]["hit_bearing"] for k in order]
-            rr = [pa[(ref, thr, k)]["hit_bearing"] for k in order]
+            ra = [pa[(a, thr, k)] for k in order]
+            rr = [pa[(ref, thr, k)] for k in order]
             ia = {i["image_id"]: i for i in images if i["arm"] == a}
             ir = {i["image_id"]: i for i in images if i["arm"] == ref}
-            res["paired"][f"{a}-{ref}@{thr}"] = {
-                "point_hit_bearing": paired_diff(ra, rr, cl, upr, dpr),
+            ent = {
+                "point_hit_bearing": paired_diff([x["hit_bearing"] for x in ra],
+                                                 [x["hit_bearing"] for x in rr], cl, upr, dpr),
                 "presence_recall": paired_diff([ia[i["image_id"]][f"fired@{thr}"] for i in pos],
                                                [ir[i["image_id"]][f"fired@{thr}"] for i in pos],
                                                [i["cluster"] for i in pos], upos, dpos),
@@ -857,6 +1057,14 @@ def cmd_score(args):
                     [ia[i["image_id"]][f"fired@{thr}"] for i in neg],
                     [ir[i["image_id"]][f"fired@{thr}"] for i in neg],
                     [i["cluster"] for i in neg], uneg, dneg)}
+            if args.n_null:
+                # the arms' floors differ (the stretch fires more), so compare them above
+                # their own floors too
+                ent["point_hit_bearing_above_swap"] = paired_diff(
+                    [x["hit_bearing"] - np.mean(x["null_swap_hit_bearing"]) for x in ra],
+                    [x["hit_bearing"] - np.mean(x["null_swap_hit_bearing"]) for x in rr],
+                    cl, upr, dpr)
+            res["paired"][f"{a}-{ref}@{thr}"] = ent
     # --- pano reference on the same ramps
     ramps_iv = {p["ramp"] for p in p0}
     pr = pano_reference(ramps_iv)
@@ -874,20 +1082,53 @@ def cmd_score(args):
                                                       [x["ramp"] for x in s2], u, dr)
         res["pano_reference"][scope] = ent
     pb = pano_bearing_check()
+    # chance floor on the panos: every detection rotated by 90 / 180 / 270 deg
+    pb_rot = {sh: pano_bearing_check(shift=sh) for sh in (PANO_NULL_SHIFTS if args.n_null
+                                                           else ())}
+    for k, x in enumerate(pb):
+        x["null_rot"] = [pb_rot[sh][k]["bearing_hit"] for sh in pb_rot]
+        assert all(pb_rot[sh][k]["ramp"] == x["ramp"] for sh in pb_rot)
     u, dr = boot_indices([x["ramp"] for x in pb], seed=SEED + 5)
-    res["pano_reference"]["test_check@0.55"] = {
-        "n_captures": len(pb), "n_ramps": len(u),
-        "bearing_test": cluster_rate([x["bearing_hit"] for x in pb], [x["ramp"] for x in pb], u, dr),
-        "world_test": cluster_rate([x["world_hit"] for x in pb], [x["ramp"] for x in pb], u, dr),
-        "agree": rnd(np.mean([x["bearing_hit"] == x["world_hit"] for x in pb]))}
+    ent = {"n_captures": len(pb), "n_ramps": len(u),
+           "bearing_test": cluster_rate([x["bearing_hit"] for x in pb], [x["ramp"] for x in pb],
+                                        u, dr),
+           "world_test": cluster_rate([x["world_hit"] for x in pb], [x["ramp"] for x in pb], u, dr),
+           "agree": rnd(np.mean([x["bearing_hit"] == x["world_hit"] for x in pb]))}
+    if pb_rot:
+        ent["bearing_null_rotation"] = {f"{round(sh * 360)}deg": float(np.mean(
+            [x["bearing_hit"] for x in pb_rot[sh]])) for sh in pb_rot}
+        ent["bearing_above_rotation"] = paired_diff(
+            [x["bearing_hit"] for x in pb], [float(np.mean(x["null_rot"])) for x in pb],
+            [x["ramp"] for x in pb], u, dr)
+    res["pano_reference"]["test_check@0.55"] = ent
+    # like-for-like range mix (S2): the pano bearing test on the flat set's ramps, per range
+    # bin, re-weighted to the flat pairs' range mix
+    flat_ramps = {p["ramp"] for p in p0}
+    pbs = [x for x in pb if x["ramp"] in flat_ramps]
+    mix = {f"{lo:g}-{hi:g}": sum(p["bin"] == f"{lo:g}-{hi:g}" for p in p0) / len(p0)
+           for lo, hi in RANGE_BINS}
+    by_bin = {b: [x for x in pbs if x["bin"] == b] for b in mix}
+    res["pano_reference"]["range_mix@0.55"] = {
+        "flat_pairs_by_bin": {b: sum(p["bin"] == b for p in p0) for b in mix},
+        "pano_captures_by_bin": {b: len(v) for b, v in by_bin.items()},
+        "flat_median_range": float(np.median([p["range"] for p in p0])),
+        "pano_median_range": float(np.median([x["range"] for x in pbs])),
+        "pano_bearing_by_bin": {b: float(np.mean([x["bearing_hit"] for x in v]))
+                                for b, v in by_bin.items() if v},
+        "pano_bearing_unweighted": float(np.mean([x["bearing_hit"] for x in pbs])),
+        "pano_bearing_reweighted_to_flat_mix": float(sum(
+            mix[b] * np.mean([x["bearing_hit"] for x in v]) for b, v in by_bin.items() if v))}
     # --- flat vs pano, ramp-level paired: per ramp, flat pair-hit rate minus pano capture
     # hit rate, over ramps that have both
     for a in arms:
         for thr in THRESHOLDS:
-            fr, pr_ = {}, {}
+            fr, frn, pr_ = {}, {}, {}
             for k in order:
                 p = pa[(a, thr, k)]
                 fr.setdefault(p["ramp"], []).append(p["hit_bearing"])
+                if args.n_null:
+                    frn.setdefault(p["ramp"], []).append(
+                        p["hit_bearing"] - np.mean(p["null_swap_hit_bearing"]))
             for x in pr:
                 if x["same_ramps"]:
                     pr_.setdefault(x["ramp"], []).append(x["world_conf"] >= thr)
@@ -899,22 +1140,82 @@ def cmd_score(args):
                 "n_ramps": len(both)}
             if thr == 0.55:
                 # like for like: the pano side under the same bearing test
-                pbr = {}
+                pbr, pbrn = {}, {}
                 for x in pb:
                     if x["ramp"] in fr:
                         pbr.setdefault(x["ramp"], []).append(x["bearing_hit"])
+                        if pb_rot:
+                            pbrn.setdefault(x["ramp"], []).append(
+                                x["bearing_hit"] - np.mean(x["null_rot"]))
                 both2 = sorted(set(fr) & set(pbr))
                 diff2 = [np.mean(fr[r]) - np.mean(pbr[r]) for r in both2]
                 u2, dr2 = boot_indices(both2, seed=SEED + 6)
-                res["paired"][f"{a}-pano_bearing@{thr}"] = {
-                    "ramp_mean_hit_diff": cluster_rate(diff2, both2, u2, dr2),
-                    "n_ramps": len(both2),
-                    "flat_ramp_mean": rnd(np.mean([np.mean(fr[r]) for r in both2])),
-                    "pano_ramp_mean": rnd(np.mean([np.mean(pbr[r]) for r in both2]))}
+                ent = {"ramp_mean_hit_diff": cluster_rate(diff2, both2, u2, dr2),
+                       "n_ramps": len(both2),
+                       "flat_ramp_mean": rnd(np.mean([np.mean(fr[r]) for r in both2])),
+                       "pano_ramp_mean": rnd(np.mean([np.mean(pbr[r]) for r in both2]))}
+                if args.n_null and pb_rot:
+                    # both sides above their own chance floor (flat: swap null; pano:
+                    # rotation null), per ramp
+                    diff3 = [np.mean(frn[r]) - np.mean(pbrn[r]) for r in both2]
+                    ent.update({
+                        "above_chance_diff": cluster_rate(diff3, both2, u2, dr2),
+                        "flat_above_chance_ramp_mean": rnd(np.mean([np.mean(frn[r])
+                                                                    for r in both2])),
+                        "pano_above_chance_ramp_mean": rnd(np.mean([np.mean(pbrn[r])
+                                                                    for r in both2]))})
+                res["paired"][f"{a}-pano_bearing@{thr}"] = ent
+    # --- angular sampling by camera model (S2 / S5)
+    by_cam = {}
+    rec0 = arm_recs[a0]
+    for iid, rec in rec0.items():
+        row = by_id[iid]
+        by_cam.setdefault(f'{row["make"]} {row["model"]}'.strip(), []).append(
+            camera_scale(row, rec["width"], rec["height"]))
+    scale = {"canvas_px_per_deg": P.CANVAS_W / 360.0, "by_camera": {}}
+    for cam_name, v in sorted(by_cam.items(), key=lambda kv: -len(kv[1])):
+        if len(v) < 10:
+            continue
+        edge = [x["edge_over_centre"] for x in v if x["edge_over_centre"] is not None]
+        scale["by_camera"][cam_name] = {
+            "n_images": len(v), "hfov_p50": float(np.median([x["hfov"] for x in v])),
+            "thumb_centre_px_per_deg_p50": float(np.median([x["centre_px_per_deg"] for x in v])),
+            "edge_over_centre_p50": float(np.median(edge)) if edge else None,
+            "edge_not_invertible": len(v) - len(edge),
+            "stretch_px_per_deg_x_p50": float(np.median([x["stretch_px_per_deg_x"] for x in v])),
+            "stretch_px_per_deg_y_p50": float(np.median([x["stretch_px_per_deg_y"] for x in v]))}
+    allv = [x for v in by_cam.values() for x in v]
+    scale["all"] = {"n_images": len(allv),
+                    "stretch_px_per_deg_x_p10_p50_p90": [float(x) for x in np.percentile(
+                        [x["stretch_px_per_deg_x"] for x in allv], [10, 50, 90])],
+                    "stretch_px_per_deg_y_p10_p50_p90": [float(x) for x in np.percentile(
+                        [x["stretch_px_per_deg_y"] for x in allv], [10, 50, 90])]}
+    res["angular_scale"] = scale
+    # --- geometry checks: detections the distortion model cannot place (N3, B2)
+    chk = {}
+    for a in arms:
+        n_det = n_nan = n_fold = 0
+        for iid, rec in arm_recs[a].items():
+            row = by_id[iid]
+            cam = camera_of(row, rec["width"], rec["height"])
+            dets = [d for d in rec["dets"] if d["score"] >= PRIMARY_THR]
+            if not dets:
+                continue
+            n_det += len(dets)
+            ray = P.unproject_cam(cam, [d["u"] for d in dets], [d["v"] for d in dets])
+            n_nan += int((~np.isfinite(ray[:, 0])).sum())
+            M = arm_M(a, pose_of(row))
+            if M is not None:
+                cr = P.canvas_norm_to_cam_ray(np.array([d["x"] for d in dets]),
+                                              np.array([d["y"] for d in dets]), M)
+                n_fold += int((~P.in_distortion_domain(cam, cr)).sum())
+        chk[a] = {f"dets@{PRIMARY_THR}": n_det, "photo_pixel_not_invertible": n_nan,
+                  "canvas_ray_beyond_fold": n_fold if ARMS[a]["kind"] == "canvas" else None}
+    res["geometry_checks"] = chk
     res = _round(res)
     write_json(os.path.join(res_dir, "results.json"), res)
     with open(os.path.join(res_dir, "images_scored.csv"), "w", encoding="utf-8", newline="") as f:
-        cols = sorted(k for k in images[0] if not k.startswith("implied_h"))
+        cols = sorted(k for k in images[0] if not k.startswith(("implied_h", "null_")))
         w = csv.DictWriter(f, fieldnames=cols, lineterminator="\n")
         w.writeheader()
         for i in images:
@@ -939,41 +1240,91 @@ def _round(o):
     return o
 
 
+def fmt_null(e):
+    if not e:
+        return "n/a"
+    return f"{e['mean']:.3f} ({e['p5']:.3f}-{e['p95']:.3f})"
+
+
 def markdown(res, arms):
     L = ["# Perspective photos (#218): Richmond results", "",
          "Generated by `scripts/analysis/perspective_photos_218.py score`. "
          "95% CIs: cluster bootstrap (images clustered by nearest pool ramp; pairs by ramp), "
-         f"{N_REPS} reps.", "", "## Counts", ""]
+         f"{N_REPS} reps. Chance floors: swap null = the image's detections replaced by an "
+         f"unrelated positive image's, {res['config']['n_null']} draws, mean (p5-p95 over "
+         "draws); mirror null = candidate ramp bearings mirrored about the camera heading; "
+         "pano rotation null = detections rotated 90/180/270 deg. 'Above chance' = real minus "
+         "the per-pair swap-null mean, paired cluster bootstrap.", "", "## Counts", ""]
     for k, v in res["counts"].items():
         L.append(f"- {k}: {v}")
     L += ["", "## Image level", "",
-          "| arm @ thr | presence recall | localized recall | fire rate, pool-negative | "
-          "dets / image | matched fraction |", "|---|---|---|---|---|---|"]
+          "| arm @ thr | presence recall | localized recall | localized, swap null | "
+          "localized, above chance | fire rate, pool-negative | dets / image | "
+          "matched fraction |", "|---|---|---|---|---|---|---|---|"]
     for a in arms:
         for thr in THRESHOLDS:
             e = res["presence"][f"{a}@{thr}"]
             L.append(f"| {a} @ {thr} | {fmt_ci(e['presence_recall'])} | "
-                     f"{fmt_ci(e['localized_recall'])} | {fmt_ci(e['fire_rate_pool_negative'])} | "
+                     f"{fmt_ci(e['localized_recall'])} | "
+                     f"{fmt_null(e.get('localized_recall_null_swap'))} | "
+                     f"{fmt_ci(e['localized_recall_above_swap']) if e.get('localized_recall_above_swap') else 'n/a'} | "
+                     f"{fmt_ci(e['fire_rate_pool_negative'])} | "
                      f"{e['dets_per_image_all']:.2f} | {e['matched_frac_of_dets']:.3f} |")
     L += ["", "## Point hits (in-view image-ramp pairs)", "",
-          "| arm @ thr | bearing test | bearing, 10 m lateral | world 1.5 m | world 2.6 m | "
+          "| arm @ thr | bearing test | bearing, 10 m lateral | bearing, no height gate | "
+          "world 1.5 m | world 2.6 m | "
           + " | ".join(f"bearing {lo:g}-{hi:g} m" for lo, hi in RANGE_BINS) + " |",
-          "|---|---|---|---|---|" + "---|" * len(RANGE_BINS)]
+          "|---|---|---|---|---|---|" + "---|" * len(RANGE_BINS)]
     for a in arms:
         for thr in THRESHOLDS:
             e = res["points"][f"{a}@{thr}"]
             L.append(f"| {a} @ {thr} | {fmt_ci(e['hit_bearing'])} | "
-                     f"{fmt_ci(e['hit_bearing_loose'])} | "
+                     f"{fmt_ci(e['hit_bearing_loose'])} | {fmt_ci(e['hit_bearing_no_hgate'])} | "
                      f"{fmt_ci(e['hit_world_1.5'])} | {fmt_ci(e['hit_world_2.6'])} | "
                      + " | ".join(f"{fmt_ci(e[f'hit_bearing[{lo:g}-{hi:g}]'])} "
                                   f"(n={e[f'hit_bearing[{lo:g}-{hi:g}]'][3]})"
                                   for lo, hi in RANGE_BINS) + " |")
+    if res["config"]["n_null"]:
+        L += ["", "## Chance floor of the bearing tests (point hits)", "",
+              "| arm @ thr | test | real | swap null (p5-p95) | mirror null | above chance "
+              "(real - swap null) |", "|---|---|---|---|---|---|"]
+        for a in arms:
+            for thr in THRESHOLDS:
+                e = res["points"][f"{a}@{thr}"]
+                for t in NULL_TESTS:
+                    L.append(f"| {a} @ {thr} | {t} | {e[t][0]:.3f} | "
+                             f"{fmt_null(e[f'{t}__null_swap'])} | {e[f'{t}__null_mirror']:.3f} | "
+                             f"{fmt_ci(e[f'{t}__above_swap'])} |")
+        L += ["", "By range (bearing test):", "",
+              "| arm @ thr | " + " | ".join(f"{lo:g}-{hi:g} m: real / swap null / above"
+                                            for lo, hi in RANGE_BINS) + " |",
+              "|---|" + "---|" * len(RANGE_BINS)]
+        for a in arms:
+            for thr in THRESHOLDS:
+                e = res["points"][f"{a}@{thr}"]
+                cells = []
+                for lo, hi in RANGE_BINS:
+                    b = f"hit_bearing[{lo:g}-{hi:g}]"
+                    cells.append(f"{e[b][0]:.3f} (n={e[b][3]}) / {fmt_null(e[b + '__null_swap'])}"
+                                 f" / {fmt_ci(e[b + '__above_swap'])}")
+                L.append(f"| {a} @ {thr} | " + " | ".join(cells) + " |")
     L += ["", "## 360 pano reference (world test, non-source captures, 3-18 m)", ""]
     for scope, e in res["pano_reference"].items():
         if scope.startswith("test_check"):
             L.append(f"- {scope} (same captures, both tests): {e['n_captures']} captures of "
                      f"{e['n_ramps']} ramps; bearing test {fmt_ci(e['bearing_test'])}, world "
                      f"test {fmt_ci(e['world_test'])}, per-capture agreement {e['agree']}")
+            if "bearing_null_rotation" in e:
+                L.append(f"  - bearing test, rotation null: {e['bearing_null_rotation']}; "
+                         f"above chance {fmt_ci(e['bearing_above_rotation'])}")
+            continue
+        if scope.startswith("range_mix"):
+            L.append(f"- {scope}: flat pairs by bin {e['flat_pairs_by_bin']}, pano captures of "
+                     f"the same ramps by bin {e['pano_captures_by_bin']} (median range "
+                     f"{e['flat_median_range']} vs {e['pano_median_range']} m); pano bearing "
+                     f"by bin {e['pano_bearing_by_bin']}; unweighted "
+                     f"{e['pano_bearing_unweighted']}, re-weighted to the flat range mix "
+                     f"{e['pano_bearing_reweighted_to_flat_mix']}")
             continue
         L.append(f"- {scope}: {e['n_captures']} captures of {e['n_ramps']} ramps")
         for thr in THRESHOLDS:
@@ -984,9 +1335,36 @@ def markdown(res, arms):
     for k, e in res["paired"].items():
         L.append(f"- {k}: " + "; ".join(f"{m} {fmt_ci(v) if isinstance(v, list) else v}"
                                          for m, v in e.items()))
-    L += ["", "## Camera height implied by bearing-matched detections @ 0.3 (range x tan depression)", ""]
+    L += ["", "## Camera height implied by bearing-matched detections @ 0.3 (range x tan depression)",
+          "", "Real matches include chance matches (see the swap null row); a chance match's "
+          "depression is arbitrary inside the 0.5-4 m gate.", ""]
     for a, e in res.get("implied_height", {}).items():
-        L.append(f"- {a}: n={e['n']}, p10/p50/p90 = {e['p10_p50_p90']} m")
+        L.append(f"- {a}: n={e['n']}, p10/p50/p90 = {e['p10_p50_p90']} m; "
+                 f"{e.get('n_sequences')} sequences, {e.get('sequences_median_below_2.2m')} with "
+                 f"a median below 2.2 m; swap null: {e.get('null_swap')}")
+        for c, x in (e.get("by_camera") or {}).items():
+            L.append(f"  - {c}: {x['n_matches']} matches in {x['n_sequences']} sequences, "
+                     f"h p50 {x['h_p50']} m; on positive images {x['n_matches_positive_images']}"
+                     f" matches vs {x['null_matches_per_draw']} per swap-null draw (null h p50 "
+                     f"{x['null_h_p50']} m)")
+    if "angular_scale" in res:
+        sc = res["angular_scale"]
+        L += ["", "## Angular sampling by camera model (cameras with >= 10 images)", "",
+              f"Canvas: {sc['canvas_px_per_deg']} px/deg everywhere. Stretch, all images: "
+              f"px/deg across p10/p50/p90 {sc['all']['stretch_px_per_deg_x_p10_p50_p90']}, down "
+              f"{sc['all']['stretch_px_per_deg_y_p10_p50_p90']}.", "",
+              "| camera | images | HFOV p50 | thumbnail px/deg at centre | edge / centre "
+              "sampling (canvas extra downsampling at the side edge) | edge not invertible | "
+              "stretch px/deg across | stretch px/deg down |", "|---|---|---|---|---|---|---|---|"]
+        for c, x in sc["by_camera"].items():
+            L.append(f"| {c} | {x['n_images']} | {x['hfov_p50']} | "
+                     f"{x['thumb_centre_px_per_deg_p50']} | {x['edge_over_centre_p50']} | "
+                     f"{x['edge_not_invertible']} | {x['stretch_px_per_deg_x_p50']} | "
+                     f"{x['stretch_px_per_deg_y_p50']} |")
+    if "geometry_checks" in res:
+        L += ["", "## Geometry checks", ""]
+        for a, e in res["geometry_checks"].items():
+            L.append(f"- {a}: {e}")
     L += ["", "## Peaks in the canvas fill (dropped)", ""]
     for a, e in res["fill_peaks"].items():
         L.append(f"- {a}: {e}")
@@ -1146,6 +1524,8 @@ def main(argv=None):
     s.add_argument("--arms", default="canvas_level,canvas_sfm,stretch")
     s.add_argument("--dets-dir", default=None, help="default analysis_out/perspective_photos_218")
     s.add_argument("--results-dir", default=None, help="default analysis_out/perspective_photos_218")
+    s.add_argument("--n-null", type=int, default=N_NULL,
+                   help="swap-null draws for the chance floor (0 skips every null)")
     mg = sub.add_parser("merge")
     mg.add_argument("--arms", default="canvas_level,canvas_sfm,stretch")
     mg.add_argument("--out", default=None)
