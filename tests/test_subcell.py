@@ -114,3 +114,29 @@ def test_offsets_are_clamped():
 def test_unknown_method_raises():
     with pytest.raises(ValueError):
         sc.refine_offset(np.ones((3, 3)), "nope")
+
+
+def test_climb_crosses_the_seam_when_wrapping():
+    """With wrap_x the coarse maximum can sit across the seam; climb must follow it there
+    rather than leave the offset saturated at the clamp (#226 review, N5)."""
+    W, cx = 16, 15.6                                    # nearest coarse column is 0
+    yy, xx = np.mgrid[0:8, 0:W]
+    d = (xx - cx + W / 2) % W - W / 2                   # periodic distance in x
+    c = 0.9 * np.exp(-((yy - 4) ** 2 + d ** 2) / (2 * 1.25 ** 2))
+    h = sc.upsample(c)
+    pk = [[8 * 4 + 3, 8 * 15 + 4]]                      # on-grid, in the cell left of the max
+    x = sc.refine_peaks(h, pk, "gaussian", coarse=c, wrap_x=True)[0, 0] * h.shape[1]
+    want = (8 * cx + 3.5) % h.shape[1]                  # 0.3 px, just right of the seam
+    assert np.isclose(x, want, atol=1e-6)
+    assert sc.climb(c, 4, 15, wrap_x=True)[:2] == (4, 0)
+    assert sc.climb(c, 4, 15)[:2] == (4, 15)            # no wrap: stays at the edge
+
+
+def test_gaussian_falls_back_to_parabola_on_nonpositive_values():
+    """The head output is not clamped; log of a clamped <= 0 value would saturate the
+    offset (#226 review, N6)."""
+    n = np.array([[0.2, 0.5, 0.2], [-0.05, 1.0, 0.6], [0.2, 0.4, 0.2]])
+    dxp = sc.refine_offset(n, "parabola")[1]
+    assert sc.refine_offset(n, "gaussian")[1] == pytest.approx(dxp)
+    assert abs(dxp) < sc.MAX_OFFSET
+    assert sc.refine_offset(n, "dark") == pytest.approx(sc.refine_offset(n, "gaussian"))

@@ -140,33 +140,58 @@ def neighbourhood(coarse, i, j, wrap_x=False):
     return out
 
 
-def climb(coarse, i, j):
+def climb(coarse, i, j, wrap_x=False):
     """Move ``(i, j)`` to the maximum of its 3x3 coarse neighbourhood, repeatedly.
 
-    ``peak_local_max`` runs on ``clip(h, 0, 1)``, so a peak above 1 is a clipped plateau
-    and the returned pixel need not flank the coarse maximum. Climbing re-anchors it.
-    Returns the new ``(i, j)`` and the number of steps taken.
+    What it is for, as measured on the #221 extraction (``detections.json``): each hi-res
+    pixel of a bilinear surface mixes four coarse values, so a strong *diagonal*
+    neighbour can pull the integer argmax into the cell next to the true coarse maximum.
+    ``peak_local_max`` then returns an on-grid pixel (``8i+3``/``8i+4``) in the wrong cell,
+    and ``row // 8, col // 8`` is not the coarse maximum. Climbing re-anchors it. That
+    happened to 48 of 5,100 peaks >= 0.30 (39 of 3,868 on manual_gold), every one of
+    them on-grid with score <= 1.
+
+    It is *not* what fixes clipped plateaus in that data. ``peak_local_max`` runs on
+    ``clip(h, 0, 1)``, so a peak above 1 returns an arbitrary pixel of a flat top, but in
+    all 187 such peaks that pixel was already in the coarse-max cell (0 climbed). The
+    left-edge plateau (hi-res columns 0-3 all equal coarse column 0) is handled by the
+    NaN edge neighbour in :func:`neighbourhood`, not by climbing. Climbing is still the
+    safe general rule for both: it only ever moves to a strictly higher coarse value.
+
+    ``wrap_x`` must match the one used for :func:`neighbourhood`: with the seam wrapped,
+    the coarse maximum can be across it, and the offset would otherwise saturate at the
+    clamp. Returns the new ``(i, j)`` and the number of steps taken.
     """
     c = np.asarray(coarse)
     H, W = c.shape
     steps = 0
     while steps < max(H, W):
-        n = neighbourhood(c, i, j)
+        n = neighbourhood(c, i, j, wrap_x)
         a, b = np.unravel_index(np.nanargmax(n), n.shape)
         if (a, b) == (1, 1) or n[a, b] <= c[i, j]:
             return i, j, steps
         i, j, steps = i + a - 1, j + b - 1, steps + 1
+        if wrap_x:
+            j %= W
     return i, j, steps
 
 
 def _axis(lo, mid, hi, method):
-    """1-D offset in cells from three values along one axis (NaN-safe)."""
+    """1-D offset in cells from three values along one axis (NaN-safe).
+
+    ``gaussian`` falls back to ``parabola`` when any of the three values is <= 0: the head
+    output is not clamped, and the log of a clamped non-positive value would drive the
+    offset to the +/-0.5 clamp. (Never triggered on the #221 data, whose smallest axis
+    neighbour of a peak >= 0.30 is 0.009, but the labeler runs on many more cities.)
+    """
     if not (np.isfinite(lo) and np.isfinite(hi)):
         return 0.0
     if method == "quarter":
         return 0.25 * float(np.sign(hi - lo))
     if method == "gaussian":
-        lo, mid, hi = (np.log(max(v, _EPS)) for v in (lo, mid, hi))
+        if min(lo, mid, hi) <= 0:
+            return _axis(lo, mid, hi, "parabola")
+        lo, mid, hi = (np.log(v) for v in (lo, mid, hi))
     elif method != "parabola":
         raise ValueError(method)
     den = lo - 2.0 * mid + hi
@@ -188,6 +213,8 @@ def refine_offset(n, method):
         dy = _axis(n[0, 1], n[1, 1], n[2, 1], method)
         dx = _axis(n[1, 0], n[1, 1], n[1, 2], method)
     elif method == "dark":
+        if np.any(n[np.isfinite(n)] <= 0):     # log undefined: per-axis rule instead
+            return refine_offset(n, "gaussian")
         L = np.log(np.maximum(np.where(np.isfinite(n), n, _EPS), _EPS))
         if not (np.isfinite(n[0, 1]) and np.isfinite(n[2, 1])
                 and np.isfinite(n[1, 0]) and np.isfinite(n[1, 2])):
@@ -239,7 +266,7 @@ def refine_peaks(heatmap, peaks, method="gaussian", factor=FACTOR, coarse=None,
     half = (factor - 1) / 2.0
     for k, (r, c) in enumerate(peaks):
         i, j = coarse_cell(r, c, factor)
-        i, j, _ = climb(coarse, i, j)
+        i, j, _ = climb(coarse, i, j, wrap_x)
         dy, dx = refine_offset(neighbourhood(coarse, i, j, wrap_x), method)
         x = (factor * (j + dx) + half) % W
         y = factor * (i + dy) + half
