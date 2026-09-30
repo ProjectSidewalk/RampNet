@@ -116,6 +116,41 @@ def test_verify_imagery_flags_changed_and_missing(tmp_path, monkeypatch):
     assert r["status"] == "ok"
 
 
+def test_provenance_comes_from_the_detections_file(tmp_path):
+    """Re-review N11: pinned constants only for the committed pre-fix file."""
+    other = str(tmp_path / "d.json")
+    assert sd.provenance({}, other)["model_revision_as_run"] is None
+    meta = {"model_revision": "abc", "model_weights_sha256": "def", "panos_root": "/p",
+            "imagery_check": {"manual_gold": {"status": "ok", "panos": 2, "match": 2}}}
+    p = sd.provenance(meta, other)
+    assert (p["model_revision_as_run"], p["imagery_check"]["status"]) == ("abc", "ok")
+    assert p["imagery_check"]["panos_root"] == "/p"
+    if os.path.exists(sd.IMAGERY_CHECK):
+        c = sd.provenance({}, sd.DETS)
+        assert c["model_revision_as_run"] == sd.MODEL_REVISION
+        assert c["imagery_check"]["status"] == "ok"
+
+
+def test_compare_results_ignores_provenance_only():
+    a = {"inputs": {"detections": "x"}, "splits": {"m": {"mean": 1.0, "n": 3, "h": [1, 2]}}}
+    b = {"inputs": {"detections": "y"}, "splits": {"m": {"mean": 1.0, "n": 3, "h": [1, 2]}}}
+    assert sd.compare_results(a, b) == ([], [])
+    b["splits"]["m"]["mean"] = 1.001
+    assert sd.compare_results(a, b)[0] == [("/splits/m/mean", 1.0, 1.001)]
+    assert sd.compare_results(a, b, tol=0.01) == ([], [])
+
+
+@needs_outputs
+def test_variance_decomposition_sums():
+    """Re-review N10: removed = var(shift) + 2 cov(residual, shift), exactly."""
+    with open(RESULTS, encoding="utf-8") as f:
+        q = json.load(f)["splits"]["manual_gold"]["quantization_variance"]
+    for ax in ("x", "y"):
+        a = q[ax]
+        assert a["var_shift_px2"] + a["two_cov_resid_shift_px2"] == pytest.approx(
+            a["removed_vs_argmax_px2"], abs=3e-4)
+
+
 def test_border_band():
     assert sd.in_border_band(0, 500) and sd.in_border_band(300, 1015)
     assert not sd.in_border_band(300, 500)

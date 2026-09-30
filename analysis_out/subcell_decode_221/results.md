@@ -75,6 +75,8 @@ Variance removed by `gaussian` (bias-removed SDs, px^2). Models: centre snap 5.3
 | x | 25.46 | 27.16 | 22.04 | 1.70 | 3.42 | 95% | 5.12 | 96% |
 | y | 10.62 | 12.30 | 6.88 | 1.68 | 3.74 | 104% | 5.42 | 102% |
 
+Removed = var(shift) + 2 cov(gaussian residual, shift), where shift = gaussian - argmax position: x 3.505 -0.086 = 3.419; y 3.910 -0.170 = 3.740 px^2.
+
 Climbed pairs (peak re-anchored to a neighbouring coarse cell): 34, mean residual argmax 5.34 px -> gaussian 4.31 px.
 
 y profile by band (argmax row, hi-res px, [lo, hi)):
@@ -138,6 +140,8 @@ Variance removed by `gaussian` (bias-removed SDs, px^2). Models: centre snap 5.3
 | x | 55.96 | 56.36 | 56.75 | 0.41 | -0.79 | -22% | -0.39 | -7% |
 | y | 12.38 | 13.60 | 9.55 | 1.22 | 2.83 | 79% | 4.05 | 76% |
 
+Removed = var(shift) + 2 cov(gaussian residual, shift), where shift = gaussian - argmax position: x 3.499 -4.292 = -0.793; y 3.030 -0.196 = 2.834 px^2.
+
 Position mod 8 (hi-res px, bins 0..7):
 
 - x argmax: [0, 0, 0, 41, 61, 0, 0, 0]
@@ -179,6 +183,8 @@ Variance removed by `gaussian` (bias-removed SDs, px^2). Models: centre snap 5.3
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | x | 30.03 | 32.38 | 25.25 | 2.35 | 4.77 | 133% | 7.13 | 134% |
 | y | 9.84 | 11.56 | 6.38 | 1.72 | 3.46 | 97% | 5.19 | 97% |
+
+Removed = var(shift) + 2 cov(gaussian residual, shift), where shift = gaussian - argmax position: x 3.248 +1.526 = 4.774; y 4.274 -0.809 = 3.465 px^2.
 
 Climbed pairs (peak re-anchored to a neighbouring coarse cell): 1, mean residual argmax 6.30 px -> gaussian 6.32 px.
 
@@ -224,6 +230,8 @@ Variance removed by `gaussian` (bias-removed SDs, px^2). Models: centre snap 5.3
 | x | 34.92 | 35.97 | 30.47 | 1.05 | 4.45 | 124% | 5.50 | 103% |
 | y | 9.41 | 11.04 | 6.44 | 1.63 | 2.97 | 83% | 4.60 | 86% |
 
+Removed = var(shift) + 2 cov(gaussian residual, shift), where shift = gaussian - argmax position: x 3.662 +0.786 = 4.448; y 3.893 -0.926 = 2.967 px^2.
+
 Climbed pairs (peak re-anchored to a neighbouring coarse cell): 2, mean residual argmax 12.49 px -> gaussian 10.41 px.
 
 Position mod 8 (hi-res px, bins 0..7):
@@ -268,6 +276,8 @@ Variance removed by `gaussian` (bias-removed SDs, px^2). Models: centre snap 5.3
 | x | 37.69 | 39.23 | 34.36 | 1.54 | 3.33 | 93% | 4.87 | 91% |
 | y | 9.81 | 11.35 | 6.04 | 1.54 | 3.78 | 105% | 5.32 | 100% |
 
+Removed = var(shift) + 2 cov(gaussian residual, shift), where shift = gaussian - argmax position: x 3.035 +0.291 = 3.326; y 3.390 +0.388 = 3.778 px^2.
+
 Climbed pairs (peak re-anchored to a neighbouring coarse cell): 3, mean residual argmax 4.32 px -> gaussian 2.09 px.
 
 Position mod 8 (hi-res px, bins 0..7):
@@ -310,6 +320,8 @@ Variance removed by `gaussian` (bias-removed SDs, px^2). Models: centre snap 5.3
 | x | 39.37 | 40.57 | 35.98 | 1.20 | 3.39 | 94% | 4.59 | 86% |
 | y | 10.24 | 11.84 | 7.08 | 1.60 | 3.16 | 88% | 4.76 | 89% |
 
+Removed = var(shift) + 2 cov(gaussian residual, shift), where shift = gaussian - argmax position: x 3.459 -0.073 = 3.386; y 3.734 -0.574 = 3.160 px^2.
+
 Position mod 8 (hi-res px, bins 0..7):
 
 - x argmax: [1, 0, 0, 222, 303, 0, 0, 0]
@@ -349,6 +361,8 @@ Variance removed by `gaussian` (bias-removed SDs, px^2). Models: centre snap 5.3
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | x | 27.28 | 28.92 | 23.86 | 1.64 | 3.42 | 95% | 5.07 | 95% |
 | y | 10.97 | 12.64 | 7.32 | 1.67 | 3.65 | 102% | 5.32 | 100% |
+
+Removed = var(shift) + 2 cov(gaussian residual, shift), where shift = gaussian - argmax position: x 3.501 -0.080 = 3.421; y 3.888 -0.239 = 3.648 px^2.
 
 Position mod 8 (hi-res px, bins 0..7):
 

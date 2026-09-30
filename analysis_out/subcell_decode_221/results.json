@@ -125,7 +125,8 @@
    "status": "ok"
   },
   "model_revision_as_run": "606a11956743f7eb328d9207769034752f6191f4",
-  "model_weights_sha256": "f2119e3becb0b551fa1470f7b7ba85b82122a3f73a6ed2a85609dd57617866b5"
+  "model_weights_sha256": "f2119e3becb0b551fa1470f7b7ba85b82122a3f73a6ed2a85609dd57617866b5",
+  "provenance_source": "pinned constants (pre-fix committed file)"
  },
  "instrument_check": {
   "annapolis": {
@@ -475,9 +476,11 @@
      "removed_frac_of_centre_model": -0.0724,
      "removed_vs_argmax_px2": -0.7927,
      "removed_vs_centre_px2": -0.3863,
+     "two_cov_resid_shift_px2": -4.292,
      "var_argmax_px2": 55.9579,
      "var_centre_px2": 56.3643,
-     "var_gaussian_px2": 56.7506
+     "var_gaussian_px2": 56.7506,
+     "var_shift_px2": 3.4993
     },
     "y": {
      "measured_centre_minus_argmax_px2": 1.2186,
@@ -485,9 +488,11 @@
      "removed_frac_of_centre_model": 0.76,
      "removed_vs_argmax_px2": 2.8345,
      "removed_vs_centre_px2": 4.0531,
+     "two_cov_resid_shift_px2": -0.1957,
      "var_argmax_px2": 12.3843,
      "var_centre_px2": 13.6029,
-     "var_gaussian_px2": 9.5498
+     "var_gaussian_px2": 9.5498,
+     "var_shift_px2": 3.0302
     }
    },
    "subcell_fit": {
@@ -931,9 +936,11 @@
      "removed_frac_of_centre_model": 0.9601,
      "removed_vs_argmax_px2": 3.4186,
      "removed_vs_centre_px2": 5.1205,
+     "two_cov_resid_shift_px2": -0.0862,
      "var_argmax_px2": 25.4613,
      "var_centre_px2": 27.1632,
-     "var_gaussian_px2": 22.0427
+     "var_gaussian_px2": 22.0427,
+     "var_shift_px2": 3.5048
     },
     "y": {
      "measured_centre_minus_argmax_px2": 1.6832,
@@ -941,9 +948,11 @@
      "removed_frac_of_centre_model": 1.017,
      "removed_vs_argmax_px2": 3.7406,
      "removed_vs_centre_px2": 5.4238,
+     "two_cov_resid_shift_px2": -0.1699,
      "var_argmax_px2": 10.6186,
      "var_centre_px2": 12.3018,
-     "var_gaussian_px2": 6.878
+     "var_gaussian_px2": 6.878,
+     "var_shift_px2": 3.9104
     }
    },
    "subcell_fit": {
@@ -1517,9 +1526,11 @@
      "removed_frac_of_centre_model": 1.3364,
      "removed_vs_argmax_px2": 4.7743,
      "removed_vs_centre_px2": 7.1277,
+     "two_cov_resid_shift_px2": 1.5259,
      "var_argmax_px2": 30.0268,
      "var_centre_px2": 32.3802,
-     "var_gaussian_px2": 25.2525
+     "var_gaussian_px2": 25.2525,
+     "var_shift_px2": 3.2484
     },
     "y": {
      "measured_centre_minus_argmax_px2": 1.7204,
@@ -1527,9 +1538,11 @@
      "removed_frac_of_centre_model": 0.9722,
      "removed_vs_argmax_px2": 3.4649,
      "removed_vs_centre_px2": 5.1853,
+     "two_cov_resid_shift_px2": -0.8088,
      "var_argmax_px2": 9.8444,
      "var_centre_px2": 11.5648,
-     "var_gaussian_px2": 6.3796
+     "var_gaussian_px2": 6.3796,
+     "var_shift_px2": 4.2737
     }
    },
    "subcell_fit": {
@@ -1966,9 +1979,11 @@
      "removed_frac_of_centre_model": 0.9497,
      "removed_vs_argmax_px2": 3.4213,
      "removed_vs_centre_px2": 5.0653,
+     "two_cov_resid_shift_px2": -0.0798,
      "var_argmax_px2": 27.2796,
      "var_centre_px2": 28.9236,
-     "var_gaussian_px2": 23.8583
+     "var_gaussian_px2": 23.8583,
+     "var_shift_px2": 3.5011
     },
     "y": {
      "measured_centre_minus_argmax_px2": 1.6721,
@@ -1976,9 +1991,11 @@
      "removed_frac_of_centre_model": 0.9975,
      "removed_vs_argmax_px2": 3.6481,
      "removed_vs_centre_px2": 5.3202,
+     "two_cov_resid_shift_px2": -0.2395,
      "var_argmax_px2": 10.9693,
      "var_centre_px2": 12.6414,
-     "var_gaussian_px2": 7.3212
+     "var_gaussian_px2": 7.3212,
+     "var_shift_px2": 3.8876
     }
    },
    "subcell_fit": {
@@ -2411,9 +2428,11 @@
      "removed_frac_of_centre_model": 0.8607,
      "removed_vs_argmax_px2": 3.3859,
      "removed_vs_centre_px2": 4.5903,
+     "two_cov_resid_shift_px2": -0.0732,
      "var_argmax_px2": 39.3652,
      "var_centre_px2": 40.5695,
-     "var_gaussian_px2": 35.9792
+     "var_gaussian_px2": 35.9792,
+     "var_shift_px2": 3.4591
     },
     "y": {
      "measured_centre_minus_argmax_px2": 1.6016,
@@ -2421,9 +2440,11 @@
      "removed_frac_of_centre_model": 0.8928,
      "removed_vs_argmax_px2": 3.1598,
      "removed_vs_centre_px2": 4.7613,
+     "two_cov_resid_shift_px2": -0.574,
      "var_argmax_px2": 10.2354,
      "var_centre_px2": 11.837,
-     "var_gaussian_px2": 7.0757
+     "var_gaussian_px2": 7.0757,
+     "var_shift_px2": 3.7337
     }
    },
    "subcell_fit": {
@@ -2863,9 +2884,11 @@
      "removed_frac_of_centre_model": 1.0315,
      "removed_vs_argmax_px2": 4.4483,
      "removed_vs_centre_px2": 5.5011,
+     "two_cov_resid_shift_px2": 0.7862,
      "var_argmax_px2": 34.921,
      "var_centre_px2": 35.9738,
-     "var_gaussian_px2": 30.4727
+     "var_gaussian_px2": 30.4727,
+     "var_shift_px2": 3.6621
     },
     "y": {
      "measured_centre_minus_argmax_px2": 1.6349,
@@ -2873,9 +2896,11 @@
      "removed_frac_of_centre_model": 0.8628,
      "removed_vs_argmax_px2": 2.9669,
      "removed_vs_centre_px2": 4.6017,
+     "two_cov_resid_shift_px2": -0.9264,
      "var_argmax_px2": 9.4058,
      "var_centre_px2": 11.0407,
-     "var_gaussian_px2": 6.4389
+     "var_gaussian_px2": 6.4389,
+     "var_shift_px2": 3.8933
     }
    },
    "subcell_fit": {
@@ -3319,9 +3344,11 @@
      "removed_frac_of_centre_model": 0.9126,
      "removed_vs_argmax_px2": 3.3264,
      "removed_vs_centre_px2": 4.8672,
+     "two_cov_resid_shift_px2": 0.291,
      "var_argmax_px2": 37.6855,
      "var_centre_px2": 39.2263,
-     "var_gaussian_px2": 34.3591
+     "var_gaussian_px2": 34.3591,
+     "var_shift_px2": 3.0353
     },
     "y": {
      "measured_centre_minus_argmax_px2": 1.5394,
@@ -3329,9 +3356,11 @@
      "removed_frac_of_centre_model": 0.997,
      "removed_vs_argmax_px2": 3.7779,
      "removed_vs_centre_px2": 5.3173,
+     "two_cov_resid_shift_px2": 0.388,
      "var_argmax_px2": 9.8134,
      "var_centre_px2": 11.3528,
-     "var_gaussian_px2": 6.0354
+     "var_gaussian_px2": 6.0354,
+     "var_shift_px2": 3.39
     }
    },
    "subcell_fit": {

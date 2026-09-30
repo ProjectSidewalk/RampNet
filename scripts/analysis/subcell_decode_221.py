@@ -20,18 +20,27 @@ Three subcommands:
     # the GPU host's clone is not the ledger's home).
     # The committed detections.json was made with (from /homes/gws/jonf/wt-subcell221
     # on makelab2, panos from Jon's makelab checkout, model at Hub main = MODEL_REVISION):
+    # (--out and --usage-out were defaults then and are required now; these are the paths
+    # it wrote.)
     python scripts/analysis/subcell_decode_221.py extract \
-        --panos-root /homes/gws/jonf/RampNet --cache-dir /homes/gws/jonf/subcell221_cache
+        --panos-root /homes/gws/jonf/RampNet --cache-dir /homes/gws/jonf/subcell221_cache \
+        --out analysis_out/subcell_decode_221/detections.json \
+        --usage-out analysis_out/subcell_decode_221/usage_row.json
 
     # CPU: sha256 every pano the extraction reads against the committed
     # benchmark/<split>/imagery_manifest.json, and write imagery_check.json. extract also
     # runs this and records the result in detections.json's meta (runs after 2026-09-30).
     python scripts/analysis/subcell_decode_221.py verify-imagery \
-        --panos-root /homes/gws/jonf/RampNet
+        --panos-root /homes/gws/jonf/RampNet \
+        --out analysis_out/subcell_decode_221/imagery_check.json
 
     # CPU, no model, no images: decode every committed neighbourhood with
     # rampnet.subcell, match to GT, and write results.json + results.md.
     python scripts/analysis/subcell_decode_221.py report
+
+    # A replication compares its own report against the committed one, numbers only:
+    python scripts/analysis/subcell_decode_221.py compare \
+        analysis_out/subcell_decode_221/results.json /tmp/sc221/results.json
 
 Ground truth:
 
@@ -284,6 +293,7 @@ def cmd_extract(args):
     splits = splits_req
     out = {"meta": {"model": MODEL_REPO, "model_revision": model_commit,
                     "model_weights_sha256": weights_sha,
+                    "panos_root": args.panos_root,
                     "imagery_check": {s: {k: r.get(k) for k in
                                           ("status", "panos", "match", "digest_of_panos_read")}
                                       for s, r in imagery["splits"].items()},
@@ -573,7 +583,47 @@ def floor_read(recs, gts, wrap_x, rng, n_reps):
     return out
 
 
-def build_report(dets_path=DETS, wrap_x=False, n_reps=N_REPS, y_bands=Y_BANDS):
+def provenance(meta, dets_path, imagery_check=None):
+    """Model revision, weights hash and imagery check for one detections file.
+
+    Read from the file's own ``meta`` when it records them (every extraction since the
+    #226 review). Only the committed pre-fix ``detections.json`` lacks them; for that file
+    the pinned constants and the committed ``imagery_check.json`` are used. Any other
+    input without them is reported as not recorded rather than stamped with ours.
+    ``imagery_check`` (a path) overrides the imagery source for either case."""
+    committed = os.path.abspath(dets_path) == os.path.abspath(DETS)
+    out = {"model_revision_as_run": meta.get("model_revision")
+           or (MODEL_REVISION if committed else None),
+           "model_weights_sha256": meta.get("model_weights_sha256")
+           or (MODEL_WEIGHTS_SHA256 if committed else None),
+           "provenance_source": ("detections meta" if meta.get("model_revision")
+                                 else "pinned constants (pre-fix committed file)"
+                                 if committed else "not recorded")}
+    path = imagery_check or (IMAGERY_CHECK if committed and "imagery_check" not in meta
+                             else None)
+    if path:
+        with open(path, encoding="utf-8") as f:
+            ic = json.load(f)
+        try:
+            shown = os.path.relpath(path, REPO).replace(os.sep, "/")
+        except ValueError:
+            shown = path
+        out["imagery_check"] = {
+            "file": shown, "status": ic["status"], "panos_root": ic["panos_root"],
+            "splits": {s: {"status": r["status"], "match": r.get("match"),
+                           "panos": r["panos"]} for s, r in ic["splits"].items()}}
+    elif "imagery_check" in meta:
+        sp = meta["imagery_check"]
+        out["imagery_check"] = {
+            "file": "detections meta", "panos_root": meta.get("panos_root"),
+            "status": "ok" if all(r.get("status") == "ok" for r in sp.values()) else "MISMATCH",
+            "splits": {s: {"status": r.get("status"), "match": r.get("match"),
+                           "panos": r.get("panos")} for s, r in sp.items()}}
+    return out
+
+
+def build_report(dets_path=DETS, wrap_x=False, n_reps=N_REPS, y_bands=Y_BANDS,
+                 imagery_check=None):
     with open(dets_path, encoding="utf-8") as f:
         D = json.load(f)
     rsq = radius_sq_for()
@@ -589,16 +639,7 @@ def build_report(dets_path=DETS, wrap_x=False, n_reps=N_REPS, y_bands=Y_BANDS):
                         "bootstrap": f"pano-cluster, {n_reps} reps, seed {SEED}",
                         "deg_per_px": DEG_PER_PX, "y_bands": list(y_bands)},
            "mechanism": {}, "instrument_check": {}, "splits": {}}
-    if os.path.exists(IMAGERY_CHECK):
-        with open(IMAGERY_CHECK, encoding="utf-8") as f:
-            ic = json.load(f)
-        rep["inputs"]["imagery_check"] = {
-            "file": os.path.relpath(IMAGERY_CHECK, REPO).replace(os.sep, "/"),
-            "status": ic["status"], "panos_root": ic["panos_root"],
-            "splits": {s: {"status": r["status"], "match": r.get("match"),
-                           "panos": r["panos"]} for s, r in ic["splits"].items()}}
-    rep["inputs"]["model_revision_as_run"] = MODEL_REVISION
-    rep["inputs"]["model_weights_sha256"] = MODEL_WEIGHTS_SHA256
+    rep["inputs"].update(provenance(D.get("meta", {}), dets_path, imagery_check))
     recon = {}
     pooled_rows = {"boxes4": [], "all5": []}
     for split in SPLITS:
@@ -653,13 +694,13 @@ def build_report(dets_path=DETS, wrap_x=False, n_reps=N_REPS, y_bands=Y_BANDS):
             continue
         rows = build_pairs(recs, ground_truth(split), rsq)
         s = rep["splits"][split]
-        s["quantization_variance"] = quantization_variance(s["methods"])
+        s["quantization_variance"] = quantization_variance(s["methods"], rows, wrap_x)
         s["climbed_pairs"] = climbed_pairs(rows, wrap_x)
         if split == "manual_gold" and y_bands:
             s["y_profile"] = y_profile(rows, y_bands, wrap_x)
-    for name in pooled_rows:
+    for name, rows in pooled_rows.items():
         s = rep["splits"][f"pooled:{name}"]
-        s["quantization_variance"] = quantization_variance(s["methods"])
+        s["quantization_variance"] = quantization_variance(s["methods"], rows, wrap_x)
     rep = rnd(rep)
     for split, v in recon.items():
         rep["mechanism"][split].update({k: float(f"{x:.3g}") if isinstance(x, float) else x
@@ -667,14 +708,24 @@ def build_report(dets_path=DETS, wrap_x=False, n_reps=N_REPS, y_bands=Y_BANDS):
     return rep
 
 
-def quantization_variance(methods):
+def quantization_variance(methods, rows=None, wrap_x=False):
     """Per-axis variance removed by the Gaussian decode, against both quantization models.
 
     ``methods`` is a split's per-decode ``stats`` (SDs are bias-removed). The measured
     ``centre - argmax`` variance is the check on the argmax model: it predicts
-    ``QVAR_CENTRE - QVAR_ARGMAX`` = 1.75 px^2 per axis."""
+    ``QVAR_CENTRE - QVAR_ARGMAX`` = 1.75 px^2 per axis.
+
+    With ``rows``, the removed variance is also split into its two terms (re-review N10).
+    Let q = gaussian position - argmax position and e = GT - gaussian position. Then the
+    argmax residual is e + q, so removed = var(e + q) - var(e) = var(q) + 2 cov(e, q).
+    var(q) is how far the decode actually moves peaks; the covariance is small when the
+    decode's moves are uncorrelated with what it leaves behind."""
     out = {"model_centre_snap_px2": QVAR_CENTRE, "model_argmax_px2": QVAR_ARGMAX,
            "model_centre_minus_argmax_px2": QVAR_CENTRE - QVAR_ARGMAX}
+    dec = None
+    if rows:
+        ra, rg = residuals(rows, "argmax", wrap_x), residuals(rows, "gaussian", wrap_x)
+        dec = {"x": (rg[0], ra[0] - rg[0]), "y": (rg[1], ra[1] - rg[1])}
     for ax in ("x", "y"):
         v = {m: methods[m][f"sd_{ax}_px"] ** 2 for m in ("argmax", "centre", "gaussian")}
         removed = v["argmax"] - v["gaussian"]
@@ -685,6 +736,10 @@ def quantization_variance(methods):
                    "removed_frac_of_argmax_model": removed / QVAR_ARGMAX,
                    "removed_vs_centre_px2": v["centre"] - v["gaussian"],
                    "removed_frac_of_centre_model": (v["centre"] - v["gaussian"]) / QVAR_CENTRE}
+        if dec is not None:
+            e, q = dec[ax]
+            out[ax]["var_shift_px2"] = float(q.var())
+            out[ax]["two_cov_resid_shift_px2"] = float(2 * np.mean((e - e.mean()) * (q - q.mean())))
     return out
 
 
@@ -801,8 +856,10 @@ def markdown(rep):
          f"Pairs: {rep['protocol']['pairs']}; floor {rep['protocol']['floor']}; radius "
          f"{rep['protocol']['radius_normalized']}; bootstrap {rep['protocol']['bootstrap']}. "
          f"1 px = {DEG_PER_PX:.4f} deg on the 512x1024 grid.", "",
-         f"Model `{MODEL_REPO}` at commit `{rep['inputs']['model_revision_as_run'][:12]}` "
-         f"(weights sha256 `{rep['inputs']['model_weights_sha256'][:16]}`)."]
+         (f"Model `{MODEL_REPO}` at commit `{rep['inputs']['model_revision_as_run'][:12]}` "
+          f"(weights sha256 `{(rep['inputs']['model_weights_sha256'] or '?')[:16]}`)."
+          if rep["inputs"].get("model_revision_as_run") else
+          f"Model `{MODEL_REPO}`: revision not recorded in this detections file.")]
     ic = rep["inputs"].get("imagery_check")
     if ic:
         L.append(f"Imagery vs committed `imagery_manifest.json` (`{ic['file']}`, panos root "
@@ -907,6 +964,12 @@ def markdown(rep):
                          f"{a['removed_frac_of_argmax_model']:.0%} | "
                          f"{a['removed_vs_centre_px2']:.2f} | "
                          f"{a['removed_frac_of_centre_model']:.0%} |")
+            if "var_shift_px2" in q["x"]:
+                L += ["", "Removed = var(shift) + 2 cov(gaussian residual, shift), where shift "
+                      "= gaussian - argmax position: " + "; ".join(
+                          f"{ax} {q[ax]['var_shift_px2']:.3f} {q[ax]['two_cov_resid_shift_px2']:+.3f}"
+                          f" = {q[ax]['var_shift_px2'] + q[ax]['two_cov_resid_shift_px2']:.3f}"
+                          for ax in ("x", "y")) + " px^2."]
         cp = r.get("climbed_pairs")
         if cp and cp.get("pairs"):
             L += ["", f"Climbed pairs (peak re-anchored to a neighbouring coarse cell): "
@@ -946,9 +1009,17 @@ def markdown(rep):
     return "\n".join(L) + "\n"
 
 
+RESULTS = os.path.join(OUT_DIR, "results.json")
+
+
 def cmd_report(args):
+    if (os.path.abspath(args.detections) != os.path.abspath(DETS)
+            and os.path.abspath(args.out) == os.path.abspath(RESULTS)):
+        raise SystemExit("report --detections <other file> needs --out: the default would "
+                         "overwrite the committed results.json")
     bands = tuple(int(v) for v in args.y_bands.split(",") if v.strip())
-    rep = build_report(args.detections, wrap_x=args.wrap_x, n_reps=args.reps, y_bands=bands)
+    rep = build_report(args.detections, wrap_x=args.wrap_x, n_reps=args.reps, y_bands=bands,
+                       imagery_check=args.imagery_check)
     write_json(args.out, rep)
     md = os.path.splitext(args.out)[0] + ".md"
     with open(md, "w", encoding="utf-8", newline="") as f:
@@ -961,6 +1032,55 @@ def cmd_report(args):
     return 0
 
 
+#: Top-level keys allowed to differ between a replication and the committed results:
+#: file paths, hashes and provenance, never a measured number.
+PROVENANCE_KEYS = ("inputs",)
+
+
+def compare_results(a, b, tol=0.0, path=""):
+    """Differences between two results.json trees, ignoring ``PROVENANCE_KEYS`` at the
+    top level. Returns ``(numeric, other)``: numeric = [(path, a, b)] with
+    |a - b| > tol; other = [(path, a, b)] for missing keys and non-numeric mismatches."""
+    numeric, other = [], []
+    if isinstance(a, dict) and isinstance(b, dict):
+        for k in sorted(set(a) | set(b)):
+            if not path and k in PROVENANCE_KEYS:
+                continue
+            if k not in a or k not in b:
+                other.append((f"{path}/{k}", a.get(k, "<absent>"), b.get(k, "<absent>")))
+                continue
+            n, o = compare_results(a[k], b[k], tol, f"{path}/{k}")
+            numeric += n
+            other += o
+    elif isinstance(a, list) and isinstance(b, list) and len(a) == len(b):
+        for k, (x, y) in enumerate(zip(a, b)):
+            n, o = compare_results(x, y, tol, f"{path}[{k}]")
+            numeric += n
+            other += o
+    elif (isinstance(a, (int, float)) and isinstance(b, (int, float))
+          and not isinstance(a, bool) and not isinstance(b, bool)):
+        if abs(a - b) > tol:
+            numeric.append((path, a, b))
+    elif a != b:
+        other.append((path, a, b))
+    return numeric, other
+
+
+def cmd_compare(args):
+    with open(args.a, encoding="utf-8") as f:
+        a = json.load(f)
+    with open(args.b, encoding="utf-8") as f:
+        b = json.load(f)
+    numeric, other = compare_results(a, b, args.tol)
+    for p, x, y in other[:50]:
+        print(f"DIFF   {p}: {x!r} vs {y!r}")
+    for p, x, y in numeric[:50]:
+        print(f"NUMBER {p}: {x} vs {y} (|d| {abs(x - y):.3g})")
+    print(f"{len(numeric)} numbers differ by more than {args.tol}; {len(other)} other "
+          f"differences; top-level {', '.join(PROVENANCE_KEYS)} ignored")
+    return 0 if not (numeric or other) else 1
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -969,8 +1089,10 @@ def main(argv=None):
                    help="dir holding benchmark/<split>/panos/*.jpg")
     e.add_argument("--cache-dir", required=True, help="where the 64x128 coarse maps go")
     e.add_argument("--splits", default=",".join(SPLITS))
-    e.add_argument("--out", default=DETS)
-    e.add_argument("--usage-out", default=os.path.join(OUT_DIR, "usage_row.json"))
+    # Required, with no default: the committed detections.json / usage_row.json are the
+    # record of the 2026-09-30 run and a replication must not overwrite them.
+    e.add_argument("--out", required=True, help="where detections.json goes")
+    e.add_argument("--usage-out", required=True, help="where the usage-ledger row goes")
     e.add_argument("--limit", type=int, default=0, help="smoke test: panos per split")
     e.add_argument("--note", default="")
     e.add_argument("--model-revision", default=MODEL_REVISION,
@@ -983,22 +1105,35 @@ def main(argv=None):
                    help="dir holding benchmark/<split>/panos/*.jpg")
     v.add_argument("--splits", default=",".join(SPLITS))
     v.add_argument("--limit", type=int, default=0)
-    v.add_argument("--out", default=IMAGERY_CHECK)
+    v.add_argument("--out", required=True,
+                   help="where the check goes (the committed one is "
+                        "analysis_out/subcell_decode_221/imagery_check.json)")
     r = sub.add_parser("report")
     r.add_argument("--detections", default=DETS)
-    r.add_argument("--out", default=os.path.join(OUT_DIR, "results.json"))
+    r.add_argument("--out", default=RESULTS,
+                   help="required when --detections is not the committed file")
+    r.add_argument("--imagery-check", default=None,
+                   help="imagery_check.json to cite (default: the detections file's own "
+                        "meta; for the committed pre-fix file, the committed check)")
     r.add_argument("--wrap-x", action="store_true",
                    help="use the neighbour across the 360 seam at coarse cols 0 / 127")
     r.add_argument("--reps", type=int, default=N_REPS)
     r.add_argument("--y-bands", default=",".join(str(v) for v in Y_BANDS),
                    help="argmax-row band edges for the manual_gold y-profile read "
                         "(doc section 4.3); empty string to skip it")
+    c = sub.add_parser("compare", help="compare two results.json, ignoring provenance")
+    c.add_argument("a")
+    c.add_argument("b")
+    c.add_argument("--tol", type=float, default=0.0,
+                   help="largest allowed absolute difference per number")
     a = ap.parse_args(argv)
     if a.cmd == "extract":
         cmd_extract(a)
         return 0
     if a.cmd == "verify-imagery":
         return cmd_verify_imagery(a)
+    if a.cmd == "compare":
+        return cmd_compare(a)
     return cmd_report(a)
 
 
