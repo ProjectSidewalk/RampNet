@@ -266,3 +266,15 @@ def test_bearing_claims_only_near_the_ramp_bearing():
     cl = PP.bearing_claims(dets, np.array([1.0]), np.array([8.0]), near, 0.3)
     assert all(v == {"a": 0} for v in cl.values())
 
+
+
+def test_usage_row_gpu_share():
+    import perspective_photos_218 as PP
+    r = PP.usage_row("x:shard1of4", 338, 996.614, "2026-09-30T19:00:50Z", "makelab2",
+                     ["NVIDIA A40"], "w" + PP.shard_note(4), gpu_share=0.25,
+                     concurrent_with=["y"])
+    assert r["gpu_hours"] == 0.0692 and r["gpu_share"] == 0.25
+    assert r["concurrent_with"] == ["y"] and r["paid"] is False
+    r1 = PP.usage_row("x", 10, 3600.0, "t", "h", [], "w")
+    assert r1["gpu_hours"] == 1.0 and "gpu_share" not in r1 and "concurrent_with" not in r1
+

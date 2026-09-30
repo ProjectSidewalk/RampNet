@@ -349,7 +349,8 @@ def cmd_infer(args):
             f"seoul_photos_218.py infer, arm {a}: per-image seconds (decode excluded), fp32, "
             f"run wall {time.time() - t_all:.0f} s for both arms",
             script="scripts/analysis/seoul_photos_218.py",
-            bundle="analysis_out/perspective_photos_218/seoul/fetched.csv") for a in ARMS])
+            bundle="analysis_out/perspective_photos_218/seoul/fetched.csv",
+            concurrent_with=args.concurrent_with) for a in ARMS])
 
 
 # --------------------------------------------------------------------------- #
@@ -526,6 +527,8 @@ def main(argv=None):
     i.add_argument("--limit", type=int, default=0)
     i.add_argument("--verify-sha", action="store_true")
     i.add_argument("--usage-log", default=None)
+    i.add_argument("--concurrent-with", action="append", default=None,
+                   help="another job sharing the GPU, for the ledger row (repeatable)")
     g = sub.add_parser("gallery")
     g.add_argument("--images", default=None)
     sub.add_parser("summary")

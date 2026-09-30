@@ -412,15 +412,78 @@ def cmd_merge(args):
         print(f"{a}: {len(parts)} shards, {len(recs)} images -> {dets_path(a, out)}")
 
 
+def shard_note(n_shards):
+    """The sentence a sharded run adds to a ledger row's ``what``."""
+    return (f"; one of {n_shards} shard processes sharing the GPU, so gpu_hours = elapsed / "
+            f"{n_shards}")
+
+
 def usage_row(label, n, elapsed_s, started, host, gpus, what, issue=218,
-              script="scripts/analysis/perspective_photos_218.py", bundle=None):
-    return {"provider": "rampnet", "model_id": "projectsidewalk/rampnet-model", "paid": False,
-            "hardware": {"host": host, "gpus": gpus}, "status": "ok", "est_cost_usd": 0.0,
-            "pricing": None, "issue": issue, "ts": started,
-            "bundle": bundle or "analysis_out/perspective_photos_218/images.csv",
-            "label": label, "run_id": f"{label}:{host}:{started}", "panos_scored": n,
-            "elapsed_s": round(elapsed_s, 3), "s_per_pano": round(elapsed_s / n, 4) if n else None,
-            "gpu_hours": round(elapsed_s / 3600.0, 4), "what": what, "script": script}
+              script="scripts/analysis/perspective_photos_218.py", bundle=None,
+              gpu_share=1.0, concurrent_with=None):
+    """One ``paid: false`` ledger row. ``gpu_share`` < 1 is for a process that shared the
+    GPU with ``1 / gpu_share`` - 1 others of the same run (``--shard``): its GPU-hours are
+    its elapsed time times its share, so the shards of one run sum to about the run's
+    wall-clock rather than to N times it. ``concurrent_with`` lists other jobs on the same
+    GPU (so the GPU-hours are upper bounds)."""
+    row = {"provider": "rampnet", "model_id": "projectsidewalk/rampnet-model", "paid": False,
+           "hardware": {"host": host, "gpus": gpus}, "status": "ok", "est_cost_usd": 0.0,
+           "pricing": None, "issue": issue, "ts": started,
+           "bundle": bundle or "analysis_out/perspective_photos_218/images.csv",
+           "label": label, "run_id": f"{label}:{host}:{started}", "panos_scored": n,
+           "elapsed_s": round(elapsed_s, 3), "s_per_pano": round(elapsed_s / n, 4) if n else None,
+           "gpu_hours": round(elapsed_s * gpu_share / 3600.0, 4), "what": what, "script": script}
+    if gpu_share != 1.0:
+        row["gpu_share"] = gpu_share
+    if concurrent_with:
+        row["concurrent_with"] = list(concurrent_with)
+    return row
+
+
+def cmd_reledger(args):
+    """Rebuild ledger rows from the rows ``infer`` wrote before ``usage_row`` knew about
+    shards (``--raw``, committed as ``usage_rows_raw*.jsonl``): same label, run id, times and
+    counts; ``gpu_share`` from the label's ``:shard<k>of<n>`` tag; ``concurrent_with`` from
+    the command line. Writes the rows to ``--out`` and, with ``--replace-in``, replaces the
+    rows with the same ``run_id`` in that ledger in place, leaving every other line as it
+    was."""
+    import re
+    rows = []
+    with open(args.raw, encoding="utf-8") as f:
+        for line in f:
+            if not line.strip():
+                continue
+            r = json.loads(line)
+            m = re.search(r":shard\d+of(\d+)$", r["label"])
+            share = 1.0 / int(m.group(1)) if m else 1.0
+            what = r["what"] + (shard_note(int(m.group(1))) if m else "")
+            rows.append(usage_row(r["label"], r["panos_scored"], r["elapsed_s"], r["ts"],
+                                  r["hardware"]["host"], r["hardware"]["gpus"], what,
+                                  r["issue"], r["script"], r["bundle"], share,
+                                  args.concurrent_with))
+            assert rows[-1]["run_id"] == r["run_id"]
+    if args.out:
+        with open(args.out, "w", encoding="utf-8", newline="") as f:
+            for r in rows:
+                f.write(json.dumps(r) + "\n")
+    if args.replace_in:
+        new = {r["run_id"]: r for r in rows}
+        with open(args.replace_in, encoding="utf-8", newline="") as f:
+            lines = f.readlines()
+        n_rep = 0
+        for k, line in enumerate(lines):
+            if not line.strip():
+                continue
+            rid = json.loads(line).get("run_id")
+            if rid in new:
+                lines[k] = json.dumps(new.pop(rid)) + "\n"
+                n_rep += 1
+        if new:
+            raise SystemExit(f"{len(new)} rows not found in {args.replace_in}: {sorted(new)}")
+        with open(args.replace_in, "w", encoding="utf-8", newline="") as f:
+            f.writelines(lines)
+        print(f"replaced {n_rep} rows in {args.replace_in}")
+    print(f"{len(rows)} rows, {sum(r['gpu_hours'] for r in rows):.4f} GPU-h")
 
 
 def load_model(device):
@@ -491,7 +554,10 @@ def cmd_infer(args):
                             host, gpus,
                             f"perspective_photos_218.py infer, arm {a}: per-image seconds "
                             f"(canvas build + forward + peaks), fp32, run wall "
-                            f"{time.time() - t_all:.0f} s for all arms")
+                            f"{time.time() - t_all:.0f} s for all arms"
+                            + (shard_note(shard[1]) if shard else ""),
+                            gpu_share=1.0 / shard[1] if shard else 1.0,
+                            concurrent_with=args.concurrent_with)
                   for a in arms]
         ledger.append_rows(ul, rows_u)
         print(f"usage rows -> {ul}")
@@ -1520,6 +1586,13 @@ def main(argv=None):
     i.add_argument("--shard", default=None, help="k/n: run rows[k::n] (parallel processes)")
     i.add_argument("--usage-log", default=None,
                    help="default: the main checkout's analysis_out/usage_log.jsonl; 'none' skips")
+    i.add_argument("--concurrent-with", action="append", default=None,
+                   help="another job sharing the GPU, for the ledger row (repeatable)")
+    rl = sub.add_parser("reledger")
+    rl.add_argument("--raw", required=True)
+    rl.add_argument("--out", default=None)
+    rl.add_argument("--replace-in", default=None)
+    rl.add_argument("--concurrent-with", action="append", default=None)
     s = sub.add_parser("score")
     s.add_argument("--arms", default="canvas_level,canvas_sfm,stretch")
     s.add_argument("--dets-dir", default=None, help="default analysis_out/perspective_photos_218")
@@ -1534,7 +1607,7 @@ def main(argv=None):
     g.add_argument("--arm", default="canvas_level")
     args = ap.parse_args(argv)
     {"select": cmd_select, "fetch": cmd_fetch, "infer": cmd_infer, "score": cmd_score,
-     "gallery": cmd_gallery, "merge": cmd_merge}[args.cmd](args)
+     "gallery": cmd_gallery, "merge": cmd_merge, "reledger": cmd_reledger}[args.cmd](args)
 
 
 if __name__ == "__main__":
