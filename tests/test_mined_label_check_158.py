@@ -98,3 +98,58 @@ def test_page_has_no_instrument_or_confidence_leak():
     for word in ("instrument", "known_answer", "peak_conf", "residual", "item_class"):
         assert word not in h
     assert "mined_label_check__" in h and M.QUESTION in h
+
+
+def test_pass2_file_is_bound_to_pass1_and_combined_overrides_cant_tell(tmp_path):
+    ref = _ref()
+    d1 = M.empty_verdicts(ref["items"], ref["manifest_digest"], "jonf")
+    d1["verdicts"] = {"c1": {"answer": "cant_tell", "note": "washed out"},
+                      "c2": {"answer": "cant_tell"}, "c3": {"answer": "no"}}
+    p1 = tmp_path / "mined_label_check__jonf.json"
+    p1.write_text(json.dumps(d1), encoding="utf-8")
+    pass1 = M.load_verdicts(str(p1), ref)
+    assert M.pass2_items(pass1, ref) == ["c1", "c2"]
+    meta = M.pass2_meta(str(p1))
+    assert meta["pass"] == 2 and meta["subset"] == "cant_tell" and meta["image_controls"]
+    d2 = M.empty_verdicts(["c1", "c2"], ref["manifest_digest"], "jonf-p2", pass2=meta)
+    d2["verdicts"] = {"c1": {"answer": "yes", "image": {"br": 140, "ct": 120, "sa": 100}}}
+    p2 = tmp_path / "mined_label_check__jonf-p2.json"
+    p2.write_text(json.dumps(d2), encoding="utf-8")
+    with pytest.raises(ValueError, match="pass-1 file"):        # a pass-2 file needs pass 1
+        M.load_verdicts(str(p2), ref)
+    pass2 = M.load_verdicts(str(p2), ref, pass1=(str(p1), pass1))
+    got = M.combined(pass1, pass2, ref)
+    # c1 resolved to yes, c2 (a check item) still cant_tell, c3 keeps pass 1's no
+    assert got["pooled"]["yes"] == 1 and got["pooled"]["no"] == 1 and got["pooled"]["cant_tell"] == 0
+    assert got["pass2"]["resolved"] == {"yes": 1, "unanswered": 1}
+    assert got["pass2"]["subset_precision"]["n_decided"] == 1
+    assert got["instrument"]["decided"] == 0
+    # binding: a different pass-1 file, a wrong subset, the same rater id, all refused
+    p1.write_text(json.dumps({**d1, "n_answered": 3}), encoding="utf-8")
+    with pytest.raises(ValueError, match="sha256"):
+        M.load_verdicts(str(p2), ref, pass1=(str(p1), pass1))
+    p1.write_text(json.dumps(d1), encoding="utf-8")
+    p2.write_text(json.dumps({**d2, "items": ["c1"]}), encoding="utf-8")
+    with pytest.raises(ValueError, match="cant_tell"):
+        M.load_verdicts(str(p2), ref, pass1=(str(p1), pass1))
+    same = tmp_path / "x" / "mined_label_check__jonf.json"
+    same.parent.mkdir()
+    same.write_text(json.dumps({**d2, "rater": "jonf"}), encoding="utf-8")
+    with pytest.raises(ValueError, match="same rater"):
+        M.load_verdicts(str(same), ref, pass1=(str(p1), pass1))
+
+
+def test_pass2_page_has_image_controls_and_records_the_setting():
+    cards = [{"id": "c0000aaaa"}]
+    crops = [{"ramp_uid": "c0000aaaa", "city": "richmond", "pano_id": "p1", "x": 0.5,
+              "y": 0.6, "ring": True, "capture_date": ""}]
+    meta = {"pass": 2, "subset": "cant_tell", "image_controls": True,
+            "gallery": M.GALLERY2_REL, "from_file": "f", "from_sha256": "0" * 64}
+    h = M.render_gallery(cards, crops, "0" * 16, pass2=meta)
+    for s in ('id="img_br"', 'id="img_ct"', 'id="img_sa"', "image: imgState()",
+              "image: v.image || null", "...(META.pass2 || {})", "mlc158_p2_", "Pass 2"):
+        assert s in h
+    for word in ("instrument", "known_answer", "peak_conf"):
+        assert word not in h
+    h1 = M.render_gallery(cards, crops, "0" * 16)
+    assert 'id="img_br"' in h1 and "mlc158_p2_" not in h1 and "Pass 2" not in h1

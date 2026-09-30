@@ -117,6 +117,53 @@ cutter.
   It reports precision (Yes / (Yes + No), Wilson) pooled and per band, read against #158's
   rule, plus agreement on the instrument items and between two raters.
 
+### Pass 1 (Jon, 2026-09-29): 110 of 110 answered, 57 notes
+
+`rates mined_label_check__jonf.json`, sample cards only (the 10 instrument items are
+scored apart):
+
+| band | Yes | No | Can't tell | precision [95% Wilson] |
+|---|--:|--:|--:|---:|
+| all 100 | 59 | 11 | 30 | 0.843 [0.740, 0.910] |
+| 0–8 m | 11 | 2 | 5 | 0.846 [0.578, 0.957] |
+| 8–12 m | 23 | 2 | 12 | 0.920 [0.750, 0.978] |
+| 12–15 m | 25 | 7 | 13 | 0.781 [0.612, 0.890] |
+
+- **Against the rule:** the point estimate is *build* (≥ 0.80) but the interval reaches
+  into *visibility*, so the reading is **not decisive**. Can't tell is 30 of 100; counting
+  every one as No gives 0.59, as Yes 0.89, so the answer lies in that range.
+- **Instrument items:** 8 of 10 decided, 7 agree with the earlier verdict. `c96405a60` was
+  No earlier and Yes now; `cacfb48e9` (earlier No) and `ca7ee8f77` (earlier Yes) are Can't
+  tell. The "earlier" answers are step-3 benchmark verdicts joined through the 5 m world
+  match, not Jon's direct earlier reads of these crops, so a disagreement can be the match.
+- **What the notes say** (57 notes, read 2026-09-30). 13 of the 30 Can't-tell notes name
+  washed-out lighting, and four of those say brightness / contrast / saturation controls
+  would decide it. 6 of the 11 Nos and 6 of the 59 Yeses say the ramp is there but the ring
+  is 1–5 ring-diameters off it: the miner's peak sits beside the ramp. Two Can't-tell cards
+  have the ring between two ramps; two Nos sit on a utility panel or cover. Under the
+  rubric ("at the ring or touching it") an off-ramp point can still read Yes, so as a
+  *training-label* precision 0.84 is an upper reading; with the six offset Yeses counted
+  against, it is 53/70 = 0.76.
+
+### Pass 2 (added 2026-09-30, after pass 1 was read): the Can't tell cards with image controls
+
+Pass 1 was rated without image controls. Pass 2 shows the 32 pass-1 Can't tell cards (30
+sample + 2 instrument) again, in the same crops under the same digest, with brightness,
+contrast and saturation sliders that apply to every crop; the setting in force is saved
+with each answer (`image`) so the re-rating is reproducible. It is the same rater's second
+look, not a second rater. Rubric and question are unchanged; Can't tell stays valid.
+
+- `python scripts/analysis/mined_label_check_158.py gallery --pass2-from
+  analysis_out/mined_label_check_158/mined_label_check__jonf.json --init-rater jonf-p2`
+  writes `benchmark/mined_label_check_158/gallery_pass2.html` and the empty rater file
+  `mined_label_check__jonf-p2.json`, bound to pass 1 by its sha256 and item list.
+- `rates mined_label_check__jonf.json --pass2 mined_label_check__jonf-p2.json` reports pass 1,
+  the pass-2 subset, and **combined**: pass 1 with the pass-2 answers written over its Can't
+  tells (an unanswered pass-2 card keeps Can't tell). The combined read is the step-4
+  number; pass 1 stays reported beside it.
+- The pass-1 page was rebuilt with the same controls so both pages come from one code
+  path; its digest and Jon's pass-1 file are unchanged.
+
 ## Cost
 
 | step | where | wall-clock | GPU-h |

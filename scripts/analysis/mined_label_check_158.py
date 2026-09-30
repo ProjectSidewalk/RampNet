@@ -59,6 +59,10 @@ ITEMS_PATH = os.path.join(OUT, "items.json")
 GALLERY_DIR = os.path.join(mv.BENCHMARK, "mined_label_check_158")
 MANIFEST_PATH = os.path.join(GALLERY_DIR, "manifest.json")
 GALLERY_REL = "benchmark/mined_label_check_158/gallery.html"
+#: Pass 2: the pass-1 "Can't tell" cards only, with image controls (added after pass 1 was
+#: read; Jon's notes said brightness / contrast / saturation would decide most of them).
+GALLERY2_REL = "benchmark/mined_label_check_158/gallery_pass2.html"
+PASS2_SUBSET = "cant_tell"
 EXPORT_PREFIX, EXPORT_SUFFIX = "mined_label_check__", ".json"
 RATER_RE = R.RATER_RE
 
@@ -210,12 +214,65 @@ def cmd_plan(args):
 # --------------------------------------------------------------------------- #
 # gallery
 # --------------------------------------------------------------------------- #
-def empty_verdicts(ids, digest, rater):
+def empty_verdicts(ids, digest, rater, pass2=None):
     return {"task": "RampNet #158 step 4, mined-label check: " + QUESTION,
             "question": QUESTION,
             "rubric": [{"key": k, "label": lab, "definition": d} for k, lab, d in RUBRIC],
             "rules": RULES, "rater": rater, "items": ids, "manifest_digest": digest,
-            "n_items": len(ids), "n_answered": 0, "gallery": GALLERY_REL, "verdicts": {}}
+            "n_items": len(ids), "n_answered": 0, "gallery": GALLERY_REL, "verdicts": {},
+            **(pass2 or {})}
+
+
+def pass2_meta(pass1_path):
+    """The fields a pass-2 file carries, binding it to the pass-1 file it re-rates."""
+    try:
+        rel = os.path.relpath(pass1_path, mv.REPO)
+    except ValueError:                  # Windows: another drive has no relative path
+        rel = os.path.abspath(pass1_path)
+    return {"pass": 2, "subset": PASS2_SUBSET, "image_controls": True, "gallery": GALLERY2_REL,
+            "from_file": rel.replace(os.sep, "/"), "from_sha256": R.sha256_file(pass1_path)}
+
+
+def pass2_items(pass1, ref):
+    """The pass-1 'Can't tell' cards, in the committed item order (sample and check items alike)."""
+    return [u for u in ref["items"]
+            if (pass1["verdicts"].get(u) or {}).get("answer") == PASS2_SUBSET]
+
+
+#: Sliders applied to every crop as a CSS filter; the setting in force is recorded with each
+#: answer (`image`) and in the page's own storage, so a re-rating can be reproduced.
+IMAGE_CONTROLS_CSS = (
+    ".card img { filter: brightness(var(--br,1)) contrast(var(--ct,1)) saturate(var(--sa,1)); }\n"
+    ".imgctl { display:flex; flex-wrap:wrap; gap:4px 12px; align-items:center; margin-left:auto; }\n"
+    ".imgctl label { font-size:13px; color:var(--muted); }\n"
+    ".imgctl input[type=range] { vertical-align:middle; width:110px; }\n")
+IMAGE_CONTROLS_HTML = (
+    '<span class="imgctl" role="group" aria-label="Image controls, applied to every crop">'
+    '<label>Brightness <input type="range" id="img_br" min="40" max="250" value="100"></label>'
+    '<label>Contrast <input type="range" id="img_ct" min="40" max="250" value="100"></label>'
+    '<label>Saturation <input type="range" id="img_sa" min="0" max="300" value="100"></label>'
+    '<button type="button" id="img_reset">Reset image</button></span>')
+IMAGE_CONTROLS_JS = """
+const IMG = {br: 'img_br', ct: 'img_ct', sa: 'img_sa'};
+const IMG_KEY = "mlc158_img_" + META.manifest_digest;
+function imgState() { const s = {}; for (const k in IMG) s[k] = +document.getElementById(IMG[k]).value; return s; }
+function applyImg() {
+  const s = imgState(), r = document.documentElement.style;
+  r.setProperty('--br', s.br / 100); r.setProperty('--ct', s.ct / 100); r.setProperty('--sa', s.sa / 100);
+  setItem(IMG_KEY, JSON.stringify(s));
+}
+(function () {
+  let s = null;
+  try { s = JSON.parse(getItem(IMG_KEY) || "null"); } catch (e) { s = null; }
+  if (s) for (const k in IMG) if (s[k] != null) document.getElementById(IMG[k]).value = s[k];
+  applyImg();
+})();
+for (const k in IMG) document.getElementById(IMG[k]).addEventListener('input', applyImg);
+document.getElementById('img_reset').addEventListener('click', () => {
+  for (const k in IMG) document.getElementById(IMG[k]).value = 100;
+  applyImg();
+});
+"""
 
 
 def _figure(it, uid, width):
@@ -236,9 +293,11 @@ def _figure(it, uid, width):
     return f'<figure class="{cls}">{img}<figcaption>{cap}</figcaption></figure>'
 
 
-def render_gallery(cards, crops, digest):
+def render_gallery(cards, crops, digest, pass2=None):
     """The #48 GT-check page, re-labelled for this question. The JS is the same shape:
-    rater id, per-rater localStorage, Y / N / C keys, export to the per-rater file."""
+    rater id, per-rater localStorage, Y / N / C keys, export to the per-rater file.
+    Both passes get the image controls; `pass2` (from `pass2_meta`) marks the page and
+    its exports as the re-rating of the pass-1 "Can't tell" cards."""
     by_card = {}
     for it in crops:
         by_card.setdefault(it["ramp_uid"], []).append(it)
@@ -266,29 +325,45 @@ def render_gallery(cards, crops, digest):
     meta = {"question": QUESTION,
             "rubric": [{"key": k, "label": lab, "definition": d} for k, lab, d in RUBRIC],
             "rules": RULES, "items": ids, "manifest_digest": digest, "gallery": GALLERY_REL,
-            "task": "RampNet #158 step 4, mined-label check: " + QUESTION}
+            "task": "RampNet #158 step 4, mined-label check: " + QUESTION,
+            "pass2": pass2}
     return _PAGE(out_cards, meta)
 
 
 def _PAGE(cards_html, meta):
     """Fill the #48 GT-check template: its CSS and script, with this task's text."""
+    pass2 = meta.get("pass2")
     tmpl = R.render_gallery(
         [{"uid": "__X__", "class": "x"}],
         [{"ramp_uid": "__X__", "city": "x", "pano_id": "x", "x": 0.5, "y": 0.5,
           "is_source": True, "ring": False, "capture_date": ""}], meta["manifest_digest"])
     head, rest = tmpl.split('<section class="card"', 1)
     tail = rest[rest.index('<script id="meta"'):]
-    head = head.replace("<title>Residual GT check</title>", "<title>Mined label check</title>")
-    head = re.sub(r"<h1>.*?</h1>", "<h1>Mined labels (#158 step 4): is there a curb ramp at "
-                  "the ring?</h1>", head, count=1, flags=re.S)
+    title = "Mined label check" + (", pass 2" if pass2 else "")
+    head = head.replace("<title>Residual GT check</title>", f"<title>{title}</title>")
+    h1 = ("Mined labels (#158 step 4, pass 2): the &ldquo;Can't tell&rdquo; cards again, with "
+          "image controls" if pass2 else
+          "Mined labels (#158 step 4): is there a curb ramp at the ring?")
+    head = re.sub(r"<h1>.*?</h1>", f"<h1>{h1}</h1>", head, count=1, flags=re.S)
     intro = (
         '<div class="intro"><p>Each card is one label that the miner would add to RampNet\'s '
         'training data: a spot in a panorama where other captures agree there is a curb '
         'ramp, but this panorama\'s detector did not fire. Look at the large view on the '
         f'left and answer one question: <strong>{html.escape(QUESTION)}</strong> The smaller '
         'view on the right is another capture of the same corner, shown only as context, '
-        'without a ring.</p></div>')
+        'without a ring.</p>'
+        + ('<p><strong>Pass 2.</strong> These are the cards answered &ldquo;Can\'t tell&rdquo; '
+           'in pass 1, shown again with brightness, contrast and saturation sliders (top bar; '
+           'they apply to every crop, and the setting in force is saved with each answer). '
+           'Rate each card afresh under the same rubric; &ldquo;Can\'t tell&rdquo; is still a '
+           'valid answer. Use a new rater id, e.g. <code>jonf-p2</code>.</p>' if pass2 else
+           '<p>The sliders in the top bar adjust brightness, contrast and saturation of every '
+           'crop; the setting in force is saved with each answer.</p>')
+        + '</div>')
     head = re.sub(r'<div class="intro">.*?</div>', lambda _m: intro, head, count=1, flags=re.S)
+    head = head.replace("</style>", IMAGE_CONTROLS_CSS + "</style>", 1)
+    head = head.replace('<span id="count" aria-live="polite"></span>',
+                        IMAGE_CONTROLS_HTML + '<span id="count" aria-live="polite"></span>', 1)
     rubric_html = "".join(f"<dt>{html.escape(lab)}</dt><dd>{html.escape(d)}</dd>"
                           for _, lab, d in RUBRIC)
     rules_html = "".join(f"<li>{html.escape(x)}</li>" for x in RULES)
@@ -302,15 +377,33 @@ def _PAGE(cards_html, meta):
     tail = tail.replace("mv48_gtcheck_", "mlc158_")
     tail = re.sub(r'const out = \{task: .*?item_class: META\.item_class, ',
                   'const out = {task: META.task, question: META.question, rubric: META.rubric, '
-                  'rules: META.rules, rater: rater, items: META.items, ', tail, count=1, flags=re.S)
+                  'rules: META.rules, rater: rater, items: META.items, ...(META.pass2 || {}), ',
+                  tail, count=1, flags=re.S)
     tail = re.sub(r'\s*supersedes: "[^"]*",', '', tail, count=1)
     tail = tail.replace(R.EXPORT_PREFIX, EXPORT_PREFIX)
+    # Record the image setting in force with each answer, and carry it into the export.
+    n = tail.count("{answer: inp.value}")
+    if n != 1:
+        raise RuntimeError(f"gallery template drifted: {n} answer-save sites, expected 1")
+    tail = tail.replace("{answer: inp.value}", "{answer: inp.value, image: imgState()}")
+    n = tail.count('note: (v.note || "").trim()}')
+    if n != 1:
+        raise RuntimeError(f"gallery template drifted: {n} export sites, expected 1")
+    tail = tail.replace('note: (v.note || "").trim()}',
+                        'note: (v.note || "").trim(), image: v.image || null}')
+    tail = tail.replace("</script></body></html>", IMAGE_CONTROLS_JS + "</script></body></html>", 1)
+    if pass2:
+        tail = tail.replace("mlc158_", "mlc158_p2_")
     return head + "".join(cards_html) + "\n" + tail
 
 
 def cmd_gallery(args):
     if args.init_rater is not None and not RATER_RE.match(args.init_rater):
         raise SystemExit(f"--init-rater {args.init_rater!r} is not a valid rater id")
+    if args.pass2_from:
+        return cmd_gallery_pass2(args)
+    if not args.crops:
+        raise SystemExit("gallery (pass 1) needs --crops")
     plan = json.load(open(ITEMS_PATH, encoding="utf-8"))
     cards, crops = plan["cards"], plan["items"]
     out = os.path.join(GALLERY_DIR, "crops")
@@ -345,6 +438,38 @@ def cmd_gallery(args):
           f"digest {digest})")
 
 
+def cmd_gallery_pass2(args):
+    """The pass-1 'Can't tell' cards only, same crops and digest, with image controls.
+    Nothing is cut or re-hashed: the crops must already be in the gallery dir."""
+    ref = committed_reference()
+    pass1 = load_verdicts(args.pass2_from, ref)
+    ids = pass2_items(pass1, ref)
+    if not ids:
+        raise SystemExit(f"{args.pass2_from}: no {PASS2_SUBSET!r} answers, nothing to re-rate")
+    plan = json.load(open(ITEMS_PATH, encoding="utf-8"))
+    keep = set(ids)
+    cards = [c for c in plan["cards"] if c["id"] in keep]
+    crops = [it for it in plan["items"] if it["ramp_uid"] in keep]
+    missing = [mv.crop_name(it) for it in crops
+               if not os.path.exists(os.path.join(GALLERY_DIR, "crops", mv.crop_name(it)))]
+    if missing:
+        raise SystemExit(f"{len(missing)} crops missing from {GALLERY_DIR}/crops, e.g. "
+                         f"{missing[:3]}; build the pass-1 gallery first")
+    meta = pass2_meta(args.pass2_from)
+    with open(os.path.join(GALLERY_DIR, "gallery_pass2.html"), "w", encoding="utf-8",
+              newline="") as f:
+        f.write(render_gallery(cards, crops, ref["manifest_digest"], pass2=meta))
+    if args.init_rater:
+        if args.init_rater == pass1["rater"]:
+            raise SystemExit("pass 2 needs a new rater id (its file would overwrite pass 1)")
+        path = verdicts_path(args.init_rater)
+        if not os.path.exists(path):
+            mv.write_json(path, empty_verdicts(ids, ref["manifest_digest"], args.init_rater,
+                                               pass2=meta))
+    print(f"wrote {GALLERY_DIR}/gallery_pass2.html ({len(cards)} cards re-rated from "
+          f"{pass1['rater']}'s {len(pass1['verdicts'])} answers, digest {ref['manifest_digest']})")
+
+
 # --------------------------------------------------------------------------- #
 # rates
 # --------------------------------------------------------------------------- #
@@ -358,7 +483,10 @@ def committed_reference():
     return {"manifest_digest": digest, "items": ids, "cards": {c["id"]: c for c in plan["cards"]}}
 
 
-def load_verdicts(path, ref):
+def load_verdicts(path, ref, pass1=None):
+    """A verdict file, checked against the committed gallery. A pass-2 file (`pass: 2`)
+    is checked against the pass-1 file it re-rates, given as `(path, dict)`: same
+    sha256 as recorded, and exactly that file's 'Can't tell' cards as its items."""
     d = json.load(open(path, encoding="utf-8"))
     rater = d.get("rater")
     if not isinstance(rater, str) or not RATER_RE.match(rater):
@@ -368,7 +496,18 @@ def load_verdicts(path, ref):
     if d.get("manifest_digest") != ref["manifest_digest"]:
         raise ValueError(f"{path}: made on gallery {d.get('manifest_digest')}, not "
                          f"{ref['manifest_digest']}")
-    if d.get("items") != ref["items"]:
+    if d.get("pass") == 2:
+        if pass1 is None:
+            raise ValueError(f"{path}: a pass-2 file is read with the pass-1 file it re-rates "
+                             f"(rates <pass1> --pass2 <pass2>)")
+        p1_path, p1 = pass1
+        if d.get("from_sha256") != R.sha256_file(p1_path):
+            raise ValueError(f"{path}: from_sha256 is not {p1_path}'s sha256")
+        if d.get("subset") != PASS2_SUBSET or d.get("items") != pass2_items(p1, ref):
+            raise ValueError(f"{path}: items are not {p1_path}'s {PASS2_SUBSET!r} cards")
+        if rater == p1.get("rater"):
+            raise ValueError(f"{path}: pass 2 uses the same rater id as pass 1")
+    elif d.get("items") != ref["items"]:
         raise ValueError(f"{path}: item list differs from the committed items.json")
     rubric = [{"key": k, "label": lab, "definition": x} for k, lab, x in RUBRIC]
     if (d.get("question"), d.get("rubric"), d.get("rules")) != (QUESTION, rubric, RULES):
@@ -417,12 +556,35 @@ def rates(d, ref):
                                              for u in instr if u not in agree]}}
 
 
+def combined(pass1, pass2, ref):
+    """Pass 1 with the pass-2 answers written over its 'Can't tell' cards. A pass-2 card
+    left unanswered keeps pass 1's 'Can't tell'. The read is one rater's two looks at the
+    same cards, the second with image controls, not two raters."""
+    v = dict(pass1["verdicts"])
+    resolved = Counter()
+    for u in pass2["items"]:
+        a = (pass2["verdicts"].get(u) or {}).get("answer")
+        resolved[a or "unanswered"] += 1
+        if a:
+            v[u] = pass2["verdicts"][u]
+    d = {"rater": f"{pass1['rater']} then {pass2['rater']}",
+         "manifest_digest": pass1["manifest_digest"], "verdicts": v}
+    out = rates(d, ref)
+    out["pass2"] = {"rater": pass2["rater"], "n_items": len(pass2["items"]),
+                    "resolved": dict(resolved),
+                    "subset_precision": precision(pass2["verdicts"], pass2["items"])}
+    return out
+
+
 def cmd_rates(args):
-    if len(args.files) > 2:
-        raise SystemExit("rates takes one or two verdict files")
+    if len(args.files) > 2 or (args.pass2 and len(args.files) != 1):
+        raise SystemExit("rates takes one or two verdict files, or one file with --pass2")
     ref = committed_reference()
     files = [load_verdicts(p, ref) for p in args.files]
     out = {"rates": [rates(d, ref) for d in files]}
+    if args.pass2:
+        p2 = load_verdicts(args.pass2, ref, pass1=(args.files[0], files[0]))
+        out["combined"] = combined(files[0], p2, ref)
     if len(files) == 2:
         for d in files:        # R.agreement reads item_class only through the items list
             d.setdefault("item_class", {})
@@ -436,10 +598,14 @@ def main(argv=None):
     p = sub.add_parser("plan")
     p.add_argument("--labeler-root", required=True)
     g = sub.add_parser("gallery")
-    g.add_argument("--crops", required=True)
+    g.add_argument("--crops", default=None, help="cut crops to copy in (pass 1)")
     g.add_argument("--init-rater", default=None)
+    g.add_argument("--pass2-from", default=None, metavar="VERDICTS",
+                   help="write gallery_pass2.html: that file's 'Can't tell' cards only")
     r = sub.add_parser("rates")
     r.add_argument("files", nargs="+")
+    r.add_argument("--pass2", default=None, metavar="VERDICTS",
+                   help="a pass-2 file re-rating the first file's 'Can't tell' cards")
     args = ap.parse_args(argv)
     {"plan": cmd_plan, "gallery": cmd_gallery, "rates": cmd_rates}[args.cmd](args)
 
