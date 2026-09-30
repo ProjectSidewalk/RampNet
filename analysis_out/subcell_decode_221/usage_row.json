@@ -1,5 +1,8 @@
 {
  "bundle": "manual_gold,annapolis,paterson,richmond,sao_paulo",
+ "concurrent_with": [
+  "other agents' makelab2 jobs (#218 perspective shards, from 19:00:50Z) on the same A40"
+ ],
  "cpu_decode_s": 687.801,
  "elapsed_s": 2579.126,
  "est_cost_usd": 0.0,
@@ -14,7 +17,7 @@
  "issue": 221,
  "label": "subcell-decode-221:extract",
  "model_id": "projectsidewalk/rampnet-model",
- "note": "makelab2 A40, shared with #217/#218 agents if they ran concurrently",
+ "note": "makelab2 A40, shared for part of the run: #218's perspective shards (ledger ts 2026-09-30T19:00:50Z) started before this run ended (~19:18Z). gpu_share not measured and left at 1.0, so gpu_hours is an upper bound",
  "paid": false,
  "panos_scored": 1499,
  "per_split": {
