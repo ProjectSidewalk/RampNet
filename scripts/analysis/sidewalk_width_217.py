@@ -274,13 +274,16 @@ def segment(args):
             raise RuntimeError(f"class {cid} is {got!r}, expected {name!r}")
     os.makedirs(args.out, exist_ok=True)
     gt = _read_gt()
-    # the CSV says IMG_8956.JPG, the archives hold IMG_8956.jpg: match case-insensitively
-    by_lower = {n.lower(): n for n in gt}
+    # the CSV names IMG_8956.JPG and IMG_4282.HEIC; the archives hold IMG_8956.jpg and
+    # IMG_4282.jpg. Match on the case-folded stem.
+    stem = lambda n: os.path.splitext(n)[0].lower()  # noqa: E731
+    by_stem = {stem(n): n for n in gt}
+    assert len(by_stem) == len(gt), "two GT rows share a stem"
     paths = {}
     for dirpath, _, names in os.walk(args.images):
         for n in names:
-            if n.lower() in by_lower and not n.startswith("._"):
-                paths[by_lower[n.lower()]] = os.path.join(dirpath, n)
+            if stem(n) in by_stem and not n.startswith("._"):
+                paths[by_stem[stem(n)]] = os.path.join(dirpath, n)
     missing = sorted(set(gt) - set(paths))
     if missing:
         sys.exit(f"{len(missing)} GT images not found under {args.images}: {missing[:5]}")
