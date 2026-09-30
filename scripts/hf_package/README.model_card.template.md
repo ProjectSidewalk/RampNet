@@ -22,6 +22,19 @@ Streetscape Images from Open Government Metadata** (O'Meara et al., ICCV'25 CV4A
 Takes a 2048x4096 equirectangular street-view panorama (ImageNet-normalized) and predicts a
 512x1024 heatmap of curb ramp locations. Extract detections with `skimage.feature.peak_local_max`.
 
+**The heatmap size is nominal: its effective resolution is 64x128.** The backbone has stride 32,
+and the head is `Conv3x3 -> ReLU -> bilinear Upsample (x8) -> Conv1x1`. Because the last conv is
+linear, the 512x1024 output is exactly a bilinear upsample of a 64x128 map. An integer argmax
+therefore lands on a hi-res pixel with row and column 3 or 4 mod 8, so positions are quantized to
+an 8-pixel grid (2.8 degrees of heading and of pitch). The sub-cell position can still be read
+from the 3x3 coarse neighbourhood of each peak, with no retraining: see `rampnet/subcell.py` and
+`docs/subcell_decode_221.md` in the GitHub repo. On the 1,000-panorama gold set, a Gaussian
+(log-parabola) refinement cuts the mean distance from a matched peak to the human box centre
+from 5.08 to 4.35 heatmap pixels (1.73 to 1.47 degrees), and the number of matched detections
+moves by at most one per benchmark split. Any
+localization figure quoted for this model with the plain argmax decode includes this
+quantization.
+
 ## Provenance
 
 | Field | Value |

@@ -494,6 +494,11 @@ def build_report(dets_path=DETS, wrap_x=False, n_reps=N_REPS):
             "off_grid_and_score_over_1": sum((d[1] % 8 not in (3, 4) or d[0] % 8 not in (3, 4))
                                              and d[2] > 1 for d in alld),
             "off_grid": sum(d[1] % 8 not in (3, 4) or d[0] % 8 not in (3, 4) for d in alld),
+            # the other off-grid source: bilinear upsampling clamps at the edges, so hi-res
+            # cols 0-3 all equal coarse col 0 (a plateau; peak_local_max returns col 0)
+            "off_grid_other_than_plateau_or_col0": sum(
+                (d[1] % 8 not in (3, 4) or d[0] % 8 not in (3, 4)) and d[2] <= 1 and d[1] != 0
+                for d in alld),
             "recon_max_abs_torch": max(r["recon_max_abs"] for r in recs.values()),
             "recon_max_abs_numpy": max(r["numpy_recon_max_abs"] for r in recs.values()),
             "peak_score_max": max((d[2] for d in alld), default=None)}
