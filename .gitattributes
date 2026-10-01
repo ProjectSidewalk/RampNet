@@ -104,5 +104,10 @@ scripts/analysis/multiview_48_klone/new_panos.txt text eol=lf
 # and fail those checks for files that are byte-correct (review of #220).
 analysis_out/crossview_align_48/** text eol=lf
 
+# #217: the Seoul GT table is kept byte-identical to the Zenodo file (its md5 is checked
+# against the manifest's Zenodo md5 by `seoul_fetch_217.py verify` and by
+# tests/test_sidewalk_width_217.py).
+data/seoul_sidewalk_217/*.csv  binary
+
 # The Seoul dataset's own summary table (#218), byte-identical to the Zenodo file so its md5 checks.
 analysis_out/perspective_photos_218/seoul/summary_attributes.csv  binary

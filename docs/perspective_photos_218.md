@@ -53,6 +53,8 @@ from the revised `score`; the corrections are listed at the end of §4.
     mostly detections that are not at a known ramp.
 - **Placing the photo at its SfM pitch and roll, instead of level, changes little**:
   +0.014 [0.000, 0.031] in point hits at 0.30 (+0.014 [−0.001, 0.031] above chance).
+  113 of the 1,353 images have no SfM orientation, so the two arms see the same canvas
+  there; without their 31 pairs the contrast is +0.015 [0.000, 0.035] (§4).
 - **No evidence of a scale deficit.** The stretch shows ramps at 3.6–6.8× the trained
   angular scale across (p10–p90) and finds the same ramps as the canvas, which shows them
   at the trained scale. Arm (c), the canvas at twice the scale, was not run (§5).
@@ -93,31 +95,39 @@ Every Richmond row is: the flat photo with the canvas arm's detections, the canv
 input itself (a crop of the 2048×4096 equirect), and a crop of a 360 pano of the same
 ramp with RampNet's detections ≥ 0.55. The dotted line is where the pool ramp would sit
 for any camera height from 0.5 to 4 m, i.e. where the bearing test accepts a detection.
+A double ring with "hit" is the detection the bearing test credits; single rings are other
+detections ≥ 0.30, small dashed rings peaks below it. In the pano crop, the square is a
+drawing aid, not a scored claim: it marks the detection nearest the GT column, and is drawn
+only when RampNet's world test hits that ramp from that pano (`world_conf` ≥ 0.55). The
+pano's "+" is the GT point as projected into that pano; in two of the five crops (hits row
+2, misses row 1) it lands in the roadway beside the ramp the model marks, the same GT and
+position error as in the flat photos (§5).
 Imagery: Mapillary contributors, CC BY-SA.
 
-![Two canvas-arm hits on HERO11 frames beside the same ramps in 360 panos](figures/perspective_photos_218/richmond_hits.jpg)
+![Two canvas-arm hits on GoPro HERO11 frames: the model fires 1.00 and 0.95 on a ramp 11° and 4° from the pool ramp's projected bearing, and the 360 panos of the same ramps score 0.94 and 0.91](figures/perspective_photos_218/richmond_hits.jpg)
 
 *Hits.* Both are GoPro HERO11 frames, the one camera whose matches clearly exceed
 chance (§4).
 
-![Two misses with a ramp visible in the photo](figures/perspective_photos_218/richmond_misses.jpg)
+![Two misses with a ramp visible in the photo: the pool ramp's projected bearing points at the middle of the road, and the model fires 0.54 and 0.27 on a visible ramp 27° and 30° to the right of it, outside the bearing window; the 360 panos of the same ramps score 0.99 and 0.95](figures/perspective_photos_218/richmond_misses.jpg)
 
 *Misses.* In both, a ramp is plainly visible but sits 27–30° from the pool ramp's
 projected bearing, near the right edge of the frame, and the projected bearing itself
 points at the middle of the road. The model does fire there: 0.54 (above the operating
 point) on the tactile-paved ramp in the first, 0.27 (below it) in the second. The first
-photo has no SfM orientation (its `computed_rotation` is exactly level), so its pose puts
+photo has no SfM orientation (its `computed_rotation` is level to within 1e-3°), so its pose puts
 that peak above the horizon, although the camera is plainly pitched down. So these two
 are misses of the scorer's geometry as much as of the model. **They were chosen for a
 visible ramp and are not typical:** across all 234 missed pairs the pattern is at chance
 level, and the pose shows no systematic bearing bias (§5, "Is the pose biased?").
 
-![An unmatched detection and a stretch-only hit](figures/perspective_photos_218/richmond_unmatched_stretch.jpg)
+![Top: a canvas detection of 0.48 that matches no pool ramp, shown with the crop a rater sees; not yet rated. Bottom: the stretch arm fires 0.88 on a corner ramp 19° from the pool ramp's bearing, inside the window, while the canvas arm has only a 0.18 peak on a traffic signal](figures/perspective_photos_218/richmond_unmatched_stretch.jpg)
 
 *Top:* gallery card `d001`, a canvas detection that matches no pool ramp; **unmatched,
 not yet rated.** *Bottom:* the stretch arm's highest hit that no canvas arm has. The
 stretch fires 0.88 on the ramp at the left corner, 19° from the pool ramp's bearing and
-inside the ±25° window; the canvas arm has only a 0.18 peak on the signal.
+inside the ±25° window; the canvas arm has only a 0.18 peak, on the traffic signal 13° above
+the horizon, which no camera pose would make a hit.
 
 **What the misses look like, from one look (not a rating).** Of the first 15 miss
 candidates in the order above, the pool ramp's projected bearing lands in the roadway or on a
@@ -128,13 +138,13 @@ showed a ramp sitting on the projected bearing with the model silent. Ordering b
 is in the road; so this says the geometric in-view set holds many pairs the photo cannot
 show (§5, "In view is geometric, not visual"), not what share of misses that is.
 
-![Four Seoul photos with canvas-arm detections](figures/perspective_photos_218/seoul_strip.jpg)
+![Four unrated Seoul pedestrian photos with the canvas arm's detections at an assumed 70° FOV: the two highest-scoring photos, the median of those that fired at 0.30, and one random draw from those that did not, which has no peak at all](figures/perspective_photos_218/seoul_strip.jpg)
 
 *Seoul*, canvas arm at the assumed 70° FOV, detections ≥ 0.30 ringed and captioned with
-the max score only. These photos have not been rated, so nothing here says whether a
-ramp is present. Photos: Seoul Sidewalk Accessibility Image Dataset (Lieu et al.), CC0.
+the max score only ("no peak": nothing ≥ 0.10). These photos have not been rated, so
+nothing here says whether a ramp is present. Photos: Seoul Sidewalk Accessibility Image Dataset (Lieu et al.), CC0.
 
-![Where a 70° photo lands in the 360×180 canvas](figures/perspective_photos_218/canvas_geometry.jpg)
+![Where a level 70° by 55° photo lands in the 360 by 180 degree canvas: 796 of 4,096 columns, with the 48° and 103° p5 and p95 fields of view dashed](figures/perspective_photos_218/canvas_geometry.jpg)
 
 *Canvas geometry.* A level 70° × 55° photo covers 796 of the canvas's 4,096 columns; the
 p5 and p95 FOVs (48°, 103°) are dashed. The canvas keeps the trained 11.4 px per degree
@@ -158,14 +168,20 @@ once, and it has no curb ramp labels. So it gets only the preparation (§6).
 Mapillary image within 30 m of a Richmond pool ramp. Of its 1,422 flat images, the 1,353
 perspective ones are used; the 69 fisheye frames are dropped (a different camera model).
 All 1,353 were fetched as Mapillary's 2048-px thumbnails, 525 MB, with no failures, and
-each has a sha256 in `fetched.csv`. Every image carries Mapillary's SfM pose
-(`computed_rotation`, `computed_compass_angle`, `computed_geometry`) and SfM-refined
-intrinsics (`camera_parameters` = [f, k1, k2]). The 193 images that #216 had fetched are a
+each has a sha256 in `fetched.csv`. Every image carries Mapillary's SfM heading and
+position (`computed_compass_angle`, `computed_geometry`) and SfM-refined intrinsics
+(`camera_parameters` = [f, k1, k2]). **Only 1,240 also carry an SfM orientation.** For the
+other 113 (54 Garmin VIRB, 50 unnamed-camera and 9 other frames) `computed_rotation` is
+level: it holds the heading, and pitch and roll are within 1e-3° of 0. That is a cut on a
+continuous tail, not an exact zero, so the count of 113 depends a little on it. On those images the scorer's
+in-view vertical check and height gate assume a level camera, and `canvas_sfm` sees the
+same canvas as `canvas_level` (§4, §5). The 193 images that #216 had fetched are a
 subset: those facing a harness corner, which would have been nearly all positives.
 
 - Horizontal FOV, p5/p50/p95: 48° / 69° / 103°.
-- SfM pitch p5–p95: −12° to +10°; roll −8° to +6°. So "level" is an assumption with a
-  real error, and the two canvas arms test it.
+- SfM pitch p5–p95: −12° to +10°; roll −8° to +6° (all 1,353, counting the 113
+  near-zero poses; on the 1,240 with an orientation, −12.8° to +10.0° and −8.3° to +5.7°). So
+  "level" is an assumption with a real error, and the two canvas arms test it.
 - Cameras: Garmin VIRB 271, unnamed 248, GoPro HERO11 194, moto x4 176, GoPro Max
   single-lens 171, then iPhones.
 - The heading implied by `computed_rotation` equals `computed_compass_angle` to 1e-11°
@@ -180,7 +196,7 @@ extraction as the benchmark: floor 0.10, `min_distance=10`, `exclude_border=Fals
 | arm | input | what it tests |
 |---|---|---|
 | `canvas_level` (a) | the photo reprojected into a 2048×4096 equirect canvas at its true FOV (SfM focal + k1/k2), heading on the centre column, **camera assumed level** | the principled arm: at the photo's centre a ramp subtends the angle it would in a panorama |
-| `canvas_sfm` (a2) | the same, with the photo placed at its SfM pitch and roll | whether the level assumption costs anything |
+| `canvas_sfm` (a2) | the same, with the photo placed at its SfM pitch and roll (level on the 113 images that have no SfM orientation, so identical to (a) there) | whether the level assumption costs anything |
 | `stretch` (b) | the photo resized straight to 2048×4096 (`threshold_sweep.PRE`) | the strawman |
 | `canvas_x2` (c) | the level canvas at twice the angular scale (4096×8192 input) | arm (c); **not run** (§5) |
 
@@ -409,6 +425,14 @@ unweighted.
 | canvas_level − pano, both bearing, flat above its count-matched floor, per ramp | – | −0.397 [−0.464, −0.329] (0.061 vs 0.458) |
 | stretch − pano, both bearing, each above its floor, per ramp | – | −0.378 [−0.451, −0.299] |
 
+**The canvas_sfm − canvas_level contrast is diluted.** 113 images have no SfM orientation
+(§2), so canvas_sfm is canvas_level there: their detections sit at the same pixels (to
+0.01 px) and match in score to within 0.001. They hold 31 of the 292 pairs, all misses in
+both arms. Without them, canvas_sfm − canvas_level at 0.30 is **+0.015 [0.000, 0.035]**
+on 261 pairs, against +0.014 [0.000, 0.032] on all 292 under the same ramp-cluster
+bootstrap (`perspective_bearing_check_218.py`, step 8; its interval differs slightly from
+the table's because the bootstrap clusters differ). The reading does not change.
+
 **Camera height implied by the matched detections: not evidence for a camera height.**
 At 0.30, range × tan(depression) over the canvas arm's 132 bearing-matched detections
 gives p10 / p50 / p90 = 1.19 / 1.69 / 2.65 m. That sample is narrow and largely chance:
@@ -459,7 +483,8 @@ the fold check or the new chance floors, not from new detections):
   photo on which the model fired as often. Any flat number here should be read against its floor.
 - **Input mapping is not the lever.** The canvas and the stretch find the same ramps above
   chance, and both are near their floors. The stretch mostly adds detections away from
-  known ramps. The pose-true canvas adds at most about 3 points (CI touches zero).
+  known ramps. The pose-true canvas adds at most about 3 points (CI touches zero), or 3.5
+  on the 1,240 images that have an SfM orientation.
 - **No evidence of a scale deficit.** This is weaker than a positive result.
   - The direct evidence is the stretch: it shows ramps at 3.6–6.8× the trained angular
     scale across and finds the same ramps as the canvas, which shows them at the trained
@@ -519,10 +544,9 @@ pool ramp bearing, positive to the right. canvas_level @ 0.30 unless stated:
   detection ≥ 0.30 anywhere. A detection 20–40° off the bearing, as in the figures, is
   next to 6.8% of missed pairs (16), against 6.0% (14.1) for the swap null: about 2 pairs
   above chance. (Stretch: 24 against 20.7.)
-- **113 of the 1,353 images have no SfM orientation.** Their `computed_rotation` is exactly
-  level (pitch = roll = 0), so §2's "every image carries an SfM pose" holds for heading
-  and position only. They are 54 VIRB, 50 unnamed-camera and 9 other frames, and include
-  the first drawn miss. They hold 31 of the 292 pairs, with **0 hits**. Without them the
+- **113 of the 1,353 images have no SfM orientation.** Their `computed_rotation` is level
+  (pitch and roll within 1e-3° of 0): they carry an SfM heading and position only (§2). They are
+  54 VIRB, 50 unnamed-camera and 9 other frames, and include the first drawn miss. They hold 31 of the 292 pairs, with **0 hits**. Without them the
   canvas rate is 58 / 261 = 0.222 (above chance 0.127). This is a sensitivity, not a
   correction: VIRB and unnamed cameras are at the swap null's level overall, so it does
   not separate the missing pitch from the camera.
@@ -533,9 +557,12 @@ pool ramp bearing, positive to the right. canvas_level @ 0.30 unless stated:
 
 **Reading: refuted as a systematic error.** The heading, the x → bearing sign and the
 focal length are right to within a few degrees and a few percent, and the misses are the
-model not firing. What this cannot test is per-image error: SfM position (median 2.7 m
-from the device GPS, p90 8.5 m) and GT error (p90 4.4 m) put some ramps in the in-view
-denominator that the photo does not show. The visual in-view pass (§7) measures that.
+model not firing. This does not rule out per-image error. On some frames the SfM heading
+itself is off: PR #232's audit finds the unnamed-camera group's SfM heading a median 20°
+clockwise of the direction of travel, and correcting it moves the headline by less than
+0.01. SfM position (median 2.7 m from the device GPS, p90 8.5 m) and GT error (p90 4.4 m)
+put some ramps in the in-view denominator that the photo does not show. The visual in-view
+pass (§7) measures that.
 
 A fuller audit (correction scans, the pano control, the direction of travel as an independent
 heading, and a full re-score with corrected headings) is in `docs/bearing_audit_218.md`. It finds

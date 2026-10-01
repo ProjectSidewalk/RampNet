@@ -18,7 +18,9 @@ offsets is where real detections of ramps sit; its centre is the bias.
     python scripts/analysis/perspective_bearing_check_218.py --arm stretch
 
 Prints only; the numbers are quoted in docs/perspective_photos_218.md, "Is the pose
-biased?".
+biased?". Step 8 (canvas_level only) also reads the 113 images with no SfM orientation:
+the pose spread with and without them, and the canvas_sfm - canvas_level contrast without
+them, quoted in section 4 of the same doc.
 """
 import argparse
 import math
@@ -277,6 +279,52 @@ def main(argv=None):
         e = excess([p for p, k in zip(pairs, m) if k], a.n_null, CORE)
         print(f"   {name:24s} {m.sum():4d} {int(r_[m].sum()):3d} {r_[m].mean():.3f} "
               f"{r_[m].mean() - n_[m].mean():+.3f} | {e[4] - e[5]:6.1f} {e[3]:+6.1f}")
+
+    if a.arm == "canvas_level":
+        sfm_dilution(a, pairs)
+
+
+def sfm_dilution(a, pairs):
+    """Images with no SfM orientation (``computed_rotation`` level: |pitch|, |roll| < 1e-3 deg,
+    a cut on a continuous tail rather than an exact zero) get the same
+    canvas in canvas_sfm as in canvas_level, so they add zeros to the paired
+    canvas_sfm - canvas_level contrast. Reads the pitch / roll spread with and without
+    them, and the contrast on the images that do have an orientation."""
+    print("\n8. Images with no SfM orientation: pose spread, and the canvas_sfm - "
+          "canvas_level contrast without them")
+    pr = {}
+    for row in PP.read_csv(PP.IMAGES_CSV):
+        _, p, r = P.heading_pitch_roll(PP.pose_of(row))
+        pr[row["image_id"]] = (p, r)
+    ids = sorted(pr)
+    lev = {i for i in ids if abs(pr[i][0]) < 1e-3 and abs(pr[i][1]) < 1e-3}
+    for name, sel in (("all", ids), ("with an SfM orientation", [i for i in ids
+                                                                   if i not in lev])):
+        p = np.array([pr[i][0] for i in sel])
+        r = np.array([pr[i][1] for i in sel])
+        print(f"   {name:24s} {len(sel):5d} images: pitch p5/p95 {np.percentile(p, 5):+.1f}/"
+              f"{np.percentile(p, 95):+.1f}, roll p5/p95 {np.percentile(r, 5):+.1f}/"
+              f"{np.percentile(r, 95):+.1f}")
+    print(f"   level to 1e-3 deg (no SfM orientation): {len(lev)} of {len(ids)}")
+    lv, sf = PP.load_dets("canvas_level"), PP.load_dets("canvas_sfm")
+    same = sum(1 for i in lev if [(d["u"], d["v"], d["score"]) for d in lv[i]["dets"]]
+               == [(d["u"], d["v"], d["score"]) for d in sf[i]["dets"]])
+    print(f"   of those, canvas_sfm detections identical to canvas_level: {same}")
+    sp = pairs_of(collect("canvas_sfm", a.thr, 0))
+    assert [(p["im"]["image_id"], p["ramp"]) for p in sp] == \
+        [(p["im"]["image_id"], p["ramp"]) for p in pairs]
+    for p, q in zip(pairs, sp):
+        p["d_sfm"] = float(q["hit"]) - float(p["hit"])
+    for name, f in (("all pairs", lambda p: True),
+                    ("pairs on images with an SfM orientation",
+                     lambda p: p["im"]["image_id"] not in lev),
+                    ("pairs on images without one", lambda p: p["im"]["image_id"] in lev)):
+        ps = [p for p in pairs if f(p)]
+        d = np.mean([p["d_sfm"] for p in ps])
+        ci = boot(ps, lambda qs: np.mean([q["d_sfm"] for q in qs]))
+        lvl = np.mean([p["hit"] for p in ps])
+        print(f"   {name:40s} {len(ps):4d} pairs: canvas_level {lvl:.3f}, canvas_sfm - "
+              f"canvas_level {d:+.3f} [{ci[0]:+.3f}, {ci[1]:+.3f}] (ramp-cluster bootstrap)")
 
 
 if __name__ == "__main__":
