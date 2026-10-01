@@ -380,3 +380,8 @@ analysis_out/mined_placement_158/predictions/*
 analysis_out/per_ramp_recall_38/*
 !analysis_out/per_ramp_recall_38/*.json
 !analysis_out/per_ramp_recall_38/*.csv
+
+# scripts/check_all.py --json: the committed result of the last full gate run on main.
+!analysis_out/check_all/
+analysis_out/check_all/*
+!analysis_out/check_all/latest.json
