@@ -98,3 +98,29 @@ def test_committed_headline_rederives_from_the_capture_table():
 def test_committed_results_are_lf_pinned():
     with open(RESULTS, "rb") as f:
         assert b"\r\n" not in f.read()
+
+
+def test_doc_quotes_every_generated_table_row_verbatim():
+    # S4 of the PR #231 review: the doc's numbers must come from results.json
+    with open(RESULTS, encoding="utf-8") as f:
+        res = json.load(f)
+    with open(os.path.join(REPO, "docs", "per_ramp_recall_38.md"), encoding="utf-8") as f:
+        doc = f.read()
+    missing = [row for rows in pr.doc_tables(res).values() for row in rows if row not in doc]
+    assert not missing, missing[:3]
+
+
+def test_floor_counts_every_view_out_to_25m():
+    with open(RESULTS, encoding="utf-8") as f:
+        fl = json.load(f)["all_missed_055"]["floor"]
+    assert fl["missed_by_every_view_25m"] == 46
+    assert fl["missed_by_every_view_18m"] == 55
+    assert fl["of_those_18m_found_at_18_25m"] == 9
+
+
+def test_floor_flag_uses_views_beyond_18m():
+    r = _ramp("bend:1", [_cap("s", 10.0, None, src=True), _cap("a", 5.0, None),
+                      _cap("b", 9.0, None), _cap("far", 22.0, 0.9)])
+    row = pr.all_missed_table([r], 0.55, {})[0]
+    assert row["all_other_missed"] and row["other_hit_18_25m"]
+    assert not row["all_views_missed_25m"]

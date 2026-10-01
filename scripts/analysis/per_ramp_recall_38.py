@@ -30,8 +30,9 @@ The GT-source view is excluded from every "other views" number, as in #48 §4-§
 world point of a verdict-true ramp was raycast from that view's own detection. The
 "union" rows add it back.
 
-    python scripts/analysis/per_ramp_recall_38.py run       # ~1-2 min, CPU
-    python scripts/analysis/per_ramp_recall_38.py check     # re-derive and compare bytes
+    python scripts/analysis/per_ramp_recall_38.py run         # about 1 min, CPU
+    python scripts/analysis/per_ramp_recall_38.py check       # re-derive and compare bytes
+    python scripts/analysis/per_ramp_recall_38.py doc-numbers # the numbers the doc quotes
 """
 import argparse
 import csv
@@ -40,6 +41,7 @@ import json
 import math
 import os
 import sys
+import zlib
 
 import numpy as np
 
@@ -207,14 +209,16 @@ class Design:
 
 
 def design_rows(ramps, floor, radius=R_DEFAULT, bins=RANGE_BINS, min_others=2,
-                include_source=False, k_nearest=None):
+                include_source=False, k_nearest=None, pop_radius=R_DEFAULT):
     """[(city, [(stratum, miss), ...]), ...] for the ramps with >= ``min_others`` other
-    captures within ``radius`` (``k_nearest`` keeps only the nearest k of them)."""
+    captures within ``pop_radius``, using their other captures within ``radius``
+    (``k_nearest`` keeps only the nearest k of them). Keeping ``pop_radius`` at 18 m
+    while ``radius`` goes to 25 m scores the same ramps with every stored view."""
     rows, kept = [], []
     for r in ramps:
-        os_ = others(r, radius)
-        if len(os_) < min_others:
+        if len(others(r, pop_radius)) < min_others:
             continue
+        os_ = others(r, radius)
         if k_nearest is not None:
             os_ = os_[:k_nearest]
         caps = [((r["city"], "other", bin_index(c["dist_m"], bins)),
@@ -231,9 +235,11 @@ def design_rows(ramps, floor, radius=R_DEFAULT, bins=RANGE_BINS, min_others=2,
 
 
 def correlation_block(ramps, floor, rng, bins=RANGE_BINS, include_source=False,
-                      k_nearest=None, min_others=2, n_boot=N_BOOT, n_perm=N_PERM):
-    rows, kept = design_rows(ramps, floor, bins=bins, include_source=include_source,
-                             k_nearest=k_nearest, min_others=min_others)
+                      k_nearest=None, min_others=2, n_boot=N_BOOT, n_perm=N_PERM,
+                      radius=R_DEFAULT):
+    rows, kept = design_rows(ramps, floor, radius=radius, bins=bins,
+                             include_source=include_source, k_nearest=k_nearest,
+                             min_others=min_others)
     strata = sorted({s for _, caps in rows for s, _ in caps},
                     key=lambda s: (s[0], s[1], -1 if s[2] is None else s[2]))
     d = Design(rows, strata)
@@ -264,7 +270,8 @@ def correlation_block(ramps, floor, rng, bins=RANGE_BINS, include_source=False,
 
 def all_missed_table(ramps, floor, residual_by_uid, radius=R_DEFAULT):
     """One row per ramp with >= 2 other captures within ``radius``, flagged when every one
-    of them missed."""
+    of them missed (``all_other_missed``), and when the source view and every other view
+    in the table, out to 25 m, missed (``all_views_missed_25m``: the per-ramp floor)."""
     rows = []
     for r in ramps:
         os_ = others(r, radius)
@@ -273,6 +280,9 @@ def all_missed_table(ramps, floor, residual_by_uid, radius=R_DEFAULT):
         src = source_capture(r)
         months = sorted({(c["capture_date"] or "")[:7] for c in os_ if c["capture_date"]})
         confs = [c["world_conf"] for c in os_ if c["world_conf"] is not None]
+        os25 = others(r, 25.0)
+        hit_18_25 = any(is_hit(c["world_conf"], floor) for c in os25 if c["dist_m"] > radius)
+        confs25 = [c["world_conf"] for c in os25 if c["world_conf"] is not None]
         rows.append({
             "ramp_uid": r["uid"], "city": r["city"], "imagery": SOURCE[r["city"]],
             "n_other": len(os_), "nearest_other_m": os_[0]["dist_m"],
@@ -282,6 +292,11 @@ def all_missed_table(ramps, floor, residual_by_uid, radius=R_DEFAULT):
             "source_hit": None if src is None else is_hit(src["world_conf"], floor),
             "best_other_conf": max(confs) if confs else None,
             "all_other_missed": all(not is_hit(c["world_conf"], floor) for c in os_),
+            "n_other_25m": len(os25),
+            "other_hit_18_25m": hit_18_25,
+            "best_other_conf_25m": max(confs25) if confs25 else None,
+            "all_views_missed_25m": (src is not None and not is_hit(src["world_conf"], floor)
+                                     and not any(is_hit(c["world_conf"], floor) for c in os25)),
             "residual_class_48": residual_by_uid.get(r["uid"]),
         })
     return rows
@@ -325,6 +340,34 @@ def characterise(table):
         "source_view_missed_too": len(miss) - src_seen,
         "best_other_conf_below_floor": describe(miss, "best_other_conf"),
         "with_any_stored_peak_below_floor": sum(1 for x in miss if x["best_other_conf"] is not None),
+        "residual_class_48": dict(sorted(classes.items())),
+        "floor": floor_block(table),
+    }
+
+
+def floor_block(table):
+    """The ramps the deployment misses: source view and every other view out to 25 m.
+    Also the 18 m version (source + other views within 18 m) and how many of those a view
+    at 18-25 m finds."""
+    fl = [x for x in table if x["all_views_missed_25m"]]
+    rest = [x for x in table if not x["all_views_missed_25m"]]
+    f18 = [x for x in table if x["all_other_missed"] and x["source_hit"] is False]
+    classes = {}
+    for x in fl:
+        key = x["residual_class_48"] or "recalled_by_a_site (not a #48 residual)"
+        classes[key] = classes.get(key, 0) + 1
+    return {
+        "ramps": len(table),
+        "missed_by_every_view_25m": len(fl),
+        "share": len(fl) / len(table) if table else None,
+        "union_recall_25m": 1 - len(fl) / len(table) if table else None,
+        "missed_by_every_view_18m": len(f18),
+        "of_those_18m_found_at_18_25m": sum(1 for x in f18 if x["other_hit_18_25m"]),
+        "by_city": {c: sum(1 for x in fl if x["city"] == c) for c in sorted({x["city"] for x in table})},
+        "nearest_other_m": {"floor": describe(fl, "nearest_other_m"), "rest": describe(rest, "nearest_other_m")},
+        "source_dist_m": {"floor": describe(fl, "source_dist_m"), "rest": describe(rest, "source_dist_m")},
+        "n_other_25m": {"floor": describe(fl, "n_other_25m"), "rest": describe(rest, "n_other_25m")},
+        "with_stored_peak_below_floor": sum(1 for x in fl if x["best_other_conf_25m"] is not None),
         "residual_class_48": dict(sorted(classes.items())),
     }
 
@@ -373,7 +416,7 @@ def three_nearest(ramps, floor, rng):
     dists = [others(r)[:3] for r in kept]
     blk["median_dist_of_3_nearest_m"] = [float(np.median([d[i]["dist_m"] for d in dists]))
                                          for i in range(3)]
-    blk["deployment_recall_3_nearest"] = 1 - blk["observed_share"]
+    blk["recall_3_nearest_others"] = 1 - blk["observed_share"]
     return blk
 
 
@@ -529,34 +572,61 @@ def dumps(payload):
     return json.dumps(rnd(payload), indent=1, sort_keys=True) + "\n"
 
 
+def block_rng(name):
+    """One generator per output block, seeded by its name, so adding or removing a block
+    never moves another block's bootstrap or permutation draws."""
+    return np.random.default_rng([SEED, zlib.crc32(name.encode("utf-8"))])
+
+
 def compute():
-    rng = np.random.default_rng(SEED)
     base = load_captures(CAPTURES)
     hit8 = load_captures(CAPTURES_HIT8)
     ramps = sorted(base.values(), key=lambda r: (r["city"], int(r["uid"].split(":")[1])))
     ramps8 = sorted(hit8.values(), key=lambda r: (r["city"], int(r["uid"].split(":")[1])))
     sub = [r for r in ramps if r["city"] in SUB_CITIES]
-    gsv = [r for r in ramps if SOURCE[r["city"]] == "gsv"]
-    mly = [r for r in ramps if SOURCE[r["city"]] == "mapillary"]
+    groups = {"gsv": [r for r in ramps if SOURCE[r["city"]] == "gsv"],
+              "mapillary": [r for r in ramps if SOURCE[r["city"]] == "mapillary"]}
     with open(RESIDUAL, encoding="utf-8") as f:
         residual = {x["uid"]: x["class"] for x in json.load(f)["ramps"]}
 
-    corr = {}
-    corr["pooled_055"], _, _ = correlation_block(ramps, 0.55, rng)
+    def cb(name, pop, floor, **kw):
+        blk, _, _ = correlation_block(pop, floor, block_rng(name), **kw)
+        return blk
+
+    corr = {"pooled_055": cb("pooled_055", ramps, 0.55)}
     # instrument check against docs/multiview_48.md §5 (153 vs 76.52)
     assert int(corr["pooled_055"]["observed_all_missed"]) == 153, corr["pooled_055"]
     assert abs(corr["pooled_055"]["predicted_independent"] - 76.5197) < 1e-3, corr["pooled_055"]
-    corr["gsv_055"], _, _ = correlation_block(gsv, 0.55, rng)
-    corr["mapillary_055"], _, _ = correlation_block(mly, 0.55, rng)
-    corr["pooled4_030"], _, _ = correlation_block(sub, 0.30, rng)
-    corr["pooled4_010"], _, _ = correlation_block(sub, 0.10, rng)
-    corr["pooled_055_fine_3m_bins"], _, _ = correlation_block(ramps, 0.55, rng, bins=FINE_BINS)
-    corr["pooled_055_hit8m"], _, _ = correlation_block(ramps8, 0.55, rng)
-    corr["pooled_055_union_with_source"], _, _ = correlation_block(ramps, 0.55, rng,
-                                                                  include_source=True)
+    corr["gsv_055"] = cb("gsv_055", groups["gsv"], 0.55)
+    corr["mapillary_055"] = cb("mapillary_055", groups["mapillary"], 0.55)  # = richmond
+    corr["pooled4_030"] = cb("pooled4_030", sub, 0.30)
+    corr["pooled4_010"] = cb("pooled4_010", sub, 0.10)
+    corr["pooled_055_fine_3m_bins"] = cb("pooled_055_fine_3m_bins", ramps, 0.55, bins=FINE_BINS)
+    corr["pooled_055_hit8m"] = cb("pooled_055_hit8m", ramps8, 0.55)
+    corr["pooled_055_union_with_source"] = cb("pooled_055_union_with_source", ramps, 0.55,
+                                              include_source=True)
+    # the same ramps with every stored view: source + other views out to 25 m
+    corr["pooled_055_union_with_source_25m"] = cb("pooled_055_union_with_source_25m", ramps,
+                                                  0.55, include_source=True, radius=25.0)
     for c in sorted(SOURCE):
-        corr[f"{c}_055"], _, _ = correlation_block([r for r in ramps if r["city"] == c], 0.55,
-                                                   rng, n_perm=1000)
+        if SOURCE[c] == "mapillary":
+            continue                     # richmond is the whole mapillary_055 row
+        corr[f"{c}_055"] = cb(f"{c}_055", [r for r in ramps if r["city"] == c], 0.55,
+                              n_perm=1000)
+
+    # The all-missed ratio grows with the number of views per ramp, and richmond has
+    # about twice as many as a GSV city, so compare imagery and cities at matched k.
+    matched = {}
+    for k in (2, 3, 4):
+        pops = dict(groups)
+        pops.update({c: [r for r in ramps if r["city"] == c] for c in sorted(SOURCE)
+                     if SOURCE[c] == "gsv"})
+        pops["pooled"] = ramps
+        for name, pop in pops.items():
+            key = f"{name}_k{k}"
+            matched[key] = cb("matched_" + key, pop, 0.55, k_nearest=k, min_others=k,
+                              n_boot=1000, n_perm=0)
+    corr["matched_view_count_055"] = matched
 
     table = all_missed_table(ramps, 0.55, residual)
     return {
@@ -565,20 +635,26 @@ def compute():
                    "residual_misses.json": sha256(RESIDUAL)},
         "params": {"seed": SEED, "n_boot": N_BOOT, "n_perm": N_PERM, "radius_m": R_DEFAULT,
                    "range_bins": RANGE_BINS, "spacings_m": SPACINGS, "n_offsets": N_OFFSETS,
-                   "hit_test": "world (raycast within 5 m; hit8m arm 8 m)"},
+                   "hit_test": "world (raycast within 5 m; hit8m arm 8 m)",
+                   "numpy": np.__version__},
         "correlation": corr,
-        "three_nearest_055": three_nearest(ramps, 0.55, rng),
-        "three_nearest_030_pooled4": three_nearest(sub, 0.30, rng),
+        "three_nearest_055": three_nearest(ramps, 0.55, block_rng("three_nearest_055")),
+        "three_nearest_055_hit8m": three_nearest(ramps8, 0.55,
+                                                 block_rng("three_nearest_055_hit8m")),
+        "three_nearest_030_pooled4": three_nearest(sub, 0.30,
+                                                   block_rng("three_nearest_030_pooled4")),
         "all_missed_055": characterise(table),
-        "nearest_vs_any_055": nearest_vs_any(ramps, 0.55, rng),
-        "thinning_055": thinning_curve(ramps, 0.55, rng),
-        "thinning_030_pooled4": thinning_curve(sub, 0.30, rng, n_offsets=20),
+        "nearest_vs_any_055": nearest_vs_any(ramps, 0.55, block_rng("nearest_vs_any_055")),
+        "thinning_055": thinning_curve(ramps, 0.55, block_rng("thinning_055")),
+        "thinning_030_pooled4": thinning_curve(sub, 0.30, block_rng("thinning_030_pooled4"),
+                                               n_offsets=20),
     }, table
 
 
 TABLE_COLUMNS = ["ramp_uid", "city", "imagery", "n_other", "nearest_other_m", "median_other_m",
                  "n_months", "source_dist_m", "source_hit", "best_other_conf",
-                 "all_other_missed", "residual_class_48"]
+                 "all_other_missed", "n_other_25m", "other_hit_18_25m", "best_other_conf_25m",
+                 "all_views_missed_25m", "residual_class_48"]
 
 
 def table_text(table):
@@ -590,6 +666,144 @@ def table_text(table):
             vals.append("" if v is None else str(int(v)) if isinstance(v, bool) else str(v))
         lines.append(",".join(vals))
     return "\n".join(lines) + "\n"
+
+
+# --------------------------------------------------------------------------- #
+# the doc's tables, generated from results.json (tests check the doc quotes them verbatim)
+# --------------------------------------------------------------------------- #
+
+def _f(v, nd=2):
+    return f"{v:.{nd}f}"
+
+
+def _ci(ci, nd=2):
+    return f"[{ci[0]:.{nd}f}, {ci[1]:.{nd}f}]"
+
+
+def _pct(v):
+    return f"{100 * v:.1f}%"
+
+
+def _n(v):
+    return f"{int(round(v)):,}"
+
+
+CORR_ROWS = (
+    ("pooled, 5 cities", "pooled_055", "0.55"),
+    ("GSV (4 cities)", "gsv_055", "0.55"),
+    ("Mapillary (richmond)", "mapillary_055", "0.55"),
+    ("paterson", "paterson_055", "0.55"),
+    ("gainesville", "gainesville_055", "0.55"),
+    ("sao_paulo", "sao_paulo_055", "0.55"),
+    ("bend", "bend_055", "0.55"),
+    ("pooled, 4 cities (no bend)", "pooled4_030", "0.30"),
+    ("pooled, 4 cities (no bend)", "pooled4_010", "0.10"),
+    ("pooled, 3 m range bins", "pooled_055_fine_3m_bins", "0.55"),
+    ("pooled, 8 m world test", "pooled_055_hit8m", "0.55"),
+    ("pooled, union with the source view, other views within 18 m",
+     "pooled_055_union_with_source", "0.55"),
+    ("pooled, union with the source view, other views within 25 m",
+     "pooled_055_union_with_source_25m", "0.55"),
+)
+
+
+def doc_tables(res):
+    """Markdown rows the doc quotes, keyed by section."""
+    c = res["correlation"]
+    out = {}
+    rows = []
+    for label, key, floor in CORR_ROWS:
+        b = c[key]
+        rows.append(f"| {label} | {floor} | {_n(b['ramps'])} | {_n(b['observed_all_missed'])} "
+                    f"({_pct(b['observed_share'])}) | {b['predicted_independent']:.1f} "
+                    f"({_pct(b['predicted_share'])}) | {_f(b['ratio'])} {_ci(b['ratio_ci95'])} | "
+                    f"{b['permutation_null_mean']:.1f} / {int(b['permutation_null_p95'])} | "
+                    f"{b['permutation_p_value']:.4f} |")
+    out["correlation"] = rows
+    m = c["matched_view_count_055"]
+    rows = []
+    for name in ("pooled", "gsv", "mapillary", "paterson", "gainesville", "sao_paulo", "bend"):
+        cells = []
+        for k in (2, 3, 4):
+            b = m[f"{name}_k{k}"]
+            cells.append(f"{_f(b['ratio'])} {_ci(b['ratio_ci95'])} ({_n(b['observed_all_missed'])} "
+                         f"vs {b['predicted_independent']:.1f}, n {_n(b['ramps'])})")
+        rows.append(f"| {name} | " + " | ".join(cells) + " |")
+    out["matched"] = rows
+    rows = []
+    for label, key in (("5 m world test, 0.55", "three_nearest_055"),
+                       ("8 m world test, 0.55", "three_nearest_055_hit8m"),
+                       ("5 m world test, 0.30 (4 cities)", "three_nearest_030_pooled4")):
+        b = res[key]
+        rows.append(f"| {label} | {_n(b['ramps'])} | {_pct(b['observed_share'])} "
+                    f"[{100 * b['observed_share_ci95'][0]:.1f}, {100 * b['observed_share_ci95'][1]:.1f}] "
+                    f"| {_pct(b['predicted_share'])} | {_f(b['ratio'])} {_ci(b['ratio_ci95'])} | "
+                    f"{round(b['observed_share'] / 0.003)}x |")
+    out["three_nearest"] = rows
+    fl = res["all_missed_055"]["floor"]
+    out["floor"] = [
+        f"| missed by the source view and every other view within 25 m | "
+        f"{fl['missed_by_every_view_25m']} of {_n(fl['ramps'])} ({_pct(fl['share'])}) |",
+        f"| union recall on this population | {fl['union_recall_25m']:.3f} |",
+        f"| missed by the source view and every other view within 18 m | "
+        f"{fl['missed_by_every_view_18m']}, of which {fl['of_those_18m_found_at_18_25m']} "
+        f"are found by a view at 18-25 m |",
+        f"| nearest other camera, median [IQR], floor vs rest | "
+        f"{fl['nearest_other_m']['floor']['median']:.1f} m "
+        f"[{fl['nearest_other_m']['floor']['p25']:.1f}, {fl['nearest_other_m']['floor']['p75']:.1f}] "
+        f"vs {fl['nearest_other_m']['rest']['median']:.1f} m |",
+        f"| source camera, median, floor vs rest | {fl['source_dist_m']['floor']['median']:.1f} m "
+        f"vs {fl['source_dist_m']['rest']['median']:.1f} m |",
+        f"| other views within 25 m, median (mean), floor vs rest | "
+        f"{fl['n_other_25m']['floor']['median']:.0f} ({fl['n_other_25m']['floor']['mean']:.1f}) vs "
+        f"{fl['n_other_25m']['rest']['median']:.0f} ({fl['n_other_25m']['rest']['mean']:.1f}) |",
+        f"| with a stored other-view peak in [0.10, 0.55) | {fl['with_stored_peak_below_floor']} |",
+        "| by city | " + ", ".join(f"{k} {v}" for k, v in fl["by_city"].items()) + " |",
+        "| #48 residual class | " + ", ".join(f"{k} {v}" for k, v in fl["residual_class_48"].items())
+        + " |",
+    ]
+    rows = []
+    t = {(r["spacing_m"], r["scheme"]): r["groups"] for r in res["thinning_055"]["rows"]}
+    for sp in (None,) + SPACINGS:
+        g = t[(sp, "native" if sp is None else "grid")]
+        cells = [("native" if sp is None else f"{sp:g} m")]
+        for name in ("gsv", "mapillary"):
+            x = g[name]
+            cells += [f"{x['panos_kept_share']:.3f}", f"{x['recall_other']:.3f}",
+                      "" if sp is None else f"{x['delta_other_vs_native']:+.3f} "
+                      f"{_ci(x['delta_other_vs_native_ci95'], 3)}"]
+        rows.append("| " + " | ".join(cells) + " |")
+    out["thinning"] = rows
+    t30 = {(r["spacing_m"], r["scheme"]): r["groups"] for r in res["thinning_030_pooled4"]["rows"]}
+    tu = []
+    for name, tt, lab in (("mapillary", t, "richmond, 0.55, union"), ("gsv", t, "GSV, 0.55, union"),
+                          ("mapillary", t30, "richmond, 0.30, other views")):
+        key = "recall_union" if "union" in lab else "recall_other"
+        tu.append(f"| {lab} | " + " | ".join(
+            f"{tt[(sp, 'native' if sp is None else 'grid')][name][key]:.3f}"
+            for sp in (None, 5.0, 10.0)) + " |")
+    out["thinning_extra"] = tu
+    n = res["nearest_vs_any_055"]
+    rows = []
+    for label, key in (("nearest other view only", "nearest_other_only"),
+                       ("any other view within 6 m", "any_other_within_6m"),
+                       ("any other view within 12 m", "any_other_within_12m"),
+                       ("any other view within 18 m", "any_other_within_18m"),
+                       ("any other view within 25 m", "any_other_within_25m")):
+        x = n[key]
+        rows.append(f"| {label} | {_n(x['ramps_with_a_capture'])} | {x['recall']:.3f} "
+                    f"{_ci(x['ci95'], 3)} |")
+    out["nearest_vs_any"] = rows
+    return out
+
+
+def cmd_doc_numbers(args):
+    with open(os.path.join(OUT, "results.json"), encoding="utf-8") as f:
+        res = json.load(f)
+    for sec, rows in doc_tables(res).items():
+        print(f"## {sec}")
+        for row in rows:
+            print(row)
 
 
 def cmd_run(args):
@@ -619,6 +833,7 @@ def main(argv=None):
     sp = ap.add_subparsers(dest="cmd", required=True)
     sp.add_parser("run").set_defaults(fn=cmd_run)
     sp.add_parser("check").set_defaults(fn=cmd_check)
+    sp.add_parser("doc-numbers").set_defaults(fn=cmd_doc_numbers)
     args = ap.parse_args(argv)
     args.fn(args)
 
