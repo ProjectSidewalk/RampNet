@@ -12,7 +12,9 @@ import csv
 
 from rampnet.model import KeypointModel
 from rampnet.loading import load_checkpoint, checkpoint_fingerprint
-from rampnet.subcell import DECODES, coarse_from_heatmap, detect_peaks
+from rampnet.subcell import (
+    COARSE_ATOL, DECODES, coarse_from_heatmap, coarse_mismatch, detect_peaks,
+)
 from rampnet.metrics import (
     calculate_ap_and_pr_curve,
     calculate_pr_rc_confidence_curves,
@@ -46,7 +48,7 @@ def parse_args(argv=None):
     parser.add_argument('--cache-dir', default='evaluate_cache',
                         help="Heatmap cache root (keyed by checkpoint hash + dataset + TTA setting)")
     parser.add_argument('--fresh', action='store_true',
-                        help="Delete this checkpoint's cached heatmaps before evaluating")
+                        help="Delete this checkpoint's cached heatmaps and coarse maps (both, whatever --decode) before evaluating")
     parser.add_argument('--results-dir', default='evaluation_results',
                         help="Where plots, CSVs, and metrics.json are written")
     parser.add_argument('--decode', choices=DECODES, default='argmax',
@@ -68,17 +70,34 @@ def cache_dirs(cache_root, ckpt_fingerprint, dataset_id_str, use_tta, decode='ar
     decode does not change them, so it is deliberately *not* part of their key: argmax
     and gaussian runs share them, and an argmax run reads exactly the cache it always
     has. ``coarse`` holds what a refining decode reads instead -- the 64x128 coarse map
-    of each *raw* single-pass branch -- and is None for argmax. It cannot be derived
-    from the cached heatmap, which is clipped to [0, 1] and, with TTA, a max of two
-    surfaces. Both directories carry the same key, so ``coarse/`` is never read under
-    different weights, dataset or TTA than the heatmaps it sits beside.
+    of each *raw* single-pass branch. It cannot be derived from the cached heatmap,
+    which is clipped to [0, 1] and, with TTA, a max of two surfaces. Both directories
+    carry the same key, so ``coarse/`` is never read under different weights, dataset
+    or TTA than the heatmaps it sits beside.
+
+    Both paths are returned for every decode (an argmax run only reads ``heatmaps``),
+    so ``--fresh`` can clear them together: clearing only the heatmaps would leave
+    coarse maps from the old run to be paired with new heatmaps (#229 review S1).
+    ``decode`` is accepted for symmetry and does not change the paths.
     """
     cache_key = f"{ckpt_fingerprint}_{dataset_id_str}_{'tta' if use_tta else 'notta'}"
     return {
         'heatmaps': os.path.join(cache_root, "heatmaps", cache_key),
-        'coarse': (None if decode == 'argmax'
-                   else os.path.join(cache_root, "coarse", cache_key)),
+        'coarse': os.path.join(cache_root, "coarse", cache_key),
     }
+
+
+def prepare_cache_dirs(dirs, fresh, decode):
+    """``--fresh`` clears the heatmap *and* coarse caches, whatever the decode; then the
+    directories this decode writes are created."""
+    if fresh:
+        for d in (dirs['heatmaps'], dirs['coarse']):
+            if os.path.isdir(d):
+                print(f"--fresh: clearing cache {d}")
+                shutil.rmtree(d)
+    os.makedirs(dirs['heatmaps'], exist_ok=True)
+    if decode != 'argmax':
+        os.makedirs(dirs['coarse'], exist_ok=True)
 
 
 def results_params_str(threshold, decode='argmax'):
@@ -107,6 +126,10 @@ preprocess_transform = transforms.Compose([
 ])
 
 
+class StaleCoarseCache(ValueError):
+    """A cached coarse stack does not re-build the heatmap it was paired with."""
+
+
 def extract_peaks_from_heatmap(heatmap_np, min_distance, threshold_abs, heatmap_shape,
                                decode='argmax', coarse=None):
     """(x_norm, y_norm, confidence) per peak, via rampnet.subcell.detect_peaks.
@@ -114,7 +137,9 @@ def extract_peaks_from_heatmap(heatmap_np, min_distance, threshold_abs, heatmap_
     With decode='argmax' this is the historical extractor exactly: the same
     peak_local_max call (exclude_border=False, the #132 fix), the same integer pixel
     divided by the heatmap size, and the confidence read at that pixel in the heatmap's
-    own dtype. ``coarse`` is what a refining decode reads (see cache_dirs()).
+    own dtype. ``coarse`` is what a refining decode reads (see cache_dirs()). Before
+    it is used, ``max_b clip(upsample(coarse_b))`` is compared with the heatmap at every
+    peak pixel; a disagreement above COARSE_ATOL raises StaleCoarseCache.
     """
     heatmap_h, heatmap_w = heatmap_shape
     if heatmap_np.ndim > 2:
@@ -122,6 +147,13 @@ def extract_peaks_from_heatmap(heatmap_np, min_distance, threshold_abs, heatmap_
     rcs, pixels = detect_peaks(heatmap_np, threshold_abs, min_distance=min_distance,
                                decode=decode, exclude_border=False, coarse=coarse,
                                return_pixels=True)
+    if decode != 'argmax' and coarse is not None and len(pixels):
+        worst = coarse_mismatch(heatmap_np, coarse, pixels, clip=True)
+        if worst > COARSE_ATOL:
+            raise StaleCoarseCache(
+                f"cached coarse maps disagree with the cached heatmap by {worst:.3g} "
+                f"(> {COARSE_ATOL:g}) at a peak: the two caches came from different "
+                "runs. Re-run with --fresh to rebuild both.")
     peaks_normalized = []
     for (row, col, _), (r, c) in zip(rcs, pixels):
         confidence = heatmap_np[r, c]
@@ -281,6 +313,8 @@ def evaluate(model, image_paths, label_paths, is_manual_dataset, heatmap_cache_d
         cached_heatmap_path = os.path.join(heatmap_cache_dir, f"{base_name}_heatmap.npy")
         cached_coarse_path = (None if decode == 'argmax'
                               else os.path.join(coarse_cache_dir, f"{base_name}_coarse.npy"))
+        # A heatmap cached without its coarse map keeps the heatmap and computes only the
+        # coarse map; extract_peaks_from_heatmap then proves the two still agree.
         coarse = None
         have_heatmap = os.path.exists(cached_heatmap_path)
         have_coarse = cached_coarse_path is None or os.path.exists(cached_coarse_path)
@@ -309,14 +343,18 @@ def evaluate(model, image_paths, label_paths, is_manual_dataset, heatmap_cache_d
 
         gt_points_normalized = load_gt_points(label_path, is_manual_dataset)
         total_gt_count += len(gt_points_normalized)
-        pred_peaks_normalized = extract_peaks_from_heatmap(
-            combined_heatmap_np,
-            min_distance=PEAK_MIN_DISTANCE,
-            threshold_abs=peak_threshold_abs,
-            heatmap_shape=MODEL_HEATMAP_SIZE,
-            decode=decode,
-            coarse=coarse,
-        )
+        try:
+            pred_peaks_normalized = extract_peaks_from_heatmap(
+                combined_heatmap_np,
+                min_distance=PEAK_MIN_DISTANCE,
+                threshold_abs=peak_threshold_abs,
+                heatmap_shape=MODEL_HEATMAP_SIZE,
+                decode=decode,
+                coarse=coarse,
+            )
+        except StaleCoarseCache as e:
+            raise StaleCoarseCache(f"{base_name}: {e} (heatmap {cached_heatmap_path}, "
+                                   f"coarse {cached_coarse_path})") from None
         all_pred_details_for_ap.extend(match_predictions(
             pred_peaks_normalized,
             gt_points_normalized,
@@ -372,15 +410,12 @@ def main():
     # heatmap); a refining decode adds a coarse/ cache under the same key (cache_dirs()).
     ckpt_fingerprint = checkpoint_fingerprint(args.checkpoint)
     dirs = cache_dirs(args.cache_dir, ckpt_fingerprint, dataset_id_str, args.tta, args.decode)
-    heatmap_cache_dir, coarse_cache_dir = dirs['heatmaps'], dirs['coarse']
-    for d in (heatmap_cache_dir, coarse_cache_dir):
-        if d is None:
-            continue
-        if args.fresh and os.path.isdir(d):
-            print(f"--fresh: clearing cache {d}")
-            shutil.rmtree(d)
-        os.makedirs(d, exist_ok=True)
-        print(f"Cache directory: {d}")
+    prepare_cache_dirs(dirs, args.fresh, args.decode)
+    heatmap_cache_dir = dirs['heatmaps']
+    coarse_cache_dir = dirs['coarse'] if args.decode != 'argmax' else None
+    print(f"Cache directory: {heatmap_cache_dir}")
+    if coarse_cache_dir:
+        print(f"Coarse cache directory: {coarse_cache_dir}")
     print(f"Decode: {args.decode}")
 
     if evaluate_on_manual:

@@ -514,9 +514,35 @@ and gaussian runs share it. A refining decode cannot be read from those maps, wh
 and (with TTA) a max of two surfaces. So `--decode gaussian` adds
 `evaluate_cache/coarse/<same key>/<pano>_coarse.npy`, a float32 `(B, 64, 128)` stack of the raw
 branches' coarse maps. The maps are cast to float32 before use, so a decode read back from the
-cache equals one computed fresh. `--fresh` clears both directories. If a heatmap is cached but its
-coarse map is not, the model is re-run for the coarse map and the existing heatmap is kept, so
-peaks still come from the map an argmax run used. Result files from a refining decode are tagged
+cache equals one computed fresh. If a heatmap is cached but its coarse map is not, the model is
+re-run for the coarse map only, and the existing heatmap is kept so that peaks still come from the
+map an argmax run used.
+
+*Corrected after the [review of PR #229](https://github.com/ProjectSidewalk/RampNet/pull/229#pullrequestreview-5373695786) (S1).*
+The first version said "`--fresh` clears both directories". That was false for an argmax run,
+which cleared only `heatmaps/` and could leave old coarse maps to be paired with new heatmaps.
+Two changes fix it:
+
+- `--fresh` now clears `coarse/<key>` whenever it clears `heatmaps/<key>`, whatever the decode
+  (`prepare_cache_dirs()`).
+- Before a refining decode uses a coarse stack, it re-builds the heatmap from that stack
+  (`max_b clip(upsample(coarse_b), 0, 1)`) at every peak pixel and compares the result with the
+  cached heatmap (`rampnet.subcell.coarse_mismatch`). Agreement above `COARSE_ATOL` = 1e-3 is
+  required; float32 storage noise is about 1e-7. On a mismatch the run raises `StaleCoarseCache`
+  and names `--fresh`.
+
+The check covers both stale pairings: old coarse maps beside new heatmaps, and a coarse map
+recomputed for a heatmap cached by a different model or preprocessing.
+
+Two related guards came from the same review (S2):
+
+- `detect_peaks` with `coarse=None` and a refining decode raises `ValueError` when the heatmap is
+  not an exact x8 upsample. The threshold is a relative residual above `UPSAMPLE_RTOL` = 1e-4,
+  and a raw fp32 head output measures about 1e-7. Examples are a clipped peak, a TTA max, or a
+  heatmap from a non-2048x4096 input, where the factor is no longer 8. In those cases a
+  least-squares coarse map can land further from the truth than argmax.
+- `RampNetModel.detect` rejects `pixel_values` that are not `config.input_size` unless
+  `decode="argmax"`. Result files from a refining decode are tagged
 `_dgaussian` (e.g. `metrics_manual_r0.022_pt0.0_dgaussian.json`) so they cannot overwrite the
 committed argmax files. `metrics.json` records `decode` either way. `cache_dirs()` and
 `results_params_str()` are pinned by `tests/test_decode_ship_221.py`.

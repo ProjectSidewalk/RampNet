@@ -145,11 +145,14 @@ scale_w, scale_h = img.width / heatmap.shape[1], img.height / heatmap.shape[0]
 print([(int(c * scale_w), int(r * scale_h)) for r, c in peaks])
 ```
 
-`model.detect` takes either that heatmap or the preprocessed `pixel_values` tensor (it then runs
-the model once, without flip TTA) and needs `scikit-image`. Both decodes find the same peaks with
-the same scores; only the positions differ, so detection precision and recall are unaffected
-(matched counts move by at most one per benchmark split). The Gaussian decode was measured on
-single-pass heatmaps; under flip TTA, decode each branch rather than the max-combined map.
+`model.detect` takes either that heatmap or the preprocessed 2048x4096 `pixel_values` tensor (it
+then runs the model once, without flip TTA) and needs `scikit-image`. Both decodes find the same
+peaks with the same scores and differ only in position. What was measured (single-pass
+heatmaps, peaks >= 0.30): the Gaussian decode moved matched peaks closer to human box centres,
+and matched counts moved by at most one per benchmark split. **No precision, recall or AP has
+been computed with the Gaussian decode; the evaluation table above is argmax** (its "Peak
+decode" row says so). `detect()` decodes single-pass heatmaps only. Decoding under flip TTA is
+unmeasured, and `detect()` does not support it.
 
 ## Citation
 

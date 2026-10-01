@@ -58,3 +58,24 @@ def test_ap_falls_back_to_metrics_when_it_is_full_sweep(tmp_path):
     full = _write(tmp_path, "pt0.json", FULL_SWEEP_METRICS)
     section = render_eval_section(full)  # no separate ap-json
     assert "0.9205" in section
+
+
+def test_peak_decode_row_defaults_to_argmax(tmp_path):
+    """Metrics files from before #221 carry no ``decode`` key: they were argmax (#229 S5)."""
+    section = render_eval_section(_write(tmp_path, "pt55.json", THRESHOLD_METRICS),
+                                  _write(tmp_path, "pt0.json", FULL_SWEEP_METRICS))
+    assert "| Peak decode | argmax |" in section
+
+
+def test_peak_decode_row_reports_gaussian(tmp_path):
+    t = dict(THRESHOLD_METRICS, decode="gaussian")
+    f = dict(FULL_SWEEP_METRICS, decode="gaussian")
+    section = render_eval_section(_write(tmp_path, "t.json", t), _write(tmp_path, "f.json", f))
+    assert "| Peak decode | gaussian |" in section
+
+
+def test_rejects_mixed_decodes(tmp_path):
+    t = dict(THRESHOLD_METRICS, decode="gaussian")
+    with pytest.raises(ValueError, match="decode"):
+        render_eval_section(_write(tmp_path, "t.json", t),
+                            _write(tmp_path, "f.json", FULL_SWEEP_METRICS))

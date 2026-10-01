@@ -48,18 +48,35 @@ class RampNetModel(PreTrainedModel):
         plain ``peak_local_max`` pixel, as the published evaluation did. Needs
         scikit-image. ``threshold`` and ``min_distance`` default to the config's
         recommended values.
+
+        A refining decode raises ``ValueError`` for ``pixel_values`` whose size is not
+        ``config.input_size`` (the head upsamples to a fixed size, so another input size
+        changes the x8 factor), and for a heatmap that is not an exact x8 upsample (e.g.
+        one already clipped). Flip-TTA heatmaps are not supported here: TTA decoding is
+        unmeasured.
         """
         if threshold is None:
             threshold = self.config.recommended_threshold
         if min_distance is None:
             min_distance = self.config.recommended_min_distance
         if torch.is_tensor(inputs) and inputs.ndim == 4 and inputs.shape[1] == 3:
+            if decode != "argmax" and tuple(inputs.shape[-2:]) != tuple(self.config.input_size):
+                raise ValueError(
+                    f"decode={decode!r} needs pixel_values of size {tuple(self.config.input_size)}"
+                    f" (got {tuple(inputs.shape[-2:])}): the heatmap is only an exact x8 "
+                    "upsample at the model's input size. Resize the image, or use "
+                    "decode='argmax'.")
             param = next(self.parameters())
             with torch.no_grad():
                 inputs = self(inputs.to(device=param.device, dtype=param.dtype))
         if torch.is_tensor(inputs):
-            inputs = inputs.detach().float().cpu().numpy()
-        h = np.asarray(inputs, dtype=np.float64)
+            t = inputs.detach().cpu()
+            if t.dtype in (torch.float16, torch.bfloat16):   # numpy has no bfloat16
+                t = t.float()
+            inputs = t.numpy()
+        h = np.asarray(inputs)            # native dtype: argmax must match peak_local_max
+        if not np.issubdtype(h.dtype, np.floating):
+            h = h.astype(np.float64)
         if h.ndim == 2:
             h = h[None]
         elif h.ndim == 4 and h.shape[1] == 1:

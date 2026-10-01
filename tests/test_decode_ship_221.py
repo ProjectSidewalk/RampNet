@@ -113,19 +113,41 @@ def test_crop_heatmap_shape_is_supported():
     assert abs(g[0, 1] - hires(cx)) < EXACT_TOL_PX
 
 
-def test_tta_stack_decodes_each_peak_from_its_winning_branch():
+def _two_branch_scene():
+    """Two ramps; each branch sees its own ramp strongly and the other one weakly, at a
+    sub-cell offset 0.3 cell (2.4 px) away, so decoding a peak from the wrong branch
+    lands measurably off (#229 review S3)."""
+    A, B = (20.3, 30.2), (40.1, 100.4)
+    ca = gaussian_coarse(*A, amp=0.9) + gaussian_coarse(B[0] + 0.3, B[1] - 0.3, amp=0.5)
+    cb = gaussian_coarse(*B, amp=0.8) + gaussian_coarse(A[0] - 0.3, A[1] + 0.3, amp=0.5)
+    return A, B, ca, cb
+
+
+@pytest.mark.parametrize("flipped", [False, True])
+def test_tta_stack_decodes_each_peak_from_its_winning_branch(flipped):
     """Flip-TTA max-combines two surfaces. With a coarse stack, each peak is decoded from
-    the branch the max took it from: here two ramps, one per branch."""
-    a = gaussian_coarse(20.3, 30.2, amp=0.9)
-    b = gaussian_coarse(40.1, 100.4, amp=0.8)
-    ca, cb = a + 0.1 * gaussian_coarse(40.1, 100.4), b + 0.1 * gaussian_coarse(20.3, 30.2)
-    combined = np.maximum(sc.upsample(ca), sc.upsample(cb))
-    g = sc.detect_peaks(combined, 0.3, decode="gaussian", coarse=np.stack([ca, cb]))
+    the branch the max took it from. ``flipped`` builds branch B the way
+    ``predict_heatmap`` does: the model sees the mirrored pano, and its raw output is
+    flipped back before the coarse map is recovered."""
+    A, B, ca, cb = _two_branch_scene()
+    if flipped:
+        raw_flipped = sc.upsample(np.fliplr(cb))          # model output on the mirror
+        branch_b = np.fliplr(raw_flipped)
+        cb_used = sc.coarse_from_heatmap(branch_b)
+    else:
+        branch_b, cb_used = sc.upsample(cb), cb
+    combined = np.maximum(np.clip(sc.upsample(ca), 0, 1), np.clip(branch_b, 0, 1))
+    g = sc.detect_peaks(combined, 0.6, decode="gaussian", coarse=np.stack([ca, cb_used]))
     g = g[np.argsort(g[:, 1])]
     assert len(g) == 2
-    # Each ramp's own branch is a Gaussian plus a far-away bump: exact to well under 0.01 px.
-    assert np.allclose(g[0, :2], [hires(20.3), hires(30.2)], atol=1e-2)
-    assert np.allclose(g[1, :2], [hires(40.1), hires(100.4)], atol=1e-2)
+    want = np.array([[hires(A[0]), hires(A[1])], [hires(B[0]), hires(B[1])]])
+    assert np.allclose(g[:, :2], want, atol=0.05)
+
+    # The test has power: decoding every peak from one branch gets the other ramp wrong.
+    for only in (ca, cb_used):
+        w = sc.detect_peaks(combined, 0.6, decode="gaussian", coarse=only)
+        w = w[np.argsort(w[:, 1])]
+        assert np.max(np.hypot(*(w[:, :2] - want).T)) > 1.0
 
 
 def test_rejects_unknown_decode_and_mismatched_coarse():
@@ -276,8 +298,27 @@ def test_hf_package_detect_runs_without_checkpoint(tmp_path):
     assert g[0, 2] == a[0, 2]
 
     # pixel_values path: runs the model (random weights), returns one array per image.
-    out = model.detect(torch.zeros(2, 3, 64, 128), threshold=0.0)
+    # A small input is only allowed with argmax (a full 2048x4096 CPU pass is too slow).
+    out = model.detect(torch.zeros(2, 3, 64, 128), threshold=0.0, decode="argmax")
     assert len(out) == 2 and all(o.ndim == 2 and o.shape[1] == 3 for o in out)
+
+    # #229 S2: a refining decode refuses pixel_values of the wrong size, and a heatmap
+    # that is not an exact x8 upsample (here: the user clipped it first).
+    with pytest.raises(ValueError, match="input_size|size"):
+        model.detect(torch.zeros(1, 3, 64, 128), threshold=0.0)
+    hot = sc.upsample(gaussian_coarse(cy, cx, amp=1.6)).astype(np.float32)
+    with pytest.raises(ValueError, match="exact x8"):
+        model.detect(np.clip(hot, 0, 1), threshold=0.3)
+    (ok,) = model.detect(hot, threshold=0.3)                    # raw map: fine
+    assert np.all(np.abs(ok[:, 0] - want_x) < 1e-6)
+
+    # #229 N1: the input dtype is kept, so argmax is peak_local_max on float32 even at a
+    # threshold tie (float32(0.55) == 0.55 compares differently in float64).
+    tie = np.zeros(PANO, dtype=np.float32)
+    tie[200, 300] = np.float32(0.55)
+    ref = peak_local_max(tie, min_distance=10, threshold_abs=0.55, exclude_border=False)
+    (a,) = model.detect(tie, threshold=0.55, decode="argmax")
+    assert len(a) == len(ref)
 
 
 # --- (e) evaluate.py's --decode and its cache / result names ---------------------------
@@ -291,14 +332,14 @@ def test_evaluate_cli_decode_flag_and_cache_layout():
 
     a = ev.cache_dirs("evaluate_cache", "abc123", "manual", True, "argmax")
     g = ev.cache_dirs("evaluate_cache", "abc123", "manual", True, "gaussian")
-    # argmax reads exactly the heatmap cache it always has, and nothing else.
+    # argmax reads exactly the heatmap cache it always has.
     assert a["heatmaps"] == os.path.join("evaluate_cache", "heatmaps", "abc123_manual_tta")
-    assert a["coarse"] is None
     # gaussian shares those (decode-independent) heatmaps, and adds a coarse cache in a
-    # different location, keyed the same way, that an argmax run never reads.
-    assert g["heatmaps"] == a["heatmaps"]
+    # different location, keyed the same way. The coarse path is returned for argmax too
+    # (#229 S1) so --fresh can clear it, but an argmax run never reads or creates it.
+    assert g == a
     assert g["coarse"] == os.path.join("evaluate_cache", "coarse", "abc123_manual_tta")
-    assert g["coarse"] != a["heatmaps"]
+    assert g["coarse"] != g["heatmaps"]
     # ...and that key still separates TTA from single-pass coarse maps.
     assert (ev.cache_dirs("evaluate_cache", "abc123", "manual", False, "gaussian")["coarse"]
             == os.path.join("evaluate_cache", "coarse", "abc123_manual_notta"))
@@ -347,3 +388,104 @@ def test_evaluate_gaussian_reads_coarse_cache(tmp_path):
     assert m["decode"] == "gaussian" and m["total_predictions"] == 1
     (x, y, _), = captured["preds"]
     assert abs(x - gx) < 1e-5 and abs(y - gy) < 1e-5
+
+
+# --- #229 review S1: stale coarse / heatmap pairings are caught ------------------------
+
+def _fill(dirpath, name, arr):
+    dirpath.mkdir(parents=True, exist_ok=True)
+    np.save(dirpath / name, arr)
+
+
+@pytest.mark.parametrize("decode", ["argmax", "gaussian"])
+def test_fresh_clears_coarse_cache_whatever_the_decode(tmp_path, decode):
+    ev = _load_evaluate()
+    dirs = ev.cache_dirs(str(tmp_path), "abc123", "manual", True)
+    _fill(tmp_path / "heatmaps" / "abc123_manual_tta", "p_heatmap.npy", np.zeros(2))
+    _fill(tmp_path / "coarse" / "abc123_manual_tta", "p_coarse.npy", np.zeros(2))
+    ev.prepare_cache_dirs(dirs, fresh=True, decode=decode)
+    assert os.listdir(dirs["heatmaps"]) == []
+    if decode == "argmax":
+        assert not os.path.exists(dirs["coarse"])     # removed, not re-created
+    else:
+        assert os.listdir(dirs["coarse"]) == []
+
+
+def _scene(tmp_path, heat_c, coarse_c):
+    hm_dir, co_dir = tmp_path / "heatmaps", tmp_path / "coarse"
+    _fill(hm_dir, "p1_heatmap.npy", np.clip(sc.upsample(heat_c), 0, 1).astype(np.float32))
+    if coarse_c is not None:
+        _fill(co_dir, "p1_coarse.npy", coarse_c[None].astype(np.float32))
+    co_dir.mkdir(exist_ok=True)
+    label = tmp_path / "p1.txt"
+    label.write_text("0 0.5 0.5 0.01 0.01\n")
+    return str(hm_dir), str(co_dir), [str(tmp_path / "p1.jpg")], [str(label)]
+
+
+def test_stale_coarse_after_argmax_fresh_raises(tmp_path):
+    """Coarse maps left from an older run, heatmaps rebuilt since (e.g. by an argmax
+    --fresh before S1 was fixed, or by hand): the decode must refuse, naming --fresh."""
+    ev = _load_evaluate()
+    new_heat, old_coarse = gaussian_coarse(30.3, 70.4), gaussian_coarse(30.3, 72.6)
+    hm, co, imgs, labels = _scene(tmp_path, new_heat, old_coarse)
+    with pytest.raises(ev.StaleCoarseCache, match="--fresh"):
+        ev.evaluate(None, imgs, labels, True, hm, peak_threshold_abs=0.3,
+                    decode="gaussian", coarse_cache_dir=co, use_tta=False)
+
+
+def test_cached_heatmap_with_missing_coarse_is_checked(tmp_path, monkeypatch):
+    """The other direction: the heatmap is cached, its coarse map is not, so the model is
+    re-run for the coarse map only. If the model (or preprocessing) changed since the
+    heatmap was cached, the fresh coarse map disagrees with it, and that must raise."""
+    ev = _load_evaluate()
+    pytest.importorskip("PIL")
+    from PIL import Image
+    cached = gaussian_coarse(30.3, 70.4)
+    hm, co, imgs, labels = _scene(tmp_path, cached, None)
+    Image.new("RGB", (8, 4)).save(imgs[0])
+
+    def fake_predict(model, img, use_tta, return_coarse=False):
+        c = model                                   # the "model" is the coarse map it emits
+        h = np.clip(sc.upsample(c), 0, 1).astype(np.float32)
+        return (h, c[None].astype(np.float32)) if return_coarse else h
+
+    monkeypatch.setattr(ev, "predict_heatmap", fake_predict)
+    with pytest.raises(ev.StaleCoarseCache, match="--fresh"):
+        ev.evaluate(gaussian_coarse(31.1, 70.4), imgs, labels, True, hm,
+                    peak_threshold_abs=0.3, decode="gaussian", coarse_cache_dir=co,
+                    use_tta=False)
+    # Same model as cached the heatmap: consistent, so it decodes.
+    os.remove(os.path.join(co, "p1_coarse.npy"))
+    m = ev.evaluate(cached, imgs, labels, True, hm, peak_threshold_abs=0.3,
+                    decode="gaussian", coarse_cache_dir=co, use_tta=False)
+    assert m["total_predictions"] == 1
+    assert os.path.exists(os.path.join(co, "p1_coarse.npy"))
+
+
+def test_coarse_mismatch_rebuilds_tta_heatmap():
+    """coarse_mismatch re-builds a clipped flip-TTA heatmap from its two branches."""
+    ca, cb = gaussian_coarse(20.3, 30.2, amp=1.4), gaussian_coarse(40.1, 100.4, amp=0.8)
+    heat = np.maximum(np.clip(sc.upsample(ca), 0, 1), np.clip(sc.upsample(cb), 0, 1))
+    heat = heat.astype(np.float32)
+    pix = peak_local_max(heat, min_distance=10, threshold_abs=0.3, exclude_border=False)
+    assert sc.coarse_mismatch(heat, np.stack([ca, cb]).astype(np.float32), pix) < 1e-5
+    assert sc.coarse_mismatch(heat, cb, pix) > 0.1           # one branch alone is not it
+
+
+# --- #229 review S2: detect_peaks refuses a heatmap that is not an exact x8 upsample ---
+
+def test_detect_peaks_refuses_non_upsampled_heatmaps():
+    cy, cx = 33.2, 90.4
+    raw = sc.upsample(gaussian_coarse(cy, cx, amp=1.6))
+    with pytest.raises(ValueError, match="exact x8"):          # clipped before decoding
+        sc.detect_peaks(np.clip(raw, 0, 1), 0.3, decode="gaussian")
+    x16 = sc.upsample(gaussian_coarse(cy / 2, cx / 2, shape=(32, 64)), factor=16)
+    with pytest.raises(ValueError, match="exact x8"):          # wrong input size -> x16
+        sc.detect_peaks(x16, 0.3, decode="gaussian")
+    # argmax never needs the coarse map, and an explicit coarse= is trusted.
+    assert len(sc.detect_peaks(np.clip(raw, 0, 1), 0.3, decode="argmax"))
+    g = sc.detect_peaks(np.clip(raw, 0, 1), 0.3, decode="gaussian",
+                        coarse=gaussian_coarse(cy, cx, amp=1.6))
+    assert np.all(np.abs(g[:, 1] - hires(cx)) < 1e-6)
+    # float32 raw head output is well inside the tolerance.
+    assert sc.upsample_residual(raw.astype(np.float32)) < 1e-6

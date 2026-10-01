@@ -308,6 +308,49 @@ def _value_at(coarse, r, c, shape):
     return float(_upsample_matrix(h, shape[0])[r] @ coarse @ _upsample_matrix(w, shape[1])[c])
 
 
+#: Largest upsample residual, relative to the heatmap's peak magnitude, that
+#: :func:`detect_peaks` accepts before refusing to recover the coarse map itself. A raw
+#: fp32 head output sits near 1e-7 (#226: at most 3.6e-7 absolute); a clipped peak at
+#: 1.2 or a x16 map decoded as x8 sits at 1e-2 to 1e-1.
+UPSAMPLE_RTOL = 1e-4
+
+#: Largest disagreement :func:`coarse_mismatch` callers should accept between a cached
+#: heatmap and the coarse maps cached beside it (float32 storage noise is ~1e-7).
+COARSE_ATOL = 1e-3
+
+
+def upsample_residual(heatmap, coarse=None, factor=FACTOR):
+    """``max |upsample(coarse) - heatmap| / max(|heatmap|)``: 0 (to float error) when
+    ``heatmap`` is exactly a bilinear x``factor`` upsample. ``coarse`` defaults to the
+    least-squares recovery."""
+    h = np.asarray(heatmap, dtype=np.float64)
+    if coarse is None:
+        coarse = coarse_from_heatmap(h, factor)
+    scale = max(float(np.max(np.abs(h))), _EPS)
+    return float(np.max(np.abs(upsample(coarse, factor) - h))) / scale
+
+
+def coarse_mismatch(heatmap, coarse, pixels, clip=True):
+    """Max over ``pixels`` of ``|max_b clip(upsample(coarse_b)) - heatmap|``.
+
+    How a caller proves a cached coarse stack belongs to the cached (clipped, flip-TTA
+    max-combined) heatmap it sits beside: re-build the heatmap from the coarse maps at
+    each peak pixel and compare. Anything above float noise means the two caches came
+    from different weights, preprocessing or code.
+    """
+    hm = np.asarray(heatmap)
+    c = np.asarray(coarse, dtype=np.float64)
+    if c.ndim == 2:
+        c = c[None]
+    worst = 0.0
+    for r, col in np.asarray(pixels, dtype=int).reshape(-1, 2):
+        v = max(_value_at(cb, r, col, hm.shape) for cb in c)
+        if clip:
+            v = min(max(v, 0.0), 1.0)
+        worst = max(worst, abs(v - float(hm[r, col])))
+    return worst
+
+
 def detect_peaks(heatmap, threshold, min_distance=10, decode="argmax", *,
                  exclude_border=False, clip=False, coarse=None, wrap_x=False,
                  factor=FACTOR, return_pixels=False):
@@ -344,6 +387,12 @@ def detect_peaks(heatmap, threshold, min_distance=10, decode="argmax", *,
     ``exclude_border`` defaults to False, the #132 fix. ``return_pixels=True`` also
     returns the ``(N, 2)`` integer ``(row, col)`` pixels, so a caller can read the score
     in the heatmap's own dtype.
+
+    With a refining decode and ``coarse=None``, the heatmap is checked first: if it is
+    not an exact x``factor`` bilinear upsample (relative residual above
+    :data:`UPSAMPLE_RTOL` -- e.g. it was clipped, TTA-combined, or came from an input
+    size other than the model's), this **raises** ``ValueError`` rather than decode from
+    a least-squares guess, which can land further from the truth than argmax does.
     """
     try:   # optional dependency: kept inside try so the HF remote-code loader does
         from skimage.feature import peak_local_max   # not require scikit-image to load
@@ -369,6 +418,14 @@ def detect_peaks(heatmap, threshold, min_distance=10, decode="argmax", *,
         H, W = raw.shape
         if coarse is None:
             coarse = coarse_from_heatmap(raw, factor)
+            res = upsample_residual(raw, coarse, factor)
+            if res > UPSAMPLE_RTOL:
+                raise ValueError(
+                    f"heatmap {raw.shape} is not an exact x{factor} bilinear upsample "
+                    f"(relative residual {res:.2e} > {UPSAMPLE_RTOL:g}), so decode={decode!r} "
+                    "cannot recover its coarse map. Pass the raw, unclipped, single-pass "
+                    "model output (use clip=True to find peaks on the clipped map), from an "
+                    "input of the model's size, or supply coarse= explicitly.")
         coarse = np.asarray(coarse, dtype=np.float64)
         if coarse.ndim == 2:
             coarse = coarse[None]

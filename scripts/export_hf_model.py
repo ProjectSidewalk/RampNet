@@ -164,6 +164,13 @@ def render_eval_section(metrics_json_path, ap_json_path=None):
             f"AP must come from a full-sweep run (peak_threshold_abs=0.0); got "
             f"{ap_source.get('peak_threshold_abs')} in {ap_json_path or metrics_json_path}. "
             "Pass the pt0.0 metrics file via --ap-json.")
+    # evaluate.py records the peak decode (#221); files from before it are argmax.
+    decode = m.get('decode', 'argmax')
+    ap_decode = ap_source.get('decode', 'argmax')
+    if ap_decode != decode:
+        raise ValueError(
+            f"--metrics-json decode {decode!r} and --ap-json decode {ap_decode!r} disagree; "
+            "the card's AP and P/R must come from the same peak decode.")
     lines = [
         "| Metric | Value |",
         "| :--- | :--- |",
@@ -173,6 +180,7 @@ def render_eval_section(metrics_json_path, ap_json_path=None):
         f"| Ground-truth points | {m['total_gt_points']} |",
         f"| Matching radius (normalized) | {m['radius_threshold_normalized']} |",
         f"| Flip TTA | {'on' if m.get('tta', True) else 'off'} |",
+        f"| Peak decode | {decode} |",
     ]
     return "\n".join(lines)
 

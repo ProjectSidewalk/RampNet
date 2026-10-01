@@ -142,14 +142,14 @@ each peak's 3x3 coarse neighbourhood recovers the sub-cell position without retr
 4.35 heatmap px, while matched detection counts move by at most one per split
 ([`docs/subcell_decode_221.md`](docs/subcell_decode_221.md), [#221](https://github.com/ProjectSidewalk/RampNet/issues/221)):
 ```py
-# Hub package revisions exported after #221 shipped: normalized (x, y, score) per image.
-detections = model.detect(heatmap, threshold=0.5, decode="gaussian")[0]
-coordinates = [(x * img.width, y * img.height) for x, y, _ in detections]
-
-# Inside this repo (or with an older package revision): the same code, from rampnet.
+# Works today, inside this repo (pip install -e .): heatmap-grid positions, scaled to the image.
 from rampnet.subcell import detect_peaks
 rcs = detect_peaks(heatmap, 0.5, decode="gaussian", clip=True)   # (N, 3) row, col, score
 coordinates = [(c * scale_w, r * scale_h) for r, c, _ in rcs]
+
+# NOT YET ON THE HUB (as of 2026-09-30): the published projectsidewalk/rampnet-model has
+# no detect() until the package is re-exported, so this raises AttributeError today.
+# detections = model.detect(heatmap, threshold=0.5, decode="gaussian")[0]   # (x, y, score)
 ```
 Pass the **raw, single-pass** heatmap (as above: not clipped, not TTA-combined); `clip=True` finds
 peaks on `clip(heatmap, 0, 1)` as the snippet above does, while decoding from the raw values.
