@@ -108,3 +108,6 @@ analysis_out/crossview_align_48/** text eol=lf
 # against the manifest's Zenodo md5 by `seoul_fetch_217.py verify` and by
 # tests/test_sidewalk_width_217.py).
 data/seoul_sidewalk_217/*.csv  binary
+
+# The Seoul dataset's own summary table (#218), byte-identical to the Zenodo file so its md5 checks.
+analysis_out/perspective_photos_218/seoul/summary_attributes.csv  binary
