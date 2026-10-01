@@ -6,10 +6,15 @@ canvas_level @ 0.30 above its swap null, and the panos @ 0.55 above their rotati
 the ramp's projected bearing, real minus chance per in-view pair, 5-deg bins.
 
     python scripts/analysis/bearing_audit_figure_218.py
+    # the unnamed-camera heading sheet (needs the #218 thumbnails, IMG = fetch --out)
+    python scripts/analysis/bearing_audit_figure_218.py --heading-sheet IMG
 """
+import argparse
 import csv
 import json
+import math
 import os
+import sys
 
 import matplotlib
 matplotlib.use("Agg")
@@ -23,7 +28,58 @@ FLAT, PANO = "#2a78d6", "#eb6834"      # categorical slots 1 and 2
 INK, MUTED, GRID = "#1f1f1f", "#6b6b6b", "#e4e4e4"
 
 
+# five unnamed-camera frames: four drawn with a seeded sample (random.seed(218)) from those
+# whose SfM heading is 15-26 deg clockwise of the device-GPS direction of travel, plus the
+# first figure miss of #227 (590984823847247, 34 deg)
+SHEET_IDS = ["534028659033255", "1271468953967182", "1472599527030957", "599747162768949",
+             "590984823847247"]
+SHEET = os.path.join(REPO, "docs", "figures", "bearing_audit_218", "unnamed_heading_check.jpg")
+
+
+def heading_sheet(img_dir):
+    """Each frame with two vertical lines: the SfM heading (blue) and the device-GPS
+    direction of travel (orange), each projected through the frame's camera and SfM pose."""
+    import numpy as np
+    from PIL import Image, ImageDraw
+    sys.path.insert(0, REPO)
+    sys.path.insert(0, HERE)
+    from rampnet import perspective as P
+    import bearing_audit_218 as B
+    import perspective_photos_218 as PP
+    meta = B.all_meta()
+    rows = {r["image_id"]: r for r in PP.read_csv(PP.IMAGES_CSV)}
+    tiles = []
+    for i in SHEET_IDS:
+        im = Image.open(os.path.join(img_dir, i + ".jpg")).convert("RGB")
+        w, h = im.size
+        cam, R = PP.camera_of(rows[i], w, h), PP.pose_of(rows[i])
+        head = float(rows[i]["computed_compass_angle"])
+        dr = ImageDraw.Draw(im)
+        for b, col in ((head, FLAT), (head + meta[i]["d_travel_raw"], PANO)):
+            v = R @ np.array([math.sin(math.radians(b)), math.cos(math.radians(b)), 0.0])
+            u, vv = P.project_cam(cam, v)
+            dr.line([(u, 0), (u, h)], fill=col, width=6)
+            dr.ellipse([u - 12, vv - 12, u + 12, vv + 12], outline=col, width=5)
+        im.thumbnail((1024, 1024))
+        tiles.append(im)
+    sheet = Image.new("RGB", (max(t.size[0] for t in tiles), sum(t.size[1] for t in tiles)),
+                      "white")
+    y = 0
+    for t in tiles:
+        sheet.paste(t, (0, y))
+        y += t.size[1]
+    os.makedirs(os.path.dirname(SHEET), exist_ok=True)
+    sheet.save(SHEET, quality=80)
+    print("wrote", SHEET)
+
+
 def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--heading-sheet", metavar="IMG")
+    a = ap.parse_args()
+    if a.heading_sheet:
+        heading_sheet(a.heading_sheet)
+        return
     with open(os.path.join(SRC, "summary.json"), encoding="utf-8") as f:
         s = json.load(f)
     flat = s["arms"]["canvas_level"]["0.30"]
@@ -48,7 +104,7 @@ def main():
     a.text(18, 0.36, "360 panos @ 0.55", color=INK, fontsize=8)
     a.set_xlabel("heading shift applied to every detection (deg)", color=INK, fontsize=9)
     a.set_ylabel("hit rate above chance", color=INK, fontsize=9)
-    a.set_title("Heading-shift scan: both peak at 0", color=INK, fontsize=10, loc="left")
+    a.set_title("Heading-shift scan: no shift closes the gap", color=INK, fontsize=10, loc="left")
 
     rows = list(csv.DictReader(open(os.path.join(SRC, "offsets.csv"), encoding="utf-8")))
     n = {"flat canvas_level @ 0.30": flat["offsets"]["all"]["n_pairs"],
@@ -63,7 +119,7 @@ def main():
     b.set_xlabel("detection bearing minus projected ramp bearing (deg; + = right)",
                  color=INK, fontsize=9)
     b.set_ylabel("detections per pair, real minus chance", color=INK, fontsize=9)
-    b.set_title("Signed offsets: excess centred at 0", color=INK, fontsize=10, loc="left")
+    b.set_title("Signed offsets: excess peaks at 0", color=INK, fontsize=10, loc="left")
     b.legend(frameon=False, fontsize=8)
     fig.tight_layout()
     os.makedirs(os.path.dirname(DST), exist_ok=True)

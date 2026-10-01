@@ -252,20 +252,24 @@ class Scorer:
         return pairs, np.array(real, float), np.array(nul, float)
 
 
+def cluster_weights(uids, n_boot=N_BOOT, seed=PP.SEED):
+    """(n_boot, n_items) weights of a ramp-cluster bootstrap: each item's weight is the
+    number of times its ramp was drawn (ramps drawn with replacement, as many as there
+    are ramps)."""
+    keys = sorted(set(uids))
+    pos = {k: i for i, k in enumerate(keys)}
+    item = np.array([pos[u] for u in uids])
+    rng = np.random.default_rng(seed)
+    draws = rng.integers(0, len(keys), (n_boot, len(keys)))
+    counts = np.stack([np.bincount(d, minlength=len(keys)) for d in draws])
+    return counts[:, item].astype(float)
+
+
 def ramp_boot(pairs, vals, n_boot=N_BOOT, seed=PP.SEED):
     """95% ramp-cluster bootstrap of the mean of ``vals`` (one per pair)."""
-    by = defaultdict(list)
-    for k, (_, r) in enumerate(pairs):
-        by[r["uid"]].append(k)
-    keys = sorted(by)
-    idx = [np.array(by[k]) for k in keys]
-    rng = np.random.default_rng(seed)
-    out = []
-    for _ in range(n_boot):
-        pick = rng.integers(0, len(keys), len(keys))
-        sel = np.concatenate([idx[p] for p in pick])
-        out.append(vals[sel].mean())
-    return [float(x) for x in np.percentile(out, [2.5, 97.5])]
+    w = cluster_weights([r["uid"] for _, r in pairs], n_boot, seed)
+    m = (w @ np.asarray(vals, float)) / w.sum(axis=1)
+    return [float(x) for x in np.percentile(m, [2.5, 97.5])]
 
 
 def row_of(name, pairs, real, nul, boot=True):
@@ -390,16 +394,26 @@ def excess(sets, lim=SPAN):
 
 
 def centre_boot(sets, lim, n_boot=N_BOOT, seed=PP.SEED):
-    by = defaultdict(list)
-    for p in sets:
-        by[p["r"]["uid"]].append(p)
-    keys = sorted(by)
-    rng = np.random.default_rng(seed)
-    out = []
-    for _ in range(n_boot):
-        s = [p for k in rng.integers(0, len(keys), len(keys)) for p in by[keys[k]]]
-        out.append(excess(s, lim)[3])
-    return [float(x) for x in np.nanpercentile(out, [2.5, 97.5])]
+    """Ramp-cluster bootstrap 95% interval of ``excess(sets, lim)``'s centre. Each pair is
+    reduced once to (real count, real sum, null count, null sum) within +-lim; a replicate
+    is then a weighted sum (weights = how often its ramp was drawn)."""
+    feats = np.zeros((len(sets), 4))
+    for k, p in enumerate(sets):
+        o = p["o"][np.abs(p["o"]) <= lim]
+        feats[k, 0], feats[k, 1] = len(o), o.sum()
+        m = max(1, len(p["on"]))
+        for on in p["on"]:
+            on = on[np.abs(on) <= lim]
+            feats[k, 2] += len(on) / m
+            feats[k, 3] += on.sum() / m
+    w = cluster_weights([p["r"]["uid"] for p in sets], n_boot, seed)
+    t = w @ feats                                   # n_boot x 4
+    den = t[:, 0] - t[:, 2]
+    with np.errstate(invalid="ignore", divide="ignore"):
+        c = np.where(den > 1.0, (t[:, 1] - t[:, 3]) / den, np.nan)
+    if np.all(np.isnan(c)):
+        return [None, None]
+    return [float(x) for x in np.nanpercentile(c, [2.5, 97.5])]
 
 
 def excess_summary(sets, boot=True):
@@ -505,7 +519,7 @@ def viewed_misses(images, recs, ramp_ll, arm):
              "d_travel_raw": im["d_travel_raw"],
              "peaks": [{"score": dd["score"], "offset": float(P.wrap_deg(bb - r["bearing"])),
                         "depression": float(dp)} for dd, bb, dp in zip(dets, b, dep)]}
-        for thr in (0.30, 0.10):
+        for thr in (0.30, 0.55, 0.10):
             for name, s in (("as_scored", 0.0), ("travel", im["d_travel_raw"] or 0.0),
                             ("compass", im["d_compass"])):
                 cl = PP.claim_bearing(dets, b + s, dep, im["g"]["near"], thr)
@@ -592,7 +606,7 @@ def main(argv=None):
         images, recs, ramp_ll = load(arm, n_null)
         images0 = images0 or images
         res = {}
-        for thr in (0.30, 0.10):
+        for thr in (0.30, 0.55, 0.10):
             sc = Scorer(images, recs, ramp_ll, thr)
             key = f"{thr:.2f}"
             pairs, r0, n0 = sc.run()
