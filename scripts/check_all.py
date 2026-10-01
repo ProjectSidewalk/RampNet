@@ -237,6 +237,10 @@ def main(argv=None) -> int:
     ap.add_argument("-v", "--verbose", action="store_true",
                     help="print every entry's output, not only failures'")
     args = ap.parse_args(argv)
+    try:   # child output is UTF-8 (deltas, Greek letters); a cp1252 console must not crash on it
+        sys.stdout.reconfigure(errors="replace")
+    except (AttributeError, ValueError):
+        pass
 
     if args.list:
         list_registry()
