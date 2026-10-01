@@ -2,7 +2,7 @@
   "all_match": true,
   "checkpoint_sha256": "1c67c4b24091026bda968fb2e4dd89d516278171f5a2229fb51882870d8e7c25",
   "device": "cuda",
-  "elapsed_s": 26.448,
+  "elapsed_s": 27.4854,
   "export_dir_files": [
     "README.md",
     "config.json",

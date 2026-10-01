@@ -383,7 +383,8 @@ def detect_peaks(heatmap, threshold, min_distance=10, decode="argmax", *,
     - ``coarse=<(B, h, w) stack>``: one coarse map per branch of a flip-TTA max-combine
       (each already oriented like ``heatmap``). Each peak is decoded from the branch
       whose upsampled value is highest at that pixel, i.e. the branch the elementwise
-      max took it from. **Not measured in #221**, which was single-pass.
+      max took it from. Measured on manual_gold under flip TTA in
+      ``docs/decode_e2e_221.md``: mean error to the box centres 5.066 -> 4.366 px.
 
     ``wrap_x`` is passed to :func:`refine_peaks` (default off, as measured: the network
     pads the 360 deg seam rather than wrapping). It must stay off for the crop model.

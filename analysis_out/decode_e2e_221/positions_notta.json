@@ -60,13 +60,14 @@
       }
     }
   },
-  "elapsed_s": 212.573,
+  "elapsed_s": 110.512,
   "gt_points": 3919,
   "pair_panos": 787,
   "pairs": 3517,
   "panos": 1000,
   "peaks_ge_0.30": 3868,
   "protocol": "peaks >= 0.30 via evaluate.extract_peaks_from_heatmap; pairs matched once on argmax positions (greedy by confidence, radius 0.022, x wrapped); pano-cluster bootstrap, 2000 reps, seed 221",
+  "shipped_minus_alternative": {},
   "tp_rematched": {
     "0.30": {
       "argmax": 3517,

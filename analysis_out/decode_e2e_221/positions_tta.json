@@ -203,13 +203,105 @@
       }
     }
   },
-  "elapsed_s": 173.579,
+  "elapsed_s": 193.755,
   "gt_points": 3919,
   "pair_panos": 790,
   "pairs": 3571,
   "panos": 1000,
   "peaks_ge_0.30": 3981,
   "protocol": "peaks >= 0.30 via evaluate.extract_peaks_from_heatmap; pairs matched once on argmax positions (greedy by confidence, radius 0.022, x wrapped); pano-cluster bootstrap, 2000 reps, seed 221",
+  "shipped_minus_alternative": {
+    "branch_mean": {
+      "d_mean_deg": {
+        "ci95": [
+          -0.0131738,
+          0.00856613
+        ],
+        "obs": -0.00242021
+      },
+      "d_mean_px": {
+        "ci95": [
+          -0.038357,
+          0.0262405
+        ],
+        "obs": -0.00620747
+      },
+      "d_sd_x_px": {
+        "ci95": [
+          -0.0720593,
+          0.0496266
+        ],
+        "obs": -0.0102203
+      },
+      "d_sd_y_px": {
+        "ci95": [
+          -0.0160859,
+          0.0519323
+        ],
+        "obs": 0.0179488
+      }
+    },
+    "flip_branch": {
+      "d_mean_deg": {
+        "ci95": [
+          -0.0330073,
+          -0.00609891
+        ],
+        "obs": -0.0198058
+      },
+      "d_mean_px": {
+        "ci95": [
+          -0.097047,
+          -0.0172409
+        ],
+        "obs": -0.0583969
+      },
+      "d_sd_x_px": {
+        "ci95": [
+          -0.155846,
+          0.00453765
+        ],
+        "obs": -0.0714234
+      },
+      "d_sd_y_px": {
+        "ci95": [
+          -0.0128865,
+          0.0511628
+        ],
+        "obs": 0.0165863
+      }
+    },
+    "orig_branch": {
+      "d_mean_deg": {
+        "ci95": [
+          -0.0445877,
+          -0.00919223
+        ],
+        "obs": -0.0258518
+      },
+      "d_mean_px": {
+        "ci95": [
+          -0.129253,
+          -0.0239887
+        ],
+        "obs": -0.0736683
+      },
+      "d_sd_x_px": {
+        "ci95": [
+          -0.324535,
+          -0.0552435
+        ],
+        "obs": -0.180703
+      },
+      "d_sd_y_px": {
+        "ci95": [
+          -0.153392,
+          -0.0217092
+        ],
+        "obs": -0.0829471
+      }
+    }
+  },
   "tp_rematched": {
     "0.30": {
       "argmax": 3571,

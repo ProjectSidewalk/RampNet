@@ -1,0 +1,138 @@
+{
+  "all_match": true,
+  "device": "cuda",
+  "gpu": "NVIDIA GeForce RTX 3070",
+  "panos": [
+    {
+      "decode": "gaussian",
+      "max_abs_diff_px": 4.00609e-07,
+      "n_demo": 5,
+      "n_evaluate": 5,
+      "ok": true,
+      "pano": "-AsFw9IWv8TcycKft1pnRg"
+    },
+    {
+      "decode": "gaussian",
+      "max_abs_diff_px": 4.47033e-07,
+      "n_demo": 7,
+      "n_evaluate": 7,
+      "ok": true,
+      "pano": "-DZgYpFGlilvQkCCTkJSOQ"
+    },
+    {
+      "decode": "gaussian",
+      "max_abs_diff_px": 0.0,
+      "n_demo": 0,
+      "n_evaluate": 0,
+      "ok": true,
+      "pano": "-OLko2tCiulMSeT3PoxiSg"
+    },
+    {
+      "decode": "gaussian",
+      "max_abs_diff_px": 1.13338e-06,
+      "n_demo": 5,
+      "n_evaluate": 5,
+      "ok": true,
+      "pano": "-UaEiKC62iZG5JaG6c6d0Q"
+    },
+    {
+      "decode": "gaussian",
+      "max_abs_diff_px": 7.65457e-07,
+      "n_demo": 3,
+      "n_evaluate": 3,
+      "ok": true,
+      "pano": "-daV70yVmSR2yR5C-1JiLg"
+    },
+    {
+      "decode": "gaussian",
+      "max_abs_diff_px": 6.8236e-07,
+      "n_demo": 7,
+      "n_evaluate": 7,
+      "ok": true,
+      "pano": "-f7RJhr0X4RF_fjC1FdiqQ"
+    },
+    {
+      "decode": "gaussian",
+      "max_abs_diff_px": 6.1633e-07,
+      "n_demo": 6,
+      "n_evaluate": 6,
+      "ok": true,
+      "pano": "-fD1PF3fh6zES9s9pIk5TQ"
+    },
+    {
+      "decode": "gaussian",
+      "max_abs_diff_px": 5.08289e-07,
+      "n_demo": 6,
+      "n_evaluate": 6,
+      "ok": true,
+      "pano": "-hkcTXhJtWXi2BoaHDWLXw"
+    },
+    {
+      "decode": "argmax",
+      "max_abs_diff_px": 0.0,
+      "n_demo": 5,
+      "n_evaluate": 5,
+      "ok": true,
+      "pano": "-AsFw9IWv8TcycKft1pnRg"
+    },
+    {
+      "decode": "argmax",
+      "max_abs_diff_px": 0.0,
+      "n_demo": 7,
+      "n_evaluate": 7,
+      "ok": true,
+      "pano": "-DZgYpFGlilvQkCCTkJSOQ"
+    },
+    {
+      "decode": "argmax",
+      "max_abs_diff_px": 0.0,
+      "n_demo": 0,
+      "n_evaluate": 0,
+      "ok": true,
+      "pano": "-OLko2tCiulMSeT3PoxiSg"
+    },
+    {
+      "decode": "argmax",
+      "max_abs_diff_px": 0.0,
+      "n_demo": 5,
+      "n_evaluate": 5,
+      "ok": true,
+      "pano": "-UaEiKC62iZG5JaG6c6d0Q"
+    },
+    {
+      "decode": "argmax",
+      "max_abs_diff_px": 0.0,
+      "n_demo": 3,
+      "n_evaluate": 3,
+      "ok": true,
+      "pano": "-daV70yVmSR2yR5C-1JiLg"
+    },
+    {
+      "decode": "argmax",
+      "max_abs_diff_px": 0.0,
+      "n_demo": 7,
+      "n_evaluate": 7,
+      "ok": true,
+      "pano": "-f7RJhr0X4RF_fjC1FdiqQ"
+    },
+    {
+      "decode": "argmax",
+      "max_abs_diff_px": 0.0,
+      "n_demo": 6,
+      "n_evaluate": 6,
+      "ok": true,
+      "pano": "-fD1PF3fh6zES9s9pIk5TQ"
+    },
+    {
+      "decode": "argmax",
+      "max_abs_diff_px": 0.0,
+      "n_demo": 6,
+      "n_evaluate": 6,
+      "ok": true,
+      "pano": "-hkcTXhJtWXi2BoaHDWLXw"
+    }
+  ],
+  "tol_px": 0.001,
+  "what": "stage_two/demo.py --decode gaussian, run headless, vs evaluate.py TTA extraction (threshold 0.4, exclude_border=True) on the same panos",
+  "worst_max_abs_diff_px": 1.13338e-06
+}
