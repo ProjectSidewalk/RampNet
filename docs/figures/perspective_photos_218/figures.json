@@ -1,24 +1,24 @@
 {
  "files": [
   {
-   "bytes": 259332,
+   "bytes": 263784,
    "file": "richmond_hits.jpg",
-   "sha256": "440a48e44199460f055f7741e93b0f7dd424f2f14cbf868bb81adeb41abc39a8"
+   "sha256": "06ebbef21875864a8d37ea94b9fb5a161f58e3f2f38ce654e31065e266b32274"
   },
   {
-   "bytes": 273108,
+   "bytes": 277639,
    "file": "richmond_misses.jpg",
-   "sha256": "07b59565935c5294f114580b24addd8fbc92bf6cb37c9865d47b930d943825d8"
+   "sha256": "86cd429b2ddf8e5d1f9cd4b859fe834c61a51c918c38b39f328c622eaa3e0050"
   },
   {
-   "bytes": 247526,
+   "bytes": 252653,
    "file": "richmond_unmatched_stretch.jpg",
-   "sha256": "f711e8fdfb97947af7c13913274e64d60284915037d2e0131de7454c0d935041"
+   "sha256": "e765d989117bda3362770cc0656467c6095358e570a8d9bc1a492ae739396d8d"
   },
   {
-   "bytes": 444918,
+   "bytes": 444833,
    "file": "seoul_strip.jpg",
-   "sha256": "752dcb888a3d623fb13ced87bdc34ebc92b2ee989066611ecfa29d734fcbc5ec"
+   "sha256": "2a3ab86e4ee832ea0132f45a0e14d1352ebaf17e23a51f31746996cdfa63d2fa"
   },
   {
    "bytes": 80871,

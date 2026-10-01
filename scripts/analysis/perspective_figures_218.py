@@ -216,9 +216,16 @@ def gt_locus(g, r, heights=np.linspace(0.5, 4.0, 36)):
 
 
 def draw_dets(ax, pts, thr=THR, hit=None, sx=1.0, sy=1.0, floor=True, label=True,
-              extent=None):
-    """pts: [(px, py, score)] in image pixels, drawn at (px * sx, py * sy). Ring size is
-    a fixed share of the panel width ``extent`` (w, h), and points outside it are skipped."""
+              extent=None, hit_mark="double"):
+    """pts: [(px, py, score)], drawn at (px * sx, py * sy). Ring size is a fixed share of
+    the panel width ``extent`` (w, h), and points outside it are skipped.
+
+    Marks differ in shape as well as colour, so they read without hue: a bearing-test hit
+    (``hit_mark="double"``) is a double ring with " hit" in its label; the pano panel's
+    marked detection (``hit_mark="square"``) is a square, since it is not a bearing-test
+    claim (see ``pano_panel``); other detections >= thr are single rings, and weaker peaks
+    small dashed rings. Labels near the right edge go to the left of the mark, so the
+    suffix is not clipped."""
     import matplotlib.patches as mp
     w, h = extent
     rad = 0.028 * w
@@ -234,11 +241,20 @@ def draw_dets(ax, pts, thr=THR, hit=None, sx=1.0, sy=1.0, floor=True, label=True
             col, lw, ls = DET, 2.5, "-"
         else:
             col, lw, ls = WEAK, 1.5, "--"
-        ax.add_patch(mp.Circle((x, y), rad if s >= thr else 0.7 * rad, fill=False, ec=col,
-                               lw=lw, ls=ls))
+        if k == hit and hit_mark == "square":
+            ax.add_patch(mp.Rectangle((x - rad, y - rad), 2 * rad, 2 * rad, fill=False,
+                                      ec=col, lw=lw))
+        else:
+            ax.add_patch(mp.Circle((x, y), rad if s >= thr else 0.7 * rad, fill=False,
+                                   ec=col, lw=lw, ls=ls))
+            if k == hit:
+                ax.add_patch(mp.Circle((x, y), 0.62 * rad, fill=False, ec=col, lw=2.0))
         if label and (s >= thr or k == hit):
-            ax.text(x + 1.1 * rad, y - 1.1 * rad, f"{s:.2f}" + (" hit" if k == hit else ""),
-                    color=col, fontsize=9, fontweight="bold", clip_on=True,
+            txt = f"{s:.2f}" + (" hit" if k == hit and hit_mark == "double" else "")
+            left = x > 0.82 * w
+            ax.text(x - 1.1 * rad if left else x + 1.1 * rad, y - 1.1 * rad, txt,
+                    ha="right" if left else "left", color=col, fontsize=9,
+                    fontweight="bold", clip_on=True,
                     bbox=dict(fc="black", alpha=0.55, pad=1.5, lw=0))
 
 
@@ -247,6 +263,12 @@ def panel(ax, img, title):
     ax.set_title(title, fontsize=9.5, loc="left")
     ax.set_xticks([])
     ax.set_yticks([])
+
+
+def to_disp(u, s):
+    """Photo pixel (integer pixel centres, as the dets and ``project_cam`` use) -> pixel of
+    a copy resized by ``s`` (also integer centres, as ``imshow`` draws them)."""
+    return (np.asarray(u, dtype=float) + 0.5) * s - 0.5
 
 
 def load_photo(flat_dir, iid, fetched):
@@ -264,9 +286,9 @@ def flat_panel(ax, img, dets, g, r, hit, arm_name, disp_w=1000):
     if r is not None:
         u, v = P.project_cam(g["cam"], gt_locus(g, r))
         ok = np.isfinite(u) & (v < img.size[1]) & (u >= 0) & (u < img.size[0])
-        ax.plot(u[ok] * s, v[ok] * s, ":", color=MAG, lw=2.5)
-    draw_dets(ax, [(d["u"], d["v"], d["score"]) for d in dets], hit=hit, sx=s, sy=s,
-              extent=small.size)
+        ax.plot(to_disp(u[ok], s), to_disp(v[ok], s), ":", color=MAG, lw=2.5)
+    draw_dets(ax, [(to_disp(d["u"], s), to_disp(d["v"], s), d["score"]) for d in dets],
+              hit=hit, extent=small.size)
     ax.set_xlim(0, small.size[0])
     ax.set_ylim(small.size[1], 0)
 
@@ -279,9 +301,9 @@ def stretch_panel(ax, img, dets, g, r, hit, disp_w=1000):
     if r is not None:
         u, v = P.project_cam(g["cam"], gt_locus(g, r))
         ok = np.isfinite(u) & (v < img.size[1])
-        ax.plot((u[ok] + 0.5) * sx, (v[ok] + 0.5) * sy, ":", color=MAG, lw=2.5)
-    draw_dets(ax, [(d["u"] + 0.5, d["v"] + 0.5, d["score"]) for d in dets], hit=hit,
-              sx=sx, sy=sy, extent=(disp_w, disp_w // 2))
+        ax.plot(to_disp(u[ok], sx), to_disp(v[ok], sy), ":", color=MAG, lw=2.5)
+    draw_dets(ax, [(to_disp(d["u"], sx), to_disp(d["v"], sy), d["score"]) for d in dets],
+              hit=hit, extent=(disp_w, disp_w // 2))
     ax.set_xlim(0, disp_w)
     ax.set_ylim(disp_w // 2, 0)
 
@@ -296,8 +318,13 @@ def canvas_rgb(img, cam, M=None):
 
 
 def canvas_panel(ax, img, dets, g, r, hit):
+    """The canvas_level input (M = I), cropped to the photo. Only for canvas_level:
+    ``gt_locus`` returns camera-frame rays and ``ray_to_canvas_norm`` expects level-frame
+    rays, which are the same only when M is the identity. Drawing canvas_sfm would need
+    the rays rotated into the level frame first."""
     cam = g["cam"]
-    rgb, inside = canvas_rgb(img, cam)
+    M = np.eye(3)
+    rgb, inside = canvas_rgb(img, cam, M)
     rows_, cols_ = np.nonzero(inside)
     r0, r1, c0, c1 = rows_.min(), rows_.max() + 1, cols_.min(), cols_.max() + 1
     pad_c, pad_r = 60, 40
@@ -308,6 +335,7 @@ def canvas_panel(ax, img, dets, g, r, hit):
     panel(ax, crop, f"canvas arm (a): crop of the 2048x4096 equirect input, "
                     f"{(c1 - c0) * deg:.0f}° x {(r1 - r0) * deg:.0f}° shown")
     if r is not None:
+        assert np.array_equal(M, np.eye(3)), "camera-frame rays need M = I here"
         x, y = P.ray_to_canvas_norm(gt_locus(g, r))
         ax.plot(x * P.CANVAS_W - c0, y * P.CANVAS_H - r0, ":", color=MAG, lw=2.5)
     draw_dets(ax, [(d["x"] * P.CANVAS_W - c0, d["y"] * P.CANVAS_H - r0, d["score"])
@@ -349,11 +377,15 @@ def pano_panel(ax, pano_dir, pano, rec, half_w_deg=40.0, half_h_deg=20.0):
             continue
         dx = ((d["x_normalized"] - pano["x_proj"] + 0.5) % 1.0 - 0.5) * W
         pts.append(((dx + hw) * s, (d["y_normalized"] * H - y0) * s, d["confidence"]))
+    # The square marks the detection in the column nearest the GT, drawn only when
+    # RampNet's world test hit this ramp from this pano (captures_R25.csv world_conf >=
+    # 0.55). captures_R25.csv does not record which detection the world test used, so
+    # this is a drawing aid: not necessarily that detection, and not a bearing-test claim.
     near = [k for k, (x, y, _) in enumerate(pts) if 0 <= x <= crop.shape[1]]
     hit = min(near, key=lambda k: abs(pts[k][0] - hw * s)) if pano["world_conf"] >= PANO_THR \
         and near else None
     draw_dets(ax, pts, thr=PANO_THR, hit=hit, floor=False,
-              extent=(crop.shape[1], crop.shape[0]))
+              extent=(crop.shape[1], crop.shape[0]), hit_mark="square")
     ax.set_xlim(0, crop.shape[1])
     ax.set_ylim(crop.shape[0], 0)
 
@@ -370,19 +402,26 @@ def zoom_panel(ax, img, it):
 
 def legend(fig, y=0.005, pano=True):
     import matplotlib.lines as ml
+    from matplotlib.legend_handler import HandlerTuple
+    double = (ml.Line2D([], [], color=HIT, marker="o", mfc="none", ls="", ms=13, mew=3),
+              ml.Line2D([], [], color=HIT, marker="o", mfc="none", ls="", ms=7, mew=2))
     h = [ml.Line2D([], [], color=MAG, ls=":", lw=2.5,
                    label="GT pool ramp: bearing, for camera heights 0.5-4 m"),
-         ml.Line2D([], [], color=HIT, marker="o", mfc="none", ls="", ms=12, mew=3,
-                   label="detection that hits it (bearing test)"),
+         double,
          ml.Line2D([], [], color=DET, marker="o", mfc="none", ls="", ms=12, mew=2.5,
                    label=f"other detection ≥ {THR}"),
          ml.Line2D([], [], color=WEAK, marker="o", mfc="none", ls="", ms=9, mew=1.5,
                    label=f"peak 0.10-{THR} (below the operating point)")]
+    labels = ["photo / canvas: detection that hits it (bearing test)" if isinstance(x, tuple)
+              else x.get_label() for x in h]
     if pano:
-        h.append(ml.Line2D([], [], color=MAG, marker="+", ls="", ms=14, mew=2.5,
-                           label="GT ramp in the 360 pano"))
-    fig.legend(handles=h, loc="lower left", ncol=3, fontsize=8.5, frameon=False,
-               bbox_to_anchor=(0.01, y + 0.018))
+        h += [ml.Line2D([], [], color=MAG, marker="+", ls="", ms=14, mew=2.5),
+              ml.Line2D([], [], color=HIT, marker="s", mfc="none", ls="", ms=12, mew=3)]
+        labels += ["GT ramp in the 360 pano",
+                   "360 pano: nearest detection; RampNet world_conf ≥ 0.55 on this ramp"]
+    fig.legend(handles=h, labels=labels, loc="lower left", ncol=3, fontsize=8.5,
+               frameon=False, bbox_to_anchor=(0.01, y + 0.018),
+               handler_map={tuple: HandlerTuple(ndivide=1)})
     fig.text(0.99, y, MAPILLARY, ha="right", va="bottom", fontsize=8.5, color="#444")
 
 
@@ -492,7 +531,8 @@ def render_seoul(seoul_dir, names, out):
         rec = recs[name]
         im = Image.open(os.path.join(seoul_dir, os.path.splitext(name)[0] + ".jpg"))
         s = im.size[0] / rec["width"]
-        panel(a, im, f"{os.path.splitext(name)[0]}: max score {rec['max_score']:.2f}")
+        top = f"max score {rec['max_score']:.2f}" if rec["dets"] else "no peak ≥ 0.10"
+        panel(a, im, f"{os.path.splitext(name)[0]}: {top}")
         draw_dets(a, [(d["u"], d["v"], d["score"]) for d in rec["dets"]], sx=s, sy=s,
                   floor=False, extent=im.size)
         a.set_xlim(0, im.size[0])
