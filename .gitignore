@@ -374,6 +374,13 @@ analysis_out/mined_placement_158/predictions/*
 !analysis_out/mined_placement_158/predictions/*.jsonl
 !analysis_out/mined_placement_158/predictions/*.json
 
+# #221 sub-cell decode: per-peak coarse neighbourhoods + report (the coarse maps stay on makelab2)
+!analysis_out/subcell_decode_221/
+analysis_out/subcell_decode_221/*
+!analysis_out/subcell_decode_221/*.json
+!analysis_out/subcell_decode_221/*.md
+!analysis_out/subcell_decode_221/extract.log
+
 # #217 sidewalk width (Seoul): the widths table every number is scored from, the scored
 # results, and the label-map sha256 manifest. The label maps themselves are not committed.
 !analysis_out/sidewalk_width_217/
