@@ -173,17 +173,38 @@ class Design:
         pred_r = np.exp(terms.sum(axis=1))
         return float(w @ self.allmiss), float(w @ pred_r), pred_r
 
-    def bootstrap(self, n_boot, rng):
-        """Ramp-cluster bootstrap, resampled within city so each city keeps its size."""
+    def bootstrap(self, n_boot, rng, clusters=None):
+        """Cluster bootstrap, resampled within city so each city keeps its number of
+        clusters. ``clusters`` gives one label per ramp (default: each ramp is its own
+        cluster); ramps sharing a label are drawn together."""
         cities = sorted(set(self.city))
-        members = {c: np.flatnonzero(self.city == c) for c in cities}
-        out = []
         n = len(self.allmiss)
+        if clusters is None:            # one ramp per cluster: the draw sequence of the
+            members = {c: np.flatnonzero(self.city == c) for c in cities}   # first release
+            out = []
+            for _ in range(n_boot):
+                w = np.zeros(n)
+                for c in cities:
+                    m = members[c]
+                    np.add.at(w, rng.choice(m, size=len(m), replace=True), 1)
+                obs, pred, _ = self.stats(w)
+                out.append((obs, pred))
+            return np.array(out)
+        labels = np.asarray(clusters, dtype=object)
+        groups = {}
+        for c in cities:
+            idx = np.flatnonzero(self.city == c)
+            by = {}
+            for i in idx:
+                by.setdefault(labels[i], []).append(i)
+            groups[c] = [np.array(v) for _, v in sorted(by.items(), key=lambda t: str(t[0]))]
+        out = []
         for _ in range(n_boot):
             w = np.zeros(n)
             for c in cities:
-                m = members[c]
-                np.add.at(w, rng.choice(m, size=len(m), replace=True), 1)
+                g = groups[c]
+                for j in rng.choice(len(g), size=len(g), replace=True):
+                    np.add.at(w, g[j], 1)
             obs, pred, _ = self.stats(w)
             out.append((obs, pred))
         return np.array(out)
@@ -236,7 +257,9 @@ def design_rows(ramps, floor, radius=R_DEFAULT, bins=RANGE_BINS, min_others=2,
 
 def correlation_block(ramps, floor, rng, bins=RANGE_BINS, include_source=False,
                       k_nearest=None, min_others=2, n_boot=N_BOOT, n_perm=N_PERM,
-                      radius=R_DEFAULT):
+                      radius=R_DEFAULT, cluster_by=None):
+    """``cluster_by`` (ramp -> label) makes the bootstrap draw ramps sharing a label
+    together, e.g. every ramp marked in one source pano."""
     rows, kept = design_rows(ramps, floor, radius=radius, bins=bins,
                              include_source=include_source, k_nearest=k_nearest,
                              min_others=min_others)
@@ -244,7 +267,8 @@ def correlation_block(ramps, floor, rng, bins=RANGE_BINS, include_source=False,
                     key=lambda s: (s[0], s[1], -1 if s[2] is None else s[2]))
     d = Design(rows, strata)
     obs, pred, pred_r = d.stats()
-    boot = d.bootstrap(n_boot, rng) if n_boot else None
+    clusters = None if cluster_by is None else [cluster_by(r) for r in kept]
+    boot = d.bootstrap(n_boot, rng, clusters) if n_boot else None
     perm = d.permutation_null(n_perm, rng) if n_perm else None
     out = {"ramps": len(rows), "observed_all_missed": obs, "predicted_independent": pred,
            "ratio": obs / pred if pred else None,
@@ -572,6 +596,30 @@ def dumps(payload):
     return json.dumps(rnd(payload), indent=1, sort_keys=True) + "\n"
 
 
+def per_city_stats(ramps, floor):
+    """Descriptives the doc quotes: per city and imagery, on the ramps with >= 2 other
+    views within 18 m -- mean other views, other-view marginal miss rate, mean distinct
+    capture months among the other views, and the median separation of the two nearest
+    other cameras."""
+    out = {}
+    names = sorted(SOURCE) + ["gsv", "mapillary"]
+    for name in names:
+        pop = [r for r in ramps if (r["city"] == name or SOURCE[r["city"]] == name)
+               and len(others(r)) >= 2]
+        caps = [c for r in pop for c in others(r)]
+        months = [len({(c["capture_date"] or "")[:7] for c in others(r) if c["capture_date"]})
+                  for r in pop]
+        seps = [math.hypot(o[0]["cam_e"] - o[1]["cam_e"], o[0]["cam_n"] - o[1]["cam_n"])
+                for o in (others(r) for r in pop)]
+        out[name] = {"ramps": len(pop),
+                     "mean_other_views": float(np.mean([len(others(r)) for r in pop])),
+                     "other_view_miss_rate": float(np.mean(
+                         [not is_hit(c["world_conf"], floor) for c in caps])),
+                     "mean_months": float(np.mean(months)),
+                     "median_sep_two_nearest_m": float(np.median(seps))}
+    return out
+
+
 def block_rng(name):
     """One generator per output block, seeded by its name, so adding or removing a block
     never moves another block's bootstrap or permutation draws."""
@@ -628,8 +676,37 @@ def compute():
                               n_boot=1000, n_perm=0)
     corr["matched_view_count_055"] = matched
 
+    # Same k, one fixed population (ramps with >= 4 other views), so the rise with k is
+    # not a change of population.
+    fixed = {}
+    for name, pop in (("pooled", ramps), ("gsv", groups["gsv"]),
+                      ("mapillary", groups["mapillary"])):
+        pop4 = [r for r in pop if len(others(r)) >= 4]
+        for k in (2, 3, 4):
+            key = f"{name}_k{k}"
+            fixed[key] = cb("fixed4_" + key, pop4, 0.55, k_nearest=k, min_others=k,
+                            n_boot=1000, n_perm=0)
+    corr["matched_view_count_055_fixed_population_4plus"] = fixed
+
+    # Robustness of the pooled ratio: (1) bootstrap over source panos, since ramps marked
+    # in one pano share their captures; (2) the two GT populations separately -- ramps the
+    # source view detected vs ramps the reviewer added as missed.
+    corr["pooled_055_source_pano_clusters"] = cb(
+        "pooled_055_source_pano_clusters", ramps, 0.55, n_perm=0,
+        cluster_by=lambda r: (source_capture(r) or {}).get("pano_id"))
+    corr["pooled_055_source_pano_clusters"]["clusters"] = len(
+        {(r["city"], (source_capture(r) or {}).get("pano_id"))
+         for r in ramps if len(others(r)) >= 2})
+    by_src = {}
+    for name, want in (("detected", True), ("reviewer_added", False)):
+        pop = [r for r in ramps if source_capture(r) is not None
+               and is_hit(source_capture(r)["world_conf"], 0.55) == want]
+        by_src[name] = cb("pooled_055_by_source_hit_" + name, pop, 0.55, n_perm=0)
+    corr["pooled_055_by_source_hit"] = by_src
+
     table = all_missed_table(ramps, 0.55, residual)
     return {
+        "per_city_055": per_city_stats(ramps, 0.55),
         "inputs": {"captures_R25.csv": sha256(CAPTURES),
                    "captures_R25_hit8.csv": sha256(CAPTURES_HIT8),
                    "residual_misses.json": sha256(RESIDUAL)},
@@ -794,6 +871,66 @@ def doc_tables(res):
         rows.append(f"| {label} | {_n(x['ramps_with_a_capture'])} | {x['recall']:.3f} "
                     f"{_ci(x['ci95'], 3)} |")
     out["nearest_vs_any"] = rows
+
+    fx = c["matched_view_count_055_fixed_population_4plus"]
+    out["matched_fixed"] = [
+        f"| {name} (fixed, n {_n(fx[name + '_k2']['ramps'])}) | "
+        + " | ".join(f"{_f(fx[f'{name}_k{k}']['ratio'])} {_ci(fx[f'{name}_k{k}']['ratio_ci95'])}"
+                     for k in (2, 3, 4)) + " |"
+        for name in ("pooled", "gsv", "mapillary")]
+
+    sp = c["pooled_055_source_pano_clusters"]
+    rows = [f"| ramp clusters within city (headline) | {_n(c['pooled_055']['ramps'])} ramps | "
+            f"{_f(c['pooled_055']['ratio'])} {_ci(c['pooled_055']['ratio_ci95'])} |",
+            f"| source-pano clusters within city | {sp['clusters']} clusters | "
+            f"{_f(sp['ratio'])} {_ci(sp['ratio_ci95'])} |"]
+    for label, key in (("detected by the source view", "detected"),
+                       ("added by the reviewer as missed", "reviewer_added")):
+        b = c["pooled_055_by_source_hit"][key]
+        rows.append(f"| {label} | {_n(b['ramps'])} ramps, {_n(b['observed_all_missed'])} vs "
+                    f"{b['predicted_independent']:.1f} | {_f(b['ratio'])} {_ci(b['ratio_ci95'])} |")
+    out["robustness"] = rows
+
+    # Prose numbers in the takeaways and readings (each phrase appears in the doc verbatim).
+    m = c["matched_view_count_055"]
+    pc = res["per_city_055"]
+    th = {(r["spacing_m"], r["scheme"]): r["groups"] for r in res["thinning_055"]["rows"]}
+    t3, t8 = res["three_nearest_055"], res["three_nearest_055_hit8m"]
+    gsv_cities = [k for k in sorted(SOURCE) if SOURCE[k] == "gsv"]
+    gmin = min(pc[k]["mean_other_views"] for k in gsv_cities)
+    gmax = max(pc[k]["mean_other_views"] for k in gsv_cities)
+    others_mr = [pc[k]["other_view_miss_rate"] for k in ("paterson", "sao_paulo", "richmond")]
+    rich5 = th[(5.0, "grid")]["mapillary"]
+    rich10 = th[(10.0, "grid")]["mapillary"]
+    out["prose"] = [
+        f"[95% CI {c['pooled_055']['ratio_ci95'][0]:.2f}, {c['pooled_055']['ratio_ci95'][1]:.2f}]",
+        f"it is {_f(m['pooled_k2']['ratio'])} {_ci(m['pooled_k2']['ratio_ci95'])}, on three "
+        f"{_f(m['pooled_k3']['ratio'])}, on four {_f(m['pooled_k4']['ratio'])}",
+        f"GSV {_f(m['gsv_k2']['ratio'])} {_ci(m['gsv_k2']['ratio_ci95'])}",
+        f"Mapillary {_f(m['mapillary_k2']['ratio'])} {_ci(m['mapillary_k2']['ratio_ci95'])}",
+        f"{_pct(t3['observed_share'])} [{100 * t3['observed_share_ci95'][0]:.1f}, "
+        f"{100 * t3['observed_share_ci95'][1]:.1f}]",
+        f"{_pct(t8['observed_share'])} [{100 * t8['observed_share_ci95'][0]:.1f}, "
+        f"{100 * t8['observed_share_ci95'][1]:.1f}]",
+        f"{fl['missed_by_every_view_25m']} of {_n(fl['ramps'])} ramps ({_pct(fl['share'])})",
+        f"union recall {fl['union_recall_25m']:.3f}",
+        f"{fl['nearest_other_m']['floor']['median']:.1f} m vs "
+        f"{fl['nearest_other_m']['rest']['median']:.1f} m",
+        f"costs {100 * -rich5['delta_other_vs_native']:.1f} points of other-view recall "
+        f"[{100 * -rich5['delta_other_vs_native_ci95'][1]:.1f}, "
+        f"{100 * -rich5['delta_other_vs_native_ci95'][0]:.1f}]",
+        f"costs {100 * -rich10['delta_other_vs_native']:.1f} points",
+        f"0.654 [{n['nearest_other_only']['ci95'][0]:.3f}, {n['nearest_other_only']['ci95'][1]:.3f}]"
+        if round(n["nearest_other_only"]["recall"], 3) == 0.654 else "nearest-only changed",
+        f"mean of {pc['mapillary']['mean_other_views']:.1f} other views within 18 m, the GSV "
+        f"cities {gmin:.1f}-{gmax:.1f}",
+        f"({pc['gainesville']['other_view_miss_rate']:.2f} and "
+        f"{pc['bend']['other_view_miss_rate']:.2f}, vs {min(others_mr):.2f}-{max(others_mr):.2f} "
+        f"elsewhere)",
+        f"mean {pc['gsv']['mean_months']:.1f} distinct months",
+        f"median {pc['mapillary']['median_sep_two_nearest_m']:.1f} m apart, against GSV's "
+        f"{pc['gsv']['median_sep_two_nearest_m']:.1f} m",
+    ]
     return out
 
 

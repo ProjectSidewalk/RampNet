@@ -124,3 +124,17 @@ def test_floor_flag_uses_views_beyond_18m():
     row = pr.all_missed_table([r], 0.55, {})[0]
     assert row["all_other_missed"] and row["other_hit_18_25m"]
     assert not row["all_views_missed_25m"]
+
+
+def test_cluster_bootstrap_draws_a_cluster_whole():
+    # cluster "a" = one missed ramp + one found ramp, cluster "b" = one missed ramp. Two
+    # clusters are drawn per resample, and each draw adds exactly one missed ramp, so the
+    # all-missed count is always 2; a ramp-level bootstrap would give 0-3.
+    rows = [("c", [(("c", "o", 0), True)]), ("c", [(("c", "o", 0), False)]),
+            ("c", [(("c", "o", 0), True)])]
+    d = pr.Design(rows, [("c", "o", 0)])
+    rng = np.random.default_rng(1)
+    clustered = {float(o) for o, _ in d.bootstrap(200, rng, clusters=["a", "a", "b"])}
+    plain = {float(o) for o, _ in d.bootstrap(200, rng)}
+    assert clustered == {2.0}
+    assert len(plain) > 1

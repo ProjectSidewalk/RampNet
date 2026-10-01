@@ -14,7 +14,8 @@ thinning sweep, and nearest-view vs any-view recall with CIs.
 
 Code: `scripts/analysis/per_ramp_recall_38.py`. Outputs: `analysis_out/per_ramp_recall_38/`
 (`results.json`, `ramps_other_views.csv`). Test: `tests/test_per_ramp_recall_38.py`, which also
-checks that every table row below is quoted verbatim from `results.json` (`doc-numbers`).
+checks that every table row below, and the key numbers in the takeaways and readings, are quoted
+verbatim from `results.json` (`doc-numbers`).
 
 ## Takeaways
 
@@ -43,8 +44,8 @@ checks that every table row below is quoted verbatim from `results.json` (`doc-n
   18 m gives 55, of which 9 are found by a view at 18-25 m. Within the 25 m pool, the floor ramps
   are seen from about as close as the rest (nearest other camera median 7.8 m vs 6.6 m). 27 have a
   stored peak below 0.55. Far-field ramps are outside this pool by construction (§7).
-- **Thinning costs recall about in proportion to the captures removed, and the data cannot say
-  whether denser sampling would add any.** Removing 20% of Richmond's panos (a fresh 5 m grid)
+- **Thinning costs recall slowly at first, then steeply, and the data cannot say whether denser
+  sampling would add any.** Removing 20% of Richmond's panos (a fresh 5 m grid)
   costs 1.3 points of other-view recall [0.5, 2.3]; keeping 52% (10 m) costs 6.3 points. GSV is
   already at about 10 m spacing and is not thinned in production, so no setting changes it below
   10 m. No un-thinned run exists to test denser than native.
@@ -99,8 +100,9 @@ products.
 **Two uncertainty measures.**
 - *Ramp-cluster bootstrap*, 2,000 resamples of ramps within each city (1,000 for the
   view-count-matched rows). The marginals are re-estimated from each resample, so the CI covers
-  their sampling error too. In the PR review (one-off, not in the committed script), clustering by (city, source pano) instead (433 clusters)
-  gave [1.73, 2.29] for the pooled ratio, so ramp-level clustering does not under-cover.
+  their sampling error too. Ramps marked in one source pano share their captures, so the pooled
+  ratio is also bootstrapped over source-pano clusters (§3, robustness table); the interval barely
+  moves, so ramp-level clustering does not under-cover.
 - *Stratified permutation null*, 5,000 shuffles (1,000 for single cities): within each (city,
   range bin) stratum the miss flags of all captures are shuffled across ramps. Every capture keeps
   its city and range bin and every stratum keeps its miss count; only which ramp a miss belongs to
@@ -137,9 +139,10 @@ re-inference (#48 §3). The pooled row reproduces #48 §5 exactly (153 and 76.52
 asserts this before writing.
 
 **At matched view counts.** The all-missed ratio rises with the number of views a ramp has under
-any per-ramp heterogeneity, and the populations differ: richmond ramps have a mean of 10.3 other
-views within 18 m, the GSV cities 4.0-4.6 (on the ramps with at least two). Each cell below keeps only each ramp's k nearest other
-views, on the ramps that have at least k (ratio [95% CI], observed vs predicted, ramps):
+any per-ramp heterogeneity, and the populations differ: richmond ramps have a
+mean of 10.3 other views within 18 m, the GSV cities 4.0-4.6 (on the ramps with at least two;
+`results.json` → `per_city_055`). Each cell below keeps only each ramp's k nearest other views, on
+the ramps that have at least k (ratio [95% CI], observed vs predicted, ramps):
 
 | population | k = 2 | k = 3 | k = 4 |
 |---|---|---|---|
@@ -150,6 +153,30 @@ views, on the ramps that have at least k (ratio [95% CI], observed vs predicted,
 | gainesville | 1.38 [1.25, 1.57] (75 vs 54.2, n 213) | 1.51 [1.29, 1.74] (53 vs 35.1, n 193) | 1.63 [1.33, 1.97] (39 vs 23.9, n 162) |
 | sao_paulo | 1.37 [1.18, 1.58] (53 vs 38.6, n 253) | 1.80 [1.42, 2.17] (37 vs 20.6, n 245) | 2.41 [1.75, 3.14] (24 vs 10.0, n 218) |
 | bend | 2.05 [1.66, 2.54] (35 vs 17.1, n 289) | 4.74 [3.44, 6.42] (24 vs 5.1, n 257) | 9.70 [6.20, 15.15] (16 vs 1.6, n 192) |
+
+The populations above shrink as k grows. On one fixed population, the ramps with at least four
+other views, the rise with k is the same, so it is not survivorship:
+
+| population | k = 2 | k = 3 | k = 4 |
+|---|---|---|---|
+| pooled (fixed, n 1,036) | 1.54 [1.43, 1.65] | 2.05 [1.83, 2.26] | 2.63 [2.26, 2.96] |
+| gsv (fixed, n 815) | 1.50 [1.37, 1.63] | 1.90 [1.67, 2.13] | 2.23 [1.91, 2.60] |
+| mapillary (fixed, n 221) | 1.68 [1.47, 1.92] | 2.66 [2.06, 3.33] | 5.42 [3.77, 7.56] |
+
+Matching on view count does not match geometry: richmond's two nearest other cameras are a
+median 5.6 m apart, against GSV's 10.8 m (`per_city_055`).
+
+**Robustness of the pooled ratio** (0.55, bootstrap only; `pooled_055_source_pano_clusters` and
+`pooled_055_by_source_hit` in `results.json`). Ramps are clustered by source pano in the second row.
+The last two rows split ramps by how they entered the GT, since the two groups have different
+other-view miss rates and a mixture of them could look like correlation:
+
+| variant | population | ratio [95% CI] |
+|---|---|---|
+| ramp clusters within city (headline) | 1,298 ramps | 2.00 [1.74, 2.25] |
+| source-pano clusters within city | 433 clusters | 2.00 [1.72, 2.28] |
+| detected by the source view | 1,023 ramps, 98 vs 50.4 | 1.95 [1.64, 2.24] |
+| added by the reviewer as missed | 275 ramps, 55 vs 32.3 | 1.70 [1.36, 2.01] |
 
 **#38's arithmetic, done per ramp.** #38 multiplied three per-view miss rates (0.158 x 0.158 x
 0.121 = 0.3%) for the three nearest views. On the ramps with at least three other captures within
@@ -166,17 +193,17 @@ views, on the ramps that have at least k (ratio [95% CI], observed vs predicted,
   range binnings and with both world tests: no interval in either table includes 1.
 - How large it is depends on how many views are pooled. Two views of a ramp both miss about 1.5x
   as often as independence predicts; with four views every-view-missed is 2.63x pooled (GSV 2.23,
-  Mapillary 5.42). The pooled
-  "2.00" is a property of this population's mix of view counts, not a constant.
-- In the PR review (a one-off computation, not in the committed script), splitting ramps by whether the source view found them (detected vs reviewer-added,
-  other-view miss rates 0.454 vs 0.618) left the ratio at 1.95 and 1.70 within each group, so the
-  correlation is not a mixture of those two populations.
+  Mapillary 5.42). The pooled "2.00" is a property of this population's mix of view counts, not a
+  constant.
+- Within each GT population (ramps the source view detected, and ramps the reviewer added) the
+  ratio stays well above 1 (1.95 and 1.70), so the correlation is not a mixture of the two.
 - It is not only GT placement. An 8 m world test removes 70 of the 153 all-missed ramps, but the
   ratio stays at 2.0.
-- GSV vs Mapillary: at two views the intervals overlap (1.47 [1.37, 1.59] vs 1.69 [1.48, 1.91]); the
-  gap opens at three and four views. That fits consecutive Mapillary frames being near-duplicates
-  (often under a metre apart, #48 §5), but it is one Mapillary city. The raw 1.80 vs 4.62 mostly
-  measures view count.
+- GSV vs Mapillary: at two views the intervals overlap (GSV 1.47 [1.37, 1.59] vs
+  Mapillary 1.69 [1.48, 1.91]); the gap opens at three and four views. That fits consecutive
+  Mapillary frames being near-duplicates (two nearest other cameras a
+  median 5.6 m apart, against GSV's 10.8 m), but it is one Mapillary city. The raw 1.80 vs
+  4.62 mostly measures view count.
 - Gainesville has the highest all-missed share (23%) and the lowest ratios at every matched k
   (1.38-1.63); bend the highest (2.05-9.70). Their other-view marginal miss rates are the highest
   and lowest of the five cities (0.63 and 0.35, vs 0.49-0.50 elsewhere), so the same
@@ -237,7 +264,7 @@ its spacing is whatever Google captured.
 
 **Native spacing in these runs** (median distance from a pano to its nearest neighbour, among
 panos within 25 m of a pool ramp): richmond 3.5 m, the four GSV cities 9.9-10.0 m. The GSV runs
-include several capture dates per location (mean 1.9 distinct months among a ramp's other views).
+include several capture dates per location (mean 1.8 distinct months among a ramp's other views).
 
 **Method.** For each spacing, the rule is re-applied, approximated at month resolution: one pano
 per cell of a grid with a random offset, newest capture month wins, ties broken at random. The
@@ -344,7 +371,7 @@ From a clean clone, CPU only, about a minute per command:
 ```bash
 python scripts/analysis/per_ramp_recall_38.py run           # writes analysis_out/per_ramp_recall_38/
 python scripts/analysis/per_ramp_recall_38.py check         # re-derives both files and compares bytes
-python scripts/analysis/per_ramp_recall_38.py doc-numbers   # the table rows this doc quotes
+python scripts/analysis/per_ramp_recall_38.py doc-numbers   # the table rows and key prose numbers this doc quotes
 pytest -q tests/test_per_ramp_recall_38.py
 ```
 
