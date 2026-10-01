@@ -381,6 +381,13 @@ analysis_out/subcell_decode_221/*
 !analysis_out/subcell_decode_221/*.md
 !analysis_out/subcell_decode_221/extract.log
 
+# #38 per-ramp recall + miss correlation: derived tables, re-derived by
+# scripts/analysis/per_ramp_recall_38.py check from the committed multiview_48 captures.
+!analysis_out/per_ramp_recall_38/
+analysis_out/per_ramp_recall_38/*
+!analysis_out/per_ramp_recall_38/*.json
+!analysis_out/per_ramp_recall_38/*.csv
+
 # scripts/check_all.py --json: the committed result of the last full gate run on main.
 !analysis_out/check_all/
 analysis_out/check_all/*
