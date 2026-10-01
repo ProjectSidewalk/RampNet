@@ -1,0 +1,71 @@
+{
+ "from_file": "analysis_out/mined_label_check_158/mined_label_check__jonf.json",
+ "from_sha256": "fe879be52ae73790ddebfebf6813a965241d70b462c8bcb9f9742693d4c05493",
+ "gallery": "benchmark/mined_label_check_158/gallery_pass2.html",
+ "image_controls": true,
+ "items": [
+  "c56bf7daa",
+  "c301e7660",
+  "c93a1fb65",
+  "c4c718ab4",
+  "c7da22a7d",
+  "cb1b24868",
+  "cfa18a5d8",
+  "c80f324a8",
+  "cf923fecb",
+  "c1e52b2ce",
+  "c10dd8bbb",
+  "c9f0e9a33",
+  "cbe6a1b45",
+  "c4355c7f1",
+  "cdfe1dcc3",
+  "c0445e8a0",
+  "c42904dcc",
+  "cbe9243c2",
+  "c14e8f6cf",
+  "cacfb48e9",
+  "c33415826",
+  "c7e116011",
+  "c778bd5a8",
+  "cc6ae3eb0",
+  "ce2fd063b",
+  "c04849abb",
+  "c1736d7ae",
+  "c6370536b",
+  "cfff8e804",
+  "ca6c2d58e",
+  "cac0fc9b0",
+  "ca7ee8f77"
+ ],
+ "manifest_digest": "bf3c00686e50e0da",
+ "n_answered": 0,
+ "n_items": 32,
+ "pass": 2,
+ "question": "Is there a curb ramp at the ring?",
+ "rater": "jonf-p2",
+ "rubric": [
+  {
+   "definition": "A curb ramp is at the ring or touching it. It may be partly hidden or faint, as long as you can see it is a ramp.",
+   "key": "yes",
+   "label": "Yes"
+  },
+  {
+   "definition": "There is no curb ramp at that spot: the ring is on plain curb, a driveway, sidewalk, street or something else, and the nearest ramp (if any) is more than roughly one ramp width away.",
+   "key": "no",
+   "label": "No"
+  },
+  {
+   "definition": "The view does not let you decide (too dark, blocked, too far, too blurry). Excluded from every rate.",
+   "key": "cant_tell",
+   "label": "Can't tell"
+  }
+ ],
+ "rules": [
+  "Answer from the ringed view only. The second view is unmarked context and is not rated.",
+  "Judge the spot under the ring, not whether a ramp exists somewhere in the crop.",
+  "Add a note for anything worth recording, e.g. 'ramp 1 m left of ring' or 'ring on a driveway'."
+ ],
+ "subset": "cant_tell",
+ "task": "RampNet #158 step 4, mined-label check: Is there a curb ramp at the ring?",
+ "verdicts": {}
+}

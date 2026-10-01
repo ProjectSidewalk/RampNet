@@ -373,3 +373,7 @@ analysis_out/mined_placement_158/*
 analysis_out/mined_placement_158/predictions/*
 !analysis_out/mined_placement_158/predictions/*.jsonl
 !analysis_out/mined_placement_158/predictions/*.json
+# #158 step 4: the mined-label gallery's item file and per-rater verdict files.
+!analysis_out/mined_label_check_158/
+analysis_out/mined_label_check_158/*
+!analysis_out/mined_label_check_158/*.json
