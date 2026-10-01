@@ -1,8 +1,18 @@
 {
- "git_head": "763cef7052e1f7b12977f0064a286edb35f6362b",
- "tree_clean_at_start": true,
+ "git_head": "9671aa29a8883d8a375f166e398fcbfc757370ed",
+ "tree_dirty_at_start": false,
+ "write_detection": true,
  "python": "3.12.10",
  "platform": "win32",
+ "argv": [
+  "--all",
+  "--allow",
+  "local-cache",
+  "--local-root",
+  "D:/Git/RampNet",
+  "--json",
+  "C:/Users/jonf/AppData/Local/Temp/claude/D--Git-RampNet/74b07ffc-12d7-4dc3-87ba-d8f40b802cc4/scratchpad/ca230_latest.json"
+ ],
  "mode": {
   "ci": false,
   "all": true,
@@ -10,120 +20,331 @@
    "local-cache"
   ]
  },
+ "exit": 0,
  "counts": {
-  "PASS": 18,
+  "PASS": 19,
   "FAIL": 0,
   "SKIP": 0
  },
- "total_seconds": 592.4,
+ "total_seconds": 508.8,
  "results": [
+  {
+   "name": "manifests_sha256",
+   "status": "PASS",
+   "seconds": 2.9,
+   "detail": "",
+   "steps": [
+    {
+     "argv": [
+      "scripts/verify_sha256sums.py"
+     ],
+     "exit": 0
+    }
+   ]
+  },
   {
    "name": "sourcing_tables",
    "status": "PASS",
    "seconds": 0.1,
-   "detail": ""
+   "detail": "",
+   "steps": [
+    {
+     "argv": [
+      "scripts/analysis/sourcing_tables.py",
+      "--check"
+     ],
+     "exit": 0
+    }
+   ]
   },
   {
    "name": "yolo_warmup_dip_72",
    "status": "PASS",
    "seconds": 0.1,
-   "detail": ""
+   "detail": "",
+   "steps": [
+    {
+     "argv": [
+      "scripts/analysis/yolo_warmup_dip_72.py",
+      "--check"
+     ],
+     "exit": 0
+    }
+   ]
   },
   {
    "name": "yolo_geometry_51",
    "status": "PASS",
-   "seconds": 0.2,
-   "detail": ""
+   "seconds": 0.1,
+   "detail": "",
+   "steps": [
+    {
+     "argv": [
+      "scripts/analysis/yolo_geometry_51.py",
+      "--check"
+     ],
+     "exit": 0
+    }
+   ]
   },
   {
    "name": "run_b_gate_135",
    "status": "PASS",
    "seconds": 0.1,
-   "detail": ""
+   "detail": "",
+   "steps": [
+    {
+     "argv": [
+      "scripts/analysis/run_b_gate_135.py",
+      "--check"
+     ],
+     "exit": 0
+    }
+   ]
   },
   {
    "name": "seed_variance_read_51_135",
    "status": "PASS",
-   "seconds": 8.2,
-   "detail": ""
+   "seconds": 6.5,
+   "detail": "",
+   "steps": [
+    {
+     "argv": [
+      "scripts/analysis/seed_variance_read_51_135.py",
+      "--check"
+     ],
+     "exit": 0
+    }
+   ]
   },
   {
    "name": "operating_point_parity_51",
    "status": "PASS",
-   "seconds": 3.1,
-   "detail": ""
+   "seconds": 3.0,
+   "detail": "",
+   "steps": [
+    {
+     "argv": [
+      "scripts/analysis/operating_point_parity_51.py",
+      "--check"
+     ],
+     "exit": 0
+    }
+   ]
   },
   {
    "name": "recall_by_depth_112",
    "status": "PASS",
-   "seconds": 0.3,
-   "detail": ""
+   "seconds": 0.2,
+   "detail": "",
+   "steps": [
+    {
+     "argv": [
+      "scripts/analysis/recall_by_depth_112.py",
+      "--check"
+     ],
+     "exit": 0
+    }
+   ]
   },
   {
    "name": "da3_calibration_101",
    "status": "PASS",
-   "seconds": 10.2,
-   "detail": ""
+   "seconds": 7.9,
+   "detail": "",
+   "steps": [
+    {
+     "argv": [
+      "scripts/analysis/da3_calibration_101.py",
+      "--check"
+     ],
+     "exit": 0
+    }
+   ]
   },
   {
    "name": "laurens_paired_151",
    "status": "PASS",
-   "seconds": 2.2,
-   "detail": ""
+   "seconds": 1.9,
+   "detail": "",
+   "steps": [
+    {
+     "argv": [
+      "scripts/analysis/laurens_paired_151.py",
+      "--check"
+     ],
+     "exit": 0
+    }
+   ]
   },
   {
    "name": "crossview_fresh_48",
    "status": "PASS",
-   "seconds": 0.4,
-   "detail": ""
+   "seconds": 0.3,
+   "detail": "",
+   "steps": [
+    {
+     "argv": [
+      "scripts/analysis/crossview_fresh_48.py",
+      "pairs",
+      "--check"
+     ],
+     "exit": 0
+    }
+   ]
   },
   {
    "name": "two_scale_197",
    "status": "PASS",
-   "seconds": 63.0,
-   "detail": ""
+   "seconds": 52.8,
+   "detail": "",
+   "steps": [
+    {
+     "argv": [
+      "scripts/analysis/two_scale_197.py",
+      "report",
+      "--check"
+     ],
+     "exit": 0
+    }
+   ]
   },
   {
    "name": "input_res_sweep_25",
    "status": "PASS",
-   "seconds": 57.5,
-   "detail": ""
+   "seconds": 54.0,
+   "detail": "",
+   "steps": [
+    {
+     "argv": [
+      "scripts/analysis/input_res_sweep_25.py",
+      "sums"
+     ],
+     "exit": 0
+    },
+    {
+     "argv": [
+      "scripts/analysis/input_res_sweep_25.py",
+      "check",
+      "--out",
+      "{tmp}/instrument_check.json"
+     ],
+     "exit": 0
+    },
+    {
+     "argv": [
+      "scripts/analysis/input_res_sweep_25.py",
+      "report",
+      "--out",
+      "{tmp}/results.json"
+     ],
+     "exit": 0
+    },
+    {
+     "argv": [
+      "scripts/analysis/input_res_sweep_25.py",
+      "sums",
+      "--root",
+      "{tmp}",
+      "--partial"
+     ],
+     "exit": 0
+    }
+   ]
   },
   {
    "name": "yolo_rescore_benchmark_eval",
    "status": "PASS",
    "seconds": 2.1,
-   "detail": ""
+   "detail": "",
+   "steps": [
+    {
+     "argv": [
+      "scripts/model_comparison/yolo_baseline/rescore_benchmark_eval.py",
+      "--check"
+     ],
+     "exit": 0
+    }
+   ]
   },
   {
    "name": "cascade_transfer_35",
    "status": "PASS",
    "seconds": 1.8,
-   "detail": ""
+   "detail": "",
+   "steps": [
+    {
+     "argv": [
+      "scripts/analysis/cascade_transfer_35.py",
+      "--check"
+     ],
+     "exit": 0
+    }
+   ]
   },
   {
    "name": "scoreboard",
    "status": "PASS",
-   "seconds": 4.6,
-   "detail": ""
+   "seconds": 4.4,
+   "detail": "",
+   "steps": [
+    {
+     "argv": [
+      "scripts/analysis/scoreboard.py",
+      "--check"
+     ],
+     "exit": 0
+    }
+   ]
   },
   {
    "name": "cascade_cost_35",
    "status": "PASS",
-   "seconds": 402.5,
-   "detail": ""
+   "seconds": 341.7,
+   "detail": "",
+   "steps": [
+    {
+     "argv": [
+      "scripts/analysis/cascade_cost_35.py",
+      "--check"
+     ],
+     "exit": 0
+    }
+   ]
   },
   {
    "name": "export_model_cache_verify",
    "status": "PASS",
-   "seconds": 15.2,
-   "detail": ""
+   "seconds": 12.4,
+   "detail": "",
+   "steps": [
+    {
+     "argv": [
+      "scripts/analysis/export_model_cache.py",
+      "--verify",
+      "--cache-dir",
+      "{local_root}/.model_cache"
+     ],
+     "exit": 0
+    }
+   ]
   },
   {
    "name": "imagery_manifest_verify",
    "status": "PASS",
-   "seconds": 20.8,
-   "detail": ""
+   "seconds": 16.5,
+   "detail": "",
+   "steps": [
+    {
+     "argv": [
+      "scripts/analysis/imagery_manifest.py",
+      "--verify",
+      "--panos-root",
+      "{local_root}"
+     ],
+     "exit": 0
+    }
+   ]
   }
  ]
 }
