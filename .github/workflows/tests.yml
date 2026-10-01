@@ -65,3 +65,43 @@ jobs:
         env:
           HF_HUB_OFFLINE: "1"
         run: pytest -q
+
+  # Every analysis --check, together, on the merged tree (scripts/check_all.py). Two
+  # analysis PRs that each pass their own check can still break each other's sha256 pins
+  # once merged (a script that pins another analysis' output); this job is what catches
+  # that. --ci runs only entries that need nothing beyond a clean clone on CPU and are
+  # not marked slow; every other entry is printed as SKIP with its reason.
+  # docs/replication.md "Running every check" lists the entries and the known gaps.
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      # Same CPU-only install as the pytest job (see the comments there).
+      - name: Install CPU-only PyTorch
+        run: pip install "torch>=2.6,<3" "torchvision>=0.21" --index-url https://download.pytorch.org/whl/cpu
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements-dev.txt
+          pip install -e .
+
+      - name: Run every check (scripts/check_all.py --ci)
+        env:
+          HF_HUB_OFFLINE: "1"
+        run: python scripts/check_all.py --ci --json check_all.json
+
+      - name: Upload the result table
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: check-all
+          path: check_all.json
