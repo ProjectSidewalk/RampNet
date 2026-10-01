@@ -168,6 +168,15 @@ def git_status():
     return p.stdout.decode("utf-8", "replace") if p.returncode == 0 else None
 
 
+def git_head():
+    try:
+        p = subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO, stdout=subprocess.PIPE,
+                           stderr=subprocess.DEVNULL, timeout=60)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    return p.stdout.decode().strip() if p.returncode == 0 else None
+
+
 def run_entry(entry: Entry, timeout: float, local_root: str) -> tuple:
     """Run every step; stop at the first failure. Returns (ok, detail, output, seconds)."""
     env = dict(os.environ)
@@ -253,6 +262,8 @@ def main(argv=None) -> int:
     entries = [names[n] for n in args.only] if args.only else REGISTRY
     local_root = os.path.abspath(args.local_root)
 
+    status0 = git_status()
+    tree_clean = None if status0 is None else status0.strip() == ""
     rows = []
     for e in entries:
         skip = skip_reason(e, ci=args.ci, run_all=args.run_all, allowed=set(args.allow))
@@ -285,8 +296,11 @@ def main(argv=None) -> int:
     if args.json:
         os.makedirs(os.path.dirname(os.path.abspath(args.json)), exist_ok=True)
         with open(args.json, "w", encoding="utf-8", newline="\n") as f:
-            json.dump({"mode": {"ci": args.ci, "all": args.run_all, "allow": sorted(args.allow)},
-                       "counts": counts, "results": rows}, f, indent=1)
+            json.dump({"git_head": git_head(), "tree_clean_at_start": tree_clean,
+                       "python": sys.version.split()[0], "platform": sys.platform,
+                       "mode": {"ci": args.ci, "all": args.run_all, "allow": sorted(args.allow)},
+                       "counts": counts, "total_seconds": round(total, 1), "results": rows},
+                      f, indent=1)
             f.write("\n")
     return 1 if counts["FAIL"] else 0
 

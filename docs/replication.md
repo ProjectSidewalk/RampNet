@@ -413,6 +413,93 @@ that size and never native. What remains blocking a second rater is a *person*, 
 > back byte-for-byte the same size as the published copy (179,356 bytes), which is the cheapest
 > available check that the rebuild path is stable.
 
+## Running every check
+
+Every analysis script that pins committed outputs has a check mode. It re-derives those outputs
+from committed inputs and compares bytes or sha256 pins. A check passing on its own branch is not
+enough. Some scripts pin **another** analysis' output: `da3_calibration_101.py` pins
+`analysis_out/recall_by_depth_112.json`, and `recall_by_depth_112.py --only <split>` appends to
+that file. So two PRs can each pass their own check and still break each other's pins once both
+are merged. `scripts/check_all.py` runs every check together on one tree. **Run it after merging
+any analysis PR, and after merging main into one:**
+
+```bash
+python scripts/check_all.py --all                  # the full gate (~10 min on CPU)
+python scripts/check_all.py --ci                   # what the `checks` CI job runs (~3 min)
+python scripts/check_all.py --list                 # the registry, nothing run
+python scripts/check_all.py --only da3_calibration_101 --only recall_by_depth_112
+python scripts/check_all.py --all --allow local-cache --local-root D:/Git/RampNet   # + local-data entries
+```
+
+It prints a table (name, PASS / FAIL / SKIP with the reason, seconds) and exits 1 on any FAIL.
+Each step runs as a subprocess with the repo root as cwd. A check must write nothing. The runner
+compares `git status` before and after every entry, and an entry that changed the tree FAILs.
+The registry is an explicit list in the script, with no discovery, so a new check mode needs an
+entry there. `tests/test_check_all.py` proves that every entry's argv is accepted by its script's
+argparse, without running any check.
+
+`--ci` runs only entries that have no requirements (committed inputs, CPU, offline) and are not
+marked slow. `cascade_cost_35` is the one slow entry, at ~7 min on its own. Including it would put
+the CI job at the ~10 minute budget on a desktop and over it on a 2-core runner, so it runs only
+with `--all`. Entries that need git-ignored local data are skipped unless `--allow local-cache`
+is passed.
+
+### What each entry proves
+
+| entry | invocation | a PASS proves | needs | s (CPU) |
+|---|---|---|---|---:|
+| `sourcing_tables` | `sourcing_tables.py --check` | the generated tables in the data-sourcing docs re-render identical from committed files (#145) | committed only | 0.1 |
+| `yolo_warmup_dip_72` | `yolo_warmup_dip_72.py --check` | the pinned facts of the YOLO warm-up LR dip hold on the committed curves (#72) | committed only | 0.1 |
+| `yolo_geometry_51` | `yolo_geometry_51.py --check` | the YOLO control leg reproduces its scoreboard row, and `docs/data/yolo_geometry_51.json` matches a fresh read (#51) | committed only | 0.1 |
+| `run_b_gate_135` | `run_b_gate_135.py --check` | the Run-B gate decision re-derives from the committed CSVs and power JSON (#135) | committed only | 0.2 |
+| `seed_variance_read_51_135` | `seed_variance_read_51_135.py --check` | the seed-variance JSON matches a fresh build from `docs/data/seed_variance_51_135/` | committed only | 7.3 |
+| `operating_point_parity_51` | `operating_point_parity_51.py --check` | the parity JSON matches a fresh build over every committed report (#51) | committed only | 3.0 |
+| `recall_by_depth_112` | `recall_by_depth_112.py --check` | the tables re-derive from the committed rows (#112). Re-deriving the *rows* needs the labeler's depth payloads (see the gaps below) | committed only | 0.2 |
+| `da3_calibration_101` | `da3_calibration_101.py --check` | the rows re-derive from the committed raw DA3 files, bundles and #112 JSON. The tables, the markdown and `SHA256SUMS` hold; `SHA256SUMS` pins `recall_by_depth_112.json` (#101) | committed only | 8.9 |
+| `laurens_paired_151` | `laurens_paired_151.py --check` | every row except the curb probe, and every table, re-derive from committed inputs (#151) | committed only | 1.9 |
+| `crossview_fresh_48` | `crossview_fresh_48.py pairs --check` | the fresh pair list and its meta re-derive byte-identical (`FRESH_PAIRS_SHA256`) (#48) | committed only | 0.3 |
+| `two_scale_197` | `two_scale_197.py report --check` | `results.json` and `results.md` regenerate byte-identical from the committed #196 peak caches (#197) | committed only | 59 |
+| `input_res_sweep_25` | `input_res_sweep_25.py sums`, then `check --out {tmp}/instrument_check.json`, `report --out {tmp}/results.json`, `sums --root {tmp} --partial` | the committed outputs and caches match `SHA256SUMS`, and r2048 reproduces `analysis_out/op_cache` (the instrument check). `check` and `report`, regenerated into scratch, hash to the pinned values (#25) | committed only | 71 |
+| `yolo_rescore_benchmark_eval` | `model_comparison/yolo_baseline/rescore_benchmark_eval.py --check` | `benchmark_eval/` matches the current scorer over the committed detections | committed only | 2.4 |
+| `cascade_transfer_35` | `cascade_transfer_35.py --check` | the transfer table regenerates byte-identical (#35) | committed only | 2.4 |
+| `scoreboard` | `scoreboard.py --check` | the scoreboard doc's tables, the counts its prose quotes, the log tables and `scoreboard.json` match a fresh scoring of every leg | committed only | 5.9 |
+| `cascade_cost_35` | `cascade_cost_35.py --check` | all 142 per-pair cascade files regenerate byte-identical from their recorded args (#35) | committed only; **slow**, `--all` only | 418 |
+| `export_model_cache_verify` | `export_model_cache.py --verify --cache-dir {local_root}/.model_cache` | the published `benchmark/model_detections/` score identically to the local `.model_cache` | **local-cache** | 16 |
+| `imagery_manifest_verify` | `imagery_manifest.py --verify --panos-root {local_root}` | the local `benchmark/*/panos/` JPEGs match the committed imagery manifests | **local-cache** | 18 |
+
+The seconds come from the run below (Windows desktop, Python 3.12, CPU). Scripts are under
+`scripts/analysis/` unless another path is given. `{tmp}` is a scratch directory that the runner
+creates for each entry and deletes afterwards. `{local_root}` is the value of `--local-root`.
+
+### Result on main
+
+The run was on 2026-09-30, on `infra/check-all-runner` at its base, `origin/main` = `a45bb91`
+(the merge of #222, after #219 and #220). Command: `python scripts/check_all.py --all --allow
+local-cache --local-root D:/Git/RampNet`. Result: **18 passed, 0 failed, 0 skipped in 616 s.**
+No pin needed regenerating and no file was rewritten. The `--ci` subset alone gave 15 passed,
+3 skipped, in 163 s. `analysis_out/check_all/latest.json` is the committed `--all` result. Its
+only nondeterministic fields are the seconds and the commit it ran on.
+
+### Known gaps: what the gate does not prove, and what would unblock it
+
+| gap | why it is not in the gate (or not in CI) | what unblocks it |
+|---|---|---|
+| `recall_by_depth_112` **rows** (derive / `--only <split>`) | they need the sidewalk-auto-labeler checkout with its `runs/<city>/depth` payload archive, which is not published | publish the depth payloads (or the labeler run archive) with a pinned identifier, then add a `labeler-root` entry |
+| `da3_calibration_101 derive` | it reads the labeler's `camera_heights.json` via `git show` at a pinned commit. The raw DA3 `extract` also needs a GPU and the native panos | a public labeler clone is enough for `derive`, because the pinned commit and file hash are checked. `extract` stays GPU-only |
+| `laurens_paired_151` curb probe rows | the probe reads the labeler's `runs/laurens_gsv/depth`. `--check` carries the committed probe through instead of re-deriving it | same as the #112 rows |
+| `cascade_cost_35` in CI | it takes ~7 min on its own, and the `--ci` budget is ~10 min | run it with `--all` locally after merging, or shard it if CI time is ever cheap |
+| `export_model_cache_verify` and `imagery_manifest_verify` in CI | they read `.model_cache/` and `benchmark/*/panos/`, which are git-ignored local data | the panos are on HF (#21), so a CI job that downloads them could run `imagery_manifest_verify`. `.model_cache/` has no published copy |
+| op_caches, the #196 peak caches, the raw DA3 files | the checks start from these committed caches, and regenerating them needs a GPU and the native-resolution panos | a GPU plus the `projectsidewalk/rampnet-benchmark` native panos. Out of scope for a CPU gate |
+| `dump_peaks_from_cache.py --verify` | it needs an `evaluate.py` heatmap cache from the cluster run, and it also writes dumps, so it is not a write-nothing check | publish the Run A heatmap cache, and split verifying from writing |
+| `stage2_epoch_curve.py --verify` and `stage2_train_cost.py --verify` | these are not checks. They print a sha256 manifest of the event files and always exit 0. The normal run of `stage2_epoch_curve.py` does check the manifest, but it needs tensorboard, which is not in `requirements-dev.txt` | add a compare-against-`SHA256SUMS` mode, then register it |
+| `scripts/validate_croissant.py` | it exists only on PR #190's branch | register it when #190 merges |
+
+Some grep hits are **not** check modes and are left out on purpose. `operating_point_curve.py`,
+`sam2_extent_83.py`, `tag_benchmark_86.py`, `export_gold_records.py` and `export_hf_model.py`
+only matched on `--checkpoint`. `scoreboard_render.py` is the library that `scoreboard.py --check`
+uses. `rebuild_yolo_labels_from_cache.py --verify` re-reads its own fresh output, not a committed
+one. The pytest suite (`pytest -q`) is separate and still required.
+
 ## Every manual-review task, and what it would take to redo it
 
 Three distinct human passes exist. All three produce committed judgments; they differ in whether
