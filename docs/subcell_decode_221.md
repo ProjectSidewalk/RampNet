@@ -475,11 +475,19 @@ python scripts/analysis/subcell_decode_221_figures.py --panos-root D:/Git/RampNe
     --out-dir docs/figures/subcell_decode_221
 ```
 
-Re-running that command reproduces both committed figures byte for byte. The clean-clone command
-above draws the same contact sheet byte for byte (it uses no coarse map). Its mechanism panel
-differs in bytes, because its coarse map is recovered from a heatmap computed on another GPU,
-which differs from the A40 map by about 2e-5. `--out-dir` is required, so the figure script
-cannot overwrite the committed figures unless told to.
+Re-running that command reproduces both committed figures byte for byte:
+`examples_contact_sheet.jpg` sha256 `de0e5954df3c02090e4591d8750f804a334dd1dfc64b7b662898cc7350c19b95`
+and `mechanism_panel.png` sha256 `c264bf52eb62a6e3720e5c211b04c47b6094d7999f6d30e355800f4daf1f6041`.
+The clean-clone command above draws the same contact sheet byte for byte (it uses no coarse map).
+Its mechanism panel differs in bytes, because its coarse map is recovered from a heatmap computed
+on another GPU, which differs from the A40 map by about 2e-5. On that path the number that shows
+the coarse map is the run's is the printed neighbourhood gap (about 1.55e-05 on the desktop,
+against the 2e-4 tolerance); the `max |model heatmap - upsample(coarse)|` it also prints (about
+2.15e-07) is a different quantity, which only checks the recovered map against the heatmap it
+came from, and the 2.0e-5 quoted in Examples is that quantity on the as-run path. The script
+checks the coarse map before it writes anything, so a failed check leaves `--out-dir` untouched.
+`--out-dir` is required, so the figure script cannot overwrite the committed figures unless told
+to.
 
 `detections.json` (sha256 `57cfb968c5106a833a214aeea7801d20f8fb228cb3c28bdaf7a3474074cd72b1`)
 holds every peak >= 0.30 with its 3x3 coarse neighbourhood (6 decimals), so `report` needs neither

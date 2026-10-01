@@ -377,7 +377,10 @@ def mechanism(p, coarse, heat, heat_label, mod8, path):
         ax.set_title(f"manual_gold, {sum(mod8[axis]['argmax']):,} pairs: {axis} mod 8",
                      fontsize=10)
         ax.grid(axis="y", alpha=0.25)
-        ax.legend(fontsize=8, loc="upper left")
+        # Headroom above the tallest bar so the legend clears the argmax bars at 3 and 4
+        # (the legend is wider than columns 5-7, so moving it sideways alone is not enough).
+        ax.set_ylim(0, 1.4 * max(max(mod8[axis][m]) for m, *_ in series))
+        ax.legend(fontsize=8, loc="upper right")
     axn = fig.add_subplot(gs[1, 2])
     axn.axis("off")
     axn.text(0, 0.95, "Reading the panel", fontsize=10, weight="bold", va="top")
@@ -436,9 +439,8 @@ def main(argv=None):
         raise SystemExit("--panos-root and --out-dir are required unless --select-only")
     if not a.coarse_dir and a.heatmap_source != "model":
         raise SystemExit("--coarse-dir is required unless --heatmap-source model")
-    os.makedirs(a.out_dir, exist_ok=True)
-    contact_sheet(picks, info, a.panos_root,
-                  os.path.join(a.out_dir, "examples_contact_sheet.jpg"))
+    # Load and check the coarse map before writing anything, so a failed check leaves
+    # --out-dir untouched rather than holding a new contact sheet and a stale panel.
     mp = next(p for p in picks if p["category"] == "typical")
     rec = D["panos"]["manual_gold"][mp["pano"]]
     heat = model_heatmap(a.panos_root, mp["pano"]) if a.heatmap_source == "model" else None
@@ -456,6 +458,9 @@ def main(argv=None):
         label = "model output"
     else:
         heat, label = sc.upsample(coarse), "bilinear upsample of the coarse map"
+    os.makedirs(a.out_dir, exist_ok=True)
+    contact_sheet(picks, info, a.panos_root,
+                  os.path.join(a.out_dir, "examples_contact_sheet.jpg"))
     mod8 = {ax: {} for ax in ("x", "y")}
     for m in ("argmax", "gaussian"):
         xy = np.array([p[m] for p in pairs])
