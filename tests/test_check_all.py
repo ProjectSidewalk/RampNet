@@ -340,4 +340,48 @@ def test_manifest_mismatch_absent_and_eol(tmp_path):
         f"{h(b'orig' + bytes([10]))}  bad.txt\n{h(b'z')}  gone.txt\n", encoding="utf-8")
     rows, problems = vs.verify(str(tmp_path), only=["m/SHA256SUMS"])
     assert rows == [{"manifest": "m/SHA256SUMS", "ok": 1, "eol": 1, "absent": 1, "bad": 1}]
-    assert len(problems) == 1 and "bad.txt" in problems[0]
+    assert any("bad.txt" in q for q in problems)
+    assert any("partly present" in q for q in problems)    # gone.txt, while others exist
+    assert len(problems) == 2
+
+
+def test_manifest_partly_present_fails_but_all_absent_is_a_counted_skip(tmp_path, monkeypatch):
+    """Review S5: deleting one committed file listed in a manifest must fail the run."""
+    if shutil.which("git") is None:
+        pytest.skip("git not available")
+    src = os.path.join(REPO, "stage_two", "run_a_84_events")
+    dst = tmp_path / "stage_two" / "run_a_84_events"
+    shutil.copytree(src, dst)
+    cluster = tmp_path / "cluster"
+    cluster.mkdir()
+    (cluster / "only_on_the_cluster.sha256").write_text("0" * 64 + "  /gscratch/x/best.pth\n",
+                                                        encoding="utf-8")
+    _git(tmp_path, "init", "-q")
+    _git(tmp_path, "add", "-A")
+    _git(tmp_path, "commit", "-qm", "init")
+    monkeypatch.setattr(vs, "REPO", str(tmp_path))
+    with contextlib.redirect_stdout(io.StringIO()):
+        assert vs.main([]) == 0                     # complete + all-absent: passes
+    listed = [n for _, n in vs.parse(str(dst / "SHA256SUMS"))]
+    assert len(listed) >= 2
+    os.remove(dst / listed[0])                      # one committed file deleted
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        assert vs.main([]) == 1
+    assert "partly present" in buf.getvalue()
+    rows, _ = vs.verify(str(tmp_path), only=["cluster/only_on_the_cluster.sha256"])
+    assert rows[0]["absent"] == 1 and rows[0]["ok"] == 0
+
+
+def test_touching_that_selects_nothing_exits_3():
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        assert ca.main(["--touching", "README.md", "--list"]) == 3
+    assert "selects no entry" in buf.getvalue()
+
+
+def test_recorded_argv_drops_machine_local_paths():
+    rec = ca.recorded_argv(["--all", "--json", os.path.join(REPO, "analysis_out", "check_all", "latest.json"),
+                            "--local-root", os.path.dirname(REPO), "--json=" + os.path.dirname(REPO) + "/x.json"])
+    assert rec == ["--all", "--json", "analysis_out/check_all/latest.json", "--local-root",
+                   "<main checkout>", "--json=<outside the repo>"]

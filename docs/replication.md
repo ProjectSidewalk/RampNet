@@ -443,7 +443,7 @@ pin, a glob pin (`benchmark/*/verdicts.json`), and the entry's own scripts. A di
 
 - It prints a table (name, PASS / FAIL / SKIP with the reason, seconds).
 - Exit codes: 1 on any FAIL; 3 if an entry named with `--only` was skipped (you asked for it and
-  it did not run); 0 otherwise.
+  it did not run), or if a `--touching` path selects no entry; 0 otherwise.
 - Each step runs as a subprocess with the repo root as cwd.
 - The registry is an explicit list in the script, with no discovery. Each entry carries
   `pins`: the committed files, directories or globs its check compares or re-derives from. The
@@ -453,7 +453,8 @@ pin, a glob pin (`benchmark/*/verdicts.json`), and the entry's own scripts. A di
 
 **A check must write nothing.** Before the first entry, the runner hashes every file that
 `git ls-files --cached --others --exclude-standard` lists (tracked files, plus untracked files
-that are not ignored). After each entry it re-hashes the files whose size or mtime moved. It
+that are not ignored). After each entry it re-hashes only the files whose size or mtime
+changed, so a write that preserves both is not seen. It
 FAILs the entry if any content changed, or if a file appeared or disappeared. The comparison is
 by content, so it also works on an already-dirty tree, which is the usual state mid-merge.
 Rewriting a file that was already modified is still caught; a test covers it. **Writes to
@@ -479,7 +480,7 @@ data are skipped unless `--allow local-cache` is given.
 
 | entry | invocation | a PASS proves | needs | s (CPU) |
 |---|---|---|---|---:|
-| `manifests_sha256` | `scripts/verify_sha256sums.py` | every committed `SHA256SUMS` / `*.sha256` manifest (found with `git ls-files`) matches the files present. Absent files are counted, any mismatch fails, and nothing-present fails | committed only | 2.9 |
+| `manifests_sha256` | `scripts/verify_sha256sums.py` | every committed `SHA256SUMS` / `*.sha256` manifest (found with `git ls-files`) matches the files present. A manifest whose listed files are all absent is a counted skip; a partly present manifest (a committed file deleted or renamed) fails, any mismatch fails, and nothing-present fails | committed only | 2.9 |
 | `sourcing_tables` | `sourcing_tables.py --check` | the generated tables in the data-sourcing docs re-render identical from committed files (#145) | committed only | 0.1 |
 | `yolo_warmup_dip_72` | `yolo_warmup_dip_72.py --check` | the pinned facts of the YOLO warm-up LR dip hold on the committed curves (#72) | committed only | 0.1 |
 | `yolo_geometry_51` | `yolo_geometry_51.py --check` | the YOLO control leg reproduces its scoreboard row, and `docs/data/yolo_geometry_51.json` matches a fresh read (#51) | committed only | 0.1 |
@@ -520,8 +521,9 @@ reads it. Whoever runs the gate on main after a merge regenerates it with
 `--all --allow local-cache --local-root <main checkout> --json analysis_out/check_all/latest.json`
 and commits it, so that the doc and the record agree. It records the commit the run was on
 (`git_head`), the runner's argv, the mode, the exit code, and every step's argv and exit code.
-The seconds, `git_head`, `python`, `platform` and `tree_dirty_at_start` vary between runs;
-nothing else does. CI does not update it. CI uploads its own result as the `check-all`
+The seconds, `git_head`, `argv`, `python`, `platform` and `tree_dirty_at_start` vary between
+runs; nothing else does. In `argv`, the machine-local `--json` and `--local-root` values are
+recorded repo-relative, or as a placeholder when they are outside the repo. CI does not update it. CI uploads its own result as the `check-all`
 artifact.
 
 ### Known gaps: what the gate does not prove, and what would unblock it

@@ -9,9 +9,9 @@
   "--allow",
   "local-cache",
   "--local-root",
-  "D:/Git/RampNet",
+  "<main checkout>",
   "--json",
-  "C:/Users/jonf/AppData/Local/Temp/claude/D--Git-RampNet/74b07ffc-12d7-4dc3-87ba-d8f40b802cc4/scratchpad/ca230_latest.json"
+  "<outside the repo>"
  ],
  "mode": {
   "ci": false,

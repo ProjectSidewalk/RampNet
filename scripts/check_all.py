@@ -41,8 +41,9 @@ afterwards) and ``{local_root}`` (``--local-root``, default the repo root).
 
 **A check must write nothing.** Before the first entry the runner hashes every file
 ``git ls-files --cached --others --exclude-standard`` lists (tracked plus untracked,
-not ignored); after each entry it re-stats them, re-hashes the ones whose size or mtime
-moved, and FAILs the entry if any content changed or a file appeared or disappeared. This
+not ignored); after each entry it re-stats them and re-hashes **only the files whose size
+or mtime changed** (so a write that preserves both is not seen), and FAILs the entry if any
+content changed or a file appeared or disappeared. This
 is content-based, so it works on an already-dirty tree: rewriting a file that was already
 modified is still caught. **Writes to git-ignored paths are not detected** (most of
 ``analysis_out/*`` is ignored), nor are writes outside the repo. Without git the detection
@@ -59,7 +60,8 @@ Usage::
     python scripts/check_all.py --all --json analysis_out/check_all/latest.json
 
 Exit code: 1 if any entry FAILs; 3 if an entry named with ``--only`` was SKIPped (it was
-asked for and did not run); 2 on a usage error; otherwise 0. Stdlib only.
+asked for and did not run) or a ``--touching`` path selects no entry; 2 on a usage error;
+otherwise 0. Stdlib only.
 """
 from __future__ import annotations
 
@@ -414,6 +416,37 @@ def run_entry(entry: Entry, timeout: float, local_root: str, repo: str = None) -
             "seconds": time.monotonic() - t0, "steps": steps}
 
 
+def recorded_argv(argv) -> list:
+    """argv for the --json record without machine-local paths: the --json and --local-root
+    values become repo-relative when inside the repo, else a placeholder."""
+    out, i = [], 0
+    while i < len(argv):
+        a = argv[i]
+        for flag in ("--json", "--local-root"):
+            if a == flag and i + 1 < len(argv):
+                out += [a, _local(argv[i + 1], flag)]
+                i += 2
+                break
+            if a.startswith(flag + "="):
+                out.append(f"{flag}={_local(a.split('=', 1)[1], flag)}")
+                i += 1
+                break
+        else:
+            out.append(a)
+            i += 1
+    return out
+
+
+def _local(path: str, flag: str) -> str:
+    rel = os.path.relpath(os.path.abspath(path), REPO) if os.path.splitdrive(os.path.abspath(path))[0].lower() \
+        == os.path.splitdrive(REPO)[0].lower() else ".."
+    if rel == ".":
+        return "."
+    if rel.startswith(".."):
+        return "<main checkout>" if flag == "--local-root" else "<outside the repo>"
+    return rel.replace(os.sep, "/")
+
+
 def print_table(rows) -> None:
     w = max([len(r["name"]) for r in rows] + [4])
     print(f"\n{'name':<{w}}  {'status':<6}  {'seconds':>8}  detail")
@@ -471,17 +504,22 @@ def main(argv=None) -> int:
     if bad:
         ap.error(f"unknown entry {bad}; see --list")
     entries = REGISTRY
+    untouched = []
     if args.only or args.touching:
         chosen = {n for n in args.only}
         for path in args.touching:
             hit = touching(path)
             print(f"--touching {path}: {', '.join(e.name for e in hit) or 'no entry pins it'}")
+            if not hit:
+                untouched.append(path)
             chosen |= {e.name for e in hit}
         entries = [e for e in REGISTRY if e.name in chosen]
 
     if args.list:
         list_registry(entries)
-        return 0
+        for path in untouched:
+            print(f"--touching {path} selects no entry; exit 3")
+        return 3 if untouched else 0
 
     local_root = os.path.abspath(args.local_root or REPO)
     dirty = git_dirty()
@@ -529,15 +567,17 @@ def main(argv=None) -> int:
           f"in {total:.1f}s")
     for name, why in skipped_named:
         print(f"--only {name} was requested but skipped ({why}); exit 3")
+    for path in untouched:
+        print(f"--touching {path} selects no entry; exit 3")
 
-    code = 1 if counts["FAIL"] else (3 if skipped_named else 0)
+    code = 1 if counts["FAIL"] else (3 if skipped_named or untouched else 0)
     if args.json:
         os.makedirs(os.path.dirname(os.path.abspath(args.json)), exist_ok=True)
         with open(args.json, "w", encoding="utf-8", newline="\n") as f:
             json.dump({"git_head": git_head(), "tree_dirty_at_start": dirty,
                        "write_detection": watch.enabled,
                        "python": sys.version.split()[0], "platform": sys.platform,
-                       "argv": sys.argv[1:] if argv is None else list(argv),
+                       "argv": recorded_argv(sys.argv[1:] if argv is None else list(argv)),
                        "mode": {"ci": args.ci, "all": args.run_all, "allow": sorted(args.allow)},
                        "exit": code, "counts": counts, "total_seconds": round(total, 1),
                        "results": rows}, f, indent=1)

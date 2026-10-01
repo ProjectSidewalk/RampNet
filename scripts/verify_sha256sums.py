@@ -16,9 +16,11 @@ one is covered without editing this file. Each line is ``<64 hex>  <name>`` or
 manifest's directory first, then the repo root (``da3_calibration_101``'s manifest lists
 repo-relative paths).
 
-* A listed file that is **absent** is skipped and counted, never failed: several manifests pin
-  files that live only on the cluster (``.pth`` checkpoints, the crops tarball) and are
-  recorded so a copy can be proven identical when it turns up.
+* A manifest whose listed files are **all absent** is skipped and counted, never failed:
+  several manifests pin files that live only on the cluster (``.pth`` checkpoints, the crops
+  tarball) and are recorded so a copy can be proven identical when it turns up.
+* A manifest that is **partly present** (some listed files exist, some do not) fails: that is
+  a committed file deleted or renamed out from under its pin.
 * A file that is present and **differs** fails the run.
 * If the raw bytes differ but the file contains CRLF and its LF-normalized bytes match, it
   counts as a match (reported as ``eol``): a ``core.autocrlf=true`` checkout must not fail a
@@ -109,6 +111,10 @@ def verify(repo=None, only=None):
             else:
                 bad += 1
                 problems.append(f"{man}: {name}: sha256 {raw} != pinned {want}")
+        if absent and (ok + eol + bad):
+            # some listed files exist and some do not: a committed file was deleted or renamed
+            problems.append(f"{man}: partly present -- {absent} of {absent + ok + eol + bad} "
+                            "listed files are absent while the rest exist")
         rows.append({"manifest": man, "ok": ok, "eol": eol, "absent": absent, "bad": bad})
     return rows, problems
 
@@ -132,9 +138,9 @@ def main(argv=None):
         print(f"{r['manifest']:<{w}}  {r['ok']:>4}  {r['eol']:>4}  {r['absent']:>6}  {r['bad']:>4}")
     tot = {k: sum(r[k] for r in rows) for k in ("ok", "eol", "absent", "bad")}
     print(f"\n{len(rows)} manifests: {tot['ok']} match, {tot['eol']} match after CRLF->LF, "
-          f"{tot['absent']} listed files absent (skipped), {tot['bad']} MISMATCH")
+          f"{tot['absent']} listed files absent, {tot['bad']} MISMATCH")
     for p in problems:
-        print("MISMATCH " + p)
+        print("FAIL " + p)
     if tot["ok"] + tot["eol"] == 0:
         print("NOTHING VERIFIED: no listed file is present")
         return 1
