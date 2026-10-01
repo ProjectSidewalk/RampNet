@@ -106,3 +106,11 @@ analysis_out/crossview_align_48/** text eol=lf
 # #221 sub-cell decode: detections.json sha256 is quoted in docs/subcell_decode_221.md, and
 # the tests re-derive results.json from it. Written LF by subcell_decode_221.py.
 analysis_out/subcell_decode_221/** text eol=lf
+
+# #217: the Seoul GT table is kept byte-identical to the Zenodo file (its md5 is checked
+# against the manifest's Zenodo md5 by `seoul_fetch_217.py verify` and by
+# tests/test_sidewalk_width_217.py).
+data/seoul_sidewalk_217/*.csv  binary
+
+# The Seoul dataset's own summary table (#218), byte-identical to the Zenodo file so its md5 checks.
+analysis_out/perspective_photos_218/seoul/summary_attributes.csv  binary

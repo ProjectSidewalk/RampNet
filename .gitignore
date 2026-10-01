@@ -380,3 +380,44 @@ analysis_out/subcell_decode_221/*
 !analysis_out/subcell_decode_221/*.json
 !analysis_out/subcell_decode_221/*.md
 !analysis_out/subcell_decode_221/extract.log
+
+# #217 sidewalk width (Seoul): the widths table every number is scored from, the scored
+# results, and the label-map sha256 manifest. The label maps themselves are not committed.
+!analysis_out/sidewalk_width_217/
+analysis_out/sidewalk_width_217/*
+!analysis_out/sidewalk_width_217/*.json
+!analysis_out/sidewalk_width_217/widths.csv.gz
+
+# RampNet on perspective photos (#218): detections, image lists, sha256 manifests and result
+# tables are committed; images never are (Mapillary thumbnails and the Seoul photos are
+# re-fetched by id / filename and checked against the committed sha256).
+!analysis_out/perspective_photos_218/
+analysis_out/perspective_photos_218/*
+!analysis_out/perspective_photos_218/*.csv
+!analysis_out/perspective_photos_218/*.json
+!analysis_out/perspective_photos_218/*.jsonl
+!analysis_out/perspective_photos_218/*.md
+!analysis_out/perspective_photos_218/seoul/
+analysis_out/perspective_photos_218/seoul/*
+!analysis_out/perspective_photos_218/seoul/*.csv
+!analysis_out/perspective_photos_218/seoul/*.json
+!analysis_out/perspective_photos_218/seoul/*.jsonl
+# the bearing audit (#218, docs/bearing_audit_218.md): summary and offset histograms
+!analysis_out/perspective_photos_218/bearing_audit/
+analysis_out/perspective_photos_218/bearing_audit/*
+!analysis_out/perspective_photos_218/bearing_audit/*.csv
+!analysis_out/perspective_photos_218/bearing_audit/*.json
+benchmark/seoul_presence_218/img/
+benchmark/richmond_flat_fp_218/img/
+
+# #38 per-ramp recall + miss correlation: derived tables, re-derived by
+# scripts/analysis/per_ramp_recall_38.py check from the committed multiview_48 captures.
+!analysis_out/per_ramp_recall_38/
+analysis_out/per_ramp_recall_38/*
+!analysis_out/per_ramp_recall_38/*.json
+!analysis_out/per_ramp_recall_38/*.csv
+
+# scripts/check_all.py --json: the committed result of the last full gate run on main.
+!analysis_out/check_all/
+analysis_out/check_all/*
+!analysis_out/check_all/latest.json

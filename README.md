@@ -94,6 +94,8 @@ Full analysis — including two findings we initially reported and then withdrew
 
 Everything we measured about RampNet 1.0 after the paper — the corrected evaluation, the benchmark against off-the-shelf models and a supervised baseline, the operating point, where recall is lost, the training recipe, and what we withdrew — is indexed one line per result in [`docs/rampnet1_findings.md`](docs/rampnet1_findings.md), each with the document that holds it and the caveat that travels with it. The long-form internal report is [`docs/rampnet1_report.md`](docs/rampnet1_report.md).
 
+[`docs/README.md`](docs/README.md) is the index of every document in `docs/`: one row per document, with its issue, kind, status, headline and the script that reproduces it.
+
 ## Curb Ramp Detection Example
 *For a step-by-step walkthrough, see our [Google Colab notebook](https://colab.research.google.com/drive/1TOtScud5ac2McXJmg1n_YkOoZBchdn3w?usp=sharing), which includes a visualization in addition to the code below.*
 
