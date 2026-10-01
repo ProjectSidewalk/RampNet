@@ -791,8 +791,7 @@ def main(argv=None):
         f.write("\n")
     with open(os.path.join(a.out, "offsets.csv"), "w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, ["source", "bin_lo", "bin_hi", "real", "null", "excess"],
-                           lineterminator="
-")
+                           lineterminator=chr(10))
         w.writeheader()
         for r in hist_rows:
             w.writerow({**r, "bin_lo": f"{r['bin_lo']:g}", "bin_hi": f"{r['bin_hi']:g}"})
