@@ -380,3 +380,9 @@ analysis_out/subcell_decode_221/*
 !analysis_out/subcell_decode_221/*.json
 !analysis_out/subcell_decode_221/*.md
 !analysis_out/subcell_decode_221/extract.log
+# #221 end-to-end check of the shipped decode: JSON results + evaluate.py metrics/logs (caches stay on makelab2)
+!analysis_out/decode_e2e_221/
+analysis_out/decode_e2e_221/*
+!analysis_out/decode_e2e_221/*.json
+!analysis_out/decode_e2e_221/*.md
+!analysis_out/decode_e2e_221/*.txt

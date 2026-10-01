@@ -1,0 +1,154 @@
+{
+  "all_match": true,
+  "checkpoint_sha256": "1c67c4b24091026bda968fb2e4dd89d516278171f5a2229fb51882870d8e7c25",
+  "device": "cuda",
+  "elapsed_s": 28.0435,
+  "export_dir_files": [
+    "README.md",
+    "config.json",
+    "configuration_rampnet.py",
+    "model.safetensors",
+    "modeling_rampnet.py",
+    "rampnet_model.py",
+    "rampnet_subcell.py"
+  ],
+  "gpu": "NVIDIA GeForce RTX 3070",
+  "panos": [
+    {
+      "argmax": {
+        "max_abs_diff": 0.0,
+        "max_abs_diff_px": 0.0,
+        "n_detect": 5,
+        "n_eval": 5
+      },
+      "gaussian": {
+        "max_abs_diff": 6.80954e-10,
+        "max_abs_diff_px": 4.09254e-07,
+        "n_detect": 5,
+        "n_eval": 5
+      },
+      "pano": "-AsFw9IWv8TcycKft1pnRg"
+    },
+    {
+      "argmax": {
+        "max_abs_diff": 0.0,
+        "max_abs_diff_px": 0.0,
+        "n_detect": 7,
+        "n_eval": 7
+      },
+      "gaussian": {
+        "max_abs_diff": 8.73111e-10,
+        "max_abs_diff_px": 4.47033e-07,
+        "n_detect": 7,
+        "n_eval": 7
+      },
+      "pano": "-DZgYpFGlilvQkCCTkJSOQ"
+    },
+    {
+      "argmax": {
+        "max_abs_diff": 0.0,
+        "max_abs_diff_px": 0.0,
+        "n_detect": 0,
+        "n_eval": 0
+      },
+      "gaussian": {
+        "max_abs_diff": 0.0,
+        "max_abs_diff_px": 0.0,
+        "n_detect": 0,
+        "n_eval": 0
+      },
+      "pano": "-OLko2tCiulMSeT3PoxiSg"
+    },
+    {
+      "argmax": {
+        "max_abs_diff": 0.0,
+        "max_abs_diff_px": 0.0,
+        "n_detect": 6,
+        "n_eval": 6
+      },
+      "gaussian": {
+        "max_abs_diff": 1.12247e-09,
+        "max_abs_diff_px": 1.13338e-06,
+        "n_detect": 6,
+        "n_eval": 6
+      },
+      "pano": "-UaEiKC62iZG5JaG6c6d0Q"
+    },
+    {
+      "argmax": {
+        "max_abs_diff": 0.0,
+        "max_abs_diff_px": 0.0,
+        "n_detect": 3,
+        "n_eval": 3
+      },
+      "gaussian": {
+        "max_abs_diff": 1.49503e-09,
+        "max_abs_diff_px": 7.65457e-07,
+        "n_detect": 3,
+        "n_eval": 3
+      },
+      "pano": "-daV70yVmSR2yR5C-1JiLg"
+    },
+    {
+      "argmax": {
+        "max_abs_diff": 0.0,
+        "max_abs_diff_px": 0.0,
+        "n_detect": 7,
+        "n_eval": 7
+      },
+      "gaussian": {
+        "max_abs_diff": 7.23471e-10,
+        "max_abs_diff_px": 6.50509e-07,
+        "n_detect": 7,
+        "n_eval": 7
+      },
+      "pano": "-f7RJhr0X4RF_fjC1FdiqQ"
+    },
+    {
+      "argmax": {
+        "max_abs_diff": 0.0,
+        "max_abs_diff_px": 0.0,
+        "n_detect": 6,
+        "n_eval": 6
+      },
+      "gaussian": {
+        "max_abs_diff": 1.24827e-09,
+        "max_abs_diff_px": 6.39113e-07,
+        "n_detect": 6,
+        "n_eval": 6
+      },
+      "pano": "-fD1PF3fh6zES9s9pIk5TQ"
+    },
+    {
+      "argmax": {
+        "max_abs_diff": 0.0,
+        "max_abs_diff_px": 0.0,
+        "n_detect": 6,
+        "n_eval": 6
+      },
+      "gaussian": {
+        "max_abs_diff": 9.92753e-10,
+        "max_abs_diff_px": 5.08289e-07,
+        "n_detect": 6,
+        "n_eval": 6
+      },
+      "pano": "-hkcTXhJtWXi2BoaHDWLXw"
+    }
+  ],
+  "threshold": 0.3,
+  "tol": 1e-08,
+  "tol_note": "evaluate.py casts the coarse stack to float32 before decoding (so a cached decode equals a fresh one); detect() decodes from the float64 recovery. That moves a gaussian position by ~1e-6 px, so the gaussian comparison needs a tolerance of order 1e-8 (normalized); argmax is exact.",
+  "torch": "2.6.0+cu126",
+  "transformers": "5.14.1",
+  "verbatim_sync": {
+    "configuration_rampnet.py": true,
+    "modeling_rampnet.py": true,
+    "rampnet_model.py": true,
+    "rampnet_subcell.py": true
+  },
+  "what": "HF export round-trip (#221): RampNetModel.detect() from a locally exported package vs stage_two/evaluate.py's single-pass extraction, same weights",
+  "worst_max_abs_diff": {
+    "argmax": 0.0,
+    "gaussian": 1.49503e-09
+  }
+}
