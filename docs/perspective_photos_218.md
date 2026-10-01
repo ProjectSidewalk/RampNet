@@ -115,7 +115,7 @@ chance (§4).
 projected bearing, near the right edge of the frame, and the projected bearing itself
 points at the middle of the road. The model does fire there: 0.54 (above the operating
 point) on the tactile-paved ramp in the first, 0.27 (below it) in the second. The first
-photo has no SfM orientation (its `computed_rotation` is exactly level), so its pose puts
+photo has no SfM orientation (its `computed_rotation` is level to within 1e-3°), so its pose puts
 that peak above the horizon, although the camera is plainly pitched down. So these two
 are misses of the scorer's geometry as much as of the model. **They were chosen for a
 visible ramp and are not typical:** across all 234 missed pairs the pattern is at chance
@@ -172,14 +172,15 @@ each has a sha256 in `fetched.csv`. Every image carries Mapillary's SfM heading 
 position (`computed_compass_angle`, `computed_geometry`) and SfM-refined intrinsics
 (`camera_parameters` = [f, k1, k2]). **Only 1,240 also carry an SfM orientation.** For the
 other 113 (54 Garmin VIRB, 50 unnamed-camera and 9 other frames) `computed_rotation` is
-exactly level: it holds the heading, and pitch and roll are 0. On those images the scorer's
+level: it holds the heading, and pitch and roll are within 1e-3° of 0. That is a cut on a
+continuous tail, not an exact zero, so the count of 113 depends a little on it. On those images the scorer's
 in-view vertical check and height gate assume a level camera, and `canvas_sfm` sees the
 same canvas as `canvas_level` (§4, §5). The 193 images that #216 had fetched are a
 subset: those facing a harness corner, which would have been nearly all positives.
 
 - Horizontal FOV, p5/p50/p95: 48° / 69° / 103°.
-- SfM pitch p5–p95: −12° to +10°; roll −8° to +6° (all 1,353, counting the 113 exact
-  zeros; on the 1,240 with an orientation, −12.8° to +10.0° and −8.3° to +5.7°). So
+- SfM pitch p5–p95: −12° to +10°; roll −8° to +6° (all 1,353, counting the 113
+  near-zero poses; on the 1,240 with an orientation, −12.8° to +10.0° and −8.3° to +5.7°). So
   "level" is an assumption with a real error, and the two canvas arms test it.
 - Cameras: Garmin VIRB 271, unnamed 248, GoPro HERO11 194, moto x4 176, GoPro Max
   single-lens 171, then iPhones.
@@ -543,8 +544,8 @@ pool ramp bearing, positive to the right. canvas_level @ 0.30 unless stated:
   detection ≥ 0.30 anywhere. A detection 20–40° off the bearing, as in the figures, is
   next to 6.8% of missed pairs (16), against 6.0% (14.1) for the swap null: about 2 pairs
   above chance. (Stretch: 24 against 20.7.)
-- **113 of the 1,353 images have no SfM orientation.** Their `computed_rotation` is exactly
-  level (pitch = roll = 0): they carry an SfM heading and position only (§2). They are
+- **113 of the 1,353 images have no SfM orientation.** Their `computed_rotation` is level
+  (pitch and roll within 1e-3° of 0): they carry an SfM heading and position only (§2). They are
   54 VIRB, 50 unnamed-camera and 9 other frames, and include the first drawn miss. They hold 31 of the 292 pairs, with **0 hits**. Without them the
   canvas rate is 58 / 261 = 0.222 (above chance 0.127). This is a sensitivity, not a
   correction: VIRB and unnamed cameras are at the swap null's level overall, so it does

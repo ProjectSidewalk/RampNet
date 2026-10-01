@@ -285,7 +285,8 @@ def main(argv=None):
 
 
 def sfm_dilution(a, pairs):
-    """Images with no SfM orientation (``computed_rotation`` exactly level) get the same
+    """Images with no SfM orientation (``computed_rotation`` level: |pitch|, |roll| < 1e-3 deg,
+    a cut on a continuous tail rather than an exact zero) get the same
     canvas in canvas_sfm as in canvas_level, so they add zeros to the paired
     canvas_sfm - canvas_level contrast. Reads the pitch / roll spread with and without
     them, and the contrast on the images that do have an orientation."""
@@ -304,7 +305,7 @@ def sfm_dilution(a, pairs):
         print(f"   {name:24s} {len(sel):5d} images: pitch p5/p95 {np.percentile(p, 5):+.1f}/"
               f"{np.percentile(p, 95):+.1f}, roll p5/p95 {np.percentile(r, 5):+.1f}/"
               f"{np.percentile(r, 95):+.1f}")
-    print(f"   exactly level (no SfM orientation): {len(lev)} of {len(ids)}")
+    print(f"   level to 1e-3 deg (no SfM orientation): {len(lev)} of {len(ids)}")
     lv, sf = PP.load_dets("canvas_level"), PP.load_dets("canvas_sfm")
     same = sum(1 for i in lev if [(d["u"], d["v"], d["score"]) for d in lv[i]["dets"]]
                == [(d["u"], d["v"], d["score"]) for d in sf[i]["dets"]])
