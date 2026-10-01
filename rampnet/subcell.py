@@ -330,25 +330,28 @@ def upsample_residual(heatmap, coarse=None, factor=FACTOR):
     return float(np.max(np.abs(upsample(coarse, factor) - h))) / scale
 
 
-def coarse_mismatch(heatmap, coarse, pixels, clip=True):
-    """Max over ``pixels`` of ``|max_b clip(upsample(coarse_b)) - heatmap|``.
+def coarse_mismatch(heatmap, coarse, clip=True):
+    """Max over the **whole map** of ``|max_b clip(upsample(coarse_b)) - heatmap|``.
 
     How a caller proves a cached coarse stack belongs to the cached (clipped, flip-TTA
-    max-combined) heatmap it sits beside: re-build the heatmap from the coarse maps at
-    each peak pixel and compare. Anything above float noise means the two caches came
-    from different weights, preprocessing or code.
+    max-combined) heatmap it sits beside: re-build the heatmap from the coarse maps and
+    compare. Anything above float noise means the two caches came from different
+    weights, preprocessing or code. It compares every pixel, not just the peaks: when a
+    peak is clipped at 1, a stale and a fresh map agree at the peak pixel (both 1) and
+    differ only on its flanks (#229 re-review N3). Costs one upsample per branch.
     """
-    hm = np.asarray(heatmap)
+    hm = np.asarray(heatmap, dtype=np.float64)
     c = np.asarray(coarse, dtype=np.float64)
     if c.ndim == 2:
         c = c[None]
-    worst = 0.0
-    for r, col in np.asarray(pixels, dtype=int).reshape(-1, 2):
-        v = max(_value_at(cb, r, col, hm.shape) for cb in c)
-        if clip:
-            v = min(max(v, 0.0), 1.0)
-        worst = max(worst, abs(v - float(hm[r, col])))
-    return worst
+    H, W = hm.shape
+    factor = H // c.shape[1]
+    if c.shape[1] * factor != H or c.shape[2] * factor != W:
+        raise ValueError(f"coarse {c.shape} does not match heatmap {hm.shape}")
+    rebuilt = np.max([upsample(cb, factor) for cb in c], axis=0)
+    if clip:
+        rebuilt = np.clip(rebuilt, 0, 1)
+    return float(np.max(np.abs(rebuilt - hm)))
 
 
 def detect_peaks(heatmap, threshold, min_distance=10, decode="argmax", *,

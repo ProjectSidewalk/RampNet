@@ -138,8 +138,8 @@ def extract_peaks_from_heatmap(heatmap_np, min_distance, threshold_abs, heatmap_
     peak_local_max call (exclude_border=False, the #132 fix), the same integer pixel
     divided by the heatmap size, and the confidence read at that pixel in the heatmap's
     own dtype. ``coarse`` is what a refining decode reads (see cache_dirs()). Before
-    it is used, ``max_b clip(upsample(coarse_b))`` is compared with the heatmap at every
-    peak pixel; a disagreement above COARSE_ATOL raises StaleCoarseCache.
+    it is used, ``max_b clip(upsample(coarse_b))`` is compared with the heatmap over the
+    whole map; a disagreement above COARSE_ATOL raises StaleCoarseCache.
     """
     heatmap_h, heatmap_w = heatmap_shape
     if heatmap_np.ndim > 2:
@@ -147,12 +147,12 @@ def extract_peaks_from_heatmap(heatmap_np, min_distance, threshold_abs, heatmap_
     rcs, pixels = detect_peaks(heatmap_np, threshold_abs, min_distance=min_distance,
                                decode=decode, exclude_border=False, coarse=coarse,
                                return_pixels=True)
-    if decode != 'argmax' and coarse is not None and len(pixels):
-        worst = coarse_mismatch(heatmap_np, coarse, pixels, clip=True)
+    if decode != 'argmax' and coarse is not None:
+        worst = coarse_mismatch(heatmap_np, coarse, clip=True)    # whole map (N3)
         if worst > COARSE_ATOL:
             raise StaleCoarseCache(
                 f"cached coarse maps disagree with the cached heatmap by {worst:.3g} "
-                f"(> {COARSE_ATOL:g}) at a peak: the two caches came from different "
+                f"(> {COARSE_ATOL:g}): the two caches came from different "
                 "runs. Re-run with --fresh to rebuild both.")
     peaks_normalized = []
     for (row, col, _), (r, c) in zip(rcs, pixels):

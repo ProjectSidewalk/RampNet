@@ -529,7 +529,9 @@ Two changes fix it:
   (`max_b clip(upsample(coarse_b), 0, 1)`) at every peak pixel and compares the result with the
   cached heatmap (`rampnet.subcell.coarse_mismatch`). Agreement above `COARSE_ATOL` = 1e-3 is
   required; float32 storage noise is about 1e-7. On a mismatch the run raises `StaleCoarseCache`
-  and names `--fresh`.
+  and names `--fresh`. The comparison covers the **whole map**, not only the peak pixels: when a
+  peak is clipped at 1, a stale map and a fresh map agree at the peak and differ only on its flanks
+  (re-review N3; `test_stale_coarse_with_saturated_peak_raises`).
 
 The check covers both stale pairings: old coarse maps beside new heatmaps, and a coarse map
 recomputed for a heatmap cached by a different model or preprocessing.

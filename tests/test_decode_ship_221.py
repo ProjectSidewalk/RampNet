@@ -467,9 +467,31 @@ def test_coarse_mismatch_rebuilds_tta_heatmap():
     ca, cb = gaussian_coarse(20.3, 30.2, amp=1.4), gaussian_coarse(40.1, 100.4, amp=0.8)
     heat = np.maximum(np.clip(sc.upsample(ca), 0, 1), np.clip(sc.upsample(cb), 0, 1))
     heat = heat.astype(np.float32)
-    pix = peak_local_max(heat, min_distance=10, threshold_abs=0.3, exclude_border=False)
-    assert sc.coarse_mismatch(heat, np.stack([ca, cb]).astype(np.float32), pix) < 1e-5
-    assert sc.coarse_mismatch(heat, cb, pix) > 0.1           # one branch alone is not it
+    assert sc.coarse_mismatch(heat, np.stack([ca, cb]).astype(np.float32)) < 1e-5
+    assert sc.coarse_mismatch(heat, cb) > 0.1                # one branch alone is not it
+
+
+def test_stale_coarse_with_saturated_peak_raises(tmp_path):
+    """#229 re-review N3 repro: the pano's only ramp is clipped at 1 (amplitude 1.8), and
+    the coarse map is from a model that put it 0.3 cell away and ran hotter, so its
+    plateau covers every new peak pixel (skimage 0.26 here). At the peak pixels both
+    maps read 1.0, so a peak-pixel comparison passed and the stale map decoded the ramp
+    to the old position. The check is now whole-map, so it raises."""
+    ev = _load_evaluate()
+    new_heat = gaussian_coarse(30.3, 70.4, amp=1.8)
+    old_coarse = gaussian_coarse(30.3, 70.7, amp=2.5)   # the old model also ran hotter
+    # Precondition that made N3 possible: the two clipped maps agree at every peak pixel.
+    h_new = np.clip(sc.upsample(new_heat), 0, 1)
+    h_old = np.clip(sc.upsample(old_coarse), 0, 1)
+    pix = peak_local_max(h_new.astype(np.float32), min_distance=10, threshold_abs=0.3,
+                         exclude_border=False)
+    assert len(pix) and np.all(h_old[pix[:, 0], pix[:, 1]] == h_new[pix[:, 0], pix[:, 1]])
+    assert sc.coarse_mismatch(h_new.astype(np.float32), old_coarse) > ev.COARSE_ATOL
+
+    hm, co, imgs, labels = _scene(tmp_path, new_heat, old_coarse)
+    with pytest.raises(ev.StaleCoarseCache, match="--fresh"):
+        ev.evaluate(None, imgs, labels, True, hm, peak_threshold_abs=0.3,
+                    decode="gaussian", coarse_cache_dir=co, use_tta=False)
 
 
 # --- #229 review S2: detect_peaks refuses a heatmap that is not an exact x8 upsample ---
