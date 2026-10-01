@@ -36,7 +36,7 @@ Supporting directories (not indexed row by row):
   doc that reads them (the paper run's Stage 1 and Stage 2 logs, `sacct` dumps, seed-variance and
   epoch-curve detections, the Vertex minute series).
 - [`figures/`](figures/): the PNG/JPG figures the documents embed (scoreboard, operating point,
-  epoch curve, recall misses, `multiview_48/`).
+  epoch curve, recall misses, `multiview_48/`, `sidewalk_width_217/`).
 
 ## Evaluation & operating point
 
@@ -110,6 +110,7 @@ Supporting directories (not indexed row by row):
 | [`context_fov_86.md`](context_fov_86.md) | #86 | negative result | final | Field of view vs tag accuracy: wider is worse at a fixed 256 px input (90° loses 0.074 mAP), and the street-dependent tags show no detected gain from any wider crop. | `scripts/analysis/context_fov_86.py` (no check) |
 | [`crop_window_eval.md`](crop_window_eval.md) | #114, #83 | result | final | Crop-window rules scored against the `manual_gold` boxes, and what those boxes are: `manual_labels/` w/h is NOT object-extent gold. | `scripts/analysis/crop_window_eval.py` (no check) |
 | [`sam2_extent_83.md`](sam2_extent_83.md) | #83, #86 | negative result | final | SAM2 extent from a point prompt is not production-grade (median IoU 0.260 against the whole-apron box on Richmond), and the projection does not matter. | `scripts/analysis/sam2_extent_83.py` (no check) |
+| [`sidewalk_width_217.md`](sidewalk_width_217.md) | #217, #86 | result | final | Sidewalk width from one photo, arm 1 on the Seoul set with laser-measured ground truth and no GSV: on the held-out half, clear width to a mean absolute error of 0.77 m, and all 9 photos with GT below 1.2 m flagged at a precision of 0.41; the tails are heavier than the four VLMs', and this is the easy geometry (camera on the sidewalk), so it says nothing yet about width seen from the street. | `scripts/analysis/seoul_fetch_217.py` (verify), `scripts/analysis/sidewalk_width_217.py` (no check) re-derives the numbers and its `verify-seg` subcommand checks the label maps against `seg_meta.json`; `scripts/analysis/sidewalk_width_217_figures.py` (no check) draws the figures |
 
 ## Human review protocols
 
@@ -137,6 +138,5 @@ into the right group above; `tests/test_docs_index.py` fails until it does.
 
 | file | PR | what it is |
 |---|---|---|
-| `docs/sidewalk_width_217.md` | #225 | Sidewalk width arm 1 on the Seoul set (#217). |
 | `docs/fair_metadata_150.md` | #190 | Croissant 1.1 + GeoCroissant 1.0 + RAI metadata for the dataset and benchmark (#150). |
 | `docs/pu_training_86.md` | #182 | Plan: PU training of the tag head (#86 item 5), proposed. |
