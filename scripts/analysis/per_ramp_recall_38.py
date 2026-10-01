@@ -955,6 +955,14 @@ def cmd_run(args):
 
 def cmd_check(args):
     payload, table = compute()
+    # params.numpy records the version that wrote the file; it is provenance, not a
+    # result, so compare against the committed value and only report a mismatch.
+    with open(os.path.join(OUT, "results.json"), encoding="utf-8") as f:
+        committed_np = json.load(f).get("params", {}).get("numpy")
+    if committed_np is not None and committed_np != payload["params"]["numpy"]:
+        print(f"note: numpy {payload['params']['numpy']} here, {committed_np} in the "
+              "committed file; params.numpy is not compared")
+        payload["params"]["numpy"] = committed_np
     ok = True
     for name, text in (("results.json", dumps(payload)),
                        ("ramps_other_views.csv", table_text(table))):
