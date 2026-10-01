@@ -1,0 +1,2437 @@
+{
+ "all_missed_055": {
+  "all_other_missed": 153,
+  "best_other_conf_below_floor": {
+   "mean": 0.3267,
+   "median": 0.3136,
+   "n": 64,
+   "p25": 0.2273,
+   "p75": 0.4284
+  },
+  "by_city": {
+   "bend": {
+    "all_other_missed": 22,
+    "ramps": 289,
+    "share": 0.0761
+   },
+   "gainesville": {
+    "all_other_missed": 49,
+    "ramps": 213,
+    "share": 0.23
+   },
+   "paterson": {
+    "all_other_missed": 30,
+    "ramps": 303,
+    "share": 0.099
+   },
+   "richmond": {
+    "all_other_missed": 25,
+    "ramps": 240,
+    "share": 0.1042
+   },
+   "sao_paulo": {
+    "all_other_missed": 27,
+    "ramps": 253,
+    "share": 0.1067
+   }
+  },
+  "median_other_m": {
+   "all_other_missed": {
+    "mean": 12.3051,
+    "median": 12.2268,
+    "n": 153,
+    "p25": 10.9101,
+    "p75": 13.8996
+   },
+   "rest": {
+    "mean": 11.9115,
+    "median": 11.8683,
+    "n": 1145,
+    "p25": 10.6458,
+    "p75": 13.2431
+   }
+  },
+  "n_months": {
+   "all_other_missed": {
+    "mean": 1.8235,
+    "median": 2.0,
+    "n": 153,
+    "p25": 1.0,
+    "p75": 2.0
+   },
+   "rest": {
+    "mean": 1.8952,
+    "median": 2.0,
+    "n": 1145,
+    "p25": 1.0,
+    "p75": 2.0
+   }
+  },
+  "n_other": {
+   "all_other_missed": {
+    "mean": 5.0131,
+    "median": 5.0,
+    "n": 153,
+    "p25": 3.0,
+    "p75": 5.0
+   },
+   "rest": {
+    "mean": 5.5004,
+    "median": 5.0,
+    "n": 1145,
+    "p25": 4.0,
+    "p75": 6.0
+   }
+  },
+  "nearest_other_m": {
+   "all_other_missed": {
+    "mean": 7.4136,
+    "median": 7.3448,
+    "n": 153,
+    "p25": 4.8309,
+    "p75": 9.8199
+   },
+   "rest": {
+    "mean": 6.6963,
+    "median": 6.5813,
+    "n": 1145,
+    "p25": 4.8703,
+    "p75": 8.3233
+   }
+  },
+  "nearest_other_under_6m": 62,
+  "ramps": 1298,
+  "residual_class_48": {
+   "association_placement": 15,
+   "never_fired": 2,
+   "never_fired_unknown_below_055": 7,
+   "recalled_by_a_site (not a #48 residual)": 85,
+   "self_detected_site_displaced": 17,
+   "sub_threshold_only": 27
+  },
+  "source_view_hit": 98,
+  "source_view_missed_too": 55,
+  "with_any_stored_peak_below_floor": 64
+ },
+ "correlation": {
+  "bend_055": {
+   "n_boot": 2000,
+   "n_perm": 1000,
+   "observed_all_missed": 22.0,
+   "observed_share": 0.0761,
+   "observed_share_ci95": [
+    0.0484,
+    0.1074
+   ],
+   "permutation_null_mean": 7.843,
+   "permutation_null_p95": 12.0,
+   "permutation_p_value": 0.001,
+   "predicted_independent": 7.767,
+   "predicted_share": 0.0269,
+   "ramps": 289,
+   "ratio": 2.8325,
+   "ratio_ci95": [
+    1.8789,
+    3.9614
+   ]
+  },
+  "gainesville_055": {
+   "n_boot": 2000,
+   "n_perm": 1000,
+   "observed_all_missed": 49.0,
+   "observed_share": 0.23,
+   "observed_share_ci95": [
+    0.1737,
+    0.2864
+   ],
+   "permutation_null_mean": 33.254,
+   "permutation_null_p95": 40.0,
+   "permutation_p_value": 0.001,
+   "predicted_independent": 33.7034,
+   "predicted_share": 0.1582,
+   "ramps": 213,
+   "ratio": 1.4539,
+   "ratio_ci95": [
+    1.2032,
+    1.7181
+   ]
+  },
+  "gsv_055": {
+   "n_boot": 2000,
+   "n_perm": 5000,
+   "observed_all_missed": 128.0,
+   "observed_share": 0.121,
+   "observed_share_ci95": [
+    0.1011,
+    0.1399
+   ],
+   "permutation_null_mean": 70.8698,
+   "permutation_null_p95": 82.0,
+   "permutation_p_value": 0.0002,
+   "predicted_independent": 71.1027,
+   "predicted_share": 0.0672,
+   "ramps": 1058,
+   "ratio": 1.8002,
+   "ratio_ci95": [
+    1.5658,
+    2.0418
+   ]
+  },
+  "mapillary_055": {
+   "n_boot": 2000,
+   "n_perm": 5000,
+   "observed_all_missed": 25.0,
+   "observed_share": 0.1042,
+   "observed_share_ci95": [
+    0.0667,
+    0.1458
+   ],
+   "permutation_null_mean": 5.3998,
+   "permutation_null_p95": 9.0,
+   "permutation_p_value": 0.0002,
+   "predicted_independent": 5.417,
+   "predicted_share": 0.0226,
+   "ramps": 240,
+   "ratio": 4.6151,
+   "ratio_ci95": [
+    2.924,
+    6.9198
+   ]
+  },
+  "paterson_055": {
+   "n_boot": 2000,
+   "n_perm": 1000,
+   "observed_all_missed": 30.0,
+   "observed_share": 0.099,
+   "observed_share_ci95": [
+    0.066,
+    0.1353
+   ],
+   "permutation_null_mean": 16.016,
+   "permutation_null_p95": 22.0,
+   "permutation_p_value": 0.001,
+   "predicted_independent": 16.1179,
+   "predicted_share": 0.0532,
+   "ramps": 303,
+   "ratio": 1.8613,
+   "ratio_ci95": [
+    1.364,
+    2.4363
+   ]
+  },
+  "pooled4_010": {
+   "n_boot": 2000,
+   "n_perm": 5000,
+   "observed_all_missed": 67.0,
+   "observed_share": 0.0664,
+   "observed_share_ci95": [
+    0.0505,
+    0.0823
+   ],
+   "permutation_null_mean": 29.069,
+   "permutation_null_p95": 37.0,
+   "permutation_p_value": 0.0002,
+   "predicted_independent": 29.1458,
+   "predicted_share": 0.0289,
+   "ramps": 1009,
+   "ratio": 2.2988,
+   "ratio_ci95": [
+    1.8533,
+    2.7724
+   ]
+  },
+  "pooled4_030": {
+   "n_boot": 2000,
+   "n_perm": 5000,
+   "observed_all_missed": 98.0,
+   "observed_share": 0.0971,
+   "observed_share_ci95": [
+    0.0803,
+    0.116
+   ],
+   "permutation_null_mean": 43.3194,
+   "permutation_null_p95": 52.0,
+   "permutation_p_value": 0.0002,
+   "predicted_independent": 43.3512,
+   "predicted_share": 0.043,
+   "ramps": 1009,
+   "ratio": 2.2606,
+   "ratio_ci95": [
+    1.9182,
+    2.6446
+   ]
+  },
+  "pooled_055": {
+   "n_boot": 2000,
+   "n_perm": 5000,
+   "observed_all_missed": 153.0,
+   "observed_share": 0.1179,
+   "observed_share_ci95": [
+    0.1002,
+    0.1348
+   ],
+   "permutation_null_mean": 76.2654,
+   "permutation_null_p95": 88.0,
+   "permutation_p_value": 0.0002,
+   "predicted_independent": 76.5197,
+   "predicted_share": 0.059,
+   "ramps": 1298,
+   "ratio": 1.9995,
+   "ratio_ci95": [
+    1.7426,
+    2.2361
+   ]
+  },
+  "pooled_055_fine_3m_bins": {
+   "n_boot": 2000,
+   "n_perm": 5000,
+   "observed_all_missed": 153.0,
+   "observed_share": 0.1179,
+   "observed_share_ci95": [
+    0.1017,
+    0.1356
+   ],
+   "permutation_null_mean": 74.9348,
+   "permutation_null_p95": 87.0,
+   "permutation_p_value": 0.0002,
+   "predicted_independent": 75.2086,
+   "predicted_share": 0.0579,
+   "ramps": 1298,
+   "ratio": 2.0343,
+   "ratio_ci95": [
+    1.7762,
+    2.2912
+   ]
+  },
+  "pooled_055_hit8m": {
+   "n_boot": 2000,
+   "n_perm": 5000,
+   "observed_all_missed": 83.0,
+   "observed_share": 0.0639,
+   "observed_share_ci95": [
+    0.0516,
+    0.077
+   ],
+   "permutation_null_mean": 40.9956,
+   "permutation_null_p95": 50.0,
+   "permutation_p_value": 0.0002,
+   "predicted_independent": 41.2534,
+   "predicted_share": 0.0318,
+   "ramps": 1298,
+   "ratio": 2.012,
+   "ratio_ci95": [
+    1.6473,
+    2.3677
+   ]
+  },
+  "pooled_055_union_with_source": {
+   "n_boot": 2000,
+   "n_perm": 5000,
+   "observed_all_missed": 55.0,
+   "observed_share": 0.0424,
+   "observed_share_ci95": [
+    0.0324,
+    0.0539
+   ],
+   "permutation_null_mean": 16.1468,
+   "permutation_null_p95": 23.0,
+   "permutation_p_value": 0.0002,
+   "predicted_independent": 16.1639,
+   "predicted_share": 0.0125,
+   "ramps": 1298,
+   "ratio": 3.4026,
+   "ratio_ci95": [
+    2.6151,
+    4.2748
+   ]
+  },
+  "richmond_055": {
+   "n_boot": 2000,
+   "n_perm": 1000,
+   "observed_all_missed": 25.0,
+   "observed_share": 0.1042,
+   "observed_share_ci95": [
+    0.0667,
+    0.1458
+   ],
+   "permutation_null_mean": 5.464,
+   "permutation_null_p95": 9.0,
+   "permutation_p_value": 0.001,
+   "predicted_independent": 5.417,
+   "predicted_share": 0.0226,
+   "ramps": 240,
+   "ratio": 4.6151,
+   "ratio_ci95": [
+    3.0394,
+    6.9096
+   ]
+  },
+  "sao_paulo_055": {
+   "n_boot": 2000,
+   "n_perm": 1000,
+   "observed_all_missed": 27.0,
+   "observed_share": 0.1067,
+   "observed_share_ci95": [
+    0.0711,
+    0.1502
+   ],
+   "permutation_null_mean": 13.362,
+   "permutation_null_p95": 19.0,
+   "permutation_p_value": 0.001,
+   "predicted_independent": 13.5144,
+   "predicted_share": 0.0534,
+   "ramps": 253,
+   "ratio": 1.9979,
+   "ratio_ci95": [
+    1.4332,
+    2.5889
+   ]
+  }
+ },
+ "inputs": {
+  "captures_R25.csv": "d1c5f855ec1a778a824e8214bcf5d289579fc88726151e5f4adfdcf994b80ad5",
+  "captures_R25_hit8.csv": "d81fbff235dc65fa5699d6dc9c13f3682d50d4e57c9084ea9afce027eb90e81f",
+  "residual_misses.json": "78bd0525ceec4ad104efa8cdc6ead34a4952381a2bc8789d34316e26dd23407e"
+ },
+ "nearest_vs_any_055": {
+  "any_other_within_12m": {
+   "ci95": [
+    0.7521,
+    0.7972
+   ],
+   "ramps_with_a_capture": 1250,
+   "recall": 0.7743
+  },
+  "any_other_within_18m": {
+   "ci95": [
+    0.8592,
+    0.8952
+   ],
+   "ramps_with_a_capture": 1304,
+   "recall": 0.8776
+  },
+  "any_other_within_25m": {
+   "ci95": [
+    0.8868,
+    0.9197
+   ],
+   "ramps_with_a_capture": 1307,
+   "recall": 0.9036
+  },
+  "any_other_within_6m": {
+   "ci95": [
+    0.2517,
+    0.3015
+   ],
+   "ramps_with_a_capture": 533,
+   "recall": 0.2762
+  },
+  "nearest_other_only": {
+   "ci95": [
+    0.6282,
+    0.6787
+   ],
+   "ramps_with_a_capture": 1307,
+   "recall": 0.6542
+  },
+  "ramps": 1307
+ },
+ "params": {
+  "hit_test": "world (raycast within 5 m; hit8m arm 8 m)",
+  "n_boot": 2000,
+  "n_offsets": 40,
+  "n_perm": 5000,
+  "radius_m": 18.0,
+  "range_bins": [
+   [
+    0.0,
+    6.0
+   ],
+   [
+    6.0,
+    12.0
+   ],
+   [
+    12.0,
+    18.0
+   ],
+   [
+    18.0,
+    25.0
+   ]
+  ],
+  "seed": 38,
+  "spacings_m": [
+   5.0,
+   7.5,
+   10.0,
+   15.0,
+   20.0,
+   30.0
+  ]
+ },
+ "thinning_030_pooled4": {
+  "n_offsets": 20,
+  "native_nn_spacing_m": {
+   "gainesville": 9.9542,
+   "paterson": 9.9844,
+   "richmond": 3.5349,
+   "sao_paulo": 9.9024
+  },
+  "native_panos": {
+   "gainesville": 929,
+   "paterson": 902,
+   "richmond": 1862,
+   "sao_paulo": 858
+  },
+  "population": 1025,
+  "rows": [
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": 0.0,
+      "delta_other_vs_native_ci95": [
+       0.0,
+       0.0
+      ],
+      "delta_union_vs_native": 0.0,
+      "delta_union_vs_native_ci95": [
+       0.0,
+       0.0
+      ],
+      "mean_other_captures": 4.4152,
+      "panos_kept": 2689,
+      "panos_kept_share": 1.0,
+      "ramps": 778,
+      "recall_other": 0.892,
+      "recall_other_ci95": [
+       0.8702,
+       0.9152
+      ],
+      "recall_union": 0.9743
+     },
+     "mapillary": {
+      "delta_other_vs_native": 0.0,
+      "delta_other_vs_native_ci95": [
+       0.0,
+       0.0
+      ],
+      "delta_union_vs_native": 0.0,
+      "delta_union_vs_native_ci95": [
+       0.0,
+       0.0
+      ],
+      "mean_other_captures": 10.0688,
+      "panos_kept": 1862,
+      "panos_kept_share": 1.0,
+      "ramps": 247,
+      "recall_other": 0.9028,
+      "recall_other_ci95": [
+       0.8664,
+       0.9352
+      ],
+      "recall_union": 0.9838
+     },
+     "pooled": {
+      "delta_other_vs_native": 0.0,
+      "delta_other_vs_native_ci95": [
+       0.0,
+       0.0
+      ],
+      "delta_union_vs_native": 0.0,
+      "delta_union_vs_native_ci95": [
+       0.0,
+       0.0
+      ],
+      "mean_other_captures": 5.7776,
+      "panos_kept": 4551,
+      "panos_kept_share": 1.0,
+      "ramps": 1025,
+      "recall_other": 0.8946,
+      "recall_other_ci95": [
+       0.8761,
+       0.9122
+      ],
+      "recall_union": 0.9766
+     }
+    },
+    "scheme": "native",
+    "spacing_m": null
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.0004,
+      "delta_other_vs_native_ci95": [
+       -0.001,
+       0.0
+      ],
+      "delta_union_vs_native": -0.0001,
+      "delta_union_vs_native_ci95": [
+       -0.0004,
+       0.0
+      ],
+      "mean_other_captures": 4.3966,
+      "panos_kept": 2677.0,
+      "panos_kept_share": 0.9955,
+      "ramps": 778,
+      "recall_other": 0.8916,
+      "recall_other_ci95": [
+       0.8715,
+       0.9134
+      ],
+      "recall_union": 0.9742
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.014,
+      "delta_other_vs_native_ci95": [
+       -0.0247,
+       -0.0053
+      ],
+      "delta_union_vs_native": -0.0164,
+      "delta_union_vs_native_ci95": [
+       -0.0304,
+       -0.0063
+      ],
+      "mean_other_captures": 7.9239,
+      "panos_kept": 1486.65,
+      "panos_kept_share": 0.7984,
+      "ramps": 247,
+      "recall_other": 0.8889,
+      "recall_other_ci95": [
+       0.8492,
+       0.9253
+      ],
+      "recall_union": 0.9674
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.0037,
+      "delta_other_vs_native_ci95": [
+       -0.0063,
+       -0.0016
+      ],
+      "delta_union_vs_native": -0.004,
+      "delta_union_vs_native_ci95": [
+       -0.0071,
+       -0.0016
+      ],
+      "mean_other_captures": 5.2466,
+      "panos_kept": 4163.65,
+      "panos_kept_share": 0.9149,
+      "ramps": 1025,
+      "recall_other": 0.8909,
+      "recall_other_ci95": [
+       0.8729,
+       0.9095
+      ],
+      "recall_union": 0.9725
+     }
+    },
+    "scheme": "grid",
+    "spacing_m": 5.0
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.0004,
+      "delta_other_vs_native_ci95": [
+       -0.0008,
+       -0.0001
+      ],
+      "delta_union_vs_native": -0.0003,
+      "delta_union_vs_native_ci95": [
+       -0.0006,
+       -0.0001
+      ],
+      "mean_other_captures": 4.4006,
+      "panos_kept": 2678.3,
+      "panos_kept_share": 0.996,
+      "ramps": 778,
+      "recall_other": 0.8916,
+      "recall_other_ci95": [
+       0.8698,
+       0.9131
+      ],
+      "recall_union": 0.974
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.0233,
+      "delta_other_vs_native_ci95": [
+       -0.0316,
+       -0.016
+      ],
+      "delta_union_vs_native": -0.0265,
+      "delta_union_vs_native_ci95": [
+       -0.0356,
+       -0.018
+      ],
+      "mean_other_captures": 8.0079,
+      "panos_kept": 1482.5,
+      "panos_kept_share": 0.7962,
+      "ramps": 247,
+      "recall_other": 0.8796,
+      "recall_other_ci95": [
+       0.8389,
+       0.9162
+      ],
+      "recall_union": 0.9573
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.006,
+      "delta_other_vs_native_ci95": [
+       -0.008,
+       -0.0042
+      ],
+      "delta_union_vs_native": -0.0066,
+      "delta_union_vs_native_ci95": [
+       -0.0089,
+       -0.0045
+      ],
+      "mean_other_captures": 5.2699,
+      "panos_kept": 4160.8,
+      "panos_kept_share": 0.9143,
+      "ramps": 1025,
+      "recall_other": 0.8887,
+      "recall_other_ci95": [
+       0.8699,
+       0.9063
+      ],
+      "recall_union": 0.97
+     }
+    },
+    "scheme": "random",
+    "spacing_m": 5.0
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.0025,
+      "delta_other_vs_native_ci95": [
+       -0.0046,
+       -0.0009
+      ],
+      "delta_union_vs_native": -0.0008,
+      "delta_union_vs_native_ci95": [
+       -0.0015,
+       -0.0002
+      ],
+      "mean_other_captures": 4.3385,
+      "panos_kept": 2648.8,
+      "panos_kept_share": 0.9851,
+      "ramps": 778,
+      "recall_other": 0.8895,
+      "recall_other_ci95": [
+       0.8675,
+       0.9116
+      ],
+      "recall_union": 0.9735
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.0283,
+      "delta_other_vs_native_ci95": [
+       -0.0433,
+       -0.0152
+      ],
+      "delta_union_vs_native": -0.0362,
+      "delta_union_vs_native_ci95": [
+       -0.0538,
+       -0.0204
+      ],
+      "mean_other_captures": 6.1061,
+      "panos_kept": 1189.3,
+      "panos_kept_share": 0.6387,
+      "ramps": 247,
+      "recall_other": 0.8745,
+      "recall_other_ci95": [
+       0.8332,
+       0.9119
+      ],
+      "recall_union": 0.9476
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.0087,
+      "delta_other_vs_native_ci95": [
+       -0.0128,
+       -0.0051
+      ],
+      "delta_union_vs_native": -0.0093,
+      "delta_union_vs_native_ci95": [
+       -0.0138,
+       -0.0055
+      ],
+      "mean_other_captures": 4.7644,
+      "panos_kept": 3838.1,
+      "panos_kept_share": 0.8434,
+      "ramps": 1025,
+      "recall_other": 0.8859,
+      "recall_other_ci95": [
+       0.8661,
+       0.9038
+      ],
+      "recall_union": 0.9673
+     }
+    },
+    "scheme": "grid",
+    "spacing_m": 7.5
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.0024,
+      "delta_other_vs_native_ci95": [
+       -0.0033,
+       -0.0016
+      ],
+      "delta_union_vs_native": -0.0017,
+      "delta_union_vs_native_ci95": [
+       -0.0024,
+       -0.001
+      ],
+      "mean_other_captures": 4.3581,
+      "panos_kept": 2650.4,
+      "panos_kept_share": 0.9856,
+      "ramps": 778,
+      "recall_other": 0.8897,
+      "recall_other_ci95": [
+       0.8682,
+       0.9104
+      ],
+      "recall_union": 0.9726
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.0504,
+      "delta_other_vs_native_ci95": [
+       -0.067,
+       -0.0354
+      ],
+      "delta_union_vs_native": -0.0506,
+      "delta_union_vs_native_ci95": [
+       -0.065,
+       -0.0368
+      ],
+      "mean_other_captures": 6.4591,
+      "panos_kept": 1191.6,
+      "panos_kept_share": 0.64,
+      "ramps": 247,
+      "recall_other": 0.8524,
+      "recall_other_ci95": [
+       0.8134,
+       0.8893
+      ],
+      "recall_union": 0.9332
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.014,
+      "delta_other_vs_native_ci95": [
+       -0.0177,
+       -0.0104
+      ],
+      "delta_union_vs_native": -0.0135,
+      "delta_union_vs_native_ci95": [
+       -0.0169,
+       -0.0101
+      ],
+      "mean_other_captures": 4.8644,
+      "panos_kept": 3842.0,
+      "panos_kept_share": 0.8442,
+      "ramps": 1025,
+      "recall_other": 0.8807,
+      "recall_other_ci95": [
+       0.8616,
+       0.9003
+      ],
+      "recall_union": 0.9631
+     }
+    },
+    "scheme": "random",
+    "spacing_m": 7.5
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.012,
+      "delta_other_vs_native_ci95": [
+       -0.016,
+       -0.0084
+      ],
+      "delta_union_vs_native": -0.0071,
+      "delta_union_vs_native_ci95": [
+       -0.0098,
+       -0.0046
+      ],
+      "mean_other_captures": 4.0798,
+      "panos_kept": 2522.2,
+      "panos_kept_share": 0.938,
+      "ramps": 778,
+      "recall_other": 0.8801,
+      "recall_other_ci95": [
+       0.857,
+       0.9021
+      ],
+      "recall_union": 0.9672
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.0486,
+      "delta_other_vs_native_ci95": [
+       -0.0705,
+       -0.0294
+      ],
+      "delta_union_vs_native": -0.0599,
+      "delta_union_vs_native_ci95": [
+       -0.0826,
+       -0.0387
+      ],
+      "mean_other_captures": 4.7587,
+      "panos_kept": 967.35,
+      "panos_kept_share": 0.5195,
+      "ramps": 247,
+      "recall_other": 0.8543,
+      "recall_other_ci95": [
+       0.8117,
+       0.8929
+      ],
+      "recall_union": 0.9239
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.0208,
+      "delta_other_vs_native_ci95": [
+       -0.0266,
+       -0.0156
+      ],
+      "delta_union_vs_native": -0.0199,
+      "delta_union_vs_native_ci95": [
+       -0.0255,
+       -0.0146
+      ],
+      "mean_other_captures": 4.2434,
+      "panos_kept": 3489.55,
+      "panos_kept_share": 0.7668,
+      "ramps": 1025,
+      "recall_other": 0.8739,
+      "recall_other_ci95": [
+       0.8551,
+       0.8922
+      ],
+      "recall_union": 0.9567
+     }
+    },
+    "scheme": "grid",
+    "spacing_m": 10.0
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.0102,
+      "delta_other_vs_native_ci95": [
+       -0.0123,
+       -0.0083
+      ],
+      "delta_union_vs_native": -0.0088,
+      "delta_union_vs_native_ci95": [
+       -0.0109,
+       -0.0069
+      ],
+      "mean_other_captures": 4.135,
+      "panos_kept": 2522.6,
+      "panos_kept_share": 0.9381,
+      "ramps": 778,
+      "recall_other": 0.8818,
+      "recall_other_ci95": [
+       0.8593,
+       0.9037
+      ],
+      "recall_union": 0.9655
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.0775,
+      "delta_other_vs_native_ci95": [
+       -0.0956,
+       -0.0595
+      ],
+      "delta_union_vs_native": -0.0791,
+      "delta_union_vs_native_ci95": [
+       -0.0984,
+       -0.0619
+      ],
+      "mean_other_captures": 5.2024,
+      "panos_kept": 964.2,
+      "panos_kept_share": 0.5178,
+      "ramps": 247,
+      "recall_other": 0.8253,
+      "recall_other_ci95": [
+       0.787,
+       0.8615
+      ],
+      "recall_union": 0.9047
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.0264,
+      "delta_other_vs_native_ci95": [
+       -0.0313,
+       -0.0221
+      ],
+      "delta_union_vs_native": -0.0258,
+      "delta_union_vs_native_ci95": [
+       -0.0306,
+       -0.0213
+      ],
+      "mean_other_captures": 4.3922,
+      "panos_kept": 3486.8,
+      "panos_kept_share": 0.7662,
+      "ramps": 1025,
+      "recall_other": 0.8682,
+      "recall_other_ci95": [
+       0.8493,
+       0.8872
+      ],
+      "recall_union": 0.9508
+     }
+    },
+    "scheme": "random",
+    "spacing_m": 10.0
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.083,
+      "delta_other_vs_native_ci95": [
+       -0.0938,
+       -0.0729
+      ],
+      "delta_union_vs_native": -0.0571,
+      "delta_union_vs_native_ci95": [
+       -0.0668,
+       -0.0483
+      ],
+      "mean_other_captures": 2.862,
+      "panos_kept": 1903.75,
+      "panos_kept_share": 0.708,
+      "ramps": 778,
+      "recall_other": 0.809,
+      "recall_other_ci95": [
+       0.7862,
+       0.8296
+      ],
+      "recall_union": 0.9172
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.1111,
+      "delta_other_vs_native_ci95": [
+       -0.1366,
+       -0.0862
+      ],
+      "delta_union_vs_native": -0.1115,
+      "delta_union_vs_native_ci95": [
+       -0.1411,
+       -0.0844
+      ],
+      "mean_other_captures": 3.1045,
+      "panos_kept": 681.9,
+      "panos_kept_share": 0.3662,
+      "ramps": 247,
+      "recall_other": 0.7917,
+      "recall_other_ci95": [
+       0.75,
+       0.831
+      ],
+      "recall_union": 0.8723
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.0898,
+      "delta_other_vs_native_ci95": [
+       -0.1003,
+       -0.0798
+      ],
+      "delta_union_vs_native": -0.0702,
+      "delta_union_vs_native_ci95": [
+       -0.0804,
+       -0.0611
+      ],
+      "mean_other_captures": 2.9204,
+      "panos_kept": 2585.65,
+      "panos_kept_share": 0.5681,
+      "ramps": 1025,
+      "recall_other": 0.8048,
+      "recall_other_ci95": [
+       0.7849,
+       0.8234
+      ],
+      "recall_union": 0.9063
+     }
+    },
+    "scheme": "grid",
+    "spacing_m": 15.0
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.0753,
+      "delta_other_vs_native_ci95": [
+       -0.0832,
+       -0.0677
+      ],
+      "delta_union_vs_native": -0.0607,
+      "delta_union_vs_native_ci95": [
+       -0.0679,
+       -0.0533
+      ],
+      "mean_other_captures": 3.1114,
+      "panos_kept": 1901.65,
+      "panos_kept_share": 0.7072,
+      "ramps": 778,
+      "recall_other": 0.8167,
+      "recall_other_ci95": [
+       0.7956,
+       0.8368
+      ],
+      "recall_union": 0.9136
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.1466,
+      "delta_other_vs_native_ci95": [
+       -0.1729,
+       -0.1213
+      ],
+      "delta_union_vs_native": -0.1557,
+      "delta_union_vs_native_ci95": [
+       -0.1826,
+       -0.1289
+      ],
+      "mean_other_captures": 3.7036,
+      "panos_kept": 680.8,
+      "panos_kept_share": 0.3656,
+      "ramps": 247,
+      "recall_other": 0.7563,
+      "recall_other_ci95": [
+       0.7194,
+       0.7964
+      ],
+      "recall_union": 0.8281
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.0925,
+      "delta_other_vs_native_ci95": [
+       -0.1011,
+       -0.0839
+      ],
+      "delta_union_vs_native": -0.0836,
+      "delta_union_vs_native_ci95": [
+       -0.0924,
+       -0.0751
+      ],
+      "mean_other_captures": 3.2541,
+      "panos_kept": 2582.45,
+      "panos_kept_share": 0.5674,
+      "ramps": 1025,
+      "recall_other": 0.8021,
+      "recall_other_ci95": [
+       0.7828,
+       0.8196
+      ],
+      "recall_union": 0.893
+     }
+    },
+    "scheme": "random",
+    "spacing_m": 15.0
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.1819,
+      "delta_other_vs_native_ci95": [
+       -0.197,
+       -0.1672
+      ],
+      "delta_union_vs_native": -0.1294,
+      "delta_union_vs_native_ci95": [
+       -0.1427,
+       -0.1163
+      ],
+      "mean_other_captures": 2.1098,
+      "panos_kept": 1505.5,
+      "panos_kept_share": 0.5599,
+      "ramps": 778,
+      "recall_other": 0.7102,
+      "recall_other_ci95": [
+       0.6881,
+       0.7325
+      ],
+      "recall_union": 0.8449
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.1749,
+      "delta_other_vs_native_ci95": [
+       -0.2049,
+       -0.1455
+      ],
+      "delta_union_vs_native": -0.1765,
+      "delta_union_vs_native_ci95": [
+       -0.2081,
+       -0.1445
+      ],
+      "mean_other_captures": 2.2968,
+      "panos_kept": 528.85,
+      "panos_kept_share": 0.284,
+      "ramps": 247,
+      "recall_other": 0.7279,
+      "recall_other_ci95": [
+       0.687,
+       0.7694
+      ],
+      "recall_union": 0.8073
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.1802,
+      "delta_other_vs_native_ci95": [
+       -0.1941,
+       -0.1668
+      ],
+      "delta_union_vs_native": -0.1407,
+      "delta_union_vs_native_ci95": [
+       -0.1543,
+       -0.1286
+      ],
+      "mean_other_captures": 2.1548,
+      "panos_kept": 2034.35,
+      "panos_kept_share": 0.447,
+      "ramps": 1025,
+      "recall_other": 0.7144,
+      "recall_other_ci95": [
+       0.6937,
+       0.7342
+      ],
+      "recall_union": 0.8359
+     }
+    },
+    "scheme": "grid",
+    "spacing_m": 20.0
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.1469,
+      "delta_other_vs_native_ci95": [
+       -0.1575,
+       -0.1364
+      ],
+      "delta_union_vs_native": -0.117,
+      "delta_union_vs_native_ci95": [
+       -0.1267,
+       -0.1073
+      ],
+      "mean_other_captures": 2.4668,
+      "panos_kept": 1500.25,
+      "panos_kept_share": 0.5579,
+      "ramps": 778,
+      "recall_other": 0.7452,
+      "recall_other_ci95": [
+       0.7234,
+       0.7649
+      ],
+      "recall_union": 0.8573
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.2132,
+      "delta_other_vs_native_ci95": [
+       -0.2431,
+       -0.183
+      ],
+      "delta_union_vs_native": -0.2132,
+      "delta_union_vs_native_ci95": [
+       -0.2413,
+       -0.1858
+      ],
+      "mean_other_captures": 2.849,
+      "panos_kept": 528.25,
+      "panos_kept_share": 0.2837,
+      "ramps": 247,
+      "recall_other": 0.6897,
+      "recall_other_ci95": [
+       0.649,
+       0.7302
+      ],
+      "recall_union": 0.7706
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.1628,
+      "delta_other_vs_native_ci95": [
+       -0.1736,
+       -0.152
+      ],
+      "delta_union_vs_native": -0.1402,
+      "delta_union_vs_native_ci95": [
+       -0.1507,
+       -0.1305
+      ],
+      "mean_other_captures": 2.5589,
+      "panos_kept": 2028.5,
+      "panos_kept_share": 0.4457,
+      "ramps": 1025,
+      "recall_other": 0.7318,
+      "recall_other_ci95": [
+       0.7126,
+       0.7499
+      ],
+      "recall_union": 0.8364
+     }
+    },
+    "scheme": "random",
+    "spacing_m": 20.0
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.3495,
+      "delta_other_vs_native_ci95": [
+       -0.3681,
+       -0.3316
+      ],
+      "delta_union_vs_native": -0.2912,
+      "delta_union_vs_native_ci95": [
+       -0.3088,
+       -0.2738
+      ],
+      "mean_other_captures": 1.3696,
+      "panos_kept": 1067.0,
+      "panos_kept_share": 0.3968,
+      "ramps": 778,
+      "recall_other": 0.5425,
+      "recall_other_ci95": [
+       0.5221,
+       0.5636
+      ],
+      "recall_union": 0.6831
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.3196,
+      "delta_other_vs_native_ci95": [
+       -0.3547,
+       -0.2858
+      ],
+      "delta_union_vs_native": -0.3132,
+      "delta_union_vs_native_ci95": [
+       -0.3508,
+       -0.2777
+      ],
+      "mean_other_captures": 1.4646,
+      "panos_kept": 367.75,
+      "panos_kept_share": 0.1975,
+      "ramps": 247,
+      "recall_other": 0.5832,
+      "recall_other_ci95": [
+       0.5443,
+       0.6239
+      ],
+      "recall_union": 0.6706
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.3423,
+      "delta_other_vs_native_ci95": [
+       -0.3585,
+       -0.3256
+      ],
+      "delta_union_vs_native": -0.2965,
+      "delta_union_vs_native_ci95": [
+       -0.3127,
+       -0.2807
+      ],
+      "mean_other_captures": 1.3925,
+      "panos_kept": 1434.75,
+      "panos_kept_share": 0.3153,
+      "ramps": 1025,
+      "recall_other": 0.5523,
+      "recall_other_ci95": [
+       0.5341,
+       0.5712
+      ],
+      "recall_union": 0.6801
+     }
+    },
+    "scheme": "grid",
+    "spacing_m": 30.0
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.2735,
+      "delta_other_vs_native_ci95": [
+       -0.2868,
+       -0.2592
+      ],
+      "delta_union_vs_native": -0.2368,
+      "delta_union_vs_native_ci95": [
+       -0.2507,
+       -0.2241
+      ],
+      "mean_other_captures": 1.7512,
+      "panos_kept": 1066.7,
+      "panos_kept_share": 0.3967,
+      "ramps": 778,
+      "recall_other": 0.6185,
+      "recall_other_ci95": [
+       0.5997,
+       0.6368
+      ],
+      "recall_union": 0.7375
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.3059,
+      "delta_other_vs_native_ci95": [
+       -0.3401,
+       -0.2737
+      ],
+      "delta_union_vs_native": -0.3249,
+      "delta_union_vs_native_ci95": [
+       -0.3589,
+       -0.2921
+      ],
+      "mean_other_captures": 2.0097,
+      "panos_kept": 369.0,
+      "panos_kept_share": 0.1982,
+      "ramps": 247,
+      "recall_other": 0.597,
+      "recall_other_ci95": [
+       0.5571,
+       0.634
+      ],
+      "recall_union": 0.6589
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.2813,
+      "delta_other_vs_native_ci95": [
+       -0.2951,
+       -0.2684
+      ],
+      "delta_union_vs_native": -0.258,
+      "delta_union_vs_native_ci95": [
+       -0.2713,
+       -0.2457
+      ],
+      "mean_other_captures": 1.8135,
+      "panos_kept": 1435.7,
+      "panos_kept_share": 0.3155,
+      "ramps": 1025,
+      "recall_other": 0.6133,
+      "recall_other_ci95": [
+       0.5959,
+       0.6308
+      ],
+      "recall_union": 0.7186
+     }
+    },
+    "scheme": "random",
+    "spacing_m": 30.0
+   }
+  ]
+ },
+ "thinning_055": {
+  "n_offsets": 40,
+  "native_nn_spacing_m": {
+   "bend": 9.9963,
+   "gainesville": 9.9542,
+   "paterson": 9.9844,
+   "richmond": 3.5349,
+   "sao_paulo": 9.9024
+  },
+  "native_panos": {
+   "bend": 842,
+   "gainesville": 929,
+   "paterson": 902,
+   "richmond": 1862,
+   "sao_paulo": 858
+  },
+  "population": 1317,
+  "rows": [
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": 0.0,
+      "delta_other_vs_native_ci95": [
+       0.0,
+       0.0
+      ],
+      "delta_union_vs_native": 0.0,
+      "delta_union_vs_native_ci95": [
+       0.0,
+       0.0
+      ],
+      "mean_other_captures": 4.2963,
+      "panos_kept": 3531,
+      "panos_kept_share": 1.0,
+      "ramps": 1070,
+      "recall_other": 0.8748,
+      "recall_other_ci95": [
+       0.8551,
+       0.8935
+      ],
+      "recall_union": 0.9561
+     },
+     "mapillary": {
+      "delta_other_vs_native": 0.0,
+      "delta_other_vs_native_ci95": [
+       0.0,
+       0.0
+      ],
+      "delta_union_vs_native": 0.0,
+      "delta_union_vs_native_ci95": [
+       0.0,
+       0.0
+      ],
+      "mean_other_captures": 10.0688,
+      "panos_kept": 1862,
+      "panos_kept_share": 1.0,
+      "ramps": 247,
+      "recall_other": 0.8745,
+      "recall_other_ci95": [
+       0.83,
+       0.915
+      ],
+      "recall_union": 0.9595
+     },
+     "pooled": {
+      "delta_other_vs_native": 0.0,
+      "delta_other_vs_native_ci95": [
+       0.0,
+       0.0
+      ],
+      "delta_union_vs_native": 0.0,
+      "delta_union_vs_native_ci95": [
+       0.0,
+       0.0
+      ],
+      "mean_other_captures": 5.3789,
+      "panos_kept": 5393,
+      "panos_kept_share": 1.0,
+      "ramps": 1317,
+      "recall_other": 0.8747,
+      "recall_other_ci95": [
+       0.8565,
+       0.8929
+      ],
+      "recall_union": 0.9567
+     }
+    },
+    "scheme": "native",
+    "spacing_m": null
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.0004,
+      "delta_other_vs_native_ci95": [
+       -0.0009,
+       -0.0001
+      ],
+      "delta_union_vs_native": -0.0004,
+      "delta_union_vs_native_ci95": [
+       -0.0007,
+       -0.0001
+      ],
+      "mean_other_captures": 4.279,
+      "panos_kept": 3517.025,
+      "panos_kept_share": 0.996,
+      "ramps": 1070,
+      "recall_other": 0.8743,
+      "recall_other_ci95": [
+       0.8545,
+       0.8922
+      ],
+      "recall_union": 0.9557
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.0139,
+      "delta_other_vs_native_ci95": [
+       -0.0235,
+       -0.0062
+      ],
+      "delta_union_vs_native": -0.0228,
+      "delta_union_vs_native_ci95": [
+       -0.0365,
+       -0.0114
+      ],
+      "mean_other_captures": 7.9236,
+      "panos_kept": 1485.3,
+      "panos_kept_share": 0.7977,
+      "ramps": 247,
+      "recall_other": 0.8606,
+      "recall_other_ci95": [
+       0.8184,
+       0.9015
+      ],
+      "recall_union": 0.9367
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.0029,
+      "delta_other_vs_native_ci95": [
+       -0.0047,
+       -0.0015
+      ],
+      "delta_union_vs_native": -0.0046,
+      "delta_union_vs_native_ci95": [
+       -0.0073,
+       -0.0024
+      ],
+      "mean_other_captures": 4.9625,
+      "panos_kept": 5002.325,
+      "panos_kept_share": 0.9276,
+      "ramps": 1317,
+      "recall_other": 0.8718,
+      "recall_other_ci95": [
+       0.8542,
+       0.889
+      ],
+      "recall_union": 0.9522
+     }
+    },
+    "scheme": "grid",
+    "spacing_m": 5.0
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.0007,
+      "delta_other_vs_native_ci95": [
+       -0.001,
+       -0.0004
+      ],
+      "delta_union_vs_native": -0.0007,
+      "delta_union_vs_native_ci95": [
+       -0.001,
+       -0.0005
+      ],
+      "mean_other_captures": 4.2779,
+      "panos_kept": 3516.125,
+      "panos_kept_share": 0.9958,
+      "ramps": 1070,
+      "recall_other": 0.8741,
+      "recall_other_ci95": [
+       0.8541,
+       0.8921
+      ],
+      "recall_union": 0.9553
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.024,
+      "delta_other_vs_native_ci95": [
+       -0.0323,
+       -0.0168
+      ],
+      "delta_union_vs_native": -0.0277,
+      "delta_union_vs_native_ci95": [
+       -0.0356,
+       -0.0197
+      ],
+      "mean_other_captures": 8.0023,
+      "panos_kept": 1484.05,
+      "panos_kept_share": 0.797,
+      "ramps": 247,
+      "recall_other": 0.8505,
+      "recall_other_ci95": [
+       0.8063,
+       0.8889
+      ],
+      "recall_union": 0.9318
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.0051,
+      "delta_other_vs_native_ci95": [
+       -0.0066,
+       -0.0037
+      ],
+      "delta_union_vs_native": -0.0058,
+      "delta_union_vs_native_ci95": [
+       -0.0075,
+       -0.0043
+      ],
+      "mean_other_captures": 4.9764,
+      "panos_kept": 5000.175,
+      "panos_kept_share": 0.9272,
+      "ramps": 1317,
+      "recall_other": 0.8696,
+      "recall_other_ci95": [
+       0.8519,
+       0.887
+      ],
+      "recall_union": 0.9509
+     }
+    },
+    "scheme": "random",
+    "spacing_m": 5.0
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.0033,
+      "delta_other_vs_native_ci95": [
+       -0.0057,
+       -0.0014
+      ],
+      "delta_union_vs_native": -0.002,
+      "delta_union_vs_native_ci95": [
+       -0.0036,
+       -0.0007
+      ],
+      "mean_other_captures": 4.223,
+      "panos_kept": 3480.225,
+      "panos_kept_share": 0.9856,
+      "ramps": 1070,
+      "recall_other": 0.8714,
+      "recall_other_ci95": [
+       0.8515,
+       0.891
+      ],
+      "recall_union": 0.9541
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.0386,
+      "delta_other_vs_native_ci95": [
+       -0.0565,
+       -0.0233
+      ],
+      "delta_union_vs_native": -0.0499,
+      "delta_union_vs_native_ci95": [
+       -0.0699,
+       -0.0325
+      ],
+      "mean_other_captures": 6.1103,
+      "panos_kept": 1189.525,
+      "panos_kept_share": 0.6388,
+      "ramps": 247,
+      "recall_other": 0.8359,
+      "recall_other_ci95": [
+       0.7917,
+       0.8752
+      ],
+      "recall_union": 0.9096
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.0099,
+      "delta_other_vs_native_ci95": [
+       -0.0136,
+       -0.0065
+      ],
+      "delta_union_vs_native": -0.011,
+      "delta_union_vs_native_ci95": [
+       -0.0148,
+       -0.0074
+      ],
+      "mean_other_captures": 4.577,
+      "panos_kept": 4669.75,
+      "panos_kept_share": 0.8659,
+      "ramps": 1317,
+      "recall_other": 0.8648,
+      "recall_other_ci95": [
+       0.8476,
+       0.8832
+      ],
+      "recall_union": 0.9457
+     }
+    },
+    "scheme": "grid",
+    "spacing_m": 7.5
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.0029,
+      "delta_other_vs_native_ci95": [
+       -0.0035,
+       -0.0023
+      ],
+      "delta_union_vs_native": -0.0021,
+      "delta_union_vs_native_ci95": [
+       -0.0026,
+       -0.0015
+      ],
+      "mean_other_captures": 4.2329,
+      "panos_kept": 3479.725,
+      "panos_kept_share": 0.9855,
+      "ramps": 1070,
+      "recall_other": 0.8719,
+      "recall_other_ci95": [
+       0.853,
+       0.8916
+      ],
+      "recall_union": 0.954
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.0541,
+      "delta_other_vs_native_ci95": [
+       -0.0686,
+       -0.0399
+      ],
+      "delta_union_vs_native": -0.061,
+      "delta_union_vs_native_ci95": [
+       -0.0768,
+       -0.0463
+      ],
+      "mean_other_captures": 6.461,
+      "panos_kept": 1189.45,
+      "panos_kept_share": 0.6388,
+      "ramps": 247,
+      "recall_other": 0.8203,
+      "recall_other_ci95": [
+       0.7766,
+       0.8597
+      ],
+      "recall_union": 0.8985
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.0125,
+      "delta_other_vs_native_ci95": [
+       -0.0152,
+       -0.0099
+      ],
+      "delta_union_vs_native": -0.0131,
+      "delta_union_vs_native_ci95": [
+       -0.0161,
+       -0.0103
+      ],
+      "mean_other_captures": 4.6508,
+      "panos_kept": 4669.175,
+      "panos_kept_share": 0.8658,
+      "ramps": 1317,
+      "recall_other": 0.8622,
+      "recall_other_ci95": [
+       0.8447,
+       0.8797
+      ],
+      "recall_union": 0.9436
+     }
+    },
+    "scheme": "random",
+    "spacing_m": 7.5
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.015,
+      "delta_other_vs_native_ci95": [
+       -0.019,
+       -0.0113
+      ],
+      "delta_union_vs_native": -0.0098,
+      "delta_union_vs_native_ci95": [
+       -0.0129,
+       -0.0071
+      ],
+      "mean_other_captures": 3.9869,
+      "panos_kept": 3318.3,
+      "panos_kept_share": 0.9398,
+      "ramps": 1070,
+      "recall_other": 0.8598,
+      "recall_other_ci95": [
+       0.8396,
+       0.8791
+      ],
+      "recall_union": 0.9462
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.0618,
+      "delta_other_vs_native_ci95": [
+       -0.0819,
+       -0.0429
+      ],
+      "delta_union_vs_native": -0.0799,
+      "delta_union_vs_native_ci95": [
+       -0.1066,
+       -0.0561
+      ],
+      "mean_other_captures": 4.7396,
+      "panos_kept": 961.45,
+      "panos_kept_share": 0.5164,
+      "ramps": 247,
+      "recall_other": 0.8127,
+      "recall_other_ci95": [
+       0.7693,
+       0.8557
+      ],
+      "recall_union": 0.8797
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.0238,
+      "delta_other_vs_native_ci95": [
+       -0.0291,
+       -0.0192
+      ],
+      "delta_union_vs_native": -0.023,
+      "delta_union_vs_native_ci95": [
+       -0.0283,
+       -0.0179
+      ],
+      "mean_other_captures": 4.1281,
+      "panos_kept": 4279.75,
+      "panos_kept_share": 0.7936,
+      "ramps": 1317,
+      "recall_other": 0.8509,
+      "recall_other_ci95": [
+       0.8334,
+       0.8695
+      ],
+      "recall_union": 0.9338
+     }
+    },
+    "scheme": "grid",
+    "spacing_m": 10.0
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.0127,
+      "delta_other_vs_native_ci95": [
+       -0.0145,
+       -0.0109
+      ],
+      "delta_union_vs_native": -0.0079,
+      "delta_union_vs_native_ci95": [
+       -0.0093,
+       -0.0064
+      ],
+      "mean_other_captures": 4.0306,
+      "panos_kept": 3317.55,
+      "panos_kept_share": 0.9395,
+      "ramps": 1070,
+      "recall_other": 0.8621,
+      "recall_other_ci95": [
+       0.8424,
+       0.881
+      ],
+      "recall_union": 0.9482
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.0886,
+      "delta_other_vs_native_ci95": [
+       -0.1088,
+       -0.0697
+      ],
+      "delta_union_vs_native": -0.103,
+      "delta_union_vs_native_ci95": [
+       -0.1252,
+       -0.0819
+      ],
+      "mean_other_captures": 5.196,
+      "panos_kept": 964.175,
+      "panos_kept_share": 0.5178,
+      "ramps": 247,
+      "recall_other": 0.7859,
+      "recall_other_ci95": [
+       0.7443,
+       0.8266
+      ],
+      "recall_union": 0.8565
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.0269,
+      "delta_other_vs_native_ci95": [
+       -0.0309,
+       -0.0231
+      ],
+      "delta_union_vs_native": -0.0257,
+      "delta_union_vs_native_ci95": [
+       -0.0301,
+       -0.0215
+      ],
+      "mean_other_captures": 4.2491,
+      "panos_kept": 4281.725,
+      "panos_kept_share": 0.7939,
+      "ramps": 1317,
+      "recall_other": 0.8478,
+      "recall_other_ci95": [
+       0.8304,
+       0.8656
+      ],
+      "recall_union": 0.931
+     }
+    },
+    "scheme": "random",
+    "spacing_m": 10.0
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.088,
+      "delta_other_vs_native_ci95": [
+       -0.0969,
+       -0.079
+      ],
+      "delta_union_vs_native": -0.0645,
+      "delta_union_vs_native_ci95": [
+       -0.0725,
+       -0.0563
+      ],
+      "mean_other_captures": 2.82,
+      "panos_kept": 2511.525,
+      "panos_kept_share": 0.7113,
+      "ramps": 1070,
+      "recall_other": 0.7868,
+      "recall_other_ci95": [
+       0.7675,
+       0.806
+      ],
+      "recall_union": 0.8916
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.1258,
+      "delta_other_vs_native_ci95": [
+       -0.1521,
+       -0.0994
+      ],
+      "delta_union_vs_native": -0.1353,
+      "delta_union_vs_native_ci95": [
+       -0.1663,
+       -0.1064
+      ],
+      "mean_other_captures": 3.1299,
+      "panos_kept": 681.875,
+      "panos_kept_share": 0.3662,
+      "ramps": 247,
+      "recall_other": 0.7487,
+      "recall_other_ci95": [
+       0.7062,
+       0.7925
+      ],
+      "recall_union": 0.8242
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.0951,
+      "delta_other_vs_native_ci95": [
+       -0.1043,
+       -0.0857
+      ],
+      "delta_union_vs_native": -0.0778,
+      "delta_union_vs_native_ci95": [
+       -0.0864,
+       -0.0692
+      ],
+      "mean_other_captures": 2.8781,
+      "panos_kept": 3193.4,
+      "panos_kept_share": 0.5921,
+      "ramps": 1317,
+      "recall_other": 0.7796,
+      "recall_other_ci95": [
+       0.762,
+       0.7965
+      ],
+      "recall_union": 0.879
+     }
+    },
+    "scheme": "grid",
+    "spacing_m": 15.0
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.0807,
+      "delta_other_vs_native_ci95": [
+       -0.087,
+       -0.0743
+      ],
+      "delta_union_vs_native": -0.0608,
+      "delta_union_vs_native_ci95": [
+       -0.0663,
+       -0.055
+      ],
+      "mean_other_captures": 3.0677,
+      "panos_kept": 2509.125,
+      "panos_kept_share": 0.7106,
+      "ramps": 1070,
+      "recall_other": 0.794,
+      "recall_other_ci95": [
+       0.7748,
+       0.8125
+      ],
+      "recall_union": 0.8953
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.1554,
+      "delta_other_vs_native_ci95": [
+       -0.1816,
+       -0.1293
+      ],
+      "delta_union_vs_native": -0.1609,
+      "delta_union_vs_native_ci95": [
+       -0.1862,
+       -0.1363
+      ],
+      "mean_other_captures": 3.7024,
+      "panos_kept": 683.95,
+      "panos_kept_share": 0.3673,
+      "ramps": 247,
+      "recall_other": 0.7191,
+      "recall_other_ci95": [
+       0.675,
+       0.7606
+      ],
+      "recall_union": 0.7986
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.0947,
+      "delta_other_vs_native_ci95": [
+       -0.1017,
+       -0.0875
+      ],
+      "delta_union_vs_native": -0.0796,
+      "delta_union_vs_native_ci95": [
+       -0.0866,
+       -0.0725
+      ],
+      "mean_other_captures": 3.1867,
+      "panos_kept": 3193.075,
+      "panos_kept_share": 0.5921,
+      "ramps": 1317,
+      "recall_other": 0.78,
+      "recall_other_ci95": [
+       0.763,
+       0.797
+      ],
+      "recall_union": 0.8772
+     }
+    },
+    "scheme": "random",
+    "spacing_m": 15.0
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.1841,
+      "delta_other_vs_native_ci95": [
+       -0.1967,
+       -0.1717
+      ],
+      "delta_union_vs_native": -0.1421,
+      "delta_union_vs_native_ci95": [
+       -0.154,
+       -0.1305
+      ],
+      "mean_other_captures": 2.0767,
+      "panos_kept": 1983.25,
+      "panos_kept_share": 0.5617,
+      "ramps": 1070,
+      "recall_other": 0.6907,
+      "recall_other_ci95": [
+       0.6712,
+       0.7092
+      ],
+      "recall_union": 0.8139
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.2014,
+      "delta_other_vs_native_ci95": [
+       -0.2356,
+       -0.1689
+      ],
+      "delta_union_vs_native": -0.2129,
+      "delta_union_vs_native_ci95": [
+       -0.25,
+       -0.1774
+      ],
+      "mean_other_captures": 2.2949,
+      "panos_kept": 528.85,
+      "panos_kept_share": 0.284,
+      "ramps": 247,
+      "recall_other": 0.6731,
+      "recall_other_ci95": [
+       0.6241,
+       0.7178
+      ],
+      "recall_union": 0.7467
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.1873,
+      "delta_other_vs_native_ci95": [
+       -0.1994,
+       -0.1757
+      ],
+      "delta_union_vs_native": -0.1554,
+      "delta_union_vs_native_ci95": [
+       -0.1672,
+       -0.1442
+      ],
+      "mean_other_captures": 2.1176,
+      "panos_kept": 2512.1,
+      "panos_kept_share": 0.4658,
+      "ramps": 1317,
+      "recall_other": 0.6874,
+      "recall_other_ci95": [
+       0.6709,
+       0.7051
+      ],
+      "recall_union": 0.8013
+     }
+    },
+    "scheme": "grid",
+    "spacing_m": 20.0
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.1586,
+      "delta_other_vs_native_ci95": [
+       -0.1674,
+       -0.1492
+      ],
+      "delta_union_vs_native": -0.1274,
+      "delta_union_vs_native_ci95": [
+       -0.1361,
+       -0.1189
+      ],
+      "mean_other_captures": 2.4059,
+      "panos_kept": 1981.525,
+      "panos_kept_share": 0.5612,
+      "ramps": 1070,
+      "recall_other": 0.7162,
+      "recall_other_ci95": [
+       0.6986,
+       0.7338
+      ],
+      "recall_union": 0.8287
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.2113,
+      "delta_other_vs_native_ci95": [
+       -0.2398,
+       -0.1841
+      ],
+      "delta_union_vs_native": -0.2271,
+      "delta_union_vs_native_ci95": [
+       -0.2569,
+       -0.1989
+      ],
+      "mean_other_captures": 2.8498,
+      "panos_kept": 527.0,
+      "panos_kept_share": 0.283,
+      "ramps": 247,
+      "recall_other": 0.6632,
+      "recall_other_ci95": [
+       0.6219,
+       0.7055
+      ],
+      "recall_union": 0.7324
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.1685,
+      "delta_other_vs_native_ci95": [
+       -0.1779,
+       -0.1591
+      ],
+      "delta_union_vs_native": -0.1461,
+      "delta_union_vs_native_ci95": [
+       -0.155,
+       -0.1371
+      ],
+      "mean_other_captures": 2.4892,
+      "panos_kept": 2508.525,
+      "panos_kept_share": 0.4651,
+      "ramps": 1317,
+      "recall_other": 0.7063,
+      "recall_other_ci95": [
+       0.689,
+       0.7224
+      ],
+      "recall_union": 0.8106
+     }
+    },
+    "scheme": "random",
+    "spacing_m": 20.0
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.3502,
+      "delta_other_vs_native_ci95": [
+       -0.3664,
+       -0.3353
+      ],
+      "delta_union_vs_native": -0.3016,
+      "delta_union_vs_native_ci95": [
+       -0.3163,
+       -0.2872
+      ],
+      "mean_other_captures": 1.3528,
+      "panos_kept": 1416.575,
+      "panos_kept_share": 0.4012,
+      "ramps": 1070,
+      "recall_other": 0.5246,
+      "recall_other_ci95": [
+       0.5062,
+       0.5419
+      ],
+      "recall_union": 0.6544
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.329,
+      "delta_other_vs_native_ci95": [
+       -0.3645,
+       -0.2941
+      ],
+      "delta_union_vs_native": -0.3333,
+      "delta_union_vs_native_ci95": [
+       -0.3711,
+       -0.2979
+      ],
+      "mean_other_captures": 1.5068,
+      "panos_kept": 368.7,
+      "panos_kept_share": 0.198,
+      "ramps": 247,
+      "recall_other": 0.5454,
+      "recall_other_ci95": [
+       0.5041,
+       0.585
+      ],
+      "recall_union": 0.6262
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.3462,
+      "delta_other_vs_native_ci95": [
+       -0.3612,
+       -0.3315
+      ],
+      "delta_union_vs_native": -0.3076,
+      "delta_union_vs_native_ci95": [
+       -0.3215,
+       -0.2944
+      ],
+      "mean_other_captures": 1.3817,
+      "panos_kept": 1785.275,
+      "panos_kept_share": 0.331,
+      "ramps": 1317,
+      "recall_other": 0.5285,
+      "recall_other_ci95": [
+       0.512,
+       0.544
+      ],
+      "recall_union": 0.6491
+     }
+    },
+    "scheme": "grid",
+    "spacing_m": 30.0
+   },
+   {
+    "groups": {
+     "gsv": {
+      "delta_other_vs_native": -0.2754,
+      "delta_other_vs_native_ci95": [
+       -0.2874,
+       -0.2635
+      ],
+      "delta_union_vs_native": -0.2415,
+      "delta_union_vs_native_ci95": [
+       -0.2526,
+       -0.231
+      ],
+      "mean_other_captures": 1.7336,
+      "panos_kept": 1417.45,
+      "panos_kept_share": 0.4014,
+      "ramps": 1070,
+      "recall_other": 0.5994,
+      "recall_other_ci95": [
+       0.5831,
+       0.6154
+      ],
+      "recall_union": 0.7146
+     },
+     "mapillary": {
+      "delta_other_vs_native": -0.3096,
+      "delta_other_vs_native_ci95": [
+       -0.3421,
+       -0.2765
+      ],
+      "delta_union_vs_native": -0.3259,
+      "delta_union_vs_native_ci95": [
+       -0.3578,
+       -0.2948
+      ],
+      "mean_other_captures": 2.0263,
+      "panos_kept": 369.35,
+      "panos_kept_share": 0.1984,
+      "ramps": 247,
+      "recall_other": 0.5649,
+      "recall_other_ci95": [
+       0.5242,
+       0.6027
+      ],
+      "recall_union": 0.6336
+     },
+     "pooled": {
+      "delta_other_vs_native": -0.2818,
+      "delta_other_vs_native_ci95": [
+       -0.2928,
+       -0.2704
+      ],
+      "delta_union_vs_native": -0.2573,
+      "delta_union_vs_native_ci95": [
+       -0.2677,
+       -0.2465
+      ],
+      "mean_other_captures": 1.7885,
+      "panos_kept": 1786.8,
+      "panos_kept_share": 0.3313,
+      "ramps": 1317,
+      "recall_other": 0.5929,
+      "recall_other_ci95": [
+       0.5776,
+       0.6081
+      ],
+      "recall_union": 0.6994
+     }
+    },
+    "scheme": "random",
+    "spacing_m": 30.0
+   }
+  ]
+ },
+ "three_nearest_030_pooled4": {
+  "deployment_recall_3_nearest": 0.8653,
+  "median_dist_of_3_nearest_m": [
+   6.4778,
+   9.3878,
+   12.0862
+  ],
+  "n_boot": 2000,
+  "n_perm": 5000,
+  "observed_all_missed": 129.0,
+  "observed_share": 0.1347,
+  "observed_share_ci95": [
+   0.1127,
+   0.1566
+  ],
+  "permutation_null_mean": 55.185,
+  "permutation_null_p95": 65.0,
+  "permutation_p_value": 0.0002,
+  "predicted_independent": 55.6378,
+  "predicted_share": 0.0581,
+  "ramps": 958,
+  "ratio": 2.3186,
+  "ratio_ci95": [
+   2.0265,
+   2.6022
+  ]
+ },
+ "three_nearest_055": {
+  "deployment_recall_3_nearest": 0.8412,
+  "median_dist_of_3_nearest_m": [
+   6.4786,
+   9.5508,
+   12.3691
+  ],
+  "n_boot": 2000,
+  "n_perm": 5000,
+  "observed_all_missed": 193.0,
+  "observed_share": 0.1588,
+  "observed_share_ci95": [
+   0.1391,
+   0.1778
+  ],
+  "permutation_null_mean": 94.6036,
+  "permutation_null_p95": 106.0,
+  "permutation_p_value": 0.0002,
+  "predicted_independent": 95.2475,
+  "predicted_share": 0.0784,
+  "ramps": 1215,
+  "ratio": 2.0263,
+  "ratio_ci95": [
+   1.8209,
+   2.2111
+  ]
+ }
+}

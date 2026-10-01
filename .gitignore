@@ -373,3 +373,10 @@ analysis_out/mined_placement_158/*
 analysis_out/mined_placement_158/predictions/*
 !analysis_out/mined_placement_158/predictions/*.jsonl
 !analysis_out/mined_placement_158/predictions/*.json
+
+# #38 per-ramp recall + miss correlation: derived tables, re-derived by
+# scripts/analysis/per_ramp_recall_38.py check from the committed multiview_48 captures.
+!analysis_out/per_ramp_recall_38/
+analysis_out/per_ramp_recall_38/*
+!analysis_out/per_ramp_recall_38/*.json
+!analysis_out/per_ramp_recall_38/*.csv
