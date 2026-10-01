@@ -380,3 +380,8 @@ analysis_out/subcell_decode_221/*
 !analysis_out/subcell_decode_221/*.json
 !analysis_out/subcell_decode_221/*.md
 !analysis_out/subcell_decode_221/extract.log
+
+# scripts/check_all.py --json: the committed result of the last full gate run on main.
+!analysis_out/check_all/
+analysis_out/check_all/*
+!analysis_out/check_all/latest.json
