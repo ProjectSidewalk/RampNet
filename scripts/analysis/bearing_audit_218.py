@@ -790,7 +790,9 @@ def main(argv=None):
         json.dump(rnd(summary), f, indent=1, sort_keys=True)
         f.write("\n")
     with open(os.path.join(a.out, "offsets.csv"), "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, ["source", "bin_lo", "bin_hi", "real", "null", "excess"])
+        w = csv.DictWriter(f, ["source", "bin_lo", "bin_hi", "real", "null", "excess"],
+                           lineterminator="
+")
         w.writeheader()
         for r in hist_rows:
             w.writerow({**r, "bin_lo": f"{r['bin_lo']:g}", "bin_hi": f"{r['bin_hi']:g}"})
