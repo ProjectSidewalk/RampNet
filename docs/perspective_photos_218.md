@@ -11,6 +11,7 @@ Code:
   checks `rates` runs on a rater's export;
 - `scripts/analysis/perspective_figures_218.py`: the example figures (`candidates`,
   `render`);
+- `scripts/analysis/perspective_bearing_check_218.py`: the pose-bias check (§5);
 - `tests/test_perspective_218.py`: geometry, chance-floor and rating-path tests.
 
 Outputs are in `analysis_out/perspective_photos_218/` (Richmond) and
@@ -105,8 +106,11 @@ chance (§4).
 projected bearing, near the right edge of the frame, and the projected bearing itself
 points at the middle of the road. The model does fire there: 0.54 (above the operating
 point) on the tactile-paved ramp in the first, 0.27 (below it) in the second. The first
-photo's SfM pose also puts that peak above the horizon, although the camera is plainly
-pitched down. So these are misses of the scorer's geometry as much as of the model.
+photo has no SfM orientation (its `computed_rotation` is exactly level), so its pose puts
+that peak above the horizon, although the camera is plainly pitched down. So these two
+are misses of the scorer's geometry as much as of the model. **They were chosen for a
+visible ramp and are not typical:** across all 234 missed pairs the pattern is at chance
+level, and the pose shows no systematic bearing bias (§5, "Is the pose biased?").
 
 ![An unmatched detection and a stretch-only hit](figures/perspective_photos_218/richmond_unmatched_stretch.jpg)
 
@@ -490,6 +494,49 @@ the fold check or the new chance floors, not from new detections):
 - **One threshold family.** 0.30 and 0.55 are the pano operating points. Nothing was tuned
   for flat photos.
 
+### Is the pose biased? (checked after the example figures)
+
+The two drawn misses suggested that the pose, not the model, could explain some misses:
+the pool ramp's projected bearing lies mid-road and the model fires on a ramp 27–30° off.
+`scripts/analysis/perspective_bearing_check_218.py` tests this from committed files (no
+images, no GPU; about 4 minutes on a desktop CPU). Signed offset = detection bearing −
+pool ramp bearing, positive to the right. canvas_level @ 0.30 unless stated:
+
+- **No systematic heading bias.** The 58 matched hits sit at a median **+2.7° [−0.2,
+  +5.8]** (ramp-cluster bootstrap), a tenth of the bearing window on average. The excess of
+  real over swap-null detections within ±15° of an in-view ramp is centred at +2.5° [−0.9,
+  +7.9]. The stretch arm gives −1.5° [−4.2, +2.7] and +0.3° [−3.4, +5.7], the opposite sign.
+- **No focal / FOV or sign error.** Across the hits, the offset does not grow with the
+  ramp's angle from the heading (6–46°, p10–p90): slope −0.002 [−0.077, +0.063]. A focal
+  error of x% would give a slope of about −0.6x/100 to −x/100 over these angles, so it is
+  under about 10%. A flipped x → bearing sign would give −2.
+- **Correcting the bias changes almost nothing.** Shifting every detection's bearing by
+  −2.7° moves the hit rate 0.199 → 0.209 (above chance 0.106 → 0.115). None of the other
+  shifts tried (±3°, ±5°, ±10°) gets above 0.209. Mapillary's device `compass_angle`, which differs from the SfM
+  `computed_compass_angle` by a median −6.4° (p10/p90 −30° / +20°), gives 0.188 (above
+  chance 0.107).
+- **The misses are mostly silence.** 83% of the 234 missed pairs are in an image with no
+  detection ≥ 0.30 anywhere. A detection 20–40° off the bearing, as in the figures, is
+  next to 6.8% of missed pairs (16), against 6.0% (14.1) for the swap null: about 2 pairs
+  above chance. (Stretch: 24 against 20.7.)
+- **113 of the 1,353 images have no SfM orientation.** Their `computed_rotation` is exactly
+  level (pitch = roll = 0), so §2's "every image carries an SfM pose" holds for heading
+  and position only. They are 54 VIRB, 50 unnamed-camera and 9 other frames, and include
+  the first drawn miss. They hold 31 of the 292 pairs, with **0 hits**. Without them the
+  canvas rate is 58 / 261 = 0.222 (above chance 0.127). This is a sensitivity, not a
+  correction: VIRB and unnamed cameras are at the swap null's level overall, so it does
+  not separate the missing pitch from the camera.
+- **Mid-road bearings are common but not much worse.** In 69 pairs (24%) the pool ramp's
+  projected bearing passes within 2 m of the camera's forward axis, at a median range of
+  11.6 m, i.e. in the roadway for a vehicle in its lane. They are hit 0.130, 0.070 above
+  chance, against 0.077–0.089 above chance for ramps 2–8 m to the side.
+
+**Reading: refuted as a systematic error.** The heading, the x → bearing sign and the
+focal length are right to within a few degrees and a few percent, and the misses are the
+model not firing. What this cannot test is per-image error: SfM position (median 2.7 m
+from the device GPS, p90 8.5 m) and GT error (p90 4.4 m) put some ramps in the in-view
+denominator that the photo does not show. The visual in-view pass (§7) measures that.
+
 ## 6. Seoul: prepared, not scored
 
 **Fetch.** `seoul_photos_218.py manifest` records the Zenodo record's file list.
@@ -602,6 +649,8 @@ python scripts/analysis/perspective_photos_218.py gallery --images IMG
 # Seoul display copies that seoul_photos_218.py gallery writes)
 python scripts/analysis/perspective_figures_218.py render --flat-dir IMG \
   --pano-dir PANOS --seoul-dir benchmark/seoul_presence_218/img
+# CPU, committed files only: the pose-bias check (section 5; add --arm stretch)
+python scripts/analysis/perspective_bearing_check_218.py
 # after a rating pass (several files -> agreement too):
 python scripts/analysis/perspective_photos_218.py rates --verdicts benchmark/richmond_flat_fp_218/richmond_flat_fp__<rater>.json
 
