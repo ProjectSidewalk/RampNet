@@ -12,7 +12,7 @@ weights. This document records those runs. Run 2026-10-01 on branch
 | check | result |
 |---|---|
 | `--decode argmax` vs `main`'s evaluate.py, same cache | **byte-identical** CSVs at thresholds 0.0, 0.30 and 0.55, TTA and single pass. The metrics JSON differs only by the new `decode` key |
-| `--decode argmax` vs the committed `stage_two/evaluation_results_new/` | on the raw HF image bytes: P 0.9474, 7 more FPs at 0.55, a gap already on record. **On quality-95 re-encodes (`download_dataset.py`'s path) it reproduces the committed 0.55 numbers exactly**: 3,603 predictions, P 0.94921, R 0.87267. See [below](#the-committed-evaluation_results_new-files) |
+| `--decode argmax` vs the committed `stage_two/evaluation_results_new/` | on the raw HF image bytes: P 0.9474, 7 more FPs at 0.55, a gap already on record. **On quality-95 re-encodes (`download_dataset.py`'s path) it reproduces the committed 0.55 counts, P and R exactly**: 3,603 predictions, P 0.94921, R 0.87267. Per-peak scores still differ by up to 3e-4. See [below](#the-committed-evaluation_results_new-files) |
 | gaussian vs argmax detection metrics | **one more true positive** at 0.30 and at 0.55 (TTA and single pass). AP +0.0006 to +0.0016 |
 | gaussian position error, single pass | **5.080 → 4.353 px** on 3,517 pairs. This reproduces #226 to the last digit |
 | gaussian position error, flip TTA | **5.066 → 4.366 px** (-0.700 [-0.755, -0.645]) on 3,571 pairs. The shipped branch-select rule beats either single branch in a direct paired test, and ties the branch mean |
@@ -96,7 +96,10 @@ already has RampNet at P 0.947 / R 0.873 against the published 0.949 / 0.873, on
 
 - **Raw bytes vs committed.** At 0.55 there are 7 more predictions and the same 3,420 TPs. Over
   the full sweep there are 597 fewer peaks and 1 more TP. The committed-era code gives the same
-  numbers on these heatmaps, so the cause is upstream of peak extraction.
+  0.55 numbers on these heatmaps (counts, P, R and AP all equal), so the cause is upstream of
+  peak extraction. Its full-sweep AP differs from the current code's by 9e-6 (0.920758 vs
+  0.920767) on the same heatmaps. That is a code difference between a9ed8a5 and main, most
+  likely the #132 seam matcher change; it was not traced further.
 - **Hardware is close to ruled out by this PR's own data** (an argument from the #233 review).
   A40 and RTX 3070 heatmaps differ by at most 3.5e-5 (`roundtrip.json`). About 370 peaks lie in
   [0.30, 0.55), so about 0.1 peaks are expected within 3.5e-5 of 0.55. That is far from 7
@@ -105,20 +108,29 @@ already has RampNet at P 0.947 / R 0.873 against the published 0.949 / 0.873, on
   which is not on makelab2. This run used the Hub safetensors. The two Hub revisions (1078bcd, 606a119)
   are tensor-identical to each other. They were not compared with the training `.pth`.
 - **Settled by the q95 run: the gap is the JPEG re-encode.** Re-encoding the raw bytes at quality
-  95 and running the same evaluate.py with the same weights reproduces the committed 0.55 row
-  exactly (3,603 / P 0.94921 / R 0.87267). It also reproduces the committed full-sweep recall
-  (0.94080), and AP to 1e-5 (0.920524 vs 0.920511). With those numbers matching, a weights
+  95 and running the same evaluate.py with the same weights reproduces the committed 0.55 counts,
+  P and R exactly (3,603 predictions, 3,420 TPs, P 0.94921, R 0.87267). It also reproduces the
+  committed full-sweep recall (0.94080), and the full-sweep AP to 1.2e-5 (0.920524 vs 0.920511).
+  The 0.55 AP is close but not equal (0.8615065 vs 0.8615087). With those numbers matching, a weights
   difference is implausible. The README's headline P 0.949 / R 0.873 therefore depends on
   evaluating `download_dataset.py`'s re-encoded images, not the raw HF bytes. On raw bytes it is
   P 0.947 / R 0.873.
-- **Not byte-identical, and why that is expected.** The CSVs still differ from the committed
-  ones (`q95_vs_committed.txt`). The full sweep has 657 fewer peaks (113,816 vs 114,473), all
-  far below any operating point: the 0.55 counts match. AP differs by 1.3e-5. The remaining
-  differences in low-score peaks and AP are consistent with float noise in near-zero heatmap
-  values across GPU, driver and Pillow/libjpeg versions, plus the #132 seam matcher. The
-  committed run's GPU, driver and Pillow version are unrecorded, so this residual cannot be
-  closed further.
-- Neither decode change nor any code path between a9ed8a5 and #229 moved these numbers.
+- **Not byte-identical: per-peak scores still differ.** The CSVs differ from the committed ones
+  (`q95_vs_committed.txt`). Sorted, the 3,335 confidences in `pr_rc_vs_c_data_*_pt0.55.csv`
+  differ from the committed ones by a median of 1.0e-5 and at most 2.9e-4, and the ranked
+  TP/FP list at 0.55 has the same 3,420 TPs with 44 positions out of order.
+  That is what moves the 0.55 AP. The largest score difference is about 8 times the
+  3.5e-5 A40-vs-RTX-3070 heatmap bound in `roundtrip.json`, so GPU float noise alone is too
+  small to explain it. A different Pillow/libjpeg decode or encode is the better fit: the
+  committed run's Pillow version is unrecorded, and this run used Pillow 11.3.0. Part of the
+  1.2e-5 full-sweep AP residual is the 9e-6 code difference noted above. This residual cannot
+  be closed without the committed run's environment.
+- **The full-sweep low-score peak count is not evidence either way.** The q95 run has 657 fewer
+  peaks than the committed run (113,816 vs 114,473), further off than the raw-bytes run (597
+  fewer), even though q95 matches at 0.55. These peaks are near zero and far below any operating
+  point, so their count does not discriminate between image paths.
+- Neither decode change nor any code path between a9ed8a5 and #229 moved the 0.55 numbers.
+  The only code-side difference found is the 9e-6 full-sweep AP above.
 
 ## 2. Position error against the manual_gold box centres
 
