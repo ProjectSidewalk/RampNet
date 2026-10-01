@@ -386,3 +386,6 @@ analysis_out/decode_e2e_221/*
 !analysis_out/decode_e2e_221/*.json
 !analysis_out/decode_e2e_221/*.md
 !analysis_out/decode_e2e_221/*.txt
+!analysis_out/decode_e2e_221/metrics/
+analysis_out/decode_e2e_221/metrics/*
+!analysis_out/decode_e2e_221/metrics/*.json

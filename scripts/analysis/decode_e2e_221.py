@@ -279,6 +279,26 @@ def cmd_roundtrip(args):
             ok = same_n and d <= args.tol
             all_ok &= ok
             worst[dec] = max(worst[dec], d if same_n else float("inf"))
+            if args.compare_cache:
+                # Another machine's evaluate.py --no-tta caches for the same weights:
+                # informational only (different GPU => fp32 noise), not part of all_match.
+                hc = np.load(os.path.join(args.compare_cache, "heatmaps", args.compare_key,
+                                          f"{pid}_heatmap.npy"))
+                cc = np.load(os.path.join(args.compare_cache, "coarse", args.compare_key,
+                                          f"{pid}_coarse.npy"))
+                other = np.array(ev.extract_peaks_from_heatmap(
+                    hc, ev.PEAK_MIN_DISTANCE, args.threshold, ev.MODEL_HEATMAP_SIZE, dec,
+                    coarse=None if dec == "argmax" else cc), dtype=float).reshape(-1, 3)
+                same = len(other) == len(theirs)
+                rec[dec]["other_machine"] = {
+                    "n": len(other),
+                    "max_abs_diff_px": (float(np.max(np.abs((other[:, :2] - theirs[:, :2])
+                                                            * [HM[1], HM[0]])))
+                                        if same and len(other) else None),
+                    "max_abs_diff_score": (float(np.max(np.abs(other[:, 2] - theirs[:, 2])))
+                                           if same and len(other) else None),
+                    "heatmap_max_abs_diff": float(np.max(np.abs(hc - h))),
+                }
         per.append(rec)
         print(pid, {k: v for k, v in rec.items() if k != "pano"})
     out = {
@@ -324,6 +344,10 @@ def main(argv=None):
     r.add_argument("--threshold", type=float, default=FLOOR)
     r.add_argument("--tol", type=float, default=0.0,
                    help="max abs difference allowed in (x, y, score); 0 = exact")
+    r.add_argument("--compare-cache", default=None,
+                   help="optional: another machine's evaluate.py cache root (--no-tta run) "
+                        "to compare against, informational")
+    r.add_argument("--compare-key", default="f7f255c586ba_manual_notta")
     r.add_argument("--out", required=True)
     args = ap.parse_args(argv)
     {"positions": cmd_positions, "roundtrip": cmd_roundtrip}[args.cmd](args)

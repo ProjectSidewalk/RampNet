@@ -1,0 +1,82 @@
+{
+  "cache_key": "f7f255c586ba_manual_notta",
+  "decodes": {
+    "argmax": {
+      "stats": {
+        "bias_x_px": 0.38529,
+        "bias_y_px": 0.83495,
+        "mean_deg": 1.72606,
+        "mean_px": 5.08024,
+        "median_deg": 1.52261,
+        "median_px": 4.44045,
+        "rms_x_px": 5.06061,
+        "rms_y_px": 3.36389,
+        "sd_x_px": 5.04592,
+        "sd_y_px": 3.25862
+      }
+    },
+    "gaussian": {
+      "stats": {
+        "bias_x_px": 0.29242,
+        "bias_y_px": 0.625433,
+        "mean_deg": 1.47341,
+        "mean_px": 4.35297,
+        "median_deg": 1.20159,
+        "median_px": 3.4911,
+        "rms_x_px": 4.70406,
+        "rms_y_px": 2.69615,
+        "sd_x_px": 4.69497,
+        "sd_y_px": 2.6226
+      },
+      "vs_argmax": {
+        "d_mean_deg": {
+          "ci95": [
+            -0.271413,
+            -0.2333
+          ],
+          "obs": -0.252644
+        },
+        "d_mean_px": {
+          "ci95": [
+            -0.781749,
+            -0.672582
+          ],
+          "obs": -0.727274
+        },
+        "d_sd_x_px": {
+          "ci95": [
+            -0.408296,
+            -0.294333
+          ],
+          "obs": -0.350952
+        },
+        "d_sd_y_px": {
+          "ci95": [
+            -0.694511,
+            -0.574941
+          ],
+          "obs": -0.636018
+        }
+      }
+    }
+  },
+  "elapsed_s": 212.573,
+  "gt_points": 3919,
+  "pair_panos": 787,
+  "pairs": 3517,
+  "panos": 1000,
+  "peaks_ge_0.30": 3868,
+  "protocol": "peaks >= 0.30 via evaluate.extract_peaks_from_heatmap; pairs matched once on argmax positions (greedy by confidence, radius 0.022, x wrapped); pano-cluster bootstrap, 2000 reps, seed 221",
+  "tp_rematched": {
+    "0.30": {
+      "argmax": 3517,
+      "gaussian": 3518
+    },
+    "0.55": {
+      "argmax": 3347,
+      "gaussian": 3348
+    }
+  },
+  "tta": false,
+  "what": "position error of evaluate.py's decodes vs manual_gold box centres, from evaluate.py's own caches (#221 end-to-end check)"
+}

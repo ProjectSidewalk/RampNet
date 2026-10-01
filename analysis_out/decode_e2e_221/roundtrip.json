@@ -2,7 +2,7 @@
   "all_match": true,
   "checkpoint_sha256": "1c67c4b24091026bda968fb2e4dd89d516278171f5a2229fb51882870d8e7c25",
   "device": "cuda",
-  "elapsed_s": 28.0435,
+  "elapsed_s": 26.448,
   "export_dir_files": [
     "README.md",
     "config.json",
@@ -19,13 +19,25 @@
         "max_abs_diff": 0.0,
         "max_abs_diff_px": 0.0,
         "n_detect": 5,
-        "n_eval": 5
+        "n_eval": 5,
+        "other_machine": {
+          "heatmap_max_abs_diff": 2.01464e-05,
+          "max_abs_diff_px": 0.0,
+          "max_abs_diff_score": 1.75238e-05,
+          "n": 5
+        }
       },
       "gaussian": {
         "max_abs_diff": 6.80954e-10,
         "max_abs_diff_px": 4.09254e-07,
         "n_detect": 5,
-        "n_eval": 5
+        "n_eval": 5,
+        "other_machine": {
+          "heatmap_max_abs_diff": 2.01464e-05,
+          "max_abs_diff_px": 0.000263658,
+          "max_abs_diff_score": 1.75238e-05,
+          "n": 5
+        }
       },
       "pano": "-AsFw9IWv8TcycKft1pnRg"
     },
@@ -34,13 +46,25 @@
         "max_abs_diff": 0.0,
         "max_abs_diff_px": 0.0,
         "n_detect": 7,
-        "n_eval": 7
+        "n_eval": 7,
+        "other_machine": {
+          "heatmap_max_abs_diff": 3.46303e-05,
+          "max_abs_diff_px": 0.0,
+          "max_abs_diff_score": 1.63317e-05,
+          "n": 7
+        }
       },
       "gaussian": {
         "max_abs_diff": 8.73111e-10,
         "max_abs_diff_px": 4.47033e-07,
         "n_detect": 7,
-        "n_eval": 7
+        "n_eval": 7,
+        "other_machine": {
+          "heatmap_max_abs_diff": 3.46303e-05,
+          "max_abs_diff_px": 0.00042355,
+          "max_abs_diff_score": 1.63317e-05,
+          "n": 7
+        }
       },
       "pano": "-DZgYpFGlilvQkCCTkJSOQ"
     },
@@ -49,13 +73,25 @@
         "max_abs_diff": 0.0,
         "max_abs_diff_px": 0.0,
         "n_detect": 0,
-        "n_eval": 0
+        "n_eval": 0,
+        "other_machine": {
+          "heatmap_max_abs_diff": 1.03563e-05,
+          "max_abs_diff_px": null,
+          "max_abs_diff_score": null,
+          "n": 0
+        }
       },
       "gaussian": {
         "max_abs_diff": 0.0,
         "max_abs_diff_px": 0.0,
         "n_detect": 0,
-        "n_eval": 0
+        "n_eval": 0,
+        "other_machine": {
+          "heatmap_max_abs_diff": 1.03563e-05,
+          "max_abs_diff_px": null,
+          "max_abs_diff_score": null,
+          "n": 0
+        }
       },
       "pano": "-OLko2tCiulMSeT3PoxiSg"
     },
@@ -64,13 +100,25 @@
         "max_abs_diff": 0.0,
         "max_abs_diff_px": 0.0,
         "n_detect": 6,
-        "n_eval": 6
+        "n_eval": 6,
+        "other_machine": {
+          "heatmap_max_abs_diff": 2.96831e-05,
+          "max_abs_diff_px": 0.0,
+          "max_abs_diff_score": 1.35303e-05,
+          "n": 6
+        }
       },
       "gaussian": {
         "max_abs_diff": 1.12247e-09,
         "max_abs_diff_px": 1.13338e-06,
         "n_detect": 6,
-        "n_eval": 6
+        "n_eval": 6,
+        "other_machine": {
+          "heatmap_max_abs_diff": 2.96831e-05,
+          "max_abs_diff_px": 0.000283868,
+          "max_abs_diff_score": 1.35303e-05,
+          "n": 6
+        }
       },
       "pano": "-UaEiKC62iZG5JaG6c6d0Q"
     },
@@ -79,13 +127,25 @@
         "max_abs_diff": 0.0,
         "max_abs_diff_px": 0.0,
         "n_detect": 3,
-        "n_eval": 3
+        "n_eval": 3,
+        "other_machine": {
+          "heatmap_max_abs_diff": 1.1798e-05,
+          "max_abs_diff_px": 0.0,
+          "max_abs_diff_score": 6.3777e-06,
+          "n": 3
+        }
       },
       "gaussian": {
         "max_abs_diff": 1.49503e-09,
         "max_abs_diff_px": 7.65457e-07,
         "n_detect": 3,
-        "n_eval": 3
+        "n_eval": 3,
+        "other_machine": {
+          "heatmap_max_abs_diff": 1.1798e-05,
+          "max_abs_diff_px": 0.000195026,
+          "max_abs_diff_score": 6.3777e-06,
+          "n": 3
+        }
       },
       "pano": "-daV70yVmSR2yR5C-1JiLg"
     },
@@ -94,13 +154,25 @@
         "max_abs_diff": 0.0,
         "max_abs_diff_px": 0.0,
         "n_detect": 7,
-        "n_eval": 7
+        "n_eval": 7,
+        "other_machine": {
+          "heatmap_max_abs_diff": 2.00868e-05,
+          "max_abs_diff_px": 0.0,
+          "max_abs_diff_score": 8.82149e-06,
+          "n": 7
+        }
       },
       "gaussian": {
         "max_abs_diff": 7.23471e-10,
         "max_abs_diff_px": 6.50509e-07,
         "n_detect": 7,
-        "n_eval": 7
+        "n_eval": 7,
+        "other_machine": {
+          "heatmap_max_abs_diff": 2.00868e-05,
+          "max_abs_diff_px": 0.000285706,
+          "max_abs_diff_score": 8.82149e-06,
+          "n": 7
+        }
       },
       "pano": "-f7RJhr0X4RF_fjC1FdiqQ"
     },
@@ -109,13 +181,25 @@
         "max_abs_diff": 0.0,
         "max_abs_diff_px": 0.0,
         "n_detect": 6,
-        "n_eval": 6
+        "n_eval": 6,
+        "other_machine": {
+          "heatmap_max_abs_diff": 2.28286e-05,
+          "max_abs_diff_px": 0.0,
+          "max_abs_diff_score": 1.12653e-05,
+          "n": 6
+        }
       },
       "gaussian": {
         "max_abs_diff": 1.24827e-09,
         "max_abs_diff_px": 6.39113e-07,
         "n_detect": 6,
-        "n_eval": 6
+        "n_eval": 6,
+        "other_machine": {
+          "heatmap_max_abs_diff": 2.28286e-05,
+          "max_abs_diff_px": 0.000350022,
+          "max_abs_diff_score": 1.12653e-05,
+          "n": 6
+        }
       },
       "pano": "-fD1PF3fh6zES9s9pIk5TQ"
     },
@@ -124,13 +208,25 @@
         "max_abs_diff": 0.0,
         "max_abs_diff_px": 0.0,
         "n_detect": 6,
-        "n_eval": 6
+        "n_eval": 6,
+        "other_machine": {
+          "heatmap_max_abs_diff": 2.13385e-05,
+          "max_abs_diff_px": 0.0,
+          "max_abs_diff_score": 1.47223e-05,
+          "n": 6
+        }
       },
       "gaussian": {
         "max_abs_diff": 9.92753e-10,
         "max_abs_diff_px": 5.08289e-07,
         "n_detect": 6,
-        "n_eval": 6
+        "n_eval": 6,
+        "other_machine": {
+          "heatmap_max_abs_diff": 2.13385e-05,
+          "max_abs_diff_px": 0.00029958,
+          "max_abs_diff_score": 1.47223e-05,
+          "n": 6
+        }
       },
       "pano": "-hkcTXhJtWXi2BoaHDWLXw"
     }
