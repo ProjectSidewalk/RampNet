@@ -1,0 +1,17 @@
+{
+ "arm": "stretch",
+ "cam_h_m": 1.0,
+ "default_hfov_deg": 70.0,
+ "device": "cuda",
+ "elapsed_s": 734.414,
+ "floor": 0.1,
+ "fp16": false,
+ "gpus": [
+  "NVIDIA A40"
+ ],
+ "host": "makelab2",
+ "min_distance": 10,
+ "n_images": 514,
+ "started": "2026-09-30T19:35:42Z",
+ "torch": "2.6.0+cu124"
+}

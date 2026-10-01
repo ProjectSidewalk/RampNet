@@ -24,20 +24,34 @@ first three categories use pairs whose peak is not clipped (score <= 1), was not
 - ``clipped``: among score > 1 pairs (not climbed, not seam) whose argmax is off the
   8i+3 / 8i+4 grid on either axis, the one whose d is closest to their median d.
 
-The mechanism panel uses the first ``typical`` example.
+The ``large`` and ``away`` picks sit near the decode's reach: their Gaussian offsets are
+0.43-0.50 cell, close to ``MAX_OFFSET = 0.5``, so they show the most the decode can move a
+peak, not a typical move. The mechanism panel uses the first ``typical`` example.
 
 Usage (CPU unless --heatmap-source model)::
 
     python scripts/analysis/subcell_decode_221_figures.py \
-        --panos-root D:/Git/RampNet --coarse-dir <dir with manual_gold/<pid>_coarse.npy> \
-        --heatmap-source model --out-dir docs/figures/subcell_decode_221
+        --panos-root <dir holding benchmark/manual_gold/panos> \
+        --detections analysis_out/subcell_decode_221/detections.json \
+        --heatmap-source model --out-dir /tmp/sc221/figures
 
 ``--panos-root`` holds ``benchmark/manual_gold/panos/<pid>.jpg`` (``fetch_manual_gold.py
---images-only``). The coarse map comes from ``extract --cache-dir`` and is checked against
-the sha256 committed in ``detections.json``. ``--heatmap-source model`` runs the released
-checkpoint on that one pano (GPU if available) so the heatmap panel is the model's own
-output; ``coarse`` draws the bilinear upsample of the coarse map instead and says so in
-the panel title. ``--select-only`` prints the selection and needs neither input.
+--images-only``). ``--out-dir`` is required, so a run cannot overwrite the committed
+figures by accident; pass ``docs/figures/subcell_decode_221`` to do it on purpose.
+
+The mechanism panel needs the pano's 64x128 coarse map. Two sources:
+
+- ``--coarse-dir``: an ``extract --cache-dir``. If the map's sha256 equals the one in
+  ``--detections`` it is the run's own map. If not (another GPU or software stack), every
+  stored 3x3 neighbourhood for that pano must agree with it to ``COARSE_TOL``.
+- no ``--coarse-dir`` with ``--heatmap-source model``: the coarse map is recovered from the
+  model's heatmap (``rampnet.subcell.coarse_from_heatmap``) and checked against the stored
+  neighbourhoods the same way. This needs only the Hub model and the HF imagery.
+
+``--heatmap-source model`` runs the released checkpoint on that one pano (GPU if
+available) so the heatmap panel is the model's own output; ``coarse`` draws the bilinear
+upsample of the coarse map instead and says so in the panel title. ``--select-only`` prints
+the selection and needs no imagery.
 """
 import argparse
 import hashlib
@@ -57,6 +71,10 @@ IN_H, IN_W = 2048, 4096           # model input; 4 input px per heatmap px
 SCALE = IN_W // sd.HM[1]
 CELL_IN = sc.FACTOR * SCALE       # 32 input px per coarse cell
 CROP = 256                        # input px (64 heatmap px, 8 coarse cells)
+# Largest |coarse map - stored 3x3 neighbourhood| accepted when the map is not the run's own
+# (sha256 differs). Cross-machine fp32 noise is about 1e-4 (doc section 3); the stored
+# values are rounded to 6 decimals (5e-7).
+COARSE_TOL = 2e-4
 
 # Okabe-Ito (colour-blind safe); every mark also has its own shape.
 C_ARGMAX = "#D55E00"   # vermillion, square
@@ -155,6 +173,7 @@ def rel_x(x_in, x0, width):
 
 def draw_example(ax, img, p):
     import matplotlib.patches as mpatches
+    import matplotlib.patheffects as pe
     gx, gy = p["gt"]
     cx, cy = gx * IN_W, gy * IN_H
     crop, x0, y0 = crop_wrapped(img, cx, cy, CROP)
@@ -170,9 +189,13 @@ def draw_example(ax, img, p):
     best = min(boxes_for(p["pano"]), key=lambda b: (b[0] - gx) ** 2 + (b[1] - gy) ** 2)
     bw, bh = best[2] * IN_W, best[3] * IN_H
     bx = rel_x(cx, x0, IN_W)
+    # yellow alone is hard to see on pale concrete, so the GT marks get a black outline
     ax.add_patch(mpatches.Rectangle((bx - bw / 2, cy - y0 - bh / 2), bw, bh, fill=False,
-                                    ec=C_GT, lw=1.6))
-    ax.plot(bx, cy - y0, "+", ms=14, mew=2.2, color=C_GT)
+                                    ec=C_GT, lw=1.6,
+                                    path_effects=[pe.Stroke(linewidth=3.4, foreground="black"),
+                                                  pe.Normal()]))
+    ax.plot(bx, cy - y0, "+", ms=14, mew=2.2, color=C_GT,
+            path_effects=[pe.Stroke(linewidth=4.2, foreground="black"), pe.Normal()])
     for (x, y), col, mk in ((p["argmax"], C_ARGMAX, "s"), (p["gaussian"], C_GAUSS, "o")):
         ax.plot(rel_x(x * IN_W, x0, IN_W), y * IN_H - y0, mk, ms=9, mfc=col, mec="black",
                 mew=1.0)
@@ -187,10 +210,11 @@ def draw_example(ax, img, p):
                   f"{p['e_gauss']:.1f} px  (d {p['d']:+.1f})", fontsize=9)
 
 
-def contact_sheet(picks, panos_root, path):
+def contact_sheet(picks, info, panos_root, path):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    import matplotlib.patheffects as pe
     from matplotlib.lines import Line2D
     fig, axes = plt.subplots(2, 3, figsize=(12, 10.4), dpi=130)
     for ax, p in zip(axes.ravel(), picks):
@@ -200,13 +224,17 @@ def contact_sheet(picks, panos_root, path):
                Line2D([], [], ls="", marker="o", ms=9, mfc=C_GAUSS, mec="black",
                       label="Gaussian sub-cell decode"),
                Line2D([], [], ls="-", color=C_GT, lw=1.6, marker="+", ms=12, mew=2,
+                      path_effects=[pe.Stroke(linewidth=3.4, foreground="black"),
+                                    pe.Normal()],
                       label="human box and its centre (manual_gold)")]
     fig.legend(handles=handles, loc="upper center", ncol=3, frameon=False, fontsize=10,
                bbox_to_anchor=(0.5, 0.945))
     fig.suptitle("#221: sub-cell decode on manual_gold. 256x256 crops of the 2048x4096 input; "
                  "faint grid = 8x8-px coarse cells of the 512x1024 heatmap.\n"
                  "Distances are on the 512x1024 heatmap grid (1 px = 0.35 deg); "
-                 "d = gaussian - argmax, negative is closer.\nMany manual_gold boxes are "
+                 "d = gaussian - argmax, negative is closer. Over all "
+                 f"{info['eligible_pairs']:,} eligible pairs, {info['frac_closer']:.0%} move "
+                 f"closer; median d {info['median_d']:+.2f} px.\nMany manual_gold boxes are "
                  "only a few px across, so the box is often hidden under its centre mark.",
                  fontsize=10, y=0.995)
     fig.subplots_adjust(left=0.01, right=0.99, bottom=0.03, top=0.87, wspace=0.04,
@@ -215,12 +243,32 @@ def contact_sheet(picks, panos_root, path):
     plt.close(fig)
 
 
-def load_coarse(coarse_dir, pid, want_sha):
-    c = np.load(os.path.join(coarse_dir, "manual_gold", f"{pid}_coarse.npy"))
-    got = hashlib.sha256(c.astype(np.float32).tobytes()).hexdigest()
-    if got != want_sha:
-        raise SystemExit(f"coarse map for {pid}: sha256 {got} != committed {want_sha}")
-    return c.astype(np.float64)
+def neighbourhood_gap(coarse, rec):
+    """Largest |coarse - stored value| over every stored 3x3 neighbourhood of one pano."""
+    worst = 0.0
+    for r, c, s, i, j, steps, nb in rec["dets"]:
+        got = sc.neighbourhood(coarse, i, j, wrap_x=True).ravel()
+        for g, w in zip(got, nb):
+            if w is not None:
+                worst = max(worst, abs(float(g) - w))
+    return worst
+
+
+def check_coarse(coarse, rec, pid, source):
+    """Accept ``coarse`` for ``pid`` if it is the run's own map (same sha256) or agrees with
+    every stored neighbourhood to COARSE_TOL; exit otherwise. Returns it as float64."""
+    got = hashlib.sha256(np.asarray(coarse, np.float32).tobytes()).hexdigest()
+    if got == rec["coarse_sha256"]:
+        print(f"coarse map for {pid} ({source}): sha256 equals the run's")
+        return np.asarray(coarse, np.float64)
+    gap = neighbourhood_gap(coarse, rec)
+    if gap > COARSE_TOL:
+        raise SystemExit(f"coarse map for {pid} ({source}): sha256 differs from the run's and "
+                         f"it disagrees with the stored neighbourhoods by {gap:.2e} "
+                         f"> {COARSE_TOL:.0e}; it is not the same model output")
+    print(f"coarse map for {pid} ({source}): sha256 differs from the run's (another stack); "
+          f"max |diff| to the stored neighbourhoods {gap:.2e} <= {COARSE_TOL:.0e}")
+    return np.asarray(coarse, np.float64)
 
 
 def model_heatmap(panos_root, pid):
@@ -289,7 +337,7 @@ def mechanism(p, coarse, heat, heat_label, mod8, path):
         cj = int(round((c - 3.5) / 8))           # nearest coarse column to this one
         ks = np.arange(i0, i0 + 8)
         ax3.plot(8 * ks + 3.5, coarse[ks, cj % sd.COARSE[1]], "D", ms=6, color="0.1",
-                 mfc="white", label=f"coarse column {cj} at 8i+3.5")
+                 mfc="white", label=f"nearest coarse column {cj}, at 8i+3.5")
         pos = (r, p["gaussian"][1] * sd.HM[0], p["gt"][1] * sd.HM[0])
         what, unit = "column", "row"
     else:
@@ -299,7 +347,7 @@ def mechanism(p, coarse, heat, heat_label, mod8, path):
         ci = int(round((r - 3.5) / 8))           # nearest coarse row to this one
         ks = np.arange(j0, j0 + 8)
         ax3.plot(8 * ks + 3.5, coarse[ci, ks % sd.COARSE[1]], "D", ms=6, color="0.1",
-                 mfc="white", label=f"coarse row {ci} at 8j+3.5")
+                 mfc="white", label=f"nearest coarse row {ci}, at 8j+3.5")
         pos = (c, p["gaussian"][0] * sd.HM[1], p["gt"][0] * sd.HM[1])
         what, unit = "row", "column"
     ax3.axvline(pos[0], color=C_ARGMAX, lw=2, label="argmax")
@@ -307,26 +355,32 @@ def mechanism(p, coarse, heat, heat_label, mod8, path):
     ax3.axvline(pos[2], color="black", lw=1.2, ls=":", label="box centre")
     ax3.set_xlabel(f"heatmap {unit} (px)")
     ax3.set_ylabel("model output")
-    ax3.set_title(f"Profile down the peak {what}: straight lines\nbetween coarse samples, "
-                  "maximum at a sample", fontsize=10)
+    ax3.set_title(f"Profile down the peak {what}: piecewise linear,\nkinks only at the "
+                  "8i+3.5 sample positions", fontsize=10)
     ax3.set_ylim(-0.03, 1.6 * float(heat[r, c]))     # headroom for the legend
     ax3.legend(fontsize=8, loc="upper left")
     ax3.grid(alpha=0.25)
-    series = (("argmax", C_ARGMAX, "argmax"), ("gaussian", C_GAUSS, "Gaussian decode"),
-              ("gt", "0.55", "box centres (GT)"))
+    # bars left to right in this order; hatching repeats the colour coding
+    series = (("argmax", C_ARGMAX, "", "argmax (left bar)"),
+              ("gaussian", C_GAUSS, "//", "Gaussian decode (middle)"),
+              ("gt", "0.55", "..", "box centres, GT (right)"))
     for k, axis in enumerate(("x", "y")):
         ax = fig.add_subplot(gs[1, k])
         w = 0.27
-        for n, (m, col, lab) in enumerate(series):
+        for n, (m, col, hatch, lab) in enumerate(series):
             v = mod8[axis][m]
-            ax.bar(np.arange(8) + (n - 1) * w, v, w * 0.92, color=col, label=lab)
+            ax.bar(np.arange(8) + (n - 1) * w, v, w * 0.92, color=col, hatch=hatch,
+                   edgecolor="black", linewidth=0.4, label=lab)
         ax.set_xticks(range(8))
         ax.set_xlabel(f"{'column' if axis == 'x' else 'row'} mod 8 (heatmap px)")
         ax.set_ylabel("matched pairs")
         ax.set_title(f"manual_gold, {sum(mod8[axis]['argmax']):,} pairs: {axis} mod 8",
                      fontsize=10)
         ax.grid(axis="y", alpha=0.25)
-        ax.legend(fontsize=8, loc="upper left")
+        # Headroom above the tallest bar so the legend clears the argmax bars at 3 and 4
+        # (the legend is wider than columns 5-7, so moving it sideways alone is not enough).
+        ax.set_ylim(0, 1.4 * max(max(mod8[axis][m]) for m, *_ in series))
+        ax.legend(fontsize=8, loc="upper right")
     axn = fig.add_subplot(gs[1, 2])
     axn.axis("off")
     axn.text(0, 0.95, "Reading the panel", fontsize=10, weight="bold", va="top")
@@ -334,10 +388,11 @@ def mechanism(p, coarse, heat, heat_label, mod8, path):
              f"Pano {p['pano']}, peak (row {r}, col {c}),\ncoarse cell ({i}, {j}), "
              f"score {s:.2f}.\n\n"
              "The head ends in a bilinear x8 upsample, so the\n"
-             "heatmap is the coarse map interpolated: each\n"
-             "facet is a plane between four coarse samples,\n"
-             "and an integer argmax can only land on 8i+3 or\n"
-             "8i+4 (the two bars in the argmax histograms).\n\n"
+             "heatmap is the coarse map interpolated: along\n"
+             "any row or column it is linear between coarse\n"
+             "samples (at 8i+3.5), so an integer argmax can\n"
+             "only land on 8i+3 or 8i+4 (the two bars in the\n"
+             "argmax histograms), except on clipped plateaus.\n\n"
              "The Gaussian decode reads the 3x3 coarse\n"
              "neighbourhood instead; its x positions spread\n"
              "like the box centres. The y pile at 5-6 is where\n"
@@ -354,12 +409,14 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--detections", default=sd.DETS)
     ap.add_argument("--panos-root", help="dir holding benchmark/manual_gold/panos/*.jpg")
-    ap.add_argument("--coarse-dir", help="extract --cache-dir (manual_gold/<pid>_coarse.npy)")
+    ap.add_argument("--coarse-dir",
+                    help="extract --cache-dir (manual_gold/<pid>_coarse.npy); optional with "
+                         "--heatmap-source model, which recovers the map from the heatmap")
     ap.add_argument("--heatmap-source", choices=("model", "coarse"), default="coarse",
                     help="model: run the released checkpoint on the mechanism pano; "
                          "coarse: bilinear upsample of the coarse map (CPU)")
-    ap.add_argument("--out-dir", default=os.path.join(sd.REPO, "docs", "figures",
-                                                      "subcell_decode_221"))
+    ap.add_argument("--out-dir", help="required unless --select-only; the committed figures "
+                                      "are docs/figures/subcell_decode_221")
     ap.add_argument("--select-only", action="store_true")
     a = ap.parse_args(argv)
     import json
@@ -367,6 +424,10 @@ def main(argv=None):
         D = json.load(f)
     pairs = pair_table(D)
     picks, info = select(pairs)
+    ds = np.array([p["d"] for p in pairs if p["det"][2] <= 1 and p["det"][5] == 0
+                   and p["det"][4] not in (0, sd.COARSE[1] - 1)])
+    info["median_d"] = float(np.median(ds))
+    info["frac_closer"] = float(np.mean(ds < 0))
     print(f"{len(pairs)} manual_gold pairs; {info}")
     for p in picks:
         r, c, s, i, j, steps, _ = p["det"]
@@ -374,21 +435,32 @@ def main(argv=None):
               f"argmax {p['e_argmax']:.2f} -> gaussian {p['e_gauss']:.2f} px (d {p['d']:+.2f})")
     if a.select_only:
         return 0
-    if not (a.panos_root and a.coarse_dir):
-        raise SystemExit("--panos-root and --coarse-dir are required unless --select-only")
-    os.makedirs(a.out_dir, exist_ok=True)
-    contact_sheet(picks, a.panos_root, os.path.join(a.out_dir, "examples_contact_sheet.jpg"))
+    if not (a.panos_root and a.out_dir):
+        raise SystemExit("--panos-root and --out-dir are required unless --select-only")
+    if not a.coarse_dir and a.heatmap_source != "model":
+        raise SystemExit("--coarse-dir is required unless --heatmap-source model")
+    # Load and check the coarse map before writing anything, so a failed check leaves
+    # --out-dir untouched rather than holding a new contact sheet and a stale panel.
     mp = next(p for p in picks if p["category"] == "typical")
-    coarse = load_coarse(a.coarse_dir, mp["pano"],
-                         D["panos"]["manual_gold"][mp["pano"]]["coarse_sha256"])
-    if a.heatmap_source == "model":
-        heat = model_heatmap(a.panos_root, mp["pano"])
+    rec = D["panos"]["manual_gold"][mp["pano"]]
+    heat = model_heatmap(a.panos_root, mp["pano"]) if a.heatmap_source == "model" else None
+    if a.coarse_dir:
+        coarse = check_coarse(np.load(os.path.join(a.coarse_dir, "manual_gold",
+                                                   f"{mp['pano']}_coarse.npy")),
+                              rec, mp["pano"], a.coarse_dir)
+    else:
+        coarse = check_coarse(sc.coarse_from_heatmap(heat), rec, mp["pano"],
+                              "recovered from the model heatmap")
+    if heat is not None:
         diff = float(np.abs(heat - sc.upsample(coarse)).max())
         print(f"mechanism pano {mp['pano']}: max |model heatmap - upsample(coarse)| = "
               f"{diff:.2e}")
         label = "model output"
     else:
         heat, label = sc.upsample(coarse), "bilinear upsample of the coarse map"
+    os.makedirs(a.out_dir, exist_ok=True)
+    contact_sheet(picks, info, a.panos_root,
+                  os.path.join(a.out_dir, "examples_contact_sheet.jpg"))
     mod8 = {ax: {} for ax in ("x", "y")}
     for m in ("argmax", "gaussian"):
         xy = np.array([p[m] for p in pairs])
