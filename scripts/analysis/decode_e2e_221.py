@@ -186,6 +186,7 @@ def cmd_positions(args):
     rng = np.random.default_rng(SEED)
     res = {}
     base = None
+    resid = {}
     for name in ["argmax", "gaussian"] + [n for n in rows if n not in ("argmax", "gaussian")]:
         r = np.array(rows[name])
         pano_idx = r[:, 0].astype(int)
@@ -195,6 +196,14 @@ def cmd_positions(args):
             base = (pano_idx, d)
         else:
             res[name]["vs_argmax"] = s221.paired_boot(pano_idx, base[1], d, rng, args.reps)
+        resid[name] = d
+    # #233 review S2: the TTA branch rules compared *directly* with the shipped rule, each
+    # on the same pairs with its own seeded resample (obs = shipped - alternative, so a
+    # negative d_mean_px means the shipped rule is closer to the box centres).
+    shipped_vs = {}
+    for name in (n for n in rows if n not in ("argmax", "gaussian")):
+        shipped_vs[name] = s221.paired_boot(pano_idx, resid[name], resid["gaussian"],
+                                             np.random.default_rng(SEED), args.reps)
     n_gt = sum(sum(s) for p, (_, s) in gts.items() if p in set(pids))
     out = {
         "what": "position error of evaluate.py's decodes vs manual_gold box centres, from "
@@ -206,6 +215,7 @@ def cmd_positions(args):
                     "on argmax positions (greedy by confidence, radius 0.022, x wrapped); "
                     f"pano-cluster bootstrap, {args.reps} reps, seed {SEED}",
         "decodes": res,
+        "shipped_minus_alternative": shipped_vs,
         "tp_rematched": {f"{op:.2f}": tp[op] for op in OPS},
         "elapsed_s": time.time() - t0,
     }
@@ -220,6 +230,9 @@ def cmd_positions(args):
             d = v["vs_argmax"]["d_mean_px"]
             line += f"  d {d['obs']:+.3f} [{d['ci95'][0]:+.3f}, {d['ci95'][1]:+.3f}]"
         print(line)
+    for name, v in shipped_vs.items():
+        d = v["d_mean_px"]
+        print(f"shipped - {name:12s} {d['obs']:+.3f} [{d['ci95'][0]:+.3f}, {d['ci95'][1]:+.3f}] px")
     print("TP rematched:", out["tp_rematched"])
 
 
@@ -325,6 +338,73 @@ def cmd_roundtrip(args):
         sys.exit(1)
 
 
+def cmd_demo(args):
+    """Run stage_two/demo.py's own inference function headless (gradio stubbed out) and
+    compare the marks it would draw with evaluate.py's TTA path on the same panos.
+
+    demo.py builds its own coarse stack in-process and crops/resizes the input, so this
+    exercises code evaluate.py does not. The demo draws peaks >= 0.4 with skimage's
+    default exclude_border=True, so evaluate's side is extracted the same way from
+    evaluate.predict_heatmap(..., use_tta=True, return_coarse=True)."""
+    import types
+    import torch
+    from PIL import Image
+
+    calls = []
+    gr = types.ModuleType("gradio")       # demo.py builds a gr.Interface at import time
+
+    class _Iface:
+        def __init__(self, *a, **k):
+            pass
+
+        def launch(self, *a, **k):
+            pass
+
+    gr.Interface, gr.Image = _Iface, (lambda *a, **k: None)
+    sys.modules["gradio"] = gr
+    out = {"what": "stage_two/demo.py --decode gaussian, run headless, vs evaluate.py TTA "
+                   "extraction (threshold 0.4, exclude_border=True) on the same panos",
+           "panos": []}
+    worst = 0.0
+    ok_all = True
+    for dec in ("gaussian", "argmax"):
+        sys.argv = ["demo.py", "--checkpoint", args.checkpoint, "--decode", dec]
+        demo = _load(f"rampnet_stage_two_demo_{dec}", os.path.join(REPO, "stage_two", "demo.py"))
+        real = demo.detect_peaks
+
+        def spy(*a, **k):
+            r = real(*a, **k)
+            calls.append(r)
+            return r
+        demo.detect_peaks = spy
+        pids = sorted(p[:-4] for p in os.listdir(args.panos_dir) if p.endswith(".jpg"))[:args.n]
+        for pid in pids:
+            img = Image.open(os.path.join(args.panos_dir, pid + ".jpg")).convert("RGB")
+            calls.clear()
+            drawn = demo.predict_and_visualize(img)
+            assert drawn is not None and len(calls) == 1
+            mine = calls[0]
+            h, coarse = ev.predict_heatmap(demo.model, img, use_tta=True, return_coarse=True)
+            ref = sc.detect_peaks(h, 0.4, min_distance=10, decode=dec, exclude_border=True,
+                                  coarse=None if dec == "argmax" else coarse)
+            same = mine.shape == ref.shape
+            d = float(np.max(np.abs(mine - ref))) if same and len(ref) else 0.0
+            ok = same and d <= args.tol
+            ok_all &= ok
+            worst = max(worst, d)
+            out["panos"].append({"pano": pid, "decode": dec, "n_demo": len(mine),
+                                 "n_evaluate": len(ref), "max_abs_diff_px": d, "ok": ok})
+            print(pid, dec, len(mine), len(ref), d)
+        del demo
+        torch.cuda.empty_cache()
+    out.update(all_match=bool(ok_all), worst_max_abs_diff_px=worst, tol_px=args.tol,
+               device=str(ev.DEVICE),
+               gpu=torch.cuda.get_device_name(0) if torch.cuda.is_available() else None)
+    write_json(args.out, out)
+    if not ok_all:
+        sys.exit(1)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -349,8 +429,17 @@ def main(argv=None):
                         "to compare against, informational")
     r.add_argument("--compare-key", default="f7f255c586ba_manual_notta")
     r.add_argument("--out", required=True)
+    d = sub.add_parser("demo")
+    d.add_argument("--checkpoint", required=True, help="local .pth of the released weights")
+    d.add_argument("--panos-dir", required=True)
+    d.add_argument("--n", type=int, default=3)
+    d.add_argument("--tol", type=float, default=1e-3,
+                   help="max abs difference in heatmap px (both sides decode in float64 "
+                        "from the same in-process maps, so this should be ~0)")
+    d.add_argument("--out", required=True)
     args = ap.parse_args(argv)
-    {"positions": cmd_positions, "roundtrip": cmd_roundtrip}[args.cmd](args)
+    {"positions": cmd_positions, "roundtrip": cmd_roundtrip,
+     "demo": cmd_demo}[args.cmd](args)
 
 
 if __name__ == "__main__":
