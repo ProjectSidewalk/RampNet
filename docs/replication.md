@@ -475,7 +475,7 @@ creates for each entry and deletes afterwards. `{local_root}` is the value of `-
 
 The run was on 2026-09-30, on `infra/check-all-runner` at its base, `origin/main` = `a45bb91`
 (the merge of #222, after #219 and #220). Command: `python scripts/check_all.py --all --allow
-local-cache --local-root D:/Git/RampNet`. Result: **18 passed, 0 failed, 0 skipped in 616 s.**
+local-cache --local-root D:/Git/RampNet`. Result: **18 passed, 0 failed, 0 skipped in 616 s.** A repeat at `763cef7` (the same tree plus this section), committed as `analysis_out/check_all/latest.json`, gave the same 18 PASS in 592 s.
 No pin needed regenerating and no file was rewritten. The `--ci` subset alone gave 15 passed,
 3 skipped, in 163 s. `analysis_out/check_all/latest.json` is the committed `--all` result. Its
 only nondeterministic fields are the seconds and the commit it ran on.
