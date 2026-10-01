@@ -134,6 +134,31 @@ coordinates = [(int(c * scale_w), int(r * scale_h)) for r, c in peaks]
 print(coordinates)
 ```
 
+**Sub-cell decode (recommended for localization).** The 512x1024 heatmap size is nominal: its
+effective resolution is **64x128**. The backbone has stride 32 and the head ends in a linear 1x1
+conv after a bilinear x8 upsample, so the heatmap is exactly a bilinear upsample of a 64x128 map,
+and the `peak_local_max` pixels above are quantized to an 8-px grid (rows and columns 3 or 4 mod
+8; 2.8 degrees, a half-cell floor of 1.4 degrees per axis). A Gaussian (log-parabola) decode of
+each peak's 3x3 coarse neighbourhood recovers the sub-cell position without retraining. On the
+1,000-panorama gold set it cuts the mean distance to independent human box centres from 5.08 to
+4.35 heatmap px, while matched detection counts move by at most one per split
+([`docs/subcell_decode_221.md`](docs/subcell_decode_221.md), [#221](https://github.com/ProjectSidewalk/RampNet/issues/221)):
+```py
+# Works today, inside this repo (pip install -e .): heatmap-grid positions, scaled to the image.
+from rampnet.subcell import detect_peaks
+rcs = detect_peaks(heatmap, 0.5, decode="gaussian", clip=True)   # (N, 3) row, col, score
+coordinates = [(c * scale_w, r * scale_h) for r, c, _ in rcs]
+
+# NOT YET ON THE HUB (as of 2026-09-30): the published projectsidewalk/rampnet-model has
+# no detect() until the package is re-exported, so this raises AttributeError today.
+# detections = model.detect(heatmap, threshold=0.5, decode="gaussian")[0]   # (x, y, score)
+```
+Pass the **raw, single-pass** heatmap (as above: not clipped, not TTA-combined); `clip=True` finds
+peaks on `clip(heatmap, 0, 1)` as the snippet above does, while decoding from the raw values.
+`decode="argmax"` returns exactly the `peak_local_max` pixels (with `exclude_border=False`, as
+`stage_two/evaluate.py` uses). `stage_two/evaluate.py` and `stage_two/demo.py` take
+`--decode {argmax,gaussian}`, default `argmax` so the published numbers reproduce unchanged.
+
 | Predicted Heatmap   | Extracted Points |
 | -------- | ------- |
 | ![Predicted Heatmap](/assets/heatmap.png "Predicted Heatmap")  | ![Extracted Points](/assets/labeled.png "Extracted Points")    |

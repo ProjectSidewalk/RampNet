@@ -43,6 +43,28 @@ from hf_export_common import git_commit  # noqa: E402,F401 - re-exported; tests 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PACKAGE_DIR = os.path.join(REPO_ROOT, "scripts", "hf_package")
 
+#: Canonical repo modules shipped verbatim into the Hub package, as
+#: {name in the package: path under REPO_ROOT}. The modeling code imports them
+#: relatively, so the Hub package can never fork the architecture (rampnet_model.py)
+#: or the peak decode (rampnet_subcell.py, #221). Each must import nothing outside
+#: numpy / torch / timm / the package itself (scikit-image is imported lazily).
+VERBATIM_COPIES = {
+    "rampnet_model.py": os.path.join("rampnet", "model.py"),
+    "rampnet_subcell.py": os.path.join("rampnet", "subcell.py"),
+}
+#: Package files that live in scripts/hf_package/ and are copied as-is.
+PACKAGE_FILES = ("configuration_rampnet.py", "modeling_rampnet.py")
+
+
+def copy_code_files(output_dir):
+    """Copy the remote-code files into ``output_dir``; returns the shipped names."""
+    os.makedirs(output_dir, exist_ok=True)
+    for dst, src in VERBATIM_COPIES.items():
+        shutil.copy(os.path.join(REPO_ROOT, src), os.path.join(output_dir, dst))
+    for fname in PACKAGE_FILES:
+        shutil.copy(os.path.join(PACKAGE_DIR, fname), os.path.join(output_dir, fname))
+    return sorted(VERBATIM_COPIES) + list(PACKAGE_FILES)
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Export a stage-2 checkpoint as a HuggingFace model package.")
@@ -142,6 +164,13 @@ def render_eval_section(metrics_json_path, ap_json_path=None):
             f"AP must come from a full-sweep run (peak_threshold_abs=0.0); got "
             f"{ap_source.get('peak_threshold_abs')} in {ap_json_path or metrics_json_path}. "
             "Pass the pt0.0 metrics file via --ap-json.")
+    # evaluate.py records the peak decode (#221); files from before it are argmax.
+    decode = m.get('decode', 'argmax')
+    ap_decode = ap_source.get('decode', 'argmax')
+    if ap_decode != decode:
+        raise ValueError(
+            f"--metrics-json decode {decode!r} and --ap-json decode {ap_decode!r} disagree; "
+            "the card's AP and P/R must come from the same peak decode.")
     lines = [
         "| Metric | Value |",
         "| :--- | :--- |",
@@ -151,6 +180,7 @@ def render_eval_section(metrics_json_path, ap_json_path=None):
         f"| Ground-truth points | {m['total_gt_points']} |",
         f"| Matching radius (normalized) | {m['radius_threshold_normalized']} |",
         f"| Flip TTA | {'on' if m.get('tta', True) else 'off'} |",
+        f"| Peak decode | {decode} |",
     ]
     return "\n".join(lines)
 
@@ -170,15 +200,10 @@ def assemble_package(output_dir, reference_model, recommended_threshold=0.55):
     # dynamic-module loader will resolve them.
     from hf_package.configuration_rampnet import RampNetConfig  # noqa: E402
 
-    os.makedirs(output_dir, exist_ok=True)
-
     # The modeling code shipped to the Hub imports the architecture from
-    # rampnet_model.py, copied verbatim from the canonical rampnet/model.py so
-    # the Hub package can never fork the architecture.
-    shutil.copy(os.path.join(REPO_ROOT, "rampnet", "model.py"),
-                os.path.join(output_dir, "rampnet_model.py"))
-    for fname in ("configuration_rampnet.py", "modeling_rampnet.py"):
-        shutil.copy(os.path.join(PACKAGE_DIR, fname), os.path.join(output_dir, fname))
+    # rampnet_model.py and the peak decode from rampnet_subcell.py, both copied
+    # verbatim from the canonical rampnet/ modules (VERBATIM_COPIES).
+    copy_code_files(output_dir)
 
     config = RampNetConfig(recommended_threshold=recommended_threshold)
     config.auto_map = {

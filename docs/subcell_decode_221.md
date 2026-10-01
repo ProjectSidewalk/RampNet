@@ -369,7 +369,9 @@ scores = h[pk[:, 0], pk[:, 1]]                                 # confidence is u
 ```
 
 `method="argmax"` returns the input peaks unchanged, so the rule can be switched off without a code
-path change. The coarse map is recovered with a cached pseudo-inverse, costing two small matrix
+path change. Since section 10, `rampnet.subcell.detect_peaks(h, 0.30, decode="gaussian", clip=True)`
+does the extraction and the refinement in one call, and it is what `stage_two/evaluate.py`,
+`stage_two/demo.py` and the Hugging Face package use. The coarse map is recovered with a cached pseudo-inverse, costing two small matrix
 products per heatmap.
 
 ## 8. Reproduction
@@ -510,3 +512,117 @@ The extract row is in `analysis_out/usage_log.jsonl`
 (`run_id` `subcell-decode-221:extract:2026-09-30T18:35:42Z`, `paid: false`). Of the 2,579 s, the
 forward passes took 1,812 s (1.2 s/pano, with the GPU shared) and single-threaded JPEG decode of
 the 8k-16k native panos took 688 s. The GPU share was not measured, so the row keeps `gpu_share: 1.0` and its GPU-hours are an upper bound. `verify-imagery` (CPU, makelab2, after the review) is not in the ledger, and neither is the smoke test.
+
+## 10. Shipping (items 1 and 2)
+
+Added after the measurement above, on branch `feat/subcell-decode-ship-221` (stacked on PR #226).
+It makes the decode available wherever a peak is extracted. **Nothing in sections 1-9 was re-run,
+and no published number changes by default.**
+
+**One entry point.** `rampnet.subcell.detect_peaks(heatmap, threshold, min_distance=10,
+decode="argmax", *, exclude_border=False, clip=False, coarse=None, wrap_x=False, factor=8,
+return_pixels=False)` returns float `(row, col, score)` rows on the heatmap's own grid.
+
+- `decode="argmax"` runs `peak_local_max(heatmap, min_distance, threshold_abs=threshold,
+  exclude_border=False)` and returns those pixels unchanged. It is bit-identical to the call
+  `stage_two/evaluate.py` always made: same pixels, and the score read at that pixel.
+- `decode="gaussian"` (or any rule in `METHODS`) applies `refine_peaks`. It finds the same peaks
+  with the same scores and moves only their positions.
+- The coarse map has to come from the **raw single-pass** head output, because only that is
+  exactly a bilinear upsample. `clip=True` finds peaks on `clip(h, 0, 1)` and decodes from the raw
+  `h`, which is the section 3 protocol. `coarse=` takes a precomputed map, or a `(B, 64, 128)`
+  stack with one map per flip-TTA branch. With a stack, each peak is decoded from the branch whose
+  upsampled value is highest at that pixel, which is the branch the max-combine took it from.
+  **TTA decoding was not measured** (section 5).
+- `wrap_x` defaults to off, as measured.
+- The function only needs the heatmap to be a multiple of 8. The crop model's 256x88 heatmap
+  (32x11 coarse) works the same way (`wrap_x` must stay off there). It is tested on synthetic maps
+  only; the crop model's decode was never measured.
+
+**Where it is wired, and the defaults.**
+
+| path | flag / API | default | why |
+|---|---|---|---|
+| `stage_two/evaluate.py` | `--decode {argmax,gaussian}` | `argmax` | every published number and committed `evaluation_results*/` file used argmax |
+| `stage_two/demo.py` | `--decode {argmax,gaussian}` | `argmax` | the demo draws exactly what it drew before (it keeps skimage's default `exclude_border=True`, the #132 defect, for that reason) |
+| HF package | `RampNetModel.detect(inputs, threshold=None, decode="gaussian", min_distance=None, wrap_x=False)` | `gaussian` | a new API with no published number behind it, so it defaults to the measured, recommended rule. Jon may overrule this |
+
+**evaluate.py's cache.** `evaluate_cache/heatmaps/<fingerprint>_<dataset>_<tta|notta>/` stores
+the clipped, TTA max-combined heatmaps, not peaks. The decode does not change those maps, so it is
+deliberately **not** part of their key: argmax reads exactly the cache it always read, and argmax
+and gaussian runs share it. A refining decode cannot be read from those maps, which are clipped
+and (with TTA) a max of two surfaces. So `--decode gaussian` adds
+`evaluate_cache/coarse/<same key>/<pano>_coarse.npy`, a float32 `(B, 64, 128)` stack of the raw
+branches' coarse maps. The maps are cast to float32 before use, so a decode read back from the
+cache equals one computed fresh. If a heatmap is cached but its coarse map is not, the model is
+re-run for the coarse map only, and the existing heatmap is kept so that peaks still come from the
+map an argmax run used.
+
+*Corrected after the [review of PR #229](https://github.com/ProjectSidewalk/RampNet/pull/229#pullrequestreview-5373695786) (S1).*
+The first version said "`--fresh` clears both directories". That was false for an argmax run,
+which cleared only `heatmaps/` and could leave old coarse maps to be paired with new heatmaps.
+Two changes fix it:
+
+- `--fresh` now clears `coarse/<key>` whenever it clears `heatmaps/<key>`, whatever the decode
+  (`prepare_cache_dirs()`).
+- Before a refining decode uses a coarse stack, it re-builds the heatmap from that stack
+  (`max_b clip(upsample(coarse_b), 0, 1)`) at every peak pixel and compares the result with the
+  cached heatmap (`rampnet.subcell.coarse_mismatch`). Agreement above `COARSE_ATOL` = 1e-3 is
+  required; float32 storage noise is about 1e-7. On a mismatch the run raises `StaleCoarseCache`
+  and names `--fresh`. The comparison covers the **whole map**, not only the peak pixels: when a
+  peak is clipped at 1, a stale map and a fresh map agree at the peak and differ only on its flanks
+  (re-review N3; `test_stale_coarse_with_saturated_peak_raises`).
+
+The check covers both stale pairings: old coarse maps beside new heatmaps, and a coarse map
+recomputed for a heatmap cached by a different model or preprocessing.
+
+Two related guards came from the same review (S2):
+
+- `detect_peaks` with `coarse=None` and a refining decode raises `ValueError` when the heatmap is
+  not an exact x8 upsample. The threshold is a relative residual above `UPSAMPLE_RTOL` = 1e-4,
+  and a raw fp32 head output measures about 1e-7. Examples are a clipped peak, a TTA max, or a
+  heatmap from a non-2048x4096 input, where the factor is no longer 8. In those cases a
+  least-squares coarse map can land further from the truth than argmax.
+- `RampNetModel.detect` rejects `pixel_values` that are not `config.input_size` unless
+  `decode="argmax"`. Result files from a refining decode are tagged
+`_dgaussian` (e.g. `metrics_manual_r0.022_pt0.0_dgaussian.json`) so they cannot overwrite the
+committed argmax files. `metrics.json` records `decode` either way. `cache_dirs()` and
+`results_params_str()` are pinned by `tests/test_decode_ship_221.py`.
+
+**Hugging Face package.** `scripts/export_hf_model.py` now ships `rampnet/subcell.py` verbatim as
+`rampnet_subcell.py` (`VERBATIM_COPIES`, beside `rampnet_model.py`), and `modeling_rampnet.py`
+imports `detect_peaks` from it. `subcell.py` imports only numpy and stdlib at module level.
+scikit-image is imported inside a `try` in `detect_peaks`, so the remote-code loader (which skips
+`try` blocks when listing required packages) does not start requiring it to load the model. Only
+`detect()` needs it. Both the model card template and the README now say that `heatmap_size` is
+nominal (64x128 effective, 8-px grid, half-cell floor 1.4 degrees) and show `model.detect(...,
+decode="gaussian")` beside the `peak_local_max` snippet. The card's `peak_local_max` snippet now
+passes `exclude_border=False`, matching evaluate.py (#132).
+
+**How to turn it on.**
+
+```bash
+python stage_two/evaluate.py --checkpoint <ckpt> --dataset manual --decode gaussian
+python stage_two/demo.py --decode gaussian
+```
+
+```python
+from rampnet.subcell import detect_peaks
+rcs = detect_peaks(h_raw, 0.30, decode="gaussian", clip=True)   # (N, 3) row, col, score
+```
+
+**What was not run.**
+
+- No `evaluate.py --decode gaussian` run. No GPU or checkpoint was available on the machine that
+  did this work. Section 6's claim that matched counts move by at most one per split comes from
+  the section 4 pairs (single pass, >= 0.30), not from an evaluate.py run. evaluate.py defaults to
+  flip TTA, and TTA decoding is unmeasured. Any gaussian AP or P/R figure would be new and has not
+  been produced.
+- No end-to-end export. `export_hf_model.py` needs a checkpoint. The file copy, the remote-code
+  load (`AutoModel.from_pretrained(..., trust_remote_code=True)` on a package assembled from
+  random weights) and `detect()` are tested on CPU. Exporting from the released weights and
+  uploading to `projectsidewalk/rampnet-model` is a separate step for Jon, and nothing was pushed
+  to the Hub. Until it is done, the published package has no `detect()`, and the README's second
+  snippet (`rampnet.subcell.detect_peaks`) is the way to get the decode.
+- The demo's `--decode gaussian` path was not launched (it needs gradio and a model). It uses the
+  same `detect_peaks` call that the tests cover.

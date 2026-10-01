@@ -8,11 +8,13 @@ from torchvision import transforms
 import matplotlib.pyplot as plt
 import json
 from tqdm import tqdm
-from skimage.feature import peak_local_max
 import csv
 
 from rampnet.model import KeypointModel
 from rampnet.loading import load_checkpoint, checkpoint_fingerprint
+from rampnet.subcell import (
+    COARSE_ATOL, DECODES, coarse_from_heatmap, coarse_mismatch, detect_peaks,
+)
 from rampnet.metrics import (
     calculate_ap_and_pr_curve,
     calculate_pr_rc_confidence_curves,
@@ -26,7 +28,7 @@ RADIUS_THRESHOLD_NORMALIZED = 0.022
 PEAK_MIN_DISTANCE = 10
 
 
-def parse_args():
+def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="Evaluate the stage-2 panorama curb ramp detector.")
     parser.add_argument('--checkpoint', default="checkpoints/epoch_1_step_9378.pth",
                         help="Path to the trained checkpoint")
@@ -46,10 +48,64 @@ def parse_args():
     parser.add_argument('--cache-dir', default='evaluate_cache',
                         help="Heatmap cache root (keyed by checkpoint hash + dataset + TTA setting)")
     parser.add_argument('--fresh', action='store_true',
-                        help="Delete this checkpoint's cached heatmaps before evaluating")
+                        help="Delete this checkpoint's cached heatmaps and coarse maps (both, whatever --decode) before evaluating")
     parser.add_argument('--results-dir', default='evaluation_results',
                         help="Where plots, CSVs, and metrics.json are written")
-    return parser.parse_args()
+    parser.add_argument('--decode', choices=DECODES, default='argmax',
+                        help="Peak position rule (#221). 'argmax' (default) is the pixel "
+                             "peak_local_max returns -- every published number used it. "
+                             "'gaussian' refines each peak to its sub-cell position from the "
+                             "64x128 coarse map (docs/subcell_decode_221.md). The decode never "
+                             "changes which peaks are found or their scores, only their position. "
+                             "'gaussian' also caches per-branch coarse maps under "
+                             "<cache-dir>/coarse/ (heatmaps are clipped, so they cannot be decoded "
+                             "exactly) and tags the result filenames with _dgaussian.")
+    return parser.parse_args(argv)
+
+
+def cache_dirs(cache_root, ckpt_fingerprint, dataset_id_str, use_tta, decode='argmax'):
+    """Where evaluate() caches model outputs for one (weights, dataset, TTA) setting.
+
+    ``heatmaps`` holds the clipped (TTA max-combined) heatmaps peaks are found on. The
+    decode does not change them, so it is deliberately *not* part of their key: argmax
+    and gaussian runs share them, and an argmax run reads exactly the cache it always
+    has. ``coarse`` holds what a refining decode reads instead -- the 64x128 coarse map
+    of each *raw* single-pass branch. It cannot be derived from the cached heatmap,
+    which is clipped to [0, 1] and, with TTA, a max of two surfaces. Both directories
+    carry the same key, so ``coarse/`` is never read under different weights, dataset
+    or TTA than the heatmaps it sits beside.
+
+    Both paths are returned for every decode (an argmax run only reads ``heatmaps``),
+    so ``--fresh`` can clear them together: clearing only the heatmaps would leave
+    coarse maps from the old run to be paired with new heatmaps (#229 review S1).
+    ``decode`` is accepted for symmetry and does not change the paths.
+    """
+    cache_key = f"{ckpt_fingerprint}_{dataset_id_str}_{'tta' if use_tta else 'notta'}"
+    return {
+        'heatmaps': os.path.join(cache_root, "heatmaps", cache_key),
+        'coarse': os.path.join(cache_root, "coarse", cache_key),
+    }
+
+
+def prepare_cache_dirs(dirs, fresh, decode):
+    """``--fresh`` clears the heatmap *and* coarse caches, whatever the decode; then the
+    directories this decode writes are created."""
+    if fresh:
+        for d in (dirs['heatmaps'], dirs['coarse']):
+            if os.path.isdir(d):
+                print(f"--fresh: clearing cache {d}")
+                shutil.rmtree(d)
+    os.makedirs(dirs['heatmaps'], exist_ok=True)
+    if decode != 'argmax':
+        os.makedirs(dirs['coarse'], exist_ok=True)
+
+
+def results_params_str(threshold, decode='argmax'):
+    """Suffix of every results filename. argmax keeps the historical name, so the
+    committed evaluation_results*/ files are what an argmax run regenerates; any other
+    decode is tagged so it cannot overwrite them."""
+    s = f"r{RADIUS_THRESHOLD_NORMALIZED}_pt{threshold}"
+    return s if decode == 'argmax' else f"{s}_d{decode}"
 
 
 def load_trained_model(checkpoint_path, heatmap_size):
@@ -70,17 +126,43 @@ preprocess_transform = transforms.Compose([
 ])
 
 
-def extract_peaks_from_heatmap(heatmap_np, min_distance, threshold_abs, heatmap_shape):
+class StaleCoarseCache(ValueError):
+    """A cached coarse stack does not re-build the heatmap it was paired with."""
+
+
+def extract_peaks_from_heatmap(heatmap_np, min_distance, threshold_abs, heatmap_shape,
+                               decode='argmax', coarse=None):
+    """(x_norm, y_norm, confidence) per peak, via rampnet.subcell.detect_peaks.
+
+    With decode='argmax' this is the historical extractor exactly: the same
+    peak_local_max call (exclude_border=False, the #132 fix), the same integer pixel
+    divided by the heatmap size, and the confidence read at that pixel in the heatmap's
+    own dtype. ``coarse`` is what a refining decode reads (see cache_dirs()). Before
+    it is used, ``max_b clip(upsample(coarse_b))`` is compared with the heatmap over the
+    whole map; a disagreement above COARSE_ATOL raises StaleCoarseCache.
+    """
     heatmap_h, heatmap_w = heatmap_shape
     if heatmap_np.ndim > 2:
         heatmap_np = heatmap_np.squeeze()
-    heatmap_np_contiguous = np.ascontiguousarray(heatmap_np)
-    coordinates = peak_local_max(heatmap_np_contiguous, min_distance=min_distance, threshold_abs=threshold_abs, exclude_border=False)
+    rcs, pixels = detect_peaks(heatmap_np, threshold_abs, min_distance=min_distance,
+                               decode=decode, exclude_border=False, coarse=coarse,
+                               return_pixels=True)
+    if decode != 'argmax' and coarse is not None:
+        worst = coarse_mismatch(heatmap_np, coarse, clip=True)    # whole map (N3)
+        if worst > COARSE_ATOL:
+            raise StaleCoarseCache(
+                f"cached coarse maps disagree with the cached heatmap by {worst:.3g} "
+                f"(> {COARSE_ATOL:g}): the two caches came from different "
+                "runs. Re-run with --fresh to rebuild both.")
     peaks_normalized = []
-    for r, c in coordinates:
+    for (row, col, _), (r, c) in zip(rcs, pixels):
         confidence = heatmap_np[r, c]
-        x_norm = c / heatmap_w
-        y_norm = r / heatmap_h
+        if decode == 'argmax':
+            x_norm = c / heatmap_w
+            y_norm = r / heatmap_h
+        else:
+            x_norm = float(col) / heatmap_w
+            y_norm = float(row) / heatmap_h
         peaks_normalized.append((x_norm, y_norm, confidence))
     return peaks_normalized
 
@@ -175,29 +257,49 @@ def load_gt_points(label_path, is_manual_dataset):
     return gt_points_normalized
 
 
-def predict_heatmap(model, input_image_pil, use_tta):
+def predict_heatmap(model, input_image_pil, use_tta, return_coarse=False):
+    """Clipped (TTA max-combined) heatmap; with ``return_coarse`` also a float32
+    ``(B, 64, 128)`` stack of the raw branches' coarse maps (B = 2 with TTA), each
+    oriented like the heatmap, for a refining decode."""
     img_tensor_original = preprocess_transform(input_image_pil).unsqueeze(0).to(DEVICE)
     with torch.no_grad():
         pred_heatmap_original_raw = model(img_tensor_original)
-    pred_heatmap_original_np = np.clip(pred_heatmap_original_raw.squeeze().cpu().numpy(), 0, 1)
+    raw_original = pred_heatmap_original_raw.squeeze().cpu().numpy()
+    pred_heatmap_original_np = np.clip(raw_original, 0, 1)
     if not use_tta:
+        if return_coarse:
+            return pred_heatmap_original_np, coarse_stack([raw_original])
         return pred_heatmap_original_np
     input_image_flipped_pil = ImageOps.mirror(input_image_pil)
     img_tensor_flipped = preprocess_transform(input_image_flipped_pil).unsqueeze(0).to(DEVICE)
     with torch.no_grad():
         pred_heatmap_flipped_raw = model(img_tensor_flipped)
-    pred_heatmap_flipped_oriented_np = np.clip(pred_heatmap_flipped_raw.squeeze().cpu().numpy(), 0, 1)
+    raw_flipped = pred_heatmap_flipped_raw.squeeze().cpu().numpy()
+    pred_heatmap_flipped_oriented_np = np.clip(raw_flipped, 0, 1)
     pred_heatmap_flipped_reverted_np = np.fliplr(pred_heatmap_flipped_oriented_np)
-    return np.maximum(pred_heatmap_original_np, pred_heatmap_flipped_reverted_np)
+    combined = np.maximum(pred_heatmap_original_np, pred_heatmap_flipped_reverted_np)
+    if return_coarse:
+        return combined, coarse_stack([raw_original, np.fliplr(raw_flipped)])
+    return combined
+
+
+def coarse_stack(raw_heatmaps):
+    """float32 stack of the coarse maps of raw single-pass heatmaps. Cast to float32
+    *before* use, so a decode read back from the cache equals the one computed fresh."""
+    return np.stack([coarse_from_heatmap(h) for h in raw_heatmaps]).astype(np.float32)
 
 
 def evaluate(model, image_paths, label_paths, is_manual_dataset, heatmap_cache_dir,
-             peak_threshold_abs=0.0, use_tta=True, dataset_id_str="dataset"):
+             peak_threshold_abs=0.0, use_tta=True, dataset_id_str="dataset",
+             decode='argmax', coarse_cache_dir=None):
     """Run detection evaluation and return a metrics dict.
 
     Importable entry point for automated pipelines (e.g. retraining gates and
-    the HF model-card generator); main() adds plots/CSVs around it.
+    the HF model-card generator); main() adds plots/CSVs around it. A decode other
+    than 'argmax' needs ``coarse_cache_dir`` (see cache_dirs()).
     """
+    if decode != 'argmax' and coarse_cache_dir is None:
+        raise ValueError(f"decode={decode!r} needs coarse_cache_dir (see cache_dirs())")
     heatmap_h, heatmap_w = MODEL_HEATMAP_SIZE
     radius_threshold_pixels = RADIUS_THRESHOLD_NORMALIZED * heatmap_w
     radius_threshold_pixels_sq = radius_threshold_pixels**2
@@ -209,25 +311,50 @@ def evaluate(model, image_paths, label_paths, is_manual_dataset, heatmap_cache_d
         label_path = label_paths[i]
         base_name = os.path.splitext(os.path.basename(img_path))[0]
         cached_heatmap_path = os.path.join(heatmap_cache_dir, f"{base_name}_heatmap.npy")
-        if os.path.exists(cached_heatmap_path):
+        cached_coarse_path = (None if decode == 'argmax'
+                              else os.path.join(coarse_cache_dir, f"{base_name}_coarse.npy"))
+        # A heatmap cached without its coarse map keeps the heatmap and computes only the
+        # coarse map; extract_peaks_from_heatmap then proves the two still agree.
+        coarse = None
+        have_heatmap = os.path.exists(cached_heatmap_path)
+        have_coarse = cached_coarse_path is None or os.path.exists(cached_coarse_path)
+        if have_heatmap:
             combined_heatmap_np = np.load(cached_heatmap_path)
-        else:
+        if have_coarse and cached_coarse_path is not None:
+            coarse = np.load(cached_coarse_path)
+        if not (have_heatmap and have_coarse):
             try:
                 input_image_pil = Image.open(img_path).convert("RGB")
             except Exception as e:
                 print(f"Error loading image {img_path}: {e}. Skipping.")
                 continue
-            combined_heatmap_np = predict_heatmap(model, input_image_pil, use_tta)
-            np.save(cached_heatmap_path, combined_heatmap_np)
+            if cached_coarse_path is None:
+                combined_heatmap_np = predict_heatmap(model, input_image_pil, use_tta)
+            else:
+                fresh_heatmap, coarse = predict_heatmap(model, input_image_pil, use_tta,
+                                                        return_coarse=True)
+                np.save(cached_coarse_path, coarse)
+                # An existing heatmap is kept, not overwritten: an argmax run may already
+                # have been scored on it, and peaks must come from the same map either way.
+                if not have_heatmap:
+                    combined_heatmap_np = fresh_heatmap
+            if not have_heatmap:
+                np.save(cached_heatmap_path, combined_heatmap_np)
 
         gt_points_normalized = load_gt_points(label_path, is_manual_dataset)
         total_gt_count += len(gt_points_normalized)
-        pred_peaks_normalized = extract_peaks_from_heatmap(
-            combined_heatmap_np,
-            min_distance=PEAK_MIN_DISTANCE,
-            threshold_abs=peak_threshold_abs,
-            heatmap_shape=MODEL_HEATMAP_SIZE
-        )
+        try:
+            pred_peaks_normalized = extract_peaks_from_heatmap(
+                combined_heatmap_np,
+                min_distance=PEAK_MIN_DISTANCE,
+                threshold_abs=peak_threshold_abs,
+                heatmap_shape=MODEL_HEATMAP_SIZE,
+                decode=decode,
+                coarse=coarse,
+            )
+        except StaleCoarseCache as e:
+            raise StaleCoarseCache(f"{base_name}: {e} (heatmap {cached_heatmap_path}, "
+                                   f"coarse {cached_coarse_path})") from None
         all_pred_details_for_ap.extend(match_predictions(
             pred_peaks_normalized,
             gt_points_normalized,
@@ -255,6 +382,7 @@ def evaluate(model, image_paths, label_paths, is_manual_dataset, heatmap_cache_d
         'recall_at_threshold': recall_at_threshold,
         'radius_threshold_normalized': RADIUS_THRESHOLD_NORMALIZED,
         'tta': use_tta,
+        'decode': decode,
         'recalls_curve': recalls_curve_plot,
         'precisions_curve': precisions_curve_plot,
         'sorted_confidences': sorted_confidences,
@@ -278,15 +406,17 @@ def main():
     # that produced them, so the cache directory is keyed by all three. The dataset id
     # matters because 'manual' and 'test' draw images from the same test split and so
     # share pano ids; without it in the key they collide and silently serve each other's
-    # cached heatmaps.
+    # cached heatmaps. The decode is not in the heatmap key (it does not change the
+    # heatmap); a refining decode adds a coarse/ cache under the same key (cache_dirs()).
     ckpt_fingerprint = checkpoint_fingerprint(args.checkpoint)
-    cache_key = f"{ckpt_fingerprint}_{dataset_id_str}_{'tta' if args.tta else 'notta'}"
-    heatmap_cache_dir = os.path.join(args.cache_dir, "heatmaps", cache_key)
-    if args.fresh and os.path.isdir(heatmap_cache_dir):
-        print(f"--fresh: clearing cached heatmaps in {heatmap_cache_dir}")
-        shutil.rmtree(heatmap_cache_dir)
-    os.makedirs(heatmap_cache_dir, exist_ok=True)
+    dirs = cache_dirs(args.cache_dir, ckpt_fingerprint, dataset_id_str, args.tta, args.decode)
+    prepare_cache_dirs(dirs, args.fresh, args.decode)
+    heatmap_cache_dir = dirs['heatmaps']
+    coarse_cache_dir = dirs['coarse'] if args.decode != 'argmax' else None
     print(f"Cache directory: {heatmap_cache_dir}")
+    if coarse_cache_dir:
+        print(f"Coarse cache directory: {coarse_cache_dir}")
+    print(f"Decode: {args.decode}")
 
     if evaluate_on_manual:
         image_paths, label_paths = get_test_files(
@@ -311,6 +441,8 @@ def main():
         peak_threshold_abs=args.threshold,
         use_tta=args.tta,
         dataset_id_str=dataset_id_str,
+        decode=args.decode,
+        coarse_cache_dir=coarse_cache_dir,
     )
     ap = metrics['ap']
     total_gt_count = metrics['total_gt_points']
@@ -328,7 +460,7 @@ def main():
         print(f"Precision at threshold {args.threshold}: {metrics['precision_at_threshold']:.4f}")
         print(f"Recall at threshold {args.threshold}: {metrics['recall_at_threshold']:.4f}")
 
-    params_str = f"r{RADIUS_THRESHOLD_NORMALIZED}_pt{args.threshold}"
+    params_str = results_params_str(args.threshold, args.decode)
 
     metrics_json = {k: v for k, v in metrics.items()
                     if k not in ('recalls_curve', 'precisions_curve', 'sorted_confidences', 'sorted_tp_flags')}

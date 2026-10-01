@@ -19,8 +19,15 @@ can be recovered at inference without retraining. This module does that:
   has ``model(x)`` -- such as the auto-labeler -- does not need to hook the head.
 - :func:`refine_offset` turns the 3x3 coarse neighbourhood of a peak into a sub-cell
   offset, by one of several standard rules (``METHODS``).
-- :func:`refine_peaks` is the end-to-end entry point: peaks as returned by
+- :func:`refine_peaks` refines peaks you already have: peaks as returned by
   ``peak_local_max`` on the heatmap in, refined normalized ``(x, y)`` out.
+- :func:`detect_peaks` is the shipped entry point (#221 items 1-2): heatmap in,
+  ``(row, col, score)`` out, with ``decode="argmax"`` (the published behaviour,
+  bit-identical to the bare ``peak_local_max`` call) or ``decode="gaussian"``. It is
+  what ``stage_two/evaluate.py``, ``stage_two/demo.py`` and the Hugging Face package's
+  ``RampNetModel.detect`` call. This file is shipped verbatim to the Hub as
+  ``rampnet_subcell.py``, so it must import nothing beyond numpy (scikit-image is
+  imported lazily, inside ``detect_peaks``).
 
 Coordinates follow the pipeline's existing convention (``stage_two/train.py`` places a
 target at pixel ``round(x_norm * W)``; every extractor reports ``x_norm = col / W``), so
@@ -29,6 +36,13 @@ sits at hi-res index ``f*i + (f-1)/2`` (``8i + 3.5``). An argmax at ``8i+3`` or 
 is therefore half a hi-res pixel either side of the coarse centre it belongs to.
 
 Pure numpy, no torch. Usage::
+
+    from rampnet.subcell import detect_peaks
+    # h: raw (unclipped) single-pass 512x1024 head output
+    rcs = detect_peaks(h, 0.3, decode="gaussian", clip=True)   # (N, 3) row, col, score
+    x_norm, y_norm = rcs[:, 1] / h.shape[1], rcs[:, 0] / h.shape[0]
+
+or, with peaks already in hand::
 
     from rampnet.subcell import refine_peaks
     from skimage.feature import peak_local_max
@@ -272,3 +286,164 @@ def refine_peaks(heatmap, peaks, method="gaussian", factor=FACTOR, coarse=None,
         y = factor * (i + dy) + half
         out[k] = (x / W, y / H)
     return out
+
+
+# --------------------------------------------------------------------------- #
+# Shipping the decode (#221 items 1-2): one entry point for every peak extractor
+# --------------------------------------------------------------------------- #
+#: Decodes the CLIs expose. ``argmax`` is the published behaviour and the default
+#: everywhere a published number depends on it; ``gaussian`` is the rule #226 measured
+#: and recommends. :func:`detect_peaks` itself accepts any of :data:`METHODS`.
+DECODES = ("argmax", "gaussian")
+
+
+@lru_cache(maxsize=8)
+def _upsample_matrix(n_in, n_out):
+    return bilinear_upsample_matrix(n_in, n_out)
+
+
+def _value_at(coarse, r, c, shape):
+    """The bilinear upsample of ``coarse`` to ``shape``, evaluated at hi-res ``(r, c)``."""
+    h, w = coarse.shape
+    return float(_upsample_matrix(h, shape[0])[r] @ coarse @ _upsample_matrix(w, shape[1])[c])
+
+
+#: Largest upsample residual, relative to the heatmap's peak magnitude, that
+#: :func:`detect_peaks` accepts before refusing to recover the coarse map itself. A raw
+#: fp32 head output sits near 1e-7 (#226: at most 3.6e-7 absolute); a clipped peak at
+#: 1.2 or a x16 map decoded as x8 sits at 1e-2 to 1e-1.
+UPSAMPLE_RTOL = 1e-4
+
+#: Largest disagreement :func:`coarse_mismatch` callers should accept between a cached
+#: heatmap and the coarse maps cached beside it (float32 storage noise is ~1e-7).
+COARSE_ATOL = 1e-3
+
+
+def upsample_residual(heatmap, coarse=None, factor=FACTOR):
+    """``max |upsample(coarse) - heatmap| / max(|heatmap|)``: 0 (to float error) when
+    ``heatmap`` is exactly a bilinear x``factor`` upsample. ``coarse`` defaults to the
+    least-squares recovery."""
+    h = np.asarray(heatmap, dtype=np.float64)
+    if coarse is None:
+        coarse = coarse_from_heatmap(h, factor)
+    scale = max(float(np.max(np.abs(h))), _EPS)
+    return float(np.max(np.abs(upsample(coarse, factor) - h))) / scale
+
+
+def coarse_mismatch(heatmap, coarse, clip=True):
+    """Max over the **whole map** of ``|max_b clip(upsample(coarse_b)) - heatmap|``.
+
+    How a caller proves a cached coarse stack belongs to the cached (clipped, flip-TTA
+    max-combined) heatmap it sits beside: re-build the heatmap from the coarse maps and
+    compare. Anything above float noise means the two caches came from different
+    weights, preprocessing or code. It compares every pixel, not just the peaks: when a
+    peak is clipped at 1, a stale and a fresh map agree at the peak pixel (both 1) and
+    differ only on its flanks (#229 re-review N3). Costs one upsample per branch.
+    """
+    hm = np.asarray(heatmap, dtype=np.float64)
+    c = np.asarray(coarse, dtype=np.float64)
+    if c.ndim == 2:
+        c = c[None]
+    H, W = hm.shape
+    factor = H // c.shape[1]
+    if c.shape[1] * factor != H or c.shape[2] * factor != W:
+        raise ValueError(f"coarse {c.shape} does not match heatmap {hm.shape}")
+    rebuilt = np.max([upsample(cb, factor) for cb in c], axis=0)
+    if clip:
+        rebuilt = np.clip(rebuilt, 0, 1)
+    return float(np.max(np.abs(rebuilt - hm)))
+
+
+def detect_peaks(heatmap, threshold, min_distance=10, decode="argmax", *,
+                 exclude_border=False, clip=False, coarse=None, wrap_x=False,
+                 factor=FACTOR, return_pixels=False):
+    """Peaks of a RampNet heatmap as float ``(row, col, score)`` rows on its own grid.
+
+    The single entry point for peak extraction (#221 items 1-2). Peaks are found with
+    ``peak_local_max(heatmap, min_distance=min_distance, threshold_abs=threshold,
+    exclude_border=exclude_border)``, and ``score`` is the heatmap value at the pixel
+    ``peak_local_max`` returned (the decode never changes the confidence).
+
+    - ``decode="argmax"`` returns those pixels unchanged, so it is bit-identical to the
+      bare ``peak_local_max`` call ``stage_two/evaluate.py`` has always made.
+    - ``decode="gaussian"`` (or any other rule in :data:`METHODS`) moves each peak to its
+      sub-cell position with :func:`refine_peaks`; ``row``/``col`` then become
+      fractional, in hi-res pixel units (``x_norm = col / W``).
+
+    The refinement is read from the 64x128 coarse map (pano; 32x11 for the 256x88 crop
+    heatmap -- any shape that is a multiple of ``factor`` works). It must be the coarse
+    map of the **raw, single-pass** head output, because only that is exactly a bilinear
+    upsample. Three ways to supply it:
+
+    - ``coarse=None``: recovered from ``heatmap`` itself (:func:`coarse_from_heatmap`).
+      Exact only when ``heatmap`` is unclipped. To find peaks on ``clip(h, 0, 1)`` the
+      way every extractor in this repo does while decoding from the raw ``h``, pass the
+      raw map with ``clip=True``.
+    - ``coarse=<(h, w) array>``: used directly.
+    - ``coarse=<(B, h, w) stack>``: one coarse map per branch of a flip-TTA max-combine
+      (each already oriented like ``heatmap``). Each peak is decoded from the branch
+      whose upsampled value is highest at that pixel, i.e. the branch the elementwise
+      max took it from. **Not measured in #221**, which was single-pass.
+
+    ``wrap_x`` is passed to :func:`refine_peaks` (default off, as measured: the network
+    pads the 360 deg seam rather than wrapping). It must stay off for the crop model.
+    ``exclude_border`` defaults to False, the #132 fix. ``return_pixels=True`` also
+    returns the ``(N, 2)`` integer ``(row, col)`` pixels, so a caller can read the score
+    in the heatmap's own dtype.
+
+    With a refining decode and ``coarse=None``, the heatmap is checked first: if it is
+    not an exact x``factor`` bilinear upsample (relative residual above
+    :data:`UPSAMPLE_RTOL` -- e.g. it was clipped, TTA-combined, or came from an input
+    size other than the model's), this **raises** ``ValueError`` rather than decode from
+    a least-squares guess, which can land further from the truth than argmax does.
+    """
+    try:   # optional dependency: kept inside try so the HF remote-code loader does
+        from skimage.feature import peak_local_max   # not require scikit-image to load
+    except ImportError as e:  # pragma: no cover
+        raise ImportError("detect_peaks needs scikit-image (pip install scikit-image)") from e
+    if decode not in METHODS:
+        raise ValueError(f"unknown decode {decode!r}; known: {', '.join(METHODS)}")
+    raw = np.asarray(heatmap)
+    if raw.ndim > 2:
+        raw = raw.squeeze()
+    if raw.ndim != 2:
+        raise ValueError(f"heatmap must be 2-D, got shape {np.asarray(heatmap).shape}")
+    found = np.clip(raw, 0, 1) if clip else raw
+    pk = peak_local_max(np.ascontiguousarray(found), min_distance=min_distance,
+                        threshold_abs=threshold, exclude_border=exclude_border)
+    pk = np.asarray(pk, dtype=int).reshape(-1, 2)
+    scores = found[pk[:, 0], pk[:, 1]].astype(np.float64)
+    out = np.empty((len(pk), 3))
+    out[:, 2] = scores
+    if decode == "argmax" or not len(pk):
+        out[:, :2] = pk
+    else:
+        H, W = raw.shape
+        if coarse is None:
+            coarse = coarse_from_heatmap(raw, factor)
+            res = upsample_residual(raw, coarse, factor)
+            if res > UPSAMPLE_RTOL:
+                raise ValueError(
+                    f"heatmap {raw.shape} is not an exact x{factor} bilinear upsample "
+                    f"(relative residual {res:.2e} > {UPSAMPLE_RTOL:g}), so decode={decode!r} "
+                    "cannot recover its coarse map. Pass the raw, unclipped, single-pass "
+                    "model output (use clip=True to find peaks on the clipped map), from an "
+                    "input of the model's size, or supply coarse= explicitly.")
+        coarse = np.asarray(coarse, dtype=np.float64)
+        if coarse.ndim == 2:
+            coarse = coarse[None]
+        if coarse.ndim != 3 or coarse.shape[1:] != (H // factor, W // factor):
+            raise ValueError(f"coarse {coarse.shape} does not match heatmap {raw.shape} "
+                             f"at factor {factor}")
+        if len(coarse) == 1:
+            branch = np.zeros(len(pk), dtype=int)
+        else:
+            branch = np.array([int(np.argmax([_value_at(cb, r, c, raw.shape) for cb in coarse]))
+                               for r, c in pk])
+        for b in np.unique(branch):
+            sel = branch == b
+            xy = refine_peaks(raw, pk[sel], method=decode, factor=factor,
+                              coarse=coarse[b], wrap_x=wrap_x)
+            out[sel, 0] = xy[:, 1] * H
+            out[sel, 1] = xy[:, 0] * W
+    return (out, pk) if return_pixels else out

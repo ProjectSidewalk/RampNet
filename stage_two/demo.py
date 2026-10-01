@@ -6,10 +6,9 @@ from PIL import Image, ImageOps, ImageDraw
 import numpy as np
 from torchvision import transforms
 
-from skimage.feature import peak_local_max
-
 from rampnet.model import KeypointModel
 from rampnet.loading import load_checkpoint
+from rampnet.subcell import DECODES, coarse_from_heatmap, detect_peaks
 
 MODEL_INPUT_SIZE = (2048, 4096)
 MODEL_HEATMAP_SIZE = (512, 1024)
@@ -22,6 +21,11 @@ def parse_args():
                         help="Local .pth checkpoint path, or a HuggingFace repo id such as "
                              "'projectsidewalk/rampnet-model' (the default: the released weights)")
     parser.add_argument('--port', type=int, default=25566, help="Gradio server port")
+    parser.add_argument('--decode', choices=DECODES, default='argmax',
+                        help="Peak position rule (#221): 'argmax' (default, the historical "
+                             "pixel) or 'gaussian' (sub-cell refinement from the 64x128 coarse "
+                             "map; docs/subcell_decode_221.md). Changes where marks are drawn, "
+                             "not which peaks are found.")
     return parser.parse_args()
 
 
@@ -84,7 +88,8 @@ def predict_and_visualize(input_image_pil):
     img_tensor_original = preprocess_transform(cropped_pil).unsqueeze(0).to(DEVICE)
     with torch.no_grad():
         pred_heatmap_original_raw = model(img_tensor_original)
-    pred_heatmap_original_np = np.clip(pred_heatmap_original_raw.squeeze().cpu().numpy(), a_min=0, a_max=1)
+    raw_original_np = pred_heatmap_original_raw.squeeze().cpu().numpy()
+    pred_heatmap_original_np = np.clip(raw_original_np, a_min=0, a_max=1)
 
     cropped_flipped_pil = ImageOps.mirror(cropped_pil)
     img_tensor_flipped = preprocess_transform(cropped_flipped_pil).unsqueeze(0).to(DEVICE)
@@ -107,11 +112,22 @@ def predict_and_visualize(input_image_pil):
     scale_x = image_pil_width / heatmap_width   
     scale_y = image_pil_height / heatmap_height 
 
-    peak_coordinates = peak_local_max(
+    # exclude_border=True is skimage's default, which this demo has always used; kept so
+    # --decode argmax draws exactly what it always drew. (It hides peaks within 10 px of
+    # the edge -- the #132 extractor defect evaluate.py fixed; this is a visual demo only.)
+    # A refining decode reads the coarse map of each raw (unclipped) flip-TTA branch.
+    coarse = None
+    if args.decode != 'argmax':
+        coarse = np.stack([coarse_from_heatmap(raw_original_np),
+                           coarse_from_heatmap(np.fliplr(pred_heatmap_flipped_oriented_np))])
+    peak_coordinates = detect_peaks(
         pred_heatmap_np,
+        0.4,
         min_distance=10,
-        threshold_abs=0.4
-    )
+        decode=args.decode,
+        exclude_border=True,
+        coarse=coarse,
+    )[:, :2]
 
     x_mark_size = 20  
     x_mark_width = 11  
