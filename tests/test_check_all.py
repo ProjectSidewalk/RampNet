@@ -8,7 +8,11 @@ flag or subcommand fails this test instead of failing the gate at merge time.
 import contextlib
 import importlib.util
 import io
+import glob
+import hashlib
 import json
+import re
+import shutil
 import os
 import subprocess
 import sys
@@ -110,7 +114,9 @@ def test_ci_excludes_entries_with_requirements_and_slow_ones():
             assert r is None, e.name
         if e.requires:
             assert ca.skip_reason(e, ci=False, run_all=True, allowed=set()) is not None
-            assert ca.skip_reason(e, ci=False, run_all=True, allowed=set(e.requires)) is None
+            # allowed: no longer skipped for the requirement (needs_paths may still skip it)
+            r2 = ca.skip_reason(e, ci=False, run_all=True, allowed=set(e.requires))
+            assert r2 is None or not r2.startswith("requires"), (e.name, r2)
         if e.slow and not e.requires:
             assert ca.skip_reason(e, ci=True, run_all=True, allowed=set()) is None
     assert any(ca.skip_reason(e, ci=True, run_all=False, allowed=set()) is None
@@ -132,3 +138,206 @@ def test_unknown_only_is_a_usage_error():
     with pytest.raises(SystemExit) as ex, contextlib.redirect_stderr(io.StringIO()):
         ca.main(["--only", "no_such_entry"])
     assert ex.value.code == 2
+
+
+# --------------------------------------------------------------------------- #
+# pins / --touching (review S4)
+# --------------------------------------------------------------------------- #
+def glob_repo(pin):
+    return glob.glob(os.path.join(REPO, pin.rstrip("/")))
+
+
+@pytest.mark.parametrize("entry", ca.REGISTRY, ids=lambda e: e.name)
+def test_every_pin_exists(entry):
+    """A pin that names nothing is a stale registry; --touching would silently miss it."""
+    assert entry.pins, f"{entry.name}: every entry lists what it pins"
+    for pin in entry.pins:
+        assert "\\" not in pin and not pin.startswith("/"), pin
+        assert glob_repo(pin), f"{entry.name}: pin {pin!r} matches nothing in the repo"
+
+
+def _names(path):
+    return {e.name for e in ca.touching(path)}
+
+
+def test_touching_finds_the_cross_pin():
+    hit = _names("analysis_out/recall_by_depth_112.json")
+    # the owner AND the dependents: the owner alone passes a change the dependent fails
+    assert {"recall_by_depth_112", "da3_calibration_101", "laurens_paired_151",
+            "manifests_sha256"} <= hit
+
+
+def test_touching_prefix_and_glob_rules():
+    assert "cascade_cost_35" in _names("analysis_out/op_cache/richmond.json")    # under a pinned dir
+    assert "cascade_cost_35" in _names("analysis_out/cascade_cost_35")           # the dir itself
+    assert "scoreboard" in _names("benchmark/richmond/verdicts.json")             # glob pin
+    assert "scoreboard" in _names("benchmark/richmond")                           # dir holding a glob pin
+    assert "da3_calibration_101" in _names("analysis_out")                        # dir holding a pin
+    assert "da3_calibration_101" in _names(os.path.join(REPO, "analysis_out", "da3_calibration_101",
+                                                        "tables.json"))           # absolute path
+    assert "two_scale_197" in _names("scripts/analysis/two_scale_197.py")         # its own script
+    assert _names("README.md") == set()
+    assert not ca.path_matches("analysis_out/op_cache_tta/x.json", "analysis_out/op_cache/")
+
+
+def test_list_shows_pins_and_touching_selects():
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        assert ca.main(["--touching", "analysis_out/recall_by_depth_112.json", "--list"]) == 0
+    out = buf.getvalue()
+    assert "da3_calibration_101  [" in out and "pins: " in out
+    assert "scoreboard  [" not in out
+
+
+# --------------------------------------------------------------------------- #
+# local-data preconditions (S1)
+# --------------------------------------------------------------------------- #
+def test_local_cache_entries_have_a_presence_precondition():
+    for e in ca.REGISTRY:
+        if "local-cache" in e.requires:
+            assert e.needs_paths and e.absent_reason, e.name
+
+
+def test_needs_paths_absent_is_a_skip_naming_what_is_absent(tmp_path):
+    e = ca.by_name()["imagery_manifest_verify"]
+    r = ca.skip_reason(e, ci=False, run_all=True, allowed={"local-cache"}, local_root=str(tmp_path))
+    assert r and r.startswith("panos absent"), r
+    (tmp_path / "benchmark" / "richmond" / "panos").mkdir(parents=True)
+    assert ca.skip_reason(e, ci=False, run_all=True, allowed={"local-cache"},
+                          local_root=str(tmp_path)) is None
+
+
+ABSENT_OUT = ("               split  panos             digest  status\n"
+              "           annapolis      -   0123456789abcdef  imagery absent locally (expected 125 panos)\n"
+              "                bend      -   0123456789abcdef  imagery absent locally (expected 110 panos)\n"
+              "\nEvery reviewed panorama matches the bytes recorded at review time.\n")
+
+
+def test_imagery_all_absent_output_is_nothing_verified():
+    assert ca.imagery_nothing_verified(ABSENT_OUT)
+    one_ok = ABSENT_OUT.replace(
+        "                bend      -   0123456789abcdef  imagery absent locally (expected 110 panos)",
+        "                bend    110   0123456789abcdef  OK")
+    assert ca.imagery_nothing_verified(one_ok) is None
+
+
+# --------------------------------------------------------------------------- #
+# the runner end to end on a scratch git repo with a fake registry (S1, S2, N1)
+# --------------------------------------------------------------------------- #
+def _git(repo, *args):
+    subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", *args], cwd=repo,
+                   check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+WRITER = r'''
+import sys
+mode, target = sys.argv[1], sys.argv[2]
+if mode == "append":
+    with open(target, "a", encoding="utf-8") as f:
+        f.write("more\n")
+elif mode == "absent":
+    print("     annapolis      -   0123456789abcdef  imagery absent locally (expected 1 panos)")
+'''
+
+
+@pytest.fixture
+def scratch_repo(tmp_path, monkeypatch):
+    if shutil.which("git") is None:
+        pytest.skip("git not available")
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "a.txt").write_text("one\n", encoding="utf-8")
+    (repo / "writer.py").write_text(WRITER, encoding="utf-8")
+    _git(repo, "init", "-q")
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "init")
+    monkeypatch.setattr(ca, "REPO", str(repo))
+    return repo
+
+
+def _run(monkeypatch, entries, argv):
+    monkeypatch.setattr(ca, "REGISTRY", entries)
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        code = ca.main(argv)
+    return code, buf.getvalue()
+
+
+def test_rewrite_of_an_already_modified_file_fails(scratch_repo, monkeypatch):
+    (scratch_repo / "a.txt").write_text("one\nlocal edit\n", encoding="utf-8")   # tree is dirty
+    entries = [ca.E("w_tracked", ("writer.py", "append", "a.txt"), "x", pins=("a.txt",)),
+               ca.E("w_tmp", ("writer.py", "append", "{tmp}/scratch.txt"), "x", pins=("a.txt",))]
+    code, out = _run(monkeypatch, entries, [])
+    assert code == 1, out
+    assert "modified the working tree: M a.txt" in out, out
+    assert re.search(r"w_tmp\s+PASS", out), out
+
+
+def test_new_untracked_file_fails(scratch_repo, monkeypatch):
+    entries = [ca.E("w_new", ("writer.py", "append", "stray.txt"), "x", pins=("a.txt",))]
+    code, out = _run(monkeypatch, entries, [])
+    assert code == 1 and "A stray.txt" in out, out
+
+
+def test_nothing_verified_output_fails(scratch_repo, monkeypatch):
+    entries = [ca.E("w_absent", ("writer.py", "absent", "-"), "x", pins=("a.txt",),
+                    nothing_verified=ca.imagery_nothing_verified)]
+    code, out = _run(monkeypatch, entries, [])
+    assert code == 1 and "nothing verified" in out, out
+
+
+def test_only_a_skipped_entry_exits_nonzero(scratch_repo, monkeypatch):
+    entries = [ca.E("w_slow", ("writer.py", "noop", "-"), "x", pins=("a.txt",), slow=True)]
+    code, out = _run(monkeypatch, entries, ["--only", "w_slow"])
+    assert code == 3 and "slow; runs only with --all" in out, out
+    code, out = _run(monkeypatch, entries, ["--only", "w_slow", "--all"])
+    assert code == 0, out
+    code, out = _run(monkeypatch, entries, [])            # not named: a skip is not an error
+    assert code == 0, out
+
+
+# --------------------------------------------------------------------------- #
+# manifests_sha256 (S3)
+# --------------------------------------------------------------------------- #
+def _load_vs():
+    spec = importlib.util.spec_from_file_location(
+        "verify_sha256sums", os.path.join(REPO, "scripts", "verify_sha256sums.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+vs = _load_vs()
+
+
+def test_manifest_discovery_covers_the_unowned_manifests():
+    if shutil.which("git") is None:
+        pytest.skip("git not available")
+    found = set(vs.manifests())
+    for m in ("docs/data/rampnet1_stage1_run/SHA256SUMS", "docs/data/rampnet1_stage2_run/SHA256SUMS",
+              "stage_two/cosine_rung_135_events/SHA256SUMS", "stage_two/run_a_84_events/SHA256SUMS",
+              "docs/data/seed_variance_51_135/SHA256SUMS"):
+        assert m in found, m
+    pins = ca.by_name()["manifests_sha256"].pins
+    for m in found:     # --touching a manifest must find the entry that checks it
+        assert any(ca.path_matches(m, p) for p in pins), f"{m} is not covered by manifests_sha256 pins"
+    in_ci = {e.name for e in ca.REGISTRY if ca.skip_reason(e, ci=True, run_all=False, allowed=set()) is None}
+    assert "manifests_sha256" in in_ci
+
+
+def test_manifest_mismatch_absent_and_eol(tmp_path):
+    d = tmp_path / "m"
+    d.mkdir()
+    (d / "good.txt").write_bytes(b"x\n")
+    (d / "crlf.txt").write_bytes(b"y\r\n")
+    (d / "bad.txt").write_bytes(b"changed\n")
+
+    def h(b):
+        return hashlib.sha256(b).hexdigest()
+
+    (d / "SHA256SUMS").write_text(
+        f"{h(b'x' + bytes([10]))}  good.txt\n{h(b'y' + bytes([10]))} *crlf.txt\n"
+        f"{h(b'orig' + bytes([10]))}  bad.txt\n{h(b'z')}  gone.txt\n", encoding="utf-8")
+    rows, problems = vs.verify(str(tmp_path), only=["m/SHA256SUMS"])
+    assert rows == [{"manifest": "m/SHA256SUMS", "ok": 1, "eol": 1, "absent": 1, "bad": 1}]
+    assert len(problems) == 1 and "bad.txt" in problems[0]

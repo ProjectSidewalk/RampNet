@@ -47,7 +47,8 @@ PATTERNS = ("SHA256SUMS*", "*/SHA256SUMS*", "*.sha256")
 LINE = re.compile(r"^([0-9a-fA-F]{64}) [ *](.+)$")
 
 
-def manifests(repo=REPO):
+def manifests(repo=None):
+    repo = repo or REPO
     p = subprocess.run(["git", "ls-files", "-z", "--", *PATTERNS], cwd=repo,
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
     names = [n for n in p.stdout.decode("utf-8").split("\0") if n]
@@ -70,7 +71,8 @@ def parse(path):
     return out
 
 
-def resolve(manifest, name, repo=REPO):
+def resolve(manifest, name, repo=None):
+    repo = repo or REPO
     if os.path.isabs(name) or name.startswith("/"):
         return name if os.path.isfile(name) else None
     for base in (os.path.dirname(os.path.join(repo, manifest)), repo):
@@ -88,7 +90,8 @@ def digests(path):
     return raw, lf
 
 
-def verify(repo=REPO, only=None):
+def verify(repo=None, only=None):
+    repo = repo or REPO
     """Returns (rows, problems): one row per manifest, and every mismatch."""
     rows, problems = [], []
     for man in only or manifests(repo):
@@ -119,10 +122,10 @@ def main(argv=None):
     except (AttributeError, ValueError):
         pass
     if args.list:
-        for m in manifests():
+        for m in manifests(REPO):
             print(m)
         return 0
-    rows, problems = verify()
+    rows, problems = verify(REPO)
     w = max(len(r["manifest"]) for r in rows)
     print(f"{'manifest':<{w}}  {'ok':>4}  {'eol':>4}  {'absent':>6}  {'bad':>4}")
     for r in rows:
