@@ -74,6 +74,9 @@ jobs:
   # docs/replication.md "Running every check" lists the entries and the known gaps.
   checks:
     runs-on: ubuntu-latest
+    # The --ci run measured ~3 min before cascade_cost_35 joined it (~5 min more on a
+    # runner); 30 min is a hang guard, and --timeout caps any single step at 20 min.
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
@@ -97,7 +100,7 @@ jobs:
       - name: Run every check (scripts/check_all.py --ci)
         env:
           HF_HUB_OFFLINE: "1"
-        run: python scripts/check_all.py --ci --json check_all.json
+        run: python scripts/check_all.py --ci --timeout 1200 --json check_all.json
 
       - name: Upload the result table
         if: always()

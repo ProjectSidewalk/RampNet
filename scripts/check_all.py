@@ -199,6 +199,8 @@ REGISTRY: list = [
             "benchmark/model_detections/", "manual_labels/") + GT),
     E("cascade_cost_35", (AN + "cascade_cost_35.py", "--check"),
       "every per-pair cascade file regenerates byte-identical from its recorded args (#35)",
+      # ~400 s on the desktop, ~5 min on a GitHub runner: in --ci, since the job runs in
+      # parallel with pytest (8-9 min) and stays well inside its 30 min guard.
       pins=("analysis_out/cascade_cost_35/", "analysis_out/op_cache/",
             "analysis_out/cascade_gate_op030.json", "benchmark/model_detections/") + GT),
     # -- need git-ignored local data: never in CI, run with --allow local-cache ---------------
