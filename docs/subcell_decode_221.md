@@ -36,26 +36,36 @@ Six manual_gold ramps, chosen by a fixed rule from the 3,517 matched pairs: the 
 improvements, the two closest to the median |d|, the one where the decode moved furthest away
 from the box centre (all five from peaks with score <= 1, not climbed, not at the seam), and
 one clipped plateau (score > 1, argmax off the 8i+3 / 8i+4 grid, d nearest that group's
-median). d is the change in distance to the box centre, Gaussian minus argmax.
+median). At most one example is taken per pano; that rule did not change any pick here. d is
+the change in distance to the box centre, Gaussian minus argmax.
 
-![Six manual_gold crops with argmax, Gaussian decode and human box](figures/subcell_decode_221/examples_contact_sheet.jpg)
+To calibrate the six: of the 3,300 eligible pairs, 65.2% move closer and 34.8% move further
+away, with median d -0.80 px. The rule takes two best cases and one worst, so the sheet leans
+favourable by construction, and one of the two "typical" panels (d +1.49) is a regression.
+The "large" and "moved away" panels show the decode at its reach: their Gaussian offsets are
+0.43-0.50 cell, close to the 0.5-cell clamp (`MAX_OFFSET`), so |d| cannot get much larger.
+
+![Contact sheet of six manual_gold crops. In four of the six, the Gaussian decode (circle) sits closer to the human box centre (plus) than the argmax (square); in the "typical" regression and the "moved away" crop it sits further. Every argmax sits 2 input px from the centre of its coarse cell on each axis, except the clipped plateau.](figures/subcell_decode_221/examples_contact_sheet.jpg)
 
 - Many manual_gold "boxes" are only a few pixels across, so they read as a point label, and
   the box is often hidden under its centre mark.
 - In the "moved away" example (`hjGc_EK1u9NfwcU5eciW1g`), the decode moves the peak up and
   left, further onto the tactile pad. The human mark sits lower, on the kerb line at the
   pad's front edge, and the argmax happened to fall between them (4.4 px to 8.8 px). The
-  model's peak and the labeller disagree about *which point* of the ramp to mark. That is the
-  concept offset in section 5, not a decode error.
+  decode follows the coarse map faithfully here (the neighbours up and to the left are higher,
+  giving an offset of 0.48 / 0.43 cell), so this is consistent with the concept offset in
+  section 5, where the model and the labeller mark different points of the ramp. One image
+  cannot show that this is the cause.
 
 The mechanism panel uses the first "typical" example. Its heatmap is the released model's
 output on that pano, re-run on a desktop RTX 3070. It agrees with the bilinear upsample of
-the committed coarse map to 2.0e-5, which is cross-GPU fp32 noise. The two histograms are
-the manual_gold columns of the section 4.3 table.
+the run's coarse map (the makelab2 A40 map; only its sha256 is committed, in
+`detections.json`) to 2.0e-5, which is cross-GPU fp32 noise. The two histograms are the
+manual_gold rows of the section 4.3 table.
 
-![Heatmap crop vs coarse-map crop, 1-D profile, and mod-8 histograms](figures/subcell_decode_221/mechanism_panel.png)
+![Mechanism panel. Top: the 512x1024 heatmap around one peak looks smooth, but the 64x128 coarse map it was upsampled from shows the same 8x8 cells; a profile down the peak column is piecewise linear with kinks at the coarse sample positions. Bottom: argmax positions mod 8 fall almost only on 3 and 4 on both axes, while Gaussian-decoded positions and human box centres spread across all eight.](figures/subcell_decode_221/mechanism_panel.png)
 
-Both figures come from `scripts/analysis/subcell_decode_221_figures.py` (command in
+Both figures come from `scripts/analysis/subcell_decode_221_figures.py` (commands in
 section 8). The crops are small documentation extracts of the manual_gold panos in the HF
 `projectsidewalk/rampnet-dataset` test split.
 
@@ -427,11 +437,14 @@ python scripts/analysis/subcell_decode_221.py extract --panos-root . \
 python scripts/analysis/subcell_decode_221.py report --detections /tmp/sc221/detections.json \
     --out /tmp/sc221/results.json
 
-# the Examples figures (selection is CPU-only and prints with --select-only; the coarse map
-# of the mechanism pano is checked against the sha256 in detections.json; --heatmap-source
-# model runs the checkpoint on that one pano, `coarse` draws the upsample instead, CPU)
+# the Examples figures. Selection is CPU-only and prints with --select-only. --heatmap-source
+# model runs the checkpoint on the mechanism pano and recovers its coarse map from that
+# heatmap, checked against the 3x3 neighbourhoods stored in --detections (to 2e-4), so this
+# needs neither the extract step nor its cache. The selection reads the committed detections;
+# pass /tmp/sc221/detections.json instead to draw from your own.
 python scripts/analysis/subcell_decode_221_figures.py --panos-root . \
-    --coarse-dir /tmp/sc221/coarse --heatmap-source model --out-dir /tmp/sc221/figures
+    --detections analysis_out/subcell_decode_221/detections.json \
+    --heatmap-source model --out-dir /tmp/sc221/figures
 
 # compare with the committed report: every number, ignoring only the top-level "inputs"
 python scripts/analysis/subcell_decode_221.py compare \
@@ -450,6 +463,24 @@ the size of the differences. A change in any paired difference beyond its last d
 beyond noise, is a real discrepancy. `report` alone, run on the committed `detections.json` with
 default arguments, reproduces the committed `results.json` and `results.md` byte for byte.
 
+**Figures, as run** (2026-10-01, desktop RTX 3070, torch 2.6.0+cu126). The coarse map was a
+local copy of `/homes/gws/jonf/subcell221_cache/manual_gold/4ogBseRbooQ5Jz5eiu05ig_coarse.npy`
+from makelab2, whose sha256 equals the one in `detections.json`; the panos were the desktop's
+manual_gold copy, which matches `imagery_manifest.json`:
+
+```bash
+python scripts/analysis/subcell_decode_221_figures.py --panos-root D:/Git/RampNet \
+    --detections analysis_out/subcell_decode_221/detections.json \
+    --coarse-dir <local copy of subcell221_cache> --heatmap-source model \
+    --out-dir docs/figures/subcell_decode_221
+```
+
+Re-running that command reproduces both committed figures byte for byte. The clean-clone command
+above draws the same contact sheet byte for byte (it uses no coarse map). Its mechanism panel
+differs in bytes, because its coarse map is recovered from a heatmap computed on another GPU,
+which differs from the A40 map by about 2e-5. `--out-dir` is required, so the figure script
+cannot overwrite the committed figures unless told to.
+
 `detections.json` (sha256 `57cfb968c5106a833a214aeea7801d20f8fb228cb3c28bdaf7a3474074cd72b1`)
 holds every peak >= 0.30 with its 3x3 coarse neighbourhood (6 decimals), so `report` needs neither
 GPU nor imagery. `tests/test_subcell_decode_221.py` re-derives the point estimates from it in CI.
@@ -465,6 +496,7 @@ noise of about 1e-4 is expected (section 3).
 | `extract`, 1,499 panos (manual_gold 1,000 + 4 x ~125) | makelab2, 1x A40 (shared for part of the run: #217's segment-vistas at 18:53:48Z and #218's perspective shards from 19:00:50Z both ran on it before this run ended at ~19:18Z) | 2,579 s (43 min) | 0.72 | 0 |
 | `report` | desktop CPU | ~1 min | 0 | 0 |
 | smoke test (15 panos) | desktop RTX 3070 | 32 s | ~0.01 | 0 |
+| Examples figures (one forward pass, plus plotting) | desktop RTX 3070 (not in the ledger) | ~22 s | ~0.01 | 0 |
 
 The extract row is in `analysis_out/usage_log.jsonl`
 (`run_id` `subcell-decode-221:extract:2026-09-30T18:35:42Z`, `paid: false`). Of the 2,579 s, the
