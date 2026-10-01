@@ -1,0 +1,129 @@
+{
+ "git_head": "763cef7052e1f7b12977f0064a286edb35f6362b",
+ "tree_clean_at_start": true,
+ "python": "3.12.10",
+ "platform": "win32",
+ "mode": {
+  "ci": false,
+  "all": true,
+  "allow": [
+   "local-cache"
+  ]
+ },
+ "counts": {
+  "PASS": 18,
+  "FAIL": 0,
+  "SKIP": 0
+ },
+ "total_seconds": 592.4,
+ "results": [
+  {
+   "name": "sourcing_tables",
+   "status": "PASS",
+   "seconds": 0.1,
+   "detail": ""
+  },
+  {
+   "name": "yolo_warmup_dip_72",
+   "status": "PASS",
+   "seconds": 0.1,
+   "detail": ""
+  },
+  {
+   "name": "yolo_geometry_51",
+   "status": "PASS",
+   "seconds": 0.2,
+   "detail": ""
+  },
+  {
+   "name": "run_b_gate_135",
+   "status": "PASS",
+   "seconds": 0.1,
+   "detail": ""
+  },
+  {
+   "name": "seed_variance_read_51_135",
+   "status": "PASS",
+   "seconds": 8.2,
+   "detail": ""
+  },
+  {
+   "name": "operating_point_parity_51",
+   "status": "PASS",
+   "seconds": 3.1,
+   "detail": ""
+  },
+  {
+   "name": "recall_by_depth_112",
+   "status": "PASS",
+   "seconds": 0.3,
+   "detail": ""
+  },
+  {
+   "name": "da3_calibration_101",
+   "status": "PASS",
+   "seconds": 10.2,
+   "detail": ""
+  },
+  {
+   "name": "laurens_paired_151",
+   "status": "PASS",
+   "seconds": 2.2,
+   "detail": ""
+  },
+  {
+   "name": "crossview_fresh_48",
+   "status": "PASS",
+   "seconds": 0.4,
+   "detail": ""
+  },
+  {
+   "name": "two_scale_197",
+   "status": "PASS",
+   "seconds": 63.0,
+   "detail": ""
+  },
+  {
+   "name": "input_res_sweep_25",
+   "status": "PASS",
+   "seconds": 57.5,
+   "detail": ""
+  },
+  {
+   "name": "yolo_rescore_benchmark_eval",
+   "status": "PASS",
+   "seconds": 2.1,
+   "detail": ""
+  },
+  {
+   "name": "cascade_transfer_35",
+   "status": "PASS",
+   "seconds": 1.8,
+   "detail": ""
+  },
+  {
+   "name": "scoreboard",
+   "status": "PASS",
+   "seconds": 4.6,
+   "detail": ""
+  },
+  {
+   "name": "cascade_cost_35",
+   "status": "PASS",
+   "seconds": 402.5,
+   "detail": ""
+  },
+  {
+   "name": "export_model_cache_verify",
+   "status": "PASS",
+   "seconds": 15.2,
+   "detail": ""
+  },
+  {
+   "name": "imagery_manifest_verify",
+   "status": "PASS",
+   "seconds": 20.8,
+   "detail": ""
+  }
+ ]
+}

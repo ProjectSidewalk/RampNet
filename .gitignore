@@ -373,3 +373,8 @@ analysis_out/mined_placement_158/*
 analysis_out/mined_placement_158/predictions/*
 !analysis_out/mined_placement_158/predictions/*.jsonl
 !analysis_out/mined_placement_158/predictions/*.json
+
+# scripts/check_all.py --json: the committed result of the last full gate run on main.
+!analysis_out/check_all/
+analysis_out/check_all/*
+!analysis_out/check_all/latest.json
