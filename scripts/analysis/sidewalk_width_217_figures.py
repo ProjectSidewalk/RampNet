@@ -202,6 +202,11 @@ def fmt(x):
     return "  --  " if not np.isfinite(x) else f"{x:5.2f} m"
 
 
+def fmt_err(e):
+    """Signed error in metres to 0.01, without a negative zero (-0.001 -> "+0.00 m")."""
+    return "  --" if not np.isfinite(e) else f"{round(e, 2) + 0.0:+.2f} m"
+
+
 def render(args):
     import matplotlib
     matplotlib.use("Agg")
@@ -228,7 +233,7 @@ def render(args):
         err = C[n] - G[n]
         cap = (f"{n}  (CC0)\n"
                f"GT {G[n]:.2f} m   clear {fmt(C[n])}   total {fmt(T[n])}\n"
-               f"clear error {'  --' if not np.isfinite(err) else f'{err:+.2f} m'}")
+               f"clear error {fmt_err(err)}")
         if "band_z" in g:
             cap += f"   band {g['band_z'][0]:.2f}-{g['band_z'][1]:.2f} m ({g['band_z'][2]} rows)"
         draw_panel(ax, np.asarray(photo), g, label, cap)
@@ -273,8 +278,9 @@ def render(args):
                 a1.annotate(label, (G[n], C[n]), xytext=(6, 4), textcoords="offset points",
                             fontsize=7.5, color=TEXT)
             a1.scatter([G[n]], [C[n]], s=46, facecolor="none", edgecolor=TEXT, lw=1.1)
-    a1.text(1.2, lim - 0.15, " 1.2 m", fontsize=7.5, color=TEXT2, va="top")
-    a1.text(1.5, lim - 0.6, " 1.5 m", fontsize=7.5, color=TEXT2, va="top")
+    # 1.2 m left of its line and 1.5 m right of its own, so neither line runs through text
+    a1.text(1.2, lim - 0.15, "1.2 m ", fontsize=7.5, color=TEXT2, va="top", ha="right")
+    a1.text(1.5, lim - 0.15, " 1.5 m", fontsize=7.5, color=TEXT2, va="top", ha="left")
     a1.set_xlim(0, lim)
     a1.set_ylim(0, lim)
     a1.set_aspect("equal")

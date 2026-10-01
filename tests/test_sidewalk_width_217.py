@@ -264,3 +264,11 @@ def test_pitch_label_has_no_negative_zero():
     import sidewalk_width_217_figures as F
     assert f"{F.pitch_deg(math.radians(-0.04)):+.1f}" == "+0.0"
     assert f"{F.pitch_deg(math.radians(-6.9)):+.1f}" == "-6.9"
+
+
+def test_error_label_has_no_negative_zero():
+    import sidewalk_width_217_figures as F
+    assert F.fmt_err(-0.001) == "+0.00 m"   # IMG_4299, the "best" photo
+    assert F.fmt_err(-5.46) == "-5.46 m"
+    assert F.fmt_err(0.13) == "+0.13 m"
+    assert F.fmt_err(float("nan")) == "  --"

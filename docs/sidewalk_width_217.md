@@ -243,11 +243,11 @@ second-largest over-estimate (`sidewalk_width_217_figures.py`, docstring). The o
 recomputed from the label maps with the scoring code, and each recomputed width is asserted
 equal to the committed per-image estimate.
 
-![Eight half-B photos with the walkable mask, clear-span edges, measurement band and VP horizon. On the three good photos the band is a wide block in the first metre of ground; on the failures it is a thin strip far out (IMG_6839, IMG_6451), a sliver along a curb (IMG_6694), or missing (IMG_4500, no vanishing point)](figures/sidewalk_width_217/examples_contact_sheet.jpg)
+![Eight half-B photos with the walkable mask, clear-span edges, measurement band and VP horizon. On the three good photos the band is a wide block in the first metre of ground; on the failures it is a thin strip far out (IMG_6839, IMG_6451), a sliver along a curb (IMG_6694), a block 6 m out where a bollard and pole cut the clear span (IMG_6398), or missing (IMG_4500, no vanishing point)](figures/sidewalk_width_217/examples_contact_sheet.jpg)
 
 | slot | photo | GT (m) | clear (m) | total (m) | clear error (m) | rows measured: depth (m), count |
 |---|---|---:|---:|---:|---:|---|
-| best | IMG_4299 | 2.29 | 2.29 | 2.19 | −0.00 | 2.67–3.67, 117 |
+| best | IMG_4299 | 2.29 | 2.29 | 2.19 | 0.00 | 2.67–3.67, 117 |
 | median | IMG_6417 | 1.93 | 2.06 | 2.04 | +0.13 | 1.86–2.85, 194 |
 | worst over | IMG_6839 | 3.59 | 13.21 | 12.46 | +9.62 | 13.78–14.74, 6 |
 | worst under | IMG_6398 | 6.93 | 1.47 | 6.63 | −5.46 | 5.85–6.84, 28 |
@@ -385,9 +385,9 @@ python scripts/analysis/sidewalk_width_217_figures.py render --images $SEOUL/ima
 ```
 
 The committed figures (matplotlib 3.11.1, Pillow 12.3.0) have sha256
-`598f0eb69e76ae80fb6df34772c897f10ca9cb5d0512cfd94f43d81bcecc45da`
+`4ea00617125fa420800e3404e2bafc10647939aeac0fc2cb68c4662d8e734577`
 (`examples_contact_sheet.jpg`) and
-`0af5e761db665d27ec0641261c4052e6176c4ec1a550ea4b6fa2e19b515df5ba` (`diagnostics.jpg`); other
+`5d22dfa4f004163eda6f482135c9a97b6ca16cc6c7d7b6eb33d935031d5b69f2` (`diagnostics.jpg`); other
 matplotlib or JPEG-encoder versions will not match byte-for-byte, and the widths drawn are
 asserted against `results.json` either way.
 
