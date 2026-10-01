@@ -52,10 +52,16 @@
        0.0841,
        0.2801
       ],
+      "above_count_matched": 0.1199,
+      "above_count_matched_ci": [
+       0.0529,
+       0.1965
+      ],
       "hits": 104,
       "n_pairs": 292,
       "name": "as scored",
       "null": 0.181,
+      "null_count_matched": 0.2363,
       "rate": 0.3562
      },
      {
@@ -763,6 +769,16 @@
        24,
        0.1143
       ],
+      "describe": {
+       "abs_dbear_median": 23.004,
+       "dets_per_image": 0.8667,
+       "hfov_median": 71.5311,
+       "in_view_per_image": 1.1667,
+       "n_positive_images": 30,
+       "range_median": 13.3608,
+       "share_images_firing": 0.5,
+       "share_of_all_hits": 0.0673
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -814,10 +830,76 @@
       "n_ramps": 21,
       "n_sequences": 4,
       "null": 0.13,
+      "nulls": {
+       "donors": {
+        "above": 0.07,
+        "above_ci_ramp": [
+         -0.0844,
+         0.2486
+        ],
+        "above_ci_seq": [
+         -0.085,
+         0.2679
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.13,
+        "offset_excess": {
+         "excess": 7.7,
+         "excess_10_40": 1.0,
+         "excess_40_90": 3.25,
+         "excess_within_10": 3.45,
+         "peak_bin": -62.5
+        }
+       },
+       "donors_c": {
+        "above": 0.05,
+        "above_ci_ramp": [
+         -0.139,
+         0.2527
+        ],
+        "above_ci_seq": [
+         -0.1333,
+         0.2964
+        ],
+        "label": "count-matched swap",
+        "null": 0.15,
+        "offset_excess": {
+         "excess": 7.85,
+         "excess_10_40": 0.65,
+         "excess_40_90": 4.05,
+         "excess_within_10": 3.15,
+         "peak_bin": -62.5
+        }
+       },
+       "donors_cam": {
+        "above": -0.0043,
+        "above_ci_ramp": [
+         -0.16,
+         0.1803
+        ],
+        "above_ci_seq": [
+         -0.1615,
+         0.1821
+        ],
+        "label": "within-camera swap",
+        "null": 0.2043,
+        "offset_excess": {
+         "excess": 0.8,
+         "excess_10_40": -3.35,
+         "excess_40_90": 1.45,
+         "excess_within_10": 2.7,
+         "peak_bin": -62.5
+        }
+       }
+      },
       "rate": 0.2,
       "rate_ci": [
        0.0571,
        0.3684
+      ],
+      "rate_ci_seq": [
+       0.0513,
+       0.3571
       ],
       "shift_scan_above": [
        [
@@ -944,7 +1026,8 @@
         45,
         0.05
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "GoPro GoPro Max": {
       "above": -0.1061,
@@ -960,6 +1043,16 @@
        -39,
        -0.0085
       ],
+      "describe": {
+       "abs_dbear_median": 31.82,
+       "dets_per_image": 0.4146,
+       "hfov_median": 94.4113,
+       "in_view_per_image": 1.0,
+       "n_positive_images": 41,
+       "range_median": 10.5289,
+       "share_images_firing": 0.3171,
+       "share_of_all_hits": 0.0385
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -1011,10 +1104,76 @@
       "n_ramps": 3,
       "n_sequences": 1,
       "null": 0.2037,
+      "nulls": {
+       "donors": {
+        "above": -0.1061,
+        "above_ci_ramp": [
+         -0.1621,
+         0.0318
+        ],
+        "above_ci_seq": [
+         -0.1061,
+         -0.1061
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.2037,
+        "offset_excess": {
+         "excess": -11.35,
+         "excess_10_40": -4.15,
+         "excess_40_90": -2.0,
+         "excess_within_10": -5.2,
+         "peak_bin": -72.5
+        }
+       },
+       "donors_c": {
+        "above": -0.0341,
+        "above_ci_ramp": [
+         -0.0741,
+         0.0682
+        ],
+        "above_ci_seq": [
+         -0.0341,
+         -0.0341
+        ],
+        "label": "count-matched swap",
+        "null": 0.1317,
+        "offset_excess": {
+         "excess": -5.2,
+         "excess_10_40": -1.25,
+         "excess_40_90": -1.85,
+         "excess_within_10": -2.1,
+         "peak_bin": -57.5
+        }
+       },
+       "donors_cam": {
+        "above": -0.0024,
+        "above_ci_ramp": [
+         -0.0603,
+         0.15
+        ],
+        "above_ci_seq": [
+         -0.0024,
+         -0.0024
+        ],
+        "label": "within-camera swap",
+        "null": 0.1,
+        "offset_excess": {
+         "excess": -2.65,
+         "excess_10_40": -1.4,
+         "excess_40_90": -1.15,
+         "excess_within_10": -0.1,
+         "peak_bin": -72.5
+        }
+       }
+      },
       "rate": 0.0976,
       "rate_ci": [
        0.0,
        0.1818
+      ],
+      "rate_ci_seq": [
+       0.0976,
+       0.0976
       ],
       "shift_scan_above": [
        [
@@ -1141,7 +1300,8 @@
         45,
         -0.0439
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "GoPro HERO11 Black": {
       "above": 0.5309,
@@ -1157,6 +1317,16 @@
        -15,
        0.5331
       ],
+      "describe": {
+       "abs_dbear_median": 30.0216,
+       "dets_per_image": 2.1277,
+       "hfov_median": 99.9331,
+       "in_view_per_image": 1.4468,
+       "n_positive_images": 47,
+       "range_median": 12.8189,
+       "share_images_firing": 0.8298,
+       "share_of_all_hits": 0.4615
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -1208,10 +1378,76 @@
       "n_ramps": 36,
       "n_sequences": 7,
       "null": 0.175,
+      "nulls": {
+       "donors": {
+        "above": 0.5309,
+        "above_ci_ramp": [
+         0.4026,
+         0.6462
+        ],
+        "above_ci_seq": [
+         0.3771,
+         0.6197
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.175,
+        "offset_excess": {
+         "excess": 130.7,
+         "excess_10_40": 38.55,
+         "excess_40_90": 50.7,
+         "excess_within_10": 41.45,
+         "peak_bin": 2.5
+        }
+       },
+       "donors_c": {
+        "above": 0.2529,
+        "above_ci_ramp": [
+         0.139,
+         0.3699
+        ],
+        "above_ci_seq": [
+         0.1059,
+         0.3623
+        ],
+        "label": "count-matched swap",
+        "null": 0.4529,
+        "offset_excess": {
+         "excess": 36.6,
+         "excess_10_40": 2.85,
+         "excess_40_90": 11.2,
+         "excess_within_10": 22.55,
+         "peak_bin": 2.5
+        }
+       },
+       "donors_cam": {
+        "above": 0.2081,
+        "above_ci_ramp": [
+         0.0684,
+         0.344
+        ],
+        "above_ci_seq": [
+         0.025,
+         0.324
+        ],
+        "label": "within-camera swap",
+        "null": 0.4978,
+        "offset_excess": {
+         "excess": 46.25,
+         "excess_10_40": 6.25,
+         "excess_40_90": 19.65,
+         "excess_within_10": 20.35,
+         "peak_bin": 2.5
+        }
+       }
+      },
       "rate": 0.7059,
       "rate_ci": [
        0.5806,
        0.8195
+      ],
+      "rate_ci_seq": [
+       0.5455,
+       0.806
       ],
       "shift_scan_above": [
        [
@@ -1338,7 +1574,8 @@
         45,
         0.261
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "motorola moto x4": {
       "above": 0.1598,
@@ -1354,6 +1591,16 @@
        -9,
        0.2239
       ],
+      "describe": {
+       "abs_dbear_median": 12.7173,
+       "dets_per_image": 1.3256,
+       "hfov_median": 68.6609,
+       "in_view_per_image": 1.0698,
+       "n_positive_images": 43,
+       "range_median": 12.8459,
+       "share_images_firing": 0.8372,
+       "share_of_all_hits": 0.1538
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -1405,10 +1652,76 @@
       "n_ramps": 23,
       "n_sequences": 3,
       "null": 0.188,
+      "nulls": {
+       "donors": {
+        "above": 0.1598,
+        "above_ci_ramp": [
+         0.0241,
+         0.3618
+        ],
+        "above_ci_seq": [
+         0.125,
+         0.1767
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.188,
+        "offset_excess": {
+         "excess": 17.15,
+         "excess_10_40": 7.45,
+         "excess_40_90": 3.0,
+         "excess_within_10": 6.7,
+         "peak_bin": -12.5
+        }
+       },
+       "donors_c": {
+        "above": 0.1457,
+        "above_ci_ramp": [
+         0.0066,
+         0.354
+        ],
+        "above_ci_seq": [
+         0.0625,
+         0.16
+        ],
+        "label": "count-matched swap",
+        "null": 0.2022,
+        "offset_excess": {
+         "excess": 19.4,
+         "excess_10_40": 7.75,
+         "excess_40_90": 3.2,
+         "excess_within_10": 8.45,
+         "peak_bin": 2.5
+        }
+       },
+       "donors_cam": {
+        "above": 0.088,
+        "above_ci_ramp": [
+         -0.06,
+         0.2651
+        ],
+        "above_ci_seq": [
+         -0.075,
+         0.135
+        ],
+        "label": "within-camera swap",
+        "null": 0.2598,
+        "offset_excess": {
+         "excess": 8.7,
+         "excess_10_40": 3.35,
+         "excess_40_90": -0.3,
+         "excess_within_10": 5.65,
+         "peak_bin": 2.5
+        }
+       }
+      },
       "rate": 0.3478,
       "rate_ci": [
        0.2041,
        0.5641
+      ],
+      "rate_ci_seq": [
+       0.25,
+       0.4167
       ],
       "shift_scan_above": [
        [
@@ -1535,7 +1848,8 @@
         45,
         0.0315
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "none none": {
       "above": 0.0787,
@@ -1551,6 +1865,16 @@
        -6,
        0.1295
       ],
+      "describe": {
+       "abs_dbear_median": 16.2269,
+       "dets_per_image": 1.0909,
+       "hfov_median": 75.8314,
+       "in_view_per_image": 1.1091,
+       "n_positive_images": 55,
+       "range_median": 13.5772,
+       "share_images_firing": 0.7273,
+       "share_of_all_hits": 0.1923
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -1602,10 +1926,76 @@
       "n_ramps": 27,
       "n_sequences": 20,
       "null": 0.2492,
+      "nulls": {
+       "donors": {
+        "above": 0.0787,
+        "above_ci_ramp": [
+         -0.0627,
+         0.2095
+        ],
+        "above_ci_seq": [
+         -0.032,
+         0.1975
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.2492,
+        "offset_excess": {
+         "excess": -1.85,
+         "excess_10_40": -1.0,
+         "excess_40_90": -4.4,
+         "excess_within_10": 3.55,
+         "peak_bin": 2.5
+        }
+       },
+       "donors_c": {
+        "above": 0.0926,
+        "above_ci_ramp": [
+         -0.0389,
+         0.2183
+        ],
+        "above_ci_seq": [
+         -0.0254,
+         0.2239
+        ],
+        "label": "count-matched swap",
+        "null": 0.2352,
+        "offset_excess": {
+         "excess": 1.45,
+         "excess_10_40": 0.4,
+         "excess_40_90": -3.75,
+         "excess_within_10": 4.8,
+         "peak_bin": 2.5
+        }
+       },
+       "donors_cam": {
+        "above": 0.1074,
+        "above_ci_ramp": [
+         -0.0314,
+         0.2318
+        ],
+        "above_ci_seq": [
+         -0.0102,
+         0.2398
+        ],
+        "label": "within-camera swap",
+        "null": 0.2205,
+        "offset_excess": {
+         "excess": 6.1,
+         "excess_10_40": 3.85,
+         "excess_40_90": -3.55,
+         "excess_within_10": 5.8,
+         "peak_bin": 2.5
+        }
+       }
+      },
       "rate": 0.3279,
       "rate_ci": [
        0.1724,
        0.4667
+      ],
+      "rate_ci_seq": [
+       0.1833,
+       0.4822
       ],
       "shift_scan_above": [
        [
@@ -1732,7 +2122,8 @@
         45,
         -0.0344
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      }
     },
     "sequences": [
@@ -2061,10 +2452,16 @@
        0.0309,
        0.1958
       ],
+      "above_count_matched": 0.061,
+      "above_count_matched_ci": [
+       0.0195,
+       0.1102
+      ],
       "hits": 58,
       "n_pairs": 292,
       "name": "as scored",
       "null": 0.0928,
+      "null_count_matched": 0.1377,
       "rate": 0.1986
      },
      {
@@ -2772,6 +3169,16 @@
        45,
        0.0714
       ],
+      "describe": {
+       "abs_dbear_median": 23.004,
+       "dets_per_image": 0.2333,
+       "hfov_median": 71.5311,
+       "in_view_per_image": 1.1667,
+       "n_positive_images": 30,
+       "range_median": 13.3608,
+       "share_images_firing": 0.2,
+       "share_of_all_hits": 0.0172
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -2823,10 +3230,76 @@
       "n_ramps": 21,
       "n_sequences": 4,
       "null": 0.0614,
+      "nulls": {
+       "donors": {
+        "above": -0.0329,
+        "above_ci_ramp": [
+         -0.0808,
+         0.0379
+        ],
+        "above_ci_seq": [
+         -0.0542,
+         -0.0178
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.0614,
+        "offset_excess": {
+         "excess": 0.25,
+         "excess_10_40": 0.2,
+         "excess_40_90": 0.45,
+         "excess_within_10": -0.4,
+         "peak_bin": -62.5
+        }
+       },
+       "donors_c": {
+        "above": -0.04,
+        "above_ci_ramp": [
+         -0.1313,
+         0.0485
+        ],
+        "above_ci_seq": [
+         -0.0756,
+         0.0
+        ],
+        "label": "count-matched swap",
+        "null": 0.0686,
+        "offset_excess": {
+         "excess": 1.3,
+         "excess_10_40": 0.6,
+         "excess_40_90": 1.6,
+         "excess_within_10": -0.9,
+         "peak_bin": -62.5
+        }
+       },
+       "donors_cam": {
+        "above": -0.0414,
+        "above_ci_ramp": [
+         -0.1,
+         0.0352
+        ],
+        "above_ci_seq": [
+         -0.105,
+         0.0064
+        ],
+        "label": "within-camera swap",
+        "null": 0.07,
+        "offset_excess": {
+         "excess": -1.1,
+         "excess_10_40": -1.55,
+         "excess_40_90": 0.5,
+         "excess_within_10": -0.05,
+         "peak_bin": -62.5
+        }
+       }
+      },
       "rate": 0.0286,
       "rate_ci": [
        0.0,
        0.0909
+      ],
+      "rate_ci_seq": [
+       0.0,
+       0.0667
       ],
       "shift_scan_above": [
        [
@@ -2953,7 +3426,8 @@
         45,
         0.0714
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "GoPro GoPro Max": {
       "above": -0.1073,
@@ -2969,6 +3443,16 @@
        -33,
        -0.0061
       ],
+      "describe": {
+       "abs_dbear_median": 31.82,
+       "dets_per_image": 0.0,
+       "hfov_median": 94.4113,
+       "in_view_per_image": 1.0,
+       "n_positive_images": 41,
+       "range_median": 10.5289,
+       "share_images_firing": 0.0,
+       "share_of_all_hits": 0.0
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -3020,8 +3504,74 @@
       "n_ramps": 3,
       "n_sequences": 1,
       "null": 0.1073,
+      "nulls": {
+       "donors": {
+        "above": -0.1073,
+        "above_ci_ramp": [
+         -0.131,
+         0.0
+        ],
+        "above_ci_seq": [
+         -0.1073,
+         -0.1073
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.1073,
+        "offset_excess": {
+         "excess": -9.3,
+         "excess_10_40": -4.6,
+         "excess_40_90": -1.55,
+         "excess_within_10": -3.15,
+         "peak_bin": -67.5
+        }
+       },
+       "donors_c": {
+        "above": 0.0,
+        "above_ci_ramp": [
+         0.0,
+         0.0
+        ],
+        "above_ci_seq": [
+         0.0,
+         0.0
+        ],
+        "label": "count-matched swap",
+        "null": 0.0,
+        "offset_excess": {
+         "excess": 0.0,
+         "excess_10_40": 0.0,
+         "excess_40_90": 0.0,
+         "excess_within_10": 0.0,
+         "peak_bin": -87.5
+        }
+       },
+       "donors_cam": {
+        "above": 0.0,
+        "above_ci_ramp": [
+         0.0,
+         0.0
+        ],
+        "above_ci_seq": [
+         0.0,
+         0.0
+        ],
+        "label": "within-camera swap",
+        "null": 0.0,
+        "offset_excess": {
+         "excess": 0.0,
+         "excess_10_40": 0.0,
+         "excess_40_90": 0.0,
+         "excess_within_10": 0.0,
+         "peak_bin": -87.5
+        }
+       }
+      },
       "rate": 0.0,
       "rate_ci": [
+       0.0,
+       0.0
+      ],
+      "rate_ci_seq": [
        0.0,
        0.0
       ],
@@ -3150,7 +3700,8 @@
         45,
         -0.0512
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "GoPro HERO11 Black": {
       "above": 0.5235,
@@ -3166,6 +3717,16 @@
        -3,
        0.5419
       ],
+      "describe": {
+       "abs_dbear_median": 30.0216,
+       "dets_per_image": 1.7234,
+       "hfov_median": 99.9331,
+       "in_view_per_image": 1.4468,
+       "n_positive_images": 47,
+       "range_median": 12.8189,
+       "share_images_firing": 0.8085,
+       "share_of_all_hits": 0.7414
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -3217,10 +3778,76 @@
       "n_ramps": 36,
       "n_sequences": 7,
       "null": 0.1088,
+      "nulls": {
+       "donors": {
+        "above": 0.5235,
+        "above_ci_ramp": [
+         0.3773,
+         0.6494
+        ],
+        "above_ci_seq": [
+         0.389,
+         0.6593
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.1088,
+        "offset_excess": {
+         "excess": 115.6,
+         "excess_10_40": 33.1,
+         "excess_40_90": 43.2,
+         "excess_within_10": 39.3,
+         "peak_bin": 2.5
+        }
+       },
+       "donors_c": {
+        "above": 0.2294,
+        "above_ci_ramp": [
+         0.1176,
+         0.3325
+        ],
+        "above_ci_seq": [
+         0.1175,
+         0.3424
+        ],
+        "label": "count-matched swap",
+        "null": 0.4029,
+        "offset_excess": {
+         "excess": 27.25,
+         "excess_10_40": -1.85,
+         "excess_40_90": 7.5,
+         "excess_within_10": 21.6,
+         "peak_bin": 2.5
+        }
+       },
+       "donors_cam": {
+        "above": 0.1691,
+        "above_ci_ramp": [
+         0.0211,
+         0.3023
+        ],
+        "above_ci_seq": [
+         0.0054,
+         0.3201
+        ],
+        "label": "within-camera swap",
+        "null": 0.4632,
+        "offset_excess": {
+         "excess": 35.3,
+         "excess_10_40": 0.95,
+         "excess_40_90": 15.8,
+         "excess_within_10": 18.55,
+         "peak_bin": 2.5
+        }
+       }
+      },
       "rate": 0.6324,
       "rate_ci": [
        0.4844,
        0.7571
+      ],
+      "rate_ci_seq": [
+       0.4915,
+       0.7778
       ],
       "shift_scan_above": [
        [
@@ -3347,7 +3974,8 @@
         45,
         0.225
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "motorola moto x4": {
       "above": 0.0174,
@@ -3363,6 +3991,16 @@
        -45,
        0.0804
       ],
+      "describe": {
+       "abs_dbear_median": 12.7173,
+       "dets_per_image": 0.2791,
+       "hfov_median": 68.6609,
+       "in_view_per_image": 1.0698,
+       "n_positive_images": 43,
+       "range_median": 12.8459,
+       "share_images_firing": 0.2791,
+       "share_of_all_hits": 0.0862
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -3414,10 +4052,76 @@
       "n_ramps": 23,
       "n_sequences": 3,
       "null": 0.0913,
+      "nulls": {
+       "donors": {
+        "above": 0.0174,
+        "above_ci_ramp": [
+         -0.0784,
+         0.1501
+        ],
+        "above_ci_seq": [
+         -0.0375,
+         0.03
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.0913,
+        "offset_excess": {
+         "excess": -0.65,
+         "excess_10_40": -1.85,
+         "excess_40_90": 0.35,
+         "excess_within_10": 0.85,
+         "peak_bin": 37.5
+        }
+       },
+       "donors_c": {
+        "above": 0.0359,
+        "above_ci_ramp": [
+         -0.041,
+         0.157
+        ],
+        "above_ci_seq": [
+         -0.025,
+         0.0467
+        ],
+        "label": "count-matched swap",
+        "null": 0.0728,
+        "offset_excess": {
+         "excess": 4.0,
+         "excess_10_40": 0.5,
+         "excess_40_90": 0.4,
+         "excess_within_10": 3.1,
+         "peak_bin": 2.5
+        }
+       },
+       "donors_cam": {
+        "above": 0.0315,
+        "above_ci_ramp": [
+         -0.0714,
+         0.1672
+        ],
+        "above_ci_seq": [
+         -0.05,
+         0.04
+        ],
+        "label": "within-camera swap",
+        "null": 0.0772,
+        "offset_excess": {
+         "excess": 2.6,
+         "excess_10_40": 1.15,
+         "excess_40_90": -0.4,
+         "excess_within_10": 1.85,
+         "peak_bin": 2.5
+        }
+       }
+      },
       "rate": 0.1087,
       "rate_ci": [
        0.0196,
        0.25
+      ],
+      "rate_ci_seq": [
+       0.0,
+       0.1667
       ],
       "shift_scan_above": [
        [
@@ -3544,7 +4248,8 @@
         45,
         0.0011
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "none none": {
       "above": -0.0139,
@@ -3560,6 +4265,16 @@
        -6,
        0.0377
       ],
+      "describe": {
+       "abs_dbear_median": 16.2269,
+       "dets_per_image": 0.2545,
+       "hfov_median": 75.8314,
+       "in_view_per_image": 1.1091,
+       "n_positive_images": 55,
+       "range_median": 13.5772,
+       "share_images_firing": 0.2545,
+       "share_of_all_hits": 0.1207
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -3611,10 +4326,76 @@
       "n_ramps": 27,
       "n_sequences": 20,
       "null": 0.1287,
+      "nulls": {
+       "donors": {
+        "above": -0.0139,
+        "above_ci_ramp": [
+         -0.0934,
+         0.0727
+        ],
+        "above_ci_seq": [
+         -0.0716,
+         0.0541
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.1287,
+        "offset_excess": {
+         "excess": -5.85,
+         "excess_10_40": -1.05,
+         "excess_40_90": -1.2,
+         "excess_within_10": -3.6,
+         "peak_bin": 12.5
+        }
+       },
+       "donors_c": {
+        "above": 0.0025,
+        "above_ci_ramp": [
+         -0.0427,
+         0.0509
+        ],
+        "above_ci_seq": [
+         -0.0524,
+         0.0603
+        ],
+        "label": "count-matched swap",
+        "null": 0.1123,
+        "offset_excess": {
+         "excess": 0.35,
+         "excess_10_40": 1.15,
+         "excess_40_90": 0.05,
+         "excess_within_10": -0.85,
+         "peak_bin": 12.5
+        }
+       },
+       "donors_cam": {
+        "above": 0.0508,
+        "above_ci_ramp": [
+         -0.0284,
+         0.1405
+        ],
+        "above_ci_seq": [
+         -0.0238,
+         0.1366
+        ],
+        "label": "within-camera swap",
+        "null": 0.0639,
+        "offset_excess": {
+         "excess": 5.0,
+         "excess_10_40": 4.1,
+         "excess_40_90": 0.5,
+         "excess_within_10": 0.4,
+         "peak_bin": 12.5
+        }
+       }
+      },
       "rate": 0.1148,
       "rate_ci": [
        0.0363,
        0.2034
+      ],
+      "rate_ci_seq": [
+       0.037,
+       0.2037
       ],
       "shift_scan_above": [
        [
@@ -3741,7 +4522,8 @@
         45,
         -0.0352
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      }
     },
     "sequences": [
@@ -4070,10 +4852,16 @@
        0.0216,
        0.1567
       ],
+      "above_count_matched": 0.0495,
+      "above_count_matched_ci": [
+       0.0162,
+       0.0892
+      ],
       "hits": 43,
       "n_pairs": 292,
       "name": "as scored",
       "null": 0.0646,
+      "null_count_matched": 0.0978,
       "rate": 0.1473
      },
      {
@@ -4781,6 +5569,16 @@
        45,
        0.0214
       ],
+      "describe": {
+       "abs_dbear_median": 23.004,
+       "dets_per_image": 0.0333,
+       "hfov_median": 71.5311,
+       "in_view_per_image": 1.1667,
+       "n_positive_images": 30,
+       "range_median": 13.3608,
+       "share_images_firing": 0.0333,
+       "share_of_all_hits": 0.0
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -4832,8 +5630,74 @@
       "n_ramps": 21,
       "n_sequences": 4,
       "null": 0.0371,
+      "nulls": {
+       "donors": {
+        "above": -0.0371,
+        "above_ci_ramp": [
+         -0.0549,
+         -0.02
+        ],
+        "above_ci_seq": [
+         -0.0644,
+         -0.0071
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.0371,
+        "offset_excess": {
+         "excess": -2.0,
+         "excess_10_40": -1.25,
+         "excess_40_90": -0.05,
+         "excess_within_10": -0.7,
+         "peak_bin": -62.5
+        }
+       },
+       "donors_c": {
+        "above": -0.0457,
+        "above_ci_ramp": [
+         -0.1,
+         0.0
+        ],
+        "above_ci_seq": [
+         -0.1,
+         0.0
+        ],
+        "label": "count-matched swap",
+        "null": 0.0457,
+        "offset_excess": {
+         "excess": -1.35,
+         "excess_10_40": -0.75,
+         "excess_40_90": 0.75,
+         "excess_within_10": -1.35,
+         "peak_bin": -62.5
+        }
+       },
+       "donors_cam": {
+        "above": -0.0157,
+        "above_ci_ramp": [
+         -0.0304,
+         -0.0049
+        ],
+        "above_ci_seq": [
+         -0.0425,
+         -0.0087
+        ],
+        "label": "within-camera swap",
+        "null": 0.0157,
+        "offset_excess": {
+         "excess": 0.05,
+         "excess_10_40": -0.35,
+         "excess_40_90": 0.6,
+         "excess_within_10": -0.2,
+         "peak_bin": -62.5
+        }
+       }
+      },
       "rate": 0.0,
       "rate_ci": [
+       0.0,
+       0.0
+      ],
+      "rate_ci_seq": [
        0.0,
        0.0
       ],
@@ -4962,7 +5826,8 @@
         45,
         0.0214
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "GoPro GoPro Max": {
       "above": -0.0683,
@@ -4978,6 +5843,16 @@
        -33,
        -0.0024
       ],
+      "describe": {
+       "abs_dbear_median": 31.82,
+       "dets_per_image": 0.0,
+       "hfov_median": 94.4113,
+       "in_view_per_image": 1.0,
+       "n_positive_images": 41,
+       "range_median": 10.5289,
+       "share_images_firing": 0.0,
+       "share_of_all_hits": 0.0
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -5029,8 +5904,74 @@
       "n_ramps": 3,
       "n_sequences": 1,
       "null": 0.0683,
+      "nulls": {
+       "donors": {
+        "above": -0.0683,
+        "above_ci_ramp": [
+         -0.0845,
+         0.0
+        ],
+        "above_ci_seq": [
+         -0.0683,
+         -0.0683
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.0683,
+        "offset_excess": {
+         "excess": -5.6,
+         "excess_10_40": -2.75,
+         "excess_40_90": -0.9,
+         "excess_within_10": -1.95,
+         "peak_bin": -67.5
+        }
+       },
+       "donors_c": {
+        "above": 0.0,
+        "above_ci_ramp": [
+         0.0,
+         0.0
+        ],
+        "above_ci_seq": [
+         0.0,
+         0.0
+        ],
+        "label": "count-matched swap",
+        "null": 0.0,
+        "offset_excess": {
+         "excess": 0.0,
+         "excess_10_40": 0.0,
+         "excess_40_90": 0.0,
+         "excess_within_10": 0.0,
+         "peak_bin": -87.5
+        }
+       },
+       "donors_cam": {
+        "above": 0.0,
+        "above_ci_ramp": [
+         0.0,
+         0.0
+        ],
+        "above_ci_seq": [
+         0.0,
+         0.0
+        ],
+        "label": "within-camera swap",
+        "null": 0.0,
+        "offset_excess": {
+         "excess": 0.0,
+         "excess_10_40": 0.0,
+         "excess_40_90": 0.0,
+         "excess_within_10": 0.0,
+         "peak_bin": -87.5
+        }
+       }
+      },
       "rate": 0.0,
       "rate_ci": [
+       0.0,
+       0.0
+      ],
+      "rate_ci_seq": [
        0.0,
        0.0
       ],
@@ -5159,7 +6100,8 @@
         45,
         -0.028
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "GoPro HERO11 Black": {
       "above": 0.4868,
@@ -5175,6 +6117,16 @@
        -3,
        0.5059
       ],
+      "describe": {
+       "abs_dbear_median": 30.0216,
+       "dets_per_image": 1.4043,
+       "hfov_median": 99.9331,
+       "in_view_per_image": 1.4468,
+       "n_positive_images": 47,
+       "range_median": 12.8189,
+       "share_images_firing": 0.7447,
+       "share_of_all_hits": 0.907
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -5226,10 +6178,76 @@
       "n_ramps": 36,
       "n_sequences": 7,
       "null": 0.0868,
+      "nulls": {
+       "donors": {
+        "above": 0.4868,
+        "above_ci_ramp": [
+         0.3524,
+         0.6108
+        ],
+        "above_ci_seq": [
+         0.3549,
+         0.6569
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.0868,
+        "offset_excess": {
+         "excess": 93.4,
+         "excess_10_40": 24.95,
+         "excess_40_90": 34.75,
+         "excess_within_10": 33.7,
+         "peak_bin": 2.5
+        }
+       },
+       "donors_c": {
+        "above": 0.2449,
+        "above_ci_ramp": [
+         0.1373,
+         0.3466
+        ],
+        "above_ci_seq": [
+         0.1247,
+         0.3879
+        ],
+        "label": "count-matched swap",
+        "null": 0.3287,
+        "offset_excess": {
+         "excess": 25.25,
+         "excess_10_40": -2.15,
+         "excess_40_90": 8.25,
+         "excess_within_10": 19.15,
+         "peak_bin": 2.5
+        }
+       },
+       "donors_cam": {
+        "above": 0.1529,
+        "above_ci_ramp": [
+         0.002,
+         0.2853
+        ],
+        "above_ci_seq": [
+         -0.0385,
+         0.3581
+        ],
+        "label": "within-camera swap",
+        "null": 0.4206,
+        "offset_excess": {
+         "excess": 24.85,
+         "excess_10_40": -2.55,
+         "excess_40_90": 12.6,
+         "excess_within_10": 14.8,
+         "peak_bin": 2.5
+        }
+       }
+      },
       "rate": 0.5735,
       "rate_ci": [
        0.4355,
        0.6987
+      ],
+      "rate_ci_seq": [
+       0.4339,
+       0.75
       ],
       "shift_scan_above": [
        [
@@ -5356,7 +6374,8 @@
         45,
         0.1434
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "motorola moto x4": {
       "above": -0.0641,
@@ -5372,6 +6391,16 @@
        -45,
        0.0196
       ],
+      "describe": {
+       "abs_dbear_median": 12.7173,
+       "dets_per_image": 0.0698,
+       "hfov_median": 68.6609,
+       "in_view_per_image": 1.0698,
+       "n_positive_images": 43,
+       "range_median": 12.8459,
+       "share_images_firing": 0.0698,
+       "share_of_all_hits": 0.0
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -5423,8 +6452,74 @@
       "n_ramps": 23,
       "n_sequences": 3,
       "null": 0.0641,
+      "nulls": {
+       "donors": {
+        "above": -0.0641,
+        "above_ci_ramp": [
+         -0.0956,
+         -0.0429
+        ],
+        "above_ci_seq": [
+         -0.1167,
+         -0.025
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.0641,
+        "offset_excess": {
+         "excess": -6.1,
+         "excess_10_40": -3.6,
+         "excess_40_90": -0.15,
+         "excess_within_10": -2.35,
+         "peak_bin": 47.5
+        }
+       },
+       "donors_c": {
+        "above": -0.038,
+        "above_ci_ramp": [
+         -0.0611,
+         -0.0198
+        ],
+        "above_ci_seq": [
+         -0.075,
+         -0.0125
+        ],
+        "label": "count-matched swap",
+        "null": 0.038,
+        "offset_excess": {
+         "excess": -1.05,
+         "excess_10_40": -1.0,
+         "excess_40_90": 0.4,
+         "excess_within_10": -0.45,
+         "peak_bin": 47.5
+        }
+       },
+       "donors_cam": {
+        "above": -0.0207,
+        "above_ci_ramp": [
+         -0.0339,
+         -0.0112
+        ],
+        "above_ci_seq": [
+         -0.0333,
+         -0.015
+        ],
+        "label": "within-camera swap",
+        "null": 0.0207,
+        "offset_excess": {
+         "excess": 0.75,
+         "excess_10_40": 0.7,
+         "excess_40_90": 0.5,
+         "excess_within_10": -0.45,
+         "peak_bin": 47.5
+        }
+       }
+      },
       "rate": 0.0,
       "rate_ci": [
+       0.0,
+       0.0
+      ],
+      "rate_ci_seq": [
        0.0,
        0.0
       ],
@@ -5553,7 +6648,8 @@
         45,
         -0.012
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "none none": {
       "above": -0.0238,
@@ -5569,6 +6665,16 @@
        -36,
        0.0025
       ],
+      "describe": {
+       "abs_dbear_median": 16.2269,
+       "dets_per_image": 0.1091,
+       "hfov_median": 75.8314,
+       "in_view_per_image": 1.1091,
+       "n_positive_images": 55,
+       "range_median": 13.5772,
+       "share_images_firing": 0.1091,
+       "share_of_all_hits": 0.093
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -5620,10 +6726,76 @@
       "n_ramps": 27,
       "n_sequences": 20,
       "null": 0.0893,
+      "nulls": {
+       "donors": {
+        "above": -0.0238,
+        "above_ci_ramp": [
+         -0.0777,
+         0.0437
+        ],
+        "above_ci_seq": [
+         -0.075,
+         0.0291
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.0893,
+        "offset_excess": {
+         "excess": -6.05,
+         "excess_10_40": -3.8,
+         "excess_40_90": 0.3,
+         "excess_within_10": -2.55,
+         "peak_bin": 52.5
+        }
+       },
+       "donors_c": {
+        "above": 0.0189,
+        "above_ci_ramp": [
+         -0.025,
+         0.0719
+        ],
+        "above_ci_seq": [
+         -0.0336,
+         0.0697
+        ],
+        "label": "count-matched swap",
+        "null": 0.0467,
+        "offset_excess": {
+         "excess": 1.05,
+         "excess_10_40": -0.15,
+         "excess_40_90": 0.95,
+         "excess_within_10": 0.25,
+         "peak_bin": 52.5
+        }
+       },
+       "donors_cam": {
+        "above": 0.0311,
+        "above_ci_ramp": [
+         -0.0192,
+         0.0951
+        ],
+        "above_ci_seq": [
+         -0.0179,
+         0.0871
+        ],
+        "label": "within-camera swap",
+        "null": 0.0344,
+        "offset_excess": {
+         "excess": 2.1,
+         "excess_10_40": 0.25,
+         "excess_40_90": 1.05,
+         "excess_within_10": 0.8,
+         "peak_bin": 7.5
+        }
+       }
+      },
       "rate": 0.0656,
       "rate_ci": [
        0.0159,
        0.1311
+      ],
+      "rate_ci_seq": [
+       0.0149,
+       0.125
       ],
       "shift_scan_above": [
        [
@@ -5750,7 +6922,8 @@
         45,
         -0.0197
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      }
     },
     "sequences": [
@@ -6492,10 +7665,16 @@
        0.0608,
        0.2339
       ],
+      "above_count_matched": 0.1021,
+      "above_count_matched_ci": [
+       0.038,
+       0.1719
+      ],
       "hits": 111,
       "n_pairs": 292,
       "name": "as scored",
       "null": 0.2373,
+      "null_count_matched": 0.2781,
       "rate": 0.3801
      },
      {
@@ -7203,6 +8382,16 @@
        33,
        0.1629
       ],
+      "describe": {
+       "abs_dbear_median": 23.004,
+       "dets_per_image": 1.9333,
+       "hfov_median": 71.5311,
+       "in_view_per_image": 1.1667,
+       "n_positive_images": 30,
+       "range_median": 13.3608,
+       "share_images_firing": 0.7667,
+       "share_of_all_hits": 0.0721
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -7254,10 +8443,76 @@
       "n_ramps": 21,
       "n_sequences": 4,
       "null": 0.17,
+      "nulls": {
+       "donors": {
+        "above": 0.0586,
+        "above_ci_ramp": [
+         -0.0983,
+         0.2447
+        ],
+        "above_ci_seq": [
+         -0.1267,
+         0.3143
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.17,
+        "offset_excess": {
+         "excess": 15.75,
+         "excess_10_40": 5.15,
+         "excess_40_90": 5.3,
+         "excess_within_10": 5.3,
+         "peak_bin": -32.5
+        }
+       },
+       "donors_c": {
+        "above": 0.0714,
+        "above_ci_ramp": [
+         -0.0977,
+         0.2771
+        ],
+        "above_ci_seq": [
+         -0.0983,
+         0.3036
+        ],
+        "label": "count-matched swap",
+        "null": 0.1571,
+        "offset_excess": {
+         "excess": 16.8,
+         "excess_10_40": 4.85,
+         "excess_40_90": 6.55,
+         "excess_within_10": 5.4,
+         "peak_bin": -32.5
+        }
+       },
+       "donors_cam": {
+        "above": -0.13,
+        "above_ci_ramp": [
+         -0.3153,
+         0.0709
+        ],
+        "above_ci_seq": [
+         -0.2551,
+         -0.0071
+        ],
+        "label": "within-camera swap",
+        "null": 0.3586,
+        "offset_excess": {
+         "excess": -3.7,
+         "excess_10_40": -3.55,
+         "excess_40_90": 0.05,
+         "excess_within_10": -0.2,
+         "peak_bin": -32.5
+        }
+       }
+      },
       "rate": 0.2286,
       "rate_ci": [
        0.0811,
        0.4075
+      ],
+      "rate_ci_seq": [
+       0.0667,
+       0.4286
       ],
       "shift_scan_above": [
        [
@@ -7384,7 +8639,8 @@
         45,
         0.0971
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "GoPro GoPro Max": {
       "above": 0.0634,
@@ -7400,6 +8656,16 @@
        -21,
        0.1512
       ],
+      "describe": {
+       "abs_dbear_median": 31.82,
+       "dets_per_image": 2.9756,
+       "hfov_median": 94.4113,
+       "in_view_per_image": 1.0,
+       "n_positive_images": 41,
+       "range_median": 10.5289,
+       "share_images_firing": 0.6585,
+       "share_of_all_hits": 0.1171
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -7451,10 +8717,76 @@
       "n_ramps": 3,
       "n_sequences": 1,
       "null": 0.2537,
+      "nulls": {
+       "donors": {
+        "above": 0.0634,
+        "above_ci_ramp": [
+         -0.0379,
+         0.3364
+        ],
+        "above_ci_seq": [
+         0.0634,
+         0.0634
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.2537,
+        "offset_excess": {
+         "excess": 54.6,
+         "excess_10_40": 40.8,
+         "excess_40_90": -2.75,
+         "excess_within_10": 16.55,
+         "peak_bin": 17.5
+        }
+       },
+       "donors_c": {
+        "above": 0.1354,
+        "above_ci_ramp": [
+         0.0,
+         0.3591
+        ],
+        "above_ci_seq": [
+         0.1354,
+         0.1354
+        ],
+        "label": "count-matched swap",
+        "null": 0.1817,
+        "offset_excess": {
+         "excess": 77.2,
+         "excess_10_40": 49.3,
+         "excess_40_90": 6.7,
+         "excess_within_10": 21.2,
+         "peak_bin": 17.5
+        }
+       },
+       "donors_cam": {
+        "above": -0.1976,
+        "above_ci_ramp": [
+         -0.4052,
+         0.3318
+        ],
+        "above_ci_seq": [
+         -0.1976,
+         -0.1976
+        ],
+        "label": "within-camera swap",
+        "null": 0.5146,
+        "offset_excess": {
+         "excess": -95.7,
+         "excess_10_40": -25.0,
+         "excess_40_90": -45.2,
+         "excess_within_10": -25.5,
+         "peak_bin": 17.5
+        }
+       }
+      },
       "rate": 0.3171,
       "rate_ci": [
        0.0,
        0.5455
+      ],
+      "rate_ci_seq": [
+       0.3171,
+       0.3171
       ],
       "shift_scan_above": [
        [
@@ -7581,7 +8913,8 @@
         45,
         0.0341
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "GoPro HERO11 Black": {
       "above": 0.5426,
@@ -7597,6 +8930,16 @@
        -3,
        0.5743
       ],
+      "describe": {
+       "abs_dbear_median": 30.0216,
+       "dets_per_image": 3.234,
+       "hfov_median": 99.9331,
+       "in_view_per_image": 1.4468,
+       "n_positive_images": 47,
+       "range_median": 12.8189,
+       "share_images_firing": 0.9574,
+       "share_of_all_hits": 0.4595
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -7648,10 +8991,76 @@
       "n_ramps": 36,
       "n_sequences": 7,
       "null": 0.2074,
+      "nulls": {
+       "donors": {
+        "above": 0.5426,
+        "above_ci_ramp": [
+         0.4025,
+         0.6507
+        ],
+        "above_ci_seq": [
+         0.4106,
+         0.6508
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.2074,
+        "offset_excess": {
+         "excess": 166.45,
+         "excess_10_40": 49.85,
+         "excess_40_90": 67.1,
+         "excess_within_10": 49.5,
+         "peak_bin": -2.5
+        }
+       },
+       "donors_c": {
+        "above": 0.3162,
+        "above_ci_ramp": [
+         0.1903,
+         0.4258
+        ],
+        "above_ci_seq": [
+         0.1742,
+         0.4036
+        ],
+        "label": "count-matched swap",
+        "null": 0.4338,
+        "offset_excess": {
+         "excess": 88.9,
+         "excess_10_40": 19.85,
+         "excess_40_90": 35.35,
+         "excess_within_10": 33.7,
+         "peak_bin": -2.5
+        }
+       },
+       "donors_cam": {
+        "above": 0.189,
+        "above_ci_ramp": [
+         0.0607,
+         0.2971
+        ],
+        "above_ci_seq": [
+         0.057,
+         0.296
+        ],
+        "label": "within-camera swap",
+        "null": 0.561,
+        "offset_excess": {
+         "excess": 52.45,
+         "excess_10_40": 7.0,
+         "excess_40_90": 20.75,
+         "excess_within_10": 24.7,
+         "peak_bin": -2.5
+        }
+       }
+      },
       "rate": 0.75,
       "rate_ci": [
        0.6078,
        0.8675
+      ],
+      "rate_ci_seq": [
+       0.6111,
+       0.871
       ],
       "shift_scan_above": [
        [
@@ -7778,7 +9187,8 @@
         45,
         0.3397
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "motorola moto x4": {
       "above": -0.013,
@@ -7794,6 +9204,16 @@
        -45,
        0.1424
       ],
+      "describe": {
+       "abs_dbear_median": 12.7173,
+       "dets_per_image": 2.2093,
+       "hfov_median": 68.6609,
+       "in_view_per_image": 1.0698,
+       "n_positive_images": 43,
+       "range_median": 12.8459,
+       "share_images_firing": 0.8605,
+       "share_of_all_hits": 0.1081
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -7845,10 +9265,76 @@
       "n_ramps": 23,
       "n_sequences": 3,
       "null": 0.2739,
+      "nulls": {
+       "donors": {
+        "above": -0.013,
+        "above_ci_ramp": [
+         -0.1269,
+         0.1394
+        ],
+        "above_ci_seq": [
+         -0.05,
+         0.0017
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.2739,
+        "offset_excess": {
+         "excess": 7.8,
+         "excess_10_40": 3.4,
+         "excess_40_90": -0.0,
+         "excess_within_10": 4.4,
+         "peak_bin": 32.5
+        }
+       },
+       "donors_c": {
+        "above": -0.0315,
+        "above_ci_ramp": [
+         -0.167,
+         0.15
+        ],
+        "above_ci_seq": [
+         -0.0792,
+         0.1
+        ],
+        "label": "count-matched swap",
+        "null": 0.2924,
+        "offset_excess": {
+         "excess": 8.1,
+         "excess_10_40": 2.15,
+         "excess_40_90": 0.8,
+         "excess_within_10": 5.15,
+         "peak_bin": 32.5
+        }
+       },
+       "donors_cam": {
+        "above": -0.0609,
+        "above_ci_ramp": [
+         -0.1661,
+         0.0667
+        ],
+        "above_ci_seq": [
+         -0.225,
+         -0.0117
+        ],
+        "label": "within-camera swap",
+        "null": 0.3217,
+        "offset_excess": {
+         "excess": 3.85,
+         "excess_10_40": 3.65,
+         "excess_40_90": -2.6,
+         "excess_within_10": 2.8,
+         "peak_bin": 32.5
+        }
+       }
+      },
       "rate": 0.2609,
       "rate_ci": [
        0.1428,
        0.4251
+      ],
+      "rate_ci_seq": [
+       0.2333,
+       0.3333
       ],
       "shift_scan_above": [
        [
@@ -7975,7 +9461,8 @@
         45,
         -0.0826
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "none none": {
       "above": -0.0557,
@@ -7991,6 +9478,16 @@
        9,
        0.0246
       ],
+      "describe": {
+       "abs_dbear_median": 16.2269,
+       "dets_per_image": 1.8364,
+       "hfov_median": 75.8314,
+       "in_view_per_image": 1.1091,
+       "n_positive_images": 55,
+       "range_median": 13.5772,
+       "share_images_firing": 0.7455,
+       "share_of_all_hits": 0.1441
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -8042,10 +9539,76 @@
       "n_ramps": 27,
       "n_sequences": 20,
       "null": 0.318,
+      "nulls": {
+       "donors": {
+        "above": -0.0557,
+        "above_ci_ramp": [
+         -0.1914,
+         0.077
+        ],
+        "above_ci_seq": [
+         -0.1366,
+         0.0441
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.318,
+        "offset_excess": {
+         "excess": -23.25,
+         "excess_10_40": -9.35,
+         "excess_40_90": -10.15,
+         "excess_within_10": -3.75,
+         "peak_bin": 12.5
+        }
+       },
+       "donors_c": {
+        "above": -0.0443,
+        "above_ci_ramp": [
+         -0.166,
+         0.0692
+        ],
+        "above_ci_seq": [
+         -0.1373,
+         0.0663
+        ],
+        "label": "count-matched swap",
+        "null": 0.3066,
+        "offset_excess": {
+         "excess": -13.9,
+         "excess_10_40": -6.4,
+         "excess_40_90": -8.35,
+         "excess_within_10": 0.85,
+         "peak_bin": 12.5
+        }
+       },
+       "donors_cam": {
+        "above": 0.0492,
+        "above_ci_ramp": [
+         -0.0951,
+         0.1777
+        ],
+        "above_ci_seq": [
+         -0.0569,
+         0.1642
+        ],
+        "label": "within-camera swap",
+        "null": 0.2131,
+        "offset_excess": {
+         "excess": 1.75,
+         "excess_10_40": -0.45,
+         "excess_40_90": -6.15,
+         "excess_within_10": 8.35,
+         "peak_bin": -7.5
+        }
+       }
+      },
       "rate": 0.2623,
       "rate_ci": [
        0.1249,
        0.3934
+      ],
+      "rate_ci_seq": [
+       0.15,
+       0.3906
       ],
       "shift_scan_above": [
        [
@@ -8172,7 +9735,8 @@
         45,
         -0.127
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      }
     },
     "sequences": [
@@ -8501,10 +10065,16 @@
        0.0156,
        0.191
       ],
+      "above_count_matched": 0.0743,
+      "above_count_matched_ci": [
+       0.0221,
+       0.1314
+      ],
       "hits": 65,
       "n_pairs": 292,
       "name": "as scored",
       "null": 0.1262,
+      "null_count_matched": 0.1483,
       "rate": 0.2226
      },
      {
@@ -9212,6 +10782,16 @@
        24,
        0.12
       ],
+      "describe": {
+       "abs_dbear_median": 23.004,
+       "dets_per_image": 0.5667,
+       "hfov_median": 71.5311,
+       "in_view_per_image": 1.1667,
+       "n_positive_images": 30,
+       "range_median": 13.3608,
+       "share_images_firing": 0.4,
+       "share_of_all_hits": 0.0615
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -9263,10 +10843,76 @@
       "n_ramps": 21,
       "n_sequences": 4,
       "null": 0.0729,
+      "nulls": {
+       "donors": {
+        "above": 0.0414,
+        "above_ci_ramp": [
+         -0.05,
+         0.1514
+        ],
+        "above_ci_seq": [
+         -0.0483,
+         0.1714
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.0729,
+        "offset_excess": {
+         "excess": 5.15,
+         "excess_10_40": 3.25,
+         "excess_40_90": 0.6,
+         "excess_within_10": 1.3,
+         "peak_bin": -7.5
+        }
+       },
+       "donors_c": {
+        "above": 0.0629,
+        "above_ci_ramp": [
+         -0.0329,
+         0.1703
+        ],
+        "above_ci_seq": [
+         -0.0244,
+         0.1536
+        ],
+        "label": "count-matched swap",
+        "null": 0.0514,
+        "offset_excess": {
+         "excess": 6.75,
+         "excess_10_40": 3.35,
+         "excess_40_90": 1.3,
+         "excess_within_10": 2.1,
+         "peak_bin": -7.5
+        }
+       },
+       "donors_cam": {
+        "above": -0.0514,
+        "above_ci_ramp": [
+         -0.1614,
+         0.0844
+        ],
+        "above_ci_seq": [
+         -0.1133,
+         0.0214
+        ],
+        "label": "within-camera swap",
+        "null": 0.1657,
+        "offset_excess": {
+         "excess": -1.85,
+         "excess_10_40": -0.65,
+         "excess_40_90": -1.1,
+         "excess_within_10": -0.1,
+         "peak_bin": -7.5
+        }
+       }
+      },
       "rate": 0.1143,
       "rate_ci": [
        0.0278,
        0.2162
+      ],
+      "rate_ci_seq": [
+       0.0333,
+       0.2143
       ],
       "shift_scan_above": [
        [
@@ -9393,7 +11039,8 @@
         45,
         0.0857
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "GoPro GoPro Max": {
       "above": -0.0305,
@@ -9409,6 +11056,16 @@
        -30,
        0.0195
       ],
+      "describe": {
+       "abs_dbear_median": 31.82,
+       "dets_per_image": 0.3415,
+       "hfov_median": 94.4113,
+       "in_view_per_image": 1.0,
+       "n_positive_images": 41,
+       "range_median": 10.5289,
+       "share_images_firing": 0.1463,
+       "share_of_all_hits": 0.0615
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -9460,10 +11117,76 @@
       "n_ramps": 3,
       "n_sequences": 1,
       "null": 0.128,
+      "nulls": {
+       "donors": {
+        "above": -0.0305,
+        "above_ci_ramp": [
+         -0.1466,
+         0.2727
+        ],
+        "above_ci_seq": [
+         -0.0305,
+         -0.0305
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.128,
+        "offset_excess": {
+         "excess": -3.45,
+         "excess_10_40": -0.5,
+         "excess_40_90": -0.35,
+         "excess_within_10": -2.6,
+         "peak_bin": -47.5
+        }
+       },
+       "donors_c": {
+        "above": 0.0683,
+        "above_ci_ramp": [
+         -0.0121,
+         0.2864
+        ],
+        "above_ci_seq": [
+         0.0683,
+         0.0683
+        ],
+        "label": "count-matched swap",
+        "null": 0.0293,
+        "offset_excess": {
+         "excess": 9.75,
+         "excess_10_40": 4.5,
+         "excess_40_90": 4.1,
+         "excess_within_10": 1.15,
+         "peak_bin": -47.5
+        }
+       },
+       "donors_cam": {
+        "above": -0.0829,
+        "above_ci_ramp": [
+         -0.2552,
+         0.3636
+        ],
+        "above_ci_seq": [
+         -0.0829,
+         -0.0829
+        ],
+        "label": "within-camera swap",
+        "null": 0.1805,
+        "offset_excess": {
+         "excess": -11.8,
+         "excess_10_40": -3.15,
+         "excess_40_90": -5.05,
+         "excess_within_10": -3.6,
+         "peak_bin": -42.5
+        }
+       }
+      },
       "rate": 0.0976,
       "rate_ci": [
        0.0,
        0.3636
+      ],
+      "rate_ci_seq": [
+       0.0976,
+       0.0976
       ],
       "shift_scan_above": [
        [
@@ -9590,7 +11313,8 @@
         45,
         -0.0159
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "GoPro HERO11 Black": {
       "above": 0.4772,
@@ -9606,6 +11330,16 @@
        -3,
        0.5044
       ],
+      "describe": {
+       "abs_dbear_median": 30.0216,
+       "dets_per_image": 1.9574,
+       "hfov_median": 99.9331,
+       "in_view_per_image": 1.4468,
+       "n_positive_images": 47,
+       "range_median": 12.8189,
+       "share_images_firing": 0.7872,
+       "share_of_all_hits": 0.6308
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -9657,10 +11391,76 @@
       "n_ramps": 36,
       "n_sequences": 7,
       "null": 0.1257,
+      "nulls": {
+       "donors": {
+        "above": 0.4772,
+        "above_ci_ramp": [
+         0.3261,
+         0.6125
+        ],
+        "above_ci_seq": [
+         0.3635,
+         0.6333
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.1257,
+        "offset_excess": {
+         "excess": 120.05,
+         "excess_10_40": 37.0,
+         "excess_40_90": 43.8,
+         "excess_within_10": 39.25,
+         "peak_bin": -2.5
+        }
+       },
+       "donors_c": {
+        "above": 0.2654,
+        "above_ci_ramp": [
+         0.1465,
+         0.3731
+        ],
+        "above_ci_seq": [
+         0.2087,
+         0.3345
+        ],
+        "label": "count-matched swap",
+        "null": 0.3375,
+        "offset_excess": {
+         "excess": 60.5,
+         "excess_10_40": 11.8,
+         "excess_40_90": 20.95,
+         "excess_within_10": 27.75,
+         "peak_bin": -2.5
+        }
+       },
+       "donors_cam": {
+        "above": 0.1559,
+        "above_ci_ramp": [
+         0.0015,
+         0.2978
+        ],
+        "above_ci_seq": [
+         0.0532,
+         0.3119
+        ],
+        "label": "within-camera swap",
+        "null": 0.4471,
+        "offset_excess": {
+         "excess": 36.5,
+         "excess_10_40": 2.1,
+         "excess_40_90": 15.15,
+         "excess_within_10": 19.25,
+         "peak_bin": -2.5
+        }
+       }
+      },
       "rate": 0.6029,
       "rate_ci": [
        0.4559,
        0.7334
+      ],
+      "rate_ci_seq": [
+       0.4848,
+       0.7693
       ],
       "shift_scan_above": [
        [
@@ -9787,7 +11587,8 @@
         45,
         0.2294
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "motorola moto x4": {
       "above": -0.0239,
@@ -9803,6 +11604,16 @@
        -18,
        0.0685
       ],
+      "describe": {
+       "abs_dbear_median": 12.7173,
+       "dets_per_image": 0.7442,
+       "hfov_median": 68.6609,
+       "in_view_per_image": 1.0698,
+       "n_positive_images": 43,
+       "range_median": 12.8459,
+       "share_images_firing": 0.4651,
+       "share_of_all_hits": 0.0923
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -9854,9 +11665,75 @@
       "n_ramps": 23,
       "n_sequences": 3,
       "null": 0.1543,
+      "nulls": {
+       "donors": {
+        "above": -0.0239,
+        "above_ci_ramp": [
+         -0.1226,
+         0.0865
+        ],
+        "above_ci_seq": [
+         -0.05,
+         0.1
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.1543,
+        "offset_excess": {
+         "excess": -0.65,
+         "excess_10_40": -1.95,
+         "excess_40_90": -1.7,
+         "excess_within_10": 3.0,
+         "peak_bin": 37.5
+        }
+       },
+       "donors_c": {
+        "above": -0.0207,
+        "above_ci_ramp": [
+         -0.1054,
+         0.09
+        ],
+        "above_ci_seq": [
+         -0.0583,
+         0.1875
+        ],
+        "label": "count-matched swap",
+        "null": 0.1511,
+        "offset_excess": {
+         "excess": -2.3,
+         "excess_10_40": -3.85,
+         "excess_40_90": -2.1,
+         "excess_within_10": 3.65,
+         "peak_bin": 2.5
+        }
+       },
+       "donors_cam": {
+        "above": -0.0011,
+        "above_ci_ramp": [
+         -0.1066,
+         0.1259
+        ],
+        "above_ci_seq": [
+         -0.0417,
+         0.075
+        ],
+        "label": "within-camera swap",
+        "null": 0.1315,
+        "offset_excess": {
+         "excess": 4.3,
+         "excess_10_40": 1.1,
+         "excess_40_90": -1.8,
+         "excess_within_10": 5.0,
+         "peak_bin": 2.5
+        }
+       }
+      },
       "rate": 0.1304,
       "rate_ci": [
        0.0377,
+       0.25
+      ],
+      "rate_ci_seq": [
+       0.1,
        0.25
       ],
       "shift_scan_above": [
@@ -9984,7 +11861,8 @@
         45,
         -0.0293
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "none none": {
       "above": -0.0385,
@@ -10000,6 +11878,16 @@
        6,
        -0.0049
       ],
+      "describe": {
+       "abs_dbear_median": 16.2269,
+       "dets_per_image": 0.6182,
+       "hfov_median": 75.8314,
+       "in_view_per_image": 1.1091,
+       "n_positive_images": 55,
+       "range_median": 13.5772,
+       "share_images_firing": 0.4182,
+       "share_of_all_hits": 0.1231
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -10051,10 +11939,76 @@
       "n_ramps": 27,
       "n_sequences": 20,
       "null": 0.1697,
+      "nulls": {
+       "donors": {
+        "above": -0.0385,
+        "above_ci_ramp": [
+         -0.1325,
+         0.066
+        ],
+        "above_ci_seq": [
+         -0.0909,
+         0.0229
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.1697,
+        "offset_excess": {
+         "excess": -10.0,
+         "excess_10_40": -6.6,
+         "excess_40_90": -1.6,
+         "excess_within_10": -1.8,
+         "peak_bin": 57.5
+        }
+       },
+       "donors_c": {
+        "above": -0.0164,
+        "above_ci_ramp": [
+         -0.0793,
+         0.0487
+        ],
+        "above_ci_seq": [
+         -0.0705,
+         0.0468
+        ],
+        "label": "count-matched swap",
+        "null": 0.1475,
+        "offset_excess": {
+         "excess": -4.15,
+         "excess_10_40": -5.2,
+         "excess_40_90": -0.35,
+         "excess_within_10": 1.4,
+         "peak_bin": 2.5
+        }
+       },
+       "donors_cam": {
+        "above": 0.0393,
+        "above_ci_ramp": [
+         -0.0492,
+         0.1344
+        ],
+        "above_ci_seq": [
+         -0.0158,
+         0.1017
+        ],
+        "label": "within-camera swap",
+        "null": 0.0918,
+        "offset_excess": {
+         "excess": 3.95,
+         "excess_10_40": -0.85,
+         "excess_40_90": 0.5,
+         "excess_within_10": 4.3,
+         "peak_bin": 2.5
+        }
+       }
+      },
       "rate": 0.1311,
       "rate_ci": [
        0.0461,
        0.2308
+      ],
+      "rate_ci_seq": [
+       0.0566,
+       0.2116
       ],
       "shift_scan_above": [
        [
@@ -10181,7 +12135,8 @@
         45,
         -0.0418
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      }
     },
     "sequences": [
@@ -10510,10 +12465,16 @@
        0.0137,
        0.1466
       ],
+      "above_count_matched": 0.0545,
+      "above_count_matched_ci": [
+       0.0113,
+       0.1062
+      ],
       "hits": 42,
       "n_pairs": 292,
       "name": "as scored",
       "null": 0.0717,
+      "null_count_matched": 0.0894,
       "rate": 0.1438
      },
      {
@@ -11221,6 +13182,16 @@
        24,
        0.0571
       ],
+      "describe": {
+       "abs_dbear_median": 23.004,
+       "dets_per_image": 0.1333,
+       "hfov_median": 71.5311,
+       "in_view_per_image": 1.1667,
+       "n_positive_images": 30,
+       "range_median": 13.3608,
+       "share_images_firing": 0.1333,
+       "share_of_all_hits": 0.0476
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -11272,10 +13243,76 @@
       "n_ramps": 21,
       "n_sequences": 4,
       "null": 0.0471,
+      "nulls": {
+       "donors": {
+        "above": 0.01,
+        "above_ci_ramp": [
+         -0.0597,
+         0.0947
+        ],
+        "above_ci_seq": [
+         -0.0458,
+         0.0578
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.0471,
+        "offset_excess": {
+         "excess": 0.85,
+         "excess_10_40": 1.65,
+         "excess_40_90": -0.85,
+         "excess_within_10": 0.05,
+         "peak_bin": -27.5
+        }
+       },
+       "donors_c": {
+        "above": 0.0314,
+        "above_ci_ramp": [
+         -0.0345,
+         0.1066
+        ],
+        "above_ci_seq": [
+         -0.0458,
+         0.0717
+        ],
+        "label": "count-matched swap",
+        "null": 0.0257,
+        "offset_excess": {
+         "excess": 2.1,
+         "excess_10_40": 1.95,
+         "excess_40_90": -0.45,
+         "excess_within_10": 0.6,
+         "peak_bin": 22.5
+        }
+       },
+       "donors_cam": {
+        "above": 0.0,
+        "above_ci_ramp": [
+         -0.077,
+         0.0879
+        ],
+        "above_ci_seq": [
+         -0.05,
+         0.0261
+        ],
+        "label": "within-camera swap",
+        "null": 0.0571,
+        "offset_excess": {
+         "excess": -0.2,
+         "excess_10_40": 0.2,
+         "excess_40_90": -0.6,
+         "excess_within_10": 0.2,
+         "peak_bin": -7.5
+        }
+       }
+      },
       "rate": 0.0571,
       "rate_ci": [
        0.0,
        0.1316
+      ],
+      "rate_ci_seq": [
+       0.0,
+       0.087
       ],
       "shift_scan_above": [
        [
@@ -11402,7 +13439,8 @@
         45,
         0.0186
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "GoPro GoPro Max": {
       "above": -0.0695,
@@ -11418,6 +13456,16 @@
        -45,
        -0.0073
       ],
+      "describe": {
+       "abs_dbear_median": 31.82,
+       "dets_per_image": 0.0244,
+       "hfov_median": 94.4113,
+       "in_view_per_image": 1.0,
+       "n_positive_images": 41,
+       "range_median": 10.5289,
+       "share_images_firing": 0.0244,
+       "share_of_all_hits": 0.0
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -11469,8 +13517,74 @@
       "n_ramps": 3,
       "n_sequences": 1,
       "null": 0.0695,
+      "nulls": {
+       "donors": {
+        "above": -0.0695,
+        "above_ci_ramp": [
+         -0.081,
+         0.0
+        ],
+        "above_ci_seq": [
+         -0.0695,
+         -0.0695
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.0695,
+        "offset_excess": {
+         "excess": -8.35,
+         "excess_10_40": -4.15,
+         "excess_40_90": -2.05,
+         "excess_within_10": -2.15,
+         "peak_bin": 27.5
+        }
+       },
+       "donors_c": {
+        "above": -0.0171,
+        "above_ci_ramp": [
+         -0.0545,
+         0.0
+        ],
+        "above_ci_seq": [
+         -0.0171,
+         -0.0171
+        ],
+        "label": "count-matched swap",
+        "null": 0.0171,
+        "offset_excess": {
+         "excess": -1.35,
+         "excess_10_40": -0.6,
+         "excess_40_90": -0.25,
+         "excess_within_10": -0.5,
+         "peak_bin": -87.5
+        }
+       },
+       "donors_cam": {
+        "above": 0.0,
+        "above_ci_ramp": [
+         0.0,
+         0.0
+        ],
+        "above_ci_seq": [
+         0.0,
+         0.0
+        ],
+        "label": "within-camera swap",
+        "null": 0.0,
+        "offset_excess": {
+         "excess": 0.0,
+         "excess_10_40": 0.0,
+         "excess_40_90": 0.0,
+         "excess_within_10": 0.0,
+         "peak_bin": -87.5
+        }
+       }
+      },
       "rate": 0.0,
       "rate_ci": [
+       0.0,
+       0.0
+      ],
+      "rate_ci_seq": [
        0.0,
        0.0
       ],
@@ -11599,7 +13713,8 @@
         45,
         -0.0707
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "GoPro HERO11 Black": {
       "above": 0.3926,
@@ -11615,6 +13730,16 @@
        -3,
        0.4066
       ],
+      "describe": {
+       "abs_dbear_median": 30.0216,
+       "dets_per_image": 1.2979,
+       "hfov_median": 99.9331,
+       "in_view_per_image": 1.4468,
+       "n_positive_images": 47,
+       "range_median": 12.8189,
+       "share_images_firing": 0.7447,
+       "share_of_all_hits": 0.7619
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -11666,10 +13791,76 @@
       "n_ramps": 36,
       "n_sequences": 7,
       "null": 0.0779,
+      "nulls": {
+       "donors": {
+        "above": 0.3926,
+        "above_ci_ramp": [
+         0.2482,
+         0.5203
+        ],
+        "above_ci_seq": [
+         0.2784,
+         0.4922
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.0779,
+        "offset_excess": {
+         "excess": 82.7,
+         "excess_10_40": 27.5,
+         "excess_40_90": 27.65,
+         "excess_within_10": 27.55,
+         "peak_bin": 2.5
+        }
+       },
+       "donors_c": {
+        "above": 0.2559,
+        "above_ci_ramp": [
+         0.1263,
+         0.3669
+        ],
+        "above_ci_seq": [
+         0.1534,
+         0.3161
+        ],
+        "label": "count-matched swap",
+        "null": 0.2147,
+        "offset_excess": {
+         "excess": 48.45,
+         "excess_10_40": 11.85,
+         "excess_40_90": 16.05,
+         "excess_within_10": 20.55,
+         "peak_bin": 2.5
+        }
+       },
+       "donors_cam": {
+        "above": 0.1147,
+        "above_ci_ramp": [
+         -0.0377,
+         0.2554
+        ],
+        "above_ci_seq": [
+         -0.0158,
+         0.2146
+        ],
+        "label": "within-camera swap",
+        "null": 0.3559,
+        "offset_excess": {
+         "excess": 21.75,
+         "excess_10_40": 0.75,
+         "excess_40_90": 7.8,
+         "excess_within_10": 13.2,
+         "peak_bin": 2.5
+        }
+       }
+      },
       "rate": 0.4706,
       "rate_ci": [
        0.3281,
        0.5958
+      ],
+      "rate_ci_seq": [
+       0.3585,
+       0.5814
       ],
       "shift_scan_above": [
        [
@@ -11796,7 +13987,8 @@
         45,
         0.2007
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "motorola moto x4": {
       "above": 0.0011,
@@ -11812,6 +14004,16 @@
        -24,
        0.0174
       ],
+      "describe": {
+       "abs_dbear_median": 12.7173,
+       "dets_per_image": 0.2558,
+       "hfov_median": 68.6609,
+       "in_view_per_image": 1.0698,
+       "n_positive_images": 43,
+       "range_median": 12.8459,
+       "share_images_firing": 0.2093,
+       "share_of_all_hits": 0.0952
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -11863,10 +14065,76 @@
       "n_ramps": 23,
       "n_sequences": 3,
       "null": 0.0859,
+      "nulls": {
+       "donors": {
+        "above": 0.0011,
+        "above_ci_ramp": [
+         -0.0936,
+         0.109
+        ],
+        "above_ci_seq": [
+         -0.075,
+         0.0333
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.0859,
+        "offset_excess": {
+         "excess": -2.6,
+         "excess_10_40": -1.65,
+         "excess_40_90": -1.3,
+         "excess_within_10": 0.35,
+         "peak_bin": 37.5
+        }
+       },
+       "donors_c": {
+        "above": -0.0043,
+        "above_ci_ramp": [
+         -0.0631,
+         0.0772
+        ],
+        "above_ci_seq": [
+         -0.0625,
+         0.0217
+        ],
+        "label": "count-matched swap",
+        "null": 0.0913,
+        "offset_excess": {
+         "excess": -4.95,
+         "excess_10_40": -3.75,
+         "excess_40_90": -1.7,
+         "excess_within_10": 0.5,
+         "peak_bin": 37.5
+        }
+       },
+       "donors_cam": {
+        "above": 0.0402,
+        "above_ci_ramp": [
+         -0.05,
+         0.1561
+        ],
+        "above_ci_seq": [
+         -0.075,
+         0.0667
+        ],
+        "label": "within-camera swap",
+        "null": 0.0467,
+        "offset_excess": {
+         "excess": 0.9,
+         "excess_10_40": 0.65,
+         "excess_40_90": -1.75,
+         "excess_within_10": 2.0,
+         "peak_bin": 37.5
+        }
+       }
+      },
       "rate": 0.087,
       "rate_ci": [
        0.0,
        0.2
+      ],
+      "rate_ci_seq": [
+       0.0,
+       0.1
       ],
       "shift_scan_above": [
        [
@@ -11993,7 +14261,8 @@
         45,
         -0.0304
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      },
      "none none": {
       "above": -0.05,
@@ -12009,6 +14278,16 @@
        -45,
        -0.0172
       ],
+      "describe": {
+       "abs_dbear_median": 16.2269,
+       "dets_per_image": 0.1636,
+       "hfov_median": 75.8314,
+       "in_view_per_image": 1.1091,
+       "n_positive_images": 55,
+       "range_median": 13.5772,
+       "share_images_firing": 0.1091,
+       "share_of_all_hits": 0.0714
+      },
       "focal_scan_above": [
        [
         0.6,
@@ -12060,10 +14339,76 @@
       "n_ramps": 27,
       "n_sequences": 20,
       "null": 0.0992,
+      "nulls": {
+       "donors": {
+        "above": -0.05,
+        "above_ci_ramp": [
+         -0.1078,
+         0.0247
+        ],
+        "above_ci_seq": [
+         -0.0934,
+         0.0053
+        ],
+        "label": "pooled swap (#227)",
+        "null": 0.0992,
+        "offset_excess": {
+         "excess": -8.45,
+         "excess_10_40": -4.95,
+         "excess_40_90": -0.7,
+         "excess_within_10": -2.8,
+         "peak_bin": 57.5
+        }
+       },
+       "donors_c": {
+        "above": -0.0344,
+        "above_ci_ramp": [
+         -0.0808,
+         0.0154
+        ],
+        "above_ci_seq": [
+         -0.079,
+         0.0139
+        ],
+        "label": "count-matched swap",
+        "null": 0.0836,
+        "offset_excess": {
+         "excess": -5.8,
+         "excess_10_40": -3.65,
+         "excess_40_90": -0.5,
+         "excess_within_10": -1.65,
+         "peak_bin": 57.5
+        }
+       },
+       "donors_cam": {
+        "above": 0.0254,
+        "above_ci_ramp": [
+         -0.0312,
+         0.1
+        ],
+        "above_ci_seq": [
+         -0.0302,
+         0.1
+        ],
+        "label": "within-camera swap",
+        "null": 0.0238,
+        "offset_excess": {
+         "excess": 1.45,
+         "excess_10_40": -0.0,
+         "excess_40_90": 0.4,
+         "excess_within_10": 1.05,
+         "peak_bin": -22.5
+        }
+       }
+      },
       "rate": 0.0492,
       "rate_ci": [
        0.0,
        0.12
+      ],
+      "rate_ci_seq": [
+       0.0,
+       0.1207
       ],
       "shift_scan_above": [
        [
@@ -12190,7 +14535,8 @@
         45,
         -0.018
        ]
-      ]
+      ],
+      "within_camera_null_pooled": false
      }
     },
     "sequences": [
@@ -12470,7 +14816,92 @@
    }
   }
  },
- "elapsed_s": 602.3,
+ "compass_vs_travel_all_frames": {
+  "Apple iPhone": {
+   "abs_median": 3.6094,
+   "n": 104,
+   "within_1": 0.2212,
+   "within_5": 0.5962
+  },
+  "Apple iPhone 11": {
+   "abs_median": 2.7441,
+   "n": 22,
+   "within_1": 0.2727,
+   "within_5": 0.9545
+  },
+  "Apple iPhone 13": {
+   "abs_median": 31.1268,
+   "n": 23,
+   "within_1": 0.0,
+   "within_5": 0.0
+  },
+  "Apple iPhone6": {
+   "abs_median": 0.9071,
+   "n": 35,
+   "within_1": 0.5429,
+   "within_5": 0.9714
+  },
+  "Apple iPhone6S": {
+   "abs_median": 0.3516,
+   "n": 63,
+   "within_1": 0.746,
+   "within_5": 1.0
+  },
+  "Apple iPhone7": {
+   "abs_median": 1.4368,
+   "n": 28,
+   "within_1": 0.3929,
+   "within_5": 1.0
+  },
+  "Apple iPhoneX": {
+   "abs_median": 3.1262,
+   "n": 12,
+   "within_1": 0.0,
+   "within_5": 1.0
+  },
+  "Apple iPhoneXS_Max": {
+   "abs_median": 1.5247,
+   "n": 13,
+   "within_1": 0.3077,
+   "within_5": 1.0
+  },
+  "Garmin VIRB": {
+   "abs_median": 8.7587,
+   "n": 201,
+   "within_1": 0.1343,
+   "within_5": 0.4179
+  },
+  "GoPro GoPro Max": {
+   "abs_median": 0.1292,
+   "n": 140,
+   "within_1": 0.6143,
+   "within_5": 0.7643
+  },
+  "GoPro HERO11 Black": {
+   "abs_median": 0.1597,
+   "n": 175,
+   "within_1": 0.9429,
+   "within_5": 0.9886
+  },
+  "all": {
+   "abs_median": 1.2828,
+   "n": 1221,
+   "within_1": 0.4676,
+   "within_5": 0.751
+  },
+  "motorola moto x4": {
+   "abs_median": 2.9078,
+   "n": 164,
+   "within_1": 0.2256,
+   "within_5": 0.6646
+  },
+  "none none": {
+   "abs_median": 0.8896,
+   "n": 225,
+   "within_1": 0.6311,
+   "within_5": 0.8889
+  }
+ },
  "h_accept": [
   0.5,
   4.0
@@ -12780,10 +15211,192 @@
    }
   }
  },
+ "inputs_sha256": {
+  "analysis_out/flat_mapillary_3d/census/images.csv": "9c03e45e4dbb39b53dcf98c5626b137790e447d5cf282e2b0fb50312b6a7db95",
+  "analysis_out/flat_mapillary_3d/census/ramps.csv": "e2aa874af710babc19874d42d749c6b8db2667594f87407ed4fc275c8de2a2e4",
+  "analysis_out/multiview_48/captures_R25.csv": "d1c5f855ec1a778a824e8214bcf5d289579fc88726151e5f4adfdcf994b80ad5",
+  "analysis_out/perspective_photos_218/dets_canvas_level.jsonl": "ee684d327d24a96d7b1dcc699156a2142d8f5c9ad88e067ff35991cff31a1a53",
+  "analysis_out/perspective_photos_218/dets_stretch.jsonl": "41dd86f31f5b065ab508fe9ce561f6af3d6a3e4b77b91ac30343883aaaf8f65b",
+  "analysis_out/perspective_photos_218/images.csv": "428002ec25294ebb80818cd0ee93c14be88f06792fdb6880e858c73c9f591cfb",
+  "benchmark/richmond_neighbourhood/records.jsonl": "49e9dc5409fdafd6923abb97ca765d7c54f8342f0351ab9ede9a7b6dec409c97",
+  "docs/figures/perspective_photos_218/figures.json": "bd82b550f70829fa229e99e33bcc4c3cd69dfb05b16a863643adf625bd866212"
+ },
  "issue": 218,
  "lateral_m": 5.0,
  "n_null": 20,
  "pano_control": {
+  "by_flat_camera_ramps": {
+   "Apple iPhone": {
+    "n_flat_ramps": 10,
+    "n_shared_with_other_flat_cameras": 3,
+    "ramps_not_in_view_of_this_camera": {
+     "above": 0.4106,
+     "above_ci": [
+      0.3711,
+      0.4494
+     ],
+     "n_captures": 2373,
+     "n_ramps": 237,
+     "rate": 0.6283,
+     "rate_ci": [
+      0.5861,
+      0.6699
+     ],
+     "rotation_null": 0.2177
+    },
+    "same_ramps": {
+     "above": 0.3731,
+     "above_ci": [
+      0.2208,
+      0.5354
+     ],
+     "n_captures": 67,
+     "n_ramps": 10,
+     "rate": 0.5821,
+     "rate_ci": [
+      0.4166,
+      0.7656
+     ],
+     "rotation_null": 0.209
+    }
+   },
+   "Garmin VIRB": {
+    "n_flat_ramps": 21,
+    "n_shared_with_other_flat_cameras": 6,
+    "ramps_not_in_view_of_this_camera": {
+     "above": 0.393,
+     "above_ci": [
+      0.354,
+      0.4316
+     ],
+     "n_captures": 2197,
+     "n_ramps": 226,
+     "rate": 0.6045,
+     "rate_ci": [
+      0.5636,
+      0.6463
+     ],
+     "rotation_null": 0.2115
+    },
+    "same_ramps": {
+     "above": 0.5597,
+     "above_ci": [
+      0.4851,
+      0.6285
+     ],
+     "n_captures": 243,
+     "n_ramps": 21,
+     "rate": 0.8313,
+     "rate_ci": [
+      0.7673,
+      0.892
+     ],
+     "rotation_null": 0.2716
+    }
+   },
+   "GoPro HERO11 Black": {
+    "n_flat_ramps": 36,
+    "n_shared_with_other_flat_cameras": 6,
+    "ramps_not_in_view_of_this_camera": {
+     "above": 0.3878,
+     "above_ci": [
+      0.3498,
+      0.4271
+     ],
+     "n_captures": 2068,
+     "n_ramps": 211,
+     "rate": 0.6093,
+     "rate_ci": [
+      0.5657,
+      0.6519
+     ],
+     "rotation_null": 0.2215
+    },
+    "same_ramps": {
+     "above": 0.5305,
+     "above_ci": [
+      0.4302,
+      0.6271
+     ],
+     "n_captures": 372,
+     "n_ramps": 36,
+     "rate": 0.7258,
+     "rate_ci": [
+      0.6114,
+      0.8248
+     ],
+     "rotation_null": 0.1953
+    }
+   },
+   "motorola moto x4": {
+    "n_flat_ramps": 23,
+    "n_shared_with_other_flat_cameras": 7,
+    "ramps_not_in_view_of_this_camera": {
+     "above": 0.4161,
+     "above_ci": [
+      0.3731,
+      0.4557
+     ],
+     "n_captures": 2199,
+     "n_ramps": 225,
+     "rate": 0.633,
+     "rate_ci": [
+      0.59,
+      0.6762
+     ],
+     "rotation_null": 0.2169
+    },
+    "same_ramps": {
+     "above": 0.3499,
+     "above_ci": [
+      0.2332,
+      0.4664
+     ],
+     "n_captures": 241,
+     "n_ramps": 22,
+     "rate": 0.5726,
+     "rate_ci": [
+      0.4439,
+      0.7056
+     ],
+     "rotation_null": 0.2227
+    }
+   },
+   "none none": {
+    "n_flat_ramps": 27,
+    "n_shared_with_other_flat_cameras": 8,
+    "ramps_not_in_view_of_this_camera": {
+     "above": 0.4089,
+     "above_ci": [
+      0.3676,
+      0.4488
+     ],
+     "n_captures": 2131,
+     "n_ramps": 221,
+     "rate": 0.6232,
+     "rate_ci": [
+      0.5798,
+      0.6668
+     ],
+     "rotation_null": 0.2143
+    },
+    "same_ramps": {
+     "above": 0.4142,
+     "above_ci": [
+      0.327,
+      0.5028
+     ],
+     "n_captures": 309,
+     "n_ramps": 26,
+     "rate": 0.6537,
+     "rate_ci": [
+      0.5423,
+      0.7693
+     ],
+     "rotation_null": 0.2395
+    }
+   }
+  },
   "n_captures": 2440,
   "offsets": {
    "centre_15": 0.0088,
@@ -12949,6 +15562,11 @@
       0.0309,
       0.1958
      ],
+     "above_count_matched": 0.061,
+     "above_count_matched_ci": [
+      0.0195,
+      0.1102
+     ],
      "hits": 58,
      "n_changed": 0,
      "n_pairs": 292,
@@ -12956,6 +15574,7 @@
      "n_ramps": 106,
      "name": "as scored",
      "null": 0.0928,
+     "null_count_matched": 0.1377,
      "rate": 0.1986,
      "rate_ci": [
       0.1254,
@@ -12968,6 +15587,11 @@
       0.0407,
       0.2084
      ],
+     "above_count_matched": 0.0702,
+     "above_count_matched_ci": [
+      0.028,
+      0.1258
+     ],
      "hits": 58,
      "n_changed": 291,
      "n_pairs": 295,
@@ -12975,6 +15599,7 @@
      "n_ramps": 103,
      "name": "SfM heading outvoted, 10 deg rule",
      "null": 0.0817,
+     "null_count_matched": 0.1264,
      "rate": 0.1966,
      "rate_ci": [
       0.1223,
@@ -12987,6 +15612,11 @@
       0.0248,
       0.1945
      ],
+     "above_count_matched": 0.0589,
+     "above_count_matched_ci": [
+      0.0162,
+      0.1093
+     ],
      "hits": 56,
      "n_changed": 205,
      "n_pairs": 287,
@@ -12994,6 +15624,7 @@
      "n_ramps": 102,
      "name": "SfM heading outvoted, 15 deg rule",
      "null": 0.0936,
+     "null_count_matched": 0.1362,
      "rate": 0.1951,
      "rate_ci": [
       0.1209,
@@ -13006,6 +15637,11 @@
       0.0326,
       0.2051
      ],
+     "above_count_matched": 0.0667,
+     "above_count_matched_ci": [
+      0.0234,
+      0.1166
+     ],
      "hits": 57,
      "n_changed": 0,
      "n_pairs": 282,
@@ -13013,6 +15649,7 @@
      "n_ramps": 106,
      "name": "images whose SfM heading is > 60 deg from travel and compass dropped",
      "null": 0.0917,
+     "null_count_matched": 0.1355,
      "rate": 0.2021,
      "rate_ci": [
       0.13,
@@ -13027,6 +15664,11 @@
       0.0216,
       0.1567
      ],
+     "above_count_matched": 0.0495,
+     "above_count_matched_ci": [
+      0.0162,
+      0.0892
+     ],
      "hits": 43,
      "n_changed": 0,
      "n_pairs": 292,
@@ -13034,6 +15676,7 @@
      "n_ramps": 106,
      "name": "as scored",
      "null": 0.0646,
+     "null_count_matched": 0.0978,
      "rate": 0.1473,
      "rate_ci": [
       0.0863,
@@ -13046,6 +15689,11 @@
       0.0359,
       0.1674
      ],
+     "above_count_matched": 0.0507,
+     "above_count_matched_ci": [
+      0.0187,
+      0.0906
+     ],
      "hits": 43,
      "n_changed": 291,
      "n_pairs": 295,
@@ -13053,6 +15701,7 @@
      "n_ramps": 103,
      "name": "SfM heading outvoted, 10 deg rule",
      "null": 0.0519,
+     "null_count_matched": 0.0951,
      "rate": 0.1458,
      "rate_ci": [
       0.0861,
@@ -13065,6 +15714,11 @@
       0.0262,
       0.1594
      ],
+     "above_count_matched": 0.0495,
+     "above_count_matched_ci": [
+      0.0163,
+      0.0871
+     ],
      "hits": 42,
      "n_changed": 205,
      "n_pairs": 287,
@@ -13072,6 +15726,7 @@
      "n_ramps": 102,
      "name": "SfM heading outvoted, 15 deg rule",
      "null": 0.0591,
+     "null_count_matched": 0.0969,
      "rate": 0.1463,
      "rate_ci": [
       0.0856,
@@ -13084,6 +15739,11 @@
       0.022,
       0.1705
      ],
+     "above_count_matched": 0.0543,
+     "above_count_matched_ci": [
+      0.0165,
+      0.097
+     ],
      "hits": 43,
      "n_changed": 0,
      "n_pairs": 282,
@@ -13091,6 +15751,7 @@
      "n_ramps": 106,
      "name": "images whose SfM heading is > 60 deg from travel and compass dropped",
      "null": 0.0631,
+     "null_count_matched": 0.0982,
      "rate": 0.1525,
      "rate_ci": [
       0.0898,
@@ -13107,6 +15768,11 @@
       0.0156,
       0.191
      ],
+     "above_count_matched": 0.0743,
+     "above_count_matched_ci": [
+      0.0221,
+      0.1314
+     ],
      "hits": 65,
      "n_changed": 0,
      "n_pairs": 292,
@@ -13114,6 +15780,7 @@
      "n_ramps": 106,
      "name": "as scored",
      "null": 0.1262,
+     "null_count_matched": 0.1483,
      "rate": 0.2226,
      "rate_ci": [
       0.147,
@@ -13126,6 +15793,11 @@
       0.0294,
       0.2045
      ],
+     "above_count_matched": 0.0741,
+     "above_count_matched_ci": [
+      0.0239,
+      0.1391
+     ],
      "hits": 64,
      "n_changed": 291,
      "n_pairs": 295,
@@ -13133,6 +15805,7 @@
      "n_ramps": 103,
      "name": "SfM heading outvoted, 10 deg rule",
      "null": 0.1124,
+     "null_count_matched": 0.1429,
      "rate": 0.2169,
      "rate_ci": [
       0.1433,
@@ -13145,6 +15818,11 @@
       0.0134,
       0.1932
      ],
+     "above_count_matched": 0.0674,
+     "above_count_matched_ci": [
+      0.0171,
+      0.1265
+     ],
      "hits": 62,
      "n_changed": 205,
      "n_pairs": 287,
@@ -13152,6 +15830,7 @@
      "n_ramps": 102,
      "name": "SfM heading outvoted, 15 deg rule",
      "null": 0.123,
+     "null_count_matched": 0.1486,
      "rate": 0.216,
      "rate_ci": [
       0.14,
@@ -13164,6 +15843,11 @@
       0.0205,
       0.1941
      ],
+     "above_count_matched": 0.0649,
+     "above_count_matched_ci": [
+      0.023,
+      0.116
+     ],
      "hits": 60,
      "n_changed": 0,
      "n_pairs": 282,
@@ -13171,6 +15855,7 @@
      "n_ramps": 106,
      "name": "images whose SfM heading is > 60 deg from travel and compass dropped",
      "null": 0.1131,
+     "null_count_matched": 0.1479,
      "rate": 0.2128,
      "rate_ci": [
       0.1388,
@@ -13185,6 +15870,11 @@
       0.0137,
       0.1466
      ],
+     "above_count_matched": 0.0545,
+     "above_count_matched_ci": [
+      0.0113,
+      0.1062
+     ],
      "hits": 42,
      "n_changed": 0,
      "n_pairs": 292,
@@ -13192,6 +15882,7 @@
      "n_ramps": 106,
      "name": "as scored",
      "null": 0.0717,
+     "null_count_matched": 0.0894,
      "rate": 0.1438,
      "rate_ci": [
       0.0869,
@@ -13204,6 +15895,11 @@
       0.0203,
       0.152
      ],
+     "above_count_matched": 0.0529,
+     "above_count_matched_ci": [
+      0.0127,
+      0.1089
+     ],
      "hits": 39,
      "n_changed": 291,
      "n_pairs": 295,
@@ -13211,6 +15907,7 @@
      "n_ramps": 103,
      "name": "SfM heading outvoted, 10 deg rule",
      "null": 0.0564,
+     "null_count_matched": 0.0793,
      "rate": 0.1322,
      "rate_ci": [
       0.0776,
@@ -13223,6 +15920,11 @@
       0.0149,
       0.151
      ],
+     "above_count_matched": 0.0537,
+     "above_count_matched_ci": [
+      0.0099,
+      0.1083
+     ],
      "hits": 40,
      "n_changed": 205,
      "n_pairs": 287,
@@ -13230,6 +15932,7 @@
      "n_ramps": 102,
      "name": "SfM heading outvoted, 15 deg rule",
      "null": 0.0664,
+     "null_count_matched": 0.0857,
      "rate": 0.1394,
      "rate_ci": [
       0.0825,
@@ -13242,6 +15945,11 @@
       0.0224,
       0.1565
      ],
+     "above_count_matched": 0.0571,
+     "above_count_matched_ci": [
+      0.0165,
+      0.1044
+     ],
      "hits": 41,
      "n_changed": 0,
      "n_pairs": 282,
@@ -13249,6 +15957,7 @@
      "n_ramps": 106,
      "name": "images whose SfM heading is > 60 deg from travel and compass dropped",
      "null": 0.0631,
+     "null_count_matched": 0.0883,
      "rate": 0.1454,
      "rate_ci": [
       0.0897,

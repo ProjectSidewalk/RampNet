@@ -26,15 +26,23 @@ large majority, images on which the model does not fire.
 - **No global correction of the geometry closes the gap.** Of nine corrections set without looking at
   hits, none changes the canvas arm's above-chance rate at 0.30 by more than +0.009, and every CI
   includes 0. Mirroring the image x axis costs −0.057 [−0.126, +0.004].
-- **A geometry fix cannot reach the panos.** Each detection claims at most one ramp. Even if every
-  detection ≥ 0.30 were moved onto an in-view ramp, the canvas arm would hit at most **89 of 292 pairs
-  (0.305)**; at 0.55, 0.195. The panos hit 0.627.
+- **No re-mapping of detection bearings can reach the panos, for the in-view set as scored.** Each
+  detection claims at most one ramp. Even if every detection ≥ 0.30 were moved onto an in-view ramp,
+  the canvas arm would hit at most **89 of 292 pairs (0.305)**; at 0.55, 0.195. The panos hit 0.627.
+  This bound holds the in-view set fixed. A pose fix that shrank the denominator (dropping pairs the
+  photo cannot show) could raise the rate past it; that is #227 §7's visual in-view pass.
 - **The pano control is clean.** The flat path's ENU bearing code, applied to each pano's pose,
   reproduces the labeler's projected column `x_proj` to 0.03° (max). The panos' offset excess is centred at
   +0.01° [−0.61, +0.68], and their heading-shift scan peaks at exactly 0°.
-- **On GoPro HERO11 frames the flat test works about as well as on the panos.** 0.632 [0.484, 0.757]
-  at 0.30 and 0.574 [0.436, 0.699] at 0.55 (68 pairs, 36 ramps, 7 sequences). That needs a correct
-  heading, sign and focal on those frames. Every other camera is at its chance floor at 0.30.
+- **HERO11 frames show a real on-bearing excess, so the geometry is right on that camera. They do
+  not match the panos.** I chose this camera split after looking: five camera groups were broken out,
+  and this is the best one. HERO11 frames are 100° wide and fire 1.7 times per image, against 0.0–0.3
+  for the other cameras. #227's pooled swap null draws its donors mostly from those other cameras, so
+  it understates HERO11's floor. Above a count-matched floor, HERO11 hits **+0.245 [0.125, 0.388]** at
+  0.55 (sequence-clustered, 7 sequences). The panos on the same 36 ramps hit 0.726, **+0.531**
+  [0.430, 0.627] above their rotation null. Raw, it is 0.574 flat vs 0.726 pano on the same ramps.
+  HERO11 supplies 43 of the 58 canvas hits at 0.30, so #227's above-chance headline rests mostly on
+  one camera model. Every other camera is at its chance floor (§3a).
 - **What is real: per-image heading error on some frames.** For one camera group (Mapillary make/model
   "none", 248 frames, 20 sequences), the SfM heading sits a median 20° clockwise of the device-GPS
   direction of travel. In three of the drawn misses, the heading correction moves the off-bearing
@@ -47,13 +55,18 @@ large majority, images on which the model does not fire.
 | @ 0.30: above chance | **0.106 [0.031, 0.196]** | **0.115 [0.041, 0.208]** |
 | @ 0.55: hit rate | 0.147 [0.086, 0.223] | 0.146 [0.086, 0.222] |
 | @ 0.55: above chance | 0.083 [0.022, 0.157] | 0.094 [0.036, 0.167] |
+| @ 0.30: count-matched null | 0.138 | 0.126 |
+| @ 0.30: above count-matched | **0.061 [0.020, 0.110]** | **0.070 [0.028, 0.126]** |
+| @ 0.55: above count-matched | 0.050 [0.016, 0.089] | 0.051 [0.019, 0.091] |
 
 The corrected column re-runs #227's scorer from scratch (in-view set, positives, swap-null donors and
 claims all recomputed) with the heading of every frame turned to the mean of the direction of travel
 and the device compass, where those two agree within 10° and both differ from the SfM heading by
 10–60° (291 of 1,353 frames). The rule was fixed before scoring it. The 15° rule gives 0.102 [0.025,
 0.195] at 0.30, and dropping the 10 frames whose SfM heading is more than 60° from both device headings
-gives 0.110 [0.033, 0.205]. The intervals are not paired with #227's, because the pair sets differ.
+gives 0.110 [0.033, 0.205]. Above the count-matched floor those are 0.059 and 0.067. The intervals
+are not paired with #227's, because the pair sets differ. The count-matched value as scored (0.061)
+equals #227's; its CI differs slightly from #227's [0.016, 0.110] because the bootstrap draws differ.
 **#227's numbers do not need to change.**
 
 ![Heading-shift scan and signed-offset excess, flat vs panos](figures/bearing_audit_218/bearing_audit.png)
@@ -89,6 +102,13 @@ Each correction is applied to every positive image's detections and to its swap-
 set is held as scored, apart from the full re-scores in the verdict table. "Gain" is the change in above-chance
 rate against the identity, with a paired ramp-cluster bootstrap CI (2,000 reps, seed 218).
 
+**How the corrections were chosen.** All nine are in the first commit of the script, which holds no
+outputs. So they were fixed before the committed scoring. The history cannot show that no
+exploratory run came first; quick runs were used while writing the script. The unnamed-camera −20° was
+read off the same frames' heading-vs-travel numbers (§5), not off hits. **Multiplicity:** 9
+corrections × 3 thresholds × 2 arms, plus the shift, mirror-shift and focal scans. No pre-set
+correction's CI lies above 0.
+
 | correction | canvas @ 0.30 gain | canvas @ 0.55 gain | stretch @ 0.30 gain |
 |---|---|---|---|
 | mirror image x (u → w − 1 − u) | −0.057 [−0.126, +0.004] | −0.055 [−0.112, −0.002] | −0.052 [−0.122, +0.012] |
@@ -103,8 +123,9 @@ rate against the identity, with a paired ramp-cluster bootstrap CI (2,000 reps, 
 | best constant heading shift (chosen on these pairs) | −12°: +0.018 [−0.016, +0.054] | −3°: +0.010 [−0.006, +0.027] | −3°: +0.010 [−0.008, +0.028] |
 | best focal scale (chosen on these pairs) | ×1.4: +0.028 [+0.001, +0.058] | ×1.4: +0.009 [−0.011, +0.029] | ×0.8: +0.017 [−0.015, +0.049] |
 
-- **Mirror** is the only correction with a clear effect, and it is negative, so the x → bearing sign is
-  right.
+- **Mirror** is the only correction with a consistent effect: it is negative at all three thresholds
+  and on both arms. Its CI excludes 0 only at 0.55 (canvas). The stronger evidence that the x →
+  bearing sign is right is §3: the offset excess peaks at 0°, not at a mirrored position.
 - **Focal.** The ×1.4 scale at 0.30 is the best of 11 scales on the same pairs, so its lower bound of
   +0.001 does not survive the selection. It does not replicate: at 0.10 the best scale is ×1.05
   (+0.009 [−0.005, +0.026]), and the stretch prefers ×0.8. Over 0.6–1.6 the canvas @ 0.30
@@ -124,7 +145,9 @@ centred on opposite sides in the left and right thirds of the frame.
 |---|---|---|---|---|---|---|
 | @ 0.30, all 292 pairs | 170 / 71.9 | 33.4 | 24.6 | 40.2 | +2.5° [−0.9, +7.9] | +3.4° [−1.9, +15.9] |
 | @ 0.10, all 292 pairs | 302 / 148.4 | 56.3 | 48.6 | 48.8 | +0.8° [−1.7, +3.5] | +2.0° [−1.8, +8.1] |
-| @ 0.30, GoPro HERO11 (68 pairs) | 138 / 22.4 | 39.3 | 33.1 | 43.2 | +1.2° [−1.1, +4.1] | +0.9° [−2.1, +4.5] |
+| @ 0.30, GoPro HERO11 (68 pairs), pooled null | 138 / 22.4 | 39.3 | 33.1 | 43.2 | +1.2° [−1.1, +4.1] | +0.9° [−2.1, +4.5] |
+| ... HERO11, count-matched null | 138 / 110.8 | 21.6 | −1.9 | 7.5 | – | – |
+| ... HERO11, within-camera null | 138 / 102.7 | 18.6 | 1.0 | 15.8 | – | – |
 | panos @ 0.55 (2,440 captures) | 3,951 / 2,699 | 1,001 | 373 | −122 | **+0.01° [−0.61, +0.68]** | +0.12° [−1.18, +1.37] |
 | @ 0.30, ramp in left third of frame (58) | 32 / 14.4 | 8.0 | −0.3 | 9.9 | −4.6° [−10.4, −0.0] | −6.8° [−26.6, +1.0] |
 | @ 0.30, centre third (108) | 81 / 22.2 | 17.0 | 17.5 | 24.4 | +2.8° [−0.5, +5.9] | +6.1° [−0.1, +12.3] |
@@ -144,15 +167,62 @@ whose donor-null counts are averaged over 20 draws, so they are not integers.)
 - **Thirds.** At 0.30 the left third centres left and the right third right, which is the sign a focal
   that is too short would give. The CIs are wide, the right third's upper bound is 45°, and at 0.10
   the pattern mostly goes away. Read with the focal scan (§2): not established.
-- By camera, only HERO11 has a positive excess at 0.30 (+110). VIRB (+0.3), GoPro Max (−9.3), moto x4
-  (−0.7) and the unnamed cameras (−5.9) have none. With no excess, there is no offset to read.
+- By camera, only HERO11 has a positive excess at 0.30 (+116 against the pooled null). VIRB (+0.3),
+  GoPro Max (−9.3), moto x4 (−0.7) and the unnamed cameras (−5.9) have none. With no excess, there is
+  no offset to read.
+- **HERO11's excess survives the stricter nulls, and it sits at the projected bearing.** Against the
+  count-matched and within-camera nulls, the excess within ±10° is +21.6 and +18.6, against −1.9 and
+  +1.0 at 10–40°, and it peaks in the 0–5° bin. That is the evidence that HERO11's heading, sign and
+  focal are right. (The rows come from `per_camera["GoPro HERO11 Black"].nulls[*].offset_excess`.)
 
-## 4. How much any geometry could recover
+### 3a. Per camera, under three chance floors
 
-A detection claims at most one ramp. So, whatever the geometry, a positive image contributes at most
-min(detections ≥ thr, in-view ramps) hits.
+Added after the PR #232 review (B1). The camera split was chosen after looking: five camera groups
+with ≥ 25 pairs were broken out, and HERO11 is the one that stood out. Read it as a description of
+where #227's signal comes from, not as a tested hypothesis.
 
-| canvas_level | as scored | ceiling under any re-mapping of bearings | panos |
+| camera (canvas_level) | HFOV, median | detections ≥ 0.30 / positive image | positive images firing | in-view ramps / image | median abs angle from heading | hits @ 0.30 |
+|---|---|---|---|---|---|---|
+| GoPro HERO11 Black | 99.9° | 1.72 | 81% | 1.45 | 30.0° | 43 / 68 |
+| unnamed | 75.8° | 0.25 | 25% | 1.11 | 16.2° | 7 / 61 |
+| motorola moto x4 | 68.7° | 0.28 | 28% | 1.07 | 12.7° | 5 / 46 |
+| GoPro Max (single lens) | 94.4° | 0.00 | 0% | 1.00 | 31.8° | 0 / 41 |
+| Garmin VIRB | 71.5° | 0.23 | 20% | 1.17 | 23.0° | 1 / 35 |
+
+HERO11 supplies 43 of the canvas arm's 58 hits at 0.30 (74%) and 39 of 43 at 0.55. Its frames are
+5568×4872 (GoPro's 8:7 full-sensor mode), and Mapillary labels them `perspective`.
+
+HERO11, above chance under each floor (CIs clustered by sequence, 7 sequences; ramp-clustered CIs are
+in `summary.json`):
+
+| null | @ 0.30: floor | @ 0.30: above | @ 0.55: floor | @ 0.55: above |
+|---|---|---|---|---|
+| pooled swap (#227's primary) | 0.109 | +0.524 [0.389, 0.659] | 0.087 | +0.487 [0.355, 0.657] |
+| **count-matched swap** (#227's second null) | 0.403 | **+0.229 [0.118, 0.342]** | 0.329 | **+0.245 [0.125, 0.388]** |
+| within-HERO11 swap | 0.463 | +0.169 [0.005, 0.320] | 0.421 | +0.153 [−0.039, 0.358] |
+
+- **The pooled null understates a busy camera's floor.** At 12.8 m the bearing window is ±21°, about
+  40% of a 100° frame, and HERO11 has 1.7 detections per frame. Pooled donors mostly come from cameras
+  that rarely fire.
+- **The count-matched floor is the fair one.** Its donors keep the receiver's count of detections
+  ≥ 0.30 (0 / 1 / 2 / 3+), with the same buckets at every threshold, as #227 defines it. The PR review
+  bucketed on the threshold in use and got +0.203 at 0.55; that choice is the difference.
+- **The within-camera floor is an upper bound.** Donors from the same sequence a few metres away may
+  see the receiver's own ramps.
+- **Matched pano comparison, same ramps** (`pano_control.by_flat_camera_ramps`). The 36 ramps HERO11
+  has in view get 372 pano captures. The panos hit **0.726 [0.611, 0.825]** of them at 0.55, **+0.531
+  [0.430, 0.627]** above the rotation null. On the 211 ramps no HERO11 frame sees, they hit 0.609. All
+  36 are in the pano set, and 6 are also in view of another flat camera. So, on the same ramps: **flat
+  0.574 vs pano 0.726 raw; +0.245 vs +0.531 above chance.** HERO11's ramps are easier on the panos too.
+- **Candidate explanations, not tested:** the wider lens puts more of the scene in each frame, the
+  firing density is 6× the other cameras', and mount height, date (2024) and image quality differ.
+
+## 4. How much a re-mapping of bearings could recover
+
+A detection claims at most one ramp. So, for any re-mapping of detection bearings **with the in-view
+set held as scored**, a positive image contributes at most min(detections ≥ thr, in-view ramps) hits.
+
+| canvas_level | as scored | ceiling, in-view set fixed | panos |
 |---|---|---|---|
 | @ 0.30 | 0.199 (58 / 292) | **0.305 (89 / 292)** | 0.615 (world test, 0.30) |
 | @ 0.55 | 0.147 | 0.195 | 0.627 (bearing test) |
@@ -160,8 +230,10 @@ min(detections ≥ thr, in-view ramps) hits.
 
 By camera at 0.30 (claimable / in-view pairs): HERO11 54 / 68, unnamed 14 / 61, moto x4 12 / 46, VIRB
 6 / 35, GoPro Max 0 / 41, iPhones 3 / 41. On 83% of missed pairs the image has no detection ≥ 0.30
-anywhere (#227 §5). **Most of the flat-vs-pano gap is the model not firing, and no pose
-fix can change that.**
+anywhere (#227 §5). **Most of the flat-vs-pano gap is the model not firing, and no re-mapping of
+bearings can change that.** A smaller in-view denominator could. A pose fix that drops pairs from
+images that never fire would raise the rate, and so would #227 §7's visual pass. That is a question
+about which ramps the photos show, not about the bearing geometry.
 
 ## 5. Independent heading check: direction of travel
 
@@ -179,10 +251,12 @@ up to its mount yaw. Positive images, travel − SfM heading:
 | Garmin VIRB | 24 | −5.1° | 14.2° | 46% | 0% |
 | GoPro Max (single lens) | 41 | −0.2° | 9.3° | 54% | 24% |
 
-- **The device `compass_angle` is not an independent source for most cameras.** It is the GPS-track
-  direction to within 1° on 94% of HERO11 frames, 63% of unnamed-camera frames and 61% of GoPro Max frames
-  (all 1,353 frames with a travel bearing). The "two sources agree" rule in §2 is therefore mostly
-  "the GPS track disagrees with SfM".
+- **The device `compass_angle` is often not an independent source.** It equals the GPS-track
+  direction to within 1° on 94% of HERO11 frames (175), 63% of unnamed-camera frames (225) and 61% of
+  GoPro Max frames (140). For VIRB (201) it is 13%, and for moto x4 (164) 23%. Overall it is 47% of
+  1,221 frames (`compass_vs_travel_all_frames`, over all flat frames with a travel bearing). For the
+  cameras that hold most of the outvoted frames, the "two sources agree" rule in §2 is therefore
+  mostly "the GPS track disagrees with SfM".
 - **HERO11:** a steady −6° (travel left of the SfM heading). That is consistent with a mount yawed
   ~6° right of the vehicle axis or a steady SfM offset; this data cannot tell which. Shifting HERO11
   detections does not help: its best shift at 0.30 is −3° (+0.018 above its as-scored rate), within noise.
@@ -242,15 +316,15 @@ generalise.
 - **Not checked:** a visual check of the 292 in-view pairs (#227 §7), lens distortion beyond k1/k2
   (HERO11 frames whose corners lie beyond the Brown model's fold, #227 §2), and SfM pitch on the 113
   level-pose frames beyond their 0 hits.
-- **The HERO11 result is 7 sequences of one camera model**, 2024 captures. Why it works is not
-  tested here: mount height and position, FOV, date and image quality all differ from the other
-  cameras. Its 0.574 at 0.55 is on different ramps from the panos' 0.627, so it is not a matched comparison.
+- **The HERO11 split was chosen post hoc.** It is 7 sequences of one camera model, 2024 captures
+  (§3a). Its excess above chance is about half the panos' on the same ramps. Why it fires where the
+  other cameras do not is not tested.
 - The CIs resample ramps. Pairs that share a photo share detections, so they are slightly optimistic
   (#227 §3).
 
 ## 8. Reproduction
 
-From a clean clone (committed files only; about 15 minutes on a desktop CPU):
+From a clean clone (committed files only; about 14 minutes on a desktop CPU, 853 s measured):
 
 ```bash
 python scripts/analysis/bearing_audit_218.py           # -> analysis_out/perspective_photos_218/bearing_audit/
@@ -265,9 +339,13 @@ Inputs: `analysis_out/perspective_photos_218/{images.csv,dets_canvas_level.jsonl
 `analysis_out/flat_mapillary_3d/census/{images.csv,ramps.csv}`, `analysis_out/multiview_48/captures_R25.csv`,
 `benchmark/richmond_neighbourhood/records.jsonl`, `docs/figures/perspective_photos_218/figures.json`. The swap-null
 donors use #227's own `swap_donors` with seed 218, so the identity rows reproduce `results.md`.
+`summary.json` → `inputs_sha256` records each input's sha256 (of the LF bytes git checks out).
+Wall-clock time goes to stdout only, so a re-run reproduces `summary.json` and `offsets.csv` byte for
+byte (checked: two runs, identical bytes).
 
 ## 9. Cost
 
-No model was run. CPU only, on the desktop: about 25 minutes of audit runs (two full runs at ~10 min,
-quick runs at ~1 min) and 10 minutes of pytest. Five thumbnails were copied from makelab2 for the frame
+No model was run. CPU only, on the desktop. The first version took about 25 minutes of audit runs
+(two full runs at ~10 min, quick runs at 1–2 min). The review revision took about 30 minutes (two full
+runs at ~14 min, to check byte identity). Each version also took 10 minutes of pytest. Five thumbnails were copied from makelab2 for the frame
 sheet. GPU-hours: 0, so there are no ledger rows.

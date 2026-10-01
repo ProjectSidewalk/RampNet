@@ -33,7 +33,7 @@ excess within +-60 deg at 0.30. This script adds what that check does not cover:
    minus the 90/180/270 deg rotation null) and their heading-shift scan.
 
 Committed files only (dets_*.jsonl, census, images.csv, captures_R25.csv,
-richmond_neighbourhood/records.jsonl): no images, no GPU, no network. About 10 minutes on a
+richmond_neighbourhood/records.jsonl): no images, no GPU, no network. About 14 minutes on a
 desktop CPU.
 
     python scripts/analysis/bearing_audit_218.py              # writes bearing_audit/*.json
@@ -136,7 +136,28 @@ def load(arm, n_null):
            for i in ids}
     pos = [i for i in ids if geo[i]["positive"]]
     # the scorer's own donors (same seed), so the identity row reproduces results.md
-    donors = PP.swap_donors(pos, {i: by_id[i]["nearest_ramp"] for i in pos}, n_null)
+    clusters = {i: by_id[i]["nearest_ramp"] for i in pos}
+    donors = PP.swap_donors(pos, clusters, n_null)
+    # #227's count-matched null: the donor also has the receiver's number of detections
+    # >= 0.30 (0 / 1 / 2 / 3+), per arm (PR #232 review, B1)
+    donors_c = PP.swap_donors(pos, clusters, n_null, buckets={
+        i: PP.count_bucket(sum(d["score"] >= PP.PRIMARY_THR for d in recs[i]["dets"]))
+        for i in pos})
+    # within-camera null: donors are positives of the same camera model with a different
+    # nearest ramp. Donors from the same sequence may see the receiver's own ramps, so this
+    # floor is an upper bound. Cameras whose positives share one nearest ramp keep the
+    # pooled donors (flagged by ``cam_null_pooled``).
+    camera = {i: f'{by_id[i]["make"]} {by_id[i]["model"]}'.strip() for i in pos}
+    donors_cam, cam_pooled = [{} for _ in range(n_null)], set()
+    for cam in sorted(set(camera.values())):
+        sub = [i for i in pos if camera[i] == cam]
+        if len({clusters[i] for i in sub}) < 2:
+            cam_pooled.add(cam)
+            for k in range(n_null):
+                donors_cam[k].update({i: donors[k][i] for i in sub})
+            continue
+        for k, dr in enumerate(PP.swap_donors(sub, clusters, n_null)):
+            donors_cam[k].update(dr)
     travel = travel_bearings(census)
     images = []
     for iid in pos:
@@ -159,7 +180,10 @@ def load(arm, n_null):
             "d_travel_raw": None if tr[0] is None else float(P.wrap_deg(tr[0][0] - head)),
             "d_travel_sfm": None if tr[1] is None else float(P.wrap_deg(tr[1][0] - head)),
             "raw_ll": (float(c["raw_lat"]), float(c["raw_lng"])),
-            "donors": [d[iid] for d in donors]})
+            "donors": [d[iid] for d in donors],
+            "donors_c": [d[iid] for d in donors_c],
+            "donors_cam": [d[iid] for d in donors_cam],
+            "cam_null_pooled": camera[iid] in cam_pooled})
     return images, recs, ramp_ll
 
 
@@ -231,15 +255,17 @@ class Scorer:
         return self.cache[key]
 
     def run(self, shift=0.0, fscale=1.0, mirror=False, per_image_shift=None,
-            raw_pos=False, n_null=None):
-        """Returns (pairs, real[], null_mean[]) over in-view pairs, scorer's claims."""
+            raw_pos=False, n_null=None, null="donors"):
+        """Returns (pairs, real[], null_mean[]) over in-view pairs, scorer's claims.
+        ``null``: "donors" (#227's swap null), "donors_c" (count-matched) or
+        "donors_cam" (within camera model)."""
         pairs, real, nul = [], [], []
         for im in self.images:
             s = shift + (per_image_shift(im) if per_image_shift else 0.0)
             near = near_from(im, self.ramp_ll, raw_pos)
             dets, b, dep = self.world(im, None, fscale, mirror)
             cl = PP.claim_bearing(dets, b + s, dep, near, 0.0)
-            donors = im["donors"][:n_null] if n_null else im["donors"]
+            donors = im[null][:n_null] if n_null else im[null]
             ncl = []
             for dn in donors:
                 sd, sb, sdep = self.world(im, dn, fscale, mirror)
@@ -268,6 +294,14 @@ def cluster_weights(uids, n_boot=N_BOOT, seed=PP.SEED):
 def ramp_boot(pairs, vals, n_boot=N_BOOT, seed=PP.SEED):
     """95% ramp-cluster bootstrap of the mean of ``vals`` (one per pair)."""
     w = cluster_weights([r["uid"] for _, r in pairs], n_boot, seed)
+    m = (w @ np.asarray(vals, float)) / w.sum(axis=1)
+    return [float(x) for x in np.percentile(m, [2.5, 97.5])]
+
+
+def seq_boot(pairs, vals, n_boot=N_BOOT, seed=PP.SEED):
+    """95% bootstrap of the mean of ``vals``, clustered by Mapillary sequence (frames of
+    one drive share a camera, a mount and often the same ramps)."""
+    w = cluster_weights([im["seq"] for im, _ in pairs], n_boot, seed)
     m = (w @ np.asarray(vals, float)) / w.sum(axis=1)
     return [float(x) for x in np.percentile(m, [2.5, 97.5])]
 
@@ -319,26 +353,40 @@ def rescore(arm, thr, delta_fn, images_meta, n_null=PP.N_NULL, boot=True,
         by_id[iid] = row
         geo[iid] = PP.image_geometry(row, recs[iid]["width"], recs[iid]["height"], ramps)
     pos = [i for i in sorted(geo) if geo[i]["positive"]]
-    donors = PP.swap_donors(pos, {i: by_id[i]["nearest_ramp"] for i in pos}, n_null)
-    pairs, real, nul = [], [], []
-    for iid in pos:
-        g, rec = geo[iid], recs[iid]
-        b, dep, _ = PP.det_world(rec["dets"], g["cam"], g["R_wc"])
-        cl = PP.claim_bearing(rec["dets"], b, dep, g["near"], thr)
-        ncl = []
-        for dr in donors:
+    clusters = {i: by_id[i]["nearest_ramp"] for i in pos}
+    donors = PP.swap_donors(pos, clusters, n_null)
+    donors_c = PP.swap_donors(pos, clusters, n_null, buckets={
+        i: PP.count_bucket(sum(d["score"] >= PP.PRIMARY_THR for d in recs[i]["dets"]))
+        for i in pos})
+
+    def null_claims(drs, iid, g, rec):
+        out = []
+        for dr in drs:
             dd = recs[dr[iid]]
             sd = PP.transplant(dd["dets"], dd["width"], dd["height"], rec["width"],
                                rec["height"])
             sb, sdep, _ = PP.det_world(sd, g["cam"], g["R_wc"])
-            ncl.append(PP.claim_bearing(sd, sb, sdep, g["near"], thr))
+            out.append(PP.claim_bearing(sd, sb, sdep, g["near"], thr))
+        return out
+    pairs, real, nul, nulc = [], [], [], []
+    for iid in pos:
+        g, rec = geo[iid], recs[iid]
+        b, dep, _ = PP.det_world(rec["dets"], g["cam"], g["R_wc"])
+        cl = PP.claim_bearing(rec["dets"], b, dep, g["near"], thr)
+        ncl = null_claims(donors, iid, g, rec)
+        nclc = null_claims(donors_c, iid, g, rec)
         for r in g["near"]:
             if r["in_view"]:
                 pairs.append(({"id": iid}, r))
                 real.append(r["uid"] in cl)
                 nul.append(np.mean([r["uid"] in c for c in ncl]))
-    real, nul = np.array(real, float), np.array(nul, float)
+                nulc.append(np.mean([r["uid"] in c for c in nclc]))
+    real, nul, nulc = np.array(real, float), np.array(nul, float), np.array(nulc, float)
     d = row_of("", pairs, real, nul, boot)
+    d["null_count_matched"] = float(nulc.mean())
+    d["above_count_matched"] = float(real.mean() - nulc.mean())
+    if boot:
+        d["above_count_matched_ci"] = ramp_boot(pairs, real - nulc)
     d.update({"n_positive": len(pos), "n_ramps": len({r["uid"] for _, r in pairs}),
               "n_changed": sum(1 for m in images_meta.values() if delta_fn(m))})
     if boot:
@@ -360,12 +408,12 @@ def gated_offsets(b, dep, r):
     return o[ok & (np.abs(o) <= SPAN)]
 
 
-def offset_sets(sc):
+def offset_sets(sc, null="donors"):
     """Per in-view pair: real offsets and, per null draw, the donor offsets."""
     out = []
     for im in sc.images:
         _, b, dep = sc.world(im, None, 1.0, False)
-        nulls = [sc.world(im, dn, 1.0, False) for dn in im["donors"]]
+        nulls = [sc.world(im, dn, 1.0, False) for dn in im[null]]
         for r in im["g"]["near"]:
             if r["in_view"]:
                 out.append({"im": im, "r": r, "o": gated_offsets(b, dep, r),
@@ -439,7 +487,7 @@ def excess_summary(sets, boot=True):
 # --------------------------------------------------------------------------- #
 # pano control
 # --------------------------------------------------------------------------- #
-def pano_control(ramp_ll, thr=0.55, boot=True):
+def pano_control(ramp_ll, thr=0.55, boot=True, cam_ramps=None):
     recs = {}
     with open(PP.NEIGHBOURHOOD, encoding="utf-8") as f:
         for line in f:
@@ -482,12 +530,37 @@ def pano_control(ramp_ll, thr=0.55, boot=True):
     for s in SHIFTS:
         rr = PP.pano_bearing_check(thr, s / 360.0)
         scan.append({"shift": s, "rate": float(np.mean([r["bearing_hit"] for r in rr]))})
+    # the panos on the ramps each flat camera has in view (PR #232 review, B1): the
+    # matched comparison for a per-camera flat rate
+    by_cam = {}
+    for cam, uids in sorted((cam_ramps or {}).items()):
+        others = set().union(*[u for c, u in cam_ramps.items() if c != cam])
+
+        def sub(sel):
+            m = [k for k, r in enumerate(rows0) if sel(r["ramp"])]
+            if not m:
+                return None
+            hit = np.array([rows0[k]["bearing_hit"] for k in m], float)
+            nul = np.array([np.mean([rr[k]["bearing_hit"] for rr in nulls0]) for k in m])
+            d = {"n_captures": len(m), "n_ramps": len({rows0[k]["ramp"] for k in m}),
+                 "rate": float(hit.mean()), "rotation_null": float(nul.mean()),
+                 "above": float(hit.mean() - nul.mean())}
+            if boot:
+                prs = [(None, {"uid": rows0[k]["ramp"]}) for k in m]
+                d["rate_ci"] = ramp_boot(prs, hit)
+                d["above_ci"] = ramp_boot(prs, hit - nul)
+            return d
+        by_cam[cam] = {"n_flat_ramps": len(uids),
+                       "n_shared_with_other_flat_cameras": len(uids & others),
+                       "same_ramps": sub(lambda u: u in uids),
+                       "ramps_not_in_view_of_this_camera": sub(lambda u: u not in uids)}
     return {"n_captures": len(caps),
             "xproj_vs_flat_path_abs_deg": {"median": float(np.median(dx)),
                                             "p99": float(np.percentile(dx, 99)),
                                             "max": float(dx.max())},
             "rate": float(base), "rotation_null": float(nmean),
-            "offsets": excess_summary(sets, boot), "_sets": sets, "shift_scan": scan}
+            "offsets": excess_summary(sets, boot), "_sets": sets, "shift_scan": scan,
+            "by_flat_camera_ramps": by_cam}
 
 
 # --------------------------------------------------------------------------- #
@@ -540,6 +613,26 @@ def all_meta():
         out[iid] = {"d_compass": float(P.wrap_deg(float(census[iid]["compass_angle"]) - head)),
                     "d_travel_raw": None if tr is None else float(P.wrap_deg(tr[0] - head))}
     return out
+
+
+def compass_travel_agreement():
+    """Per camera, over every flat frame with a travel bearing: how often the device
+    ``compass_angle`` equals the device-GPS direction of travel (within 1 and 5 deg). Where
+    it does, the compass is not an independent heading source."""
+    meta = all_meta()
+    rows = {r["image_id"]: r for r in PP.read_csv(PP.IMAGES_CSV)}
+    g = defaultdict(list)
+    for i, m in meta.items():
+        if m["d_travel_raw"] is None:
+            continue
+        cam = f'{rows[i]["make"]} {rows[i]["model"]}'.strip()
+        dd = abs(float(P.wrap_deg(m["d_compass"] - m["d_travel_raw"])))
+        g["all"].append(dd)
+        g[cam].append(dd)
+    return {k: {"n": len(v), "within_1": float(np.mean(np.array(v) <= 1.0)),
+                "within_5": float(np.mean(np.array(v) <= 5.0)),
+                "abs_median": float(np.median(v))}
+            for k, v in g.items() if len(v) >= 10}
 
 
 def reversed_frame(m):
@@ -611,6 +704,11 @@ def main(argv=None):
             key = f"{thr:.2f}"
             pairs, r0, n0 = sc.run()
             ident = row_of("as scored", pairs, r0, n0, boot)
+            _, rc_, nc_ = sc.run(null="donors_c")
+            ident["null_count_matched"] = float(nc_.mean())
+            ident["above_count_matched"] = float(rc_.mean() - nc_.mean())
+            if boot:
+                ident["above_count_matched_ci"] = ramp_boot(pairs, rc_ - nc_)
 
             def corrected(name, **kw):
                 p, r, n = sc.run(**kw)
@@ -685,6 +783,41 @@ def main(argv=None):
                 if boot:
                     d["rate_ci"] = ramp_boot(pp_, rr)
                     d["above_ci"] = ramp_boot(pp_, rr - nn_)
+                    d["rate_ci_seq"] = seq_boot(pp_, rr)
+                # the camera's floor under three nulls (PR #232 review, B1). The pooled
+                # swap null draws donors mostly from cameras that rarely fire, so it
+                # understates the floor of a camera that fires often.
+                d["nulls"] = {}
+                for nk, label in (("donors", "pooled swap (#227)"),
+                                  ("donors_c", "count-matched swap"),
+                                  ("donors_cam", "within-camera swap")):
+                    _, r, n = sub.run(null=nk)
+                    e = {"label": label, "null": float(n.mean()),
+                         "above": float(r.mean() - n.mean())}
+                    if boot:
+                        e["above_ci_seq"] = seq_boot(pp_, r - n)
+                        e["above_ci_ramp"] = ramp_boot(pp_, r - n)
+                    ex = excess_summary(offset_sets(sub, nk), boot=False)
+                    e["offset_excess"] = {k: ex[k] for k in (
+                        "excess", "excess_within_10", "excess_10_40", "excess_40_90",
+                        "peak_bin")}
+                    d["nulls"][nk] = e
+                d["within_camera_null_pooled"] = any(im["cam_null_pooled"]
+                                                     for im in sub.images)
+                # what differs between cameras besides the model's skill
+                ims = sub.images
+                d["describe"] = {
+                    "n_positive_images": len(ims),
+                    "hfov_median": float(np.median([im["g"]["cam"].hfov_deg() for im in ims])),
+                    "dets_per_image": float(np.mean([
+                        sum(x["score"] >= thr for x in im["rec"]["dets"]) for im in ims])),
+                    "share_images_firing": float(np.mean([
+                        any(x["score"] >= thr for x in im["rec"]["dets"]) for im in ims])),
+                    "in_view_per_image": float(np.mean([
+                        sum(r["in_view"] for r in im["g"]["near"]) for im in ims])),
+                    "abs_dbear_median": float(np.median([abs(r["dbear"]) for _, r in pp_])),
+                    "range_median": float(np.median([r["range"] for _, r in pp_])),
+                    "share_of_all_hits": float(rr.sum() / max(1.0, r0.sum()))}
                 sscan = []
                 for s_ in SHIFTS:
                     _, r, n = sub.run(shift=float(s_))
@@ -698,8 +831,10 @@ def main(argv=None):
                 d["shift_scan_above"] = sscan
                 d["focal_scan_above"] = fscan
                 per_cam[cam] = d
-            # ceiling under ANY re-mapping of detection bearings: each detection >= thr can
-            # claim at most one ramp, so an image contributes at most min(#dets, #in view)
+            # ceiling under any re-mapping of detection bearings, HOLDING THE IN-VIEW SET
+            # FIXED: each detection >= thr can claim at most one ramp, so an image
+            # contributes at most min(#dets, #in view). A pose fix that changes the in-view
+            # set (the denominator) is not bounded by this.
             ceil, ceil_by = 0, defaultdict(lambda: [0, 0])
             for im in images:
                 nd = sum(d["score"] >= thr for d in im["rec"]["dets"])
@@ -761,6 +896,7 @@ def main(argv=None):
                   f"{best['above']:+.3f}; {time.time() - t0:.0f}s", flush=True)
         summary["arms"][arm] = res
     summary["heading_vs_independent"] = heading_stats(images0)
+    summary["compass_vs_travel_all_frames"] = compass_travel_agreement()
     # full re-scores with corrected headings (every flat image, not only the positives)
     meta_all = all_meta()
     resc = {}
@@ -778,14 +914,25 @@ def main(argv=None):
                 print(f"rescore {arm} @ {thr}: {name}: {d['rate']:.3f} null {d['null']:.3f} "
                       f"above {d['above']:+.3f} ({d['n_pairs']} pairs)", flush=True)
     summary["rescore"] = resc
-    pc = pano_control({u: (x, y) for u, x, y in PP.ramp_table()}, boot=boot)
+    cam_ramps = defaultdict(set)
+    for im in images0:
+        cam_ramps[im["camera"]] |= {r["uid"] for r in im["g"]["near"] if r["in_view"]}
+    pc = pano_control({u: (x, y) for u, x, y in PP.ramp_table()}, boot=boot,
+                      cam_ramps={c: u for c, u in cam_ramps.items() if len(u) >= 10})
     edges, real, nul, _, _ = excess(pc["_sets"])
     for j in range(len(real)):
         hist_rows.append({"source": "pano @ 0.55", "bin_lo": edges[j], "bin_hi": edges[j + 1],
                           "real": round(float(real[j]), 4), "null": round(float(nul[j]), 4),
                           "excess": round(float(real[j] - nul[j]), 4)})
     summary["pano_control"] = pc
-    summary["elapsed_s"] = round(time.time() - t0, 1)
+    # content hashes of every input (wall-clock time goes to stdout only, so a re-run
+    # reproduces summary.json byte for byte)
+    summary["inputs_sha256"] = {
+        os.path.relpath(f, REPO).replace(os.sep, "/"): PP.sha256_file(f)
+        for f in [os.path.join(PP.OUT, f"dets_{x}.jsonl") for x in a.arms.split(",")]
+        + [PP.IMAGES_CSV, os.path.join(PP.CENSUS, "images.csv"),
+           os.path.join(PP.CENSUS, "ramps.csv"), PP.CAPTURES, PP.NEIGHBOURHOOD,
+           FIGURES_JSON]}
     with open(os.path.join(a.out, "summary.json"), "w", encoding="utf-8", newline="") as f:
         json.dump(rnd(summary), f, indent=1, sort_keys=True)
         f.write("\n")

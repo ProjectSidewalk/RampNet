@@ -539,7 +539,11 @@ denominator that the photo does not show. The visual in-view pass (§7) measures
 
 A fuller audit (correction scans, the pano control, the direction of travel as an independent
 heading, and a full re-score with corrected headings) is in `docs/bearing_audit_218.md`. It finds
-no systematic error; correcting the heading moves canvas_level @ 0.30 above chance 0.106 → 0.115.
+no systematic error. Correcting the heading (the pre-set 10° rule) moves canvas_level @ 0.30 above
+chance 0.106 → 0.115, and above the count-matched floor 0.061 → 0.070; the 15° rule gives 0.102 and
+0.059. GoPro HERO11 frames supply 43 of the 58 hits at 0.30. Above a count-matched floor they hit
++0.245 at 0.55, against +0.531 for the panos on the same ramps (0.574 vs 0.726 raw). That camera
+split was chosen post hoc (audit §3a).
 
 ## 6. Seoul: prepared, not scored
 

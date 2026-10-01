@@ -77,3 +77,35 @@ def test_committed_summary_shape():
     # the identity re-score reproduces #227's committed headline
     assert rows[0]["hits"] == 58 and rows[0]["n_pairs"] == 292
     assert rows[0]["null"] == pytest.approx(0.0928, abs=1e-4)
+    # #227's count-matched floor too, and no wall-clock time in the committed output
+    assert rows[0]["above_count_matched"] == pytest.approx(0.061, abs=1e-3)
+    assert "elapsed_s" not in s
+    assert len(s["inputs_sha256"]) >= 7
+
+
+def _frame(iid, t_s, lat, lng, seq="s"):
+    return {"image_id": iid, "sequence": seq, "captured_at": str(int(t_s * 1000)),
+            "raw_lat": str(lat), "raw_lng": str(lng), "lat": str(lat), "lng": str(lng)}
+
+
+def test_travel_bearings_straight_tracks():
+    # ~5.6 m steps, one second apart: northbound, then eastbound
+    dlat = 5e-5
+    north = {f"n{k}": _frame(f"n{k}", k, 47.6 + k * dlat, -122.3, "N") for k in range(5)}
+    east = {f"e{k}": _frame(f"e{k}", k, 47.6, -122.3 + k * dlat, "E") for k in range(5)}
+    tr = B.travel_bearings({**north, **east})
+    for k in range(5):
+        b, span = tr[f"n{k}"][0]
+        assert float(P.wrap_deg(b - 0.0)) == pytest.approx(0.0, abs=1e-6)
+        assert span >= B.TRAVEL_MIN_M
+        assert float(P.wrap_deg(tr[f"e{k}"][0][0] - 90.0)) == pytest.approx(0.0, abs=0.01)
+
+
+def test_travel_bearings_needs_movement_and_time():
+    # a parked frame (no neighbour moved >= 2 m) and a lone frame give no bearing
+    parked = {f"p{k}": _frame(f"p{k}", k, 47.6, -122.3, "P") for k in range(3)}
+    lone = {"x": _frame("x", 0, 47.7, -122.3, "X")}
+    far = {"a": _frame("a", 0, 47.8, -122.3, "F"),
+           "b": _frame("b", 60, 47.8 + 5e-5, -122.3, "F")}     # 60 s apart
+    tr = B.travel_bearings({**parked, **lone, **far})
+    assert tr["p1"][0] is None and tr["x"][0] is None and tr["a"][0] is None
