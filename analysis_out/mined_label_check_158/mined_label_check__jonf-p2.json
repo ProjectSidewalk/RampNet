@@ -1,4 +1,5 @@
 {
+ "crops": "benchmark/mined_label_check_158/crops_pass2",
  "from_file": "analysis_out/mined_label_check_158/mined_label_check__jonf.json",
  "from_sha256": "fe879be52ae73790ddebfebf6813a965241d70b462c8bcb9f9742693d4c05493",
  "gallery": "benchmark/mined_label_check_158/gallery_pass2.html",
@@ -37,12 +38,15 @@
   "cac0fc9b0",
   "ca7ee8f77"
  ],
- "manifest_digest": "bf3c00686e50e0da",
+ "manifest_digest": "9a8045c952207339",
  "n_answered": 0,
  "n_items": 32,
+ "native_crops": true,
  "pass": 2,
+ "pass1_manifest_digest": "bf3c00686e50e0da",
  "question": "Is there a curb ramp at the ring?",
  "rater": "jonf-p2",
+ "ring_overlay": true,
  "rubric": [
   {
    "definition": "A curb ramp is at the ring or touching it. It may be partly hidden or faint, as long as you can see it is a ramp.",

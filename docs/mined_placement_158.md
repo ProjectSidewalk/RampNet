@@ -145,25 +145,77 @@ scored apart):
   *training-label* precision 0.84 is an upper reading; with the six offset Yeses counted
   against, it is 53/70 = 0.76.
 
-### Pass 2 (added 2026-09-30, after pass 1 was read): the Can't tell cards with image controls
+### Pass 2 (planned 2026-09-30, rebuilt 2026-10-01): the Can't tell cards, re-cut native and unringed, with image controls
 
-Pass 1 was rated without image controls. Pass 2 shows the 32 pass-1 Can't tell cards (30
-sample + 2 instrument) again, in the same crops under the same digest, with brightness,
-contrast and saturation sliders under each ringed view; they apply to that card only, and
-the setting is saved with the card's answer (`image`, slider units, 100 = unchanged) so the
-re-rating is reproducible. It is the same rater's second
-look, not a second rater. Rubric and question are unchanged; Can't tell stays valid.
+Pass 1 was rated without image controls, at 360 px, with the ring drawn into the JPEG.
+Pass 2 shows the 32 pass-1 Can't tell cards (30 sample + 2 instrument) again. It is the same
+rater's second look, not a second rater; rubric and question are unchanged, Can't tell stays
+valid, and the context view is pass 1's crop.
 
-- `python scripts/analysis/mined_label_check_158.py gallery --pass2-from
-  analysis_out/mined_label_check_158/mined_label_check__jonf.json --init-rater jonf-p2`
-  writes `benchmark/mined_label_check_158/gallery_pass2.html` and the empty rater file
-  `mined_label_check__jonf-p2.json`, bound to pass 1 by its sha256 and item list.
-- `rates mined_label_check__jonf.json --pass2 mined_label_check__jonf-p2.json` reports pass 1,
-  the pass-2 subset, and **combined**: pass 1 with the pass-2 answers written over its Can't
-  tells (an unanswered pass-2 card keeps Can't tell). The combined read is the step-4
-  number; pass 1 stays reported beside it.
-- The pass-1 page was rebuilt with the same controls so both pages come from one code
-  path; its digest and Jon's pass-1 file are unchanged.
+**What changed, and why (2026-10-01).** The first pass-2 page (2026-09-30) kept the pass-1
+crops and added brightness / contrast / saturation sliders. Jon's first look at it: the
+sliders did not rescue the washed-out cards, and the ring itself hides the spot it marks.
+Measured on the 32 pass-1 Can't tell crops (`scripts/analysis/mined_label_check_158.py`'s
+inputs; the numbers below are from a one-off read of the crop pixels, not a committed script):
+
+- **Clipping is in the source.** In the 9 cards whose note says washed out, 30–76% of the
+  pixels in the ring area are ≥ 245 in all three channels. The camera wrote them as white;
+  no filter brings them back.
+- **Resolution was thrown away by us.** The 36° window is 1,100 px wide on an 11,000 px pano
+  and was resized to 360 px (JPEG q82) before anyone looked. 23 of the 31 panos behind these
+  cards are 11,000 px wide (one is 12,288, one 5,760); 6 are 4,096 px, where native is 410
+  px and gains nothing. About half the Can't tell notes cite angle, distance or graininess
+  rather than lighting.
+- **The ring cannot be hidden** when it is baked into the pixels, and the context crop is
+  another pano, so no unringed copy of the rated view existed.
+
+So pass 2 was rebuilt:
+
+- **New cuts.** `plan-pass2` writes `analysis_out/mined_label_check_158/items_pass2.json`
+  (the 32 target views, `ring: false`, `cut: {native, quality 90}`, bound to the pass-1
+  file by sha256 and to the pass-1 gallery by digest). `cut-crops --native` (no resize)
+  cut them on makelab2 from the native-res archive in 11 s of CPU; a second cut reproduced
+  all 32 files byte for byte. They are committed in
+  `benchmark/mined_label_check_158/crops_pass2/` (3.6 MB; 24 at 1100×733, 6 at 410×273,
+  one 576×384, one 1229×819) with per-file sha256 in `manifest_pass2.json`, digest
+  **`9a8045c952207339`**, over pass-1 digest `bf3c00686e50e0da`. The pass-1 crops and
+  manifest are unchanged (same `cut_one`, same defaults).
+- **The ring is an overlay.** The page draws it as SVG in crop units (same centre, radius
+  and dark halo as the baked ring); **R** or the button hides it, **Z** toggles 1:1 pixels.
+- **Image controls, per card, saved with the answer** (`image`, slider units): levels (black
+  and white point), gamma and local contrast as an SVG filter, then brightness, contrast and
+  saturation as CSS filters. All are browser filters on the committed JPEG, so the page works
+  from `file://` and no pixel is rewritten; the setting is in the export so the re-rating is
+  reproducible. A clipped pixel stays white under every setting; what the controls recover is
+  the unclipped low-contrast range around it.
+- **Binding.** The pass-2 rater file carries `manifest_digest` (pass 2),
+  `pass1_manifest_digest`, `from_file` / `from_sha256` (the pass-1 file) and exactly its
+  Can't tell cards as items; `rates --pass2` refuses anything else. The earlier, unanswered
+  pass-2 file (0 of 32) was replaced; nothing from it was rated.
+
+Commands (desktop unless marked):
+
+```bash
+python scripts/analysis/mined_label_check_158.py plan-pass2 \
+    --pass2-from analysis_out/mined_label_check_158/mined_label_check__jonf.json
+python scripts/analysis/multiview_evidence_48.py cut-crops \
+    analysis_out/mined_label_check_158/items_pass2.json \
+    --archive-root /projects/makeabilitylab/sidewalk-auto-labeler/runs --out crops_p2   # makelab2
+python scripts/analysis/mined_label_check_158.py gallery \
+    --pass2-from analysis_out/mined_label_check_158/mined_label_check__jonf.json \
+    --crops crops_p2 --init-rater jonf-p2
+python scripts/analysis/mined_label_check_158.py rates \
+    analysis_out/mined_label_check_158/mined_label_check__jonf.json \
+    --pass2 analysis_out/mined_label_check_158/mined_label_check__jonf-p2.json
+```
+
+`rates --pass2` reports pass 1, the pass-2 subset, and **combined**: pass 1 with the pass-2
+answers written over its Can't tells (an unanswered pass-2 card keeps Can't tell). The
+combined read is the step-4 number; pass 1 stays reported beside it. The pass-1 page was
+rebuilt from the same code path (it gains the new controls; its ring stays baked, so no
+toggle); its digest and Jon's pass-1 file are unchanged.
+
+**Status (2026-10-01):** pass 2 is open and unrated (0 of 32).
 
 ## Cost
 
@@ -171,6 +223,7 @@ look, not a second rater. Rubric and question are unchanged; Can't tell stays va
 |---|---|---|---|
 | build | desktop CPU | 8 s | 0 |
 | cut-views (254 views, 211 panos) | makelab2 CPU | 40 s | 0 |
+| step 4, pass 2: `cut-crops --native` (32 views, 31 panos) | makelab2 CPU | 11 s | 0 |
 | `mapa_posed_pair` | makelab2 A40 (shared, free memory checked first) | 134 s | 0.037 |
 | `roma` + `roma_local` | desktop RTX 3070 | 204 s | 0.057 |
 | step 3: `mapa_k_pair` (ended 18:13:07Z) | makelab2 A40 (shared, free memory checked first) | 50 s | 0.014 |
