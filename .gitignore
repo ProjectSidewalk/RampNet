@@ -388,5 +388,10 @@ analysis_out/perspective_photos_218/seoul/*
 !analysis_out/perspective_photos_218/seoul/*.csv
 !analysis_out/perspective_photos_218/seoul/*.json
 !analysis_out/perspective_photos_218/seoul/*.jsonl
+# the bearing audit (#218, docs/bearing_audit_218.md): summary and offset histograms
+!analysis_out/perspective_photos_218/bearing_audit/
+analysis_out/perspective_photos_218/bearing_audit/*
+!analysis_out/perspective_photos_218/bearing_audit/*.csv
+!analysis_out/perspective_photos_218/bearing_audit/*.json
 benchmark/seoul_presence_218/img/
 benchmark/richmond_flat_fp_218/img/

@@ -537,6 +537,10 @@ model not firing. What this cannot test is per-image error: SfM position (median
 from the device GPS, p90 8.5 m) and GT error (p90 4.4 m) put some ramps in the in-view
 denominator that the photo does not show. The visual in-view pass (§7) measures that.
 
+A fuller audit (correction scans, the pano control, the direction of travel as an independent
+heading, and a full re-score with corrected headings) is in `docs/bearing_audit_218.md`. It finds
+no systematic error; correcting the heading moves canvas_level @ 0.30 above chance 0.106 → 0.115.
+
 ## 6. Seoul: prepared, not scored
 
 **Fetch.** `seoul_photos_218.py manifest` records the Zenodo record's file list.
