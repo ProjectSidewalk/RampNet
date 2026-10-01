@@ -243,20 +243,45 @@ second-largest over-estimate (`sidewalk_width_217_figures.py`, docstring). The o
 recomputed from the label maps with the scoring code, and each recomputed width is asserted
 equal to the committed per-image estimate.
 
-![Eight half-B photos with the walkable mask, clear-span edges, measurement band and VP horizon](figures/sidewalk_width_217/examples_contact_sheet.jpg)
+![Eight half-B photos with the walkable mask, clear-span edges, measurement band and VP horizon. On the three good photos the band is a wide block in the first metre of ground; on the failures it is a thin strip far out (IMG_6839, IMG_6451), a sliver along a curb (IMG_6694), or missing (IMG_4500, no vanishing point)](figures/sidewalk_width_217/examples_contact_sheet.jpg)
 
-![Estimated vs GT clear width on half B, and MAE per GT-width bin for clear and total width](figures/sidewalk_width_217/diagnostics.jpg)
+| slot | photo | GT (m) | clear (m) | total (m) | clear error (m) | rows measured: depth (m), count |
+|---|---|---:|---:|---:|---:|---|
+| best | IMG_4299 | 2.29 | 2.29 | 2.19 | −0.00 | 2.67–3.67, 117 |
+| median | IMG_6417 | 1.93 | 2.06 | 2.04 | +0.13 | 1.86–2.85, 194 |
+| worst over | IMG_6839 | 3.59 | 13.21 | 12.46 | +9.62 | 13.78–14.74, 6 |
+| worst under | IMG_6398 | 6.93 | 1.47 | 6.63 | −5.46 | 5.85–6.84, 28 |
+| true <1.2 m | IMG_4699 | 1.15 | 1.05 | 1.05 | −0.10 | 1.93–2.92, 184 |
+| false <1.2 m | IMG_6694 | 2.16 | 0.76 | 0.49 | −1.40 | 2.67–2.78, 17 |
+| no estimate | IMG_4500 | 4.01 | — | 4.14 | — | none (no vanishing point) |
+| 2nd worst over | IMG_6451 | 1.40 | 7.43 | 7.30 | +6.03 | 10.33–11.30, 10 |
+
+The table repeats the panel captions (`sidewalk_width_217_figures.py select` prints the first
+five columns; the depth range is the one drawn as the yellow band).
+`tests/test_sidewalk_width_217.py::test_example_selection_is_pinned` fixes the eight picks.
+
+![Left: estimated vs GT clear width on half B; most points sit near the diagonal below 3 m GT and spread upward above it. Right: mean absolute error per GT-width bin; clear width MAE is 0.37 m below 1.5 m and 0.36 m at 1.5–3 m, then 1.16 m at 3–5 m and 1.59 m at 5 m and over (total width: 0.39, 0.36, 1.11, 0.96 m)](figures/sidewalk_width_217/diagnostics.jpg)
 
 What the examples show. The two worst over-estimates (IMG_6839, +9.6 m; IMG_6451, +6.0 m)
 fail the same way: the walkable span touches the frame edge in every near row, so those rows
-are dropped, and the first usable rows lie 10–14 m out, just below the horizon, where one
-pixel spans decimetres and the measured span reaches past the sidewalk. The worst
+are dropped, and the first usable rows lie 10–14 m out, just below the horizon, where the
+walkable mask runs far wider than the surveyed passage. In IMG_6839 it runs 975 px from planting
+(Vegetation) on the left to the shopfronts (Building) on the right; in IMG_6451 it takes in a
+Pedestrian Area beside the sidewalk (232 px of Pedestrian Area plus 508 px of Sidewalk in the
+middle band row). Pixel size across the row is not the cause: there a pixel is 1.4 cm (IMG_6839)
+and 1.0 cm (IMG_6451) wide. Depth is coarse, though: each image row there is 0.19 m and 0.11 m
+deep, so a small pitch error moves the depth, and the width with it, a lot. The worst
 under-estimate (IMG_6398, −5.5 m) is a clear span cut short by a bollard and pole in the
-middle of a 6.9 m sidewalk. The false <1.2 m flag (IMG_6694) is a sidewalk mostly
-hidden by a parked truck and car. The no-estimate photo (IMG_4500) has a row of street trees
+middle of a 6.9 m sidewalk. The false <1.2 m flag (IMG_6694) is not the truck and
+car: the tiled sidewalk fills the frame in every near row, so those rows are dropped, and the
+only rows left (17 of them, 2.67–2.78 m out) are a narrow strip along the yellow curb at the
+foot of a raised driveway apron, which Vistas bounds with Curb on both sides. Per-row widths
+there are 0.61–0.98 m; the truck and car stand on the apron above it. The no-estimate photo (IMG_4500) has a row of street trees
 down the middle of the sidewalk, and the right-edge fit follows the trees, so no vanishing
-point is found. The band starts at the first valid row at or beyond 1.5 m, so on the good
-photos it sits at 1.9–2.9 m or 2.7–3.7 m rather than exactly 1.5–2.5 m.
+point is found. The band starts at the first valid row at or beyond 1.5 m, but on the good
+photos the bottom image row already projects to 1.86–2.67 m (1 m camera, 25 mm equivalent), so
+no nearer row exists and `zmin = 1.5` does nothing there: the band is simply the first metre of
+ground in frame (1.86–2.85, 1.93–2.92 and 2.67–3.67 m).
 
 ## Caveats (they apply to every number above)
 
@@ -360,9 +385,9 @@ python scripts/analysis/sidewalk_width_217_figures.py render --images $SEOUL/ima
 ```
 
 The committed figures (matplotlib 3.11.1, Pillow 12.3.0) have sha256
-`8afe8879693e290733da56573230dc9d228cf8ddb2637ecc3455360ca7b5e94b`
+`598f0eb69e76ae80fb6df34772c897f10ca9cb5d0512cfd94f43d81bcecc45da`
 (`examples_contact_sheet.jpg`) and
-`fccb4fc37ef79e4730fe6b8b58b5a777fa1263c1957d835b8f1519e03a772680` (`diagnostics.jpg`); other
+`0af5e761db665d27ec0641261c4052e6176c4ec1a550ea4b6fa2e19b515df5ba` (`diagnostics.jpg`); other
 matplotlib or JPEG-encoder versions will not match byte-for-byte, and the widths drawn are
 asserted against `results.json` either way.
 

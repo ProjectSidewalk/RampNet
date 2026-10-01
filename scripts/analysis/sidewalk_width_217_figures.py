@@ -55,7 +55,10 @@ TEXT, TEXT2 = "#0b0b0b", "#52514e"
 
 
 def load(results_path=RESULTS):
-    """(names, half, gt, clear, total) with clear/total as {filename: width or nan}."""
+    """(names, half, gt, clear, total, cfg).
+
+    clear/total are {filename: width or nan}; cfg is {"clear": config, "total": config},
+    the chosen config of each measure from ``results.json``."""
     with open(results_path, encoding="utf-8") as f:
         res = json.load(f)
     gt = sw._read_gt()
@@ -108,7 +111,13 @@ def overlay_geometry(lab, cfg):
     """Everything drawn on one photo, recomputed with the scoring code.
 
     Returns a dict: walk mask, clear left/right edges, used rows, band rows, pitch (rad or
-    None), horizon row, VP edge lines (a, b) or None, the clear width, focal length."""
+    None), horizon row, VP edge lines (a, b) or None, the clear width, focal length, and
+    ``band_z`` = (nearest, farthest depth actually measured, number of band rows).
+
+    Only the ``vp`` horizon is drawn: the chosen clear config uses it, and ``level`` /
+    ``vp_prior`` would need a different pitch here."""
+    assert cfg["horizon"] == "vp", (
+        f"overlay_geometry draws the VP horizon only; config has horizon={cfg['horizon']!r}")
     Hh, Ww = lab.shape
     cx, cy = (Ww - 1) / 2.0, (Hh - 1) / 2.0
     f = sw.focal_px(sw.F35_MM, Ww, Hh)
@@ -138,7 +147,8 @@ def overlay_geometry(lab, cfg):
     if mz.any():
         z0 = Z[mz].min()
         out["band"] = mz & (Z <= z0 + cfg["band"])
-        out["band_z"] = (float(z0), float(z0 + cfg["band"]))
+        zb = Z[out["band"]]
+        out["band_z"] = (float(zb.min()), float(zb.max()), int(out["band"].sum()))
     out["width"] = sw.band_stat(Z, Wd, cfg["zmin"], cfg["band"], cfg["stat"])
     out["horizon"] = sw.horizon_row(f, cy, pitch)
     return out
@@ -167,7 +177,7 @@ def draw_panel(ax, photo, g, title, caption):
             ax.plot(a + b * vv, vv, "--", color="white", lw=0.9, alpha=0.9)
     if g["pitch"] is not None:
         ax.axhline(g["horizon"], color="#ffd400", lw=1.4, ls="-")
-        ax.text(8, g["horizon"] - 8, f"VP horizon (pitch {math.degrees(g['pitch']):+.1f}°)",
+        ax.text(8, g["horizon"] - 8, f"VP horizon (pitch {pitch_deg(g['pitch']):+.1f}°)",
                 color="#ffd400", fontsize=7, va="bottom",
                 bbox=dict(fc=(0, 0, 0, 0.55), ec="none", pad=1.5))
     else:
@@ -181,6 +191,11 @@ def draw_panel(ax, photo, g, title, caption):
     ax.set_title(title, fontsize=10, color=TEXT, loc="left", fontweight="bold")
     ax.text(0, -0.02, caption, transform=ax.transAxes, fontsize=8, color=TEXT, va="top",
             family="monospace")
+
+
+def pitch_deg(p):
+    """Pitch in degrees rounded to 0.1, without a negative zero (-0.04 -> 0.0)."""
+    return round(math.degrees(p), 1) + 0.0
 
 
 def fmt(x):
@@ -215,7 +230,7 @@ def render(args):
                f"GT {G[n]:.2f} m   clear {fmt(C[n])}   total {fmt(T[n])}\n"
                f"clear error {'  --' if not np.isfinite(err) else f'{err:+.2f} m'}")
         if "band_z" in g:
-            cap += f"   band {g['band_z'][0]:.1f}-{g['band_z'][1]:.1f} m"
+            cap += f"   band {g['band_z'][0]:.2f}-{g['band_z'][1]:.2f} m ({g['band_z'][2]} rows)"
         draw_panel(ax, np.asarray(photo), g, label, cap)
     for ax in axes.ravel()[len(picks):]:
         ax.axis("off")
@@ -243,11 +258,20 @@ def render(args):
     a1.plot([0, lim], [0, lim], color=TEXT2, lw=1)
     a1.scatter(gb[ok], cb[ok], s=22, color=BLUE, alpha=0.75, edgecolor="white", lw=0.6,
                label=f"clear width, half B ({ok.sum()} of {len(B)} estimated)")
+    # the four picks inside the dense low-left cloud get a leader line from open space,
+    # stacked in the same order as their points so the lines do not cross
+    leader = {"best": (8.3, 5.0), "median": (8.3, 4.2), "true <1.2 m": (8.3, 3.4),
+              "false <1.2 m": (8.3, 2.6)}
     for label, n in picks:
         if np.isfinite(C[n]):
-            off = (-44, -12) if label == "median" else (6, 4)
-            a1.annotate(label, (G[n], C[n]), xytext=off, textcoords="offset points",
-                        fontsize=7.5, color=TEXT)
+            if label in leader:
+                a1.annotate(label, (G[n], C[n]), xytext=leader[label], textcoords="data",
+                            fontsize=7.5, color=TEXT, va="center",
+                            arrowprops=dict(arrowstyle="-", color=TEXT2, lw=0.6,
+                                            shrinkA=2, shrinkB=4))
+            else:
+                a1.annotate(label, (G[n], C[n]), xytext=(6, 4), textcoords="offset points",
+                            fontsize=7.5, color=TEXT)
             a1.scatter([G[n]], [C[n]], s=46, facecolor="none", edgecolor=TEXT, lw=1.1)
     a1.text(1.2, lim - 0.15, " 1.2 m", fontsize=7.5, color=TEXT2, va="top")
     a1.text(1.5, lim - 0.6, " 1.5 m", fontsize=7.5, color=TEXT2, va="top")

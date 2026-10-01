@@ -243,3 +243,24 @@ def test_focal_error_barely_moves_width(width, pitch_deg):
     assert out[1.0] == pytest.approx(width, rel=0.03)
     for k in (0.9, 1.1):
         assert abs(out[k] / out[1.0] - 1) < 0.005, (k, out)
+
+
+def test_example_selection_is_pinned():
+    """The eight contact-sheet photos follow from committed files alone; a change to the
+    selection rule or to results.json that moves them should be a deliberate edit."""
+    import sidewalk_width_217_figures as F
+    names, half, G, C, _, cfg = F.load()
+    picks = F.select_examples(names, half, G, C)
+    assert picks == [
+        ("best", "IMG_4299.HEIC"), ("median", "IMG_6417.HEIC"),
+        ("worst over", "IMG_6839.HEIC"), ("worst under", "IMG_6398.HEIC"),
+        ("true <1.2 m", "IMG_4699.HEIC"), ("false <1.2 m", "IMG_6694.HEIC"),
+        ("no estimate", "IMG_4500.HEIC"), ("2nd worst over", "IMG_6451.HEIC")]
+    assert all(half[n] == "B" for _, n in picks)
+    assert cfg["clear"]["horizon"] == "vp"   # overlay_geometry draws only this horizon
+
+
+def test_pitch_label_has_no_negative_zero():
+    import sidewalk_width_217_figures as F
+    assert f"{F.pitch_deg(math.radians(-0.04)):+.1f}" == "+0.0"
+    assert f"{F.pitch_deg(math.radians(-6.9)):+.1f}" == "-6.9"
