@@ -62,7 +62,8 @@ MINUS = "-−"
 
 # A script "has a check" if it declares a --check flag or a `check` subcommand.
 HAS_CHECK = re.compile(r"""add_argument\(\s*["']--check["']|add_parser\(\s*["']check["']""")
-HAS_VERIFY = re.compile(r"""["']verify["']""")
+# ... and "has a verify mode" if it declares a `verify` subcommand/choice or a --verify flag.
+HAS_VERIFY = re.compile(r"""["'](?:--)?verify["']""")
 
 
 def _documents():
@@ -182,7 +183,8 @@ def test_every_script_in_the_reproduce_column_exists():
 def test_every_check_label_matches_the_script():
     """Each script in the reproduce column carries its own label, and the label is true:
     "(check…)" means the script declares --check or a `check` subcommand, "(no check)" means it
-    declares neither, "(verify)" means it has a `verify` mode, and "(checked via `X`…)" means
+    declares no check and no verify mode, "(verify)" means it has a `verify` subcommand or a
+    --verify flag, and "(checked via `X`…)" means
     script X has a check."""
     seen = 0
     for n, row in _rows():
@@ -194,6 +196,7 @@ def test_every_check_label_matches_the_script():
             label = label.strip()
             if label == "no check":
                 assert not HAS_CHECK.search(src), f"{where} is labelled 'no check' but has a check mode"
+                assert not HAS_VERIFY.search(src), f"{where} is labelled 'no check' but has a verify mode; label it (verify)"
             elif label.startswith("checked via"):
                 via = SCRIPT.findall(label)
                 assert via, f"{where}: 'checked via' must name the checking script by path"
