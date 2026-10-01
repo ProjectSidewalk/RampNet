@@ -74,8 +74,8 @@ jobs:
   # docs/replication.md "Running every check" lists the entries and the known gaps.
   checks:
     runs-on: ubuntu-latest
-    # The --ci run measured ~3 min before cascade_cost_35 joined it (~5 min more on a
-    # runner); 30 min is a hang guard, and --timeout caps any single step at 20 min.
+    # Measured 6m19s for the whole job at 9671aa2, cascade_cost_35 (214 s) included;
+    # 30 min is a hang guard, and --timeout caps any single step at 20 min.
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
