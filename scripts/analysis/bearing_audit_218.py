@@ -889,7 +889,7 @@ def main(argv=None):
                 res["viewed_misses"] = viewed_misses(images, recs, ramp_ll, arm)
             res[key] = {"corrections": corr, "shift_scan": shift_scan,
                         "mirror_shift_scan": mirror_scan, "focal_scan": f_scan,
-                        "per_camera": per_cam, "ceiling_any_geometry": ceiling,
+                        "per_camera": per_cam, "ceiling_in_view_fixed": ceiling,
                         "offsets": offs, "sequences": seqs}
             print(f"{arm} @ {key}: as scored {ident['rate']:.3f} null {ident['null']:.3f} "
                   f"above {ident['above']:+.3f}; best shift {best['shift']:+d} above "

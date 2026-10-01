@@ -2,7 +2,7 @@
  "arms": {
   "canvas_level": {
    "0.10": {
-    "ceiling_any_geometry": {
+    "ceiling_in_view_fixed": {
      "by_camera": {
       "Apple iPhone": {
        "claimable": 6,
@@ -2402,7 +2402,7 @@
     ]
    },
    "0.30": {
-    "ceiling_any_geometry": {
+    "ceiling_in_view_fixed": {
      "by_camera": {
       "Apple iPhone": {
        "claimable": 2,
@@ -4802,7 +4802,7 @@
     ]
    },
    "0.55": {
-    "ceiling_any_geometry": {
+    "ceiling_in_view_fixed": {
      "by_camera": {
       "Apple iPhone": {
        "claimable": 0,
@@ -7615,7 +7615,7 @@
   },
   "stretch": {
    "0.10": {
-    "ceiling_any_geometry": {
+    "ceiling_in_view_fixed": {
      "by_camera": {
       "Apple iPhone": {
        "claimable": 8,
@@ -10015,7 +10015,7 @@
     ]
    },
    "0.30": {
-    "ceiling_any_geometry": {
+    "ceiling_in_view_fixed": {
      "by_camera": {
       "Apple iPhone": {
        "claimable": 2,
@@ -12415,7 +12415,7 @@
     ]
    },
    "0.55": {
-    "ceiling_any_geometry": {
+    "ceiling_in_view_fixed": {
      "by_camera": {
       "Apple iPhone": {
        "claimable": 2,

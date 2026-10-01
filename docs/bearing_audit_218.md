@@ -38,11 +38,15 @@ large majority, images on which the model does not fire.
   not match the panos.** I chose this camera split after looking: five camera groups were broken out,
   and this is the best one. HERO11 frames are 100° wide and fire 1.7 times per image, against 0.0–0.3
   for the other cameras. #227's pooled swap null draws its donors mostly from those other cameras, so
-  it understates HERO11's floor. Above a count-matched floor, HERO11 hits **+0.245 [0.125, 0.388]** at
-  0.55 (sequence-clustered, 7 sequences). The panos on the same 36 ramps hit 0.726, **+0.531**
-  [0.430, 0.627] above their rotation null. Raw, it is 0.574 flat vs 0.726 pano on the same ramps.
-  HERO11 supplies 43 of the 58 canvas hits at 0.30, so #227's above-chance headline rests mostly on
-  one camera model. Every other camera is at its chance floor (§3a).
+  it understates HERO11's floor. **On the same 36 ramps at 0.55, by the same hit test, HERO11 hits
+  0.574 of its pairs (39 / 68) and the panos hit 0.726 of their 372 captures.** Above chance, HERO11
+  is +0.245 [0.125, 0.388] over a count-matched swap floor and the panos are +0.531 [0.430, 0.627]
+  over their rotation null. Those two floors are different nulls on different units (§3a), so the raw
+  pair is the cleaner comparison. HERO11's CI is clustered on only 7 sequences and is probably too
+  narrow. HERO11 supplies 43 of the 58 canvas hits at 0.30, so #227's above-chance headline rests
+  mostly on one camera model. At 0.30 and 0.55, every other camera is at or below its chance floor.
+  At 0.10, moto x4 is above its count-matched floor, +0.146 (ramp-clustered CI [0.007, 0.354],
+  sequence-clustered [0.063, 0.160] on 3 sequences); see §3a.
 - **What is real: per-image heading error on some frames.** For one camera group (Mapillary make/model
   "none", 248 frames, 20 sequences), the SfM heading sits a median 20° clockwise of the device-GPS
   direction of travel. In three of the drawn misses, the heading correction moves the off-bearing
@@ -192,8 +196,9 @@ where #227's signal comes from, not as a tested hypothesis.
 HERO11 supplies 43 of the canvas arm's 58 hits at 0.30 (74%) and 39 of 43 at 0.55. Its frames are
 5568×4872 (GoPro's 8:7 full-sensor mode), and Mapillary labels them `perspective`.
 
-HERO11, above chance under each floor (CIs clustered by sequence, 7 sequences; ramp-clustered CIs are
-in `summary.json`):
+HERO11, above chance under each floor (CIs clustered by sequence; ramp-clustered CIs are in
+`summary.json`). There are only 7 sequences, and a percentile bootstrap over that few clusters tends to
+give intervals that are too narrow, so read these CIs as optimistic:
 
 | null | @ 0.30: floor | @ 0.30: above | @ 0.55: floor | @ 0.55: above |
 |---|---|---|---|---|
@@ -210,10 +215,22 @@ in `summary.json`):
 - **The within-camera floor is an upper bound.** Donors from the same sequence a few metres away may
   see the receiver's own ramps.
 - **Matched pano comparison, same ramps** (`pano_control.by_flat_camera_ramps`). The 36 ramps HERO11
-  has in view get 372 pano captures. The panos hit **0.726 [0.611, 0.825]** of them at 0.55, **+0.531
-  [0.430, 0.627]** above the rotation null. On the 211 ramps no HERO11 frame sees, they hit 0.609. All
-  36 are in the pano set, and 6 are also in view of another flat camera. So, on the same ramps: **flat
-  0.574 vs pano 0.726 raw; +0.245 vs +0.531 above chance.** HERO11's ramps are easier on the panos too.
+  has in view get 372 pano captures. All 36 are in the pano set, and 6 are also in view of another
+  flat camera. **Raw, at 0.55 and by the same hit test: HERO11 hits 0.574 of its 68 pairs (39), the
+  panos 0.726 [0.611, 0.825] of their 372 captures.** On the 211 ramps no HERO11 frame sees, the panos
+  hit 0.609, so HERO11's ramps are easier on the panos too. Above chance it is +0.245 (flat) vs +0.531
+  [0.430, 0.627] (panos), but those two numbers are not like for like. The flat floor is a swap null
+  (donor detections, bucketed by the receiver's count ≥ 0.30); the pano floor is a rotation null (the
+  pano's own detections, rotated 90° / 180° / 270°, 0.195 here). The units also differ: 68 flat
+  image–ramp pairs against 372 pano captures. Both comparisons point the same way, and the raw one is
+  the cleaner.
+- **Sub-threshold signal on moto x4.** At 0.30 and 0.55 every camera other than HERO11 is at or below
+  its chance floor under all three nulls. At 0.10, moto x4 hits 16 of 46 pairs (0.348), +0.146 above
+  its count-matched floor (ramp-clustered CI [0.007, 0.354]; sequence-clustered [0.063, 0.160], from
+  3 sequences, so too narrow). Its pooled-null excess is +0.160, and its within-camera excess is
+  +0.088 with both CIs including 0. The unnamed cameras (+0.093), VIRB and GoPro Max are at chance at
+  0.10. Not followed up. (GoPro Max is one sequence, so its sequence-clustered CIs in `summary.json`
+  are degenerate, a single value.)
 - **Candidate explanations, not tested:** the wider lens puts more of the scene in each frame, the
   firing density is 6× the other cameras', and mount height, date (2024) and image quality differ.
 
@@ -221,6 +238,7 @@ in `summary.json`):
 
 A detection claims at most one ramp. So, for any re-mapping of detection bearings **with the in-view
 set held as scored**, a positive image contributes at most min(detections ≥ thr, in-view ramps) hits.
+The values are under `arms.<arm>.<thr>.ceiling_in_view_fixed` in `summary.json`.
 
 | canvas_level | as scored | ceiling, in-view set fixed | panos |
 |---|---|---|---|
@@ -317,8 +335,9 @@ generalise.
   (HERO11 frames whose corners lie beyond the Brown model's fold, #227 §2), and SfM pitch on the 113
   level-pose frames beyond their 0 hits.
 - **The HERO11 split was chosen post hoc.** It is 7 sequences of one camera model, 2024 captures
-  (§3a). Its excess above chance is about half the panos' on the same ramps. Why it fires where the
-  other cameras do not is not tested.
+  (§3a). On the same ramps it hits 0.574 against the panos' 0.726; its excess above chance is about
+  half the panos', but on a different null. Its sequence-clustered CIs rest on 7 clusters and are
+  probably too narrow. Why it fires where the other cameras do not is not tested.
 - The CIs resample ramps. Pairs that share a photo share detections, so they are slightly optimistic
   (#227 §3).
 

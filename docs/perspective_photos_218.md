@@ -541,9 +541,11 @@ A fuller audit (correction scans, the pano control, the direction of travel as a
 heading, and a full re-score with corrected headings) is in `docs/bearing_audit_218.md`. It finds
 no systematic error. Correcting the heading (the pre-set 10° rule) moves canvas_level @ 0.30 above
 chance 0.106 → 0.115, and above the count-matched floor 0.061 → 0.070; the 15° rule gives 0.102 and
-0.059. GoPro HERO11 frames supply 43 of the 58 hits at 0.30. Above a count-matched floor they hit
-+0.245 at 0.55, against +0.531 for the panos on the same ramps (0.574 vs 0.726 raw). That camera
-split was chosen post hoc (audit §3a).
+0.059. GoPro HERO11 frames supply 43 of the 58 hits at 0.30. On the same ramps at 0.55 they hit
+0.574, against 0.726 for the panos. Above chance it is +0.245 (count-matched swap floor, CI on only
+7 sequences) against +0.531 (rotation floor); the nulls differ, so the raw pair is the cleaner
+comparison. At 0.30 and 0.55 the other cameras are at or below chance. That camera split was chosen
+post hoc (audit §3a).
 
 ## 6. Seoul: prepared, not scored
 
