@@ -109,16 +109,32 @@ def test_pass2_file_is_bound_to_pass1_and_combined_overrides_cant_tell(tmp_path)
     p1.write_text(json.dumps(d1), encoding="utf-8")
     pass1 = M.load_verdicts(str(p1), ref)
     assert M.pass2_items(pass1, ref) == ["c1", "c2"]
-    meta = M.pass2_meta(str(p1))
+    meta = M.pass2_meta(str(p1), ref["manifest_digest"])
     assert meta["pass"] == 2 and meta["subset"] == "cant_tell" and meta["image_controls"]
-    d2 = M.empty_verdicts(["c1", "c2"], ref["manifest_digest"], "jonf-p2", pass2=meta)
-    d2["verdicts"] = {"c1": {"answer": "yes", "image": {"br": 140, "ct": 120, "sa": 100}}}
+    assert meta["ring_overlay"] and meta["native_crops"]
+    assert meta["pass1_manifest_digest"] == ref["manifest_digest"]
+    # the pass-2 gallery has its own digest (new crops) over the pass-1 one
+    ref2 = {"manifest_digest": "2" * 16, "pass1_manifest_digest": ref["manifest_digest"],
+            "items": ["c1", "c2"], "from_sha256": meta["from_sha256"]}
+    d2 = M.empty_verdicts(["c1", "c2"], ref2["manifest_digest"], "jonf-p2", pass2=meta)
+    d2["verdicts"] = {"c1": {"answer": "yes", "image": {"bp": 170, "wp": 255, "gm": 100,
+                                                        "lc": 120, "br": 100, "ct": 120,
+                                                        "sa": 100}}}
     p2 = tmp_path / "mined_label_check__jonf-p2.json"
     p2.write_text(json.dumps(d2), encoding="utf-8")
     with pytest.raises(ValueError, match="pass-1 file"):        # a pass-2 file needs pass 1
         M.load_verdicts(str(p2), ref)
-    pass2 = M.load_verdicts(str(p2), ref, pass1=(str(p1), pass1))
+    pass2 = M.load_verdicts(str(p2), ref, pass1=(str(p1), pass1), ref2=ref2)
+    # the pass-1 digest is not the pass-2 digest, in either direction
+    with pytest.raises(ValueError, match="pass-2 gallery"):
+        M.load_verdicts(str(p2), ref, pass1=(str(p1), pass1),
+                        ref2={**ref2, "manifest_digest": ref["manifest_digest"]})
+    with pytest.raises(ValueError, match="sits over"):
+        M.load_verdicts(str(p2), ref, pass1=(str(p1), pass1),
+                        ref2={**ref2, "pass1_manifest_digest": "e" * 16})
     got = M.combined(pass1, pass2, ref)
+    assert got["manifest_digest"] == ref["manifest_digest"]
+    assert got["pass2"]["manifest_digest"] == ref2["manifest_digest"]
     # c1 resolved to yes, c2 (a check item) still cant_tell, c3 keeps pass 1's no
     assert got["pooled"]["yes"] == 1 and got["pooled"]["no"] == 1 and got["pooled"]["cant_tell"] == 0
     assert got["pass2"]["resolved"] == {"yes": 1, "unanswered": 1}
@@ -127,30 +143,60 @@ def test_pass2_file_is_bound_to_pass1_and_combined_overrides_cant_tell(tmp_path)
     # binding: a different pass-1 file, a wrong subset, the same rater id, all refused
     p1.write_text(json.dumps({**d1, "n_answered": 3}), encoding="utf-8")
     with pytest.raises(ValueError, match="sha256"):
-        M.load_verdicts(str(p2), ref, pass1=(str(p1), pass1))
+        M.load_verdicts(str(p2), ref, pass1=(str(p1), pass1), ref2=ref2)
     p1.write_text(json.dumps(d1), encoding="utf-8")
     p2.write_text(json.dumps({**d2, "items": ["c1"]}), encoding="utf-8")
     with pytest.raises(ValueError, match="cant_tell"):
-        M.load_verdicts(str(p2), ref, pass1=(str(p1), pass1))
+        M.load_verdicts(str(p2), ref, pass1=(str(p1), pass1), ref2=ref2)
+    p2.write_text(json.dumps(d2), encoding="utf-8")
+    with pytest.raises(ValueError, match="another pass-1 file"):   # gallery planned elsewhere
+        M.load_verdicts(str(p2), ref, pass1=(str(p1), pass1),
+                        ref2={**ref2, "from_sha256": "f" * 64})
     same = tmp_path / "x" / "mined_label_check__jonf.json"
     same.parent.mkdir()
     same.write_text(json.dumps({**d2, "rater": "jonf"}), encoding="utf-8")
     with pytest.raises(ValueError, match="same rater"):
-        M.load_verdicts(str(same), ref, pass1=(str(p1), pass1))
+        M.load_verdicts(str(same), ref, pass1=(str(p1), pass1), ref2=ref2)
 
 
 def test_pass2_page_has_image_controls_and_records_the_setting():
     cards = [{"id": "c0000aaaa"}]
+    # pass 2: the target is the native, unringed cut (role target, ring False, px known);
+    # the context view is pass 1's crop
     crops = [{"ramp_uid": "c0000aaaa", "city": "richmond", "pano_id": "p1", "x": 0.5,
-              "y": 0.6, "ring": True, "capture_date": ""}]
-    meta = {"pass": 2, "subset": "cant_tell", "image_controls": True,
-            "gallery": M.GALLERY2_REL, "from_file": "f", "from_sha256": "0" * 64}
-    h = M.render_gallery(cards, crops, "0" * 16, pass2=meta)
-    for s in ('data-img="br"', 'data-img="ct"', 'data-img="sa"', "image: imgState(card)",
-              "image: v.image || null", "...(META.pass2 || {})", "mlc158_p2_", "Pass 2"):
+              "y": 0.6, "ring": False, "role": "target", "px": [1100, 733],
+              "capture_date": ""},
+             {"ramp_uid": "c0000aaaa", "city": "richmond", "pano_id": "p2", "x": 0.4,
+              "y": 0.6, "ring": False, "role": "context", "capture_date": ""}]
+    meta = {"pass": 2, "subset": "cant_tell", "image_controls": True, "ring_overlay": True,
+            "native_crops": True, "crops": M.CROPS2_REL, "gallery": M.GALLERY2_REL,
+            "pass1_manifest_digest": "1" * 16, "from_file": "f", "from_sha256": "0" * 64}
+    h = M.render_gallery(cards, crops, "2" * 16, pass2=meta)
+    for s in ('data-img="br"', 'data-img="ct"', 'data-img="sa"', 'data-img="bp"',
+              'data-img="wp"', 'data-img="gm"', 'data-img="lc"', "image: imgState(card)",
+              "image: v.image || null", "...(META.pass2 || {})", "mlc158_p2_", "Pass 2",
+              'class="ring_toggle"', 'class="zoom_toggle"', 'class="halo ring"',
+              'src="crops_pass2/c0000aaaa__p1.jpg"', 'src="crops/c0000aaaa__p2.jpg"',
+              'data-natural="1100 733"', 'native 1100&times;733 px'):
         assert s in h
-    assert h.count('class="imgctl"') == 1                 # one set of sliders per card
-    for word in ("instrument", "known_answer", "peak_conf"):
+    assert h.count('class="imgctl"') == 1                 # one set of controls per card
+    assert h.count('<filter id="f_c0000aaaa"') == 1       # one SVG filter per card
+    assert h.count('class="halo ring"') == 1              # the ring is drawn once, as overlay
+    for word in ("instrument", "known_answer", "peak_conf", "residual"):
         assert word not in h
-    h1 = M.render_gallery(cards, crops, "0" * 16)
-    assert 'data-img="br"' in h1 and "mlc158_p2_" not in h1 and "Pass 2" not in h1
+    # pass 1: baked ring + halo, pass-1 crops, no ring toggle, same controls
+    crops1 = [{"ramp_uid": "c0000aaaa", "city": "richmond", "pano_id": "p1", "x": 0.5,
+               "y": 0.6, "ring": True, "capture_date": ""}]
+    h1 = M.render_gallery(cards, crops1, "0" * 16)
+    assert 'data-img="br"' in h1 and 'data-img="lc"' in h1
+    assert "mlc158_p2_" not in h1 and "Pass 2" not in h1
+    assert 'src="crops/c0000aaaa__p1.jpg"' in h1 and "crops_pass2" not in h1
+    assert 'class="ring_toggle"' not in h1 and 'class="halo ring"' not in h1 and 'class="halo"' in h1
+
+
+def test_ring_overlay_sits_where_the_baked_ring_was():
+    it = {"x": 0.3711, "y": 0.584}
+    svg = M._ring_overlay(it)
+    fx, fy = M.R.ring_centre_frac(it["x"], it["y"])
+    assert f'cx="{round(fx * 360, 2)}"' in svg and f'cy="{round(fy * 240, 2)}"' in svg
+    assert 'r="14"' in svg and 'viewBox="0 0 360 240"' in svg

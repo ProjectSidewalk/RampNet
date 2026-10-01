@@ -1466,7 +1466,8 @@ def cut_one(img, x, y, fov_h=CROP_FOV_H, fov_v=CROP_FOV_V, size=CROP_PX, ring=Tr
     """An equirect window centred on (x, y), wrapped at the seam, with a ring at the
     target when ``ring`` is True (``ring=False`` gives the same window, unmarked). Plain
     equirect (no reprojection): a 36 x 24 degree window near the horizon is close to
-    rectilinear, and it keeps the cut exact and dependency-free."""
+    rectilinear, and it keeps the cut exact and dependency-free. ``size=None`` keeps the
+    window at the pano's native resolution (no resize); the ring scales with it."""
     from PIL import Image, ImageDraw
     W, H = img.size
     w = int(round(W * fov_h / 360.0))
@@ -1481,13 +1482,14 @@ def cut_one(img, x, y, fov_h=CROP_FOV_H, fov_v=CROP_FOV_V, size=CROP_PX, ring=Tr
     out.paste(img.crop((lx, top, lx + first, top + h)), (0, 0))
     if first < w:
         out.paste(img.crop((0, top, w - first, top + h)), (first, 0))
-    out = out.resize(size)
+    if size is not None:
+        out = out.resize(size)
     if not ring:
         return out
     d = ImageDraw.Draw(out)
-    tx = (cx - left) / w * size[0]
-    ty = (cy - top) / h * size[1]
-    rr = 14
+    tx = (cx - left) / w * out.size[0]
+    ty = (cy - top) / h * out.size[1]
+    rr = 14 * out.size[0] / CROP_PX[0]
     d.ellipse((tx - rr, ty - rr, tx + rr, ty + rr), outline=(0, 255, 90), width=2)
     return out
 
@@ -1495,10 +1497,19 @@ def cut_one(img, x, y, fov_h=CROP_FOV_H, fov_v=CROP_FOV_V, size=CROP_PX, ring=Tr
 def cmd_cut_crops(args):
     """Runs where the native-res archive lives (makelab2). Reads the plan, writes one JPEG
     per item into --out; never touches a pano it does not need. An item's ``ring`` flag
-    (default True, which is how the first plan was cut) says whether to draw the ring."""
+    (default True, which is how the first plan was cut) says whether to draw the ring.
+    The plan's optional ``cut`` block (``{"native": bool, "quality": int}``) and the
+    ``--native`` / ``--quality`` flags choose a native-resolution cut (no resize to
+    CROP_PX) and the JPEG quality; the defaults (resize, 82) are how every plan before
+    #158 pass 2 was cut."""
     from PIL import Image
     Image.MAX_IMAGE_PIXELS = None
-    plan = json.load(open(args.plan, encoding="utf-8"))["items"]
+    doc = json.load(open(args.plan, encoding="utf-8"))
+    plan = doc["items"]
+    cut = doc.get("cut") or {}
+    native = bool(args.native or cut.get("native", False))
+    quality = int(args.quality if args.quality is not None else cut.get("quality", 82))
+    size = None if native else CROP_PX
     os.makedirs(args.out, exist_ok=True)
     by_pano = defaultdict(list)
     for it in plan:
@@ -1512,9 +1523,10 @@ def cmd_cut_crops(args):
         with Image.open(path) as im:
             im = im.convert("RGB")
             for it in items:
-                cut_one(im, it["x"], it["y"], ring=it.get("ring", True)).save(os.path.join(args.out, crop_name(it)),
-                                                   quality=82)
-    print(f"cut {sum(len(v) for v in by_pano.values()) - len(missing)} crops; "
+                cut_one(im, it["x"], it["y"], size=size, ring=it.get("ring", True)).save(
+                    os.path.join(args.out, crop_name(it)), quality=quality)
+    print(f"cut {sum(len(v) for v in by_pano.values()) - len(missing)} crops "
+          f"({'native' if native else 'x'.join(map(str, CROP_PX))}, quality {quality}); "
           f"{len(missing)} panos missing")
     for m in missing[:20]:
         print("  missing", m)
@@ -1679,6 +1691,9 @@ def main(argv=None):
                    help="dir holding <city>/panos/<pano_id>.jpg (makelab2: "
                         "/projects/makeabilitylab/sidewalk-auto-labeler/runs)")
     c.add_argument("--out", required=True)
+    c.add_argument("--native", action="store_true",
+                   help="no resize: keep the window at the pano's resolution (#158 pass 2)")
+    c.add_argument("--quality", type=int, default=None, help="JPEG quality (default 82)")
     g = sub.add_parser("gallery")
     g.add_argument("--crops", required=True)
     args = ap.parse_args(argv)
