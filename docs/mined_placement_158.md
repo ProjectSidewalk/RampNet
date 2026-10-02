@@ -181,7 +181,7 @@ So pass 2 was rebuilt:
   **`9a8045c952207339`**, over pass-1 digest `bf3c00686e50e0da`. The pass-1 crops and
   manifest are unchanged (same `cut_one`, same defaults).
 - **The ring is an overlay.** The page draws it as SVG in crop units (same centre, radius
-  and dark halo as the baked ring); **R** or the button hides it. The view opens at 1:1 pixels (never below the 540 px fit width, so the six 410 px cuts are not shrunk); **Z** fits it to the card. Added 2026-10-02 at Jon's request, before any pass-2 answer: on a 27" monitor the fit view threw away the native resolution pass 2 exists for.
+  and dark halo as the baked ring); **R** or the button hides it. The view opens at 1:1 pixels (never below the 540 px fit width, so the six 410 px cuts are not shrunk); **Z** fits it to the card. The context view stays beside it: the page drops its 1,500 px width cap so both fit side by side on a wide screen. Added 2026-10-02 at Jon's request, before any pass-2 answer: on a 27" monitor the fit view threw away the native resolution pass 2 exists for.
 - **Image controls, per card, saved with the answer** (`image`, slider units): levels (black
   and white point), gamma and local contrast as an SVG filter, then brightness, contrast and
   saturation as CSS filters. All are browser filters on the committed JPEG, so the page works

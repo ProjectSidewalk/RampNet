@@ -282,7 +282,8 @@ IMAGE_CONTROLS_CSS = (
     ".halo.ring circle.g { stroke:#00ff5a; stroke-width:2; }\n"
     ".halo.ring circle.h { stroke:#000; stroke-opacity:.9; stroke-width:1.5; }\n"
     ".card.noring .halo.ring { display:none; }\n"
-    ".card.zoomed .rate { flex:1 1 100%; }\n"
+    "body:has(.zoom_toggle) { max-width:none; }\n"
+    ".card.zoomed .rate { flex:0 0 auto; max-width:100%; }\n"
     ".imgctl .washout { font-weight:600; color:var(--fg); }\n"
     ".imgctl .washout input[type=range] { width:160px; }\n")
 #: The washout slider is a shortcut, not a control of its own: at t (0-100) it sets black

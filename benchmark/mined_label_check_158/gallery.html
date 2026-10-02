@@ -45,7 +45,8 @@ dt { font-weight:600; } dd { margin:0 0 6px 16px; }
 .halo.ring circle.g { stroke:#00ff5a; stroke-width:2; }
 .halo.ring circle.h { stroke:#000; stroke-opacity:.9; stroke-width:1.5; }
 .card.noring .halo.ring { display:none; }
-.card.zoomed .rate { flex:1 1 100%; }
+body:has(.zoom_toggle) { max-width:none; }
+.card.zoomed .rate { flex:0 0 auto; max-width:100%; }
 .imgctl .washout { font-weight:600; color:var(--fg); }
 .imgctl .washout input[type=range] { width:160px; }
 </style></head><body>
