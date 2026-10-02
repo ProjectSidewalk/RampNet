@@ -82,9 +82,12 @@ def test_no_white_band_is_none():
 def test_committed_band_file_summary():
     with open(B.NADIR_BAND, encoding="utf-8") as f:
         band = json.load(f)
-    assert band["n_with_band"] == 123 and band["n_without_band"] == 2
+    assert band["n_with_band"] == 124 and band["n_without_band"] == 1
+    assert band["n_measured_by_hand"] == 1
+    assert band["panos"]["f8759625-2874-4b43-832f-a3aa2669af15"] == {
+        "band_top_y": 0.8008, "copyright": "Arretche", "method": "manual"}
     assert band["band_top_y_median"] == 0.791
-    assert 0.77 <= band["band_top_y_min"] <= band["band_top_y_max"] <= 0.80
+    assert 0.77 <= band["band_top_y_min"] <= band["band_top_y_max"] <= 0.81
     no_band = {p["copyright"] for p in band["panos"].values() if p["band_top_y"] is None}
     assert no_band == {"Arretche"}
 
@@ -120,9 +123,10 @@ def test_firing_rows_counts_by_stratum_and_drops_the_ring_only_when_asked():
 
 
 def _committed(name):
+    # Committed outputs must exist: a deleted file has to fail its pin, not skip it
+    # (PR #234 review, M4). Only the git-ignored panos may be absent.
     path = os.path.join(B.OUT_DIR, name)
-    if not os.path.exists(path):
-        pytest.skip(f"{name} not written yet")
+    assert os.path.exists(path), f"committed output {name} is missing"
     with open(path, encoding="utf-8") as f:
         return f.read()
 
@@ -219,7 +223,7 @@ def test_a_staged_bundle_is_not_a_cascade_split():
 def test_gallery_reads_the_band_and_links_panoramax():
     import gt_gallery as G
     bands = G.load_nadir_band(BUNDLE)
-    assert len(bands) == 123
+    assert len(bands) == 124
     rec = B.load_records("bayonne")[0]
     pid = rec["pano"]["panorama_id"]
     e = G.entry_meta(rec, "random", bands.get(pid))
@@ -317,6 +321,10 @@ def test_candidate_needs_two_legs_and_a_silent_rampnet():
 def test_candidates_json_rederives():
     want = _committed("candidates.json")
     assert B._dumps(B.build_candidates()) == want
+    res = json.loads(want)
+    assert res["n_candidates"] == 11
+    assert res["if_dense_legs_vote"] == {"n_candidates": 579, "n_from_dense_legs_only": 299,
+                                         "n_with_fewer_than_2_non_dense_legs": 568}
 
 
 def test_paid_estimate_rederives_from_the_ledger_before_its_cutoff():
@@ -325,11 +333,136 @@ def test_paid_estimate_rederives_from_the_ledger_before_its_cutoff():
 
 
 def test_paid_estimate_ignores_recovered_rows_and_rows_after_the_cutoff():
+    six = {"views": [1, 2, 3, 4, 5, 6]}
     rows = [{"provider": "gemini", "label": "g", "est_cost_usd": 1.0, "panos_scored": 10,
-             "ts": "2026-09-01T00:00:00Z"},
+             "calls": 60, "signature": six, "ts": "2026-09-01T00:00:00Z"},
             {"provider": "gemini", "label": "g", "est_cost_usd": 9.0, "panos_scored": 10,
-             "ts": "2026-10-05T00:00:00Z"},
+             "calls": 60, "signature": six, "ts": "2026-10-05T00:00:00Z"},
             {"provider": "gemini", "label": "g", "est_cost_usd": 50.0, "kind": "recovered",
              "ts": "2026-09-01T00:00:00Z"}]
     [leg] = B.paid_estimate(rows, 125, legs=(("gemini", "g", None),))
     assert leg["usd_per_pano"] == 0.1 and leg["expected_usd"] == 12.5
+
+
+def test_paid_estimate_counts_called_panos_not_cache_hits():
+    # The S1 case: a re-run that scored 94 panos but called the API for 2 of them.
+    six = {"views": [1, 2, 3, 4, 5, 6]}
+    rows = [{"provider": "claude", "label": "c", "est_cost_usd": 0.14, "panos_scored": 94,
+             "calls": 12, "signature": six, "ts": "2026-09-04T00:00:00Z"},
+            {"provider": "claude", "label": "c", "est_cost_usd": 1.0, "panos_scored": 5,
+             "panos_called": 5, "ts": "2026-09-04T00:00:00Z"},
+            {"provider": "claude", "label": "c", "est_cost_usd": 3.0, "panos_scored": 5,
+             "ts": "2026-09-04T00:00:00Z"}]
+    [leg] = B.paid_estimate(rows, 100, legs=(("claude", "c", None),))
+    assert leg["ledger_panos"] == 7.0 and leg["rows_without_denominator"] == 1
+    assert leg["usd_per_pano"] == round(1.14 / 7, 5)
+
+
+# --------------------------------------------------------------------------- #
+# review fixes: split discovery, --unreviewed refusals, attach-gt order
+# --------------------------------------------------------------------------- #
+def _bundle_kinds(tmp_path):
+    root = tmp_path / "benchmark"
+    for name, extra in (("scored", "verdicts.json"), ("gold", "gt_source.json"),
+                        ("borrow", "bundle.json"), ("staged", None)):
+        d = root / name
+        d.mkdir(parents=True)
+        (d / "records.jsonl").write_text("", encoding="utf-8")
+        if extra:
+            (d / extra).write_text("{}", encoding="utf-8")
+    (root / "model_detections").mkdir()
+    return root
+
+
+def test_shared_discovery_keeps_only_scored_splits(tmp_path):
+    from rampnet.bundles import scored_splits
+    assert scored_splits(str(_bundle_kinds(tmp_path))) == ["gold", "scored"]
+
+
+def test_every_default_discovery_skips_the_staged_bayonne_bundle():
+    # B1: a script that lists benchmark/*/ must not pick up a bundle with no review,
+    # or its default invocation exits on it. Every lister in the repo is checked here.
+    import benchmark_power_135 as BP
+    import cascade_cost_35 as CC
+    for name, splits in (("benchmark_power_135", BP.discover_splits(REPO)),
+                         ("cascade_cost_35", CC.all_benchmark_splits())):
+        assert "bayonne" not in splits, name
+        assert "richmond" in splits and "manual_gold" in splits, name
+
+
+def test_benchmark_power_default_splits_all_load():
+    import benchmark_power_135 as BP
+    for split in BP.discover_splits(REPO):
+        BP.load_split(REPO, split)      # SystemExit here is the B1 failure
+
+
+@pytest.mark.parametrize("review", ["verdicts.json", "gt_source.json", "bundle.json"])
+def test_compare_refuses_unreviewed_on_any_kind_of_ground_truth(tmp_path, review):
+    import compare as C
+    d = _tiny_bundle(tmp_path)
+    C.refuse_unreviewed_if_reviewed(str(d))          # staged: accepted
+    (d / review).write_text("{}", encoding="utf-8")
+    with pytest.raises(SystemExit):
+        C.refuse_unreviewed_if_reviewed(str(d))
+    with pytest.raises(SystemExit):
+        C.refuse_unreviewed_if_reviewed(os.path.join(REPO, "benchmark", "manual_gold"))
+
+
+def test_extract_unreviewed_refuses_a_borrowing_bundle(tmp_path):
+    import operating_point_curve as O
+    d = _tiny_bundle(tmp_path)
+    (d / "bundle.json").write_text("{}", encoding="utf-8")
+    with pytest.raises(SystemExit):
+        O.unreviewed_ground_truths("stageville", repo=str(tmp_path))
+
+
+def test_extract_unreviewed_refuses_the_shared_op_cache():
+    import operating_point_curve as O
+    args = type("A", (), {"cache": O.CACHE_DIR, "tta": False, "unreviewed": True})()
+    with pytest.raises(SystemExit):
+        O.cmd_extract(args)
+
+
+def test_scoring_readers_refuse_an_unreviewed_cache_and_parity_does_not():
+    import operating_point_curve as O
+    import low_floor_sweep as L
+    with pytest.raises(O.UnreviewedCache):
+        O.read_cache(B.BAYONNE_CACHE)
+    panos, meta = O.read_cache(B.BAYONNE_CACHE, allow_unreviewed=True)
+    assert meta["gt"] == "unreviewed" and len(panos) == 125
+    cache_dir = os.path.dirname(B.BAYONNE_CACHE)
+    with pytest.raises(O.UnreviewedCache):
+        L.load_split("bayonne", cache_dir)
+    assert len(L.load_split("bayonne", cache_dir, allow_unreviewed=True)[0]) == 125
+
+
+def test_attach_gt_reproduces_a_committed_extract_byte_for_byte(tmp_path):
+    # S4: strip a committed reviewed cache back to what `extract --unreviewed` would
+    # have written (placeholder GT, records order, meta.gt), attach the review's GT,
+    # and require the committed bytes back.
+    import operating_point_curve as O
+    from rampnet.detection_eval import GroundTruth
+    city = "laurens_mapillary"
+    committed = os.path.join(REPO, "analysis_out", "op_cache", f"{city}.json")
+    panos, meta = O.read_cache(committed)
+    by_pid = {pd["pano"]: pd for pd in panos}
+    order = [r["pano"]["panorama_id"] for r in B.load_records(city)]
+    assert order != list(by_pid), "fixture must exercise a reorder"
+    stripped = [dict(by_pid[p], gt=GroundTruth([], [], False)) for p in order]
+    umeta = dict(meta, gt="unreviewed")
+    gts, _ = O.bundle_ground_truths(city)
+    out_panos, out_meta = O.attach_ground_truth(stripped, umeta, gts)
+    dst = tmp_path / f"{city}.json"
+    O.write_cache(str(dst), city, out_panos, out_meta)
+    with open(committed, "rb") as a, open(dst, "rb") as b:
+        assert a.read() == b.read()
+
+
+def test_gallery_escapes_third_party_strings_and_never_reads_the_preread():
+    import gt_gallery as G
+    html = G.build_html([], {}, "k", "n", "src")
+    assert "esc(e.credit)" in html and "esc(e.pid)" in html and "esc(viewerUrl)" in html
+    assert "' + e.credit" not in html
+    with open(os.path.join(REPO, "scripts", "gt_gallery.py"), encoding="utf-8") as f:
+        src = f.read()
+    assert "preread" not in src and "candidates.json" not in src   # S6: no anchoring

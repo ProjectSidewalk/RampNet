@@ -772,6 +772,10 @@ view_el.addEventListener('pointerup', ev => {
 });
 
 // --- Rendering -----------------------------------------------------------------------
+function esc(v) {
+  return String(v).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;',
+                                              '"': '&quot;', "'": '&#39;'})[c]);
+}
 function render() {
   const done = ENTRIES.filter(reviewed).length;
   document.getElementById('progress').textContent = done + '/' + ENTRIES.length + ' fully reviewed';
@@ -803,12 +807,15 @@ function render() {
     ? 'https://www.mapillary.com/app/?pKey=' + e.pid + '&focus=photo'
     : 'https://www.google.com/maps/@?api=1&map_action=pano&pano=' + e.pid);
   const isDone = reviewed(e);
+  // Ids, dates and credits come from third-party records (producer names, usernames):
+  // escape them before they reach innerHTML (PR #234 review, M5).
   document.getElementById('title').innerHTML =
-    (viewerUrl ? '<a href="' + viewerUrl + '" target="_blank" rel="noopener">' + e.pid + '</a> '
-               : e.pid + ' ') +
-    '<span class="meta">captured ' + e.date + ' &mdash; ' + e.crops.length + ' detection(s)' +
-    (e.credit ? ' &mdash; imagery ' + e.credit : '') + '</span> ' +
-    '<span class="badge">' + e.group + '</span> ' +
+    (viewerUrl ? '<a href="' + esc(viewerUrl) + '" target="_blank" rel="noopener">' +
+                 esc(e.pid) + '</a> '
+               : esc(e.pid) + ' ') +
+    '<span class="meta">captured ' + esc(e.date) + ' &mdash; ' + e.crops.length + ' detection(s)' +
+    (e.credit ? ' &mdash; imagery ' + esc(e.credit) : '') + '</span> ' +
+    '<span class="badge">' + esc(e.group) + '</span> ' +
     '<span id="rev" class="' + (isDone ? 'done' : 'todo') + '">' +
       (isDone ? '✓ REVIEWED' : '● NEEDS REVIEW') + '</span>';
   panoImg.src = 'images/' + e.full;

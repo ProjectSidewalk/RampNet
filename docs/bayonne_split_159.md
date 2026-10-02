@@ -50,9 +50,11 @@ were checked byte for byte against `imagery_manifest.json` on 2026-10-02.
 
 **The nadir logo band.** 123 municipal panos carry a white band across the bottom of the frame.
 Its top edge is y 0.791 on 114 of them and 0.771-0.789 on 9; an overlay on those 9 shows the band
-itself starting higher on two-wheeler captures, not a measurement error. The two non-municipal
-panos have no white band; one (`f8759625…`) has a green-and-white one this measurement does not
-detect, and it is plain to see in the gallery.
+itself starting higher on two-wheeler captures, not a measurement error. Of the two
+non-municipal panos, one (`f8759625…`) has a green-and-white band the automatic measurement
+cannot see (it looks for white where this band has map graphics); its edge, y 0.8008, is read
+by hand and marked `method: "manual"` in `nadir_band.json` (`MANUAL_BANDS` in the script says
+how). The other has no band. So 124 of 125 panos are shaded in the gallery.
 
 ## 3. Start the review (the only step left)
 
@@ -75,7 +77,7 @@ branch and opened in headless Edge):
 - **Resolution.** Every full pano is rendered at 4096×2048 and every crop at 512×512 cut from
   that image: model resolution, below native (5760 or 5376 wide), as for every split.
 - **Band.** The gallery reads `nadir_band.json`, hatches the band from its measured top edge,
-  labels the line, explains it in a banner ("123 of 125 panos"), and asks before accepting a
+  labels the line, explains it in a banner ("124 of 125 panos"), and asks before accepting a
   missed-ramp mark inside it. Screenshot check: the dashed line sits on the band's top edge.
 - **Heading and seam.** The gallery does not rotate panos and draws detections at the records'
   normalized x, y. Records and pixels share one frame: on the gallery page checked and in the
@@ -88,7 +90,14 @@ branch and opened in headless Edge):
 - **Link and credit.** The pano id links to the picture on its own Panoramax instance (it used
   to link every non-Mapillary pano to Google Maps); producer and licence are shown beside it.
 
-**Rubric notes for this city** (from the labeler hand-off and the AI pre-read in section 6):
+**Before you start: do not open the AI pre-read's per-item labels** (section 6,
+`analysis_out/bayonne_159/ai_preread/`: the labels file, `items.json`, `summary.json`) **or the
+candidate list** (section 5) until `verdicts.json` is exported. Both name the same detections
+and places you are about to judge, and a review made after reading a model's per-item calls is
+partly that model's ground truth. The gallery does not read either; it shows only the records'
+detections. The rubric notes in the next paragraph are the one part meant to be read first.
+
+**Rubric notes for this city** (from the labeler hand-off and from looking at the crops):
 French lowered kerbs at crossings are often a plain lowering with a white-painted kerb face and
 no flare, sometimes with white tactile paving; they count. Driveway and garage lowerings, common
 here, do not. Write anything that fought the rubric in the gallery's *Review notes*.
@@ -103,7 +112,9 @@ Everything here re-derives from committed files with `scripts/analysis/bayonne_1
 `laurens_mapillary` (the other GoPro Max split, 94 panos) was re-extracted with this branch on
 makelab2's A40. It lands on the committed `analysis_out/op_cache/laurens_mapillary.json` cell
 for cell: **374 of 374 peaks, none extra, none missing**, scores within 5.4e-5
-(`analysis_out/bayonne_159/checks.json`, `replication_control`).
+(`analysis_out/bayonne_159/checks.json`, `replication_control`). That committed cache is the
+one op_cache built after the f4c71c8 extractor fix (it carries 4 border-ring peaks), so this
+is a check against the same extractor Bayonne's cache uses, border included.
 
 ### 4.2 Bayonne's cache reproduces its records, except at the seam
 
@@ -116,7 +127,7 @@ cell. The cache has **3 more** peaks ≥ 0.55, all at the seam (x = 0 or 0.996):
 The cause is in the labeler, not here: `detectors/curb_ramp.py` calls `peak_local_max` without
 `exclude_border=False`, so the production path drops every peak within 10 heatmap cells of the
 array edge, the defect RampNet's extractor had until f4c71c8 (#132). That affects every labeler
-city's output, not only Bayonne's (see "Decisions for Jon" in the PR). For this split: the
+city's output, not only Bayonne's (filed as [sidewalk-auto-labeler#130](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/130)). For this split: the
 review judges what production reported, while the cache keeps the seam peaks, so once GT is
 attached the cache-based rows will count those 3 peaks at 0.55 and the records-based score
 will not. `low_floor_sweep.py parity` already reads this as within its 5% count allowance
@@ -125,8 +136,8 @@ will not. `low_floor_sweep.py parity` already reads this as within its 5% count 
 ### 4.3 Is Bayonne quiet at every threshold?
 
 Peaks per pano by sampler stratum, against every split's committed op_cache
-(`analysis_out/bayonne_159/firing.json`). The committed op_caches predate f4c71c8 and so lack
-border peaks; the `interior` columns drop the 10-cell border ring from **every** split so all are
+(`analysis_out/bayonne_159/firing.json`). Ten of the eleven committed op_caches predate f4c71c8
+and carry no border peaks; laurens_mapillary's was built after the fix and carries 4. The `interior` columns drop the 10-cell border ring from **every** split so all are
 measured alike, and they are the ones quoted. The `random` stratum is conditioned on ≥ 1
 detection at 0.55 and `empty` on none, so neither is a city rate.
 
@@ -203,8 +214,9 @@ env change (an explicit dtype or a GPU to itself), outside "use the environments
 `analysis_out/bayonne_159/candidates.json` (`bayonne_159.py candidates`): locations where
 RampNet has **no peak ≥ 0.30** within the 0.022 match radius and **≥ 2 challenger legs** put a
 point within it, each leg at the threshold in the table above. OWLv2 and Grounding DINO are
-listed as support and never count as a vote: they are the roster's dense legs, and counted as
-votes, 417 of 425 draft candidates were those two agreeing with each other.
+listed as support and never count as a vote: they are the roster's dense legs. Counted as
+votes, the list would hold 579 candidates, 568 of them resting on fewer than two non-dense
+legs and 299 on the two dense legs alone (`candidates.json`, `if_dense_legs_vote`).
 
 **11 candidates, all in the `random` stratum, none in the 25 `empty` panos, none in the band.**
 Six have a RampNet peak in the radius below 0.30 (0.076-0.283). Six are YOLO arms agreeing only
@@ -236,7 +248,14 @@ with the rubric it applied in the same file. Rater: Claude Opus 5.5 (`claude-opu
 shown 1:1, ring at the peak) in 25 contact sheets of six. It is a heads-up on what the detector
 fires on in Bayonne. It is not a verdict file, it is not in `benchmark/bayonne/`, and **no number
 from it is a precision.** The crops show more pixels than the model or the reviewer sees, which
-favours `ramp` and `cant_tell`.
+favours `ramp` and `cant_tell`. **Reviewer: skip this section until your verdicts are exported**
+(section 3).
+
+**Cost: not metered.** The pre-read ran inside the Claude Code agent session that built this PR,
+under a subscription; its tokens were not counted per item or per pass and cannot be recovered,
+so there is no token count or dollar figure, and none is invented here. Wall clock, from file
+modification times: crops written 09:50:19, labels written 09:53:25 (2026-10-02, -0700), about
+3 minutes for the 25 sheets. The same statement is in the labels file (`cost`).
 
 | detection confidence | ramp | not_ramp | cant_tell |
 |---|---:|---:|---:|
@@ -254,23 +273,29 @@ regenerate with `preread-crops`.
 
 ## 7. Paid legs: not run
 
-No money was spent. Expected cost for 125 panos, from the ledger's measured dollars per pano
-(rows before 2026-10-02; `analysis_out/bayonne_159/paid_legs_estimate.json`,
-`bayonne_159.py paid-estimate`):
+No money was spent. **How the estimate is derived:** for each leg, the ledger's estimated
+dollars over every measured row before 2026-10-02, divided by the panos that actually reached
+the API in those rows, times 125. A row's panos are `panos_called` where the row records it,
+otherwise `calls` ÷ the number of perspective views in its signature (6; one call per view).
+Never `panos_scored`, which counts cache hits that cost nothing: one claude-opus-5 row scored
+94 panos and made 12 calls. Recovered rows are excluded (they carry no pano count).
+(`analysis_out/bayonne_159/paid_legs_estimate.json`, `bayonne_159.py paid-estimate`.)
 
-| leg | $/pano (measured panos) | expected |
+| leg | $/called pano (called panos) | expected for 125 panos |
 |---|---:|---:|
-| gemini-3.6-flash | 0.01234 (182) | $1.54 |
+| gemini-3.6-flash | 0.01449 (155) | $1.81 |
 | gemini-3.1-pro-preview | 0.01621 (180) | $2.03 |
 | gemini-3.7-flash | 0.01140 (180) | $1.42 |
-| claude-opus-5, effort low | 0.04727 (277) | $5.91 |
-| total | | $10.90 |
+| claude-opus-5, effort low | 0.07116 (184) | $8.89 |
+| total | | **$14.15** |
 
-Dollars are estimates and the billing console is authoritative; the rates rest on 180-277
-measured panos per leg. To run them after the review (they need verdicts only to be scored, not
-to run): `python scripts/model_comparison/compare.py benchmark/bayonne --unreviewed --models
-gemini:gemini-3.6-flash,gemini:gemini-3.1-pro-preview,claude:claude-opus-5` with the default
-ledger.
+Dollars are estimates and the billing console is authoritative; the rates rest on 155-184
+called panos per leg, mostly on the two Laurens splits, and thinking spend varies by imagery.
+An earlier version of this table divided by `panos_scored` and gave $10.90 (PR #234 review, S1).
+To run all four after the review (they need verdicts only to be scored, not to run):
+`python scripts/model_comparison/compare.py benchmark/bayonne --unreviewed --models
+gemini:gemini-3.6-flash,gemini:gemini-3.1-pro-preview,gemini:gemini-3.7-flash,claude:claude-opus-5`
+with the default ledger (`claude_effort` defaults to `low`).
 
 ## 8. Commands, in order
 
@@ -292,12 +317,14 @@ python scripts/analysis/bayonne_159.py paid-estimate --print
 python scripts/analysis/bayonne_159.py preread-crops && python scripts/analysis/bayonne_159.py preread-summary
 ```
 
-**Cost: $0, about 1.7 GPU-hours of a shared A40.** The seven challenger legs total 5,508 s
-of wall time (one `paid: false` row each in `analysis_out/usage_log.jsonl`, Molmo's failed leg
-included); the two extractions took 2 min 50 s (laurens_mapillary, 94 panos) and 3 min 16 s
-(Bayonne, 125 panos), timed in `analysis_out/bayonne_159/gpu_run.log` (the run's log, progress
-bars stripped). The A40 was shared with other jobs throughout, so these times are upper bounds
-for the hardware.
+**GPU run: no spend, about 1.6 GPU-hours of a shared A40** (5,874 s). The seven challenger legs
+total 5,508 s (one `paid: false` row each in `analysis_out/usage_log.jsonl`, written by
+`compare.py`, Molmo's failed leg included). The two extractions took 170 s (laurens_mapillary,
+94 panos) and 196 s (Bayonne, 125 panos); `extract` writes no ledger row, so those two `paid:
+false` rows were back-filled from the step stamps in `analysis_out/bayonne_159/gpu_run.log` (the
+run's log, progress bars stripped) and say so in their `note`. The A40 was shared with other
+jobs throughout, so these times are upper bounds for the hardware. The AI pre-read (section 6)
+is a separate, unmetered model run, not part of this figure.
 
 The `GPU` step ran from a git worktree of this branch on makelab2 (`~/wt-bayonne159`), with the
 Bayonne panos copied from the archive and checked against `imagery_manifest.json`, and
@@ -317,8 +344,11 @@ Bayonne panos copied from the archive and checked against `imagery_manifest.json
    `benchmark/bayonne/incremental_fp_tags.json`, then `corrected --op-threshold 0.30` and
    `tagcheck`. Section 4.3 predicts a larger item count than paterson's 10.
 6. Move the challenger detections from `analysis_out/bayonne_159/model_detections/` into
-   `benchmark/model_detections/` and score the row: `compare.py benchmark/bayonne --models ...`
-   (cache hits, no GPU).
+   `benchmark/model_detections/` and score the row from the makelab2 worktree's `.model_cache`
+   (cache hits, no GPU). The YOLO arms' cache keys carry the #71 protocol, so they need its
+   flags or every lookup misses:
+   `compare.py benchmark/bayonne --models yolo:yolo_ckpts/y11l_pano.pt,yolo:yolo_ckpts/y26_pano.pt,yolo:yolo_ckpts/y11x_pano_h200.pt --tiling none --yolo-imgsz 1280 --op-threshold 0.25`,
+   then `compare.py benchmark/bayonne --models owlv2,gdino,qwen:Qwen/Qwen3-VL-8B-Instruct`.
 7. Decide the paid legs (section 7).
 8. `python scripts/analysis/train_overlap_check.py` (network, ~10 min) and commit
    `benchmark/train_overlap.json`; only then does `export_benchmark.py` accept the split.
@@ -347,7 +377,8 @@ and tests that would then claim a reviewed split):
 - **Registration**: needs verdicts (section 9).
 - **Paid legs**: no spend today; expected cost in section 7.
 - **HF publish**: Jon's call.
-- **The labeler's seam defect**: found here, not fixed; the labeler repo was out of scope today.
+- **The labeler's seam defect**: found here, not fixed here; filed as
+  [sidewalk-auto-labeler#130](https://github.com/ProjectSidewalk/sidewalk-auto-labeler/issues/130).
 - **Qwen3-VL-32B**: its weights are not cached on makelab2, and downloading them for one
   leg was not worth it ahead of the review; it can run after.
 - **Molmo2-8B**: ran in its own env and failed on every pano (section 5); not retried.

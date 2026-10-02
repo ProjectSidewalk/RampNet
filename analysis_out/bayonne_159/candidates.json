@@ -173,6 +173,11 @@
    "y": 0.6647
   }
  ],
+ "if_dense_legs_vote": {
+  "n_candidates": 579,
+  "n_from_dense_legs_only": 299,
+  "n_with_fewer_than_2_non_dense_legs": 568
+ },
  "legs_not_run": [
   "molmo2-8b"
  ],

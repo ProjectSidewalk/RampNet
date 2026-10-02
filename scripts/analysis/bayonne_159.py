@@ -31,11 +31,12 @@ Every ``--write`` output is LF, sorted, with floats rounded, so a re-run on any 
 byte-identical; ``--check`` (the default when ``--write`` is absent) recomputes and
 compares against the committed file. ``tests/test_bayonne_159.py`` runs the CPU ones.
 
-**The extractor difference that the firing read controls for.** Every committed
-``analysis_out/op_cache/*.json`` was built before f4c71c8, when ``peaks_to_dets`` left
-``skimage``'s ``exclude_border`` at its default and so dropped every peak within
-``min_distance`` (10 heatmap cells) of the array edge. Bayonne's cache is built with
-the fixed extractor. So ``firing`` reports two columns per split: ``raw`` (as cached)
+**The extractor difference that the firing read controls for.** Ten of the eleven
+committed ``analysis_out/op_cache/*.json`` were built before f4c71c8, when
+``peaks_to_dets`` left ``skimage``'s ``exclude_border`` at its default and so dropped
+every peak within ``min_distance`` (10 heatmap cells) of the array edge; they carry 0
+border-ring peaks. ``laurens_mapillary``'s was built after the fix (2026-08-31) and
+carries 4. Bayonne's cache is built with the fixed extractor. So ``firing`` reports two columns per split: ``raw`` (as cached)
 and ``interior`` (every split with peaks in the 10-cell border ring removed), and
 cross-split comparisons are read off ``interior``, where all splits are measured the
 same way.
@@ -248,6 +249,16 @@ def cmd_verify(args):
 # --------------------------------------------------------------------------- #
 # band
 # --------------------------------------------------------------------------- #
+#: Bands the automatic method cannot see. The OSM-FR producer's green-and-white band
+#: has map graphics where the method looks for white (the centre columns at y 0.95),
+#: so it is read by hand: on the 1024x512 downsample rows 0-408 are photo (row mean
+#: ~100), row 409 is the transition (154), and rows 410 onward are all white across the
+#: centre columns, so the band starts at row 410 = y 0.8008. Read 2026-10-02 by
+#: claude-opus-5-5 with the same downsample; an overlay at y 0.80 sits on the edge
+#: (PR #234 review, M6).
+MANUAL_BANDS = {"f8759625-2874-4b43-832f-a3aa2669af15": 0.8008}
+
+
 def band_top_from_rows(white_frac, start_row=BAND_START_ROW, need=BAND_ROW_WHITE_FRAC,
                        h=HEAT_H):
     """Normalized y of the band's top edge from per-row white fractions, or None.
@@ -280,7 +291,11 @@ def build_band(bundle=BUNDLE):
     for r in recs:
         pid = r["pano"]["panorama_id"]
         y = measure_band(os.path.join(bundle, "panos", f"{pid}.jpg"))
-        panos[pid] = {"band_top_y": _r(y), "copyright": r["pano"].get("copyright")}
+        entry = {"band_top_y": _r(y), "copyright": r["pano"].get("copyright"),
+                 "method": "auto"}
+        if y is None and pid in MANUAL_BANDS:
+            entry.update(band_top_y=MANUAL_BANDS[pid], method="manual")
+        panos[pid] = entry
     ys = sorted(v["band_top_y"] for v in panos.values() if v["band_top_y"] is not None)
     return {
         "what": "top edge of the white nadir logo band, normalized y (0 = top of the "
@@ -299,10 +314,12 @@ def build_band(bundle=BUNDLE):
                   "frame), not a measurement error. "
                   "One non-municipal pano carries a "
                   "different, green-and-white band that this method does not detect "
-                  "(f8759625-...); the other non-municipal pano has none.",
+                  "(f8759625-...); its edge is read by hand (method 'manual', see "
+                  "MANUAL_BANDS). The other non-municipal pano has none.",
         "labeler_band_y": LABELER_BAND_Y,
         "rig_mask_y": RIG_MASK_Y,
         "n_with_band": len(ys),
+        "n_measured_by_hand": sum(v["method"] == "manual" for v in panos.values()),
         "n_without_band": len(panos) - len(ys),
         "band_top_y_min": ys[0] if ys else None,
         "band_top_y_median": ys[len(ys) // 2] if ys else None,
@@ -353,7 +370,8 @@ def build_firing(bayonne_cache=BAYONNE_CACHE, op_cache_dir=OP_CACHE_DIR,
     result = {"note": "GT-free. Peaks per pano from each split's low-floor cache, by "
                       "sampler stratum. 'interior' drops peaks within 10 heatmap cells of "
                       "any edge from EVERY split, which is what the pre-f4c71c8 extractor "
-                      "behind the committed op_caches did; read cross-split comparisons "
+                      "behind ten of the eleven committed op_caches did (laurens_mapillary's "
+                      "was built after the fix); read cross-split comparisons "
                       "off 'interior'. The 'random' stratum is conditioned on >= 1 "
                       "detection at 0.55 and 'empty' on none, so neither is a city rate.",
               "thresholds": list(FIRING_THRESHOLDS), "splits": {}}
@@ -677,7 +695,8 @@ MIN_LEGS = 2
 #: roster classes as dense (55-88 boxes/pano on the published splits; 5.5 and 27.4
 #: points/pano here at their thresholds). Two dense legs land within one radius of
 #: each other almost anywhere, so their agreement says nothing; with them counted,
-#: 417 of the first draft's 425 candidates were OWLv2 + Grounding DINO alone. They are
+#: most candidates are OWLv2 + Grounding DINO alone (``candidates.json``,
+#: ``if_dense_legs_vote``). They are
 #: reported beside each candidate as support, never as a vote.
 SUPPORT_ONLY = ("owlv2", "gdino")
 
@@ -756,6 +775,10 @@ def build_candidates():
     cands = candidate_misses(peaks, legs, radius_sq_for(), band, support_only=SUPPORT_ONLY)
     for c in cands:
         c["group"] = strata.get(c["pano"])
+    # The counterfactual that justifies SUPPORT_ONLY: let the dense legs vote too.
+    voting = candidate_misses(peaks, legs, radius_sq_for(), band)
+    dense_only = sum(1 for c in voting if set(c["legs"]) <= set(SUPPORT_ONLY))
+    lt2_sparse = sum(1 for c in voting if len(set(c["legs"]) - set(SUPPORT_ONLY)) < MIN_LEGS)
     return {
         "what": "Reviewer-attention list, NOT ground truth: locations where RampNet has no "
                 f"peak >= {RAMPNET_SILENT_BELOW} within the 0.022 match radius and >= "
@@ -766,6 +789,9 @@ def build_candidates():
         "legs_run": ran, "legs_not_run": not_run,
         "n_candidates": len(cands),
         "support_only": list(SUPPORT_ONLY),
+        "if_dense_legs_vote": {"n_candidates": len(voting),
+                               "n_from_dense_legs_only": dense_only,
+                               "n_with_fewer_than_2_non_dense_legs": lt2_sparse},
         "n_in_nadir_band": sum(c["in_nadir_band"] for c in cands),
         "candidates": cands,
     }
@@ -797,13 +823,17 @@ LEDGER_CUTOFF = "2026-10-02T00:00:00Z"
 def paid_estimate(rows, n_panos, legs=PAID_LEGS, cutoff=LEDGER_CUTOFF):
     """Expected dollars per leg = measured dollars per pano x ``n_panos``. Pure.
 
-    Uses only measured rows (``kind`` absent; recovered rows carry no pano count), and
-    a row's pano denominator is ``panos_called`` when present (calls actually made)
-    else ``panos_scored``."""
+    Uses only measured rows (``kind`` absent; recovered rows carry no pano count). A
+    row's denominator is the panos that actually reached the API: ``panos_called``
+    when the row has it, else ``calls`` / the number of perspective views in its
+    signature (one call per view). Never ``panos_scored``: on a partly cached re-run
+    it counts cache hits that cost nothing (one claude-opus-5 row says 94 panos and
+    made 12 calls), which understated the per-pano rate (PR #234 review, S1). A row
+    with neither is skipped and counted in ``rows_without_denominator``."""
     out = []
     for provider, label, effort in legs:
         n = usd = 0.0
-        k = 0
+        k = skipped = 0
         for r in rows:
             if r.get("kind") == "recovered" or r.get("provider") != provider:
                 continue
@@ -813,14 +843,18 @@ def paid_estimate(rows, n_panos, legs=PAID_LEGS, cutoff=LEDGER_CUTOFF):
                 continue
             if effort is not None and (r.get("signature") or {}).get("effort") != effort:
                 continue
-            p = r.get("panos_called") or r.get("panos_scored") or 0
+            views = (r.get("signature") or {}).get("views") or []
+            p = r.get("panos_called") or (r["calls"] / len(views)
+                                          if r.get("calls") and views else 0)
             if not p:
+                skipped += 1
                 continue
             n += p
             usd += r["est_cost_usd"]
             k += 1
         out.append({"provider": provider, "label": label, "effort": effort,
-                    "ledger_rows": k, "ledger_panos": int(n),
+                    "ledger_rows": k, "ledger_panos": _r(n, 2),
+                    "rows_without_denominator": skipped,
                     "usd_per_pano": _r(usd / n, 5) if n else None,
                     "expected_usd": _r(usd / n * n_panos, 2) if n else None})
     return out
@@ -833,8 +867,10 @@ def build_paid_estimate():
     return {"what": "Paid legs NOT run on Bayonne (no spend today). Expected cost = the "
                     "ledger's measured dollars per pano for that leg (rows before "
                     f"{LEDGER_CUTOFF}) x 125 panos. Dollars are estimates; the billing "
-                    "console is authoritative. The per-pano rates rest on 180-277 measured "
-                    "panos per leg, and Gemini's thinking spend varies by imagery.",
+                    "console is authoritative. A row's panos are the ones that reached the API "
+                    "(panos_called, else calls / views), never panos_scored, which "
+                    "counts cache hits. The rates rest on 155-184 called panos per leg, "
+                    "and Gemini's thinking spend varies by imagery.",
             "n_panos": 125, "legs": legs,
             "expected_usd_total": _r(sum(l["expected_usd"] or 0 for l in legs), 2)}
 
@@ -857,7 +893,8 @@ def build_preread_summary():
     s = preread_summary(pre["labels"], items)
     s["rater"] = pre["rater"]
     s["note"] = ("Counts of a MODEL's labels on native-resolution crops. Not ground truth "
-                 "and not a precision; see the rubric in the labels file.")
+                 "and not a precision; see the rubric in the labels file. Reviewer: do "
+                 "not read this before your verdicts.json is exported.")
     return s
 
 

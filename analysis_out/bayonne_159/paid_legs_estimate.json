@@ -1,43 +1,47 @@
 {
- "expected_usd_total": 10.9,
+ "expected_usd_total": 14.15,
  "legs": [
   {
    "effort": null,
-   "expected_usd": 1.54,
+   "expected_usd": 1.81,
    "label": "gemini-3.6-flash",
-   "ledger_panos": 182,
+   "ledger_panos": 155.0,
    "ledger_rows": 3,
    "provider": "gemini",
-   "usd_per_pano": 0.01234
+   "rows_without_denominator": 0,
+   "usd_per_pano": 0.01449
   },
   {
    "effort": null,
    "expected_usd": 2.03,
    "label": "gemini-3.1-pro-preview",
-   "ledger_panos": 180,
+   "ledger_panos": 180.0,
    "ledger_rows": 2,
    "provider": "gemini",
+   "rows_without_denominator": 0,
    "usd_per_pano": 0.01621
   },
   {
    "effort": null,
    "expected_usd": 1.42,
    "label": "gemini-3.7-flash",
-   "ledger_panos": 180,
+   "ledger_panos": 180.0,
    "ledger_rows": 2,
    "provider": "gemini",
+   "rows_without_denominator": 0,
    "usd_per_pano": 0.0114
   },
   {
    "effort": "low",
-   "expected_usd": 5.91,
+   "expected_usd": 8.89,
    "label": "claude-opus-5",
-   "ledger_panos": 277,
+   "ledger_panos": 184.0,
    "ledger_rows": 5,
    "provider": "claude",
-   "usd_per_pano": 0.04727
+   "rows_without_denominator": 0,
+   "usd_per_pano": 0.07116
   }
  ],
  "n_panos": 125,
- "what": "Paid legs NOT run on Bayonne (no spend today). Expected cost = the ledger's measured dollars per pano for that leg (rows before 2026-10-02T00:00:00Z) x 125 panos. Dollars are estimates; the billing console is authoritative. The per-pano rates rest on 180-277 measured panos per leg, and Gemini's thinking spend varies by imagery."
+ "what": "Paid legs NOT run on Bayonne (no spend today). Expected cost = the ledger's measured dollars per pano for that leg (rows before 2026-10-02T00:00:00Z) x 125 panos. Dollars are estimates; the billing console is authoritative. A row's panos are the ones that reached the API (panos_called, else calls / views), never panos_scored, which counts cache hits. The rates rest on 155-184 called panos per leg, and Gemini's thinking spend varies by imagery."
 }

@@ -22,7 +22,7 @@
   "ramp": 109
  },
  "n": 147,
- "note": "Counts of a MODEL's labels on native-resolution crops. Not ground truth and not a precision; see the rubric in the labels file.",
+ "note": "Counts of a MODEL's labels on native-resolution crops. Not ground truth and not a precision; see the rubric in the labels file. Reviewer: do not read this before your verdicts.json is exported.",
  "rater": {
   "date": "2026-10-02",
   "human": false,

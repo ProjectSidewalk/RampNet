@@ -1,5 +1,5 @@
 {
- "note": "GT-free. Peaks per pano from each split's low-floor cache, by sampler stratum. 'interior' drops peaks within 10 heatmap cells of any edge from EVERY split, which is what the pre-f4c71c8 extractor behind the committed op_caches did; read cross-split comparisons off 'interior'. The 'random' stratum is conditioned on >= 1 detection at 0.55 and 'empty' on none, so neither is a city rate.",
+ "note": "GT-free. Peaks per pano from each split's low-floor cache, by sampler stratum. 'interior' drops peaks within 10 heatmap cells of any edge from EVERY split, which is what the pre-f4c71c8 extractor behind ten of the eleven committed op_caches did (laurens_mapillary's was built after the fix); read cross-split comparisons off 'interior'. The 'random' stratum is conditioned on >= 1 detection at 0.55 and 'empty' on none, so neither is a city rate.",
  "splits": {
   "annapolis": {
    "cache": "analysis_out/op_cache/annapolis.json",

@@ -227,9 +227,9 @@ match radii. Expect a Mapillary or Panoramax split to land in the **identical ce
 record, **plus a few extra cache peaks at the 360 seam**: the labeler's production extractor
 (`detectors/curb_ramp.py`) leaves skimage's `exclude_border` at its default and drops peaks
 within 10 cells of the heatmap edge, the defect RampNet fixed in f4c71c8 (#132). Bayonne: 147
-of 147 identical, 3 extra, all at the seam (`analysis_out/bayonne_159/checks.json`). The
-committed `op_cache/*.json` of the older splits were also built before f4c71c8, so compare a
-new split against them with the border ring dropped from every split
+of 147 identical, 3 extra, all at the seam (`analysis_out/bayonne_159/checks.json`). Ten of
+the eleven committed `op_cache/*.json` were built before f4c71c8 (laurens_mapillary's after it),
+so compare a new split against them with the border ring dropped from every split
 (`bayonne_159.py firing`, column `interior`). A GSV split will not be exact —
 the GSV production path builds a 4096×2048 intermediate, so production saw a different resample
 than the native-res bundle — but should still land inside 0.5 R (bend's max is 0.439 R). The
