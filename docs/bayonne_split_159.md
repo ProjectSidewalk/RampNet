@@ -13,12 +13,13 @@ The bundle comes from sidewalk-auto-labeler
 
 ## 1. What the split is for (Phase 0)
 
-- **First Panoramax split**, and the first place the model meets a single-account municipal
-  GoPro Max capture: 123 of 125 panos are from `sig_bayonne` on `panoramax.ign.fr`, 2 from
-  another producer on `panoramax.openstreetmap.fr`. It is the Laurens rig class without
-  Laurens' mixed contributors and seasons.
-- **First non-US deployment target**: Bayonne is the first Panoramax Project Sidewalk city, so
-  this is its ground-truth gate.
+- **First Panoramax split.** 123 of 125 panos are from the municipal producer `sig_bayonne` on
+  `panoramax.ign.fr`, 2 from another producer on `panoramax.openstreetmap.fr`. The rig class,
+  GoPro Max, is already on the board (laurens_mapillary, morgantown, budapest_district5, part
+  of richmond); what is new is the source, one municipal producer's mounting (car, two-wheeler),
+  and the burned-in logo band.
+- **A deployment target outside the US**: Bayonne is the first Panoramax Project Sidewalk city,
+  so this is its ground-truth gate.
 - **Imagery tier:** `action-modern` (GoPro Max). The plan proposed a Panoramax branch in
   `tier_of()`. It is not needed and would be wrong: tiers are by rig, and the records carry
   `GoPro` / `Max`, which the existing branch already classifies
@@ -81,8 +82,9 @@ branch and opened in headless Edge):
   147 pre-read crops (section 6, cut at the same coordinates) the marker sits on a kerb or
   crossing in all but a handful of cases, and those handful are detector errors (a roof, a
   manhole), not an offset. The equirect's left and right edges are the 360 seam, as in every
-  split. Production drops detections within about 3.5° of the seam (section 4), so a ramp at
-  the left or right edge of a pano shows up as a missed ramp, which is how it should be scored.
+  split. Production dropped detections within about 3.5° of the seam (section 4.2), so a ramp
+  the model saw there is not in the records: the reviewer marks it as missed, like any other
+  ramp with no detection.
 - **Link and credit.** The pano id links to the picture on its own Panoramax instance (it used
   to link every non-Mapillary pano to Google Maps); producer and licence are shown beside it.
 
@@ -114,9 +116,11 @@ cell. The cache has **3 more** peaks ≥ 0.55, all at the seam (x = 0 or 0.996):
 The cause is in the labeler, not here: `detectors/curb_ramp.py` calls `peak_local_max` without
 `exclude_border=False`, so the production path drops every peak within 10 heatmap cells of the
 array edge, the defect RampNet's extractor had until f4c71c8 (#132). That affects every labeler
-city's output, not only Bayonne's (see "Decisions for Jon" in the PR). For this split it means
-the review judges exactly what production reported, and a ramp the model saw at the seam is
-scored as a miss.
+city's output, not only Bayonne's (see "Decisions for Jon" in the PR). For this split: the
+review judges what production reported, while the cache keeps the seam peaks, so once GT is
+attached the cache-based rows will count those 3 peaks at 0.55 and the records-based score
+will not. `low_floor_sweep.py parity` already reads this as within its 5% count allowance
+(OK, 2.0%).
 
 ### 4.3 Is Bayonne quiet at every threshold?
 
@@ -203,7 +207,7 @@ listed as support and never count as a vote: they are the roster's dense legs, a
 votes, 417 of 425 draft candidates were those two agreeing with each other.
 
 **11 candidates, all in the `random` stratum, none in the 25 `empty` panos, none in the band.**
-Six have a RampNet peak in the radius below 0.30 (0.08-0.28). Seven are YOLO arms agreeing
+Six have a RampNet peak in the radius below 0.30 (0.076-0.283). Six are YOLO arms agreeing only
 with each other (three arms of one supervised recipe, so correlated), and five include Qwen.
 
 | pano | x | y | legs (votes) | support | RampNet best peak in radius |
