@@ -265,3 +265,45 @@ def test_the_preread_covers_exactly_the_detections_the_review_will_judge():
 def test_preread_summary_rederives():
     want = _committed("ai_preread/summary.json")
     assert B._dumps(B.build_preread_summary()) == want
+
+
+# --------------------------------------------------------------------------- #
+# the replication control, the parity detail, the candidate list
+# --------------------------------------------------------------------------- #
+def test_checks_json_rederives_and_says_what_it_found():
+    want = _committed("checks.json")
+    assert B._dumps(B.build_checks()) == want
+    res = json.loads(want)
+    rc = res["replication_control"]
+    assert rc["peaks_only_new"] == 0 and rc["peaks_only_committed"] == 0
+    bp = res["bayonne_parity"]
+    assert bp["records"] == 147
+    assert all(e["in_border_ring"] for p in bp["panos_differing"] for e in p["extra"])
+
+
+def test_repro_check_counts_cells():
+    a = {"p": [(0.5, 0.5, 0.9), (0.001, 0.5, 0.6)]}
+    b = {"p": [(0.5, 0.5, 0.90001)]}
+    r = B.repro_check(a, b)
+    assert r["peaks_same_cell"] == 1 and r["peaks_only_new"] == 1
+    assert r["peaks_only_new_in_border_ring"] == 1 and r["peaks_only_committed"] == 0
+
+
+def test_candidate_needs_two_legs_and_a_silent_rampnet():
+    from rampnet.detection_eval import radius_sq_for
+    rsq = radius_sq_for()
+    legs = {"a": {"p": [(0.30, 0.6), (0.70, 0.6)]},
+            "b": {"p": [(0.305, 0.6), (0.70, 0.6)]},
+            "c": {"p": [(0.90, 0.6)]}}
+    rampnet = {"p": [(0.70, 0.6, 0.8), (0.30, 0.6, 0.2)]}
+    out = B.candidate_misses(rampnet, legs, rsq, band={"p": 0.79})
+    # (0.30, 0.6): RampNet's peak there is 0.2 < 0.30 -> silent, two legs agree.
+    # (0.70, 0.6): RampNet fires -> not a candidate. (0.90, 0.6): one leg only.
+    assert [(c["x"], c["legs"], c["rampnet_best_peak_within_radius"]) for c in out] == [
+        (0.3, ["a", "b"], 0.2)]
+    assert out[0]["in_nadir_band"] is False
+
+
+def test_candidates_json_rederives():
+    want = _committed("candidates.json")
+    assert B._dumps(B.build_candidates()) == want

@@ -557,6 +557,216 @@ def preread_summary(labels, items):
     return out
 
 
+# --------------------------------------------------------------------------- #
+# checks: the pipeline reproduces a committed cache, and Bayonne's cache
+# reproduces its committed records
+# --------------------------------------------------------------------------- #
+REPRO_CACHE = os.path.join(OUT_DIR, "repro_op_cache", "laurens_mapillary.json")
+
+
+def _cells(peaks):
+    return {(round(x * HEAT_W), round(y * HEAT_H)): s for x, y, s in peaks}
+
+
+def repro_check(new, old):
+    """Peak-cell agreement between a re-extracted cache and a committed one. Pure."""
+    if set(new) != set(old):
+        raise ValueError("the two caches cover different panos")
+    same = only_new = only_old = ring_new = ring_old = 0
+    max_ds = 0.0
+    for p in sorted(new):
+        a, b = _cells(new[p]), _cells(old[p])
+        for k, s in a.items():
+            if k in b:
+                same += 1
+                max_ds = max(max_ds, abs(s - b[k]))
+            else:
+                only_new += 1
+                ring_new += in_border_ring(k[0] / HEAT_W, k[1] / HEAT_H)
+        for k in b:
+            if k not in a:
+                only_old += 1
+                ring_old += in_border_ring(k[0] / HEAT_W, k[1] / HEAT_H)
+    return {"panos": len(new), "peaks_same_cell": same, "peaks_only_new": only_new,
+            "peaks_only_new_in_border_ring": ring_new, "peaks_only_committed": only_old,
+            "peaks_only_committed_in_border_ring": ring_old,
+            "max_score_diff_same_cell": float(f"{max_ds:.2g}")}
+
+
+def parity_extras(peaks, recs, threshold=DEPLOYED):
+    """Panos whose cache count at the deployed threshold differs from records.jsonl,
+    with where the extra peaks sit. Pure."""
+    out = []
+    for r in recs:
+        pid = r["pano"]["panorama_id"]
+        got = [q for q in peaks[pid] if q[2] >= threshold]
+        rec = {(round(d["x_normalized"] * HEAT_W), round(d["y_normalized"] * HEAT_H))
+               for d in r["detections"] if d["confidence"] >= threshold}
+        extra = [q for q in got if (round(q[0] * HEAT_W), round(q[1] * HEAT_H)) not in rec]
+        missing = len(rec) - (len(got) - len(extra))
+        if extra or missing:
+            out.append({"pano": pid, "group": r.get("benchmark_group"),
+                        "records": len(rec), "cache": len(got), "missing_from_cache": missing,
+                        "extra": [{"x": _r(q[0], 5), "y": _r(q[1], 5), "score": _r(q[2]),
+                                   "in_border_ring": in_border_ring(q[0], q[1])}
+                                  for q in extra]})
+    return out
+
+
+def build_checks():
+    new, meta_new = load_peaks(REPRO_CACHE)
+    old, _ = load_peaks(os.path.join(OP_CACHE_DIR, "laurens_mapillary.json"))
+    peaks, meta = load_peaks(BAYONNE_CACHE)
+    recs = load_records(SPLIT)
+    extras = parity_extras(peaks, recs)
+    n_rec = sum(1 for r in recs for d in r["detections"] if d["confidence"] >= DEPLOYED)
+    n_cache = sum(1 for p in peaks.values() for q in p if q[2] >= DEPLOYED)
+    return {
+        "replication_control": {
+            "what": "laurens_mapillary re-extracted on makelab2 with this branch's code "
+                    "(scripts/analysis/bayonne_159_gpu.sh, step repro) against its committed "
+                    "analysis_out/op_cache/laurens_mapillary.json",
+            "re_extracted_on": meta_new.get("device"),
+            **repro_check(new, old)},
+        "bayonne_parity": {
+            "what": "Bayonne cache peaks >= 0.55 against the 147 committed records.jsonl "
+                    "detections (low_floor_sweep.py parity reads the same)",
+            "records": n_rec, "cache": n_cache,
+            "panos_differing": extras,
+            "reading": "every extra cache peak sits in the 10-cell border ring at the 360 "
+                       "seam (x = 0 or ~1). The labeler's production extractor "
+                       "(sidewalk-auto-labeler detectors/curb_ramp.py) calls peak_local_max "
+                       "without exclude_border=False, so it drops peaks within 10 cells of "
+                       "the heatmap edge -- the extractor defect RampNet fixed in f4c71c8 "
+                       "(#132). Off the seam the two agree cell for cell."
+                       if extras and all(e["in_border_ring"] for x in extras
+                                         for e in x["extra"])
+                       and not any(x["missing_from_cache"] for x in extras) else
+                       "differences are not all seam peaks; read panos_differing",
+        },
+    }
+
+
+def cmd_checks(args):
+    res = build_checks()
+    if args.print:
+        print(json.dumps(res, indent=1, sort_keys=True))
+    return _check_or_write(res, os.path.join(OUT_DIR, "checks.json"), args.write)
+
+
+# --------------------------------------------------------------------------- #
+# candidates: where RampNet is silent and >= 2 challenger legs agree
+# --------------------------------------------------------------------------- #
+DETECTIONS_DIR = os.path.join(OUT_DIR, "model_detections")
+#: Each leg's operating point for this list. YOLO: the #71 protocol's headline conf.
+#: OWLv2 / Grounding DINO: the thresholds their best-F1 sweeps land on across the
+#: published splits (docs/model_comparison.md: OWLv2 0.25 on most, Grounding DINO
+#: 0.15). Qwen and Molmo emit no score, so every point counts.
+CANDIDATE_LEGS = (
+    ("y11l_pano", "y11l_pano", 0.25, "yolo"),
+    ("y26_pano", "y26_pano", 0.25, "yolo"),
+    ("y11x_pano_h200", "y11x_pano_h200", 0.25, "yolo"),
+    ("google__owlv2-large-patch14-ensemble", "owlv2", 0.25, "open-vocab"),
+    ("IDEA-Research__grounding-dino-base", "gdino", 0.15, "open-vocab"),
+    ("Qwen__Qwen3-VL-8B-Instruct", "qwen3-vl-8b", None, "chat-vlm"),
+    ("allenai__Molmo2-8B", "molmo2-8b", None, "chat-vlm"),
+)
+RAMPNET_SILENT_BELOW = 0.30     # the recommended operating point (docs/operating_point.md)
+MIN_LEGS = 2
+
+
+def _d2(a, b):
+    from rampnet.detection_eval import PANO_SCALE_X, PANO_SCALE_Y
+    return ((a[0] - b[0]) * PANO_SCALE_X) ** 2 + ((a[1] - b[1]) * PANO_SCALE_Y) ** 2
+
+
+def candidate_misses(rampnet_peaks, legs, radius_sq, band=None, min_legs=MIN_LEGS,
+                     silent_below=RAMPNET_SILENT_BELOW):
+    """Locations where RampNet has no peak >= ``silent_below`` within the match radius
+    and at least ``min_legs`` distinct challenger legs put a point within it. Pure.
+
+    ``legs`` is ``{leg: {pano: [(x, y), ...]}}`` already cut at each leg's operating
+    point. Seeds are every challenger point in turn (in leg order, then point order);
+    a seed's cluster is every leg with a point within one radius of it; clusters are
+    reported once (a later seed within a radius of a reported one is skipped). The
+    scorer does not wrap the seam, so neither does this."""
+    out = []
+    panos = sorted(set(rampnet_peaks) | {p for d in legs.values() for p in d})
+    for pano in panos:
+        rn = [(x, y) for x, y, s in rampnet_peaks.get(pano, []) if s >= silent_below]
+        reported = []
+        for leg in legs:
+            for pt in legs[leg].get(pano, []):
+                if any(_d2(pt, q) <= radius_sq for q in rn):
+                    continue
+                if any(_d2(pt, c) <= radius_sq for c in reported):
+                    continue
+                agree = sorted(l2 for l2 in legs
+                               if any(_d2(pt, q) <= radius_sq for q in legs[l2].get(pano, [])))
+                if len(agree) < min_legs:
+                    continue
+                reported.append(pt)
+                bmax = [s for x, y, s in rampnet_peaks.get(pano, []) if _d2(pt, (x, y)) <= radius_sq]
+                out.append({"pano": pano, "x": _r(pt[0], 4), "y": _r(pt[1], 4), "legs": agree,
+                            "n_legs": len(agree),
+                            "rampnet_best_peak_within_radius": _r(max(bmax)) if bmax else None,
+                            "in_nadir_band": bool(band is not None and band.get(pano) is not None
+                                                  and pt[1] >= band[pano])})
+    return out
+
+
+def load_leg_points(stem, threshold, split=SPLIT, d=DETECTIONS_DIR):
+    path = os.path.join(d, f"{stem}__{split}.json")
+    with open(path, encoding="utf-8") as f:
+        payload = json.load(f)
+    pts = {}
+    for pano, dets in payload["detections"].items():
+        pts[pano] = [(t[0], t[1]) for t in dets
+                     if threshold is None or (len(t) > 2 and t[2] is not None and t[2] >= threshold)]
+    return pts, payload
+
+
+def build_candidates():
+    from rampnet.detection_eval import radius_sq_for
+    peaks, _ = load_peaks(BAYONNE_CACHE)
+    legs, ran, not_run = {}, [], []
+    for stem, name, thr, family in CANDIDATE_LEGS:
+        path = os.path.join(DETECTIONS_DIR, f"{stem}__{SPLIT}.json")
+        if not os.path.exists(path):
+            not_run.append(name)
+            continue
+        pts, payload = load_leg_points(stem, thr)
+        legs[name] = pts
+        ran.append({"leg": name, "family": family, "threshold": thr,
+                    "n_panos": payload["n_panos"], "n_uncached": payload["n_uncached"],
+                    "points_per_pano": _r(sum(len(v) for v in pts.values()) / len(pts))})
+    band = {p: e["band_top_y"] for p, e in load_band().items()}
+    strata = strata_of(SPLIT)
+    cands = candidate_misses(peaks, legs, radius_sq_for(), band)
+    for c in cands:
+        c["group"] = strata.get(c["pano"])
+    non_dense = [c for c in cands
+                 if len(set(c["legs"]) - {"owlv2", "gdino"}) >= MIN_LEGS]
+    return {
+        "what": "Reviewer-attention list, NOT ground truth: locations where RampNet has no "
+                f"peak >= {RAMPNET_SILENT_BELOW} within the 0.022 match radius and >= "
+                f"{MIN_LEGS} challenger legs agree within it. Read after judging a pano, as "
+                "a second sweep, so it does not steer the first look.",
+        "legs_run": ran, "legs_not_run": not_run,
+        "n_candidates": len(cands),
+        "n_candidates_two_non_open_vocab_legs": len(non_dense),
+        "n_in_nadir_band": sum(c["in_nadir_band"] for c in cands),
+        "candidates": cands,
+    }
+
+
+def cmd_candidates(args):
+    res = build_candidates()
+    if args.print:
+        print({k: v for k, v in res.items() if k != "candidates"})
+    return _check_or_write(res, os.path.join(OUT_DIR, "candidates.json"), args.write)
+
+
 PREREAD_LABELS_FILE = os.path.join(PREREAD_DIR, "preread__claude-opus-5-5.json")
 
 
@@ -598,6 +808,14 @@ def main(argv=None):
     fr.add_argument("--write", action="store_true")
     fr.add_argument("--print", action="store_true")
     fr.set_defaults(func=cmd_frame)
+    cd = sub.add_parser("candidates", help="RampNet silent, >= 2 challenger legs agree")
+    cd.add_argument("--write", action="store_true")
+    cd.add_argument("--print", action="store_true")
+    cd.set_defaults(func=cmd_candidates)
+    ck = sub.add_parser("checks", help="replication control + Bayonne parity detail")
+    ck.add_argument("--write", action="store_true")
+    ck.add_argument("--print", action="store_true")
+    ck.set_defaults(func=cmd_checks)
     pc = sub.add_parser("preread-crops", help="render the AI pre-read's crops (needs panos/)")
     pc.set_defaults(func=cmd_preread_crops)
     ps = sub.add_parser("preread-summary", help="counts of the AI pre-read's labels")
