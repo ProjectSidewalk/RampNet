@@ -73,10 +73,10 @@ LR="${LR:-1e-5}"                       # the recipe LR, constant, no scheduler
 # rig statistics measured in Step 1 (analysis_out/aug_transfer_82/stats.json; the
 # derivation is in docs/aug_transfer_82.md, "Training arms"). Every arm keeps the
 # recipe's horizontal flip.
-AUG_RES=(--aug downscale=0.5:0.35:1.0 --aug blur=0.3:0.0:1.5 --aug jpeg=0.5:40:95)
-AUG_PHOTO=(--aug brightness=0.5:0.75:1.25 --aug contrast=0.5:0.75:1.25
-           --aug saturation=0.5:0.7:1.3 --aug gamma=0.5:0.8:1.25
-           --aug wb=0.5:-0.3:0.3 --aug hue=0.3:-6:6)
+AUG_RES=(--aug downscale=0.5:0.5:1.0 --aug blur=0.3:0.0:1.15 --aug jpeg=0.5:50:95)
+AUG_PHOTO=(--aug brightness=0.5:0.6:1.2 --aug contrast=0.5:0.85:1.25
+           --aug saturation=0.5:0.7:1.6 --aug gamma=0.5:0.75:1.5
+           --aug wb=0.5:-0.5:0.3 --aug hue=0.3:-6:6)
 case "$ARM" in
     control) AUG=() ;;
     res)     AUG=("${AUG_RES[@]}") ;;

@@ -367,19 +367,26 @@ def derive_levels(stats):
     fixed fallback and the note says so."""
     g, m = REF_GSV, REF_GOPRO
     out = {}
-    hf_g, hf_m = _med(stats, g, "hf_frac"), _med(stats, m, "hf_frac")
+    # Sharpness. The paired GoPro split is NOT softer than GSV at 2048x4096 (its 5,760 px
+    # native is downsampled too), so laurens_mapillary cannot place these levels. The
+    # target is the softest GoPro split by median Laplacian variance (clovis, the 2018
+    # GoPro Fusion split #82 was filed about), and the three levels sit at the
+    # log-midpoint, at the target, and as far again beyond it, each inverted on the
+    # REF_GSV calibration curve of the same statistic (monotone, unlike hf_frac).
+    lv_g = _med(stats, g, "lap_var")
+    soft = min(GOPRO_SPLITS, key=lambda c: _med(stats, c, "lap_var"))
+    lv_t = _med(stats, soft, "lap_var")
+    targets = (math.sqrt(lv_g * lv_t), lv_t, lv_t * lv_t / lv_g)
     for axis in ("downscale", "blur"):
-        curve = _calib_curve(stats, axis)
-        if hf_m < hf_g:
-            mid, clamped = invert_curve(curve, hf_m)
-            note = (f"hf_frac {hf_g:.4f} (GSV) -> {hf_m:.4f} (GoPro); calibrated on "
-                    f"{CALIB_N} {g} panos" + ("; CLAMPED to the grid end" if clamped else ""))
-        else:
-            mid = 0.5 if axis == "downscale" else 1.0
-            note = "GoPro is not softer than GSV on hf_frac; fixed fallback level"
-        lv = _geo3(mid) if axis == "downscale" else _lin3(mid)
-        out[axis] = {"levels": tuple(rnd(x, 3) for x in lv), "measured": rnd(mid, 4),
-                     "note": note}
+        curve = [(lv, math.log(v)) for lv, v in _calib_curve(stats, axis, "lap_var")]
+        inv = [invert_curve(curve, math.log(t)) for t in targets]
+        out[axis] = {"levels": tuple(rnd(x[0], 3) for x in inv), "measured": rnd(inv[1][0], 4),
+                     "note": (f"lap_var {g} {lv_g:.0f} -> {soft} {lv_t:.0f} (softest GoPro "
+                              f"split; {m} is {_med(stats, m, 'lap_var'):.0f}, not softer); "
+                              f"targets {', '.join(f'{t:.0f}' for t in targets)}; calibrated "
+                              f"on {CALIB_N} {g} panos"
+                              + ("; a level CLAMPED to the grid end" if any(x[1] for x in inv)
+                                 else ""))}
     for axis, key in (("brightness", "lum_mean"), ("contrast", "lum_std"),
                       ("saturation", "sat_mean")):
         r = _med(stats, m, key) / _med(stats, g, key)
@@ -422,14 +429,14 @@ def derive_repairs(stats):
     g = REF_GSV
     ref_mean = [_med(stats, g, k) for k in ("r_mean", "g_mean", "b_mean")]
     ref_std = [_med(stats, g, k) for k in ("r_std", "g_std", "b_std")]
-    curve = _calib_curve(stats, "unsharp")
-    target = _med(stats, g, "hf_frac")
-    us, clamped = invert_curve(curve, target)
+    # Unsharp: fixed levels. The calibration (on REF_GOPRO) cannot place them -- that
+    # split is already at or above GSV sharpness -- and the soft GoPro splits are the
+    # ones a sharpening repair is for, so two conventional strengths are probed.
     return {"colour_match": {"levels": (0.5, 1.0), "ref_mean": [rnd(x, 3) for x in ref_mean],
                              "ref_std": [rnd(x, 3) for x in ref_std]},
-            "unsharp": {"levels": (rnd(us / 2, 1), rnd(us, 1)), "measured": rnd(us, 2),
-                        "note": f"percent at which {REF_GOPRO} hf_frac reaches {g}'s "
-                                f"median {target:.4f}" + ("; CLAMPED" if clamped else "")},
+            "unsharp": {"levels": (50.0, 100.0),
+                        "note": "fixed (radius 2 px): the paired GoPro split is not softer "
+                                "than GSV, so no measured level"},
             "clahe": {"levels": (0.01, 0.02)}}
 
 
@@ -453,11 +460,9 @@ def build_arms(stats):
         arms[f"colour_match@{a:g}"] = {"splits": GOPRO_SPLITS,
                                        "ops": [("colour_match", float(a))],
                                        "axis": "colour_match", "level_name": f"{a:g}"}
-    for i, p in enumerate(rp["unsharp"]["levels"]):
-        arms[f"unsharp@{('half', 'gsv')[i]}"] = {"splits": GOPRO_SPLITS,
-                                                 "ops": [("unsharp", float(p))],
-                                                 "axis": "unsharp",
-                                                 "level_name": ("half", "gsv")[i]}
+    for p in rp["unsharp"]["levels"]:
+        arms[f"unsharp@{p:g}"] = {"splits": GOPRO_SPLITS, "ops": [("unsharp", float(p))],
+                                  "axis": "unsharp", "level_name": f"{p:g}"}
     for c in rp["clahe"]["levels"]:
         arms[f"clahe@{c:g}"] = {"splits": GOPRO_SPLITS, "ops": [("clahe", float(c))],
                                 "axis": "clahe", "level_name": f"{c:g}"}
