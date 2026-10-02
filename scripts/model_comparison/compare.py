@@ -961,7 +961,8 @@ def main():
             verdicts = dict(list(verdicts.items())[:args.limit])
         validate_bundle(records, verdicts)
         gts = ground_truths_from_verdicts(records, verdicts)
-        gt_desc = "reviewer-confirmed ramps + missed marks"
+        gt_desc = ("none (unreviewed bundle)" if args.unreviewed
+                   else "reviewer-confirmed ramps + missed marks")
     else:
         gts = load_manual_ground_truths(args.bundle)
         # Validate the whole bundle (all labels <-> all records) before slicing to
