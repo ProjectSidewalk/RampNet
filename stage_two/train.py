@@ -1,4 +1,5 @@
 import argparse
+import contextlib
 import itertools
 import os
 import random
@@ -20,6 +21,7 @@ from tqdm import tqdm
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 
+from rampnet import augment as A
 from rampnet.model import KeypointModel
 from rampnet.loading import load_checkpoint
 from rampnet.seeding import HISTORICAL_SEED, sampler_seed_for
@@ -148,6 +150,27 @@ def parse_args():
                              "the paper recipe). This is the granularity a preemption "
                              "rewinds to, so on a preemptible partition it must be well "
                              "under the interval between preemptions or nothing is banked.")
+    # --- #82 additions. Every default reproduces the published recipe exactly. ---
+    parser.add_argument('--aug', action='append', default=[], metavar='OP=P:LO:HI',
+                        help="Pixel-statistics augmentation (#82), repeatable: apply OP with "
+                             "probability P at a level drawn uniformly from [LO, HI]. OPs: "
+                             + ", ".join(A.TRAIN_ORDER) + ". Applied after the flip, "
+                             "before Resize/ToTensor, in that fixed order. Default: none, "
+                             "and with none the dataset output is bit-identical to the "
+                             "published recipe (tests/test_train_augment_82.py). Draws come "
+                             "from their own generator keyed on (--seed, epoch, sample "
+                             "index), so arms with the same --seed share data order and flips.")
+    parser.add_argument('--max-steps', type=int, default=None,
+                        help="Stop after this many OPTIMIZER steps, write "
+                             "final_step_<N>.pth (model state_dict) and latest_checkpoint.pth, "
+                             "and skip validation. Default: none (run --epochs in full, as "
+                             "the recipe does). For the #82 fine-tune screen.")
+    parser.add_argument('--grad-accum', type=int, default=1,
+                        help="Micro-batches per optimizer step (default 1, the recipe). "
+                             "Global batch = world size x this, so a job that gets fewer "
+                             "GPUs can keep the recipe's global batch of 16. Step counters, "
+                             "--checkpoint-interval-steps and the LR horizon stay in "
+                             "micro-batches; --max-steps is in optimizer steps.")
     args = parser.parse_args()
     if not 0.0 <= args.lr_final_frac < 1.0:
         parser.error("--lr-final-frac must be in [0, 1)")
@@ -157,6 +180,17 @@ def parse_args():
         parser.error("--preset finetune requires --init-weights")
     if args.lr is None:
         args.lr = PRESET_LR[args.preset]
+    try:
+        args.aug_specs = A.parse_specs(args.aug)
+    except ValueError as e:
+        parser.error(str(e))
+    if args.grad_accum < 1:
+        parser.error("--grad-accum must be >= 1")
+    if args.checkpoint_interval_steps % args.grad_accum:
+        parser.error("--checkpoint-interval-steps must be a multiple of --grad-accum, so a "
+                     "resume never lands inside an accumulation group")
+    if args.max_steps is not None and args.max_steps < 1:
+        parser.error("--max-steps must be >= 1")
     return args
 
 
@@ -233,7 +267,7 @@ def generate_heatmap_from_points(points_normalized, heatmap_shape=(512, 1024), s
 class EquiHeatmapDataset(Dataset):
     def __init__(self, root_dir, split, target_heatmap_shape=(512, 1024),
                  transform_input=None, points_to_heatmap_transform_fn=None,
-                 apply_horizontal_flip=True):
+                 apply_horizontal_flip=True, augment=None):
         self.root_dir = root_dir
         self.split = split
         self.split_dir = os.path.join(self.root_dir, self.split)
@@ -242,6 +276,11 @@ class EquiHeatmapDataset(Dataset):
         self.transform_input = transform_input
         self.points_to_heatmap_transform_fn = points_to_heatmap_transform_fn
         self.apply_horizontal_flip = apply_horizontal_flip
+        # #82: an rampnet.augment.Augmenter, or None. None (the default) leaves
+        # __getitem__ exactly as published. aug_epoch is set by the training loop before
+        # each epoch's DataLoader iterator is created, so workers see the right epoch.
+        self.augment = augment
+        self.aug_epoch = 0
 
         self.image_paths = []
         self.json_paths = []
@@ -321,7 +360,13 @@ class EquiHeatmapDataset(Dataset):
             for x_norm, y_norm in points_normalized:
                 flipped_points.append((1.0 - x_norm, y_norm))
             points_normalized = flipped_points
-        
+
+        if self.augment is not None:
+            # Pixel-wise only, so the points are untouched. Draws come from the
+            # augmenter's own (seed, epoch, idx) generator, never from `random`, so the
+            # flip above sees the same stream whether or not augmentation is on.
+            image = self.augment(image, idx, self.aug_epoch)
+
         if self.transform_input:
             image = self.transform_input(image)
 
@@ -352,7 +397,8 @@ train_dataset = EquiHeatmapDataset(
     target_heatmap_shape=heatmap_output_shape,
     transform_input=input_transform,
     points_to_heatmap_transform_fn=points_to_heatmap_fn,
-    apply_horizontal_flip=True
+    apply_horizontal_flip=True,
+    augment=A.Augmenter(args.aug_specs, args.seed) if args.aug_specs else None
 )
 
 val_dataset = EquiHeatmapDataset(
@@ -406,6 +452,23 @@ num_epochs = args.epochs
 # rather than len(train_loader), which shrinks on the epoch a resume lands in: the
 # horizon a resumed run decays over has to be the one it started with.
 total_train_steps = num_epochs * train_sampler.epoch_length
+# #82 screen: --max-steps counts OPTIMIZER steps; everything else here counts micro-batches
+# (one micro-batch per rank per loader iteration), which is what global_step has always
+# counted. With --grad-accum 1 the two are the same thing, as in the recipe.
+max_micro_steps = args.max_steps * args.grad_accum if args.max_steps else None
+if max_micro_steps is not None:
+    total_train_steps = min(total_train_steps, max_micro_steps)
+# Accumulation groups are aligned on global_step, and an epoch's per-rank length need not
+# be a multiple of --grad-accum, so a group could straddle an epoch boundary. The screen
+# this exists for stays inside epoch 1; refuse anything else rather than handle it.
+if args.grad_accum > 1 and (max_micro_steps is None
+                            or max_micro_steps > train_sampler.epoch_length):
+    if rank == 0:
+        print(f"Error: --grad-accum {args.grad_accum} is only supported for a --max-steps run "
+              f"that ends inside the first epoch ({train_sampler.epoch_length} micro-batches "
+              f"per rank at world size {world_size}).")
+    cleanup_distributed()
+    raise SystemExit(2)
 
 if rank == 0:
     os.makedirs("peek_training", exist_ok=True)
@@ -417,6 +480,9 @@ if rank == 0:
     # to leave unset without noticing.
     print(f"Seed: {args.seed} (sampler seed: {sampler_seed_for(args.seed)}), "
           f"checkpoint dir: {args.checkpoint_dir}")
+    print(f"Augmentation (#82): {A.Augmenter(args.aug_specs, args.seed).describe()}; "
+          f"grad accum: {args.grad_accum} (global batch {world_size * args.grad_accum}); "
+          f"max optimizer steps: {args.max_steps if args.max_steps else 'none (full epochs)'}")
     print(f"LR schedule: {args.lr_schedule}"
           + (f" -> {args.lr * args.lr_final_frac:.3g} over {total_train_steps} steps"
              if args.lr_schedule != 'constant' else " (no decay, as in the paper)"))
@@ -470,6 +536,35 @@ if world_size > 1:
     best_val_loss = states[3].item()
     dist.barrier()
 
+# Already past --max-steps (a requeue after the final save): nothing left to train.
+stop_training = max_micro_steps is not None and global_step >= max_micro_steps
+if stop_training and rank == 0:
+    print(f"global_step {global_step} >= --max-steps x --grad-accum = {max_micro_steps}: "
+          f"nothing to do")
+
+
+def save_final(step):
+    """#82 --max-steps exit: the model alone (the format best_model.pth has, so every
+    scorer loads it), then latest_checkpoint.pth, in that order -- a preemption between
+    the two leaves a resume file that still points before the end, never a finished
+    resume file without its final weights."""
+    state = model.module.state_dict() if isinstance(model, DDP) else model.state_dict()
+    final_path = os.path.join(args.checkpoint_dir, f"final_step_{step // args.grad_accum}.pth")
+    torch.save(state, final_path)
+    print(f"Saved final model ({step // args.grad_accum} optimizer steps, {step} "
+          f"micro-batches) to {final_path}")
+    torch.save({
+        'epoch': epoch,
+        'global_step': step,
+        'batch_idx_in_epoch': resume_offset + i + 1,
+        'model_state_dict': state,
+        'optimizer_state_dict': optimizer.state_dict(),
+        'scaler_state_dict': scaler.state_dict(),
+        'best_val_loss': best_val_loss
+    }, checkpoint_file)
+    print(f"Saved latest checkpoint at step {step} (final)")
+
+
 def unnormalize(img_tensor):
     mean = torch.tensor([0.485, 0.456, 0.406], device=img_tensor.device).view(3, 1, 1)
     std = torch.tensor([0.229, 0.224, 0.225], device=img_tensor.device).view(3, 1, 1)
@@ -477,8 +572,13 @@ def unnormalize(img_tensor):
 
 
 for epoch in range(start_epoch, num_epochs):
+    if stop_training:
+        break
     if world_size > 1:
         train_sampler.set_epoch(epoch)
+    # #82: the augmentation generator is keyed on (seed, epoch, sample index). Set before
+    # enumerate(train_loader) creates the workers, which copy the dataset at that point.
+    train_dataset.aug_epoch = epoch
     
     model.train()
     
@@ -515,15 +615,26 @@ for epoch in range(start_epoch, num_epochs):
         images = images.cuda(local_rank, non_blocking=True)
         target_heatmaps = target_heatmaps.cuda(local_rank, non_blocking=True)
 
-        optimizer.zero_grad(set_to_none=True)
-        
-        with torch.cuda.amp.autocast():
-            outputs = model(images)
-            loss = criterion(outputs, target_heatmaps)
-        
-        scaler.scale(loss).backward()
-        scaler.step(optimizer)
-        scaler.update()
+        # Gradient accumulation (#82). With --grad-accum 1 (the recipe) micro_pos is
+        # always 0 and is_step always True: zero_grad, forward, backward on the unscaled
+        # loss, step, update -- exactly the published sequence.
+        accum = args.grad_accum
+        micro_pos = step_index % accum
+        is_step = micro_pos == accum - 1
+        if micro_pos == 0:
+            optimizer.zero_grad(set_to_none=True)
+
+        # Skip DDP's gradient all-reduce on micro-batches that do not end a group.
+        sync_ctx = (model.no_sync() if (accum > 1 and not is_step and isinstance(model, DDP))
+                    else contextlib.nullcontext())
+        with sync_ctx:
+            with torch.cuda.amp.autocast():
+                outputs = model(images)
+                loss = criterion(outputs, target_heatmaps)
+            scaler.scale(loss / accum if accum > 1 else loss).backward()
+        if is_step:
+            scaler.step(optimizer)
+            scaler.update()
 
         
         
@@ -553,9 +664,21 @@ for epoch in range(start_epoch, num_epochs):
                     'best_val_loss': best_val_loss
                 }, checkpoint_file)
                 if rank == 0: print(f"Saved latest checkpoint at step {current_total_step}")
-    
+
+        if max_micro_steps is not None and current_total_step >= max_micro_steps:
+            stop_training = True
+            break
+
     if rank == 0 and isinstance(progress_bar, tqdm): 
         progress_bar.close()
+
+    if stop_training:
+        # --max-steps reached mid-epoch: save and leave without the validation pass
+        # (42,875 val panos -- longer than the whole screen). Every rank reaches this at
+        # the same step, since every rank counts the same steps.
+        if rank == 0:
+            save_final(current_total_step)
+        break
 
     
     
