@@ -84,8 +84,13 @@ def test_committed_band_file_summary():
         band = json.load(f)
     assert band["n_with_band"] == 124 and band["n_without_band"] == 1
     assert band["n_measured_by_hand"] == 1
-    assert band["panos"]["f8759625-2874-4b43-832f-a3aa2669af15"] == {
-        "band_top_y": 0.8008, "copyright": "Arretche", "method": "manual"}
+    manual = band["panos"]["f8759625-2874-4b43-832f-a3aa2669af15"]
+    assert manual["band_top_y"] == 0.8008 and manual["method"] == "manual"
+    assert manual["copyright"] == "Arretche"
+    assert manual["rater"] == {"kind": "model", "model": "Claude Opus 5.5",
+                               "model_id": "claude-opus-5-5", "human": False,
+                               "date": "2026-10-02"}
+    assert "row 410" in manual["how"]
     assert band["band_top_y_median"] == 0.791
     assert 0.77 <= band["band_top_y_min"] <= band["band_top_y_max"] <= 0.81
     no_band = {p["copyright"] for p in band["panos"].values() if p["band_top_y"] is None}
@@ -466,3 +471,28 @@ def test_gallery_escapes_third_party_strings_and_never_reads_the_preread():
     with open(os.path.join(REPO, "scripts", "gt_gallery.py"), encoding="utf-8") as f:
         src = f.read()
     assert "preread" not in src and "candidates.json" not in src   # S6: no anchoring
+
+
+def test_cascade_gate_re_raises_an_unreviewed_cache_instead_of_falling_back(monkeypatch):
+    # N1: UnreviewedCache is a ValueError; the gate's broad fallback must not swallow it.
+    import cascade_gate as G
+    import operating_point_curve as O
+
+    def unreviewed(split):
+        raise O.UnreviewedCache("placeholder GT")
+    monkeypatch.setattr(G, "load_floor_peaks", unreviewed)
+    with pytest.raises(O.UnreviewedCache):
+        G.floor_peaks_or_fallback("bayonne")
+
+    def missing(split):
+        raise FileNotFoundError(split)
+    monkeypatch.setattr(G, "load_floor_peaks", missing)
+    peaks, src, have = G.floor_peaks_or_fallback("nowhere")
+    assert peaks == {} and have is False and src.startswith("MISSING")
+
+
+def test_complementarity_does_not_catch_an_unreviewed_cache():
+    import inspect
+    import complementarity as C
+    src = inspect.getsource(C.main)
+    assert src.index("except UnreviewedCache:") < src.index("except (OSError, ValueError, KeyError)")

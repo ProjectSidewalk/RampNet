@@ -629,7 +629,15 @@
   "f8759625-2874-4b43-832f-a3aa2669af15": {
    "band_top_y": 0.8008,
    "copyright": "Arretche",
-   "method": "manual"
+   "how": "Read off the per-row means of the 1024x512 bilinear downsample (the same one the automatic method uses), centre columns x 420-600: rows 0-408 are photo (row mean about 100), row 409 is the transition (mean 154), rows 410 onward are white in every centre column, so the band starts at row 410 = y 0.8008. Confirmed by eye on an overlay of y 0.80 on a 1600x800 render: the line sits on the band's top edge. The automatic method misses this band because it requires white at y 0.95, where this band has map graphics.",
+   "method": "manual",
+   "rater": {
+    "date": "2026-10-02",
+    "human": false,
+    "kind": "model",
+    "model": "Claude Opus 5.5",
+    "model_id": "claude-opus-5-5"
+   }
   },
   "fbbe99ca-272b-44ca-bc69-b4ceb70790ab": {
    "band_top_y": 0.791,

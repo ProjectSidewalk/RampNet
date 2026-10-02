@@ -256,7 +256,18 @@ def cmd_verify(args):
 #: centre columns, so the band starts at row 410 = y 0.8008. Read 2026-10-02 by
 #: claude-opus-5-5 with the same downsample; an overlay at y 0.80 sits on the edge
 #: (PR #234 review, M6).
-MANUAL_BANDS = {"f8759625-2874-4b43-832f-a3aa2669af15": 0.8008}
+MANUAL_BANDS = {"f8759625-2874-4b43-832f-a3aa2669af15": {
+    "band_top_y": 0.8008,
+    "rater": {"kind": "model", "model": "Claude Opus 5.5", "model_id": "claude-opus-5-5",
+              "human": False, "date": "2026-10-02"},
+    "how": "Read off the per-row means of the 1024x512 bilinear downsample (the same one "
+           "the automatic method uses), centre columns x 420-600: rows 0-408 are photo "
+           "(row mean about 100), row 409 is the transition (mean 154), rows 410 onward "
+           "are white in every centre column, so the band starts at row 410 = y 0.8008. "
+           "Confirmed by eye on an overlay of y 0.80 on a 1600x800 render: the line sits "
+           "on the band's top edge. The automatic method misses this band because it "
+           "requires white at y 0.95, where this band has map graphics.",
+}}
 
 
 def band_top_from_rows(white_frac, start_row=BAND_START_ROW, need=BAND_ROW_WHITE_FRAC,
@@ -294,7 +305,7 @@ def build_band(bundle=BUNDLE):
         entry = {"band_top_y": _r(y), "copyright": r["pano"].get("copyright"),
                  "method": "auto"}
         if y is None and pid in MANUAL_BANDS:
-            entry.update(band_top_y=MANUAL_BANDS[pid], method="manual")
+            entry.update(MANUAL_BANDS[pid], method="manual")
         panos[pid] = entry
     ys = sorted(v["band_top_y"] for v in panos.values() if v["band_top_y"] is not None)
     return {
