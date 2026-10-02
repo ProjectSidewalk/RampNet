@@ -92,7 +92,11 @@ CHECK_TOL = 2e-4      # same cross-machine tolerance as input_res_sweep_25.CHECK
 #: Rig groups. Degrade the GSV splits toward GoPro; repair the GoPro splits toward GSV.
 GSV_SPLITS = ("laurens_gsv", "bend", "gainesville", "paterson")
 GOPRO_SPLITS = ("laurens_mapillary", "clovis", "richmond")
-PROBE_SPLITS = GSV_SPLITS + GOPRO_SPLITS
+# Extraction order = priority order: the paired Laurens footprint first, so a run cut short
+# still answers the main question.
+PROBE_SPLITS = ("laurens_gsv", "laurens_mapillary", "clovis", "bend", "richmond", "gainesville",
+                "paterson")
+assert set(PROBE_SPLITS) == set(GSV_SPLITS + GOPRO_SPLITS)
 #: Every bundle the stats are measured on (manual_gold is subsampled: 1,000 panos).
 STATS_SPLITS = ("annapolis", "bend", "budapest_district5", "clovis", "gainesville",
                 "laurens_gsv", "laurens_mapillary", "manual_gold", "morgantown",
