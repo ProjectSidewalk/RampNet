@@ -216,6 +216,40 @@ def load_bundle(bundle_dir):
     return records, panos_dir, verdicts_panos, run_key, run_name, review_notes
 
 
+def load_nadir_band(bundle_dir):
+    """``{pano_id: band_top_y}`` from an optional ``nadir_band.json`` in the bundle.
+
+    Some rigs burn an opaque overlay into the bottom of the equirect -- Bayonne's
+    municipal Panoramax panos carry a white logo band from y ~0.79 (#159). Nothing
+    under it is visible, so a reviewer must not mark ramps there, and the viewer
+    shades it and asks before accepting a missed-ramp mark inside it. The file is
+    written by ``scripts/analysis/bayonne_159.py band``; a bundle without one renders
+    exactly as before. A pano with ``band_top_y: null`` has no band.
+    """
+    path = Path(bundle_dir) / "nadir_band.json"
+    if not path.exists():
+        return {}
+    with open(path, encoding="utf-8") as f:
+        panos = json.load(f).get("panos", {})
+    return {pid: e.get("band_top_y") for pid, e in panos.items()
+            if e.get("band_top_y") is not None}
+
+
+def viewer_url(pano):
+    """Link to the pano in its source's own viewer, or '' when there is none.
+
+    Panoramax is federated: a picture lives on one instance, and that instance's
+    viewer opens it by id (``#focus=pic&pic=<id>``).
+    """
+    pid, src = pano['panorama_id'], pano.get('source', '')
+    if src == 'mapillary':
+        return f"https://www.mapillary.com/app/?pKey={pid}&focus=photo"
+    if src == 'panoramax':
+        inst = pano.get('panoramax_instance')
+        return f"https://{inst}/#focus=pic&pic={pid}" if inst else ''
+    return f"https://www.google.com/maps/@?api=1&map_action=pano&pano={pid}"
+
+
 def _find_pano_image(panos_dir, pid):
     """The on-disk image for a pano id (any extension), or None."""
     for p in sorted(panos_dir.glob(f"{pid}.*")):
@@ -246,20 +280,32 @@ def _crop_boxes(record):
     return out
 
 
-def entry_meta(record, group):
-    """The viewer entry (pano metadata + crop geometry) for one record, without any I/O."""
+def entry_meta(record, group, band_y=None):
+    """The viewer entry (pano metadata + crop geometry) for one record, without any I/O.
+
+    ``band_y`` is the top of a burned-in nadir overlay (see :func:`load_nadir_band`),
+    or None. ``credit`` names the imagery producer and licence where the record
+    carries them, so a reviewer sees whose pixels they are judging.
+    """
     pano = record['pano']
-    return {
+    entry = {
         'pid': pano['panorama_id'],
         'source': pano.get('source', ''),
+        'url': viewer_url(pano),
         'date': str(pano.get('capture_date', '')),
         'group': group,
         'full': f"{pano['panorama_id']}_full.jpg",
         'crops': [g for _, g in _crop_boxes(record)],
     }
+    if band_y is not None:
+        entry['band'] = round(float(band_y), 4)
+    credit = ' / '.join(str(pano[k]) for k in ('copyright', 'license') if pano.get(k))
+    if credit:
+        entry['credit'] = credit
+    return entry
 
 
-def render_pano(record, group, images_dir, panos_dir):
+def render_pano(record, group, images_dir, panos_dir, band_y=None):
     """Downscale one native pano to model resolution, save the clean full image and
     per-detection crops, and return the viewer entry (see :func:`entry_meta`).
 
@@ -280,7 +326,7 @@ def render_pano(record, group, images_dir, panos_dir):
     for box, geom in _crop_boxes(record):
         img.crop(box).save(images_dir / geom['img'], quality=85)
     img.save(images_dir / f"{pid}_full.jpg", quality=82)
-    return entry_meta(record, group)
+    return entry_meta(record, group, band_y)
 
 
 def initial_verdicts(verdicts_panos):
@@ -342,6 +388,16 @@ HTML_TEMPLATE = r"""<!doctype html>
   @keyframes vflash{0%{opacity:0}12%{opacity:1}70%{opacity:1}100%{opacity:0}}
   #panolayer{position:absolute;inset:0;transform-origin:0 0;will-change:transform}
   #panolayer img{width:100%;height:100%;display:block;user-select:none;-webkit-user-drag:none}
+  /* A burned-in nadir overlay (nadir_band.json): hatched so it reads as "not imagery",
+     never opaque, so the reviewer still sees exactly what the model saw. */
+  .band{position:absolute;left:0;right:0;bottom:0;pointer-events:none;
+        border-top:2px dashed #0af;
+        background:repeating-linear-gradient(135deg,rgba(0,140,255,.16) 0 10px,transparent 10px 20px)}
+  .band span{position:absolute;top:4px;left:50%;transform:translateX(-50%) scale(var(--iz,1));
+        transform-origin:top center;background:rgba(0,90,170,.85);color:#fff;
+        font:600 12px/1.3 sans-serif;padding:2px 8px;border-radius:10px;white-space:nowrap}
+  #bandnote{background:#e8f4ff;border:1px solid #0af;border-radius:8px;padding:8px 14px;
+        margin:0 0 12px;font-size:14px;line-height:1.45;display:none}
   .det{position:absolute;width:34px;height:34px;transform:translate(-50%,-50%) scale(var(--iz,1));
        border-radius:50%;border:4px solid var(--todo);
        box-shadow:0 0 0 3px rgba(255,255,255,.85),0 0 6px #000;cursor:pointer}
@@ -418,6 +474,12 @@ HTML_TEMPLATE = r"""<!doctype html>
   <b>and</b> the missed-ramp pass is confirmed. Use pan/zoom to inspect at the model's
   full resolution.
 </div>
+
+<div id="bandnote"><b>Nadir logo band.</b> <span id="bandcount"></span> panos in this split
+  carry an opaque logo band burned into the bottom of the image (hatched and outlined in blue on
+  the pano). Nothing under it is visible, so <b>do not mark ramps inside it</b>; judge only the
+  imagery above the dashed line. The viewer asks before accepting a missed-ramp mark inside
+  the band.</div>
 
 <details id="notes">
   <summary>Review notes for this split &mdash; <span id="notesbadge"></span></summary>
@@ -591,6 +653,12 @@ document.querySelectorAll('#notes input, #notes textarea, #notes select')
 notesBadge();
 
 let filterMode = 'all', view = ENTRIES.slice(), idx = 0;
+(function bandNote() {
+  const n = ENTRIES.filter(e => e.band != null).length;
+  if (!n) return;
+  document.getElementById('bandcount').textContent = n + ' of ' + ENTRIES.length;
+  document.getElementById('bandnote').style.display = 'block';
+})();
 
 // vcls/fnChecked/reviewed define what "reviewed" means; rampnet.validation.collect()
 // applies the same gate to the exported verdicts — keep the two in sync.
@@ -636,7 +704,7 @@ function applyTransform() {
   clampPan();
   layer.style.transform = 'translate(' + panX + 'px,' + panY + 'px) scale(' + zoom + ')';
   // Counter-scale overlays so markers stay a constant, clickable size at any zoom.
-  document.querySelectorAll('.det, .missed').forEach(m => m.style.setProperty('--iz', 1 / zoom));
+  document.querySelectorAll('.det, .missed, .band span').forEach(m => m.style.setProperty('--iz', 1 / zoom));
   updatePill();
 }
 
@@ -695,6 +763,9 @@ view_el.addEventListener('pointerup', ev => {
   const ny = ((ev.clientY - r.top) - panY) / (r.height * zoom);
   if (nx < 0 || nx > 1 || ny < 0 || ny > 1) return;
   const e = view[idx], s = v(e.pid, e.crops.length);
+  if (e.band != null && ny >= e.band &&
+      !confirm('This point is inside the nadir logo band, where nothing is visible. ' +
+               'Mark a missed ramp here anyway?')) return;
   s.missed.push({x: nx, y: ny});
   s.noMissed = false;
   save(); render();
@@ -704,7 +775,7 @@ view_el.addEventListener('pointerup', ev => {
 function render() {
   const done = ENTRIES.filter(reviewed).length;
   document.getElementById('progress').textContent = done + '/' + ENTRIES.length + ' fully reviewed';
-  document.querySelectorAll('.missed, .det').forEach(m => m.remove());
+  document.querySelectorAll('.missed, .det, .band').forEach(m => m.remove());
   if (!view.length) {
     document.getElementById('title').textContent = 'No panos match this filter';
     panoImg.removeAttribute('src');
@@ -727,17 +798,28 @@ function render() {
   if (document.activeElement !== noteEl) noteEl.value = s.note || '';
 
   document.getElementById('pos').textContent = (idx + 1) + ' / ' + view.length;
-  const viewerUrl = e.source === 'mapillary'
+  // Galleries rendered before `url` existed fall back to the old two-source rule.
+  const viewerUrl = e.url !== undefined ? e.url : (e.source === 'mapillary'
     ? 'https://www.mapillary.com/app/?pKey=' + e.pid + '&focus=photo'
-    : 'https://www.google.com/maps/@?api=1&map_action=pano&pano=' + e.pid;
+    : 'https://www.google.com/maps/@?api=1&map_action=pano&pano=' + e.pid);
   const isDone = reviewed(e);
   document.getElementById('title').innerHTML =
-    '<a href="' + viewerUrl + '" target="_blank">' + e.pid + '</a> ' +
-    '<span class="meta">captured ' + e.date + ' &mdash; ' + e.crops.length + ' detection(s)</span> ' +
+    (viewerUrl ? '<a href="' + viewerUrl + '" target="_blank" rel="noopener">' + e.pid + '</a> '
+               : e.pid + ' ') +
+    '<span class="meta">captured ' + e.date + ' &mdash; ' + e.crops.length + ' detection(s)' +
+    (e.credit ? ' &mdash; imagery ' + e.credit : '') + '</span> ' +
     '<span class="badge">' + e.group + '</span> ' +
     '<span id="rev" class="' + (isDone ? 'done' : 'todo') + '">' +
       (isDone ? '✓ REVIEWED' : '● NEEDS REVIEW') + '</span>';
   panoImg.src = 'images/' + e.full;
+
+  if (e.band != null) {
+    const b = document.createElement('div');
+    b.className = 'band';
+    b.style.top = (e.band * 100) + '%';
+    b.innerHTML = '<span>nadir logo band: nothing visible below this line</span>';
+    layer.appendChild(b);
+  }
 
   // Detection circles overlaid on the clean pano image.
   e.crops.forEach((c, i) => {
@@ -998,6 +1080,10 @@ def main():
 
     bundle = Path(args.bundle)
     records, panos_dir, verdicts_panos, run_key, run_name, review_notes = load_bundle(bundle)
+    bands = load_nadir_band(bundle)
+    if bands:
+        print(f"nadir_band.json: {len(bands)} panos carry a nadir overlay; the viewer shades "
+              f"it and asks before a missed-ramp mark lands inside it.")
 
     if args.resample:
         chosen = choose_panos(records, args.sample, args.empty_sample, args.seed, args.min_spacing)
@@ -1021,13 +1107,15 @@ def main():
     if args.html_only:
         # Geometry is independent of the pixels, so entries rebuild without any I/O;
         # only panos whose full image is already on disk are included.
-        entries = [entry_meta(r, g) for r, g in chosen
+        entries = [entry_meta(r, g, bands.get(r['pano']['panorama_id'])) for r, g in chosen
                    if (images_dir / f"{r['pano']['panorama_id']}_full.jpg").exists()]
         print(f"  --html-only: {len(entries)} panos with existing images.")
     else:
         entries, done = [], 0
         with ThreadPoolExecutor(max_workers=RENDER_WORKERS) as pool:
-            futures = {pool.submit(render_pano, r, g, images_dir, panos_dir): r for r, g in chosen}
+            futures = {pool.submit(render_pano, r, g, images_dir, panos_dir,
+                                   bands.get(r['pano']['panorama_id'])): r
+                       for r, g in chosen}
             for future in as_completed(futures):
                 pid = futures[future]['pano']['panorama_id']
                 done += 1
