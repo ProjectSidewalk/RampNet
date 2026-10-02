@@ -49,7 +49,7 @@ for label in "$@"; do
         ck=(--checkpoint "$f" --model-label "aug82_$label")
         log "--- $label: $f sha256 $(sha256sum "$f" | cut -c1-16)"
     fi
-    "$PY" scripts/analysis/operating_point_curve.py extract "${ck[@]}" \
+    "$PY" scripts/analysis/operating_point_curve.py extract ${ck[@]+"${ck[@]}"} \
         --cities "$SPLITS" --score-floor 0.05 --min-distance 10 --cache "$OUT/$label" \
         > "$OUT/${label}_extract.txt" 2>&1
     rc=$?
