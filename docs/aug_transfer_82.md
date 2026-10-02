@@ -25,7 +25,166 @@ narrows that gap without new labels. Three steps, cheapest first:
 3. **Paired fine-tune screen** from the released checkpoint: control / resolution / photometric /
    both, two seeds each, about a fifth of an epoch, scored on all 12 bundles.
 
-STEP1_PLACEHOLDER
+## Step 1 result: what the frozen model reacts to
+
+**Short answer.** The released checkpoint is barely affected by any single pixel-statistics axis
+moved to its measured GoPro value. Pooled over the four GSV splits at 0.30, the largest single-axis
+recall cost is −0.018 (JPEG at quality 75). The Laurens recall gap at 0.30 is −0.128. The model does
+react to darkening applied as a gamma curve, and to combinations of axes. On laurens_gsv, every
+measured axis applied at once with a brightness-scale darkening costs −0.064 recall [−0.115, −0.014],
+about half the Laurens gap at 0.30. That combination uses the clovis-level softening, though, and
+laurens_mapillary is not actually softer than laurens_gsv. Restricted to the axes where the paired
+Laurens arms really differ (exposure and colour), the share is 7% if the darkening is a brightness
+scale and 64% if it is a gamma curve. The measurements here cannot say which of the two is closer to
+the real GoPro darkening. **None of the repair transforms (colour-statistics match to GSV, unsharp
+mask, CLAHE) recovers recall on any GoPro split. Every one costs recall or does nothing.** So these
+pixel statistics are not what limits the model on GoPro imagery. A frozen model that loses
+recall under a GoPro-like combination is sensitive in a way that augmentation could reduce, which is
+what Step 3 tests.
+
+### Rig statistics
+
+Per split, median over the bundle's panos, measured at the model's 2048×4096 input
+(`analysis_out/aug_transfer_82/stats.json`, `aug_probe_82.py stats`). Sharpness (Laplacian variance,
+and the high-frequency fraction: spectral power above 0.25 cycles/px over power above 0.02) and noise
+(Immerkær's estimator) are measured on the ground band, rows 1024–1791. JPEG quality is the IJG
+quality whose luminance table matches the native file's. manual_gold is missing because the
+makelab2 checkout had no panos for it when `stats` ran; it is GSV imagery from the training
+distribution and not one of the rigs being compared.
+
+| split | native w | JPEG q (native) | lum mean | lum std | sat mean | log2 R/B | hf_frac | lap var | noise sigma |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| annapolis | 8000 | 75 | 117.6 | 91.6 | 35.6 | 0.001 | 0.0343 | 93 | 0.55 |
+| bend | 16384 | 95 | 139.2 | 49.0 | 59.0 | -0.179 | 0.0755 | 275 | 1.39 |
+| budapest_district5 | 5760 | 75 | 121.0 | 73.8 | 49.2 | -0.101 | 0.0781 | 300 | 1.09 |
+| clovis | 5760 | 99 | 120.9 | 45.8 | 80.3 | -0.345 | 0.0293 | 76 | 0.62 |
+| gainesville | 16384 | 95 | 147.6 | 48.8 | 56.0 | -0.137 | 0.0831 | 341 | 1.29 |
+| laurens_gsv | 16384 | 95 | 169.0 | 49.8 | 63.4 | -0.100 | 0.0816 | 349 | 1.79 |
+| laurens_mapillary | 5760 | 75 | 114.3 | 57.5 | 94.3 | -0.436 | 0.0883 | 370 | 1.35 |
+| morgantown | 4096 | 75 | 126.0 | 66.2 | 47.1 | -0.121 | 0.0691 | 283 | 0.73 |
+| paterson | 16384 | 95 | 148.6 | 52.6 | 47.1 | -0.118 | 0.0743 | 308 | 1.38 |
+| richmond | 11000 | 75 | 133.2 | 87.2 | 30.3 | -0.018 | 0.0529 | 204 | 0.68 |
+| sao_paulo | 16384 | 95 | 147.2 | 56.8 | 43.5 | -0.085 | 0.0599 | 294 | 1.30 |
+
+What this shows:
+- **The paired Laurens GoPro arm is not softer than its GSV arm at the model's input.** Its
+  Laplacian variance is 370 against 349. GoPro Max native is 5,760 px wide, and the model sees it
+  downsampled to 4,096, as it does GSV. The soft rigs are clovis (2018 GoPro Fusion, 76),
+  annapolis (93) and richmond (204).
+- **On Laurens, what differs is exposure and colour.** laurens_mapillary has 0.68× the mean
+  luminance (0.48× in the ground band: 81 against 168), 1.49× the saturation, 1.15× the contrast,
+  and a bluer balance (log2 R/B lower by 0.34). Its files are JPEG quality ~75 against ~95 for GSV,
+  and its noise is not higher.
+
+### Levels
+
+Each degradation has three levels: half, gopro (the measured GoPro value) and beyond. The ratio axes
+are placed on the paired Laurens medians. Sharpness is placed on clovis (see Deviations), by inverting
+the Laplacian-variance calibration curves measured on 24 laurens_gsv panos. Noise has no measured
+difference, so its levels are fixed (σ 2 / 4 / 8). Repairs: colour-statistics match to laurens_gsv's
+median channel mean and std at α 0.5 and 1.0, unsharp mask at 50% and 100% (radius 2 px), and CLAHE
+on luma at clip 0.01 and 0.02.
+
+| axis | levels (half, gopro, beyond) | how placed |
+|---|---|---|
+| downscale | 0.929, 0.854, 0.504 | inverts lap_var to clovis (76) from laurens_gsv (349) |
+| blur | 0.51, 0.719, 1.153 | inverts lap_var to clovis |
+| brightness | 0.823, 0.677, 0.557 | ratio of median luminance |
+| contrast | 1.074, 1.154, 1.239 | ratio of median luminance std |
+| saturation | 1.219, 1.486, 1.811 | ratio of median saturation |
+| gamma | 1.396, 1.949, 2.72 | exponent mapping median GSV luminance to GoPro |
+| wb | -0.168, -0.337, -0.505 | difference in median log2(R/B) |
+| noise | 2.0, 4.0, 8.0 | fixed: GoPro is not noisier (1.35 vs 1.79) |
+| jpeg | 89.8, 74.8, 49.8 | estimated native quality of laurens_mapillary |
+
+The gopro level runs on all four GSV splits, the beyond level on laurens_gsv and bend, and the half
+level on laurens_gsv only (trimmed to fit the shared A40). The full tables, at both thresholds and
+every level, are in `analysis_out/aug_transfer_82/probe_results.md`.
+
+### The untransformed run reproduces the instrument
+
+The `none` arm (native → `Resize` → `PRE`, no transform) matches the committed #25 `r2048` caches
+**exactly** on all seven probe splits: the same peaks on every pano, max score difference 0
+(`analysis_out/aug_transfer_82/instrument_check.json`). Every delta below is against that run, with a
+paired pano bootstrap (2,000 draws, seed 82).
+
+### Degrade GSV toward GoPro: pooled over laurens_gsv, bend, gainesville, paterson, gopro level
+
+| arm | ΔR @0.30 | ΔF1 @0.30 | ΔR @0.55 | ΔF1 @0.55 |
+|---|---|---|---|---|
+| downscale@gopro | -0.012 [-0.023, -0.002] | -0.008 [-0.017, -0.001] | -0.040 [-0.055, -0.027] | -0.029 [-0.041, -0.019] |
+| blur@gopro | -0.017 [-0.027, -0.007] | -0.008 [-0.016, -0.001] | -0.036 [-0.050, -0.024] | -0.025 [-0.035, -0.015] |
+| brightness@gopro | -0.004 [-0.011, +0.003] | -0.001 [-0.007, +0.004] | -0.021 [-0.032, -0.011] | -0.014 [-0.022, -0.006] |
+| contrast@gopro | +0.000 [-0.005, +0.005] | +0.002 [-0.003, +0.006] | -0.007 [-0.015, +0.001] | -0.005 [-0.012, +0.001] |
+| saturation@gopro | -0.003 [-0.008, +0.003] | -0.001 [-0.006, +0.003] | -0.002 [-0.008, +0.005] | -0.000 [-0.005, +0.005] |
+| gamma@gopro | -0.010 [-0.019, -0.001] | -0.000 [-0.007, +0.006] | -0.036 [-0.049, -0.024] | -0.024 [-0.033, -0.014] |
+| wb@gopro | +0.002 [-0.005, +0.009] | +0.001 [-0.004, +0.007] | -0.009 [-0.020, +0.002] | -0.005 [-0.013, +0.003] |
+| noise@gopro | -0.003 [-0.013, +0.007] | -0.003 [-0.011, +0.005] | -0.021 [-0.034, -0.009] | -0.016 [-0.025, -0.006] |
+| jpeg@gopro | -0.018 [-0.029, -0.007] | -0.017 [-0.025, -0.008] | -0.035 [-0.051, -0.020] | -0.029 [-0.041, -0.018] |
+| all@gopro | -0.209 [-0.234, -0.185] | -0.133 [-0.154, -0.112] | -0.261 [-0.288, -0.232] | -0.215 [-0.241, -0.189] |
+
+### The combinations, on laurens_gsv and bend (added after `all@gopro` was read; see Deviations)
+
+| split | arm | ΔR @0.30 | ΔF1 @0.30 | ΔR @0.55 | ΔF1 @0.55 |
+|---|---|---|---|---|---|
+| laurens_gsv | all@gopro | -0.277 [-0.354, -0.205] | -0.225 [-0.296, -0.155] | -0.236 [-0.311, -0.167] | -0.254 [-0.341, -0.174] |
+| laurens_gsv | all_brightness@gopro | -0.064 [-0.115, -0.014] | -0.050 [-0.090, -0.014] | -0.064 [-0.126, -0.009] | -0.055 [-0.116, -0.001] |
+| laurens_gsv | res_all@gopro | -0.036 [-0.081, +0.008] | -0.035 [-0.069, -0.004] | -0.032 [-0.093, +0.022] | -0.026 [-0.086, +0.025] |
+| laurens_gsv | photo_brightness@gopro | -0.009 [-0.040, +0.022] | -0.009 [-0.031, +0.015] | -0.009 [-0.043, +0.026] | -0.005 [-0.037, +0.030] |
+| laurens_gsv | photo_gamma@gopro | -0.082 [-0.140, -0.034] | -0.052 [-0.097, -0.012] | -0.145 [-0.221, -0.071] | -0.143 [-0.224, -0.067] |
+| bend | all@gopro | -0.248 [-0.304, -0.198] | -0.143 [-0.195, -0.103] | -0.330 [-0.386, -0.277] | -0.256 [-0.311, -0.206] |
+| bend | all_brightness@gopro | -0.104 [-0.143, -0.069] | -0.051 [-0.083, -0.025] | -0.183 [-0.234, -0.140] | -0.129 [-0.170, -0.095] |
+| bend | res_all@gopro | -0.092 [-0.124, -0.060] | -0.046 [-0.073, -0.021] | -0.153 [-0.199, -0.111] | -0.106 [-0.145, -0.074] |
+| bend | photo_brightness@gopro | +0.003 [-0.010, +0.017] | +0.007 [-0.005, +0.020] | -0.034 [-0.064, -0.007] | -0.024 [-0.044, -0.006] |
+| bend | photo_gamma@gopro | -0.012 [-0.030, +0.003] | +0.001 [-0.013, +0.015] | -0.049 [-0.084, -0.018] | -0.032 [-0.058, -0.010] |
+
+`all@gopro` overshoots: it applies brightness *and* gamma, each placed to explain the whole
+luminance difference on its own. `all_brightness` is the same set with one darkening op and without
+the unmeasured noise. `res_all` is downscale + blur + JPEG. `photo_brightness` and `photo_gamma` are
+contrast + saturation + white balance plus one darkening op.
+
+### Share of the Laurens recall gap reproduced on laurens_gsv
+
+The gap is laurens_mapillary minus laurens_gsv over the whole arms, through the same instrument:
+recall 0.5261 − 0.6545 = −0.1284 at 0.30 and 0.3896 − 0.4591 = −0.0695 at 0.55. The share is
+an arm's ΔR on laurens_gsv divided by that gap. It is a point ratio with no interval, and the
+denominator compares two different pano sets (the paired-corner gap is in `laurens_paired_151.md`).
+
+| arm | share @0.30 | share @0.55 |
+|---|---:|---:|
+| downscale@gopro | -0.32 | -0.13 |
+| blur@gopro | -0.11 | -0.06 |
+| brightness@gopro | -0.04 | 0.26 |
+| contrast@gopro | -0.07 | -0.06 |
+| saturation@gopro | -0.07 | -0.26 |
+| gamma@gopro | 0.07 | 0.92 |
+| wb@gopro | -0.11 | 0.33 |
+| noise@gopro | -0.11 | 0.06 |
+| jpeg@gopro | 0.07 | -0.00 |
+| all@gopro | 2.16 | 3.40 |
+| res_all@gopro | 0.28 | 0.46 |
+| photo_brightness@gopro | 0.07 | 0.13 |
+| photo_gamma@gopro | 0.64 | 2.09 |
+| all_brightness@gopro | 0.50 | 0.92 |
+
+At 0.55, darkening by gamma alone (`gamma@gopro`) reproduces 0.92 of the gap. At 0.30 it reproduces
+0.07. Darkening moves peaks from above 0.55 to between 0.30 and 0.55, so it mostly changes scores
+rather than what the model finds.
+
+### Repair GoPro toward GSV: pooled over laurens_mapillary, clovis, richmond
+
+| arm | ΔR @0.30 | ΔF1 @0.30 | ΔR @0.55 | ΔF1 @0.55 |
+|---|---|---|---|---|
+| colour_match@0.5 | -0.009 [-0.020, +0.001] | -0.012 [-0.021, -0.004] | -0.015 [-0.025, -0.005] | -0.008 [-0.017, +0.000] |
+| colour_match@1 | -0.016 [-0.030, -0.001] | -0.010 [-0.021, +0.001] | -0.053 [-0.073, -0.034] | -0.037 [-0.055, -0.021] |
+| unsharp@50 | -0.005 [-0.015, +0.005] | -0.005 [-0.014, +0.004] | -0.016 [-0.026, -0.006] | -0.010 [-0.018, -0.002] |
+| unsharp@100 | -0.024 [-0.039, -0.009] | -0.018 [-0.030, -0.006] | -0.036 [-0.051, -0.022] | -0.022 [-0.034, -0.011] |
+| clahe@0.01 | -0.032 [-0.046, -0.018] | -0.021 [-0.032, -0.009] | -0.048 [-0.067, -0.030] | -0.029 [-0.045, -0.014] |
+| clahe@0.02 | -0.052 [-0.072, -0.032] | -0.034 [-0.052, -0.018] | -0.089 [-0.111, -0.067] | -0.061 [-0.081, -0.042] |
+| repair_all | -0.032 [-0.047, -0.015] | -0.025 [-0.038, -0.011] | -0.085 [-0.105, -0.066] | -0.059 [-0.077, -0.041] |
+
+No repair has a recall interval above zero on any split or pool, at either threshold.
+
 
 ## Step 2: augmentation flags in `stage_two/train.py`
 
