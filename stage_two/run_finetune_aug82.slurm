@@ -122,6 +122,11 @@ fi
 
 export MASTER_ADDR=$(scontrol show hostnames $SLURM_JOB_NODELIST | head -n 1)
 export OMP_NUM_THREADS=4
+# Never write .pyc files into the shared conda env. /gscratch/makelab is at its file-count
+# cap, and on 2026-10-02 every rank of 41106892/93/94 sat 14-25 min in uninterruptible GPFS
+# I/O inside `import torch`, holding a sympy/filelock __pycache__ file, before any line of
+# train.py ran. The scoring job (one process) had imported the same env fine an hour earlier.
+export PYTHONDONTWRITEBYTECODE=1
 export MASTER_PORT=$(expr 10000 + $(echo -n $SLURM_JOBID | tail -c 4))
 export PYTHONPATH="$REPO:${PYTHONPATH:-}"
 NPROC_PER_NODE=${SLURM_GPUS_PER_NODE:-4}

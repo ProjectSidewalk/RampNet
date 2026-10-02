@@ -28,6 +28,7 @@ set -u
 RAMPNET_ENV="${RAMPNET_ENV:?set RAMPNET_ENV to the conda prefix}"
 LABELS="${LABELS:?set LABELS, e.g. LABELS=released or LABELS=control_s1 both_s1}"
 REPO="${REPO:-${SLURM_SUBMIT_DIR:-$PWD}}"
+export PYTHONDONTWRITEBYTECODE=1   # see run_finetune_aug82.slurm
 export HF_HUB_OFFLINE=1          # the released weights come from the existing hub cache
 echo "job ${SLURM_JOB_ID} restarts ${SLURM_RESTART_COUNT:-0} node ${SLURM_NODELIST} labels: ${LABELS}"
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
