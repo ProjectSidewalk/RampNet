@@ -381,9 +381,11 @@ def load_records(city, repo=REPO):
     return out
 
 
-def load_split(city, cache_dir=CACHE_DIR, repo=REPO):
-    """Cached low-floor panos for a split, each tagged with its imagery tier."""
-    panos, meta = read_cache(os.path.join(cache_dir, f"{city}.json"))
+def load_split(city, cache_dir=CACHE_DIR, repo=REPO, allow_unreviewed=False):
+    """Cached low-floor panos for a split, each tagged with its imagery tier.
+    ``allow_unreviewed`` is for readers that never touch GT (parity)."""
+    panos, meta = read_cache(os.path.join(cache_dir, f"{city}.json"),
+                             allow_unreviewed=allow_unreviewed)
     records = load_records(city, repo)
     fallback = SPLIT_IMAGERY_FALLBACK.get(city)
     for pd in panos:
@@ -540,7 +542,7 @@ def cmd_parity(args):
           f"{'med R':>7} {'max R':>7}  verdict")
     print("-" * 92)
     for city in args.cities:
-        panos, meta = load_split(city, args.cache)
+        panos, meta = load_split(city, args.cache, allow_unreviewed=True)
         cache_tta = bool(meta.get("tta", False))
         res = parity_for(panos, load_records(city), args.threshold, args.tol_radii)
         rows.append((city, res, cache_tta))

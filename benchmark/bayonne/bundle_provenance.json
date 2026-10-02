@@ -1,0 +1,35 @@
+{
+  "split": "bayonne",
+  "issue": "https://github.com/ProjectSidewalk/RampNet/issues/159",
+  "status": "staged, NOT reviewed: no verdicts.json, nothing scored against ground truth",
+  "imagery": {
+    "source": "panoramax",
+    "rig": "GoPro Max (123 of 125 panos from the municipal account sig_bayonne on panoramax.ign.fr; 2 from Arretche on panoramax.openstreetmap.fr)",
+    "native_sizes": {"5760x2880": 67, "5376x2688": 58},
+    "credit": "Municipal imagery (c) sig_bayonne via Panoramax (panoramax.ign.fr), Licence Ouverte / Etalab 2.0. Other producers are credited per pano by the copyright and license fields of records.jsonl."
+  },
+  "run": {
+    "repo": "ProjectSidewalk/sidewalk-auto-labeler",
+    "pr": "https://github.com/ProjectSidewalk/sidewalk-auto-labeler/pull/125",
+    "detection_commit": "632e819",
+    "command": "python main.py example_geojson/bayonne.geojson --name bayonne --source panoramax --reuse-scan --thin-spacing 10",
+    "host": "makelab2 (NVIDIA A40)",
+    "model": "projectsidewalk/rampnet-model@606a11956743f7eb328d9207769034752f6191f4",
+    "results_jsonl": "runs/bayonne/results.jsonl",
+    "results_jsonl_sha256": "4f38ff528d4445b21eb02e99427e0ba3c88dfb5c940cc4702a283182e379b4b3",
+    "results_record_count": 28524,
+    "archive": "makelab2:/projects/makeabilitylab/sidewalk-auto-labeler/runs/bayonne/ (results.jsonl + all 28,524 native panos)"
+  },
+  "export": {
+    "command": "python scripts/export_benchmark.py runs/bayonne/results.jsonl --bundle D:/Git/labeler-wt/bayonne-bundle --sample 100 --empty-sample 25",
+    "exporter": "scripts/export_benchmark.py as last changed in 4c2baac; unchanged through PR 125 head 7a7a1a6",
+    "written": "2026-09-30 22:52 -0700, between labeler commits 5076b90 and 9d40873",
+    "reconcile": "125/125, OK 1:1 (labeler docs/panoramax-bayonne.md section 3)"
+  },
+  "staged": {
+    "date": "2026-10-02",
+    "from": "D:/Git/labeler-wt/bayonne-bundle/ (copied, not moved)",
+    "files": ["records.jsonl", "sample.json", "imagery_manifest.json (committed pin)", "index.csv and panos/ (git-ignored, travel with the imagery)"],
+    "verified": "every pano's bytes and sha256 match the exporter's index.csv and imagery_manifest.json: python scripts/analysis/bayonne_159.py verify"
+  }
+}
