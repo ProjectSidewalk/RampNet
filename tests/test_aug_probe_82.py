@@ -73,3 +73,52 @@ def test_arm_table_shape():
 def test_stats_cover_the_eleven_splits_with_panos():
     s = _stats()
     assert sorted(s["summary"]) == sorted(c for c in P.STATS_SPLITS if c != "manual_gold")
+
+
+RESULTS = os.path.join(REPO, "analysis_out", "aug_transfer_82", "probe_results.json")
+
+
+def _results():
+    with open(RESULTS, encoding="utf-8") as f:
+        return json.load(f)
+
+
+@pytest.mark.parametrize("split,arm", [("laurens_gsv", "all_brightness@gopro"),
+                                       ("laurens_gsv", "photo_gamma@gopro"),
+                                       ("bend", "res_all@gopro"),
+                                       ("laurens_mapillary", "clahe@0.02")])
+def test_doc_contrasts_rederive_from_committed_caches(split, arm):
+    """The contrasts docs/aug_transfer_82.md quotes, recomputed from the committed caches
+    (the full `report --check` takes ~40 s, so it is not in the default suite)."""
+    from rampnet.detection_eval import radius_sq_for
+    rsq = radius_sq_for()
+    gts = P.bundle_ground_truths(split)[0]
+    sc = {}
+    for a in (P.CONTROL, arm):
+        preds, _ = P.read_cache(P.cache_path(P.PROBE_ROOT, a, split))
+        sc[a] = P._scored(split, P._panos(preds, gts), rsq)
+    for thr in ("0.30", "0.55"):
+        got = P._contrast(sc[arm], sc[P.CONTROL], [len(sc[arm].pids)], float(thr))
+        assert got == _results()["per_split"][split]["vs_none"][arm][thr]
+
+
+def test_headline_numbers():
+    r = _results()
+    g = r["laurens_gap"]["0.30"]
+    assert (g["recall_gsv"], g["recall_gopro"], g["gap"]) == (0.6545, 0.5261, -0.1284)
+    lg = r["per_split"]["laurens_gsv"]["vs_none"]
+    assert lg["all_brightness@gopro"]["0.30"]["recall"]["observed"] == -0.0636
+    assert lg["photo_brightness@gopro"]["0.30"]["recall"]["observed"] == -0.0091
+    assert lg["photo_gamma@gopro"]["0.30"]["recall"]["observed"] == -0.0818
+    pool = r["pooled"]["GSV pool (degrade)"]["vs_none"]
+    assert pool["jpeg@gopro"]["0.30"]["recall"]["observed"] == -0.0181
+    assert pool["all@gopro"]["0.30"]["recall"]["observed"] == -0.2092
+    rep = r["pooled"]["GoPro pool (repair)"]["vs_none"]
+    assert all(v["0.30"]["recall"]["observed"] <= 0 for v in rep.values())
+
+
+def test_committed_markdown_matches_the_json():
+    with open(STATS, encoding="utf-8") as f:
+        stats = json.load(f)
+    with open(P.RESULTS_MD, encoding="utf-8", newline="") as f:
+        assert f.read() == P.markdown(_results(), stats)
