@@ -101,10 +101,16 @@ PY="$RAMPNET_ENV/bin/python"
 # The released weights, as a plain state_dict .pth train.py --init-weights can load. The
 # Hub file is model.safetensors with a "model." key prefix; converted once, atomically, so
 # eight jobs starting together cannot read a half-written file.
-HF_SAFETENSORS="${HF_SAFETENSORS:-/gscratch/scrubbed/$USER/hf/hub/models--projectsidewalk--rampnet-model/blobs/f2119e3becb0b551fa1470f7b7ba85b82122a3f73a6ed2a85609dd57617866b5}"
+# The Hub revision is 606a119; its model.safetensors blob is sha256 f2119e3b..., the same
+# blob the makelab2 scorer loads. The copy under /gscratch/scrubbed/$USER/hf was purged
+# (dangling symlink; jobs 41103263-70 died on it in seconds), so this reads the home cache
+# (read only -- nothing is written to home). The sha is checked before conversion.
+HF_SAFETENSORS="${HF_SAFETENSORS:-$HOME/.cache/huggingface/hub/models--projectsidewalk--rampnet-model/snapshots/606a11956743f7eb328d9207769034752f6191f4/model.safetensors}"
+HF_SHA256=f2119e3becb0b551fa1470f7b7ba85b82122a3f73a6ed2a85609dd57617866b5
 INIT="${INIT:-/gscratch/scrubbed/$USER/aug82/released_rampnet_state_dict.pth}"
 mkdir -p "$(dirname "$INIT")" "$RUNDIR/checkpoints" "$REPO/logs"
 if [ ! -f "$INIT" ]; then
+    echo "$HF_SHA256  $HF_SAFETENSORS" | sha256sum -c --quiet         || { echo "FATAL: $HF_SAFETENSORS is not the released blob $HF_SHA256" >&2; exit 1; }
     tmp="$INIT.tmp.$SLURM_JOB_ID"
     "$PY" -c "import sys, torch, safetensors.torch as st
 sd = st.load_file(sys.argv[1])
