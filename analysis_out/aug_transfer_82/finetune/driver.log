@@ -5,3 +5,17 @@ splits: annapolis,bend,budapest_district5,clovis,gainesville,laurens_gsv,laurens
 --- released: Hub projectsidewalk/rampnet-model (no --checkpoint)
 --- released exit=0 splits=12 elapsed=3070s
 === done 2026-10-02T11:01:21-07:00
+=== aug82 scoring (job 41145631) 2026-10-02T15:15:57-07:00 host g3118 repo commit 81d3afa
+python: /scr/jfroehli/aug82score_41145631_0/sidewalkcv2/bin/python (torch 2.6.0 timm 1.0.28)
+gpu: NVIDIA L40, 0 MiB, 46068 MiB 
+splits: annapolis,bend,budapest_district5,clovis,gainesville,laurens_gsv,laurens_mapillary,manual_gold,morgantown,paterson,richmond,sao_paulo
+--- res_s1: /gscratch/makelab/jonf/aug82/res_s1.pth sha256 134b69a99470cba5
+=== aug82 scoring (job 41145630) 2026-10-02T15:16:06-07:00 host g3115 repo commit 81d3afa
+python: /scr/jfroehli/aug82score_41145630_0/sidewalkcv2/bin/python (torch 2.6.0 timm 1.0.28)
+gpu: NVIDIA L40, 0 MiB, 46068 MiB 
+splits: annapolis,bend,budapest_district5,clovis,gainesville,laurens_gsv,laurens_mapillary,manual_gold,morgantown,paterson,richmond,sao_paulo
+--- both_s1: /gscratch/makelab/jonf/aug82/both_s1.pth sha256 bc3b9491e1a5bed0
+--- both_s1 exit=0 splits=12 elapsed=1958s
+=== done 2026-10-02T15:48:47-07:00
+--- res_s1 exit=0 splits=12 elapsed=1969s
+=== done 2026-10-02T15:48:48-07:00
