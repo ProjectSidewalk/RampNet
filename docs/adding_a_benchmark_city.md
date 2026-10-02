@@ -35,12 +35,17 @@ gets lost:
 | morgantown | cleanest imagery; the control |
 | annapolis | survey-grade rig; the far-field distance finding |
 | budapest_district5 | non-US infrastructure + rubric transfer |
+| paterson | second GSV city: separates "GSV" from "in-domain" for bend's operating point |
+| gainesville | third GSV city; misses that fire sub-threshold |
+| laurens_mapillary | first rural split; consumer GoPro Max rig |
+| laurens_gsv | the same town on GSV: the rig-vs-town control for #151 (second imagery arm) |
+| sao_paulo | non-US GSV city |
 | manual_gold | in-distribution reference with **un-anchored** GT |
+| bayonne *(staged, unreviewed — #159)* | first Panoramax split; single-account municipal GoPro Max capture with a burned-in nadir logo band; first non-US deployment target |
 
 A city that duplicates an existing split's answer costs a day of review and buys a row in a
-table. The most valuable additions right now are a **second GSV city** (bend's operating point
-is confounded between "GSV" and "in-domain" — see `docs/operating_point.md`) and a **second
-rater on budapest**, which is a review, not a new city.
+table. A **second rater on budapest** is still the most valuable single addition, and it is a
+review, not a new city.
 
 Also decide now, and record it in the PR:
 
@@ -88,11 +93,31 @@ alongside the two independent recalls.
 
 ```bash
 # in sidewalk-auto-labeler
-python main.py <city.geojson> --source <mapillary|gsv>      # enumerate → thin → detect
-# results land in runs/<name>/ — <name> defaults to the geojson basename
+python main.py <city.geojson> --source <mapillary|gsv|panoramax>  # enumerate → thin → detect
+# results land in runs/<name>/ — <name> defaults to the geojson basename.
+# --thin-spacing is not recorded in manifest.json (labeler #126): write it down.
 python scripts/export_benchmark.py runs/<city>/results.jsonl \
     --bundle <RampNet>/benchmark/<city>
 ```
+
+**Staging the bundle in RampNet** (what bayonne did, `docs/bayonne_split_159.md`):
+
+- Copy, don't move. Commit `records.jsonl` and `sample.json`; `panos/` and the exporter's
+  `index.csv` are git-ignored and travel with the imagery.
+- **Pin the imagery before anyone reviews it:**
+  `python scripts/analysis/imagery_manifest.py --write --cities <city>` writes the committed
+  `imagery_manifest.json` (sha256 + bytes per pano). It replaced `index.csv` as the in-repo
+  record, and the gallery's review is only reproducible against bytes pinned this way.
+- Record where the bundle came from: the labeler commit, the run command, and the
+  `results.jsonl` sha256 (bayonne: `benchmark/bayonne/bundle_provenance.json`).
+- A staged bundle with no `verdicts.json` is **not a split** yet. The GPU tools run on it
+  with `--unreviewed` (below) and nothing scores it.
+- **Burned-in overlays.** If the rig stamps something opaque into the frame (bayonne's
+  municipal panos carry a white logo band from y ≈ 0.79), measure it per pano and commit
+  `benchmark/<city>/nadir_band.json`; `gt_gallery.py` then hatches it, explains it, and asks
+  before a missed-ramp mark lands inside it.
+- **Credit.** Every record carries the producer and licence (`copyright`, `license`); the
+  gallery shows them beside the capture date. A Panoramax pano links to its own instance.
 
 `--bundle` samples the run and fetches native-res pixels. The sample is **stratified**, and the
 strata matter downstream:
@@ -103,7 +128,8 @@ strata matter downstream:
 | `random` | 95 | spatially de-clustered detection panos — the honest sample |
 | `empty` | 25 | zero-detection panos, so a silent model is measurable, not invisible |
 
-125 panos total in the four newest splits; richmond has 124 and bend 110 (only 10 `empty`).
+125 panos in most splits; richmond has 124, bend 110 (only 10 `empty`), and the two small
+Laurens arms 94 and 86 (the 30 m spacing runs out of detection panos in a small town).
 Keep 5/95/25 unless there is a reason not to; changing it makes the split non-comparable on
 the unbiased column.
 
@@ -182,8 +208,29 @@ CITIES=<city> PYTHON=<interpreter> sbatch -A <account> scripts/analysis/run_low_
 python scripts/analysis/low_floor_sweep.py parity --cities <city>
 ```
 
+**The extraction does not need the review.** For a staged split, run it before the review so the
+0.30 point and AP exist the day verdicts land, then swap the GT in on the CPU:
+
+```bash
+python scripts/analysis/operating_point_curve.py extract --cities <city> --unreviewed \
+    --cache analysis_out/<city>_<issue>/op_cache          # meta.gt = "unreviewed"
+# ... after verdicts.json is committed:
+python scripts/analysis/operating_point_curve.py attach-gt --cities <city> \
+    --cache analysis_out/<city>_<issue>/op_cache          # writes analysis_out/op_cache/<city>.json
+```
+
+The lab A40 (makelab2) runs the same extraction; bayonne's 125 panos took about 3 minutes
+there (`scripts/analysis/bayonne_159_gpu.sh`).
+
 **Parity must pass.** Peaks at ≥0.55 must reproduce the committed `records.jsonl`, measured in
-match radii. Expect **100% bit-exact for a Mapillary split**. A GSV split will not be exact —
+match radii. Expect a Mapillary or Panoramax split to land in the **identical cell** for every
+record, **plus a few extra cache peaks at the 360 seam**: the labeler's production extractor
+(`detectors/curb_ramp.py`) leaves skimage's `exclude_border` at its default and drops peaks
+within 10 cells of the heatmap edge, the defect RampNet fixed in f4c71c8 (#132). Bayonne: 147
+of 147 identical, 3 extra, all at the seam (`analysis_out/bayonne_159/checks.json`). The
+committed `op_cache/*.json` of the older splits were also built before f4c71c8, so compare a
+new split against them with the border ring dropped from every split
+(`bayonne_159.py firing`, column `interior`). A GSV split will not be exact —
 the GSV production path builds a 4096×2048 intermediate, so production saw a different resample
 than the native-res bundle — but should still land inside 0.5 R (bend's max is 0.439 R). The
 gate itself is slightly looser than that: **≥95% of detections within 0.5 R and a count delta
@@ -248,12 +295,14 @@ city or mislabelling it.
 | `scripts/analysis/low_floor_sweep.py` → `US_SPLITS` / `CITY_SPLITS` / `ALL_SPLITS` | add the split; `US_SPLITS` membership is what puts it in the pooled recommendation |
 | `low_floor_sweep.py` → `HELD_OUT` | **required** if it is not pooled — every held-out split must carry a stated reason, and a test enforces this |
 | `low_floor_sweep.py` → `CITY_OF` | **required for a second imagery arm** — maps the split to its city, so the one-pooled-split-per-city test can see the pairing |
-| `low_floor_sweep.py` → `tier_of()` | add a branch if the rig is new, or the split lands in `unknown` |
+| `scripts/analysis/miss_decomposition.py` → `US_SPLITS` / `HELD_OUT` / `TIER` | **required** — must agree with `low_floor_sweep`'s registry (`test_registries_agree_with_low_floor_sweep`); a split missing here is silently skipped by `export_model_cache`, `imagery_manifest`, the taxonomies and the galleries |
+| `low_floor_sweep.py` → `tier_of()` | add a branch if the **rig** is new, or the split lands in `unknown`. Tiers are by rig, not source: Panoramax GoPro Max panos already land in `action-modern` |
 | `low_floor_sweep.py` → `SPLIT_IMAGERY_FALLBACK` | only if `records.jsonl` lacks camera provenance |
 | `low_floor_sweep.py` → `TTA_RECORD_SPLITS` | only if the committed detections used TTA |
 | `scripts/analysis/plot_operating_point.py` → `SERIES` | add a colour **from the validated palette, in slot order** — never a made-up hue. Past 8 slots, fold to "Other" or facet |
 | `scripts/export_benchmark.py` → `BENCHMARK_SPLITS` | **required** — the HF package is built from this allowlist, not from a glob, so a split missing here is silently absent from all four configs. A test keeps it in step with `scripts/analysis/miss_decomposition.py`. Republish with `build` → `verify` → `push` |
-| `benchmark/train_overlap.json` | **required** — the exporter refuses a split without an entry. Re-run `python scripts/analysis/train_overlap_check.py` (network read-only, about 10 minutes) and commit the result; it fills the `records` config's `train_overlap` column (#127) |
+| `benchmark/train_overlap.json` | **required** — the exporter refuses a split without an entry. Re-run `python scripts/analysis/train_overlap_check.py` (network read-only, about 10 minutes) and commit the result; it fills the `records` config's `train_overlap` column (#127). It exits if any split in `BENCHMARK_SPLITS` lacks `verdicts.json`, so **registration waits for the review** |
+| challenger detections | run ahead of the review with `compare.py <bundle> --unreviewed` and export to a scratch directory (`analysis_out/<city>_<issue>/model_detections`); move them into `benchmark/model_detections/` only when the split is registered (`tests/test_roster.py` checks that directory) |
 
 ## Phase 6 — documentation (where a split actually becomes real)
 
@@ -301,7 +350,9 @@ run, say so explicitly and say why, rather than leaving a blank.
 Copy into the PR description and tick. Anything not done gets a line saying so and why.
 
 **Phase 1 — bundle (auto-labeler)**
-- [ ] City detected (`main.py --source <mapillary|gsv>`)
+- [ ] City detected (`main.py --source <mapillary|gsv|panoramax>`); thinning spacing recorded
+- [ ] Bundle staged by copy; `imagery_manifest.json` written **before** the review; provenance (labeler commit, run sha256) recorded
+- [ ] Any burned-in overlay measured into `nadir_band.json` and checked in the gallery
 - [ ] `export_benchmark.py --bundle` exited **zero**; `index.csv` written, `decayed.txt` reviewed
 - [ ] `benchmark/<city>/records.jsonl` committed; `panos/` present locally and archived durably
 - [ ] Strata are 5 `top` / 95 `random` / 25 `empty` (or the deviation is justified)
@@ -324,7 +375,7 @@ Copy into the PR description and tick. Anything not done gets a line saying so a
 - [ ] Both figures regenerated **and visually inspected**
 
 **Phase 5 — code**
-- [ ] Added to `US_SPLITS` / `CITY_SPLITS` / `ALL_SPLITS`
+- [ ] Added to `US_SPLITS` / `CITY_SPLITS` / `ALL_SPLITS` in `low_floor_sweep.py` **and** `miss_decomposition.py`
 - [ ] `HELD_OUT` reason recorded if not pooled
 - [ ] `CITY_OF` entry added if this is a second imagery arm
 - [ ] `tier_of()` recognises the rig (not `unknown`)
