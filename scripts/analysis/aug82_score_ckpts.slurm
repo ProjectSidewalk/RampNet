@@ -30,6 +30,18 @@ LABELS="${LABELS:?set LABELS, e.g. LABELS=released or LABELS=control_s1 both_s1}
 REPO="${REPO:-${SLURM_SUBMIT_DIR:-$PWD}}"
 export PYTHONDONTWRITEBYTECODE=1   # see run_finetune_aug82.slurm
 export HF_HUB_OFFLINE=1          # the released weights come from the existing hub cache
+# Node-local copy of the env when its tarball exists (see run_finetune_aug82.slurm: reading
+# the env from GPFS stalled imports for 25-36 min on 2026-10-02).
+ENV_TAR="${ENV_TAR:-/gscratch/scrubbed/$USER/aug82/sidewalkcv2_env.tar}"
+if [ -f "$ENV_TAR" ]; then
+    LOCAL_ENV_DIR="/scr/$USER/aug82score_${SLURM_JOB_ID}_${SLURM_RESTART_COUNT:-0}"
+    mkdir -p "$LOCAL_ENV_DIR"
+    trap 'rm -rf "$LOCAL_ENV_DIR"' EXIT
+    t_env=$(date +%s)
+    tar xf "$ENV_TAR" -C "$LOCAL_ENV_DIR"
+    RAMPNET_ENV="$LOCAL_ENV_DIR/sidewalkcv2"
+    echo "env unpacked to $RAMPNET_ENV in $(( $(date +%s) - t_env )) s"
+fi
 echo "job ${SLURM_JOB_ID} restarts ${SLURM_RESTART_COUNT:-0} node ${SLURM_NODELIST} labels: ${LABELS}"
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
 # OUT is per job label set; extract skips splits already written, so a requeue resumes.
