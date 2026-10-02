@@ -216,7 +216,75 @@ combined read is the step-4 number; pass 1 stays reported beside it. The pass-1 
 rebuilt from the same code path (it gains the new controls; its ring stays baked, so no
 toggle); its digest and Jon's pass-1 file are unchanged.
 
-**Status (2026-10-01):** pass 2 is open and unrated (0 of 32).
+### Pass 2 result (Jon, 2026-10-02): 32 of 32 answered, 30 notes
+
+**Provenance of the rater file.** Jon rated pass 2 under the id `jonf`, then exported
+twice, 20 s apart (`2026-10-02T14:10:05Z` as `jonf`, 32 answered; `14:10:25Z` as
+`jonf-p2`, 0 answered, because the page keys its saved answers by rater id). The answered
+export (raw sha256 `33599132cb3fce7f95760a8a6c9fc7ddebbccebfca9b436169f8c06a180c9d8e`) was
+committed as `mined_label_check__jonf-p2.json` with **only `rater` changed**, from `jonf`
+to `jonf-p2`. Every answer, note and image setting is as exported, and its pass-2 digest
+`9a8045c952207339`, pass-1 digest and `from_sha256` match the committed gallery. The id
+change is needed because `rates` refuses a pass-2 file that carries the pass-1 rater id,
+and a `jonf` export would overwrite the pass-1 file by name.
+
+**Page changes made before any pass-2 answer** (2026-10-02, at Jon's request; digests
+unchanged): the view to rate opens at 1:1, the context view sits beside it, and there is
+a Washout fix slider (above). Jon set image controls on 8 of the 32 cards. On 5 of those
+the saved values are the defaults (opened, then reset or left), so 3 cards were rated
+under a non-default filter: `cb1b24868` (local contrast 53, saturation 114, Yes),
+`cfa18a5d8` (gamma 3.0, local contrast 300, saturation 300, still Can't tell) and
+`cf923fecb` (gamma 0.91, Yes). None used the black point, the control aimed at the clipped
+cards.
+
+The pass-2 subset (32 cards: 30 sample, 2 instrument):
+
+| | Yes | No | Can't tell | precision [95% Wilson] |
+|---|--:|--:|--:|---:|
+| pass-2 subset (32) | 13 | 2 | 17 | 0.867 [0.621, 0.963] |
+
+**Combined** (pass 1 with the pass-2 answers written over its Can't tells; this is the
+step-4 number), sample cards only:
+
+| band | Yes | No | Can't tell | precision [95% Wilson] | pass 1 alone |
+|---|--:|--:|--:|---:|---:|
+| all 100 | 71 | 12 | 17 | **0.855 [0.764, 0.915]** | 0.843 [0.740, 0.910] |
+| 0–8 m | 12 | 2 | 4 | 0.857 [0.601, 0.960] | 0.846 |
+| 8–12 m | 29 | 3 | 5 | 0.906 [0.758, 0.968] | 0.920 |
+| 12–15 m | 30 | 7 | 8 | 0.811 [0.658, 0.905] | 0.781 |
+
+- **Against the rule:** every band's point estimate is now *build* (≥ 0.80), and 12–15 m
+  moved up from *visibility*. Every interval still reaches below 0.80, so the reading is
+  still **not decisive**. Can't tell fell from 30 to 17 of 100. The bounds narrow from
+  [0.59, 0.89] to [0.71, 0.88] (all remaining Can't tell counted as No, or as Yes).
+- **What pass 2 resolved:** 12 of the 30 sample Can't tells became Yes, 1 became No, and 17
+  stayed Can't tell. So the resolved cards were almost all ramps (12 of 13), which is the
+  reason precision rose.
+- **Instrument items:** all 10 are now decided, and 9 agree with the earlier verdict.
+  `cacfb48e9` is now No (it was No earlier) and `ca7ee8f77` is Yes (it was Yes earlier). The one
+  disagreement is still `c96405a60`, from pass 1.
+- **Why 17 stayed Can't tell** (from Jon's notes). Washout or lighting is named on 7
+  cards (`c301e7660`, `c93a1fb65`, `cfa18a5d8`, `cbe6a1b45`, `c778bd5a8`, `cc6ae3eb0`, and
+  `c9f0e9a33` for blur). Angle or distance is named on 4 (`c4355c7f1`, `ce2fd063b`,
+  `c1736d7ae`, `cac0fc9b0`; the last is "way zoomed in so lack context"). Occlusion by
+  leaves, cars or a cone is named on 3 (`c7da22a7d`, `cfff8e804`, `cdfe1dcc3`). On 4 the
+  ramp is visible but the ring is off it or between two ramps (`c9f0e9a33` 5–7 diameters,
+  `c0445e8a0` between two, `cbe9243c2` 1–2 diameters, `cdfe1dcc3`). `c14e8f6cf` is a
+  sidewalk-to-alley seam. On `cbe6a1b45` the note says Jon would lean Yes if forced.
+- **The ring-offset caveat grows.** 4 of the 13 pass-2 Yeses say the ring should move 1–2
+  diameters to sit on the ramp (`c80f324a8`, `c1e52b2ce` "only clips it", `ca6c2d58e`,
+  `ca7ee8f77`). `ca7ee8f77` is an instrument item, so 3 of these are sample cards. With pass 1's 6
+  that makes 9 of the 71 combined sample Yeses. Counting the 9
+  offset sample Yeses against the miner gives 62/83 = **0.747**. That is a training-label
+  precision under the stricter reading, and it is below the 0.80 build line. The rubric's
+  "at the ring or touching it" was written for detection, and these notes say the miner's
+  peak is often a ring or two beside the ramp. Whether that offset matters depends on the
+  radius of the training target. That is the open question step 4 passes on.
+- **Context view mismatch:** on `c1e52b2ce` Jon notes the context view "looks like a totally
+  different curb ramp". The context view was not used for any vote.
+- **Single rater:** Jon is the only rater, and pass 2 was done after Jon had seen these cards in
+  pass 1. Pass 2 is a re-rating of a hard subset under better imaging, not an independent
+  read.
 
 ## Cost
 
