@@ -55,7 +55,7 @@ QUESTION = "Click where you would place the label on the curb ramp the ring refe
 STATUSES = [
     ("placed", "Placed",
      "A click on the ramp the ring refers to, where you would put a curb-ramp label "
-     "(for you, the centre of the tactile warning strip, or of the ramp if it has none)."),
+     "(e.g. the centre of the tactile warning strip, or of the ramp if it has none)."),
     ("multi", "Two ramps, can't pick",
      "The ring sits between two or more ramps and you cannot say which one it means."),
     ("cant_place", "Can't place",

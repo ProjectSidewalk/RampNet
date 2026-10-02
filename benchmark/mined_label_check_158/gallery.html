@@ -224,6 +224,8 @@ function setZoom(card, on) {
     const nat = img.naturalWidth || +((img.dataset.natural || "").split(" ")[0]) || 0;
     const fit = +img.getAttribute('width') || 0;
     img.style.width = (on && nat) ? Math.max(nat, fit) + 'px' : '';
+    const col = card.querySelector('.rate');
+    if (col) col.style.width = (on && nat) ? Math.max(nat, fit) + 'px' : '';
   }
   const b = card.querySelector('.zoom_toggle');
   if (b) { b.setAttribute('aria-pressed', on); b.textContent = on ? 'Zoom fit (Z)' : 'Zoom 1:1 (Z)'; }

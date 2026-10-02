@@ -286,6 +286,72 @@ step-4 number), sample cards only:
   pass 1. Pass 2 is a re-rating of a hard subset under better imaging, not an independent
   read.
 
+### Click pass (planned 2026-10-02, before any click): how far is the miner's point from the ramp?
+
+**Why.** The yes/no read cannot tell a label *on* the ramp from one a ring or two beside it.
+Both are Yes under the rubric, and 9 of the 71 sample Yeses carry notes saying the ring is
+off. A training label is a heatmap peak, so what matters is the offset in RampNet's own
+units. Both readings of the yes/no result (0.855 as written, 0.747 counting the offset
+notes against) are above #158's 0.50 drop line. So the remaining question is placement,
+not whether to keep the miner.
+
+**What.** `scripts/analysis/mined_click_check_158.py`. One card per **sample card answered
+Yes in the combined read** (71; the instrument items are left out). Each card shows the
+same target view cut native and unringed (`crops_click/`, 7.8 MB; digest
+`b0a61275cb6666a3`; the 12 cards that were also in pass 2 are byte-identical to their
+pass-2 cuts, which the gallery step checks), with the miner's point as a ring overlay and
+the pass-1 context view beside it. The rater clicks where they would place the label on
+the ramp the ring refers to, or marks "Two ramps, can't pick" or "Can't place". The
+statuses and rules are in the file and on the page.
+
+**How it is scored.** The crop is a plain equirect window (36°×24°, centred on the miner's
+x, vertically clamped, `cut_one`), so a click converts exactly to pano (x, y)
+(`click_to_pano`; tested on the ring centre, the seam and the window edges). The offset
+is measured on the 512×1024 training heatmap (1 px = 0.35°). It is reported against the
+training Gaussian's **sigma, 10 px** (`stage_two/train.py`), and the evaluation match
+radius, **0.022 × 1024 = 22.5 px** (`stage_two/evaluate.py`). The report gives the median,
+p75, p90 and maximum offset, the share within each radius (Wilson), all per band, and,
+with `--n-decided 83`, **precision at a radius**: Yeses whose click is within it, divided
+by the 83 decided cards. For scale, the ring's radius is 1.4° (4 px), so the notes'
+"1–2 diameters" is about 8–16 px.
+
+**What the result would mean** (written before rating):
+- Most offsets within sigma: the miner's point is as good as a hand label. Read 0.855 as
+  the training-label precision.
+- Most within the eval radius but not within sigma: the labels match under RampNet's own
+  evaluation but give a blurred target. Snapping is worth trying but not required.
+- A large share beyond 22.5 px: the miner's point is a correct corner and the wrong pixel.
+  Precision at the eval radius replaces 0.855, and snapping each mined point to the
+  nearest detected peak becomes step 5.
+
+**Rater file.** `analysis_out/mined_label_check_158/mined_click_check__<rater>.json`. The
+prefix differs from the yes/no files, so the pass-1 id `jonf` is used. The page warns
+before exporting a file with no answers. A second rater repeats the same 71 cards under
+their own id, and `score A B` reports the click-to-click distance between the raters.
+
+**Caveats, stated up front.** There is one rater, who has seen every card twice. The
+convention is Jon's labelling habit, the centre of the tactile strip (from his pass-2
+notes), which may differ from where RampNet's training labels sit. A second rater, or a
+comparison with the benchmark's own label convention, would separate the two. Only Yes
+cards are clicked, so precision at a radius can only fall from 0.855.
+
+Commands:
+
+```bash
+python scripts/analysis/mined_click_check_158.py plan \
+    --pass1 analysis_out/mined_label_check_158/mined_label_check__jonf.json \
+    --pass2 analysis_out/mined_label_check_158/mined_label_check__jonf-p2.json
+python scripts/analysis/multiview_evidence_48.py cut-crops \
+    analysis_out/mined_label_check_158/items_click.json \
+    --archive-root /projects/makeabilitylab/sidewalk-auto-labeler/runs --out crops_click   # makelab2
+python scripts/analysis/mined_click_check_158.py gallery --crops crops_click --init-rater jonf
+python scripts/analysis/mined_click_check_158.py score \
+    analysis_out/mined_label_check_158/mined_click_check__jonf.json --n-decided 83
+```
+
+**Status (2026-10-02):** the page is built (`benchmark/mined_label_check_158/gallery_click.html`),
+and the rater file is empty (0 of 71).
+
 ## Cost
 
 | step | where | wall-clock | GPU-h |
@@ -293,6 +359,7 @@ step-4 number), sample cards only:
 | build | desktop CPU | 8 s | 0 |
 | cut-views (254 views, 211 panos) | makelab2 CPU | 40 s | 0 |
 | step 4, pass 2: `cut-crops --native` (32 views, 31 panos) | makelab2 CPU | 11 s | 0 |
+| step 4, click pass: `cut-crops --native` (71 views) | makelab2 CPU | 27 s | 0 |
 | `mapa_posed_pair` | makelab2 A40 (shared, free memory checked first) | 134 s | 0.037 |
 | `roma` + `roma_local` | desktop RTX 3070 | 204 s | 0.057 |
 | step 3: `mapa_k_pair` (ended 18:13:07Z) | makelab2 A40 (shared, free memory checked first) | 50 s | 0.014 |
