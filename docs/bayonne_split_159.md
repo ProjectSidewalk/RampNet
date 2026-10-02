@@ -168,7 +168,61 @@ see either and so cannot count.
 
 ## 5. Free challengers, run ahead of the verdicts
 
-Running on makelab2 at the time of writing; this section is filled in when the legs finish.
+All on makelab2's A40 (shared with two other jobs), 2026-10-02, with
+`compare.py benchmark/bayonne --unreviewed`: detections are cached and exported, **nothing is
+scored**. Each leg wrote a `paid: false` row to `analysis_out/usage_log.jsonl`. The exported
+files are in `analysis_out/bayonne_159/model_detections/`, in the
+`benchmark/model_detections/` format, and stay out of that directory until the split is
+registered. `export_model_cache.py --verify` was not run: it re-scores against verdicts, and
+there are none yet.
+
+| leg | env | settings | panos | wall time | s/pano | points/pano at the list's threshold |
+|---|---|---|---:|---:|---:|---:|
+| y11l_pano | RampNet `.venv-eval` | #71 protocol: `--tiling none --yolo-imgsz 1280` | 125 | 49 s | 0.33 | 0.424 (conf ≥ 0.25) |
+| y26_pano | same | same | 125 | 40 s | 0.31 | 0.536 |
+| y11x_pano_h200 | same | same | 125 | 40 s | 0.30 | 0.456 |
+| OWLv2 (large, ensemble) | same | perspective tiling, score floor 0.05 | 125 | 1,495 s | 11.31 | 5.536 (≥ 0.25) |
+| Grounding DINO (base) | same | same | 125 | 656 s | 5.10 | 27.4 (≥ 0.15) |
+| Qwen3-VL-8B-Instruct | same | perspective tiling | 125 | 2,943 s | 22.10 | 2.84 (no scores) |
+| Molmo2-8B | `~/envs/molmo` (transformers 4.57.1) | perspective tiling | **0** | 284 s | — | **failed** |
+
+0 pano failures on every leg except Molmo. **Molmo2-8B did not run.** It ran in its own env (so
+not the documented trap of "completing" with Molmo skipped), but `device_map="auto"` offloaded
+part of the model to the CPU on the shared GPU ("Some parameters are on the meta device"), and
+every pano failed with `Cannot copy out of meta tensor`; the leg stopped after 10 consecutive
+failures. Its ledger row records the 284 s it spent. Not retried: making it fit needs a code or
+env change (an explicit dtype or a GPU to itself), outside "use the environments as they are".
+**Qwen3-VL-32B** was not run: its weights are not cached on makelab2.
+
+### Candidate misses, for the reviewer's attention only
+
+`analysis_out/bayonne_159/candidates.json` (`bayonne_159.py candidates`): locations where
+RampNet has **no peak ≥ 0.30** within the 0.022 match radius and **≥ 2 challenger legs** put a
+point within it, each leg at the threshold in the table above. OWLv2 and Grounding DINO are
+listed as support and never count as a vote: they are the roster's dense legs, and counted as
+votes, 417 of 425 draft candidates were those two agreeing with each other.
+
+**11 candidates, all in the `random` stratum, none in the 25 `empty` panos, none in the band.**
+Six have a RampNet peak in the radius below 0.30 (0.08-0.28). Seven are YOLO arms agreeing
+with each other (three arms of one supervised recipe, so correlated), and five include Qwen.
+
+| pano | x | y | legs (votes) | support | RampNet best peak in radius |
+|---|---:|---:|---|---|---:|
+| `2157f981` | 0.7344 | 0.5558 | y11x_pano_h200, y26_pano | — | 0.283 |
+| `59e47e8b` (top) | 0.3532 | 0.5626 | y11l_pano, y11x_pano_h200 | gdino | 0.280 |
+| `733095d5` | 0.6226 | 0.6299 | qwen3-vl-8b, y11l, y11x_h200, y26 | gdino | 0.227 |
+| `88490116` | 0.7205 | 0.6605 | y11l_pano, y26_pano | gdino | — |
+| `8ce50263` | 0.1570 | 0.5844 | y11x_pano_h200, y26_pano | — | 0.076 |
+| `ade1ccfb` | 0.8991 | 0.5182 | qwen3-vl-8b, y26_pano | gdino, owlv2 | — |
+| `b0f0b5d9` | 0.8954 | 0.6169 | qwen3-vl-8b, y26_pano | gdino, owlv2 | — |
+| `b1b7ddd2` | 0.3272 | 0.6074 | y11l_pano, y11x_pano_h200 | — | — |
+| `cc057703` | 0.1185 | 0.6624 | qwen3-vl-8b, y26_pano | gdino | 0.215 |
+| `f5af69b9` | 0.9373 | 0.7234 | y11l_pano, y11x_pano_h200 | — | 0.139 |
+| `fbbe99ca` | 0.7941 | 0.6647 | qwen3-vl-8b, y26_pano | gdino | — |
+
+Use it **after** judging a pano, as a second sweep: shown first, it would steer the miss scan
+toward where other models looked. It is not a recall estimate: the challengers' own precision on
+this split is unknown until the review.
 
 ## 6. AI pre-read of the 147 detections (not ground truth)
 
@@ -222,7 +276,7 @@ python scripts/analysis/imagery_manifest.py --write --cities bayonne
 python scripts/analysis/bayonne_159.py verify
 python scripts/analysis/bayonne_159.py band --write              # needs panos/
 
-# GPU, makelab2 A40 (done 2026-10-02; log analysis_out/bayonne_159/gpu_run.log there)
+# GPU, makelab2 A40 (done 2026-10-02; log committed as analysis_out/bayonne_159/gpu_run.log)
 bash scripts/analysis/bayonne_159_gpu.sh    # repro, extract, parity, yolo, open, qwen, molmo, export
 
 # CPU reads (done; each has --write, and checks against the committed file without it)
@@ -234,8 +288,16 @@ python scripts/analysis/bayonne_159.py paid-estimate --print
 python scripts/analysis/bayonne_159.py preread-crops && python scripts/analysis/bayonne_159.py preread-summary
 ```
 
-Cost of the GPU run, recorded as `paid: false` rows in `analysis_out/usage_log.jsonl` (one per
-challenger leg); the extraction steps are timed in the log above.
+**Cost: $0, about 1.7 GPU-hours of a shared A40.** The seven challenger legs total 5,508 s
+of wall time (one `paid: false` row each in `analysis_out/usage_log.jsonl`, Molmo's failed leg
+included); the two extractions took 2 min 50 s (laurens_mapillary, 94 panos) and 3 min 16 s
+(Bayonne, 125 panos), timed in `analysis_out/bayonne_159/gpu_run.log` (the run's log, progress
+bars stripped). The A40 was shared with other jobs throughout, so these times are upper bounds
+for the hardware.
+
+The `GPU` step ran from a git worktree of this branch on makelab2 (`~/wt-bayonne159`), with the
+Bayonne panos copied from the archive and checked against `imagery_manifest.json`, and
+`benchmark/laurens_mapillary/panos` linked from the main checkout there.
 
 ## 9. What is left after the review
 
@@ -282,5 +344,6 @@ and tests that would then claim a reviewed split):
 - **Paid legs**: no spend today; expected cost in section 7.
 - **HF publish**: Jon's call.
 - **The labeler's seam defect**: found here, not fixed; the labeler repo was out of scope today.
-- **Qwen3-VL-32B**: its weights are not cached on makelab2, and downloading ~65 GB for one
+- **Qwen3-VL-32B**: its weights are not cached on makelab2, and downloading them for one
   leg was not worth it ahead of the review; it can run after.
+- **Molmo2-8B**: ran in its own env and failed on every pano (section 5); not retried.
