@@ -168,20 +168,40 @@ def in_border_ring(x, y, md=MIN_DISTANCE, w=HEAT_W, h=HEAT_H):
 # verify
 # --------------------------------------------------------------------------- #
 def verify_bundle(bundle=BUNDLE):
-    """List of problems with the staged bundle (empty = OK). The byte check runs only
-    for panos present on disk; a missing ``panos/`` is reported, not failed, so the
-    record-level checks still run on a clean clone."""
+    """List of problems with the staged bundle (empty = OK).
+
+    The committed pin is ``imagery_manifest.json`` (sha256 + bytes per pano), written
+    at staging time. The exporter's ``index.csv`` is git-ignored by repo convention
+    (it travels with the imagery), so it is cross-checked against the manifest only
+    where it exists. The byte check runs only for panos present on disk; a missing
+    ``panos/`` is reported, not failed, so the record-level checks still run on a
+    clean clone."""
     problems, notes = [], []
-    with open(os.path.join(bundle, "index.csv"), encoding="utf-8", newline="") as f:
-        index = {row["panorama_id"]: row for row in csv.DictReader(f)}
+    with open(os.path.join(bundle, "imagery_manifest.json"), encoding="utf-8") as f:
+        manifest = json.load(f)["panos"]
     recs = load_records(os.path.basename(bundle), os.path.dirname(os.path.dirname(bundle)))
     rec_ids = [r["pano"]["panorama_id"] for r in recs]
     if len(set(rec_ids)) != len(rec_ids):
         problems.append("duplicate panorama_id in records.jsonl")
-    if set(rec_ids) != set(index):
-        problems.append(f"records.jsonl and index.csv disagree: "
-                        f"{len(set(rec_ids) - set(index))} only in records, "
-                        f"{len(set(index) - set(rec_ids))} only in index")
+    if set(rec_ids) != set(manifest):
+        problems.append(f"records.jsonl and imagery_manifest.json disagree: "
+                        f"{len(set(rec_ids) - set(manifest))} only in records, "
+                        f"{len(set(manifest) - set(rec_ids))} only in the manifest")
+    index_path = os.path.join(bundle, "index.csv")
+    if os.path.exists(index_path):
+        with open(index_path, encoding="utf-8", newline="") as f:
+            index = {row["panorama_id"]: row for row in csv.DictReader(f)}
+        bad = [pid for pid in set(index) | set(manifest)
+               if pid not in index or pid not in manifest
+               or index[pid]["sha256"] != manifest[pid]["sha256"]
+               or int(index[pid]["bytes"]) != manifest[pid]["bytes"]]
+        if bad:
+            problems.append(f"index.csv and imagery_manifest.json disagree on {len(bad)} panos")
+        else:
+            notes.append(f"exporter index.csv agrees with imagery_manifest.json "
+                         f"({len(index)} panos)")
+    else:
+        notes.append("index.csv absent (git-ignored): exporter cross-check skipped")
     groups = {}
     for r in recs:
         groups[r.get("benchmark_group")] = groups.get(r.get("benchmark_group"), 0) + 1
@@ -198,8 +218,8 @@ def verify_bundle(bundle=BUNDLE):
         notes.append("panos/ absent: byte check skipped")
     else:
         checked = 0
-        for pid, row in sorted(index.items()):
-            path = os.path.join(panos_dir, row["filename"])
+        for pid, row in sorted(manifest.items()):
+            path = os.path.join(panos_dir, row["file"])
             if not os.path.exists(path):
                 problems.append(f"{pid}: missing from panos/")
                 continue
@@ -207,10 +227,10 @@ def verify_bundle(bundle=BUNDLE):
             with open(path, "rb") as f:
                 for chunk in iter(lambda: f.read(1 << 20), b""):
                     h.update(chunk)
-            if h.hexdigest() != row["sha256"] or os.path.getsize(path) != int(row["bytes"]):
-                problems.append(f"{pid}: bytes differ from index.csv")
+            if h.hexdigest() != row["sha256"] or os.path.getsize(path) != row["bytes"]:
+                problems.append(f"{pid}: bytes differ from imagery_manifest.json")
             checked += 1
-        notes.append(f"{checked} panos byte-checked against index.csv")
+        notes.append(f"{checked} panos byte-checked against imagery_manifest.json")
     return problems, notes, {"panos": len(recs), "strata": groups, "detections_055": n_det}
 
 

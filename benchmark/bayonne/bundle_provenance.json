@@ -29,7 +29,7 @@
   "staged": {
     "date": "2026-10-02",
     "from": "D:/Git/labeler-wt/bayonne-bundle/ (copied, not moved)",
-    "files": ["records.jsonl", "sample.json", "index.csv", "panos/ (git-ignored)"],
-    "verified": "every pano's bytes and sha256 match index.csv: python scripts/analysis/bayonne_159.py verify"
+    "files": ["records.jsonl", "sample.json", "imagery_manifest.json (committed pin)", "index.csv and panos/ (git-ignored, travel with the imagery)"],
+    "verified": "every pano's bytes and sha256 match the exporter's index.csv and imagery_manifest.json: python scripts/analysis/bayonne_159.py verify"
   }
 }
