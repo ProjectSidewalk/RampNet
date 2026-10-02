@@ -184,6 +184,21 @@ def verdicts_from_spec(bundle_dir):
         return json.load(f)["panos"]
 
 
+#: Any of these makes a bundle scoreable, so ``--unreviewed`` must refuse it.
+REVIEW_FILES = ("verdicts.json", BUNDLE_SPEC, "gt_source.json")
+
+
+def refuse_unreviewed_if_reviewed(bundle_dir):
+    """Exit if ``--unreviewed`` was given for a bundle that has ground truth of any kind:
+    a review (``verdicts.json``), borrowed verdicts (``bundle.json``) or independent
+    labels (``gt_source.json``, manual_gold). Decided from the files on disk, so an
+    empty or manual-GT review cannot slip through as "no verdicts" (PR #234, S2)."""
+    found = [n for n in REVIEW_FILES if os.path.exists(os.path.join(bundle_dir, n))]
+    if found:
+        raise SystemExit(f"{bundle_dir}: --unreviewed given, but the bundle has "
+                         f"{', '.join(found)}; drop the flag and score it.")
+
+
 def load_bundle(bundle_dir, unreviewed=False):
     """Return (records_by_pid, verdicts_panos, panos_dir) for a benchmark bundle.
 
@@ -953,9 +968,8 @@ def main():
     # Fail fast on a broken bundle before any (paid) detector call, then reduce
     # both GT sources to the same {pid: GroundTruth} shape.
     judged_all = set(verdicts) if verdicts is not None else set()
-    if args.unreviewed and verdicts:
-        raise SystemExit(f"{args.bundle}: --unreviewed given, but this bundle has a "
-                         "review; drop the flag and score it.")
+    if args.unreviewed:
+        refuse_unreviewed_if_reviewed(args.bundle)
     if verdicts is not None:
         if args.limit:
             verdicts = dict(list(verdicts.items())[:args.limit])
