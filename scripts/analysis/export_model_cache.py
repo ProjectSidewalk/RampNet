@@ -224,10 +224,16 @@ def export(cache_dir, out_dir, splits, specs, allow_partial=False, overrides=Non
                 continue
             # unreviewed=True: a split staged ahead of its review (#159) exports its
             # detections over every record; there is no GT to restrict them to.
-            records, verdicts, _ = C.load_bundle(bundle, unreviewed=True)
-            gts = (C.load_manual_ground_truths(bundle) if verdicts is None
-                   else C.ground_truths_from_verdicts(records, verdicts))
-            pids = list(records) if verdicts == {} else list(gts)
+            unreviewed = not any(os.path.exists(os.path.join(bundle, n)) for n in
+                                 ("verdicts.json", "bundle.json", "gt_source.json"))
+            if unreviewed:
+                records, _, _ = C.load_bundle(bundle, unreviewed=True)
+                gts, pids = {}, list(records)
+            else:
+                records, verdicts, _ = C.load_bundle(bundle)
+                gts = (C.load_manual_ground_truths(bundle) if verdicts is None
+                       else C.ground_truths_from_verdicts(records, verdicts))
+                pids = list(gts)
             provider, model_id = parse_model_spec(spec)
             label, det = build_detector(provider, model_id, records, cargs)
             sig = det.signature() if hasattr(det, "signature") else None
