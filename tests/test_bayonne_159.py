@@ -242,3 +242,26 @@ def test_gallery_html_carries_the_band_note_and_the_in_band_confirm():
     html = G.build_html([], {}, "k", "n", "src")
     assert 'id="bandnote"' in html
     assert "inside the nadir logo band" in html
+
+
+# --------------------------------------------------------------------------- #
+# the AI pre-read: a model's labels, kept apart from ground truth
+# --------------------------------------------------------------------------- #
+def test_the_preread_is_labelled_as_a_model_and_carries_its_rubric():
+    with open(B.PREREAD_LABELS_FILE, encoding="utf-8") as f:
+        pre = json.load(f)
+    assert pre["rater"]["kind"] == "model" and pre["rater"]["human"] is False
+    assert "NOT ground truth" in pre["what"] and "rubric" in pre["rubric"].lower()
+    assert {v["label"] for v in pre["labels"].values()} <= set(B.PREREAD_LABELS)
+
+
+def test_the_preread_covers_exactly_the_detections_the_review_will_judge():
+    with open(os.path.join(B.PREREAD_DIR, "items.json"), encoding="utf-8") as f:
+        items = json.load(f)["items"]
+    assert [i["item"] for i in items] == [i["item"] for i in B.preread_items(B.load_records("bayonne"))]
+    assert len(items) == 147
+
+
+def test_preread_summary_rederives():
+    want = _committed("ai_preread/summary.json")
+    assert B._dumps(B.build_preread_summary()) == want

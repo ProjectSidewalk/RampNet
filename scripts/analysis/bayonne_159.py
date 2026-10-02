@@ -458,6 +458,126 @@ def cmd_frame(args):
 
 
 # --------------------------------------------------------------------------- #
+# AI pre-read: the crops it is made on, and its summary
+# --------------------------------------------------------------------------- #
+PREREAD_DIR = os.path.join(OUT_DIR, "ai_preread")
+#: Square crop side as a share of the NATIVE pano width: 0.09 x 5760 = 518 px,
+#: 0.09 x 5376 = 484 px, shown 1:1. At the 0.022 match radius that frames about +/-2 R
+#: horizontally, wide enough to see the kerb line on both sides of a lowering.
+PREREAD_CROP_FRAC = 0.09
+PREREAD_PER_SHEET = 6
+PREREAD_LABELS = ("ramp", "not_ramp", "cant_tell")
+
+
+def preread_items(recs, threshold=DEPLOYED):
+    """Every detection the review will judge, in records order, with a stable id."""
+    items = []
+    for r in recs:
+        pid = r["pano"]["panorama_id"]
+        for i, d in enumerate(r["detections"]):
+            if d["confidence"] < threshold:
+                continue
+            items.append({"item": f"{pid[:8]}_d{i}", "pano": pid, "det": i,
+                          "x": _r(d["x_normalized"], 5), "y": _r(d["y_normalized"], 5),
+                          "conf": _r(d["confidence"]),
+                          "group": r.get("benchmark_group")})
+    return items
+
+
+def render_preread(bundle=BUNDLE, out=PREREAD_DIR):
+    """Native-resolution crops (git-ignored) plus contact sheets of six, for viewing."""
+    from PIL import Image, ImageDraw
+    Image.MAX_IMAGE_PIXELS = None
+    items = preread_items(load_records(os.path.basename(bundle),
+                                       os.path.dirname(os.path.dirname(bundle))))
+    crops_dir = os.path.join(out, "crops")
+    os.makedirs(crops_dir, exist_ok=True)
+    opened, tiles = {}, []
+    for it in items:
+        if it["pano"] not in opened:
+            opened.clear()
+            opened[it["pano"]] = Image.open(os.path.join(bundle, "panos",
+                                                         it["pano"] + ".jpg")).convert("RGB")
+        im = opened[it["pano"]]
+        W, H = im.size
+        side = int(round(PREREAD_CROP_FRAC * W))
+        cx, cy = it["x"] * W, it["y"] * H
+        left = int(min(max(cx - side / 2, 0), W - side))
+        top = int(min(max(cy - side / 2, 0), H - side))
+        crop = im.crop((left, top, left + side, top + side))
+        dr = ImageDraw.Draw(crop)
+        px, py, rr = cx - left, cy - top, max(6, side // 40)
+        dr.ellipse((px - rr, py - rr, px + rr, py + rr), outline=(255, 230, 0), width=2)
+        crop.save(os.path.join(crops_dir, it["item"] + ".jpg"), quality=92)
+        it["native_px"] = [W, H]
+        it["crop_px"] = side
+        tiles.append((it, crop))
+    for s in range(0, len(tiles), PREREAD_PER_SHEET):
+        chunk = tiles[s:s + PREREAD_PER_SHEET]
+        side = max(c.size[0] for _, c in chunk)
+        sheet = Image.new("RGB", (3 * side, 2 * (side + 22)), (255, 255, 255))
+        dr = ImageDraw.Draw(sheet)
+        for k, (it, c) in enumerate(chunk):
+            x0, y0 = (k % 3) * side, (k // 3) * (side + 22)
+            sheet.paste(c, (x0, y0 + 22))
+            dr.text((x0 + 4, y0 + 4), f"{s + k + 1}. {it['item']}  conf {it['conf']:.2f}  "
+                                      f"y {it['y']:.3f}", fill=(0, 0, 0))
+        sheet.save(os.path.join(out, f"sheet_{s // PREREAD_PER_SHEET + 1:02d}.jpg"), quality=90)
+    return items
+
+
+def cmd_preread_crops(args):
+    items = render_preread()
+    _dump({"note": "The 147 detections >= 0.55 the review will judge, as the AI pre-read "
+                   "saw them: native-resolution square crops, side = "
+                   f"{PREREAD_CROP_FRAC} x native width, marker at the peak. Crops and "
+                   "sheets are git-ignored; this list is not.",
+           "items": items}, os.path.join(PREREAD_DIR, "items.json"))
+    print(f"{len(items)} crops -> {os.path.relpath(PREREAD_DIR, REPO)}")
+    return 0
+
+
+def preread_summary(labels, items):
+    """Counts of the pre-read's labels, overall and by confidence band. Pure."""
+    by_item = {it["item"]: it for it in items}
+    missing = sorted(set(by_item) - set(labels))
+    extra = sorted(set(labels) - set(by_item))
+    if missing or extra:
+        raise ValueError(f"labels/items disagree: {len(missing)} missing, {len(extra)} extra")
+    bands = (("0.55-0.70", 0.55, 0.70), ("0.70-0.85", 0.70, 0.85), ("0.85-1.00", 0.85, 1.01))
+    out = {"n": len(labels), "counts": {k: 0 for k in PREREAD_LABELS}, "by_conf": {}}
+    for name, lo, hi in bands:
+        out["by_conf"][name] = {k: 0 for k in PREREAD_LABELS}
+    for item, lab in labels.items():
+        out["counts"][lab["label"]] += 1
+        c = by_item[item]["conf"]
+        for name, lo, hi in bands:
+            if lo <= c < hi:
+                out["by_conf"][name][lab["label"]] += 1
+    return out
+
+
+PREREAD_LABELS_FILE = os.path.join(PREREAD_DIR, "preread__claude-opus-5-5.json")
+
+
+def build_preread_summary():
+    with open(os.path.join(PREREAD_DIR, "items.json"), encoding="utf-8") as f:
+        items = json.load(f)["items"]
+    with open(PREREAD_LABELS_FILE, encoding="utf-8") as f:
+        pre = json.load(f)
+    s = preread_summary(pre["labels"], items)
+    s["rater"] = pre["rater"]
+    s["note"] = ("Counts of a MODEL's labels on native-resolution crops. Not ground truth "
+                 "and not a precision; see the rubric in the labels file.")
+    return s
+
+
+def cmd_preread_summary(args):
+    return _check_or_write(build_preread_summary(),
+                           os.path.join(PREREAD_DIR, "summary.json"), args.write)
+
+
+# --------------------------------------------------------------------------- #
 # main
 # --------------------------------------------------------------------------- #
 def main(argv=None):
@@ -478,6 +598,11 @@ def main(argv=None):
     fr.add_argument("--write", action="store_true")
     fr.add_argument("--print", action="store_true")
     fr.set_defaults(func=cmd_frame)
+    pc = sub.add_parser("preread-crops", help="render the AI pre-read's crops (needs panos/)")
+    pc.set_defaults(func=cmd_preread_crops)
+    ps = sub.add_parser("preread-summary", help="counts of the AI pre-read's labels")
+    ps.add_argument("--write", action="store_true")
+    ps.set_defaults(func=cmd_preread_summary)
     args = ap.parse_args(argv)
     return args.func(args)
 
