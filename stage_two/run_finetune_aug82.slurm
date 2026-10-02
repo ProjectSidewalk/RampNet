@@ -159,6 +159,17 @@ echo "Node list:   ${SLURM_NODELIST}"
 nvidia-smi --query-gpu=name --format=csv,noheader | sort | uniq -c
 echo "----------------------------"
 
+# Read the env's big shared libraries once, sequentially, before the ranks start. On
+# 2026-10-02 GPFS reads of /gscratch/makelab ran at ~20-30 MB/s on the compute nodes, and four
+# ranks page-faulting libtorch_cuda.so (1.4 GB) and friends through mmap sat 25+ min in
+# `import torch` (41106892 on g3115, 41106893 on g3045). One `cat` of libtorch_cuda.so took
+# 47 s, and 41106893 got past its imports within minutes of that cat warming the page cache.
+t_warm=$(date +%s)
+cat "$RAMPNET_ENV"/lib/libtorch*.so "$RAMPNET_ENV"/lib/libc10*.so "$RAMPNET_ENV"/lib/libmagma.so \
+    "$RAMPNET_ENV"/lib/libnccl.so* "$RAMPNET_ENV"/lib/libcudnn*.so* "$RAMPNET_ENV"/lib/libcublas*.so* \
+    "$RAMPNET_ENV"/lib/libmkl*.so* > /dev/null 2>&1 || true
+echo "Warmed env shared libraries in $(( $(date +%s) - t_warm )) s"
+
 cd "$RUNDIR"
 srun --export=ALL \
     "$TORCHRUN" --nnodes $SLURM_NNODES \
