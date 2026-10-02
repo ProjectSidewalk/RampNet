@@ -181,13 +181,14 @@ So pass 2 was rebuilt:
   **`9a8045c952207339`**, over pass-1 digest `bf3c00686e50e0da`. The pass-1 crops and
   manifest are unchanged (same `cut_one`, same defaults).
 - **The ring is an overlay.** The page draws it as SVG in crop units (same centre, radius
-  and dark halo as the baked ring); **R** or the button hides it, **Z** toggles 1:1 pixels.
+  and dark halo as the baked ring); **R** or the button hides it. The view opens at 1:1 pixels (never below the 540 px fit width, so the six 410 px cuts are not shrunk); **Z** fits it to the card. Added 2026-10-02 at Jon's request, before any pass-2 answer: on a 27" monitor the fit view threw away the native resolution pass 2 exists for.
 - **Image controls, per card, saved with the answer** (`image`, slider units): levels (black
   and white point), gamma and local contrast as an SVG filter, then brightness, contrast and
   saturation as CSS filters. All are browser filters on the committed JPEG, so the page works
   from `file://` and no pixel is rewritten; the setting is in the export so the re-rating is
   reproducible. A clipped pixel stays white under every setting; what the controls recover is
   the unclipped low-contrast range around it.
+- **Washout fix** (added 2026-10-02, before any pass-2 answer): one slider that at t% sets black point 1.7t, local contrast 1.5t and saturation 100+0.4t on the sliders above (`WASHOUT` in the script). It is a shortcut only: the export records the resulting slider values, not t, so an answer reads the same however it was reached.
 - **Binding.** The pass-2 rater file carries `manifest_digest` (pass 2),
   `pass1_manifest_digest`, `from_file` / `from_sha256` (the pass-1 file) and exactly its
   Can't tell cards as items; `rates --pass2` refuses anything else. The earlier, unanswered

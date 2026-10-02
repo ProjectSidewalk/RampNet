@@ -282,7 +282,15 @@ IMAGE_CONTROLS_CSS = (
     ".halo.ring circle.g { stroke:#00ff5a; stroke-width:2; }\n"
     ".halo.ring circle.h { stroke:#000; stroke-opacity:.9; stroke-width:1.5; }\n"
     ".card.noring .halo.ring { display:none; }\n"
-    ".card.zoomed .rate { flex:1 1 100%; }\n")
+    ".card.zoomed .rate { flex:1 1 100%; }\n"
+    ".imgctl .washout { font-weight:600; color:var(--fg); }\n"
+    ".imgctl .washout input[type=range] { width:160px; }\n")
+#: The washout slider is a shortcut, not a control of its own: at t (0-100) it sets black
+#: point 170*t/100, local contrast 150*t/100 and saturation 100+40*t/100 on the sliders
+#: after it (the pass-1 washed-out cards have 30-76% of the ring area at >= 245, the
+#: surviving detail sits above ~170). Only those sliders' values are saved, so an export
+#: reads the same whether the rater used the shortcut or the sliders.
+WASHOUT = (("bp", 0, 170), ("lc", 0, 150), ("sa", 100, 140))
 #: (key, label, min, max, default); 100 = x1.0 for the multiplicative ones.
 IMAGE_RANGES = (("bp", "Black point", 0, 250, 0), ("wp", "White point", 5, 255, 255),
                 ("gm", "Gamma", 30, 300, 100), ("lc", "Local contrast", 0, 300, 0),
@@ -309,13 +317,17 @@ def image_controls_html(uid, pass2=False):
             f'<feComposite in="gm" in2="bl" operator="arithmetic" k1="0" k2="1" k3="0" k4="0"/>'
             f'</filter></svg>')
     extra = (('<button type="button" class="ring_toggle" aria-pressed="true">Hide ring (R)</button>'
-              '<button type="button" class="zoom_toggle" aria-pressed="false">Zoom 1:1 (Z)</button>')
+              '<button type="button" class="zoom_toggle" aria-pressed="true">Zoom fit (Z)</button>')
              if pass2 else "")
+    washout = (f'<label class="washout">Washout fix <input type="range" data-washout min="0" '
+               f'max="100" value="0" aria-label="Washout fix for card {uid}: moves black point, '
+               f'local contrast and saturation together"></label>')
     return (f'{fdef}<div class="imgctl" role="group" aria-label="Image controls for card {uid}">'
-            f'{sliders}<button type="button" class="img_reset">Reset image</button>{extra}</div>')
+            f'{washout}{sliders}<button type="button" class="img_reset">Reset image</button>{extra}</div>')
 
 
 IMAGE_CONTROLS_JS = """
+const WASHOUT = """ + json.dumps(WASHOUT) + """;
 function imgState(card) {
   const s = {};
   card.querySelectorAll('.imgctl input[data-img]').forEach(inp => { s[inp.dataset.img] = +inp.value; });
@@ -359,7 +371,8 @@ function setZoom(card, on) {
   const img = rateImg(card);
   if (img) {
     const nat = img.naturalWidth || +((img.dataset.natural || "").split(" ")[0]) || 0;
-    img.style.width = (on && nat) ? nat + 'px' : '';
+    const fit = +img.getAttribute('width') || 0;
+    img.style.width = (on && nat) ? Math.max(nat, fit) + 'px' : '';
   }
   const b = card.querySelector('.zoom_toggle');
   if (b) { b.setAttribute('aria-pressed', on); b.textContent = on ? 'Zoom fit (Z)' : 'Zoom 1:1 (Z)'; }
@@ -375,14 +388,27 @@ CARDS.forEach(card => {
   card.querySelectorAll('.imgctl input[data-img]').forEach(inp => {
     inp.addEventListener('input', () => { applyImg(card); saveImg(card); });
   });
+  const wo = card.querySelector('.imgctl input[data-washout]');
+  if (wo) wo.addEventListener('input', () => {
+    const t = +wo.value / 100;
+    WASHOUT.forEach(([k, a, b]) => {
+      const inp = card.querySelector('.imgctl input[data-img="' + k + '"]');
+      if (inp) inp.value = Math.round(a + (b - a) * t);
+    });
+    applyImg(card); saveImg(card);
+  });
   card.querySelector('.img_reset').addEventListener('click', () => {
+    if (wo) wo.value = 0;
     card.querySelectorAll('.imgctl input[data-img]').forEach(inp => { inp.value = imgDefault(inp); });
     applyImg(card); saveImg(card);
   });
   const rt = card.querySelector('.ring_toggle');
   if (rt) rt.addEventListener('click', () => setRing(card, card.classList.contains('noring')));
   const zt = card.querySelector('.zoom_toggle');
-  if (zt) zt.addEventListener('click', () => setZoom(card, !card.classList.contains('zoomed')));
+  if (zt) {
+    zt.addEventListener('click', () => setZoom(card, !card.classList.contains('zoomed')));
+    setZoom(card, true);
+  }
 });
 document.addEventListener('keydown', ev => {
   const t = ev.target;
@@ -511,8 +537,10 @@ def _PAGE(cards_html, meta):
            'in pass 1. The view to rate is cut again from the same panorama at its native '
            'resolution (up to three times the pixels of pass 1) and without a drawn ring: the '
            'ring is an overlay, <strong>R</strong> (or the button) hides and shows it, and '
-           '<strong>Z</strong> toggles 1:1 pixels. The sliders under the view are levels '
-           '(black and white point: pull the black point up on a washed-out card), gamma, '
+           'the view opens at 1:1 pixels (<strong>Z</strong> fits it to the card). On a washed-out '
+           'card start with <strong>Washout fix</strong>, one slider that raises the black '
+           'point and adds local contrast and saturation together. The sliders after it are '
+           'levels (black and white point), gamma, '
            'local contrast, brightness, contrast and saturation; they apply to that card only '
            'and the setting is saved with the answer. A pixel the camera recorded as white '
            'holds no detail at any setting. Rate each card afresh under the same rubric; '
