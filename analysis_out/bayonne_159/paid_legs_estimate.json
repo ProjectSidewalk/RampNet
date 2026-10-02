@@ -1,0 +1,43 @@
+{
+ "expected_usd_total": 10.9,
+ "legs": [
+  {
+   "effort": null,
+   "expected_usd": 1.54,
+   "label": "gemini-3.6-flash",
+   "ledger_panos": 182,
+   "ledger_rows": 3,
+   "provider": "gemini",
+   "usd_per_pano": 0.01234
+  },
+  {
+   "effort": null,
+   "expected_usd": 2.03,
+   "label": "gemini-3.1-pro-preview",
+   "ledger_panos": 180,
+   "ledger_rows": 2,
+   "provider": "gemini",
+   "usd_per_pano": 0.01621
+  },
+  {
+   "effort": null,
+   "expected_usd": 1.42,
+   "label": "gemini-3.7-flash",
+   "ledger_panos": 180,
+   "ledger_rows": 2,
+   "provider": "gemini",
+   "usd_per_pano": 0.0114
+  },
+  {
+   "effort": "low",
+   "expected_usd": 5.91,
+   "label": "claude-opus-5",
+   "ledger_panos": 277,
+   "ledger_rows": 5,
+   "provider": "claude",
+   "usd_per_pano": 0.04727
+  }
+ ],
+ "n_panos": 125,
+ "what": "Paid legs NOT run on Bayonne (no spend today). Expected cost = the ledger's measured dollars per pano for that leg (rows before 2026-10-02T00:00:00Z) x 125 panos. Dollars are estimates; the billing console is authoritative. The per-pano rates rest on 180-277 measured panos per leg, and Gemini's thinking spend varies by imagery."
+}

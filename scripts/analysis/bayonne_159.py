@@ -767,6 +767,74 @@ def cmd_candidates(args):
     return _check_or_write(res, os.path.join(OUT_DIR, "candidates.json"), args.write)
 
 
+# --------------------------------------------------------------------------- #
+# paid legs: NOT run; their expected cost from the ledger's measured rows
+# --------------------------------------------------------------------------- #
+LEDGER = os.path.join(REPO, "analysis_out", "usage_log.jsonl")
+#: The paid legs a full Bayonne scoreboard row would need: the two scored Gemini legs,
+#: the published-but-unscored 3.7-flash, and the one complete Claude leg (opus-5 at
+#: effort low, eleven splits). (provider, label, effort or None)
+PAID_LEGS = (("gemini", "gemini-3.6-flash", None), ("gemini", "gemini-3.1-pro-preview", None),
+             ("gemini", "gemini-3.7-flash", None), ("claude", "claude-opus-5", "low"))
+
+
+#: Rows written after this are ignored, so a later paid run of the same legs does not
+#: silently move a committed estimate.
+LEDGER_CUTOFF = "2026-10-02T00:00:00Z"
+
+
+def paid_estimate(rows, n_panos, legs=PAID_LEGS, cutoff=LEDGER_CUTOFF):
+    """Expected dollars per leg = measured dollars per pano x ``n_panos``. Pure.
+
+    Uses only measured rows (``kind`` absent; recovered rows carry no pano count), and
+    a row's pano denominator is ``panos_called`` when present (calls actually made)
+    else ``panos_scored``."""
+    out = []
+    for provider, label, effort in legs:
+        n = usd = 0.0
+        k = 0
+        for r in rows:
+            if r.get("kind") == "recovered" or r.get("provider") != provider:
+                continue
+            if (r.get("ts") or "") >= cutoff:
+                continue
+            if r.get("label") != label or not r.get("est_cost_usd"):
+                continue
+            if effort is not None and (r.get("signature") or {}).get("effort") != effort:
+                continue
+            p = r.get("panos_called") or r.get("panos_scored") or 0
+            if not p:
+                continue
+            n += p
+            usd += r["est_cost_usd"]
+            k += 1
+        out.append({"provider": provider, "label": label, "effort": effort,
+                    "ledger_rows": k, "ledger_panos": int(n),
+                    "usd_per_pano": _r(usd / n, 5) if n else None,
+                    "expected_usd": _r(usd / n * n_panos, 2) if n else None})
+    return out
+
+
+def build_paid_estimate():
+    with open(LEDGER, encoding="utf-8") as f:
+        rows = [json.loads(line) for line in f if line.strip()]
+    legs = paid_estimate(rows, 125)
+    return {"what": "Paid legs NOT run on Bayonne (no spend today). Expected cost = the "
+                    "ledger's measured dollars per pano for that leg (rows before "
+                    f"{LEDGER_CUTOFF}) x 125 panos. Dollars are estimates; the billing "
+                    "console is authoritative. The per-pano rates rest on 180-277 measured "
+                    "panos per leg, and Gemini's thinking spend varies by imagery.",
+            "n_panos": 125, "legs": legs,
+            "expected_usd_total": _r(sum(l["expected_usd"] or 0 for l in legs), 2)}
+
+
+def cmd_paid_estimate(args):
+    res = build_paid_estimate()
+    if args.print:
+        print(json.dumps(res, indent=1))
+    return _check_or_write(res, os.path.join(OUT_DIR, "paid_legs_estimate.json"), args.write)
+
+
 PREREAD_LABELS_FILE = os.path.join(PREREAD_DIR, "preread__claude-opus-5-5.json")
 
 
@@ -812,6 +880,10 @@ def main(argv=None):
     cd.add_argument("--write", action="store_true")
     cd.add_argument("--print", action="store_true")
     cd.set_defaults(func=cmd_candidates)
+    pe = sub.add_parser("paid-estimate", help="expected cost of the paid legs not run")
+    pe.add_argument("--write", action="store_true")
+    pe.add_argument("--print", action="store_true")
+    pe.set_defaults(func=cmd_paid_estimate)
     ck = sub.add_parser("checks", help="replication control + Bayonne parity detail")
     ck.add_argument("--write", action="store_true")
     ck.add_argument("--print", action="store_true")

@@ -307,3 +307,19 @@ def test_candidate_needs_two_legs_and_a_silent_rampnet():
 def test_candidates_json_rederives():
     want = _committed("candidates.json")
     assert B._dumps(B.build_candidates()) == want
+
+
+def test_paid_estimate_rederives_from_the_ledger_before_its_cutoff():
+    want = _committed("paid_legs_estimate.json")
+    assert B._dumps(B.build_paid_estimate()) == want
+
+
+def test_paid_estimate_ignores_recovered_rows_and_rows_after_the_cutoff():
+    rows = [{"provider": "gemini", "label": "g", "est_cost_usd": 1.0, "panos_scored": 10,
+             "ts": "2026-09-01T00:00:00Z"},
+            {"provider": "gemini", "label": "g", "est_cost_usd": 9.0, "panos_scored": 10,
+             "ts": "2026-10-05T00:00:00Z"},
+            {"provider": "gemini", "label": "g", "est_cost_usd": 50.0, "kind": "recovered",
+             "ts": "2026-09-01T00:00:00Z"}]
+    [leg] = B.paid_estimate(rows, 125, legs=(("gemini", "g", None),))
+    assert leg["usd_per_pano"] == 0.1 and leg["expected_usd"] == 12.5
