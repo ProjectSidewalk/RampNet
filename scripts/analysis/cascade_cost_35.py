@@ -875,17 +875,12 @@ def splits_with_op_cache():
 
 
 def all_benchmark_splits():
-    # A bundle.json bundle (#48's neighbourhood bundles) borrows another split's
-    # verdicts and adds unjudged panos: it is a detection input, not a split.
-    # A bundle with neither verdicts.json nor gt_source.json is staged ahead of its
-    # review (bayonne, #159): nothing about it can be scored yet, so it is not a
-    # split either, and listing it would add a gap row that only means "unreviewed".
-    d = os.path.join(REPO, "benchmark")
-    return sorted(n for n in os.listdir(d)
-                  if os.path.exists(os.path.join(d, n, "records.jsonl"))
-                  and not os.path.exists(os.path.join(d, n, "bundle.json"))
-                  and (os.path.exists(os.path.join(d, n, "verdicts.json"))
-                       or os.path.exists(os.path.join(d, n, "gt_source.json"))))
+    # Scored splits only (rampnet.bundles): a bundle.json bundle (#48's neighbourhood
+    # bundles) borrows another split's verdicts and adds unjudged panos, and a bundle
+    # with neither verdicts.json nor gt_source.json is staged ahead of its review
+    # (bayonne, #159); neither is a split, and listing one would add a gap row.
+    from rampnet.bundles import scored_splits
+    return scored_splits(os.path.join(REPO, "benchmark"))
 
 
 def summary(out_dir, out_path=None, quiet=False):
