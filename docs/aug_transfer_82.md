@@ -276,4 +276,34 @@ COST_PLACEHOLDER
 
 ## Reproducing
 
-REPRO_PLACEHOLDER
+All CPU steps run from a clean clone with `requirements-dev.txt`; the GPU steps need the benchmark
+panos (`benchmark/<split>/panos/`, not committed; fetched per `benchmark/README.md`, or on makelab2 at
+`/homes/gws/jonf/RampNet/benchmark/<split>/panos`, on klone at
+`/gscratch/makelab/jonf/rampnet_benchmark/<split>/panos` and, for manual_gold,
+`/gscratch/scrubbed/jfroehli/manual_gold/panos`).
+
+```bash
+# --- Step 1 (makelab2; ~10 min CPU for stats, ~4.3 h on a shared A40 for the probe) ---
+python scripts/analysis/aug_probe_82.py stats --panos-root /homes/gws/jonf/RampNet --workers 6
+python scripts/analysis/aug_probe_82.py arms             # the arm table derived from stats.json
+bash scripts/analysis/aug_probe_82.sh                    # none -> check (stops on mismatch) -> all arms -> report
+# re-derive on CPU from the committed caches:
+python scripts/analysis/aug_probe_82.py check            # instrument: none == #25 r2048, exit 1 otherwise
+python scripts/analysis/aug_probe_82.py report --check   # probe_results.json is up to date
+
+# --- Step 3 (klone, from a checkout of this branch at /gscratch/scrubbed/$USER/RampNet_aug82) ---
+mkdir -p logs
+# optional but strongly recommended on klone: a tarball of the env, unpacked per job onto /scr
+sbatch -p ckpt-all -c 4 --mem=8G --time=3:00:00 --wrap "tar cf /gscratch/scrubbed/$USER/aug82/sidewalkcv2_env.tar -C /gscratch/makelab/jonf/envs sidewalkcv2"
+for s in 1 2; do for a in control both res photo; do
+  RAMPNET_ENV=/gscratch/makelab/jonf/envs/sidewalkcv2 ARM=$a SEED=$s sbatch --job-name=aug82_${a}_s$s stage_two/run_finetune_aug82.slurm
+done; done
+# released checkpoint, scored once with the same scorer (benchmark/<split>/panos symlinked as above)
+RAMPNET_ENV=/gscratch/makelab/jonf/envs/sidewalkcv2 LABELS=released sbatch scripts/analysis/aug82_score_ckpts.slurm
+# after each job finishes: copy to /gscratch/makelab/jonf/aug82/<arm>_s<seed>.pth, hash, score
+bash scripts/analysis/aug82_finish_klone.sh control_s1 both_s1 ...
+# copy analysis_out/aug_transfer_82/finetune/<label>/*.json back, then on CPU:
+python scripts/analysis/aug_finetune_82.py               # -> finetune_results.json / .md
+python scripts/analysis/aug_finetune_82.py --check
+```
+
