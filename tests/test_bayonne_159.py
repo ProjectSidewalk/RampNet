@@ -289,6 +289,16 @@ def test_repro_check_counts_cells():
     assert r["peaks_only_new_in_border_ring"] == 1 and r["peaks_only_committed"] == 0
 
 
+def test_dense_legs_support_but_never_vote():
+    from rampnet.detection_eval import radius_sq_for
+    legs = {"owlv2": {"p": [(0.5, 0.6)]}, "gdino": {"p": [(0.5, 0.6)]},
+            "y": {"p": [(0.5, 0.6)]}}
+    assert B.candidate_misses({}, legs, radius_sq_for(), support_only=("owlv2", "gdino")) == []
+    legs["z"] = {"p": [(0.501, 0.6)]}
+    [c] = B.candidate_misses({}, legs, radius_sq_for(), support_only=("owlv2", "gdino"))
+    assert c["legs"] == ["y", "z"] and c["support"] == ["gdino", "owlv2"]
+
+
 def test_candidate_needs_two_legs_and_a_silent_rampnet():
     from rampnet.detection_eval import radius_sq_for
     rsq = radius_sq_for()

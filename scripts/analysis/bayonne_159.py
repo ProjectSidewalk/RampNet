@@ -673,6 +673,13 @@ CANDIDATE_LEGS = (
 )
 RAMPNET_SILENT_BELOW = 0.30     # the recommended operating point (docs/operating_point.md)
 MIN_LEGS = 2
+#: Legs that do NOT count toward agreement: the open-vocabulary detectors, which the
+#: roster classes as dense (55-88 boxes/pano on the published splits; 5.5 and 27.4
+#: points/pano here at their thresholds). Two dense legs land within one radius of
+#: each other almost anywhere, so their agreement says nothing; with them counted,
+#: 417 of the first draft's 425 candidates were OWLv2 + Grounding DINO alone. They are
+#: reported beside each candidate as support, never as a vote.
+SUPPORT_ONLY = ("owlv2", "gdino")
 
 
 def _d2(a, b):
@@ -681,34 +688,38 @@ def _d2(a, b):
 
 
 def candidate_misses(rampnet_peaks, legs, radius_sq, band=None, min_legs=MIN_LEGS,
-                     silent_below=RAMPNET_SILENT_BELOW):
+                     silent_below=RAMPNET_SILENT_BELOW, support_only=()):
     """Locations where RampNet has no peak >= ``silent_below`` within the match radius
     and at least ``min_legs`` distinct challenger legs put a point within it. Pure.
 
     ``legs`` is ``{leg: {pano: [(x, y), ...]}}`` already cut at each leg's operating
     point. Seeds are every challenger point in turn (in leg order, then point order);
     a seed's cluster is every leg with a point within one radius of it; clusters are
-    reported once (a later seed within a radius of a reported one is skipped). The
-    scorer does not wrap the seam, so neither does this."""
+    reported once (a later seed within a radius of a reported one is skipped). Legs in
+    ``support_only`` neither seed nor vote; they are listed as ``support``. The scorer
+    does not wrap the seam, so neither does this."""
     out = []
     panos = sorted(set(rampnet_peaks) | {p for d in legs.values() for p in d})
     for pano in panos:
         rn = [(x, y) for x, y, s in rampnet_peaks.get(pano, []) if s >= silent_below]
         reported = []
-        for leg in legs:
+        voters = [l for l in legs if l not in support_only]
+        for leg in voters:
             for pt in legs[leg].get(pano, []):
                 if any(_d2(pt, q) <= radius_sq for q in rn):
                     continue
                 if any(_d2(pt, c) <= radius_sq for c in reported):
                     continue
-                agree = sorted(l2 for l2 in legs
-                               if any(_d2(pt, q) <= radius_sq for q in legs[l2].get(pano, [])))
+                near = [l2 for l2 in legs
+                        if any(_d2(pt, q) <= radius_sq for q in legs[l2].get(pano, []))]
+                agree = sorted(l2 for l2 in near if l2 not in support_only)
+                support = sorted(l2 for l2 in near if l2 in support_only)
                 if len(agree) < min_legs:
                     continue
                 reported.append(pt)
                 bmax = [s for x, y, s in rampnet_peaks.get(pano, []) if _d2(pt, (x, y)) <= radius_sq]
                 out.append({"pano": pano, "x": _r(pt[0], 4), "y": _r(pt[1], 4), "legs": agree,
-                            "n_legs": len(agree),
+                            "n_legs": len(agree), "support": support,
                             "rampnet_best_peak_within_radius": _r(max(bmax)) if bmax else None,
                             "in_nadir_band": bool(band is not None and band.get(pano) is not None
                                                   and pt[1] >= band[pano])})
@@ -742,19 +753,19 @@ def build_candidates():
                     "points_per_pano": _r(sum(len(v) for v in pts.values()) / len(pts))})
     band = {p: e["band_top_y"] for p, e in load_band().items()}
     strata = strata_of(SPLIT)
-    cands = candidate_misses(peaks, legs, radius_sq_for(), band)
+    cands = candidate_misses(peaks, legs, radius_sq_for(), band, support_only=SUPPORT_ONLY)
     for c in cands:
         c["group"] = strata.get(c["pano"])
-    non_dense = [c for c in cands
-                 if len(set(c["legs"]) - {"owlv2", "gdino"}) >= MIN_LEGS]
     return {
         "what": "Reviewer-attention list, NOT ground truth: locations where RampNet has no "
                 f"peak >= {RAMPNET_SILENT_BELOW} within the 0.022 match radius and >= "
-                f"{MIN_LEGS} challenger legs agree within it. Read after judging a pano, as "
-                "a second sweep, so it does not steer the first look.",
+                f"{MIN_LEGS} challenger legs agree within it, not counting the dense "
+                "open-vocabulary legs (OWLv2, Grounding DINO), which are listed as support "
+                "only. Read after judging a pano, as a second sweep, so it does not steer "
+                "the first look.",
         "legs_run": ran, "legs_not_run": not_run,
         "n_candidates": len(cands),
-        "n_candidates_two_non_open_vocab_legs": len(non_dense),
+        "support_only": list(SUPPORT_ONLY),
         "n_in_nadir_band": sum(c["in_nadir_band"] for c in cands),
         "candidates": cands,
     }
