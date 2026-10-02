@@ -108,8 +108,11 @@ def _metrics(panos, rsq):
 def _contrast(sa, sb, sizes, t):
     rng = np.random.default_rng(SEED)
     r = bp.observed_and_se(sa, sizes, t, rng, N_REPS, paired=sb)
+    # max_f1 (best F1 over every threshold, per bootstrap draw) is kept: two checkpoints
+    # whose scores are calibrated differently can trade recall for precision at a fixed
+    # threshold without either ranking detections better, and max_f1 separates the two.
     return {k: {"observed": rnd(v["observed"]), "ci_lo": rnd(v["ci_lo"]),
-                "ci_hi": rnd(v["ci_hi"])} for k, v in r.items() if k != "max_f1"}
+                "ci_hi": rnd(v["ci_hi"])} for k, v in r.items()}
 
 
 def contrasts_for(scored, members, pairs_of_labels):
@@ -232,14 +235,14 @@ def markdown(rep):
             L.append(f"| {c} | " + " | ".join(cells) + " |")
         L += ["", f"## Contrasts at {thr}: dR, dF1 (paired pano bootstrap, 95% interval); "
               "the control-seed spread is the first row of every block", "",
-              "| split / pool | contrast | dR | dP | dF1 |", "|---|---|---|---|---|"]
+              "| split / pool | contrast | dR | dP | dF1 | d max-F1 |", "|---|---|---|---|---|---|"]
         blocks = list(rep["per_split"].items()) + [(f"**{k}**", v)
                                                    for k, v in rep["pooled"].items()]
         for c, ent in blocks:
             for name, cs in ent["contrasts"].items():
                 d = cs[thr]
                 L.append(f"| {c} | {name} | {_fmt(d['recall'])} | {_fmt(d['precision'])} | "
-                         f"{_fmt(d['f1'])} |")
+                         f"{_fmt(d['f1'])} | {_fmt(d['max_f1'])} |")
         L.append("")
     lp = rep["laurens_paired"]
     L += [f"## Laurens rig effect on the {lp['n_pairs']} paired corners (GSV minus GoPro)", "",

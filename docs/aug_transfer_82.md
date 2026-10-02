@@ -229,7 +229,29 @@ stream ends in the same state, and the pixels did change.
 
 ## Step 3: the paired fine-tune screen
 
-STEP3_PLACEHOLDER
+**Setup.** Every run starts from the released weights: Hub revision 606a119, `model.safetensors`
+sha256 `f2119e3b…`, converted once to a bare state_dict, `released_rampnet_state_dict.pth`, sha256
+`024a987c…`. Each run then trains 2,000 optimizer steps at the recipe's constant LR 1e-5 with Adam
+and AMP, global batch 16 (4 GPUs × batch 1 × accumulation 4), on the full Stage 2 train split
+(`/gscratch/scrubbed/jfroehli/rampnet_dataset/train`, 150,063 panos; it was intact on 2026-10-02, so no
+subset was staged). 2,000 steps is 32,000 panos, about a fifth of an epoch, and it took 2–3 h per
+run on 4 A40/L40/L40S (1.0–1.4 s per micro-batch). The arms (`stage_two/run_finetune_aug82.slurm`):
+
+| arm | `--aug` added to the recipe's flip | why these ranges |
+|---|---|---|
+| control | none | the same extra training, nothing new |
+| res | `downscale=0.5:0.5:1.0` `blur=0.3:0.0:1.15` `jpeg=0.5:50:95` | from the GSV value through the probe's beyond level (downscale 0.50, blur 1.15 px, JPEG 50) |
+| photo | `brightness=0.5:0.6:1.2` `contrast=0.5:0.85:1.25` `saturation=0.5:0.7:1.6` `gamma=0.5:0.75:1.5` `wb=0.5:-0.5:0.3` `hue=0.3:-6:6` | covers the measured Laurens GoPro offsets (brightness 0.68, contrast 1.15, saturation 1.49, WB −0.34) in both directions; gamma is capped at 1.5 because the measured 1.95 already overshoots in the probe |
+| both | res + photo | |
+
+The levels were set from the rig statistics before the probe's contrasts were read. Training had to
+start early in the day to finish, so the probe's results did not feed back into the ranges. Each arm
+ran at seeds 1 and 2. Arms at the same seed share data order and flip draws, so every augmented
+arm is compared with its same-seed control. The two controls differ in seed only, and their
+difference (`spread`) is the noise floor printed beside every contrast.
+
+STEP3_RESULTS
+
 
 ## Deviations from the plan, and why
 
