@@ -1,0 +1,521 @@
+{
+ "band_top_y_max": 0.791,
+ "band_top_y_median": 0.791,
+ "band_top_y_min": 0.7715,
+ "caveat": "114 municipal panos measure 0.791; 9 measure 0.771-0.789, and an overlay of the measured line on those 9 (2026-10-02) shows the band itself starting higher (two-wheeler captures, and one with no vehicle in frame), not a measurement error. One non-municipal pano carries a different, green-and-white band that this method does not detect (f8759625-...); the other non-municipal pano has none.",
+ "labeler_band_y": 0.791,
+ "method": {
+  "columns": "x 420-600 of 1024 (logo-free centre)",
+  "downsample": "1024x512 bilinear",
+  "row_is_band": ">= 0.98 of those columns white",
+  "scan": "up from row 486 while rows stay white",
+  "script": "scripts/analysis/bayonne_159.py band",
+  "white": "every channel > 235"
+ },
+ "n_with_band": 123,
+ "n_without_band": 2,
+ "panos": {
+  "019f4d23-478a-4a48-816b-364caa2f1e51": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "01c159b3-125f-4291-8a3d-de3b2d624741": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "038fc119-c08d-4812-bbab-5919b8f5ff31": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "071afe3d-14d6-4faa-a74c-271d94dbab5d": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "0c1ccac3-fe6c-451b-921c-b1b5344b2c06": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "0c510a43-e9aa-407b-bc5d-d23d378d902d": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "11f1d4e9-b230-4d5a-8b53-df0edd20669b": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "11fe09df-ff5d-4584-a793-6a2889082a96": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "135b5214-b5db-4389-90dc-ab75530597f1": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "1604f65f-2ab6-4c6a-917d-a06b6297ffa6": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "1627f0a5-5c3b-4e0d-9c26-a88194490cda": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "1c2894e4-7ece-4002-a170-4fcc54d1b29f": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "1d3991ab-bdce-4c16-914e-6506def74b3d": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "2157f981-fcbb-4b0d-82a2-70eabd2cff24": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "254396eb-5496-48e8-846d-d54722200323": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "25bd098c-6f56-4f2f-a976-24d5fc48b060": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "25d35011-e28b-4f88-a978-d2660de12613": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "267b94ed-29d9-4740-b4fe-1f6cc991f9ec": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "27bd61dd-3453-489c-b090-760ad040e390": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "2873e2ea-389e-4b8a-beb1-9515957db8ba": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "28f9f4bf-8263-4aa3-bded-81f6457ce5dc": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "29edbf30-0138-487a-aba1-c7714d5a6294": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "2a2f5334-7d33-4cae-827e-99503aa5b866": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "2da9c8a1-df38-473e-a195-c3bdaf0898a6": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "30c26173-8944-4623-a1bc-a5af84ffb4a5": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "345ab35f-8b82-4607-8542-349aad6319b7": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "34f476a5-9364-4d22-87ea-d656133529b2": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "369e75d0-352b-4471-b26e-2303b7bebce7": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "3748abdb-b141-4514-b31f-fb88f7ede070": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "38e43bdf-6bb6-4959-816a-665bd36cdffc": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "3c377025-8503-4402-a996-c01a5ede051f": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "417becfa-1ae7-4b64-b86c-46943520eeba": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "46c078b2-3d16-4210-82ab-c4c8d5ac779a": {
+   "band_top_y": 0.7715,
+   "copyright": "sig_bayonne"
+  },
+  "47e29c76-15f1-462a-a34c-db9d49ce800a": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "48d7a7fe-3b57-4eeb-ae3b-a82229f49bf5": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "49e70c7d-f373-471d-aca0-b5be9e83f9e4": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "4b05fbdc-c912-4625-9246-df804d2a3f24": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "507f47f2-0ae6-4c15-8057-ef61dfac9d81": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "5522ae66-ae85-49fb-bfd3-41c7d81308f3": {
+   "band_top_y": 0.7812,
+   "copyright": "sig_bayonne"
+  },
+  "581f2fdf-4dec-4d96-a180-50135c634da2": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "5890b486-0c61-49f5-8ae7-fc4b13bdd5ee": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "59962592-3abe-42cd-8396-73081bc965ff": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "59e47e8b-7649-4d13-9d5d-f37e429dfca6": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "5eb6919e-2a54-4a65-b5bc-bf2a6fb7e219": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "5fd55065-c128-40bf-8fef-227748cb5ff1": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "6279b12d-e3cb-432c-b9f3-3912718f632a": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "67b751e6-66bf-40ee-bb15-7b0fe23ffac4": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "67c359e5-56cb-4855-b7b1-6e4ace28aa3d": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "6c22145f-6506-4b9b-bf57-86e2cc685171": {
+   "band_top_y": 0.7715,
+   "copyright": "sig_bayonne"
+  },
+  "6d0d3dba-c9be-488f-a6e3-4d4cb2a8f909": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "6f285965-7d1f-4226-a60e-5c01524ce25a": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "733095d5-b1c6-4d20-a02c-7ebab65d7bb9": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "75110567-a968-477c-9dc3-96d28f5e1ac8": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "75a63358-1c1c-4c69-b2bd-353912520ffc": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "76e98dfb-22ab-4eb5-9b13-455b2041daca": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "789648e0-b907-440e-923b-3a6f19ea5abf": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "7af67f3b-a1db-4131-bcab-d6bf90019215": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "7c8f3186-9189-47c9-93d5-86f0811b5e28": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "7c9dd979-3073-4de5-a13b-1db0b594e301": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "7e5ddca0-391a-42a6-99e4-bafac19f350b": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "7ee0b0b3-aa62-4f6d-ad19-3cc29df52e7f": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "8176c006-f50a-497e-9c7f-73e81bb4d2cf": {
+   "band_top_y": 0.7812,
+   "copyright": "sig_bayonne"
+  },
+  "86278d43-1d90-482d-b1e7-e61b0006a99e": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "88490116-30d3-44e5-bfb8-8ba0e5422954": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "890b83cb-8997-4e46-9cbe-bae65448cfa3": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "8a14654a-b5ff-4e8d-88e5-532df983b059": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "8c6a0a00-2675-4b57-a8f9-fce40511b654": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "8ce50263-1b99-4ea4-9fb8-eaab45e80fac": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "8dcc08b6-bef7-42d2-8021-f8263338d378": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "8ea9288c-d74c-4771-bb9a-e3aa0e78b905": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "8eee869f-2dbb-4b37-8401-106ef738a599": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "8fedbe47-079c-4f9d-944c-2e418a6a441b": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "9286f977-5c31-4ee5-b42c-b3efea698103": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "963fa5c1-7493-4f24-b31d-848073daa1b5": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "98afcd3f-ee68-4c3e-8326-bd6608b18430": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "99432a18-6d55-4bbf-b368-2fe39d3643fa": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "9b926058-3ef8-4bf9-9066-3e02d51efa4a": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "9b98c1a4-a17a-4fab-91da-8bab47e53c47": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "9c193daa-ce58-46d0-8233-435a7da475a7": {
+   "band_top_y": null,
+   "copyright": "Arretche"
+  },
+  "9d357c77-bcb8-48b2-a827-3e0d31044b43": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "a11e2be5-5c7d-4648-9731-baf015c67235": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "a5a85e1e-ee6a-4182-a038-59c5516733bd": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "a6fe5336-c2c7-400c-917a-f6abd7eea16a": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "ab51ab70-657a-42a0-8605-1dd3e4b82390": {
+   "band_top_y": 0.7734,
+   "copyright": "sig_bayonne"
+  },
+  "ade1ccfb-e9bb-412c-a904-b71b1e5b6aee": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "b0f0b5d9-e286-4606-a2a9-b5757d5ef67b": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "b169d91f-2923-4ac1-ba84-682fd050be07": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "b1b7ddd2-d43c-480e-9dd0-407b5cf3fd59": {
+   "band_top_y": 0.7891,
+   "copyright": "sig_bayonne"
+  },
+  "b2e1fb42-2793-49fb-afc3-2f784adb20de": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "b45ba492-683c-4284-ad51-429002b39631": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "b517b388-33ad-4753-8461-1a086c5dd686": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "b714be32-7a30-4a00-8f6c-c323e3649464": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "b9f7349e-1e69-4b3d-975c-25d531412b6f": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "c57fbe9c-cf15-498b-ad80-49df38244a6c": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "c8cb8a21-5b9c-4c03-ac56-ca5027c20784": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "cb4b537a-e406-4208-bac6-7a5c45bf1a72": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "cc057703-e556-4769-a99d-c32e5bcabb55": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "cedbaf53-3aa5-435b-979b-f2b110ccc04d": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "cee5d22e-4164-4b11-a173-5cf7c65846f8": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "d214a244-584b-4bd3-9455-a912c9220671": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "d360b220-4367-4e31-b41c-2bb32cbd94eb": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "d396b612-894e-437f-8e2c-3782d0e1fa5d": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "d4200c21-811d-4b49-ae72-d5148821fbde": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "d8647db7-9614-444a-beab-bd8477c6d8aa": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "d90cbe9d-0c77-4a43-aab6-d5dd9c52897c": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "d9b40a80-b78e-42c2-a691-09f029fc0e21": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "db595ea9-8770-44f9-bda8-98ce7faaa2c2": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "db87e787-8e09-42c5-8235-3224072d13f7": {
+   "band_top_y": 0.7812,
+   "copyright": "sig_bayonne"
+  },
+  "dca64d90-0ebb-41df-900d-f89c03bffbeb": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "dcfef45d-94bd-4767-9a08-745f5d0391e5": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "debc67c2-3d52-4255-a8c8-ad7f595747be": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "e018e8ad-05e8-4ac8-9a00-eb2219c4e66f": {
+   "band_top_y": 0.7812,
+   "copyright": "sig_bayonne"
+  },
+  "e0849d9a-64a6-4426-b398-7d00e8ad17c4": {
+   "band_top_y": 0.7812,
+   "copyright": "sig_bayonne"
+  },
+  "e36b77c3-9bdb-4e41-b405-128fed2d0c34": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "e8acafb5-3d1b-407b-8a07-e22a2c4a69f4": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "ea8b3f52-a3b2-4c62-b35f-19a12d018f08": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "ee13d084-1d02-4867-9af3-a31f3d99f966": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "f14e90c6-0e79-4a74-8d1f-52a842eb5de6": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "f3a1b576-0204-455a-b87c-ccbf5a75aac3": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "f3df7175-b692-4ab5-b418-af4c54f495b5": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "f557d640-422e-48a0-a94f-dd29634e007f": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "f5af69b9-123d-4d34-b335-b48074ab8c93": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "f8759625-2874-4b43-832f-a3aa2669af15": {
+   "band_top_y": null,
+   "copyright": "Arretche"
+  },
+  "fbbe99ca-272b-44ca-bc69-b4ceb70790ab": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  },
+  "fe3d9264-f208-4dac-849c-af56a8267e75": {
+   "band_top_y": 0.791,
+   "copyright": "sig_bayonne"
+  }
+ },
+ "rig_mask_y": 0.772,
+ "what": "top edge of the white nadir logo band, normalized y (0 = top of the equirect), measured per pano. null = no white band found."
+}

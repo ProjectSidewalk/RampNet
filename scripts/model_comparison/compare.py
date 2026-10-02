@@ -184,8 +184,13 @@ def verdicts_from_spec(bundle_dir):
         return json.load(f)["panos"]
 
 
-def load_bundle(bundle_dir):
+def load_bundle(bundle_dir, unreviewed=False):
     """Return (records_by_pid, verdicts_panos, panos_dir) for a benchmark bundle.
+
+    ``unreviewed=True`` accepts a bundle that has only ``records.jsonl`` and
+    ``panos/`` -- a city staged ahead of its ground-truth review (#159) -- and
+    returns ``{}`` for its verdicts, so every pano is detect-only. It is refused for
+    a bundle that already has a review, so the flag can never hide one.
 
     ``verdicts_panos`` is None for a manual-GT bundle (``gt_source.json`` instead
     of ``verdicts.json`` — see ``load_manual_ground_truths``); the city bundles
@@ -207,6 +212,8 @@ def load_bundle(bundle_dir):
             verdicts = json.load(f)["panos"]
     elif os.path.exists(os.path.join(bundle_dir, BUNDLE_SPEC)):
         verdicts = verdicts_from_spec(bundle_dir)
+    elif unreviewed and not os.path.exists(os.path.join(bundle_dir, "gt_source.json")):
+        return records, {}, os.path.join(bundle_dir, "panos")
     elif not os.path.exists(os.path.join(bundle_dir, "gt_source.json")):
         raise SystemExit(f"{bundle_dir}: neither verdicts.json, {BUNDLE_SPEC} nor "
                          "gt_source.json — not a benchmark bundle")
@@ -908,6 +915,10 @@ def build_parser():
                          "and cache their detections, unscored (#48 neighbourhood bundles, "
                          "whose bundle.json borrows another split's verdicts). With --limit, "
                          "at most N of them too.")
+    ap.add_argument("--unreviewed", action="store_true",
+                    help="The bundle has no verdicts yet (a city staged ahead of its "
+                         "review, #159): run each model over every pano and cache the "
+                         "detections, score nothing. Refused for a reviewed bundle.")
     ap.add_argument("--cache-dir", default=str(REPO_ROOT / ".model_cache"),
                     help="Where to cache per-pano detections (keyed by model + rig + pano). "
                          "Re-runs reuse hits and don't re-pay the API.")
@@ -938,10 +949,13 @@ def main():
 
     load_dotenv_for_run()
     specs = [parse_model_spec(t) for t in args.models.split(",") if t.strip()]
-    records, verdicts, panos_dir = load_bundle(args.bundle)
+    records, verdicts, panos_dir = load_bundle(args.bundle, unreviewed=args.unreviewed)
     # Fail fast on a broken bundle before any (paid) detector call, then reduce
     # both GT sources to the same {pid: GroundTruth} shape.
     judged_all = set(verdicts) if verdicts is not None else set()
+    if args.unreviewed and verdicts:
+        raise SystemExit(f"{args.bundle}: --unreviewed given, but this bundle has a "
+                         "review; drop the flag and score it.")
     if verdicts is not None:
         if args.limit:
             verdicts = dict(list(verdicts.items())[:args.limit])
@@ -983,6 +997,9 @@ def main():
     spend_needs_recording = usage_log is None and not args.allow_unrecorded_spend
 
     detect_only = []
+    if args.unreviewed:
+        # Nothing to score: every pano is detect-only, cached for the day verdicts land.
+        args.detect_unjudged = True
     if args.detect_unjudged:
         # judged panos cut by --limit are skipped, not run as if unjudged
         detect_only = [pid for pid in records if pid not in gts and pid not in judged_all]
@@ -1054,6 +1071,14 @@ def main():
                 print(f"    ... and {len(run.failures) - 5} more")
             print()
 
+    if args.unreviewed:
+        # An unreviewed bundle has no GT, so any P/R table would be all zeros and
+        # read as a result. Report what was cached and stop.
+        print(f"Unreviewed bundle: {len(detect_only)} panos per model detected and "
+              f"cached under {args.cache_dir}; nothing scored.")
+        for label, run, _ in runs:
+            print(f"  {label}: {len(run.failures)} pano failure(s)")
+        return
     if rows:
         if args.op_threshold > 0:
             print(f"Operating point: predictions with confidence < {args.op_threshold} dropped "

@@ -431,3 +431,12 @@ analysis_out/decode_e2e_221/*
 !analysis_out/decode_e2e_221/metrics/
 analysis_out/decode_e2e_221/metrics/*
 !analysis_out/decode_e2e_221/metrics/*.json
+
+# Bayonne staged ahead of its review (#159): the unreviewed low-floor cache, the
+# challenger detections, the GT-free reads and the AI pre-read are all small JSON/CSV
+# and re-derivable only with a GPU, so they are committed. Crops rendered for viewing
+# regenerate from the (git-ignored) panos and stay out.
+!analysis_out/bayonne_159/
+analysis_out/bayonne_159/**/*.jpg
+analysis_out/bayonne_159/**/*.png
+analysis_out/bayonne_159/**/*.html
