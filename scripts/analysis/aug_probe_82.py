@@ -469,7 +469,8 @@ def build_arms(stats):
     # the Laurens gap): that arm applies brightness AND gamma, each placed to account for
     # the WHOLE luminance difference on its own, so it darkens about twice as much as the
     # GoPro imagery is darker. These four split it, each with at most one luminance op.
-    res_ops = [(ax, lvl) for ax, lvl in combo if ax in ("downscale", "blur", "noise", "jpeg")]
+    # noise is left out: the GoPro split is not noisier (its noise@gopro level is a fallback).
+    res_ops = [(ax, lvl) for ax, lvl in combo if ax in ("downscale", "blur", "jpeg")]
     col_ops = [(ax, lvl) for ax, lvl in combo if ax in ("contrast", "saturation", "wb")]
     by = dict(combo)
     decomp = {
