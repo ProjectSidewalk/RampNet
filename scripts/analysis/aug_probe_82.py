@@ -445,6 +445,12 @@ def derive_repairs(stats):
 
 
 LEVEL_NAMES = ("half", "gopro", "beyond")
+#: Which GSV splits each level runs on. Trimmed to fit the A40 budget (the GPU was shared
+#: with another job at 100% utilisation, ~1.8 s per forward pass instead of ~0.6 s): the
+#: GoPro-measured level -- the one the read is about -- runs on all four GSV splits, the
+#: beyond level on laurens_gsv and bend, the half level on laurens_gsv only.
+LEVEL_SPLITS = {"half": ("laurens_gsv",), "gopro": GSV_SPLITS,
+                "beyond": ("laurens_gsv", "bend")}
 
 
 def build_arms(stats):
@@ -453,7 +459,7 @@ def build_arms(stats):
     lv = derive_levels(stats)
     for axis, d in lv.items():
         for name, level in zip(LEVEL_NAMES, d["levels"]):
-            arms[f"{axis}@{name}"] = {"splits": GSV_SPLITS, "ops": [(axis, float(level))],
+            arms[f"{axis}@{name}"] = {"splits": LEVEL_SPLITS[name], "ops": [(axis, float(level))],
                                       "axis": axis, "level_name": name}
     # Every degradation at its GoPro-measured level at once, in the training order.
     combo = [(ax, float(lv[ax]["levels"][1])) for ax in A.TRAIN_ORDER if ax in lv]
