@@ -98,6 +98,25 @@ TORCHRUN="$RAMPNET_ENV/bin/torchrun"
 PY="$RAMPNET_ENV/bin/python"
 [ -x "$TORCHRUN" ] || { echo "FATAL: RAMPNET_ENV=$RAMPNET_ENV has no bin/torchrun" >&2; exit 1; }
 
+# Run the env from node-local NVMe when a tarball of it exists. On 2026-10-02, ranks reading
+# the env from /gscratch/makelab sat 25-30 min in uninterruptible GPFS I/O inside
+# `import torch` before train.py's first line, on four different nodes (41106892/93/94/95/
+# 903) -- and every requeue would pay that again. One sequential read of a tarball does not
+# hit the per-file stall. The tar is made once by `tar cf $ENV_TAR -C
+# /gscratch/makelab/jonf/envs sidewalkcv2` (job 41123104); without it the job falls back to
+# the GPFS env.
+ENV_TAR="${ENV_TAR:-/gscratch/scrubbed/$USER/aug82/sidewalkcv2_env.tar}"
+if [ -f "$ENV_TAR" ]; then
+    LOCAL_ENV_DIR="/scr/$USER/aug82env_${SLURM_JOB_ID}_${SLURM_RESTART_COUNT:-0}"
+    mkdir -p "$LOCAL_ENV_DIR"
+    trap 'rm -rf "$LOCAL_ENV_DIR"' EXIT
+    t_env=$(date +%s)
+    tar xf "$ENV_TAR" -C "$LOCAL_ENV_DIR"
+    RAMPNET_ENV="$LOCAL_ENV_DIR/sidewalkcv2"
+    echo "Env unpacked to node-local $RAMPNET_ENV in $(( $(date +%s) - t_env )) s"
+fi
+PY="$RAMPNET_ENV/bin/python"
+
 # The released weights, as a plain state_dict .pth train.py --init-weights can load. The
 # Hub file is model.safetensors with a "model." key prefix; converted once, atomically, so
 # eight jobs starting together cannot read a half-written file.
@@ -164,15 +183,19 @@ echo "----------------------------"
 # ranks page-faulting libtorch_cuda.so (1.4 GB) and friends through mmap sat 25+ min in
 # `import torch` (41106892 on g3115, 41106893 on g3045). One `cat` of libtorch_cuda.so took
 # 47 s, and 41106893 got past its imports within minutes of that cat warming the page cache.
-t_warm=$(date +%s)
-cat "$RAMPNET_ENV"/lib/libtorch*.so "$RAMPNET_ENV"/lib/libc10*.so "$RAMPNET_ENV"/lib/libmagma.so \
-    "$RAMPNET_ENV"/lib/libnccl.so* "$RAMPNET_ENV"/lib/libcudnn*.so* "$RAMPNET_ENV"/lib/libcublas*.so* \
-    "$RAMPNET_ENV"/lib/libmkl*.so* > /dev/null 2>&1 || true
-echo "Warmed env shared libraries in $(( $(date +%s) - t_warm )) s"
+if [ -z "${LOCAL_ENV_DIR:-}" ]; then
+    t_warm=$(date +%s)
+    cat "$RAMPNET_ENV"/lib/libtorch*.so "$RAMPNET_ENV"/lib/libc10*.so "$RAMPNET_ENV"/lib/libmagma.so \
+        "$RAMPNET_ENV"/lib/libnccl.so* "$RAMPNET_ENV"/lib/libcudnn*.so* "$RAMPNET_ENV"/lib/libcublas*.so* \
+        "$RAMPNET_ENV"/lib/libmkl*.so* > /dev/null 2>&1 || true
+    echo "Warmed env shared libraries in $(( $(date +%s) - t_warm )) s"
+fi
 
 cd "$RUNDIR"
+# python -m torch.distributed.run, not bin/torchrun: torchrun's shebang names the GPFS
+# prefix, which would defeat the node-local copy.
 srun --export=ALL \
-    "$TORCHRUN" --nnodes $SLURM_NNODES \
+    "$PY" -m torch.distributed.run --nnodes $SLURM_NNODES \
              --nproc_per_node $NPROC_PER_NODE \
              --rdzv_id $SLURM_JOB_ID \
              --rdzv_backend c10d \
