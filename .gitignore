@@ -431,3 +431,23 @@ analysis_out/decode_e2e_221/*
 !analysis_out/decode_e2e_221/metrics/
 analysis_out/decode_e2e_221/metrics/*
 !analysis_out/decode_e2e_221/metrics/*.json
+
+# #82 augmentation transfer (scripts/analysis/aug_probe_82.py, aug_finetune_82.py): rig
+# statistics, the probe's per-arm caches, the fine-tune screen's per-checkpoint caches, the
+# scoring driver logs and both reports. Every table in docs/aug_transfer_82.md re-derives on
+# CPU from these.
+!analysis_out/aug_transfer_82/
+analysis_out/aug_transfer_82/*
+!analysis_out/aug_transfer_82/*.json
+!analysis_out/aug_transfer_82/*.md
+!analysis_out/aug_transfer_82/*.log
+!analysis_out/aug_transfer_82/probe/
+analysis_out/aug_transfer_82/probe/*
+!analysis_out/aug_transfer_82/probe/*/
+!analysis_out/aug_transfer_82/probe/*/*.json
+!analysis_out/aug_transfer_82/finetune/
+analysis_out/aug_transfer_82/finetune/*
+!analysis_out/aug_transfer_82/finetune/*.log
+!analysis_out/aug_transfer_82/finetune/*.txt
+!analysis_out/aug_transfer_82/finetune/*/
+!analysis_out/aug_transfer_82/finetune/*/*.json

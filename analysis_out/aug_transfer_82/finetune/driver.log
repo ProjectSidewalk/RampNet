@@ -1,0 +1,7 @@
+=== aug82 scoring (job 41103600) 2026-10-02T10:07:52-07:00 host g3076 repo commit dc6d259
+python: /gscratch/makelab/jonf/envs/sidewalkcv2/bin/python (torch 2.6.0 timm 1.0.28)
+gpu: NVIDIA A40, 0 MiB, 46068 MiB 
+splits: annapolis,bend,budapest_district5,clovis,gainesville,laurens_gsv,laurens_mapillary,manual_gold,morgantown,paterson,richmond,sao_paulo
+--- released: Hub projectsidewalk/rampnet-model (no --checkpoint)
+--- released exit=0 splits=12 elapsed=3070s
+=== done 2026-10-02T11:01:21-07:00
