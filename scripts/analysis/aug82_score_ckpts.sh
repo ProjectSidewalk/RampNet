@@ -34,7 +34,7 @@ log() { echo "$*" | tee -a "$LOG"; }
 if [ -f "$CKPTS/SHA256SUMS" ]; then
     (cd "$CKPTS" && sha256sum -c --quiet SHA256SUMS) || { log "FATAL: checkpoint hashes do not match $CKPTS/SHA256SUMS"; exit 2; }
 fi
-log "=== aug82 scoring $(date -Is) host $(hostname) repo commit $(git rev-parse --short HEAD)"
+log "=== aug82 scoring (job ${SLURM_JOB_ID:-none}) $(date -Is) host $(hostname) repo commit $(git rev-parse --short HEAD)"
 log "python: $PY ($("$PY" -c 'import torch,timm;print("torch",torch.__version__,"timm",timm.__version__)'))"
 log "gpu: $(nvidia-smi --query-gpu=name,memory.used,memory.total --format=csv,noheader | tr '\n' ' ')"
 log "splits: $SPLITS"
