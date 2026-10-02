@@ -421,3 +421,13 @@ analysis_out/per_ramp_recall_38/*
 !analysis_out/check_all/
 analysis_out/check_all/*
 !analysis_out/check_all/latest.json
+
+# #221 end-to-end check of the shipped decode: JSON results + evaluate.py metrics/logs (caches stay on makelab2)
+!analysis_out/decode_e2e_221/
+analysis_out/decode_e2e_221/*
+!analysis_out/decode_e2e_221/*.json
+!analysis_out/decode_e2e_221/*.md
+!analysis_out/decode_e2e_221/*.txt
+!analysis_out/decode_e2e_221/metrics/
+analysis_out/decode_e2e_221/metrics/*
+!analysis_out/decode_e2e_221/metrics/*.json

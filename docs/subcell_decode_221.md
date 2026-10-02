@@ -611,6 +611,13 @@ from rampnet.subcell import detect_peaks
 rcs = detect_peaks(h_raw, 0.30, decode="gaussian", clip=True)   # (N, 3) row, col, score
 ```
 
+**Since run (2026-10-01): [`decode_e2e_221.md`](decode_e2e_221.md).** It covers evaluate.py on the GPU with both
+decodes, with and without TTA (argmax is byte-identical to `main`; gaussian gains one TP per operating
+point; position error 5.080 -> 4.353 px single pass and 5.066 -> 4.366 px under TTA), the stale-cache
+guard, and an export round-trip from the released weights (no upload). That check also found and fixed
+`export_hf_model.py --from-hub-revision`, which could not load the current Hub weights. The list below is
+what PR #229 itself did not run.
+
 **What was not run.**
 
 - No `evaluate.py --decode gaussian` run. No GPU or checkpoint was available on the machine that

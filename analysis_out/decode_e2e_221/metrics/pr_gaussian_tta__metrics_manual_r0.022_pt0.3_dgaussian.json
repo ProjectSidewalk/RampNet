@@ -1,0 +1,14 @@
+{
+  "dataset": "manual",
+  "ap": 0.8980763811605095,
+  "total_gt_points": 3919,
+  "total_predictions": 3981,
+  "peak_threshold_abs": 0.3,
+  "precision_at_threshold": 0.8972619944737503,
+  "recall_at_threshold": 0.9114570043378413,
+  "radius_threshold_normalized": 0.022,
+  "tta": true,
+  "decode": "gaussian",
+  "checkpoint": "/homes/gws/jonf/nobackup/e2e221/released_606a119.pth",
+  "checkpoint_fingerprint": "f7f255c586ba"
+}

@@ -52,8 +52,9 @@ class RampNetModel(PreTrainedModel):
         A refining decode raises ``ValueError`` for ``pixel_values`` whose size is not
         ``config.input_size`` (the head upsamples to a fixed size, so another input size
         changes the x8 factor), and for a heatmap that is not an exact x8 upsample (e.g.
-        one already clipped). Flip-TTA heatmaps are not supported here: TTA decoding is
-        unmeasured.
+        one already clipped). A flip-TTA heatmap cannot be passed here
+        (it is a max of two surfaces). ``rampnet.subcell.detect_peaks(..., coarse=<stack>)``
+        decodes TTA output in the repo.
         """
         if threshold is None:
             threshold = self.config.recommended_threshold

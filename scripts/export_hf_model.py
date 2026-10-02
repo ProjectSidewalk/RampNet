@@ -101,6 +101,23 @@ def parse_args():
     return parser.parse_args()
 
 
+def hub_state_dict_to_keypoint(state_dict):
+    """Bare ``KeypointModel`` keys from a Hub ``model.safetensors``.
+
+    Two layouts are on the Hub. The first upload (1078bcd) stored bare KeypointModel
+    keys. Every package this exporter writes stores the HF wrapper's keys, which carry a
+    ``model.`` prefix (``RampNetModel.model``), and that includes the current ``main``
+    (606a119). Before #221's end-to-end check, ``--from-hub-revision`` accepted only the
+    first, so it could not re-export the weights it had itself published. Keys are
+    returned unchanged unless *every* key has the prefix, so a strict load still
+    rejects anything else.
+    """
+    prefix = "model."
+    if state_dict and all(k.startswith(prefix) for k in state_dict):
+        return {k[len(prefix):]: v for k, v in state_dict.items()}
+    return state_dict
+
+
 def load_reference_model(args):
     """Build the canonical KeypointModel and load the weights to export into it.
 
@@ -109,7 +126,8 @@ def load_reference_model(args):
     * ``--checkpoint`` — a local ``.pth``, loaded strict; fingerprint is the file
       sha256 prefix (unless overridden by ``--source-fingerprint``).
     * ``--from-hub-revision`` — ``model.safetensors`` from ``--repo-id`` at that
-      revision, loaded strict (the published weights use bare KeypointModel keys).
+      revision, loaded strict (bare KeypointModel keys, or the HF wrapper's ``model.``
+      keys, which :func:`hub_state_dict_to_keypoint` strips).
       The fingerprint is not derivable from the re-downloaded file, so
       ``--source-fingerprint`` is required and names the canonical training
       checkpoint the weights came from.
@@ -124,7 +142,7 @@ def load_reference_model(args):
         from safetensors.torch import load_file
         print(f"Downloading weights from {args.repo_id}@{args.from_hub_revision} (model.safetensors)...")
         weights_path = hf_hub_download(args.repo_id, "model.safetensors", revision=args.from_hub_revision)
-        state_dict = load_file(weights_path)
+        state_dict = hub_state_dict_to_keypoint(load_file(weights_path))
         reference_model.load_state_dict(state_dict, strict=True)
         fingerprint = args.source_fingerprint
         source_name = args.source_name or f"weights from {args.repo_id}@{args.from_hub_revision}"
