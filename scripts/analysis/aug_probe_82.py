@@ -465,6 +465,23 @@ def build_arms(stats):
     combo = [(ax, float(lv[ax]["levels"][1])) for ax in A.TRAIN_ORDER if ax in lv]
     arms["all@gopro"] = {"splits": GSV_SPLITS, "ops": combo, "axis": "all",
                          "level_name": "gopro"}
+    # Added after all@gopro was read (it costs laurens_gsv 0.277 recall at 0.30, about twice
+    # the Laurens gap): that arm applies brightness AND gamma, each placed to account for
+    # the WHOLE luminance difference on its own, so it darkens about twice as much as the
+    # GoPro imagery is darker. These four split it, each with at most one luminance op.
+    res_ops = [(ax, lvl) for ax, lvl in combo if ax in ("downscale", "blur", "noise", "jpeg")]
+    col_ops = [(ax, lvl) for ax, lvl in combo if ax in ("contrast", "saturation", "wb")]
+    by = dict(combo)
+    decomp = {
+        "res_all@gopro": res_ops,
+        "photo_brightness@gopro": [("brightness", by["brightness"])] + col_ops,
+        "photo_gamma@gopro": [("gamma", by["gamma"])] + col_ops,
+        "all_brightness@gopro": sorted(res_ops + [("brightness", by["brightness"])] + col_ops,
+                                       key=lambda o: A.TRAIN_ORDER.index(o[0])),
+    }
+    for name, ops in decomp.items():
+        arms[name] = {"splits": ("laurens_gsv", "bend"), "ops": ops, "axis": name.split("@")[0],
+                      "level_name": "gopro"}
     rp = derive_repairs(stats)
     for a in rp["colour_match"]["levels"]:
         arms[f"colour_match@{a:g}"] = {"splits": GOPRO_SPLITS,

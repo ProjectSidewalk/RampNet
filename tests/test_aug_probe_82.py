@@ -67,7 +67,7 @@ def test_arm_table_shape():
     assert all(set(d["splits"]) <= set(P.GSV_SPLITS) for a, d in arms.items()
                if "@" in a and d["axis"] in P.derive_levels(_stats()))
     assert arms["blur@gopro"]["splits"] == P.GSV_SPLITS
-    assert len(arms) == 36 and sum(len(d["splits"]) for d in arms.values()) == 95
+    assert len(arms) == 40 and sum(len(d["splits"]) for d in arms.values()) == 103
 
 
 def test_stats_cover_the_eleven_splits_with_panos():
